@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ECABC3D2913
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:05:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 682EC3D2A60
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:07:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233864AbhGVQA4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 12:00:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35342 "EHLO mail.kernel.org"
+        id S234671AbhGVQLF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 12:11:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230117AbhGVP7E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 11:59:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 870AC61241;
-        Thu, 22 Jul 2021 16:39:38 +0000 (UTC)
+        id S235319AbhGVQJJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 12:09:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 40C5861DD1;
+        Thu, 22 Jul 2021 16:49:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626971979;
-        bh=Qvfjr4chl92hN6bxWW/vDQa324GuRuDpITR32cbDmEo=;
+        s=korg; t=1626972546;
+        bh=AjX/28Op4hCXdCIy2nXmH/R1DvTpLUzb/0GfhETzCIQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KPQwD3W1PwgP/SsO7Oxj0A5Ch2s6GG/qXtKJhGxQqX7pv1833hcjFhheofXrvyoy/
-         YsSvxOjzh0CgHPyGGs+2cremOdGFkcwKGcGZzAEYbi9IsmCGTOlR9c44U52a5kplCZ
-         d3tqBM9tna56qGani219W4Qd5PV+QZbQVq9B+o5o=
+        b=wos+aaywIuCn6QnnwiYVwxacyU5HUfjLVM6sGAoD3XBbOifPhgUG6ODD758BLsEss
+         1/19i/TwKCqOqlbzaYBdAhpYfqQGH6oWQ9vLJQXmUixR/2medRWE9Qfs7ON9h/Jm2c
+         1JURUP+CMrpPq8tWwvut8JDuagxLn9Yk5XRfkmdY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 100/125] net: netdevsim: use xso.real_dev instead of xso.dev in callback functions of struct xfrmdev_ops
+        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.13 116/156] netfilter: ctnetlink: suspicious RCU usage in ctnetlink_dump_helpinfo
 Date:   Thu, 22 Jul 2021 18:31:31 +0200
-Message-Id: <20210722155628.012188529@linuxfoundation.org>
+Message-Id: <20210722155632.121098126@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210722155624.672583740@linuxfoundation.org>
-References: <20210722155624.672583740@linuxfoundation.org>
+In-Reply-To: <20210722155628.371356843@linuxfoundation.org>
+References: <20210722155628.371356843@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,105 +40,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-commit 09adf7566d436322ced595b166dea48b06852efe upstream.
+commit c23a9fd209bc6f8c1fa6ee303fdf037d784a1627 upstream.
 
-There are two pointers in struct xfrm_state_offload, *dev, *real_dev.
-These are used in callback functions of struct xfrmdev_ops.
-The *dev points whether bonding interface or real interface.
-If bonding ipsec offload is used, it points bonding interface If not,
-it points real interface.
-And real_dev always points real interface.
-So, netdevsim should always use real_dev instead of dev.
-Of course, real_dev always not be null.
+Two patches listed below removed ctnetlink_dump_helpinfo call from under
+rcu_read_lock. Now its rcu_dereference generates following warning:
+=============================
+WARNING: suspicious RCU usage
+5.13.0+ #5 Not tainted
+-----------------------------
+net/netfilter/nf_conntrack_netlink.c:221 suspicious rcu_dereference_check() usage!
 
-Test commands:
-    ip netns add A
-    ip netns exec A bash
-    modprobe netdevsim
-    echo "1 1" > /sys/bus/netdevsim/new_device
-    ip link add bond0 type bond mode active-backup
-    ip link set eth0 master bond0
-    ip link set eth0 up
-    ip link set bond0 up
-    ip x s add proto esp dst 14.1.1.1 src 15.1.1.1 spi 0x07 mode \
-transport reqid 0x07 replay-window 32 aead 'rfc4106(gcm(aes))' \
-0x44434241343332312423222114131211f4f3f2f1 128 sel src 14.0.0.52/24 \
-dst 14.0.0.70/24 proto tcp offload dev bond0 dir in
-
-Splat looks like:
-BUG: spinlock bad magic on CPU#5, kworker/5:1/53
- lock: 0xffff8881068c2cc8, .magic: 11121314, .owner: <none>/-1,
-.owner_cpu: -235736076
-CPU: 5 PID: 53 Comm: kworker/5:1 Not tainted 5.13.0-rc3+ #1168
-Workqueue: events linkwatch_event
+other info that might help us debug this:
+rcu_scheduler_active = 2, debug_locks = 1
+stack backtrace:
+CPU: 1 PID: 2251 Comm: conntrack Not tainted 5.13.0+ #5
 Call Trace:
- dump_stack+0xa4/0xe5
- do_raw_spin_lock+0x20b/0x270
- ? rwlock_bug.part.1+0x90/0x90
- _raw_spin_lock_nested+0x5f/0x70
- bond_get_stats+0xe4/0x4c0 [bonding]
- ? rcu_read_lock_sched_held+0xc0/0xc0
- ? bond_neigh_init+0x2c0/0x2c0 [bonding]
- ? dev_get_alias+0xe2/0x190
- ? dev_get_port_parent_id+0x14a/0x360
- ? rtnl_unregister+0x190/0x190
- ? dev_get_phys_port_name+0xa0/0xa0
- ? memset+0x1f/0x40
- ? memcpy+0x38/0x60
- ? rtnl_phys_switch_id_fill+0x91/0x100
- dev_get_stats+0x8c/0x270
- rtnl_fill_stats+0x44/0xbe0
- ? nla_put+0xbe/0x140
- rtnl_fill_ifinfo+0x1054/0x3ad0
-[ ... ]
+ dump_stack+0x7f/0xa1
+ ctnetlink_dump_helpinfo+0x134/0x150 [nf_conntrack_netlink]
+ ctnetlink_fill_info+0x2c2/0x390 [nf_conntrack_netlink]
+ ctnetlink_dump_table+0x13f/0x370 [nf_conntrack_netlink]
+ netlink_dump+0x10c/0x370
+ __netlink_dump_start+0x1a7/0x260
+ ctnetlink_get_conntrack+0x1e5/0x250 [nf_conntrack_netlink]
+ nfnetlink_rcv_msg+0x613/0x993 [nfnetlink]
+ netlink_rcv_skb+0x50/0x100
+ nfnetlink_rcv+0x55/0x120 [nfnetlink]
+ netlink_unicast+0x181/0x260
+ netlink_sendmsg+0x23f/0x460
+ sock_sendmsg+0x5b/0x60
+ __sys_sendto+0xf1/0x160
+ __x64_sys_sendto+0x24/0x30
+ do_syscall_64+0x36/0x70
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Fixes: 272c2330adc9 ("xfrm: bail early on slave pass over skb")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 49ca022bccc5 ("netfilter: ctnetlink: don't dump ct extensions of unconfirmed conntracks")
+Fixes: 0b35f6031a00 ("netfilter: Remove duplicated rcu_read_lock.")
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Reviewed-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/netdevsim/ipsec.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ net/netfilter/nf_conntrack_netlink.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/net/netdevsim/ipsec.c
-+++ b/drivers/net/netdevsim/ipsec.c
-@@ -85,7 +85,7 @@ static int nsim_ipsec_parse_proto_keys(s
- 				       u32 *mykey, u32 *mysalt)
- {
- 	const char aes_gcm_name[] = "rfc4106(gcm(aes))";
--	struct net_device *dev = xs->xso.dev;
-+	struct net_device *dev = xs->xso.real_dev;
- 	unsigned char *key_data;
- 	char *alg_name = NULL;
- 	int key_len;
-@@ -134,7 +134,7 @@ static int nsim_ipsec_add_sa(struct xfrm
- 	u16 sa_idx;
- 	int ret;
+--- a/net/netfilter/nf_conntrack_netlink.c
++++ b/net/netfilter/nf_conntrack_netlink.c
+@@ -218,6 +218,7 @@ static int ctnetlink_dump_helpinfo(struc
+ 	if (!help)
+ 		return 0;
  
--	dev = xs->xso.dev;
-+	dev = xs->xso.real_dev;
- 	ns = netdev_priv(dev);
- 	ipsec = &ns->ipsec;
++	rcu_read_lock();
+ 	helper = rcu_dereference(help->helper);
+ 	if (!helper)
+ 		goto out;
+@@ -233,9 +234,11 @@ static int ctnetlink_dump_helpinfo(struc
  
-@@ -194,7 +194,7 @@ static int nsim_ipsec_add_sa(struct xfrm
+ 	nla_nest_end(skb, nest_helper);
+ out:
++	rcu_read_unlock();
+ 	return 0;
  
- static void nsim_ipsec_del_sa(struct xfrm_state *xs)
- {
--	struct netdevsim *ns = netdev_priv(xs->xso.dev);
-+	struct netdevsim *ns = netdev_priv(xs->xso.real_dev);
- 	struct nsim_ipsec *ipsec = &ns->ipsec;
- 	u16 sa_idx;
+ nla_put_failure:
++	rcu_read_unlock();
+ 	return -1;
+ }
  
-@@ -211,7 +211,7 @@ static void nsim_ipsec_del_sa(struct xfr
- 
- static bool nsim_ipsec_offload_ok(struct sk_buff *skb, struct xfrm_state *xs)
- {
--	struct netdevsim *ns = netdev_priv(xs->xso.dev);
-+	struct netdevsim *ns = netdev_priv(xs->xso.real_dev);
- 	struct nsim_ipsec *ipsec = &ns->ipsec;
- 
- 	ipsec->ok++;
 
 
