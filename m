@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 679433D29CC
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:06:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD8343D28BC
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:05:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234535AbhGVQGS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 12:06:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43204 "EHLO mail.kernel.org"
+        id S232819AbhGVP6d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 11:58:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230339AbhGVQFi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 12:05:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 012AB61D1A;
-        Thu, 22 Jul 2021 16:46:10 +0000 (UTC)
+        id S233085AbhGVP57 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 11:57:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9AE386135C;
+        Thu, 22 Jul 2021 16:38:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626972371;
-        bh=qSQUeiNqGzPizAQIR+7xBEKODiOr8d6y2OCaRAjvHX8=;
+        s=korg; t=1626971914;
+        bh=6lmjyxY1yhsgh0tWS0E2pLA/Evvzkg5aGOdnzpe7vOM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M5EjzZs5pIE8xwn1JIqyjl9HLtO8XggSBmWXUMxIP153VAgERxi9gvJHMTxjuqhx6
-         6gB1hqOxCB9fOQPutxuShzbj5Ucv5IXVLb2AkL9yv9C4eVL5FDrheqVfaW23j4HNyR
-         T/YAdLTObuWXdDTUlIpvtIeW3aE4snplGecsCTfE=
+        b=LmZfHGTbyGBVUYT7dBBivsiQC/f1cljPCLZdqI/A9zXcjFc7ylSF6Unl+PJ92No6O
+         lugAcnNnewN67dLfXjgziYPNx76j899VbMNqPYeTfPLOKzpLUSWC5fCCmJMzzfouuf
+         mFRqzo8BaCOfK51Um62HnK22Bee62r6Kr1tbvz1M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Konstantin Porotchkin <kostap@marvell.com>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        stable@vger.kernel.org, Javed Hasan <jhasan@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 089/156] arch/arm64/boot/dts/marvell: fix NAND partitioning scheme
+Subject: [PATCH 5.10 073/125] scsi: libfc: Fix array index out of bound exception
 Date:   Thu, 22 Jul 2021 18:31:04 +0200
-Message-Id: <20210722155631.260846820@linuxfoundation.org>
+Message-Id: <20210722155627.112965379@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210722155628.371356843@linuxfoundation.org>
-References: <20210722155628.371356843@linuxfoundation.org>
+In-Reply-To: <20210722155624.672583740@linuxfoundation.org>
+References: <20210722155624.672583740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,32 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konstantin Porotchkin <kostap@marvell.com>
+From: Javed Hasan <jhasan@marvell.com>
 
-[ Upstream commit e3850467bf8c82de4a052619136839fe8054b774 ]
+[ Upstream commit b27c4577557045f1ab3cdfeabfc7f3cd24aca1fe ]
 
-Eliminate 1MB gap between Linux and filesystem partitions.
+Fix array index out of bound exception in fc_rport_prli_resp().
 
-Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+Link: https://lore.kernel.org/r/20210615165939.24327-1-jhasan@marvell.com
+Signed-off-by: Javed Hasan <jhasan@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/marvell/cn9130-db.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/libfc/fc_rport.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/marvell/cn9130-db.dts b/arch/arm64/boot/dts/marvell/cn9130-db.dts
-index 2c2af001619b..9758609541c7 100644
---- a/arch/arm64/boot/dts/marvell/cn9130-db.dts
-+++ b/arch/arm64/boot/dts/marvell/cn9130-db.dts
-@@ -260,7 +260,7 @@
- 			};
- 			partition@200000 {
- 				label = "Linux";
--				reg = <0x200000 0xd00000>;
-+				reg = <0x200000 0xe00000>;
- 			};
- 			partition@1000000 {
- 				label = "Filesystem";
+diff --git a/drivers/scsi/libfc/fc_rport.c b/drivers/scsi/libfc/fc_rport.c
+index a60b228d13f1..f40edb0dab70 100644
+--- a/drivers/scsi/libfc/fc_rport.c
++++ b/drivers/scsi/libfc/fc_rport.c
+@@ -1162,6 +1162,7 @@ static void fc_rport_prli_resp(struct fc_seq *sp, struct fc_frame *fp,
+ 		resp_code = (pp->spp.spp_flags & FC_SPP_RESP_MASK);
+ 		FC_RPORT_DBG(rdata, "PRLI spp_flags = 0x%x spp_type 0x%x\n",
+ 			     pp->spp.spp_flags, pp->spp.spp_type);
++
+ 		rdata->spp_type = pp->spp.spp_type;
+ 		if (resp_code != FC_SPP_RESP_ACK) {
+ 			if (resp_code == FC_SPP_RESP_CONF)
+@@ -1184,11 +1185,13 @@ static void fc_rport_prli_resp(struct fc_seq *sp, struct fc_frame *fp,
+ 		/*
+ 		 * Call prli provider if we should act as a target
+ 		 */
+-		prov = fc_passive_prov[rdata->spp_type];
+-		if (prov) {
+-			memset(&temp_spp, 0, sizeof(temp_spp));
+-			prov->prli(rdata, pp->prli.prli_spp_len,
+-				   &pp->spp, &temp_spp);
++		if (rdata->spp_type < FC_FC4_PROV_SIZE) {
++			prov = fc_passive_prov[rdata->spp_type];
++			if (prov) {
++				memset(&temp_spp, 0, sizeof(temp_spp));
++				prov->prli(rdata, pp->prli.prli_spp_len,
++					   &pp->spp, &temp_spp);
++			}
+ 		}
+ 		/*
+ 		 * Check if the image pair could be established
 -- 
 2.30.2
 
