@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D37E83D3288
+	by mail.lfdr.de (Postfix) with ESMTP id 1B5733D3285
 	for <lists+stable@lfdr.de>; Fri, 23 Jul 2021 05:58:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233719AbhGWDRN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 23:17:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37072 "EHLO mail.kernel.org"
+        id S233713AbhGWDRM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 23:17:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37140 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233708AbhGWDQ5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 23:16:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E32B60E9C;
-        Fri, 23 Jul 2021 03:57:31 +0000 (UTC)
+        id S233720AbhGWDQ7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 23:16:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6ACCC60ED7;
+        Fri, 23 Jul 2021 03:57:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1627012652;
-        bh=fHoJD2nmeHTB7HukJvxAs42kgkhwb5agKiJFkm9nR1s=;
+        s=k20201202; t=1627012653;
+        bh=XtMkpLHRLWK+zAm2LioxcOrroipcW2wChBIfA5L+Rxw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E8nFfw3wHdcyeZFo+N6PbdV5EcuEnydYAMHPEkBNgV3DU/EFf9sVnYv/BTF3uCthV
-         9+PCWKuQjoHv6whnLHGV1huMwq12wLUcZHdbuc9wk2LydTyDlmpWgBAfAPhRFMk6Up
-         aTmNXg8bnVyN1fS+jD6t6TXG4CEwhPM+o0D/i3rc2dq7gnJK68FrL0t+LN/mTWL+JJ
-         4vB1PSOgzW5zKKtFehZjOxxmA0KFGlssXEDw4cfq20u7SA2o2CatP9c254TGg7jgmY
-         jsDaHS1iQ/fdEl5TsoUQ/iTs1UgXXVVvkPaCG+23q4UYrmUmu1wQn0+gGajcfKzI9u
-         9EPdQtioFAqMQ==
+        b=tgj1wjOepIFw4XR4aHV/JdjjLjhmq+S6cO85G+W6ff6p4yf0ELohAAmDe/NqfpyDk
+         prKlRu97Bi6daIt3TrPNXVbnExSvT6y9yTLALKwGfeZngFN5zV+M1qLEkmHttxlnBl
+         WEpKC08Zq25c6wEB4KxBcEuqoZzVqkwov7TuRHsFai46qy5GoO6eg0PNUBYc9vLd6G
+         zGlxsE+65cblYSYjelTyhf4Nmn4sSBbBfWXGpmxblscYm557soJggC/5xO3igpK4Oc
+         Ycjz+CIQKVJ+kA99Z7nYtWbFGo6KHgNYp8Y6J3O3lxYurbLjhQaLm4TDshegzOkfs2
+         R8ITKTdxdhhjw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Casey Chen <cachen@purestorage.com>,
-        Yuanyuan Zhong <yzhong@purestorage.com>,
-        Keith Busch <kbusch@kernel.org>,
-        Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.13 08/19] nvme-pci: fix multiple races in nvme_setup_io_queues
-Date:   Thu, 22 Jul 2021 23:57:09 -0400
-Message-Id: <20210723035721.531372-8-sashal@kernel.org>
+Cc:     =?UTF-8?q?=C3=8D=C3=B1igo=20Huguet?= <ihuguet@redhat.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 09/19] sfc: ensure correct number of XDP queues
+Date:   Thu, 22 Jul 2021 23:57:10 -0400
+Message-Id: <20210723035721.531372-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210723035721.531372-1-sashal@kernel.org>
 References: <20210723035721.531372-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,222 +44,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Casey Chen <cachen@purestorage.com>
+From: Íñigo Huguet <ihuguet@redhat.com>
 
-[ Upstream commit e4b9852a0f4afe40604afb442e3af4452722050a ]
+[ Upstream commit 788bc000d4c2f25232db19ab3a0add0ba4e27671 ]
 
-Below two paths could overlap each other if we power off a drive quickly
-after powering it on. There are multiple races in nvme_setup_io_queues()
-because of shutdown_lock missing and improper use of NVMEQ_ENABLED bit.
+Commit 99ba0ea616aa ("sfc: adjust efx->xdp_tx_queue_count with the real
+number of initialized queues") intended to fix a problem caused by a
+round up when calculating the number of XDP channels and queues.
+However, this was not the real problem. The real problem was that the
+number of XDP TX queues had been reduced to half in
+commit e26ca4b53582 ("sfc: reduce the number of requested xdp ev queues"),
+but the variable xdp_tx_queue_count had remained the same.
 
-nvme_reset_work()                                nvme_remove()
-  nvme_setup_io_queues()                           nvme_dev_disable()
-  ...                                              ...
-A1  clear NVMEQ_ENABLED bit for admin queue          lock
-    retry:                                       B1  nvme_suspend_io_queues()
-A2    pci_free_irq() admin queue                 B2  nvme_suspend_queue() admin queue
-A3    pci_free_irq_vectors()                         nvme_pci_disable()
-A4    nvme_setup_irqs();                         B3    pci_free_irq_vectors()
-      ...                                            unlock
-A5    queue_request_irq() for admin queue
-      set NVMEQ_ENABLED bit
-      ...
-      nvme_create_io_queues()
-A6      result = queue_request_irq();
-        set NVMEQ_ENABLED bit
-      ...
-      fail to allocate enough IO queues:
-A7      nvme_suspend_io_queues()
-        goto retry
+Once the correct number of XDP TX queues is created again in the
+previous patch of this series, this also can be reverted since the error
+doesn't actually exist.
 
-If B3 runs in between A1 and A2, it will crash if irqaction haven't
-been freed by A2. B2 is supposed to free admin queue IRQ but it simply
-can't fulfill the job as A1 has cleared NVMEQ_ENABLED bit.
+Only in the case that there is a bug in the code we can have different
+values in xdp_queue_number and efx->xdp_tx_queue_count. Because of this,
+and per Edward Cree's suggestion, I add instead a WARN_ON to catch if it
+happens again in the future.
 
-Fix: combine A1 A2 so IRQ get freed as soon as the NVMEQ_ENABLED bit
-gets cleared.
+Note that the number of allocated queues can be higher than the number
+of used ones due to the round up, as explained in the existing comment
+in the code. That's why we also have to stop increasing xdp_queue_number
+beyond efx->xdp_tx_queue_count.
 
-After solved #1, A2 could race with B3 if A2 is freeing IRQ while B3
-is checking irqaction. A3 also could race with B2 if B2 is freeing
-IRQ while A3 is checking irqaction.
-
-Fix: A2 and A3 take lock for mutual exclusion.
-
-A3 could race with B3 since they could run free_msi_irqs() in parallel.
-
-Fix: A3 takes lock for mutual exclusion.
-
-A4 could fail to allocate all needed IRQ vectors if A3 and A4 are
-interrupted by B3.
-
-Fix: A4 takes lock for mutual exclusion.
-
-If A5/A6 happened after B2/B1, B3 will crash since irqaction is not NULL.
-They are just allocated by A5/A6.
-
-Fix: Lock queue_request_irq() and setting of NVMEQ_ENABLED bit.
-
-A7 could get chance to pci_free_irq() for certain IO queue while B3 is
-checking irqaction.
-
-Fix: A7 takes lock.
-
-nvme_dev->online_queues need to be protected by shutdown_lock. Since it
-is not atomic, both paths could modify it using its own copy.
-
-Co-developed-by: Yuanyuan Zhong <yzhong@purestorage.com>
-Signed-off-by: Casey Chen <cachen@purestorage.com>
-Reviewed-by: Keith Busch <kbusch@kernel.org>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Íñigo Huguet <ihuguet@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/pci.c | 66 ++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 58 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/sfc/efx_channels.c | 15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index 42ad75ff1348..1e704c63f1e2 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -1562,6 +1562,28 @@ static void nvme_init_queue(struct nvme_queue *nvmeq, u16 qid)
- 	wmb(); /* ensure the first interrupt sees the initialization */
- }
- 
-+/*
-+ * Try getting shutdown_lock while setting up IO queues.
-+ */
-+static int nvme_setup_io_queues_trylock(struct nvme_dev *dev)
-+{
-+	/*
-+	 * Give up if the lock is being held by nvme_dev_disable.
-+	 */
-+	if (!mutex_trylock(&dev->shutdown_lock))
-+		return -ENODEV;
+diff --git a/drivers/net/ethernet/sfc/efx_channels.c b/drivers/net/ethernet/sfc/efx_channels.c
+index a3ca406a3561..bea0b27baf4b 100644
+--- a/drivers/net/ethernet/sfc/efx_channels.c
++++ b/drivers/net/ethernet/sfc/efx_channels.c
+@@ -891,18 +891,20 @@ int efx_set_channels(struct efx_nic *efx)
+ 			if (efx_channel_is_xdp_tx(channel)) {
+ 				efx_for_each_channel_tx_queue(tx_queue, channel) {
+ 					tx_queue->queue = next_queue++;
+-					netif_dbg(efx, drv, efx->net_dev, "Channel %u TXQ %u is XDP %u, HW %u\n",
+-						  channel->channel, tx_queue->label,
+-						  xdp_queue_number, tx_queue->queue);
 +
-+	/*
-+	 * Controller is in wrong state, fail early.
-+	 */
-+	if (dev->ctrl.state != NVME_CTRL_CONNECTING) {
-+		mutex_unlock(&dev->shutdown_lock);
-+		return -ENODEV;
-+	}
-+
-+	return 0;
-+}
-+
- static int nvme_create_queue(struct nvme_queue *nvmeq, int qid, bool polled)
- {
- 	struct nvme_dev *dev = nvmeq->dev;
-@@ -1590,8 +1612,11 @@ static int nvme_create_queue(struct nvme_queue *nvmeq, int qid, bool polled)
- 		goto release_cq;
- 
- 	nvmeq->cq_vector = vector;
--	nvme_init_queue(nvmeq, qid);
- 
-+	result = nvme_setup_io_queues_trylock(dev);
-+	if (result)
-+		return result;
-+	nvme_init_queue(nvmeq, qid);
- 	if (!polled) {
- 		result = queue_request_irq(nvmeq);
- 		if (result < 0)
-@@ -1599,10 +1624,12 @@ static int nvme_create_queue(struct nvme_queue *nvmeq, int qid, bool polled)
+ 					/* We may have a few left-over XDP TX
+ 					 * queues owing to xdp_tx_queue_count
+ 					 * not dividing evenly by EFX_MAX_TXQ_PER_CHANNEL.
+ 					 * We still allocate and probe those
+ 					 * TXQs, but never use them.
+ 					 */
+-					if (xdp_queue_number < efx->xdp_tx_queue_count)
++					if (xdp_queue_number < efx->xdp_tx_queue_count) {
++						netif_dbg(efx, drv, efx->net_dev, "Channel %u TXQ %u is XDP %u, HW %u\n",
++							  channel->channel, tx_queue->label,
++							  xdp_queue_number, tx_queue->queue);
+ 						efx->xdp_tx_queues[xdp_queue_number] = tx_queue;
+-					xdp_queue_number++;
++						xdp_queue_number++;
++					}
+ 				}
+ 			} else {
+ 				efx_for_each_channel_tx_queue(tx_queue, channel) {
+@@ -914,8 +916,7 @@ int efx_set_channels(struct efx_nic *efx)
+ 			}
+ 		}
  	}
+-	if (xdp_queue_number)
+-		efx->xdp_tx_queue_count = xdp_queue_number;
++	WARN_ON(xdp_queue_number != efx->xdp_tx_queue_count);
  
- 	set_bit(NVMEQ_ENABLED, &nvmeq->flags);
-+	mutex_unlock(&dev->shutdown_lock);
- 	return result;
- 
- release_sq:
- 	dev->online_queues--;
-+	mutex_unlock(&dev->shutdown_lock);
- 	adapter_delete_sq(dev, qid);
- release_cq:
- 	adapter_delete_cq(dev, qid);
-@@ -2176,7 +2203,18 @@ static int nvme_setup_io_queues(struct nvme_dev *dev)
- 	if (nr_io_queues == 0)
- 		return 0;
- 
--	clear_bit(NVMEQ_ENABLED, &adminq->flags);
-+	/*
-+	 * Free IRQ resources as soon as NVMEQ_ENABLED bit transitions
-+	 * from set to unset. If there is a window to it is truely freed,
-+	 * pci_free_irq_vectors() jumping into this window will crash.
-+	 * And take lock to avoid racing with pci_free_irq_vectors() in
-+	 * nvme_dev_disable() path.
-+	 */
-+	result = nvme_setup_io_queues_trylock(dev);
-+	if (result)
-+		return result;
-+	if (test_and_clear_bit(NVMEQ_ENABLED, &adminq->flags))
-+		pci_free_irq(pdev, 0, adminq);
- 
- 	if (dev->cmb_use_sqes) {
- 		result = nvme_cmb_qdepth(dev, nr_io_queues,
-@@ -2192,14 +2230,17 @@ static int nvme_setup_io_queues(struct nvme_dev *dev)
- 		result = nvme_remap_bar(dev, size);
- 		if (!result)
- 			break;
--		if (!--nr_io_queues)
--			return -ENOMEM;
-+		if (!--nr_io_queues) {
-+			result = -ENOMEM;
-+			goto out_unlock;
-+		}
- 	} while (1);
- 	adminq->q_db = dev->dbs;
- 
-  retry:
- 	/* Deregister the admin queue's interrupt */
--	pci_free_irq(pdev, 0, adminq);
-+	if (test_and_clear_bit(NVMEQ_ENABLED, &adminq->flags))
-+		pci_free_irq(pdev, 0, adminq);
- 
- 	/*
- 	 * If we enable msix early due to not intx, disable it again before
-@@ -2208,8 +2249,10 @@ static int nvme_setup_io_queues(struct nvme_dev *dev)
- 	pci_free_irq_vectors(pdev);
- 
- 	result = nvme_setup_irqs(dev, nr_io_queues);
--	if (result <= 0)
--		return -EIO;
-+	if (result <= 0) {
-+		result = -EIO;
-+		goto out_unlock;
-+	}
- 
- 	dev->num_vecs = result;
- 	result = max(result - 1, 1);
-@@ -2223,8 +2266,9 @@ static int nvme_setup_io_queues(struct nvme_dev *dev)
- 	 */
- 	result = queue_request_irq(adminq);
- 	if (result)
--		return result;
-+		goto out_unlock;
- 	set_bit(NVMEQ_ENABLED, &adminq->flags);
-+	mutex_unlock(&dev->shutdown_lock);
- 
- 	result = nvme_create_io_queues(dev);
- 	if (result || dev->online_queues < 2)
-@@ -2233,6 +2277,9 @@ static int nvme_setup_io_queues(struct nvme_dev *dev)
- 	if (dev->online_queues - 1 < dev->max_qid) {
- 		nr_io_queues = dev->online_queues - 1;
- 		nvme_disable_io_queues(dev);
-+		result = nvme_setup_io_queues_trylock(dev);
-+		if (result)
-+			return result;
- 		nvme_suspend_io_queues(dev);
- 		goto retry;
- 	}
-@@ -2241,6 +2288,9 @@ static int nvme_setup_io_queues(struct nvme_dev *dev)
- 					dev->io_queues[HCTX_TYPE_READ],
- 					dev->io_queues[HCTX_TYPE_POLL]);
- 	return 0;
-+out_unlock:
-+	mutex_unlock(&dev->shutdown_lock);
-+	return result;
- }
- 
- static void nvme_del_queue_end(struct request *req, blk_status_t error)
+ 	rc = netif_set_real_num_tx_queues(efx->net_dev, efx->n_tx_channels);
+ 	if (rc)
 -- 
 2.30.2
 
