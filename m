@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 82DC43D32DE
-	for <lists+stable@lfdr.de>; Fri, 23 Jul 2021 05:59:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BCB063D32F3
+	for <lists+stable@lfdr.de>; Fri, 23 Jul 2021 05:59:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234443AbhGWDSg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 23:18:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38226 "EHLO mail.kernel.org"
+        id S233869AbhGWDSz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 23:18:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234028AbhGWDSG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 23:18:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 23F2660F41;
-        Fri, 23 Jul 2021 03:58:40 +0000 (UTC)
+        id S234250AbhGWDSI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 23:18:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8AF1860E9C;
+        Fri, 23 Jul 2021 03:58:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1627012721;
-        bh=+HUnb6BJnjqGOLdH5J2ewPVUhAvuKfu2PXCV+c9PmsA=;
+        s=k20201202; t=1627012722;
+        bh=doR6LMEEYb1rjzpVj1h50RnV5NItZ15HdlpAELiDtSg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s8yGW9Lu0EwR2OrMOfejgsmA9J8oKQnhthyd/QcRib/9CmuTMGP+8K5Yd+J0v0IIx
-         w7tDYpNKX83cPD89+a4eGyPns7jndgtrov89U2hmeDxxz2dnJKm2NFEH6zvPCcMujx
-         XncAi6axn8+dCuu6QHsuyKxhxox82LBn5HyBgsLS+4GjElfSw3raRARmQJRAEpveN3
-         VQS7oN02ggeNiXs5owm1fa3QDd5reKZtZ0D9sHxUCpHpkcB/Fy4KibmpZrzDjLhCk6
-         yHFVJV/bjSZvVXMQs+GN/ktYnI3fWFqHpslQTbqS5HqpQUJu8AZ3MVasho7zKIwmuz
-         X5TjZZ6m4sm8A==
+        b=kDx2YVpeQu7ebQ8xabHkX0ljVjiuHIaw4Kr5WOWxE0UvGqmNcW9jBbQWuEUufBolK
+         BTtczr/ouk8+CMXLbF51vZkf1ALK2yMUh4YrPdlGZrgBxa0mza3kM9z/Ui1RpLzEg2
+         AnjmN/qi9gNffRJcfUHEqrQihl8UQ/4GtgcDV32pCb5Iopz3c5579I45FP/05hFy3h
+         0ZQJ4PsSF+86XLENb84bL1raLgwGGTbFE97dnfsxq6nrGTwFtA8WMLLRR+ZLkDZzjC
+         pc9lUuhwvSz7ITKiXtuShj8TpefIX8IwPSx28f7eRicx7btgFG1l4cP0zQfPi201WY
+         K2qtlrySJJMxA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xin Long <lucien.xin@gmail.com>,
-        =?UTF-8?q?S=C3=A9rgio?= <surkamp@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, linux-sctp@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 04/11] sctp: move 198 addresses from unusable to private scope
-Date:   Thu, 22 Jul 2021 23:58:28 -0400
-Message-Id: <20210723035835.532148-4-sashal@kernel.org>
+Cc:     Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
+        Viacheslav Dubeyko <slava@dubeyko.com>,
+        "Gustavo A . R . Silva" <gustavoars@kernel.org>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 05/11] hfs: add missing clean-up in hfs_fill_super
+Date:   Thu, 22 Jul 2021 23:58:29 -0400
+Message-Id: <20210723035835.532148-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210723035835.532148-1-sashal@kernel.org>
 References: <20210723035835.532148-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,63 +48,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
 
-[ Upstream commit 1d11fa231cabeae09a95cb3e4cf1d9dd34e00f08 ]
+[ Upstream commit 16ee572eaf0d09daa4c8a755fdb71e40dbf8562d ]
 
-The doc draft-stewart-tsvwg-sctp-ipv4-00 that restricts 198 addresses
-was never published. These addresses as private addresses should be
-allowed to use in SCTP.
+Patch series "hfs: fix various errors", v2.
 
-As Michael Tuexen suggested, this patch is to move 198 addresses from
-unusable to private scope.
+This series ultimately aims to address a lockdep warning in
+hfs_find_init reported by Syzbot [1].
 
-Reported-by: Sérgio <surkamp@gmail.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The work done for this led to the discovery of another bug, and the
+Syzkaller repro test also reveals an invalid memory access error after
+clearing the lockdep warning.  Hence, this series is broken up into
+three patches:
+
+1. Add a missing call to hfs_find_exit for an error path in
+   hfs_fill_super
+
+2. Fix memory mapping in hfs_bnode_read by fixing calls to kmap
+
+3. Add lock nesting notation to tell lockdep that the observed locking
+   hierarchy is safe
+
+This patch (of 3):
+
+Before exiting hfs_fill_super, the struct hfs_find_data used in
+hfs_find_init should be passed to hfs_find_exit to be cleaned up, and to
+release the lock held on the btree.
+
+The call to hfs_find_exit is missing from an error path.  We add it back
+in by consolidating calls to hfs_find_exit for error paths.
+
+Link: https://syzkaller.appspot.com/bug?id=f007ef1d7a31a469e3be7aeb0fde0769b18585db [1]
+Link: https://lkml.kernel.org/r/20210701030756.58760-1-desmondcheongzx@gmail.com
+Link: https://lkml.kernel.org/r/20210701030756.58760-2-desmondcheongzx@gmail.com
+Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+Reviewed-by: Viacheslav Dubeyko <slava@dubeyko.com>
+Cc: Gustavo A. R. Silva <gustavoars@kernel.org>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Shuah Khan <skhan@linuxfoundation.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/sctp/constants.h | 4 +---
- net/sctp/protocol.c          | 3 ++-
- 2 files changed, 3 insertions(+), 4 deletions(-)
+ fs/hfs/super.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/include/net/sctp/constants.h b/include/net/sctp/constants.h
-index 48d74674d5e9..bc22e44ffcdf 100644
---- a/include/net/sctp/constants.h
-+++ b/include/net/sctp/constants.h
-@@ -348,8 +348,7 @@ enum {
- #define SCTP_SCOPE_POLICY_MAX	SCTP_SCOPE_POLICY_LINK
+diff --git a/fs/hfs/super.c b/fs/hfs/super.c
+index 173876782f73..77b6f35a4aa9 100644
+--- a/fs/hfs/super.c
++++ b/fs/hfs/super.c
+@@ -427,14 +427,12 @@ static int hfs_fill_super(struct super_block *sb, void *data, int silent)
+ 	if (!res) {
+ 		if (fd.entrylength > sizeof(rec) || fd.entrylength < 0) {
+ 			res =  -EIO;
+-			goto bail;
++			goto bail_hfs_find;
+ 		}
+ 		hfs_bnode_read(fd.bnode, &rec, fd.entryoffset, fd.entrylength);
+ 	}
+-	if (res) {
+-		hfs_find_exit(&fd);
+-		goto bail_no_root;
+-	}
++	if (res)
++		goto bail_hfs_find;
+ 	res = -EINVAL;
+ 	root_inode = hfs_iget(sb, &fd.search_key->cat, &rec);
+ 	hfs_find_exit(&fd);
+@@ -450,6 +448,8 @@ static int hfs_fill_super(struct super_block *sb, void *data, int silent)
+ 	/* everything's okay */
+ 	return 0;
  
- /* Based on IPv4 scoping <draft-stewart-tsvwg-sctp-ipv4-00.txt>,
-- * SCTP IPv4 unusable addresses: 0.0.0.0/8, 224.0.0.0/4, 198.18.0.0/24,
-- * 192.88.99.0/24.
-+ * SCTP IPv4 unusable addresses: 0.0.0.0/8, 224.0.0.0/4, 192.88.99.0/24.
-  * Also, RFC 8.4, non-unicast addresses are not considered valid SCTP
-  * addresses.
-  */
-@@ -357,7 +356,6 @@ enum {
- 	((htonl(INADDR_BROADCAST) == a) ||  \
- 	 ipv4_is_multicast(a) ||	    \
- 	 ipv4_is_zeronet(a) ||		    \
--	 ipv4_is_test_198(a) ||		    \
- 	 ipv4_is_anycast_6to4(a))
- 
- /* Flags used for the bind address copy functions.  */
-diff --git a/net/sctp/protocol.c b/net/sctp/protocol.c
-index af054f38341b..cd248ee52428 100644
---- a/net/sctp/protocol.c
-+++ b/net/sctp/protocol.c
-@@ -407,7 +407,8 @@ static enum sctp_scope sctp_v4_scope(union sctp_addr *addr)
- 		retval = SCTP_SCOPE_LINK;
- 	} else if (ipv4_is_private_10(addr->v4.sin_addr.s_addr) ||
- 		   ipv4_is_private_172(addr->v4.sin_addr.s_addr) ||
--		   ipv4_is_private_192(addr->v4.sin_addr.s_addr)) {
-+		   ipv4_is_private_192(addr->v4.sin_addr.s_addr) ||
-+		   ipv4_is_test_198(addr->v4.sin_addr.s_addr)) {
- 		retval = SCTP_SCOPE_PRIVATE;
- 	} else {
- 		retval = SCTP_SCOPE_GLOBAL;
++bail_hfs_find:
++	hfs_find_exit(&fd);
+ bail_no_root:
+ 	pr_err("get root inode failed\n");
+ bail:
 -- 
 2.30.2
 
