@@ -2,95 +2,152 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A3DF73D3175
-	for <lists+stable@lfdr.de>; Fri, 23 Jul 2021 03:57:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4BE93D317C
+	for <lists+stable@lfdr.de>; Fri, 23 Jul 2021 04:00:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233208AbhGWBQ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 21:16:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33228 "EHLO
+        id S233145AbhGWBUO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 21:20:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34084 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233192AbhGWBQ3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 22 Jul 2021 21:16:29 -0400
-Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2D5AC061575;
-        Thu, 22 Jul 2021 18:57:02 -0700 (PDT)
-Received: by mail-pj1-x102d.google.com with SMTP id gv20-20020a17090b11d4b0290173b9578f1cso5011098pjb.0;
-        Thu, 22 Jul 2021 18:57:02 -0700 (PDT)
+        with ESMTP id S233050AbhGWBUO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 22 Jul 2021 21:20:14 -0400
+Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 788E9C061575
+        for <stable@vger.kernel.org>; Thu, 22 Jul 2021 19:00:47 -0700 (PDT)
+Received: by mail-pj1-x1030.google.com with SMTP id m1so118206pjv.2
+        for <stable@vger.kernel.org>; Thu, 22 Jul 2021 19:00:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=SaBBsKSooT2THR7y3tZObTkjeHzlpmexL9S+wtcTGhQ=;
-        b=XPQ4FL8MYHQ3dClLMXwF2ZgyfNQIqAPq7pvGf6q8iuRzTJl0C+Tp0ySafmQ4kqFjUM
-         lKFTAkQqtVBaXhe88UA9Lj8lHIC6tS1QVvxlXZaxQvhOlXHYw6Ylg+DeuDS5drJJLzUu
-         ev/hf3dCb8y3JTNTeX4fS8d1Dyy64Uyy2IAwWQdhv7ZH0jvyMwv757JSGb9d4ORais9v
-         ecICqev5i4FsIdHYk34PuR0lIYW75BYbeklBfXpVvnAzVJC0FbXX5ICTQXHNSi2fNji+
-         BTDJoGWK0wKkCwFBy9yvqtRtPiiKNYs4Iz5gDuTeI63N2kyiJuvtx9bFh4MPpQQ4FugM
-         VWWQ==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=khYibZzO/7qTHyYBA46ONh8Or9EAp8/F0mFqntwNy14=;
+        b=QIbCPDe8s/2d0TcdWeflQmaAu7IRTLbJXWJYrY+T0CQQ/uagAjjTF/BPgV/cumQ6eU
+         Gzvt/8hOzSQrEh6cJMlCYa+csg4ZRzLkQ+rM8tUYIK+w+x+3yA0qURMSXeYE9+WzwAf1
+         nsqrEu8ffsPXmo+Cx/946r+20a58hJny2UKHdIYed/TyjgdEIFFHjOjoph2VO/Y2/wvr
+         dNHpcsuYW21QSisxXR0hEuYJ0uaGgSqCM7+D58UT91b2PY1o6HonIFI0ofD+lbwi+mFU
+         ZbkVzTCE0CpGUCRuZJZc/o5Xft+TikIFzso40YgJhjqbglKdeoqFBtF7MfJckACginMP
+         7aSQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=SaBBsKSooT2THR7y3tZObTkjeHzlpmexL9S+wtcTGhQ=;
-        b=fg/TEHQv45sQpYEusRNePC/NF52JKRMVpjTDPh+r+PRnUjc5g0epSFdVAd9oO+FDBn
-         9MkXQrdvCONotNgYcHvc+sOrGhPgyzkZXxbvjIBnDYYSFZVcqIXnqe7B1ai1yZTkkQ5K
-         kLLINplKgmWXoYx/hQZkZeqI8qa7+EiNqq1KF5UD7SGbBicLtN8swNkZJWD9YUMRVXla
-         KCaqnTp5chkjQSFUPlMuGbTJBuP8P3euoeOAgIincQX0Wi9DpJVVpLKwtyfzjrX/r1ja
-         XfQvbNBJ0J4tblUrR7OztnE7qpRORSbE5LDno2zZSbn/myliR8u4Nms9G5aBjFOC7uAH
-         n5xw==
-X-Gm-Message-State: AOAM533/0cBl2WJ/cJ/6c17Qoy1eIGBpA5oAvZPpbk/3FLKAbLaEq/h2
-        +XBAj+5yffR7LCMH2h50yhMRYwQ/hNo=
-X-Google-Smtp-Source: ABdhPJx54k3pFrN07l3RGpnf1QxzOBbyrmz/sPOSp6sjFYxfBkgaV+IzsRqg5X+Vhf8a1nGLWvYUhQ==
-X-Received: by 2002:a17:90a:aa14:: with SMTP id k20mr11817758pjq.88.1627005421983;
-        Thu, 22 Jul 2021 18:57:01 -0700 (PDT)
-Received: from [192.168.1.121] (99-44-17-11.lightspeed.irvnca.sbcglobal.net. [99.44.17.11])
-        by smtp.gmail.com with ESMTPSA id bv22sm23799703pjb.21.2021.07.22.18.57.00
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 22 Jul 2021 18:57:01 -0700 (PDT)
-Subject: Re: [PATCH net backport to 4.4,4.9] net: bcmgenet: ensure
- EXT_ENERGY_DET_MASK is clear
-To:     Doug Berger <opendmb@gmail.com>, stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        bcm-kernel-feedback-list@broadcom.com, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20210723001552.3274565-1-opendmb@gmail.com>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <d58ab19d-b80a-b0db-668a-6c467bd6e0ea@gmail.com>
-Date:   Thu, 22 Jul 2021 18:56:59 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.12.0
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=khYibZzO/7qTHyYBA46ONh8Or9EAp8/F0mFqntwNy14=;
+        b=qoXa0jM5d5q4hACiEPjSrTcSx5b8F3g5UDKyEpnuDwBgMlfkhmYZwQd8XHx/A4BOBY
+         YMCqSEmJjSW6OAIgtmfzgCMQzeOTqKZqTSUn4tEyoCl5OTZNFXNbClKr7KKoviVFTOsO
+         QK9IEnXzVx1d1kC0BqHd14TnXEc1WcGF9XiZZ1SxhRGyeFCfb+Q5pGGBxKmO+54UupHm
+         S9T884pLOvMrT0X9CjdTobc37pknpq2MQrPtiXQYaDm9gRatag/Nz4x2bTt+XDkFF8L4
+         YW8zIiCJD6ydjU1KphnkKxC0mf+sjcqoA4ZbhUJwOHF7ujds539jlD7RLUj12b0st7EP
+         dQCw==
+X-Gm-Message-State: AOAM533gcWe6JVG/tekS/F3CdSp/NM4UTyEd22S31hzEtUN+7tl/aOeM
+        5tKlLFy1l90Z2tpT8ZmZFJBpgHzBgE7FxNNK
+X-Google-Smtp-Source: ABdhPJznoNp5t33dnDSZLhR5DkP4YoWXVDHKIuMUVMaemJ+LElg9CLFP9BqB2FnaMhdDYGBJW0oXtw==
+X-Received: by 2002:a17:90a:9b13:: with SMTP id f19mr2395468pjp.229.1627005646818;
+        Thu, 22 Jul 2021 19:00:46 -0700 (PDT)
+Received: from Laptop-X1.redhat.com ([209.132.188.80])
+        by smtp.gmail.com with ESMTPSA id kz18sm26892174pjb.49.2021.07.22.19.00.44
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 22 Jul 2021 19:00:46 -0700 (PDT)
+From:   Hangbin Liu <liuhangbin@gmail.com>
+To:     stable@vger.kernel.org
+Cc:     gregkh@linuxfoundation.org, davem@davemloft.net, jishi@redhat.com,
+        Hangbin Liu <liuhangbin@gmail.com>
+Subject: [PATCH 4.19] net: ip_tunnel: fix mtu calculation for ETHER tunnel devices
+Date:   Fri, 23 Jul 2021 10:00:31 +0800
+Message-Id: <20210723020031.343268-1-liuhangbin@gmail.com>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <1626967494217153@kroah.com>
+References: <1626967494217153@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <20210723001552.3274565-1-opendmb@gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+commit 9992a078b1771da354ac1f9737e1e639b687caa2 upstream.
 
+Commit 28e104d00281 ("net: ip_tunnel: fix mtu calculation") removed
+dev->hard_header_len subtraction when calculate MTU for tunnel devices
+as there is an overhead for device that has header_ops.
 
-On 7/22/2021 5:15 PM, Doug Berger wrote:
-> [ Upstream commit 5a3c680aa2c12c90c44af383fe6882a39875ab81 ]
-> 
-> Setting the EXT_ENERGY_DET_MASK bit allows the port energy detection
-> logic of the internal PHY to prevent the system from sleeping. Some
-> internal PHYs will report that energy is detected when the network
-> interface is closed which can prevent the system from going to sleep
-> if WoL is enabled when the interface is brought down.
-> 
-> Since the driver does not support waking the system on this logic,
-> this commit clears the bit whenever the internal PHY is powered up
-> and the other logic for manipulating the bit is removed since it
-> serves no useful function.
-> 
-> Fixes: 1c1008c793fa ("net: bcmgenet: add main driver file")
-> Signed-off-by: Doug Berger <opendmb@gmail.com>
+But there are ETHER tunnel devices, like gre_tap or erspan, which don't
+have header_ops but set dev->hard_header_len during setup. This makes
+pkts greater than (MTU - ETH_HLEN) could not be xmited. Fix it by
+subtracting the ETHER tunnel devices' dev->hard_header_len for MTU
+calculation.
 
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Fixes: 28e104d00281 ("net: ip_tunnel: fix mtu calculation")
+Reported-by: Jianlin Shi <jishi@redhat.com>
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+---
+ net/ipv4/ip_tunnel.c | 22 ++++++++++++++++++----
+ 1 file changed, 18 insertions(+), 4 deletions(-)
+
+diff --git a/net/ipv4/ip_tunnel.c b/net/ipv4/ip_tunnel.c
+index bdd073ea300a..30e93b4f831f 100644
+--- a/net/ipv4/ip_tunnel.c
++++ b/net/ipv4/ip_tunnel.c
+@@ -330,7 +330,7 @@ static int ip_tunnel_bind_dev(struct net_device *dev)
+ 	}
+ 
+ 	dev->needed_headroom = t_hlen + hlen;
+-	mtu -= t_hlen;
++	mtu -= t_hlen + (dev->type == ARPHRD_ETHER ? dev->hard_header_len : 0);
+ 
+ 	if (mtu < IPV4_MIN_MTU)
+ 		mtu = IPV4_MIN_MTU;
+@@ -361,6 +361,9 @@ static struct ip_tunnel *ip_tunnel_create(struct net *net,
+ 	t_hlen = nt->hlen + sizeof(struct iphdr);
+ 	dev->min_mtu = ETH_MIN_MTU;
+ 	dev->max_mtu = IP_MAX_MTU - t_hlen;
++	if (dev->type == ARPHRD_ETHER)
++		dev->max_mtu -= dev->hard_header_len;
++
+ 	ip_tunnel_add(itn, nt);
+ 	return nt;
+ 
+@@ -502,13 +505,18 @@ static int tnl_update_pmtu(struct net_device *dev, struct sk_buff *skb,
+ 			    const struct iphdr *inner_iph)
+ {
+ 	struct ip_tunnel *tunnel = netdev_priv(dev);
+-	int pkt_size = skb->len - tunnel->hlen;
++	int pkt_size;
+ 	int mtu;
+ 
+-	if (df)
++	pkt_size = skb->len - tunnel->hlen;
++	pkt_size -= dev->type == ARPHRD_ETHER ? dev->hard_header_len : 0;
++
++	if (df) {
+ 		mtu = dst_mtu(&rt->dst) - (sizeof(struct iphdr) + tunnel->hlen);
+-	else
++		mtu -= dev->type == ARPHRD_ETHER ? dev->hard_header_len : 0;
++	} else {
+ 		mtu = skb_dst(skb) ? dst_mtu(skb_dst(skb)) : dev->mtu;
++	}
+ 
+ 	skb_dst_update_pmtu_no_confirm(skb, mtu);
+ 
+@@ -936,6 +944,9 @@ int __ip_tunnel_change_mtu(struct net_device *dev, int new_mtu, bool strict)
+ 	int t_hlen = tunnel->hlen + sizeof(struct iphdr);
+ 	int max_mtu = IP_MAX_MTU - t_hlen;
+ 
++	if (dev->type == ARPHRD_ETHER)
++		max_mtu -= dev->hard_header_len;
++
+ 	if (new_mtu < ETH_MIN_MTU)
+ 		return -EINVAL;
+ 
+@@ -1113,6 +1124,9 @@ int ip_tunnel_newlink(struct net_device *dev, struct nlattr *tb[],
+ 	if (tb[IFLA_MTU]) {
+ 		unsigned int max = IP_MAX_MTU - (nt->hlen + sizeof(struct iphdr));
+ 
++		if (dev->type == ARPHRD_ETHER)
++			max -= dev->hard_header_len;
++
+ 		mtu = clamp(dev->mtu, (unsigned int)ETH_MIN_MTU, max);
+ 	}
+ 
 -- 
-Florian
+2.18.1
+
