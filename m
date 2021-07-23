@@ -2,154 +2,236 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 895213D30B1
-	for <lists+stable@lfdr.de>; Fri, 23 Jul 2021 02:16:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E722F3D3117
+	for <lists+stable@lfdr.de>; Fri, 23 Jul 2021 03:03:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232777AbhGVXf2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 19:35:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38974 "EHLO
+        id S232850AbhGWAXX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 20:23:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49642 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232697AbhGVXf2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 22 Jul 2021 19:35:28 -0400
-Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11414C061575;
-        Thu, 22 Jul 2021 17:16:03 -0700 (PDT)
-Received: by mail-pl1-x635.google.com with SMTP id t21so1065847plr.13;
-        Thu, 22 Jul 2021 17:16:03 -0700 (PDT)
+        with ESMTP id S232730AbhGWAXX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 22 Jul 2021 20:23:23 -0400
+Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D74EC061575
+        for <stable@vger.kernel.org>; Thu, 22 Jul 2021 18:03:57 -0700 (PDT)
+Received: by mail-pj1-x1032.google.com with SMTP id u9-20020a17090a1f09b029017554809f35so6704164pja.5
+        for <stable@vger.kernel.org>; Thu, 22 Jul 2021 18:03:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=6C8t0KuiTGD3399lPLvWX5wehcoUeIALWQ0saCvNA34=;
-        b=ntDOrn2q2OpiUMmwoEIHR3q++9zBsf5OhwZX/Yq6TnusSvTiRkSFE32VCjrMGbBeaR
-         rLhcSIVOeBsbIew8Mo3wn/iEYg2/1Z3kCPsZotWJwBErgOZueQWLZQO6hUvwc4fj1yB6
-         yIewZNXBMgCUq9TpHZw4MHPWIDYKUp1h4hrVo4dLR8rVfQj7GcD1f/g5SkjU+WA+COTc
-         fHFD4LHDWF98EAVY82RK6wHlojZfVPeSCP6Nyc2BibtK8CI3hWChp1yd6DxFHLFLJB8T
-         cpE2AcGRiXsVaFOaIXCtcZNYGPV5y38rAlRfDB3aj8AMdB4jdJiQoCcDvINcpxwQIdRi
-         iN1g==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=GahsNaO7IFVeSp203c+wxpUEU0wnT45r7t+k6VvltoY=;
+        b=Nb5Qf3mg7lrUH5MGgAFf//b8Capp3Ds94Uye/s8sNUR0qnon4/99ETwFciNvILBeCw
+         X4TcAvLRjppWE4yrQ1JXVGwAnmVTld53/m5+vcedmg18Ji1sn8pTiNLFjqGBXdHjQ1YM
+         ocoMiBTv4j186LbNzEdVv4kT1s/5mfei9KAagXRLfQsNxipsPkvGEBFkcGydduOpiUVE
+         oLacCjTGWnTeXf/0+UGTM1UZR7nWfpnQTT2eHeewGCoMeja3hWkr85o3rAAJ50sZiSeN
+         j2Je3rE9eeam7i+zlc37nhLgLRGBDgj0tbgv1e1y7v7TyrIDJdOB5sL1netpWQEeq5tX
+         eOnw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=6C8t0KuiTGD3399lPLvWX5wehcoUeIALWQ0saCvNA34=;
-        b=Q0YQSNV+bzaUdbWqDlBk/anx6E/+zNBAMfKHzQITCo3QOnsZSM1Hy1ItqRuEGxDfDR
-         2rxm8qftbsUNocgHxbO6fshurye/o6rdxxY8vwI2e3D4KgIV7Fx4CcYr5wUAd4F5pc0R
-         9QGLBnVwCr9i9CFmhe9rIFD+bTYJMfwBtIQ1DFC+EP4AP7kI7oQSCAzjZvE5Zhp4LKQn
-         niC3CEfymhyWUNALuhmb+Tfzx248H+JqbfdtxPA+7OQ/pfa1kmEignbMYK6Df+VvCBuY
-         tBBDNhRr9O2bIcpWWhPYlOWxHKPXv7WG5BnqPIN+XQWD5694YvHIaOjT/jUF6y77D1wr
-         6s/A==
-X-Gm-Message-State: AOAM531heyTag1X0RD+Gx9sjKPwp2qf21Q3TYCjbm++ET0pvmCzJv7oY
-        EjHFAkM10p98X16d/8CERq7FbsC3cuI=
-X-Google-Smtp-Source: ABdhPJyX8rQSMnhrd3oS6/ojohGbmwCk4b+4mQUnxrCMkIaI1Hr3RcxG2Lj49+EfKfnizE1TA07Geg==
-X-Received: by 2002:aa7:8154:0:b029:310:70d:a516 with SMTP id d20-20020aa781540000b0290310070da516mr2165860pfn.63.1626999362298;
-        Thu, 22 Jul 2021 17:16:02 -0700 (PDT)
-Received: from stbirv-lnx-3.igp.broadcom.net ([192.19.223.252])
-        by smtp.gmail.com with ESMTPSA id h25sm28370000pfo.190.2021.07.22.17.16.00
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=GahsNaO7IFVeSp203c+wxpUEU0wnT45r7t+k6VvltoY=;
+        b=pB4UgldWBRife0eSG4ddUYgLoeIKtqOjUTwaaUjoz0Afm4SBaihAe2gtOuBi7GHd0/
+         PPocMGDNgVAvhFLxkxbB6fRw1HrtCGvF8yhB/cc6BqratLO2DazOBvFL0AlkmvC1hCF0
+         qp2ZD7tGJeo6qKfr4TPNvpsrlrXQmR893K5EXAbqjr2LTawpA1o6blxO2L9NI4ZBewVv
+         G2RDrxWAYKqcKaRMsQuSJntB7A0ZmuxVn+aHqQi7PFGT/iAID8cj/nmjEQFvIWwS3Vd0
+         plFOIkgTRR+VCaHxeoNUBcY8RkRLAHZ9ibM8tNzGPQyT0+IzPf65l3amf+CoGF9FhUv6
+         uHew==
+X-Gm-Message-State: AOAM530BRQCk9uwNIheUCFF3Kb32Q+pgtcRk0i09Mhg00tr8XqY6cnZI
+        1/ggj1ltzP+OgNoVgGORw2x2fgZ5p5U5zhIP
+X-Google-Smtp-Source: ABdhPJwjE/y5NdFIqWo7wXpjp9TlXNVsH8Vs5A+Oi0Ro9L/q9+LN0Mcfm24TSxu0BFEXPMSIB1bPPw==
+X-Received: by 2002:a17:90b:1d09:: with SMTP id on9mr2244407pjb.191.1627002236873;
+        Thu, 22 Jul 2021 18:03:56 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id s3sm364989pfk.140.2021.07.22.18.03.56
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 22 Jul 2021 17:16:01 -0700 (PDT)
-From:   Doug Berger <opendmb@gmail.com>
-To:     stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        bcm-kernel-feedback-list@broadcom.com, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Doug Berger <opendmb@gmail.com>
-Subject: [PATCH net backport to 4.4,4.9] net: bcmgenet: ensure EXT_ENERGY_DET_MASK is clear
-Date:   Thu, 22 Jul 2021 17:15:52 -0700
-Message-Id: <20210723001552.3274565-1-opendmb@gmail.com>
-X-Mailer: git-send-email 2.25.1
+        Thu, 22 Jul 2021 18:03:56 -0700 (PDT)
+Message-ID: <60fa157c.1c69fb81.33c0d.1dfd@mx.google.com>
+Date:   Thu, 22 Jul 2021 18:03:56 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/4.19
+X-Kernelci-Kernel: v4.19.197-472-gd60381c96e1dd
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/4.19 baseline: 151 runs,
+ 4 regressions (v4.19.197-472-gd60381c96e1dd)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 5a3c680aa2c12c90c44af383fe6882a39875ab81 ]
+stable-rc/queue/4.19 baseline: 151 runs, 4 regressions (v4.19.197-472-gd603=
+81c96e1dd)
 
-Setting the EXT_ENERGY_DET_MASK bit allows the port energy detection
-logic of the internal PHY to prevent the system from sleeping. Some
-internal PHYs will report that energy is detected when the network
-interface is closed which can prevent the system from going to sleep
-if WoL is enabled when the interface is brought down.
+Regressions Summary
+-------------------
 
-Since the driver does not support waking the system on this logic,
-this commit clears the bit whenever the internal PHY is powered up
-and the other logic for manipulating the bit is removed since it
-serves no useful function.
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
+g | 1          =
 
-Fixes: 1c1008c793fa ("net: bcmgenet: add main driver file")
-Signed-off-by: Doug Berger <opendmb@gmail.com>
----
- drivers/net/ethernet/broadcom/genet/bcmgenet.c    | 15 +--------------
- .../net/ethernet/broadcom/genet/bcmgenet_wol.c    |  6 ------
- 2 files changed, 1 insertion(+), 20 deletions(-)
+qemu_arm-versatilepb | arm  | lab-broonie   | gcc-8    | versatile_defconfi=
+g | 1          =
 
-diff --git a/drivers/net/ethernet/broadcom/genet/bcmgenet.c b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-index 2921ae13db28..5637adff1888 100644
---- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-@@ -1094,7 +1094,7 @@ static void bcmgenet_power_up(struct bcmgenet_priv *priv,
- 	switch (mode) {
- 	case GENET_POWER_PASSIVE:
- 		reg &= ~(EXT_PWR_DOWN_DLL | EXT_PWR_DOWN_PHY |
--				EXT_PWR_DOWN_BIAS);
-+			 EXT_PWR_DOWN_BIAS | EXT_ENERGY_DET_MASK);
- 		/* fallthrough */
- 	case GENET_POWER_CABLE_SENSE:
- 		/* enable APD */
-@@ -2815,12 +2815,6 @@ static int bcmgenet_open(struct net_device *dev)
- 
- 	bcmgenet_set_hw_addr(priv, dev->dev_addr);
- 
--	if (priv->internal_phy) {
--		reg = bcmgenet_ext_readl(priv, EXT_EXT_PWR_MGMT);
--		reg |= EXT_ENERGY_DET_MASK;
--		bcmgenet_ext_writel(priv, reg, EXT_EXT_PWR_MGMT);
--	}
--
- 	/* Disable RX/TX DMA and flush TX queues */
- 	dma_ctrl = bcmgenet_dma_disable(priv);
- 
-@@ -3510,7 +3504,6 @@ static int bcmgenet_resume(struct device *d)
- 	struct bcmgenet_priv *priv = netdev_priv(dev);
- 	unsigned long dma_ctrl;
- 	int ret;
--	u32 reg;
- 
- 	if (!netif_running(dev))
- 		return 0;
-@@ -3545,12 +3538,6 @@ static int bcmgenet_resume(struct device *d)
- 
- 	bcmgenet_set_hw_addr(priv, dev->dev_addr);
- 
--	if (priv->internal_phy) {
--		reg = bcmgenet_ext_readl(priv, EXT_EXT_PWR_MGMT);
--		reg |= EXT_ENERGY_DET_MASK;
--		bcmgenet_ext_writel(priv, reg, EXT_EXT_PWR_MGMT);
--	}
--
- 	if (priv->wolopts)
- 		bcmgenet_power_up(priv, GENET_POWER_WOL_MAGIC);
- 
-diff --git a/drivers/net/ethernet/broadcom/genet/bcmgenet_wol.c b/drivers/net/ethernet/broadcom/genet/bcmgenet_wol.c
-index b97122926d3a..df107ed67220 100644
---- a/drivers/net/ethernet/broadcom/genet/bcmgenet_wol.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmgenet_wol.c
-@@ -167,12 +167,6 @@ int bcmgenet_wol_power_down_cfg(struct bcmgenet_priv *priv,
- 	reg |= CMD_RX_EN;
- 	bcmgenet_umac_writel(priv, reg, UMAC_CMD);
- 
--	if (priv->hw_params->flags & GENET_HAS_EXT) {
--		reg = bcmgenet_ext_readl(priv, EXT_EXT_PWR_MGMT);
--		reg &= ~EXT_ENERGY_DET_MASK;
--		bcmgenet_ext_writel(priv, reg, EXT_EXT_PWR_MGMT);
--	}
--
- 	/* Enable the MPD interrupt */
- 	cpu_mask_clear = UMAC_IRQ_MPD_R;
- 
--- 
-2.25.1
+qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
+g | 1          =
 
+qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
+nel/v4.19.197-472-gd60381c96e1dd/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.19
+  Describe: v4.19.197-472-gd60381c96e1dd
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      d60381c96e1dd3ceeeb9b46090d2fd7957311072 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60f9dad63f34efd7b785c256
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.197=
+-472-gd60381c96e1dd/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qem=
+u_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.197=
+-472-gd60381c96e1dd/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qem=
+u_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60f9dad63f34efd7b785c=
+257
+        failing since 251 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-broonie   | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60f9f2d74abb0ae0f185c257
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.197=
+-472-gd60381c96e1dd/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu=
+_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.197=
+-472-gd60381c96e1dd/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu=
+_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60f9f2d74abb0ae0f185c=
+258
+        failing since 251 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60f9dad2b07f6e4afb85c283
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.197=
+-472-gd60381c96e1dd/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm=
+-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.197=
+-472-gd60381c96e1dd/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm=
+-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60f9dad2b07f6e4afb85c=
+284
+        failing since 251 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60f9dc2303aa7934eb85c259
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.197=
+-472-gd60381c96e1dd/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qe=
+mu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.197=
+-472-gd60381c96e1dd/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qe=
+mu_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60f9dc2303aa7934eb85c=
+25a
+        failing since 251 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =20
