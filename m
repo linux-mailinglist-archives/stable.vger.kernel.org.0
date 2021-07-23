@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B5733D3285
-	for <lists+stable@lfdr.de>; Fri, 23 Jul 2021 05:58:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16FA93D3281
+	for <lists+stable@lfdr.de>; Fri, 23 Jul 2021 05:57:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233713AbhGWDRM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 23:17:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37140 "EHLO mail.kernel.org"
+        id S233848AbhGWDRL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 23:17:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233720AbhGWDQ7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 23:16:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6ACCC60ED7;
-        Fri, 23 Jul 2021 03:57:32 +0000 (UTC)
+        id S233738AbhGWDRA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 23:17:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F8D160EC0;
+        Fri, 23 Jul 2021 03:57:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1627012653;
-        bh=XtMkpLHRLWK+zAm2LioxcOrroipcW2wChBIfA5L+Rxw=;
+        s=k20201202; t=1627012654;
+        bh=SgS92D8YtZxt1ox6McgFTvBPWgU+hwBTL57t+PUqMl8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tgj1wjOepIFw4XR4aHV/JdjjLjhmq+S6cO85G+W6ff6p4yf0ELohAAmDe/NqfpyDk
-         prKlRu97Bi6daIt3TrPNXVbnExSvT6y9yTLALKwGfeZngFN5zV+M1qLEkmHttxlnBl
-         WEpKC08Zq25c6wEB4KxBcEuqoZzVqkwov7TuRHsFai46qy5GoO6eg0PNUBYc9vLd6G
-         zGlxsE+65cblYSYjelTyhf4Nmn4sSBbBfWXGpmxblscYm557soJggC/5xO3igpK4Oc
-         Ycjz+CIQKVJ+kA99Z7nYtWbFGo6KHgNYp8Y6J3O3lxYurbLjhQaLm4TDshegzOkfs2
-         R8ITKTdxdhhjw==
+        b=pyHMt1OlQuL//+gTzSxKJk+/6ArMwPEV7grPbfXcJC3mwhtq/krwiiZoYuP8DhGsY
+         AQfTkEo+AKdKaiyReSNJLXmgultAYvVIpH5b3gJKZGTwfLx7yyl1/lmUbbAFKJCTlB
+         9BAatMG+Fjj3lRXjXHUhT9BmjscnPgjm7/btc0MBabiGjW0wTxvKfXYWA4WEBFzCtQ
+         +ZX5N0mb98XxG2Ke7Se0JKxVUY3XZxl6hesJEusbG7p7MJuRd5454Dn3wX+CbocXGg
+         wMxqnHTKuPr0ERMuuTFVganO4mx5cgXGsG+X3f/SDC+x9DZ6QqeYpfZ+LGzVuSn8bZ
+         KB6xjkJszP8Jg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?=C3=8D=C3=B1igo=20Huguet?= <ihuguet@redhat.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 09/19] sfc: ensure correct number of XDP queues
-Date:   Thu, 22 Jul 2021 23:57:10 -0400
-Message-Id: <20210723035721.531372-9-sashal@kernel.org>
+Cc:     Zheyu Ma <zheyuma97@gmail.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.13 10/19] drm/ttm: add a check against null pointer dereference
+Date:   Thu, 22 Jul 2021 23:57:11 -0400
+Message-Id: <20210723035721.531372-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210723035721.531372-1-sashal@kernel.org>
 References: <20210723035721.531372-1-sashal@kernel.org>
@@ -44,79 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Íñigo Huguet <ihuguet@redhat.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit 788bc000d4c2f25232db19ab3a0add0ba4e27671 ]
+[ Upstream commit 9e5c772954406829e928dbe59891d08938ead04b ]
 
-Commit 99ba0ea616aa ("sfc: adjust efx->xdp_tx_queue_count with the real
-number of initialized queues") intended to fix a problem caused by a
-round up when calculating the number of XDP channels and queues.
-However, this was not the real problem. The real problem was that the
-number of XDP TX queues had been reduced to half in
-commit e26ca4b53582 ("sfc: reduce the number of requested xdp ev queues"),
-but the variable xdp_tx_queue_count had remained the same.
+When calling ttm_range_man_fini(), 'man' may be uninitialized, which may
+cause a null pointer dereference bug.
 
-Once the correct number of XDP TX queues is created again in the
-previous patch of this series, this also can be reverted since the error
-doesn't actually exist.
+Fix this by checking if it is a null pointer.
 
-Only in the case that there is a bug in the code we can have different
-values in xdp_queue_number and efx->xdp_tx_queue_count. Because of this,
-and per Edward Cree's suggestion, I add instead a WARN_ON to catch if it
-happens again in the future.
+This log reveals it:
 
-Note that the number of allocated queues can be higher than the number
-of used ones due to the round up, as explained in the existing comment
-in the code. That's why we also have to stop increasing xdp_queue_number
-beyond efx->xdp_tx_queue_count.
+[    7.902580 ] BUG: kernel NULL pointer dereference, address: 0000000000000058
+[    7.905721 ] RIP: 0010:ttm_range_man_fini+0x40/0x160
+[    7.911826 ] Call Trace:
+[    7.911826 ]  radeon_ttm_fini+0x167/0x210
+[    7.911826 ]  radeon_bo_fini+0x15/0x40
+[    7.913767 ]  rs400_fini+0x55/0x80
+[    7.914358 ]  radeon_device_fini+0x3c/0x140
+[    7.914358 ]  radeon_driver_unload_kms+0x5c/0xe0
+[    7.914358 ]  radeon_driver_load_kms+0x13a/0x200
+[    7.914358 ]  ? radeon_driver_unload_kms+0xe0/0xe0
+[    7.914358 ]  drm_dev_register+0x1db/0x290
+[    7.914358 ]  radeon_pci_probe+0x16a/0x230
+[    7.914358 ]  local_pci_probe+0x4a/0xb0
 
-Signed-off-by: Íñigo Huguet <ihuguet@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/1626274459-8148-1-git-send-email-zheyuma97@gmail.com
+Signed-off-by: Christian König <christian.koenig@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/sfc/efx_channels.c | 15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/ttm/ttm_range_manager.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/sfc/efx_channels.c b/drivers/net/ethernet/sfc/efx_channels.c
-index a3ca406a3561..bea0b27baf4b 100644
---- a/drivers/net/ethernet/sfc/efx_channels.c
-+++ b/drivers/net/ethernet/sfc/efx_channels.c
-@@ -891,18 +891,20 @@ int efx_set_channels(struct efx_nic *efx)
- 			if (efx_channel_is_xdp_tx(channel)) {
- 				efx_for_each_channel_tx_queue(tx_queue, channel) {
- 					tx_queue->queue = next_queue++;
--					netif_dbg(efx, drv, efx->net_dev, "Channel %u TXQ %u is XDP %u, HW %u\n",
--						  channel->channel, tx_queue->label,
--						  xdp_queue_number, tx_queue->queue);
-+
- 					/* We may have a few left-over XDP TX
- 					 * queues owing to xdp_tx_queue_count
- 					 * not dividing evenly by EFX_MAX_TXQ_PER_CHANNEL.
- 					 * We still allocate and probe those
- 					 * TXQs, but never use them.
- 					 */
--					if (xdp_queue_number < efx->xdp_tx_queue_count)
-+					if (xdp_queue_number < efx->xdp_tx_queue_count) {
-+						netif_dbg(efx, drv, efx->net_dev, "Channel %u TXQ %u is XDP %u, HW %u\n",
-+							  channel->channel, tx_queue->label,
-+							  xdp_queue_number, tx_queue->queue);
- 						efx->xdp_tx_queues[xdp_queue_number] = tx_queue;
--					xdp_queue_number++;
-+						xdp_queue_number++;
-+					}
- 				}
- 			} else {
- 				efx_for_each_channel_tx_queue(tx_queue, channel) {
-@@ -914,8 +916,7 @@ int efx_set_channels(struct efx_nic *efx)
- 			}
- 		}
- 	}
--	if (xdp_queue_number)
--		efx->xdp_tx_queue_count = xdp_queue_number;
-+	WARN_ON(xdp_queue_number != efx->xdp_tx_queue_count);
+diff --git a/drivers/gpu/drm/ttm/ttm_range_manager.c b/drivers/gpu/drm/ttm/ttm_range_manager.c
+index 707e5c152896..ed053fd15c90 100644
+--- a/drivers/gpu/drm/ttm/ttm_range_manager.c
++++ b/drivers/gpu/drm/ttm/ttm_range_manager.c
+@@ -146,6 +146,9 @@ int ttm_range_man_fini(struct ttm_device *bdev,
+ 	struct drm_mm *mm = &rman->mm;
+ 	int ret;
  
- 	rc = netif_set_real_num_tx_queues(efx->net_dev, efx->n_tx_channels);
- 	if (rc)
++	if (!man)
++		return 0;
++
+ 	ttm_resource_manager_set_used(man, false);
+ 
+ 	ret = ttm_resource_manager_evict_all(bdev, man);
 -- 
 2.30.2
 
