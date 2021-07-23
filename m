@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A22E43D3AB1
-	for <lists+stable@lfdr.de>; Fri, 23 Jul 2021 14:56:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E66AE3D3AB2
+	for <lists+stable@lfdr.de>; Fri, 23 Jul 2021 14:56:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235139AbhGWMQB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 23 Jul 2021 08:16:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40080 "EHLO mail.kernel.org"
+        id S235158AbhGWMQC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 23 Jul 2021 08:16:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234909AbhGWMQB (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235027AbhGWMQB (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 23 Jul 2021 08:16:01 -0400
 Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B9F2360EE6;
+        by mail.kernel.org (Postfix) with ESMTPSA id F05D360F22;
         Fri, 23 Jul 2021 12:56:34 +0000 (UTC)
 Received: from rostedt by gandalf.local.home with local (Exim 4.94.2)
         (envelope-from <rostedt@goodmis.org>)
-        id 1m6ujB-001hgv-QC; Fri, 23 Jul 2021 08:56:33 -0400
-Message-ID: <20210723125633.655004181@goodmis.org>
+        id 1m6ujC-001hhT-01; Fri, 23 Jul 2021 08:56:34 -0400
+Message-ID: <20210723125633.840379520@goodmis.org>
 User-Agent: quilt/0.66
-Date:   Fri, 23 Jul 2021 08:54:56 -0400
+Date:   Fri, 23 Jul 2021 08:54:57 -0400
 From:   Steven Rostedt <rostedt@goodmis.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Ingo Molnar <mingo@kernel.org>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
         Namhyung Kim <namhyung@kernel.org>, stable@vger.kernel.org,
-        Tom Zanussi <zanussi@kernel.org>
-Subject: [for-linus][PATCH 2/7] tracing: Synthetic event field_pos is an index not a boolean
+        Tom Zanussi <zanussi@kernel.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>
+Subject: [for-linus][PATCH 3/7] tracing/histogram: Rename "cpu" to "common_cpu"
 References: <20210723125454.570472450@goodmis.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,95 +39,153 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
 
-Performing the following:
+Currently the histogram logic allows the user to write "cpu" in as an
+event field, and it will record the CPU that the event happened on.
 
- ># echo 'wakeup_lat s32 pid; u64 delta; char wake_comm[]' > synthetic_events
- ># echo 'hist:keys=pid:__arg__1=common_timestamp.usecs' > events/sched/sched_waking/trigger
- ># echo 'hist:keys=next_pid:pid=next_pid,delta=common_timestamp.usecs-$__arg__1:onmatch(sched.sched_waking).trace(wakeup_lat,$pid,$delta,prev_comm)'\
-      > events/sched/sched_switch/trigger
- ># echo 1 > events/synthetic/enable
+The problem with this is that there's a lot of events that have "cpu"
+as a real field, and using "cpu" as the CPU it ran on, makes it
+impossible to run histograms on the "cpu" field of events.
 
-Crashed the kernel:
+For example, if I want to have a histogram on the count of the
+workqueue_queue_work event on its cpu field, running:
 
- BUG: kernel NULL pointer dereference, address: 000000000000001b
- #PF: supervisor read access in kernel mode
- #PF: error_code(0x0000) - not-present page
- PGD 0 P4D 0
- Oops: 0000 [#1] PREEMPT SMP
- CPU: 7 PID: 0 Comm: swapper/7 Not tainted 5.13.0-rc5-test+ #104
- Hardware name: Hewlett-Packard HP Compaq Pro 6300 SFF/339A, BIOS K01 v03.03 07/14/2016
- RIP: 0010:strlen+0x0/0x20
- Code: f6 82 80 2b 0b bc 20 74 11 0f b6 50 01 48 83 c0 01 f6 82 80 2b 0b bc
-  20 75 ef c3 66 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 <80> 3f 00 74 10
-  48 89 f8 48 83 c0 01 80 38 9 f8 c3 31
- RSP: 0018:ffffaa75000d79d0 EFLAGS: 00010046
- RAX: 0000000000000002 RBX: ffff9cdb55575270 RCX: 0000000000000000
- RDX: ffff9cdb58c7a320 RSI: ffffaa75000d7b40 RDI: 000000000000001b
- RBP: ffffaa75000d7b40 R08: ffff9cdb40a4f010 R09: ffffaa75000d7ab8
- R10: ffff9cdb4398c700 R11: 0000000000000008 R12: ffff9cdb58c7a320
- R13: ffff9cdb55575270 R14: ffff9cdb58c7a000 R15: 0000000000000018
- FS:  0000000000000000(0000) GS:ffff9cdb5aa00000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 000000000000001b CR3: 00000000c0612006 CR4: 00000000001706e0
- Call Trace:
-  trace_event_raw_event_synth+0x90/0x1d0
-  action_trace+0x5b/0x70
-  event_hist_trigger+0x4bd/0x4e0
-  ? cpumask_next_and+0x20/0x30
-  ? update_sd_lb_stats.constprop.0+0xf6/0x840
-  ? __lock_acquire.constprop.0+0x125/0x550
-  ? find_held_lock+0x32/0x90
-  ? sched_clock_cpu+0xe/0xd0
-  ? lock_release+0x155/0x440
-  ? update_load_avg+0x8c/0x6f0
-  ? enqueue_entity+0x18a/0x920
-  ? __rb_reserve_next+0xe5/0x460
-  ? ring_buffer_lock_reserve+0x12a/0x3f0
-  event_triggers_call+0x52/0xe0
-  trace_event_buffer_commit+0x1ae/0x240
-  trace_event_raw_event_sched_switch+0x114/0x170
-  __traceiter_sched_switch+0x39/0x50
-  __schedule+0x431/0xb00
-  schedule_idle+0x28/0x40
-  do_idle+0x198/0x2e0
-  cpu_startup_entry+0x19/0x20
-  secondary_startup_64_no_verify+0xc2/0xcb
+ ># echo 'hist:keys=cpu' > events/workqueue/workqueue_queue_work/trigger
 
-The reason is that the dynamic events array keeps track of the field
-position of the fields array, via the field_pos variable in the
-synth_field structure. Unfortunately, that field is a boolean for some
-reason, which means any field_pos greater than 1 will be a bug (in this
-case it was 2).
+Gives a misleading and wrong result.
 
-Link: https://lkml.kernel.org/r/20210721191008.638bce34@oasis.local.home
+Change the command to "common_cpu" as no event should have "common_*"
+fields as that's a reserved name for fields used by all events. And
+this makes sense here as common_cpu would be a field used by all events.
 
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Now we can even do:
+
+ ># echo 'hist:keys=common_cpu,cpu if cpu < 100' > events/workqueue/workqueue_queue_work/trigger
+ ># cat events/workqueue/workqueue_queue_work/hist
+ # event histogram
+ #
+ # trigger info: hist:keys=common_cpu,cpu:vals=hitcount:sort=hitcount:size=2048 if cpu < 100 [active]
+ #
+
+ { common_cpu:          0, cpu:          2 } hitcount:          1
+ { common_cpu:          0, cpu:          4 } hitcount:          1
+ { common_cpu:          7, cpu:          7 } hitcount:          1
+ { common_cpu:          0, cpu:          7 } hitcount:          1
+ { common_cpu:          0, cpu:          1 } hitcount:          1
+ { common_cpu:          0, cpu:          6 } hitcount:          2
+ { common_cpu:          0, cpu:          5 } hitcount:          2
+ { common_cpu:          1, cpu:          1 } hitcount:          4
+ { common_cpu:          6, cpu:          6 } hitcount:          4
+ { common_cpu:          5, cpu:          5 } hitcount:         14
+ { common_cpu:          4, cpu:          4 } hitcount:         26
+ { common_cpu:          0, cpu:          0 } hitcount:         39
+ { common_cpu:          2, cpu:          2 } hitcount:        184
+
+Now for backward compatibility, I added a trick. If "cpu" is used, and
+the field is not found, it will fall back to "common_cpu" and work as
+it did before. This way, it will still work for old programs that use
+"cpu" to get the actual CPU, but if the event has a "cpu" as a field, it
+will get that event's "cpu" field, which is probably what it wants
+anyway.
+
+I updated the tracefs/README to include documentation about both the
+common_timestamp and the common_cpu. This way, if that text is present in
+the README, then an application can know that common_cpu is supported over
+just plain "cpu".
+
+Link: https://lkml.kernel.org/r/20210721110053.26b4f641@oasis.local.home
+
 Cc: Namhyung Kim <namhyung@kernel.org>
 Cc: Ingo Molnar <mingo@kernel.org>
 Cc: Andrew Morton <akpm@linux-foundation.org>
 Cc: stable@vger.kernel.org
-Fixes: bd82631d7ccdc ("tracing: Add support for dynamic strings to synthetic events")
+Fixes: 8b7622bf94a44 ("tracing: Add cpu field for hist triggers")
 Reviewed-by: Tom Zanussi <zanussi@kernel.org>
+Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
 Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 ---
- kernel/trace/trace_synth.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Documentation/trace/histogram.rst |  2 +-
+ kernel/trace/trace.c              |  4 ++++
+ kernel/trace/trace_events_hist.c  | 22 ++++++++++++++++------
+ 3 files changed, 21 insertions(+), 7 deletions(-)
 
-diff --git a/kernel/trace/trace_synth.h b/kernel/trace/trace_synth.h
-index 6e146b959dcd..4007fe95cf42 100644
---- a/kernel/trace/trace_synth.h
-+++ b/kernel/trace/trace_synth.h
-@@ -14,10 +14,10 @@ struct synth_field {
- 	char *name;
- 	size_t size;
- 	unsigned int offset;
-+	unsigned int field_pos;
- 	bool is_signed;
- 	bool is_string;
- 	bool is_dynamic;
--	bool field_pos;
- };
+diff --git a/Documentation/trace/histogram.rst b/Documentation/trace/histogram.rst
+index b71e09f745c3..f99be8062bc8 100644
+--- a/Documentation/trace/histogram.rst
++++ b/Documentation/trace/histogram.rst
+@@ -191,7 +191,7 @@ Documentation written by Tom Zanussi
+                                 with the event, in nanoseconds.  May be
+ 			        modified by .usecs to have timestamps
+ 			        interpreted as microseconds.
+-    cpu                    int  the cpu on which the event occurred.
++    common_cpu             int  the cpu on which the event occurred.
+     ====================== ==== =======================================
  
- struct synth_event {
+ Extended error information
+diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
+index f8b80b5bab71..c59dd35a6da5 100644
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -5609,6 +5609,10 @@ static const char readme_msg[] =
+ 	"\t            [:name=histname1]\n"
+ 	"\t            [:<handler>.<action>]\n"
+ 	"\t            [if <filter>]\n\n"
++	"\t    Note, special fields can be used as well:\n"
++	"\t            common_timestamp - to record current timestamp\n"
++	"\t            common_cpu - to record the CPU the event happened on\n"
++	"\n"
+ 	"\t    When a matching event is hit, an entry is added to a hash\n"
+ 	"\t    table using the key(s) and value(s) named, and the value of a\n"
+ 	"\t    sum called 'hitcount' is incremented.  Keys and values\n"
+diff --git a/kernel/trace/trace_events_hist.c b/kernel/trace/trace_events_hist.c
+index 16a9dfc9fffc..34325f41ebc0 100644
+--- a/kernel/trace/trace_events_hist.c
++++ b/kernel/trace/trace_events_hist.c
+@@ -1111,7 +1111,7 @@ static const char *hist_field_name(struct hist_field *field,
+ 		 field->flags & HIST_FIELD_FL_ALIAS)
+ 		field_name = hist_field_name(field->operands[0], ++level);
+ 	else if (field->flags & HIST_FIELD_FL_CPU)
+-		field_name = "cpu";
++		field_name = "common_cpu";
+ 	else if (field->flags & HIST_FIELD_FL_EXPR ||
+ 		 field->flags & HIST_FIELD_FL_VAR_REF) {
+ 		if (field->system) {
+@@ -1991,14 +1991,24 @@ parse_field(struct hist_trigger_data *hist_data, struct trace_event_file *file,
+ 		hist_data->enable_timestamps = true;
+ 		if (*flags & HIST_FIELD_FL_TIMESTAMP_USECS)
+ 			hist_data->attrs->ts_in_usecs = true;
+-	} else if (strcmp(field_name, "cpu") == 0)
++	} else if (strcmp(field_name, "common_cpu") == 0)
+ 		*flags |= HIST_FIELD_FL_CPU;
+ 	else {
+ 		field = trace_find_event_field(file->event_call, field_name);
+ 		if (!field || !field->size) {
+-			hist_err(tr, HIST_ERR_FIELD_NOT_FOUND, errpos(field_name));
+-			field = ERR_PTR(-EINVAL);
+-			goto out;
++			/*
++			 * For backward compatibility, if field_name
++			 * was "cpu", then we treat this the same as
++			 * common_cpu.
++			 */
++			if (strcmp(field_name, "cpu") == 0) {
++				*flags |= HIST_FIELD_FL_CPU;
++			} else {
++				hist_err(tr, HIST_ERR_FIELD_NOT_FOUND,
++					 errpos(field_name));
++				field = ERR_PTR(-EINVAL);
++				goto out;
++			}
+ 		}
+ 	}
+  out:
+@@ -5085,7 +5095,7 @@ static void hist_field_print(struct seq_file *m, struct hist_field *hist_field)
+ 		seq_printf(m, "%s=", hist_field->var.name);
+ 
+ 	if (hist_field->flags & HIST_FIELD_FL_CPU)
+-		seq_puts(m, "cpu");
++		seq_puts(m, "common_cpu");
+ 	else if (field_name) {
+ 		if (hist_field->flags & HIST_FIELD_FL_VAR_REF ||
+ 		    hist_field->flags & HIST_FIELD_FL_ALIAS)
 -- 
 2.30.2
