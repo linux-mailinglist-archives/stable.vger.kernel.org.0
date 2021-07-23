@@ -2,153 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A89F63D3AB4
-	for <lists+stable@lfdr.de>; Fri, 23 Jul 2021 14:56:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE6CD3D3AFD
+	for <lists+stable@lfdr.de>; Fri, 23 Jul 2021 15:19:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234853AbhGWMQD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 23 Jul 2021 08:16:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40126 "EHLO mail.kernel.org"
+        id S235072AbhGWMi4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 23 Jul 2021 08:38:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235143AbhGWMQC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 23 Jul 2021 08:16:02 -0400
-Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A9FF360F02;
-        Fri, 23 Jul 2021 12:56:35 +0000 (UTC)
-Received: from rostedt by gandalf.local.home with local (Exim 4.94.2)
-        (envelope-from <rostedt@goodmis.org>)
-        id 1m6ujC-001hjg-Nq; Fri, 23 Jul 2021 08:56:34 -0400
-Message-ID: <20210723125634.584194330@goodmis.org>
-User-Agent: quilt/0.66
-Date:   Fri, 23 Jul 2021 08:55:01 -0400
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Ingo Molnar <mingo@kernel.org>,
+        id S234972AbhGWMiz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 23 Jul 2021 08:38:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EF31460E53;
+        Fri, 23 Jul 2021 13:19:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1627046368;
+        bh=HF9mEOeDzgAHUKTOnj4D2xJBtY+l26ejPiu1VK+Ubac=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=gvRGMh3HPHQxDoyNBW2e73F2YascTeEZw4O9XwDU1k1PepwS+Eu7DosJsYEiv31Ob
+         tZc4kKovIEmp3pPVg4rc4ApjIvTS7aUQzHq47owKyzZRFIRet2X3eR2wYfXQ5VYI/9
+         rebA/1CGuiODi3D5HxgcOaHJHcoMZZfmvaB+d4G8=
+Date:   Fri, 23 Jul 2021 15:19:26 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Andrew Morton <akpm@linux-foundation.org>,
-        stable@vger.kernel.org, Stefan Metzmacher <metze@samba.org>
-Subject: [for-linus][PATCH 7/7] tracepoints: Update static_call before tp_funcs when adding a
- tracepoint
-References: <20210723125454.570472450@goodmis.org>
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        linux-stable <stable@vger.kernel.org>,
+        linux-block <linux-block@vger.kernel.org>,
+        linux-fsdevel@vger.kernel.org, LTP List <ltp@lists.linux.it>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH 5.13 000/156] 5.13.5-rc1 review
+Message-ID: <YPrB3rvRPjn5D8oI@kroah.com>
+References: <20210722155628.371356843@linuxfoundation.org>
+ <CA+G9fYt_9nfDcQzKm8SZtmQXzzrybutS9vD4GgUw_0o8UD1HOQ@mail.gmail.com>
+ <YPqwF7wtM6n3wHlr@kroah.com>
+ <CA+G9fYvjgkaQxdW52sMzQm73f2xJreQzrPiCV48qD+5EN-b0Kw@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CA+G9fYvjgkaQxdW52sMzQm73f2xJreQzrPiCV48qD+5EN-b0Kw@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+On Fri, Jul 23, 2021 at 05:55:15PM +0530, Naresh Kamboju wrote:
+> On Fri, 23 Jul 2021 at 17:33, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > On Fri, Jul 23, 2021 at 05:26:22PM +0530, Naresh Kamboju wrote:
+> > > On Thu, 22 Jul 2021 at 22:17, Greg Kroah-Hartman
+> > > <gregkh@linuxfoundation.org> wrote:
+> > > >
+> > > > This is the start of the stable review cycle for the 5.13.5 release.
+> > > > There are 156 patches in this series, all will be posted as a response
+> > > > to this one.  If anyone has any issues with these being applied, please
+> > > > let me know.
+> > > >
+> > > > Responses should be made by Sat, 24 Jul 2021 15:56:00 +0000.
+> > > > Anything received after that time might be too late.
+> > > >
+> > > > The whole patch series can be found in one patch at:
+> > > >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.13.5-rc1.gz
+> > > > or in the git tree and branch at:
+> > > >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.13.y
+> > > > and the diffstat can be found below.
+> > > >
+> > > > thanks,
+> > > >
+> > > > greg k-h
+> > >
+> > > The following error is due to SATA drive format failing with arm64 64k-page
+> > > size ( CONFIG_ARM64_64K_PAGES=y ) kernel.
+> > > while running LTP syscalls test suite on running 5.13.3 and 5.13.5-rc1 kernel.
+> > >
+> > > First it was noticed on the stable-rc 5.13.3-rc2 kernel.
+> > >
+> > > Whereas 64bit kernel and 32bit kernel pass with 4K page size.
+> > >
+> > > Initially, I thought it could be a Hard drive fault but it is reproducible on
+> > > other devices but not always. Which is a blocker to bisect the problem.
+> > >
+> > > The steps to reproduce:
+> > >  - Boot arm64 juno device with 64k page stable-rc 5.13 kernel Image [1]
+> > >    - CONFIG_ARM64_64K_PAGES=y
+> > >  - format connected SATA drives and mount /scratch
+> > >  - Use the mounted /scratch for LTP runs to create and delete files from this
+> > >  - cd /opt/ltp
+> > >  - ./runltp -d /scratch -f syscalls
+> >
+> > And does that also fail for 5.13.2?
+> 
+> Yes. It failed on 5.13.2 also.
+> 
+> Ref failed log:
+> https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.13.y/build/v5.13.2/testrun/5147287/suite/ltp-syscalls-tests/test/copy_file_range01/log
 
-Because of the significant overhead that retpolines pose on indirect
-calls, the tracepoint code was updated to use the new "static_calls" that
-can modify the running code to directly call a function instead of using
-an indirect caller, and this function can be changed at runtime.
+Great, not a new problem?
 
-In the tracepoint code that calls all the registered callbacks that are
-attached to a tracepoint, the following is done:
+5.13.0?
 
-	it_func_ptr = rcu_dereference_raw((&__tracepoint_##name)->funcs);
-	if (it_func_ptr) {
-		__data = (it_func_ptr)->data;
-		static_call(tp_func_##name)(__data, args);
-	}
+bisection would be most helpful.
 
-If there's just a single callback, the static_call is updated to just call
-that callback directly. Once another handler is added, then the static
-caller is updated to call the iterator, that simply loops over all the
-funcs in the array and calls each of the callbacks like the old method
-using indirect calling.
+thanks,
 
-The issue was discovered with a race between updating the funcs array and
-updating the static_call. The funcs array was updated first and then the
-static_call was updated. This is not an issue as long as the first element
-in the old array is the same as the first element in the new array. But
-that assumption is incorrect, because callbacks also have a priority
-field, and if there's a callback added that has a higher priority than the
-callback on the old array, then it will become the first callback in the
-new array. This means that it is possible to call the old callback with
-the new callback data element, which can cause a kernel panic.
-
-	static_call = callback1()
-	funcs[] = {callback1,data1};
-	callback2 has higher priority than callback1
-
-	CPU 1				CPU 2
-	-----				-----
-
-   new_funcs = {callback2,data2},
-               {callback1,data1}
-
-   rcu_assign_pointer(tp->funcs, new_funcs);
-
-  /*
-   * Now tp->funcs has the new array
-   * but the static_call still calls callback1
-   */
-
-				it_func_ptr = tp->funcs [ new_funcs ]
-				data = it_func_ptr->data [ data2 ]
-				static_call(callback1, data);
-
-				/* Now callback1 is called with
-				 * callback2's data */
-
-				[ KERNEL PANIC ]
-
-   update_static_call(iterator);
-
-To prevent this from happening, always switch the static_call to the
-iterator before assigning the tp->funcs to the new array. The iterator will
-always properly match the callback with its data.
-
-To trigger this bug:
-
-  In one terminal:
-
-    while :; do hackbench 50; done
-
-  In another terminal
-
-    echo 1 > /sys/kernel/tracing/events/sched/sched_waking/enable
-    while :; do
-        echo 1 > /sys/kernel/tracing/set_event_pid;
-        sleep 0.5
-        echo 0 > /sys/kernel/tracing/set_event_pid;
-        sleep 0.5
-   done
-
-And it doesn't take long to crash. This is because the set_event_pid adds
-a callback to the sched_waking tracepoint with a high priority, which will
-be called before the sched_waking trace event callback is called.
-
-Note, the removal to a single callback updates the array first, before
-changing the static_call to single callback, which is the proper order as
-the first element in the array is the same as what the static_call is
-being changed to.
-
-Link: https://lore.kernel.org/io-uring/4ebea8f0-58c9-e571-fd30-0ce4f6f09c70@samba.org/
-
-Cc: stable@vger.kernel.org
-Fixes: d25e37d89dd2f ("tracepoint: Optimize using static_call()")
-Reported-by: Stefan Metzmacher <metze@samba.org>
-tested-by: Stefan Metzmacher <metze@samba.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
----
- kernel/tracepoint.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/kernel/tracepoint.c b/kernel/tracepoint.c
-index 976bf8ce8039..fc32821f8240 100644
---- a/kernel/tracepoint.c
-+++ b/kernel/tracepoint.c
-@@ -299,8 +299,8 @@ static int tracepoint_add_func(struct tracepoint *tp,
- 	 * a pointer to it.  This array is referenced by __DO_TRACE from
- 	 * include/linux/tracepoint.h using rcu_dereference_sched().
- 	 */
--	rcu_assign_pointer(tp->funcs, tp_funcs);
- 	tracepoint_update_call(tp, tp_funcs, false);
-+	rcu_assign_pointer(tp->funcs, tp_funcs);
- 	static_key_enable(&tp->key);
- 
- 	release_probes(old);
--- 
-2.30.2
+greg k-h
