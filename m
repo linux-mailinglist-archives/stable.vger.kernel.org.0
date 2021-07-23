@@ -2,111 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE6CD3D3AFD
-	for <lists+stable@lfdr.de>; Fri, 23 Jul 2021 15:19:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE1903D3B01
+	for <lists+stable@lfdr.de>; Fri, 23 Jul 2021 15:21:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235072AbhGWMi4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 23 Jul 2021 08:38:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48728 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234972AbhGWMiz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 23 Jul 2021 08:38:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EF31460E53;
-        Fri, 23 Jul 2021 13:19:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627046368;
-        bh=HF9mEOeDzgAHUKTOnj4D2xJBtY+l26ejPiu1VK+Ubac=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=gvRGMh3HPHQxDoyNBW2e73F2YascTeEZw4O9XwDU1k1PepwS+Eu7DosJsYEiv31Ob
-         tZc4kKovIEmp3pPVg4rc4ApjIvTS7aUQzHq47owKyzZRFIRet2X3eR2wYfXQ5VYI/9
-         rebA/1CGuiODi3D5HxgcOaHJHcoMZZfmvaB+d4G8=
-Date:   Fri, 23 Jul 2021 15:19:26 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        linux-stable <stable@vger.kernel.org>,
-        linux-block <linux-block@vger.kernel.org>,
-        linux-fsdevel@vger.kernel.org, LTP List <ltp@lists.linux.it>,
-        Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH 5.13 000/156] 5.13.5-rc1 review
-Message-ID: <YPrB3rvRPjn5D8oI@kroah.com>
-References: <20210722155628.371356843@linuxfoundation.org>
- <CA+G9fYt_9nfDcQzKm8SZtmQXzzrybutS9vD4GgUw_0o8UD1HOQ@mail.gmail.com>
- <YPqwF7wtM6n3wHlr@kroah.com>
- <CA+G9fYvjgkaQxdW52sMzQm73f2xJreQzrPiCV48qD+5EN-b0Kw@mail.gmail.com>
+        id S235074AbhGWMkv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 23 Jul 2021 08:40:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47930 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235248AbhGWMkU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 23 Jul 2021 08:40:20 -0400
+Received: from mail-qv1-xf31.google.com (mail-qv1-xf31.google.com [IPv6:2607:f8b0:4864:20::f31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AEA8C061575
+        for <stable@vger.kernel.org>; Fri, 23 Jul 2021 06:20:48 -0700 (PDT)
+Received: by mail-qv1-xf31.google.com with SMTP id jz6so1316171qvb.2
+        for <stable@vger.kernel.org>; Fri, 23 Jul 2021 06:20:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:from:to:cc:references:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=JDgRgmChcEJr1PN5eAOZivpQ+36V1qAe0wUaZdSyEFU=;
+        b=rNVm+yDO7jkaRA3M4MefpXFvaj1mX9BQRfSUqgnlU0SKUFYk1gaH1DkEFrsSmHg6hX
+         lMaptpxR/Gb5FIvnD4pWLdaZ2JeSjRhPWgzu9jRoERLPLPof1x0aEUUxfGXIr5rlbIC/
+         shEsWdtCreOgDHRoJXGMLwVKL6DAmwx/W79+5Jy52yf7BDUQcpHnOI6W7vbWOPcSNmnt
+         3by1td19iGDW5krv45jhYGszDWs3BdaljIdND7lsICQxrJaOMsQcXNvSPjp1Ssl46jpQ
+         SF8DuYrEtjaQfn5jE8JF2k/plew4lcnOieW0N/4uLuHT9260bK/1/N4zr3p0quLfYP1e
+         suWQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:from:to:cc:references:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=JDgRgmChcEJr1PN5eAOZivpQ+36V1qAe0wUaZdSyEFU=;
+        b=q+paNckFD5TNrJT4Yhsa+xNQ1rklufnL8VfyKY2t1AhlR1DBEAzzGjxHBIhnwKT7vM
+         RV2wuNLQWyiWXkFEi57FDIVASUUqkNQlDXLrwcoWjS8d3GpwsfLuAi0fOS2fyV3dEgPj
+         7c1VYDdNPQbKlvevnU/92KVNF5BPgmsa2ffSoAq6l5SXb0kFFl93DFQqaCEZfwqQAF5h
+         VOrSVhOVJQRudbRqaz9RUnIxYqlWE/6pNhcL/csGto0JMTUw2tNs/iYLutArs2/BqW4R
+         3N1vXqu2gtY+ipwfwajSx8s+VcQ0umoHDo3Jsvx+cdKlPlc3JvK4ErCaiUmu8AenjZ62
+         okFA==
+X-Gm-Message-State: AOAM532FCRKXXkhUYZMkuATwAfyWDqJAQMr6OBBL/ZOYQVsd8OHkp6WI
+        FBw2eM54sY8Yiu8ZWav/435rMrt5NfY=
+X-Google-Smtp-Source: ABdhPJzc3CJXy0rkf6427qirbVf3bd++tmUjTh6vsQ+LJoI51/dRlyLJGXqHIkoYOswAAZ4umUWzOQ==
+X-Received: by 2002:a0c:8e09:: with SMTP id v9mr4768422qvb.15.1627046447636;
+        Fri, 23 Jul 2021 06:20:47 -0700 (PDT)
+Received: from mua.localhost ([2600:1700:e380:2c20::47])
+        by smtp.gmail.com with ESMTPSA id h66sm7997095qkc.47.2021.07.23.06.20.47
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 23 Jul 2021 06:20:47 -0700 (PDT)
+Subject: Re: boot of J1900 (quad-core Celeron) mobo: kernel <= 5.12.15, OK;
+ kernel >= 5.12.17, 5.13.4, slow boot (>> 660 secs) + hang/FAIL
+From:   PGNet Dev <pgnet.dev@gmail.com>
+To:     greg@kroah.com
+Cc:     stable@vger.kernel.org, regressions@lists.linux.dev
+References: <5b5d1b7f-7327-52a2-5221-de39206a07a3@gmail.com>
+ <YPppToU9X3LZYwoe@kroah.com>
+Message-ID: <6a2784d4-c348-1bef-063c-a7db2ffb1248@gmail.com>
+Date:   Fri, 23 Jul 2021 09:22:55 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Firefox/78.0 Thunderbird/78.12.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CA+G9fYvjgkaQxdW52sMzQm73f2xJreQzrPiCV48qD+5EN-b0Kw@mail.gmail.com>
+In-Reply-To: <YPppToU9X3LZYwoe@kroah.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jul 23, 2021 at 05:55:15PM +0530, Naresh Kamboju wrote:
-> On Fri, 23 Jul 2021 at 17:33, Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > On Fri, Jul 23, 2021 at 05:26:22PM +0530, Naresh Kamboju wrote:
-> > > On Thu, 22 Jul 2021 at 22:17, Greg Kroah-Hartman
-> > > <gregkh@linuxfoundation.org> wrote:
-> > > >
-> > > > This is the start of the stable review cycle for the 5.13.5 release.
-> > > > There are 156 patches in this series, all will be posted as a response
-> > > > to this one.  If anyone has any issues with these being applied, please
-> > > > let me know.
-> > > >
-> > > > Responses should be made by Sat, 24 Jul 2021 15:56:00 +0000.
-> > > > Anything received after that time might be too late.
-> > > >
-> > > > The whole patch series can be found in one patch at:
-> > > >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.13.5-rc1.gz
-> > > > or in the git tree and branch at:
-> > > >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.13.y
-> > > > and the diffstat can be found below.
-> > > >
-> > > > thanks,
-> > > >
-> > > > greg k-h
-> > >
-> > > The following error is due to SATA drive format failing with arm64 64k-page
-> > > size ( CONFIG_ARM64_64K_PAGES=y ) kernel.
-> > > while running LTP syscalls test suite on running 5.13.3 and 5.13.5-rc1 kernel.
-> > >
-> > > First it was noticed on the stable-rc 5.13.3-rc2 kernel.
-> > >
-> > > Whereas 64bit kernel and 32bit kernel pass with 4K page size.
-> > >
-> > > Initially, I thought it could be a Hard drive fault but it is reproducible on
-> > > other devices but not always. Which is a blocker to bisect the problem.
-> > >
-> > > The steps to reproduce:
-> > >  - Boot arm64 juno device with 64k page stable-rc 5.13 kernel Image [1]
-> > >    - CONFIG_ARM64_64K_PAGES=y
-> > >  - format connected SATA drives and mount /scratch
-> > >  - Use the mounted /scratch for LTP runs to create and delete files from this
-> > >  - cd /opt/ltp
-> > >  - ./runltp -d /scratch -f syscalls
-> >
-> > And does that also fail for 5.13.2?
+On 7/23/21 3:01 AM, Greg KH wrote:
+> On Thu, Jul 22, 2021 at 05:10:02PM -0400, PGNet Dev wrote:
+>> My servers run Fedora 34, with latest kernels.
+>>
+>> Updating to any of minimally- or un- patched 5.12.17 or 5.13.4 hangs/fails, as follows.
 > 
-> Yes. It failed on 5.13.2 also.
+> Can you use 'git bisect' to find the offending change?
 > 
-> Ref failed log:
-> https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.13.y/build/v5.13.2/testrun/5147287/suite/ltp-syscalls-tests/test/copy_file_range01/log
+> thanks,
+> 
+> greg k-h
 
-Great, not a new problem?
+unfortunately, not simply.
 
-5.13.0?
+These are rpm installs, from unpatched builds,
 
-bisection would be most helpful.
+> updating to any of minimally- or un- patched,
 
-thanks,
 
-greg k-h
+> 
+>     Fedora (5.12.17-300.fc34.x86_64) 34 (Thirty Four)
+
+>         https://koji.fedoraproject.org/koji/buildinfo?buildID=1780670
+
+
+> 
+>     Fedora (5.13.4-200.fc34.x86_64) 34 (Thirty Four)
+
+>         https://koji.fedoraproject.org/koji/buildinfo?buildID=1782334
+
+> 
+
+>     Fedora (5.13.4-250.vanilla.1.fc34.x86_64) 34 (Thirty Four)
+
+>         https://fedoraproject.org/wiki/Kernel_Vanilla_Repositories
+
+>         https://repos.fedorapeople.org/repos/thl/kernel-vanilla-stable/fedora-34/x86_64/
+
+>         https://fedorapeople.org/cgit/thl/public_git/kernel.git/tree/?h=kernel-5.13.3-250.vanilla.1.fc34
+
+available at stable release versions, not my own source builds.
+
+and, of course, this issue appears only on this J1900/Celeron hardware *production* server.
+
+Is there a specific set of kernel rd/systemd/etc debug logging flags that would shine more light on the problem?
+
