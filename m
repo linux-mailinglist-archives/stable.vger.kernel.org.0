@@ -2,99 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D00D93D431D
-	for <lists+stable@lfdr.de>; Sat, 24 Jul 2021 00:51:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5597F3D431E
+	for <lists+stable@lfdr.de>; Sat, 24 Jul 2021 00:51:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233096AbhGWWKK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 23 Jul 2021 18:10:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49816 "EHLO mail.kernel.org"
+        id S233126AbhGWWKS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 23 Jul 2021 18:10:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49870 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233064AbhGWWKJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 23 Jul 2021 18:10:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A24260F36;
-        Fri, 23 Jul 2021 22:50:42 +0000 (UTC)
+        id S233064AbhGWWKQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 23 Jul 2021 18:10:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5677460EB5;
+        Fri, 23 Jul 2021 22:50:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1627080642;
-        bh=qyIRbpPTuKODVQT4LmP5uJdVw2Fzbx73I9+6/4FEAFA=;
+        s=korg; t=1627080645;
+        bh=5JUSCAQlPFtlAg3XzVomObTQ+RoMD50OOdwH73RgAvI=;
         h=Date:From:To:Subject:In-Reply-To:From;
-        b=0S9GHftdUxFexHBb6T7VcG3GS1+c34gUtoDgq3obaYlGmuc5ujtkIEOAZYx7Er9fc
-         Hj8ju5sfCisE675eufIVHC6aX5N3Xoy+Rqe5+ZMduxAATCMfvqGQR9+GGBJitZ7adz
-         4VXTwYT8AM1ilDT0LJWWqQNwWJq1DGKwx1GcM7PU=
-Date:   Fri, 23 Jul 2021 15:50:41 -0700
+        b=ZtMY1iwyBR8rrR486460lmnTzE7qwHaJbQ/XhIICqNQ1VIc9dyiUOH+UZ40jFODIa
+         RZT6JP3GwcnJscD8pBQEWXbMjYmlmOe2IthyPtQZzO8wYzFat27jL4WW0sHtooZ947
+         H2eJTfumbtqhS1B9dY/XpBy/MQerfZvRbfCWcpUQ=
+Date:   Fri, 23 Jul 2021 15:50:44 -0700
 From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, hannes@cmpxchg.org,
-        kirill.shutemov@linux.intel.com, linux-mm@kvack.org,
-        mhocko@kernel.org, mm-commits@vger.kernel.org,
-        songmuchun@bytedance.com, stable@vger.kernel.org,
-        tglx@linutronix.de, torvalds@linux-foundation.org,
-        vdavydov.dev@gmail.com, zhengqi.arch@bytedance.com
-Subject:  [patch 14/15] mm: fix the deadlock in finish_fault()
-Message-ID: <20210723225041.VB3Yq9fkx%akpm@linux-foundation.org>
+To:     akpm@linux-foundation.org, bugs+kernel.org@dtnr.ch,
+        dhowells@redhat.com, linux-mm@kvack.org, mike.kravetz@oracle.com,
+        mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, viro@zeniv.linux.org.uk,
+        willy@infradead.org
+Subject:  [patch 15/15] hugetlbfs: fix mount mode command line
+ processing
+Message-ID: <20210723225044.DpiHGbzxj%akpm@linux-foundation.org>
 In-Reply-To: <20210723154926.c6cda0f262b1990b950a5886@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qi Zheng <zhengqi.arch@bytedance.com>
-Subject: mm: fix the deadlock in finish_fault()
+From: Mike Kravetz <mike.kravetz@oracle.com>
+Subject: hugetlbfs: fix mount mode command line processing
 
-Commit 63f3655f9501 ("mm, memcg: fix reclaim deadlock with writeback") fix
-the following ABBA deadlock by pre-allocating the pte page table without
-holding the page lock.
+In commit 32021982a324 ("hugetlbfs: Convert to fs_context") processing of
+the mount mode string was changed from match_octal() to fsparam_u32.  This
+changed existing behavior as match_octal does not require octal values to
+have a '0' prefix, but fsparam_u32 does.
 
-	                                lock_page(A)
-                                        SetPageWriteback(A)
-                                        unlock_page(A)
-  lock_page(B)
-                                        lock_page(B)
-  pte_alloc_one
-    shrink_page_list
-      wait_on_page_writeback(A)
-                                        SetPageWriteback(B)
-                                        unlock_page(B)
+Use fsparam_u32oct which provides the same behavior as match_octal.
 
-                                        # flush A, B to clear the writeback
-
-Commit f9ce0be71d1f ("mm: Cleanup faultaround and finish_fault()
-codepaths") rework the relevant code but ignore this race.  This will
-cause the deadlock above to appear again, so fix it.
-
-Link: https://lkml.kernel.org/r/20210721074849.57004-1-zhengqi.arch@bytedance.com
-Fixes: f9ce0be71d1f ("mm: Cleanup faultaround and finish_fault() codepaths")
-Signed-off-by: Qi Zheng <zhengqi.arch@bytedance.com>
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
-Cc: Muchun Song <songmuchun@bytedance.com>
+Link: https://lkml.kernel.org/r/20210721183326.102716-1-mike.kravetz@oracle.com
+Fixes: 32021982a324 ("hugetlbfs: Convert to fs_context")
+Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+Reported-by: Dennis Camera <bugs+kernel.org@dtnr.ch>
+Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Cc: David Howells <dhowells@redhat.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/memory.c |   11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ fs/hugetlbfs/inode.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/mm/memory.c~mm-fix-the-deadlock-in-finish_fault
-+++ a/mm/memory.c
-@@ -4026,8 +4026,17 @@ vm_fault_t finish_fault(struct vm_fault
- 				return ret;
- 		}
- 
--		if (unlikely(pte_alloc(vma->vm_mm, vmf->pmd)))
-+		if (vmf->prealloc_pte) {
-+			vmf->ptl = pmd_lock(vma->vm_mm, vmf->pmd);
-+			if (likely(pmd_none(*vmf->pmd))) {
-+				mm_inc_nr_ptes(vma->vm_mm);
-+				pmd_populate(vma->vm_mm, vmf->pmd, vmf->prealloc_pte);
-+				vmf->prealloc_pte = NULL;
-+			}
-+			spin_unlock(vmf->ptl);
-+		} else if (unlikely(pte_alloc(vma->vm_mm, vmf->pmd))) {
- 			return VM_FAULT_OOM;
-+		}
- 	}
- 
- 	/* See comment in handle_pte_fault() */
+--- a/fs/hugetlbfs/inode.c~hugetlbfs-fix-mount-mode-command-line-processing
++++ a/fs/hugetlbfs/inode.c
+@@ -77,7 +77,7 @@ enum hugetlb_param {
+ static const struct fs_parameter_spec hugetlb_fs_parameters[] = {
+ 	fsparam_u32   ("gid",		Opt_gid),
+ 	fsparam_string("min_size",	Opt_min_size),
+-	fsparam_u32   ("mode",		Opt_mode),
++	fsparam_u32oct("mode",		Opt_mode),
+ 	fsparam_string("nr_inodes",	Opt_nr_inodes),
+ 	fsparam_string("pagesize",	Opt_pagesize),
+ 	fsparam_string("size",		Opt_size),
 _
