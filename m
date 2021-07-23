@@ -2,88 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B48E43D4317
-	for <lists+stable@lfdr.de>; Sat, 24 Jul 2021 00:50:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B4433D4318
+	for <lists+stable@lfdr.de>; Sat, 24 Jul 2021 00:50:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232974AbhGWWJd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 23 Jul 2021 18:09:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49090 "EHLO mail.kernel.org"
+        id S232909AbhGWWJj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 23 Jul 2021 18:09:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49198 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231954AbhGWWJc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 23 Jul 2021 18:09:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 54F8860EB5;
-        Fri, 23 Jul 2021 22:50:05 +0000 (UTC)
+        id S231954AbhGWWJj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 23 Jul 2021 18:09:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F39560EB5;
+        Fri, 23 Jul 2021 22:50:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1627080605;
-        bh=0y/+0uE1HjhZS70mVxDmV/xT3KMhjnogjh4zfjnr7IU=;
+        s=korg; t=1627080611;
+        bh=xpuL7eQJ7xIPE/XkgeA272A2+E7I7sd5biWYgp+buAw=;
         h=Date:From:To:Subject:In-Reply-To:From;
-        b=yKvQ744TsnZLBGGY97tgFVU/ULcKVTeVzuBpqRYbZUdKI4jaTEUtWapcrdSPYhSO5
-         3Pth/H/9U09oh1oF09UGL72EMEEIxxTOuFkLuAD4EaA+2/USQ1K3pGg0Q34wS/WWCE
-         +mX765pTaTvqE5PjanSYdE0UMHVzRhwMi8u4/pho=
-Date:   Fri, 23 Jul 2021 15:50:04 -0700
+        b=AJJZqaI5Bfft/bWGO1YiP4dhQEbOZH/9BzClDlW/vYxzKmHONpSrgTH1RW/yMlufC
+         n2GokPJWggESxvNkdmzeZbDYIFtocQoVYAY/DIOGnnFD7Hym4FK3D+ELushuwhNVUT
+         yV3tq/6jrs9iYnCigvx0cGo/uJ20vsQ0VuleLJ24=
+Date:   Fri, 23 Jul 2021 15:50:11 -0700
 From:   Andrew Morton <akpm@linux-foundation.org>
-To:     aarcange@redhat.com, adelva@google.com, akpm@linux-foundation.org,
-        andreyknvl@gmail.com, catalin.marinas@arm.com, Dave.Martin@arm.com,
-        eugenis@google.com, linux-mm@kvack.org, lokeshgidra@google.com,
-        mitchp@google.com, mm-commits@vger.kernel.org, pcc@google.com,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        vincenzo.frascino@arm.com, will@kernel.org, willmcvicker@google.com
-Subject:  [patch 02/15] selftest: use mmap instead of
- posix_memalign to allocate memory
-Message-ID: <20210723225004.VMRataLna%akpm@linux-foundation.org>
+To:     akpm@linux-foundation.org, dvyukov@google.com, elver@google.com,
+        glider@google.com, gregkh@linuxfoundation.org, linux-mm@kvack.org,
+        mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org
+Subject:  [patch 04/15] kfence: move the size check to the
+ beginning of __kfence_alloc()
+Message-ID: <20210723225011.pURAgvl2s%akpm@linux-foundation.org>
 In-Reply-To: <20210723154926.c6cda0f262b1990b950a5886@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Collingbourne <pcc@google.com>
-Subject: selftest: use mmap instead of posix_memalign to allocate memory
+From: Alexander Potapenko <glider@google.com>
+Subject: kfence: move the size check to the beginning of __kfence_alloc()
 
-This test passes pointers obtained from anon_allocate_area to the
-userfaultfd and mremap APIs.  This causes a problem if the system
-allocator returns tagged pointers because with the tagged address ABI the
-kernel rejects tagged addresses passed to these APIs, which would end up
-causing the test to fail.  To make this test compatible with such system
-allocators, stop using the system allocator to allocate memory in
-anon_allocate_area, and instead just use mmap.
+Check the allocation size before toggling kfence_allocation_gate.  This
+way allocations that can't be served by KFENCE will not result in waiting
+for another CONFIG_KFENCE_SAMPLE_INTERVAL without allocating anything.
 
-Link: https://lkml.kernel.org/r/20210714195437.118982-3-pcc@google.com
-Link: https://linux-review.googlesource.com/id/Icac91064fcd923f77a83e8e133f8631c5b8fc241
-Fixes: c47174fc362a ("userfaultfd: selftest")
-Co-developed-by: Lokesh Gidra <lokeshgidra@google.com>
-Signed-off-by: Lokesh Gidra <lokeshgidra@google.com>
-Signed-off-by: Peter Collingbourne <pcc@google.com>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Cc: Dave Martin <Dave.Martin@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Alistair Delva <adelva@google.com>
-Cc: William McVicker <willmcvicker@google.com>
-Cc: Evgenii Stepanov <eugenis@google.com>
-Cc: Mitch Phillips <mitchp@google.com>
-Cc: Andrey Konovalov <andreyknvl@gmail.com>
-Cc: <stable@vger.kernel.org>	[5.4]
+Link: https://lkml.kernel.org/r/20210714092222.1890268-1-glider@google.com
+Signed-off-by: Alexander Potapenko <glider@google.com>
+Suggested-by: Marco Elver <elver@google.com>
+Reviewed-by: Marco Elver <elver@google.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Marco Elver <elver@google.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: <stable@vger.kernel.org>	[5.12+]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- tools/testing/selftests/vm/userfaultfd.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ mm/kfence/core.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/tools/testing/selftests/vm/userfaultfd.c~selftest-use-mmap-instead-of-posix_memalign-to-allocate-memory
-+++ a/tools/testing/selftests/vm/userfaultfd.c
-@@ -210,8 +210,10 @@ static void anon_release_pages(char *rel
- 
- static void anon_allocate_area(void **alloc_area)
+--- a/mm/kfence/core.c~kfence-move-the-size-check-to-the-beginning-of-__kfence_alloc
++++ a/mm/kfence/core.c
+@@ -734,6 +734,13 @@ void kfence_shutdown_cache(struct kmem_c
+ void *__kfence_alloc(struct kmem_cache *s, size_t size, gfp_t flags)
  {
--	if (posix_memalign(alloc_area, page_size, nr_pages * page_size))
--		err("posix_memalign() failed");
-+	*alloc_area = mmap(NULL, nr_pages * page_size, PROT_READ | PROT_WRITE,
-+			   MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-+	if (*alloc_area == MAP_FAILED)
-+		err("mmap of anonymous memory failed");
+ 	/*
++	 * Perform size check before switching kfence_allocation_gate, so that
++	 * we don't disable KFENCE without making an allocation.
++	 */
++	if (size > PAGE_SIZE)
++		return NULL;
++
++	/*
+ 	 * allocation_gate only needs to become non-zero, so it doesn't make
+ 	 * sense to continue writing to it and pay the associated contention
+ 	 * cost, in case we have a large number of concurrent allocations.
+@@ -757,9 +764,6 @@ void *__kfence_alloc(struct kmem_cache *
+ 	if (!READ_ONCE(kfence_enabled))
+ 		return NULL;
+ 
+-	if (size > PAGE_SIZE)
+-		return NULL;
+-
+ 	return kfence_guarded_alloc(s, size, flags);
  }
  
- static void noop_alias_mapping(__u64 *start, size_t len, unsigned long offset)
 _
