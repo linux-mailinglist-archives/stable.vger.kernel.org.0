@@ -2,223 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DA243D3AAA
-	for <lists+stable@lfdr.de>; Fri, 23 Jul 2021 14:54:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE1583D3AB0
+	for <lists+stable@lfdr.de>; Fri, 23 Jul 2021 14:56:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235189AbhGWMNk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 23 Jul 2021 08:13:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41694 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235181AbhGWMNj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 23 Jul 2021 08:13:39 -0400
-Received: from mail-oi1-x22c.google.com (mail-oi1-x22c.google.com [IPv6:2607:f8b0:4864:20::22c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 995D1C061757
-        for <stable@vger.kernel.org>; Fri, 23 Jul 2021 05:54:12 -0700 (PDT)
-Received: by mail-oi1-x22c.google.com with SMTP id a19so1694660oiw.6
-        for <stable@vger.kernel.org>; Fri, 23 Jul 2021 05:54:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=vQVC7Jc8Kgn31TrRkrJGP5tkGusHcyIDihMXoOn9Mu4=;
-        b=Ui5rt3XoWydvgfhOnGdtzS8HA5EfM77uc1aizfDu1vkEVRPlFVHP/4va2lPuS5Skov
-         wIQ6NIPSSRSe24aJJw5C6vz9ep5cp+FC+mhora0NpgteXo6G7JkALJeVhxWF07NGD2hU
-         /qU0cUY3mwRFkHoMgdJRy4OgFTM5b+ZXD/Rowh+wryaHyRb4wyiTwUXzz3VXeoS/z3L/
-         rUZY2MDa/Ap5ALn6g4m6HHG+jFvYphtDzxG+Hq+4fr3pOGVPcQ0XMWj2iWd9JYVYLa48
-         2HAM748x+EzvRQ45bkJ8F/plRswTN2LU+VVBwKnnZN0RPvGApVTDQxaHPLgO3S4gBpm0
-         Ghxg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=vQVC7Jc8Kgn31TrRkrJGP5tkGusHcyIDihMXoOn9Mu4=;
-        b=CwTVwraSgLborq1WS4SvaEQdt1SLCtF78CKXJsxYkqHuhr9uUEMWcSuNlJA8eVseQI
-         M3EJyvA0aR8eSjhaV53QfRWNHfmM9HgWCKq/O6Pk05DswNW6rQ2J+Eu45Kda6KAACReZ
-         B/TYMeI9WYAB3z0+WQO9t4zJNUpUhNvP7LTcPV2B13+rchT1wsgoxTbvz34WA5XydSX/
-         RttMT3ZI0ucUYFvR/A9H+pJxDBy6N3RstnsoALBwi3VolbyTHWvFoF9edVJ7C6X+W4YN
-         p06mEheEGSJD4V/p4CRyK9KPfJokegVTRq0aVDv7IXcQMl/K0sWKD319KjZrxiuZPyE3
-         VAMg==
-X-Gm-Message-State: AOAM531x/MsTwo0GfQsXts8MtXOOdegtaBhPrIdhuWK2fR9JO6d4eDAz
-        40jvijTqQs0zEfxcR2q0dC/GN/pKLyK1iYJDVW8JNw==
-X-Google-Smtp-Source: ABdhPJy5G64MSkCXL6pd+oFXu0Tvai4ZPNlLJTPNCb5wG+3S3XTXSidfpywJphOOFpwt6xI61anAo33sG48ESQgmfFY=
-X-Received: by 2002:aca:abd4:: with SMTP id u203mr2984289oie.13.1627044851764;
- Fri, 23 Jul 2021 05:54:11 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210722155617.865866034@linuxfoundation.org>
-In-Reply-To: <20210722155617.865866034@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Fri, 23 Jul 2021 18:24:00 +0530
-Message-ID: <CA+G9fYtN0ReCw4RWzDVbS0rRMADXMO4xFdX1uLiiSEiQUM6odQ@mail.gmail.com>
-Subject: Re: [PATCH 5.4 00/71] 5.4.135-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
-        linux-stable <stable@vger.kernel.org>,
-        Pavel Machek <pavel@denx.de>,
+        id S234992AbhGWMQB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 23 Jul 2021 08:16:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40040 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S234857AbhGWMQA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 23 Jul 2021 08:16:00 -0400
+Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8DA2960E95;
+        Fri, 23 Jul 2021 12:56:34 +0000 (UTC)
+Received: from rostedt by gandalf.local.home with local (Exim 4.94.2)
+        (envelope-from <rostedt@goodmis.org>)
+        id 1m6ujB-001hgM-KL; Fri, 23 Jul 2021 08:56:33 -0400
+Message-ID: <20210723125633.472856587@goodmis.org>
+User-Agent: quilt/0.66
+Date:   Fri, 23 Jul 2021 08:54:55 -0400
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Ingo Molnar <mingo@kernel.org>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linuxfoundation.org>,
+        Haoran Luo <www@aegistudio.net>
+Subject: [for-linus][PATCH 1/7] tracing: Fix bug in rb_per_cpu_empty() that might cause deadloop.
+References: <20210723125454.570472450@goodmis.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 22 Jul 2021 at 22:04, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.4.135 release.
-> There are 71 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sat, 24 Jul 2021 15:56:00 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.4.135-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.4.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+From: Haoran Luo <www@aegistudio.net>
 
+The "rb_per_cpu_empty()" misinterpret the condition (as not-empty) when
+"head_page" and "commit_page" of "struct ring_buffer_per_cpu" points to
+the same buffer page, whose "buffer_data_page" is empty and "read" field
+is non-zero.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+An error scenario could be constructed as followed (kernel perspective):
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+1. All pages in the buffer has been accessed by reader(s) so that all of
+them will have non-zero "read" field.
 
-## Build
-* kernel: 5.4.135-rc1
-* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-5.4.y
-* git commit: dcc7e2dee7e982554072d1e726ada8872dd7a27e
-* git describe: v5.4.133-221-gdcc7e2dee7e9
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.4.y/build/v5.4.1=
-33-221-gdcc7e2dee7e9
+2. Read and clear all buffer pages so that "rb_num_of_entries()" will
+return 0 rendering there's no more data to read. It is also required
+that the "read_page", "commit_page" and "tail_page" points to the same
+page, while "head_page" is the next page of them.
 
-## No regressions (compared to v5.4.133-149-g0274752daa49)
+3. Invoke "ring_buffer_lock_reserve()" with large enough "length"
+so that it shot pass the end of current tail buffer page. Now the
+"head_page", "commit_page" and "tail_page" points to the same page.
 
-## No fixes (compared to v5.4.133-149-g0274752daa49)
+4. Discard current event with "ring_buffer_discard_commit()", so that
+"head_page", "commit_page" and "tail_page" points to a page whose buffer
+data page is now empty.
 
-## Test result summary
- total: 73381, pass: 60421, fail: 446, skip: 10938, xfail: 1576,
+When the error scenario has been constructed, "tracing_read_pipe" will
+be trapped inside a deadloop: "trace_empty()" returns 0 since
+"rb_per_cpu_empty()" returns 0 when it hits the CPU containing such
+constructed ring buffer. Then "trace_find_next_entry_inc()" always
+return NULL since "rb_num_of_entries()" reports there's no more entry
+to read. Finally "trace_seq_to_user()" returns "-EBUSY" spanking
+"tracing_read_pipe" back to the start of the "waitagain" loop.
 
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 192 total, 192 passed, 0 failed
-* arm64: 26 total, 26 passed, 0 failed
-* i386: 14 total, 14 passed, 0 failed
-* mips: 45 total, 45 passed, 0 failed
-* parisc: 9 total, 9 passed, 0 failed
-* powerpc: 27 total, 27 passed, 0 failed
-* riscv: 21 total, 21 passed, 0 failed
-* s390: 9 total, 9 passed, 0 failed
-* sh: 18 total, 18 passed, 0 failed
-* sparc: 9 total, 9 passed, 0 failed
-* x86_64: 26 total, 26 passed, 0 failed
+I've also written a proof-of-concept script to construct the scenario
+and trigger the bug automatically, you can use it to trace and validate
+my reasoning above:
 
-## Test suites summary
-* fwts
-* kselftest-android
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-lkdtm
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kvm-unit-tests
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* rcutorture
-* ssuite
-* v4l2-compliance
+  https://github.com/aegistudio/RingBufferDetonator.git
 
---
-Linaro LKFT
-https://lkft.linaro.org
+Tests has been carried out on linux kernel 5.14-rc2
+(2734d6c1b1a089fb593ef6a23d4b70903526fe0c), my fixed version
+of kernel (for testing whether my update fixes the bug) and
+some older kernels (for range of affected kernels). Test result is
+also attached to the proof-of-concept repository.
+
+Link: https://lore.kernel.org/linux-trace-devel/YPaNxsIlb2yjSi5Y@aegistudio/
+Link: https://lore.kernel.org/linux-trace-devel/YPgrN85WL9VyrZ55@aegistudio
+
+Cc: stable@vger.kernel.org
+Fixes: bf41a158cacba ("ring-buffer: make reentrant")
+Suggested-by: Linus Torvalds <torvalds@linuxfoundation.org>
+Signed-off-by: Haoran Luo <www@aegistudio.net>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+---
+ kernel/trace/ring_buffer.c | 28 ++++++++++++++++++++++++----
+ 1 file changed, 24 insertions(+), 4 deletions(-)
+
+diff --git a/kernel/trace/ring_buffer.c b/kernel/trace/ring_buffer.c
+index d1463eac11a3..e592d1df6f88 100644
+--- a/kernel/trace/ring_buffer.c
++++ b/kernel/trace/ring_buffer.c
+@@ -3880,10 +3880,30 @@ static bool rb_per_cpu_empty(struct ring_buffer_per_cpu *cpu_buffer)
+ 	if (unlikely(!head))
+ 		return true;
+ 
+-	return reader->read == rb_page_commit(reader) &&
+-		(commit == reader ||
+-		 (commit == head &&
+-		  head->read == rb_page_commit(commit)));
++	/* Reader should exhaust content in reader page */
++	if (reader->read != rb_page_commit(reader))
++		return false;
++
++	/*
++	 * If writers are committing on the reader page, knowing all
++	 * committed content has been read, the ring buffer is empty.
++	 */
++	if (commit == reader)
++		return true;
++
++	/*
++	 * If writers are committing on a page other than reader page
++	 * and head page, there should always be content to read.
++	 */
++	if (commit != head)
++		return false;
++
++	/*
++	 * Writers are committing on the head page, we just need
++	 * to care about there're committed data, and the reader will
++	 * swap reader page with head page when it is to read data.
++	 */
++	return rb_page_commit(commit) == 0;
+ }
+ 
+ /**
+-- 
+2.30.2
