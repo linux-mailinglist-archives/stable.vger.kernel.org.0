@@ -2,104 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C343F3D3163
-	for <lists+stable@lfdr.de>; Fri, 23 Jul 2021 03:51:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CBCE3D3172
+	for <lists+stable@lfdr.de>; Fri, 23 Jul 2021 03:56:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233050AbhGWBKj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 21:10:39 -0400
-Received: from szxga08-in.huawei.com ([45.249.212.255]:12240 "EHLO
-        szxga08-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230318AbhGWBKi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 22 Jul 2021 21:10:38 -0400
-Received: from dggeme703-chm.china.huawei.com (unknown [172.30.72.57])
-        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4GWBwL0q2xz1CMrc;
-        Fri, 23 Jul 2021 09:45:22 +0800 (CST)
-Received: from [10.174.177.180] (10.174.177.180) by
- dggeme703-chm.china.huawei.com (10.1.199.99) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2176.2; Fri, 23 Jul 2021 09:51:10 +0800
-Subject: Re: linux-5.13.2: warning from kernel/rcu/tree_plugin.h:359
-To:     Greg KH <gregkh@linuxfoundation.org>,
-        Matthew Wilcox <willy@infradead.org>
-CC:     Zhouyi Zhou <zhouzhouyi@gmail.com>,
-        Chris Clayton <chris2553@googlemail.com>,
-        Oleksandr Natalenko <oleksandr@natalenko.name>,
-        Boqun Feng <boqun.feng@gmail.com>, <paulmck@kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        <stable@vger.kernel.org>, Chris Rankin <rankincj@gmail.com>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Lai Jiangshan <jiangshanlai@gmail.com>,
-        Joel Fernandes <joel@joelfernandes.org>,
-        rcu <rcu@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linux-MM <linux-mm@kvack.org>,
-        "Huang, Ying" <ying.huang@intel.com>
-References: <c9fd1311-662c-f993-c8ef-54af036f2f78@googlemail.com>
- <5812280.fcLxn8YiTP@natalenko.name> <YPVtBBumSTMKGuld@casper.infradead.org>
- <2237123.PRLUojbHBq@natalenko.name>
- <CAABZP2w4VKRPjNz+TW1_n=NhGw=CBNccMp-WGVRy32XxAVobRg@mail.gmail.com>
- <CAABZP2yh3J8+P=3PLZVaC47ymKC7PcfQCBBxjXJ9Ybn+HREbdg@mail.gmail.com>
- <fb8b8639-bf2d-161e-dc9a-6a63bf9db46e@googlemail.com>
- <CAABZP2xST9787xNujWeKODEW79KpjL7vHtqYjjGxOwoqXSWXDQ@mail.gmail.com>
- <YPlmMnZKgkcLderp@casper.infradead.org> <YPlyHF5eNDiTMKzq@kroah.com>
- <YPl5+PkfBPI0pdHn@kroah.com>
-From:   Miaohe Lin <linmiaohe@huawei.com>
-Message-ID: <01fef2db-bd7e-12b6-ec21-2addd02e7062@huawei.com>
-Date:   Fri, 23 Jul 2021 09:51:09 +0800
+        id S233183AbhGWBQV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 21:16:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33188 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233181AbhGWBQV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 22 Jul 2021 21:16:21 -0400
+Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD660C061575;
+        Thu, 22 Jul 2021 18:56:54 -0700 (PDT)
+Received: by mail-pj1-x1036.google.com with SMTP id j1so87387pjv.3;
+        Thu, 22 Jul 2021 18:56:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=SaBBsKSooT2THR7y3tZObTkjeHzlpmexL9S+wtcTGhQ=;
+        b=FUbGZwJtHW4O2yNb1uVTI+lh+tiBZK7uYBio8dHZXTdbrbvjQnwS4BNuQPispCwqcQ
+         fTk8CAL1fVmgu4EiV5HFxooTv4nkOTCaIIpG/mB67hkEXgIVJpF5lz+d7ca+7uvnPpH8
+         9sO5wp/vC9gJm8ooQ4HlvgWyoaGKuUYlvmncf0SijGDIe9t9xueqSCnxki8rHzIlAcP0
+         ohy5PcJp8y3chnx1h9BvYHSqa2tuo6DP+tM+mcKlBT5ODf302z09Nig1YQBCkwDEuAFP
+         GcPZc8IESZjUXuBcJvkxH41GaAx4FwoziqOBiK54ULOLh0/LUvHacPUjDU1MzKW0LCFN
+         jGIw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=SaBBsKSooT2THR7y3tZObTkjeHzlpmexL9S+wtcTGhQ=;
+        b=Z03fxbVBga2Z5bR+dwZQxVrpk9UTvm/82h7Prp4FCJfLBG5xJT6BktxA7c26uQKTxN
+         FNfvdGqhg5kZRcBzfLPOcthUJNcWHYdU72QrU4tr/jo1SZ/f94fry0ntySpUZeFNQFEq
+         v3wHffvMXqf550FpYx80VzHT4yH6k+NOSvAiX59uDXYz76rgQNdh2Iw3N6JJA47fpBm9
+         TbQbWwMrOptq3juFuweU94DIfplXKlwkNn4D4LPUgA5SifTAr7u0JjlsMlnNXfWZtqdx
+         qFgdpIIleiuHnCxUmWii8EEFPYfYi0qtmyWl/ccUqSf+glexqVmBDd+NVM5ahsWRdNJK
+         MoNQ==
+X-Gm-Message-State: AOAM532hgIWPzSjAdAU+74n9fn/3KRlOsR/9nFQ5HV9NTMF5PA1+J6st
+        SRXKjOGAj4oaBtkbe4LxJ3kOz6tcjLU=
+X-Google-Smtp-Source: ABdhPJw0PlLazqVOuRIrX3AdjVLAy3M1PNyOSeiuaRdDzwxOUaeaSPe557GCVnkQfQ2bm7JFsRN73g==
+X-Received: by 2002:a17:90a:e2c5:: with SMTP id fr5mr2547763pjb.34.1627005413959;
+        Thu, 22 Jul 2021 18:56:53 -0700 (PDT)
+Received: from [192.168.1.121] (99-44-17-11.lightspeed.irvnca.sbcglobal.net. [99.44.17.11])
+        by smtp.gmail.com with ESMTPSA id f3sm26870776pjt.19.2021.07.22.18.56.52
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 22 Jul 2021 18:56:53 -0700 (PDT)
+Subject: Re: [PATCH net backport to 4.14,4.19,5.4] net: bcmgenet: ensure
+ EXT_ENERGY_DET_MASK is clear
+To:     Doug Berger <opendmb@gmail.com>, stable@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        bcm-kernel-feedback-list@broadcom.com, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20210723001509.3274508-1-opendmb@gmail.com>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <5f9ebe21-3d66-f439-f591-8c0b1fd0b534@gmail.com>
+Date:   Thu, 22 Jul 2021 18:56:48 -0700
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.6.0
+ Thunderbird/78.12.0
 MIME-Version: 1.0
-In-Reply-To: <YPl5+PkfBPI0pdHn@kroah.com>
-Content-Type: text/plain; charset="utf-8"
+In-Reply-To: <20210723001509.3274508-1-opendmb@gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.174.177.180]
-X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
- dggeme703-chm.china.huawei.com (10.1.199.99)
-X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2021/7/22 22:00, Greg KH wrote:
-> On Thu, Jul 22, 2021 at 03:26:52PM +0200, Greg KH wrote:
->> On Thu, Jul 22, 2021 at 01:36:02PM +0100, Matthew Wilcox wrote:
->>> On Thu, Jul 22, 2021 at 04:57:57PM +0800, Zhouyi Zhou wrote:
->>>> Thanks for reviewing,
->>>>
->>>> What I have deduced from the dmesg  is:
->>>> In function do_swap_page,
->>>> after invoking
->>>> 3385        si = get_swap_device(entry); /* rcu_read_lock */
->>>> and before
->>>> 3561    out:
->>>> 3562        if (si)
->>>> 3563            put_swap_device(si);
->>>> The thread got scheduled out in
->>>> 3454        locked = lock_page_or_retry(page, vma->vm_mm, vmf->flags);
->>>>
->>>> I am only familiar with Linux RCU subsystem, hope mm people can solve our
->>>> confusions.
->>>
->>> I don't understamd why you're still talking.  The problem is understood.
->>> You need to revert the unnecessary backport of 2799e77529c2 and
->>> 2efa33fc7f6e
->>
->> Sorry for the delay, will go do so in a minute...
-> 
-> Both now reverted from 5.10.y and 5.13.y.
-> 
 
-I browsed my previous backport notifying email and found that these two patches are also
-backported into 5.12. And it seems it's missed.
 
-Thanks.
-
-> thanks,
+On 7/22/2021 5:15 PM, Doug Berger wrote:
+> [ Upstream commit 5a3c680aa2c12c90c44af383fe6882a39875ab81 ]
 > 
-> greg k-h
-> .
+> Setting the EXT_ENERGY_DET_MASK bit allows the port energy detection
+> logic of the internal PHY to prevent the system from sleeping. Some
+> internal PHYs will report that energy is detected when the network
+> interface is closed which can prevent the system from going to sleep
+> if WoL is enabled when the interface is brought down.
 > 
+> Since the driver does not support waking the system on this logic,
+> this commit clears the bit whenever the internal PHY is powered up
+> and the other logic for manipulating the bit is removed since it
+> serves no useful function.
+> 
+> Fixes: 1c1008c793fa ("net: bcmgenet: add main driver file")
+> Signed-off-by: Doug Berger <opendmb@gmail.com>
 
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+-- 
+Florian
