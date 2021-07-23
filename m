@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1565B3D3294
-	for <lists+stable@lfdr.de>; Fri, 23 Jul 2021 05:58:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7535E3D3298
+	for <lists+stable@lfdr.de>; Fri, 23 Jul 2021 05:58:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233994AbhGWDRa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 23:17:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37534 "EHLO mail.kernel.org"
+        id S234014AbhGWDRc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 23:17:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233743AbhGWDRL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 23:17:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 30B6760F36;
-        Fri, 23 Jul 2021 03:57:44 +0000 (UTC)
+        id S233870AbhGWDRN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 23:17:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1822860EE6;
+        Fri, 23 Jul 2021 03:57:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1627012665;
-        bh=NBwycyZpcWFpXMuqm52Myl7XVI6DIA0P1rTPJSPJshM=;
+        s=k20201202; t=1627012667;
+        bh=IvaR99okyfXtAYNEkh/0FqubNa6g3Pw/UCxd58DNFpA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ic2nJKIrCBwu3sfucijcpkEErlDZrR//hMefpeHrlWl4CI1cAQwW0iYJGL80rbU4q
-         sze5ctQpWDJR47y/GrjdBjcS0vaYg4nXDj7XR3hW4YcsGMrR4Vr8WKgz64e2awIsr/
-         /i44iKTd8D9o8UEE9b9GzM3aoEncJq3WmrYoWQO7j5KVHgDdGb7FskPmscO+IwL8Qx
-         qS7IHAlqOfffgGqk3D5RTJlHrjUnSD4C5buEfkc+SdG5VbKg8ygwGdZtoxVXmjvW7G
-         PW0VfVvenMbpG+EY6i5yGxuVjYwwbosB5ChoYscD6M4EkVy7tcvnvpiYusRsXmURb7
-         CD17QKXMUBHGw==
+        b=FqBwSzIIaAdbsa+Pj/Hy1sKeWIKzBtFPTuFZ7KBxluhgOF5qMdClFG/C7xy7wZRS+
+         Zh80g1U7I422nXRaRG47L3gwY98Ym2YSJSXiYh8JA37qdHaIsOkxScRPQwJIpeDj/1
+         HNzTA0W/WgZcvVd1dYdR7BfVKLR3bD+RaXgEXF8QUkR1CLAvdiPPFWgdQ8FEZd3zo0
+         lmE+9GQAvJ/ke8VofgmTJDYSchM8DC/zoDtqGEnEhNDDxQnIOtS4iJe2b+TkPuQ2mI
+         wGc1kFG2Djw/pjwIisR/QwpJPK+oZ4rjCSphb+QOQiF0eV/DFgzEyfOq0N0Ni2UOPH
+         gtkRfqUbYc1HA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christoph Hellwig <hch@lst.de>,
-        Leizhen <thunder.leizhen@huawei.com>,
-        "Darrick J . Wong" <djwong@kernel.org>,
-        Matthew Wilcox <willy@infradead.org>,
-        Sasha Levin <sashal@kernel.org>, linux-xfs@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 17/19] iomap: remove the length variable in iomap_seek_data
-Date:   Thu, 22 Jul 2021 23:57:18 -0400
-Message-Id: <20210723035721.531372-17-sashal@kernel.org>
+Cc:     Sudeep Holla <sudeep.holla@arm.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 19/19] ARM: dts: versatile: Fix up interrupt controller node names
+Date:   Thu, 22 Jul 2021 23:57:20 -0400
+Message-Id: <20210723035721.531372-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210723035721.531372-1-sashal@kernel.org>
 References: <20210723035721.531372-1-sashal@kernel.org>
@@ -45,62 +43,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Sudeep Holla <sudeep.holla@arm.com>
 
-[ Upstream commit 3ac1d426510f97ace05093ae9f2f710d9cbe6215 ]
+[ Upstream commit 82a1c67554dff610d6be4e1982c425717b3c6a23 ]
 
-The length variable is rather pointless given that it can be trivially
-deduced from offset and size.  Also the initial calculation can lead
-to KASAN warnings.
+Once the new schema interrupt-controller/arm,vic.yaml is added, we get
+the below warnings:
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reported-by: Leizhen (ThunderTown) <thunder.leizhen@huawei.com>
-Reviewed-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+        arch/arm/boot/dts/versatile-ab.dt.yaml:
+        intc@10140000: $nodename:0: 'intc@10140000' does not match
+        '^interrupt-controller(@[0-9a-f,]+)*$'
+
+	arch/arm/boot/dts/versatile-ab.dt.yaml:
+	intc@10140000: 'clear-mask' does not match any of the regexes
+
+Fix the node names for the interrupt controller to conform
+to the standard node name interrupt-controller@.. Also drop invalid
+clear-mask property.
+
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20210701132118.759454-1-sudeep.holla@arm.com'
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/iomap/seek.c | 16 ++++++----------
- 1 file changed, 6 insertions(+), 10 deletions(-)
+ arch/arm/boot/dts/versatile-ab.dts | 5 ++---
+ arch/arm/boot/dts/versatile-pb.dts | 2 +-
+ 2 files changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/fs/iomap/seek.c b/fs/iomap/seek.c
-index dab1b02eba5b..50b8f1418f26 100644
---- a/fs/iomap/seek.c
-+++ b/fs/iomap/seek.c
-@@ -83,27 +83,23 @@ loff_t
- iomap_seek_data(struct inode *inode, loff_t offset, const struct iomap_ops *ops)
- {
- 	loff_t size = i_size_read(inode);
--	loff_t length = size - offset;
- 	loff_t ret;
+diff --git a/arch/arm/boot/dts/versatile-ab.dts b/arch/arm/boot/dts/versatile-ab.dts
+index 37bd41ff8dff..151c0220047d 100644
+--- a/arch/arm/boot/dts/versatile-ab.dts
++++ b/arch/arm/boot/dts/versatile-ab.dts
+@@ -195,16 +195,15 @@ amba {
+ 		#size-cells = <1>;
+ 		ranges;
  
- 	/* Nothing to be found before or beyond the end of the file. */
- 	if (offset < 0 || offset >= size)
- 		return -ENXIO;
+-		vic: intc@10140000 {
++		vic: interrupt-controller@10140000 {
+ 			compatible = "arm,versatile-vic";
+ 			interrupt-controller;
+ 			#interrupt-cells = <1>;
+ 			reg = <0x10140000 0x1000>;
+-			clear-mask = <0xffffffff>;
+ 			valid-mask = <0xffffffff>;
+ 		};
  
--	while (length > 0) {
--		ret = iomap_apply(inode, offset, length, IOMAP_REPORT, ops,
--				  &offset, iomap_seek_data_actor);
-+	while (offset < size) {
-+		ret = iomap_apply(inode, offset, size - offset, IOMAP_REPORT,
-+				  ops, &offset, iomap_seek_data_actor);
- 		if (ret < 0)
- 			return ret;
- 		if (ret == 0)
--			break;
--
-+			return offset;
- 		offset += ret;
--		length -= ret;
- 	}
+-		sic: intc@10003000 {
++		sic: interrupt-controller@10003000 {
+ 			compatible = "arm,versatile-sic";
+ 			interrupt-controller;
+ 			#interrupt-cells = <1>;
+diff --git a/arch/arm/boot/dts/versatile-pb.dts b/arch/arm/boot/dts/versatile-pb.dts
+index 06a0fdf24026..e7e751a858d8 100644
+--- a/arch/arm/boot/dts/versatile-pb.dts
++++ b/arch/arm/boot/dts/versatile-pb.dts
+@@ -7,7 +7,7 @@ / {
  
--	if (length <= 0)
--		return -ENXIO;
--	return offset;
-+	/* We've reached the end of the file without finding data */
-+	return -ENXIO;
- }
- EXPORT_SYMBOL_GPL(iomap_seek_data);
+ 	amba {
+ 		/* The Versatile PB is using more SIC IRQ lines than the AB */
+-		sic: intc@10003000 {
++		sic: interrupt-controller@10003000 {
+ 			clear-mask = <0xffffffff>;
+ 			/*
+ 			 * Valid interrupt lines mask according to
 -- 
 2.30.2
 
