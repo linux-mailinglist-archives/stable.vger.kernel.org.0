@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC1BC3D32EE
-	for <lists+stable@lfdr.de>; Fri, 23 Jul 2021 05:59:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7EBE3D32E9
+	for <lists+stable@lfdr.de>; Fri, 23 Jul 2021 05:59:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233907AbhGWDSx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 23:18:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38070 "EHLO mail.kernel.org"
+        id S234546AbhGWDSu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 23:18:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234284AbhGWDSO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 23:18:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 142ED60EC0;
-        Fri, 23 Jul 2021 03:58:47 +0000 (UTC)
+        id S234290AbhGWDSQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 23:18:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4E01560EFD;
+        Fri, 23 Jul 2021 03:58:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1627012728;
-        bh=z9fgw4RdACJbMctbCl+ANgw/8SM3JA0y2OW3YTUL4h0=;
+        s=k20201202; t=1627012730;
+        bh=bP7EfWyYpsjKDH4AQ8uVNKRnm8HyzjShB9bWxlcPHOU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LForUrg/xcqJGETSmhZndLzuZmOKx3F9jPwMc3jRfXnafg1aQqnvV7bNR5QfprCGu
-         54SlxXLqyIpZFmpiNvHszaYYNUJEH/e6Bm0/CYjStZ8YXpmaubpUvGL1P/pgJdy/T1
-         bLBGrVSExJ/z/0OfADoO23G+6o+YVexLk4bMpAgMGC8pdN8UmGJ98ggVbuwOwhpfVI
-         Ra36Q9BGRZmw9uSRQ7ZllWb1pxX6blye5xb7hdMqEzgG8ag12cG5kHR6gquyFkBXkG
-         67mMUNzVXhrMIyLVXsXLjpRTSlfL72JjrklrgPERtfuUTSM6Eu0JDUaSeY5773KJRn
-         UYnfKzCa9z06g==
+        b=E//7lXsnjZ4QL8osvX+XkrovwMPpzfCIfrD0ILdyvlhllTkDZ50o8wVIFt453k6ci
+         dNN6FdZw0XJKKH80PWZm3yGkKr5JIRYv53zFrNwTuB0acLjOtwj0v3C01NPR7/Mt4r
+         bAeYJ5rnCxTcFIoCwSJKGFPATQ49dOD6JiOtqSizrgXSY9T1ZxnHwRbOBYfTJoVkp0
+         2IZ/0gtdDus8V+12j8UgclH+/SuVswZmnXlkQISx91nPa9Ix9vaJPay7rYdwb3fpJH
+         MUg/3begOlbpZVjZGaJy9EzzkHUfxVpVEsxhrDFCqFq4HDSqF9zfw3nw8XLWxbC446
+         EWjZ26oaOdYKw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Cristian Marussi <cristian.marussi@arm.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 09/11] firmware: arm_scmi: Fix range check for the maximum number of pending messages
-Date:   Thu, 22 Jul 2021 23:58:33 -0400
-Message-Id: <20210723035835.532148-9-sashal@kernel.org>
+Cc:     Hyunchul Lee <hyc.lee@gmail.com>,
+        Steve French <stfrench@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>, linux-cifs@vger.kernel.org,
+        samba-technical@lists.samba.org
+Subject: [PATCH AUTOSEL 4.19 10/11] cifs: fix the out of range assignment to bit fields in parse_server_interfaces
+Date:   Thu, 22 Jul 2021 23:58:34 -0400
+Message-Id: <20210723035835.532148-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210723035835.532148-1-sashal@kernel.org>
 References: <20210723035835.532148-1-sashal@kernel.org>
@@ -44,43 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cristian Marussi <cristian.marussi@arm.com>
+From: Hyunchul Lee <hyc.lee@gmail.com>
 
-[ Upstream commit bdb8742dc6f7c599c3d61959234fe4c23638727b ]
+[ Upstream commit c9c9c6815f9004ee1ec87401ed0796853bd70f1b ]
 
-SCMI message headers carry a sequence number and such field is sized to
-allow for MSG_TOKEN_MAX distinct numbers; moreover zero is not really an
-acceptable maximum number of pending in-flight messages.
+Because the out of range assignment to bit fields
+are compiler-dependant, the fields could have wrong
+value.
 
-Fix accordingly the checks performed on the value exported by transports
-in scmi_desc.max_msg
-
-Link: https://lore.kernel.org/r/20210712141833.6628-3-cristian.marussi@arm.com
-Reported-by: Vincent Guittot <vincent.guittot@linaro.org>
-Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
-[sudeep.holla: updated the patch title and error message]
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Hyunchul Lee <hyc.lee@gmail.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/arm_scmi/driver.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ fs/cifs/smb2ops.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/firmware/arm_scmi/driver.c b/drivers/firmware/arm_scmi/driver.c
-index 081fbe28da4b..af5139eb96b5 100644
---- a/drivers/firmware/arm_scmi/driver.c
-+++ b/drivers/firmware/arm_scmi/driver.c
-@@ -629,8 +629,9 @@ static int scmi_xfer_info_init(struct scmi_info *sinfo)
- 	struct scmi_xfers_info *info = &sinfo->minfo;
+diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
+index 5a14f518cd97..61955a7c838b 100644
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -386,8 +386,8 @@ parse_server_interfaces(struct network_interface_info_ioctl_rsp *buf,
+ 	p = buf;
+ 	while (bytes_left >= sizeof(*p)) {
+ 		info->speed = le64_to_cpu(p->LinkSpeed);
+-		info->rdma_capable = le32_to_cpu(p->Capability & RDMA_CAPABLE);
+-		info->rss_capable = le32_to_cpu(p->Capability & RSS_CAPABLE);
++		info->rdma_capable = le32_to_cpu(p->Capability & RDMA_CAPABLE) ? 1 : 0;
++		info->rss_capable = le32_to_cpu(p->Capability & RSS_CAPABLE) ? 1 : 0;
  
- 	/* Pre-allocated messages, no more than what hdr.seq can support */
--	if (WARN_ON(desc->max_msg >= MSG_TOKEN_MAX)) {
--		dev_err(dev, "Maximum message of %d exceeds supported %ld\n",
-+	if (WARN_ON(!desc->max_msg || desc->max_msg > MSG_TOKEN_MAX)) {
-+		dev_err(dev,
-+			"Invalid maximum messages %d, not in range [1 - %lu]\n",
- 			desc->max_msg, MSG_TOKEN_MAX);
- 		return -EINVAL;
- 	}
+ 		cifs_dbg(FYI, "%s: adding iface %zu\n", __func__, *iface_count);
+ 		cifs_dbg(FYI, "%s: speed %zu bps\n", __func__, info->speed);
 -- 
 2.30.2
 
