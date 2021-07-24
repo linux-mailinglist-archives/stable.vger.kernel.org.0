@@ -2,90 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 85CB43D4516
-	for <lists+stable@lfdr.de>; Sat, 24 Jul 2021 07:22:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F4433D455F
+	for <lists+stable@lfdr.de>; Sat, 24 Jul 2021 08:42:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229811AbhGXEl2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 24 Jul 2021 00:41:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37254 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229730AbhGXEl2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 24 Jul 2021 00:41:28 -0400
-Received: from mail-io1-xd36.google.com (mail-io1-xd36.google.com [IPv6:2607:f8b0:4864:20::d36])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BF96C061575;
-        Fri, 23 Jul 2021 22:22:00 -0700 (PDT)
-Received: by mail-io1-xd36.google.com with SMTP id y200so5117215iof.1;
-        Fri, 23 Jul 2021 22:22:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=YrKVY9DyHgwqRMMdVNrCbNG/w4+sk5CKWWsJcs7NxLA=;
-        b=Unp6Z3C35/AL0LkPbbRC7Z3tLtBcmaDZbsYcbD/fJCq/FAmeDK4nzYzRyX3+TZcKBR
-         BDRf/8iR1Mn9ourZFLC+TkSHrRUzyU7IksV5v7iXajyx7E9Z2D0cmzPAijCRJNxX+iF2
-         JQ2fLYY7fpHF0Lh5AKdE9nTklZheK55bUv61D9+fPi57gOranFiQXivpk3f1aC3LzET/
-         w5MG7vI47gLDt64+2cKUjW+4t4IuOaWyP3sWkuoxKrClaQ/ZUB9hTKO+xflCaXqg2hX/
-         ZhRZNOmwKVxX8+MKeFE7y/CV2CCYO/MEw5LJlp6myJQFLuJDzE939FPmnI+/S0a697Bb
-         XynQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=YrKVY9DyHgwqRMMdVNrCbNG/w4+sk5CKWWsJcs7NxLA=;
-        b=VjoVGnIokMM8BAHV2ITpkaBGROiAx+hSfV0kRejxTHrzv2jUMg39PZUBkMfVTktjNo
-         exNhll7LBPvdh1xzNPUwz6mveVq7XW60K1pZQJirnj4u6Ulfp1ipWjQVZ3qO5kgNme7T
-         kROXheuu8JnFAdjbXR1swbY4nr+vWZsakQPiR0nox6jA5DtrJaKkCs6t5Fgj09gMzSLZ
-         ncPdHu4pN5+tYFsTr8Kxj+GCtEs+efgMWQrq9ZMJ1uOeiUYGvE5TZScUXKHrwG3+Ar71
-         171o7IYJ5+Rjke/SKrRbO8qT3Gkz3U0vrpqjUQSSpOkk0+aYMcY39mbPRnn9mPk8wVAB
-         pqDQ==
-X-Gm-Message-State: AOAM533cTGTsI40iekZzWtSOtFHgYJnItKrSbz6+VEhvxQ7V2xOvhFXq
-        YIHNMB6THDXki88P25DRI3Utzd+1AKJRyUzw8Qc=
-X-Google-Smtp-Source: ABdhPJxkCwcaBPNjbMxwZpOpXWwryikr8jSYa1xPttDIRDYwJmYtuS4HakxJN4DQBiv5EBLwXfU5wQ==
-X-Received: by 2002:a5e:840f:: with SMTP id h15mr6467513ioj.93.1627104119153;
-        Fri, 23 Jul 2021 22:21:59 -0700 (PDT)
-Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [2605:2700:0:2:a800:ff:fed6:fc0d])
-        by smtp.gmail.com with ESMTPSA id w11sm19208155ioj.47.2021.07.23.22.21.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 23 Jul 2021 22:21:58 -0700 (PDT)
-Message-ID: <60fba376.1c69fb81.3b1cd.fdd5@mx.google.com>
-Date:   Fri, 23 Jul 2021 22:21:58 -0700 (PDT)
-X-Google-Original-Date: Sat, 24 Jul 2021 05:21:57 GMT
-From:   Fox Chen <foxhlchen@gmail.com>
-In-Reply-To: <20210722184939.163840701@linuxfoundation.org>
-Subject: RE: [PATCH 5.10 000/123] 5.10.53-rc2 review
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org,
-        Fox Chen <foxhlchen@gmail.com>
-Content-Transfer-Encoding: 7bit
+        id S232699AbhGXGB0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 24 Jul 2021 02:01:26 -0400
+Received: from out28-221.mail.aliyun.com ([115.124.28.221]:41631 "EHLO
+        out28-221.mail.aliyun.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229926AbhGXGBZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 24 Jul 2021 02:01:25 -0400
+X-Alimail-AntiSpam: AC=CONTINUE;BC=0.07973208|-1;CH=green;DM=|CONTINUE|false|;DS=CONTINUE|ham_system_inform|0.248806-0.000424708-0.75077;FP=0|0|0|0|0|-1|-1|-1;HT=ay29a033018047206;MF=zhouyanjie@wanyeetech.com;NM=1;PH=DS;RN=6;RT=6;SR=0;TI=SMTPD_---.Kpji6Es_1627108915;
+Received: from 192.168.88.130(mailfrom:zhouyanjie@wanyeetech.com fp:SMTPD_---.Kpji6Es_1627108915)
+          by smtp.aliyun-inc.com(10.147.40.26);
+          Sat, 24 Jul 2021 14:41:55 +0800
+Subject: Re: [PATCH 1/3] pinctrl: ingenic: Fix incorrect pull up/down info
+To:     Paul Cercueil <paul@crapouillou.net>,
+        Linus Walleij <linus.walleij@linaro.org>
+Cc:     linux-mips@vger.kernel.org, linux-gpio@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <20210717174836.14776-1-paul@crapouillou.net>
+From:   Zhou Yanjie <zhouyanjie@wanyeetech.com>
+Message-ID: <29998863-e0b9-4aa8-318c-08da51d146a9@wanyeetech.com>
+Date:   Sat, 24 Jul 2021 14:41:48 +0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
+MIME-Version: 1.0
+In-Reply-To: <20210717174836.14776-1-paul@crapouillou.net>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 22 Jul 2021 20:50:22 +0200, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-> This is the start of the stable review cycle for the 5.10.53 release.
-> There are 123 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sat, 24 Jul 2021 18:49:19 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.53-rc2.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+Hi Paul,
 
-5.10.53-rc2 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
-                
-Tested-by: Fox Chen <foxhlchen@gmail.com>
+On 2021/7/18 上午1:48, Paul Cercueil wrote:
+> Fix the pull up/down info for both the JZ4760 and JZ4770 SoCs, as the
+> previous values sometimes contradicted what's written in the programming
+> manual.
+>
+> Fixes: b5c23aa46537 ("pinctrl: add a pinctrl driver for the Ingenic jz47xx SoCs")
+> Cc: <stable@vger.kernel.org> # v4.12
+> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+> ---
+>   drivers/pinctrl/pinctrl-ingenic.c | 6 +++---
+>   1 file changed, 3 insertions(+), 3 deletions(-)
 
+
+Tested-by: 周琰杰 (Zhou Yanjie)<zhouyanjie@wanyeetech.com>
+
+
+>
+> diff --git a/drivers/pinctrl/pinctrl-ingenic.c b/drivers/pinctrl/pinctrl-ingenic.c
+> index 983ba9865f77..126ca671c3cd 100644
+> --- a/drivers/pinctrl/pinctrl-ingenic.c
+> +++ b/drivers/pinctrl/pinctrl-ingenic.c
+> @@ -710,7 +710,7 @@ static const struct ingenic_chip_info jz4755_chip_info = {
+>   };
+>   
+>   static const u32 jz4760_pull_ups[6] = {
+> -	0xffffffff, 0xfffcf3ff, 0xffffffff, 0xffffcfff, 0xfffffb7c, 0xfffff00f,
+> +	0xffffffff, 0xfffcf3ff, 0xffffffff, 0xffffcfff, 0xfffffb7c, 0x0000000f,
+>   };
+>   
+>   static const u32 jz4760_pull_downs[6] = {
+> @@ -936,11 +936,11 @@ static const struct ingenic_chip_info jz4760_chip_info = {
+>   };
+>   
+>   static const u32 jz4770_pull_ups[6] = {
+> -	0x3fffffff, 0xfff0030c, 0xffffffff, 0xffff4fff, 0xfffffb7c, 0xffa7f00f,
+> +	0x3fffffff, 0xfff0f3fc, 0xffffffff, 0xffff4fff, 0xfffffb7c, 0x0024f00f,
+>   };
+>   
+>   static const u32 jz4770_pull_downs[6] = {
+> -	0x00000000, 0x000f0c03, 0x00000000, 0x0000b000, 0x00000483, 0x00580ff0,
+> +	0x00000000, 0x000f0c03, 0x00000000, 0x0000b000, 0x00000483, 0x005b0ff0,
+>   };
+>   
+>   static int jz4770_uart0_data_pins[] = { 0xa0, 0xa3, };
