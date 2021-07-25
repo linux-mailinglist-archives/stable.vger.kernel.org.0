@@ -2,323 +2,2446 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ECCA03D4D9C
-	for <lists+stable@lfdr.de>; Sun, 25 Jul 2021 15:16:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 440523D4D9E
+	for <lists+stable@lfdr.de>; Sun, 25 Jul 2021 15:16:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230193AbhGYMfm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 25 Jul 2021 08:35:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41310 "EHLO mail.kernel.org"
+        id S230192AbhGYMgA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 25 Jul 2021 08:36:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41358 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230192AbhGYMfm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 25 Jul 2021 08:35:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C8F08608FB;
-        Sun, 25 Jul 2021 13:16:10 +0000 (UTC)
+        id S230407AbhGYMfr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 25 Jul 2021 08:35:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 12BD460551;
+        Sun, 25 Jul 2021 13:16:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627218971;
-        bh=2T4FIquSajRnJRDeBWK34KBHxO6JnFcinrM2a+g92yo=;
-        h=From:To:Cc:Subject:Date:From;
-        b=qyJmDsJrVzVBjScSk8YuvOOX+eXYgkj9uNenfBPCZSgt9J0KRVQQ0nWJqTkXYkxkj
-         Zmd5tsRHuZupSGbM4QjHxwjzPXc1DB8khkeO/KzgMrRVP+yeb6qF1MKTZLij9ZS22Q
-         k1wFBgJb5XZIJjjHE3O/8y/2jLRfyObn6E7ZyWNI=
+        s=korg; t=1627218977;
+        bh=5YZHBB5Nfg71u8ZruSspKY3CxS/TSt0KV8feusmmf3k=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=lXWEIkUEbCHSsR9oyOtp1JZbUi0vzIITz1rA80hzwdUlPXnH+L006hvd7OM3C5+Or
+         Fzx70rVzqVZKT25jQLN4LO/MkCwrrB6yxoFkzCIZfPzEvMkmDceKwKA69AxHYBu480
+         Jw2kCoCzbYt8AMI1Kqa3Z4ttN7QxqlOdvJ2iu7wM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Linux 5.4.135
-Date:   Sun, 25 Jul 2021 15:16:07 +0200
-Message-Id: <16272189679463@kroah.com>
+Subject: Re: Linux 5.4.135
+Date:   Sun, 25 Jul 2021 15:16:08 +0200
+Message-Id: <1627218967204203@kroah.com>
 X-Mailer: git-send-email 2.32.0
+In-Reply-To: <16272189679463@kroah.com>
+References: <16272189679463@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I'm announcing the release of the 5.4.135 kernel.
-
-All users of the 5.4 kernel series must upgrade.
-
-The updated 5.4.y git tree can be found at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.4.y
-and can be browsed at the normal kernel.org git web browser:
-	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
-
-thanks,
-
-greg k-h
-
-------------
-
- Makefile                                               |    2 
- arch/arm/boot/dts/am437x-gp-evm.dts                    |    5 
- arch/arm/boot/dts/am437x-l4.dtsi                       |    2 
- arch/arm/boot/dts/am57xx-cl-som-am57x.dts              |    5 
- arch/arm/boot/dts/bcm-cygnus.dtsi                      |    2 
- arch/arm/boot/dts/bcm-hr2.dtsi                         |    2 
- arch/arm/boot/dts/bcm-nsp.dtsi                         |    2 
- arch/arm/boot/dts/bcm63138.dtsi                        |    2 
- arch/arm/boot/dts/bcm7445-bcm97445svmb.dts             |    4 
- arch/arm/boot/dts/bcm7445.dtsi                         |    2 
- arch/arm/boot/dts/bcm911360_entphn.dts                 |    4 
- arch/arm/boot/dts/bcm958300k.dts                       |    4 
- arch/arm/boot/dts/bcm958305k.dts                       |    4 
- arch/arm/boot/dts/bcm958522er.dts                      |    4 
- arch/arm/boot/dts/bcm958525er.dts                      |    4 
- arch/arm/boot/dts/bcm958525xmc.dts                     |    4 
- arch/arm/boot/dts/bcm958622hr.dts                      |    4 
- arch/arm/boot/dts/bcm958623hr.dts                      |    4 
- arch/arm/boot/dts/bcm958625hr.dts                      |    4 
- arch/arm/boot/dts/bcm958625k.dts                       |    4 
- arch/arm/boot/dts/bcm963138dvt.dts                     |    4 
- arch/arm/boot/dts/bcm988312hr.dts                      |    4 
- arch/arm/boot/dts/dra7-l4.dtsi                         |    4 
- arch/arm/boot/dts/gemini-dlink-dns-313.dts             |    2 
- arch/arm/boot/dts/gemini-nas4220b.dts                  |    2 
- arch/arm/boot/dts/gemini-rut1xx.dts                    |    2 
- arch/arm/boot/dts/gemini-wbd111.dts                    |    2 
- arch/arm/boot/dts/gemini-wbd222.dts                    |    2 
- arch/arm/boot/dts/gemini.dtsi                          |    1 
- arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi           |    5 
- arch/arm/boot/dts/rk3036-kylin.dts                     |    2 
- arch/arm/boot/dts/rk3066a.dtsi                         |    6 -
- arch/arm/boot/dts/rk3188.dtsi                          |   14 +-
- arch/arm/boot/dts/rk322x.dtsi                          |   10 -
- arch/arm/boot/dts/rk3288-rock2-som.dtsi                |    2 
- arch/arm/boot/dts/rk3288-vyasa.dts                     |    4 
- arch/arm/boot/dts/rk3288.dtsi                          |   14 +-
- arch/arm/boot/dts/stm32429i-eval.dts                   |    8 -
- arch/arm/boot/dts/stm32746g-eval.dts                   |    6 -
- arch/arm/boot/dts/stm32f429-disco.dts                  |    6 -
- arch/arm/boot/dts/stm32f429.dtsi                       |   10 -
- arch/arm/boot/dts/stm32f469-disco.dts                  |    6 -
- arch/arm/boot/dts/stm32f746.dtsi                       |   12 --
- arch/arm/boot/dts/stm32f769-disco.dts                  |    6 -
- arch/arm/boot/dts/stm32h743.dtsi                       |    4 
- arch/arm/boot/dts/stm32mp157c.dtsi                     |   12 +-
- arch/arm/mach-imx/suspend-imx53.S                      |    4 
- arch/arm64/boot/dts/arm/juno-base.dtsi                 |    6 -
- arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi         |    1 
- arch/arm64/boot/dts/freescale/imx8mq.dtsi              |   16 ++
- arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts |    6 +
- arch/arm64/boot/dts/marvell/armada-37xx.dtsi           |    8 +
- arch/arm64/boot/dts/rockchip/px30.dtsi                 |   16 +-
- arch/arm64/boot/dts/rockchip/rk3328.dtsi               |    6 -
- arch/arm64/boot/dts/rockchip/rk3399.dtsi               |    2 
- arch/s390/include/asm/stacktrace.h                     |   97 +++++++++++++++++
- drivers/dma-buf/sync_file.c                            |   13 +-
- drivers/firmware/tegra/Makefile                        |    1 
- drivers/firmware/tegra/bpmp-private.h                  |    3 
- drivers/firmware/tegra/bpmp.c                          |    3 
- drivers/firmware/turris-mox-rwtm.c                     |    1 
- drivers/md/dm-writecache.c                             |   32 ++---
- drivers/net/dsa/mv88e6xxx/chip.c                       |    4 
- drivers/net/ethernet/broadcom/genet/bcmgenet.c         |    6 +
- drivers/net/ethernet/moxa/moxart_ether.c               |    4 
- drivers/net/ethernet/qualcomm/emac/emac.c              |    3 
- drivers/net/ethernet/ti/tlan.c                         |    3 
- drivers/net/fddi/defza.c                               |    3 
- drivers/reset/reset-ti-syscon.c                        |    4 
- drivers/rtc/rtc-max77686.c                             |    4 
- drivers/rtc/rtc-mxc_v2.c                               |    1 
- drivers/scsi/aic7xxx/aic7xxx_core.c                    |    2 
- drivers/scsi/aic94xx/aic94xx_init.c                    |    1 
- drivers/scsi/hisi_sas/hisi_sas_v1_hw.c                 |    1 
- drivers/scsi/hisi_sas/hisi_sas_v2_hw.c                 |    1 
- drivers/scsi/hisi_sas/hisi_sas_v3_hw.c                 |    1 
- drivers/scsi/isci/init.c                               |    1 
- drivers/scsi/libfc/fc_rport.c                          |   13 +-
- drivers/scsi/libsas/sas_scsi_host.c                    |    9 +
- drivers/scsi/mvsas/mv_init.c                           |    1 
- drivers/scsi/pm8001/pm8001_init.c                      |    1 
- drivers/scsi/qedf/qedf_io.c                            |   22 +++
- drivers/soc/tegra/fuse/fuse-tegra30.c                  |    3 
- drivers/thermal/thermal_core.c                         |    2 
- drivers/usb/cdns3/gadget.c                             |    8 -
- fs/cifs/cifs_dfs_ref.c                                 |    3 
- fs/f2fs/sysfs.c                                        |    4 
- include/net/dst_metadata.h                             |    4 
- include/net/ip6_route.h                                |    2 
- kernel/sched/fair.c                                    |    4 
- mm/slab_common.c                                       |   18 +--
- net/bridge/br_if.c                                     |   17 ++
- net/ipv4/ip_tunnel.c                                   |   18 ++-
- net/ipv4/tcp_ipv4.c                                    |    4 
- net/ipv4/tcp_output.c                                  |    1 
- net/ipv4/udp.c                                         |    6 -
- net/ipv6/tcp_ipv6.c                                    |   23 +++-
- net/ipv6/udp.c                                         |    2 
- net/ipv6/xfrm6_output.c                                |    2 
- net/netfilter/nf_conntrack_netlink.c                   |    3 
- net/sched/act_ct.c                                     |    3 
- scripts/Kbuild.include                                 |    7 +
- scripts/mkcompile_h                                    |   14 +-
- tools/bpf/bpftool/jit_disasm.c                         |    6 -
- tools/perf/tests/bpf.c                                 |    2 
- 105 files changed, 448 insertions(+), 226 deletions(-)
-
-Alexander Ovechkin (1):
-      net: send SYNACK packet with accepted fwmark
-
-Alexandre Torgue (5):
-      ARM: dts: stm32: fix gpio-keys node on STM32 MCU boards
-      ARM: dts: stm32: fix RCC node name on stm32f429 MCU
-      ARM: dts: stm32: fix timer nodes on STM32 MCU to prevent warnings
-      ARM: dts: stm32: fix i2c node name on stm32f746 to prevent warnings
-      ARM: dts: stm32: move stmmac axi config in ethernet node on stm32mp15
-
-Benjamin Gaignard (1):
-      ARM: dts: rockchip: Fix IOMMU nodes properties on rk322x
-
-Bixuan Cui (1):
-      rtc: mxc_v2: add missing MODULE_DEVICE_TABLE
-
-Colin Ian King (1):
-      scsi: aic7xxx: Fix unintentional sign extension issue on left shift of u8
-
-Corentin Labbe (2):
-      ARM: dts: gemini: rename mdio to the right name
-      ARM: dts: gemini: add device_type on pci
-
-Daniel Rosenberg (1):
-      f2fs: Show casefolding support only when supported
-
-Elaine Zhang (5):
-      ARM: dts: rockchip: Fix power-controller node names for rk3066a
-      ARM: dts: rockchip: Fix power-controller node names for rk3188
-      ARM: dts: rockchip: Fix power-controller node names for rk3288
-      arm64: dts: rockchip: Fix power-controller node names for px30
-      arm64: dts: rockchip: Fix power-controller node names for rk3328
-
-Eric Dumazet (3):
-      tcp: annotate data races around tp->mtu_info
-      ipv6: tcp: drop silly ICMPv6 packet too big messages
-      udp: annotate data races around unix_sk(sk)->gso_size
-
-Ezequiel Garcia (1):
-      ARM: dts: rockchip: Fix the timer clocks order
-
-Florian Fainelli (1):
-      net: bcmgenet: Ensure all TX/RX queues DMAs are disabled
-
-Greg Kroah-Hartman (1):
-      Linux 5.4.135
-
-Grygorii Strashko (2):
-      ARM: dts: am57xx-cl-som-am57x: fix ti,no-reset-on-init flag for gpios
-      ARM: dts: am437x-gp-evm: fix ti,no-reset-on-init flag for gpios
-
-Gu Shengxian (1):
-      bpftool: Properly close va_list 'ap' by va_end() on error
-
-Hangbin Liu (1):
-      net: ip_tunnel: fix mtu calculation for ETHER tunnel devices
-
-Heiko Carstens (1):
-      s390: introduce proper type handling call_on_stack() macro
-
-Jason Ekstrand (1):
-      dma-buf/sync_file: Don't leak fences on merge failure
-
-Javed Hasan (2):
-      scsi: libfc: Fix array index out of bound exception
-      scsi: qedf: Add check to synchronize abort and flush
-
-Johan Jonker (3):
-      ARM: dts: rockchip: fix pinctrl sleep nodename for rk3036-kylin and rk3288
-      arm64: dts: rockchip: fix pinctrl sleep nodename for rk3399.dtsi
-      ARM: dts: rockchip: fix supply properties in io-domains nodes
-
-Jonathan Neuschäfer (1):
-      ARM: imx: pm-imx5: Fix references to imx5_cpu_suspend_info
-
-Krzysztof Kozlowski (1):
-      rtc: max77686: Do not enforce (incorrect) interrupt trigger type
-
-Lucas Stach (1):
-      arm64: dts: imx8mq: assign PCIe clocks
-
-Marek Behún (3):
-      arm64: dts: armada-3720-turris-mox: add firmware node
-      net: dsa: mv88e6xxx: enable .port_set_policy() on Topaz
-      net: dsa: mv88e6xxx: enable .rmu_disable() on Topaz
-
-Masahiro Yamada (1):
-      kbuild: sink stdout from cmd for silent build
-
-Matthias Maennich (1):
-      kbuild: mkcompile_h: consider timestamp if KBUILD_BUILD_TIMESTAMP is set
-
-Mian Yousaf Kaukab (1):
-      arm64: dts: ls208xa: remove bus-num from dspi node
-
-Mikulas Patocka (1):
-      dm writecache: return the exact table values that were set
-
-Nanyong Sun (1):
-      mm: slab: fix kmem_cache_create failed when sysfs node not destroyed
-
-Odin Ugedal (1):
-      sched/fair: Fix CFS bandwidth hrtimer expiry type
-
-Pali Rohár (2):
-      firmware: turris-mox-rwtm: add marvell,armada-3700-rwtm-firmware compatible string
-      arm64: dts: marvell: armada-37xx: move firmware node to generic dtsi file
-
-Paulo Alcantara (1):
-      cifs: prevent NULL deref in cifs_compose_mount_options()
-
-Pavel Skripkin (4):
-      net: moxa: fix UAF in moxart_mac_probe
-      net: qcom/emac: fix UAF in emac_remove
-      net: ti: fix UAF in tlan_remove_one
-      net: fddi: fix UAF in fza_probe
-
-Philipp Zabel (1):
-      reset: ti-syscon: fix to_ti_syscon_reset_data macro
-
-Primoz Fiser (1):
-      ARM: dts: imx6: phyFLEX: Fix UART hardware flow control
-
-Rafał Miłecki (5):
-      ARM: brcmstb: dts: fix NAND nodes names
-      ARM: Cygnus: dts: fix NAND nodes names
-      ARM: NSP: dts: fix NAND nodes names
-      ARM: dts: BCM63xx: Fix NAND nodes names
-      ARM: dts: Hurricane 2: Fix NAND nodes names
-
-Riccardo Mancini (1):
-      perf test bpf: Free obj_buf
-
-Sanket Parmar (1):
-      usb: cdns3: Enable TDL_CHK only for OUT ep
-
-Sudeep Holla (1):
-      arm64: dts: juno: Update SCPI nodes as per the YAML schema
-
-Taehee Yoo (1):
-      net: validate lwtstate->data before returning from skb_tunnel_info()
-
-Thierry Reding (2):
-      soc/tegra: fuse: Fix Tegra234-only builds
-      firmware: tegra: bpmp: Fix Tegra234-only builds
-
-Vadim Fedorenko (1):
-      net: ipv6: fix return value of ip6_skb_dst_mtu
-
-Vasily Averin (1):
-      netfilter: ctnetlink: suspicious RCU usage in ctnetlink_dump_helpinfo
-
-Wolfgang Bumiller (1):
-      net: bridge: sync fdb to new unicast-filtering ports
-
-Yang Yingliang (1):
-      thermal/core: Correct function name thermal_zone_device_unregister()
-
-Yufen Yu (1):
-      scsi: libsas: Add LUN number check in .slave_alloc callback
-
-wenxu (1):
-      net/sched: act_ct: fix err check for nf_conntrack_confirm
-
+diff --git a/Makefile b/Makefile
+index 02ea9378161e..428ebbd03996 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,7 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0
+ VERSION = 5
+ PATCHLEVEL = 4
+-SUBLEVEL = 134
++SUBLEVEL = 135
+ EXTRAVERSION =
+ NAME = Kleptomaniac Octopus
+ 
+diff --git a/arch/arm/boot/dts/am437x-gp-evm.dts b/arch/arm/boot/dts/am437x-gp-evm.dts
+index 811c8cae315b..126965a34841 100644
+--- a/arch/arm/boot/dts/am437x-gp-evm.dts
++++ b/arch/arm/boot/dts/am437x-gp-evm.dts
+@@ -829,11 +829,14 @@
+ 	status = "okay";
+ };
+ 
++&gpio5_target {
++	ti,no-reset-on-init;
++};
++
+ &gpio5 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&display_mux_pins>;
+ 	status = "okay";
+-	ti,no-reset-on-init;
+ 
+ 	p8 {
+ 		/*
+diff --git a/arch/arm/boot/dts/am437x-l4.dtsi b/arch/arm/boot/dts/am437x-l4.dtsi
+index bbe15775fccd..6c2949991e29 100644
+--- a/arch/arm/boot/dts/am437x-l4.dtsi
++++ b/arch/arm/boot/dts/am437x-l4.dtsi
+@@ -2077,7 +2077,7 @@
+ 			};
+ 		};
+ 
+-		target-module@22000 {			/* 0x48322000, ap 116 64.0 */
++		gpio5_target: target-module@22000 {		/* 0x48322000, ap 116 64.0 */
+ 			compatible = "ti,sysc-omap2", "ti,sysc";
+ 			ti,hwmods = "gpio6";
+ 			reg = <0x22000 0x4>,
+diff --git a/arch/arm/boot/dts/am57xx-cl-som-am57x.dts b/arch/arm/boot/dts/am57xx-cl-som-am57x.dts
+index 34ca761aeded..e86d4795e024 100644
+--- a/arch/arm/boot/dts/am57xx-cl-som-am57x.dts
++++ b/arch/arm/boot/dts/am57xx-cl-som-am57x.dts
+@@ -611,12 +611,11 @@
+ 	>;
+ };
+ 
+-&gpio3 {
+-	status = "okay";
++&gpio3_target {
+ 	ti,no-reset-on-init;
+ };
+ 
+-&gpio2 {
++&gpio2_target {
+ 	status = "okay";
+ 	ti,no-reset-on-init;
+ };
+diff --git a/arch/arm/boot/dts/bcm-cygnus.dtsi b/arch/arm/boot/dts/bcm-cygnus.dtsi
+index 1bc45cfd5453..9ca7b4241c97 100644
+--- a/arch/arm/boot/dts/bcm-cygnus.dtsi
++++ b/arch/arm/boot/dts/bcm-cygnus.dtsi
+@@ -460,7 +460,7 @@
+ 			status = "disabled";
+ 		};
+ 
+-		nand: nand@18046000 {
++		nand_controller: nand-controller@18046000 {
+ 			compatible = "brcm,nand-iproc", "brcm,brcmnand-v6.1";
+ 			reg = <0x18046000 0x600>, <0xf8105408 0x600>,
+ 			      <0x18046f00 0x20>;
+diff --git a/arch/arm/boot/dts/bcm-hr2.dtsi b/arch/arm/boot/dts/bcm-hr2.dtsi
+index dd71ab08136b..30574101471a 100644
+--- a/arch/arm/boot/dts/bcm-hr2.dtsi
++++ b/arch/arm/boot/dts/bcm-hr2.dtsi
+@@ -179,7 +179,7 @@
+ 			status = "disabled";
+ 		};
+ 
+-		nand: nand@26000 {
++		nand_controller: nand-controller@26000 {
+ 			compatible = "brcm,nand-iproc", "brcm,brcmnand-v6.1";
+ 			reg = <0x26000 0x600>,
+ 			      <0x11b408 0x600>,
+diff --git a/arch/arm/boot/dts/bcm-nsp.dtsi b/arch/arm/boot/dts/bcm-nsp.dtsi
+index 8615d89fa469..43ff85d31dc1 100644
+--- a/arch/arm/boot/dts/bcm-nsp.dtsi
++++ b/arch/arm/boot/dts/bcm-nsp.dtsi
+@@ -267,7 +267,7 @@
+ 			dma-coherent;
+ 		};
+ 
+-		nand: nand@26000 {
++		nand_controller: nand-controller@26000 {
+ 			compatible = "brcm,nand-iproc", "brcm,brcmnand-v6.1";
+ 			reg = <0x026000 0x600>,
+ 			      <0x11b408 0x600>,
+diff --git a/arch/arm/boot/dts/bcm63138.dtsi b/arch/arm/boot/dts/bcm63138.dtsi
+index 9c0325cf9e22..cca49a2e2d62 100644
+--- a/arch/arm/boot/dts/bcm63138.dtsi
++++ b/arch/arm/boot/dts/bcm63138.dtsi
+@@ -203,7 +203,7 @@
+ 			status = "disabled";
+ 		};
+ 
+-		nand: nand@2000 {
++		nand_controller: nand-controller@2000 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			compatible = "brcm,nand-bcm63138", "brcm,brcmnand-v7.0", "brcm,brcmnand";
+diff --git a/arch/arm/boot/dts/bcm7445-bcm97445svmb.dts b/arch/arm/boot/dts/bcm7445-bcm97445svmb.dts
+index 8313b7cad542..f92d2cf85972 100644
+--- a/arch/arm/boot/dts/bcm7445-bcm97445svmb.dts
++++ b/arch/arm/boot/dts/bcm7445-bcm97445svmb.dts
+@@ -14,10 +14,10 @@
+ 	};
+ };
+ 
+-&nand {
++&nand_controller {
+ 	status = "okay";
+ 
+-	nandcs@1 {
++	nand@1 {
+ 		compatible = "brcm,nandcs";
+ 		reg = <1>;
+ 		nand-ecc-step-size = <512>;
+diff --git a/arch/arm/boot/dts/bcm7445.dtsi b/arch/arm/boot/dts/bcm7445.dtsi
+index 58f67c9b830b..5ac2042515b8 100644
+--- a/arch/arm/boot/dts/bcm7445.dtsi
++++ b/arch/arm/boot/dts/bcm7445.dtsi
+@@ -148,7 +148,7 @@
+ 			reg-names = "aon-ctrl", "aon-sram";
+ 		};
+ 
+-		nand: nand@3e2800 {
++		nand_controller: nand-controller@3e2800 {
+ 			status = "disabled";
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+diff --git a/arch/arm/boot/dts/bcm911360_entphn.dts b/arch/arm/boot/dts/bcm911360_entphn.dts
+index b2d323f4a5ab..a76c74b44bba 100644
+--- a/arch/arm/boot/dts/bcm911360_entphn.dts
++++ b/arch/arm/boot/dts/bcm911360_entphn.dts
+@@ -82,8 +82,8 @@
+ 	status = "okay";
+ };
+ 
+-&nand {
+-	nandcs@1 {
++&nand_controller {
++	nand@1 {
+ 		compatible = "brcm,nandcs";
+ 		reg = <0>;
+ 		nand-on-flash-bbt;
+diff --git a/arch/arm/boot/dts/bcm958300k.dts b/arch/arm/boot/dts/bcm958300k.dts
+index b4a1392bd5a6..dda3e11b711f 100644
+--- a/arch/arm/boot/dts/bcm958300k.dts
++++ b/arch/arm/boot/dts/bcm958300k.dts
+@@ -60,8 +60,8 @@
+ 	status = "okay";
+ };
+ 
+-&nand {
+-	nandcs@1 {
++&nand_controller {
++	nand@1 {
+ 		compatible = "brcm,nandcs";
+ 		reg = <0>;
+ 		nand-on-flash-bbt;
+diff --git a/arch/arm/boot/dts/bcm958305k.dts b/arch/arm/boot/dts/bcm958305k.dts
+index 3378683321d3..ea3c6b88b313 100644
+--- a/arch/arm/boot/dts/bcm958305k.dts
++++ b/arch/arm/boot/dts/bcm958305k.dts
+@@ -68,8 +68,8 @@
+ 	status = "okay";
+ };
+ 
+-&nand {
+-	nandcs@1 {
++&nand_controller {
++	nand@1 {
+ 		compatible = "brcm,nandcs";
+ 		reg = <0>;
+ 		nand-on-flash-bbt;
+diff --git a/arch/arm/boot/dts/bcm958522er.dts b/arch/arm/boot/dts/bcm958522er.dts
+index 8c388eb8a08f..e9b2d3b37ca4 100644
+--- a/arch/arm/boot/dts/bcm958522er.dts
++++ b/arch/arm/boot/dts/bcm958522er.dts
+@@ -70,8 +70,8 @@
+ 	status = "okay";
+ };
+ 
+-&nand {
+-	nandcs@0 {
++&nand_controller {
++	nand@0 {
+ 		compatible = "brcm,nandcs";
+ 		reg = <0>;
+ 		nand-on-flash-bbt;
+diff --git a/arch/arm/boot/dts/bcm958525er.dts b/arch/arm/boot/dts/bcm958525er.dts
+index c339771bb22e..dfe145a3d05a 100644
+--- a/arch/arm/boot/dts/bcm958525er.dts
++++ b/arch/arm/boot/dts/bcm958525er.dts
+@@ -70,8 +70,8 @@
+ 	status = "okay";
+ };
+ 
+-&nand {
+-	nandcs@0 {
++&nand_controller {
++	nand@0 {
+ 		compatible = "brcm,nandcs";
+ 		reg = <0>;
+ 		nand-on-flash-bbt;
+diff --git a/arch/arm/boot/dts/bcm958525xmc.dts b/arch/arm/boot/dts/bcm958525xmc.dts
+index 1c72ec8288de..17e6a683e678 100644
+--- a/arch/arm/boot/dts/bcm958525xmc.dts
++++ b/arch/arm/boot/dts/bcm958525xmc.dts
+@@ -86,8 +86,8 @@
+ 	};
+ };
+ 
+-&nand {
+-	nandcs@0 {
++&nand_controller {
++	nand@0 {
+ 		compatible = "brcm,nandcs";
+ 		reg = <0>;
+ 		nand-on-flash-bbt;
+diff --git a/arch/arm/boot/dts/bcm958622hr.dts b/arch/arm/boot/dts/bcm958622hr.dts
+index 96a021cebd97..1d1bc8dbb342 100644
+--- a/arch/arm/boot/dts/bcm958622hr.dts
++++ b/arch/arm/boot/dts/bcm958622hr.dts
+@@ -74,8 +74,8 @@
+ 	status = "okay";
+ };
+ 
+-&nand {
+-	nandcs@0 {
++&nand_controller {
++	nand@0 {
+ 		compatible = "brcm,nandcs";
+ 		reg = <0>;
+ 		nand-on-flash-bbt;
+diff --git a/arch/arm/boot/dts/bcm958623hr.dts b/arch/arm/boot/dts/bcm958623hr.dts
+index b2c7f21d471e..d5d9a273bb6d 100644
+--- a/arch/arm/boot/dts/bcm958623hr.dts
++++ b/arch/arm/boot/dts/bcm958623hr.dts
+@@ -74,8 +74,8 @@
+ 	status = "okay";
+ };
+ 
+-&nand {
+-	nandcs@0 {
++&nand_controller {
++	nand@0 {
+ 		compatible = "brcm,nandcs";
+ 		reg = <0>;
+ 		nand-on-flash-bbt;
+diff --git a/arch/arm/boot/dts/bcm958625hr.dts b/arch/arm/boot/dts/bcm958625hr.dts
+index a2c9de35ddfb..670363bca917 100644
+--- a/arch/arm/boot/dts/bcm958625hr.dts
++++ b/arch/arm/boot/dts/bcm958625hr.dts
+@@ -90,8 +90,8 @@
+ 	status = "okay";
+ };
+ 
+-&nand {
+-	nandcs@0 {
++&nand_controller {
++	nand@0 {
+ 		compatible = "brcm,nandcs";
+ 		reg = <0>;
+ 		nand-on-flash-bbt;
+diff --git a/arch/arm/boot/dts/bcm958625k.dts b/arch/arm/boot/dts/bcm958625k.dts
+index 3fcca12d83c2..f15cd38c849e 100644
+--- a/arch/arm/boot/dts/bcm958625k.dts
++++ b/arch/arm/boot/dts/bcm958625k.dts
+@@ -64,8 +64,8 @@
+ 	status = "okay";
+ };
+ 
+-&nand {
+-	nandcs@0 {
++&nand_controller {
++	nand@0 {
+ 		compatible = "brcm,nandcs";
+ 		reg = <0>;
+ 		nand-on-flash-bbt;
+diff --git a/arch/arm/boot/dts/bcm963138dvt.dts b/arch/arm/boot/dts/bcm963138dvt.dts
+index 5b177274f182..df5c8ab90627 100644
+--- a/arch/arm/boot/dts/bcm963138dvt.dts
++++ b/arch/arm/boot/dts/bcm963138dvt.dts
+@@ -31,10 +31,10 @@
+ 	status = "okay";
+ };
+ 
+-&nand {
++&nand_controller {
+ 	status = "okay";
+ 
+-	nandcs@0 {
++	nand@0 {
+ 		compatible = "brcm,nandcs";
+ 		reg = <0>;
+ 		nand-ecc-strength = <4>;
+diff --git a/arch/arm/boot/dts/bcm988312hr.dts b/arch/arm/boot/dts/bcm988312hr.dts
+index edd0f630e025..16b212cc8a2a 100644
+--- a/arch/arm/boot/dts/bcm988312hr.dts
++++ b/arch/arm/boot/dts/bcm988312hr.dts
+@@ -74,8 +74,8 @@
+ 	status = "okay";
+ };
+ 
+-&nand {
+-	nandcs@0 {
++&nand_controller {
++	nand@0 {
+ 		compatible = "brcm,nandcs";
+ 		reg = <0>;
+ 		nand-on-flash-bbt;
+diff --git a/arch/arm/boot/dts/dra7-l4.dtsi b/arch/arm/boot/dts/dra7-l4.dtsi
+index bc702579488b..3f845a8531f4 100644
+--- a/arch/arm/boot/dts/dra7-l4.dtsi
++++ b/arch/arm/boot/dts/dra7-l4.dtsi
+@@ -1326,7 +1326,7 @@
+ 			};
+ 		};
+ 
+-		target-module@55000 {			/* 0x48055000, ap 13 0e.0 */
++		gpio2_target: target-module@55000 {		/* 0x48055000, ap 13 0e.0 */
+ 			compatible = "ti,sysc-omap2", "ti,sysc";
+ 			reg = <0x55000 0x4>,
+ 			      <0x55010 0x4>,
+@@ -1359,7 +1359,7 @@
+ 			};
+ 		};
+ 
+-		target-module@57000 {			/* 0x48057000, ap 15 06.0 */
++		gpio3_target: target-module@57000 {		/* 0x48057000, ap 15 06.0 */
+ 			compatible = "ti,sysc-omap2", "ti,sysc";
+ 			reg = <0x57000 0x4>,
+ 			      <0x57010 0x4>,
+diff --git a/arch/arm/boot/dts/gemini-dlink-dns-313.dts b/arch/arm/boot/dts/gemini-dlink-dns-313.dts
+index 360642a02a48..d0bbf2b970df 100644
+--- a/arch/arm/boot/dts/gemini-dlink-dns-313.dts
++++ b/arch/arm/boot/dts/gemini-dlink-dns-313.dts
+@@ -140,7 +140,7 @@
+ 		};
+ 	};
+ 
+-	mdio0: ethernet-phy {
++	mdio0: mdio {
+ 		compatible = "virtual,mdio-gpio";
+ 		/* Uses MDC and MDIO */
+ 		gpios = <&gpio0 22 GPIO_ACTIVE_HIGH>, /* MDC */
+diff --git a/arch/arm/boot/dts/gemini-nas4220b.dts b/arch/arm/boot/dts/gemini-nas4220b.dts
+index 521714f38eed..e1020e07e136 100644
+--- a/arch/arm/boot/dts/gemini-nas4220b.dts
++++ b/arch/arm/boot/dts/gemini-nas4220b.dts
+@@ -62,7 +62,7 @@
+ 		};
+ 	};
+ 
+-	mdio0: ethernet-phy {
++	mdio0: mdio {
+ 		compatible = "virtual,mdio-gpio";
+ 		gpios = <&gpio0 22 GPIO_ACTIVE_HIGH>, /* MDC */
+ 			<&gpio0 21 GPIO_ACTIVE_HIGH>; /* MDIO */
+diff --git a/arch/arm/boot/dts/gemini-rut1xx.dts b/arch/arm/boot/dts/gemini-rut1xx.dts
+index 08091d2a64e1..0ebda4efd9d0 100644
+--- a/arch/arm/boot/dts/gemini-rut1xx.dts
++++ b/arch/arm/boot/dts/gemini-rut1xx.dts
+@@ -56,7 +56,7 @@
+ 		};
+ 	};
+ 
+-	mdio0: ethernet-phy {
++	mdio0: mdio {
+ 		compatible = "virtual,mdio-gpio";
+ 		gpios = <&gpio0 22 GPIO_ACTIVE_HIGH>, /* MDC */
+ 			<&gpio0 21 GPIO_ACTIVE_HIGH>; /* MDIO */
+diff --git a/arch/arm/boot/dts/gemini-wbd111.dts b/arch/arm/boot/dts/gemini-wbd111.dts
+index 3a2761dd460f..5602ba8f30f2 100644
+--- a/arch/arm/boot/dts/gemini-wbd111.dts
++++ b/arch/arm/boot/dts/gemini-wbd111.dts
+@@ -68,7 +68,7 @@
+ 		};
+ 	};
+ 
+-	mdio0: ethernet-phy {
++	mdio0: mdio {
+ 		compatible = "virtual,mdio-gpio";
+ 		gpios = <&gpio0 22 GPIO_ACTIVE_HIGH>, /* MDC */
+ 			<&gpio0 21 GPIO_ACTIVE_HIGH>; /* MDIO */
+diff --git a/arch/arm/boot/dts/gemini-wbd222.dts b/arch/arm/boot/dts/gemini-wbd222.dts
+index 52b4dbc0c072..a4a260c36d75 100644
+--- a/arch/arm/boot/dts/gemini-wbd222.dts
++++ b/arch/arm/boot/dts/gemini-wbd222.dts
+@@ -67,7 +67,7 @@
+ 		};
+ 	};
+ 
+-	mdio0: ethernet-phy {
++	mdio0: mdio {
+ 		compatible = "virtual,mdio-gpio";
+ 		gpios = <&gpio0 22 GPIO_ACTIVE_HIGH>, /* MDC */
+ 			<&gpio0 21 GPIO_ACTIVE_HIGH>; /* MDIO */
+diff --git a/arch/arm/boot/dts/gemini.dtsi b/arch/arm/boot/dts/gemini.dtsi
+index 8cf67b11751f..ef4f1c5323bd 100644
+--- a/arch/arm/boot/dts/gemini.dtsi
++++ b/arch/arm/boot/dts/gemini.dtsi
+@@ -286,6 +286,7 @@
+ 			clock-names = "PCLK", "PCICLK";
+ 			pinctrl-names = "default";
+ 			pinctrl-0 = <&pci_default_pins>;
++			device_type = "pci";
+ 			#address-cells = <3>;
+ 			#size-cells = <2>;
+ 			#interrupt-cells = <1>;
+diff --git a/arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi b/arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi
+index 6678b97b1007..3617089dbe36 100644
+--- a/arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi
+@@ -315,8 +315,8 @@
+ 			fsl,pins = <
+ 				MX6QDL_PAD_EIM_D24__UART3_TX_DATA	0x1b0b1
+ 				MX6QDL_PAD_EIM_D25__UART3_RX_DATA	0x1b0b1
+-				MX6QDL_PAD_EIM_D30__UART3_RTS_B		0x1b0b1
+-				MX6QDL_PAD_EIM_D31__UART3_CTS_B		0x1b0b1
++				MX6QDL_PAD_EIM_D31__UART3_RTS_B		0x1b0b1
++				MX6QDL_PAD_EIM_D30__UART3_CTS_B		0x1b0b1
+ 			>;
+ 		};
+ 
+@@ -403,6 +403,7 @@
+ &uart3 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_uart3>;
++	uart-has-rtscts;
+ 	status = "disabled";
+ };
+ 
+diff --git a/arch/arm/boot/dts/rk3036-kylin.dts b/arch/arm/boot/dts/rk3036-kylin.dts
+index fb3cf005cc90..2ef47ebeb0cb 100644
+--- a/arch/arm/boot/dts/rk3036-kylin.dts
++++ b/arch/arm/boot/dts/rk3036-kylin.dts
+@@ -390,7 +390,7 @@
+ 		};
+ 	};
+ 
+-	sleep {
++	suspend {
+ 		global_pwroff: global-pwroff {
+ 			rockchip,pins = <2 RK_PA7 1 &pcfg_pull_none>;
+ 		};
+diff --git a/arch/arm/boot/dts/rk3066a.dtsi b/arch/arm/boot/dts/rk3066a.dtsi
+index 3d1b02f45ffd..1ac9deb3bd39 100644
+--- a/arch/arm/boot/dts/rk3066a.dtsi
++++ b/arch/arm/boot/dts/rk3066a.dtsi
+@@ -761,7 +761,7 @@
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
+ 
+-		pd_vio@RK3066_PD_VIO {
++		power-domain@RK3066_PD_VIO {
+ 			reg = <RK3066_PD_VIO>;
+ 			clocks = <&cru ACLK_LCDC0>,
+ 				 <&cru ACLK_LCDC1>,
+@@ -788,7 +788,7 @@
+ 				 <&qos_rga>;
+ 		};
+ 
+-		pd_video@RK3066_PD_VIDEO {
++		power-domain@RK3066_PD_VIDEO {
+ 			reg = <RK3066_PD_VIDEO>;
+ 			clocks = <&cru ACLK_VDPU>,
+ 				 <&cru ACLK_VEPU>,
+@@ -797,7 +797,7 @@
+ 			pm_qos = <&qos_vpu>;
+ 		};
+ 
+-		pd_gpu@RK3066_PD_GPU {
++		power-domain@RK3066_PD_GPU {
+ 			reg = <RK3066_PD_GPU>;
+ 			clocks = <&cru ACLK_GPU>;
+ 			pm_qos = <&qos_gpu>;
+diff --git a/arch/arm/boot/dts/rk3188.dtsi b/arch/arm/boot/dts/rk3188.dtsi
+index 10ede65d90f3..ee8a24a0e3cb 100644
+--- a/arch/arm/boot/dts/rk3188.dtsi
++++ b/arch/arm/boot/dts/rk3188.dtsi
+@@ -150,16 +150,16 @@
+ 		compatible = "rockchip,rk3188-timer", "rockchip,rk3288-timer";
+ 		reg = <0x2000e000 0x20>;
+ 		interrupts = <GIC_SPI 46 IRQ_TYPE_LEVEL_HIGH>;
+-		clocks = <&cru SCLK_TIMER3>, <&cru PCLK_TIMER3>;
+-		clock-names = "timer", "pclk";
++		clocks = <&cru PCLK_TIMER3>, <&cru SCLK_TIMER3>;
++		clock-names = "pclk", "timer";
+ 	};
+ 
+ 	timer6: timer@200380a0 {
+ 		compatible = "rockchip,rk3188-timer", "rockchip,rk3288-timer";
+ 		reg = <0x200380a0 0x20>;
+ 		interrupts = <GIC_SPI 64 IRQ_TYPE_LEVEL_HIGH>;
+-		clocks = <&cru SCLK_TIMER6>, <&cru PCLK_TIMER0>;
+-		clock-names = "timer", "pclk";
++		clocks = <&cru PCLK_TIMER0>, <&cru SCLK_TIMER6>;
++		clock-names = "pclk", "timer";
+ 	};
+ 
+ 	i2s0: i2s@1011a000 {
+@@ -701,7 +701,7 @@
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
+ 
+-		pd_vio@RK3188_PD_VIO {
++		power-domain@RK3188_PD_VIO {
+ 			reg = <RK3188_PD_VIO>;
+ 			clocks = <&cru ACLK_LCDC0>,
+ 				 <&cru ACLK_LCDC1>,
+@@ -723,7 +723,7 @@
+ 				 <&qos_rga>;
+ 		};
+ 
+-		pd_video@RK3188_PD_VIDEO {
++		power-domain@RK3188_PD_VIDEO {
+ 			reg = <RK3188_PD_VIDEO>;
+ 			clocks = <&cru ACLK_VDPU>,
+ 				 <&cru ACLK_VEPU>,
+@@ -732,7 +732,7 @@
+ 			pm_qos = <&qos_vpu>;
+ 		};
+ 
+-		pd_gpu@RK3188_PD_GPU {
++		power-domain@RK3188_PD_GPU {
+ 			reg = <RK3188_PD_GPU>;
+ 			clocks = <&cru ACLK_GPU>;
+ 			pm_qos = <&qos_gpu>;
+diff --git a/arch/arm/boot/dts/rk322x.dtsi b/arch/arm/boot/dts/rk322x.dtsi
+index 6bb78b19c555..140e22d74dcf 100644
+--- a/arch/arm/boot/dts/rk322x.dtsi
++++ b/arch/arm/boot/dts/rk322x.dtsi
+@@ -570,10 +570,9 @@
+ 		compatible = "rockchip,iommu";
+ 		reg = <0x20020800 0x100>;
+ 		interrupts = <GIC_SPI 10 IRQ_TYPE_LEVEL_HIGH>;
+-		interrupt-names = "vpu_mmu";
+ 		clocks = <&cru ACLK_VPU>, <&cru HCLK_VPU>;
+ 		clock-names = "aclk", "iface";
+-		iommu-cells = <0>;
++		#iommu-cells = <0>;
+ 		status = "disabled";
+ 	};
+ 
+@@ -581,10 +580,9 @@
+ 		compatible = "rockchip,iommu";
+ 		reg = <0x20030480 0x40>, <0x200304c0 0x40>;
+ 		interrupts = <GIC_SPI 8 IRQ_TYPE_LEVEL_HIGH>;
+-		interrupt-names = "vdec_mmu";
+ 		clocks = <&cru ACLK_RKVDEC>, <&cru HCLK_RKVDEC>;
+ 		clock-names = "aclk", "iface";
+-		iommu-cells = <0>;
++		#iommu-cells = <0>;
+ 		status = "disabled";
+ 	};
+ 
+@@ -614,7 +612,6 @@
+ 		compatible = "rockchip,iommu";
+ 		reg = <0x20053f00 0x100>;
+ 		interrupts = <GIC_SPI 32 IRQ_TYPE_LEVEL_HIGH>;
+-		interrupt-names = "vop_mmu";
+ 		clocks = <&cru ACLK_VOP>, <&cru HCLK_VOP>;
+ 		clock-names = "aclk", "iface";
+ 		#iommu-cells = <0>;
+@@ -625,10 +622,9 @@
+ 		compatible = "rockchip,iommu";
+ 		reg = <0x20070800 0x100>;
+ 		interrupts = <GIC_SPI 31 IRQ_TYPE_LEVEL_HIGH>;
+-		interrupt-names = "iep_mmu";
+ 		clocks = <&cru ACLK_IEP>, <&cru HCLK_IEP>;
+ 		clock-names = "aclk", "iface";
+-		iommu-cells = <0>;
++		#iommu-cells = <0>;
+ 		status = "disabled";
+ 	};
+ 
+diff --git a/arch/arm/boot/dts/rk3288-rock2-som.dtsi b/arch/arm/boot/dts/rk3288-rock2-som.dtsi
+index 9f9e2bfd1295..7b79a21f9bbb 100644
+--- a/arch/arm/boot/dts/rk3288-rock2-som.dtsi
++++ b/arch/arm/boot/dts/rk3288-rock2-som.dtsi
+@@ -218,7 +218,7 @@
+ 	flash0-supply = <&vcc_flash>;
+ 	flash1-supply = <&vccio_pmu>;
+ 	gpio30-supply = <&vccio_pmu>;
+-	gpio1830 = <&vcc_io>;
++	gpio1830-supply = <&vcc_io>;
+ 	lcdc-supply = <&vcc_io>;
+ 	sdcard-supply = <&vccio_sd>;
+ 	wifi-supply = <&vcc_18>;
+diff --git a/arch/arm/boot/dts/rk3288-vyasa.dts b/arch/arm/boot/dts/rk3288-vyasa.dts
+index ba06e9f97ddc..acfb7dc2df56 100644
+--- a/arch/arm/boot/dts/rk3288-vyasa.dts
++++ b/arch/arm/boot/dts/rk3288-vyasa.dts
+@@ -357,10 +357,10 @@
+ 	audio-supply = <&vcc_18>;
+ 	bb-supply = <&vcc_io>;
+ 	dvp-supply = <&vcc_io>;
+-	flash0-suuply = <&vcc_18>;
++	flash0-supply = <&vcc_18>;
+ 	flash1-supply = <&vcc_lan>;
+ 	gpio30-supply = <&vcc_io>;
+-	gpio1830 = <&vcc_io>;
++	gpio1830-supply = <&vcc_io>;
+ 	lcdc-supply = <&vcc_io>;
+ 	sdcard-supply = <&vccio_sd>;
+ 	wifi-supply = <&vcc_18>;
+diff --git a/arch/arm/boot/dts/rk3288.dtsi b/arch/arm/boot/dts/rk3288.dtsi
+index cc893e154fe5..658ceb96d8bd 100644
+--- a/arch/arm/boot/dts/rk3288.dtsi
++++ b/arch/arm/boot/dts/rk3288.dtsi
+@@ -238,8 +238,8 @@
+ 		compatible = "rockchip,rk3288-timer";
+ 		reg = <0x0 0xff810000 0x0 0x20>;
+ 		interrupts = <GIC_SPI 72 IRQ_TYPE_LEVEL_HIGH>;
+-		clocks = <&xin24m>, <&cru PCLK_TIMER>;
+-		clock-names = "timer", "pclk";
++		clocks = <&cru PCLK_TIMER>, <&xin24m>;
++		clock-names = "pclk", "timer";
+ 	};
+ 
+ 	display-subsystem {
+@@ -771,7 +771,7 @@
+ 			 *	*_HDMI		HDMI
+ 			 *	*_MIPI_*	MIPI
+ 			 */
+-			pd_vio@RK3288_PD_VIO {
++			power-domain@RK3288_PD_VIO {
+ 				reg = <RK3288_PD_VIO>;
+ 				clocks = <&cru ACLK_IEP>,
+ 					 <&cru ACLK_ISP>,
+@@ -813,7 +813,7 @@
+ 			 * Note: The following 3 are HEVC(H.265) clocks,
+ 			 * and on the ACLK_HEVC_NIU (NOC).
+ 			 */
+-			pd_hevc@RK3288_PD_HEVC {
++			power-domain@RK3288_PD_HEVC {
+ 				reg = <RK3288_PD_HEVC>;
+ 				clocks = <&cru ACLK_HEVC>,
+ 					 <&cru SCLK_HEVC_CABAC>,
+@@ -827,7 +827,7 @@
+ 			 * (video endecoder & decoder) clocks that on the
+ 			 * ACLK_VCODEC_NIU and HCLK_VCODEC_NIU (NOC).
+ 			 */
+-			pd_video@RK3288_PD_VIDEO {
++			power-domain@RK3288_PD_VIDEO {
+ 				reg = <RK3288_PD_VIDEO>;
+ 				clocks = <&cru ACLK_VCODEC>,
+ 					 <&cru HCLK_VCODEC>;
+@@ -838,7 +838,7 @@
+ 			 * Note: ACLK_GPU is the GPU clock,
+ 			 * and on the ACLK_GPU_NIU (NOC).
+ 			 */
+-			pd_gpu@RK3288_PD_GPU {
++			power-domain@RK3288_PD_GPU {
+ 				reg = <RK3288_PD_GPU>;
+ 				clocks = <&cru ACLK_GPU>;
+ 				pm_qos = <&qos_gpu_r>,
+@@ -1575,7 +1575,7 @@
+ 			drive-strength = <12>;
+ 		};
+ 
+-		sleep {
++		suspend {
+ 			global_pwroff: global-pwroff {
+ 				rockchip,pins = <0 RK_PA0 1 &pcfg_pull_none>;
+ 			};
+diff --git a/arch/arm/boot/dts/stm32429i-eval.dts b/arch/arm/boot/dts/stm32429i-eval.dts
+index ba08624c6237..4f45e71a1e4d 100644
+--- a/arch/arm/boot/dts/stm32429i-eval.dts
++++ b/arch/arm/boot/dts/stm32429i-eval.dts
+@@ -112,17 +112,15 @@
+ 		};
+ 	};
+ 
+-	gpio_keys {
++	gpio-keys {
+ 		compatible = "gpio-keys";
+-		#address-cells = <1>;
+-		#size-cells = <0>;
+ 		autorepeat;
+-		button@0 {
++		button-0 {
+ 			label = "Wake up";
+ 			linux,code = <KEY_WAKEUP>;
+ 			gpios = <&gpioa 0 0>;
+ 		};
+-		button@1 {
++		button-1 {
+ 			label = "Tamper";
+ 			linux,code = <KEY_RESTART>;
+ 			gpios = <&gpioc 13 0>;
+diff --git a/arch/arm/boot/dts/stm32746g-eval.dts b/arch/arm/boot/dts/stm32746g-eval.dts
+index 2b1664884ae7..8d64b52838c0 100644
+--- a/arch/arm/boot/dts/stm32746g-eval.dts
++++ b/arch/arm/boot/dts/stm32746g-eval.dts
+@@ -81,12 +81,10 @@
+ 		};
+ 	};
+ 
+-	gpio_keys {
++	gpio-keys {
+ 		compatible = "gpio-keys";
+-		#address-cells = <1>;
+-		#size-cells = <0>;
+ 		autorepeat;
+-		button@0 {
++		button-0 {
+ 			label = "Wake up";
+ 			linux,code = <KEY_WAKEUP>;
+ 			gpios = <&gpioc 13 0>;
+diff --git a/arch/arm/boot/dts/stm32f429-disco.dts b/arch/arm/boot/dts/stm32f429-disco.dts
+index e19d0fe7dbda..49ae2d72afc9 100644
+--- a/arch/arm/boot/dts/stm32f429-disco.dts
++++ b/arch/arm/boot/dts/stm32f429-disco.dts
+@@ -79,12 +79,10 @@
+ 		};
+ 	};
+ 
+-	gpio_keys {
++	gpio-keys {
+ 		compatible = "gpio-keys";
+-		#address-cells = <1>;
+-		#size-cells = <0>;
+ 		autorepeat;
+-		button@0 {
++		button-0 {
+ 			label = "User";
+ 			linux,code = <KEY_HOME>;
+ 			gpios = <&gpioa 0 0>;
+diff --git a/arch/arm/boot/dts/stm32f429.dtsi b/arch/arm/boot/dts/stm32f429.dtsi
+index 5c8a826b3195..dd41342ef017 100644
+--- a/arch/arm/boot/dts/stm32f429.dtsi
++++ b/arch/arm/boot/dts/stm32f429.dtsi
+@@ -283,8 +283,6 @@
+ 		};
+ 
+ 		timers13: timers@40001c00 {
+-			#address-cells = <1>;
+-			#size-cells = <0>;
+ 			compatible = "st,stm32-timers";
+ 			reg = <0x40001C00 0x400>;
+ 			clocks = <&rcc 0 STM32F4_APB1_CLOCK(TIM13)>;
+@@ -299,8 +297,6 @@
+ 		};
+ 
+ 		timers14: timers@40002000 {
+-			#address-cells = <1>;
+-			#size-cells = <0>;
+ 			compatible = "st,stm32-timers";
+ 			reg = <0x40002000 0x400>;
+ 			clocks = <&rcc 0 STM32F4_APB1_CLOCK(TIM14)>;
+@@ -623,8 +619,6 @@
+ 		};
+ 
+ 		timers10: timers@40014400 {
+-			#address-cells = <1>;
+-			#size-cells = <0>;
+ 			compatible = "st,stm32-timers";
+ 			reg = <0x40014400 0x400>;
+ 			clocks = <&rcc 0 STM32F4_APB2_CLOCK(TIM10)>;
+@@ -639,8 +633,6 @@
+ 		};
+ 
+ 		timers11: timers@40014800 {
+-			#address-cells = <1>;
+-			#size-cells = <0>;
+ 			compatible = "st,stm32-timers";
+ 			reg = <0x40014800 0x400>;
+ 			clocks = <&rcc 0 STM32F4_APB2_CLOCK(TIM11)>;
+@@ -696,7 +688,7 @@
+ 			status = "disabled";
+ 		};
+ 
+-		rcc: rcc@40023810 {
++		rcc: rcc@40023800 {
+ 			#reset-cells = <1>;
+ 			#clock-cells = <2>;
+ 			compatible = "st,stm32f42xx-rcc", "st,stm32-rcc";
+diff --git a/arch/arm/boot/dts/stm32f469-disco.dts b/arch/arm/boot/dts/stm32f469-disco.dts
+index c6dc6d1a051b..0ce450123dda 100644
+--- a/arch/arm/boot/dts/stm32f469-disco.dts
++++ b/arch/arm/boot/dts/stm32f469-disco.dts
+@@ -104,12 +104,10 @@
+ 		};
+ 	};
+ 
+-	gpio_keys {
++	gpio-keys {
+ 		compatible = "gpio-keys";
+-		#address-cells = <1>;
+-		#size-cells = <0>;
+ 		autorepeat;
+-		button@0 {
++		button-0 {
+ 			label = "User";
+ 			linux,code = <KEY_WAKEUP>;
+ 			gpios = <&gpioa 0 GPIO_ACTIVE_HIGH>;
+diff --git a/arch/arm/boot/dts/stm32f746.dtsi b/arch/arm/boot/dts/stm32f746.dtsi
+index d26f93f8b9c2..60680fcf8eb3 100644
+--- a/arch/arm/boot/dts/stm32f746.dtsi
++++ b/arch/arm/boot/dts/stm32f746.dtsi
+@@ -265,8 +265,6 @@
+ 		};
+ 
+ 		timers13: timers@40001c00 {
+-			#address-cells = <1>;
+-			#size-cells = <0>;
+ 			compatible = "st,stm32-timers";
+ 			reg = <0x40001C00 0x400>;
+ 			clocks = <&rcc 0 STM32F7_APB1_CLOCK(TIM13)>;
+@@ -281,8 +279,6 @@
+ 		};
+ 
+ 		timers14: timers@40002000 {
+-			#address-cells = <1>;
+-			#size-cells = <0>;
+ 			compatible = "st,stm32-timers";
+ 			reg = <0x40002000 0x400>;
+ 			clocks = <&rcc 0 STM32F7_APB1_CLOCK(TIM14)>;
+@@ -366,9 +362,9 @@
+ 			status = "disabled";
+ 		};
+ 
+-		i2c3: i2c@40005C00 {
++		i2c3: i2c@40005c00 {
+ 			compatible = "st,stm32f7-i2c";
+-			reg = <0x40005C00 0x400>;
++			reg = <0x40005c00 0x400>;
+ 			interrupts = <72>,
+ 				     <73>;
+ 			resets = <&rcc STM32F7_APB1_RESET(I2C3)>;
+@@ -533,8 +529,6 @@
+ 		};
+ 
+ 		timers10: timers@40014400 {
+-			#address-cells = <1>;
+-			#size-cells = <0>;
+ 			compatible = "st,stm32-timers";
+ 			reg = <0x40014400 0x400>;
+ 			clocks = <&rcc 0 STM32F7_APB2_CLOCK(TIM10)>;
+@@ -549,8 +543,6 @@
+ 		};
+ 
+ 		timers11: timers@40014800 {
+-			#address-cells = <1>;
+-			#size-cells = <0>;
+ 			compatible = "st,stm32-timers";
+ 			reg = <0x40014800 0x400>;
+ 			clocks = <&rcc 0 STM32F7_APB2_CLOCK(TIM11)>;
+diff --git a/arch/arm/boot/dts/stm32f769-disco.dts b/arch/arm/boot/dts/stm32f769-disco.dts
+index 6f1d0ac8c31c..a4284b761e7f 100644
+--- a/arch/arm/boot/dts/stm32f769-disco.dts
++++ b/arch/arm/boot/dts/stm32f769-disco.dts
+@@ -75,12 +75,10 @@
+ 		};
+ 	};
+ 
+-	gpio_keys {
++	gpio-keys {
+ 		compatible = "gpio-keys";
+-		#address-cells = <1>;
+-		#size-cells = <0>;
+ 		autorepeat;
+-		button@0 {
++		button-0 {
+ 			label = "User";
+ 			linux,code = <KEY_HOME>;
+ 			gpios = <&gpioa 0 GPIO_ACTIVE_HIGH>;
+diff --git a/arch/arm/boot/dts/stm32h743.dtsi b/arch/arm/boot/dts/stm32h743.dtsi
+index c065266ee377..82a234c64b8b 100644
+--- a/arch/arm/boot/dts/stm32h743.dtsi
++++ b/arch/arm/boot/dts/stm32h743.dtsi
+@@ -438,8 +438,6 @@
+ 		};
+ 
+ 		lptimer4: timer@58002c00 {
+-			#address-cells = <1>;
+-			#size-cells = <0>;
+ 			compatible = "st,stm32-lptimer";
+ 			reg = <0x58002c00 0x400>;
+ 			clocks = <&rcc LPTIM4_CK>;
+@@ -454,8 +452,6 @@
+ 		};
+ 
+ 		lptimer5: timer@58003000 {
+-			#address-cells = <1>;
+-			#size-cells = <0>;
+ 			compatible = "st,stm32-lptimer";
+ 			reg = <0x58003000 0x400>;
+ 			clocks = <&rcc LPTIM5_CK>;
+diff --git a/arch/arm/boot/dts/stm32mp157c.dtsi b/arch/arm/boot/dts/stm32mp157c.dtsi
+index f98e0370c0bc..eca469a64a97 100644
+--- a/arch/arm/boot/dts/stm32mp157c.dtsi
++++ b/arch/arm/boot/dts/stm32mp157c.dtsi
+@@ -1311,12 +1311,6 @@
+ 			status = "disabled";
+ 		};
+ 
+-		stmmac_axi_config_0: stmmac-axi-config {
+-			snps,wr_osr_lmt = <0x7>;
+-			snps,rd_osr_lmt = <0x7>;
+-			snps,blen = <0 0 0 0 16 8 4>;
+-		};
+-
+ 		ethernet0: ethernet@5800a000 {
+ 			compatible = "st,stm32mp1-dwmac", "snps,dwmac-4.20a";
+ 			reg = <0x5800a000 0x2000>;
+@@ -1339,6 +1333,12 @@
+ 			snps,axi-config = <&stmmac_axi_config_0>;
+ 			snps,tso;
+ 			status = "disabled";
++
++			stmmac_axi_config_0: stmmac-axi-config {
++				snps,wr_osr_lmt = <0x7>;
++				snps,rd_osr_lmt = <0x7>;
++				snps,blen = <0 0 0 0 16 8 4>;
++			};
+ 		};
+ 
+ 		usbh_ohci: usbh-ohci@5800c000 {
+diff --git a/arch/arm/mach-imx/suspend-imx53.S b/arch/arm/mach-imx/suspend-imx53.S
+index 41b8aad65363..46570ec2fbcf 100644
+--- a/arch/arm/mach-imx/suspend-imx53.S
++++ b/arch/arm/mach-imx/suspend-imx53.S
+@@ -28,11 +28,11 @@
+  *                              ^
+  *                              ^
+  *                      imx53_suspend code
+- *              PM_INFO structure(imx53_suspend_info)
++ *              PM_INFO structure(imx5_cpu_suspend_info)
+  * ======================== low address =======================
+  */
+ 
+-/* Offsets of members of struct imx53_suspend_info */
++/* Offsets of members of struct imx5_cpu_suspend_info */
+ #define SUSPEND_INFO_MX53_M4IF_V_OFFSET		0x0
+ #define SUSPEND_INFO_MX53_IOMUXC_V_OFFSET	0x4
+ #define SUSPEND_INFO_MX53_IO_COUNT_OFFSET	0x8
+diff --git a/arch/arm64/boot/dts/arm/juno-base.dtsi b/arch/arm64/boot/dts/arm/juno-base.dtsi
+index c47f76b01c4b..65bcdd0fe78a 100644
+--- a/arch/arm64/boot/dts/arm/juno-base.dtsi
++++ b/arch/arm64/boot/dts/arm/juno-base.dtsi
+@@ -537,13 +537,13 @@
+ 		clocks {
+ 			compatible = "arm,scpi-clocks";
+ 
+-			scpi_dvfs: scpi-dvfs {
++			scpi_dvfs: clocks-0 {
+ 				compatible = "arm,scpi-dvfs-clocks";
+ 				#clock-cells = <1>;
+ 				clock-indices = <0>, <1>, <2>;
+ 				clock-output-names = "atlclk", "aplclk","gpuclk";
+ 			};
+-			scpi_clk: scpi-clk {
++			scpi_clk: clocks-1 {
+ 				compatible = "arm,scpi-variable-clocks";
+ 				#clock-cells = <1>;
+ 				clock-indices = <3>;
+@@ -551,7 +551,7 @@
+ 			};
+ 		};
+ 
+-		scpi_devpd: scpi-power-domains {
++		scpi_devpd: power-controller {
+ 			compatible = "arm,scpi-power-domains";
+ 			num-domains = <2>;
+ 			#power-domain-cells = <1>;
+diff --git a/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi
+index 7a0be8eaa84a..cdb2fa47637d 100644
+--- a/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi
++++ b/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi
+@@ -501,7 +501,6 @@
+ 			clocks = <&clockgen 4 3>;
+ 			clock-names = "dspi";
+ 			spi-num-chipselects = <5>;
+-			bus-num = <0>;
+ 		};
+ 
+ 		esdhc: esdhc@2140000 {
+diff --git a/arch/arm64/boot/dts/freescale/imx8mq.dtsi b/arch/arm64/boot/dts/freescale/imx8mq.dtsi
+index f1011bcd5ed5..3dae8d7c7619 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mq.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mq.dtsi
+@@ -1056,6 +1056,14 @@
+ 			         <&src IMX8MQ_RESET_PCIE_CTRL_APPS_EN>,
+ 			         <&src IMX8MQ_RESET_PCIE_CTRL_APPS_TURNOFF>;
+ 			reset-names = "pciephy", "apps", "turnoff";
++			assigned-clocks = <&clk IMX8MQ_CLK_PCIE1_CTRL>,
++			                  <&clk IMX8MQ_CLK_PCIE1_PHY>,
++			                  <&clk IMX8MQ_CLK_PCIE1_AUX>;
++			assigned-clock-parents = <&clk IMX8MQ_SYS2_PLL_250M>,
++			                         <&clk IMX8MQ_SYS2_PLL_100M>,
++			                         <&clk IMX8MQ_SYS1_PLL_80M>;
++			assigned-clock-rates = <250000000>, <100000000>,
++			                       <10000000>;
+ 			status = "disabled";
+ 		};
+ 
+@@ -1085,6 +1093,14 @@
+ 			         <&src IMX8MQ_RESET_PCIE2_CTRL_APPS_EN>,
+ 			         <&src IMX8MQ_RESET_PCIE2_CTRL_APPS_TURNOFF>;
+ 			reset-names = "pciephy", "apps", "turnoff";
++			assigned-clocks = <&clk IMX8MQ_CLK_PCIE2_CTRL>,
++			                  <&clk IMX8MQ_CLK_PCIE2_PHY>,
++			                  <&clk IMX8MQ_CLK_PCIE2_AUX>;
++			assigned-clock-parents = <&clk IMX8MQ_SYS2_PLL_250M>,
++			                         <&clk IMX8MQ_SYS2_PLL_100M>,
++			                         <&clk IMX8MQ_SYS1_PLL_80M>;
++			assigned-clock-rates = <250000000>, <100000000>,
++			                       <10000000>;
+ 			status = "disabled";
+ 		};
+ 
+diff --git a/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts b/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
+index fad70c2df7bc..874bc3954c8e 100644
+--- a/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
++++ b/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
+@@ -106,6 +106,12 @@
+ 		/* enabled by U-Boot if SFP module is present */
+ 		status = "disabled";
+ 	};
++
++	firmware {
++		armada-3700-rwtm {
++			compatible = "marvell,armada-3700-rwtm-firmware", "cznic,turris-mox-rwtm";
++		};
++	};
+ };
+ 
+ &i2c0 {
+diff --git a/arch/arm64/boot/dts/marvell/armada-37xx.dtsi b/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
+index 6cb1278613c5..52767037e049 100644
+--- a/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
++++ b/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
+@@ -500,4 +500,12 @@
+ 			};
+ 		};
+ 	};
++
++	firmware {
++		armada-3700-rwtm {
++			compatible = "marvell,armada-3700-rwtm-firmware";
++			mboxes = <&rwtm 0>;
++			status = "okay";
++		};
++	};
+ };
+diff --git a/arch/arm64/boot/dts/rockchip/px30.dtsi b/arch/arm64/boot/dts/rockchip/px30.dtsi
+index 98b014a8f916..f297601c9f71 100644
+--- a/arch/arm64/boot/dts/rockchip/px30.dtsi
++++ b/arch/arm64/boot/dts/rockchip/px30.dtsi
+@@ -213,20 +213,20 @@
+ 			#size-cells = <0>;
+ 
+ 			/* These power domains are grouped by VD_LOGIC */
+-			pd_usb@PX30_PD_USB {
++			power-domain@PX30_PD_USB {
+ 				reg = <PX30_PD_USB>;
+ 				clocks = <&cru HCLK_HOST>,
+ 					 <&cru HCLK_OTG>,
+ 					 <&cru SCLK_OTG_ADP>;
+ 				pm_qos = <&qos_usb_host>, <&qos_usb_otg>;
+ 			};
+-			pd_sdcard@PX30_PD_SDCARD {
++			power-domain@PX30_PD_SDCARD {
+ 				reg = <PX30_PD_SDCARD>;
+ 				clocks = <&cru HCLK_SDMMC>,
+ 					 <&cru SCLK_SDMMC>;
+ 				pm_qos = <&qos_sdmmc>;
+ 			};
+-			pd_gmac@PX30_PD_GMAC {
++			power-domain@PX30_PD_GMAC {
+ 				reg = <PX30_PD_GMAC>;
+ 				clocks = <&cru ACLK_GMAC>,
+ 					 <&cru PCLK_GMAC>,
+@@ -234,7 +234,7 @@
+ 					 <&cru SCLK_GMAC_RX_TX>;
+ 				pm_qos = <&qos_gmac>;
+ 			};
+-			pd_mmc_nand@PX30_PD_MMC_NAND {
++			power-domain@PX30_PD_MMC_NAND {
+ 				reg = <PX30_PD_MMC_NAND>;
+ 				clocks =  <&cru HCLK_NANDC>,
+ 					  <&cru HCLK_EMMC>,
+@@ -247,14 +247,14 @@
+ 				pm_qos = <&qos_emmc>, <&qos_nand>,
+ 					 <&qos_sdio>, <&qos_sfc>;
+ 			};
+-			pd_vpu@PX30_PD_VPU {
++			power-domain@PX30_PD_VPU {
+ 				reg = <PX30_PD_VPU>;
+ 				clocks = <&cru ACLK_VPU>,
+ 					 <&cru HCLK_VPU>,
+ 					 <&cru SCLK_CORE_VPU>;
+ 				pm_qos = <&qos_vpu>, <&qos_vpu_r128>;
+ 			};
+-			pd_vo@PX30_PD_VO {
++			power-domain@PX30_PD_VO {
+ 				reg = <PX30_PD_VO>;
+ 				clocks = <&cru ACLK_RGA>,
+ 					 <&cru ACLK_VOPB>,
+@@ -270,7 +270,7 @@
+ 				pm_qos = <&qos_rga_rd>, <&qos_rga_wr>,
+ 					 <&qos_vop_m0>, <&qos_vop_m1>;
+ 			};
+-			pd_vi@PX30_PD_VI {
++			power-domain@PX30_PD_VI {
+ 				reg = <PX30_PD_VI>;
+ 				clocks = <&cru ACLK_CIF>,
+ 					 <&cru ACLK_ISP>,
+@@ -281,7 +281,7 @@
+ 					 <&qos_isp_wr>, <&qos_isp_m1>,
+ 					 <&qos_vip>;
+ 			};
+-			pd_gpu@PX30_PD_GPU {
++			power-domain@PX30_PD_GPU {
+ 				reg = <PX30_PD_GPU>;
+ 				clocks = <&cru SCLK_GPU>;
+ 				pm_qos = <&qos_gpu>;
+diff --git a/arch/arm64/boot/dts/rockchip/rk3328.dtsi b/arch/arm64/boot/dts/rockchip/rk3328.dtsi
+index e0ed323935a4..44ad744c4710 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3328.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk3328.dtsi
+@@ -270,13 +270,13 @@
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 
+-			pd_hevc@RK3328_PD_HEVC {
++			power-domain@RK3328_PD_HEVC {
+ 				reg = <RK3328_PD_HEVC>;
+ 			};
+-			pd_video@RK3328_PD_VIDEO {
++			power-domain@RK3328_PD_VIDEO {
+ 				reg = <RK3328_PD_VIDEO>;
+ 			};
+-			pd_vpu@RK3328_PD_VPU {
++			power-domain@RK3328_PD_VPU {
+ 				reg = <RK3328_PD_VPU>;
+ 				clocks = <&cru ACLK_VPU>, <&cru HCLK_VPU>;
+ 			};
+diff --git a/arch/arm64/boot/dts/rockchip/rk3399.dtsi b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
+index 9d6ed8cda2c8..750dad0d1740 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3399.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
+@@ -2317,7 +2317,7 @@
+ 			};
+ 		};
+ 
+-		sleep {
++		suspend {
+ 			ap_pwroff: ap-pwroff {
+ 				rockchip,pins = <1 RK_PA5 1 &pcfg_pull_none>;
+ 			};
+diff --git a/arch/s390/include/asm/stacktrace.h b/arch/s390/include/asm/stacktrace.h
+index 6836532f8d1a..e192681f83e1 100644
+--- a/arch/s390/include/asm/stacktrace.h
++++ b/arch/s390/include/asm/stacktrace.h
+@@ -115,6 +115,103 @@ struct stack_frame {
+ 	r2;								\
+ })
+ 
++#define CALL_LARGS_0(...)						\
++	long dummy = 0
++#define CALL_LARGS_1(t1, a1)						\
++	long arg1  = (long)(t1)(a1)
++#define CALL_LARGS_2(t1, a1, t2, a2)					\
++	CALL_LARGS_1(t1, a1);						\
++	long arg2 = (long)(t2)(a2)
++#define CALL_LARGS_3(t1, a1, t2, a2, t3, a3)				\
++	CALL_LARGS_2(t1, a1, t2, a2);					\
++	long arg3 = (long)(t3)(a3)
++#define CALL_LARGS_4(t1, a1, t2, a2, t3, a3, t4, a4)			\
++	CALL_LARGS_3(t1, a1, t2, a2, t3, a3);				\
++	long arg4  = (long)(t4)(a4)
++#define CALL_LARGS_5(t1, a1, t2, a2, t3, a3, t4, a4, t5, a5)		\
++	CALL_LARGS_4(t1, a1, t2, a2, t3, a3, t4, a4);			\
++	long arg5 = (long)(t5)(a5)
++
++#define CALL_REGS_0							\
++	register long r2 asm("2") = dummy
++#define CALL_REGS_1							\
++	register long r2 asm("2") = arg1
++#define CALL_REGS_2							\
++	CALL_REGS_1;							\
++	register long r3 asm("3") = arg2
++#define CALL_REGS_3							\
++	CALL_REGS_2;							\
++	register long r4 asm("4") = arg3
++#define CALL_REGS_4							\
++	CALL_REGS_3;							\
++	register long r5 asm("5") = arg4
++#define CALL_REGS_5							\
++	CALL_REGS_4;							\
++	register long r6 asm("6") = arg5
++
++#define CALL_TYPECHECK_0(...)
++#define CALL_TYPECHECK_1(t, a, ...)					\
++	typecheck(t, a)
++#define CALL_TYPECHECK_2(t, a, ...)					\
++	CALL_TYPECHECK_1(__VA_ARGS__);					\
++	typecheck(t, a)
++#define CALL_TYPECHECK_3(t, a, ...)					\
++	CALL_TYPECHECK_2(__VA_ARGS__);					\
++	typecheck(t, a)
++#define CALL_TYPECHECK_4(t, a, ...)					\
++	CALL_TYPECHECK_3(__VA_ARGS__);					\
++	typecheck(t, a)
++#define CALL_TYPECHECK_5(t, a, ...)					\
++	CALL_TYPECHECK_4(__VA_ARGS__);					\
++	typecheck(t, a)
++
++#define CALL_PARM_0(...) void
++#define CALL_PARM_1(t, a, ...) t
++#define CALL_PARM_2(t, a, ...) t, CALL_PARM_1(__VA_ARGS__)
++#define CALL_PARM_3(t, a, ...) t, CALL_PARM_2(__VA_ARGS__)
++#define CALL_PARM_4(t, a, ...) t, CALL_PARM_3(__VA_ARGS__)
++#define CALL_PARM_5(t, a, ...) t, CALL_PARM_4(__VA_ARGS__)
++#define CALL_PARM_6(t, a, ...) t, CALL_PARM_5(__VA_ARGS__)
++
++/*
++ * Use call_on_stack() to call a function switching to a specified
++ * stack. Proper sign and zero extension of function arguments is
++ * done. Usage:
++ *
++ * rc = call_on_stack(nr, stack, rettype, fn, t1, a1, t2, a2, ...)
++ *
++ * - nr specifies the number of function arguments of fn.
++ * - stack specifies the stack to be used.
++ * - fn is the function to be called.
++ * - rettype is the return type of fn.
++ * - t1, a1, ... are pairs, where t1 must match the type of the first
++ *   argument of fn, t2 the second, etc. a1 is the corresponding
++ *   first function argument (not name), etc.
++ */
++#define call_on_stack(nr, stack, rettype, fn, ...)			\
++({									\
++	rettype (*__fn)(CALL_PARM_##nr(__VA_ARGS__)) = fn;		\
++	unsigned long frame = current_frame_address();			\
++	unsigned long __stack = stack;					\
++	unsigned long prev;						\
++	CALL_LARGS_##nr(__VA_ARGS__);					\
++	CALL_REGS_##nr;							\
++									\
++	CALL_TYPECHECK_##nr(__VA_ARGS__);				\
++	asm volatile(							\
++		"	lgr	%[_prev],15\n"				\
++		"	lg	15,%[_stack]\n"				\
++		"	stg	%[_frame],%[_bc](15)\n"			\
++		"	brasl	14,%[_fn]\n"				\
++		"	lgr	15,%[_prev]\n"				\
++		: [_prev] "=&d" (prev), CALL_FMT_##nr			\
++		: [_stack] "R" (__stack),				\
++		  [_bc] "i" (offsetof(struct stack_frame, back_chain)),	\
++		  [_frame] "d" (frame),					\
++		  [_fn] "X" (__fn) : CALL_CLOBBER_##nr);		\
++	(rettype)r2;							\
++})
++
+ #define CALL_ON_STACK_NORETURN(fn, stack)				\
+ ({									\
+ 	asm volatile(							\
+diff --git a/drivers/dma-buf/sync_file.c b/drivers/dma-buf/sync_file.c
+index 91185db9a952..992c15c016dd 100644
+--- a/drivers/dma-buf/sync_file.c
++++ b/drivers/dma-buf/sync_file.c
+@@ -211,8 +211,8 @@ static struct sync_file *sync_file_merge(const char *name, struct sync_file *a,
+ 					 struct sync_file *b)
+ {
+ 	struct sync_file *sync_file;
+-	struct dma_fence **fences, **nfences, **a_fences, **b_fences;
+-	int i, i_a, i_b, num_fences, a_num_fences, b_num_fences;
++	struct dma_fence **fences = NULL, **nfences, **a_fences, **b_fences;
++	int i = 0, i_a, i_b, num_fences, a_num_fences, b_num_fences;
+ 
+ 	sync_file = sync_file_alloc();
+ 	if (!sync_file)
+@@ -236,7 +236,7 @@ static struct sync_file *sync_file_merge(const char *name, struct sync_file *a,
+ 	 * If a sync_file can only be created with sync_file_merge
+ 	 * and sync_file_create, this is a reasonable assumption.
+ 	 */
+-	for (i = i_a = i_b = 0; i_a < a_num_fences && i_b < b_num_fences; ) {
++	for (i_a = i_b = 0; i_a < a_num_fences && i_b < b_num_fences; ) {
+ 		struct dma_fence *pt_a = a_fences[i_a];
+ 		struct dma_fence *pt_b = b_fences[i_b];
+ 
+@@ -278,15 +278,16 @@ static struct sync_file *sync_file_merge(const char *name, struct sync_file *a,
+ 		fences = nfences;
+ 	}
+ 
+-	if (sync_file_set_fence(sync_file, fences, i) < 0) {
+-		kfree(fences);
++	if (sync_file_set_fence(sync_file, fences, i) < 0)
+ 		goto err;
+-	}
+ 
+ 	strlcpy(sync_file->user_name, name, sizeof(sync_file->user_name));
+ 	return sync_file;
+ 
+ err:
++	while (i)
++		dma_fence_put(fences[--i]);
++	kfree(fences);
+ 	fput(sync_file->file);
+ 	return NULL;
+ 
+diff --git a/drivers/firmware/tegra/Makefile b/drivers/firmware/tegra/Makefile
+index 49c87e00fafb..620cf3fdd607 100644
+--- a/drivers/firmware/tegra/Makefile
++++ b/drivers/firmware/tegra/Makefile
+@@ -3,6 +3,7 @@ tegra-bpmp-y			= bpmp.o
+ tegra-bpmp-$(CONFIG_ARCH_TEGRA_210_SOC)	+= bpmp-tegra210.o
+ tegra-bpmp-$(CONFIG_ARCH_TEGRA_186_SOC)	+= bpmp-tegra186.o
+ tegra-bpmp-$(CONFIG_ARCH_TEGRA_194_SOC)	+= bpmp-tegra186.o
++tegra-bpmp-$(CONFIG_ARCH_TEGRA_234_SOC)	+= bpmp-tegra186.o
+ tegra-bpmp-$(CONFIG_DEBUG_FS)	+= bpmp-debugfs.o
+ obj-$(CONFIG_TEGRA_BPMP)	+= tegra-bpmp.o
+ obj-$(CONFIG_TEGRA_IVC)		+= ivc.o
+diff --git a/drivers/firmware/tegra/bpmp-private.h b/drivers/firmware/tegra/bpmp-private.h
+index 54d560c48398..182bfe396516 100644
+--- a/drivers/firmware/tegra/bpmp-private.h
++++ b/drivers/firmware/tegra/bpmp-private.h
+@@ -24,7 +24,8 @@ struct tegra_bpmp_ops {
+ };
+ 
+ #if IS_ENABLED(CONFIG_ARCH_TEGRA_186_SOC) || \
+-    IS_ENABLED(CONFIG_ARCH_TEGRA_194_SOC)
++    IS_ENABLED(CONFIG_ARCH_TEGRA_194_SOC) || \
++    IS_ENABLED(CONFIG_ARCH_TEGRA_234_SOC)
+ extern const struct tegra_bpmp_ops tegra186_bpmp_ops;
+ #endif
+ #if IS_ENABLED(CONFIG_ARCH_TEGRA_210_SOC)
+diff --git a/drivers/firmware/tegra/bpmp.c b/drivers/firmware/tegra/bpmp.c
+index 19c56133234b..afde06b31387 100644
+--- a/drivers/firmware/tegra/bpmp.c
++++ b/drivers/firmware/tegra/bpmp.c
+@@ -808,7 +808,8 @@ static const struct dev_pm_ops tegra_bpmp_pm_ops = {
+ };
+ 
+ #if IS_ENABLED(CONFIG_ARCH_TEGRA_186_SOC) || \
+-    IS_ENABLED(CONFIG_ARCH_TEGRA_194_SOC)
++    IS_ENABLED(CONFIG_ARCH_TEGRA_194_SOC) || \
++    IS_ENABLED(CONFIG_ARCH_TEGRA_234_SOC)
+ static const struct tegra_bpmp_soc tegra186_soc = {
+ 	.channels = {
+ 		.cpu_tx = {
+diff --git a/drivers/firmware/turris-mox-rwtm.c b/drivers/firmware/turris-mox-rwtm.c
+index 9a6cf5af27a3..0779513ac8d4 100644
+--- a/drivers/firmware/turris-mox-rwtm.c
++++ b/drivers/firmware/turris-mox-rwtm.c
+@@ -401,6 +401,7 @@ static int turris_mox_rwtm_remove(struct platform_device *pdev)
+ 
+ static const struct of_device_id turris_mox_rwtm_match[] = {
+ 	{ .compatible = "cznic,turris-mox-rwtm", },
++	{ .compatible = "marvell,armada-3700-rwtm-firmware", },
+ 	{ },
+ };
+ 
+diff --git a/drivers/md/dm-writecache.c b/drivers/md/dm-writecache.c
+index 4c2971835d33..ec10fda3f24f 100644
+--- a/drivers/md/dm-writecache.c
++++ b/drivers/md/dm-writecache.c
+@@ -154,6 +154,7 @@ struct dm_writecache {
+ 	bool overwrote_committed:1;
+ 	bool memory_vmapped:1;
+ 
++	bool start_sector_set:1;
+ 	bool high_wm_percent_set:1;
+ 	bool low_wm_percent_set:1;
+ 	bool max_writeback_jobs_set:1;
+@@ -162,6 +163,10 @@ struct dm_writecache {
+ 	bool writeback_fua_set:1;
+ 	bool flush_on_suspend:1;
+ 
++	unsigned high_wm_percent_value;
++	unsigned low_wm_percent_value;
++	unsigned autocommit_time_value;
++
+ 	unsigned writeback_all;
+ 	struct workqueue_struct *writeback_wq;
+ 	struct work_struct writeback_work;
+@@ -2069,6 +2074,7 @@ static int writecache_ctr(struct dm_target *ti, unsigned argc, char **argv)
+ 			if (sscanf(string, "%llu%c", &start_sector, &dummy) != 1)
+ 				goto invalid_optional;
+ 			wc->start_sector = start_sector;
++			wc->start_sector_set = true;
+ 			if (wc->start_sector != start_sector ||
+ 			    wc->start_sector >= wc->memory_map_size >> SECTOR_SHIFT)
+ 				goto invalid_optional;
+@@ -2078,6 +2084,7 @@ static int writecache_ctr(struct dm_target *ti, unsigned argc, char **argv)
+ 				goto invalid_optional;
+ 			if (high_wm_percent < 0 || high_wm_percent > 100)
+ 				goto invalid_optional;
++			wc->high_wm_percent_value = high_wm_percent;
+ 			wc->high_wm_percent_set = true;
+ 		} else if (!strcasecmp(string, "low_watermark") && opt_params >= 1) {
+ 			string = dm_shift_arg(&as), opt_params--;
+@@ -2085,6 +2092,7 @@ static int writecache_ctr(struct dm_target *ti, unsigned argc, char **argv)
+ 				goto invalid_optional;
+ 			if (low_wm_percent < 0 || low_wm_percent > 100)
+ 				goto invalid_optional;
++			wc->low_wm_percent_value = low_wm_percent;
+ 			wc->low_wm_percent_set = true;
+ 		} else if (!strcasecmp(string, "writeback_jobs") && opt_params >= 1) {
+ 			string = dm_shift_arg(&as), opt_params--;
+@@ -2104,6 +2112,7 @@ static int writecache_ctr(struct dm_target *ti, unsigned argc, char **argv)
+ 			if (autocommit_msecs > 3600000)
+ 				goto invalid_optional;
+ 			wc->autocommit_jiffies = msecs_to_jiffies(autocommit_msecs);
++			wc->autocommit_time_value = autocommit_msecs;
+ 			wc->autocommit_time_set = true;
+ 		} else if (!strcasecmp(string, "fua")) {
+ 			if (WC_MODE_PMEM(wc)) {
+@@ -2305,7 +2314,6 @@ static void writecache_status(struct dm_target *ti, status_type_t type,
+ 	struct dm_writecache *wc = ti->private;
+ 	unsigned extra_args;
+ 	unsigned sz = 0;
+-	uint64_t x;
+ 
+ 	switch (type) {
+ 	case STATUSTYPE_INFO:
+@@ -2317,7 +2325,7 @@ static void writecache_status(struct dm_target *ti, status_type_t type,
+ 		DMEMIT("%c %s %s %u ", WC_MODE_PMEM(wc) ? 'p' : 's',
+ 				wc->dev->name, wc->ssd_dev->name, wc->block_size);
+ 		extra_args = 0;
+-		if (wc->start_sector)
++		if (wc->start_sector_set)
+ 			extra_args += 2;
+ 		if (wc->high_wm_percent_set)
+ 			extra_args += 2;
+@@ -2333,26 +2341,18 @@ static void writecache_status(struct dm_target *ti, status_type_t type,
+ 			extra_args++;
+ 
+ 		DMEMIT("%u", extra_args);
+-		if (wc->start_sector)
++		if (wc->start_sector_set)
+ 			DMEMIT(" start_sector %llu", (unsigned long long)wc->start_sector);
+-		if (wc->high_wm_percent_set) {
+-			x = (uint64_t)wc->freelist_high_watermark * 100;
+-			x += wc->n_blocks / 2;
+-			do_div(x, (size_t)wc->n_blocks);
+-			DMEMIT(" high_watermark %u", 100 - (unsigned)x);
+-		}
+-		if (wc->low_wm_percent_set) {
+-			x = (uint64_t)wc->freelist_low_watermark * 100;
+-			x += wc->n_blocks / 2;
+-			do_div(x, (size_t)wc->n_blocks);
+-			DMEMIT(" low_watermark %u", 100 - (unsigned)x);
+-		}
++		if (wc->high_wm_percent_set)
++			DMEMIT(" high_watermark %u", wc->high_wm_percent_value);
++		if (wc->low_wm_percent_set)
++			DMEMIT(" low_watermark %u", wc->low_wm_percent_value);
+ 		if (wc->max_writeback_jobs_set)
+ 			DMEMIT(" writeback_jobs %u", wc->max_writeback_jobs);
+ 		if (wc->autocommit_blocks_set)
+ 			DMEMIT(" autocommit_blocks %u", wc->autocommit_blocks);
+ 		if (wc->autocommit_time_set)
+-			DMEMIT(" autocommit_time %u", jiffies_to_msecs(wc->autocommit_jiffies));
++			DMEMIT(" autocommit_time %u", wc->autocommit_time_value);
+ 		if (wc->writeback_fua_set)
+ 			DMEMIT(" %sfua", wc->writeback_fua ? "" : "no");
+ 		break;
+diff --git a/drivers/net/dsa/mv88e6xxx/chip.c b/drivers/net/dsa/mv88e6xxx/chip.c
+index 446eb06e50b4..8aa8825557a8 100644
+--- a/drivers/net/dsa/mv88e6xxx/chip.c
++++ b/drivers/net/dsa/mv88e6xxx/chip.c
+@@ -3715,6 +3715,7 @@ static const struct mv88e6xxx_ops mv88e6250_ops = {
+ 	.port_set_rgmii_delay = mv88e6352_port_set_rgmii_delay,
+ 	.port_set_speed = mv88e6250_port_set_speed,
+ 	.port_tag_remap = mv88e6095_port_tag_remap,
++	.port_set_policy = mv88e6352_port_set_policy,
+ 	.port_set_frame_mode = mv88e6351_port_set_frame_mode,
+ 	.port_set_egress_floods = mv88e6352_port_set_egress_floods,
+ 	.port_set_ether_type = mv88e6351_port_set_ether_type,
+@@ -3916,6 +3917,7 @@ static const struct mv88e6xxx_ops mv88e6341_ops = {
+ 	.mgmt_rsvd2cpu =  mv88e6390_g1_mgmt_rsvd2cpu,
+ 	.pot_clear = mv88e6xxx_g2_pot_clear,
+ 	.reset = mv88e6352_g1_reset,
++	.rmu_disable = mv88e6390_g1_rmu_disable,
+ 	.vtu_getnext = mv88e6352_g1_vtu_getnext,
+ 	.vtu_loadpurge = mv88e6352_g1_vtu_loadpurge,
+ 	.serdes_power = mv88e6390_serdes_power,
+@@ -3982,6 +3984,7 @@ static const struct mv88e6xxx_ops mv88e6351_ops = {
+ 	.port_set_rgmii_delay = mv88e6352_port_set_rgmii_delay,
+ 	.port_set_speed = mv88e6185_port_set_speed,
+ 	.port_tag_remap = mv88e6095_port_tag_remap,
++	.port_set_policy = mv88e6352_port_set_policy,
+ 	.port_set_frame_mode = mv88e6351_port_set_frame_mode,
+ 	.port_set_egress_floods = mv88e6352_port_set_egress_floods,
+ 	.port_set_ether_type = mv88e6351_port_set_ether_type,
+@@ -4004,6 +4007,7 @@ static const struct mv88e6xxx_ops mv88e6351_ops = {
+ 	.mgmt_rsvd2cpu = mv88e6352_g2_mgmt_rsvd2cpu,
+ 	.pot_clear = mv88e6xxx_g2_pot_clear,
+ 	.reset = mv88e6352_g1_reset,
++	.rmu_disable = mv88e6390_g1_rmu_disable,
+ 	.vtu_getnext = mv88e6352_g1_vtu_getnext,
+ 	.vtu_loadpurge = mv88e6352_g1_vtu_loadpurge,
+ 	.avb_ops = &mv88e6352_avb_ops,
+diff --git a/drivers/net/ethernet/broadcom/genet/bcmgenet.c b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
+index 21669a42718c..7bd6d2bf8440 100644
+--- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
++++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
+@@ -2783,15 +2783,21 @@ static void bcmgenet_set_hw_addr(struct bcmgenet_priv *priv,
+ /* Returns a reusable dma control register value */
+ static u32 bcmgenet_dma_disable(struct bcmgenet_priv *priv)
+ {
++	unsigned int i;
+ 	u32 reg;
+ 	u32 dma_ctrl;
+ 
+ 	/* disable DMA */
+ 	dma_ctrl = 1 << (DESC_INDEX + DMA_RING_BUF_EN_SHIFT) | DMA_EN;
++	for (i = 0; i < priv->hw_params->tx_queues; i++)
++		dma_ctrl |= (1 << (i + DMA_RING_BUF_EN_SHIFT));
+ 	reg = bcmgenet_tdma_readl(priv, DMA_CTRL);
+ 	reg &= ~dma_ctrl;
+ 	bcmgenet_tdma_writel(priv, reg, DMA_CTRL);
+ 
++	dma_ctrl = 1 << (DESC_INDEX + DMA_RING_BUF_EN_SHIFT) | DMA_EN;
++	for (i = 0; i < priv->hw_params->rx_queues; i++)
++		dma_ctrl |= (1 << (i + DMA_RING_BUF_EN_SHIFT));
+ 	reg = bcmgenet_rdma_readl(priv, DMA_CTRL);
+ 	reg &= ~dma_ctrl;
+ 	bcmgenet_rdma_writel(priv, reg, DMA_CTRL);
+diff --git a/drivers/net/ethernet/moxa/moxart_ether.c b/drivers/net/ethernet/moxa/moxart_ether.c
+index caf705130272..13714827f452 100644
+--- a/drivers/net/ethernet/moxa/moxart_ether.c
++++ b/drivers/net/ethernet/moxa/moxart_ether.c
+@@ -545,10 +545,8 @@ static int moxart_mac_probe(struct platform_device *pdev)
+ 	SET_NETDEV_DEV(ndev, &pdev->dev);
+ 
+ 	ret = register_netdev(ndev);
+-	if (ret) {
+-		free_netdev(ndev);
++	if (ret)
+ 		goto init_fail;
+-	}
+ 
+ 	netdev_dbg(ndev, "%s: IRQ=%d address=%pM\n",
+ 		   __func__, ndev->irq, ndev->dev_addr);
+diff --git a/drivers/net/ethernet/qualcomm/emac/emac.c b/drivers/net/ethernet/qualcomm/emac/emac.c
+index 3eee8df359a1..5c199d2516d4 100644
+--- a/drivers/net/ethernet/qualcomm/emac/emac.c
++++ b/drivers/net/ethernet/qualcomm/emac/emac.c
+@@ -745,12 +745,13 @@ static int emac_remove(struct platform_device *pdev)
+ 
+ 	put_device(&adpt->phydev->mdio.dev);
+ 	mdiobus_unregister(adpt->mii_bus);
+-	free_netdev(netdev);
+ 
+ 	if (adpt->phy.digital)
+ 		iounmap(adpt->phy.digital);
+ 	iounmap(adpt->phy.base);
+ 
++	free_netdev(netdev);
++
+ 	return 0;
+ }
+ 
+diff --git a/drivers/net/ethernet/ti/tlan.c b/drivers/net/ethernet/ti/tlan.c
+index a3691bc94b10..a5c7d75497ee 100644
+--- a/drivers/net/ethernet/ti/tlan.c
++++ b/drivers/net/ethernet/ti/tlan.c
+@@ -314,9 +314,8 @@ static void tlan_remove_one(struct pci_dev *pdev)
+ 	pci_release_regions(pdev);
+ #endif
+ 
+-	free_netdev(dev);
+-
+ 	cancel_work_sync(&priv->tlan_tqueue);
++	free_netdev(dev);
+ }
+ 
+ static void tlan_start(struct net_device *dev)
+diff --git a/drivers/net/fddi/defza.c b/drivers/net/fddi/defza.c
+index 060712c666bf..83e4c5192f35 100644
+--- a/drivers/net/fddi/defza.c
++++ b/drivers/net/fddi/defza.c
+@@ -1504,9 +1504,8 @@ static int fza_probe(struct device *bdev)
+ 	release_mem_region(start, len);
+ 
+ err_out_kfree:
+-	free_netdev(dev);
+-
+ 	pr_err("%s: initialization failure, aborting!\n", fp->name);
++	free_netdev(dev);
+ 	return ret;
+ }
+ 
+diff --git a/drivers/reset/reset-ti-syscon.c b/drivers/reset/reset-ti-syscon.c
+index a2635c21db7f..ecb8873e3a19 100644
+--- a/drivers/reset/reset-ti-syscon.c
++++ b/drivers/reset/reset-ti-syscon.c
+@@ -58,8 +58,8 @@ struct ti_syscon_reset_data {
+ 	unsigned int nr_controls;
+ };
+ 
+-#define to_ti_syscon_reset_data(rcdev)	\
+-	container_of(rcdev, struct ti_syscon_reset_data, rcdev)
++#define to_ti_syscon_reset_data(_rcdev)	\
++	container_of(_rcdev, struct ti_syscon_reset_data, rcdev)
+ 
+ /**
+  * ti_syscon_reset_assert() - assert device reset
+diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
+index d5a0e27dd0a0..9e27f5a01197 100644
+--- a/drivers/rtc/rtc-max77686.c
++++ b/drivers/rtc/rtc-max77686.c
+@@ -707,8 +707,8 @@ static int max77686_init_rtc_regmap(struct max77686_rtc_info *info)
+ 
+ add_rtc_irq:
+ 	ret = regmap_add_irq_chip(info->rtc_regmap, info->rtc_irq,
+-				  IRQF_TRIGGER_FALLING | IRQF_ONESHOT |
+-				  IRQF_SHARED, 0, info->drv_data->rtc_irq_chip,
++				  IRQF_ONESHOT | IRQF_SHARED,
++				  0, info->drv_data->rtc_irq_chip,
+ 				  &info->rtc_irq_data);
+ 	if (ret < 0) {
+ 		dev_err(info->dev, "Failed to add RTC irq chip: %d\n", ret);
+diff --git a/drivers/rtc/rtc-mxc_v2.c b/drivers/rtc/rtc-mxc_v2.c
+index 91534560fe2a..d349cef09cb7 100644
+--- a/drivers/rtc/rtc-mxc_v2.c
++++ b/drivers/rtc/rtc-mxc_v2.c
+@@ -373,6 +373,7 @@ static const struct of_device_id mxc_ids[] = {
+ 	{ .compatible = "fsl,imx53-rtc", },
+ 	{}
+ };
++MODULE_DEVICE_TABLE(of, mxc_ids);
+ 
+ static struct platform_driver mxc_rtc_driver = {
+ 	.driver = {
+diff --git a/drivers/scsi/aic7xxx/aic7xxx_core.c b/drivers/scsi/aic7xxx/aic7xxx_core.c
+index 4190a025381a..27d85ed82977 100644
+--- a/drivers/scsi/aic7xxx/aic7xxx_core.c
++++ b/drivers/scsi/aic7xxx/aic7xxx_core.c
+@@ -493,7 +493,7 @@ ahc_inq(struct ahc_softc *ahc, u_int port)
+ 	return ((ahc_inb(ahc, port))
+ 	      | (ahc_inb(ahc, port+1) << 8)
+ 	      | (ahc_inb(ahc, port+2) << 16)
+-	      | (ahc_inb(ahc, port+3) << 24)
++	      | (((uint64_t)ahc_inb(ahc, port+3)) << 24)
+ 	      | (((uint64_t)ahc_inb(ahc, port+4)) << 32)
+ 	      | (((uint64_t)ahc_inb(ahc, port+5)) << 40)
+ 	      | (((uint64_t)ahc_inb(ahc, port+6)) << 48)
+diff --git a/drivers/scsi/aic94xx/aic94xx_init.c b/drivers/scsi/aic94xx/aic94xx_init.c
+index f5781e31f57c..b68dfeb952ee 100644
+--- a/drivers/scsi/aic94xx/aic94xx_init.c
++++ b/drivers/scsi/aic94xx/aic94xx_init.c
+@@ -52,6 +52,7 @@ static struct scsi_host_template aic94xx_sht = {
+ 	.max_sectors		= SCSI_DEFAULT_MAX_SECTORS,
+ 	.eh_device_reset_handler	= sas_eh_device_reset_handler,
+ 	.eh_target_reset_handler	= sas_eh_target_reset_handler,
++	.slave_alloc		= sas_slave_alloc,
+ 	.target_destroy		= sas_target_destroy,
+ 	.ioctl			= sas_ioctl,
+ 	.track_queue_depth	= 1,
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c
+index 9f6534bd354b..1443c803d8f7 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c
+@@ -1768,6 +1768,7 @@ static struct scsi_host_template sht_v1_hw = {
+ 	.max_sectors		= SCSI_DEFAULT_MAX_SECTORS,
+ 	.eh_device_reset_handler = sas_eh_device_reset_handler,
+ 	.eh_target_reset_handler = sas_eh_target_reset_handler,
++	.slave_alloc		= sas_slave_alloc,
+ 	.target_destroy		= sas_target_destroy,
+ 	.ioctl			= sas_ioctl,
+ 	.shost_attrs		= host_attrs_v1_hw,
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c
+index 8e96a257e439..11c75881bd89 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c
+@@ -3542,6 +3542,7 @@ static struct scsi_host_template sht_v2_hw = {
+ 	.max_sectors		= SCSI_DEFAULT_MAX_SECTORS,
+ 	.eh_device_reset_handler = sas_eh_device_reset_handler,
+ 	.eh_target_reset_handler = sas_eh_target_reset_handler,
++	.slave_alloc		= sas_slave_alloc,
+ 	.target_destroy		= sas_target_destroy,
+ 	.ioctl			= sas_ioctl,
+ 	.shost_attrs		= host_attrs_v2_hw,
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+index 916447f3c607..13f314fa757e 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+@@ -3064,6 +3064,7 @@ static struct scsi_host_template sht_v3_hw = {
+ 	.max_sectors		= SCSI_DEFAULT_MAX_SECTORS,
+ 	.eh_device_reset_handler = sas_eh_device_reset_handler,
+ 	.eh_target_reset_handler = sas_eh_target_reset_handler,
++	.slave_alloc		= sas_slave_alloc,
+ 	.target_destroy		= sas_target_destroy,
+ 	.ioctl			= sas_ioctl,
+ 	.shost_attrs		= host_attrs_v3_hw,
+diff --git a/drivers/scsi/isci/init.c b/drivers/scsi/isci/init.c
+index 1727d0c71b12..c33bcf85fb21 100644
+--- a/drivers/scsi/isci/init.c
++++ b/drivers/scsi/isci/init.c
+@@ -166,6 +166,7 @@ static struct scsi_host_template isci_sht = {
+ 	.eh_abort_handler		= sas_eh_abort_handler,
+ 	.eh_device_reset_handler        = sas_eh_device_reset_handler,
+ 	.eh_target_reset_handler        = sas_eh_target_reset_handler,
++	.slave_alloc			= sas_slave_alloc,
+ 	.target_destroy			= sas_target_destroy,
+ 	.ioctl				= sas_ioctl,
+ 	.shost_attrs			= isci_host_attrs,
+diff --git a/drivers/scsi/libfc/fc_rport.c b/drivers/scsi/libfc/fc_rport.c
+index 64500417c22e..326bd609a3d1 100644
+--- a/drivers/scsi/libfc/fc_rport.c
++++ b/drivers/scsi/libfc/fc_rport.c
+@@ -1160,6 +1160,7 @@ static void fc_rport_prli_resp(struct fc_seq *sp, struct fc_frame *fp,
+ 		resp_code = (pp->spp.spp_flags & FC_SPP_RESP_MASK);
+ 		FC_RPORT_DBG(rdata, "PRLI spp_flags = 0x%x spp_type 0x%x\n",
+ 			     pp->spp.spp_flags, pp->spp.spp_type);
++
+ 		rdata->spp_type = pp->spp.spp_type;
+ 		if (resp_code != FC_SPP_RESP_ACK) {
+ 			if (resp_code == FC_SPP_RESP_CONF)
+@@ -1182,11 +1183,13 @@ static void fc_rport_prli_resp(struct fc_seq *sp, struct fc_frame *fp,
+ 		/*
+ 		 * Call prli provider if we should act as a target
+ 		 */
+-		prov = fc_passive_prov[rdata->spp_type];
+-		if (prov) {
+-			memset(&temp_spp, 0, sizeof(temp_spp));
+-			prov->prli(rdata, pp->prli.prli_spp_len,
+-				   &pp->spp, &temp_spp);
++		if (rdata->spp_type < FC_FC4_PROV_SIZE) {
++			prov = fc_passive_prov[rdata->spp_type];
++			if (prov) {
++				memset(&temp_spp, 0, sizeof(temp_spp));
++				prov->prli(rdata, pp->prli.prli_spp_len,
++					   &pp->spp, &temp_spp);
++			}
+ 		}
+ 		/*
+ 		 * Check if the image pair could be established
+diff --git a/drivers/scsi/libsas/sas_scsi_host.c b/drivers/scsi/libsas/sas_scsi_host.c
+index bec83eb8ab87..081f3145fe14 100644
+--- a/drivers/scsi/libsas/sas_scsi_host.c
++++ b/drivers/scsi/libsas/sas_scsi_host.c
+@@ -911,6 +911,14 @@ void sas_task_abort(struct sas_task *task)
+ 		blk_abort_request(sc->request);
+ }
+ 
++int sas_slave_alloc(struct scsi_device *sdev)
++{
++	if (dev_is_sata(sdev_to_domain_dev(sdev)) && sdev->lun)
++		return -ENXIO;
++
++	return 0;
++}
++
+ void sas_target_destroy(struct scsi_target *starget)
+ {
+ 	struct domain_device *found_dev = starget->hostdata;
+@@ -957,5 +965,6 @@ EXPORT_SYMBOL_GPL(sas_task_abort);
+ EXPORT_SYMBOL_GPL(sas_phy_reset);
+ EXPORT_SYMBOL_GPL(sas_eh_device_reset_handler);
+ EXPORT_SYMBOL_GPL(sas_eh_target_reset_handler);
++EXPORT_SYMBOL_GPL(sas_slave_alloc);
+ EXPORT_SYMBOL_GPL(sas_target_destroy);
+ EXPORT_SYMBOL_GPL(sas_ioctl);
+diff --git a/drivers/scsi/mvsas/mv_init.c b/drivers/scsi/mvsas/mv_init.c
+index da719b0694dc..52405ce58ade 100644
+--- a/drivers/scsi/mvsas/mv_init.c
++++ b/drivers/scsi/mvsas/mv_init.c
+@@ -45,6 +45,7 @@ static struct scsi_host_template mvs_sht = {
+ 	.max_sectors		= SCSI_DEFAULT_MAX_SECTORS,
+ 	.eh_device_reset_handler = sas_eh_device_reset_handler,
+ 	.eh_target_reset_handler = sas_eh_target_reset_handler,
++	.slave_alloc		= sas_slave_alloc,
+ 	.target_destroy		= sas_target_destroy,
+ 	.ioctl			= sas_ioctl,
+ 	.shost_attrs		= mvst_host_attrs,
+diff --git a/drivers/scsi/pm8001/pm8001_init.c b/drivers/scsi/pm8001/pm8001_init.c
+index 8882ba33ca87..1f41537d52a5 100644
+--- a/drivers/scsi/pm8001/pm8001_init.c
++++ b/drivers/scsi/pm8001/pm8001_init.c
+@@ -86,6 +86,7 @@ static struct scsi_host_template pm8001_sht = {
+ 	.max_sectors		= SCSI_DEFAULT_MAX_SECTORS,
+ 	.eh_device_reset_handler = sas_eh_device_reset_handler,
+ 	.eh_target_reset_handler = sas_eh_target_reset_handler,
++	.slave_alloc		= sas_slave_alloc,
+ 	.target_destroy		= sas_target_destroy,
+ 	.ioctl			= sas_ioctl,
+ 	.shost_attrs		= pm8001_host_attrs,
+diff --git a/drivers/scsi/qedf/qedf_io.c b/drivers/scsi/qedf/qedf_io.c
+index e749a2dcaad7..4e8a284e606c 100644
+--- a/drivers/scsi/qedf/qedf_io.c
++++ b/drivers/scsi/qedf/qedf_io.c
+@@ -1504,9 +1504,19 @@ void qedf_process_error_detect(struct qedf_ctx *qedf, struct fcoe_cqe *cqe,
+ {
+ 	int rval;
+ 
++	if (io_req == NULL) {
++		QEDF_INFO(NULL, QEDF_LOG_IO, "io_req is NULL.\n");
++		return;
++	}
++
++	if (io_req->fcport == NULL) {
++		QEDF_INFO(NULL, QEDF_LOG_IO, "fcport is NULL.\n");
++		return;
++	}
++
+ 	if (!cqe) {
+ 		QEDF_INFO(&qedf->dbg_ctx, QEDF_LOG_IO,
+-			  "cqe is NULL for io_req %p\n", io_req);
++			"cqe is NULL for io_req %p\n", io_req);
+ 		return;
+ 	}
+ 
+@@ -1522,6 +1532,16 @@ void qedf_process_error_detect(struct qedf_ctx *qedf, struct fcoe_cqe *cqe,
+ 		  le32_to_cpu(cqe->cqe_info.err_info.rx_buf_off),
+ 		  le32_to_cpu(cqe->cqe_info.err_info.rx_id));
+ 
++	/* When flush is active, let the cmds be flushed out from the cleanup context */
++	if (test_bit(QEDF_RPORT_IN_TARGET_RESET, &io_req->fcport->flags) ||
++		(test_bit(QEDF_RPORT_IN_LUN_RESET, &io_req->fcport->flags) &&
++		 io_req->sc_cmd->device->lun == (u64)io_req->fcport->lun_reset_lun)) {
++		QEDF_ERR(&qedf->dbg_ctx,
++			"Dropping EQE for xid=0x%x as fcport is flushing",
++			io_req->xid);
++		return;
++	}
++
+ 	if (qedf->stop_io_on_error) {
+ 		qedf_stop_all_io(qedf);
+ 		return;
+diff --git a/drivers/soc/tegra/fuse/fuse-tegra30.c b/drivers/soc/tegra/fuse/fuse-tegra30.c
+index 9c3ef0a02fd4..15060c847ecc 100644
+--- a/drivers/soc/tegra/fuse/fuse-tegra30.c
++++ b/drivers/soc/tegra/fuse/fuse-tegra30.c
+@@ -36,7 +36,8 @@
+     defined(CONFIG_ARCH_TEGRA_132_SOC) || \
+     defined(CONFIG_ARCH_TEGRA_210_SOC) || \
+     defined(CONFIG_ARCH_TEGRA_186_SOC) || \
+-    defined(CONFIG_ARCH_TEGRA_194_SOC)
++    defined(CONFIG_ARCH_TEGRA_194_SOC) || \
++    defined(CONFIG_ARCH_TEGRA_234_SOC)
+ static u32 tegra30_fuse_read_early(struct tegra_fuse *fuse, unsigned int offset)
+ {
+ 	if (WARN_ON(!fuse->base))
+diff --git a/drivers/thermal/thermal_core.c b/drivers/thermal/thermal_core.c
+index c28271817e43..f526ce31f5a2 100644
+--- a/drivers/thermal/thermal_core.c
++++ b/drivers/thermal/thermal_core.c
+@@ -1368,7 +1368,7 @@ thermal_zone_device_register(const char *type, int trips, int mask,
+ EXPORT_SYMBOL_GPL(thermal_zone_device_register);
+ 
+ /**
+- * thermal_device_unregister - removes the registered thermal zone device
++ * thermal_zone_device_unregister - removes the registered thermal zone device
+  * @tz: the thermal zone device to remove
+  */
+ void thermal_zone_device_unregister(struct thermal_zone_device *tz)
+diff --git a/drivers/usb/cdns3/gadget.c b/drivers/usb/cdns3/gadget.c
+index f32f00c49571..c3bf54cc530f 100644
+--- a/drivers/usb/cdns3/gadget.c
++++ b/drivers/usb/cdns3/gadget.c
+@@ -1531,7 +1531,7 @@ void cdns3_configure_dmult(struct cdns3_device *priv_dev,
+ 		else
+ 			mask = BIT(priv_ep->num);
+ 
+-		if (priv_ep->type != USB_ENDPOINT_XFER_ISOC) {
++		if (priv_ep->type != USB_ENDPOINT_XFER_ISOC  && !priv_ep->dir) {
+ 			cdns3_set_register_bit(&regs->tdl_from_trb, mask);
+ 			cdns3_set_register_bit(&regs->tdl_beh, mask);
+ 			cdns3_set_register_bit(&regs->tdl_beh2, mask);
+@@ -1569,15 +1569,13 @@ void cdns3_ep_config(struct cdns3_endpoint *priv_ep)
+ 	case USB_ENDPOINT_XFER_INT:
+ 		ep_cfg = EP_CFG_EPTYPE(USB_ENDPOINT_XFER_INT);
+ 
+-		if ((priv_dev->dev_ver == DEV_VER_V2 && !priv_ep->dir) ||
+-		    priv_dev->dev_ver > DEV_VER_V2)
++		if (priv_dev->dev_ver >= DEV_VER_V2 && !priv_ep->dir)
+ 			ep_cfg |= EP_CFG_TDL_CHK;
+ 		break;
+ 	case USB_ENDPOINT_XFER_BULK:
+ 		ep_cfg = EP_CFG_EPTYPE(USB_ENDPOINT_XFER_BULK);
+ 
+-		if ((priv_dev->dev_ver == DEV_VER_V2  && !priv_ep->dir) ||
+-		    priv_dev->dev_ver > DEV_VER_V2)
++		if (priv_dev->dev_ver >= DEV_VER_V2 && !priv_ep->dir)
+ 			ep_cfg |= EP_CFG_TDL_CHK;
+ 		break;
+ 	default:
+diff --git a/fs/cifs/cifs_dfs_ref.c b/fs/cifs/cifs_dfs_ref.c
+index cc3ada12848d..42125601ebb1 100644
+--- a/fs/cifs/cifs_dfs_ref.c
++++ b/fs/cifs/cifs_dfs_ref.c
+@@ -151,6 +151,9 @@ char *cifs_compose_mount_options(const char *sb_mountdata,
+ 		return ERR_PTR(-EINVAL);
+ 
+ 	if (ref) {
++		if (WARN_ON_ONCE(!ref->node_name || ref->path_consumed < 0))
++			return ERR_PTR(-EINVAL);
++
+ 		if (strlen(fullpath) - ref->path_consumed) {
+ 			prepath = fullpath + ref->path_consumed;
+ 			/* skip initial delimiter */
+diff --git a/fs/f2fs/sysfs.c b/fs/f2fs/sysfs.c
+index 029e693e201c..3a5360e045cf 100644
+--- a/fs/f2fs/sysfs.c
++++ b/fs/f2fs/sysfs.c
+@@ -499,7 +499,9 @@ F2FS_FEATURE_RO_ATTR(lost_found, FEAT_LOST_FOUND);
+ F2FS_FEATURE_RO_ATTR(verity, FEAT_VERITY);
+ #endif
+ F2FS_FEATURE_RO_ATTR(sb_checksum, FEAT_SB_CHECKSUM);
++#ifdef CONFIG_UNICODE
+ F2FS_FEATURE_RO_ATTR(casefold, FEAT_CASEFOLD);
++#endif
+ 
+ #define ATTR_LIST(name) (&f2fs_attr_##name.attr)
+ static struct attribute *f2fs_attrs[] = {
+@@ -568,7 +570,9 @@ static struct attribute *f2fs_feat_attrs[] = {
+ 	ATTR_LIST(verity),
+ #endif
+ 	ATTR_LIST(sb_checksum),
++#ifdef CONFIG_UNICODE
+ 	ATTR_LIST(casefold),
++#endif
+ 	NULL,
+ };
+ ATTRIBUTE_GROUPS(f2fs_feat);
+diff --git a/include/net/dst_metadata.h b/include/net/dst_metadata.h
+index 56cb3c38569a..14efa0ded75d 100644
+--- a/include/net/dst_metadata.h
++++ b/include/net/dst_metadata.h
+@@ -45,7 +45,9 @@ skb_tunnel_info(const struct sk_buff *skb)
+ 		return &md_dst->u.tun_info;
+ 
+ 	dst = skb_dst(skb);
+-	if (dst && dst->lwtstate)
++	if (dst && dst->lwtstate &&
++	    (dst->lwtstate->type == LWTUNNEL_ENCAP_IP ||
++	     dst->lwtstate->type == LWTUNNEL_ENCAP_IP6))
+ 		return lwt_tun_info(dst->lwtstate);
+ 
+ 	return NULL;
+diff --git a/include/net/ip6_route.h b/include/net/ip6_route.h
+index 40602def3fe7..feeecbc80e72 100644
+--- a/include/net/ip6_route.h
++++ b/include/net/ip6_route.h
+@@ -261,7 +261,7 @@ static inline bool ipv6_anycast_destination(const struct dst_entry *dst,
+ int ip6_fragment(struct net *net, struct sock *sk, struct sk_buff *skb,
+ 		 int (*output)(struct net *, struct sock *, struct sk_buff *));
+ 
+-static inline int ip6_skb_dst_mtu(struct sk_buff *skb)
++static inline unsigned int ip6_skb_dst_mtu(struct sk_buff *skb)
+ {
+ 	int mtu;
+ 
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index d2ba080ea742..74cb20f32f72 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -4786,7 +4786,7 @@ static const u64 cfs_bandwidth_slack_period = 5 * NSEC_PER_MSEC;
+ static int runtime_refresh_within(struct cfs_bandwidth *cfs_b, u64 min_expire)
+ {
+ 	struct hrtimer *refresh_timer = &cfs_b->period_timer;
+-	u64 remaining;
++	s64 remaining;
+ 
+ 	/* if the call-back is running a quota refresh is already occurring */
+ 	if (hrtimer_callback_running(refresh_timer))
+@@ -4794,7 +4794,7 @@ static int runtime_refresh_within(struct cfs_bandwidth *cfs_b, u64 min_expire)
+ 
+ 	/* is a quota refresh about to occur? */
+ 	remaining = ktime_to_ns(hrtimer_expires_remaining(refresh_timer));
+-	if (remaining < min_expire)
++	if (remaining < (s64)min_expire)
+ 		return 1;
+ 
+ 	return 0;
+diff --git a/mm/slab_common.c b/mm/slab_common.c
+index 636cd496417c..8f128245b300 100644
+--- a/mm/slab_common.c
++++ b/mm/slab_common.c
+@@ -325,14 +325,6 @@ int slab_unmergeable(struct kmem_cache *s)
+ 	if (s->refcount < 0)
+ 		return 1;
+ 
+-#ifdef CONFIG_MEMCG_KMEM
+-	/*
+-	 * Skip the dying kmem_cache.
+-	 */
+-	if (s->memcg_params.dying)
+-		return 1;
+-#endif
+-
+ 	return 0;
+ }
+ 
+@@ -973,6 +965,16 @@ void kmem_cache_destroy(struct kmem_cache *s)
+ 	get_online_mems();
+ 
+ 	mutex_lock(&slab_mutex);
++
++	/*
++	 * Another thread referenced it again
++	 */
++	if (READ_ONCE(s->refcount)) {
++		spin_lock_irq(&memcg_kmem_wq_lock);
++		s->memcg_params.dying = false;
++		spin_unlock_irq(&memcg_kmem_wq_lock);
++		goto out_unlock;
++	}
+ #endif
+ 
+ 	err = shutdown_memcg_caches(s);
+diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
+index 4fe30b182ee7..bec20dbf6f60 100644
+--- a/net/bridge/br_if.c
++++ b/net/bridge/br_if.c
+@@ -559,7 +559,7 @@ int br_add_if(struct net_bridge *br, struct net_device *dev,
+ 	struct net_bridge_port *p;
+ 	int err = 0;
+ 	unsigned br_hr, dev_hr;
+-	bool changed_addr;
++	bool changed_addr, fdb_synced = false;
+ 
+ 	/* Don't allow bridging non-ethernet like devices, or DSA-enabled
+ 	 * master network devices since the bridge layer rx_handler prevents
+@@ -635,6 +635,19 @@ int br_add_if(struct net_bridge *br, struct net_device *dev,
+ 	list_add_rcu(&p->list, &br->port_list);
+ 
+ 	nbp_update_port_count(br);
++	if (!br_promisc_port(p) && (p->dev->priv_flags & IFF_UNICAST_FLT)) {
++		/* When updating the port count we also update all ports'
++		 * promiscuous mode.
++		 * A port leaving promiscuous mode normally gets the bridge's
++		 * fdb synced to the unicast filter (if supported), however,
++		 * `br_port_clear_promisc` does not distinguish between
++		 * non-promiscuous ports and *new* ports, so we need to
++		 * sync explicitly here.
++		 */
++		fdb_synced = br_fdb_sync_static(br, p) == 0;
++		if (!fdb_synced)
++			netdev_err(dev, "failed to sync bridge static fdb addresses to this port\n");
++	}
+ 
+ 	netdev_update_features(br->dev);
+ 
+@@ -684,6 +697,8 @@ int br_add_if(struct net_bridge *br, struct net_device *dev,
+ 	return 0;
+ 
+ err7:
++	if (fdb_synced)
++		br_fdb_unsync_static(br, p);
+ 	list_del_rcu(&p->list);
+ 	br_fdb_delete_by_port(br, p, 0, 1);
+ 	nbp_update_port_count(br);
+diff --git a/net/ipv4/ip_tunnel.c b/net/ipv4/ip_tunnel.c
+index f64d1743b86d..eb381a24a8f8 100644
+--- a/net/ipv4/ip_tunnel.c
++++ b/net/ipv4/ip_tunnel.c
+@@ -317,7 +317,7 @@ static int ip_tunnel_bind_dev(struct net_device *dev)
+ 	}
+ 
+ 	dev->needed_headroom = t_hlen + hlen;
+-	mtu -= t_hlen;
++	mtu -= t_hlen + (dev->type == ARPHRD_ETHER ? dev->hard_header_len : 0);
+ 
+ 	if (mtu < IPV4_MIN_MTU)
+ 		mtu = IPV4_MIN_MTU;
+@@ -348,6 +348,9 @@ static struct ip_tunnel *ip_tunnel_create(struct net *net,
+ 	t_hlen = nt->hlen + sizeof(struct iphdr);
+ 	dev->min_mtu = ETH_MIN_MTU;
+ 	dev->max_mtu = IP_MAX_MTU - t_hlen;
++	if (dev->type == ARPHRD_ETHER)
++		dev->max_mtu -= dev->hard_header_len;
++
+ 	ip_tunnel_add(itn, nt);
+ 	return nt;
+ 
+@@ -495,11 +498,14 @@ static int tnl_update_pmtu(struct net_device *dev, struct sk_buff *skb,
+ 
+ 	tunnel_hlen = md ? tunnel_hlen : tunnel->hlen;
+ 	pkt_size = skb->len - tunnel_hlen;
++	pkt_size -= dev->type == ARPHRD_ETHER ? dev->hard_header_len : 0;
+ 
+-	if (df)
++	if (df) {
+ 		mtu = dst_mtu(&rt->dst) - (sizeof(struct iphdr) + tunnel_hlen);
+-	else
++		mtu -= dev->type == ARPHRD_ETHER ? dev->hard_header_len : 0;
++	} else {
+ 		mtu = skb_valid_dst(skb) ? dst_mtu(skb_dst(skb)) : dev->mtu;
++	}
+ 
+ 	if (skb_valid_dst(skb))
+ 		skb_dst_update_pmtu_no_confirm(skb, mtu);
+@@ -965,6 +971,9 @@ int __ip_tunnel_change_mtu(struct net_device *dev, int new_mtu, bool strict)
+ 	int t_hlen = tunnel->hlen + sizeof(struct iphdr);
+ 	int max_mtu = IP_MAX_MTU - t_hlen;
+ 
++	if (dev->type == ARPHRD_ETHER)
++		max_mtu -= dev->hard_header_len;
++
+ 	if (new_mtu < ETH_MIN_MTU)
+ 		return -EINVAL;
+ 
+@@ -1142,6 +1151,9 @@ int ip_tunnel_newlink(struct net_device *dev, struct nlattr *tb[],
+ 	if (tb[IFLA_MTU]) {
+ 		unsigned int max = IP_MAX_MTU - (nt->hlen + sizeof(struct iphdr));
+ 
++		if (dev->type == ARPHRD_ETHER)
++			max -= dev->hard_header_len;
++
+ 		mtu = clamp(dev->mtu, (unsigned int)ETH_MIN_MTU, max);
+ 	}
+ 
+diff --git a/net/ipv4/tcp_ipv4.c b/net/ipv4/tcp_ipv4.c
+index 04acdca4bb0d..91788ff19a5d 100644
+--- a/net/ipv4/tcp_ipv4.c
++++ b/net/ipv4/tcp_ipv4.c
+@@ -343,7 +343,7 @@ void tcp_v4_mtu_reduced(struct sock *sk)
+ 
+ 	if ((1 << sk->sk_state) & (TCPF_LISTEN | TCPF_CLOSE))
+ 		return;
+-	mtu = tcp_sk(sk)->mtu_info;
++	mtu = READ_ONCE(tcp_sk(sk)->mtu_info);
+ 	dst = inet_csk_update_pmtu(sk, mtu);
+ 	if (!dst)
+ 		return;
+@@ -512,7 +512,7 @@ int tcp_v4_err(struct sk_buff *icmp_skb, u32 info)
+ 			if (sk->sk_state == TCP_LISTEN)
+ 				goto out;
+ 
+-			tp->mtu_info = info;
++			WRITE_ONCE(tp->mtu_info, info);
+ 			if (!sock_owned_by_user(sk)) {
+ 				tcp_v4_mtu_reduced(sk);
+ 			} else {
+diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
+index d0774b4e934d..638d7b49ad71 100644
+--- a/net/ipv4/tcp_output.c
++++ b/net/ipv4/tcp_output.c
+@@ -1504,6 +1504,7 @@ int tcp_mtu_to_mss(struct sock *sk, int pmtu)
+ 	return __tcp_mtu_to_mss(sk, pmtu) -
+ 	       (tcp_sk(sk)->tcp_header_len - sizeof(struct tcphdr));
+ }
++EXPORT_SYMBOL(tcp_mtu_to_mss);
+ 
+ /* Inverse of above */
+ int tcp_mss_to_mtu(struct sock *sk, int mss)
+diff --git a/net/ipv4/udp.c b/net/ipv4/udp.c
+index 4644f86c932f..6f277bd30ea3 100644
+--- a/net/ipv4/udp.c
++++ b/net/ipv4/udp.c
+@@ -1043,7 +1043,7 @@ int udp_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
+ 	}
+ 
+ 	ipcm_init_sk(&ipc, inet);
+-	ipc.gso_size = up->gso_size;
++	ipc.gso_size = READ_ONCE(up->gso_size);
+ 
+ 	if (msg->msg_controllen) {
+ 		err = udp_cmsg_send(sk, msg, &ipc.gso_size);
+@@ -2590,7 +2590,7 @@ int udp_lib_setsockopt(struct sock *sk, int level, int optname,
+ 	case UDP_SEGMENT:
+ 		if (val < 0 || val > USHRT_MAX)
+ 			return -EINVAL;
+-		up->gso_size = val;
++		WRITE_ONCE(up->gso_size, val);
+ 		break;
+ 
+ 	case UDP_GRO:
+@@ -2692,7 +2692,7 @@ int udp_lib_getsockopt(struct sock *sk, int level, int optname,
+ 		break;
+ 
+ 	case UDP_SEGMENT:
+-		val = up->gso_size;
++		val = READ_ONCE(up->gso_size);
+ 		break;
+ 
+ 	case UDP_GRO:
+diff --git a/net/ipv6/tcp_ipv6.c b/net/ipv6/tcp_ipv6.c
+index 2f061a911bc2..3903cc0ab188 100644
+--- a/net/ipv6/tcp_ipv6.c
++++ b/net/ipv6/tcp_ipv6.c
+@@ -343,11 +343,20 @@ static int tcp_v6_connect(struct sock *sk, struct sockaddr *uaddr,
+ static void tcp_v6_mtu_reduced(struct sock *sk)
+ {
+ 	struct dst_entry *dst;
++	u32 mtu;
+ 
+ 	if ((1 << sk->sk_state) & (TCPF_LISTEN | TCPF_CLOSE))
+ 		return;
+ 
+-	dst = inet6_csk_update_pmtu(sk, tcp_sk(sk)->mtu_info);
++	mtu = READ_ONCE(tcp_sk(sk)->mtu_info);
++
++	/* Drop requests trying to increase our current mss.
++	 * Check done in __ip6_rt_update_pmtu() is too late.
++	 */
++	if (tcp_mtu_to_mss(sk, mtu) >= tcp_sk(sk)->mss_cache)
++		return;
++
++	dst = inet6_csk_update_pmtu(sk, mtu);
+ 	if (!dst)
+ 		return;
+ 
+@@ -428,6 +437,8 @@ static int tcp_v6_err(struct sk_buff *skb, struct inet6_skb_parm *opt,
+ 	}
+ 
+ 	if (type == ICMPV6_PKT_TOOBIG) {
++		u32 mtu = ntohl(info);
++
+ 		/* We are not interested in TCP_LISTEN and open_requests
+ 		 * (SYN-ACKs send out by Linux are always <576bytes so
+ 		 * they should go through unfragmented).
+@@ -438,7 +449,11 @@ static int tcp_v6_err(struct sk_buff *skb, struct inet6_skb_parm *opt,
+ 		if (!ip6_sk_accept_pmtu(sk))
+ 			goto out;
+ 
+-		tp->mtu_info = ntohl(info);
++		if (mtu < IPV6_MIN_MTU)
++			goto out;
++
++		WRITE_ONCE(tp->mtu_info, mtu);
++
+ 		if (!sock_owned_by_user(sk))
+ 			tcp_v6_mtu_reduced(sk);
+ 		else if (!test_and_set_bit(TCP_MTU_REDUCED_DEFERRED,
+@@ -513,8 +528,8 @@ static int tcp_v6_send_synack(const struct sock *sk, struct dst_entry *dst,
+ 		opt = ireq->ipv6_opt;
+ 		if (!opt)
+ 			opt = rcu_dereference(np->opt);
+-		err = ip6_xmit(sk, skb, fl6, sk->sk_mark, opt, np->tclass,
+-			       sk->sk_priority);
++		err = ip6_xmit(sk, skb, fl6, skb->mark ? : sk->sk_mark, opt,
++			       np->tclass, sk->sk_priority);
+ 		rcu_read_unlock();
+ 		err = net_xmit_eval(err);
+ 	}
+diff --git a/net/ipv6/udp.c b/net/ipv6/udp.c
+index 3c94b81bb459..776427e80efb 100644
+--- a/net/ipv6/udp.c
++++ b/net/ipv6/udp.c
+@@ -1237,7 +1237,7 @@ int udpv6_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
+ 	int (*getfrag)(void *, char *, int, int, int, struct sk_buff *);
+ 
+ 	ipcm6_init(&ipc6);
+-	ipc6.gso_size = up->gso_size;
++	ipc6.gso_size = READ_ONCE(up->gso_size);
+ 	ipc6.sockc.tsflags = sk->sk_tsflags;
+ 	ipc6.sockc.mark = sk->sk_mark;
+ 
+diff --git a/net/ipv6/xfrm6_output.c b/net/ipv6/xfrm6_output.c
+index cf2a0ce15c1c..6b0ed6c593e2 100644
+--- a/net/ipv6/xfrm6_output.c
++++ b/net/ipv6/xfrm6_output.c
+@@ -144,7 +144,7 @@ static int __xfrm6_output(struct net *net, struct sock *sk, struct sk_buff *skb)
+ {
+ 	struct dst_entry *dst = skb_dst(skb);
+ 	struct xfrm_state *x = dst->xfrm;
+-	int mtu;
++	unsigned int mtu;
+ 	bool toobig;
+ 
+ #ifdef CONFIG_NETFILTER
+diff --git a/net/netfilter/nf_conntrack_netlink.c b/net/netfilter/nf_conntrack_netlink.c
+index 783af451a832..bc6f0c8874f8 100644
+--- a/net/netfilter/nf_conntrack_netlink.c
++++ b/net/netfilter/nf_conntrack_netlink.c
+@@ -211,6 +211,7 @@ static int ctnetlink_dump_helpinfo(struct sk_buff *skb,
+ 	if (!help)
+ 		return 0;
+ 
++	rcu_read_lock();
+ 	helper = rcu_dereference(help->helper);
+ 	if (!helper)
+ 		goto out;
+@@ -226,9 +227,11 @@ static int ctnetlink_dump_helpinfo(struct sk_buff *skb,
+ 
+ 	nla_nest_end(skb, nest_helper);
+ out:
++	rcu_read_unlock();
+ 	return 0;
+ 
+ nla_put_failure:
++	rcu_read_unlock();
+ 	return -1;
+ }
+ 
+diff --git a/net/sched/act_ct.c b/net/sched/act_ct.c
+index 16c4cbf6d1f0..02d4491991b5 100644
+--- a/net/sched/act_ct.c
++++ b/net/sched/act_ct.c
+@@ -474,7 +474,8 @@ static int tcf_ct_act(struct sk_buff *skb, const struct tc_action *a,
+ 		/* This will take care of sending queued events
+ 		 * even if the connection is already confirmed.
+ 		 */
+-		nf_conntrack_confirm(skb);
++		if (nf_conntrack_confirm(skb) != NF_ACCEPT)
++			goto drop;
+ 	}
+ 
+ out_push:
+diff --git a/scripts/Kbuild.include b/scripts/Kbuild.include
+index 7da10afc92c6..b14a7d4a2f05 100644
+--- a/scripts/Kbuild.include
++++ b/scripts/Kbuild.include
+@@ -182,8 +182,13 @@ clean := -f $(srctree)/scripts/Makefile.clean obj
+ echo-cmd = $(if $($(quiet)cmd_$(1)),\
+ 	echo '  $(call escsq,$($(quiet)cmd_$(1)))$(echo-why)';)
+ 
++# sink stdout for 'make -s'
++       redirect :=
++ quiet_redirect :=
++silent_redirect := exec >/dev/null;
++
+ # printing commands
+-cmd = @set -e; $(echo-cmd) $(cmd_$(1))
++cmd = @set -e; $(echo-cmd) $($(quiet)redirect) $(cmd_$(1))
+ 
+ ###
+ # if_changed      - execute command if any prerequisite is newer than
+diff --git a/scripts/mkcompile_h b/scripts/mkcompile_h
+index d1d757c6edf4..06c1e9e3bc38 100755
+--- a/scripts/mkcompile_h
++++ b/scripts/mkcompile_h
+@@ -80,15 +80,23 @@ UTS_TRUNCATE="cut -b -$UTS_LEN"
+ # Only replace the real compile.h if the new one is different,
+ # in order to preserve the timestamp and avoid unnecessary
+ # recompilations.
+-# We don't consider the file changed if only the date/time changed.
++# We don't consider the file changed if only the date/time changed,
++# unless KBUILD_BUILD_TIMESTAMP was explicitly set (e.g. for
++# reproducible builds with that value referring to a commit timestamp).
+ # A kernel config change will increase the generation number, thus
+ # causing compile.h to be updated (including date/time) due to the
+ # changed comment in the
+ # first line.
+ 
++if [ -z "$KBUILD_BUILD_TIMESTAMP" ]; then
++   IGNORE_PATTERN="UTS_VERSION"
++else
++   IGNORE_PATTERN="NOT_A_PATTERN_TO_BE_MATCHED"
++fi
++
+ if [ -r $TARGET ] && \
+-      grep -v 'UTS_VERSION' $TARGET > .tmpver.1 && \
+-      grep -v 'UTS_VERSION' .tmpcompile > .tmpver.2 && \
++      grep -v $IGNORE_PATTERN $TARGET > .tmpver.1 && \
++      grep -v $IGNORE_PATTERN .tmpcompile > .tmpver.2 && \
+       cmp -s .tmpver.1 .tmpver.2; then
+    rm -f .tmpcompile
+ else
+diff --git a/tools/bpf/bpftool/jit_disasm.c b/tools/bpf/bpftool/jit_disasm.c
+index bfed711258ce..1711d0b5df3a 100644
+--- a/tools/bpf/bpftool/jit_disasm.c
++++ b/tools/bpf/bpftool/jit_disasm.c
+@@ -44,11 +44,13 @@ static int fprintf_json(void *out, const char *fmt, ...)
+ {
+ 	va_list ap;
+ 	char *s;
++	int err;
+ 
+ 	va_start(ap, fmt);
+-	if (vasprintf(&s, fmt, ap) < 0)
+-		return -1;
++	err = vasprintf(&s, fmt, ap);
+ 	va_end(ap);
++	if (err < 0)
++		return -1;
+ 
+ 	if (!oper_count) {
+ 		int i;
+diff --git a/tools/perf/tests/bpf.c b/tools/perf/tests/bpf.c
+index 1eb0bffaed6c..8669bb85e7c7 100644
+--- a/tools/perf/tests/bpf.c
++++ b/tools/perf/tests/bpf.c
+@@ -1,6 +1,7 @@
+ // SPDX-License-Identifier: GPL-2.0
+ #include <errno.h>
+ #include <stdio.h>
++#include <stdlib.h>
+ #include <sys/epoll.h>
+ #include <sys/types.h>
+ #include <sys/stat.h>
+@@ -282,6 +283,7 @@ static int __test__bpf(int idx)
+ 	}
+ 
+ out:
++	free(obj_buf);
+ 	bpf__clear();
+ 	return ret;
+ }
