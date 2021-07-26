@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 167173D6106
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:12:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 071B03D6109
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:12:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237752AbhGZP0r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:26:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40056 "EHLO mail.kernel.org"
+        id S237481AbhGZP1k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:27:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238179AbhGZPZH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:25:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B72ED60F38;
-        Mon, 26 Jul 2021 16:05:34 +0000 (UTC)
+        id S236885AbhGZPZb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:25:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A946660F5B;
+        Mon, 26 Jul 2021 16:05:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315535;
-        bh=UUSnv+YBR56PLXtQOE914sFblrvfbpijYigJ4zwetgw=;
+        s=korg; t=1627315560;
+        bh=2y2ViINwvaGBM9RBMV8CAqe3gdoJej9Jud5Trp+2Iks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oRR8U/W3UskRYjTilFQkhm2+E5cKfTAmwa8Q+ljd1j0oEN+Z9wK8ofjgYqnyIdt+c
-         8nHHoFEWggQpkm3I17tBiH3kSyfFHrCnskuKftKybCwxIHAN9Qq+86qwKvYOciqJAV
-         onayVJx4cuQmPpmM4L7qqe5R5b1rPFtohKjIEKLM=
+        b=vJa9ckr6Ki/Br1D7fLPCIARIkx/nuJIhdCr6LA50LlcJPyaw02Z9aJP5TwjhqFHJy
+         I2aQBfVKksGObp31vzzONpqvzSPNs4PjXF//pi+OXAJ6tx51xq4aWI5/gS27PdhgsE
+         FN1g83diPUN/wmKnTTHWneb+KvgZPOUOPGPaMx3o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>
-Subject: [PATCH 5.10 108/167] s390/boot: fix use of expolines in the DMA code
-Date:   Mon, 26 Jul 2021 17:39:01 +0200
-Message-Id: <20210726153843.015826258@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Machek <pavel@denx.de>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 109/167] ALSA: usb-audio: Add missing proc text entry for BESPOKEN type
+Date:   Mon, 26 Jul 2021 17:39:02 +0200
+Message-Id: <20210726153843.052761147@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
 References: <20210726153839.371771838@linuxfoundation.org>
@@ -40,64 +39,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Egorenkov <egorenar@linux.ibm.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 463f36c76fa4ec015c640ff63ccf52e7527abee0 upstream.
+commit 64752a95b702817602d72f109ceaf5ec0780e283 upstream.
 
-The DMA code section of the decompressor must be compiled with expolines
-if Spectre V2 mitigation has been enabled for the decompressed kernel.
-This is required because although the decompressor's image contains
-the DMA code section, it is handed over to the decompressed kernel for use.
+Recently we've added a new usb_mixer element type, USB_MIXER_BESPOKEN,
+but it wasn't added in the table in snd_usb_mixer_dump_cval().  This
+is no big problem since each bespoken type should have its own dump
+method, but it still isn't disallowed to use the standard one, so we
+should cover it as well.  Along with it, define the table with the
+explicit array initializer for avoiding other pitfalls.
 
-Because the DMA code is already slow w/o expolines, use expolines always
-regardless whether the decompressed kernel is using them or not. This
-simplifies the DMA code by dropping the conditional compilation of
-expolines.
-
-Fixes: bf72630130c2 ("s390: use proper expoline sections for .dma code")
-Cc: <stable@vger.kernel.org> # 5.2
-Signed-off-by: Alexander Egorenkov <egorenar@linux.ibm.com>
-Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Fixes: 785b6f29a795 ("ALSA: usb-audio: scarlett2: Fix wrong resume call")
+Reported-by: Pavel Machek <pavel@denx.de>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210714084836.1977-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/boot/text_dma.S |   19 ++++---------------
- 1 file changed, 4 insertions(+), 15 deletions(-)
+ sound/usb/mixer.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/arch/s390/boot/text_dma.S
-+++ b/arch/s390/boot/text_dma.S
-@@ -9,16 +9,6 @@
- #include <asm/errno.h>
- #include <asm/sigp.h>
- 
--#ifdef CC_USING_EXPOLINE
--	.pushsection .dma.text.__s390_indirect_jump_r14,"axG"
--__dma__s390_indirect_jump_r14:
--	larl	%r1,0f
--	ex	0,0(%r1)
--	j	.
--0:	br	%r14
--	.popsection
--#endif
--
- 	.section .dma.text,"ax"
- /*
-  * Simplified version of expoline thunk. The normal thunks can not be used here,
-@@ -27,11 +17,10 @@ __dma__s390_indirect_jump_r14:
-  * affects a few functions that are not performance-relevant.
-  */
- 	.macro BR_EX_DMA_r14
--#ifdef CC_USING_EXPOLINE
--	jg	__dma__s390_indirect_jump_r14
--#else
--	br	%r14
--#endif
-+	larl	%r1,0f
-+	ex	0,0(%r1)
-+	j	.
-+0:	br	%r14
- 	.endm
- 
- /*
+--- a/sound/usb/mixer.c
++++ b/sound/usb/mixer.c
+@@ -3274,7 +3274,15 @@ static void snd_usb_mixer_dump_cval(stru
+ {
+ 	struct usb_mixer_elem_info *cval = mixer_elem_list_to_info(list);
+ 	static const char * const val_types[] = {
+-		"BOOLEAN", "INV_BOOLEAN", "S8", "U8", "S16", "U16", "S32", "U32",
++		[USB_MIXER_BOOLEAN] = "BOOLEAN",
++		[USB_MIXER_INV_BOOLEAN] = "INV_BOOLEAN",
++		[USB_MIXER_S8] = "S8",
++		[USB_MIXER_U8] = "U8",
++		[USB_MIXER_S16] = "S16",
++		[USB_MIXER_U16] = "U16",
++		[USB_MIXER_S32] = "S32",
++		[USB_MIXER_U32] = "U32",
++		[USB_MIXER_BESPOKEN] = "BESPOKEN",
+ 	};
+ 	snd_iprintf(buffer, "    Info: id=%i, control=%i, cmask=0x%x, "
+ 			    "channels=%i, type=\"%s\"\n", cval->head.id,
 
 
