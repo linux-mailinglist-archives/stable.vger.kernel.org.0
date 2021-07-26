@@ -2,151 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B1EB3D652E
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 19:09:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D84A13D659D
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 19:24:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236603AbhGZQ2p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 12:28:45 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:47774 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S243335AbhGZQ1v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Jul 2021 12:27:51 -0400
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16QH3nxF161959;
-        Mon, 26 Jul 2021 13:08:07 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : subject :
- date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=PPHIk19j2zkNcxZZlTJxjLDQCtLPXdvL9yQEAb3r99w=;
- b=DF5zbsEl2zweSYSxviPiIHu96bLgGCbx8EjHXo3RZj02fVHMvTFq1OqXDwZT3yg9a88d
- nLQkTvAmmQ1ke/f1pUNM9gwRpzmONnQBuJIJHRoBBN62LmEJcT5nT/E2o5N6yROhfuYB
- KdWHu/XHccHOgoe3xoTFcNktUo0slgO5zayHMguj9gXfTiyz29FbnZkwtPUdBfnNW/mT
- U4rdbDTW9KrC0X588SmQj4yVDOBwEA+8PG83HccoJBS5EZsVUm/CAJz/0DBShEb03Uni
- Z6xYioxWr4PmKzZJXdY42Z/DXYcwsyTFYdKZhRI5mxgB1z0awlprORCE2YeapvynWe7W fw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3a20e1sn97-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 26 Jul 2021 13:08:06 -0400
-Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16QH3slJ164567;
-        Mon, 26 Jul 2021 13:08:06 -0400
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3a20e1sn8f-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 26 Jul 2021 13:08:06 -0400
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16QH5vEl004392;
-        Mon, 26 Jul 2021 17:08:04 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma01fra.de.ibm.com with ESMTP id 3a0ag8rstx-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 26 Jul 2021 17:08:04 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16QH81SK28705262
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 26 Jul 2021 17:08:02 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CC98A4C052;
-        Mon, 26 Jul 2021 17:08:01 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3F0D04C044;
-        Mon, 26 Jul 2021 17:07:59 +0000 (GMT)
-Received: from pratiks-thinkpad.ibmuc.com (unknown [9.199.55.176])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 26 Jul 2021 17:07:58 +0000 (GMT)
-From:   "Pratik R. Sampat" <psampat@linux.ibm.com>
-To:     mpe@ellerman.id.au, rjw@rjwysocki.net, linux-pm@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, psampat@linux.ibm.com,
-        pratik.r.sampat@gmail.com
-Subject: [PATCH] cpufreq:powernv: Fix init_chip_info initialization in numa=off
-Date:   Mon, 26 Jul 2021 22:37:57 +0530
-Message-Id: <20210726170758.61041-1-psampat@linux.ibm.com>
-X-Mailer: git-send-email 2.31.1
+        id S236266AbhGZQny (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 12:43:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58254 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232941AbhGZQng (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 12:43:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8EE1860F6E;
+        Mon, 26 Jul 2021 17:24:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1627320244;
+        bh=DvXze96V4sJ55D1fineSjlUtIu2Ymo2XgdIq6mLnDrg=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:From;
+        b=i82zLDZG39xVnCdnLsX4XdPOhNWp4Z7SLctohxAu3tetJvPlb0eNNuWjnTyB2oEtp
+         XJb3StYuwkxsNumPRxuB7fk/vA1dKyDnyyyJVOqKMGFFWW5MzgCJ7+W1YReIwyjlAf
+         tip0jcW6xjJy4lTRQdeH2LMpFFGysDuwEFFJQFTvUF/5aPdyCtFQNr9SyG+c9yHqaY
+         lGTQwWY2D0cnKpO3ubS9EaMwDv7mHSQsNaNxe5NbPHrHc7oPHvu99y/pX+Hk6nW7qF
+         QSsIGVV5EppJGHcz3MMRM+p4Ntvp0y924dPgkdbbIB0pAyPoUco8IfTWP+0jLYlqti
+         rOBRWg3flXbXg==
+Date:   Mon, 26 Jul 2021 12:24:03 -0500
+From:   Bjorn Helgaas <helgaas@kernel.org>
+To:     Marek =?iso-8859-1?Q?Beh=FAn?= <kabel@kernel.org>
+Cc:     linux-pci@vger.kernel.org,
+        Pali =?iso-8859-1?Q?Roh=E1r?= <pali@kernel.org>,
+        =?iso-8859-1?Q?R=F6tti?= 
+        <espressobinboardarmbiantempmailaddress@posteo.de>,
+        Zachary Zhang <zhangzg@marvell.com>, stable@vger.kernel.org
+Subject: Re: [PATCH 2/2] PCI: Add Max Payload Size quirk for ASMedia ASM1062
+ SATA controller
+Message-ID: <20210726172403.GA623272@bjorn-Precision-5520>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: DPbsWMXae3DWyGROJPGnTZNKQDsvKhsx
-X-Proofpoint-GUID: 8RmMpLKmoHjvsq9AyLbV2F8ZZtX5rtie
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-07-26_10:2021-07-26,2021-07-26 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 bulkscore=0
- impostorscore=0 malwarescore=0 suspectscore=0 lowpriorityscore=0
- priorityscore=1501 phishscore=0 clxscore=1011 mlxlogscore=999 spamscore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2107260099
+In-Reply-To: <20210624171418.27194-2-kabel@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In the numa=off kernel command-line configuration init_chip_info() loops
-around the number of chips and attempts to copy the cpumask of that node
-which is NULL for all iterations after the first chip.
+On Thu, Jun 24, 2021 at 07:14:18PM +0200, Marek Behún wrote:
+> The ASMedia ASM1062 SATA controller advertises
+> Max_Payload_Size_Supported of 512, but in fact it cannot handle TLPs
+> with payload size of 512.
+> 
+> We discovered this issue on PCIe controllers capable of MPS = 512
+> (Aardvark and DesignWare), where the issue presents itself as an
+> External Abort. Bjorn Helgaas says:
+>   Probably ASM1062 reports a Malformed TLP error when it receives a data
+>   payload of 512 bytes, and Aardvark, DesignWare, etc convert this to an
+>   arm64 External Abort.
+> 
+> Limiting Max Payload Size to 256 bytes solves this problem.
+> 
+> Signed-off-by: Marek Behún <kabel@kernel.org>
+> BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=212695
+> Reported-by: Rötti <espressobinboardarmbiantempmailaddress@posteo.de>
+> Cc: Pali Rohár <pali@kernel.org>
+> Cc: stable@vger.kernel.org
 
-Hence, store the cpu mask for each chip instead of derving cpumask from
-node while populating the "chips" struct array and copy that to the
-chips[i].mask
+Applied both to pci/enumeration for v5.15, thanks!
 
-Cc: stable@vger.kernel.org
-Fixes: 053819e0bf84 ("cpufreq: powernv: Handle throttling due to Pmax capping at chip level")
-Signed-off-by: Pratik R. Sampat <psampat@linux.ibm.com>
-Reported-by: Shirisha Ganta <shirisha.ganta1@ibm.com>
----
- drivers/cpufreq/powernv-cpufreq.c | 15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
+Were you able to confirm that a Malformed TLP error was logged?  The
+lspci in the bugzilla is from a system with no AER support, so no
+information from that one.  I don't know if any of the PCIe
+controllers you tested support both AER and MPS=512.
 
-diff --git a/drivers/cpufreq/powernv-cpufreq.c b/drivers/cpufreq/powernv-cpufreq.c
-index 005600cef273..8ec10d9aed8f 100644
---- a/drivers/cpufreq/powernv-cpufreq.c
-+++ b/drivers/cpufreq/powernv-cpufreq.c
-@@ -1046,12 +1046,20 @@ static int init_chip_info(void)
- 	unsigned int *chip;
- 	unsigned int cpu, i;
- 	unsigned int prev_chip_id = UINT_MAX;
-+	cpumask_t *chip_cpu_mask;
- 	int ret = 0;
- 
- 	chip = kcalloc(num_possible_cpus(), sizeof(*chip), GFP_KERNEL);
- 	if (!chip)
- 		return -ENOMEM;
- 
-+	/* Allocate a chip cpu mask large enough to fit mask for all chips */
-+	chip_cpu_mask = kcalloc(32, sizeof(cpumask_t), GFP_KERNEL);
-+	if (!chip_cpu_mask) {
-+		ret = -ENOMEM;
-+		goto free_and_return;
-+	}
-+
- 	for_each_possible_cpu(cpu) {
- 		unsigned int id = cpu_to_chip_id(cpu);
- 
-@@ -1059,22 +1067,25 @@ static int init_chip_info(void)
- 			prev_chip_id = id;
- 			chip[nr_chips++] = id;
- 		}
-+		cpumask_set_cpu(cpu, &chip_cpu_mask[nr_chips-1]);
- 	}
- 
- 	chips = kcalloc(nr_chips, sizeof(struct chip), GFP_KERNEL);
- 	if (!chips) {
- 		ret = -ENOMEM;
--		goto free_and_return;
-+		goto out_chip_cpu_mask;
- 	}
- 
- 	for (i = 0; i < nr_chips; i++) {
- 		chips[i].id = chip[i];
--		cpumask_copy(&chips[i].mask, cpumask_of_node(chip[i]));
-+		cpumask_copy(&chips[i].mask, &chip_cpu_mask[i]);
- 		INIT_WORK(&chips[i].throttle, powernv_cpufreq_work_fn);
- 		for_each_cpu(cpu, &chips[i].mask)
- 			per_cpu(chip_info, cpu) =  &chips[i];
- 	}
- 
-+out_chip_cpu_mask:
-+	kfree(chip_cpu_mask);
- free_and_return:
- 	kfree(chip);
- 	return ret;
--- 
-2.31.1
-
+> ---
+>  drivers/pci/quirks.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
+> index 4d9b9d8fbc43..a4ba3e3b3c5e 100644
+> --- a/drivers/pci/quirks.c
+> +++ b/drivers/pci/quirks.c
+> @@ -3239,6 +3239,7 @@ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_SOLARFLARE,
+>  			PCI_DEVICE_ID_SOLARFLARE_SFC4000A_1, fixup_mpss_256);
+>  DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_SOLARFLARE,
+>  			PCI_DEVICE_ID_SOLARFLARE_SFC4000B, fixup_mpss_256);
+> +DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_ASMEDIA, 0x0612, fixup_mpss_256);
+>  
+>  /*
+>   * Intel 5000 and 5100 Memory controllers have an erratum with read completion
+> -- 
+> 2.31.1
+> 
