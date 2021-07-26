@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BFD3A3D60FA
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:12:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 225963D60FB
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:12:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237464AbhGZPZx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:25:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40186 "EHLO mail.kernel.org"
+        id S237788AbhGZPZy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:25:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238220AbhGZPZM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:25:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D852760F38;
-        Mon, 26 Jul 2021 16:05:39 +0000 (UTC)
+        id S238257AbhGZPZP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:25:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6942A60F5A;
+        Mon, 26 Jul 2021 16:05:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315540;
-        bh=WfrCcXBRTMj/UBj1gJQha44WgJRYVm1uKZW6czcbfL0=;
+        s=korg; t=1627315542;
+        bh=+xor+USVHM1+xOzRaQ0p4RP7RtS6Ej9L7J61Uq7mnrY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IS6ALpgxoSv8/z+J5hhFdR5pG4IEqVC2s2C2epihC9NXJQOeWlID6bHA+7lwdD5Xq
-         XaPl/tGZ6e5870kDAz5DnWcdHtl0PLlwP7VVOn9DnAEYVUObTbI7b36N37wCMhTH2G
-         i6arpiy9RRtZiBFuy1/qeuvkxUYGh7m7ZMtf5xEI=
+        b=1ncKNmaiojOiQRp9m/tEv0DWYo1OPbCJVZ2gT36C+3IVSdjgdrdW612mQ+ZX7OaJR
+         VjYStmp5LkSeUc3LM0tyWWDMuzfHalKSfGDQ8Ng0dY5Ad/cqIM9Kiqh/UrGZMpjY4g
+         oAKHmzFqyLDwmDcUU+x7+LlVQvLb9jIpT1TZs7F8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linuxfoundation.org>,
-        Haoran Luo <www@aegistudio.net>,
+        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Tom Zanussi <zanussi@kernel.org>,
         "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.10 136/167] tracing: Fix bug in rb_per_cpu_empty() that might cause deadloop.
-Date:   Mon, 26 Jul 2021 17:39:29 +0200
-Message-Id: <20210726153843.954370750@linuxfoundation.org>
+Subject: [PATCH 5.10 137/167] tracing: Synthetic event field_pos is an index not a boolean
+Date:   Mon, 26 Jul 2021 17:39:30 +0200
+Message-Id: <20210726153843.985855406@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
 References: <20210726153839.371771838@linuxfoundation.org>
@@ -41,102 +43,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haoran Luo <www@aegistudio.net>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-commit 67f0d6d9883c13174669f88adac4f0ee656cc16a upstream.
+commit 3b13911a2fd0dd0146c9777a254840c5466cf120 upstream.
 
-The "rb_per_cpu_empty()" misinterpret the condition (as not-empty) when
-"head_page" and "commit_page" of "struct ring_buffer_per_cpu" points to
-the same buffer page, whose "buffer_data_page" is empty and "read" field
-is non-zero.
+Performing the following:
 
-An error scenario could be constructed as followed (kernel perspective):
+ ># echo 'wakeup_lat s32 pid; u64 delta; char wake_comm[]' > synthetic_events
+ ># echo 'hist:keys=pid:__arg__1=common_timestamp.usecs' > events/sched/sched_waking/trigger
+ ># echo 'hist:keys=next_pid:pid=next_pid,delta=common_timestamp.usecs-$__arg__1:onmatch(sched.sched_waking).trace(wakeup_lat,$pid,$delta,prev_comm)'\
+      > events/sched/sched_switch/trigger
+ ># echo 1 > events/synthetic/enable
 
-1. All pages in the buffer has been accessed by reader(s) so that all of
-them will have non-zero "read" field.
+Crashed the kernel:
 
-2. Read and clear all buffer pages so that "rb_num_of_entries()" will
-return 0 rendering there's no more data to read. It is also required
-that the "read_page", "commit_page" and "tail_page" points to the same
-page, while "head_page" is the next page of them.
+ BUG: kernel NULL pointer dereference, address: 000000000000001b
+ #PF: supervisor read access in kernel mode
+ #PF: error_code(0x0000) - not-present page
+ PGD 0 P4D 0
+ Oops: 0000 [#1] PREEMPT SMP
+ CPU: 7 PID: 0 Comm: swapper/7 Not tainted 5.13.0-rc5-test+ #104
+ Hardware name: Hewlett-Packard HP Compaq Pro 6300 SFF/339A, BIOS K01 v03.03 07/14/2016
+ RIP: 0010:strlen+0x0/0x20
+ Code: f6 82 80 2b 0b bc 20 74 11 0f b6 50 01 48 83 c0 01 f6 82 80 2b 0b bc
+  20 75 ef c3 66 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 <80> 3f 00 74 10
+  48 89 f8 48 83 c0 01 80 38 9 f8 c3 31
+ RSP: 0018:ffffaa75000d79d0 EFLAGS: 00010046
+ RAX: 0000000000000002 RBX: ffff9cdb55575270 RCX: 0000000000000000
+ RDX: ffff9cdb58c7a320 RSI: ffffaa75000d7b40 RDI: 000000000000001b
+ RBP: ffffaa75000d7b40 R08: ffff9cdb40a4f010 R09: ffffaa75000d7ab8
+ R10: ffff9cdb4398c700 R11: 0000000000000008 R12: ffff9cdb58c7a320
+ R13: ffff9cdb55575270 R14: ffff9cdb58c7a000 R15: 0000000000000018
+ FS:  0000000000000000(0000) GS:ffff9cdb5aa00000(0000) knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 000000000000001b CR3: 00000000c0612006 CR4: 00000000001706e0
+ Call Trace:
+  trace_event_raw_event_synth+0x90/0x1d0
+  action_trace+0x5b/0x70
+  event_hist_trigger+0x4bd/0x4e0
+  ? cpumask_next_and+0x20/0x30
+  ? update_sd_lb_stats.constprop.0+0xf6/0x840
+  ? __lock_acquire.constprop.0+0x125/0x550
+  ? find_held_lock+0x32/0x90
+  ? sched_clock_cpu+0xe/0xd0
+  ? lock_release+0x155/0x440
+  ? update_load_avg+0x8c/0x6f0
+  ? enqueue_entity+0x18a/0x920
+  ? __rb_reserve_next+0xe5/0x460
+  ? ring_buffer_lock_reserve+0x12a/0x3f0
+  event_triggers_call+0x52/0xe0
+  trace_event_buffer_commit+0x1ae/0x240
+  trace_event_raw_event_sched_switch+0x114/0x170
+  __traceiter_sched_switch+0x39/0x50
+  __schedule+0x431/0xb00
+  schedule_idle+0x28/0x40
+  do_idle+0x198/0x2e0
+  cpu_startup_entry+0x19/0x20
+  secondary_startup_64_no_verify+0xc2/0xcb
 
-3. Invoke "ring_buffer_lock_reserve()" with large enough "length"
-so that it shot pass the end of current tail buffer page. Now the
-"head_page", "commit_page" and "tail_page" points to the same page.
+The reason is that the dynamic events array keeps track of the field
+position of the fields array, via the field_pos variable in the
+synth_field structure. Unfortunately, that field is a boolean for some
+reason, which means any field_pos greater than 1 will be a bug (in this
+case it was 2).
 
-4. Discard current event with "ring_buffer_discard_commit()", so that
-"head_page", "commit_page" and "tail_page" points to a page whose buffer
-data page is now empty.
+Link: https://lkml.kernel.org/r/20210721191008.638bce34@oasis.local.home
 
-When the error scenario has been constructed, "tracing_read_pipe" will
-be trapped inside a deadloop: "trace_empty()" returns 0 since
-"rb_per_cpu_empty()" returns 0 when it hits the CPU containing such
-constructed ring buffer. Then "trace_find_next_entry_inc()" always
-return NULL since "rb_num_of_entries()" reports there's no more entry
-to read. Finally "trace_seq_to_user()" returns "-EBUSY" spanking
-"tracing_read_pipe" back to the start of the "waitagain" loop.
-
-I've also written a proof-of-concept script to construct the scenario
-and trigger the bug automatically, you can use it to trace and validate
-my reasoning above:
-
-  https://github.com/aegistudio/RingBufferDetonator.git
-
-Tests has been carried out on linux kernel 5.14-rc2
-(2734d6c1b1a089fb593ef6a23d4b70903526fe0c), my fixed version
-of kernel (for testing whether my update fixes the bug) and
-some older kernels (for range of affected kernels). Test result is
-also attached to the proof-of-concept repository.
-
-Link: https://lore.kernel.org/linux-trace-devel/YPaNxsIlb2yjSi5Y@aegistudio/
-Link: https://lore.kernel.org/linux-trace-devel/YPgrN85WL9VyrZ55@aegistudio
-
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
 Cc: stable@vger.kernel.org
-Fixes: bf41a158cacba ("ring-buffer: make reentrant")
-Suggested-by: Linus Torvalds <torvalds@linuxfoundation.org>
-Signed-off-by: Haoran Luo <www@aegistudio.net>
+Fixes: bd82631d7ccdc ("tracing: Add support for dynamic strings to synthetic events")
+Reviewed-by: Tom Zanussi <zanussi@kernel.org>
 Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/ring_buffer.c |   28 ++++++++++++++++++++++++----
- 1 file changed, 24 insertions(+), 4 deletions(-)
+ kernel/trace/trace_synth.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/trace/ring_buffer.c
-+++ b/kernel/trace/ring_buffer.c
-@@ -3649,10 +3649,30 @@ static bool rb_per_cpu_empty(struct ring
- 	if (unlikely(!head))
- 		return true;
+--- a/kernel/trace/trace_synth.h
++++ b/kernel/trace/trace_synth.h
+@@ -14,10 +14,10 @@ struct synth_field {
+ 	char *name;
+ 	size_t size;
+ 	unsigned int offset;
++	unsigned int field_pos;
+ 	bool is_signed;
+ 	bool is_string;
+ 	bool is_dynamic;
+-	bool field_pos;
+ };
  
--	return reader->read == rb_page_commit(reader) &&
--		(commit == reader ||
--		 (commit == head &&
--		  head->read == rb_page_commit(commit)));
-+	/* Reader should exhaust content in reader page */
-+	if (reader->read != rb_page_commit(reader))
-+		return false;
-+
-+	/*
-+	 * If writers are committing on the reader page, knowing all
-+	 * committed content has been read, the ring buffer is empty.
-+	 */
-+	if (commit == reader)
-+		return true;
-+
-+	/*
-+	 * If writers are committing on a page other than reader page
-+	 * and head page, there should always be content to read.
-+	 */
-+	if (commit != head)
-+		return false;
-+
-+	/*
-+	 * Writers are committing on the head page, we just need
-+	 * to care about there're committed data, and the reader will
-+	 * swap reader page with head page when it is to read data.
-+	 */
-+	return rb_page_commit(commit) == 0;
- }
- 
- /**
+ struct synth_event {
 
 
