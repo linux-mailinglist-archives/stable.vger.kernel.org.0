@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CECB3D61DB
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:14:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E699B3D6076
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:11:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234153AbhGZPdN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:33:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47434 "EHLO mail.kernel.org"
+        id S237339AbhGZPW1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:22:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37026 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232717AbhGZPbQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:31:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 746FE60240;
-        Mon, 26 Jul 2021 16:11:44 +0000 (UTC)
+        id S237335AbhGZPWZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:22:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9B44A60F5A;
+        Mon, 26 Jul 2021 16:02:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315905;
-        bh=7PXD8fBUclA4p+zGO08cTAxD7vgJA32+CxxBJBGq1WM=;
+        s=korg; t=1627315374;
+        bh=dOyU/jTonwnSLfo73VTuw12SSwAoLPTF2ThdAbPs2q8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SCwwgYYOifLBdkSVvDegqIj+jofMET+rcTEsm3F6wM4NVq2ExRty+S3Ue7TJvBzQ1
-         mVeznK490DcgVAVhAnx2EywirDr0EF2RlF96AcbPd1g6v2spzO7hEbdS/tLrZ2EMpX
-         8I6Eu7qRUQZr2BocpM/oAdSlepcl9EAOlfn2IsoQ=
+        b=pwnQK+Wm1/p+gtp6DeTs6HZGRwFL67elrbECbWKgxv/E39F/O4W2/fWVn3xZDCNpO
+         L95+BkYRSq4zBhtOrbqX8SVITcd8l5LMWTOXEPXk3ojXLh+hWxhJ9KjU1XPpt3z1sw
+         mk4sIvCiAuFshjECuS6Il9JhUGsaSoP+sIMi5bvY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicolas Saenz Julienne <nsaenzju@redhat.com>,
-        Frederic Weisbecker <frederic@kernel.org>,
+        stable@vger.kernel.org, Riccardo Mancini <rickyman7@gmail.com>,
+        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
+        Kan Liang <kan.liang@intel.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 077/223] timers: Fix get_next_timer_interrupt() with no timers pending
-Date:   Mon, 26 Jul 2021 17:37:49 +0200
-Message-Id: <20210726153848.771706338@linuxfoundation.org>
+Subject: [PATCH 5.10 037/167] perf test session_topology: Delete session->evlist
+Date:   Mon, 26 Jul 2021 17:37:50 +0200
+Message-Id: <20210726153840.631599092@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
-References: <20210726153846.245305071@linuxfoundation.org>
+In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
+References: <20210726153839.371771838@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,122 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Saenz Julienne <nsaenzju@redhat.com>
+From: Riccardo Mancini <rickyman7@gmail.com>
 
-[ Upstream commit aebacb7f6ca1926918734faae14d1f0b6fae5cb7 ]
+[ Upstream commit 233f2dc1c284337286f9a64c0152236779a42f6c ]
 
-31cd0e119d50 ("timers: Recalculate next timer interrupt only when
-necessary") subtly altered get_next_timer_interrupt()'s behaviour. The
-function no longer consistently returns KTIME_MAX with no timers
-pending.
+ASan reports a memory leak related to session->evlist while running:
 
-In order to decide if there are any timers pending we check whether the
-next expiry will happen NEXT_TIMER_MAX_DELTA jiffies from now.
-Unfortunately, the next expiry time and the timer base clock are no
-longer updated in unison. The former changes upon certain timer
-operations (enqueue, expire, detach), whereas the latter keeps track of
-jiffies as they move forward. Ultimately breaking the logic above.
+  # perf test "41: Session topology".
 
-A simplified example:
+When perf_data is in write mode, session->evlist is owned by the caller,
+which should also take care of deleting it.
 
-- Upon entering get_next_timer_interrupt() with:
+This patch adds the missing evlist__delete().
 
-	jiffies = 1
-	base->clk = 0;
-	base->next_expiry = NEXT_TIMER_MAX_DELTA;
-
-  'base->next_expiry == base->clk + NEXT_TIMER_MAX_DELTA', the function
-  returns KTIME_MAX.
-
-- 'base->clk' is updated to the jiffies value.
-
-- The next time we enter get_next_timer_interrupt(), taking into account
-  no timer operations happened:
-
-	base->clk = 1;
-	base->next_expiry = NEXT_TIMER_MAX_DELTA;
-
-  'base->next_expiry != base->clk + NEXT_TIMER_MAX_DELTA', the function
-  returns a valid expire time, which is incorrect.
-
-This ultimately might unnecessarily rearm sched's timer on nohz_full
-setups, and add latency to the system[1].
-
-So, introduce 'base->timers_pending'[2], update it every time
-'base->next_expiry' changes, and use it in get_next_timer_interrupt().
-
-[1] See tick_nohz_stop_tick().
-[2] A quick pahole check on x86_64 and arm64 shows it doesn't make
-    'struct timer_base' any bigger.
-
-Fixes: 31cd0e119d50 ("timers: Recalculate next timer interrupt only when necessary")
-Signed-off-by: Nicolas Saenz Julienne <nsaenzju@redhat.com>
-Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
+Signed-off-by: Riccardo Mancini <rickyman7@gmail.com>
+Fixes: c84974ed9fb67293 ("perf test: Add entry to test cpu topology")
+Cc: Ian Rogers <irogers@google.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Kan Liang <kan.liang@intel.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lore.kernel.org/lkml/822f741f06eb25250fb60686cf30a35f447e9e91.1626343282.git.rickyman7@gmail.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/time/timer.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ tools/perf/tests/topology.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/time/timer.c b/kernel/time/timer.c
-index d111adf4a0cb..99b97ccefdbd 100644
---- a/kernel/time/timer.c
-+++ b/kernel/time/timer.c
-@@ -207,6 +207,7 @@ struct timer_base {
- 	unsigned int		cpu;
- 	bool			next_expiry_recalc;
- 	bool			is_idle;
-+	bool			timers_pending;
- 	DECLARE_BITMAP(pending_map, WHEEL_SIZE);
- 	struct hlist_head	vectors[WHEEL_SIZE];
- } ____cacheline_aligned;
-@@ -595,6 +596,7 @@ static void enqueue_timer(struct timer_base *base, struct timer_list *timer,
- 		 * can reevaluate the wheel:
- 		 */
- 		base->next_expiry = bucket_expiry;
-+		base->timers_pending = true;
- 		base->next_expiry_recalc = false;
- 		trigger_dyntick_cpu(base, timer);
- 	}
-@@ -1596,6 +1598,7 @@ static unsigned long __next_timer_interrupt(struct timer_base *base)
- 	}
+diff --git a/tools/perf/tests/topology.c b/tools/perf/tests/topology.c
+index 22daf2bdf5fa..f4a2c0df0954 100644
+--- a/tools/perf/tests/topology.c
++++ b/tools/perf/tests/topology.c
+@@ -52,6 +52,7 @@ static int session_write_header(char *path)
+ 	TEST_ASSERT_VAL("failed to write header",
+ 			!perf_session__write_header(session, session->evlist, data.file.fd, true));
  
- 	base->next_expiry_recalc = false;
-+	base->timers_pending = !(next == base->clk + NEXT_TIMER_MAX_DELTA);
++	evlist__delete(session->evlist);
+ 	perf_session__delete(session);
  
- 	return next;
- }
-@@ -1647,7 +1650,6 @@ u64 get_next_timer_interrupt(unsigned long basej, u64 basem)
- 	struct timer_base *base = this_cpu_ptr(&timer_bases[BASE_STD]);
- 	u64 expires = KTIME_MAX;
- 	unsigned long nextevt;
--	bool is_max_delta;
- 
- 	/*
- 	 * Pretend that there is no timer pending if the cpu is offline.
-@@ -1660,7 +1662,6 @@ u64 get_next_timer_interrupt(unsigned long basej, u64 basem)
- 	if (base->next_expiry_recalc)
- 		base->next_expiry = __next_timer_interrupt(base);
- 	nextevt = base->next_expiry;
--	is_max_delta = (nextevt == base->clk + NEXT_TIMER_MAX_DELTA);
- 
- 	/*
- 	 * We have a fresh next event. Check whether we can forward the
-@@ -1678,7 +1679,7 @@ u64 get_next_timer_interrupt(unsigned long basej, u64 basem)
- 		expires = basem;
- 		base->is_idle = false;
- 	} else {
--		if (!is_max_delta)
-+		if (base->timers_pending)
- 			expires = basem + (u64)(nextevt - basej) * TICK_NSEC;
- 		/*
- 		 * If we expect to sleep more than a tick, mark the base idle.
-@@ -1961,6 +1962,7 @@ int timers_prepare_cpu(unsigned int cpu)
- 		base = per_cpu_ptr(&timer_bases[b], cpu);
- 		base->clk = jiffies;
- 		base->next_expiry = base->clk + NEXT_TIMER_MAX_DELTA;
-+		base->timers_pending = false;
- 		base->is_idle = false;
- 	}
  	return 0;
 -- 
 2.30.2
