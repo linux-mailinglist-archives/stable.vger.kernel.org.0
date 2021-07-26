@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 532EE3D5F79
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 330773D5E72
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:51:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236892AbhGZPSC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:18:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55902 "EHLO mail.kernel.org"
+        id S236109AbhGZPHv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:07:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237778AbhGZPQ0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:16:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BEE4A60F02;
-        Mon, 26 Jul 2021 15:56:53 +0000 (UTC)
+        id S236098AbhGZPHL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:07:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3EB8560F5C;
+        Mon, 26 Jul 2021 15:47:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315014;
-        bh=s/WFr6LbuGVWNAD3q7+VmLZH3Ws/5MvNUpJnSNF/M0E=;
+        s=korg; t=1627314458;
+        bh=I2P/HKSHOQzt+1zw+yMkiZZVIGw37oF+WlVyIzs8Gaw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EcLviIaa3WZfdP4i0q/HXtkLeteijPTP3WVCnKbEEV3FAcfHRRSaX8hyEji9yUaPc
-         KwbVbOBbqBV1a0mlSOUv02BbjQyWeEZ4xBGatlI1wZ9lZJ1XAC0vgTP4hJNTn1e+tz
-         5GFX7KkPR3RhK7Wvzs+K9kpqmrmGeqhP6jwzv6Ok=
+        b=Q3alOyw8W0LdvWycV3jU/7d5MhdKrV18LygQEXkbBx5rirbKaNVrPHQsbk+cT5LXc
+         WZIst9Wo7ftPpkWYC6esFsrDDhok7tyGO/nptWvkAEcIGZRA6wTNm7Q3F8VgdxHBnn
+         kQ8XuKKBB0nAnLvJMPwmOpELiuIpF4yhaZ5ePbe0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Somnath Kotur <somnath.kotur@broadcom.com>,
-        Edwin Peer <edwin.peer@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
+        stable@vger.kernel.org, Nguyen Dinh Phi <phind.uet@gmail.com>,
+        syzbot+10f1194569953b72f1ae@syzkaller.appspotmail.com,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 052/108] bnxt_en: Refresh RoCE capabilities in bnxt_ulp_probe()
+Subject: [PATCH 4.14 53/82] netrom: Decrease sock refcount when sock timers expire
 Date:   Mon, 26 Jul 2021 17:38:53 +0200
-Message-Id: <20210726153833.354657459@linuxfoundation.org>
+Message-Id: <20210726153829.903936474@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
-References: <20210726153831.696295003@linuxfoundation.org>
+In-Reply-To: <20210726153828.144714469@linuxfoundation.org>
+References: <20210726153828.144714469@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,46 +41,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Chan <michael.chan@broadcom.com>
+From: Nguyen Dinh Phi <phind.uet@gmail.com>
 
-[ Upstream commit 2c9f046bc377efd1f5e26e74817d5f96e9506c86 ]
+[ Upstream commit 517a16b1a88bdb6b530f48d5d153478b2552d9a8 ]
 
-The capabilities can change after firmware upgrade/downgrade, so we
-should get the up-to-date RoCE capabilities everytime bnxt_ulp_probe()
-is called.
+Commit 63346650c1a9 ("netrom: switch to sock timer API") switched to use
+sock timer API. It replaces mod_timer() by sk_reset_timer(), and
+del_timer() by sk_stop_timer().
 
-Fixes: 2151fe0830fd ("bnxt_en: Handle RESET_NOTIFY async event from firmware.")
-Reviewed-by: Somnath Kotur <somnath.kotur@broadcom.com>
-Reviewed-by: Edwin Peer <edwin.peer@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Function sk_reset_timer() will increase the refcount of sock if it is
+called on an inactive timer, hence, in case the timer expires, we need to
+decrease the refcount ourselves in the handler, otherwise, the sock
+refcount will be unbalanced and the sock will never be freed.
+
+Signed-off-by: Nguyen Dinh Phi <phind.uet@gmail.com>
+Reported-by: syzbot+10f1194569953b72f1ae@syzkaller.appspotmail.com
+Fixes: 63346650c1a9 ("netrom: switch to sock timer API")
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt_ulp.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ net/netrom/nr_timer.c | 20 +++++++++++---------
+ 1 file changed, 11 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_ulp.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_ulp.c
-index 85bacaed763e..b0ae180df4e6 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ulp.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ulp.c
-@@ -473,13 +473,14 @@ struct bnxt_en_dev *bnxt_ulp_probe(struct net_device *dev)
- 		if (!edev)
- 			return ERR_PTR(-ENOMEM);
- 		edev->en_ops = &bnxt_en_ops_tbl;
--		if (bp->flags & BNXT_FLAG_ROCEV1_CAP)
--			edev->flags |= BNXT_EN_FLAG_ROCEV1_CAP;
--		if (bp->flags & BNXT_FLAG_ROCEV2_CAP)
--			edev->flags |= BNXT_EN_FLAG_ROCEV2_CAP;
- 		edev->net = dev;
- 		edev->pdev = bp->pdev;
- 		bp->edev = edev;
+diff --git a/net/netrom/nr_timer.c b/net/netrom/nr_timer.c
+index f0ecaec1ff3d..d1a0b7056743 100644
+--- a/net/netrom/nr_timer.c
++++ b/net/netrom/nr_timer.c
+@@ -125,11 +125,9 @@ static void nr_heartbeat_expiry(unsigned long param)
+ 		   is accepted() it isn't 'dead' so doesn't get removed. */
+ 		if (sock_flag(sk, SOCK_DESTROY) ||
+ 		    (sk->sk_state == TCP_LISTEN && sock_flag(sk, SOCK_DEAD))) {
+-			sock_hold(sk);
+ 			bh_unlock_sock(sk);
+ 			nr_destroy_socket(sk);
+-			sock_put(sk);
+-			return;
++			goto out;
+ 		}
+ 		break;
+ 
+@@ -150,6 +148,8 @@ static void nr_heartbeat_expiry(unsigned long param)
+ 
+ 	nr_start_heartbeat(sk);
+ 	bh_unlock_sock(sk);
++out:
++	sock_put(sk);
+ }
+ 
+ static void nr_t2timer_expiry(unsigned long param)
+@@ -163,6 +163,7 @@ static void nr_t2timer_expiry(unsigned long param)
+ 		nr_enquiry_response(sk);
  	}
-+	edev->flags &= ~BNXT_EN_FLAG_ROCE_CAP;
-+	if (bp->flags & BNXT_FLAG_ROCEV1_CAP)
-+		edev->flags |= BNXT_EN_FLAG_ROCEV1_CAP;
-+	if (bp->flags & BNXT_FLAG_ROCEV2_CAP)
-+		edev->flags |= BNXT_EN_FLAG_ROCEV2_CAP;
- 	return bp->edev;
+ 	bh_unlock_sock(sk);
++	sock_put(sk);
+ }
+ 
+ static void nr_t4timer_expiry(unsigned long param)
+@@ -172,6 +173,7 @@ static void nr_t4timer_expiry(unsigned long param)
+ 	bh_lock_sock(sk);
+ 	nr_sk(sk)->condition &= ~NR_COND_PEER_RX_BUSY;
+ 	bh_unlock_sock(sk);
++	sock_put(sk);
+ }
+ 
+ static void nr_idletimer_expiry(unsigned long param)
+@@ -200,6 +202,7 @@ static void nr_idletimer_expiry(unsigned long param)
+ 		sock_set_flag(sk, SOCK_DEAD);
+ 	}
+ 	bh_unlock_sock(sk);
++	sock_put(sk);
+ }
+ 
+ static void nr_t1timer_expiry(unsigned long param)
+@@ -212,8 +215,7 @@ static void nr_t1timer_expiry(unsigned long param)
+ 	case NR_STATE_1:
+ 		if (nr->n2count == nr->n2) {
+ 			nr_disconnect(sk, ETIMEDOUT);
+-			bh_unlock_sock(sk);
+-			return;
++			goto out;
+ 		} else {
+ 			nr->n2count++;
+ 			nr_write_internal(sk, NR_CONNREQ);
+@@ -223,8 +225,7 @@ static void nr_t1timer_expiry(unsigned long param)
+ 	case NR_STATE_2:
+ 		if (nr->n2count == nr->n2) {
+ 			nr_disconnect(sk, ETIMEDOUT);
+-			bh_unlock_sock(sk);
+-			return;
++			goto out;
+ 		} else {
+ 			nr->n2count++;
+ 			nr_write_internal(sk, NR_DISCREQ);
+@@ -234,8 +235,7 @@ static void nr_t1timer_expiry(unsigned long param)
+ 	case NR_STATE_3:
+ 		if (nr->n2count == nr->n2) {
+ 			nr_disconnect(sk, ETIMEDOUT);
+-			bh_unlock_sock(sk);
+-			return;
++			goto out;
+ 		} else {
+ 			nr->n2count++;
+ 			nr_requeue_frames(sk);
+@@ -244,5 +244,7 @@ static void nr_t1timer_expiry(unsigned long param)
+ 	}
+ 
+ 	nr_start_t1timer(sk);
++out:
+ 	bh_unlock_sock(sk);
++	sock_put(sk);
  }
 -- 
 2.30.2
