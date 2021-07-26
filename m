@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED5993D610E
+	by mail.lfdr.de (Postfix) with ESMTP id A03E03D610D
 	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:12:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231727AbhGZP2M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:28:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40574 "EHLO mail.kernel.org"
+        id S231616AbhGZP2I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:28:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237708AbhGZPZk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:25:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1637F60240;
-        Mon, 26 Jul 2021 16:06:07 +0000 (UTC)
+        id S236901AbhGZPZn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:25:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D107360C40;
+        Mon, 26 Jul 2021 16:06:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315568;
-        bh=TlBxr3mfyc9BYIEoiifxHJDRYJcs8+7LxpcsIorXfjY=;
+        s=korg; t=1627315571;
+        bh=l7dlBLsiwaVUL8RS6ZKVGKxoQD3Yiv8YGJggAh7Hqa0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zmSOaU3vcX5gJlku8W/8AHqyb2sK1/OTmvBQOjJhhLuKUt62ObXhM4KfbWegX9i1u
-         AJATZkxnqpiV9K9jgOsByjFf02IvsV3IWhoqu7qOa2CJUYRsMTFrlcdh4g2jur9NBF
-         kYHcZC8x0OAfROUfVQQHX0F6HKOckcZW9he3/q38=
+        b=PH/qUEZ2IxjZIoFzK04Q4b3TSY5eECbiTNftCcXg87uqYGfWLj2uPnoLLYr57p/IJ
+         Gs/i7fXJSpW9+kg8rc7HcnsIC0x/GnjTc1BZ0wJ1DqKheHenrR3WbbAmF1gyGU+9eU
+         nhAp8xhGLnMJcDxVjtdcrp10qan2A7Sq2VVvnDu8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hui Wang <hui.wang@canonical.com>,
+        stable@vger.kernel.org, Damjan Georgievski <gdamjan@gmail.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 112/167] ALSA: hda/realtek: Fix pop noise and 2 Front Mic issues on a machine
-Date:   Mon, 26 Jul 2021 17:39:05 +0200
-Message-Id: <20210726153843.164850463@linuxfoundation.org>
+Subject: [PATCH 5.10 113/167] ALSA: hdmi: Expose all pins on MSI MS-7C94 board
+Date:   Mon, 26 Jul 2021 17:39:06 +0200
+Message-Id: <20210726153843.201161944@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
 References: <20210726153839.371771838@linuxfoundation.org>
@@ -39,35 +39,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Wang <hui.wang@canonical.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit e4efa82660e6d80338c554e45e903714e1b2c27b upstream.
+commit 33f735f137c6539e3ceceb515cd1e2a644005b49 upstream.
 
-This is a Lenovo ThinkStation machine which uses the codec alc623.
-There are 2 issues on this machine, the 1st one is the pop noise in
-the lineout, the 2nd one is there are 2 Front Mics and pulseaudio
-can't handle them, After applying the fixup of
-ALC623_FIXUP_LENOVO_THINKSTATION_P340 to this machine, the 2 issues
-are fixed.
+The BIOS on MSI Mortar B550m WiFi (MS-7C94) board with AMDGPU seems
+disabling the other pins than HDMI although it has more outputs
+including DP.
 
+This patch adds the board to the allow list for enabling all pins.
+
+Reported-by: Damjan Georgievski <gdamjan@gmail.com>
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Hui Wang <hui.wang@canonical.com>
-Link: https://lore.kernel.org/r/20210719030231.6870-1-hui.wang@canonical.com
+Link: https://lore.kernel.org/r/CAEk1YH4Jd0a8vfZxORVu7qg+Zsc-K+pR187ezNq8QhJBPW4gpw@mail.gmail.com
+Link: https://lore.kernel.org/r/20210716135600.24176-1-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
+ sound/pci/hda/patch_hdmi.c |    1 +
  1 file changed, 1 insertion(+)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -8550,6 +8550,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x17aa, 0x3151, "ThinkCentre Station", ALC283_FIXUP_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x17aa, 0x3176, "ThinkCentre Station", ALC283_FIXUP_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x17aa, 0x3178, "ThinkCentre Station", ALC283_FIXUP_HEADSET_MIC),
-+	SND_PCI_QUIRK(0x17aa, 0x31af, "ThinkCentre Station", ALC623_FIXUP_LENOVO_THINKSTATION_P340),
- 	SND_PCI_QUIRK(0x17aa, 0x3818, "Lenovo C940", ALC298_FIXUP_LENOVO_SPK_VOLUME),
- 	SND_PCI_QUIRK(0x17aa, 0x3827, "Ideapad S740", ALC285_FIXUP_IDEAPAD_S740_COEF),
- 	SND_PCI_QUIRK(0x17aa, 0x3843, "Yoga 9i", ALC287_FIXUP_IDEAPAD_BASS_SPK_AMP),
+--- a/sound/pci/hda/patch_hdmi.c
++++ b/sound/pci/hda/patch_hdmi.c
+@@ -1939,6 +1939,7 @@ static int hdmi_add_cvt(struct hda_codec
+ static const struct snd_pci_quirk force_connect_list[] = {
+ 	SND_PCI_QUIRK(0x103c, 0x870f, "HP", 1),
+ 	SND_PCI_QUIRK(0x103c, 0x871a, "HP", 1),
++	SND_PCI_QUIRK(0x1462, 0xec94, "MS-7C94", 1),
+ 	{}
+ };
+ 
 
 
