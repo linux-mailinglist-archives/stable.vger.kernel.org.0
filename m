@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E5CA3D6186
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:14:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52FCD3D6078
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:11:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232813AbhGZPcO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:32:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45012 "EHLO mail.kernel.org"
+        id S237343AbhGZPW3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:22:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238132AbhGZP3r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:29:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0379B60C41;
-        Mon, 26 Jul 2021 16:10:15 +0000 (UTC)
+        id S237329AbhGZPW2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:22:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A14D60E09;
+        Mon, 26 Jul 2021 16:02:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315816;
-        bh=3MUxDA/ipaemF8mrHDTU6gGRbdt2p2zGuhEsJYwkbLg=;
+        s=korg; t=1627315377;
+        bh=/yzQmVErl1HY6Ct8foV+D5Df/ghR0Ctmt50hyioTeLU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1SVooL+wLh/0ESDlsTlZX5MPlXpjGp9vjWb8n8hk2kjtja4eU865KlyiVT0GGCLbg
-         o1RGYtDNIos42cOOt6VMpJdYXvVWMSgV4tCqzqQZRJKuldEqmaCOQFsUjr9EBKvkHc
-         CDY9k9hxWoVWooWBGCo8fQrLnXrmWBBW3eSX4wro=
+        b=1Qr+q3B62iHHrZDq/84tiQcWnhJUc4eWZH56/zoA/YCrfNoTknhZ69fDejOhAVKtc
+         uaowEX5LP1Rz8H8hHdaA/ljmYmskTfG5vvhixUf8R+H52MaEorcmIGJVB7GgEpjMCs
+         nsGb2vwxYZUPAU6045/8MsUFK9nwP/Hhm5sYAtxA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Vladimir Oltean <olteanv@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Riccardo Mancini <rickyman7@gmail.com>,
+        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 079/223] net: dsa: mv88e6xxx: NET_DSA_MV88E6XXX_PTP should depend on NET_DSA_MV88E6XXX
+Subject: [PATCH 5.10 038/167] perf test event_update: Fix memory leak of evlist
 Date:   Mon, 26 Jul 2021 17:37:51 +0200
-Message-Id: <20210726153848.835533236@linuxfoundation.org>
+Message-Id: <20210726153840.666182126@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
-References: <20210726153846.245305071@linuxfoundation.org>
+In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
+References: <20210726153839.371771838@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Riccardo Mancini <rickyman7@gmail.com>
 
-[ Upstream commit 99bb2ebab953435852340cdb198c5abbf0bb5dd3 ]
+[ Upstream commit fc56f54f6fcd5337634f4545af6459613129b432 ]
 
-Making global2 support mandatory removed the Kconfig symbol
-NET_DSA_MV88E6XXX_GLOBAL2.  This symbol also served as an intermediate
-symbol to make NET_DSA_MV88E6XXX_PTP depend on NET_DSA_MV88E6XXX.  With
-the symbol removed, the user is always asked about PTP support for
-Marvell 88E6xxx switches, even if the latter support is not enabled.
+ASan reports a memory leak when running:
 
-Fix this by reinstating the dependency.
+  # perf test "49: Synthesize attr update"
 
-Fixes: 63368a7416df144b ("net: dsa: mv88e6xxx: Make global2 support mandatory")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Caused by evlist not being deleted.
+
+This patch adds the missing evlist__delete and removes the
+perf_cpu_map__put since it's already being deleted by evlist__delete.
+
+Signed-off-by: Riccardo Mancini <rickyman7@gmail.com>
+Fixes: a6e5281780d1da65 ("perf tools: Add event_update event unit type")
+Cc: Ian Rogers <irogers@google.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lore.kernel.org/lkml/f7994ad63d248f7645f901132d208fadf9f2b7e4.1626343282.git.rickyman7@gmail.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/mv88e6xxx/Kconfig | 2 +-
+ tools/perf/tests/event_update.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/dsa/mv88e6xxx/Kconfig b/drivers/net/dsa/mv88e6xxx/Kconfig
-index 05af632b0f59..634a48e6616b 100644
---- a/drivers/net/dsa/mv88e6xxx/Kconfig
-+++ b/drivers/net/dsa/mv88e6xxx/Kconfig
-@@ -12,7 +12,7 @@ config NET_DSA_MV88E6XXX
- config NET_DSA_MV88E6XXX_PTP
- 	bool "PTP support for Marvell 88E6xxx"
- 	default n
--	depends on PTP_1588_CLOCK
-+	depends on NET_DSA_MV88E6XXX && PTP_1588_CLOCK
- 	help
- 	  Say Y to enable PTP hardware timestamping on Marvell 88E6xxx switch
- 	  chips that support it.
+diff --git a/tools/perf/tests/event_update.c b/tools/perf/tests/event_update.c
+index bdcf032f8516..1c9a6138fba1 100644
+--- a/tools/perf/tests/event_update.c
++++ b/tools/perf/tests/event_update.c
+@@ -119,6 +119,6 @@ int test__event_update(struct test *test __maybe_unused, int subtest __maybe_unu
+ 	TEST_ASSERT_VAL("failed to synthesize attr update cpus",
+ 			!perf_event__synthesize_event_update_cpus(&tmp.tool, evsel, process_event_cpus));
+ 
+-	perf_cpu_map__put(evsel->core.own_cpus);
++	evlist__delete(evlist);
+ 	return 0;
+ }
 -- 
 2.30.2
 
