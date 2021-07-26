@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC60F3D5D9E
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:43:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C80DA3D5F02
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:59:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235183AbhGZPCa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:02:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41928 "EHLO mail.kernel.org"
+        id S235415AbhGZPQc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:16:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235533AbhGZPCX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:02:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3CC7160F51;
-        Mon, 26 Jul 2021 15:42:51 +0000 (UTC)
+        id S237351AbhGZPKw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:10:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 457E660F38;
+        Mon, 26 Jul 2021 15:51:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314171;
-        bh=i06fPrBmFPd4Vw53yWquMo8pgHRq2PQGWRELFLr2wsU=;
+        s=korg; t=1627314679;
+        bh=0qlbH5ulcBL4rps4UVFQmytXD2+y2Nh3Zf/ibCSs6uo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iqwBLy4BNCKKQS48ADsStr/GiCCOJLwTM/qqypgiigPsXePtdYjMFdawEW/Pha8Vu
-         5NCfv6Ulj+XO9X98+zVfVsyyHAxSSz/Hzs8iyelJtPO8yqmWbPjKFHwLPY4cjTQbcK
-         BYB9O6YsRs2U5ZXjvblDiJyeMkQMSAMBnDAniZKQ=
+        b=YA6wh2TwfubSK1/uue4N623NLhMR++dqovOrdIoA22nr2B80aniR1oxNborHCgUBl
+         TZkvDzcpaC0UbnPqHvdQYi0/8R47O6sNmybQ9P5uVjuRlz6RbLsnvaspbrZECE/9bY
+         Jxxt6x33p4LXipdtJpAcnPfR2LGCZj5pj8G2PZ1U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthias Maennich <maennich@google.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
+        stable@vger.kernel.org,
+        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
+        Erez Geva <erez.geva.ext@siemens.com>,
+        Tony Brelinski <tonyx.brelinski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 11/60] kbuild: mkcompile_h: consider timestamp if KBUILD_BUILD_TIMESTAMP is set
+Subject: [PATCH 4.19 053/120] igb: Fix use-after-free error during reset
 Date:   Mon, 26 Jul 2021 17:38:25 +0200
-Message-Id: <20210726153825.226435319@linuxfoundation.org>
+Message-Id: <20210726153834.087171508@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153824.868160836@linuxfoundation.org>
-References: <20210726153824.868160836@linuxfoundation.org>
+In-Reply-To: <20210726153832.339431936@linuxfoundation.org>
+References: <20210726153832.339431936@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,66 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthias Maennich <maennich@google.com>
+From: Vinicius Costa Gomes <vinicius.gomes@intel.com>
 
-[ Upstream commit a979522a1a88556e42a22ce61bccc58e304cb361 ]
+[ Upstream commit 7b292608db23ccbbfbfa50cdb155d01725d7a52e ]
 
-To avoid unnecessary recompilations, mkcompile_h does not regenerate
-compile.h if just the timestamp changed.
-Though, if KBUILD_BUILD_TIMESTAMP is set, an explicit timestamp for the
-build was requested, in which case we should not ignore it.
+Cleans the next descriptor to watch (next_to_watch) when cleaning the
+TX ring.
 
-If a user follows the documentation for reproducible builds [1] and
-defines KBUILD_BUILD_TIMESTAMP as the git commit timestamp, a clean
-build will have the correct timestamp. A subsequent cherry-pick (or
-amend) changes the commit timestamp and if an incremental build is done
-with a different KBUILD_BUILD_TIMESTAMP now, that new value is not taken
-into consideration. But it should for reproducibility.
+Failure to do so can cause invalid memory accesses. If igb_poll() runs
+while the controller is reset this can lead to the driver try to free
+a skb that was already freed.
 
-Hence, whenever KBUILD_BUILD_TIMESTAMP is explicitly set, do not ignore
-UTS_VERSION when making a decision about whether the regenerated version
-of compile.h should be moved into place.
+(The crash is harder to reproduce with the igb driver, but the same
+potential problem exists as the code is identical to igc)
 
-[1] https://www.kernel.org/doc/html/latest/kbuild/reproducible-builds.html
-
-Signed-off-by: Matthias Maennich <maennich@google.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Fixes: 7cc6fd4c60f2 ("igb: Don't bother clearing Tx buffer_info in igb_clean_tx_ring")
+Signed-off-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
+Reported-by: Erez Geva <erez.geva.ext@siemens.com>
+Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/mkcompile_h | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/intel/igb/igb_main.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/scripts/mkcompile_h b/scripts/mkcompile_h
-index 6fdc97ef6023..cb73747002ed 100755
---- a/scripts/mkcompile_h
-+++ b/scripts/mkcompile_h
-@@ -82,15 +82,23 @@ UTS_TRUNCATE="cut -b -$UTS_LEN"
- # Only replace the real compile.h if the new one is different,
- # in order to preserve the timestamp and avoid unnecessary
- # recompilations.
--# We don't consider the file changed if only the date/time changed.
-+# We don't consider the file changed if only the date/time changed,
-+# unless KBUILD_BUILD_TIMESTAMP was explicitly set (e.g. for
-+# reproducible builds with that value referring to a commit timestamp).
- # A kernel config change will increase the generation number, thus
- # causing compile.h to be updated (including date/time) due to the
- # changed comment in the
- # first line.
+diff --git a/drivers/net/ethernet/intel/igb/igb_main.c b/drivers/net/ethernet/intel/igb/igb_main.c
+index d85eb80d8249..cee5baa6d646 100644
+--- a/drivers/net/ethernet/intel/igb/igb_main.c
++++ b/drivers/net/ethernet/intel/igb/igb_main.c
+@@ -4684,6 +4684,8 @@ static void igb_clean_tx_ring(struct igb_ring *tx_ring)
+ 					       DMA_TO_DEVICE);
+ 		}
  
-+if [ -z "$KBUILD_BUILD_TIMESTAMP" ]; then
-+   IGNORE_PATTERN="UTS_VERSION"
-+else
-+   IGNORE_PATTERN="NOT_A_PATTERN_TO_BE_MATCHED"
-+fi
++		tx_buffer->next_to_watch = NULL;
 +
- if [ -r $TARGET ] && \
--      grep -v 'UTS_VERSION' $TARGET > .tmpver.1 && \
--      grep -v 'UTS_VERSION' .tmpcompile > .tmpver.2 && \
-+      grep -v $IGNORE_PATTERN $TARGET > .tmpver.1 && \
-+      grep -v $IGNORE_PATTERN .tmpcompile > .tmpver.2 && \
-       cmp -s .tmpver.1 .tmpver.2; then
-    rm -f .tmpcompile
- else
+ 		/* move us one more past the eop_desc for start of next pkt */
+ 		tx_buffer++;
+ 		i++;
 -- 
 2.30.2
 
