@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DBC2D3D617C
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:13:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D99B73D6007
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233175AbhGZPcH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:32:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43044 "EHLO mail.kernel.org"
+        id S237017AbhGZPUU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:20:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237914AbhGZP33 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:29:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BBE126108C;
-        Mon, 26 Jul 2021 16:09:38 +0000 (UTC)
+        id S237008AbhGZPUS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:20:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AB38760F6E;
+        Mon, 26 Jul 2021 16:00:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315779;
-        bh=jnwL9oSy03Knv9wzFjNz98XWr/TQv4RU3bqPVP0kbDo=;
+        s=korg; t=1627315247;
+        bh=M7uSeC+ZAIRAMcpCB2e08wR+uC2UeqVYLHBwEpY6vj4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1hMiJIeVXZnsHa+sV4NRDrd2wpUknRHY+QjYuhpnfN0rdF30bVs1X1bltTpdDIslz
-         EE8ZONgVdYJ//jT3BEa5eYQ9PfcgR1ICsDpu0LezTKid82pfloC30WByYIMsJa4O3p
-         v73LCOf3uMMP9lFuzXIJrzZVmqcU8B6sVaoECuFg=
+        b=LZPeVnLTec06T6wvLZA++cIhCyyZWSGwTr7HPTE5wtGSRlCv/kAgwIXt67ZpHz2ad
+         EnWTI/4LXB9xNbkki6jr5T4aUwYwn5Fd3euyfTsOFOoSmAJgTGpR9hfykvhCds6JGh
+         844bBWiPg9jSe7eXK426KeMzLelTrvUggAQRQ7P8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Riccardo Mancini <rickyman7@gmail.com>,
-        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 062/223] perf lzma: Close lzma stream on exit
+Subject: [PATCH 5.10 021/167] bonding: fix suspicious RCU usage in bond_ipsec_offload_ok()
 Date:   Mon, 26 Jul 2021 17:37:34 +0200
-Message-Id: <20210726153848.292878279@linuxfoundation.org>
+Message-Id: <20210726153840.081638074@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
-References: <20210726153846.245305071@linuxfoundation.org>
+In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
+References: <20210726153839.371771838@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,70 +40,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Riccardo Mancini <rickyman7@gmail.com>
+From: Taehee Yoo <ap420073@gmail.com>
 
-[ Upstream commit f8cbb0f926ae1e1fb5f9e51614e5437560ed4039 ]
+[ Upstream commit 955b785ec6b3b2f9b91914d6eeac8ee66ee29239 ]
 
-ASan reports memory leaks when running:
+To dereference bond->curr_active_slave, it uses rcu_dereference().
+But it and the caller doesn't acquire RCU so a warning occurs.
+So add rcu_read_lock().
 
-  # perf test "88: Check open filename arg using perf trace + vfs_getname"
+Splat looks like:
+WARNING: suspicious RCU usage
+5.13.0-rc6+ #1179 Not tainted
+drivers/net/bonding/bond_main.c:571 suspicious
+rcu_dereference_check() usage!
 
-One of these is caused by the lzma stream never being closed inside
-lzma_decompress_to_file().
+other info that might help us debug this:
 
-This patch adds the missing lzma_end().
+rcu_scheduler_active = 2, debug_locks = 1
+1 lock held by ping/974:
+ #0: ffff888109e7db70 (sk_lock-AF_INET){+.+.}-{0:0},
+at: raw_sendmsg+0x1303/0x2cb0
 
-Signed-off-by: Riccardo Mancini <rickyman7@gmail.com>
-Fixes: 80a32e5b498a7547 ("perf tools: Add lzma decompression support for kernel module")
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/aaf50bdce7afe996cfc06e1bbb36e4a2a9b9db93.1626343282.git.rickyman7@gmail.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+stack backtrace:
+CPU: 2 PID: 974 Comm: ping Not tainted 5.13.0-rc6+ #1179
+Call Trace:
+ dump_stack+0xa4/0xe5
+ bond_ipsec_offload_ok+0x1f4/0x260 [bonding]
+ xfrm_output+0x179/0x890
+ xfrm4_output+0xfa/0x410
+ ? __xfrm4_output+0x4b0/0x4b0
+ ? __ip_make_skb+0xecc/0x2030
+ ? xfrm4_udp_encap_rcv+0x800/0x800
+ ? ip_local_out+0x21/0x3a0
+ ip_send_skb+0x37/0xa0
+ raw_sendmsg+0x1bfd/0x2cb0
+
+Fixes: 18cb261afd7b ("bonding: support hardware encryption offload to slaves")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/lzma.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/net/bonding/bond_main.c | 22 ++++++++++++++++------
+ 1 file changed, 16 insertions(+), 6 deletions(-)
 
-diff --git a/tools/perf/util/lzma.c b/tools/perf/util/lzma.c
-index 39062df02629..51424cdc3b68 100644
---- a/tools/perf/util/lzma.c
-+++ b/tools/perf/util/lzma.c
-@@ -69,7 +69,7 @@ int lzma_decompress_to_file(const char *input, int output_fd)
+diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
+index 484784757073..9aa2d79aa942 100644
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -557,24 +557,34 @@ static bool bond_ipsec_offload_ok(struct sk_buff *skb, struct xfrm_state *xs)
+ 	struct net_device *real_dev;
+ 	struct slave *curr_active;
+ 	struct bonding *bond;
++	int err;
  
- 			if (ferror(infile)) {
- 				pr_err("lzma: read error: %s\n", strerror(errno));
--				goto err_fclose;
-+				goto err_lzma_end;
- 			}
+ 	bond = netdev_priv(bond_dev);
++	rcu_read_lock();
+ 	curr_active = rcu_dereference(bond->curr_active_slave);
+ 	real_dev = curr_active->dev;
  
- 			if (feof(infile))
-@@ -83,7 +83,7 @@ int lzma_decompress_to_file(const char *input, int output_fd)
+-	if (BOND_MODE(bond) != BOND_MODE_ACTIVEBACKUP)
+-		return true;
++	if (BOND_MODE(bond) != BOND_MODE_ACTIVEBACKUP) {
++		err = true;
++		goto out;
++	}
  
- 			if (writen(output_fd, buf_out, write_size) != write_size) {
- 				pr_err("lzma: write error: %s\n", strerror(errno));
--				goto err_fclose;
-+				goto err_lzma_end;
- 			}
+-	if (!xs->xso.real_dev)
+-		return false;
++	if (!xs->xso.real_dev) {
++		err = false;
++		goto out;
++	}
  
- 			strm.next_out  = buf_out;
-@@ -95,11 +95,13 @@ int lzma_decompress_to_file(const char *input, int output_fd)
- 				break;
- 
- 			pr_err("lzma: failed %s\n", lzma_strerror(ret));
--			goto err_fclose;
-+			goto err_lzma_end;
- 		}
+ 	if (!real_dev->xfrmdev_ops ||
+ 	    !real_dev->xfrmdev_ops->xdo_dev_offload_ok ||
+ 	    netif_is_bond_master(real_dev)) {
+-		return false;
++		err = false;
++		goto out;
  	}
  
- 	err = 0;
-+err_lzma_end:
-+	lzma_end(&strm);
- err_fclose:
- 	fclose(infile);
- 	return err;
+-	return real_dev->xfrmdev_ops->xdo_dev_offload_ok(skb, xs);
++	err = real_dev->xfrmdev_ops->xdo_dev_offload_ok(skb, xs);
++out:
++	rcu_read_unlock();
++	return err;
+ }
+ 
+ static const struct xfrmdev_ops bond_xfrmdev_ops = {
 -- 
 2.30.2
 
