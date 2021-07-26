@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E9E73D5EA3
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:51:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A1333D5F34
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236381AbhGZPK4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:10:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49364 "EHLO mail.kernel.org"
+        id S236534AbhGZPRM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:17:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236354AbhGZPIA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:08:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 06E9560F9B;
-        Mon, 26 Jul 2021 15:48:27 +0000 (UTC)
+        id S237397AbhGZPPn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:15:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 54FA660F70;
+        Mon, 26 Jul 2021 15:54:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314508;
-        bh=auDwRLwTVCHo8yYe7iehfT/XxyLq4c0X3GuENH/smVI=;
+        s=korg; t=1627314887;
+        bh=YLNZB377ktFeBYTb72ch6L7rP2Y20JGHcVn7G5uyNms=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1BVJ1RlPw5zim69b/Mdr0pcW4H6I4T50QCSTA+ZMXAPrUp4Rt9fw6hqQF3U7YEulq
-         Wgb873K+BtyctlmqAfIGTJFYL5wCDUYIQdeeXnJuofO4jDtmYGXnrvdekTF+vYfsw/
-         83lDitIyNxO/282KkrbXf+ZZKsIvVu7ua9HeVN8Y=
+        b=1KDBy8Ru96bRqzkAqk8ZO1X5r5J1UnPFY/469w8sJYD06sIULuPRxGzMEtguLUGkG
+         QCbRgKD6H6lbB3QvHLc7O4VdvscMjXmYSTo7ztbW6+nvyJLVQSJvjO/Jfp6REk20j7
+         Pk+xtvfBWWmggg8+tSxxSrWQd/rm1tDAi3Qagoks=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Markus Boehme <markubo@amazon.com>,
-        Tony Brelinski <tonyx.brelinski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 74/82] ixgbe: Fix packet corruption due to missing DMA sync
-Date:   Mon, 26 Jul 2021 17:39:14 +0200
-Message-Id: <20210726153830.581847662@linuxfoundation.org>
+        stable@vger.kernel.org, John Keeping <john@metanate.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 103/120] USB: serial: cp210x: add ID for CEL EM3588 USB ZigBee stick
+Date:   Mon, 26 Jul 2021 17:39:15 +0200
+Message-Id: <20210726153835.736241358@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153828.144714469@linuxfoundation.org>
-References: <20210726153828.144714469@linuxfoundation.org>
+In-Reply-To: <20210726153832.339431936@linuxfoundation.org>
+References: <20210726153832.339431936@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,55 +39,29 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Markus Boehme <markubo@amazon.com>
+From: John Keeping <john@metanate.com>
 
-commit 09cfae9f13d51700b0fecf591dcd658fc5375428 upstream.
+commit d6a206e60124a9759dd7f6dfb86b0e1d3b1df82e upstream.
 
-When receiving a packet with multiple fragments, hardware may still
-touch the first fragment until the entire packet has been received. The
-driver therefore keeps the first fragment mapped for DMA until end of
-packet has been asserted, and delays its dma_sync call until then.
+Add the USB serial device ID for the CEL ZigBee EM3588 radio stick.
 
-The driver tries to fit multiple receive buffers on one page. When using
-3K receive buffers (e.g. using Jumbo frames and legacy-rx is turned
-off/build_skb is being used) on an architecture with 4K pages, the
-driver allocates an order 1 compound page and uses one page per receive
-buffer. To determine the correct offset for a delayed DMA sync of the
-first fragment of a multi-fragment packet, the driver then cannot just
-use PAGE_MASK on the DMA address but has to construct a mask based on
-the actual size of the backing page.
-
-Using PAGE_MASK in the 3K RX buffer/4K page architecture configuration
-will always sync the first page of a compound page. With the SWIOTLB
-enabled this can lead to corrupted packets (zeroed out first fragment,
-re-used garbage from another packet) and various consequences, such as
-slow/stalling data transfers and connection resets. For example, testing
-on a link with MTU exceeding 3058 bytes on a host with SWIOTLB enabled
-(e.g. "iommu=soft swiotlb=262144,force") TCP transfers quickly fizzle
-out without this patch.
-
+Signed-off-by: John Keeping <john@metanate.com>
 Cc: stable@vger.kernel.org
-Fixes: 0c5661ecc5dd7 ("ixgbe: fix crash in build_skb Rx code path")
-Signed-off-by: Markus Boehme <markubo@amazon.com>
-Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/ixgbe/ixgbe_main.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/serial/cp210x.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-+++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-@@ -1872,7 +1872,8 @@ static void ixgbe_dma_sync_frag(struct i
- 				struct sk_buff *skb)
- {
- 	if (ring_uses_build_skb(rx_ring)) {
--		unsigned long offset = (unsigned long)(skb->data) & ~PAGE_MASK;
-+		unsigned long mask = (unsigned long)ixgbe_rx_pg_size(rx_ring) - 1;
-+		unsigned long offset = (unsigned long)(skb->data) & mask;
- 
- 		dma_sync_single_range_for_cpu(rx_ring->dev,
- 					      IXGBE_CB(skb)->dma,
+--- a/drivers/usb/serial/cp210x.c
++++ b/drivers/usb/serial/cp210x.c
+@@ -156,6 +156,7 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(0x10C4, 0x89A4) }, /* CESINEL FTBC Flexible Thyristor Bridge Controller */
+ 	{ USB_DEVICE(0x10C4, 0x89FB) }, /* Qivicon ZigBee USB Radio Stick */
+ 	{ USB_DEVICE(0x10C4, 0x8A2A) }, /* HubZ dual ZigBee and Z-Wave dongle */
++	{ USB_DEVICE(0x10C4, 0x8A5B) }, /* CEL EM3588 ZigBee USB Stick */
+ 	{ USB_DEVICE(0x10C4, 0x8A5E) }, /* CEL EM3588 ZigBee USB Stick Long Range */
+ 	{ USB_DEVICE(0x10C4, 0x8B34) }, /* Qivicon ZigBee USB Radio Stick */
+ 	{ USB_DEVICE(0x10C4, 0xEA60) }, /* Silicon Labs factory default */
 
 
