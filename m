@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AC703D5D8E
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:43:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE8C83D5F1D
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:59:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235699AbhGZPCB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:02:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41376 "EHLO mail.kernel.org"
+        id S235965AbhGZPQw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:16:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235267AbhGZPCA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:02:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 27B6360F37;
-        Mon, 26 Jul 2021 15:42:28 +0000 (UTC)
+        id S236626AbhGZPLv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:11:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AAB5660F92;
+        Mon, 26 Jul 2021 15:52:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314148;
-        bh=X7710NCHpz6oUxDg0kBLlkL9tSb+vJeb/1o2FpZRwpc=;
+        s=korg; t=1627314740;
+        bh=+KBYrjKByNzhavMEVdFMXXuczM+Zb1GaVB6YfG7W/NQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bkD84fP4ogyOC5o8IEP9yRljDoVcMBbZm4TFwSYPnq4DhNUpMgk/4NwG0n/HPQk/4
-         VqqWD+9BV4OxqNxybIkRY5hJZ2tRu0GXzvx42IyzNB03drsevjJMQFFSo9ycXyaGtg
-         ESsau4WaT5mnw1m42SzgBoTdo82a5yXB/TcDxrNU=
+        b=KPkCTBiJ+Q0QjDWL+wGmvuQ1vQbnO/Imre1VPOHGJsuD1ao9LqJQtn44ZGnQa9lA+
+         UaTnZPROanRLdtrykIiuEYrIOxMKxAYcBZlkBVPA6lvgdJOt/LKci6joh09kqbOMmP
+         J8GQln7Vq2uNlfJkADmIe2G/NNMQ6D9+AGmJUYRU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vincent Palatin <vpalatin@chromium.org>,
+        stable@vger.kernel.org,
+        syzbot+09a5d591c1f98cf5efcb@syzkaller.appspotmail.com,
+        Ziyang Xuan <william.xuanziyang@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 29/47] Revert "USB: quirks: ignore remote wake-up on Fibocom L850-GL LTE modem"
+Subject: [PATCH 4.19 075/120] net: fix uninit-value in caif_seqpkt_sendmsg
 Date:   Mon, 26 Jul 2021 17:38:47 +0200
-Message-Id: <20210726153823.905040339@linuxfoundation.org>
+Message-Id: <20210726153834.789490925@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153822.980271128@linuxfoundation.org>
-References: <20210726153822.980271128@linuxfoundation.org>
+In-Reply-To: <20210726153832.339431936@linuxfoundation.org>
+References: <20210726153832.339431936@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,52 +42,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Palatin <vpalatin@chromium.org>
+From: Ziyang Xuan <william.xuanziyang@huawei.com>
 
-[ Upstream commit f3a1a937f7b240be623d989c8553a6d01465d04f ]
+[ Upstream commit 991e634360f2622a683b48dfe44fe6d9cb765a09 ]
 
-This reverts commit 0bd860493f81eb2a46173f6f5e44cc38331c8dbd.
+When nr_segs equal to zero in iovec_from_user, the object
+msg->msg_iter.iov is uninit stack memory in caif_seqpkt_sendmsg
+which is defined in ___sys_sendmsg. So we cann't just judge
+msg->msg_iter.iov->base directlly. We can use nr_segs to judge
+msg in caif_seqpkt_sendmsg whether has data buffers.
 
-While the patch was working as stated,ie preventing the L850-GL LTE modem
-from crashing on some U3 wake-ups due to a race condition between the
-host wake-up and the modem-side wake-up, when using the MBIM interface,
-this would force disabling the USB runtime PM on the device.
+=====================================================
+BUG: KMSAN: uninit-value in caif_seqpkt_sendmsg+0x693/0xf60 net/caif/caif_socket.c:542
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x1c9/0x220 lib/dump_stack.c:118
+ kmsan_report+0xf7/0x1e0 mm/kmsan/kmsan_report.c:118
+ __msan_warning+0x58/0xa0 mm/kmsan/kmsan_instr.c:215
+ caif_seqpkt_sendmsg+0x693/0xf60 net/caif/caif_socket.c:542
+ sock_sendmsg_nosec net/socket.c:652 [inline]
+ sock_sendmsg net/socket.c:672 [inline]
+ ____sys_sendmsg+0x12b6/0x1350 net/socket.c:2343
+ ___sys_sendmsg net/socket.c:2397 [inline]
+ __sys_sendmmsg+0x808/0xc90 net/socket.c:2480
+ __compat_sys_sendmmsg net/compat.c:656 [inline]
 
-The increased power consumption is significant for LTE laptops,
-and given that with decently recent modem firmwares, when the modem hits
-the bug, it automatically recovers (ie it drops from the bus, but
-automatically re-enumerates after less than half a second, rather than being
-stuck until a power cycle as it was doing with ancient firmware), for
-most people, the trade-off now seems in favor of re-enabling it by
-default.
-
-For people with access to the platform code, the bug can also be worked-around
-successfully by changing the USB3 LFPM polling off-time for the XHCI
-controller in the BIOS code.
-
-Signed-off-by: Vincent Palatin <vpalatin@chromium.org>
-Link: https://lore.kernel.org/r/20210721092516.2775971-1-vpalatin@chromium.org
-Fixes: 0bd860493f81 ("USB: quirks: ignore remote wake-up on Fibocom L850-GL LTE modem")
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: syzbot+09a5d591c1f98cf5efcb@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?id=1ace85e8fc9b0d5a45c08c2656c3e91762daa9b8
+Fixes: bece7b2398d0 ("caif: Rewritten socket implementation")
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/core/quirks.c | 4 ----
- 1 file changed, 4 deletions(-)
+ net/caif/caif_socket.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/core/quirks.c b/drivers/usb/core/quirks.c
-index 3dfd584a1ef3..2ca6ed207e26 100644
---- a/drivers/usb/core/quirks.c
-+++ b/drivers/usb/core/quirks.c
-@@ -325,10 +325,6 @@ static const struct usb_device_id usb_quirk_list[] = {
- 	/* DJI CineSSD */
- 	{ USB_DEVICE(0x2ca3, 0x0031), .driver_info = USB_QUIRK_NO_LPM },
+diff --git a/net/caif/caif_socket.c b/net/caif/caif_socket.c
+index 4b31f0aaa96d..348b8cb0bc24 100644
+--- a/net/caif/caif_socket.c
++++ b/net/caif/caif_socket.c
+@@ -539,7 +539,8 @@ static int caif_seqpkt_sendmsg(struct socket *sock, struct msghdr *msg,
+ 		goto err;
  
--	/* Fibocom L850-GL LTE Modem */
--	{ USB_DEVICE(0x2cb7, 0x0007), .driver_info =
--			USB_QUIRK_IGNORE_REMOTE_WAKEUP },
--
- 	/* INTEL VALUE SSD */
- 	{ USB_DEVICE(0x8086, 0xf1a5), .driver_info = USB_QUIRK_RESET_RESUME },
+ 	ret = -EINVAL;
+-	if (unlikely(msg->msg_iter.iov->iov_base == NULL))
++	if (unlikely(msg->msg_iter.nr_segs == 0) ||
++	    unlikely(msg->msg_iter.iov->iov_base == NULL))
+ 		goto err;
+ 	noblock = msg->msg_flags & MSG_DONTWAIT;
  
 -- 
 2.30.2
