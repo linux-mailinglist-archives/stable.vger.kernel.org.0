@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 366F23D6241
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:16:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33EAE3D60FE
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:12:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234375AbhGZPfV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:35:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51440 "EHLO mail.kernel.org"
+        id S237798AbhGZPZ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:25:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40274 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236260AbhGZPeP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:34:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4FED460EB2;
-        Mon, 26 Jul 2021 16:14:42 +0000 (UTC)
+        id S238313AbhGZPZT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:25:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D09D60F5B;
+        Mon, 26 Jul 2021 16:05:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627316082;
-        bh=+xor+USVHM1+xOzRaQ0p4RP7RtS6Ej9L7J61Uq7mnrY=;
+        s=korg; t=1627315547;
+        bh=KSSWhhQm04tbgZ/L13P0VCueBqftOBw1t2JYFEtEo9A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aHSI+20HErLnh4NaTkAlb1QMJ8ujX5Ynv2E3X1VWl83tysyqgGse+DFqLc+aKttgS
-         aleY6Umqunl8ozKmy9JqBn47L7YSi94FIT0HsQsY+tM0mND0LyGeOLWYx3AkRz7VZG
-         +XsBfkJ1cewK1kHg0QPIqVKzeHBrYzeldFAotNmQ=
+        b=RukiseszcqRCa6wZjxvDV5etcKRcXirKZWKIrJqkHPFnH8ftlVuqpe4mNQIjvpIuv
+         UTimYfbh3KPhBzZ3RVzIT2hx9ZJ1ZNjzAR3k/CPteenc2dXAnbyyB06h+zyZlRyXD+
+         iG+NQmZ6ppnbYHm7/IK6nxA5bmjdFI8pvPuOH09Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Tom Zanussi <zanussi@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.13 180/223] tracing: Synthetic event field_pos is an index not a boolean
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Kees Cook <keescook@chromium.org>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>
+Subject: [PATCH 5.10 139/167] media: ngene: Fix out-of-bounds bug in ngene_command_config_free_buf()
 Date:   Mon, 26 Jul 2021 17:39:32 +0200
-Message-Id: <20210726153852.083800454@linuxfoundation.org>
+Message-Id: <20210726153844.057478928@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
-References: <20210726153846.245305071@linuxfoundation.org>
+In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
+References: <20210726153839.371771838@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,98 +40,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Gustavo A. R. Silva <gustavoars@kernel.org>
 
-commit 3b13911a2fd0dd0146c9777a254840c5466cf120 upstream.
+commit 8d4abca95ecc82fc8c41912fa0085281f19cc29f upstream.
 
-Performing the following:
+Fix an 11-year old bug in ngene_command_config_free_buf() while
+addressing the following warnings caught with -Warray-bounds:
 
- ># echo 'wakeup_lat s32 pid; u64 delta; char wake_comm[]' > synthetic_events
- ># echo 'hist:keys=pid:__arg__1=common_timestamp.usecs' > events/sched/sched_waking/trigger
- ># echo 'hist:keys=next_pid:pid=next_pid,delta=common_timestamp.usecs-$__arg__1:onmatch(sched.sched_waking).trace(wakeup_lat,$pid,$delta,prev_comm)'\
-      > events/sched/sched_switch/trigger
- ># echo 1 > events/synthetic/enable
+arch/alpha/include/asm/string.h:22:16: warning: '__builtin_memcpy' offset [12, 16] from the object at 'com' is out of the bounds of referenced subobject 'config' with type 'unsigned char' at offset 10 [-Warray-bounds]
+arch/x86/include/asm/string_32.h:182:25: warning: '__builtin_memcpy' offset [12, 16] from the object at 'com' is out of the bounds of referenced subobject 'config' with type 'unsigned char' at offset 10 [-Warray-bounds]
 
-Crashed the kernel:
+The problem is that the original code is trying to copy 6 bytes of
+data into a one-byte size member _config_ of the wrong structue
+FW_CONFIGURE_BUFFERS, in a single call to memcpy(). This causes a
+legitimate compiler warning because memcpy() overruns the length
+of &com.cmd.ConfigureBuffers.config. It seems that the right
+structure is FW_CONFIGURE_FREE_BUFFERS, instead, because it contains
+6 more members apart from the header _hdr_. Also, the name of
+the function ngene_command_config_free_buf() suggests that the actual
+intention is to ConfigureFreeBuffers, instead of ConfigureBuffers
+(which takes place in the function ngene_command_config_buf(), above).
 
- BUG: kernel NULL pointer dereference, address: 000000000000001b
- #PF: supervisor read access in kernel mode
- #PF: error_code(0x0000) - not-present page
- PGD 0 P4D 0
- Oops: 0000 [#1] PREEMPT SMP
- CPU: 7 PID: 0 Comm: swapper/7 Not tainted 5.13.0-rc5-test+ #104
- Hardware name: Hewlett-Packard HP Compaq Pro 6300 SFF/339A, BIOS K01 v03.03 07/14/2016
- RIP: 0010:strlen+0x0/0x20
- Code: f6 82 80 2b 0b bc 20 74 11 0f b6 50 01 48 83 c0 01 f6 82 80 2b 0b bc
-  20 75 ef c3 66 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 <80> 3f 00 74 10
-  48 89 f8 48 83 c0 01 80 38 9 f8 c3 31
- RSP: 0018:ffffaa75000d79d0 EFLAGS: 00010046
- RAX: 0000000000000002 RBX: ffff9cdb55575270 RCX: 0000000000000000
- RDX: ffff9cdb58c7a320 RSI: ffffaa75000d7b40 RDI: 000000000000001b
- RBP: ffffaa75000d7b40 R08: ffff9cdb40a4f010 R09: ffffaa75000d7ab8
- R10: ffff9cdb4398c700 R11: 0000000000000008 R12: ffff9cdb58c7a320
- R13: ffff9cdb55575270 R14: ffff9cdb58c7a000 R15: 0000000000000018
- FS:  0000000000000000(0000) GS:ffff9cdb5aa00000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 000000000000001b CR3: 00000000c0612006 CR4: 00000000001706e0
- Call Trace:
-  trace_event_raw_event_synth+0x90/0x1d0
-  action_trace+0x5b/0x70
-  event_hist_trigger+0x4bd/0x4e0
-  ? cpumask_next_and+0x20/0x30
-  ? update_sd_lb_stats.constprop.0+0xf6/0x840
-  ? __lock_acquire.constprop.0+0x125/0x550
-  ? find_held_lock+0x32/0x90
-  ? sched_clock_cpu+0xe/0xd0
-  ? lock_release+0x155/0x440
-  ? update_load_avg+0x8c/0x6f0
-  ? enqueue_entity+0x18a/0x920
-  ? __rb_reserve_next+0xe5/0x460
-  ? ring_buffer_lock_reserve+0x12a/0x3f0
-  event_triggers_call+0x52/0xe0
-  trace_event_buffer_commit+0x1ae/0x240
-  trace_event_raw_event_sched_switch+0x114/0x170
-  __traceiter_sched_switch+0x39/0x50
-  __schedule+0x431/0xb00
-  schedule_idle+0x28/0x40
-  do_idle+0x198/0x2e0
-  cpu_startup_entry+0x19/0x20
-  secondary_startup_64_no_verify+0xc2/0xcb
+Fix this by enclosing those 6 members of struct FW_CONFIGURE_FREE_BUFFERS
+into new struct config, and use &com.cmd.ConfigureFreeBuffers.config as
+the destination address, instead of &com.cmd.ConfigureBuffers.config,
+when calling memcpy().
 
-The reason is that the dynamic events array keeps track of the field
-position of the fields array, via the field_pos variable in the
-synth_field structure. Unfortunately, that field is a boolean for some
-reason, which means any field_pos greater than 1 will be a bug (in this
-case it was 2).
+This also helps with the ongoing efforts to globally enable
+-Warray-bounds and get us closer to being able to tighten the
+FORTIFY_SOURCE routines on memcpy().
 
-Link: https://lkml.kernel.org/r/20210721191008.638bce34@oasis.local.home
-
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
+Link: https://github.com/KSPP/linux/issues/109
+Fixes: dae52d009fc9 ("V4L/DVB: ngene: Initial check-in")
 Cc: stable@vger.kernel.org
-Fixes: bd82631d7ccdc ("tracing: Add support for dynamic strings to synthetic events")
-Reviewed-by: Tom Zanussi <zanussi@kernel.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+Link: https://lore.kernel.org/linux-hardening/20210420001631.GA45456@embeddedor/
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace_synth.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/pci/ngene/ngene-core.c |    2 +-
+ drivers/media/pci/ngene/ngene.h      |   14 ++++++++------
+ 2 files changed, 9 insertions(+), 7 deletions(-)
 
---- a/kernel/trace/trace_synth.h
-+++ b/kernel/trace/trace_synth.h
-@@ -14,10 +14,10 @@ struct synth_field {
- 	char *name;
- 	size_t size;
- 	unsigned int offset;
-+	unsigned int field_pos;
- 	bool is_signed;
- 	bool is_string;
- 	bool is_dynamic;
--	bool field_pos;
- };
+--- a/drivers/media/pci/ngene/ngene-core.c
++++ b/drivers/media/pci/ngene/ngene-core.c
+@@ -385,7 +385,7 @@ static int ngene_command_config_free_buf
  
- struct synth_event {
+ 	com.cmd.hdr.Opcode = CMD_CONFIGURE_FREE_BUFFER;
+ 	com.cmd.hdr.Length = 6;
+-	memcpy(&com.cmd.ConfigureBuffers.config, config, 6);
++	memcpy(&com.cmd.ConfigureFreeBuffers.config, config, 6);
+ 	com.in_len = 6;
+ 	com.out_len = 0;
+ 
+--- a/drivers/media/pci/ngene/ngene.h
++++ b/drivers/media/pci/ngene/ngene.h
+@@ -407,12 +407,14 @@ enum _BUFFER_CONFIGS {
+ 
+ struct FW_CONFIGURE_FREE_BUFFERS {
+ 	struct FW_HEADER hdr;
+-	u8   UVI1_BufferLength;
+-	u8   UVI2_BufferLength;
+-	u8   TVO_BufferLength;
+-	u8   AUD1_BufferLength;
+-	u8   AUD2_BufferLength;
+-	u8   TVA_BufferLength;
++	struct {
++		u8   UVI1_BufferLength;
++		u8   UVI2_BufferLength;
++		u8   TVO_BufferLength;
++		u8   AUD1_BufferLength;
++		u8   AUD2_BufferLength;
++		u8   TVA_BufferLength;
++	} __packed config;
+ } __attribute__ ((__packed__));
+ 
+ struct FW_CONFIGURE_UART {
 
 
