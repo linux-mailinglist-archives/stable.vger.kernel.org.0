@@ -2,36 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E85E13D6000
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B85A3D6175
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:13:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236993AbhGZPUO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:20:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33364 "EHLO mail.kernel.org"
+        id S231879AbhGZPb7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:31:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41244 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236221AbhGZPUK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:20:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3AA1760FC2;
-        Mon, 26 Jul 2021 16:00:36 +0000 (UTC)
+        id S237901AbhGZP32 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:29:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B9E9B6108E;
+        Mon, 26 Jul 2021 16:09:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315237;
-        bh=dphr86clq9AFlhyXBNPkGBuUb5QKMaUyiWIQDBScxS4=;
+        s=korg; t=1627315774;
+        bh=T/xLmZF0qggl84vt97QjkBJdRndg95IttEb09VIrXuI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uzCFtoSe6rPBIbjQmZsEyp0XkSvQLre71YWkALIJHY5fzx3xCxYA/vx/33Ps3oVNr
-         aVD03Mc0Id9UlfAwdaIibFP/Z7XQ9UFi2BvJGT8Ti6CXXdKzq63rWn7Bosm8KcM4SU
-         1pVmTyIqjChDr8qEhGfLaxXVrPfvBgxIDaZQelSA=
+        b=TgySqUdu1tUoZs58BfA2xTgc95K+C5u8iLV0y6dby/RWtmHcG6yKVIWrjudAH3xRQ
+         W5feH0JnlYXTIBLlLdowBTybR6b8g+ctknRx/zKJPvgnQaCKyZpvgJmrNVqsz9olSB
+         587CMbdJmvA0DoP7OOek9m5k6izJtXZHJB/KNvnE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Riccardo Mancini <rickyman7@gmail.com>,
+        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Milian Wolff <milian.wolff@kdab.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 018/167] bonding: fix suspicious RCU usage in bond_ipsec_del_sa()
-Date:   Mon, 26 Jul 2021 17:37:31 +0200
-Message-Id: <20210726153839.982837555@linuxfoundation.org>
+Subject: [PATCH 5.13 060/223] perf script: Release zstd data
+Date:   Mon, 26 Jul 2021 17:37:32 +0200
+Message-Id: <20210726153848.221183554@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
-References: <20210726153839.371771838@linuxfoundation.org>
+In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
+References: <20210726153846.245305071@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,104 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: Riccardo Mancini <rickyman7@gmail.com>
 
-[ Upstream commit a22c39b831a081da9b2c488bd970a4412d926f30 ]
+[ Upstream commit 1b1f57cf9e4c8eb16c8f6b2ce12cc5dd3517fc61 ]
 
-To dereference bond->curr_active_slave, it uses rcu_dereference().
-But it and the caller doesn't acquire RCU so a warning occurs.
-So add rcu_read_lock().
+ASan reports several memory leak while running:
 
-Test commands:
-    ip netns add A
-    ip netns exec A bash
-    modprobe netdevsim
-    echo "1 1" > /sys/bus/netdevsim/new_device
-    ip link add bond0 type bond
-    ip link set eth0 master bond0
-    ip link set eth0 up
-    ip link set bond0 up
-    ip x s add proto esp dst 14.1.1.1 src 15.1.1.1 spi 0x07 mode \
-transport reqid 0x07 replay-window 32 aead 'rfc4106(gcm(aes))' \
-0x44434241343332312423222114131211f4f3f2f1 128 sel src 14.0.0.52/24 \
-dst 14.0.0.70/24 proto tcp offload dev bond0 dir in
-    ip x s f
+  # perf test "82: Use vfs_getname probe to get syscall args filenames"
 
-Splat looks like:
-=============================
-WARNING: suspicious RCU usage
-5.13.0-rc3+ #1168 Not tainted
------------------------------
-drivers/net/bonding/bond_main.c:448 suspicious rcu_dereference_check()
-usage!
+One of the leaks is caused by zstd data not being released on exit in
+perf-script.
 
-other info that might help us debug this:
+This patch adds the missing zstd_fini().
 
-rcu_scheduler_active = 2, debug_locks = 1
-2 locks held by ip/705:
- #0: ffff888106701780 (&net->xfrm.xfrm_cfg_mutex){+.+.}-{3:3},
-at: xfrm_netlink_rcv+0x59/0x80 [xfrm_user]
- #1: ffff8880075b0098 (&x->lock){+.-.}-{2:2},
-at: xfrm_state_delete+0x16/0x30
-
-stack backtrace:
-CPU: 6 PID: 705 Comm: ip Not tainted 5.13.0-rc3+ #1168
-Call Trace:
- dump_stack+0xa4/0xe5
- bond_ipsec_del_sa+0x16a/0x1c0 [bonding]
- __xfrm_state_delete+0x51f/0x730
- xfrm_state_delete+0x1e/0x30
- xfrm_state_flush+0x22f/0x390
- xfrm_flush_sa+0xd8/0x260 [xfrm_user]
- ? xfrm_flush_policy+0x290/0x290 [xfrm_user]
- xfrm_user_rcv_msg+0x331/0x660 [xfrm_user]
- ? rcu_read_lock_sched_held+0x91/0xc0
- ? xfrm_user_state_lookup.constprop.39+0x320/0x320 [xfrm_user]
- ? find_held_lock+0x3a/0x1c0
- ? mutex_lock_io_nested+0x1210/0x1210
- ? sched_clock_cpu+0x18/0x170
- netlink_rcv_skb+0x121/0x350
-[ ... ]
-
-Fixes: 18cb261afd7b ("bonding: support hardware encryption offload to slaves")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Riccardo Mancini <rickyman7@gmail.com>
+Fixes: b13b04d9382113f7 ("perf script: Initialize zstd_data")
+Cc: Ian Rogers <irogers@google.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Milian Wolff <milian.wolff@kdab.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lore.kernel.org/lkml/39388e8cc2f85ca219ea18697a17b7bd8f74b693.1626343282.git.rickyman7@gmail.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/bonding/bond_main.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ tools/perf/builtin-script.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
-index a66d639c415f..952796fb5f1a 100644
---- a/drivers/net/bonding/bond_main.c
-+++ b/drivers/net/bonding/bond_main.c
-@@ -428,21 +428,24 @@ static void bond_ipsec_del_sa(struct xfrm_state *xs)
- 	if (!bond_dev)
- 		return;
- 
-+	rcu_read_lock();
- 	bond = netdev_priv(bond_dev);
- 	slave = rcu_dereference(bond->curr_active_slave);
- 
- 	if (!slave)
--		return;
-+		goto out;
- 
- 	xs->xso.real_dev = slave->dev;
- 
- 	if (!(slave->dev->xfrmdev_ops
- 	      && slave->dev->xfrmdev_ops->xdo_dev_state_delete)) {
- 		slave_warn(bond_dev, slave->dev, "%s: no slave xdo_dev_state_delete\n", __func__);
--		return;
-+		goto out;
+diff --git a/tools/perf/builtin-script.c b/tools/perf/builtin-script.c
+index 1280cbfad4db..8a6656ab835b 100644
+--- a/tools/perf/builtin-script.c
++++ b/tools/perf/builtin-script.c
+@@ -3991,6 +3991,7 @@ out_delete:
+ 		zfree(&script.ptime_range);
  	}
  
- 	slave->dev->xfrmdev_ops->xdo_dev_state_delete(xs);
-+out:
-+	rcu_read_unlock();
- }
++	zstd_fini(&(session->zstd_data));
+ 	evlist__free_stats(session->evlist);
+ 	perf_session__delete(session);
  
- /**
 -- 
 2.30.2
 
