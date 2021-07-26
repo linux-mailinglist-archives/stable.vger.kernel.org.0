@@ -2,40 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A38EE3D6137
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:13:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 08A133D5FE1
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232444AbhGZPaU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:30:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43048 "EHLO mail.kernel.org"
+        id S236770AbhGZPTa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:19:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60532 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231640AbhGZP2I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:28:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7EC5160FEE;
-        Mon, 26 Jul 2021 16:07:02 +0000 (UTC)
+        id S236110AbhGZPT0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:19:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B07C60F38;
+        Mon, 26 Jul 2021 15:59:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315623;
-        bh=PhzJGdhL7Hu80EXFKI9ArmLHQ6kkVInTkBciICfisWM=;
+        s=korg; t=1627315193;
+        bh=6O/R5/EgTsRzWUbbEhc/kjHA1H6B4O4IbMck1UQPpaw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BlHex9ybGTW+fixCFklcbDs6BhfAx0OJpjJVyPkvl525ZLPpY3ulFp64F+9x+SCAf
-         U0rdFzou0aZIidp0Pfxe4MjUY9UrT5dGn94arPPJm/Qlrj5+zyupvId6HDOZHlbHUG
-         d1ORh5kHaSydsMzW6EH+T2VvRvdkJgWdli9jDdJE=
+        b=q0vSnO4rnBjyQbejbUGmkbr+6PUzWFgtfK2Caa8EnRhHBflhg9EMsBDnJCcq4cWbe
+         EUsxOGYUBt/pGTFE0wtpQlnH2wp+oShWj96aDurXuDNM2E3OCqhbhRtvUtUHztWWQM
+         1SDMxjtTcREHqGyQCfAaw2z/6QtJYFOMuzNza5Cg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Kravetz <mike.kravetz@oracle.com>,
-        Dennis Camera <bugs+kernel.org@dtnr.ch>,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        David Howells <dhowells@redhat.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 148/167] hugetlbfs: fix mount mode command line processing
+        stable@vger.kernel.org, Charles Baylis <cb-kernel@fishzet.co.uk>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH 5.4 100/108] drm: Return -ENOTTY for non-drm ioctls
 Date:   Mon, 26 Jul 2021 17:39:41 +0200
-Message-Id: <20210726153844.390421605@linuxfoundation.org>
+Message-Id: <20210726153834.885830076@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
-References: <20210726153839.371771838@linuxfoundation.org>
+In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
+References: <20210726153831.696295003@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +39,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Kravetz <mike.kravetz@oracle.com>
+From: Charles Baylis <cb-kernel@fishzet.co.uk>
 
-commit e0f7e2b2f7e7864238a4eea05cc77ae1be2bf784 upstream.
+commit 3abab27c322e0f2acf981595aa8040c9164dc9fb upstream.
 
-In commit 32021982a324 ("hugetlbfs: Convert to fs_context") processing
-of the mount mode string was changed from match_octal() to fsparam_u32.
+drm: Return -ENOTTY for non-drm ioctls
 
-This changed existing behavior as match_octal does not require octal
-values to have a '0' prefix, but fsparam_u32 does.
+Return -ENOTTY from drm_ioctl() when userspace passes in a cmd number
+which doesn't relate to the drm subsystem.
 
-Use fsparam_u32oct which provides the same behavior as match_octal.
+Glibc uses the TCGETS ioctl to implement isatty(), and without this
+change isatty() returns it incorrectly returns true for drm devices.
 
-Link: https://lkml.kernel.org/r/20210721183326.102716-1-mike.kravetz@oracle.com
-Fixes: 32021982a324 ("hugetlbfs: Convert to fs_context")
-Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
-Reported-by: Dennis Camera <bugs+kernel.org@dtnr.ch>
-Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Cc: David Howells <dhowells@redhat.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+To test run this command:
+$ if [ -t 0 ]; then echo is a tty; fi < /dev/dri/card0
+which shows "is a tty" without this patch.
+
+This may also modify memory which the userspace application is not
+expecting.
+
+Signed-off-by: Charles Baylis <cb-kernel@fishzet.co.uk>
+Cc: stable@vger.kernel.org
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/YPG3IBlzaMhfPqCr@stando.fishzet.co.uk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/hugetlbfs/inode.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/drm_ioctl.c |    3 +++
+ include/drm/drm_ioctl.h     |    1 +
+ 2 files changed, 4 insertions(+)
 
---- a/fs/hugetlbfs/inode.c
-+++ b/fs/hugetlbfs/inode.c
-@@ -77,7 +77,7 @@ enum hugetlb_param {
- static const struct fs_parameter_spec hugetlb_fs_parameters[] = {
- 	fsparam_u32   ("gid",		Opt_gid),
- 	fsparam_string("min_size",	Opt_min_size),
--	fsparam_u32   ("mode",		Opt_mode),
-+	fsparam_u32oct("mode",		Opt_mode),
- 	fsparam_string("nr_inodes",	Opt_nr_inodes),
- 	fsparam_string("pagesize",	Opt_pagesize),
- 	fsparam_string("size",		Opt_size),
+--- a/drivers/gpu/drm/drm_ioctl.c
++++ b/drivers/gpu/drm/drm_ioctl.c
+@@ -826,6 +826,9 @@ long drm_ioctl(struct file *filp,
+ 	if (drm_dev_is_unplugged(dev))
+ 		return -ENODEV;
+ 
++       if (DRM_IOCTL_TYPE(cmd) != DRM_IOCTL_BASE)
++               return -ENOTTY;
++
+ 	is_driver_ioctl = nr >= DRM_COMMAND_BASE && nr < DRM_COMMAND_END;
+ 
+ 	if (is_driver_ioctl) {
+--- a/include/drm/drm_ioctl.h
++++ b/include/drm/drm_ioctl.h
+@@ -68,6 +68,7 @@ typedef int drm_ioctl_compat_t(struct fi
+ 			       unsigned long arg);
+ 
+ #define DRM_IOCTL_NR(n)                _IOC_NR(n)
++#define DRM_IOCTL_TYPE(n)              _IOC_TYPE(n)
+ #define DRM_MAJOR       226
+ 
+ /**
 
 
