@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 302A03D61A3
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:14:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DAC513D61A2
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:14:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233693AbhGZPc2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S233703AbhGZPc2 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 26 Jul 2021 11:32:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46214 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:46318 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232361AbhGZPab (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:30:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8BBE160240;
-        Mon, 26 Jul 2021 16:10:59 +0000 (UTC)
+        id S232674AbhGZPae (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:30:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 799B86056B;
+        Mon, 26 Jul 2021 16:11:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315860;
-        bh=MwThTflVdON8+PjJgXphdsRoMD83rejvJwXVY2l3kuQ=;
+        s=korg; t=1627315863;
+        bh=2p94NubKZmHIQ9OVh6YvzN6MTXQURl7Oq16jgQa2W4Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w71W06EhU9eopTUCQNlyGV4e/OyQ6OLbg3mQ6ORT9eDEzFth7ANvpHx87MDgkgAI+
-         vu1D+568txW9zefGS58qLNI5Deni9s/Hzbd/4Tk5Wy3njNhBf07cMPMaQaD0f4dLa6
-         rXdoPfdRfM1jSHIPNNe7f90A4PYLPAySLn5A6KRA=
+        b=s81PEqu2Y3f6t6E0Af90hKYuj7GCquuLLnZEa45T6mfw4gtCMt7QQ2BglzW4/UWAU
+         6p5EH1dbDPt9hVa3EFDdT9mVMRdBbNG0fT/uPmoKggwi3HmGvhYBt48ekU42OKA3i6
+         Lv7Of/osOdYHpZdtbiXEmEBU60uACtdWiwjBF7UY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+f0bbb2287b8993d4fa74@syzkaller.appspotmail.com
-Subject: [PATCH 5.13 095/223] net: sched: fix memory leak in tcindex_partial_destroy_work
-Date:   Mon, 26 Jul 2021 17:38:07 +0200
-Message-Id: <20210726153849.359585643@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 096/223] sctp: trim optlen when its a huge value in sctp_setsockopt
+Date:   Mon, 26 Jul 2021 17:38:08 +0200
+Message-Id: <20210726153849.396302871@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
 References: <20210726153846.245305071@linuxfoundation.org>
@@ -41,50 +40,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit f5051bcece50140abd1a11a2d36dc3ec5484fc32 ]
+[ Upstream commit 2f3fdd8d4805015fa964807e1c7f3d88f31bd389 ]
 
-Syzbot reported memory leak in tcindex_set_parms(). The problem was in
-non-freed perfect hash in tcindex_partial_destroy_work().
+After commit ca84bd058dae ("sctp: copy the optval from user space in
+sctp_setsockopt"), it does memory allocation in sctp_setsockopt with
+the optlen, and it would fail the allocation and return error if the
+optlen from user space is a huge value.
 
-In tcindex_set_parms() new tcindex_data is allocated and some fields from
-old one are copied to new one, but not the perfect hash. Since
-tcindex_partial_destroy_work() is the destroy function for old
-tcindex_data, we need to free perfect hash to avoid memory leak.
+This breaks some sockopts, like SCTP_HMAC_IDENT, SCTP_RESET_STREAMS and
+SCTP_AUTH_KEY, as when processing these sockopts before, optlen would
+be trimmed to a biggest value it needs when optlen is a huge value,
+instead of failing the allocation and returning error.
 
-Reported-and-tested-by: syzbot+f0bbb2287b8993d4fa74@syzkaller.appspotmail.com
-Fixes: 331b72922c5f ("net: sched: RCU cls_tcindex")
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+This patch is to fix the allocation failure when it's a huge optlen from
+user space by trimming it to the biggest size sctp sockopt may need when
+necessary, and this biggest size is from sctp_setsockopt_reset_streams()
+for SCTP_RESET_STREAMS, which is bigger than those for SCTP_HMAC_IDENT
+and SCTP_AUTH_KEY.
+
+Fixes: ca84bd058dae ("sctp: copy the optval from user space in sctp_setsockopt")
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/cls_tcindex.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ net/sctp/socket.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/net/sched/cls_tcindex.c b/net/sched/cls_tcindex.c
-index 5b274534264c..e9a8a2c86bbd 100644
---- a/net/sched/cls_tcindex.c
-+++ b/net/sched/cls_tcindex.c
-@@ -278,6 +278,8 @@ static int tcindex_filter_result_init(struct tcindex_filter_result *r,
- 			     TCA_TCINDEX_POLICE);
- }
+diff --git a/net/sctp/socket.c b/net/sctp/socket.c
+index a79d193ff872..dbd074f4d450 100644
+--- a/net/sctp/socket.c
++++ b/net/sctp/socket.c
+@@ -4521,6 +4521,10 @@ static int sctp_setsockopt(struct sock *sk, int level, int optname,
+ 	}
  
-+static void tcindex_free_perfect_hash(struct tcindex_data *cp);
-+
- static void tcindex_partial_destroy_work(struct work_struct *work)
- {
- 	struct tcindex_data *p = container_of(to_rcu_work(work),
-@@ -285,7 +287,8 @@ static void tcindex_partial_destroy_work(struct work_struct *work)
- 					      rwork);
- 
- 	rtnl_lock();
--	kfree(p->perfect);
-+	if (p->perfect)
-+		tcindex_free_perfect_hash(p);
- 	kfree(p);
- 	rtnl_unlock();
- }
+ 	if (optlen > 0) {
++		/* Trim it to the biggest size sctp sockopt may need if necessary */
++		optlen = min_t(unsigned int, optlen,
++			       PAGE_ALIGN(USHRT_MAX +
++					  sizeof(__u16) * sizeof(struct sctp_reset_streams)));
+ 		kopt = memdup_sockptr(optval, optlen);
+ 		if (IS_ERR(kopt))
+ 			return PTR_ERR(kopt);
 -- 
 2.30.2
 
