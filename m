@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 918673D5E70
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:51:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4FEA3D5DCB
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:45:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236240AbhGZPHs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:07:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46984 "EHLO mail.kernel.org"
+        id S235731AbhGZPDr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:03:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235741AbhGZPHH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:07:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5FC7860F5B;
-        Mon, 26 Jul 2021 15:47:35 +0000 (UTC)
+        id S235822AbhGZPDn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:03:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 550BE60F22;
+        Mon, 26 Jul 2021 15:44:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314456;
-        bh=8W3MQEXv5ja46UKhd9Owgo9FOe8CvUjdBtShLR7GG/U=;
+        s=korg; t=1627314251;
+        bh=VBw5frsmPIBvTDad6YmeuJ7Op02ilSreRwar0rT6SQ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C2aZK8oEqrGsEKBD6zzaeHTZ6cPgpdV+KoYOZZPvflrsaMtWEFr2NOppFid+4BM0q
-         dx/iMpy8o0bpmUgJqv7nJerx1pC0uMZ/cIhwJDwxoQBhopvIKq6VWcnz0K2HEv/J3I
-         F6nO/JMopepc2gvPUNW+stRyzBIudeibXMcTSdhY=
+        b=2Zw7oTuHflPlC65SyAId//x5sNlUHgHBl+ZohaH9rIDEKL+zR9oetOYXeKl3Stv7Y
+         XN5SQoXTlafaZwSrgcOcw2Ugz9HSV3UeX8pWBjydUZfWSIQNeTdf4UgQ2Sg3rs1Rdh
+         GXPUaB0myQ701iflPy+OTJhMkE4S1Kbrq3s4WK0o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yajun Deng <yajun.deng@linux.dev>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Mike Christie <michael.christie@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 52/82] net: decnet: Fix sleeping inside in af_decnet
-Date:   Mon, 26 Jul 2021 17:38:52 +0200
-Message-Id: <20210726153829.871541052@linuxfoundation.org>
+Subject: [PATCH 4.9 39/60] scsi: iscsi: Fix iface sysfs attr detection
+Date:   Mon, 26 Jul 2021 17:38:53 +0200
+Message-Id: <20210726153826.096688342@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153828.144714469@linuxfoundation.org>
-References: <20210726153828.144714469@linuxfoundation.org>
+In-Reply-To: <20210726153824.868160836@linuxfoundation.org>
+References: <20210726153824.868160836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,124 +41,144 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yajun Deng <yajun.deng@linux.dev>
+From: Mike Christie <michael.christie@oracle.com>
 
-[ Upstream commit 5f119ba1d5771bbf46d57cff7417dcd84d3084ba ]
+[ Upstream commit e746f3451ec7f91dcc9fd67a631239c715850a34 ]
 
-The release_sock() is blocking function, it would change the state
-after sleeping. use wait_woken() instead.
+A ISCSI_IFACE_PARAM can have the same value as a ISCSI_NET_PARAM so when
+iscsi_iface_attr_is_visible tries to figure out the type by just checking
+the value, we can collide and return the wrong type. When we call into the
+driver we might not match and return that we don't want attr visible in
+sysfs. The patch fixes this by setting the type when we figure out what the
+param is.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Yajun Deng <yajun.deng@linux.dev>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/20210701002559.89533-1-michael.christie@oracle.com
+Fixes: 3e0f65b34cc9 ("[SCSI] iscsi_transport: Additional parameters for network settings")
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/decnet/af_decnet.c | 27 ++++++++++++---------------
- 1 file changed, 12 insertions(+), 15 deletions(-)
+ drivers/scsi/scsi_transport_iscsi.c | 90 +++++++++++------------------
+ 1 file changed, 34 insertions(+), 56 deletions(-)
 
-diff --git a/net/decnet/af_decnet.c b/net/decnet/af_decnet.c
-index 8dbfcd388633..9c7b8ff4556a 100644
---- a/net/decnet/af_decnet.c
-+++ b/net/decnet/af_decnet.c
-@@ -824,7 +824,7 @@ static int dn_auto_bind(struct socket *sock)
- static int dn_confirm_accept(struct sock *sk, long *timeo, gfp_t allocation)
- {
- 	struct dn_scp *scp = DN_SK(sk);
--	DEFINE_WAIT(wait);
-+	DEFINE_WAIT_FUNC(wait, woken_wake_function);
- 	int err;
+diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
+index 337aad0660fa..8d10b35caed5 100644
+--- a/drivers/scsi/scsi_transport_iscsi.c
++++ b/drivers/scsi/scsi_transport_iscsi.c
+@@ -427,39 +427,10 @@ static umode_t iscsi_iface_attr_is_visible(struct kobject *kobj,
+ 	struct device *dev = container_of(kobj, struct device, kobj);
+ 	struct iscsi_iface *iface = iscsi_dev_to_iface(dev);
+ 	struct iscsi_transport *t = iface->transport;
+-	int param;
+-	int param_type;
++	int param = -1;
  
- 	if (scp->state != DN_CR)
-@@ -834,11 +834,11 @@ static int dn_confirm_accept(struct sock *sk, long *timeo, gfp_t allocation)
- 	scp->segsize_loc = dst_metric_advmss(__sk_dst_get(sk));
- 	dn_send_conn_conf(sk, allocation);
- 
--	prepare_to_wait(sk_sleep(sk), &wait, TASK_INTERRUPTIBLE);
-+	add_wait_queue(sk_sleep(sk), &wait);
- 	for(;;) {
- 		release_sock(sk);
- 		if (scp->state == DN_CC)
--			*timeo = schedule_timeout(*timeo);
-+			*timeo = wait_woken(&wait, TASK_INTERRUPTIBLE, *timeo);
- 		lock_sock(sk);
- 		err = 0;
- 		if (scp->state == DN_RUN)
-@@ -852,9 +852,8 @@ static int dn_confirm_accept(struct sock *sk, long *timeo, gfp_t allocation)
- 		err = -EAGAIN;
- 		if (!*timeo)
- 			break;
--		prepare_to_wait(sk_sleep(sk), &wait, TASK_INTERRUPTIBLE);
+ 	if (attr == &dev_attr_iface_enabled.attr)
+ 		param = ISCSI_NET_PARAM_IFACE_ENABLE;
+-	else if (attr == &dev_attr_iface_vlan_id.attr)
+-		param = ISCSI_NET_PARAM_VLAN_ID;
+-	else if (attr == &dev_attr_iface_vlan_priority.attr)
+-		param = ISCSI_NET_PARAM_VLAN_PRIORITY;
+-	else if (attr == &dev_attr_iface_vlan_enabled.attr)
+-		param = ISCSI_NET_PARAM_VLAN_ENABLED;
+-	else if (attr == &dev_attr_iface_mtu.attr)
+-		param = ISCSI_NET_PARAM_MTU;
+-	else if (attr == &dev_attr_iface_port.attr)
+-		param = ISCSI_NET_PARAM_PORT;
+-	else if (attr == &dev_attr_iface_ipaddress_state.attr)
+-		param = ISCSI_NET_PARAM_IPADDR_STATE;
+-	else if (attr == &dev_attr_iface_delayed_ack_en.attr)
+-		param = ISCSI_NET_PARAM_DELAYED_ACK_EN;
+-	else if (attr == &dev_attr_iface_tcp_nagle_disable.attr)
+-		param = ISCSI_NET_PARAM_TCP_NAGLE_DISABLE;
+-	else if (attr == &dev_attr_iface_tcp_wsf_disable.attr)
+-		param = ISCSI_NET_PARAM_TCP_WSF_DISABLE;
+-	else if (attr == &dev_attr_iface_tcp_wsf.attr)
+-		param = ISCSI_NET_PARAM_TCP_WSF;
+-	else if (attr == &dev_attr_iface_tcp_timer_scale.attr)
+-		param = ISCSI_NET_PARAM_TCP_TIMER_SCALE;
+-	else if (attr == &dev_attr_iface_tcp_timestamp_en.attr)
+-		param = ISCSI_NET_PARAM_TCP_TIMESTAMP_EN;
+-	else if (attr == &dev_attr_iface_cache_id.attr)
+-		param = ISCSI_NET_PARAM_CACHE_ID;
+-	else if (attr == &dev_attr_iface_redirect_en.attr)
+-		param = ISCSI_NET_PARAM_REDIRECT_EN;
+ 	else if (attr == &dev_attr_iface_def_taskmgmt_tmo.attr)
+ 		param = ISCSI_IFACE_PARAM_DEF_TASKMGMT_TMO;
+ 	else if (attr == &dev_attr_iface_header_digest.attr)
+@@ -496,6 +467,38 @@ static umode_t iscsi_iface_attr_is_visible(struct kobject *kobj,
+ 		param = ISCSI_IFACE_PARAM_STRICT_LOGIN_COMP_EN;
+ 	else if (attr == &dev_attr_iface_initiator_name.attr)
+ 		param = ISCSI_IFACE_PARAM_INITIATOR_NAME;
++
++	if (param != -1)
++		return t->attr_is_visible(ISCSI_IFACE_PARAM, param);
++
++	if (attr == &dev_attr_iface_vlan_id.attr)
++		param = ISCSI_NET_PARAM_VLAN_ID;
++	else if (attr == &dev_attr_iface_vlan_priority.attr)
++		param = ISCSI_NET_PARAM_VLAN_PRIORITY;
++	else if (attr == &dev_attr_iface_vlan_enabled.attr)
++		param = ISCSI_NET_PARAM_VLAN_ENABLED;
++	else if (attr == &dev_attr_iface_mtu.attr)
++		param = ISCSI_NET_PARAM_MTU;
++	else if (attr == &dev_attr_iface_port.attr)
++		param = ISCSI_NET_PARAM_PORT;
++	else if (attr == &dev_attr_iface_ipaddress_state.attr)
++		param = ISCSI_NET_PARAM_IPADDR_STATE;
++	else if (attr == &dev_attr_iface_delayed_ack_en.attr)
++		param = ISCSI_NET_PARAM_DELAYED_ACK_EN;
++	else if (attr == &dev_attr_iface_tcp_nagle_disable.attr)
++		param = ISCSI_NET_PARAM_TCP_NAGLE_DISABLE;
++	else if (attr == &dev_attr_iface_tcp_wsf_disable.attr)
++		param = ISCSI_NET_PARAM_TCP_WSF_DISABLE;
++	else if (attr == &dev_attr_iface_tcp_wsf.attr)
++		param = ISCSI_NET_PARAM_TCP_WSF;
++	else if (attr == &dev_attr_iface_tcp_timer_scale.attr)
++		param = ISCSI_NET_PARAM_TCP_TIMER_SCALE;
++	else if (attr == &dev_attr_iface_tcp_timestamp_en.attr)
++		param = ISCSI_NET_PARAM_TCP_TIMESTAMP_EN;
++	else if (attr == &dev_attr_iface_cache_id.attr)
++		param = ISCSI_NET_PARAM_CACHE_ID;
++	else if (attr == &dev_attr_iface_redirect_en.attr)
++		param = ISCSI_NET_PARAM_REDIRECT_EN;
+ 	else if (iface->iface_type == ISCSI_IFACE_TYPE_IPV4) {
+ 		if (attr == &dev_attr_ipv4_iface_ipaddress.attr)
+ 			param = ISCSI_NET_PARAM_IPV4_ADDR;
+@@ -586,32 +589,7 @@ static umode_t iscsi_iface_attr_is_visible(struct kobject *kobj,
+ 		return 0;
  	}
--	finish_wait(sk_sleep(sk), &wait);
-+	remove_wait_queue(sk_sleep(sk), &wait);
- 	if (err == 0) {
- 		sk->sk_socket->state = SS_CONNECTED;
- 	} else if (scp->state != DN_CC) {
-@@ -866,7 +865,7 @@ static int dn_confirm_accept(struct sock *sk, long *timeo, gfp_t allocation)
- static int dn_wait_run(struct sock *sk, long *timeo)
- {
- 	struct dn_scp *scp = DN_SK(sk);
--	DEFINE_WAIT(wait);
-+	DEFINE_WAIT_FUNC(wait, woken_wake_function);
- 	int err = 0;
  
- 	if (scp->state == DN_RUN)
-@@ -875,11 +874,11 @@ static int dn_wait_run(struct sock *sk, long *timeo)
- 	if (!*timeo)
- 		return -EALREADY;
- 
--	prepare_to_wait(sk_sleep(sk), &wait, TASK_INTERRUPTIBLE);
-+	add_wait_queue(sk_sleep(sk), &wait);
- 	for(;;) {
- 		release_sock(sk);
- 		if (scp->state == DN_CI || scp->state == DN_CC)
--			*timeo = schedule_timeout(*timeo);
-+			*timeo = wait_woken(&wait, TASK_INTERRUPTIBLE, *timeo);
- 		lock_sock(sk);
- 		err = 0;
- 		if (scp->state == DN_RUN)
-@@ -893,9 +892,8 @@ static int dn_wait_run(struct sock *sk, long *timeo)
- 		err = -ETIMEDOUT;
- 		if (!*timeo)
- 			break;
--		prepare_to_wait(sk_sleep(sk), &wait, TASK_INTERRUPTIBLE);
- 	}
--	finish_wait(sk_sleep(sk), &wait);
-+	remove_wait_queue(sk_sleep(sk), &wait);
- out:
- 	if (err == 0) {
- 		sk->sk_socket->state = SS_CONNECTED;
-@@ -1040,16 +1038,16 @@ static void dn_user_copy(struct sk_buff *skb, struct optdata_dn *opt)
- 
- static struct sk_buff *dn_wait_for_connect(struct sock *sk, long *timeo)
- {
--	DEFINE_WAIT(wait);
-+	DEFINE_WAIT_FUNC(wait, woken_wake_function);
- 	struct sk_buff *skb = NULL;
- 	int err = 0;
- 
--	prepare_to_wait(sk_sleep(sk), &wait, TASK_INTERRUPTIBLE);
-+	add_wait_queue(sk_sleep(sk), &wait);
- 	for(;;) {
- 		release_sock(sk);
- 		skb = skb_dequeue(&sk->sk_receive_queue);
- 		if (skb == NULL) {
--			*timeo = schedule_timeout(*timeo);
-+			*timeo = wait_woken(&wait, TASK_INTERRUPTIBLE, *timeo);
- 			skb = skb_dequeue(&sk->sk_receive_queue);
- 		}
- 		lock_sock(sk);
-@@ -1064,9 +1062,8 @@ static struct sk_buff *dn_wait_for_connect(struct sock *sk, long *timeo)
- 		err = -EAGAIN;
- 		if (!*timeo)
- 			break;
--		prepare_to_wait(sk_sleep(sk), &wait, TASK_INTERRUPTIBLE);
- 	}
--	finish_wait(sk_sleep(sk), &wait);
-+	remove_wait_queue(sk_sleep(sk), &wait);
- 
- 	return skb == NULL ? ERR_PTR(err) : skb;
+-	switch (param) {
+-	case ISCSI_IFACE_PARAM_DEF_TASKMGMT_TMO:
+-	case ISCSI_IFACE_PARAM_HDRDGST_EN:
+-	case ISCSI_IFACE_PARAM_DATADGST_EN:
+-	case ISCSI_IFACE_PARAM_IMM_DATA_EN:
+-	case ISCSI_IFACE_PARAM_INITIAL_R2T_EN:
+-	case ISCSI_IFACE_PARAM_DATASEQ_INORDER_EN:
+-	case ISCSI_IFACE_PARAM_PDU_INORDER_EN:
+-	case ISCSI_IFACE_PARAM_ERL:
+-	case ISCSI_IFACE_PARAM_MAX_RECV_DLENGTH:
+-	case ISCSI_IFACE_PARAM_FIRST_BURST:
+-	case ISCSI_IFACE_PARAM_MAX_R2T:
+-	case ISCSI_IFACE_PARAM_MAX_BURST:
+-	case ISCSI_IFACE_PARAM_CHAP_AUTH_EN:
+-	case ISCSI_IFACE_PARAM_BIDI_CHAP_EN:
+-	case ISCSI_IFACE_PARAM_DISCOVERY_AUTH_OPTIONAL:
+-	case ISCSI_IFACE_PARAM_DISCOVERY_LOGOUT_EN:
+-	case ISCSI_IFACE_PARAM_STRICT_LOGIN_COMP_EN:
+-	case ISCSI_IFACE_PARAM_INITIATOR_NAME:
+-		param_type = ISCSI_IFACE_PARAM;
+-		break;
+-	default:
+-		param_type = ISCSI_NET_PARAM;
+-	}
+-
+-	return t->attr_is_visible(param_type, param);
++	return t->attr_is_visible(ISCSI_NET_PARAM, param);
  }
+ 
+ static struct attribute *iscsi_iface_attrs[] = {
 -- 
 2.30.2
 
