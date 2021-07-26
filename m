@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C7F93D61DA
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:14:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C49803D6073
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:11:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234126AbhGZPdM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:33:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47336 "EHLO mail.kernel.org"
+        id S237331AbhGZPWY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:22:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231958AbhGZPbO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:31:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A8CC560240;
-        Mon, 26 Jul 2021 16:11:41 +0000 (UTC)
+        id S237300AbhGZPWU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:22:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C91AD60240;
+        Mon, 26 Jul 2021 16:02:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315902;
-        bh=BMP9yqayclaUjrE7oyY1ApPRat3U7yplQs7Ss/03OiE=;
+        s=korg; t=1627315369;
+        bh=LRN5zCfRcPNBv6WsJuJv03hzjI1RrsFRaLqLYm1Rq1I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mn1Q9OkU1PKxl0LJNMmP19LhBEEqFOA9xsJod5oFgKKkVJKVfriv2i6ZNBeCXuFod
-         r9w1FN/vAICzz2X5ClJYedux9mzrfmaL0f4vDjCAo6l1Zu90IG4+0ZY2yzB6P9YuLH
-         181rWKaqMBolsx44vj0FKnBPV1QfGqhg7gfm1VaQ=
+        b=jH3/5w89SypRr1MRnPMrzqQAI+SAzfUpR1pYhofYt1q3yD8kqkhZrnG0YAn9ZjUxV
+         h69L7odnV3FH4a7nXsbDglbh4j/zEd1I2g6ZqCpkwAlfm9kPEwQXzuhghUtsQ1xyS4
+         HSLoOjfjcERl6HnGpSi4ZnBKVGjmWDoJoU9AtH7Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Sathya Prakash M R <sathya.prakash.m.r@intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Riccardo Mancini <rickyman7@gmail.com>,
+        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
+        Krister Johansen <kjlx@templeofstupid.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 076/223] ASoC: SOF: Intel: Update ADL descriptor to use ACPI power states
+Subject: [PATCH 5.10 035/167] perf probe: Fix dso->nsinfo refcounting
 Date:   Mon, 26 Jul 2021 17:37:48 +0200
-Message-Id: <20210726153848.738845815@linuxfoundation.org>
+Message-Id: <20210726153840.561083285@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
-References: <20210726153846.245305071@linuxfoundation.org>
+In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
+References: <20210726153839.371771838@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sathya Prakash M R <sathya.prakash.m.r@intel.com>
+From: Riccardo Mancini <rickyman7@gmail.com>
 
-[ Upstream commit aa21548e34c19c12e924c736f3fd9e6a4d0f5419 ]
+[ Upstream commit dedeb4be203b382ba7245d13079bc3b0f6d40c65 ]
 
-The ADL descriptor was missing an ACPI power setting, causing the DSP
-to enter D3 even with a D0i1-compatible wake-on-voice/hotwording
-capture stream.
+ASan reports a memory leak of nsinfo during the execution of:
 
-Fixes: 4ad03f894b3c ('ASoC: SOF: Intel: Update ADL P to use its own descriptor')
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Signed-off-by: Sathya Prakash M R <sathya.prakash.m.r@intel.com>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20210712201620.44311-1-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+ # perf test "31: Lookup mmap thread".
+
+The leak is caused by a refcounted variable being replaced without
+dropping the refcount.
+
+This patch makes sure that the refcnt of nsinfo is decreased whenever
+a refcounted variable is replaced with a new value.
+
+Signed-off-by: Riccardo Mancini <rickyman7@gmail.com>
+Fixes: 544abd44c7064c8a ("perf probe: Allow placing uprobes in alternate namespaces.")
+Cc: Ian Rogers <irogers@google.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Krister Johansen <kjlx@templeofstupid.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lore.kernel.org/lkml/55223bc8821b34ccb01f92ef1401c02b6a32e61f.1626343282.git.rickyman7@gmail.com
+[ Split from a larger patch ]
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sof/intel/pci-tgl.c | 1 +
- 1 file changed, 1 insertion(+)
+ tools/perf/util/probe-event.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/sof/intel/pci-tgl.c b/sound/soc/sof/intel/pci-tgl.c
-index 88c3bf404dd7..d1fd0a330554 100644
---- a/sound/soc/sof/intel/pci-tgl.c
-+++ b/sound/soc/sof/intel/pci-tgl.c
-@@ -89,6 +89,7 @@ static const struct sof_dev_desc adls_desc = {
- static const struct sof_dev_desc adl_desc = {
- 	.machines               = snd_soc_acpi_intel_adl_machines,
- 	.alt_machines           = snd_soc_acpi_intel_adl_sdw_machines,
-+	.use_acpi_target_states = true,
- 	.resindex_lpe_base      = 0,
- 	.resindex_pcicfg_base   = -1,
- 	.resindex_imr_base      = -1,
+diff --git a/tools/perf/util/probe-event.c b/tools/perf/util/probe-event.c
+index 8eae2afff71a..07db6cfad65b 100644
+--- a/tools/perf/util/probe-event.c
++++ b/tools/perf/util/probe-event.c
+@@ -180,8 +180,10 @@ struct map *get_target_map(const char *target, struct nsinfo *nsi, bool user)
+ 		struct map *map;
+ 
+ 		map = dso__new_map(target);
+-		if (map && map->dso)
++		if (map && map->dso) {
++			nsinfo__put(map->dso->nsinfo);
+ 			map->dso->nsinfo = nsinfo__get(nsi);
++		}
+ 		return map;
+ 	} else {
+ 		return kernel_get_module_map(target);
 -- 
 2.30.2
 
