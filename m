@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 419BF3D5E99
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:51:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7419E3D5F84
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237370AbhGZPLG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:11:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49698 "EHLO mail.kernel.org"
+        id S236234AbhGZPSR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:18:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236238AbhGZPI5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:08:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 416BD60F42;
-        Mon, 26 Jul 2021 15:48:51 +0000 (UTC)
+        id S236899AbhGZPPn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:15:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BCE6D61029;
+        Mon, 26 Jul 2021 15:54:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314531;
-        bh=NDNP5o6VkurE8g070tIyZY4pDH41IlL683LVxbCR0ds=;
+        s=korg; t=1627314877;
+        bh=AGq2x0t0KxaJNErco3NfpF3Q+7Djdn+ezKGvOUM6QRQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Djxdh+pasbrBLopRZZumcIz6VlNtNPvtyFeXQ4LYp/158Ng5UFfOQjKvG89ME6QYd
-         anLLOo5JVO7yvgVQ9OfyB8BrIq+W6rFlN8yawQchHeS7kcyxEvqmg+Bvz2KDxdtPSR
-         DDQ5DazdyRQ3zxmgAEfAJ5RX2AhdPoQi2Jo6/rWA=
+        b=N4CCW+OvtakoDo2bYYqVMws2j+mrk6M92ttpmbWMtJjHqyzxPj/Fhj4OHYGWN+5B8
+         AU9bLMpfcqpibK0WrPdkKvxeYG73mNLh/VLyVAw0oa/9K23gATVCZ/ejN6Gp+QObLj
+         y2wjut6KEGiQaa0t6M/UFHGVTZNPVupLfF+IyvAs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Vladimir Oltean <olteanv@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.14 81/82] spi: spi-fsl-dspi: Fix a resource leak in an error handling path
+        stable@vger.kernel.org, Nick Hu <nickhu@andestech.com>,
+        Greentime Hu <green.hu@gmail.com>,
+        Vincent Chen <deanbo422@gmail.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Hugh Dickins <hughd@google.com>,
+        Qiang Liu <cyruscyliu@gmail.com>,
+        iLifetruth <yixiaonn@gmail.com>
+Subject: [PATCH 4.19 109/120] nds32: fix up stack guard gap
 Date:   Mon, 26 Jul 2021 17:39:21 +0200
-Message-Id: <20210726153830.810844491@linuxfoundation.org>
+Message-Id: <20210726153835.956278062@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153828.144714469@linuxfoundation.org>
-References: <20210726153828.144714469@linuxfoundation.org>
+In-Reply-To: <20210726153832.339431936@linuxfoundation.org>
+References: <20210726153832.339431936@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,42 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 680ec0549a055eb464dce6ffb4bfb736ef87236e upstream
+commit c453db6cd96418c79702eaf38259002755ab23ff upstream.
 
-'dspi_request_dma()' should be undone by a 'dspi_release_dma()' call in the
-error handling path of the probe function, as already done in the remove
-function
+Commit 1be7107fbe18 ("mm: larger stack guard gap, between vmas") fixed
+up all architectures to deal with the stack guard gap.  But when nds32
+was added to the tree, it forgot to do the same thing.
 
-Fixes: 90ba37033cb9 ("spi: spi-fsl-dspi: Add DMA support for Vybrid")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
-Link: https://lore.kernel.org/r/d51caaac747277a1099ba8dea07acd85435b857e.1620587472.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Mark Brown <broonie@kernel.org>
-[sudip: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Resolve this by properly fixing up the nsd32's version of
+arch_get_unmapped_area()
+
+Cc: Nick Hu <nickhu@andestech.com>
+Cc: Greentime Hu <green.hu@gmail.com>
+Cc: Vincent Chen <deanbo422@gmail.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Qiang Liu <cyruscyliu@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Reported-by: iLifetruth <yixiaonn@gmail.com>
+Acked-by: Hugh Dickins <hughd@google.com>
+Link: https://lore.kernel.org/r/20210629104024.2293615-1-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/spi/spi-fsl-dspi.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/nds32/mm/mmap.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/spi/spi-fsl-dspi.c
-+++ b/drivers/spi/spi-fsl-dspi.c
-@@ -1057,11 +1057,13 @@ static int dspi_probe(struct platform_de
- 	ret = spi_register_master(master);
- 	if (ret != 0) {
- 		dev_err(&pdev->dev, "Problem registering DSPI master\n");
--		goto out_free_irq;
-+		goto out_release_dma;
+--- a/arch/nds32/mm/mmap.c
++++ b/arch/nds32/mm/mmap.c
+@@ -59,7 +59,7 @@ arch_get_unmapped_area(struct file *filp
+ 
+ 		vma = find_vma(mm, addr);
+ 		if (TASK_SIZE - len >= addr &&
+-		    (!vma || addr + len <= vma->vm_start))
++		    (!vma || addr + len <= vm_start_gap(vma)))
+ 			return addr;
  	}
  
- 	return ret;
- 
-+out_release_dma:
-+	dspi_release_dma(dspi);
- out_free_irq:
- 	if (dspi->irq)
- 		free_irq(dspi->irq, dspi);
 
 
