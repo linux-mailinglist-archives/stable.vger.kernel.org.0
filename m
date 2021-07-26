@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BB5D3D5D46
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:41:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CE033D5F0F
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:59:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235247AbhGZPA2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:00:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38918 "EHLO mail.kernel.org"
+        id S236302AbhGZPQn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:16:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52160 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235281AbhGZPA0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:00:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 696AB60F38;
-        Mon, 26 Jul 2021 15:40:54 +0000 (UTC)
+        id S236559AbhGZPLZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:11:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CBE4D60F44;
+        Mon, 26 Jul 2021 15:51:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314055;
-        bh=MTGUDyVe9gmQr+yQWv1Ks84EW82jpaU/8fZuiGTANI8=;
+        s=korg; t=1627314713;
+        bh=cX+DrYEYKeDG07eyLoc/AgQZsn9E90LLNcseBmHRgdk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iOjK9WT0DxX41L4sqbvbWAmQrtodvSNiJ10vuqsl/5nn2F/SYhtCbBzS85kDigYvG
-         Bc+YloEVcXo1AyhHGkUo0a+FK0OqnHXMvuSxgl7iPrGXCq/leD88V8aQ0GHFSOSsfw
-         PiiDxkYuYZyV/EPZn2Djs0Q/IkxKiwH4Cxw9uzAk=
+        b=LiO+s9KRZWKqKUgFzGtfqD+NKSk01RPk5h9UykDnE5LP9Jq1Xx2rZBDZTLf/lSGAR
+         evIFoP3c9JDrKfmTmWlRE3A18k0qO6bPxUKp4C8nevlkX/A6t9JoQbdY5bHAf61+NM
+         xA50hkbZl2uy+zDHUaLAE/okf0HHF6LVKQQrLM08=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
-        Martin KaFai Lau <kafai@fb.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 17/47] ipv6: tcp: drop silly ICMPv6 packet too big messages
+        stable@vger.kernel.org, Riccardo Mancini <rickyman7@gmail.com>,
+        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
+        Krister Johansen <kjlx@templeofstupid.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 063/120] perf map: Fix dso->nsinfo refcounting
 Date:   Mon, 26 Jul 2021 17:38:35 +0200
-Message-Id: <20210726153823.524307630@linuxfoundation.org>
+Message-Id: <20210726153834.402956766@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153822.980271128@linuxfoundation.org>
-References: <20210726153822.980271128@linuxfoundation.org>
+In-Reply-To: <20210726153832.339431936@linuxfoundation.org>
+References: <20210726153832.339431936@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,127 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Riccardo Mancini <rickyman7@gmail.com>
 
-commit c7bb4b89033b764eb07db4e060548a6311d801ee upstream.
+[ Upstream commit 2d6b74baa7147251c30a46c4996e8cc224aa2dc5 ]
 
-While TCP stack scales reasonably well, there is still one part that
-can be used to DDOS it.
+ASan reports a memory leak of nsinfo during the execution of
 
-IPv6 Packet too big messages have to lookup/insert a new route,
-and if abused by attackers, can easily put hosts under high stress,
-with many cpus contending on a spinlock while one is stuck in fib6_run_gc()
+  # perf test "31: Lookup mmap thread"
 
-ip6_protocol_deliver_rcu()
- icmpv6_rcv()
-  icmpv6_notify()
-   tcp_v6_err()
-    tcp_v6_mtu_reduced()
-     inet6_csk_update_pmtu()
-      ip6_rt_update_pmtu()
-       __ip6_rt_update_pmtu()
-        ip6_rt_cache_alloc()
-         ip6_dst_alloc()
-          dst_alloc()
-           ip6_dst_gc()
-            fib6_run_gc()
-             spin_lock_bh() ...
+The leak is caused by a refcounted variable being replaced without
+dropping the refcount.
 
-Some of our servers have been hit by malicious ICMPv6 packets
-trying to _increase_ the MTU/MSS of TCP flows.
+This patch makes sure that the refcnt of nsinfo is decreased whenever a
+refcounted variable is replaced with a new value.
 
-We believe these ICMPv6 packets are a result of a bug in one ISP stack,
-since they were blindly sent back for _every_ (small) packet sent to them.
-
-These packets are for one TCP flow:
-09:24:36.266491 IP6 Addr1 > Victim ICMP6, packet too big, mtu 1460, length 1240
-09:24:36.266509 IP6 Addr1 > Victim ICMP6, packet too big, mtu 1460, length 1240
-09:24:36.316688 IP6 Addr1 > Victim ICMP6, packet too big, mtu 1460, length 1240
-09:24:36.316704 IP6 Addr1 > Victim ICMP6, packet too big, mtu 1460, length 1240
-09:24:36.608151 IP6 Addr1 > Victim ICMP6, packet too big, mtu 1460, length 1240
-
-TCP stack can filter some silly requests :
-
-1) MTU below IPV6_MIN_MTU can be filtered early in tcp_v6_err()
-2) tcp_v6_mtu_reduced() can drop requests trying to increase current MSS.
-
-This tests happen before the IPv6 routing stack is entered, thus
-removing the potential contention and route exhaustion.
-
-Note that IPv6 stack was performing these checks, but too late
-(ie : after the route has been added, and after the potential
-garbage collect war)
-
-v2: fix typo caught by Martin, thanks !
-v3: exports tcp_mtu_to_mss(), caught by David, thanks !
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reviewed-by: Maciej Żenczykowski <maze@google.com>
-Cc: Martin KaFai Lau <kafai@fb.com>
-Acked-by: Martin KaFai Lau <kafai@fb.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Riccardo Mancini <rickyman7@gmail.com>
+Fixes: bf2e710b3cb8445c ("perf maps: Lookup maps in both intitial mountns and inner mountns.")
+Cc: Ian Rogers <irogers@google.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Krister Johansen <kjlx@templeofstupid.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lore.kernel.org/lkml/55223bc8821b34ccb01f92ef1401c02b6a32e61f.1626343282.git.rickyman7@gmail.com
+[ Split from a larger patch ]
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_output.c |    1 +
- net/ipv6/tcp_ipv6.c   |   19 +++++++++++++++++--
- 2 files changed, 18 insertions(+), 2 deletions(-)
+ tools/perf/util/map.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/net/ipv4/tcp_output.c
-+++ b/net/ipv4/tcp_output.c
-@@ -1353,6 +1353,7 @@ int tcp_mtu_to_mss(struct sock *sk, int
- 	return __tcp_mtu_to_mss(sk, pmtu) -
- 	       (tcp_sk(sk)->tcp_header_len - sizeof(struct tcphdr));
- }
-+EXPORT_SYMBOL(tcp_mtu_to_mss);
- 
- /* Inverse of above */
- int tcp_mss_to_mtu(struct sock *sk, int mss)
---- a/net/ipv6/tcp_ipv6.c
-+++ b/net/ipv6/tcp_ipv6.c
-@@ -308,11 +308,20 @@ failure:
- static void tcp_v6_mtu_reduced(struct sock *sk)
- {
- 	struct dst_entry *dst;
-+	u32 mtu;
- 
- 	if ((1 << sk->sk_state) & (TCPF_LISTEN | TCPF_CLOSE))
- 		return;
- 
--	dst = inet6_csk_update_pmtu(sk, READ_ONCE(tcp_sk(sk)->mtu_info));
-+	mtu = READ_ONCE(tcp_sk(sk)->mtu_info);
+diff --git a/tools/perf/util/map.c b/tools/perf/util/map.c
+index 769d11575a7b..603086692290 100644
+--- a/tools/perf/util/map.c
++++ b/tools/perf/util/map.c
+@@ -209,6 +209,8 @@ struct map *map__new(struct machine *machine, u64 start, u64 len,
+ 			if (!(prot & PROT_EXEC))
+ 				dso__set_loaded(dso);
+ 		}
 +
-+	/* Drop requests trying to increase our current mss.
-+	 * Check done in __ip6_rt_update_pmtu() is too late.
-+	 */
-+	if (tcp_mtu_to_mss(sk, mtu) >= tcp_sk(sk)->mss_cache)
-+		return;
-+
-+	dst = inet6_csk_update_pmtu(sk, mtu);
- 	if (!dst)
- 		return;
- 
-@@ -391,6 +400,8 @@ static void tcp_v6_err(struct sk_buff *s
++		nsinfo__put(dso->nsinfo);
+ 		dso->nsinfo = nsi;
+ 		dso__put(dso);
  	}
- 
- 	if (type == ICMPV6_PKT_TOOBIG) {
-+		u32 mtu = ntohl(info);
-+
- 		/* We are not interested in TCP_LISTEN and open_requests
- 		 * (SYN-ACKs send out by Linux are always <576bytes so
- 		 * they should go through unfragmented).
-@@ -401,7 +412,11 @@ static void tcp_v6_err(struct sk_buff *s
- 		if (!ip6_sk_accept_pmtu(sk))
- 			goto out;
- 
--		WRITE_ONCE(tp->mtu_info, ntohl(info));
-+		if (mtu < IPV6_MIN_MTU)
-+			goto out;
-+
-+		WRITE_ONCE(tp->mtu_info, mtu);
-+
- 		if (!sock_owned_by_user(sk))
- 			tcp_v6_mtu_reduced(sk);
- 		else if (!test_and_set_bit(TCP_MTU_REDUCED_DEFERRED,
+-- 
+2.30.2
+
 
 
