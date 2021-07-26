@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E6473D5D77
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:42:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D90C43D5E89
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:51:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235589AbhGZPBg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:01:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40680 "EHLO mail.kernel.org"
+        id S236286AbhGZPK4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:10:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235579AbhGZPBg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:01:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1EC2A604DC;
-        Mon, 26 Jul 2021 15:42:03 +0000 (UTC)
+        id S235874AbhGZPHo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:07:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D582D60F9C;
+        Mon, 26 Jul 2021 15:48:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314124;
-        bh=UdBBBrXYVAQuhdnqFaLcTw7EKvHx9zQV9g2SU0FIfh0=;
+        s=korg; t=1627314493;
+        bh=2H0GaMVMCy79CuVkexPulL2P0z1M57byrzyQHPDUhg0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fuD6Y1EdmZ7a+GDtxX5kCbMBT8AnvXLFz5UfuEx/lQ6pcnaQGfRd3YdK3I4CgxYwG
-         5yjg8vhFrQ6sVFn7RTKEA5w2HNqIjPm2CzIHwWsPCz3wwfh2SxCd0/q19pUHizOGBH
-         TGFSoBfsH1ZyUkWeh4cTtMX5tNQ4OwX7vmWwHxs4=
+        b=UXeu8ibLTAIXrPSa4WD9aRqJeH2FE0fQVzUWreiEHRS3drssgWjDfRTXHBzbrnmFv
+         avJvAaywHqhTC5kSjVaXuEbQgAZwdxCVZMovfEt9f0aGwD009+AMEnxlGOGPPnI2Pm
+         aTP8URjUkVB7CbCLAsNOXk+4pkaieHrteqoNHLmE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linuxfoundation.org>,
-        Haoran Luo <www@aegistudio.net>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.4 42/47] tracing: Fix bug in rb_per_cpu_empty() that might cause deadloop.
+        stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 4.14 60/82] s390/ftrace: fix ftrace_update_ftrace_func implementation
 Date:   Mon, 26 Jul 2021 17:39:00 +0200
-Message-Id: <20210726153824.301222156@linuxfoundation.org>
+Message-Id: <20210726153830.124758954@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153822.980271128@linuxfoundation.org>
-References: <20210726153822.980271128@linuxfoundation.org>
+In-Reply-To: <20210726153828.144714469@linuxfoundation.org>
+References: <20210726153828.144714469@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,102 +39,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haoran Luo <www@aegistudio.net>
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-commit 67f0d6d9883c13174669f88adac4f0ee656cc16a upstream.
+commit f8c2602733c953ed7a16e060640b8e96f9d94b9b upstream.
 
-The "rb_per_cpu_empty()" misinterpret the condition (as not-empty) when
-"head_page" and "commit_page" of "struct ring_buffer_per_cpu" points to
-the same buffer page, whose "buffer_data_page" is empty and "read" field
-is non-zero.
+s390 enforces DYNAMIC_FTRACE if FUNCTION_TRACER is selected.
+At the same time implementation of ftrace_caller is not compliant with
+HAVE_DYNAMIC_FTRACE since it doesn't provide implementation of
+ftrace_update_ftrace_func() and calls ftrace_trace_function() directly.
 
-An error scenario could be constructed as followed (kernel perspective):
+The subtle difference is that during ftrace code patching ftrace
+replaces function tracer via ftrace_update_ftrace_func() and activates
+it back afterwards. Unexpected direct calls to ftrace_trace_function()
+during ftrace code patching leads to nullptr-dereferences when tracing
+is activated for one of functions which are used during code patching.
+Those function currently are:
+copy_from_kernel_nofault()
+copy_from_kernel_nofault_allowed()
+preempt_count_sub() [with debug_defconfig]
+preempt_count_add() [with debug_defconfig]
 
-1. All pages in the buffer has been accessed by reader(s) so that all of
-them will have non-zero "read" field.
+Corresponding KASAN report:
+ BUG: KASAN: nullptr-dereference in function_trace_call+0x316/0x3b0
+ Read of size 4 at addr 0000000000001e08 by task migration/0/15
 
-2. Read and clear all buffer pages so that "rb_num_of_entries()" will
-return 0 rendering there's no more data to read. It is also required
-that the "read_page", "commit_page" and "tail_page" points to the same
-page, while "head_page" is the next page of them.
+ CPU: 0 PID: 15 Comm: migration/0 Tainted: G B 5.13.0-41423-g08316af3644d
+ Hardware name: IBM 3906 M04 704 (LPAR)
+ Stopper: multi_cpu_stop+0x0/0x3e0 <- stop_machine_cpuslocked+0x1e4/0x218
+ Call Trace:
+  [<0000000001f77caa>] show_stack+0x16a/0x1d0
+  [<0000000001f8de42>] dump_stack+0x15a/0x1b0
+  [<0000000001f81d56>] print_address_description.constprop.0+0x66/0x2e0
+  [<000000000082b0ca>] kasan_report+0x152/0x1c0
+  [<00000000004cfd8e>] function_trace_call+0x316/0x3b0
+  [<0000000001fb7082>] ftrace_caller+0x7a/0x7e
+  [<00000000006bb3e6>] copy_from_kernel_nofault_allowed+0x6/0x10
+  [<00000000006bb42e>] copy_from_kernel_nofault+0x3e/0xd0
+  [<000000000014605c>] ftrace_make_call+0xb4/0x1f8
+  [<000000000047a1b4>] ftrace_replace_code+0x134/0x1d8
+  [<000000000047a6e0>] ftrace_modify_all_code+0x120/0x1d0
+  [<000000000047a7ec>] __ftrace_modify_code+0x5c/0x78
+  [<000000000042395c>] multi_cpu_stop+0x224/0x3e0
+  [<0000000000423212>] cpu_stopper_thread+0x33a/0x5a0
+  [<0000000000243ff2>] smpboot_thread_fn+0x302/0x708
+  [<00000000002329ea>] kthread+0x342/0x408
+  [<00000000001066b2>] __ret_from_fork+0x92/0xf0
+  [<0000000001fb57fa>] ret_from_fork+0xa/0x30
 
-3. Invoke "ring_buffer_lock_reserve()" with large enough "length"
-so that it shot pass the end of current tail buffer page. Now the
-"head_page", "commit_page" and "tail_page" points to the same page.
+ The buggy address belongs to the page:
+ page:(____ptrval____) refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x1
+ flags: 0x1ffff00000001000(reserved|node=0|zone=0|lastcpupid=0x1ffff)
+ raw: 1ffff00000001000 0000040000000048 0000040000000048 0000000000000000
+ raw: 0000000000000000 0000000000000000 ffffffff00000001 0000000000000000
+ page dumped because: kasan: bad access detected
 
-4. Discard current event with "ring_buffer_discard_commit()", so that
-"head_page", "commit_page" and "tail_page" points to a page whose buffer
-data page is now empty.
+ Memory state around the buggy address:
+  0000000000001d00: f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7
+  0000000000001d80: f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7
+ >0000000000001e00: f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7
+                       ^
+  0000000000001e80: f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7
+  0000000000001f00: f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7
+ ==================================================================
 
-When the error scenario has been constructed, "tracing_read_pipe" will
-be trapped inside a deadloop: "trace_empty()" returns 0 since
-"rb_per_cpu_empty()" returns 0 when it hits the CPU containing such
-constructed ring buffer. Then "trace_find_next_entry_inc()" always
-return NULL since "rb_num_of_entries()" reports there's no more entry
-to read. Finally "trace_seq_to_user()" returns "-EBUSY" spanking
-"tracing_read_pipe" back to the start of the "waitagain" loop.
+To fix that introduce ftrace_func callback to be called from
+ftrace_caller and update it in ftrace_update_ftrace_func().
 
-I've also written a proof-of-concept script to construct the scenario
-and trigger the bug automatically, you can use it to trace and validate
-my reasoning above:
-
-  https://github.com/aegistudio/RingBufferDetonator.git
-
-Tests has been carried out on linux kernel 5.14-rc2
-(2734d6c1b1a089fb593ef6a23d4b70903526fe0c), my fixed version
-of kernel (for testing whether my update fixes the bug) and
-some older kernels (for range of affected kernels). Test result is
-also attached to the proof-of-concept repository.
-
-Link: https://lore.kernel.org/linux-trace-devel/YPaNxsIlb2yjSi5Y@aegistudio/
-Link: https://lore.kernel.org/linux-trace-devel/YPgrN85WL9VyrZ55@aegistudio
-
+Fixes: 4cc9bed034d1 ("[S390] cleanup ftrace backend functions")
 Cc: stable@vger.kernel.org
-Fixes: bf41a158cacba ("ring-buffer: make reentrant")
-Suggested-by: Linus Torvalds <torvalds@linuxfoundation.org>
-Signed-off-by: Haoran Luo <www@aegistudio.net>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/ring_buffer.c |   28 ++++++++++++++++++++++++----
- 1 file changed, 24 insertions(+), 4 deletions(-)
+ arch/s390/include/asm/ftrace.h |    1 +
+ arch/s390/kernel/ftrace.c      |    2 ++
+ arch/s390/kernel/mcount.S      |    4 ++--
+ 3 files changed, 5 insertions(+), 2 deletions(-)
 
---- a/kernel/trace/ring_buffer.c
-+++ b/kernel/trace/ring_buffer.c
-@@ -3086,10 +3086,30 @@ static bool rb_per_cpu_empty(struct ring
- 	if (unlikely(!head))
- 		return true;
+--- a/arch/s390/include/asm/ftrace.h
++++ b/arch/s390/include/asm/ftrace.h
+@@ -20,6 +20,7 @@ void ftrace_caller(void);
  
--	return reader->read == rb_page_commit(reader) &&
--		(commit == reader ||
--		 (commit == head &&
--		  head->read == rb_page_commit(commit)));
-+	/* Reader should exhaust content in reader page */
-+	if (reader->read != rb_page_commit(reader))
-+		return false;
-+
-+	/*
-+	 * If writers are committing on the reader page, knowing all
-+	 * committed content has been read, the ring buffer is empty.
-+	 */
-+	if (commit == reader)
-+		return true;
-+
-+	/*
-+	 * If writers are committing on a page other than reader page
-+	 * and head page, there should always be content to read.
-+	 */
-+	if (commit != head)
-+		return false;
-+
-+	/*
-+	 * Writers are committing on the head page, we just need
-+	 * to care about there're committed data, and the reader will
-+	 * swap reader page with head page when it is to read data.
-+	 */
-+	return rb_page_commit(commit) == 0;
+ extern char ftrace_graph_caller_end;
+ extern unsigned long ftrace_plt;
++extern void *ftrace_func;
+ 
+ struct dyn_arch_ftrace { };
+ 
+--- a/arch/s390/kernel/ftrace.c
++++ b/arch/s390/kernel/ftrace.c
+@@ -57,6 +57,7 @@
+  * >	brasl	%r0,ftrace_caller	# offset 0
+  */
+ 
++void *ftrace_func __read_mostly = ftrace_stub;
+ unsigned long ftrace_plt;
+ 
+ static inline void ftrace_generate_orig_insn(struct ftrace_insn *insn)
+@@ -166,6 +167,7 @@ int ftrace_make_call(struct dyn_ftrace *
+ 
+ int ftrace_update_ftrace_func(ftrace_func_t func)
+ {
++	ftrace_func = func;
+ 	return 0;
  }
  
- /**
+--- a/arch/s390/kernel/mcount.S
++++ b/arch/s390/kernel/mcount.S
+@@ -60,13 +60,13 @@ ENTRY(ftrace_caller)
+ #ifdef CONFIG_HAVE_MARCH_Z196_FEATURES
+ 	aghik	%r2,%r0,-MCOUNT_INSN_SIZE
+ 	lgrl	%r4,function_trace_op
+-	lgrl	%r1,ftrace_trace_function
++	lgrl	%r1,ftrace_func
+ #else
+ 	lgr	%r2,%r0
+ 	aghi	%r2,-MCOUNT_INSN_SIZE
+ 	larl	%r4,function_trace_op
+ 	lg	%r4,0(%r4)
+-	larl	%r1,ftrace_trace_function
++	larl	%r1,ftrace_func
+ 	lg	%r1,0(%r1)
+ #endif
+ 	lgr	%r3,%r14
 
 
