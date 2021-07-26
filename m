@@ -2,34 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BDA163D5F85
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 797873D5F90
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236251AbhGZPSS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:18:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52972 "EHLO mail.kernel.org"
+        id S236494AbhGZPSZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:18:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54248 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237399AbhGZPPn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:15:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F08B60F92;
-        Mon, 26 Jul 2021 15:54:52 +0000 (UTC)
+        id S237419AbhGZPPo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:15:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1522460F44;
+        Mon, 26 Jul 2021 15:54:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314893;
-        bh=5Z+FGXzvX7NyVzTw13+n9i5O0wtdzhQh0AKrX2uX1lg=;
+        s=korg; t=1627314895;
+        bh=b4jyb8tQKBwTQ3tPaTVyQQni4alkBWFwWHERT/spFs4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tafWfdLOinBaB6t+9wlOg0JObqkUiHS7SlHwxCmS7yUY3s7MBstF+g0Opwz88vyI2
-         v+0rQhFIK+bQpJ0R+8nq285NkGMCr4aeXa9qXlaC6HzIqIdC5XUj2RxVDRpiOeQyC0
-         lske8XTjaS+Jyz0oGPzAdrYfD12tAdlHy1ZOLatk=
+        b=x89/yefvDfcy5q3XqguWRzfyk11pdZQ/cwE7kxXo53WLAKuhrINFxVtutv8AHbEgW
+         OdKALvrFY6A2WKrQtePc/nDJoR8Tz4ocSmYJOG9QPBQ+I6hNMzqvLj/OShqhmzenAV
+         aQdhexAH7ZDzev0CL8ybArcSXXHHPxLe8l6kYPBo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
+        Grzegorz Siwik <grzegorz.siwik@intel.com>,
+        Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>,
+        Slawomir Laba <slawomirx.laba@intel.com>,
+        Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>,
+        Mateusz Palczewski <mateusz.placzewski@intel.com>,
+        Tony Brelinski <tonyx.brelinski@intel.com>,
         Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 010/108] iavf: Fix an error handling path in iavf_probe()
-Date:   Mon, 26 Jul 2021 17:38:11 +0200
-Message-Id: <20210726153832.033632387@linuxfoundation.org>
+Subject: [PATCH 5.4 011/108] igb: Check if num of q_vectors is smaller than max before array access
+Date:   Mon, 26 Jul 2021 17:38:12 +0200
+Message-Id: <20210726153832.064840350@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
 References: <20210726153831.696295003@linuxfoundation.org>
@@ -41,34 +47,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
 
-[ Upstream commit af30cbd2f4d6d66a9b6094e0aa32420bc8b20e08 ]
+[ Upstream commit 6c19d772618fea40d9681f259368f284a330fd90 ]
 
-If an error occurs after a 'pci_enable_pcie_error_reporting()' call, it
-must be undone by a corresponding 'pci_disable_pcie_error_reporting()'
-call, as already done in the remove function.
+Ensure that the adapter->q_vector[MAX_Q_VECTORS] array isn't accessed
+beyond its size. It was fixed by using a local variable num_q_vectors
+as a limit for loop index, and ensure that num_q_vectors is not bigger
+than MAX_Q_VECTORS.
 
-Fixes: 5eae00c57f5e ("i40evf: main driver core")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Fixes: 047e0030f1e6 ("igb: add new data structure for handling interrupts and NAPI")
+Signed-off-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
+Reviewed-by: Grzegorz Siwik <grzegorz.siwik@intel.com>
+Reviewed-by: Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>
+Reviewed-by: Slawomir Laba <slawomirx.laba@intel.com>
+Reviewed-by: Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
+Reviewed-by: Mateusz Palczewski <mateusz.placzewski@intel.com>
+Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
 Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/iavf/iavf_main.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/intel/igb/igb_main.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
-index a97e1f9ca1ed..cda9b9a8392a 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_main.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
-@@ -3765,6 +3765,7 @@ static int iavf_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- err_ioremap:
- 	free_netdev(netdev);
- err_alloc_etherdev:
-+	pci_disable_pcie_error_reporting(pdev);
- 	pci_release_regions(pdev);
- err_pci_reg:
- err_dma:
+diff --git a/drivers/net/ethernet/intel/igb/igb_main.c b/drivers/net/ethernet/intel/igb/igb_main.c
+index bf8da4869c0f..35b096ab2893 100644
+--- a/drivers/net/ethernet/intel/igb/igb_main.c
++++ b/drivers/net/ethernet/intel/igb/igb_main.c
+@@ -940,6 +940,7 @@ static void igb_configure_msix(struct igb_adapter *adapter)
+  **/
+ static int igb_request_msix(struct igb_adapter *adapter)
+ {
++	unsigned int num_q_vectors = adapter->num_q_vectors;
+ 	struct net_device *netdev = adapter->netdev;
+ 	int i, err = 0, vector = 0, free_vector = 0;
+ 
+@@ -948,7 +949,13 @@ static int igb_request_msix(struct igb_adapter *adapter)
+ 	if (err)
+ 		goto err_out;
+ 
+-	for (i = 0; i < adapter->num_q_vectors; i++) {
++	if (num_q_vectors > MAX_Q_VECTORS) {
++		num_q_vectors = MAX_Q_VECTORS;
++		dev_warn(&adapter->pdev->dev,
++			 "The number of queue vectors (%d) is higher than max allowed (%d)\n",
++			 adapter->num_q_vectors, MAX_Q_VECTORS);
++	}
++	for (i = 0; i < num_q_vectors; i++) {
+ 		struct igb_q_vector *q_vector = adapter->q_vector[i];
+ 
+ 		vector++;
 -- 
 2.30.2
 
