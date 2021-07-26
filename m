@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 74C583D61E5
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:14:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 838DF3D60A2
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:11:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234284AbhGZPdV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:33:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48244 "EHLO mail.kernel.org"
+        id S237566AbhGZPXh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:23:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233441AbhGZPcU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:32:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 92A7260C40;
-        Mon, 26 Jul 2021 16:12:44 +0000 (UTC)
+        id S237554AbhGZPXZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:23:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0ACF060F38;
+        Mon, 26 Jul 2021 16:03:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315965;
-        bh=9gIvzkB3UGqRN0BG9Zxjq53srvaJIaXklkW2JvwjXtg=;
+        s=korg; t=1627315434;
+        bh=mMAe26w76tR5qxry2h07cpXVrZUsUnnVUBvd2yIZbOQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bw8mOPXG61DFbYD4Aw5HdWMYUtLsE0QJ0C/TDGvQhONau4FluoJ3M8seP590tgOoY
-         3rQnGXzwzcBAfRcUVT9UiznwZ/z1ZWkLaHSCk8mhoHmIb8gPjJnTVR7DMNQebKmnUk
-         ugNraJs+pei8fLK077s3+lDBXk3uMeNZSKu7LfnA=
+        b=RK4nm25XHAXjQ61MbKLP1eNsUnQnHSXVQpSUEobozh8Ba+2uCo3d4HkBRq1IYwbsG
+         aj953+vdzKHS1t8ZyfIT2gKXIkFTcXkx/zZEx+3p73K32S3hpPShxtSPzkIQgrMDrR
+         k166yNAhISswIDi4OPHyWtzPzbpYmRHeaGn2nQZI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Radu Pirea (NXP OSS)" <radu-nicolae.pirea@oss.nxp.com>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 135/223] net: dsa: sja1105: make VID 4095 a bridge VLAN too
-Date:   Mon, 26 Jul 2021 17:38:47 +0200
-Message-Id: <20210726153850.663680353@linuxfoundation.org>
+        "Alexey Dobriyan (SK hynix)" <adobriyan@gmail.com>,
+        David Howells <dhowells@redhat.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Marc Dionne <marc.dionne@auristor.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        linux-afs@lists.infradead.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 095/167] afs: Fix tracepoint string placement with built-in AFS
+Date:   Mon, 26 Jul 2021 17:38:48 +0200
+Message-Id: <20210726153842.586517691@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
-References: <20210726153846.245305071@linuxfoundation.org>
+In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
+References: <20210726153839.371771838@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,101 +44,282 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit e40cba9490bab1414d45c2d62defc0ad4f6e4136 ]
+[ Upstream commit 6c881ca0b3040f3e724eae513117ba4ddef86057 ]
 
-This simple series of commands:
+To quote Alexey[1]:
 
-ip link add br0 type bridge vlan_filtering 1
-ip link set swp0 master br0
+    I was adding custom tracepoint to the kernel, grabbed full F34 kernel
+    .config, disabled modules and booted whole shebang as VM kernel.
 
-fails on sja1105 with the following error:
-[   33.439103] sja1105 spi0.1: vlan-lookup-table needs to have at least the default untagged VLAN
-[   33.447710] sja1105 spi0.1: Invalid config, cannot upload
-Warning: sja1105: Failed to change VLAN Ethertype.
+    Then did
 
-For context, sja1105 has 3 operating modes:
-- SJA1105_VLAN_UNAWARE: the dsa_8021q_vlans are committed to hardware
-- SJA1105_VLAN_FILTERING_FULL: the bridge_vlans are committed to hardware
-- SJA1105_VLAN_FILTERING_BEST_EFFORT: both the dsa_8021q_vlans and the
-  bridge_vlans are committed to hardware
+	perf record -a -e ...
 
-Swapping out a VLAN list and another in happens in
-sja1105_build_vlan_table(), which performs a delta update procedure.
-That function is called from a few places, notably from
-sja1105_vlan_filtering() which is called from the
-SWITCHDEV_ATTR_ID_BRIDGE_VLAN_FILTERING handler.
+    It crashed:
 
-The above set of 2 commands fails when run on a kernel pre-commit
-8841f6e63f2c ("net: dsa: sja1105: make devlink property
-best_effort_vlan_filtering true by default"). So the priv->vlan_state
-transition that takes place is between VLAN-unaware and full VLAN
-filtering. So the dsa_8021q_vlans are swapped out and the bridge_vlans
-are swapped in.
+	general protection fault, probably for non-canonical address 0x435f5346592e4243: 0000 [#1] SMP PTI
+	CPU: 1 PID: 842 Comm: cat Not tainted 5.12.6+ #26
+	Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-1.fc33 04/01/2014
+	RIP: 0010:t_show+0x22/0xd0
 
-So why does it fail?
+    Then reproducer was narrowed to
 
-Well, the bridge driver, through nbp_vlan_init(), first sets up the
-SWITCHDEV_ATTR_ID_BRIDGE_VLAN_FILTERING attribute, and only then
-proceeds to call nbp_vlan_add for the default_pvid.
+	# cat /sys/kernel/tracing/printk_formats
 
-So when we swap out the dsa_8021q_vlans and swap in the bridge_vlans in
-the SWITCHDEV_ATTR_ID_BRIDGE_VLAN_FILTERING handler, there are no bridge
-VLANs (yet). So we have wiped the VLAN table clean, and the low-level
-static config checker complains of an invalid configuration. We _will_
-add the bridge VLANs using the dynamic config interface, albeit later,
-when nbp_vlan_add() calls us. So it is natural that it fails.
+    Original F34 kernel with modules didn't crash.
 
-So why did it ever work?
+    So I started to disable options and after disabling AFS everything
+    started working again.
 
-Surprisingly, it looks like I only tested this configuration with 2
-things set up in a particular way:
-- a network manager that brings all ports up
-- a kernel with CONFIG_VLAN_8021Q=y
+    The root cause is that AFS was placing char arrays content into a
+    section full of _pointers_ to strings with predictable consequences.
 
-It is widely known that commit ad1afb003939 ("vlan_dev: VLAN 0 should be
-treated as "no vlan tag" (802.1p packet)") installs VID 0 to every net
-device that comes up. DSA treats these VLANs as bridge VLANs, and
-therefore, in my testing, the list of bridge_vlans was never empty.
+    Non canonical address 435f5346592e4243 is "CB.YFS_" which came from
+    CM_NAME macro.
 
-However, if CONFIG_VLAN_8021Q is not enabled, or the port is not up when
-it joins a VLAN-aware bridge, the bridge_vlans list will be temporarily
-empty, and the sja1105_static_config_reload() call from
-sja1105_vlan_filtering() will fail.
+    Steps to reproduce:
 
-To fix this, the simplest thing is to keep VID 4095, the one used for
-CPU-injected control packets since commit ed040abca4c1 ("net: dsa:
-sja1105: use 4095 as the private VLAN for untagged traffic"), in the
-list of bridge VLANs too, not just the list of tag_8021q VLANs. This
-ensures that the list of bridge VLANs will never be empty.
+	CONFIG_AFS=y
+	CONFIG_TRACING=y
 
-Fixes: ec5ae61076d0 ("net: dsa: sja1105: save/restore VLANs using a delta commit method")
-Reported-by: Radu Pirea (NXP OSS) <radu-nicolae.pirea@oss.nxp.com>
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+	# cat /sys/kernel/tracing/printk_formats
+
+Fix this by the following means:
+
+ (1) Add enum->string translation tables in the event header with the AFS
+     and YFS cache/callback manager operations listed by RPC operation ID.
+
+ (2) Modify the afs_cb_call tracepoint to print the string from the
+     translation table rather than using the string at the afs_call name
+     pointer.
+
+ (3) Switch translation table depending on the service we're being accessed
+     as (AFS or YFS) in the tracepoint print clause.  Will this cause
+     problems to userspace utilities?
+
+     Note that the symbolic representation of the YFS service ID isn't
+     available to this header, so I've put it in as a number.  I'm not sure
+     if this is the best way to do this.
+
+ (4) Remove the name wrangling (CM_NAME) macro and put the names directly
+     into the afs_call_type structs in cmservice.c.
+
+Fixes: 8e8d7f13b6d5a9 ("afs: Add some tracepoints")
+Reported-by: Alexey Dobriyan (SK hynix) <adobriyan@gmail.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Reviewed-by: Marc Dionne <marc.dionne@auristor.com>
+cc: Andrew Morton <akpm@linux-foundation.org>
+cc: linux-afs@lists.infradead.org
+Link: https://lore.kernel.org/r/YLAXfvZ+rObEOdc%2F@localhost.localdomain/ [1]
+Link: https://lore.kernel.org/r/643721.1623754699@warthog.procyon.org.uk/
+Link: https://lore.kernel.org/r/162430903582.2896199.6098150063997983353.stgit@warthog.procyon.org.uk/ # v1
+Link: https://lore.kernel.org/r/162609463957.3133237.15916579353149746363.stgit@warthog.procyon.org.uk/ # v1 (repost)
+Link: https://lore.kernel.org/r/162610726860.3408253.445207609466288531.stgit@warthog.procyon.org.uk/ # v2
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/sja1105/sja1105_main.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ fs/afs/cmservice.c         | 25 ++++----------
+ include/trace/events/afs.h | 67 +++++++++++++++++++++++++++++++++++---
+ 2 files changed, 69 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/net/dsa/sja1105/sja1105_main.c b/drivers/net/dsa/sja1105/sja1105_main.c
-index ebe4d33cda27..6e5dbe9f3892 100644
---- a/drivers/net/dsa/sja1105/sja1105_main.c
-+++ b/drivers/net/dsa/sja1105/sja1105_main.c
-@@ -378,6 +378,12 @@ static int sja1105_init_static_vlan(struct sja1105_private *priv)
- 		if (dsa_is_cpu_port(ds, port))
- 			v->pvid = true;
- 		list_add(&v->list, &priv->dsa_8021q_vlans);
-+
-+		v = kmemdup(v, sizeof(*v), GFP_KERNEL);
-+		if (!v)
-+			return -ENOMEM;
-+
-+		list_add(&v->list, &priv->bridge_vlans);
- 	}
+diff --git a/fs/afs/cmservice.c b/fs/afs/cmservice.c
+index a4e9e6e07e93..2a528b70478c 100644
+--- a/fs/afs/cmservice.c
++++ b/fs/afs/cmservice.c
+@@ -29,16 +29,11 @@ static void SRXAFSCB_TellMeAboutYourself(struct work_struct *);
  
- 	((struct sja1105_vlan_lookup_entry *)table->entries)[0] = pvid;
+ static int afs_deliver_yfs_cb_callback(struct afs_call *);
+ 
+-#define CM_NAME(name) \
+-	char afs_SRXCB##name##_name[] __tracepoint_string =	\
+-		"CB." #name
+-
+ /*
+  * CB.CallBack operation type
+  */
+-static CM_NAME(CallBack);
+ static const struct afs_call_type afs_SRXCBCallBack = {
+-	.name		= afs_SRXCBCallBack_name,
++	.name		= "CB.CallBack",
+ 	.deliver	= afs_deliver_cb_callback,
+ 	.destructor	= afs_cm_destructor,
+ 	.work		= SRXAFSCB_CallBack,
+@@ -47,9 +42,8 @@ static const struct afs_call_type afs_SRXCBCallBack = {
+ /*
+  * CB.InitCallBackState operation type
+  */
+-static CM_NAME(InitCallBackState);
+ static const struct afs_call_type afs_SRXCBInitCallBackState = {
+-	.name		= afs_SRXCBInitCallBackState_name,
++	.name		= "CB.InitCallBackState",
+ 	.deliver	= afs_deliver_cb_init_call_back_state,
+ 	.destructor	= afs_cm_destructor,
+ 	.work		= SRXAFSCB_InitCallBackState,
+@@ -58,9 +52,8 @@ static const struct afs_call_type afs_SRXCBInitCallBackState = {
+ /*
+  * CB.InitCallBackState3 operation type
+  */
+-static CM_NAME(InitCallBackState3);
+ static const struct afs_call_type afs_SRXCBInitCallBackState3 = {
+-	.name		= afs_SRXCBInitCallBackState3_name,
++	.name		= "CB.InitCallBackState3",
+ 	.deliver	= afs_deliver_cb_init_call_back_state3,
+ 	.destructor	= afs_cm_destructor,
+ 	.work		= SRXAFSCB_InitCallBackState,
+@@ -69,9 +62,8 @@ static const struct afs_call_type afs_SRXCBInitCallBackState3 = {
+ /*
+  * CB.Probe operation type
+  */
+-static CM_NAME(Probe);
+ static const struct afs_call_type afs_SRXCBProbe = {
+-	.name		= afs_SRXCBProbe_name,
++	.name		= "CB.Probe",
+ 	.deliver	= afs_deliver_cb_probe,
+ 	.destructor	= afs_cm_destructor,
+ 	.work		= SRXAFSCB_Probe,
+@@ -80,9 +72,8 @@ static const struct afs_call_type afs_SRXCBProbe = {
+ /*
+  * CB.ProbeUuid operation type
+  */
+-static CM_NAME(ProbeUuid);
+ static const struct afs_call_type afs_SRXCBProbeUuid = {
+-	.name		= afs_SRXCBProbeUuid_name,
++	.name		= "CB.ProbeUuid",
+ 	.deliver	= afs_deliver_cb_probe_uuid,
+ 	.destructor	= afs_cm_destructor,
+ 	.work		= SRXAFSCB_ProbeUuid,
+@@ -91,9 +82,8 @@ static const struct afs_call_type afs_SRXCBProbeUuid = {
+ /*
+  * CB.TellMeAboutYourself operation type
+  */
+-static CM_NAME(TellMeAboutYourself);
+ static const struct afs_call_type afs_SRXCBTellMeAboutYourself = {
+-	.name		= afs_SRXCBTellMeAboutYourself_name,
++	.name		= "CB.TellMeAboutYourself",
+ 	.deliver	= afs_deliver_cb_tell_me_about_yourself,
+ 	.destructor	= afs_cm_destructor,
+ 	.work		= SRXAFSCB_TellMeAboutYourself,
+@@ -102,9 +92,8 @@ static const struct afs_call_type afs_SRXCBTellMeAboutYourself = {
+ /*
+  * YFS CB.CallBack operation type
+  */
+-static CM_NAME(YFS_CallBack);
+ static const struct afs_call_type afs_SRXYFSCB_CallBack = {
+-	.name		= afs_SRXCBYFS_CallBack_name,
++	.name		= "YFSCB.CallBack",
+ 	.deliver	= afs_deliver_yfs_cb_callback,
+ 	.destructor	= afs_cm_destructor,
+ 	.work		= SRXAFSCB_CallBack,
+diff --git a/include/trace/events/afs.h b/include/trace/events/afs.h
+index 4eef374d4413..5deb9f490f6f 100644
+--- a/include/trace/events/afs.h
++++ b/include/trace/events/afs.h
+@@ -174,6 +174,34 @@ enum afs_vl_operation {
+ 	afs_VL_GetCapabilities	= 65537,	/* AFS Get VL server capabilities */
+ };
+ 
++enum afs_cm_operation {
++	afs_CB_CallBack			= 204,	/* AFS break callback promises */
++	afs_CB_InitCallBackState	= 205,	/* AFS initialise callback state */
++	afs_CB_Probe			= 206,	/* AFS probe client */
++	afs_CB_GetLock			= 207,	/* AFS get contents of CM lock table */
++	afs_CB_GetCE			= 208,	/* AFS get cache file description */
++	afs_CB_GetXStatsVersion		= 209,	/* AFS get version of extended statistics */
++	afs_CB_GetXStats		= 210,	/* AFS get contents of extended statistics data */
++	afs_CB_InitCallBackState3	= 213,	/* AFS initialise callback state, version 3 */
++	afs_CB_ProbeUuid		= 214,	/* AFS check the client hasn't rebooted */
++};
++
++enum yfs_cm_operation {
++	yfs_CB_Probe			= 206,	/* YFS probe client */
++	yfs_CB_GetLock			= 207,	/* YFS get contents of CM lock table */
++	yfs_CB_XStatsVersion		= 209,	/* YFS get version of extended statistics */
++	yfs_CB_GetXStats		= 210,	/* YFS get contents of extended statistics data */
++	yfs_CB_InitCallBackState3	= 213,	/* YFS initialise callback state, version 3 */
++	yfs_CB_ProbeUuid		= 214,	/* YFS check the client hasn't rebooted */
++	yfs_CB_GetServerPrefs		= 215,
++	yfs_CB_GetCellServDV		= 216,
++	yfs_CB_GetLocalCell		= 217,
++	yfs_CB_GetCacheConfig		= 218,
++	yfs_CB_GetCellByNum		= 65537,
++	yfs_CB_TellMeAboutYourself	= 65538, /* get client capabilities */
++	yfs_CB_CallBack			= 64204,
++};
++
+ enum afs_edit_dir_op {
+ 	afs_edit_dir_create,
+ 	afs_edit_dir_create_error,
+@@ -435,6 +463,32 @@ enum afs_cb_break_reason {
+ 	EM(afs_YFSVL_GetCellName,		"YFSVL.GetCellName") \
+ 	E_(afs_VL_GetCapabilities,		"VL.GetCapabilities")
+ 
++#define afs_cm_operations \
++	EM(afs_CB_CallBack,			"CB.CallBack") \
++	EM(afs_CB_InitCallBackState,		"CB.InitCallBackState") \
++	EM(afs_CB_Probe,			"CB.Probe") \
++	EM(afs_CB_GetLock,			"CB.GetLock") \
++	EM(afs_CB_GetCE,			"CB.GetCE") \
++	EM(afs_CB_GetXStatsVersion,		"CB.GetXStatsVersion") \
++	EM(afs_CB_GetXStats,			"CB.GetXStats") \
++	EM(afs_CB_InitCallBackState3,		"CB.InitCallBackState3") \
++	E_(afs_CB_ProbeUuid,			"CB.ProbeUuid")
++
++#define yfs_cm_operations \
++	EM(yfs_CB_Probe,			"YFSCB.Probe") \
++	EM(yfs_CB_GetLock,			"YFSCB.GetLock") \
++	EM(yfs_CB_XStatsVersion,		"YFSCB.XStatsVersion") \
++	EM(yfs_CB_GetXStats,			"YFSCB.GetXStats") \
++	EM(yfs_CB_InitCallBackState3,		"YFSCB.InitCallBackState3") \
++	EM(yfs_CB_ProbeUuid,			"YFSCB.ProbeUuid") \
++	EM(yfs_CB_GetServerPrefs,		"YFSCB.GetServerPrefs") \
++	EM(yfs_CB_GetCellServDV,		"YFSCB.GetCellServDV") \
++	EM(yfs_CB_GetLocalCell,			"YFSCB.GetLocalCell") \
++	EM(yfs_CB_GetCacheConfig,		"YFSCB.GetCacheConfig") \
++	EM(yfs_CB_GetCellByNum,			"YFSCB.GetCellByNum") \
++	EM(yfs_CB_TellMeAboutYourself,		"YFSCB.TellMeAboutYourself") \
++	E_(yfs_CB_CallBack,			"YFSCB.CallBack")
++
+ #define afs_edit_dir_ops				  \
+ 	EM(afs_edit_dir_create,			"create") \
+ 	EM(afs_edit_dir_create_error,		"c_fail") \
+@@ -567,6 +621,8 @@ afs_server_traces;
+ afs_cell_traces;
+ afs_fs_operations;
+ afs_vl_operations;
++afs_cm_operations;
++yfs_cm_operations;
+ afs_edit_dir_ops;
+ afs_edit_dir_reasons;
+ afs_eproto_causes;
+@@ -647,20 +703,21 @@ TRACE_EVENT(afs_cb_call,
+ 
+ 	    TP_STRUCT__entry(
+ 		    __field(unsigned int,		call		)
+-		    __field(const char *,		name		)
+ 		    __field(u32,			op		)
++		    __field(u16,			service_id	)
+ 			     ),
+ 
+ 	    TP_fast_assign(
+ 		    __entry->call	= call->debug_id;
+-		    __entry->name	= call->type->name;
+ 		    __entry->op		= call->operation_ID;
++		    __entry->service_id	= call->service_id;
+ 			   ),
+ 
+-	    TP_printk("c=%08x %s o=%u",
++	    TP_printk("c=%08x %s",
+ 		      __entry->call,
+-		      __entry->name,
+-		      __entry->op)
++		      __entry->service_id == 2501 ?
++		      __print_symbolic(__entry->op, yfs_cm_operations) :
++		      __print_symbolic(__entry->op, afs_cm_operations))
+ 	    );
+ 
+ TRACE_EVENT(afs_call,
 -- 
 2.30.2
 
