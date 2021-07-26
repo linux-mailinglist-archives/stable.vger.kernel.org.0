@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BD913D5F68
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E0CB3D5E52
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:47:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236759AbhGZPRv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:17:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53272 "EHLO mail.kernel.org"
+        id S236036AbhGZPHI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:07:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236715AbhGZPPj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:15:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1AD7C60FA0;
-        Mon, 26 Jul 2021 15:53:16 +0000 (UTC)
+        id S236251AbhGZPGd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:06:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F065260F5B;
+        Mon, 26 Jul 2021 15:47:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314797;
-        bh=xQJJQ9bJZhr3Gw/TvURQ8HvQku7hLuxr8t+SiBPmV2o=;
+        s=korg; t=1627314421;
+        bh=/hUlaEaZjx2SqcZNoN3Hmh/fmF/7dkSti2+zfVpzUuM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wrAvG5jFZA9QaDQgFpwu2LSHyuvzO2VT5tqJUYFue2Hkp9Gd/KpJiXrlkaXOy6Yh7
-         M2hdWFplph0fRyPnHxeSfRHmdqxKMzo2gmdQtD2LivI2dI2HhDWp6Uj5cYRETNbQmM
-         to28bkv7wiXsi+1tLplB0lDNla0hhtxyUlGtuaRY=
+        b=vdQQpZpObFyh64rnxUNn9rX0RusBBe9T4+VVMLF7aP4syq+b1TbTL5/0Jp7JMlu0F
+         WA0aJhX9puP16vQKR1kVUVpQ7QOQUWH8MePXTD+DqhirhfR8XVgDRLF9blFBxemMtt
+         t0PFpaVBmQxClLQOrMo2O7KoOeMe0OJOZsAntFgo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Riccardo Mancini <rickyman7@gmail.com>,
-        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 068/120] perf lzma: Close lzma stream on exit
+Subject: [PATCH 4.14 40/82] iavf: Fix an error handling path in iavf_probe()
 Date:   Mon, 26 Jul 2021 17:38:40 +0200
-Message-Id: <20210726153834.569092820@linuxfoundation.org>
+Message-Id: <20210726153829.473155008@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153832.339431936@linuxfoundation.org>
-References: <20210726153832.339431936@linuxfoundation.org>
+In-Reply-To: <20210726153828.144714469@linuxfoundation.org>
+References: <20210726153828.144714469@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,70 +41,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Riccardo Mancini <rickyman7@gmail.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit f8cbb0f926ae1e1fb5f9e51614e5437560ed4039 ]
+[ Upstream commit af30cbd2f4d6d66a9b6094e0aa32420bc8b20e08 ]
 
-ASan reports memory leaks when running:
+If an error occurs after a 'pci_enable_pcie_error_reporting()' call, it
+must be undone by a corresponding 'pci_disable_pcie_error_reporting()'
+call, as already done in the remove function.
 
-  # perf test "88: Check open filename arg using perf trace + vfs_getname"
-
-One of these is caused by the lzma stream never being closed inside
-lzma_decompress_to_file().
-
-This patch adds the missing lzma_end().
-
-Signed-off-by: Riccardo Mancini <rickyman7@gmail.com>
-Fixes: 80a32e5b498a7547 ("perf tools: Add lzma decompression support for kernel module")
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/aaf50bdce7afe996cfc06e1bbb36e4a2a9b9db93.1626343282.git.rickyman7@gmail.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 5eae00c57f5e ("i40evf: main driver core")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/lzma.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/intel/i40evf/i40evf_main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/tools/perf/util/lzma.c b/tools/perf/util/lzma.c
-index b1dd29a9d915..6c844110fc25 100644
---- a/tools/perf/util/lzma.c
-+++ b/tools/perf/util/lzma.c
-@@ -68,7 +68,7 @@ int lzma_decompress_to_file(const char *input, int output_fd)
- 
- 			if (ferror(infile)) {
- 				pr_err("lzma: read error: %s\n", strerror(errno));
--				goto err_fclose;
-+				goto err_lzma_end;
- 			}
- 
- 			if (feof(infile))
-@@ -82,7 +82,7 @@ int lzma_decompress_to_file(const char *input, int output_fd)
- 
- 			if (writen(output_fd, buf_out, write_size) != write_size) {
- 				pr_err("lzma: write error: %s\n", strerror(errno));
--				goto err_fclose;
-+				goto err_lzma_end;
- 			}
- 
- 			strm.next_out  = buf_out;
-@@ -94,11 +94,13 @@ int lzma_decompress_to_file(const char *input, int output_fd)
- 				break;
- 
- 			pr_err("lzma: failed %s\n", lzma_strerror(ret));
--			goto err_fclose;
-+			goto err_lzma_end;
- 		}
- 	}
- 
- 	err = 0;
-+err_lzma_end:
-+	lzma_end(&strm);
- err_fclose:
- 	fclose(infile);
- 	return err;
+diff --git a/drivers/net/ethernet/intel/i40evf/i40evf_main.c b/drivers/net/ethernet/intel/i40evf/i40evf_main.c
+index 1b5d204c57c1..ad2dd5b747b2 100644
+--- a/drivers/net/ethernet/intel/i40evf/i40evf_main.c
++++ b/drivers/net/ethernet/intel/i40evf/i40evf_main.c
+@@ -2924,6 +2924,7 @@ static int i40evf_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ err_ioremap:
+ 	free_netdev(netdev);
+ err_alloc_etherdev:
++	pci_disable_pcie_error_reporting(pdev);
+ 	pci_release_regions(pdev);
+ err_pci_reg:
+ err_dma:
 -- 
 2.30.2
 
