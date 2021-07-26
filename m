@@ -2,125 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98E513D5CDC
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:22:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09F953D5CEF
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:26:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234823AbhGZOmI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 10:42:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41586 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233937AbhGZOmF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Jul 2021 10:42:05 -0400
-Received: from mail-wm1-x32b.google.com (mail-wm1-x32b.google.com [IPv6:2a00:1450:4864:20::32b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B36EC061757
-        for <stable@vger.kernel.org>; Mon, 26 Jul 2021 08:22:33 -0700 (PDT)
-Received: by mail-wm1-x32b.google.com with SMTP id h24-20020a1ccc180000b029022e0571d1a0so231996wmb.5
-        for <stable@vger.kernel.org>; Mon, 26 Jul 2021 08:22:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:from:to:cc:references:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=GrI9+wrVwRvoOtwRhsj0ZOHoAXVgzNQabddLbvKeEu4=;
-        b=gpEB7bSVcfOM04/zIHTgYBY5gzTaysqMYIt4xjW2YGbX1HBr3czOlu7FPmWfV2aYV6
-         qDTTaZxjoPt+TS2OIa3ug7GP4aK081ARIzabRwMayRBELjd/fPG7AMBYHFe7rwUn4rBO
-         lfaXLJCIf/hE8Lu/sIt4e3Ee/N+Z9oPItsmXiWNyNi8ia+CjFZbXWtmZAe7F4TOnCQax
-         L9pG5gZ0stUr+9hpvL+qqm5IMqRcE25hfJTvxcm2cZ2NJJB7hy/9yMNmCdHS65xsGOsT
-         5PN2vo8z9FEfW1B/HFYVMLN09nMenzM+OHnEo5vn7Cm72TCBBrDA2R1ffKgmQtZZ9J1H
-         NlSQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:from:to:cc:references:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=GrI9+wrVwRvoOtwRhsj0ZOHoAXVgzNQabddLbvKeEu4=;
-        b=VijkKIltNnIU2m4xyeujLH8jyEKxtK30oCtGQmTq+jHx/eu6yflD9qSxiPfpIWa1kv
-         ZGEuJog2OxcZymxjHifz9xLhXHmtT75Myd+X5pOdlmvQIUukhWiYuBSHGIsLMvN2YNEG
-         xiYZUWgmexdH5DvG2x7e0MLWoUCePz84l8NFr84IjC2GqoARrDjGJ7kce24FGhqpNyM8
-         d55oszdfjWCZ+H6nrsF5VzzdQ1/XVUxOTujf5Le757SL4T7ECyrHmd15ohEB99ccGtYR
-         xuEJQcvfJvLc5iuprxh8l8Pp5jnOVETu+fznh2BtOPR08rKxZaGdT6UQqeNboNPiX1Uu
-         prgg==
-X-Gm-Message-State: AOAM531mVJNso/hN8J8rZIfm8nxVG9WrHXK9zy6k8sYxCKbGNxLsT2IT
-        JAjwOMB6cz7NxyYI+DOZ3yY=
-X-Google-Smtp-Source: ABdhPJzGpAb6sEZ8aq21vQWwY4NZFZpUy30q2OKyMAMOYUNk7K5TpxWWhOUt5PnMzH6WZaMbpGMZgg==
-X-Received: by 2002:a05:600c:19cb:: with SMTP id u11mr13401747wmq.1.1627312952034;
-        Mon, 26 Jul 2021 08:22:32 -0700 (PDT)
-Received: from [192.168.8.197] ([148.252.133.244])
-        by smtp.gmail.com with ESMTPSA id p4sm77516wre.83.2021.07.26.08.22.31
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 26 Jul 2021 08:22:31 -0700 (PDT)
-Subject: Re: [PATCH] io_uring: fix link timeout refs
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     stable@vger.kernel.org
-Cc:     Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        syzbot+a2910119328ce8e7996f@syzkaller.appspotmail.com
-References: <caf9dc2dc29367bb38fee4064b7d562d9837e441.1627312513.git.asml.silence@gmail.com>
-Message-ID: <6564af0e-72b0-5308-4561-706ec4026385@gmail.com>
-Date:   Mon, 26 Jul 2021 16:22:06 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.12.0
+        id S234809AbhGZOpw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 10:45:52 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:24660 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234710AbhGZOpv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Jul 2021 10:45:51 -0400
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16QFHfwD021448;
+        Mon, 26 Jul 2021 11:25:40 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=1sFHS5zJLlrMstVK/2aj2Ztpod8AixmHr4YcumEDeN8=;
+ b=BLmHJHHKVeJ7IJsLfOxF1ztyHIpconmdEn6Den5lhv5f7Wd/SedRdfhl8N/HqQRBpzL9
+ MOa9TSLrqg0eFmhuN4/UIldU7Rbw2oe9ghBBcsTF7KF/yw565cG33i1cPx8afVByHptr
+ R07pPJFwrWAFEIta1m8rcnY3RKOK5wS9ZmCIzt01gT/G2ZPtgkftjUuNb0jeXfrEi24X
+ /kOZCVbBT+wYJHH8saytxY7CIPsgSGhvFgH+M0XstdcNSr2YfIzT0w/jfYYVW7IOmG+D
+ mqm3Vt2sDbkYX/02hf2EoXReJCwPMoibHNNfZDAY+j0/wNQD+Xz+48fYG4WMm91yxsqw Zg== 
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3a1y2hsgp0-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 26 Jul 2021 11:25:39 -0400
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16QFNrV8027759;
+        Mon, 26 Jul 2021 15:25:37 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma04fra.de.ibm.com with ESMTP id 3a0ag8rrmv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 26 Jul 2021 15:25:37 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16QFMxFQ27984156
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 26 Jul 2021 15:22:59 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1BD1BA405F;
+        Mon, 26 Jul 2021 15:25:34 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D80B2A4062;
+        Mon, 26 Jul 2021 15:25:32 +0000 (GMT)
+Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.33.9])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with SMTP;
+        Mon, 26 Jul 2021 15:25:32 +0000 (GMT)
+Date:   Mon, 26 Jul 2021 17:25:23 +0200
+From:   Halil Pasic <pasic@linux.ibm.com>
+To:     Konrad Rzeszutek Wilk <konrad@darnok.org>
+Cc:     Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, stable@vger.kernel.org,
+        Claire Chang <tientzu@chromium.org>,
+        Will Deacon <will@kernel.org>, Christoph Hellwig <hch@lst.de>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCH v2 1/1] s390/pv: fix the forcing of the swiotlb
+Message-ID: <20210726172523.0fbdda60.pasic@linux.ibm.com>
+In-Reply-To: <YPtejB62iu+iNrM+@fedora>
+References: <20210723231746.3964989-1-pasic@linux.ibm.com>
+        <YPtejB62iu+iNrM+@fedora>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-In-Reply-To: <caf9dc2dc29367bb38fee4064b7d562d9837e441.1627312513.git.asml.silence@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: ldcOjuF41nHbAb-Cj17FjrUVXmxMMXk9
+X-Proofpoint-ORIG-GUID: ldcOjuF41nHbAb-Cj17FjrUVXmxMMXk9
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-07-26_10:2021-07-26,2021-07-26 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 bulkscore=0
+ mlxscore=0 suspectscore=0 spamscore=0 malwarescore=0 lowpriorityscore=0
+ mlxlogscore=999 priorityscore=1501 adultscore=0 phishscore=0 clxscore=1011
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2104190000
+ definitions=main-2107260086
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 7/26/21 4:17 PM, Pavel Begunkov wrote:
-> [ Upstream commit a298232ee6b9a1d5d732aa497ff8be0d45b5bd82 ]
+On Fri, 23 Jul 2021 20:27:56 -0400
+Konrad Rzeszutek Wilk <konrad@darnok.org> wrote:
 
-Looking at it, it just reverts the backported patch,
-i.e. 0b2a990e5d2f76d020cb840c456e6ec5f0c27530.
-Wasn't needed in 5.10 in the first place.
-
-Sudip, would be great if you can try it out
-
-
-> WARNING: CPU: 0 PID: 10242 at lib/refcount.c:28 refcount_warn_saturate+0x15b/0x1a0 lib/refcount.c:28
-> RIP: 0010:refcount_warn_saturate+0x15b/0x1a0 lib/refcount.c:28
-> Call Trace:
->  __refcount_sub_and_test include/linux/refcount.h:283 [inline]
->  __refcount_dec_and_test include/linux/refcount.h:315 [inline]
->  refcount_dec_and_test include/linux/refcount.h:333 [inline]
->  io_put_req fs/io_uring.c:2140 [inline]
->  io_queue_linked_timeout fs/io_uring.c:6300 [inline]
->  __io_queue_sqe+0xbef/0xec0 fs/io_uring.c:6354
->  io_submit_sqe fs/io_uring.c:6534 [inline]
->  io_submit_sqes+0x2bbd/0x7c50 fs/io_uring.c:6660
->  __do_sys_io_uring_enter fs/io_uring.c:9240 [inline]
->  __se_sys_io_uring_enter+0x256/0x1d60 fs/io_uring.c:9182
+> On Sat, Jul 24, 2021 at 01:17:46AM +0200, Halil Pasic wrote:
+> > Since commit 903cd0f315fe ("swiotlb: Use is_swiotlb_force_bounce for
+> > swiotlb data bouncing") if code sets swiotlb_force it needs to do so
+> > before the swiotlb is initialised. Otherwise
+> > io_tlb_default_mem->force_bounce will not get set to true, and devices
+> > that use (the default) swiotlb will not bounce despite switolb_force
+> > having the value of SWIOTLB_FORCE.
+> > 
+> > Let us restore swiotlb functionality for PV by fulfilling this new
+> > requirement.
+> > 
+> > This change addresses what turned out to be a fragility in
+> > commit 64e1f0c531d1 ("s390/mm: force swiotlb for protected
+> > virtualization"), which ain't exactly broken in its original context,
+> > but could give us some more headache if people backport the broken
+> > change and forget this fix.
+> > 
+> > Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+> > Tested-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> > Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> > Fixes: 903cd0f315fe ("swiotlb: Use is_swiotlb_force_bounce for swiotlb data bouncing")
+> > Fixes: 64e1f0c531d1 ("s390/mm: force swiotlb for protected virtualization")
+> > Cc: stable@vger.kernel.org #5.3+
+> > 
+> > ---  
 > 
-> io_link_timeout_fn() should put only one reference of the linked timeout
-> request, however in case of racing with the master request's completion
-> first io_req_complete() puts one and then io_put_req_deferred() is
-> called.
-> 
-> Cc: stable@vger.kernel.org # 5.12+
-> Fixes: 9ae1f8dd372e0 ("io_uring: fix inconsistent lock state")
-> Reported-by: syzbot+a2910119328ce8e7996f@syzkaller.appspotmail.com
-> Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-> Link: https://lore.kernel.org/r/ff51018ff29de5ffa76f09273ef48cb24c720368.1620417627.git.asml.silence@gmail.com
-> Signed-off-by: Jens Axboe <axboe@kernel.dk>
-> ---
->  fs/io_uring.c | 1 -
->  1 file changed, 1 deletion(-)
-> 
-> diff --git a/fs/io_uring.c b/fs/io_uring.c
-> index 42153106b7bc..42439838eaf7 100644
-> --- a/fs/io_uring.c
-> +++ b/fs/io_uring.c
-> @@ -6260,7 +6260,6 @@ static enum hrtimer_restart io_link_timeout_fn(struct hrtimer *timer)
->  	if (prev) {
->  		io_async_find_and_cancel(ctx, req, prev->user_data, -ETIME);
->  		io_put_req_deferred(prev, 1);
-> -		io_put_req_deferred(req, 1);
->  	} else {
->  		io_cqring_add_event(req, -ETIME, 0);
->  		io_put_req_deferred(req, 1);
-> 
+> Picked it up and stuck it in linux-next with the other set of patches (Will's fixes).
 
--- 
-Pavel Begunkov
+Thanks!
+
