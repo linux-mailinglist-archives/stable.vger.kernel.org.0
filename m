@@ -2,37 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE4723D600A
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84D563D6173
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:13:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237024AbhGZPU0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:20:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33740 "EHLO mail.kernel.org"
+        id S233070AbhGZPbz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:31:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237026AbhGZPUY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:20:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0604760F6E;
-        Mon, 26 Jul 2021 16:00:51 +0000 (UTC)
+        id S237900AbhGZP32 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:29:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9E34960F9C;
+        Mon, 26 Jul 2021 16:09:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315252;
-        bh=hcgH7wMWk/1foFuGFCMmUC4j5wDqeARulTA0YLc3R6Q=;
+        s=korg; t=1627315784;
+        bh=L7JTVkEdQIYlNs6VVT99tMf5FeimLX1yzbm9MRlaZI8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qkYin3xNOt/6n+q4GNyTXG1Yq9jdxKhBXCJT0YmCjku6styMh6ot53MAC8+lM64Xn
-         HtJelkF8kl9H3xE+wrGjNvTnI6ALb23J5EPojqGptKTXmplAB7IvDS4TfzFhZrOzKm
-         f9hgKyEPbLr8N0W5ibfwxYqsSC75y3pETJCEPSzY=
+        b=odRvICjogZ7H0Aw/HW3If5iMWMq1Dw0LPsc4f2tar/d2+TKgioj7z3W6EqsHvfqoI
+         3vXHLfARQYKt48RP57CAdC4b7GYJddYbdnfM9lZ36rZgVmZ7xC/ict2p4XN04z0pvC
+         DtuJPEMU+5tSpsSJ0ebBW4S4iNWVZpqrR1BgWwWM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Riccardo Mancini <rickyman7@gmail.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 023/167] ipv6: fix disable_policy for fwd packets
+Subject: [PATCH 5.13 064/223] perf data: Close all files in close_dir()
 Date:   Mon, 26 Jul 2021 17:37:36 +0200
-Message-Id: <20210726153840.143102902@linuxfoundation.org>
+Message-Id: <20210726153848.356257789@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
-References: <20210726153839.371771838@linuxfoundation.org>
+In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
+References: <20210726153846.245305071@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,48 +46,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+From: Riccardo Mancini <rickyman7@gmail.com>
 
-[ Upstream commit ccd27f05ae7b8ebc40af5b004e94517a919aa862 ]
+[ Upstream commit d4b3eedce151e63932ce4a00f1d0baa340a8b907 ]
 
-The goal of commit df789fe75206 ("ipv6: Provide ipv6 version of
-"disable_policy" sysctl") was to have the disable_policy from ipv4
-available on ipv6.
-However, it's not exactly the same mechanism. On IPv4, all packets coming
-from an interface, which has disable_policy set, bypass the policy check.
-For ipv6, this is done only for local packets, ie for packets destinated to
-an address configured on the incoming interface.
+When using 'perf report' in directory mode, the first file is not closed
+on exit, causing a memory leak.
 
-Let's align ipv6 with ipv4 so that the 'disable_policy' sysctl has the same
-effect for both protocols.
+The problem is caused by the iterating variable never reaching 0.
 
-My first approach was to create a new kind of route cache entries, to be
-able to set DST_NOPOLICY without modifying routes. This would have added a
-lot of code. Because the local delivery path is already handled, I choose
-to focus on the forwarding path to minimize code churn.
-
-Fixes: df789fe75206 ("ipv6: Provide ipv6 version of "disable_policy" sysctl")
-Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 145520631130bd64 ("perf data: Add perf_data__(create_dir|close_dir) functions")
+Signed-off-by: Riccardo Mancini <rickyman7@gmail.com>
+Acked-by: Namhyung Kim <namhyung@kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Zhen Lei <thunder.leizhen@huawei.com>
+Link: http://lore.kernel.org/lkml/20210716141122.858082-1-rickyman7@gmail.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/ip6_output.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ tools/perf/util/data.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
-index e889655ca0e2..341d0c7acc8b 100644
---- a/net/ipv6/ip6_output.c
-+++ b/net/ipv6/ip6_output.c
-@@ -478,7 +478,9 @@ int ip6_forward(struct sk_buff *skb)
- 	if (skb_warn_if_lro(skb))
- 		goto drop;
+diff --git a/tools/perf/util/data.c b/tools/perf/util/data.c
+index 8fca4779ae6a..70b91ce35178 100644
+--- a/tools/perf/util/data.c
++++ b/tools/perf/util/data.c
+@@ -20,7 +20,7 @@
  
--	if (!xfrm6_policy_check(NULL, XFRM_POLICY_FWD, skb)) {
-+	if (!net->ipv6.devconf_all->disable_policy &&
-+	    !idev->cnf.disable_policy &&
-+	    !xfrm6_policy_check(NULL, XFRM_POLICY_FWD, skb)) {
- 		__IP6_INC_STATS(net, idev, IPSTATS_MIB_INDISCARDS);
- 		goto drop;
+ static void close_dir(struct perf_data_file *files, int nr)
+ {
+-	while (--nr >= 1) {
++	while (--nr >= 0) {
+ 		close(files[nr].fd);
+ 		zfree(&files[nr].path);
  	}
 -- 
 2.30.2
