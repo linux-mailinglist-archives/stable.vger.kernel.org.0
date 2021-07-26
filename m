@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AC093D61C5
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:14:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6567E3D5FFC
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233945AbhGZPc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:32:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43048 "EHLO mail.kernel.org"
+        id S236615AbhGZPUK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:20:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237879AbhGZP31 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:29:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 98E0F6108D;
-        Mon, 26 Jul 2021 16:09:21 +0000 (UTC)
+        id S236943AbhGZPUE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:20:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3EE7060F6E;
+        Mon, 26 Jul 2021 16:00:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315762;
-        bh=ohL/9vnVlqBMwG3sxamtHqqALrt+Kx3qPdVqqpGQtdU=;
+        s=korg; t=1627315232;
+        bh=7pJKkCFBz5aNDWng+bU11zThRitaAZ3LUZUfV7yT33k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=On7a+FPIW1EFTauFKjUTGffVY1B+tdqu7ZyEGS3KVt4lXbfXlD7YSvhfhd7KibrKO
-         hBfGFvz8K934x57ExHZfaOm7F0zifTG1Z7yhoVIAbZ+0w7eVZH+/jgYSWoi7wXtFu5
-         olHOd6lRrH+VdiwEkGBmgS2L/LI0pVkB7Ifadcfg=
+        b=UdZYCemFoEwElY30Um45C3VlQTevicnEZ5pSJ7IcGXVvowZiRR/OwhwR7XAXZy3wj
+         nBXddAZObicL9trvkr4z9GG2tjWKAKM7ySmzh2e1htrp5t/ra52PPL2sO0n9hiVZFi
+         5fjNKz436G/8ib/FKBqUeQROGGhtz+aASmR+9Z1w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Riccardo Mancini <rickyman7@gmail.com>,
-        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 056/223] perf dso: Fix memory leak in dso__new_map()
-Date:   Mon, 26 Jul 2021 17:37:28 +0200
-Message-Id: <20210726153848.094541267@linuxfoundation.org>
+Subject: [PATCH 5.10 016/167] bonding: fix null dereference in bond_ipsec_add_sa()
+Date:   Mon, 26 Jul 2021 17:37:29 +0200
+Message-Id: <20210726153839.910138570@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
-References: <20210726153846.245305071@linuxfoundation.org>
+In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
+References: <20210726153839.371771838@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +40,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Riccardo Mancini <rickyman7@gmail.com>
+From: Taehee Yoo <ap420073@gmail.com>
 
-[ Upstream commit 581e295a0f6b5c2931d280259fbbfff56959faa9 ]
+[ Upstream commit 105cd17a866017b45f3c45901b394c711c97bf40 ]
 
-ASan reports a memory leak when running:
+If bond doesn't have real device, bond->curr_active_slave is null.
+But bond_ipsec_add_sa() dereferences bond->curr_active_slave without
+null checking.
+So, null-ptr-deref would occur.
 
-  # perf test "65: maps__merge_in".
+Test commands:
+    ip link add bond0 type bond
+    ip link set bond0 up
+    ip x s add proto esp dst 14.1.1.1 src 15.1.1.1 spi \
+0x07 mode transport reqid 0x07 replay-window 32 aead 'rfc4106(gcm(aes))' \
+0x44434241343332312423222114131211f4f3f2f1 128 sel src 14.0.0.52/24 \
+dst 14.0.0.70/24 proto tcp offload dev bond0 dir in
 
-The causes of the leaks are two, this patch addresses only the first
-one, which is related to dso__new_map().
+Splat looks like:
+KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
+CPU: 4 PID: 680 Comm: ip Not tainted 5.13.0-rc3+ #1168
+RIP: 0010:bond_ipsec_add_sa+0xc4/0x2e0 [bonding]
+Code: 85 21 02 00 00 4d 8b a6 48 0c 00 00 e8 75 58 44 ce 85 c0 0f 85 14
+01 00 00 48 b8 00 00 00 00 00 fc ff df 4c 89 e2 48 c1 ea 03 <80> 3c 02
+00 0f 85 fc 01 00 00 48 8d bb e0 02 00 00 4d 8b 2c 24 48
+RSP: 0018:ffff88810946f508 EFLAGS: 00010246
+RAX: dffffc0000000000 RBX: ffff88810b4e8040 RCX: 0000000000000001
+RDX: 0000000000000000 RSI: ffffffff8fe34280 RDI: ffff888115abe100
+RBP: ffff88810946f528 R08: 0000000000000003 R09: fffffbfff2287e11
+R10: 0000000000000001 R11: ffff888115abe0c8 R12: 0000000000000000
+R13: ffffffffc0aea9a0 R14: ffff88800d7d2000 R15: ffff88810b4e8330
+FS:  00007efc5552e680(0000) GS:ffff888119c00000(0000)
+knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 000055c2530dbf40 CR3: 0000000103056004 CR4: 00000000003706e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ xfrm_dev_state_add+0x2a9/0x770
+ ? memcpy+0x38/0x60
+ xfrm_add_sa+0x2278/0x3b10 [xfrm_user]
+ ? xfrm_get_policy+0xaa0/0xaa0 [xfrm_user]
+ ? register_lock_class+0x1750/0x1750
+ xfrm_user_rcv_msg+0x331/0x660 [xfrm_user]
+ ? rcu_read_lock_sched_held+0x91/0xc0
+ ? xfrm_user_state_lookup.constprop.39+0x320/0x320 [xfrm_user]
+ ? find_held_lock+0x3a/0x1c0
+ ? mutex_lock_io_nested+0x1210/0x1210
+ ? sched_clock_cpu+0x18/0x170
+ netlink_rcv_skb+0x121/0x350
+ ? xfrm_user_state_lookup.constprop.39+0x320/0x320 [xfrm_user]
+ ? netlink_ack+0x9d0/0x9d0
+ ? netlink_deliver_tap+0x17c/0xa50
+ xfrm_netlink_rcv+0x68/0x80 [xfrm_user]
+ netlink_unicast+0x41c/0x610
+ ? netlink_attachskb+0x710/0x710
+ netlink_sendmsg+0x6b9/0xb70
+[ ...]
 
-The bug is that dso__new_map() creates a new dso but never decreases the
-refcount it gets from creating it.
-
-This patch adds the missing dso__put().
-
-Signed-off-by: Riccardo Mancini <rickyman7@gmail.com>
-Fixes: d3a7c489c7fd2463 ("perf tools: Reference count struct dso")
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/60bfe0cd06e89e2ca33646eb8468d7f5de2ee597.1626343282.git.rickyman7@gmail.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 18cb261afd7b ("bonding: support hardware encryption offload to slaves")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/dso.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/bonding/bond_main.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/tools/perf/util/dso.c b/tools/perf/util/dso.c
-index d786cf6b0cfa..ee15db2be2f4 100644
---- a/tools/perf/util/dso.c
-+++ b/tools/perf/util/dso.c
-@@ -1154,8 +1154,10 @@ struct map *dso__new_map(const char *name)
- 	struct map *map = NULL;
- 	struct dso *dso = dso__new(name);
- 
--	if (dso)
-+	if (dso) {
- 		map = map__new2(0, dso);
-+		dso__put(dso);
+diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
+index 8bb90e97898d..a66d639c415f 100644
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -395,6 +395,11 @@ static int bond_ipsec_add_sa(struct xfrm_state *xs)
+ 	rcu_read_lock();
+ 	bond = netdev_priv(bond_dev);
+ 	slave = rcu_dereference(bond->curr_active_slave);
++	if (!slave) {
++		rcu_read_unlock();
++		return -ENODEV;
 +	}
++
+ 	xs->xso.real_dev = slave->dev;
+ 	bond->xs = xs;
  
- 	return map;
- }
 -- 
 2.30.2
 
