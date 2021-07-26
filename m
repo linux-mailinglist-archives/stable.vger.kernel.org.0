@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4FEA3D5DCB
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:45:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 222AF3D5D69
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:42:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235731AbhGZPDr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:03:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43432 "EHLO mail.kernel.org"
+        id S235506AbhGZPBU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:01:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235822AbhGZPDn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:03:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 550BE60F22;
-        Mon, 26 Jul 2021 15:44:11 +0000 (UTC)
+        id S235507AbhGZPBQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:01:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7102660F22;
+        Mon, 26 Jul 2021 15:41:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314251;
-        bh=VBw5frsmPIBvTDad6YmeuJ7Op02ilSreRwar0rT6SQ0=;
+        s=korg; t=1627314105;
+        bh=isF4QB8C5bHRW9154NwUZ+beRoilDf5jzQhWxpbDkbo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2Zw7oTuHflPlC65SyAId//x5sNlUHgHBl+ZohaH9rIDEKL+zR9oetOYXeKl3Stv7Y
-         XN5SQoXTlafaZwSrgcOcw2Ugz9HSV3UeX8pWBjydUZfWSIQNeTdf4UgQ2Sg3rs1Rdh
-         GXPUaB0myQ701iflPy+OTJhMkE4S1Kbrq3s4WK0o=
+        b=z5XHNlY+2F9btWTSfPWgQKkukzsW1HhdCWuF1OPcwKdznql6GeROmucANpzALEw1C
+         B1C/M6OA01uomk72m0bHvi6vjmburfl2r5Rlo/Rvb/U9tBpQrMGT76evkHdvWw+yYb
+         MCrh9pke5uUwCwNLG7vyDT3sKOQzsU0SL8btuYr4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Mike Christie <michael.christie@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 39/60] scsi: iscsi: Fix iface sysfs attr detection
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 4.4 35/47] usb: hub: Disable USB 3 device initiated lpm if exit latency is too high
 Date:   Mon, 26 Jul 2021 17:38:53 +0200
-Message-Id: <20210726153826.096688342@linuxfoundation.org>
+Message-Id: <20210726153824.088485130@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153824.868160836@linuxfoundation.org>
-References: <20210726153824.868160836@linuxfoundation.org>
+In-Reply-To: <20210726153822.980271128@linuxfoundation.org>
+References: <20210726153822.980271128@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,146 +39,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <michael.christie@oracle.com>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-[ Upstream commit e746f3451ec7f91dcc9fd67a631239c715850a34 ]
+commit 1b7f56fbc7a1b66967b6114d1b5f5a257c3abae6 upstream.
 
-A ISCSI_IFACE_PARAM can have the same value as a ISCSI_NET_PARAM so when
-iscsi_iface_attr_is_visible tries to figure out the type by just checking
-the value, we can collide and return the wrong type. When we call into the
-driver we might not match and return that we don't want attr visible in
-sysfs. The patch fixes this by setting the type when we figure out what the
-param is.
+The device initiated link power management U1/U2 states should not be
+enabled in case the system exit latency plus one bus interval (125us) is
+greater than the shortest service interval of any periodic endpoint.
 
-Link: https://lore.kernel.org/r/20210701002559.89533-1-michael.christie@oracle.com
-Fixes: 3e0f65b34cc9 ("[SCSI] iscsi_transport: Additional parameters for network settings")
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This is the case for both U1 and U2 sytstem exit latencies and link states.
+
+See USB 3.2 section 9.4.9 "Set Feature" for more details
+
+Note, before this patch the host and device initiated U1/U2 lpm states
+were both enabled with lpm. After this patch it's possible to end up with
+only host inititated U1/U2 lpm in case the exit latencies won't allow
+device initiated lpm.
+
+If this case we still want to set the udev->usb3_lpm_ux_enabled flag so
+that sysfs users can see the link may go to U1/U2.
+
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210715150122.1995966-2-mathias.nyman@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/scsi_transport_iscsi.c | 90 +++++++++++------------------
- 1 file changed, 34 insertions(+), 56 deletions(-)
+ drivers/usb/core/hub.c |   68 ++++++++++++++++++++++++++++++++++++++++---------
+ 1 file changed, 56 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
-index 337aad0660fa..8d10b35caed5 100644
---- a/drivers/scsi/scsi_transport_iscsi.c
-+++ b/drivers/scsi/scsi_transport_iscsi.c
-@@ -427,39 +427,10 @@ static umode_t iscsi_iface_attr_is_visible(struct kobject *kobj,
- 	struct device *dev = container_of(kobj, struct device, kobj);
- 	struct iscsi_iface *iface = iscsi_dev_to_iface(dev);
- 	struct iscsi_transport *t = iface->transport;
--	int param;
--	int param_type;
-+	int param = -1;
- 
- 	if (attr == &dev_attr_iface_enabled.attr)
- 		param = ISCSI_NET_PARAM_IFACE_ENABLE;
--	else if (attr == &dev_attr_iface_vlan_id.attr)
--		param = ISCSI_NET_PARAM_VLAN_ID;
--	else if (attr == &dev_attr_iface_vlan_priority.attr)
--		param = ISCSI_NET_PARAM_VLAN_PRIORITY;
--	else if (attr == &dev_attr_iface_vlan_enabled.attr)
--		param = ISCSI_NET_PARAM_VLAN_ENABLED;
--	else if (attr == &dev_attr_iface_mtu.attr)
--		param = ISCSI_NET_PARAM_MTU;
--	else if (attr == &dev_attr_iface_port.attr)
--		param = ISCSI_NET_PARAM_PORT;
--	else if (attr == &dev_attr_iface_ipaddress_state.attr)
--		param = ISCSI_NET_PARAM_IPADDR_STATE;
--	else if (attr == &dev_attr_iface_delayed_ack_en.attr)
--		param = ISCSI_NET_PARAM_DELAYED_ACK_EN;
--	else if (attr == &dev_attr_iface_tcp_nagle_disable.attr)
--		param = ISCSI_NET_PARAM_TCP_NAGLE_DISABLE;
--	else if (attr == &dev_attr_iface_tcp_wsf_disable.attr)
--		param = ISCSI_NET_PARAM_TCP_WSF_DISABLE;
--	else if (attr == &dev_attr_iface_tcp_wsf.attr)
--		param = ISCSI_NET_PARAM_TCP_WSF;
--	else if (attr == &dev_attr_iface_tcp_timer_scale.attr)
--		param = ISCSI_NET_PARAM_TCP_TIMER_SCALE;
--	else if (attr == &dev_attr_iface_tcp_timestamp_en.attr)
--		param = ISCSI_NET_PARAM_TCP_TIMESTAMP_EN;
--	else if (attr == &dev_attr_iface_cache_id.attr)
--		param = ISCSI_NET_PARAM_CACHE_ID;
--	else if (attr == &dev_attr_iface_redirect_en.attr)
--		param = ISCSI_NET_PARAM_REDIRECT_EN;
- 	else if (attr == &dev_attr_iface_def_taskmgmt_tmo.attr)
- 		param = ISCSI_IFACE_PARAM_DEF_TASKMGMT_TMO;
- 	else if (attr == &dev_attr_iface_header_digest.attr)
-@@ -496,6 +467,38 @@ static umode_t iscsi_iface_attr_is_visible(struct kobject *kobj,
- 		param = ISCSI_IFACE_PARAM_STRICT_LOGIN_COMP_EN;
- 	else if (attr == &dev_attr_iface_initiator_name.attr)
- 		param = ISCSI_IFACE_PARAM_INITIATOR_NAME;
-+
-+	if (param != -1)
-+		return t->attr_is_visible(ISCSI_IFACE_PARAM, param);
-+
-+	if (attr == &dev_attr_iface_vlan_id.attr)
-+		param = ISCSI_NET_PARAM_VLAN_ID;
-+	else if (attr == &dev_attr_iface_vlan_priority.attr)
-+		param = ISCSI_NET_PARAM_VLAN_PRIORITY;
-+	else if (attr == &dev_attr_iface_vlan_enabled.attr)
-+		param = ISCSI_NET_PARAM_VLAN_ENABLED;
-+	else if (attr == &dev_attr_iface_mtu.attr)
-+		param = ISCSI_NET_PARAM_MTU;
-+	else if (attr == &dev_attr_iface_port.attr)
-+		param = ISCSI_NET_PARAM_PORT;
-+	else if (attr == &dev_attr_iface_ipaddress_state.attr)
-+		param = ISCSI_NET_PARAM_IPADDR_STATE;
-+	else if (attr == &dev_attr_iface_delayed_ack_en.attr)
-+		param = ISCSI_NET_PARAM_DELAYED_ACK_EN;
-+	else if (attr == &dev_attr_iface_tcp_nagle_disable.attr)
-+		param = ISCSI_NET_PARAM_TCP_NAGLE_DISABLE;
-+	else if (attr == &dev_attr_iface_tcp_wsf_disable.attr)
-+		param = ISCSI_NET_PARAM_TCP_WSF_DISABLE;
-+	else if (attr == &dev_attr_iface_tcp_wsf.attr)
-+		param = ISCSI_NET_PARAM_TCP_WSF;
-+	else if (attr == &dev_attr_iface_tcp_timer_scale.attr)
-+		param = ISCSI_NET_PARAM_TCP_TIMER_SCALE;
-+	else if (attr == &dev_attr_iface_tcp_timestamp_en.attr)
-+		param = ISCSI_NET_PARAM_TCP_TIMESTAMP_EN;
-+	else if (attr == &dev_attr_iface_cache_id.attr)
-+		param = ISCSI_NET_PARAM_CACHE_ID;
-+	else if (attr == &dev_attr_iface_redirect_en.attr)
-+		param = ISCSI_NET_PARAM_REDIRECT_EN;
- 	else if (iface->iface_type == ISCSI_IFACE_TYPE_IPV4) {
- 		if (attr == &dev_attr_ipv4_iface_ipaddress.attr)
- 			param = ISCSI_NET_PARAM_IPV4_ADDR;
-@@ -586,32 +589,7 @@ static umode_t iscsi_iface_attr_is_visible(struct kobject *kobj,
- 		return 0;
- 	}
- 
--	switch (param) {
--	case ISCSI_IFACE_PARAM_DEF_TASKMGMT_TMO:
--	case ISCSI_IFACE_PARAM_HDRDGST_EN:
--	case ISCSI_IFACE_PARAM_DATADGST_EN:
--	case ISCSI_IFACE_PARAM_IMM_DATA_EN:
--	case ISCSI_IFACE_PARAM_INITIAL_R2T_EN:
--	case ISCSI_IFACE_PARAM_DATASEQ_INORDER_EN:
--	case ISCSI_IFACE_PARAM_PDU_INORDER_EN:
--	case ISCSI_IFACE_PARAM_ERL:
--	case ISCSI_IFACE_PARAM_MAX_RECV_DLENGTH:
--	case ISCSI_IFACE_PARAM_FIRST_BURST:
--	case ISCSI_IFACE_PARAM_MAX_R2T:
--	case ISCSI_IFACE_PARAM_MAX_BURST:
--	case ISCSI_IFACE_PARAM_CHAP_AUTH_EN:
--	case ISCSI_IFACE_PARAM_BIDI_CHAP_EN:
--	case ISCSI_IFACE_PARAM_DISCOVERY_AUTH_OPTIONAL:
--	case ISCSI_IFACE_PARAM_DISCOVERY_LOGOUT_EN:
--	case ISCSI_IFACE_PARAM_STRICT_LOGIN_COMP_EN:
--	case ISCSI_IFACE_PARAM_INITIATOR_NAME:
--		param_type = ISCSI_IFACE_PARAM;
--		break;
--	default:
--		param_type = ISCSI_NET_PARAM;
--	}
--
--	return t->attr_is_visible(param_type, param);
-+	return t->attr_is_visible(ISCSI_NET_PARAM, param);
+--- a/drivers/usb/core/hub.c
++++ b/drivers/usb/core/hub.c
+@@ -3837,6 +3837,47 @@ static int usb_set_lpm_timeout(struct us
  }
  
- static struct attribute *iscsi_iface_attrs[] = {
--- 
-2.30.2
-
+ /*
++ * Don't allow device intiated U1/U2 if the system exit latency + one bus
++ * interval is greater than the minimum service interval of any active
++ * periodic endpoint. See USB 3.2 section 9.4.9
++ */
++static bool usb_device_may_initiate_lpm(struct usb_device *udev,
++					enum usb3_link_state state)
++{
++	unsigned int sel;		/* us */
++	int i, j;
++
++	if (state == USB3_LPM_U1)
++		sel = DIV_ROUND_UP(udev->u1_params.sel, 1000);
++	else if (state == USB3_LPM_U2)
++		sel = DIV_ROUND_UP(udev->u2_params.sel, 1000);
++	else
++		return false;
++
++	for (i = 0; i < udev->actconfig->desc.bNumInterfaces; i++) {
++		struct usb_interface *intf;
++		struct usb_endpoint_descriptor *desc;
++		unsigned int interval;
++
++		intf = udev->actconfig->interface[i];
++		if (!intf)
++			continue;
++
++		for (j = 0; j < intf->cur_altsetting->desc.bNumEndpoints; j++) {
++			desc = &intf->cur_altsetting->endpoint[j].desc;
++
++			if (usb_endpoint_xfer_int(desc) ||
++			    usb_endpoint_xfer_isoc(desc)) {
++				interval = (1 << (desc->bInterval - 1)) * 125;
++				if (sel + 125 > interval)
++					return false;
++			}
++		}
++	}
++	return true;
++}
++
++/*
+  * Enable the hub-initiated U1/U2 idle timeouts, and enable device-initiated
+  * U1/U2 entry.
+  *
+@@ -3908,20 +3949,23 @@ static void usb_enable_link_state(struct
+ 	 * U1/U2_ENABLE
+ 	 */
+ 	if (udev->actconfig &&
+-	    usb_set_device_initiated_lpm(udev, state, true) == 0) {
+-		if (state == USB3_LPM_U1)
+-			udev->usb3_lpm_u1_enabled = 1;
+-		else if (state == USB3_LPM_U2)
+-			udev->usb3_lpm_u2_enabled = 1;
+-	} else {
+-		/* Don't request U1/U2 entry if the device
+-		 * cannot transition to U1/U2.
+-		 */
+-		usb_set_lpm_timeout(udev, state, 0);
+-		hcd->driver->disable_usb3_lpm_timeout(hcd, udev, state);
++	    usb_device_may_initiate_lpm(udev, state)) {
++		if (usb_set_device_initiated_lpm(udev, state, true)) {
++			/*
++			 * Request to enable device initiated U1/U2 failed,
++			 * better to turn off lpm in this case.
++			 */
++			usb_set_lpm_timeout(udev, state, 0);
++			hcd->driver->disable_usb3_lpm_timeout(hcd, udev, state);
++			return;
++		}
+ 	}
+-}
+ 
++	if (state == USB3_LPM_U1)
++		udev->usb3_lpm_u1_enabled = 1;
++	else if (state == USB3_LPM_U2)
++		udev->usb3_lpm_u2_enabled = 1;
++}
+ /*
+  * Disable the hub-initiated U1/U2 idle timeouts, and disable device-initiated
+  * U1/U2 entry.
 
 
