@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A8CC63D5F5D
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5E013D5DB8
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:44:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236857AbhGZPRq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:17:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53270 "EHLO mail.kernel.org"
+        id S235376AbhGZPDW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:03:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236865AbhGZPPm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:15:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D7C1C60FEE;
-        Mon, 26 Jul 2021 15:53:53 +0000 (UTC)
+        id S235243AbhGZPDR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:03:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 481A160F42;
+        Mon, 26 Jul 2021 15:43:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314834;
-        bh=kiCwj/eaP/By5s5uuKuSufARKwNtWr/QwUGAT1BSjy4=;
+        s=korg; t=1627314225;
+        bh=FbfTUaCE8iAMmY7gaVQ1OnGV2KwqSIE2SJgwBx/x76g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DeFZqRmwsccgGmoZ/lhqef2YCPify6eFn6UscTvEoWQDwpMpkCxyfxBqhhCzmLMH9
-         qWiiZGamaQoUmkGwmhlyt4bnI0Lv+UOfOJpabkIUZC6EZTwgmUAN908GmLNgHT9Dg2
-         Rb84+ih54NNmjfWgpjHbhgRMzDVyo9X1DoCSvc8E=
+        b=e4KlV4mjQRM8JJOiPu1UDeaDSDcYAyC1paWXreawSz8XTnSP4Ninvaqgr9bkG2Ugi
+         T45XV03KkG0yfsk5YWBUjQpDhzgSyN0LkFDiuJd6Dijq+VHt6Kra6rH/YHjrdx0C5M
+         YqOlZWARzZcEvli8Y8CZjr90qS0k2ABrqkDeSiG8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Ilya Leoshkevich <iii@linux.ibm.com>,
+        stable@vger.kernel.org, Riccardo Mancini <rickyman7@gmail.com>,
+        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 073/120] s390/bpf: Perform r1 range checking before accessing jit->seen_reg[r1]
+Subject: [PATCH 4.9 31/60] perf lzma: Close lzma stream on exit
 Date:   Mon, 26 Jul 2021 17:38:45 +0200
-Message-Id: <20210726153834.728280682@linuxfoundation.org>
+Message-Id: <20210726153825.847338740@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153832.339431936@linuxfoundation.org>
-References: <20210726153832.339431936@linuxfoundation.org>
+In-Reply-To: <20210726153824.868160836@linuxfoundation.org>
+References: <20210726153824.868160836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,41 +44,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Riccardo Mancini <rickyman7@gmail.com>
 
-[ Upstream commit 91091656252f5d6d8c476e0c92776ce9fae7b445 ]
+[ Upstream commit f8cbb0f926ae1e1fb5f9e51614e5437560ed4039 ]
 
-Currently array jit->seen_reg[r1] is being accessed before the range
-checking of index r1. The range changing on r1 should be performed
-first since it will avoid any potential out-of-range accesses on the
-array seen_reg[] and also it is more optimal to perform checks on r1
-before fetching data from the array. Fix this by swapping the order
-of the checks before the array access.
+ASan reports memory leaks when running:
 
-Fixes: 054623105728 ("s390/bpf: Add s390x eBPF JIT compiler backend")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Tested-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Acked-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Link: https://lore.kernel.org/bpf/20210715125712.24690-1-colin.king@canonical.com
+  # perf test "88: Check open filename arg using perf trace + vfs_getname"
+
+One of these is caused by the lzma stream never being closed inside
+lzma_decompress_to_file().
+
+This patch adds the missing lzma_end().
+
+Signed-off-by: Riccardo Mancini <rickyman7@gmail.com>
+Fixes: 80a32e5b498a7547 ("perf tools: Add lzma decompression support for kernel module")
+Cc: Ian Rogers <irogers@google.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lore.kernel.org/lkml/aaf50bdce7afe996cfc06e1bbb36e4a2a9b9db93.1626343282.git.rickyman7@gmail.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/net/bpf_jit_comp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/perf/util/lzma.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/arch/s390/net/bpf_jit_comp.c b/arch/s390/net/bpf_jit_comp.c
-index 2617e426c792..e42354b15e0b 100644
---- a/arch/s390/net/bpf_jit_comp.c
-+++ b/arch/s390/net/bpf_jit_comp.c
-@@ -113,7 +113,7 @@ static inline void reg_set_seen(struct bpf_jit *jit, u32 b1)
- {
- 	u32 r1 = reg2hex[b1];
+diff --git a/tools/perf/util/lzma.c b/tools/perf/util/lzma.c
+index 9ddea5cecd94..ba12643d2ded 100644
+--- a/tools/perf/util/lzma.c
++++ b/tools/perf/util/lzma.c
+@@ -61,7 +61,7 @@ int lzma_decompress_to_file(const char *input, int output_fd)
  
--	if (!jit->seen_reg[r1] && r1 >= 6 && r1 <= 15)
-+	if (r1 >= 6 && r1 <= 15 && !jit->seen_reg[r1])
- 		jit->seen_reg[r1] = 1;
- }
+ 			if (ferror(infile)) {
+ 				pr_err("lzma: read error: %s\n", strerror(errno));
+-				goto err_fclose;
++				goto err_lzma_end;
+ 			}
  
+ 			if (feof(infile))
+@@ -75,7 +75,7 @@ int lzma_decompress_to_file(const char *input, int output_fd)
+ 
+ 			if (writen(output_fd, buf_out, write_size) != write_size) {
+ 				pr_err("lzma: write error: %s\n", strerror(errno));
+-				goto err_fclose;
++				goto err_lzma_end;
+ 			}
+ 
+ 			strm.next_out  = buf_out;
+@@ -87,11 +87,13 @@ int lzma_decompress_to_file(const char *input, int output_fd)
+ 				break;
+ 
+ 			pr_err("lzma: failed %s\n", lzma_strerror(ret));
+-			goto err_fclose;
++			goto err_lzma_end;
+ 		}
+ 	}
+ 
+ 	err = 0;
++err_lzma_end:
++	lzma_end(&strm);
+ err_fclose:
+ 	fclose(infile);
+ 	return err;
 -- 
 2.30.2
 
