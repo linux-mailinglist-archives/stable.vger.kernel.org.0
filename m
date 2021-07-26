@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 11C7A3D5F5E
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B2303D5E0C
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:47:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236862AbhGZPRq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:17:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53066 "EHLO mail.kernel.org"
+        id S235960AbhGZPFO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:05:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45320 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236863AbhGZPPl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:15:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DA9260FE3;
-        Mon, 26 Jul 2021 15:53:37 +0000 (UTC)
+        id S236069AbhGZPE6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:04:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A7E760F6F;
+        Mon, 26 Jul 2021 15:45:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314818;
-        bh=MhuSh+hGIm0iv964cFkJCoDhLfzTxleeVvMgNXQo5y0=;
+        s=korg; t=1627314325;
+        bh=CA5ocV/Oxu/S7xxf1smZApRpj7aw1M+1m+SNWd43dqo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BobLjnuO5ibZYc2ticMfB9cNoOQBiUiZN0zZLfJMk+pvtf9FvU292db7IcRTlZBMG
-         PMD6TVwji03mWocVvTCspzHkPeVJI15jqX5FgXuqXQK8cyVcSD5R9mv9h1bTxIZ5Re
-         A1unFl6r06Xw86h9pgKrbJKgcVaVNfUNe6zl8WFk=
+        b=hDwIWWBCK58iEZNY1w73KXCZpg3kHJYoZ4m/aWf5dON/jq4XN8VfCOucJvhB8W6M6
+         pIqRQFPnpYH/s6MfZW7YJtb1KdQO2hSFmoPJrSlI0G7Hw0vfjXIzt3SFYciF/kpkFG
+         O9NDaXDQMcyOlo8QoVz+WmyX0BiY0t5Io9Nh2fRk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marco De Marco <marco.demarco@posteo.net>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 101/120] USB: serial: option: add support for u-blox LARA-R6 family
+        stable@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>,
+        Stephan Gerhold <stephan@gerhold.net>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.9 59/60] iio: accel: bma180: Fix BMA25x bandwidth register values
 Date:   Mon, 26 Jul 2021 17:39:13 +0200
-Message-Id: <20210726153835.669404842@linuxfoundation.org>
+Message-Id: <20210726153826.722974637@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153832.339431936@linuxfoundation.org>
-References: <20210726153832.339431936@linuxfoundation.org>
+In-Reply-To: <20210726153824.868160836@linuxfoundation.org>
+References: <20210726153824.868160836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,49 +43,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco De Marco <marco.demarco@posteo.net>
+From: Stephan Gerhold <stephan@gerhold.net>
 
-commit 94b619a07655805a1622484967754f5848640456 upstream.
+commit 8090d67421ddab0ae932abab5a60200598bf0bbb upstream
 
-The patch is meant to support LARA-R6 Cat 1 module family.
+According to the BMA253 datasheet [1] and BMA250 datasheet [2] the
+bandwidth value for BMA25x should be set as 01xxx:
 
-Module USB ID:
-Vendor  ID: 0x05c6
-Product ID: 0x90fA
+  "Settings 00xxx result in a bandwidth of 7.81 Hz; [...]
+   It is recommended [...] to use the range from ´01000b´ to ´01111b´
+   only in order to be compatible with future products."
 
-Interface layout:
-If 0: Diagnostic
-If 1: AT parser
-If 2: AT parser
-If 3: QMI wwan (not available in all versions)
+However, at the moment the drivers sets bandwidth values from 0 to 6,
+which is not recommended and always results into 7.81 Hz bandwidth
+according to the datasheet.
 
-Signed-off-by: Marco De Marco <marco.demarco@posteo.net>
-Link: https://lore.kernel.org/r/49260184.kfMIbaSn9k@mars
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fix this by introducing a bw_offset = 8 = 01000b for BMA25x,
+so the additional bit is always set for BMA25x.
+
+[1]: https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bma253-ds000.pdf
+[2]: https://datasheet.octopart.com/BMA250-Bosch-datasheet-15540103.pdf
+
+Cc: Peter Meerwald <pmeerw@pmeerw.net>
+Fixes: 2017cff24cc0 ("iio:bma180: Add BMA250 chip support")
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20210526094408.34298-2-stephan@gerhold.net
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+[sudip: adjust context]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/iio/accel/bma180.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -238,6 +238,7 @@ static void option_instat_callback(struc
- #define QUECTEL_PRODUCT_UC15			0x9090
- /* These u-blox products use Qualcomm's vendor ID */
- #define UBLOX_PRODUCT_R410M			0x90b2
-+#define UBLOX_PRODUCT_R6XX			0x90fa
- /* These Yuga products use Qualcomm's vendor ID */
- #define YUGA_PRODUCT_CLM920_NC5			0x9625
+--- a/drivers/iio/accel/bma180.c
++++ b/drivers/iio/accel/bma180.c
+@@ -49,7 +49,7 @@ struct bma180_part_info {
  
-@@ -1101,6 +1102,8 @@ static const struct usb_device_id option
- 	/* u-blox products using Qualcomm vendor ID */
- 	{ USB_DEVICE(QUALCOMM_VENDOR_ID, UBLOX_PRODUCT_R410M),
- 	  .driver_info = RSVD(1) | RSVD(3) },
-+	{ USB_DEVICE(QUALCOMM_VENDOR_ID, UBLOX_PRODUCT_R6XX),
-+	  .driver_info = RSVD(3) },
- 	/* Quectel products using Quectel vendor ID */
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC21, 0xff, 0xff, 0xff),
- 	  .driver_info = NUMEP2 },
+ 	u8 int_reset_reg, int_reset_mask;
+ 	u8 sleep_reg, sleep_mask;
+-	u8 bw_reg, bw_mask;
++	u8 bw_reg, bw_mask, bw_offset;
+ 	u8 scale_reg, scale_mask;
+ 	u8 power_reg, power_mask, lowpower_val;
+ 	u8 int_enable_reg, int_enable_mask;
+@@ -105,6 +105,7 @@ struct bma180_part_info {
+ 
+ #define BMA250_RANGE_MASK	GENMASK(3, 0) /* Range of accel values */
+ #define BMA250_BW_MASK		GENMASK(4, 0) /* Accel bandwidth */
++#define BMA250_BW_OFFSET	8
+ #define BMA250_SUSPEND_MASK	BIT(7) /* chip will sleep */
+ #define BMA250_LOWPOWER_MASK	BIT(6)
+ #define BMA250_DATA_INTEN_MASK	BIT(4)
+@@ -242,7 +243,8 @@ static int bma180_set_bw(struct bma180_d
+ 	for (i = 0; i < data->part_info->num_bw; ++i) {
+ 		if (data->part_info->bw_table[i] == val) {
+ 			ret = bma180_set_bits(data, data->part_info->bw_reg,
+-				data->part_info->bw_mask, i);
++				data->part_info->bw_mask,
++				i + data->part_info->bw_offset);
+ 			if (ret) {
+ 				dev_err(&data->client->dev,
+ 					"failed to set bandwidth\n");
+@@ -661,6 +663,7 @@ static const struct bma180_part_info bma
+ 		.sleep_mask = BMA250_SUSPEND_MASK,
+ 		.bw_reg = BMA250_BW_REG,
+ 		.bw_mask = BMA250_BW_MASK,
++		.bw_offset = BMA250_BW_OFFSET,
+ 		.scale_reg = BMA250_RANGE_REG,
+ 		.scale_mask = BMA250_RANGE_MASK,
+ 		.power_reg = BMA250_POWER_REG,
 
 
