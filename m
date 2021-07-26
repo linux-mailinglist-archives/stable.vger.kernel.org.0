@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B0603D6252
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:16:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 796D63D6112
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:12:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236804AbhGZPfa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:35:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51932 "EHLO mail.kernel.org"
+        id S231707AbhGZP2W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:28:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40886 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237911AbhGZPev (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:34:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2332F604AC;
-        Mon, 26 Jul 2021 16:15:19 +0000 (UTC)
+        id S237466AbhGZPZ6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:25:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E314360F6B;
+        Mon, 26 Jul 2021 16:06:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627316120;
-        bh=CfvJ9qi6ISfPO+1o4GySBEOskrshMQfCW0aMIuv0xfc=;
+        s=korg; t=1627315586;
+        bh=OVb0n9+KLKAm9gfnYgvSim9lTbOP8THiqnKAADf29wg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ouYYYl36WrpjMAzsYNjplzTO8YijfrJTrjUG6IxxzIxcIGAPoeUAejLEFgZ+f3hgV
-         WcAlk1wbUJ+rHaGZ3k1/Pmg2RlJP1Hbv74dVPbh6wqSVtSwm1QFluqaEU2uxHXIqAm
-         oZAnNQxhmmbVxbHJfx3DzcRYumPftPA0oTIo+Nv0=
+        b=u8dfkv+xAa+FMTeTqf7bs+VxKoOHSeP5RhMP/iTVKzoFRz2nPdshsdb57fwRTCdb4
+         +RVy1z+agIn1y0mkguY33OLMmAIGsJ+Rp6Gh8LTSbR620qMDkC4weYyZMOYmeo+rcd
+         +aK0F7tBP248lUl3Ah70rt8QT7YD+6BG/Iv6YlYY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Potapenko <glider@google.com>,
-        Marco Elver <elver@google.com>,
-        Souptick Joarder <jrdr.linux@gmail.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.13 197/223] kfence: skip all GFP_ZONEMASK allocations
+        stable@vger.kernel.org, Likun Gao <Likun.Gao@amd.com>,
+        Hawking Zhang <Hawking.Zhang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.10 156/167] drm/amdgpu: update golden setting for sienna_cichlid
 Date:   Mon, 26 Jul 2021 17:39:49 +0200
-Message-Id: <20210726153852.637867703@linuxfoundation.org>
+Message-Id: <20210726153844.646972579@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
-References: <20210726153846.245305071@linuxfoundation.org>
+In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
+References: <20210726153839.371771838@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,53 +40,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Potapenko <glider@google.com>
+From: Likun Gao <Likun.Gao@amd.com>
 
-commit 236e9f1538523d3d380dda1cc99571d587058f37 upstream.
+commit 3e94b5965e624f7e6d8dd18eb8f3bf2bb99ba30d upstream.
 
-Allocation requests outside ZONE_NORMAL (MOVABLE, HIGHMEM or DMA) cannot
-be fulfilled by KFENCE, because KFENCE memory pool is located in a zone
-different from the requested one.
+Update GFX golden setting for sienna_cichlid.
 
-Because callers of kmem_cache_alloc() may actually rely on the
-allocation to reside in the requested zone (e.g.  memory allocations
-done with __GFP_DMA must be DMAable), skip all allocations done with
-GFP_ZONEMASK and/or respective SLAB flags (SLAB_CACHE_DMA and
-SLAB_CACHE_DMA32).
-
-Link: https://lkml.kernel.org/r/20210714092222.1890268-2-glider@google.com
-Fixes: 0ce20dd84089 ("mm: add Kernel Electric-Fence infrastructure")
-Signed-off-by: Alexander Potapenko <glider@google.com>
-Reviewed-by: Marco Elver <elver@google.com>
-Acked-by: Souptick Joarder <jrdr.linux@gmail.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Souptick Joarder <jrdr.linux@gmail.com>
-Cc: <stable@vger.kernel.org>	[5.12+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Likun Gao <Likun.Gao@amd.com>
+Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/kfence/core.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/mm/kfence/core.c
-+++ b/mm/kfence/core.c
-@@ -741,6 +741,15 @@ void *__kfence_alloc(struct kmem_cache *
- 		return NULL;
- 
- 	/*
-+	 * Skip allocations from non-default zones, including DMA. We cannot
-+	 * guarantee that pages in the KFENCE pool will have the requested
-+	 * properties (e.g. reside in DMAable memory).
-+	 */
-+	if ((flags & GFP_ZONEMASK) ||
-+	    (s->flags & (SLAB_CACHE_DMA | SLAB_CACHE_DMA32)))
-+		return NULL;
-+
-+	/*
- 	 * allocation_gate only needs to become non-zero, so it doesn't make
- 	 * sense to continue writing to it and pay the associated contention
- 	 * cost, in case we have a large number of concurrent allocations.
+--- a/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c
+@@ -3137,6 +3137,7 @@ static const struct soc15_reg_golden gol
+ 	SOC15_REG_GOLDEN_VALUE(GC, 0, mmSQ_PERFCOUNTER7_SELECT, 0xf0f001ff, 0x00000000),
+ 	SOC15_REG_GOLDEN_VALUE(GC, 0, mmSQ_PERFCOUNTER8_SELECT, 0xf0f001ff, 0x00000000),
+ 	SOC15_REG_GOLDEN_VALUE(GC, 0, mmSQ_PERFCOUNTER9_SELECT, 0xf0f001ff, 0x00000000),
++	SOC15_REG_GOLDEN_VALUE(GC, 0, mmSX_DEBUG_1, 0x00010000, 0x00010020),
+ 	SOC15_REG_GOLDEN_VALUE(GC, 0, mmTA_CNTL_AUX, 0xfff7ffff, 0x01030000),
+ 	SOC15_REG_GOLDEN_VALUE(GC, 0, mmUTCL1_CTRL, 0xffbfffff, 0x00a00000)
+ };
 
 
