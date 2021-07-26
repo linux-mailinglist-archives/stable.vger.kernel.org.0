@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 885943D6191
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:14:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AF703D6193
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:14:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233403AbhGZPcT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:32:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45214 "EHLO mail.kernel.org"
+        id S233431AbhGZPcU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:32:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45254 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231621AbhGZPaD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:30:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 493FB60C41;
-        Mon, 26 Jul 2021 16:10:31 +0000 (UTC)
+        id S231792AbhGZPaG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:30:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EB0A060EB2;
+        Mon, 26 Jul 2021 16:10:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315831;
-        bh=Sc56Wvur+m4tgvpLaqa2M+Ju5Pax3tCaPpkNx+96MAM=;
+        s=korg; t=1627315834;
+        bh=B6JJ3IY2p8yTR4M1J49UqgRmpT+RwB8ZHB9+uJt4OK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZeDrV4u3Dj/rGO54dI9wTe1nX9ydjiTULt+zs+OKw2RQT2g9dVGxthMAdrOsW48pz
-         +8eje0/WxEH9B2ThFmbHQOYBh3I/r+3GGY0fFj3ajJwwGGATMnXGCzM1S6dKL2rsV6
-         2/lYIKA3ElSpBjgNdyXazKCI94ectrPnoym6BcI0=
+        b=xc1lK966tqVW81VSdxwZlxghbQTRdffrQq2BPbWGMRnikXzkaUbaRR1eZVFBMJbRO
+         ZJh5W2eZqAKkqdQ0Z+ilrMXqeBCrk/bQPQvLtrBxsOQogrB3dxV6Kd9i5igAHbqNTp
+         G4e7UBSSpS9ViEkMmzhgjOVy4Le/GluknFj00d2U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tobias Klauser <tklauser@distanz.ch>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Quentin Monnet <quentin@isovalent.com>,
-        Roman Gushchin <guro@fb.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 085/223] bpftool: Check malloc return value in mount_bpffs_for_pin
-Date:   Mon, 26 Jul 2021 17:37:57 +0200
-Message-Id: <20210726153849.021436007@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+09a5d591c1f98cf5efcb@syzkaller.appspotmail.com,
+        Ziyang Xuan <william.xuanziyang@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 086/223] net: fix uninit-value in caif_seqpkt_sendmsg
+Date:   Mon, 26 Jul 2021 17:37:58 +0200
+Message-Id: <20210726153849.058092873@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
 References: <20210726153846.245305071@linuxfoundation.org>
@@ -41,38 +42,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tobias Klauser <tklauser@distanz.ch>
+From: Ziyang Xuan <william.xuanziyang@huawei.com>
 
-[ Upstream commit d444b06e40855219ef38b5e9286db16d435f06dc ]
+[ Upstream commit 991e634360f2622a683b48dfe44fe6d9cb765a09 ]
 
-Fix and add a missing NULL check for the prior malloc() call.
+When nr_segs equal to zero in iovec_from_user, the object
+msg->msg_iter.iov is uninit stack memory in caif_seqpkt_sendmsg
+which is defined in ___sys_sendmsg. So we cann't just judge
+msg->msg_iter.iov->base directlly. We can use nr_segs to judge
+msg in caif_seqpkt_sendmsg whether has data buffers.
 
-Fixes: 49a086c201a9 ("bpftool: implement prog load command")
-Signed-off-by: Tobias Klauser <tklauser@distanz.ch>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: Quentin Monnet <quentin@isovalent.com>
-Acked-by: Roman Gushchin <guro@fb.com>
-Link: https://lore.kernel.org/bpf/20210715110609.29364-1-tklauser@distanz.ch
+=====================================================
+BUG: KMSAN: uninit-value in caif_seqpkt_sendmsg+0x693/0xf60 net/caif/caif_socket.c:542
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x1c9/0x220 lib/dump_stack.c:118
+ kmsan_report+0xf7/0x1e0 mm/kmsan/kmsan_report.c:118
+ __msan_warning+0x58/0xa0 mm/kmsan/kmsan_instr.c:215
+ caif_seqpkt_sendmsg+0x693/0xf60 net/caif/caif_socket.c:542
+ sock_sendmsg_nosec net/socket.c:652 [inline]
+ sock_sendmsg net/socket.c:672 [inline]
+ ____sys_sendmsg+0x12b6/0x1350 net/socket.c:2343
+ ___sys_sendmsg net/socket.c:2397 [inline]
+ __sys_sendmmsg+0x808/0xc90 net/socket.c:2480
+ __compat_sys_sendmmsg net/compat.c:656 [inline]
+
+Reported-by: syzbot+09a5d591c1f98cf5efcb@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?id=1ace85e8fc9b0d5a45c08c2656c3e91762daa9b8
+Fixes: bece7b2398d0 ("caif: Rewritten socket implementation")
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/bpf/bpftool/common.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ net/caif/caif_socket.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/tools/bpf/bpftool/common.c b/tools/bpf/bpftool/common.c
-index 1828bba19020..dc6daa193557 100644
---- a/tools/bpf/bpftool/common.c
-+++ b/tools/bpf/bpftool/common.c
-@@ -222,6 +222,11 @@ int mount_bpffs_for_pin(const char *name)
- 	int err = 0;
+diff --git a/net/caif/caif_socket.c b/net/caif/caif_socket.c
+index 3ad0a1df6712..9d26c5e9da05 100644
+--- a/net/caif/caif_socket.c
++++ b/net/caif/caif_socket.c
+@@ -539,7 +539,8 @@ static int caif_seqpkt_sendmsg(struct socket *sock, struct msghdr *msg,
+ 		goto err;
  
- 	file = malloc(strlen(name) + 1);
-+	if (!file) {
-+		p_err("mem alloc failed");
-+		return -1;
-+	}
-+
- 	strcpy(file, name);
- 	dir = dirname(file);
+ 	ret = -EINVAL;
+-	if (unlikely(msg->msg_iter.iov->iov_base == NULL))
++	if (unlikely(msg->msg_iter.nr_segs == 0) ||
++	    unlikely(msg->msg_iter.iov->iov_base == NULL))
+ 		goto err;
+ 	noblock = msg->msg_flags & MSG_DONTWAIT;
  
 -- 
 2.30.2
