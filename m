@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4ACB13D5F30
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD2A13D5F7C
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236518AbhGZPRL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:17:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54246 "EHLO mail.kernel.org"
+        id S236452AbhGZPSI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:18:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236896AbhGZPPn (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236868AbhGZPPn (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 26 Jul 2021 11:15:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C62346056C;
-        Mon, 26 Jul 2021 15:54:44 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4BAD660FF0;
+        Mon, 26 Jul 2021 15:54:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314885;
-        bh=+g91EDqtZGLLsoig7Mbbmnh2dGAiLGprv6mcMqVJhVw=;
+        s=korg; t=1627314844;
+        bh=BCTXLDeUvyyCcEUR3/NKry8+6RtdlpL/f3TI8hB/Aic=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jzqttzc1KFlAmYBSAvsco5m6t75cbteuULEoG2tDgsUqrN4DNYrAx68ZEtIXy9yx+
-         Zb3mJskbjVhVBIyuCmNd7fUuYrpnLkLABmMCPx7cYxJPkDPiKKKNRSYY8o0qrKcP/j
-         obmYCAzO7bogdlQymW8E8KED3qOQEGxJm7WMlQkk=
+        b=NtfFxAquOHX4tPoyXDofUzMZqGAz3w8nFg42qMtzKwngyKsXxaiUZmsPGRh9rrZtl
+         7wz+ETIeK45VKRnUPAVQAgmhK1Zc1zC4s16WVzERdnGHyvaHyYIieMUzk7mbhbeTyB
+         Paxzi4zSGPluSIdzLTRYdxEyj1g/jnKssx+0QSUg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 4.19 112/120] KVM: do not allow mapping valid but non-reference-counted pages
-Date:   Mon, 26 Jul 2021 17:39:24 +0200
-Message-Id: <20210726153836.067876550@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Andrew Lunn <andrew@lunn.ch>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 113/120] net: dsa: mv88e6xxx: use correct .stats_set_histogram() on Topaz
+Date:   Mon, 26 Jul 2021 17:39:25 +0200
+Message-Id: <20210726153836.097375572@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210726153832.339431936@linuxfoundation.org>
 References: <20210726153832.339431936@linuxfoundation.org>
@@ -40,71 +41,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Marek Behún <kabel@kernel.org>
 
-commit f8be156be163a052a067306417cd0ff679068c97 upstream.
+commit 11527f3c4725640e6c40a2b7654e303f45e82a6c upstream.
 
-It's possible to create a region which maps valid but non-refcounted
-pages (e.g., tail pages of non-compound higher order allocations). These
-host pages can then be returned by gfn_to_page, gfn_to_pfn, etc., family
-of APIs, which take a reference to the page, which takes it from 0 to 1.
-When the reference is dropped, this will free the page incorrectly.
+Commit 40cff8fca9e3 ("net: dsa: mv88e6xxx: Fix stats histogram mode")
+introduced wrong .stats_set_histogram() method for Topaz family.
 
-Fix this by only taking a reference on valid pages if it was non-zero,
-which indicates it is participating in normal refcounting (and can be
-released with put_page).
+The Peridot method should be used instead.
 
-This addresses CVE-2021-22543.
-
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Tested-by: Paolo Bonzini <pbonzini@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Fixes: 40cff8fca9e3 ("net: dsa: mv88e6xxx: Fix stats histogram mode")
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- virt/kvm/kvm_main.c |   19 +++++++++++++++++--
- 1 file changed, 17 insertions(+), 2 deletions(-)
+ drivers/net/dsa/mv88e6xxx/chip.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -1489,6 +1489,13 @@ static bool vma_is_valid(struct vm_area_
- 	return true;
- }
- 
-+static int kvm_try_get_pfn(kvm_pfn_t pfn)
-+{
-+	if (kvm_is_reserved_pfn(pfn))
-+		return 1;
-+	return get_page_unless_zero(pfn_to_page(pfn));
-+}
-+
- static int hva_to_pfn_remapped(struct vm_area_struct *vma,
- 			       unsigned long addr, bool *async,
- 			       bool write_fault, bool *writable,
-@@ -1538,13 +1545,21 @@ static int hva_to_pfn_remapped(struct vm
- 	 * Whoever called remap_pfn_range is also going to call e.g.
- 	 * unmap_mapping_range before the underlying pages are freed,
- 	 * causing a call to our MMU notifier.
-+	 *
-+	 * Certain IO or PFNMAP mappings can be backed with valid
-+	 * struct pages, but be allocated without refcounting e.g.,
-+	 * tail pages of non-compound higher order allocations, which
-+	 * would then underflow the refcount when the caller does the
-+	 * required put_page. Don't allow those pages here.
- 	 */ 
--	kvm_get_pfn(pfn);
-+	if (!kvm_try_get_pfn(pfn))
-+		r = -EFAULT;
- 
- out:
- 	pte_unmap_unlock(ptep, ptl);
- 	*p_pfn = pfn;
--	return 0;
-+
-+	return r;
- }
- 
- /*
+--- a/drivers/net/dsa/mv88e6xxx/chip.c
++++ b/drivers/net/dsa/mv88e6xxx/chip.c
+@@ -3051,7 +3051,7 @@ static const struct mv88e6xxx_ops mv88e6
+ 	.port_link_state = mv88e6352_port_link_state,
+ 	.port_get_cmode = mv88e6352_port_get_cmode,
+ 	.stats_snapshot = mv88e6390_g1_stats_snapshot,
+-	.stats_set_histogram = mv88e6095_g1_stats_set_histogram,
++	.stats_set_histogram = mv88e6390_g1_stats_set_histogram,
+ 	.stats_get_sset_count = mv88e6320_stats_get_sset_count,
+ 	.stats_get_strings = mv88e6320_stats_get_strings,
+ 	.stats_get_stats = mv88e6390_stats_get_stats,
+@@ -3672,7 +3672,7 @@ static const struct mv88e6xxx_ops mv88e6
+ 	.port_link_state = mv88e6352_port_link_state,
+ 	.port_get_cmode = mv88e6352_port_get_cmode,
+ 	.stats_snapshot = mv88e6390_g1_stats_snapshot,
+-	.stats_set_histogram = mv88e6095_g1_stats_set_histogram,
++	.stats_set_histogram = mv88e6390_g1_stats_set_histogram,
+ 	.stats_get_sset_count = mv88e6320_stats_get_sset_count,
+ 	.stats_get_strings = mv88e6320_stats_get_strings,
+ 	.stats_get_stats = mv88e6390_stats_get_stats,
 
 
