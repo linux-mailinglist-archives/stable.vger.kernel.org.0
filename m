@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7794C3D60D9
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:12:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D1483D6206
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:15:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236868AbhGZPZb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:25:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39348 "EHLO mail.kernel.org"
+        id S234841AbhGZPd7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:33:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237603AbhGZPX5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:23:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B83060240;
-        Mon, 26 Jul 2021 16:04:24 +0000 (UTC)
+        id S233904AbhGZPcv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:32:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4385F60C40;
+        Mon, 26 Jul 2021 16:13:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315465;
-        bh=MwThTflVdON8+PjJgXphdsRoMD83rejvJwXVY2l3kuQ=;
+        s=korg; t=1627315998;
+        bh=O/uDQGTfxzNPMnwcyEV2gPyHXtuUgPJo1AwHDEq+VTA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mF5lrnBOhiGE8cd3vUuJfhFrqUa4CxBdTgcsNcvaepEd01firDbcyv3gpP9Kf8/nr
-         zQffVX9ypktClJFsYiCS15/LBqKgbAmsMHhhNPleh7nVf/R9UY15ktBESDkpEmdGEl
-         0Xc0qZfXcAvYFeG6fwNM+4fnnLWeyJ/SZporw9Is=
+        b=QA9bPIgCv99lTLGcU2SqFSAoYk02OeT2AtlS6vTIo9CwocEfzO8cXOR15abxeiu3V
+         vGjjT+Aud862Pnzl8a1r3w3nkwNqCMztbJpYMFabZoFHo7XTwWmm/PAt/LVWPybFE7
+         Z+G3MVzPUbGT534pfdbuXXfxYL84CZ+BNQh/7szo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+f0bbb2287b8993d4fa74@syzkaller.appspotmail.com
-Subject: [PATCH 5.10 072/167] net: sched: fix memory leak in tcindex_partial_destroy_work
+        stable@vger.kernel.org, Chengwen Feng <fengchengwen@huawei.com>,
+        Guangbin Huang <huangguangbin2@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 113/223] net: hns3: fix possible mismatches resp of mailbox
 Date:   Mon, 26 Jul 2021 17:38:25 +0200
-Message-Id: <20210726153841.812622560@linuxfoundation.org>
+Message-Id: <20210726153849.970126374@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
-References: <20210726153839.371771838@linuxfoundation.org>
+In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
+References: <20210726153846.245305071@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,50 +41,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Chengwen Feng <fengchengwen@huawei.com>
 
-[ Upstream commit f5051bcece50140abd1a11a2d36dc3ec5484fc32 ]
+[ Upstream commit 1b713d14dc3c077ec45e65dab4ea01a8bc41b8c1 ]
 
-Syzbot reported memory leak in tcindex_set_parms(). The problem was in
-non-freed perfect hash in tcindex_partial_destroy_work().
+Currently, the mailbox synchronous communication between VF and PF use
+the following fields to maintain communication:
+1. Origin_mbx_msg which was combined by message code and subcode, used
+to match request and response.
+2. Received_resp which means whether received response.
 
-In tcindex_set_parms() new tcindex_data is allocated and some fields from
-old one are copied to new one, but not the perfect hash. Since
-tcindex_partial_destroy_work() is the destroy function for old
-tcindex_data, we need to free perfect hash to avoid memory leak.
+There may possible mismatches of the following situation:
+1. VF sends message A with code=1 subcode=1.
+2. PF was blocked about 500ms when processing the message A.
+3. VF will detect message A timeout because it can't get the response
+within 500ms.
+4. VF sends message B with code=1 subcode=1 which equal message A.
+5. PF processes the first message A and send the response message to
+VF.
+6. VF will identify the response matched the message B because the
+code/subcode is the same. This will lead to mismatch of request and
+response.
 
-Reported-and-tested-by: syzbot+f0bbb2287b8993d4fa74@syzkaller.appspotmail.com
-Fixes: 331b72922c5f ("net: sched: RCU cls_tcindex")
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+To fix the above bug, we use the following scheme:
+1. The message sent from VF was labelled with match_id which was a
+unique 16-bit non-zero value.
+2. The response sent from PF will label with match_id which got from
+the request.
+3. The VF uses the match_id to match request and response message.
+
+As for PF driver, it only needs to copy the match_id from request to
+response.
+
+Fixes: dde1a86e93ca ("net: hns3: Add mailbox support to PF driver")
+Signed-off-by: Chengwen Feng <fengchengwen@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/cls_tcindex.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h        | 6 ++++--
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c | 1 +
+ 2 files changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/net/sched/cls_tcindex.c b/net/sched/cls_tcindex.c
-index 5b274534264c..e9a8a2c86bbd 100644
---- a/net/sched/cls_tcindex.c
-+++ b/net/sched/cls_tcindex.c
-@@ -278,6 +278,8 @@ static int tcindex_filter_result_init(struct tcindex_filter_result *r,
- 			     TCA_TCINDEX_POLICE);
- }
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h b/drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h
+index a2c17af57fde..d283beec9f66 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h
+@@ -135,7 +135,8 @@ struct hclge_mbx_vf_to_pf_cmd {
+ 	u8 mbx_need_resp;
+ 	u8 rsv1[1];
+ 	u8 msg_len;
+-	u8 rsv2[3];
++	u8 rsv2;
++	u16 match_id;
+ 	struct hclge_vf_to_pf_msg msg;
+ };
  
-+static void tcindex_free_perfect_hash(struct tcindex_data *cp);
-+
- static void tcindex_partial_destroy_work(struct work_struct *work)
- {
- 	struct tcindex_data *p = container_of(to_rcu_work(work),
-@@ -285,7 +287,8 @@ static void tcindex_partial_destroy_work(struct work_struct *work)
- 					      rwork);
+@@ -145,7 +146,8 @@ struct hclge_mbx_pf_to_vf_cmd {
+ 	u8 dest_vfid;
+ 	u8 rsv[3];
+ 	u8 msg_len;
+-	u8 rsv1[3];
++	u8 rsv1;
++	u16 match_id;
+ 	struct hclge_pf_to_vf_msg msg;
+ };
  
- 	rtnl_lock();
--	kfree(p->perfect);
-+	if (p->perfect)
-+		tcindex_free_perfect_hash(p);
- 	kfree(p);
- 	rtnl_unlock();
- }
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
+index f1c9f4ada348..38b601031db4 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
+@@ -47,6 +47,7 @@ static int hclge_gen_resp_to_vf(struct hclge_vport *vport,
+ 
+ 	resp_pf_to_vf->dest_vfid = vf_to_pf_req->mbx_src_vfid;
+ 	resp_pf_to_vf->msg_len = vf_to_pf_req->msg_len;
++	resp_pf_to_vf->match_id = vf_to_pf_req->match_id;
+ 
+ 	resp_pf_to_vf->msg.code = HCLGE_MBX_PF_VF_RESP;
+ 	resp_pf_to_vf->msg.vf_mbx_msg_code = vf_to_pf_req->msg.code;
 -- 
 2.30.2
 
