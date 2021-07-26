@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2271F3D5FB3
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D00D03D5E0E
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:47:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236544AbhGZPS4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:18:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57100 "EHLO mail.kernel.org"
+        id S236019AbhGZPFP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:05:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236651AbhGZPR1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:17:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2870A6104F;
-        Mon, 26 Jul 2021 15:57:55 +0000 (UTC)
+        id S235725AbhGZPFA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:05:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AAF3760F5B;
+        Mon, 26 Jul 2021 15:45:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315075;
-        bh=uJZom4b49pGK8LOD8RhUE7UQRLP/YSZR81RjT2TP/Hk=;
+        s=korg; t=1627314328;
+        bh=9g1soENvLV8l1xZaSZUxicGcQuXbmy3p2Xn1klrf4NE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kLpCdctgHGYUkJVNm43SurrCF0QiIQl7dcZmjQ3p3rjfhYfu3vWKEU4MuZc+xbFlS
-         v+MsZCqiOTlzR4dWMOpioIpNxriQl78/mWmneJlX/PSuBdFOlhb2QK2lJSJN13KK9m
-         Q1QnOZm1OwJFQZIol3AgqVbfjejlcP94Y04p2Hso=
+        b=o6Av7cJsDHyE8wcxmY0o6wtEZ8ZLGdDlG4yW8xA2xVoKE/w9jJEzHlu3qysNniU8O
+         gaZLRMj3caVBUOQKNUA+kaAeCxPjBTMT3wGpowUYgLW1eynHepJAv5LyPtESvPYqcx
+         cnG4uXXopFc0B0VbfWU0SWcH/R56Xzo5/k7XEhyo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Machek <pavel@denx.de>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 072/108] ALSA: usb-audio: Add missing proc text entry for BESPOKEN type
-Date:   Mon, 26 Jul 2021 17:39:13 +0200
-Message-Id: <20210726153833.994609993@linuxfoundation.org>
+        stable@vger.kernel.org, David Sterba <dsterba@suse.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.9 60/60] btrfs: compression: dont try to compress if we dont have enough pages
+Date:   Mon, 26 Jul 2021 17:39:14 +0200
+Message-Id: <20210726153826.754545251@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
-References: <20210726153831.696295003@linuxfoundation.org>
+In-Reply-To: <20210726153824.868160836@linuxfoundation.org>
+References: <20210726153824.868160836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,45 +39,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: David Sterba <dsterba@suse.com>
 
-commit 64752a95b702817602d72f109ceaf5ec0780e283 upstream.
+commit f2165627319ffd33a6217275e5690b1ab5c45763 upstream
 
-Recently we've added a new usb_mixer element type, USB_MIXER_BESPOKEN,
-but it wasn't added in the table in snd_usb_mixer_dump_cval().  This
-is no big problem since each bespoken type should have its own dump
-method, but it still isn't disallowed to use the standard one, so we
-should cover it as well.  Along with it, define the table with the
-explicit array initializer for avoiding other pitfalls.
+The early check if we should attempt compression does not take into
+account the number of input pages. It can happen that there's only one
+page, eg. a tail page after some ranges of the BTRFS_MAX_UNCOMPRESSED
+have been processed, or an isolated page that won't be converted to an
+inline extent.
 
-Fixes: 785b6f29a795 ("ALSA: usb-audio: scarlett2: Fix wrong resume call")
-Reported-by: Pavel Machek <pavel@denx.de>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210714084836.1977-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+The single page would be compressed but a later check would drop it
+again because the result size must be at least one block shorter than
+the input. That can never work with just one page.
+
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: David Sterba <dsterba@suse.com>
+[sudip: adjust context]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/mixer.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ fs/btrfs/inode.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/usb/mixer.c
-+++ b/sound/usb/mixer.c
-@@ -3242,7 +3242,15 @@ static void snd_usb_mixer_dump_cval(stru
- {
- 	struct usb_mixer_elem_info *cval = mixer_elem_list_to_info(list);
- 	static const char * const val_types[] = {
--		"BOOLEAN", "INV_BOOLEAN", "S8", "U8", "S16", "U16", "S32", "U32",
-+		[USB_MIXER_BOOLEAN] = "BOOLEAN",
-+		[USB_MIXER_INV_BOOLEAN] = "INV_BOOLEAN",
-+		[USB_MIXER_S8] = "S8",
-+		[USB_MIXER_U8] = "U8",
-+		[USB_MIXER_S16] = "S16",
-+		[USB_MIXER_U16] = "U16",
-+		[USB_MIXER_S32] = "S32",
-+		[USB_MIXER_U32] = "U32",
-+		[USB_MIXER_BESPOKEN] = "BESPOKEN",
- 	};
- 	snd_iprintf(buffer, "    Info: id=%i, control=%i, cmask=0x%x, "
- 			    "channels=%i, type=\"%s\"\n", cval->head.id,
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -484,7 +484,7 @@ again:
+ 	 * inode has not been flagged as nocompress.  This flag can
+ 	 * change at any time if we discover bad compression ratios.
+ 	 */
+-	if (inode_need_compress(inode)) {
++	if (nr_pages > 1 && inode_need_compress(inode)) {
+ 		WARN_ON(pages);
+ 		pages = kcalloc(nr_pages, sizeof(struct page *), GFP_NOFS);
+ 		if (!pages) {
 
 
