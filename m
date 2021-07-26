@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B5A253D6019
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 93C103D623F
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:16:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236657AbhGZPTK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:19:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58728 "EHLO mail.kernel.org"
+        id S234055AbhGZPfU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:35:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235310AbhGZPSN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:18:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 237AB60F38;
-        Mon, 26 Jul 2021 15:58:41 +0000 (UTC)
+        id S234982AbhGZPeD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:34:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EC7C460F6B;
+        Mon, 26 Jul 2021 16:14:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315121;
-        bh=MhuSh+hGIm0iv964cFkJCoDhLfzTxleeVvMgNXQo5y0=;
+        s=korg; t=1627316062;
+        bh=c9KqsiROQkLfbsWiiF2qap+CKlpXrJoLvNGi0tK1ITs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i6gPiG1S9Uk447vRuZixgx8+WuqSzpRM2lHelMC9kxw5IWjqQviiJAbQfY4cWy3G6
-         3cXdSFSggYbfEu8/ZlymTegbO99GlNvyjgHhDl+QtNfVZJpuDRU41RUMw/YpXrvuNu
-         5ZNCbEvijBbStmBXUyGyKrvNNE/XV8JGfzNo/UQM=
+        b=tdL5y0eSNiZ8fHy8gkaorAtQz/085K4Bs+d4/BGuzVCnq4rQUki/4chJ5Z7laxb/W
+         EnD9LaSdHGr+kp6XsLRhAua6DROqtZAYfxRCjQbZaTn7DISApKblCbUWa5uOHUQcnC
+         bnCy/LVUcQWPWsVq88oqnk1FjfvQjNeiPaYQI2Oc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marco De Marco <marco.demarco@posteo.net>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.4 084/108] USB: serial: option: add support for u-blox LARA-R6 family
+        stable@vger.kernel.org,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Martin Kepplinger <martin.kepplinger@puri.sm>
+Subject: [PATCH 5.13 173/223] usb: typec: tipd: Dont block probing of consumer of "connector" nodes
 Date:   Mon, 26 Jul 2021 17:39:25 +0200
-Message-Id: <20210726153834.373677462@linuxfoundation.org>
+Message-Id: <20210726153851.857400191@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
-References: <20210726153831.696295003@linuxfoundation.org>
+In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
+References: <20210726153846.245305071@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,49 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco De Marco <marco.demarco@posteo.net>
+From: Martin Kepplinger <martin.kepplinger@puri.sm>
 
-commit 94b619a07655805a1622484967754f5848640456 upstream.
+commit 57560ee95cb7f91cf0bc31d4ae8276e0dcfe17aa upstream.
 
-The patch is meant to support LARA-R6 Cat 1 module family.
+Similar as with tcpm this patch lets fw_devlink know not to wait on the
+fwnode to be populated as a struct device.
 
-Module USB ID:
-Vendor  ID: 0x05c6
-Product ID: 0x90fA
+Without this patch, USB functionality can be broken on some previously
+supported boards.
 
-Interface layout:
-If 0: Diagnostic
-If 1: AT parser
-If 2: AT parser
-If 3: QMI wwan (not available in all versions)
-
-Signed-off-by: Marco De Marco <marco.demarco@posteo.net>
-Link: https://lore.kernel.org/r/49260184.kfMIbaSn9k@mars
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: 28ec344bb891 ("usb: typec: tcpm: Don't block probing of consumers of "connector" nodes")
+Cc: stable <stable@vger.kernel.org>
+Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Martin Kepplinger <martin.kepplinger@puri.sm>
+Link: https://lore.kernel.org/r/20210714061807.5737-1-martin.kepplinger@puri.sm
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/typec/tipd/core.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -238,6 +238,7 @@ static void option_instat_callback(struc
- #define QUECTEL_PRODUCT_UC15			0x9090
- /* These u-blox products use Qualcomm's vendor ID */
- #define UBLOX_PRODUCT_R410M			0x90b2
-+#define UBLOX_PRODUCT_R6XX			0x90fa
- /* These Yuga products use Qualcomm's vendor ID */
- #define YUGA_PRODUCT_CLM920_NC5			0x9625
+--- a/drivers/usb/typec/tipd/core.c
++++ b/drivers/usb/typec/tipd/core.c
+@@ -629,6 +629,15 @@ static int tps6598x_probe(struct i2c_cli
+ 	if (!fwnode)
+ 		return -ENODEV;
  
-@@ -1101,6 +1102,8 @@ static const struct usb_device_id option
- 	/* u-blox products using Qualcomm vendor ID */
- 	{ USB_DEVICE(QUALCOMM_VENDOR_ID, UBLOX_PRODUCT_R410M),
- 	  .driver_info = RSVD(1) | RSVD(3) },
-+	{ USB_DEVICE(QUALCOMM_VENDOR_ID, UBLOX_PRODUCT_R6XX),
-+	  .driver_info = RSVD(3) },
- 	/* Quectel products using Quectel vendor ID */
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC21, 0xff, 0xff, 0xff),
- 	  .driver_info = NUMEP2 },
++	/*
++	 * This fwnode has a "compatible" property, but is never populated as a
++	 * struct device. Instead we simply parse it to read the properties.
++	 * This breaks fw_devlink=on. To maintain backward compatibility
++	 * with existing DT files, we work around this by deleting any
++	 * fwnode_links to/from this fwnode.
++	 */
++	fw_devlink_purge_absent_suppliers(fwnode);
++
+ 	tps->role_sw = fwnode_usb_role_switch_get(fwnode);
+ 	if (IS_ERR(tps->role_sw)) {
+ 		ret = PTR_ERR(tps->role_sw);
 
 
