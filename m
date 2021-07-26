@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 804D53D5FF6
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C5703D616F
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:13:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236939AbhGZPT6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:19:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33056 "EHLO mail.kernel.org"
+        id S232762AbhGZPbY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:31:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41172 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236893AbhGZPTx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:19:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D646860F38;
-        Mon, 26 Jul 2021 16:00:21 +0000 (UTC)
+        id S237881AbhGZP31 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:29:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B411B61059;
+        Mon, 26 Jul 2021 16:09:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315222;
-        bh=K2vFRGK8syToLEaRfCeQcvZ2NuwEzmdG+7eZRb6inD4=;
+        s=korg; t=1627315754;
+        bh=KWoKE8cIwGWVeU7+pmKBfNjz2fg+bQLy0GtNbNvrt/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sF/VPfZotR3L7skPyrep1vUjeu1/pMVvKK/iCMcWTIw50vDr7v3ZPMEx0PHdJFGlq
-         cMQF3OeHyN83z1DlqHPq0dkTCE2inQcG05ym+LPeJVHI+buxdmE/Tqs1rwC7M7MkLG
-         NyUExnagkc+l99QjcnAoTTqH6Ci8N+ttvIWmISRM=
+        b=g+14zdnZNHjq351mdlWu+0JjglnH3kL9yanBncYuKXOMBGoDoYy6Nz6Lj16qTP3Cg
+         jBh9i27tUPGW5yUOQgYUzrn/xpyhtrPbY8aiKQsM0KBc8KPla4tKyc+NqVsIHwckYP
+         lUGfq11B2381MOgx/opWw/pzhjtZ2lDzrMN2SveI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Catherine Sullivan <csully@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Riccardo Mancini <rickyman7@gmail.com>,
+        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
+        Kan Liang <kan.liang@intel.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 012/167] gve: Fix an error handling path in gve_probe()
+Subject: [PATCH 5.13 053/223] perf test session_topology: Delete session->evlist
 Date:   Mon, 26 Jul 2021 17:37:25 +0200
-Message-Id: <20210726153839.781222289@linuxfoundation.org>
+Message-Id: <20210726153847.994944689@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
-References: <20210726153839.371771838@linuxfoundation.org>
+In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
+References: <20210726153846.245305071@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,48 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Riccardo Mancini <rickyman7@gmail.com>
 
-[ Upstream commit 2342ae10d1272d411a468a85a67647dd115b344f ]
+[ Upstream commit 233f2dc1c284337286f9a64c0152236779a42f6c ]
 
-If the 'register_netdev() call fails, we must release the resources
-allocated by the previous 'gve_init_priv()' call, as already done in the
-remove function.
+ASan reports a memory leak related to session->evlist while running:
 
-Add a new label and the missing 'gve_teardown_priv_resources()' in the
-error handling path.
+  # perf test "41: Session topology".
 
-Fixes: 893ce44df565 ("gve: Add basic driver framework for Compute Engine Virtual NIC")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: Catherine Sullivan <csully@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+When perf_data is in write mode, session->evlist is owned by the caller,
+which should also take care of deleting it.
+
+This patch adds the missing evlist__delete().
+
+Signed-off-by: Riccardo Mancini <rickyman7@gmail.com>
+Fixes: c84974ed9fb67293 ("perf test: Add entry to test cpu topology")
+Cc: Ian Rogers <irogers@google.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Kan Liang <kan.liang@intel.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lore.kernel.org/lkml/822f741f06eb25250fb60686cf30a35f447e9e91.1626343282.git.rickyman7@gmail.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/google/gve/gve_main.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ tools/perf/tests/topology.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/google/gve/gve_main.c b/drivers/net/ethernet/google/gve/gve_main.c
-index 3a74e4645ce6..0b714b606ba1 100644
---- a/drivers/net/ethernet/google/gve/gve_main.c
-+++ b/drivers/net/ethernet/google/gve/gve_main.c
-@@ -1340,13 +1340,16 @@ static int gve_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+diff --git a/tools/perf/tests/topology.c b/tools/perf/tests/topology.c
+index ec4e3b21b831..b5efe675b321 100644
+--- a/tools/perf/tests/topology.c
++++ b/tools/perf/tests/topology.c
+@@ -61,6 +61,7 @@ static int session_write_header(char *path)
+ 	TEST_ASSERT_VAL("failed to write header",
+ 			!perf_session__write_header(session, session->evlist, data.file.fd, true));
  
- 	err = register_netdev(dev);
- 	if (err)
--		goto abort_with_wq;
-+		goto abort_with_gve_init;
++	evlist__delete(session->evlist);
+ 	perf_session__delete(session);
  
- 	dev_info(&pdev->dev, "GVE version %s\n", gve_version_str);
- 	gve_clear_probe_in_progress(priv);
- 	queue_work(priv->gve_wq, &priv->service_task);
  	return 0;
- 
-+abort_with_gve_init:
-+	gve_teardown_priv_resources(priv);
-+
- abort_with_wq:
- 	destroy_workqueue(priv->gve_wq);
- 
 -- 
 2.30.2
 
