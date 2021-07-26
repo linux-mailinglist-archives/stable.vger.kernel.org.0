@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA5C33D60EC
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:12:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A78AD3D5FE0
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237047AbhGZPZm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:25:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39914 "EHLO mail.kernel.org"
+        id S236704AbhGZPT2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:19:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60154 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238087AbhGZPYi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:24:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E991560EB2;
-        Mon, 26 Jul 2021 16:05:06 +0000 (UTC)
+        id S236711AbhGZPTM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:19:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C08260F8F;
+        Mon, 26 Jul 2021 15:59:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315507;
-        bh=82s7o6iXBcs3Ib9NLUwa7i+foMa32hbCwUkqbPxE2vM=;
+        s=korg; t=1627315181;
+        bh=K1ADPbmNrthRVbeq//bPPCUL+SkUW8YFVKW9/cweEkE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aRiNqQITABUzn5cZf82NoYdxjuEUEC3QLGrxIkGzIxcvztW/IztA+bR946N2p2tqJ
-         hw+qGxGwUe/79B8mlW70hJMTk1yAvDwzyS0ifdsQCO+8usWfZrcpbku+Vrm5uHBpM0
-         SHY1/xJwZVAmzJ1Mvb27FQFV6v7BJk9o3AaehR+M=
+        b=djp8WabsyRK44QSpHDt8Qi+9OQbgUVG4nw0mIRb29ASdi0qY13mf07ofHKJ0pgSh1
+         KMV4s/Rz+Bct68LIOwNGIA8O+mIVYnSG8CXhD1QGxrGsp+/sycH0zgtV8lIQg6ZkCY
+         6ex0dmveIsa9WANaS7BSVNmHlmJCBCF/HksIwqZY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 5.10 107/167] s390/ftrace: fix ftrace_update_ftrace_func implementation
+        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 059/108] ipv6: fix another slab-out-of-bounds in fib6_nh_flush_exceptions
 Date:   Mon, 26 Jul 2021 17:39:00 +0200
-Message-Id: <20210726153842.985809339@linuxfoundation.org>
+Message-Id: <20210726153833.585864785@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
-References: <20210726153839.371771838@linuxfoundation.org>
+In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
+References: <20210726153831.696295003@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,129 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Paolo Abeni <pabeni@redhat.com>
 
-commit f8c2602733c953ed7a16e060640b8e96f9d94b9b upstream.
+[ Upstream commit 8fb4792f091e608a0a1d353dfdf07ef55a719db5 ]
 
-s390 enforces DYNAMIC_FTRACE if FUNCTION_TRACER is selected.
-At the same time implementation of ftrace_caller is not compliant with
-HAVE_DYNAMIC_FTRACE since it doesn't provide implementation of
-ftrace_update_ftrace_func() and calls ftrace_trace_function() directly.
+While running the self-tests on a KASAN enabled kernel, I observed a
+slab-out-of-bounds splat very similar to the one reported in
+commit 821bbf79fe46 ("ipv6: Fix KASAN: slab-out-of-bounds Read in
+ fib6_nh_flush_exceptions").
 
-The subtle difference is that during ftrace code patching ftrace
-replaces function tracer via ftrace_update_ftrace_func() and activates
-it back afterwards. Unexpected direct calls to ftrace_trace_function()
-during ftrace code patching leads to nullptr-dereferences when tracing
-is activated for one of functions which are used during code patching.
-Those function currently are:
-copy_from_kernel_nofault()
-copy_from_kernel_nofault_allowed()
-preempt_count_sub() [with debug_defconfig]
-preempt_count_add() [with debug_defconfig]
+We additionally need to take care of fib6_metrics initialization
+failure when the caller provides an nh.
 
-Corresponding KASAN report:
- BUG: KASAN: nullptr-dereference in function_trace_call+0x316/0x3b0
- Read of size 4 at addr 0000000000001e08 by task migration/0/15
+The fix is similar, explicitly free the route instead of calling
+fib6_info_release on a half-initialized object.
 
- CPU: 0 PID: 15 Comm: migration/0 Tainted: G B 5.13.0-41423-g08316af3644d
- Hardware name: IBM 3906 M04 704 (LPAR)
- Stopper: multi_cpu_stop+0x0/0x3e0 <- stop_machine_cpuslocked+0x1e4/0x218
- Call Trace:
-  [<0000000001f77caa>] show_stack+0x16a/0x1d0
-  [<0000000001f8de42>] dump_stack+0x15a/0x1b0
-  [<0000000001f81d56>] print_address_description.constprop.0+0x66/0x2e0
-  [<000000000082b0ca>] kasan_report+0x152/0x1c0
-  [<00000000004cfd8e>] function_trace_call+0x316/0x3b0
-  [<0000000001fb7082>] ftrace_caller+0x7a/0x7e
-  [<00000000006bb3e6>] copy_from_kernel_nofault_allowed+0x6/0x10
-  [<00000000006bb42e>] copy_from_kernel_nofault+0x3e/0xd0
-  [<000000000014605c>] ftrace_make_call+0xb4/0x1f8
-  [<000000000047a1b4>] ftrace_replace_code+0x134/0x1d8
-  [<000000000047a6e0>] ftrace_modify_all_code+0x120/0x1d0
-  [<000000000047a7ec>] __ftrace_modify_code+0x5c/0x78
-  [<000000000042395c>] multi_cpu_stop+0x224/0x3e0
-  [<0000000000423212>] cpu_stopper_thread+0x33a/0x5a0
-  [<0000000000243ff2>] smpboot_thread_fn+0x302/0x708
-  [<00000000002329ea>] kthread+0x342/0x408
-  [<00000000001066b2>] __ret_from_fork+0x92/0xf0
-  [<0000000001fb57fa>] ret_from_fork+0xa/0x30
-
- The buggy address belongs to the page:
- page:(____ptrval____) refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x1
- flags: 0x1ffff00000001000(reserved|node=0|zone=0|lastcpupid=0x1ffff)
- raw: 1ffff00000001000 0000040000000048 0000040000000048 0000000000000000
- raw: 0000000000000000 0000000000000000 ffffffff00000001 0000000000000000
- page dumped because: kasan: bad access detected
-
- Memory state around the buggy address:
-  0000000000001d00: f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7
-  0000000000001d80: f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7
- >0000000000001e00: f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7
-                       ^
-  0000000000001e80: f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7
-  0000000000001f00: f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7
- ==================================================================
-
-To fix that introduce ftrace_func callback to be called from
-ftrace_caller and update it in ftrace_update_ftrace_func().
-
-Fixes: 4cc9bed034d1 ("[S390] cleanup ftrace backend functions")
-Cc: stable@vger.kernel.org
-Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f88d8ea67fbdb ("ipv6: Plumb support for nexthop object in a fib6_info")
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/include/asm/ftrace.h |    1 +
- arch/s390/kernel/ftrace.c      |    2 ++
- arch/s390/kernel/mcount.S      |    4 ++--
- 3 files changed, 5 insertions(+), 2 deletions(-)
+ net/ipv6/route.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/s390/include/asm/ftrace.h
-+++ b/arch/s390/include/asm/ftrace.h
-@@ -27,6 +27,7 @@ void ftrace_caller(void);
+diff --git a/net/ipv6/route.c b/net/ipv6/route.c
+index b903fe28ce50..d6fc22f7d7a6 100644
+--- a/net/ipv6/route.c
++++ b/net/ipv6/route.c
+@@ -3655,7 +3655,7 @@ static struct fib6_info *ip6_route_info_create(struct fib6_config *cfg,
+ 		err = PTR_ERR(rt->fib6_metrics);
+ 		/* Do not leave garbage there. */
+ 		rt->fib6_metrics = (struct dst_metrics *)&dst_default_metrics;
+-		goto out;
++		goto out_free;
+ 	}
  
- extern char ftrace_graph_caller_end;
- extern unsigned long ftrace_plt;
-+extern void *ftrace_func;
- 
- struct dyn_arch_ftrace { };
- 
---- a/arch/s390/kernel/ftrace.c
-+++ b/arch/s390/kernel/ftrace.c
-@@ -57,6 +57,7 @@
-  * >	brasl	%r0,ftrace_caller	# offset 0
-  */
- 
-+void *ftrace_func __read_mostly = ftrace_stub;
- unsigned long ftrace_plt;
- 
- static inline void ftrace_generate_orig_insn(struct ftrace_insn *insn)
-@@ -120,6 +121,7 @@ int ftrace_make_call(struct dyn_ftrace *
- 
- int ftrace_update_ftrace_func(ftrace_func_t func)
- {
-+	ftrace_func = func;
- 	return 0;
- }
- 
---- a/arch/s390/kernel/mcount.S
-+++ b/arch/s390/kernel/mcount.S
-@@ -67,13 +67,13 @@ ENTRY(ftrace_caller)
- #ifdef CONFIG_HAVE_MARCH_Z196_FEATURES
- 	aghik	%r2,%r0,-MCOUNT_INSN_SIZE
- 	lgrl	%r4,function_trace_op
--	lgrl	%r1,ftrace_trace_function
-+	lgrl	%r1,ftrace_func
- #else
- 	lgr	%r2,%r0
- 	aghi	%r2,-MCOUNT_INSN_SIZE
- 	larl	%r4,function_trace_op
- 	lg	%r4,0(%r4)
--	larl	%r1,ftrace_trace_function
-+	larl	%r1,ftrace_func
- 	lg	%r1,0(%r1)
- #endif
- 	lgr	%r3,%r14
+ 	if (cfg->fc_flags & RTF_ADDRCONF)
+-- 
+2.30.2
+
 
 
