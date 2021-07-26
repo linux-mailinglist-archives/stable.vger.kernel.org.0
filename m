@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B3033D5ED3
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:59:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BAE893D5DA1
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:43:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236574AbhGZPLk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:11:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48178 "EHLO mail.kernel.org"
+        id S235755AbhGZPCd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:02:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41990 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236032AbhGZPHh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:07:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EC5C260F91;
-        Mon, 26 Jul 2021 15:48:04 +0000 (UTC)
+        id S235284AbhGZPCb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:02:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3622960F38;
+        Mon, 26 Jul 2021 15:42:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314485;
-        bh=45Udfe7fiAaoQ6vJ+LucgS5GOYADfhz+KNkpo81+UqE=;
+        s=korg; t=1627314179;
+        bh=Ptn/D3BKAPwThCszw8ZpXF1NedydCCKuyQP5zXLUWnw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dtHdJXlDi3wRepiq05VbB/WNgEuGSMnEo26NoEKyOlsvN8cMk6MMZ6tHcuCuveikn
-         DhmIJ/gXO+T1G/as5Vr6q4dQvzZ6cvgwvWm2zrjjApcnYpoupzVoERl/2OBU5irpCt
-         0BArkDK+iRcrb2JK3FgeHAJZxmp7UBD/ZIDLuKus=
+        b=ERgmLugc6AmCfVn0otxMi5fdQUcgx0RCMy6K4r01sdRACBWy2TThhAsmChJsu15nZ
+         o6cJxWfThyJ3iM2XYkPA3U9hvJHiRzISrt1vO/zSDg5i4m5iAL78Kz26gUTnAGppAL
+         WHyW1gA9P+piocnAZotA25Ih/qQzFaDgXk2BbhhU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 28/82] net: qcom/emac: fix UAF in emac_remove
+        stable@vger.kernel.org, Odin Ugedal <odin@uged.al>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ben Segall <bsegall@google.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 14/60] sched/fair: Fix CFS bandwidth hrtimer expiry type
 Date:   Mon, 26 Jul 2021 17:38:28 +0200
-Message-Id: <20210726153829.077309371@linuxfoundation.org>
+Message-Id: <20210726153825.317513769@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153828.144714469@linuxfoundation.org>
-References: <20210726153828.144714469@linuxfoundation.org>
+In-Reply-To: <20210726153824.868160836@linuxfoundation.org>
+References: <20210726153824.868160836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,39 +41,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Odin Ugedal <odin@uged.al>
 
-commit ad297cd2db8953e2202970e9504cab247b6c7cb4 upstream.
+[ Upstream commit 72d0ad7cb5bad265adb2014dbe46c4ccb11afaba ]
 
-adpt is netdev private data and it cannot be
-used after free_netdev() call. Using adpt after free_netdev()
-can cause UAF bug. Fix it by moving free_netdev() at the end of the
-function.
+The time remaining until expiry of the refresh_timer can be negative.
+Casting the type to an unsigned 64-bit value will cause integer
+underflow, making the runtime_refresh_within return false instead of
+true. These situations are rare, but they do happen.
 
-Fixes: 54e19bc74f33 ("net: qcom/emac: do not use devm on internal phy pdev")
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This does not cause user-facing issues or errors; other than
+possibly unthrottling cfs_rq's using runtime from the previous period(s),
+making the CFS bandwidth enforcement less strict in those (special)
+situations.
+
+Signed-off-by: Odin Ugedal <odin@uged.al>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Ben Segall <bsegall@google.com>
+Link: https://lore.kernel.org/r/20210629121452.18429-1-odin@uged.al
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qualcomm/emac/emac.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ kernel/sched/fair.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/qualcomm/emac/emac.c
-+++ b/drivers/net/ethernet/qualcomm/emac/emac.c
-@@ -765,12 +765,13 @@ static int emac_remove(struct platform_d
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 5a349fcb634e..39b59248d9c3 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -4196,7 +4196,7 @@ static const u64 cfs_bandwidth_slack_period = 5 * NSEC_PER_MSEC;
+ static int runtime_refresh_within(struct cfs_bandwidth *cfs_b, u64 min_expire)
+ {
+ 	struct hrtimer *refresh_timer = &cfs_b->period_timer;
+-	u64 remaining;
++	s64 remaining;
  
- 	put_device(&adpt->phydev->mdio.dev);
- 	mdiobus_unregister(adpt->mii_bus);
--	free_netdev(netdev);
+ 	/* if the call-back is running a quota refresh is already occurring */
+ 	if (hrtimer_callback_running(refresh_timer))
+@@ -4204,7 +4204,7 @@ static int runtime_refresh_within(struct cfs_bandwidth *cfs_b, u64 min_expire)
  
- 	if (adpt->phy.digital)
- 		iounmap(adpt->phy.digital);
- 	iounmap(adpt->phy.base);
+ 	/* is a quota refresh about to occur? */
+ 	remaining = ktime_to_ns(hrtimer_expires_remaining(refresh_timer));
+-	if (remaining < min_expire)
++	if (remaining < (s64)min_expire)
+ 		return 1;
  
-+	free_netdev(netdev);
-+
  	return 0;
- }
- 
+-- 
+2.30.2
+
 
 
