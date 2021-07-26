@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59C1D3D5D95
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:43:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 839EC3D5F6D
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235732AbhGZPCP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:02:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41686 "EHLO mail.kernel.org"
+        id S236942AbhGZPRy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:17:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53092 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235736AbhGZPCL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:02:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B95F260F38;
-        Mon, 26 Jul 2021 15:42:39 +0000 (UTC)
+        id S236664AbhGZPMC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:12:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C4EA60F6E;
+        Mon, 26 Jul 2021 15:52:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314160;
-        bh=9az5U2itlPiuHHOG03B0ZpSEyguGuUd+gKEVdqBBQbM=;
+        s=korg; t=1627314751;
+        bh=z6qaNNWN5HdcxsDn3HQ3eq6yk6drHkj4Lgdg/r8VONo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MMUQ3jXQs8H4GzJjJhrD2B17wo8UYpBmxACwovfKUZilTuw572RoaYPw9DoCQmVvn
-         z7xzXO8Y1bn7xP8eN0W+54dwjFpcwbykRC/F1Gn8BglAvRSl/DjH5KOAlb5Zx61UdA
-         g6KzDSjqzb7Oul1i3PGYYFozAEkchNhiEhDrxT1A=
+        b=hSIGDYYZjeWfyT+YKSrYLxpNqXcQCz1eYCr1XylUSdInvP/xLh7fbaN/kZ3fnp++z
+         hUvz0LOKBfV2yqKjemLA7hQHYvpvzdkYOfXb9AXJFdI62jBrkav1jjRKDAkAjcS0HL
+         JQz0iKxekT3yAPX+C/gD7m1HBsO2/lIciZmcR80E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 4.4 33/47] xhci: Fix lost USB 2 remote wake
+        Mike Christie <michael.christie@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 079/120] scsi: iscsi: Fix iface sysfs attr detection
 Date:   Mon, 26 Jul 2021 17:38:51 +0200
-Message-Id: <20210726153824.026694427@linuxfoundation.org>
+Message-Id: <20210726153834.926307136@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153822.980271128@linuxfoundation.org>
-References: <20210726153822.980271128@linuxfoundation.org>
+In-Reply-To: <20210726153832.339431936@linuxfoundation.org>
+References: <20210726153832.339431936@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,69 +41,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Mike Christie <michael.christie@oracle.com>
 
-commit 72f68bf5c756f5ce1139b31daae2684501383ad5 upstream.
+[ Upstream commit e746f3451ec7f91dcc9fd67a631239c715850a34 ]
 
-There's a small window where a USB 2 remote wake may be left unhandled
-due to a race between hub thread and xhci port event interrupt handler.
+A ISCSI_IFACE_PARAM can have the same value as a ISCSI_NET_PARAM so when
+iscsi_iface_attr_is_visible tries to figure out the type by just checking
+the value, we can collide and return the wrong type. When we call into the
+driver we might not match and return that we don't want attr visible in
+sysfs. The patch fixes this by setting the type when we figure out what the
+param is.
 
-When the resume event is detected in the xhci interrupt handler it kicks
-the hub timer, which should move the port from resume to U0 once resume
-has been signalled for long enough.
-
-To keep the hub "thread" running we set a bus_state->resuming_ports flag.
-This flag makes sure hub timer function kicks itself.
-
-checking this flag was not properly protected by the spinlock. Flag was
-copied to a local variable before lock was taken. The local variable was
-then checked later with spinlock held.
-
-If interrupt is handled right after copying the flag to the local variable
-we end up stopping the hub thread before it can handle the USB 2 resume.
-
-CPU0					CPU1
-(hub thread)				(xhci event handler)
-
-xhci_hub_status_data()
-status = bus_state->resuming_ports;
-					<Interrupt>
-					handle_port_status()
-					spin_lock()
-					bus_state->resuming_ports = 1
-					set_flag(HCD_FLAG_POLL_RH)
-					spin_unlock()
-spin_lock()
-if (!status)
-  clear_flag(HCD_FLAG_POLL_RH)
-spin_unlock()
-
-Fix this by taking the lock a bit earlier so that it covers
-the resuming_ports flag copy in the hub thread
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20210715150651.1996099-2-mathias.nyman@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20210701002559.89533-1-michael.christie@oracle.com
+Fixes: 3e0f65b34cc9 ("[SCSI] iscsi_transport: Additional parameters for network settings")
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci-hub.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/scsi/scsi_transport_iscsi.c | 90 +++++++++++------------------
+ 1 file changed, 34 insertions(+), 56 deletions(-)
 
---- a/drivers/usb/host/xhci-hub.c
-+++ b/drivers/usb/host/xhci-hub.c
-@@ -1268,11 +1268,12 @@ int xhci_hub_status_data(struct usb_hcd
- 	 * Inform the usbcore about resume-in-progress by returning
- 	 * a non-zero value even if there are no status changes.
- 	 */
-+	spin_lock_irqsave(&xhci->lock, flags);
+diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
+index 2aaa5a2bd613..20e69052161e 100644
+--- a/drivers/scsi/scsi_transport_iscsi.c
++++ b/drivers/scsi/scsi_transport_iscsi.c
+@@ -427,39 +427,10 @@ static umode_t iscsi_iface_attr_is_visible(struct kobject *kobj,
+ 	struct device *dev = container_of(kobj, struct device, kobj);
+ 	struct iscsi_iface *iface = iscsi_dev_to_iface(dev);
+ 	struct iscsi_transport *t = iface->transport;
+-	int param;
+-	int param_type;
++	int param = -1;
+ 
+ 	if (attr == &dev_attr_iface_enabled.attr)
+ 		param = ISCSI_NET_PARAM_IFACE_ENABLE;
+-	else if (attr == &dev_attr_iface_vlan_id.attr)
+-		param = ISCSI_NET_PARAM_VLAN_ID;
+-	else if (attr == &dev_attr_iface_vlan_priority.attr)
+-		param = ISCSI_NET_PARAM_VLAN_PRIORITY;
+-	else if (attr == &dev_attr_iface_vlan_enabled.attr)
+-		param = ISCSI_NET_PARAM_VLAN_ENABLED;
+-	else if (attr == &dev_attr_iface_mtu.attr)
+-		param = ISCSI_NET_PARAM_MTU;
+-	else if (attr == &dev_attr_iface_port.attr)
+-		param = ISCSI_NET_PARAM_PORT;
+-	else if (attr == &dev_attr_iface_ipaddress_state.attr)
+-		param = ISCSI_NET_PARAM_IPADDR_STATE;
+-	else if (attr == &dev_attr_iface_delayed_ack_en.attr)
+-		param = ISCSI_NET_PARAM_DELAYED_ACK_EN;
+-	else if (attr == &dev_attr_iface_tcp_nagle_disable.attr)
+-		param = ISCSI_NET_PARAM_TCP_NAGLE_DISABLE;
+-	else if (attr == &dev_attr_iface_tcp_wsf_disable.attr)
+-		param = ISCSI_NET_PARAM_TCP_WSF_DISABLE;
+-	else if (attr == &dev_attr_iface_tcp_wsf.attr)
+-		param = ISCSI_NET_PARAM_TCP_WSF;
+-	else if (attr == &dev_attr_iface_tcp_timer_scale.attr)
+-		param = ISCSI_NET_PARAM_TCP_TIMER_SCALE;
+-	else if (attr == &dev_attr_iface_tcp_timestamp_en.attr)
+-		param = ISCSI_NET_PARAM_TCP_TIMESTAMP_EN;
+-	else if (attr == &dev_attr_iface_cache_id.attr)
+-		param = ISCSI_NET_PARAM_CACHE_ID;
+-	else if (attr == &dev_attr_iface_redirect_en.attr)
+-		param = ISCSI_NET_PARAM_REDIRECT_EN;
+ 	else if (attr == &dev_attr_iface_def_taskmgmt_tmo.attr)
+ 		param = ISCSI_IFACE_PARAM_DEF_TASKMGMT_TMO;
+ 	else if (attr == &dev_attr_iface_header_digest.attr)
+@@ -496,6 +467,38 @@ static umode_t iscsi_iface_attr_is_visible(struct kobject *kobj,
+ 		param = ISCSI_IFACE_PARAM_STRICT_LOGIN_COMP_EN;
+ 	else if (attr == &dev_attr_iface_initiator_name.attr)
+ 		param = ISCSI_IFACE_PARAM_INITIATOR_NAME;
 +
- 	status = bus_state->resuming_ports;
++	if (param != -1)
++		return t->attr_is_visible(ISCSI_IFACE_PARAM, param);
++
++	if (attr == &dev_attr_iface_vlan_id.attr)
++		param = ISCSI_NET_PARAM_VLAN_ID;
++	else if (attr == &dev_attr_iface_vlan_priority.attr)
++		param = ISCSI_NET_PARAM_VLAN_PRIORITY;
++	else if (attr == &dev_attr_iface_vlan_enabled.attr)
++		param = ISCSI_NET_PARAM_VLAN_ENABLED;
++	else if (attr == &dev_attr_iface_mtu.attr)
++		param = ISCSI_NET_PARAM_MTU;
++	else if (attr == &dev_attr_iface_port.attr)
++		param = ISCSI_NET_PARAM_PORT;
++	else if (attr == &dev_attr_iface_ipaddress_state.attr)
++		param = ISCSI_NET_PARAM_IPADDR_STATE;
++	else if (attr == &dev_attr_iface_delayed_ack_en.attr)
++		param = ISCSI_NET_PARAM_DELAYED_ACK_EN;
++	else if (attr == &dev_attr_iface_tcp_nagle_disable.attr)
++		param = ISCSI_NET_PARAM_TCP_NAGLE_DISABLE;
++	else if (attr == &dev_attr_iface_tcp_wsf_disable.attr)
++		param = ISCSI_NET_PARAM_TCP_WSF_DISABLE;
++	else if (attr == &dev_attr_iface_tcp_wsf.attr)
++		param = ISCSI_NET_PARAM_TCP_WSF;
++	else if (attr == &dev_attr_iface_tcp_timer_scale.attr)
++		param = ISCSI_NET_PARAM_TCP_TIMER_SCALE;
++	else if (attr == &dev_attr_iface_tcp_timestamp_en.attr)
++		param = ISCSI_NET_PARAM_TCP_TIMESTAMP_EN;
++	else if (attr == &dev_attr_iface_cache_id.attr)
++		param = ISCSI_NET_PARAM_CACHE_ID;
++	else if (attr == &dev_attr_iface_redirect_en.attr)
++		param = ISCSI_NET_PARAM_REDIRECT_EN;
+ 	else if (iface->iface_type == ISCSI_IFACE_TYPE_IPV4) {
+ 		if (attr == &dev_attr_ipv4_iface_ipaddress.attr)
+ 			param = ISCSI_NET_PARAM_IPV4_ADDR;
+@@ -586,32 +589,7 @@ static umode_t iscsi_iface_attr_is_visible(struct kobject *kobj,
+ 		return 0;
+ 	}
  
- 	mask = PORT_CSC | PORT_PEC | PORT_OCC | PORT_PLC | PORT_WRC | PORT_CEC;
+-	switch (param) {
+-	case ISCSI_IFACE_PARAM_DEF_TASKMGMT_TMO:
+-	case ISCSI_IFACE_PARAM_HDRDGST_EN:
+-	case ISCSI_IFACE_PARAM_DATADGST_EN:
+-	case ISCSI_IFACE_PARAM_IMM_DATA_EN:
+-	case ISCSI_IFACE_PARAM_INITIAL_R2T_EN:
+-	case ISCSI_IFACE_PARAM_DATASEQ_INORDER_EN:
+-	case ISCSI_IFACE_PARAM_PDU_INORDER_EN:
+-	case ISCSI_IFACE_PARAM_ERL:
+-	case ISCSI_IFACE_PARAM_MAX_RECV_DLENGTH:
+-	case ISCSI_IFACE_PARAM_FIRST_BURST:
+-	case ISCSI_IFACE_PARAM_MAX_R2T:
+-	case ISCSI_IFACE_PARAM_MAX_BURST:
+-	case ISCSI_IFACE_PARAM_CHAP_AUTH_EN:
+-	case ISCSI_IFACE_PARAM_BIDI_CHAP_EN:
+-	case ISCSI_IFACE_PARAM_DISCOVERY_AUTH_OPTIONAL:
+-	case ISCSI_IFACE_PARAM_DISCOVERY_LOGOUT_EN:
+-	case ISCSI_IFACE_PARAM_STRICT_LOGIN_COMP_EN:
+-	case ISCSI_IFACE_PARAM_INITIATOR_NAME:
+-		param_type = ISCSI_IFACE_PARAM;
+-		break;
+-	default:
+-		param_type = ISCSI_NET_PARAM;
+-	}
+-
+-	return t->attr_is_visible(param_type, param);
++	return t->attr_is_visible(ISCSI_NET_PARAM, param);
+ }
  
--	spin_lock_irqsave(&xhci->lock, flags);
- 	/* For each port, did anything change?  If so, set that bit in buf. */
- 	for (i = 0; i < max_ports; i++) {
- 		temp = readl(port_array[i]);
+ static struct attribute *iscsi_iface_attrs[] = {
+-- 
+2.30.2
+
 
 
