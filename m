@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8514A3D61EB
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:15:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C52323D6096
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:11:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234323AbhGZPd1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:33:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48560 "EHLO mail.kernel.org"
+        id S237500AbhGZPXM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:23:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38198 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233395AbhGZPcT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:32:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9743560240;
-        Mon, 26 Jul 2021 16:12:31 +0000 (UTC)
+        id S237467AbhGZPXL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:23:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AB7FF60EB2;
+        Mon, 26 Jul 2021 16:03:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315952;
-        bh=KYOiDckllKXj8mHvVhsWCZDPBlWvtcaE6P/Sx14jxpo=;
+        s=korg; t=1627315420;
+        bh=1o2MyKCtsRusEYEXJMA1hrjflzIlkJ3fM5R5DHhhJZE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZQxA8oT2qzuRlXbAQRuJ2J04wcj8KPH3ffD8c0ygyw9bNk/yYdB81K0F4K8nkuyqN
-         RWcLancXu9L+EU+NHkzkDu5W9imC3Bo9PIVh85mTuLA3MA9+eU9lXEKq3dQ5e1rm/N
-         UrfnHT951AC8fFIexDYwVz1LnMJ/ZmsmcwKrmAzs=
+        b=BNpH1Cne+JyTQUMmaaf4yxD1SQEXpd319siI1WtEPuZk7pNwBin9UGRdxiBYn4AfU
+         TTDVKlQhrdGZexPrc8mPE/tbMhWpBqvAC8KZR3T0MfZbqeYvivuD0qYrXDwtCuruiz
+         FUdwyYDgKWWWzjBGb9jV2EynBJYt0vw0NC7GaAuE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+b774577370208727d12b@syzkaller.appspotmail.com,
-        Xin Long <lucien.xin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        Alexandru Tachici <alexandru.tachici@analog.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 130/223] sctp: update active_key for asoc when old key is being replaced
+Subject: [PATCH 5.10 089/167] spi: spi-bcm2835: Fix deadlock
 Date:   Mon, 26 Jul 2021 17:38:42 +0200
-Message-Id: <20210726153850.506240255@linuxfoundation.org>
+Message-Id: <20210726153842.388132310@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
-References: <20210726153846.245305071@linuxfoundation.org>
+In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
+References: <20210726153839.371771838@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,53 +42,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Alexandru Tachici <alexandru.tachici@analog.com>
 
-[ Upstream commit 58acd10092268831e49de279446c314727101292 ]
+[ Upstream commit c45c1e82bba130db4f19d9dbc1deefcf4ea994ed ]
 
-syzbot reported a call trace:
+The bcm2835_spi_transfer_one function can create a deadlock
+if it is called while another thread already has the
+CCF lock.
 
-  BUG: KASAN: use-after-free in sctp_auth_shkey_hold+0x22/0xa0 net/sctp/auth.c:112
-  Call Trace:
-   sctp_auth_shkey_hold+0x22/0xa0 net/sctp/auth.c:112
-   sctp_set_owner_w net/sctp/socket.c:131 [inline]
-   sctp_sendmsg_to_asoc+0x152e/0x2180 net/sctp/socket.c:1865
-   sctp_sendmsg+0x103b/0x1d30 net/sctp/socket.c:2027
-   inet_sendmsg+0x99/0xe0 net/ipv4/af_inet.c:821
-   sock_sendmsg_nosec net/socket.c:703 [inline]
-   sock_sendmsg+0xcf/0x120 net/socket.c:723
-
-This is an use-after-free issue caused by not updating asoc->shkey after
-it was replaced in the key list asoc->endpoint_shared_keys, and the old
-key was freed.
-
-This patch is to fix by also updating active_key for asoc when old key is
-being replaced with a new one. Note that this issue doesn't exist in
-sctp_auth_del_key_id(), as it's not allowed to delete the active_key
-from the asoc.
-
-Fixes: 1b1e0bc99474 ("sctp: add refcnt support for sh_key")
-Reported-by: syzbot+b774577370208727d12b@syzkaller.appspotmail.com
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Alexandru Tachici <alexandru.tachici@analog.com>
+Fixes: f8043872e796 ("spi: add driver for BCM2835")
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20210716210245.13240-2-alexandru.tachici@analog.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/auth.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/spi/spi-bcm2835.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/net/sctp/auth.c b/net/sctp/auth.c
-index 6f8319b828b0..fe74c5f95630 100644
---- a/net/sctp/auth.c
-+++ b/net/sctp/auth.c
-@@ -860,6 +860,8 @@ int sctp_auth_set_key(struct sctp_endpoint *ep,
- 	if (replace) {
- 		list_del_init(&shkey->key_list);
- 		sctp_auth_shkey_release(shkey);
-+		if (asoc && asoc->active_key_id == auth_key->sca_keynumber)
-+			sctp_auth_asoc_init_active_key(asoc, GFP_KERNEL);
- 	}
- 	list_add(&cur_key->key_list, sh_keys);
+diff --git a/drivers/spi/spi-bcm2835.c b/drivers/spi/spi-bcm2835.c
+index 29ee555a42f9..33c32e931767 100644
+--- a/drivers/spi/spi-bcm2835.c
++++ b/drivers/spi/spi-bcm2835.c
+@@ -84,6 +84,7 @@ MODULE_PARM_DESC(polling_limit_us,
+  * struct bcm2835_spi - BCM2835 SPI controller
+  * @regs: base address of register map
+  * @clk: core clock, divided to calculate serial clock
++ * @clk_hz: core clock cached speed
+  * @irq: interrupt, signals TX FIFO empty or RX FIFO ¾ full
+  * @tfr: SPI transfer currently processed
+  * @ctlr: SPI controller reverse lookup
+@@ -124,6 +125,7 @@ MODULE_PARM_DESC(polling_limit_us,
+ struct bcm2835_spi {
+ 	void __iomem *regs;
+ 	struct clk *clk;
++	unsigned long clk_hz;
+ 	int irq;
+ 	struct spi_transfer *tfr;
+ 	struct spi_controller *ctlr;
+@@ -1082,19 +1084,18 @@ static int bcm2835_spi_transfer_one(struct spi_controller *ctlr,
+ 				    struct spi_transfer *tfr)
+ {
+ 	struct bcm2835_spi *bs = spi_controller_get_devdata(ctlr);
+-	unsigned long spi_hz, clk_hz, cdiv;
++	unsigned long spi_hz, cdiv;
+ 	unsigned long hz_per_byte, byte_limit;
+ 	u32 cs = bs->prepare_cs[spi->chip_select];
  
+ 	/* set clock */
+ 	spi_hz = tfr->speed_hz;
+-	clk_hz = clk_get_rate(bs->clk);
+ 
+-	if (spi_hz >= clk_hz / 2) {
++	if (spi_hz >= bs->clk_hz / 2) {
+ 		cdiv = 2; /* clk_hz/2 is the fastest we can go */
+ 	} else if (spi_hz) {
+ 		/* CDIV must be a multiple of two */
+-		cdiv = DIV_ROUND_UP(clk_hz, spi_hz);
++		cdiv = DIV_ROUND_UP(bs->clk_hz, spi_hz);
+ 		cdiv += (cdiv % 2);
+ 
+ 		if (cdiv >= 65536)
+@@ -1102,7 +1103,7 @@ static int bcm2835_spi_transfer_one(struct spi_controller *ctlr,
+ 	} else {
+ 		cdiv = 0; /* 0 is the slowest we can go */
+ 	}
+-	tfr->effective_speed_hz = cdiv ? (clk_hz / cdiv) : (clk_hz / 65536);
++	tfr->effective_speed_hz = cdiv ? (bs->clk_hz / cdiv) : (bs->clk_hz / 65536);
+ 	bcm2835_wr(bs, BCM2835_SPI_CLK, cdiv);
+ 
+ 	/* handle all the 3-wire mode */
+@@ -1318,6 +1319,7 @@ static int bcm2835_spi_probe(struct platform_device *pdev)
+ 		return bs->irq ? bs->irq : -ENODEV;
+ 
+ 	clk_prepare_enable(bs->clk);
++	bs->clk_hz = clk_get_rate(bs->clk);
+ 
+ 	err = bcm2835_dma_init(ctlr, &pdev->dev, bs);
+ 	if (err)
 -- 
 2.30.2
 
