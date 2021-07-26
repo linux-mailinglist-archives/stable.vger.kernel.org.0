@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E58AB3D5F7F
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 958FD3D5F35
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236281AbhGZPSN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:18:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55332 "EHLO mail.kernel.org"
+        id S235922AbhGZPRN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:17:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53050 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236905AbhGZPPn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:15:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C97AA60F02;
-        Mon, 26 Jul 2021 15:54:28 +0000 (UTC)
+        id S237408AbhGZPPo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:15:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C0CB6101C;
+        Mon, 26 Jul 2021 15:54:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314869;
-        bh=EJLqGnBdeEm2MZijOpueWFpBIu+vZbuXgFG4Uos2p1U=;
+        s=korg; t=1627314872;
+        bh=O3bklign98ABGAFKWn6e8vbnjb9JvA5CRHH5nI+k1Bg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cb98wUyppgDO9AP9mNqaHPyPWzl7Db+JsAyLb4jV659x/WSH2PWy+bvYo3cD+ppP5
-         a/y5YR0UpPQdG+Wb4U9EDPDCRPHQKlmhv7AGkyw/PaZmtOf5j8XoU06TNp3a0DLyBs
-         zJBNo1ewt/4xTRK0tGkmattSDRGqQfzEL35d65VE=
+        b=IvY3uqKs0wVwOrBKP2bezyuPjEjCmxygPGc400tol9wNB9V2IKGNz157m6q7y2uRt
+         pTe3ZOqZ367lCURyQb0Ac672s9X9wIWD/SXHlmHgSSHjk2m1XDB32D77ndjXi1x6Fd
+         5Z8QpjbohdIUmJdS0ekFgdfZy9I90X14x7VYES1c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Kees Cook <keescook@chromium.org>,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>
-Subject: [PATCH 4.19 106/120] media: ngene: Fix out-of-bounds bug in ngene_command_config_free_buf()
-Date:   Mon, 26 Jul 2021 17:39:18 +0200
-Message-Id: <20210726153835.846935839@linuxfoundation.org>
+        stable@vger.kernel.org, Markus Boehme <markubo@amazon.com>,
+        Tony Brelinski <tonyx.brelinski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 107/120] ixgbe: Fix packet corruption due to missing DMA sync
+Date:   Mon, 26 Jul 2021 17:39:19 +0200
+Message-Id: <20210726153835.885170431@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210726153832.339431936@linuxfoundation.org>
 References: <20210726153832.339431936@linuxfoundation.org>
@@ -40,82 +41,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gustavo A. R. Silva <gustavoars@kernel.org>
+From: Markus Boehme <markubo@amazon.com>
 
-commit 8d4abca95ecc82fc8c41912fa0085281f19cc29f upstream.
+commit 09cfae9f13d51700b0fecf591dcd658fc5375428 upstream.
 
-Fix an 11-year old bug in ngene_command_config_free_buf() while
-addressing the following warnings caught with -Warray-bounds:
+When receiving a packet with multiple fragments, hardware may still
+touch the first fragment until the entire packet has been received. The
+driver therefore keeps the first fragment mapped for DMA until end of
+packet has been asserted, and delays its dma_sync call until then.
 
-arch/alpha/include/asm/string.h:22:16: warning: '__builtin_memcpy' offset [12, 16] from the object at 'com' is out of the bounds of referenced subobject 'config' with type 'unsigned char' at offset 10 [-Warray-bounds]
-arch/x86/include/asm/string_32.h:182:25: warning: '__builtin_memcpy' offset [12, 16] from the object at 'com' is out of the bounds of referenced subobject 'config' with type 'unsigned char' at offset 10 [-Warray-bounds]
+The driver tries to fit multiple receive buffers on one page. When using
+3K receive buffers (e.g. using Jumbo frames and legacy-rx is turned
+off/build_skb is being used) on an architecture with 4K pages, the
+driver allocates an order 1 compound page and uses one page per receive
+buffer. To determine the correct offset for a delayed DMA sync of the
+first fragment of a multi-fragment packet, the driver then cannot just
+use PAGE_MASK on the DMA address but has to construct a mask based on
+the actual size of the backing page.
 
-The problem is that the original code is trying to copy 6 bytes of
-data into a one-byte size member _config_ of the wrong structue
-FW_CONFIGURE_BUFFERS, in a single call to memcpy(). This causes a
-legitimate compiler warning because memcpy() overruns the length
-of &com.cmd.ConfigureBuffers.config. It seems that the right
-structure is FW_CONFIGURE_FREE_BUFFERS, instead, because it contains
-6 more members apart from the header _hdr_. Also, the name of
-the function ngene_command_config_free_buf() suggests that the actual
-intention is to ConfigureFreeBuffers, instead of ConfigureBuffers
-(which takes place in the function ngene_command_config_buf(), above).
+Using PAGE_MASK in the 3K RX buffer/4K page architecture configuration
+will always sync the first page of a compound page. With the SWIOTLB
+enabled this can lead to corrupted packets (zeroed out first fragment,
+re-used garbage from another packet) and various consequences, such as
+slow/stalling data transfers and connection resets. For example, testing
+on a link with MTU exceeding 3058 bytes on a host with SWIOTLB enabled
+(e.g. "iommu=soft swiotlb=262144,force") TCP transfers quickly fizzle
+out without this patch.
 
-Fix this by enclosing those 6 members of struct FW_CONFIGURE_FREE_BUFFERS
-into new struct config, and use &com.cmd.ConfigureFreeBuffers.config as
-the destination address, instead of &com.cmd.ConfigureBuffers.config,
-when calling memcpy().
-
-This also helps with the ongoing efforts to globally enable
--Warray-bounds and get us closer to being able to tighten the
-FORTIFY_SOURCE routines on memcpy().
-
-Link: https://github.com/KSPP/linux/issues/109
-Fixes: dae52d009fc9 ("V4L/DVB: ngene: Initial check-in")
 Cc: stable@vger.kernel.org
-Reported-by: kernel test robot <lkp@intel.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
-Link: https://lore.kernel.org/linux-hardening/20210420001631.GA45456@embeddedor/
+Fixes: 0c5661ecc5dd7 ("ixgbe: fix crash in build_skb Rx code path")
+Signed-off-by: Markus Boehme <markubo@amazon.com>
+Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/pci/ngene/ngene-core.c |    2 +-
- drivers/media/pci/ngene/ngene.h      |   14 ++++++++------
- 2 files changed, 9 insertions(+), 7 deletions(-)
+ drivers/net/ethernet/intel/ixgbe/ixgbe_main.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/media/pci/ngene/ngene-core.c
-+++ b/drivers/media/pci/ngene/ngene-core.c
-@@ -398,7 +398,7 @@ static int ngene_command_config_free_buf
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
+@@ -1823,7 +1823,8 @@ static void ixgbe_dma_sync_frag(struct i
+ 				struct sk_buff *skb)
+ {
+ 	if (ring_uses_build_skb(rx_ring)) {
+-		unsigned long offset = (unsigned long)(skb->data) & ~PAGE_MASK;
++		unsigned long mask = (unsigned long)ixgbe_rx_pg_size(rx_ring) - 1;
++		unsigned long offset = (unsigned long)(skb->data) & mask;
  
- 	com.cmd.hdr.Opcode = CMD_CONFIGURE_FREE_BUFFER;
- 	com.cmd.hdr.Length = 6;
--	memcpy(&com.cmd.ConfigureBuffers.config, config, 6);
-+	memcpy(&com.cmd.ConfigureFreeBuffers.config, config, 6);
- 	com.in_len = 6;
- 	com.out_len = 0;
- 
---- a/drivers/media/pci/ngene/ngene.h
-+++ b/drivers/media/pci/ngene/ngene.h
-@@ -419,12 +419,14 @@ enum _BUFFER_CONFIGS {
- 
- struct FW_CONFIGURE_FREE_BUFFERS {
- 	struct FW_HEADER hdr;
--	u8   UVI1_BufferLength;
--	u8   UVI2_BufferLength;
--	u8   TVO_BufferLength;
--	u8   AUD1_BufferLength;
--	u8   AUD2_BufferLength;
--	u8   TVA_BufferLength;
-+	struct {
-+		u8   UVI1_BufferLength;
-+		u8   UVI2_BufferLength;
-+		u8   TVO_BufferLength;
-+		u8   AUD1_BufferLength;
-+		u8   AUD2_BufferLength;
-+		u8   TVA_BufferLength;
-+	} __packed config;
- } __attribute__ ((__packed__));
- 
- struct FW_CONFIGURE_UART {
+ 		dma_sync_single_range_for_cpu(rx_ring->dev,
+ 					      IXGBE_CB(skb)->dma,
 
 
