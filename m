@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DFB333D61B6
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:14:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C83B53D61BB
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:14:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233804AbhGZPcm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:32:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42922 "EHLO mail.kernel.org"
+        id S233878AbhGZPcu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:32:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42990 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237346AbhGZP3P (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237334AbhGZP3P (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 26 Jul 2021 11:29:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EAD8A60FA0;
-        Mon, 26 Jul 2021 16:07:38 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F08360F91;
+        Mon, 26 Jul 2021 16:07:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315659;
-        bh=ZSPGHKBhpPImpRwsDREuMAyrTlKemDfX3w03bUDGfS8=;
+        s=korg; t=1627315661;
+        bh=ThqkK4m8u5lgd2RkgRcZFsDzZA8hqWP1H7efJQ16O9k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T5tfKvVnEmJpx53RrCCpKhfCf7rm8N8kyuKrp7+h902cGDDXlTqVS9N+XhgLQCWwm
-         rq4IkOO8c01ROEt3wQRy91gWupJi3WaBRYtyzp7eK8eFdKK7vy3IuYZRBV7mZ8KYMO
-         /MnySQt2eaYq8uiGDnGjq97rq5dJ1KH1usJFXDHo=
+        b=nvLSMx+C0phYRB9SqmKGZL1m8FRL6+LZlvuictqjBlJKlcP2+d3zhv2dmP/TocKpd
+         GgpIf2YKrgBTLkyf8Zor3e++cI8VKxoSVa7KaN5+KkAoQLrUtBbOWq8nzZ/f/+bZCM
+         XDC401w919nGoloSARiMPDjp44bp8TIIjzH4foRg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 016/223] bonding: fix null dereference in bond_ipsec_add_sa()
-Date:   Mon, 26 Jul 2021 17:36:48 +0200
-Message-Id: <20210726153846.789827291@linuxfoundation.org>
+Subject: [PATCH 5.13 017/223] ixgbevf: use xso.real_dev instead of xso.dev in callback functions of struct xfrmdev_ops
+Date:   Mon, 26 Jul 2021 17:36:49 +0200
+Message-Id: <20210726153846.819919248@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
 References: <20210726153846.245305071@linuxfoundation.org>
@@ -42,41 +42,56 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Taehee Yoo <ap420073@gmail.com>
 
-[ Upstream commit 105cd17a866017b45f3c45901b394c711c97bf40 ]
+[ Upstream commit 2de7e4f67599affc97132bd07e30e3bd59d0b777 ]
 
-If bond doesn't have real device, bond->curr_active_slave is null.
-But bond_ipsec_add_sa() dereferences bond->curr_active_slave without
-null checking.
-So, null-ptr-deref would occur.
+There are two pointers in struct xfrm_state_offload, *dev, *real_dev.
+These are used in callback functions of struct xfrmdev_ops.
+The *dev points whether bonding interface or real interface.
+If bonding ipsec offload is used, it points bonding interface If not,
+it points real interface.
+And real_dev always points real interface.
+So, ixgbevf should always use real_dev instead of dev.
+Of course, real_dev always not be null.
 
 Test commands:
     ip link add bond0 type bond
+    #eth0 is ixgbevf interface
+    ip link set eth0 master bond0
     ip link set bond0 up
-    ip x s add proto esp dst 14.1.1.1 src 15.1.1.1 spi \
-0x07 mode transport reqid 0x07 replay-window 32 aead 'rfc4106(gcm(aes))' \
+    ip x s add proto esp dst 14.1.1.1 src 15.1.1.1 spi 0x07 mode \
+transport reqid 0x07 replay-window 32 aead 'rfc4106(gcm(aes))' \
 0x44434241343332312423222114131211f4f3f2f1 128 sel src 14.0.0.52/24 \
 dst 14.0.0.70/24 proto tcp offload dev bond0 dir in
 
 Splat looks like:
 KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
-CPU: 4 PID: 680 Comm: ip Not tainted 5.13.0-rc3+ #1168
-RIP: 0010:bond_ipsec_add_sa+0xc4/0x2e0 [bonding]
-Code: 85 21 02 00 00 4d 8b a6 48 0c 00 00 e8 75 58 44 ce 85 c0 0f 85 14
-01 00 00 48 b8 00 00 00 00 00 fc ff df 4c 89 e2 48 c1 ea 03 <80> 3c 02
-00 0f 85 fc 01 00 00 48 8d bb e0 02 00 00 4d 8b 2c 24 48
-RSP: 0018:ffff88810946f508 EFLAGS: 00010246
-RAX: dffffc0000000000 RBX: ffff88810b4e8040 RCX: 0000000000000001
-RDX: 0000000000000000 RSI: ffffffff8fe34280 RDI: ffff888115abe100
-RBP: ffff88810946f528 R08: 0000000000000003 R09: fffffbfff2287e11
-R10: 0000000000000001 R11: ffff888115abe0c8 R12: 0000000000000000
-R13: ffffffffc0aea9a0 R14: ffff88800d7d2000 R15: ffff88810b4e8330
-FS:  00007efc5552e680(0000) GS:ffff888119c00000(0000)
+CPU: 6 PID: 688 Comm: ip Not tainted 5.13.0-rc3+ #1168
+RIP: 0010:ixgbevf_ipsec_find_empty_idx+0x28/0x1b0 [ixgbevf]
+Code: 00 00 0f 1f 44 00 00 55 53 48 89 fb 48 83 ec 08 40 84 f6 0f 84 9c
+00 00 00 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <0f> b6 04 02
+84 c0 74 08 3c 01 0f 8e 4c 01 00 00 66 81 3b 00 04 0f
+RSP: 0018:ffff8880089af390 EFLAGS: 00010246
+RAX: dffffc0000000000 RBX: 0000000000000000 RCX: 0000000000000001
+RDX: 0000000000000000 RSI: 0000000000000001 RDI: 0000000000000000
+RBP: ffff8880089af4f8 R08: 0000000000000003 R09: fffffbfff4287e11
+R10: 0000000000000001 R11: ffff888005de8908 R12: 0000000000000000
+R13: ffff88810936a000 R14: ffff88810936a000 R15: ffff888004d78040
+FS:  00007fdf9883a680(0000) GS:ffff88811a400000(0000)
 knlGS:0000000000000000
 CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 000055c2530dbf40 CR3: 0000000103056004 CR4: 00000000003706e0
+CR2: 000055bc14adbf40 CR3: 000000000b87c005 CR4: 00000000003706e0
 DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
 DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
 Call Trace:
+ ixgbevf_ipsec_add_sa+0x1bf/0x9c0 [ixgbevf]
+ ? rcu_read_lock_sched_held+0x91/0xc0
+ ? ixgbevf_ipsec_parse_proto_keys.isra.9+0x280/0x280 [ixgbevf]
+ ? lock_acquire+0x191/0x720
+ ? bond_ipsec_add_sa+0x48/0x350 [bonding]
+ ? lockdep_hardirqs_on_prepare+0x3e0/0x3e0
+ ? rcu_read_lock_held+0x91/0xa0
+ ? rcu_read_lock_sched_held+0xc0/0xc0
+ bond_ipsec_add_sa+0x193/0x350 [bonding]
  xfrm_dev_state_add+0x2a9/0x770
  ? memcpy+0x38/0x60
  xfrm_add_sa+0x2278/0x3b10 [xfrm_user]
@@ -89,38 +104,65 @@ Call Trace:
  ? mutex_lock_io_nested+0x1210/0x1210
  ? sched_clock_cpu+0x18/0x170
  netlink_rcv_skb+0x121/0x350
- ? xfrm_user_state_lookup.constprop.39+0x320/0x320 [xfrm_user]
- ? netlink_ack+0x9d0/0x9d0
- ? netlink_deliver_tap+0x17c/0xa50
- xfrm_netlink_rcv+0x68/0x80 [xfrm_user]
- netlink_unicast+0x41c/0x610
- ? netlink_attachskb+0x710/0x710
- netlink_sendmsg+0x6b9/0xb70
-[ ...]
+[ ... ]
 
-Fixes: 18cb261afd7b ("bonding: support hardware encryption offload to slaves")
+Fixes: 272c2330adc9 ("xfrm: bail early on slave pass over skb")
 Signed-off-by: Taehee Yoo <ap420073@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/bonding/bond_main.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/ethernet/intel/ixgbevf/ipsec.c | 20 +++++++++++++-------
+ 1 file changed, 13 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
-index 026f4511bf7b..24b33118105a 100644
---- a/drivers/net/bonding/bond_main.c
-+++ b/drivers/net/bonding/bond_main.c
-@@ -411,6 +411,11 @@ static int bond_ipsec_add_sa(struct xfrm_state *xs)
- 	rcu_read_lock();
- 	bond = netdev_priv(bond_dev);
- 	slave = rcu_dereference(bond->curr_active_slave);
-+	if (!slave) {
-+		rcu_read_unlock();
-+		return -ENODEV;
-+	}
+diff --git a/drivers/net/ethernet/intel/ixgbevf/ipsec.c b/drivers/net/ethernet/intel/ixgbevf/ipsec.c
+index caaea2c920a6..e3e4676af9e4 100644
+--- a/drivers/net/ethernet/intel/ixgbevf/ipsec.c
++++ b/drivers/net/ethernet/intel/ixgbevf/ipsec.c
+@@ -211,7 +211,7 @@ struct xfrm_state *ixgbevf_ipsec_find_rx_state(struct ixgbevf_ipsec *ipsec,
+ static int ixgbevf_ipsec_parse_proto_keys(struct xfrm_state *xs,
+ 					  u32 *mykey, u32 *mysalt)
+ {
+-	struct net_device *dev = xs->xso.dev;
++	struct net_device *dev = xs->xso.real_dev;
+ 	unsigned char *key_data;
+ 	char *alg_name = NULL;
+ 	int key_len;
+@@ -260,12 +260,15 @@ static int ixgbevf_ipsec_parse_proto_keys(struct xfrm_state *xs,
+  **/
+ static int ixgbevf_ipsec_add_sa(struct xfrm_state *xs)
+ {
+-	struct net_device *dev = xs->xso.dev;
+-	struct ixgbevf_adapter *adapter = netdev_priv(dev);
+-	struct ixgbevf_ipsec *ipsec = adapter->ipsec;
++	struct net_device *dev = xs->xso.real_dev;
++	struct ixgbevf_adapter *adapter;
++	struct ixgbevf_ipsec *ipsec;
+ 	u16 sa_idx;
+ 	int ret;
+ 
++	adapter = netdev_priv(dev);
++	ipsec = adapter->ipsec;
 +
- 	xs->xso.real_dev = slave->dev;
- 	bond->xs = xs;
+ 	if (xs->id.proto != IPPROTO_ESP && xs->id.proto != IPPROTO_AH) {
+ 		netdev_err(dev, "Unsupported protocol 0x%04x for IPsec offload\n",
+ 			   xs->id.proto);
+@@ -383,11 +386,14 @@ static int ixgbevf_ipsec_add_sa(struct xfrm_state *xs)
+  **/
+ static void ixgbevf_ipsec_del_sa(struct xfrm_state *xs)
+ {
+-	struct net_device *dev = xs->xso.dev;
+-	struct ixgbevf_adapter *adapter = netdev_priv(dev);
+-	struct ixgbevf_ipsec *ipsec = adapter->ipsec;
++	struct net_device *dev = xs->xso.real_dev;
++	struct ixgbevf_adapter *adapter;
++	struct ixgbevf_ipsec *ipsec;
+ 	u16 sa_idx;
+ 
++	adapter = netdev_priv(dev);
++	ipsec = adapter->ipsec;
++
+ 	if (xs->xso.flags & XFRM_OFFLOAD_INBOUND) {
+ 		sa_idx = xs->xso.offload_handle - IXGBE_IPSEC_BASE_RX_INDEX;
  
 -- 
 2.30.2
