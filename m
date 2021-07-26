@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E57563D603A
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:02:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 542CB3D619A
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:14:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237179AbhGZPV1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:21:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35542 "EHLO mail.kernel.org"
+        id S233538AbhGZPcY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:32:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236204AbhGZPVX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:21:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0ABDD60240;
-        Mon, 26 Jul 2021 16:01:51 +0000 (UTC)
+        id S229533AbhGZPaP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:30:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C54960F93;
+        Mon, 26 Jul 2021 16:10:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315312;
-        bh=HNgwgOgXKcrDBopskhkaetrvqIyczd7na3SKqGo66K0=;
+        s=korg; t=1627315844;
+        bh=rqdLP8v9JW5gP1K232CCcqSKiXV/Hhn8DC/DNiPw1AY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q9GQTSy9HnyLxFe34hT6S3px63Iq4nZRI2kEu2kNGWchEaMjjZ+VrqTGbcIH3m2I+
-         K3OsIQljYdOIfdShGeAOPzWVoag7KSk9s3VQ++1UtTTm2r7adZU7TLJeKYylGiK9l9
-         tWS2WmaM9/aL36G8YSPuIQpxRW+rUTdM9OrjOB8Q=
+        b=JtlLY892HiqWk/bDZpNj38LU+ks6x5FVbhN9g+BTqU3XV0CPnkyH56tWpc8aO0V7Z
+         4niTXN+3dfa93iBsx0l+NDDmqJuaWJ6EtC8oirClViusaEO/YDdWHl6h0p8a1Wct/V
+         CIeR6swoxO5G+wu1dinZLUlkWxUcYTXTAPeKrykM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 048/167] ASoC: wm_adsp: Correct wm_coeff_tlv_get handling
+        stable@vger.kernel.org, Roman Skakun <roman_skakun@epam.com>,
+        Andrii Anisov <andrii_anisov@epam.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 089/223] dma-mapping: handle vmalloc addresses in dma_common_{mmap,get_sgtable}
 Date:   Mon, 26 Jul 2021 17:38:01 +0200
-Message-Id: <20210726153841.014185263@linuxfoundation.org>
+Message-Id: <20210726153849.164103359@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
-References: <20210726153839.371771838@linuxfoundation.org>
+In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
+References: <20210726153846.245305071@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,37 +40,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charles Keepax <ckeepax@opensource.cirrus.com>
+From: Roman Skakun <Roman_Skakun@epam.com>
 
-[ Upstream commit dd6fb8ff2210f74b056bf9234d0605e8c26a8ac0 ]
+[ Upstream commit 40ac971eab89330d6153e7721e88acd2d98833f9 ]
 
-When wm_coeff_tlv_get was updated it was accidentally switch to the _raw
-version of the helper causing it to ignore the current DSP state it
-should be checking. Switch the code back to the correct helper so that
-users can't read the controls when they arn't available.
+xen-swiotlb can use vmalloc backed addresses for dma coherent allocations
+and uses the common helpers.  Properly handle them to unbreak Xen on
+ARM platforms.
 
-Fixes: 73ecf1a673d3 ("ASoC: wm_adsp: Correct cache handling of new kernel control API")
-Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20210626155941.12251-1-ckeepax@opensource.cirrus.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 1b65c4e5a9af ("swiotlb-xen: use xen_alloc/free_coherent_pages")
+Signed-off-by: Roman Skakun <roman_skakun@epam.com>
+Reviewed-by: Andrii Anisov <andrii_anisov@epam.com>
+[hch: split the patch, renamed the helpers]
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/wm_adsp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/dma/ops_helpers.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/codecs/wm_adsp.c b/sound/soc/codecs/wm_adsp.c
-index 985b2dcecf13..51d95437e0fd 100644
---- a/sound/soc/codecs/wm_adsp.c
-+++ b/sound/soc/codecs/wm_adsp.c
-@@ -1221,7 +1221,7 @@ static int wm_coeff_tlv_get(struct snd_kcontrol *kctl,
+diff --git a/kernel/dma/ops_helpers.c b/kernel/dma/ops_helpers.c
+index 910ae69cae77..af4a6ef48ce0 100644
+--- a/kernel/dma/ops_helpers.c
++++ b/kernel/dma/ops_helpers.c
+@@ -5,6 +5,13 @@
+  */
+ #include <linux/dma-map-ops.h>
  
- 	mutex_lock(&ctl->dsp->pwr_lock);
++static struct page *dma_common_vaddr_to_page(void *cpu_addr)
++{
++	if (is_vmalloc_addr(cpu_addr))
++		return vmalloc_to_page(cpu_addr);
++	return virt_to_page(cpu_addr);
++}
++
+ /*
+  * Create scatter-list for the already allocated DMA buffer.
+  */
+@@ -12,7 +19,7 @@ int dma_common_get_sgtable(struct device *dev, struct sg_table *sgt,
+ 		 void *cpu_addr, dma_addr_t dma_addr, size_t size,
+ 		 unsigned long attrs)
+ {
+-	struct page *page = virt_to_page(cpu_addr);
++	struct page *page = dma_common_vaddr_to_page(cpu_addr);
+ 	int ret;
  
--	ret = wm_coeff_read_ctrl_raw(ctl, ctl->cache, size);
-+	ret = wm_coeff_read_ctrl(ctl, ctl->cache, size);
+ 	ret = sg_alloc_table(sgt, 1, GFP_KERNEL);
+@@ -32,6 +39,7 @@ int dma_common_mmap(struct device *dev, struct vm_area_struct *vma,
+ 	unsigned long user_count = vma_pages(vma);
+ 	unsigned long count = PAGE_ALIGN(size) >> PAGE_SHIFT;
+ 	unsigned long off = vma->vm_pgoff;
++	struct page *page = dma_common_vaddr_to_page(cpu_addr);
+ 	int ret = -ENXIO;
  
- 	if (!ret && copy_to_user(bytes, ctl->cache, size))
- 		ret = -EFAULT;
+ 	vma->vm_page_prot = dma_pgprot(dev, vma->vm_page_prot, attrs);
+@@ -43,7 +51,7 @@ int dma_common_mmap(struct device *dev, struct vm_area_struct *vma,
+ 		return -ENXIO;
+ 
+ 	return remap_pfn_range(vma, vma->vm_start,
+-			page_to_pfn(virt_to_page(cpu_addr)) + vma->vm_pgoff,
++			page_to_pfn(page) + vma->vm_pgoff,
+ 			user_count << PAGE_SHIFT, vma->vm_page_prot);
+ #else
+ 	return -ENXIO;
 -- 
 2.30.2
 
