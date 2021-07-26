@@ -2,43 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 797873D5F90
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 931CE3D5E18
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:47:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236494AbhGZPSZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:18:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54248 "EHLO mail.kernel.org"
+        id S235609AbhGZPFb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:05:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237419AbhGZPPo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:15:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1522460F44;
-        Mon, 26 Jul 2021 15:54:55 +0000 (UTC)
+        id S235166AbhGZPFM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:05:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 81BBB60F42;
+        Mon, 26 Jul 2021 15:45:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314895;
-        bh=b4jyb8tQKBwTQ3tPaTVyQQni4alkBWFwWHERT/spFs4=;
+        s=korg; t=1627314341;
+        bh=aziqb2+A/kPOUWU75oaDMBEo+I4DXHOHTanfjqu/q0o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x89/yefvDfcy5q3XqguWRzfyk11pdZQ/cwE7kxXo53WLAKuhrINFxVtutv8AHbEgW
-         OdKALvrFY6A2WKrQtePc/nDJoR8Tz4ocSmYJOG9QPBQ+I6hNMzqvLj/OShqhmzenAV
-         aQdhexAH7ZDzev0CL8ybArcSXXHHPxLe8l6kYPBo=
+        b=zaKj29X94BU6owqHCvxNmYcnrTLCX63doxNHxQ4rmtv/6T3KkidxPTAC8Q0NJVsk2
+         XnbAS9q2yQ91wfMLhaeiu9W03jeYkeEyn8Pimjj9TcHmLrFpNcLZ7oL+RUYvuipJDG
+         ht4JsIUiLOzjtOWhTQqC0X+V49hTxslN70pgJg4c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
-        Grzegorz Siwik <grzegorz.siwik@intel.com>,
-        Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>,
-        Slawomir Laba <slawomirx.laba@intel.com>,
-        Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>,
-        Mateusz Palczewski <mateusz.placzewski@intel.com>,
-        Tony Brelinski <tonyx.brelinski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Primoz Fiser <primoz.fiser@norik.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 011/108] igb: Check if num of q_vectors is smaller than max before array access
+Subject: [PATCH 4.14 12/82] ARM: dts: imx6: phyFLEX: Fix UART hardware flow control
 Date:   Mon, 26 Jul 2021 17:38:12 +0200
-Message-Id: <20210726153832.064840350@linuxfoundation.org>
+Message-Id: <20210726153828.556753773@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
-References: <20210726153831.696295003@linuxfoundation.org>
+In-Reply-To: <20210726153828.144714469@linuxfoundation.org>
+References: <20210726153828.144714469@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,56 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
+From: Primoz Fiser <primoz.fiser@norik.com>
 
-[ Upstream commit 6c19d772618fea40d9681f259368f284a330fd90 ]
+[ Upstream commit 14cdc1f243d79e0b46be150502b7dba9c5a6bdfd ]
 
-Ensure that the adapter->q_vector[MAX_Q_VECTORS] array isn't accessed
-beyond its size. It was fixed by using a local variable num_q_vectors
-as a limit for loop index, and ensure that num_q_vectors is not bigger
-than MAX_Q_VECTORS.
+Serial interface uart3 on phyFLEX board is capable of 5-wire connection
+including signals RTS and CTS for hardware flow control.
 
-Fixes: 047e0030f1e6 ("igb: add new data structure for handling interrupts and NAPI")
-Signed-off-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
-Reviewed-by: Grzegorz Siwik <grzegorz.siwik@intel.com>
-Reviewed-by: Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>
-Reviewed-by: Slawomir Laba <slawomirx.laba@intel.com>
-Reviewed-by: Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
-Reviewed-by: Mateusz Palczewski <mateusz.placzewski@intel.com>
-Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fix signals UART3_CTS_B and UART3_RTS_B padmux assignments and add
+missing property "uart-has-rtscts" to allow serial interface to be
+configured and used with the hardware flow control.
+
+Signed-off-by: Primoz Fiser <primoz.fiser@norik.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/igb/igb_main.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/igb/igb_main.c b/drivers/net/ethernet/intel/igb/igb_main.c
-index bf8da4869c0f..35b096ab2893 100644
---- a/drivers/net/ethernet/intel/igb/igb_main.c
-+++ b/drivers/net/ethernet/intel/igb/igb_main.c
-@@ -940,6 +940,7 @@ static void igb_configure_msix(struct igb_adapter *adapter)
-  **/
- static int igb_request_msix(struct igb_adapter *adapter)
- {
-+	unsigned int num_q_vectors = adapter->num_q_vectors;
- 	struct net_device *netdev = adapter->netdev;
- 	int i, err = 0, vector = 0, free_vector = 0;
+diff --git a/arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi b/arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi
+index d2c31eae9fef..cce680a563f7 100644
+--- a/arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi
+@@ -306,8 +306,8 @@
+ 			fsl,pins = <
+ 				MX6QDL_PAD_EIM_D24__UART3_TX_DATA	0x1b0b1
+ 				MX6QDL_PAD_EIM_D25__UART3_RX_DATA	0x1b0b1
+-				MX6QDL_PAD_EIM_D30__UART3_RTS_B		0x1b0b1
+-				MX6QDL_PAD_EIM_D31__UART3_CTS_B		0x1b0b1
++				MX6QDL_PAD_EIM_D31__UART3_RTS_B		0x1b0b1
++				MX6QDL_PAD_EIM_D30__UART3_CTS_B		0x1b0b1
+ 			>;
+ 		};
  
-@@ -948,7 +949,13 @@ static int igb_request_msix(struct igb_adapter *adapter)
- 	if (err)
- 		goto err_out;
+@@ -394,6 +394,7 @@
+ &uart3 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_uart3>;
++	uart-has-rtscts;
+ 	status = "disabled";
+ };
  
--	for (i = 0; i < adapter->num_q_vectors; i++) {
-+	if (num_q_vectors > MAX_Q_VECTORS) {
-+		num_q_vectors = MAX_Q_VECTORS;
-+		dev_warn(&adapter->pdev->dev,
-+			 "The number of queue vectors (%d) is higher than max allowed (%d)\n",
-+			 adapter->num_q_vectors, MAX_Q_VECTORS);
-+	}
-+	for (i = 0; i < num_q_vectors; i++) {
- 		struct igb_q_vector *q_vector = adapter->q_vector[i];
- 
- 		vector++;
 -- 
 2.30.2
 
