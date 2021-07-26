@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F03BB3D5F31
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C84E3D5FCB
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236195AbhGZPRL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:17:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52972 "EHLO mail.kernel.org"
+        id S236716AbhGZPTN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:19:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236873AbhGZPPn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:15:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3232661009;
-        Mon, 26 Jul 2021 15:54:21 +0000 (UTC)
+        id S236289AbhGZPSd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:18:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3BD2560F42;
+        Mon, 26 Jul 2021 15:58:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314861;
-        bh=we83vfffxmKnXEF1YZVOA5Rq+qLo9e2+1/ii1f5isxA=;
+        s=korg; t=1627315141;
+        bh=kugNlAgGGbG/lkQqpp3O7FJ7pQ5oDF63Pg9AgoiH/6o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zKhms89cWkejtpms0XdacUio+bzQdHxP8TP7JG/LySddP6HSe9NHpZSwlKDZSKXHz
-         bx3JvsiqgcrwzHiL+w4IA+3xuf32gTTG7Qaqf+OFU/pj27ZXsPOxJve9/DBjoOaO85
-         2YwdcfTTESKYJE3oGd3TQJ1uemkFtx8bt5Wgfrv0=
+        b=WotVn/zpsWL48wZcjvlmDCV0DkI4uQtwXShsI3aMK053vokW0AIp03iYZUgCO+8mt
+         pikFO9cUvyhDz6HXkLt3s8J4B6Mgm9/JTpvyXsqXHLjA/VKCjDNYciUDCJKInxtbzm
+         PNWTwfvbxFt8IqC8cbYSXx0D7jQObaFdL9zYG8VY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Vladimir Oltean <olteanv@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.19 119/120] spi: spi-fsl-dspi: Fix a resource leak in an error handling path
+        Linus Torvalds <torvalds@linuxfoundation.org>,
+        Haoran Luo <www@aegistudio.net>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.4 090/108] tracing: Fix bug in rb_per_cpu_empty() that might cause deadloop.
 Date:   Mon, 26 Jul 2021 17:39:31 +0200
-Message-Id: <20210726153836.293564953@linuxfoundation.org>
+Message-Id: <20210726153834.567060122@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153832.339431936@linuxfoundation.org>
-References: <20210726153832.339431936@linuxfoundation.org>
+In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
+References: <20210726153831.696295003@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,42 +41,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Haoran Luo <www@aegistudio.net>
 
-commit 680ec0549a055eb464dce6ffb4bfb736ef87236e upstream
+commit 67f0d6d9883c13174669f88adac4f0ee656cc16a upstream.
 
-'dspi_request_dma()' should be undone by a 'dspi_release_dma()' call in the
-error handling path of the probe function, as already done in the remove
-function
+The "rb_per_cpu_empty()" misinterpret the condition (as not-empty) when
+"head_page" and "commit_page" of "struct ring_buffer_per_cpu" points to
+the same buffer page, whose "buffer_data_page" is empty and "read" field
+is non-zero.
 
-Fixes: 90ba37033cb9 ("spi: spi-fsl-dspi: Add DMA support for Vybrid")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
-Link: https://lore.kernel.org/r/d51caaac747277a1099ba8dea07acd85435b857e.1620587472.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Mark Brown <broonie@kernel.org>
-[sudip: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+An error scenario could be constructed as followed (kernel perspective):
+
+1. All pages in the buffer has been accessed by reader(s) so that all of
+them will have non-zero "read" field.
+
+2. Read and clear all buffer pages so that "rb_num_of_entries()" will
+return 0 rendering there's no more data to read. It is also required
+that the "read_page", "commit_page" and "tail_page" points to the same
+page, while "head_page" is the next page of them.
+
+3. Invoke "ring_buffer_lock_reserve()" with large enough "length"
+so that it shot pass the end of current tail buffer page. Now the
+"head_page", "commit_page" and "tail_page" points to the same page.
+
+4. Discard current event with "ring_buffer_discard_commit()", so that
+"head_page", "commit_page" and "tail_page" points to a page whose buffer
+data page is now empty.
+
+When the error scenario has been constructed, "tracing_read_pipe" will
+be trapped inside a deadloop: "trace_empty()" returns 0 since
+"rb_per_cpu_empty()" returns 0 when it hits the CPU containing such
+constructed ring buffer. Then "trace_find_next_entry_inc()" always
+return NULL since "rb_num_of_entries()" reports there's no more entry
+to read. Finally "trace_seq_to_user()" returns "-EBUSY" spanking
+"tracing_read_pipe" back to the start of the "waitagain" loop.
+
+I've also written a proof-of-concept script to construct the scenario
+and trigger the bug automatically, you can use it to trace and validate
+my reasoning above:
+
+  https://github.com/aegistudio/RingBufferDetonator.git
+
+Tests has been carried out on linux kernel 5.14-rc2
+(2734d6c1b1a089fb593ef6a23d4b70903526fe0c), my fixed version
+of kernel (for testing whether my update fixes the bug) and
+some older kernels (for range of affected kernels). Test result is
+also attached to the proof-of-concept repository.
+
+Link: https://lore.kernel.org/linux-trace-devel/YPaNxsIlb2yjSi5Y@aegistudio/
+Link: https://lore.kernel.org/linux-trace-devel/YPgrN85WL9VyrZ55@aegistudio
+
+Cc: stable@vger.kernel.org
+Fixes: bf41a158cacba ("ring-buffer: make reentrant")
+Suggested-by: Linus Torvalds <torvalds@linuxfoundation.org>
+Signed-off-by: Haoran Luo <www@aegistudio.net>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/spi/spi-fsl-dspi.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ kernel/trace/ring_buffer.c |   28 ++++++++++++++++++++++++----
+ 1 file changed, 24 insertions(+), 4 deletions(-)
 
---- a/drivers/spi/spi-fsl-dspi.c
-+++ b/drivers/spi/spi-fsl-dspi.c
-@@ -1124,11 +1124,13 @@ static int dspi_probe(struct platform_de
- 	ret = spi_register_master(master);
- 	if (ret != 0) {
- 		dev_err(&pdev->dev, "Problem registering DSPI master\n");
--		goto out_free_irq;
-+		goto out_release_dma;
- 	}
+--- a/kernel/trace/ring_buffer.c
++++ b/kernel/trace/ring_buffer.c
+@@ -3221,10 +3221,30 @@ static bool rb_per_cpu_empty(struct ring
+ 	if (unlikely(!head))
+ 		return true;
  
- 	return ret;
+-	return reader->read == rb_page_commit(reader) &&
+-		(commit == reader ||
+-		 (commit == head &&
+-		  head->read == rb_page_commit(commit)));
++	/* Reader should exhaust content in reader page */
++	if (reader->read != rb_page_commit(reader))
++		return false;
++
++	/*
++	 * If writers are committing on the reader page, knowing all
++	 * committed content has been read, the ring buffer is empty.
++	 */
++	if (commit == reader)
++		return true;
++
++	/*
++	 * If writers are committing on a page other than reader page
++	 * and head page, there should always be content to read.
++	 */
++	if (commit != head)
++		return false;
++
++	/*
++	 * Writers are committing on the head page, we just need
++	 * to care about there're committed data, and the reader will
++	 * swap reader page with head page when it is to read data.
++	 */
++	return rb_page_commit(commit) == 0;
+ }
  
-+out_release_dma:
-+	dspi_release_dma(dspi);
- out_free_irq:
- 	if (dspi->irq)
- 		free_irq(dspi->irq, dspi);
+ /**
 
 
