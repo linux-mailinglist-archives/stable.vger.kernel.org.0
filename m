@@ -2,30 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC3DE3D55E7
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 10:53:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00FC03D55E8
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 10:53:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231959AbhGZIMt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 04:12:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57906 "EHLO mail.kernel.org"
+        id S232048AbhGZIMu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 04:12:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57926 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231728AbhGZIMs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 04:12:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9803F60EB2;
-        Mon, 26 Jul 2021 08:53:15 +0000 (UTC)
+        id S232019AbhGZIMt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 04:12:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BE1EF60F21;
+        Mon, 26 Jul 2021 08:53:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627289596;
-        bh=n+663CLW3V3I8kGU6AzJxq/XrbH0+B5oBcawwg68qQI=;
+        s=korg; t=1627289598;
+        bh=9tDSGzumtlADcErJ6KQY9vLU6T9f/7Lck+i07Kj3OaQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=Ucx0QdLu5LRNLdaVd9a78uc64UUTq10oSoKaRYQ2tq7k57brWRFOgv5zj8ZseYsig
-         wehxaUg/yoKVEDyeRtC9bj4/v38KGpjCW3zH5BWAWN/PPipckcaTKupdl/xuiL76QI
-         RLH+FdOKPXP513rjiG4Vw5U9226jQWXDnJOMpTjI=
-Subject: FAILED: patch "[PATCH] btrfs: fix lock inversion problem when doing qgroup extent" failed to apply to 5.10-stable tree
-To:     fdmanana@suse.com, dsterba@suse.com, wqu@suse.com
+        b=N7ibLfoDl6EZdhO3/boxKZF0UcV53yJjL6hJSUK5I264682wvsRMVOUzb37V90qfC
+         kfWSRPHw/5Q1M8xqjoMCxkyJIcV315o+dg8c0k9FHhWEB75p/q7AtABg6AtYru81Vq
+         tJN8cVUjfV1tyI/qwsi1qnE1E272bdZu+x3D5jrc=
+Subject: FAILED: patch "[PATCH] bus: mhi: pci_generic: Fix inbound IPCR channel" failed to apply to 5.10-stable tree
+To:     loic.poulain@linaro.org, gregkh@linuxfoundation.org,
+        hemantk@codeaurora.org, mani@kernel.org,
+        manivannan.sadhasivam@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 26 Jul 2021 10:46:13 +0200
-Message-ID: <162728917332104@kroah.com>
+Date:   Mon, 26 Jul 2021 10:48:10 +0200
+Message-ID: <1627289290254126@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -45,392 +47,62 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 8949b9a114019b03fbd0d03d65b8647cba4feef3 Mon Sep 17 00:00:00 2001
-From: Filipe Manana <fdmanana@suse.com>
-Date: Wed, 21 Jul 2021 17:31:48 +0100
-Subject: [PATCH] btrfs: fix lock inversion problem when doing qgroup extent
- tracing
+From b8a97f2a65388394f433bf0730293a94f7d49046 Mon Sep 17 00:00:00 2001
+From: Loic Poulain <loic.poulain@linaro.org>
+Date: Fri, 16 Jul 2021 13:21:06 +0530
+Subject: [PATCH] bus: mhi: pci_generic: Fix inbound IPCR channel
 
-At btrfs_qgroup_trace_extent_post() we call btrfs_find_all_roots() with a
-NULL value as the transaction handle argument, which makes that function
-take the commit_root_sem semaphore, which is necessary when we don't hold
-a transaction handle or any other mechanism to prevent a transaction
-commit from wiping out commit roots.
+The qrtr-mhi client driver assumes that inbound buffers are
+automatically allocated and queued by the MHI core, but this
+doesn't happen for mhi pci devices since IPCR inbound channel is
+not flagged with auto_queue, causing unusable IPCR (qrtr)
+feature. Fix that.
 
-However btrfs_qgroup_trace_extent_post() can be called in a context where
-we are holding a write lock on an extent buffer from a subvolume tree,
-namely from btrfs_truncate_inode_items(), called either during truncate
-or unlink operations. In this case we end up with a lock inversion problem
-because the commit_root_sem is a higher level lock, always supposed to be
-acquired before locking any extent buffer.
+Link: https://lore.kernel.org/r/1625736749-24947-1-git-send-email-loic.poulain@linaro.org
+[mani: fixed a spelling mistake in commit description]
+Fixes: 855a70c12021 ("bus: mhi: Add MHI PCI support for WWAN modems")
+Cc: stable@vger.kernel.org #5.10
+Reviewed-by: Hemant kumar <hemantk@codeaurora.org>
+Reviewed-by: Manivannan Sadhasivam <mani@kernel.org>
+Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Link: https://lore.kernel.org/r/20210716075106.49938-4-manivannan.sadhasivam@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Lockdep detects this lock inversion problem since we switched the extent
-buffer locks from custom locks to semaphores, and when running btrfs/158
-from fstests, it reported the following trace:
-
-[ 9057.626435] ======================================================
-[ 9057.627541] WARNING: possible circular locking dependency detected
-[ 9057.628334] 5.14.0-rc2-btrfs-next-93 #1 Not tainted
-[ 9057.628961] ------------------------------------------------------
-[ 9057.629867] kworker/u16:4/30781 is trying to acquire lock:
-[ 9057.630824] ffff8e2590f58760 (btrfs-tree-00){++++}-{3:3}, at: __btrfs_tree_read_lock+0x24/0x110 [btrfs]
-[ 9057.632542]
-               but task is already holding lock:
-[ 9057.633551] ffff8e25582d4b70 (&fs_info->commit_root_sem){++++}-{3:3}, at: iterate_extent_inodes+0x10b/0x280 [btrfs]
-[ 9057.635255]
-               which lock already depends on the new lock.
-
-[ 9057.636292]
-               the existing dependency chain (in reverse order) is:
-[ 9057.637240]
-               -> #1 (&fs_info->commit_root_sem){++++}-{3:3}:
-[ 9057.638138]        down_read+0x46/0x140
-[ 9057.638648]        btrfs_find_all_roots+0x41/0x80 [btrfs]
-[ 9057.639398]        btrfs_qgroup_trace_extent_post+0x37/0x70 [btrfs]
-[ 9057.640283]        btrfs_add_delayed_data_ref+0x418/0x490 [btrfs]
-[ 9057.641114]        btrfs_free_extent+0x35/0xb0 [btrfs]
-[ 9057.641819]        btrfs_truncate_inode_items+0x424/0xf70 [btrfs]
-[ 9057.642643]        btrfs_evict_inode+0x454/0x4f0 [btrfs]
-[ 9057.643418]        evict+0xcf/0x1d0
-[ 9057.643895]        do_unlinkat+0x1e9/0x300
-[ 9057.644525]        do_syscall_64+0x3b/0xc0
-[ 9057.645110]        entry_SYSCALL_64_after_hwframe+0x44/0xae
-[ 9057.645835]
-               -> #0 (btrfs-tree-00){++++}-{3:3}:
-[ 9057.646600]        __lock_acquire+0x130e/0x2210
-[ 9057.647248]        lock_acquire+0xd7/0x310
-[ 9057.647773]        down_read_nested+0x4b/0x140
-[ 9057.648350]        __btrfs_tree_read_lock+0x24/0x110 [btrfs]
-[ 9057.649175]        btrfs_read_lock_root_node+0x31/0x40 [btrfs]
-[ 9057.650010]        btrfs_search_slot+0x537/0xc00 [btrfs]
-[ 9057.650849]        scrub_print_warning_inode+0x89/0x370 [btrfs]
-[ 9057.651733]        iterate_extent_inodes+0x1e3/0x280 [btrfs]
-[ 9057.652501]        scrub_print_warning+0x15d/0x2f0 [btrfs]
-[ 9057.653264]        scrub_handle_errored_block.isra.0+0x135f/0x1640 [btrfs]
-[ 9057.654295]        scrub_bio_end_io_worker+0x101/0x2e0 [btrfs]
-[ 9057.655111]        btrfs_work_helper+0xf8/0x400 [btrfs]
-[ 9057.655831]        process_one_work+0x247/0x5a0
-[ 9057.656425]        worker_thread+0x55/0x3c0
-[ 9057.656993]        kthread+0x155/0x180
-[ 9057.657494]        ret_from_fork+0x22/0x30
-[ 9057.658030]
-               other info that might help us debug this:
-
-[ 9057.659064]  Possible unsafe locking scenario:
-
-[ 9057.659824]        CPU0                    CPU1
-[ 9057.660402]        ----                    ----
-[ 9057.660988]   lock(&fs_info->commit_root_sem);
-[ 9057.661581]                                lock(btrfs-tree-00);
-[ 9057.662348]                                lock(&fs_info->commit_root_sem);
-[ 9057.663254]   lock(btrfs-tree-00);
-[ 9057.663690]
-                *** DEADLOCK ***
-
-[ 9057.664437] 4 locks held by kworker/u16:4/30781:
-[ 9057.665023]  #0: ffff8e25922a1148 ((wq_completion)btrfs-scrub){+.+.}-{0:0}, at: process_one_work+0x1c7/0x5a0
-[ 9057.666260]  #1: ffffabb3451ffe70 ((work_completion)(&work->normal_work)){+.+.}-{0:0}, at: process_one_work+0x1c7/0x5a0
-[ 9057.667639]  #2: ffff8e25922da198 (&ret->mutex){+.+.}-{3:3}, at: scrub_handle_errored_block.isra.0+0x5d2/0x1640 [btrfs]
-[ 9057.669017]  #3: ffff8e25582d4b70 (&fs_info->commit_root_sem){++++}-{3:3}, at: iterate_extent_inodes+0x10b/0x280 [btrfs]
-[ 9057.670408]
-               stack backtrace:
-[ 9057.670976] CPU: 7 PID: 30781 Comm: kworker/u16:4 Not tainted 5.14.0-rc2-btrfs-next-93 #1
-[ 9057.672030] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
-[ 9057.673492] Workqueue: btrfs-scrub btrfs_work_helper [btrfs]
-[ 9057.674258] Call Trace:
-[ 9057.674588]  dump_stack_lvl+0x57/0x72
-[ 9057.675083]  check_noncircular+0xf3/0x110
-[ 9057.675611]  __lock_acquire+0x130e/0x2210
-[ 9057.676132]  lock_acquire+0xd7/0x310
-[ 9057.676605]  ? __btrfs_tree_read_lock+0x24/0x110 [btrfs]
-[ 9057.677313]  ? lock_is_held_type+0xe8/0x140
-[ 9057.677849]  down_read_nested+0x4b/0x140
-[ 9057.678349]  ? __btrfs_tree_read_lock+0x24/0x110 [btrfs]
-[ 9057.679068]  __btrfs_tree_read_lock+0x24/0x110 [btrfs]
-[ 9057.679760]  btrfs_read_lock_root_node+0x31/0x40 [btrfs]
-[ 9057.680458]  btrfs_search_slot+0x537/0xc00 [btrfs]
-[ 9057.681083]  ? _raw_spin_unlock+0x29/0x40
-[ 9057.681594]  ? btrfs_find_all_roots_safe+0x11f/0x140 [btrfs]
-[ 9057.682336]  scrub_print_warning_inode+0x89/0x370 [btrfs]
-[ 9057.683058]  ? btrfs_find_all_roots_safe+0x11f/0x140 [btrfs]
-[ 9057.683834]  ? scrub_write_block_to_dev_replace+0xb0/0xb0 [btrfs]
-[ 9057.684632]  iterate_extent_inodes+0x1e3/0x280 [btrfs]
-[ 9057.685316]  scrub_print_warning+0x15d/0x2f0 [btrfs]
-[ 9057.685977]  ? ___ratelimit+0xa4/0x110
-[ 9057.686460]  scrub_handle_errored_block.isra.0+0x135f/0x1640 [btrfs]
-[ 9057.687316]  scrub_bio_end_io_worker+0x101/0x2e0 [btrfs]
-[ 9057.688021]  btrfs_work_helper+0xf8/0x400 [btrfs]
-[ 9057.688649]  ? lock_is_held_type+0xe8/0x140
-[ 9057.689180]  process_one_work+0x247/0x5a0
-[ 9057.689696]  worker_thread+0x55/0x3c0
-[ 9057.690175]  ? process_one_work+0x5a0/0x5a0
-[ 9057.690731]  kthread+0x155/0x180
-[ 9057.691158]  ? set_kthread_struct+0x40/0x40
-[ 9057.691697]  ret_from_fork+0x22/0x30
-
-Fix this by making btrfs_find_all_roots() never attempt to lock the
-commit_root_sem when it is called from btrfs_qgroup_trace_extent_post().
-
-We can't just pass a non-NULL transaction handle to btrfs_find_all_roots()
-from btrfs_qgroup_trace_extent_post(), because that would make backref
-lookup not use commit roots and acquire read locks on extent buffers, and
-therefore could deadlock when btrfs_qgroup_trace_extent_post() is called
-from the btrfs_truncate_inode_items() code path which has acquired a write
-lock on an extent buffer of the subvolume btree.
-
-CC: stable@vger.kernel.org # 4.19+
-Reviewed-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-
-diff --git a/fs/btrfs/backref.c b/fs/btrfs/backref.c
-index 7a8a2fc19533..78b202d198b8 100644
---- a/fs/btrfs/backref.c
-+++ b/fs/btrfs/backref.c
-@@ -1488,15 +1488,15 @@ static int btrfs_find_all_roots_safe(struct btrfs_trans_handle *trans,
- int btrfs_find_all_roots(struct btrfs_trans_handle *trans,
- 			 struct btrfs_fs_info *fs_info, u64 bytenr,
- 			 u64 time_seq, struct ulist **roots,
--			 bool ignore_offset)
-+			 bool ignore_offset, bool skip_commit_root_sem)
- {
- 	int ret;
+diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
+index 3396cb30ebec..4dd1077354af 100644
+--- a/drivers/bus/mhi/pci_generic.c
++++ b/drivers/bus/mhi/pci_generic.c
+@@ -75,6 +75,22 @@ struct mhi_pci_dev_info {
+ 		.doorbell_mode_switch = false,		\
+ 	}
  
--	if (!trans)
-+	if (!trans && !skip_commit_root_sem)
- 		down_read(&fs_info->commit_root_sem);
- 	ret = btrfs_find_all_roots_safe(trans, fs_info, bytenr,
- 					time_seq, roots, ignore_offset);
--	if (!trans)
-+	if (!trans && !skip_commit_root_sem)
- 		up_read(&fs_info->commit_root_sem);
- 	return ret;
- }
-diff --git a/fs/btrfs/backref.h b/fs/btrfs/backref.h
-index 17abde7f794c..ff5f07f9940b 100644
---- a/fs/btrfs/backref.h
-+++ b/fs/btrfs/backref.h
-@@ -47,7 +47,8 @@ int btrfs_find_all_leafs(struct btrfs_trans_handle *trans,
- 			 const u64 *extent_item_pos, bool ignore_offset);
- int btrfs_find_all_roots(struct btrfs_trans_handle *trans,
- 			 struct btrfs_fs_info *fs_info, u64 bytenr,
--			 u64 time_seq, struct ulist **roots, bool ignore_offset);
-+			 u64 time_seq, struct ulist **roots, bool ignore_offset,
-+			 bool skip_commit_root_sem);
- char *btrfs_ref_to_path(struct btrfs_root *fs_root, struct btrfs_path *path,
- 			u32 name_len, unsigned long name_off,
- 			struct extent_buffer *eb_in, u64 parent,
-diff --git a/fs/btrfs/delayed-ref.c b/fs/btrfs/delayed-ref.c
-index 06bc842ecdb3..ca848b183474 100644
---- a/fs/btrfs/delayed-ref.c
-+++ b/fs/btrfs/delayed-ref.c
-@@ -974,7 +974,7 @@ int btrfs_add_delayed_tree_ref(struct btrfs_trans_handle *trans,
- 		kmem_cache_free(btrfs_delayed_tree_ref_cachep, ref);
- 
- 	if (qrecord_inserted)
--		btrfs_qgroup_trace_extent_post(fs_info, record);
-+		btrfs_qgroup_trace_extent_post(trans, record);
- 
- 	return 0;
- }
-@@ -1069,7 +1069,7 @@ int btrfs_add_delayed_data_ref(struct btrfs_trans_handle *trans,
- 
- 
- 	if (qrecord_inserted)
--		return btrfs_qgroup_trace_extent_post(fs_info, record);
-+		return btrfs_qgroup_trace_extent_post(trans, record);
- 	return 0;
- }
- 
-diff --git a/fs/btrfs/qgroup.c b/fs/btrfs/qgroup.c
-index 07ec06d4e972..0fa121171ca1 100644
---- a/fs/btrfs/qgroup.c
-+++ b/fs/btrfs/qgroup.c
-@@ -1704,17 +1704,39 @@ int btrfs_qgroup_trace_extent_nolock(struct btrfs_fs_info *fs_info,
- 	return 0;
- }
- 
--int btrfs_qgroup_trace_extent_post(struct btrfs_fs_info *fs_info,
-+int btrfs_qgroup_trace_extent_post(struct btrfs_trans_handle *trans,
- 				   struct btrfs_qgroup_extent_record *qrecord)
- {
- 	struct ulist *old_root;
- 	u64 bytenr = qrecord->bytenr;
- 	int ret;
- 
--	ret = btrfs_find_all_roots(NULL, fs_info, bytenr, 0, &old_root, false);
-+	/*
-+	 * We are always called in a context where we are already holding a
-+	 * transaction handle. Often we are called when adding a data delayed
-+	 * reference from btrfs_truncate_inode_items() (truncating or unlinking),
-+	 * in which case we will be holding a write lock on extent buffer from a
-+	 * subvolume tree. In this case we can't allow btrfs_find_all_roots() to
-+	 * acquire fs_info->commit_root_sem, because that is a higher level lock
-+	 * that must be acquired before locking any extent buffers.
-+	 *
-+	 * So we want btrfs_find_all_roots() to not acquire the commit_root_sem
-+	 * but we can't pass it a non-NULL transaction handle, because otherwise
-+	 * it would not use commit roots and would lock extent buffers, causing
-+	 * a deadlock if it ends up trying to read lock the same extent buffer
-+	 * that was previously write locked at btrfs_truncate_inode_items().
-+	 *
-+	 * So pass a NULL transaction handle to btrfs_find_all_roots() and
-+	 * explicitly tell it to not acquire the commit_root_sem - if we are
-+	 * holding a transaction handle we don't need its protection.
-+	 */
-+	ASSERT(trans != NULL);
++#define MHI_CHANNEL_CONFIG_DL_AUTOQUEUE(ch_num, ch_name, el_count, ev_ring) \
++	{						\
++		.num = ch_num,				\
++		.name = ch_name,			\
++		.num_elements = el_count,		\
++		.event_ring = ev_ring,			\
++		.dir = DMA_FROM_DEVICE,			\
++		.ee_mask = BIT(MHI_EE_AMSS),		\
++		.pollcfg = 0,				\
++		.doorbell = MHI_DB_BRST_DISABLE,	\
++		.lpm_notify = false,			\
++		.offload_channel = false,		\
++		.doorbell_mode_switch = false,		\
++		.auto_queue = true,			\
++	}
 +
-+	ret = btrfs_find_all_roots(NULL, trans->fs_info, bytenr, 0, &old_root,
-+				   false, true);
- 	if (ret < 0) {
--		fs_info->qgroup_flags |= BTRFS_QGROUP_STATUS_FLAG_INCONSISTENT;
--		btrfs_warn(fs_info,
-+		trans->fs_info->qgroup_flags |= BTRFS_QGROUP_STATUS_FLAG_INCONSISTENT;
-+		btrfs_warn(trans->fs_info,
- "error accounting new delayed refs extent (err code: %d), quota inconsistent",
- 			ret);
- 		return 0;
-@@ -1758,7 +1780,7 @@ int btrfs_qgroup_trace_extent(struct btrfs_trans_handle *trans, u64 bytenr,
- 		kfree(record);
- 		return 0;
- 	}
--	return btrfs_qgroup_trace_extent_post(fs_info, record);
-+	return btrfs_qgroup_trace_extent_post(trans, record);
- }
- 
- int btrfs_qgroup_trace_leaf_items(struct btrfs_trans_handle *trans,
-@@ -2629,7 +2651,7 @@ int btrfs_qgroup_account_extents(struct btrfs_trans_handle *trans)
- 				/* Search commit root to find old_roots */
- 				ret = btrfs_find_all_roots(NULL, fs_info,
- 						record->bytenr, 0,
--						&record->old_roots, false);
-+						&record->old_roots, false, false);
- 				if (ret < 0)
- 					goto cleanup;
- 			}
-@@ -2645,7 +2667,7 @@ int btrfs_qgroup_account_extents(struct btrfs_trans_handle *trans)
- 			 * current root. It's safe inside commit_transaction().
- 			 */
- 			ret = btrfs_find_all_roots(trans, fs_info,
--				record->bytenr, BTRFS_SEQ_LAST, &new_roots, false);
-+			   record->bytenr, BTRFS_SEQ_LAST, &new_roots, false, false);
- 			if (ret < 0)
- 				goto cleanup;
- 			if (qgroup_to_skip) {
-@@ -3179,7 +3201,7 @@ static int qgroup_rescan_leaf(struct btrfs_trans_handle *trans,
- 			num_bytes = found.offset;
- 
- 		ret = btrfs_find_all_roots(NULL, fs_info, found.objectid, 0,
--					   &roots, false);
-+					   &roots, false, false);
- 		if (ret < 0)
- 			goto out;
- 		/* For rescan, just pass old_roots as NULL */
-diff --git a/fs/btrfs/qgroup.h b/fs/btrfs/qgroup.h
-index 7283e4f549af..880e9df0dac1 100644
---- a/fs/btrfs/qgroup.h
-+++ b/fs/btrfs/qgroup.h
-@@ -298,7 +298,7 @@ int btrfs_qgroup_trace_extent_nolock(
-  * using current root, then we can move all expensive backref walk out of
-  * transaction committing, but not now as qgroup accounting will be wrong again.
-  */
--int btrfs_qgroup_trace_extent_post(struct btrfs_fs_info *fs_info,
-+int btrfs_qgroup_trace_extent_post(struct btrfs_trans_handle *trans,
- 				   struct btrfs_qgroup_extent_record *qrecord);
- 
- /*
-diff --git a/fs/btrfs/tests/qgroup-tests.c b/fs/btrfs/tests/qgroup-tests.c
-index f3137285a9e2..98b5aaba46f1 100644
---- a/fs/btrfs/tests/qgroup-tests.c
-+++ b/fs/btrfs/tests/qgroup-tests.c
-@@ -224,7 +224,7 @@ static int test_no_shared_qgroup(struct btrfs_root *root,
- 	 * quota.
- 	 */
- 	ret = btrfs_find_all_roots(&trans, fs_info, nodesize, 0, &old_roots,
--			false);
-+			false, false);
- 	if (ret) {
- 		ulist_free(old_roots);
- 		test_err("couldn't find old roots: %d", ret);
-@@ -237,7 +237,7 @@ static int test_no_shared_qgroup(struct btrfs_root *root,
- 		return ret;
- 
- 	ret = btrfs_find_all_roots(&trans, fs_info, nodesize, 0, &new_roots,
--			false);
-+			false, false);
- 	if (ret) {
- 		ulist_free(old_roots);
- 		ulist_free(new_roots);
-@@ -261,7 +261,7 @@ static int test_no_shared_qgroup(struct btrfs_root *root,
- 	new_roots = NULL;
- 
- 	ret = btrfs_find_all_roots(&trans, fs_info, nodesize, 0, &old_roots,
--			false);
-+			false, false);
- 	if (ret) {
- 		ulist_free(old_roots);
- 		test_err("couldn't find old roots: %d", ret);
-@@ -273,7 +273,7 @@ static int test_no_shared_qgroup(struct btrfs_root *root,
- 		return -EINVAL;
- 
- 	ret = btrfs_find_all_roots(&trans, fs_info, nodesize, 0, &new_roots,
--			false);
-+			false, false);
- 	if (ret) {
- 		ulist_free(old_roots);
- 		ulist_free(new_roots);
-@@ -325,7 +325,7 @@ static int test_multiple_refs(struct btrfs_root *root,
- 	}
- 
- 	ret = btrfs_find_all_roots(&trans, fs_info, nodesize, 0, &old_roots,
--			false);
-+			false, false);
- 	if (ret) {
- 		ulist_free(old_roots);
- 		test_err("couldn't find old roots: %d", ret);
-@@ -338,7 +338,7 @@ static int test_multiple_refs(struct btrfs_root *root,
- 		return ret;
- 
- 	ret = btrfs_find_all_roots(&trans, fs_info, nodesize, 0, &new_roots,
--			false);
-+			false, false);
- 	if (ret) {
- 		ulist_free(old_roots);
- 		ulist_free(new_roots);
-@@ -360,7 +360,7 @@ static int test_multiple_refs(struct btrfs_root *root,
- 	}
- 
- 	ret = btrfs_find_all_roots(&trans, fs_info, nodesize, 0, &old_roots,
--			false);
-+			false, false);
- 	if (ret) {
- 		ulist_free(old_roots);
- 		test_err("couldn't find old roots: %d", ret);
-@@ -373,7 +373,7 @@ static int test_multiple_refs(struct btrfs_root *root,
- 		return ret;
- 
- 	ret = btrfs_find_all_roots(&trans, fs_info, nodesize, 0, &new_roots,
--			false);
-+			false, false);
- 	if (ret) {
- 		ulist_free(old_roots);
- 		ulist_free(new_roots);
-@@ -401,7 +401,7 @@ static int test_multiple_refs(struct btrfs_root *root,
- 	}
- 
- 	ret = btrfs_find_all_roots(&trans, fs_info, nodesize, 0, &old_roots,
--			false);
-+			false, false);
- 	if (ret) {
- 		ulist_free(old_roots);
- 		test_err("couldn't find old roots: %d", ret);
-@@ -414,7 +414,7 @@ static int test_multiple_refs(struct btrfs_root *root,
- 		return ret;
- 
- 	ret = btrfs_find_all_roots(&trans, fs_info, nodesize, 0, &new_roots,
--			false);
-+			false, false);
- 	if (ret) {
- 		ulist_free(old_roots);
- 		ulist_free(new_roots);
+ #define MHI_EVENT_CONFIG_CTRL(ev_ring, el_count) \
+ 	{					\
+ 		.num_elements = el_count,	\
+@@ -213,7 +229,7 @@ static const struct mhi_channel_config modem_qcom_v1_mhi_channels[] = {
+ 	MHI_CHANNEL_CONFIG_UL(14, "QMI", 4, 0),
+ 	MHI_CHANNEL_CONFIG_DL(15, "QMI", 4, 0),
+ 	MHI_CHANNEL_CONFIG_UL(20, "IPCR", 8, 0),
+-	MHI_CHANNEL_CONFIG_DL(21, "IPCR", 8, 0),
++	MHI_CHANNEL_CONFIG_DL_AUTOQUEUE(21, "IPCR", 8, 0),
+ 	MHI_CHANNEL_CONFIG_UL_FP(34, "FIREHOSE", 32, 0),
+ 	MHI_CHANNEL_CONFIG_DL_FP(35, "FIREHOSE", 32, 0),
+ 	MHI_CHANNEL_CONFIG_HW_UL(100, "IP_HW0", 128, 2),
 
