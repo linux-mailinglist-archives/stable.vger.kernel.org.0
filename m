@@ -2,36 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FE473D5FAB
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 564ED3D5F0C
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:59:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236447AbhGZPSt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:18:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56966 "EHLO mail.kernel.org"
+        id S236424AbhGZPQj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:16:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236504AbhGZPRA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:17:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F19EF60F57;
-        Mon, 26 Jul 2021 15:57:27 +0000 (UTC)
+        id S236471AbhGZPLO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:11:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C700460F44;
+        Mon, 26 Jul 2021 15:51:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315048;
-        bh=vFtNwNhO7ogjJmAmR0VtzXgCbNLe44s5XRACk+jCG74=;
+        s=korg; t=1627314702;
+        bh=MQJQYRf8jqtglYF2/ToZQ1Z8XEKoYNADqffqVFJzq1k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=caZ4N+SVdsruzs4dsKJmbMBbZ4mVseZ9tnHkXy7YHZoThpcf65uR0xzawZs1ctLgG
-         nIlIUT7hjr9sMQUeLJzpjr9vJqtBIg3bTQ+NJ7yL1jsZzc2ULhdgamhojX20f63TzH
-         EqWKFTuEKHwlmI4AdHsxfMiUrNx546xy+88VBKvw=
+        b=V+e5O53Har6v5D9+/OEhrDV98ShMBWcsUP/hAaJB4ciWlVNduwLWNJ8NSrVM/Ult6
+         n25iaaovjOI17eXBg45WGh4BMa4H/K/o53lokS0vsXW4/M/ztQdIUf/cm5SLIF/wc1
+         XRRqik02wEohpJtj9ULJ4o2hhKj8IMYwRVWB+nmE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Clark Wang <xiaoning.wang@nxp.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
+        Grzegorz Siwik <grzegorz.siwik@intel.com>,
+        Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>,
+        Slawomir Laba <slawomirx.laba@intel.com>,
+        Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>,
+        Mateusz Palczewski <mateusz.placzewski@intel.com>,
+        Tony Brelinski <tonyx.brelinski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 030/108] spi: imx: add a check for speed_hz before calculating the clock
+Subject: [PATCH 4.19 059/120] igb: Check if num of q_vectors is smaller than max before array access
 Date:   Mon, 26 Jul 2021 17:38:31 +0200
-Message-Id: <20210726153832.663088454@linuxfoundation.org>
+Message-Id: <20210726153834.272782368@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
-References: <20210726153831.696295003@linuxfoundation.org>
+In-Reply-To: <20210726153832.339431936@linuxfoundation.org>
+References: <20210726153832.339431936@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,136 +47,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Clark Wang <xiaoning.wang@nxp.com>
+From: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
 
-[ Upstream commit 4df2f5e1372e9eec8f9e1b4a3025b9be23487d36 ]
+[ Upstream commit 6c19d772618fea40d9681f259368f284a330fd90 ]
 
-When some drivers use spi to send data, spi_transfer->speed_hz is
-not assigned. If spidev->max_speed_hz is not assigned as well, it
-will cause an error in configuring the clock.
-Add a check for these two values before configuring the clock. An
-error will be returned when they are not assigned.
+Ensure that the adapter->q_vector[MAX_Q_VECTORS] array isn't accessed
+beyond its size. It was fixed by using a local variable num_q_vectors
+as a limit for loop index, and ensure that num_q_vectors is not bigger
+than MAX_Q_VECTORS.
 
-Signed-off-by: Clark Wang <xiaoning.wang@nxp.com>
-Link: https://lore.kernel.org/r/20210408103347.244313-2-xiaoning.wang@nxp.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 047e0030f1e6 ("igb: add new data structure for handling interrupts and NAPI")
+Signed-off-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
+Reviewed-by: Grzegorz Siwik <grzegorz.siwik@intel.com>
+Reviewed-by: Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>
+Reviewed-by: Slawomir Laba <slawomirx.laba@intel.com>
+Reviewed-by: Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
+Reviewed-by: Mateusz Palczewski <mateusz.placzewski@intel.com>
+Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-imx.c | 37 +++++++++++++++++++++----------------
- 1 file changed, 21 insertions(+), 16 deletions(-)
+ drivers/net/ethernet/intel/igb/igb_main.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-imx.c b/drivers/spi/spi-imx.c
-index 09c9a1edb2c6..e237481dbbbb 100644
---- a/drivers/spi/spi-imx.c
-+++ b/drivers/spi/spi-imx.c
-@@ -64,8 +64,7 @@ struct spi_imx_data;
- struct spi_imx_devtype_data {
- 	void (*intctrl)(struct spi_imx_data *, int);
- 	int (*prepare_message)(struct spi_imx_data *, struct spi_message *);
--	int (*prepare_transfer)(struct spi_imx_data *, struct spi_device *,
--				struct spi_transfer *);
-+	int (*prepare_transfer)(struct spi_imx_data *, struct spi_device *);
- 	void (*trigger)(struct spi_imx_data *);
- 	int (*rx_available)(struct spi_imx_data *);
- 	void (*reset)(struct spi_imx_data *);
-@@ -564,11 +563,10 @@ static int mx51_ecspi_prepare_message(struct spi_imx_data *spi_imx,
- }
- 
- static int mx51_ecspi_prepare_transfer(struct spi_imx_data *spi_imx,
--				       struct spi_device *spi,
--				       struct spi_transfer *t)
-+				       struct spi_device *spi)
+diff --git a/drivers/net/ethernet/intel/igb/igb_main.c b/drivers/net/ethernet/intel/igb/igb_main.c
+index 8558d2e4ec18..243e304c35cd 100644
+--- a/drivers/net/ethernet/intel/igb/igb_main.c
++++ b/drivers/net/ethernet/intel/igb/igb_main.c
+@@ -938,6 +938,7 @@ static void igb_configure_msix(struct igb_adapter *adapter)
+  **/
+ static int igb_request_msix(struct igb_adapter *adapter)
  {
- 	u32 ctrl = readl(spi_imx->base + MX51_ECSPI_CTRL);
--	u32 clk = t->speed_hz, delay;
-+	u32 clk, delay;
++	unsigned int num_q_vectors = adapter->num_q_vectors;
+ 	struct net_device *netdev = adapter->netdev;
+ 	int i, err = 0, vector = 0, free_vector = 0;
  
- 	/* Clear BL field and set the right value */
- 	ctrl &= ~MX51_ECSPI_CTRL_BL_MASK;
-@@ -582,7 +580,7 @@ static int mx51_ecspi_prepare_transfer(struct spi_imx_data *spi_imx,
- 	/* set clock speed */
- 	ctrl &= ~(0xf << MX51_ECSPI_CTRL_POSTDIV_OFFSET |
- 		  0xf << MX51_ECSPI_CTRL_PREDIV_OFFSET);
--	ctrl |= mx51_ecspi_clkdiv(spi_imx, t->speed_hz, &clk);
-+	ctrl |= mx51_ecspi_clkdiv(spi_imx, spi_imx->spi_bus_clk, &clk);
- 	spi_imx->spi_bus_clk = clk;
+@@ -946,7 +947,13 @@ static int igb_request_msix(struct igb_adapter *adapter)
+ 	if (err)
+ 		goto err_out;
  
- 	if (spi_imx->usedma)
-@@ -694,13 +692,12 @@ static int mx31_prepare_message(struct spi_imx_data *spi_imx,
- }
+-	for (i = 0; i < adapter->num_q_vectors; i++) {
++	if (num_q_vectors > MAX_Q_VECTORS) {
++		num_q_vectors = MAX_Q_VECTORS;
++		dev_warn(&adapter->pdev->dev,
++			 "The number of queue vectors (%d) is higher than max allowed (%d)\n",
++			 adapter->num_q_vectors, MAX_Q_VECTORS);
++	}
++	for (i = 0; i < num_q_vectors; i++) {
+ 		struct igb_q_vector *q_vector = adapter->q_vector[i];
  
- static int mx31_prepare_transfer(struct spi_imx_data *spi_imx,
--				 struct spi_device *spi,
--				 struct spi_transfer *t)
-+				 struct spi_device *spi)
- {
- 	unsigned int reg = MX31_CSPICTRL_ENABLE | MX31_CSPICTRL_MASTER;
- 	unsigned int clk;
- 
--	reg |= spi_imx_clkdiv_2(spi_imx->spi_clk, t->speed_hz, &clk) <<
-+	reg |= spi_imx_clkdiv_2(spi_imx->spi_clk, spi_imx->spi_bus_clk, &clk) <<
- 		MX31_CSPICTRL_DR_SHIFT;
- 	spi_imx->spi_bus_clk = clk;
- 
-@@ -799,14 +796,13 @@ static int mx21_prepare_message(struct spi_imx_data *spi_imx,
- }
- 
- static int mx21_prepare_transfer(struct spi_imx_data *spi_imx,
--				 struct spi_device *spi,
--				 struct spi_transfer *t)
-+				 struct spi_device *spi)
- {
- 	unsigned int reg = MX21_CSPICTRL_ENABLE | MX21_CSPICTRL_MASTER;
- 	unsigned int max = is_imx27_cspi(spi_imx) ? 16 : 18;
- 	unsigned int clk;
- 
--	reg |= spi_imx_clkdiv_1(spi_imx->spi_clk, t->speed_hz, max, &clk)
-+	reg |= spi_imx_clkdiv_1(spi_imx->spi_clk, spi_imx->spi_bus_clk, max, &clk)
- 		<< MX21_CSPICTRL_DR_SHIFT;
- 	spi_imx->spi_bus_clk = clk;
- 
-@@ -875,13 +871,12 @@ static int mx1_prepare_message(struct spi_imx_data *spi_imx,
- }
- 
- static int mx1_prepare_transfer(struct spi_imx_data *spi_imx,
--				struct spi_device *spi,
--				struct spi_transfer *t)
-+				struct spi_device *spi)
- {
- 	unsigned int reg = MX1_CSPICTRL_ENABLE | MX1_CSPICTRL_MASTER;
- 	unsigned int clk;
- 
--	reg |= spi_imx_clkdiv_2(spi_imx->spi_clk, t->speed_hz, &clk) <<
-+	reg |= spi_imx_clkdiv_2(spi_imx->spi_clk, spi_imx->spi_bus_clk, &clk) <<
- 		MX1_CSPICTRL_DR_SHIFT;
- 	spi_imx->spi_bus_clk = clk;
- 
-@@ -1199,6 +1194,16 @@ static int spi_imx_setupxfer(struct spi_device *spi,
- 	if (!t)
- 		return 0;
- 
-+	if (!t->speed_hz) {
-+		if (!spi->max_speed_hz) {
-+			dev_err(&spi->dev, "no speed_hz provided!\n");
-+			return -EINVAL;
-+		}
-+		dev_dbg(&spi->dev, "using spi->max_speed_hz!\n");
-+		spi_imx->spi_bus_clk = spi->max_speed_hz;
-+	} else
-+		spi_imx->spi_bus_clk = t->speed_hz;
-+
- 	spi_imx->bits_per_word = t->bits_per_word;
- 
- 	/*
-@@ -1240,7 +1245,7 @@ static int spi_imx_setupxfer(struct spi_device *spi,
- 		spi_imx->slave_burst = t->len;
- 	}
- 
--	spi_imx->devtype_data->prepare_transfer(spi_imx, spi, t);
-+	spi_imx->devtype_data->prepare_transfer(spi_imx, spi);
- 
- 	return 0;
- }
+ 		vector++;
 -- 
 2.30.2
 
