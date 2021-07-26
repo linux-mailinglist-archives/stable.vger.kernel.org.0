@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF5553D60A3
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:11:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD11E3D61F0
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:15:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237617AbhGZPXi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:23:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38594 "EHLO mail.kernel.org"
+        id S234415AbhGZPdd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:33:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237571AbhGZPX2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:23:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9425E60E09;
-        Mon, 26 Jul 2021 16:03:56 +0000 (UTC)
+        id S233230AbhGZPcZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:32:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C271060C41;
+        Mon, 26 Jul 2021 16:12:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315437;
-        bh=TpvVav4zzZvT52gwAdJt1Q1NI72Xr13IM/POb5Eyl6Q=;
+        s=korg; t=1627315973;
+        bh=cTiZX3Bsc9lAdn5MRcKI3K8W0yW5PUbhgrqWXP5yf/k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nMsinvm8/qU93AMAtoqU+QPdZOm+aKWFkhjOV2BtDlarualghMn4ZpNGa7iNmChSj
-         mg1FPyi2drNv5Os3inN7h5jwdjoOpY+7CxEWxvvyByRk2f6QXYbFFrs+0/wPpUohMP
-         x693BL8dGrwby5oW6NQs+dzLs0XzYwG6QbrytlSQ=
+        b=VU06khTnfyv3iZPO0cW/uUVnK2I5ipa/4kdkqQp7IbrFTwe46Dwz9DW0Qj7XtzCjf
+         VC1xgkHATrmChbjsFf/SzPr8aXQf00R1Q7vlSjpG9ypGFtvcSQfUqtxmVFwFSj1gFv
+         /cbThynSCUq6JfyxVV4EtjtAog3r+0Xs+JOTWvjw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sayanta Pattanayak <sayanta.pattanayak@arm.com>,
-        Andre Przywara <andre.przywara@arm.com>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
+        stable@vger.kernel.org, Yajun Deng <yajun.deng@linux.dev>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 096/167] r8169: Avoid duplicate sysfs entry creation error
+Subject: [PATCH 5.13 137/223] net: sched: cls_api: Fix the the wrong parameter
 Date:   Mon, 26 Jul 2021 17:38:49 +0200
-Message-Id: <20210726153842.622499392@linuxfoundation.org>
+Message-Id: <20210726153850.725482282@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
-References: <20210726153839.371771838@linuxfoundation.org>
+In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
+References: <20210726153846.245305071@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,53 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sayanta Pattanayak <sayanta.pattanayak@arm.com>
+From: Yajun Deng <yajun.deng@linux.dev>
 
-[ Upstream commit e9a72f874d5b95cef0765bafc56005a50f72c5fe ]
+[ Upstream commit 9d85a6f44bd5585761947f40f7821c9cd78a1bbe ]
 
-When registering the MDIO bus for a r8169 device, we use the PCI
-bus/device specifier as a (seemingly) unique device identifier.
-However the very same BDF number can be used on another PCI segment,
-which makes the driver fail probing:
+The 4th parameter in tc_chain_notify() should be flags rather than seq.
+Let's change it back correctly.
 
-[ 27.544136] r8169 0002:07:00.0: enabling device (0000 -> 0003)
-[ 27.559734] sysfs: cannot create duplicate filename '/class/mdio_bus/r8169-700'
-....
-[ 27.684858] libphy: mii_bus r8169-700 failed to register
-[ 27.695602] r8169: probe of 0002:07:00.0 failed with error -22
-
-Add the segment number to the device name to make it more unique.
-
-This fixes operation on ARM N1SDP boards, with two boards connected
-together to form an SMP system, and all on-board devices showing up
-twice, just on different PCI segments. A similar issue would occur on
-large systems with many PCI slots and multiple RTL8169 NICs.
-
-Fixes: f1e911d5d0dfd ("r8169: add basic phylib support")
-Signed-off-by: Sayanta Pattanayak <sayanta.pattanayak@arm.com>
-[Andre: expand commit message, use pci_domain_nr()]
-Signed-off-by: Andre Przywara <andre.przywara@arm.com>
-Acked-by: Heiner Kallweit <hkallweit1@gmail.com>
+Fixes: 32a4f5ecd738 ("net: sched: introduce chain object to uapi")
+Signed-off-by: Yajun Deng <yajun.deng@linux.dev>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/realtek/r8169_main.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/sched/cls_api.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/realtek/r8169_main.c b/drivers/net/ethernet/realtek/r8169_main.c
-index 9010aabd9782..e690a1b09e98 100644
---- a/drivers/net/ethernet/realtek/r8169_main.c
-+++ b/drivers/net/ethernet/realtek/r8169_main.c
-@@ -5160,7 +5160,8 @@ static int r8169_mdio_register(struct rtl8169_private *tp)
- 	new_bus->priv = tp;
- 	new_bus->parent = &pdev->dev;
- 	new_bus->irq[0] = PHY_IGNORE_INTERRUPT;
--	snprintf(new_bus->id, MII_BUS_ID_SIZE, "r8169-%x", pci_dev_id(pdev));
-+	snprintf(new_bus->id, MII_BUS_ID_SIZE, "r8169-%x-%x",
-+		 pci_domain_nr(pdev->bus), pci_dev_id(pdev));
- 
- 	new_bus->read = r8169_mdio_read_reg;
- 	new_bus->write = r8169_mdio_write_reg;
+diff --git a/net/sched/cls_api.c b/net/sched/cls_api.c
+index d73b5c5514a9..e3e79e9bd706 100644
+--- a/net/sched/cls_api.c
++++ b/net/sched/cls_api.c
+@@ -2904,7 +2904,7 @@ replay:
+ 		break;
+ 	case RTM_GETCHAIN:
+ 		err = tc_chain_notify(chain, skb, n->nlmsg_seq,
+-				      n->nlmsg_seq, n->nlmsg_type, true);
++				      n->nlmsg_flags, n->nlmsg_type, true);
+ 		if (err < 0)
+ 			NL_SET_ERR_MSG(extack, "Failed to send chain notify message");
+ 		break;
 -- 
 2.30.2
 
