@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5E013D5DB8
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:44:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 506BE3D5F8E
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235376AbhGZPDW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:03:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42520 "EHLO mail.kernel.org"
+        id S236485AbhGZPSY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:18:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235243AbhGZPDR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:03:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 481A160F42;
-        Mon, 26 Jul 2021 15:43:45 +0000 (UTC)
+        id S237533AbhGZPQB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:16:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AE53D6056C;
+        Mon, 26 Jul 2021 15:56:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314225;
-        bh=FbfTUaCE8iAMmY7gaVQ1OnGV2KwqSIE2SJgwBx/x76g=;
+        s=korg; t=1627314989;
+        bh=tiFFVu6cjKJ+hbq+PXJmlBpBZ4swHxEAWrxiHdbUY5s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e4KlV4mjQRM8JJOiPu1UDeaDSDcYAyC1paWXreawSz8XTnSP4Ninvaqgr9bkG2Ugi
-         T45XV03KkG0yfsk5YWBUjQpDhzgSyN0LkFDiuJd6Dijq+VHt6Kra6rH/YHjrdx0C5M
-         YqOlZWARzZcEvli8Y8CZjr90qS0k2ABrqkDeSiG8=
+        b=we3brTP4DGNtT0HEC+WA1ZFzDYwUtmDCIa1/wnX3OfLlx1mns2NzOXQxq+51PqYGx
+         vG7fTwNh/asEcDSfEhjPTa0BGzAd5pAVkfvSL0djy6IlTggF/A9N70cX94fkAEi2HH
+         4elefsgVxvTC6lgcD9QAQPxtqa/1Ry99Qg6fL9fA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Riccardo Mancini <rickyman7@gmail.com>,
-        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 31/60] perf lzma: Close lzma stream on exit
+Subject: [PATCH 5.4 044/108] KVM: PPC: Book3S: Fix CONFIG_TRANSACTIONAL_MEM=n crash
 Date:   Mon, 26 Jul 2021 17:38:45 +0200
-Message-Id: <20210726153825.847338740@linuxfoundation.org>
+Message-Id: <20210726153833.101099140@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153824.868160836@linuxfoundation.org>
-References: <20210726153824.868160836@linuxfoundation.org>
+In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
+References: <20210726153831.696295003@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,70 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Riccardo Mancini <rickyman7@gmail.com>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-[ Upstream commit f8cbb0f926ae1e1fb5f9e51614e5437560ed4039 ]
+[ Upstream commit bd31ecf44b8e18ccb1e5f6b50f85de6922a60de3 ]
 
-ASan reports memory leaks when running:
+When running CPU_FTR_P9_TM_HV_ASSIST, HFSCR[TM] is set for the guest
+even if the host has CONFIG_TRANSACTIONAL_MEM=n, which causes it to be
+unprepared to handle guest exits while transactional.
 
-  # perf test "88: Check open filename arg using perf trace + vfs_getname"
+Normal guests don't have a problem because the HTM capability will not
+be advertised, but a rogue or buggy one could crash the host.
 
-One of these is caused by the lzma stream never being closed inside
-lzma_decompress_to_file().
-
-This patch adds the missing lzma_end().
-
-Signed-off-by: Riccardo Mancini <rickyman7@gmail.com>
-Fixes: 80a32e5b498a7547 ("perf tools: Add lzma decompression support for kernel module")
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/aaf50bdce7afe996cfc06e1bbb36e4a2a9b9db93.1626343282.git.rickyman7@gmail.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 4bb3c7a0208f ("KVM: PPC: Book3S HV: Work around transactional memory bugs in POWER9")
+Reported-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210716024310.164448-1-npiggin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/lzma.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ arch/powerpc/kvm/book3s_hv.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/tools/perf/util/lzma.c b/tools/perf/util/lzma.c
-index 9ddea5cecd94..ba12643d2ded 100644
---- a/tools/perf/util/lzma.c
-+++ b/tools/perf/util/lzma.c
-@@ -61,7 +61,7 @@ int lzma_decompress_to_file(const char *input, int output_fd)
- 
- 			if (ferror(infile)) {
- 				pr_err("lzma: read error: %s\n", strerror(errno));
--				goto err_fclose;
-+				goto err_lzma_end;
- 			}
- 
- 			if (feof(infile))
-@@ -75,7 +75,7 @@ int lzma_decompress_to_file(const char *input, int output_fd)
- 
- 			if (writen(output_fd, buf_out, write_size) != write_size) {
- 				pr_err("lzma: write error: %s\n", strerror(errno));
--				goto err_fclose;
-+				goto err_lzma_end;
- 			}
- 
- 			strm.next_out  = buf_out;
-@@ -87,11 +87,13 @@ int lzma_decompress_to_file(const char *input, int output_fd)
- 				break;
- 
- 			pr_err("lzma: failed %s\n", lzma_strerror(ret));
--			goto err_fclose;
-+			goto err_lzma_end;
- 		}
+diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
+index 9011857c0434..bba358f13471 100644
+--- a/arch/powerpc/kvm/book3s_hv.c
++++ b/arch/powerpc/kvm/book3s_hv.c
+@@ -2306,8 +2306,10 @@ static struct kvm_vcpu *kvmppc_core_vcpu_create_hv(struct kvm *kvm,
+ 		HFSCR_DSCR | HFSCR_VECVSX | HFSCR_FP;
+ 	if (cpu_has_feature(CPU_FTR_HVMODE)) {
+ 		vcpu->arch.hfscr &= mfspr(SPRN_HFSCR);
++#ifdef CONFIG_PPC_TRANSACTIONAL_MEM
+ 		if (cpu_has_feature(CPU_FTR_P9_TM_HV_ASSIST))
+ 			vcpu->arch.hfscr |= HFSCR_TM;
++#endif
  	}
- 
- 	err = 0;
-+err_lzma_end:
-+	lzma_end(&strm);
- err_fclose:
- 	fclose(infile);
- 	return err;
+ 	if (cpu_has_feature(CPU_FTR_TM_COMP))
+ 		vcpu->arch.hfscr |= HFSCR_TM;
 -- 
 2.30.2
 
