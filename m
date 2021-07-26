@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 141103D5EA9
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:51:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22E1D3D5FBC
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235499AbhGZPLQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:11:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48684 "EHLO mail.kernel.org"
+        id S236593AbhGZPTC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:19:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236167AbhGZPIS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:08:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5DB3E60F92;
-        Mon, 26 Jul 2021 15:48:45 +0000 (UTC)
+        id S236884AbhGZPRr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:17:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 178DF60F57;
+        Mon, 26 Jul 2021 15:58:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314525;
-        bh=SU9q9HvLR8orcW+YTjIQqk7eC8XYn+EfAtUwZeb0GVg=;
+        s=korg; t=1627315095;
+        bh=r2/TrHRwbUkzfY+OedYR+SYDR417kD429k5/wptAKoE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TxJovM8PE3j/uiI6X+xlsXKb4U15cOyTB0X7pVTzMEbZKdOMA0QcwUg2B8gWRe65t
-         5ubiJU1ilBnnAiYaSnAz5h3QC2iVRpv1naYUeQPq21dqome1rte8rh59ZssgEc2OGQ
-         TG+Ol4r667ph7JQuuXFAih5h+E452v45WmcJGjB8=
+        b=NmZXRUmUT45rCEb286mYRrszlxoWIqPubWDynXzd0Q4zZJ3z/DGIrTgA/WxtjI4wM
+         fl/jsorYuXg17ChYhlhRRnNVQZUigmWiSyRgTbXp0ql4ILfZIa9zo+D2L5l9zP7XAS
+         KjvLnumv/c9lMmVJUFZdNf3dfYcpqrV/OZuCrqmk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>,
-        Stephan Gerhold <stephan@gerhold.net>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.14 79/82] iio: accel: bma180: Fix BMA25x bandwidth register values
+        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
+        Michael Neuling <mikey@neuling.org>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.4 078/108] KVM: PPC: Book3S HV Nested: Sanitise H_ENTER_NESTED TM state
 Date:   Mon, 26 Jul 2021 17:39:19 +0200
-Message-Id: <20210726153830.745109839@linuxfoundation.org>
+Message-Id: <20210726153834.179563394@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153828.144714469@linuxfoundation.org>
-References: <20210726153828.144714469@linuxfoundation.org>
+In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
+References: <20210726153831.696295003@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,77 +41,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan@gerhold.net>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-commit 8090d67421ddab0ae932abab5a60200598bf0bbb upstream
+commit d9c57d3ed52a92536f5fa59dc5ccdd58b4875076 upstream.
 
-According to the BMA253 datasheet [1] and BMA250 datasheet [2] the
-bandwidth value for BMA25x should be set as 01xxx:
+The H_ENTER_NESTED hypercall is handled by the L0, and it is a request
+by the L1 to switch the context of the vCPU over to that of its L2
+guest, and return with an interrupt indication. The L1 is responsible
+for switching some registers to guest context, and the L0 switches
+others (including all the hypervisor privileged state).
 
-  "Settings 00xxx result in a bandwidth of 7.81 Hz; [...]
-   It is recommended [...] to use the range from ´01000b´ to ´01111b´
-   only in order to be compatible with future products."
+If the L2 MSR has TM active, then the L1 is responsible for
+recheckpointing the L2 TM state. Then the L1 exits to L0 via the
+H_ENTER_NESTED hcall, and the L0 saves the TM state as part of the exit,
+and then it recheckpoints the TM state as part of the nested entry and
+finally HRFIDs into the L2 with TM active MSR. Not efficient, but about
+the simplest approach for something that's horrendously complicated.
 
-However, at the moment the drivers sets bandwidth values from 0 to 6,
-which is not recommended and always results into 7.81 Hz bandwidth
-according to the datasheet.
+Problems arise if the L1 exits to the L0 with a TM state which does not
+match the L2 TM state being requested. For example if the L1 is
+transactional but the L2 MSR is non-transactional, or vice versa. The
+L0's HRFID can take a TM Bad Thing interrupt and crash.
 
-Fix this by introducing a bw_offset = 8 = 01000b for BMA25x,
-so the additional bit is always set for BMA25x.
+Fix this by disallowing H_ENTER_NESTED in TM[T] state entirely, and then
+ensuring that if the L1 is suspended then the L2 must have TM active,
+and if the L1 is not suspended then the L2 must not have TM active.
 
-[1]: https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bma253-ds000.pdf
-[2]: https://datasheet.octopart.com/BMA250-Bosch-datasheet-15540103.pdf
-
-Cc: Peter Meerwald <pmeerw@pmeerw.net>
-Fixes: 2017cff24cc0 ("iio:bma180: Add BMA250 chip support")
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20210526094408.34298-2-stephan@gerhold.net
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-[sudip: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Fixes: 360cae313702 ("KVM: PPC: Book3S HV: Nested guest entry via hypercall")
+Cc: stable@vger.kernel.org # v4.20+
+Reported-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+Acked-by: Michael Neuling <mikey@neuling.org>
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/accel/bma180.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ arch/powerpc/kvm/book3s_hv_nested.c |   20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
---- a/drivers/iio/accel/bma180.c
-+++ b/drivers/iio/accel/bma180.c
-@@ -50,7 +50,7 @@ struct bma180_part_info {
+--- a/arch/powerpc/kvm/book3s_hv_nested.c
++++ b/arch/powerpc/kvm/book3s_hv_nested.c
+@@ -232,6 +232,9 @@ long kvmhv_enter_nested_guest(struct kvm
+ 	if (vcpu->kvm->arch.l1_ptcr == 0)
+ 		return H_NOT_AVAILABLE;
  
- 	u8 int_reset_reg, int_reset_mask;
- 	u8 sleep_reg, sleep_mask;
--	u8 bw_reg, bw_mask;
-+	u8 bw_reg, bw_mask, bw_offset;
- 	u8 scale_reg, scale_mask;
- 	u8 power_reg, power_mask, lowpower_val;
- 	u8 int_enable_reg, int_enable_mask;
-@@ -106,6 +106,7 @@ struct bma180_part_info {
++	if (MSR_TM_TRANSACTIONAL(vcpu->arch.shregs.msr))
++		return H_BAD_MODE;
++
+ 	/* copy parameters in */
+ 	hv_ptr = kvmppc_get_gpr(vcpu, 4);
+ 	err = kvm_vcpu_read_guest(vcpu, hv_ptr, &l2_hv,
+@@ -253,6 +256,23 @@ long kvmhv_enter_nested_guest(struct kvm
+ 	if (l2_hv.vcpu_token >= NR_CPUS)
+ 		return H_PARAMETER;
  
- #define BMA250_RANGE_MASK	GENMASK(3, 0) /* Range of accel values */
- #define BMA250_BW_MASK		GENMASK(4, 0) /* Accel bandwidth */
-+#define BMA250_BW_OFFSET	8
- #define BMA250_SUSPEND_MASK	BIT(7) /* chip will sleep */
- #define BMA250_LOWPOWER_MASK	BIT(6)
- #define BMA250_DATA_INTEN_MASK	BIT(4)
-@@ -243,7 +244,8 @@ static int bma180_set_bw(struct bma180_d
- 	for (i = 0; i < data->part_info->num_bw; ++i) {
- 		if (data->part_info->bw_table[i] == val) {
- 			ret = bma180_set_bits(data, data->part_info->bw_reg,
--				data->part_info->bw_mask, i);
-+				data->part_info->bw_mask,
-+				i + data->part_info->bw_offset);
- 			if (ret) {
- 				dev_err(&data->client->dev,
- 					"failed to set bandwidth\n");
-@@ -662,6 +664,7 @@ static const struct bma180_part_info bma
- 		.sleep_mask = BMA250_SUSPEND_MASK,
- 		.bw_reg = BMA250_BW_REG,
- 		.bw_mask = BMA250_BW_MASK,
-+		.bw_offset = BMA250_BW_OFFSET,
- 		.scale_reg = BMA250_RANGE_REG,
- 		.scale_mask = BMA250_RANGE_MASK,
- 		.power_reg = BMA250_POWER_REG,
++	/*
++	 * L1 must have set up a suspended state to enter the L2 in a
++	 * transactional state, and only in that case. These have to be
++	 * filtered out here to prevent causing a TM Bad Thing in the
++	 * host HRFID. We could synthesize a TM Bad Thing back to the L1
++	 * here but there doesn't seem like much point.
++	 */
++	if (MSR_TM_SUSPENDED(vcpu->arch.shregs.msr)) {
++		if (!MSR_TM_ACTIVE(l2_regs.msr))
++			return H_BAD_MODE;
++	} else {
++		if (l2_regs.msr & MSR_TS_MASK)
++			return H_BAD_MODE;
++		if (WARN_ON_ONCE(vcpu->arch.shregs.msr & MSR_TS_MASK))
++			return H_BAD_MODE;
++	}
++
+ 	/* translate lpid */
+ 	l2 = kvmhv_get_nested(vcpu->kvm, l2_hv.lpid, true);
+ 	if (!l2)
 
 
