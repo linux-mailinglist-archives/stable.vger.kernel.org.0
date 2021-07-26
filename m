@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CDA683D5F44
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 262B73D5E45
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:47:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236623AbhGZPRY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:17:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53066 "EHLO mail.kernel.org"
+        id S236255AbhGZPGi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:06:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237467AbhGZPPs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:15:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 474E86109D;
-        Mon, 26 Jul 2021 15:55:52 +0000 (UTC)
+        id S236107AbhGZPGM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:06:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 43D3460F9F;
+        Mon, 26 Jul 2021 15:46:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314952;
-        bh=cPWriWZAO0tQyG/41GfIUBf1wHgeXjbBFrt3cmN50O8=;
+        s=korg; t=1627314400;
+        bh=EDaDHi4LNMfMaLjtctDE4Jpp/QgVdMPmAHfkZbt4oG4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aUrhmuDUU+QrtuPZX361j4hol60IPNNKooMottlvdJl2FCAXzH3RdoN/SpCHDQyLR
-         Ed/sv+GmLP81Qv/v/+yRzD5+VrTSzwxSXdyeL6KimTi0ITz+QVM4ztMhM9mYNTaP0H
-         LvBPUZ8hkZ9bkbX3Limx64TxeG74gPkjQuJaFpas=
+        b=fWk9zj91gJIXWOKrtKsHsQfzq1rcu3tzNXrXdppsKSnO/9x1Fa9py1/Ydb09wfapb
+         qWgGlzoOKEfCbl0ZJ1fMhKRJ/jcqCCYnAThFh0R1gq4AwdsD75bZOV/+VoPKuVQFnn
+         aF6H74hzvBDDqNFVeC8GRaO2MpFs75JAxdgzffhk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Amelie Delaunay <amelie.delaunay@foss.st.com>,
-        Alain Volmat <alain.volmat@foss.st.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 032/108] spi: stm32: fixes pm_runtime calls in probe/remove
-Date:   Mon, 26 Jul 2021 17:38:33 +0200
-Message-Id: <20210726153832.723832249@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
+        Martin KaFai Lau <kafai@fb.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 34/82] ipv6: tcp: drop silly ICMPv6 packet too big messages
+Date:   Mon, 26 Jul 2021 17:38:34 +0200
+Message-Id: <20210726153829.271304303@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
-References: <20210726153831.696295003@linuxfoundation.org>
+In-Reply-To: <20210726153828.144714469@linuxfoundation.org>
+References: <20210726153828.144714469@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,76 +41,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alain Volmat <alain.volmat@foss.st.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 7999d2555c9f879d006ea8469d74db9cdb038af0 ]
+commit c7bb4b89033b764eb07db4e060548a6311d801ee upstream.
 
-Add pm_runtime calls in probe/probe error path and remove
-in order to be consistent in all places in ordering and
-ensure that pm_runtime is disabled prior to resources used
-by the SPI controller.
+While TCP stack scales reasonably well, there is still one part that
+can be used to DDOS it.
 
-This patch also fixes the 2 following warnings on driver remove:
-WARNING: CPU: 0 PID: 743 at drivers/clk/clk.c:594 clk_core_disable_lock+0x18/0x24
-WARNING: CPU: 0 PID: 743 at drivers/clk/clk.c:476 clk_unprepare+0x24/0x2c
+IPv6 Packet too big messages have to lookup/insert a new route,
+and if abused by attackers, can easily put hosts under high stress,
+with many cpus contending on a spinlock while one is stuck in fib6_run_gc()
 
-Fixes: 038ac869c9d2 ("spi: stm32: add runtime PM support")
+ip6_protocol_deliver_rcu()
+ icmpv6_rcv()
+  icmpv6_notify()
+   tcp_v6_err()
+    tcp_v6_mtu_reduced()
+     inet6_csk_update_pmtu()
+      ip6_rt_update_pmtu()
+       __ip6_rt_update_pmtu()
+        ip6_rt_cache_alloc()
+         ip6_dst_alloc()
+          dst_alloc()
+           ip6_dst_gc()
+            fib6_run_gc()
+             spin_lock_bh() ...
 
-Signed-off-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
-Signed-off-by: Alain Volmat <alain.volmat@foss.st.com>
-Link: https://lore.kernel.org/r/1625646426-5826-2-git-send-email-alain.volmat@foss.st.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Some of our servers have been hit by malicious ICMPv6 packets
+trying to _increase_ the MTU/MSS of TCP flows.
+
+We believe these ICMPv6 packets are a result of a bug in one ISP stack,
+since they were blindly sent back for _every_ (small) packet sent to them.
+
+These packets are for one TCP flow:
+09:24:36.266491 IP6 Addr1 > Victim ICMP6, packet too big, mtu 1460, length 1240
+09:24:36.266509 IP6 Addr1 > Victim ICMP6, packet too big, mtu 1460, length 1240
+09:24:36.316688 IP6 Addr1 > Victim ICMP6, packet too big, mtu 1460, length 1240
+09:24:36.316704 IP6 Addr1 > Victim ICMP6, packet too big, mtu 1460, length 1240
+09:24:36.608151 IP6 Addr1 > Victim ICMP6, packet too big, mtu 1460, length 1240
+
+TCP stack can filter some silly requests :
+
+1) MTU below IPV6_MIN_MTU can be filtered early in tcp_v6_err()
+2) tcp_v6_mtu_reduced() can drop requests trying to increase current MSS.
+
+This tests happen before the IPv6 routing stack is entered, thus
+removing the potential contention and route exhaustion.
+
+Note that IPv6 stack was performing these checks, but too late
+(ie : after the route has been added, and after the potential
+garbage collect war)
+
+v2: fix typo caught by Martin, thanks !
+v3: exports tcp_mtu_to_mss(), caught by David, thanks !
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reviewed-by: Maciej Żenczykowski <maze@google.com>
+Cc: Martin KaFai Lau <kafai@fb.com>
+Acked-by: Martin KaFai Lau <kafai@fb.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/spi/spi-stm32.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ net/ipv4/tcp_output.c |    1 +
+ net/ipv6/tcp_ipv6.c   |   19 +++++++++++++++++--
+ 2 files changed, 18 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/spi/spi-stm32.c b/drivers/spi/spi-stm32.c
-index 8c308279c535..e9d48e94f5ed 100644
---- a/drivers/spi/spi-stm32.c
-+++ b/drivers/spi/spi-stm32.c
-@@ -1936,6 +1936,7 @@ static int stm32_spi_probe(struct platform_device *pdev)
- 		master->can_dma = stm32_spi_can_dma;
+--- a/net/ipv4/tcp_output.c
++++ b/net/ipv4/tcp_output.c
+@@ -1470,6 +1470,7 @@ int tcp_mtu_to_mss(struct sock *sk, int
+ 	return __tcp_mtu_to_mss(sk, pmtu) -
+ 	       (tcp_sk(sk)->tcp_header_len - sizeof(struct tcphdr));
+ }
++EXPORT_SYMBOL(tcp_mtu_to_mss);
  
- 	pm_runtime_set_active(&pdev->dev);
-+	pm_runtime_get_noresume(&pdev->dev);
- 	pm_runtime_enable(&pdev->dev);
+ /* Inverse of above */
+ int tcp_mss_to_mtu(struct sock *sk, int mss)
+--- a/net/ipv6/tcp_ipv6.c
++++ b/net/ipv6/tcp_ipv6.c
+@@ -319,11 +319,20 @@ failure:
+ static void tcp_v6_mtu_reduced(struct sock *sk)
+ {
+ 	struct dst_entry *dst;
++	u32 mtu;
  
- 	ret = spi_register_master(master);
-@@ -1974,6 +1975,8 @@ static int stm32_spi_probe(struct platform_device *pdev)
+ 	if ((1 << sk->sk_state) & (TCPF_LISTEN | TCPF_CLOSE))
+ 		return;
  
- err_pm_disable:
- 	pm_runtime_disable(&pdev->dev);
-+	pm_runtime_put_noidle(&pdev->dev);
-+	pm_runtime_set_suspended(&pdev->dev);
- err_dma_release:
- 	if (spi->dma_tx)
- 		dma_release_channel(spi->dma_tx);
-@@ -1992,9 +1995,14 @@ static int stm32_spi_remove(struct platform_device *pdev)
- 	struct spi_master *master = platform_get_drvdata(pdev);
- 	struct stm32_spi *spi = spi_master_get_devdata(master);
- 
-+	pm_runtime_get_sync(&pdev->dev);
+-	dst = inet6_csk_update_pmtu(sk, READ_ONCE(tcp_sk(sk)->mtu_info));
++	mtu = READ_ONCE(tcp_sk(sk)->mtu_info);
 +
- 	spi_unregister_master(master);
- 	spi->cfg->disable(spi);
++	/* Drop requests trying to increase our current mss.
++	 * Check done in __ip6_rt_update_pmtu() is too late.
++	 */
++	if (tcp_mtu_to_mss(sk, mtu) >= tcp_sk(sk)->mss_cache)
++		return;
++
++	dst = inet6_csk_update_pmtu(sk, mtu);
+ 	if (!dst)
+ 		return;
  
-+	pm_runtime_disable(&pdev->dev);
-+	pm_runtime_put_noidle(&pdev->dev);
-+	pm_runtime_set_suspended(&pdev->dev);
- 	if (master->dma_tx)
- 		dma_release_channel(master->dma_tx);
- 	if (master->dma_rx)
-@@ -2002,7 +2010,6 @@ static int stm32_spi_remove(struct platform_device *pdev)
+@@ -402,6 +411,8 @@ static void tcp_v6_err(struct sk_buff *s
+ 	}
  
- 	clk_disable_unprepare(spi->clk);
+ 	if (type == ICMPV6_PKT_TOOBIG) {
++		u32 mtu = ntohl(info);
++
+ 		/* We are not interested in TCP_LISTEN and open_requests
+ 		 * (SYN-ACKs send out by Linux are always <576bytes so
+ 		 * they should go through unfragmented).
+@@ -412,7 +423,11 @@ static void tcp_v6_err(struct sk_buff *s
+ 		if (!ip6_sk_accept_pmtu(sk))
+ 			goto out;
  
--	pm_runtime_disable(&pdev->dev);
- 
- 	pinctrl_pm_select_sleep_state(&pdev->dev);
- 
--- 
-2.30.2
-
+-		WRITE_ONCE(tp->mtu_info, ntohl(info));
++		if (mtu < IPV6_MIN_MTU)
++			goto out;
++
++		WRITE_ONCE(tp->mtu_info, mtu);
++
+ 		if (!sock_owned_by_user(sk))
+ 			tcp_v6_mtu_reduced(sk);
+ 		else if (!test_and_set_bit(TCP_MTU_REDUCED_DEFERRED,
 
 
