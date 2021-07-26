@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 692EB3D6236
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:16:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFD3A3D60FA
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:12:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232842AbhGZPfI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:35:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51044 "EHLO mail.kernel.org"
+        id S237464AbhGZPZx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:25:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235255AbhGZPeH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:34:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 88E58604AC;
-        Mon, 26 Jul 2021 16:14:34 +0000 (UTC)
+        id S238220AbhGZPZM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:25:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D852760F38;
+        Mon, 26 Jul 2021 16:05:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627316075;
-        bh=+fFt4JsLeQNfMSkHX0CdEAWddMq+P3LrEnqNfBlo64o=;
+        s=korg; t=1627315540;
+        bh=WfrCcXBRTMj/UBj1gJQha44WgJRYVm1uKZW6czcbfL0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GmclFV0biZcvQHctLIf5j0b7n7jIBBzZh7BlsCN24hxV1bvi5b8MLbM5Oh5W8HWkV
-         IN6daXZRGWF7Aftpz53lFBpJRLhn2lY7hMQaK5APGKkI492c9U/itJOCQG7w2aSBsp
-         iaABo6lqB+1sHap2Lt/LtELaSW5zPTkXoySjQysw=
+        b=IS6ALpgxoSv8/z+J5hhFdR5pG4IEqVC2s2C2epihC9NXJQOeWlID6bHA+7lwdD5Xq
+         XaPl/tGZ6e5870kDAz5DnWcdHtl0PLlwP7VVOn9DnAEYVUObTbI7b36N37wCMhTH2G
+         i6arpiy9RRtZiBFuy1/qeuvkxUYGh7m7ZMtf5xEI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Metzmacher <metze@samba.org>,
+        stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linuxfoundation.org>,
+        Haoran Luo <www@aegistudio.net>,
         "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.13 177/223] tracepoints: Update static_call before tp_funcs when adding a tracepoint
+Subject: [PATCH 5.10 136/167] tracing: Fix bug in rb_per_cpu_empty() that might cause deadloop.
 Date:   Mon, 26 Jul 2021 17:39:29 +0200
-Message-Id: <20210726153851.990838783@linuxfoundation.org>
+Message-Id: <20210726153843.954370750@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
-References: <20210726153846.245305071@linuxfoundation.org>
+In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
+References: <20210726153839.371771838@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,120 +41,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Haoran Luo <www@aegistudio.net>
 
-commit 352384d5c84ebe40fa77098cc234fe173247d8ef upstream.
+commit 67f0d6d9883c13174669f88adac4f0ee656cc16a upstream.
 
-Because of the significant overhead that retpolines pose on indirect
-calls, the tracepoint code was updated to use the new "static_calls" that
-can modify the running code to directly call a function instead of using
-an indirect caller, and this function can be changed at runtime.
+The "rb_per_cpu_empty()" misinterpret the condition (as not-empty) when
+"head_page" and "commit_page" of "struct ring_buffer_per_cpu" points to
+the same buffer page, whose "buffer_data_page" is empty and "read" field
+is non-zero.
 
-In the tracepoint code that calls all the registered callbacks that are
-attached to a tracepoint, the following is done:
+An error scenario could be constructed as followed (kernel perspective):
 
-	it_func_ptr = rcu_dereference_raw((&__tracepoint_##name)->funcs);
-	if (it_func_ptr) {
-		__data = (it_func_ptr)->data;
-		static_call(tp_func_##name)(__data, args);
-	}
+1. All pages in the buffer has been accessed by reader(s) so that all of
+them will have non-zero "read" field.
 
-If there's just a single callback, the static_call is updated to just call
-that callback directly. Once another handler is added, then the static
-caller is updated to call the iterator, that simply loops over all the
-funcs in the array and calls each of the callbacks like the old method
-using indirect calling.
+2. Read and clear all buffer pages so that "rb_num_of_entries()" will
+return 0 rendering there's no more data to read. It is also required
+that the "read_page", "commit_page" and "tail_page" points to the same
+page, while "head_page" is the next page of them.
 
-The issue was discovered with a race between updating the funcs array and
-updating the static_call. The funcs array was updated first and then the
-static_call was updated. This is not an issue as long as the first element
-in the old array is the same as the first element in the new array. But
-that assumption is incorrect, because callbacks also have a priority
-field, and if there's a callback added that has a higher priority than the
-callback on the old array, then it will become the first callback in the
-new array. This means that it is possible to call the old callback with
-the new callback data element, which can cause a kernel panic.
+3. Invoke "ring_buffer_lock_reserve()" with large enough "length"
+so that it shot pass the end of current tail buffer page. Now the
+"head_page", "commit_page" and "tail_page" points to the same page.
 
-	static_call = callback1()
-	funcs[] = {callback1,data1};
-	callback2 has higher priority than callback1
+4. Discard current event with "ring_buffer_discard_commit()", so that
+"head_page", "commit_page" and "tail_page" points to a page whose buffer
+data page is now empty.
 
-	CPU 1				CPU 2
-	-----				-----
+When the error scenario has been constructed, "tracing_read_pipe" will
+be trapped inside a deadloop: "trace_empty()" returns 0 since
+"rb_per_cpu_empty()" returns 0 when it hits the CPU containing such
+constructed ring buffer. Then "trace_find_next_entry_inc()" always
+return NULL since "rb_num_of_entries()" reports there's no more entry
+to read. Finally "trace_seq_to_user()" returns "-EBUSY" spanking
+"tracing_read_pipe" back to the start of the "waitagain" loop.
 
-   new_funcs = {callback2,data2},
-               {callback1,data1}
+I've also written a proof-of-concept script to construct the scenario
+and trigger the bug automatically, you can use it to trace and validate
+my reasoning above:
 
-   rcu_assign_pointer(tp->funcs, new_funcs);
+  https://github.com/aegistudio/RingBufferDetonator.git
 
-  /*
-   * Now tp->funcs has the new array
-   * but the static_call still calls callback1
-   */
+Tests has been carried out on linux kernel 5.14-rc2
+(2734d6c1b1a089fb593ef6a23d4b70903526fe0c), my fixed version
+of kernel (for testing whether my update fixes the bug) and
+some older kernels (for range of affected kernels). Test result is
+also attached to the proof-of-concept repository.
 
-				it_func_ptr = tp->funcs [ new_funcs ]
-				data = it_func_ptr->data [ data2 ]
-				static_call(callback1, data);
-
-				/* Now callback1 is called with
-				 * callback2's data */
-
-				[ KERNEL PANIC ]
-
-   update_static_call(iterator);
-
-To prevent this from happening, always switch the static_call to the
-iterator before assigning the tp->funcs to the new array. The iterator will
-always properly match the callback with its data.
-
-To trigger this bug:
-
-  In one terminal:
-
-    while :; do hackbench 50; done
-
-  In another terminal
-
-    echo 1 > /sys/kernel/tracing/events/sched/sched_waking/enable
-    while :; do
-        echo 1 > /sys/kernel/tracing/set_event_pid;
-        sleep 0.5
-        echo 0 > /sys/kernel/tracing/set_event_pid;
-        sleep 0.5
-   done
-
-And it doesn't take long to crash. This is because the set_event_pid adds
-a callback to the sched_waking tracepoint with a high priority, which will
-be called before the sched_waking trace event callback is called.
-
-Note, the removal to a single callback updates the array first, before
-changing the static_call to single callback, which is the proper order as
-the first element in the array is the same as what the static_call is
-being changed to.
-
-Link: https://lore.kernel.org/io-uring/4ebea8f0-58c9-e571-fd30-0ce4f6f09c70@samba.org/
+Link: https://lore.kernel.org/linux-trace-devel/YPaNxsIlb2yjSi5Y@aegistudio/
+Link: https://lore.kernel.org/linux-trace-devel/YPgrN85WL9VyrZ55@aegistudio
 
 Cc: stable@vger.kernel.org
-Fixes: d25e37d89dd2f ("tracepoint: Optimize using static_call()")
-Reported-by: Stefan Metzmacher <metze@samba.org>
-tested-by: Stefan Metzmacher <metze@samba.org>
+Fixes: bf41a158cacba ("ring-buffer: make reentrant")
+Suggested-by: Linus Torvalds <torvalds@linuxfoundation.org>
+Signed-off-by: Haoran Luo <www@aegistudio.net>
 Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/tracepoint.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/trace/ring_buffer.c |   28 ++++++++++++++++++++++++----
+ 1 file changed, 24 insertions(+), 4 deletions(-)
 
---- a/kernel/tracepoint.c
-+++ b/kernel/tracepoint.c
-@@ -299,8 +299,8 @@ static int tracepoint_add_func(struct tr
- 	 * a pointer to it.  This array is referenced by __DO_TRACE from
- 	 * include/linux/tracepoint.h using rcu_dereference_sched().
- 	 */
--	rcu_assign_pointer(tp->funcs, tp_funcs);
- 	tracepoint_update_call(tp, tp_funcs, false);
-+	rcu_assign_pointer(tp->funcs, tp_funcs);
- 	static_key_enable(&tp->key);
+--- a/kernel/trace/ring_buffer.c
++++ b/kernel/trace/ring_buffer.c
+@@ -3649,10 +3649,30 @@ static bool rb_per_cpu_empty(struct ring
+ 	if (unlikely(!head))
+ 		return true;
  
- 	release_probes(old);
+-	return reader->read == rb_page_commit(reader) &&
+-		(commit == reader ||
+-		 (commit == head &&
+-		  head->read == rb_page_commit(commit)));
++	/* Reader should exhaust content in reader page */
++	if (reader->read != rb_page_commit(reader))
++		return false;
++
++	/*
++	 * If writers are committing on the reader page, knowing all
++	 * committed content has been read, the ring buffer is empty.
++	 */
++	if (commit == reader)
++		return true;
++
++	/*
++	 * If writers are committing on a page other than reader page
++	 * and head page, there should always be content to read.
++	 */
++	if (commit != head)
++		return false;
++
++	/*
++	 * Writers are committing on the head page, we just need
++	 * to care about there're committed data, and the reader will
++	 * swap reader page with head page when it is to read data.
++	 */
++	return rb_page_commit(commit) == 0;
+ }
+ 
+ /**
 
 
