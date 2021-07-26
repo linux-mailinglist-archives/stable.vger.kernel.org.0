@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43D3A3D6101
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:12:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B4AE73D6080
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:11:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237158AbhGZPZ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:25:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38976 "EHLO mail.kernel.org"
+        id S236940AbhGZPWn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:22:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37426 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237742AbhGZPYG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:24:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1748960E09;
-        Mon, 26 Jul 2021 16:04:34 +0000 (UTC)
+        id S236941AbhGZPWl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:22:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F53B60240;
+        Mon, 26 Jul 2021 16:03:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315475;
-        bh=sdNuJv7O5L+91iTn1IBLLXiIsIydlVPkIVs9xmiyi0E=;
+        s=korg; t=1627315387;
+        bh=nu9HSbVDtzUnXxN8axmqDqNWOmNMTz0F8iLHUC/jB3w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xDM9/atf4WIE9xVwKiVKU3nYZYxA64Wa7pQpTtF7v1uYZoyDWMTjBl4eat9EZunKZ
-         UYAZGxXHzJ+nRzHhm6bg9G06BcY0Tqd3TMK1Ggdnx6IuQsBAwcF47HWheM74URAGbt
-         JQCjTJBasLk+qmHQbLeGuPnh680/yxB+4WJoccSA=
+        b=UXUfVLhcFHd42PNCNXp/xvv9l/gfpi4gsGkUVSBwlySaa4xzwx/rNXkl9yh8yJE1y
+         R3U5gKCSr1QuxNZCMsYqE0404KFr65An3B3Lgy87a6Z48SUuHKN8AEv5Uzm3LOZMJ4
+         PFRob1M03aiizeYDo1xb8XuV3XXuU/eotEvJJw24=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Bogdanov <d.bogdanov@yadro.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 076/167] scsi: target: Fix protect handling in WRITE SAME(32)
-Date:   Mon, 26 Jul 2021 17:38:29 +0200
-Message-Id: <20210726153841.954494100@linuxfoundation.org>
+Subject: [PATCH 5.10 077/167] spi: cadence: Correct initialisation of runtime PM again
+Date:   Mon, 26 Jul 2021 17:38:30 +0200
+Message-Id: <20210726153841.988981253@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
 References: <20210726153839.371771838@linuxfoundation.org>
@@ -40,181 +41,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Bogdanov <d.bogdanov@yadro.com>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit 6d8e7e7c932162bccd06872362751b0e1d76f5af ]
+[ Upstream commit 56912da7a68c8356df6a6740476237441b0b792a ]
 
-WRITE SAME(32) command handling reads WRPROTECT at the wrong offset in 1st
-byte instead of 10th byte.
+The original implementation of RPM handling in probe() was mostly
+correct, except it failed to call pm_runtime_get_*() to activate the
+hardware. The subsequent fix, 734882a8bf98 ("spi: cadence: Correct
+initialisation of runtime PM"), breaks the implementation further,
+to the point where the system using this hard IP on ZynqMP hangs on
+boot, because it accesses hardware which is gated off.
 
-Link: https://lore.kernel.org/r/20210702091655.22818-1-d.bogdanov@yadro.com
-Fixes: afd73f1b60fc ("target: Perform PROTECT sanity checks for WRITE_SAME")
-Signed-off-by: Dmitry Bogdanov <d.bogdanov@yadro.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Undo 734882a8bf98 ("spi: cadence: Correct initialisation of runtime
+PM") and instead add missing pm_runtime_get_noresume() and move the
+RPM disabling all the way to the end of probe(). That makes ZynqMP
+not hang on boot yet again.
+
+Fixes: 734882a8bf98 ("spi: cadence: Correct initialisation of runtime PM")
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Charles Keepax <ckeepax@opensource.cirrus.com>
+Cc: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20210716182133.218640-1-marex@denx.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/target/target_core_sbc.c | 35 ++++++++++++++++----------------
- 1 file changed, 17 insertions(+), 18 deletions(-)
+ drivers/spi/spi-cadence.c | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/target/target_core_sbc.c b/drivers/target/target_core_sbc.c
-index 6e8b8d30938f..eaf8551ebc61 100644
---- a/drivers/target/target_core_sbc.c
-+++ b/drivers/target/target_core_sbc.c
-@@ -25,7 +25,7 @@
- #include "target_core_alua.h"
- 
- static sense_reason_t
--sbc_check_prot(struct se_device *, struct se_cmd *, unsigned char *, u32, bool);
-+sbc_check_prot(struct se_device *, struct se_cmd *, unsigned char, u32, bool);
- static sense_reason_t sbc_execute_unmap(struct se_cmd *cmd);
- 
- static sense_reason_t
-@@ -279,14 +279,14 @@ static inline unsigned long long transport_lba_64_ext(unsigned char *cdb)
- }
- 
- static sense_reason_t
--sbc_setup_write_same(struct se_cmd *cmd, unsigned char *flags, struct sbc_ops *ops)
-+sbc_setup_write_same(struct se_cmd *cmd, unsigned char flags, struct sbc_ops *ops)
- {
- 	struct se_device *dev = cmd->se_dev;
- 	sector_t end_lba = dev->transport->get_blocks(dev) + 1;
- 	unsigned int sectors = sbc_get_write_same_sectors(cmd);
- 	sense_reason_t ret;
- 
--	if ((flags[0] & 0x04) || (flags[0] & 0x02)) {
-+	if ((flags & 0x04) || (flags & 0x02)) {
- 		pr_err("WRITE_SAME PBDATA and LBDATA"
- 			" bits not supported for Block Discard"
- 			" Emulation\n");
-@@ -308,7 +308,7 @@ sbc_setup_write_same(struct se_cmd *cmd, unsigned char *flags, struct sbc_ops *o
+diff --git a/drivers/spi/spi-cadence.c b/drivers/spi/spi-cadence.c
+index a3afd1b9ac56..ceb16e70d235 100644
+--- a/drivers/spi/spi-cadence.c
++++ b/drivers/spi/spi-cadence.c
+@@ -517,6 +517,12 @@ static int cdns_spi_probe(struct platform_device *pdev)
+ 		goto clk_dis_apb;
  	}
  
- 	/* We always have ANC_SUP == 0 so setting ANCHOR is always an error */
--	if (flags[0] & 0x10) {
-+	if (flags & 0x10) {
- 		pr_warn("WRITE SAME with ANCHOR not supported\n");
- 		return TCM_INVALID_CDB_FIELD;
- 	}
-@@ -316,7 +316,7 @@ sbc_setup_write_same(struct se_cmd *cmd, unsigned char *flags, struct sbc_ops *o
- 	 * Special case for WRITE_SAME w/ UNMAP=1 that ends up getting
- 	 * translated into block discard requests within backend code.
- 	 */
--	if (flags[0] & 0x08) {
-+	if (flags & 0x08) {
- 		if (!ops->execute_unmap)
- 			return TCM_UNSUPPORTED_SCSI_OPCODE;
++	pm_runtime_use_autosuspend(&pdev->dev);
++	pm_runtime_set_autosuspend_delay(&pdev->dev, SPI_AUTOSUSPEND_TIMEOUT);
++	pm_runtime_get_noresume(&pdev->dev);
++	pm_runtime_set_active(&pdev->dev);
++	pm_runtime_enable(&pdev->dev);
++
+ 	ret = of_property_read_u32(pdev->dev.of_node, "num-cs", &num_cs);
+ 	if (ret < 0)
+ 		master->num_chipselect = CDNS_SPI_DEFAULT_NUM_CS;
+@@ -531,11 +537,6 @@ static int cdns_spi_probe(struct platform_device *pdev)
+ 	/* SPI controller initializations */
+ 	cdns_spi_init_hw(xspi);
  
-@@ -331,7 +331,7 @@ sbc_setup_write_same(struct se_cmd *cmd, unsigned char *flags, struct sbc_ops *o
- 	if (!ops->execute_write_same)
- 		return TCM_UNSUPPORTED_SCSI_OPCODE;
+-	pm_runtime_set_active(&pdev->dev);
+-	pm_runtime_enable(&pdev->dev);
+-	pm_runtime_use_autosuspend(&pdev->dev);
+-	pm_runtime_set_autosuspend_delay(&pdev->dev, SPI_AUTOSUSPEND_TIMEOUT);
+-
+ 	irq = platform_get_irq(pdev, 0);
+ 	if (irq <= 0) {
+ 		ret = -ENXIO;
+@@ -566,6 +567,9 @@ static int cdns_spi_probe(struct platform_device *pdev)
  
--	ret = sbc_check_prot(dev, cmd, &cmd->t_task_cdb[0], sectors, true);
-+	ret = sbc_check_prot(dev, cmd, flags >> 5, sectors, true);
- 	if (ret)
- 		return ret;
+ 	master->bits_per_word_mask = SPI_BPW_MASK(8);
  
-@@ -686,10 +686,9 @@ sbc_set_prot_op_checks(u8 protect, bool fabric_prot, enum target_prot_type prot_
- }
- 
- static sense_reason_t
--sbc_check_prot(struct se_device *dev, struct se_cmd *cmd, unsigned char *cdb,
-+sbc_check_prot(struct se_device *dev, struct se_cmd *cmd, unsigned char protect,
- 	       u32 sectors, bool is_write)
- {
--	u8 protect = cdb[1] >> 5;
- 	int sp_ops = cmd->se_sess->sup_prot_ops;
- 	int pi_prot_type = dev->dev_attrib.pi_prot_type;
- 	bool fabric_prot = false;
-@@ -737,7 +736,7 @@ sbc_check_prot(struct se_device *dev, struct se_cmd *cmd, unsigned char *cdb,
- 		fallthrough;
- 	default:
- 		pr_err("Unable to determine pi_prot_type for CDB: 0x%02x "
--		       "PROTECT: 0x%02x\n", cdb[0], protect);
-+		       "PROTECT: 0x%02x\n", cmd->t_task_cdb[0], protect);
- 		return TCM_INVALID_CDB_FIELD;
- 	}
- 
-@@ -812,7 +811,7 @@ sbc_parse_cdb(struct se_cmd *cmd, struct sbc_ops *ops)
- 		if (sbc_check_dpofua(dev, cmd, cdb))
- 			return TCM_INVALID_CDB_FIELD;
- 
--		ret = sbc_check_prot(dev, cmd, cdb, sectors, false);
-+		ret = sbc_check_prot(dev, cmd, cdb[1] >> 5, sectors, false);
- 		if (ret)
- 			return ret;
- 
-@@ -826,7 +825,7 @@ sbc_parse_cdb(struct se_cmd *cmd, struct sbc_ops *ops)
- 		if (sbc_check_dpofua(dev, cmd, cdb))
- 			return TCM_INVALID_CDB_FIELD;
- 
--		ret = sbc_check_prot(dev, cmd, cdb, sectors, false);
-+		ret = sbc_check_prot(dev, cmd, cdb[1] >> 5, sectors, false);
- 		if (ret)
- 			return ret;
- 
-@@ -840,7 +839,7 @@ sbc_parse_cdb(struct se_cmd *cmd, struct sbc_ops *ops)
- 		if (sbc_check_dpofua(dev, cmd, cdb))
- 			return TCM_INVALID_CDB_FIELD;
- 
--		ret = sbc_check_prot(dev, cmd, cdb, sectors, false);
-+		ret = sbc_check_prot(dev, cmd, cdb[1] >> 5, sectors, false);
- 		if (ret)
- 			return ret;
- 
-@@ -861,7 +860,7 @@ sbc_parse_cdb(struct se_cmd *cmd, struct sbc_ops *ops)
- 		if (sbc_check_dpofua(dev, cmd, cdb))
- 			return TCM_INVALID_CDB_FIELD;
- 
--		ret = sbc_check_prot(dev, cmd, cdb, sectors, true);
-+		ret = sbc_check_prot(dev, cmd, cdb[1] >> 5, sectors, true);
- 		if (ret)
- 			return ret;
- 
-@@ -875,7 +874,7 @@ sbc_parse_cdb(struct se_cmd *cmd, struct sbc_ops *ops)
- 		if (sbc_check_dpofua(dev, cmd, cdb))
- 			return TCM_INVALID_CDB_FIELD;
- 
--		ret = sbc_check_prot(dev, cmd, cdb, sectors, true);
-+		ret = sbc_check_prot(dev, cmd, cdb[1] >> 5, sectors, true);
- 		if (ret)
- 			return ret;
- 
-@@ -890,7 +889,7 @@ sbc_parse_cdb(struct se_cmd *cmd, struct sbc_ops *ops)
- 		if (sbc_check_dpofua(dev, cmd, cdb))
- 			return TCM_INVALID_CDB_FIELD;
- 
--		ret = sbc_check_prot(dev, cmd, cdb, sectors, true);
-+		ret = sbc_check_prot(dev, cmd, cdb[1] >> 5, sectors, true);
- 		if (ret)
- 			return ret;
- 
-@@ -949,7 +948,7 @@ sbc_parse_cdb(struct se_cmd *cmd, struct sbc_ops *ops)
- 			size = sbc_get_size(cmd, 1);
- 			cmd->t_task_lba = get_unaligned_be64(&cdb[12]);
- 
--			ret = sbc_setup_write_same(cmd, &cdb[10], ops);
-+			ret = sbc_setup_write_same(cmd, cdb[10], ops);
- 			if (ret)
- 				return ret;
- 			break;
-@@ -1048,7 +1047,7 @@ sbc_parse_cdb(struct se_cmd *cmd, struct sbc_ops *ops)
- 		size = sbc_get_size(cmd, 1);
- 		cmd->t_task_lba = get_unaligned_be64(&cdb[2]);
- 
--		ret = sbc_setup_write_same(cmd, &cdb[1], ops);
-+		ret = sbc_setup_write_same(cmd, cdb[1], ops);
- 		if (ret)
- 			return ret;
- 		break;
-@@ -1066,7 +1065,7 @@ sbc_parse_cdb(struct se_cmd *cmd, struct sbc_ops *ops)
- 		 * Follow sbcr26 with WRITE_SAME (10) and check for the existence
- 		 * of byte 1 bit 3 UNMAP instead of original reserved field
- 		 */
--		ret = sbc_setup_write_same(cmd, &cdb[1], ops);
-+		ret = sbc_setup_write_same(cmd, cdb[1], ops);
- 		if (ret)
- 			return ret;
- 		break;
++	pm_runtime_mark_last_busy(&pdev->dev);
++	pm_runtime_put_autosuspend(&pdev->dev);
++
+ 	ret = spi_register_master(master);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "spi_register_master failed\n");
 -- 
 2.30.2
 
