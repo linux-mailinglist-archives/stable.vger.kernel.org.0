@@ -2,96 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B35F3D5360
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 08:53:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 437893D5380
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 09:02:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231825AbhGZGNS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 02:13:18 -0400
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:43329 "EHLO
-        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229658AbhGZGNR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Jul 2021 02:13:17 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 98A315C00BC;
-        Mon, 26 Jul 2021 02:53:46 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 26 Jul 2021 02:53:46 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=HG3h7vUAbQfGpe4Y5BgK03SCh15
-        0xBlKoQ1J9Rpg3gQ=; b=yv9OKkLcoqeNvg8K4YA7Ml2kdk8XRt1ov+2hfje+RrX
-        ebbFxb7nP0oX1wRvHIGjKAiSUaGwT6qGRGCO9tR/rwp+Qo3tsFZdam/gtNIzdPK4
-        qF5UvjX5ZaywS1E17IWAEw8s0VTDPpKQ/+dRT2tLEY06Jnc7d+0vORyrKJGCB3Vx
-        KIsl22u5ly5OL8DitgTrdfu4eXzPmp+O8oH+PdVfJwJbhRQHKilacI3OjlOsEQ9A
-        x3FklOIkltXjHY43lYnyLI65ufMDBvLrP1C9lPCxkbKeq9L0fcNccpvmOUImBqQ0
-        lBIoQWrlpk8VWfX2XlFJ2UZBijW+M+Q6+cybYJMXhoQ==
+        id S231951AbhGZGUu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 02:20:50 -0400
+Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:51163 "EHLO
+        wout3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231926AbhGZGUp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Jul 2021 02:20:45 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailout.west.internal (Postfix) with ESMTP id 86CD6320014C;
+        Mon, 26 Jul 2021 03:01:07 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Mon, 26 Jul 2021 03:01:08 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=flygoat.com; h=
+        subject:to:cc:references:from:message-id:date:mime-version
+        :in-reply-to:content-type:content-transfer-encoding; s=fm2; bh=J
+        zhgFa7wAhuq5NfC2bG2do2m/BKCFKWYoy8V5ZRRaq4=; b=IjwduQBnyUBL6t1EF
+        cyUAVwUiSxCiXuv1gkFmCMs/vG4XaCXGXbGFiPtATmmtNB332mktH0sAAXr/J1mF
+        RvBHanH39T7QGRI/3TA/2vd4ypL2+EGiGfZExg9tkFlsrdFo9CcddgoS+Ab9uQhP
+        bhpwQI5RZESqNimKYLjiaKEzRuMCrdeFD6ha4ETSl1matmNukGXvCHeDfYZ0pc5N
+        6oELPoNB8s5opSiXXoGTtqdRPVMIuth3rHR7aDfvad89q0KYNnT/N/m4LfiRXZO8
+        pFctAtZ9IoMFJNIIRzzlbdJHVBTf25JhP3qs62uoHnqvgmNDHWkrH/0JHYbKoWWs
+        gxiDQ==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=HG3h7v
-        UAbQfGpe4Y5BgK03SCh150xBlKoQ1J9Rpg3gQ=; b=a6x96brohf7ickmxoZafd0
-        IwH6fwH/NJG1PuBDRMEqB1e/Y+6yB2AhIlr3CpXDQ9Vc9H12nRT/jyR/SnfeQj7S
-        +8UvoRYrm5GfUd7KFDhLyYgKfmBGBvLTlmodCJ50GIQRrSo6nHtFqUDLyQ61EI38
-        nKPvgpIkqx6KXhT9OE8W1SQBpXepaKhqKsfSfrm+joMYiRlCd5CYOEkdV3n7NbEG
-        vlfOY+/irHX6AQaYp3Ae+Q4zED8ya7v2l0JYnooSTrJXCGR6jdJiuStWnxas1a2O
-        nIYBIZrVJrhHG/2vJabS48qCHW5gngK4Vjt2kei9UiWRdtvclVGhMMQdD6qoo0kw
-        ==
-X-ME-Sender: <xms:-lv-YPnVNFaTsvn3Uh9A_EjmVAZTcMzOVvM1toNdYaK1_wOWThEyag>
-    <xme:-lv-YC3tPqSjXF6gnb9rbGiMTqQULUYaM8lChtPv1SQ6N5Zj4SE6jOlozWRPV8ocX
-    lM28VEnapuOkg>
-X-ME-Received: <xmr:-lv-YFrCvRqhAIMQx8y2Nrxt8n_4iossrZ2In_j61BRIZiAvS_IR3kOL8pYaFXcIQlSHT-zl2R94V0t_ciRndaL52V9JwXum>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrgeeggddutdejucetufdoteggodetrfdotf
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:in-reply-to:message-id:mime-version:references
+        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm3; bh=JzhgFa7wAhuq5NfC2bG2do2m/BKCFKWYoy8V5ZRRa
+        q4=; b=ctPkjrh0kZ6rr3OMqav13P8XJiClmksad6QIXmI7f0w4shAtzHNoQ31V6
+        lEsyJ4isxdcUPqadNbmk41gtTZAhX+dFwCEx/bbiXSR9r3ZxhpUtQeK+J2ekTzZa
+        UbBR+FqRqrgt6eg1YaEMsSrdRiWBREkyzZd4sVOuodB/lkF0bCT75+IKIMVxctxI
+        8f2/cOX+hhZ1v9LkWfHFScU3nv7s2IZiBwebtEkq1Q4VNJSzxiOmAiJDT0DuyX6A
+        fMLLDnVySbjQF2d3cBl/3itNPN2O60Aaw5VKMP2dg5XS8C9w5gO0zHqEsSVmkKUn
+        Q12sMnwHwlL8sEH8E98G7pwhdVRTw==
+X-ME-Sender: <xms:sl3-YFQZNn9HMt_MiulUaG1Vr8cI_Q-mmi-IhpIPW6oh6xKFGdrLpw>
+    <xme:sl3-YOxcMD6Xpgy68vDg1TLcMA77-eAgwTQPi_VsXxK6Yclm1ExTj3qqbxvXFYwxi
+    gu7VfhKPKWGrj5Jisk>
+X-ME-Received: <xmr:sl3-YK3wAzesuVXLwwY_0CeDGJZI8pr1pSYMHkXa7Utqn640XqGgCjmJy5g2XXwTp77URjKFL_b1PDNXkW0B0yhNyo2E>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrgeeggddutdelucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeeuleeltd
-    ehkeeltefhleduuddvhfffuedvffduveegheekgeeiffevheegfeetgfenucffohhmrghi
-    nhepkhgvrhhnvghlrdhorhhgnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
-    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:-lv-YHkIRFsltABzdbtViZL19X-zvcHDkKgDOKZwP2-gLIFoAep-HA>
-    <xmx:-lv-YN0VZPXtCj1032wrBHW-HRDN0Nmy4RU7O3eQhtMOR1HO7Z1kHg>
-    <xmx:-lv-YGt55LV_m7WyUwmowZZcLebhKxsLmqwlfR1PH3aw11rItSufFA>
-    <xmx:-lv-YHqrV02_t-aw_m1N5GA117iqDeYSFSC8siSXAAkm0qJbd1wZGw>
+    cujfgurhepuffvfhfhkffffgggjggtgfesthekredttdeftfenucfhrhhomheplfhirgig
+    uhhnucgjrghnghcuoehjihgrgihunhdrhigrnhhgsehflhihghhorghtrdgtohhmqeenuc
+    ggtffrrghtthgvrhhnpeefleduiedtvdekffeggfeukeejgeeffeetlefghfekffeuteei
+    jeeghefhueffvdenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfh
+    hrohhmpehjihgrgihunhdrhigrnhhgsehflhihghhorghtrdgtohhm
+X-ME-Proxy: <xmx:sl3-YNBTSCEFgb4ICr78pJkz9_uD8WMyhNh_KyUq5gNvqn1NOCPmCw>
+    <xmx:sl3-YOhTHAdHaPMhTysTMBWtvj4EjiRZyCY7EDf03VdnGThZnYdt6A>
+    <xmx:sl3-YBrGOIXDcKnkR8Iz0BvlotqZOsQhYI1L2P4vqCOctXb3Z5jVGg>
+    <xmx:s13-YHVe9CWdR1Rl1RFGlD78tjXBVTWvKmiFy2hJh_l43dwdxlE94A>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 26 Jul 2021 02:53:45 -0400 (EDT)
-Date:   Mon, 26 Jul 2021 08:53:44 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc:     Sasha Levin <sashal@kernel.org>, Stable <stable@vger.kernel.org>,
-        stable-commits@vger.kernel.org
-Subject: Re: Patch "ACPI: utils: Fix reference counting in
- for_each_acpi_dev_match()" has been added to the 5.13-stable tree
-Message-ID: <YP5b+FrIhXUQ2KiQ@kroah.com>
-References: <20210726024441.16E8E60F11@mail.kernel.org>
- <CAHp75Vda-5ESLvnqVZEE_JRYr5k38gw0g-R650bNULf78d1t1w@mail.gmail.com>
+ 26 Jul 2021 03:01:01 -0400 (EDT)
+Subject: Re: [PATCH] Revert "MIPS: add PMD table accounting into
+ MIPS'pmd_alloc_one"
+To:     Huang Pei <huangpei@loongson.cn>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        ambrosehua@gmail.com
+Cc:     Bibo Mao <maobibo@loongson.cn>, stable@vger.kernel.org,
+        Li Xuefeng <lixuefeng@loongson.cn>,
+        Yang Tiezhu <yangtiezhu@loongson.cn>,
+        Gao Juxin <gaojuxin@loongson.cn>,
+        Huacai Chen <chenhuacai@loongson.cn>,
+        Jinyang He <hejinyang@loongson.cn>
+References: <20210726014837.68280-1-huangpei@loongson.cn>
+From:   Jiaxun Yang <jiaxun.yang@flygoat.com>
+Message-ID: <a4225543-a746-d9d1-0c93-27d83b695cc3@flygoat.com>
+Date:   Mon, 26 Jul 2021 15:00:59 +0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.12.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAHp75Vda-5ESLvnqVZEE_JRYr5k38gw0g-R650bNULf78d1t1w@mail.gmail.com>
+In-Reply-To: <20210726014837.68280-1-huangpei@loongson.cn>
+Content-Type: text/plain; charset=gbk; format=flowed
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jul 26, 2021 at 09:49:16AM +0300, Andy Shevchenko wrote:
-> On Mon, Jul 26, 2021 at 5:44 AM Sasha Levin <sashal@kernel.org> wrote:
-> >
-> > This is a note to let you know that I've just added the patch titled
-> >
-> >     ACPI: utils: Fix reference counting in for_each_acpi_dev_match()
-> >
-> > to the 5.13-stable tree which can be found at:
-> >     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
-> >
-> > The filename of the patch is:
-> >      acpi-utils-fix-reference-counting-in-for_each_acpi_d.patch
-> > and it can be found in the queue-5.13 subdirectory.
-> >
-> > If you, or anyone else, feels it should not be added to the stable tree,
-> > please let <stable@vger.kernel.org> know about it.
-> 
-> This has to be accompanied with
-> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=fc68f42aa737dc15e7665a4101d4168aadb8e4c4
 
-Now added, thanks.
 
-greg k-h
+ÔÚ 2021/7/26 ÉÏÎç9:48, Huang Pei Ð´µÀ:
+> This reverts commit 002d8b395fa1c0679fc3c3e68873de6c1cc300a2.
+>
+> b2b29d6d011944 (mm: account PMD tables like PTE tables) is
+> introduced between v5.9 and v5.10, so this fix should NOT
+> apply to any pre-5.10 branch
+
+Missing sign-off.
+
+Also I think you should make it clear that the patch is for stable in 
+subject
+(like [PATCH for stable]) and Cc stable folks like Greg to catch their 
+attention.
+
+Thanks.
+
+- Jiaxun
+
+> ---
+>   arch/mips/include/asm/pgalloc.h | 10 +++-------
+>   1 file changed, 3 insertions(+), 7 deletions(-)
+>
+> diff --git a/arch/mips/include/asm/pgalloc.h b/arch/mips/include/asm/pgalloc.h
+> index dd10854321ca..166842337eb2 100644
+> --- a/arch/mips/include/asm/pgalloc.h
+> +++ b/arch/mips/include/asm/pgalloc.h
+> @@ -62,15 +62,11 @@ do {							\
+>   
+>   static inline pmd_t *pmd_alloc_one(struct mm_struct *mm, unsigned long address)
+>   {
+> -	pmd_t *pmd = NULL;
+> -	struct page *pg;
+> +	pmd_t *pmd;
+>   
+> -	pg = alloc_pages(GFP_KERNEL | __GFP_ACCOUNT, PMD_ORDER);
+> -	if (pg) {
+> -		pgtable_pmd_page_ctor(pg);
+> -		pmd = (pmd_t *)page_address(pg);
+> +	pmd = (pmd_t *) __get_free_pages(GFP_KERNEL, PMD_ORDER);
+> +	if (pmd)
+>   		pmd_init((unsigned long)pmd, (unsigned long)invalid_pte_table);
+> -	}
+>   	return pmd;
+>   }
+>   
+
