@@ -2,44 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6039F3D5D90
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:43:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCE2D3D5E66
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:51:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235286AbhGZPCF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:02:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41482 "EHLO mail.kernel.org"
+        id S236273AbhGZPHa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:07:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235712AbhGZPCC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:02:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F60D60F38;
-        Mon, 26 Jul 2021 15:42:30 +0000 (UTC)
+        id S236322AbhGZPGy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:06:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1765A60F38;
+        Mon, 26 Jul 2021 15:47:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314151;
-        bh=GJEsyEFWDRfuRJhaHzFCGf+JMrkruI0bSdRTpe+Yqqc=;
+        s=korg; t=1627314442;
+        bh=5+cmeG2IgY/yCrm92xeczh+uJj71mqrquauPWx8TM1I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oLK/NlglE4XKkHSb6dQ9g18b1DwWU815WfrM6odh2Dx/tQ/E/1z1Fmg4hFv8pqtT1
-         JVAuWhgE3LfJmWJpU3qNJHE0dnlimuiFte58d4BjWJDbkKLcfVT/MoGKvmmjNTCD0u
-         vHWjNTPHUEIPPN6bKJu1VH3eY0yGPBtNLTMli5TY=
+        b=c5Oh/f6mPTZzYi9mPYMOLpA8sUPngtFXkf7C7rwODcetbWLFu6hvgNdWKsGorL7nR
+         DCq/HtsfbINR0OlDrPh6shNaawUED3HrQ0lc1AwKGH8e2woHh4rtk5mYum0pDc2BvO
+         57x7E/0hbmd8IaUqU6J/9R3C8wl6vaKZg6S6pEg0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Disseldorp <ddiss@suse.de>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
-        Marcelo Henrique Cerri <marcelo.cerri@canonical.com>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Michel Lespinasse <walken@google.com>,
-        Helge Deller <deller@gmx.de>, Oleg Nesterov <oleg@redhat.com>,
-        Lorenzo Stoakes <lstoakes@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Peter Hess <peter.hess@ph-home.de>,
+        Frank Wunderlich <frank-w@public-files.de>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 30/47] proc: Avoid mixing integer types in mem_rw()
+Subject: [PATCH 4.14 48/82] spi: mediatek: fix fifo rx mode
 Date:   Mon, 26 Jul 2021 17:38:48 +0200
-Message-Id: <20210726153823.934940637@linuxfoundation.org>
+Message-Id: <20210726153829.739012957@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153822.980271128@linuxfoundation.org>
-References: <20210726153822.980271128@linuxfoundation.org>
+In-Reply-To: <20210726153828.144714469@linuxfoundation.org>
+References: <20210726153828.144714469@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,50 +41,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcelo Henrique Cerri <marcelo.cerri@canonical.com>
+From: Peter Hess <peter.hess@ph-home.de>
 
-[ Upstream commit d238692b4b9f2c36e35af4c6e6f6da36184aeb3e ]
+[ Upstream commit 3a70dd2d050331ee4cf5ad9d5c0a32d83ead9a43 ]
 
-Use size_t when capping the count argument received by mem_rw(). Since
-count is size_t, using min_t(int, ...) can lead to a negative value
-that will later be passed to access_remote_vm(), which can cause
-unexpected behavior.
+In FIFO mode were two problems:
+- RX mode was never handled and
+- in this case the tx_buf pointer was NULL and caused an exception
 
-Since we are capping the value to at maximum PAGE_SIZE, the conversion
-from size_t to int when passing it to access_remote_vm() as "len"
-shouldn't be a problem.
+fix this by handling RX mode in mtk_spi_fifo_transfer
 
-Link: https://lkml.kernel.org/r/20210512125215.3348316-1-marcelo.cerri@canonical.com
-Reviewed-by: David Disseldorp <ddiss@suse.de>
-Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Signed-off-by: Marcelo Henrique Cerri <marcelo.cerri@canonical.com>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Souza Cascardo <cascardo@canonical.com>
-Cc: Christian Brauner <christian.brauner@ubuntu.com>
-Cc: Michel Lespinasse <walken@google.com>
-Cc: Helge Deller <deller@gmx.de>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: Lorenzo Stoakes <lstoakes@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: a568231f4632 ("spi: mediatek: Add spi bus for Mediatek MT8173")
+Signed-off-by: Peter Hess <peter.hess@ph-home.de>
+Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
+Link: https://lore.kernel.org/r/20210706121609.680534-1-linux@fw-web.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/proc/base.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/spi/spi-mt65xx.c | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
-diff --git a/fs/proc/base.c b/fs/proc/base.c
-index b1ff8eb61802..4d68f5a9e4aa 100644
---- a/fs/proc/base.c
-+++ b/fs/proc/base.c
-@@ -887,7 +887,7 @@ static ssize_t mem_rw(struct file *file, char __user *buf,
- 		flags |= FOLL_WRITE;
+diff --git a/drivers/spi/spi-mt65xx.c b/drivers/spi/spi-mt65xx.c
+index da28c52c9da1..e2b171057b3b 100644
+--- a/drivers/spi/spi-mt65xx.c
++++ b/drivers/spi/spi-mt65xx.c
+@@ -392,13 +392,23 @@ static int mtk_spi_fifo_transfer(struct spi_master *master,
+ 	mtk_spi_setup_packet(master);
  
- 	while (count > 0) {
--		int this_len = min_t(int, count, PAGE_SIZE);
-+		size_t this_len = min_t(size_t, count, PAGE_SIZE);
+ 	cnt = xfer->len / 4;
+-	iowrite32_rep(mdata->base + SPI_TX_DATA_REG, xfer->tx_buf, cnt);
++	if (xfer->tx_buf)
++		iowrite32_rep(mdata->base + SPI_TX_DATA_REG, xfer->tx_buf, cnt);
++
++	if (xfer->rx_buf)
++		ioread32_rep(mdata->base + SPI_RX_DATA_REG, xfer->rx_buf, cnt);
  
- 		if (write && copy_from_user(page, buf, this_len)) {
- 			copied = -EFAULT;
+ 	remainder = xfer->len % 4;
+ 	if (remainder > 0) {
+ 		reg_val = 0;
+-		memcpy(&reg_val, xfer->tx_buf + (cnt * 4), remainder);
+-		writel(reg_val, mdata->base + SPI_TX_DATA_REG);
++		if (xfer->tx_buf) {
++			memcpy(&reg_val, xfer->tx_buf + (cnt * 4), remainder);
++			writel(reg_val, mdata->base + SPI_TX_DATA_REG);
++		}
++		if (xfer->rx_buf) {
++			reg_val = readl(mdata->base + SPI_RX_DATA_REG);
++			memcpy(xfer->rx_buf + (cnt * 4), &reg_val, remainder);
++		}
+ 	}
+ 
+ 	mtk_spi_enable_transfer(master);
 -- 
 2.30.2
 
