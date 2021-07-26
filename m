@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A2F4E3D60EE
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:12:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 374BB3D6259
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:16:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237769AbhGZPZn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:25:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39946 "EHLO mail.kernel.org"
+        id S236638AbhGZPfk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:35:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51050 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238126AbhGZPYo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:24:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8BA8660EB2;
-        Mon, 26 Jul 2021 16:05:11 +0000 (UTC)
+        id S234170AbhGZPdz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:33:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ADCAF60F5D;
+        Mon, 26 Jul 2021 16:14:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315512;
-        bh=MhuSh+hGIm0iv964cFkJCoDhLfzTxleeVvMgNXQo5y0=;
+        s=korg; t=1627316049;
+        bh=Sk9ESvFqQXzqMJEwSDYDELk/U/zXa6XKevWibCeGais=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MPOgosWIV7w+Z8dZJHx0bSGMckdKvUyZdlhu4WwjaWFM1dChNjBoU/0tFslSIL+Eu
-         7c3sQ2nTOVXALGVFHHtw4q6/1rBYwL+dqCOhC9/V8h8a5MXxCcg9IIA6uGc+8F/oX5
-         gd3RoXZ69q6qRzYH95lpj8YgBtayMWMIEK8a0rfY=
+        b=RS9uoXavAiYogsiEbcLVoC2WP3APmPdn18t5DSOvErN7YNemKn71fjVMP03mpuXYR
+         TsrtrBdY9daAseyt7YPTkOGSR9ZwFBCkMcKChbp7QQi+ESpVC8kjtHI6J2NOUGxyBG
+         RDMt8PW7IOE8i+y+pWCn750p+FgkjeBft/1xJoGE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marco De Marco <marco.demarco@posteo.net>,
+        stable@vger.kernel.org, John Keeping <john@metanate.com>,
         Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.10 126/167] USB: serial: option: add support for u-blox LARA-R6 family
-Date:   Mon, 26 Jul 2021 17:39:19 +0200
-Message-Id: <20210726153843.627986067@linuxfoundation.org>
+Subject: [PATCH 5.13 168/223] USB: serial: cp210x: add ID for CEL EM3588 USB ZigBee stick
+Date:   Mon, 26 Jul 2021 17:39:20 +0200
+Message-Id: <20210726153851.703398421@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
-References: <20210726153839.371771838@linuxfoundation.org>
+In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
+References: <20210726153846.245305071@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,49 +39,29 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco De Marco <marco.demarco@posteo.net>
+From: John Keeping <john@metanate.com>
 
-commit 94b619a07655805a1622484967754f5848640456 upstream.
+commit d6a206e60124a9759dd7f6dfb86b0e1d3b1df82e upstream.
 
-The patch is meant to support LARA-R6 Cat 1 module family.
+Add the USB serial device ID for the CEL ZigBee EM3588 radio stick.
 
-Module USB ID:
-Vendor  ID: 0x05c6
-Product ID: 0x90fA
-
-Interface layout:
-If 0: Diagnostic
-If 1: AT parser
-If 2: AT parser
-If 3: QMI wwan (not available in all versions)
-
-Signed-off-by: Marco De Marco <marco.demarco@posteo.net>
-Link: https://lore.kernel.org/r/49260184.kfMIbaSn9k@mars
+Signed-off-by: John Keeping <john@metanate.com>
 Cc: stable@vger.kernel.org
 Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/serial/cp210x.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -238,6 +238,7 @@ static void option_instat_callback(struc
- #define QUECTEL_PRODUCT_UC15			0x9090
- /* These u-blox products use Qualcomm's vendor ID */
- #define UBLOX_PRODUCT_R410M			0x90b2
-+#define UBLOX_PRODUCT_R6XX			0x90fa
- /* These Yuga products use Qualcomm's vendor ID */
- #define YUGA_PRODUCT_CLM920_NC5			0x9625
- 
-@@ -1101,6 +1102,8 @@ static const struct usb_device_id option
- 	/* u-blox products using Qualcomm vendor ID */
- 	{ USB_DEVICE(QUALCOMM_VENDOR_ID, UBLOX_PRODUCT_R410M),
- 	  .driver_info = RSVD(1) | RSVD(3) },
-+	{ USB_DEVICE(QUALCOMM_VENDOR_ID, UBLOX_PRODUCT_R6XX),
-+	  .driver_info = RSVD(3) },
- 	/* Quectel products using Quectel vendor ID */
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC21, 0xff, 0xff, 0xff),
- 	  .driver_info = NUMEP2 },
+--- a/drivers/usb/serial/cp210x.c
++++ b/drivers/usb/serial/cp210x.c
+@@ -155,6 +155,7 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(0x10C4, 0x89A4) }, /* CESINEL FTBC Flexible Thyristor Bridge Controller */
+ 	{ USB_DEVICE(0x10C4, 0x89FB) }, /* Qivicon ZigBee USB Radio Stick */
+ 	{ USB_DEVICE(0x10C4, 0x8A2A) }, /* HubZ dual ZigBee and Z-Wave dongle */
++	{ USB_DEVICE(0x10C4, 0x8A5B) }, /* CEL EM3588 ZigBee USB Stick */
+ 	{ USB_DEVICE(0x10C4, 0x8A5E) }, /* CEL EM3588 ZigBee USB Stick Long Range */
+ 	{ USB_DEVICE(0x10C4, 0x8B34) }, /* Qivicon ZigBee USB Radio Stick */
+ 	{ USB_DEVICE(0x10C4, 0xEA60) }, /* Silicon Labs factory default */
 
 
