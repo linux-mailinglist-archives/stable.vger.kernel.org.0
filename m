@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A8F173D5DBA
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:44:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6039F3D5D90
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:43:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235522AbhGZPDY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:03:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42846 "EHLO mail.kernel.org"
+        id S235286AbhGZPCF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:02:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235576AbhGZPDX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:03:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F77B60F22;
-        Mon, 26 Jul 2021 15:43:51 +0000 (UTC)
+        id S235712AbhGZPCC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:02:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F60D60F38;
+        Mon, 26 Jul 2021 15:42:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314231;
-        bh=JgFSzR8rP3C8322YB7qcrEYYs9pwpwb87AW+G1SjcIs=;
+        s=korg; t=1627314151;
+        bh=GJEsyEFWDRfuRJhaHzFCGf+JMrkruI0bSdRTpe+Yqqc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MfpmrkUPH6QdwPXp/esLV01KNIq3LX3f7QKnrDL+sDajrGpc/bu7OTPW2wg1MYG8s
-         xWFgtQxlS75XpOsdbC+6/6YSYL5wLBtwEUCzS7ypbyzj/L0C3vE/zWdhuIqzhVafBi
-         wkEQlxnAoG0gAuEWqpwD9V9xUMECjjnmTyovhgDw=
+        b=oLK/NlglE4XKkHSb6dQ9g18b1DwWU815WfrM6odh2Dx/tQ/E/1z1Fmg4hFv8pqtT1
+         JVAuWhgE3LfJmWJpU3qNJHE0dnlimuiFte58d4BjWJDbkKLcfVT/MoGKvmmjNTCD0u
+         vHWjNTPHUEIPPN6bKJu1VH3eY0yGPBtNLTMli5TY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Riccardo Mancini <rickyman7@gmail.com>,
-        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, David Disseldorp <ddiss@suse.de>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+        Marcelo Henrique Cerri <marcelo.cerri@canonical.com>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Michel Lespinasse <walken@google.com>,
+        Helge Deller <deller@gmx.de>, Oleg Nesterov <oleg@redhat.com>,
+        Lorenzo Stoakes <lstoakes@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 33/60] perf probe-file: Delete namelist in del_events() on the error path
-Date:   Mon, 26 Jul 2021 17:38:47 +0200
-Message-Id: <20210726153825.908914662@linuxfoundation.org>
+Subject: [PATCH 4.4 30/47] proc: Avoid mixing integer types in mem_rw()
+Date:   Mon, 26 Jul 2021 17:38:48 +0200
+Message-Id: <20210726153823.934940637@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153824.868160836@linuxfoundation.org>
-References: <20210726153824.868160836@linuxfoundation.org>
+In-Reply-To: <20210726153822.980271128@linuxfoundation.org>
+References: <20210726153822.980271128@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +48,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Riccardo Mancini <rickyman7@gmail.com>
+From: Marcelo Henrique Cerri <marcelo.cerri@canonical.com>
 
-[ Upstream commit e0fa7ab42232e742dcb3de9f3c1f6127b5adc019 ]
+[ Upstream commit d238692b4b9f2c36e35af4c6e6f6da36184aeb3e ]
 
-ASan reports some memory leaks when running:
+Use size_t when capping the count argument received by mem_rw(). Since
+count is size_t, using min_t(int, ...) can lead to a negative value
+that will later be passed to access_remote_vm(), which can cause
+unexpected behavior.
 
-  # perf test "42: BPF filter"
+Since we are capping the value to at maximum PAGE_SIZE, the conversion
+from size_t to int when passing it to access_remote_vm() as "len"
+shouldn't be a problem.
 
-This second leak is caused by a strlist not being dellocated on error
-inside probe_file__del_events.
-
-This patch adds a goto label before the deallocation and makes the error
-path jump to it.
-
-Signed-off-by: Riccardo Mancini <rickyman7@gmail.com>
-Fixes: e7895e422e4da63d ("perf probe: Split del_perf_probe_events()")
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/174963c587ae77fa108af794669998e4ae558338.1626343282.git.rickyman7@gmail.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Link: https://lkml.kernel.org/r/20210512125215.3348316-1-marcelo.cerri@canonical.com
+Reviewed-by: David Disseldorp <ddiss@suse.de>
+Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Signed-off-by: Marcelo Henrique Cerri <marcelo.cerri@canonical.com>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Souza Cascardo <cascardo@canonical.com>
+Cc: Christian Brauner <christian.brauner@ubuntu.com>
+Cc: Michel Lespinasse <walken@google.com>
+Cc: Helge Deller <deller@gmx.de>
+Cc: Oleg Nesterov <oleg@redhat.com>
+Cc: Lorenzo Stoakes <lstoakes@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/probe-file.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/proc/base.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/perf/util/probe-file.c b/tools/perf/util/probe-file.c
-index b9507a8d0e30..293df9409afa 100644
---- a/tools/perf/util/probe-file.c
-+++ b/tools/perf/util/probe-file.c
-@@ -334,11 +334,11 @@ int probe_file__del_events(int fd, struct strfilter *filter)
+diff --git a/fs/proc/base.c b/fs/proc/base.c
+index b1ff8eb61802..4d68f5a9e4aa 100644
+--- a/fs/proc/base.c
++++ b/fs/proc/base.c
+@@ -887,7 +887,7 @@ static ssize_t mem_rw(struct file *file, char __user *buf,
+ 		flags |= FOLL_WRITE;
  
- 	ret = probe_file__get_events(fd, filter, namelist);
- 	if (ret < 0)
--		return ret;
-+		goto out;
+ 	while (count > 0) {
+-		int this_len = min_t(int, count, PAGE_SIZE);
++		size_t this_len = min_t(size_t, count, PAGE_SIZE);
  
- 	ret = probe_file__del_strlist(fd, namelist);
-+out:
- 	strlist__delete(namelist);
--
- 	return ret;
- }
- 
+ 		if (write && copy_from_user(page, buf, this_len)) {
+ 			copied = -EFAULT;
 -- 
 2.30.2
 
