@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 57A183D61B2
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:14:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 472443D6144
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:13:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233763AbhGZPci (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:32:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42756 "EHLO mail.kernel.org"
+        id S232035AbhGZPaa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:30:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41172 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236791AbhGZP3K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:29:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 183CE60FF3;
-        Mon, 26 Jul 2021 16:07:33 +0000 (UTC)
+        id S237271AbhGZP3O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:29:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8712160F5B;
+        Mon, 26 Jul 2021 16:07:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315654;
-        bh=VGyoVYkRzIp27UeMvuqYUiTyiwLx8aO8kbggpO6HfO0=;
+        s=korg; t=1627315657;
+        bh=ZuvLrbl9+q3AhrYX1NL01Ptc7NzkNldscm5S8HPliPQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vm0sqDM8aPZeOqP0CTijW9DVd1CUVKalWJBreT6nQI+vJvseJO4+tZYGbu/m+jguF
-         kmvF+kMivyV1C7sDD0UtH8vK4fMr9n+9GbrZF/xX+7P1Xqeg+XVqRVeakmFKz5cdOZ
-         H7qvUU8bfyjYnYKJd9vxGmJzVD+Id2WZ4jisul4A=
+        b=TK9N4zSZlRuBU31/EEVav288LmG258Kf5ywj7MLYAj2w0A+ve7nZVVl75TOr90QBw
+         92/V1PzraoJp2siPnPyjF6HXNEQkf1OLcMjQkntBrafa5EnKgyopW4n6ISEmqY1B5k
+         RKw3Kk7yTkBfkxKpesB1FkPQLc/K7GNbi9ft6HzE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wang Hai <wanghai38@huawei.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Magnus Karlsson <magnus.karlsson@intel.com>,
-        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
+        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 014/223] bpf, samples: Fix xdpsock with -M parameter missing unload process
-Date:   Mon, 26 Jul 2021 17:36:46 +0200
-Message-Id: <20210726153846.727497218@linuxfoundation.org>
+Subject: [PATCH 5.13 015/223] bonding: fix suspicious RCU usage in bond_ipsec_add_sa()
+Date:   Mon, 26 Jul 2021 17:36:47 +0200
+Message-Id: <20210726153846.759341503@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
 References: <20210726153846.245305071@linuxfoundation.org>
@@ -42,104 +40,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Taehee Yoo <ap420073@gmail.com>
 
-[ Upstream commit 2620e92ae6ed83260eb46d214554cd308ee35d92 ]
+[ Upstream commit b648eba4c69e5819880b4907e7fcb2bb576069ab ]
 
-Execute the following command and exit, then execute it again, the following
-error will be reported:
+To dereference bond->curr_active_slave, it uses rcu_dereference().
+But it and the caller doesn't acquire RCU so a warning occurs.
+So add rcu_read_lock().
 
-  $ sudo ./samples/bpf/xdpsock -i ens4f2 -M
-  ^C
-  $ sudo ./samples/bpf/xdpsock -i ens4f2 -M
-  libbpf: elf: skipping unrecognized data section(16) .eh_frame
-  libbpf: elf: skipping relo section(17) .rel.eh_frame for section(16) .eh_frame
-  libbpf: Kernel error message: XDP program already attached
-  ERROR: link set xdp fd failed
+Test commands:
+    ip link add dummy0 type dummy
+    ip link add bond0 type bond
+    ip link set dummy0 master bond0
+    ip link set dummy0 up
+    ip link set bond0 up
+    ip x s add proto esp dst 14.1.1.1 src 15.1.1.1 spi 0x07 \
+	    mode transport \
+	    reqid 0x07 replay-window 32 aead 'rfc4106(gcm(aes))' \
+	    0x44434241343332312423222114131211f4f3f2f1 128 sel \
+	    src 14.0.0.52/24 dst 14.0.0.70/24 proto tcp offload \
+	    dev bond0 dir in
 
-Commit c9d27c9e8dc7 ("samples: bpf: Do not unload prog within xdpsock") removed
-the unloading prog code because of the presence of bpf_link. This is fine if
-XDP_SHARED_UMEM is disabled, but if it is enabled, unloading the prog is still
-needed.
+Splat looks like:
+=============================
+WARNING: suspicious RCU usage
+5.13.0-rc3+ #1168 Not tainted
+-----------------------------
+drivers/net/bonding/bond_main.c:411 suspicious rcu_dereference_check() usage!
 
-Fixes: c9d27c9e8dc7 ("samples: bpf: Do not unload prog within xdpsock")
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Magnus Karlsson <magnus.karlsson@intel.com>
-Cc: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Link: https://lore.kernel.org/bpf/20210628091815.2373487-1-wanghai38@huawei.com
+other info that might help us debug this:
+
+rcu_scheduler_active = 2, debug_locks = 1
+1 lock held by ip/684:
+ #0: ffffffff9a2757c0 (&net->xfrm.xfrm_cfg_mutex){+.+.}-{3:3},
+at: xfrm_netlink_rcv+0x59/0x80 [xfrm_user]
+   55.191733][  T684] stack backtrace:
+CPU: 0 PID: 684 Comm: ip Not tainted 5.13.0-rc3+ #1168
+Call Trace:
+ dump_stack+0xa4/0xe5
+ bond_ipsec_add_sa+0x18c/0x1f0 [bonding]
+ xfrm_dev_state_add+0x2a9/0x770
+ ? memcpy+0x38/0x60
+ xfrm_add_sa+0x2278/0x3b10 [xfrm_user]
+ ? xfrm_get_policy+0xaa0/0xaa0 [xfrm_user]
+ ? register_lock_class+0x1750/0x1750
+ xfrm_user_rcv_msg+0x331/0x660 [xfrm_user]
+ ? rcu_read_lock_sched_held+0x91/0xc0
+ ? xfrm_user_state_lookup.constprop.39+0x320/0x320 [xfrm_user]
+ ? find_held_lock+0x3a/0x1c0
+ ? mutex_lock_io_nested+0x1210/0x1210
+ ? sched_clock_cpu+0x18/0x170
+ netlink_rcv_skb+0x121/0x350
+ ? xfrm_user_state_lookup.constprop.39+0x320/0x320 [xfrm_user]
+ ? netlink_ack+0x9d0/0x9d0
+ ? netlink_deliver_tap+0x17c/0xa50
+ xfrm_netlink_rcv+0x68/0x80 [xfrm_user]
+ netlink_unicast+0x41c/0x610
+ ? netlink_attachskb+0x710/0x710
+ netlink_sendmsg+0x6b9/0xb70
+[ ... ]
+
+Fixes: 18cb261afd7b ("bonding: support hardware encryption offload to slaves")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- samples/bpf/xdpsock_user.c | 28 ++++++++++++++++++++++++++++
- 1 file changed, 28 insertions(+)
+ drivers/net/bonding/bond_main.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/samples/bpf/xdpsock_user.c b/samples/bpf/xdpsock_user.c
-index 53e300f860bb..33d0bdebbed8 100644
---- a/samples/bpf/xdpsock_user.c
-+++ b/samples/bpf/xdpsock_user.c
-@@ -96,6 +96,7 @@ static int opt_xsk_frame_size = XSK_UMEM__DEFAULT_FRAME_SIZE;
- static int opt_timeout = 1000;
- static bool opt_need_wakeup = true;
- static u32 opt_num_xsks = 1;
-+static u32 prog_id;
- static bool opt_busy_poll;
- static bool opt_reduced_cap;
+diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
+index c5a646d06102..026f4511bf7b 100644
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -403,10 +403,12 @@ static int bond_ipsec_add_sa(struct xfrm_state *xs)
+ 	struct net_device *bond_dev = xs->xso.dev;
+ 	struct bonding *bond;
+ 	struct slave *slave;
++	int err;
  
-@@ -461,6 +462,23 @@ static void *poller(void *arg)
- 	return NULL;
- }
+ 	if (!bond_dev)
+ 		return -EINVAL;
  
-+static void remove_xdp_program(void)
-+{
-+	u32 curr_prog_id = 0;
-+
-+	if (bpf_get_link_xdp_id(opt_ifindex, &curr_prog_id, opt_xdp_flags)) {
-+		printf("bpf_get_link_xdp_id failed\n");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	if (prog_id == curr_prog_id)
-+		bpf_set_link_xdp_fd(opt_ifindex, -1, opt_xdp_flags);
-+	else if (!curr_prog_id)
-+		printf("couldn't find a prog id on a given interface\n");
-+	else
-+		printf("program on interface changed, not removing\n");
-+}
-+
- static void int_exit(int sig)
- {
- 	benchmark_done = true;
-@@ -471,6 +489,9 @@ static void __exit_with_error(int error, const char *file, const char *func,
- {
- 	fprintf(stderr, "%s:%s:%i: errno: %d/\"%s\"\n", file, func,
- 		line, error, strerror(error));
-+
-+	if (opt_num_xsks > 1)
-+		remove_xdp_program();
- 	exit(EXIT_FAILURE);
- }
- 
-@@ -490,6 +511,9 @@ static void xdpsock_cleanup(void)
- 		if (write(sock, &cmd, sizeof(int)) < 0)
- 			exit_with_error(errno);
++	rcu_read_lock();
+ 	bond = netdev_priv(bond_dev);
+ 	slave = rcu_dereference(bond->curr_active_slave);
+ 	xs->xso.real_dev = slave->dev;
+@@ -415,10 +417,13 @@ static int bond_ipsec_add_sa(struct xfrm_state *xs)
+ 	if (!(slave->dev->xfrmdev_ops
+ 	      && slave->dev->xfrmdev_ops->xdo_dev_state_add)) {
+ 		slave_warn(bond_dev, slave->dev, "Slave does not support ipsec offload\n");
++		rcu_read_unlock();
+ 		return -EINVAL;
  	}
-+
-+	if (opt_num_xsks > 1)
-+		remove_xdp_program();
+ 
+-	return slave->dev->xfrmdev_ops->xdo_dev_state_add(xs);
++	err = slave->dev->xfrmdev_ops->xdo_dev_state_add(xs);
++	rcu_read_unlock();
++	return err;
  }
  
- static void swap_mac_addresses(void *data)
-@@ -857,6 +881,10 @@ static struct xsk_socket_info *xsk_configure_socket(struct xsk_umem_info *umem,
- 	if (ret)
- 		exit_with_error(-ret);
- 
-+	ret = bpf_get_link_xdp_id(opt_ifindex, &prog_id, opt_xdp_flags);
-+	if (ret)
-+		exit_with_error(-ret);
-+
- 	xsk->app_stats.rx_empty_polls = 0;
- 	xsk->app_stats.fill_fail_polls = 0;
- 	xsk->app_stats.copy_tx_sendtos = 0;
+ /**
 -- 
 2.30.2
 
