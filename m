@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 977A23D625E
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:16:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDCCC3D60FD
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:12:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236987AbhGZPfp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:35:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51414 "EHLO mail.kernel.org"
+        id S237268AbhGZPZz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:25:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235745AbhGZPeM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:34:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EDC6E60C40;
-        Mon, 26 Jul 2021 16:14:39 +0000 (UTC)
+        id S238283AbhGZPZQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:25:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ECD2860F6F;
+        Mon, 26 Jul 2021 16:05:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627316080;
-        bh=HsI9C9xO4XtisVSrq0Xr0qDnn5iO/q43BQljXyTcnMs=;
+        s=korg; t=1627315545;
+        bh=iiFcrwkag096fgFLgtK8cmjFLNRQEhaWAkqC3CF0dko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pVFg96EiDx4OI2aA4PGeTPHsYV72M4jS9AL68BfEVp6JnbRgs1GsxFaqmWX6/XlOZ
-         lM/qy5iQGP6rKtbNeWgh10KuBkTVAtZ0D8yV3XebQl7+k7j7lCAVh4WJ5Ucx03ZXiX
-         9QCNLfskGo4sdK2V4a8U7GSmE+bSCiXRP3oVv4pY=
+        b=Cpr/8qGnLg5RxRyhnIGNJjJwK0sjGIdueT5CjR/o7Etn4ToS21E5S03Y9Y/t8Poi7
+         STcn/JTu62xdlnRPupxGPZXB5VA9LTG90pLr0kZuKKfemfoZ1YIJhdpzfUnkMQ/k9i
+         I0qDeI3EC39j2DcOripi50GmQmPyoOON2rznVijs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linuxfoundation.org>,
-        Haoran Luo <www@aegistudio.net>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.13 179/223] tracing: Fix bug in rb_per_cpu_empty() that might cause deadloop.
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        Anand Jain <anand.jain@oracle.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.10 138/167] btrfs: check for missing device in btrfs_trim_fs
 Date:   Mon, 26 Jul 2021 17:39:31 +0200
-Message-Id: <20210726153852.055008166@linuxfoundation.org>
+Message-Id: <20210726153844.016336764@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
-References: <20210726153846.245305071@linuxfoundation.org>
+In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
+References: <20210726153839.371771838@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,102 +40,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haoran Luo <www@aegistudio.net>
+From: Anand Jain <anand.jain@oracle.com>
 
-commit 67f0d6d9883c13174669f88adac4f0ee656cc16a upstream.
+commit 16a200f66ede3f9afa2e51d90ade017aaa18d213 upstream.
 
-The "rb_per_cpu_empty()" misinterpret the condition (as not-empty) when
-"head_page" and "commit_page" of "struct ring_buffer_per_cpu" points to
-the same buffer page, whose "buffer_data_page" is empty and "read" field
-is non-zero.
+A fstrim on a degraded raid1 can trigger the following null pointer
+dereference:
 
-An error scenario could be constructed as followed (kernel perspective):
+  BTRFS info (device loop0): allowing degraded mounts
+  BTRFS info (device loop0): disk space caching is enabled
+  BTRFS info (device loop0): has skinny extents
+  BTRFS warning (device loop0): devid 2 uuid 97ac16f7-e14d-4db1-95bc-3d489b424adb is missing
+  BTRFS warning (device loop0): devid 2 uuid 97ac16f7-e14d-4db1-95bc-3d489b424adb is missing
+  BTRFS info (device loop0): enabling ssd optimizations
+  BUG: kernel NULL pointer dereference, address: 0000000000000620
+  PGD 0 P4D 0
+  Oops: 0000 [#1] SMP NOPTI
+  CPU: 0 PID: 4574 Comm: fstrim Not tainted 5.13.0-rc7+ #31
+  Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
+  RIP: 0010:btrfs_trim_fs+0x199/0x4a0 [btrfs]
+  RSP: 0018:ffff959541797d28 EFLAGS: 00010293
+  RAX: 0000000000000000 RBX: ffff946f84eca508 RCX: a7a67937adff8608
+  RDX: ffff946e8122d000 RSI: 0000000000000000 RDI: ffffffffc02fdbf0
+  RBP: ffff946ea4615000 R08: 0000000000000001 R09: 0000000000000000
+  R10: 0000000000000000 R11: ffff946e8122d960 R12: 0000000000000000
+  R13: ffff959541797db8 R14: ffff946e8122d000 R15: ffff959541797db8
+  FS:  00007f55917a5080(0000) GS:ffff946f9bc00000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 0000000000000620 CR3: 000000002d2c8001 CR4: 00000000000706f0
+  Call Trace:
+  btrfs_ioctl_fitrim+0x167/0x260 [btrfs]
+  btrfs_ioctl+0x1c00/0x2fe0 [btrfs]
+  ? selinux_file_ioctl+0x140/0x240
+  ? syscall_trace_enter.constprop.0+0x188/0x240
+  ? __x64_sys_ioctl+0x83/0xb0
+  __x64_sys_ioctl+0x83/0xb0
 
-1. All pages in the buffer has been accessed by reader(s) so that all of
-them will have non-zero "read" field.
+Reproducer:
 
-2. Read and clear all buffer pages so that "rb_num_of_entries()" will
-return 0 rendering there's no more data to read. It is also required
-that the "read_page", "commit_page" and "tail_page" points to the same
-page, while "head_page" is the next page of them.
+  $ mkfs.btrfs -fq -d raid1 -m raid1 /dev/loop0 /dev/loop1
+  $ mount /dev/loop0 /btrfs
+  $ umount /btrfs
+  $ btrfs dev scan --forget
+  $ mount -o degraded /dev/loop0 /btrfs
 
-3. Invoke "ring_buffer_lock_reserve()" with large enough "length"
-so that it shot pass the end of current tail buffer page. Now the
-"head_page", "commit_page" and "tail_page" points to the same page.
+  $ fstrim /btrfs
 
-4. Discard current event with "ring_buffer_discard_commit()", so that
-"head_page", "commit_page" and "tail_page" points to a page whose buffer
-data page is now empty.
+The reason is we call btrfs_trim_free_extents() for the missing device,
+which uses device->bdev (NULL for missing device) to find if the device
+supports discard.
 
-When the error scenario has been constructed, "tracing_read_pipe" will
-be trapped inside a deadloop: "trace_empty()" returns 0 since
-"rb_per_cpu_empty()" returns 0 when it hits the CPU containing such
-constructed ring buffer. Then "trace_find_next_entry_inc()" always
-return NULL since "rb_num_of_entries()" reports there's no more entry
-to read. Finally "trace_seq_to_user()" returns "-EBUSY" spanking
-"tracing_read_pipe" back to the start of the "waitagain" loop.
+Fix is to check if the device is missing before calling
+btrfs_trim_free_extents().
 
-I've also written a proof-of-concept script to construct the scenario
-and trigger the bug automatically, you can use it to trace and validate
-my reasoning above:
-
-  https://github.com/aegistudio/RingBufferDetonator.git
-
-Tests has been carried out on linux kernel 5.14-rc2
-(2734d6c1b1a089fb593ef6a23d4b70903526fe0c), my fixed version
-of kernel (for testing whether my update fixes the bug) and
-some older kernels (for range of affected kernels). Test result is
-also attached to the proof-of-concept repository.
-
-Link: https://lore.kernel.org/linux-trace-devel/YPaNxsIlb2yjSi5Y@aegistudio/
-Link: https://lore.kernel.org/linux-trace-devel/YPgrN85WL9VyrZ55@aegistudio
-
-Cc: stable@vger.kernel.org
-Fixes: bf41a158cacba ("ring-buffer: make reentrant")
-Suggested-by: Linus Torvalds <torvalds@linuxfoundation.org>
-Signed-off-by: Haoran Luo <www@aegistudio.net>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+CC: stable@vger.kernel.org # 5.4+
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Anand Jain <anand.jain@oracle.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/ring_buffer.c |   28 ++++++++++++++++++++++++----
- 1 file changed, 24 insertions(+), 4 deletions(-)
+ fs/btrfs/extent-tree.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/kernel/trace/ring_buffer.c
-+++ b/kernel/trace/ring_buffer.c
-@@ -3880,10 +3880,30 @@ static bool rb_per_cpu_empty(struct ring
- 	if (unlikely(!head))
- 		return true;
- 
--	return reader->read == rb_page_commit(reader) &&
--		(commit == reader ||
--		 (commit == head &&
--		  head->read == rb_page_commit(commit)));
-+	/* Reader should exhaust content in reader page */
-+	if (reader->read != rb_page_commit(reader))
-+		return false;
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -5883,6 +5883,9 @@ int btrfs_trim_fs(struct btrfs_fs_info *
+ 	mutex_lock(&fs_info->fs_devices->device_list_mutex);
+ 	devices = &fs_info->fs_devices->devices;
+ 	list_for_each_entry(device, devices, dev_list) {
++		if (test_bit(BTRFS_DEV_STATE_MISSING, &device->dev_state))
++			continue;
 +
-+	/*
-+	 * If writers are committing on the reader page, knowing all
-+	 * committed content has been read, the ring buffer is empty.
-+	 */
-+	if (commit == reader)
-+		return true;
-+
-+	/*
-+	 * If writers are committing on a page other than reader page
-+	 * and head page, there should always be content to read.
-+	 */
-+	if (commit != head)
-+		return false;
-+
-+	/*
-+	 * Writers are committing on the head page, we just need
-+	 * to care about there're committed data, and the reader will
-+	 * swap reader page with head page when it is to read data.
-+	 */
-+	return rb_page_commit(commit) == 0;
- }
- 
- /**
+ 		ret = btrfs_trim_free_extents(device, &group_trimmed);
+ 		if (ret) {
+ 			dev_failed++;
 
 
