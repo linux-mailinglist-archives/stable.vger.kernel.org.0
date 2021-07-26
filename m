@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09CBC3D5FB6
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E9E73D5EA3
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:51:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236167AbhGZPS6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:18:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57650 "EHLO mail.kernel.org"
+        id S236381AbhGZPK4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:10:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49364 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236774AbhGZPRf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:17:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 18D3B6056C;
-        Mon, 26 Jul 2021 15:57:57 +0000 (UTC)
+        id S236354AbhGZPIA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:08:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 06E9560F9B;
+        Mon, 26 Jul 2021 15:48:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315078;
-        bh=x+PUCBJxmnk3e05PAnVy5nB5k+m4fLcOSwsQJSGP+7I=;
+        s=korg; t=1627314508;
+        bh=auDwRLwTVCHo8yYe7iehfT/XxyLq4c0X3GuENH/smVI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=if2tV2PhPfInIyUobylaE2AWzHYM3hTm0tGCd1M5FLfspNl7j8ERgaeqfjkmhlTB2
-         1OBMlq/s0g4W8ZhamsueTLE5wYS5JgZNuyCMvh9ZUXKUnfXZG6EZdXZfS9KVKzrYjR
-         tspb8qavSB4n4BTgKfRzd8329dd4xniiTBE5jRgI=
+        b=1BVJ1RlPw5zim69b/Mdr0pcW4H6I4T50QCSTA+ZMXAPrUp4Rt9fw6hqQF3U7YEulq
+         Wgb873K+BtyctlmqAfIGTJFYL5wCDUYIQdeeXnJuofO4jDtmYGXnrvdekTF+vYfsw/
+         83lDitIyNxO/282KkrbXf+ZZKsIvVu7ua9HeVN8Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jakub=20Fi=C5=A1er?= <jakub@ufiseru.cz>,
-        Alexander Tsoy <alexander@tsoy.me>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 073/108] ALSA: usb-audio: Add registration quirk for JBL Quantum headsets
+        stable@vger.kernel.org, Markus Boehme <markubo@amazon.com>,
+        Tony Brelinski <tonyx.brelinski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 74/82] ixgbe: Fix packet corruption due to missing DMA sync
 Date:   Mon, 26 Jul 2021 17:39:14 +0200
-Message-Id: <20210726153834.025169625@linuxfoundation.org>
+Message-Id: <20210726153830.581847662@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
-References: <20210726153831.696295003@linuxfoundation.org>
+In-Reply-To: <20210726153828.144714469@linuxfoundation.org>
+References: <20210726153828.144714469@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,35 +41,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Tsoy <alexander@tsoy.me>
+From: Markus Boehme <markubo@amazon.com>
 
-commit b0084afde27fe8a504377dee65f55bc6aa776937 upstream.
+commit 09cfae9f13d51700b0fecf591dcd658fc5375428 upstream.
 
-These devices has two interfaces, but only the second interface
-contains the capture endpoint, thus quirk is required to delay the
-registration until the second interface appears.
+When receiving a packet with multiple fragments, hardware may still
+touch the first fragment until the entire packet has been received. The
+driver therefore keeps the first fragment mapped for DMA until end of
+packet has been asserted, and delays its dma_sync call until then.
 
-Tested-by: Jakub Fišer <jakub@ufiseru.cz>
-Signed-off-by: Alexander Tsoy <alexander@tsoy.me>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210721235605.53741-1-alexander@tsoy.me
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+The driver tries to fit multiple receive buffers on one page. When using
+3K receive buffers (e.g. using Jumbo frames and legacy-rx is turned
+off/build_skb is being used) on an architecture with 4K pages, the
+driver allocates an order 1 compound page and uses one page per receive
+buffer. To determine the correct offset for a delayed DMA sync of the
+first fragment of a multi-fragment packet, the driver then cannot just
+use PAGE_MASK on the DMA address but has to construct a mask based on
+the actual size of the backing page.
+
+Using PAGE_MASK in the 3K RX buffer/4K page architecture configuration
+will always sync the first page of a compound page. With the SWIOTLB
+enabled this can lead to corrupted packets (zeroed out first fragment,
+re-used garbage from another packet) and various consequences, such as
+slow/stalling data transfers and connection resets. For example, testing
+on a link with MTU exceeding 3058 bytes on a host with SWIOTLB enabled
+(e.g. "iommu=soft swiotlb=262144,force") TCP transfers quickly fizzle
+out without this patch.
+
+Cc: stable@vger.kernel.org
+Fixes: 0c5661ecc5dd7 ("ixgbe: fix crash in build_skb Rx code path")
+Signed-off-by: Markus Boehme <markubo@amazon.com>
+Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/quirks.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/intel/ixgbe/ixgbe_main.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -1840,6 +1840,9 @@ static const struct registration_quirk r
- 	REG_QUIRK_ENTRY(0x0951, 0x16d8, 2),	/* Kingston HyperX AMP */
- 	REG_QUIRK_ENTRY(0x0951, 0x16ed, 2),	/* Kingston HyperX Cloud Alpha S */
- 	REG_QUIRK_ENTRY(0x0951, 0x16ea, 2),	/* Kingston HyperX Cloud Flight S */
-+	REG_QUIRK_ENTRY(0x0ecb, 0x1f46, 2),	/* JBL Quantum 600 */
-+	REG_QUIRK_ENTRY(0x0ecb, 0x2039, 2),	/* JBL Quantum 400 */
-+	REG_QUIRK_ENTRY(0x0ecb, 0x203e, 2),	/* JBL Quantum 800 */
- 	{ 0 }					/* terminator */
- };
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
+@@ -1872,7 +1872,8 @@ static void ixgbe_dma_sync_frag(struct i
+ 				struct sk_buff *skb)
+ {
+ 	if (ring_uses_build_skb(rx_ring)) {
+-		unsigned long offset = (unsigned long)(skb->data) & ~PAGE_MASK;
++		unsigned long mask = (unsigned long)ixgbe_rx_pg_size(rx_ring) - 1;
++		unsigned long offset = (unsigned long)(skb->data) & mask;
  
+ 		dma_sync_single_range_for_cpu(rx_ring->dev,
+ 					      IXGBE_CB(skb)->dma,
 
 
