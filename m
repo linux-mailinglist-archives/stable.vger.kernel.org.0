@@ -2,40 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B23193D5FC9
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6153B3D5DE2
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:45:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236700AbhGZPTM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:19:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59124 "EHLO mail.kernel.org"
+        id S235916AbhGZPEP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:04:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236165AbhGZPS1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:18:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E1BC16056C;
-        Mon, 26 Jul 2021 15:58:53 +0000 (UTC)
+        id S235940AbhGZPEN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:04:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6174860F22;
+        Mon, 26 Jul 2021 15:44:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315134;
-        bh=Df6bcgxJc/1ts/C/FlCSKAXccxVK4Jswhk+ZX3n4MCg=;
+        s=korg; t=1627314281;
+        bh=i0l7Aq9zWfmvb2H0kN6ua05cGBkegGNJe5evXlJ4cYI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RN0+5r7O9uLhx4gy/LgIq7TlJvcUIJgcd3in82oLJA0whfiWKg2iLitrtyg+9Aw4k
-         C0MLr092+ptCOix55F7p4hlxSN8vHzAz8HALe0dpIvd1QAI8KJPXjLszKkNmIGDR9L
-         SwpLIhhhH8mxUwglhkur7CoHB8wB9OrOyufj50iU=
+        b=oI3EvyiALl4lTLvXNRvmVoyFO9BNf9bkaKDPr4+NYh3YwawlFfxtDmlY7oFsZyjK1
+         szmGnKK3brLOYDUi4QiC/orMWyc4LDt3ukyicsW50HzHagfZHffN8jc7QhlRDbK7iW
+         7T7C9gCfYyKNZnGXqMXwKbKaNHPPGb/wRcnEj6h0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Alexey Dobriyan (SK hynix)" <adobriyan@gmail.com>,
-        David Howells <dhowells@redhat.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Marc Dionne <marc.dionne@auristor.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linux-afs@lists.infradead.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 062/108] afs: Fix tracepoint string placement with built-in AFS
+        stable@vger.kernel.org, Julian Sikorski <belegdol+github@gmail.com>
+Subject: [PATCH 4.9 49/60] USB: usb-storage: Add LaCie Rugged USB3-FW to IGNORE_UAS
 Date:   Mon, 26 Jul 2021 17:39:03 +0200
-Message-Id: <20210726153833.681087078@linuxfoundation.org>
+Message-Id: <20210726153826.411063108@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
-References: <20210726153831.696295003@linuxfoundation.org>
+In-Reply-To: <20210726153824.868160836@linuxfoundation.org>
+References: <20210726153824.868160836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,284 +38,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Julian Sikorski <belegdol@gmail.com>
 
-[ Upstream commit 6c881ca0b3040f3e724eae513117ba4ddef86057 ]
+commit 6abf2fe6b4bf6e5256b80c5817908151d2d33e9f upstream.
 
-To quote Alexey[1]:
+LaCie Rugged USB3-FW appears to be incompatible with UAS. It generates
+errors like:
+[ 1151.582598] sd 14:0:0:0: tag#16 uas_eh_abort_handler 0 uas-tag 1 inflight: IN
+[ 1151.582602] sd 14:0:0:0: tag#16 CDB: Report supported operation codes a3 0c 01 12 00 00 00 00 02 00 00 00
+[ 1151.588594] scsi host14: uas_eh_device_reset_handler start
+[ 1151.710482] usb 2-4: reset SuperSpeed Gen 1 USB device number 2 using xhci_hcd
+[ 1151.741398] scsi host14: uas_eh_device_reset_handler success
+[ 1181.785534] scsi host14: uas_eh_device_reset_handler start
 
-    I was adding custom tracepoint to the kernel, grabbed full F34 kernel
-    .config, disabled modules and booted whole shebang as VM kernel.
-
-    Then did
-
-	perf record -a -e ...
-
-    It crashed:
-
-	general protection fault, probably for non-canonical address 0x435f5346592e4243: 0000 [#1] SMP PTI
-	CPU: 1 PID: 842 Comm: cat Not tainted 5.12.6+ #26
-	Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-1.fc33 04/01/2014
-	RIP: 0010:t_show+0x22/0xd0
-
-    Then reproducer was narrowed to
-
-	# cat /sys/kernel/tracing/printk_formats
-
-    Original F34 kernel with modules didn't crash.
-
-    So I started to disable options and after disabling AFS everything
-    started working again.
-
-    The root cause is that AFS was placing char arrays content into a
-    section full of _pointers_ to strings with predictable consequences.
-
-    Non canonical address 435f5346592e4243 is "CB.YFS_" which came from
-    CM_NAME macro.
-
-    Steps to reproduce:
-
-	CONFIG_AFS=y
-	CONFIG_TRACING=y
-
-	# cat /sys/kernel/tracing/printk_formats
-
-Fix this by the following means:
-
- (1) Add enum->string translation tables in the event header with the AFS
-     and YFS cache/callback manager operations listed by RPC operation ID.
-
- (2) Modify the afs_cb_call tracepoint to print the string from the
-     translation table rather than using the string at the afs_call name
-     pointer.
-
- (3) Switch translation table depending on the service we're being accessed
-     as (AFS or YFS) in the tracepoint print clause.  Will this cause
-     problems to userspace utilities?
-
-     Note that the symbolic representation of the YFS service ID isn't
-     available to this header, so I've put it in as a number.  I'm not sure
-     if this is the best way to do this.
-
- (4) Remove the name wrangling (CM_NAME) macro and put the names directly
-     into the afs_call_type structs in cmservice.c.
-
-Fixes: 8e8d7f13b6d5a9 ("afs: Add some tracepoints")
-Reported-by: Alexey Dobriyan (SK hynix) <adobriyan@gmail.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Reviewed-by: Marc Dionne <marc.dionne@auristor.com>
-cc: Andrew Morton <akpm@linux-foundation.org>
-cc: linux-afs@lists.infradead.org
-Link: https://lore.kernel.org/r/YLAXfvZ+rObEOdc%2F@localhost.localdomain/ [1]
-Link: https://lore.kernel.org/r/643721.1623754699@warthog.procyon.org.uk/
-Link: https://lore.kernel.org/r/162430903582.2896199.6098150063997983353.stgit@warthog.procyon.org.uk/ # v1
-Link: https://lore.kernel.org/r/162609463957.3133237.15916579353149746363.stgit@warthog.procyon.org.uk/ # v1 (repost)
-Link: https://lore.kernel.org/r/162610726860.3408253.445207609466288531.stgit@warthog.procyon.org.uk/ # v2
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Julian Sikorski <belegdol+github@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210720171910.36497-1-belegdol+github@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/afs/cmservice.c         | 25 ++++----------
- include/trace/events/afs.h | 67 +++++++++++++++++++++++++++++++++++---
- 2 files changed, 69 insertions(+), 23 deletions(-)
+ drivers/usb/storage/unusual_uas.h |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/fs/afs/cmservice.c b/fs/afs/cmservice.c
-index fc5eb0f89304..c2e82b84c554 100644
---- a/fs/afs/cmservice.c
-+++ b/fs/afs/cmservice.c
-@@ -29,16 +29,11 @@ static void SRXAFSCB_TellMeAboutYourself(struct work_struct *);
+--- a/drivers/usb/storage/unusual_uas.h
++++ b/drivers/usb/storage/unusual_uas.h
+@@ -55,6 +55,13 @@ UNUSUAL_DEV(0x059f, 0x105f, 0x0000, 0x99
+ 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
+ 		US_FL_NO_REPORT_OPCODES),
  
- static int afs_deliver_yfs_cb_callback(struct afs_call *);
- 
--#define CM_NAME(name) \
--	char afs_SRXCB##name##_name[] __tracepoint_string =	\
--		"CB." #name
--
- /*
-  * CB.CallBack operation type
-  */
--static CM_NAME(CallBack);
- static const struct afs_call_type afs_SRXCBCallBack = {
--	.name		= afs_SRXCBCallBack_name,
-+	.name		= "CB.CallBack",
- 	.deliver	= afs_deliver_cb_callback,
- 	.destructor	= afs_cm_destructor,
- 	.work		= SRXAFSCB_CallBack,
-@@ -47,9 +42,8 @@ static const struct afs_call_type afs_SRXCBCallBack = {
- /*
-  * CB.InitCallBackState operation type
-  */
--static CM_NAME(InitCallBackState);
- static const struct afs_call_type afs_SRXCBInitCallBackState = {
--	.name		= afs_SRXCBInitCallBackState_name,
-+	.name		= "CB.InitCallBackState",
- 	.deliver	= afs_deliver_cb_init_call_back_state,
- 	.destructor	= afs_cm_destructor,
- 	.work		= SRXAFSCB_InitCallBackState,
-@@ -58,9 +52,8 @@ static const struct afs_call_type afs_SRXCBInitCallBackState = {
- /*
-  * CB.InitCallBackState3 operation type
-  */
--static CM_NAME(InitCallBackState3);
- static const struct afs_call_type afs_SRXCBInitCallBackState3 = {
--	.name		= afs_SRXCBInitCallBackState3_name,
-+	.name		= "CB.InitCallBackState3",
- 	.deliver	= afs_deliver_cb_init_call_back_state3,
- 	.destructor	= afs_cm_destructor,
- 	.work		= SRXAFSCB_InitCallBackState,
-@@ -69,9 +62,8 @@ static const struct afs_call_type afs_SRXCBInitCallBackState3 = {
- /*
-  * CB.Probe operation type
-  */
--static CM_NAME(Probe);
- static const struct afs_call_type afs_SRXCBProbe = {
--	.name		= afs_SRXCBProbe_name,
-+	.name		= "CB.Probe",
- 	.deliver	= afs_deliver_cb_probe,
- 	.destructor	= afs_cm_destructor,
- 	.work		= SRXAFSCB_Probe,
-@@ -80,9 +72,8 @@ static const struct afs_call_type afs_SRXCBProbe = {
- /*
-  * CB.ProbeUuid operation type
-  */
--static CM_NAME(ProbeUuid);
- static const struct afs_call_type afs_SRXCBProbeUuid = {
--	.name		= afs_SRXCBProbeUuid_name,
-+	.name		= "CB.ProbeUuid",
- 	.deliver	= afs_deliver_cb_probe_uuid,
- 	.destructor	= afs_cm_destructor,
- 	.work		= SRXAFSCB_ProbeUuid,
-@@ -91,9 +82,8 @@ static const struct afs_call_type afs_SRXCBProbeUuid = {
- /*
-  * CB.TellMeAboutYourself operation type
-  */
--static CM_NAME(TellMeAboutYourself);
- static const struct afs_call_type afs_SRXCBTellMeAboutYourself = {
--	.name		= afs_SRXCBTellMeAboutYourself_name,
-+	.name		= "CB.TellMeAboutYourself",
- 	.deliver	= afs_deliver_cb_tell_me_about_yourself,
- 	.destructor	= afs_cm_destructor,
- 	.work		= SRXAFSCB_TellMeAboutYourself,
-@@ -102,9 +92,8 @@ static const struct afs_call_type afs_SRXCBTellMeAboutYourself = {
- /*
-  * YFS CB.CallBack operation type
-  */
--static CM_NAME(YFS_CallBack);
- static const struct afs_call_type afs_SRXYFSCB_CallBack = {
--	.name		= afs_SRXCBYFS_CallBack_name,
-+	.name		= "YFSCB.CallBack",
- 	.deliver	= afs_deliver_yfs_cb_callback,
- 	.destructor	= afs_cm_destructor,
- 	.work		= SRXAFSCB_CallBack,
-diff --git a/include/trace/events/afs.h b/include/trace/events/afs.h
-index c612cabbc378..61af4af87119 100644
---- a/include/trace/events/afs.h
-+++ b/include/trace/events/afs.h
-@@ -111,6 +111,34 @@ enum afs_vl_operation {
- 	afs_VL_GetCapabilities	= 65537,	/* AFS Get VL server capabilities */
- };
- 
-+enum afs_cm_operation {
-+	afs_CB_CallBack			= 204,	/* AFS break callback promises */
-+	afs_CB_InitCallBackState	= 205,	/* AFS initialise callback state */
-+	afs_CB_Probe			= 206,	/* AFS probe client */
-+	afs_CB_GetLock			= 207,	/* AFS get contents of CM lock table */
-+	afs_CB_GetCE			= 208,	/* AFS get cache file description */
-+	afs_CB_GetXStatsVersion		= 209,	/* AFS get version of extended statistics */
-+	afs_CB_GetXStats		= 210,	/* AFS get contents of extended statistics data */
-+	afs_CB_InitCallBackState3	= 213,	/* AFS initialise callback state, version 3 */
-+	afs_CB_ProbeUuid		= 214,	/* AFS check the client hasn't rebooted */
-+};
++/* Reported-by: Julian Sikorski <belegdol@gmail.com> */
++UNUSUAL_DEV(0x059f, 0x1061, 0x0000, 0x9999,
++		"LaCie",
++		"Rugged USB3-FW",
++		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
++		US_FL_IGNORE_UAS),
 +
-+enum yfs_cm_operation {
-+	yfs_CB_Probe			= 206,	/* YFS probe client */
-+	yfs_CB_GetLock			= 207,	/* YFS get contents of CM lock table */
-+	yfs_CB_XStatsVersion		= 209,	/* YFS get version of extended statistics */
-+	yfs_CB_GetXStats		= 210,	/* YFS get contents of extended statistics data */
-+	yfs_CB_InitCallBackState3	= 213,	/* YFS initialise callback state, version 3 */
-+	yfs_CB_ProbeUuid		= 214,	/* YFS check the client hasn't rebooted */
-+	yfs_CB_GetServerPrefs		= 215,
-+	yfs_CB_GetCellServDV		= 216,
-+	yfs_CB_GetLocalCell		= 217,
-+	yfs_CB_GetCacheConfig		= 218,
-+	yfs_CB_GetCellByNum		= 65537,
-+	yfs_CB_TellMeAboutYourself	= 65538, /* get client capabilities */
-+	yfs_CB_CallBack			= 64204,
-+};
-+
- enum afs_edit_dir_op {
- 	afs_edit_dir_create,
- 	afs_edit_dir_create_error,
-@@ -312,6 +340,32 @@ enum afs_cb_break_reason {
- 	EM(afs_YFSVL_GetEndpoints,		"YFSVL.GetEndpoints") \
- 	E_(afs_VL_GetCapabilities,		"VL.GetCapabilities")
- 
-+#define afs_cm_operations \
-+	EM(afs_CB_CallBack,			"CB.CallBack") \
-+	EM(afs_CB_InitCallBackState,		"CB.InitCallBackState") \
-+	EM(afs_CB_Probe,			"CB.Probe") \
-+	EM(afs_CB_GetLock,			"CB.GetLock") \
-+	EM(afs_CB_GetCE,			"CB.GetCE") \
-+	EM(afs_CB_GetXStatsVersion,		"CB.GetXStatsVersion") \
-+	EM(afs_CB_GetXStats,			"CB.GetXStats") \
-+	EM(afs_CB_InitCallBackState3,		"CB.InitCallBackState3") \
-+	E_(afs_CB_ProbeUuid,			"CB.ProbeUuid")
-+
-+#define yfs_cm_operations \
-+	EM(yfs_CB_Probe,			"YFSCB.Probe") \
-+	EM(yfs_CB_GetLock,			"YFSCB.GetLock") \
-+	EM(yfs_CB_XStatsVersion,		"YFSCB.XStatsVersion") \
-+	EM(yfs_CB_GetXStats,			"YFSCB.GetXStats") \
-+	EM(yfs_CB_InitCallBackState3,		"YFSCB.InitCallBackState3") \
-+	EM(yfs_CB_ProbeUuid,			"YFSCB.ProbeUuid") \
-+	EM(yfs_CB_GetServerPrefs,		"YFSCB.GetServerPrefs") \
-+	EM(yfs_CB_GetCellServDV,		"YFSCB.GetCellServDV") \
-+	EM(yfs_CB_GetLocalCell,			"YFSCB.GetLocalCell") \
-+	EM(yfs_CB_GetCacheConfig,		"YFSCB.GetCacheConfig") \
-+	EM(yfs_CB_GetCellByNum,			"YFSCB.GetCellByNum") \
-+	EM(yfs_CB_TellMeAboutYourself,		"YFSCB.TellMeAboutYourself") \
-+	E_(yfs_CB_CallBack,			"YFSCB.CallBack")
-+
- #define afs_edit_dir_ops				  \
- 	EM(afs_edit_dir_create,			"create") \
- 	EM(afs_edit_dir_create_error,		"c_fail") \
-@@ -442,6 +496,8 @@ afs_call_traces;
- afs_server_traces;
- afs_fs_operations;
- afs_vl_operations;
-+afs_cm_operations;
-+yfs_cm_operations;
- afs_edit_dir_ops;
- afs_edit_dir_reasons;
- afs_eproto_causes;
-@@ -522,20 +578,21 @@ TRACE_EVENT(afs_cb_call,
- 
- 	    TP_STRUCT__entry(
- 		    __field(unsigned int,		call		)
--		    __field(const char *,		name		)
- 		    __field(u32,			op		)
-+		    __field(u16,			service_id	)
- 			     ),
- 
- 	    TP_fast_assign(
- 		    __entry->call	= call->debug_id;
--		    __entry->name	= call->type->name;
- 		    __entry->op		= call->operation_ID;
-+		    __entry->service_id	= call->service_id;
- 			   ),
- 
--	    TP_printk("c=%08x %s o=%u",
-+	    TP_printk("c=%08x %s",
- 		      __entry->call,
--		      __entry->name,
--		      __entry->op)
-+		      __entry->service_id == 2501 ?
-+		      __print_symbolic(__entry->op, yfs_cm_operations) :
-+		      __print_symbolic(__entry->op, afs_cm_operations))
- 	    );
- 
- TRACE_EVENT(afs_call,
--- 
-2.30.2
-
+ /*
+  * Apricorn USB3 dongle sometimes returns "USBSUSBSUSBS" in response to SCSI
+  * commands in UAS mode.  Observed with the 1.28 firmware; are there others?
 
 
