@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7582E3D6228
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:15:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C07BF3D6105
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:12:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237979AbhGZPe7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:34:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49678 "EHLO mail.kernel.org"
+        id S237859AbhGZP0l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:26:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234179AbhGZPdO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:33:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B4AA56056B;
-        Mon, 26 Jul 2021 16:13:41 +0000 (UTC)
+        id S237869AbhGZPYT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:24:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D16A60240;
+        Mon, 26 Jul 2021 16:04:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627316022;
-        bh=mLPeC/7oyqFuYCH1zBolP8G8TfUn+Vdd0r9TE1pDQbw=;
+        s=korg; t=1627315488;
+        bh=a4/I185hfQSbkUJOO/kBX0KuBzM0koq0qFt4U4ncbmI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rxU0UQQN0rUCA5iSHF8CmXMP52qJD/Qe7e7jKvgL1DuSO0OFySa5eu1CGo3kyHEf+
-         5eEvCHWpkXcBpJs3MaAYiv2YvN6Nd/EMBefUiABoOXlUBOvCgf1G1wZUpS5FjYHYyd
-         r9Eel7EqCRgm4BkH+vB/uAJvkCImr5X7IQcIfko4=
+        b=ukei4sP6cGG+n7ydG8wzeuM/X3XO6oc+5o74+cTbdRkCoIk7Uaoc1tGdBKS3EwzmS
+         5cGILgx6201fXffO5ha5gA+hMJ4FiJ/f0tULxWMeO0ABzPgtKRHKHZMQNnykyhzyZ2
+         iwl9snCF35ZC4SauUZNyJ+sUXgH91BgQLdARE3Ko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Laurence Oberman <loberman@redhat.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        David Jeffery <djeffery@redhat.com>
-Subject: [PATCH 5.13 158/223] usb: ehci: Prevent missed ehci interrupts with edge-triggered MSI
+        stable@vger.kernel.org, Greg Thelen <gthelen@google.com>
+Subject: [PATCH 5.10 117/167] usb: xhci: avoid renesas_usb_fw.mem when its unusable
 Date:   Mon, 26 Jul 2021 17:39:10 +0200
-Message-Id: <20210726153851.383803196@linuxfoundation.org>
+Message-Id: <20210726153843.331170795@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
-References: <20210726153846.245305071@linuxfoundation.org>
+In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
+References: <20210726153839.371771838@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,82 +38,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Jeffery <djeffery@redhat.com>
+From: Greg Thelen <gthelen@google.com>
 
-commit 0b60557230adfdeb8164e0b342ac9cd469a75759 upstream.
+commit 0665e387318607d8269bfdea60723c627c8bae43 upstream.
 
-When MSI is used by the ehci-hcd driver, it can cause lost interrupts which
-results in EHCI only continuing to work due to a polling fallback. But the
-reliance of polling drastically reduces performance of any I/O through EHCI.
+Commit a66d21d7dba8 ("usb: xhci: Add support for Renesas controller with
+memory") added renesas_usb_fw.mem firmware reference to xhci-pci.  Thus
+modinfo indicates xhci-pci.ko has "firmware: renesas_usb_fw.mem".  But
+the firmware is only actually used with CONFIG_USB_XHCI_PCI_RENESAS.  An
+unusable firmware reference can trigger safety checkers which look for
+drivers with unmet firmware dependencies.
 
-Interrupts are lost as the EHCI interrupt handler does not safely handle
-edge-triggered interrupts. It fails to ensure all interrupt status bits are
-cleared, which works with level-triggered interrupts but not the
-edge-triggered interrupts typical from using MSI.
+Avoid referring to renesas_usb_fw.mem in circumstances when it cannot be
+loaded (when CONFIG_USB_XHCI_PCI_RENESAS isn't set).
 
-To fix this problem, check if the driver may have raced with the hardware
-setting additional interrupt status bits and clear status until it is in a
-stable state.
-
-Fixes: 306c54d0edb6 ("usb: hcd: Try MSI interrupts on PCI devices")
-Tested-by: Laurence Oberman <loberman@redhat.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: David Jeffery <djeffery@redhat.com>
-Link: https://lore.kernel.org/r/20210715213744.GA44506@redhat
+Fixes: a66d21d7dba8 ("usb: xhci: Add support for Renesas controller with memory")
 Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Greg Thelen <gthelen@google.com>
+Link: https://lore.kernel.org/r/20210702071224.3673568-1-gthelen@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/ehci-hcd.c |   18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+ drivers/usb/host/xhci-pci.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/usb/host/ehci-hcd.c
-+++ b/drivers/usb/host/ehci-hcd.c
-@@ -703,24 +703,28 @@ EXPORT_SYMBOL_GPL(ehci_setup);
- static irqreturn_t ehci_irq (struct usb_hcd *hcd)
- {
- 	struct ehci_hcd		*ehci = hcd_to_ehci (hcd);
--	u32			status, masked_status, pcd_status = 0, cmd;
-+	u32			status, current_status, masked_status, pcd_status = 0;
-+	u32			cmd;
- 	int			bh;
- 
- 	spin_lock(&ehci->lock);
- 
--	status = ehci_readl(ehci, &ehci->regs->status);
-+	status = 0;
-+	current_status = ehci_readl(ehci, &ehci->regs->status);
-+restart:
- 
- 	/* e.g. cardbus physical eject */
--	if (status == ~(u32) 0) {
-+	if (current_status == ~(u32) 0) {
- 		ehci_dbg (ehci, "device removed\n");
- 		goto dead;
- 	}
-+	status |= current_status;
- 
- 	/*
- 	 * We don't use STS_FLR, but some controllers don't like it to
- 	 * remain on, so mask it out along with the other status bits.
- 	 */
--	masked_status = status & (INTR_MASK | STS_FLR);
-+	masked_status = current_status & (INTR_MASK | STS_FLR);
- 
- 	/* Shared IRQ? */
- 	if (!masked_status || unlikely(ehci->rh_state == EHCI_RH_HALTED)) {
-@@ -730,6 +734,12 @@ static irqreturn_t ehci_irq (struct usb_
- 
- 	/* clear (just) interrupts */
- 	ehci_writel(ehci, masked_status, &ehci->regs->status);
+--- a/drivers/usb/host/xhci-pci.c
++++ b/drivers/usb/host/xhci-pci.c
+@@ -631,7 +631,14 @@ static const struct pci_device_id pci_id
+ 	{ /* end: all zeroes */ }
+ };
+ MODULE_DEVICE_TABLE(pci, pci_ids);
 +
-+	/* For edge interrupts, don't race with an interrupt bit being raised */
-+	current_status = ehci_readl(ehci, &ehci->regs->status);
-+	if (current_status & INTR_MASK)
-+		goto restart;
-+
- 	cmd = ehci_readl(ehci, &ehci->regs->command);
- 	bh = 0;
++/*
++ * Without CONFIG_USB_XHCI_PCI_RENESAS renesas_xhci_check_request_fw() won't
++ * load firmware, so don't encumber the xhci-pci driver with it.
++ */
++#if IS_ENABLED(CONFIG_USB_XHCI_PCI_RENESAS)
+ MODULE_FIRMWARE("renesas_usb_fw.mem");
++#endif
  
+ /* pci driver glue; this is a "new style" PCI driver module */
+ static struct pci_driver xhci_pci_driver = {
 
 
