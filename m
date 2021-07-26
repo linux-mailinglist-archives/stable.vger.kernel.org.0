@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D2873D6114
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:12:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF48A3D6250
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:16:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231951AbhGZP21 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:28:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41424 "EHLO mail.kernel.org"
+        id S236578AbhGZPf3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:35:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237793AbhGZPZz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:25:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3BCD360F5E;
-        Mon, 26 Jul 2021 16:06:22 +0000 (UTC)
+        id S237855AbhGZPeu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:34:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 858706056B;
+        Mon, 26 Jul 2021 16:15:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315583;
-        bh=1NWY3vav1js9Y7AjIX2vb6yfLNkQhJwq9ZZ2rNKPgUY=;
+        s=korg; t=1627316118;
+        bh=ZzRv0JOfJjaUGMuerpvp3Et3Y0kb7NsmdPJtLOwTmOU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xRwPWALbMC+CKWATIaNqx1suuJ6dm6Wnu0A3tDZ5d35IHGAZGIVmwm7KBzS95koQP
-         4Z4JVC7kAWPPw52SSxjMBBPqHg+crQODkoE5f1Lc/0QWeqWK9JlOLfnrCRNbA1J1Sr
-         mxPey7vmZDImlTy98IgGEk+ELcbWDfxEbBNyudZw=
+        b=nHK7UbVrDyIAndmMm15I3nx4Qzptt45Ze5pb9p6HMdxrQj4ZwUsQTXttuEbMsAN0b
+         1IVOU9Koq2+2edYNFrJCIGWFDzukdE+mrYWZCrkS9Ban74hEGeJ4AA4AdMdbkXydVP
+         Jn9Xg5uoAjxmq3f0GKC7CHYUt5klXYNaDfEtJcXI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Charles Baylis <cb-kernel@fishzet.co.uk>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH 5.10 155/167] drm: Return -ENOTTY for non-drm ioctls
+        stable@vger.kernel.org, Alexander Potapenko <glider@google.com>,
+        Marco Elver <elver@google.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.13 196/223] kfence: move the size check to the beginning of __kfence_alloc()
 Date:   Mon, 26 Jul 2021 17:39:48 +0200
-Message-Id: <20210726153844.612643287@linuxfoundation.org>
+Message-Id: <20210726153852.606420670@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
-References: <20210726153839.371771838@linuxfoundation.org>
+In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
+References: <20210726153846.245305071@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,56 +42,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charles Baylis <cb-kernel@fishzet.co.uk>
+From: Alexander Potapenko <glider@google.com>
 
-commit 3abab27c322e0f2acf981595aa8040c9164dc9fb upstream.
+commit 235a85cb32bb123854ad31de46fdbf04c1d57cda upstream.
 
-drm: Return -ENOTTY for non-drm ioctls
+Check the allocation size before toggling kfence_allocation_gate.
 
-Return -ENOTTY from drm_ioctl() when userspace passes in a cmd number
-which doesn't relate to the drm subsystem.
+This way allocations that can't be served by KFENCE will not result in
+waiting for another CONFIG_KFENCE_SAMPLE_INTERVAL without allocating
+anything.
 
-Glibc uses the TCGETS ioctl to implement isatty(), and without this
-change isatty() returns it incorrectly returns true for drm devices.
-
-To test run this command:
-$ if [ -t 0 ]; then echo is a tty; fi < /dev/dri/card0
-which shows "is a tty" without this patch.
-
-This may also modify memory which the userspace application is not
-expecting.
-
-Signed-off-by: Charles Baylis <cb-kernel@fishzet.co.uk>
-Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/YPG3IBlzaMhfPqCr@stando.fishzet.co.uk
+Link: https://lkml.kernel.org/r/20210714092222.1890268-1-glider@google.com
+Signed-off-by: Alexander Potapenko <glider@google.com>
+Suggested-by: Marco Elver <elver@google.com>
+Reviewed-by: Marco Elver <elver@google.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Marco Elver <elver@google.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: <stable@vger.kernel.org>	[5.12+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/drm_ioctl.c |    3 +++
- include/drm/drm_ioctl.h     |    1 +
- 2 files changed, 4 insertions(+)
+ mm/kfence/core.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/drivers/gpu/drm/drm_ioctl.c
-+++ b/drivers/gpu/drm/drm_ioctl.c
-@@ -827,6 +827,9 @@ long drm_ioctl(struct file *filp,
- 	if (drm_dev_is_unplugged(dev))
- 		return -ENODEV;
- 
-+       if (DRM_IOCTL_TYPE(cmd) != DRM_IOCTL_BASE)
-+               return -ENOTTY;
+--- a/mm/kfence/core.c
++++ b/mm/kfence/core.c
+@@ -734,6 +734,13 @@ void kfence_shutdown_cache(struct kmem_c
+ void *__kfence_alloc(struct kmem_cache *s, size_t size, gfp_t flags)
+ {
+ 	/*
++	 * Perform size check before switching kfence_allocation_gate, so that
++	 * we don't disable KFENCE without making an allocation.
++	 */
++	if (size > PAGE_SIZE)
++		return NULL;
 +
- 	is_driver_ioctl = nr >= DRM_COMMAND_BASE && nr < DRM_COMMAND_END;
++	/*
+ 	 * allocation_gate only needs to become non-zero, so it doesn't make
+ 	 * sense to continue writing to it and pay the associated contention
+ 	 * cost, in case we have a large number of concurrent allocations.
+@@ -757,9 +764,6 @@ void *__kfence_alloc(struct kmem_cache *
+ 	if (!READ_ONCE(kfence_enabled))
+ 		return NULL;
  
- 	if (is_driver_ioctl) {
---- a/include/drm/drm_ioctl.h
-+++ b/include/drm/drm_ioctl.h
-@@ -68,6 +68,7 @@ typedef int drm_ioctl_compat_t(struct fi
- 			       unsigned long arg);
+-	if (size > PAGE_SIZE)
+-		return NULL;
+-
+ 	return kfence_guarded_alloc(s, size, flags);
+ }
  
- #define DRM_IOCTL_NR(n)                _IOC_NR(n)
-+#define DRM_IOCTL_TYPE(n)              _IOC_TYPE(n)
- #define DRM_MAJOR       226
- 
- /**
 
 
