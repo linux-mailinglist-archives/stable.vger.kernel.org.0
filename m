@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F1C43D5F57
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02D8F3D5DAA
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:43:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236743AbhGZPRf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:17:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55332 "EHLO mail.kernel.org"
+        id S235496AbhGZPDM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:03:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42226 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237429AbhGZPPp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:15:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B2DDD6103A;
-        Mon, 26 Jul 2021 15:55:14 +0000 (UTC)
+        id S235729AbhGZPCr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:02:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EEB1A60F37;
+        Mon, 26 Jul 2021 15:43:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314915;
-        bh=F7gFp9qI89Abc2fahNFodiNrBz2NiAJG9mFSs5TYVco=;
+        s=korg; t=1627314193;
+        bh=PP7emg3R96vM45QcvloT7IHz1px/K67vO41LxLVoiiY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zfl9RBV1q54h87KT/N5ZZ2L/l8dJ4Nx6yncmpPt02QQMXwODjHu0x5gcbKIpV8h4v
-         3oXXAUNKs5PNTKb9W+hmsjh6xtP7EjA1PNtZUij8I8YV5eB4bf0OS3AVuxxagkWlWz
-         /lImHxAd+D5krwbx+pjUuhJiRXWd1E0CnX1jjWlQ=
+        b=O8S9ESgD0ib9xy+Sk++ryIOK/3h6iif4ZVNsVg9Jwi/RpdDCIBIyMsEAb6136DjAt
+         KYRigUW8GTMkGe8T5ctpgW3qeik90S/fm8dHSt+8x4ns1hODvAS57rGm5QNNHwI+nq
+         Pxxnvt2ASKzNJDZV1a6FCptSacI6dRlFXFqRI0Ao=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Shahjada Abul Husain <shahjada@chelsio.com>,
-        Raju Rangoju <rajur@chelsio.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 018/108] cxgb4: fix IRQ free race during driver unload
+Subject: [PATCH 4.9 05/60] ARM: dts: BCM63xx: Fix NAND nodes names
 Date:   Mon, 26 Jul 2021 17:38:19 +0200
-Message-Id: <20210726153832.278019341@linuxfoundation.org>
+Message-Id: <20210726153825.040787515@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
-References: <20210726153831.696295003@linuxfoundation.org>
+In-Reply-To: <20210726153824.868160836@linuxfoundation.org>
+References: <20210726153824.868160836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,87 +41,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shahjada Abul Husain <shahjada@chelsio.com>
+From: Rafał Miłecki <rafal@milecki.pl>
 
-[ Upstream commit 015fe6fd29c4b9ac0f61b8c4455ef88e6018b9cc ]
+[ Upstream commit 75e2f012f6e34b93124d1d86eaa8f27df48e9ea0 ]
 
-IRQs are requested during driver's ndo_open() and then later
-freed up in disable_interrupts() during driver unload.
-A race exists where driver can set the CXGB4_FULL_INIT_DONE
-flag in ndo_open() after the disable_interrupts() in driver
-unload path checks it, and hence misses calling free_irq().
+This matches nand-controller.yaml requirements.
 
-Fix by unregistering netdevice first and sync with driver's
-ndo_open(). This ensures disable_interrupts() checks the flag
-correctly and frees up the IRQs properly.
-
-Fixes: b37987e8db5f ("cxgb4: Disable interrupts and napi before unregistering netdev")
-Signed-off-by: Shahjada Abul Husain <shahjada@chelsio.com>
-Signed-off-by: Raju Rangoju <rajur@chelsio.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/chelsio/cxgb4/cxgb4_main.c    | 18 ++++++++++--------
- drivers/net/ethernet/chelsio/cxgb4/cxgb4_uld.c |  3 +++
- 2 files changed, 13 insertions(+), 8 deletions(-)
+ arch/arm/boot/dts/bcm63138.dtsi    | 2 +-
+ arch/arm/boot/dts/bcm963138dvt.dts | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
-index deb1c1f30107..21414a34a5b5 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
-@@ -2245,6 +2245,9 @@ static void detach_ulds(struct adapter *adap)
- {
- 	unsigned int i;
+diff --git a/arch/arm/boot/dts/bcm63138.dtsi b/arch/arm/boot/dts/bcm63138.dtsi
+index 547369c69e96..aedbea888684 100644
+--- a/arch/arm/boot/dts/bcm63138.dtsi
++++ b/arch/arm/boot/dts/bcm63138.dtsi
+@@ -174,7 +174,7 @@
+ 			status = "disabled";
+ 		};
  
-+	if (!is_uld(adap))
-+		return;
-+
- 	mutex_lock(&uld_mutex);
- 	list_del(&adap->list_node);
+-		nand: nand@2000 {
++		nand_controller: nand-controller@2000 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			compatible = "brcm,nand-bcm63138", "brcm,brcmnand-v7.0", "brcm,brcmnand";
+diff --git a/arch/arm/boot/dts/bcm963138dvt.dts b/arch/arm/boot/dts/bcm963138dvt.dts
+index 370aa2cfddf2..439cff69e948 100644
+--- a/arch/arm/boot/dts/bcm963138dvt.dts
++++ b/arch/arm/boot/dts/bcm963138dvt.dts
+@@ -29,10 +29,10 @@
+ 	status = "okay";
+ };
  
-@@ -6152,10 +6155,13 @@ static void remove_one(struct pci_dev *pdev)
- 		 */
- 		destroy_workqueue(adapter->workq);
+-&nand {
++&nand_controller {
+ 	status = "okay";
  
--		if (is_uld(adapter)) {
--			detach_ulds(adapter);
--			t4_uld_clean_up(adapter);
--		}
-+		detach_ulds(adapter);
-+
-+		for_each_port(adapter, i)
-+			if (adapter->port[i]->reg_state == NETREG_REGISTERED)
-+				unregister_netdev(adapter->port[i]);
-+
-+		t4_uld_clean_up(adapter);
- 
- 		adap_free_hma_mem(adapter);
- 
-@@ -6163,10 +6169,6 @@ static void remove_one(struct pci_dev *pdev)
- 
- 		cxgb4_free_mps_ref_entries(adapter);
- 
--		for_each_port(adapter, i)
--			if (adapter->port[i]->reg_state == NETREG_REGISTERED)
--				unregister_netdev(adapter->port[i]);
--
- 		debugfs_remove_recursive(adapter->debugfs_root);
- 
- 		if (!is_t4(adapter->params.chip))
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_uld.c b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_uld.c
-index 86b528d8364c..971bdd70b6d6 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_uld.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_uld.c
-@@ -638,6 +638,9 @@ void t4_uld_clean_up(struct adapter *adap)
- {
- 	unsigned int i;
- 
-+	if (!is_uld(adap))
-+		return;
-+
- 	mutex_lock(&uld_mutex);
- 	for (i = 0; i < CXGB4_ULD_MAX; i++) {
- 		if (!adap->uld[i].handle)
+-	nandcs@0 {
++	nand@0 {
+ 		compatible = "brcm,nandcs";
+ 		reg = <0>;
+ 		nand-ecc-strength = <4>;
 -- 
 2.30.2
 
