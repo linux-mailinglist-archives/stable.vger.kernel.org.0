@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D36B03D604F
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:10:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8ECFC3D6050
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:10:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236418AbhGZPVr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:21:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35964 "EHLO mail.kernel.org"
+        id S237213AbhGZPVs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:21:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237200AbhGZPVk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:21:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 419FD60FDA;
-        Mon, 26 Jul 2021 16:02:08 +0000 (UTC)
+        id S237209AbhGZPVn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:21:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EF2C660E09;
+        Mon, 26 Jul 2021 16:02:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315328;
-        bh=ImyeHq6NaMFDLaiQm8ANwqV7fxPDjf6ocC/OjeKZQiQ=;
+        s=korg; t=1627315331;
+        bh=q0VMxnM0zP+6GtCK0Os6yDk2JT9hLndLBpZYmsFvwXw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s1IE0oMLY6U/y1MsrNo7hFji5YZtBMTBWEVtWvHji3Dio/ibQmhqlIH5A3nOjlmcF
-         r3pVIwG/g8/S0tE5esASn1cDrJwADwXr0aYnD6SunvhkIRdZzHCNbf95MTjZnhYaCM
-         1rh953X2kIpCdDgrUbNT/aIOeuexnucv+PguzcnM=
+        b=Sn9vtzwQyrooch5UAsg3pEf+g54nwcLXgrwl0R3aiw3GjiZ//6lti7mIAZ3PfTjv8
+         bn2vKh4ki1XHH6KXqOsVnnpR2cca1skTj6Nk8uHC9/lxZKDlPfo0QLn4tII1czueC4
+         KB1GH4gzo0gYXiSiA2ru3ED6MwtN52j7f+7PCaso=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Hess <peter.hess@ph-home.de>,
-        Frank Wunderlich <frank-w@public-files.de>,
+        stable@vger.kernel.org, Maxim Schwalm <maxim.schwalm@gmail.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 053/167] spi: mediatek: fix fifo rx mode
-Date:   Mon, 26 Jul 2021 17:38:06 +0200
-Message-Id: <20210726153841.193546192@linuxfoundation.org>
+Subject: [PATCH 5.10 054/167] ASoC: rt5631: Fix regcache sync errors on resume
+Date:   Mon, 26 Jul 2021 17:38:07 +0200
+Message-Id: <20210726153841.231051282@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
 References: <20210726153839.371771838@linuxfoundation.org>
@@ -41,57 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Hess <peter.hess@ph-home.de>
+From: Maxim Schwalm <maxim.schwalm@gmail.com>
 
-[ Upstream commit 3a70dd2d050331ee4cf5ad9d5c0a32d83ead9a43 ]
+[ Upstream commit c71f78a662611fe2c67f3155da19b0eff0f29762 ]
 
-In FIFO mode were two problems:
-- RX mode was never handled and
-- in this case the tx_buf pointer was NULL and caused an exception
+The ALC5631 does not like multi-write accesses, avoid them. This fixes:
 
-fix this by handling RX mode in mtk_spi_fifo_transfer
+rt5631 4-001a: Unable to sync registers 0x3a-0x3c. -121
 
-Fixes: a568231f4632 ("spi: mediatek: Add spi bus for Mediatek MT8173")
-Signed-off-by: Peter Hess <peter.hess@ph-home.de>
-Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
-Link: https://lore.kernel.org/r/20210706121609.680534-1-linux@fw-web.de
+errors on resume from suspend (and all registers after the registers in
+the error not being synced).
+
+Inspired by commit 2d30e9494f1e ("ASoC: rt5651: Fix regcache sync errors
+on resume") from Hans de Geode, which fixed the same errors on ALC5651.
+
+Signed-off-by: Maxim Schwalm <maxim.schwalm@gmail.com>
+Link: https://lore.kernel.org/r/20210712005011.28536-1-digetx@gmail.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-mt65xx.c | 16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ sound/soc/codecs/rt5631.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/spi/spi-mt65xx.c b/drivers/spi/spi-mt65xx.c
-index 5d643051bf3d..8f2d112f0b5d 100644
---- a/drivers/spi/spi-mt65xx.c
-+++ b/drivers/spi/spi-mt65xx.c
-@@ -434,13 +434,23 @@ static int mtk_spi_fifo_transfer(struct spi_master *master,
- 	mtk_spi_setup_packet(master);
+diff --git a/sound/soc/codecs/rt5631.c b/sound/soc/codecs/rt5631.c
+index 653da3eaf355..86d58d0df057 100644
+--- a/sound/soc/codecs/rt5631.c
++++ b/sound/soc/codecs/rt5631.c
+@@ -1695,6 +1695,8 @@ static const struct regmap_config rt5631_regmap_config = {
+ 	.reg_defaults = rt5631_reg,
+ 	.num_reg_defaults = ARRAY_SIZE(rt5631_reg),
+ 	.cache_type = REGCACHE_RBTREE,
++	.use_single_read = true,
++	.use_single_write = true,
+ };
  
- 	cnt = xfer->len / 4;
--	iowrite32_rep(mdata->base + SPI_TX_DATA_REG, xfer->tx_buf, cnt);
-+	if (xfer->tx_buf)
-+		iowrite32_rep(mdata->base + SPI_TX_DATA_REG, xfer->tx_buf, cnt);
-+
-+	if (xfer->rx_buf)
-+		ioread32_rep(mdata->base + SPI_RX_DATA_REG, xfer->rx_buf, cnt);
- 
- 	remainder = xfer->len % 4;
- 	if (remainder > 0) {
- 		reg_val = 0;
--		memcpy(&reg_val, xfer->tx_buf + (cnt * 4), remainder);
--		writel(reg_val, mdata->base + SPI_TX_DATA_REG);
-+		if (xfer->tx_buf) {
-+			memcpy(&reg_val, xfer->tx_buf + (cnt * 4), remainder);
-+			writel(reg_val, mdata->base + SPI_TX_DATA_REG);
-+		}
-+		if (xfer->rx_buf) {
-+			reg_val = readl(mdata->base + SPI_RX_DATA_REG);
-+			memcpy(xfer->rx_buf + (cnt * 4), &reg_val, remainder);
-+		}
- 	}
- 
- 	mtk_spi_enable_transfer(master);
+ static int rt5631_i2c_probe(struct i2c_client *i2c,
 -- 
 2.30.2
 
