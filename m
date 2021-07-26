@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F3EB3D5FD7
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66FE83D6249
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:16:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236698AbhGZPTV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:19:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59840 "EHLO mail.kernel.org"
+        id S236102AbhGZPf0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:35:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236415AbhGZPS5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:18:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F30660F92;
-        Mon, 26 Jul 2021 15:59:25 +0000 (UTC)
+        id S237298AbhGZPee (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:34:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BA115604AC;
+        Mon, 26 Jul 2021 16:15:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315166;
-        bh=MnABV6DVcXmESIDHX0jSy5XVW7hAzG1Wu0KVHUTJxJo=;
+        s=korg; t=1627316103;
+        bh=R6/d5A36/DNukdPu6REyqDvN0M2H9oNjfgQPBn04uDo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p6DCIMNYFXLrRL2vFRs/ZXOzbbEPkMdRilwI7+NnANTbFvoEklPAoX1KY6VBXCe/y
-         aYKxdiEp/RYw/5CA44pXR2kW8D+Egirk6Xse2kEJYwt3rImDgOO3gWtNG+A9b2PVge
-         0O690EAhC0vucv7/WIDhppSkGMjc/gA2Y0y2T1QI=
+        b=k/p3PPygBcJKpc0syIq/2Vlm5s/Wpg0Z0VE+srykH5dYy1yYRShf5LYkCnOy0NeMR
+         xW+Pcv52ju92msrddODA+h9vauU62KP8W5Qy3HOORSwvz0Is+M935XLQmON9jc0Dsn
+         DOUjizTcMUUBchaPJUq4TRQp2EZ8tzPhK1asYyG8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Keith Busch <kbusch@kernel.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 064/108] nvme: set the PRACT bit when using Write Zeroes with T10 PI
+        stable@vger.kernel.org, Alan Young <consult.awy@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.13 153/223] ALSA: pcm: Call substream ack() method upon compat mmap commit
 Date:   Mon, 26 Jul 2021 17:39:05 +0200
-Message-Id: <20210726153833.745272830@linuxfoundation.org>
+Message-Id: <20210726153851.231543942@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
-References: <20210726153831.696295003@linuxfoundation.org>
+In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
+References: <20210726153846.245305071@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,43 +39,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Alan Young <consult.awy@gmail.com>
 
-[ Upstream commit aaeb7bb061be545251606f4d9c82d710ca2a7c8e ]
+commit 2e2832562c877e6530b8480982d99a4ff90c6777 upstream.
 
-When using Write Zeroes on a namespace that has protection
-information enabled they behavior without the PRACT bit
-counter-intuitive and will generally lead to validation failures
-when reading the written blocks.  Fix this by always setting the
-PRACT bit that generates matching PI data on the fly.
+If a 32-bit application is being used with a 64-bit kernel and is using
+the mmap mechanism to write data, then the SNDRV_PCM_IOCTL_SYNC_PTR
+ioctl results in calling snd_pcm_ioctl_sync_ptr_compat(). Make this use
+pcm_lib_apply_appl_ptr() so that the substream's ack() method, if
+defined, is called.
 
-Fixes: 6e02318eaea5 ("nvme: add support for the Write Zeroes command")
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Keith Busch <kbusch@kernel.org>
-Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The snd_pcm_sync_ptr() function, used in the 64-bit ioctl case, already
+uses snd_pcm_ioctl_sync_ptr_compat().
+
+Fixes: 9027c4639ef1 ("ALSA: pcm: Call ack() whenever appl_ptr is updated")
+Signed-off-by: Alan Young <consult.awy@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/c441f18c-eb2a-3bdd-299a-696ccca2de9c@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvme/host/core.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ sound/core/pcm_native.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index 710ab45eb679..a5b5a2305791 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -694,7 +694,10 @@ static inline blk_status_t nvme_setup_write_zeroes(struct nvme_ns *ns,
- 		cpu_to_le64(nvme_sect_to_lba(ns, blk_rq_pos(req)));
- 	cmnd->write_zeroes.length =
- 		cpu_to_le16((blk_rq_bytes(req) >> ns->lba_shift) - 1);
--	cmnd->write_zeroes.control = 0;
-+	if (nvme_ns_has_pi(ns))
-+		cmnd->write_zeroes.control = cpu_to_le16(NVME_RW_PRINFO_PRACT);
-+	else
-+		cmnd->write_zeroes.control = 0;
- 	return BLK_STS_OK;
- }
- 
--- 
-2.30.2
-
+--- a/sound/core/pcm_native.c
++++ b/sound/core/pcm_native.c
+@@ -3057,9 +3057,14 @@ static int snd_pcm_ioctl_sync_ptr_compat
+ 		boundary = 0x7fffffff;
+ 	snd_pcm_stream_lock_irq(substream);
+ 	/* FIXME: we should consider the boundary for the sync from app */
+-	if (!(sflags & SNDRV_PCM_SYNC_PTR_APPL))
+-		control->appl_ptr = scontrol.appl_ptr;
+-	else
++	if (!(sflags & SNDRV_PCM_SYNC_PTR_APPL)) {
++		err = pcm_lib_apply_appl_ptr(substream,
++				scontrol.appl_ptr);
++		if (err < 0) {
++			snd_pcm_stream_unlock_irq(substream);
++			return err;
++		}
++	} else
+ 		scontrol.appl_ptr = control->appl_ptr % boundary;
+ 	if (!(sflags & SNDRV_PCM_SYNC_PTR_AVAIL_MIN))
+ 		control->avail_min = scontrol.avail_min;
 
 
