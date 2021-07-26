@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EA0F3D61FE
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:15:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A46DE3D61FA
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:15:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234721AbhGZPdy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:33:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48248 "EHLO mail.kernel.org"
+        id S234617AbhGZPdo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:33:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48256 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232911AbhGZPcL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:32:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 941D860F93;
-        Mon, 26 Jul 2021 16:12:15 +0000 (UTC)
+        id S232402AbhGZPcM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:32:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B202960F5A;
+        Mon, 26 Jul 2021 16:12:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315936;
-        bh=MklQoLoWtHCJJrIF2fHst6Vm2xwXiptu5OSLWjTO6Lw=;
+        s=korg; t=1627315941;
+        bh=3hvMd/IAYmDN0sjkeWmBdjgWFqGKtAgVsF1jwa1xXhY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bzf6cZ3pv/TjNJ78QIj8wfUm5m84pGZT4NTx1yaff6+WBN1iPrVycRklv3PJwZvEh
-         x7rE4KsZghqfGNBCbcQH+Bsh0hJ8YOl78mG5AEHVvl6m7G4re3jJ04IAtU1I3vAVnF
-         BdMPtzyBQpYHIz7ZBRaBEF5EvPCdCB+0e37814E0=
+        b=vGkikvAk8z9anGzPN5tsh5bJ9gGbdHYf/j1hEd0RWfeVk/xHoHtIsQjo8IMR/2L3j
+         YeU2tM0t6BFSrlmuLRy1Vlx5Js2AudDpiSz3SS71YLEQuxxOMjFSUYkzfHm2rnXKbr
+         uO6aDDhOKbjmnYtSGNtGSuUbtij+73oD4ZArPYF4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Alexey Dobriyan (SK hynix)" <adobriyan@gmail.com>,
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
         David Howells <dhowells@redhat.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
         Marc Dionne <marc.dionne@auristor.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
         linux-afs@lists.infradead.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 125/223] afs: Fix tracepoint string placement with built-in AFS
-Date:   Mon, 26 Jul 2021 17:38:37 +0200
-Message-Id: <20210726153850.354981027@linuxfoundation.org>
+Subject: [PATCH 5.13 126/223] afs: check function return
+Date:   Mon, 26 Jul 2021 17:38:38 +0200
+Message-Id: <20210726153850.383876856@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
 References: <20210726153846.245305071@linuxfoundation.org>
@@ -44,282 +41,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Tom Rix <trix@redhat.com>
 
-[ Upstream commit 6c881ca0b3040f3e724eae513117ba4ddef86057 ]
+[ Upstream commit afe6949862f77bcc14fa16ad7938a04e84586d6a ]
 
-To quote Alexey[1]:
+Static analysis reports this problem
 
-    I was adding custom tracepoint to the kernel, grabbed full F34 kernel
-    .config, disabled modules and booted whole shebang as VM kernel.
+write.c:773:29: warning: Assigned value is garbage or undefined
+  mapping->writeback_index = next;
+                           ^ ~~~~
+The call to afs_writepages_region() can return without setting
+next.  So check the function return before using next.
 
-    Then did
+Changes:
+ ver #2:
+   - Need to fix the range_cyclic case also[1].
 
-	perf record -a -e ...
-
-    It crashed:
-
-	general protection fault, probably for non-canonical address 0x435f5346592e4243: 0000 [#1] SMP PTI
-	CPU: 1 PID: 842 Comm: cat Not tainted 5.12.6+ #26
-	Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-1.fc33 04/01/2014
-	RIP: 0010:t_show+0x22/0xd0
-
-    Then reproducer was narrowed to
-
-	# cat /sys/kernel/tracing/printk_formats
-
-    Original F34 kernel with modules didn't crash.
-
-    So I started to disable options and after disabling AFS everything
-    started working again.
-
-    The root cause is that AFS was placing char arrays content into a
-    section full of _pointers_ to strings with predictable consequences.
-
-    Non canonical address 435f5346592e4243 is "CB.YFS_" which came from
-    CM_NAME macro.
-
-    Steps to reproduce:
-
-	CONFIG_AFS=y
-	CONFIG_TRACING=y
-
-	# cat /sys/kernel/tracing/printk_formats
-
-Fix this by the following means:
-
- (1) Add enum->string translation tables in the event header with the AFS
-     and YFS cache/callback manager operations listed by RPC operation ID.
-
- (2) Modify the afs_cb_call tracepoint to print the string from the
-     translation table rather than using the string at the afs_call name
-     pointer.
-
- (3) Switch translation table depending on the service we're being accessed
-     as (AFS or YFS) in the tracepoint print clause.  Will this cause
-     problems to userspace utilities?
-
-     Note that the symbolic representation of the YFS service ID isn't
-     available to this header, so I've put it in as a number.  I'm not sure
-     if this is the best way to do this.
-
- (4) Remove the name wrangling (CM_NAME) macro and put the names directly
-     into the afs_call_type structs in cmservice.c.
-
-Fixes: 8e8d7f13b6d5a9 ("afs: Add some tracepoints")
-Reported-by: Alexey Dobriyan (SK hynix) <adobriyan@gmail.com>
+Fixes: e87b03f5830e ("afs: Prepare for use of THPs")
+Signed-off-by: Tom Rix <trix@redhat.com>
 Signed-off-by: David Howells <dhowells@redhat.com>
-Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Reviewed-by: Marc Dionne <marc.dionne@auristor.com>
-cc: Andrew Morton <akpm@linux-foundation.org>
 cc: linux-afs@lists.infradead.org
-Link: https://lore.kernel.org/r/YLAXfvZ+rObEOdc%2F@localhost.localdomain/ [1]
-Link: https://lore.kernel.org/r/643721.1623754699@warthog.procyon.org.uk/
-Link: https://lore.kernel.org/r/162430903582.2896199.6098150063997983353.stgit@warthog.procyon.org.uk/ # v1
-Link: https://lore.kernel.org/r/162609463957.3133237.15916579353149746363.stgit@warthog.procyon.org.uk/ # v1 (repost)
-Link: https://lore.kernel.org/r/162610726860.3408253.445207609466288531.stgit@warthog.procyon.org.uk/ # v2
+Link: https://lore.kernel.org/r/20210430155031.3287870-1-trix@redhat.com
+Link: https://lore.kernel.org/r/CAB9dFdvHsLsw7CMnB+4cgciWDSqVjuij4mH3TaXnHQB8sz5rHw@mail.gmail.com/ [1]
+Link: https://lore.kernel.org/r/162609464716.3133237.10354897554363093252.stgit@warthog.procyon.org.uk/ # v1
+Link: https://lore.kernel.org/r/162610727640.3408253.8687445613469681311.stgit@warthog.procyon.org.uk/ # v2
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/afs/cmservice.c         | 25 ++++----------
- include/trace/events/afs.h | 67 +++++++++++++++++++++++++++++++++++---
- 2 files changed, 69 insertions(+), 23 deletions(-)
+ fs/afs/write.c | 16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
-diff --git a/fs/afs/cmservice.c b/fs/afs/cmservice.c
-index d3c6bb22c5f4..a3f5de28be79 100644
---- a/fs/afs/cmservice.c
-+++ b/fs/afs/cmservice.c
-@@ -29,16 +29,11 @@ static void SRXAFSCB_TellMeAboutYourself(struct work_struct *);
- 
- static int afs_deliver_yfs_cb_callback(struct afs_call *);
- 
--#define CM_NAME(name) \
--	char afs_SRXCB##name##_name[] __tracepoint_string =	\
--		"CB." #name
--
- /*
-  * CB.CallBack operation type
-  */
--static CM_NAME(CallBack);
- static const struct afs_call_type afs_SRXCBCallBack = {
--	.name		= afs_SRXCBCallBack_name,
-+	.name		= "CB.CallBack",
- 	.deliver	= afs_deliver_cb_callback,
- 	.destructor	= afs_cm_destructor,
- 	.work		= SRXAFSCB_CallBack,
-@@ -47,9 +42,8 @@ static const struct afs_call_type afs_SRXCBCallBack = {
- /*
-  * CB.InitCallBackState operation type
-  */
--static CM_NAME(InitCallBackState);
- static const struct afs_call_type afs_SRXCBInitCallBackState = {
--	.name		= afs_SRXCBInitCallBackState_name,
-+	.name		= "CB.InitCallBackState",
- 	.deliver	= afs_deliver_cb_init_call_back_state,
- 	.destructor	= afs_cm_destructor,
- 	.work		= SRXAFSCB_InitCallBackState,
-@@ -58,9 +52,8 @@ static const struct afs_call_type afs_SRXCBInitCallBackState = {
- /*
-  * CB.InitCallBackState3 operation type
-  */
--static CM_NAME(InitCallBackState3);
- static const struct afs_call_type afs_SRXCBInitCallBackState3 = {
--	.name		= afs_SRXCBInitCallBackState3_name,
-+	.name		= "CB.InitCallBackState3",
- 	.deliver	= afs_deliver_cb_init_call_back_state3,
- 	.destructor	= afs_cm_destructor,
- 	.work		= SRXAFSCB_InitCallBackState,
-@@ -69,9 +62,8 @@ static const struct afs_call_type afs_SRXCBInitCallBackState3 = {
- /*
-  * CB.Probe operation type
-  */
--static CM_NAME(Probe);
- static const struct afs_call_type afs_SRXCBProbe = {
--	.name		= afs_SRXCBProbe_name,
-+	.name		= "CB.Probe",
- 	.deliver	= afs_deliver_cb_probe,
- 	.destructor	= afs_cm_destructor,
- 	.work		= SRXAFSCB_Probe,
-@@ -80,9 +72,8 @@ static const struct afs_call_type afs_SRXCBProbe = {
- /*
-  * CB.ProbeUuid operation type
-  */
--static CM_NAME(ProbeUuid);
- static const struct afs_call_type afs_SRXCBProbeUuid = {
--	.name		= afs_SRXCBProbeUuid_name,
-+	.name		= "CB.ProbeUuid",
- 	.deliver	= afs_deliver_cb_probe_uuid,
- 	.destructor	= afs_cm_destructor,
- 	.work		= SRXAFSCB_ProbeUuid,
-@@ -91,9 +82,8 @@ static const struct afs_call_type afs_SRXCBProbeUuid = {
- /*
-  * CB.TellMeAboutYourself operation type
-  */
--static CM_NAME(TellMeAboutYourself);
- static const struct afs_call_type afs_SRXCBTellMeAboutYourself = {
--	.name		= afs_SRXCBTellMeAboutYourself_name,
-+	.name		= "CB.TellMeAboutYourself",
- 	.deliver	= afs_deliver_cb_tell_me_about_yourself,
- 	.destructor	= afs_cm_destructor,
- 	.work		= SRXAFSCB_TellMeAboutYourself,
-@@ -102,9 +92,8 @@ static const struct afs_call_type afs_SRXCBTellMeAboutYourself = {
- /*
-  * YFS CB.CallBack operation type
-  */
--static CM_NAME(YFS_CallBack);
- static const struct afs_call_type afs_SRXYFSCB_CallBack = {
--	.name		= afs_SRXCBYFS_CallBack_name,
-+	.name		= "YFSCB.CallBack",
- 	.deliver	= afs_deliver_yfs_cb_callback,
- 	.destructor	= afs_cm_destructor,
- 	.work		= SRXAFSCB_CallBack,
-diff --git a/include/trace/events/afs.h b/include/trace/events/afs.h
-index 3ccf591b2374..9f73ed2cf061 100644
---- a/include/trace/events/afs.h
-+++ b/include/trace/events/afs.h
-@@ -174,6 +174,34 @@ enum afs_vl_operation {
- 	afs_VL_GetCapabilities	= 65537,	/* AFS Get VL server capabilities */
- };
- 
-+enum afs_cm_operation {
-+	afs_CB_CallBack			= 204,	/* AFS break callback promises */
-+	afs_CB_InitCallBackState	= 205,	/* AFS initialise callback state */
-+	afs_CB_Probe			= 206,	/* AFS probe client */
-+	afs_CB_GetLock			= 207,	/* AFS get contents of CM lock table */
-+	afs_CB_GetCE			= 208,	/* AFS get cache file description */
-+	afs_CB_GetXStatsVersion		= 209,	/* AFS get version of extended statistics */
-+	afs_CB_GetXStats		= 210,	/* AFS get contents of extended statistics data */
-+	afs_CB_InitCallBackState3	= 213,	/* AFS initialise callback state, version 3 */
-+	afs_CB_ProbeUuid		= 214,	/* AFS check the client hasn't rebooted */
-+};
-+
-+enum yfs_cm_operation {
-+	yfs_CB_Probe			= 206,	/* YFS probe client */
-+	yfs_CB_GetLock			= 207,	/* YFS get contents of CM lock table */
-+	yfs_CB_XStatsVersion		= 209,	/* YFS get version of extended statistics */
-+	yfs_CB_GetXStats		= 210,	/* YFS get contents of extended statistics data */
-+	yfs_CB_InitCallBackState3	= 213,	/* YFS initialise callback state, version 3 */
-+	yfs_CB_ProbeUuid		= 214,	/* YFS check the client hasn't rebooted */
-+	yfs_CB_GetServerPrefs		= 215,
-+	yfs_CB_GetCellServDV		= 216,
-+	yfs_CB_GetLocalCell		= 217,
-+	yfs_CB_GetCacheConfig		= 218,
-+	yfs_CB_GetCellByNum		= 65537,
-+	yfs_CB_TellMeAboutYourself	= 65538, /* get client capabilities */
-+	yfs_CB_CallBack			= 64204,
-+};
-+
- enum afs_edit_dir_op {
- 	afs_edit_dir_create,
- 	afs_edit_dir_create_error,
-@@ -436,6 +464,32 @@ enum afs_cb_break_reason {
- 	EM(afs_YFSVL_GetCellName,		"YFSVL.GetCellName") \
- 	E_(afs_VL_GetCapabilities,		"VL.GetCapabilities")
- 
-+#define afs_cm_operations \
-+	EM(afs_CB_CallBack,			"CB.CallBack") \
-+	EM(afs_CB_InitCallBackState,		"CB.InitCallBackState") \
-+	EM(afs_CB_Probe,			"CB.Probe") \
-+	EM(afs_CB_GetLock,			"CB.GetLock") \
-+	EM(afs_CB_GetCE,			"CB.GetCE") \
-+	EM(afs_CB_GetXStatsVersion,		"CB.GetXStatsVersion") \
-+	EM(afs_CB_GetXStats,			"CB.GetXStats") \
-+	EM(afs_CB_InitCallBackState3,		"CB.InitCallBackState3") \
-+	E_(afs_CB_ProbeUuid,			"CB.ProbeUuid")
-+
-+#define yfs_cm_operations \
-+	EM(yfs_CB_Probe,			"YFSCB.Probe") \
-+	EM(yfs_CB_GetLock,			"YFSCB.GetLock") \
-+	EM(yfs_CB_XStatsVersion,		"YFSCB.XStatsVersion") \
-+	EM(yfs_CB_GetXStats,			"YFSCB.GetXStats") \
-+	EM(yfs_CB_InitCallBackState3,		"YFSCB.InitCallBackState3") \
-+	EM(yfs_CB_ProbeUuid,			"YFSCB.ProbeUuid") \
-+	EM(yfs_CB_GetServerPrefs,		"YFSCB.GetServerPrefs") \
-+	EM(yfs_CB_GetCellServDV,		"YFSCB.GetCellServDV") \
-+	EM(yfs_CB_GetLocalCell,			"YFSCB.GetLocalCell") \
-+	EM(yfs_CB_GetCacheConfig,		"YFSCB.GetCacheConfig") \
-+	EM(yfs_CB_GetCellByNum,			"YFSCB.GetCellByNum") \
-+	EM(yfs_CB_TellMeAboutYourself,		"YFSCB.TellMeAboutYourself") \
-+	E_(yfs_CB_CallBack,			"YFSCB.CallBack")
-+
- #define afs_edit_dir_ops				  \
- 	EM(afs_edit_dir_create,			"create") \
- 	EM(afs_edit_dir_create_error,		"c_fail") \
-@@ -569,6 +623,8 @@ afs_server_traces;
- afs_cell_traces;
- afs_fs_operations;
- afs_vl_operations;
-+afs_cm_operations;
-+yfs_cm_operations;
- afs_edit_dir_ops;
- afs_edit_dir_reasons;
- afs_eproto_causes;
-@@ -649,20 +705,21 @@ TRACE_EVENT(afs_cb_call,
- 
- 	    TP_STRUCT__entry(
- 		    __field(unsigned int,		call		)
--		    __field(const char *,		name		)
- 		    __field(u32,			op		)
-+		    __field(u16,			service_id	)
- 			     ),
- 
- 	    TP_fast_assign(
- 		    __entry->call	= call->debug_id;
--		    __entry->name	= call->type->name;
- 		    __entry->op		= call->operation_ID;
-+		    __entry->service_id	= call->service_id;
- 			   ),
- 
--	    TP_printk("c=%08x %s o=%u",
-+	    TP_printk("c=%08x %s",
- 		      __entry->call,
--		      __entry->name,
--		      __entry->op)
-+		      __entry->service_id == 2501 ?
-+		      __print_symbolic(__entry->op, yfs_cm_operations) :
-+		      __print_symbolic(__entry->op, afs_cm_operations))
- 	    );
- 
- TRACE_EVENT(afs_call,
+diff --git a/fs/afs/write.c b/fs/afs/write.c
+index 3104b62c2082..1ed62e0ccfe5 100644
+--- a/fs/afs/write.c
++++ b/fs/afs/write.c
+@@ -771,13 +771,19 @@ int afs_writepages(struct address_space *mapping,
+ 	if (wbc->range_cyclic) {
+ 		start = mapping->writeback_index * PAGE_SIZE;
+ 		ret = afs_writepages_region(mapping, wbc, start, LLONG_MAX, &next);
+-		if (start > 0 && wbc->nr_to_write > 0 && ret == 0)
+-			ret = afs_writepages_region(mapping, wbc, 0, start,
+-						    &next);
+-		mapping->writeback_index = next / PAGE_SIZE;
++		if (ret == 0) {
++			mapping->writeback_index = next / PAGE_SIZE;
++			if (start > 0 && wbc->nr_to_write > 0) {
++				ret = afs_writepages_region(mapping, wbc, 0,
++							    start, &next);
++				if (ret == 0)
++					mapping->writeback_index =
++						next / PAGE_SIZE;
++			}
++		}
+ 	} else if (wbc->range_start == 0 && wbc->range_end == LLONG_MAX) {
+ 		ret = afs_writepages_region(mapping, wbc, 0, LLONG_MAX, &next);
+-		if (wbc->nr_to_write > 0)
++		if (wbc->nr_to_write > 0 && ret == 0)
+ 			mapping->writeback_index = next;
+ 	} else {
+ 		ret = afs_writepages_region(mapping, wbc,
 -- 
 2.30.2
 
