@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67E493D5E0A
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:47:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92AB23D5FAF
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235826AbhGZPFL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:05:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45184 "EHLO mail.kernel.org"
+        id S236320AbhGZPSw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:18:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235918AbhGZPEu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:04:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CB10D60F5C;
-        Mon, 26 Jul 2021 15:45:18 +0000 (UTC)
+        id S236598AbhGZPRV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:17:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E213960F42;
+        Mon, 26 Jul 2021 15:57:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314319;
-        bh=78DkP5ZL2ZwEH0gGVCVQgoGKOrnSWUJ13sr5dIEVpww=;
+        s=korg; t=1627315069;
+        bh=AwbHAUQlrbXS22dpa7/Ydh8PxdTNczqYpdXgvK/8zn0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SAB0wjKnK7C4nIvngSlfawMgzrEW147F6Z/60v+U4YqisMK2Cu64+0o192ZSYvSyJ
-         ShPcA6VaGRdlqAhodeVhoKgTffPatv/3O+FHlyntJAPMTY+WNG/OS/K5TUCaU1j279
-         1CPf/38tcI71OHothAozYYLBBWv4yWAwVBJiUnkM=
+        b=HbReQkRttjG6EFse5qM2AAQM+cpgzD4EYdhFXnB3fvvF5mKoip2U9ZOD+XB7GVIlB
+         Ym6acD6Kw6t1uz9rEjHXifDXLYKVaHIM9gBfc3M6GE2+QrABJI0tw6dRmoiFgZZI3Y
+         nlSRpHJqLCyk/k5ZxmSYWDedpaUch5b150BUVkYY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Doug Berger <opendmb@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 57/60] net: bcmgenet: ensure EXT_ENERGY_DET_MASK is clear
+        stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 5.4 070/108] s390/ftrace: fix ftrace_update_ftrace_func implementation
 Date:   Mon, 26 Jul 2021 17:39:11 +0200
-Message-Id: <20210726153826.660949307@linuxfoundation.org>
+Message-Id: <20210726153833.935781676@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153824.868160836@linuxfoundation.org>
-References: <20210726153824.868160836@linuxfoundation.org>
+In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
+References: <20210726153831.696295003@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,90 +39,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Doug Berger <opendmb@gmail.com>
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-commit 5a3c680aa2c12c90c44af383fe6882a39875ab81 upstream.
+commit f8c2602733c953ed7a16e060640b8e96f9d94b9b upstream.
 
-Setting the EXT_ENERGY_DET_MASK bit allows the port energy detection
-logic of the internal PHY to prevent the system from sleeping. Some
-internal PHYs will report that energy is detected when the network
-interface is closed which can prevent the system from going to sleep
-if WoL is enabled when the interface is brought down.
+s390 enforces DYNAMIC_FTRACE if FUNCTION_TRACER is selected.
+At the same time implementation of ftrace_caller is not compliant with
+HAVE_DYNAMIC_FTRACE since it doesn't provide implementation of
+ftrace_update_ftrace_func() and calls ftrace_trace_function() directly.
 
-Since the driver does not support waking the system on this logic,
-this commit clears the bit whenever the internal PHY is powered up
-and the other logic for manipulating the bit is removed since it
-serves no useful function.
+The subtle difference is that during ftrace code patching ftrace
+replaces function tracer via ftrace_update_ftrace_func() and activates
+it back afterwards. Unexpected direct calls to ftrace_trace_function()
+during ftrace code patching leads to nullptr-dereferences when tracing
+is activated for one of functions which are used during code patching.
+Those function currently are:
+copy_from_kernel_nofault()
+copy_from_kernel_nofault_allowed()
+preempt_count_sub() [with debug_defconfig]
+preempt_count_add() [with debug_defconfig]
 
-Fixes: 1c1008c793fa ("net: bcmgenet: add main driver file")
-Signed-off-by: Doug Berger <opendmb@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Corresponding KASAN report:
+ BUG: KASAN: nullptr-dereference in function_trace_call+0x316/0x3b0
+ Read of size 4 at addr 0000000000001e08 by task migration/0/15
+
+ CPU: 0 PID: 15 Comm: migration/0 Tainted: G B 5.13.0-41423-g08316af3644d
+ Hardware name: IBM 3906 M04 704 (LPAR)
+ Stopper: multi_cpu_stop+0x0/0x3e0 <- stop_machine_cpuslocked+0x1e4/0x218
+ Call Trace:
+  [<0000000001f77caa>] show_stack+0x16a/0x1d0
+  [<0000000001f8de42>] dump_stack+0x15a/0x1b0
+  [<0000000001f81d56>] print_address_description.constprop.0+0x66/0x2e0
+  [<000000000082b0ca>] kasan_report+0x152/0x1c0
+  [<00000000004cfd8e>] function_trace_call+0x316/0x3b0
+  [<0000000001fb7082>] ftrace_caller+0x7a/0x7e
+  [<00000000006bb3e6>] copy_from_kernel_nofault_allowed+0x6/0x10
+  [<00000000006bb42e>] copy_from_kernel_nofault+0x3e/0xd0
+  [<000000000014605c>] ftrace_make_call+0xb4/0x1f8
+  [<000000000047a1b4>] ftrace_replace_code+0x134/0x1d8
+  [<000000000047a6e0>] ftrace_modify_all_code+0x120/0x1d0
+  [<000000000047a7ec>] __ftrace_modify_code+0x5c/0x78
+  [<000000000042395c>] multi_cpu_stop+0x224/0x3e0
+  [<0000000000423212>] cpu_stopper_thread+0x33a/0x5a0
+  [<0000000000243ff2>] smpboot_thread_fn+0x302/0x708
+  [<00000000002329ea>] kthread+0x342/0x408
+  [<00000000001066b2>] __ret_from_fork+0x92/0xf0
+  [<0000000001fb57fa>] ret_from_fork+0xa/0x30
+
+ The buggy address belongs to the page:
+ page:(____ptrval____) refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x1
+ flags: 0x1ffff00000001000(reserved|node=0|zone=0|lastcpupid=0x1ffff)
+ raw: 1ffff00000001000 0000040000000048 0000040000000048 0000000000000000
+ raw: 0000000000000000 0000000000000000 ffffffff00000001 0000000000000000
+ page dumped because: kasan: bad access detected
+
+ Memory state around the buggy address:
+  0000000000001d00: f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7
+  0000000000001d80: f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7
+ >0000000000001e00: f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7
+                       ^
+  0000000000001e80: f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7
+  0000000000001f00: f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7
+ ==================================================================
+
+To fix that introduce ftrace_func callback to be called from
+ftrace_caller and update it in ftrace_update_ftrace_func().
+
+Fixes: 4cc9bed034d1 ("[S390] cleanup ftrace backend functions")
+Cc: stable@vger.kernel.org
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/genet/bcmgenet.c     |   15 +--------------
- drivers/net/ethernet/broadcom/genet/bcmgenet_wol.c |    6 ------
- 2 files changed, 1 insertion(+), 20 deletions(-)
+ arch/s390/include/asm/ftrace.h |    1 +
+ arch/s390/kernel/ftrace.c      |    2 ++
+ arch/s390/kernel/mcount.S      |    4 ++--
+ 3 files changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-@@ -1094,7 +1094,7 @@ static void bcmgenet_power_up(struct bcm
- 	switch (mode) {
- 	case GENET_POWER_PASSIVE:
- 		reg &= ~(EXT_PWR_DOWN_DLL | EXT_PWR_DOWN_PHY |
--				EXT_PWR_DOWN_BIAS);
-+			 EXT_PWR_DOWN_BIAS | EXT_ENERGY_DET_MASK);
- 		/* fallthrough */
- 	case GENET_POWER_CABLE_SENSE:
- 		/* enable APD */
-@@ -2821,12 +2821,6 @@ static int bcmgenet_open(struct net_devi
+--- a/arch/s390/include/asm/ftrace.h
++++ b/arch/s390/include/asm/ftrace.h
+@@ -27,6 +27,7 @@ void ftrace_caller(void);
  
- 	bcmgenet_set_hw_addr(priv, dev->dev_addr);
+ extern char ftrace_graph_caller_end;
+ extern unsigned long ftrace_plt;
++extern void *ftrace_func;
  
--	if (priv->internal_phy) {
--		reg = bcmgenet_ext_readl(priv, EXT_EXT_PWR_MGMT);
--		reg |= EXT_ENERGY_DET_MASK;
--		bcmgenet_ext_writel(priv, reg, EXT_EXT_PWR_MGMT);
--	}
--
- 	/* Disable RX/TX DMA and flush TX queues */
- 	dma_ctrl = bcmgenet_dma_disable(priv);
+ struct dyn_arch_ftrace { };
  
-@@ -3516,7 +3510,6 @@ static int bcmgenet_resume(struct device
- 	struct bcmgenet_priv *priv = netdev_priv(dev);
- 	unsigned long dma_ctrl;
- 	int ret;
--	u32 reg;
+--- a/arch/s390/kernel/ftrace.c
++++ b/arch/s390/kernel/ftrace.c
+@@ -57,6 +57,7 @@
+  * >	brasl	%r0,ftrace_caller	# offset 0
+  */
  
- 	if (!netif_running(dev))
- 		return 0;
-@@ -3551,12 +3544,6 @@ static int bcmgenet_resume(struct device
++void *ftrace_func __read_mostly = ftrace_stub;
+ unsigned long ftrace_plt;
  
- 	bcmgenet_set_hw_addr(priv, dev->dev_addr);
+ static inline void ftrace_generate_orig_insn(struct ftrace_insn *insn)
+@@ -166,6 +167,7 @@ int ftrace_make_call(struct dyn_ftrace *
  
--	if (priv->internal_phy) {
--		reg = bcmgenet_ext_readl(priv, EXT_EXT_PWR_MGMT);
--		reg |= EXT_ENERGY_DET_MASK;
--		bcmgenet_ext_writel(priv, reg, EXT_EXT_PWR_MGMT);
--	}
--
- 	if (priv->wolopts)
- 		bcmgenet_power_up(priv, GENET_POWER_WOL_MAGIC);
+ int ftrace_update_ftrace_func(ftrace_func_t func)
+ {
++	ftrace_func = func;
+ 	return 0;
+ }
  
---- a/drivers/net/ethernet/broadcom/genet/bcmgenet_wol.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmgenet_wol.c
-@@ -167,12 +167,6 @@ int bcmgenet_wol_power_down_cfg(struct b
- 	reg |= CMD_RX_EN;
- 	bcmgenet_umac_writel(priv, reg, UMAC_CMD);
- 
--	if (priv->hw_params->flags & GENET_HAS_EXT) {
--		reg = bcmgenet_ext_readl(priv, EXT_EXT_PWR_MGMT);
--		reg &= ~EXT_ENERGY_DET_MASK;
--		bcmgenet_ext_writel(priv, reg, EXT_EXT_PWR_MGMT);
--	}
--
- 	/* Enable the MPD interrupt */
- 	cpu_mask_clear = UMAC_IRQ_MPD_R;
- 
+--- a/arch/s390/kernel/mcount.S
++++ b/arch/s390/kernel/mcount.S
+@@ -61,13 +61,13 @@ ENTRY(ftrace_caller)
+ #ifdef CONFIG_HAVE_MARCH_Z196_FEATURES
+ 	aghik	%r2,%r0,-MCOUNT_INSN_SIZE
+ 	lgrl	%r4,function_trace_op
+-	lgrl	%r1,ftrace_trace_function
++	lgrl	%r1,ftrace_func
+ #else
+ 	lgr	%r2,%r0
+ 	aghi	%r2,-MCOUNT_INSN_SIZE
+ 	larl	%r4,function_trace_op
+ 	lg	%r4,0(%r4)
+-	larl	%r1,ftrace_trace_function
++	larl	%r1,ftrace_func
+ 	lg	%r1,0(%r1)
+ #endif
+ 	lgr	%r3,%r14
 
 
