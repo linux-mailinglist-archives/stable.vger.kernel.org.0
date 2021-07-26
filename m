@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 180D83D5ECE
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:59:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2CB13D5E09
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:47:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236531AbhGZPLj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:11:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49276 "EHLO mail.kernel.org"
+        id S235779AbhGZPFL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:05:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235908AbhGZPHz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:07:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E967360F5C;
-        Mon, 26 Jul 2021 15:48:22 +0000 (UTC)
+        id S235700AbhGZPEy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:04:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A693660F91;
+        Mon, 26 Jul 2021 15:45:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314503;
-        bh=Uv6UO7LLEiKLZKDVxDYywyZRgpFdV+MSx7H1T5AVbS0=;
+        s=korg; t=1627314322;
+        bh=dENVCS3Y3KQhQSG+QKV4p2dyPQEV4LoEQltka3j1BbU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q8CEfIYXZWADSEAGgnT5Cjxvyb68VlC5va4iJT8yyjBbSBXQYJsdnmPaMjoTZiL5c
-         Xb5/0ifh+Gnsa5M7Xt0pSuNef6r3WOygFe5MnWDk67kBPZURGlK+QCkyO7rXgKGsfG
-         ByuBwyP0fAULbDJoKuNf4c4NWR0FruIPj3CvEWgM=
+        b=wxFonQw17QbDlpGPmds8QIfctWlf0SytjEy7Wgy8YmcjC3OAaoTEYJlHJm1kDC9j0
+         NV+PexVdhcSZ3GIDtvuNTpD4L/NKACnXoIAqne0+YfPKjCiT46b++CkwJoiEjYK6nh
+         zAiVn7w61Ud/7G29t8O0o9lbBnqEn9c9xTJuOiR4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linuxfoundation.org>,
-        Haoran Luo <www@aegistudio.net>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.14 72/82] tracing: Fix bug in rb_per_cpu_empty() that might cause deadloop.
+        stable@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>,
+        Oleksandr Kravchenko <o.v.kravchenko@globallogic.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.9 58/60] iio: accel: bma180: Use explicit member assignment
 Date:   Mon, 26 Jul 2021 17:39:12 +0200
-Message-Id: <20210726153830.517903948@linuxfoundation.org>
+Message-Id: <20210726153826.692370001@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153828.144714469@linuxfoundation.org>
-References: <20210726153828.144714469@linuxfoundation.org>
+In-Reply-To: <20210726153824.868160836@linuxfoundation.org>
+References: <20210726153824.868160836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,102 +42,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haoran Luo <www@aegistudio.net>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-commit 67f0d6d9883c13174669f88adac4f0ee656cc16a upstream.
+commit 9436abc40139503a7cea22a96437697d048f31c0 upstream
 
-The "rb_per_cpu_empty()" misinterpret the condition (as not-empty) when
-"head_page" and "commit_page" of "struct ring_buffer_per_cpu" points to
-the same buffer page, whose "buffer_data_page" is empty and "read" field
-is non-zero.
+This uses the C99 explicit .member assignment for the
+variant data in struct bma180_part_info. This makes it
+easier to understand and add new variants.
 
-An error scenario could be constructed as followed (kernel perspective):
-
-1. All pages in the buffer has been accessed by reader(s) so that all of
-them will have non-zero "read" field.
-
-2. Read and clear all buffer pages so that "rb_num_of_entries()" will
-return 0 rendering there's no more data to read. It is also required
-that the "read_page", "commit_page" and "tail_page" points to the same
-page, while "head_page" is the next page of them.
-
-3. Invoke "ring_buffer_lock_reserve()" with large enough "length"
-so that it shot pass the end of current tail buffer page. Now the
-"head_page", "commit_page" and "tail_page" points to the same page.
-
-4. Discard current event with "ring_buffer_discard_commit()", so that
-"head_page", "commit_page" and "tail_page" points to a page whose buffer
-data page is now empty.
-
-When the error scenario has been constructed, "tracing_read_pipe" will
-be trapped inside a deadloop: "trace_empty()" returns 0 since
-"rb_per_cpu_empty()" returns 0 when it hits the CPU containing such
-constructed ring buffer. Then "trace_find_next_entry_inc()" always
-return NULL since "rb_num_of_entries()" reports there's no more entry
-to read. Finally "trace_seq_to_user()" returns "-EBUSY" spanking
-"tracing_read_pipe" back to the start of the "waitagain" loop.
-
-I've also written a proof-of-concept script to construct the scenario
-and trigger the bug automatically, you can use it to trace and validate
-my reasoning above:
-
-  https://github.com/aegistudio/RingBufferDetonator.git
-
-Tests has been carried out on linux kernel 5.14-rc2
-(2734d6c1b1a089fb593ef6a23d4b70903526fe0c), my fixed version
-of kernel (for testing whether my update fixes the bug) and
-some older kernels (for range of affected kernels). Test result is
-also attached to the proof-of-concept repository.
-
-Link: https://lore.kernel.org/linux-trace-devel/YPaNxsIlb2yjSi5Y@aegistudio/
-Link: https://lore.kernel.org/linux-trace-devel/YPgrN85WL9VyrZ55@aegistudio
-
-Cc: stable@vger.kernel.org
-Fixes: bf41a158cacba ("ring-buffer: make reentrant")
-Suggested-by: Linus Torvalds <torvalds@linuxfoundation.org>
-Signed-off-by: Haoran Luo <www@aegistudio.net>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Cc: Peter Meerwald <pmeerw@pmeerw.net>
+Cc: Oleksandr Kravchenko <o.v.kravchenko@globallogic.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/ring_buffer.c |   28 ++++++++++++++++++++++++----
- 1 file changed, 24 insertions(+), 4 deletions(-)
+ drivers/iio/accel/bma180.c |   68 +++++++++++++++++++++++++++++----------------
+ 1 file changed, 44 insertions(+), 24 deletions(-)
 
---- a/kernel/trace/ring_buffer.c
-+++ b/kernel/trace/ring_buffer.c
-@@ -3054,10 +3054,30 @@ static bool rb_per_cpu_empty(struct ring
- 	if (unlikely(!head))
- 		return true;
+--- a/drivers/iio/accel/bma180.c
++++ b/drivers/iio/accel/bma180.c
+@@ -625,32 +625,52 @@ static const struct iio_chan_spec bma250
  
--	return reader->read == rb_page_commit(reader) &&
--		(commit == reader ||
--		 (commit == head &&
--		  head->read == rb_page_commit(commit)));
-+	/* Reader should exhaust content in reader page */
-+	if (reader->read != rb_page_commit(reader))
-+		return false;
-+
-+	/*
-+	 * If writers are committing on the reader page, knowing all
-+	 * committed content has been read, the ring buffer is empty.
-+	 */
-+	if (commit == reader)
-+		return true;
-+
-+	/*
-+	 * If writers are committing on a page other than reader page
-+	 * and head page, there should always be content to read.
-+	 */
-+	if (commit != head)
-+		return false;
-+
-+	/*
-+	 * Writers are committing on the head page, we just need
-+	 * to care about there're committed data, and the reader will
-+	 * swap reader page with head page when it is to read data.
-+	 */
-+	return rb_page_commit(commit) == 0;
- }
+ static const struct bma180_part_info bma180_part_info[] = {
+ 	[BMA180] = {
+-		bma180_channels, ARRAY_SIZE(bma180_channels),
+-		bma180_scale_table, ARRAY_SIZE(bma180_scale_table),
+-		bma180_bw_table, ARRAY_SIZE(bma180_bw_table),
+-		BMA180_CTRL_REG0, BMA180_RESET_INT,
+-		BMA180_CTRL_REG0, BMA180_SLEEP,
+-		BMA180_BW_TCS, BMA180_BW,
+-		BMA180_OFFSET_LSB1, BMA180_RANGE,
+-		BMA180_TCO_Z, BMA180_MODE_CONFIG, BMA180_LOW_POWER,
+-		BMA180_CTRL_REG3, BMA180_NEW_DATA_INT,
+-		BMA180_RESET,
+-		bma180_chip_config,
+-		bma180_chip_disable,
++		.channels = bma180_channels,
++		.num_channels = ARRAY_SIZE(bma180_channels),
++		.scale_table = bma180_scale_table,
++		.num_scales = ARRAY_SIZE(bma180_scale_table),
++		.bw_table = bma180_bw_table,
++		.num_bw = ARRAY_SIZE(bma180_bw_table),
++		.int_reset_reg = BMA180_CTRL_REG0,
++		.int_reset_mask = BMA180_RESET_INT,
++		.sleep_reg = BMA180_CTRL_REG0,
++		.sleep_mask = BMA180_SLEEP,
++		.bw_reg = BMA180_BW_TCS,
++		.bw_mask = BMA180_BW,
++		.scale_reg = BMA180_OFFSET_LSB1,
++		.scale_mask = BMA180_RANGE,
++		.power_reg = BMA180_TCO_Z,
++		.power_mask = BMA180_MODE_CONFIG,
++		.lowpower_val = BMA180_LOW_POWER,
++		.int_enable_reg = BMA180_CTRL_REG3,
++		.int_enable_mask = BMA180_NEW_DATA_INT,
++		.softreset_reg = BMA180_RESET,
++		.chip_config = bma180_chip_config,
++		.chip_disable = bma180_chip_disable,
+ 	},
+ 	[BMA250] = {
+-		bma250_channels, ARRAY_SIZE(bma250_channels),
+-		bma250_scale_table, ARRAY_SIZE(bma250_scale_table),
+-		bma250_bw_table, ARRAY_SIZE(bma250_bw_table),
+-		BMA250_INT_RESET_REG, BMA250_INT_RESET_MASK,
+-		BMA250_POWER_REG, BMA250_SUSPEND_MASK,
+-		BMA250_BW_REG, BMA250_BW_MASK,
+-		BMA250_RANGE_REG, BMA250_RANGE_MASK,
+-		BMA250_POWER_REG, BMA250_LOWPOWER_MASK, 1,
+-		BMA250_INT_ENABLE_REG, BMA250_DATA_INTEN_MASK,
+-		BMA250_RESET_REG,
+-		bma250_chip_config,
+-		bma250_chip_disable,
++		.channels = bma250_channels,
++		.num_channels = ARRAY_SIZE(bma250_channels),
++		.scale_table = bma250_scale_table,
++		.num_scales = ARRAY_SIZE(bma250_scale_table),
++		.bw_table = bma250_bw_table,
++		.num_bw = ARRAY_SIZE(bma250_bw_table),
++		.int_reset_reg = BMA250_INT_RESET_REG,
++		.int_reset_mask = BMA250_INT_RESET_MASK,
++		.sleep_reg = BMA250_POWER_REG,
++		.sleep_mask = BMA250_SUSPEND_MASK,
++		.bw_reg = BMA250_BW_REG,
++		.bw_mask = BMA250_BW_MASK,
++		.scale_reg = BMA250_RANGE_REG,
++		.scale_mask = BMA250_RANGE_MASK,
++		.power_reg = BMA250_POWER_REG,
++		.power_mask = BMA250_LOWPOWER_MASK,
++		.lowpower_val = 1,
++		.int_enable_reg = BMA250_INT_ENABLE_REG,
++		.int_enable_mask = BMA250_DATA_INTEN_MASK,
++		.softreset_reg = BMA250_RESET_REG,
++		.chip_config = bma250_chip_config,
++		.chip_disable = bma250_chip_disable,
+ 	},
+ };
  
- /**
 
 
