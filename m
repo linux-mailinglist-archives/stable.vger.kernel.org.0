@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 81A9C3D5829
+	by mail.lfdr.de (Postfix) with ESMTP id CAAB93D582A
 	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 12:59:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233665AbhGZKSx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 06:18:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42590 "EHLO mail.kernel.org"
+        id S231874AbhGZKS4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 06:18:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232702AbhGZKSw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 06:18:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C51360E09;
-        Mon, 26 Jul 2021 10:59:20 +0000 (UTC)
+        id S232518AbhGZKSz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 06:18:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0870A60F56;
+        Mon, 26 Jul 2021 10:59:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627297161;
-        bh=l8rh9XWagszIt/f5VDMmjM8kr6p5ZkR12V8Ke+Kl2cA=;
+        s=korg; t=1627297163;
+        bh=yEtfz9bAh5yCPUFk1IzK6mkUhxO3zLHSIwKSrQmxrqM=;
         h=Subject:To:Cc:From:Date:From;
-        b=0cyxF0EQth3i6TB6hsWzCKpVwDHrO5OG3yqKN1fp1SFQkmmMXc0CMiR9BLbF+aO9q
-         zRUYtBSVkiwsLcqla4qlHc0bX8NB4DP7V9wQ5TLyEH6Gh66P63cbMAAhi7nvQJUIqy
-         w5ivmRf4xycWHO8AMhxrN875oHnBj1kfkt4PnxxY=
-Subject: FAILED: patch "[PATCH] sctp: do not update transport pathmtu if SPP_PMTUD_ENABLE is" failed to apply to 5.4-stable tree
+        b=pWcIqfl3Mse7rNU3s15oTmQr/IOYyGjjXhRYtHtVow7odBj3u6Ea7/fyS1o4V6nmr
+         3kxt12KHFexV2yEmeYXnHQ02IL9GkOzka2F3nDJ106gYqpyBkd5slZzp8UmmCMsnpn
+         7rrEEinYBg/ncdZSY5vMffpu/ZsbHYqEjY2n2e/k=
+Subject: FAILED: patch "[PATCH] sctp: do not update transport pathmtu if SPP_PMTUD_ENABLE is" failed to apply to 5.10-stable tree
 To:     lucien.xin@gmail.com, davem@davemloft.net,
         jacek.szafraniec@nokia.com, marcelo.leitner@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 26 Jul 2021 12:59:10 +0200
-Message-ID: <16272971507792@kroah.com>
+Date:   Mon, 26 Jul 2021 12:59:11 +0200
+Message-ID: <1627297151774@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
