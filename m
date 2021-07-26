@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0930A3D6187
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:14:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 830573D607B
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:11:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233258AbhGZPcO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:32:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45050 "EHLO mail.kernel.org"
+        id S237361AbhGZPWd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:22:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37238 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238136AbhGZP3u (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:29:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 615AC60240;
-        Mon, 26 Jul 2021 16:10:18 +0000 (UTC)
+        id S237351AbhGZPWb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:22:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 41BDF60240;
+        Mon, 26 Jul 2021 16:02:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315818;
-        bh=KQBIvWw5YEEKzswPulW/87FGiBPzOznHMPU68F6m9Ds=;
+        s=korg; t=1627315379;
+        bh=ndUgM71PiplHjLSJOpfq3EiOvO7iSFPeQ4qrBH7KgU8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QsRkjCOOKbDIeVKE3ocO17DMFIIaPgEk46ToCQYMnpdCACVWajSu8QDqNmaUjkno9
-         M7wIgnApBmXwtOr+traeiJ6EZ58FisbxOIAAmUR4ADdrzGNdPf3JIEdjpMSfVXWtv/
-         YH0sRey9czqQP94Sj9AcVDTwp+n1XZfHA8UledpY=
+        b=dZdA1yij+i75XqlGImTAV58mp7bL2KZLiKBVjco3uaXa+EyLHW92BVzAFVVUxArTn
+         16T1XkjkWE2rVD/9oM+Vbhw2/D2gpt0cSV27yKZ5tlIna4dF9YphBNbJrpn2ieHPtb
+         7Qe/w+ifFLmHpeDM8V4RdUO2jX69JVLoZDaJWsas=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Riccardo Mancini <rickyman7@gmail.com>,
+        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 080/223] liquidio: Fix unintentional sign extension issue on left shift of u16
+Subject: [PATCH 5.10 039/167] perf dso: Fix memory leak in dso__new_map()
 Date:   Mon, 26 Jul 2021 17:37:52 +0200
-Message-Id: <20210726153848.867295749@linuxfoundation.org>
+Message-Id: <20210726153840.706440483@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
-References: <20210726153846.245305071@linuxfoundation.org>
+In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
+References: <20210726153839.371771838@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Riccardo Mancini <rickyman7@gmail.com>
 
-[ Upstream commit e7efc2ce3d0789cd7c21b70ff00cd7838d382639 ]
+[ Upstream commit 581e295a0f6b5c2931d280259fbbfff56959faa9 ]
 
-Shifting the u16 integer oct->pcie_port by CN23XX_PKT_INPUT_CTL_MAC_NUM_POS
-(29) bits will be promoted to a 32 bit signed int and then sign-extended
-to a u64. In the cases where oct->pcie_port where bit 2 is set (e.g. 3..7)
-the shifted value will be sign extended and the top 32 bits of the result
-will be set.
+ASan reports a memory leak when running:
 
-Fix this by casting the u16 values to a u64 before the 29 bit left shift.
+  # perf test "65: maps__merge_in".
 
-Addresses-Coverity: ("Unintended sign extension")
+The causes of the leaks are two, this patch addresses only the first
+one, which is related to dso__new_map().
 
-Fixes: 3451b97cce2d ("liquidio: CN23XX register setup")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The bug is that dso__new_map() creates a new dso but never decreases the
+refcount it gets from creating it.
+
+This patch adds the missing dso__put().
+
+Signed-off-by: Riccardo Mancini <rickyman7@gmail.com>
+Fixes: d3a7c489c7fd2463 ("perf tools: Reference count struct dso")
+Cc: Ian Rogers <irogers@google.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lore.kernel.org/lkml/60bfe0cd06e89e2ca33646eb8468d7f5de2ee597.1626343282.git.rickyman7@gmail.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/cavium/liquidio/cn23xx_pf_device.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/perf/util/dso.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/cavium/liquidio/cn23xx_pf_device.c b/drivers/net/ethernet/cavium/liquidio/cn23xx_pf_device.c
-index 4cddd628d41b..9ed3d1ab2ca5 100644
---- a/drivers/net/ethernet/cavium/liquidio/cn23xx_pf_device.c
-+++ b/drivers/net/ethernet/cavium/liquidio/cn23xx_pf_device.c
-@@ -420,7 +420,7 @@ static int cn23xx_pf_setup_global_input_regs(struct octeon_device *oct)
- 	 * bits 32:47 indicate the PVF num.
- 	 */
- 	for (q_no = 0; q_no < ern; q_no++) {
--		reg_val = oct->pcie_port << CN23XX_PKT_INPUT_CTL_MAC_NUM_POS;
-+		reg_val = (u64)oct->pcie_port << CN23XX_PKT_INPUT_CTL_MAC_NUM_POS;
+diff --git a/tools/perf/util/dso.c b/tools/perf/util/dso.c
+index 55c11e854fe4..b1ff0c9f32da 100644
+--- a/tools/perf/util/dso.c
++++ b/tools/perf/util/dso.c
+@@ -1141,8 +1141,10 @@ struct map *dso__new_map(const char *name)
+ 	struct map *map = NULL;
+ 	struct dso *dso = dso__new(name);
  
- 		/* for VF assigned queues. */
- 		if (q_no < oct->sriov_info.pf_srn) {
+-	if (dso)
++	if (dso) {
+ 		map = map__new2(0, dso);
++		dso__put(dso);
++	}
+ 
+ 	return map;
+ }
 -- 
 2.30.2
 
