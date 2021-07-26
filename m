@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AF023D5E23
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:47:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5B4F3D5D4C
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:41:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235414AbhGZPFp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:05:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46126 "EHLO mail.kernel.org"
+        id S234991AbhGZPAf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:00:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39092 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235759AbhGZPFa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:05:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 208C560F02;
-        Mon, 26 Jul 2021 15:45:57 +0000 (UTC)
+        id S235145AbhGZPAe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:00:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 450E760F42;
+        Mon, 26 Jul 2021 15:41:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314358;
-        bh=l0Cw9TsyCc7qYbac/t7+DIPSgHI2IXBGitlxGGgv+sY=;
+        s=korg; t=1627314062;
+        bh=8vhQ4Oehg8coiqqrLXBMOpx8iQQ+NwAJ2/JIzmLJku4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wQsIoqqqi4h/mofwscmKqxVJSVTnHqcFIUIYbWon4LRZ1Woq2klq5Zpy51XKdjV1I
-         H3HjefmykLX1EbsLaRr/DHhA23V8bAJq/4Iyp+mYcUfoFb7tquKmwRroJvv6evyOvB
-         Tq9RSudfuoRgAOhtBORmGz7K6mECkZI9nLCYM+Ko=
+        b=GUQ8RY06d8KshiX5uNbN+9It5QeUdyhG5SBsmTN8L2zr8/JiLm5Y/PK0BCLEvL9iW
+         AgmlXMG4qmskH9Zsxo4+us4XtvSHBULtDHi/+vsL7GuDgFQzxIhFWjSFR78qJdvpIr
+         l6ThX/VEIum43j9PyyV4Zd9jA+ygxKFKc0K9pxag=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 19/82] rtc: max77686: Do not enforce (incorrect) interrupt trigger type
-Date:   Mon, 26 Jul 2021 17:38:19 +0200
-Message-Id: <20210726153828.783103742@linuxfoundation.org>
+Subject: [PATCH 4.4 02/47] ARM: dts: BCM63xx: Fix NAND nodes names
+Date:   Mon, 26 Jul 2021 17:38:20 +0200
+Message-Id: <20210726153823.060775842@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153828.144714469@linuxfoundation.org>
-References: <20210726153828.144714469@linuxfoundation.org>
+In-Reply-To: <20210726153822.980271128@linuxfoundation.org>
+References: <20210726153822.980271128@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,47 +41,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Rafał Miłecki <rafal@milecki.pl>
 
-[ Upstream commit 742b0d7e15c333303daad4856de0764f4bc83601 ]
+[ Upstream commit 75e2f012f6e34b93124d1d86eaa8f27df48e9ea0 ]
 
-Interrupt line can be configured on different hardware in different way,
-even inverted.  Therefore driver should not enforce specific trigger
-type - edge falling - but instead rely on Devicetree to configure it.
+This matches nand-controller.yaml requirements.
 
-The Maxim 77686 datasheet describes the interrupt line as active low
-with a requirement of acknowledge from the CPU therefore the edge
-falling is not correct.
-
-The interrupt line is shared between PMIC and RTC driver, so using level
-sensitive interrupt is here especially important to avoid races.  With
-an edge configuration in case if first PMIC signals interrupt followed
-shortly after by the RTC, the interrupt might not be yet cleared/acked
-thus the second one would not be noticed.
-
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20210526172036.183223-6-krzysztof.kozlowski@canonical.com
+Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-max77686.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/bcm63138.dtsi    | 2 +-
+ arch/arm/boot/dts/bcm963138dvt.dts | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
-index 182fdd00e290..ecd61573dd31 100644
---- a/drivers/rtc/rtc-max77686.c
-+++ b/drivers/rtc/rtc-max77686.c
-@@ -718,8 +718,8 @@ static int max77686_init_rtc_regmap(struct max77686_rtc_info *info)
+diff --git a/arch/arm/boot/dts/bcm63138.dtsi b/arch/arm/boot/dts/bcm63138.dtsi
+index 34cd64051250..84efc3d16f58 100644
+--- a/arch/arm/boot/dts/bcm63138.dtsi
++++ b/arch/arm/boot/dts/bcm63138.dtsi
+@@ -152,7 +152,7 @@
+ 			status = "disabled";
+ 		};
  
- add_rtc_irq:
- 	ret = regmap_add_irq_chip(info->rtc_regmap, info->rtc_irq,
--				  IRQF_TRIGGER_FALLING | IRQF_ONESHOT |
--				  IRQF_SHARED, 0, info->drv_data->rtc_irq_chip,
-+				  IRQF_ONESHOT | IRQF_SHARED,
-+				  0, info->drv_data->rtc_irq_chip,
- 				  &info->rtc_irq_data);
- 	if (ret < 0) {
- 		dev_err(info->dev, "Failed to add RTC irq chip: %d\n", ret);
+-		nand: nand@2000 {
++		nand_controller: nand-controller@2000 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			compatible = "brcm,nand-bcm63138", "brcm,brcmnand-v7.0", "brcm,brcmnand";
+diff --git a/arch/arm/boot/dts/bcm963138dvt.dts b/arch/arm/boot/dts/bcm963138dvt.dts
+index 370aa2cfddf2..439cff69e948 100644
+--- a/arch/arm/boot/dts/bcm963138dvt.dts
++++ b/arch/arm/boot/dts/bcm963138dvt.dts
+@@ -29,10 +29,10 @@
+ 	status = "okay";
+ };
+ 
+-&nand {
++&nand_controller {
+ 	status = "okay";
+ 
+-	nandcs@0 {
++	nand@0 {
+ 		compatible = "brcm,nandcs";
+ 		reg = <0>;
+ 		nand-ecc-strength = <4>;
 -- 
 2.30.2
 
