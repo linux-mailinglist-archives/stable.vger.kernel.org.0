@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DAA13D5FED
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4054E3D6291
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:26:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236434AbhGZPTr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:19:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32828 "EHLO mail.kernel.org"
+        id S234498AbhGZPgQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:36:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236841AbhGZPTo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:19:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 021A660F6E;
-        Mon, 26 Jul 2021 16:00:11 +0000 (UTC)
+        id S236884AbhGZPfz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:35:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DC83360F6B;
+        Mon, 26 Jul 2021 16:16:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315212;
-        bh=RsE2NI3sa5Azr3Ibritsf9OIwHrfBh7G+XJXY9zikck=;
+        s=korg; t=1627316183;
+        bh=TUxbx0dsEUujwCCzZ3h4JIqB77mC8846Vl+ah7g+S3M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YPtlrifRAIcWlJ06kXVBXQepzvB7OkmbrZvVbk8CPz6ttWlRuhjSszjhWQDxD3YT6
-         lxpZrCeESI2YDj7AYp47uaQoRWwZMKDdNWozftETwWM4HXVPd4TdPAjYvqrOuHNeSX
-         SCnrmgvES8hNsU6osbakTbAUMCGGpH6JBPQX1AVI=
+        b=B24FDUTOX/vefxkXVriMKWPTo/uR/gofb9f8wYu9Y8ZW8P9ATI92GPM7Eo/SIxWl2
+         bHrT/r8G0/jKHPZfVLOAZ49RSj7QHW7owjJf08SHvKP8oa5Z+4eCPDzP5XAH4myPRi
+         7/AaB99GExErl7i8PVbBj8wYcM2yaS4BPSGOb8G4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ilya Dryomov <idryomov@gmail.com>,
-        Robin Geuze <robin.geuze@nl.team.blue>
-Subject: [PATCH 5.4 097/108] rbd: dont hold lock_rwsem while running_list is being drained
-Date:   Mon, 26 Jul 2021 17:39:38 +0200
-Message-Id: <20210726153834.792089562@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Bhaumik Bhatt <bbhatt@codeaurora.org>
+Subject: [PATCH 5.13 187/223] bus: mhi: pci_generic: Apply no-op for wake using sideband wake boolean
+Date:   Mon, 26 Jul 2021 17:39:39 +0200
+Message-Id: <20210726153852.311683682@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
-References: <20210726153831.696295003@linuxfoundation.org>
+In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
+References: <20210726153846.245305071@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,75 +40,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilya Dryomov <idryomov@gmail.com>
+From: Bhaumik Bhatt <bbhatt@codeaurora.org>
 
-commit ed9eb71085ecb7ded9a5118cec2ab70667cc7350 upstream.
+commit 56f6f4c4eb2a710ec8878dd9373d3d2b2eb75f5c upstream.
 
-Currently rbd_quiesce_lock() holds lock_rwsem for read while blocking
-on releasing_wait completion.  On the I/O completion side, each image
-request also needs to take lock_rwsem for read.  Because rw_semaphore
-implementation doesn't allow new readers after a writer has indicated
-interest in the lock, this can result in a deadlock if something that
-needs to take lock_rwsem for write gets involved.  For example:
+Devices such as SDX24 do not have the provision for inband wake
+doorbell in the form of channel 127 and instead have a sideband
+GPIO for it. Newer devices such as SDX55 or SDX65 support inband
+wake method by default. Ensure the functionality is used based on
+this such that device wake stays held when a client driver uses
+mhi_device_get() API or the equivalent debugfs entry.
 
-1. watch error occurs
-2. rbd_watch_errcb() takes lock_rwsem for write, clears owner_cid and
-   releases lock_rwsem
-3. after reestablishing the watch, rbd_reregister_watch() takes
-   lock_rwsem for write and calls rbd_reacquire_lock()
-4. rbd_quiesce_lock() downgrades lock_rwsem to for read and blocks on
-   releasing_wait until running_list becomes empty
-5. another watch error occurs
-6. rbd_watch_errcb() blocks trying to take lock_rwsem for write
-7. no in-flight image request can complete and delete itself from
-   running_list because lock_rwsem won't be granted anymore
-
-A similar scenario can occur with "lock has been acquired" and "lock
-has been released" notification handers which also take lock_rwsem for
-write to update owner_cid.
-
-We don't actually get anything useful from sitting on lock_rwsem in
-rbd_quiesce_lock() -- owner_cid updates certainly don't need to be
-synchronized with.  In fact the whole owner_cid tracking logic could
-probably be removed from the kernel client because we don't support
-proxied maintenance operations.
-
-Cc: stable@vger.kernel.org # 5.3+
-URL: https://tracker.ceph.com/issues/42757
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
-Tested-by: Robin Geuze <robin.geuze@nl.team.blue>
+Link: https://lore.kernel.org/r/1624560809-30610-1-git-send-email-bbhatt@codeaurora.org
+Fixes: e3e5e6508fc1 ("bus: mhi: pci_generic: No-Op for device_wake operations")
+Cc: stable@vger.kernel.org #5.12
+Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Bhaumik Bhatt <bbhatt@codeaurora.org>
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Link: https://lore.kernel.org/r/20210716075106.49938-2-manivannan.sadhasivam@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/block/rbd.c |   12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
+ drivers/bus/mhi/pci_generic.c |   27 +++++++++++++++++++--------
+ 1 file changed, 19 insertions(+), 8 deletions(-)
 
---- a/drivers/block/rbd.c
-+++ b/drivers/block/rbd.c
-@@ -4239,8 +4239,6 @@ again:
+--- a/drivers/bus/mhi/pci_generic.c
++++ b/drivers/bus/mhi/pci_generic.c
+@@ -32,6 +32,8 @@
+  * @edl: emergency download mode firmware path (if any)
+  * @bar_num: PCI base address register to use for MHI MMIO register space
+  * @dma_data_width: DMA transfer word size (32 or 64 bits)
++ * @sideband_wake: Devices using dedicated sideband GPIO for wakeup instead
++ *		   of inband wake support (such as sdx24)
+  */
+ struct mhi_pci_dev_info {
+ 	const struct mhi_controller_config *config;
+@@ -40,6 +42,7 @@ struct mhi_pci_dev_info {
+ 	const char *edl;
+ 	unsigned int bar_num;
+ 	unsigned int dma_data_width;
++	bool sideband_wake;
+ };
  
- static bool rbd_quiesce_lock(struct rbd_device *rbd_dev)
- {
--	bool need_wait;
--
- 	dout("%s rbd_dev %p\n", __func__, rbd_dev);
- 	lockdep_assert_held_write(&rbd_dev->lock_rwsem);
+ #define MHI_CHANNEL_CONFIG_UL(ch_num, ch_name, el_count, ev_ring) \
+@@ -242,7 +245,8 @@ static const struct mhi_pci_dev_info mhi
+ 	.edl = "qcom/sdx65m/edl.mbn",
+ 	.config = &modem_qcom_v1_mhiv_config,
+ 	.bar_num = MHI_PCI_DEFAULT_BAR_NUM,
+-	.dma_data_width = 32
++	.dma_data_width = 32,
++	.sideband_wake = false,
+ };
  
-@@ -4252,11 +4250,11 @@ static bool rbd_quiesce_lock(struct rbd_
- 	 */
- 	rbd_dev->lock_state = RBD_LOCK_STATE_RELEASING;
- 	rbd_assert(!completion_done(&rbd_dev->releasing_wait));
--	need_wait = !list_empty(&rbd_dev->running_list);
--	downgrade_write(&rbd_dev->lock_rwsem);
--	if (need_wait)
--		wait_for_completion(&rbd_dev->releasing_wait);
--	up_read(&rbd_dev->lock_rwsem);
-+	if (list_empty(&rbd_dev->running_list))
-+		return true;
+ static const struct mhi_pci_dev_info mhi_qcom_sdx55_info = {
+@@ -251,7 +255,8 @@ static const struct mhi_pci_dev_info mhi
+ 	.edl = "qcom/sdx55m/edl.mbn",
+ 	.config = &modem_qcom_v1_mhiv_config,
+ 	.bar_num = MHI_PCI_DEFAULT_BAR_NUM,
+-	.dma_data_width = 32
++	.dma_data_width = 32,
++	.sideband_wake = false,
+ };
+ 
+ static const struct mhi_pci_dev_info mhi_qcom_sdx24_info = {
+@@ -259,7 +264,8 @@ static const struct mhi_pci_dev_info mhi
+ 	.edl = "qcom/prog_firehose_sdx24.mbn",
+ 	.config = &modem_qcom_v1_mhiv_config,
+ 	.bar_num = MHI_PCI_DEFAULT_BAR_NUM,
+-	.dma_data_width = 32
++	.dma_data_width = 32,
++	.sideband_wake = true,
+ };
+ 
+ static const struct mhi_channel_config mhi_quectel_em1xx_channels[] = {
+@@ -301,7 +307,8 @@ static const struct mhi_pci_dev_info mhi
+ 	.edl = "qcom/prog_firehose_sdx24.mbn",
+ 	.config = &modem_quectel_em1xx_config,
+ 	.bar_num = MHI_PCI_DEFAULT_BAR_NUM,
+-	.dma_data_width = 32
++	.dma_data_width = 32,
++	.sideband_wake = true,
+ };
+ 
+ static const struct mhi_channel_config mhi_foxconn_sdx55_channels[] = {
+@@ -339,7 +346,8 @@ static const struct mhi_pci_dev_info mhi
+ 	.edl = "qcom/sdx55m/edl.mbn",
+ 	.config = &modem_foxconn_sdx55_config,
+ 	.bar_num = MHI_PCI_DEFAULT_BAR_NUM,
+-	.dma_data_width = 32
++	.dma_data_width = 32,
++	.sideband_wake = false,
+ };
+ 
+ static const struct pci_device_id mhi_pci_id_table[] = {
+@@ -640,9 +648,12 @@ static int mhi_pci_probe(struct pci_dev
+ 	mhi_cntrl->status_cb = mhi_pci_status_cb;
+ 	mhi_cntrl->runtime_get = mhi_pci_runtime_get;
+ 	mhi_cntrl->runtime_put = mhi_pci_runtime_put;
+-	mhi_cntrl->wake_get = mhi_pci_wake_get_nop;
+-	mhi_cntrl->wake_put = mhi_pci_wake_put_nop;
+-	mhi_cntrl->wake_toggle = mhi_pci_wake_toggle_nop;
 +
-+	up_write(&rbd_dev->lock_rwsem);
-+	wait_for_completion(&rbd_dev->releasing_wait);
++	if (info->sideband_wake) {
++		mhi_cntrl->wake_get = mhi_pci_wake_get_nop;
++		mhi_cntrl->wake_put = mhi_pci_wake_put_nop;
++		mhi_cntrl->wake_toggle = mhi_pci_wake_toggle_nop;
++	}
  
- 	down_write(&rbd_dev->lock_rwsem);
- 	if (rbd_dev->lock_state != RBD_LOCK_STATE_RELEASING)
+ 	err = mhi_pci_claim(mhi_cntrl, info->bar_num, DMA_BIT_MASK(info->dma_data_width));
+ 	if (err)
 
 
