@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3E5F3D5E9B
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:51:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15EBB3D5DE1
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:45:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236998AbhGZPLF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:11:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48898 "EHLO mail.kernel.org"
+        id S235913AbhGZPEO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:04:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236287AbhGZPJI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:09:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 30F3860525;
-        Mon, 26 Jul 2021 15:48:56 +0000 (UTC)
+        id S235813AbhGZPEL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:04:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F47860F51;
+        Mon, 26 Jul 2021 15:44:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314536;
-        bh=IEETQmr9IcWo+1HLEfFLNUl30/jL3cZ8Ubi5fDGAnls=;
+        s=korg; t=1627314279;
+        bh=b2FNHtJiwG8Jny1mu/AZd6mOiF4Mm/jMbkZFTZfMas4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ycWeW3VJj0/xrMVJSo2Wec3bWBSEW8ghMNXyy/68yItBU7nqzU5Qq8GyuKdXszAXL
-         DEJ0AnRoQAmntDHwzqpyVhrdhWjba1c2SoTIfnVnELl33J1VPOjJSYsg0290l+cAxn
-         YRUqjJKHylHFuE3nhO1aMa7BZFxvJf1qm7HSkyR0=
+        b=m4s1MyRlDpE5n91phLhJJkYc/yv1YMoQrjr15q6XM+/I6LvdHieo8KYLuY3g7WUAf
+         eH+u/HwbPUvBIQRWFyQ3ZJw/2Fp0PY/mnMTeMAN561b1FyqToCF9x0LBXdpXfC1xPS
+         N8jCdbhDg7Gb2EpnL0lZ9P69ZeOYDw0WxVd6jxhs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 4.14 62/82] xhci: Fix lost USB 2 remote wake
+Subject: [PATCH 4.9 48/60] usb: hub: Disable USB 3 device initiated lpm if exit latency is too high
 Date:   Mon, 26 Jul 2021 17:39:02 +0200
-Message-Id: <20210726153830.187907539@linuxfoundation.org>
+Message-Id: <20210726153826.381681911@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153828.144714469@linuxfoundation.org>
-References: <20210726153828.144714469@linuxfoundation.org>
+In-Reply-To: <20210726153824.868160836@linuxfoundation.org>
+References: <20210726153824.868160836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,67 +41,117 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-commit 72f68bf5c756f5ce1139b31daae2684501383ad5 upstream.
+commit 1b7f56fbc7a1b66967b6114d1b5f5a257c3abae6 upstream.
 
-There's a small window where a USB 2 remote wake may be left unhandled
-due to a race between hub thread and xhci port event interrupt handler.
+The device initiated link power management U1/U2 states should not be
+enabled in case the system exit latency plus one bus interval (125us) is
+greater than the shortest service interval of any periodic endpoint.
 
-When the resume event is detected in the xhci interrupt handler it kicks
-the hub timer, which should move the port from resume to U0 once resume
-has been signalled for long enough.
+This is the case for both U1 and U2 sytstem exit latencies and link states.
 
-To keep the hub "thread" running we set a bus_state->resuming_ports flag.
-This flag makes sure hub timer function kicks itself.
+See USB 3.2 section 9.4.9 "Set Feature" for more details
 
-checking this flag was not properly protected by the spinlock. Flag was
-copied to a local variable before lock was taken. The local variable was
-then checked later with spinlock held.
+Note, before this patch the host and device initiated U1/U2 lpm states
+were both enabled with lpm. After this patch it's possible to end up with
+only host inititated U1/U2 lpm in case the exit latencies won't allow
+device initiated lpm.
 
-If interrupt is handled right after copying the flag to the local variable
-we end up stopping the hub thread before it can handle the USB 2 resume.
+If this case we still want to set the udev->usb3_lpm_ux_enabled flag so
+that sysfs users can see the link may go to U1/U2.
 
-CPU0					CPU1
-(hub thread)				(xhci event handler)
-
-xhci_hub_status_data()
-status = bus_state->resuming_ports;
-					<Interrupt>
-					handle_port_status()
-					spin_lock()
-					bus_state->resuming_ports = 1
-					set_flag(HCD_FLAG_POLL_RH)
-					spin_unlock()
-spin_lock()
-if (!status)
-  clear_flag(HCD_FLAG_POLL_RH)
-spin_unlock()
-
-Fix this by taking the lock a bit earlier so that it covers
-the resuming_ports flag copy in the hub thread
-
-Cc: <stable@vger.kernel.org>
 Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20210715150651.1996099-2-mathias.nyman@linux.intel.com
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210715150122.1995966-2-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-hub.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/core/hub.c |   68 ++++++++++++++++++++++++++++++++++++++++---------
+ 1 file changed, 56 insertions(+), 12 deletions(-)
 
---- a/drivers/usb/host/xhci-hub.c
-+++ b/drivers/usb/host/xhci-hub.c
-@@ -1450,11 +1450,12 @@ int xhci_hub_status_data(struct usb_hcd
- 	 * Inform the usbcore about resume-in-progress by returning
- 	 * a non-zero value even if there are no status changes.
- 	 */
-+	spin_lock_irqsave(&xhci->lock, flags);
+--- a/drivers/usb/core/hub.c
++++ b/drivers/usb/core/hub.c
+@@ -3893,6 +3893,47 @@ static int usb_set_lpm_timeout(struct us
+ }
+ 
+ /*
++ * Don't allow device intiated U1/U2 if the system exit latency + one bus
++ * interval is greater than the minimum service interval of any active
++ * periodic endpoint. See USB 3.2 section 9.4.9
++ */
++static bool usb_device_may_initiate_lpm(struct usb_device *udev,
++					enum usb3_link_state state)
++{
++	unsigned int sel;		/* us */
++	int i, j;
 +
- 	status = bus_state->resuming_ports;
++	if (state == USB3_LPM_U1)
++		sel = DIV_ROUND_UP(udev->u1_params.sel, 1000);
++	else if (state == USB3_LPM_U2)
++		sel = DIV_ROUND_UP(udev->u2_params.sel, 1000);
++	else
++		return false;
++
++	for (i = 0; i < udev->actconfig->desc.bNumInterfaces; i++) {
++		struct usb_interface *intf;
++		struct usb_endpoint_descriptor *desc;
++		unsigned int interval;
++
++		intf = udev->actconfig->interface[i];
++		if (!intf)
++			continue;
++
++		for (j = 0; j < intf->cur_altsetting->desc.bNumEndpoints; j++) {
++			desc = &intf->cur_altsetting->endpoint[j].desc;
++
++			if (usb_endpoint_xfer_int(desc) ||
++			    usb_endpoint_xfer_isoc(desc)) {
++				interval = (1 << (desc->bInterval - 1)) * 125;
++				if (sel + 125 > interval)
++					return false;
++			}
++		}
++	}
++	return true;
++}
++
++/*
+  * Enable the hub-initiated U1/U2 idle timeouts, and enable device-initiated
+  * U1/U2 entry.
+  *
+@@ -3964,20 +4005,23 @@ static void usb_enable_link_state(struct
+ 	 * U1/U2_ENABLE
+ 	 */
+ 	if (udev->actconfig &&
+-	    usb_set_device_initiated_lpm(udev, state, true) == 0) {
+-		if (state == USB3_LPM_U1)
+-			udev->usb3_lpm_u1_enabled = 1;
+-		else if (state == USB3_LPM_U2)
+-			udev->usb3_lpm_u2_enabled = 1;
+-	} else {
+-		/* Don't request U1/U2 entry if the device
+-		 * cannot transition to U1/U2.
+-		 */
+-		usb_set_lpm_timeout(udev, state, 0);
+-		hcd->driver->disable_usb3_lpm_timeout(hcd, udev, state);
++	    usb_device_may_initiate_lpm(udev, state)) {
++		if (usb_set_device_initiated_lpm(udev, state, true)) {
++			/*
++			 * Request to enable device initiated U1/U2 failed,
++			 * better to turn off lpm in this case.
++			 */
++			usb_set_lpm_timeout(udev, state, 0);
++			hcd->driver->disable_usb3_lpm_timeout(hcd, udev, state);
++			return;
++		}
+ 	}
+-}
  
- 	mask = PORT_CSC | PORT_PEC | PORT_OCC | PORT_PLC | PORT_WRC | PORT_CEC;
- 
--	spin_lock_irqsave(&xhci->lock, flags);
- 	/* For each port, did anything change?  If so, set that bit in buf. */
- 	for (i = 0; i < max_ports; i++) {
- 		temp = readl(port_array[i]);
++	if (state == USB3_LPM_U1)
++		udev->usb3_lpm_u1_enabled = 1;
++	else if (state == USB3_LPM_U2)
++		udev->usb3_lpm_u2_enabled = 1;
++}
+ /*
+  * Disable the hub-initiated U1/U2 idle timeouts, and disable device-initiated
+  * U1/U2 entry.
 
 
