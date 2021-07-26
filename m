@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C38A93D5F22
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67E493D5E0A
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:47:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236440AbhGZPQy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:16:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53028 "EHLO mail.kernel.org"
+        id S235826AbhGZPFL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:05:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45184 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236835AbhGZPPl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:15:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E62160FD8;
-        Mon, 26 Jul 2021 15:53:32 +0000 (UTC)
+        id S235918AbhGZPEu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:04:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CB10D60F5C;
+        Mon, 26 Jul 2021 15:45:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314812;
-        bh=Z8xvYOwArq6z6cOpGIaDz6plqC40jynkMy5CihLFma8=;
+        s=korg; t=1627314319;
+        bh=78DkP5ZL2ZwEH0gGVCVQgoGKOrnSWUJ13sr5dIEVpww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S1twZNj/QWguSzxua25BmHnxQ/cwBRcIs8Y7Y91ev5o0P+jPZXLP0UVJQRo8MZCIL
-         4FPEl0C9jFDiUmZatw155Xwr1q6nFlrO5M97IWQinurwscd94CfypzaEfWOzr4Z8gl
-         aa6G54Hsc4rl6DvZmwF6t3cKSKACDHkMlUFBrzHs=
+        b=SAB0wjKnK7C4nIvngSlfawMgzrEW147F6Z/60v+U4YqisMK2Cu64+0o192ZSYvSyJ
+         ShPcA6VaGRdlqAhodeVhoKgTffPatv/3O+FHlyntJAPMTY+WNG/OS/K5TUCaU1j279
+         1CPf/38tcI71OHothAozYYLBBWv4yWAwVBJiUnkM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
-Subject: [PATCH 4.19 099/120] usb: max-3421: Prevent corruption of freed memory
+        stable@vger.kernel.org, Doug Berger <opendmb@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 57/60] net: bcmgenet: ensure EXT_ENERGY_DET_MASK is clear
 Date:   Mon, 26 Jul 2021 17:39:11 +0200
-Message-Id: <20210726153835.593324458@linuxfoundation.org>
+Message-Id: <20210726153826.660949307@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153832.339431936@linuxfoundation.org>
-References: <20210726153832.339431936@linuxfoundation.org>
+In-Reply-To: <20210726153824.868160836@linuxfoundation.org>
+References: <20210726153824.868160836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,132 +40,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
+From: Doug Berger <opendmb@gmail.com>
 
-commit b5fdf5c6e6bee35837e160c00ac89327bdad031b upstream.
+commit 5a3c680aa2c12c90c44af383fe6882a39875ab81 upstream.
 
-The MAX-3421 USB driver remembers the state of the USB toggles for a
-device/endpoint. To save SPI writes, this was only done when a new
-device/endpoint was being used. Unfortunately, if the old device was
-removed, this would cause writes to freed memory.
+Setting the EXT_ENERGY_DET_MASK bit allows the port energy detection
+logic of the internal PHY to prevent the system from sleeping. Some
+internal PHYs will report that energy is detected when the network
+interface is closed which can prevent the system from going to sleep
+if WoL is enabled when the interface is brought down.
 
-To fix this, a simpler scheme is used. The toggles are read from
-hardware when a URB is completed, and the toggles are always written to
-hardware when any URB transaction is started. This will cause a few more
-SPI transactions, but no causes kernel panics.
+Since the driver does not support waking the system on this logic,
+this commit clears the bit whenever the internal PHY is powered up
+and the other logic for manipulating the bit is removed since it
+serves no useful function.
 
-Fixes: 2d53139f3162 ("Add support for using a MAX3421E chip as a host driver.")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
-Link: https://lore.kernel.org/r/20210625031456.8632-1-mark.tomlinson@alliedtelesis.co.nz
+Fixes: 1c1008c793fa ("net: bcmgenet: add main driver file")
+Signed-off-by: Doug Berger <opendmb@gmail.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/max3421-hcd.c |   44 +++++++++++++----------------------------
- 1 file changed, 14 insertions(+), 30 deletions(-)
+ drivers/net/ethernet/broadcom/genet/bcmgenet.c     |   15 +--------------
+ drivers/net/ethernet/broadcom/genet/bcmgenet_wol.c |    6 ------
+ 2 files changed, 1 insertion(+), 20 deletions(-)
 
---- a/drivers/usb/host/max3421-hcd.c
-+++ b/drivers/usb/host/max3421-hcd.c
-@@ -153,8 +153,6 @@ struct max3421_hcd {
- 	 */
- 	struct urb *curr_urb;
- 	enum scheduling_pass sched_pass;
--	struct usb_device *loaded_dev;	/* dev that's loaded into the chip */
--	int loaded_epnum;		/* epnum whose toggles are loaded */
- 	int urb_done;			/* > 0 -> no errors, < 0: errno */
- 	size_t curr_len;
- 	u8 hien;
-@@ -492,39 +490,17 @@ max3421_set_speed(struct usb_hcd *hcd, s
-  * Caller must NOT hold HCD spinlock.
-  */
- static void
--max3421_set_address(struct usb_hcd *hcd, struct usb_device *dev, int epnum,
--		    int force_toggles)
-+max3421_set_address(struct usb_hcd *hcd, struct usb_device *dev, int epnum)
- {
--	struct max3421_hcd *max3421_hcd = hcd_to_max3421(hcd);
--	int old_epnum, same_ep, rcvtog, sndtog;
--	struct usb_device *old_dev;
-+	int rcvtog, sndtog;
- 	u8 hctl;
+--- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
++++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
+@@ -1094,7 +1094,7 @@ static void bcmgenet_power_up(struct bcm
+ 	switch (mode) {
+ 	case GENET_POWER_PASSIVE:
+ 		reg &= ~(EXT_PWR_DOWN_DLL | EXT_PWR_DOWN_PHY |
+-				EXT_PWR_DOWN_BIAS);
++			 EXT_PWR_DOWN_BIAS | EXT_ENERGY_DET_MASK);
+ 		/* fallthrough */
+ 	case GENET_POWER_CABLE_SENSE:
+ 		/* enable APD */
+@@ -2821,12 +2821,6 @@ static int bcmgenet_open(struct net_devi
  
--	old_dev = max3421_hcd->loaded_dev;
--	old_epnum = max3421_hcd->loaded_epnum;
--
--	same_ep = (dev == old_dev && epnum == old_epnum);
--	if (same_ep && !force_toggles)
--		return;
--
--	if (old_dev && !same_ep) {
--		/* save the old end-points toggles: */
--		u8 hrsl = spi_rd8(hcd, MAX3421_REG_HRSL);
--
--		rcvtog = (hrsl >> MAX3421_HRSL_RCVTOGRD_BIT) & 1;
--		sndtog = (hrsl >> MAX3421_HRSL_SNDTOGRD_BIT) & 1;
--
--		/* no locking: HCD (i.e., we) own toggles, don't we? */
--		usb_settoggle(old_dev, old_epnum, 0, rcvtog);
--		usb_settoggle(old_dev, old_epnum, 1, sndtog);
+ 	bcmgenet_set_hw_addr(priv, dev->dev_addr);
+ 
+-	if (priv->internal_phy) {
+-		reg = bcmgenet_ext_readl(priv, EXT_EXT_PWR_MGMT);
+-		reg |= EXT_ENERGY_DET_MASK;
+-		bcmgenet_ext_writel(priv, reg, EXT_EXT_PWR_MGMT);
 -	}
- 	/* setup new endpoint's toggle bits: */
- 	rcvtog = usb_gettoggle(dev, epnum, 0);
- 	sndtog = usb_gettoggle(dev, epnum, 1);
- 	hctl = (BIT(rcvtog + MAX3421_HCTL_RCVTOG0_BIT) |
- 		BIT(sndtog + MAX3421_HCTL_SNDTOG0_BIT));
+-
+ 	/* Disable RX/TX DMA and flush TX queues */
+ 	dma_ctrl = bcmgenet_dma_disable(priv);
  
--	max3421_hcd->loaded_epnum = epnum;
- 	spi_wr8(hcd, MAX3421_REG_HCTL, hctl);
+@@ -3516,7 +3510,6 @@ static int bcmgenet_resume(struct device
+ 	struct bcmgenet_priv *priv = netdev_priv(dev);
+ 	unsigned long dma_ctrl;
+ 	int ret;
+-	u32 reg;
  
- 	/*
-@@ -532,7 +508,6 @@ max3421_set_address(struct usb_hcd *hcd,
- 	 * address-assignment so it's best to just always load the
- 	 * address whenever the end-point changed/was forced.
- 	 */
--	max3421_hcd->loaded_dev = dev;
- 	spi_wr8(hcd, MAX3421_REG_PERADDR, dev->devnum);
- }
+ 	if (!netif_running(dev))
+ 		return 0;
+@@ -3551,12 +3544,6 @@ static int bcmgenet_resume(struct device
  
-@@ -667,7 +642,7 @@ max3421_select_and_start_urb(struct usb_
- 	struct max3421_hcd *max3421_hcd = hcd_to_max3421(hcd);
- 	struct urb *urb, *curr_urb = NULL;
- 	struct max3421_ep *max3421_ep;
--	int epnum, force_toggles = 0;
-+	int epnum;
- 	struct usb_host_endpoint *ep;
- 	struct list_head *pos;
- 	unsigned long flags;
-@@ -777,7 +752,6 @@ done:
- 			usb_settoggle(urb->dev, epnum, 0, 1);
- 			usb_settoggle(urb->dev, epnum, 1, 1);
- 			max3421_ep->pkt_state = PKT_STATE_SETUP;
--			force_toggles = 1;
- 		} else
- 			max3421_ep->pkt_state = PKT_STATE_TRANSFER;
- 	}
-@@ -785,7 +759,7 @@ done:
- 	spin_unlock_irqrestore(&max3421_hcd->lock, flags);
+ 	bcmgenet_set_hw_addr(priv, dev->dev_addr);
  
- 	max3421_ep->last_active = max3421_hcd->frame_number;
--	max3421_set_address(hcd, urb->dev, epnum, force_toggles);
-+	max3421_set_address(hcd, urb->dev, epnum);
- 	max3421_set_speed(hcd, urb->dev);
- 	max3421_next_transfer(hcd, 0);
- 	return 1;
-@@ -1380,6 +1354,16 @@ max3421_urb_done(struct usb_hcd *hcd)
- 		status = 0;
- 	urb = max3421_hcd->curr_urb;
- 	if (urb) {
-+		/* save the old end-points toggles: */
-+		u8 hrsl = spi_rd8(hcd, MAX3421_REG_HRSL);
-+		int rcvtog = (hrsl >> MAX3421_HRSL_RCVTOGRD_BIT) & 1;
-+		int sndtog = (hrsl >> MAX3421_HRSL_SNDTOGRD_BIT) & 1;
-+		int epnum = usb_endpoint_num(&urb->ep->desc);
-+
-+		/* no locking: HCD (i.e., we) own toggles, don't we? */
-+		usb_settoggle(urb->dev, epnum, 0, rcvtog);
-+		usb_settoggle(urb->dev, epnum, 1, sndtog);
-+
- 		max3421_hcd->curr_urb = NULL;
- 		spin_lock_irqsave(&max3421_hcd->lock, flags);
- 		usb_hcd_unlink_urb_from_ep(hcd, urb);
+-	if (priv->internal_phy) {
+-		reg = bcmgenet_ext_readl(priv, EXT_EXT_PWR_MGMT);
+-		reg |= EXT_ENERGY_DET_MASK;
+-		bcmgenet_ext_writel(priv, reg, EXT_EXT_PWR_MGMT);
+-	}
+-
+ 	if (priv->wolopts)
+ 		bcmgenet_power_up(priv, GENET_POWER_WOL_MAGIC);
+ 
+--- a/drivers/net/ethernet/broadcom/genet/bcmgenet_wol.c
++++ b/drivers/net/ethernet/broadcom/genet/bcmgenet_wol.c
+@@ -167,12 +167,6 @@ int bcmgenet_wol_power_down_cfg(struct b
+ 	reg |= CMD_RX_EN;
+ 	bcmgenet_umac_writel(priv, reg, UMAC_CMD);
+ 
+-	if (priv->hw_params->flags & GENET_HAS_EXT) {
+-		reg = bcmgenet_ext_readl(priv, EXT_EXT_PWR_MGMT);
+-		reg &= ~EXT_ENERGY_DET_MASK;
+-		bcmgenet_ext_writel(priv, reg, EXT_EXT_PWR_MGMT);
+-	}
+-
+ 	/* Enable the MPD interrupt */
+ 	cpu_mask_clear = UMAC_IRQ_MPD_R;
+ 
 
 
