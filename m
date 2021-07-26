@@ -2,44 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A1C283D5E8B
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:51:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 367D33D5EE1
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:59:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236314AbhGZPK5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:10:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49388 "EHLO mail.kernel.org"
+        id S236646AbhGZPLz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:11:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236357AbhGZPIQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236358AbhGZPIQ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 26 Jul 2021 11:08:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C1AA160F59;
-        Mon, 26 Jul 2021 15:48:30 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E1CE60F6F;
+        Mon, 26 Jul 2021 15:48:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314511;
-        bh=Xx4TdN3LRW98yyInq1cNQHG2ShyTMjifHR9k2mHWRtA=;
+        s=korg; t=1627314514;
+        bh=ljzrG5jH5FZP3Y4XEtZ2izH0BmV7qh9/Hb6E2wfUkX0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=okWDTSnrZk1KcVDHQaqhvujGptweTobrfrIZnd4mISZTegJaKnLZ8JpJo/VxET3Jw
-         /imcLojMuDBHlPQWySjhCjmOAQ6K2/+a3yjLoQnN0y5SU6VScH309dZTwSNWUegGTj
-         kuVos91Ccj5BJJpv7tcf+Xielrv9goWR4u42now4=
+        b=yEzgK2d1p6jwj+DeD59zr6vGhC+cuUl1XRbRPOZOYrjCduseO2F+7qYz9g8Xn1eJ0
+         j/kQ9NMcRulGImE29bVUxRgLDrLui68qSXlOW1V8346hs4VPfNIvX98/l+P3BOGnaH
+         DcbmTrbhnP/j6ys451C5t1n6ds5IZhqb8owoeYxQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lokesh Gidra <lokeshgidra@google.com>,
-        Peter Collingbourne <pcc@google.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Dave Martin <Dave.Martin@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Alistair Delva <adelva@google.com>,
-        William McVicker <willmcvicker@google.com>,
-        Evgenii Stepanov <eugenis@google.com>,
-        Mitch Phillips <mitchp@google.com>,
-        Andrey Konovalov <andreyknvl@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 75/82] selftest: use mmap instead of posix_memalign to allocate memory
-Date:   Mon, 26 Jul 2021 17:39:15 +0200
-Message-Id: <20210726153830.613854294@linuxfoundation.org>
+        stable@vger.kernel.org, Charles Baylis <cb-kernel@fishzet.co.uk>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH 4.14 76/82] drm: Return -ENOTTY for non-drm ioctls
+Date:   Mon, 26 Jul 2021 17:39:16 +0200
+Message-Id: <20210726153830.643862629@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210726153828.144714469@linuxfoundation.org>
 References: <20210726153828.144714469@linuxfoundation.org>
@@ -51,56 +39,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Collingbourne <pcc@google.com>
+From: Charles Baylis <cb-kernel@fishzet.co.uk>
 
-commit 0db282ba2c12c1515d490d14a1ff696643ab0f1b upstream.
+commit 3abab27c322e0f2acf981595aa8040c9164dc9fb upstream.
 
-This test passes pointers obtained from anon_allocate_area to the
-userfaultfd and mremap APIs.  This causes a problem if the system
-allocator returns tagged pointers because with the tagged address ABI
-the kernel rejects tagged addresses passed to these APIs, which would
-end up causing the test to fail.  To make this test compatible with such
-system allocators, stop using the system allocator to allocate memory in
-anon_allocate_area, and instead just use mmap.
+drm: Return -ENOTTY for non-drm ioctls
 
-Link: https://lkml.kernel.org/r/20210714195437.118982-3-pcc@google.com
-Link: https://linux-review.googlesource.com/id/Icac91064fcd923f77a83e8e133f8631c5b8fc241
-Fixes: c47174fc362a ("userfaultfd: selftest")
-Co-developed-by: Lokesh Gidra <lokeshgidra@google.com>
-Signed-off-by: Lokesh Gidra <lokeshgidra@google.com>
-Signed-off-by: Peter Collingbourne <pcc@google.com>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Cc: Dave Martin <Dave.Martin@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Alistair Delva <adelva@google.com>
-Cc: William McVicker <willmcvicker@google.com>
-Cc: Evgenii Stepanov <eugenis@google.com>
-Cc: Mitch Phillips <mitchp@google.com>
-Cc: Andrey Konovalov <andreyknvl@gmail.com>
-Cc: <stable@vger.kernel.org>	[5.4]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Return -ENOTTY from drm_ioctl() when userspace passes in a cmd number
+which doesn't relate to the drm subsystem.
+
+Glibc uses the TCGETS ioctl to implement isatty(), and without this
+change isatty() returns it incorrectly returns true for drm devices.
+
+To test run this command:
+$ if [ -t 0 ]; then echo is a tty; fi < /dev/dri/card0
+which shows "is a tty" without this patch.
+
+This may also modify memory which the userspace application is not
+expecting.
+
+Signed-off-by: Charles Baylis <cb-kernel@fishzet.co.uk>
+Cc: stable@vger.kernel.org
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/YPG3IBlzaMhfPqCr@stando.fishzet.co.uk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/vm/userfaultfd.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/drm_ioctl.c |    3 +++
+ include/drm/drm_ioctl.h     |    1 +
+ 2 files changed, 4 insertions(+)
 
---- a/tools/testing/selftests/vm/userfaultfd.c
-+++ b/tools/testing/selftests/vm/userfaultfd.c
-@@ -129,8 +129,10 @@ static int anon_release_pages(char *rel_
+--- a/drivers/gpu/drm/drm_ioctl.c
++++ b/drivers/gpu/drm/drm_ioctl.c
+@@ -776,6 +776,9 @@ long drm_ioctl(struct file *filp,
+ 	if (drm_dev_is_unplugged(dev))
+ 		return -ENODEV;
  
- static void anon_allocate_area(void **alloc_area)
- {
--	if (posix_memalign(alloc_area, page_size, nr_pages * page_size)) {
--		fprintf(stderr, "out of memory\n");
-+	*alloc_area = mmap(NULL, nr_pages * page_size, PROT_READ | PROT_WRITE,
-+			   MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-+	if (*alloc_area == MAP_FAILED)
-+		fprintf(stderr, "mmap of anonymous memory failed");
- 		*alloc_area = NULL;
- 	}
- }
++       if (DRM_IOCTL_TYPE(cmd) != DRM_IOCTL_BASE)
++               return -ENOTTY;
++
+ 	is_driver_ioctl = nr >= DRM_COMMAND_BASE && nr < DRM_COMMAND_END;
+ 
+ 	if (is_driver_ioctl) {
+--- a/include/drm/drm_ioctl.h
++++ b/include/drm/drm_ioctl.h
+@@ -68,6 +68,7 @@ typedef int drm_ioctl_compat_t(struct fi
+ 			       unsigned long arg);
+ 
+ #define DRM_IOCTL_NR(n)                _IOC_NR(n)
++#define DRM_IOCTL_TYPE(n)              _IOC_TYPE(n)
+ #define DRM_MAJOR       226
+ 
+ /**
 
 
