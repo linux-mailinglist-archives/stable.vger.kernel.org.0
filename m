@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 551353D5F50
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3CFF3D5E4A
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:47:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236693AbhGZPRb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:17:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53272 "EHLO mail.kernel.org"
+        id S236303AbhGZPGt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:06:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237454AbhGZPPr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:15:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C29460F57;
-        Mon, 26 Jul 2021 15:56:00 +0000 (UTC)
+        id S236117AbhGZPGT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:06:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 287F260F02;
+        Mon, 26 Jul 2021 15:46:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314961;
-        bh=SEbEwsMH/Af4mYm6ntjbdU3aCmJFneFwqdmEwLIXWAM=;
+        s=korg; t=1627314407;
+        bh=rodOZJcreyOZWjjI0ivO1tCOZGubbXQBHtBgkzTc9tA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vwfzspk5p4GXybV88Fgvh2BJysJG0Z1iotTSlN3W3rNhkcYrYK1KRuXgwSVydfDi7
-         4G+AaBmfePXzuO4e+h5nq/gTwAhTqCvUwCFWPcBDe3jo48LGRDUP7cWcErvjh+GpbX
-         O+DxQ0gjl547guqjnQxkKteL0DcjB4Up6mNDPLYs=
+        b=tx783LNO7DNJwRYt1GaMOyhG5eXC60I+ORVbpc/TIdlV1uEpkEIndblbA43R0SSHo
+         dAmhjYYjrjiIcqw3js+wXIUB4kiPtp+b88QWE8kLO0VSdtSY3qruZ+/dT+qI43amUJ
+         wJcLeV7pVYNhCWqiQHTB34A0IFcCficHnUnP7suk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Hess <peter.hess@ph-home.de>,
-        Frank Wunderlich <frank-w@public-files.de>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Tony Brelinski <tonyx.brelinski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 035/108] spi: mediatek: fix fifo rx mode
+Subject: [PATCH 4.14 36/82] ixgbe: Fix an error handling path in ixgbe_probe()
 Date:   Mon, 26 Jul 2021 17:38:36 +0200
-Message-Id: <20210726153832.822618350@linuxfoundation.org>
+Message-Id: <20210726153829.335593148@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
-References: <20210726153831.696295003@linuxfoundation.org>
+In-Reply-To: <20210726153828.144714469@linuxfoundation.org>
+References: <20210726153828.144714469@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,57 +42,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Hess <peter.hess@ph-home.de>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 3a70dd2d050331ee4cf5ad9d5c0a32d83ead9a43 ]
+[ Upstream commit dd2aefcd5e37989ae5f90afdae44bbbf3a2990da ]
 
-In FIFO mode were two problems:
-- RX mode was never handled and
-- in this case the tx_buf pointer was NULL and caused an exception
+If an error occurs after a 'pci_enable_pcie_error_reporting()' call, it
+must be undone by a corresponding 'pci_disable_pcie_error_reporting()'
+call, as already done in the remove function.
 
-fix this by handling RX mode in mtk_spi_fifo_transfer
-
-Fixes: a568231f4632 ("spi: mediatek: Add spi bus for Mediatek MT8173")
-Signed-off-by: Peter Hess <peter.hess@ph-home.de>
-Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
-Link: https://lore.kernel.org/r/20210706121609.680534-1-linux@fw-web.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 6fabd715e6d8 ("ixgbe: Implement PCIe AER support")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-mt65xx.c | 16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/intel/ixgbe/ixgbe_main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/spi/spi-mt65xx.c b/drivers/spi/spi-mt65xx.c
-index 8acf24f7c5d4..81eac9fbd08c 100644
---- a/drivers/spi/spi-mt65xx.c
-+++ b/drivers/spi/spi-mt65xx.c
-@@ -427,13 +427,23 @@ static int mtk_spi_fifo_transfer(struct spi_master *master,
- 	mtk_spi_setup_packet(master);
- 
- 	cnt = xfer->len / 4;
--	iowrite32_rep(mdata->base + SPI_TX_DATA_REG, xfer->tx_buf, cnt);
-+	if (xfer->tx_buf)
-+		iowrite32_rep(mdata->base + SPI_TX_DATA_REG, xfer->tx_buf, cnt);
-+
-+	if (xfer->rx_buf)
-+		ioread32_rep(mdata->base + SPI_RX_DATA_REG, xfer->rx_buf, cnt);
- 
- 	remainder = xfer->len % 4;
- 	if (remainder > 0) {
- 		reg_val = 0;
--		memcpy(&reg_val, xfer->tx_buf + (cnt * 4), remainder);
--		writel(reg_val, mdata->base + SPI_TX_DATA_REG);
-+		if (xfer->tx_buf) {
-+			memcpy(&reg_val, xfer->tx_buf + (cnt * 4), remainder);
-+			writel(reg_val, mdata->base + SPI_TX_DATA_REG);
-+		}
-+		if (xfer->rx_buf) {
-+			reg_val = readl(mdata->base + SPI_RX_DATA_REG);
-+			memcpy(xfer->rx_buf + (cnt * 4), &reg_val, remainder);
-+		}
- 	}
- 
- 	mtk_spi_enable_transfer(master);
+diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
+index e9205c893531..daf94d5cbef1 100644
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
+@@ -10572,6 +10572,7 @@ err_ioremap:
+ 	disable_dev = !test_and_set_bit(__IXGBE_DISABLED, &adapter->state);
+ 	free_netdev(netdev);
+ err_alloc_etherdev:
++	pci_disable_pcie_error_reporting(pdev);
+ 	pci_release_mem_regions(pdev);
+ err_pci_reg:
+ err_dma:
 -- 
 2.30.2
 
