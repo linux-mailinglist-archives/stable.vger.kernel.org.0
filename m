@@ -2,36 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DAC513D61A2
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:14:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 381A93D6052
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:10:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233703AbhGZPc2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:32:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46318 "EHLO mail.kernel.org"
+        id S237016AbhGZPVt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:21:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232674AbhGZPae (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:30:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 799B86056B;
-        Mon, 26 Jul 2021 16:11:02 +0000 (UTC)
+        id S237202AbhGZPVp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:21:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5EE9960E09;
+        Mon, 26 Jul 2021 16:02:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315863;
-        bh=2p94NubKZmHIQ9OVh6YvzN6MTXQURl7Oq16jgQa2W4Q=;
+        s=korg; t=1627315333;
+        bh=djUK8kf4HoiFXpKYSTmy1Io6DUCrH+YKlLlwNnnvvBk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s81PEqu2Y3f6t6E0Af90hKYuj7GCquuLLnZEa45T6mfw4gtCMt7QQ2BglzW4/UWAU
-         6p5EH1dbDPt9hVa3EFDdT9mVMRdBbNG0fT/uPmoKggwi3HmGvhYBt48ekU42OKA3i6
-         Lv7Of/osOdYHpZdtbiXEmEBU60uACtdWiwjBF7UY=
+        b=eda2tC54P7mcYCmh8dg2yoV7O+nzIC4UiO7QxkTTNTt7p5v61+o2wTquz2++uOJiL
+         fdiFXZVOUArKQstht3kLXx3+JQ209EQUvhI0f7m82EePZ+2vkLexfVQq2EATpdz6vF
+         dggFxGTxVu7vHz0EsULXezGIXvVi0yAC6/BllDBI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Abaci <abaci@linux.alibaba.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Dust Li <dust.li@linux.alibaba.com>,
+        Jesper Dangaard Brouer <brouer@redhat.com>,
+        David Ahern <dsahern@kernel.org>,
+        Song Liu <songliubraving@fb.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 096/223] sctp: trim optlen when its a huge value in sctp_setsockopt
+Subject: [PATCH 5.10 055/167] bpf, test: fix NULL pointer dereference on invalid expected_attach_type
 Date:   Mon, 26 Jul 2021 17:38:08 +0200
-Message-Id: <20210726153849.396302871@linuxfoundation.org>
+Message-Id: <20210726153841.261636670@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
-References: <20210726153846.245305071@linuxfoundation.org>
+In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
+References: <20210726153839.371771838@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,49 +45,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 
-[ Upstream commit 2f3fdd8d4805015fa964807e1c7f3d88f31bd389 ]
+[ Upstream commit 5e21bb4e812566aef86fbb77c96a4ec0782286e4 ]
 
-After commit ca84bd058dae ("sctp: copy the optval from user space in
-sctp_setsockopt"), it does memory allocation in sctp_setsockopt with
-the optlen, and it would fail the allocation and return error if the
-optlen from user space is a huge value.
+These two types of XDP progs (BPF_XDP_DEVMAP, BPF_XDP_CPUMAP) will not be
+executed directly in the driver, therefore we should also not directly
+run them from here. To run in these two situations, there must be further
+preparations done, otherwise these may cause a kernel panic.
 
-This breaks some sockopts, like SCTP_HMAC_IDENT, SCTP_RESET_STREAMS and
-SCTP_AUTH_KEY, as when processing these sockopts before, optlen would
-be trimmed to a biggest value it needs when optlen is a huge value,
-instead of failing the allocation and returning error.
+For more details, see also dev_xdp_attach().
 
-This patch is to fix the allocation failure when it's a huge optlen from
-user space by trimming it to the biggest size sctp sockopt may need when
-necessary, and this biggest size is from sctp_setsockopt_reset_streams()
-for SCTP_RESET_STREAMS, which is bigger than those for SCTP_HMAC_IDENT
-and SCTP_AUTH_KEY.
+  [   46.982479] BUG: kernel NULL pointer dereference, address: 0000000000000000
+  [   46.984295] #PF: supervisor read access in kernel mode
+  [   46.985777] #PF: error_code(0x0000) - not-present page
+  [   46.987227] PGD 800000010dca4067 P4D 800000010dca4067 PUD 10dca6067 PMD 0
+  [   46.989201] Oops: 0000 [#1] SMP PTI
+  [   46.990304] CPU: 7 PID: 562 Comm: a.out Not tainted 5.13.0+ #44
+  [   46.992001] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/24
+  [   46.995113] RIP: 0010:___bpf_prog_run+0x17b/0x1710
+  [   46.996586] Code: 49 03 14 cc e8 76 f6 fe ff e9 ad fe ff ff 0f b6 43 01 48 0f bf 4b 02 48 83 c3 08 89 c2 83 e0 0f c0 ea 04 02
+  [   47.001562] RSP: 0018:ffffc900005afc58 EFLAGS: 00010246
+  [   47.003115] RAX: 0000000000000000 RBX: ffffc9000023f068 RCX: 0000000000000000
+  [   47.005163] RDX: 0000000000000000 RSI: 0000000000000079 RDI: ffffc900005afc98
+  [   47.007135] RBP: 0000000000000000 R08: ffffc9000023f048 R09: c0000000ffffdfff
+  [   47.009171] R10: 0000000000000001 R11: ffffc900005afb40 R12: ffffc900005afc98
+  [   47.011172] R13: 0000000000000001 R14: 0000000000000001 R15: ffffffff825258a8
+  [   47.013244] FS:  00007f04a5207580(0000) GS:ffff88842fdc0000(0000) knlGS:0000000000000000
+  [   47.015705] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  [   47.017475] CR2: 0000000000000000 CR3: 0000000100182005 CR4: 0000000000770ee0
+  [   47.019558] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+  [   47.021595] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+  [   47.023574] PKRU: 55555554
+  [   47.024571] Call Trace:
+  [   47.025424]  __bpf_prog_run32+0x32/0x50
+  [   47.026296]  ? printk+0x53/0x6a
+  [   47.027066]  ? ktime_get+0x39/0x90
+  [   47.027895]  bpf_test_run.cold.28+0x23/0x123
+  [   47.028866]  ? printk+0x53/0x6a
+  [   47.029630]  bpf_prog_test_run_xdp+0x149/0x1d0
+  [   47.030649]  __sys_bpf+0x1305/0x23d0
+  [   47.031482]  __x64_sys_bpf+0x17/0x20
+  [   47.032316]  do_syscall_64+0x3a/0x80
+  [   47.033165]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+  [   47.034254] RIP: 0033:0x7f04a51364dd
+  [   47.035133] Code: 00 c3 66 2e 0f 1f 84 00 00 00 00 00 90 f3 0f 1e fa 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 48
+  [   47.038768] RSP: 002b:00007fff8f9fc518 EFLAGS: 00000213 ORIG_RAX: 0000000000000141
+  [   47.040344] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f04a51364dd
+  [   47.041749] RDX: 0000000000000048 RSI: 0000000020002a80 RDI: 000000000000000a
+  [   47.043171] RBP: 00007fff8f9fc530 R08: 0000000002049300 R09: 0000000020000100
+  [   47.044626] R10: 0000000000000004 R11: 0000000000000213 R12: 0000000000401070
+  [   47.046088] R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+  [   47.047579] Modules linked in:
+  [   47.048318] CR2: 0000000000000000
+  [   47.049120] ---[ end trace 7ad34443d5be719a ]---
+  [   47.050273] RIP: 0010:___bpf_prog_run+0x17b/0x1710
+  [   47.051343] Code: 49 03 14 cc e8 76 f6 fe ff e9 ad fe ff ff 0f b6 43 01 48 0f bf 4b 02 48 83 c3 08 89 c2 83 e0 0f c0 ea 04 02
+  [   47.054943] RSP: 0018:ffffc900005afc58 EFLAGS: 00010246
+  [   47.056068] RAX: 0000000000000000 RBX: ffffc9000023f068 RCX: 0000000000000000
+  [   47.057522] RDX: 0000000000000000 RSI: 0000000000000079 RDI: ffffc900005afc98
+  [   47.058961] RBP: 0000000000000000 R08: ffffc9000023f048 R09: c0000000ffffdfff
+  [   47.060390] R10: 0000000000000001 R11: ffffc900005afb40 R12: ffffc900005afc98
+  [   47.061803] R13: 0000000000000001 R14: 0000000000000001 R15: ffffffff825258a8
+  [   47.063249] FS:  00007f04a5207580(0000) GS:ffff88842fdc0000(0000) knlGS:0000000000000000
+  [   47.065070] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  [   47.066307] CR2: 0000000000000000 CR3: 0000000100182005 CR4: 0000000000770ee0
+  [   47.067747] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+  [   47.069217] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+  [   47.070652] PKRU: 55555554
+  [   47.071318] Kernel panic - not syncing: Fatal exception
+  [   47.072854] Kernel Offset: disabled
+  [   47.073683] ---[ end Kernel panic - not syncing: Fatal exception ]---
 
-Fixes: ca84bd058dae ("sctp: copy the optval from user space in sctp_setsockopt")
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 9216477449f3 ("bpf: cpumap: Add the possibility to attach an eBPF program to cpumap")
+Fixes: fbee97feed9b ("bpf: Add support to attach bpf program to a devmap entry")
+Reported-by: Abaci <abaci@linux.alibaba.com>
+Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
+Acked-by: Jesper Dangaard Brouer <brouer@redhat.com>
+Acked-by: David Ahern <dsahern@kernel.org>
+Acked-by: Song Liu <songliubraving@fb.com>
+Link: https://lore.kernel.org/bpf/20210708080409.73525-1-xuanzhuo@linux.alibaba.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/socket.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ net/bpf/test_run.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/net/sctp/socket.c b/net/sctp/socket.c
-index a79d193ff872..dbd074f4d450 100644
---- a/net/sctp/socket.c
-+++ b/net/sctp/socket.c
-@@ -4521,6 +4521,10 @@ static int sctp_setsockopt(struct sock *sk, int level, int optname,
- 	}
+diff --git a/net/bpf/test_run.c b/net/bpf/test_run.c
+index 8b796c499cbb..e7cbd1b4a5e5 100644
+--- a/net/bpf/test_run.c
++++ b/net/bpf/test_run.c
+@@ -627,6 +627,9 @@ int bpf_prog_test_run_xdp(struct bpf_prog *prog, const union bpf_attr *kattr,
+ 	void *data;
+ 	int ret;
  
- 	if (optlen > 0) {
-+		/* Trim it to the biggest size sctp sockopt may need if necessary */
-+		optlen = min_t(unsigned int, optlen,
-+			       PAGE_ALIGN(USHRT_MAX +
-+					  sizeof(__u16) * sizeof(struct sctp_reset_streams)));
- 		kopt = memdup_sockptr(optval, optlen);
- 		if (IS_ERR(kopt))
- 			return PTR_ERR(kopt);
++	if (prog->expected_attach_type == BPF_XDP_DEVMAP ||
++	    prog->expected_attach_type == BPF_XDP_CPUMAP)
++		return -EINVAL;
+ 	if (kattr->test.ctx_in || kattr->test.ctx_out)
+ 		return -EINVAL;
+ 
 -- 
 2.30.2
 
