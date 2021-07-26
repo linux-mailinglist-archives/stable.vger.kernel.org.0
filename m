@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 07BDB3D6215
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:15:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0DBF3D5FD4
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234997AbhGZPeE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:34:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49816 "EHLO mail.kernel.org"
+        id S236684AbhGZPTU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:19:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60008 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233817AbhGZPdE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:33:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 75E9C60C41;
-        Mon, 26 Jul 2021 16:13:31 +0000 (UTC)
+        id S236306AbhGZPTD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:19:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7EEA560F38;
+        Mon, 26 Jul 2021 15:59:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627316012;
-        bh=PotnVkL00huzlpfb7Bttwp0Mm9WjWG5f4iNsJZpXGoM=;
+        s=korg; t=1627315172;
+        bh=cMqobNkiUHw1xhJ9A+LSAIYS4ZmkK8RO6EPmpiU8ZXY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cna3C5NnOoRC2UtpxEUFXZ0PzXiQMLhnH7piJPt71MlDSHq0GqY7iEQy3dkTHJsnL
-         O6NdoA3SS++orewMwW91o6fnLxgb8CarbGUlAdifyWVAoKX727hNM9g4j+JPu/wopp
-         jrvcVoWsqPkRuH4xADvsDKefOorc7dWyDh6ZLK2k=
+        b=NP3THL34shi3ntqxJMjUwXFUPFJmRlDs8mHLU02MH5n9ctVwJaO2M0VnrKwVHzTWs
+         R3cA5Mi4zgiT/qUcUo4E60lgyTR9SEw/G56efk2J6v7WXEbSNCEoeTgXLZM/KOxd/t
+         kcNPWfYAQcuOL8IfTmMQ/knchp+G/NPzxkiC6Eoc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.13 154/223] ALSA: pcm: Fix mmap capability check
-Date:   Mon, 26 Jul 2021 17:39:06 +0200
-Message-Id: <20210726153851.261625287@linuxfoundation.org>
+        stable@vger.kernel.org, Yajun Deng <yajun.deng@linux.dev>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 066/108] net: sched: cls_api: Fix the the wrong parameter
+Date:   Mon, 26 Jul 2021 17:39:07 +0200
+Message-Id: <20210726153833.807839232@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
-References: <20210726153846.245305071@linuxfoundation.org>
+In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
+References: <20210726153831.696295003@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,46 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Yajun Deng <yajun.deng@linux.dev>
 
-commit c4824ae7db418aee6f50f308a20b832e58e997fd upstream.
+[ Upstream commit 9d85a6f44bd5585761947f40f7821c9cd78a1bbe ]
 
-The hw_support_mmap() doesn't cover all memory allocation types and
-might use a wrong device pointer for checking the capability.
-Check the all memory allocation types more completely.
+The 4th parameter in tc_chain_notify() should be flags rather than seq.
+Let's change it back correctly.
 
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210720092640.12338-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 32a4f5ecd738 ("net: sched: introduce chain object to uapi")
+Signed-off-by: Yajun Deng <yajun.deng@linux.dev>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/pcm_native.c |   14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ net/sched/cls_api.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/core/pcm_native.c
-+++ b/sound/core/pcm_native.c
-@@ -246,12 +246,18 @@ static bool hw_support_mmap(struct snd_p
- 	if (!(substream->runtime->hw.info & SNDRV_PCM_INFO_MMAP))
- 		return false;
- 
--	if (substream->ops->mmap ||
--	    (substream->dma_buffer.dev.type != SNDRV_DMA_TYPE_DEV &&
--	     substream->dma_buffer.dev.type != SNDRV_DMA_TYPE_DEV_UC))
-+	if (substream->ops->mmap)
- 		return true;
- 
--	return dma_can_mmap(substream->dma_buffer.dev.dev);
-+	switch (substream->dma_buffer.dev.type) {
-+	case SNDRV_DMA_TYPE_UNKNOWN:
-+		return false;
-+	case SNDRV_DMA_TYPE_CONTINUOUS:
-+	case SNDRV_DMA_TYPE_VMALLOC:
-+		return true;
-+	default:
-+		return dma_can_mmap(substream->dma_buffer.dev.dev);
-+	}
- }
- 
- static int constrain_mask_params(struct snd_pcm_substream *substream,
+diff --git a/net/sched/cls_api.c b/net/sched/cls_api.c
+index 83e5a8aa2fb1..7f20fd37e01e 100644
+--- a/net/sched/cls_api.c
++++ b/net/sched/cls_api.c
+@@ -2866,7 +2866,7 @@ replay:
+ 		break;
+ 	case RTM_GETCHAIN:
+ 		err = tc_chain_notify(chain, skb, n->nlmsg_seq,
+-				      n->nlmsg_seq, n->nlmsg_type, true);
++				      n->nlmsg_flags, n->nlmsg_type, true);
+ 		if (err < 0)
+ 			NL_SET_ERR_MSG(extack, "Failed to send chain notify message");
+ 		break;
+-- 
+2.30.2
+
 
 
