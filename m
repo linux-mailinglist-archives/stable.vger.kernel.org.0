@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 25B8E3D5E0F
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:47:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AA393D5E07
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:47:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235659AbhGZPFQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:05:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45412 "EHLO mail.kernel.org"
+        id S235822AbhGZPFJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:05:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235962AbhGZPFC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:05:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 02A4260F51;
-        Mon, 26 Jul 2021 15:45:29 +0000 (UTC)
+        id S235982AbhGZPEq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:04:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 242BF60F22;
+        Mon, 26 Jul 2021 15:45:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314330;
-        bh=jaFwxAAyKlDP0uRz88yVR0gIjk8o24dEUUdSP6qpfZM=;
+        s=korg; t=1627314313;
+        bh=xrTK4To+yVWIM1mLFC669+ZzTxOX6HaV20IXD9cTHMA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FPI/JFyP3jfqV/dB14z5KSwurpBrUJmhfL8swSwAyGpZeHpvERI8G9DW2W5L0NFFz
-         9WdzCTodZ/VgHAMGfpu4Si5kMLvPgGHHJGiTyadugTHx/EN8p9PFwGr2g4gn09/VwR
-         Y2oCgc6z4fFgAuJy+ykXeJ7vUF8V97MSUlkNpqRA=
+        b=QKnYKtTIkM/araepBv5lFOxtCTgpI8NQTYyFoDDo+cXXbvNB0VhsCxzQ787u1RfOF
+         14sFu0SHqHdKYs/tr3Mtn4eGv1dUFApyveZT1Oo6isff4Jr29WEcS7r8LLu+yEVS6D
+         +JZ4GdBpwJ4fzUvuhecRqTrKJdF7wnVzm8E1bYn8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Keeping <john@metanate.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 54/60] USB: serial: cp210x: add ID for CEL EM3588 USB ZigBee stick
-Date:   Mon, 26 Jul 2021 17:39:08 +0200
-Message-Id: <20210726153826.570730338@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linuxfoundation.org>,
+        Haoran Luo <www@aegistudio.net>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 4.9 55/60] tracing: Fix bug in rb_per_cpu_empty() that might cause deadloop.
+Date:   Mon, 26 Jul 2021 17:39:09 +0200
+Message-Id: <20210726153826.600502814@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210726153824.868160836@linuxfoundation.org>
 References: <20210726153824.868160836@linuxfoundation.org>
@@ -39,29 +41,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Keeping <john@metanate.com>
+From: Haoran Luo <www@aegistudio.net>
 
-commit d6a206e60124a9759dd7f6dfb86b0e1d3b1df82e upstream.
+commit 67f0d6d9883c13174669f88adac4f0ee656cc16a upstream.
 
-Add the USB serial device ID for the CEL ZigBee EM3588 radio stick.
+The "rb_per_cpu_empty()" misinterpret the condition (as not-empty) when
+"head_page" and "commit_page" of "struct ring_buffer_per_cpu" points to
+the same buffer page, whose "buffer_data_page" is empty and "read" field
+is non-zero.
 
-Signed-off-by: John Keeping <john@metanate.com>
+An error scenario could be constructed as followed (kernel perspective):
+
+1. All pages in the buffer has been accessed by reader(s) so that all of
+them will have non-zero "read" field.
+
+2. Read and clear all buffer pages so that "rb_num_of_entries()" will
+return 0 rendering there's no more data to read. It is also required
+that the "read_page", "commit_page" and "tail_page" points to the same
+page, while "head_page" is the next page of them.
+
+3. Invoke "ring_buffer_lock_reserve()" with large enough "length"
+so that it shot pass the end of current tail buffer page. Now the
+"head_page", "commit_page" and "tail_page" points to the same page.
+
+4. Discard current event with "ring_buffer_discard_commit()", so that
+"head_page", "commit_page" and "tail_page" points to a page whose buffer
+data page is now empty.
+
+When the error scenario has been constructed, "tracing_read_pipe" will
+be trapped inside a deadloop: "trace_empty()" returns 0 since
+"rb_per_cpu_empty()" returns 0 when it hits the CPU containing such
+constructed ring buffer. Then "trace_find_next_entry_inc()" always
+return NULL since "rb_num_of_entries()" reports there's no more entry
+to read. Finally "trace_seq_to_user()" returns "-EBUSY" spanking
+"tracing_read_pipe" back to the start of the "waitagain" loop.
+
+I've also written a proof-of-concept script to construct the scenario
+and trigger the bug automatically, you can use it to trace and validate
+my reasoning above:
+
+  https://github.com/aegistudio/RingBufferDetonator.git
+
+Tests has been carried out on linux kernel 5.14-rc2
+(2734d6c1b1a089fb593ef6a23d4b70903526fe0c), my fixed version
+of kernel (for testing whether my update fixes the bug) and
+some older kernels (for range of affected kernels). Test result is
+also attached to the proof-of-concept repository.
+
+Link: https://lore.kernel.org/linux-trace-devel/YPaNxsIlb2yjSi5Y@aegistudio/
+Link: https://lore.kernel.org/linux-trace-devel/YPgrN85WL9VyrZ55@aegistudio
+
 Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: bf41a158cacba ("ring-buffer: make reentrant")
+Suggested-by: Linus Torvalds <torvalds@linuxfoundation.org>
+Signed-off-by: Haoran Luo <www@aegistudio.net>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/cp210x.c |    1 +
- 1 file changed, 1 insertion(+)
+ kernel/trace/ring_buffer.c |   28 ++++++++++++++++++++++++----
+ 1 file changed, 24 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/serial/cp210x.c
-+++ b/drivers/usb/serial/cp210x.c
-@@ -153,6 +153,7 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(0x10C4, 0x89A4) }, /* CESINEL FTBC Flexible Thyristor Bridge Controller */
- 	{ USB_DEVICE(0x10C4, 0x89FB) }, /* Qivicon ZigBee USB Radio Stick */
- 	{ USB_DEVICE(0x10C4, 0x8A2A) }, /* HubZ dual ZigBee and Z-Wave dongle */
-+	{ USB_DEVICE(0x10C4, 0x8A5B) }, /* CEL EM3588 ZigBee USB Stick */
- 	{ USB_DEVICE(0x10C4, 0x8A5E) }, /* CEL EM3588 ZigBee USB Stick Long Range */
- 	{ USB_DEVICE(0x10C4, 0x8B34) }, /* Qivicon ZigBee USB Radio Stick */
- 	{ USB_DEVICE(0x10C4, 0xEA60) }, /* Silicon Labs factory default */
+--- a/kernel/trace/ring_buffer.c
++++ b/kernel/trace/ring_buffer.c
+@@ -3081,10 +3081,30 @@ static bool rb_per_cpu_empty(struct ring
+ 	if (unlikely(!head))
+ 		return true;
+ 
+-	return reader->read == rb_page_commit(reader) &&
+-		(commit == reader ||
+-		 (commit == head &&
+-		  head->read == rb_page_commit(commit)));
++	/* Reader should exhaust content in reader page */
++	if (reader->read != rb_page_commit(reader))
++		return false;
++
++	/*
++	 * If writers are committing on the reader page, knowing all
++	 * committed content has been read, the ring buffer is empty.
++	 */
++	if (commit == reader)
++		return true;
++
++	/*
++	 * If writers are committing on a page other than reader page
++	 * and head page, there should always be content to read.
++	 */
++	if (commit != head)
++		return false;
++
++	/*
++	 * Writers are committing on the head page, we just need
++	 * to care about there're committed data, and the reader will
++	 * swap reader page with head page when it is to read data.
++	 */
++	return rb_page_commit(commit) == 0;
+ }
+ 
+ /**
 
 
