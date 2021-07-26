@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A420F3D5E13
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:47:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BB333D5EB5
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:52:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236105AbhGZPFV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:05:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45582 "EHLO mail.kernel.org"
+        id S236009AbhGZPL2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:11:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50732 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235576AbhGZPFH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:05:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C66F60FC4;
-        Mon, 26 Jul 2021 15:45:35 +0000 (UTC)
+        id S237039AbhGZPKL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:10:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DE456056C;
+        Mon, 26 Jul 2021 15:50:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314336;
-        bh=qQFiQ0lKE+qkq1V1h683RdQXj75iUND3pfAIjPHGCtc=;
+        s=korg; t=1627314640;
+        bh=Qw19aLmwjbQ/wEhpzwi7cscgJrpLdQ4eDTm33qriIX0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OT9V+W94BSOStwP+rgoF9NWyHvyGRN0v6K2CzqBWqsqUg/CL1sZ3ttxvrhw2oOZhO
-         7n9fq/Mz1HlhSEJLLa+akOdM+4T2RvYDCT8o3Fakly61WZ3h5i2uy6XtPyJt57/88F
-         82Dn6x3mOJJXE30Yg0sr8MZR3jy7JJKmmYC/CCic=
+        b=CnPCY7D0NWk9rnjlh6b7ezPlRHeRmM7ZJtLD31y9OsHyrucRNtEXLEfXaGZoRTwzZ
+         r4eymg9xvcddVciJv0HwrOs+Vc9VtOJ4xKhBJSwnRXUemedtAhxVSLczeqawpJ3iUo
+         jDuX5cqjcC//ogXoRZaFLRpVCdLT4cR6N3VfLUg4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 10/82] ARM: NSP: dts: fix NAND nodes names
-Date:   Mon, 26 Jul 2021 17:38:10 +0200
-Message-Id: <20210726153828.492368047@linuxfoundation.org>
+        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 4.19 039/120] netfilter: ctnetlink: suspicious RCU usage in ctnetlink_dump_helpinfo
+Date:   Mon, 26 Jul 2021 17:38:11 +0200
+Message-Id: <20210726153833.649863937@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153828.144714469@linuxfoundation.org>
-References: <20210726153828.144714469@linuxfoundation.org>
+In-Reply-To: <20210726153832.339431936@linuxfoundation.org>
+References: <20210726153832.339431936@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,162 +40,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafał Miłecki <rafal@milecki.pl>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-[ Upstream commit 0484594be733d5cdf976f55a2d4e8d887f351b69 ]
+commit c23a9fd209bc6f8c1fa6ee303fdf037d784a1627 upstream.
 
-This matches nand-controller.yaml requirements.
+Two patches listed below removed ctnetlink_dump_helpinfo call from under
+rcu_read_lock. Now its rcu_dereference generates following warning:
+=============================
+WARNING: suspicious RCU usage
+5.13.0+ #5 Not tainted
+-----------------------------
+net/netfilter/nf_conntrack_netlink.c:221 suspicious rcu_dereference_check() usage!
 
-Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+other info that might help us debug this:
+rcu_scheduler_active = 2, debug_locks = 1
+stack backtrace:
+CPU: 1 PID: 2251 Comm: conntrack Not tainted 5.13.0+ #5
+Call Trace:
+ dump_stack+0x7f/0xa1
+ ctnetlink_dump_helpinfo+0x134/0x150 [nf_conntrack_netlink]
+ ctnetlink_fill_info+0x2c2/0x390 [nf_conntrack_netlink]
+ ctnetlink_dump_table+0x13f/0x370 [nf_conntrack_netlink]
+ netlink_dump+0x10c/0x370
+ __netlink_dump_start+0x1a7/0x260
+ ctnetlink_get_conntrack+0x1e5/0x250 [nf_conntrack_netlink]
+ nfnetlink_rcv_msg+0x613/0x993 [nfnetlink]
+ netlink_rcv_skb+0x50/0x100
+ nfnetlink_rcv+0x55/0x120 [nfnetlink]
+ netlink_unicast+0x181/0x260
+ netlink_sendmsg+0x23f/0x460
+ sock_sendmsg+0x5b/0x60
+ __sys_sendto+0xf1/0x160
+ __x64_sys_sendto+0x24/0x30
+ do_syscall_64+0x36/0x70
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Fixes: 49ca022bccc5 ("netfilter: ctnetlink: don't dump ct extensions of unconfirmed conntracks")
+Fixes: 0b35f6031a00 ("netfilter: Remove duplicated rcu_read_lock.")
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Reviewed-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/bcm-nsp.dtsi     | 2 +-
- arch/arm/boot/dts/bcm958522er.dts  | 4 ++--
- arch/arm/boot/dts/bcm958525er.dts  | 4 ++--
- arch/arm/boot/dts/bcm958525xmc.dts | 4 ++--
- arch/arm/boot/dts/bcm958622hr.dts  | 4 ++--
- arch/arm/boot/dts/bcm958623hr.dts  | 4 ++--
- arch/arm/boot/dts/bcm958625hr.dts  | 4 ++--
- arch/arm/boot/dts/bcm958625k.dts   | 4 ++--
- arch/arm/boot/dts/bcm988312hr.dts  | 4 ++--
- 9 files changed, 17 insertions(+), 17 deletions(-)
+ net/netfilter/nf_conntrack_netlink.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/arm/boot/dts/bcm-nsp.dtsi b/arch/arm/boot/dts/bcm-nsp.dtsi
-index e975f9cabe84..3bd3412b29a8 100644
---- a/arch/arm/boot/dts/bcm-nsp.dtsi
-+++ b/arch/arm/boot/dts/bcm-nsp.dtsi
-@@ -259,7 +259,7 @@
- 			dma-coherent;
- 		};
+--- a/net/netfilter/nf_conntrack_netlink.c
++++ b/net/netfilter/nf_conntrack_netlink.c
+@@ -213,6 +213,7 @@ static int ctnetlink_dump_helpinfo(struc
+ 	if (!help)
+ 		return 0;
  
--		nand: nand@26000 {
-+		nand_controller: nand-controller@26000 {
- 			compatible = "brcm,nand-iproc", "brcm,brcmnand-v6.1";
- 			reg = <0x026000 0x600>,
- 			      <0x11b408 0x600>,
-diff --git a/arch/arm/boot/dts/bcm958522er.dts b/arch/arm/boot/dts/bcm958522er.dts
-index f9dd342cc2ae..56f9181975b1 100644
---- a/arch/arm/boot/dts/bcm958522er.dts
-+++ b/arch/arm/boot/dts/bcm958522er.dts
-@@ -74,8 +74,8 @@
- 	status = "okay";
- };
++	rcu_read_lock();
+ 	helper = rcu_dereference(help->helper);
+ 	if (!helper)
+ 		goto out;
+@@ -228,9 +229,11 @@ static int ctnetlink_dump_helpinfo(struc
  
--&nand {
--	nandcs@0 {
-+&nand_controller {
-+	nand@0 {
- 		compatible = "brcm,nandcs";
- 		reg = <0>;
- 		nand-on-flash-bbt;
-diff --git a/arch/arm/boot/dts/bcm958525er.dts b/arch/arm/boot/dts/bcm958525er.dts
-index 374508a9cfbf..93a3e23ec7ae 100644
---- a/arch/arm/boot/dts/bcm958525er.dts
-+++ b/arch/arm/boot/dts/bcm958525er.dts
-@@ -74,8 +74,8 @@
- 	status = "okay";
- };
+ 	nla_nest_end(skb, nest_helper);
+ out:
++	rcu_read_unlock();
+ 	return 0;
  
--&nand {
--	nandcs@0 {
-+&nand_controller {
-+	nand@0 {
- 		compatible = "brcm,nandcs";
- 		reg = <0>;
- 		nand-on-flash-bbt;
-diff --git a/arch/arm/boot/dts/bcm958525xmc.dts b/arch/arm/boot/dts/bcm958525xmc.dts
-index 403250c5ad8e..fad974212d8a 100644
---- a/arch/arm/boot/dts/bcm958525xmc.dts
-+++ b/arch/arm/boot/dts/bcm958525xmc.dts
-@@ -90,8 +90,8 @@
- 	};
- };
+ nla_put_failure:
++	rcu_read_unlock();
+ 	return -1;
+ }
  
--&nand {
--	nandcs@0 {
-+&nand_controller {
-+	nand@0 {
- 		compatible = "brcm,nandcs";
- 		reg = <0>;
- 		nand-on-flash-bbt;
-diff --git a/arch/arm/boot/dts/bcm958622hr.dts b/arch/arm/boot/dts/bcm958622hr.dts
-index fd8b8c689ffe..26b5ed56b604 100644
---- a/arch/arm/boot/dts/bcm958622hr.dts
-+++ b/arch/arm/boot/dts/bcm958622hr.dts
-@@ -78,8 +78,8 @@
- 	status = "okay";
- };
- 
--&nand {
--	nandcs@0 {
-+&nand_controller {
-+	nand@0 {
- 		compatible = "brcm,nandcs";
- 		reg = <0>;
- 		nand-on-flash-bbt;
-diff --git a/arch/arm/boot/dts/bcm958623hr.dts b/arch/arm/boot/dts/bcm958623hr.dts
-index b8bde13de90a..789fb77e17ad 100644
---- a/arch/arm/boot/dts/bcm958623hr.dts
-+++ b/arch/arm/boot/dts/bcm958623hr.dts
-@@ -78,8 +78,8 @@
- 	status = "okay";
- };
- 
--&nand {
--	nandcs@0 {
-+&nand_controller {
-+	nand@0 {
- 		compatible = "brcm,nandcs";
- 		reg = <0>;
- 		nand-on-flash-bbt;
-diff --git a/arch/arm/boot/dts/bcm958625hr.dts b/arch/arm/boot/dts/bcm958625hr.dts
-index f0e2008f7490..88d51eb3083d 100644
---- a/arch/arm/boot/dts/bcm958625hr.dts
-+++ b/arch/arm/boot/dts/bcm958625hr.dts
-@@ -76,8 +76,8 @@
- 	status = "okay";
- };
- 
--&nand {
--	nandcs@0 {
-+&nand_controller {
-+	nand@0 {
- 		compatible = "brcm,nandcs";
- 		reg = <0>;
- 		nand-on-flash-bbt;
-diff --git a/arch/arm/boot/dts/bcm958625k.dts b/arch/arm/boot/dts/bcm958625k.dts
-index 2cf2392483b2..22d321e06a31 100644
---- a/arch/arm/boot/dts/bcm958625k.dts
-+++ b/arch/arm/boot/dts/bcm958625k.dts
-@@ -69,8 +69,8 @@
- 	status = "okay";
- };
- 
--&nand {
--	nandcs@0 {
-+&nand_controller {
-+	nand@0 {
- 		compatible = "brcm,nandcs";
- 		reg = <0>;
- 		nand-on-flash-bbt;
-diff --git a/arch/arm/boot/dts/bcm988312hr.dts b/arch/arm/boot/dts/bcm988312hr.dts
-index bce251a68591..b62b91fa942f 100644
---- a/arch/arm/boot/dts/bcm988312hr.dts
-+++ b/arch/arm/boot/dts/bcm988312hr.dts
-@@ -78,8 +78,8 @@
- 	status = "okay";
- };
- 
--&nand {
--	nandcs@0 {
-+&nand_controller {
-+	nand@0 {
- 		compatible = "brcm,nandcs";
- 		reg = <0>;
- 		nand-on-flash-bbt;
--- 
-2.30.2
-
 
 
