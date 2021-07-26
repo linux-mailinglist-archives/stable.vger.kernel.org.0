@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D00D03D5E0E
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:47:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCA343D5F60
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236019AbhGZPFP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:05:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45372 "EHLO mail.kernel.org"
+        id S236882AbhGZPRq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:17:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235725AbhGZPFA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:05:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AAF3760F5B;
-        Mon, 26 Jul 2021 15:45:27 +0000 (UTC)
+        id S236860AbhGZPPl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:15:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6DD1060FE7;
+        Mon, 26 Jul 2021 15:53:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314328;
-        bh=9g1soENvLV8l1xZaSZUxicGcQuXbmy3p2Xn1klrf4NE=;
+        s=korg; t=1627314820;
+        bh=/KF3dQWL13Gi/ZNEQMzF/mHt5mJRTOk5WiSPi3CVCpg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o6Av7cJsDHyE8wcxmY0o6wtEZ8ZLGdDlG4yW8xA2xVoKE/w9jJEzHlu3qysNniU8O
-         gaZLRMj3caVBUOQKNUA+kaAeCxPjBTMT3wGpowUYgLW1eynHepJAv5LyPtESvPYqcx
-         cnG4uXXopFc0B0VbfWU0SWcH/R56Xzo5/k7XEhyo=
+        b=PbYI5HW9DwPpdg1OKNUjIgrngYTGlImAM8OV27T0yr+6kmov1l1R4fJR/rVyMTbIx
+         /pptZ9vzj/t10rsJ5tqPalFiTLMDw/p2wxIzN7IHXBI5qKUCJfE0zZuvKPm/1Qm40m
+         /yfYq6zVyId6Jp8c5Jz+Imx5/NfeK/VhBIon7Izk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Sterba <dsterba@suse.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.9 60/60] btrfs: compression: dont try to compress if we dont have enough pages
+        stable@vger.kernel.org, Ian Ray <ian.ray@ge.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 102/120] USB: serial: cp210x: fix comments for GE CS1000
 Date:   Mon, 26 Jul 2021 17:39:14 +0200
-Message-Id: <20210726153826.754545251@linuxfoundation.org>
+Message-Id: <20210726153835.706236846@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153824.868160836@linuxfoundation.org>
-References: <20210726153824.868160836@linuxfoundation.org>
+In-Reply-To: <20210726153832.339431936@linuxfoundation.org>
+References: <20210726153832.339431936@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,39 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Sterba <dsterba@suse.com>
+From: Ian Ray <ian.ray@ge.com>
 
-commit f2165627319ffd33a6217275e5690b1ab5c45763 upstream
+commit e9db418d4b828dd049caaf5ed65dc86f93bb1a0c upstream.
 
-The early check if we should attempt compression does not take into
-account the number of input pages. It can happen that there's only one
-page, eg. a tail page after some ranges of the BTRFS_MAX_UNCOMPRESSED
-have been processed, or an isolated page that won't be converted to an
-inline extent.
+Fix comments for GE CS1000 CP210x USB ID assignments.
 
-The single page would be compressed but a later check would drop it
-again because the result size must be at least one block shorter than
-the input. That can never work with just one page.
-
-CC: stable@vger.kernel.org # 4.4+
-Signed-off-by: David Sterba <dsterba@suse.com>
-[sudip: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Fixes: 42213a0190b5 ("USB: serial: cp210x: add some more GE USB IDs")
+Signed-off-by: Ian Ray <ian.ray@ge.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/inode.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/serial/cp210x.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -484,7 +484,7 @@ again:
- 	 * inode has not been flagged as nocompress.  This flag can
- 	 * change at any time if we discover bad compression ratios.
- 	 */
--	if (inode_need_compress(inode)) {
-+	if (nr_pages > 1 && inode_need_compress(inode)) {
- 		WARN_ON(pages);
- 		pages = kcalloc(nr_pages, sizeof(struct page *), GFP_NOFS);
- 		if (!pages) {
+--- a/drivers/usb/serial/cp210x.c
++++ b/drivers/usb/serial/cp210x.c
+@@ -203,8 +203,8 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(0x1901, 0x0194) },	/* GE Healthcare Remote Alarm Box */
+ 	{ USB_DEVICE(0x1901, 0x0195) },	/* GE B850/B650/B450 CP2104 DP UART interface */
+ 	{ USB_DEVICE(0x1901, 0x0196) },	/* GE B850 CP2105 DP UART interface */
+-	{ USB_DEVICE(0x1901, 0x0197) }, /* GE CS1000 Display serial interface */
+-	{ USB_DEVICE(0x1901, 0x0198) }, /* GE CS1000 M.2 Key E serial interface */
++	{ USB_DEVICE(0x1901, 0x0197) }, /* GE CS1000 M.2 Key E serial interface */
++	{ USB_DEVICE(0x1901, 0x0198) }, /* GE CS1000 Display serial interface */
+ 	{ USB_DEVICE(0x199B, 0xBA30) }, /* LORD WSDA-200-USB */
+ 	{ USB_DEVICE(0x19CF, 0x3000) }, /* Parrot NMEA GPS Flight Recorder */
+ 	{ USB_DEVICE(0x1ADB, 0x0001) }, /* Schweitzer Engineering C662 Cable */
 
 
