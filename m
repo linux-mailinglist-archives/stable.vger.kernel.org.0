@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 342603D5F29
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E6473D5D77
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:42:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235980AbhGZPRB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:17:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53050 "EHLO mail.kernel.org"
+        id S235589AbhGZPBg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:01:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236784AbhGZPPZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:15:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E3E0660F9D;
-        Mon, 26 Jul 2021 15:52:56 +0000 (UTC)
+        id S235579AbhGZPBg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:01:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1EC2A604DC;
+        Mon, 26 Jul 2021 15:42:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314777;
-        bh=suIabbxx3PuyjeYF8tOoSSVuGVGX+gwtmk4zGhYo6qU=;
+        s=korg; t=1627314124;
+        bh=UdBBBrXYVAQuhdnqFaLcTw7EKvHx9zQV9g2SU0FIfh0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J64qr3ownS+BNyjWv8ER8/YRUSbh/3x7eYdMDSSptMJDl6OApQ4dlH+4fFcXn1mvo
-         SwB1diWMFXjM5l9xUikCwdzbSmh5dnE7TUfDVHINJTWUO3F8uW5nlmkap1WY/sjru8
-         COpH5pbxbG/8WdDil4Wrn2ISah6Zntnj4U7MmA0Q=
+        b=fuD6Y1EdmZ7a+GDtxX5kCbMBT8AnvXLFz5UfuEx/lQ6pcnaQGfRd3YdK3I4CgxYwG
+         5yjg8vhFrQ6sVFn7RTKEA5w2HNqIjPm2CzIHwWsPCz3wwfh2SxCd0/q19pUHizOGBH
+         TGFSoBfsH1ZyUkWeh4cTtMX5tNQ4OwX7vmWwHxs4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 088/120] drm/panel: raspberrypi-touchscreen: Prevent double-free
+        stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linuxfoundation.org>,
+        Haoran Luo <www@aegistudio.net>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 4.4 42/47] tracing: Fix bug in rb_per_cpu_empty() that might cause deadloop.
 Date:   Mon, 26 Jul 2021 17:39:00 +0200
-Message-Id: <20210726153835.208201401@linuxfoundation.org>
+Message-Id: <20210726153824.301222156@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153832.339431936@linuxfoundation.org>
-References: <20210726153832.339431936@linuxfoundation.org>
+In-Reply-To: <20210726153822.980271128@linuxfoundation.org>
+References: <20210726153822.980271128@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,36 +41,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Ripard <maxime@cerno.tech>
+From: Haoran Luo <www@aegistudio.net>
 
-[ Upstream commit 7bbcb919e32d776ca8ddce08abb391ab92eef6a9 ]
+commit 67f0d6d9883c13174669f88adac4f0ee656cc16a upstream.
 
-The mipi_dsi_device allocated by mipi_dsi_device_register_full() is
-already free'd on release.
+The "rb_per_cpu_empty()" misinterpret the condition (as not-empty) when
+"head_page" and "commit_page" of "struct ring_buffer_per_cpu" points to
+the same buffer page, whose "buffer_data_page" is empty and "read" field
+is non-zero.
 
-Fixes: 2f733d6194bd ("drm/panel: Add support for the Raspberry Pi 7" Touchscreen.")
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Reviewed-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210720134525.563936-9-maxime@cerno.tech
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+An error scenario could be constructed as followed (kernel perspective):
+
+1. All pages in the buffer has been accessed by reader(s) so that all of
+them will have non-zero "read" field.
+
+2. Read and clear all buffer pages so that "rb_num_of_entries()" will
+return 0 rendering there's no more data to read. It is also required
+that the "read_page", "commit_page" and "tail_page" points to the same
+page, while "head_page" is the next page of them.
+
+3. Invoke "ring_buffer_lock_reserve()" with large enough "length"
+so that it shot pass the end of current tail buffer page. Now the
+"head_page", "commit_page" and "tail_page" points to the same page.
+
+4. Discard current event with "ring_buffer_discard_commit()", so that
+"head_page", "commit_page" and "tail_page" points to a page whose buffer
+data page is now empty.
+
+When the error scenario has been constructed, "tracing_read_pipe" will
+be trapped inside a deadloop: "trace_empty()" returns 0 since
+"rb_per_cpu_empty()" returns 0 when it hits the CPU containing such
+constructed ring buffer. Then "trace_find_next_entry_inc()" always
+return NULL since "rb_num_of_entries()" reports there's no more entry
+to read. Finally "trace_seq_to_user()" returns "-EBUSY" spanking
+"tracing_read_pipe" back to the start of the "waitagain" loop.
+
+I've also written a proof-of-concept script to construct the scenario
+and trigger the bug automatically, you can use it to trace and validate
+my reasoning above:
+
+  https://github.com/aegistudio/RingBufferDetonator.git
+
+Tests has been carried out on linux kernel 5.14-rc2
+(2734d6c1b1a089fb593ef6a23d4b70903526fe0c), my fixed version
+of kernel (for testing whether my update fixes the bug) and
+some older kernels (for range of affected kernels). Test result is
+also attached to the proof-of-concept repository.
+
+Link: https://lore.kernel.org/linux-trace-devel/YPaNxsIlb2yjSi5Y@aegistudio/
+Link: https://lore.kernel.org/linux-trace-devel/YPgrN85WL9VyrZ55@aegistudio
+
+Cc: stable@vger.kernel.org
+Fixes: bf41a158cacba ("ring-buffer: make reentrant")
+Suggested-by: Linus Torvalds <torvalds@linuxfoundation.org>
+Signed-off-by: Haoran Luo <www@aegistudio.net>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c | 1 -
- 1 file changed, 1 deletion(-)
+ kernel/trace/ring_buffer.c |   28 ++++++++++++++++++++++++----
+ 1 file changed, 24 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c b/drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c
-index aab6a70ece7f..06bd03915973 100644
---- a/drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c
-+++ b/drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c
-@@ -454,7 +454,6 @@ static int rpi_touchscreen_remove(struct i2c_client *i2c)
- 	drm_panel_remove(&ts->base);
+--- a/kernel/trace/ring_buffer.c
++++ b/kernel/trace/ring_buffer.c
+@@ -3086,10 +3086,30 @@ static bool rb_per_cpu_empty(struct ring
+ 	if (unlikely(!head))
+ 		return true;
  
- 	mipi_dsi_device_unregister(ts->dsi);
--	kfree(ts->dsi);
- 
- 	return 0;
+-	return reader->read == rb_page_commit(reader) &&
+-		(commit == reader ||
+-		 (commit == head &&
+-		  head->read == rb_page_commit(commit)));
++	/* Reader should exhaust content in reader page */
++	if (reader->read != rb_page_commit(reader))
++		return false;
++
++	/*
++	 * If writers are committing on the reader page, knowing all
++	 * committed content has been read, the ring buffer is empty.
++	 */
++	if (commit == reader)
++		return true;
++
++	/*
++	 * If writers are committing on a page other than reader page
++	 * and head page, there should always be content to read.
++	 */
++	if (commit != head)
++		return false;
++
++	/*
++	 * Writers are committing on the head page, we just need
++	 * to care about there're committed data, and the reader will
++	 * swap reader page with head page when it is to read data.
++	 */
++	return rb_page_commit(commit) == 0;
  }
--- 
-2.30.2
-
+ 
+ /**
 
 
