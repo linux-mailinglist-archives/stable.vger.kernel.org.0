@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 453B63D5E79
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:51:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 676183D5E83
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:51:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236229AbhGZPIU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:08:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46876 "EHLO mail.kernel.org"
+        id S236062AbhGZPKu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:10:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236266AbhGZPH2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:07:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C201760525;
-        Mon, 26 Jul 2021 15:47:56 +0000 (UTC)
+        id S236078AbhGZPHb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:07:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 88E6A60F94;
+        Mon, 26 Jul 2021 15:47:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314477;
-        bh=CLY0hXy/DdlikbgWX4r60MdhZxVXUbvMNdgmPaBxZu4=;
+        s=korg; t=1627314480;
+        bh=lC4C1AP+WqzdL5jA7ViecfA8X6+auc1/xFYADA5MTXk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rk8hoiBr2hHhumcKIl+WEtg8um6fntZn8rkyNBY3Pn2u/Sh5qqhtTRAHr1A5TCNz3
-         bLMjCShcqKgmgLQW+C3SG2U+ckwQ2Zgq6OGDTdl8QmdlqqgKieC81SngWGV0gvzhs6
-         /XnYYOeDvZOAPKPofeS6bgs+R8M44d1bo45ixK08=
+        b=vsfpRyjTs08saILth2EAI/j+733YekAMVtNrUVsBpOJkiP7yJUFBjX5wQuEqC9wH+
+         EtuEz8YArU4b1Kx3VsllyGzvKEncRVZFhdYa5L97Fhe0pkTrYiID9kGZgErgZMkZ0c
+         NEcFs0PnbgCT2fZrdBfs4/gQRmqR2slLz2CZXdnA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wolfgang Bumiller <w.bumiller@proxmox.com>,
-        Nikolay Aleksandrov <nikolay@nvidia.com>,
+        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 25/82] net: bridge: sync fdb to new unicast-filtering ports
-Date:   Mon, 26 Jul 2021 17:38:25 +0200
-Message-Id: <20210726153828.980870703@linuxfoundation.org>
+Subject: [PATCH 4.14 26/82] net: bcmgenet: Ensure all TX/RX queues DMAs are disabled
+Date:   Mon, 26 Jul 2021 17:38:26 +0200
+Message-Id: <20210726153829.013060816@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210726153828.144714469@linuxfoundation.org>
 References: <20210726153828.144714469@linuxfoundation.org>
@@ -40,73 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfgang Bumiller <w.bumiller@proxmox.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-commit a019abd8022061b917da767cd1a66ed823724eab upstream.
+commit 2b452550a203d88112eaf0ba9fc4b750a000b496 upstream.
 
-Since commit 2796d0c648c9 ("bridge: Automatically manage
-port promiscuous mode.")
-bridges with `vlan_filtering 1` and only 1 auto-port don't
-set IFF_PROMISC for unicast-filtering-capable ports.
+Make sure that we disable each of the TX and RX queues in the TDMA and
+RDMA control registers. This is a correctness change to be symmetrical
+with the code that enables the TX and RX queues.
 
-Normally on port changes `br_manage_promisc` is called to
-update the promisc flags and unicast filters if necessary,
-but it cannot distinguish between *new* ports and ones
-losing their promisc flag, and new ports end up not
-receiving the MAC address list.
-
-Fix this by calling `br_fdb_sync_static` in `br_add_if`
-after the port promisc flags are updated and the unicast
-filter was supposed to have been filled.
-
-Fixes: 2796d0c648c9 ("bridge: Automatically manage port promiscuous mode.")
-Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
-Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+Tested-by: Maxime Ripard <maxime@cerno.tech>
+Fixes: 1c1008c793fa ("net: bcmgenet: add main driver file")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bridge/br_if.c |   17 ++++++++++++++++-
- 1 file changed, 16 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/broadcom/genet/bcmgenet.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/net/bridge/br_if.c
-+++ b/net/bridge/br_if.c
-@@ -485,7 +485,7 @@ int br_add_if(struct net_bridge *br, str
- 	struct net_bridge_port *p;
- 	int err = 0;
- 	unsigned br_hr, dev_hr;
--	bool changed_addr;
-+	bool changed_addr, fdb_synced = false;
+--- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
++++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
+@@ -2789,15 +2789,21 @@ static void bcmgenet_set_hw_addr(struct
+ /* Returns a reusable dma control register value */
+ static u32 bcmgenet_dma_disable(struct bcmgenet_priv *priv)
+ {
++	unsigned int i;
+ 	u32 reg;
+ 	u32 dma_ctrl;
  
- 	/* Don't allow bridging non-ethernet like devices, or DSA-enabled
- 	 * master network devices since the bridge layer rx_handler prevents
-@@ -555,6 +555,19 @@ int br_add_if(struct net_bridge *br, str
- 	list_add_rcu(&p->list, &br->port_list);
+ 	/* disable DMA */
+ 	dma_ctrl = 1 << (DESC_INDEX + DMA_RING_BUF_EN_SHIFT) | DMA_EN;
++	for (i = 0; i < priv->hw_params->tx_queues; i++)
++		dma_ctrl |= (1 << (i + DMA_RING_BUF_EN_SHIFT));
+ 	reg = bcmgenet_tdma_readl(priv, DMA_CTRL);
+ 	reg &= ~dma_ctrl;
+ 	bcmgenet_tdma_writel(priv, reg, DMA_CTRL);
  
- 	nbp_update_port_count(br);
-+	if (!br_promisc_port(p) && (p->dev->priv_flags & IFF_UNICAST_FLT)) {
-+		/* When updating the port count we also update all ports'
-+		 * promiscuous mode.
-+		 * A port leaving promiscuous mode normally gets the bridge's
-+		 * fdb synced to the unicast filter (if supported), however,
-+		 * `br_port_clear_promisc` does not distinguish between
-+		 * non-promiscuous ports and *new* ports, so we need to
-+		 * sync explicitly here.
-+		 */
-+		fdb_synced = br_fdb_sync_static(br, p) == 0;
-+		if (!fdb_synced)
-+			netdev_err(dev, "failed to sync bridge static fdb addresses to this port\n");
-+	}
- 
- 	netdev_update_features(br->dev);
- 
-@@ -595,6 +608,8 @@ int br_add_if(struct net_bridge *br, str
- 	return 0;
- 
- err7:
-+	if (fdb_synced)
-+		br_fdb_unsync_static(br, p);
- 	list_del_rcu(&p->list);
- 	br_fdb_delete_by_port(br, p, 0, 1);
- 	nbp_update_port_count(br);
++	dma_ctrl = 1 << (DESC_INDEX + DMA_RING_BUF_EN_SHIFT) | DMA_EN;
++	for (i = 0; i < priv->hw_params->rx_queues; i++)
++		dma_ctrl |= (1 << (i + DMA_RING_BUF_EN_SHIFT));
+ 	reg = bcmgenet_rdma_readl(priv, DMA_CTRL);
+ 	reg &= ~dma_ctrl;
+ 	bcmgenet_rdma_writel(priv, reg, DMA_CTRL);
 
 
