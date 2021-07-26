@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9159B3D617B
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:13:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54F973D617D
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:13:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233168AbhGZPcH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:32:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40574 "EHLO mail.kernel.org"
+        id S232097AbhGZPcI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:32:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42756 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237927AbhGZP33 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:29:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3685A60C40;
-        Mon, 26 Jul 2021 16:09:56 +0000 (UTC)
+        id S237939AbhGZP3d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:29:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AA6D760EB2;
+        Mon, 26 Jul 2021 16:09:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315796;
-        bh=CrjeNyCad//3CWZqUZU+GZjm+DRdflRV3b+LdRDKFww=;
+        s=korg; t=1627315799;
+        bh=OnmCAZmxl3znqtjryu9z1Ze0bAstNaEY/GvUyOkWjZg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VS0iqgZRkjQEtqXag/j2fFtVSk64VsdAUbi9ldSCacpyyNsVltqZ/6bmFE8FXzOOf
-         dwkT1fUZyKayRwQs2wF9OwrvvY7Ib8DTuS2H8PDXoyD2O4lp2f++Y1qy2IATWs2p4K
-         cv6e04nelgpcsuVGrU4acmqRmDhEQl7mlbLNAGa8=
+        b=fYt21ewryuq6z6dAAQeZ8Q11mGJS48WoNKMVOqqZlTOUJIi+rVqaeTptCSeyPKrHN
+         XNHPKVVEQszoSGV8A80t8DuSE18BtM5lEH6AQAvxVWVjx9ogig0nunC8dItL1lwPBb
+         hKVL6yYTWs+0BiePPPSsFH7zJWCjfctniddQTS0U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianguo Wu <wujianguo@chinatelecom.cn>,
+        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
+        Jianguo Wu <wujianguo@chinatelecom.cn>,
         Mat Martineau <mathew.j.martineau@linux.intel.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 034/223] mptcp: avoid processing packet if a subflow reset
-Date:   Mon, 26 Jul 2021 17:37:06 +0200
-Message-Id: <20210726153847.366833839@linuxfoundation.org>
+Subject: [PATCH 5.13 035/223] selftests: mptcp: fix case multiple subflows limited by server
+Date:   Mon, 26 Jul 2021 17:37:07 +0200
+Message-Id: <20210726153847.404152295@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
 References: <20210726153846.245305071@linuxfoundation.org>
@@ -43,161 +44,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jianguo Wu <wujianguo@chinatelecom.cn>
 
-[ Upstream commit 6787b7e350d3552651a3422d3d8980fbc8d65368 ]
+[ Upstream commit a7da441621c7945fbfd43ed239c93b8073cda502 ]
 
-If check_fully_established() causes a subflow reset, it should not
-continue to process the packet in tcp_data_queue().
-Add a return value to mptcp_incoming_options(), and return false if a
-subflow has been reset, else return true. Then drop the packet in
-tcp_data_queue()/tcp_rcv_state_process() if mptcp_incoming_options()
-return false.
+After patch "mptcp: fix syncookie process if mptcp can not_accept new
+subflow", if subflow is limited, MP_JOIN SYN is dropped, and no SYN/ACK
+will be replied.
 
-Fixes: d582484726c4 ("mptcp: fix fallback for MP_JOIN subflows")
+So in case "multiple subflows limited by server", the expected SYN/ACK
+number should be 1.
+
+Fixes: 00587187ad30 ("selftests: mptcp: add test cases for mptcp join tests with syn cookies")
+Reported-by: kernel test robot <oliver.sang@intel.com>
 Signed-off-by: Jianguo Wu <wujianguo@chinatelecom.cn>
 Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/mptcp.h  |  5 +++--
- net/ipv4/tcp_input.c | 19 +++++++++++++++----
- net/mptcp/options.c  | 19 +++++++++++++------
- 3 files changed, 31 insertions(+), 12 deletions(-)
+ tools/testing/selftests/net/mptcp/mptcp_join.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/net/mptcp.h b/include/net/mptcp.h
-index 83f23774b908..f1d798ff29e9 100644
---- a/include/net/mptcp.h
-+++ b/include/net/mptcp.h
-@@ -101,7 +101,7 @@ bool mptcp_synack_options(const struct request_sock *req, unsigned int *size,
- bool mptcp_established_options(struct sock *sk, struct sk_buff *skb,
- 			       unsigned int *size, unsigned int remaining,
- 			       struct mptcp_out_options *opts);
--void mptcp_incoming_options(struct sock *sk, struct sk_buff *skb);
-+bool mptcp_incoming_options(struct sock *sk, struct sk_buff *skb);
+diff --git a/tools/testing/selftests/net/mptcp/mptcp_join.sh b/tools/testing/selftests/net/mptcp/mptcp_join.sh
+index fd99485cf2a4..e8ac852c6ff6 100755
+--- a/tools/testing/selftests/net/mptcp/mptcp_join.sh
++++ b/tools/testing/selftests/net/mptcp/mptcp_join.sh
+@@ -1341,7 +1341,7 @@ syncookies_tests()
+ 	ip netns exec $ns2 ./pm_nl_ctl add 10.0.3.2 flags subflow
+ 	ip netns exec $ns2 ./pm_nl_ctl add 10.0.2.2 flags subflow
+ 	run_tests $ns1 $ns2 10.0.1.1
+-	chk_join_nr "subflows limited by server w cookies" 2 2 1
++	chk_join_nr "subflows limited by server w cookies" 2 1 1
  
- void mptcp_write_options(__be32 *ptr, const struct tcp_sock *tp,
- 			 struct mptcp_out_options *opts);
-@@ -223,9 +223,10 @@ static inline bool mptcp_established_options(struct sock *sk,
- 	return false;
- }
- 
--static inline void mptcp_incoming_options(struct sock *sk,
-+static inline bool mptcp_incoming_options(struct sock *sk,
- 					  struct sk_buff *skb)
- {
-+	return true;
- }
- 
- static inline void mptcp_skb_ext_move(struct sk_buff *to,
-diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
-index 6bd628f08ded..0f1b4bfddfd4 100644
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -4247,6 +4247,9 @@ void tcp_reset(struct sock *sk, struct sk_buff *skb)
- {
- 	trace_tcp_receive_reset(sk);
- 
-+	/* mptcp can't tell us to ignore reset pkts,
-+	 * so just ignore the return value of mptcp_incoming_options().
-+	 */
- 	if (sk_is_mptcp(sk))
- 		mptcp_incoming_options(sk, skb);
- 
-@@ -4941,8 +4944,13 @@ static void tcp_data_queue(struct sock *sk, struct sk_buff *skb)
- 	bool fragstolen;
- 	int eaten;
- 
--	if (sk_is_mptcp(sk))
--		mptcp_incoming_options(sk, skb);
-+	/* If a subflow has been reset, the packet should not continue
-+	 * to be processed, drop the packet.
-+	 */
-+	if (sk_is_mptcp(sk) && !mptcp_incoming_options(sk, skb)) {
-+		__kfree_skb(skb);
-+		return;
-+	}
- 
- 	if (TCP_SKB_CB(skb)->seq == TCP_SKB_CB(skb)->end_seq) {
- 		__kfree_skb(skb);
-@@ -6522,8 +6530,11 @@ int tcp_rcv_state_process(struct sock *sk, struct sk_buff *skb)
- 	case TCP_CLOSING:
- 	case TCP_LAST_ACK:
- 		if (!before(TCP_SKB_CB(skb)->seq, tp->rcv_nxt)) {
--			if (sk_is_mptcp(sk))
--				mptcp_incoming_options(sk, skb);
-+			/* If a subflow has been reset, the packet should not
-+			 * continue to be processed, drop the packet.
-+			 */
-+			if (sk_is_mptcp(sk) && !mptcp_incoming_options(sk, skb))
-+				goto discard;
- 			break;
- 		}
- 		fallthrough;
-diff --git a/net/mptcp/options.c b/net/mptcp/options.c
-index 72b1067d5aa2..4f08e04e1ab7 100644
---- a/net/mptcp/options.c
-+++ b/net/mptcp/options.c
-@@ -990,7 +990,8 @@ static bool add_addr_hmac_valid(struct mptcp_sock *msk,
- 	return hmac == mp_opt->ahmac;
- }
- 
--void mptcp_incoming_options(struct sock *sk, struct sk_buff *skb)
-+/* Return false if a subflow has been reset, else return true */
-+bool mptcp_incoming_options(struct sock *sk, struct sk_buff *skb)
- {
- 	struct mptcp_subflow_context *subflow = mptcp_subflow_ctx(sk);
- 	struct mptcp_sock *msk = mptcp_sk(subflow->conn);
-@@ -1008,12 +1009,16 @@ void mptcp_incoming_options(struct sock *sk, struct sk_buff *skb)
- 			__mptcp_check_push(subflow->conn, sk);
- 		__mptcp_data_acked(subflow->conn);
- 		mptcp_data_unlock(subflow->conn);
--		return;
-+		return true;
- 	}
- 
- 	mptcp_get_options(sk, skb, &mp_opt);
-+
-+	/* The subflow can be in close state only if check_fully_established()
-+	 * just sent a reset. If so, tell the caller to ignore the current packet.
-+	 */
- 	if (!check_fully_established(msk, sk, subflow, skb, &mp_opt))
--		return;
-+		return sk->sk_state != TCP_CLOSE;
- 
- 	if (mp_opt.fastclose &&
- 	    msk->local_key == mp_opt.rcvr_key) {
-@@ -1055,7 +1060,7 @@ void mptcp_incoming_options(struct sock *sk, struct sk_buff *skb)
- 	}
- 
- 	if (!mp_opt.dss)
--		return;
-+		return true;
- 
- 	/* we can't wait for recvmsg() to update the ack_seq, otherwise
- 	 * monodirectional flows will stuck
-@@ -1074,12 +1079,12 @@ void mptcp_incoming_options(struct sock *sk, struct sk_buff *skb)
- 		    schedule_work(&msk->work))
- 			sock_hold(subflow->conn);
- 
--		return;
-+		return true;
- 	}
- 
- 	mpext = skb_ext_add(skb, SKB_EXT_MPTCP);
- 	if (!mpext)
--		return;
-+		return true;
- 
- 	memset(mpext, 0, sizeof(*mpext));
- 
-@@ -1104,6 +1109,8 @@ void mptcp_incoming_options(struct sock *sk, struct sk_buff *skb)
- 		mpext->data_len = mp_opt.data_len;
- 		mpext->use_map = 1;
- 	}
-+
-+	return true;
- }
- 
- static void mptcp_set_rwin(const struct tcp_sock *tp)
+ 	# test signal address with cookies
+ 	reset_with_cookies
 -- 
 2.30.2
 
