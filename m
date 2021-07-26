@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 74F323D6094
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:11:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8514A3D61EB
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:15:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237148AbhGZPXK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:23:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38082 "EHLO mail.kernel.org"
+        id S234323AbhGZPd1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:33:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237484AbhGZPXJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:23:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 578CF60240;
-        Mon, 26 Jul 2021 16:03:37 +0000 (UTC)
+        id S233395AbhGZPcT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:32:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9743560240;
+        Mon, 26 Jul 2021 16:12:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315417;
-        bh=/8Wx9N5fo692tISUi5J6zaIzXfl5biye7vAxO06POj8=;
+        s=korg; t=1627315952;
+        bh=KYOiDckllKXj8mHvVhsWCZDPBlWvtcaE6P/Sx14jxpo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I2GrVz+hF9Uzv8yGrNT4BA9Q1vS5Vw8BQXpqGla004U47U36Ro8hp69oEYwtMrtZv
-         URA37K/pP0uvaSrhkKXx9agHb0gajnqgUEy+NJHiTg4LBdl6ofQkfXNI4J/dhHdkWJ
-         cZ+pkt5YQHJ1jtrnZWpSQxMl2J1mmQRy71vCiV/M=
+        b=ZQxA8oT2qzuRlXbAQRuJ2J04wcj8KPH3ffD8c0ygyw9bNk/yYdB81K0F4K8nkuyqN
+         RWcLancXu9L+EU+NHkzkDu5W9imC3Bo9PIVh85mTuLA3MA9+eU9lXEKq3dQ5e1rm/N
+         UrfnHT951AC8fFIexDYwVz1LnMJ/ZmsmcwKrmAzs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jian Shen <shenjian15@huawei.com>,
-        Guangbin Huang <huangguangbin2@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org,
+        syzbot+b774577370208727d12b@syzkaller.appspotmail.com,
+        Xin Long <lucien.xin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 088/167] net: hns3: fix rx VLAN offload state inconsistent issue
-Date:   Mon, 26 Jul 2021 17:38:41 +0200
-Message-Id: <20210726153842.358338161@linuxfoundation.org>
+Subject: [PATCH 5.13 130/223] sctp: update active_key for asoc when old key is being replaced
+Date:   Mon, 26 Jul 2021 17:38:42 +0200
+Message-Id: <20210726153850.506240255@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
-References: <20210726153839.371771838@linuxfoundation.org>
+In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
+References: <20210726153846.245305071@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,48 +42,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jian Shen <shenjian15@huawei.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit bbfd4506f962e7e6fff8f37f017154a3c3791264 ]
+[ Upstream commit 58acd10092268831e49de279446c314727101292 ]
 
-Currently, VF doesn't enable rx VLAN offload when initializating,
-and PF does it for VFs. If user disable the rx VLAN offload for
-VF with ethtool -K, and reload the VF driver, it may cause the
-rx VLAN offload state being inconsistent between hardware and
-software.
+syzbot reported a call trace:
 
-Fixes it by enabling rx VLAN offload when VF initializing.
+  BUG: KASAN: use-after-free in sctp_auth_shkey_hold+0x22/0xa0 net/sctp/auth.c:112
+  Call Trace:
+   sctp_auth_shkey_hold+0x22/0xa0 net/sctp/auth.c:112
+   sctp_set_owner_w net/sctp/socket.c:131 [inline]
+   sctp_sendmsg_to_asoc+0x152e/0x2180 net/sctp/socket.c:1865
+   sctp_sendmsg+0x103b/0x1d30 net/sctp/socket.c:2027
+   inet_sendmsg+0x99/0xe0 net/ipv4/af_inet.c:821
+   sock_sendmsg_nosec net/socket.c:703 [inline]
+   sock_sendmsg+0xcf/0x120 net/socket.c:723
 
-Fixes: e2cb1dec9779 ("net: hns3: Add HNS3 VF HCL(Hardware Compatibility Layer) Support")
-Signed-off-by: Jian Shen <shenjian15@huawei.com>
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+This is an use-after-free issue caused by not updating asoc->shkey after
+it was replaced in the key list asoc->endpoint_shared_keys, and the old
+key was freed.
+
+This patch is to fix by also updating active_key for asoc when old key is
+being replaced with a new one. Note that this issue doesn't exist in
+sctp_auth_del_key_id(), as it's not allowed to delete the active_key
+from the asoc.
+
+Fixes: 1b1e0bc99474 ("sctp: add refcnt support for sh_key")
+Reported-by: syzbot+b774577370208727d12b@syzkaller.appspotmail.com
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c  | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ net/sctp/auth.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
-index ac6980acb6f0..d3010d5ab366 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
-@@ -2518,6 +2518,16 @@ static int hclgevf_rss_init_hw(struct hclgevf_dev *hdev)
+diff --git a/net/sctp/auth.c b/net/sctp/auth.c
+index 6f8319b828b0..fe74c5f95630 100644
+--- a/net/sctp/auth.c
++++ b/net/sctp/auth.c
+@@ -860,6 +860,8 @@ int sctp_auth_set_key(struct sctp_endpoint *ep,
+ 	if (replace) {
+ 		list_del_init(&shkey->key_list);
+ 		sctp_auth_shkey_release(shkey);
++		if (asoc && asoc->active_key_id == auth_key->sca_keynumber)
++			sctp_auth_asoc_init_active_key(asoc, GFP_KERNEL);
+ 	}
+ 	list_add(&cur_key->key_list, sh_keys);
  
- static int hclgevf_init_vlan_config(struct hclgevf_dev *hdev)
- {
-+	struct hnae3_handle *nic = &hdev->nic;
-+	int ret;
-+
-+	ret = hclgevf_en_hw_strip_rxvtag(nic, true);
-+	if (ret) {
-+		dev_err(&hdev->pdev->dev,
-+			"failed to enable rx vlan offload, ret = %d\n", ret);
-+		return ret;
-+	}
-+
- 	return hclgevf_set_vlan_filter(&hdev->nic, htons(ETH_P_8021Q), 0,
- 				       false);
- }
 -- 
 2.30.2
 
