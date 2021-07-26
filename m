@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DCCD3D60FF
+	by mail.lfdr.de (Postfix) with ESMTP id CA5383D6100
 	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:12:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237836AbhGZPZ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S237844AbhGZPZ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 26 Jul 2021 11:25:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40334 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:40366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236372AbhGZPZW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:25:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D32EA60F6F;
-        Mon, 26 Jul 2021 16:05:49 +0000 (UTC)
+        id S238333AbhGZPZY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:25:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C8EC60F5B;
+        Mon, 26 Jul 2021 16:05:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315550;
-        bh=Qckguicm4tdgc+gcKDi+bJtACbyOP/8zzJgdzgFNou0=;
+        s=korg; t=1627315552;
+        bh=yS3+o5yYigbfVA8HTSmX5tXpev3V4pUowTC8zPzZ8xc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F9gPeiDQjf5zDAyjyiq0FDR6iGnKuXJfeIA0lqXW+C90rnthumZkovC5fWVYlfQpl
-         /PJ2Kt7rvJd8cdW0uKwuLo2xa4kLvi9sgvkyyW9Nt4aC58VMmSfuwAWMW5Cqe+4XPY
-         Vin/Nx/om7whGdfhJxBiRfdRnjoaCXolLvFchl6w=
+        b=kzKHEv7WPZdhKptITntvnXUh8Imc3gaPSOBLtqmlPfsnt12qTn8oyhcG/EBVJEncH
+         orborrcmLXueYKOeTHbzxox7wW3Br5sIYVYhvpH0xaHnErBISrD+6W28pzWOBK+xh7
+         a9aVc5kFgKcGFRvb1QQ5wMHMINt2wynkmc0TcZIs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Markus Boehme <markubo@amazon.com>,
-        Tony Brelinski <tonyx.brelinski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 140/167] ixgbe: Fix packet corruption due to missing DMA sync
-Date:   Mon, 26 Jul 2021 17:39:33 +0200
-Message-Id: <20210726153844.093108178@linuxfoundation.org>
+        stable@vger.kernel.org, Hemant Kumar <hemantk@codeaurora.org>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Jeffrey Hugo <quic_jhugo@quicinc.com>,
+        Bhaumik Bhatt <bbhatt@codeaurora.org>
+Subject: [PATCH 5.10 141/167] bus: mhi: core: Validate channel ID when processing command completions
+Date:   Mon, 26 Jul 2021 17:39:34 +0200
+Message-Id: <20210726153844.129947347@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
 References: <20210726153839.371771838@linuxfoundation.org>
@@ -41,55 +41,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Markus Boehme <markubo@amazon.com>
+From: Bhaumik Bhatt <bbhatt@codeaurora.org>
 
-commit 09cfae9f13d51700b0fecf591dcd658fc5375428 upstream.
+commit 546362a9ef2ef40b57c6605f14e88ced507f8dd0 upstream.
 
-When receiving a packet with multiple fragments, hardware may still
-touch the first fragment until the entire packet has been received. The
-driver therefore keeps the first fragment mapped for DMA until end of
-packet has been asserted, and delays its dma_sync call until then.
+MHI reads the channel ID from the event ring element sent by the
+device which can be any value between 0 and 255. In order to
+prevent any out of bound accesses, add a check against the maximum
+number of channels supported by the controller and those channels
+not configured yet so as to skip processing of that event ring
+element.
 
-The driver tries to fit multiple receive buffers on one page. When using
-3K receive buffers (e.g. using Jumbo frames and legacy-rx is turned
-off/build_skb is being used) on an architecture with 4K pages, the
-driver allocates an order 1 compound page and uses one page per receive
-buffer. To determine the correct offset for a delayed DMA sync of the
-first fragment of a multi-fragment packet, the driver then cannot just
-use PAGE_MASK on the DMA address but has to construct a mask based on
-the actual size of the backing page.
-
-Using PAGE_MASK in the 3K RX buffer/4K page architecture configuration
-will always sync the first page of a compound page. With the SWIOTLB
-enabled this can lead to corrupted packets (zeroed out first fragment,
-re-used garbage from another packet) and various consequences, such as
-slow/stalling data transfers and connection resets. For example, testing
-on a link with MTU exceeding 3058 bytes on a host with SWIOTLB enabled
-(e.g. "iommu=soft swiotlb=262144,force") TCP transfers quickly fizzle
-out without this patch.
-
-Cc: stable@vger.kernel.org
-Fixes: 0c5661ecc5dd7 ("ixgbe: fix crash in build_skb Rx code path")
-Signed-off-by: Markus Boehme <markubo@amazon.com>
-Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/1624558141-11045-1-git-send-email-bbhatt@codeaurora.org
+Fixes: 1d3173a3bae7 ("bus: mhi: core: Add support for processing events from client device")
+Cc: stable@vger.kernel.org #5.10
+Reviewed-by: Hemant Kumar <hemantk@codeaurora.org>
+Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Reviewed-by: Jeffrey Hugo <quic_jhugo@quicinc.com>
+Signed-off-by: Bhaumik Bhatt <bbhatt@codeaurora.org>
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Link: https://lore.kernel.org/r/20210716075106.49938-3-manivannan.sadhasivam@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/ixgbe/ixgbe_main.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/bus/mhi/core/main.c |   17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
---- a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-+++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-@@ -1825,7 +1825,8 @@ static void ixgbe_dma_sync_frag(struct i
- 				struct sk_buff *skb)
- {
- 	if (ring_uses_build_skb(rx_ring)) {
--		unsigned long offset = (unsigned long)(skb->data) & ~PAGE_MASK;
-+		unsigned long mask = (unsigned long)ixgbe_rx_pg_size(rx_ring) - 1;
-+		unsigned long offset = (unsigned long)(skb->data) & mask;
+--- a/drivers/bus/mhi/core/main.c
++++ b/drivers/bus/mhi/core/main.c
+@@ -706,11 +706,18 @@ static void mhi_process_cmd_completion(s
+ 	cmd_pkt = mhi_to_virtual(mhi_ring, ptr);
  
- 		dma_sync_single_range_for_cpu(rx_ring->dev,
- 					      IXGBE_CB(skb)->dma,
+ 	chan = MHI_TRE_GET_CMD_CHID(cmd_pkt);
+-	mhi_chan = &mhi_cntrl->mhi_chan[chan];
+-	write_lock_bh(&mhi_chan->lock);
+-	mhi_chan->ccs = MHI_TRE_GET_EV_CODE(tre);
+-	complete(&mhi_chan->completion);
+-	write_unlock_bh(&mhi_chan->lock);
++
++	if (chan < mhi_cntrl->max_chan &&
++	    mhi_cntrl->mhi_chan[chan].configured) {
++		mhi_chan = &mhi_cntrl->mhi_chan[chan];
++		write_lock_bh(&mhi_chan->lock);
++		mhi_chan->ccs = MHI_TRE_GET_EV_CODE(tre);
++		complete(&mhi_chan->completion);
++		write_unlock_bh(&mhi_chan->lock);
++	} else {
++		dev_err(&mhi_cntrl->mhi_dev->dev,
++			"Completion packet for invalid channel ID: %d\n", chan);
++	}
+ 
+ 	mhi_del_ring_element(mhi_cntrl, mhi_ring);
+ }
 
 
