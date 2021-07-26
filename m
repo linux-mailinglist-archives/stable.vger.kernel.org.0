@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C2D3A3D5F51
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57F4B3D5DF4
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:45:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236707AbhGZPRc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:17:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54246 "EHLO mail.kernel.org"
+        id S235761AbhGZPEo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:04:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237453AbhGZPPr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:15:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2DC3560F8F;
-        Mon, 26 Jul 2021 15:55:58 +0000 (UTC)
+        id S235991AbhGZPE3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:04:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 673D460F58;
+        Mon, 26 Jul 2021 15:44:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314958;
-        bh=5zERW9xcRzFeT6C5pHn9A+FCJuFDe6JBmx/JrV+Z5qo=;
+        s=korg; t=1627314297;
+        bh=DGfMhS/QxUCb1nUGcjN26KHROobYUPCysiMp5HZkqLc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ktFu4xmWJf11BXo0taZ8/7kL5HFIXB9mnGQ+N/lC9OksvU90ogAA0rs9HO0zu9/hH
-         6r1oen5bfAhfe3WMrzBaYwRZ0nazaLFVz430fr4OS9DkgFEnx/XzgnUs0A5wt85YBN
-         TS0MHtKdjoNXhCCL1suiaHT1+/daK1rHbCGeO6iE=
+        b=fuWpKjsv6pp2/I0hK29B29NLF+zvo2u5MCKJhl4EcrXE9OwuqvmTE+afHlMQ5MfhR
+         WFAzRt7FByZxg+vbEfKrEt0H03uoZw+EOJY8clRZW2MuA3SsC/Wry74fYCEuGJMJR/
+         wILd0q+rb0pos0DbAwzFlYr3TzHcrz06OERgc81c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Axel Lin <axel.lin@ingics.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 034/108] regulator: hi6421: Fix getting wrong drvdata
+        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 21/60] net: validate lwtstate->data before returning from skb_tunnel_info()
 Date:   Mon, 26 Jul 2021 17:38:35 +0200
-Message-Id: <20210726153832.791725287@linuxfoundation.org>
+Message-Id: <20210726153825.537393055@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
-References: <20210726153831.696295003@linuxfoundation.org>
+In-Reply-To: <20210726153824.868160836@linuxfoundation.org>
+References: <20210726153824.868160836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,119 +39,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Axel Lin <axel.lin@ingics.com>
+From: Taehee Yoo <ap420073@gmail.com>
 
-[ Upstream commit 1c73daee4bf30ccdff5e86dc400daa6f74735da5 ]
+commit 67a9c94317402b826fc3db32afc8f39336803d97 upstream.
 
-Since config.dev = pdev->dev.parent in current code, so
-dev_get_drvdata(rdev->dev.parent) call in hi6421_regulator_enable
-returns the drvdata of the mfd device rather than the regulator. Fix it.
+skb_tunnel_info() returns pointer of lwtstate->data as ip_tunnel_info
+type without validation. lwtstate->data can have various types such as
+mpls_iptunnel_encap, etc and these are not compatible.
+So skb_tunnel_info() should validate before returning that pointer.
 
-This was broken while converting to use simplified DT parsing because the
-config.dev changed from pdev->dev to pdev->dev.parent for parsing the
-parent's of_node.
+Splat looks like:
+BUG: KASAN: slab-out-of-bounds in vxlan_get_route+0x418/0x4b0 [vxlan]
+Read of size 2 at addr ffff888106ec2698 by task ping/811
 
-Fixes: 29dc269a85ef ("regulator: hi6421: Convert to use simplified DT parsing")
-Signed-off-by: Axel Lin <axel.lin@ingics.com>
-Link: https://lore.kernel.org/r/20210630095959.2411543-1-axel.lin@ingics.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+CPU: 1 PID: 811 Comm: ping Not tainted 5.13.0+ #1195
+Call Trace:
+ dump_stack_lvl+0x56/0x7b
+ print_address_description.constprop.8.cold.13+0x13/0x2ee
+ ? vxlan_get_route+0x418/0x4b0 [vxlan]
+ ? vxlan_get_route+0x418/0x4b0 [vxlan]
+ kasan_report.cold.14+0x83/0xdf
+ ? vxlan_get_route+0x418/0x4b0 [vxlan]
+ vxlan_get_route+0x418/0x4b0 [vxlan]
+ [ ... ]
+ vxlan_xmit_one+0x148b/0x32b0 [vxlan]
+ [ ... ]
+ vxlan_xmit+0x25c5/0x4780 [vxlan]
+ [ ... ]
+ dev_hard_start_xmit+0x1ae/0x6e0
+ __dev_queue_xmit+0x1f39/0x31a0
+ [ ... ]
+ neigh_xmit+0x2f9/0x940
+ mpls_xmit+0x911/0x1600 [mpls_iptunnel]
+ lwtunnel_xmit+0x18f/0x450
+ ip_finish_output2+0x867/0x2040
+ [ ... ]
+
+Fixes: 61adedf3e3f1 ("route: move lwtunnel state to dst_entry")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/regulator/hi6421-regulator.c | 22 +++++++++++++---------
- 1 file changed, 13 insertions(+), 9 deletions(-)
+ include/net/dst_metadata.h |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/regulator/hi6421-regulator.c b/drivers/regulator/hi6421-regulator.c
-index f14cbabfa985..efc91b03a9bb 100644
---- a/drivers/regulator/hi6421-regulator.c
-+++ b/drivers/regulator/hi6421-regulator.c
-@@ -366,9 +366,8 @@ static struct hi6421_regulator_info
+--- a/include/net/dst_metadata.h
++++ b/include/net/dst_metadata.h
+@@ -31,7 +31,9 @@ static inline struct ip_tunnel_info *skb
+ 		return &md_dst->u.tun_info;
  
- static int hi6421_regulator_enable(struct regulator_dev *rdev)
- {
--	struct hi6421_regulator_pdata *pdata;
-+	struct hi6421_regulator_pdata *pdata = rdev_get_drvdata(rdev);
+ 	dst = skb_dst(skb);
+-	if (dst && dst->lwtstate)
++	if (dst && dst->lwtstate &&
++	    (dst->lwtstate->type == LWTUNNEL_ENCAP_IP ||
++	     dst->lwtstate->type == LWTUNNEL_ENCAP_IP6))
+ 		return lwt_tun_info(dst->lwtstate);
  
--	pdata = dev_get_drvdata(rdev->dev.parent);
- 	/* hi6421 spec requires regulator enablement must be serialized:
- 	 *  - Because when BUCK, LDO switching from off to on, it will have
- 	 *    a huge instantaneous current; so you can not turn on two or
-@@ -385,9 +384,10 @@ static int hi6421_regulator_enable(struct regulator_dev *rdev)
- 
- static unsigned int hi6421_regulator_ldo_get_mode(struct regulator_dev *rdev)
- {
--	struct hi6421_regulator_info *info = rdev_get_drvdata(rdev);
-+	struct hi6421_regulator_info *info;
- 	unsigned int reg_val;
- 
-+	info = container_of(rdev->desc, struct hi6421_regulator_info, desc);
- 	regmap_read(rdev->regmap, rdev->desc->enable_reg, &reg_val);
- 	if (reg_val & info->mode_mask)
- 		return REGULATOR_MODE_IDLE;
-@@ -397,9 +397,10 @@ static unsigned int hi6421_regulator_ldo_get_mode(struct regulator_dev *rdev)
- 
- static unsigned int hi6421_regulator_buck_get_mode(struct regulator_dev *rdev)
- {
--	struct hi6421_regulator_info *info = rdev_get_drvdata(rdev);
-+	struct hi6421_regulator_info *info;
- 	unsigned int reg_val;
- 
-+	info = container_of(rdev->desc, struct hi6421_regulator_info, desc);
- 	regmap_read(rdev->regmap, rdev->desc->enable_reg, &reg_val);
- 	if (reg_val & info->mode_mask)
- 		return REGULATOR_MODE_STANDBY;
-@@ -410,9 +411,10 @@ static unsigned int hi6421_regulator_buck_get_mode(struct regulator_dev *rdev)
- static int hi6421_regulator_ldo_set_mode(struct regulator_dev *rdev,
- 						unsigned int mode)
- {
--	struct hi6421_regulator_info *info = rdev_get_drvdata(rdev);
-+	struct hi6421_regulator_info *info;
- 	unsigned int new_mode;
- 
-+	info = container_of(rdev->desc, struct hi6421_regulator_info, desc);
- 	switch (mode) {
- 	case REGULATOR_MODE_NORMAL:
- 		new_mode = 0;
-@@ -434,9 +436,10 @@ static int hi6421_regulator_ldo_set_mode(struct regulator_dev *rdev,
- static int hi6421_regulator_buck_set_mode(struct regulator_dev *rdev,
- 						unsigned int mode)
- {
--	struct hi6421_regulator_info *info = rdev_get_drvdata(rdev);
-+	struct hi6421_regulator_info *info;
- 	unsigned int new_mode;
- 
-+	info = container_of(rdev->desc, struct hi6421_regulator_info, desc);
- 	switch (mode) {
- 	case REGULATOR_MODE_NORMAL:
- 		new_mode = 0;
-@@ -459,7 +462,9 @@ static unsigned int
- hi6421_regulator_ldo_get_optimum_mode(struct regulator_dev *rdev,
- 			int input_uV, int output_uV, int load_uA)
- {
--	struct hi6421_regulator_info *info = rdev_get_drvdata(rdev);
-+	struct hi6421_regulator_info *info;
-+
-+	info = container_of(rdev->desc, struct hi6421_regulator_info, desc);
- 
- 	if (load_uA > info->eco_microamp)
- 		return REGULATOR_MODE_NORMAL;
-@@ -543,14 +548,13 @@ static int hi6421_regulator_probe(struct platform_device *pdev)
- 	if (!pdata)
- 		return -ENOMEM;
- 	mutex_init(&pdata->lock);
--	platform_set_drvdata(pdev, pdata);
- 
- 	for (i = 0; i < ARRAY_SIZE(hi6421_regulator_info); i++) {
- 		/* assign per-regulator data */
- 		info = &hi6421_regulator_info[i];
- 
- 		config.dev = pdev->dev.parent;
--		config.driver_data = info;
-+		config.driver_data = pdata;
- 		config.regmap = pmic->regmap;
- 
- 		rdev = devm_regulator_register(&pdev->dev, &info->desc,
--- 
-2.30.2
-
+ 	return NULL;
 
 
