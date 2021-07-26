@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 000373D55C9
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 10:40:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39A1F3D55D0
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 10:45:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232097AbhGZIAR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 04:00:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53902 "EHLO mail.kernel.org"
+        id S231853AbhGZIFJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 04:05:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232156AbhGZIAR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 04:00:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D48ED60F0F;
-        Mon, 26 Jul 2021 08:40:43 +0000 (UTC)
+        id S231774AbhGZIFJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 04:05:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1DDFA60D07;
+        Mon, 26 Jul 2021 08:45:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627288844;
-        bh=LUAEbUZUGVCgOLX5L/gaVCcdNuXVdCpdtOMAKtazRZk=;
+        s=korg; t=1627289137;
+        bh=G0YwGVCyjLUji5u6peuELYyqnVNM+ot34f+/h6EeeZk=;
         h=Subject:To:Cc:From:Date:From;
-        b=N926lrIVu7GudGrDAwHpSZolipsN8jo8/7Qu56G7Jw8UWaA2zBE+vkzk5liUEPE94
-         j5kPtYAdQzNholznDUNcf4fgOmE62rFKcghrykq5Ff6iXlKvj9QLfqtWW6/9h8WLrU
-         6CcrR3YZaTIHLwvudanrq7W/5dgBnsfv995zoUcg=
-Subject: FAILED: patch "[PATCH] usb: hub: Fix link power management max exit latency (MEL)" failed to apply to 4.14-stable tree
-To:     mathias.nyman@linux.intel.com, gregkh@linuxfoundation.org,
-        stable@kernel.org
+        b=OLxgY36GZTQeZ//4DElH425ktqrfX6CvUeBy+kls+fIAFwSwFE/69861nf7+wjZOR
+         CfFmuiY7zmUC1HPYuppWxUyAnvj0JEKmyPaOk9TViG1raNS8UWy+AudPRYXM8mlv65
+         53twvzx/X6HWsjL3gNTpB0Fe9aYSPH0uZ5AGtwJM=
+Subject: FAILED: patch "[PATCH] usb: dwc2: gadget: Fix sending zero length packet in DDMA" failed to apply to 4.4-stable tree
+To:     Minas.Harutyunyan@synopsys.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 26 Jul 2021 10:30:34 +0200
-Message-ID: <162728823417733@kroah.com>
+Date:   Mon, 26 Jul 2021 10:39:07 +0200
+Message-ID: <1627288747217146@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -46,113 +46,47 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 1bf2761c837571a66ec290fb66c90413821ffda2 Mon Sep 17 00:00:00 2001
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
-Date: Thu, 15 Jul 2021 18:01:21 +0300
-Subject: [PATCH] usb: hub: Fix link power management max exit latency (MEL)
- calculations
+From d53dc38857f6dbefabd9eecfcbf67b6eac9a1ef4 Mon Sep 17 00:00:00 2001
+From: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
+Date: Tue, 20 Jul 2021 05:41:24 -0700
+Subject: [PATCH] usb: dwc2: gadget: Fix sending zero length packet in DDMA
+ mode.
 
-Maximum Exit Latency (MEL) value is used by host to know how much in
-advance it needs to start waking up a U1/U2 suspended link in order to
-service a periodic transfer in time.
+Sending zero length packet in DDMA mode perform by DMA descriptor
+by setting SP (short packet) flag.
 
-Current MEL calculation only includes the time to wake up the path from
-U1/U2 to U0. This is called tMEL1 in USB 3.1 section C 1.5.2
+For DDMA in function dwc2_hsotg_complete_in() does not need to send
+zlp.
 
-Total MEL = tMEL1 + tMEL2 +tMEL3 + tMEL4 which should additinally include:
-- tMEL2 which is the time it takes for PING message to reach device
-- tMEL3 time for device to process the PING and submit a PING_RESPONSE
-- tMEL4 time for PING_RESPONSE to traverse back upstream to host.
+Tested by USBCV MSC tests.
 
-Add the missing tMEL2, tMEL3 and tMEL4 to MEL calculation.
-
-Cc: <stable@kernel.org> # v3.5
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20210715150122.1995966-1-mathias.nyman@linux.intel.com
+Fixes: f71b5e2533de ("usb: dwc2: gadget: fix zero length packet transfers")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
+Link: https://lore.kernel.org/r/967bad78c55dd2db1c19714eee3d0a17cf99d74a.1626777738.git.Minas.Harutyunyan@synopsys.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
-index d1efc7141333..a35d0bedafa3 100644
---- a/drivers/usb/core/hub.c
-+++ b/drivers/usb/core/hub.c
-@@ -48,6 +48,7 @@
+diff --git a/drivers/usb/dwc2/gadget.c b/drivers/usb/dwc2/gadget.c
+index 74d25019272f..3146df6e6510 100644
+--- a/drivers/usb/dwc2/gadget.c
++++ b/drivers/usb/dwc2/gadget.c
+@@ -2749,12 +2749,14 @@ static void dwc2_hsotg_complete_in(struct dwc2_hsotg *hsotg,
+ 		return;
+ 	}
  
- #define USB_TP_TRANSMISSION_DELAY	40	/* ns */
- #define USB_TP_TRANSMISSION_DELAY_MAX	65535	/* ns */
-+#define USB_PING_RESPONSE_TIME		400	/* ns */
+-	/* Zlp for all endpoints, for ep0 only in DATA IN stage */
++	/* Zlp for all endpoints in non DDMA, for ep0 only in DATA IN stage */
+ 	if (hs_ep->send_zlp) {
+-		dwc2_hsotg_program_zlp(hsotg, hs_ep);
+ 		hs_ep->send_zlp = 0;
+-		/* transfer will be completed on next complete interrupt */
+-		return;
++		if (!using_desc_dma(hsotg)) {
++			dwc2_hsotg_program_zlp(hsotg, hs_ep);
++			/* transfer will be completed on next complete interrupt */
++			return;
++		}
+ 	}
  
- /* Protect struct usb_device->state and ->children members
-  * Note: Both are also protected by ->dev.sem, except that ->state can
-@@ -182,8 +183,9 @@ int usb_device_supports_lpm(struct usb_device *udev)
- }
- 
- /*
-- * Set the Maximum Exit Latency (MEL) for the host to initiate a transition from
-- * either U1 or U2.
-+ * Set the Maximum Exit Latency (MEL) for the host to wakup up the path from
-+ * U1/U2, send a PING to the device and receive a PING_RESPONSE.
-+ * See USB 3.1 section C.1.5.2
-  */
- static void usb_set_lpm_mel(struct usb_device *udev,
- 		struct usb3_lpm_parameters *udev_lpm_params,
-@@ -193,35 +195,37 @@ static void usb_set_lpm_mel(struct usb_device *udev,
- 		unsigned int hub_exit_latency)
- {
- 	unsigned int total_mel;
--	unsigned int device_mel;
--	unsigned int hub_mel;
- 
- 	/*
--	 * Calculate the time it takes to transition all links from the roothub
--	 * to the parent hub into U0.  The parent hub must then decode the
--	 * packet (hub header decode latency) to figure out which port it was
--	 * bound for.
--	 *
--	 * The Hub Header decode latency is expressed in 0.1us intervals (0x1
--	 * means 0.1us).  Multiply that by 100 to get nanoseconds.
-+	 * tMEL1. time to transition path from host to device into U0.
-+	 * MEL for parent already contains the delay up to parent, so only add
-+	 * the exit latency for the last link (pick the slower exit latency),
-+	 * and the hub header decode latency. See USB 3.1 section C 2.2.1
-+	 * Store MEL in nanoseconds
- 	 */
- 	total_mel = hub_lpm_params->mel +
--		(hub->descriptor->u.ss.bHubHdrDecLat * 100);
-+		max(udev_exit_latency, hub_exit_latency) * 1000 +
-+		hub->descriptor->u.ss.bHubHdrDecLat * 100;
- 
- 	/*
--	 * How long will it take to transition the downstream hub's port into
--	 * U0?  The greater of either the hub exit latency or the device exit
--	 * latency.
--	 *
--	 * The BOS U1/U2 exit latencies are expressed in 1us intervals.
--	 * Multiply that by 1000 to get nanoseconds.
-+	 * tMEL2. Time to submit PING packet. Sum of tTPTransmissionDelay for
-+	 * each link + wHubDelay for each hub. Add only for last link.
-+	 * tMEL4, the time for PING_RESPONSE to traverse upstream is similar.
-+	 * Multiply by 2 to include it as well.
- 	 */
--	device_mel = udev_exit_latency * 1000;
--	hub_mel = hub_exit_latency * 1000;
--	if (device_mel > hub_mel)
--		total_mel += device_mel;
--	else
--		total_mel += hub_mel;
-+	total_mel += (__le16_to_cpu(hub->descriptor->u.ss.wHubDelay) +
-+		      USB_TP_TRANSMISSION_DELAY) * 2;
-+
-+	/*
-+	 * tMEL3, tPingResponse. Time taken by device to generate PING_RESPONSE
-+	 * after receiving PING. Also add 2100ns as stated in USB 3.1 C 1.5.2.4
-+	 * to cover the delay if the PING_RESPONSE is queued behind a Max Packet
-+	 * Size DP.
-+	 * Note these delays should be added only once for the entire path, so
-+	 * add them to the MEL of the device connected to the roothub.
-+	 */
-+	if (!hub->hdev->parent)
-+		total_mel += USB_PING_RESPONSE_TIME + 2100;
- 
- 	udev_lpm_params->mel = total_mel;
- }
+ 	if (hs_ep->index == 0 && hsotg->ep0_state == DWC2_EP0_DATA_IN) {
 
