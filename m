@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B2303D5E0C
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:47:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF80A3D5ED5
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:59:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235960AbhGZPFO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:05:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45320 "EHLO mail.kernel.org"
+        id S236583AbhGZPLl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:11:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49338 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236069AbhGZPE6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:04:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A7E760F6F;
-        Mon, 26 Jul 2021 15:45:24 +0000 (UTC)
+        id S235440AbhGZPH5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:07:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6868660F5A;
+        Mon, 26 Jul 2021 15:48:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314325;
-        bh=CA5ocV/Oxu/S7xxf1smZApRpj7aw1M+1m+SNWd43dqo=;
+        s=korg; t=1627314506;
+        bh=Rksq+sXlVmO+of+fNZfPpa8FD9JZtW8hmWK+PySn/HI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hDwIWWBCK58iEZNY1w73KXCZpg3kHJYoZ4m/aWf5dON/jq4XN8VfCOucJvhB8W6M6
-         pIqRQFPnpYH/s6MfZW7YJtb1KdQO2hSFmoPJrSlI0G7Hw0vfjXIzt3SFYciF/kpkFG
-         O9NDaXDQMcyOlo8QoVz+WmyX0BiY0t5Io9Nh2fRk=
+        b=qaTtCVUcbHIfMh/E1IlWGeL0EqyAKCV3x4QUuFpKV33+xvBNuXexDEWS+CA2HTBR6
+         bHu27YSZDdtAR5yjdkn3D8/Qy8Cuv75eKbm+P5kDbodiYW1ZYEsup9DoM4skTUDYUG
+         l1180rpz/wTXvhS83ntctxCl7jo0N8znDmSlttr0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>,
-        Stephan Gerhold <stephan@gerhold.net>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.9 59/60] iio: accel: bma180: Fix BMA25x bandwidth register values
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Kees Cook <keescook@chromium.org>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>
+Subject: [PATCH 4.14 73/82] media: ngene: Fix out-of-bounds bug in ngene_command_config_free_buf()
 Date:   Mon, 26 Jul 2021 17:39:13 +0200
-Message-Id: <20210726153826.722974637@linuxfoundation.org>
+Message-Id: <20210726153830.549837410@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153824.868160836@linuxfoundation.org>
-References: <20210726153824.868160836@linuxfoundation.org>
+In-Reply-To: <20210726153828.144714469@linuxfoundation.org>
+References: <20210726153828.144714469@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,77 +40,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan@gerhold.net>
+From: Gustavo A. R. Silva <gustavoars@kernel.org>
 
-commit 8090d67421ddab0ae932abab5a60200598bf0bbb upstream
+commit 8d4abca95ecc82fc8c41912fa0085281f19cc29f upstream.
 
-According to the BMA253 datasheet [1] and BMA250 datasheet [2] the
-bandwidth value for BMA25x should be set as 01xxx:
+Fix an 11-year old bug in ngene_command_config_free_buf() while
+addressing the following warnings caught with -Warray-bounds:
 
-  "Settings 00xxx result in a bandwidth of 7.81 Hz; [...]
-   It is recommended [...] to use the range from ´01000b´ to ´01111b´
-   only in order to be compatible with future products."
+arch/alpha/include/asm/string.h:22:16: warning: '__builtin_memcpy' offset [12, 16] from the object at 'com' is out of the bounds of referenced subobject 'config' with type 'unsigned char' at offset 10 [-Warray-bounds]
+arch/x86/include/asm/string_32.h:182:25: warning: '__builtin_memcpy' offset [12, 16] from the object at 'com' is out of the bounds of referenced subobject 'config' with type 'unsigned char' at offset 10 [-Warray-bounds]
 
-However, at the moment the drivers sets bandwidth values from 0 to 6,
-which is not recommended and always results into 7.81 Hz bandwidth
-according to the datasheet.
+The problem is that the original code is trying to copy 6 bytes of
+data into a one-byte size member _config_ of the wrong structue
+FW_CONFIGURE_BUFFERS, in a single call to memcpy(). This causes a
+legitimate compiler warning because memcpy() overruns the length
+of &com.cmd.ConfigureBuffers.config. It seems that the right
+structure is FW_CONFIGURE_FREE_BUFFERS, instead, because it contains
+6 more members apart from the header _hdr_. Also, the name of
+the function ngene_command_config_free_buf() suggests that the actual
+intention is to ConfigureFreeBuffers, instead of ConfigureBuffers
+(which takes place in the function ngene_command_config_buf(), above).
 
-Fix this by introducing a bw_offset = 8 = 01000b for BMA25x,
-so the additional bit is always set for BMA25x.
+Fix this by enclosing those 6 members of struct FW_CONFIGURE_FREE_BUFFERS
+into new struct config, and use &com.cmd.ConfigureFreeBuffers.config as
+the destination address, instead of &com.cmd.ConfigureBuffers.config,
+when calling memcpy().
 
-[1]: https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bma253-ds000.pdf
-[2]: https://datasheet.octopart.com/BMA250-Bosch-datasheet-15540103.pdf
+This also helps with the ongoing efforts to globally enable
+-Warray-bounds and get us closer to being able to tighten the
+FORTIFY_SOURCE routines on memcpy().
 
-Cc: Peter Meerwald <pmeerw@pmeerw.net>
-Fixes: 2017cff24cc0 ("iio:bma180: Add BMA250 chip support")
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20210526094408.34298-2-stephan@gerhold.net
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-[sudip: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Link: https://github.com/KSPP/linux/issues/109
+Fixes: dae52d009fc9 ("V4L/DVB: ngene: Initial check-in")
+Cc: stable@vger.kernel.org
+Reported-by: kernel test robot <lkp@intel.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+Link: https://lore.kernel.org/linux-hardening/20210420001631.GA45456@embeddedor/
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/accel/bma180.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/media/pci/ngene/ngene-core.c |    2 +-
+ drivers/media/pci/ngene/ngene.h      |   14 ++++++++------
+ 2 files changed, 9 insertions(+), 7 deletions(-)
 
---- a/drivers/iio/accel/bma180.c
-+++ b/drivers/iio/accel/bma180.c
-@@ -49,7 +49,7 @@ struct bma180_part_info {
+--- a/drivers/media/pci/ngene/ngene-core.c
++++ b/drivers/media/pci/ngene/ngene-core.c
+@@ -398,7 +398,7 @@ static int ngene_command_config_free_buf
  
- 	u8 int_reset_reg, int_reset_mask;
- 	u8 sleep_reg, sleep_mask;
--	u8 bw_reg, bw_mask;
-+	u8 bw_reg, bw_mask, bw_offset;
- 	u8 scale_reg, scale_mask;
- 	u8 power_reg, power_mask, lowpower_val;
- 	u8 int_enable_reg, int_enable_mask;
-@@ -105,6 +105,7 @@ struct bma180_part_info {
+ 	com.cmd.hdr.Opcode = CMD_CONFIGURE_FREE_BUFFER;
+ 	com.cmd.hdr.Length = 6;
+-	memcpy(&com.cmd.ConfigureBuffers.config, config, 6);
++	memcpy(&com.cmd.ConfigureFreeBuffers.config, config, 6);
+ 	com.in_len = 6;
+ 	com.out_len = 0;
  
- #define BMA250_RANGE_MASK	GENMASK(3, 0) /* Range of accel values */
- #define BMA250_BW_MASK		GENMASK(4, 0) /* Accel bandwidth */
-+#define BMA250_BW_OFFSET	8
- #define BMA250_SUSPEND_MASK	BIT(7) /* chip will sleep */
- #define BMA250_LOWPOWER_MASK	BIT(6)
- #define BMA250_DATA_INTEN_MASK	BIT(4)
-@@ -242,7 +243,8 @@ static int bma180_set_bw(struct bma180_d
- 	for (i = 0; i < data->part_info->num_bw; ++i) {
- 		if (data->part_info->bw_table[i] == val) {
- 			ret = bma180_set_bits(data, data->part_info->bw_reg,
--				data->part_info->bw_mask, i);
-+				data->part_info->bw_mask,
-+				i + data->part_info->bw_offset);
- 			if (ret) {
- 				dev_err(&data->client->dev,
- 					"failed to set bandwidth\n");
-@@ -661,6 +663,7 @@ static const struct bma180_part_info bma
- 		.sleep_mask = BMA250_SUSPEND_MASK,
- 		.bw_reg = BMA250_BW_REG,
- 		.bw_mask = BMA250_BW_MASK,
-+		.bw_offset = BMA250_BW_OFFSET,
- 		.scale_reg = BMA250_RANGE_REG,
- 		.scale_mask = BMA250_RANGE_MASK,
- 		.power_reg = BMA250_POWER_REG,
+--- a/drivers/media/pci/ngene/ngene.h
++++ b/drivers/media/pci/ngene/ngene.h
+@@ -403,12 +403,14 @@ enum _BUFFER_CONFIGS {
+ 
+ struct FW_CONFIGURE_FREE_BUFFERS {
+ 	struct FW_HEADER hdr;
+-	u8   UVI1_BufferLength;
+-	u8   UVI2_BufferLength;
+-	u8   TVO_BufferLength;
+-	u8   AUD1_BufferLength;
+-	u8   AUD2_BufferLength;
+-	u8   TVA_BufferLength;
++	struct {
++		u8   UVI1_BufferLength;
++		u8   UVI2_BufferLength;
++		u8   TVO_BufferLength;
++		u8   AUD1_BufferLength;
++		u8   AUD2_BufferLength;
++		u8   TVA_BufferLength;
++	} __packed config;
+ } __attribute__ ((__packed__));
+ 
+ struct FW_CONFIGURE_UART {
 
 
