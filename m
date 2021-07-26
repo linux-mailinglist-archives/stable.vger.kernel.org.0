@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B25273D6237
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:16:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF4B93D60F5
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:12:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232122AbhGZPfJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:35:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51332 "EHLO mail.kernel.org"
+        id S237818AbhGZPZs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:25:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235092AbhGZPeF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:34:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DDECF6056B;
-        Mon, 26 Jul 2021 16:14:26 +0000 (UTC)
+        id S238156AbhGZPZF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:25:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 69D6D60EB2;
+        Mon, 26 Jul 2021 16:05:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627316067;
-        bh=MIRtdigQjRd10/NGJnkLyqs1dc1KSlw2sbuL0WPp5i0=;
+        s=korg; t=1627315532;
+        bh=2XGxQspg0L4/+CvXHLTA4Lk8z0slxNMXInR5dr0DLHA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ARFV8N1igqQpLinFQYRpm4e+6QZxjZ+t7ruZGfgJ+cysNgCK1fM/dKltRCtD2KyaQ
-         jqEQkdgR2AWQvqXedEenJbEe8LEZD6kryv+ya0VvcmgefYmjNRCdlMxDooEx3urwxR
-         5qYKm8AnFYnAQ3DfU+h5I1tSwh7W1hhjaC4vP0V0=
+        b=DQKwVpHCt8JZD83NpoLNDTGjYbinoNsmORgRWNMNzWP0xK2re5Xin9jEdsTmklMr+
+         gf5t7kWgJ0RtFmiAeVw6469huRdKyKvT2qoqhmErbPH5cx3MQ8fe1kq2VvqTVzWvka
+         l15dclHH90FksQ1yWfTa/ZhmwjQOMKSG/5FX8LpM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Amelie Delaunay <amelie.delaunay@foss.st.com>
-Subject: [PATCH 5.13 174/223] usb: typec: stusb160x: register role switch before interrupt registration
-Date:   Mon, 26 Jul 2021 17:39:26 +0200
-Message-Id: <20210726153851.887066028@linuxfoundation.org>
+        stable@vger.kernel.org, Stefan Metzmacher <metze@samba.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.10 134/167] tracepoints: Update static_call before tp_funcs when adding a tracepoint
+Date:   Mon, 26 Jul 2021 17:39:27 +0200
+Message-Id: <20210726153843.889466819@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
-References: <20210726153846.245305071@linuxfoundation.org>
+In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
+References: <20210726153839.371771838@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,63 +39,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amelie Delaunay <amelie.delaunay@foss.st.com>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-commit 86762ad4abcc549deb7a155c8e5e961b9755bcf0 upstream.
+commit 352384d5c84ebe40fa77098cc234fe173247d8ef upstream.
 
-During interrupt registration, attach state is checked. If attached,
-then the Type-C state is updated with typec_set_xxx functions and role
-switch is set with usb_role_switch_set_role().
+Because of the significant overhead that retpolines pose on indirect
+calls, the tracepoint code was updated to use the new "static_calls" that
+can modify the running code to directly call a function instead of using
+an indirect caller, and this function can be changed at runtime.
 
-If the usb_role_switch parameter is error or null, the function simply
-returns 0.
+In the tracepoint code that calls all the registered callbacks that are
+attached to a tracepoint, the following is done:
 
-So, to update usb_role_switch role if a device is attached before the
-irq is registered, usb_role_switch must be registered before irq
-registration.
+	it_func_ptr = rcu_dereference_raw((&__tracepoint_##name)->funcs);
+	if (it_func_ptr) {
+		__data = (it_func_ptr)->data;
+		static_call(tp_func_##name)(__data, args);
+	}
 
-Fixes: da0cb6310094 ("usb: typec: add support for STUSB160x Type-C controller family")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
-Link: https://lore.kernel.org/r/20210716120718.20398-2-amelie.delaunay@foss.st.com
+If there's just a single callback, the static_call is updated to just call
+that callback directly. Once another handler is added, then the static
+caller is updated to call the iterator, that simply loops over all the
+funcs in the array and calls each of the callbacks like the old method
+using indirect calling.
+
+The issue was discovered with a race between updating the funcs array and
+updating the static_call. The funcs array was updated first and then the
+static_call was updated. This is not an issue as long as the first element
+in the old array is the same as the first element in the new array. But
+that assumption is incorrect, because callbacks also have a priority
+field, and if there's a callback added that has a higher priority than the
+callback on the old array, then it will become the first callback in the
+new array. This means that it is possible to call the old callback with
+the new callback data element, which can cause a kernel panic.
+
+	static_call = callback1()
+	funcs[] = {callback1,data1};
+	callback2 has higher priority than callback1
+
+	CPU 1				CPU 2
+	-----				-----
+
+   new_funcs = {callback2,data2},
+               {callback1,data1}
+
+   rcu_assign_pointer(tp->funcs, new_funcs);
+
+  /*
+   * Now tp->funcs has the new array
+   * but the static_call still calls callback1
+   */
+
+				it_func_ptr = tp->funcs [ new_funcs ]
+				data = it_func_ptr->data [ data2 ]
+				static_call(callback1, data);
+
+				/* Now callback1 is called with
+				 * callback2's data */
+
+				[ KERNEL PANIC ]
+
+   update_static_call(iterator);
+
+To prevent this from happening, always switch the static_call to the
+iterator before assigning the tp->funcs to the new array. The iterator will
+always properly match the callback with its data.
+
+To trigger this bug:
+
+  In one terminal:
+
+    while :; do hackbench 50; done
+
+  In another terminal
+
+    echo 1 > /sys/kernel/tracing/events/sched/sched_waking/enable
+    while :; do
+        echo 1 > /sys/kernel/tracing/set_event_pid;
+        sleep 0.5
+        echo 0 > /sys/kernel/tracing/set_event_pid;
+        sleep 0.5
+   done
+
+And it doesn't take long to crash. This is because the set_event_pid adds
+a callback to the sched_waking tracepoint with a high priority, which will
+be called before the sched_waking trace event callback is called.
+
+Note, the removal to a single callback updates the array first, before
+changing the static_call to single callback, which is the proper order as
+the first element in the array is the same as what the static_call is
+being changed to.
+
+Link: https://lore.kernel.org/io-uring/4ebea8f0-58c9-e571-fd30-0ce4f6f09c70@samba.org/
+
+Cc: stable@vger.kernel.org
+Fixes: d25e37d89dd2f ("tracepoint: Optimize using static_call()")
+Reported-by: Stefan Metzmacher <metze@samba.org>
+tested-by: Stefan Metzmacher <metze@samba.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/typec/stusb160x.c |   11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ kernel/tracepoint.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/typec/stusb160x.c
-+++ b/drivers/usb/typec/stusb160x.c
-@@ -739,10 +739,6 @@ static int stusb160x_probe(struct i2c_cl
- 	typec_set_pwr_opmode(chip->port, chip->pwr_opmode);
+--- a/kernel/tracepoint.c
++++ b/kernel/tracepoint.c
+@@ -320,8 +320,8 @@ static int tracepoint_add_func(struct tr
+ 	 * a pointer to it.  This array is referenced by __DO_TRACE from
+ 	 * include/linux/tracepoint.h using rcu_dereference_sched().
+ 	 */
+-	rcu_assign_pointer(tp->funcs, tp_funcs);
+ 	tracepoint_update_call(tp, tp_funcs, false);
++	rcu_assign_pointer(tp->funcs, tp_funcs);
+ 	static_key_enable(&tp->key);
  
- 	if (client->irq) {
--		ret = stusb160x_irq_init(chip, client->irq);
--		if (ret)
--			goto port_unregister;
--
- 		chip->role_sw = fwnode_usb_role_switch_get(fwnode);
- 		if (IS_ERR(chip->role_sw)) {
- 			ret = PTR_ERR(chip->role_sw);
-@@ -752,6 +748,10 @@ static int stusb160x_probe(struct i2c_cl
- 					ret);
- 			goto port_unregister;
- 		}
-+
-+		ret = stusb160x_irq_init(chip, client->irq);
-+		if (ret)
-+			goto role_sw_put;
- 	} else {
- 		/*
- 		 * If Source or Dual power role, need to enable VDD supply
-@@ -775,6 +775,9 @@ static int stusb160x_probe(struct i2c_cl
- 
- 	return 0;
- 
-+role_sw_put:
-+	if (chip->role_sw)
-+		usb_role_switch_put(chip->role_sw);
- port_unregister:
- 	typec_unregister_port(chip->port);
- all_reg_disable:
+ 	release_probes(old);
 
 
