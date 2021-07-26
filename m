@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E38F73D61EA
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:14:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D71BC3D6092
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:11:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234321AbhGZPdY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:33:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47946 "EHLO mail.kernel.org"
+        id S236493AbhGZPXI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:23:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233422AbhGZPcU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:32:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 18F7160F9C;
-        Mon, 26 Jul 2021 16:12:25 +0000 (UTC)
+        id S237477AbhGZPXG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:23:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DB8D260F93;
+        Mon, 26 Jul 2021 16:03:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315946;
-        bh=Ii8LnCa5sN0LO9PTwHbCS+/OIokhAugVaiwqj/o/Utc=;
+        s=korg; t=1627315415;
+        bh=IQtjU2qoyCtCHROhsWif9GtS7XjGEBoyZQjQsz74pfU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=puDtQORjxR7Ap1mrnKY2tZug2RrrTrNc2jOaOR81EDMmwJxXoP8TMD281bbyH+fel
-         LXpebXX6vXvOFZiFUWo/rsXMI/YS1PT+2uyDbX15gTOTo1SjqqmleTPEaqh80dqncD
-         6o2GbLcZRH8Az8CVeVkBmOWRpx+xhhR4OftWwG9A=
+        b=kj5UsnTkxekMaoTwY9Ho4p4Li3ykyJvl9/HgaW4JYo21qIzGbjkxRMvR6BRX3IhrF
+         /yclQs/4FO59BPvPSCX1TWpXdnosLh4RNcxg5EB+oCsYHREi7lZgCIZYMG+fQSXo1/
+         ZwxkJpVSGa82UiQQXqUG4qBpCef2NLW59D6ORmps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sayanta Pattanayak <sayanta.pattanayak@arm.com>,
-        Andre Przywara <andre.przywara@arm.com>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Chengwen Feng <fengchengwen@huawei.com>,
+        Guangbin Huang <huangguangbin2@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 128/223] r8169: Avoid duplicate sysfs entry creation error
+Subject: [PATCH 5.10 087/167] net: hns3: fix possible mismatches resp of mailbox
 Date:   Mon, 26 Jul 2021 17:38:40 +0200
-Message-Id: <20210726153850.442834988@linuxfoundation.org>
+Message-Id: <20210726153842.326363615@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
-References: <20210726153846.245305071@linuxfoundation.org>
+In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
+References: <20210726153839.371771838@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,53 +41,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sayanta Pattanayak <sayanta.pattanayak@arm.com>
+From: Chengwen Feng <fengchengwen@huawei.com>
 
-[ Upstream commit e9a72f874d5b95cef0765bafc56005a50f72c5fe ]
+[ Upstream commit 1b713d14dc3c077ec45e65dab4ea01a8bc41b8c1 ]
 
-When registering the MDIO bus for a r8169 device, we use the PCI
-bus/device specifier as a (seemingly) unique device identifier.
-However the very same BDF number can be used on another PCI segment,
-which makes the driver fail probing:
+Currently, the mailbox synchronous communication between VF and PF use
+the following fields to maintain communication:
+1. Origin_mbx_msg which was combined by message code and subcode, used
+to match request and response.
+2. Received_resp which means whether received response.
 
-[ 27.544136] r8169 0002:07:00.0: enabling device (0000 -> 0003)
-[ 27.559734] sysfs: cannot create duplicate filename '/class/mdio_bus/r8169-700'
-....
-[ 27.684858] libphy: mii_bus r8169-700 failed to register
-[ 27.695602] r8169: probe of 0002:07:00.0 failed with error -22
+There may possible mismatches of the following situation:
+1. VF sends message A with code=1 subcode=1.
+2. PF was blocked about 500ms when processing the message A.
+3. VF will detect message A timeout because it can't get the response
+within 500ms.
+4. VF sends message B with code=1 subcode=1 which equal message A.
+5. PF processes the first message A and send the response message to
+VF.
+6. VF will identify the response matched the message B because the
+code/subcode is the same. This will lead to mismatch of request and
+response.
 
-Add the segment number to the device name to make it more unique.
+To fix the above bug, we use the following scheme:
+1. The message sent from VF was labelled with match_id which was a
+unique 16-bit non-zero value.
+2. The response sent from PF will label with match_id which got from
+the request.
+3. The VF uses the match_id to match request and response message.
 
-This fixes operation on ARM N1SDP boards, with two boards connected
-together to form an SMP system, and all on-board devices showing up
-twice, just on different PCI segments. A similar issue would occur on
-large systems with many PCI slots and multiple RTL8169 NICs.
+As for PF driver, it only needs to copy the match_id from request to
+response.
 
-Fixes: f1e911d5d0dfd ("r8169: add basic phylib support")
-Signed-off-by: Sayanta Pattanayak <sayanta.pattanayak@arm.com>
-[Andre: expand commit message, use pci_domain_nr()]
-Signed-off-by: Andre Przywara <andre.przywara@arm.com>
-Acked-by: Heiner Kallweit <hkallweit1@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: dde1a86e93ca ("net: hns3: Add mailbox support to PF driver")
+Signed-off-by: Chengwen Feng <fengchengwen@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/realtek/r8169_main.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h        | 6 ++++--
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c | 1 +
+ 2 files changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/realtek/r8169_main.c b/drivers/net/ethernet/realtek/r8169_main.c
-index a0d4e052a79e..b8eb1b2a8de3 100644
---- a/drivers/net/ethernet/realtek/r8169_main.c
-+++ b/drivers/net/ethernet/realtek/r8169_main.c
-@@ -5085,7 +5085,8 @@ static int r8169_mdio_register(struct rtl8169_private *tp)
- 	new_bus->priv = tp;
- 	new_bus->parent = &pdev->dev;
- 	new_bus->irq[0] = PHY_MAC_INTERRUPT;
--	snprintf(new_bus->id, MII_BUS_ID_SIZE, "r8169-%x", pci_dev_id(pdev));
-+	snprintf(new_bus->id, MII_BUS_ID_SIZE, "r8169-%x-%x",
-+		 pci_domain_nr(pdev->bus), pci_dev_id(pdev));
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h b/drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h
+index 98a9f5e3fe86..98f55fbe6c3d 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h
+@@ -134,7 +134,8 @@ struct hclge_mbx_vf_to_pf_cmd {
+ 	u8 mbx_need_resp;
+ 	u8 rsv1[1];
+ 	u8 msg_len;
+-	u8 rsv2[3];
++	u8 rsv2;
++	u16 match_id;
+ 	struct hclge_vf_to_pf_msg msg;
+ };
  
- 	new_bus->read = r8169_mdio_read_reg;
- 	new_bus->write = r8169_mdio_write_reg;
+@@ -144,7 +145,8 @@ struct hclge_mbx_pf_to_vf_cmd {
+ 	u8 dest_vfid;
+ 	u8 rsv[3];
+ 	u8 msg_len;
+-	u8 rsv1[3];
++	u8 rsv1;
++	u16 match_id;
+ 	struct hclge_pf_to_vf_msg msg;
+ };
+ 
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
+index 2c2d53f5c56e..61f6f0287cbe 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
+@@ -47,6 +47,7 @@ static int hclge_gen_resp_to_vf(struct hclge_vport *vport,
+ 
+ 	resp_pf_to_vf->dest_vfid = vf_to_pf_req->mbx_src_vfid;
+ 	resp_pf_to_vf->msg_len = vf_to_pf_req->msg_len;
++	resp_pf_to_vf->match_id = vf_to_pf_req->match_id;
+ 
+ 	resp_pf_to_vf->msg.code = HCLGE_MBX_PF_VF_RESP;
+ 	resp_pf_to_vf->msg.vf_mbx_msg_code = vf_to_pf_req->msg.code;
 -- 
 2.30.2
 
