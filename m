@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C26D43D61D0
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:14:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70F0D3D605A
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:10:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234029AbhGZPdD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:33:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46604 "EHLO mail.kernel.org"
+        id S237236AbhGZPVy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:21:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36262 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232849AbhGZPaq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:30:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1802C60240;
-        Mon, 26 Jul 2021 16:11:12 +0000 (UTC)
+        id S237212AbhGZPVx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:21:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ECCB060240;
+        Mon, 26 Jul 2021 16:02:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315873;
-        bh=Aq+uvhjnHJMCzZBu6Z/7kVbDlJVB3v53fj0cBjH9wpU=;
+        s=korg; t=1627315341;
+        bh=k5g0848ahmYdSiUwYINqrmffIbGYrkgMxzfRWYffTRE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FO55hBiO95PXC2TzZPynKKAiIykKQodzBKI6PwPh1U/iMNFSYmdNsmDwUaWsZhqfJ
-         s2g2i1ezZg/KX1H8KVg4NZbSIGVBQ2767Hfisg0Coj9fLmjS2t+fYFaKSs8dDhxZNE
-         kgKEEFhkZhKwp2dw3zAaE16PGorulUkIzfztVRV8=
+        b=GcUmFU7Rl+aDhJP0qBAD+j9VdOloSfWzVH2E7pjaEgFFemaVcl0US6J295Rj2VTrJ
+         wfibORP5S3WTwl92jvfilOXfnoafhTKaKRH4jU29ZlvavA+uKoLof8Py2cZmlwa5me
+         P8H7MMD68r7K7zcK6gWOIodRAmi6FvNIbEUvRty8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Bogdanov <d.bogdanov@yadro.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        Nicolas Saenz Julienne <nsaenzju@redhat.com>,
+        Frederic Weisbecker <frederic@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 099/223] scsi: target: Fix protect handling in WRITE SAME(32)
+Subject: [PATCH 5.10 058/167] timers: Fix get_next_timer_interrupt() with no timers pending
 Date:   Mon, 26 Jul 2021 17:38:11 +0200
-Message-Id: <20210726153849.508587626@linuxfoundation.org>
+Message-Id: <20210726153841.361015488@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
-References: <20210726153846.245305071@linuxfoundation.org>
+In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
+References: <20210726153839.371771838@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,181 +41,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Bogdanov <d.bogdanov@yadro.com>
+From: Nicolas Saenz Julienne <nsaenzju@redhat.com>
 
-[ Upstream commit 6d8e7e7c932162bccd06872362751b0e1d76f5af ]
+[ Upstream commit aebacb7f6ca1926918734faae14d1f0b6fae5cb7 ]
 
-WRITE SAME(32) command handling reads WRPROTECT at the wrong offset in 1st
-byte instead of 10th byte.
+31cd0e119d50 ("timers: Recalculate next timer interrupt only when
+necessary") subtly altered get_next_timer_interrupt()'s behaviour. The
+function no longer consistently returns KTIME_MAX with no timers
+pending.
 
-Link: https://lore.kernel.org/r/20210702091655.22818-1-d.bogdanov@yadro.com
-Fixes: afd73f1b60fc ("target: Perform PROTECT sanity checks for WRITE_SAME")
-Signed-off-by: Dmitry Bogdanov <d.bogdanov@yadro.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+In order to decide if there are any timers pending we check whether the
+next expiry will happen NEXT_TIMER_MAX_DELTA jiffies from now.
+Unfortunately, the next expiry time and the timer base clock are no
+longer updated in unison. The former changes upon certain timer
+operations (enqueue, expire, detach), whereas the latter keeps track of
+jiffies as they move forward. Ultimately breaking the logic above.
+
+A simplified example:
+
+- Upon entering get_next_timer_interrupt() with:
+
+	jiffies = 1
+	base->clk = 0;
+	base->next_expiry = NEXT_TIMER_MAX_DELTA;
+
+  'base->next_expiry == base->clk + NEXT_TIMER_MAX_DELTA', the function
+  returns KTIME_MAX.
+
+- 'base->clk' is updated to the jiffies value.
+
+- The next time we enter get_next_timer_interrupt(), taking into account
+  no timer operations happened:
+
+	base->clk = 1;
+	base->next_expiry = NEXT_TIMER_MAX_DELTA;
+
+  'base->next_expiry != base->clk + NEXT_TIMER_MAX_DELTA', the function
+  returns a valid expire time, which is incorrect.
+
+This ultimately might unnecessarily rearm sched's timer on nohz_full
+setups, and add latency to the system[1].
+
+So, introduce 'base->timers_pending'[2], update it every time
+'base->next_expiry' changes, and use it in get_next_timer_interrupt().
+
+[1] See tick_nohz_stop_tick().
+[2] A quick pahole check on x86_64 and arm64 shows it doesn't make
+    'struct timer_base' any bigger.
+
+Fixes: 31cd0e119d50 ("timers: Recalculate next timer interrupt only when necessary")
+Signed-off-by: Nicolas Saenz Julienne <nsaenzju@redhat.com>
+Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/target/target_core_sbc.c | 35 ++++++++++++++++----------------
- 1 file changed, 17 insertions(+), 18 deletions(-)
+ kernel/time/timer.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/target/target_core_sbc.c b/drivers/target/target_core_sbc.c
-index 7b07e557dc8d..6594bb0b9df0 100644
---- a/drivers/target/target_core_sbc.c
-+++ b/drivers/target/target_core_sbc.c
-@@ -25,7 +25,7 @@
- #include "target_core_alua.h"
- 
- static sense_reason_t
--sbc_check_prot(struct se_device *, struct se_cmd *, unsigned char *, u32, bool);
-+sbc_check_prot(struct se_device *, struct se_cmd *, unsigned char, u32, bool);
- static sense_reason_t sbc_execute_unmap(struct se_cmd *cmd);
- 
- static sense_reason_t
-@@ -279,14 +279,14 @@ static inline unsigned long long transport_lba_64_ext(unsigned char *cdb)
- }
- 
- static sense_reason_t
--sbc_setup_write_same(struct se_cmd *cmd, unsigned char *flags, struct sbc_ops *ops)
-+sbc_setup_write_same(struct se_cmd *cmd, unsigned char flags, struct sbc_ops *ops)
- {
- 	struct se_device *dev = cmd->se_dev;
- 	sector_t end_lba = dev->transport->get_blocks(dev) + 1;
- 	unsigned int sectors = sbc_get_write_same_sectors(cmd);
- 	sense_reason_t ret;
- 
--	if ((flags[0] & 0x04) || (flags[0] & 0x02)) {
-+	if ((flags & 0x04) || (flags & 0x02)) {
- 		pr_err("WRITE_SAME PBDATA and LBDATA"
- 			" bits not supported for Block Discard"
- 			" Emulation\n");
-@@ -308,7 +308,7 @@ sbc_setup_write_same(struct se_cmd *cmd, unsigned char *flags, struct sbc_ops *o
- 	}
- 
- 	/* We always have ANC_SUP == 0 so setting ANCHOR is always an error */
--	if (flags[0] & 0x10) {
-+	if (flags & 0x10) {
- 		pr_warn("WRITE SAME with ANCHOR not supported\n");
- 		return TCM_INVALID_CDB_FIELD;
- 	}
-@@ -316,7 +316,7 @@ sbc_setup_write_same(struct se_cmd *cmd, unsigned char *flags, struct sbc_ops *o
- 	 * Special case for WRITE_SAME w/ UNMAP=1 that ends up getting
- 	 * translated into block discard requests within backend code.
- 	 */
--	if (flags[0] & 0x08) {
-+	if (flags & 0x08) {
- 		if (!ops->execute_unmap)
- 			return TCM_UNSUPPORTED_SCSI_OPCODE;
- 
-@@ -331,7 +331,7 @@ sbc_setup_write_same(struct se_cmd *cmd, unsigned char *flags, struct sbc_ops *o
- 	if (!ops->execute_write_same)
- 		return TCM_UNSUPPORTED_SCSI_OPCODE;
- 
--	ret = sbc_check_prot(dev, cmd, &cmd->t_task_cdb[0], sectors, true);
-+	ret = sbc_check_prot(dev, cmd, flags >> 5, sectors, true);
- 	if (ret)
- 		return ret;
- 
-@@ -717,10 +717,9 @@ sbc_set_prot_op_checks(u8 protect, bool fabric_prot, enum target_prot_type prot_
- }
- 
- static sense_reason_t
--sbc_check_prot(struct se_device *dev, struct se_cmd *cmd, unsigned char *cdb,
-+sbc_check_prot(struct se_device *dev, struct se_cmd *cmd, unsigned char protect,
- 	       u32 sectors, bool is_write)
- {
--	u8 protect = cdb[1] >> 5;
- 	int sp_ops = cmd->se_sess->sup_prot_ops;
- 	int pi_prot_type = dev->dev_attrib.pi_prot_type;
- 	bool fabric_prot = false;
-@@ -768,7 +767,7 @@ sbc_check_prot(struct se_device *dev, struct se_cmd *cmd, unsigned char *cdb,
- 		fallthrough;
- 	default:
- 		pr_err("Unable to determine pi_prot_type for CDB: 0x%02x "
--		       "PROTECT: 0x%02x\n", cdb[0], protect);
-+		       "PROTECT: 0x%02x\n", cmd->t_task_cdb[0], protect);
- 		return TCM_INVALID_CDB_FIELD;
- 	}
- 
-@@ -843,7 +842,7 @@ sbc_parse_cdb(struct se_cmd *cmd, struct sbc_ops *ops)
- 		if (sbc_check_dpofua(dev, cmd, cdb))
- 			return TCM_INVALID_CDB_FIELD;
- 
--		ret = sbc_check_prot(dev, cmd, cdb, sectors, false);
-+		ret = sbc_check_prot(dev, cmd, cdb[1] >> 5, sectors, false);
- 		if (ret)
- 			return ret;
- 
-@@ -857,7 +856,7 @@ sbc_parse_cdb(struct se_cmd *cmd, struct sbc_ops *ops)
- 		if (sbc_check_dpofua(dev, cmd, cdb))
- 			return TCM_INVALID_CDB_FIELD;
- 
--		ret = sbc_check_prot(dev, cmd, cdb, sectors, false);
-+		ret = sbc_check_prot(dev, cmd, cdb[1] >> 5, sectors, false);
- 		if (ret)
- 			return ret;
- 
-@@ -871,7 +870,7 @@ sbc_parse_cdb(struct se_cmd *cmd, struct sbc_ops *ops)
- 		if (sbc_check_dpofua(dev, cmd, cdb))
- 			return TCM_INVALID_CDB_FIELD;
- 
--		ret = sbc_check_prot(dev, cmd, cdb, sectors, false);
-+		ret = sbc_check_prot(dev, cmd, cdb[1] >> 5, sectors, false);
- 		if (ret)
- 			return ret;
- 
-@@ -892,7 +891,7 @@ sbc_parse_cdb(struct se_cmd *cmd, struct sbc_ops *ops)
- 		if (sbc_check_dpofua(dev, cmd, cdb))
- 			return TCM_INVALID_CDB_FIELD;
- 
--		ret = sbc_check_prot(dev, cmd, cdb, sectors, true);
-+		ret = sbc_check_prot(dev, cmd, cdb[1] >> 5, sectors, true);
- 		if (ret)
- 			return ret;
- 
-@@ -906,7 +905,7 @@ sbc_parse_cdb(struct se_cmd *cmd, struct sbc_ops *ops)
- 		if (sbc_check_dpofua(dev, cmd, cdb))
- 			return TCM_INVALID_CDB_FIELD;
- 
--		ret = sbc_check_prot(dev, cmd, cdb, sectors, true);
-+		ret = sbc_check_prot(dev, cmd, cdb[1] >> 5, sectors, true);
- 		if (ret)
- 			return ret;
- 
-@@ -921,7 +920,7 @@ sbc_parse_cdb(struct se_cmd *cmd, struct sbc_ops *ops)
- 		if (sbc_check_dpofua(dev, cmd, cdb))
- 			return TCM_INVALID_CDB_FIELD;
- 
--		ret = sbc_check_prot(dev, cmd, cdb, sectors, true);
-+		ret = sbc_check_prot(dev, cmd, cdb[1] >> 5, sectors, true);
- 		if (ret)
- 			return ret;
- 
-@@ -980,7 +979,7 @@ sbc_parse_cdb(struct se_cmd *cmd, struct sbc_ops *ops)
- 			size = sbc_get_size(cmd, 1);
- 			cmd->t_task_lba = get_unaligned_be64(&cdb[12]);
- 
--			ret = sbc_setup_write_same(cmd, &cdb[10], ops);
-+			ret = sbc_setup_write_same(cmd, cdb[10], ops);
- 			if (ret)
- 				return ret;
- 			break;
-@@ -1079,7 +1078,7 @@ sbc_parse_cdb(struct se_cmd *cmd, struct sbc_ops *ops)
- 		size = sbc_get_size(cmd, 1);
- 		cmd->t_task_lba = get_unaligned_be64(&cdb[2]);
- 
--		ret = sbc_setup_write_same(cmd, &cdb[1], ops);
-+		ret = sbc_setup_write_same(cmd, cdb[1], ops);
- 		if (ret)
- 			return ret;
- 		break;
-@@ -1097,7 +1096,7 @@ sbc_parse_cdb(struct se_cmd *cmd, struct sbc_ops *ops)
- 		 * Follow sbcr26 with WRITE_SAME (10) and check for the existence
- 		 * of byte 1 bit 3 UNMAP instead of original reserved field
+diff --git a/kernel/time/timer.c b/kernel/time/timer.c
+index c3ad64fb9d8b..aa96b8a4e508 100644
+--- a/kernel/time/timer.c
++++ b/kernel/time/timer.c
+@@ -207,6 +207,7 @@ struct timer_base {
+ 	unsigned int		cpu;
+ 	bool			next_expiry_recalc;
+ 	bool			is_idle;
++	bool			timers_pending;
+ 	DECLARE_BITMAP(pending_map, WHEEL_SIZE);
+ 	struct hlist_head	vectors[WHEEL_SIZE];
+ } ____cacheline_aligned;
+@@ -595,6 +596,7 @@ static void enqueue_timer(struct timer_base *base, struct timer_list *timer,
+ 		 * can reevaluate the wheel:
  		 */
--		ret = sbc_setup_write_same(cmd, &cdb[1], ops);
-+		ret = sbc_setup_write_same(cmd, cdb[1], ops);
- 		if (ret)
- 			return ret;
- 		break;
+ 		base->next_expiry = bucket_expiry;
++		base->timers_pending = true;
+ 		base->next_expiry_recalc = false;
+ 		trigger_dyntick_cpu(base, timer);
+ 	}
+@@ -1575,6 +1577,7 @@ static unsigned long __next_timer_interrupt(struct timer_base *base)
+ 	}
+ 
+ 	base->next_expiry_recalc = false;
++	base->timers_pending = !(next == base->clk + NEXT_TIMER_MAX_DELTA);
+ 
+ 	return next;
+ }
+@@ -1626,7 +1629,6 @@ u64 get_next_timer_interrupt(unsigned long basej, u64 basem)
+ 	struct timer_base *base = this_cpu_ptr(&timer_bases[BASE_STD]);
+ 	u64 expires = KTIME_MAX;
+ 	unsigned long nextevt;
+-	bool is_max_delta;
+ 
+ 	/*
+ 	 * Pretend that there is no timer pending if the cpu is offline.
+@@ -1639,7 +1641,6 @@ u64 get_next_timer_interrupt(unsigned long basej, u64 basem)
+ 	if (base->next_expiry_recalc)
+ 		base->next_expiry = __next_timer_interrupt(base);
+ 	nextevt = base->next_expiry;
+-	is_max_delta = (nextevt == base->clk + NEXT_TIMER_MAX_DELTA);
+ 
+ 	/*
+ 	 * We have a fresh next event. Check whether we can forward the
+@@ -1657,7 +1658,7 @@ u64 get_next_timer_interrupt(unsigned long basej, u64 basem)
+ 		expires = basem;
+ 		base->is_idle = false;
+ 	} else {
+-		if (!is_max_delta)
++		if (base->timers_pending)
+ 			expires = basem + (u64)(nextevt - basej) * TICK_NSEC;
+ 		/*
+ 		 * If we expect to sleep more than a tick, mark the base idle.
+@@ -1940,6 +1941,7 @@ int timers_prepare_cpu(unsigned int cpu)
+ 		base = per_cpu_ptr(&timer_bases[b], cpu);
+ 		base->clk = jiffies;
+ 		base->next_expiry = base->clk + NEXT_TIMER_MAX_DELTA;
++		base->timers_pending = false;
+ 		base->is_idle = false;
+ 	}
+ 	return 0;
 -- 
 2.30.2
 
