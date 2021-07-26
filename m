@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE3463D625B
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:16:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2F4E3D60EE
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:12:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236927AbhGZPfl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:35:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51048 "EHLO mail.kernel.org"
+        id S237769AbhGZPZn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:25:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234739AbhGZPd4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:33:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 51EE960F5B;
-        Mon, 26 Jul 2021 16:14:06 +0000 (UTC)
+        id S238126AbhGZPYo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:24:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8BA8660EB2;
+        Mon, 26 Jul 2021 16:05:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627316046;
-        bh=5qO4vs4g/BiBLmde5e9k9Pt3KztD8MN2JFIEk52PMNU=;
+        s=korg; t=1627315512;
+        bh=MhuSh+hGIm0iv964cFkJCoDhLfzTxleeVvMgNXQo5y0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m5+VsCmSpM/Ai0/qNvqN/E8NhlDlvIC9vayeYURzMX8Evl+Mueyqa0heOy7lzgIxT
-         h5nrY8gXL6dKZgglyb8BnjhkFjSR77yb5JhSf9SHs1ra/O5+4QyrMp6FooqA1jFcjW
-         szwAlMyS3ixLYN05cDzLXGy3t13LevvffpHSg4gQ=
+        b=MPOgosWIV7w+Z8dZJHx0bSGMckdKvUyZdlhu4WwjaWFM1dChNjBoU/0tFslSIL+Eu
+         7c3sQ2nTOVXALGVFHHtw4q6/1rBYwL+dqCOhC9/V8h8a5MXxCcg9IIA6uGc+8F/oX5
+         gd3RoXZ69q6qRzYH95lpj8YgBtayMWMIEK8a0rfY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ian Ray <ian.ray@ge.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        stable@vger.kernel.org, Marco De Marco <marco.demarco@posteo.net>,
         Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.13 167/223] USB: serial: cp210x: fix comments for GE CS1000
+Subject: [PATCH 5.10 126/167] USB: serial: option: add support for u-blox LARA-R6 family
 Date:   Mon, 26 Jul 2021 17:39:19 +0200
-Message-Id: <20210726153851.671735317@linuxfoundation.org>
+Message-Id: <20210726153843.627986067@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
-References: <20210726153846.245305071@linuxfoundation.org>
+In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
+References: <20210726153839.371771838@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,34 +39,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ian Ray <ian.ray@ge.com>
+From: Marco De Marco <marco.demarco@posteo.net>
 
-commit e9db418d4b828dd049caaf5ed65dc86f93bb1a0c upstream.
+commit 94b619a07655805a1622484967754f5848640456 upstream.
 
-Fix comments for GE CS1000 CP210x USB ID assignments.
+The patch is meant to support LARA-R6 Cat 1 module family.
 
-Fixes: 42213a0190b5 ("USB: serial: cp210x: add some more GE USB IDs")
-Signed-off-by: Ian Ray <ian.ray@ge.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Module USB ID:
+Vendor  ID: 0x05c6
+Product ID: 0x90fA
+
+Interface layout:
+If 0: Diagnostic
+If 1: AT parser
+If 2: AT parser
+If 3: QMI wwan (not available in all versions)
+
+Signed-off-by: Marco De Marco <marco.demarco@posteo.net>
+Link: https://lore.kernel.org/r/49260184.kfMIbaSn9k@mars
 Cc: stable@vger.kernel.org
 Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/cp210x.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/serial/option.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/usb/serial/cp210x.c
-+++ b/drivers/usb/serial/cp210x.c
-@@ -202,8 +202,8 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(0x1901, 0x0194) },	/* GE Healthcare Remote Alarm Box */
- 	{ USB_DEVICE(0x1901, 0x0195) },	/* GE B850/B650/B450 CP2104 DP UART interface */
- 	{ USB_DEVICE(0x1901, 0x0196) },	/* GE B850 CP2105 DP UART interface */
--	{ USB_DEVICE(0x1901, 0x0197) }, /* GE CS1000 Display serial interface */
--	{ USB_DEVICE(0x1901, 0x0198) }, /* GE CS1000 M.2 Key E serial interface */
-+	{ USB_DEVICE(0x1901, 0x0197) }, /* GE CS1000 M.2 Key E serial interface */
-+	{ USB_DEVICE(0x1901, 0x0198) }, /* GE CS1000 Display serial interface */
- 	{ USB_DEVICE(0x199B, 0xBA30) }, /* LORD WSDA-200-USB */
- 	{ USB_DEVICE(0x19CF, 0x3000) }, /* Parrot NMEA GPS Flight Recorder */
- 	{ USB_DEVICE(0x1ADB, 0x0001) }, /* Schweitzer Engineering C662 Cable */
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -238,6 +238,7 @@ static void option_instat_callback(struc
+ #define QUECTEL_PRODUCT_UC15			0x9090
+ /* These u-blox products use Qualcomm's vendor ID */
+ #define UBLOX_PRODUCT_R410M			0x90b2
++#define UBLOX_PRODUCT_R6XX			0x90fa
+ /* These Yuga products use Qualcomm's vendor ID */
+ #define YUGA_PRODUCT_CLM920_NC5			0x9625
+ 
+@@ -1101,6 +1102,8 @@ static const struct usb_device_id option
+ 	/* u-blox products using Qualcomm vendor ID */
+ 	{ USB_DEVICE(QUALCOMM_VENDOR_ID, UBLOX_PRODUCT_R410M),
+ 	  .driver_info = RSVD(1) | RSVD(3) },
++	{ USB_DEVICE(QUALCOMM_VENDOR_ID, UBLOX_PRODUCT_R6XX),
++	  .driver_info = RSVD(3) },
+ 	/* Quectel products using Quectel vendor ID */
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC21, 0xff, 0xff, 0xff),
+ 	  .driver_info = NUMEP2 },
 
 
