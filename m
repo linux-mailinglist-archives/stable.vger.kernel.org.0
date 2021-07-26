@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 39BA93D626D
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:16:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B76013D613B
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:13:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233163AbhGZPgB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:36:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52854 "EHLO mail.kernel.org"
+        id S232531AbhGZPaW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:30:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41288 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234720AbhGZPfU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:35:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4E3536056B;
-        Mon, 26 Jul 2021 16:15:47 +0000 (UTC)
+        id S231575AbhGZP2I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:28:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B3A460FEA;
+        Mon, 26 Jul 2021 16:06:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627316147;
-        bh=3aSEW+S0XqNh8mM/N4YUszUy9gQZjUjYD+LB/FdNBHg=;
+        s=korg; t=1627315618;
+        bh=LThMCVmjyGnMXIiAlgGSBfTMcQBMbwOiWV4OqVS0TNM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UIW9lOQz3NReQmITEMxVnAYp65eQjB/TE68HaQ0gDiOd6MU9ngrqMSOmkZZx6BoCX
-         z+XfnTAR8nEUQgjf4ciKm0GVAyu2DCtZ7MznHVL2dRpQUtNznvodsnsXdB28RGkfTB
-         8hja6foo7SSaRbWiOzTINlEUZs8kMEIQMPFii3k4=
+        b=QS/FOTn5OkUpXp4HeYqFLL8C2y6Nez/LAMySy4one10YPrWPaaHJzN2KYWqG+B/3r
+         v5yXJ0h6z0FLoZdGm4oPekQmsrehn5mSMKO2G2+VHZYpX+kBDtnR/97zYtNC/a+L3j
+         3WgU5mXBu9j61jhk/O0MkciEVWva7OvKeE/TOGUI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        "Rafael J. Wysocki" <rafael@kernel.org>
-Subject: [PATCH 5.13 207/223] driver core: Prevent warning when removing a device link from unregistered consumer
-Date:   Mon, 26 Jul 2021 17:39:59 +0200
-Message-Id: <20210726153852.965175842@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        Carsten Schmid <carsten_schmid@mentor.com>
+Subject: [PATCH 5.10 167/167] xhci: add xhci_get_virt_ep() helper
+Date:   Mon, 26 Jul 2021 17:40:00 +0200
+Message-Id: <20210726153845.014643770@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
-References: <20210726153846.245305071@linuxfoundation.org>
+In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
+References: <20210726153839.371771838@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,39 +40,172 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-commit e64daad660a0c9ace3acdc57099fffe5ed83f977 upstream.
+[commit b1adc42d440df3233255e313a45ab7e9b2b74096 upstream]
 
-sysfs_remove_link() causes a warning if the parent directory does not
-exist. That can happen if the device link consumer has not been registered.
-So do not attempt sysfs_remove_link() in that case.
+In several event handlers we need to find the right endpoint
+structure from slot_id and ep_index in the event.
 
-Fixes: 287905e68dd29 ("driver core: Expose device link details in sysfs")
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: stable@vger.kernel.org # 5.9+
-Reviewed-by: Rafael J. Wysocki <rafael@kernel.org>
-Link: https://lore.kernel.org/r/20210716114408.17320-2-adrian.hunter@intel.com
+Add a helper for this, check that slot_id and ep_index are valid.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20210129130044.206855-6-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Carsten Schmid <carsten_schmid@mentor.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/base/core.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/usb/host/xhci-ring.c |   58 +++++++++++++++++++++++++++++++++----------
+ drivers/usb/host/xhci.h      |    3 +-
+ 2 files changed, 47 insertions(+), 14 deletions(-)
 
---- a/drivers/base/core.c
-+++ b/drivers/base/core.c
-@@ -574,8 +574,10 @@ static void devlink_remove_symlinks(stru
- 		return;
+--- a/drivers/usb/host/xhci-ring.c
++++ b/drivers/usb/host/xhci-ring.c
+@@ -446,6 +446,26 @@ void xhci_ring_doorbell_for_active_rings
+ 	ring_doorbell_for_active_rings(xhci, slot_id, ep_index);
+ }
+ 
++static struct xhci_virt_ep *xhci_get_virt_ep(struct xhci_hcd *xhci,
++					     unsigned int slot_id,
++					     unsigned int ep_index)
++{
++	if (slot_id == 0 || slot_id >= MAX_HC_SLOTS) {
++		xhci_warn(xhci, "Invalid slot_id %u\n", slot_id);
++		return NULL;
++	}
++	if (ep_index >= EP_CTX_PER_DEV) {
++		xhci_warn(xhci, "Invalid endpoint index %u\n", ep_index);
++		return NULL;
++	}
++	if (!xhci->devs[slot_id]) {
++		xhci_warn(xhci, "No xhci virt device for slot_id %u\n", slot_id);
++		return NULL;
++	}
++
++	return &xhci->devs[slot_id]->eps[ep_index];
++}
++
+ /* Get the right ring for the given slot_id, ep_index and stream_id.
+  * If the endpoint supports streams, boundary check the URB's stream ID.
+  * If the endpoint doesn't support streams, return the singular endpoint ring.
+@@ -456,7 +476,10 @@ struct xhci_ring *xhci_triad_to_transfer
+ {
+ 	struct xhci_virt_ep *ep;
+ 
+-	ep = &xhci->devs[slot_id]->eps[ep_index];
++	ep = xhci_get_virt_ep(xhci, slot_id, ep_index);
++	if (!ep)
++		return NULL;
++
+ 	/* Common case: no streams */
+ 	if (!(ep->ep_state & EP_HAS_STREAMS))
+ 		return ep->ring;
+@@ -747,11 +770,14 @@ static void xhci_handle_cmd_stop_ep(stru
+ 	memset(&deq_state, 0, sizeof(deq_state));
+ 	ep_index = TRB_TO_EP_INDEX(le32_to_cpu(trb->generic.field[3]));
+ 
++	ep = xhci_get_virt_ep(xhci, slot_id, ep_index);
++	if (!ep)
++		return;
++
+ 	vdev = xhci->devs[slot_id];
+ 	ep_ctx = xhci_get_ep_ctx(xhci, vdev->out_ctx, ep_index);
+ 	trace_xhci_handle_cmd_stop_ep(ep_ctx);
+ 
+-	ep = &xhci->devs[slot_id]->eps[ep_index];
+ 	last_unlinked_td = list_last_entry(&ep->cancelled_td_list,
+ 			struct xhci_td, cancelled_td_list);
+ 
+@@ -1076,9 +1102,11 @@ static void xhci_handle_cmd_set_deq(stru
+ 
+ 	ep_index = TRB_TO_EP_INDEX(le32_to_cpu(trb->generic.field[3]));
+ 	stream_id = TRB_TO_STREAM_ID(le32_to_cpu(trb->generic.field[2]));
+-	dev = xhci->devs[slot_id];
+-	ep = &dev->eps[ep_index];
++	ep = xhci_get_virt_ep(xhci, slot_id, ep_index);
++	if (!ep)
++		return;
+ 
++	dev = xhci->devs[slot_id];
+ 	ep_ring = xhci_stream_id_to_ring(dev, ep_index, stream_id);
+ 	if (!ep_ring) {
+ 		xhci_warn(xhci, "WARN Set TR deq ptr command for freed stream ID %u\n",
+@@ -1151,9 +1179,9 @@ static void xhci_handle_cmd_set_deq(stru
  	}
  
--	snprintf(buf, len, "supplier:%s:%s", dev_bus_name(sup), dev_name(sup));
--	sysfs_remove_link(&con->kobj, buf);
-+	if (device_is_registered(con)) {
-+		snprintf(buf, len, "supplier:%s:%s", dev_bus_name(sup), dev_name(sup));
-+		sysfs_remove_link(&con->kobj, buf);
-+	}
- 	snprintf(buf, len, "consumer:%s:%s", dev_bus_name(con), dev_name(con));
- 	sysfs_remove_link(&sup->kobj, buf);
- 	kfree(buf);
+ cleanup:
+-	dev->eps[ep_index].ep_state &= ~SET_DEQ_PENDING;
+-	dev->eps[ep_index].queued_deq_seg = NULL;
+-	dev->eps[ep_index].queued_deq_ptr = NULL;
++	ep->ep_state &= ~SET_DEQ_PENDING;
++	ep->queued_deq_seg = NULL;
++	ep->queued_deq_ptr = NULL;
+ 	/* Restart any rings with pending URBs */
+ 	ring_doorbell_for_active_rings(xhci, slot_id, ep_index);
+ }
+@@ -1162,10 +1190,15 @@ static void xhci_handle_cmd_reset_ep(str
+ 		union xhci_trb *trb, u32 cmd_comp_code)
+ {
+ 	struct xhci_virt_device *vdev;
++	struct xhci_virt_ep *ep;
+ 	struct xhci_ep_ctx *ep_ctx;
+ 	unsigned int ep_index;
+ 
+ 	ep_index = TRB_TO_EP_INDEX(le32_to_cpu(trb->generic.field[3]));
++	ep = xhci_get_virt_ep(xhci, slot_id, ep_index);
++	if (!ep)
++		return;
++
+ 	vdev = xhci->devs[slot_id];
+ 	ep_ctx = xhci_get_ep_ctx(xhci, vdev->out_ctx, ep_index);
+ 	trace_xhci_handle_cmd_reset_ep(ep_ctx);
+@@ -1195,7 +1228,7 @@ static void xhci_handle_cmd_reset_ep(str
+ 		xhci_ring_cmd_db(xhci);
+ 	} else {
+ 		/* Clear our internal halted state */
+-		xhci->devs[slot_id]->eps[ep_index].ep_state &= ~EP_HALTED;
++		ep->ep_state &= ~EP_HALTED;
+ 	}
+ 
+ 	/* if this was a soft reset, then restart */
+@@ -2364,14 +2397,13 @@ static int handle_tx_event(struct xhci_h
+ 	trb_comp_code = GET_COMP_CODE(le32_to_cpu(event->transfer_len));
+ 	ep_trb_dma = le64_to_cpu(event->buffer);
+ 
+-	xdev = xhci->devs[slot_id];
+-	if (!xdev) {
+-		xhci_err(xhci, "ERROR Transfer event pointed to bad slot %u\n",
+-			 slot_id);
++	ep = xhci_get_virt_ep(xhci, slot_id, ep_index);
++	if (!ep) {
++		xhci_err(xhci, "ERROR Invalid Transfer event\n");
+ 		goto err_out;
+ 	}
+ 
+-	ep = &xdev->eps[ep_index];
++	xdev = xhci->devs[slot_id];
+ 	ep_ring = xhci_dma_to_transfer_ring(ep, ep_trb_dma);
+ 	ep_ctx = xhci_get_ep_ctx(xhci, xdev->out_ctx, ep_index);
+ 
+--- a/drivers/usb/host/xhci.h
++++ b/drivers/usb/host/xhci.h
+@@ -993,6 +993,7 @@ struct xhci_interval_bw_table {
+ 	unsigned int		ss_bw_out;
+ };
+ 
++#define EP_CTX_PER_DEV		31
+ 
+ struct xhci_virt_device {
+ 	struct usb_device		*udev;
+@@ -1007,7 +1008,7 @@ struct xhci_virt_device {
+ 	struct xhci_container_ctx       *out_ctx;
+ 	/* Used for addressing devices and configuration changes */
+ 	struct xhci_container_ctx       *in_ctx;
+-	struct xhci_virt_ep		eps[31];
++	struct xhci_virt_ep		eps[EP_CTX_PER_DEV];
+ 	u8				fake_port;
+ 	u8				real_port;
+ 	struct xhci_interval_bw_table	*bw_table;
 
 
