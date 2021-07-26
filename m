@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB9C83D5FCC
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 404B83D5FCD
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236721AbhGZPTN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:19:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59388 "EHLO mail.kernel.org"
+        id S236724AbhGZPTO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:19:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236368AbhGZPSg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:18:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8503E60F70;
-        Mon, 26 Jul 2021 15:59:04 +0000 (UTC)
+        id S236029AbhGZPSl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:18:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D28B60F6E;
+        Mon, 26 Jul 2021 15:59:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315145;
-        bh=XiIiaC+j5IXRrGIgIpPGyr+/IhwvEiJGvExfm+/UcpM=;
+        s=korg; t=1627315148;
+        bh=KSSWhhQm04tbgZ/L13P0VCueBqftOBw1t2JYFEtEo9A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NofBOtSzJHQtY7Dt8jxp44BfZm5SMDa4Iy2Ca3LvaPK9meYK2a+D830LVzfMKRhIJ
-         nsNVDL2bKhrb6wAVR2RYNXqyF+0ZpT2gKOIgotlarBQbF2+uHHjP+f9KVkp0onE7wb
-         U0pxdSQKpHEHj58LbVyTvk+KHOWOzReMMMztS5vw=
+        b=0eYxVQGhHkJFqh/0CHdp0OnZn8NTG64onnO8o8JAhtbN/8To43TQvthrQ+iyCcYrq
+         V0oeOG8U6Ci8EeT0gTM1fLiLPlxo3BX8uVX2RJL2jlmrFbsfgF4y21sy7KEKynYESj
+         5QRaL19eD+VUSTzZtmvPJGhLbB3juFshN5sdZtak=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Anand Jain <anand.jain@oracle.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.4 091/108] btrfs: check for missing device in btrfs_trim_fs
-Date:   Mon, 26 Jul 2021 17:39:32 +0200
-Message-Id: <20210726153834.597009305@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Kees Cook <keescook@chromium.org>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>
+Subject: [PATCH 5.4 092/108] media: ngene: Fix out-of-bounds bug in ngene_command_config_free_buf()
+Date:   Mon, 26 Jul 2021 17:39:33 +0200
+Message-Id: <20210726153834.633941709@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
 References: <20210726153831.696295003@linuxfoundation.org>
@@ -40,80 +40,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anand Jain <anand.jain@oracle.com>
+From: Gustavo A. R. Silva <gustavoars@kernel.org>
 
-commit 16a200f66ede3f9afa2e51d90ade017aaa18d213 upstream.
+commit 8d4abca95ecc82fc8c41912fa0085281f19cc29f upstream.
 
-A fstrim on a degraded raid1 can trigger the following null pointer
-dereference:
+Fix an 11-year old bug in ngene_command_config_free_buf() while
+addressing the following warnings caught with -Warray-bounds:
 
-  BTRFS info (device loop0): allowing degraded mounts
-  BTRFS info (device loop0): disk space caching is enabled
-  BTRFS info (device loop0): has skinny extents
-  BTRFS warning (device loop0): devid 2 uuid 97ac16f7-e14d-4db1-95bc-3d489b424adb is missing
-  BTRFS warning (device loop0): devid 2 uuid 97ac16f7-e14d-4db1-95bc-3d489b424adb is missing
-  BTRFS info (device loop0): enabling ssd optimizations
-  BUG: kernel NULL pointer dereference, address: 0000000000000620
-  PGD 0 P4D 0
-  Oops: 0000 [#1] SMP NOPTI
-  CPU: 0 PID: 4574 Comm: fstrim Not tainted 5.13.0-rc7+ #31
-  Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
-  RIP: 0010:btrfs_trim_fs+0x199/0x4a0 [btrfs]
-  RSP: 0018:ffff959541797d28 EFLAGS: 00010293
-  RAX: 0000000000000000 RBX: ffff946f84eca508 RCX: a7a67937adff8608
-  RDX: ffff946e8122d000 RSI: 0000000000000000 RDI: ffffffffc02fdbf0
-  RBP: ffff946ea4615000 R08: 0000000000000001 R09: 0000000000000000
-  R10: 0000000000000000 R11: ffff946e8122d960 R12: 0000000000000000
-  R13: ffff959541797db8 R14: ffff946e8122d000 R15: ffff959541797db8
-  FS:  00007f55917a5080(0000) GS:ffff946f9bc00000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 0000000000000620 CR3: 000000002d2c8001 CR4: 00000000000706f0
-  Call Trace:
-  btrfs_ioctl_fitrim+0x167/0x260 [btrfs]
-  btrfs_ioctl+0x1c00/0x2fe0 [btrfs]
-  ? selinux_file_ioctl+0x140/0x240
-  ? syscall_trace_enter.constprop.0+0x188/0x240
-  ? __x64_sys_ioctl+0x83/0xb0
-  __x64_sys_ioctl+0x83/0xb0
+arch/alpha/include/asm/string.h:22:16: warning: '__builtin_memcpy' offset [12, 16] from the object at 'com' is out of the bounds of referenced subobject 'config' with type 'unsigned char' at offset 10 [-Warray-bounds]
+arch/x86/include/asm/string_32.h:182:25: warning: '__builtin_memcpy' offset [12, 16] from the object at 'com' is out of the bounds of referenced subobject 'config' with type 'unsigned char' at offset 10 [-Warray-bounds]
 
-Reproducer:
+The problem is that the original code is trying to copy 6 bytes of
+data into a one-byte size member _config_ of the wrong structue
+FW_CONFIGURE_BUFFERS, in a single call to memcpy(). This causes a
+legitimate compiler warning because memcpy() overruns the length
+of &com.cmd.ConfigureBuffers.config. It seems that the right
+structure is FW_CONFIGURE_FREE_BUFFERS, instead, because it contains
+6 more members apart from the header _hdr_. Also, the name of
+the function ngene_command_config_free_buf() suggests that the actual
+intention is to ConfigureFreeBuffers, instead of ConfigureBuffers
+(which takes place in the function ngene_command_config_buf(), above).
 
-  $ mkfs.btrfs -fq -d raid1 -m raid1 /dev/loop0 /dev/loop1
-  $ mount /dev/loop0 /btrfs
-  $ umount /btrfs
-  $ btrfs dev scan --forget
-  $ mount -o degraded /dev/loop0 /btrfs
+Fix this by enclosing those 6 members of struct FW_CONFIGURE_FREE_BUFFERS
+into new struct config, and use &com.cmd.ConfigureFreeBuffers.config as
+the destination address, instead of &com.cmd.ConfigureBuffers.config,
+when calling memcpy().
 
-  $ fstrim /btrfs
+This also helps with the ongoing efforts to globally enable
+-Warray-bounds and get us closer to being able to tighten the
+FORTIFY_SOURCE routines on memcpy().
 
-The reason is we call btrfs_trim_free_extents() for the missing device,
-which uses device->bdev (NULL for missing device) to find if the device
-supports discard.
-
-Fix is to check if the device is missing before calling
-btrfs_trim_free_extents().
-
-CC: stable@vger.kernel.org # 5.4+
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Anand Jain <anand.jain@oracle.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Link: https://github.com/KSPP/linux/issues/109
+Fixes: dae52d009fc9 ("V4L/DVB: ngene: Initial check-in")
+Cc: stable@vger.kernel.org
+Reported-by: kernel test robot <lkp@intel.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+Link: https://lore.kernel.org/linux-hardening/20210420001631.GA45456@embeddedor/
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/extent-tree.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/media/pci/ngene/ngene-core.c |    2 +-
+ drivers/media/pci/ngene/ngene.h      |   14 ++++++++------
+ 2 files changed, 9 insertions(+), 7 deletions(-)
 
---- a/fs/btrfs/extent-tree.c
-+++ b/fs/btrfs/extent-tree.c
-@@ -5768,6 +5768,9 @@ int btrfs_trim_fs(struct btrfs_fs_info *
- 	mutex_lock(&fs_info->fs_devices->device_list_mutex);
- 	devices = &fs_info->fs_devices->devices;
- 	list_for_each_entry(device, devices, dev_list) {
-+		if (test_bit(BTRFS_DEV_STATE_MISSING, &device->dev_state))
-+			continue;
-+
- 		ret = btrfs_trim_free_extents(device, &group_trimmed);
- 		if (ret) {
- 			dev_failed++;
+--- a/drivers/media/pci/ngene/ngene-core.c
++++ b/drivers/media/pci/ngene/ngene-core.c
+@@ -385,7 +385,7 @@ static int ngene_command_config_free_buf
+ 
+ 	com.cmd.hdr.Opcode = CMD_CONFIGURE_FREE_BUFFER;
+ 	com.cmd.hdr.Length = 6;
+-	memcpy(&com.cmd.ConfigureBuffers.config, config, 6);
++	memcpy(&com.cmd.ConfigureFreeBuffers.config, config, 6);
+ 	com.in_len = 6;
+ 	com.out_len = 0;
+ 
+--- a/drivers/media/pci/ngene/ngene.h
++++ b/drivers/media/pci/ngene/ngene.h
+@@ -407,12 +407,14 @@ enum _BUFFER_CONFIGS {
+ 
+ struct FW_CONFIGURE_FREE_BUFFERS {
+ 	struct FW_HEADER hdr;
+-	u8   UVI1_BufferLength;
+-	u8   UVI2_BufferLength;
+-	u8   TVO_BufferLength;
+-	u8   AUD1_BufferLength;
+-	u8   AUD2_BufferLength;
+-	u8   TVA_BufferLength;
++	struct {
++		u8   UVI1_BufferLength;
++		u8   UVI2_BufferLength;
++		u8   TVO_BufferLength;
++		u8   AUD1_BufferLength;
++		u8   AUD2_BufferLength;
++		u8   TVA_BufferLength;
++	} __packed config;
+ } __attribute__ ((__packed__));
+ 
+ struct FW_CONFIGURE_UART {
 
 
