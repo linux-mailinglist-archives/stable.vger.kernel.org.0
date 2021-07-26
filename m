@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FD213D6068
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:11:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F4AD3D61D2
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:14:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237267AbhGZPWM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:22:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36700 "EHLO mail.kernel.org"
+        id S234048AbhGZPdE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:33:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237281AbhGZPWL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:22:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ED38760FC3;
-        Mon, 26 Jul 2021 16:02:38 +0000 (UTC)
+        id S231749AbhGZPbA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:31:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AD99B60240;
+        Mon, 26 Jul 2021 16:11:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315359;
-        bh=Wc/+22xp43Ft+kw6i25b0XjpraQarER52Im8JwEnjT0=;
+        s=korg; t=1627315889;
+        bh=/LVhioOLyaN86OHvK+tyyMEHTFoFkG76M69EBkcL2lo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oartOaqJYJB7ddt9bFHEoP5buuejfanU4zqIj7fZ5dmPD5gsp1DPddnN21ubD6ZfA
-         EO0bwMsgXSeUq2jr/Pqmhx7o/Wg/b3ctaYWtGQ7HJ1QCfBmL4XT6j2Dzj2OLnZcyN6
-         2xCah3Qh7SBAdh+qUvFPZLsf6NMVEsobW2Vm9TLI=
+        b=LzodhyYQ43DkyPo6IHXpNJ+wcEyZUHnQjkxX4pdVYnQOg9PtEH3plxYAcVYaXy9OF
+         wNZceBtCH/YTNsgSTkMBvGDy/LDKDUJOb1BCkGMg20SWkDGTjMWU/ogtUZJnVcg+2e
+         qJ3fNuGYP8BukXcfHH0y43mRDAxaH9UUql2zBWfU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tobias Klauser <tklauser@distanz.ch>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Quentin Monnet <quentin@isovalent.com>,
-        Roman Gushchin <guro@fb.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 064/167] bpftool: Check malloc return value in mount_bpffs_for_pin
+        stable@vger.kernel.org, Somnath Kotur <somnath.kotur@broadcom.com>,
+        Edwin Peer <edwin.peer@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 105/223] bnxt_en: Refresh RoCE capabilities in bnxt_ulp_probe()
 Date:   Mon, 26 Jul 2021 17:38:17 +0200
-Message-Id: <20210726153841.544171340@linuxfoundation.org>
+Message-Id: <20210726153849.708837235@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
-References: <20210726153839.371771838@linuxfoundation.org>
+In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
+References: <20210726153846.245305071@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +42,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tobias Klauser <tklauser@distanz.ch>
+From: Michael Chan <michael.chan@broadcom.com>
 
-[ Upstream commit d444b06e40855219ef38b5e9286db16d435f06dc ]
+[ Upstream commit 2c9f046bc377efd1f5e26e74817d5f96e9506c86 ]
 
-Fix and add a missing NULL check for the prior malloc() call.
+The capabilities can change after firmware upgrade/downgrade, so we
+should get the up-to-date RoCE capabilities everytime bnxt_ulp_probe()
+is called.
 
-Fixes: 49a086c201a9 ("bpftool: implement prog load command")
-Signed-off-by: Tobias Klauser <tklauser@distanz.ch>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: Quentin Monnet <quentin@isovalent.com>
-Acked-by: Roman Gushchin <guro@fb.com>
-Link: https://lore.kernel.org/bpf/20210715110609.29364-1-tklauser@distanz.ch
+Fixes: 2151fe0830fd ("bnxt_en: Handle RESET_NOTIFY async event from firmware.")
+Reviewed-by: Somnath Kotur <somnath.kotur@broadcom.com>
+Reviewed-by: Edwin Peer <edwin.peer@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/bpf/bpftool/common.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/ethernet/broadcom/bnxt/bnxt_ulp.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/tools/bpf/bpftool/common.c b/tools/bpf/bpftool/common.c
-index 65303664417e..6ebf2b215ef4 100644
---- a/tools/bpf/bpftool/common.c
-+++ b/tools/bpf/bpftool/common.c
-@@ -221,6 +221,11 @@ int mount_bpffs_for_pin(const char *name)
- 	int err = 0;
- 
- 	file = malloc(strlen(name) + 1);
-+	if (!file) {
-+		p_err("mem alloc failed");
-+		return -1;
-+	}
-+
- 	strcpy(file, name);
- 	dir = dirname(file);
- 
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_ulp.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_ulp.c
+index a918e374f3c5..187ff643ad2a 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ulp.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ulp.c
+@@ -479,16 +479,17 @@ struct bnxt_en_dev *bnxt_ulp_probe(struct net_device *dev)
+ 		if (!edev)
+ 			return ERR_PTR(-ENOMEM);
+ 		edev->en_ops = &bnxt_en_ops_tbl;
+-		if (bp->flags & BNXT_FLAG_ROCEV1_CAP)
+-			edev->flags |= BNXT_EN_FLAG_ROCEV1_CAP;
+-		if (bp->flags & BNXT_FLAG_ROCEV2_CAP)
+-			edev->flags |= BNXT_EN_FLAG_ROCEV2_CAP;
+ 		edev->net = dev;
+ 		edev->pdev = bp->pdev;
+ 		edev->l2_db_size = bp->db_size;
+ 		edev->l2_db_size_nc = bp->db_size;
+ 		bp->edev = edev;
+ 	}
++	edev->flags &= ~BNXT_EN_FLAG_ROCE_CAP;
++	if (bp->flags & BNXT_FLAG_ROCEV1_CAP)
++		edev->flags |= BNXT_EN_FLAG_ROCEV1_CAP;
++	if (bp->flags & BNXT_FLAG_ROCEV2_CAP)
++		edev->flags |= BNXT_EN_FLAG_ROCEV2_CAP;
+ 	return bp->edev;
+ }
+ EXPORT_SYMBOL(bnxt_ulp_probe);
 -- 
 2.30.2
 
