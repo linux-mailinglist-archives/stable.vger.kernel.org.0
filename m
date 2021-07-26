@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 08D853D5D56
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:42:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CA4A3D5EC0
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:52:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235371AbhGZPAu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:00:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39486 "EHLO mail.kernel.org"
+        id S235988AbhGZPLf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:11:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235384AbhGZPAr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:00:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 012DC60F38;
-        Mon, 26 Jul 2021 15:41:15 +0000 (UTC)
+        id S237295AbhGZPKn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:10:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 263FC6056C;
+        Mon, 26 Jul 2021 15:51:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314076;
-        bh=RtEZdt85DVd0oUv8++7hPtS4KfVn+DuMGMlz7Cc+H/0=;
+        s=korg; t=1627314671;
+        bh=+Q0kmk20efq6otsEGua0Kwje4GuuD0Js5L3tlTrET+0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IMcCJFIjj6gLjOc72jCFF9X4hFbqeyXjBr7DpauoZdjUMs5iNlAwjG8wU+MYHjl44
-         7Zyq7bSoosMXzjJC/eXDP3D16OP3CmChkHGnImP1EklS+HQZ619lzwksGjMKyp/oTV
-         gj9WgruU7M9ZONSD7/gAkvQ2Er1Ozzo+/a3b3c/A=
+        b=RWLV5DQl9y4qegyQvzj8I9+sFiPQo+lshZDY1gCpv9DTAAxDl6+SsTaNMitBCiP+o
+         OXVYLlWnXUg5bRZrLWFeKLeVbrrtiowizMmLVSL6X0Rm4c+XW7QwcRHBo9qrC97lOD
+         Dz63gLGwyvJJb0lKIO+Hnx8UJfigfij0Cvr7czdw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Primoz Fiser <primoz.fiser@norik.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 03/47] ARM: dts: imx6: phyFLEX: Fix UART hardware flow control
-Date:   Mon, 26 Jul 2021 17:38:21 +0200
-Message-Id: <20210726153823.091448698@linuxfoundation.org>
+        stable@vger.kernel.org, Gu Shengxian <gushengxian@yulong.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jiri Olsa <jolsa@redhat.com>
+Subject: [PATCH 4.19 050/120] bpftool: Properly close va_list ap by va_end() on error
+Date:   Mon, 26 Jul 2021 17:38:22 +0200
+Message-Id: <20210726153833.991668817@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153822.980271128@linuxfoundation.org>
-References: <20210726153822.980271128@linuxfoundation.org>
+In-Reply-To: <20210726153832.339431936@linuxfoundation.org>
+References: <20210726153832.339431936@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,49 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Primoz Fiser <primoz.fiser@norik.com>
+From: Gu Shengxian <gushengxian@yulong.com>
 
-[ Upstream commit 14cdc1f243d79e0b46be150502b7dba9c5a6bdfd ]
+commit bc832065b60f973771ff3e657214bb21b559833c upstream.
 
-Serial interface uart3 on phyFLEX board is capable of 5-wire connection
-including signals RTS and CTS for hardware flow control.
+va_list 'ap' was opened but not closed by va_end() in error case. It should
+be closed by va_end() before the return.
 
-Fix signals UART3_CTS_B and UART3_RTS_B padmux assignments and add
-missing property "uart-has-rtscts" to allow serial interface to be
-configured and used with the hardware flow control.
-
-Signed-off-by: Primoz Fiser <primoz.fiser@norik.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: aa52bcbe0e72 ("tools: bpftool: Fix json dump crash on powerpc")
+Signed-off-by: Gu Shengxian <gushengxian@yulong.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Link: https://lore.kernel.org/bpf/20210706013543.671114-1-gushengxian507419@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ tools/bpf/bpftool/jit_disasm.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi b/arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi
-index cae04e806036..e3e3a7a08d08 100644
---- a/arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi
-@@ -307,8 +307,8 @@
- 			fsl,pins = <
- 				MX6QDL_PAD_EIM_D24__UART3_TX_DATA	0x1b0b1
- 				MX6QDL_PAD_EIM_D25__UART3_RX_DATA	0x1b0b1
--				MX6QDL_PAD_EIM_D30__UART3_RTS_B		0x1b0b1
--				MX6QDL_PAD_EIM_D31__UART3_CTS_B		0x1b0b1
-+				MX6QDL_PAD_EIM_D31__UART3_RTS_B		0x1b0b1
-+				MX6QDL_PAD_EIM_D30__UART3_CTS_B		0x1b0b1
- 			>;
- 		};
+--- a/tools/bpf/bpftool/jit_disasm.c
++++ b/tools/bpf/bpftool/jit_disasm.c
+@@ -51,11 +51,13 @@ static int fprintf_json(void *out, const
+ {
+ 	va_list ap;
+ 	char *s;
++	int err;
  
-@@ -383,6 +383,7 @@
- &uart3 {
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&pinctrl_uart3>;
-+	uart-has-rtscts;
- 	status = "disabled";
- };
+ 	va_start(ap, fmt);
+-	if (vasprintf(&s, fmt, ap) < 0)
+-		return -1;
++	err = vasprintf(&s, fmt, ap);
+ 	va_end(ap);
++	if (err < 0)
++		return -1;
  
--- 
-2.30.2
-
+ 	if (!oper_count) {
+ 		int i;
 
 
