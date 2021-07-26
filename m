@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 77F143D5EBB
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:52:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F1C43D5F57
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236510AbhGZPLc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:11:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51098 "EHLO mail.kernel.org"
+        id S236743AbhGZPRf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:17:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237272AbhGZPKe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:10:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9391C6056C;
-        Mon, 26 Jul 2021 15:51:02 +0000 (UTC)
+        id S237429AbhGZPPp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:15:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B2DDD6103A;
+        Mon, 26 Jul 2021 15:55:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314663;
-        bh=BoVwyVQ+MuSUkynD9RBY4q9czESC9lgarjfwUB6K5RU=;
+        s=korg; t=1627314915;
+        bh=F7gFp9qI89Abc2fahNFodiNrBz2NiAJG9mFSs5TYVco=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hR737ieiuE7iu494nXk6w6h6mnIIl33ukNGcf2x1XCQFOgfrLFqhLuZbMZAVptfuD
-         di8xSpC9ZlyjQp7G7BLrvzVRqPOXTSIooiZxm6Lop9nxxpXDdBgm3K1iZkWHzPa2AV
-         tYc0BP7vyti6TbOAhzuDjEr3k9HGoo2RAkvRAnpg=
+        b=zfl9RBV1q54h87KT/N5ZZ2L/l8dJ4Nx6yncmpPt02QQMXwODjHu0x5gcbKIpV8h4v
+         3oXXAUNKs5PNTKb9W+hmsjh6xtP7EjA1PNtZUij8I8YV5eB4bf0OS3AVuxxagkWlWz
+         /lImHxAd+D5krwbx+pjUuhJiRXWd1E0CnX1jjWlQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Ekstrand <jason@jlekstrand.net>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Gustavo Padovan <gustavo.padovan@collabora.co.uk>
-Subject: [PATCH 4.19 047/120] dma-buf/sync_file: Dont leak fences on merge failure
+        stable@vger.kernel.org,
+        Shahjada Abul Husain <shahjada@chelsio.com>,
+        Raju Rangoju <rajur@chelsio.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 018/108] cxgb4: fix IRQ free race during driver unload
 Date:   Mon, 26 Jul 2021 17:38:19 +0200
-Message-Id: <20210726153833.900711778@linuxfoundation.org>
+Message-Id: <20210726153832.278019341@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153832.339431936@linuxfoundation.org>
-References: <20210726153832.339431936@linuxfoundation.org>
+In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
+References: <20210726153831.696295003@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,70 +42,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Ekstrand <jason@jlekstrand.net>
+From: Shahjada Abul Husain <shahjada@chelsio.com>
 
-commit ffe000217c5068c5da07ccb1c0f8cce7ad767435 upstream.
+[ Upstream commit 015fe6fd29c4b9ac0f61b8c4455ef88e6018b9cc ]
 
-Each add_fence() call does a dma_fence_get() on the relevant fence.  In
-the error path, we weren't calling dma_fence_put() so all those fences
-got leaked.  Also, in the krealloc_array failure case, we weren't
-freeing the fences array.  Instead, ensure that i and fences are always
-zero-initialized and dma_fence_put() all the fences and kfree(fences) on
-every error path.
+IRQs are requested during driver's ndo_open() and then later
+freed up in disable_interrupts() during driver unload.
+A race exists where driver can set the CXGB4_FULL_INIT_DONE
+flag in ndo_open() after the disable_interrupts() in driver
+unload path checks it, and hence misses calling free_irq().
 
-Signed-off-by: Jason Ekstrand <jason@jlekstrand.net>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Fixes: a02b9dc90d84 ("dma-buf/sync_file: refactor fence storage in struct sync_file")
-Cc: Gustavo Padovan <gustavo.padovan@collabora.co.uk>
-Cc: Christian König <christian.koenig@amd.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210624174732.1754546-1-jason@jlekstrand.net
-Signed-off-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix by unregistering netdevice first and sync with driver's
+ndo_open(). This ensures disable_interrupts() checks the flag
+correctly and frees up the IRQs properly.
+
+Fixes: b37987e8db5f ("cxgb4: Disable interrupts and napi before unregistering netdev")
+Signed-off-by: Shahjada Abul Husain <shahjada@chelsio.com>
+Signed-off-by: Raju Rangoju <rajur@chelsio.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma-buf/sync_file.c |   13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ .../net/ethernet/chelsio/cxgb4/cxgb4_main.c    | 18 ++++++++++--------
+ drivers/net/ethernet/chelsio/cxgb4/cxgb4_uld.c |  3 +++
+ 2 files changed, 13 insertions(+), 8 deletions(-)
 
---- a/drivers/dma-buf/sync_file.c
-+++ b/drivers/dma-buf/sync_file.c
-@@ -220,8 +220,8 @@ static struct sync_file *sync_file_merge
- 					 struct sync_file *b)
+diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
+index deb1c1f30107..21414a34a5b5 100644
+--- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
+@@ -2245,6 +2245,9 @@ static void detach_ulds(struct adapter *adap)
  {
- 	struct sync_file *sync_file;
--	struct dma_fence **fences, **nfences, **a_fences, **b_fences;
--	int i, i_a, i_b, num_fences, a_num_fences, b_num_fences;
-+	struct dma_fence **fences = NULL, **nfences, **a_fences, **b_fences;
-+	int i = 0, i_a, i_b, num_fences, a_num_fences, b_num_fences;
+ 	unsigned int i;
  
- 	sync_file = sync_file_alloc();
- 	if (!sync_file)
-@@ -245,7 +245,7 @@ static struct sync_file *sync_file_merge
- 	 * If a sync_file can only be created with sync_file_merge
- 	 * and sync_file_create, this is a reasonable assumption.
- 	 */
--	for (i = i_a = i_b = 0; i_a < a_num_fences && i_b < b_num_fences; ) {
-+	for (i_a = i_b = 0; i_a < a_num_fences && i_b < b_num_fences; ) {
- 		struct dma_fence *pt_a = a_fences[i_a];
- 		struct dma_fence *pt_b = b_fences[i_b];
++	if (!is_uld(adap))
++		return;
++
+ 	mutex_lock(&uld_mutex);
+ 	list_del(&adap->list_node);
  
-@@ -286,15 +286,16 @@ static struct sync_file *sync_file_merge
- 		fences = nfences;
- 	}
+@@ -6152,10 +6155,13 @@ static void remove_one(struct pci_dev *pdev)
+ 		 */
+ 		destroy_workqueue(adapter->workq);
  
--	if (sync_file_set_fence(sync_file, fences, i) < 0) {
--		kfree(fences);
-+	if (sync_file_set_fence(sync_file, fences, i) < 0)
- 		goto err;
--	}
+-		if (is_uld(adapter)) {
+-			detach_ulds(adapter);
+-			t4_uld_clean_up(adapter);
+-		}
++		detach_ulds(adapter);
++
++		for_each_port(adapter, i)
++			if (adapter->port[i]->reg_state == NETREG_REGISTERED)
++				unregister_netdev(adapter->port[i]);
++
++		t4_uld_clean_up(adapter);
  
- 	strlcpy(sync_file->user_name, name, sizeof(sync_file->user_name));
- 	return sync_file;
+ 		adap_free_hma_mem(adapter);
  
- err:
-+	while (i)
-+		dma_fence_put(fences[--i]);
-+	kfree(fences);
- 	fput(sync_file->file);
- 	return NULL;
+@@ -6163,10 +6169,6 @@ static void remove_one(struct pci_dev *pdev)
  
+ 		cxgb4_free_mps_ref_entries(adapter);
+ 
+-		for_each_port(adapter, i)
+-			if (adapter->port[i]->reg_state == NETREG_REGISTERED)
+-				unregister_netdev(adapter->port[i]);
+-
+ 		debugfs_remove_recursive(adapter->debugfs_root);
+ 
+ 		if (!is_t4(adapter->params.chip))
+diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_uld.c b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_uld.c
+index 86b528d8364c..971bdd70b6d6 100644
+--- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_uld.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_uld.c
+@@ -638,6 +638,9 @@ void t4_uld_clean_up(struct adapter *adap)
+ {
+ 	unsigned int i;
+ 
++	if (!is_uld(adap))
++		return;
++
+ 	mutex_lock(&uld_mutex);
+ 	for (i = 0; i < CXGB4_ULD_MAX; i++) {
+ 		if (!adap->uld[i].handle)
+-- 
+2.30.2
+
 
 
