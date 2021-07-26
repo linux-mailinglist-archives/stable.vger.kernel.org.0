@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C65E43D613E
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:13:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 847223D5FE8
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231639AbhGZPaX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:30:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40886 "EHLO mail.kernel.org"
+        id S236821AbhGZPTh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:19:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231766AbhGZP2I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:28:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4BA2260FDA;
-        Mon, 26 Jul 2021 16:07:10 +0000 (UTC)
+        id S236805AbhGZPTg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:19:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5906F60F6E;
+        Mon, 26 Jul 2021 16:00:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315630;
-        bh=t1qrw3qqvDhAbr7/DTs8zeVeYBvUPo8sBxMfTjxJw+8=;
+        s=korg; t=1627315204;
+        bh=aUtE/6ADHg/XyMNw85yAX7gi+yxiI1lRLjARRwOU204=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lewoqgrdagzvBYWboaez52XM4fFW8Plp2t/LVoKBVX978QXroRmyxV0r2lZqG0OV2
-         Sa7tmkXmOwjMYeFJkDfkq9xao9fiCLqxt9Qqi8o8SXuPnP0GOj5JbnriQXFiT5hP9c
-         dKvU+K7nwOz3HKFFtaaWitlR1oWyhAK3a5CEhsSw=
+        b=zKM3fCycvfTzNC6MlbBAPxAZHFbx70lG2zbEGZtU/mQAzDfpDM3rALMf0wgxsuJh2
+         7KXDnbNDJQav/qybZ3Gv100d3WWCtOd5Gjkgjo7rPMrjaTXuU+C5L7UHjRT6HDOWre
+         O5LxfOyRplu+CB0bCW8LZZsCrReqrscnhPExANOo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Fomichev <fomichev.ru@gmail.com>,
-        =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH 5.10 151/167] misc: eeprom: at24: Always append device id even if label property is set.
-Date:   Mon, 26 Jul 2021 17:39:44 +0200
-Message-Id: <20210726153844.486686562@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>,
+        Stephan Gerhold <stephan@gerhold.net>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 5.4 104/108] iio: accel: bma180: Fix BMA25x bandwidth register values
+Date:   Mon, 26 Jul 2021 17:39:45 +0200
+Message-Id: <20210726153835.011799269@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
-References: <20210726153839.371771838@linuxfoundation.org>
+In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
+References: <20210726153831.696295003@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,59 +43,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jérôme Glisse <jglisse@redhat.com>
+From: Stephan Gerhold <stephan@gerhold.net>
 
-commit c36748ac545421d94a5091c754414c0f3664bf10 upstream.
+commit 8090d67421ddab0ae932abab5a60200598bf0bbb upstream
 
-We need to append device id even if eeprom have a label property set as some
-platform can have multiple eeproms with same label and we can not register
-each of those with same label. Failing to register those eeproms trigger
-cascade failures on such platform (system is no longer working).
+According to the BMA253 datasheet [1] and BMA250 datasheet [2] the
+bandwidth value for BMA25x should be set as 01xxx:
 
-This fix regression on such platform introduced with 4e302c3b568e
+  "Settings 00xxx result in a bandwidth of 7.81 Hz; [...]
+   It is recommended [...] to use the range from ´01000b´ to ´01111b´
+   only in order to be compatible with future products."
 
-Reported-by: Alexander Fomichev <fomichev.ru@gmail.com>
-Fixes: 4e302c3b568e ("misc: eeprom: at24: fix NVMEM name with custom AT24 device name")
-Cc: stable@vger.kernel.org
-Signed-off-by: Jérôme Glisse <jglisse@redhat.com>
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+However, at the moment the drivers sets bandwidth values from 0 to 6,
+which is not recommended and always results into 7.81 Hz bandwidth
+according to the datasheet.
+
+Fix this by introducing a bw_offset = 8 = 01000b for BMA25x,
+so the additional bit is always set for BMA25x.
+
+[1]: https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bma253-ds000.pdf
+[2]: https://datasheet.octopart.com/BMA250-Bosch-datasheet-15540103.pdf
+
+Cc: Peter Meerwald <pmeerw@pmeerw.net>
+Fixes: 2017cff24cc0 ("iio:bma180: Add BMA250 chip support")
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20210526094408.34298-2-stephan@gerhold.net
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+[sudip: adjust context]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/eeprom/at24.c |   17 +++++++----------
- 1 file changed, 7 insertions(+), 10 deletions(-)
+ drivers/iio/accel/bma180.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -714,23 +714,20 @@ static int at24_probe(struct i2c_client
- 	}
+--- a/drivers/iio/accel/bma180.c
++++ b/drivers/iio/accel/bma180.c
+@@ -47,7 +47,7 @@ struct bma180_part_info {
  
- 	/*
--	 * If the 'label' property is not present for the AT24 EEPROM,
--	 * then nvmem_config.id is initialised to NVMEM_DEVID_AUTO,
--	 * and this will append the 'devid' to the name of the NVMEM
--	 * device. This is purely legacy and the AT24 driver has always
--	 * defaulted to this. However, if the 'label' property is
--	 * present then this means that the name is specified by the
--	 * firmware and this name should be used verbatim and so it is
--	 * not necessary to append the 'devid'.
-+	 * We initialize nvmem_config.id to NVMEM_DEVID_AUTO even if the
-+	 * label property is set as some platform can have multiple eeproms
-+	 * with same label and we can not register each of those with same
-+	 * label. Failing to register those eeproms trigger cascade failure
-+	 * on such platform.
- 	 */
-+	nvmem_config.id = NVMEM_DEVID_AUTO;
-+
- 	if (device_property_present(dev, "label")) {
--		nvmem_config.id = NVMEM_DEVID_NONE;
- 		err = device_property_read_string(dev, "label",
- 						  &nvmem_config.name);
- 		if (err)
- 			return err;
- 	} else {
--		nvmem_config.id = NVMEM_DEVID_AUTO;
- 		nvmem_config.name = dev_name(dev);
- 	}
+ 	u8 int_reset_reg, int_reset_mask;
+ 	u8 sleep_reg, sleep_mask;
+-	u8 bw_reg, bw_mask;
++	u8 bw_reg, bw_mask, bw_offset;
+ 	u8 scale_reg, scale_mask;
+ 	u8 power_reg, power_mask, lowpower_val;
+ 	u8 int_enable_reg, int_enable_mask;
+@@ -103,6 +103,7 @@ struct bma180_part_info {
  
+ #define BMA250_RANGE_MASK	GENMASK(3, 0) /* Range of accel values */
+ #define BMA250_BW_MASK		GENMASK(4, 0) /* Accel bandwidth */
++#define BMA250_BW_OFFSET	8
+ #define BMA250_SUSPEND_MASK	BIT(7) /* chip will sleep */
+ #define BMA250_LOWPOWER_MASK	BIT(6)
+ #define BMA250_DATA_INTEN_MASK	BIT(4)
+@@ -241,7 +242,8 @@ static int bma180_set_bw(struct bma180_d
+ 	for (i = 0; i < data->part_info->num_bw; ++i) {
+ 		if (data->part_info->bw_table[i] == val) {
+ 			ret = bma180_set_bits(data, data->part_info->bw_reg,
+-				data->part_info->bw_mask, i);
++				data->part_info->bw_mask,
++				i + data->part_info->bw_offset);
+ 			if (ret) {
+ 				dev_err(&data->client->dev,
+ 					"failed to set bandwidth\n");
+@@ -669,6 +671,7 @@ static const struct bma180_part_info bma
+ 		.sleep_mask = BMA250_SUSPEND_MASK,
+ 		.bw_reg = BMA250_BW_REG,
+ 		.bw_mask = BMA250_BW_MASK,
++		.bw_offset = BMA250_BW_OFFSET,
+ 		.scale_reg = BMA250_RANGE_REG,
+ 		.scale_mask = BMA250_RANGE_MASK,
+ 		.power_reg = BMA250_POWER_REG,
 
 
