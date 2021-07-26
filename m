@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE16A3D57E0
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 12:57:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22AA43D57E1
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 12:57:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232240AbhGZKRH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 06:17:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40846 "EHLO mail.kernel.org"
+        id S232250AbhGZKRK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 06:17:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231792AbhGZKRH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 06:17:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DE7A060241;
-        Mon, 26 Jul 2021 10:57:34 +0000 (UTC)
+        id S231792AbhGZKRK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 06:17:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B87F460F55;
+        Mon, 26 Jul 2021 10:57:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627297055;
-        bh=s/wCBnkZboATrKcl9B7pRIiO3OpMtM9mXuXxQGvzP74=;
+        s=korg; t=1627297058;
+        bh=g5G0iQunon0AJVKhZkkYICLSXTgtR8spyRJW7zUlhW4=;
         h=Subject:To:Cc:From:Date:From;
-        b=RAooU4IJRWW4pvwTdXVNokjAFZ/MUaHrZekj3G+TMTgWS6KoZlWl3p9MrbbHjm4DL
-         g+RcdJIbg7Yih3klQw5w3I2iiwx6GxFOM/G0Us8jxO/VOdM/GCROGCGFEK72sHi1Va
-         wIHG8Bj12JBKZSQ4bY4OL8oOqWHtynAhsuG86RFw=
-Subject: FAILED: patch "[PATCH] ASoC: Intel: boards: fix xrun issue on platform with max98373" failed to apply to 5.10-stable tree
+        b=l38fA7opPWo6ZEGWyKrTQ+TQITJ2Cf1bs7PDUx/xFmBpHG3oQY+dyKi1L6BFbKrrT
+         F/CkkRniROU4lRDwXfqpRwXURdI0Vkw6YI+eI8qsAGUIlK717Z7t0Yt0bCGmKyUC8S
+         UtIuSJky+uOBjveZzEnuGegjLr+zWp/hXQ+/53C4=
+Subject: FAILED: patch "[PATCH] ASoC: Intel: boards: fix xrun issue on platform with max98373" failed to apply to 5.13-stable tree
 To:     rander.wang@intel.com, bard.liao@intel.com, broonie@kernel.org,
         peter.ujfalusi@linux.intel.com,
         pierre-louis.bossart@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 26 Jul 2021 12:57:24 +0200
-Message-ID: <162729704429248@kroah.com>
+Date:   Mon, 26 Jul 2021 12:57:25 +0200
+Message-ID: <162729704572242@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.13-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
