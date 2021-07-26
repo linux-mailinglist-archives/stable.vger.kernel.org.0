@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2641A3D61BE
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:14:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C6FB3D6018
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233504AbhGZPcx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:32:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43044 "EHLO mail.kernel.org"
+        id S236392AbhGZPUs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:20:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237813AbhGZP3Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:29:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 41CC761053;
-        Mon, 26 Jul 2021 16:08:49 +0000 (UTC)
+        id S237064AbhGZPUn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:20:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 675EA6023D;
+        Mon, 26 Jul 2021 16:01:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315729;
-        bh=YBOEP/ovT6gc0p2LMVyx1rHMtDTSsz2N8rHnrXhzq1E=;
+        s=korg; t=1627315272;
+        bh=iL+6iAJrgQrCuNm1HLPykc9u6iVdMwY36qWMWa2zCQY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xvM140XLddlls7NkM0QYGFMN45za4mAG9jCe71gjK5EczaTLTgMM2UcyAjui6R0vC
-         SUajyGg8Kxk1SeHTaGTCzjYEaFP6SjMjR8HaRpIAOaHQAMNUws8oUOMBaJaC2tPO7a
-         CBQZaNbq7N4WTZMF9o33nvS504b118ZxG9G2fyHQ=
+        b=RkjYzww/rdBUGIvMJS7+zwKOrh+SS0EX9bwvIczUotjKhf0Gxp6ydD1Ff3hpKOrAb
+         Bc4szK/Lm+cl6VbVKI37iFhxr3PZaJzcqLI4An8DFJTQnf4QMTPGu1Gg9f+VPX066K
+         cdBPVjTIoLbIOGigebe4fQjs/OERK60TiDfq9IKo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Steve Rutherford <srutherford@google.com>,
-        Brijesh Singh <brijesh.singh@amd.com>,
-        Ashish Kalra <ashish.kalra@amd.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Tony Brelinski <tonyx.brelinski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 044/223] KVM: SVM: Return -EFAULT if copy_to_user() for SEV mig packet header fails
-Date:   Mon, 26 Jul 2021 17:37:16 +0200
-Message-Id: <20210726153847.702458359@linuxfoundation.org>
+Subject: [PATCH 5.10 004/167] ixgbe: Fix an error handling path in ixgbe_probe()
+Date:   Mon, 26 Jul 2021 17:37:17 +0200
+Message-Id: <20210726153839.520099834@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
-References: <20210726153846.245305071@linuxfoundation.org>
+In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
+References: <20210726153839.371771838@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +42,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit b4a693924aab93f3747465b2261add46c82c3220 ]
+[ Upstream commit dd2aefcd5e37989ae5f90afdae44bbbf3a2990da ]
 
-Return -EFAULT if copy_to_user() fails; if accessing user memory faults,
-copy_to_user() returns the number of bytes remaining, not an error code.
+If an error occurs after a 'pci_enable_pcie_error_reporting()' call, it
+must be undone by a corresponding 'pci_disable_pcie_error_reporting()'
+call, as already done in the remove function.
 
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Steve Rutherford <srutherford@google.com>
-Cc: Brijesh Singh <brijesh.singh@amd.com>
-Cc: Ashish Kalra <ashish.kalra@amd.com>
-Fixes: d3d1af85e2c7 ("KVM: SVM: Add KVM_SEND_UPDATE_DATA command")
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210506175826.2166383-2-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 6fabd715e6d8 ("ixgbe: Implement PCIe AER support")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/svm/sev.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/intel/ixgbe/ixgbe_main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/x86/kvm/svm/sev.c b/arch/x86/kvm/svm/sev.c
-index 8d36f0c73071..3dc3e2897804 100644
---- a/arch/x86/kvm/svm/sev.c
-+++ b/arch/x86/kvm/svm/sev.c
-@@ -1309,8 +1309,9 @@ static int sev_send_update_data(struct kvm *kvm, struct kvm_sev_cmd *argp)
- 	}
- 
- 	/* Copy packet header to userspace. */
--	ret = copy_to_user((void __user *)(uintptr_t)params.hdr_uaddr, hdr,
--				params.hdr_len);
-+	if (copy_to_user((void __user *)(uintptr_t)params.hdr_uaddr, hdr,
-+			 params.hdr_len))
-+		ret = -EFAULT;
- 
- e_free_trans_data:
- 	kfree(trans_data);
+diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
+index 1bfba87f1ff6..5c8f9ba43968 100644
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
+@@ -11081,6 +11081,7 @@ err_ioremap:
+ 	disable_dev = !test_and_set_bit(__IXGBE_DISABLED, &adapter->state);
+ 	free_netdev(netdev);
+ err_alloc_etherdev:
++	pci_disable_pcie_error_reporting(pdev);
+ 	pci_release_mem_regions(pdev);
+ err_pci_reg:
+ err_dma:
 -- 
 2.30.2
 
