@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 120683D5F76
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC60F3D5D9E
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:43:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236970AbhGZPR7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:17:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55822 "EHLO mail.kernel.org"
+        id S235183AbhGZPCa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:02:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41928 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237708AbhGZPQU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:16:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 644F160F57;
-        Mon, 26 Jul 2021 15:56:47 +0000 (UTC)
+        id S235533AbhGZPCX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:02:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3CC7160F51;
+        Mon, 26 Jul 2021 15:42:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315008;
-        bh=LDVjFVNKxPvG52HZem17m9EAaJJT38vADrvYMk3+CtQ=;
+        s=korg; t=1627314171;
+        bh=i06fPrBmFPd4Vw53yWquMo8pgHRq2PQGWRELFLr2wsU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iuhZ+cCpe3kXwvobYMhTeOtbYsFDmQMwc/SzU1TBqxKAodynOSYhJwD/RXKE5/46x
-         zcVxGjn6tfhB0ezOzgyRtcMw85Z2XbFfed4o/sA5i7LTdzGEZ6FieJsLEBR9DN0D8C
-         9KRTfkKp65t8OGW2OyPAhGhxHMXyzIPzciAeuEWM=
+        b=iqwBLy4BNCKKQS48ADsStr/GiCCOJLwTM/qqypgiigPsXePtdYjMFdawEW/Pha8Vu
+         5NCfv6Ulj+XO9X98+zVfVsyyHAxSSz/Hzs8iyelJtPO8yqmWbPjKFHwLPY4cjTQbcK
+         BYB9O6YsRs2U5ZXjvblDiJyeMkQMSAMBnDAniZKQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Riccardo Mancini <rickyman7@gmail.com>,
-        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Matthias Maennich <maennich@google.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 024/108] perf test event_update: Fix memory leak of evlist
+Subject: [PATCH 4.9 11/60] kbuild: mkcompile_h: consider timestamp if KBUILD_BUILD_TIMESTAMP is set
 Date:   Mon, 26 Jul 2021 17:38:25 +0200
-Message-Id: <20210726153832.479714266@linuxfoundation.org>
+Message-Id: <20210726153825.226435319@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
-References: <20210726153831.696295003@linuxfoundation.org>
+In-Reply-To: <20210726153824.868160836@linuxfoundation.org>
+References: <20210726153824.868160836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +40,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Riccardo Mancini <rickyman7@gmail.com>
+From: Matthias Maennich <maennich@google.com>
 
-[ Upstream commit fc56f54f6fcd5337634f4545af6459613129b432 ]
+[ Upstream commit a979522a1a88556e42a22ce61bccc58e304cb361 ]
 
-ASan reports a memory leak when running:
+To avoid unnecessary recompilations, mkcompile_h does not regenerate
+compile.h if just the timestamp changed.
+Though, if KBUILD_BUILD_TIMESTAMP is set, an explicit timestamp for the
+build was requested, in which case we should not ignore it.
 
-  # perf test "49: Synthesize attr update"
+If a user follows the documentation for reproducible builds [1] and
+defines KBUILD_BUILD_TIMESTAMP as the git commit timestamp, a clean
+build will have the correct timestamp. A subsequent cherry-pick (or
+amend) changes the commit timestamp and if an incremental build is done
+with a different KBUILD_BUILD_TIMESTAMP now, that new value is not taken
+into consideration. But it should for reproducibility.
 
-Caused by evlist not being deleted.
+Hence, whenever KBUILD_BUILD_TIMESTAMP is explicitly set, do not ignore
+UTS_VERSION when making a decision about whether the regenerated version
+of compile.h should be moved into place.
 
-This patch adds the missing evlist__delete and removes the
-perf_cpu_map__put since it's already being deleted by evlist__delete.
+[1] https://www.kernel.org/doc/html/latest/kbuild/reproducible-builds.html
 
-Signed-off-by: Riccardo Mancini <rickyman7@gmail.com>
-Fixes: a6e5281780d1da65 ("perf tools: Add event_update event unit type")
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/f7994ad63d248f7645f901132d208fadf9f2b7e4.1626343282.git.rickyman7@gmail.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Matthias Maennich <maennich@google.com>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/tests/event_update.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ scripts/mkcompile_h | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/tools/perf/tests/event_update.c b/tools/perf/tests/event_update.c
-index c727379cf20e..195b29797acc 100644
---- a/tools/perf/tests/event_update.c
-+++ b/tools/perf/tests/event_update.c
-@@ -119,6 +119,6 @@ int test__event_update(struct test *test __maybe_unused, int subtest __maybe_unu
- 	TEST_ASSERT_VAL("failed to synthesize attr update cpus",
- 			!perf_event__synthesize_event_update_cpus(&tmp.tool, evsel, process_event_cpus));
+diff --git a/scripts/mkcompile_h b/scripts/mkcompile_h
+index 6fdc97ef6023..cb73747002ed 100755
+--- a/scripts/mkcompile_h
++++ b/scripts/mkcompile_h
+@@ -82,15 +82,23 @@ UTS_TRUNCATE="cut -b -$UTS_LEN"
+ # Only replace the real compile.h if the new one is different,
+ # in order to preserve the timestamp and avoid unnecessary
+ # recompilations.
+-# We don't consider the file changed if only the date/time changed.
++# We don't consider the file changed if only the date/time changed,
++# unless KBUILD_BUILD_TIMESTAMP was explicitly set (e.g. for
++# reproducible builds with that value referring to a commit timestamp).
+ # A kernel config change will increase the generation number, thus
+ # causing compile.h to be updated (including date/time) due to the
+ # changed comment in the
+ # first line.
  
--	perf_cpu_map__put(evsel->core.own_cpus);
-+	evlist__delete(evlist);
- 	return 0;
- }
++if [ -z "$KBUILD_BUILD_TIMESTAMP" ]; then
++   IGNORE_PATTERN="UTS_VERSION"
++else
++   IGNORE_PATTERN="NOT_A_PATTERN_TO_BE_MATCHED"
++fi
++
+ if [ -r $TARGET ] && \
+-      grep -v 'UTS_VERSION' $TARGET > .tmpver.1 && \
+-      grep -v 'UTS_VERSION' .tmpcompile > .tmpver.2 && \
++      grep -v $IGNORE_PATTERN $TARGET > .tmpver.1 && \
++      grep -v $IGNORE_PATTERN .tmpcompile > .tmpver.2 && \
+       cmp -s .tmpver.1 .tmpver.2; then
+    rm -f .tmpcompile
+ else
 -- 
 2.30.2
 
