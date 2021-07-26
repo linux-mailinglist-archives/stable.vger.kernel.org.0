@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6010C3D5DC3
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:44:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EBDA3D5F6B
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235797AbhGZPDf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:03:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43208 "EHLO mail.kernel.org"
+        id S236936AbhGZPRx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:17:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235833AbhGZPDe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:03:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B32D60F38;
-        Mon, 26 Jul 2021 15:44:02 +0000 (UTC)
+        id S236662AbhGZPMC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:12:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A450C60F70;
+        Mon, 26 Jul 2021 15:52:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314243;
-        bh=C7tZVp2J6EKyYKLvd+BPYTtLLJ+W2ga+MUprg1apgpI=;
+        s=korg; t=1627314748;
+        bh=2kahH2aTxnsqqtA5KrBCR2n8QnRwcIn/KQ7IdXkAS/g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZNTXRGE5ORaOpFnXbj/lJeX2Z02Zim2wHTQX6zEAqTvjrEFoz7X9gC/Z94xRHbVAt
-         a/zrCR+kJVtB4uJkPBR3o9DYULdICazT9ODwguyA7q+OFLeY/PzdHxX5I4+Y7Ty/1q
-         4MZbZ+Ym+NNKQ78sh7e7x+5qbIN/ycbdybuOtZ9A=
+        b=iauOsQhyDei8/OU3squloMtYYQW1xXi/b8w27rBM1j96fnaAYgL6aAvag2Dn9JcW+
+         utnY6QQG8OzyPGfYNtQYndLvWeacCbL7iSajzCS8RlAfo0aLxqNUXMADjY5KAmXp5g
+         YSKfPKjm9HDSQgn1BOr2deEeus58FK3C0aTgBPrk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+09a5d591c1f98cf5efcb@syzkaller.appspotmail.com,
-        Ziyang Xuan <william.xuanziyang@huawei.com>,
+        stable@vger.kernel.org, Nguyen Dinh Phi <phind.uet@gmail.com>,
+        syzbot+10f1194569953b72f1ae@syzkaller.appspotmail.com,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 36/60] net: fix uninit-value in caif_seqpkt_sendmsg
+Subject: [PATCH 4.19 078/120] netrom: Decrease sock refcount when sock timers expire
 Date:   Mon, 26 Jul 2021 17:38:50 +0200
-Message-Id: <20210726153826.004093666@linuxfoundation.org>
+Message-Id: <20210726153834.894510264@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153824.868160836@linuxfoundation.org>
-References: <20210726153824.868160836@linuxfoundation.org>
+In-Reply-To: <20210726153832.339431936@linuxfoundation.org>
+References: <20210726153832.339431936@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,55 +41,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ziyang Xuan <william.xuanziyang@huawei.com>
+From: Nguyen Dinh Phi <phind.uet@gmail.com>
 
-[ Upstream commit 991e634360f2622a683b48dfe44fe6d9cb765a09 ]
+[ Upstream commit 517a16b1a88bdb6b530f48d5d153478b2552d9a8 ]
 
-When nr_segs equal to zero in iovec_from_user, the object
-msg->msg_iter.iov is uninit stack memory in caif_seqpkt_sendmsg
-which is defined in ___sys_sendmsg. So we cann't just judge
-msg->msg_iter.iov->base directlly. We can use nr_segs to judge
-msg in caif_seqpkt_sendmsg whether has data buffers.
+Commit 63346650c1a9 ("netrom: switch to sock timer API") switched to use
+sock timer API. It replaces mod_timer() by sk_reset_timer(), and
+del_timer() by sk_stop_timer().
 
-=====================================================
-BUG: KMSAN: uninit-value in caif_seqpkt_sendmsg+0x693/0xf60 net/caif/caif_socket.c:542
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x1c9/0x220 lib/dump_stack.c:118
- kmsan_report+0xf7/0x1e0 mm/kmsan/kmsan_report.c:118
- __msan_warning+0x58/0xa0 mm/kmsan/kmsan_instr.c:215
- caif_seqpkt_sendmsg+0x693/0xf60 net/caif/caif_socket.c:542
- sock_sendmsg_nosec net/socket.c:652 [inline]
- sock_sendmsg net/socket.c:672 [inline]
- ____sys_sendmsg+0x12b6/0x1350 net/socket.c:2343
- ___sys_sendmsg net/socket.c:2397 [inline]
- __sys_sendmmsg+0x808/0xc90 net/socket.c:2480
- __compat_sys_sendmmsg net/compat.c:656 [inline]
+Function sk_reset_timer() will increase the refcount of sock if it is
+called on an inactive timer, hence, in case the timer expires, we need to
+decrease the refcount ourselves in the handler, otherwise, the sock
+refcount will be unbalanced and the sock will never be freed.
 
-Reported-by: syzbot+09a5d591c1f98cf5efcb@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?id=1ace85e8fc9b0d5a45c08c2656c3e91762daa9b8
-Fixes: bece7b2398d0 ("caif: Rewritten socket implementation")
-Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+Signed-off-by: Nguyen Dinh Phi <phind.uet@gmail.com>
+Reported-by: syzbot+10f1194569953b72f1ae@syzkaller.appspotmail.com
+Fixes: 63346650c1a9 ("netrom: switch to sock timer API")
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/caif/caif_socket.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/netrom/nr_timer.c | 20 +++++++++++---------
+ 1 file changed, 11 insertions(+), 9 deletions(-)
 
-diff --git a/net/caif/caif_socket.c b/net/caif/caif_socket.c
-index 92cbbd2afddb..9367f260afeb 100644
---- a/net/caif/caif_socket.c
-+++ b/net/caif/caif_socket.c
-@@ -539,7 +539,8 @@ static int caif_seqpkt_sendmsg(struct socket *sock, struct msghdr *msg,
- 		goto err;
+diff --git a/net/netrom/nr_timer.c b/net/netrom/nr_timer.c
+index 908e53ab47a4..426d49609524 100644
+--- a/net/netrom/nr_timer.c
++++ b/net/netrom/nr_timer.c
+@@ -124,11 +124,9 @@ static void nr_heartbeat_expiry(struct timer_list *t)
+ 		   is accepted() it isn't 'dead' so doesn't get removed. */
+ 		if (sock_flag(sk, SOCK_DESTROY) ||
+ 		    (sk->sk_state == TCP_LISTEN && sock_flag(sk, SOCK_DEAD))) {
+-			sock_hold(sk);
+ 			bh_unlock_sock(sk);
+ 			nr_destroy_socket(sk);
+-			sock_put(sk);
+-			return;
++			goto out;
+ 		}
+ 		break;
  
- 	ret = -EINVAL;
--	if (unlikely(msg->msg_iter.iov->iov_base == NULL))
-+	if (unlikely(msg->msg_iter.nr_segs == 0) ||
-+	    unlikely(msg->msg_iter.iov->iov_base == NULL))
- 		goto err;
- 	noblock = msg->msg_flags & MSG_DONTWAIT;
+@@ -149,6 +147,8 @@ static void nr_heartbeat_expiry(struct timer_list *t)
  
+ 	nr_start_heartbeat(sk);
+ 	bh_unlock_sock(sk);
++out:
++	sock_put(sk);
+ }
+ 
+ static void nr_t2timer_expiry(struct timer_list *t)
+@@ -162,6 +162,7 @@ static void nr_t2timer_expiry(struct timer_list *t)
+ 		nr_enquiry_response(sk);
+ 	}
+ 	bh_unlock_sock(sk);
++	sock_put(sk);
+ }
+ 
+ static void nr_t4timer_expiry(struct timer_list *t)
+@@ -172,6 +173,7 @@ static void nr_t4timer_expiry(struct timer_list *t)
+ 	bh_lock_sock(sk);
+ 	nr_sk(sk)->condition &= ~NR_COND_PEER_RX_BUSY;
+ 	bh_unlock_sock(sk);
++	sock_put(sk);
+ }
+ 
+ static void nr_idletimer_expiry(struct timer_list *t)
+@@ -200,6 +202,7 @@ static void nr_idletimer_expiry(struct timer_list *t)
+ 		sock_set_flag(sk, SOCK_DEAD);
+ 	}
+ 	bh_unlock_sock(sk);
++	sock_put(sk);
+ }
+ 
+ static void nr_t1timer_expiry(struct timer_list *t)
+@@ -212,8 +215,7 @@ static void nr_t1timer_expiry(struct timer_list *t)
+ 	case NR_STATE_1:
+ 		if (nr->n2count == nr->n2) {
+ 			nr_disconnect(sk, ETIMEDOUT);
+-			bh_unlock_sock(sk);
+-			return;
++			goto out;
+ 		} else {
+ 			nr->n2count++;
+ 			nr_write_internal(sk, NR_CONNREQ);
+@@ -223,8 +225,7 @@ static void nr_t1timer_expiry(struct timer_list *t)
+ 	case NR_STATE_2:
+ 		if (nr->n2count == nr->n2) {
+ 			nr_disconnect(sk, ETIMEDOUT);
+-			bh_unlock_sock(sk);
+-			return;
++			goto out;
+ 		} else {
+ 			nr->n2count++;
+ 			nr_write_internal(sk, NR_DISCREQ);
+@@ -234,8 +235,7 @@ static void nr_t1timer_expiry(struct timer_list *t)
+ 	case NR_STATE_3:
+ 		if (nr->n2count == nr->n2) {
+ 			nr_disconnect(sk, ETIMEDOUT);
+-			bh_unlock_sock(sk);
+-			return;
++			goto out;
+ 		} else {
+ 			nr->n2count++;
+ 			nr_requeue_frames(sk);
+@@ -244,5 +244,7 @@ static void nr_t1timer_expiry(struct timer_list *t)
+ 	}
+ 
+ 	nr_start_t1timer(sk);
++out:
+ 	bh_unlock_sock(sk);
++	sock_put(sk);
+ }
 -- 
 2.30.2
 
