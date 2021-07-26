@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3CFF3D5E4A
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:47:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACCFE3D5DFE
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:47:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236303AbhGZPGt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:06:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45650 "EHLO mail.kernel.org"
+        id S236071AbhGZPEy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:04:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236117AbhGZPGT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:06:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 287F260F02;
-        Mon, 26 Jul 2021 15:46:46 +0000 (UTC)
+        id S236005AbhGZPEb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:04:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B0ABB60F51;
+        Mon, 26 Jul 2021 15:44:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314407;
-        bh=rodOZJcreyOZWjjI0ivO1tCOZGubbXQBHtBgkzTc9tA=;
+        s=korg; t=1627314300;
+        bh=cgEsiZtoGysqQs53Lf/AFtcarkIsyx5116xRrMJP7XQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tx783LNO7DNJwRYt1GaMOyhG5eXC60I+ORVbpc/TIdlV1uEpkEIndblbA43R0SSHo
-         dAmhjYYjrjiIcqw3js+wXIUB4kiPtp+b88QWE8kLO0VSdtSY3qruZ+/dT+qI43amUJ
-         wJcLeV7pVYNhCWqiQHTB34A0IFcCficHnUnP7suk=
+        b=AS0daWaNVUk5I48KSLOqyBg8tOeaiBtpt0aMBBgvhWM1HLTvqW2SWujzXTX2ridFZ
+         OJHJrrjq41LGiflnJLeB56AyYpT18XSfSZQ2KN7R4R5OgshXqFjxWfyF3sjyDZwVyY
+         TcX+jXnl0/U2pAmYPKqkWXEGl6FVhaytX/bf2gMw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Tony Brelinski <tonyx.brelinski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 36/82] ixgbe: Fix an error handling path in ixgbe_probe()
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 22/60] tcp: annotate data races around tp->mtu_info
 Date:   Mon, 26 Jul 2021 17:38:36 +0200
-Message-Id: <20210726153829.335593148@linuxfoundation.org>
+Message-Id: <20210726153825.567943260@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153828.144714469@linuxfoundation.org>
-References: <20210726153828.144714469@linuxfoundation.org>
+In-Reply-To: <20210726153824.868160836@linuxfoundation.org>
+References: <20210726153824.868160836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,37 +39,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit dd2aefcd5e37989ae5f90afdae44bbbf3a2990da ]
+commit 561022acb1ce62e50f7a8258687a21b84282a4cb upstream.
 
-If an error occurs after a 'pci_enable_pcie_error_reporting()' call, it
-must be undone by a corresponding 'pci_disable_pcie_error_reporting()'
-call, as already done in the remove function.
+While tp->mtu_info is read while socket is owned, the write
+sides happen from err handlers (tcp_v[46]_mtu_reduced)
+which only own the socket spinlock.
 
-Fixes: 6fabd715e6d8 ("ixgbe: Implement PCIe AER support")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 563d34d05786 ("tcp: dont drop MTU reduction indications")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/ixgbe/ixgbe_main.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/ipv4/tcp_ipv4.c |    4 ++--
+ net/ipv6/tcp_ipv6.c |    4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-index e9205c893531..daf94d5cbef1 100644
---- a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-+++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-@@ -10572,6 +10572,7 @@ err_ioremap:
- 	disable_dev = !test_and_set_bit(__IXGBE_DISABLED, &adapter->state);
- 	free_netdev(netdev);
- err_alloc_etherdev:
-+	pci_disable_pcie_error_reporting(pdev);
- 	pci_release_mem_regions(pdev);
- err_pci_reg:
- err_dma:
--- 
-2.30.2
-
+--- a/net/ipv4/tcp_ipv4.c
++++ b/net/ipv4/tcp_ipv4.c
+@@ -275,7 +275,7 @@ void tcp_v4_mtu_reduced(struct sock *sk)
+ 
+ 	if ((1 << sk->sk_state) & (TCPF_LISTEN | TCPF_CLOSE))
+ 		return;
+-	mtu = tcp_sk(sk)->mtu_info;
++	mtu = READ_ONCE(tcp_sk(sk)->mtu_info);
+ 	dst = inet_csk_update_pmtu(sk, mtu);
+ 	if (!dst)
+ 		return;
+@@ -442,7 +442,7 @@ void tcp_v4_err(struct sk_buff *icmp_skb
+ 			if (sk->sk_state == TCP_LISTEN)
+ 				goto out;
+ 
+-			tp->mtu_info = info;
++			WRITE_ONCE(tp->mtu_info, info);
+ 			if (!sock_owned_by_user(sk)) {
+ 				tcp_v4_mtu_reduced(sk);
+ 			} else {
+--- a/net/ipv6/tcp_ipv6.c
++++ b/net/ipv6/tcp_ipv6.c
+@@ -311,7 +311,7 @@ static void tcp_v6_mtu_reduced(struct so
+ 	if ((1 << sk->sk_state) & (TCPF_LISTEN | TCPF_CLOSE))
+ 		return;
+ 
+-	dst = inet6_csk_update_pmtu(sk, tcp_sk(sk)->mtu_info);
++	dst = inet6_csk_update_pmtu(sk, READ_ONCE(tcp_sk(sk)->mtu_info));
+ 	if (!dst)
+ 		return;
+ 
+@@ -400,7 +400,7 @@ static void tcp_v6_err(struct sk_buff *s
+ 		if (!ip6_sk_accept_pmtu(sk))
+ 			goto out;
+ 
+-		tp->mtu_info = ntohl(info);
++		WRITE_ONCE(tp->mtu_info, ntohl(info));
+ 		if (!sock_owned_by_user(sk))
+ 			tcp_v6_mtu_reduced(sk);
+ 		else if (!test_and_set_bit(TCP_MTU_REDUCED_DEFERRED,
 
 
