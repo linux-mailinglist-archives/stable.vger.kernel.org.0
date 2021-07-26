@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5ED93D5F9E
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 603ED3D5F9F
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236160AbhGZPSf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S236345AbhGZPSf (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 26 Jul 2021 11:18:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56118 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:56140 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236927AbhGZPQb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:16:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B584A60F02;
-        Mon, 26 Jul 2021 15:56:59 +0000 (UTC)
+        id S235942AbhGZPQe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:16:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 172F56056C;
+        Mon, 26 Jul 2021 15:57:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315020;
-        bh=Fwn8cPgmNgfXTv0oTRjcx3wDQ0c6Om2dq8jc2hWTIw0=;
+        s=korg; t=1627315022;
+        bh=gdm/LVcApSe7GDq+qCyDj3dgA/XNkKLCL/3++fFySXY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uZaprjwwjXnk9I03u4/Degg1BKV6ofHXbwONiqT2QW4NXC2ZFQf4GaWAuSDj23teG
-         MOfPamsdWE8YXUVmJqrnk3Jyq9usc4cxl4czpiYaZL+Zqta+nPuB85O5an5rUjVGu/
-         54adatVF/dcKm3iop7SEROhHdQYRBlCZN51WUqlI=
+        b=AT6tBvIrSfgU1wk2WEyWnYG7MbD0roDk7S4BPrOYHBsHu4/83IDTCTaX2F7zPeHyL
+         V19M3ual+MUPz6nrBBW9uv3gt/9F9WQa3k67RspcJOFffxqmFqdtlXMUTAvMXZ8RjB
+         QI2ebF/PVUIcYlph+VR13WTGUv2bSiDqHIXB2gdw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Somnath Kotur <somnath.kotur@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Vineet Gupta <vgupta@synopsys.com>,
+        Jiangfeng Xiao <xiaojiangfeng@huawei.com>,
         "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 054/108] bnxt_en: Check abort error state in bnxt_half_open_nic()
-Date:   Mon, 26 Jul 2021 17:38:55 +0200
-Message-Id: <20210726153833.414625706@linuxfoundation.org>
+Subject: [PATCH 5.4 055/108] net: hisilicon: rename CACHE_LINE_MASK to avoid redefinition
+Date:   Mon, 26 Jul 2021 17:38:56 +0200
+Message-Id: <20210726153833.445127418@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
 References: <20210726153831.696295003@linuxfoundation.org>
@@ -41,66 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Somnath Kotur <somnath.kotur@broadcom.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 11a39259ff79b74bc99f8b7c44075a2d6d5e7ab1 ]
+[ Upstream commit b16f3299ae1aa3c327e1fb742d0379ae4d6e86f2 ]
 
-bnxt_half_open_nic() is called during during ethtool self test and is
-protected by rtnl_lock.  Firmware reset can be happening at the same
-time.  Only critical portions of the entire firmware reset sequence
-are protected by the rtnl_lock.  It is possible that bnxt_half_open_nic()
-can be called when the firmware reset sequence is aborting.  In that
-case, bnxt_half_open_nic() needs to check if the ABORT_ERR flag is set
-and abort if it is.  The ethtool self test will fail but the NIC will be
-brought to a consistent IF_DOWN state.
+Building on ARCH=arc causes a "redefined" warning, so rename this
+driver's CACHE_LINE_MASK to avoid the warning.
 
-Without this patch, if bnxt_half_open_nic() were to continue in this
-error state, it may crash like this:
+../drivers/net/ethernet/hisilicon/hip04_eth.c:134: warning: "CACHE_LINE_MASK" redefined
+  134 | #define CACHE_LINE_MASK   0x3F
+In file included from ../include/linux/cache.h:6,
+                 from ../include/linux/printk.h:9,
+                 from ../include/linux/kernel.h:19,
+                 from ../include/linux/list.h:9,
+                 from ../include/linux/module.h:12,
+                 from ../drivers/net/ethernet/hisilicon/hip04_eth.c:7:
+../arch/arc/include/asm/cache.h:17: note: this is the location of the previous definition
+   17 | #define CACHE_LINE_MASK  (~(L1_CACHE_BYTES - 1))
 
-  bnxt_en 0000:82:00.1 enp130s0f1np1: FW reset in progress during close, FW reset will be aborted
-  Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
-  ...
-  Process ethtool (pid: 333327, stack limit = 0x0000000046476577)
-  Call trace:
-  bnxt_alloc_mem+0x444/0xef0 [bnxt_en]
-  bnxt_half_open_nic+0x24/0xb8 [bnxt_en]
-  bnxt_self_test+0x2dc/0x390 [bnxt_en]
-  ethtool_self_test+0xe0/0x1f8
-  dev_ethtool+0x1744/0x22d0
-  dev_ioctl+0x190/0x3e0
-  sock_ioctl+0x238/0x480
-  do_vfs_ioctl+0xc4/0x758
-  ksys_ioctl+0x84/0xb8
-  __arm64_sys_ioctl+0x28/0x38
-  el0_svc_handler+0xb0/0x180
-  el0_svc+0x8/0xc
-
-Fixes: a1301f08c5ac ("bnxt_en: Check abort error state in bnxt_open_nic().")
-Signed-off-by: Somnath Kotur <somnath.kotur@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Fixes: d413779cdd93 ("net: hisilicon: Add an tx_desc to adapt HI13X1_GMAC")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Vineet Gupta <vgupta@synopsys.com>
+Cc: Jiangfeng Xiao <xiaojiangfeng@huawei.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/ethernet/hisilicon/hip04_eth.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-index f4f63c359bdb..287ea792922a 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -9239,6 +9239,12 @@ int bnxt_half_open_nic(struct bnxt *bp)
- {
- 	int rc = 0;
- 
-+	if (test_bit(BNXT_STATE_ABORT_ERR, &bp->state)) {
-+		netdev_err(bp->dev, "A previous firmware reset has not completed, aborting half open\n");
-+		rc = -ENODEV;
-+		goto half_open_err;
-+	}
-+
- 	rc = bnxt_alloc_mem(bp, false);
- 	if (rc) {
- 		netdev_err(bp->dev, "bnxt_alloc_mem err: %x\n", rc);
+diff --git a/drivers/net/ethernet/hisilicon/hip04_eth.c b/drivers/net/ethernet/hisilicon/hip04_eth.c
+index 2ffe035e96d6..b5eae06dd870 100644
+--- a/drivers/net/ethernet/hisilicon/hip04_eth.c
++++ b/drivers/net/ethernet/hisilicon/hip04_eth.c
+@@ -131,7 +131,7 @@
+ /* buf unit size is cache_line_size, which is 64, so the shift is 6 */
+ #define PPE_BUF_SIZE_SHIFT		6
+ #define PPE_TX_BUF_HOLD			BIT(31)
+-#define CACHE_LINE_MASK			0x3F
++#define SOC_CACHE_LINE_MASK		0x3F
+ #else
+ #define PPE_CFG_QOS_VMID_GRP_SHIFT	8
+ #define PPE_CFG_RX_CTRL_ALIGN_SHIFT	11
+@@ -531,8 +531,8 @@ hip04_mac_start_xmit(struct sk_buff *skb, struct net_device *ndev)
+ #if defined(CONFIG_HI13X1_GMAC)
+ 	desc->cfg = (__force u32)cpu_to_be32(TX_CLEAR_WB | TX_FINISH_CACHE_INV
+ 		| TX_RELEASE_TO_PPE | priv->port << TX_POOL_SHIFT);
+-	desc->data_offset = (__force u32)cpu_to_be32(phys & CACHE_LINE_MASK);
+-	desc->send_addr =  (__force u32)cpu_to_be32(phys & ~CACHE_LINE_MASK);
++	desc->data_offset = (__force u32)cpu_to_be32(phys & SOC_CACHE_LINE_MASK);
++	desc->send_addr =  (__force u32)cpu_to_be32(phys & ~SOC_CACHE_LINE_MASK);
+ #else
+ 	desc->cfg = (__force u32)cpu_to_be32(TX_CLEAR_WB | TX_FINISH_CACHE_INV);
+ 	desc->send_addr = (__force u32)cpu_to_be32(phys);
 -- 
 2.30.2
 
