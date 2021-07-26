@@ -2,33 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C2EA3D61F6
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:15:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 800BA3D61F2
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:15:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234455AbhGZPdm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:33:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49042 "EHLO mail.kernel.org"
+        id S234366AbhGZPdh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:33:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233604AbhGZPcf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:32:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 951D860F5A;
-        Mon, 26 Jul 2021 16:13:02 +0000 (UTC)
+        id S232019AbhGZPcg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:32:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0193060240;
+        Mon, 26 Jul 2021 16:13:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315983;
-        bh=Z2Flz7LytWBwNdWFlecWBcQ52VDib5t2STC4uyvgY9c=;
+        s=korg; t=1627315985;
+        bh=RMtGlFnj4oF+Us2wHau0SdbRjQC1N1xLYZlthvxer/w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WlxT6wkd5WhUgr2As0cStPM/Mux4R6lNYxNDPGfqexYi2xOOLF9TkvKZfUcvDGVkl
-         tmwJekWncO/cRZeKlcXt89AObFumSb/PtsLjr0w6BsG+zNUmcAjW60uOw31du8gvmO
-         0VbfqU8OfPJbKlyDA7pxOM+VCaZnOktnwbIQOmOc=
+        b=IAswrMLADmfKsa3MEPTNvR/WI43J22k2E1cDgH6uvmaOHis5Wjnpe04fc6Y1MtCxc
+         79GRHz5PwO+MqynYmj6vAKlaSVZ4FnvyjR3FJpOOOuAb/7cQ9OP0PQTZXvvW+zc886
+         0T7ynVFRkY7cEm2M+3vkfZs+thfTnV86chYxevS0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ronnie Sahlberg <lsahlber@redhat.com>,
-        Steve French <stfrench@microsoft.com>,
+        stable@vger.kernel.org, David Disseldorp <ddiss@suse.de>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+        Marcelo Henrique Cerri <marcelo.cerri@canonical.com>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Michel Lespinasse <walken@google.com>,
+        Helge Deller <deller@gmx.de>, Oleg Nesterov <oleg@redhat.com>,
+        Lorenzo Stoakes <lstoakes@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 141/223] cifs: fix fallocate when trying to allocate a hole.
-Date:   Mon, 26 Jul 2021 17:38:53 +0200
-Message-Id: <20210726153850.850564047@linuxfoundation.org>
+Subject: [PATCH 5.13 142/223] proc: Avoid mixing integer types in mem_rw()
+Date:   Mon, 26 Jul 2021 17:38:54 +0200
+Message-Id: <20210726153850.880812722@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
 References: <20210726153846.245305071@linuxfoundation.org>
@@ -40,66 +48,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ronnie Sahlberg <lsahlber@redhat.com>
+From: Marcelo Henrique Cerri <marcelo.cerri@canonical.com>
 
-[ Upstream commit 488968a8945c119859d91bb6a8dc13bf50002f15 ]
+[ Upstream commit d238692b4b9f2c36e35af4c6e6f6da36184aeb3e ]
 
-Remove the conditional checking for out_data_len and skipping the fallocate
-if it is 0. This is wrong will actually change any legitimate the fallocate
-where the entire region is unallocated into a no-op.
+Use size_t when capping the count argument received by mem_rw(). Since
+count is size_t, using min_t(int, ...) can lead to a negative value
+that will later be passed to access_remote_vm(), which can cause
+unexpected behavior.
 
-Additionally, before allocating the range, if FALLOC_FL_KEEP_SIZE is set then
-we need to clamp the length of the fallocate region as to not extend the size of the file.
+Since we are capping the value to at maximum PAGE_SIZE, the conversion
+from size_t to int when passing it to access_remote_vm() as "len"
+shouldn't be a problem.
 
-Fixes: 966a3cb7c7db ("cifs: improve fallocate emulation")
-Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Link: https://lkml.kernel.org/r/20210512125215.3348316-1-marcelo.cerri@canonical.com
+Reviewed-by: David Disseldorp <ddiss@suse.de>
+Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Signed-off-by: Marcelo Henrique Cerri <marcelo.cerri@canonical.com>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Souza Cascardo <cascardo@canonical.com>
+Cc: Christian Brauner <christian.brauner@ubuntu.com>
+Cc: Michel Lespinasse <walken@google.com>
+Cc: Helge Deller <deller@gmx.de>
+Cc: Oleg Nesterov <oleg@redhat.com>
+Cc: Lorenzo Stoakes <lstoakes@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/smb2ops.c | 23 ++++++++++++++++++-----
- 1 file changed, 18 insertions(+), 5 deletions(-)
+ fs/proc/base.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
-index cc253bbff696..64cad843ce72 100644
---- a/fs/cifs/smb2ops.c
-+++ b/fs/cifs/smb2ops.c
-@@ -3663,11 +3663,6 @@ static int smb3_simple_fallocate_range(unsigned int xid,
- 			(char **)&out_data, &out_data_len);
- 	if (rc)
- 		goto out;
--	/*
--	 * It is already all allocated
--	 */
--	if (out_data_len == 0)
--		goto out;
+diff --git a/fs/proc/base.c b/fs/proc/base.c
+index 9cbd915025ad..a0a2fc1c9da2 100644
+--- a/fs/proc/base.c
++++ b/fs/proc/base.c
+@@ -854,7 +854,7 @@ static ssize_t mem_rw(struct file *file, char __user *buf,
+ 	flags = FOLL_FORCE | (write ? FOLL_WRITE : 0);
  
- 	buf = kzalloc(1024 * 1024, GFP_KERNEL);
- 	if (buf == NULL) {
-@@ -3790,6 +3785,24 @@ static long smb3_simple_falloc(struct file *file, struct cifs_tcon *tcon,
- 		goto out;
- 	}
+ 	while (count > 0) {
+-		int this_len = min_t(int, count, PAGE_SIZE);
++		size_t this_len = min_t(size_t, count, PAGE_SIZE);
  
-+	if (keep_size == true) {
-+		/*
-+		 * We can not preallocate pages beyond the end of the file
-+		 * in SMB2
-+		 */
-+		if (off >= i_size_read(inode)) {
-+			rc = 0;
-+			goto out;
-+		}
-+		/*
-+		 * For fallocates that are partially beyond the end of file,
-+		 * clamp len so we only fallocate up to the end of file.
-+		 */
-+		if (off + len > i_size_read(inode)) {
-+			len = i_size_read(inode) - off;
-+		}
-+	}
-+
- 	if ((keep_size == true) || (i_size_read(inode) >= off + len)) {
- 		/*
- 		 * At this point, we are trying to fallocate an internal
+ 		if (write && copy_from_user(page, buf, this_len)) {
+ 			copied = -EFAULT;
 -- 
 2.30.2
 
