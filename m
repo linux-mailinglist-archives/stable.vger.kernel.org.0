@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4054E3D6291
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:26:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 123DA3D5FDC
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234498AbhGZPgQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:36:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53570 "EHLO mail.kernel.org"
+        id S236717AbhGZPT0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:19:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60262 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236884AbhGZPfz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:35:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DC83360F6B;
-        Mon, 26 Jul 2021 16:16:22 +0000 (UTC)
+        id S236734AbhGZPTS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:19:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DBCCF60FC2;
+        Mon, 26 Jul 2021 15:59:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627316183;
-        bh=TUxbx0dsEUujwCCzZ3h4JIqB77mC8846Vl+ah7g+S3M=;
+        s=korg; t=1627315185;
+        bh=5GptvVDqDGk2+T5bVRm8Bb5a7W4M/jiq32URHTDy1Ik=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B24FDUTOX/vefxkXVriMKWPTo/uR/gofb9f8wYu9Y8ZW8P9ATI92GPM7Eo/SIxWl2
-         bHrT/r8G0/jKHPZfVLOAZ49RSj7QHW7owjJf08SHvKP8oa5Z+4eCPDzP5XAH4myPRi
-         7/AaB99GExErl7i8PVbBj8wYcM2yaS4BPSGOb8G4=
+        b=NuoFTP6kavaSA1ftSLfKyRTMk39pb90okNYKAZe8N4nw+gGKILsYq+/wjR5NFuoEJ
+         Bmowe448ItQaK9IOpJFT0DJBFVwzyOXC7d36z7HpMAITejc/LPMT5H8xdt+mMk7XE3
+         uMn4HKU742TNg17deXdO9eoezpBVZl1RMvGbX7P8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Bhaumik Bhatt <bbhatt@codeaurora.org>
-Subject: [PATCH 5.13 187/223] bus: mhi: pci_generic: Apply no-op for wake using sideband wake boolean
+        stable@vger.kernel.org, Ilya Dryomov <idryomov@gmail.com>,
+        Robin Geuze <robin.geuze@nl.team.blue>
+Subject: [PATCH 5.4 098/108] rbd: always kick acquire on "acquired" and "released" notifications
 Date:   Mon, 26 Jul 2021 17:39:39 +0200
-Message-Id: <20210726153852.311683682@linuxfoundation.org>
+Message-Id: <20210726153834.824288652@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
-References: <20210726153846.245305071@linuxfoundation.org>
+In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
+References: <20210726153831.696295003@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,113 +39,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bhaumik Bhatt <bbhatt@codeaurora.org>
+From: Ilya Dryomov <idryomov@gmail.com>
 
-commit 56f6f4c4eb2a710ec8878dd9373d3d2b2eb75f5c upstream.
+commit 8798d070d416d18a75770fc19787e96705073f43 upstream.
 
-Devices such as SDX24 do not have the provision for inband wake
-doorbell in the form of channel 127 and instead have a sideband
-GPIO for it. Newer devices such as SDX55 or SDX65 support inband
-wake method by default. Ensure the functionality is used based on
-this such that device wake stays held when a client driver uses
-mhi_device_get() API or the equivalent debugfs entry.
+Skipping the "lock has been released" notification if the lock owner
+is not what we expect based on owner_cid can lead to I/O hangs.
+One example is our own notifications: because owner_cid is cleared
+in rbd_unlock(), when we get our own notification it is processed as
+unexpected/duplicate and maybe_kick_acquire() isn't called.  If a peer
+that requested the lock then doesn't go through with acquiring it,
+I/O requests that came in while the lock was being quiesced would
+be stalled until another I/O request is submitted and kicks acquire
+from rbd_img_exclusive_lock().
 
-Link: https://lore.kernel.org/r/1624560809-30610-1-git-send-email-bbhatt@codeaurora.org
-Fixes: e3e5e6508fc1 ("bus: mhi: pci_generic: No-Op for device_wake operations")
-Cc: stable@vger.kernel.org #5.12
-Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Signed-off-by: Bhaumik Bhatt <bbhatt@codeaurora.org>
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Link: https://lore.kernel.org/r/20210716075106.49938-2-manivannan.sadhasivam@linaro.org
+This makes the comment in rbd_release_lock() actually true: prior to
+this change the canceled work was being requeued in response to the
+"lock has been acquired" notification from rbd_handle_acquired_lock().
+
+Cc: stable@vger.kernel.org # 5.3+
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Tested-by: Robin Geuze <robin.geuze@nl.team.blue>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/bus/mhi/pci_generic.c |   27 +++++++++++++++++++--------
- 1 file changed, 19 insertions(+), 8 deletions(-)
+ drivers/block/rbd.c |   20 +++++++-------------
+ 1 file changed, 7 insertions(+), 13 deletions(-)
 
---- a/drivers/bus/mhi/pci_generic.c
-+++ b/drivers/bus/mhi/pci_generic.c
-@@ -32,6 +32,8 @@
-  * @edl: emergency download mode firmware path (if any)
-  * @bar_num: PCI base address register to use for MHI MMIO register space
-  * @dma_data_width: DMA transfer word size (32 or 64 bits)
-+ * @sideband_wake: Devices using dedicated sideband GPIO for wakeup instead
-+ *		   of inband wake support (such as sdx24)
-  */
- struct mhi_pci_dev_info {
- 	const struct mhi_controller_config *config;
-@@ -40,6 +42,7 @@ struct mhi_pci_dev_info {
- 	const char *edl;
- 	unsigned int bar_num;
- 	unsigned int dma_data_width;
-+	bool sideband_wake;
- };
- 
- #define MHI_CHANNEL_CONFIG_UL(ch_num, ch_name, el_count, ev_ring) \
-@@ -242,7 +245,8 @@ static const struct mhi_pci_dev_info mhi
- 	.edl = "qcom/sdx65m/edl.mbn",
- 	.config = &modem_qcom_v1_mhiv_config,
- 	.bar_num = MHI_PCI_DEFAULT_BAR_NUM,
--	.dma_data_width = 32
-+	.dma_data_width = 32,
-+	.sideband_wake = false,
- };
- 
- static const struct mhi_pci_dev_info mhi_qcom_sdx55_info = {
-@@ -251,7 +255,8 @@ static const struct mhi_pci_dev_info mhi
- 	.edl = "qcom/sdx55m/edl.mbn",
- 	.config = &modem_qcom_v1_mhiv_config,
- 	.bar_num = MHI_PCI_DEFAULT_BAR_NUM,
--	.dma_data_width = 32
-+	.dma_data_width = 32,
-+	.sideband_wake = false,
- };
- 
- static const struct mhi_pci_dev_info mhi_qcom_sdx24_info = {
-@@ -259,7 +264,8 @@ static const struct mhi_pci_dev_info mhi
- 	.edl = "qcom/prog_firehose_sdx24.mbn",
- 	.config = &modem_qcom_v1_mhiv_config,
- 	.bar_num = MHI_PCI_DEFAULT_BAR_NUM,
--	.dma_data_width = 32
-+	.dma_data_width = 32,
-+	.sideband_wake = true,
- };
- 
- static const struct mhi_channel_config mhi_quectel_em1xx_channels[] = {
-@@ -301,7 +307,8 @@ static const struct mhi_pci_dev_info mhi
- 	.edl = "qcom/prog_firehose_sdx24.mbn",
- 	.config = &modem_quectel_em1xx_config,
- 	.bar_num = MHI_PCI_DEFAULT_BAR_NUM,
--	.dma_data_width = 32
-+	.dma_data_width = 32,
-+	.sideband_wake = true,
- };
- 
- static const struct mhi_channel_config mhi_foxconn_sdx55_channels[] = {
-@@ -339,7 +346,8 @@ static const struct mhi_pci_dev_info mhi
- 	.edl = "qcom/sdx55m/edl.mbn",
- 	.config = &modem_foxconn_sdx55_config,
- 	.bar_num = MHI_PCI_DEFAULT_BAR_NUM,
--	.dma_data_width = 32
-+	.dma_data_width = 32,
-+	.sideband_wake = false,
- };
- 
- static const struct pci_device_id mhi_pci_id_table[] = {
-@@ -640,9 +648,12 @@ static int mhi_pci_probe(struct pci_dev
- 	mhi_cntrl->status_cb = mhi_pci_status_cb;
- 	mhi_cntrl->runtime_get = mhi_pci_runtime_get;
- 	mhi_cntrl->runtime_put = mhi_pci_runtime_put;
--	mhi_cntrl->wake_get = mhi_pci_wake_get_nop;
--	mhi_cntrl->wake_put = mhi_pci_wake_put_nop;
--	mhi_cntrl->wake_toggle = mhi_pci_wake_toggle_nop;
-+
-+	if (info->sideband_wake) {
-+		mhi_cntrl->wake_get = mhi_pci_wake_get_nop;
-+		mhi_cntrl->wake_put = mhi_pci_wake_put_nop;
-+		mhi_cntrl->wake_toggle = mhi_pci_wake_toggle_nop;
-+	}
- 
- 	err = mhi_pci_claim(mhi_cntrl, info->bar_num, DMA_BIT_MASK(info->dma_data_width));
- 	if (err)
+--- a/drivers/block/rbd.c
++++ b/drivers/block/rbd.c
+@@ -4340,15 +4340,11 @@ static void rbd_handle_acquired_lock(str
+ 	if (!rbd_cid_equal(&cid, &rbd_empty_cid)) {
+ 		down_write(&rbd_dev->lock_rwsem);
+ 		if (rbd_cid_equal(&cid, &rbd_dev->owner_cid)) {
+-			/*
+-			 * we already know that the remote client is
+-			 * the owner
+-			 */
+-			up_write(&rbd_dev->lock_rwsem);
+-			return;
++			dout("%s rbd_dev %p cid %llu-%llu == owner_cid\n",
++			     __func__, rbd_dev, cid.gid, cid.handle);
++		} else {
++			rbd_set_owner_cid(rbd_dev, &cid);
+ 		}
+-
+-		rbd_set_owner_cid(rbd_dev, &cid);
+ 		downgrade_write(&rbd_dev->lock_rwsem);
+ 	} else {
+ 		down_read(&rbd_dev->lock_rwsem);
+@@ -4373,14 +4369,12 @@ static void rbd_handle_released_lock(str
+ 	if (!rbd_cid_equal(&cid, &rbd_empty_cid)) {
+ 		down_write(&rbd_dev->lock_rwsem);
+ 		if (!rbd_cid_equal(&cid, &rbd_dev->owner_cid)) {
+-			dout("%s rbd_dev %p unexpected owner, cid %llu-%llu != owner_cid %llu-%llu\n",
++			dout("%s rbd_dev %p cid %llu-%llu != owner_cid %llu-%llu\n",
+ 			     __func__, rbd_dev, cid.gid, cid.handle,
+ 			     rbd_dev->owner_cid.gid, rbd_dev->owner_cid.handle);
+-			up_write(&rbd_dev->lock_rwsem);
+-			return;
++		} else {
++			rbd_set_owner_cid(rbd_dev, &rbd_empty_cid);
+ 		}
+-
+-		rbd_set_owner_cid(rbd_dev, &rbd_empty_cid);
+ 		downgrade_write(&rbd_dev->lock_rwsem);
+ 	} else {
+ 		down_read(&rbd_dev->lock_rwsem);
 
 
