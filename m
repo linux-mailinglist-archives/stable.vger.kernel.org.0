@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CA703D61CC
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:14:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 320073D6063
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:11:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233781AbhGZPdB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:33:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46774 "EHLO mail.kernel.org"
+        id S236928AbhGZPWH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:22:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36568 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232977AbhGZPax (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:30:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B03A260F6E;
-        Mon, 26 Jul 2021 16:11:20 +0000 (UTC)
+        id S237251AbhGZPWF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:22:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BAC4A60240;
+        Mon, 26 Jul 2021 16:02:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315881;
-        bh=Q2wZfKYnOvNv7D+xsxyCsV1Ukb51gEDgIhuXtUavpNc=;
+        s=korg; t=1627315354;
+        bh=I0f1Skd/hrroaJ7U4F+6AiGtkrnKuxZYobhWx1RwHlE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z33l99/SzBIQ8pHPmraofxC8HSFAYk0P1h5nktS72JR3DoX22jhtVlFiR4wAPbSmz
-         BNgmBkNDeaMwx4o1USdxGqXABYAtNkjqQFquGPzYGEIn91sCsgWbhPxsEEi74RQxiu
-         SwgJ9W4oJPOJqy8YbkDtEEjlThH35Oq4hqSe1ON4=
+        b=d7XdzVSAb9hCp0I4HNzYplxfe+smWr9YoTFhJpSU66jC03M0xDYmSfYLpA4Lc7X2Y
+         xUIBTBUlBdTCM9PzM/3T7ekw45CtIfCq1VGedUffRvRQtbx8r1R1V926dC8Et12Yil
+         zd68ABVpCmh8+qcnie3zy0sxYsfvYIZeE/6mFnpg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
+        stable@vger.kernel.org, Jakub Sitnicki <jakub@cloudflare.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Cong Wang <cong.wang@bytedance.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 102/223] efi/dev-path-parser: Switch to use for_each_acpi_dev_match()
-Date:   Mon, 26 Jul 2021 17:38:14 +0200
-Message-Id: <20210726153849.608375092@linuxfoundation.org>
+Subject: [PATCH 5.10 062/167] bpf, sockmap, tcp: sk_prot needs inuse_idx set for proc stats
+Date:   Mon, 26 Jul 2021 17:38:15 +0200
+Message-Id: <20210726153841.483659503@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
-References: <20210726153846.245305071@linuxfoundation.org>
+In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
+References: <20210726153839.371771838@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,95 +42,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
+From: John Fastabend <john.fastabend@gmail.com>
 
-[ Upstream commit edbd1bc4951eff8da65732dbe0d381e555054428 ]
+[ Upstream commit 228a4a7ba8e99bb9ef980b62f71e3be33f4aae69 ]
 
-Switch to use for_each_acpi_dev_match() instead of home grown analogue.
-No functional change intended.
+The proc socket stats use sk_prot->inuse_idx value to record inuse sock
+stats. We currently do not set this correctly from sockmap side. The
+result is reading sock stats '/proc/net/sockstat' gives incorrect values.
+The socket counter is incremented correctly, but because we don't set the
+counter correctly when we replace sk_prot we may omit the decrement.
 
-Signed-off-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+To get the correct inuse_idx value move the core_initcall that initializes
+the TCP proto handlers to late_initcall. This way it is initialized after
+TCP has the chance to assign the inuse_idx value from the register protocol
+handler.
+
+Fixes: 604326b41a6fb ("bpf, sockmap: convert to generic sk_msg interface")
+Suggested-by: Jakub Sitnicki <jakub@cloudflare.com>
+Signed-off-by: John Fastabend <john.fastabend@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Reviewed-by: Cong Wang <cong.wang@bytedance.com>
+Link: https://lore.kernel.org/bpf/20210712195546.423990-3-john.fastabend@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/efi/dev-path-parser.c | 49 ++++++++++----------------
- 1 file changed, 18 insertions(+), 31 deletions(-)
+ net/ipv4/tcp_bpf.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/firmware/efi/dev-path-parser.c b/drivers/firmware/efi/dev-path-parser.c
-index 5c9625e552f4..10d4457417a4 100644
---- a/drivers/firmware/efi/dev-path-parser.c
-+++ b/drivers/firmware/efi/dev-path-parser.c
-@@ -12,52 +12,39 @@
- #include <linux/efi.h>
- #include <linux/pci.h>
- 
--struct acpi_hid_uid {
--	struct acpi_device_id hid[2];
--	char uid[11]; /* UINT_MAX + null byte */
--};
--
--static int __init match_acpi_dev(struct device *dev, const void *data)
--{
--	struct acpi_hid_uid hid_uid = *(const struct acpi_hid_uid *)data;
--	struct acpi_device *adev = to_acpi_device(dev);
--
--	if (acpi_match_device_ids(adev, hid_uid.hid))
--		return 0;
--
--	if (adev->pnp.unique_id)
--		return !strcmp(adev->pnp.unique_id, hid_uid.uid);
--	else
--		return !strcmp("0", hid_uid.uid);
--}
--
- static long __init parse_acpi_path(const struct efi_dev_path *node,
- 				   struct device *parent, struct device **child)
- {
--	struct acpi_hid_uid hid_uid = {};
-+	char hid[ACPI_ID_LEN], uid[11]; /* UINT_MAX + null byte */
-+	struct acpi_device *adev;
- 	struct device *phys_dev;
- 
- 	if (node->header.length != 12)
- 		return -EINVAL;
- 
--	sprintf(hid_uid.hid[0].id, "%c%c%c%04X",
-+	sprintf(hid, "%c%c%c%04X",
- 		'A' + ((node->acpi.hid >> 10) & 0x1f) - 1,
- 		'A' + ((node->acpi.hid >>  5) & 0x1f) - 1,
- 		'A' + ((node->acpi.hid >>  0) & 0x1f) - 1,
- 			node->acpi.hid >> 16);
--	sprintf(hid_uid.uid, "%u", node->acpi.uid);
--
--	*child = bus_find_device(&acpi_bus_type, NULL, &hid_uid,
--				 match_acpi_dev);
--	if (!*child)
-+	sprintf(uid, "%u", node->acpi.uid);
-+
-+	for_each_acpi_dev_match(adev, hid, NULL, -1) {
-+		if (adev->pnp.unique_id && !strcmp(adev->pnp.unique_id, uid))
-+			break;
-+		if (!adev->pnp.unique_id && node->acpi.uid == 0)
-+			break;
-+		acpi_dev_put(adev);
-+	}
-+	if (!adev)
- 		return -ENODEV;
- 
--	phys_dev = acpi_get_first_physical_node(to_acpi_device(*child));
-+	phys_dev = acpi_get_first_physical_node(adev);
- 	if (phys_dev) {
--		get_device(phys_dev);
--		put_device(*child);
--		*child = phys_dev;
--	}
-+		*child = get_device(phys_dev);
-+		acpi_dev_put(adev);
-+	} else
-+		*child = &adev->dev;
- 
+diff --git a/net/ipv4/tcp_bpf.c b/net/ipv4/tcp_bpf.c
+index bc7d2a586e18..f91ae827d47f 100644
+--- a/net/ipv4/tcp_bpf.c
++++ b/net/ipv4/tcp_bpf.c
+@@ -588,7 +588,7 @@ static int __init tcp_bpf_v4_build_proto(void)
+ 	tcp_bpf_rebuild_protos(tcp_bpf_prots[TCP_BPF_IPV4], &tcp_prot);
  	return 0;
  }
+-core_initcall(tcp_bpf_v4_build_proto);
++late_initcall(tcp_bpf_v4_build_proto);
+ 
+ static int tcp_bpf_assert_proto_ops(struct proto *ops)
+ {
 -- 
 2.30.2
 
