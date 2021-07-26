@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC80A3D55E5
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 10:53:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43F933D55E6
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 10:53:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231844AbhGZIMo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 04:12:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57836 "EHLO mail.kernel.org"
+        id S231805AbhGZIMp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 04:12:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231805AbhGZIMn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 04:12:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 45EB660D07;
-        Mon, 26 Jul 2021 08:53:11 +0000 (UTC)
+        id S231728AbhGZIMo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 04:12:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 73B2A604D7;
+        Mon, 26 Jul 2021 08:53:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627289591;
-        bh=D5CxlM0sWsRKhM3GxFp11K8jvwTRdSOJdus58o5AXdE=;
+        s=korg; t=1627289593;
+        bh=X9Ld0BOAraK0SMfVhWEZRPDAefGyurL2LNmBRsTgBMk=;
         h=Subject:To:Cc:From:Date:From;
-        b=CsmjtfoNx0mGJiS6qs1lABI88hVrZdZTbgaUNnIG3JuJw3HtjawsfvcP1agf7Mn2x
-         L2NFEFmdyVG0FqIl7rWXQPL2VRBsxHePk3dm0uCx1XbFM9ibhtbyqGITrl7fB8lQk+
-         HWWUSu/PO9GdOK5YuUoW7zApJbJf4tuGGv5yiwEM=
-Subject: FAILED: patch "[PATCH] btrfs: fix lock inversion problem when doing qgroup extent" failed to apply to 4.19-stable tree
+        b=Y26LVwJaArhzOs7KdqsLNgEPcSXDt2jIhaJNjzcCliKvG+m93qbnRkQ8CSDdvVjj2
+         KhcBkZR3RAMRuhGHV+urlIi88vPQkJILGzEkjJqIULBshf6UL/+JY7I5rZRg9rn/B3
+         6lYr7uSPIUuQkpTyLPNi0C08qJM7iSDcccaTmVes=
+Subject: FAILED: patch "[PATCH] btrfs: fix lock inversion problem when doing qgroup extent" failed to apply to 5.4-stable tree
 To:     fdmanana@suse.com, dsterba@suse.com, wqu@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 26 Jul 2021 10:46:07 +0200
-Message-ID: <16272891678068@kroah.com>
+Date:   Mon, 26 Jul 2021 10:46:10 +0200
+Message-ID: <1627289170137184@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
