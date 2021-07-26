@@ -2,71 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40EE03D5865
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 13:18:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 602493D5844
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 13:08:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233081AbhGZKiJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 06:38:09 -0400
-Received: from mta01.cne.gob.ve ([201.130.83.71]:38300 "EHLO mta01.cne.gob.ve"
+        id S232692AbhGZK2O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 06:28:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45950 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232813AbhGZKiJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 06:38:09 -0400
-Received: from localhost (localhost [127.0.0.1])
-        by mta01.cne.gob.ve (Postfix) with ESMTP id A33E78E99B8;
-        Mon, 26 Jul 2021 05:04:18 -0400 (-04)
-Received: from mta01.cne.gob.ve ([127.0.0.1])
-        by localhost (mta01.cne.gob.ve [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id 3ujBaKietmL9; Mon, 26 Jul 2021 05:04:18 -0400 (-04)
-Received: from localhost (localhost [127.0.0.1])
-        by mta01.cne.gob.ve (Postfix) with ESMTP id 2488D8E99B9;
-        Mon, 26 Jul 2021 05:04:09 -0400 (-04)
-DKIM-Filter: OpenDKIM Filter v2.10.3 mta01.cne.gob.ve 2488D8E99B9
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cne.gob.ve;
-        s=cnemailcorp; t=1627290249;
-        bh=8CpE01xhuxrMFqZhMs+seFczkfJTuRN0Jc5Il/wR8gQ=;
-        h=MIME-Version:To:From:Date:Message-Id;
-        b=o7EA5wUmj2V9fchSvjMeX7tKlEmSb2l7ATUuADA1J2qtYCqsGhHm2vntzeuhn9ZHr
-         GQX388M7udeoNOWY0Fp6UvyKUaJrIMHiGYFgHKig6mD8wqYpX0uoiHxVo4HcH8laVR
-         PKLTvsJ2cHFLTFBHoZ1TmjZYc4CsZGiUn0gS4MSNX2wNV4v8sNHxYxWTe9BYDuVtpR
-         BmzNSGXHCZ7Kys2nbgtiq9y8pRjLcv6GU9+5EnHdJOJ8fbD1PIa0gZBoPYIcAzYT4B
-         maczrXuvP0PPQvwwHCLHEcIfIuZkvdWCjcxNV/GVYKHvdESS0eS84JKsLjNR5QNFn1
-         6UJx6hgQHbx9g==
-X-Virus-Scanned: amavisd-new at cne.gob.ve
-Received: from mta01.cne.gob.ve ([127.0.0.1])
-        by localhost (mta01.cne.gob.ve [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id Lwusp_I8AuMR; Mon, 26 Jul 2021 05:04:09 -0400 (-04)
-Received: from DESKTOP-NRJQDLM.zuku.co.ke (unknown [102.140.205.107])
-        by mta01.cne.gob.ve (Postfix) with ESMTPSA id 9EC7D8E90AE;
-        Mon, 26 Jul 2021 05:03:57 -0400 (-04)
-Content-Type: text/plain; charset="iso-8859-1"
+        id S232572AbhGZK2N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 06:28:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E41460BD3;
+        Mon, 26 Jul 2021 11:08:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1627297721;
+        bh=+YUacWV6Bm+T3Vuv48gsRHEwGKTw9i9ieqXKemVKYRw=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=LLFz9IFnHsoqD6Z1k9j00Ww12RASdnDXjqJVLci0P5P4tg4Vzzr7GmxgiEorKkeph
+         nwh2lNKEFeT/cW0inPkRFRcviy0qCHrdzxVtoVFY99W/ififpayxaW3iaISF18NfQp
+         B5/O4MbPiSh6QZgyYn2rWtioF6z4XHjePlGuQlu8=
+Date:   Mon, 26 Jul 2021 13:08:38 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Pavel Begunkov <asml.silence@gmail.com>
+Cc:     Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: use-after-free" with v5.10.y caused by backport of a298232ee6b9
+ ("io_uring: fix link timeout refs")
+Message-ID: <YP6Xtjg3Eu4UfTxF@kroah.com>
+References: <YP6OkehtVdkjKikL@debian>
+ <d1ff5d9c-2e13-acc2-fd8f-a8f4f180a8bb@gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Description: Mail message body
-Subject: congratulations
-To:     Recipients <ycanizalez@cne.gob.ve>
-From:   ycanizalez@cne.gob.ve
-Date:   Mon, 26 Jul 2021 01:51:10 -0700
-Reply-To: azimhpremji1@gmail.com
-Message-Id: <20210726090357.9EC7D8E90AE@mta01.cne.gob.ve>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d1ff5d9c-2e13-acc2-fd8f-a8f4f180a8bb@gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+On Mon, Jul 26, 2021 at 11:57:22AM +0100, Pavel Begunkov wrote:
+> On 7/26/21 11:29 AM, Sudip Mukherjee wrote:
+> > Hi Pavel,
+> > 
+> > We had been running syzkaller on v5.10.y and a "use after free" is being
+> > reported for v5.10.43+ kernels.
+> 
+> "... # 5.12+", weird, but perhaps due to dependencies.
+> Thanks for letting know.
+> 
+> 
+> Greg, Sasha, should be same as reported for 5.12
+> 
+> https://www.spinics.net/lists/stable/msg485116.html
+> 
+> Can you try to apply it to 5.10 or should I resend?
 
-I'm Azim Hashim Premji, an Indian business tycoon, investor, and
-philanthropist. I'm the chairman of Wipro Limited. I gave away 25 per
-cent of my personal wealth to charity. And I also pledged to give away
-the rest of 25% this year 2019 to Individuals.. I have decided to
-donate 2000,000.00USD to you. If you are interested in my donation, do
-contact me for more info.
+I just tried applying those patches and they did not work.  So can you
+provide some new backports?
 
-You can also read more about me via the link below
+thanks,
 
-http://en.wikipedia.org/wiki/Azim_Premji
-
-Warm Regard
-CEO Wipro Limited
-azimhpremji1@gmail.com
-
-Azim Hashim Premji
+greg k-h
