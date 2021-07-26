@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F1273D5DD3
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:45:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 164DD3D5F65
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235520AbhGZPD7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:03:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43780 "EHLO mail.kernel.org"
+        id S236903AbhGZPRt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:17:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54248 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235871AbhGZPD4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:03:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C8CD660F38;
-        Mon, 26 Jul 2021 15:44:24 +0000 (UTC)
+        id S236760AbhGZPPj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:15:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4809960F9C;
+        Mon, 26 Jul 2021 15:52:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314265;
-        bh=jzCO/PrUsRq7QvAiXQP2PaKoOuY+BthKPH6iIeYclwg=;
+        s=korg; t=1627314772;
+        bh=xzxagQdLtR+w7t1dWXM9THl7GLFCequ8Q4x6p+iW+mg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uz05kdjVi42nd48epyc5Qj0ZAROxPxTeA7AHNfTtXwWPB9XJRS4Po3olWIeYRXCYV
-         0Em0+BUYzKqW6IeZhBAZnQpgKAhlU5C8lW+sFHYPQ7wBFWoQi/bmWKWX79WEHDEjdW
-         L9WQtRwwMSaU6JAZD10sS2PpaLlg3X+ZBc9if/jE=
+        b=Ad9JleIiWru2RK3sjoVJyOiOl0kZUvAyx6/u2MZ3gpCFfEvMypUBtDSFdd184M8m+
+         vQPnqXQN597RlKM3h2W5zz7aUm6kcJrfb1qw4in3Lvwgkkr7OxxGcefZo/RDneyZa4
+         Gr1+jqjCEnr0Xu22k0c75DOeOywG1iqluhPgFtZ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 4.9 44/60] s390/ftrace: fix ftrace_update_ftrace_func implementation
+        stable@vger.kernel.org,
+        syzbot+b774577370208727d12b@syzkaller.appspotmail.com,
+        Xin Long <lucien.xin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 086/120] sctp: update active_key for asoc when old key is being replaced
 Date:   Mon, 26 Jul 2021 17:38:58 +0200
-Message-Id: <20210726153826.255742772@linuxfoundation.org>
+Message-Id: <20210726153835.145528741@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153824.868160836@linuxfoundation.org>
-References: <20210726153824.868160836@linuxfoundation.org>
+In-Reply-To: <20210726153832.339431936@linuxfoundation.org>
+References: <20210726153832.339431936@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,129 +42,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit f8c2602733c953ed7a16e060640b8e96f9d94b9b upstream.
+[ Upstream commit 58acd10092268831e49de279446c314727101292 ]
 
-s390 enforces DYNAMIC_FTRACE if FUNCTION_TRACER is selected.
-At the same time implementation of ftrace_caller is not compliant with
-HAVE_DYNAMIC_FTRACE since it doesn't provide implementation of
-ftrace_update_ftrace_func() and calls ftrace_trace_function() directly.
+syzbot reported a call trace:
 
-The subtle difference is that during ftrace code patching ftrace
-replaces function tracer via ftrace_update_ftrace_func() and activates
-it back afterwards. Unexpected direct calls to ftrace_trace_function()
-during ftrace code patching leads to nullptr-dereferences when tracing
-is activated for one of functions which are used during code patching.
-Those function currently are:
-copy_from_kernel_nofault()
-copy_from_kernel_nofault_allowed()
-preempt_count_sub() [with debug_defconfig]
-preempt_count_add() [with debug_defconfig]
+  BUG: KASAN: use-after-free in sctp_auth_shkey_hold+0x22/0xa0 net/sctp/auth.c:112
+  Call Trace:
+   sctp_auth_shkey_hold+0x22/0xa0 net/sctp/auth.c:112
+   sctp_set_owner_w net/sctp/socket.c:131 [inline]
+   sctp_sendmsg_to_asoc+0x152e/0x2180 net/sctp/socket.c:1865
+   sctp_sendmsg+0x103b/0x1d30 net/sctp/socket.c:2027
+   inet_sendmsg+0x99/0xe0 net/ipv4/af_inet.c:821
+   sock_sendmsg_nosec net/socket.c:703 [inline]
+   sock_sendmsg+0xcf/0x120 net/socket.c:723
 
-Corresponding KASAN report:
- BUG: KASAN: nullptr-dereference in function_trace_call+0x316/0x3b0
- Read of size 4 at addr 0000000000001e08 by task migration/0/15
+This is an use-after-free issue caused by not updating asoc->shkey after
+it was replaced in the key list asoc->endpoint_shared_keys, and the old
+key was freed.
 
- CPU: 0 PID: 15 Comm: migration/0 Tainted: G B 5.13.0-41423-g08316af3644d
- Hardware name: IBM 3906 M04 704 (LPAR)
- Stopper: multi_cpu_stop+0x0/0x3e0 <- stop_machine_cpuslocked+0x1e4/0x218
- Call Trace:
-  [<0000000001f77caa>] show_stack+0x16a/0x1d0
-  [<0000000001f8de42>] dump_stack+0x15a/0x1b0
-  [<0000000001f81d56>] print_address_description.constprop.0+0x66/0x2e0
-  [<000000000082b0ca>] kasan_report+0x152/0x1c0
-  [<00000000004cfd8e>] function_trace_call+0x316/0x3b0
-  [<0000000001fb7082>] ftrace_caller+0x7a/0x7e
-  [<00000000006bb3e6>] copy_from_kernel_nofault_allowed+0x6/0x10
-  [<00000000006bb42e>] copy_from_kernel_nofault+0x3e/0xd0
-  [<000000000014605c>] ftrace_make_call+0xb4/0x1f8
-  [<000000000047a1b4>] ftrace_replace_code+0x134/0x1d8
-  [<000000000047a6e0>] ftrace_modify_all_code+0x120/0x1d0
-  [<000000000047a7ec>] __ftrace_modify_code+0x5c/0x78
-  [<000000000042395c>] multi_cpu_stop+0x224/0x3e0
-  [<0000000000423212>] cpu_stopper_thread+0x33a/0x5a0
-  [<0000000000243ff2>] smpboot_thread_fn+0x302/0x708
-  [<00000000002329ea>] kthread+0x342/0x408
-  [<00000000001066b2>] __ret_from_fork+0x92/0xf0
-  [<0000000001fb57fa>] ret_from_fork+0xa/0x30
+This patch is to fix by also updating active_key for asoc when old key is
+being replaced with a new one. Note that this issue doesn't exist in
+sctp_auth_del_key_id(), as it's not allowed to delete the active_key
+from the asoc.
 
- The buggy address belongs to the page:
- page:(____ptrval____) refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x1
- flags: 0x1ffff00000001000(reserved|node=0|zone=0|lastcpupid=0x1ffff)
- raw: 1ffff00000001000 0000040000000048 0000040000000048 0000000000000000
- raw: 0000000000000000 0000000000000000 ffffffff00000001 0000000000000000
- page dumped because: kasan: bad access detected
-
- Memory state around the buggy address:
-  0000000000001d00: f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7
-  0000000000001d80: f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7
- >0000000000001e00: f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7
-                       ^
-  0000000000001e80: f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7
-  0000000000001f00: f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7
- ==================================================================
-
-To fix that introduce ftrace_func callback to be called from
-ftrace_caller and update it in ftrace_update_ftrace_func().
-
-Fixes: 4cc9bed034d1 ("[S390] cleanup ftrace backend functions")
-Cc: stable@vger.kernel.org
-Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1b1e0bc99474 ("sctp: add refcnt support for sh_key")
+Reported-by: syzbot+b774577370208727d12b@syzkaller.appspotmail.com
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/include/asm/ftrace.h |    1 +
- arch/s390/kernel/ftrace.c      |    2 ++
- arch/s390/kernel/mcount.S      |    4 ++--
- 3 files changed, 5 insertions(+), 2 deletions(-)
+ net/sctp/auth.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/s390/include/asm/ftrace.h
-+++ b/arch/s390/include/asm/ftrace.h
-@@ -19,6 +19,7 @@ void ftrace_caller(void);
+diff --git a/net/sctp/auth.c b/net/sctp/auth.c
+index 2bd8c80bd85f..b2ca66c4a21d 100644
+--- a/net/sctp/auth.c
++++ b/net/sctp/auth.c
+@@ -883,6 +883,8 @@ int sctp_auth_set_key(struct sctp_endpoint *ep,
+ 	if (replace) {
+ 		list_del_init(&shkey->key_list);
+ 		sctp_auth_shkey_release(shkey);
++		if (asoc && asoc->active_key_id == auth_key->sca_keynumber)
++			sctp_auth_asoc_init_active_key(asoc, GFP_KERNEL);
+ 	}
+ 	list_add(&cur_key->key_list, sh_keys);
  
- extern char ftrace_graph_caller_end;
- extern unsigned long ftrace_plt;
-+extern void *ftrace_func;
- 
- struct dyn_arch_ftrace { };
- 
---- a/arch/s390/kernel/ftrace.c
-+++ b/arch/s390/kernel/ftrace.c
-@@ -55,6 +55,7 @@
-  * >	brasl	%r0,ftrace_caller	# offset 0
-  */
- 
-+void *ftrace_func __read_mostly = ftrace_stub;
- unsigned long ftrace_plt;
- 
- static inline void ftrace_generate_orig_insn(struct ftrace_insn *insn)
-@@ -164,6 +165,7 @@ int ftrace_make_call(struct dyn_ftrace *
- 
- int ftrace_update_ftrace_func(ftrace_func_t func)
- {
-+	ftrace_func = func;
- 	return 0;
- }
- 
---- a/arch/s390/kernel/mcount.S
-+++ b/arch/s390/kernel/mcount.S
-@@ -59,13 +59,13 @@ ENTRY(ftrace_caller)
- #ifdef CONFIG_HAVE_MARCH_Z196_FEATURES
- 	aghik	%r2,%r0,-MCOUNT_INSN_SIZE
- 	lgrl	%r4,function_trace_op
--	lgrl	%r1,ftrace_trace_function
-+	lgrl	%r1,ftrace_func
- #else
- 	lgr	%r2,%r0
- 	aghi	%r2,-MCOUNT_INSN_SIZE
- 	larl	%r4,function_trace_op
- 	lg	%r4,0(%r4)
--	larl	%r1,ftrace_trace_function
-+	larl	%r1,ftrace_func
- 	lg	%r1,0(%r1)
- #endif
- 	lgr	%r3,%r14
+-- 
+2.30.2
+
 
 
