@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A9383D603B
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:02:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6EDC3D604B
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:10:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236559AbhGZPV2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:21:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35406 "EHLO mail.kernel.org"
+        id S236569AbhGZPVk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:21:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235945AbhGZPV0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:21:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B7B3A60E09;
-        Mon, 26 Jul 2021 16:01:54 +0000 (UTC)
+        id S236599AbhGZPVc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:21:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E3DB460E09;
+        Mon, 26 Jul 2021 16:01:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315315;
-        bh=dwpDajoW10WXI2ovg4AgN7tgkZzFAbCWnXo0opXsZsE=;
+        s=korg; t=1627315320;
+        bh=uOX4OaURtWMQzPsBzVLUPfZ+2s99oQaxC0K7nUTWB5o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=djkD60OKJmFqIcRFA6CBV6ymlIEHmxESh4+m5XQeiuBS+Yw9YNG6MRIMYgWR1hXci
-         LrS7jUPjj74PI4D+wCmAutQpPtnWJwlbT5Z1Sl+30bLwREXla7pQtcuVZY3hi0lNZX
-         djZEtSCp2R6S5Aw6ALpOL8P2e2auRdBsNIND4Chs=
+        b=skHuA5jNdte9dhUpCbsqxyZd7TmQBeBML+4E0EdDbnKswqItJmtue1Fqd2sbx0FCS
+         91cfaj+x2mcaXv+CLNBGQex5RG3fe6Z/MBvGqTTFW6HHCDV7rAU/g6Zdsca5zX3ZHU
+         C5n/2I8pFfiRNA3XMcNDJJB51eYxX7XY5UghZW20=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Clark Wang <xiaoning.wang@nxp.com>,
+        stable@vger.kernel.org,
+        Amelie Delaunay <amelie.delaunay@foss.st.com>,
+        Alain Volmat <alain.volmat@foss.st.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 049/167] spi: imx: add a check for speed_hz before calculating the clock
-Date:   Mon, 26 Jul 2021 17:38:02 +0200
-Message-Id: <20210726153841.044672333@linuxfoundation.org>
+Subject: [PATCH 5.10 050/167] spi: stm32: fixes pm_runtime calls in probe/remove
+Date:   Mon, 26 Jul 2021 17:38:03 +0200
+Message-Id: <20210726153841.075969290@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
 References: <20210726153839.371771838@linuxfoundation.org>
@@ -40,136 +42,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Clark Wang <xiaoning.wang@nxp.com>
+From: Alain Volmat <alain.volmat@foss.st.com>
 
-[ Upstream commit 4df2f5e1372e9eec8f9e1b4a3025b9be23487d36 ]
+[ Upstream commit 7999d2555c9f879d006ea8469d74db9cdb038af0 ]
 
-When some drivers use spi to send data, spi_transfer->speed_hz is
-not assigned. If spidev->max_speed_hz is not assigned as well, it
-will cause an error in configuring the clock.
-Add a check for these two values before configuring the clock. An
-error will be returned when they are not assigned.
+Add pm_runtime calls in probe/probe error path and remove
+in order to be consistent in all places in ordering and
+ensure that pm_runtime is disabled prior to resources used
+by the SPI controller.
 
-Signed-off-by: Clark Wang <xiaoning.wang@nxp.com>
-Link: https://lore.kernel.org/r/20210408103347.244313-2-xiaoning.wang@nxp.com
+This patch also fixes the 2 following warnings on driver remove:
+WARNING: CPU: 0 PID: 743 at drivers/clk/clk.c:594 clk_core_disable_lock+0x18/0x24
+WARNING: CPU: 0 PID: 743 at drivers/clk/clk.c:476 clk_unprepare+0x24/0x2c
+
+Fixes: 038ac869c9d2 ("spi: stm32: add runtime PM support")
+
+Signed-off-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
+Signed-off-by: Alain Volmat <alain.volmat@foss.st.com>
+Link: https://lore.kernel.org/r/1625646426-5826-2-git-send-email-alain.volmat@foss.st.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-imx.c | 37 +++++++++++++++++++++----------------
- 1 file changed, 21 insertions(+), 16 deletions(-)
+ drivers/spi/spi-stm32.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-imx.c b/drivers/spi/spi-imx.c
-index 831a38920fa9..c8b750d8ac35 100644
---- a/drivers/spi/spi-imx.c
-+++ b/drivers/spi/spi-imx.c
-@@ -66,8 +66,7 @@ struct spi_imx_data;
- struct spi_imx_devtype_data {
- 	void (*intctrl)(struct spi_imx_data *, int);
- 	int (*prepare_message)(struct spi_imx_data *, struct spi_message *);
--	int (*prepare_transfer)(struct spi_imx_data *, struct spi_device *,
--				struct spi_transfer *);
-+	int (*prepare_transfer)(struct spi_imx_data *, struct spi_device *);
- 	void (*trigger)(struct spi_imx_data *);
- 	int (*rx_available)(struct spi_imx_data *);
- 	void (*reset)(struct spi_imx_data *);
-@@ -572,11 +571,10 @@ static int mx51_ecspi_prepare_message(struct spi_imx_data *spi_imx,
- }
+diff --git a/drivers/spi/spi-stm32.c b/drivers/spi/spi-stm32.c
+index 0318f02d6212..8f91f8705eee 100644
+--- a/drivers/spi/spi-stm32.c
++++ b/drivers/spi/spi-stm32.c
+@@ -1946,6 +1946,7 @@ static int stm32_spi_probe(struct platform_device *pdev)
+ 		master->can_dma = stm32_spi_can_dma;
  
- static int mx51_ecspi_prepare_transfer(struct spi_imx_data *spi_imx,
--				       struct spi_device *spi,
--				       struct spi_transfer *t)
-+				       struct spi_device *spi)
- {
- 	u32 ctrl = readl(spi_imx->base + MX51_ECSPI_CTRL);
--	u32 clk = t->speed_hz, delay;
-+	u32 clk, delay;
+ 	pm_runtime_set_active(&pdev->dev);
++	pm_runtime_get_noresume(&pdev->dev);
+ 	pm_runtime_enable(&pdev->dev);
  
- 	/* Clear BL field and set the right value */
- 	ctrl &= ~MX51_ECSPI_CTRL_BL_MASK;
-@@ -590,7 +588,7 @@ static int mx51_ecspi_prepare_transfer(struct spi_imx_data *spi_imx,
- 	/* set clock speed */
- 	ctrl &= ~(0xf << MX51_ECSPI_CTRL_POSTDIV_OFFSET |
- 		  0xf << MX51_ECSPI_CTRL_PREDIV_OFFSET);
--	ctrl |= mx51_ecspi_clkdiv(spi_imx, t->speed_hz, &clk);
-+	ctrl |= mx51_ecspi_clkdiv(spi_imx, spi_imx->spi_bus_clk, &clk);
- 	spi_imx->spi_bus_clk = clk;
+ 	ret = spi_register_master(master);
+@@ -1967,6 +1968,8 @@ static int stm32_spi_probe(struct platform_device *pdev)
  
- 	if (spi_imx->usedma)
-@@ -702,13 +700,12 @@ static int mx31_prepare_message(struct spi_imx_data *spi_imx,
- }
+ err_pm_disable:
+ 	pm_runtime_disable(&pdev->dev);
++	pm_runtime_put_noidle(&pdev->dev);
++	pm_runtime_set_suspended(&pdev->dev);
+ err_dma_release:
+ 	if (spi->dma_tx)
+ 		dma_release_channel(spi->dma_tx);
+@@ -1983,9 +1986,14 @@ static int stm32_spi_remove(struct platform_device *pdev)
+ 	struct spi_master *master = platform_get_drvdata(pdev);
+ 	struct stm32_spi *spi = spi_master_get_devdata(master);
  
- static int mx31_prepare_transfer(struct spi_imx_data *spi_imx,
--				 struct spi_device *spi,
--				 struct spi_transfer *t)
-+				 struct spi_device *spi)
- {
- 	unsigned int reg = MX31_CSPICTRL_ENABLE | MX31_CSPICTRL_MASTER;
- 	unsigned int clk;
- 
--	reg |= spi_imx_clkdiv_2(spi_imx->spi_clk, t->speed_hz, &clk) <<
-+	reg |= spi_imx_clkdiv_2(spi_imx->spi_clk, spi_imx->spi_bus_clk, &clk) <<
- 		MX31_CSPICTRL_DR_SHIFT;
- 	spi_imx->spi_bus_clk = clk;
- 
-@@ -807,14 +804,13 @@ static int mx21_prepare_message(struct spi_imx_data *spi_imx,
- }
- 
- static int mx21_prepare_transfer(struct spi_imx_data *spi_imx,
--				 struct spi_device *spi,
--				 struct spi_transfer *t)
-+				 struct spi_device *spi)
- {
- 	unsigned int reg = MX21_CSPICTRL_ENABLE | MX21_CSPICTRL_MASTER;
- 	unsigned int max = is_imx27_cspi(spi_imx) ? 16 : 18;
- 	unsigned int clk;
- 
--	reg |= spi_imx_clkdiv_1(spi_imx->spi_clk, t->speed_hz, max, &clk)
-+	reg |= spi_imx_clkdiv_1(spi_imx->spi_clk, spi_imx->spi_bus_clk, max, &clk)
- 		<< MX21_CSPICTRL_DR_SHIFT;
- 	spi_imx->spi_bus_clk = clk;
- 
-@@ -883,13 +879,12 @@ static int mx1_prepare_message(struct spi_imx_data *spi_imx,
- }
- 
- static int mx1_prepare_transfer(struct spi_imx_data *spi_imx,
--				struct spi_device *spi,
--				struct spi_transfer *t)
-+				struct spi_device *spi)
- {
- 	unsigned int reg = MX1_CSPICTRL_ENABLE | MX1_CSPICTRL_MASTER;
- 	unsigned int clk;
- 
--	reg |= spi_imx_clkdiv_2(spi_imx->spi_clk, t->speed_hz, &clk) <<
-+	reg |= spi_imx_clkdiv_2(spi_imx->spi_clk, spi_imx->spi_bus_clk, &clk) <<
- 		MX1_CSPICTRL_DR_SHIFT;
- 	spi_imx->spi_bus_clk = clk;
- 
-@@ -1195,6 +1190,16 @@ static int spi_imx_setupxfer(struct spi_device *spi,
- 	if (!t)
- 		return 0;
- 
-+	if (!t->speed_hz) {
-+		if (!spi->max_speed_hz) {
-+			dev_err(&spi->dev, "no speed_hz provided!\n");
-+			return -EINVAL;
-+		}
-+		dev_dbg(&spi->dev, "using spi->max_speed_hz!\n");
-+		spi_imx->spi_bus_clk = spi->max_speed_hz;
-+	} else
-+		spi_imx->spi_bus_clk = t->speed_hz;
++	pm_runtime_get_sync(&pdev->dev);
 +
- 	spi_imx->bits_per_word = t->bits_per_word;
+ 	spi_unregister_master(master);
+ 	spi->cfg->disable(spi);
  
- 	/*
-@@ -1236,7 +1241,7 @@ static int spi_imx_setupxfer(struct spi_device *spi,
- 		spi_imx->slave_burst = t->len;
- 	}
++	pm_runtime_disable(&pdev->dev);
++	pm_runtime_put_noidle(&pdev->dev);
++	pm_runtime_set_suspended(&pdev->dev);
+ 	if (master->dma_tx)
+ 		dma_release_channel(master->dma_tx);
+ 	if (master->dma_rx)
+@@ -1993,7 +2001,6 @@ static int stm32_spi_remove(struct platform_device *pdev)
  
--	spi_imx->devtype_data->prepare_transfer(spi_imx, spi, t);
-+	spi_imx->devtype_data->prepare_transfer(spi_imx, spi);
+ 	clk_disable_unprepare(spi->clk);
  
- 	return 0;
- }
+-	pm_runtime_disable(&pdev->dev);
+ 
+ 	pinctrl_pm_select_sleep_state(&pdev->dev);
+ 
 -- 
 2.30.2
 
