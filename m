@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EAF063D5F95
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F7C53D5E97
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:51:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235995AbhGZPSa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:18:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54392 "EHLO mail.kernel.org"
+        id S236374AbhGZPLE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:11:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236770AbhGZPPj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:15:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C16E360FC0;
-        Mon, 26 Jul 2021 15:53:10 +0000 (UTC)
+        id S236421AbhGZPJJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:09:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CBC6F60FC3;
+        Mon, 26 Jul 2021 15:49:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314791;
-        bh=Pz5znl3oCRXX/Ot8HGsKGVlif7ze/TLXcSlFz9LJoDk=;
+        s=korg; t=1627314547;
+        bh=el6tkVb4lJ9KT+q1In3s+lhL4jmAmJqbJ1PlydAWZVQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k3qSTK2sVECCexjtW+K4F3Wsee1+44O/ea5F2jtbx/xkXIPCu/07w4MrVxsG+nWql
-         KzoNEW1nmosrEiM9ncewD8uRNzOkRm3o6vNB5/hjdKvAqUHv3+FgVlbBdkHPCb+XJ7
-         PD1Ad2FZkF2VTm3OqIP2LvaiaZRV34C7tv3vD1Hk=
+        b=QdXxl52+sV+Uh9/jgUP3CMUzV54H53jw3E67vDmFhbg/vToccjZ2JVsWJCylLZMy3
+         f71N5DaiSPmqokhJ4QxsIp0ExADXnUglNJhwqroQUh1GdLOT8qF3t7CMEUqk7srPln
+         6Uxt4sjGWBXEGnNfH7F2cVoawoSRA9adJYBks+s4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jia-Ju Bai <baijiaju1990@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 093/120] ALSA: sb: Fix potential ABBA deadlock in CSP driver
-Date:   Mon, 26 Jul 2021 17:39:05 +0200
-Message-Id: <20210726153835.380618346@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
+Subject: [PATCH 4.14 66/82] usb: max-3421: Prevent corruption of freed memory
+Date:   Mon, 26 Jul 2021 17:39:06 +0200
+Message-Id: <20210726153830.317485226@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153832.339431936@linuxfoundation.org>
-References: <20210726153832.339431936@linuxfoundation.org>
+In-Reply-To: <20210726153828.144714469@linuxfoundation.org>
+References: <20210726153828.144714469@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,75 +39,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
 
-commit 1c2b9519159b470ef24b2638f4794e86e2952ab7 upstream.
+commit b5fdf5c6e6bee35837e160c00ac89327bdad031b upstream.
 
-SB16 CSP driver may hit potentially a typical ABBA deadlock in two
-code paths:
+The MAX-3421 USB driver remembers the state of the USB toggles for a
+device/endpoint. To save SPI writes, this was only done when a new
+device/endpoint was being used. Unfortunately, if the old device was
+removed, this would cause writes to freed memory.
 
- In snd_sb_csp_stop():
-     spin_lock_irqsave(&p->chip->mixer_lock, flags);
-     spin_lock(&p->chip->reg_lock);
+To fix this, a simpler scheme is used. The toggles are read from
+hardware when a URB is completed, and the toggles are always written to
+hardware when any URB transaction is started. This will cause a few more
+SPI transactions, but no causes kernel panics.
 
- In snd_sb_csp_load():
-     spin_lock_irqsave(&p->chip->reg_lock, flags);
-     spin_lock(&p->chip->mixer_lock);
-
-Also the similar pattern is seen in snd_sb_csp_start().
-
-Although the practical impact is very small (those states aren't
-triggered in the same running state and this happens only on a real
-hardware, decades old ISA sound boards -- which must be very difficult
-to find nowadays), it's a real scenario and has to be fixed.
-
-This patch addresses those deadlocks by splitting the locks in
-snd_sb_csp_start() and snd_sb_csp_stop() for avoiding the nested
-locks.
-
-Reported-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/7b0fcdaf-cd4f-4728-2eae-48c151a92e10@gmail.com
-Link: https://lore.kernel.org/r/20210716132723.13216-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 2d53139f3162 ("Add support for using a MAX3421E chip as a host driver.")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
+Link: https://lore.kernel.org/r/20210625031456.8632-1-mark.tomlinson@alliedtelesis.co.nz
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/isa/sb/sb16_csp.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/usb/host/max3421-hcd.c |   44 +++++++++++++----------------------------
+ 1 file changed, 14 insertions(+), 30 deletions(-)
 
---- a/sound/isa/sb/sb16_csp.c
-+++ b/sound/isa/sb/sb16_csp.c
-@@ -828,6 +828,7 @@ static int snd_sb_csp_start(struct snd_s
- 	mixR = snd_sbmixer_read(p->chip, SB_DSP4_PCM_DEV + 1);
- 	snd_sbmixer_write(p->chip, SB_DSP4_PCM_DEV, mixL & 0x7);
- 	snd_sbmixer_write(p->chip, SB_DSP4_PCM_DEV + 1, mixR & 0x7);
-+	spin_unlock_irqrestore(&p->chip->mixer_lock, flags);
+--- a/drivers/usb/host/max3421-hcd.c
++++ b/drivers/usb/host/max3421-hcd.c
+@@ -149,8 +149,6 @@ struct max3421_hcd {
+ 	 */
+ 	struct urb *curr_urb;
+ 	enum scheduling_pass sched_pass;
+-	struct usb_device *loaded_dev;	/* dev that's loaded into the chip */
+-	int loaded_epnum;		/* epnum whose toggles are loaded */
+ 	int urb_done;			/* > 0 -> no errors, < 0: errno */
+ 	size_t curr_len;
+ 	u8 hien;
+@@ -488,39 +486,17 @@ max3421_set_speed(struct usb_hcd *hcd, s
+  * Caller must NOT hold HCD spinlock.
+  */
+ static void
+-max3421_set_address(struct usb_hcd *hcd, struct usb_device *dev, int epnum,
+-		    int force_toggles)
++max3421_set_address(struct usb_hcd *hcd, struct usb_device *dev, int epnum)
+ {
+-	struct max3421_hcd *max3421_hcd = hcd_to_max3421(hcd);
+-	int old_epnum, same_ep, rcvtog, sndtog;
+-	struct usb_device *old_dev;
++	int rcvtog, sndtog;
+ 	u8 hctl;
  
- 	spin_lock(&p->chip->reg_lock);
- 	set_mode_register(p->chip, 0xc0);	/* c0 = STOP */
-@@ -867,6 +868,7 @@ static int snd_sb_csp_start(struct snd_s
- 	spin_unlock(&p->chip->reg_lock);
+-	old_dev = max3421_hcd->loaded_dev;
+-	old_epnum = max3421_hcd->loaded_epnum;
+-
+-	same_ep = (dev == old_dev && epnum == old_epnum);
+-	if (same_ep && !force_toggles)
+-		return;
+-
+-	if (old_dev && !same_ep) {
+-		/* save the old end-points toggles: */
+-		u8 hrsl = spi_rd8(hcd, MAX3421_REG_HRSL);
+-
+-		rcvtog = (hrsl >> MAX3421_HRSL_RCVTOGRD_BIT) & 1;
+-		sndtog = (hrsl >> MAX3421_HRSL_SNDTOGRD_BIT) & 1;
+-
+-		/* no locking: HCD (i.e., we) own toggles, don't we? */
+-		usb_settoggle(old_dev, old_epnum, 0, rcvtog);
+-		usb_settoggle(old_dev, old_epnum, 1, sndtog);
+-	}
+ 	/* setup new endpoint's toggle bits: */
+ 	rcvtog = usb_gettoggle(dev, epnum, 0);
+ 	sndtog = usb_gettoggle(dev, epnum, 1);
+ 	hctl = (BIT(rcvtog + MAX3421_HCTL_RCVTOG0_BIT) |
+ 		BIT(sndtog + MAX3421_HCTL_SNDTOG0_BIT));
  
- 	/* restore PCM volume */
-+	spin_lock_irqsave(&p->chip->mixer_lock, flags);
- 	snd_sbmixer_write(p->chip, SB_DSP4_PCM_DEV, mixL);
- 	snd_sbmixer_write(p->chip, SB_DSP4_PCM_DEV + 1, mixR);
- 	spin_unlock_irqrestore(&p->chip->mixer_lock, flags);
-@@ -892,6 +894,7 @@ static int snd_sb_csp_stop(struct snd_sb
- 	mixR = snd_sbmixer_read(p->chip, SB_DSP4_PCM_DEV + 1);
- 	snd_sbmixer_write(p->chip, SB_DSP4_PCM_DEV, mixL & 0x7);
- 	snd_sbmixer_write(p->chip, SB_DSP4_PCM_DEV + 1, mixR & 0x7);
-+	spin_unlock_irqrestore(&p->chip->mixer_lock, flags);
+-	max3421_hcd->loaded_epnum = epnum;
+ 	spi_wr8(hcd, MAX3421_REG_HCTL, hctl);
  
- 	spin_lock(&p->chip->reg_lock);
- 	if (p->running & SNDRV_SB_CSP_ST_QSOUND) {
-@@ -906,6 +909,7 @@ static int snd_sb_csp_stop(struct snd_sb
- 	spin_unlock(&p->chip->reg_lock);
+ 	/*
+@@ -528,7 +504,6 @@ max3421_set_address(struct usb_hcd *hcd,
+ 	 * address-assignment so it's best to just always load the
+ 	 * address whenever the end-point changed/was forced.
+ 	 */
+-	max3421_hcd->loaded_dev = dev;
+ 	spi_wr8(hcd, MAX3421_REG_PERADDR, dev->devnum);
+ }
  
- 	/* restore PCM volume */
-+	spin_lock_irqsave(&p->chip->mixer_lock, flags);
- 	snd_sbmixer_write(p->chip, SB_DSP4_PCM_DEV, mixL);
- 	snd_sbmixer_write(p->chip, SB_DSP4_PCM_DEV + 1, mixR);
- 	spin_unlock_irqrestore(&p->chip->mixer_lock, flags);
+@@ -663,7 +638,7 @@ max3421_select_and_start_urb(struct usb_
+ 	struct max3421_hcd *max3421_hcd = hcd_to_max3421(hcd);
+ 	struct urb *urb, *curr_urb = NULL;
+ 	struct max3421_ep *max3421_ep;
+-	int epnum, force_toggles = 0;
++	int epnum;
+ 	struct usb_host_endpoint *ep;
+ 	struct list_head *pos;
+ 	unsigned long flags;
+@@ -773,7 +748,6 @@ done:
+ 			usb_settoggle(urb->dev, epnum, 0, 1);
+ 			usb_settoggle(urb->dev, epnum, 1, 1);
+ 			max3421_ep->pkt_state = PKT_STATE_SETUP;
+-			force_toggles = 1;
+ 		} else
+ 			max3421_ep->pkt_state = PKT_STATE_TRANSFER;
+ 	}
+@@ -781,7 +755,7 @@ done:
+ 	spin_unlock_irqrestore(&max3421_hcd->lock, flags);
+ 
+ 	max3421_ep->last_active = max3421_hcd->frame_number;
+-	max3421_set_address(hcd, urb->dev, epnum, force_toggles);
++	max3421_set_address(hcd, urb->dev, epnum);
+ 	max3421_set_speed(hcd, urb->dev);
+ 	max3421_next_transfer(hcd, 0);
+ 	return 1;
+@@ -1376,6 +1350,16 @@ max3421_urb_done(struct usb_hcd *hcd)
+ 		status = 0;
+ 	urb = max3421_hcd->curr_urb;
+ 	if (urb) {
++		/* save the old end-points toggles: */
++		u8 hrsl = spi_rd8(hcd, MAX3421_REG_HRSL);
++		int rcvtog = (hrsl >> MAX3421_HRSL_RCVTOGRD_BIT) & 1;
++		int sndtog = (hrsl >> MAX3421_HRSL_SNDTOGRD_BIT) & 1;
++		int epnum = usb_endpoint_num(&urb->ep->desc);
++
++		/* no locking: HCD (i.e., we) own toggles, don't we? */
++		usb_settoggle(urb->dev, epnum, 0, rcvtog);
++		usb_settoggle(urb->dev, epnum, 1, sndtog);
++
+ 		max3421_hcd->curr_urb = NULL;
+ 		spin_lock_irqsave(&max3421_hcd->lock, flags);
+ 		usb_hcd_unlink_urb_from_ep(hcd, urb);
 
 
