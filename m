@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A6E33D60A0
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:11:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74C583D61E5
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:14:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236582AbhGZPXb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:23:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38490 "EHLO mail.kernel.org"
+        id S234284AbhGZPdV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:33:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48244 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237461AbhGZPXX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:23:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9116160E09;
-        Mon, 26 Jul 2021 16:03:51 +0000 (UTC)
+        id S233441AbhGZPcU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:32:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 92A7260C40;
+        Mon, 26 Jul 2021 16:12:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315432;
-        bh=93/ygrkXGPdvffaLbMHMCEDDSXAGJSn/guApQwYNnvk=;
+        s=korg; t=1627315965;
+        bh=9gIvzkB3UGqRN0BG9Zxjq53srvaJIaXklkW2JvwjXtg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WNBI2VwBYsJGQotuSaLAfy6oCSRNeEI3U56kKMkSmMjD8JB1+8uK/aAN7q6FDzvj6
-         kuRQfzb88Q5kEcvb4ul2z6Naj45MLGsgXgQ6h+Fs0ix0OQPYR8hgbf0hG4GrPGDjuW
-         ucgdWxRIexlsnZVq+n0PeShksK8HfzQmy2z4KXdw=
+        b=Bw8mOPXG61DFbYD4Aw5HdWMYUtLsE0QJ0C/TDGvQhONau4FluoJ3M8seP590tgOoY
+         3rQnGXzwzcBAfRcUVT9UiznwZ/z1ZWkLaHSCk8mhoHmIb8gPjJnTVR7DMNQebKmnUk
+         ugNraJs+pei8fLK077s3+lDBXk3uMeNZSKu7LfnA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vincent Palatin <vpalatin@chromium.org>,
+        stable@vger.kernel.org,
+        "Radu Pirea (NXP OSS)" <radu-nicolae.pirea@oss.nxp.com>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 094/167] Revert "USB: quirks: ignore remote wake-up on Fibocom L850-GL LTE modem"
+Subject: [PATCH 5.13 135/223] net: dsa: sja1105: make VID 4095 a bridge VLAN too
 Date:   Mon, 26 Jul 2021 17:38:47 +0200
-Message-Id: <20210726153842.547054974@linuxfoundation.org>
+Message-Id: <20210726153850.663680353@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
-References: <20210726153839.371771838@linuxfoundation.org>
+In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
+References: <20210726153846.245305071@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,53 +42,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Palatin <vpalatin@chromium.org>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit f3a1a937f7b240be623d989c8553a6d01465d04f ]
+[ Upstream commit e40cba9490bab1414d45c2d62defc0ad4f6e4136 ]
 
-This reverts commit 0bd860493f81eb2a46173f6f5e44cc38331c8dbd.
+This simple series of commands:
 
-While the patch was working as stated,ie preventing the L850-GL LTE modem
-from crashing on some U3 wake-ups due to a race condition between the
-host wake-up and the modem-side wake-up, when using the MBIM interface,
-this would force disabling the USB runtime PM on the device.
+ip link add br0 type bridge vlan_filtering 1
+ip link set swp0 master br0
 
-The increased power consumption is significant for LTE laptops,
-and given that with decently recent modem firmwares, when the modem hits
-the bug, it automatically recovers (ie it drops from the bus, but
-automatically re-enumerates after less than half a second, rather than being
-stuck until a power cycle as it was doing with ancient firmware), for
-most people, the trade-off now seems in favor of re-enabling it by
-default.
+fails on sja1105 with the following error:
+[   33.439103] sja1105 spi0.1: vlan-lookup-table needs to have at least the default untagged VLAN
+[   33.447710] sja1105 spi0.1: Invalid config, cannot upload
+Warning: sja1105: Failed to change VLAN Ethertype.
 
-For people with access to the platform code, the bug can also be worked-around
-successfully by changing the USB3 LFPM polling off-time for the XHCI
-controller in the BIOS code.
+For context, sja1105 has 3 operating modes:
+- SJA1105_VLAN_UNAWARE: the dsa_8021q_vlans are committed to hardware
+- SJA1105_VLAN_FILTERING_FULL: the bridge_vlans are committed to hardware
+- SJA1105_VLAN_FILTERING_BEST_EFFORT: both the dsa_8021q_vlans and the
+  bridge_vlans are committed to hardware
 
-Signed-off-by: Vincent Palatin <vpalatin@chromium.org>
-Link: https://lore.kernel.org/r/20210721092516.2775971-1-vpalatin@chromium.org
-Fixes: 0bd860493f81 ("USB: quirks: ignore remote wake-up on Fibocom L850-GL LTE modem")
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Swapping out a VLAN list and another in happens in
+sja1105_build_vlan_table(), which performs a delta update procedure.
+That function is called from a few places, notably from
+sja1105_vlan_filtering() which is called from the
+SWITCHDEV_ATTR_ID_BRIDGE_VLAN_FILTERING handler.
+
+The above set of 2 commands fails when run on a kernel pre-commit
+8841f6e63f2c ("net: dsa: sja1105: make devlink property
+best_effort_vlan_filtering true by default"). So the priv->vlan_state
+transition that takes place is between VLAN-unaware and full VLAN
+filtering. So the dsa_8021q_vlans are swapped out and the bridge_vlans
+are swapped in.
+
+So why does it fail?
+
+Well, the bridge driver, through nbp_vlan_init(), first sets up the
+SWITCHDEV_ATTR_ID_BRIDGE_VLAN_FILTERING attribute, and only then
+proceeds to call nbp_vlan_add for the default_pvid.
+
+So when we swap out the dsa_8021q_vlans and swap in the bridge_vlans in
+the SWITCHDEV_ATTR_ID_BRIDGE_VLAN_FILTERING handler, there are no bridge
+VLANs (yet). So we have wiped the VLAN table clean, and the low-level
+static config checker complains of an invalid configuration. We _will_
+add the bridge VLANs using the dynamic config interface, albeit later,
+when nbp_vlan_add() calls us. So it is natural that it fails.
+
+So why did it ever work?
+
+Surprisingly, it looks like I only tested this configuration with 2
+things set up in a particular way:
+- a network manager that brings all ports up
+- a kernel with CONFIG_VLAN_8021Q=y
+
+It is widely known that commit ad1afb003939 ("vlan_dev: VLAN 0 should be
+treated as "no vlan tag" (802.1p packet)") installs VID 0 to every net
+device that comes up. DSA treats these VLANs as bridge VLANs, and
+therefore, in my testing, the list of bridge_vlans was never empty.
+
+However, if CONFIG_VLAN_8021Q is not enabled, or the port is not up when
+it joins a VLAN-aware bridge, the bridge_vlans list will be temporarily
+empty, and the sja1105_static_config_reload() call from
+sja1105_vlan_filtering() will fail.
+
+To fix this, the simplest thing is to keep VID 4095, the one used for
+CPU-injected control packets since commit ed040abca4c1 ("net: dsa:
+sja1105: use 4095 as the private VLAN for untagged traffic"), in the
+list of bridge VLANs too, not just the list of tag_8021q VLANs. This
+ensures that the list of bridge VLANs will never be empty.
+
+Fixes: ec5ae61076d0 ("net: dsa: sja1105: save/restore VLANs using a delta commit method")
+Reported-by: Radu Pirea (NXP OSS) <radu-nicolae.pirea@oss.nxp.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/core/quirks.c | 4 ----
- 1 file changed, 4 deletions(-)
+ drivers/net/dsa/sja1105/sja1105_main.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/usb/core/quirks.c b/drivers/usb/core/quirks.c
-index 21e7522655ac..a54a735b6384 100644
---- a/drivers/usb/core/quirks.c
-+++ b/drivers/usb/core/quirks.c
-@@ -502,10 +502,6 @@ static const struct usb_device_id usb_quirk_list[] = {
- 	/* DJI CineSSD */
- 	{ USB_DEVICE(0x2ca3, 0x0031), .driver_info = USB_QUIRK_NO_LPM },
+diff --git a/drivers/net/dsa/sja1105/sja1105_main.c b/drivers/net/dsa/sja1105/sja1105_main.c
+index ebe4d33cda27..6e5dbe9f3892 100644
+--- a/drivers/net/dsa/sja1105/sja1105_main.c
++++ b/drivers/net/dsa/sja1105/sja1105_main.c
+@@ -378,6 +378,12 @@ static int sja1105_init_static_vlan(struct sja1105_private *priv)
+ 		if (dsa_is_cpu_port(ds, port))
+ 			v->pvid = true;
+ 		list_add(&v->list, &priv->dsa_8021q_vlans);
++
++		v = kmemdup(v, sizeof(*v), GFP_KERNEL);
++		if (!v)
++			return -ENOMEM;
++
++		list_add(&v->list, &priv->bridge_vlans);
+ 	}
  
--	/* Fibocom L850-GL LTE Modem */
--	{ USB_DEVICE(0x2cb7, 0x0007), .driver_info =
--			USB_QUIRK_IGNORE_REMOTE_WAKEUP },
--
- 	/* INTEL VALUE SSD */
- 	{ USB_DEVICE(0x8086, 0xf1a5), .driver_info = USB_QUIRK_RESET_RESUME },
- 
+ 	((struct sja1105_vlan_lookup_entry *)table->entries)[0] = pvid;
 -- 
 2.30.2
 
