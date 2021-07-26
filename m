@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EF093D5F36
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9808F3D5F07
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:59:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236211AbhGZPRQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:17:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54392 "EHLO mail.kernel.org"
+        id S236155AbhGZPQf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:16:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237398AbhGZPPn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:15:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E241260F6E;
-        Mon, 26 Jul 2021 15:54:49 +0000 (UTC)
+        id S236352AbhGZPLC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:11:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D45860F44;
+        Mon, 26 Jul 2021 15:51:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314890;
-        bh=xWqsSma/7M6E4cjsa/cKitR9cjHlo1Nrq9UWUHexB/Y=;
+        s=korg; t=1627314691;
+        bh=WbcAoORSEo3xrjNUt8TS+8PA0uazBmuXqcBbv3NVmi8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FPCitEMOFQQ0Q3QuCje4aoaFeB2WheBJgCRrCdG6tmKzeenShFTPRp9NNDyBIv4Uz
-         c7cxRCbabZ8TMH98rpRlnwcI6vdKJ4nIFKoxQJ0E4TZYlnkNkRdpwZPeMZgFCpCEji
-         KLKxkWkQtc8BvS20HsAn37UBAZCSTQW5d7DfSPXA=
+        b=KfD0LVuqpSNDAkPaaeB6d7yq1GeAJJqhLg4ZOlATGcVydoUU/GxGhJ5uns88aMnA/
+         geJselLsiDq6PiohK0pV3yWSetTqNsWG7bnFhLuPbEoBSjrDBQKvgZ4mbqv7pH/Cvo
+         Fs+gmVWLOjBrRmWKdeCibsJsG+ylpxgMgcrffbmc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Erez Geva <erez.geva.ext@siemens.com>,
-        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
-        Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 001/108] igc: Fix use-after-free error during reset
+Subject: [PATCH 4.19 030/120] scsi: aic7xxx: Fix unintentional sign extension issue on left shift of u8
 Date:   Mon, 26 Jul 2021 17:38:02 +0200
-Message-Id: <20210726153831.742832567@linuxfoundation.org>
+Message-Id: <20210726153833.360530713@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
-References: <20210726153831.696295003@linuxfoundation.org>
+In-Reply-To: <20210726153832.339431936@linuxfoundation.org>
+References: <20210726153832.339431936@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -44,91 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinicius Costa Gomes <vinicius.gomes@intel.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 56ea7ed103b46970e171eb1c95916f393d64eeff ]
+[ Upstream commit 332a9dd1d86f1e7203fc7f0fd7e82f0b304200fe ]
 
-Cleans the next descriptor to watch (next_to_watch) when cleaning the
-TX ring.
+The shifting of the u8 integer returned fom ahc_inb(ahc, port+3) by 24 bits
+to the left will be promoted to a 32 bit signed int and then sign-extended
+to a u64. In the event that the top bit of the u8 is set then all then all
+the upper 32 bits of the u64 end up as also being set because of the
+sign-extension. Fix this by casting the u8 values to a u64 before the 24
+bit left shift.
 
-Failure to do so can cause invalid memory accesses. If igc_poll() runs
-while the controller is being reset this can lead to the driver try to
-free a skb that was already freed.
+[ This dates back to 2002, I found the offending commit from the git
+history git://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git,
+commit f58eb66c0b0a ("Update aic7xxx driver to 6.2.10...") ]
 
-Log message:
-
- [  101.525242] refcount_t: underflow; use-after-free.
- [  101.525251] WARNING: CPU: 1 PID: 646 at lib/refcount.c:28 refcount_warn_saturate+0xab/0xf0
- [  101.525259] Modules linked in: sch_etf(E) sch_mqprio(E) rfkill(E) intel_rapl_msr(E) intel_rapl_common(E)
- x86_pkg_temp_thermal(E) intel_powerclamp(E) coretemp(E) binfmt_misc(E) kvm_intel(E) kvm(E) irqbypass(E) crc32_pclmul(E)
- ghash_clmulni_intel(E) aesni_intel(E) mei_wdt(E) libaes(E) crypto_simd(E) cryptd(E) glue_helper(E) snd_hda_codec_hdmi(E)
- rapl(E) intel_cstate(E) snd_hda_intel(E) snd_intel_dspcfg(E) sg(E) soundwire_intel(E) intel_uncore(E) at24(E)
- soundwire_generic_allocation(E) iTCO_wdt(E) soundwire_cadence(E) intel_pmc_bxt(E) serio_raw(E) snd_hda_codec(E)
- iTCO_vendor_support(E) watchdog(E) snd_hda_core(E) snd_hwdep(E) snd_soc_core(E) snd_compress(E) snd_pcsp(E)
- soundwire_bus(E) snd_pcm(E) evdev(E) snd_timer(E) mei_me(E) snd(E) soundcore(E) mei(E) configfs(E) ip_tables(E) x_tables(E)
- autofs4(E) ext4(E) crc32c_generic(E) crc16(E) mbcache(E) jbd2(E) sd_mod(E) t10_pi(E) crc_t10dif(E) crct10dif_generic(E)
- i915(E) ahci(E) libahci(E) ehci_pci(E) igb(E) xhci_pci(E) ehci_hcd(E)
- [  101.525303]  drm_kms_helper(E) dca(E) xhci_hcd(E) libata(E) crct10dif_pclmul(E) cec(E) crct10dif_common(E) tsn(E) igc(E)
- e1000e(E) ptp(E) i2c_i801(E) crc32c_intel(E) psmouse(E) i2c_algo_bit(E) i2c_smbus(E) scsi_mod(E) lpc_ich(E) pps_core(E)
- usbcore(E) drm(E) button(E) video(E)
- [  101.525318] CPU: 1 PID: 646 Comm: irq/37-enp7s0-T Tainted: G            E     5.10.30-rt37-tsn1-rt-ipipe #ipipe
- [  101.525320] Hardware name: SIEMENS AG SIMATIC IPC427D/A5E31233588, BIOS V17.02.09 03/31/2017
- [  101.525322] RIP: 0010:refcount_warn_saturate+0xab/0xf0
- [  101.525325] Code: 05 31 48 44 01 01 e8 f0 c6 42 00 0f 0b c3 80 3d 1f 48 44 01 00 75 90 48 c7 c7 78 a8 f3 a6 c6 05 0f 48
- 44 01 01 e8 d1 c6 42 00 <0f> 0b c3 80 3d fe 47 44 01 00 0f 85 6d ff ff ff 48 c7 c7 d0 a8 f3
- [  101.525327] RSP: 0018:ffffbdedc0917cb8 EFLAGS: 00010286
- [  101.525329] RAX: 0000000000000000 RBX: ffff98fd6becbf40 RCX: 0000000000000001
- [  101.525330] RDX: 0000000000000001 RSI: ffffffffa6f2700c RDI: 00000000ffffffff
- [  101.525332] RBP: ffff98fd6becc14c R08: ffffffffa7463d00 R09: ffffbdedc0917c50
- [  101.525333] R10: ffffffffa74c3578 R11: 0000000000000034 R12: 00000000ffffff00
- [  101.525335] R13: ffff98fd6b0b1000 R14: 0000000000000039 R15: ffff98fd6be35c40
- [  101.525337] FS:  0000000000000000(0000) GS:ffff98fd6e240000(0000) knlGS:0000000000000000
- [  101.525339] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- [  101.525341] CR2: 00007f34135a3a70 CR3: 0000000150210003 CR4: 00000000001706e0
- [  101.525343] Call Trace:
- [  101.525346]  sock_wfree+0x9c/0xa0
- [  101.525353]  unix_destruct_scm+0x7b/0xa0
- [  101.525358]  skb_release_head_state+0x40/0x90
- [  101.525362]  skb_release_all+0xe/0x30
- [  101.525364]  napi_consume_skb+0x57/0x160
- [  101.525367]  igc_poll+0xb7/0xc80 [igc]
- [  101.525376]  ? sched_clock+0x5/0x10
- [  101.525381]  ? sched_clock_cpu+0xe/0x100
- [  101.525385]  net_rx_action+0x14c/0x410
- [  101.525388]  __do_softirq+0xe9/0x2f4
- [  101.525391]  __local_bh_enable_ip+0xe3/0x110
- [  101.525395]  ? irq_finalize_oneshot.part.47+0xe0/0xe0
- [  101.525398]  irq_forced_thread_fn+0x6a/0x80
- [  101.525401]  irq_thread+0xe8/0x180
- [  101.525403]  ? wake_threads_waitq+0x30/0x30
- [  101.525406]  ? irq_thread_check_affinity+0xd0/0xd0
- [  101.525408]  kthread+0x183/0x1a0
- [  101.525412]  ? kthread_park+0x80/0x80
- [  101.525415]  ret_from_fork+0x22/0x30
-
-Fixes: 13b5b7fd6a4a ("igc: Add support for Tx/Rx rings")
-Reported-by: Erez Geva <erez.geva.ext@siemens.com>
-Signed-off-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
-Tested-by: Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Link: https://lore.kernel.org/r/20210621151727.20667-1-colin.king@canonical.com
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Addresses-Coverity: ("Unintended sign extension")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/igc/igc_main.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/scsi/aic7xxx/aic7xxx_core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/igc/igc_main.c b/drivers/net/ethernet/intel/igc/igc_main.c
-index 6b43e1c5b1c3..8c2813963e55 100644
---- a/drivers/net/ethernet/intel/igc/igc_main.c
-+++ b/drivers/net/ethernet/intel/igc/igc_main.c
-@@ -256,6 +256,8 @@ static void igc_clean_tx_ring(struct igc_ring *tx_ring)
- 					       DMA_TO_DEVICE);
- 		}
- 
-+		tx_buffer->next_to_watch = NULL;
-+
- 		/* move us one more past the eop_desc for start of next pkt */
- 		tx_buffer++;
- 		i++;
+diff --git a/drivers/scsi/aic7xxx/aic7xxx_core.c b/drivers/scsi/aic7xxx/aic7xxx_core.c
+index 49e02e874553..fe15746af520 100644
+--- a/drivers/scsi/aic7xxx/aic7xxx_core.c
++++ b/drivers/scsi/aic7xxx/aic7xxx_core.c
+@@ -500,7 +500,7 @@ ahc_inq(struct ahc_softc *ahc, u_int port)
+ 	return ((ahc_inb(ahc, port))
+ 	      | (ahc_inb(ahc, port+1) << 8)
+ 	      | (ahc_inb(ahc, port+2) << 16)
+-	      | (ahc_inb(ahc, port+3) << 24)
++	      | (((uint64_t)ahc_inb(ahc, port+3)) << 24)
+ 	      | (((uint64_t)ahc_inb(ahc, port+4)) << 32)
+ 	      | (((uint64_t)ahc_inb(ahc, port+5)) << 40)
+ 	      | (((uint64_t)ahc_inb(ahc, port+6)) << 48)
 -- 
 2.30.2
 
