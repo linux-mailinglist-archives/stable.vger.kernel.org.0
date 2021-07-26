@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5B203D628A
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:26:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D79F3D628B
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:26:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234092AbhGZPgM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:36:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53728 "EHLO mail.kernel.org"
+        id S234193AbhGZPgN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:36:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236967AbhGZPfo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:35:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3EE9F60F92;
-        Mon, 26 Jul 2021 16:16:12 +0000 (UTC)
+        id S235438AbhGZPfq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:35:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 94CDC60F9F;
+        Mon, 26 Jul 2021 16:16:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627316172;
-        bh=9S2BFcd7QK9eo8C8Bvdy/lw6wP+DPHYNQJPKKQxkpI4=;
+        s=korg; t=1627316175;
+        bh=8kFvXiH+MRFQu8oQ1tz6ELHHooexvaGVK+t+tZixmRY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0sefOGrEZl+Qj/7tBvvYw+U6phuH5HAqROMbgWPzIbnzLhb1OX9/FHnheCwTPKIGT
-         bravABkFJu7YLlb1140LBECW598yEaIVaBsU24wzLdZ+Vmn5taQAql8/ShdlXaN6Eu
-         AXv71dkhvZD+Bo4hTjjkULnYFpLouC/OCPazxcUU=
+        b=azJDZoDkIkj8rmnGy8EQAZZINw/riBBSeym0ijXXMd0xo6XNJu5yfL3jd0Eth55ai
+         19ji13bnrYQEazsxFNfeRJSp6R4LvNUMh6FRu2EfsW+t/19+3rWQMGh40/UhlW68/Q
+         n+EP76NZxfcKRfK4sC1cxYKfHGhWzKai3u1bY+dw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roi Dayan <roid@nvidia.com>,
-        Paul Blakey <paulb@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.13 216/223] skbuff: Release nfct refcount on napi stolen or re-used skbs
-Date:   Mon, 26 Jul 2021 17:40:08 +0200
-Message-Id: <20210726153853.247517014@linuxfoundation.org>
+        stable@vger.kernel.org, Ojaswin Mujoo <ojaswin98@gmail.com>,
+        Stefan Wahren <stefan.wahren@i2se.com>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 5.13 217/223] ARM: multi_v7_defconfig: Make NOP_USB_XCEIV driver built-in
+Date:   Mon, 26 Jul 2021 17:40:09 +0200
+Message-Id: <20210726153853.277559698@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
 References: <20210726153846.245305071@linuxfoundation.org>
@@ -40,66 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Blakey <paulb@nvidia.com>
+From: Stefan Wahren <stefan.wahren@i2se.com>
 
-commit 8550ff8d8c75416e984d9c4b082845e57e560984 upstream.
+commit ab37a7a890c1176144a4c66ff3d51ef2c20ed486 upstream.
 
-When multiple SKBs are merged to a new skb under napi GRO,
-or SKB is re-used by napi, if nfct was set for them in the
-driver, it will not be released while freeing their stolen
-head state or on re-use.
+The usage of usb-nop-xceiv PHY on Raspberry Pi boards with BCM283x has
+been a "regression source" a lot of times. The last case is breakage of
+USB mass storage boot has been commit e590474768f1 ("driver core: Set
+fw_devlink=on by default") for multi_v7_defconfig. As long as
+NOP_USB_XCEIV is configured as module, the dwc2 USB driver defer probing
+endlessly and prevent booting from USB mass storage device. So make
+the driver built-in as in bcm2835_defconfig and arm64/defconfig.
 
-Release nfct on napi's stolen or re-used SKBs, and
-in gro_list_prepare, check conntrack metadata diff.
-
-Fixes: 5c6b94604744 ("net/mlx5e: CT: Handle misses after executing CT action")
-Reviewed-by: Roi Dayan <roid@nvidia.com>
-Signed-off-by: Paul Blakey <paulb@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: e590474768f1 ("driver core: Set fw_devlink=on by default")
+Reported-by: Ojaswin Mujoo <ojaswin98@gmail.com>
+Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
+Link: https://lore.kernel.org/r/1625915095-23077-1-git-send-email-stefan.wahren@i2se.com'
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/dev.c    |   13 +++++++++++++
- net/core/skbuff.c |    1 +
- 2 files changed, 14 insertions(+)
+ arch/arm/configs/multi_v7_defconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -5981,6 +5981,18 @@ static void gro_list_prepare(const struc
- 			diffs = memcmp(skb_mac_header(p),
- 				       skb_mac_header(skb),
- 				       maclen);
-+
-+		diffs |= skb_get_nfct(p) ^ skb_get_nfct(skb);
-+
-+		if (!diffs) {
-+			struct tc_skb_ext *skb_ext = skb_ext_find(skb, TC_SKB_EXT);
-+			struct tc_skb_ext *p_ext = skb_ext_find(p, TC_SKB_EXT);
-+
-+			diffs |= (!!p_ext) ^ (!!skb_ext);
-+			if (!diffs && unlikely(skb_ext))
-+				diffs |= p_ext->chain ^ skb_ext->chain;
-+		}
-+
- 		NAPI_GRO_CB(p)->same_flow = !diffs;
- 	}
- }
-@@ -6245,6 +6257,7 @@ static void napi_reuse_skb(struct napi_s
- 	skb_shinfo(skb)->gso_type = 0;
- 	skb->truesize = SKB_TRUESIZE(skb_end_offset(skb));
- 	skb_ext_reset(skb);
-+	nf_reset_ct(skb);
- 
- 	napi->skb = skb;
- }
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -939,6 +939,7 @@ void __kfree_skb_defer(struct sk_buff *s
- 
- void napi_skb_free_stolen_head(struct sk_buff *skb)
- {
-+	nf_reset_ct(skb);
- 	skb_dst_drop(skb);
- 	skb_ext_put(skb);
- 	napi_skb_cache_put(skb);
+--- a/arch/arm/configs/multi_v7_defconfig
++++ b/arch/arm/configs/multi_v7_defconfig
+@@ -821,7 +821,7 @@ CONFIG_USB_ISP1760=y
+ CONFIG_USB_HSIC_USB3503=y
+ CONFIG_AB8500_USB=y
+ CONFIG_KEYSTONE_USB_PHY=m
+-CONFIG_NOP_USB_XCEIV=m
++CONFIG_NOP_USB_XCEIV=y
+ CONFIG_AM335X_PHY_USB=m
+ CONFIG_TWL6030_USB=m
+ CONFIG_USB_GPIO_VBUS=y
 
 
