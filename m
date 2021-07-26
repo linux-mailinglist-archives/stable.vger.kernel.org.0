@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B1DF3D6023
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D88E3D616A
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:13:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237091AbhGZPU7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:20:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34802 "EHLO mail.kernel.org"
+        id S232176AbhGZPbO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:31:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237083AbhGZPU5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:20:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5EA8460E09;
-        Mon, 26 Jul 2021 16:01:24 +0000 (UTC)
+        id S237870AbhGZP30 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:29:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B246661058;
+        Mon, 26 Jul 2021 16:09:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315284;
-        bh=e882il2bydtuy8UYPCNWU1xDPgHUWdrpAEZEA1DfvRc=;
+        s=korg; t=1627315749;
+        bh=oCEfuq0erFN38BM9Nt4G4Ki85N22I0X1IdMoo8p8nyE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l4y3+cuV/7FXQV//XMQpc2u6Na2LbwHyPcx40xkuuaSKYB8zdSiRziFFRPESJY/Nh
-         on4LC5MhH7yk2xR7id42zvtFTY5C+CAACa0lxV/jWkIBfyqNEUbw396if9Pz+Z7x1Y
-         gi5vLHN2LLG83Nec8fCxsJW1I86tRlGUR/teWC/8=
+        b=J1DvhKqAjf/ENHEfvaJi45e6FxkuXZjP2+SetfvkAqMDpAoxd40z7b1eeToyqHsW4
+         CHb87AHf7hu60Rp12AJnwx5gdGFQ+K3so/53W5yhivB0PSuXRLWqrMUf4fQWQ63uPV
+         V1QrBz4QE9CjDCvLMIUaZGyAsfj6avjuxiZydt/0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Riccardo Mancini <rickyman7@gmail.com>,
+        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
+        Krister Johansen <kjlx@templeofstupid.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 009/167] iavf: Fix an error handling path in iavf_probe()
-Date:   Mon, 26 Jul 2021 17:37:22 +0200
-Message-Id: <20210726153839.680340372@linuxfoundation.org>
+Subject: [PATCH 5.13 051/223] perf probe: Fix dso->nsinfo refcounting
+Date:   Mon, 26 Jul 2021 17:37:23 +0200
+Message-Id: <20210726153847.935593634@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
-References: <20210726153839.371771838@linuxfoundation.org>
+In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
+References: <20210726153846.245305071@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,34 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Riccardo Mancini <rickyman7@gmail.com>
 
-[ Upstream commit af30cbd2f4d6d66a9b6094e0aa32420bc8b20e08 ]
+[ Upstream commit dedeb4be203b382ba7245d13079bc3b0f6d40c65 ]
 
-If an error occurs after a 'pci_enable_pcie_error_reporting()' call, it
-must be undone by a corresponding 'pci_disable_pcie_error_reporting()'
-call, as already done in the remove function.
+ASan reports a memory leak of nsinfo during the execution of:
 
-Fixes: 5eae00c57f5e ("i40evf: main driver core")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+ # perf test "31: Lookup mmap thread".
+
+The leak is caused by a refcounted variable being replaced without
+dropping the refcount.
+
+This patch makes sure that the refcnt of nsinfo is decreased whenever
+a refcounted variable is replaced with a new value.
+
+Signed-off-by: Riccardo Mancini <rickyman7@gmail.com>
+Fixes: 544abd44c7064c8a ("perf probe: Allow placing uprobes in alternate namespaces.")
+Cc: Ian Rogers <irogers@google.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Krister Johansen <kjlx@templeofstupid.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lore.kernel.org/lkml/55223bc8821b34ccb01f92ef1401c02b6a32e61f.1626343282.git.rickyman7@gmail.com
+[ Split from a larger patch ]
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/iavf/iavf_main.c | 1 +
- 1 file changed, 1 insertion(+)
+ tools/perf/util/probe-event.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
-index ebd08543791b..f3caf5eab8d4 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_main.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
-@@ -3759,6 +3759,7 @@ static int iavf_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- err_ioremap:
- 	free_netdev(netdev);
- err_alloc_etherdev:
-+	pci_disable_pcie_error_reporting(pdev);
- 	pci_release_regions(pdev);
- err_pci_reg:
- err_dma:
+diff --git a/tools/perf/util/probe-event.c b/tools/perf/util/probe-event.c
+index a78c8d59a555..9cc89a047b15 100644
+--- a/tools/perf/util/probe-event.c
++++ b/tools/perf/util/probe-event.c
+@@ -180,8 +180,10 @@ struct map *get_target_map(const char *target, struct nsinfo *nsi, bool user)
+ 		struct map *map;
+ 
+ 		map = dso__new_map(target);
+-		if (map && map->dso)
++		if (map && map->dso) {
++			nsinfo__put(map->dso->nsinfo);
+ 			map->dso->nsinfo = nsinfo__get(nsi);
++		}
+ 		return map;
+ 	} else {
+ 		return kernel_get_module_map(target);
 -- 
 2.30.2
 
