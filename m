@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BC223D5F0B
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:59:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63DB23D5E43
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:47:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236338AbhGZPQi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:16:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51984 "EHLO mail.kernel.org"
+        id S236249AbhGZPGc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:06:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236307AbhGZPLQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:11:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D7CC860F59;
-        Mon, 26 Jul 2021 15:51:44 +0000 (UTC)
+        id S235962AbhGZPGJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:06:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F72A60F6E;
+        Mon, 26 Jul 2021 15:46:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314705;
-        bh=uBHGnnweV2Kr9KOe4qq44mmeWZOuKU4teDMHUGPBclc=;
+        s=korg; t=1627314397;
+        bh=b6n+PlAf17eiL4aspDzeqfCt/otp91D5d3QthAesodI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bA7nU5kHr12iV4xuJkK35z7YB3maJ7zKXgSdSmR3yIZCWT80l0VN9QwIkeUwtYmrH
-         l9iaIpbRgpLS+Iio94Qi2EZxkQsouN5MhajkXrWj+PpPT5pd/mmgu5iR5NqwgJJRMZ
-         VSIzXCIt1YhghgQTzuL803KmF//C7SvvXN/0+GJQ=
+        b=1m9fGcc+B7/7pIzR5Rz5YH7pB/tvUn8LxKPdW+O89/McORgeg65Wfi6subj+2Wimh
+         hF4kYyP0+027Z/xc6yjjPjuSZr7Ia9M/WEPH7PxPFQK1TjqL4kVhBzgrJh7whHYBMh
+         RUSBfYG4FSLvAuE80b2gnLScyDKtTE0FYm1aPfUY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jedrzej Jagielski <jedrzej.jagielski@intel.com>,
-        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
-        Tony Brelinski <tonyx.brelinski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 060/120] igb: Fix position of assignment to *ring
-Date:   Mon, 26 Jul 2021 17:38:32 +0200
-Message-Id: <20210726153834.310818370@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 33/82] tcp: annotate data races around tp->mtu_info
+Date:   Mon, 26 Jul 2021 17:38:33 +0200
+Message-Id: <20210726153829.240751610@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153832.339431936@linuxfoundation.org>
-References: <20210726153832.339431936@linuxfoundation.org>
+In-Reply-To: <20210726153828.144714469@linuxfoundation.org>
+References: <20210726153828.144714469@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,46 +39,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jedrzej Jagielski <jedrzej.jagielski@intel.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 382a7c20d9253bcd5715789b8179528d0f3de72c ]
+commit 561022acb1ce62e50f7a8258687a21b84282a4cb upstream.
 
-Assignment to *ring should be done after correctness check of the
-argument queue.
+While tp->mtu_info is read while socket is owned, the write
+sides happen from err handlers (tcp_v[46]_mtu_reduced)
+which only own the socket spinlock.
 
-Fixes: 91db364236c8 ("igb: Refactor igb_configure_cbs()")
-Signed-off-by: Jedrzej Jagielski <jedrzej.jagielski@intel.com>
-Acked-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
-Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 563d34d05786 ("tcp: dont drop MTU reduction indications")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/igb/igb_main.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/ipv4/tcp_ipv4.c |    4 ++--
+ net/ipv6/tcp_ipv6.c |    4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/igb/igb_main.c b/drivers/net/ethernet/intel/igb/igb_main.c
-index 243e304c35cd..6221dafc76b9 100644
---- a/drivers/net/ethernet/intel/igb/igb_main.c
-+++ b/drivers/net/ethernet/intel/igb/igb_main.c
-@@ -1692,14 +1692,15 @@ static bool is_any_txtime_enabled(struct igb_adapter *adapter)
-  **/
- static void igb_config_tx_modes(struct igb_adapter *adapter, int queue)
- {
--	struct igb_ring *ring = adapter->tx_ring[queue];
- 	struct net_device *netdev = adapter->netdev;
- 	struct e1000_hw *hw = &adapter->hw;
-+	struct igb_ring *ring;
- 	u32 tqavcc, tqavctrl;
- 	u16 value;
+--- a/net/ipv4/tcp_ipv4.c
++++ b/net/ipv4/tcp_ipv4.c
+@@ -285,7 +285,7 @@ void tcp_v4_mtu_reduced(struct sock *sk)
  
- 	WARN_ON(hw->mac.type != e1000_i210);
- 	WARN_ON(queue < 0 || queue > 1);
-+	ring = adapter->tx_ring[queue];
+ 	if ((1 << sk->sk_state) & (TCPF_LISTEN | TCPF_CLOSE))
+ 		return;
+-	mtu = tcp_sk(sk)->mtu_info;
++	mtu = READ_ONCE(tcp_sk(sk)->mtu_info);
+ 	dst = inet_csk_update_pmtu(sk, mtu);
+ 	if (!dst)
+ 		return;
+@@ -453,7 +453,7 @@ void tcp_v4_err(struct sk_buff *icmp_skb
+ 			if (sk->sk_state == TCP_LISTEN)
+ 				goto out;
  
- 	/* If any of the Qav features is enabled, configure queues as SR and
- 	 * with HIGH PRIO. If none is, then configure them with LOW PRIO and
--- 
-2.30.2
-
+-			tp->mtu_info = info;
++			WRITE_ONCE(tp->mtu_info, info);
+ 			if (!sock_owned_by_user(sk)) {
+ 				tcp_v4_mtu_reduced(sk);
+ 			} else {
+--- a/net/ipv6/tcp_ipv6.c
++++ b/net/ipv6/tcp_ipv6.c
+@@ -323,7 +323,7 @@ static void tcp_v6_mtu_reduced(struct so
+ 	if ((1 << sk->sk_state) & (TCPF_LISTEN | TCPF_CLOSE))
+ 		return;
+ 
+-	dst = inet6_csk_update_pmtu(sk, tcp_sk(sk)->mtu_info);
++	dst = inet6_csk_update_pmtu(sk, READ_ONCE(tcp_sk(sk)->mtu_info));
+ 	if (!dst)
+ 		return;
+ 
+@@ -412,7 +412,7 @@ static void tcp_v6_err(struct sk_buff *s
+ 		if (!ip6_sk_accept_pmtu(sk))
+ 			goto out;
+ 
+-		tp->mtu_info = ntohl(info);
++		WRITE_ONCE(tp->mtu_info, ntohl(info));
+ 		if (!sock_owned_by_user(sk))
+ 			tcp_v6_mtu_reduced(sk);
+ 		else if (!test_and_set_bit(TCP_MTU_REDUCED_DEFERRED,
 
 
