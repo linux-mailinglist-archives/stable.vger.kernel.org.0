@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A23C43D5FC2
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D9283D5F7B
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236622AbhGZPTK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:19:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58690 "EHLO mail.kernel.org"
+        id S236159AbhGZPSD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:18:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236102AbhGZPSP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:18:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 67E8A60FC2;
-        Mon, 26 Jul 2021 15:58:43 +0000 (UTC)
+        id S236871AbhGZPPn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:15:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A14261001;
+        Mon, 26 Jul 2021 15:54:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315123;
-        bh=/KF3dQWL13Gi/ZNEQMzF/mHt5mJRTOk5WiSPi3CVCpg=;
+        s=korg; t=1627314850;
+        bh=dENVCS3Y3KQhQSG+QKV4p2dyPQEV4LoEQltka3j1BbU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dlmg6LSuQpfSMmGYOA2e4wVcZAt+dWRn6WbHI7yteql0ZJ5WSQ5DFkSfkRwzWep8P
-         wz4+3O42KJ+RUCAagHWdg7eu8mQXXMvI6jNPvJCkSs3ThEMhemwK/vUox/oFhPs4sy
-         vjt/JIuPDtaAXAhpJzj8E/3eaJOMZa9PWYjiFnNU=
+        b=by78+G86CCnNU+Zqp+WD5aI9E7FRH1I4C7vIEFp7FpKwI+R+wEU6g/swMoOEzfe8c
+         8wCTcq1s1gIh7pZtMsHyF7aVhnAy2i7SIhn4cwPjEddbFQnJz8PnSvjeLEH5p/JqOq
+         xOsbtH7xaIT3h2LEvEUz82LT71y0i8HodRXJbFHo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ian Ray <ian.ray@ge.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.4 085/108] USB: serial: cp210x: fix comments for GE CS1000
-Date:   Mon, 26 Jul 2021 17:39:26 +0200
-Message-Id: <20210726153834.404842933@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>,
+        Oleksandr Kravchenko <o.v.kravchenko@globallogic.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.19 115/120] iio: accel: bma180: Use explicit member assignment
+Date:   Mon, 26 Jul 2021 17:39:27 +0200
+Message-Id: <20210726153836.168422592@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
-References: <20210726153831.696295003@linuxfoundation.org>
+In-Reply-To: <20210726153832.339431936@linuxfoundation.org>
+References: <20210726153832.339431936@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,34 +42,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ian Ray <ian.ray@ge.com>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-commit e9db418d4b828dd049caaf5ed65dc86f93bb1a0c upstream.
+commit 9436abc40139503a7cea22a96437697d048f31c0 upstream
 
-Fix comments for GE CS1000 CP210x USB ID assignments.
+This uses the C99 explicit .member assignment for the
+variant data in struct bma180_part_info. This makes it
+easier to understand and add new variants.
 
-Fixes: 42213a0190b5 ("USB: serial: cp210x: add some more GE USB IDs")
-Signed-off-by: Ian Ray <ian.ray@ge.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Cc: Peter Meerwald <pmeerw@pmeerw.net>
+Cc: Oleksandr Kravchenko <o.v.kravchenko@globallogic.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/cp210x.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/iio/accel/bma180.c |   68 +++++++++++++++++++++++++++++----------------
+ 1 file changed, 44 insertions(+), 24 deletions(-)
 
---- a/drivers/usb/serial/cp210x.c
-+++ b/drivers/usb/serial/cp210x.c
-@@ -203,8 +203,8 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(0x1901, 0x0194) },	/* GE Healthcare Remote Alarm Box */
- 	{ USB_DEVICE(0x1901, 0x0195) },	/* GE B850/B650/B450 CP2104 DP UART interface */
- 	{ USB_DEVICE(0x1901, 0x0196) },	/* GE B850 CP2105 DP UART interface */
--	{ USB_DEVICE(0x1901, 0x0197) }, /* GE CS1000 Display serial interface */
--	{ USB_DEVICE(0x1901, 0x0198) }, /* GE CS1000 M.2 Key E serial interface */
-+	{ USB_DEVICE(0x1901, 0x0197) }, /* GE CS1000 M.2 Key E serial interface */
-+	{ USB_DEVICE(0x1901, 0x0198) }, /* GE CS1000 Display serial interface */
- 	{ USB_DEVICE(0x199B, 0xBA30) }, /* LORD WSDA-200-USB */
- 	{ USB_DEVICE(0x19CF, 0x3000) }, /* Parrot NMEA GPS Flight Recorder */
- 	{ USB_DEVICE(0x1ADB, 0x0001) }, /* Schweitzer Engineering C662 Cable */
+--- a/drivers/iio/accel/bma180.c
++++ b/drivers/iio/accel/bma180.c
+@@ -625,32 +625,52 @@ static const struct iio_chan_spec bma250
+ 
+ static const struct bma180_part_info bma180_part_info[] = {
+ 	[BMA180] = {
+-		bma180_channels, ARRAY_SIZE(bma180_channels),
+-		bma180_scale_table, ARRAY_SIZE(bma180_scale_table),
+-		bma180_bw_table, ARRAY_SIZE(bma180_bw_table),
+-		BMA180_CTRL_REG0, BMA180_RESET_INT,
+-		BMA180_CTRL_REG0, BMA180_SLEEP,
+-		BMA180_BW_TCS, BMA180_BW,
+-		BMA180_OFFSET_LSB1, BMA180_RANGE,
+-		BMA180_TCO_Z, BMA180_MODE_CONFIG, BMA180_LOW_POWER,
+-		BMA180_CTRL_REG3, BMA180_NEW_DATA_INT,
+-		BMA180_RESET,
+-		bma180_chip_config,
+-		bma180_chip_disable,
++		.channels = bma180_channels,
++		.num_channels = ARRAY_SIZE(bma180_channels),
++		.scale_table = bma180_scale_table,
++		.num_scales = ARRAY_SIZE(bma180_scale_table),
++		.bw_table = bma180_bw_table,
++		.num_bw = ARRAY_SIZE(bma180_bw_table),
++		.int_reset_reg = BMA180_CTRL_REG0,
++		.int_reset_mask = BMA180_RESET_INT,
++		.sleep_reg = BMA180_CTRL_REG0,
++		.sleep_mask = BMA180_SLEEP,
++		.bw_reg = BMA180_BW_TCS,
++		.bw_mask = BMA180_BW,
++		.scale_reg = BMA180_OFFSET_LSB1,
++		.scale_mask = BMA180_RANGE,
++		.power_reg = BMA180_TCO_Z,
++		.power_mask = BMA180_MODE_CONFIG,
++		.lowpower_val = BMA180_LOW_POWER,
++		.int_enable_reg = BMA180_CTRL_REG3,
++		.int_enable_mask = BMA180_NEW_DATA_INT,
++		.softreset_reg = BMA180_RESET,
++		.chip_config = bma180_chip_config,
++		.chip_disable = bma180_chip_disable,
+ 	},
+ 	[BMA250] = {
+-		bma250_channels, ARRAY_SIZE(bma250_channels),
+-		bma250_scale_table, ARRAY_SIZE(bma250_scale_table),
+-		bma250_bw_table, ARRAY_SIZE(bma250_bw_table),
+-		BMA250_INT_RESET_REG, BMA250_INT_RESET_MASK,
+-		BMA250_POWER_REG, BMA250_SUSPEND_MASK,
+-		BMA250_BW_REG, BMA250_BW_MASK,
+-		BMA250_RANGE_REG, BMA250_RANGE_MASK,
+-		BMA250_POWER_REG, BMA250_LOWPOWER_MASK, 1,
+-		BMA250_INT_ENABLE_REG, BMA250_DATA_INTEN_MASK,
+-		BMA250_RESET_REG,
+-		bma250_chip_config,
+-		bma250_chip_disable,
++		.channels = bma250_channels,
++		.num_channels = ARRAY_SIZE(bma250_channels),
++		.scale_table = bma250_scale_table,
++		.num_scales = ARRAY_SIZE(bma250_scale_table),
++		.bw_table = bma250_bw_table,
++		.num_bw = ARRAY_SIZE(bma250_bw_table),
++		.int_reset_reg = BMA250_INT_RESET_REG,
++		.int_reset_mask = BMA250_INT_RESET_MASK,
++		.sleep_reg = BMA250_POWER_REG,
++		.sleep_mask = BMA250_SUSPEND_MASK,
++		.bw_reg = BMA250_BW_REG,
++		.bw_mask = BMA250_BW_MASK,
++		.scale_reg = BMA250_RANGE_REG,
++		.scale_mask = BMA250_RANGE_MASK,
++		.power_reg = BMA250_POWER_REG,
++		.power_mask = BMA250_LOWPOWER_MASK,
++		.lowpower_val = 1,
++		.int_enable_reg = BMA250_INT_ENABLE_REG,
++		.int_enable_mask = BMA250_DATA_INTEN_MASK,
++		.softreset_reg = BMA250_RESET_REG,
++		.chip_config = bma250_chip_config,
++		.chip_disable = bma250_chip_disable,
+ 	},
+ };
+ 
 
 
