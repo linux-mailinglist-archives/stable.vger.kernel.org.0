@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7E5A3D61C9
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:14:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C26D43D61D0
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:14:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233993AbhGZPdA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:33:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46528 "EHLO mail.kernel.org"
+        id S234029AbhGZPdD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:33:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232797AbhGZPam (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:30:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6EB4960EB2;
-        Mon, 26 Jul 2021 16:11:10 +0000 (UTC)
+        id S232849AbhGZPaq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:30:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1802C60240;
+        Mon, 26 Jul 2021 16:11:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315871;
-        bh=8E3Rc7rFUQ5OaxE3eMrTi5B4onEmxDLWmhyKSAIGx+s=;
+        s=korg; t=1627315873;
+        bh=Aq+uvhjnHJMCzZBu6Z/7kVbDlJVB3v53fj0cBjH9wpU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=docywLHDrc+ZEaU5Lc8WE5fQbzPRMEFcv3g/dDEcKGe1XExy2Ed1jCNyvb6IpIta7
-         UJEUHBenGef1Bty+Em92koro01tzmTdxIokCKOtMnCk7VHnfmcQhD4MPFNK8x797xq
-         INuzkyCTvroqWzUoDVZoiPqqVNKwMM2lt+V66W20=
+        b=FO55hBiO95PXC2TzZPynKKAiIykKQodzBKI6PwPh1U/iMNFSYmdNsmDwUaWsZhqfJ
+         s2g2i1ezZg/KX1H8KVg4NZbSIGVBQ2767Hfisg0Coj9fLmjS2t+fYFaKSs8dDhxZNE
+         kgKEEFhkZhKwp2dw3zAaE16PGorulUkIzfztVRV8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mike Christie <michael.christie@oracle.com>,
+        stable@vger.kernel.org, Dmitry Bogdanov <d.bogdanov@yadro.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 098/223] scsi: iscsi: Fix iface sysfs attr detection
-Date:   Mon, 26 Jul 2021 17:38:10 +0200
-Message-Id: <20210726153849.468892895@linuxfoundation.org>
+Subject: [PATCH 5.13 099/223] scsi: target: Fix protect handling in WRITE SAME(32)
+Date:   Mon, 26 Jul 2021 17:38:11 +0200
+Message-Id: <20210726153849.508587626@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
 References: <20210726153846.245305071@linuxfoundation.org>
@@ -41,144 +40,181 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <michael.christie@oracle.com>
+From: Dmitry Bogdanov <d.bogdanov@yadro.com>
 
-[ Upstream commit e746f3451ec7f91dcc9fd67a631239c715850a34 ]
+[ Upstream commit 6d8e7e7c932162bccd06872362751b0e1d76f5af ]
 
-A ISCSI_IFACE_PARAM can have the same value as a ISCSI_NET_PARAM so when
-iscsi_iface_attr_is_visible tries to figure out the type by just checking
-the value, we can collide and return the wrong type. When we call into the
-driver we might not match and return that we don't want attr visible in
-sysfs. The patch fixes this by setting the type when we figure out what the
-param is.
+WRITE SAME(32) command handling reads WRPROTECT at the wrong offset in 1st
+byte instead of 10th byte.
 
-Link: https://lore.kernel.org/r/20210701002559.89533-1-michael.christie@oracle.com
-Fixes: 3e0f65b34cc9 ("[SCSI] iscsi_transport: Additional parameters for network settings")
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Link: https://lore.kernel.org/r/20210702091655.22818-1-d.bogdanov@yadro.com
+Fixes: afd73f1b60fc ("target: Perform PROTECT sanity checks for WRITE_SAME")
+Signed-off-by: Dmitry Bogdanov <d.bogdanov@yadro.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_transport_iscsi.c | 90 +++++++++++------------------
- 1 file changed, 34 insertions(+), 56 deletions(-)
+ drivers/target/target_core_sbc.c | 35 ++++++++++++++++----------------
+ 1 file changed, 17 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
-index b07105ae7c91..d8b05d8b5470 100644
---- a/drivers/scsi/scsi_transport_iscsi.c
-+++ b/drivers/scsi/scsi_transport_iscsi.c
-@@ -439,39 +439,10 @@ static umode_t iscsi_iface_attr_is_visible(struct kobject *kobj,
- 	struct device *dev = container_of(kobj, struct device, kobj);
- 	struct iscsi_iface *iface = iscsi_dev_to_iface(dev);
- 	struct iscsi_transport *t = iface->transport;
--	int param;
--	int param_type;
-+	int param = -1;
+diff --git a/drivers/target/target_core_sbc.c b/drivers/target/target_core_sbc.c
+index 7b07e557dc8d..6594bb0b9df0 100644
+--- a/drivers/target/target_core_sbc.c
++++ b/drivers/target/target_core_sbc.c
+@@ -25,7 +25,7 @@
+ #include "target_core_alua.h"
  
- 	if (attr == &dev_attr_iface_enabled.attr)
- 		param = ISCSI_NET_PARAM_IFACE_ENABLE;
--	else if (attr == &dev_attr_iface_vlan_id.attr)
--		param = ISCSI_NET_PARAM_VLAN_ID;
--	else if (attr == &dev_attr_iface_vlan_priority.attr)
--		param = ISCSI_NET_PARAM_VLAN_PRIORITY;
--	else if (attr == &dev_attr_iface_vlan_enabled.attr)
--		param = ISCSI_NET_PARAM_VLAN_ENABLED;
--	else if (attr == &dev_attr_iface_mtu.attr)
--		param = ISCSI_NET_PARAM_MTU;
--	else if (attr == &dev_attr_iface_port.attr)
--		param = ISCSI_NET_PARAM_PORT;
--	else if (attr == &dev_attr_iface_ipaddress_state.attr)
--		param = ISCSI_NET_PARAM_IPADDR_STATE;
--	else if (attr == &dev_attr_iface_delayed_ack_en.attr)
--		param = ISCSI_NET_PARAM_DELAYED_ACK_EN;
--	else if (attr == &dev_attr_iface_tcp_nagle_disable.attr)
--		param = ISCSI_NET_PARAM_TCP_NAGLE_DISABLE;
--	else if (attr == &dev_attr_iface_tcp_wsf_disable.attr)
--		param = ISCSI_NET_PARAM_TCP_WSF_DISABLE;
--	else if (attr == &dev_attr_iface_tcp_wsf.attr)
--		param = ISCSI_NET_PARAM_TCP_WSF;
--	else if (attr == &dev_attr_iface_tcp_timer_scale.attr)
--		param = ISCSI_NET_PARAM_TCP_TIMER_SCALE;
--	else if (attr == &dev_attr_iface_tcp_timestamp_en.attr)
--		param = ISCSI_NET_PARAM_TCP_TIMESTAMP_EN;
--	else if (attr == &dev_attr_iface_cache_id.attr)
--		param = ISCSI_NET_PARAM_CACHE_ID;
--	else if (attr == &dev_attr_iface_redirect_en.attr)
--		param = ISCSI_NET_PARAM_REDIRECT_EN;
- 	else if (attr == &dev_attr_iface_def_taskmgmt_tmo.attr)
- 		param = ISCSI_IFACE_PARAM_DEF_TASKMGMT_TMO;
- 	else if (attr == &dev_attr_iface_header_digest.attr)
-@@ -508,6 +479,38 @@ static umode_t iscsi_iface_attr_is_visible(struct kobject *kobj,
- 		param = ISCSI_IFACE_PARAM_STRICT_LOGIN_COMP_EN;
- 	else if (attr == &dev_attr_iface_initiator_name.attr)
- 		param = ISCSI_IFACE_PARAM_INITIATOR_NAME;
-+
-+	if (param != -1)
-+		return t->attr_is_visible(ISCSI_IFACE_PARAM, param);
-+
-+	if (attr == &dev_attr_iface_vlan_id.attr)
-+		param = ISCSI_NET_PARAM_VLAN_ID;
-+	else if (attr == &dev_attr_iface_vlan_priority.attr)
-+		param = ISCSI_NET_PARAM_VLAN_PRIORITY;
-+	else if (attr == &dev_attr_iface_vlan_enabled.attr)
-+		param = ISCSI_NET_PARAM_VLAN_ENABLED;
-+	else if (attr == &dev_attr_iface_mtu.attr)
-+		param = ISCSI_NET_PARAM_MTU;
-+	else if (attr == &dev_attr_iface_port.attr)
-+		param = ISCSI_NET_PARAM_PORT;
-+	else if (attr == &dev_attr_iface_ipaddress_state.attr)
-+		param = ISCSI_NET_PARAM_IPADDR_STATE;
-+	else if (attr == &dev_attr_iface_delayed_ack_en.attr)
-+		param = ISCSI_NET_PARAM_DELAYED_ACK_EN;
-+	else if (attr == &dev_attr_iface_tcp_nagle_disable.attr)
-+		param = ISCSI_NET_PARAM_TCP_NAGLE_DISABLE;
-+	else if (attr == &dev_attr_iface_tcp_wsf_disable.attr)
-+		param = ISCSI_NET_PARAM_TCP_WSF_DISABLE;
-+	else if (attr == &dev_attr_iface_tcp_wsf.attr)
-+		param = ISCSI_NET_PARAM_TCP_WSF;
-+	else if (attr == &dev_attr_iface_tcp_timer_scale.attr)
-+		param = ISCSI_NET_PARAM_TCP_TIMER_SCALE;
-+	else if (attr == &dev_attr_iface_tcp_timestamp_en.attr)
-+		param = ISCSI_NET_PARAM_TCP_TIMESTAMP_EN;
-+	else if (attr == &dev_attr_iface_cache_id.attr)
-+		param = ISCSI_NET_PARAM_CACHE_ID;
-+	else if (attr == &dev_attr_iface_redirect_en.attr)
-+		param = ISCSI_NET_PARAM_REDIRECT_EN;
- 	else if (iface->iface_type == ISCSI_IFACE_TYPE_IPV4) {
- 		if (attr == &dev_attr_ipv4_iface_ipaddress.attr)
- 			param = ISCSI_NET_PARAM_IPV4_ADDR;
-@@ -598,32 +601,7 @@ static umode_t iscsi_iface_attr_is_visible(struct kobject *kobj,
- 		return 0;
- 	}
+ static sense_reason_t
+-sbc_check_prot(struct se_device *, struct se_cmd *, unsigned char *, u32, bool);
++sbc_check_prot(struct se_device *, struct se_cmd *, unsigned char, u32, bool);
+ static sense_reason_t sbc_execute_unmap(struct se_cmd *cmd);
  
--	switch (param) {
--	case ISCSI_IFACE_PARAM_DEF_TASKMGMT_TMO:
--	case ISCSI_IFACE_PARAM_HDRDGST_EN:
--	case ISCSI_IFACE_PARAM_DATADGST_EN:
--	case ISCSI_IFACE_PARAM_IMM_DATA_EN:
--	case ISCSI_IFACE_PARAM_INITIAL_R2T_EN:
--	case ISCSI_IFACE_PARAM_DATASEQ_INORDER_EN:
--	case ISCSI_IFACE_PARAM_PDU_INORDER_EN:
--	case ISCSI_IFACE_PARAM_ERL:
--	case ISCSI_IFACE_PARAM_MAX_RECV_DLENGTH:
--	case ISCSI_IFACE_PARAM_FIRST_BURST:
--	case ISCSI_IFACE_PARAM_MAX_R2T:
--	case ISCSI_IFACE_PARAM_MAX_BURST:
--	case ISCSI_IFACE_PARAM_CHAP_AUTH_EN:
--	case ISCSI_IFACE_PARAM_BIDI_CHAP_EN:
--	case ISCSI_IFACE_PARAM_DISCOVERY_AUTH_OPTIONAL:
--	case ISCSI_IFACE_PARAM_DISCOVERY_LOGOUT_EN:
--	case ISCSI_IFACE_PARAM_STRICT_LOGIN_COMP_EN:
--	case ISCSI_IFACE_PARAM_INITIATOR_NAME:
--		param_type = ISCSI_IFACE_PARAM;
--		break;
--	default:
--		param_type = ISCSI_NET_PARAM;
--	}
--
--	return t->attr_is_visible(param_type, param);
-+	return t->attr_is_visible(ISCSI_NET_PARAM, param);
+ static sense_reason_t
+@@ -279,14 +279,14 @@ static inline unsigned long long transport_lba_64_ext(unsigned char *cdb)
  }
  
- static struct attribute *iscsi_iface_attrs[] = {
+ static sense_reason_t
+-sbc_setup_write_same(struct se_cmd *cmd, unsigned char *flags, struct sbc_ops *ops)
++sbc_setup_write_same(struct se_cmd *cmd, unsigned char flags, struct sbc_ops *ops)
+ {
+ 	struct se_device *dev = cmd->se_dev;
+ 	sector_t end_lba = dev->transport->get_blocks(dev) + 1;
+ 	unsigned int sectors = sbc_get_write_same_sectors(cmd);
+ 	sense_reason_t ret;
+ 
+-	if ((flags[0] & 0x04) || (flags[0] & 0x02)) {
++	if ((flags & 0x04) || (flags & 0x02)) {
+ 		pr_err("WRITE_SAME PBDATA and LBDATA"
+ 			" bits not supported for Block Discard"
+ 			" Emulation\n");
+@@ -308,7 +308,7 @@ sbc_setup_write_same(struct se_cmd *cmd, unsigned char *flags, struct sbc_ops *o
+ 	}
+ 
+ 	/* We always have ANC_SUP == 0 so setting ANCHOR is always an error */
+-	if (flags[0] & 0x10) {
++	if (flags & 0x10) {
+ 		pr_warn("WRITE SAME with ANCHOR not supported\n");
+ 		return TCM_INVALID_CDB_FIELD;
+ 	}
+@@ -316,7 +316,7 @@ sbc_setup_write_same(struct se_cmd *cmd, unsigned char *flags, struct sbc_ops *o
+ 	 * Special case for WRITE_SAME w/ UNMAP=1 that ends up getting
+ 	 * translated into block discard requests within backend code.
+ 	 */
+-	if (flags[0] & 0x08) {
++	if (flags & 0x08) {
+ 		if (!ops->execute_unmap)
+ 			return TCM_UNSUPPORTED_SCSI_OPCODE;
+ 
+@@ -331,7 +331,7 @@ sbc_setup_write_same(struct se_cmd *cmd, unsigned char *flags, struct sbc_ops *o
+ 	if (!ops->execute_write_same)
+ 		return TCM_UNSUPPORTED_SCSI_OPCODE;
+ 
+-	ret = sbc_check_prot(dev, cmd, &cmd->t_task_cdb[0], sectors, true);
++	ret = sbc_check_prot(dev, cmd, flags >> 5, sectors, true);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -717,10 +717,9 @@ sbc_set_prot_op_checks(u8 protect, bool fabric_prot, enum target_prot_type prot_
+ }
+ 
+ static sense_reason_t
+-sbc_check_prot(struct se_device *dev, struct se_cmd *cmd, unsigned char *cdb,
++sbc_check_prot(struct se_device *dev, struct se_cmd *cmd, unsigned char protect,
+ 	       u32 sectors, bool is_write)
+ {
+-	u8 protect = cdb[1] >> 5;
+ 	int sp_ops = cmd->se_sess->sup_prot_ops;
+ 	int pi_prot_type = dev->dev_attrib.pi_prot_type;
+ 	bool fabric_prot = false;
+@@ -768,7 +767,7 @@ sbc_check_prot(struct se_device *dev, struct se_cmd *cmd, unsigned char *cdb,
+ 		fallthrough;
+ 	default:
+ 		pr_err("Unable to determine pi_prot_type for CDB: 0x%02x "
+-		       "PROTECT: 0x%02x\n", cdb[0], protect);
++		       "PROTECT: 0x%02x\n", cmd->t_task_cdb[0], protect);
+ 		return TCM_INVALID_CDB_FIELD;
+ 	}
+ 
+@@ -843,7 +842,7 @@ sbc_parse_cdb(struct se_cmd *cmd, struct sbc_ops *ops)
+ 		if (sbc_check_dpofua(dev, cmd, cdb))
+ 			return TCM_INVALID_CDB_FIELD;
+ 
+-		ret = sbc_check_prot(dev, cmd, cdb, sectors, false);
++		ret = sbc_check_prot(dev, cmd, cdb[1] >> 5, sectors, false);
+ 		if (ret)
+ 			return ret;
+ 
+@@ -857,7 +856,7 @@ sbc_parse_cdb(struct se_cmd *cmd, struct sbc_ops *ops)
+ 		if (sbc_check_dpofua(dev, cmd, cdb))
+ 			return TCM_INVALID_CDB_FIELD;
+ 
+-		ret = sbc_check_prot(dev, cmd, cdb, sectors, false);
++		ret = sbc_check_prot(dev, cmd, cdb[1] >> 5, sectors, false);
+ 		if (ret)
+ 			return ret;
+ 
+@@ -871,7 +870,7 @@ sbc_parse_cdb(struct se_cmd *cmd, struct sbc_ops *ops)
+ 		if (sbc_check_dpofua(dev, cmd, cdb))
+ 			return TCM_INVALID_CDB_FIELD;
+ 
+-		ret = sbc_check_prot(dev, cmd, cdb, sectors, false);
++		ret = sbc_check_prot(dev, cmd, cdb[1] >> 5, sectors, false);
+ 		if (ret)
+ 			return ret;
+ 
+@@ -892,7 +891,7 @@ sbc_parse_cdb(struct se_cmd *cmd, struct sbc_ops *ops)
+ 		if (sbc_check_dpofua(dev, cmd, cdb))
+ 			return TCM_INVALID_CDB_FIELD;
+ 
+-		ret = sbc_check_prot(dev, cmd, cdb, sectors, true);
++		ret = sbc_check_prot(dev, cmd, cdb[1] >> 5, sectors, true);
+ 		if (ret)
+ 			return ret;
+ 
+@@ -906,7 +905,7 @@ sbc_parse_cdb(struct se_cmd *cmd, struct sbc_ops *ops)
+ 		if (sbc_check_dpofua(dev, cmd, cdb))
+ 			return TCM_INVALID_CDB_FIELD;
+ 
+-		ret = sbc_check_prot(dev, cmd, cdb, sectors, true);
++		ret = sbc_check_prot(dev, cmd, cdb[1] >> 5, sectors, true);
+ 		if (ret)
+ 			return ret;
+ 
+@@ -921,7 +920,7 @@ sbc_parse_cdb(struct se_cmd *cmd, struct sbc_ops *ops)
+ 		if (sbc_check_dpofua(dev, cmd, cdb))
+ 			return TCM_INVALID_CDB_FIELD;
+ 
+-		ret = sbc_check_prot(dev, cmd, cdb, sectors, true);
++		ret = sbc_check_prot(dev, cmd, cdb[1] >> 5, sectors, true);
+ 		if (ret)
+ 			return ret;
+ 
+@@ -980,7 +979,7 @@ sbc_parse_cdb(struct se_cmd *cmd, struct sbc_ops *ops)
+ 			size = sbc_get_size(cmd, 1);
+ 			cmd->t_task_lba = get_unaligned_be64(&cdb[12]);
+ 
+-			ret = sbc_setup_write_same(cmd, &cdb[10], ops);
++			ret = sbc_setup_write_same(cmd, cdb[10], ops);
+ 			if (ret)
+ 				return ret;
+ 			break;
+@@ -1079,7 +1078,7 @@ sbc_parse_cdb(struct se_cmd *cmd, struct sbc_ops *ops)
+ 		size = sbc_get_size(cmd, 1);
+ 		cmd->t_task_lba = get_unaligned_be64(&cdb[2]);
+ 
+-		ret = sbc_setup_write_same(cmd, &cdb[1], ops);
++		ret = sbc_setup_write_same(cmd, cdb[1], ops);
+ 		if (ret)
+ 			return ret;
+ 		break;
+@@ -1097,7 +1096,7 @@ sbc_parse_cdb(struct se_cmd *cmd, struct sbc_ops *ops)
+ 		 * Follow sbcr26 with WRITE_SAME (10) and check for the existence
+ 		 * of byte 1 bit 3 UNMAP instead of original reserved field
+ 		 */
+-		ret = sbc_setup_write_same(cmd, &cdb[1], ops);
++		ret = sbc_setup_write_same(cmd, cdb[1], ops);
+ 		if (ret)
+ 			return ret;
+ 		break;
 -- 
 2.30.2
 
