@@ -2,33 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 337CD3D61D4
+	by mail.lfdr.de (Postfix) with ESMTP id 7EDC03D61D5
 	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:14:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233905AbhGZPdE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:33:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47148 "EHLO mail.kernel.org"
+        id S231954AbhGZPdH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:33:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231857AbhGZPbL (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233056AbhGZPbL (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 26 Jul 2021 11:31:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A578C6056B;
-        Mon, 26 Jul 2021 16:11:31 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 335C060F5E;
+        Mon, 26 Jul 2021 16:11:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315892;
-        bh=Cl5oLDt5QMIGemzODAKQT4rc3eoK/WI4qT8fbR7l+4s=;
+        s=korg; t=1627315894;
+        bh=RmzMUfvawyD9hFaQoDvOLOrXZ+Zsngrw7JpIBYdQsL0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s0GbID4qcRaqXBgDBvzInIc1YzbZXudYrmlZdg/0Q5NclkRyTjM6VDxjMoY8uZve5
-         JLrLtU1v+Km/1ReiFFnPP9bKiYIcrhcnt1Nxt+OXaNpzUdWwuc/2QkYzOowmmCb987
-         0XeG/1pAUARmRaFaU41Exl8ZMa201UpZDTkR0Wmg=
+        b=K6qEs2kju7z2213wTw1+cvHUad5UZLBkN2Fn5CrpewMT6sr478K8XTcDCXSbExvPG
+         pDIhVBmn4pSf6uo5S5IpzILoaEUgnwd6I7Ds957I1OlIbYvCdZ36EWyNLB6dvGMQUB
+         +fKv7Geh5BE+4FmgFr2p7J7LFFZtT7/pRCak8FVU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Schwalm <maxim.schwalm@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Abaci <abaci@linux.alibaba.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Dust Li <dust.li@linux.alibaba.com>,
+        Jesper Dangaard Brouer <brouer@redhat.com>,
+        David Ahern <dsahern@kernel.org>,
+        Song Liu <songliubraving@fb.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 072/223] ASoC: rt5631: Fix regcache sync errors on resume
-Date:   Mon, 26 Jul 2021 17:37:44 +0200
-Message-Id: <20210726153848.614390996@linuxfoundation.org>
+Subject: [PATCH 5.13 073/223] bpf, test: fix NULL pointer dereference on invalid expected_attach_type
+Date:   Mon, 26 Jul 2021 17:37:45 +0200
+Message-Id: <20210726153848.644595281@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
 References: <20210726153846.245305071@linuxfoundation.org>
@@ -40,41 +45,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Schwalm <maxim.schwalm@gmail.com>
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 
-[ Upstream commit c71f78a662611fe2c67f3155da19b0eff0f29762 ]
+[ Upstream commit 5e21bb4e812566aef86fbb77c96a4ec0782286e4 ]
 
-The ALC5631 does not like multi-write accesses, avoid them. This fixes:
+These two types of XDP progs (BPF_XDP_DEVMAP, BPF_XDP_CPUMAP) will not be
+executed directly in the driver, therefore we should also not directly
+run them from here. To run in these two situations, there must be further
+preparations done, otherwise these may cause a kernel panic.
 
-rt5631 4-001a: Unable to sync registers 0x3a-0x3c. -121
+For more details, see also dev_xdp_attach().
 
-errors on resume from suspend (and all registers after the registers in
-the error not being synced).
+  [   46.982479] BUG: kernel NULL pointer dereference, address: 0000000000000000
+  [   46.984295] #PF: supervisor read access in kernel mode
+  [   46.985777] #PF: error_code(0x0000) - not-present page
+  [   46.987227] PGD 800000010dca4067 P4D 800000010dca4067 PUD 10dca6067 PMD 0
+  [   46.989201] Oops: 0000 [#1] SMP PTI
+  [   46.990304] CPU: 7 PID: 562 Comm: a.out Not tainted 5.13.0+ #44
+  [   46.992001] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/24
+  [   46.995113] RIP: 0010:___bpf_prog_run+0x17b/0x1710
+  [   46.996586] Code: 49 03 14 cc e8 76 f6 fe ff e9 ad fe ff ff 0f b6 43 01 48 0f bf 4b 02 48 83 c3 08 89 c2 83 e0 0f c0 ea 04 02
+  [   47.001562] RSP: 0018:ffffc900005afc58 EFLAGS: 00010246
+  [   47.003115] RAX: 0000000000000000 RBX: ffffc9000023f068 RCX: 0000000000000000
+  [   47.005163] RDX: 0000000000000000 RSI: 0000000000000079 RDI: ffffc900005afc98
+  [   47.007135] RBP: 0000000000000000 R08: ffffc9000023f048 R09: c0000000ffffdfff
+  [   47.009171] R10: 0000000000000001 R11: ffffc900005afb40 R12: ffffc900005afc98
+  [   47.011172] R13: 0000000000000001 R14: 0000000000000001 R15: ffffffff825258a8
+  [   47.013244] FS:  00007f04a5207580(0000) GS:ffff88842fdc0000(0000) knlGS:0000000000000000
+  [   47.015705] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  [   47.017475] CR2: 0000000000000000 CR3: 0000000100182005 CR4: 0000000000770ee0
+  [   47.019558] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+  [   47.021595] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+  [   47.023574] PKRU: 55555554
+  [   47.024571] Call Trace:
+  [   47.025424]  __bpf_prog_run32+0x32/0x50
+  [   47.026296]  ? printk+0x53/0x6a
+  [   47.027066]  ? ktime_get+0x39/0x90
+  [   47.027895]  bpf_test_run.cold.28+0x23/0x123
+  [   47.028866]  ? printk+0x53/0x6a
+  [   47.029630]  bpf_prog_test_run_xdp+0x149/0x1d0
+  [   47.030649]  __sys_bpf+0x1305/0x23d0
+  [   47.031482]  __x64_sys_bpf+0x17/0x20
+  [   47.032316]  do_syscall_64+0x3a/0x80
+  [   47.033165]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+  [   47.034254] RIP: 0033:0x7f04a51364dd
+  [   47.035133] Code: 00 c3 66 2e 0f 1f 84 00 00 00 00 00 90 f3 0f 1e fa 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 48
+  [   47.038768] RSP: 002b:00007fff8f9fc518 EFLAGS: 00000213 ORIG_RAX: 0000000000000141
+  [   47.040344] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f04a51364dd
+  [   47.041749] RDX: 0000000000000048 RSI: 0000000020002a80 RDI: 000000000000000a
+  [   47.043171] RBP: 00007fff8f9fc530 R08: 0000000002049300 R09: 0000000020000100
+  [   47.044626] R10: 0000000000000004 R11: 0000000000000213 R12: 0000000000401070
+  [   47.046088] R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+  [   47.047579] Modules linked in:
+  [   47.048318] CR2: 0000000000000000
+  [   47.049120] ---[ end trace 7ad34443d5be719a ]---
+  [   47.050273] RIP: 0010:___bpf_prog_run+0x17b/0x1710
+  [   47.051343] Code: 49 03 14 cc e8 76 f6 fe ff e9 ad fe ff ff 0f b6 43 01 48 0f bf 4b 02 48 83 c3 08 89 c2 83 e0 0f c0 ea 04 02
+  [   47.054943] RSP: 0018:ffffc900005afc58 EFLAGS: 00010246
+  [   47.056068] RAX: 0000000000000000 RBX: ffffc9000023f068 RCX: 0000000000000000
+  [   47.057522] RDX: 0000000000000000 RSI: 0000000000000079 RDI: ffffc900005afc98
+  [   47.058961] RBP: 0000000000000000 R08: ffffc9000023f048 R09: c0000000ffffdfff
+  [   47.060390] R10: 0000000000000001 R11: ffffc900005afb40 R12: ffffc900005afc98
+  [   47.061803] R13: 0000000000000001 R14: 0000000000000001 R15: ffffffff825258a8
+  [   47.063249] FS:  00007f04a5207580(0000) GS:ffff88842fdc0000(0000) knlGS:0000000000000000
+  [   47.065070] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  [   47.066307] CR2: 0000000000000000 CR3: 0000000100182005 CR4: 0000000000770ee0
+  [   47.067747] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+  [   47.069217] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+  [   47.070652] PKRU: 55555554
+  [   47.071318] Kernel panic - not syncing: Fatal exception
+  [   47.072854] Kernel Offset: disabled
+  [   47.073683] ---[ end Kernel panic - not syncing: Fatal exception ]---
 
-Inspired by commit 2d30e9494f1e ("ASoC: rt5651: Fix regcache sync errors
-on resume") from Hans de Geode, which fixed the same errors on ALC5651.
-
-Signed-off-by: Maxim Schwalm <maxim.schwalm@gmail.com>
-Link: https://lore.kernel.org/r/20210712005011.28536-1-digetx@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 9216477449f3 ("bpf: cpumap: Add the possibility to attach an eBPF program to cpumap")
+Fixes: fbee97feed9b ("bpf: Add support to attach bpf program to a devmap entry")
+Reported-by: Abaci <abaci@linux.alibaba.com>
+Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
+Acked-by: Jesper Dangaard Brouer <brouer@redhat.com>
+Acked-by: David Ahern <dsahern@kernel.org>
+Acked-by: Song Liu <songliubraving@fb.com>
+Link: https://lore.kernel.org/bpf/20210708080409.73525-1-xuanzhuo@linux.alibaba.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/rt5631.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/bpf/test_run.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/sound/soc/codecs/rt5631.c b/sound/soc/codecs/rt5631.c
-index 3000bc128b5b..38356ea2bd6e 100644
---- a/sound/soc/codecs/rt5631.c
-+++ b/sound/soc/codecs/rt5631.c
-@@ -1695,6 +1695,8 @@ static const struct regmap_config rt5631_regmap_config = {
- 	.reg_defaults = rt5631_reg,
- 	.num_reg_defaults = ARRAY_SIZE(rt5631_reg),
- 	.cache_type = REGCACHE_RBTREE,
-+	.use_single_read = true,
-+	.use_single_write = true,
- };
+diff --git a/net/bpf/test_run.c b/net/bpf/test_run.c
+index a5d72c48fb66..28ac3c96fa88 100644
+--- a/net/bpf/test_run.c
++++ b/net/bpf/test_run.c
+@@ -701,6 +701,9 @@ int bpf_prog_test_run_xdp(struct bpf_prog *prog, const union bpf_attr *kattr,
+ 	void *data;
+ 	int ret;
  
- static int rt5631_i2c_probe(struct i2c_client *i2c,
++	if (prog->expected_attach_type == BPF_XDP_DEVMAP ||
++	    prog->expected_attach_type == BPF_XDP_CPUMAP)
++		return -EINVAL;
+ 	if (kattr->test.ctx_in || kattr->test.ctx_out)
+ 		return -EINVAL;
+ 
 -- 
 2.30.2
 
