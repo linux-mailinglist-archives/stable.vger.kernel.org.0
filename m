@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F4AD3D61D2
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:14:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 827F43D620B
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:15:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234048AbhGZPdE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:33:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47108 "EHLO mail.kernel.org"
+        id S234980AbhGZPeD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:34:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231749AbhGZPbA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:31:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AD99B60240;
-        Mon, 26 Jul 2021 16:11:28 +0000 (UTC)
+        id S233965AbhGZPc6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:32:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3339A60F6F;
+        Mon, 26 Jul 2021 16:13:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315889;
-        bh=/LVhioOLyaN86OHvK+tyyMEHTFoFkG76M69EBkcL2lo=;
+        s=korg; t=1627316006;
+        bh=v5v+jA4duPhkghHHQHMCrHTgWjQ1dqMl1WJe76HfQ2E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LzodhyYQ43DkyPo6IHXpNJ+wcEyZUHnQjkxX4pdVYnQOg9PtEH3plxYAcVYaXy9OF
-         wNZceBtCH/YTNsgSTkMBvGDy/LDKDUJOb1BCkGMg20SWkDGTjMWU/ogtUZJnVcg+2e
-         qJ3fNuGYP8BukXcfHH0y43mRDAxaH9UUql2zBWfU=
+        b=xGUOBTmwmrNwtZuw45GeBifQdqy04fxNvr2FjSu11mwjVWbyC43beBC+JOZJMpbnB
+         aGUltJz8ugFjoKJsBsby90C1liT0YzGLyeL7JI1LG0OI4sS6OoRfVMt/oRc50C3qnZ
+         TUXCox+gPlklZnbpaG0lbR+2SYhH8pCdNHxRXSaY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Somnath Kotur <somnath.kotur@broadcom.com>,
-        Edwin Peer <edwin.peer@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
+        stable@vger.kernel.org, Michael Chan <michael.chan@broadcom.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 105/223] bnxt_en: Refresh RoCE capabilities in bnxt_ulp_probe()
-Date:   Mon, 26 Jul 2021 17:38:17 +0200
-Message-Id: <20210726153849.708837235@linuxfoundation.org>
+Subject: [PATCH 5.13 106/223] bnxt_en: Add missing check for BNXT_STATE_ABORT_ERR in bnxt_fw_rset_task()
+Date:   Mon, 26 Jul 2021 17:38:18 +0200
+Message-Id: <20210726153849.745612812@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
 References: <20210726153846.245305071@linuxfoundation.org>
@@ -44,48 +42,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Michael Chan <michael.chan@broadcom.com>
 
-[ Upstream commit 2c9f046bc377efd1f5e26e74817d5f96e9506c86 ]
+[ Upstream commit 6cd657cb3ee6f4de57e635b126ffbe0e51d00f1a ]
 
-The capabilities can change after firmware upgrade/downgrade, so we
-should get the up-to-date RoCE capabilities everytime bnxt_ulp_probe()
-is called.
+In the BNXT_FW_RESET_STATE_POLL_VF state in bnxt_fw_reset_task() after all
+VFs have unregistered, we need to check for BNXT_STATE_ABORT_ERR after
+we acquire the rtnl_lock.  If the flag is set, we need to abort.
 
-Fixes: 2151fe0830fd ("bnxt_en: Handle RESET_NOTIFY async event from firmware.")
-Reviewed-by: Somnath Kotur <somnath.kotur@broadcom.com>
-Reviewed-by: Edwin Peer <edwin.peer@broadcom.com>
+Fixes: 230d1f0de754 ("bnxt_en: Handle firmware reset.")
 Signed-off-by: Michael Chan <michael.chan@broadcom.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt_ulp.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_ulp.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_ulp.c
-index a918e374f3c5..187ff643ad2a 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ulp.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ulp.c
-@@ -479,16 +479,17 @@ struct bnxt_en_dev *bnxt_ulp_probe(struct net_device *dev)
- 		if (!edev)
- 			return ERR_PTR(-ENOMEM);
- 		edev->en_ops = &bnxt_en_ops_tbl;
--		if (bp->flags & BNXT_FLAG_ROCEV1_CAP)
--			edev->flags |= BNXT_EN_FLAG_ROCEV1_CAP;
--		if (bp->flags & BNXT_FLAG_ROCEV2_CAP)
--			edev->flags |= BNXT_EN_FLAG_ROCEV2_CAP;
- 		edev->net = dev;
- 		edev->pdev = bp->pdev;
- 		edev->l2_db_size = bp->db_size;
- 		edev->l2_db_size_nc = bp->db_size;
- 		bp->edev = edev;
- 	}
-+	edev->flags &= ~BNXT_EN_FLAG_ROCE_CAP;
-+	if (bp->flags & BNXT_FLAG_ROCEV1_CAP)
-+		edev->flags |= BNXT_EN_FLAG_ROCEV1_CAP;
-+	if (bp->flags & BNXT_FLAG_ROCEV2_CAP)
-+		edev->flags |= BNXT_EN_FLAG_ROCEV2_CAP;
- 	return bp->edev;
- }
- EXPORT_SYMBOL(bnxt_ulp_probe);
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+index d57fb1613cfc..07efab5bad95 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -11882,6 +11882,10 @@ static void bnxt_fw_reset_task(struct work_struct *work)
+ 		}
+ 		bp->fw_reset_timestamp = jiffies;
+ 		rtnl_lock();
++		if (test_bit(BNXT_STATE_ABORT_ERR, &bp->state)) {
++			rtnl_unlock();
++			goto fw_reset_abort;
++		}
+ 		bnxt_fw_reset_close(bp);
+ 		if (bp->fw_cap & BNXT_FW_CAP_ERR_RECOVER_RELOAD) {
+ 			bp->fw_reset_state = BNXT_FW_RESET_STATE_POLL_FW_DOWN;
 -- 
 2.30.2
 
