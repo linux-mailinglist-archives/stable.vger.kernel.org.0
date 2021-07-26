@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD4703D6062
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:10:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CA703D61CC
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:14:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237260AbhGZPWE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:22:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36492 "EHLO mail.kernel.org"
+        id S233781AbhGZPdB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:33:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236832AbhGZPWD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:22:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 31B6060E09;
-        Mon, 26 Jul 2021 16:02:30 +0000 (UTC)
+        id S232977AbhGZPax (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:30:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B03A260F6E;
+        Mon, 26 Jul 2021 16:11:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315351;
-        bh=VRE5bSpf18f+dHUFqZrYTKAhh4tgXuEPHpXLDJDLOco=;
+        s=korg; t=1627315881;
+        bh=Q2wZfKYnOvNv7D+xsxyCsV1Ukb51gEDgIhuXtUavpNc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rNWmg7Yebe2DN4g88BeldGVamgUAmoTj7LSz40W0ax+qY7qoaemTWHVkXlh5r8wIr
-         N3p3ze+LdV1SKTZbeLb+naHDEVZjyffXEqo4T0r7iYEBEWBsF/1aIVYPaHyJkYaALp
-         zqmKIPDrlQLLunF4GgtWQx7Yyvr2EX1SUGgcyZ14=
+        b=Z33l99/SzBIQ8pHPmraofxC8HSFAYk0P1h5nktS72JR3DoX22jhtVlFiR4wAPbSmz
+         BNgmBkNDeaMwx4o1USdxGqXABYAtNkjqQFquGPzYGEIn91sCsgWbhPxsEEi74RQxiu
+         SwgJ9W4oJPOJqy8YbkDtEEjlThH35Oq4hqSe1ON4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Cong Wang <cong.wang@bytedance.com>,
+        stable@vger.kernel.org,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 061/167] bpf, sockmap: Fix potential memory leak on unlikely error case
+Subject: [PATCH 5.13 102/223] efi/dev-path-parser: Switch to use for_each_acpi_dev_match()
 Date:   Mon, 26 Jul 2021 17:38:14 +0200
-Message-Id: <20210726153841.453111153@linuxfoundation.org>
+Message-Id: <20210726153849.608375092@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
-References: <20210726153839.371771838@linuxfoundation.org>
+In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
+References: <20210726153846.245305071@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,78 +41,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Fastabend <john.fastabend@gmail.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
 
-[ Upstream commit 7e6b27a69167f97c56b5437871d29e9722c3e470 ]
+[ Upstream commit edbd1bc4951eff8da65732dbe0d381e555054428 ]
 
-If skb_linearize is needed and fails we could leak a msg on the error
-handling. To fix ensure we kfree the msg block before returning error.
-Found during code review.
+Switch to use for_each_acpi_dev_match() instead of home grown analogue.
+No functional change intended.
 
-Fixes: 4363023d2668e ("bpf, sockmap: Avoid failures from skb_to_sgvec when skb has frag_list")
-Signed-off-by: John Fastabend <john.fastabend@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: Cong Wang <cong.wang@bytedance.com>
-Link: https://lore.kernel.org/bpf/20210712195546.423990-2-john.fastabend@gmail.com
+Signed-off-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/skmsg.c | 16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ drivers/firmware/efi/dev-path-parser.c | 49 ++++++++++----------------
+ 1 file changed, 18 insertions(+), 31 deletions(-)
 
-diff --git a/net/core/skmsg.c b/net/core/skmsg.c
-index 923a1d0f84ca..c4c224a5b9de 100644
---- a/net/core/skmsg.c
-+++ b/net/core/skmsg.c
-@@ -433,10 +433,8 @@ static int sk_psock_skb_ingress_enqueue(struct sk_buff *skb,
- 	if (skb_linearize(skb))
- 		return -EAGAIN;
- 	num_sge = skb_to_sgvec(skb, msg->sg.data, 0, skb->len);
--	if (unlikely(num_sge < 0)) {
--		kfree(msg);
-+	if (unlikely(num_sge < 0))
- 		return num_sge;
+diff --git a/drivers/firmware/efi/dev-path-parser.c b/drivers/firmware/efi/dev-path-parser.c
+index 5c9625e552f4..10d4457417a4 100644
+--- a/drivers/firmware/efi/dev-path-parser.c
++++ b/drivers/firmware/efi/dev-path-parser.c
+@@ -12,52 +12,39 @@
+ #include <linux/efi.h>
+ #include <linux/pci.h>
+ 
+-struct acpi_hid_uid {
+-	struct acpi_device_id hid[2];
+-	char uid[11]; /* UINT_MAX + null byte */
+-};
+-
+-static int __init match_acpi_dev(struct device *dev, const void *data)
+-{
+-	struct acpi_hid_uid hid_uid = *(const struct acpi_hid_uid *)data;
+-	struct acpi_device *adev = to_acpi_device(dev);
+-
+-	if (acpi_match_device_ids(adev, hid_uid.hid))
+-		return 0;
+-
+-	if (adev->pnp.unique_id)
+-		return !strcmp(adev->pnp.unique_id, hid_uid.uid);
+-	else
+-		return !strcmp("0", hid_uid.uid);
+-}
+-
+ static long __init parse_acpi_path(const struct efi_dev_path *node,
+ 				   struct device *parent, struct device **child)
+ {
+-	struct acpi_hid_uid hid_uid = {};
++	char hid[ACPI_ID_LEN], uid[11]; /* UINT_MAX + null byte */
++	struct acpi_device *adev;
+ 	struct device *phys_dev;
+ 
+ 	if (node->header.length != 12)
+ 		return -EINVAL;
+ 
+-	sprintf(hid_uid.hid[0].id, "%c%c%c%04X",
++	sprintf(hid, "%c%c%c%04X",
+ 		'A' + ((node->acpi.hid >> 10) & 0x1f) - 1,
+ 		'A' + ((node->acpi.hid >>  5) & 0x1f) - 1,
+ 		'A' + ((node->acpi.hid >>  0) & 0x1f) - 1,
+ 			node->acpi.hid >> 16);
+-	sprintf(hid_uid.uid, "%u", node->acpi.uid);
+-
+-	*child = bus_find_device(&acpi_bus_type, NULL, &hid_uid,
+-				 match_acpi_dev);
+-	if (!*child)
++	sprintf(uid, "%u", node->acpi.uid);
++
++	for_each_acpi_dev_match(adev, hid, NULL, -1) {
++		if (adev->pnp.unique_id && !strcmp(adev->pnp.unique_id, uid))
++			break;
++		if (!adev->pnp.unique_id && node->acpi.uid == 0)
++			break;
++		acpi_dev_put(adev);
++	}
++	if (!adev)
+ 		return -ENODEV;
+ 
+-	phys_dev = acpi_get_first_physical_node(to_acpi_device(*child));
++	phys_dev = acpi_get_first_physical_node(adev);
+ 	if (phys_dev) {
+-		get_device(phys_dev);
+-		put_device(*child);
+-		*child = phys_dev;
 -	}
++		*child = get_device(phys_dev);
++		acpi_dev_put(adev);
++	} else
++		*child = &adev->dev;
  
- 	copied = skb->len;
- 	msg->sg.start = 0;
-@@ -455,6 +453,7 @@ static int sk_psock_skb_ingress(struct sk_psock *psock, struct sk_buff *skb)
- {
- 	struct sock *sk = psock->sk;
- 	struct sk_msg *msg;
-+	int err;
- 
- 	/* If we are receiving on the same sock skb->sk is already assigned,
- 	 * skip memory accounting and owner transition seeing it already set
-@@ -473,7 +472,10 @@ static int sk_psock_skb_ingress(struct sk_psock *psock, struct sk_buff *skb)
- 	 * into user buffers.
- 	 */
- 	skb_set_owner_r(skb, sk);
--	return sk_psock_skb_ingress_enqueue(skb, psock, sk, msg);
-+	err = sk_psock_skb_ingress_enqueue(skb, psock, sk, msg);
-+	if (err < 0)
-+		kfree(msg);
-+	return err;
+ 	return 0;
  }
- 
- /* Puts an skb on the ingress queue of the socket already assigned to the
-@@ -484,12 +486,16 @@ static int sk_psock_skb_ingress_self(struct sk_psock *psock, struct sk_buff *skb
- {
- 	struct sk_msg *msg = kzalloc(sizeof(*msg), __GFP_NOWARN | GFP_ATOMIC);
- 	struct sock *sk = psock->sk;
-+	int err;
- 
- 	if (unlikely(!msg))
- 		return -EAGAIN;
- 	sk_msg_init(msg);
- 	skb_set_owner_r(skb, sk);
--	return sk_psock_skb_ingress_enqueue(skb, psock, sk, msg);
-+	err = sk_psock_skb_ingress_enqueue(skb, psock, sk, msg);
-+	if (err < 0)
-+		kfree(msg);
-+	return err;
- }
- 
- static int sk_psock_handle_skb(struct sk_psock *psock, struct sk_buff *skb,
 -- 
 2.30.2
 
