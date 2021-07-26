@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 56ED03D5F32
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A300D3D5E1B
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:47:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236532AbhGZPRM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:17:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53270 "EHLO mail.kernel.org"
+        id S236156AbhGZPFf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:05:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45412 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237402AbhGZPPo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:15:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E4B5E61038;
-        Mon, 26 Jul 2021 15:55:00 +0000 (UTC)
+        id S235834AbhGZPFQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:05:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F399760F51;
+        Mon, 26 Jul 2021 15:45:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314901;
-        bh=XPnrX+f/6E7NSm+/PmkJUA07/2AB7rk1T6Ys75osYWU=;
+        s=korg; t=1627314345;
+        bh=Evx6cae1FfFTWAxq62/DynQ2nIeK1rI5ge57r/HIaQU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UBc1vaNb8C5onxff0hWQxt3vkCZ5IhQ9njQHSTJRrVgeqY0opT8qIUk934UbHNq5j
-         aa/H5qQPCactzivQepTsX1ZlMGvozV3G6fvaU4UctnJ73PuegrKW0BVyFT7p615n2O
-         UMzt5y9fHrN8YZSyGA8Mnea1QmO+5ioOnQgvlpJI=
+        b=oTjD3nucmGUBLNpxXbZsoj2VjkA/c1hCpoAVg5C036jaKCrDrshBXxdcZtYwXfT0r
+         m9bTfKNPatkqU6lL6J1RCUgPB0XdeIGFXbw9g4gVRlEWauHQuhItLxUCGxmOkAx1j0
+         6e0i3KJw+cjwUnFGDfhXzHiFUm7xP+R8VfFZQPak=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Catherine Sullivan <csully@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 013/108] gve: Fix an error handling path in gve_probe()
+Subject: [PATCH 4.14 14/82] ARM: dts: stm32: fix RCC node name on stm32f429 MCU
 Date:   Mon, 26 Jul 2021 17:38:14 +0200
-Message-Id: <20210726153832.125824796@linuxfoundation.org>
+Message-Id: <20210726153828.618111012@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
-References: <20210726153831.696295003@linuxfoundation.org>
+In-Reply-To: <20210726153828.144714469@linuxfoundation.org>
+References: <20210726153828.144714469@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,48 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Alexandre Torgue <alexandre.torgue@foss.st.com>
 
-[ Upstream commit 2342ae10d1272d411a468a85a67647dd115b344f ]
+[ Upstream commit e4b948415a89a219d13e454011cdcf9e63ecc529 ]
 
-If the 'register_netdev() call fails, we must release the resources
-allocated by the previous 'gve_init_priv()' call, as already done in the
-remove function.
+This prevent warning observed with "make dtbs_check W=1"
 
-Add a new label and the missing 'gve_teardown_priv_resources()' in the
-error handling path.
+Warning (simple_bus_reg): /soc/rcc@40023810: simple-bus unit address format
+error, expected "40023800"
 
-Fixes: 893ce44df565 ("gve: Add basic driver framework for Compute Engine Virtual NIC")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: Catherine Sullivan <csully@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Alexandre Torgue <alexandre.torgue@foss.st.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/google/gve/gve_main.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/stm32f429.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/google/gve/gve_main.c b/drivers/net/ethernet/google/gve/gve_main.c
-index 1c4b35b1b359..f8dfa7501f65 100644
---- a/drivers/net/ethernet/google/gve/gve_main.c
-+++ b/drivers/net/ethernet/google/gve/gve_main.c
-@@ -1170,13 +1170,16 @@ static int gve_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+diff --git a/arch/arm/boot/dts/stm32f429.dtsi b/arch/arm/boot/dts/stm32f429.dtsi
+index 5b36eb114ddc..d65a03d0da65 100644
+--- a/arch/arm/boot/dts/stm32f429.dtsi
++++ b/arch/arm/boot/dts/stm32f429.dtsi
+@@ -597,7 +597,7 @@
+ 			status = "disabled";
+ 		};
  
- 	err = register_netdev(dev);
- 	if (err)
--		goto abort_with_wq;
-+		goto abort_with_gve_init;
- 
- 	dev_info(&pdev->dev, "GVE version %s\n", gve_version_str);
- 	gve_clear_probe_in_progress(priv);
- 	queue_work(priv->gve_wq, &priv->service_task);
- 	return 0;
- 
-+abort_with_gve_init:
-+	gve_teardown_priv_resources(priv);
-+
- abort_with_wq:
- 	destroy_workqueue(priv->gve_wq);
- 
+-		rcc: rcc@40023810 {
++		rcc: rcc@40023800 {
+ 			#reset-cells = <1>;
+ 			#clock-cells = <2>;
+ 			compatible = "st,stm32f42xx-rcc", "st,stm32-rcc";
 -- 
 2.30.2
 
