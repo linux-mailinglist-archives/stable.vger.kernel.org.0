@@ -2,44 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FEBB3D5FDF
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FBBA3D6104
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:12:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236731AbhGZPT1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:19:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60114 "EHLO mail.kernel.org"
+        id S237125AbhGZP0h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:26:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236628AbhGZPTK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:19:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 53FD460F90;
-        Mon, 26 Jul 2021 15:59:38 +0000 (UTC)
+        id S237845AbhGZPYR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:24:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C2DA60F5A;
+        Mon, 26 Jul 2021 16:04:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315178;
-        bh=8P7AE3po74BQD2rAm8tguHt+UpMWiyZEXNSoOJjiipk=;
+        s=korg; t=1627315485;
+        bh=L/CAnG7f3XEnt95H3+76U4BERVOkxSaQKBqDXEoJLes=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y17YcLJ5pz/tGJ+/o1T6qqIFxvSbbd+pIVD2K2d75184AsuBV32S61BkD2Dv6LsH2
-         30CRza4GbDrErp6TDB5tTa86jLKbTnrLUIoz1ZxYnMCP4BCyXUXZd5WMhCvTqvT02o
-         TQD//v8RVMmy7kdbXqKpVBmMZsIQYSSyTU2JXlQg=
+        b=V3IC7434296y5ylZTnhcRbawJQ/MZyQ0nyv0cYeNfW6fL5s9DoqQRPi64w7q3/lIE
+         Ci5QwdcfrDwaQe/OHoyFCVqhfc2PafQAbj36Bi7e3s9QW2aOHigkoCDwFis6Rw06Ba
+         IUT1GkOLixxa/h2L2TaNdob7ryMfXMGnp3jOg3TM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Disseldorp <ddiss@suse.de>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
-        Marcelo Henrique Cerri <marcelo.cerri@canonical.com>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Michel Lespinasse <walken@google.com>,
-        Helge Deller <deller@gmx.de>, Oleg Nesterov <oleg@redhat.com>,
-        Lorenzo Stoakes <lstoakes@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 068/108] proc: Avoid mixing integer types in mem_rw()
+        stable@vger.kernel.org, Mathias Nyman <mathias.nyman@intel.com>,
+        Vinod Koul <vkoul@kernel.org>,
+        Justin Forbes <jmforbes@linuxtx.org>,
+        Moritz Fischer <mdf@kernel.org>
+Subject: [PATCH 5.10 116/167] Revert "usb: renesas-xhci: Fix handling of unknown ROM state"
 Date:   Mon, 26 Jul 2021 17:39:09 +0200
-Message-Id: <20210726153833.875008890@linuxfoundation.org>
+Message-Id: <20210726153843.293595596@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
-References: <20210726153831.696295003@linuxfoundation.org>
+In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
+References: <20210726153839.371771838@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,52 +41,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcelo Henrique Cerri <marcelo.cerri@canonical.com>
+From: Moritz Fischer <mdf@kernel.org>
 
-[ Upstream commit d238692b4b9f2c36e35af4c6e6f6da36184aeb3e ]
+commit 44cf53602f5a0db80d53c8fff6cdbcae59650a42 upstream.
 
-Use size_t when capping the count argument received by mem_rw(). Since
-count is size_t, using min_t(int, ...) can lead to a negative value
-that will later be passed to access_remote_vm(), which can cause
-unexpected behavior.
+This reverts commit d143825baf15f204dac60acdf95e428182aa3374.
 
-Since we are capping the value to at maximum PAGE_SIZE, the conversion
-from size_t to int when passing it to access_remote_vm() as "len"
-shouldn't be a problem.
+Justin reports some of his systems now fail as result of this commit:
 
-Link: https://lkml.kernel.org/r/20210512125215.3348316-1-marcelo.cerri@canonical.com
-Reviewed-by: David Disseldorp <ddiss@suse.de>
-Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Signed-off-by: Marcelo Henrique Cerri <marcelo.cerri@canonical.com>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Souza Cascardo <cascardo@canonical.com>
-Cc: Christian Brauner <christian.brauner@ubuntu.com>
-Cc: Michel Lespinasse <walken@google.com>
-Cc: Helge Deller <deller@gmx.de>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: Lorenzo Stoakes <lstoakes@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+ xhci_hcd 0000:04:00.0: Direct firmware load for renesas_usb_fw.mem failed with error -2
+ xhci_hcd 0000:04:00.0: request_firmware failed: -2
+ xhci_hcd: probe of 0000:04:00.0 failed with error -2
+
+The revert brings back the original issue the commit tried to solve but
+at least unbreaks existing systems relying on previous behavior.
+
+Cc: stable@vger.kernel.org
+Cc: Mathias Nyman <mathias.nyman@intel.com>
+Cc: Vinod Koul <vkoul@kernel.org>
+Cc: Justin Forbes <jmforbes@linuxtx.org>
+Reported-by: Justin Forbes <jmforbes@linuxtx.org>
+Signed-off-by: Moritz Fischer <mdf@kernel.org>
+Fixes: d143825baf15 ("usb: renesas-xhci: Fix handling of unknown ROM state")
+Link: https://lore.kernel.org/r/20210719070519.41114-1-mdf@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/proc/base.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/host/xhci-pci-renesas.c |   16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/fs/proc/base.c b/fs/proc/base.c
-index 75e786684a4e..90d2f62a9672 100644
---- a/fs/proc/base.c
-+++ b/fs/proc/base.c
-@@ -836,7 +836,7 @@ static ssize_t mem_rw(struct file *file, char __user *buf,
- 	flags = FOLL_FORCE | (write ? FOLL_WRITE : 0);
+--- a/drivers/usb/host/xhci-pci-renesas.c
++++ b/drivers/usb/host/xhci-pci-renesas.c
+@@ -207,8 +207,7 @@ static int renesas_check_rom_state(struc
+ 			return 0;
  
- 	while (count > 0) {
--		int this_len = min_t(int, count, PAGE_SIZE);
-+		size_t this_len = min_t(size_t, count, PAGE_SIZE);
+ 		case RENESAS_ROM_STATUS_NO_RESULT: /* No result yet */
+-			dev_dbg(&pdev->dev, "Unknown ROM status ...\n");
+-			break;
++			return 0;
  
- 		if (write && copy_from_user(page, buf, this_len)) {
- 			copied = -EFAULT;
--- 
-2.30.2
-
+ 		case RENESAS_ROM_STATUS_ERROR: /* Error State */
+ 		default: /* All other states are marked as "Reserved states" */
+@@ -225,12 +224,13 @@ static int renesas_fw_check_running(stru
+ 	u8 fw_state;
+ 	int err;
+ 
+-	/*
+-	 * Only if device has ROM and loaded FW we can skip loading and
+-	 * return success. Otherwise (even unknown state), attempt to load FW.
+-	 */
+-	if (renesas_check_rom(pdev) && !renesas_check_rom_state(pdev))
+-		return 0;
++	/* Check if device has ROM and loaded, if so skip everything */
++	err = renesas_check_rom(pdev);
++	if (err) { /* we have rom */
++		err = renesas_check_rom_state(pdev);
++		if (!err)
++			return err;
++	}
+ 
+ 	/*
+ 	 * Test if the device is actually needing the firmware. As most
 
 
