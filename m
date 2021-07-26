@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 431DF3D6035
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:02:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A625B3D6195
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:14:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236564AbhGZPVX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:21:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35344 "EHLO mail.kernel.org"
+        id S233417AbhGZPcU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:32:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237145AbhGZPVQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:21:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 83E5460EB2;
-        Mon, 26 Jul 2021 16:01:44 +0000 (UTC)
+        id S231924AbhGZPaJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:30:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C231260C40;
+        Mon, 26 Jul 2021 16:10:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315304;
-        bh=du2R44g+IPleoXO1Mk/o0CL0OH9xHIyDQN8c84P4nLY=;
+        s=korg; t=1627315837;
+        bh=Y3bM3GTuZNYz9q2tHbFG4CKXGoYbMRHhx0x9LQPAyMo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cwy+hczhdR7Dghae/FJjLiH9WfIAULvDp+OVCc8NvAm9k3euvrJ/YSfXR02dQKBrF
-         bA3OdMHPpaX0q7edVTsfwSQ2nAmx4erJjiiYmHYKpusoPkjPa1o/r8VbSdWtrt1gTE
-         XgKczEu25BOgc0HhqCn1i8Ug4whsQ8vgL3Rvh+h8=
+        b=URfNzv4vzQH8qJL19YQte3Qru7IahG7l8Ct5BbTaHYvPAtoPM2L77egMU9zA4JvJ/
+         b18YfDgi0AbFybqdWcJdmtHhGKsW5+lOWMSnkI4pD8vYK0Z8cN/08bC5KDZha6bKQ7
+         PWgPDdcg5lcfvvjrWn3yEp1Tzt3ZMOtdzW+0b4wY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Riccardo Mancini <rickyman7@gmail.com>,
-        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Yoshitaka Ikeda <ikeda@nskint.co.jp>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 045/167] perf probe-file: Delete namelist in del_events() on the error path
-Date:   Mon, 26 Jul 2021 17:37:58 +0200
-Message-Id: <20210726153840.902707382@linuxfoundation.org>
+Subject: [PATCH 5.13 087/223] spi: spi-cadence-quadspi: Fix division by zero warning
+Date:   Mon, 26 Jul 2021 17:37:59 +0200
+Message-Id: <20210726153849.092335444@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
-References: <20210726153839.371771838@linuxfoundation.org>
+In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
+References: <20210726153846.245305071@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +40,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Riccardo Mancini <rickyman7@gmail.com>
+From: Yoshitaka Ikeda <ikeda@nskint.co.jp>
 
-[ Upstream commit e0fa7ab42232e742dcb3de9f3c1f6127b5adc019 ]
+[ Upstream commit 55cef88bbf12f3bfbe5c2379a8868a034707e755 ]
 
-ASan reports some memory leaks when running:
+Fix below division by zero warning:
+- Added an if statement because buswidth can be zero, resulting in division by zero.
+- The modified code was based on another driver (atmel-quadspi).
 
-  # perf test "42: BPF filter"
+[    0.795337] Division by zero in kernel.
+   :
+[    0.834051] [<807fd40c>] (__div0) from [<804e1acc>] (Ldiv0+0x8/0x10)
+[    0.839097] [<805f0710>] (cqspi_exec_mem_op) from [<805edb4c>] (spi_mem_exec_op+0x3b0/0x3f8)
 
-This second leak is caused by a strlist not being dellocated on error
-inside probe_file__del_events.
-
-This patch adds a goto label before the deallocation and makes the error
-path jump to it.
-
-Signed-off-by: Riccardo Mancini <rickyman7@gmail.com>
-Fixes: e7895e422e4da63d ("perf probe: Split del_perf_probe_events()")
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/174963c587ae77fa108af794669998e4ae558338.1626343282.git.rickyman7@gmail.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 7512eaf54190 ("spi: cadence-quadspi: Fix dummy cycle calculation when buswidth > 1")
+Signed-off-by: Yoshitaka Ikeda <ikeda@nskint.co.jp>
+Link: https://lore.kernel.org/r/ed989af6-da88-4e0b-9ed8-126db6cad2e4@nskint.co.jp
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/probe-file.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/spi/spi-cadence-quadspi.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/tools/perf/util/probe-file.c b/tools/perf/util/probe-file.c
-index bbecb449ea94..d2b98d64438e 100644
---- a/tools/perf/util/probe-file.c
-+++ b/tools/perf/util/probe-file.c
-@@ -342,11 +342,11 @@ int probe_file__del_events(int fd, struct strfilter *filter)
+diff --git a/drivers/spi/spi-cadence-quadspi.c b/drivers/spi/spi-cadence-quadspi.c
+index 7a00346ff9b9..13d1f0ce618e 100644
+--- a/drivers/spi/spi-cadence-quadspi.c
++++ b/drivers/spi/spi-cadence-quadspi.c
+@@ -307,11 +307,13 @@ static unsigned int cqspi_calc_rdreg(struct cqspi_flash_pdata *f_pdata)
  
- 	ret = probe_file__get_events(fd, filter, namelist);
- 	if (ret < 0)
--		return ret;
-+		goto out;
+ static unsigned int cqspi_calc_dummy(const struct spi_mem_op *op, bool dtr)
+ {
+-	unsigned int dummy_clk;
++	unsigned int dummy_clk = 0;
  
- 	ret = probe_file__del_strlist(fd, namelist);
-+out:
- 	strlist__delete(namelist);
--
- 	return ret;
+-	dummy_clk = op->dummy.nbytes * (8 / op->dummy.buswidth);
+-	if (dtr)
+-		dummy_clk /= 2;
++	if (op->dummy.buswidth && op->dummy.nbytes) {
++		dummy_clk = op->dummy.nbytes * (8 / op->dummy.buswidth);
++		if (dtr)
++			dummy_clk /= 2;
++	}
+ 
+ 	return dummy_clk;
  }
- 
 -- 
 2.30.2
 
