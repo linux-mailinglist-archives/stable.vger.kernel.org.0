@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 828F83D5F9A
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 787983D5DD7
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:45:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235629AbhGZPSc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:18:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53066 "EHLO mail.kernel.org"
+        id S235318AbhGZPED (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:04:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236782AbhGZPPZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:15:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DD3D760F6F;
-        Mon, 26 Jul 2021 15:52:53 +0000 (UTC)
+        id S235666AbhGZPEA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:04:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 819A360F22;
+        Mon, 26 Jul 2021 15:44:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314774;
-        bh=AulFh4I2Hm8Bs9NgA0mwj5X+FjZOIoMOYIf1DoMM9Mg=;
+        s=korg; t=1627314268;
+        bh=Pz5znl3oCRXX/Ot8HGsKGVlif7ze/TLXcSlFz9LJoDk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bss6J83mNlMtRAG9MDgBNfU2/QMWv3paGujeBq5gl5vxBHWHXHC2knv3PMlj8PvIu
-         mi7mPYGbaw0pAMC4BCE1Mjuu4px1qscaAEiygZurDtVWwuWQeJbHTGuTOE1NqqjASg
-         ybIltx7APP2RSR+s3JxUj0rxF4UvP65Uu3SLpZRM=
+        b=sdsmBb38ww9I2w1Mpg0J/dRBn7AZ+aAeZLi0Pw52+OdJYzUGh+evp0bj/sGxvLMDD
+         0KazLB0kZcaabjJrtefY0Wew2ywfVRrNH+jECfFYrSHSEr2vwCsq7D1oOaLzrNJa6j
+         yHe4xCnPuP9rM04dHUzWM31fxkjN2ZRB32qI/nG8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yajun Deng <yajun.deng@linux.dev>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 087/120] net: sched: cls_api: Fix the the wrong parameter
+        stable@vger.kernel.org, Jia-Ju Bai <baijiaju1990@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.9 45/60] ALSA: sb: Fix potential ABBA deadlock in CSP driver
 Date:   Mon, 26 Jul 2021 17:38:59 +0200
-Message-Id: <20210726153835.178302180@linuxfoundation.org>
+Message-Id: <20210726153826.286117368@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153832.339431936@linuxfoundation.org>
-References: <20210726153832.339431936@linuxfoundation.org>
+In-Reply-To: <20210726153824.868160836@linuxfoundation.org>
+References: <20210726153824.868160836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,36 +39,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yajun Deng <yajun.deng@linux.dev>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 9d85a6f44bd5585761947f40f7821c9cd78a1bbe ]
+commit 1c2b9519159b470ef24b2638f4794e86e2952ab7 upstream.
 
-The 4th parameter in tc_chain_notify() should be flags rather than seq.
-Let's change it back correctly.
+SB16 CSP driver may hit potentially a typical ABBA deadlock in two
+code paths:
 
-Fixes: 32a4f5ecd738 ("net: sched: introduce chain object to uapi")
-Signed-off-by: Yajun Deng <yajun.deng@linux.dev>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+ In snd_sb_csp_stop():
+     spin_lock_irqsave(&p->chip->mixer_lock, flags);
+     spin_lock(&p->chip->reg_lock);
+
+ In snd_sb_csp_load():
+     spin_lock_irqsave(&p->chip->reg_lock, flags);
+     spin_lock(&p->chip->mixer_lock);
+
+Also the similar pattern is seen in snd_sb_csp_start().
+
+Although the practical impact is very small (those states aren't
+triggered in the same running state and this happens only on a real
+hardware, decades old ISA sound boards -- which must be very difficult
+to find nowadays), it's a real scenario and has to be fixed.
+
+This patch addresses those deadlocks by splitting the locks in
+snd_sb_csp_start() and snd_sb_csp_stop() for avoiding the nested
+locks.
+
+Reported-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/7b0fcdaf-cd4f-4728-2eae-48c151a92e10@gmail.com
+Link: https://lore.kernel.org/r/20210716132723.13216-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/cls_api.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/isa/sb/sb16_csp.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/net/sched/cls_api.c b/net/sched/cls_api.c
-index 184c20b86393..4413aa8d4e82 100644
---- a/net/sched/cls_api.c
-+++ b/net/sched/cls_api.c
-@@ -1918,7 +1918,7 @@ replay:
- 		break;
- 	case RTM_GETCHAIN:
- 		err = tc_chain_notify(chain, skb, n->nlmsg_seq,
--				      n->nlmsg_seq, n->nlmsg_type, true);
-+				      n->nlmsg_flags, n->nlmsg_type, true);
- 		if (err < 0)
- 			NL_SET_ERR_MSG(extack, "Failed to send chain notify message");
- 		break;
--- 
-2.30.2
-
+--- a/sound/isa/sb/sb16_csp.c
++++ b/sound/isa/sb/sb16_csp.c
+@@ -828,6 +828,7 @@ static int snd_sb_csp_start(struct snd_s
+ 	mixR = snd_sbmixer_read(p->chip, SB_DSP4_PCM_DEV + 1);
+ 	snd_sbmixer_write(p->chip, SB_DSP4_PCM_DEV, mixL & 0x7);
+ 	snd_sbmixer_write(p->chip, SB_DSP4_PCM_DEV + 1, mixR & 0x7);
++	spin_unlock_irqrestore(&p->chip->mixer_lock, flags);
+ 
+ 	spin_lock(&p->chip->reg_lock);
+ 	set_mode_register(p->chip, 0xc0);	/* c0 = STOP */
+@@ -867,6 +868,7 @@ static int snd_sb_csp_start(struct snd_s
+ 	spin_unlock(&p->chip->reg_lock);
+ 
+ 	/* restore PCM volume */
++	spin_lock_irqsave(&p->chip->mixer_lock, flags);
+ 	snd_sbmixer_write(p->chip, SB_DSP4_PCM_DEV, mixL);
+ 	snd_sbmixer_write(p->chip, SB_DSP4_PCM_DEV + 1, mixR);
+ 	spin_unlock_irqrestore(&p->chip->mixer_lock, flags);
+@@ -892,6 +894,7 @@ static int snd_sb_csp_stop(struct snd_sb
+ 	mixR = snd_sbmixer_read(p->chip, SB_DSP4_PCM_DEV + 1);
+ 	snd_sbmixer_write(p->chip, SB_DSP4_PCM_DEV, mixL & 0x7);
+ 	snd_sbmixer_write(p->chip, SB_DSP4_PCM_DEV + 1, mixR & 0x7);
++	spin_unlock_irqrestore(&p->chip->mixer_lock, flags);
+ 
+ 	spin_lock(&p->chip->reg_lock);
+ 	if (p->running & SNDRV_SB_CSP_ST_QSOUND) {
+@@ -906,6 +909,7 @@ static int snd_sb_csp_stop(struct snd_sb
+ 	spin_unlock(&p->chip->reg_lock);
+ 
+ 	/* restore PCM volume */
++	spin_lock_irqsave(&p->chip->mixer_lock, flags);
+ 	snd_sbmixer_write(p->chip, SB_DSP4_PCM_DEV, mixL);
+ 	snd_sbmixer_write(p->chip, SB_DSP4_PCM_DEV + 1, mixR);
+ 	spin_unlock_irqrestore(&p->chip->mixer_lock, flags);
 
 
