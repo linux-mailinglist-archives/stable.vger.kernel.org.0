@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E93D73D602A
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16F503D618B
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:14:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237122AbhGZPVJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:21:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35084 "EHLO mail.kernel.org"
+        id S233285AbhGZPcP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:32:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45094 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237120AbhGZPVH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:21:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 776F260E09;
-        Mon, 26 Jul 2021 16:01:34 +0000 (UTC)
+        id S238219AbhGZP34 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:29:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B56C60240;
+        Mon, 26 Jul 2021 16:10:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315295;
-        bh=kANN+UO/GvHzlAxWd7HjBi8v0Xy8YuHGs6VCqfx/xJA=;
+        s=korg; t=1627315823;
+        bh=CF7GFJy7KTFzpoOWMamtE3v9ARq/1RU6cio6suD5H7k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xiH9CpMCK/LaU1q9td3gWJV6TXI5Rg2SWXkvDIDWr1RlNmQFDRMV4UqC6T3jvBL2D
-         ODSqyMWJjxZalBtH5Is/CslW13EFrIJG1B/d8J/ds4j8vqlbV6I6Rxi41hNVx7pX2H
-         UQdRI6/7H94t9CpRT2f4x1XlEtoQaZQOau8xhfSU=
+        b=Y/c2IJJcc9Dk9uSRi8FkUnDxY4lboiTRJYKgDi/vKi5PyTSrErJHArGVxHJ3K/qeL
+         x1Oj/O83DeujK/x21O8Hh/FIZPhVaYI31PooihuL9aL4Dslj/MDWuQeyPX6jkUDjju
+         iSiRRyZO4keTHGO2NK2LFs8ySaaO8nB6P6fJtZ40=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Riccardo Mancini <rickyman7@gmail.com>,
-        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Cong Wang <cong.wang@bytedance.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 041/167] perf env: Fix memory leak of cpu_pmu_caps
+Subject: [PATCH 5.13 082/223] bpf, sockmap: Fix potential memory leak on unlikely error case
 Date:   Mon, 26 Jul 2021 17:37:54 +0200
-Message-Id: <20210726153840.770461878@linuxfoundation.org>
+Message-Id: <20210726153848.927007604@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
-References: <20210726153839.371771838@linuxfoundation.org>
+In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
+References: <20210726153846.245305071@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,45 +41,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Riccardo Mancini <rickyman7@gmail.com>
+From: John Fastabend <john.fastabend@gmail.com>
 
-[ Upstream commit da6b7c6c0626901428245f65712385805e42eba6 ]
+[ Upstream commit 7e6b27a69167f97c56b5437871d29e9722c3e470 ]
 
-ASan reports memory leaks while running:
+If skb_linearize is needed and fails we could leak a msg on the error
+handling. To fix ensure we kfree the msg block before returning error.
+Found during code review.
 
- # perf test "83: Zstd perf.data compression/decompression"
-
-The first of the leaks is caused by env->cpu_pmu_caps not being freed.
-
-This patch adds the missing (z)free inside perf_env__exit.
-
-Signed-off-by: Riccardo Mancini <rickyman7@gmail.com>
-Fixes: 6f91ea283a1ed23e ("perf header: Support CPU PMU capabilities")
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Kan Liang <kan.liang@linux.intel.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/6ba036a8220156ec1f3d6be3e5d25920f6145028.1626343282.git.rickyman7@gmail.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 4363023d2668e ("bpf, sockmap: Avoid failures from skb_to_sgvec when skb has frag_list")
+Signed-off-by: John Fastabend <john.fastabend@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Reviewed-by: Cong Wang <cong.wang@bytedance.com>
+Link: https://lore.kernel.org/bpf/20210712195546.423990-2-john.fastabend@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/env.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/core/skmsg.c | 16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
-diff --git a/tools/perf/util/env.c b/tools/perf/util/env.c
-index 744e51c4a6bd..03bc843b1cf8 100644
---- a/tools/perf/util/env.c
-+++ b/tools/perf/util/env.c
-@@ -183,6 +183,7 @@ void perf_env__exit(struct perf_env *env)
- 	zfree(&env->sibling_threads);
- 	zfree(&env->pmu_mappings);
- 	zfree(&env->cpu);
-+	zfree(&env->cpu_pmu_caps);
- 	zfree(&env->numa_map);
+diff --git a/net/core/skmsg.c b/net/core/skmsg.c
+index 539c83a45665..b2410a1bfa23 100644
+--- a/net/core/skmsg.c
++++ b/net/core/skmsg.c
+@@ -531,10 +531,8 @@ static int sk_psock_skb_ingress_enqueue(struct sk_buff *skb,
+ 	if (skb_linearize(skb))
+ 		return -EAGAIN;
+ 	num_sge = skb_to_sgvec(skb, msg->sg.data, 0, skb->len);
+-	if (unlikely(num_sge < 0)) {
+-		kfree(msg);
++	if (unlikely(num_sge < 0))
+ 		return num_sge;
+-	}
  
- 	for (i = 0; i < env->nr_numa_nodes; i++)
+ 	copied = skb->len;
+ 	msg->sg.start = 0;
+@@ -553,6 +551,7 @@ static int sk_psock_skb_ingress(struct sk_psock *psock, struct sk_buff *skb)
+ {
+ 	struct sock *sk = psock->sk;
+ 	struct sk_msg *msg;
++	int err;
+ 
+ 	/* If we are receiving on the same sock skb->sk is already assigned,
+ 	 * skip memory accounting and owner transition seeing it already set
+@@ -571,7 +570,10 @@ static int sk_psock_skb_ingress(struct sk_psock *psock, struct sk_buff *skb)
+ 	 * into user buffers.
+ 	 */
+ 	skb_set_owner_r(skb, sk);
+-	return sk_psock_skb_ingress_enqueue(skb, psock, sk, msg);
++	err = sk_psock_skb_ingress_enqueue(skb, psock, sk, msg);
++	if (err < 0)
++		kfree(msg);
++	return err;
+ }
+ 
+ /* Puts an skb on the ingress queue of the socket already assigned to the
+@@ -582,12 +584,16 @@ static int sk_psock_skb_ingress_self(struct sk_psock *psock, struct sk_buff *skb
+ {
+ 	struct sk_msg *msg = kzalloc(sizeof(*msg), __GFP_NOWARN | GFP_ATOMIC);
+ 	struct sock *sk = psock->sk;
++	int err;
+ 
+ 	if (unlikely(!msg))
+ 		return -EAGAIN;
+ 	sk_msg_init(msg);
+ 	skb_set_owner_r(skb, sk);
+-	return sk_psock_skb_ingress_enqueue(skb, psock, sk, msg);
++	err = sk_psock_skb_ingress_enqueue(skb, psock, sk, msg);
++	if (err < 0)
++		kfree(msg);
++	return err;
+ }
+ 
+ static int sk_psock_handle_skb(struct sk_psock *psock, struct sk_buff *skb,
 -- 
 2.30.2
 
