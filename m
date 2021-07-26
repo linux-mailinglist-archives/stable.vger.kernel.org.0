@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D6DA13D55C8
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 10:40:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 000373D55C9
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 10:40:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232248AbhGZIAN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 04:00:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53876 "EHLO mail.kernel.org"
+        id S232097AbhGZIAR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 04:00:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232156AbhGZIAN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 04:00:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AE20260F0F;
-        Mon, 26 Jul 2021 08:40:41 +0000 (UTC)
+        id S232156AbhGZIAR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 04:00:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D48ED60F0F;
+        Mon, 26 Jul 2021 08:40:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627288842;
-        bh=nbDV0ijeLM78AorqdZ+qjQD5WD1ApG9D7z51i1I9CH4=;
+        s=korg; t=1627288844;
+        bh=LUAEbUZUGVCgOLX5L/gaVCcdNuXVdCpdtOMAKtazRZk=;
         h=Subject:To:Cc:From:Date:From;
-        b=1nZQxvHT3N93o1gAkKLshQJ8G/lSvWPw3zkEaGkrdBzD+nK0vjmAuJOxtviGViBRF
-         7nqvestK2kETDOHGT67JyCPLxJRDEpdROKiKbDjgY1zYr1g0cuFEhxnoO3NzigsP0S
-         WUTv3C75wAE2lTiHVq19mZRykZMeUQf9U5yBUrC4=
-Subject: FAILED: patch "[PATCH] usb: hub: Fix link power management max exit latency (MEL)" failed to apply to 4.4-stable tree
+        b=N926lrIVu7GudGrDAwHpSZolipsN8jo8/7Qu56G7Jw8UWaA2zBE+vkzk5liUEPE94
+         j5kPtYAdQzNholznDUNcf4fgOmE62rFKcghrykq5Ff6iXlKvj9QLfqtWW6/9h8WLrU
+         6CcrR3YZaTIHLwvudanrq7W/5dgBnsfv995zoUcg=
+Subject: FAILED: patch "[PATCH] usb: hub: Fix link power management max exit latency (MEL)" failed to apply to 4.14-stable tree
 To:     mathias.nyman@linux.intel.com, gregkh@linuxfoundation.org,
         stable@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 26 Jul 2021 10:30:33 +0200
-Message-ID: <1627288233173159@kroah.com>
+Date:   Mon, 26 Jul 2021 10:30:34 +0200
+Message-ID: <162728823417733@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
