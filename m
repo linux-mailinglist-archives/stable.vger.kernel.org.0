@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 787983D5DD7
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:45:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A13E3D5FA2
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235318AbhGZPED (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:04:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43810 "EHLO mail.kernel.org"
+        id S236188AbhGZPSg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:18:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235666AbhGZPEA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:04:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 819A360F22;
-        Mon, 26 Jul 2021 15:44:27 +0000 (UTC)
+        id S236013AbhGZPQm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:16:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3606A6056C;
+        Mon, 26 Jul 2021 15:57:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314268;
-        bh=Pz5znl3oCRXX/Ot8HGsKGVlif7ze/TLXcSlFz9LJoDk=;
+        s=korg; t=1627315030;
+        bh=0LxOJyZSpsLGI1DR7GX002GYLPjIyD8a1JgymydXNfA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sdsmBb38ww9I2w1Mpg0J/dRBn7AZ+aAeZLi0Pw52+OdJYzUGh+evp0bj/sGxvLMDD
-         0KazLB0kZcaabjJrtefY0Wew2ywfVRrNH+jECfFYrSHSEr2vwCsq7D1oOaLzrNJa6j
-         yHe4xCnPuP9rM04dHUzWM31fxkjN2ZRB32qI/nG8=
+        b=uBAj4fIhWI1z9dj0i7RQ5tPKzviQU50PqMQqwWuLJC7bEnPkpVUVGI/VNbrmPs3ce
+         tJY7soufhWJkfPUldIxi9oAN2ledrq1r9gFB+6IUy3Xaxj+JeBlnA0T3k3XBQfqypo
+         HagVIXhPAW5t6V50lEoGk5oNWGx04EMyir2f42+U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jia-Ju Bai <baijiaju1990@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 45/60] ALSA: sb: Fix potential ABBA deadlock in CSP driver
+        stable@vger.kernel.org, Cong Wang <cong.wang@bytedance.com>,
+        Peilin Ye <peilin.ye@bytedance.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 058/108] net/sched: act_skbmod: Skip non-Ethernet packets
 Date:   Mon, 26 Jul 2021 17:38:59 +0200
-Message-Id: <20210726153826.286117368@linuxfoundation.org>
+Message-Id: <20210726153833.545265115@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153824.868160836@linuxfoundation.org>
-References: <20210726153824.868160836@linuxfoundation.org>
+In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
+References: <20210726153831.696295003@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,75 +41,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Peilin Ye <peilin.ye@bytedance.com>
 
-commit 1c2b9519159b470ef24b2638f4794e86e2952ab7 upstream.
+[ Upstream commit 727d6a8b7ef3d25080fad228b2c4a1d4da5999c6 ]
 
-SB16 CSP driver may hit potentially a typical ABBA deadlock in two
-code paths:
+Currently tcf_skbmod_act() assumes that packets use Ethernet as their L2
+protocol, which is not always the case.  As an example, for CAN devices:
 
- In snd_sb_csp_stop():
-     spin_lock_irqsave(&p->chip->mixer_lock, flags);
-     spin_lock(&p->chip->reg_lock);
+	$ ip link add dev vcan0 type vcan
+	$ ip link set up vcan0
+	$ tc qdisc add dev vcan0 root handle 1: htb
+	$ tc filter add dev vcan0 parent 1: protocol ip prio 10 \
+		matchall action skbmod swap mac
 
- In snd_sb_csp_load():
-     spin_lock_irqsave(&p->chip->reg_lock, flags);
-     spin_lock(&p->chip->mixer_lock);
+Doing the above silently corrupts all the packets.  Do not perform skbmod
+actions for non-Ethernet packets.
 
-Also the similar pattern is seen in snd_sb_csp_start().
-
-Although the practical impact is very small (those states aren't
-triggered in the same running state and this happens only on a real
-hardware, decades old ISA sound boards -- which must be very difficult
-to find nowadays), it's a real scenario and has to be fixed.
-
-This patch addresses those deadlocks by splitting the locks in
-snd_sb_csp_start() and snd_sb_csp_stop() for avoiding the nested
-locks.
-
-Reported-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/7b0fcdaf-cd4f-4728-2eae-48c151a92e10@gmail.com
-Link: https://lore.kernel.org/r/20210716132723.13216-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 86da71b57383 ("net_sched: Introduce skbmod action")
+Reviewed-by: Cong Wang <cong.wang@bytedance.com>
+Signed-off-by: Peilin Ye <peilin.ye@bytedance.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/isa/sb/sb16_csp.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ net/sched/act_skbmod.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/sound/isa/sb/sb16_csp.c
-+++ b/sound/isa/sb/sb16_csp.c
-@@ -828,6 +828,7 @@ static int snd_sb_csp_start(struct snd_s
- 	mixR = snd_sbmixer_read(p->chip, SB_DSP4_PCM_DEV + 1);
- 	snd_sbmixer_write(p->chip, SB_DSP4_PCM_DEV, mixL & 0x7);
- 	snd_sbmixer_write(p->chip, SB_DSP4_PCM_DEV + 1, mixR & 0x7);
-+	spin_unlock_irqrestore(&p->chip->mixer_lock, flags);
+diff --git a/net/sched/act_skbmod.c b/net/sched/act_skbmod.c
+index e858a0a9c045..f60d349542b1 100644
+--- a/net/sched/act_skbmod.c
++++ b/net/sched/act_skbmod.c
+@@ -6,6 +6,7 @@
+ */
  
- 	spin_lock(&p->chip->reg_lock);
- 	set_mode_register(p->chip, 0xc0);	/* c0 = STOP */
-@@ -867,6 +868,7 @@ static int snd_sb_csp_start(struct snd_s
- 	spin_unlock(&p->chip->reg_lock);
+ #include <linux/module.h>
++#include <linux/if_arp.h>
+ #include <linux/init.h>
+ #include <linux/kernel.h>
+ #include <linux/skbuff.h>
+@@ -33,6 +34,13 @@ static int tcf_skbmod_act(struct sk_buff *skb, const struct tc_action *a,
+ 	tcf_lastuse_update(&d->tcf_tm);
+ 	bstats_cpu_update(this_cpu_ptr(d->common.cpu_bstats), skb);
  
- 	/* restore PCM volume */
-+	spin_lock_irqsave(&p->chip->mixer_lock, flags);
- 	snd_sbmixer_write(p->chip, SB_DSP4_PCM_DEV, mixL);
- 	snd_sbmixer_write(p->chip, SB_DSP4_PCM_DEV + 1, mixR);
- 	spin_unlock_irqrestore(&p->chip->mixer_lock, flags);
-@@ -892,6 +894,7 @@ static int snd_sb_csp_stop(struct snd_sb
- 	mixR = snd_sbmixer_read(p->chip, SB_DSP4_PCM_DEV + 1);
- 	snd_sbmixer_write(p->chip, SB_DSP4_PCM_DEV, mixL & 0x7);
- 	snd_sbmixer_write(p->chip, SB_DSP4_PCM_DEV + 1, mixR & 0x7);
-+	spin_unlock_irqrestore(&p->chip->mixer_lock, flags);
++	action = READ_ONCE(d->tcf_action);
++	if (unlikely(action == TC_ACT_SHOT))
++		goto drop;
++
++	if (!skb->dev || skb->dev->type != ARPHRD_ETHER)
++		return action;
++
+ 	/* XXX: if you are going to edit more fields beyond ethernet header
+ 	 * (example when you add IP header replacement or vlan swap)
+ 	 * then MAX_EDIT_LEN needs to change appropriately
+@@ -41,10 +49,6 @@ static int tcf_skbmod_act(struct sk_buff *skb, const struct tc_action *a,
+ 	if (unlikely(err)) /* best policy is to drop on the floor */
+ 		goto drop;
  
- 	spin_lock(&p->chip->reg_lock);
- 	if (p->running & SNDRV_SB_CSP_ST_QSOUND) {
-@@ -906,6 +909,7 @@ static int snd_sb_csp_stop(struct snd_sb
- 	spin_unlock(&p->chip->reg_lock);
- 
- 	/* restore PCM volume */
-+	spin_lock_irqsave(&p->chip->mixer_lock, flags);
- 	snd_sbmixer_write(p->chip, SB_DSP4_PCM_DEV, mixL);
- 	snd_sbmixer_write(p->chip, SB_DSP4_PCM_DEV + 1, mixR);
- 	spin_unlock_irqrestore(&p->chip->mixer_lock, flags);
+-	action = READ_ONCE(d->tcf_action);
+-	if (unlikely(action == TC_ACT_SHOT))
+-		goto drop;
+-
+ 	p = rcu_dereference_bh(d->skbmod_p);
+ 	flags = p->flags;
+ 	if (flags & SKBMOD_F_DMAC)
+-- 
+2.30.2
+
 
 
