@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 222AF3D5D69
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:42:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 532EE3D5F79
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235506AbhGZPBU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:01:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40214 "EHLO mail.kernel.org"
+        id S236892AbhGZPSC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:18:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235507AbhGZPBQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:01:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7102660F22;
-        Mon, 26 Jul 2021 15:41:44 +0000 (UTC)
+        id S237778AbhGZPQ0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:16:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BEE4A60F02;
+        Mon, 26 Jul 2021 15:56:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314105;
-        bh=isF4QB8C5bHRW9154NwUZ+beRoilDf5jzQhWxpbDkbo=;
+        s=korg; t=1627315014;
+        bh=s/WFr6LbuGVWNAD3q7+VmLZH3Ws/5MvNUpJnSNF/M0E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z5XHNlY+2F9btWTSfPWgQKkukzsW1HhdCWuF1OPcwKdznql6GeROmucANpzALEw1C
-         B1C/M6OA01uomk72m0bHvi6vjmburfl2r5Rlo/Rvb/U9tBpQrMGT76evkHdvWw+yYb
-         MCrh9pke5uUwCwNLG7vyDT3sKOQzsU0SL8btuYr4=
+        b=EcLviIaa3WZfdP4i0q/HXtkLeteijPTP3WVCnKbEEV3FAcfHRRSaX8hyEji9yUaPc
+         KwbVbOBbqBV1a0mlSOUv02BbjQyWeEZ4xBGatlI1wZ9lZJ1XAC0vgTP4hJNTn1e+tz
+         5GFX7KkPR3RhK7Wvzs+K9kpqmrmGeqhP6jwzv6Ok=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 4.4 35/47] usb: hub: Disable USB 3 device initiated lpm if exit latency is too high
+        stable@vger.kernel.org, Somnath Kotur <somnath.kotur@broadcom.com>,
+        Edwin Peer <edwin.peer@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 052/108] bnxt_en: Refresh RoCE capabilities in bnxt_ulp_probe()
 Date:   Mon, 26 Jul 2021 17:38:53 +0200
-Message-Id: <20210726153824.088485130@linuxfoundation.org>
+Message-Id: <20210726153833.354657459@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153822.980271128@linuxfoundation.org>
-References: <20210726153822.980271128@linuxfoundation.org>
+In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
+References: <20210726153831.696295003@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,119 +42,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Michael Chan <michael.chan@broadcom.com>
 
-commit 1b7f56fbc7a1b66967b6114d1b5f5a257c3abae6 upstream.
+[ Upstream commit 2c9f046bc377efd1f5e26e74817d5f96e9506c86 ]
 
-The device initiated link power management U1/U2 states should not be
-enabled in case the system exit latency plus one bus interval (125us) is
-greater than the shortest service interval of any periodic endpoint.
+The capabilities can change after firmware upgrade/downgrade, so we
+should get the up-to-date RoCE capabilities everytime bnxt_ulp_probe()
+is called.
 
-This is the case for both U1 and U2 sytstem exit latencies and link states.
-
-See USB 3.2 section 9.4.9 "Set Feature" for more details
-
-Note, before this patch the host and device initiated U1/U2 lpm states
-were both enabled with lpm. After this patch it's possible to end up with
-only host inititated U1/U2 lpm in case the exit latencies won't allow
-device initiated lpm.
-
-If this case we still want to set the udev->usb3_lpm_ux_enabled flag so
-that sysfs users can see the link may go to U1/U2.
-
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210715150122.1995966-2-mathias.nyman@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 2151fe0830fd ("bnxt_en: Handle RESET_NOTIFY async event from firmware.")
+Reviewed-by: Somnath Kotur <somnath.kotur@broadcom.com>
+Reviewed-by: Edwin Peer <edwin.peer@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/core/hub.c |   68 ++++++++++++++++++++++++++++++++++++++++---------
- 1 file changed, 56 insertions(+), 12 deletions(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt_ulp.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/core/hub.c
-+++ b/drivers/usb/core/hub.c
-@@ -3837,6 +3837,47 @@ static int usb_set_lpm_timeout(struct us
- }
- 
- /*
-+ * Don't allow device intiated U1/U2 if the system exit latency + one bus
-+ * interval is greater than the minimum service interval of any active
-+ * periodic endpoint. See USB 3.2 section 9.4.9
-+ */
-+static bool usb_device_may_initiate_lpm(struct usb_device *udev,
-+					enum usb3_link_state state)
-+{
-+	unsigned int sel;		/* us */
-+	int i, j;
-+
-+	if (state == USB3_LPM_U1)
-+		sel = DIV_ROUND_UP(udev->u1_params.sel, 1000);
-+	else if (state == USB3_LPM_U2)
-+		sel = DIV_ROUND_UP(udev->u2_params.sel, 1000);
-+	else
-+		return false;
-+
-+	for (i = 0; i < udev->actconfig->desc.bNumInterfaces; i++) {
-+		struct usb_interface *intf;
-+		struct usb_endpoint_descriptor *desc;
-+		unsigned int interval;
-+
-+		intf = udev->actconfig->interface[i];
-+		if (!intf)
-+			continue;
-+
-+		for (j = 0; j < intf->cur_altsetting->desc.bNumEndpoints; j++) {
-+			desc = &intf->cur_altsetting->endpoint[j].desc;
-+
-+			if (usb_endpoint_xfer_int(desc) ||
-+			    usb_endpoint_xfer_isoc(desc)) {
-+				interval = (1 << (desc->bInterval - 1)) * 125;
-+				if (sel + 125 > interval)
-+					return false;
-+			}
-+		}
-+	}
-+	return true;
-+}
-+
-+/*
-  * Enable the hub-initiated U1/U2 idle timeouts, and enable device-initiated
-  * U1/U2 entry.
-  *
-@@ -3908,20 +3949,23 @@ static void usb_enable_link_state(struct
- 	 * U1/U2_ENABLE
- 	 */
- 	if (udev->actconfig &&
--	    usb_set_device_initiated_lpm(udev, state, true) == 0) {
--		if (state == USB3_LPM_U1)
--			udev->usb3_lpm_u1_enabled = 1;
--		else if (state == USB3_LPM_U2)
--			udev->usb3_lpm_u2_enabled = 1;
--	} else {
--		/* Don't request U1/U2 entry if the device
--		 * cannot transition to U1/U2.
--		 */
--		usb_set_lpm_timeout(udev, state, 0);
--		hcd->driver->disable_usb3_lpm_timeout(hcd, udev, state);
-+	    usb_device_may_initiate_lpm(udev, state)) {
-+		if (usb_set_device_initiated_lpm(udev, state, true)) {
-+			/*
-+			 * Request to enable device initiated U1/U2 failed,
-+			 * better to turn off lpm in this case.
-+			 */
-+			usb_set_lpm_timeout(udev, state, 0);
-+			hcd->driver->disable_usb3_lpm_timeout(hcd, udev, state);
-+			return;
-+		}
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_ulp.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_ulp.c
+index 85bacaed763e..b0ae180df4e6 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ulp.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ulp.c
+@@ -473,13 +473,14 @@ struct bnxt_en_dev *bnxt_ulp_probe(struct net_device *dev)
+ 		if (!edev)
+ 			return ERR_PTR(-ENOMEM);
+ 		edev->en_ops = &bnxt_en_ops_tbl;
+-		if (bp->flags & BNXT_FLAG_ROCEV1_CAP)
+-			edev->flags |= BNXT_EN_FLAG_ROCEV1_CAP;
+-		if (bp->flags & BNXT_FLAG_ROCEV2_CAP)
+-			edev->flags |= BNXT_EN_FLAG_ROCEV2_CAP;
+ 		edev->net = dev;
+ 		edev->pdev = bp->pdev;
+ 		bp->edev = edev;
  	}
--}
- 
-+	if (state == USB3_LPM_U1)
-+		udev->usb3_lpm_u1_enabled = 1;
-+	else if (state == USB3_LPM_U2)
-+		udev->usb3_lpm_u2_enabled = 1;
-+}
- /*
-  * Disable the hub-initiated U1/U2 idle timeouts, and disable device-initiated
-  * U1/U2 entry.
++	edev->flags &= ~BNXT_EN_FLAG_ROCE_CAP;
++	if (bp->flags & BNXT_FLAG_ROCEV1_CAP)
++		edev->flags |= BNXT_EN_FLAG_ROCEV1_CAP;
++	if (bp->flags & BNXT_FLAG_ROCEV2_CAP)
++		edev->flags |= BNXT_EN_FLAG_ROCEV2_CAP;
+ 	return bp->edev;
+ }
+-- 
+2.30.2
+
 
 
