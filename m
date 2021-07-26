@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A8E8F3D5FAC
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7358D3D5E08
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:47:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236472AbhGZPSu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:18:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57276 "EHLO mail.kernel.org"
+        id S235775AbhGZPFK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:05:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45150 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236543AbhGZPRQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:17:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B0AA160F38;
-        Mon, 26 Jul 2021 15:57:43 +0000 (UTC)
+        id S235786AbhGZPEs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:04:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1EFBF60F5A;
+        Mon, 26 Jul 2021 15:45:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315064;
-        bh=StVdaq8NiJLj5NQcr12LUB5lPcbPrWwAgzhVmijn5RI=;
+        s=korg; t=1627314316;
+        bh=JfxhRDXSCZ5rsxg7bPn6nFqZE5y+4xJFrqfVZLUcIn8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mF/MG0tXkAiu9tqViSqvNmnfQrcYWKIMKMKlRvdOAvHbsPwVcMiEzRVprPDY0gmhE
-         gwLS6DrI8vmdrUpZIdW9lTgjnDumS5mx/Y1EBaUcXjxfLDsxDTeRteI5eranHO8WVP
-         1g9UrtXUFlMUGiPah5Vu+LUZqRZVxu58i7byxcdk=
+        b=ms4UVXBXSazfAbd6f0cRIjVg7c6/qSf6s9ClFe1rXcywoq4QsS6UQ3KZFk/CEGIpX
+         scPwiZlN7ywI3Ch+2R5KyOzM/fPhoWqerWgV9h3dDudHKgvYwZ3Li+Mt8nWlMHM9LR
+         M5vRRqTvzwvpc/+5OitQ0Mg3huJy067NXLJ+tNgg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Huang Pei <huangpei@loongson.cn>
-Subject: [PATCH 5.4 069/108] [PATCH] Revert "MIPS: add PMD table accounting into MIPSpmd_alloc_one"
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Kees Cook <keescook@chromium.org>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>
+Subject: [PATCH 4.9 56/60] media: ngene: Fix out-of-bounds bug in ngene_command_config_free_buf()
 Date:   Mon, 26 Jul 2021 17:39:10 +0200
-Message-Id: <20210726153833.905513693@linuxfoundation.org>
+Message-Id: <20210726153826.631496590@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
-References: <20210726153831.696295003@linuxfoundation.org>
+In-Reply-To: <20210726153824.868160836@linuxfoundation.org>
+References: <20210726153824.868160836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,41 +40,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huang Pei <huangpei@loongson.cn>
+From: Gustavo A. R. Silva <gustavoars@kernel.org>
 
-This reverts commit 002d8b395fa1c0679fc3c3e68873de6c1cc300a2 which is
-commit ed914d48b6a1040d1039d371b56273d422c0081e upstream.
+commit 8d4abca95ecc82fc8c41912fa0085281f19cc29f upstream.
 
-Commit b2b29d6d011944 (mm: account PMD tables like PTE tables) is
-introduced between v5.9 and v5.10, so this fix (commit 002d8b395fa1)
-should NOT apply to any pre-5.10 branch.
+Fix an 11-year old bug in ngene_command_config_free_buf() while
+addressing the following warnings caught with -Warray-bounds:
 
-Signed-off-by: Huang Pei <huangpei@loongson.cn>
+arch/alpha/include/asm/string.h:22:16: warning: '__builtin_memcpy' offset [12, 16] from the object at 'com' is out of the bounds of referenced subobject 'config' with type 'unsigned char' at offset 10 [-Warray-bounds]
+arch/x86/include/asm/string_32.h:182:25: warning: '__builtin_memcpy' offset [12, 16] from the object at 'com' is out of the bounds of referenced subobject 'config' with type 'unsigned char' at offset 10 [-Warray-bounds]
+
+The problem is that the original code is trying to copy 6 bytes of
+data into a one-byte size member _config_ of the wrong structue
+FW_CONFIGURE_BUFFERS, in a single call to memcpy(). This causes a
+legitimate compiler warning because memcpy() overruns the length
+of &com.cmd.ConfigureBuffers.config. It seems that the right
+structure is FW_CONFIGURE_FREE_BUFFERS, instead, because it contains
+6 more members apart from the header _hdr_. Also, the name of
+the function ngene_command_config_free_buf() suggests that the actual
+intention is to ConfigureFreeBuffers, instead of ConfigureBuffers
+(which takes place in the function ngene_command_config_buf(), above).
+
+Fix this by enclosing those 6 members of struct FW_CONFIGURE_FREE_BUFFERS
+into new struct config, and use &com.cmd.ConfigureFreeBuffers.config as
+the destination address, instead of &com.cmd.ConfigureBuffers.config,
+when calling memcpy().
+
+This also helps with the ongoing efforts to globally enable
+-Warray-bounds and get us closer to being able to tighten the
+FORTIFY_SOURCE routines on memcpy().
+
+Link: https://github.com/KSPP/linux/issues/109
+Fixes: dae52d009fc9 ("V4L/DVB: ngene: Initial check-in")
+Cc: stable@vger.kernel.org
+Reported-by: kernel test robot <lkp@intel.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+Link: https://lore.kernel.org/linux-hardening/20210420001631.GA45456@embeddedor/
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/include/asm/pgalloc.h |   10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ drivers/media/pci/ngene/ngene-core.c |    2 +-
+ drivers/media/pci/ngene/ngene.h      |   14 ++++++++------
+ 2 files changed, 9 insertions(+), 7 deletions(-)
 
---- a/arch/mips/include/asm/pgalloc.h
-+++ b/arch/mips/include/asm/pgalloc.h
-@@ -62,15 +62,11 @@ do {							\
+--- a/drivers/media/pci/ngene/ngene-core.c
++++ b/drivers/media/pci/ngene/ngene-core.c
+@@ -402,7 +402,7 @@ static int ngene_command_config_free_buf
  
- static inline pmd_t *pmd_alloc_one(struct mm_struct *mm, unsigned long address)
- {
--	pmd_t *pmd = NULL;
--	struct page *pg;
-+	pmd_t *pmd;
+ 	com.cmd.hdr.Opcode = CMD_CONFIGURE_FREE_BUFFER;
+ 	com.cmd.hdr.Length = 6;
+-	memcpy(&com.cmd.ConfigureBuffers.config, config, 6);
++	memcpy(&com.cmd.ConfigureFreeBuffers.config, config, 6);
+ 	com.in_len = 6;
+ 	com.out_len = 0;
  
--	pg = alloc_pages(GFP_KERNEL | __GFP_ACCOUNT, PMD_ORDER);
--	if (pg) {
--		pgtable_pmd_page_ctor(pg);
--		pmd = (pmd_t *)page_address(pg);
-+	pmd = (pmd_t *) __get_free_pages(GFP_KERNEL, PMD_ORDER);
-+	if (pmd)
- 		pmd_init((unsigned long)pmd, (unsigned long)invalid_pte_table);
--	}
- 	return pmd;
- }
+--- a/drivers/media/pci/ngene/ngene.h
++++ b/drivers/media/pci/ngene/ngene.h
+@@ -407,12 +407,14 @@ enum _BUFFER_CONFIGS {
  
+ struct FW_CONFIGURE_FREE_BUFFERS {
+ 	struct FW_HEADER hdr;
+-	u8   UVI1_BufferLength;
+-	u8   UVI2_BufferLength;
+-	u8   TVO_BufferLength;
+-	u8   AUD1_BufferLength;
+-	u8   AUD2_BufferLength;
+-	u8   TVA_BufferLength;
++	struct {
++		u8   UVI1_BufferLength;
++		u8   UVI2_BufferLength;
++		u8   TVO_BufferLength;
++		u8   AUD1_BufferLength;
++		u8   AUD2_BufferLength;
++		u8   TVA_BufferLength;
++	} __packed config;
+ } __attribute__ ((__packed__));
+ 
+ struct FW_CONFIGURE_UART {
 
 
