@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DB7F3D605C
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:10:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71FF33D61CF
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:14:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237221AbhGZPV4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:21:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36352 "EHLO mail.kernel.org"
+        id S233999AbhGZPdC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:33:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237235AbhGZPVz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:21:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B21FC60240;
-        Mon, 26 Jul 2021 16:02:23 +0000 (UTC)
+        id S232888AbhGZPas (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:30:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9308160C40;
+        Mon, 26 Jul 2021 16:11:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315344;
-        bh=KQBIvWw5YEEKzswPulW/87FGiBPzOznHMPU68F6m9Ds=;
+        s=korg; t=1627315876;
+        bh=nu9HSbVDtzUnXxN8axmqDqNWOmNMTz0F8iLHUC/jB3w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZLmeV3UBy4221i2ji2DahWzQAZmDaVmMBBzmBAiRD5W1HbUhFSexTZlI74hlIpWUP
-         SAUaCWTKJRCxgqtFWTkeVIBpbYTHBghQDvY0J/rIZr4vI7K7LQr2Uys5Eqy+rCbOnI
-         57dQ1bgyC2LtTItuqRzUZX+MLc+VVQUTqROp+D2Y=
+        b=IefYr4gO2PIT7nEEekpAfqkiLE6resCPBuOfk6z+usNLa3hAprhbhlqohcLorHf5Q
+         i9fYf7/5cF26D/i8fpU9cjuEvgvzWTHQjX1EGFLyslXOczZPSKZiAPXQUg7PIslyQR
+         OUz3qOuLBEWkumrwAchEkD3s2xQQ9EmJpIn8oyas=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 059/167] liquidio: Fix unintentional sign extension issue on left shift of u16
+Subject: [PATCH 5.13 100/223] spi: cadence: Correct initialisation of runtime PM again
 Date:   Mon, 26 Jul 2021 17:38:12 +0200
-Message-Id: <20210726153841.392261805@linuxfoundation.org>
+Message-Id: <20210726153849.539793671@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
-References: <20210726153839.371771838@linuxfoundation.org>
+In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
+References: <20210726153846.245305071@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +41,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit e7efc2ce3d0789cd7c21b70ff00cd7838d382639 ]
+[ Upstream commit 56912da7a68c8356df6a6740476237441b0b792a ]
 
-Shifting the u16 integer oct->pcie_port by CN23XX_PKT_INPUT_CTL_MAC_NUM_POS
-(29) bits will be promoted to a 32 bit signed int and then sign-extended
-to a u64. In the cases where oct->pcie_port where bit 2 is set (e.g. 3..7)
-the shifted value will be sign extended and the top 32 bits of the result
-will be set.
+The original implementation of RPM handling in probe() was mostly
+correct, except it failed to call pm_runtime_get_*() to activate the
+hardware. The subsequent fix, 734882a8bf98 ("spi: cadence: Correct
+initialisation of runtime PM"), breaks the implementation further,
+to the point where the system using this hard IP on ZynqMP hangs on
+boot, because it accesses hardware which is gated off.
 
-Fix this by casting the u16 values to a u64 before the 29 bit left shift.
+Undo 734882a8bf98 ("spi: cadence: Correct initialisation of runtime
+PM") and instead add missing pm_runtime_get_noresume() and move the
+RPM disabling all the way to the end of probe(). That makes ZynqMP
+not hang on boot yet again.
 
-Addresses-Coverity: ("Unintended sign extension")
-
-Fixes: 3451b97cce2d ("liquidio: CN23XX register setup")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 734882a8bf98 ("spi: cadence: Correct initialisation of runtime PM")
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Charles Keepax <ckeepax@opensource.cirrus.com>
+Cc: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20210716182133.218640-1-marex@denx.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/cavium/liquidio/cn23xx_pf_device.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/spi/spi-cadence.c | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/cavium/liquidio/cn23xx_pf_device.c b/drivers/net/ethernet/cavium/liquidio/cn23xx_pf_device.c
-index 4cddd628d41b..9ed3d1ab2ca5 100644
---- a/drivers/net/ethernet/cavium/liquidio/cn23xx_pf_device.c
-+++ b/drivers/net/ethernet/cavium/liquidio/cn23xx_pf_device.c
-@@ -420,7 +420,7 @@ static int cn23xx_pf_setup_global_input_regs(struct octeon_device *oct)
- 	 * bits 32:47 indicate the PVF num.
- 	 */
- 	for (q_no = 0; q_no < ern; q_no++) {
--		reg_val = oct->pcie_port << CN23XX_PKT_INPUT_CTL_MAC_NUM_POS;
-+		reg_val = (u64)oct->pcie_port << CN23XX_PKT_INPUT_CTL_MAC_NUM_POS;
+diff --git a/drivers/spi/spi-cadence.c b/drivers/spi/spi-cadence.c
+index a3afd1b9ac56..ceb16e70d235 100644
+--- a/drivers/spi/spi-cadence.c
++++ b/drivers/spi/spi-cadence.c
+@@ -517,6 +517,12 @@ static int cdns_spi_probe(struct platform_device *pdev)
+ 		goto clk_dis_apb;
+ 	}
  
- 		/* for VF assigned queues. */
- 		if (q_no < oct->sriov_info.pf_srn) {
++	pm_runtime_use_autosuspend(&pdev->dev);
++	pm_runtime_set_autosuspend_delay(&pdev->dev, SPI_AUTOSUSPEND_TIMEOUT);
++	pm_runtime_get_noresume(&pdev->dev);
++	pm_runtime_set_active(&pdev->dev);
++	pm_runtime_enable(&pdev->dev);
++
+ 	ret = of_property_read_u32(pdev->dev.of_node, "num-cs", &num_cs);
+ 	if (ret < 0)
+ 		master->num_chipselect = CDNS_SPI_DEFAULT_NUM_CS;
+@@ -531,11 +537,6 @@ static int cdns_spi_probe(struct platform_device *pdev)
+ 	/* SPI controller initializations */
+ 	cdns_spi_init_hw(xspi);
+ 
+-	pm_runtime_set_active(&pdev->dev);
+-	pm_runtime_enable(&pdev->dev);
+-	pm_runtime_use_autosuspend(&pdev->dev);
+-	pm_runtime_set_autosuspend_delay(&pdev->dev, SPI_AUTOSUSPEND_TIMEOUT);
+-
+ 	irq = platform_get_irq(pdev, 0);
+ 	if (irq <= 0) {
+ 		ret = -ENXIO;
+@@ -566,6 +567,9 @@ static int cdns_spi_probe(struct platform_device *pdev)
+ 
+ 	master->bits_per_word_mask = SPI_BPW_MASK(8);
+ 
++	pm_runtime_mark_last_busy(&pdev->dev);
++	pm_runtime_put_autosuspend(&pdev->dev);
++
+ 	ret = spi_register_master(master);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "spi_register_master failed\n");
 -- 
 2.30.2
 
