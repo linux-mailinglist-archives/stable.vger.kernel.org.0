@@ -2,32 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73C7D3D612D
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:13:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCDB73D6134
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:13:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232164AbhGZPaO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:30:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42756 "EHLO mail.kernel.org"
+        id S232280AbhGZPaQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:30:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41172 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231557AbhGZP1k (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:27:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D295E60F9D;
-        Mon, 26 Jul 2021 16:06:41 +0000 (UTC)
+        id S238209AbhGZP1r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:27:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C0C860FBF;
+        Mon, 26 Jul 2021 16:06:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315602;
-        bh=c14dfRxq1gmZ49vdBkjU05NPkI/FJJLBGXEkwr2xzeo=;
+        s=korg; t=1627315604;
+        bh=Fdqk3ztbbE/vk3sq2pTpdUpwhKruJ93bgYarkWirXhA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VV739c7vD6WJ2G0CxKuVaOlUASBI08zDIJyRW7pvDINPZAnptnmyT/DjyCSb+rO/A
-         E11B+i1Sb0DKpdUczHwFJgh//tABBNO9wzH/9eQTZaSYPDX5nA3QtGXR63Ii/fBUTs
-         N+KH/Ru1sY5pueUuSv2X3Jl7I+GI/KDvIcMiJjhI=
+        b=i7pztsJhZa2rhwoqCsXrEv5pR54c1akwcDy7+MYR0U5UqzHIjlFkUJsi0JWjqiZXl
+         +s7WPmzy/MR4GaTtoWJRPXi65fuhhERt9AGL99/1YqJuoN0XBAZczjZjKrpMjzcMrM
+         brN8QYSycvB4ZEMUho1OMimUGO7fypZtwVsw8ZKE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Richter <rrichter@amd.com>,
-        Masahiro Yamada <masahiroy@kernel.org>
-Subject: [PATCH 5.10 162/167] Documentation: Fix intiramfs script name
-Date:   Mon, 26 Jul 2021 17:39:55 +0200
-Message-Id: <20210726153844.844979994@linuxfoundation.org>
+        stable@vger.kernel.org, Riccardo Mancini <rickyman7@gmail.com>,
+        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
+        Mamatha Inamdar <mamatha4@linux.vnet.ibm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.10 163/167] perf inject: Close inject.output on exit
+Date:   Mon, 26 Jul 2021 17:39:56 +0200
+Message-Id: <20210726153844.875747472@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
 References: <20210726153839.371771838@linuxfoundation.org>
@@ -39,61 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Richter <rrichter@amd.com>
+From: Riccardo Mancini <rickyman7@gmail.com>
 
-commit 5e60f363b38fd40e4d8838b5d6f4d4ecee92c777 upstream.
+commit 02e6246f5364d5260a6ea6f92ab6f409058b162f upstream.
 
-Documentation was not changed when renaming the script in commit
-80e715a06c2d ("initramfs: rename gen_initramfs_list.sh to
-gen_initramfs.sh"). Fixing this.
+ASan reports a memory leak when running:
 
-Basically does:
+  # perf test "83: Zstd perf.data compression/decompression"
 
- $ sed -i -e s/gen_initramfs_list.sh/gen_initramfs.sh/g $(git grep -l gen_initramfs_list.sh)
+which happens inside 'perf inject'.
 
-Fixes: 80e715a06c2d ("initramfs: rename gen_initramfs_list.sh to gen_initramfs.sh")
-Signed-off-by: Robert Richter <rrichter@amd.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+The bug is caused by inject.output never being closed.
+
+This patch adds the missing perf_data__close().
+
+Signed-off-by: Riccardo Mancini <rickyman7@gmail.com>
+Fixes: 6ef81c55a2b6584c ("perf session: Return error code for perf_session__new() function on failure")
+Cc: Ian Rogers <irogers@google.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Mamatha Inamdar <mamatha4@linux.vnet.ibm.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lore.kernel.org/lkml/c06f682afa964687367cf6e92a64ceb49aec76a5.1626343282.git.rickyman7@gmail.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/driver-api/early-userspace/early_userspace_support.rst |    8 ++++----
- Documentation/filesystems/ramfs-rootfs-initramfs.rst                 |    2 +-
- 2 files changed, 5 insertions(+), 5 deletions(-)
+ tools/perf/builtin-inject.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/Documentation/driver-api/early-userspace/early_userspace_support.rst
-+++ b/Documentation/driver-api/early-userspace/early_userspace_support.rst
-@@ -69,17 +69,17 @@ early userspace image can be built by an
+--- a/tools/perf/builtin-inject.c
++++ b/tools/perf/builtin-inject.c
+@@ -906,8 +906,10 @@ int cmd_inject(int argc, const char **ar
  
- As a technical note, when directories and files are specified, the
- entire CONFIG_INITRAMFS_SOURCE is passed to
--usr/gen_initramfs_list.sh.  This means that CONFIG_INITRAMFS_SOURCE
-+usr/gen_initramfs.sh.  This means that CONFIG_INITRAMFS_SOURCE
- can really be interpreted as any legal argument to
--gen_initramfs_list.sh.  If a directory is specified as an argument then
-+gen_initramfs.sh.  If a directory is specified as an argument then
- the contents are scanned, uid/gid translation is performed, and
- usr/gen_init_cpio file directives are output.  If a directory is
--specified as an argument to usr/gen_initramfs_list.sh then the
-+specified as an argument to usr/gen_initramfs.sh then the
- contents of the file are simply copied to the output.  All of the output
- directives from directory scanning and file contents copying are
- processed by usr/gen_init_cpio.
+ 	data.path = inject.input_name;
+ 	inject.session = perf_session__new(&data, inject.output.is_pipe, &inject.tool);
+-	if (IS_ERR(inject.session))
+-		return PTR_ERR(inject.session);
++	if (IS_ERR(inject.session)) {
++		ret = PTR_ERR(inject.session);
++		goto out_close_output;
++	}
  
--See also 'usr/gen_initramfs_list.sh -h'.
-+See also 'usr/gen_initramfs.sh -h'.
- 
- Where's this all leading?
- =========================
---- a/Documentation/filesystems/ramfs-rootfs-initramfs.rst
-+++ b/Documentation/filesystems/ramfs-rootfs-initramfs.rst
-@@ -170,7 +170,7 @@ Documentation/driver-api/early-userspace
- The kernel does not depend on external cpio tools.  If you specify a
- directory instead of a configuration file, the kernel's build infrastructure
- creates a configuration file from that directory (usr/Makefile calls
--usr/gen_initramfs_list.sh), and proceeds to package up that directory
-+usr/gen_initramfs.sh), and proceeds to package up that directory
- using the config file (by feeding it to usr/gen_init_cpio, which is created
- from usr/gen_init_cpio.c).  The kernel's build-time cpio creation code is
- entirely self-contained, and the kernel's boot-time extractor is also
+ 	if (zstd_init(&(inject.session->zstd_data), 0) < 0)
+ 		pr_warning("Decompression initialization failed.\n");
+@@ -949,5 +951,7 @@ int cmd_inject(int argc, const char **ar
+ out_delete:
+ 	zstd_fini(&(inject.session->zstd_data));
+ 	perf_session__delete(inject.session);
++out_close_output:
++	perf_data__close(&inject.output);
+ 	return ret;
+ }
 
 
