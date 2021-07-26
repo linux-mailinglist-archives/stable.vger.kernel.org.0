@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 807283D5FC4
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E67F33D5FC7
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236666AbhGZPTL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S236680AbhGZPTL (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 26 Jul 2021 11:19:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58882 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:58956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235652AbhGZPSS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:18:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D2BAA6056C;
-        Mon, 26 Jul 2021 15:58:45 +0000 (UTC)
+        id S236441AbhGZPSU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:18:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A601160FD8;
+        Mon, 26 Jul 2021 15:58:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315126;
-        bh=YLNZB377ktFeBYTb72ch6L7rP2Y20JGHcVn7G5uyNms=;
+        s=korg; t=1627315129;
+        bh=8u3p3adKE1jvx3fFGSIpHXNj3AnbKGy4Awh7LZfQCwc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fOUgbLhQ5kdXctQDRAyFYoBIxZKGjHM6cpI1wlDx6rSlZ+jZsMqtV8D9FB9wNmCbW
-         481EuE6JzLiMwFmfiqWlFcHGcBV2vKZeqc8DraGSIkdZBepLFfiGY1OyDMHM+w5MwZ
-         U5749JCtEnWfjE7IkyKTCZfxbeRdsR9XUiP3Z7xQ=
+        b=zAO0p4WEpXaVykLINgMhz+aKN7mWlMs8KiazocCn0/qnoNppDfAk17my95romP7OD
+         SzIKREDFRT1pEnjwEUeUu1DJ+BrKhLZYGXpG27iLXYIxuXWHc0+tOByZEpTQd8FfyI
+         61dJCMfjq0zsEMw2lekyOWIKfhbK6Xw65xtJC53M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Keeping <john@metanate.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.4 086/108] USB: serial: cp210x: add ID for CEL EM3588 USB ZigBee stick
-Date:   Mon, 26 Jul 2021 17:39:27 +0200
-Message-Id: <20210726153834.436477054@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
+Subject: [PATCH 5.4 087/108] usb: dwc2: gadget: Fix sending zero length packet in DDMA mode.
+Date:   Mon, 26 Jul 2021 17:39:28 +0200
+Message-Id: <20210726153834.468412085@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
 References: <20210726153831.696295003@linuxfoundation.org>
@@ -39,29 +39,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Keeping <john@metanate.com>
+From: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
 
-commit d6a206e60124a9759dd7f6dfb86b0e1d3b1df82e upstream.
+commit d53dc38857f6dbefabd9eecfcbf67b6eac9a1ef4 upstream.
 
-Add the USB serial device ID for the CEL ZigBee EM3588 radio stick.
+Sending zero length packet in DDMA mode perform by DMA descriptor
+by setting SP (short packet) flag.
 
-Signed-off-by: John Keeping <john@metanate.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+For DDMA in function dwc2_hsotg_complete_in() does not need to send
+zlp.
+
+Tested by USBCV MSC tests.
+
+Fixes: f71b5e2533de ("usb: dwc2: gadget: fix zero length packet transfers")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
+Link: https://lore.kernel.org/r/967bad78c55dd2db1c19714eee3d0a17cf99d74a.1626777738.git.Minas.Harutyunyan@synopsys.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/cp210x.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/dwc2/gadget.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/serial/cp210x.c
-+++ b/drivers/usb/serial/cp210x.c
-@@ -156,6 +156,7 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(0x10C4, 0x89A4) }, /* CESINEL FTBC Flexible Thyristor Bridge Controller */
- 	{ USB_DEVICE(0x10C4, 0x89FB) }, /* Qivicon ZigBee USB Radio Stick */
- 	{ USB_DEVICE(0x10C4, 0x8A2A) }, /* HubZ dual ZigBee and Z-Wave dongle */
-+	{ USB_DEVICE(0x10C4, 0x8A5B) }, /* CEL EM3588 ZigBee USB Stick */
- 	{ USB_DEVICE(0x10C4, 0x8A5E) }, /* CEL EM3588 ZigBee USB Stick Long Range */
- 	{ USB_DEVICE(0x10C4, 0x8B34) }, /* Qivicon ZigBee USB Radio Stick */
- 	{ USB_DEVICE(0x10C4, 0xEA60) }, /* Silicon Labs factory default */
+--- a/drivers/usb/dwc2/gadget.c
++++ b/drivers/usb/dwc2/gadget.c
+@@ -2748,12 +2748,14 @@ static void dwc2_hsotg_complete_in(struc
+ 		return;
+ 	}
+ 
+-	/* Zlp for all endpoints, for ep0 only in DATA IN stage */
++	/* Zlp for all endpoints in non DDMA, for ep0 only in DATA IN stage */
+ 	if (hs_ep->send_zlp) {
+-		dwc2_hsotg_program_zlp(hsotg, hs_ep);
+ 		hs_ep->send_zlp = 0;
+-		/* transfer will be completed on next complete interrupt */
+-		return;
++		if (!using_desc_dma(hsotg)) {
++			dwc2_hsotg_program_zlp(hsotg, hs_ep);
++			/* transfer will be completed on next complete interrupt */
++			return;
++		}
+ 	}
+ 
+ 	if (hs_ep->index == 0 && hsotg->ep0_state == DWC2_EP0_DATA_IN) {
 
 
