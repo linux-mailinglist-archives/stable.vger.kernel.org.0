@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C55E43D5EBC
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:52:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5E6B3D5F56
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236519AbhGZPLc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:11:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51122 "EHLO mail.kernel.org"
+        id S236748AbhGZPRe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:17:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237281AbhGZPKh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:10:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C7306056C;
-        Mon, 26 Jul 2021 15:51:05 +0000 (UTC)
+        id S237428AbhGZPPp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:15:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9600D61040;
+        Mon, 26 Jul 2021 15:55:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314665;
-        bh=4JCct7C/X4rt9JgP6yr8rtQaW1eLFKBgvSzA6UenINY=;
+        s=korg; t=1627314918;
+        bh=xoeTu/ciy1ZBjGG7vZFaW5uf4HESNU5jCY6YOJCYCMg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fxIjwwAax0Q5dUONxywXFhKzZ6mnYaM92lbUv4WhlB/Y+3tgYeHGXVtET13Juaiu7
-         3zvXI0GFvEvz6RXcZSkHwOXgygZk3kG1Xcc8Cnn5luCF4zyzO2WLMAV1ytR1kKCG88
-         MzEqEO+2fazmD9Tgsz8qARYTCRYbRbyKmP43m+o0=
+        b=aeQdAKhfE49HSUIvskgn31T/2AyGooYzGab0Ew7zekhTwZQRDOXXCDyJ31ua64Y8w
+         unuao/8xYBQJLuqyr6ypezeoARf5w5dJgd6/4ByVDA9qXWIyoQXOpTnSKHD4ZEcfNa
+         GYZrT97NIxU2lzm34ODohUMsdnsYtXxBfQkiG9ec=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 048/120] tcp: annotate data races around tp->mtu_info
+        stable@vger.kernel.org, Casey Chen <cachen@purestorage.com>,
+        Keith Busch <kbusch@kernel.org>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 019/108] nvme-pci: do not call nvme_dev_remove_admin from nvme_remove
 Date:   Mon, 26 Jul 2021 17:38:20 +0200
-Message-Id: <20210726153833.931168421@linuxfoundation.org>
+Message-Id: <20210726153832.309371513@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153832.339431936@linuxfoundation.org>
-References: <20210726153832.339431936@linuxfoundation.org>
+In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
+References: <20210726153831.696295003@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,62 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Casey Chen <cachen@purestorage.com>
 
-commit 561022acb1ce62e50f7a8258687a21b84282a4cb upstream.
+[ Upstream commit 251ef6f71be2adfd09546a26643426fe62585173 ]
 
-While tp->mtu_info is read while socket is owned, the write
-sides happen from err handlers (tcp_v[46]_mtu_reduced)
-which only own the socket spinlock.
+nvme_dev_remove_admin could free dev->admin_q and the admin_tagset
+while they are being accessed by nvme_dev_disable(), which can be called
+by nvme_reset_work via nvme_remove_dead_ctrl.
 
-Fixes: 563d34d05786 ("tcp: dont drop MTU reduction indications")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Commit cb4bfda62afa ("nvme-pci: fix hot removal during error handling")
+intended to avoid requests being stuck on a removed controller by killing
+the admin queue. But the later fix c8e9e9b7646e ("nvme-pci: unquiesce
+admin queue on shutdown"), together with nvme_dev_disable(dev, true)
+right before nvme_dev_remove_admin() could help dispatch requests and
+fail them early, so we don't need nvme_dev_remove_admin() any more.
+
+Fixes: cb4bfda62afa ("nvme-pci: fix hot removal during error handling")
+Signed-off-by: Casey Chen <cachen@purestorage.com>
+Reviewed-by: Keith Busch <kbusch@kernel.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_ipv4.c |    4 ++--
- net/ipv6/tcp_ipv6.c |    4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/nvme/host/pci.c | 1 -
+ 1 file changed, 1 deletion(-)
 
---- a/net/ipv4/tcp_ipv4.c
-+++ b/net/ipv4/tcp_ipv4.c
-@@ -348,7 +348,7 @@ void tcp_v4_mtu_reduced(struct sock *sk)
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index 2cb2ead7615b..f9dba1a3e655 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -2954,7 +2954,6 @@ static void nvme_remove(struct pci_dev *pdev)
+ 	if (!pci_device_is_present(pdev)) {
+ 		nvme_change_ctrl_state(&dev->ctrl, NVME_CTRL_DEAD);
+ 		nvme_dev_disable(dev, true);
+-		nvme_dev_remove_admin(dev);
+ 	}
  
- 	if ((1 << sk->sk_state) & (TCPF_LISTEN | TCPF_CLOSE))
- 		return;
--	mtu = tcp_sk(sk)->mtu_info;
-+	mtu = READ_ONCE(tcp_sk(sk)->mtu_info);
- 	dst = inet_csk_update_pmtu(sk, mtu);
- 	if (!dst)
- 		return;
-@@ -516,7 +516,7 @@ void tcp_v4_err(struct sk_buff *icmp_skb
- 			if (sk->sk_state == TCP_LISTEN)
- 				goto out;
- 
--			tp->mtu_info = info;
-+			WRITE_ONCE(tp->mtu_info, info);
- 			if (!sock_owned_by_user(sk)) {
- 				tcp_v4_mtu_reduced(sk);
- 			} else {
---- a/net/ipv6/tcp_ipv6.c
-+++ b/net/ipv6/tcp_ipv6.c
-@@ -340,7 +340,7 @@ static void tcp_v6_mtu_reduced(struct so
- 	if ((1 << sk->sk_state) & (TCPF_LISTEN | TCPF_CLOSE))
- 		return;
- 
--	dst = inet6_csk_update_pmtu(sk, tcp_sk(sk)->mtu_info);
-+	dst = inet6_csk_update_pmtu(sk, READ_ONCE(tcp_sk(sk)->mtu_info));
- 	if (!dst)
- 		return;
- 
-@@ -429,7 +429,7 @@ static void tcp_v6_err(struct sk_buff *s
- 		if (!ip6_sk_accept_pmtu(sk))
- 			goto out;
- 
--		tp->mtu_info = ntohl(info);
-+		WRITE_ONCE(tp->mtu_info, ntohl(info));
- 		if (!sock_owned_by_user(sk))
- 			tcp_v6_mtu_reduced(sk);
- 		else if (!test_and_set_bit(TCP_MTU_REDUCED_DEFERRED,
+ 	flush_work(&dev->ctrl.reset_work);
+-- 
+2.30.2
+
 
 
