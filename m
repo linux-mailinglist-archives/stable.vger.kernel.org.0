@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD8183D5F7A
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 142FD3D5DCE
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:45:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236978AbhGZPSC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:18:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56082 "EHLO mail.kernel.org"
+        id S235845AbhGZPDt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:03:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43562 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236879AbhGZPQ3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:16:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C7AB60F42;
-        Mon, 26 Jul 2021 15:56:56 +0000 (UTC)
+        id S235759AbhGZPDt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:03:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9BA2560F22;
+        Mon, 26 Jul 2021 15:44:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315017;
-        bh=0GgKxFC8ghrohYqcjtaPwdicgfloUS+9xer7YRIFMCU=;
+        s=korg; t=1627314257;
+        bh=X7710NCHpz6oUxDg0kBLlkL9tSb+vJeb/1o2FpZRwpc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v3XeNypcvSOXM9BpwW22r9tDWIgY67nkDtldsQzD/a4i6pdyNSMCfBgSnkFDQDqzd
-         1xsKQOrc+06lapdEX5JqsDBVYlbXglHL7Ydnc/dpc9pctZlXt3bjAJ75MQ1sm0NF3F
-         b6nMSPgxvdVA8Kf2ViZfqeC0QP0eVDZq5+v6ZV00=
+        b=pRlroexHwnkBNspGPS39UdFhEnbW8MQIKYX8n4AInptXuYq00uRBMUQPbEGu9rWDO
+         l/wcoi8mOoXza1ktvy3kKXphSNBeQ5cKeU1doDS9O/T5Ii7yvRYxSHH1FGWLrTfhaL
+         uBwYFJsRFVKq+Zg90VIiILxzE+nbsXFhDOxTxg5M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Chan <michael.chan@broadcom.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Vincent Palatin <vpalatin@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 053/108] bnxt_en: Add missing check for BNXT_STATE_ABORT_ERR in bnxt_fw_rset_task()
-Date:   Mon, 26 Jul 2021 17:38:54 +0200
-Message-Id: <20210726153833.383297944@linuxfoundation.org>
+Subject: [PATCH 4.9 41/60] Revert "USB: quirks: ignore remote wake-up on Fibocom L850-GL LTE modem"
+Date:   Mon, 26 Jul 2021 17:38:55 +0200
+Message-Id: <20210726153826.159063792@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
-References: <20210726153831.696295003@linuxfoundation.org>
+In-Reply-To: <20210726153824.868160836@linuxfoundation.org>
+References: <20210726153824.868160836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +39,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Chan <michael.chan@broadcom.com>
+From: Vincent Palatin <vpalatin@chromium.org>
 
-[ Upstream commit 6cd657cb3ee6f4de57e635b126ffbe0e51d00f1a ]
+[ Upstream commit f3a1a937f7b240be623d989c8553a6d01465d04f ]
 
-In the BNXT_FW_RESET_STATE_POLL_VF state in bnxt_fw_reset_task() after all
-VFs have unregistered, we need to check for BNXT_STATE_ABORT_ERR after
-we acquire the rtnl_lock.  If the flag is set, we need to abort.
+This reverts commit 0bd860493f81eb2a46173f6f5e44cc38331c8dbd.
 
-Fixes: 230d1f0de754 ("bnxt_en: Handle firmware reset.")
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+While the patch was working as stated,ie preventing the L850-GL LTE modem
+from crashing on some U3 wake-ups due to a race condition between the
+host wake-up and the modem-side wake-up, when using the MBIM interface,
+this would force disabling the USB runtime PM on the device.
+
+The increased power consumption is significant for LTE laptops,
+and given that with decently recent modem firmwares, when the modem hits
+the bug, it automatically recovers (ie it drops from the bus, but
+automatically re-enumerates after less than half a second, rather than being
+stuck until a power cycle as it was doing with ancient firmware), for
+most people, the trade-off now seems in favor of re-enabling it by
+default.
+
+For people with access to the platform code, the bug can also be worked-around
+successfully by changing the USB3 LFPM polling off-time for the XHCI
+controller in the BIOS code.
+
+Signed-off-by: Vincent Palatin <vpalatin@chromium.org>
+Link: https://lore.kernel.org/r/20210721092516.2775971-1-vpalatin@chromium.org
+Fixes: 0bd860493f81 ("USB: quirks: ignore remote wake-up on Fibocom L850-GL LTE modem")
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/usb/core/quirks.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-index e840aae894ff..f4f63c359bdb 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -10735,6 +10735,10 @@ static void bnxt_fw_reset_task(struct work_struct *work)
- 		}
- 		bp->fw_reset_timestamp = jiffies;
- 		rtnl_lock();
-+		if (test_bit(BNXT_STATE_ABORT_ERR, &bp->state)) {
-+			rtnl_unlock();
-+			goto fw_reset_abort;
-+		}
- 		bnxt_fw_reset_close(bp);
- 		if (bp->fw_cap & BNXT_FW_CAP_ERR_RECOVER_RELOAD) {
- 			bp->fw_reset_state = BNXT_FW_RESET_STATE_POLL_FW_DOWN;
+diff --git a/drivers/usb/core/quirks.c b/drivers/usb/core/quirks.c
+index 3dfd584a1ef3..2ca6ed207e26 100644
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -325,10 +325,6 @@ static const struct usb_device_id usb_quirk_list[] = {
+ 	/* DJI CineSSD */
+ 	{ USB_DEVICE(0x2ca3, 0x0031), .driver_info = USB_QUIRK_NO_LPM },
+ 
+-	/* Fibocom L850-GL LTE Modem */
+-	{ USB_DEVICE(0x2cb7, 0x0007), .driver_info =
+-			USB_QUIRK_IGNORE_REMOTE_WAKEUP },
+-
+ 	/* INTEL VALUE SSD */
+ 	{ USB_DEVICE(0x8086, 0xf1a5), .driver_info = USB_QUIRK_RESET_RESUME },
+ 
 -- 
 2.30.2
 
