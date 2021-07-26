@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 17B2A3D5DAD
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:43:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EEA623D5D59
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:42:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235742AbhGZPDP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:03:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42368 "EHLO mail.kernel.org"
+        id S235398AbhGZPAz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:00:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235288AbhGZPCx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:02:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D94F60F22;
-        Mon, 26 Jul 2021 15:43:21 +0000 (UTC)
+        id S235024AbhGZPAx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:00:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 51C6760E08;
+        Mon, 26 Jul 2021 15:41:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314201;
-        bh=4UVVvTcbYcqKN+f6Ho1bggu+UMqm143Df16g4mHbOqU=;
+        s=korg; t=1627314082;
+        bh=+51/u/8rbQmVUe0+R6VAf6zBWoDrIFdGrGIEjurLV54=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0oR+s2gSdz7tCrSc9YONMhEbhAgnBq4qWUygjmzv4EVqCkw1aRrHy/FyAqGqXkDkh
-         vBB/zW96os1RTME38IrCkSv8XDfaWR+UQM3vkPfdihgP2I8ZBz6bYtgccHq8pOY/a1
-         vsO0rEnUZd9NKhc5z7zX2WJd4tSoIPqtFP21ilzU=
+        b=R2+TljAjOkK06H/ceCGFZW9R3JCzkEcZjZoDanFLuoTGCwjQ/u6qoOIBku3Sj0s5h
+         qWq3SDBAQVeflYoOzw814E0MA6qbFXrP0MJtmSLm1B3+0b6a9QdV0AGsznJRSvva6b
+         nMvjaUABsqy5OkYRcd9xU8JxERxiLL1OUie0SgqY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 08/60] ARM: dts: stm32: fix RCC node name on stm32f429 MCU
-Date:   Mon, 26 Jul 2021 17:38:22 +0200
-Message-Id: <20210726153825.134562902@linuxfoundation.org>
+Subject: [PATCH 4.4 05/47] thermal/core: Correct function name thermal_zone_device_unregister()
+Date:   Mon, 26 Jul 2021 17:38:23 +0200
+Message-Id: <20210726153823.153299721@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153824.868160836@linuxfoundation.org>
-References: <20210726153824.868160836@linuxfoundation.org>
+In-Reply-To: <20210726153822.980271128@linuxfoundation.org>
+References: <20210726153822.980271128@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,34 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandre Torgue <alexandre.torgue@foss.st.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit e4b948415a89a219d13e454011cdcf9e63ecc529 ]
+[ Upstream commit a052b5118f13febac1bd901fe0b7a807b9d6b51c ]
 
-This prevent warning observed with "make dtbs_check W=1"
+Fix the following make W=1 kernel build warning:
 
-Warning (simple_bus_reg): /soc/rcc@40023810: simple-bus unit address format
-error, expected "40023800"
+  drivers/thermal/thermal_core.c:1376: warning: expecting prototype for thermal_device_unregister(). Prototype was for thermal_zone_device_unregister() instead
 
-Signed-off-by: Alexandre Torgue <alexandre.torgue@foss.st.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/20210517051020.3463536-1-yangyingliang@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/stm32f429.dtsi | 2 +-
+ drivers/thermal/thermal_core.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/stm32f429.dtsi b/arch/arm/boot/dts/stm32f429.dtsi
-index 336ee4fb587d..64dc50afc385 100644
---- a/arch/arm/boot/dts/stm32f429.dtsi
-+++ b/arch/arm/boot/dts/stm32f429.dtsi
-@@ -334,7 +334,7 @@
- 			};
- 		};
+diff --git a/drivers/thermal/thermal_core.c b/drivers/thermal/thermal_core.c
+index a6df07786362..94497787a076 100644
+--- a/drivers/thermal/thermal_core.c
++++ b/drivers/thermal/thermal_core.c
+@@ -1956,7 +1956,7 @@ unregister:
+ EXPORT_SYMBOL_GPL(thermal_zone_device_register);
  
--		rcc: rcc@40023810 {
-+		rcc: rcc@40023800 {
- 			#reset-cells = <1>;
- 			#clock-cells = <2>;
- 			compatible = "st,stm32f42xx-rcc", "st,stm32-rcc";
+ /**
+- * thermal_device_unregister - removes the registered thermal zone device
++ * thermal_zone_device_unregister - removes the registered thermal zone device
+  * @tz: the thermal zone device to remove
+  */
+ void thermal_zone_device_unregister(struct thermal_zone_device *tz)
 -- 
 2.30.2
 
