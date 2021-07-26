@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB6113D5ECC
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:59:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A53063D5D5E
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:42:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236168AbhGZPLf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:11:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51214 "EHLO mail.kernel.org"
+        id S235437AbhGZPBC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:01:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39784 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237336AbhGZPKt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:10:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C32F60F02;
-        Mon, 26 Jul 2021 15:51:16 +0000 (UTC)
+        id S235409AbhGZPBA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:01:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1321560F51;
+        Mon, 26 Jul 2021 15:41:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314676;
-        bh=t2pUdxOAlA6Vx2D0LgeUf3paFGelNw3p6hR9eZP7nCg=;
+        s=korg; t=1627314088;
+        bh=EOn9u7CR6/zKn+iKpJ5wP4mwdhdoEP+PkurRyOi8y00=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z9JuzniQvDPCrfO1a7OTyLUWwEdEco/FdWRSYho+7H1VhImdCvVY54OLV+VBSAxmG
-         6cE7FVaudWxYdA1nSrdtCPGfrHMtdX4AVdK4NHtB9qsCdedoseHeC5hR9gkDSrZOO1
-         KN/sLWrq6dy3P56Ntd8lO+TVHrBzxZL4yEqhFJh0=
+        b=azMe23TahGLj1stOxIoc7htYw6FdCOGUqLT9bnH7sQve1esleB/VwkgkRrt2sOcWj
+         LTEwXFnz1mnSQV4+j/3dhRb8Yb/AwWfcko8g1VTAFwD/GW5ImNPsz86ENn1YvnGbZT
+         7gLa0Ae1a/Zpkw0iSD71TZfGPODZKEfqPnLJyx5c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianlin Shi <jishi@redhat.com>,
-        Hangbin Liu <liuhangbin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 052/120] net: ip_tunnel: fix mtu calculation for ETHER tunnel devices
-Date:   Mon, 26 Jul 2021 17:38:24 +0200
-Message-Id: <20210726153834.050445874@linuxfoundation.org>
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 07/47] scsi: aic7xxx: Fix unintentional sign extension issue on left shift of u8
+Date:   Mon, 26 Jul 2021 17:38:25 +0200
+Message-Id: <20210726153823.213936556@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153832.339431936@linuxfoundation.org>
-References: <20210726153832.339431936@linuxfoundation.org>
+In-Reply-To: <20210726153822.980271128@linuxfoundation.org>
+References: <20210726153822.980271128@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,91 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-commit 9992a078b1771da354ac1f9737e1e639b687caa2 upstream.
+[ Upstream commit 332a9dd1d86f1e7203fc7f0fd7e82f0b304200fe ]
 
-Commit 28e104d00281 ("net: ip_tunnel: fix mtu calculation") removed
-dev->hard_header_len subtraction when calculate MTU for tunnel devices
-as there is an overhead for device that has header_ops.
+The shifting of the u8 integer returned fom ahc_inb(ahc, port+3) by 24 bits
+to the left will be promoted to a 32 bit signed int and then sign-extended
+to a u64. In the event that the top bit of the u8 is set then all then all
+the upper 32 bits of the u64 end up as also being set because of the
+sign-extension. Fix this by casting the u8 values to a u64 before the 24
+bit left shift.
 
-But there are ETHER tunnel devices, like gre_tap or erspan, which don't
-have header_ops but set dev->hard_header_len during setup. This makes
-pkts greater than (MTU - ETH_HLEN) could not be xmited. Fix it by
-subtracting the ETHER tunnel devices' dev->hard_header_len for MTU
-calculation.
+[ This dates back to 2002, I found the offending commit from the git
+history git://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git,
+commit f58eb66c0b0a ("Update aic7xxx driver to 6.2.10...") ]
 
-Fixes: 28e104d00281 ("net: ip_tunnel: fix mtu calculation")
-Reported-by: Jianlin Shi <jishi@redhat.com>
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20210621151727.20667-1-colin.king@canonical.com
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Addresses-Coverity: ("Unintended sign extension")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/ip_tunnel.c |   22 ++++++++++++++++++----
- 1 file changed, 18 insertions(+), 4 deletions(-)
+ drivers/scsi/aic7xxx/aic7xxx_core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/ipv4/ip_tunnel.c
-+++ b/net/ipv4/ip_tunnel.c
-@@ -330,7 +330,7 @@ static int ip_tunnel_bind_dev(struct net
- 	}
- 
- 	dev->needed_headroom = t_hlen + hlen;
--	mtu -= t_hlen;
-+	mtu -= t_hlen + (dev->type == ARPHRD_ETHER ? dev->hard_header_len : 0);
- 
- 	if (mtu < IPV4_MIN_MTU)
- 		mtu = IPV4_MIN_MTU;
-@@ -361,6 +361,9 @@ static struct ip_tunnel *ip_tunnel_creat
- 	t_hlen = nt->hlen + sizeof(struct iphdr);
- 	dev->min_mtu = ETH_MIN_MTU;
- 	dev->max_mtu = IP_MAX_MTU - t_hlen;
-+	if (dev->type == ARPHRD_ETHER)
-+		dev->max_mtu -= dev->hard_header_len;
-+
- 	ip_tunnel_add(itn, nt);
- 	return nt;
- 
-@@ -502,13 +505,18 @@ static int tnl_update_pmtu(struct net_de
- 			    const struct iphdr *inner_iph)
- {
- 	struct ip_tunnel *tunnel = netdev_priv(dev);
--	int pkt_size = skb->len - tunnel->hlen;
-+	int pkt_size;
- 	int mtu;
- 
--	if (df)
-+	pkt_size = skb->len - tunnel->hlen;
-+	pkt_size -= dev->type == ARPHRD_ETHER ? dev->hard_header_len : 0;
-+
-+	if (df) {
- 		mtu = dst_mtu(&rt->dst) - (sizeof(struct iphdr) + tunnel->hlen);
--	else
-+		mtu -= dev->type == ARPHRD_ETHER ? dev->hard_header_len : 0;
-+	} else {
- 		mtu = skb_dst(skb) ? dst_mtu(skb_dst(skb)) : dev->mtu;
-+	}
- 
- 	skb_dst_update_pmtu_no_confirm(skb, mtu);
- 
-@@ -936,6 +944,9 @@ int __ip_tunnel_change_mtu(struct net_de
- 	int t_hlen = tunnel->hlen + sizeof(struct iphdr);
- 	int max_mtu = IP_MAX_MTU - t_hlen;
- 
-+	if (dev->type == ARPHRD_ETHER)
-+		max_mtu -= dev->hard_header_len;
-+
- 	if (new_mtu < ETH_MIN_MTU)
- 		return -EINVAL;
- 
-@@ -1113,6 +1124,9 @@ int ip_tunnel_newlink(struct net_device
- 	if (tb[IFLA_MTU]) {
- 		unsigned int max = IP_MAX_MTU - (nt->hlen + sizeof(struct iphdr));
- 
-+		if (dev->type == ARPHRD_ETHER)
-+			max -= dev->hard_header_len;
-+
- 		mtu = clamp(dev->mtu, (unsigned int)ETH_MIN_MTU, max);
- 	}
- 
+diff --git a/drivers/scsi/aic7xxx/aic7xxx_core.c b/drivers/scsi/aic7xxx/aic7xxx_core.c
+index def3208dd290..9b5832b46dec 100644
+--- a/drivers/scsi/aic7xxx/aic7xxx_core.c
++++ b/drivers/scsi/aic7xxx/aic7xxx_core.c
+@@ -500,7 +500,7 @@ ahc_inq(struct ahc_softc *ahc, u_int port)
+ 	return ((ahc_inb(ahc, port))
+ 	      | (ahc_inb(ahc, port+1) << 8)
+ 	      | (ahc_inb(ahc, port+2) << 16)
+-	      | (ahc_inb(ahc, port+3) << 24)
++	      | (((uint64_t)ahc_inb(ahc, port+3)) << 24)
+ 	      | (((uint64_t)ahc_inb(ahc, port+4)) << 32)
+ 	      | (((uint64_t)ahc_inb(ahc, port+5)) << 40)
+ 	      | (((uint64_t)ahc_inb(ahc, port+6)) << 48)
+-- 
+2.30.2
+
 
 
