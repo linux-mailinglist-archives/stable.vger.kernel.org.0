@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A57CC3D5D3A
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:41:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56D903D5F1E
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234828AbhGZPAM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:00:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38560 "EHLO mail.kernel.org"
+        id S236244AbhGZPQw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:16:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51686 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235194AbhGZPAK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:00:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 21FAD60F42;
-        Mon, 26 Jul 2021 15:40:38 +0000 (UTC)
+        id S236360AbhGZPLF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:11:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 59F776056C;
+        Mon, 26 Jul 2021 15:51:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314039;
-        bh=38dT03rW5sZMWMT4EQloiJjUK5jwEhBwAGJdow74pTo=;
+        s=korg; t=1627314693;
+        bh=va88ssUqXsASXfCuORxhTvQJYOdmng6FTcfoFTz0ALY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FkswOw1e6e/ijpQmqvZu0MZVsyF2ALzsGrtwQA7DmRIe8tJUj990xa+YWQbb0uWO+
-         jssbMoE8X+H8XhQlbDpmLKv9YvaUkno6/EoOmvilfLrcJdN7L4a5KagMkNNmb/l3kk
-         FlxVckaRbjBQLkYy25Kf+1yk0L/xFX/KWqGOW6b8=
+        b=kAYfeI+k1kBHnNXRnEvCol6jTJUAoU1ZY9vv5q5JbRSl+bHXAa7Cx+cAuXuzWPBnn
+         jdj2v7tdujUfQdc1lHqtQj3v6NZFHvxP0PvMLBA3xr5LpzpiC4/IXc8PgWG9syfbv5
+         4iAB+uVA4dgQk0U1Jj3EoU/QmPgdJsRN77Ta7JSA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Ahern <dsahern@kernel.org>,
-        Vadim Fedorenko <vfedorenko@novek.ru>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 11/47] net: ipv6: fix return value of ip6_skb_dst_mtu
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Sasha Neftin <sasha.neftin@intel.com>,
+        Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 057/120] e1000e: Fix an error handling path in e1000_probe()
 Date:   Mon, 26 Jul 2021 17:38:29 +0200
-Message-Id: <20210726153823.338643752@linuxfoundation.org>
+Message-Id: <20210726153834.210350335@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153822.980271128@linuxfoundation.org>
-References: <20210726153822.980271128@linuxfoundation.org>
+In-Reply-To: <20210726153832.339431936@linuxfoundation.org>
+References: <20210726153832.339431936@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,49 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vadim Fedorenko <vfedorenko@novek.ru>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit 40fc3054b45820c28ea3c65e2c86d041dc244a8a upstream.
+[ Upstream commit 4589075608420bc49fcef6e98279324bf2bb91ae ]
 
-Commit 628a5c561890 ("[INET]: Add IP(V6)_PMTUDISC_RPOBE") introduced
-ip6_skb_dst_mtu with return value of signed int which is inconsistent
-with actually returned values. Also 2 users of this function actually
-assign its value to unsigned int variable and only __xfrm6_output
-assigns result of this function to signed variable but actually uses
-as unsigned in further comparisons and calls. Change this function
-to return unsigned int value.
+If an error occurs after a 'pci_enable_pcie_error_reporting()' call, it
+must be undone by a corresponding 'pci_disable_pcie_error_reporting()'
+call, as already done in the remove function.
 
-Fixes: 628a5c561890 ("[INET]: Add IP(V6)_PMTUDISC_RPOBE")
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Signed-off-by: Vadim Fedorenko <vfedorenko@novek.ru>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 111b9dc5c981 ("e1000e: add aer support")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Acked-by: Sasha Neftin <sasha.neftin@intel.com>
+Tested-by: Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/ip6_route.h |    2 +-
- net/ipv6/xfrm6_output.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/intel/e1000e/netdev.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/include/net/ip6_route.h
-+++ b/include/net/ip6_route.h
-@@ -181,7 +181,7 @@ static inline bool ipv6_anycast_destinat
- int ip6_fragment(struct net *net, struct sock *sk, struct sk_buff *skb,
- 		 int (*output)(struct net *, struct sock *, struct sk_buff *));
- 
--static inline int ip6_skb_dst_mtu(struct sk_buff *skb)
-+static inline unsigned int ip6_skb_dst_mtu(struct sk_buff *skb)
- {
- 	struct ipv6_pinfo *np = skb->sk && !dev_recursion_level() ?
- 				inet6_sk(skb->sk) : NULL;
---- a/net/ipv6/xfrm6_output.c
-+++ b/net/ipv6/xfrm6_output.c
-@@ -141,7 +141,7 @@ static int __xfrm6_output(struct net *ne
- {
- 	struct dst_entry *dst = skb_dst(skb);
- 	struct xfrm_state *x = dst->xfrm;
--	int mtu;
-+	unsigned int mtu;
- 	bool toobig;
- 
- #ifdef CONFIG_NETFILTER
+diff --git a/drivers/net/ethernet/intel/e1000e/netdev.c b/drivers/net/ethernet/intel/e1000e/netdev.c
+index 6bbe7afdf30c..398f5951d11c 100644
+--- a/drivers/net/ethernet/intel/e1000e/netdev.c
++++ b/drivers/net/ethernet/intel/e1000e/netdev.c
+@@ -7369,6 +7369,7 @@ err_flashmap:
+ err_ioremap:
+ 	free_netdev(netdev);
+ err_alloc_etherdev:
++	pci_disable_pcie_error_reporting(pdev);
+ 	pci_release_mem_regions(pdev);
+ err_pci_reg:
+ err_dma:
+-- 
+2.30.2
+
 
 
