@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A25DB3D5DE8
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:45:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 514E93D5F2C
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235591AbhGZPEX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:04:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44356 "EHLO mail.kernel.org"
+        id S235933AbhGZPRI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:17:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235182AbhGZPEV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:04:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2FD7560F22;
-        Mon, 26 Jul 2021 15:44:49 +0000 (UTC)
+        id S236773AbhGZPPZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:15:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 393FE60FC1;
+        Mon, 26 Jul 2021 15:53:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314290;
-        bh=f4mfrZjD23mN0xQWPX26uoGmS3hHf6AzGOfFjMd+GQQ=;
+        s=korg; t=1627314794;
+        bh=pFRmd8W6+hjGyqUC5oxfJjWvm3EV5UDATuoMU4vyr/0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fxNpfS5YEX1FwIOH3BOmsqzfAIT9TwXyy1aC9foa7M6IYQzht/sIhkWkGA/gyShE0
-         93ckXvZOygj5NPy0nDZQQehOvTockOktCWYzUbrPEJuSRurbhnrRrZIz+HAHBogBEB
-         YpDk3/ikMHTgXtDUVLNnHPWAmHmWCNQH1raZjAjQ=
+        b=Yd4qKYCUPWrMehDUGBuU1E5244yrRa3ktHvxMhsUFUMBazjnt575ubTCDAo0NXav9
+         rsfLKaSkoAPSGJ5rYbRUC8GsKUfW6eYVst7+7CqHqoWe0Ol8sh0hQkn+LqnCa1WFrO
+         GT2ypO1mTGG/V48E/3mak7RuSsrh8ulXHvfmQMXA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marco De Marco <marco.demarco@posteo.net>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 52/60] USB: serial: option: add support for u-blox LARA-R6 family
+        stable@vger.kernel.org,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 4.19 094/120] xhci: Fix lost USB 2 remote wake
 Date:   Mon, 26 Jul 2021 17:39:06 +0200
-Message-Id: <20210726153826.506496580@linuxfoundation.org>
+Message-Id: <20210726153835.420053236@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153824.868160836@linuxfoundation.org>
-References: <20210726153824.868160836@linuxfoundation.org>
+In-Reply-To: <20210726153832.339431936@linuxfoundation.org>
+References: <20210726153832.339431936@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,49 +39,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco De Marco <marco.demarco@posteo.net>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-commit 94b619a07655805a1622484967754f5848640456 upstream.
+commit 72f68bf5c756f5ce1139b31daae2684501383ad5 upstream.
 
-The patch is meant to support LARA-R6 Cat 1 module family.
+There's a small window where a USB 2 remote wake may be left unhandled
+due to a race between hub thread and xhci port event interrupt handler.
 
-Module USB ID:
-Vendor  ID: 0x05c6
-Product ID: 0x90fA
+When the resume event is detected in the xhci interrupt handler it kicks
+the hub timer, which should move the port from resume to U0 once resume
+has been signalled for long enough.
 
-Interface layout:
-If 0: Diagnostic
-If 1: AT parser
-If 2: AT parser
-If 3: QMI wwan (not available in all versions)
+To keep the hub "thread" running we set a bus_state->resuming_ports flag.
+This flag makes sure hub timer function kicks itself.
 
-Signed-off-by: Marco De Marco <marco.demarco@posteo.net>
-Link: https://lore.kernel.org/r/49260184.kfMIbaSn9k@mars
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+checking this flag was not properly protected by the spinlock. Flag was
+copied to a local variable before lock was taken. The local variable was
+then checked later with spinlock held.
+
+If interrupt is handled right after copying the flag to the local variable
+we end up stopping the hub thread before it can handle the USB 2 resume.
+
+CPU0					CPU1
+(hub thread)				(xhci event handler)
+
+xhci_hub_status_data()
+status = bus_state->resuming_ports;
+					<Interrupt>
+					handle_port_status()
+					spin_lock()
+					bus_state->resuming_ports = 1
+					set_flag(HCD_FLAG_POLL_RH)
+					spin_unlock()
+spin_lock()
+if (!status)
+  clear_flag(HCD_FLAG_POLL_RH)
+spin_unlock()
+
+Fix this by taking the lock a bit earlier so that it covers
+the resuming_ports flag copy in the hub thread
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20210715150651.1996099-2-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/host/xhci-hub.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -241,6 +241,7 @@ static void option_instat_callback(struc
- #define QUECTEL_PRODUCT_UC15			0x9090
- /* These u-blox products use Qualcomm's vendor ID */
- #define UBLOX_PRODUCT_R410M			0x90b2
-+#define UBLOX_PRODUCT_R6XX			0x90fa
- /* These Yuga products use Qualcomm's vendor ID */
- #define YUGA_PRODUCT_CLM920_NC5			0x9625
+--- a/drivers/usb/host/xhci-hub.c
++++ b/drivers/usb/host/xhci-hub.c
+@@ -1458,11 +1458,12 @@ int xhci_hub_status_data(struct usb_hcd
+ 	 * Inform the usbcore about resume-in-progress by returning
+ 	 * a non-zero value even if there are no status changes.
+ 	 */
++	spin_lock_irqsave(&xhci->lock, flags);
++
+ 	status = bus_state->resuming_ports;
  
-@@ -1098,6 +1099,8 @@ static const struct usb_device_id option
- 	/* u-blox products using Qualcomm vendor ID */
- 	{ USB_DEVICE(QUALCOMM_VENDOR_ID, UBLOX_PRODUCT_R410M),
- 	  .driver_info = RSVD(1) | RSVD(3) },
-+	{ USB_DEVICE(QUALCOMM_VENDOR_ID, UBLOX_PRODUCT_R6XX),
-+	  .driver_info = RSVD(3) },
- 	/* Quectel products using Quectel vendor ID */
- 	{ USB_DEVICE(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC21),
- 	  .driver_info = RSVD(4) },
+ 	mask = PORT_CSC | PORT_PEC | PORT_OCC | PORT_PLC | PORT_WRC | PORT_CEC;
+ 
+-	spin_lock_irqsave(&xhci->lock, flags);
+ 	/* For each port, did anything change?  If so, set that bit in buf. */
+ 	for (i = 0; i < max_ports; i++) {
+ 		temp = readl(ports[i]->addr);
 
 
