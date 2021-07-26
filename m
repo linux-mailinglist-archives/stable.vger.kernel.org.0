@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 12AED3D623A
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:16:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 112ED3D60E1
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:12:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234691AbhGZPfM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:35:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51248 "EHLO mail.kernel.org"
+        id S237429AbhGZPZf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:25:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235305AbhGZPeI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:34:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 62CB560240;
-        Mon, 26 Jul 2021 16:14:24 +0000 (UTC)
+        id S237799AbhGZPYM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:24:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1BEA560240;
+        Mon, 26 Jul 2021 16:04:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627316064;
-        bh=UUSnv+YBR56PLXtQOE914sFblrvfbpijYigJ4zwetgw=;
+        s=korg; t=1627315480;
+        bh=/sIjH0jkwG4GR2cVYMRa2esngUBVJDJRKHCiV0B+sF0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N7dx5awOttAM/OOcbx/R1Xocz/8knRN2WJ5nlMIg1wgb9+N3PRpoEZAivApyVTADc
-         rXIOmwllco2w0VfxL5Rh5N/b9UN2jXAjT2ScdZ1PVByGKyx6u2Ww7pN7sRCNLDbDfF
-         U81LlkIULlPPKFKaSnom9hGrFcPWnWYwjmY1+MWY=
+        b=SnPtGlLaa2r/OmU/5QFUDrwG5VDNJiLThFHlMSZlir49ZGVKbQ8ZRY46b9NSR1QDG
+         xUjB72r/iaP0nWK17SzyxAjnSYtW+g6tlN7SqfDxNHInbv7h6sZ76Mt2a32c+tEf/f
+         rlVJhlteq4riI68qe+xZfutjs9h6rtaTEqo/c3QA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>
-Subject: [PATCH 5.13 147/223] s390/boot: fix use of expolines in the DMA code
+        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
+        Sujit Kautkar <sujitka@chromium.org>,
+        Zubin Mithra <zsm@chromium.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.10 106/167] mmc: core: Dont allocate IDA for OF aliases
 Date:   Mon, 26 Jul 2021 17:38:59 +0200
-Message-Id: <20210726153851.040587636@linuxfoundation.org>
+Message-Id: <20210726153842.954553922@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
-References: <20210726153846.245305071@linuxfoundation.org>
+In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
+References: <20210726153839.371771838@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,64 +43,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Egorenkov <egorenar@linux.ibm.com>
+From: Stephen Boyd <swboyd@chromium.org>
 
-commit 463f36c76fa4ec015c640ff63ccf52e7527abee0 upstream.
+commit 10252bae863d09b9648bed2e035572d207200ca1 upstream.
 
-The DMA code section of the decompressor must be compiled with expolines
-if Spectre V2 mitigation has been enabled for the decompressed kernel.
-This is required because although the decompressor's image contains
-the DMA code section, it is handed over to the decompressed kernel for use.
+There's a chance that the IDA allocated in mmc_alloc_host() is not freed
+for some time because it's freed as part of a class' release function
+(see mmc_host_classdev_release() where the IDA is freed). If another
+thread is holding a reference to the class, then only once all balancing
+device_put() calls (in turn calling kobject_put()) have been made will
+the IDA be released and usable again.
 
-Because the DMA code is already slow w/o expolines, use expolines always
-regardless whether the decompressed kernel is using them or not. This
-simplifies the DMA code by dropping the conditional compilation of
-expolines.
+Normally this isn't a problem because the kobject is released before
+anything else that may want to use the same number tries to again, but
+with CONFIG_DEBUG_KOBJECT_RELEASE=y and OF aliases it becomes pretty
+easy to try to allocate an alias from the IDA twice while the first time
+it was allocated is still pending a call to ida_simple_remove(). It's
+also possible to trigger it by using CONFIG_DEBUG_KOBJECT_RELEASE and
+probe defering a driver at boot that calls mmc_alloc_host() before
+trying to get resources that may defer likes clks or regulators.
 
-Fixes: bf72630130c2 ("s390: use proper expoline sections for .dma code")
-Cc: <stable@vger.kernel.org> # 5.2
-Signed-off-by: Alexander Egorenkov <egorenar@linux.ibm.com>
-Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Instead of allocating from the IDA in this scenario, let's just skip it
+if we know this is an OF alias. The number is already "claimed" and
+devices that aren't using OF aliases won't try to use the claimed
+numbers anyway (see mmc_first_nonreserved_index()). This should avoid
+any issues with mmc_alloc_host() returning failures from the
+ida_simple_get() in the case that we're using an OF alias.
+
+Cc: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+Cc: Sujit Kautkar <sujitka@chromium.org>
+Reported-by: Zubin Mithra <zsm@chromium.org>
+Fixes: fa2d0aa96941 ("mmc: core: Allow setting slot index via device tree alias")
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+Link: https://lore.kernel.org/r/20210623075002.1746924-3-swboyd@chromium.org
+Cc: stable@vger.kernel.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/boot/text_dma.S |   19 ++++---------------
- 1 file changed, 4 insertions(+), 15 deletions(-)
+ drivers/mmc/core/host.c |   20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
---- a/arch/s390/boot/text_dma.S
-+++ b/arch/s390/boot/text_dma.S
-@@ -9,16 +9,6 @@
- #include <asm/errno.h>
- #include <asm/sigp.h>
+--- a/drivers/mmc/core/host.c
++++ b/drivers/mmc/core/host.c
+@@ -74,7 +74,8 @@ static void mmc_host_classdev_release(st
+ {
+ 	struct mmc_host *host = cls_dev_to_mmc_host(dev);
+ 	wakeup_source_unregister(host->ws);
+-	ida_simple_remove(&mmc_host_ida, host->index);
++	if (of_alias_get_id(host->parent->of_node, "mmc") < 0)
++		ida_simple_remove(&mmc_host_ida, host->index);
+ 	kfree(host);
+ }
  
--#ifdef CC_USING_EXPOLINE
--	.pushsection .dma.text.__s390_indirect_jump_r14,"axG"
--__dma__s390_indirect_jump_r14:
--	larl	%r1,0f
--	ex	0,0(%r1)
--	j	.
--0:	br	%r14
--	.popsection
--#endif
--
- 	.section .dma.text,"ax"
- /*
-  * Simplified version of expoline thunk. The normal thunks can not be used here,
-@@ -27,11 +17,10 @@ __dma__s390_indirect_jump_r14:
-  * affects a few functions that are not performance-relevant.
+@@ -436,7 +437,7 @@ static int mmc_first_nonreserved_index(v
   */
- 	.macro BR_EX_DMA_r14
--#ifdef CC_USING_EXPOLINE
--	jg	__dma__s390_indirect_jump_r14
--#else
--	br	%r14
--#endif
-+	larl	%r1,0f
-+	ex	0,0(%r1)
-+	j	.
-+0:	br	%r14
- 	.endm
+ struct mmc_host *mmc_alloc_host(int extra, struct device *dev)
+ {
+-	int err;
++	int index;
+ 	struct mmc_host *host;
+ 	int alias_id, min_idx, max_idx;
  
- /*
+@@ -449,20 +450,19 @@ struct mmc_host *mmc_alloc_host(int extr
+ 
+ 	alias_id = of_alias_get_id(dev->of_node, "mmc");
+ 	if (alias_id >= 0) {
+-		min_idx = alias_id;
+-		max_idx = alias_id + 1;
++		index = alias_id;
+ 	} else {
+ 		min_idx = mmc_first_nonreserved_index();
+ 		max_idx = 0;
+-	}
+ 
+-	err = ida_simple_get(&mmc_host_ida, min_idx, max_idx, GFP_KERNEL);
+-	if (err < 0) {
+-		kfree(host);
+-		return NULL;
++		index = ida_simple_get(&mmc_host_ida, min_idx, max_idx, GFP_KERNEL);
++		if (index < 0) {
++			kfree(host);
++			return NULL;
++		}
+ 	}
+ 
+-	host->index = err;
++	host->index = index;
+ 
+ 	dev_set_name(&host->class_dev, "mmc%d", host->index);
+ 	host->ws = wakeup_source_register(NULL, dev_name(&host->class_dev));
 
 
