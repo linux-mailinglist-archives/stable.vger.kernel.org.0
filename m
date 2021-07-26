@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB4743D5DE6
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:45:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EAF063D5F95
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235937AbhGZPEV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:04:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44310 "EHLO mail.kernel.org"
+        id S235995AbhGZPSa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:18:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235943AbhGZPES (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:04:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 68CFD60F38;
-        Mon, 26 Jul 2021 15:44:46 +0000 (UTC)
+        id S236770AbhGZPPj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:15:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C16E360FC0;
+        Mon, 26 Jul 2021 15:53:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314287;
-        bh=GbOe5nLAvF/9W+HikZFDgRh0jNiyC0ZMZ7uVQnd7KUI=;
+        s=korg; t=1627314791;
+        bh=Pz5znl3oCRXX/Ot8HGsKGVlif7ze/TLXcSlFz9LJoDk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sKg6GzHA8HrQGlEl8JeEIpn/+1cSgbcA8zI5+XtFEtwnjs14Y48WuOWPrSKWUhbUL
-         ih6hwcj45oHt3C4geBcd4PQo6HoJDD5sjfEol5+2uChQuwdT8GZ5VyuyOwtWbqSq2x
-         7p0mfn/oC5C0jzNe/DkDk1jTgKZqB2MaLprtHVKQ=
+        b=k3qSTK2sVECCexjtW+K4F3Wsee1+44O/ea5F2jtbx/xkXIPCu/07w4MrVxsG+nWql
+         KzoNEW1nmosrEiM9ncewD8uRNzOkRm3o6vNB5/hjdKvAqUHv3+FgVlbBdkHPCb+XJ7
+         PD1Ad2FZkF2VTm3OqIP2LvaiaZRV34C7tv3vD1Hk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Subject: [PATCH 4.9 51/60] usb: renesas_usbhs: Fix superfluous irqs happen after usb_pkt_pop()
+        stable@vger.kernel.org, Jia-Ju Bai <baijiaju1990@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 093/120] ALSA: sb: Fix potential ABBA deadlock in CSP driver
 Date:   Mon, 26 Jul 2021 17:39:05 +0200
-Message-Id: <20210726153826.473898767@linuxfoundation.org>
+Message-Id: <20210726153835.380618346@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153824.868160836@linuxfoundation.org>
-References: <20210726153824.868160836@linuxfoundation.org>
+In-Reply-To: <20210726153832.339431936@linuxfoundation.org>
+References: <20210726153832.339431936@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,51 +39,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 5719df243e118fb343725e8b2afb1637e1af1373 upstream.
+commit 1c2b9519159b470ef24b2638f4794e86e2952ab7 upstream.
 
-This driver has a potential issue which this driver is possible to
-cause superfluous irqs after usb_pkt_pop() is called. So, after
-the commit 3af32605289e ("usb: renesas_usbhs: fix error return
-code of usbhsf_pkt_handler()") had been applied, we could observe
-the following error happened when we used g_audio.
+SB16 CSP driver may hit potentially a typical ABBA deadlock in two
+code paths:
 
-    renesas_usbhs e6590000.usb: irq_ready run_error 1 : -22
+ In snd_sb_csp_stop():
+     spin_lock_irqsave(&p->chip->mixer_lock, flags);
+     spin_lock(&p->chip->reg_lock);
 
-To fix the issue, disable the tx or rx interrupt in usb_pkt_pop().
+ In snd_sb_csp_load():
+     spin_lock_irqsave(&p->chip->reg_lock, flags);
+     spin_lock(&p->chip->mixer_lock);
 
-Fixes: 2743e7f90dc0 ("usb: renesas_usbhs: fix the usb_pkt_pop()")
-Cc: <stable@vger.kernel.org> # v4.4+
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Link: https://lore.kernel.org/r/20210624122039.596528-1-yoshihiro.shimoda.uh@renesas.com
+Also the similar pattern is seen in snd_sb_csp_start().
+
+Although the practical impact is very small (those states aren't
+triggered in the same running state and this happens only on a real
+hardware, decades old ISA sound boards -- which must be very difficult
+to find nowadays), it's a real scenario and has to be fixed.
+
+This patch addresses those deadlocks by splitting the locks in
+snd_sb_csp_start() and snd_sb_csp_stop() for avoiding the nested
+locks.
+
+Reported-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/7b0fcdaf-cd4f-4728-2eae-48c151a92e10@gmail.com
+Link: https://lore.kernel.org/r/20210716132723.13216-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/renesas_usbhs/fifo.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ sound/isa/sb/sb16_csp.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/usb/renesas_usbhs/fifo.c
-+++ b/drivers/usb/renesas_usbhs/fifo.c
-@@ -115,6 +115,8 @@ static struct dma_chan *usbhsf_dma_chan_
- #define usbhsf_dma_map(p)	__usbhsf_dma_map_ctrl(p, 1)
- #define usbhsf_dma_unmap(p)	__usbhsf_dma_map_ctrl(p, 0)
- static int __usbhsf_dma_map_ctrl(struct usbhs_pkt *pkt, int map);
-+static void usbhsf_tx_irq_ctrl(struct usbhs_pipe *pipe, int enable);
-+static void usbhsf_rx_irq_ctrl(struct usbhs_pipe *pipe, int enable);
- struct usbhs_pkt *usbhs_pkt_pop(struct usbhs_pipe *pipe, struct usbhs_pkt *pkt)
- {
- 	struct usbhs_priv *priv = usbhs_pipe_to_priv(pipe);
-@@ -138,6 +140,11 @@ struct usbhs_pkt *usbhs_pkt_pop(struct u
- 			dmaengine_terminate_all(chan);
- 			usbhsf_fifo_clear(pipe, fifo);
- 			usbhsf_dma_unmap(pkt);
-+		} else {
-+			if (usbhs_pipe_is_dir_in(pipe))
-+				usbhsf_rx_irq_ctrl(pipe, 0);
-+			else
-+				usbhsf_tx_irq_ctrl(pipe, 0);
- 		}
+--- a/sound/isa/sb/sb16_csp.c
++++ b/sound/isa/sb/sb16_csp.c
+@@ -828,6 +828,7 @@ static int snd_sb_csp_start(struct snd_s
+ 	mixR = snd_sbmixer_read(p->chip, SB_DSP4_PCM_DEV + 1);
+ 	snd_sbmixer_write(p->chip, SB_DSP4_PCM_DEV, mixL & 0x7);
+ 	snd_sbmixer_write(p->chip, SB_DSP4_PCM_DEV + 1, mixR & 0x7);
++	spin_unlock_irqrestore(&p->chip->mixer_lock, flags);
  
- 		usbhs_pipe_running(pipe, 0);
+ 	spin_lock(&p->chip->reg_lock);
+ 	set_mode_register(p->chip, 0xc0);	/* c0 = STOP */
+@@ -867,6 +868,7 @@ static int snd_sb_csp_start(struct snd_s
+ 	spin_unlock(&p->chip->reg_lock);
+ 
+ 	/* restore PCM volume */
++	spin_lock_irqsave(&p->chip->mixer_lock, flags);
+ 	snd_sbmixer_write(p->chip, SB_DSP4_PCM_DEV, mixL);
+ 	snd_sbmixer_write(p->chip, SB_DSP4_PCM_DEV + 1, mixR);
+ 	spin_unlock_irqrestore(&p->chip->mixer_lock, flags);
+@@ -892,6 +894,7 @@ static int snd_sb_csp_stop(struct snd_sb
+ 	mixR = snd_sbmixer_read(p->chip, SB_DSP4_PCM_DEV + 1);
+ 	snd_sbmixer_write(p->chip, SB_DSP4_PCM_DEV, mixL & 0x7);
+ 	snd_sbmixer_write(p->chip, SB_DSP4_PCM_DEV + 1, mixR & 0x7);
++	spin_unlock_irqrestore(&p->chip->mixer_lock, flags);
+ 
+ 	spin_lock(&p->chip->reg_lock);
+ 	if (p->running & SNDRV_SB_CSP_ST_QSOUND) {
+@@ -906,6 +909,7 @@ static int snd_sb_csp_stop(struct snd_sb
+ 	spin_unlock(&p->chip->reg_lock);
+ 
+ 	/* restore PCM volume */
++	spin_lock_irqsave(&p->chip->mixer_lock, flags);
+ 	snd_sbmixer_write(p->chip, SB_DSP4_PCM_DEV, mixL);
+ 	snd_sbmixer_write(p->chip, SB_DSP4_PCM_DEV + 1, mixR);
+ 	spin_unlock_irqrestore(&p->chip->mixer_lock, flags);
 
 
