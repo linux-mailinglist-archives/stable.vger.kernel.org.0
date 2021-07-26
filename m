@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3FA93D6060
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:10:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD4703D6062
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:10:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237256AbhGZPWE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S237260AbhGZPWE (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 26 Jul 2021 11:22:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36460 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:36492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237259AbhGZPWA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:22:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8457060EB2;
-        Mon, 26 Jul 2021 16:02:28 +0000 (UTC)
+        id S236832AbhGZPWD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:22:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 31B6060E09;
+        Mon, 26 Jul 2021 16:02:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315349;
-        bh=czYXse3oMFtGw0mtmQntsuGW4opeK9xpofAjjkYT92Q=;
+        s=korg; t=1627315351;
+        bh=VRE5bSpf18f+dHUFqZrYTKAhh4tgXuEPHpXLDJDLOco=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fricy6w0eST3i1BnajK8qN/4ZbUFv7Z2uZpLWaZKa31VTjlbVxdDYqZXfonoOf7n1
-         GZhEbu40ogolPEWU6F7RvWqhF0DVfPFKkDHq4SwrMy526i4Ukzjzmk2XrzbIqUE8J0
-         h5abzwFUAOwGoNWzi/omVzYuhOhK7wpfhYxaVyUk=
+        b=rNWmg7Yebe2DN4g88BeldGVamgUAmoTj7LSz40W0ax+qY7qoaemTWHVkXlh5r8wIr
+         N3p3ze+LdV1SKTZbeLb+naHDEVZjyffXEqo4T0r7iYEBEWBsF/1aIVYPaHyJkYaALp
+         zqmKIPDrlQLLunF4GgtWQx7Yyvr2EX1SUGgcyZ14=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        stable@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>,
         Daniel Borkmann <daniel@iogearbox.net>,
-        Ilya Leoshkevich <iii@linux.ibm.com>,
+        Cong Wang <cong.wang@bytedance.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 060/167] s390/bpf: Perform r1 range checking before accessing jit->seen_reg[r1]
-Date:   Mon, 26 Jul 2021 17:38:13 +0200
-Message-Id: <20210726153841.422272414@linuxfoundation.org>
+Subject: [PATCH 5.10 061/167] bpf, sockmap: Fix potential memory leak on unlikely error case
+Date:   Mon, 26 Jul 2021 17:38:14 +0200
+Message-Id: <20210726153841.453111153@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
 References: <20210726153839.371771838@linuxfoundation.org>
@@ -41,41 +41,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: John Fastabend <john.fastabend@gmail.com>
 
-[ Upstream commit 91091656252f5d6d8c476e0c92776ce9fae7b445 ]
+[ Upstream commit 7e6b27a69167f97c56b5437871d29e9722c3e470 ]
 
-Currently array jit->seen_reg[r1] is being accessed before the range
-checking of index r1. The range changing on r1 should be performed
-first since it will avoid any potential out-of-range accesses on the
-array seen_reg[] and also it is more optimal to perform checks on r1
-before fetching data from the array. Fix this by swapping the order
-of the checks before the array access.
+If skb_linearize is needed and fails we could leak a msg on the error
+handling. To fix ensure we kfree the msg block before returning error.
+Found during code review.
 
-Fixes: 054623105728 ("s390/bpf: Add s390x eBPF JIT compiler backend")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Fixes: 4363023d2668e ("bpf, sockmap: Avoid failures from skb_to_sgvec when skb has frag_list")
+Signed-off-by: John Fastabend <john.fastabend@gmail.com>
 Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Tested-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Acked-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Link: https://lore.kernel.org/bpf/20210715125712.24690-1-colin.king@canonical.com
+Reviewed-by: Cong Wang <cong.wang@bytedance.com>
+Link: https://lore.kernel.org/bpf/20210712195546.423990-2-john.fastabend@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/net/bpf_jit_comp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/core/skmsg.c | 16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
-diff --git a/arch/s390/net/bpf_jit_comp.c b/arch/s390/net/bpf_jit_comp.c
-index 0a4182792876..fc44dce59536 100644
---- a/arch/s390/net/bpf_jit_comp.c
-+++ b/arch/s390/net/bpf_jit_comp.c
-@@ -112,7 +112,7 @@ static inline void reg_set_seen(struct bpf_jit *jit, u32 b1)
- {
- 	u32 r1 = reg2hex[b1];
+diff --git a/net/core/skmsg.c b/net/core/skmsg.c
+index 923a1d0f84ca..c4c224a5b9de 100644
+--- a/net/core/skmsg.c
++++ b/net/core/skmsg.c
+@@ -433,10 +433,8 @@ static int sk_psock_skb_ingress_enqueue(struct sk_buff *skb,
+ 	if (skb_linearize(skb))
+ 		return -EAGAIN;
+ 	num_sge = skb_to_sgvec(skb, msg->sg.data, 0, skb->len);
+-	if (unlikely(num_sge < 0)) {
+-		kfree(msg);
++	if (unlikely(num_sge < 0))
+ 		return num_sge;
+-	}
  
--	if (!jit->seen_reg[r1] && r1 >= 6 && r1 <= 15)
-+	if (r1 >= 6 && r1 <= 15 && !jit->seen_reg[r1])
- 		jit->seen_reg[r1] = 1;
+ 	copied = skb->len;
+ 	msg->sg.start = 0;
+@@ -455,6 +453,7 @@ static int sk_psock_skb_ingress(struct sk_psock *psock, struct sk_buff *skb)
+ {
+ 	struct sock *sk = psock->sk;
+ 	struct sk_msg *msg;
++	int err;
+ 
+ 	/* If we are receiving on the same sock skb->sk is already assigned,
+ 	 * skip memory accounting and owner transition seeing it already set
+@@ -473,7 +472,10 @@ static int sk_psock_skb_ingress(struct sk_psock *psock, struct sk_buff *skb)
+ 	 * into user buffers.
+ 	 */
+ 	skb_set_owner_r(skb, sk);
+-	return sk_psock_skb_ingress_enqueue(skb, psock, sk, msg);
++	err = sk_psock_skb_ingress_enqueue(skb, psock, sk, msg);
++	if (err < 0)
++		kfree(msg);
++	return err;
  }
  
+ /* Puts an skb on the ingress queue of the socket already assigned to the
+@@ -484,12 +486,16 @@ static int sk_psock_skb_ingress_self(struct sk_psock *psock, struct sk_buff *skb
+ {
+ 	struct sk_msg *msg = kzalloc(sizeof(*msg), __GFP_NOWARN | GFP_ATOMIC);
+ 	struct sock *sk = psock->sk;
++	int err;
+ 
+ 	if (unlikely(!msg))
+ 		return -EAGAIN;
+ 	sk_msg_init(msg);
+ 	skb_set_owner_r(skb, sk);
+-	return sk_psock_skb_ingress_enqueue(skb, psock, sk, msg);
++	err = sk_psock_skb_ingress_enqueue(skb, psock, sk, msg);
++	if (err < 0)
++		kfree(msg);
++	return err;
+ }
+ 
+ static int sk_psock_handle_skb(struct sk_psock *psock, struct sk_buff *skb,
 -- 
 2.30.2
 
