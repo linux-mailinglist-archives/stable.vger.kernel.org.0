@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 476D73D5F6F
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A35C3D5F70
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236948AbhGZPRz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:17:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52972 "EHLO mail.kernel.org"
+        id S236699AbhGZPR4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:17:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55708 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236639AbhGZPLy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:11:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 35FC360F38;
-        Mon, 26 Jul 2021 15:52:22 +0000 (UTC)
+        id S237620AbhGZPQJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:16:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 96C0660F38;
+        Mon, 26 Jul 2021 15:56:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314742;
-        bh=53BQTfdZFQdP56jbgWJq0znHDcAMrcu07M83k8BKfbQ=;
+        s=korg; t=1627314997;
+        bh=2tjdCL3aJ6Hw8vCvKplDi9yUOkQlbeIY10x3DZmK5Wo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eCgmDre5g5bWh8q6aKIAycEROWI42CD/K+eHV8f0wToDie2EHmm6vftbtYFqJIXcs
-         rfJmD61pW1xL3K8tgKqil8zdA91ne104LEiaunYeWV2zNKwWGV6Db0YHndOcKKoG/B
-         WmMomV0XzrEtP7YGuJbaCyBV5BSwyrJBunnw4CEo=
+        b=SdbCK3R/oTAqR2rTPWTssgcjDmhEaw5CwgInYSmNHsoLSSq0D3Wrezt5FD+35/PXA
+         DMREfXOsAbotz7bA0V1euV37WaKpUiwDX0Z+xIjnosoEs2WoI0yV3sk+Z+BwQ5s+Oh
+         SXNaviYWQV/yc/tY4PtUQF/9VO4a9O+X0ylya3m0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yajun Deng <yajun.deng@linux.dev>,
+        stable@vger.kernel.org, Nguyen Dinh Phi <phind.uet@gmail.com>,
+        syzbot+10f1194569953b72f1ae@syzkaller.appspotmail.com,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 076/120] net: decnet: Fix sleeping inside in af_decnet
+Subject: [PATCH 5.4 047/108] netrom: Decrease sock refcount when sock timers expire
 Date:   Mon, 26 Jul 2021 17:38:48 +0200
-Message-Id: <20210726153834.825930830@linuxfoundation.org>
+Message-Id: <20210726153833.195026335@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153832.339431936@linuxfoundation.org>
-References: <20210726153832.339431936@linuxfoundation.org>
+In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
+References: <20210726153831.696295003@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,123 +41,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yajun Deng <yajun.deng@linux.dev>
+From: Nguyen Dinh Phi <phind.uet@gmail.com>
 
-[ Upstream commit 5f119ba1d5771bbf46d57cff7417dcd84d3084ba ]
+[ Upstream commit 517a16b1a88bdb6b530f48d5d153478b2552d9a8 ]
 
-The release_sock() is blocking function, it would change the state
-after sleeping. use wait_woken() instead.
+Commit 63346650c1a9 ("netrom: switch to sock timer API") switched to use
+sock timer API. It replaces mod_timer() by sk_reset_timer(), and
+del_timer() by sk_stop_timer().
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Yajun Deng <yajun.deng@linux.dev>
+Function sk_reset_timer() will increase the refcount of sock if it is
+called on an inactive timer, hence, in case the timer expires, we need to
+decrease the refcount ourselves in the handler, otherwise, the sock
+refcount will be unbalanced and the sock will never be freed.
+
+Signed-off-by: Nguyen Dinh Phi <phind.uet@gmail.com>
+Reported-by: syzbot+10f1194569953b72f1ae@syzkaller.appspotmail.com
+Fixes: 63346650c1a9 ("netrom: switch to sock timer API")
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/decnet/af_decnet.c | 27 ++++++++++++---------------
- 1 file changed, 12 insertions(+), 15 deletions(-)
+ net/netrom/nr_timer.c | 20 +++++++++++---------
+ 1 file changed, 11 insertions(+), 9 deletions(-)
 
-diff --git a/net/decnet/af_decnet.c b/net/decnet/af_decnet.c
-index 0e6f32defd67..cc7077105969 100644
---- a/net/decnet/af_decnet.c
-+++ b/net/decnet/af_decnet.c
-@@ -823,7 +823,7 @@ static int dn_auto_bind(struct socket *sock)
- static int dn_confirm_accept(struct sock *sk, long *timeo, gfp_t allocation)
- {
- 	struct dn_scp *scp = DN_SK(sk);
--	DEFINE_WAIT(wait);
-+	DEFINE_WAIT_FUNC(wait, woken_wake_function);
- 	int err;
- 
- 	if (scp->state != DN_CR)
-@@ -833,11 +833,11 @@ static int dn_confirm_accept(struct sock *sk, long *timeo, gfp_t allocation)
- 	scp->segsize_loc = dst_metric_advmss(__sk_dst_get(sk));
- 	dn_send_conn_conf(sk, allocation);
- 
--	prepare_to_wait(sk_sleep(sk), &wait, TASK_INTERRUPTIBLE);
-+	add_wait_queue(sk_sleep(sk), &wait);
- 	for(;;) {
- 		release_sock(sk);
- 		if (scp->state == DN_CC)
--			*timeo = schedule_timeout(*timeo);
-+			*timeo = wait_woken(&wait, TASK_INTERRUPTIBLE, *timeo);
- 		lock_sock(sk);
- 		err = 0;
- 		if (scp->state == DN_RUN)
-@@ -851,9 +851,8 @@ static int dn_confirm_accept(struct sock *sk, long *timeo, gfp_t allocation)
- 		err = -EAGAIN;
- 		if (!*timeo)
- 			break;
--		prepare_to_wait(sk_sleep(sk), &wait, TASK_INTERRUPTIBLE);
- 	}
--	finish_wait(sk_sleep(sk), &wait);
-+	remove_wait_queue(sk_sleep(sk), &wait);
- 	if (err == 0) {
- 		sk->sk_socket->state = SS_CONNECTED;
- 	} else if (scp->state != DN_CC) {
-@@ -865,7 +864,7 @@ static int dn_confirm_accept(struct sock *sk, long *timeo, gfp_t allocation)
- static int dn_wait_run(struct sock *sk, long *timeo)
- {
- 	struct dn_scp *scp = DN_SK(sk);
--	DEFINE_WAIT(wait);
-+	DEFINE_WAIT_FUNC(wait, woken_wake_function);
- 	int err = 0;
- 
- 	if (scp->state == DN_RUN)
-@@ -874,11 +873,11 @@ static int dn_wait_run(struct sock *sk, long *timeo)
- 	if (!*timeo)
- 		return -EALREADY;
- 
--	prepare_to_wait(sk_sleep(sk), &wait, TASK_INTERRUPTIBLE);
-+	add_wait_queue(sk_sleep(sk), &wait);
- 	for(;;) {
- 		release_sock(sk);
- 		if (scp->state == DN_CI || scp->state == DN_CC)
--			*timeo = schedule_timeout(*timeo);
-+			*timeo = wait_woken(&wait, TASK_INTERRUPTIBLE, *timeo);
- 		lock_sock(sk);
- 		err = 0;
- 		if (scp->state == DN_RUN)
-@@ -892,9 +891,8 @@ static int dn_wait_run(struct sock *sk, long *timeo)
- 		err = -ETIMEDOUT;
- 		if (!*timeo)
- 			break;
--		prepare_to_wait(sk_sleep(sk), &wait, TASK_INTERRUPTIBLE);
- 	}
--	finish_wait(sk_sleep(sk), &wait);
-+	remove_wait_queue(sk_sleep(sk), &wait);
- out:
- 	if (err == 0) {
- 		sk->sk_socket->state = SS_CONNECTED;
-@@ -1039,16 +1037,16 @@ static void dn_user_copy(struct sk_buff *skb, struct optdata_dn *opt)
- 
- static struct sk_buff *dn_wait_for_connect(struct sock *sk, long *timeo)
- {
--	DEFINE_WAIT(wait);
-+	DEFINE_WAIT_FUNC(wait, woken_wake_function);
- 	struct sk_buff *skb = NULL;
- 	int err = 0;
- 
--	prepare_to_wait(sk_sleep(sk), &wait, TASK_INTERRUPTIBLE);
-+	add_wait_queue(sk_sleep(sk), &wait);
- 	for(;;) {
- 		release_sock(sk);
- 		skb = skb_dequeue(&sk->sk_receive_queue);
- 		if (skb == NULL) {
--			*timeo = schedule_timeout(*timeo);
-+			*timeo = wait_woken(&wait, TASK_INTERRUPTIBLE, *timeo);
- 			skb = skb_dequeue(&sk->sk_receive_queue);
+diff --git a/net/netrom/nr_timer.c b/net/netrom/nr_timer.c
+index 9115f8a7dd45..a8da88db7893 100644
+--- a/net/netrom/nr_timer.c
++++ b/net/netrom/nr_timer.c
+@@ -121,11 +121,9 @@ static void nr_heartbeat_expiry(struct timer_list *t)
+ 		   is accepted() it isn't 'dead' so doesn't get removed. */
+ 		if (sock_flag(sk, SOCK_DESTROY) ||
+ 		    (sk->sk_state == TCP_LISTEN && sock_flag(sk, SOCK_DEAD))) {
+-			sock_hold(sk);
+ 			bh_unlock_sock(sk);
+ 			nr_destroy_socket(sk);
+-			sock_put(sk);
+-			return;
++			goto out;
  		}
- 		lock_sock(sk);
-@@ -1063,9 +1061,8 @@ static struct sk_buff *dn_wait_for_connect(struct sock *sk, long *timeo)
- 		err = -EAGAIN;
- 		if (!*timeo)
- 			break;
--		prepare_to_wait(sk_sleep(sk), &wait, TASK_INTERRUPTIBLE);
- 	}
--	finish_wait(sk_sleep(sk), &wait);
-+	remove_wait_queue(sk_sleep(sk), &wait);
+ 		break;
  
- 	return skb == NULL ? ERR_PTR(err) : skb;
+@@ -146,6 +144,8 @@ static void nr_heartbeat_expiry(struct timer_list *t)
+ 
+ 	nr_start_heartbeat(sk);
+ 	bh_unlock_sock(sk);
++out:
++	sock_put(sk);
+ }
+ 
+ static void nr_t2timer_expiry(struct timer_list *t)
+@@ -159,6 +159,7 @@ static void nr_t2timer_expiry(struct timer_list *t)
+ 		nr_enquiry_response(sk);
+ 	}
+ 	bh_unlock_sock(sk);
++	sock_put(sk);
+ }
+ 
+ static void nr_t4timer_expiry(struct timer_list *t)
+@@ -169,6 +170,7 @@ static void nr_t4timer_expiry(struct timer_list *t)
+ 	bh_lock_sock(sk);
+ 	nr_sk(sk)->condition &= ~NR_COND_PEER_RX_BUSY;
+ 	bh_unlock_sock(sk);
++	sock_put(sk);
+ }
+ 
+ static void nr_idletimer_expiry(struct timer_list *t)
+@@ -197,6 +199,7 @@ static void nr_idletimer_expiry(struct timer_list *t)
+ 		sock_set_flag(sk, SOCK_DEAD);
+ 	}
+ 	bh_unlock_sock(sk);
++	sock_put(sk);
+ }
+ 
+ static void nr_t1timer_expiry(struct timer_list *t)
+@@ -209,8 +212,7 @@ static void nr_t1timer_expiry(struct timer_list *t)
+ 	case NR_STATE_1:
+ 		if (nr->n2count == nr->n2) {
+ 			nr_disconnect(sk, ETIMEDOUT);
+-			bh_unlock_sock(sk);
+-			return;
++			goto out;
+ 		} else {
+ 			nr->n2count++;
+ 			nr_write_internal(sk, NR_CONNREQ);
+@@ -220,8 +222,7 @@ static void nr_t1timer_expiry(struct timer_list *t)
+ 	case NR_STATE_2:
+ 		if (nr->n2count == nr->n2) {
+ 			nr_disconnect(sk, ETIMEDOUT);
+-			bh_unlock_sock(sk);
+-			return;
++			goto out;
+ 		} else {
+ 			nr->n2count++;
+ 			nr_write_internal(sk, NR_DISCREQ);
+@@ -231,8 +232,7 @@ static void nr_t1timer_expiry(struct timer_list *t)
+ 	case NR_STATE_3:
+ 		if (nr->n2count == nr->n2) {
+ 			nr_disconnect(sk, ETIMEDOUT);
+-			bh_unlock_sock(sk);
+-			return;
++			goto out;
+ 		} else {
+ 			nr->n2count++;
+ 			nr_requeue_frames(sk);
+@@ -241,5 +241,7 @@ static void nr_t1timer_expiry(struct timer_list *t)
+ 	}
+ 
+ 	nr_start_t1timer(sk);
++out:
+ 	bh_unlock_sock(sk);
++	sock_put(sk);
  }
 -- 
 2.30.2
