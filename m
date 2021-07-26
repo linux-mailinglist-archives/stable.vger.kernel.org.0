@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 74C9D3D5D6A
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:42:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC29E3D5E71
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:51:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235511AbhGZPBU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:01:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40284 "EHLO mail.kernel.org"
+        id S236218AbhGZPHu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:07:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235376AbhGZPBT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:01:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4FA32604DC;
-        Mon, 26 Jul 2021 15:41:47 +0000 (UTC)
+        id S236232AbhGZPHM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:07:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9827560F51;
+        Mon, 26 Jul 2021 15:47:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314108;
-        bh=grRdPstkOW8rLjdS7evwAa0AYIyG9hYMBpxlBh7t4WE=;
+        s=korg; t=1627314461;
+        bh=SV2DsXimeah2PnXg/mqKoYm6opfup3c5y9AZBFeuoaI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bhjJoJ5mce/7HJZNHSPVEYisIfUNZvY684iA1lpWBDyptlCyOQ128dfQ/dVL1/tXv
-         anJ82hBr7ng1PVaPzg2f86xUsLdgrfC2yiSfLZuXCCP/ImbF+a8ODd9CPE/djSrG9f
-         G65Q6qRMu4+Ji0fvP89W1m5yTb/geL/1G0GmXtgw=
+        b=etJ5KekPuc5Nrjo/9vwuwn3oRIZckSsWdL02FQGf7YGdKYe8dz/EBlIbVbboUzPlg
+         3MCvqrjMsLDGYxAduE5xAJItmP3v2fGuLAGY9keKReCHt2lrPiYzq2FYDICwmwv0gN
+         HxpUsxda+FKHfXMeTuuxQespcoFGKK2neiCX4ZOY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julian Sikorski <belegdol+github@gmail.com>
-Subject: [PATCH 4.4 36/47] USB: usb-storage: Add LaCie Rugged USB3-FW to IGNORE_UAS
+        stable@vger.kernel.org,
+        Mike Christie <michael.christie@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 54/82] scsi: iscsi: Fix iface sysfs attr detection
 Date:   Mon, 26 Jul 2021 17:38:54 +0200
-Message-Id: <20210726153824.120489434@linuxfoundation.org>
+Message-Id: <20210726153829.936187436@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153822.980271128@linuxfoundation.org>
-References: <20210726153822.980271128@linuxfoundation.org>
+In-Reply-To: <20210726153828.144714469@linuxfoundation.org>
+References: <20210726153828.144714469@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,42 +41,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julian Sikorski <belegdol@gmail.com>
+From: Mike Christie <michael.christie@oracle.com>
 
-commit 6abf2fe6b4bf6e5256b80c5817908151d2d33e9f upstream.
+[ Upstream commit e746f3451ec7f91dcc9fd67a631239c715850a34 ]
 
-LaCie Rugged USB3-FW appears to be incompatible with UAS. It generates
-errors like:
-[ 1151.582598] sd 14:0:0:0: tag#16 uas_eh_abort_handler 0 uas-tag 1 inflight: IN
-[ 1151.582602] sd 14:0:0:0: tag#16 CDB: Report supported operation codes a3 0c 01 12 00 00 00 00 02 00 00 00
-[ 1151.588594] scsi host14: uas_eh_device_reset_handler start
-[ 1151.710482] usb 2-4: reset SuperSpeed Gen 1 USB device number 2 using xhci_hcd
-[ 1151.741398] scsi host14: uas_eh_device_reset_handler success
-[ 1181.785534] scsi host14: uas_eh_device_reset_handler start
+A ISCSI_IFACE_PARAM can have the same value as a ISCSI_NET_PARAM so when
+iscsi_iface_attr_is_visible tries to figure out the type by just checking
+the value, we can collide and return the wrong type. When we call into the
+driver we might not match and return that we don't want attr visible in
+sysfs. The patch fixes this by setting the type when we figure out what the
+param is.
 
-Signed-off-by: Julian Sikorski <belegdol+github@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210720171910.36497-1-belegdol+github@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20210701002559.89533-1-michael.christie@oracle.com
+Fixes: 3e0f65b34cc9 ("[SCSI] iscsi_transport: Additional parameters for network settings")
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/storage/unusual_uas.h |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/scsi/scsi_transport_iscsi.c | 90 +++++++++++------------------
+ 1 file changed, 34 insertions(+), 56 deletions(-)
 
---- a/drivers/usb/storage/unusual_uas.h
-+++ b/drivers/usb/storage/unusual_uas.h
-@@ -54,6 +54,13 @@ UNUSUAL_DEV(0x059f, 0x105f, 0x0000, 0x99
- 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
- 		US_FL_NO_REPORT_OPCODES),
+diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
+index 95c61fb4b81b..064c941e5483 100644
+--- a/drivers/scsi/scsi_transport_iscsi.c
++++ b/drivers/scsi/scsi_transport_iscsi.c
+@@ -427,39 +427,10 @@ static umode_t iscsi_iface_attr_is_visible(struct kobject *kobj,
+ 	struct device *dev = container_of(kobj, struct device, kobj);
+ 	struct iscsi_iface *iface = iscsi_dev_to_iface(dev);
+ 	struct iscsi_transport *t = iface->transport;
+-	int param;
+-	int param_type;
++	int param = -1;
  
-+/* Reported-by: Julian Sikorski <belegdol@gmail.com> */
-+UNUSUAL_DEV(0x059f, 0x1061, 0x0000, 0x9999,
-+		"LaCie",
-+		"Rugged USB3-FW",
-+		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
-+		US_FL_IGNORE_UAS),
+ 	if (attr == &dev_attr_iface_enabled.attr)
+ 		param = ISCSI_NET_PARAM_IFACE_ENABLE;
+-	else if (attr == &dev_attr_iface_vlan_id.attr)
+-		param = ISCSI_NET_PARAM_VLAN_ID;
+-	else if (attr == &dev_attr_iface_vlan_priority.attr)
+-		param = ISCSI_NET_PARAM_VLAN_PRIORITY;
+-	else if (attr == &dev_attr_iface_vlan_enabled.attr)
+-		param = ISCSI_NET_PARAM_VLAN_ENABLED;
+-	else if (attr == &dev_attr_iface_mtu.attr)
+-		param = ISCSI_NET_PARAM_MTU;
+-	else if (attr == &dev_attr_iface_port.attr)
+-		param = ISCSI_NET_PARAM_PORT;
+-	else if (attr == &dev_attr_iface_ipaddress_state.attr)
+-		param = ISCSI_NET_PARAM_IPADDR_STATE;
+-	else if (attr == &dev_attr_iface_delayed_ack_en.attr)
+-		param = ISCSI_NET_PARAM_DELAYED_ACK_EN;
+-	else if (attr == &dev_attr_iface_tcp_nagle_disable.attr)
+-		param = ISCSI_NET_PARAM_TCP_NAGLE_DISABLE;
+-	else if (attr == &dev_attr_iface_tcp_wsf_disable.attr)
+-		param = ISCSI_NET_PARAM_TCP_WSF_DISABLE;
+-	else if (attr == &dev_attr_iface_tcp_wsf.attr)
+-		param = ISCSI_NET_PARAM_TCP_WSF;
+-	else if (attr == &dev_attr_iface_tcp_timer_scale.attr)
+-		param = ISCSI_NET_PARAM_TCP_TIMER_SCALE;
+-	else if (attr == &dev_attr_iface_tcp_timestamp_en.attr)
+-		param = ISCSI_NET_PARAM_TCP_TIMESTAMP_EN;
+-	else if (attr == &dev_attr_iface_cache_id.attr)
+-		param = ISCSI_NET_PARAM_CACHE_ID;
+-	else if (attr == &dev_attr_iface_redirect_en.attr)
+-		param = ISCSI_NET_PARAM_REDIRECT_EN;
+ 	else if (attr == &dev_attr_iface_def_taskmgmt_tmo.attr)
+ 		param = ISCSI_IFACE_PARAM_DEF_TASKMGMT_TMO;
+ 	else if (attr == &dev_attr_iface_header_digest.attr)
+@@ -496,6 +467,38 @@ static umode_t iscsi_iface_attr_is_visible(struct kobject *kobj,
+ 		param = ISCSI_IFACE_PARAM_STRICT_LOGIN_COMP_EN;
+ 	else if (attr == &dev_attr_iface_initiator_name.attr)
+ 		param = ISCSI_IFACE_PARAM_INITIATOR_NAME;
 +
- /*
-  * Apricorn USB3 dongle sometimes returns "USBSUSBSUSBS" in response to SCSI
-  * commands in UAS mode.  Observed with the 1.28 firmware; are there others?
++	if (param != -1)
++		return t->attr_is_visible(ISCSI_IFACE_PARAM, param);
++
++	if (attr == &dev_attr_iface_vlan_id.attr)
++		param = ISCSI_NET_PARAM_VLAN_ID;
++	else if (attr == &dev_attr_iface_vlan_priority.attr)
++		param = ISCSI_NET_PARAM_VLAN_PRIORITY;
++	else if (attr == &dev_attr_iface_vlan_enabled.attr)
++		param = ISCSI_NET_PARAM_VLAN_ENABLED;
++	else if (attr == &dev_attr_iface_mtu.attr)
++		param = ISCSI_NET_PARAM_MTU;
++	else if (attr == &dev_attr_iface_port.attr)
++		param = ISCSI_NET_PARAM_PORT;
++	else if (attr == &dev_attr_iface_ipaddress_state.attr)
++		param = ISCSI_NET_PARAM_IPADDR_STATE;
++	else if (attr == &dev_attr_iface_delayed_ack_en.attr)
++		param = ISCSI_NET_PARAM_DELAYED_ACK_EN;
++	else if (attr == &dev_attr_iface_tcp_nagle_disable.attr)
++		param = ISCSI_NET_PARAM_TCP_NAGLE_DISABLE;
++	else if (attr == &dev_attr_iface_tcp_wsf_disable.attr)
++		param = ISCSI_NET_PARAM_TCP_WSF_DISABLE;
++	else if (attr == &dev_attr_iface_tcp_wsf.attr)
++		param = ISCSI_NET_PARAM_TCP_WSF;
++	else if (attr == &dev_attr_iface_tcp_timer_scale.attr)
++		param = ISCSI_NET_PARAM_TCP_TIMER_SCALE;
++	else if (attr == &dev_attr_iface_tcp_timestamp_en.attr)
++		param = ISCSI_NET_PARAM_TCP_TIMESTAMP_EN;
++	else if (attr == &dev_attr_iface_cache_id.attr)
++		param = ISCSI_NET_PARAM_CACHE_ID;
++	else if (attr == &dev_attr_iface_redirect_en.attr)
++		param = ISCSI_NET_PARAM_REDIRECT_EN;
+ 	else if (iface->iface_type == ISCSI_IFACE_TYPE_IPV4) {
+ 		if (attr == &dev_attr_ipv4_iface_ipaddress.attr)
+ 			param = ISCSI_NET_PARAM_IPV4_ADDR;
+@@ -586,32 +589,7 @@ static umode_t iscsi_iface_attr_is_visible(struct kobject *kobj,
+ 		return 0;
+ 	}
+ 
+-	switch (param) {
+-	case ISCSI_IFACE_PARAM_DEF_TASKMGMT_TMO:
+-	case ISCSI_IFACE_PARAM_HDRDGST_EN:
+-	case ISCSI_IFACE_PARAM_DATADGST_EN:
+-	case ISCSI_IFACE_PARAM_IMM_DATA_EN:
+-	case ISCSI_IFACE_PARAM_INITIAL_R2T_EN:
+-	case ISCSI_IFACE_PARAM_DATASEQ_INORDER_EN:
+-	case ISCSI_IFACE_PARAM_PDU_INORDER_EN:
+-	case ISCSI_IFACE_PARAM_ERL:
+-	case ISCSI_IFACE_PARAM_MAX_RECV_DLENGTH:
+-	case ISCSI_IFACE_PARAM_FIRST_BURST:
+-	case ISCSI_IFACE_PARAM_MAX_R2T:
+-	case ISCSI_IFACE_PARAM_MAX_BURST:
+-	case ISCSI_IFACE_PARAM_CHAP_AUTH_EN:
+-	case ISCSI_IFACE_PARAM_BIDI_CHAP_EN:
+-	case ISCSI_IFACE_PARAM_DISCOVERY_AUTH_OPTIONAL:
+-	case ISCSI_IFACE_PARAM_DISCOVERY_LOGOUT_EN:
+-	case ISCSI_IFACE_PARAM_STRICT_LOGIN_COMP_EN:
+-	case ISCSI_IFACE_PARAM_INITIATOR_NAME:
+-		param_type = ISCSI_IFACE_PARAM;
+-		break;
+-	default:
+-		param_type = ISCSI_NET_PARAM;
+-	}
+-
+-	return t->attr_is_visible(param_type, param);
++	return t->attr_is_visible(ISCSI_NET_PARAM, param);
+ }
+ 
+ static struct attribute *iscsi_iface_attrs[] = {
+-- 
+2.30.2
+
 
 
