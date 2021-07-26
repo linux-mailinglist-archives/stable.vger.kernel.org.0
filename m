@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 702453D5E6D
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:51:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6010C3D5DC3
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:44:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236340AbhGZPHr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:07:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48238 "EHLO mail.kernel.org"
+        id S235797AbhGZPDf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:03:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43208 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235957AbhGZPHG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:07:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DCAF860F5A;
-        Mon, 26 Jul 2021 15:47:29 +0000 (UTC)
+        id S235833AbhGZPDe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:03:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B32D60F38;
+        Mon, 26 Jul 2021 15:44:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314450;
-        bh=EoWxg77Ae9NxaT3VCRBGRP4UDqD8wbO2Jbz+ZNU8h7o=;
+        s=korg; t=1627314243;
+        bh=C7tZVp2J6EKyYKLvd+BPYTtLLJ+W2ga+MUprg1apgpI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YSuXZueaU0fxlny5Osudts4jGN7GjDjwc4w3hFYJzftVZGxlb48+7/vvH0iWIQWBX
-         kSwwi6RFouLLIP3XxrHE0x/7G1j2uj1FM8zRLtaqjnxTSHGpOm7Igbo7oQqVlfmu3s
-         sMF/ROyqXTT/7KsswZJUHIJepjDx1P0vEHu0iElA=
+        b=ZNTXRGE5ORaOpFnXbj/lJeX2Z02Zim2wHTQX6zEAqTvjrEFoz7X9gC/Z94xRHbVAt
+         a/zrCR+kJVtB4uJkPBR3o9DYULdICazT9ODwguyA7q+OFLeY/PzdHxX5I4+Y7Ty/1q
+         4MZbZ+Ym+NNKQ78sh7e7x+5qbIN/ycbdybuOtZ9A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Ilya Leoshkevich <iii@linux.ibm.com>,
+        stable@vger.kernel.org,
+        syzbot+09a5d591c1f98cf5efcb@syzkaller.appspotmail.com,
+        Ziyang Xuan <william.xuanziyang@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 50/82] s390/bpf: Perform r1 range checking before accessing jit->seen_reg[r1]
+Subject: [PATCH 4.9 36/60] net: fix uninit-value in caif_seqpkt_sendmsg
 Date:   Mon, 26 Jul 2021 17:38:50 +0200
-Message-Id: <20210726153829.805908718@linuxfoundation.org>
+Message-Id: <20210726153826.004093666@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153828.144714469@linuxfoundation.org>
-References: <20210726153828.144714469@linuxfoundation.org>
+In-Reply-To: <20210726153824.868160836@linuxfoundation.org>
+References: <20210726153824.868160836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,40 +42,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Ziyang Xuan <william.xuanziyang@huawei.com>
 
-[ Upstream commit 91091656252f5d6d8c476e0c92776ce9fae7b445 ]
+[ Upstream commit 991e634360f2622a683b48dfe44fe6d9cb765a09 ]
 
-Currently array jit->seen_reg[r1] is being accessed before the range
-checking of index r1. The range changing on r1 should be performed
-first since it will avoid any potential out-of-range accesses on the
-array seen_reg[] and also it is more optimal to perform checks on r1
-before fetching data from the array. Fix this by swapping the order
-of the checks before the array access.
+When nr_segs equal to zero in iovec_from_user, the object
+msg->msg_iter.iov is uninit stack memory in caif_seqpkt_sendmsg
+which is defined in ___sys_sendmsg. So we cann't just judge
+msg->msg_iter.iov->base directlly. We can use nr_segs to judge
+msg in caif_seqpkt_sendmsg whether has data buffers.
 
-Fixes: 054623105728 ("s390/bpf: Add s390x eBPF JIT compiler backend")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Tested-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Acked-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Link: https://lore.kernel.org/bpf/20210715125712.24690-1-colin.king@canonical.com
+=====================================================
+BUG: KMSAN: uninit-value in caif_seqpkt_sendmsg+0x693/0xf60 net/caif/caif_socket.c:542
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x1c9/0x220 lib/dump_stack.c:118
+ kmsan_report+0xf7/0x1e0 mm/kmsan/kmsan_report.c:118
+ __msan_warning+0x58/0xa0 mm/kmsan/kmsan_instr.c:215
+ caif_seqpkt_sendmsg+0x693/0xf60 net/caif/caif_socket.c:542
+ sock_sendmsg_nosec net/socket.c:652 [inline]
+ sock_sendmsg net/socket.c:672 [inline]
+ ____sys_sendmsg+0x12b6/0x1350 net/socket.c:2343
+ ___sys_sendmsg net/socket.c:2397 [inline]
+ __sys_sendmmsg+0x808/0xc90 net/socket.c:2480
+ __compat_sys_sendmmsg net/compat.c:656 [inline]
+
+Reported-by: syzbot+09a5d591c1f98cf5efcb@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?id=1ace85e8fc9b0d5a45c08c2656c3e91762daa9b8
+Fixes: bece7b2398d0 ("caif: Rewritten socket implementation")
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/net/bpf_jit_comp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/caif/caif_socket.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/net/bpf_jit_comp.c b/arch/s390/net/bpf_jit_comp.c
-index b8bd84104843..bb3710e7ad9c 100644
---- a/arch/s390/net/bpf_jit_comp.c
-+++ b/arch/s390/net/bpf_jit_comp.c
-@@ -117,7 +117,7 @@ static inline void reg_set_seen(struct bpf_jit *jit, u32 b1)
- {
- 	u32 r1 = reg2hex[b1];
+diff --git a/net/caif/caif_socket.c b/net/caif/caif_socket.c
+index 92cbbd2afddb..9367f260afeb 100644
+--- a/net/caif/caif_socket.c
++++ b/net/caif/caif_socket.c
+@@ -539,7 +539,8 @@ static int caif_seqpkt_sendmsg(struct socket *sock, struct msghdr *msg,
+ 		goto err;
  
--	if (!jit->seen_reg[r1] && r1 >= 6 && r1 <= 15)
-+	if (r1 >= 6 && r1 <= 15 && !jit->seen_reg[r1])
- 		jit->seen_reg[r1] = 1;
- }
+ 	ret = -EINVAL;
+-	if (unlikely(msg->msg_iter.iov->iov_base == NULL))
++	if (unlikely(msg->msg_iter.nr_segs == 0) ||
++	    unlikely(msg->msg_iter.iov->iov_base == NULL))
+ 		goto err;
+ 	noblock = msg->msg_flags & MSG_DONTWAIT;
  
 -- 
 2.30.2
