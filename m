@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4746E3D6197
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:14:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EA443D6014
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233490AbhGZPcV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:32:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45420 "EHLO mail.kernel.org"
+        id S236396AbhGZPUk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:20:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232041AbhGZPaL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:30:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3DB1C60F5E;
-        Mon, 26 Jul 2021 16:10:39 +0000 (UTC)
+        id S237056AbhGZPUi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:20:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 75E5B60E09;
+        Mon, 26 Jul 2021 16:01:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315839;
-        bh=u+nrYs8kgIxkE78GC04cHDkkMC7HisEe6KV2i+EgDj0=;
+        s=korg; t=1627315267;
+        bh=t+368inyZXG7DCMhc4qa3uvkQfiW/mX7WJ+EOKEMkzU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TtJlFcPjoKYNtz0yLGZ1TqzUO7STcUwiklu8laJbIFPa07sq9r3sCrhLCMhhpIIXk
-         hEXfMTFQiiplolaKEY3DwAHMt5QocBOdsj293Mphi8vWfW0D+it/XCMEoALF1wWxXv
-         RuKU9N7A5L/hVLznOXmYJvMEaeBh4K0Wl32IU5lo=
+        b=mGSyfjZwqCRY2mt5EmxNOcIi0gvoGC5daIZy+ubi2aATDOhSyBWKh5KOP0q+nQs2K
+         QJNSBvcsIp/qOZuBoje4mGVkk02kE4PDPRE8nFuaXntVg2TH5psGK6LeJdx1LWOMME
+         lgGAALWfsV5cj8W+Jk4zWH/+dJiGFVEZf7daySS0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Axel Lin <axel.lin@ingics.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Alexander Lobakin <alobakin@pm.me>,
+        Antoine Tenart <atenart@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 070/223] regulator: hi6421: Fix getting wrong drvdata
+Subject: [PATCH 5.10 029/167] net: do not reuse skbuff allocated from skbuff_fclone_cache in the skb cache
 Date:   Mon, 26 Jul 2021 17:37:42 +0200
-Message-Id: <20210726153848.545127465@linuxfoundation.org>
+Message-Id: <20210726153840.350300456@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
-References: <20210726153846.245305071@linuxfoundation.org>
+In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
+References: <20210726153839.371771838@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,117 +41,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Axel Lin <axel.lin@ingics.com>
+From: Antoine Tenart <atenart@kernel.org>
 
-[ Upstream commit 1c73daee4bf30ccdff5e86dc400daa6f74735da5 ]
+[ Upstream commit 28b34f01a73435a754956ebae826e728c03ffa38 ]
 
-Since config.dev = pdev->dev.parent in current code, so
-dev_get_drvdata(rdev->dev.parent) call in hi6421_regulator_enable
-returns the drvdata of the mfd device rather than the regulator. Fix it.
+Some socket buffers allocated in the fclone cache (in __alloc_skb) can
+end-up in the following path[1]:
 
-This was broken while converting to use simplified DT parsing because the
-config.dev changed from pdev->dev to pdev->dev.parent for parsing the
-parent's of_node.
+napi_skb_finish
+  __kfree_skb_defer
+    napi_skb_cache_put
 
-Fixes: 29dc269a85ef ("regulator: hi6421: Convert to use simplified DT parsing")
-Signed-off-by: Axel Lin <axel.lin@ingics.com>
-Link: https://lore.kernel.org/r/20210630095959.2411543-1-axel.lin@ingics.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+The issue is napi_skb_cache_put is not fclone friendly and will put
+those skbuff in the skb cache to be reused later, although this cache
+only expects skbuff allocated from skbuff_head_cache. When this happens
+the skbuff is eventually freed using the wrong origin cache, and we can
+see traces similar to:
+
+[ 1223.947534] cache_from_obj: Wrong slab cache. skbuff_head_cache but object is from skbuff_fclone_cache
+[ 1223.948895] WARNING: CPU: 3 PID: 0 at mm/slab.h:442 kmem_cache_free+0x251/0x3e0
+[ 1223.950211] Modules linked in:
+[ 1223.950680] CPU: 3 PID: 0 Comm: swapper/3 Not tainted 5.13.0+ #474
+[ 1223.951587] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-3.fc34 04/01/2014
+[ 1223.953060] RIP: 0010:kmem_cache_free+0x251/0x3e0
+
+Leading sometimes to other memory related issues.
+
+Fix this by using __kfree_skb for fclone skbuff, similar to what is done
+the other place __kfree_skb_defer is called.
+
+[1] At least in setups using veth pairs and tunnels. Building a kernel
+    with KASAN we can for example see packets allocated in
+    sk_stream_alloc_skb hit the above path and later the issue arises
+    when the skbuff is reused.
+
+Fixes: 9243adfc311a ("skbuff: queue NAPI_MERGED_FREE skbs into NAPI cache instead of freeing")
+Cc: Alexander Lobakin <alobakin@pm.me>
+Signed-off-by: Antoine Tenart <atenart@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/hi6421-regulator.c | 22 +++++++++++++---------
- 1 file changed, 13 insertions(+), 9 deletions(-)
+ net/core/dev.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/regulator/hi6421-regulator.c b/drivers/regulator/hi6421-regulator.c
-index bff8c515dcde..d144a4bdb76d 100644
---- a/drivers/regulator/hi6421-regulator.c
-+++ b/drivers/regulator/hi6421-regulator.c
-@@ -366,9 +366,8 @@ static struct hi6421_regulator_info
- 
- static int hi6421_regulator_enable(struct regulator_dev *rdev)
- {
--	struct hi6421_regulator_pdata *pdata;
-+	struct hi6421_regulator_pdata *pdata = rdev_get_drvdata(rdev);
- 
--	pdata = dev_get_drvdata(rdev->dev.parent);
- 	/* hi6421 spec requires regulator enablement must be serialized:
- 	 *  - Because when BUCK, LDO switching from off to on, it will have
- 	 *    a huge instantaneous current; so you can not turn on two or
-@@ -385,9 +384,10 @@ static int hi6421_regulator_enable(struct regulator_dev *rdev)
- 
- static unsigned int hi6421_regulator_ldo_get_mode(struct regulator_dev *rdev)
- {
--	struct hi6421_regulator_info *info = rdev_get_drvdata(rdev);
-+	struct hi6421_regulator_info *info;
- 	unsigned int reg_val;
- 
-+	info = container_of(rdev->desc, struct hi6421_regulator_info, desc);
- 	regmap_read(rdev->regmap, rdev->desc->enable_reg, &reg_val);
- 	if (reg_val & info->mode_mask)
- 		return REGULATOR_MODE_IDLE;
-@@ -397,9 +397,10 @@ static unsigned int hi6421_regulator_ldo_get_mode(struct regulator_dev *rdev)
- 
- static unsigned int hi6421_regulator_buck_get_mode(struct regulator_dev *rdev)
- {
--	struct hi6421_regulator_info *info = rdev_get_drvdata(rdev);
-+	struct hi6421_regulator_info *info;
- 	unsigned int reg_val;
- 
-+	info = container_of(rdev->desc, struct hi6421_regulator_info, desc);
- 	regmap_read(rdev->regmap, rdev->desc->enable_reg, &reg_val);
- 	if (reg_val & info->mode_mask)
- 		return REGULATOR_MODE_STANDBY;
-@@ -410,9 +411,10 @@ static unsigned int hi6421_regulator_buck_get_mode(struct regulator_dev *rdev)
- static int hi6421_regulator_ldo_set_mode(struct regulator_dev *rdev,
- 						unsigned int mode)
- {
--	struct hi6421_regulator_info *info = rdev_get_drvdata(rdev);
-+	struct hi6421_regulator_info *info;
- 	unsigned int new_mode;
- 
-+	info = container_of(rdev->desc, struct hi6421_regulator_info, desc);
- 	switch (mode) {
- 	case REGULATOR_MODE_NORMAL:
- 		new_mode = 0;
-@@ -434,9 +436,10 @@ static int hi6421_regulator_ldo_set_mode(struct regulator_dev *rdev,
- static int hi6421_regulator_buck_set_mode(struct regulator_dev *rdev,
- 						unsigned int mode)
- {
--	struct hi6421_regulator_info *info = rdev_get_drvdata(rdev);
-+	struct hi6421_regulator_info *info;
- 	unsigned int new_mode;
- 
-+	info = container_of(rdev->desc, struct hi6421_regulator_info, desc);
- 	switch (mode) {
- 	case REGULATOR_MODE_NORMAL:
- 		new_mode = 0;
-@@ -459,7 +462,9 @@ static unsigned int
- hi6421_regulator_ldo_get_optimum_mode(struct regulator_dev *rdev,
- 			int input_uV, int output_uV, int load_uA)
- {
--	struct hi6421_regulator_info *info = rdev_get_drvdata(rdev);
-+	struct hi6421_regulator_info *info;
-+
-+	info = container_of(rdev->desc, struct hi6421_regulator_info, desc);
- 
- 	if (load_uA > info->eco_microamp)
- 		return REGULATOR_MODE_NORMAL;
-@@ -543,14 +548,13 @@ static int hi6421_regulator_probe(struct platform_device *pdev)
- 	if (!pdata)
- 		return -ENOMEM;
- 	mutex_init(&pdata->lock);
--	platform_set_drvdata(pdev, pdata);
- 
- 	for (i = 0; i < ARRAY_SIZE(hi6421_regulator_info); i++) {
- 		/* assign per-regulator data */
- 		info = &hi6421_regulator_info[i];
- 
- 		config.dev = pdev->dev.parent;
--		config.driver_data = info;
-+		config.driver_data = pdata;
- 		config.regmap = pmic->regmap;
- 
- 		rdev = devm_regulator_register(&pdev->dev, &info->desc,
+diff --git a/net/core/dev.c b/net/core/dev.c
+index 6b08de52bf0e..86a0fe0f4c02 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -6100,6 +6100,8 @@ static gro_result_t napi_skb_finish(struct napi_struct *napi,
+ 	case GRO_MERGED_FREE:
+ 		if (NAPI_GRO_CB(skb)->free == NAPI_GRO_FREE_STOLEN_HEAD)
+ 			napi_skb_free_stolen_head(skb);
++		else if (skb->fclone != SKB_FCLONE_UNAVAILABLE)
++			__kfree_skb(skb);
+ 		else
+ 			__kfree_skb(skb);
+ 		break;
 -- 
 2.30.2
 
