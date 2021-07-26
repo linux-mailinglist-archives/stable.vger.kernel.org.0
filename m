@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4400A3D5D3C
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:41:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B02D3D5F09
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:59:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234963AbhGZPAO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:00:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38592 "EHLO mail.kernel.org"
+        id S236266AbhGZPQh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:16:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235202AbhGZPAN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:00:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7188560462;
-        Mon, 26 Jul 2021 15:40:41 +0000 (UTC)
+        id S236274AbhGZPLL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:11:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 97FF260F5B;
+        Mon, 26 Jul 2021 15:51:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314041;
-        bh=tys8Ewasv3aWmIbLa2F53OFRtFWZAOWhixp5Guc59Gs=;
+        s=korg; t=1627314700;
+        bh=muEQAooWcc9Tjx270IZW7fMTAV6ZaQiaQ/q74fBH2hE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dFDv/LF2TXSZ76Cq7bJ8kghSWG6dT2x8g97TOnfZLBIMcWa2tKWRukt/seyYdPI8/
-         Ov5NOZSEe+OpttgfYNuwUwp8DVsIvphA3sIfIVdNlThjCR2dqMxhJ39llb2mgCQ5Zi
-         EEbGqyq8pDl41aJnOiTZnzKBKzRW0l5L+XYgpf6A=
+        b=edDJW+p5ZXszHaTB4oC96EIUrMlYDNZH/8NrRi02YmJP89OzdiGxkq2BzOzXnD/CJ
+         Y0Ks7bXGCZ5aJIyLHtDSC8gN308yT8KP0CB9YgFBe7upi4vHcRyMSYzmDC5cUzS4pI
+         q9H4lMCX7Dfx47/uJ6nG67sRjLGE6WyWFofrSt/0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 12/47] net: bcmgenet: Ensure all TX/RX queues DMAs are disabled
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 058/120] iavf: Fix an error handling path in iavf_probe()
 Date:   Mon, 26 Jul 2021 17:38:30 +0200
-Message-Id: <20210726153823.369837508@linuxfoundation.org>
+Message-Id: <20210726153834.241210947@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153822.980271128@linuxfoundation.org>
-References: <20210726153822.980271128@linuxfoundation.org>
+In-Reply-To: <20210726153832.339431936@linuxfoundation.org>
+References: <20210726153832.339431936@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,46 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit 2b452550a203d88112eaf0ba9fc4b750a000b496 upstream.
+[ Upstream commit af30cbd2f4d6d66a9b6094e0aa32420bc8b20e08 ]
 
-Make sure that we disable each of the TX and RX queues in the TDMA and
-RDMA control registers. This is a correctness change to be symmetrical
-with the code that enables the TX and RX queues.
+If an error occurs after a 'pci_enable_pcie_error_reporting()' call, it
+must be undone by a corresponding 'pci_disable_pcie_error_reporting()'
+call, as already done in the remove function.
 
-Tested-by: Maxime Ripard <maxime@cerno.tech>
-Fixes: 1c1008c793fa ("net: bcmgenet: add main driver file")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 5eae00c57f5e ("i40evf: main driver core")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/genet/bcmgenet.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/ethernet/intel/i40evf/i40evf_main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-@@ -2663,15 +2663,21 @@ static void bcmgenet_set_hw_addr(struct
- /* Returns a reusable dma control register value */
- static u32 bcmgenet_dma_disable(struct bcmgenet_priv *priv)
- {
-+	unsigned int i;
- 	u32 reg;
- 	u32 dma_ctrl;
- 
- 	/* disable DMA */
- 	dma_ctrl = 1 << (DESC_INDEX + DMA_RING_BUF_EN_SHIFT) | DMA_EN;
-+	for (i = 0; i < priv->hw_params->tx_queues; i++)
-+		dma_ctrl |= (1 << (i + DMA_RING_BUF_EN_SHIFT));
- 	reg = bcmgenet_tdma_readl(priv, DMA_CTRL);
- 	reg &= ~dma_ctrl;
- 	bcmgenet_tdma_writel(priv, reg, DMA_CTRL);
- 
-+	dma_ctrl = 1 << (DESC_INDEX + DMA_RING_BUF_EN_SHIFT) | DMA_EN;
-+	for (i = 0; i < priv->hw_params->rx_queues; i++)
-+		dma_ctrl |= (1 << (i + DMA_RING_BUF_EN_SHIFT));
- 	reg = bcmgenet_rdma_readl(priv, DMA_CTRL);
- 	reg &= ~dma_ctrl;
- 	bcmgenet_rdma_writel(priv, reg, DMA_CTRL);
+diff --git a/drivers/net/ethernet/intel/i40evf/i40evf_main.c b/drivers/net/ethernet/intel/i40evf/i40evf_main.c
+index f50c19b83368..ac5709624c7a 100644
+--- a/drivers/net/ethernet/intel/i40evf/i40evf_main.c
++++ b/drivers/net/ethernet/intel/i40evf/i40evf_main.c
+@@ -3735,6 +3735,7 @@ static int i40evf_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ err_ioremap:
+ 	free_netdev(netdev);
+ err_alloc_etherdev:
++	pci_disable_pcie_error_reporting(pdev);
+ 	pci_release_regions(pdev);
+ err_pci_reg:
+ err_dma:
+-- 
+2.30.2
+
 
 
