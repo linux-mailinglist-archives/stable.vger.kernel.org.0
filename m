@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59ADC3D6136
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:13:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FE2E3D626B
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:16:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232483AbhGZPaV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:30:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41244 "EHLO mail.kernel.org"
+        id S237230AbhGZPf7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:35:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231362AbhGZP2I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:28:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9419E60FE3;
-        Mon, 26 Jul 2021 16:06:49 +0000 (UTC)
+        id S235217AbhGZPfR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:35:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 28493604AC;
+        Mon, 26 Jul 2021 16:15:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315610;
-        bh=J4AhUA7x+vqG2sywfhNOO/+6xAQSl/Bi+CKhBLBFGoY=;
+        s=korg; t=1627316145;
+        bh=AGq2x0t0KxaJNErco3NfpF3Q+7Djdn+ezKGvOUM6QRQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ubd/LJ+bNkAOlPV0b8cj6uCdvq0E+1xZhG331VvPV2Aiq68d5c/kav2O5b0Nl+bzS
-         wBiJtsdklOJ/zYOd6FyBQJ09x3ME2oINV9BVkySPvsfHzPqLRs8wepQjngZJQ5SyBp
-         Dod4HxVU+fCpsuivcb2P7U3uDt2nbqFDnGEabDOg=
+        b=kWy+dRK7HHP0Ze9TwVn7I1PWJ992seXt8KU3iV+I8Hju2OulfUj0CSS1HXUv+0+VI
+         qh6KEomEZZYmOdcM4is5ByE1pPZ8kwTz85by/UsIBzBxRzNwOkAeHYik9i05BP6Evv
+         SCY96xvvXvgV5Kxc76kOHjOK+IcYqoZ4mlsjGT8o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Laurence Oberman <loberman@redhat.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        David Jeffery <djeffery@redhat.com>
-Subject: [PATCH 5.10 164/167] usb: ehci: Prevent missed ehci interrupts with edge-triggered MSI
-Date:   Mon, 26 Jul 2021 17:39:57 +0200
-Message-Id: <20210726153844.911987832@linuxfoundation.org>
+        stable@vger.kernel.org, Nick Hu <nickhu@andestech.com>,
+        Greentime Hu <green.hu@gmail.com>,
+        Vincent Chen <deanbo422@gmail.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Hugh Dickins <hughd@google.com>,
+        Qiang Liu <cyruscyliu@gmail.com>,
+        iLifetruth <yixiaonn@gmail.com>
+Subject: [PATCH 5.13 206/223] nds32: fix up stack guard gap
+Date:   Mon, 26 Jul 2021 17:39:58 +0200
+Message-Id: <20210726153852.935567536@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
-References: <20210726153839.371771838@linuxfoundation.org>
+In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
+References: <20210726153846.245305071@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,85 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Jeffery <djeffery@redhat.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 0b60557230adfdeb8164e0b342ac9cd469a75759 upstream.
+commit c453db6cd96418c79702eaf38259002755ab23ff upstream.
 
-When MSI is used by the ehci-hcd driver, it can cause lost interrupts which
-results in EHCI only continuing to work due to a polling fallback. But the
-reliance of polling drastically reduces performance of any I/O through EHCI.
+Commit 1be7107fbe18 ("mm: larger stack guard gap, between vmas") fixed
+up all architectures to deal with the stack guard gap.  But when nds32
+was added to the tree, it forgot to do the same thing.
 
-Interrupts are lost as the EHCI interrupt handler does not safely handle
-edge-triggered interrupts. It fails to ensure all interrupt status bits are
-cleared, which works with level-triggered interrupts but not the
-edge-triggered interrupts typical from using MSI.
+Resolve this by properly fixing up the nsd32's version of
+arch_get_unmapped_area()
 
-To fix this problem, check if the driver may have raced with the hardware
-setting additional interrupt status bits and clear status until it is in a
-stable state.
-
-Fixes: 306c54d0edb6 ("usb: hcd: Try MSI interrupts on PCI devices")
-Tested-by: Laurence Oberman <loberman@redhat.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: David Jeffery <djeffery@redhat.com>
-Link: https://lore.kernel.org/r/20210715213744.GA44506@redhat
+Cc: Nick Hu <nickhu@andestech.com>
+Cc: Greentime Hu <green.hu@gmail.com>
+Cc: Vincent Chen <deanbo422@gmail.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Qiang Liu <cyruscyliu@gmail.com>
 Cc: stable <stable@vger.kernel.org>
+Reported-by: iLifetruth <yixiaonn@gmail.com>
+Acked-by: Hugh Dickins <hughd@google.com>
+Link: https://lore.kernel.org/r/20210629104024.2293615-1-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/ehci-hcd.c |   18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+ arch/nds32/mm/mmap.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/host/ehci-hcd.c
-+++ b/drivers/usb/host/ehci-hcd.c
-@@ -703,7 +703,8 @@ EXPORT_SYMBOL_GPL(ehci_setup);
- static irqreturn_t ehci_irq (struct usb_hcd *hcd)
- {
- 	struct ehci_hcd		*ehci = hcd_to_ehci (hcd);
--	u32			status, masked_status, pcd_status = 0, cmd;
-+	u32			status, current_status, masked_status, pcd_status = 0;
-+	u32			cmd;
- 	int			bh;
- 	unsigned long		flags;
+--- a/arch/nds32/mm/mmap.c
++++ b/arch/nds32/mm/mmap.c
+@@ -59,7 +59,7 @@ arch_get_unmapped_area(struct file *filp
  
-@@ -715,19 +716,22 @@ static irqreturn_t ehci_irq (struct usb_
- 	 */
- 	spin_lock_irqsave(&ehci->lock, flags);
- 
--	status = ehci_readl(ehci, &ehci->regs->status);
-+	status = 0;
-+	current_status = ehci_readl(ehci, &ehci->regs->status);
-+restart:
- 
- 	/* e.g. cardbus physical eject */
--	if (status == ~(u32) 0) {
-+	if (current_status == ~(u32) 0) {
- 		ehci_dbg (ehci, "device removed\n");
- 		goto dead;
+ 		vma = find_vma(mm, addr);
+ 		if (TASK_SIZE - len >= addr &&
+-		    (!vma || addr + len <= vma->vm_start))
++		    (!vma || addr + len <= vm_start_gap(vma)))
+ 			return addr;
  	}
-+	status |= current_status;
- 
- 	/*
- 	 * We don't use STS_FLR, but some controllers don't like it to
- 	 * remain on, so mask it out along with the other status bits.
- 	 */
--	masked_status = status & (INTR_MASK | STS_FLR);
-+	masked_status = current_status & (INTR_MASK | STS_FLR);
- 
- 	/* Shared IRQ? */
- 	if (!masked_status || unlikely(ehci->rh_state == EHCI_RH_HALTED)) {
-@@ -737,6 +741,12 @@ static irqreturn_t ehci_irq (struct usb_
- 
- 	/* clear (just) interrupts */
- 	ehci_writel(ehci, masked_status, &ehci->regs->status);
-+
-+	/* For edge interrupts, don't race with an interrupt bit being raised */
-+	current_status = ehci_readl(ehci, &ehci->regs->status);
-+	if (current_status & INTR_MASK)
-+		goto restart;
-+
- 	cmd = ehci_readl(ehci, &ehci->regs->command);
- 	bh = 0;
  
 
 
