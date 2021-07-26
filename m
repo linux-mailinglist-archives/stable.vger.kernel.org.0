@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 599003D5EE3
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:59:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9A6C3D5EAF
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:51:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236682AbhGZPMR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:12:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50394 "EHLO mail.kernel.org"
+        id S236479AbhGZPLU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:11:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236663AbhGZPJm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:09:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A244F60525;
-        Mon, 26 Jul 2021 15:50:10 +0000 (UTC)
+        id S236699AbhGZPJo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:09:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 39D0C6056C;
+        Mon, 26 Jul 2021 15:50:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314611;
-        bh=+Dto8ujEXQ6EagFF5rOlmXBqKr/yfvzw3zDcf3QYBY4=;
+        s=korg; t=1627314613;
+        bh=Q8/ZRNLIfrW7PFefwlXLQbyTropWPnTxKBmDrD/Vqm4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZQ7lFt9gijGtk+UYM3wi0QLTGE4wqSnavR8kjKlAfYkWugnr0p5PmZUvWga7dmJIb
-         uNjps20Jtb7/+hNRflb1FEdbDMm0+rBb8ZclQBLGEedyGl/FxRdZ2GLT87YE/DZjVf
-         SvZwQCdd9Ieb/6gUl2u1OCo6Xdx61pmb8oQ57iHE=
+        b=zyAKvfN9X1uv1G/QWwz83hD+RJ8OVKA9zerQ+Nqe/zgZJxr4iCzvQzO4Wk6kWzXVV
+         b09Ve2FlphHnkq8uRHm9yezB4sVjWVr5mH5Jah6zZggELmKGY8cVrr07EcH3FLfemE
+         lcO7BOlvBTBL7cuNw/ryTa3HhHfQe+bL/vrMdzvY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Johan Jonker <jbx6244@gmail.com>,
         Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 003/120] ARM: dts: rockchip: fix pinctrl sleep nodename for rk3036-kylin and rk3288
-Date:   Mon, 26 Jul 2021 17:37:35 +0200
-Message-Id: <20210726153832.454632907@linuxfoundation.org>
+Subject: [PATCH 4.19 004/120] arm64: dts: rockchip: fix pinctrl sleep nodename for rk3399.dtsi
+Date:   Mon, 26 Jul 2021 17:37:36 +0200
+Message-Id: <20210726153832.490457273@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210726153832.339431936@linuxfoundation.org>
 References: <20210726153832.339431936@linuxfoundation.org>
@@ -42,51 +42,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Jonker <jbx6244@gmail.com>
 
-[ Upstream commit dfbfb86a43f9a5bbd166d88bca9e07ee4e1bff31 ]
+[ Upstream commit a7ecfad495f8af63a5cb332c91f60ab2018897f5 ]
 
 A test with the command below aimed at powerpc generates
-notifications in the Rockchip ARM tree.
+notifications in the Rockchip arm64 tree.
 
 Fix pinctrl "sleep" nodename by renaming it to "suspend"
-for rk3036-kylin and rk3288
+for rk3399.dtsi
 
-make ARCH=arm dtbs_check
+make ARCH=arm64 dtbs_check
 DT_SCHEMA_FILES=Documentation/devicetree/bindings/powerpc/sleep.yaml
 
 Signed-off-by: Johan Jonker <jbx6244@gmail.com>
-Link: https://lore.kernel.org/r/20210126110221.10815-1-jbx6244@gmail.com
+Link: https://lore.kernel.org/r/20210126110221.10815-2-jbx6244@gmail.com
 Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/rk3036-kylin.dts | 2 +-
- arch/arm/boot/dts/rk3288.dtsi      | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/rockchip/rk3399.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/rk3036-kylin.dts b/arch/arm/boot/dts/rk3036-kylin.dts
-index 0fd19f9723df..cd109aebb783 100644
---- a/arch/arm/boot/dts/rk3036-kylin.dts
-+++ b/arch/arm/boot/dts/rk3036-kylin.dts
-@@ -391,7 +391,7 @@
- 		};
- 	};
- 
--	sleep {
-+	suspend {
- 		global_pwroff: global-pwroff {
- 			rockchip,pins = <2 7 RK_FUNC_1 &pcfg_pull_none>;
- 		};
-diff --git a/arch/arm/boot/dts/rk3288.dtsi b/arch/arm/boot/dts/rk3288.dtsi
-index 440d6783faca..545f991924fe 100644
---- a/arch/arm/boot/dts/rk3288.dtsi
-+++ b/arch/arm/boot/dts/rk3288.dtsi
-@@ -1541,7 +1541,7 @@
- 			drive-strength = <12>;
+diff --git a/arch/arm64/boot/dts/rockchip/rk3399.dtsi b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
+index b1c1a88a1c20..f70c05332686 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3399.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
+@@ -2253,7 +2253,7 @@
+ 			};
  		};
  
 -		sleep {
 +		suspend {
- 			global_pwroff: global-pwroff {
- 				rockchip,pins = <0 0 RK_FUNC_1 &pcfg_pull_none>;
+ 			ap_pwroff: ap-pwroff {
+ 				rockchip,pins = <1 5 RK_FUNC_1 &pcfg_pull_none>;
  			};
 -- 
 2.30.2
