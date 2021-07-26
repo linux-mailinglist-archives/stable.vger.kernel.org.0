@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7358D3D5E08
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:47:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DAF43D5ED0
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:59:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235775AbhGZPFK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:05:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45150 "EHLO mail.kernel.org"
+        id S236542AbhGZPLj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:11:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235786AbhGZPEs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:04:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1EFBF60F5A;
-        Mon, 26 Jul 2021 15:45:15 +0000 (UTC)
+        id S235800AbhGZPHt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:07:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DA0B360F51;
+        Mon, 26 Jul 2021 15:48:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314316;
-        bh=JfxhRDXSCZ5rsxg7bPn6nFqZE5y+4xJFrqfVZLUcIn8=;
+        s=korg; t=1627314498;
+        bh=zNZraNrI3FbmksIopkmHJR8omVKziUCrx//l9c5fLI8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ms4UVXBXSazfAbd6f0cRIjVg7c6/qSf6s9ClFe1rXcywoq4QsS6UQ3KZFk/CEGIpX
-         scPwiZlN7ywI3Ch+2R5KyOzM/fPhoWqerWgV9h3dDudHKgvYwZ3Li+Mt8nWlMHM9LR
-         M5vRRqTvzwvpc/+5OitQ0Mg3huJy067NXLJ+tNgg=
+        b=JgPSxKdBXErxUbC5GhV10uWj082mBHtFoKC0fNhjrFbqFVIBA/+TqDCyN239iAoYc
+         mKj+42r6lb4bLuo2IFSPxBoWdvGt5dDqrzRHkohJjsCKWhMiSe4tZGJx9KCuvan8ec
+         ecfkixAimqlt3PoAZ5xUFWzfLgSV5jVlvSJPsU9k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Kees Cook <keescook@chromium.org>,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>
-Subject: [PATCH 4.9 56/60] media: ngene: Fix out-of-bounds bug in ngene_command_config_free_buf()
+        stable@vger.kernel.org, John Keeping <john@metanate.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.14 70/82] USB: serial: cp210x: add ID for CEL EM3588 USB ZigBee stick
 Date:   Mon, 26 Jul 2021 17:39:10 +0200
-Message-Id: <20210726153826.631496590@linuxfoundation.org>
+Message-Id: <20210726153830.438693992@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153824.868160836@linuxfoundation.org>
-References: <20210726153824.868160836@linuxfoundation.org>
+In-Reply-To: <20210726153828.144714469@linuxfoundation.org>
+References: <20210726153828.144714469@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,82 +39,29 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gustavo A. R. Silva <gustavoars@kernel.org>
+From: John Keeping <john@metanate.com>
 
-commit 8d4abca95ecc82fc8c41912fa0085281f19cc29f upstream.
+commit d6a206e60124a9759dd7f6dfb86b0e1d3b1df82e upstream.
 
-Fix an 11-year old bug in ngene_command_config_free_buf() while
-addressing the following warnings caught with -Warray-bounds:
+Add the USB serial device ID for the CEL ZigBee EM3588 radio stick.
 
-arch/alpha/include/asm/string.h:22:16: warning: '__builtin_memcpy' offset [12, 16] from the object at 'com' is out of the bounds of referenced subobject 'config' with type 'unsigned char' at offset 10 [-Warray-bounds]
-arch/x86/include/asm/string_32.h:182:25: warning: '__builtin_memcpy' offset [12, 16] from the object at 'com' is out of the bounds of referenced subobject 'config' with type 'unsigned char' at offset 10 [-Warray-bounds]
-
-The problem is that the original code is trying to copy 6 bytes of
-data into a one-byte size member _config_ of the wrong structue
-FW_CONFIGURE_BUFFERS, in a single call to memcpy(). This causes a
-legitimate compiler warning because memcpy() overruns the length
-of &com.cmd.ConfigureBuffers.config. It seems that the right
-structure is FW_CONFIGURE_FREE_BUFFERS, instead, because it contains
-6 more members apart from the header _hdr_. Also, the name of
-the function ngene_command_config_free_buf() suggests that the actual
-intention is to ConfigureFreeBuffers, instead of ConfigureBuffers
-(which takes place in the function ngene_command_config_buf(), above).
-
-Fix this by enclosing those 6 members of struct FW_CONFIGURE_FREE_BUFFERS
-into new struct config, and use &com.cmd.ConfigureFreeBuffers.config as
-the destination address, instead of &com.cmd.ConfigureBuffers.config,
-when calling memcpy().
-
-This also helps with the ongoing efforts to globally enable
--Warray-bounds and get us closer to being able to tighten the
-FORTIFY_SOURCE routines on memcpy().
-
-Link: https://github.com/KSPP/linux/issues/109
-Fixes: dae52d009fc9 ("V4L/DVB: ngene: Initial check-in")
+Signed-off-by: John Keeping <john@metanate.com>
 Cc: stable@vger.kernel.org
-Reported-by: kernel test robot <lkp@intel.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
-Link: https://lore.kernel.org/linux-hardening/20210420001631.GA45456@embeddedor/
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/pci/ngene/ngene-core.c |    2 +-
- drivers/media/pci/ngene/ngene.h      |   14 ++++++++------
- 2 files changed, 9 insertions(+), 7 deletions(-)
+ drivers/usb/serial/cp210x.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/media/pci/ngene/ngene-core.c
-+++ b/drivers/media/pci/ngene/ngene-core.c
-@@ -402,7 +402,7 @@ static int ngene_command_config_free_buf
- 
- 	com.cmd.hdr.Opcode = CMD_CONFIGURE_FREE_BUFFER;
- 	com.cmd.hdr.Length = 6;
--	memcpy(&com.cmd.ConfigureBuffers.config, config, 6);
-+	memcpy(&com.cmd.ConfigureFreeBuffers.config, config, 6);
- 	com.in_len = 6;
- 	com.out_len = 0;
- 
---- a/drivers/media/pci/ngene/ngene.h
-+++ b/drivers/media/pci/ngene/ngene.h
-@@ -407,12 +407,14 @@ enum _BUFFER_CONFIGS {
- 
- struct FW_CONFIGURE_FREE_BUFFERS {
- 	struct FW_HEADER hdr;
--	u8   UVI1_BufferLength;
--	u8   UVI2_BufferLength;
--	u8   TVO_BufferLength;
--	u8   AUD1_BufferLength;
--	u8   AUD2_BufferLength;
--	u8   TVA_BufferLength;
-+	struct {
-+		u8   UVI1_BufferLength;
-+		u8   UVI2_BufferLength;
-+		u8   TVO_BufferLength;
-+		u8   AUD1_BufferLength;
-+		u8   AUD2_BufferLength;
-+		u8   TVA_BufferLength;
-+	} __packed config;
- } __attribute__ ((__packed__));
- 
- struct FW_CONFIGURE_UART {
+--- a/drivers/usb/serial/cp210x.c
++++ b/drivers/usb/serial/cp210x.c
+@@ -159,6 +159,7 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(0x10C4, 0x89A4) }, /* CESINEL FTBC Flexible Thyristor Bridge Controller */
+ 	{ USB_DEVICE(0x10C4, 0x89FB) }, /* Qivicon ZigBee USB Radio Stick */
+ 	{ USB_DEVICE(0x10C4, 0x8A2A) }, /* HubZ dual ZigBee and Z-Wave dongle */
++	{ USB_DEVICE(0x10C4, 0x8A5B) }, /* CEL EM3588 ZigBee USB Stick */
+ 	{ USB_DEVICE(0x10C4, 0x8A5E) }, /* CEL EM3588 ZigBee USB Stick Long Range */
+ 	{ USB_DEVICE(0x10C4, 0x8B34) }, /* Qivicon ZigBee USB Radio Stick */
+ 	{ USB_DEVICE(0x10C4, 0xEA60) }, /* Silicon Labs factory default */
 
 
