@@ -2,41 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B85A3D6175
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:13:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 785A43D5FFF
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231879AbhGZPb7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:31:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41244 "EHLO mail.kernel.org"
+        id S236990AbhGZPUO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:20:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33418 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237901AbhGZP32 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:29:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B9E9B6108E;
-        Mon, 26 Jul 2021 16:09:33 +0000 (UTC)
+        id S236983AbhGZPUL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:20:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7418360F6E;
+        Mon, 26 Jul 2021 16:00:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315774;
-        bh=T/xLmZF0qggl84vt97QjkBJdRndg95IttEb09VIrXuI=;
+        s=korg; t=1627315240;
+        bh=kleGi9GFmOlwIGf6XpphdLk8MqpOdsmzWp0JWcLQ1MI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TgySqUdu1tUoZs58BfA2xTgc95K+C5u8iLV0y6dby/RWtmHcG6yKVIWrjudAH3xRQ
-         W5feH0JnlYXTIBLlLdowBTybR6b8g+ctknRx/zKJPvgnQaCKyZpvgJmrNVqsz9olSB
-         587CMbdJmvA0DoP7OOek9m5k6izJtXZHJB/KNvnE=
+        b=tCQ9GSIKTgQDaSVTP1JR/CH5aAMwlvgMONynUfOSzwIbimuTGcJqZPUPzu2YuE0hc
+         8rMCC6wGC3JGdliqBWeiP2SjgmLCilVK11NrvuzDupCP2oxfN5Y+4HUkPD6KXMpwlG
+         ASRlh+7dZNyeiUZP+n1twkbPXsjCRnBZzZCM9Kv0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Riccardo Mancini <rickyman7@gmail.com>,
-        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Milian Wolff <milian.wolff@kdab.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 060/223] perf script: Release zstd data
+Subject: [PATCH 5.10 019/167] bonding: disallow setting nested bonding + ipsec offload
 Date:   Mon, 26 Jul 2021 17:37:32 +0200
-Message-Id: <20210726153848.221183554@linuxfoundation.org>
+Message-Id: <20210726153840.014170473@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
-References: <20210726153846.245305071@linuxfoundation.org>
+In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
+References: <20210726153839.371771838@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,46 +40,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Riccardo Mancini <rickyman7@gmail.com>
+From: Taehee Yoo <ap420073@gmail.com>
 
-[ Upstream commit 1b1f57cf9e4c8eb16c8f6b2ce12cc5dd3517fc61 ]
+[ Upstream commit b121693381b112b78c076dea171ee113e237c0e4 ]
 
-ASan reports several memory leak while running:
+bonding interface can be nested and it supports ipsec offload.
+So, it allows setting the nested bonding + ipsec scenario.
+But code does not support this scenario.
+So, it should be disallowed.
 
-  # perf test "82: Use vfs_getname probe to get syscall args filenames"
+interface graph:
+bond2
+   |
+bond1
+   |
+eth0
 
-One of the leaks is caused by zstd data not being released on exit in
-perf-script.
+The nested bonding + ipsec offload may not a real usecase.
+So, disallowing this scenario is fine.
 
-This patch adds the missing zstd_fini().
-
-Signed-off-by: Riccardo Mancini <rickyman7@gmail.com>
-Fixes: b13b04d9382113f7 ("perf script: Initialize zstd_data")
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Milian Wolff <milian.wolff@kdab.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/39388e8cc2f85ca219ea18697a17b7bd8f74b693.1626343282.git.rickyman7@gmail.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 18cb261afd7b ("bonding: support hardware encryption offload to slaves")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/builtin-script.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/bonding/bond_main.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/tools/perf/builtin-script.c b/tools/perf/builtin-script.c
-index 1280cbfad4db..8a6656ab835b 100644
---- a/tools/perf/builtin-script.c
-+++ b/tools/perf/builtin-script.c
-@@ -3991,6 +3991,7 @@ out_delete:
- 		zfree(&script.ptime_range);
+diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
+index 952796fb5f1a..3555798879f2 100644
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -403,8 +403,9 @@ static int bond_ipsec_add_sa(struct xfrm_state *xs)
+ 	xs->xso.real_dev = slave->dev;
+ 	bond->xs = xs;
+ 
+-	if (!(slave->dev->xfrmdev_ops
+-	      && slave->dev->xfrmdev_ops->xdo_dev_state_add)) {
++	if (!slave->dev->xfrmdev_ops ||
++	    !slave->dev->xfrmdev_ops->xdo_dev_state_add ||
++	    netif_is_bond_master(slave->dev)) {
+ 		slave_warn(bond_dev, slave->dev, "Slave does not support ipsec offload\n");
+ 		rcu_read_unlock();
+ 		return -EINVAL;
+@@ -437,8 +438,9 @@ static void bond_ipsec_del_sa(struct xfrm_state *xs)
+ 
+ 	xs->xso.real_dev = slave->dev;
+ 
+-	if (!(slave->dev->xfrmdev_ops
+-	      && slave->dev->xfrmdev_ops->xdo_dev_state_delete)) {
++	if (!slave->dev->xfrmdev_ops ||
++	    !slave->dev->xfrmdev_ops->xdo_dev_state_delete ||
++	    netif_is_bond_master(slave->dev)) {
+ 		slave_warn(bond_dev, slave->dev, "%s: no slave xdo_dev_state_delete\n", __func__);
+ 		goto out;
  	}
+@@ -463,8 +465,9 @@ static bool bond_ipsec_offload_ok(struct sk_buff *skb, struct xfrm_state *xs)
+ 	if (BOND_MODE(bond) != BOND_MODE_ACTIVEBACKUP)
+ 		return true;
  
-+	zstd_fini(&(session->zstd_data));
- 	evlist__free_stats(session->evlist);
- 	perf_session__delete(session);
- 
+-	if (!(slave_dev->xfrmdev_ops
+-	      && slave_dev->xfrmdev_ops->xdo_dev_offload_ok)) {
++	if (!slave_dev->xfrmdev_ops ||
++	    !slave_dev->xfrmdev_ops->xdo_dev_offload_ok ||
++	    netif_is_bond_master(slave_dev)) {
+ 		slave_warn(bond_dev, slave_dev, "%s: no slave xdo_dev_offload_ok\n", __func__);
+ 		return false;
+ 	}
 -- 
 2.30.2
 
