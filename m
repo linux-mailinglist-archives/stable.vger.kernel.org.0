@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 45BC73D622A
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:15:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D958B3D60E6
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:12:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237989AbhGZPfA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:35:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50194 "EHLO mail.kernel.org"
+        id S237661AbhGZPZi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:25:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234214AbhGZPdS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:33:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 614AF60F5D;
-        Mon, 26 Jul 2021 16:13:46 +0000 (UTC)
+        id S237948AbhGZPY1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:24:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3BAE160E09;
+        Mon, 26 Jul 2021 16:04:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627316026;
-        bh=LiSKxSE0Gq7jxtEWdMxJjtG11NBp++6rSqL7yERFtdY=;
+        s=korg; t=1627315495;
+        bh=CiyjggJLEm02OcpWPb83n/7Z396qwl7jU7KikMNpZS0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=coA6KfHMiH7wqAB8f8vHPuU0uhu45/WZs6ZZ9bJDn9B/428aAClyL4h7IwTodVoAi
-         JGP7VnAByxF4F7wn8pbKHa5KytPX6djPRx1CPGpxOy7uCKlyM6fa8fgpi4tBKXHTsZ
-         Q1eUKaGhdBE87WUvbINrgx/xb3AjfCw2kg83j7qg=
+        b=QwNSUfSaXW+VqOT/bbPzHIpIOkQjvGUdE5PdXcCe13tH/cE1l2rmwmW8Zj/iBPExl
+         0MAsxPeifKpvq1fp0Fb43UQgK0SA+yaZ/GzYln8faiOeMGIdxP1vcuK7iCbbUmRPJj
+         J5P+pI35FnljgU+T5RFK2GstHJ3G165fPioXgqII=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,12 +27,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Michael Neuling <mikey@neuling.org>,
         Nicholas Piggin <npiggin@gmail.com>,
         Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.13 160/223] KVM: PPC: Book3S HV Nested: Sanitise H_ENTER_NESTED TM state
-Date:   Mon, 26 Jul 2021 17:39:12 +0200
-Message-Id: <20210726153851.445647683@linuxfoundation.org>
+Subject: [PATCH 5.10 120/167] KVM: PPC: Book3S HV Nested: Sanitise H_ENTER_NESTED TM state
+Date:   Mon, 26 Jul 2021 17:39:13 +0200
+Message-Id: <20210726153843.429351440@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
-References: <20210726153846.245305071@linuxfoundation.org>
+In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
+References: <20210726153839.371771838@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -80,7 +80,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/arch/powerpc/kvm/book3s_hv_nested.c
 +++ b/arch/powerpc/kvm/book3s_hv_nested.c
-@@ -301,6 +301,9 @@ long kvmhv_enter_nested_guest(struct kvm
+@@ -232,6 +232,9 @@ long kvmhv_enter_nested_guest(struct kvm
  	if (vcpu->kvm->arch.l1_ptcr == 0)
  		return H_NOT_AVAILABLE;
  
@@ -90,7 +90,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	/* copy parameters in */
  	hv_ptr = kvmppc_get_gpr(vcpu, 4);
  	regs_ptr = kvmppc_get_gpr(vcpu, 5);
-@@ -321,6 +324,23 @@ long kvmhv_enter_nested_guest(struct kvm
+@@ -254,6 +257,23 @@ long kvmhv_enter_nested_guest(struct kvm
  	if (l2_hv.vcpu_token >= NR_CPUS)
  		return H_PARAMETER;
  
