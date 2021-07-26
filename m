@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B2103D61F9
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:15:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 447453D6090
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:11:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234585AbhGZPdo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:33:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48584 "EHLO mail.kernel.org"
+        id S236573AbhGZPXG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:23:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233455AbhGZPcV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:32:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 56AC561037;
-        Mon, 26 Jul 2021 16:12:47 +0000 (UTC)
+        id S237471AbhGZPXE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:23:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4876F60240;
+        Mon, 26 Jul 2021 16:03:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315967;
-        bh=5lSxiK+hGUEirWAqQ+wJVLRjPB2jkunTjeVLjkNdWeQ=;
+        s=korg; t=1627315412;
+        bh=jqklDH182WCZFaSyD0dixLPZ64j+3WVu55k7ZEa9Y9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qgSDRuklGXyREqLAjNTJF7peTQwZjEd68gQOWAprWg/ZUjkK2xRd7VKirX1LO7mzL
-         D/eo6zAZvvuwaZOsqmODOgkxEbq9k4uX/Kw9dM3rJonFcA4DZpKxmE4AFcauSlBNfV
-         QGhR1uxEbwJSa1FkcVxcf7+eUQ4H/RYVLUJLifUo=
+        b=Xc908gEFWX6juHeFgDMo0a0L6C8yld/qoeiW1f1Oo2EnwFwTDHRtK43sKhDSYpNW+
+         sLNwiexDQjlpUBoEkOfStipE3qa7Xif0y0mtJsV75jq9aUC6qSKhifMetCGRkJyroF
+         F1I1YzGNvr3HCB5B9OW0tbSuCLALmmEoqztJb0ho=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Somnath Kotur <somnath.kotur@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
+        stable@vger.kernel.org, Yajun Deng <yajun.deng@linux.dev>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 109/223] bnxt_en: Check abort error state in bnxt_half_open_nic()
-Date:   Mon, 26 Jul 2021 17:38:21 +0200
-Message-Id: <20210726153849.843505188@linuxfoundation.org>
+Subject: [PATCH 5.10 069/167] net: decnet: Fix sleeping inside in af_decnet
+Date:   Mon, 26 Jul 2021 17:38:22 +0200
+Message-Id: <20210726153841.710356568@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
-References: <20210726153846.245305071@linuxfoundation.org>
+In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
+References: <20210726153839.371771838@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,66 +40,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Somnath Kotur <somnath.kotur@broadcom.com>
+From: Yajun Deng <yajun.deng@linux.dev>
 
-[ Upstream commit 11a39259ff79b74bc99f8b7c44075a2d6d5e7ab1 ]
+[ Upstream commit 5f119ba1d5771bbf46d57cff7417dcd84d3084ba ]
 
-bnxt_half_open_nic() is called during during ethtool self test and is
-protected by rtnl_lock.  Firmware reset can be happening at the same
-time.  Only critical portions of the entire firmware reset sequence
-are protected by the rtnl_lock.  It is possible that bnxt_half_open_nic()
-can be called when the firmware reset sequence is aborting.  In that
-case, bnxt_half_open_nic() needs to check if the ABORT_ERR flag is set
-and abort if it is.  The ethtool self test will fail but the NIC will be
-brought to a consistent IF_DOWN state.
+The release_sock() is blocking function, it would change the state
+after sleeping. use wait_woken() instead.
 
-Without this patch, if bnxt_half_open_nic() were to continue in this
-error state, it may crash like this:
-
-  bnxt_en 0000:82:00.1 enp130s0f1np1: FW reset in progress during close, FW reset will be aborted
-  Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
-  ...
-  Process ethtool (pid: 333327, stack limit = 0x0000000046476577)
-  Call trace:
-  bnxt_alloc_mem+0x444/0xef0 [bnxt_en]
-  bnxt_half_open_nic+0x24/0xb8 [bnxt_en]
-  bnxt_self_test+0x2dc/0x390 [bnxt_en]
-  ethtool_self_test+0xe0/0x1f8
-  dev_ethtool+0x1744/0x22d0
-  dev_ioctl+0x190/0x3e0
-  sock_ioctl+0x238/0x480
-  do_vfs_ioctl+0xc4/0x758
-  ksys_ioctl+0x84/0xb8
-  __arm64_sys_ioctl+0x28/0x38
-  el0_svc_handler+0xb0/0x180
-  el0_svc+0x8/0xc
-
-Fixes: a1301f08c5ac ("bnxt_en: Check abort error state in bnxt_open_nic().")
-Signed-off-by: Somnath Kotur <somnath.kotur@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Yajun Deng <yajun.deng@linux.dev>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ net/decnet/af_decnet.c | 27 ++++++++++++---------------
+ 1 file changed, 12 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-index be36dee65f90..3c3aa9467310 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -10104,6 +10104,12 @@ int bnxt_half_open_nic(struct bnxt *bp)
+diff --git a/net/decnet/af_decnet.c b/net/decnet/af_decnet.c
+index 5dbd45dc35ad..dc92a67baea3 100644
+--- a/net/decnet/af_decnet.c
++++ b/net/decnet/af_decnet.c
+@@ -816,7 +816,7 @@ static int dn_auto_bind(struct socket *sock)
+ static int dn_confirm_accept(struct sock *sk, long *timeo, gfp_t allocation)
  {
- 	int rc = 0;
+ 	struct dn_scp *scp = DN_SK(sk);
+-	DEFINE_WAIT(wait);
++	DEFINE_WAIT_FUNC(wait, woken_wake_function);
+ 	int err;
  
-+	if (test_bit(BNXT_STATE_ABORT_ERR, &bp->state)) {
-+		netdev_err(bp->dev, "A previous firmware reset has not completed, aborting half open\n");
-+		rc = -ENODEV;
-+		goto half_open_err;
-+	}
-+
- 	rc = bnxt_alloc_mem(bp, false);
- 	if (rc) {
- 		netdev_err(bp->dev, "bnxt_alloc_mem err: %x\n", rc);
+ 	if (scp->state != DN_CR)
+@@ -826,11 +826,11 @@ static int dn_confirm_accept(struct sock *sk, long *timeo, gfp_t allocation)
+ 	scp->segsize_loc = dst_metric_advmss(__sk_dst_get(sk));
+ 	dn_send_conn_conf(sk, allocation);
+ 
+-	prepare_to_wait(sk_sleep(sk), &wait, TASK_INTERRUPTIBLE);
++	add_wait_queue(sk_sleep(sk), &wait);
+ 	for(;;) {
+ 		release_sock(sk);
+ 		if (scp->state == DN_CC)
+-			*timeo = schedule_timeout(*timeo);
++			*timeo = wait_woken(&wait, TASK_INTERRUPTIBLE, *timeo);
+ 		lock_sock(sk);
+ 		err = 0;
+ 		if (scp->state == DN_RUN)
+@@ -844,9 +844,8 @@ static int dn_confirm_accept(struct sock *sk, long *timeo, gfp_t allocation)
+ 		err = -EAGAIN;
+ 		if (!*timeo)
+ 			break;
+-		prepare_to_wait(sk_sleep(sk), &wait, TASK_INTERRUPTIBLE);
+ 	}
+-	finish_wait(sk_sleep(sk), &wait);
++	remove_wait_queue(sk_sleep(sk), &wait);
+ 	if (err == 0) {
+ 		sk->sk_socket->state = SS_CONNECTED;
+ 	} else if (scp->state != DN_CC) {
+@@ -858,7 +857,7 @@ static int dn_confirm_accept(struct sock *sk, long *timeo, gfp_t allocation)
+ static int dn_wait_run(struct sock *sk, long *timeo)
+ {
+ 	struct dn_scp *scp = DN_SK(sk);
+-	DEFINE_WAIT(wait);
++	DEFINE_WAIT_FUNC(wait, woken_wake_function);
+ 	int err = 0;
+ 
+ 	if (scp->state == DN_RUN)
+@@ -867,11 +866,11 @@ static int dn_wait_run(struct sock *sk, long *timeo)
+ 	if (!*timeo)
+ 		return -EALREADY;
+ 
+-	prepare_to_wait(sk_sleep(sk), &wait, TASK_INTERRUPTIBLE);
++	add_wait_queue(sk_sleep(sk), &wait);
+ 	for(;;) {
+ 		release_sock(sk);
+ 		if (scp->state == DN_CI || scp->state == DN_CC)
+-			*timeo = schedule_timeout(*timeo);
++			*timeo = wait_woken(&wait, TASK_INTERRUPTIBLE, *timeo);
+ 		lock_sock(sk);
+ 		err = 0;
+ 		if (scp->state == DN_RUN)
+@@ -885,9 +884,8 @@ static int dn_wait_run(struct sock *sk, long *timeo)
+ 		err = -ETIMEDOUT;
+ 		if (!*timeo)
+ 			break;
+-		prepare_to_wait(sk_sleep(sk), &wait, TASK_INTERRUPTIBLE);
+ 	}
+-	finish_wait(sk_sleep(sk), &wait);
++	remove_wait_queue(sk_sleep(sk), &wait);
+ out:
+ 	if (err == 0) {
+ 		sk->sk_socket->state = SS_CONNECTED;
+@@ -1032,16 +1030,16 @@ static void dn_user_copy(struct sk_buff *skb, struct optdata_dn *opt)
+ 
+ static struct sk_buff *dn_wait_for_connect(struct sock *sk, long *timeo)
+ {
+-	DEFINE_WAIT(wait);
++	DEFINE_WAIT_FUNC(wait, woken_wake_function);
+ 	struct sk_buff *skb = NULL;
+ 	int err = 0;
+ 
+-	prepare_to_wait(sk_sleep(sk), &wait, TASK_INTERRUPTIBLE);
++	add_wait_queue(sk_sleep(sk), &wait);
+ 	for(;;) {
+ 		release_sock(sk);
+ 		skb = skb_dequeue(&sk->sk_receive_queue);
+ 		if (skb == NULL) {
+-			*timeo = schedule_timeout(*timeo);
++			*timeo = wait_woken(&wait, TASK_INTERRUPTIBLE, *timeo);
+ 			skb = skb_dequeue(&sk->sk_receive_queue);
+ 		}
+ 		lock_sock(sk);
+@@ -1056,9 +1054,8 @@ static struct sk_buff *dn_wait_for_connect(struct sock *sk, long *timeo)
+ 		err = -EAGAIN;
+ 		if (!*timeo)
+ 			break;
+-		prepare_to_wait(sk_sleep(sk), &wait, TASK_INTERRUPTIBLE);
+ 	}
+-	finish_wait(sk_sleep(sk), &wait);
++	remove_wait_queue(sk_sleep(sk), &wait);
+ 
+ 	return skb == NULL ? ERR_PTR(err) : skb;
+ }
 -- 
 2.30.2
 
