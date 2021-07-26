@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38C8D3D5F5A
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D6F23D5FCA
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236796AbhGZPRh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:17:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53092 "EHLO mail.kernel.org"
+        id S236712AbhGZPTN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:19:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59174 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237407AbhGZPPo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:15:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9EC9260FF4;
-        Mon, 26 Jul 2021 15:54:18 +0000 (UTC)
+        id S235613AbhGZPSa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:18:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C3FFA60F38;
+        Mon, 26 Jul 2021 15:58:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314859;
-        bh=Wu+5RFASD7D8NTBDQMoc+5pHFwajwe92Fbo9ftFIrz4=;
+        s=korg; t=1627315137;
+        bh=3IzLbQtT/GZor5djkXTPMflKqZZ6jTv9+qK6dFUj/vw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o6Db1YPmrg6vaPwpZj32v/T/KLpWk2s5k+NhngMGC+XOt7P4IMogLfRm9SW5UUXGj
-         xupd1EP/g4THwQAZkjWc8jAPpm5Wf6uwzK+reY2l05ToalKarrLYtifDFJ1SsWg6em
-         SgQhzi5TbQ5Pitxa5cfn6OkzREOuCJyIy7nCE/sg=
+        b=aNjXXaT6Il++zAR3mZmczK0VTvHAHn6srFblv0lHx4XMqb09iQ4iwWujWsjKPOrTV
+         urFXq7ARJCSnR1FxP4Q0qn7Q19YTb+8aCjE4fQY81gbgBz+/YcM7nz5A40aWw5p6C2
+         L2bMn4kEFMJ4QTVYf9UojCHOPSJoccBDnWOuJvJk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Deucher <alexander.deucher@amd.com>,
-        Evan Quan <evan.quan@amd.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.19 118/120] PCI: Mark AMD Navi14 GPU ATS as broken
+        stable@vger.kernel.org, Namhyung Kim <namhyung@kernel.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Tom Zanussi <zanussi@kernel.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.4 089/108] tracing/histogram: Rename "cpu" to "common_cpu"
 Date:   Mon, 26 Jul 2021 17:39:30 +0200
-Message-Id: <20210726153836.260900884@linuxfoundation.org>
+Message-Id: <20210726153834.535756781@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153832.339431936@linuxfoundation.org>
-References: <20210726153832.339431936@linuxfoundation.org>
+In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
+References: <20210726153831.696295003@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,51 +43,152 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evan Quan <evan.quan@amd.com>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-commit e8946a53e2a698c148b3b3ed732f43c7747fbeb6 upstream
+commit 1e3bac71c5053c99d438771fc9fa5082ae5d90aa upstream.
 
-Observed unexpected GPU hang during runpm stress test on 0x7341 rev 0x00.
-Further debugging shows broken ATS is related.
+Currently the histogram logic allows the user to write "cpu" in as an
+event field, and it will record the CPU that the event happened on.
 
-Disable ATS on this part.  Similar issues on other devices:
+The problem with this is that there's a lot of events that have "cpu"
+as a real field, and using "cpu" as the CPU it ran on, makes it
+impossible to run histograms on the "cpu" field of events.
 
-  a2da5d8cc0b0 ("PCI: Mark AMD Raven iGPU ATS as broken in some platforms")
-  45beb31d3afb ("PCI: Mark AMD Navi10 GPU rev 0x00 ATS as broken")
-  5e89cd303e3a ("PCI: Mark AMD Navi14 GPU rev 0xc5 ATS as broken")
+For example, if I want to have a histogram on the count of the
+workqueue_queue_work event on its cpu field, running:
 
-Suggested-by: Alex Deucher <alexander.deucher@amd.com>
-Link: https://lore.kernel.org/r/20210602021255.939090-1-evan.quan@amd.com
-Signed-off-by: Evan Quan <evan.quan@amd.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Krzysztof Wilczyński <kw@linux.com>
+ ># echo 'hist:keys=cpu' > events/workqueue/workqueue_queue_work/trigger
+
+Gives a misleading and wrong result.
+
+Change the command to "common_cpu" as no event should have "common_*"
+fields as that's a reserved name for fields used by all events. And
+this makes sense here as common_cpu would be a field used by all events.
+
+Now we can even do:
+
+ ># echo 'hist:keys=common_cpu,cpu if cpu < 100' > events/workqueue/workqueue_queue_work/trigger
+ ># cat events/workqueue/workqueue_queue_work/hist
+ # event histogram
+ #
+ # trigger info: hist:keys=common_cpu,cpu:vals=hitcount:sort=hitcount:size=2048 if cpu < 100 [active]
+ #
+
+ { common_cpu:          0, cpu:          2 } hitcount:          1
+ { common_cpu:          0, cpu:          4 } hitcount:          1
+ { common_cpu:          7, cpu:          7 } hitcount:          1
+ { common_cpu:          0, cpu:          7 } hitcount:          1
+ { common_cpu:          0, cpu:          1 } hitcount:          1
+ { common_cpu:          0, cpu:          6 } hitcount:          2
+ { common_cpu:          0, cpu:          5 } hitcount:          2
+ { common_cpu:          1, cpu:          1 } hitcount:          4
+ { common_cpu:          6, cpu:          6 } hitcount:          4
+ { common_cpu:          5, cpu:          5 } hitcount:         14
+ { common_cpu:          4, cpu:          4 } hitcount:         26
+ { common_cpu:          0, cpu:          0 } hitcount:         39
+ { common_cpu:          2, cpu:          2 } hitcount:        184
+
+Now for backward compatibility, I added a trick. If "cpu" is used, and
+the field is not found, it will fall back to "common_cpu" and work as
+it did before. This way, it will still work for old programs that use
+"cpu" to get the actual CPU, but if the event has a "cpu" as a field, it
+will get that event's "cpu" field, which is probably what it wants
+anyway.
+
+I updated the tracefs/README to include documentation about both the
+common_timestamp and the common_cpu. This way, if that text is present in
+the README, then an application can know that common_cpu is supported over
+just plain "cpu".
+
+Link: https://lkml.kernel.org/r/20210721110053.26b4f641@oasis.local.home
+
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
 Cc: stable@vger.kernel.org
-[sudip: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Fixes: 8b7622bf94a44 ("tracing: Add cpu field for hist triggers")
+Reviewed-by: Tom Zanussi <zanussi@kernel.org>
+Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/quirks.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ Documentation/trace/histogram.rst |    2 +-
+ kernel/trace/trace.c              |    4 ++++
+ kernel/trace/trace_events_hist.c  |   22 ++++++++++++++++------
+ 3 files changed, 21 insertions(+), 7 deletions(-)
 
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -5172,7 +5172,8 @@ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_SE
- static void quirk_amd_harvest_no_ats(struct pci_dev *pdev)
- {
- 	if ((pdev->device == 0x7312 && pdev->revision != 0x00) ||
--	    (pdev->device == 0x7340 && pdev->revision != 0xc5))
-+	    (pdev->device == 0x7340 && pdev->revision != 0xc5) ||
-+	    (pdev->device == 0x7341 && pdev->revision != 0x00))
- 		return;
+--- a/Documentation/trace/histogram.rst
++++ b/Documentation/trace/histogram.rst
+@@ -191,7 +191,7 @@ Documentation written by Tom Zanussi
+                                 with the event, in nanoseconds.  May be
+ 			        modified by .usecs to have timestamps
+ 			        interpreted as microseconds.
+-    cpu                    int  the cpu on which the event occurred.
++    common_cpu             int  the cpu on which the event occurred.
+     ====================== ==== =======================================
  
- 	pci_info(pdev, "disabling ATS\n");
-@@ -5187,6 +5188,7 @@ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_AT
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ATI, 0x7312, quirk_amd_harvest_no_ats);
- /* AMD Navi14 dGPU */
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ATI, 0x7340, quirk_amd_harvest_no_ats);
-+DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ATI, 0x7341, quirk_amd_harvest_no_ats);
- #endif /* CONFIG_PCI_ATS */
+ Extended error information
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -4975,6 +4975,10 @@ static const char readme_msg[] =
+ 	"\t            [:name=histname1]\n"
+ 	"\t            [:<handler>.<action>]\n"
+ 	"\t            [if <filter>]\n\n"
++	"\t    Note, special fields can be used as well:\n"
++	"\t            common_timestamp - to record current timestamp\n"
++	"\t            common_cpu - to record the CPU the event happened on\n"
++	"\n"
+ 	"\t    When a matching event is hit, an entry is added to a hash\n"
+ 	"\t    table using the key(s) and value(s) named, and the value of a\n"
+ 	"\t    sum called 'hitcount' is incremented.  Keys and values\n"
+--- a/kernel/trace/trace_events_hist.c
++++ b/kernel/trace/trace_events_hist.c
+@@ -2001,7 +2001,7 @@ static const char *hist_field_name(struc
+ 		 field->flags & HIST_FIELD_FL_ALIAS)
+ 		field_name = hist_field_name(field->operands[0], ++level);
+ 	else if (field->flags & HIST_FIELD_FL_CPU)
+-		field_name = "cpu";
++		field_name = "common_cpu";
+ 	else if (field->flags & HIST_FIELD_FL_EXPR ||
+ 		 field->flags & HIST_FIELD_FL_VAR_REF) {
+ 		if (field->system) {
+@@ -2873,14 +2873,24 @@ parse_field(struct hist_trigger_data *hi
+ 		hist_data->enable_timestamps = true;
+ 		if (*flags & HIST_FIELD_FL_TIMESTAMP_USECS)
+ 			hist_data->attrs->ts_in_usecs = true;
+-	} else if (strcmp(field_name, "cpu") == 0)
++	} else if (strcmp(field_name, "common_cpu") == 0)
+ 		*flags |= HIST_FIELD_FL_CPU;
+ 	else {
+ 		field = trace_find_event_field(file->event_call, field_name);
+ 		if (!field || !field->size) {
+-			hist_err(tr, HIST_ERR_FIELD_NOT_FOUND, errpos(field_name));
+-			field = ERR_PTR(-EINVAL);
+-			goto out;
++			/*
++			 * For backward compatibility, if field_name
++			 * was "cpu", then we treat this the same as
++			 * common_cpu.
++			 */
++			if (strcmp(field_name, "cpu") == 0) {
++				*flags |= HIST_FIELD_FL_CPU;
++			} else {
++				hist_err(tr, HIST_ERR_FIELD_NOT_FOUND,
++					 errpos(field_name));
++				field = ERR_PTR(-EINVAL);
++				goto out;
++			}
+ 		}
+ 	}
+  out:
+@@ -5641,7 +5651,7 @@ static void hist_field_print(struct seq_
+ 		seq_printf(m, "%s=", hist_field->var.name);
  
- /* Freescale PCIe doesn't support MSI in RC mode */
+ 	if (hist_field->flags & HIST_FIELD_FL_CPU)
+-		seq_puts(m, "cpu");
++		seq_puts(m, "common_cpu");
+ 	else if (field_name) {
+ 		if (hist_field->flags & HIST_FIELD_FL_VAR_REF ||
+ 		    hist_field->flags & HIST_FIELD_FL_ALIAS)
 
 
