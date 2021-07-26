@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 760B03D5558
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 10:23:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED36B3D555D
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 10:23:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233173AbhGZHiT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 03:38:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43212 "EHLO mail.kernel.org"
+        id S233084AbhGZHim (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 03:38:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232438AbhGZHiM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 03:38:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 721E860BD3;
-        Mon, 26 Jul 2021 08:18:40 +0000 (UTC)
+        id S233090AbhGZHiO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 03:38:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 99C5860F4E;
+        Mon, 26 Jul 2021 08:18:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627287520;
-        bh=cu81W/NHOsOmM5ZsMrtYiV8WQ8TLT6d5i3yODITwWag=;
+        s=korg; t=1627287523;
+        bh=JhOeyKR9xK1H8xB9O8I5suQmdI2hX5gwuRFdH6nQA6U=;
         h=Subject:To:Cc:From:Date:From;
-        b=Xko1fqUPfYz3401DwWz3OceHK15HZn6teMOSJCAMqI+JuGab5ilgJizI2by7LiDba
-         2Z8KrHjOiuadj4r5samAwbvz2PfGauogSlbxUAcfhmC+p3LJ3nYLGXk72+VNrrQuLP
-         t/Q0ONGBJLUpVSY6a/48hONJ5qBa6T36KoW56u9E=
-Subject: FAILED: patch "[PATCH] ALSA: pcm: Call substream ack() method upon compat mmap" failed to apply to 5.4-stable tree
+        b=do+hxOXxKgzUoe8fTboQjkucDnEm2WzQvTzkuRrndOXF0aXOOceqchk3di8OYi5wM
+         OwxV8SWFx0pJ64gVGR24Dz1caoNwO2eSeGUvpRhOi1ibiXgV2IMxHO+hGh8+drUkxN
+         v5BjW3bgnk8XJXJ1KeaFbMAHZ46Pp/wxtwyS+NtY=
+Subject: FAILED: patch "[PATCH] ALSA: pcm: Call substream ack() method upon compat mmap" failed to apply to 4.14-stable tree
 To:     consult.awy@gmail.com, stable@vger.kernel.org, tiwai@suse.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 26 Jul 2021 10:09:30 +0200
-Message-ID: <162728697013399@kroah.com>
+Date:   Mon, 26 Jul 2021 10:09:31 +0200
+Message-ID: <1627286971116209@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
