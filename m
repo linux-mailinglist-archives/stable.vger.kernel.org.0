@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA2653D6163
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:13:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFD8D3D6167
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:13:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232940AbhGZPav (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:30:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41288 "EHLO mail.kernel.org"
+        id S232376AbhGZPbL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:31:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237767AbhGZP3W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:29:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 499D760F5D;
-        Mon, 26 Jul 2021 16:08:34 +0000 (UTC)
+        id S237865AbhGZP30 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:29:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3BFB661057;
+        Mon, 26 Jul 2021 16:09:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315714;
-        bh=hJl9dSMtgEa1YR+WsRk1LiU/Pm14/8suG61xIgzpC4A=;
+        s=korg; t=1627315741;
+        bh=20ZTeeWqgrfn6J4cK//oJ7/YD3FgITpyfR4ejpfZ5zU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FPozTMw/B3ko0OOACVbTuFFxBOv4mKgqN4NOPY71upa7Xf4MxEqtX9ES6refLcXDC
-         11Dq9Pmo8IHlu2I4magq9AJAo8tgM+nR/BEV9tl3QEIUgkBC+Wj/2eClDuHLBusqSu
-         7tGMKpYi2Gq6gvQE7UVvgSjfJ1sWcC5n4f+ATwz4=
+        b=EtM3YB6+rkUTttA6DGVfsTOVh9S/2oG/GkQbzi1EyPqblAGJcawcwPlSAKqXyevl4
+         PNFVOzizDRbRKfip2qaQDTORXaHRIUjRtVnEeUcVwWQwvLDNc7Ga5MYfSE4X9pSgzw
+         lXNKphqPipvi6vZL+H0s3OanlEBvX1LqGh+io080=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
-        Florian Westphal <fw@strlen.de>,
-        Jianguo Wu <wujianguo@chinatelecom.cn>,
+        stable@vger.kernel.org, Jianguo Wu <wujianguo@chinatelecom.cn>,
         Mat Martineau <mathew.j.martineau@linux.intel.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 030/223] mptcp: fix warning in __skb_flow_dissect() when do syn cookie for subflow join
-Date:   Mon, 26 Jul 2021 17:37:02 +0200
-Message-Id: <20210726153847.234339167@linuxfoundation.org>
+Subject: [PATCH 5.13 031/223] mptcp: remove redundant req destruct in subflow_check_req()
+Date:   Mon, 26 Jul 2021 17:37:03 +0200
+Message-Id: <20210726153847.264818513@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
 References: <20210726153846.245305071@linuxfoundation.org>
@@ -45,119 +43,45 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jianguo Wu <wujianguo@chinatelecom.cn>
 
-[ Upstream commit 0c71929b5893e410e0efbe1bbeca6f19a5f19956 ]
+[ Upstream commit 030d37bd1cd2443a1f21db47eb301899bfa45a2a ]
 
-I did stress test with wrk[1] and webfsd[2] with the assistance of
-mptcp-tools[3]:
+In subflow_check_req(), if subflow sport is mismatch, will put msk,
+destroy token, and destruct req, then return -EPERM, which can be
+done by subflow_req_destructor() via:
 
-  Server side:
-      ./use_mptcp.sh webfsd -4 -R /tmp/ -p 8099
-  Client side:
-      ./use_mptcp.sh wrk -c 200 -d 30 -t 4 http://192.168.174.129:8099/
+  tcp_conn_request()
+    |--__reqsk_free()
+      |--subflow_req_destructor()
 
-and got the following warning message:
+So we should remove these redundant code, otherwise will call
+tcp_v4_reqsk_destructor() twice, and may double free
+inet_rsk(req)->ireq_opt.
 
-[   55.552626] TCP: request_sock_subflow: Possible SYN flooding on port 8099. Sending cookies.  Check SNMP counters.
-[   55.553024] ------------[ cut here ]------------
-[   55.553027] WARNING: CPU: 0 PID: 10 at net/core/flow_dissector.c:984 __skb_flow_dissect+0x280/0x1650
-...
-[   55.553117] CPU: 0 PID: 10 Comm: ksoftirqd/0 Not tainted 5.12.0+ #18
-[   55.553121] Hardware name: VMware, Inc. VMware Virtual Platform/440BX Desktop Reference Platform, BIOS 6.00 02/27/2020
-[   55.553124] RIP: 0010:__skb_flow_dissect+0x280/0x1650
-...
-[   55.553133] RSP: 0018:ffffb79580087770 EFLAGS: 00010246
-[   55.553137] RAX: 0000000000000000 RBX: ffffffff8ddb58e0 RCX: ffffb79580087888
-[   55.553139] RDX: ffffffff8ddb58e0 RSI: ffff8f7e4652b600 RDI: 0000000000000000
-[   55.553141] RBP: ffffb79580087858 R08: 0000000000000000 R09: 0000000000000008
-[   55.553143] R10: 000000008c622965 R11: 00000000d3313a5b R12: ffff8f7e4652b600
-[   55.553146] R13: ffff8f7e465c9062 R14: 0000000000000000 R15: ffffb79580087888
-[   55.553149] FS:  0000000000000000(0000) GS:ffff8f7f75e00000(0000) knlGS:0000000000000000
-[   55.553152] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   55.553154] CR2: 00007f73d1d19000 CR3: 0000000135e10004 CR4: 00000000003706f0
-[   55.553160] Call Trace:
-[   55.553166]  ? __sha256_final+0x67/0xd0
-[   55.553173]  ? sha256+0x7e/0xa0
-[   55.553177]  __skb_get_hash+0x57/0x210
-[   55.553182]  subflow_init_req_cookie_join_save+0xac/0xc0
-[   55.553189]  subflow_check_req+0x474/0x550
-[   55.553195]  ? ip_route_output_key_hash+0x67/0x90
-[   55.553200]  ? xfrm_lookup_route+0x1d/0xa0
-[   55.553207]  subflow_v4_route_req+0x8e/0xd0
-[   55.553212]  tcp_conn_request+0x31e/0xab0
-[   55.553218]  ? selinux_socket_sock_rcv_skb+0x116/0x210
-[   55.553224]  ? tcp_rcv_state_process+0x179/0x6d0
-[   55.553229]  tcp_rcv_state_process+0x179/0x6d0
-[   55.553235]  tcp_v4_do_rcv+0xaf/0x220
-[   55.553239]  tcp_v4_rcv+0xce4/0xd80
-[   55.553243]  ? ip_route_input_rcu+0x246/0x260
-[   55.553248]  ip_protocol_deliver_rcu+0x35/0x1b0
-[   55.553253]  ip_local_deliver_finish+0x44/0x50
-[   55.553258]  ip_local_deliver+0x6c/0x110
-[   55.553262]  ? ip_rcv_finish_core.isra.19+0x5a/0x400
-[   55.553267]  ip_rcv+0xd1/0xe0
-...
-
-After debugging, I found in __skb_flow_dissect(), skb->dev and skb->sk
-are both NULL, then net is NULL, and trigger WARN_ON_ONCE(!net),
-actually net is always NULL in this code path, as skb->dev is set to
-NULL in tcp_v4_rcv(), and skb->sk is never set.
-
-Code snippet in __skb_flow_dissect() that trigger warning:
-  975         if (skb) {
-  976                 if (!net) {
-  977                         if (skb->dev)
-  978                                 net = dev_net(skb->dev);
-  979                         else if (skb->sk)
-  980                                 net = sock_net(skb->sk);
-  981                 }
-  982         }
-  983
-  984         WARN_ON_ONCE(!net);
-
-So, using seq and transport header derived hash.
-
-[1] https://github.com/wg/wrk
-[2] https://github.com/ourway/webfsd
-[3] https://github.com/pabeni/mptcp-tools
-
-Fixes: 9466a1ccebbe ("mptcp: enable JOIN requests even if cookies are in use")
-Suggested-by: Paolo Abeni <pabeni@redhat.com>
-Suggested-by: Florian Westphal <fw@strlen.de>
+Fixes: 5bc56388c74f ("mptcp: add port number check for MP_JOIN")
 Signed-off-by: Jianguo Wu <wujianguo@chinatelecom.cn>
 Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mptcp/syncookies.c | 16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+ net/mptcp/subflow.c | 5 -----
+ 1 file changed, 5 deletions(-)
 
-diff --git a/net/mptcp/syncookies.c b/net/mptcp/syncookies.c
-index abe0fd099746..37127781aee9 100644
---- a/net/mptcp/syncookies.c
-+++ b/net/mptcp/syncookies.c
-@@ -37,7 +37,21 @@ static spinlock_t join_entry_locks[COOKIE_JOIN_SLOTS] __cacheline_aligned_in_smp
- 
- static u32 mptcp_join_entry_hash(struct sk_buff *skb, struct net *net)
- {
--	u32 i = skb_get_hash(skb) ^ net_hash_mix(net);
-+	static u32 mptcp_join_hash_secret __read_mostly;
-+	struct tcphdr *th = tcp_hdr(skb);
-+	u32 seq, i;
-+
-+	net_get_random_once(&mptcp_join_hash_secret,
-+			    sizeof(mptcp_join_hash_secret));
-+
-+	if (th->syn)
-+		seq = TCP_SKB_CB(skb)->seq;
-+	else
-+		seq = TCP_SKB_CB(skb)->seq - 1;
-+
-+	i = jhash_3words(seq, net_hash_mix(net),
-+			 (__force __u32)th->source << 16 | (__force __u32)th->dest,
-+			 mptcp_join_hash_secret);
- 
- 	return i % ARRAY_SIZE(join_entries);
- }
+diff --git a/net/mptcp/subflow.c b/net/mptcp/subflow.c
+index cbc452d0901e..5493c851ca6c 100644
+--- a/net/mptcp/subflow.c
++++ b/net/mptcp/subflow.c
+@@ -212,11 +212,6 @@ again:
+ 				 ntohs(inet_sk(sk_listener)->inet_sport),
+ 				 ntohs(inet_sk((struct sock *)subflow_req->msk)->inet_sport));
+ 			if (!mptcp_pm_sport_in_anno_list(subflow_req->msk, sk_listener)) {
+-				sock_put((struct sock *)subflow_req->msk);
+-				mptcp_token_destroy_request(req);
+-				tcp_request_sock_ops.destructor(req);
+-				subflow_req->msk = NULL;
+-				subflow_req->mp_join = 0;
+ 				SUBFLOW_REQ_INC_STATS(req, MPTCP_MIB_MISMATCHPORTSYNRX);
+ 				return -EPERM;
+ 			}
 -- 
 2.30.2
 
