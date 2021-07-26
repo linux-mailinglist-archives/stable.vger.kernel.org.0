@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B96EB3D61F7
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:15:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57ABA3D60AD
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:11:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234479AbhGZPdn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:33:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47948 "EHLO mail.kernel.org"
+        id S237691AbhGZPXw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:23:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233644AbhGZPc1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:32:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 84ABE60EB2;
-        Mon, 26 Jul 2021 16:12:55 +0000 (UTC)
+        id S237075AbhGZPXh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:23:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9162360F5A;
+        Mon, 26 Jul 2021 16:04:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315976;
-        bh=iSwOT2IT+TSQ1I5FcDSRN5RdQNVGYfJh0K9Qw2Q7QZQ=;
+        s=korg; t=1627315445;
+        bh=KYOiDckllKXj8mHvVhsWCZDPBlWvtcaE6P/Sx14jxpo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kz+fPzbwRHALn9qKQ2dZ/DtNcmO282Ldy+E8OHgFnZfp+LORwCyNeZjg+eJXX+eAW
-         vzaX4FJUn1vadFhnhD46gCwPBaMQ4bI8kB6CQOu5GPn1oBknR35M80wdrDW9aLpCXr
-         +h3Vpyz48s7Voue+ZYeUN0osL+HCa1JolfyOqE1o=
+        b=cOZGWc/N2kbxPa1oaVINeP+o+GHRucU8korlMa5Zf6Tf8lEDcfSj1YlhfZqy2PwGG
+         BeaUN6Sf6X3EJWx/rMVeheH3ulwuwN3gfIQudFhGiLLtcGllRb0NKBHZjC3LlN2uu8
+         EiSy4OgqdMzRdkopg+Cp9tHro9AgFa9YSjwaQMJE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
-        Sam Ravnborg <sam@ravnborg.org>,
+        stable@vger.kernel.org,
+        syzbot+b774577370208727d12b@syzkaller.appspotmail.com,
+        Xin Long <lucien.xin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 138/223] drm/panel: raspberrypi-touchscreen: Prevent double-free
-Date:   Mon, 26 Jul 2021 17:38:50 +0200
-Message-Id: <20210726153850.755787437@linuxfoundation.org>
+Subject: [PATCH 5.10 098/167] sctp: update active_key for asoc when old key is being replaced
+Date:   Mon, 26 Jul 2021 17:38:51 +0200
+Message-Id: <20210726153842.688484553@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
-References: <20210726153846.245305071@linuxfoundation.org>
+In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
+References: <20210726153839.371771838@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,34 +42,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Ripard <maxime@cerno.tech>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit 7bbcb919e32d776ca8ddce08abb391ab92eef6a9 ]
+[ Upstream commit 58acd10092268831e49de279446c314727101292 ]
 
-The mipi_dsi_device allocated by mipi_dsi_device_register_full() is
-already free'd on release.
+syzbot reported a call trace:
 
-Fixes: 2f733d6194bd ("drm/panel: Add support for the Raspberry Pi 7" Touchscreen.")
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Reviewed-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210720134525.563936-9-maxime@cerno.tech
+  BUG: KASAN: use-after-free in sctp_auth_shkey_hold+0x22/0xa0 net/sctp/auth.c:112
+  Call Trace:
+   sctp_auth_shkey_hold+0x22/0xa0 net/sctp/auth.c:112
+   sctp_set_owner_w net/sctp/socket.c:131 [inline]
+   sctp_sendmsg_to_asoc+0x152e/0x2180 net/sctp/socket.c:1865
+   sctp_sendmsg+0x103b/0x1d30 net/sctp/socket.c:2027
+   inet_sendmsg+0x99/0xe0 net/ipv4/af_inet.c:821
+   sock_sendmsg_nosec net/socket.c:703 [inline]
+   sock_sendmsg+0xcf/0x120 net/socket.c:723
+
+This is an use-after-free issue caused by not updating asoc->shkey after
+it was replaced in the key list asoc->endpoint_shared_keys, and the old
+key was freed.
+
+This patch is to fix by also updating active_key for asoc when old key is
+being replaced with a new one. Note that this issue doesn't exist in
+sctp_auth_del_key_id(), as it's not allowed to delete the active_key
+from the asoc.
+
+Fixes: 1b1e0bc99474 ("sctp: add refcnt support for sh_key")
+Reported-by: syzbot+b774577370208727d12b@syzkaller.appspotmail.com
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c | 1 -
- 1 file changed, 1 deletion(-)
+ net/sctp/auth.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c b/drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c
-index 5e9ccefb88f6..bbdd086be7f5 100644
---- a/drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c
-+++ b/drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c
-@@ -447,7 +447,6 @@ static int rpi_touchscreen_remove(struct i2c_client *i2c)
- 	drm_panel_remove(&ts->base);
+diff --git a/net/sctp/auth.c b/net/sctp/auth.c
+index 6f8319b828b0..fe74c5f95630 100644
+--- a/net/sctp/auth.c
++++ b/net/sctp/auth.c
+@@ -860,6 +860,8 @@ int sctp_auth_set_key(struct sctp_endpoint *ep,
+ 	if (replace) {
+ 		list_del_init(&shkey->key_list);
+ 		sctp_auth_shkey_release(shkey);
++		if (asoc && asoc->active_key_id == auth_key->sca_keynumber)
++			sctp_auth_asoc_init_active_key(asoc, GFP_KERNEL);
+ 	}
+ 	list_add(&cur_key->key_list, sh_keys);
  
- 	mipi_dsi_device_unregister(ts->dsi);
--	kfree(ts->dsi);
- 
- 	return 0;
- }
 -- 
 2.30.2
 
