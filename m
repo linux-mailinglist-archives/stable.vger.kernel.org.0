@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C1FC83D5DAC
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:43:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92C3D3D5D5B
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:42:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235805AbhGZPDO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:03:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42386 "EHLO mail.kernel.org"
+        id S235421AbhGZPA5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:00:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235739AbhGZPCz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:02:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A98960F37;
-        Mon, 26 Jul 2021 15:43:23 +0000 (UTC)
+        id S235409AbhGZPA5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:00:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F17160F38;
+        Mon, 26 Jul 2021 15:41:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314204;
-        bh=Nr1G0W5p6zEJhcj5E9bSLGHr39tsPKl1YyfPzA4mG+0=;
+        s=korg; t=1627314085;
+        bh=i06fPrBmFPd4Vw53yWquMo8pgHRq2PQGWRELFLr2wsU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X6iXdmU6414CQiKM0as+o5/0uuhGLGWXR5GFMYuITkxK/VTJl2rK/QqwrnT33bZZN
-         zx7W5Q0rPvcPfjRa1DXb4g9j6mD1cmRuIJhFxMoL0/FQro85Pdn063KzTGvKanF2jX
-         IFDlRyR1kureZUnqmTelzhwPiRQCO4l79jpKnpFU=
+        b=fEaakLGklshx+NEYfEcbSokFYLhE1tgLUowhc32bCV1zJBlr8aYtYYoKVSmMwJjKY
+         Qr1b6gQYrGUABuJ97qK+rmOdIxGI7bV7IuxWCIo0vRaOTdU+a7tC7yB2MoMzzrT7d6
+         ozlNXI9BkCQb/VMS1IDmjQhfIuZOTYPU5yyIktl8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sudeep Holla <sudeep.holla@arm.com>,
+        stable@vger.kernel.org, Matthias Maennich <maennich@google.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 09/60] arm64: dts: juno: Update SCPI nodes as per the YAML schema
-Date:   Mon, 26 Jul 2021 17:38:23 +0200
-Message-Id: <20210726153825.164776568@linuxfoundation.org>
+Subject: [PATCH 4.4 06/47] kbuild: mkcompile_h: consider timestamp if KBUILD_BUILD_TIMESTAMP is set
+Date:   Mon, 26 Jul 2021 17:38:24 +0200
+Message-Id: <20210726153823.182910659@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153824.868160836@linuxfoundation.org>
-References: <20210726153824.868160836@linuxfoundation.org>
+In-Reply-To: <20210726153822.980271128@linuxfoundation.org>
+References: <20210726153822.980271128@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,50 +40,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sudeep Holla <sudeep.holla@arm.com>
+From: Matthias Maennich <maennich@google.com>
 
-[ Upstream commit 70010556b158a0fefe43415fb0c58347dcce7da0 ]
+[ Upstream commit a979522a1a88556e42a22ce61bccc58e304cb361 ]
 
-The SCPI YAML schema expects standard node names for clocks and
-power domain controllers. Fix those as per the schema for Juno
-platforms.
+To avoid unnecessary recompilations, mkcompile_h does not regenerate
+compile.h if just the timestamp changed.
+Though, if KBUILD_BUILD_TIMESTAMP is set, an explicit timestamp for the
+build was requested, in which case we should not ignore it.
 
-Link: https://lore.kernel.org/r/20210608145133.2088631-1-sudeep.holla@arm.com
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+If a user follows the documentation for reproducible builds [1] and
+defines KBUILD_BUILD_TIMESTAMP as the git commit timestamp, a clean
+build will have the correct timestamp. A subsequent cherry-pick (or
+amend) changes the commit timestamp and if an incremental build is done
+with a different KBUILD_BUILD_TIMESTAMP now, that new value is not taken
+into consideration. But it should for reproducibility.
+
+Hence, whenever KBUILD_BUILD_TIMESTAMP is explicitly set, do not ignore
+UTS_VERSION when making a decision about whether the regenerated version
+of compile.h should be moved into place.
+
+[1] https://www.kernel.org/doc/html/latest/kbuild/reproducible-builds.html
+
+Signed-off-by: Matthias Maennich <maennich@google.com>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/arm/juno-base.dtsi | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ scripts/mkcompile_h | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/arm/juno-base.dtsi b/arch/arm64/boot/dts/arm/juno-base.dtsi
-index 7d3a2acc6a55..2aa01eaa0cd1 100644
---- a/arch/arm64/boot/dts/arm/juno-base.dtsi
-+++ b/arch/arm64/boot/dts/arm/juno-base.dtsi
-@@ -414,13 +414,13 @@
- 		clocks {
- 			compatible = "arm,scpi-clocks";
+diff --git a/scripts/mkcompile_h b/scripts/mkcompile_h
+index 6fdc97ef6023..cb73747002ed 100755
+--- a/scripts/mkcompile_h
++++ b/scripts/mkcompile_h
+@@ -82,15 +82,23 @@ UTS_TRUNCATE="cut -b -$UTS_LEN"
+ # Only replace the real compile.h if the new one is different,
+ # in order to preserve the timestamp and avoid unnecessary
+ # recompilations.
+-# We don't consider the file changed if only the date/time changed.
++# We don't consider the file changed if only the date/time changed,
++# unless KBUILD_BUILD_TIMESTAMP was explicitly set (e.g. for
++# reproducible builds with that value referring to a commit timestamp).
+ # A kernel config change will increase the generation number, thus
+ # causing compile.h to be updated (including date/time) due to the
+ # changed comment in the
+ # first line.
  
--			scpi_dvfs: scpi-dvfs {
-+			scpi_dvfs: clocks-0 {
- 				compatible = "arm,scpi-dvfs-clocks";
- 				#clock-cells = <1>;
- 				clock-indices = <0>, <1>, <2>;
- 				clock-output-names = "atlclk", "aplclk","gpuclk";
- 			};
--			scpi_clk: scpi-clk {
-+			scpi_clk: clocks-1 {
- 				compatible = "arm,scpi-variable-clocks";
- 				#clock-cells = <1>;
- 				clock-indices = <3>;
-@@ -428,7 +428,7 @@
- 			};
- 		};
- 
--		scpi_devpd: scpi-power-domains {
-+		scpi_devpd: power-controller {
- 			compatible = "arm,scpi-power-domains";
- 			num-domains = <2>;
- 			#power-domain-cells = <1>;
++if [ -z "$KBUILD_BUILD_TIMESTAMP" ]; then
++   IGNORE_PATTERN="UTS_VERSION"
++else
++   IGNORE_PATTERN="NOT_A_PATTERN_TO_BE_MATCHED"
++fi
++
+ if [ -r $TARGET ] && \
+-      grep -v 'UTS_VERSION' $TARGET > .tmpver.1 && \
+-      grep -v 'UTS_VERSION' .tmpcompile > .tmpver.2 && \
++      grep -v $IGNORE_PATTERN $TARGET > .tmpver.1 && \
++      grep -v $IGNORE_PATTERN .tmpcompile > .tmpver.2 && \
+       cmp -s .tmpver.1 .tmpver.2; then
+    rm -f .tmpcompile
+ else
 -- 
 2.30.2
 
