@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 28A063D625D
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:16:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 450D43D60EA
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:12:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236947AbhGZPfn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:35:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50590 "EHLO mail.kernel.org"
+        id S237748AbhGZPZm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:25:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233269AbhGZPdf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:33:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 67B6E60C41;
-        Mon, 26 Jul 2021 16:14:01 +0000 (UTC)
+        id S238067AbhGZPYh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:24:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BBD7E60E09;
+        Mon, 26 Jul 2021 16:05:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627316041;
-        bh=0B0/m9AQhwYNUWaUVtkh/2N7DpmLSjh5El2w8Mt36ZY=;
+        s=korg; t=1627315505;
+        bh=Z8xvYOwArq6z6cOpGIaDz6plqC40jynkMy5CihLFma8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lleh8S8/tTduruh2ig3HvI7yJUs8Bzat7yqfRkmZwMEi9ygrP8vTOeCGq4doRuDrm
-         E0qgTrybppPLBoM/wmlVT1oSWrDB9kC5+uxGAYTnOCOwUr/bzY4I+o9Y8w5UNt782Q
-         B+Mqghn5q0DTned09ZcjHmU31xhGvmhnykjEsaqo=
+        b=xNvBFVRz0/oP2H5dhQ5nFkhyB/PvPjMmbdARbyywm77jvfisOtDzL08wFv5aV8R/F
+         7bYDK4WtZKY0kiYY6CEf8BCnAAkDQnlBh0rzu70eeF6d22d1b7oRYW6rNeabPaMP72
+         dtpTv1dU0siCMmaAzoJdoTZm4ZQWgI7Rjil8f7q0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Subject: [PATCH 5.13 165/223] usb: renesas_usbhs: Fix superfluous irqs happen after usb_pkt_pop()
+        Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
+Subject: [PATCH 5.10 124/167] usb: max-3421: Prevent corruption of freed memory
 Date:   Mon, 26 Jul 2021 17:39:17 +0200
-Message-Id: <20210726153851.610580818@linuxfoundation.org>
+Message-Id: <20210726153843.564988264@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
-References: <20210726153846.245305071@linuxfoundation.org>
+In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
+References: <20210726153839.371771838@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,51 +39,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+From: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
 
-commit 5719df243e118fb343725e8b2afb1637e1af1373 upstream.
+commit b5fdf5c6e6bee35837e160c00ac89327bdad031b upstream.
 
-This driver has a potential issue which this driver is possible to
-cause superfluous irqs after usb_pkt_pop() is called. So, after
-the commit 3af32605289e ("usb: renesas_usbhs: fix error return
-code of usbhsf_pkt_handler()") had been applied, we could observe
-the following error happened when we used g_audio.
+The MAX-3421 USB driver remembers the state of the USB toggles for a
+device/endpoint. To save SPI writes, this was only done when a new
+device/endpoint was being used. Unfortunately, if the old device was
+removed, this would cause writes to freed memory.
 
-    renesas_usbhs e6590000.usb: irq_ready run_error 1 : -22
+To fix this, a simpler scheme is used. The toggles are read from
+hardware when a URB is completed, and the toggles are always written to
+hardware when any URB transaction is started. This will cause a few more
+SPI transactions, but no causes kernel panics.
 
-To fix the issue, disable the tx or rx interrupt in usb_pkt_pop().
-
-Fixes: 2743e7f90dc0 ("usb: renesas_usbhs: fix the usb_pkt_pop()")
-Cc: <stable@vger.kernel.org> # v4.4+
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Link: https://lore.kernel.org/r/20210624122039.596528-1-yoshihiro.shimoda.uh@renesas.com
+Fixes: 2d53139f3162 ("Add support for using a MAX3421E chip as a host driver.")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
+Link: https://lore.kernel.org/r/20210625031456.8632-1-mark.tomlinson@alliedtelesis.co.nz
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/renesas_usbhs/fifo.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/usb/host/max3421-hcd.c |   44 +++++++++++++----------------------------
+ 1 file changed, 14 insertions(+), 30 deletions(-)
 
---- a/drivers/usb/renesas_usbhs/fifo.c
-+++ b/drivers/usb/renesas_usbhs/fifo.c
-@@ -101,6 +101,8 @@ static struct dma_chan *usbhsf_dma_chan_
- #define usbhsf_dma_map(p)	__usbhsf_dma_map_ctrl(p, 1)
- #define usbhsf_dma_unmap(p)	__usbhsf_dma_map_ctrl(p, 0)
- static int __usbhsf_dma_map_ctrl(struct usbhs_pkt *pkt, int map);
-+static void usbhsf_tx_irq_ctrl(struct usbhs_pipe *pipe, int enable);
-+static void usbhsf_rx_irq_ctrl(struct usbhs_pipe *pipe, int enable);
- struct usbhs_pkt *usbhs_pkt_pop(struct usbhs_pipe *pipe, struct usbhs_pkt *pkt)
+--- a/drivers/usb/host/max3421-hcd.c
++++ b/drivers/usb/host/max3421-hcd.c
+@@ -153,8 +153,6 @@ struct max3421_hcd {
+ 	 */
+ 	struct urb *curr_urb;
+ 	enum scheduling_pass sched_pass;
+-	struct usb_device *loaded_dev;	/* dev that's loaded into the chip */
+-	int loaded_epnum;		/* epnum whose toggles are loaded */
+ 	int urb_done;			/* > 0 -> no errors, < 0: errno */
+ 	size_t curr_len;
+ 	u8 hien;
+@@ -492,39 +490,17 @@ max3421_set_speed(struct usb_hcd *hcd, s
+  * Caller must NOT hold HCD spinlock.
+  */
+ static void
+-max3421_set_address(struct usb_hcd *hcd, struct usb_device *dev, int epnum,
+-		    int force_toggles)
++max3421_set_address(struct usb_hcd *hcd, struct usb_device *dev, int epnum)
  {
- 	struct usbhs_priv *priv = usbhs_pipe_to_priv(pipe);
-@@ -123,6 +125,11 @@ struct usbhs_pkt *usbhs_pkt_pop(struct u
- 		if (chan) {
- 			dmaengine_terminate_all(chan);
- 			usbhsf_dma_unmap(pkt);
-+		} else {
-+			if (usbhs_pipe_is_dir_in(pipe))
-+				usbhsf_rx_irq_ctrl(pipe, 0);
-+			else
-+				usbhsf_tx_irq_ctrl(pipe, 0);
- 		}
+-	struct max3421_hcd *max3421_hcd = hcd_to_max3421(hcd);
+-	int old_epnum, same_ep, rcvtog, sndtog;
+-	struct usb_device *old_dev;
++	int rcvtog, sndtog;
+ 	u8 hctl;
  
- 		usbhs_pipe_clear_without_sequence(pipe, 0, 0);
+-	old_dev = max3421_hcd->loaded_dev;
+-	old_epnum = max3421_hcd->loaded_epnum;
+-
+-	same_ep = (dev == old_dev && epnum == old_epnum);
+-	if (same_ep && !force_toggles)
+-		return;
+-
+-	if (old_dev && !same_ep) {
+-		/* save the old end-points toggles: */
+-		u8 hrsl = spi_rd8(hcd, MAX3421_REG_HRSL);
+-
+-		rcvtog = (hrsl >> MAX3421_HRSL_RCVTOGRD_BIT) & 1;
+-		sndtog = (hrsl >> MAX3421_HRSL_SNDTOGRD_BIT) & 1;
+-
+-		/* no locking: HCD (i.e., we) own toggles, don't we? */
+-		usb_settoggle(old_dev, old_epnum, 0, rcvtog);
+-		usb_settoggle(old_dev, old_epnum, 1, sndtog);
+-	}
+ 	/* setup new endpoint's toggle bits: */
+ 	rcvtog = usb_gettoggle(dev, epnum, 0);
+ 	sndtog = usb_gettoggle(dev, epnum, 1);
+ 	hctl = (BIT(rcvtog + MAX3421_HCTL_RCVTOG0_BIT) |
+ 		BIT(sndtog + MAX3421_HCTL_SNDTOG0_BIT));
+ 
+-	max3421_hcd->loaded_epnum = epnum;
+ 	spi_wr8(hcd, MAX3421_REG_HCTL, hctl);
+ 
+ 	/*
+@@ -532,7 +508,6 @@ max3421_set_address(struct usb_hcd *hcd,
+ 	 * address-assignment so it's best to just always load the
+ 	 * address whenever the end-point changed/was forced.
+ 	 */
+-	max3421_hcd->loaded_dev = dev;
+ 	spi_wr8(hcd, MAX3421_REG_PERADDR, dev->devnum);
+ }
+ 
+@@ -667,7 +642,7 @@ max3421_select_and_start_urb(struct usb_
+ 	struct max3421_hcd *max3421_hcd = hcd_to_max3421(hcd);
+ 	struct urb *urb, *curr_urb = NULL;
+ 	struct max3421_ep *max3421_ep;
+-	int epnum, force_toggles = 0;
++	int epnum;
+ 	struct usb_host_endpoint *ep;
+ 	struct list_head *pos;
+ 	unsigned long flags;
+@@ -777,7 +752,6 @@ done:
+ 			usb_settoggle(urb->dev, epnum, 0, 1);
+ 			usb_settoggle(urb->dev, epnum, 1, 1);
+ 			max3421_ep->pkt_state = PKT_STATE_SETUP;
+-			force_toggles = 1;
+ 		} else
+ 			max3421_ep->pkt_state = PKT_STATE_TRANSFER;
+ 	}
+@@ -785,7 +759,7 @@ done:
+ 	spin_unlock_irqrestore(&max3421_hcd->lock, flags);
+ 
+ 	max3421_ep->last_active = max3421_hcd->frame_number;
+-	max3421_set_address(hcd, urb->dev, epnum, force_toggles);
++	max3421_set_address(hcd, urb->dev, epnum);
+ 	max3421_set_speed(hcd, urb->dev);
+ 	max3421_next_transfer(hcd, 0);
+ 	return 1;
+@@ -1380,6 +1354,16 @@ max3421_urb_done(struct usb_hcd *hcd)
+ 		status = 0;
+ 	urb = max3421_hcd->curr_urb;
+ 	if (urb) {
++		/* save the old end-points toggles: */
++		u8 hrsl = spi_rd8(hcd, MAX3421_REG_HRSL);
++		int rcvtog = (hrsl >> MAX3421_HRSL_RCVTOGRD_BIT) & 1;
++		int sndtog = (hrsl >> MAX3421_HRSL_SNDTOGRD_BIT) & 1;
++		int epnum = usb_endpoint_num(&urb->ep->desc);
++
++		/* no locking: HCD (i.e., we) own toggles, don't we? */
++		usb_settoggle(urb->dev, epnum, 0, rcvtog);
++		usb_settoggle(urb->dev, epnum, 1, sndtog);
++
+ 		max3421_hcd->curr_urb = NULL;
+ 		spin_lock_irqsave(&max3421_hcd->lock, flags);
+ 		usb_hcd_unlink_urb_from_ep(hcd, urb);
 
 
