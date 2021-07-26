@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A13E3D5FA2
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 501BF3D5D74
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:42:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236188AbhGZPSg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:18:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56526 "EHLO mail.kernel.org"
+        id S235557AbhGZPBe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:01:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236013AbhGZPQm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:16:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3606A6056C;
-        Mon, 26 Jul 2021 15:57:09 +0000 (UTC)
+        id S235570AbhGZPBd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:01:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D57660E08;
+        Mon, 26 Jul 2021 15:42:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315030;
-        bh=0LxOJyZSpsLGI1DR7GX002GYLPjIyD8a1JgymydXNfA=;
+        s=korg; t=1627314121;
+        bh=IAJPT6R2TU3Ysbp3YmjkF9+Sy4Hsy0eyHxF1EPqD7h4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uBAj4fIhWI1z9dj0i7RQ5tPKzviQU50PqMQqwWuLJC7bEnPkpVUVGI/VNbrmPs3ce
-         tJY7soufhWJkfPUldIxi9oAN2ledrq1r9gFB+6IUy3Xaxj+JeBlnA0T3k3XBQfqypo
-         HagVIXhPAW5t6V50lEoGk5oNWGx04EMyir2f42+U=
+        b=MM7f2ArpTN5jVuudPeLH/icESZMgozvAcRE6ImInjyY2ecTRnm7OiTTKisPmqitAj
+         5rskHNREGUOCpO19u/aubMDRCQCMMdoEVbOSY1xhsDzu+ztYI0c+uRYthFIdWNCniT
+         bIPE2ReGzVwl0drdDuh0onT8rv0ccLbIcxpMiRuU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cong Wang <cong.wang@bytedance.com>,
-        Peilin Ye <peilin.ye@bytedance.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 058/108] net/sched: act_skbmod: Skip non-Ethernet packets
+        stable@vger.kernel.org, John Keeping <john@metanate.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.4 41/47] USB: serial: cp210x: add ID for CEL EM3588 USB ZigBee stick
 Date:   Mon, 26 Jul 2021 17:38:59 +0200
-Message-Id: <20210726153833.545265115@linuxfoundation.org>
+Message-Id: <20210726153824.270016370@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
-References: <20210726153831.696295003@linuxfoundation.org>
+In-Reply-To: <20210726153822.980271128@linuxfoundation.org>
+References: <20210726153822.980271128@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,70 +39,29 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peilin Ye <peilin.ye@bytedance.com>
+From: John Keeping <john@metanate.com>
 
-[ Upstream commit 727d6a8b7ef3d25080fad228b2c4a1d4da5999c6 ]
+commit d6a206e60124a9759dd7f6dfb86b0e1d3b1df82e upstream.
 
-Currently tcf_skbmod_act() assumes that packets use Ethernet as their L2
-protocol, which is not always the case.  As an example, for CAN devices:
+Add the USB serial device ID for the CEL ZigBee EM3588 radio stick.
 
-	$ ip link add dev vcan0 type vcan
-	$ ip link set up vcan0
-	$ tc qdisc add dev vcan0 root handle 1: htb
-	$ tc filter add dev vcan0 parent 1: protocol ip prio 10 \
-		matchall action skbmod swap mac
-
-Doing the above silently corrupts all the packets.  Do not perform skbmod
-actions for non-Ethernet packets.
-
-Fixes: 86da71b57383 ("net_sched: Introduce skbmod action")
-Reviewed-by: Cong Wang <cong.wang@bytedance.com>
-Signed-off-by: Peilin Ye <peilin.ye@bytedance.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: John Keeping <john@metanate.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/act_skbmod.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/usb/serial/cp210x.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/sched/act_skbmod.c b/net/sched/act_skbmod.c
-index e858a0a9c045..f60d349542b1 100644
---- a/net/sched/act_skbmod.c
-+++ b/net/sched/act_skbmod.c
-@@ -6,6 +6,7 @@
- */
- 
- #include <linux/module.h>
-+#include <linux/if_arp.h>
- #include <linux/init.h>
- #include <linux/kernel.h>
- #include <linux/skbuff.h>
-@@ -33,6 +34,13 @@ static int tcf_skbmod_act(struct sk_buff *skb, const struct tc_action *a,
- 	tcf_lastuse_update(&d->tcf_tm);
- 	bstats_cpu_update(this_cpu_ptr(d->common.cpu_bstats), skb);
- 
-+	action = READ_ONCE(d->tcf_action);
-+	if (unlikely(action == TC_ACT_SHOT))
-+		goto drop;
-+
-+	if (!skb->dev || skb->dev->type != ARPHRD_ETHER)
-+		return action;
-+
- 	/* XXX: if you are going to edit more fields beyond ethernet header
- 	 * (example when you add IP header replacement or vlan swap)
- 	 * then MAX_EDIT_LEN needs to change appropriately
-@@ -41,10 +49,6 @@ static int tcf_skbmod_act(struct sk_buff *skb, const struct tc_action *a,
- 	if (unlikely(err)) /* best policy is to drop on the floor */
- 		goto drop;
- 
--	action = READ_ONCE(d->tcf_action);
--	if (unlikely(action == TC_ACT_SHOT))
--		goto drop;
--
- 	p = rcu_dereference_bh(d->skbmod_p);
- 	flags = p->flags;
- 	if (flags & SKBMOD_F_DMAC)
--- 
-2.30.2
-
+--- a/drivers/usb/serial/cp210x.c
++++ b/drivers/usb/serial/cp210x.c
+@@ -152,6 +152,7 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(0x10C4, 0x89A4) }, /* CESINEL FTBC Flexible Thyristor Bridge Controller */
+ 	{ USB_DEVICE(0x10C4, 0x89FB) }, /* Qivicon ZigBee USB Radio Stick */
+ 	{ USB_DEVICE(0x10C4, 0x8A2A) }, /* HubZ dual ZigBee and Z-Wave dongle */
++	{ USB_DEVICE(0x10C4, 0x8A5B) }, /* CEL EM3588 ZigBee USB Stick */
+ 	{ USB_DEVICE(0x10C4, 0x8A5E) }, /* CEL EM3588 ZigBee USB Stick Long Range */
+ 	{ USB_DEVICE(0x10C4, 0x8B34) }, /* Qivicon ZigBee USB Radio Stick */
+ 	{ USB_DEVICE(0x10C4, 0xEA60) }, /* Silicon Labs factory default */
 
 
