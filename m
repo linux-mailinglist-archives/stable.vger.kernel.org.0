@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 691933D5D54
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:42:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85AD93D5F49
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235360AbhGZPAq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:00:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39404 "EHLO mail.kernel.org"
+        id S236528AbhGZPR2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:17:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235369AbhGZPAp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:00:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 20BD460F37;
-        Mon, 26 Jul 2021 15:41:12 +0000 (UTC)
+        id S237455AbhGZPPr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:15:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A36176056C;
+        Mon, 26 Jul 2021 15:56:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314073;
-        bh=THRPQd07U0/NjkwYI4dY3h1BRoOnzj6doJLmUbsQQj4=;
+        s=korg; t=1627314975;
+        bh=MWklM0rEk760mfXekcQuBCMz1VDfjcOWRYa676jgxZs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QQv3x9q/SJlDyZrHa6VD2UZyftOkkc6CHf7N+jnhSjhTcVCOVLhWJheDXF2j9nUIf
-         UskL1G3MmEWcsvPy0do6hWSRVld5iB5iCpGBmb5XGbpXWGmjJo8Jpepj2uR3rsXlYo
-         xrZp/YbpyGVB56wJzSGK5G3ug5xtJetPu83C+324=
+        b=K4GQVywH61PmFQZkq+JWFD6PqEir94u7yHxGmMg9oLtNX3Zu1U8Ud6uX7SwlRFHf0
+         j+Z/EdKsdX4vwT1Cbm81cKQ3adNyhD4PLSfpCJrIkPPb4dLZzaIdOtonF500yBJj3p
+         QH0qQWfG4FYlezIw3j0N+DB/gkRZsSlwGZJ998iY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        stable@vger.kernel.org, Tobias Klauser <tklauser@distanz.ch>,
         Daniel Borkmann <daniel@iogearbox.net>,
-        Ilya Leoshkevich <iii@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 23/47] s390/bpf: Perform r1 range checking before accessing jit->seen_reg[r1]
+        Quentin Monnet <quentin@isovalent.com>,
+        Roman Gushchin <guro@fb.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 040/108] bpftool: Check malloc return value in mount_bpffs_for_pin
 Date:   Mon, 26 Jul 2021 17:38:41 +0200
-Message-Id: <20210726153823.712379708@linuxfoundation.org>
+Message-Id: <20210726153832.976453423@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153822.980271128@linuxfoundation.org>
-References: <20210726153822.980271128@linuxfoundation.org>
+In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
+References: <20210726153831.696295003@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,40 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Tobias Klauser <tklauser@distanz.ch>
 
-[ Upstream commit 91091656252f5d6d8c476e0c92776ce9fae7b445 ]
+[ Upstream commit d444b06e40855219ef38b5e9286db16d435f06dc ]
 
-Currently array jit->seen_reg[r1] is being accessed before the range
-checking of index r1. The range changing on r1 should be performed
-first since it will avoid any potential out-of-range accesses on the
-array seen_reg[] and also it is more optimal to perform checks on r1
-before fetching data from the array. Fix this by swapping the order
-of the checks before the array access.
+Fix and add a missing NULL check for the prior malloc() call.
 
-Fixes: 054623105728 ("s390/bpf: Add s390x eBPF JIT compiler backend")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Fixes: 49a086c201a9 ("bpftool: implement prog load command")
+Signed-off-by: Tobias Klauser <tklauser@distanz.ch>
 Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Tested-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Acked-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Link: https://lore.kernel.org/bpf/20210715125712.24690-1-colin.king@canonical.com
+Reviewed-by: Quentin Monnet <quentin@isovalent.com>
+Acked-by: Roman Gushchin <guro@fb.com>
+Link: https://lore.kernel.org/bpf/20210715110609.29364-1-tklauser@distanz.ch
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/net/bpf_jit_comp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/bpf/bpftool/common.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/arch/s390/net/bpf_jit_comp.c b/arch/s390/net/bpf_jit_comp.c
-index bcf409997d6d..c5c3056f4c4a 100644
---- a/arch/s390/net/bpf_jit_comp.c
-+++ b/arch/s390/net/bpf_jit_comp.c
-@@ -115,7 +115,7 @@ static inline void reg_set_seen(struct bpf_jit *jit, u32 b1)
- {
- 	u32 r1 = reg2hex[b1];
+diff --git a/tools/bpf/bpftool/common.c b/tools/bpf/bpftool/common.c
+index 88264abaa738..a209f53901b8 100644
+--- a/tools/bpf/bpftool/common.c
++++ b/tools/bpf/bpftool/common.c
+@@ -171,6 +171,11 @@ int mount_bpffs_for_pin(const char *name)
+ 	int err = 0;
  
--	if (!jit->seen_reg[r1] && r1 >= 6 && r1 <= 15)
-+	if (r1 >= 6 && r1 <= 15 && !jit->seen_reg[r1])
- 		jit->seen_reg[r1] = 1;
- }
+ 	file = malloc(strlen(name) + 1);
++	if (!file) {
++		p_err("mem alloc failed");
++		return -1;
++	}
++
+ 	strcpy(file, name);
+ 	dir = dirname(file);
  
 -- 
 2.30.2
