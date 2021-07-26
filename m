@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F23643D619F
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:14:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A80A03D604D
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:10:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233590AbhGZPcZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:32:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45896 "EHLO mail.kernel.org"
+        id S236088AbhGZPVn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:21:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35826 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231795AbhGZPaY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:30:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CDC6C60C40;
-        Mon, 26 Jul 2021 16:10:51 +0000 (UTC)
+        id S237193AbhGZPVe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:21:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B406D60FEE;
+        Mon, 26 Jul 2021 16:02:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315852;
-        bh=jqklDH182WCZFaSyD0dixLPZ64j+3WVu55k7ZEa9Y9c=;
+        s=korg; t=1627315323;
+        bh=Go1iKbPM/vtqA/2HqRpjLUeZFIYJ3ls5OtMWS70sE7s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eFUpoPJO41pchs8CbsnNUNZSCc6AIi0zTJ+H395HL1JgWn4x6TVsaZbO42oN27+oA
-         M+TcKM7wxs2dB0MV5Od/iAeqgaZPwMpw/TezmrqDZ8wnlw/1sFtqt4vbJui04IHA3m
-         xY4a5Ba4FqyCnDimf55M0yapkC0MLRnSysvPUV7A=
+        b=a7M/M/XCJtFXQunUfF/idtpYqKM68ePbNEpMFuwcA+WME3nwqjScHDryLg7vf5CtS
+         tADiRjCExUrDGkQhJfss119Fme63Xa7Vmu+prEoPHhCQjBiKNNDQH3EWIw+4a8hDQ2
+         WBCchSoVZXpHJh48x3yBtU19FxYBBIs4PTgNCW0M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yajun Deng <yajun.deng@linux.dev>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Axel Lin <axel.lin@ingics.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 092/223] net: decnet: Fix sleeping inside in af_decnet
+Subject: [PATCH 5.10 051/167] regulator: hi6421: Use correct variable type for regmap api val argument
 Date:   Mon, 26 Jul 2021 17:38:04 +0200
-Message-Id: <20210726153849.256040055@linuxfoundation.org>
+Message-Id: <20210726153841.115444027@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
-References: <20210726153846.245305071@linuxfoundation.org>
+In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
+References: <20210726153839.371771838@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,124 +40,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yajun Deng <yajun.deng@linux.dev>
+From: Axel Lin <axel.lin@ingics.com>
 
-[ Upstream commit 5f119ba1d5771bbf46d57cff7417dcd84d3084ba ]
+[ Upstream commit ae60e6a9d24e89a74e2512204ad04de94921bdd2 ]
 
-The release_sock() is blocking function, it would change the state
-after sleeping. use wait_woken() instead.
+Use unsigned int instead of u32 for regmap_read/regmap_update_bits val
+argument.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Yajun Deng <yajun.deng@linux.dev>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Axel Lin <axel.lin@ingics.com>
+Link: https://lore.kernel.org/r/20210619124133.4096683-1-axel.lin@ingics.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/decnet/af_decnet.c | 27 ++++++++++++---------------
- 1 file changed, 12 insertions(+), 15 deletions(-)
+ drivers/regulator/hi6421-regulator.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/net/decnet/af_decnet.c b/net/decnet/af_decnet.c
-index 5dbd45dc35ad..dc92a67baea3 100644
---- a/net/decnet/af_decnet.c
-+++ b/net/decnet/af_decnet.c
-@@ -816,7 +816,7 @@ static int dn_auto_bind(struct socket *sock)
- static int dn_confirm_accept(struct sock *sk, long *timeo, gfp_t allocation)
+diff --git a/drivers/regulator/hi6421-regulator.c b/drivers/regulator/hi6421-regulator.c
+index dc631c1a46b4..bff8c515dcde 100644
+--- a/drivers/regulator/hi6421-regulator.c
++++ b/drivers/regulator/hi6421-regulator.c
+@@ -386,7 +386,7 @@ static int hi6421_regulator_enable(struct regulator_dev *rdev)
+ static unsigned int hi6421_regulator_ldo_get_mode(struct regulator_dev *rdev)
  {
- 	struct dn_scp *scp = DN_SK(sk);
--	DEFINE_WAIT(wait);
-+	DEFINE_WAIT_FUNC(wait, woken_wake_function);
- 	int err;
+ 	struct hi6421_regulator_info *info = rdev_get_drvdata(rdev);
+-	u32 reg_val;
++	unsigned int reg_val;
  
- 	if (scp->state != DN_CR)
-@@ -826,11 +826,11 @@ static int dn_confirm_accept(struct sock *sk, long *timeo, gfp_t allocation)
- 	scp->segsize_loc = dst_metric_advmss(__sk_dst_get(sk));
- 	dn_send_conn_conf(sk, allocation);
- 
--	prepare_to_wait(sk_sleep(sk), &wait, TASK_INTERRUPTIBLE);
-+	add_wait_queue(sk_sleep(sk), &wait);
- 	for(;;) {
- 		release_sock(sk);
- 		if (scp->state == DN_CC)
--			*timeo = schedule_timeout(*timeo);
-+			*timeo = wait_woken(&wait, TASK_INTERRUPTIBLE, *timeo);
- 		lock_sock(sk);
- 		err = 0;
- 		if (scp->state == DN_RUN)
-@@ -844,9 +844,8 @@ static int dn_confirm_accept(struct sock *sk, long *timeo, gfp_t allocation)
- 		err = -EAGAIN;
- 		if (!*timeo)
- 			break;
--		prepare_to_wait(sk_sleep(sk), &wait, TASK_INTERRUPTIBLE);
- 	}
--	finish_wait(sk_sleep(sk), &wait);
-+	remove_wait_queue(sk_sleep(sk), &wait);
- 	if (err == 0) {
- 		sk->sk_socket->state = SS_CONNECTED;
- 	} else if (scp->state != DN_CC) {
-@@ -858,7 +857,7 @@ static int dn_confirm_accept(struct sock *sk, long *timeo, gfp_t allocation)
- static int dn_wait_run(struct sock *sk, long *timeo)
+ 	regmap_read(rdev->regmap, rdev->desc->enable_reg, &reg_val);
+ 	if (reg_val & info->mode_mask)
+@@ -398,7 +398,7 @@ static unsigned int hi6421_regulator_ldo_get_mode(struct regulator_dev *rdev)
+ static unsigned int hi6421_regulator_buck_get_mode(struct regulator_dev *rdev)
  {
- 	struct dn_scp *scp = DN_SK(sk);
--	DEFINE_WAIT(wait);
-+	DEFINE_WAIT_FUNC(wait, woken_wake_function);
- 	int err = 0;
+ 	struct hi6421_regulator_info *info = rdev_get_drvdata(rdev);
+-	u32 reg_val;
++	unsigned int reg_val;
  
- 	if (scp->state == DN_RUN)
-@@ -867,11 +866,11 @@ static int dn_wait_run(struct sock *sk, long *timeo)
- 	if (!*timeo)
- 		return -EALREADY;
- 
--	prepare_to_wait(sk_sleep(sk), &wait, TASK_INTERRUPTIBLE);
-+	add_wait_queue(sk_sleep(sk), &wait);
- 	for(;;) {
- 		release_sock(sk);
- 		if (scp->state == DN_CI || scp->state == DN_CC)
--			*timeo = schedule_timeout(*timeo);
-+			*timeo = wait_woken(&wait, TASK_INTERRUPTIBLE, *timeo);
- 		lock_sock(sk);
- 		err = 0;
- 		if (scp->state == DN_RUN)
-@@ -885,9 +884,8 @@ static int dn_wait_run(struct sock *sk, long *timeo)
- 		err = -ETIMEDOUT;
- 		if (!*timeo)
- 			break;
--		prepare_to_wait(sk_sleep(sk), &wait, TASK_INTERRUPTIBLE);
- 	}
--	finish_wait(sk_sleep(sk), &wait);
-+	remove_wait_queue(sk_sleep(sk), &wait);
- out:
- 	if (err == 0) {
- 		sk->sk_socket->state = SS_CONNECTED;
-@@ -1032,16 +1030,16 @@ static void dn_user_copy(struct sk_buff *skb, struct optdata_dn *opt)
- 
- static struct sk_buff *dn_wait_for_connect(struct sock *sk, long *timeo)
+ 	regmap_read(rdev->regmap, rdev->desc->enable_reg, &reg_val);
+ 	if (reg_val & info->mode_mask)
+@@ -411,7 +411,7 @@ static int hi6421_regulator_ldo_set_mode(struct regulator_dev *rdev,
+ 						unsigned int mode)
  {
--	DEFINE_WAIT(wait);
-+	DEFINE_WAIT_FUNC(wait, woken_wake_function);
- 	struct sk_buff *skb = NULL;
- 	int err = 0;
+ 	struct hi6421_regulator_info *info = rdev_get_drvdata(rdev);
+-	u32 new_mode;
++	unsigned int new_mode;
  
--	prepare_to_wait(sk_sleep(sk), &wait, TASK_INTERRUPTIBLE);
-+	add_wait_queue(sk_sleep(sk), &wait);
- 	for(;;) {
- 		release_sock(sk);
- 		skb = skb_dequeue(&sk->sk_receive_queue);
- 		if (skb == NULL) {
--			*timeo = schedule_timeout(*timeo);
-+			*timeo = wait_woken(&wait, TASK_INTERRUPTIBLE, *timeo);
- 			skb = skb_dequeue(&sk->sk_receive_queue);
- 		}
- 		lock_sock(sk);
-@@ -1056,9 +1054,8 @@ static struct sk_buff *dn_wait_for_connect(struct sock *sk, long *timeo)
- 		err = -EAGAIN;
- 		if (!*timeo)
- 			break;
--		prepare_to_wait(sk_sleep(sk), &wait, TASK_INTERRUPTIBLE);
- 	}
--	finish_wait(sk_sleep(sk), &wait);
-+	remove_wait_queue(sk_sleep(sk), &wait);
+ 	switch (mode) {
+ 	case REGULATOR_MODE_NORMAL:
+@@ -435,7 +435,7 @@ static int hi6421_regulator_buck_set_mode(struct regulator_dev *rdev,
+ 						unsigned int mode)
+ {
+ 	struct hi6421_regulator_info *info = rdev_get_drvdata(rdev);
+-	u32 new_mode;
++	unsigned int new_mode;
  
- 	return skb == NULL ? ERR_PTR(err) : skb;
- }
+ 	switch (mode) {
+ 	case REGULATOR_MODE_NORMAL:
 -- 
 2.30.2
 
