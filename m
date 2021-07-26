@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AF703D6193
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:14:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 431DF3D6035
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:02:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233431AbhGZPcU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:32:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45254 "EHLO mail.kernel.org"
+        id S236564AbhGZPVX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:21:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231792AbhGZPaG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:30:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EB0A060EB2;
-        Mon, 26 Jul 2021 16:10:33 +0000 (UTC)
+        id S237145AbhGZPVQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:21:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 83E5460EB2;
+        Mon, 26 Jul 2021 16:01:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315834;
-        bh=B6JJ3IY2p8yTR4M1J49UqgRmpT+RwB8ZHB9+uJt4OK8=;
+        s=korg; t=1627315304;
+        bh=du2R44g+IPleoXO1Mk/o0CL0OH9xHIyDQN8c84P4nLY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xc1lK966tqVW81VSdxwZlxghbQTRdffrQq2BPbWGMRnikXzkaUbaRR1eZVFBMJbRO
-         ZJh5W2eZqAKkqdQ0Z+ilrMXqeBCrk/bQPQvLtrBxsOQogrB3dxV6Kd9i5igAHbqNTp
-         G4e7UBSSpS9ViEkMmzhgjOVy4Le/GluknFj00d2U=
+        b=cwy+hczhdR7Dghae/FJjLiH9WfIAULvDp+OVCc8NvAm9k3euvrJ/YSfXR02dQKBrF
+         bA3OdMHPpaX0q7edVTsfwSQ2nAmx4erJjiiYmHYKpusoPkjPa1o/r8VbSdWtrt1gTE
+         XgKczEu25BOgc0HhqCn1i8Ug4whsQ8vgL3Rvh+h8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+09a5d591c1f98cf5efcb@syzkaller.appspotmail.com,
-        Ziyang Xuan <william.xuanziyang@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Riccardo Mancini <rickyman7@gmail.com>,
+        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 086/223] net: fix uninit-value in caif_seqpkt_sendmsg
+Subject: [PATCH 5.10 045/167] perf probe-file: Delete namelist in del_events() on the error path
 Date:   Mon, 26 Jul 2021 17:37:58 +0200
-Message-Id: <20210726153849.058092873@linuxfoundation.org>
+Message-Id: <20210726153840.902707382@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
-References: <20210726153846.245305071@linuxfoundation.org>
+In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
+References: <20210726153839.371771838@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,54 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ziyang Xuan <william.xuanziyang@huawei.com>
+From: Riccardo Mancini <rickyman7@gmail.com>
 
-[ Upstream commit 991e634360f2622a683b48dfe44fe6d9cb765a09 ]
+[ Upstream commit e0fa7ab42232e742dcb3de9f3c1f6127b5adc019 ]
 
-When nr_segs equal to zero in iovec_from_user, the object
-msg->msg_iter.iov is uninit stack memory in caif_seqpkt_sendmsg
-which is defined in ___sys_sendmsg. So we cann't just judge
-msg->msg_iter.iov->base directlly. We can use nr_segs to judge
-msg in caif_seqpkt_sendmsg whether has data buffers.
+ASan reports some memory leaks when running:
 
-=====================================================
-BUG: KMSAN: uninit-value in caif_seqpkt_sendmsg+0x693/0xf60 net/caif/caif_socket.c:542
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x1c9/0x220 lib/dump_stack.c:118
- kmsan_report+0xf7/0x1e0 mm/kmsan/kmsan_report.c:118
- __msan_warning+0x58/0xa0 mm/kmsan/kmsan_instr.c:215
- caif_seqpkt_sendmsg+0x693/0xf60 net/caif/caif_socket.c:542
- sock_sendmsg_nosec net/socket.c:652 [inline]
- sock_sendmsg net/socket.c:672 [inline]
- ____sys_sendmsg+0x12b6/0x1350 net/socket.c:2343
- ___sys_sendmsg net/socket.c:2397 [inline]
- __sys_sendmmsg+0x808/0xc90 net/socket.c:2480
- __compat_sys_sendmmsg net/compat.c:656 [inline]
+  # perf test "42: BPF filter"
 
-Reported-by: syzbot+09a5d591c1f98cf5efcb@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?id=1ace85e8fc9b0d5a45c08c2656c3e91762daa9b8
-Fixes: bece7b2398d0 ("caif: Rewritten socket implementation")
-Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This second leak is caused by a strlist not being dellocated on error
+inside probe_file__del_events.
+
+This patch adds a goto label before the deallocation and makes the error
+path jump to it.
+
+Signed-off-by: Riccardo Mancini <rickyman7@gmail.com>
+Fixes: e7895e422e4da63d ("perf probe: Split del_perf_probe_events()")
+Cc: Ian Rogers <irogers@google.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lore.kernel.org/lkml/174963c587ae77fa108af794669998e4ae558338.1626343282.git.rickyman7@gmail.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/caif/caif_socket.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ tools/perf/util/probe-file.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/caif/caif_socket.c b/net/caif/caif_socket.c
-index 3ad0a1df6712..9d26c5e9da05 100644
---- a/net/caif/caif_socket.c
-+++ b/net/caif/caif_socket.c
-@@ -539,7 +539,8 @@ static int caif_seqpkt_sendmsg(struct socket *sock, struct msghdr *msg,
- 		goto err;
+diff --git a/tools/perf/util/probe-file.c b/tools/perf/util/probe-file.c
+index bbecb449ea94..d2b98d64438e 100644
+--- a/tools/perf/util/probe-file.c
++++ b/tools/perf/util/probe-file.c
+@@ -342,11 +342,11 @@ int probe_file__del_events(int fd, struct strfilter *filter)
  
- 	ret = -EINVAL;
--	if (unlikely(msg->msg_iter.iov->iov_base == NULL))
-+	if (unlikely(msg->msg_iter.nr_segs == 0) ||
-+	    unlikely(msg->msg_iter.iov->iov_base == NULL))
- 		goto err;
- 	noblock = msg->msg_flags & MSG_DONTWAIT;
+ 	ret = probe_file__get_events(fd, filter, namelist);
+ 	if (ret < 0)
+-		return ret;
++		goto out;
+ 
+ 	ret = probe_file__del_strlist(fd, namelist);
++out:
+ 	strlist__delete(namelist);
+-
+ 	return ret;
+ }
  
 -- 
 2.30.2
