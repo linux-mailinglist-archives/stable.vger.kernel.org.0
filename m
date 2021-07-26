@@ -2,40 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF4C43D5FA5
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A80D53D5ECD
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:59:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236180AbhGZPSl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:18:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56636 "EHLO mail.kernel.org"
+        id S236346AbhGZPLg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:11:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236449AbhGZPQr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:16:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C400660F38;
-        Mon, 26 Jul 2021 15:57:15 +0000 (UTC)
+        id S236259AbhGZPHg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:07:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F73560F38;
+        Mon, 26 Jul 2021 15:48:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315036;
-        bh=DYJU4jqX5WEXFYWKhHqfdXoZ8elYo2C9RlYka+qwH24=;
+        s=korg; t=1627314482;
+        bh=y8PqjIkQNShzXhJ3wznCX353YdFhgkczSiqZ6JlyCOY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kNUn4KmvvwoVZyg1VKw1T9t+M26dsDPDq3G3QN8HjZqZttvYkUvtXFN/S6qMWNsF5
-         FVhum6JCXOwk0aN1MN8tpiHgPZ9m/HSc2IrIPW2oYzMcMCxOZhl+zRhRB1VN5cuVak
-         ly7mSu8gokwvHh14qckcSv7MxWHMV7ApeHUwxCqA=
+        b=W5+88TSEnRfFNW0QhIHzXd8QdjDtIZf+nFbOUc0BlA30f8FMnmPizLaPq/joLXpg5
+         c9gOHcnJzyzf40I9z9fm447eLWLrVXYTug3JMENxo5CJu9UiQprmzL0lxMnLPqHY7e
+         CJQT7TuRwFyI3MNwe7PAKhadZsUxOwEGaXgMQqZE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Riccardo Mancini <rickyman7@gmail.com>,
-        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 026/108] perf script: Fix memory threads and cpus leaks on exit
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 27/82] net: moxa: fix UAF in moxart_mac_probe
 Date:   Mon, 26 Jul 2021 17:38:27 +0200
-Message-Id: <20210726153832.540872281@linuxfoundation.org>
+Message-Id: <20210726153829.044773409@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
-References: <20210726153831.696295003@linuxfoundation.org>
+In-Reply-To: <20210726153828.144714469@linuxfoundation.org>
+References: <20210726153828.144714469@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,64 +39,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Riccardo Mancini <rickyman7@gmail.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit faf3ac305d61341c74e5cdd9e41daecce7f67bfe ]
+commit c78eaeebe855fd93f2e77142ffd0404a54070d84 upstream.
 
-ASan reports several memory leaks while running:
+In case of netdev registration failure the code path will
+jump to init_fail label:
 
-  # perf test "82: Use vfs_getname probe to get syscall args filenames"
+init_fail:
+	netdev_err(ndev, "init failed\n");
+	moxart_mac_free_memory(ndev);
+irq_map_fail:
+	free_netdev(ndev);
+	return ret;
 
-Two of these are caused by some refcounts not being decreased on
-perf-script exit, namely script.threads and script.cpus.
+So, there is no need to call free_netdev() before jumping
+to error handling path, since it can cause UAF or double-free
+bug.
 
-This patch adds the missing __put calls in a new perf_script__exit
-function, which is called at the end of cmd_script.
-
-This patch concludes the fixes of all remaining memory leaks in perf
-test "82: Use vfs_getname probe to get syscall args filenames".
-
-Signed-off-by: Riccardo Mancini <rickyman7@gmail.com>
-Fixes: cfc8874a48599249 ("perf script: Process cpu/threads maps")
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/5ee73b19791c6fa9d24c4d57f4ac1a23609400d7.1626343282.git.rickyman7@gmail.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 6c821bd9edc9 ("net: Add MOXA ART SoCs ethernet driver")
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/builtin-script.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/net/ethernet/moxa/moxart_ether.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/tools/perf/builtin-script.c b/tools/perf/builtin-script.c
-index da016f398aa8..f3ff825d9dd3 100644
---- a/tools/perf/builtin-script.c
-+++ b/tools/perf/builtin-script.c
-@@ -2474,6 +2474,12 @@ static void perf_script__exit_per_event_dump_stats(struct perf_script *script)
- 	}
- }
+--- a/drivers/net/ethernet/moxa/moxart_ether.c
++++ b/drivers/net/ethernet/moxa/moxart_ether.c
+@@ -538,10 +538,8 @@ static int moxart_mac_probe(struct platf
+ 	SET_NETDEV_DEV(ndev, &pdev->dev);
  
-+static void perf_script__exit(struct perf_script *script)
-+{
-+	perf_thread_map__put(script->threads);
-+	perf_cpu_map__put(script->cpus);
-+}
-+
- static int __cmd_script(struct perf_script *script)
- {
- 	int ret;
-@@ -3893,6 +3899,7 @@ out_delete:
+ 	ret = register_netdev(ndev);
+-	if (ret) {
+-		free_netdev(ndev);
++	if (ret)
+ 		goto init_fail;
+-	}
  
- 	perf_evlist__free_stats(session->evlist);
- 	perf_session__delete(session);
-+	perf_script__exit(&script);
- 
- 	if (script_started)
- 		cleanup_scripting();
--- 
-2.30.2
-
+ 	netdev_dbg(ndev, "%s: IRQ=%d address=%pM\n",
+ 		   __func__, ndev->irq, ndev->dev_addr);
 
 
