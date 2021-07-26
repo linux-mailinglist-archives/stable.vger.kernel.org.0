@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B96C63D60AB
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:11:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E8113D60AC
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:11:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237682AbhGZPXt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:23:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38594 "EHLO mail.kernel.org"
+        id S237687AbhGZPXw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:23:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237621AbhGZPXj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:23:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2688260E09;
-        Mon, 26 Jul 2021 16:04:06 +0000 (UTC)
+        id S237628AbhGZPXl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:23:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 86FD860F5B;
+        Mon, 26 Jul 2021 16:04:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315447;
-        bh=LOLFp2Jxe/nZf0/qwm3GMI4JtoZ1I5Bkwn4WyZWr6zs=;
+        s=korg; t=1627315450;
+        bh=9rtWSqTmb6FLPUpTaJo3Fw6FtU2QwxOMw4AoCQiLDBM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gkdShWL3c2ndj9Dp3tLsSbVRP8yEhQ4p9OvR6HrTCQm2JjlXCjSgo7dW/o0kT4AmA
-         8/PMer2fYFhae9HNpR9R5Zy4PtfsilLxvMomZxoTDyaFnGf5bYqa0k/X5q0yGy0/3h
-         h6hENy0koaDa0tdRnHRMpJk/Yp2KDtLosxdvu9cE=
+        b=AozWkOdxhAhEXF6n04yxIeK9O33cnJXbax5vumLQEZ+08ENyBsLclv/Z81pcHtm7Y
+         YhItso0VK4MvzAbACnY59yStITC6+N/xa1YwDzR5Ibqpx27QzGTwrD4VUGjk09sU81
+         fgGkncidhTAQKJBt3L/oOUwFQqVHObUoK1hunios=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wei Wang <weiwan@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Neal Cardwell <ncardwell@google.com>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
-        Yuchung Cheng <ycheng@google.com>,
+        stable@vger.kernel.org,
+        "Radu Pirea (NXP OSS)" <radu-nicolae.pirea@oss.nxp.com>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 099/167] tcp: disable TFO blackhole logic by default
-Date:   Mon, 26 Jul 2021 17:38:52 +0200
-Message-Id: <20210726153842.719316961@linuxfoundation.org>
+Subject: [PATCH 5.10 100/167] net: dsa: sja1105: make VID 4095 a bridge VLAN too
+Date:   Mon, 26 Jul 2021 17:38:53 +0200
+Message-Id: <20210726153842.750755628@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
 References: <20210726153839.371771838@linuxfoundation.org>
@@ -44,88 +42,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Wang <weiwan@google.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit 213ad73d06073b197a02476db3a4998e219ddb06 ]
+[ Upstream commit e40cba9490bab1414d45c2d62defc0ad4f6e4136 ]
 
-Multiple complaints have been raised from the TFO users on the internet
-stating that the TFO blackhole logic is too aggressive and gets falsely
-triggered too often.
-(e.g. https://blog.apnic.net/2021/07/05/tcp-fast-open-not-so-fast/)
-Considering that most middleboxes no longer drop TFO packets, we decide
-to disable the blackhole logic by setting
-/proc/sys/net/ipv4/tcp_fastopen_blackhole_timeout_set to 0 by default.
+This simple series of commands:
 
-Fixes: cf1ef3f0719b4 ("net/tcp_fastopen: Disable active side TFO in certain scenarios")
-Signed-off-by: Wei Wang <weiwan@google.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Acked-by: Neal Cardwell <ncardwell@google.com>
-Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
-Acked-by: Yuchung Cheng <ycheng@google.com>
+ip link add br0 type bridge vlan_filtering 1
+ip link set swp0 master br0
+
+fails on sja1105 with the following error:
+[   33.439103] sja1105 spi0.1: vlan-lookup-table needs to have at least the default untagged VLAN
+[   33.447710] sja1105 spi0.1: Invalid config, cannot upload
+Warning: sja1105: Failed to change VLAN Ethertype.
+
+For context, sja1105 has 3 operating modes:
+- SJA1105_VLAN_UNAWARE: the dsa_8021q_vlans are committed to hardware
+- SJA1105_VLAN_FILTERING_FULL: the bridge_vlans are committed to hardware
+- SJA1105_VLAN_FILTERING_BEST_EFFORT: both the dsa_8021q_vlans and the
+  bridge_vlans are committed to hardware
+
+Swapping out a VLAN list and another in happens in
+sja1105_build_vlan_table(), which performs a delta update procedure.
+That function is called from a few places, notably from
+sja1105_vlan_filtering() which is called from the
+SWITCHDEV_ATTR_ID_BRIDGE_VLAN_FILTERING handler.
+
+The above set of 2 commands fails when run on a kernel pre-commit
+8841f6e63f2c ("net: dsa: sja1105: make devlink property
+best_effort_vlan_filtering true by default"). So the priv->vlan_state
+transition that takes place is between VLAN-unaware and full VLAN
+filtering. So the dsa_8021q_vlans are swapped out and the bridge_vlans
+are swapped in.
+
+So why does it fail?
+
+Well, the bridge driver, through nbp_vlan_init(), first sets up the
+SWITCHDEV_ATTR_ID_BRIDGE_VLAN_FILTERING attribute, and only then
+proceeds to call nbp_vlan_add for the default_pvid.
+
+So when we swap out the dsa_8021q_vlans and swap in the bridge_vlans in
+the SWITCHDEV_ATTR_ID_BRIDGE_VLAN_FILTERING handler, there are no bridge
+VLANs (yet). So we have wiped the VLAN table clean, and the low-level
+static config checker complains of an invalid configuration. We _will_
+add the bridge VLANs using the dynamic config interface, albeit later,
+when nbp_vlan_add() calls us. So it is natural that it fails.
+
+So why did it ever work?
+
+Surprisingly, it looks like I only tested this configuration with 2
+things set up in a particular way:
+- a network manager that brings all ports up
+- a kernel with CONFIG_VLAN_8021Q=y
+
+It is widely known that commit ad1afb003939 ("vlan_dev: VLAN 0 should be
+treated as "no vlan tag" (802.1p packet)") installs VID 0 to every net
+device that comes up. DSA treats these VLANs as bridge VLANs, and
+therefore, in my testing, the list of bridge_vlans was never empty.
+
+However, if CONFIG_VLAN_8021Q is not enabled, or the port is not up when
+it joins a VLAN-aware bridge, the bridge_vlans list will be temporarily
+empty, and the sja1105_static_config_reload() call from
+sja1105_vlan_filtering() will fail.
+
+To fix this, the simplest thing is to keep VID 4095, the one used for
+CPU-injected control packets since commit ed040abca4c1 ("net: dsa:
+sja1105: use 4095 as the private VLAN for untagged traffic"), in the
+list of bridge VLANs too, not just the list of tag_8021q VLANs. This
+ensures that the list of bridge VLANs will never be empty.
+
+Fixes: ec5ae61076d0 ("net: dsa: sja1105: save/restore VLANs using a delta commit method")
+Reported-by: Radu Pirea (NXP OSS) <radu-nicolae.pirea@oss.nxp.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/networking/ip-sysctl.rst | 2 +-
- net/ipv4/tcp_fastopen.c                | 9 ++++++++-
- net/ipv4/tcp_ipv4.c                    | 2 +-
- 3 files changed, 10 insertions(+), 3 deletions(-)
+ drivers/net/dsa/sja1105/sja1105_main.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/Documentation/networking/ip-sysctl.rst b/Documentation/networking/ip-sysctl.rst
-index 4abcfff15e38..4822a058a81d 100644
---- a/Documentation/networking/ip-sysctl.rst
-+++ b/Documentation/networking/ip-sysctl.rst
-@@ -751,7 +751,7 @@ tcp_fastopen_blackhole_timeout_sec - INTEGER
- 	initial value when the blackhole issue goes away.
- 	0 to disable the blackhole detection.
- 
--	By default, it is set to 1hr.
-+	By default, it is set to 0 (feature is disabled).
- 
- tcp_fastopen_key - list of comma separated 32-digit hexadecimal INTEGERs
- 	The list consists of a primary key and an optional backup key. The
-diff --git a/net/ipv4/tcp_fastopen.c b/net/ipv4/tcp_fastopen.c
-index 08548ff23d83..d49709ba8e16 100644
---- a/net/ipv4/tcp_fastopen.c
-+++ b/net/ipv4/tcp_fastopen.c
-@@ -507,6 +507,9 @@ void tcp_fastopen_active_disable(struct sock *sk)
- {
- 	struct net *net = sock_net(sk);
- 
-+	if (!sock_net(sk)->ipv4.sysctl_tcp_fastopen_blackhole_timeout)
-+		return;
+diff --git a/drivers/net/dsa/sja1105/sja1105_main.c b/drivers/net/dsa/sja1105/sja1105_main.c
+index 82852c57cc0e..82b918d36117 100644
+--- a/drivers/net/dsa/sja1105/sja1105_main.c
++++ b/drivers/net/dsa/sja1105/sja1105_main.c
+@@ -350,6 +350,12 @@ static int sja1105_init_static_vlan(struct sja1105_private *priv)
+ 		if (dsa_is_cpu_port(ds, port))
+ 			v->pvid = true;
+ 		list_add(&v->list, &priv->dsa_8021q_vlans);
 +
- 	/* Paired with READ_ONCE() in tcp_fastopen_active_should_disable() */
- 	WRITE_ONCE(net->ipv4.tfo_active_disable_stamp, jiffies);
- 
-@@ -526,10 +529,14 @@ void tcp_fastopen_active_disable(struct sock *sk)
- bool tcp_fastopen_active_should_disable(struct sock *sk)
- {
- 	unsigned int tfo_bh_timeout = sock_net(sk)->ipv4.sysctl_tcp_fastopen_blackhole_timeout;
--	int tfo_da_times = atomic_read(&sock_net(sk)->ipv4.tfo_active_disable_times);
- 	unsigned long timeout;
-+	int tfo_da_times;
- 	int multiplier;
- 
-+	if (!tfo_bh_timeout)
-+		return false;
++		v = kmemdup(v, sizeof(*v), GFP_KERNEL);
++		if (!v)
++			return -ENOMEM;
 +
-+	tfo_da_times = atomic_read(&sock_net(sk)->ipv4.tfo_active_disable_times);
- 	if (!tfo_da_times)
- 		return false;
++		list_add(&v->list, &priv->bridge_vlans);
+ 	}
  
-diff --git a/net/ipv4/tcp_ipv4.c b/net/ipv4/tcp_ipv4.c
-index 5212db9ea157..04e259a04443 100644
---- a/net/ipv4/tcp_ipv4.c
-+++ b/net/ipv4/tcp_ipv4.c
-@@ -2913,7 +2913,7 @@ static int __net_init tcp_sk_init(struct net *net)
- 	net->ipv4.sysctl_tcp_comp_sack_nr = 44;
- 	net->ipv4.sysctl_tcp_fastopen = TFO_CLIENT_ENABLE;
- 	spin_lock_init(&net->ipv4.tcp_fastopen_ctx_lock);
--	net->ipv4.sysctl_tcp_fastopen_blackhole_timeout = 60 * 60;
-+	net->ipv4.sysctl_tcp_fastopen_blackhole_timeout = 0;
- 	atomic_set(&net->ipv4.tfo_active_disable_times, 0);
- 
- 	/* Reno is always built in */
+ 	((struct sja1105_vlan_lookup_entry *)table->entries)[0] = pvid;
 -- 
 2.30.2
 
