@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F261E3D5FAD
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C40D43D5D7E
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:42:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236492AbhGZPSv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:18:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57158 "EHLO mail.kernel.org"
+        id S235616AbhGZPBo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:01:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236513AbhGZPRK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:17:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E000760F70;
-        Mon, 26 Jul 2021 15:57:34 +0000 (UTC)
+        id S235631AbhGZPBo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:01:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3846D60E08;
+        Mon, 26 Jul 2021 15:42:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315055;
-        bh=nOCnzzOAdsN24bfZsElojP6Q2fJlpF1q7LJRy2tPqRo=;
+        s=korg; t=1627314132;
+        bh=iFVQQ7ITy6zb7ITlcrIkQQlxCv+iDPrf+d2y41YyjlI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UXkMbF2ggDVFoP4Gj9OCBxtsh6pJ3H0niEdmNLDmrAdMaI9rlD2ybAPuuCgGq9G0d
-         hIZqrgeK9EjWcENPyOGFOu1GzAYOiM9V0BOs1Sn0HfiBHzvu5mrnE62OMvt+NsnYk9
-         vhNua8+o02EIwxmJPZ1mKn2fHjJgFi/UaVg50nVc=
+        b=NDV3i/XD9jg8vEaOycMEgJQDzm6K+fiH82fvrudCE2V2zzwz70VSc5J+k59baEB2s
+         IGMR1HyhXUcT/EBzlT6FmvaF9GWgahEHdqLwXIbcUEZX/iPHT4uuEw39yl/rZB5NO2
+         1WP84YWNykPrkItTvjYQ8F185efAGvzv3SSaeW/8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 060/108] nvme-pci: dont WARN_ON in nvme_reset_work if ctrl.state is not RESETTING
-Date:   Mon, 26 Jul 2021 17:39:01 +0200
-Message-Id: <20210726153833.616622957@linuxfoundation.org>
+        stable@vger.kernel.org, Doug Berger <opendmb@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 44/47] net: bcmgenet: ensure EXT_ENERGY_DET_MASK is clear
+Date:   Mon, 26 Jul 2021 17:39:02 +0200
+Message-Id: <20210726153824.361734541@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
-References: <20210726153831.696295003@linuxfoundation.org>
+In-Reply-To: <20210726153822.980271128@linuxfoundation.org>
+References: <20210726153822.980271128@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,80 +40,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Doug Berger <opendmb@gmail.com>
 
-[ Upstream commit 7764656b108cd308c39e9a8554353b8f9ca232a3 ]
+commit 5a3c680aa2c12c90c44af383fe6882a39875ab81 upstream.
 
-Followling process:
-nvme_probe
-  nvme_reset_ctrl
-    nvme_change_ctrl_state(ctrl, NVME_CTRL_RESETTING)
-    queue_work(nvme_reset_wq, &ctrl->reset_work)
+Setting the EXT_ENERGY_DET_MASK bit allows the port energy detection
+logic of the internal PHY to prevent the system from sleeping. Some
+internal PHYs will report that energy is detected when the network
+interface is closed which can prevent the system from going to sleep
+if WoL is enabled when the interface is brought down.
 
--------------->	nvme_remove
-		  nvme_change_ctrl_state(&dev->ctrl, NVME_CTRL_DELETING)
-worker_thread
-  process_one_work
-    nvme_reset_work
-    WARN_ON(dev->ctrl.state != NVME_CTRL_RESETTING)
+Since the driver does not support waking the system on this logic,
+this commit clears the bit whenever the internal PHY is powered up
+and the other logic for manipulating the bit is removed since it
+serves no useful function.
 
-, which will trigger WARN_ON in nvme_reset_work():
-[  127.534298] WARNING: CPU: 0 PID: 139 at drivers/nvme/host/pci.c:2594
-[  127.536161] CPU: 0 PID: 139 Comm: kworker/u8:7 Not tainted 5.13.0
-[  127.552518] Call Trace:
-[  127.552840]  ? kvm_sched_clock_read+0x25/0x40
-[  127.553936]  ? native_send_call_func_single_ipi+0x1c/0x30
-[  127.555117]  ? send_call_function_single_ipi+0x9b/0x130
-[  127.556263]  ? __smp_call_single_queue+0x48/0x60
-[  127.557278]  ? ttwu_queue_wakelist+0xfa/0x1c0
-[  127.558231]  ? try_to_wake_up+0x265/0x9d0
-[  127.559120]  ? ext4_end_io_rsv_work+0x160/0x290
-[  127.560118]  process_one_work+0x28c/0x640
-[  127.561002]  worker_thread+0x39a/0x700
-[  127.561833]  ? rescuer_thread+0x580/0x580
-[  127.562714]  kthread+0x18c/0x1e0
-[  127.563444]  ? set_kthread_struct+0x70/0x70
-[  127.564347]  ret_from_fork+0x1f/0x30
-
-The preceding problem can be easily reproduced by executing following
-script (based on blktests suite):
-test() {
-  pdev="$(_get_pci_dev_from_blkdev)"
-  sysfs="/sys/bus/pci/devices/${pdev}"
-  for ((i = 0; i < 10; i++)); do
-    echo 1 > "$sysfs/remove"
-    echo 1 > /sys/bus/pci/rescan
-  done
-}
-
-Since the device ctrl could be updated as an non-RESETTING state by
-repeating probe/remove in userspace (which is a normal situation), we
-can replace stack dumping WARN_ON with a warnning message.
-
-Fixes: 82b057caefaff ("nvme-pci: fix multiple ctrl removal schedulin")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 1c1008c793fa ("net: bcmgenet: add main driver file")
+Signed-off-by: Doug Berger <opendmb@gmail.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvme/host/pci.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/broadcom/genet/bcmgenet.c     |   15 +--------------
+ drivers/net/ethernet/broadcom/genet/bcmgenet_wol.c |    6 ------
+ 2 files changed, 1 insertion(+), 20 deletions(-)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index f9dba1a3e655..af516c35afe6 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -2590,7 +2590,9 @@ static void nvme_reset_work(struct work_struct *work)
- 	bool was_suspend = !!(dev->ctrl.ctrl_config & NVME_CC_SHN_NORMAL);
- 	int result;
+--- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
++++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
+@@ -1094,7 +1094,7 @@ static void bcmgenet_power_up(struct bcm
+ 	switch (mode) {
+ 	case GENET_POWER_PASSIVE:
+ 		reg &= ~(EXT_PWR_DOWN_DLL | EXT_PWR_DOWN_PHY |
+-				EXT_PWR_DOWN_BIAS);
++			 EXT_PWR_DOWN_BIAS | EXT_ENERGY_DET_MASK);
+ 		/* fallthrough */
+ 	case GENET_POWER_CABLE_SENSE:
+ 		/* enable APD */
+@@ -2908,12 +2908,6 @@ static int bcmgenet_open(struct net_devi
  
--	if (WARN_ON(dev->ctrl.state != NVME_CTRL_RESETTING)) {
-+	if (dev->ctrl.state != NVME_CTRL_RESETTING) {
-+		dev_warn(dev->ctrl.device, "ctrl state %d is not RESETTING\n",
-+			 dev->ctrl.state);
- 		result = -ENODEV;
- 		goto out;
- 	}
--- 
-2.30.2
-
+ 	bcmgenet_set_hw_addr(priv, dev->dev_addr);
+ 
+-	if (priv->internal_phy) {
+-		reg = bcmgenet_ext_readl(priv, EXT_EXT_PWR_MGMT);
+-		reg |= EXT_ENERGY_DET_MASK;
+-		bcmgenet_ext_writel(priv, reg, EXT_EXT_PWR_MGMT);
+-	}
+-
+ 	/* Disable RX/TX DMA and flush TX queues */
+ 	dma_ctrl = bcmgenet_dma_disable(priv);
+ 
+@@ -3601,7 +3595,6 @@ static int bcmgenet_resume(struct device
+ 	struct bcmgenet_priv *priv = netdev_priv(dev);
+ 	unsigned long dma_ctrl;
+ 	int ret;
+-	u32 reg;
+ 
+ 	if (!netif_running(dev))
+ 		return 0;
+@@ -3636,12 +3629,6 @@ static int bcmgenet_resume(struct device
+ 
+ 	bcmgenet_set_hw_addr(priv, dev->dev_addr);
+ 
+-	if (priv->internal_phy) {
+-		reg = bcmgenet_ext_readl(priv, EXT_EXT_PWR_MGMT);
+-		reg |= EXT_ENERGY_DET_MASK;
+-		bcmgenet_ext_writel(priv, reg, EXT_EXT_PWR_MGMT);
+-	}
+-
+ 	if (priv->wolopts)
+ 		bcmgenet_power_up(priv, GENET_POWER_WOL_MAGIC);
+ 
+--- a/drivers/net/ethernet/broadcom/genet/bcmgenet_wol.c
++++ b/drivers/net/ethernet/broadcom/genet/bcmgenet_wol.c
+@@ -167,12 +167,6 @@ int bcmgenet_wol_power_down_cfg(struct b
+ 	reg |= CMD_RX_EN;
+ 	bcmgenet_umac_writel(priv, reg, UMAC_CMD);
+ 
+-	if (priv->hw_params->flags & GENET_HAS_EXT) {
+-		reg = bcmgenet_ext_readl(priv, EXT_EXT_PWR_MGMT);
+-		reg &= ~EXT_ENERGY_DET_MASK;
+-		bcmgenet_ext_writel(priv, reg, EXT_EXT_PWR_MGMT);
+-	}
+-
+ 	/* Enable the MPD interrupt */
+ 	cpu_mask_clear = UMAC_IRQ_MPD_R;
+ 
 
 
