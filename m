@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22DCE3D5F3B
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 401D93D5D8B
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:43:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236557AbhGZPRS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:17:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54614 "EHLO mail.kernel.org"
+        id S235675AbhGZPB6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:01:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237413AbhGZPPo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:15:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5110D60FED;
-        Mon, 26 Jul 2021 15:53:56 +0000 (UTC)
+        id S235267AbhGZPB5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:01:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8559160F38;
+        Mon, 26 Jul 2021 15:42:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314836;
-        bh=8PUFWCwIFACyJkXYGlu+2hFKuSyoFNQfdVjch8m4P8M=;
+        s=korg; t=1627314145;
+        bh=vyVWXUN6tW79B2YsmhAvHwXNo6CbRr4bcy9iu4ZFa8I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qCTyG4yILegwxxV8Me588vspLKDRyOpn5E+LmEwygpqNz8pyLNyNvLRozxFcS3EKe
-         QQlTGfVkLX0aUmLR1jJ0D8Z2/BWaGGYWaH7sqFZY8rqHxz7/rMfHbTHnCXuUR3wdth
-         9YqRkyn0ZRYEjnQie1QehYEQ6oLRwDxzV/0wbXrE=
+        b=L6uYdBm4ocF5qvse3qezO6I41purpvGoMkWdQoFK0P5DJcWifE+XVajOZrkOZeuZv
+         cGwB07ES6ima5NE7Wotea9NrgTNjcabdDYK1LfLzNtNbytLGXQ3XUcY6Aw2RMZmAWg
+         BMtPVSchLcPYtt4Qj0AtjGCSXoEufpR0YMZs5Ux4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tobias Klauser <tklauser@distanz.ch>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Quentin Monnet <quentin@isovalent.com>,
-        Roman Gushchin <guro@fb.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 074/120] bpftool: Check malloc return value in mount_bpffs_for_pin
+        stable@vger.kernel.org, Dmitry Bogdanov <d.bogdanov@yadro.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 28/47] scsi: target: Fix protect handling in WRITE SAME(32)
 Date:   Mon, 26 Jul 2021 17:38:46 +0200
-Message-Id: <20210726153834.757935564@linuxfoundation.org>
+Message-Id: <20210726153823.875696061@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153832.339431936@linuxfoundation.org>
-References: <20210726153832.339431936@linuxfoundation.org>
+In-Reply-To: <20210726153822.980271128@linuxfoundation.org>
+References: <20210726153822.980271128@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +40,181 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tobias Klauser <tklauser@distanz.ch>
+From: Dmitry Bogdanov <d.bogdanov@yadro.com>
 
-[ Upstream commit d444b06e40855219ef38b5e9286db16d435f06dc ]
+[ Upstream commit 6d8e7e7c932162bccd06872362751b0e1d76f5af ]
 
-Fix and add a missing NULL check for the prior malloc() call.
+WRITE SAME(32) command handling reads WRPROTECT at the wrong offset in 1st
+byte instead of 10th byte.
 
-Fixes: 49a086c201a9 ("bpftool: implement prog load command")
-Signed-off-by: Tobias Klauser <tklauser@distanz.ch>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: Quentin Monnet <quentin@isovalent.com>
-Acked-by: Roman Gushchin <guro@fb.com>
-Link: https://lore.kernel.org/bpf/20210715110609.29364-1-tklauser@distanz.ch
+Link: https://lore.kernel.org/r/20210702091655.22818-1-d.bogdanov@yadro.com
+Fixes: afd73f1b60fc ("target: Perform PROTECT sanity checks for WRITE_SAME")
+Signed-off-by: Dmitry Bogdanov <d.bogdanov@yadro.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/bpf/bpftool/common.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/target/target_core_sbc.c | 35 ++++++++++++++++----------------
+ 1 file changed, 17 insertions(+), 18 deletions(-)
 
-diff --git a/tools/bpf/bpftool/common.c b/tools/bpf/bpftool/common.c
-index 158469f57461..7faf24ef3c80 100644
---- a/tools/bpf/bpftool/common.c
-+++ b/tools/bpf/bpftool/common.c
-@@ -182,6 +182,11 @@ int do_pin_fd(int fd, const char *name)
- 		goto out;
+diff --git a/drivers/target/target_core_sbc.c b/drivers/target/target_core_sbc.c
+index 608117819366..a2ffa10e5a41 100644
+--- a/drivers/target/target_core_sbc.c
++++ b/drivers/target/target_core_sbc.c
+@@ -37,7 +37,7 @@
+ #include "target_core_alua.h"
  
- 	file = malloc(strlen(name) + 1);
-+	if (!file) {
-+		p_err("mem alloc failed");
-+		return -1;
-+	}
-+
- 	strcpy(file, name);
- 	dir = dirname(file);
+ static sense_reason_t
+-sbc_check_prot(struct se_device *, struct se_cmd *, unsigned char *, u32, bool);
++sbc_check_prot(struct se_device *, struct se_cmd *, unsigned char, u32, bool);
+ static sense_reason_t sbc_execute_unmap(struct se_cmd *cmd);
  
+ static sense_reason_t
+@@ -311,14 +311,14 @@ static inline unsigned long long transport_lba_64_ext(unsigned char *cdb)
+ }
+ 
+ static sense_reason_t
+-sbc_setup_write_same(struct se_cmd *cmd, unsigned char *flags, struct sbc_ops *ops)
++sbc_setup_write_same(struct se_cmd *cmd, unsigned char flags, struct sbc_ops *ops)
+ {
+ 	struct se_device *dev = cmd->se_dev;
+ 	sector_t end_lba = dev->transport->get_blocks(dev) + 1;
+ 	unsigned int sectors = sbc_get_write_same_sectors(cmd);
+ 	sense_reason_t ret;
+ 
+-	if ((flags[0] & 0x04) || (flags[0] & 0x02)) {
++	if ((flags & 0x04) || (flags & 0x02)) {
+ 		pr_err("WRITE_SAME PBDATA and LBDATA"
+ 			" bits not supported for Block Discard"
+ 			" Emulation\n");
+@@ -340,7 +340,7 @@ sbc_setup_write_same(struct se_cmd *cmd, unsigned char *flags, struct sbc_ops *o
+ 	}
+ 
+ 	/* We always have ANC_SUP == 0 so setting ANCHOR is always an error */
+-	if (flags[0] & 0x10) {
++	if (flags & 0x10) {
+ 		pr_warn("WRITE SAME with ANCHOR not supported\n");
+ 		return TCM_INVALID_CDB_FIELD;
+ 	}
+@@ -348,7 +348,7 @@ sbc_setup_write_same(struct se_cmd *cmd, unsigned char *flags, struct sbc_ops *o
+ 	 * Special case for WRITE_SAME w/ UNMAP=1 that ends up getting
+ 	 * translated into block discard requests within backend code.
+ 	 */
+-	if (flags[0] & 0x08) {
++	if (flags & 0x08) {
+ 		if (!ops->execute_unmap)
+ 			return TCM_UNSUPPORTED_SCSI_OPCODE;
+ 
+@@ -363,7 +363,7 @@ sbc_setup_write_same(struct se_cmd *cmd, unsigned char *flags, struct sbc_ops *o
+ 	if (!ops->execute_write_same)
+ 		return TCM_UNSUPPORTED_SCSI_OPCODE;
+ 
+-	ret = sbc_check_prot(dev, cmd, &cmd->t_task_cdb[0], sectors, true);
++	ret = sbc_check_prot(dev, cmd, flags >> 5, sectors, true);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -721,10 +721,9 @@ sbc_set_prot_op_checks(u8 protect, bool fabric_prot, enum target_prot_type prot_
+ }
+ 
+ static sense_reason_t
+-sbc_check_prot(struct se_device *dev, struct se_cmd *cmd, unsigned char *cdb,
++sbc_check_prot(struct se_device *dev, struct se_cmd *cmd, unsigned char protect,
+ 	       u32 sectors, bool is_write)
+ {
+-	u8 protect = cdb[1] >> 5;
+ 	int sp_ops = cmd->se_sess->sup_prot_ops;
+ 	int pi_prot_type = dev->dev_attrib.pi_prot_type;
+ 	bool fabric_prot = false;
+@@ -772,7 +771,7 @@ sbc_check_prot(struct se_device *dev, struct se_cmd *cmd, unsigned char *cdb,
+ 		/* Fallthrough */
+ 	default:
+ 		pr_err("Unable to determine pi_prot_type for CDB: 0x%02x "
+-		       "PROTECT: 0x%02x\n", cdb[0], protect);
++		       "PROTECT: 0x%02x\n", cmd->t_task_cdb[0], protect);
+ 		return TCM_INVALID_CDB_FIELD;
+ 	}
+ 
+@@ -847,7 +846,7 @@ sbc_parse_cdb(struct se_cmd *cmd, struct sbc_ops *ops)
+ 		if (sbc_check_dpofua(dev, cmd, cdb))
+ 			return TCM_INVALID_CDB_FIELD;
+ 
+-		ret = sbc_check_prot(dev, cmd, cdb, sectors, false);
++		ret = sbc_check_prot(dev, cmd, cdb[1] >> 5, sectors, false);
+ 		if (ret)
+ 			return ret;
+ 
+@@ -861,7 +860,7 @@ sbc_parse_cdb(struct se_cmd *cmd, struct sbc_ops *ops)
+ 		if (sbc_check_dpofua(dev, cmd, cdb))
+ 			return TCM_INVALID_CDB_FIELD;
+ 
+-		ret = sbc_check_prot(dev, cmd, cdb, sectors, false);
++		ret = sbc_check_prot(dev, cmd, cdb[1] >> 5, sectors, false);
+ 		if (ret)
+ 			return ret;
+ 
+@@ -875,7 +874,7 @@ sbc_parse_cdb(struct se_cmd *cmd, struct sbc_ops *ops)
+ 		if (sbc_check_dpofua(dev, cmd, cdb))
+ 			return TCM_INVALID_CDB_FIELD;
+ 
+-		ret = sbc_check_prot(dev, cmd, cdb, sectors, false);
++		ret = sbc_check_prot(dev, cmd, cdb[1] >> 5, sectors, false);
+ 		if (ret)
+ 			return ret;
+ 
+@@ -896,7 +895,7 @@ sbc_parse_cdb(struct se_cmd *cmd, struct sbc_ops *ops)
+ 		if (sbc_check_dpofua(dev, cmd, cdb))
+ 			return TCM_INVALID_CDB_FIELD;
+ 
+-		ret = sbc_check_prot(dev, cmd, cdb, sectors, true);
++		ret = sbc_check_prot(dev, cmd, cdb[1] >> 5, sectors, true);
+ 		if (ret)
+ 			return ret;
+ 
+@@ -910,7 +909,7 @@ sbc_parse_cdb(struct se_cmd *cmd, struct sbc_ops *ops)
+ 		if (sbc_check_dpofua(dev, cmd, cdb))
+ 			return TCM_INVALID_CDB_FIELD;
+ 
+-		ret = sbc_check_prot(dev, cmd, cdb, sectors, true);
++		ret = sbc_check_prot(dev, cmd, cdb[1] >> 5, sectors, true);
+ 		if (ret)
+ 			return ret;
+ 
+@@ -924,7 +923,7 @@ sbc_parse_cdb(struct se_cmd *cmd, struct sbc_ops *ops)
+ 		if (sbc_check_dpofua(dev, cmd, cdb))
+ 			return TCM_INVALID_CDB_FIELD;
+ 
+-		ret = sbc_check_prot(dev, cmd, cdb, sectors, true);
++		ret = sbc_check_prot(dev, cmd, cdb[1] >> 5, sectors, true);
+ 		if (ret)
+ 			return ret;
+ 
+@@ -983,7 +982,7 @@ sbc_parse_cdb(struct se_cmd *cmd, struct sbc_ops *ops)
+ 			size = sbc_get_size(cmd, 1);
+ 			cmd->t_task_lba = get_unaligned_be64(&cdb[12]);
+ 
+-			ret = sbc_setup_write_same(cmd, &cdb[10], ops);
++			ret = sbc_setup_write_same(cmd, cdb[10], ops);
+ 			if (ret)
+ 				return ret;
+ 			break;
+@@ -1076,7 +1075,7 @@ sbc_parse_cdb(struct se_cmd *cmd, struct sbc_ops *ops)
+ 		size = sbc_get_size(cmd, 1);
+ 		cmd->t_task_lba = get_unaligned_be64(&cdb[2]);
+ 
+-		ret = sbc_setup_write_same(cmd, &cdb[1], ops);
++		ret = sbc_setup_write_same(cmd, cdb[1], ops);
+ 		if (ret)
+ 			return ret;
+ 		break;
+@@ -1094,7 +1093,7 @@ sbc_parse_cdb(struct se_cmd *cmd, struct sbc_ops *ops)
+ 		 * Follow sbcr26 with WRITE_SAME (10) and check for the existence
+ 		 * of byte 1 bit 3 UNMAP instead of original reserved field
+ 		 */
+-		ret = sbc_setup_write_same(cmd, &cdb[1], ops);
++		ret = sbc_setup_write_same(cmd, cdb[1], ops);
+ 		if (ret)
+ 			return ret;
+ 		break;
 -- 
 2.30.2
 
