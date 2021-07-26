@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A2C983D5EEA
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:59:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A21643D5F38
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236824AbhGZPPj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:15:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50940 "EHLO mail.kernel.org"
+        id S236552AbhGZPRR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:17:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237086AbhGZPKP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:10:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E365C60525;
-        Mon, 26 Jul 2021 15:50:43 +0000 (UTC)
+        id S237418AbhGZPPo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:15:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C5BB161039;
+        Mon, 26 Jul 2021 15:54:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314644;
-        bh=kChHS3GrECWdIt/goVYb4sYF3rSa23XtbZfCPoLIaq8=;
+        s=korg; t=1627314898;
+        bh=7yDrel2kxKSR84AmBUbcwptA1ONeO9rasT8y1zlTTkk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IA+O7P7lQW1hljEiNOcfkxvdnRH16dZ78rtyvj9UPs7FU6rRBkzNeSS4ln6EJdKO9
-         d/lhsaMCvmRfyfBqgTTgBafwIYSZ6lJH1V+8zfuS84qjhfso4ITb1OtaWafQDFFyA7
-         aH4OXxFVyybxHR0Q+4xKBCTaDchbUFkUS6ksgqP8=
+        b=rRUq7YDpOM9Pw/HvSvk/BExShFugX3cNrBOX1McNqPubPBJ8meOmUsbZLN9Bqiec3
+         RUboNz1AMzSOW4aGJKgKytCCqL5XbrRUA3/WdBJmIALUt4FoaEBPeAlpqfONzJBcNb
+         NL3n6a/BR8PcUu2R1E3ISeP9W2rHZYd6ns28SFZU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 041/120] net: bcmgenet: Ensure all TX/RX queues DMAs are disabled
+        stable@vger.kernel.org,
+        Jedrzej Jagielski <jedrzej.jagielski@intel.com>,
+        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
+        Tony Brelinski <tonyx.brelinski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 012/108] igb: Fix position of assignment to *ring
 Date:   Mon, 26 Jul 2021 17:38:13 +0200
-Message-Id: <20210726153833.712675350@linuxfoundation.org>
+Message-Id: <20210726153832.095278453@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153832.339431936@linuxfoundation.org>
-References: <20210726153832.339431936@linuxfoundation.org>
+In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
+References: <20210726153831.696295003@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,46 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Jedrzej Jagielski <jedrzej.jagielski@intel.com>
 
-commit 2b452550a203d88112eaf0ba9fc4b750a000b496 upstream.
+[ Upstream commit 382a7c20d9253bcd5715789b8179528d0f3de72c ]
 
-Make sure that we disable each of the TX and RX queues in the TDMA and
-RDMA control registers. This is a correctness change to be symmetrical
-with the code that enables the TX and RX queues.
+Assignment to *ring should be done after correctness check of the
+argument queue.
 
-Tested-by: Maxime Ripard <maxime@cerno.tech>
-Fixes: 1c1008c793fa ("net: bcmgenet: add main driver file")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 91db364236c8 ("igb: Refactor igb_configure_cbs()")
+Signed-off-by: Jedrzej Jagielski <jedrzej.jagielski@intel.com>
+Acked-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
+Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/genet/bcmgenet.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/ethernet/intel/igb/igb_main.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-@@ -2790,15 +2790,21 @@ static void bcmgenet_set_hw_addr(struct
- /* Returns a reusable dma control register value */
- static u32 bcmgenet_dma_disable(struct bcmgenet_priv *priv)
+diff --git a/drivers/net/ethernet/intel/igb/igb_main.c b/drivers/net/ethernet/intel/igb/igb_main.c
+index 35b096ab2893..158feb0ab273 100644
+--- a/drivers/net/ethernet/intel/igb/igb_main.c
++++ b/drivers/net/ethernet/intel/igb/igb_main.c
+@@ -1694,14 +1694,15 @@ static bool is_any_txtime_enabled(struct igb_adapter *adapter)
+  **/
+ static void igb_config_tx_modes(struct igb_adapter *adapter, int queue)
  {
-+	unsigned int i;
- 	u32 reg;
- 	u32 dma_ctrl;
+-	struct igb_ring *ring = adapter->tx_ring[queue];
+ 	struct net_device *netdev = adapter->netdev;
+ 	struct e1000_hw *hw = &adapter->hw;
++	struct igb_ring *ring;
+ 	u32 tqavcc, tqavctrl;
+ 	u16 value;
  
- 	/* disable DMA */
- 	dma_ctrl = 1 << (DESC_INDEX + DMA_RING_BUF_EN_SHIFT) | DMA_EN;
-+	for (i = 0; i < priv->hw_params->tx_queues; i++)
-+		dma_ctrl |= (1 << (i + DMA_RING_BUF_EN_SHIFT));
- 	reg = bcmgenet_tdma_readl(priv, DMA_CTRL);
- 	reg &= ~dma_ctrl;
- 	bcmgenet_tdma_writel(priv, reg, DMA_CTRL);
+ 	WARN_ON(hw->mac.type != e1000_i210);
+ 	WARN_ON(queue < 0 || queue > 1);
++	ring = adapter->tx_ring[queue];
  
-+	dma_ctrl = 1 << (DESC_INDEX + DMA_RING_BUF_EN_SHIFT) | DMA_EN;
-+	for (i = 0; i < priv->hw_params->rx_queues; i++)
-+		dma_ctrl |= (1 << (i + DMA_RING_BUF_EN_SHIFT));
- 	reg = bcmgenet_rdma_readl(priv, DMA_CTRL);
- 	reg &= ~dma_ctrl;
- 	bcmgenet_rdma_writel(priv, reg, DMA_CTRL);
+ 	/* If any of the Qav features is enabled, configure queues as SR and
+ 	 * with HIGH PRIO. If none is, then configure them with LOW PRIO and
+-- 
+2.30.2
+
 
 
