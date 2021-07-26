@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A62813D5EAB
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:51:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E3B523D5FB9
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236462AbhGZPLR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:11:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47774 "EHLO mail.kernel.org"
+        id S236541AbhGZPTA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:19:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57990 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236386AbhGZPIQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:08:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0997360F9F;
-        Mon, 26 Jul 2021 15:48:39 +0000 (UTC)
+        id S236851AbhGZPRp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:17:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D3016056C;
+        Mon, 26 Jul 2021 15:58:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314520;
-        bh=YH+VDSWyxvMW7UBNTSI85qMRrwWMIYiZtz6Avz72yGQ=;
+        s=korg; t=1627315092;
+        bh=YFjnLsf0R0zzKes8R8GbpoJe7cZYZ7GvY1+5kLpaoZg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N7uYeVBM+UPXSfubAFMysOVHU+2yQK0Pb7sLPFUT44pksjbIdWXf3T3k22qLQ5XWj
-         LXN+lDCaoR48xWtrhBsS4AV0SKN2x1bx/sfWbkzL6m9GtvIY2GojV9TzeqVnyM6wVD
-         dw3yqerDbGQRzUt0jbJBVABuQvpO2/oguXGjvTGU=
+        b=bNYjKljhzYlB58Ng0qIgb1N55hExiZkTZM5Sa4+b0Imt16/08gm9bhO6dDHSnuW2X
+         n/gCVnsl6BF09mejnfdNvngtD5fWb6+PL0YhHftiyM4+lNXTL/zELSOEKH/95hcvQa
+         FiUi1MIXXRL1wqwFqC220M1K5REgNxwuS/VMP/8U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>,
-        Oleksandr Kravchenko <o.v.kravchenko@globallogic.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.14 78/82] iio: accel: bma180: Use explicit member assignment
+        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.4 077/108] KVM: PPC: Book3S: Fix H_RTAS rets buffer overflow
 Date:   Mon, 26 Jul 2021 17:39:18 +0200
-Message-Id: <20210726153830.714268205@linuxfoundation.org>
+Message-Id: <20210726153834.148803402@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153828.144714469@linuxfoundation.org>
-References: <20210726153828.144714469@linuxfoundation.org>
+In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
+References: <20210726153831.696295003@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,102 +40,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-commit 9436abc40139503a7cea22a96437697d048f31c0 upstream
+commit f62f3c20647ebd5fb6ecb8f0b477b9281c44c10a upstream.
 
-This uses the C99 explicit .member assignment for the
-variant data in struct bma180_part_info. This makes it
-easier to understand and add new variants.
+The kvmppc_rtas_hcall() sets the host rtas_args.rets pointer based on
+the rtas_args.nargs that was provided by the guest. That guest nargs
+value is not range checked, so the guest can cause the host rets pointer
+to be pointed outside the args array. The individual rtas function
+handlers check the nargs and nrets values to ensure they are correct,
+but if they are not, the handlers store a -3 (0xfffffffd) failure
+indication in rets[0] which corrupts host memory.
 
-Cc: Peter Meerwald <pmeerw@pmeerw.net>
-Cc: Oleksandr Kravchenko <o.v.kravchenko@globallogic.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Fix this by testing up front whether the guest supplied nargs and nret
+would exceed the array size, and fail the hcall directly without storing
+a failure indication to rets[0].
+
+Also expand on a comment about why we kill the guest and try not to
+return errors directly if we have a valid rets[0] pointer.
+
+Fixes: 8e591cb72047 ("KVM: PPC: Book3S: Add infrastructure to implement kernel-side RTAS calls")
+Cc: stable@vger.kernel.org # v3.10+
+Reported-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/accel/bma180.c |   68 +++++++++++++++++++++++++++++----------------
- 1 file changed, 44 insertions(+), 24 deletions(-)
+ arch/powerpc/kvm/book3s_rtas.c |   25 ++++++++++++++++++++++---
+ 1 file changed, 22 insertions(+), 3 deletions(-)
 
---- a/drivers/iio/accel/bma180.c
-+++ b/drivers/iio/accel/bma180.c
-@@ -626,32 +626,52 @@ static const struct iio_chan_spec bma250
+--- a/arch/powerpc/kvm/book3s_rtas.c
++++ b/arch/powerpc/kvm/book3s_rtas.c
+@@ -240,6 +240,17 @@ int kvmppc_rtas_hcall(struct kvm_vcpu *v
+ 	 * value so we can restore it on the way out.
+ 	 */
+ 	orig_rets = args.rets;
++	if (be32_to_cpu(args.nargs) >= ARRAY_SIZE(args.args)) {
++		/*
++		 * Don't overflow our args array: ensure there is room for
++		 * at least rets[0] (even if the call specifies 0 nret).
++		 *
++		 * Each handler must then check for the correct nargs and nret
++		 * values, but they may always return failure in rets[0].
++		 */
++		rc = -EINVAL;
++		goto fail;
++	}
+ 	args.rets = &args.args[be32_to_cpu(args.nargs)];
  
- static const struct bma180_part_info bma180_part_info[] = {
- 	[BMA180] = {
--		bma180_channels, ARRAY_SIZE(bma180_channels),
--		bma180_scale_table, ARRAY_SIZE(bma180_scale_table),
--		bma180_bw_table, ARRAY_SIZE(bma180_bw_table),
--		BMA180_CTRL_REG0, BMA180_RESET_INT,
--		BMA180_CTRL_REG0, BMA180_SLEEP,
--		BMA180_BW_TCS, BMA180_BW,
--		BMA180_OFFSET_LSB1, BMA180_RANGE,
--		BMA180_TCO_Z, BMA180_MODE_CONFIG, BMA180_LOW_POWER,
--		BMA180_CTRL_REG3, BMA180_NEW_DATA_INT,
--		BMA180_RESET,
--		bma180_chip_config,
--		bma180_chip_disable,
-+		.channels = bma180_channels,
-+		.num_channels = ARRAY_SIZE(bma180_channels),
-+		.scale_table = bma180_scale_table,
-+		.num_scales = ARRAY_SIZE(bma180_scale_table),
-+		.bw_table = bma180_bw_table,
-+		.num_bw = ARRAY_SIZE(bma180_bw_table),
-+		.int_reset_reg = BMA180_CTRL_REG0,
-+		.int_reset_mask = BMA180_RESET_INT,
-+		.sleep_reg = BMA180_CTRL_REG0,
-+		.sleep_mask = BMA180_SLEEP,
-+		.bw_reg = BMA180_BW_TCS,
-+		.bw_mask = BMA180_BW,
-+		.scale_reg = BMA180_OFFSET_LSB1,
-+		.scale_mask = BMA180_RANGE,
-+		.power_reg = BMA180_TCO_Z,
-+		.power_mask = BMA180_MODE_CONFIG,
-+		.lowpower_val = BMA180_LOW_POWER,
-+		.int_enable_reg = BMA180_CTRL_REG3,
-+		.int_enable_mask = BMA180_NEW_DATA_INT,
-+		.softreset_reg = BMA180_RESET,
-+		.chip_config = bma180_chip_config,
-+		.chip_disable = bma180_chip_disable,
- 	},
- 	[BMA250] = {
--		bma250_channels, ARRAY_SIZE(bma250_channels),
--		bma250_scale_table, ARRAY_SIZE(bma250_scale_table),
--		bma250_bw_table, ARRAY_SIZE(bma250_bw_table),
--		BMA250_INT_RESET_REG, BMA250_INT_RESET_MASK,
--		BMA250_POWER_REG, BMA250_SUSPEND_MASK,
--		BMA250_BW_REG, BMA250_BW_MASK,
--		BMA250_RANGE_REG, BMA250_RANGE_MASK,
--		BMA250_POWER_REG, BMA250_LOWPOWER_MASK, 1,
--		BMA250_INT_ENABLE_REG, BMA250_DATA_INTEN_MASK,
--		BMA250_RESET_REG,
--		bma250_chip_config,
--		bma250_chip_disable,
-+		.channels = bma250_channels,
-+		.num_channels = ARRAY_SIZE(bma250_channels),
-+		.scale_table = bma250_scale_table,
-+		.num_scales = ARRAY_SIZE(bma250_scale_table),
-+		.bw_table = bma250_bw_table,
-+		.num_bw = ARRAY_SIZE(bma250_bw_table),
-+		.int_reset_reg = BMA250_INT_RESET_REG,
-+		.int_reset_mask = BMA250_INT_RESET_MASK,
-+		.sleep_reg = BMA250_POWER_REG,
-+		.sleep_mask = BMA250_SUSPEND_MASK,
-+		.bw_reg = BMA250_BW_REG,
-+		.bw_mask = BMA250_BW_MASK,
-+		.scale_reg = BMA250_RANGE_REG,
-+		.scale_mask = BMA250_RANGE_MASK,
-+		.power_reg = BMA250_POWER_REG,
-+		.power_mask = BMA250_LOWPOWER_MASK,
-+		.lowpower_val = 1,
-+		.int_enable_reg = BMA250_INT_ENABLE_REG,
-+		.int_enable_mask = BMA250_DATA_INTEN_MASK,
-+		.softreset_reg = BMA250_RESET_REG,
-+		.chip_config = bma250_chip_config,
-+		.chip_disable = bma250_chip_disable,
- 	},
- };
- 
+ 	mutex_lock(&vcpu->kvm->arch.rtas_token_lock);
+@@ -267,9 +278,17 @@ int kvmppc_rtas_hcall(struct kvm_vcpu *v
+ fail:
+ 	/*
+ 	 * We only get here if the guest has called RTAS with a bogus
+-	 * args pointer. That means we can't get to the args, and so we
+-	 * can't fail the RTAS call. So fail right out to userspace,
+-	 * which should kill the guest.
++	 * args pointer or nargs/nret values that would overflow the
++	 * array. That means we can't get to the args, and so we can't
++	 * fail the RTAS call. So fail right out to userspace, which
++	 * should kill the guest.
++	 *
++	 * SLOF should actually pass the hcall return value from the
++	 * rtas handler call in r3, so enter_rtas could be modified to
++	 * return a failure indication in r3 and we could return such
++	 * errors to the guest rather than failing to host userspace.
++	 * However old guests that don't test for failure could then
++	 * continue silently after errors, so for now we won't do this.
+ 	 */
+ 	return rc;
+ }
 
 
