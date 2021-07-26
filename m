@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A6C7E3D60E8
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:12:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D63193D6232
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:16:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237696AbhGZPZj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:25:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39866 "EHLO mail.kernel.org"
+        id S236537AbhGZPfF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:35:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238010AbhGZPYd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:24:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 33A7160240;
-        Mon, 26 Jul 2021 16:05:00 +0000 (UTC)
+        id S233010AbhGZPd1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:33:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C91046056B;
+        Mon, 26 Jul 2021 16:13:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315500;
-        bh=Ef6XzsFTN0SzRw145vvrDY/2yj7hcP2A+L0i0a34XMQ=;
+        s=korg; t=1627316034;
+        bh=PhZhRfJRPe3LexCSI2vN0G6CEGAKLiy1QknDRae4hDU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hWx1uwSHfoBwp+QDb7/WUjmqEvqpLV1Xkguh9DG6IGQu+k9UZagWDdOtlCN+54kHG
-         S7AsAezxO/OWzeYMTKgdk/spL9nk9Il00hDU64NZmZ5ckVuW4bE7CRV5ZPcyM+/qOB
-         Kv8rhBR0SWjJWNWtgitcF5kA3Q8SvOLGuJ/97kd4=
+        b=el9Hv8P9tWdWlVG/MFeC8vaCDNANpw8LCZG6hNc+tmC6e1/p2j351sAcVBBYroyw3
+         mqbgIt3ptGMbq7VIBL812LkJEE/K+ovXHrBfygeelBar2P0TdG+mYQ2No2Mnm9efc2
+         89m1JBMoLb9cu8C8FD3iC12c/1rUIX2bP9AuOZrU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        stable@kernel.org
-Subject: [PATCH 5.10 122/167] usb: hub: Fix link power management max exit latency (MEL) calculations
+        stable@vger.kernel.org, Julian Sikorski <belegdol+github@gmail.com>
+Subject: [PATCH 5.13 163/223] USB: usb-storage: Add LaCie Rugged USB3-FW to IGNORE_UAS
 Date:   Mon, 26 Jul 2021 17:39:15 +0200
-Message-Id: <20210726153843.499835843@linuxfoundation.org>
+Message-Id: <20210726153851.543511558@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
-References: <20210726153839.371771838@linuxfoundation.org>
+In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
+References: <20210726153846.245305071@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,113 +38,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Julian Sikorski <belegdol@gmail.com>
 
-commit 1bf2761c837571a66ec290fb66c90413821ffda2 upstream.
+commit 6abf2fe6b4bf6e5256b80c5817908151d2d33e9f upstream.
 
-Maximum Exit Latency (MEL) value is used by host to know how much in
-advance it needs to start waking up a U1/U2 suspended link in order to
-service a periodic transfer in time.
+LaCie Rugged USB3-FW appears to be incompatible with UAS. It generates
+errors like:
+[ 1151.582598] sd 14:0:0:0: tag#16 uas_eh_abort_handler 0 uas-tag 1 inflight: IN
+[ 1151.582602] sd 14:0:0:0: tag#16 CDB: Report supported operation codes a3 0c 01 12 00 00 00 00 02 00 00 00
+[ 1151.588594] scsi host14: uas_eh_device_reset_handler start
+[ 1151.710482] usb 2-4: reset SuperSpeed Gen 1 USB device number 2 using xhci_hcd
+[ 1151.741398] scsi host14: uas_eh_device_reset_handler success
+[ 1181.785534] scsi host14: uas_eh_device_reset_handler start
 
-Current MEL calculation only includes the time to wake up the path from
-U1/U2 to U0. This is called tMEL1 in USB 3.1 section C 1.5.2
-
-Total MEL = tMEL1 + tMEL2 +tMEL3 + tMEL4 which should additinally include:
-- tMEL2 which is the time it takes for PING message to reach device
-- tMEL3 time for device to process the PING and submit a PING_RESPONSE
-- tMEL4 time for PING_RESPONSE to traverse back upstream to host.
-
-Add the missing tMEL2, tMEL3 and tMEL4 to MEL calculation.
-
-Cc: <stable@kernel.org> # v3.5
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20210715150122.1995966-1-mathias.nyman@linux.intel.com
+Signed-off-by: Julian Sikorski <belegdol+github@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210720171910.36497-1-belegdol+github@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/core/hub.c |   52 ++++++++++++++++++++++++++-----------------------
- 1 file changed, 28 insertions(+), 24 deletions(-)
+ drivers/usb/storage/unusual_uas.h |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/usb/core/hub.c
-+++ b/drivers/usb/core/hub.c
-@@ -47,6 +47,7 @@
+--- a/drivers/usb/storage/unusual_uas.h
++++ b/drivers/usb/storage/unusual_uas.h
+@@ -45,6 +45,13 @@ UNUSUAL_DEV(0x059f, 0x105f, 0x0000, 0x99
+ 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
+ 		US_FL_NO_REPORT_OPCODES | US_FL_NO_SAME),
  
- #define USB_TP_TRANSMISSION_DELAY	40	/* ns */
- #define USB_TP_TRANSMISSION_DELAY_MAX	65535	/* ns */
-+#define USB_PING_RESPONSE_TIME		400	/* ns */
- 
- /* Protect struct usb_device->state and ->children members
-  * Note: Both are also protected by ->dev.sem, except that ->state can
-@@ -181,8 +182,9 @@ int usb_device_supports_lpm(struct usb_d
- }
- 
- /*
-- * Set the Maximum Exit Latency (MEL) for the host to initiate a transition from
-- * either U1 or U2.
-+ * Set the Maximum Exit Latency (MEL) for the host to wakup up the path from
-+ * U1/U2, send a PING to the device and receive a PING_RESPONSE.
-+ * See USB 3.1 section C.1.5.2
-  */
- static void usb_set_lpm_mel(struct usb_device *udev,
- 		struct usb3_lpm_parameters *udev_lpm_params,
-@@ -192,35 +194,37 @@ static void usb_set_lpm_mel(struct usb_d
- 		unsigned int hub_exit_latency)
- {
- 	unsigned int total_mel;
--	unsigned int device_mel;
--	unsigned int hub_mel;
- 
- 	/*
--	 * Calculate the time it takes to transition all links from the roothub
--	 * to the parent hub into U0.  The parent hub must then decode the
--	 * packet (hub header decode latency) to figure out which port it was
--	 * bound for.
--	 *
--	 * The Hub Header decode latency is expressed in 0.1us intervals (0x1
--	 * means 0.1us).  Multiply that by 100 to get nanoseconds.
-+	 * tMEL1. time to transition path from host to device into U0.
-+	 * MEL for parent already contains the delay up to parent, so only add
-+	 * the exit latency for the last link (pick the slower exit latency),
-+	 * and the hub header decode latency. See USB 3.1 section C 2.2.1
-+	 * Store MEL in nanoseconds
- 	 */
- 	total_mel = hub_lpm_params->mel +
--		(hub->descriptor->u.ss.bHubHdrDecLat * 100);
-+		max(udev_exit_latency, hub_exit_latency) * 1000 +
-+		hub->descriptor->u.ss.bHubHdrDecLat * 100;
- 
- 	/*
--	 * How long will it take to transition the downstream hub's port into
--	 * U0?  The greater of either the hub exit latency or the device exit
--	 * latency.
--	 *
--	 * The BOS U1/U2 exit latencies are expressed in 1us intervals.
--	 * Multiply that by 1000 to get nanoseconds.
-+	 * tMEL2. Time to submit PING packet. Sum of tTPTransmissionDelay for
-+	 * each link + wHubDelay for each hub. Add only for last link.
-+	 * tMEL4, the time for PING_RESPONSE to traverse upstream is similar.
-+	 * Multiply by 2 to include it as well.
- 	 */
--	device_mel = udev_exit_latency * 1000;
--	hub_mel = hub_exit_latency * 1000;
--	if (device_mel > hub_mel)
--		total_mel += device_mel;
--	else
--		total_mel += hub_mel;
-+	total_mel += (__le16_to_cpu(hub->descriptor->u.ss.wHubDelay) +
-+		      USB_TP_TRANSMISSION_DELAY) * 2;
++/* Reported-by: Julian Sikorski <belegdol@gmail.com> */
++UNUSUAL_DEV(0x059f, 0x1061, 0x0000, 0x9999,
++		"LaCie",
++		"Rugged USB3-FW",
++		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
++		US_FL_IGNORE_UAS),
 +
-+	/*
-+	 * tMEL3, tPingResponse. Time taken by device to generate PING_RESPONSE
-+	 * after receiving PING. Also add 2100ns as stated in USB 3.1 C 1.5.2.4
-+	 * to cover the delay if the PING_RESPONSE is queued behind a Max Packet
-+	 * Size DP.
-+	 * Note these delays should be added only once for the entire path, so
-+	 * add them to the MEL of the device connected to the roothub.
-+	 */
-+	if (!hub->hdev->parent)
-+		total_mel += USB_PING_RESPONSE_TIME + 2100;
- 
- 	udev_lpm_params->mel = total_mel;
- }
+ /*
+  * Apricorn USB3 dongle sometimes returns "USBSUSBSUSBS" in response to SCSI
+  * commands in UAS mode.  Observed with the 1.28 firmware; are there others?
 
 
