@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D1913D6026
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 337CD3D61D4
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:14:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237107AbhGZPVD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:21:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34956 "EHLO mail.kernel.org"
+        id S233905AbhGZPdE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:33:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237101AbhGZPVC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:21:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B849A60FC3;
-        Mon, 26 Jul 2021 16:01:29 +0000 (UTC)
+        id S231857AbhGZPbL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:31:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A578C6056B;
+        Mon, 26 Jul 2021 16:11:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315290;
-        bh=85zcK2fJdEacMwM8BaE4a9JBSw7oZatQr/tKw1DffUQ=;
+        s=korg; t=1627315892;
+        bh=Cl5oLDt5QMIGemzODAKQT4rc3eoK/WI4qT8fbR7l+4s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UOsU7Os2b++FeIZ3hQQne/5ZUyhp790PXWbA5G2sa+suuZwT9aoX2hsoGwCjVcV+H
-         s1s1Dn3vXhJ72wKi1VDasozWd/huTZ0HnwXzwRSGCjoVh5ZDxAWJhvKJRRrWlaCHWX
-         XBUnMVmzIbwUxNoQuGO8HayTJ5ta0K31UVAvfbG8=
+        b=s0GbID4qcRaqXBgDBvzInIc1YzbZXudYrmlZdg/0Q5NclkRyTjM6VDxjMoY8uZve5
+         JLrLtU1v+Km/1ReiFFnPP9bKiYIcrhcnt1Nxt+OXaNpzUdWwuc/2QkYzOowmmCb987
+         0XeG/1pAUARmRaFaU41Exl8ZMa201UpZDTkR0Wmg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Casey Chen <cachen@purestorage.com>,
-        Keith Busch <kbusch@kernel.org>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 031/167] nvme-pci: do not call nvme_dev_remove_admin from nvme_remove
+        stable@vger.kernel.org, Maxim Schwalm <maxim.schwalm@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 072/223] ASoC: rt5631: Fix regcache sync errors on resume
 Date:   Mon, 26 Jul 2021 17:37:44 +0200
-Message-Id: <20210726153840.429826840@linuxfoundation.org>
+Message-Id: <20210726153848.614390996@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
-References: <20210726153839.371771838@linuxfoundation.org>
+In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
+References: <20210726153846.245305071@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,42 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Casey Chen <cachen@purestorage.com>
+From: Maxim Schwalm <maxim.schwalm@gmail.com>
 
-[ Upstream commit 251ef6f71be2adfd09546a26643426fe62585173 ]
+[ Upstream commit c71f78a662611fe2c67f3155da19b0eff0f29762 ]
 
-nvme_dev_remove_admin could free dev->admin_q and the admin_tagset
-while they are being accessed by nvme_dev_disable(), which can be called
-by nvme_reset_work via nvme_remove_dead_ctrl.
+The ALC5631 does not like multi-write accesses, avoid them. This fixes:
 
-Commit cb4bfda62afa ("nvme-pci: fix hot removal during error handling")
-intended to avoid requests being stuck on a removed controller by killing
-the admin queue. But the later fix c8e9e9b7646e ("nvme-pci: unquiesce
-admin queue on shutdown"), together with nvme_dev_disable(dev, true)
-right before nvme_dev_remove_admin() could help dispatch requests and
-fail them early, so we don't need nvme_dev_remove_admin() any more.
+rt5631 4-001a: Unable to sync registers 0x3a-0x3c. -121
 
-Fixes: cb4bfda62afa ("nvme-pci: fix hot removal during error handling")
-Signed-off-by: Casey Chen <cachen@purestorage.com>
-Reviewed-by: Keith Busch <kbusch@kernel.org>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+errors on resume from suspend (and all registers after the registers in
+the error not being synced).
+
+Inspired by commit 2d30e9494f1e ("ASoC: rt5651: Fix regcache sync errors
+on resume") from Hans de Geode, which fixed the same errors on ALC5651.
+
+Signed-off-by: Maxim Schwalm <maxim.schwalm@gmail.com>
+Link: https://lore.kernel.org/r/20210712005011.28536-1-digetx@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/pci.c | 1 -
- 1 file changed, 1 deletion(-)
+ sound/soc/codecs/rt5631.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index 3f05df98697d..80e1d45b0668 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -3003,7 +3003,6 @@ static void nvme_remove(struct pci_dev *pdev)
- 	if (!pci_device_is_present(pdev)) {
- 		nvme_change_ctrl_state(&dev->ctrl, NVME_CTRL_DEAD);
- 		nvme_dev_disable(dev, true);
--		nvme_dev_remove_admin(dev);
- 	}
+diff --git a/sound/soc/codecs/rt5631.c b/sound/soc/codecs/rt5631.c
+index 3000bc128b5b..38356ea2bd6e 100644
+--- a/sound/soc/codecs/rt5631.c
++++ b/sound/soc/codecs/rt5631.c
+@@ -1695,6 +1695,8 @@ static const struct regmap_config rt5631_regmap_config = {
+ 	.reg_defaults = rt5631_reg,
+ 	.num_reg_defaults = ARRAY_SIZE(rt5631_reg),
+ 	.cache_type = REGCACHE_RBTREE,
++	.use_single_read = true,
++	.use_single_write = true,
+ };
  
- 	flush_work(&dev->ctrl.reset_work);
+ static int rt5631_i2c_probe(struct i2c_client *i2c,
 -- 
 2.30.2
 
