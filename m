@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 88A463D617F
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:13:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BF0F3D6180
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:14:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232274AbhGZPcK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:32:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43124 "EHLO mail.kernel.org"
+        id S233119AbhGZPcL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:32:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237951AbhGZP3f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:29:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 954E160F5B;
-        Mon, 26 Jul 2021 16:10:03 +0000 (UTC)
+        id S237965AbhGZP3h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:29:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 01CCE60C40;
+        Mon, 26 Jul 2021 16:10:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315804;
-        bh=nIgvJljqeNaSOo2VGdYMe1oZNCDHv06OUJcv2FQdLMY=;
+        s=korg; t=1627315806;
+        bh=mU2SRVSw8pEKkAOT12ft4/nrudjXzw+yZ0lIPaS9tFI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z9FI6xkBrfm7gAZXbJ/7XyscjsNk4Nxir03mLj11C0GAqA4UykKIVwcQBFNU1kQ+p
-         1Egu7hub1hyZCc8y18HLXJW4Nlage9GqtAAYjwMvHEmWOm6DMaW8y/dkww9NsKyy8t
-         fYcf36zwKpfw7ab0U22NEVgXpQcVgBjD6Loc5zJQ=
+        b=XfwThaK883BWb7s3TAwEaaJLqdb/GloZg1BeI/rbm7djD1TgGRpQIkxDKLX3CMeBZ
+         /55TjvzYvlAyRNBKZgafKc/whTj1kPucRx1ODG7iPIt+MZRkkhqmhycCLcRZ+wmmEe
+         c15mjqF1X2QeCRMKScgXQBZlal3Rj4slovzhwkl8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Mat Martineau <mathew.j.martineau@linux.intel.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 037/223] mptcp: refine mptcp_cleanup_rbuf
-Date:   Mon, 26 Jul 2021 17:37:09 +0200
-Message-Id: <20210726153847.465933776@linuxfoundation.org>
+Subject: [PATCH 5.13 038/223] mptcp: properly account bulk freed memory
+Date:   Mon, 26 Jul 2021 17:37:10 +0200
+Message-Id: <20210726153847.495428484@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
 References: <20210726153846.245305071@linuxfoundation.org>
@@ -43,160 +43,137 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Paolo Abeni <pabeni@redhat.com>
 
-[ Upstream commit fde56eea01f96b664eb63033990be0fd2a945da5 ]
+[ Upstream commit ce599c516386f09ca30848a1a4eb93d3fffbe187 ]
 
-The current cleanup rbuf tries a bit too hard to avoid acquiring
-the subflow socket lock. We may end-up delaying the needed ack,
-or skip acking a blocked subflow.
+After commit 879526030c8b ("mptcp: protect the rx path with
+the msk socket spinlock") the rmem currently used by a given
+msk is really sk_rmem_alloc - rmem_released.
 
-Address the above extending the conditions used to trigger the cleanup
-to reflect more closely what TCP does and invoking tcp_cleanup_rbuf()
-on all the active subflows.
+The safety check in mptcp_data_ready() does not take the above
+in due account, as a result legit incoming data is kept in
+subflow receive queue with no reason, delaying or blocking
+MPTCP-level ack generation.
 
-Note that we can't replicate the exact tests implemented in
-tcp_cleanup_rbuf(), as MPTCP lacks some of the required info - e.g.
-ping-pong mode.
+This change addresses the issue introducing a new helper to fetch
+the rmem memory and using it as needed. Additionally add a MIB
+counter for the exceptional event described above - the peer is
+misbehaving.
 
+Finally, introduce the required annotation when rmem_released is
+updated.
+
+Fixes: 879526030c8b ("mptcp: protect the rx path with the msk socket spinlock")
+Closes: https://github.com/multipath-tcp/mptcp_net-next/issues/211
 Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mptcp/protocol.c | 56 ++++++++++++++++++--------------------------
- net/mptcp/protocol.h |  1 -
- 2 files changed, 23 insertions(+), 34 deletions(-)
+ net/mptcp/mib.c      |  1 +
+ net/mptcp/mib.h      |  1 +
+ net/mptcp/protocol.c | 12 +++++++-----
+ net/mptcp/protocol.h | 10 +++++++++-
+ 4 files changed, 18 insertions(+), 6 deletions(-)
 
+diff --git a/net/mptcp/mib.c b/net/mptcp/mib.c
+index eb2dc6dbe212..c8f4823cd79f 100644
+--- a/net/mptcp/mib.c
++++ b/net/mptcp/mib.c
+@@ -42,6 +42,7 @@ static const struct snmp_mib mptcp_snmp_list[] = {
+ 	SNMP_MIB_ITEM("RmSubflow", MPTCP_MIB_RMSUBFLOW),
+ 	SNMP_MIB_ITEM("MPPrioTx", MPTCP_MIB_MPPRIOTX),
+ 	SNMP_MIB_ITEM("MPPrioRx", MPTCP_MIB_MPPRIORX),
++	SNMP_MIB_ITEM("RcvPruned", MPTCP_MIB_RCVPRUNED),
+ 	SNMP_MIB_SENTINEL
+ };
+ 
+diff --git a/net/mptcp/mib.h b/net/mptcp/mib.h
+index f0da4f060fe1..93fa7c95e206 100644
+--- a/net/mptcp/mib.h
++++ b/net/mptcp/mib.h
+@@ -35,6 +35,7 @@ enum linux_mptcp_mib_field {
+ 	MPTCP_MIB_RMSUBFLOW,		/* Remove a subflow */
+ 	MPTCP_MIB_MPPRIOTX,		/* Transmit a MP_PRIO */
+ 	MPTCP_MIB_MPPRIORX,		/* Received a MP_PRIO */
++	MPTCP_MIB_RCVPRUNED,		/* Incoming packet dropped due to memory limit */
+ 	__MPTCP_MIB_MAX
+ };
+ 
 diff --git a/net/mptcp/protocol.c b/net/mptcp/protocol.c
-index 0f36fefcc77e..18f152bdb66f 100644
+index 18f152bdb66f..94b707a39bc3 100644
 --- a/net/mptcp/protocol.c
 +++ b/net/mptcp/protocol.c
-@@ -433,49 +433,46 @@ static void mptcp_send_ack(struct mptcp_sock *msk)
- 	}
- }
+@@ -465,7 +465,7 @@ static void mptcp_cleanup_rbuf(struct mptcp_sock *msk)
+ 	bool cleanup, rx_empty;
  
--static bool mptcp_subflow_cleanup_rbuf(struct sock *ssk)
-+static void mptcp_subflow_cleanup_rbuf(struct sock *ssk)
- {
- 	bool slow;
--	int ret;
+ 	cleanup = (space > 0) && (space >= (old_space << 1));
+-	rx_empty = !atomic_read(&sk->sk_rmem_alloc);
++	rx_empty = !__mptcp_rmem(sk);
  
- 	slow = lock_sock_fast(ssk);
--	ret = tcp_can_send_ack(ssk);
--	if (ret)
-+	if (tcp_can_send_ack(ssk))
- 		tcp_cleanup_rbuf(ssk, 1);
- 	unlock_sock_fast(ssk, slow);
--	return ret;
-+}
-+
-+static bool mptcp_subflow_could_cleanup(const struct sock *ssk, bool rx_empty)
-+{
-+	const struct inet_connection_sock *icsk = inet_csk(ssk);
-+	bool ack_pending = READ_ONCE(icsk->icsk_ack.pending);
-+	const struct tcp_sock *tp = tcp_sk(ssk);
-+
-+	return (ack_pending & ICSK_ACK_SCHED) &&
-+		((READ_ONCE(tp->rcv_nxt) - READ_ONCE(tp->rcv_wup) >
-+		  READ_ONCE(icsk->icsk_ack.rcv_mss)) ||
-+		 (rx_empty && ack_pending &
-+			      (ICSK_ACK_PUSHED2 | ICSK_ACK_PUSHED)));
- }
+ 	mptcp_for_each_subflow(msk, subflow) {
+ 		struct sock *ssk = mptcp_subflow_tcp_sock(subflow);
+@@ -714,8 +714,10 @@ void mptcp_data_ready(struct sock *sk, struct sock *ssk)
+ 		sk_rbuf = ssk_rbuf;
  
- static void mptcp_cleanup_rbuf(struct mptcp_sock *msk)
- {
--	struct sock *ack_hint = READ_ONCE(msk->ack_hint);
- 	int old_space = READ_ONCE(msk->old_wspace);
- 	struct mptcp_subflow_context *subflow;
- 	struct sock *sk = (struct sock *)msk;
--	bool cleanup;
-+	int space =  __mptcp_space(sk);
-+	bool cleanup, rx_empty;
+ 	/* over limit? can't append more skbs to msk, Also, no need to wake-up*/
+-	if (atomic_read(&sk->sk_rmem_alloc) > sk_rbuf)
++	if (__mptcp_rmem(sk) > sk_rbuf) {
++		MPTCP_INC_STATS(sock_net(sk), MPTCP_MIB_RCVPRUNED);
+ 		return;
++	}
  
--	/* this is a simple superset of what tcp_cleanup_rbuf() implements
--	 * so that we don't have to acquire the ssk socket lock most of the time
--	 * to do actually nothing
--	 */
--	cleanup = __mptcp_space(sk) - old_space >= max(0, old_space);
--	if (!cleanup)
--		return;
-+	cleanup = (space > 0) && (space >= (old_space << 1));
-+	rx_empty = !atomic_read(&sk->sk_rmem_alloc);
- 
--	/* if the hinted ssk is still active, try to use it */
--	if (likely(ack_hint)) {
--		mptcp_for_each_subflow(msk, subflow) {
--			struct sock *ssk = mptcp_subflow_tcp_sock(subflow);
-+	mptcp_for_each_subflow(msk, subflow) {
-+		struct sock *ssk = mptcp_subflow_tcp_sock(subflow);
- 
--			if (ack_hint == ssk && mptcp_subflow_cleanup_rbuf(ssk))
--				return;
--		}
-+		if (cleanup || mptcp_subflow_could_cleanup(ssk, rx_empty))
-+			mptcp_subflow_cleanup_rbuf(ssk);
- 	}
--
--	/* otherwise pick the first active subflow */
--	mptcp_for_each_subflow(msk, subflow)
--		if (mptcp_subflow_cleanup_rbuf(mptcp_subflow_tcp_sock(subflow)))
--			return;
- }
- 
- static bool mptcp_check_data_fin(struct sock *sk)
-@@ -620,7 +617,6 @@ static bool __mptcp_move_skbs_from_subflow(struct mptcp_sock *msk,
- 			break;
+ 	/* Wake-up the reader only for in-sequence data */
+ 	mptcp_data_lock(sk);
+@@ -1799,7 +1801,7 @@ static int __mptcp_recvmsg_mskq(struct mptcp_sock *msk,
+ 		if (!(flags & MSG_PEEK)) {
+ 			/* we will bulk release the skb memory later */
+ 			skb->destructor = NULL;
+-			msk->rmem_released += skb->truesize;
++			WRITE_ONCE(msk->rmem_released, msk->rmem_released + skb->truesize);
+ 			__skb_unlink(skb, &msk->receive_queue);
+ 			__kfree_skb(skb);
  		}
- 	} while (more_data_avail);
--	WRITE_ONCE(msk->ack_hint, ssk);
+@@ -1918,7 +1920,7 @@ static void __mptcp_update_rmem(struct sock *sk)
  
- 	*bytes += moved;
- 	return done;
-@@ -1955,7 +1951,6 @@ static bool __mptcp_move_skbs(struct mptcp_sock *msk)
- 		__mptcp_update_rmem(sk);
- 		done = __mptcp_move_skbs_from_subflow(msk, ssk, &moved);
- 		mptcp_data_unlock(sk);
--		tcp_cleanup_rbuf(ssk, moved);
+ 	atomic_sub(msk->rmem_released, &sk->sk_rmem_alloc);
+ 	sk_mem_uncharge(sk, msk->rmem_released);
+-	msk->rmem_released = 0;
++	WRITE_ONCE(msk->rmem_released, 0);
+ }
  
- 		if (unlikely(ssk->sk_err))
- 			__mptcp_error_report(sk);
-@@ -1971,7 +1966,6 @@ static bool __mptcp_move_skbs(struct mptcp_sock *msk)
- 		ret |= __mptcp_ofo_queue(msk);
- 		__mptcp_splice_receive_queue(sk);
- 		mptcp_data_unlock(sk);
--		mptcp_cleanup_rbuf(msk);
- 	}
- 	if (ret)
- 		mptcp_check_data_fin((struct sock *)msk);
-@@ -2216,9 +2210,6 @@ static void __mptcp_close_ssk(struct sock *sk, struct sock *ssk,
- 	if (ssk == msk->last_snd)
- 		msk->last_snd = NULL;
- 
--	if (ssk == msk->ack_hint)
--		msk->ack_hint = NULL;
--
- 	if (ssk == msk->first)
- 		msk->first = NULL;
- 
-@@ -2433,7 +2424,6 @@ static int __mptcp_init_sock(struct sock *sk)
+ static void __mptcp_splice_receive_queue(struct sock *sk)
+@@ -2420,7 +2422,7 @@ static int __mptcp_init_sock(struct sock *sk)
+ 	msk->out_of_order_queue = RB_ROOT;
+ 	msk->first_pending = NULL;
+ 	msk->wmem_reserved = 0;
+-	msk->rmem_released = 0;
++	WRITE_ONCE(msk->rmem_released, 0);
  	msk->tx_pending_data = 0;
  	msk->size_goal_cache = TCP_BASE_MSS;
  
--	msk->ack_hint = NULL;
- 	msk->first = NULL;
- 	inet_csk(sk)->icsk_sync_mss = mptcp_sync_mss;
- 
 diff --git a/net/mptcp/protocol.h b/net/mptcp/protocol.h
-index f74258377c05..f842c832f6b0 100644
+index f842c832f6b0..dc5b71de0a9a 100644
 --- a/net/mptcp/protocol.h
 +++ b/net/mptcp/protocol.h
-@@ -236,7 +236,6 @@ struct mptcp_sock {
- 	bool		rcv_fastclose;
- 	bool		use_64bit_ack; /* Set when we received a 64-bit DSN */
- 	spinlock_t	join_list_lock;
--	struct sock	*ack_hint;
- 	struct work_struct work;
- 	struct sk_buff  *ooo_last_skb;
- 	struct rb_root  out_of_order_queue;
+@@ -290,9 +290,17 @@ static inline struct mptcp_sock *mptcp_sk(const struct sock *sk)
+ 	return (struct mptcp_sock *)sk;
+ }
+ 
++/* the msk socket don't use the backlog, also account for the bulk
++ * free memory
++ */
++static inline int __mptcp_rmem(const struct sock *sk)
++{
++	return atomic_read(&sk->sk_rmem_alloc) - READ_ONCE(mptcp_sk(sk)->rmem_released);
++}
++
+ static inline int __mptcp_space(const struct sock *sk)
+ {
+-	return tcp_space(sk) + READ_ONCE(mptcp_sk(sk)->rmem_released);
++	return tcp_win_from_space(sk, READ_ONCE(sk->sk_rcvbuf) - __mptcp_rmem(sk));
+ }
+ 
+ static inline struct mptcp_data_frag *mptcp_send_head(const struct sock *sk)
 -- 
 2.30.2
 
