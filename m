@@ -2,37 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B02D3D5F09
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:59:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47EF63D5FA6
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236266AbhGZPQh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:16:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51828 "EHLO mail.kernel.org"
+        id S236343AbhGZPSp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:18:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236274AbhGZPLL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:11:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 97FF260F5B;
-        Mon, 26 Jul 2021 15:51:39 +0000 (UTC)
+        id S236473AbhGZPQ5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:16:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C945860F6E;
+        Mon, 26 Jul 2021 15:57:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314700;
-        bh=muEQAooWcc9Tjx270IZW7fMTAV6ZaQiaQ/q74fBH2hE=;
+        s=korg; t=1627315045;
+        bh=uILrd27LuKCR1EmJTAObJYkM+IjVDvGFMgyZD1RLD2c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=edDJW+p5ZXszHaTB4oC96EIUrMlYDNZH/8NrRi02YmJP89OzdiGxkq2BzOzXnD/CJ
-         Y0Ks7bXGCZ5aJIyLHtDSC8gN308yT8KP0CB9YgFBe7upi4vHcRyMSYzmDC5cUzS4pI
-         q9H4lMCX7Dfx47/uJ6nG67sRjLGE6WyWFofrSt/0=
+        b=0rpqOGvSePHZpxyLQ1UBXF0avX2HJJBNV0+z4Nf0fNvtL7lGq3KbtCTC2s5tGEGyO
+         XUkOno/pHBbMO1HnWZP8O8UfxSDHnWrLRbCxOk5FHYLWtDM/mHvZb0u4sc1kbHdCTb
+         v7GgVAzInsAyXTeXpI3Hd3DiMXCkiIsLuvR74ZTU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Riccardo Mancini <rickyman7@gmail.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 058/120] iavf: Fix an error handling path in iavf_probe()
+Subject: [PATCH 5.4 029/108] perf data: Close all files in close_dir()
 Date:   Mon, 26 Jul 2021 17:38:30 +0200
-Message-Id: <20210726153834.241210947@linuxfoundation.org>
+Message-Id: <20210726153832.631447432@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153832.339431936@linuxfoundation.org>
-References: <20210726153832.339431936@linuxfoundation.org>
+In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
+References: <20210726153831.696295003@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,34 +46,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Riccardo Mancini <rickyman7@gmail.com>
 
-[ Upstream commit af30cbd2f4d6d66a9b6094e0aa32420bc8b20e08 ]
+[ Upstream commit d4b3eedce151e63932ce4a00f1d0baa340a8b907 ]
 
-If an error occurs after a 'pci_enable_pcie_error_reporting()' call, it
-must be undone by a corresponding 'pci_disable_pcie_error_reporting()'
-call, as already done in the remove function.
+When using 'perf report' in directory mode, the first file is not closed
+on exit, causing a memory leak.
 
-Fixes: 5eae00c57f5e ("i40evf: main driver core")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+The problem is caused by the iterating variable never reaching 0.
+
+Fixes: 145520631130bd64 ("perf data: Add perf_data__(create_dir|close_dir) functions")
+Signed-off-by: Riccardo Mancini <rickyman7@gmail.com>
+Acked-by: Namhyung Kim <namhyung@kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Zhen Lei <thunder.leizhen@huawei.com>
+Link: http://lore.kernel.org/lkml/20210716141122.858082-1-rickyman7@gmail.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40evf/i40evf_main.c | 1 +
- 1 file changed, 1 insertion(+)
+ tools/perf/util/data.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/i40evf/i40evf_main.c b/drivers/net/ethernet/intel/i40evf/i40evf_main.c
-index f50c19b83368..ac5709624c7a 100644
---- a/drivers/net/ethernet/intel/i40evf/i40evf_main.c
-+++ b/drivers/net/ethernet/intel/i40evf/i40evf_main.c
-@@ -3735,6 +3735,7 @@ static int i40evf_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- err_ioremap:
- 	free_netdev(netdev);
- err_alloc_etherdev:
-+	pci_disable_pcie_error_reporting(pdev);
- 	pci_release_regions(pdev);
- err_pci_reg:
- err_dma:
+diff --git a/tools/perf/util/data.c b/tools/perf/util/data.c
+index 7534455ffc6a..a3f912615690 100644
+--- a/tools/perf/util/data.c
++++ b/tools/perf/util/data.c
+@@ -20,7 +20,7 @@
+ 
+ static void close_dir(struct perf_data_file *files, int nr)
+ {
+-	while (--nr >= 1) {
++	while (--nr >= 0) {
+ 		close(files[nr].fd);
+ 		zfree(&files[nr].path);
+ 	}
 -- 
 2.30.2
 
