@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A35C3D5F70
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 903643D5DBE
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:44:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236699AbhGZPR4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:17:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55708 "EHLO mail.kernel.org"
+        id S235777AbhGZPD3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:03:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237620AbhGZPQJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:16:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 96C0660F38;
-        Mon, 26 Jul 2021 15:56:36 +0000 (UTC)
+        id S235772AbhGZPD3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:03:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E7FB660F37;
+        Mon, 26 Jul 2021 15:43:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314997;
-        bh=2tjdCL3aJ6Hw8vCvKplDi9yUOkQlbeIY10x3DZmK5Wo=;
+        s=korg; t=1627314237;
+        bh=y9nNAFeu4EWk29ChBJOUf/hJlssjVcanevK4L0Mz1+E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SdbCK3R/oTAqR2rTPWTssgcjDmhEaw5CwgInYSmNHsoLSSq0D3Wrezt5FD+35/PXA
-         DMREfXOsAbotz7bA0V1euV37WaKpUiwDX0Z+xIjnosoEs2WoI0yV3sk+Z+BwQ5s+Oh
-         SXNaviYWQV/yc/tY4PtUQF/9VO4a9O+X0ylya3m0=
+        b=lgVrluoTepqV5hifpUkcjFs9kYzfrONordRojZTX6tquBCFh+fDksPHmN82bAXaMd
+         Y8dt5HH5im3bI1tODZoDmrvhmE8bxUveCaGDQIPVUj7ZDHTm4t9Xj/RU96J3tmqsnO
+         lWP7ISA1WC/SRrI1ugMzrTUvrQtlGFNSo0AwHAJw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nguyen Dinh Phi <phind.uet@gmail.com>,
-        syzbot+10f1194569953b72f1ae@syzkaller.appspotmail.com,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Ilya Leoshkevich <iii@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 047/108] netrom: Decrease sock refcount when sock timers expire
-Date:   Mon, 26 Jul 2021 17:38:48 +0200
-Message-Id: <20210726153833.195026335@linuxfoundation.org>
+Subject: [PATCH 4.9 35/60] s390/bpf: Perform r1 range checking before accessing jit->seen_reg[r1]
+Date:   Mon, 26 Jul 2021 17:38:49 +0200
+Message-Id: <20210726153825.972077832@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
-References: <20210726153831.696295003@linuxfoundation.org>
+In-Reply-To: <20210726153824.868160836@linuxfoundation.org>
+References: <20210726153824.868160836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,116 +41,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nguyen Dinh Phi <phind.uet@gmail.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 517a16b1a88bdb6b530f48d5d153478b2552d9a8 ]
+[ Upstream commit 91091656252f5d6d8c476e0c92776ce9fae7b445 ]
 
-Commit 63346650c1a9 ("netrom: switch to sock timer API") switched to use
-sock timer API. It replaces mod_timer() by sk_reset_timer(), and
-del_timer() by sk_stop_timer().
+Currently array jit->seen_reg[r1] is being accessed before the range
+checking of index r1. The range changing on r1 should be performed
+first since it will avoid any potential out-of-range accesses on the
+array seen_reg[] and also it is more optimal to perform checks on r1
+before fetching data from the array. Fix this by swapping the order
+of the checks before the array access.
 
-Function sk_reset_timer() will increase the refcount of sock if it is
-called on an inactive timer, hence, in case the timer expires, we need to
-decrease the refcount ourselves in the handler, otherwise, the sock
-refcount will be unbalanced and the sock will never be freed.
-
-Signed-off-by: Nguyen Dinh Phi <phind.uet@gmail.com>
-Reported-by: syzbot+10f1194569953b72f1ae@syzkaller.appspotmail.com
-Fixes: 63346650c1a9 ("netrom: switch to sock timer API")
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 054623105728 ("s390/bpf: Add s390x eBPF JIT compiler backend")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Tested-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Acked-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Link: https://lore.kernel.org/bpf/20210715125712.24690-1-colin.king@canonical.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netrom/nr_timer.c | 20 +++++++++++---------
- 1 file changed, 11 insertions(+), 9 deletions(-)
+ arch/s390/net/bpf_jit_comp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/netrom/nr_timer.c b/net/netrom/nr_timer.c
-index 9115f8a7dd45..a8da88db7893 100644
---- a/net/netrom/nr_timer.c
-+++ b/net/netrom/nr_timer.c
-@@ -121,11 +121,9 @@ static void nr_heartbeat_expiry(struct timer_list *t)
- 		   is accepted() it isn't 'dead' so doesn't get removed. */
- 		if (sock_flag(sk, SOCK_DESTROY) ||
- 		    (sk->sk_state == TCP_LISTEN && sock_flag(sk, SOCK_DEAD))) {
--			sock_hold(sk);
- 			bh_unlock_sock(sk);
- 			nr_destroy_socket(sk);
--			sock_put(sk);
--			return;
-+			goto out;
- 		}
- 		break;
+diff --git a/arch/s390/net/bpf_jit_comp.c b/arch/s390/net/bpf_jit_comp.c
+index 9b15a1dc6628..ed58ebab96cd 100644
+--- a/arch/s390/net/bpf_jit_comp.c
++++ b/arch/s390/net/bpf_jit_comp.c
+@@ -116,7 +116,7 @@ static inline void reg_set_seen(struct bpf_jit *jit, u32 b1)
+ {
+ 	u32 r1 = reg2hex[b1];
  
-@@ -146,6 +144,8 @@ static void nr_heartbeat_expiry(struct timer_list *t)
- 
- 	nr_start_heartbeat(sk);
- 	bh_unlock_sock(sk);
-+out:
-+	sock_put(sk);
+-	if (!jit->seen_reg[r1] && r1 >= 6 && r1 <= 15)
++	if (r1 >= 6 && r1 <= 15 && !jit->seen_reg[r1])
+ 		jit->seen_reg[r1] = 1;
  }
  
- static void nr_t2timer_expiry(struct timer_list *t)
-@@ -159,6 +159,7 @@ static void nr_t2timer_expiry(struct timer_list *t)
- 		nr_enquiry_response(sk);
- 	}
- 	bh_unlock_sock(sk);
-+	sock_put(sk);
- }
- 
- static void nr_t4timer_expiry(struct timer_list *t)
-@@ -169,6 +170,7 @@ static void nr_t4timer_expiry(struct timer_list *t)
- 	bh_lock_sock(sk);
- 	nr_sk(sk)->condition &= ~NR_COND_PEER_RX_BUSY;
- 	bh_unlock_sock(sk);
-+	sock_put(sk);
- }
- 
- static void nr_idletimer_expiry(struct timer_list *t)
-@@ -197,6 +199,7 @@ static void nr_idletimer_expiry(struct timer_list *t)
- 		sock_set_flag(sk, SOCK_DEAD);
- 	}
- 	bh_unlock_sock(sk);
-+	sock_put(sk);
- }
- 
- static void nr_t1timer_expiry(struct timer_list *t)
-@@ -209,8 +212,7 @@ static void nr_t1timer_expiry(struct timer_list *t)
- 	case NR_STATE_1:
- 		if (nr->n2count == nr->n2) {
- 			nr_disconnect(sk, ETIMEDOUT);
--			bh_unlock_sock(sk);
--			return;
-+			goto out;
- 		} else {
- 			nr->n2count++;
- 			nr_write_internal(sk, NR_CONNREQ);
-@@ -220,8 +222,7 @@ static void nr_t1timer_expiry(struct timer_list *t)
- 	case NR_STATE_2:
- 		if (nr->n2count == nr->n2) {
- 			nr_disconnect(sk, ETIMEDOUT);
--			bh_unlock_sock(sk);
--			return;
-+			goto out;
- 		} else {
- 			nr->n2count++;
- 			nr_write_internal(sk, NR_DISCREQ);
-@@ -231,8 +232,7 @@ static void nr_t1timer_expiry(struct timer_list *t)
- 	case NR_STATE_3:
- 		if (nr->n2count == nr->n2) {
- 			nr_disconnect(sk, ETIMEDOUT);
--			bh_unlock_sock(sk);
--			return;
-+			goto out;
- 		} else {
- 			nr->n2count++;
- 			nr_requeue_frames(sk);
-@@ -241,5 +241,7 @@ static void nr_t1timer_expiry(struct timer_list *t)
- 	}
- 
- 	nr_start_t1timer(sk);
-+out:
- 	bh_unlock_sock(sk);
-+	sock_put(sk);
- }
 -- 
 2.30.2
 
