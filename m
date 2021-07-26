@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FD8D3D5D40
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:41:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C12903D5E40
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:47:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235241AbhGZPAU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:00:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38730 "EHLO mail.kernel.org"
+        id S235806AbhGZPG2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:06:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235236AbhGZPAS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:00:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 498D860E08;
-        Mon, 26 Jul 2021 15:40:46 +0000 (UTC)
+        id S235963AbhGZPGG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:06:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 279A860F5C;
+        Mon, 26 Jul 2021 15:46:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314046;
-        bh=mp11EiE24wDcNafm9JEypj8lxrQqDu93h6rWFarLp/U=;
+        s=korg; t=1627314394;
+        bh=BoVwyVQ+MuSUkynD9RBY4q9czESC9lgarjfwUB6K5RU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0qkx7ieTYfGBfk8PqIuFEx8ExJ+dhXqMdJG9C5kTLj10Wqonu/5e2GKKic0xkdkj8
-         +bdzvJwEInXgvkKqybL9IBk4xeIDYgE/L1UTdKENjHzv+YVoZIeI0SDqVXrj3BqI3Q
-         H5UWVi3s616qnP62PQgqzg/J+UbPp37Idwfm2WU0=
+        b=wmP8pdMbAzjryeT5vSERDmuSaI+KhQXESGO8pG5QFWGPTCIoLCKekAgawER1wS2SP
+         /G8sK2qn1JbNfoBk6aWp+zHzZrkJoaB8PokeUldyJwu6anSNc7+RrUVuvw6ZC4O1Wd
+         18q/Y3B8OejMBSoIlNwvqqzPtY4Sr8X/RghBQMe8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 14/47] net: ti: fix UAF in tlan_remove_one
+        stable@vger.kernel.org, Jason Ekstrand <jason@jlekstrand.net>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Gustavo Padovan <gustavo.padovan@collabora.co.uk>
+Subject: [PATCH 4.14 32/82] dma-buf/sync_file: Dont leak fences on merge failure
 Date:   Mon, 26 Jul 2021 17:38:32 +0200
-Message-Id: <20210726153823.430732332@linuxfoundation.org>
+Message-Id: <20210726153829.208360458@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153822.980271128@linuxfoundation.org>
-References: <20210726153822.980271128@linuxfoundation.org>
+In-Reply-To: <20210726153828.144714469@linuxfoundation.org>
+References: <20210726153828.144714469@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,35 +40,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Jason Ekstrand <jason@jlekstrand.net>
 
-commit 0336f8ffece62f882ab3012820965a786a983f70 upstream.
+commit ffe000217c5068c5da07ccb1c0f8cce7ad767435 upstream.
 
-priv is netdev private data and it cannot be
-used after free_netdev() call. Using priv after free_netdev()
-can cause UAF bug. Fix it by moving free_netdev() at the end of the
-function.
+Each add_fence() call does a dma_fence_get() on the relevant fence.  In
+the error path, we weren't calling dma_fence_put() so all those fences
+got leaked.  Also, in the krealloc_array failure case, we weren't
+freeing the fences array.  Instead, ensure that i and fences are always
+zero-initialized and dma_fence_put() all the fences and kfree(fences) on
+every error path.
 
-Fixes: 1e0a8b13d355 ("tlan: cancel work at remove path")
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Jason Ekstrand <jason@jlekstrand.net>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Fixes: a02b9dc90d84 ("dma-buf/sync_file: refactor fence storage in struct sync_file")
+Cc: Gustavo Padovan <gustavo.padovan@collabora.co.uk>
+Cc: Christian König <christian.koenig@amd.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210624174732.1754546-1-jason@jlekstrand.net
+Signed-off-by: Christian König <christian.koenig@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/ti/tlan.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/dma-buf/sync_file.c |   13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
---- a/drivers/net/ethernet/ti/tlan.c
-+++ b/drivers/net/ethernet/ti/tlan.c
-@@ -313,9 +313,8 @@ static void tlan_remove_one(struct pci_d
- 	pci_release_regions(pdev);
- #endif
+--- a/drivers/dma-buf/sync_file.c
++++ b/drivers/dma-buf/sync_file.c
+@@ -220,8 +220,8 @@ static struct sync_file *sync_file_merge
+ 					 struct sync_file *b)
+ {
+ 	struct sync_file *sync_file;
+-	struct dma_fence **fences, **nfences, **a_fences, **b_fences;
+-	int i, i_a, i_b, num_fences, a_num_fences, b_num_fences;
++	struct dma_fence **fences = NULL, **nfences, **a_fences, **b_fences;
++	int i = 0, i_a, i_b, num_fences, a_num_fences, b_num_fences;
  
--	free_netdev(dev);
--
- 	cancel_work_sync(&priv->tlan_tqueue);
-+	free_netdev(dev);
- }
+ 	sync_file = sync_file_alloc();
+ 	if (!sync_file)
+@@ -245,7 +245,7 @@ static struct sync_file *sync_file_merge
+ 	 * If a sync_file can only be created with sync_file_merge
+ 	 * and sync_file_create, this is a reasonable assumption.
+ 	 */
+-	for (i = i_a = i_b = 0; i_a < a_num_fences && i_b < b_num_fences; ) {
++	for (i_a = i_b = 0; i_a < a_num_fences && i_b < b_num_fences; ) {
+ 		struct dma_fence *pt_a = a_fences[i_a];
+ 		struct dma_fence *pt_b = b_fences[i_b];
  
- static void tlan_start(struct net_device *dev)
+@@ -286,15 +286,16 @@ static struct sync_file *sync_file_merge
+ 		fences = nfences;
+ 	}
+ 
+-	if (sync_file_set_fence(sync_file, fences, i) < 0) {
+-		kfree(fences);
++	if (sync_file_set_fence(sync_file, fences, i) < 0)
+ 		goto err;
+-	}
+ 
+ 	strlcpy(sync_file->user_name, name, sizeof(sync_file->user_name));
+ 	return sync_file;
+ 
+ err:
++	while (i)
++		dma_fence_put(fences[--i]);
++	kfree(fences);
+ 	fput(sync_file->file);
+ 	return NULL;
+ 
 
 
