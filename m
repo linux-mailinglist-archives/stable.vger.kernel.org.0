@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 501BF3D5D74
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:42:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B6123D5ED8
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:59:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235557AbhGZPBe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:01:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40602 "EHLO mail.kernel.org"
+        id S236597AbhGZPLo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:11:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235570AbhGZPBd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:01:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D57660E08;
-        Mon, 26 Jul 2021 15:42:01 +0000 (UTC)
+        id S236431AbhGZPJJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:09:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9E13460FD7;
+        Mon, 26 Jul 2021 15:49:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314121;
-        bh=IAJPT6R2TU3Ysbp3YmjkF9+Sy4Hsy0eyHxF1EPqD7h4=;
+        s=korg; t=1627314556;
+        bh=YEHp7ZrqZ9KoefIsiiCf+iPvjdNGEFxLvlxy/k2R/uA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MM7f2ArpTN5jVuudPeLH/icESZMgozvAcRE6ImInjyY2ecTRnm7OiTTKisPmqitAj
-         5rskHNREGUOCpO19u/aubMDRCQCMMdoEVbOSY1xhsDzu+ztYI0c+uRYthFIdWNCniT
-         bIPE2ReGzVwl0drdDuh0onT8rv0ccLbIcxpMiRuU=
+        b=THwapuJ1+inCxp2wPCx8BLZcpWBIzqawMM1Xy8qk9EsA32XZfJ37ik8O7YLpCvQzf
+         JQeeVwkOaANG4nl+tHYwrE6k6lj1aUhDhDNsPLdeG8hqrhkvFlM4QhPKGptBXI1NAR
+         WqkodMPy8CNGCxr/vKbURM6P0n5Vk3sE/vYUGD8g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Keeping <john@metanate.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.4 41/47] USB: serial: cp210x: add ID for CEL EM3588 USB ZigBee stick
+        stable@vger.kernel.org, Huang Pei <huangpei@loongson.cn>
+Subject: [PATCH 4.14 59/82] [PATCH] Revert "MIPS: add PMD table accounting into MIPSpmd_alloc_one"
 Date:   Mon, 26 Jul 2021 17:38:59 +0200
-Message-Id: <20210726153824.270016370@linuxfoundation.org>
+Message-Id: <20210726153830.090386424@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153822.980271128@linuxfoundation.org>
-References: <20210726153822.980271128@linuxfoundation.org>
+In-Reply-To: <20210726153828.144714469@linuxfoundation.org>
+References: <20210726153828.144714469@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,29 +38,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Keeping <john@metanate.com>
+From: Huang Pei <huangpei@loongson.cn>
 
-commit d6a206e60124a9759dd7f6dfb86b0e1d3b1df82e upstream.
+This reverts commit 920a42d8b854b1f112aef97a21f0549918889442 which is
+commit commit ed914d48b6a1040d1039d371b56273d422c0081e upstream.
 
-Add the USB serial device ID for the CEL ZigBee EM3588 radio stick.
+Commit b2b29d6d011944 (mm: account PMD tables like PTE tables) is
+introduced between v5.9 and v5.10, so this fix (commit 002d8b395fa1)
+should NOT apply to any pre-5.10 branch.
 
-Signed-off-by: John Keeping <john@metanate.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Huang Pei <huangpei@loongson.cn>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/cp210x.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/mips/include/asm/pgalloc.h |   10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
---- a/drivers/usb/serial/cp210x.c
-+++ b/drivers/usb/serial/cp210x.c
-@@ -152,6 +152,7 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(0x10C4, 0x89A4) }, /* CESINEL FTBC Flexible Thyristor Bridge Controller */
- 	{ USB_DEVICE(0x10C4, 0x89FB) }, /* Qivicon ZigBee USB Radio Stick */
- 	{ USB_DEVICE(0x10C4, 0x8A2A) }, /* HubZ dual ZigBee and Z-Wave dongle */
-+	{ USB_DEVICE(0x10C4, 0x8A5B) }, /* CEL EM3588 ZigBee USB Stick */
- 	{ USB_DEVICE(0x10C4, 0x8A5E) }, /* CEL EM3588 ZigBee USB Stick Long Range */
- 	{ USB_DEVICE(0x10C4, 0x8B34) }, /* Qivicon ZigBee USB Radio Stick */
- 	{ USB_DEVICE(0x10C4, 0xEA60) }, /* Silicon Labs factory default */
+--- a/arch/mips/include/asm/pgalloc.h
++++ b/arch/mips/include/asm/pgalloc.h
+@@ -93,15 +93,11 @@ do {							\
+ 
+ static inline pmd_t *pmd_alloc_one(struct mm_struct *mm, unsigned long address)
+ {
+-	pmd_t *pmd = NULL;
+-	struct page *pg;
++	pmd_t *pmd;
+ 
+-	pg = alloc_pages(GFP_KERNEL | __GFP_ACCOUNT, PMD_ORDER);
+-	if (pg) {
+-		pgtable_pmd_page_ctor(pg);
+-		pmd = (pmd_t *)page_address(pg);
++	pmd = (pmd_t *) __get_free_pages(GFP_KERNEL, PMD_ORDER);
++	if (pmd)
+ 		pmd_init((unsigned long)pmd, (unsigned long)invalid_pte_table);
+-	}
+ 	return pmd;
+ }
+ 
 
 
