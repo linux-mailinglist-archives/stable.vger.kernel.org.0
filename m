@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 381A93D6052
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:10:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7984B3D61A4
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:14:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237016AbhGZPVt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:21:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36064 "EHLO mail.kernel.org"
+        id S233707AbhGZPc3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:32:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237202AbhGZPVp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:21:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5EE9960E09;
-        Mon, 26 Jul 2021 16:02:13 +0000 (UTC)
+        id S232702AbhGZPah (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:30:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E815760240;
+        Mon, 26 Jul 2021 16:11:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315333;
-        bh=djUK8kf4HoiFXpKYSTmy1Io6DUCrH+YKlLlwNnnvvBk=;
+        s=korg; t=1627315865;
+        bh=2tjdCL3aJ6Hw8vCvKplDi9yUOkQlbeIY10x3DZmK5Wo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eda2tC54P7mcYCmh8dg2yoV7O+nzIC4UiO7QxkTTNTt7p5v61+o2wTquz2++uOJiL
-         fdiFXZVOUArKQstht3kLXx3+JQ209EQUvhI0f7m82EePZ+2vkLexfVQq2EATpdz6vF
-         dggFxGTxVu7vHz0EsULXezGIXvVi0yAC6/BllDBI=
+        b=BOix8gXUfibcq00sCd25vWLPM/C8/2VmIF8T7unGhLonxbQdROcVfasZ5SsWv3Lko
+         9nglTxrNJhT6khEXHNQboC8S+cKrnU/YGD8vPp3cNznYbC2+ADIffgUvJWNzzACiYT
+         CvD4AwLfpEBF2P7xO/Kcbiwi3kI0fNXP9fYZyyCo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abaci <abaci@linux.alibaba.com>,
-        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Dust Li <dust.li@linux.alibaba.com>,
-        Jesper Dangaard Brouer <brouer@redhat.com>,
-        David Ahern <dsahern@kernel.org>,
-        Song Liu <songliubraving@fb.com>,
+        stable@vger.kernel.org, Nguyen Dinh Phi <phind.uet@gmail.com>,
+        syzbot+10f1194569953b72f1ae@syzkaller.appspotmail.com,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 055/167] bpf, test: fix NULL pointer dereference on invalid expected_attach_type
-Date:   Mon, 26 Jul 2021 17:38:08 +0200
-Message-Id: <20210726153841.261636670@linuxfoundation.org>
+Subject: [PATCH 5.13 097/223] netrom: Decrease sock refcount when sock timers expire
+Date:   Mon, 26 Jul 2021 17:38:09 +0200
+Message-Id: <20210726153849.437125690@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
-References: <20210726153839.371771838@linuxfoundation.org>
+In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
+References: <20210726153846.245305071@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,107 +41,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+From: Nguyen Dinh Phi <phind.uet@gmail.com>
 
-[ Upstream commit 5e21bb4e812566aef86fbb77c96a4ec0782286e4 ]
+[ Upstream commit 517a16b1a88bdb6b530f48d5d153478b2552d9a8 ]
 
-These two types of XDP progs (BPF_XDP_DEVMAP, BPF_XDP_CPUMAP) will not be
-executed directly in the driver, therefore we should also not directly
-run them from here. To run in these two situations, there must be further
-preparations done, otherwise these may cause a kernel panic.
+Commit 63346650c1a9 ("netrom: switch to sock timer API") switched to use
+sock timer API. It replaces mod_timer() by sk_reset_timer(), and
+del_timer() by sk_stop_timer().
 
-For more details, see also dev_xdp_attach().
+Function sk_reset_timer() will increase the refcount of sock if it is
+called on an inactive timer, hence, in case the timer expires, we need to
+decrease the refcount ourselves in the handler, otherwise, the sock
+refcount will be unbalanced and the sock will never be freed.
 
-  [   46.982479] BUG: kernel NULL pointer dereference, address: 0000000000000000
-  [   46.984295] #PF: supervisor read access in kernel mode
-  [   46.985777] #PF: error_code(0x0000) - not-present page
-  [   46.987227] PGD 800000010dca4067 P4D 800000010dca4067 PUD 10dca6067 PMD 0
-  [   46.989201] Oops: 0000 [#1] SMP PTI
-  [   46.990304] CPU: 7 PID: 562 Comm: a.out Not tainted 5.13.0+ #44
-  [   46.992001] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/24
-  [   46.995113] RIP: 0010:___bpf_prog_run+0x17b/0x1710
-  [   46.996586] Code: 49 03 14 cc e8 76 f6 fe ff e9 ad fe ff ff 0f b6 43 01 48 0f bf 4b 02 48 83 c3 08 89 c2 83 e0 0f c0 ea 04 02
-  [   47.001562] RSP: 0018:ffffc900005afc58 EFLAGS: 00010246
-  [   47.003115] RAX: 0000000000000000 RBX: ffffc9000023f068 RCX: 0000000000000000
-  [   47.005163] RDX: 0000000000000000 RSI: 0000000000000079 RDI: ffffc900005afc98
-  [   47.007135] RBP: 0000000000000000 R08: ffffc9000023f048 R09: c0000000ffffdfff
-  [   47.009171] R10: 0000000000000001 R11: ffffc900005afb40 R12: ffffc900005afc98
-  [   47.011172] R13: 0000000000000001 R14: 0000000000000001 R15: ffffffff825258a8
-  [   47.013244] FS:  00007f04a5207580(0000) GS:ffff88842fdc0000(0000) knlGS:0000000000000000
-  [   47.015705] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  [   47.017475] CR2: 0000000000000000 CR3: 0000000100182005 CR4: 0000000000770ee0
-  [   47.019558] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  [   47.021595] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  [   47.023574] PKRU: 55555554
-  [   47.024571] Call Trace:
-  [   47.025424]  __bpf_prog_run32+0x32/0x50
-  [   47.026296]  ? printk+0x53/0x6a
-  [   47.027066]  ? ktime_get+0x39/0x90
-  [   47.027895]  bpf_test_run.cold.28+0x23/0x123
-  [   47.028866]  ? printk+0x53/0x6a
-  [   47.029630]  bpf_prog_test_run_xdp+0x149/0x1d0
-  [   47.030649]  __sys_bpf+0x1305/0x23d0
-  [   47.031482]  __x64_sys_bpf+0x17/0x20
-  [   47.032316]  do_syscall_64+0x3a/0x80
-  [   47.033165]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-  [   47.034254] RIP: 0033:0x7f04a51364dd
-  [   47.035133] Code: 00 c3 66 2e 0f 1f 84 00 00 00 00 00 90 f3 0f 1e fa 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 48
-  [   47.038768] RSP: 002b:00007fff8f9fc518 EFLAGS: 00000213 ORIG_RAX: 0000000000000141
-  [   47.040344] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f04a51364dd
-  [   47.041749] RDX: 0000000000000048 RSI: 0000000020002a80 RDI: 000000000000000a
-  [   47.043171] RBP: 00007fff8f9fc530 R08: 0000000002049300 R09: 0000000020000100
-  [   47.044626] R10: 0000000000000004 R11: 0000000000000213 R12: 0000000000401070
-  [   47.046088] R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
-  [   47.047579] Modules linked in:
-  [   47.048318] CR2: 0000000000000000
-  [   47.049120] ---[ end trace 7ad34443d5be719a ]---
-  [   47.050273] RIP: 0010:___bpf_prog_run+0x17b/0x1710
-  [   47.051343] Code: 49 03 14 cc e8 76 f6 fe ff e9 ad fe ff ff 0f b6 43 01 48 0f bf 4b 02 48 83 c3 08 89 c2 83 e0 0f c0 ea 04 02
-  [   47.054943] RSP: 0018:ffffc900005afc58 EFLAGS: 00010246
-  [   47.056068] RAX: 0000000000000000 RBX: ffffc9000023f068 RCX: 0000000000000000
-  [   47.057522] RDX: 0000000000000000 RSI: 0000000000000079 RDI: ffffc900005afc98
-  [   47.058961] RBP: 0000000000000000 R08: ffffc9000023f048 R09: c0000000ffffdfff
-  [   47.060390] R10: 0000000000000001 R11: ffffc900005afb40 R12: ffffc900005afc98
-  [   47.061803] R13: 0000000000000001 R14: 0000000000000001 R15: ffffffff825258a8
-  [   47.063249] FS:  00007f04a5207580(0000) GS:ffff88842fdc0000(0000) knlGS:0000000000000000
-  [   47.065070] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  [   47.066307] CR2: 0000000000000000 CR3: 0000000100182005 CR4: 0000000000770ee0
-  [   47.067747] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  [   47.069217] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  [   47.070652] PKRU: 55555554
-  [   47.071318] Kernel panic - not syncing: Fatal exception
-  [   47.072854] Kernel Offset: disabled
-  [   47.073683] ---[ end Kernel panic - not syncing: Fatal exception ]---
-
-Fixes: 9216477449f3 ("bpf: cpumap: Add the possibility to attach an eBPF program to cpumap")
-Fixes: fbee97feed9b ("bpf: Add support to attach bpf program to a devmap entry")
-Reported-by: Abaci <abaci@linux.alibaba.com>
-Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
-Acked-by: Jesper Dangaard Brouer <brouer@redhat.com>
-Acked-by: David Ahern <dsahern@kernel.org>
-Acked-by: Song Liu <songliubraving@fb.com>
-Link: https://lore.kernel.org/bpf/20210708080409.73525-1-xuanzhuo@linux.alibaba.com
+Signed-off-by: Nguyen Dinh Phi <phind.uet@gmail.com>
+Reported-by: syzbot+10f1194569953b72f1ae@syzkaller.appspotmail.com
+Fixes: 63346650c1a9 ("netrom: switch to sock timer API")
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bpf/test_run.c | 3 +++
- 1 file changed, 3 insertions(+)
+ net/netrom/nr_timer.c | 20 +++++++++++---------
+ 1 file changed, 11 insertions(+), 9 deletions(-)
 
-diff --git a/net/bpf/test_run.c b/net/bpf/test_run.c
-index 8b796c499cbb..e7cbd1b4a5e5 100644
---- a/net/bpf/test_run.c
-+++ b/net/bpf/test_run.c
-@@ -627,6 +627,9 @@ int bpf_prog_test_run_xdp(struct bpf_prog *prog, const union bpf_attr *kattr,
- 	void *data;
- 	int ret;
+diff --git a/net/netrom/nr_timer.c b/net/netrom/nr_timer.c
+index 9115f8a7dd45..a8da88db7893 100644
+--- a/net/netrom/nr_timer.c
++++ b/net/netrom/nr_timer.c
+@@ -121,11 +121,9 @@ static void nr_heartbeat_expiry(struct timer_list *t)
+ 		   is accepted() it isn't 'dead' so doesn't get removed. */
+ 		if (sock_flag(sk, SOCK_DESTROY) ||
+ 		    (sk->sk_state == TCP_LISTEN && sock_flag(sk, SOCK_DEAD))) {
+-			sock_hold(sk);
+ 			bh_unlock_sock(sk);
+ 			nr_destroy_socket(sk);
+-			sock_put(sk);
+-			return;
++			goto out;
+ 		}
+ 		break;
  
-+	if (prog->expected_attach_type == BPF_XDP_DEVMAP ||
-+	    prog->expected_attach_type == BPF_XDP_CPUMAP)
-+		return -EINVAL;
- 	if (kattr->test.ctx_in || kattr->test.ctx_out)
- 		return -EINVAL;
+@@ -146,6 +144,8 @@ static void nr_heartbeat_expiry(struct timer_list *t)
  
+ 	nr_start_heartbeat(sk);
+ 	bh_unlock_sock(sk);
++out:
++	sock_put(sk);
+ }
+ 
+ static void nr_t2timer_expiry(struct timer_list *t)
+@@ -159,6 +159,7 @@ static void nr_t2timer_expiry(struct timer_list *t)
+ 		nr_enquiry_response(sk);
+ 	}
+ 	bh_unlock_sock(sk);
++	sock_put(sk);
+ }
+ 
+ static void nr_t4timer_expiry(struct timer_list *t)
+@@ -169,6 +170,7 @@ static void nr_t4timer_expiry(struct timer_list *t)
+ 	bh_lock_sock(sk);
+ 	nr_sk(sk)->condition &= ~NR_COND_PEER_RX_BUSY;
+ 	bh_unlock_sock(sk);
++	sock_put(sk);
+ }
+ 
+ static void nr_idletimer_expiry(struct timer_list *t)
+@@ -197,6 +199,7 @@ static void nr_idletimer_expiry(struct timer_list *t)
+ 		sock_set_flag(sk, SOCK_DEAD);
+ 	}
+ 	bh_unlock_sock(sk);
++	sock_put(sk);
+ }
+ 
+ static void nr_t1timer_expiry(struct timer_list *t)
+@@ -209,8 +212,7 @@ static void nr_t1timer_expiry(struct timer_list *t)
+ 	case NR_STATE_1:
+ 		if (nr->n2count == nr->n2) {
+ 			nr_disconnect(sk, ETIMEDOUT);
+-			bh_unlock_sock(sk);
+-			return;
++			goto out;
+ 		} else {
+ 			nr->n2count++;
+ 			nr_write_internal(sk, NR_CONNREQ);
+@@ -220,8 +222,7 @@ static void nr_t1timer_expiry(struct timer_list *t)
+ 	case NR_STATE_2:
+ 		if (nr->n2count == nr->n2) {
+ 			nr_disconnect(sk, ETIMEDOUT);
+-			bh_unlock_sock(sk);
+-			return;
++			goto out;
+ 		} else {
+ 			nr->n2count++;
+ 			nr_write_internal(sk, NR_DISCREQ);
+@@ -231,8 +232,7 @@ static void nr_t1timer_expiry(struct timer_list *t)
+ 	case NR_STATE_3:
+ 		if (nr->n2count == nr->n2) {
+ 			nr_disconnect(sk, ETIMEDOUT);
+-			bh_unlock_sock(sk);
+-			return;
++			goto out;
+ 		} else {
+ 			nr->n2count++;
+ 			nr_requeue_frames(sk);
+@@ -241,5 +241,7 @@ static void nr_t1timer_expiry(struct timer_list *t)
+ 	}
+ 
+ 	nr_start_t1timer(sk);
++out:
+ 	bh_unlock_sock(sk);
++	sock_put(sk);
+ }
 -- 
 2.30.2
 
