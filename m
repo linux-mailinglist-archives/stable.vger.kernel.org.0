@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E223F3D61AE
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:14:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA7143D6148
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:13:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233742AbhGZPch (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:32:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41598 "EHLO mail.kernel.org"
+        id S232295AbhGZPab (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:30:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41244 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232101AbhGZP2V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:28:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A2FEC60FF1;
-        Mon, 26 Jul 2021 16:07:19 +0000 (UTC)
+        id S237454AbhGZP3Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:29:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 587F66101B;
+        Mon, 26 Jul 2021 16:07:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315640;
-        bh=QqK1Pb3D/lwJqSwlrtH72Tr7sWuFQDAziP6ldQygEP8=;
+        s=korg; t=1627315668;
+        bh=p2Glw1OG0FY5YwbRfq/ayuEiaN6cgWITvEJRucwCJhs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vNg3UBElqqEx45aJxs5ktz7VTOF3GSHleY7Kt0dELOW0TK8dQQWGUZ3Nx36/ILpJC
-         c1otfo4w1RRefQqD8a701QA4EQNg0OSo4fx3P7LHYjXoN4T30HlQWD76ZefRax8iMH
-         VS7dA0EqZ9E/3SmCp/Q5VnDdXpTLALkuCGoUJtoo=
+        b=T1uDt31xaXhlfY6C6uwpf/7WSE/p/tdo43EqeMLBRzIj5+x8whfmp+8ReXw4NiMA5
+         kvHxvMnIJzYtJZ/QjUDoCL/OBFKo7e/MCc93SWZ+jIntyL5AXcz76QoaWmSD3Z3XJh
+         VQDu7vwpKRPl9sEksfFHQJi1ybZmvMrPBvvYui7A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Erez Geva <erez.geva.ext@siemens.com>,
+        stable@vger.kernel.org,
         Vinicius Costa Gomes <vinicius.gomes@intel.com>,
-        Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>,
+        Erez Geva <erez.geva.ext@siemens.com>,
+        Tony Brelinski <tonyx.brelinski@intel.com>,
         Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 001/223] igc: Fix use-after-free error during reset
-Date:   Mon, 26 Jul 2021 17:36:33 +0200
-Message-Id: <20210726153846.296722979@linuxfoundation.org>
+Subject: [PATCH 5.13 002/223] igb: Fix use-after-free error during reset
+Date:   Mon, 26 Jul 2021 17:36:34 +0200
+Message-Id: <20210726153846.326596416@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
 References: <20210726153846.245305071@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -46,81 +45,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Vinicius Costa Gomes <vinicius.gomes@intel.com>
 
-[ Upstream commit 56ea7ed103b46970e171eb1c95916f393d64eeff ]
+[ Upstream commit 7b292608db23ccbbfbfa50cdb155d01725d7a52e ]
 
 Cleans the next descriptor to watch (next_to_watch) when cleaning the
 TX ring.
 
-Failure to do so can cause invalid memory accesses. If igc_poll() runs
-while the controller is being reset this can lead to the driver try to
-free a skb that was already freed.
+Failure to do so can cause invalid memory accesses. If igb_poll() runs
+while the controller is reset this can lead to the driver try to free
+a skb that was already freed.
 
-Log message:
+(The crash is harder to reproduce with the igb driver, but the same
+potential problem exists as the code is identical to igc)
 
- [  101.525242] refcount_t: underflow; use-after-free.
- [  101.525251] WARNING: CPU: 1 PID: 646 at lib/refcount.c:28 refcount_warn_saturate+0xab/0xf0
- [  101.525259] Modules linked in: sch_etf(E) sch_mqprio(E) rfkill(E) intel_rapl_msr(E) intel_rapl_common(E)
- x86_pkg_temp_thermal(E) intel_powerclamp(E) coretemp(E) binfmt_misc(E) kvm_intel(E) kvm(E) irqbypass(E) crc32_pclmul(E)
- ghash_clmulni_intel(E) aesni_intel(E) mei_wdt(E) libaes(E) crypto_simd(E) cryptd(E) glue_helper(E) snd_hda_codec_hdmi(E)
- rapl(E) intel_cstate(E) snd_hda_intel(E) snd_intel_dspcfg(E) sg(E) soundwire_intel(E) intel_uncore(E) at24(E)
- soundwire_generic_allocation(E) iTCO_wdt(E) soundwire_cadence(E) intel_pmc_bxt(E) serio_raw(E) snd_hda_codec(E)
- iTCO_vendor_support(E) watchdog(E) snd_hda_core(E) snd_hwdep(E) snd_soc_core(E) snd_compress(E) snd_pcsp(E)
- soundwire_bus(E) snd_pcm(E) evdev(E) snd_timer(E) mei_me(E) snd(E) soundcore(E) mei(E) configfs(E) ip_tables(E) x_tables(E)
- autofs4(E) ext4(E) crc32c_generic(E) crc16(E) mbcache(E) jbd2(E) sd_mod(E) t10_pi(E) crc_t10dif(E) crct10dif_generic(E)
- i915(E) ahci(E) libahci(E) ehci_pci(E) igb(E) xhci_pci(E) ehci_hcd(E)
- [  101.525303]  drm_kms_helper(E) dca(E) xhci_hcd(E) libata(E) crct10dif_pclmul(E) cec(E) crct10dif_common(E) tsn(E) igc(E)
- e1000e(E) ptp(E) i2c_i801(E) crc32c_intel(E) psmouse(E) i2c_algo_bit(E) i2c_smbus(E) scsi_mod(E) lpc_ich(E) pps_core(E)
- usbcore(E) drm(E) button(E) video(E)
- [  101.525318] CPU: 1 PID: 646 Comm: irq/37-enp7s0-T Tainted: G            E     5.10.30-rt37-tsn1-rt-ipipe #ipipe
- [  101.525320] Hardware name: SIEMENS AG SIMATIC IPC427D/A5E31233588, BIOS V17.02.09 03/31/2017
- [  101.525322] RIP: 0010:refcount_warn_saturate+0xab/0xf0
- [  101.525325] Code: 05 31 48 44 01 01 e8 f0 c6 42 00 0f 0b c3 80 3d 1f 48 44 01 00 75 90 48 c7 c7 78 a8 f3 a6 c6 05 0f 48
- 44 01 01 e8 d1 c6 42 00 <0f> 0b c3 80 3d fe 47 44 01 00 0f 85 6d ff ff ff 48 c7 c7 d0 a8 f3
- [  101.525327] RSP: 0018:ffffbdedc0917cb8 EFLAGS: 00010286
- [  101.525329] RAX: 0000000000000000 RBX: ffff98fd6becbf40 RCX: 0000000000000001
- [  101.525330] RDX: 0000000000000001 RSI: ffffffffa6f2700c RDI: 00000000ffffffff
- [  101.525332] RBP: ffff98fd6becc14c R08: ffffffffa7463d00 R09: ffffbdedc0917c50
- [  101.525333] R10: ffffffffa74c3578 R11: 0000000000000034 R12: 00000000ffffff00
- [  101.525335] R13: ffff98fd6b0b1000 R14: 0000000000000039 R15: ffff98fd6be35c40
- [  101.525337] FS:  0000000000000000(0000) GS:ffff98fd6e240000(0000) knlGS:0000000000000000
- [  101.525339] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- [  101.525341] CR2: 00007f34135a3a70 CR3: 0000000150210003 CR4: 00000000001706e0
- [  101.525343] Call Trace:
- [  101.525346]  sock_wfree+0x9c/0xa0
- [  101.525353]  unix_destruct_scm+0x7b/0xa0
- [  101.525358]  skb_release_head_state+0x40/0x90
- [  101.525362]  skb_release_all+0xe/0x30
- [  101.525364]  napi_consume_skb+0x57/0x160
- [  101.525367]  igc_poll+0xb7/0xc80 [igc]
- [  101.525376]  ? sched_clock+0x5/0x10
- [  101.525381]  ? sched_clock_cpu+0xe/0x100
- [  101.525385]  net_rx_action+0x14c/0x410
- [  101.525388]  __do_softirq+0xe9/0x2f4
- [  101.525391]  __local_bh_enable_ip+0xe3/0x110
- [  101.525395]  ? irq_finalize_oneshot.part.47+0xe0/0xe0
- [  101.525398]  irq_forced_thread_fn+0x6a/0x80
- [  101.525401]  irq_thread+0xe8/0x180
- [  101.525403]  ? wake_threads_waitq+0x30/0x30
- [  101.525406]  ? irq_thread_check_affinity+0xd0/0xd0
- [  101.525408]  kthread+0x183/0x1a0
- [  101.525412]  ? kthread_park+0x80/0x80
- [  101.525415]  ret_from_fork+0x22/0x30
-
-Fixes: 13b5b7fd6a4a ("igc: Add support for Tx/Rx rings")
-Reported-by: Erez Geva <erez.geva.ext@siemens.com>
+Fixes: 7cc6fd4c60f2 ("igb: Don't bother clearing Tx buffer_info in igb_clean_tx_ring")
 Signed-off-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
-Tested-by: Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>
+Reported-by: Erez Geva <erez.geva.ext@siemens.com>
+Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
 Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/igc/igc_main.c | 2 ++
+ drivers/net/ethernet/intel/igb/igb_main.c | 2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/igc/igc_main.c b/drivers/net/ethernet/intel/igc/igc_main.c
-index f1adf154ec4a..9cac1e74a2ba 100644
---- a/drivers/net/ethernet/intel/igc/igc_main.c
-+++ b/drivers/net/ethernet/intel/igc/igc_main.c
-@@ -217,6 +217,8 @@ static void igc_clean_tx_ring(struct igc_ring *tx_ring)
+diff --git a/drivers/net/ethernet/intel/igb/igb_main.c b/drivers/net/ethernet/intel/igb/igb_main.c
+index 7b1885f9ce03..ed7ec27df8c2 100644
+--- a/drivers/net/ethernet/intel/igb/igb_main.c
++++ b/drivers/net/ethernet/intel/igb/igb_main.c
+@@ -4835,6 +4835,8 @@ static void igb_clean_tx_ring(struct igb_ring *tx_ring)
  					       DMA_TO_DEVICE);
  		}
  
