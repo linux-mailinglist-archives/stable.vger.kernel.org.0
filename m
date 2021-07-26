@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D85F3D5619
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 11:05:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 318E63D561A
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 11:05:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232524AbhGZIZR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 04:25:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36070 "EHLO mail.kernel.org"
+        id S232248AbhGZIZT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 04:25:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232041AbhGZIZQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 04:25:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 26E9D60D07;
-        Mon, 26 Jul 2021 09:05:45 +0000 (UTC)
+        id S232041AbhGZIZT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 04:25:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5700160F38;
+        Mon, 26 Jul 2021 09:05:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627290345;
-        bh=yQWPELxVRd6OT1tR8MTK9HW8I3eywV6LZnEwViEa0Oo=;
+        s=korg; t=1627290347;
+        bh=TIqhCHNHvIGfuKq9mUwixmNI+xqhgCYOza5fInk7d5A=;
         h=Subject:To:Cc:From:Date:From;
-        b=BDf2vS/aooQIYLSZAvLJcqupqBocbrE7T7MPqVUGcxKmqdij/m0uyXQnDCgmhs58d
-         497O3boiVQJHtfnAjJsUke9ED2E+JaPA/+nkDoZQsGxFiBSR9eKg96C9DdY1yaOzou
-         1kuDBjuFWzTyHB7KmFOPd5ZzjiObWuOAKb8Nenrs=
-Subject: FAILED: patch "[PATCH] drm/amd/display: Fix ASSR regression on embedded panels" failed to apply to 5.10-stable tree
+        b=Z9iT/eALiptxLsR+zvpCs17nrgFq5HAq7iNYJPf0FDlzrOkZEuMkaCT1PVhhFktO/
+         CpSbzyCdsqWQOY7OrTvqnCEPoUX41OmZW4eB7dnm+gZcmxa33XRMGKkDqg/gkbv+Su
+         PAXE7eSG4UGAglwL0ndKdU63U33TNUJYQvYkVHyM=
+Subject: FAILED: patch "[PATCH] drm/amd/display: Fix ASSR regression on embedded panels" failed to apply to 5.13-stable tree
 To:     stylon.wang@amd.com, alexander.deucher@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 26 Jul 2021 11:01:58 +0200
-Message-ID: <162729011848230@kroah.com>
+Date:   Mon, 26 Jul 2021 11:01:59 +0200
+Message-ID: <162729011947167@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.13-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
