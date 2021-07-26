@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D1483D6206
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:15:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16A0F3D60DB
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:12:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234841AbhGZPd7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:33:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49376 "EHLO mail.kernel.org"
+        id S236905AbhGZPZb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:25:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233904AbhGZPcv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:32:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4385F60C40;
-        Mon, 26 Jul 2021 16:13:18 +0000 (UTC)
+        id S237699AbhGZPX7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:23:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B40BC60F38;
+        Mon, 26 Jul 2021 16:04:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315998;
-        bh=O/uDQGTfxzNPMnwcyEV2gPyHXtuUgPJo1AwHDEq+VTA=;
+        s=korg; t=1627315468;
+        bh=YivcaPsQI6HankPicUPjChr6cFmEqlsylh88FIfEJFI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QA9bPIgCv99lTLGcU2SqFSAoYk02OeT2AtlS6vTIo9CwocEfzO8cXOR15abxeiu3V
-         vGjjT+Aud862Pnzl8a1r3w3nkwNqCMztbJpYMFabZoFHo7XTwWmm/PAt/LVWPybFE7
-         Z+G3MVzPUbGT534pfdbuXXfxYL84CZ+BNQh/7szo=
+        b=AWUdhyn6I701Yqex0tVCkgFm/Ifl39sm7+QLJeqmR42zGnWp/rmf2wkFoQSOpkfN3
+         5z8ChJmHIA3fYZQOCBuWYiuq169t2vi7HXp/Kmvlfaugx3hE+5WuNyKme0lH96lov1
+         g8zqMRaUQuXhwbyfLhmTISiI9mVobSw2TqvTQA6U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chengwen Feng <fengchengwen@huawei.com>,
-        Guangbin Huang <huangguangbin2@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 113/223] net: hns3: fix possible mismatches resp of mailbox
-Date:   Mon, 26 Jul 2021 17:38:25 +0200
-Message-Id: <20210726153849.970126374@linuxfoundation.org>
+Subject: [PATCH 5.10 073/167] sctp: trim optlen when its a huge value in sctp_setsockopt
+Date:   Mon, 26 Jul 2021 17:38:26 +0200
+Message-Id: <20210726153841.842563570@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
-References: <20210726153846.245305071@linuxfoundation.org>
+In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
+References: <20210726153839.371771838@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,84 +40,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengwen Feng <fengchengwen@huawei.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit 1b713d14dc3c077ec45e65dab4ea01a8bc41b8c1 ]
+[ Upstream commit 2f3fdd8d4805015fa964807e1c7f3d88f31bd389 ]
 
-Currently, the mailbox synchronous communication between VF and PF use
-the following fields to maintain communication:
-1. Origin_mbx_msg which was combined by message code and subcode, used
-to match request and response.
-2. Received_resp which means whether received response.
+After commit ca84bd058dae ("sctp: copy the optval from user space in
+sctp_setsockopt"), it does memory allocation in sctp_setsockopt with
+the optlen, and it would fail the allocation and return error if the
+optlen from user space is a huge value.
 
-There may possible mismatches of the following situation:
-1. VF sends message A with code=1 subcode=1.
-2. PF was blocked about 500ms when processing the message A.
-3. VF will detect message A timeout because it can't get the response
-within 500ms.
-4. VF sends message B with code=1 subcode=1 which equal message A.
-5. PF processes the first message A and send the response message to
-VF.
-6. VF will identify the response matched the message B because the
-code/subcode is the same. This will lead to mismatch of request and
-response.
+This breaks some sockopts, like SCTP_HMAC_IDENT, SCTP_RESET_STREAMS and
+SCTP_AUTH_KEY, as when processing these sockopts before, optlen would
+be trimmed to a biggest value it needs when optlen is a huge value,
+instead of failing the allocation and returning error.
 
-To fix the above bug, we use the following scheme:
-1. The message sent from VF was labelled with match_id which was a
-unique 16-bit non-zero value.
-2. The response sent from PF will label with match_id which got from
-the request.
-3. The VF uses the match_id to match request and response message.
+This patch is to fix the allocation failure when it's a huge optlen from
+user space by trimming it to the biggest size sctp sockopt may need when
+necessary, and this biggest size is from sctp_setsockopt_reset_streams()
+for SCTP_RESET_STREAMS, which is bigger than those for SCTP_HMAC_IDENT
+and SCTP_AUTH_KEY.
 
-As for PF driver, it only needs to copy the match_id from request to
-response.
-
-Fixes: dde1a86e93ca ("net: hns3: Add mailbox support to PF driver")
-Signed-off-by: Chengwen Feng <fengchengwen@huawei.com>
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: ca84bd058dae ("sctp: copy the optval from user space in sctp_setsockopt")
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h        | 6 ++++--
- drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c | 1 +
- 2 files changed, 5 insertions(+), 2 deletions(-)
+ net/sctp/socket.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h b/drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h
-index a2c17af57fde..d283beec9f66 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h
-+++ b/drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h
-@@ -135,7 +135,8 @@ struct hclge_mbx_vf_to_pf_cmd {
- 	u8 mbx_need_resp;
- 	u8 rsv1[1];
- 	u8 msg_len;
--	u8 rsv2[3];
-+	u8 rsv2;
-+	u16 match_id;
- 	struct hclge_vf_to_pf_msg msg;
- };
+diff --git a/net/sctp/socket.c b/net/sctp/socket.c
+index 3ac6b21ecf2c..e872bc50bbe6 100644
+--- a/net/sctp/socket.c
++++ b/net/sctp/socket.c
+@@ -4471,6 +4471,10 @@ static int sctp_setsockopt(struct sock *sk, int level, int optname,
+ 	}
  
-@@ -145,7 +146,8 @@ struct hclge_mbx_pf_to_vf_cmd {
- 	u8 dest_vfid;
- 	u8 rsv[3];
- 	u8 msg_len;
--	u8 rsv1[3];
-+	u8 rsv1;
-+	u16 match_id;
- 	struct hclge_pf_to_vf_msg msg;
- };
- 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
-index f1c9f4ada348..38b601031db4 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
-@@ -47,6 +47,7 @@ static int hclge_gen_resp_to_vf(struct hclge_vport *vport,
- 
- 	resp_pf_to_vf->dest_vfid = vf_to_pf_req->mbx_src_vfid;
- 	resp_pf_to_vf->msg_len = vf_to_pf_req->msg_len;
-+	resp_pf_to_vf->match_id = vf_to_pf_req->match_id;
- 
- 	resp_pf_to_vf->msg.code = HCLGE_MBX_PF_VF_RESP;
- 	resp_pf_to_vf->msg.vf_mbx_msg_code = vf_to_pf_req->msg.code;
+ 	if (optlen > 0) {
++		/* Trim it to the biggest size sctp sockopt may need if necessary */
++		optlen = min_t(unsigned int, optlen,
++			       PAGE_ALIGN(USHRT_MAX +
++					  sizeof(__u16) * sizeof(struct sctp_reset_streams)));
+ 		kopt = memdup_sockptr(optval, optlen);
+ 		if (IS_ERR(kopt))
+ 			return PTR_ERR(kopt);
 -- 
 2.30.2
 
