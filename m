@@ -2,40 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF5533D61EE
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:15:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C6B33D609F
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:11:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234349AbhGZPd2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:33:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48230 "EHLO mail.kernel.org"
+        id S237568AbhGZPX2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:23:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233470AbhGZPcV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:32:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EDD25604AC;
-        Mon, 26 Jul 2021 16:12:41 +0000 (UTC)
+        id S237539AbhGZPXV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:23:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2068F60240;
+        Mon, 26 Jul 2021 16:03:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315962;
-        bh=inOWQfLVnDgye7I8eMJNLtVK9WP2hsqyDZbNzzns8AU=;
+        s=korg; t=1627315429;
+        bh=tLNelaY5OO26pA7MsbTtNpHfSLxFzeY+E9m5ccJVEEs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nsRLYgJyZwun1UDLy1s83IXy2MKWcw+rx1m8rj6OVzHb6Ifcoubjxm5dvfER47YUs
-         HQ8cU0R71nHkuEuX88LfzNyp0R2OEpzX4PKOf2Q0uZLXHcop9qmI5KFh4NoLaCWXYo
-         jxAMHKE5s0p3+td/p0L9sh3Jq461PeCuBC9FsOFU=
+        b=Npqck5xnHCuocsfI7Gg7nPzllxpxDTLqZpykA8maFVyKcxpOYvjXRi+yK3qRC1SnN
+         05oNDuMLXxRzTJcP8j0LhgC+zd7kdvX9ApfK+iQ4Ov7SsAeJU2rbOlXW2dvd2WGUgb
+         7NahcV7mpCQWfLEKqL27UwNTzvh2APY4fa/uz2aE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wei Wang <weiwan@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Neal Cardwell <ncardwell@google.com>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
-        Yuchung Cheng <ycheng@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 134/223] tcp: disable TFO blackhole logic by default
+Subject: [PATCH 5.10 093/167] nvme-pci: dont WARN_ON in nvme_reset_work if ctrl.state is not RESETTING
 Date:   Mon, 26 Jul 2021 17:38:46 +0200
-Message-Id: <20210726153850.631461851@linuxfoundation.org>
+Message-Id: <20210726153842.516034407@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
-References: <20210726153846.245305071@linuxfoundation.org>
+In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
+References: <20210726153839.371771838@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,88 +39,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Wang <weiwan@google.com>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-[ Upstream commit 213ad73d06073b197a02476db3a4998e219ddb06 ]
+[ Upstream commit 7764656b108cd308c39e9a8554353b8f9ca232a3 ]
 
-Multiple complaints have been raised from the TFO users on the internet
-stating that the TFO blackhole logic is too aggressive and gets falsely
-triggered too often.
-(e.g. https://blog.apnic.net/2021/07/05/tcp-fast-open-not-so-fast/)
-Considering that most middleboxes no longer drop TFO packets, we decide
-to disable the blackhole logic by setting
-/proc/sys/net/ipv4/tcp_fastopen_blackhole_timeout_set to 0 by default.
+Followling process:
+nvme_probe
+  nvme_reset_ctrl
+    nvme_change_ctrl_state(ctrl, NVME_CTRL_RESETTING)
+    queue_work(nvme_reset_wq, &ctrl->reset_work)
 
-Fixes: cf1ef3f0719b4 ("net/tcp_fastopen: Disable active side TFO in certain scenarios")
-Signed-off-by: Wei Wang <weiwan@google.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Acked-by: Neal Cardwell <ncardwell@google.com>
-Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
-Acked-by: Yuchung Cheng <ycheng@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+-------------->	nvme_remove
+		  nvme_change_ctrl_state(&dev->ctrl, NVME_CTRL_DELETING)
+worker_thread
+  process_one_work
+    nvme_reset_work
+    WARN_ON(dev->ctrl.state != NVME_CTRL_RESETTING)
+
+, which will trigger WARN_ON in nvme_reset_work():
+[  127.534298] WARNING: CPU: 0 PID: 139 at drivers/nvme/host/pci.c:2594
+[  127.536161] CPU: 0 PID: 139 Comm: kworker/u8:7 Not tainted 5.13.0
+[  127.552518] Call Trace:
+[  127.552840]  ? kvm_sched_clock_read+0x25/0x40
+[  127.553936]  ? native_send_call_func_single_ipi+0x1c/0x30
+[  127.555117]  ? send_call_function_single_ipi+0x9b/0x130
+[  127.556263]  ? __smp_call_single_queue+0x48/0x60
+[  127.557278]  ? ttwu_queue_wakelist+0xfa/0x1c0
+[  127.558231]  ? try_to_wake_up+0x265/0x9d0
+[  127.559120]  ? ext4_end_io_rsv_work+0x160/0x290
+[  127.560118]  process_one_work+0x28c/0x640
+[  127.561002]  worker_thread+0x39a/0x700
+[  127.561833]  ? rescuer_thread+0x580/0x580
+[  127.562714]  kthread+0x18c/0x1e0
+[  127.563444]  ? set_kthread_struct+0x70/0x70
+[  127.564347]  ret_from_fork+0x1f/0x30
+
+The preceding problem can be easily reproduced by executing following
+script (based on blktests suite):
+test() {
+  pdev="$(_get_pci_dev_from_blkdev)"
+  sysfs="/sys/bus/pci/devices/${pdev}"
+  for ((i = 0; i < 10; i++)); do
+    echo 1 > "$sysfs/remove"
+    echo 1 > /sys/bus/pci/rescan
+  done
+}
+
+Since the device ctrl could be updated as an non-RESETTING state by
+repeating probe/remove in userspace (which is a normal situation), we
+can replace stack dumping WARN_ON with a warnning message.
+
+Fixes: 82b057caefaff ("nvme-pci: fix multiple ctrl removal schedulin")
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/networking/ip-sysctl.rst | 2 +-
- net/ipv4/tcp_fastopen.c                | 9 ++++++++-
- net/ipv4/tcp_ipv4.c                    | 2 +-
- 3 files changed, 10 insertions(+), 3 deletions(-)
+ drivers/nvme/host/pci.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/networking/ip-sysctl.rst b/Documentation/networking/ip-sysctl.rst
-index c2ecc9894fd0..9a57e972dae4 100644
---- a/Documentation/networking/ip-sysctl.rst
-+++ b/Documentation/networking/ip-sysctl.rst
-@@ -772,7 +772,7 @@ tcp_fastopen_blackhole_timeout_sec - INTEGER
- 	initial value when the blackhole issue goes away.
- 	0 to disable the blackhole detection.
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index 80e1d45b0668..fb48a88d1acb 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -2596,7 +2596,9 @@ static void nvme_reset_work(struct work_struct *work)
+ 	bool was_suspend = !!(dev->ctrl.ctrl_config & NVME_CC_SHN_NORMAL);
+ 	int result;
  
--	By default, it is set to 1hr.
-+	By default, it is set to 0 (feature is disabled).
- 
- tcp_fastopen_key - list of comma separated 32-digit hexadecimal INTEGERs
- 	The list consists of a primary key and an optional backup key. The
-diff --git a/net/ipv4/tcp_fastopen.c b/net/ipv4/tcp_fastopen.c
-index 08548ff23d83..d49709ba8e16 100644
---- a/net/ipv4/tcp_fastopen.c
-+++ b/net/ipv4/tcp_fastopen.c
-@@ -507,6 +507,9 @@ void tcp_fastopen_active_disable(struct sock *sk)
- {
- 	struct net *net = sock_net(sk);
- 
-+	if (!sock_net(sk)->ipv4.sysctl_tcp_fastopen_blackhole_timeout)
-+		return;
-+
- 	/* Paired with READ_ONCE() in tcp_fastopen_active_should_disable() */
- 	WRITE_ONCE(net->ipv4.tfo_active_disable_stamp, jiffies);
- 
-@@ -526,10 +529,14 @@ void tcp_fastopen_active_disable(struct sock *sk)
- bool tcp_fastopen_active_should_disable(struct sock *sk)
- {
- 	unsigned int tfo_bh_timeout = sock_net(sk)->ipv4.sysctl_tcp_fastopen_blackhole_timeout;
--	int tfo_da_times = atomic_read(&sock_net(sk)->ipv4.tfo_active_disable_times);
- 	unsigned long timeout;
-+	int tfo_da_times;
- 	int multiplier;
- 
-+	if (!tfo_bh_timeout)
-+		return false;
-+
-+	tfo_da_times = atomic_read(&sock_net(sk)->ipv4.tfo_active_disable_times);
- 	if (!tfo_da_times)
- 		return false;
- 
-diff --git a/net/ipv4/tcp_ipv4.c b/net/ipv4/tcp_ipv4.c
-index e409f2de5dc4..8bb5f7f51dae 100644
---- a/net/ipv4/tcp_ipv4.c
-+++ b/net/ipv4/tcp_ipv4.c
-@@ -2954,7 +2954,7 @@ static int __net_init tcp_sk_init(struct net *net)
- 	net->ipv4.sysctl_tcp_comp_sack_nr = 44;
- 	net->ipv4.sysctl_tcp_fastopen = TFO_CLIENT_ENABLE;
- 	spin_lock_init(&net->ipv4.tcp_fastopen_ctx_lock);
--	net->ipv4.sysctl_tcp_fastopen_blackhole_timeout = 60 * 60;
-+	net->ipv4.sysctl_tcp_fastopen_blackhole_timeout = 0;
- 	atomic_set(&net->ipv4.tfo_active_disable_times, 0);
- 
- 	/* Reno is always built in */
+-	if (WARN_ON(dev->ctrl.state != NVME_CTRL_RESETTING)) {
++	if (dev->ctrl.state != NVME_CTRL_RESETTING) {
++		dev_warn(dev->ctrl.device, "ctrl state %d is not RESETTING\n",
++			 dev->ctrl.state);
+ 		result = -ENODEV;
+ 		goto out;
+ 	}
 -- 
 2.30.2
 
