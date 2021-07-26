@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CACA3D6246
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:16:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5EB13D610B
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:12:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235606AbhGZPfX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:35:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51590 "EHLO mail.kernel.org"
+        id S236106AbhGZP1r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:27:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236908AbhGZPe1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:34:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2DCFA60F5A;
-        Mon, 26 Jul 2021 16:14:55 +0000 (UTC)
+        id S237407AbhGZPZf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:25:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7610460F6F;
+        Mon, 26 Jul 2021 16:06:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627316095;
-        bh=UDqDBBM7L8wBvV1Uv2np8RExwmYpEa2pmfRTiy/N2hY=;
+        s=korg; t=1627315563;
+        bh=/DlB4JFBlmafMNbKjffhDxTKcwyOQwJ8JwUbzv4lDPk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CQIt/GLua3VSNigmnUvg8ifX2NK4QPCNGiuxxea7B44SLeuEycjitah6ylLec2SnU
-         EKSx4pZHT2xR7R8qwvHZKHq4nsxK1hVQZe4m+ZuACCMViDZJGaFljZPdG79HHEHztc
-         8nNmY1wpcNF1ozUjR/n7t2JtOxdoTD77HWAf4U6s=
+        b=DojIBOJtYT7jlmSH25z/791j1W3ooN5hiPePOPnDWCVANYVuBcGScFYex94jCduG7
+         bMZGfPh+psB8fhh0RInQAn54C0/o1KB4449Uzc+i7eMHT6CMKrcw41e8b4RtoHNnrG
+         +BSsz3M+YDGQ4DgHL4wV6AzSJRsr2Zk3JNXmWOXc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jia-Ju Bai <baijiaju1990@gmail.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jakub=20Fi=C5=A1er?= <jakub@ufiseru.cz>,
+        Alexander Tsoy <alexander@tsoy.me>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.13 150/223] ALSA: sb: Fix potential ABBA deadlock in CSP driver
-Date:   Mon, 26 Jul 2021 17:39:02 +0200
-Message-Id: <20210726153851.136007124@linuxfoundation.org>
+Subject: [PATCH 5.10 110/167] ALSA: usb-audio: Add registration quirk for JBL Quantum headsets
+Date:   Mon, 26 Jul 2021 17:39:03 +0200
+Message-Id: <20210726153843.093129422@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
-References: <20210726153846.245305071@linuxfoundation.org>
+In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
+References: <20210726153839.371771838@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,75 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Alexander Tsoy <alexander@tsoy.me>
 
-commit 1c2b9519159b470ef24b2638f4794e86e2952ab7 upstream.
+commit b0084afde27fe8a504377dee65f55bc6aa776937 upstream.
 
-SB16 CSP driver may hit potentially a typical ABBA deadlock in two
-code paths:
+These devices has two interfaces, but only the second interface
+contains the capture endpoint, thus quirk is required to delay the
+registration until the second interface appears.
 
- In snd_sb_csp_stop():
-     spin_lock_irqsave(&p->chip->mixer_lock, flags);
-     spin_lock(&p->chip->reg_lock);
-
- In snd_sb_csp_load():
-     spin_lock_irqsave(&p->chip->reg_lock, flags);
-     spin_lock(&p->chip->mixer_lock);
-
-Also the similar pattern is seen in snd_sb_csp_start().
-
-Although the practical impact is very small (those states aren't
-triggered in the same running state and this happens only on a real
-hardware, decades old ISA sound boards -- which must be very difficult
-to find nowadays), it's a real scenario and has to be fixed.
-
-This patch addresses those deadlocks by splitting the locks in
-snd_sb_csp_start() and snd_sb_csp_stop() for avoiding the nested
-locks.
-
-Reported-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Tested-by: Jakub Fišer <jakub@ufiseru.cz>
+Signed-off-by: Alexander Tsoy <alexander@tsoy.me>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/7b0fcdaf-cd4f-4728-2eae-48c151a92e10@gmail.com
-Link: https://lore.kernel.org/r/20210716132723.13216-1-tiwai@suse.de
+Link: https://lore.kernel.org/r/20210721235605.53741-1-alexander@tsoy.me
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/isa/sb/sb16_csp.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ sound/usb/quirks.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/sound/isa/sb/sb16_csp.c
-+++ b/sound/isa/sb/sb16_csp.c
-@@ -814,6 +814,7 @@ static int snd_sb_csp_start(struct snd_s
- 	mixR = snd_sbmixer_read(p->chip, SB_DSP4_PCM_DEV + 1);
- 	snd_sbmixer_write(p->chip, SB_DSP4_PCM_DEV, mixL & 0x7);
- 	snd_sbmixer_write(p->chip, SB_DSP4_PCM_DEV + 1, mixR & 0x7);
-+	spin_unlock_irqrestore(&p->chip->mixer_lock, flags);
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -1895,6 +1895,9 @@ static const struct registration_quirk r
+ 	REG_QUIRK_ENTRY(0x0951, 0x16d8, 2),	/* Kingston HyperX AMP */
+ 	REG_QUIRK_ENTRY(0x0951, 0x16ed, 2),	/* Kingston HyperX Cloud Alpha S */
+ 	REG_QUIRK_ENTRY(0x0951, 0x16ea, 2),	/* Kingston HyperX Cloud Flight S */
++	REG_QUIRK_ENTRY(0x0ecb, 0x1f46, 2),	/* JBL Quantum 600 */
++	REG_QUIRK_ENTRY(0x0ecb, 0x2039, 2),	/* JBL Quantum 400 */
++	REG_QUIRK_ENTRY(0x0ecb, 0x203e, 2),	/* JBL Quantum 800 */
+ 	{ 0 }					/* terminator */
+ };
  
- 	spin_lock(&p->chip->reg_lock);
- 	set_mode_register(p->chip, 0xc0);	/* c0 = STOP */
-@@ -853,6 +854,7 @@ static int snd_sb_csp_start(struct snd_s
- 	spin_unlock(&p->chip->reg_lock);
- 
- 	/* restore PCM volume */
-+	spin_lock_irqsave(&p->chip->mixer_lock, flags);
- 	snd_sbmixer_write(p->chip, SB_DSP4_PCM_DEV, mixL);
- 	snd_sbmixer_write(p->chip, SB_DSP4_PCM_DEV + 1, mixR);
- 	spin_unlock_irqrestore(&p->chip->mixer_lock, flags);
-@@ -878,6 +880,7 @@ static int snd_sb_csp_stop(struct snd_sb
- 	mixR = snd_sbmixer_read(p->chip, SB_DSP4_PCM_DEV + 1);
- 	snd_sbmixer_write(p->chip, SB_DSP4_PCM_DEV, mixL & 0x7);
- 	snd_sbmixer_write(p->chip, SB_DSP4_PCM_DEV + 1, mixR & 0x7);
-+	spin_unlock_irqrestore(&p->chip->mixer_lock, flags);
- 
- 	spin_lock(&p->chip->reg_lock);
- 	if (p->running & SNDRV_SB_CSP_ST_QSOUND) {
-@@ -892,6 +895,7 @@ static int snd_sb_csp_stop(struct snd_sb
- 	spin_unlock(&p->chip->reg_lock);
- 
- 	/* restore PCM volume */
-+	spin_lock_irqsave(&p->chip->mixer_lock, flags);
- 	snd_sbmixer_write(p->chip, SB_DSP4_PCM_DEV, mixL);
- 	snd_sbmixer_write(p->chip, SB_DSP4_PCM_DEV + 1, mixR);
- 	spin_unlock_irqrestore(&p->chip->mixer_lock, flags);
 
 
