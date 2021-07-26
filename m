@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E1BC53D5FE6
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AEA53D6299
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:27:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236782AbhGZPTf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:19:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60752 "EHLO mail.kernel.org"
+        id S234472AbhGZPgc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:36:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236607AbhGZPTd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:19:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 78ECB60F70;
-        Mon, 26 Jul 2021 16:00:01 +0000 (UTC)
+        id S237349AbhGZPgI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:36:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DDC2960EB2;
+        Mon, 26 Jul 2021 16:16:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315202;
-        bh=ImrBO32MS2qKCVDbOawfWgCzi5qP45Uis/tZnRBB4Oo=;
+        s=korg; t=1627316196;
+        bh=MwopbsRfygVLJ/vVysBHtklxj8OtoAX7NjADgmtNH6U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xDFW9IQxKQe1tFcloo7taszIYBmulY8iu1yX9fdTDbVfVIc89XoChWWVco3JkQgLd
-         3CcM/+10KZ3jlXhbWqHQ8MfvyuD/6jZphodfG7tU0MIXi6dGp3i+KjNlBE0LtSwj9/
-         Da6Tg+OTj9Iwls4BXcI81m7tUMMJ3auiFPzmu+Fw=
+        b=GLq9ImDKcxH2Tub0owGuymv2ivdgbtSjO3JVLOIX8nD4kn4kcA3VABMGUzVPkKG5K
+         G5Cs5Aj9+DZB/qq1yIYfJ0Xp67fg0JUMZoQFe6ZxEYVpJYASYswyz3EBOAG++wnYCo
+         FQLfwh6Uha7O8nmG8iIym39nPV48Eh4yxpRkTAv8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>,
-        Oleksandr Kravchenko <o.v.kravchenko@globallogic.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 5.4 103/108] iio: accel: bma180: Use explicit member assignment
+        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.13 192/223] io_uring: explicitly count entries for poll reqs
 Date:   Mon, 26 Jul 2021 17:39:44 +0200
-Message-Id: <20210726153834.981310767@linuxfoundation.org>
+Message-Id: <20210726153852.478104432@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
-References: <20210726153831.696295003@linuxfoundation.org>
+In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
+References: <20210726153846.245305071@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,102 +39,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-commit 9436abc40139503a7cea22a96437697d048f31c0 upstream
+commit 68b11e8b1562986c134764433af64e97d30c9fc0 upstream.
 
-This uses the C99 explicit .member assignment for the
-variant data in struct bma180_part_info. This makes it
-easier to understand and add new variants.
+If __io_queue_proc() fails to add a second poll entry, e.g. kmalloc()
+failed, but it goes on with a third waitqueue, it may succeed and
+overwrite the error status. Count the number of poll entries we added,
+so we can set pt->error to zero at the beginning and find out when the
+mentioned scenario happens.
 
-Cc: Peter Meerwald <pmeerw@pmeerw.net>
-Cc: Oleksandr Kravchenko <o.v.kravchenko@globallogic.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Cc: stable@vger.kernel.org
+Fixes: 18bceab101add ("io_uring: allow POLL_ADD with double poll_wait() users")
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/r/9d6b9e561f88bcc0163623b74a76c39f712151c3.1626774457.git.asml.silence@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/accel/bma180.c |   68 +++++++++++++++++++++++++++++----------------
- 1 file changed, 44 insertions(+), 24 deletions(-)
+ fs/io_uring.c |   16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
---- a/drivers/iio/accel/bma180.c
-+++ b/drivers/iio/accel/bma180.c
-@@ -633,32 +633,52 @@ static const struct iio_chan_spec bma250
- 
- static const struct bma180_part_info bma180_part_info[] = {
- 	[BMA180] = {
--		bma180_channels, ARRAY_SIZE(bma180_channels),
--		bma180_scale_table, ARRAY_SIZE(bma180_scale_table),
--		bma180_bw_table, ARRAY_SIZE(bma180_bw_table),
--		BMA180_CTRL_REG0, BMA180_RESET_INT,
--		BMA180_CTRL_REG0, BMA180_SLEEP,
--		BMA180_BW_TCS, BMA180_BW,
--		BMA180_OFFSET_LSB1, BMA180_RANGE,
--		BMA180_TCO_Z, BMA180_MODE_CONFIG, BMA180_LOW_POWER,
--		BMA180_CTRL_REG3, BMA180_NEW_DATA_INT,
--		BMA180_RESET,
--		bma180_chip_config,
--		bma180_chip_disable,
-+		.channels = bma180_channels,
-+		.num_channels = ARRAY_SIZE(bma180_channels),
-+		.scale_table = bma180_scale_table,
-+		.num_scales = ARRAY_SIZE(bma180_scale_table),
-+		.bw_table = bma180_bw_table,
-+		.num_bw = ARRAY_SIZE(bma180_bw_table),
-+		.int_reset_reg = BMA180_CTRL_REG0,
-+		.int_reset_mask = BMA180_RESET_INT,
-+		.sleep_reg = BMA180_CTRL_REG0,
-+		.sleep_mask = BMA180_SLEEP,
-+		.bw_reg = BMA180_BW_TCS,
-+		.bw_mask = BMA180_BW,
-+		.scale_reg = BMA180_OFFSET_LSB1,
-+		.scale_mask = BMA180_RANGE,
-+		.power_reg = BMA180_TCO_Z,
-+		.power_mask = BMA180_MODE_CONFIG,
-+		.lowpower_val = BMA180_LOW_POWER,
-+		.int_enable_reg = BMA180_CTRL_REG3,
-+		.int_enable_mask = BMA180_NEW_DATA_INT,
-+		.softreset_reg = BMA180_RESET,
-+		.chip_config = bma180_chip_config,
-+		.chip_disable = bma180_chip_disable,
- 	},
- 	[BMA250] = {
--		bma250_channels, ARRAY_SIZE(bma250_channels),
--		bma250_scale_table, ARRAY_SIZE(bma250_scale_table),
--		bma250_bw_table, ARRAY_SIZE(bma250_bw_table),
--		BMA250_INT_RESET_REG, BMA250_INT_RESET_MASK,
--		BMA250_POWER_REG, BMA250_SUSPEND_MASK,
--		BMA250_BW_REG, BMA250_BW_MASK,
--		BMA250_RANGE_REG, BMA250_RANGE_MASK,
--		BMA250_POWER_REG, BMA250_LOWPOWER_MASK, 1,
--		BMA250_INT_ENABLE_REG, BMA250_DATA_INTEN_MASK,
--		BMA250_RESET_REG,
--		bma250_chip_config,
--		bma250_chip_disable,
-+		.channels = bma250_channels,
-+		.num_channels = ARRAY_SIZE(bma250_channels),
-+		.scale_table = bma250_scale_table,
-+		.num_scales = ARRAY_SIZE(bma250_scale_table),
-+		.bw_table = bma250_bw_table,
-+		.num_bw = ARRAY_SIZE(bma250_bw_table),
-+		.int_reset_reg = BMA250_INT_RESET_REG,
-+		.int_reset_mask = BMA250_INT_RESET_MASK,
-+		.sleep_reg = BMA250_POWER_REG,
-+		.sleep_mask = BMA250_SUSPEND_MASK,
-+		.bw_reg = BMA250_BW_REG,
-+		.bw_mask = BMA250_BW_MASK,
-+		.scale_reg = BMA250_RANGE_REG,
-+		.scale_mask = BMA250_RANGE_MASK,
-+		.power_reg = BMA250_POWER_REG,
-+		.power_mask = BMA250_LOWPOWER_MASK,
-+		.lowpower_val = 1,
-+		.int_enable_reg = BMA250_INT_ENABLE_REG,
-+		.int_enable_mask = BMA250_DATA_INTEN_MASK,
-+		.softreset_reg = BMA250_RESET_REG,
-+		.chip_config = bma250_chip_config,
-+		.chip_disable = bma250_chip_disable,
- 	},
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -4805,6 +4805,7 @@ IO_NETOP_FN(recv);
+ struct io_poll_table {
+ 	struct poll_table_struct pt;
+ 	struct io_kiocb *req;
++	int nr_entries;
+ 	int error;
  };
  
+@@ -5002,11 +5003,11 @@ static void __io_queue_proc(struct io_po
+ 	struct io_kiocb *req = pt->req;
+ 
+ 	/*
+-	 * If poll->head is already set, it's because the file being polled
+-	 * uses multiple waitqueues for poll handling (eg one for read, one
+-	 * for write). Setup a separate io_poll_iocb if this happens.
++	 * The file being polled uses multiple waitqueues for poll handling
++	 * (e.g. one for read, one for write). Setup a separate io_poll_iocb
++	 * if this happens.
+ 	 */
+-	if (unlikely(poll->head)) {
++	if (unlikely(pt->nr_entries)) {
+ 		struct io_poll_iocb *poll_one = poll;
+ 
+ 		/* already have a 2nd entry, fail a third attempt */
+@@ -5034,7 +5035,7 @@ static void __io_queue_proc(struct io_po
+ 		*poll_ptr = poll;
+ 	}
+ 
+-	pt->error = 0;
++	pt->nr_entries++;
+ 	poll->head = head;
+ 
+ 	if (poll->events & EPOLLEXCLUSIVE)
+@@ -5112,9 +5113,12 @@ static __poll_t __io_arm_poll_handler(st
+ 
+ 	ipt->pt._key = mask;
+ 	ipt->req = req;
+-	ipt->error = -EINVAL;
++	ipt->error = 0;
++	ipt->nr_entries = 0;
+ 
+ 	mask = vfs_poll(req->file, &ipt->pt) & poll->events;
++	if (unlikely(!ipt->nr_entries) && !ipt->error)
++		ipt->error = -EINVAL;
+ 
+ 	spin_lock_irq(&ctx->completion_lock);
+ 	if (likely(poll->head)) {
 
 
