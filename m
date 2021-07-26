@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71FF33D61CF
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:14:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D25D3D61CA
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:14:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233999AbhGZPdC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:33:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46644 "EHLO mail.kernel.org"
+        id S233994AbhGZPdB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:33:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232888AbhGZPas (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:30:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9308160C40;
-        Mon, 26 Jul 2021 16:11:15 +0000 (UTC)
+        id S232923AbhGZPav (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:30:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0CAA160C41;
+        Mon, 26 Jul 2021 16:11:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315876;
-        bh=nu9HSbVDtzUnXxN8axmqDqNWOmNMTz0F8iLHUC/jB3w=;
+        s=korg; t=1627315878;
+        bh=yu7KDNuu4XiyOkYsOwCOvWXtvwsAYvHpCvx5r92EoWI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IefYr4gO2PIT7nEEekpAfqkiLE6resCPBuOfk6z+usNLa3hAprhbhlqohcLorHf5Q
-         i9fYf7/5cF26D/i8fpU9cjuEvgvzWTHQjX1EGFLyslXOczZPSKZiAPXQUg7PIslyQR
-         OUz3qOuLBEWkumrwAchEkD3s2xQQ9EmJpIn8oyas=
+        b=wXcBgNOip9xythpFlLzV6tVAKw87m0UsmPNMAq6WEoxq1vJMM2+znX3KsTQWrROqt
+         TW+j5rhGVcNmIy5IIFn/eQSxrvk0PkwNJa9Odu8ZQGaT5ac/QRDAmQqO+5nz/HLwrQ
+         VzwAa2HpuWIudtJ5fYHk4732OIXgzxNEDbUnrniQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Robert Richter <rrichter@amd.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 100/223] spi: cadence: Correct initialisation of runtime PM again
-Date:   Mon, 26 Jul 2021 17:38:12 +0200
-Message-Id: <20210726153849.539793671@linuxfoundation.org>
+Subject: [PATCH 5.13 101/223] ACPI: Kconfig: Fix table override from built-in initrd
+Date:   Mon, 26 Jul 2021 17:38:13 +0200
+Message-Id: <20210726153849.578170105@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
 References: <20210726153846.245305071@linuxfoundation.org>
@@ -41,72 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Robert Richter <rrichter@amd.com>
 
-[ Upstream commit 56912da7a68c8356df6a6740476237441b0b792a ]
+[ Upstream commit d2cbbf1fe503c07e466c62f83aa1926d74d15821 ]
 
-The original implementation of RPM handling in probe() was mostly
-correct, except it failed to call pm_runtime_get_*() to activate the
-hardware. The subsequent fix, 734882a8bf98 ("spi: cadence: Correct
-initialisation of runtime PM"), breaks the implementation further,
-to the point where the system using this hard IP on ZynqMP hangs on
-boot, because it accesses hardware which is gated off.
+During a rework of initramfs code the INITRAMFS_COMPRESSION config
+option was removed in commit 65e00e04e5ae. A leftover as a dependency
+broke the config option ACPI_TABLE_OVERRIDE_VIA_ BUILTIN_INITRD that
+is used to enable the overriding of ACPI tables from built-in initrd.
+Fixing the dependency.
 
-Undo 734882a8bf98 ("spi: cadence: Correct initialisation of runtime
-PM") and instead add missing pm_runtime_get_noresume() and move the
-RPM disabling all the way to the end of probe(). That makes ZynqMP
-not hang on boot yet again.
-
-Fixes: 734882a8bf98 ("spi: cadence: Correct initialisation of runtime PM")
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Charles Keepax <ckeepax@opensource.cirrus.com>
-Cc: Mark Brown <broonie@kernel.org>
-Link: https://lore.kernel.org/r/20210716182133.218640-1-marex@denx.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 65e00e04e5ae ("initramfs: refactor the initramfs build rules")
+Signed-off-by: Robert Richter <rrichter@amd.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-cadence.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ drivers/acpi/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-cadence.c b/drivers/spi/spi-cadence.c
-index a3afd1b9ac56..ceb16e70d235 100644
---- a/drivers/spi/spi-cadence.c
-+++ b/drivers/spi/spi-cadence.c
-@@ -517,6 +517,12 @@ static int cdns_spi_probe(struct platform_device *pdev)
- 		goto clk_dis_apb;
- 	}
- 
-+	pm_runtime_use_autosuspend(&pdev->dev);
-+	pm_runtime_set_autosuspend_delay(&pdev->dev, SPI_AUTOSUSPEND_TIMEOUT);
-+	pm_runtime_get_noresume(&pdev->dev);
-+	pm_runtime_set_active(&pdev->dev);
-+	pm_runtime_enable(&pdev->dev);
-+
- 	ret = of_property_read_u32(pdev->dev.of_node, "num-cs", &num_cs);
- 	if (ret < 0)
- 		master->num_chipselect = CDNS_SPI_DEFAULT_NUM_CS;
-@@ -531,11 +537,6 @@ static int cdns_spi_probe(struct platform_device *pdev)
- 	/* SPI controller initializations */
- 	cdns_spi_init_hw(xspi);
- 
--	pm_runtime_set_active(&pdev->dev);
--	pm_runtime_enable(&pdev->dev);
--	pm_runtime_use_autosuspend(&pdev->dev);
--	pm_runtime_set_autosuspend_delay(&pdev->dev, SPI_AUTOSUSPEND_TIMEOUT);
--
- 	irq = platform_get_irq(pdev, 0);
- 	if (irq <= 0) {
- 		ret = -ENXIO;
-@@ -566,6 +567,9 @@ static int cdns_spi_probe(struct platform_device *pdev)
- 
- 	master->bits_per_word_mask = SPI_BPW_MASK(8);
- 
-+	pm_runtime_mark_last_busy(&pdev->dev);
-+	pm_runtime_put_autosuspend(&pdev->dev);
-+
- 	ret = spi_register_master(master);
- 	if (ret) {
- 		dev_err(&pdev->dev, "spi_register_master failed\n");
+diff --git a/drivers/acpi/Kconfig b/drivers/acpi/Kconfig
+index eedec61e3476..226f849fe7dc 100644
+--- a/drivers/acpi/Kconfig
++++ b/drivers/acpi/Kconfig
+@@ -370,7 +370,7 @@ config ACPI_TABLE_UPGRADE
+ config ACPI_TABLE_OVERRIDE_VIA_BUILTIN_INITRD
+ 	bool "Override ACPI tables from built-in initrd"
+ 	depends on ACPI_TABLE_UPGRADE
+-	depends on INITRAMFS_SOURCE!="" && INITRAMFS_COMPRESSION=""
++	depends on INITRAMFS_SOURCE!="" && INITRAMFS_COMPRESSION_NONE
+ 	help
+ 	  This option provides functionality to override arbitrary ACPI tables
+ 	  from built-in uncompressed initrd.
 -- 
 2.30.2
 
