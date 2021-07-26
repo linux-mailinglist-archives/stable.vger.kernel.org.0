@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C4963D616E
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:13:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B1DF3D6023
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232719AbhGZPbQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:31:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42756 "EHLO mail.kernel.org"
+        id S237091AbhGZPU7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:20:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237876AbhGZP31 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:29:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 42E976105A;
-        Mon, 26 Jul 2021 16:09:06 +0000 (UTC)
+        id S237083AbhGZPU5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:20:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5EA8460E09;
+        Mon, 26 Jul 2021 16:01:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315746;
-        bh=SycoK9Apc5fzkZVGfDL1xHHqUE6lAi0ZxHmGoBYbLzs=;
+        s=korg; t=1627315284;
+        bh=e882il2bydtuy8UYPCNWU1xDPgHUWdrpAEZEA1DfvRc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yVKFTOWotWMYpo6fbZD1tgHd6BEKJAF1/6xQghhAS2KwEPEYZVibcJZBfchCxWzN+
-         QolarSya4onMk1Pn22C+bS7AGFTe8jfkjYtKlxdyIyMFybfcmwlZmUhvIu3C7NY5IY
-         Gbx4FOMnMOvLMRCxI/llraNtVuqmCFOFC6QgM2Zw=
+        b=l4y3+cuV/7FXQV//XMQpc2u6Na2LbwHyPcx40xkuuaSKYB8zdSiRziFFRPESJY/Nh
+         on4LC5MhH7yk2xR7id42zvtFTY5C+CAACa0lxV/jWkIBfyqNEUbw396if9Pz+Z7x1Y
+         gi5vLHN2LLG83Nec8fCxsJW1I86tRlGUR/teWC/8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Riccardo Mancini <rickyman7@gmail.com>,
-        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
-        Krister Johansen <kjlx@templeofstupid.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 050/223] perf map: Fix dso->nsinfo refcounting
+Subject: [PATCH 5.10 009/167] iavf: Fix an error handling path in iavf_probe()
 Date:   Mon, 26 Jul 2021 17:37:22 +0200
-Message-Id: <20210726153847.904724898@linuxfoundation.org>
+Message-Id: <20210726153839.680340372@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
-References: <20210726153846.245305071@linuxfoundation.org>
+In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
+References: <20210726153839.371771838@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,49 +41,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Riccardo Mancini <rickyman7@gmail.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 2d6b74baa7147251c30a46c4996e8cc224aa2dc5 ]
+[ Upstream commit af30cbd2f4d6d66a9b6094e0aa32420bc8b20e08 ]
 
-ASan reports a memory leak of nsinfo during the execution of
+If an error occurs after a 'pci_enable_pcie_error_reporting()' call, it
+must be undone by a corresponding 'pci_disable_pcie_error_reporting()'
+call, as already done in the remove function.
 
-  # perf test "31: Lookup mmap thread"
-
-The leak is caused by a refcounted variable being replaced without
-dropping the refcount.
-
-This patch makes sure that the refcnt of nsinfo is decreased whenever a
-refcounted variable is replaced with a new value.
-
-Signed-off-by: Riccardo Mancini <rickyman7@gmail.com>
-Fixes: bf2e710b3cb8445c ("perf maps: Lookup maps in both intitial mountns and inner mountns.")
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Krister Johansen <kjlx@templeofstupid.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/55223bc8821b34ccb01f92ef1401c02b6a32e61f.1626343282.git.rickyman7@gmail.com
-[ Split from a larger patch ]
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 5eae00c57f5e ("i40evf: main driver core")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/map.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/intel/iavf/iavf_main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/tools/perf/util/map.c b/tools/perf/util/map.c
-index 8af693d9678c..72e7f3616157 100644
---- a/tools/perf/util/map.c
-+++ b/tools/perf/util/map.c
-@@ -192,6 +192,8 @@ struct map *map__new(struct machine *machine, u64 start, u64 len,
- 			if (!(prot & PROT_EXEC))
- 				dso__set_loaded(dso);
- 		}
-+
-+		nsinfo__put(dso->nsinfo);
- 		dso->nsinfo = nsi;
- 
- 		if (build_id__is_defined(bid))
+diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
+index ebd08543791b..f3caf5eab8d4 100644
+--- a/drivers/net/ethernet/intel/iavf/iavf_main.c
++++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
+@@ -3759,6 +3759,7 @@ static int iavf_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ err_ioremap:
+ 	free_netdev(netdev);
+ err_alloc_etherdev:
++	pci_disable_pcie_error_reporting(pdev);
+ 	pci_release_regions(pdev);
+ err_pci_reg:
+ err_dma:
 -- 
 2.30.2
 
