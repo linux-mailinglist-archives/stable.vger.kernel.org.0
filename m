@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 090393D623B
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:16:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5A253D6019
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234763AbhGZPfO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:35:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51218 "EHLO mail.kernel.org"
+        id S236657AbhGZPTK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:19:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234926AbhGZPeB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:34:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 465AF60F9C;
-        Mon, 26 Jul 2021 16:14:19 +0000 (UTC)
+        id S235310AbhGZPSN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:18:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 237AB60F38;
+        Mon, 26 Jul 2021 15:58:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627316059;
-        bh=euXaBl3Soy6w/GSZsgYYP0G1nCVgFl0J0F0NJ5sHROU=;
+        s=korg; t=1627315121;
+        bh=MhuSh+hGIm0iv964cFkJCoDhLfzTxleeVvMgNXQo5y0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fvqs8TSBdOACP/2QFA5R4QY5Hg3lw6g1/KyQcFR9Mlch8JuvPhysbft+l08BZb/NE
-         vM4hiMbrVj/ogEbXvAL7w4Hd47ENNIiwv2R/9rIPcBUyKrRDw8q5oTUp0WxNgJ8IIs
-         8ErZgDVxH9siANC0p40gTWgjr4hqy2MziiIKJSDc=
+        b=i6gPiG1S9Uk447vRuZixgx8+WuqSzpRM2lHelMC9kxw5IWjqQviiJAbQfY4cWy3G6
+         3cXdSFSggYbfEu8/ZlymTegbO99GlNvyjgHhDl+QtNfVZJpuDRU41RUMw/YpXrvuNu
+         5ZNCbEvijBbStmBXUyGyKrvNNE/XV8JGfzNo/UQM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
-Subject: [PATCH 5.13 172/223] usb: dwc2: gadget: Fix sending zero length packet in DDMA mode.
-Date:   Mon, 26 Jul 2021 17:39:24 +0200
-Message-Id: <20210726153851.826031048@linuxfoundation.org>
+        stable@vger.kernel.org, Marco De Marco <marco.demarco@posteo.net>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.4 084/108] USB: serial: option: add support for u-blox LARA-R6 family
+Date:   Mon, 26 Jul 2021 17:39:25 +0200
+Message-Id: <20210726153834.373677462@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
-References: <20210726153846.245305071@linuxfoundation.org>
+In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
+References: <20210726153831.696295003@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,47 +39,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
+From: Marco De Marco <marco.demarco@posteo.net>
 
-commit d53dc38857f6dbefabd9eecfcbf67b6eac9a1ef4 upstream.
+commit 94b619a07655805a1622484967754f5848640456 upstream.
 
-Sending zero length packet in DDMA mode perform by DMA descriptor
-by setting SP (short packet) flag.
+The patch is meant to support LARA-R6 Cat 1 module family.
 
-For DDMA in function dwc2_hsotg_complete_in() does not need to send
-zlp.
+Module USB ID:
+Vendor  ID: 0x05c6
+Product ID: 0x90fA
 
-Tested by USBCV MSC tests.
+Interface layout:
+If 0: Diagnostic
+If 1: AT parser
+If 2: AT parser
+If 3: QMI wwan (not available in all versions)
 
-Fixes: f71b5e2533de ("usb: dwc2: gadget: fix zero length packet transfers")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
-Link: https://lore.kernel.org/r/967bad78c55dd2db1c19714eee3d0a17cf99d74a.1626777738.git.Minas.Harutyunyan@synopsys.com
+Signed-off-by: Marco De Marco <marco.demarco@posteo.net>
+Link: https://lore.kernel.org/r/49260184.kfMIbaSn9k@mars
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc2/gadget.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/usb/serial/option.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/usb/dwc2/gadget.c
-+++ b/drivers/usb/dwc2/gadget.c
-@@ -2749,12 +2749,14 @@ static void dwc2_hsotg_complete_in(struc
- 		return;
- 	}
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -238,6 +238,7 @@ static void option_instat_callback(struc
+ #define QUECTEL_PRODUCT_UC15			0x9090
+ /* These u-blox products use Qualcomm's vendor ID */
+ #define UBLOX_PRODUCT_R410M			0x90b2
++#define UBLOX_PRODUCT_R6XX			0x90fa
+ /* These Yuga products use Qualcomm's vendor ID */
+ #define YUGA_PRODUCT_CLM920_NC5			0x9625
  
--	/* Zlp for all endpoints, for ep0 only in DATA IN stage */
-+	/* Zlp for all endpoints in non DDMA, for ep0 only in DATA IN stage */
- 	if (hs_ep->send_zlp) {
--		dwc2_hsotg_program_zlp(hsotg, hs_ep);
- 		hs_ep->send_zlp = 0;
--		/* transfer will be completed on next complete interrupt */
--		return;
-+		if (!using_desc_dma(hsotg)) {
-+			dwc2_hsotg_program_zlp(hsotg, hs_ep);
-+			/* transfer will be completed on next complete interrupt */
-+			return;
-+		}
- 	}
- 
- 	if (hs_ep->index == 0 && hsotg->ep0_state == DWC2_EP0_DATA_IN) {
+@@ -1101,6 +1102,8 @@ static const struct usb_device_id option
+ 	/* u-blox products using Qualcomm vendor ID */
+ 	{ USB_DEVICE(QUALCOMM_VENDOR_ID, UBLOX_PRODUCT_R410M),
+ 	  .driver_info = RSVD(1) | RSVD(3) },
++	{ USB_DEVICE(QUALCOMM_VENDOR_ID, UBLOX_PRODUCT_R6XX),
++	  .driver_info = RSVD(3) },
+ 	/* Quectel products using Quectel vendor ID */
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC21, 0xff, 0xff, 0xff),
+ 	  .driver_info = NUMEP2 },
 
 
