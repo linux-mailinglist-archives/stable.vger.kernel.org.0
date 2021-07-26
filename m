@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4DC53D5FAA
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6D353D5E53
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:47:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236451AbhGZPSt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:18:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57100 "EHLO mail.kernel.org"
+        id S235138AbhGZPHK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:07:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235849AbhGZPRD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:17:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C6C306056C;
-        Mon, 26 Jul 2021 15:57:30 +0000 (UTC)
+        id S236163AbhGZPGa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:06:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 576F060F59;
+        Mon, 26 Jul 2021 15:46:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315051;
-        bh=U9yyxX2jky8jJdfnvCW3J7wpNnEbHowqzpCpgdgH1QI=;
+        s=korg; t=1627314418;
+        bh=6Y9W5CE7mr7KW6UlyBi2buo11m/O+O5p28a1c+IyMfk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ctPn/Ha8ZgXhj6UeicRRHdxwMSJnu8F/y3EbSv2Ia72QBNqF7epwnUSzaW2unbAE3
-         yCLtGwKVw1Uj+u1L4vd2GPDO1NsnFVBsYwJq5SF8myIkTkUDTNs8meTlmc3CoYCOin
-         RTYuQRmCoPdFXx+olULnetOB728xmvRrxQYmF2zI=
+        b=nwQRiqDMlaVhSblKbhCqqunFtgfVAje8QjT2wMrhKV7fuPYSltGDi7aDJ7TWEUry2
+         hzjYmD7qBnkWJ1pt6ujXskj+B7vUubuQwWTzeoRhpr2Mwsqe9xtZMPi0MlR0vpU3zl
+         01i8QyCJ25mkve2QduNSxkek3FKndHg7NW1e0EYo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Riccardo Mancini <rickyman7@gmail.com>,
-        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
-        Krister Johansen <kjlx@templeofstupid.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Odin Ugedal <odin@uged.al>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ben Segall <bsegall@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 021/108] perf probe: Fix dso->nsinfo refcounting
+Subject: [PATCH 4.14 22/82] sched/fair: Fix CFS bandwidth hrtimer expiry type
 Date:   Mon, 26 Jul 2021 17:38:22 +0200
-Message-Id: <20210726153832.374187674@linuxfoundation.org>
+Message-Id: <20210726153828.884613765@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
-References: <20210726153831.696295003@linuxfoundation.org>
+In-Reply-To: <20210726153828.144714469@linuxfoundation.org>
+References: <20210726153828.144714469@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,52 +41,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Riccardo Mancini <rickyman7@gmail.com>
+From: Odin Ugedal <odin@uged.al>
 
-[ Upstream commit dedeb4be203b382ba7245d13079bc3b0f6d40c65 ]
+[ Upstream commit 72d0ad7cb5bad265adb2014dbe46c4ccb11afaba ]
 
-ASan reports a memory leak of nsinfo during the execution of:
+The time remaining until expiry of the refresh_timer can be negative.
+Casting the type to an unsigned 64-bit value will cause integer
+underflow, making the runtime_refresh_within return false instead of
+true. These situations are rare, but they do happen.
 
- # perf test "31: Lookup mmap thread".
+This does not cause user-facing issues or errors; other than
+possibly unthrottling cfs_rq's using runtime from the previous period(s),
+making the CFS bandwidth enforcement less strict in those (special)
+situations.
 
-The leak is caused by a refcounted variable being replaced without
-dropping the refcount.
-
-This patch makes sure that the refcnt of nsinfo is decreased whenever
-a refcounted variable is replaced with a new value.
-
-Signed-off-by: Riccardo Mancini <rickyman7@gmail.com>
-Fixes: 544abd44c7064c8a ("perf probe: Allow placing uprobes in alternate namespaces.")
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Krister Johansen <kjlx@templeofstupid.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/55223bc8821b34ccb01f92ef1401c02b6a32e61f.1626343282.git.rickyman7@gmail.com
-[ Split from a larger patch ]
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Odin Ugedal <odin@uged.al>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Ben Segall <bsegall@google.com>
+Link: https://lore.kernel.org/r/20210629121452.18429-1-odin@uged.al
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/probe-event.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ kernel/sched/fair.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/tools/perf/util/probe-event.c b/tools/perf/util/probe-event.c
-index a5cb1a3a1064..6357ac508ad1 100644
---- a/tools/perf/util/probe-event.c
-+++ b/tools/perf/util/probe-event.c
-@@ -175,8 +175,10 @@ struct map *get_target_map(const char *target, struct nsinfo *nsi, bool user)
- 		struct map *map;
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 37ac76dce908..3ff60230710c 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -4464,7 +4464,7 @@ static const u64 cfs_bandwidth_slack_period = 5 * NSEC_PER_MSEC;
+ static int runtime_refresh_within(struct cfs_bandwidth *cfs_b, u64 min_expire)
+ {
+ 	struct hrtimer *refresh_timer = &cfs_b->period_timer;
+-	u64 remaining;
++	s64 remaining;
  
- 		map = dso__new_map(target);
--		if (map && map->dso)
-+		if (map && map->dso) {
-+			nsinfo__put(map->dso->nsinfo);
- 			map->dso->nsinfo = nsinfo__get(nsi);
-+		}
- 		return map;
- 	} else {
- 		return kernel_get_module_map(target);
+ 	/* if the call-back is running a quota refresh is already occurring */
+ 	if (hrtimer_callback_running(refresh_timer))
+@@ -4472,7 +4472,7 @@ static int runtime_refresh_within(struct cfs_bandwidth *cfs_b, u64 min_expire)
+ 
+ 	/* is a quota refresh about to occur? */
+ 	remaining = ktime_to_ns(hrtimer_expires_remaining(refresh_timer));
+-	if (remaining < min_expire)
++	if (remaining < (s64)min_expire)
+ 		return 1;
+ 
+ 	return 0;
 -- 
 2.30.2
 
