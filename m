@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1676E3D619C
+	by mail.lfdr.de (Postfix) with ESMTP id F23643D619F
 	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:14:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233561AbhGZPcZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S233590AbhGZPcZ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 26 Jul 2021 11:32:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45792 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:45896 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232434AbhGZPaU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:30:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 14FF460C41;
-        Mon, 26 Jul 2021 16:10:48 +0000 (UTC)
+        id S231795AbhGZPaY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:30:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CDC6C60C40;
+        Mon, 26 Jul 2021 16:10:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315849;
-        bh=cgH073LWw0eTXV3+ESWoNu9JY4+Ou+SLK4vjGfJL7Ys=;
+        s=korg; t=1627315852;
+        bh=jqklDH182WCZFaSyD0dixLPZ64j+3WVu55k7ZEa9Y9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gjjc9hzlm++bLNXP41y4SagBE3nqZNYEuS6D68d5Ru92rxFaHduR8j3+Jy2xvw8Vr
-         W37ssyLYmZmSMRZlbNYH/2dJEeWNQLrFkcy7J0LNhoG6UkahhyCQXRdVqKr38pDu0H
-         YHj1geOec5acW1JpenSgmqGE4Do6OQ+2KID8Ywbs=
+        b=eFUpoPJO41pchs8CbsnNUNZSCc6AIi0zTJ+H395HL1JgWn4x6TVsaZbO42oN27+oA
+         M+TcKM7wxs2dB0MV5Od/iAeqgaZPwMpw/TezmrqDZ8wnlw/1sFtqt4vbJui04IHA3m
+         xY4a5Ba4FqyCnDimf55M0yapkC0MLRnSysvPUV7A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michal Suchanek <msuchanek@suse.de>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
+        stable@vger.kernel.org, Yajun Deng <yajun.deng@linux.dev>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 091/223] efi/tpm: Differentiate missing and invalid final event log table.
-Date:   Mon, 26 Jul 2021 17:38:03 +0200
-Message-Id: <20210726153849.225419910@linuxfoundation.org>
+Subject: [PATCH 5.13 092/223] net: decnet: Fix sleeping inside in af_decnet
+Date:   Mon, 26 Jul 2021 17:38:04 +0200
+Message-Id: <20210726153849.256040055@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
 References: <20210726153846.245305071@linuxfoundation.org>
@@ -41,43 +40,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Suchanek <msuchanek@suse.de>
+From: Yajun Deng <yajun.deng@linux.dev>
 
-[ Upstream commit 674a9f1f6815849bfb5bf385e7da8fc198aaaba9 ]
+[ Upstream commit 5f119ba1d5771bbf46d57cff7417dcd84d3084ba ]
 
-Missing TPM final event log table is not a firmware bug.
+The release_sock() is blocking function, it would change the state
+after sleeping. use wait_woken() instead.
 
-Clearly if providing event log in the old format makes the final event
-log invalid it should not be provided at least in that case.
-
-Fixes: b4f1874c6216 ("tpm: check event log version before reading final events")
-Signed-off-by: Michal Suchanek <msuchanek@suse.de>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Yajun Deng <yajun.deng@linux.dev>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/efi/tpm.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ net/decnet/af_decnet.c | 27 ++++++++++++---------------
+ 1 file changed, 12 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/firmware/efi/tpm.c b/drivers/firmware/efi/tpm.c
-index c1955d320fec..8f665678e9e3 100644
---- a/drivers/firmware/efi/tpm.c
-+++ b/drivers/firmware/efi/tpm.c
-@@ -62,9 +62,11 @@ int __init efi_tpm_eventlog_init(void)
- 	tbl_size = sizeof(*log_tbl) + log_tbl->size;
- 	memblock_reserve(efi.tpm_log, tbl_size);
+diff --git a/net/decnet/af_decnet.c b/net/decnet/af_decnet.c
+index 5dbd45dc35ad..dc92a67baea3 100644
+--- a/net/decnet/af_decnet.c
++++ b/net/decnet/af_decnet.c
+@@ -816,7 +816,7 @@ static int dn_auto_bind(struct socket *sock)
+ static int dn_confirm_accept(struct sock *sk, long *timeo, gfp_t allocation)
+ {
+ 	struct dn_scp *scp = DN_SK(sk);
+-	DEFINE_WAIT(wait);
++	DEFINE_WAIT_FUNC(wait, woken_wake_function);
+ 	int err;
  
--	if (efi.tpm_final_log == EFI_INVALID_TABLE_ADDR ||
--	    log_tbl->version != EFI_TCG2_EVENT_LOG_FORMAT_TCG_2) {
--		pr_warn(FW_BUG "TPM Final Events table missing or invalid\n");
-+	if (efi.tpm_final_log == EFI_INVALID_TABLE_ADDR) {
-+		pr_info("TPM Final Events table not present\n");
-+		goto out;
-+	} else if (log_tbl->version != EFI_TCG2_EVENT_LOG_FORMAT_TCG_2) {
-+		pr_warn(FW_BUG "TPM Final Events table invalid\n");
- 		goto out;
+ 	if (scp->state != DN_CR)
+@@ -826,11 +826,11 @@ static int dn_confirm_accept(struct sock *sk, long *timeo, gfp_t allocation)
+ 	scp->segsize_loc = dst_metric_advmss(__sk_dst_get(sk));
+ 	dn_send_conn_conf(sk, allocation);
+ 
+-	prepare_to_wait(sk_sleep(sk), &wait, TASK_INTERRUPTIBLE);
++	add_wait_queue(sk_sleep(sk), &wait);
+ 	for(;;) {
+ 		release_sock(sk);
+ 		if (scp->state == DN_CC)
+-			*timeo = schedule_timeout(*timeo);
++			*timeo = wait_woken(&wait, TASK_INTERRUPTIBLE, *timeo);
+ 		lock_sock(sk);
+ 		err = 0;
+ 		if (scp->state == DN_RUN)
+@@ -844,9 +844,8 @@ static int dn_confirm_accept(struct sock *sk, long *timeo, gfp_t allocation)
+ 		err = -EAGAIN;
+ 		if (!*timeo)
+ 			break;
+-		prepare_to_wait(sk_sleep(sk), &wait, TASK_INTERRUPTIBLE);
  	}
+-	finish_wait(sk_sleep(sk), &wait);
++	remove_wait_queue(sk_sleep(sk), &wait);
+ 	if (err == 0) {
+ 		sk->sk_socket->state = SS_CONNECTED;
+ 	} else if (scp->state != DN_CC) {
+@@ -858,7 +857,7 @@ static int dn_confirm_accept(struct sock *sk, long *timeo, gfp_t allocation)
+ static int dn_wait_run(struct sock *sk, long *timeo)
+ {
+ 	struct dn_scp *scp = DN_SK(sk);
+-	DEFINE_WAIT(wait);
++	DEFINE_WAIT_FUNC(wait, woken_wake_function);
+ 	int err = 0;
  
+ 	if (scp->state == DN_RUN)
+@@ -867,11 +866,11 @@ static int dn_wait_run(struct sock *sk, long *timeo)
+ 	if (!*timeo)
+ 		return -EALREADY;
+ 
+-	prepare_to_wait(sk_sleep(sk), &wait, TASK_INTERRUPTIBLE);
++	add_wait_queue(sk_sleep(sk), &wait);
+ 	for(;;) {
+ 		release_sock(sk);
+ 		if (scp->state == DN_CI || scp->state == DN_CC)
+-			*timeo = schedule_timeout(*timeo);
++			*timeo = wait_woken(&wait, TASK_INTERRUPTIBLE, *timeo);
+ 		lock_sock(sk);
+ 		err = 0;
+ 		if (scp->state == DN_RUN)
+@@ -885,9 +884,8 @@ static int dn_wait_run(struct sock *sk, long *timeo)
+ 		err = -ETIMEDOUT;
+ 		if (!*timeo)
+ 			break;
+-		prepare_to_wait(sk_sleep(sk), &wait, TASK_INTERRUPTIBLE);
+ 	}
+-	finish_wait(sk_sleep(sk), &wait);
++	remove_wait_queue(sk_sleep(sk), &wait);
+ out:
+ 	if (err == 0) {
+ 		sk->sk_socket->state = SS_CONNECTED;
+@@ -1032,16 +1030,16 @@ static void dn_user_copy(struct sk_buff *skb, struct optdata_dn *opt)
+ 
+ static struct sk_buff *dn_wait_for_connect(struct sock *sk, long *timeo)
+ {
+-	DEFINE_WAIT(wait);
++	DEFINE_WAIT_FUNC(wait, woken_wake_function);
+ 	struct sk_buff *skb = NULL;
+ 	int err = 0;
+ 
+-	prepare_to_wait(sk_sleep(sk), &wait, TASK_INTERRUPTIBLE);
++	add_wait_queue(sk_sleep(sk), &wait);
+ 	for(;;) {
+ 		release_sock(sk);
+ 		skb = skb_dequeue(&sk->sk_receive_queue);
+ 		if (skb == NULL) {
+-			*timeo = schedule_timeout(*timeo);
++			*timeo = wait_woken(&wait, TASK_INTERRUPTIBLE, *timeo);
+ 			skb = skb_dequeue(&sk->sk_receive_queue);
+ 		}
+ 		lock_sock(sk);
+@@ -1056,9 +1054,8 @@ static struct sk_buff *dn_wait_for_connect(struct sock *sk, long *timeo)
+ 		err = -EAGAIN;
+ 		if (!*timeo)
+ 			break;
+-		prepare_to_wait(sk_sleep(sk), &wait, TASK_INTERRUPTIBLE);
+ 	}
+-	finish_wait(sk_sleep(sk), &wait);
++	remove_wait_queue(sk_sleep(sk), &wait);
+ 
+ 	return skb == NULL ? ERR_PTR(err) : skb;
+ }
 -- 
 2.30.2
 
