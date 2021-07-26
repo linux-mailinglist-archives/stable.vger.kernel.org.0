@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC2713D607C
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:11:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 289CE3D61D7
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:14:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237123AbhGZPWe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:22:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37284 "EHLO mail.kernel.org"
+        id S234062AbhGZPdK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:33:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46420 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237344AbhGZPWd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:22:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E016960E09;
-        Mon, 26 Jul 2021 16:03:01 +0000 (UTC)
+        id S232734AbhGZPaj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:30:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AF08A604AC;
+        Mon, 26 Jul 2021 16:11:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315382;
-        bh=hJl9dSMtgEa1YR+WsRk1LiU/Pm14/8suG61xIgzpC4A=;
+        s=korg; t=1627315868;
+        bh=Wx4TZWZ0r3DyLbZiybcvfF6PUqsP1pg/w2BFEdexEZk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x+sQCjt4z4uDoO1ydzPt9/qQOGvytBxIHyqBV8FFF5FgZk5n79RLz7kD/saehTo1e
-         ClIIHLqSY04K8fprE/4tNDu6D5EB3skCSMIA3UHR76scQypnR1XI5htytjrmYv5iCD
-         mfXn1URUp0z6Z7ceyBxss1N5JCt0Sq5afLLBHANs=
+        b=D06tfuUbR45w1nTTxtjXaJZo1yCH2PzDXTdVImppkDuYm3H0YjnylXYRYgXLFlVli
+         GNsposDZdJ+hY+LXm4jAU/dzi4QLKFg2uYZdLg460Pg8PZ+uJVxHil8MuiJdL8s9uv
+         dn31fi+/mDfqZzeA5d36K2rZ95+5F7IgTzaXC3HM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
-        Florian Westphal <fw@strlen.de>,
-        Jianguo Wu <wujianguo@chinatelecom.cn>,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Peter Hess <peter.hess@ph-home.de>,
+        Frank Wunderlich <frank-w@public-files.de>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 030/167] mptcp: fix warning in __skb_flow_dissect() when do syn cookie for subflow join
+Subject: [PATCH 5.13 071/223] spi: mediatek: fix fifo rx mode
 Date:   Mon, 26 Jul 2021 17:37:43 +0200
-Message-Id: <20210726153840.389432714@linuxfoundation.org>
+Message-Id: <20210726153848.574039034@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
-References: <20210726153839.371771838@linuxfoundation.org>
+In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
+References: <20210726153846.245305071@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,121 +41,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jianguo Wu <wujianguo@chinatelecom.cn>
+From: Peter Hess <peter.hess@ph-home.de>
 
-[ Upstream commit 0c71929b5893e410e0efbe1bbeca6f19a5f19956 ]
+[ Upstream commit 3a70dd2d050331ee4cf5ad9d5c0a32d83ead9a43 ]
 
-I did stress test with wrk[1] and webfsd[2] with the assistance of
-mptcp-tools[3]:
+In FIFO mode were two problems:
+- RX mode was never handled and
+- in this case the tx_buf pointer was NULL and caused an exception
 
-  Server side:
-      ./use_mptcp.sh webfsd -4 -R /tmp/ -p 8099
-  Client side:
-      ./use_mptcp.sh wrk -c 200 -d 30 -t 4 http://192.168.174.129:8099/
+fix this by handling RX mode in mtk_spi_fifo_transfer
 
-and got the following warning message:
-
-[   55.552626] TCP: request_sock_subflow: Possible SYN flooding on port 8099. Sending cookies.  Check SNMP counters.
-[   55.553024] ------------[ cut here ]------------
-[   55.553027] WARNING: CPU: 0 PID: 10 at net/core/flow_dissector.c:984 __skb_flow_dissect+0x280/0x1650
-...
-[   55.553117] CPU: 0 PID: 10 Comm: ksoftirqd/0 Not tainted 5.12.0+ #18
-[   55.553121] Hardware name: VMware, Inc. VMware Virtual Platform/440BX Desktop Reference Platform, BIOS 6.00 02/27/2020
-[   55.553124] RIP: 0010:__skb_flow_dissect+0x280/0x1650
-...
-[   55.553133] RSP: 0018:ffffb79580087770 EFLAGS: 00010246
-[   55.553137] RAX: 0000000000000000 RBX: ffffffff8ddb58e0 RCX: ffffb79580087888
-[   55.553139] RDX: ffffffff8ddb58e0 RSI: ffff8f7e4652b600 RDI: 0000000000000000
-[   55.553141] RBP: ffffb79580087858 R08: 0000000000000000 R09: 0000000000000008
-[   55.553143] R10: 000000008c622965 R11: 00000000d3313a5b R12: ffff8f7e4652b600
-[   55.553146] R13: ffff8f7e465c9062 R14: 0000000000000000 R15: ffffb79580087888
-[   55.553149] FS:  0000000000000000(0000) GS:ffff8f7f75e00000(0000) knlGS:0000000000000000
-[   55.553152] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   55.553154] CR2: 00007f73d1d19000 CR3: 0000000135e10004 CR4: 00000000003706f0
-[   55.553160] Call Trace:
-[   55.553166]  ? __sha256_final+0x67/0xd0
-[   55.553173]  ? sha256+0x7e/0xa0
-[   55.553177]  __skb_get_hash+0x57/0x210
-[   55.553182]  subflow_init_req_cookie_join_save+0xac/0xc0
-[   55.553189]  subflow_check_req+0x474/0x550
-[   55.553195]  ? ip_route_output_key_hash+0x67/0x90
-[   55.553200]  ? xfrm_lookup_route+0x1d/0xa0
-[   55.553207]  subflow_v4_route_req+0x8e/0xd0
-[   55.553212]  tcp_conn_request+0x31e/0xab0
-[   55.553218]  ? selinux_socket_sock_rcv_skb+0x116/0x210
-[   55.553224]  ? tcp_rcv_state_process+0x179/0x6d0
-[   55.553229]  tcp_rcv_state_process+0x179/0x6d0
-[   55.553235]  tcp_v4_do_rcv+0xaf/0x220
-[   55.553239]  tcp_v4_rcv+0xce4/0xd80
-[   55.553243]  ? ip_route_input_rcu+0x246/0x260
-[   55.553248]  ip_protocol_deliver_rcu+0x35/0x1b0
-[   55.553253]  ip_local_deliver_finish+0x44/0x50
-[   55.553258]  ip_local_deliver+0x6c/0x110
-[   55.553262]  ? ip_rcv_finish_core.isra.19+0x5a/0x400
-[   55.553267]  ip_rcv+0xd1/0xe0
-...
-
-After debugging, I found in __skb_flow_dissect(), skb->dev and skb->sk
-are both NULL, then net is NULL, and trigger WARN_ON_ONCE(!net),
-actually net is always NULL in this code path, as skb->dev is set to
-NULL in tcp_v4_rcv(), and skb->sk is never set.
-
-Code snippet in __skb_flow_dissect() that trigger warning:
-  975         if (skb) {
-  976                 if (!net) {
-  977                         if (skb->dev)
-  978                                 net = dev_net(skb->dev);
-  979                         else if (skb->sk)
-  980                                 net = sock_net(skb->sk);
-  981                 }
-  982         }
-  983
-  984         WARN_ON_ONCE(!net);
-
-So, using seq and transport header derived hash.
-
-[1] https://github.com/wg/wrk
-[2] https://github.com/ourway/webfsd
-[3] https://github.com/pabeni/mptcp-tools
-
-Fixes: 9466a1ccebbe ("mptcp: enable JOIN requests even if cookies are in use")
-Suggested-by: Paolo Abeni <pabeni@redhat.com>
-Suggested-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Jianguo Wu <wujianguo@chinatelecom.cn>
-Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: a568231f4632 ("spi: mediatek: Add spi bus for Mediatek MT8173")
+Signed-off-by: Peter Hess <peter.hess@ph-home.de>
+Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
+Link: https://lore.kernel.org/r/20210706121609.680534-1-linux@fw-web.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mptcp/syncookies.c | 16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+ drivers/spi/spi-mt65xx.c | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
-diff --git a/net/mptcp/syncookies.c b/net/mptcp/syncookies.c
-index abe0fd099746..37127781aee9 100644
---- a/net/mptcp/syncookies.c
-+++ b/net/mptcp/syncookies.c
-@@ -37,7 +37,21 @@ static spinlock_t join_entry_locks[COOKIE_JOIN_SLOTS] __cacheline_aligned_in_smp
+diff --git a/drivers/spi/spi-mt65xx.c b/drivers/spi/spi-mt65xx.c
+index 976f73b9e299..8d5fa7f1e506 100644
+--- a/drivers/spi/spi-mt65xx.c
++++ b/drivers/spi/spi-mt65xx.c
+@@ -427,13 +427,23 @@ static int mtk_spi_fifo_transfer(struct spi_master *master,
+ 	mtk_spi_setup_packet(master);
  
- static u32 mptcp_join_entry_hash(struct sk_buff *skb, struct net *net)
- {
--	u32 i = skb_get_hash(skb) ^ net_hash_mix(net);
-+	static u32 mptcp_join_hash_secret __read_mostly;
-+	struct tcphdr *th = tcp_hdr(skb);
-+	u32 seq, i;
+ 	cnt = xfer->len / 4;
+-	iowrite32_rep(mdata->base + SPI_TX_DATA_REG, xfer->tx_buf, cnt);
++	if (xfer->tx_buf)
++		iowrite32_rep(mdata->base + SPI_TX_DATA_REG, xfer->tx_buf, cnt);
 +
-+	net_get_random_once(&mptcp_join_hash_secret,
-+			    sizeof(mptcp_join_hash_secret));
-+
-+	if (th->syn)
-+		seq = TCP_SKB_CB(skb)->seq;
-+	else
-+		seq = TCP_SKB_CB(skb)->seq - 1;
-+
-+	i = jhash_3words(seq, net_hash_mix(net),
-+			 (__force __u32)th->source << 16 | (__force __u32)th->dest,
-+			 mptcp_join_hash_secret);
++	if (xfer->rx_buf)
++		ioread32_rep(mdata->base + SPI_RX_DATA_REG, xfer->rx_buf, cnt);
  
- 	return i % ARRAY_SIZE(join_entries);
- }
+ 	remainder = xfer->len % 4;
+ 	if (remainder > 0) {
+ 		reg_val = 0;
+-		memcpy(&reg_val, xfer->tx_buf + (cnt * 4), remainder);
+-		writel(reg_val, mdata->base + SPI_TX_DATA_REG);
++		if (xfer->tx_buf) {
++			memcpy(&reg_val, xfer->tx_buf + (cnt * 4), remainder);
++			writel(reg_val, mdata->base + SPI_TX_DATA_REG);
++		}
++		if (xfer->rx_buf) {
++			reg_val = readl(mdata->base + SPI_RX_DATA_REG);
++			memcpy(xfer->rx_buf + (cnt * 4), &reg_val, remainder);
++		}
+ 	}
+ 
+ 	mtk_spi_enable_transfer(master);
 -- 
 2.30.2
 
