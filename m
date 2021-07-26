@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C7AA23D5D60
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:42:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7126C3D5DA0
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:43:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235461AbhGZPBD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:01:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39880 "EHLO mail.kernel.org"
+        id S235746AbhGZPCd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:02:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235447AbhGZPBC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:01:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C009A60F42;
-        Mon, 26 Jul 2021 15:41:30 +0000 (UTC)
+        id S235582AbhGZPC2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:02:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 92CA960F37;
+        Mon, 26 Jul 2021 15:42:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314091;
-        bh=Csn/RnxPMPaL5qmyamdW+7ODVbUXiffXGy8X59WJJRI=;
+        s=korg; t=1627314177;
+        bh=EOn9u7CR6/zKn+iKpJ5wP4mwdhdoEP+PkurRyOi8y00=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XhZS0TZN7uHQHzcDc8zTdDRAWD+9PFxi/BxGxMaBO3mJjXkgovXC2e2odsoMiEwFq
-         QztwkUVX3FzIF4anhbeB5tYpCjxDS+Tur+/qvdm4pgl7WRGUHdUBv0YJZVRPa3KuE5
-         JPrEGzYOuRYhMuEbTuI2KtNs5Mt0vimaVnnGHUao=
+        b=qESf6IxEla2hd4jBFo+PL0W3U/BqAT6Ggx7qXatOP6zb7IS2lU387Nj0Vr7lA3e/B
+         cRRpQm2frLH0fGBAfHQZx/5PMLdJcGYIwuMOPNNZoPBs6HHmKBatVf7+mUTeobz1Ty
+         Vt+cCLLa7FPbyK6+Mus73YDsU6CPG3fd+aw/9HJc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Odin Ugedal <odin@uged.al>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ben Segall <bsegall@google.com>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 08/47] sched/fair: Fix CFS bandwidth hrtimer expiry type
-Date:   Mon, 26 Jul 2021 17:38:26 +0200
-Message-Id: <20210726153823.244958763@linuxfoundation.org>
+Subject: [PATCH 4.9 13/60] scsi: aic7xxx: Fix unintentional sign extension issue on left shift of u8
+Date:   Mon, 26 Jul 2021 17:38:27 +0200
+Message-Id: <20210726153825.285737873@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153822.980271128@linuxfoundation.org>
-References: <20210726153822.980271128@linuxfoundation.org>
+In-Reply-To: <20210726153824.868160836@linuxfoundation.org>
+References: <20210726153824.868160836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,51 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Odin Ugedal <odin@uged.al>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 72d0ad7cb5bad265adb2014dbe46c4ccb11afaba ]
+[ Upstream commit 332a9dd1d86f1e7203fc7f0fd7e82f0b304200fe ]
 
-The time remaining until expiry of the refresh_timer can be negative.
-Casting the type to an unsigned 64-bit value will cause integer
-underflow, making the runtime_refresh_within return false instead of
-true. These situations are rare, but they do happen.
+The shifting of the u8 integer returned fom ahc_inb(ahc, port+3) by 24 bits
+to the left will be promoted to a 32 bit signed int and then sign-extended
+to a u64. In the event that the top bit of the u8 is set then all then all
+the upper 32 bits of the u64 end up as also being set because of the
+sign-extension. Fix this by casting the u8 values to a u64 before the 24
+bit left shift.
 
-This does not cause user-facing issues or errors; other than
-possibly unthrottling cfs_rq's using runtime from the previous period(s),
-making the CFS bandwidth enforcement less strict in those (special)
-situations.
+[ This dates back to 2002, I found the offending commit from the git
+history git://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git,
+commit f58eb66c0b0a ("Update aic7xxx driver to 6.2.10...") ]
 
-Signed-off-by: Odin Ugedal <odin@uged.al>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Ben Segall <bsegall@google.com>
-Link: https://lore.kernel.org/r/20210629121452.18429-1-odin@uged.al
+Link: https://lore.kernel.org/r/20210621151727.20667-1-colin.king@canonical.com
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Addresses-Coverity: ("Unintended sign extension")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/scsi/aic7xxx/aic7xxx_core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 15952d0e340b..e00f17070cb2 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -3852,7 +3852,7 @@ static const u64 cfs_bandwidth_slack_period = 5 * NSEC_PER_MSEC;
- static int runtime_refresh_within(struct cfs_bandwidth *cfs_b, u64 min_expire)
- {
- 	struct hrtimer *refresh_timer = &cfs_b->period_timer;
--	u64 remaining;
-+	s64 remaining;
- 
- 	/* if the call-back is running a quota refresh is already occurring */
- 	if (hrtimer_callback_running(refresh_timer))
-@@ -3860,7 +3860,7 @@ static int runtime_refresh_within(struct cfs_bandwidth *cfs_b, u64 min_expire)
- 
- 	/* is a quota refresh about to occur? */
- 	remaining = ktime_to_ns(hrtimer_expires_remaining(refresh_timer));
--	if (remaining < min_expire)
-+	if (remaining < (s64)min_expire)
- 		return 1;
- 
- 	return 0;
+diff --git a/drivers/scsi/aic7xxx/aic7xxx_core.c b/drivers/scsi/aic7xxx/aic7xxx_core.c
+index def3208dd290..9b5832b46dec 100644
+--- a/drivers/scsi/aic7xxx/aic7xxx_core.c
++++ b/drivers/scsi/aic7xxx/aic7xxx_core.c
+@@ -500,7 +500,7 @@ ahc_inq(struct ahc_softc *ahc, u_int port)
+ 	return ((ahc_inb(ahc, port))
+ 	      | (ahc_inb(ahc, port+1) << 8)
+ 	      | (ahc_inb(ahc, port+2) << 16)
+-	      | (ahc_inb(ahc, port+3) << 24)
++	      | (((uint64_t)ahc_inb(ahc, port+3)) << 24)
+ 	      | (((uint64_t)ahc_inb(ahc, port+4)) << 32)
+ 	      | (((uint64_t)ahc_inb(ahc, port+5)) << 40)
+ 	      | (((uint64_t)ahc_inb(ahc, port+6)) << 48)
 -- 
 2.30.2
 
