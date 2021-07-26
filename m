@@ -2,35 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C4993D5FB4
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1C283D5E8B
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:51:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236567AbhGZPS5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:18:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57800 "EHLO mail.kernel.org"
+        id S236314AbhGZPK5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:10:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236740AbhGZPRd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:17:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2CB7960F57;
-        Mon, 26 Jul 2021 15:58:01 +0000 (UTC)
+        id S236357AbhGZPIQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:08:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C1AA160F59;
+        Mon, 26 Jul 2021 15:48:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315081;
-        bh=UDqDBBM7L8wBvV1Uv2np8RExwmYpEa2pmfRTiy/N2hY=;
+        s=korg; t=1627314511;
+        bh=Xx4TdN3LRW98yyInq1cNQHG2ShyTMjifHR9k2mHWRtA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uAn6je2pXnHVFUwPHOAIeY22yPfv6znmHmyFsAJX+7CkzZ6cpJ9daqXBEmY5oYUvp
-         G/0vkgOa0dnW5wJAbO3tpFUw1I4SnlcZ4YkVvwlSZ6NtF4zbRdKU58l45BWZL3Oo+V
-         nssUvP5B5mRFYqGF8nqc12pCLpjT4xJB9r72HTWc=
+        b=okWDTSnrZk1KcVDHQaqhvujGptweTobrfrIZnd4mISZTegJaKnLZ8JpJo/VxET3Jw
+         /imcLojMuDBHlPQWySjhCjmOAQ6K2/+a3yjLoQnN0y5SU6VScH309dZTwSNWUegGTj
+         kuVos91Ccj5BJJpv7tcf+Xielrv9goWR4u42now4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jia-Ju Bai <baijiaju1990@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 074/108] ALSA: sb: Fix potential ABBA deadlock in CSP driver
+        stable@vger.kernel.org, Lokesh Gidra <lokeshgidra@google.com>,
+        Peter Collingbourne <pcc@google.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        Dave Martin <Dave.Martin@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Alistair Delva <adelva@google.com>,
+        William McVicker <willmcvicker@google.com>,
+        Evgenii Stepanov <eugenis@google.com>,
+        Mitch Phillips <mitchp@google.com>,
+        Andrey Konovalov <andreyknvl@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 75/82] selftest: use mmap instead of posix_memalign to allocate memory
 Date:   Mon, 26 Jul 2021 17:39:15 +0200
-Message-Id: <20210726153834.057945144@linuxfoundation.org>
+Message-Id: <20210726153830.613854294@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
-References: <20210726153831.696295003@linuxfoundation.org>
+In-Reply-To: <20210726153828.144714469@linuxfoundation.org>
+References: <20210726153828.144714469@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,75 +51,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Peter Collingbourne <pcc@google.com>
 
-commit 1c2b9519159b470ef24b2638f4794e86e2952ab7 upstream.
+commit 0db282ba2c12c1515d490d14a1ff696643ab0f1b upstream.
 
-SB16 CSP driver may hit potentially a typical ABBA deadlock in two
-code paths:
+This test passes pointers obtained from anon_allocate_area to the
+userfaultfd and mremap APIs.  This causes a problem if the system
+allocator returns tagged pointers because with the tagged address ABI
+the kernel rejects tagged addresses passed to these APIs, which would
+end up causing the test to fail.  To make this test compatible with such
+system allocators, stop using the system allocator to allocate memory in
+anon_allocate_area, and instead just use mmap.
 
- In snd_sb_csp_stop():
-     spin_lock_irqsave(&p->chip->mixer_lock, flags);
-     spin_lock(&p->chip->reg_lock);
-
- In snd_sb_csp_load():
-     spin_lock_irqsave(&p->chip->reg_lock, flags);
-     spin_lock(&p->chip->mixer_lock);
-
-Also the similar pattern is seen in snd_sb_csp_start().
-
-Although the practical impact is very small (those states aren't
-triggered in the same running state and this happens only on a real
-hardware, decades old ISA sound boards -- which must be very difficult
-to find nowadays), it's a real scenario and has to be fixed.
-
-This patch addresses those deadlocks by splitting the locks in
-snd_sb_csp_start() and snd_sb_csp_stop() for avoiding the nested
-locks.
-
-Reported-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/7b0fcdaf-cd4f-4728-2eae-48c151a92e10@gmail.com
-Link: https://lore.kernel.org/r/20210716132723.13216-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lkml.kernel.org/r/20210714195437.118982-3-pcc@google.com
+Link: https://linux-review.googlesource.com/id/Icac91064fcd923f77a83e8e133f8631c5b8fc241
+Fixes: c47174fc362a ("userfaultfd: selftest")
+Co-developed-by: Lokesh Gidra <lokeshgidra@google.com>
+Signed-off-by: Lokesh Gidra <lokeshgidra@google.com>
+Signed-off-by: Peter Collingbourne <pcc@google.com>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Cc: Dave Martin <Dave.Martin@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Alistair Delva <adelva@google.com>
+Cc: William McVicker <willmcvicker@google.com>
+Cc: Evgenii Stepanov <eugenis@google.com>
+Cc: Mitch Phillips <mitchp@google.com>
+Cc: Andrey Konovalov <andreyknvl@gmail.com>
+Cc: <stable@vger.kernel.org>	[5.4]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/isa/sb/sb16_csp.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ tools/testing/selftests/vm/userfaultfd.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/sound/isa/sb/sb16_csp.c
-+++ b/sound/isa/sb/sb16_csp.c
-@@ -814,6 +814,7 @@ static int snd_sb_csp_start(struct snd_s
- 	mixR = snd_sbmixer_read(p->chip, SB_DSP4_PCM_DEV + 1);
- 	snd_sbmixer_write(p->chip, SB_DSP4_PCM_DEV, mixL & 0x7);
- 	snd_sbmixer_write(p->chip, SB_DSP4_PCM_DEV + 1, mixR & 0x7);
-+	spin_unlock_irqrestore(&p->chip->mixer_lock, flags);
+--- a/tools/testing/selftests/vm/userfaultfd.c
++++ b/tools/testing/selftests/vm/userfaultfd.c
+@@ -129,8 +129,10 @@ static int anon_release_pages(char *rel_
  
- 	spin_lock(&p->chip->reg_lock);
- 	set_mode_register(p->chip, 0xc0);	/* c0 = STOP */
-@@ -853,6 +854,7 @@ static int snd_sb_csp_start(struct snd_s
- 	spin_unlock(&p->chip->reg_lock);
- 
- 	/* restore PCM volume */
-+	spin_lock_irqsave(&p->chip->mixer_lock, flags);
- 	snd_sbmixer_write(p->chip, SB_DSP4_PCM_DEV, mixL);
- 	snd_sbmixer_write(p->chip, SB_DSP4_PCM_DEV + 1, mixR);
- 	spin_unlock_irqrestore(&p->chip->mixer_lock, flags);
-@@ -878,6 +880,7 @@ static int snd_sb_csp_stop(struct snd_sb
- 	mixR = snd_sbmixer_read(p->chip, SB_DSP4_PCM_DEV + 1);
- 	snd_sbmixer_write(p->chip, SB_DSP4_PCM_DEV, mixL & 0x7);
- 	snd_sbmixer_write(p->chip, SB_DSP4_PCM_DEV + 1, mixR & 0x7);
-+	spin_unlock_irqrestore(&p->chip->mixer_lock, flags);
- 
- 	spin_lock(&p->chip->reg_lock);
- 	if (p->running & SNDRV_SB_CSP_ST_QSOUND) {
-@@ -892,6 +895,7 @@ static int snd_sb_csp_stop(struct snd_sb
- 	spin_unlock(&p->chip->reg_lock);
- 
- 	/* restore PCM volume */
-+	spin_lock_irqsave(&p->chip->mixer_lock, flags);
- 	snd_sbmixer_write(p->chip, SB_DSP4_PCM_DEV, mixL);
- 	snd_sbmixer_write(p->chip, SB_DSP4_PCM_DEV + 1, mixR);
- 	spin_unlock_irqrestore(&p->chip->mixer_lock, flags);
+ static void anon_allocate_area(void **alloc_area)
+ {
+-	if (posix_memalign(alloc_area, page_size, nr_pages * page_size)) {
+-		fprintf(stderr, "out of memory\n");
++	*alloc_area = mmap(NULL, nr_pages * page_size, PROT_READ | PROT_WRITE,
++			   MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
++	if (*alloc_area == MAP_FAILED)
++		fprintf(stderr, "mmap of anonymous memory failed");
+ 		*alloc_area = NULL;
+ 	}
+ }
 
 
