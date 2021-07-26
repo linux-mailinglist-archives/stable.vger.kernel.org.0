@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7126C3D5DA0
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:43:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BFA13D5F06
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:59:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235746AbhGZPCd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:02:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41968 "EHLO mail.kernel.org"
+        id S236134AbhGZPQf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:16:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235582AbhGZPC2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:02:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 92CA960F37;
-        Mon, 26 Jul 2021 15:42:56 +0000 (UTC)
+        id S236283AbhGZPK4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:10:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D468760F6B;
+        Mon, 26 Jul 2021 15:51:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314177;
-        bh=EOn9u7CR6/zKn+iKpJ5wP4mwdhdoEP+PkurRyOi8y00=;
+        s=korg; t=1627314685;
+        bh=S642GOUSQDHP+0gYjSGRBSz+QeyFaMu7P0/mIkeShFI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qESf6IxEla2hd4jBFo+PL0W3U/BqAT6Ggx7qXatOP6zb7IS2lU387Nj0Vr7lA3e/B
-         cRRpQm2frLH0fGBAfHQZx/5PMLdJcGYIwuMOPNNZoPBs6HHmKBatVf7+mUTeobz1Ty
-         Vt+cCLLa7FPbyK6+Mus73YDsU6CPG3fd+aw/9HJc=
+        b=s+z5ZWQMwHFj2KDkNEuv8uZWUhz9SxjCBwGOsGoN3Ea/sQYkQuuVWMrP4Z7vYuxJ8
+         I2fhQFpJvjyHXyPreBs4bsH5dElFfGWQbvqby6wZs6P3pLPCNGTshBvx+pVv/POTDe
+         LRXLKhubHIKCaUqxmmCMYftnOG5A63rWcktQQPLo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Tony Brelinski <tonyx.brelinski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 13/60] scsi: aic7xxx: Fix unintentional sign extension issue on left shift of u8
+Subject: [PATCH 4.19 055/120] igb: Fix an error handling path in igb_probe()
 Date:   Mon, 26 Jul 2021 17:38:27 +0200
-Message-Id: <20210726153825.285737873@linuxfoundation.org>
+Message-Id: <20210726153834.147412984@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153824.868160836@linuxfoundation.org>
-References: <20210726153824.868160836@linuxfoundation.org>
+In-Reply-To: <20210726153832.339431936@linuxfoundation.org>
+References: <20210726153832.339431936@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,43 +42,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 332a9dd1d86f1e7203fc7f0fd7e82f0b304200fe ]
+[ Upstream commit fea03b1cebd653cd095f2e9a58cfe1c85661c363 ]
 
-The shifting of the u8 integer returned fom ahc_inb(ahc, port+3) by 24 bits
-to the left will be promoted to a 32 bit signed int and then sign-extended
-to a u64. In the event that the top bit of the u8 is set then all then all
-the upper 32 bits of the u64 end up as also being set because of the
-sign-extension. Fix this by casting the u8 values to a u64 before the 24
-bit left shift.
+If an error occurs after a 'pci_enable_pcie_error_reporting()' call, it
+must be undone by a corresponding 'pci_disable_pcie_error_reporting()'
+call, as already done in the remove function.
 
-[ This dates back to 2002, I found the offending commit from the git
-history git://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git,
-commit f58eb66c0b0a ("Update aic7xxx driver to 6.2.10...") ]
-
-Link: https://lore.kernel.org/r/20210621151727.20667-1-colin.king@canonical.com
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Addresses-Coverity: ("Unintended sign extension")
+Fixes: 40a914fa72ab ("igb: Add support for pci-e Advanced Error Reporting")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/aic7xxx/aic7xxx_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/intel/igb/igb_main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/scsi/aic7xxx/aic7xxx_core.c b/drivers/scsi/aic7xxx/aic7xxx_core.c
-index def3208dd290..9b5832b46dec 100644
---- a/drivers/scsi/aic7xxx/aic7xxx_core.c
-+++ b/drivers/scsi/aic7xxx/aic7xxx_core.c
-@@ -500,7 +500,7 @@ ahc_inq(struct ahc_softc *ahc, u_int port)
- 	return ((ahc_inb(ahc, port))
- 	      | (ahc_inb(ahc, port+1) << 8)
- 	      | (ahc_inb(ahc, port+2) << 16)
--	      | (ahc_inb(ahc, port+3) << 24)
-+	      | (((uint64_t)ahc_inb(ahc, port+3)) << 24)
- 	      | (((uint64_t)ahc_inb(ahc, port+4)) << 32)
- 	      | (((uint64_t)ahc_inb(ahc, port+5)) << 40)
- 	      | (((uint64_t)ahc_inb(ahc, port+6)) << 48)
+diff --git a/drivers/net/ethernet/intel/igb/igb_main.c b/drivers/net/ethernet/intel/igb/igb_main.c
+index cee5baa6d646..8558d2e4ec18 100644
+--- a/drivers/net/ethernet/intel/igb/igb_main.c
++++ b/drivers/net/ethernet/intel/igb/igb_main.c
+@@ -3495,6 +3495,7 @@ err_sw_init:
+ err_ioremap:
+ 	free_netdev(netdev);
+ err_alloc_etherdev:
++	pci_disable_pcie_error_reporting(pdev);
+ 	pci_release_mem_regions(pdev);
+ err_pci_reg:
+ err_dma:
 -- 
 2.30.2
 
