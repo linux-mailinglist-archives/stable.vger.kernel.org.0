@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E0E43D5DC1
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:44:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FD8D3D5D40
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:41:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235825AbhGZPDc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:03:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43112 "EHLO mail.kernel.org"
+        id S235241AbhGZPAU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:00:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235791AbhGZPDb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:03:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 82A3460F51;
-        Mon, 26 Jul 2021 15:43:59 +0000 (UTC)
+        id S235236AbhGZPAS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:00:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 498D860E08;
+        Mon, 26 Jul 2021 15:40:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314240;
-        bh=gnaN2Ub9EzGOL1zPEVKyWQ1iOE1AQvX/lIrt0mcBagg=;
+        s=korg; t=1627314046;
+        bh=mp11EiE24wDcNafm9JEypj8lxrQqDu93h6rWFarLp/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SIMRFV2VevVC7ieoXLDV+LjoJzPC+MXTBh1oqpW/RCzLpahEIwKYynkMJrQPj/cia
-         3hFjD6N0lRp3zJIGoYoDHjlp9qWZEGmKviuDLQIR/WHvdqhnke6AVYReq9uJrRqlrZ
-         lS1czevHYTkv7LgbdusCbhr6GsSLXpe6KpNh4XcE=
+        b=0qkx7ieTYfGBfk8PqIuFEx8ExJ+dhXqMdJG9C5kTLj10Wqonu/5e2GKKic0xkdkj8
+         +bdzvJwEInXgvkKqybL9IBk4xeIDYgE/L1UTdKENjHzv+YVoZIeI0SDqVXrj3BqI3Q
+         H5UWVi3s616qnP62PQgqzg/J+UbPp37Idwfm2WU0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 18/60] net: moxa: fix UAF in moxart_mac_probe
+Subject: [PATCH 4.4 14/47] net: ti: fix UAF in tlan_remove_one
 Date:   Mon, 26 Jul 2021 17:38:32 +0200
-Message-Id: <20210726153825.444458357@linuxfoundation.org>
+Message-Id: <20210726153823.430732332@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153824.868160836@linuxfoundation.org>
-References: <20210726153824.868160836@linuxfoundation.org>
+In-Reply-To: <20210726153822.980271128@linuxfoundation.org>
+References: <20210726153822.980271128@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,43 +41,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit c78eaeebe855fd93f2e77142ffd0404a54070d84 upstream.
+commit 0336f8ffece62f882ab3012820965a786a983f70 upstream.
 
-In case of netdev registration failure the code path will
-jump to init_fail label:
+priv is netdev private data and it cannot be
+used after free_netdev() call. Using priv after free_netdev()
+can cause UAF bug. Fix it by moving free_netdev() at the end of the
+function.
 
-init_fail:
-	netdev_err(ndev, "init failed\n");
-	moxart_mac_free_memory(ndev);
-irq_map_fail:
-	free_netdev(ndev);
-	return ret;
-
-So, there is no need to call free_netdev() before jumping
-to error handling path, since it can cause UAF or double-free
-bug.
-
-Fixes: 6c821bd9edc9 ("net: Add MOXA ART SoCs ethernet driver")
+Fixes: 1e0a8b13d355 ("tlan: cancel work at remove path")
 Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/moxa/moxart_ether.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/net/ethernet/ti/tlan.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/moxa/moxart_ether.c
-+++ b/drivers/net/ethernet/moxa/moxart_ether.c
-@@ -548,10 +548,8 @@ static int moxart_mac_probe(struct platf
- 	SET_NETDEV_DEV(ndev, &pdev->dev);
+--- a/drivers/net/ethernet/ti/tlan.c
++++ b/drivers/net/ethernet/ti/tlan.c
+@@ -313,9 +313,8 @@ static void tlan_remove_one(struct pci_d
+ 	pci_release_regions(pdev);
+ #endif
  
- 	ret = register_netdev(ndev);
--	if (ret) {
--		free_netdev(ndev);
-+	if (ret)
- 		goto init_fail;
--	}
+-	free_netdev(dev);
+-
+ 	cancel_work_sync(&priv->tlan_tqueue);
++	free_netdev(dev);
+ }
  
- 	netdev_dbg(ndev, "%s: IRQ=%d address=%pM\n",
- 		   __func__, ndev->irq, ndev->dev_addr);
+ static void tlan_start(struct net_device *dev)
 
 
