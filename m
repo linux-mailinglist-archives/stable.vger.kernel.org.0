@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22E1D3D5FBC
+	by mail.lfdr.de (Postfix) with ESMTP id 6BA713D5FBD
 	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236593AbhGZPTC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:19:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58086 "EHLO mail.kernel.org"
+        id S235915AbhGZPTD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:19:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58254 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236884AbhGZPRr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:17:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 178DF60F57;
-        Mon, 26 Jul 2021 15:58:14 +0000 (UTC)
+        id S236937AbhGZPRx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:17:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D4FD60F42;
+        Mon, 26 Jul 2021 15:58:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315095;
-        bh=r2/TrHRwbUkzfY+OedYR+SYDR417kD429k5/wptAKoE=;
+        s=korg; t=1627315101;
+        bh=zp7LGnjMMIR9x5k3zi1DMY0hDXLQ+vcT+EVLX2AU+pI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NmZXRUmUT45rCEb286mYRrszlxoWIqPubWDynXzd0Q4zZJ3z/DGIrTgA/WxtjI4wM
-         fl/jsorYuXg17ChYhlhRRnNVQZUigmWiSyRgTbXp0ql4ILfZIa9zo+D2L5l9zP7XAS
-         KjvLnumv/c9lMmVJUFZdNf3dfYcpqrV/OZuCrqmk=
+        b=DKdS7tX+jqUVSFatdSPuWLE0zmbdoYIkb/dUaxPMfc2KLz3EjBc9hj1bP1hjsjQC5
+         WX7vVltEc1v1Xxo37FN3ZPCeP/5G8aEss5ed4pVsMqB440zZ8wNWyht5+yKktBCCrp
+         g+DJxGqnIYKgGzFInFr99rqNEQh0fpaK3KSkwwaE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
-        Michael Neuling <mikey@neuling.org>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.4 078/108] KVM: PPC: Book3S HV Nested: Sanitise H_ENTER_NESTED TM state
-Date:   Mon, 26 Jul 2021 17:39:19 +0200
-Message-Id: <20210726153834.179563394@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 5.4 079/108] usb: hub: Disable USB 3 device initiated lpm if exit latency is too high
+Date:   Mon, 26 Jul 2021 17:39:20 +0200
+Message-Id: <20210726153834.211225004@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
 References: <20210726153831.696295003@linuxfoundation.org>
@@ -41,78 +39,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-commit d9c57d3ed52a92536f5fa59dc5ccdd58b4875076 upstream.
+commit 1b7f56fbc7a1b66967b6114d1b5f5a257c3abae6 upstream.
 
-The H_ENTER_NESTED hypercall is handled by the L0, and it is a request
-by the L1 to switch the context of the vCPU over to that of its L2
-guest, and return with an interrupt indication. The L1 is responsible
-for switching some registers to guest context, and the L0 switches
-others (including all the hypervisor privileged state).
+The device initiated link power management U1/U2 states should not be
+enabled in case the system exit latency plus one bus interval (125us) is
+greater than the shortest service interval of any periodic endpoint.
 
-If the L2 MSR has TM active, then the L1 is responsible for
-recheckpointing the L2 TM state. Then the L1 exits to L0 via the
-H_ENTER_NESTED hcall, and the L0 saves the TM state as part of the exit,
-and then it recheckpoints the TM state as part of the nested entry and
-finally HRFIDs into the L2 with TM active MSR. Not efficient, but about
-the simplest approach for something that's horrendously complicated.
+This is the case for both U1 and U2 sytstem exit latencies and link states.
 
-Problems arise if the L1 exits to the L0 with a TM state which does not
-match the L2 TM state being requested. For example if the L1 is
-transactional but the L2 MSR is non-transactional, or vice versa. The
-L0's HRFID can take a TM Bad Thing interrupt and crash.
+See USB 3.2 section 9.4.9 "Set Feature" for more details
 
-Fix this by disallowing H_ENTER_NESTED in TM[T] state entirely, and then
-ensuring that if the L1 is suspended then the L2 must have TM active,
-and if the L1 is not suspended then the L2 must not have TM active.
+Note, before this patch the host and device initiated U1/U2 lpm states
+were both enabled with lpm. After this patch it's possible to end up with
+only host inititated U1/U2 lpm in case the exit latencies won't allow
+device initiated lpm.
 
-Fixes: 360cae313702 ("KVM: PPC: Book3S HV: Nested guest entry via hypercall")
-Cc: stable@vger.kernel.org # v4.20+
-Reported-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Acked-by: Michael Neuling <mikey@neuling.org>
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+If this case we still want to set the udev->usb3_lpm_ux_enabled flag so
+that sysfs users can see the link may go to U1/U2.
+
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210715150122.1995966-2-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kvm/book3s_hv_nested.c |   20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ drivers/usb/core/hub.c |   68 ++++++++++++++++++++++++++++++++++++++++---------
+ 1 file changed, 56 insertions(+), 12 deletions(-)
 
---- a/arch/powerpc/kvm/book3s_hv_nested.c
-+++ b/arch/powerpc/kvm/book3s_hv_nested.c
-@@ -232,6 +232,9 @@ long kvmhv_enter_nested_guest(struct kvm
- 	if (vcpu->kvm->arch.l1_ptcr == 0)
- 		return H_NOT_AVAILABLE;
+--- a/drivers/usb/core/hub.c
++++ b/drivers/usb/core/hub.c
+@@ -4023,6 +4023,47 @@ static int usb_set_lpm_timeout(struct us
+ }
  
-+	if (MSR_TM_TRANSACTIONAL(vcpu->arch.shregs.msr))
-+		return H_BAD_MODE;
+ /*
++ * Don't allow device intiated U1/U2 if the system exit latency + one bus
++ * interval is greater than the minimum service interval of any active
++ * periodic endpoint. See USB 3.2 section 9.4.9
++ */
++static bool usb_device_may_initiate_lpm(struct usb_device *udev,
++					enum usb3_link_state state)
++{
++	unsigned int sel;		/* us */
++	int i, j;
 +
- 	/* copy parameters in */
- 	hv_ptr = kvmppc_get_gpr(vcpu, 4);
- 	err = kvm_vcpu_read_guest(vcpu, hv_ptr, &l2_hv,
-@@ -253,6 +256,23 @@ long kvmhv_enter_nested_guest(struct kvm
- 	if (l2_hv.vcpu_token >= NR_CPUS)
- 		return H_PARAMETER;
- 
-+	/*
-+	 * L1 must have set up a suspended state to enter the L2 in a
-+	 * transactional state, and only in that case. These have to be
-+	 * filtered out here to prevent causing a TM Bad Thing in the
-+	 * host HRFID. We could synthesize a TM Bad Thing back to the L1
-+	 * here but there doesn't seem like much point.
-+	 */
-+	if (MSR_TM_SUSPENDED(vcpu->arch.shregs.msr)) {
-+		if (!MSR_TM_ACTIVE(l2_regs.msr))
-+			return H_BAD_MODE;
-+	} else {
-+		if (l2_regs.msr & MSR_TS_MASK)
-+			return H_BAD_MODE;
-+		if (WARN_ON_ONCE(vcpu->arch.shregs.msr & MSR_TS_MASK))
-+			return H_BAD_MODE;
++	if (state == USB3_LPM_U1)
++		sel = DIV_ROUND_UP(udev->u1_params.sel, 1000);
++	else if (state == USB3_LPM_U2)
++		sel = DIV_ROUND_UP(udev->u2_params.sel, 1000);
++	else
++		return false;
++
++	for (i = 0; i < udev->actconfig->desc.bNumInterfaces; i++) {
++		struct usb_interface *intf;
++		struct usb_endpoint_descriptor *desc;
++		unsigned int interval;
++
++		intf = udev->actconfig->interface[i];
++		if (!intf)
++			continue;
++
++		for (j = 0; j < intf->cur_altsetting->desc.bNumEndpoints; j++) {
++			desc = &intf->cur_altsetting->endpoint[j].desc;
++
++			if (usb_endpoint_xfer_int(desc) ||
++			    usb_endpoint_xfer_isoc(desc)) {
++				interval = (1 << (desc->bInterval - 1)) * 125;
++				if (sel + 125 > interval)
++					return false;
++			}
++		}
 +	}
++	return true;
++}
 +
- 	/* translate lpid */
- 	l2 = kvmhv_get_nested(vcpu->kvm, l2_hv.lpid, true);
- 	if (!l2)
++/*
+  * Enable the hub-initiated U1/U2 idle timeouts, and enable device-initiated
+  * U1/U2 entry.
+  *
+@@ -4094,20 +4135,23 @@ static void usb_enable_link_state(struct
+ 	 * U1/U2_ENABLE
+ 	 */
+ 	if (udev->actconfig &&
+-	    usb_set_device_initiated_lpm(udev, state, true) == 0) {
+-		if (state == USB3_LPM_U1)
+-			udev->usb3_lpm_u1_enabled = 1;
+-		else if (state == USB3_LPM_U2)
+-			udev->usb3_lpm_u2_enabled = 1;
+-	} else {
+-		/* Don't request U1/U2 entry if the device
+-		 * cannot transition to U1/U2.
+-		 */
+-		usb_set_lpm_timeout(udev, state, 0);
+-		hcd->driver->disable_usb3_lpm_timeout(hcd, udev, state);
++	    usb_device_may_initiate_lpm(udev, state)) {
++		if (usb_set_device_initiated_lpm(udev, state, true)) {
++			/*
++			 * Request to enable device initiated U1/U2 failed,
++			 * better to turn off lpm in this case.
++			 */
++			usb_set_lpm_timeout(udev, state, 0);
++			hcd->driver->disable_usb3_lpm_timeout(hcd, udev, state);
++			return;
++		}
+ 	}
+-}
+ 
++	if (state == USB3_LPM_U1)
++		udev->usb3_lpm_u1_enabled = 1;
++	else if (state == USB3_LPM_U2)
++		udev->usb3_lpm_u2_enabled = 1;
++}
+ /*
+  * Disable the hub-initiated U1/U2 idle timeouts, and disable device-initiated
+  * U1/U2 entry.
 
 
