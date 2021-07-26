@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F4503D61C7
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:14:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AEA93D616D
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:13:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233954AbhGZPc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:32:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41288 "EHLO mail.kernel.org"
+        id S231689AbhGZPbP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:31:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42990 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237877AbhGZP31 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237880AbhGZP31 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 26 Jul 2021 11:29:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 10BF06109D;
-        Mon, 26 Jul 2021 16:09:23 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2AD52610A2;
+        Mon, 26 Jul 2021 16:09:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315764;
-        bh=AEcizyHU+/c5oQ14TgiR8P1PpRbnAJdqQA5p4hEGReA=;
+        s=korg; t=1627315766;
+        bh=Hedo5HKbQYAUkvBgWwx/NaD5v9toiTtqhbZniWwZsqg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1igp/teFdMXg7LzSL5k32UJK0tZg2LGGIiXTVCfUM+111ZdCh2vBVLHB9Iv6080Ke
-         vYX5c4yoSe45DVfx7mrXM9MohsZiyfaukasxSXOE2BPENv5Va2sWw55t1O+IdpR3WV
-         iSE221gkEvpus8JQ0bdGqWFeqDkXjNKm/sch4ZBw=
+        b=EWGbsEbvCjTZEYe3OO6ma/pAzl2CN2dDI9hhgG9bh3nmalerxuQsoHEKIYgjlGU1b
+         YKkHxgzBzysACDxBOuQEfmsjTd1tF68qZ9tIxkWFcTqiS/EtLNyJxmW2BP0bTZ8aco
+         xgUhOBoaSn2kdhvOJ0GO4bEzjWwgDtKSOfFcrTIM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Riccardo Mancini <rickyman7@gmail.com>,
         Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
+        Kan Liang <kan.liang@linux.intel.com>,
         Mark Rutland <mark.rutland@arm.com>,
         Namhyung Kim <namhyung@kernel.org>,
         Peter Zijlstra <peterz@infradead.org>,
         Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 057/223] perf test maps__merge_in: Fix memory leak of maps
-Date:   Mon, 26 Jul 2021 17:37:29 +0200
-Message-Id: <20210726153848.126596349@linuxfoundation.org>
+Subject: [PATCH 5.13 058/223] perf env: Fix memory leak of cpu_pmu_caps
+Date:   Mon, 26 Jul 2021 17:37:30 +0200
+Message-Id: <20210726153848.158926593@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
 References: <20210726153846.245305071@linuxfoundation.org>
@@ -46,45 +47,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Riccardo Mancini <rickyman7@gmail.com>
 
-[ Upstream commit 244d1797c8c8e850b8de7992af713aa5c70d5650 ]
+[ Upstream commit da6b7c6c0626901428245f65712385805e42eba6 ]
 
-ASan reports a memory leak when running:
+ASan reports memory leaks while running:
 
-  # perf test "65: maps__merge_in"
+ # perf test "83: Zstd perf.data compression/decompression"
 
-This is the second and final patch addressing these memory leaks.
+The first of the leaks is caused by env->cpu_pmu_caps not being freed.
 
-This time, the problem is simply that the maps object is never
-destructed.
-
-This patch adds the missing maps__exit call.
+This patch adds the missing (z)free inside perf_env__exit.
 
 Signed-off-by: Riccardo Mancini <rickyman7@gmail.com>
-Fixes: 79b6bb73f888933c ("perf maps: Merge 'struct maps' with 'struct map_groups'")
+Fixes: 6f91ea283a1ed23e ("perf header: Support CPU PMU capabilities")
 Cc: Ian Rogers <irogers@google.com>
 Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Kan Liang <kan.liang@linux.intel.com>
 Cc: Mark Rutland <mark.rutland@arm.com>
 Cc: Namhyung Kim <namhyung@kernel.org>
 Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/a1a29b97a58738987d150e94d4ebfad0282fb038.1626343282.git.rickyman7@gmail.com
+Link: http://lore.kernel.org/lkml/6ba036a8220156ec1f3d6be3e5d25920f6145028.1626343282.git.rickyman7@gmail.com
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/tests/maps.c | 2 ++
- 1 file changed, 2 insertions(+)
+ tools/perf/util/env.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/tools/perf/tests/maps.c b/tools/perf/tests/maps.c
-index edcbc70ff9d6..1ac72919fa35 100644
---- a/tools/perf/tests/maps.c
-+++ b/tools/perf/tests/maps.c
-@@ -116,5 +116,7 @@ int test__maps__merge_in(struct test *t __maybe_unused, int subtest __maybe_unus
+diff --git a/tools/perf/util/env.c b/tools/perf/util/env.c
+index f3b90412cc70..16a111b62cc3 100644
+--- a/tools/perf/util/env.c
++++ b/tools/perf/util/env.c
+@@ -191,6 +191,7 @@ void perf_env__exit(struct perf_env *env)
+ 	zfree(&env->sibling_threads);
+ 	zfree(&env->pmu_mappings);
+ 	zfree(&env->cpu);
++	zfree(&env->cpu_pmu_caps);
+ 	zfree(&env->numa_map);
  
- 	ret = check_maps(merged3, ARRAY_SIZE(merged3), &maps);
- 	TEST_ASSERT_VAL("merge check failed", !ret);
-+
-+	maps__exit(&maps);
- 	return TEST_OK;
- }
+ 	for (i = 0; i < env->nr_numa_nodes; i++)
 -- 
 2.30.2
 
