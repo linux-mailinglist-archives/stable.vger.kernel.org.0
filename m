@@ -2,40 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AF9C3D5F41
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1FC83D5DAC
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:43:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236611AbhGZPRV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:17:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53270 "EHLO mail.kernel.org"
+        id S235805AbhGZPDO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:03:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237448AbhGZPPr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:15:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0FD8161078;
-        Mon, 26 Jul 2021 15:55:46 +0000 (UTC)
+        id S235739AbhGZPCz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:02:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A98960F37;
+        Mon, 26 Jul 2021 15:43:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314947;
-        bh=mLYfk4xy2wIZmbtXymCaqFUhwA/CAGmnWse1UowfJpQ=;
+        s=korg; t=1627314204;
+        bh=Nr1G0W5p6zEJhcj5E9bSLGHr39tsPKl1YyfPzA4mG+0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pvjHV+8f0C0Sx4z7Cxoc8eem2tc/F673Q9mUFtnh2dwaiMJWoS3LXNKc5JnCD+ldF
-         1SROJvXioPwdU2H8y18ikSQxmI4Gx13WFfOfS5nVE1ym09uy54UXpJNo5PTL6lgFUz
-         zC1yR6sQdvdEA4FUgpyDk1f3t8bfewNPfppRnRcw=
+        b=X6iXdmU6414CQiKM0as+o5/0uuhGLGWXR5GFMYuITkxK/VTJl2rK/QqwrnT33bZZN
+         zx7W5Q0rPvcPfjRa1DXb4g9j6mD1cmRuIJhFxMoL0/FQro85Pdn063KzTGvKanF2jX
+         IFDlRyR1kureZUnqmTelzhwPiRQCO4l79jpKnpFU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Riccardo Mancini <rickyman7@gmail.com>,
-        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Sudeep Holla <sudeep.holla@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 022/108] perf env: Fix sibling_dies memory leak
+Subject: [PATCH 4.9 09/60] arm64: dts: juno: Update SCPI nodes as per the YAML schema
 Date:   Mon, 26 Jul 2021 17:38:23 +0200
-Message-Id: <20210726153832.404684507@linuxfoundation.org>
+Message-Id: <20210726153825.164776568@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
-References: <20210726153831.696295003@linuxfoundation.org>
+In-Reply-To: <20210726153824.868160836@linuxfoundation.org>
+References: <20210726153824.868160836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,44 +39,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Riccardo Mancini <rickyman7@gmail.com>
+From: Sudeep Holla <sudeep.holla@arm.com>
 
-[ Upstream commit 42db3d9ded555f7148b5695109a7dc8d66f0dde4 ]
+[ Upstream commit 70010556b158a0fefe43415fb0c58347dcce7da0 ]
 
-ASan reports a memory leak in perf_env while running:
+The SCPI YAML schema expects standard node names for clocks and
+power domain controllers. Fix those as per the schema for Juno
+platforms.
 
-  # perf test "41: Session topology"
-
-Caused by sibling_dies not being freed.
-
-This patch adds the required free.
-
-Fixes: acae8b36cded0ee6 ("perf header: Add die information in CPU topology")
-Signed-off-by: Riccardo Mancini <rickyman7@gmail.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/2140d0b57656e4eb9021ca9772250c24c032924b.1626343282.git.rickyman7@gmail.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Link: https://lore.kernel.org/r/20210608145133.2088631-1-sudeep.holla@arm.com
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/env.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/boot/dts/arm/juno-base.dtsi | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/tools/perf/util/env.c b/tools/perf/util/env.c
-index 018ecf7b6da9..0fafcf264d23 100644
---- a/tools/perf/util/env.c
-+++ b/tools/perf/util/env.c
-@@ -175,6 +175,7 @@ void perf_env__exit(struct perf_env *env)
- 	zfree(&env->cpuid);
- 	zfree(&env->cmdline);
- 	zfree(&env->cmdline_argv);
-+	zfree(&env->sibling_dies);
- 	zfree(&env->sibling_cores);
- 	zfree(&env->sibling_threads);
- 	zfree(&env->pmu_mappings);
+diff --git a/arch/arm64/boot/dts/arm/juno-base.dtsi b/arch/arm64/boot/dts/arm/juno-base.dtsi
+index 7d3a2acc6a55..2aa01eaa0cd1 100644
+--- a/arch/arm64/boot/dts/arm/juno-base.dtsi
++++ b/arch/arm64/boot/dts/arm/juno-base.dtsi
+@@ -414,13 +414,13 @@
+ 		clocks {
+ 			compatible = "arm,scpi-clocks";
+ 
+-			scpi_dvfs: scpi-dvfs {
++			scpi_dvfs: clocks-0 {
+ 				compatible = "arm,scpi-dvfs-clocks";
+ 				#clock-cells = <1>;
+ 				clock-indices = <0>, <1>, <2>;
+ 				clock-output-names = "atlclk", "aplclk","gpuclk";
+ 			};
+-			scpi_clk: scpi-clk {
++			scpi_clk: clocks-1 {
+ 				compatible = "arm,scpi-variable-clocks";
+ 				#clock-cells = <1>;
+ 				clock-indices = <3>;
+@@ -428,7 +428,7 @@
+ 			};
+ 		};
+ 
+-		scpi_devpd: scpi-power-domains {
++		scpi_devpd: power-controller {
+ 			compatible = "arm,scpi-power-domains";
+ 			num-domains = <2>;
+ 			#power-domain-cells = <1>;
 -- 
 2.30.2
 
