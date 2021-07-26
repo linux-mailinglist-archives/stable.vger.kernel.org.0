@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66FE83D6249
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:16:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED5993D610E
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:12:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236102AbhGZPf0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:35:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51722 "EHLO mail.kernel.org"
+        id S231727AbhGZP2M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:28:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237298AbhGZPee (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:34:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BA115604AC;
-        Mon, 26 Jul 2021 16:15:02 +0000 (UTC)
+        id S237708AbhGZPZk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:25:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1637F60240;
+        Mon, 26 Jul 2021 16:06:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627316103;
-        bh=R6/d5A36/DNukdPu6REyqDvN0M2H9oNjfgQPBn04uDo=;
+        s=korg; t=1627315568;
+        bh=TlBxr3mfyc9BYIEoiifxHJDRYJcs8+7LxpcsIorXfjY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k/p3PPygBcJKpc0syIq/2Vlm5s/Wpg0Z0VE+srykH5dYy1yYRShf5LYkCnOy0NeMR
-         xW+Pcv52ju92msrddODA+h9vauU62KP8W5Qy3HOORSwvz0Is+M935XLQmON9jc0Dsn
-         DOUjizTcMUUBchaPJUq4TRQp2EZ8tzPhK1asYyG8=
+        b=zmSOaU3vcX5gJlku8W/8AHqyb2sK1/OTmvBQOjJhhLuKUt62ObXhM4KfbWegX9i1u
+         AJATZkxnqpiV9K9jgOsByjFf02IvsV3IWhoqu7qOa2CJUYRsMTFrlcdh4g2jur9NBF
+         kYHcZC8x0OAfROUfVQQHX0F6HKOckcZW9he3/q38=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Young <consult.awy@gmail.com>,
+        stable@vger.kernel.org, Hui Wang <hui.wang@canonical.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.13 153/223] ALSA: pcm: Call substream ack() method upon compat mmap commit
+Subject: [PATCH 5.10 112/167] ALSA: hda/realtek: Fix pop noise and 2 Front Mic issues on a machine
 Date:   Mon, 26 Jul 2021 17:39:05 +0200
-Message-Id: <20210726153851.231543942@linuxfoundation.org>
+Message-Id: <20210726153843.164850463@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
-References: <20210726153846.245305071@linuxfoundation.org>
+In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
+References: <20210726153839.371771838@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,48 +39,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Young <consult.awy@gmail.com>
+From: Hui Wang <hui.wang@canonical.com>
 
-commit 2e2832562c877e6530b8480982d99a4ff90c6777 upstream.
+commit e4efa82660e6d80338c554e45e903714e1b2c27b upstream.
 
-If a 32-bit application is being used with a 64-bit kernel and is using
-the mmap mechanism to write data, then the SNDRV_PCM_IOCTL_SYNC_PTR
-ioctl results in calling snd_pcm_ioctl_sync_ptr_compat(). Make this use
-pcm_lib_apply_appl_ptr() so that the substream's ack() method, if
-defined, is called.
+This is a Lenovo ThinkStation machine which uses the codec alc623.
+There are 2 issues on this machine, the 1st one is the pop noise in
+the lineout, the 2nd one is there are 2 Front Mics and pulseaudio
+can't handle them, After applying the fixup of
+ALC623_FIXUP_LENOVO_THINKSTATION_P340 to this machine, the 2 issues
+are fixed.
 
-The snd_pcm_sync_ptr() function, used in the 64-bit ioctl case, already
-uses snd_pcm_ioctl_sync_ptr_compat().
-
-Fixes: 9027c4639ef1 ("ALSA: pcm: Call ack() whenever appl_ptr is updated")
-Signed-off-by: Alan Young <consult.awy@gmail.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/c441f18c-eb2a-3bdd-299a-696ccca2de9c@gmail.com
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+Link: https://lore.kernel.org/r/20210719030231.6870-1-hui.wang@canonical.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/core/pcm_native.c |   11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/sound/core/pcm_native.c
-+++ b/sound/core/pcm_native.c
-@@ -3057,9 +3057,14 @@ static int snd_pcm_ioctl_sync_ptr_compat
- 		boundary = 0x7fffffff;
- 	snd_pcm_stream_lock_irq(substream);
- 	/* FIXME: we should consider the boundary for the sync from app */
--	if (!(sflags & SNDRV_PCM_SYNC_PTR_APPL))
--		control->appl_ptr = scontrol.appl_ptr;
--	else
-+	if (!(sflags & SNDRV_PCM_SYNC_PTR_APPL)) {
-+		err = pcm_lib_apply_appl_ptr(substream,
-+				scontrol.appl_ptr);
-+		if (err < 0) {
-+			snd_pcm_stream_unlock_irq(substream);
-+			return err;
-+		}
-+	} else
- 		scontrol.appl_ptr = control->appl_ptr % boundary;
- 	if (!(sflags & SNDRV_PCM_SYNC_PTR_AVAIL_MIN))
- 		control->avail_min = scontrol.avail_min;
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -8550,6 +8550,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x17aa, 0x3151, "ThinkCentre Station", ALC283_FIXUP_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x17aa, 0x3176, "ThinkCentre Station", ALC283_FIXUP_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x17aa, 0x3178, "ThinkCentre Station", ALC283_FIXUP_HEADSET_MIC),
++	SND_PCI_QUIRK(0x17aa, 0x31af, "ThinkCentre Station", ALC623_FIXUP_LENOVO_THINKSTATION_P340),
+ 	SND_PCI_QUIRK(0x17aa, 0x3818, "Lenovo C940", ALC298_FIXUP_LENOVO_SPK_VOLUME),
+ 	SND_PCI_QUIRK(0x17aa, 0x3827, "Ideapad S740", ALC285_FIXUP_IDEAPAD_S740_COEF),
+ 	SND_PCI_QUIRK(0x17aa, 0x3843, "Yoga 9i", ALC287_FIXUP_IDEAPAD_BASS_SPK_AMP),
 
 
