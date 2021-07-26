@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CACE3D5F03
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:59:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18D7A3D5FA3
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236015AbhGZPQe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:16:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51354 "EHLO mail.kernel.org"
+        id S236046AbhGZPSj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:18:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56584 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236217AbhGZPKy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:10:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1B65D60F02;
-        Mon, 26 Jul 2021 15:51:21 +0000 (UTC)
+        id S236421AbhGZPQq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:16:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EDFDA6056C;
+        Mon, 26 Jul 2021 15:57:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314682;
-        bh=fyFNlENYgEOBYMqpD8fg1zgIGNa2ZxbbuvQFLKrTgIc=;
+        s=korg; t=1627315033;
+        bh=eRUNZYO70NbrzZ0scGXxW1b2KNydt1l9KIMLaLws9Rw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DJfcM958kOYl4wJGV6TncANwAZTB60c9P543VZULN2LwDhTEfP8O/punPM8PJM+jm
-         XjGpsUJtgyPJkgURfCpFmWHMje9POD5MJb0lpl/f1SIGwf/YfTVfdBCGPb/TK74SLz
-         lg2MUbbZtNxTb7hhPtfY4TcmMReN8hCrTo2grEJA=
+        b=heB3/Ccx3xnOhz/HSr5RFHgy2F1rXibv5I0Zg7CJQ/HGJRF84dCIg85p7ApmJU2I/
+         O1NF8LmZYOYdO+1v1VWfVdOaUAIBSpdHKZ/+wtHJku/sqt100+xTQhiZZY20r76uo+
+         UbZH/huQDx5n82tnC/H/Ug3GiSfKyx2HLzTe7yME=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Tony Brelinski <tonyx.brelinski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Riccardo Mancini <rickyman7@gmail.com>,
+        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 054/120] ixgbe: Fix an error handling path in ixgbe_probe()
+Subject: [PATCH 5.4 025/108] perf dso: Fix memory leak in dso__new_map()
 Date:   Mon, 26 Jul 2021 17:38:26 +0200
-Message-Id: <20210726153834.118057040@linuxfoundation.org>
+Message-Id: <20210726153832.511817937@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153832.339431936@linuxfoundation.org>
-References: <20210726153832.339431936@linuxfoundation.org>
+In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
+References: <20210726153831.696295003@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,35 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Riccardo Mancini <rickyman7@gmail.com>
 
-[ Upstream commit dd2aefcd5e37989ae5f90afdae44bbbf3a2990da ]
+[ Upstream commit 581e295a0f6b5c2931d280259fbbfff56959faa9 ]
 
-If an error occurs after a 'pci_enable_pcie_error_reporting()' call, it
-must be undone by a corresponding 'pci_disable_pcie_error_reporting()'
-call, as already done in the remove function.
+ASan reports a memory leak when running:
 
-Fixes: 6fabd715e6d8 ("ixgbe: Implement PCIe AER support")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+  # perf test "65: maps__merge_in".
+
+The causes of the leaks are two, this patch addresses only the first
+one, which is related to dso__new_map().
+
+The bug is that dso__new_map() creates a new dso but never decreases the
+refcount it gets from creating it.
+
+This patch adds the missing dso__put().
+
+Signed-off-by: Riccardo Mancini <rickyman7@gmail.com>
+Fixes: d3a7c489c7fd2463 ("perf tools: Reference count struct dso")
+Cc: Ian Rogers <irogers@google.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lore.kernel.org/lkml/60bfe0cd06e89e2ca33646eb8468d7f5de2ee597.1626343282.git.rickyman7@gmail.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ixgbe/ixgbe_main.c | 1 +
- 1 file changed, 1 insertion(+)
+ tools/perf/util/dso.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-index 8fcd3ffb43e0..4d9d97e0b6c4 100644
---- a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-+++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-@@ -10925,6 +10925,7 @@ err_ioremap:
- 	disable_dev = !test_and_set_bit(__IXGBE_DISABLED, &adapter->state);
- 	free_netdev(netdev);
- err_alloc_etherdev:
-+	pci_disable_pcie_error_reporting(pdev);
- 	pci_release_mem_regions(pdev);
- err_pci_reg:
- err_dma:
+diff --git a/tools/perf/util/dso.c b/tools/perf/util/dso.c
+index ab2e130dc07a..7f07a5dc555f 100644
+--- a/tools/perf/util/dso.c
++++ b/tools/perf/util/dso.c
+@@ -1086,8 +1086,10 @@ struct map *dso__new_map(const char *name)
+ 	struct map *map = NULL;
+ 	struct dso *dso = dso__new(name);
+ 
+-	if (dso)
++	if (dso) {
+ 		map = map__new2(0, dso);
++		dso__put(dso);
++	}
+ 
+ 	return map;
+ }
 -- 
 2.30.2
 
