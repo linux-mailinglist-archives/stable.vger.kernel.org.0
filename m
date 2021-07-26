@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C07BF3D6105
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:12:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FA323D622B
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:15:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237859AbhGZP0l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:26:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39752 "EHLO mail.kernel.org"
+        id S237983AbhGZPe7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:34:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50152 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237869AbhGZPYT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:24:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D16A60240;
-        Mon, 26 Jul 2021 16:04:47 +0000 (UTC)
+        id S233978AbhGZPdP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:33:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EBFCA60EB2;
+        Mon, 26 Jul 2021 16:13:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315488;
-        bh=a4/I185hfQSbkUJOO/kBX0KuBzM0koq0qFt4U4ncbmI=;
+        s=korg; t=1627316024;
+        bh=JD7GtbckkQ883GLNGJ4pCOHmtJklLbCXoblQ/IaLTlI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ukei4sP6cGG+n7ydG8wzeuM/X3XO6oc+5o74+cTbdRkCoIk7Uaoc1tGdBKS3EwzmS
-         5cGILgx6201fXffO5ha5gA+hMJ4FiJ/f0tULxWMeO0ABzPgtKRHKHZMQNnykyhzyZ2
-         iwl9snCF35ZC4SauUZNyJ+sUXgH91BgQLdARE3Ko=
+        b=b6+IUQK+hXwysTz12b4ZNMBtGeZd44ZyB7cyMRSXdj4ORtEu/y/Ci1bqJCGTvOEl4
+         vWMPitzX+OMz8DyDST7GItDRDp9NX8Px/PkyrzuRB32e3b7aHomAXU2IwcFYSk9oaB
+         DuTyNqANqo/NdDvZSr5ZUqO2MJQesrqNMGDGBVW8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Greg Thelen <gthelen@google.com>
-Subject: [PATCH 5.10 117/167] usb: xhci: avoid renesas_usb_fw.mem when its unusable
-Date:   Mon, 26 Jul 2021 17:39:10 +0200
-Message-Id: <20210726153843.331170795@linuxfoundation.org>
+        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.13 159/223] KVM: PPC: Book3S: Fix H_RTAS rets buffer overflow
+Date:   Mon, 26 Jul 2021 17:39:11 +0200
+Message-Id: <20210726153851.414785800@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
-References: <20210726153839.371771838@linuxfoundation.org>
+In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
+References: <20210726153846.245305071@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,45 +40,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Thelen <gthelen@google.com>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-commit 0665e387318607d8269bfdea60723c627c8bae43 upstream.
+commit f62f3c20647ebd5fb6ecb8f0b477b9281c44c10a upstream.
 
-Commit a66d21d7dba8 ("usb: xhci: Add support for Renesas controller with
-memory") added renesas_usb_fw.mem firmware reference to xhci-pci.  Thus
-modinfo indicates xhci-pci.ko has "firmware: renesas_usb_fw.mem".  But
-the firmware is only actually used with CONFIG_USB_XHCI_PCI_RENESAS.  An
-unusable firmware reference can trigger safety checkers which look for
-drivers with unmet firmware dependencies.
+The kvmppc_rtas_hcall() sets the host rtas_args.rets pointer based on
+the rtas_args.nargs that was provided by the guest. That guest nargs
+value is not range checked, so the guest can cause the host rets pointer
+to be pointed outside the args array. The individual rtas function
+handlers check the nargs and nrets values to ensure they are correct,
+but if they are not, the handlers store a -3 (0xfffffffd) failure
+indication in rets[0] which corrupts host memory.
 
-Avoid referring to renesas_usb_fw.mem in circumstances when it cannot be
-loaded (when CONFIG_USB_XHCI_PCI_RENESAS isn't set).
+Fix this by testing up front whether the guest supplied nargs and nret
+would exceed the array size, and fail the hcall directly without storing
+a failure indication to rets[0].
 
-Fixes: a66d21d7dba8 ("usb: xhci: Add support for Renesas controller with memory")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Greg Thelen <gthelen@google.com>
-Link: https://lore.kernel.org/r/20210702071224.3673568-1-gthelen@google.com
+Also expand on a comment about why we kill the guest and try not to
+return errors directly if we have a valid rets[0] pointer.
+
+Fixes: 8e591cb72047 ("KVM: PPC: Book3S: Add infrastructure to implement kernel-side RTAS calls")
+Cc: stable@vger.kernel.org # v3.10+
+Reported-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-pci.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/powerpc/kvm/book3s_rtas.c |   25 ++++++++++++++++++++++---
+ 1 file changed, 22 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/host/xhci-pci.c
-+++ b/drivers/usb/host/xhci-pci.c
-@@ -631,7 +631,14 @@ static const struct pci_device_id pci_id
- 	{ /* end: all zeroes */ }
- };
- MODULE_DEVICE_TABLE(pci, pci_ids);
-+
-+/*
-+ * Without CONFIG_USB_XHCI_PCI_RENESAS renesas_xhci_check_request_fw() won't
-+ * load firmware, so don't encumber the xhci-pci driver with it.
-+ */
-+#if IS_ENABLED(CONFIG_USB_XHCI_PCI_RENESAS)
- MODULE_FIRMWARE("renesas_usb_fw.mem");
-+#endif
+--- a/arch/powerpc/kvm/book3s_rtas.c
++++ b/arch/powerpc/kvm/book3s_rtas.c
+@@ -242,6 +242,17 @@ int kvmppc_rtas_hcall(struct kvm_vcpu *v
+ 	 * value so we can restore it on the way out.
+ 	 */
+ 	orig_rets = args.rets;
++	if (be32_to_cpu(args.nargs) >= ARRAY_SIZE(args.args)) {
++		/*
++		 * Don't overflow our args array: ensure there is room for
++		 * at least rets[0] (even if the call specifies 0 nret).
++		 *
++		 * Each handler must then check for the correct nargs and nret
++		 * values, but they may always return failure in rets[0].
++		 */
++		rc = -EINVAL;
++		goto fail;
++	}
+ 	args.rets = &args.args[be32_to_cpu(args.nargs)];
  
- /* pci driver glue; this is a "new style" PCI driver module */
- static struct pci_driver xhci_pci_driver = {
+ 	mutex_lock(&vcpu->kvm->arch.rtas_token_lock);
+@@ -269,9 +280,17 @@ int kvmppc_rtas_hcall(struct kvm_vcpu *v
+ fail:
+ 	/*
+ 	 * We only get here if the guest has called RTAS with a bogus
+-	 * args pointer. That means we can't get to the args, and so we
+-	 * can't fail the RTAS call. So fail right out to userspace,
+-	 * which should kill the guest.
++	 * args pointer or nargs/nret values that would overflow the
++	 * array. That means we can't get to the args, and so we can't
++	 * fail the RTAS call. So fail right out to userspace, which
++	 * should kill the guest.
++	 *
++	 * SLOF should actually pass the hcall return value from the
++	 * rtas handler call in r3, so enter_rtas could be modified to
++	 * return a failure indication in r3 and we could return such
++	 * errors to the guest rather than failing to host userspace.
++	 * However old guests that don't test for failure could then
++	 * continue silently after errors, so for now we won't do this.
+ 	 */
+ 	return rc;
+ }
 
 
