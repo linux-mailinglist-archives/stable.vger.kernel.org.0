@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D35383D61F5
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:15:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B96C63D60AB
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:11:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234440AbhGZPdl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:33:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48992 "EHLO mail.kernel.org"
+        id S237682AbhGZPXt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:23:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233729AbhGZPcd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:32:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5016960F5B;
-        Mon, 26 Jul 2021 16:13:00 +0000 (UTC)
+        id S237621AbhGZPXj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:23:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2688260E09;
+        Mon, 26 Jul 2021 16:04:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315980;
-        bh=2P89fFdx1V14WzPrSpB0gkcu8Roho3sJZjYhuF89D8I=;
+        s=korg; t=1627315447;
+        bh=LOLFp2Jxe/nZf0/qwm3GMI4JtoZ1I5Bkwn4WyZWr6zs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VjBDsKvAj6Xw7W4DLhcNDCnJ92DlObD5LhD3pp605ir15PmHQjuonFUXVXGw+ogb4
-         aasVpF4z7vxa/VGDqqspPAIcFUPzEQO6ICq10GbTkinjj7xTRfFrtQVUKUepi8IgMG
-         KDoB+t06frb7PdUH4iTzzuUE8aODUTVrCi7JALs0=
+        b=gkdShWL3c2ndj9Dp3tLsSbVRP8yEhQ4p9OvR6HrTCQm2JjlXCjSgo7dW/o0kT4AmA
+         8/PMer2fYFhae9HNpR9R5Zy4PtfsilLxvMomZxoTDyaFnGf5bYqa0k/X5q0yGy0/3h
+         h6hENy0koaDa0tdRnHRMpJk/Yp2KDtLosxdvu9cE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ronnie Sahlberg <lsahlber@redhat.com>,
-        Namjae Jeon <namjae.jeon@samsung.com>,
-        Steve French <stfrench@microsoft.com>,
+        stable@vger.kernel.org, Wei Wang <weiwan@google.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Neal Cardwell <ncardwell@google.com>,
+        Soheil Hassas Yeganeh <soheil@google.com>,
+        Yuchung Cheng <ycheng@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 140/223] cifs: only write 64kb at a time when fallocating a small region of a file
+Subject: [PATCH 5.10 099/167] tcp: disable TFO blackhole logic by default
 Date:   Mon, 26 Jul 2021 17:38:52 +0200
-Message-Id: <20210726153850.817887055@linuxfoundation.org>
+Message-Id: <20210726153842.719316961@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
-References: <20210726153846.245305071@linuxfoundation.org>
+In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
+References: <20210726153839.371771838@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,68 +44,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ronnie Sahlberg <lsahlber@redhat.com>
+From: Wei Wang <weiwan@google.com>
 
-[ Upstream commit 2485bd7557a7edb4520b4072af464f0a08c8efe0 ]
+[ Upstream commit 213ad73d06073b197a02476db3a4998e219ddb06 ]
 
-We only allow sending single credit writes through the SMB2_write() synchronous
-api so split this into smaller chunks.
+Multiple complaints have been raised from the TFO users on the internet
+stating that the TFO blackhole logic is too aggressive and gets falsely
+triggered too often.
+(e.g. https://blog.apnic.net/2021/07/05/tcp-fast-open-not-so-fast/)
+Considering that most middleboxes no longer drop TFO packets, we decide
+to disable the blackhole logic by setting
+/proc/sys/net/ipv4/tcp_fastopen_blackhole_timeout_set to 0 by default.
 
-Fixes: 966a3cb7c7db ("cifs: improve fallocate emulation")
-
-Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Reported-by: Namjae Jeon <namjae.jeon@samsung.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Fixes: cf1ef3f0719b4 ("net/tcp_fastopen: Disable active side TFO in certain scenarios")
+Signed-off-by: Wei Wang <weiwan@google.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Acked-by: Neal Cardwell <ncardwell@google.com>
+Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
+Acked-by: Yuchung Cheng <ycheng@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/smb2ops.c | 26 +++++++++++++++++++-------
- 1 file changed, 19 insertions(+), 7 deletions(-)
+ Documentation/networking/ip-sysctl.rst | 2 +-
+ net/ipv4/tcp_fastopen.c                | 9 ++++++++-
+ net/ipv4/tcp_ipv4.c                    | 2 +-
+ 3 files changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
-index 903de7449aa3..cc253bbff696 100644
---- a/fs/cifs/smb2ops.c
-+++ b/fs/cifs/smb2ops.c
-@@ -3613,7 +3613,7 @@ static int smb3_simple_fallocate_write_range(unsigned int xid,
- 					     char *buf)
+diff --git a/Documentation/networking/ip-sysctl.rst b/Documentation/networking/ip-sysctl.rst
+index 4abcfff15e38..4822a058a81d 100644
+--- a/Documentation/networking/ip-sysctl.rst
++++ b/Documentation/networking/ip-sysctl.rst
+@@ -751,7 +751,7 @@ tcp_fastopen_blackhole_timeout_sec - INTEGER
+ 	initial value when the blackhole issue goes away.
+ 	0 to disable the blackhole detection.
+ 
+-	By default, it is set to 1hr.
++	By default, it is set to 0 (feature is disabled).
+ 
+ tcp_fastopen_key - list of comma separated 32-digit hexadecimal INTEGERs
+ 	The list consists of a primary key and an optional backup key. The
+diff --git a/net/ipv4/tcp_fastopen.c b/net/ipv4/tcp_fastopen.c
+index 08548ff23d83..d49709ba8e16 100644
+--- a/net/ipv4/tcp_fastopen.c
++++ b/net/ipv4/tcp_fastopen.c
+@@ -507,6 +507,9 @@ void tcp_fastopen_active_disable(struct sock *sk)
  {
- 	struct cifs_io_parms io_parms = {0};
--	int nbytes;
-+	int rc, nbytes;
- 	struct kvec iov[2];
+ 	struct net *net = sock_net(sk);
  
- 	io_parms.netfid = cfile->fid.netfid;
-@@ -3621,13 +3621,25 @@ static int smb3_simple_fallocate_write_range(unsigned int xid,
- 	io_parms.tcon = tcon;
- 	io_parms.persistent_fid = cfile->fid.persistent_fid;
- 	io_parms.volatile_fid = cfile->fid.volatile_fid;
--	io_parms.offset = off;
--	io_parms.length = len;
++	if (!sock_net(sk)->ipv4.sysctl_tcp_fastopen_blackhole_timeout)
++		return;
++
+ 	/* Paired with READ_ONCE() in tcp_fastopen_active_should_disable() */
+ 	WRITE_ONCE(net->ipv4.tfo_active_disable_stamp, jiffies);
  
--	/* iov[0] is reserved for smb header */
--	iov[1].iov_base = buf;
--	iov[1].iov_len = io_parms.length;
--	return SMB2_write(xid, &io_parms, &nbytes, iov, 1);
-+	while (len) {
-+		io_parms.offset = off;
-+		io_parms.length = len;
-+		if (io_parms.length > SMB2_MAX_BUFFER_SIZE)
-+			io_parms.length = SMB2_MAX_BUFFER_SIZE;
-+		/* iov[0] is reserved for smb header */
-+		iov[1].iov_base = buf;
-+		iov[1].iov_len = io_parms.length;
-+		rc = SMB2_write(xid, &io_parms, &nbytes, iov, 1);
-+		if (rc)
-+			break;
-+		if (nbytes > len)
-+			return -EINVAL;
-+		buf += nbytes;
-+		off += nbytes;
-+		len -= nbytes;
-+	}
-+	return rc;
- }
+@@ -526,10 +529,14 @@ void tcp_fastopen_active_disable(struct sock *sk)
+ bool tcp_fastopen_active_should_disable(struct sock *sk)
+ {
+ 	unsigned int tfo_bh_timeout = sock_net(sk)->ipv4.sysctl_tcp_fastopen_blackhole_timeout;
+-	int tfo_da_times = atomic_read(&sock_net(sk)->ipv4.tfo_active_disable_times);
+ 	unsigned long timeout;
++	int tfo_da_times;
+ 	int multiplier;
  
- static int smb3_simple_fallocate_range(unsigned int xid,
++	if (!tfo_bh_timeout)
++		return false;
++
++	tfo_da_times = atomic_read(&sock_net(sk)->ipv4.tfo_active_disable_times);
+ 	if (!tfo_da_times)
+ 		return false;
+ 
+diff --git a/net/ipv4/tcp_ipv4.c b/net/ipv4/tcp_ipv4.c
+index 5212db9ea157..04e259a04443 100644
+--- a/net/ipv4/tcp_ipv4.c
++++ b/net/ipv4/tcp_ipv4.c
+@@ -2913,7 +2913,7 @@ static int __net_init tcp_sk_init(struct net *net)
+ 	net->ipv4.sysctl_tcp_comp_sack_nr = 44;
+ 	net->ipv4.sysctl_tcp_fastopen = TFO_CLIENT_ENABLE;
+ 	spin_lock_init(&net->ipv4.tcp_fastopen_ctx_lock);
+-	net->ipv4.sysctl_tcp_fastopen_blackhole_timeout = 60 * 60;
++	net->ipv4.sysctl_tcp_fastopen_blackhole_timeout = 0;
+ 	atomic_set(&net->ipv4.tfo_active_disable_times, 0);
+ 
+ 	/* Reno is always built in */
 -- 
 2.30.2
 
