@@ -2,39 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CAB83D6115
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:12:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 828963D624F
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:16:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232117AbhGZP22 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:28:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41342 "EHLO mail.kernel.org"
+        id S235849AbhGZPf2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:35:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237714AbhGZPZx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:25:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8EDCC60F5D;
-        Mon, 26 Jul 2021 16:06:20 +0000 (UTC)
+        id S237763AbhGZPer (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:34:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E162B60EB2;
+        Mon, 26 Jul 2021 16:15:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315581;
-        bh=UEMHJD54Jp9Ts6QL1rc4lsLlsXp9XvuHlRxhC0OD624=;
+        s=korg; t=1627316115;
+        bh=DY0CpFZsggK/B3WFTjnfvCdVhbiOAsCNvEaxCFYTXDs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P33NKS48YZo1dWv/R88w0jVJi8nB/JhD0LFIF2SOx/hfhQtV7+l/yRvABmbQwMFjJ
-         +PaF1EZC72EQq+4pq7GpjiW3Y/yBjT9tH2jtUTGqF3qcviaIWx9M+ldqbSn3gWsqn1
-         NvK8sW3qSjAQLQSrvBQ5eBMxoSbWIJz4m6fDq/X4=
+        b=RStxdDoJhVwJATONNh77vBaTm6NqEzUCGCrV6lbigoxo5tonChZ6lauCEMJrjkmxq
+         8+5lxczTbsLE0IkOzDRJ1ZQbA+xBJbjjHmYLih6+wKzfn7ITaiOufQrkiWV4RZDUdZ
+         31K+IbcQieYcW/wkvHkYgyf8KuzOjh5trqb97glo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Ekstrand <jason@jlekstrand.net>,
-        Marcin Slusarz <marcin.slusarz@intel.com>,
-        Jason Ekstrand <jason.ekstrand@intel.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Jon Bloomfield <jon.bloomfield@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH 5.10 154/167] Revert "drm/i915: Propagate errors on awaiting already signaled fences"
+        stable@vger.kernel.org, Peter Collingbourne <pcc@google.com>,
+        Andrey Konovalov <andreyknvl@gmail.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Alistair Delva <adelva@google.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Dave Martin <Dave.Martin@arm.com>,
+        Evgenii Stepanov <eugenis@google.com>,
+        Lokesh Gidra <lokeshgidra@google.com>,
+        Mitch Phillips <mitchp@google.com>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        Will Deacon <will@kernel.org>,
+        William McVicker <willmcvicker@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.13 195/223] userfaultfd: do not untag user pointers
 Date:   Mon, 26 Jul 2021 17:39:47 +0200
-Message-Id: <20210726153844.582795218@linuxfoundation.org>
+Message-Id: <20210726153852.575206356@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
-References: <20210726153839.371771838@linuxfoundation.org>
+In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
+References: <20210726153846.245305071@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,88 +51,205 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Ekstrand <jason@jlekstrand.net>
+From: Peter Collingbourne <pcc@google.com>
 
-commit 3761baae908a7b5012be08d70fa553cc2eb82305 upstream.
+commit e71e2ace5721a8b921dca18b045069e7bb411277 upstream.
 
-This reverts commit 9e31c1fe45d555a948ff66f1f0e3fe1f83ca63f7.  Ever
-since that commit, we've been having issues where a hang in one client
-can propagate to another.  In particular, a hang in an app can propagate
-to the X server which causes the whole desktop to lock up.
+Patch series "userfaultfd: do not untag user pointers", v5.
 
-Error propagation along fences sound like a good idea, but as your bug
-shows, surprising consequences, since propagating errors across security
-boundaries is not a good thing.
+If a user program uses userfaultfd on ranges of heap memory, it may end
+up passing a tagged pointer to the kernel in the range.start field of
+the UFFDIO_REGISTER ioctl.  This can happen when using an MTE-capable
+allocator, or on Android if using the Tagged Pointers feature for MTE
+readiness [1].
 
-What we do have is track the hangs on the ctx, and report information to
-userspace using RESET_STATS. That's how arb_robustness works. Also, if my
-understanding is still correct, the EIO from execbuf is when your context
-is banned (because not recoverable or too many hangs). And in all these
-cases it's up to userspace to figure out what is all impacted and should
-be reported to the application, that's not on the kernel to guess and
-automatically propagate.
+When a fault subsequently occurs, the tag is stripped from the fault
+address returned to the application in the fault.address field of struct
+uffd_msg.  However, from the application's perspective, the tagged
+address *is* the memory address, so if the application is unaware of
+memory tags, it may get confused by receiving an address that is, from
+its point of view, outside of the bounds of the allocation.  We observed
+this behavior in the kselftest for userfaultfd [2] but other
+applications could have the same problem.
 
-What's more, we're also building more features on top of ctx error
-reporting with RESET_STATS ioctl: Encrypted buffers use the same, and the
-userspace fence wait also relies on that mechanism. So it is the path
-going forward for reporting gpu hangs and resets to userspace.
+Address this by not untagging pointers passed to the userfaultfd ioctls.
+Instead, let the system call fail.  Also change the kselftest to use
+mmap so that it doesn't encounter this problem.
 
-So all together that's why I think we should just bury this idea again as
-not quite the direction we want to go to, hence why I think the revert is
-the right option here.
+[1] https://source.android.com/devices/tech/debug/tagged-pointers
+[2] tools/testing/selftests/vm/userfaultfd.c
 
-For backporters: Please note that you _must_ have a backport of
-https://lore.kernel.org/dri-devel/20210602164149.391653-2-jason@jlekstrand.net/
-for otherwise backporting just this patch opens up a security bug.
+This patch (of 2):
 
-v2: Augment commit message. Also restore Jason's sob that I
-accidentally lost.
+Do not untag pointers passed to the userfaultfd ioctls.  Instead, let
+the system call fail.  This will provide an early indication of problems
+with tag-unaware userspace code instead of letting the code get confused
+later, and is consistent with how we decided to handle brk/mmap/mremap
+in commit dcde237319e6 ("mm: Avoid creating virtual address aliases in
+brk()/mmap()/mremap()"), as well as being consistent with the existing
+tagged address ABI documentation relating to how ioctl arguments are
+handled.
 
-v3: Add a note for backporters
+The code change is a revert of commit 7d0325749a6c ("userfaultfd: untag
+user pointers") plus some fixups to some additional calls to
+validate_range that have appeared since then.
 
-Signed-off-by: Jason Ekstrand <jason@jlekstrand.net>
-Reported-by: Marcin Slusarz <marcin.slusarz@intel.com>
-Cc: <stable@vger.kernel.org> # v5.6+
-Cc: Jason Ekstrand <jason.ekstrand@intel.com>
-Cc: Marcin Slusarz <marcin.slusarz@intel.com>
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/3080
-Fixes: 9e31c1fe45d5 ("drm/i915: Propagate errors on awaiting already signaled fences")
-Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Reviewed-by: Jon Bloomfield <jon.bloomfield@intel.com>
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210714193419.1459723-3-jason@jlekstrand.net
-(cherry picked from commit 93a2711cddd5760e2f0f901817d71c93183c3b87)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+[1] https://source.android.com/devices/tech/debug/tagged-pointers
+[2] tools/testing/selftests/vm/userfaultfd.c
+
+Link: https://lkml.kernel.org/r/20210714195437.118982-1-pcc@google.com
+Link: https://lkml.kernel.org/r/20210714195437.118982-2-pcc@google.com
+Link: https://linux-review.googlesource.com/id/I761aa9f0344454c482b83fcfcce547db0a25501b
+Fixes: 63f0c6037965 ("arm64: Introduce prctl() options to control the tagged user addresses ABI")
+Signed-off-by: Peter Collingbourne <pcc@google.com>
+Reviewed-by: Andrey Konovalov <andreyknvl@gmail.com>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Alistair Delva <adelva@google.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Dave Martin <Dave.Martin@arm.com>
+Cc: Evgenii Stepanov <eugenis@google.com>
+Cc: Lokesh Gidra <lokeshgidra@google.com>
+Cc: Mitch Phillips <mitchp@google.com>
+Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: William McVicker <willmcvicker@google.com>
+Cc: <stable@vger.kernel.org>	[5.4]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/i915_request.c |    8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ Documentation/arm64/tagged-address-abi.rst |   26 ++++++++++++++++++--------
+ fs/userfaultfd.c                           |   26 ++++++++++++--------------
+ 2 files changed, 30 insertions(+), 22 deletions(-)
 
---- a/drivers/gpu/drm/i915/i915_request.c
-+++ b/drivers/gpu/drm/i915/i915_request.c
-@@ -1285,10 +1285,8 @@ i915_request_await_execution(struct i915
+--- a/Documentation/arm64/tagged-address-abi.rst
++++ b/Documentation/arm64/tagged-address-abi.rst
+@@ -45,14 +45,24 @@ how the user addresses are used by the k
  
- 	do {
- 		fence = *child++;
--		if (test_bit(DMA_FENCE_FLAG_SIGNALED_BIT, &fence->flags)) {
--			i915_sw_fence_set_error_once(&rq->submit, fence->error);
-+		if (test_bit(DMA_FENCE_FLAG_SIGNALED_BIT, &fence->flags))
- 			continue;
--		}
+ 1. User addresses not accessed by the kernel but used for address space
+    management (e.g. ``mprotect()``, ``madvise()``). The use of valid
+-   tagged pointers in this context is allowed with the exception of
+-   ``brk()``, ``mmap()`` and the ``new_address`` argument to
+-   ``mremap()`` as these have the potential to alias with existing
+-   user addresses.
+-
+-   NOTE: This behaviour changed in v5.6 and so some earlier kernels may
+-   incorrectly accept valid tagged pointers for the ``brk()``,
+-   ``mmap()`` and ``mremap()`` system calls.
++   tagged pointers in this context is allowed with these exceptions:
++
++   - ``brk()``, ``mmap()`` and the ``new_address`` argument to
++     ``mremap()`` as these have the potential to alias with existing
++      user addresses.
++
++     NOTE: This behaviour changed in v5.6 and so some earlier kernels may
++     incorrectly accept valid tagged pointers for the ``brk()``,
++     ``mmap()`` and ``mremap()`` system calls.
++
++   - The ``range.start``, ``start`` and ``dst`` arguments to the
++     ``UFFDIO_*`` ``ioctl()``s used on a file descriptor obtained from
++     ``userfaultfd()``, as fault addresses subsequently obtained by reading
++     the file descriptor will be untagged, which may otherwise confuse
++     tag-unaware programs.
++
++     NOTE: This behaviour changed in v5.14 and so some earlier kernels may
++     incorrectly accept valid tagged pointers for this system call.
  
- 		if (fence->context == rq->fence.context)
- 			continue;
-@@ -1386,10 +1384,8 @@ i915_request_await_dma_fence(struct i915
+ 2. User addresses accessed by the kernel (e.g. ``write()``). This ABI
+    relaxation is disabled by default and the application thread needs to
+--- a/fs/userfaultfd.c
++++ b/fs/userfaultfd.c
+@@ -1236,23 +1236,21 @@ static __always_inline void wake_userfau
+ }
  
- 	do {
- 		fence = *child++;
--		if (test_bit(DMA_FENCE_FLAG_SIGNALED_BIT, &fence->flags)) {
--			i915_sw_fence_set_error_once(&rq->submit, fence->error);
-+		if (test_bit(DMA_FENCE_FLAG_SIGNALED_BIT, &fence->flags))
- 			continue;
--		}
+ static __always_inline int validate_range(struct mm_struct *mm,
+-					  __u64 *start, __u64 len)
++					  __u64 start, __u64 len)
+ {
+ 	__u64 task_size = mm->task_size;
  
- 		/*
- 		 * Requests on the same timeline are explicitly ordered, along
+-	*start = untagged_addr(*start);
+-
+-	if (*start & ~PAGE_MASK)
++	if (start & ~PAGE_MASK)
+ 		return -EINVAL;
+ 	if (len & ~PAGE_MASK)
+ 		return -EINVAL;
+ 	if (!len)
+ 		return -EINVAL;
+-	if (*start < mmap_min_addr)
++	if (start < mmap_min_addr)
+ 		return -EINVAL;
+-	if (*start >= task_size)
++	if (start >= task_size)
+ 		return -EINVAL;
+-	if (len > task_size - *start)
++	if (len > task_size - start)
+ 		return -EINVAL;
+ 	return 0;
+ }
+@@ -1313,7 +1311,7 @@ static int userfaultfd_register(struct u
+ 		vm_flags |= VM_UFFD_MINOR;
+ 	}
+ 
+-	ret = validate_range(mm, &uffdio_register.range.start,
++	ret = validate_range(mm, uffdio_register.range.start,
+ 			     uffdio_register.range.len);
+ 	if (ret)
+ 		goto out;
+@@ -1519,7 +1517,7 @@ static int userfaultfd_unregister(struct
+ 	if (copy_from_user(&uffdio_unregister, buf, sizeof(uffdio_unregister)))
+ 		goto out;
+ 
+-	ret = validate_range(mm, &uffdio_unregister.start,
++	ret = validate_range(mm, uffdio_unregister.start,
+ 			     uffdio_unregister.len);
+ 	if (ret)
+ 		goto out;
+@@ -1668,7 +1666,7 @@ static int userfaultfd_wake(struct userf
+ 	if (copy_from_user(&uffdio_wake, buf, sizeof(uffdio_wake)))
+ 		goto out;
+ 
+-	ret = validate_range(ctx->mm, &uffdio_wake.start, uffdio_wake.len);
++	ret = validate_range(ctx->mm, uffdio_wake.start, uffdio_wake.len);
+ 	if (ret)
+ 		goto out;
+ 
+@@ -1708,7 +1706,7 @@ static int userfaultfd_copy(struct userf
+ 			   sizeof(uffdio_copy)-sizeof(__s64)))
+ 		goto out;
+ 
+-	ret = validate_range(ctx->mm, &uffdio_copy.dst, uffdio_copy.len);
++	ret = validate_range(ctx->mm, uffdio_copy.dst, uffdio_copy.len);
+ 	if (ret)
+ 		goto out;
+ 	/*
+@@ -1765,7 +1763,7 @@ static int userfaultfd_zeropage(struct u
+ 			   sizeof(uffdio_zeropage)-sizeof(__s64)))
+ 		goto out;
+ 
+-	ret = validate_range(ctx->mm, &uffdio_zeropage.range.start,
++	ret = validate_range(ctx->mm, uffdio_zeropage.range.start,
+ 			     uffdio_zeropage.range.len);
+ 	if (ret)
+ 		goto out;
+@@ -1815,7 +1813,7 @@ static int userfaultfd_writeprotect(stru
+ 			   sizeof(struct uffdio_writeprotect)))
+ 		return -EFAULT;
+ 
+-	ret = validate_range(ctx->mm, &uffdio_wp.range.start,
++	ret = validate_range(ctx->mm, uffdio_wp.range.start,
+ 			     uffdio_wp.range.len);
+ 	if (ret)
+ 		return ret;
+@@ -1863,7 +1861,7 @@ static int userfaultfd_continue(struct u
+ 			   sizeof(uffdio_continue) - (sizeof(__s64))))
+ 		goto out;
+ 
+-	ret = validate_range(ctx->mm, &uffdio_continue.range.start,
++	ret = validate_range(ctx->mm, uffdio_continue.range.start,
+ 			     uffdio_continue.range.len);
+ 	if (ret)
+ 		goto out;
 
 
