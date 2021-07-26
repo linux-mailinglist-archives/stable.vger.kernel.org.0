@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8437C3D5D42
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:41:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CDA683D5F44
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235253AbhGZPAW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:00:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38782 "EHLO mail.kernel.org"
+        id S236623AbhGZPRY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:17:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235247AbhGZPAV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:00:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 126A360F38;
-        Mon, 26 Jul 2021 15:40:48 +0000 (UTC)
+        id S237467AbhGZPPs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:15:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 474E86109D;
+        Mon, 26 Jul 2021 15:55:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314049;
-        bh=DGfMhS/QxUCb1nUGcjN26KHROobYUPCysiMp5HZkqLc=;
+        s=korg; t=1627314952;
+        bh=cPWriWZAO0tQyG/41GfIUBf1wHgeXjbBFrt3cmN50O8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AQvBgxrVwsBHAFowLVRBFDWymJvWr9Ygf5ZZmeYvCgx48VYPgHuqNllP/YvjkDvhw
-         N6uR39aemjcD1VEvv8b8077NGb5690iLOVtnhiWgpEbITJZXLnnIgLudQg28G+1hRW
-         DV4RoBgugPG/epLmNAEDCSx0iEcsmNS0tU/kwuL8=
+        b=aUrhmuDUU+QrtuPZX361j4hol60IPNNKooMottlvdJl2FCAXzH3RdoN/SpCHDQyLR
+         Ed/sv+GmLP81Qv/v/+yRzD5+VrTSzwxSXdyeL6KimTi0ITz+QVM4ztMhM9mYNTaP0H
+         LvBPUZ8hkZ9bkbX3Limx64TxeG74gPkjQuJaFpas=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 15/47] net: validate lwtstate->data before returning from skb_tunnel_info()
+        stable@vger.kernel.org,
+        Amelie Delaunay <amelie.delaunay@foss.st.com>,
+        Alain Volmat <alain.volmat@foss.st.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 032/108] spi: stm32: fixes pm_runtime calls in probe/remove
 Date:   Mon, 26 Jul 2021 17:38:33 +0200
-Message-Id: <20210726153823.463007647@linuxfoundation.org>
+Message-Id: <20210726153832.723832249@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153822.980271128@linuxfoundation.org>
-References: <20210726153822.980271128@linuxfoundation.org>
+In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
+References: <20210726153831.696295003@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,62 +42,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: Alain Volmat <alain.volmat@foss.st.com>
 
-commit 67a9c94317402b826fc3db32afc8f39336803d97 upstream.
+[ Upstream commit 7999d2555c9f879d006ea8469d74db9cdb038af0 ]
 
-skb_tunnel_info() returns pointer of lwtstate->data as ip_tunnel_info
-type without validation. lwtstate->data can have various types such as
-mpls_iptunnel_encap, etc and these are not compatible.
-So skb_tunnel_info() should validate before returning that pointer.
+Add pm_runtime calls in probe/probe error path and remove
+in order to be consistent in all places in ordering and
+ensure that pm_runtime is disabled prior to resources used
+by the SPI controller.
 
-Splat looks like:
-BUG: KASAN: slab-out-of-bounds in vxlan_get_route+0x418/0x4b0 [vxlan]
-Read of size 2 at addr ffff888106ec2698 by task ping/811
+This patch also fixes the 2 following warnings on driver remove:
+WARNING: CPU: 0 PID: 743 at drivers/clk/clk.c:594 clk_core_disable_lock+0x18/0x24
+WARNING: CPU: 0 PID: 743 at drivers/clk/clk.c:476 clk_unprepare+0x24/0x2c
 
-CPU: 1 PID: 811 Comm: ping Not tainted 5.13.0+ #1195
-Call Trace:
- dump_stack_lvl+0x56/0x7b
- print_address_description.constprop.8.cold.13+0x13/0x2ee
- ? vxlan_get_route+0x418/0x4b0 [vxlan]
- ? vxlan_get_route+0x418/0x4b0 [vxlan]
- kasan_report.cold.14+0x83/0xdf
- ? vxlan_get_route+0x418/0x4b0 [vxlan]
- vxlan_get_route+0x418/0x4b0 [vxlan]
- [ ... ]
- vxlan_xmit_one+0x148b/0x32b0 [vxlan]
- [ ... ]
- vxlan_xmit+0x25c5/0x4780 [vxlan]
- [ ... ]
- dev_hard_start_xmit+0x1ae/0x6e0
- __dev_queue_xmit+0x1f39/0x31a0
- [ ... ]
- neigh_xmit+0x2f9/0x940
- mpls_xmit+0x911/0x1600 [mpls_iptunnel]
- lwtunnel_xmit+0x18f/0x450
- ip_finish_output2+0x867/0x2040
- [ ... ]
+Fixes: 038ac869c9d2 ("spi: stm32: add runtime PM support")
 
-Fixes: 61adedf3e3f1 ("route: move lwtunnel state to dst_entry")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
+Signed-off-by: Alain Volmat <alain.volmat@foss.st.com>
+Link: https://lore.kernel.org/r/1625646426-5826-2-git-send-email-alain.volmat@foss.st.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/dst_metadata.h |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/spi/spi-stm32.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/include/net/dst_metadata.h
-+++ b/include/net/dst_metadata.h
-@@ -31,7 +31,9 @@ static inline struct ip_tunnel_info *skb
- 		return &md_dst->u.tun_info;
+diff --git a/drivers/spi/spi-stm32.c b/drivers/spi/spi-stm32.c
+index 8c308279c535..e9d48e94f5ed 100644
+--- a/drivers/spi/spi-stm32.c
++++ b/drivers/spi/spi-stm32.c
+@@ -1936,6 +1936,7 @@ static int stm32_spi_probe(struct platform_device *pdev)
+ 		master->can_dma = stm32_spi_can_dma;
  
- 	dst = skb_dst(skb);
--	if (dst && dst->lwtstate)
-+	if (dst && dst->lwtstate &&
-+	    (dst->lwtstate->type == LWTUNNEL_ENCAP_IP ||
-+	     dst->lwtstate->type == LWTUNNEL_ENCAP_IP6))
- 		return lwt_tun_info(dst->lwtstate);
+ 	pm_runtime_set_active(&pdev->dev);
++	pm_runtime_get_noresume(&pdev->dev);
+ 	pm_runtime_enable(&pdev->dev);
  
- 	return NULL;
+ 	ret = spi_register_master(master);
+@@ -1974,6 +1975,8 @@ static int stm32_spi_probe(struct platform_device *pdev)
+ 
+ err_pm_disable:
+ 	pm_runtime_disable(&pdev->dev);
++	pm_runtime_put_noidle(&pdev->dev);
++	pm_runtime_set_suspended(&pdev->dev);
+ err_dma_release:
+ 	if (spi->dma_tx)
+ 		dma_release_channel(spi->dma_tx);
+@@ -1992,9 +1995,14 @@ static int stm32_spi_remove(struct platform_device *pdev)
+ 	struct spi_master *master = platform_get_drvdata(pdev);
+ 	struct stm32_spi *spi = spi_master_get_devdata(master);
+ 
++	pm_runtime_get_sync(&pdev->dev);
++
+ 	spi_unregister_master(master);
+ 	spi->cfg->disable(spi);
+ 
++	pm_runtime_disable(&pdev->dev);
++	pm_runtime_put_noidle(&pdev->dev);
++	pm_runtime_set_suspended(&pdev->dev);
+ 	if (master->dma_tx)
+ 		dma_release_channel(master->dma_tx);
+ 	if (master->dma_rx)
+@@ -2002,7 +2010,6 @@ static int stm32_spi_remove(struct platform_device *pdev)
+ 
+ 	clk_disable_unprepare(spi->clk);
+ 
+-	pm_runtime_disable(&pdev->dev);
+ 
+ 	pinctrl_pm_select_sleep_state(&pdev->dev);
+ 
+-- 
+2.30.2
+
 
 
