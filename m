@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D6F23D5FCA
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F03BB3D5F31
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236712AbhGZPTN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:19:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59174 "EHLO mail.kernel.org"
+        id S236195AbhGZPRL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:17:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52972 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235613AbhGZPSa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:18:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C3FFA60F38;
-        Mon, 26 Jul 2021 15:58:56 +0000 (UTC)
+        id S236873AbhGZPPn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:15:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3232661009;
+        Mon, 26 Jul 2021 15:54:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315137;
-        bh=3IzLbQtT/GZor5djkXTPMflKqZZ6jTv9+qK6dFUj/vw=;
+        s=korg; t=1627314861;
+        bh=we83vfffxmKnXEF1YZVOA5Rq+qLo9e2+1/ii1f5isxA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aNjXXaT6Il++zAR3mZmczK0VTvHAHn6srFblv0lHx4XMqb09iQ4iwWujWsjKPOrTV
-         urFXq7ARJCSnR1FxP4Q0qn7Q19YTb+8aCjE4fQY81gbgBz+/YcM7nz5A40aWw5p6C2
-         L2bMn4kEFMJ4QTVYf9UojCHOPSJoccBDnWOuJvJk=
+        b=zKhms89cWkejtpms0XdacUio+bzQdHxP8TP7JG/LySddP6HSe9NHpZSwlKDZSKXHz
+         bx3JvsiqgcrwzHiL+w4IA+3xuf32gTTG7Qaqf+OFU/pj27ZXsPOxJve9/DBjoOaO85
+         2YwdcfTTESKYJE3oGd3TQJ1uemkFtx8bt5Wgfrv0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Namhyung Kim <namhyung@kernel.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Tom Zanussi <zanussi@kernel.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.4 089/108] tracing/histogram: Rename "cpu" to "common_cpu"
-Date:   Mon, 26 Jul 2021 17:39:30 +0200
-Message-Id: <20210726153834.535756781@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Vladimir Oltean <olteanv@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.19 119/120] spi: spi-fsl-dspi: Fix a resource leak in an error handling path
+Date:   Mon, 26 Jul 2021 17:39:31 +0200
+Message-Id: <20210726153836.293564953@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
-References: <20210726153831.696295003@linuxfoundation.org>
+In-Reply-To: <20210726153832.339431936@linuxfoundation.org>
+References: <20210726153832.339431936@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,152 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit 1e3bac71c5053c99d438771fc9fa5082ae5d90aa upstream.
+commit 680ec0549a055eb464dce6ffb4bfb736ef87236e upstream
 
-Currently the histogram logic allows the user to write "cpu" in as an
-event field, and it will record the CPU that the event happened on.
+'dspi_request_dma()' should be undone by a 'dspi_release_dma()' call in the
+error handling path of the probe function, as already done in the remove
+function
 
-The problem with this is that there's a lot of events that have "cpu"
-as a real field, and using "cpu" as the CPU it ran on, makes it
-impossible to run histograms on the "cpu" field of events.
-
-For example, if I want to have a histogram on the count of the
-workqueue_queue_work event on its cpu field, running:
-
- ># echo 'hist:keys=cpu' > events/workqueue/workqueue_queue_work/trigger
-
-Gives a misleading and wrong result.
-
-Change the command to "common_cpu" as no event should have "common_*"
-fields as that's a reserved name for fields used by all events. And
-this makes sense here as common_cpu would be a field used by all events.
-
-Now we can even do:
-
- ># echo 'hist:keys=common_cpu,cpu if cpu < 100' > events/workqueue/workqueue_queue_work/trigger
- ># cat events/workqueue/workqueue_queue_work/hist
- # event histogram
- #
- # trigger info: hist:keys=common_cpu,cpu:vals=hitcount:sort=hitcount:size=2048 if cpu < 100 [active]
- #
-
- { common_cpu:          0, cpu:          2 } hitcount:          1
- { common_cpu:          0, cpu:          4 } hitcount:          1
- { common_cpu:          7, cpu:          7 } hitcount:          1
- { common_cpu:          0, cpu:          7 } hitcount:          1
- { common_cpu:          0, cpu:          1 } hitcount:          1
- { common_cpu:          0, cpu:          6 } hitcount:          2
- { common_cpu:          0, cpu:          5 } hitcount:          2
- { common_cpu:          1, cpu:          1 } hitcount:          4
- { common_cpu:          6, cpu:          6 } hitcount:          4
- { common_cpu:          5, cpu:          5 } hitcount:         14
- { common_cpu:          4, cpu:          4 } hitcount:         26
- { common_cpu:          0, cpu:          0 } hitcount:         39
- { common_cpu:          2, cpu:          2 } hitcount:        184
-
-Now for backward compatibility, I added a trick. If "cpu" is used, and
-the field is not found, it will fall back to "common_cpu" and work as
-it did before. This way, it will still work for old programs that use
-"cpu" to get the actual CPU, but if the event has a "cpu" as a field, it
-will get that event's "cpu" field, which is probably what it wants
-anyway.
-
-I updated the tracefs/README to include documentation about both the
-common_timestamp and the common_cpu. This way, if that text is present in
-the README, then an application can know that common_cpu is supported over
-just plain "cpu".
-
-Link: https://lkml.kernel.org/r/20210721110053.26b4f641@oasis.local.home
-
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: stable@vger.kernel.org
-Fixes: 8b7622bf94a44 ("tracing: Add cpu field for hist triggers")
-Reviewed-by: Tom Zanussi <zanussi@kernel.org>
-Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Fixes: 90ba37033cb9 ("spi: spi-fsl-dspi: Add DMA support for Vybrid")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
+Link: https://lore.kernel.org/r/d51caaac747277a1099ba8dea07acd85435b857e.1620587472.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Mark Brown <broonie@kernel.org>
+[sudip: adjust context]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/trace/histogram.rst |    2 +-
- kernel/trace/trace.c              |    4 ++++
- kernel/trace/trace_events_hist.c  |   22 ++++++++++++++++------
- 3 files changed, 21 insertions(+), 7 deletions(-)
+ drivers/spi/spi-fsl-dspi.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/Documentation/trace/histogram.rst
-+++ b/Documentation/trace/histogram.rst
-@@ -191,7 +191,7 @@ Documentation written by Tom Zanussi
-                                 with the event, in nanoseconds.  May be
- 			        modified by .usecs to have timestamps
- 			        interpreted as microseconds.
--    cpu                    int  the cpu on which the event occurred.
-+    common_cpu             int  the cpu on which the event occurred.
-     ====================== ==== =======================================
- 
- Extended error information
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -4975,6 +4975,10 @@ static const char readme_msg[] =
- 	"\t            [:name=histname1]\n"
- 	"\t            [:<handler>.<action>]\n"
- 	"\t            [if <filter>]\n\n"
-+	"\t    Note, special fields can be used as well:\n"
-+	"\t            common_timestamp - to record current timestamp\n"
-+	"\t            common_cpu - to record the CPU the event happened on\n"
-+	"\n"
- 	"\t    When a matching event is hit, an entry is added to a hash\n"
- 	"\t    table using the key(s) and value(s) named, and the value of a\n"
- 	"\t    sum called 'hitcount' is incremented.  Keys and values\n"
---- a/kernel/trace/trace_events_hist.c
-+++ b/kernel/trace/trace_events_hist.c
-@@ -2001,7 +2001,7 @@ static const char *hist_field_name(struc
- 		 field->flags & HIST_FIELD_FL_ALIAS)
- 		field_name = hist_field_name(field->operands[0], ++level);
- 	else if (field->flags & HIST_FIELD_FL_CPU)
--		field_name = "cpu";
-+		field_name = "common_cpu";
- 	else if (field->flags & HIST_FIELD_FL_EXPR ||
- 		 field->flags & HIST_FIELD_FL_VAR_REF) {
- 		if (field->system) {
-@@ -2873,14 +2873,24 @@ parse_field(struct hist_trigger_data *hi
- 		hist_data->enable_timestamps = true;
- 		if (*flags & HIST_FIELD_FL_TIMESTAMP_USECS)
- 			hist_data->attrs->ts_in_usecs = true;
--	} else if (strcmp(field_name, "cpu") == 0)
-+	} else if (strcmp(field_name, "common_cpu") == 0)
- 		*flags |= HIST_FIELD_FL_CPU;
- 	else {
- 		field = trace_find_event_field(file->event_call, field_name);
- 		if (!field || !field->size) {
--			hist_err(tr, HIST_ERR_FIELD_NOT_FOUND, errpos(field_name));
--			field = ERR_PTR(-EINVAL);
--			goto out;
-+			/*
-+			 * For backward compatibility, if field_name
-+			 * was "cpu", then we treat this the same as
-+			 * common_cpu.
-+			 */
-+			if (strcmp(field_name, "cpu") == 0) {
-+				*flags |= HIST_FIELD_FL_CPU;
-+			} else {
-+				hist_err(tr, HIST_ERR_FIELD_NOT_FOUND,
-+					 errpos(field_name));
-+				field = ERR_PTR(-EINVAL);
-+				goto out;
-+			}
- 		}
+--- a/drivers/spi/spi-fsl-dspi.c
++++ b/drivers/spi/spi-fsl-dspi.c
+@@ -1124,11 +1124,13 @@ static int dspi_probe(struct platform_de
+ 	ret = spi_register_master(master);
+ 	if (ret != 0) {
+ 		dev_err(&pdev->dev, "Problem registering DSPI master\n");
+-		goto out_free_irq;
++		goto out_release_dma;
  	}
-  out:
-@@ -5641,7 +5651,7 @@ static void hist_field_print(struct seq_
- 		seq_printf(m, "%s=", hist_field->var.name);
  
- 	if (hist_field->flags & HIST_FIELD_FL_CPU)
--		seq_puts(m, "cpu");
-+		seq_puts(m, "common_cpu");
- 	else if (field_name) {
- 		if (hist_field->flags & HIST_FIELD_FL_VAR_REF ||
- 		    hist_field->flags & HIST_FIELD_FL_ALIAS)
+ 	return ret;
+ 
++out_release_dma:
++	dspi_release_dma(dspi);
+ out_free_irq:
+ 	if (dspi->irq)
+ 		free_irq(dspi->irq, dspi);
 
 
