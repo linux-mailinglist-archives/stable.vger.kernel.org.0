@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 603ED3D5F9F
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 560553D5D6F
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:42:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236345AbhGZPSf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:18:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56140 "EHLO mail.kernel.org"
+        id S235549AbhGZPBZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:01:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235942AbhGZPQe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:16:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 172F56056C;
-        Mon, 26 Jul 2021 15:57:01 +0000 (UTC)
+        id S235376AbhGZPBY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:01:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1321060F37;
+        Mon, 26 Jul 2021 15:41:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315022;
-        bh=gdm/LVcApSe7GDq+qCyDj3dgA/XNkKLCL/3++fFySXY=;
+        s=korg; t=1627314113;
+        bh=GbOe5nLAvF/9W+HikZFDgRh0jNiyC0ZMZ7uVQnd7KUI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AT6tBvIrSfgU1wk2WEyWnYG7MbD0roDk7S4BPrOYHBsHu4/83IDTCTaX2F7zPeHyL
-         V19M3ual+MUPz6nrBBW9uv3gt/9F9WQa3k67RspcJOFffxqmFqdtlXMUTAvMXZ8RjB
-         QI2ebF/PVUIcYlph+VR13WTGUv2bSiDqHIXB2gdw=
+        b=zLL1Yr83nuCETqbNu2Cm2tm1hDbqupfx2vnawO4q6gnqQCD/RXvJeX6JfrPfcSNDg
+         JuXWZrFy7jNiFaHA0SmT93nF2NEHcVCEYKXVTy1HX8hSmIfgZBwBpT6499zaPf0vqS
+         vMEob8/o/fs6OkztjQiFS0CbctomC0RA+sv/svig=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Vineet Gupta <vgupta@synopsys.com>,
-        Jiangfeng Xiao <xiaojiangfeng@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 055/108] net: hisilicon: rename CACHE_LINE_MASK to avoid redefinition
+        stable@vger.kernel.org,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Subject: [PATCH 4.4 38/47] usb: renesas_usbhs: Fix superfluous irqs happen after usb_pkt_pop()
 Date:   Mon, 26 Jul 2021 17:38:56 +0200
-Message-Id: <20210726153833.445127418@linuxfoundation.org>
+Message-Id: <20210726153824.179064630@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
-References: <20210726153831.696295003@linuxfoundation.org>
+In-Reply-To: <20210726153822.980271128@linuxfoundation.org>
+References: <20210726153822.980271128@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,62 +39,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 
-[ Upstream commit b16f3299ae1aa3c327e1fb742d0379ae4d6e86f2 ]
+commit 5719df243e118fb343725e8b2afb1637e1af1373 upstream.
 
-Building on ARCH=arc causes a "redefined" warning, so rename this
-driver's CACHE_LINE_MASK to avoid the warning.
+This driver has a potential issue which this driver is possible to
+cause superfluous irqs after usb_pkt_pop() is called. So, after
+the commit 3af32605289e ("usb: renesas_usbhs: fix error return
+code of usbhsf_pkt_handler()") had been applied, we could observe
+the following error happened when we used g_audio.
 
-../drivers/net/ethernet/hisilicon/hip04_eth.c:134: warning: "CACHE_LINE_MASK" redefined
-  134 | #define CACHE_LINE_MASK   0x3F
-In file included from ../include/linux/cache.h:6,
-                 from ../include/linux/printk.h:9,
-                 from ../include/linux/kernel.h:19,
-                 from ../include/linux/list.h:9,
-                 from ../include/linux/module.h:12,
-                 from ../drivers/net/ethernet/hisilicon/hip04_eth.c:7:
-../arch/arc/include/asm/cache.h:17: note: this is the location of the previous definition
-   17 | #define CACHE_LINE_MASK  (~(L1_CACHE_BYTES - 1))
+    renesas_usbhs e6590000.usb: irq_ready run_error 1 : -22
 
-Fixes: d413779cdd93 ("net: hisilicon: Add an tx_desc to adapt HI13X1_GMAC")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Vineet Gupta <vgupta@synopsys.com>
-Cc: Jiangfeng Xiao <xiaojiangfeng@huawei.com>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+To fix the issue, disable the tx or rx interrupt in usb_pkt_pop().
+
+Fixes: 2743e7f90dc0 ("usb: renesas_usbhs: fix the usb_pkt_pop()")
+Cc: <stable@vger.kernel.org> # v4.4+
+Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Link: https://lore.kernel.org/r/20210624122039.596528-1-yoshihiro.shimoda.uh@renesas.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/hisilicon/hip04_eth.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/usb/renesas_usbhs/fifo.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/net/ethernet/hisilicon/hip04_eth.c b/drivers/net/ethernet/hisilicon/hip04_eth.c
-index 2ffe035e96d6..b5eae06dd870 100644
---- a/drivers/net/ethernet/hisilicon/hip04_eth.c
-+++ b/drivers/net/ethernet/hisilicon/hip04_eth.c
-@@ -131,7 +131,7 @@
- /* buf unit size is cache_line_size, which is 64, so the shift is 6 */
- #define PPE_BUF_SIZE_SHIFT		6
- #define PPE_TX_BUF_HOLD			BIT(31)
--#define CACHE_LINE_MASK			0x3F
-+#define SOC_CACHE_LINE_MASK		0x3F
- #else
- #define PPE_CFG_QOS_VMID_GRP_SHIFT	8
- #define PPE_CFG_RX_CTRL_ALIGN_SHIFT	11
-@@ -531,8 +531,8 @@ hip04_mac_start_xmit(struct sk_buff *skb, struct net_device *ndev)
- #if defined(CONFIG_HI13X1_GMAC)
- 	desc->cfg = (__force u32)cpu_to_be32(TX_CLEAR_WB | TX_FINISH_CACHE_INV
- 		| TX_RELEASE_TO_PPE | priv->port << TX_POOL_SHIFT);
--	desc->data_offset = (__force u32)cpu_to_be32(phys & CACHE_LINE_MASK);
--	desc->send_addr =  (__force u32)cpu_to_be32(phys & ~CACHE_LINE_MASK);
-+	desc->data_offset = (__force u32)cpu_to_be32(phys & SOC_CACHE_LINE_MASK);
-+	desc->send_addr =  (__force u32)cpu_to_be32(phys & ~SOC_CACHE_LINE_MASK);
- #else
- 	desc->cfg = (__force u32)cpu_to_be32(TX_CLEAR_WB | TX_FINISH_CACHE_INV);
- 	desc->send_addr = (__force u32)cpu_to_be32(phys);
--- 
-2.30.2
-
+--- a/drivers/usb/renesas_usbhs/fifo.c
++++ b/drivers/usb/renesas_usbhs/fifo.c
+@@ -115,6 +115,8 @@ static struct dma_chan *usbhsf_dma_chan_
+ #define usbhsf_dma_map(p)	__usbhsf_dma_map_ctrl(p, 1)
+ #define usbhsf_dma_unmap(p)	__usbhsf_dma_map_ctrl(p, 0)
+ static int __usbhsf_dma_map_ctrl(struct usbhs_pkt *pkt, int map);
++static void usbhsf_tx_irq_ctrl(struct usbhs_pipe *pipe, int enable);
++static void usbhsf_rx_irq_ctrl(struct usbhs_pipe *pipe, int enable);
+ struct usbhs_pkt *usbhs_pkt_pop(struct usbhs_pipe *pipe, struct usbhs_pkt *pkt)
+ {
+ 	struct usbhs_priv *priv = usbhs_pipe_to_priv(pipe);
+@@ -138,6 +140,11 @@ struct usbhs_pkt *usbhs_pkt_pop(struct u
+ 			dmaengine_terminate_all(chan);
+ 			usbhsf_fifo_clear(pipe, fifo);
+ 			usbhsf_dma_unmap(pkt);
++		} else {
++			if (usbhs_pipe_is_dir_in(pipe))
++				usbhsf_rx_irq_ctrl(pipe, 0);
++			else
++				usbhsf_tx_irq_ctrl(pipe, 0);
+ 		}
+ 
+ 		usbhs_pipe_running(pipe, 0);
 
 
