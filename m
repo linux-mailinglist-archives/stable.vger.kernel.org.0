@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2148A3D5E5B
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:51:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1939F3D5F24
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235979AbhGZPHO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:07:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47774 "EHLO mail.kernel.org"
+        id S236457AbhGZPQz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:16:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235762AbhGZPGl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:06:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A48C160F8F;
-        Mon, 26 Jul 2021 15:47:08 +0000 (UTC)
+        id S236864AbhGZPPl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:15:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 85B3D60FEB;
+        Mon, 26 Jul 2021 15:53:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314429;
-        bh=aJcJ10TLmqHJfpQYmWj+uIqqZLuPUFhpimqjLGIrdfo=;
+        s=korg; t=1627314829;
+        bh=5+cmeG2IgY/yCrm92xeczh+uJj71mqrquauPWx8TM1I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gCxe003JbaVn2cl01mLH9rHP9pNHdpmgcLUdVoLlNXpv2iZPRXx6tKYCCAF7VYddX
-         zHjKTYwvfV/ATkxHIAPkVqcUDZRERMop9Rz68ZIYWLIztDrS0V+eyQY5FD7YIHEaj2
-         +t3wEpQxxGHz0F3oi1lGCDJx69reYViEvZIa+yH8=
+        b=GFD+9c0AAsMdlT0apSEo62tKtZyad2rLKVOkCns0x12l4TKMu9RasqWMP6xEsZja+
+         g9t5W31WA0zyTBA/dVJMFnvIrDXFFmK8bnlrYLqD2XFXK8ypik3R3zqkxHBXZI5MqN
+         jtlSr0GppUnkF3c2L6l+fRF0+xIKU/4MLvCCwNnw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Riccardo Mancini <rickyman7@gmail.com>,
-        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
-        Krister Johansen <kjlx@templeofstupid.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Peter Hess <peter.hess@ph-home.de>,
+        Frank Wunderlich <frank-w@public-files.de>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 43/82] perf probe: Fix dso->nsinfo refcounting
+Subject: [PATCH 4.19 071/120] spi: mediatek: fix fifo rx mode
 Date:   Mon, 26 Jul 2021 17:38:43 +0200
-Message-Id: <20210726153829.564982150@linuxfoundation.org>
+Message-Id: <20210726153834.668593486@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153828.144714469@linuxfoundation.org>
-References: <20210726153828.144714469@linuxfoundation.org>
+In-Reply-To: <20210726153832.339431936@linuxfoundation.org>
+References: <20210726153832.339431936@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,52 +41,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Riccardo Mancini <rickyman7@gmail.com>
+From: Peter Hess <peter.hess@ph-home.de>
 
-[ Upstream commit dedeb4be203b382ba7245d13079bc3b0f6d40c65 ]
+[ Upstream commit 3a70dd2d050331ee4cf5ad9d5c0a32d83ead9a43 ]
 
-ASan reports a memory leak of nsinfo during the execution of:
+In FIFO mode were two problems:
+- RX mode was never handled and
+- in this case the tx_buf pointer was NULL and caused an exception
 
- # perf test "31: Lookup mmap thread".
+fix this by handling RX mode in mtk_spi_fifo_transfer
 
-The leak is caused by a refcounted variable being replaced without
-dropping the refcount.
-
-This patch makes sure that the refcnt of nsinfo is decreased whenever
-a refcounted variable is replaced with a new value.
-
-Signed-off-by: Riccardo Mancini <rickyman7@gmail.com>
-Fixes: 544abd44c7064c8a ("perf probe: Allow placing uprobes in alternate namespaces.")
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Krister Johansen <kjlx@templeofstupid.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/55223bc8821b34ccb01f92ef1401c02b6a32e61f.1626343282.git.rickyman7@gmail.com
-[ Split from a larger patch ]
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: a568231f4632 ("spi: mediatek: Add spi bus for Mediatek MT8173")
+Signed-off-by: Peter Hess <peter.hess@ph-home.de>
+Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
+Link: https://lore.kernel.org/r/20210706121609.680534-1-linux@fw-web.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/probe-event.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/spi/spi-mt65xx.c | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
-diff --git a/tools/perf/util/probe-event.c b/tools/perf/util/probe-event.c
-index 7c286756c34b..a0597e417ca3 100644
---- a/tools/perf/util/probe-event.c
-+++ b/tools/perf/util/probe-event.c
-@@ -197,8 +197,10 @@ struct map *get_target_map(const char *target, struct nsinfo *nsi, bool user)
- 		struct map *map;
+diff --git a/drivers/spi/spi-mt65xx.c b/drivers/spi/spi-mt65xx.c
+index da28c52c9da1..e2b171057b3b 100644
+--- a/drivers/spi/spi-mt65xx.c
++++ b/drivers/spi/spi-mt65xx.c
+@@ -392,13 +392,23 @@ static int mtk_spi_fifo_transfer(struct spi_master *master,
+ 	mtk_spi_setup_packet(master);
  
- 		map = dso__new_map(target);
--		if (map && map->dso)
-+		if (map && map->dso) {
-+			nsinfo__put(map->dso->nsinfo);
- 			map->dso->nsinfo = nsinfo__get(nsi);
+ 	cnt = xfer->len / 4;
+-	iowrite32_rep(mdata->base + SPI_TX_DATA_REG, xfer->tx_buf, cnt);
++	if (xfer->tx_buf)
++		iowrite32_rep(mdata->base + SPI_TX_DATA_REG, xfer->tx_buf, cnt);
++
++	if (xfer->rx_buf)
++		ioread32_rep(mdata->base + SPI_RX_DATA_REG, xfer->rx_buf, cnt);
+ 
+ 	remainder = xfer->len % 4;
+ 	if (remainder > 0) {
+ 		reg_val = 0;
+-		memcpy(&reg_val, xfer->tx_buf + (cnt * 4), remainder);
+-		writel(reg_val, mdata->base + SPI_TX_DATA_REG);
++		if (xfer->tx_buf) {
++			memcpy(&reg_val, xfer->tx_buf + (cnt * 4), remainder);
++			writel(reg_val, mdata->base + SPI_TX_DATA_REG);
 +		}
- 		return map;
- 	} else {
- 		return kernel_get_module_map(target);
++		if (xfer->rx_buf) {
++			reg_val = readl(mdata->base + SPI_RX_DATA_REG);
++			memcpy(xfer->rx_buf + (cnt * 4), &reg_val, remainder);
++		}
+ 	}
+ 
+ 	mtk_spi_enable_transfer(master);
 -- 
 2.30.2
 
