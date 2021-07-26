@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 52FCD3D6078
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:11:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0930A3D6187
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:14:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237343AbhGZPW3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:22:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37148 "EHLO mail.kernel.org"
+        id S233258AbhGZPcO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:32:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45050 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237329AbhGZPW2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:22:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A14D60E09;
-        Mon, 26 Jul 2021 16:02:56 +0000 (UTC)
+        id S238136AbhGZP3u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:29:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 615AC60240;
+        Mon, 26 Jul 2021 16:10:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315377;
-        bh=/yzQmVErl1HY6Ct8foV+D5Df/ghR0Ctmt50hyioTeLU=;
+        s=korg; t=1627315818;
+        bh=KQBIvWw5YEEKzswPulW/87FGiBPzOznHMPU68F6m9Ds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1Qr+q3B62iHHrZDq/84tiQcWnhJUc4eWZH56/zoA/YCrfNoTknhZ69fDejOhAVKtc
-         uaowEX5LP1Rz8H8hHdaA/ljmYmskTfG5vvhixUf8R+H52MaEorcmIGJVB7GgEpjMCs
-         nsGb2vwxYZUPAU6045/8MsUFK9nwP/Hhm5sYAtxA=
+        b=QsRkjCOOKbDIeVKE3ocO17DMFIIaPgEk46ToCQYMnpdCACVWajSu8QDqNmaUjkno9
+         M7wIgnApBmXwtOr+traeiJ6EZ58FisbxOIAAmUR4ADdrzGNdPf3JIEdjpMSfVXWtv/
+         YH0sRey9czqQP94Sj9AcVDTwp+n1XZfHA8UledpY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Riccardo Mancini <rickyman7@gmail.com>,
-        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 038/167] perf test event_update: Fix memory leak of evlist
-Date:   Mon, 26 Jul 2021 17:37:51 +0200
-Message-Id: <20210726153840.666182126@linuxfoundation.org>
+Subject: [PATCH 5.13 080/223] liquidio: Fix unintentional sign extension issue on left shift of u16
+Date:   Mon, 26 Jul 2021 17:37:52 +0200
+Message-Id: <20210726153848.867295749@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
-References: <20210726153839.371771838@linuxfoundation.org>
+In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
+References: <20210726153846.245305071@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Riccardo Mancini <rickyman7@gmail.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit fc56f54f6fcd5337634f4545af6459613129b432 ]
+[ Upstream commit e7efc2ce3d0789cd7c21b70ff00cd7838d382639 ]
 
-ASan reports a memory leak when running:
+Shifting the u16 integer oct->pcie_port by CN23XX_PKT_INPUT_CTL_MAC_NUM_POS
+(29) bits will be promoted to a 32 bit signed int and then sign-extended
+to a u64. In the cases where oct->pcie_port where bit 2 is set (e.g. 3..7)
+the shifted value will be sign extended and the top 32 bits of the result
+will be set.
 
-  # perf test "49: Synthesize attr update"
+Fix this by casting the u16 values to a u64 before the 29 bit left shift.
 
-Caused by evlist not being deleted.
+Addresses-Coverity: ("Unintended sign extension")
 
-This patch adds the missing evlist__delete and removes the
-perf_cpu_map__put since it's already being deleted by evlist__delete.
-
-Signed-off-by: Riccardo Mancini <rickyman7@gmail.com>
-Fixes: a6e5281780d1da65 ("perf tools: Add event_update event unit type")
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/f7994ad63d248f7645f901132d208fadf9f2b7e4.1626343282.git.rickyman7@gmail.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 3451b97cce2d ("liquidio: CN23XX register setup")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/tests/event_update.c | 2 +-
+ drivers/net/ethernet/cavium/liquidio/cn23xx_pf_device.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/perf/tests/event_update.c b/tools/perf/tests/event_update.c
-index bdcf032f8516..1c9a6138fba1 100644
---- a/tools/perf/tests/event_update.c
-+++ b/tools/perf/tests/event_update.c
-@@ -119,6 +119,6 @@ int test__event_update(struct test *test __maybe_unused, int subtest __maybe_unu
- 	TEST_ASSERT_VAL("failed to synthesize attr update cpus",
- 			!perf_event__synthesize_event_update_cpus(&tmp.tool, evsel, process_event_cpus));
+diff --git a/drivers/net/ethernet/cavium/liquidio/cn23xx_pf_device.c b/drivers/net/ethernet/cavium/liquidio/cn23xx_pf_device.c
+index 4cddd628d41b..9ed3d1ab2ca5 100644
+--- a/drivers/net/ethernet/cavium/liquidio/cn23xx_pf_device.c
++++ b/drivers/net/ethernet/cavium/liquidio/cn23xx_pf_device.c
+@@ -420,7 +420,7 @@ static int cn23xx_pf_setup_global_input_regs(struct octeon_device *oct)
+ 	 * bits 32:47 indicate the PVF num.
+ 	 */
+ 	for (q_no = 0; q_no < ern; q_no++) {
+-		reg_val = oct->pcie_port << CN23XX_PKT_INPUT_CTL_MAC_NUM_POS;
++		reg_val = (u64)oct->pcie_port << CN23XX_PKT_INPUT_CTL_MAC_NUM_POS;
  
--	perf_cpu_map__put(evsel->core.own_cpus);
-+	evlist__delete(evlist);
- 	return 0;
- }
+ 		/* for VF assigned queues. */
+ 		if (q_no < oct->sriov_info.pf_srn) {
 -- 
 2.30.2
 
