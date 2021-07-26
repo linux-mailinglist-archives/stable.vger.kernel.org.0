@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 63E8B3D5F55
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02EE23D5FC3
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236767AbhGZPRe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:17:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54394 "EHLO mail.kernel.org"
+        id S236612AbhGZPTH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:19:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237414AbhGZPPo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:15:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E932460F38;
-        Mon, 26 Jul 2021 15:54:41 +0000 (UTC)
+        id S235182AbhGZPSJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:18:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BE7A06056C;
+        Mon, 26 Jul 2021 15:58:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314882;
-        bh=dCtGQNwzd3c0hMcer7DUisp5Ap121SIXtSkorzoUrhQ=;
+        s=korg; t=1627315118;
+        bh=0B0/m9AQhwYNUWaUVtkh/2N7DpmLSjh5El2w8Mt36ZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EnjrFsu0Uy149SKzma0ttF1k7sV96MIkXmjvthlnU/6nH7dh90WHN8UIIk8GTPXsT
-         stJdYURgpgo0i719dImaw1bbLDTIUYctICu1Vk5rJyCe37kpzxBVCq8mGQGScyU6tw
-         8CaJ57DC9Nvq69/mARqg1lP0msxyrLdRZNCutzEU=
+        b=t1rCTG5ZeQR4FQOoG3Ijw/3wjGKPbGk/RP1/8CPsIyF3ST5xQU1Hc2WhfylLjh3ZE
+         ZZuvUcnmxgGmxaZP7j/T2HYqWQ5dB7d0O1LFQWMAMfGCPBOKro6e/ftpc/Cg0FS7Ls
+         u32Ma/pS3kpcnEeG7+tDBj6Pa2xD+E22TInIMRWQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Stevens <stevensd@google.com>,
-        3pvd@google.com, Jann Horn <jannh@google.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 4.19 111/120] KVM: do not assume PTE is writable after follow_pfn
-Date:   Mon, 26 Jul 2021 17:39:23 +0200
-Message-Id: <20210726153836.031515657@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Subject: [PATCH 5.4 083/108] usb: renesas_usbhs: Fix superfluous irqs happen after usb_pkt_pop()
+Date:   Mon, 26 Jul 2021 17:39:24 +0200
+Message-Id: <20210726153834.334042332@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153832.339431936@linuxfoundation.org>
-References: <20210726153832.339431936@linuxfoundation.org>
+In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
+References: <20210726153831.696295003@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,87 +39,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 
-commit bd2fae8da794b55bf2ac02632da3a151b10e664c upstream.
+commit 5719df243e118fb343725e8b2afb1637e1af1373 upstream.
 
-In order to convert an HVA to a PFN, KVM usually tries to use
-the get_user_pages family of functinso.  This however is not
-possible for VM_IO vmas; in that case, KVM instead uses follow_pfn.
+This driver has a potential issue which this driver is possible to
+cause superfluous irqs after usb_pkt_pop() is called. So, after
+the commit 3af32605289e ("usb: renesas_usbhs: fix error return
+code of usbhsf_pkt_handler()") had been applied, we could observe
+the following error happened when we used g_audio.
 
-In doing this however KVM loses the information on whether the
-PFN is writable.  That is usually not a problem because the main
-use of VM_IO vmas with KVM is for BARs in PCI device assignment,
-however it is a bug.  To fix it, use follow_pte and check pte_write
-while under the protection of the PTE lock.  The information can
-be used to fail hva_to_pfn_remapped or passed back to the
-caller via *writable.
+    renesas_usbhs e6590000.usb: irq_ready run_error 1 : -22
 
-Usage of follow_pfn was introduced in commit add6a0cd1c5b ("KVM: MMU: try to fix
-up page faults before giving up", 2016-07-05); however, even older version
-have the same issue, all the way back to commit 2e2e3738af33 ("KVM:
-Handle vma regions with no backing page", 2008-07-20), as they also did
-not check whether the PFN was writable.
+To fix the issue, disable the tx or rx interrupt in usb_pkt_pop().
 
-Fixes: 2e2e3738af33 ("KVM: Handle vma regions with no backing page")
-Reported-by: David Stevens <stevensd@google.com>
-Cc: 3pvd@google.com
-Cc: Jann Horn <jannh@google.com>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-[OP: backport to 4.19, adjust follow_pte() -> follow_pte_pmd()]
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+Fixes: 2743e7f90dc0 ("usb: renesas_usbhs: fix the usb_pkt_pop()")
+Cc: <stable@vger.kernel.org> # v4.4+
+Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Link: https://lore.kernel.org/r/20210624122039.596528-1-yoshihiro.shimoda.uh@renesas.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- virt/kvm/kvm_main.c |   15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ drivers/usb/renesas_usbhs/fifo.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -1495,9 +1495,11 @@ static int hva_to_pfn_remapped(struct vm
- 			       kvm_pfn_t *p_pfn)
+--- a/drivers/usb/renesas_usbhs/fifo.c
++++ b/drivers/usb/renesas_usbhs/fifo.c
+@@ -101,6 +101,8 @@ static struct dma_chan *usbhsf_dma_chan_
+ #define usbhsf_dma_map(p)	__usbhsf_dma_map_ctrl(p, 1)
+ #define usbhsf_dma_unmap(p)	__usbhsf_dma_map_ctrl(p, 0)
+ static int __usbhsf_dma_map_ctrl(struct usbhs_pkt *pkt, int map);
++static void usbhsf_tx_irq_ctrl(struct usbhs_pipe *pipe, int enable);
++static void usbhsf_rx_irq_ctrl(struct usbhs_pipe *pipe, int enable);
+ struct usbhs_pkt *usbhs_pkt_pop(struct usbhs_pipe *pipe, struct usbhs_pkt *pkt)
  {
- 	unsigned long pfn;
-+	pte_t *ptep;
-+	spinlock_t *ptl;
- 	int r;
+ 	struct usbhs_priv *priv = usbhs_pipe_to_priv(pipe);
+@@ -123,6 +125,11 @@ struct usbhs_pkt *usbhs_pkt_pop(struct u
+ 		if (chan) {
+ 			dmaengine_terminate_all(chan);
+ 			usbhsf_dma_unmap(pkt);
++		} else {
++			if (usbhs_pipe_is_dir_in(pipe))
++				usbhsf_rx_irq_ctrl(pipe, 0);
++			else
++				usbhsf_tx_irq_ctrl(pipe, 0);
+ 		}
  
--	r = follow_pfn(vma, addr, &pfn);
-+	r = follow_pte_pmd(vma->vm_mm, addr, NULL, NULL, &ptep, NULL, &ptl);
- 	if (r) {
- 		/*
- 		 * get_user_pages fails for VM_IO and VM_PFNMAP vmas and does
-@@ -1512,14 +1514,19 @@ static int hva_to_pfn_remapped(struct vm
- 		if (r)
- 			return r;
- 
--		r = follow_pfn(vma, addr, &pfn);
-+		r = follow_pte_pmd(vma->vm_mm, addr, NULL, NULL, &ptep, NULL, &ptl);
- 		if (r)
- 			return r;
-+	}
- 
-+	if (write_fault && !pte_write(*ptep)) {
-+		pfn = KVM_PFN_ERR_RO_FAULT;
-+		goto out;
- 	}
- 
- 	if (writable)
--		*writable = true;
-+		*writable = pte_write(*ptep);
-+	pfn = pte_pfn(*ptep);
- 
- 	/*
- 	 * Get a reference here because callers of *hva_to_pfn* and
-@@ -1534,6 +1541,8 @@ static int hva_to_pfn_remapped(struct vm
- 	 */ 
- 	kvm_get_pfn(pfn);
- 
-+out:
-+	pte_unmap_unlock(ptep, ptl);
- 	*p_pfn = pfn;
- 	return 0;
- }
+ 		usbhs_pipe_clear_without_sequence(pipe, 0, 0);
 
 
