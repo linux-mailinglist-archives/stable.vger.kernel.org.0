@@ -2,95 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 318E63D561A
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 11:05:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 025933D5622
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 11:06:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232248AbhGZIZT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 04:25:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36102 "EHLO mail.kernel.org"
+        id S232528AbhGZIZo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 04:25:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232041AbhGZIZT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 04:25:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5700160F38;
-        Mon, 26 Jul 2021 09:05:47 +0000 (UTC)
+        id S232041AbhGZIZn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 04:25:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 846F560249;
+        Mon, 26 Jul 2021 09:06:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627290347;
-        bh=TIqhCHNHvIGfuKq9mUwixmNI+xqhgCYOza5fInk7d5A=;
-        h=Subject:To:Cc:From:Date:From;
-        b=Z9iT/eALiptxLsR+zvpCs17nrgFq5HAq7iNYJPf0FDlzrOkZEuMkaCT1PVhhFktO/
-         CpSbzyCdsqWQOY7OrTvqnCEPoUX41OmZW4eB7dnm+gZcmxa33XRMGKkDqg/gkbv+Su
-         PAXE7eSG4UGAglwL0ndKdU63U33TNUJYQvYkVHyM=
-Subject: FAILED: patch "[PATCH] drm/amd/display: Fix ASSR regression on embedded panels" failed to apply to 5.13-stable tree
-To:     stylon.wang@amd.com, alexander.deucher@amd.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 26 Jul 2021 11:01:59 +0200
-Message-ID: <162729011947167@kroah.com>
+        s=korg; t=1627290372;
+        bh=RoxUUmzXLDHMRzw9bnwchbeZKdOVaGzPr/A8EB11wl8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=PTVum3ZlUa/hdAoQiZjOQDnZ1wwFlsJEsLMfyNalEoX2g9p7Ve5Glpq0Id9JQNZ/R
+         nz6n/bbaeyPVW0E9Fm0Knrveo/vddxQU5rQe59TWPoXLqOO1IaB9ak+tw/AU+iEaC0
+         FXxWELKDUh2Dt5xQMvY7l5vjSdFU1uTPryXgiCno=
+Date:   Mon, 26 Jul 2021 11:04:56 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Frank Wunderlich <frank-w@public-files.de>
+Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Mtk Spi fix for stable
+Message-ID: <YP56uH0IjiK4KS2x@kroah.com>
+References: <3122A872-7168-4D60-8F65-DDAA9E1AB3D1@public-files.de>
+ <BFD312E8-7AAE-4A86-A599-9A81904F56A6@public-files.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <BFD312E8-7AAE-4A86-A599-9A81904F56A6@public-files.de>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sat, Jul 24, 2021 at 09:29:58AM +0200, Frank Wunderlich wrote:
+> Hi,
+> 
+> I noticed i've missed stable tag :(
+> 
+> Can you please pick this up for at least 5.4/5.10?
+> 
+> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=3a70dd2d050331ee4cf5ad9d5c0a32d83ead9a43
 
-The patch below does not apply to the 5.13-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Now queued up, but needs a working backport for the 4.4.y queue if you
+want it there too.
 
 thanks,
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 6be50f5d83adc9541de3d5be26e968182b5ac150 Mon Sep 17 00:00:00 2001
-From: Stylon Wang <stylon.wang@amd.com>
-Date: Wed, 21 Jul 2021 12:25:24 +0800
-Subject: [PATCH] drm/amd/display: Fix ASSR regression on embedded panels
-
-[Why]
-Regression found in some embedded panels traces back to the earliest
-upstreamed ASSR patch. The changed code flow are causing problems
-with some panels.
-
-[How]
-- Change ASSR enabling code while preserving original code flow
-  as much as possible
-- Simplify the code on guarding with internal display flag
-
-Bug: https://bugzilla.kernel.org/show_bug.cgi?id=213779
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1620
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Stylon Wang <stylon.wang@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
-
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
-index 12066f5a53fc..9fb8c46dc606 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
-@@ -1820,8 +1820,7 @@ bool perform_link_training_with_retries(
- 					 */
- 					panel_mode = DP_PANEL_MODE_DEFAULT;
- 				}
--			} else
--				panel_mode = DP_PANEL_MODE_DEFAULT;
-+			}
- 		}
- #endif
- 
-@@ -4650,7 +4649,10 @@ enum dp_panel_mode dp_get_panel_mode(struct dc_link *link)
- 		}
- 	}
- 
--	if (link->dpcd_caps.panel_mode_edp) {
-+	if (link->dpcd_caps.panel_mode_edp &&
-+		(link->connector_signal == SIGNAL_TYPE_EDP ||
-+		 (link->connector_signal == SIGNAL_TYPE_DISPLAY_PORT &&
-+		  link->is_internal_display))) {
- 		return DP_PANEL_MODE_EDP;
- 	}
- 
-
