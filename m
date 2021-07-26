@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B6453D5E3E
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:47:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 049033D5F48
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235900AbhGZPG0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:06:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46876 "EHLO mail.kernel.org"
+        id S236659AbhGZPR1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:17:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235874AbhGZPGD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:06:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2931860F90;
-        Mon, 26 Jul 2021 15:46:31 +0000 (UTC)
+        id S237465AbhGZPPs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:15:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A58716108E;
+        Mon, 26 Jul 2021 15:55:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314391;
-        bh=01etFhAmYZffxXscCmBwuB9y8qsuLDc8CaT03ydoB30=;
+        s=korg; t=1627314950;
+        bh=zEPMFOrrDZmF3EtVdUi4LvZ7JY1C4TBrDX6pNu7DI5E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ErA5BVYPof40BN+7p2rgBmJAP98FVOyGKF/IS+iZhh19+DHtUI/OwKxfV/howXaS/
-         nb+BWB8wfBpxDUXYQilAQEt2VG0Viu+wMU8UkdW4rOqYEXeW+wxN2mS2+iVNzACYtB
-         UwJ/+5+shMcomEHwTSo+M56FDBboXrwG1s/LalC8=
+        b=wwZ3NAA9Z004ieEjqkDiN0eiI1ChYK+giF0GcKQFWRGIMpmxxzzcJuJMLYMzBjcPn
+         x56H2KyRCSe04IqlE3EwNVo0PxUSTyJqjlmKmd47QVF3El2PzUc5HnawCvXoyeC9YJ
+         ROWPEyIJcOItPrBeKm+oae02JhhJgzNE+EHz+Q+0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 31/82] net: validate lwtstate->data before returning from skb_tunnel_info()
-Date:   Mon, 26 Jul 2021 17:38:31 +0200
-Message-Id: <20210726153829.177868454@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Ujfalusi <peter.ujfalusi@ti.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 031/108] spi: stm32: Use dma_request_chan() instead dma_request_slave_channel()
+Date:   Mon, 26 Jul 2021 17:38:32 +0200
+Message-Id: <20210726153832.693976986@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153828.144714469@linuxfoundation.org>
-References: <20210726153828.144714469@linuxfoundation.org>
+In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
+References: <20210726153831.696295003@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,62 +40,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 
-commit 67a9c94317402b826fc3db32afc8f39336803d97 upstream.
+[ Upstream commit 0a454258febb73e4c60d7f5d9a02d1a8c64fdfb8 ]
 
-skb_tunnel_info() returns pointer of lwtstate->data as ip_tunnel_info
-type without validation. lwtstate->data can have various types such as
-mpls_iptunnel_encap, etc and these are not compatible.
-So skb_tunnel_info() should validate before returning that pointer.
+dma_request_slave_channel() is a wrapper on top of dma_request_chan()
+eating up the error code.
 
-Splat looks like:
-BUG: KASAN: slab-out-of-bounds in vxlan_get_route+0x418/0x4b0 [vxlan]
-Read of size 2 at addr ffff888106ec2698 by task ping/811
+By using dma_request_chan() directly the driver can support deferred
+probing against DMA.
 
-CPU: 1 PID: 811 Comm: ping Not tainted 5.13.0+ #1195
-Call Trace:
- dump_stack_lvl+0x56/0x7b
- print_address_description.constprop.8.cold.13+0x13/0x2ee
- ? vxlan_get_route+0x418/0x4b0 [vxlan]
- ? vxlan_get_route+0x418/0x4b0 [vxlan]
- kasan_report.cold.14+0x83/0xdf
- ? vxlan_get_route+0x418/0x4b0 [vxlan]
- vxlan_get_route+0x418/0x4b0 [vxlan]
- [ ... ]
- vxlan_xmit_one+0x148b/0x32b0 [vxlan]
- [ ... ]
- vxlan_xmit+0x25c5/0x4780 [vxlan]
- [ ... ]
- dev_hard_start_xmit+0x1ae/0x6e0
- __dev_queue_xmit+0x1f39/0x31a0
- [ ... ]
- neigh_xmit+0x2f9/0x940
- mpls_xmit+0x911/0x1600 [mpls_iptunnel]
- lwtunnel_xmit+0x18f/0x450
- ip_finish_output2+0x867/0x2040
- [ ... ]
-
-Fixes: 61adedf3e3f1 ("route: move lwtunnel state to dst_entry")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Link: https://lore.kernel.org/r/20191212135550.4634-10-peter.ujfalusi@ti.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/dst_metadata.h |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/spi/spi-stm32.c | 32 ++++++++++++++++++++++----------
+ 1 file changed, 22 insertions(+), 10 deletions(-)
 
---- a/include/net/dst_metadata.h
-+++ b/include/net/dst_metadata.h
-@@ -44,7 +44,9 @@ static inline struct ip_tunnel_info *skb
- 		return &md_dst->u.tun_info;
+diff --git a/drivers/spi/spi-stm32.c b/drivers/spi/spi-stm32.c
+index 3af6a5a3a4b2..8c308279c535 100644
+--- a/drivers/spi/spi-stm32.c
++++ b/drivers/spi/spi-stm32.c
+@@ -1908,17 +1908,29 @@ static int stm32_spi_probe(struct platform_device *pdev)
+ 	master->transfer_one = stm32_spi_transfer_one;
+ 	master->unprepare_message = stm32_spi_unprepare_msg;
  
- 	dst = skb_dst(skb);
--	if (dst && dst->lwtstate)
-+	if (dst && dst->lwtstate &&
-+	    (dst->lwtstate->type == LWTUNNEL_ENCAP_IP ||
-+	     dst->lwtstate->type == LWTUNNEL_ENCAP_IP6))
- 		return lwt_tun_info(dst->lwtstate);
+-	spi->dma_tx = dma_request_slave_channel(spi->dev, "tx");
+-	if (!spi->dma_tx)
++	spi->dma_tx = dma_request_chan(spi->dev, "tx");
++	if (IS_ERR(spi->dma_tx)) {
++		ret = PTR_ERR(spi->dma_tx);
++		spi->dma_tx = NULL;
++		if (ret == -EPROBE_DEFER)
++			goto err_clk_disable;
++
+ 		dev_warn(&pdev->dev, "failed to request tx dma channel\n");
+-	else
++	} else {
+ 		master->dma_tx = spi->dma_tx;
++	}
++
++	spi->dma_rx = dma_request_chan(spi->dev, "rx");
++	if (IS_ERR(spi->dma_rx)) {
++		ret = PTR_ERR(spi->dma_rx);
++		spi->dma_rx = NULL;
++		if (ret == -EPROBE_DEFER)
++			goto err_dma_release;
  
- 	return NULL;
+-	spi->dma_rx = dma_request_slave_channel(spi->dev, "rx");
+-	if (!spi->dma_rx)
+ 		dev_warn(&pdev->dev, "failed to request rx dma channel\n");
+-	else
++	} else {
+ 		master->dma_rx = spi->dma_rx;
++	}
+ 
+ 	if (spi->dma_tx || spi->dma_rx)
+ 		master->can_dma = stm32_spi_can_dma;
+@@ -1930,13 +1942,13 @@ static int stm32_spi_probe(struct platform_device *pdev)
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "spi master registration failed: %d\n",
+ 			ret);
+-		goto err_dma_release;
++		goto err_pm_disable;
+ 	}
+ 
+ 	if (!master->cs_gpios) {
+ 		dev_err(&pdev->dev, "no CS gpios available\n");
+ 		ret = -EINVAL;
+-		goto err_dma_release;
++		goto err_pm_disable;
+ 	}
+ 
+ 	for (i = 0; i < master->num_chipselect; i++) {
+@@ -1960,13 +1972,13 @@ static int stm32_spi_probe(struct platform_device *pdev)
+ 
+ 	return 0;
+ 
++err_pm_disable:
++	pm_runtime_disable(&pdev->dev);
+ err_dma_release:
+ 	if (spi->dma_tx)
+ 		dma_release_channel(spi->dma_tx);
+ 	if (spi->dma_rx)
+ 		dma_release_channel(spi->dma_rx);
+-
+-	pm_runtime_disable(&pdev->dev);
+ err_clk_disable:
+ 	clk_disable_unprepare(spi->clk);
+ err_master_put:
+-- 
+2.30.2
+
 
 
