@@ -2,75 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 20F5D3D589C
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 13:40:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 838BD3D5919
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 14:03:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233502AbhGZK7g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 06:59:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59878 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233351AbhGZK7g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 06:59:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPS id 29A3760EB2;
-        Mon, 26 Jul 2021 11:40:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1627299605;
-        bh=kMAs2b3tuO2e+8hgSQdeVypEf1a13iD9tSUV8798Utg=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=FnyKnd9AGDsgQaV+kul09GPPEMl8LTTcFDQ/LQaIDbTvYHGFnUZnWfPDjANa1lBcz
-         l+EtQTwzDiDGmcrCz7szvCSEGOLY1UE6vuks/OvFFHkoGBFQryuqKXgiMxiTP7jf9y
-         QUQJ7QVOIq2fpdXq8ORLYMfVnL0BaQBXND+Thkc8DLyy5y0IMOi8VI3Gd0xCgtg/xl
-         pPJN8OuxVyNz7VsjiEjTbqCtyAgCJ7upcda/7Gc3QNTyzo5WWxI6g763dPAK4F7AaE
-         WLW4Gtg5j/MBbRtAOoRHc1n8ezbC+UvByia2Ov9EqqKe2caMl9s6Piui6IGHMHhlAI
-         3i3bDB25pyhVQ==
-Received: from pdx-korg-docbuild-2.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by pdx-korg-docbuild-2.ci.codeaurora.org (Postfix) with ESMTP id 1E8F160A5B;
-        Mon, 26 Jul 2021 11:40:05 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        id S233788AbhGZLXC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 07:23:02 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:24576 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233775AbhGZLXC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Jul 2021 07:23:02 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1627301010;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=46YjFiGSOu3vFvPZA/rXtYR2f/Xj94q6y2DUkIi17h8=;
+        b=glpdzUKXd+uyvhn9T9tQGHNrrsKHlPqRSRXrLFWnyNCj39pjlGuRrZVBN/G4wZbCF9FN7J
+        1BDUB9swA+fG1A8UrftgusAK8R+Gnxl2DAcEHhTRnbBvFSc5Orzw687H+Uv2fzGZeehbQb
+        Sz+o5lGon7GC3JTM+AJMF9gsVNMYrgg=
+Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
+ [209.85.218.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-13-MeU8I91oO2Or4FaqaJfvFA-1; Mon, 26 Jul 2021 08:03:29 -0400
+X-MC-Unique: MeU8I91oO2Or4FaqaJfvFA-1
+Received: by mail-ej1-f72.google.com with SMTP id x5-20020a1709064bc5b02905305454f5d1so1988836ejv.10
+        for <stable@vger.kernel.org>; Mon, 26 Jul 2021 05:03:28 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=46YjFiGSOu3vFvPZA/rXtYR2f/Xj94q6y2DUkIi17h8=;
+        b=CbYs6F/qCzUh4qBJGf5J3avkByGrwyH+yeBb83n3Ym1pzViHAvvzr+CnIir0gkOr0P
+         +XqCGnbrzhokKYd/yVZpe6KGNCUmuZo5AA90U04DiVNDGKRX835jCvDNCKbpLbOqqQi4
+         n3nKQzXgpbqUwhk+P24fBSD4jZnvhmUGQlxbXLFvjRcmco59OM9N0dpqJtNN6NQ09nGg
+         rD72d3HGi3WyMLjdpZ9iXQ65C/j39G/As3ZjilsJmh0U+1GlCxpaq92zj/f9kT/Wam5o
+         rQghA6+OwZtM/6c0K/osgy2iDKugSiHH/JX0hd6Rc+OGponYrs6S290SunqC3AAXXX3j
+         /pTA==
+X-Gm-Message-State: AOAM533naMwqOe5BalFkIGgbHIJKJelsKNjbZphT6WhfpzcV5GMtizyZ
+        JziX4dkWo7PAbm2yQwVU8c/Y3MMRyaL8XjqdXhqhhvbmyUe6/Ab26eaCH+MZOoF6J1ShLEUmxyA
+        zUNJSraz4Ku9uE0+cYr8njK+u/3G0GKAdyErGqr9TFoLRCUzZDdv1lo0GOmu9OEqokisM
+X-Received: by 2002:a17:906:3b47:: with SMTP id h7mr9619113ejf.399.1627301007771;
+        Mon, 26 Jul 2021 05:03:27 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzFUlWlMBtOeCXgz63WJ0nRRQfYhSLqdqCRtMJX2iTA/Lw19OEJxkslezgUdDRT+k//1SW2pA==
+X-Received: by 2002:a17:906:3b47:: with SMTP id h7mr9619081ejf.399.1627301007481;
+        Mon, 26 Jul 2021 05:03:27 -0700 (PDT)
+Received: from ?IPv6:2001:b07:6468:f312:c8dd:75d4:99ab:290a? ([2001:b07:6468:f312:c8dd:75d4:99ab:290a])
+        by smtp.gmail.com with ESMTPSA id e27sm3803750ejc.41.2021.07.26.05.03.26
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 26 Jul 2021 05:03:26 -0700 (PDT)
+Subject: Re: [PATCH] watchdog: iTCO_wdt: Fix detection of SMI-off case
+To:     Jan Kiszka <jan.kiszka@siemens.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Cc:     linux-watchdog@vger.kernel.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Christian Storm <christian.storm@siemens.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        =?UTF-8?Q?Mantas_Mikul=c4=97nas?= <grawity@gmail.com>,
+        stable <stable@vger.kernel.org>
+References: <d84f8e06-f646-8b43-d063-fb11f4827044@siemens.com>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+Message-ID: <b3b75b72-33d4-ce21-a8f4-77a37156aa9e@redhat.com>
+Date:   Mon, 26 Jul 2021 14:03:25 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
+In-Reply-To: <d84f8e06-f646-8b43-d063-fb11f4827044@siemens.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net] net: stmmac: add est_irq_status callback function for
- GMAC 4.10 and 5.10
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <162729960512.898.7324413513898376609.git-patchwork-notify@kernel.org>
-Date:   Mon, 26 Jul 2021 11:40:05 +0000
-References: <20210726022020.5907-1-mohammad.athari.ismail@intel.com>
-In-Reply-To: <20210726022020.5907-1-mohammad.athari.ismail@intel.com>
-To:     Ismail@ci.codeaurora.org,
-        Mohammad Athari <mohammad.athari.ismail@intel.com>
-Cc:     alexandre.torgue@st.com, joabreu@synopsys.com, davem@davemloft.net,
-        kuba@kernel.org, peppe.cavallaro@st.com, mcoquelin.stm32@gmail.com,
-        boon.leong.ong@intel.com, weifeng.voon@intel.com,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello:
-
-This patch was applied to netdev/net.git (refs/heads/master):
-
-On Mon, 26 Jul 2021 10:20:20 +0800 you wrote:
-> From: Mohammad Athari Bin Ismail <mohammad.athari.ismail@intel.com>
+On 26/07/21 13:46, Jan Kiszka wrote:
+> From: Jan Kiszka <jan.kiszka@siemens.com>
 > 
-> Assign dwmac5_est_irq_status to est_irq_status callback function for
-> GMAC 4.10 and 5.10. With this, EST related interrupts could be handled
-> properly.
+> Obviously, the test needs to run against the register content, not its
+> address.
 > 
-> Fixes: e49aa315cb01 ("net: stmmac: EST interrupts handling and error reporting")
-> Cc: <stable@vger.kernel.org> # 5.13.x
-> Signed-off-by: Mohammad Athari Bin Ismail <mohammad.athari.ismail@intel.com>
+> Fixes: cb011044e34c ("watchdog: iTCO_wdt: Account for rebooting on second timeout")
+> Reported-by: Mantas Mikulėnas <grawity@gmail.com>
+> Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+> ---
+>   drivers/watchdog/iTCO_wdt.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> [...]
+> diff --git a/drivers/watchdog/iTCO_wdt.c b/drivers/watchdog/iTCO_wdt.c
+> index b3f604669e2c..643c6c2d0b72 100644
+> --- a/drivers/watchdog/iTCO_wdt.c
+> +++ b/drivers/watchdog/iTCO_wdt.c
+> @@ -362,7 +362,7 @@ static int iTCO_wdt_set_timeout(struct watchdog_device *wd_dev, unsigned int t)
+>   	 * Otherwise, the BIOS generally reboots when the SMI triggers.
+>   	 */
+>   	if (p->smi_res &&
+> -	    (SMI_EN(p) & (TCO_EN | GBL_SMI_EN)) != (TCO_EN | GBL_SMI_EN))
+> +	    (inl(SMI_EN(p)) & (TCO_EN | GBL_SMI_EN)) != (TCO_EN | GBL_SMI_EN))
+>   		tmrval /= 2;
+>   
+>   	/* from the specs: */
+> 
 
-Here is the summary with links:
-  - [net] net: stmmac: add est_irq_status callback function for GMAC 4.10 and 5.10
-    https://git.kernel.org/netdev/net/c/94cbe7db7d75
+Reviewed-by: Paolo Bonzini <pbonzini@redhat.com>
+Cc: stable@vger.kernel.org
 
-You are awesome, thank you!
---
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+(the latter because cb011044e34c has been picked up by stable kernels 
+already).
 
+Paolo
 
