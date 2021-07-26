@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E1F903D5F12
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:59:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8043E3D5E2B
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:47:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236365AbhGZPQo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:16:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52308 "EHLO mail.kernel.org"
+        id S236166AbhGZPGH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:06:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45412 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236401AbhGZPLa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:11:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9671D60F02;
-        Mon, 26 Jul 2021 15:51:58 +0000 (UTC)
+        id S235928AbhGZPFg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:05:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9BE2760F42;
+        Mon, 26 Jul 2021 15:46:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314719;
-        bh=1r/UUIxhZ95sgnExU30CyJM8Jv+Y+6Rk5Z5ULUsGPWM=;
+        s=korg; t=1627314364;
+        bh=luid8dwgtPLWpit+mIxRirzWef33cz7SiuIZeSyzTHY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ach2KW8Jd9RNs2yIUaj5XROhhH+OpApZNs6Ct70lDocvgspwCEXIQB10nKMealBPL
-         9n65z/SaHATERMxd2AK3ApVLFEUg6c/RZQxJ8PLWhwm/9YiIKo3l/ML8759EG+PBLj
-         4xKAG/raLLNF4RP9Debz3wV+vSJohWSgzEqKTX5A=
+        b=rk8oTaB8oDTfZ3Ea3K4x+5wsPO02WR7N6LJdHhRQLrYJj9SEyX6fuPZ5aFrc2MDZh
+         s7f2ASqcRNNrtdIrFR/DBvcn4VKYTwFfCSDc1tx02aZ8oB7JJlq/xuhgNuSHAYgqW4
+         fkE8pt2vlEW5Sv/Mo8ArXFgz7t5l9qtsMQUiqkm0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wu Bo <wubo40@huawei.com>,
-        John Garry <john.garry@huawei.com>,
-        Jason Yan <yanaijie@huawei.com>, Yufen Yu <yuyufen@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Johan Jonker <jbx6244@gmail.com>,
+        Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 031/120] scsi: libsas: Add LUN number check in .slave_alloc callback
+Subject: [PATCH 4.14 03/82] arm64: dts: rockchip: fix pinctrl sleep nodename for rk3399.dtsi
 Date:   Mon, 26 Jul 2021 17:38:03 +0200
-Message-Id: <20210726153833.389483607@linuxfoundation.org>
+Message-Id: <20210726153828.258882597@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153832.339431936@linuxfoundation.org>
-References: <20210726153832.339431936@linuxfoundation.org>
+In-Reply-To: <20210726153828.144714469@linuxfoundation.org>
+References: <20210726153828.144714469@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,163 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yufen Yu <yuyufen@huawei.com>
+From: Johan Jonker <jbx6244@gmail.com>
 
-[ Upstream commit 49da96d77938db21864dae6b7736b71e96c1d203 ]
+[ Upstream commit a7ecfad495f8af63a5cb332c91f60ab2018897f5 ]
 
-Offlining a SATA device connected to a hisi SAS controller and then
-scanning the host will result in detecting 255 non-existent devices:
+A test with the command below aimed at powerpc generates
+notifications in the Rockchip arm64 tree.
 
-  # lsscsi
-  [2:0:0:0]    disk    ATA      Samsung SSD 860  2B6Q  /dev/sda
-  [2:0:1:0]    disk    ATA      WDC WD2003FYYS-3 1D01  /dev/sdb
-  [2:0:2:0]    disk    SEAGATE  ST600MM0006      B001  /dev/sdc
-  # echo "offline" > /sys/block/sdb/device/state
-  # echo "- - -" > /sys/class/scsi_host/host2/scan
-  # lsscsi
-  [2:0:0:0]    disk    ATA      Samsung SSD 860  2B6Q  /dev/sda
-  [2:0:1:0]    disk    ATA      WDC WD2003FYYS-3 1D01  /dev/sdb
-  [2:0:1:1]    disk    ATA      WDC WD2003FYYS-3 1D01  /dev/sdh
-  ...
-  [2:0:1:255]  disk    ATA      WDC WD2003FYYS-3 1D01  /dev/sdjb
+Fix pinctrl "sleep" nodename by renaming it to "suspend"
+for rk3399.dtsi
 
-After a REPORT LUN command issued to the offline device fails, the SCSI
-midlayer tries to do a sequential scan of all devices whose LUN number is
-not 0. However, SATA does not support LUN numbers at all.
+make ARCH=arm64 dtbs_check
+DT_SCHEMA_FILES=Documentation/devicetree/bindings/powerpc/sleep.yaml
 
-Introduce a generic sas_slave_alloc() handler which will return -ENXIO for
-SATA devices if the requested LUN number is larger than 0 and make libsas
-drivers use this function as their .slave_alloc callback.
-
-Link: https://lore.kernel.org/r/20210622034037.1467088-1-yuyufen@huawei.com
-Reported-by: Wu Bo <wubo40@huawei.com>
-Suggested-by: John Garry <john.garry@huawei.com>
-Reviewed-by: John Garry <john.garry@huawei.com>
-Reviewed-by: Jason Yan <yanaijie@huawei.com>
-Signed-off-by: Yufen Yu <yuyufen@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Johan Jonker <jbx6244@gmail.com>
+Link: https://lore.kernel.org/r/20210126110221.10815-2-jbx6244@gmail.com
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/aic94xx/aic94xx_init.c    | 1 +
- drivers/scsi/hisi_sas/hisi_sas_v1_hw.c | 1 +
- drivers/scsi/hisi_sas/hisi_sas_v2_hw.c | 1 +
- drivers/scsi/hisi_sas/hisi_sas_v3_hw.c | 1 +
- drivers/scsi/isci/init.c               | 1 +
- drivers/scsi/libsas/sas_scsi_host.c    | 9 +++++++++
- drivers/scsi/mvsas/mv_init.c           | 1 +
- drivers/scsi/pm8001/pm8001_init.c      | 1 +
- 8 files changed, 16 insertions(+)
+ arch/arm64/boot/dts/rockchip/rk3399.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/aic94xx/aic94xx_init.c b/drivers/scsi/aic94xx/aic94xx_init.c
-index 702da909cee5..ad8a65ab489c 100644
---- a/drivers/scsi/aic94xx/aic94xx_init.c
-+++ b/drivers/scsi/aic94xx/aic94xx_init.c
-@@ -71,6 +71,7 @@ static struct scsi_host_template aic94xx_sht = {
- 	.use_clustering		= ENABLE_CLUSTERING,
- 	.eh_device_reset_handler	= sas_eh_device_reset_handler,
- 	.eh_target_reset_handler	= sas_eh_target_reset_handler,
-+	.slave_alloc		= sas_slave_alloc,
- 	.target_destroy		= sas_target_destroy,
- 	.ioctl			= sas_ioctl,
- 	.track_queue_depth	= 1,
-diff --git a/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c
-index 8aa3222fe486..fea26edd505e 100644
---- a/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c
-+++ b/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c
-@@ -1814,6 +1814,7 @@ static struct scsi_host_template sht_v1_hw = {
- 	.use_clustering		= ENABLE_CLUSTERING,
- 	.eh_device_reset_handler = sas_eh_device_reset_handler,
- 	.eh_target_reset_handler = sas_eh_target_reset_handler,
-+	.slave_alloc		= sas_slave_alloc,
- 	.target_destroy		= sas_target_destroy,
- 	.ioctl			= sas_ioctl,
- 	.shost_attrs		= host_attrs,
-diff --git a/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c
-index ebc984ffe6a2..7be943197604 100644
---- a/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c
-+++ b/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c
-@@ -3565,6 +3565,7 @@ static struct scsi_host_template sht_v2_hw = {
- 	.use_clustering		= ENABLE_CLUSTERING,
- 	.eh_device_reset_handler = sas_eh_device_reset_handler,
- 	.eh_target_reset_handler = sas_eh_target_reset_handler,
-+	.slave_alloc		= sas_slave_alloc,
- 	.target_destroy		= sas_target_destroy,
- 	.ioctl			= sas_ioctl,
- 	.shost_attrs		= host_attrs,
-diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-index ce2f232b3df3..16b7ea556118 100644
---- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-+++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-@@ -2115,6 +2115,7 @@ static struct scsi_host_template sht_v3_hw = {
- 	.use_clustering		= ENABLE_CLUSTERING,
- 	.eh_device_reset_handler = sas_eh_device_reset_handler,
- 	.eh_target_reset_handler = sas_eh_target_reset_handler,
-+	.slave_alloc		= sas_slave_alloc,
- 	.target_destroy		= sas_target_destroy,
- 	.ioctl			= sas_ioctl,
- 	.shost_attrs		= host_attrs,
-diff --git a/drivers/scsi/isci/init.c b/drivers/scsi/isci/init.c
-index dde84f744313..07de94ea3819 100644
---- a/drivers/scsi/isci/init.c
-+++ b/drivers/scsi/isci/init.c
-@@ -167,6 +167,7 @@ static struct scsi_host_template isci_sht = {
- 	.eh_abort_handler		= sas_eh_abort_handler,
- 	.eh_device_reset_handler        = sas_eh_device_reset_handler,
- 	.eh_target_reset_handler        = sas_eh_target_reset_handler,
-+	.slave_alloc			= sas_slave_alloc,
- 	.target_destroy			= sas_target_destroy,
- 	.ioctl				= sas_ioctl,
- 	.shost_attrs			= isci_host_attrs,
-diff --git a/drivers/scsi/libsas/sas_scsi_host.c b/drivers/scsi/libsas/sas_scsi_host.c
-index 33229348dcb6..316a11183555 100644
---- a/drivers/scsi/libsas/sas_scsi_host.c
-+++ b/drivers/scsi/libsas/sas_scsi_host.c
-@@ -942,6 +942,14 @@ void sas_task_abort(struct sas_task *task)
- 	}
- }
+diff --git a/arch/arm64/boot/dts/rockchip/rk3399.dtsi b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
+index 721f4b6b262f..029d4578bca3 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3399.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
+@@ -2074,7 +2074,7 @@
+ 			};
+ 		};
  
-+int sas_slave_alloc(struct scsi_device *sdev)
-+{
-+	if (dev_is_sata(sdev_to_domain_dev(sdev)) && sdev->lun)
-+		return -ENXIO;
-+
-+	return 0;
-+}
-+
- void sas_target_destroy(struct scsi_target *starget)
- {
- 	struct domain_device *found_dev = starget->hostdata;
-@@ -988,5 +996,6 @@ EXPORT_SYMBOL_GPL(sas_task_abort);
- EXPORT_SYMBOL_GPL(sas_phy_reset);
- EXPORT_SYMBOL_GPL(sas_eh_device_reset_handler);
- EXPORT_SYMBOL_GPL(sas_eh_target_reset_handler);
-+EXPORT_SYMBOL_GPL(sas_slave_alloc);
- EXPORT_SYMBOL_GPL(sas_target_destroy);
- EXPORT_SYMBOL_GPL(sas_ioctl);
-diff --git a/drivers/scsi/mvsas/mv_init.c b/drivers/scsi/mvsas/mv_init.c
-index 8c91637cd598..98d6608068ab 100644
---- a/drivers/scsi/mvsas/mv_init.c
-+++ b/drivers/scsi/mvsas/mv_init.c
-@@ -62,6 +62,7 @@ static struct scsi_host_template mvs_sht = {
- 	.use_clustering		= ENABLE_CLUSTERING,
- 	.eh_device_reset_handler = sas_eh_device_reset_handler,
- 	.eh_target_reset_handler = sas_eh_target_reset_handler,
-+	.slave_alloc		= sas_slave_alloc,
- 	.target_destroy		= sas_target_destroy,
- 	.ioctl			= sas_ioctl,
- 	.shost_attrs		= mvst_host_attrs,
-diff --git a/drivers/scsi/pm8001/pm8001_init.c b/drivers/scsi/pm8001/pm8001_init.c
-index 1d59d7447a1c..9547cf516d39 100644
---- a/drivers/scsi/pm8001/pm8001_init.c
-+++ b/drivers/scsi/pm8001/pm8001_init.c
-@@ -87,6 +87,7 @@ static struct scsi_host_template pm8001_sht = {
- 	.use_clustering		= ENABLE_CLUSTERING,
- 	.eh_device_reset_handler = sas_eh_device_reset_handler,
- 	.eh_target_reset_handler = sas_eh_target_reset_handler,
-+	.slave_alloc		= sas_slave_alloc,
- 	.target_destroy		= sas_target_destroy,
- 	.ioctl			= sas_ioctl,
- 	.shost_attrs		= pm8001_host_attrs,
+-		sleep {
++		suspend {
+ 			ap_pwroff: ap-pwroff {
+ 				rockchip,pins = <1 5 RK_FUNC_1 &pcfg_pull_none>;
+ 			};
 -- 
 2.30.2
 
