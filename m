@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71D7F3D60F9
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:12:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 692EB3D6236
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:16:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237399AbhGZPZx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:25:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40160 "EHLO mail.kernel.org"
+        id S232842AbhGZPfI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:35:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238205AbhGZPZK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:25:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 328C260240;
-        Mon, 26 Jul 2021 16:05:37 +0000 (UTC)
+        id S235255AbhGZPeH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:34:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 88E58604AC;
+        Mon, 26 Jul 2021 16:14:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315537;
-        bh=0xJFq9/VPxiLProRyjJC3dWEwG6bWuO3KFVp7IFpMdM=;
+        s=korg; t=1627316075;
+        bh=+fFt4JsLeQNfMSkHX0CdEAWddMq+P3LrEnqNfBlo64o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V1Nnpc9jI+5X7pFkKd6HPaNchAUlJX9ORJmfuIG1IVc+ZCJYlksTcDBZYd3laYT6+
-         hnOM1utdiQ91d48Ch6wN9K7L28hoQqXSJqp823ps7RGSck5ZwPHw3X1BTMk17WKvHR
-         dwGzrQdE/ZA5rRxppKquP9zsqpL8tnJ/B5CvJduY=
+        b=GmclFV0biZcvQHctLIf5j0b7n7jIBBzZh7BlsCN24hxV1bvi5b8MLbM5Oh5W8HWkV
+         IN6daXZRGWF7Aftpz53lFBpJRLhn2lY7hMQaK5APGKkI492c9U/itJOCQG7w2aSBsp
+         iaABo6lqB+1sHap2Lt/LtELaSW5zPTkXoySjQysw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Namhyung Kim <namhyung@kernel.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Tom Zanussi <zanussi@kernel.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
+        stable@vger.kernel.org, Stefan Metzmacher <metze@samba.org>,
         "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.10 135/167] tracing/histogram: Rename "cpu" to "common_cpu"
-Date:   Mon, 26 Jul 2021 17:39:28 +0200
-Message-Id: <20210726153843.918896978@linuxfoundation.org>
+Subject: [PATCH 5.13 177/223] tracepoints: Update static_call before tp_funcs when adding a tracepoint
+Date:   Mon, 26 Jul 2021 17:39:29 +0200
+Message-Id: <20210726153851.990838783@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
-References: <20210726153839.371771838@linuxfoundation.org>
+In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
+References: <20210726153846.245305071@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,150 +41,118 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-commit 1e3bac71c5053c99d438771fc9fa5082ae5d90aa upstream.
+commit 352384d5c84ebe40fa77098cc234fe173247d8ef upstream.
 
-Currently the histogram logic allows the user to write "cpu" in as an
-event field, and it will record the CPU that the event happened on.
+Because of the significant overhead that retpolines pose on indirect
+calls, the tracepoint code was updated to use the new "static_calls" that
+can modify the running code to directly call a function instead of using
+an indirect caller, and this function can be changed at runtime.
 
-The problem with this is that there's a lot of events that have "cpu"
-as a real field, and using "cpu" as the CPU it ran on, makes it
-impossible to run histograms on the "cpu" field of events.
+In the tracepoint code that calls all the registered callbacks that are
+attached to a tracepoint, the following is done:
 
-For example, if I want to have a histogram on the count of the
-workqueue_queue_work event on its cpu field, running:
+	it_func_ptr = rcu_dereference_raw((&__tracepoint_##name)->funcs);
+	if (it_func_ptr) {
+		__data = (it_func_ptr)->data;
+		static_call(tp_func_##name)(__data, args);
+	}
 
- ># echo 'hist:keys=cpu' > events/workqueue/workqueue_queue_work/trigger
+If there's just a single callback, the static_call is updated to just call
+that callback directly. Once another handler is added, then the static
+caller is updated to call the iterator, that simply loops over all the
+funcs in the array and calls each of the callbacks like the old method
+using indirect calling.
 
-Gives a misleading and wrong result.
+The issue was discovered with a race between updating the funcs array and
+updating the static_call. The funcs array was updated first and then the
+static_call was updated. This is not an issue as long as the first element
+in the old array is the same as the first element in the new array. But
+that assumption is incorrect, because callbacks also have a priority
+field, and if there's a callback added that has a higher priority than the
+callback on the old array, then it will become the first callback in the
+new array. This means that it is possible to call the old callback with
+the new callback data element, which can cause a kernel panic.
 
-Change the command to "common_cpu" as no event should have "common_*"
-fields as that's a reserved name for fields used by all events. And
-this makes sense here as common_cpu would be a field used by all events.
+	static_call = callback1()
+	funcs[] = {callback1,data1};
+	callback2 has higher priority than callback1
 
-Now we can even do:
+	CPU 1				CPU 2
+	-----				-----
 
- ># echo 'hist:keys=common_cpu,cpu if cpu < 100' > events/workqueue/workqueue_queue_work/trigger
- ># cat events/workqueue/workqueue_queue_work/hist
- # event histogram
- #
- # trigger info: hist:keys=common_cpu,cpu:vals=hitcount:sort=hitcount:size=2048 if cpu < 100 [active]
- #
+   new_funcs = {callback2,data2},
+               {callback1,data1}
 
- { common_cpu:          0, cpu:          2 } hitcount:          1
- { common_cpu:          0, cpu:          4 } hitcount:          1
- { common_cpu:          7, cpu:          7 } hitcount:          1
- { common_cpu:          0, cpu:          7 } hitcount:          1
- { common_cpu:          0, cpu:          1 } hitcount:          1
- { common_cpu:          0, cpu:          6 } hitcount:          2
- { common_cpu:          0, cpu:          5 } hitcount:          2
- { common_cpu:          1, cpu:          1 } hitcount:          4
- { common_cpu:          6, cpu:          6 } hitcount:          4
- { common_cpu:          5, cpu:          5 } hitcount:         14
- { common_cpu:          4, cpu:          4 } hitcount:         26
- { common_cpu:          0, cpu:          0 } hitcount:         39
- { common_cpu:          2, cpu:          2 } hitcount:        184
+   rcu_assign_pointer(tp->funcs, new_funcs);
 
-Now for backward compatibility, I added a trick. If "cpu" is used, and
-the field is not found, it will fall back to "common_cpu" and work as
-it did before. This way, it will still work for old programs that use
-"cpu" to get the actual CPU, but if the event has a "cpu" as a field, it
-will get that event's "cpu" field, which is probably what it wants
-anyway.
+  /*
+   * Now tp->funcs has the new array
+   * but the static_call still calls callback1
+   */
 
-I updated the tracefs/README to include documentation about both the
-common_timestamp and the common_cpu. This way, if that text is present in
-the README, then an application can know that common_cpu is supported over
-just plain "cpu".
+				it_func_ptr = tp->funcs [ new_funcs ]
+				data = it_func_ptr->data [ data2 ]
+				static_call(callback1, data);
 
-Link: https://lkml.kernel.org/r/20210721110053.26b4f641@oasis.local.home
+				/* Now callback1 is called with
+				 * callback2's data */
 
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
+				[ KERNEL PANIC ]
+
+   update_static_call(iterator);
+
+To prevent this from happening, always switch the static_call to the
+iterator before assigning the tp->funcs to the new array. The iterator will
+always properly match the callback with its data.
+
+To trigger this bug:
+
+  In one terminal:
+
+    while :; do hackbench 50; done
+
+  In another terminal
+
+    echo 1 > /sys/kernel/tracing/events/sched/sched_waking/enable
+    while :; do
+        echo 1 > /sys/kernel/tracing/set_event_pid;
+        sleep 0.5
+        echo 0 > /sys/kernel/tracing/set_event_pid;
+        sleep 0.5
+   done
+
+And it doesn't take long to crash. This is because the set_event_pid adds
+a callback to the sched_waking tracepoint with a high priority, which will
+be called before the sched_waking trace event callback is called.
+
+Note, the removal to a single callback updates the array first, before
+changing the static_call to single callback, which is the proper order as
+the first element in the array is the same as what the static_call is
+being changed to.
+
+Link: https://lore.kernel.org/io-uring/4ebea8f0-58c9-e571-fd30-0ce4f6f09c70@samba.org/
+
 Cc: stable@vger.kernel.org
-Fixes: 8b7622bf94a44 ("tracing: Add cpu field for hist triggers")
-Reviewed-by: Tom Zanussi <zanussi@kernel.org>
-Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
+Fixes: d25e37d89dd2f ("tracepoint: Optimize using static_call()")
+Reported-by: Stefan Metzmacher <metze@samba.org>
+tested-by: Stefan Metzmacher <metze@samba.org>
 Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/trace/histogram.rst |    2 +-
- kernel/trace/trace.c              |    4 ++++
- kernel/trace/trace_events_hist.c  |   22 ++++++++++++++++------
- 3 files changed, 21 insertions(+), 7 deletions(-)
+ kernel/tracepoint.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/Documentation/trace/histogram.rst
-+++ b/Documentation/trace/histogram.rst
-@@ -191,7 +191,7 @@ Documentation written by Tom Zanussi
-                                 with the event, in nanoseconds.  May be
- 			        modified by .usecs to have timestamps
- 			        interpreted as microseconds.
--    cpu                    int  the cpu on which the event occurred.
-+    common_cpu             int  the cpu on which the event occurred.
-     ====================== ==== =======================================
+--- a/kernel/tracepoint.c
++++ b/kernel/tracepoint.c
+@@ -299,8 +299,8 @@ static int tracepoint_add_func(struct tr
+ 	 * a pointer to it.  This array is referenced by __DO_TRACE from
+ 	 * include/linux/tracepoint.h using rcu_dereference_sched().
+ 	 */
+-	rcu_assign_pointer(tp->funcs, tp_funcs);
+ 	tracepoint_update_call(tp, tp_funcs, false);
++	rcu_assign_pointer(tp->funcs, tp_funcs);
+ 	static_key_enable(&tp->key);
  
- Extended error information
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -5241,6 +5241,10 @@ static const char readme_msg[] =
- 	"\t            [:name=histname1]\n"
- 	"\t            [:<handler>.<action>]\n"
- 	"\t            [if <filter>]\n\n"
-+	"\t    Note, special fields can be used as well:\n"
-+	"\t            common_timestamp - to record current timestamp\n"
-+	"\t            common_cpu - to record the CPU the event happened on\n"
-+	"\n"
- 	"\t    When a matching event is hit, an entry is added to a hash\n"
- 	"\t    table using the key(s) and value(s) named, and the value of a\n"
- 	"\t    sum called 'hitcount' is incremented.  Keys and values\n"
---- a/kernel/trace/trace_events_hist.c
-+++ b/kernel/trace/trace_events_hist.c
-@@ -1095,7 +1095,7 @@ static const char *hist_field_name(struc
- 		 field->flags & HIST_FIELD_FL_ALIAS)
- 		field_name = hist_field_name(field->operands[0], ++level);
- 	else if (field->flags & HIST_FIELD_FL_CPU)
--		field_name = "cpu";
-+		field_name = "common_cpu";
- 	else if (field->flags & HIST_FIELD_FL_EXPR ||
- 		 field->flags & HIST_FIELD_FL_VAR_REF) {
- 		if (field->system) {
-@@ -1975,14 +1975,24 @@ parse_field(struct hist_trigger_data *hi
- 		hist_data->enable_timestamps = true;
- 		if (*flags & HIST_FIELD_FL_TIMESTAMP_USECS)
- 			hist_data->attrs->ts_in_usecs = true;
--	} else if (strcmp(field_name, "cpu") == 0)
-+	} else if (strcmp(field_name, "common_cpu") == 0)
- 		*flags |= HIST_FIELD_FL_CPU;
- 	else {
- 		field = trace_find_event_field(file->event_call, field_name);
- 		if (!field || !field->size) {
--			hist_err(tr, HIST_ERR_FIELD_NOT_FOUND, errpos(field_name));
--			field = ERR_PTR(-EINVAL);
--			goto out;
-+			/*
-+			 * For backward compatibility, if field_name
-+			 * was "cpu", then we treat this the same as
-+			 * common_cpu.
-+			 */
-+			if (strcmp(field_name, "cpu") == 0) {
-+				*flags |= HIST_FIELD_FL_CPU;
-+			} else {
-+				hist_err(tr, HIST_ERR_FIELD_NOT_FOUND,
-+					 errpos(field_name));
-+				field = ERR_PTR(-EINVAL);
-+				goto out;
-+			}
- 		}
- 	}
-  out:
-@@ -5057,7 +5067,7 @@ static void hist_field_print(struct seq_
- 		seq_printf(m, "%s=", hist_field->var.name);
- 
- 	if (hist_field->flags & HIST_FIELD_FL_CPU)
--		seq_puts(m, "cpu");
-+		seq_puts(m, "common_cpu");
- 	else if (field_name) {
- 		if (hist_field->flags & HIST_FIELD_FL_VAR_REF ||
- 		    hist_field->flags & HIST_FIELD_FL_ALIAS)
+ 	release_probes(old);
 
 
