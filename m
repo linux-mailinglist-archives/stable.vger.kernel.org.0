@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D6ABF3D5FA0
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F1273D5DD3
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:45:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236357AbhGZPSf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:18:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56244 "EHLO mail.kernel.org"
+        id S235520AbhGZPD7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:03:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236127AbhGZPQg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:16:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B9D160F02;
-        Mon, 26 Jul 2021 15:57:04 +0000 (UTC)
+        id S235871AbhGZPD4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:03:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C8CD660F38;
+        Mon, 26 Jul 2021 15:44:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315025;
-        bh=v2Bj5V1f/5/BtfVaui+4hou+3ngcsCnOxUNORf8hhHY=;
+        s=korg; t=1627314265;
+        bh=jzCO/PrUsRq7QvAiXQP2PaKoOuY+BthKPH6iIeYclwg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V0dpO85Xg8w3aTIRjdGQ83er4fOKU+P50z6GEsHV9L0TqSLT49DjnKSG9Kup7JB6W
-         a5iS6sAdan3RwICoeslfFABraXP94PamA1kiUzh+IcyaXKqD4WbavuqAAohX88dsFr
-         ZtG5v5Bg/6yWEnxgOgqIBZ+6lDrURtdG7fvVIrDA=
+        b=Uz05kdjVi42nd48epyc5Qj0ZAROxPxTeA7AHNfTtXwWPB9XJRS4Po3olWIeYRXCYV
+         0Em0+BUYzKqW6IeZhBAZnQpgKAhlU5C8lW+sFHYPQ7wBFWoQi/bmWKWX79WEHDEjdW
+         L9WQtRwwMSaU6JAZD10sS2PpaLlg3X+ZBc9if/jE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Wei Wang <weiwan@google.com>,
-        Yuchung Cheng <ycheng@google.com>,
-        Neal Cardwell <ncardwell@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 056/108] net/tcp_fastopen: fix data races around tfo_active_disable_stamp
-Date:   Mon, 26 Jul 2021 17:38:57 +0200
-Message-Id: <20210726153833.477127378@linuxfoundation.org>
+        stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 4.9 44/60] s390/ftrace: fix ftrace_update_ftrace_func implementation
+Date:   Mon, 26 Jul 2021 17:38:58 +0200
+Message-Id: <20210726153826.255742772@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
-References: <20210726153831.696295003@linuxfoundation.org>
+In-Reply-To: <20210726153824.868160836@linuxfoundation.org>
+References: <20210726153824.868160836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,72 +39,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-[ Upstream commit 6f20c8adb1813467ea52c1296d52c4e95978cb2f ]
+commit f8c2602733c953ed7a16e060640b8e96f9d94b9b upstream.
 
-tfo_active_disable_stamp is read and written locklessly.
-We need to annotate these accesses appropriately.
+s390 enforces DYNAMIC_FTRACE if FUNCTION_TRACER is selected.
+At the same time implementation of ftrace_caller is not compliant with
+HAVE_DYNAMIC_FTRACE since it doesn't provide implementation of
+ftrace_update_ftrace_func() and calls ftrace_trace_function() directly.
 
-Then, we need to perform the atomic_inc(tfo_active_disable_times)
-after the timestamp has been updated, and thus add barriers
-to make sure tcp_fastopen_active_should_disable() wont read
-a stale timestamp.
+The subtle difference is that during ftrace code patching ftrace
+replaces function tracer via ftrace_update_ftrace_func() and activates
+it back afterwards. Unexpected direct calls to ftrace_trace_function()
+during ftrace code patching leads to nullptr-dereferences when tracing
+is activated for one of functions which are used during code patching.
+Those function currently are:
+copy_from_kernel_nofault()
+copy_from_kernel_nofault_allowed()
+preempt_count_sub() [with debug_defconfig]
+preempt_count_add() [with debug_defconfig]
 
-Fixes: cf1ef3f0719b ("net/tcp_fastopen: Disable active side TFO in certain scenarios")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Wei Wang <weiwan@google.com>
-Cc: Yuchung Cheng <ycheng@google.com>
-Cc: Neal Cardwell <ncardwell@google.com>
-Acked-by: Wei Wang <weiwan@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Corresponding KASAN report:
+ BUG: KASAN: nullptr-dereference in function_trace_call+0x316/0x3b0
+ Read of size 4 at addr 0000000000001e08 by task migration/0/15
+
+ CPU: 0 PID: 15 Comm: migration/0 Tainted: G B 5.13.0-41423-g08316af3644d
+ Hardware name: IBM 3906 M04 704 (LPAR)
+ Stopper: multi_cpu_stop+0x0/0x3e0 <- stop_machine_cpuslocked+0x1e4/0x218
+ Call Trace:
+  [<0000000001f77caa>] show_stack+0x16a/0x1d0
+  [<0000000001f8de42>] dump_stack+0x15a/0x1b0
+  [<0000000001f81d56>] print_address_description.constprop.0+0x66/0x2e0
+  [<000000000082b0ca>] kasan_report+0x152/0x1c0
+  [<00000000004cfd8e>] function_trace_call+0x316/0x3b0
+  [<0000000001fb7082>] ftrace_caller+0x7a/0x7e
+  [<00000000006bb3e6>] copy_from_kernel_nofault_allowed+0x6/0x10
+  [<00000000006bb42e>] copy_from_kernel_nofault+0x3e/0xd0
+  [<000000000014605c>] ftrace_make_call+0xb4/0x1f8
+  [<000000000047a1b4>] ftrace_replace_code+0x134/0x1d8
+  [<000000000047a6e0>] ftrace_modify_all_code+0x120/0x1d0
+  [<000000000047a7ec>] __ftrace_modify_code+0x5c/0x78
+  [<000000000042395c>] multi_cpu_stop+0x224/0x3e0
+  [<0000000000423212>] cpu_stopper_thread+0x33a/0x5a0
+  [<0000000000243ff2>] smpboot_thread_fn+0x302/0x708
+  [<00000000002329ea>] kthread+0x342/0x408
+  [<00000000001066b2>] __ret_from_fork+0x92/0xf0
+  [<0000000001fb57fa>] ret_from_fork+0xa/0x30
+
+ The buggy address belongs to the page:
+ page:(____ptrval____) refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x1
+ flags: 0x1ffff00000001000(reserved|node=0|zone=0|lastcpupid=0x1ffff)
+ raw: 1ffff00000001000 0000040000000048 0000040000000048 0000000000000000
+ raw: 0000000000000000 0000000000000000 ffffffff00000001 0000000000000000
+ page dumped because: kasan: bad access detected
+
+ Memory state around the buggy address:
+  0000000000001d00: f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7
+  0000000000001d80: f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7
+ >0000000000001e00: f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7
+                       ^
+  0000000000001e80: f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7
+  0000000000001f00: f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7 f7
+ ==================================================================
+
+To fix that introduce ftrace_func callback to be called from
+ftrace_caller and update it in ftrace_update_ftrace_func().
+
+Fixes: 4cc9bed034d1 ("[S390] cleanup ftrace backend functions")
+Cc: stable@vger.kernel.org
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp_fastopen.c | 19 ++++++++++++++++---
- 1 file changed, 16 insertions(+), 3 deletions(-)
+ arch/s390/include/asm/ftrace.h |    1 +
+ arch/s390/kernel/ftrace.c      |    2 ++
+ arch/s390/kernel/mcount.S      |    4 ++--
+ 3 files changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/net/ipv4/tcp_fastopen.c b/net/ipv4/tcp_fastopen.c
-index a9971e41f31b..8af4fefe371f 100644
---- a/net/ipv4/tcp_fastopen.c
-+++ b/net/ipv4/tcp_fastopen.c
-@@ -504,8 +504,15 @@ void tcp_fastopen_active_disable(struct sock *sk)
- {
- 	struct net *net = sock_net(sk);
+--- a/arch/s390/include/asm/ftrace.h
++++ b/arch/s390/include/asm/ftrace.h
+@@ -19,6 +19,7 @@ void ftrace_caller(void);
  
-+	/* Paired with READ_ONCE() in tcp_fastopen_active_should_disable() */
-+	WRITE_ONCE(net->ipv4.tfo_active_disable_stamp, jiffies);
-+
-+	/* Paired with smp_rmb() in tcp_fastopen_active_should_disable().
-+	 * We want net->ipv4.tfo_active_disable_stamp to be updated first.
-+	 */
-+	smp_mb__before_atomic();
- 	atomic_inc(&net->ipv4.tfo_active_disable_times);
--	net->ipv4.tfo_active_disable_stamp = jiffies;
-+
- 	NET_INC_STATS(net, LINUX_MIB_TCPFASTOPENBLACKHOLE);
+ extern char ftrace_graph_caller_end;
+ extern unsigned long ftrace_plt;
++extern void *ftrace_func;
+ 
+ struct dyn_arch_ftrace { };
+ 
+--- a/arch/s390/kernel/ftrace.c
++++ b/arch/s390/kernel/ftrace.c
+@@ -55,6 +55,7 @@
+  * >	brasl	%r0,ftrace_caller	# offset 0
+  */
+ 
++void *ftrace_func __read_mostly = ftrace_stub;
+ unsigned long ftrace_plt;
+ 
+ static inline void ftrace_generate_orig_insn(struct ftrace_insn *insn)
+@@ -164,6 +165,7 @@ int ftrace_make_call(struct dyn_ftrace *
+ 
+ int ftrace_update_ftrace_func(ftrace_func_t func)
+ {
++	ftrace_func = func;
+ 	return 0;
  }
  
-@@ -523,10 +530,16 @@ bool tcp_fastopen_active_should_disable(struct sock *sk)
- 	if (!tfo_da_times)
- 		return false;
- 
-+	/* Paired with smp_mb__before_atomic() in tcp_fastopen_active_disable() */
-+	smp_rmb();
-+
- 	/* Limit timout to max: 2^6 * initial timeout */
- 	multiplier = 1 << min(tfo_da_times - 1, 6);
--	timeout = multiplier * tfo_bh_timeout * HZ;
--	if (time_before(jiffies, sock_net(sk)->ipv4.tfo_active_disable_stamp + timeout))
-+
-+	/* Paired with the WRITE_ONCE() in tcp_fastopen_active_disable(). */
-+	timeout = READ_ONCE(sock_net(sk)->ipv4.tfo_active_disable_stamp) +
-+		  multiplier * tfo_bh_timeout * HZ;
-+	if (time_before(jiffies, timeout))
- 		return true;
- 
- 	/* Mark check bit so we can check for successful active TFO
--- 
-2.30.2
-
+--- a/arch/s390/kernel/mcount.S
++++ b/arch/s390/kernel/mcount.S
+@@ -59,13 +59,13 @@ ENTRY(ftrace_caller)
+ #ifdef CONFIG_HAVE_MARCH_Z196_FEATURES
+ 	aghik	%r2,%r0,-MCOUNT_INSN_SIZE
+ 	lgrl	%r4,function_trace_op
+-	lgrl	%r1,ftrace_trace_function
++	lgrl	%r1,ftrace_func
+ #else
+ 	lgr	%r2,%r0
+ 	aghi	%r2,-MCOUNT_INSN_SIZE
+ 	larl	%r4,function_trace_op
+ 	lg	%r4,0(%r4)
+-	larl	%r1,ftrace_trace_function
++	larl	%r1,ftrace_func
+ 	lg	%r1,0(%r1)
+ #endif
+ 	lgr	%r3,%r14
 
 
