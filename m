@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8ECFC3D6050
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:10:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 302A03D61A3
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:14:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237213AbhGZPVs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:21:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35992 "EHLO mail.kernel.org"
+        id S233693AbhGZPc2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:32:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237209AbhGZPVn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:21:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EF2C660E09;
-        Mon, 26 Jul 2021 16:02:10 +0000 (UTC)
+        id S232361AbhGZPab (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:30:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8BBE160240;
+        Mon, 26 Jul 2021 16:10:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315331;
-        bh=q0VMxnM0zP+6GtCK0Os6yDk2JT9hLndLBpZYmsFvwXw=;
+        s=korg; t=1627315860;
+        bh=MwThTflVdON8+PjJgXphdsRoMD83rejvJwXVY2l3kuQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sn9vtzwQyrooch5UAsg3pEf+g54nwcLXgrwl0R3aiw3GjiZ//6lti7mIAZ3PfTjv8
-         bn2vKh4ki1XHH6KXqOsVnnpR2cca1skTj6Nk8uHC9/lxZKDlPfo0QLn4tII1czueC4
-         KB1GH4gzo0gYXiSiA2ru3ED6MwtN52j7f+7PCaso=
+        b=w71W06EhU9eopTUCQNlyGV4e/OyQ6OLbg3mQ6ORT9eDEzFth7ANvpHx87MDgkgAI+
+         vu1D+568txW9zefGS58qLNI5Deni9s/Hzbd/4Tk5Wy3njNhBf07cMPMaQaD0f4dLa6
+         rXdoPfdRfM1jSHIPNNe7f90A4PYLPAySLn5A6KRA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Schwalm <maxim.schwalm@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 054/167] ASoC: rt5631: Fix regcache sync errors on resume
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+f0bbb2287b8993d4fa74@syzkaller.appspotmail.com
+Subject: [PATCH 5.13 095/223] net: sched: fix memory leak in tcindex_partial_destroy_work
 Date:   Mon, 26 Jul 2021 17:38:07 +0200
-Message-Id: <20210726153841.231051282@linuxfoundation.org>
+Message-Id: <20210726153849.359585643@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
-References: <20210726153839.371771838@linuxfoundation.org>
+In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
+References: <20210726153846.245305071@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +41,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Schwalm <maxim.schwalm@gmail.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit c71f78a662611fe2c67f3155da19b0eff0f29762 ]
+[ Upstream commit f5051bcece50140abd1a11a2d36dc3ec5484fc32 ]
 
-The ALC5631 does not like multi-write accesses, avoid them. This fixes:
+Syzbot reported memory leak in tcindex_set_parms(). The problem was in
+non-freed perfect hash in tcindex_partial_destroy_work().
 
-rt5631 4-001a: Unable to sync registers 0x3a-0x3c. -121
+In tcindex_set_parms() new tcindex_data is allocated and some fields from
+old one are copied to new one, but not the perfect hash. Since
+tcindex_partial_destroy_work() is the destroy function for old
+tcindex_data, we need to free perfect hash to avoid memory leak.
 
-errors on resume from suspend (and all registers after the registers in
-the error not being synced).
-
-Inspired by commit 2d30e9494f1e ("ASoC: rt5651: Fix regcache sync errors
-on resume") from Hans de Geode, which fixed the same errors on ALC5651.
-
-Signed-off-by: Maxim Schwalm <maxim.schwalm@gmail.com>
-Link: https://lore.kernel.org/r/20210712005011.28536-1-digetx@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-and-tested-by: syzbot+f0bbb2287b8993d4fa74@syzkaller.appspotmail.com
+Fixes: 331b72922c5f ("net: sched: RCU cls_tcindex")
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/rt5631.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/sched/cls_tcindex.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/rt5631.c b/sound/soc/codecs/rt5631.c
-index 653da3eaf355..86d58d0df057 100644
---- a/sound/soc/codecs/rt5631.c
-+++ b/sound/soc/codecs/rt5631.c
-@@ -1695,6 +1695,8 @@ static const struct regmap_config rt5631_regmap_config = {
- 	.reg_defaults = rt5631_reg,
- 	.num_reg_defaults = ARRAY_SIZE(rt5631_reg),
- 	.cache_type = REGCACHE_RBTREE,
-+	.use_single_read = true,
-+	.use_single_write = true,
- };
+diff --git a/net/sched/cls_tcindex.c b/net/sched/cls_tcindex.c
+index 5b274534264c..e9a8a2c86bbd 100644
+--- a/net/sched/cls_tcindex.c
++++ b/net/sched/cls_tcindex.c
+@@ -278,6 +278,8 @@ static int tcindex_filter_result_init(struct tcindex_filter_result *r,
+ 			     TCA_TCINDEX_POLICE);
+ }
  
- static int rt5631_i2c_probe(struct i2c_client *i2c,
++static void tcindex_free_perfect_hash(struct tcindex_data *cp);
++
+ static void tcindex_partial_destroy_work(struct work_struct *work)
+ {
+ 	struct tcindex_data *p = container_of(to_rcu_work(work),
+@@ -285,7 +287,8 @@ static void tcindex_partial_destroy_work(struct work_struct *work)
+ 					      rwork);
+ 
+ 	rtnl_lock();
+-	kfree(p->perfect);
++	if (p->perfect)
++		tcindex_free_perfect_hash(p);
+ 	kfree(p);
+ 	rtnl_unlock();
+ }
 -- 
 2.30.2
 
