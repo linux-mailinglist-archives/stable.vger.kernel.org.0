@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8001C3D61E1
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:14:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AFA813D6201
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:15:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234226AbhGZPdT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:33:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47946 "EHLO mail.kernel.org"
+        id S234684AbhGZPd4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:33:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233137AbhGZPcC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:32:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2341460F5B;
-        Mon, 26 Jul 2021 16:11:59 +0000 (UTC)
+        id S232631AbhGZPcL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:32:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C5F2E60F5D;
+        Mon, 26 Jul 2021 16:12:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315920;
-        bh=9mAhG5e3hWoTLI5LKpV48Lm56dw07oYbu3rPbEM6QLQ=;
+        s=korg; t=1627315923;
+        bh=8geNSeru6DVfirCvlwIy2l/pC+6PLYeidIwPt3Ld+kk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IJs7oZ08ZoVeytfyd9U+HmcNGUdDrcYsdZbwMopPRQWfLefR/7tsHoMIRffdafwlw
-         +RPVoMz8/LJz+Sn2191r1/GOiu/Vu4+9zF2iRk6bOfJFn/KRtZckYJ+4JeW1BzrCoW
-         2FwxF9ez6FumAN+lrIykjruLU74jFkE7kGBG4SPs=
+        b=mQNZKR7l4wql6XZf62d16fXKKopBwQmFyt8z+7iTui/YkiPtIP2qSdPIaSwXvAoA9
+         xPBXfQbj8fnkGPaMpVzLQJDGiwY3RhwzB69P3lDrclhwSI8HFSMW1+MXaV/a09y29y
+         Dmx7kRNaJxS3CXC0pk8cZaMQHF5T8qIsJ2O2EMiI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luis Henriques <lhenriques@suse.de>,
-        Jeff Layton <jlayton@kernel.org>,
-        Ilya Dryomov <idryomov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 119/223] ceph: dont WARN if were still opening a session to an MDS
-Date:   Mon, 26 Jul 2021 17:38:31 +0200
-Message-Id: <20210726153850.159502936@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Chris Packham <chris.packham@alliedtelesis.co.nz>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 120/223] i2c: mpc: Poll for MCF
+Date:   Mon, 26 Jul 2021 17:38:32 +0200
+Message-Id: <20210726153850.189158572@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
 References: <20210726153846.245305071@linuxfoundation.org>
@@ -41,40 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luis Henriques <lhenriques@suse.de>
+From: Chris Packham <chris.packham@alliedtelesis.co.nz>
 
-[ Upstream commit cdb330f4b41ab55feb35487729e883c9e08b8a54 ]
+[ Upstream commit 4a8ac5e45cdaa88884b4ce05303e304cbabeb367 ]
 
-If MDSs aren't available while mounting a filesystem, the session state
-will transition from SESSION_OPENING to SESSION_CLOSING.  And in that
-scenario check_session_state() will be called from delayed_work() and
-trigger this WARN.
+During some transfers the bus can still be busy when an interrupt is
+received. Commit 763778cd7926 ("i2c: mpc: Restore reread of I2C status
+register") attempted to address this by re-reading MPC_I2C_SR once but
+that just made it less likely to happen without actually preventing it.
+Instead of a single re-read, poll with a timeout so that the bus is given
+enough time to settle but a genuine stuck SCL is still noticed.
 
-Avoid this by only WARNing after a session has already been established
-(i.e., the s_ttl will be different from 0).
-
-Fixes: 62575e270f66 ("ceph: check session state after bumping session->s_seq")
-Signed-off-by: Luis Henriques <lhenriques@suse.de>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Fixes: 1538d82f4647 ("i2c: mpc: Interrupt driven transfer")
+Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ceph/mds_client.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-mpc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/ceph/mds_client.c b/fs/ceph/mds_client.c
-index e5af591d3bd4..86f09b1110a2 100644
---- a/fs/ceph/mds_client.c
-+++ b/fs/ceph/mds_client.c
-@@ -4468,7 +4468,7 @@ bool check_session_state(struct ceph_mds_session *s)
- 		break;
- 	case CEPH_MDS_SESSION_CLOSING:
- 		/* Should never reach this when we're unmounting */
--		WARN_ON_ONCE(true);
-+		WARN_ON_ONCE(s->s_ttl);
- 		fallthrough;
- 	case CEPH_MDS_SESSION_NEW:
- 	case CEPH_MDS_SESSION_RESTARTING:
+diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
+index 6d5014ebaab5..a6ea1eb1394e 100644
+--- a/drivers/i2c/busses/i2c-mpc.c
++++ b/drivers/i2c/busses/i2c-mpc.c
+@@ -635,8 +635,8 @@ static irqreturn_t mpc_i2c_isr(int irq, void *dev_id)
+ 
+ 	status = readb(i2c->base + MPC_I2C_SR);
+ 	if (status & CSR_MIF) {
+-		/* Read again to allow register to stabilise */
+-		status = readb(i2c->base + MPC_I2C_SR);
++		/* Wait up to 100us for transfer to properly complete */
++		readb_poll_timeout(i2c->base + MPC_I2C_SR, status, !(status & CSR_MCF), 0, 100);
+ 		writeb(0, i2c->base + MPC_I2C_SR);
+ 		mpc_i2c_do_intr(i2c, status);
+ 		return IRQ_HANDLED;
 -- 
 2.30.2
 
