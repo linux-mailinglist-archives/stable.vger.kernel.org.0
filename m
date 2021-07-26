@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 80C6C3D625A
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:16:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6A693D60F3
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:12:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236876AbhGZPfk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:35:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51072 "EHLO mail.kernel.org"
+        id S237807AbhGZPZq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:25:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234774AbhGZPd5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:33:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F9DA60F5E;
-        Mon, 26 Jul 2021 16:14:11 +0000 (UTC)
+        id S238130AbhGZPYw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:24:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 47C3960F38;
+        Mon, 26 Jul 2021 16:05:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627316051;
+        s=korg; t=1627315519;
         bh=vvAWL2niHHsaplu5TbnbZMJ6g2rH5FdEuq84pbscXhE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XxODQFIFnh3IdVvb0J4GamLR19KAUjD8x5OxD7FJK4PFtopJ9mKmTSiRvQJuMBMfn
-         6n1IxigdNTuPV9e2dcpxQE3W3goYU+duSox+XJl9HFyjU6+6MUu6KR9lBrJLs1cwCw
-         4f2NHgcL3oD+jTuzrlsPkWqGci9RSjb76dpirfOQ=
+        b=Zam2JaK9i4FfZsWrsdl1LBVFIr67IyFfaC2U3F9gqcszOq3p+4hfyfSh5Jrhf/5nF
+         BKuwuXvXxN9Wj4PXre1Tu93VddR4iOeKNS+f1LH5viz3JgS1DqRDm59CC37A4rvxpA
+         IFWz/re/a9zKJREKH3RG0KrofMIIlgm+mdkHung8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>
-Subject: [PATCH 5.13 169/223] usb: gadget: Fix Unbalanced pm_runtime_enable in tegra_xudc_probe
-Date:   Mon, 26 Jul 2021 17:39:21 +0200
-Message-Id: <20210726153851.733672346@linuxfoundation.org>
+Subject: [PATCH 5.10 129/167] usb: gadget: Fix Unbalanced pm_runtime_enable in tegra_xudc_probe
+Date:   Mon, 26 Jul 2021 17:39:22 +0200
+Message-Id: <20210726153843.728815549@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
-References: <20210726153846.245305071@linuxfoundation.org>
+In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
+References: <20210726153839.371771838@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
