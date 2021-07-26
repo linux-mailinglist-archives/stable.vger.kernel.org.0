@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EDBA83D6143
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:13:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57A183D61B2
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:14:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231653AbhGZPa3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:30:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41074 "EHLO mail.kernel.org"
+        id S233763AbhGZPci (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:32:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42756 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236836AbhGZP3K (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236791AbhGZP3K (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 26 Jul 2021 11:29:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B927360F9E;
-        Mon, 26 Jul 2021 16:07:30 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 183CE60FF3;
+        Mon, 26 Jul 2021 16:07:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315652;
-        bh=WkaubtbPtEetxmQvUruRP8MixvFZXXe9LSCGK+KHfCo=;
+        s=korg; t=1627315654;
+        bh=VGyoVYkRzIp27UeMvuqYUiTyiwLx8aO8kbggpO6HfO0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b/WbJu0ArOUAwpFTaAi9WILjCLAio0lOV4+H/j91hY81MvsejEVfN2y7OACfay1a8
-         343ZRrK7PZIHc2BN6UWO30UD7fNW6NMsYZc3+5aCtsWbhaez3JLNaNLKWPJ+4koSEH
-         aPDNTe550aKI2eU3O043FOJR9D6Wx27IvXOu00Ls=
+        b=vm0sqDM8aPZeOqP0CTijW9DVd1CUVKalWJBreT6nQI+vJvseJO4+tZYGbu/m+jguF
+         kmvF+kMivyV1C7sDD0UtH8vK4fMr9n+9GbrZF/xX+7P1Xqeg+XVqRVeakmFKz5cdOZ
+         H7qvUU8bfyjYnYKJd9vxGmJzVD+Id2WZ4jisul4A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Catherine Sullivan <csully@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Wang Hai <wanghai38@huawei.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Magnus Karlsson <magnus.karlsson@intel.com>,
+        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 013/223] gve: Fix an error handling path in gve_probe()
-Date:   Mon, 26 Jul 2021 17:36:45 +0200
-Message-Id: <20210726153846.696256243@linuxfoundation.org>
+Subject: [PATCH 5.13 014/223] bpf, samples: Fix xdpsock with -M parameter missing unload process
+Date:   Mon, 26 Jul 2021 17:36:46 +0200
+Message-Id: <20210726153846.727497218@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
 References: <20210726153846.245305071@linuxfoundation.org>
@@ -42,48 +42,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Wang Hai <wanghai38@huawei.com>
 
-[ Upstream commit 2342ae10d1272d411a468a85a67647dd115b344f ]
+[ Upstream commit 2620e92ae6ed83260eb46d214554cd308ee35d92 ]
 
-If the 'register_netdev() call fails, we must release the resources
-allocated by the previous 'gve_init_priv()' call, as already done in the
-remove function.
+Execute the following command and exit, then execute it again, the following
+error will be reported:
 
-Add a new label and the missing 'gve_teardown_priv_resources()' in the
-error handling path.
+  $ sudo ./samples/bpf/xdpsock -i ens4f2 -M
+  ^C
+  $ sudo ./samples/bpf/xdpsock -i ens4f2 -M
+  libbpf: elf: skipping unrecognized data section(16) .eh_frame
+  libbpf: elf: skipping relo section(17) .rel.eh_frame for section(16) .eh_frame
+  libbpf: Kernel error message: XDP program already attached
+  ERROR: link set xdp fd failed
 
-Fixes: 893ce44df565 ("gve: Add basic driver framework for Compute Engine Virtual NIC")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: Catherine Sullivan <csully@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Commit c9d27c9e8dc7 ("samples: bpf: Do not unload prog within xdpsock") removed
+the unloading prog code because of the presence of bpf_link. This is fine if
+XDP_SHARED_UMEM is disabled, but if it is enabled, unloading the prog is still
+needed.
+
+Fixes: c9d27c9e8dc7 ("samples: bpf: Do not unload prog within xdpsock")
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Magnus Karlsson <magnus.karlsson@intel.com>
+Cc: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+Link: https://lore.kernel.org/bpf/20210628091815.2373487-1-wanghai38@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/google/gve/gve_main.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ samples/bpf/xdpsock_user.c | 28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
 
-diff --git a/drivers/net/ethernet/google/gve/gve_main.c b/drivers/net/ethernet/google/gve/gve_main.c
-index 79cefe85a799..b43c6ff07614 100644
---- a/drivers/net/ethernet/google/gve/gve_main.c
-+++ b/drivers/net/ethernet/google/gve/gve_main.c
-@@ -1349,13 +1349,16 @@ static int gve_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+diff --git a/samples/bpf/xdpsock_user.c b/samples/bpf/xdpsock_user.c
+index 53e300f860bb..33d0bdebbed8 100644
+--- a/samples/bpf/xdpsock_user.c
++++ b/samples/bpf/xdpsock_user.c
+@@ -96,6 +96,7 @@ static int opt_xsk_frame_size = XSK_UMEM__DEFAULT_FRAME_SIZE;
+ static int opt_timeout = 1000;
+ static bool opt_need_wakeup = true;
+ static u32 opt_num_xsks = 1;
++static u32 prog_id;
+ static bool opt_busy_poll;
+ static bool opt_reduced_cap;
  
- 	err = register_netdev(dev);
- 	if (err)
--		goto abort_with_wq;
-+		goto abort_with_gve_init;
+@@ -461,6 +462,23 @@ static void *poller(void *arg)
+ 	return NULL;
+ }
  
- 	dev_info(&pdev->dev, "GVE version %s\n", gve_version_str);
- 	gve_clear_probe_in_progress(priv);
- 	queue_work(priv->gve_wq, &priv->service_task);
- 	return 0;
- 
-+abort_with_gve_init:
-+	gve_teardown_priv_resources(priv);
++static void remove_xdp_program(void)
++{
++	u32 curr_prog_id = 0;
 +
- abort_with_wq:
- 	destroy_workqueue(priv->gve_wq);
++	if (bpf_get_link_xdp_id(opt_ifindex, &curr_prog_id, opt_xdp_flags)) {
++		printf("bpf_get_link_xdp_id failed\n");
++		exit(EXIT_FAILURE);
++	}
++
++	if (prog_id == curr_prog_id)
++		bpf_set_link_xdp_fd(opt_ifindex, -1, opt_xdp_flags);
++	else if (!curr_prog_id)
++		printf("couldn't find a prog id on a given interface\n");
++	else
++		printf("program on interface changed, not removing\n");
++}
++
+ static void int_exit(int sig)
+ {
+ 	benchmark_done = true;
+@@ -471,6 +489,9 @@ static void __exit_with_error(int error, const char *file, const char *func,
+ {
+ 	fprintf(stderr, "%s:%s:%i: errno: %d/\"%s\"\n", file, func,
+ 		line, error, strerror(error));
++
++	if (opt_num_xsks > 1)
++		remove_xdp_program();
+ 	exit(EXIT_FAILURE);
+ }
  
+@@ -490,6 +511,9 @@ static void xdpsock_cleanup(void)
+ 		if (write(sock, &cmd, sizeof(int)) < 0)
+ 			exit_with_error(errno);
+ 	}
++
++	if (opt_num_xsks > 1)
++		remove_xdp_program();
+ }
+ 
+ static void swap_mac_addresses(void *data)
+@@ -857,6 +881,10 @@ static struct xsk_socket_info *xsk_configure_socket(struct xsk_umem_info *umem,
+ 	if (ret)
+ 		exit_with_error(-ret);
+ 
++	ret = bpf_get_link_xdp_id(opt_ifindex, &prog_id, opt_xdp_flags);
++	if (ret)
++		exit_with_error(-ret);
++
+ 	xsk->app_stats.rx_empty_polls = 0;
+ 	xsk->app_stats.fill_fail_polls = 0;
+ 	xsk->app_stats.copy_tx_sendtos = 0;
 -- 
 2.30.2
 
