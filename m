@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 36D543D61F1
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:15:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF5553D60A3
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:11:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232324AbhGZPdd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:33:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48228 "EHLO mail.kernel.org"
+        id S237617AbhGZPXi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:23:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233510AbhGZPcW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:32:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 361A46056B;
-        Mon, 26 Jul 2021 16:12:50 +0000 (UTC)
+        id S237571AbhGZPX2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:23:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9425E60E09;
+        Mon, 26 Jul 2021 16:03:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315970;
-        bh=Lwu2u17oP5W6I352an90ZhfHmTxc4XW2Y6aKNEW9ihY=;
+        s=korg; t=1627315437;
+        bh=TpvVav4zzZvT52gwAdJt1Q1NI72Xr13IM/POb5Eyl6Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FF6diDW6/zUMBi2M6SlC20W6KsDfqy8YCU2PNhXRDE29lWBZr6HWP2NhTYHPrb0sL
-         t9aHkZMdYEAPFQaMXDe8jheZcwNlGw9YzzDr+MpevTYKnIhRDuQlitzvvedep74Gb7
-         xCsfX7zXmIOLSTuayaTkoHnKkSlKnqz72iQ12Rs4=
+        b=nMsinvm8/qU93AMAtoqU+QPdZOm+aKWFkhjOV2BtDlarualghMn4ZpNGa7iNmChSj
+         mg1FPyi2drNv5Os3inN7h5jwdjoOpY+7CxEWxvvyByRk2f6QXYbFFrs+0/wPpUohMP
+         x693BL8dGrwby5oW6NQs+dzLs0XzYwG6QbrytlSQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Schwab <schwab@linux-m68k.org>,
-        Heinrich Schuchardt <xypron.glpk@gmx.de>,
-        Atish Patra <atish.patra@wdc.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
+        stable@vger.kernel.org,
+        Sayanta Pattanayak <sayanta.pattanayak@arm.com>,
+        Andre Przywara <andre.przywara@arm.com>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 136/223] RISC-V: load initrd wherever it fits into memory
-Date:   Mon, 26 Jul 2021 17:38:48 +0200
-Message-Id: <20210726153850.695299467@linuxfoundation.org>
+Subject: [PATCH 5.10 096/167] r8169: Avoid duplicate sysfs entry creation error
+Date:   Mon, 26 Jul 2021 17:38:49 +0200
+Message-Id: <20210726153842.622499392@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
-References: <20210726153846.245305071@linuxfoundation.org>
+In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
+References: <20210726153839.371771838@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,44 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+From: Sayanta Pattanayak <sayanta.pattanayak@arm.com>
 
-[ Upstream commit c79e89ecaa246c880292ba68cbe08c9c30db77e3 ]
+[ Upstream commit e9a72f874d5b95cef0765bafc56005a50f72c5fe ]
 
-Requiring that initrd is loaded below RAM start + 256 MiB led to failure
-to boot SUSE Linux with GRUB on QEMU, cf.
-https://lists.gnu.org/archive/html/grub-devel/2021-06/msg00037.html
+When registering the MDIO bus for a r8169 device, we use the PCI
+bus/device specifier as a (seemingly) unique device identifier.
+However the very same BDF number can be used on another PCI segment,
+which makes the driver fail probing:
 
-Remove the constraint.
+[ 27.544136] r8169 0002:07:00.0: enabling device (0000 -> 0003)
+[ 27.559734] sysfs: cannot create duplicate filename '/class/mdio_bus/r8169-700'
+....
+[ 27.684858] libphy: mii_bus r8169-700 failed to register
+[ 27.695602] r8169: probe of 0002:07:00.0 failed with error -22
 
-Reported-by: Andreas Schwab <schwab@linux-m68k.org>
-Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
-Reviewed-by: Atish Patra <atish.patra@wdc.com>
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Fixes: d7071743db31 ("RISC-V: Add EFI stub support.")
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Add the segment number to the device name to make it more unique.
+
+This fixes operation on ARM N1SDP boards, with two boards connected
+together to form an SMP system, and all on-board devices showing up
+twice, just on different PCI segments. A similar issue would occur on
+large systems with many PCI slots and multiple RTL8169 NICs.
+
+Fixes: f1e911d5d0dfd ("r8169: add basic phylib support")
+Signed-off-by: Sayanta Pattanayak <sayanta.pattanayak@arm.com>
+[Andre: expand commit message, use pci_domain_nr()]
+Signed-off-by: Andre Przywara <andre.przywara@arm.com>
+Acked-by: Heiner Kallweit <hkallweit1@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/include/asm/efi.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/realtek/r8169_main.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/riscv/include/asm/efi.h b/arch/riscv/include/asm/efi.h
-index 6d98cd999680..7b3483ba2e84 100644
---- a/arch/riscv/include/asm/efi.h
-+++ b/arch/riscv/include/asm/efi.h
-@@ -27,10 +27,10 @@ int efi_set_mapping_permissions(struct mm_struct *mm, efi_memory_desc_t *md);
+diff --git a/drivers/net/ethernet/realtek/r8169_main.c b/drivers/net/ethernet/realtek/r8169_main.c
+index 9010aabd9782..e690a1b09e98 100644
+--- a/drivers/net/ethernet/realtek/r8169_main.c
++++ b/drivers/net/ethernet/realtek/r8169_main.c
+@@ -5160,7 +5160,8 @@ static int r8169_mdio_register(struct rtl8169_private *tp)
+ 	new_bus->priv = tp;
+ 	new_bus->parent = &pdev->dev;
+ 	new_bus->irq[0] = PHY_IGNORE_INTERRUPT;
+-	snprintf(new_bus->id, MII_BUS_ID_SIZE, "r8169-%x", pci_dev_id(pdev));
++	snprintf(new_bus->id, MII_BUS_ID_SIZE, "r8169-%x-%x",
++		 pci_domain_nr(pdev->bus), pci_dev_id(pdev));
  
- #define ARCH_EFI_IRQ_FLAGS_MASK (SR_IE | SR_SPIE)
- 
--/* Load initrd at enough distance from DRAM start */
-+/* Load initrd anywhere in system RAM */
- static inline unsigned long efi_get_max_initrd_addr(unsigned long image_addr)
- {
--	return image_addr + SZ_256M;
-+	return ULONG_MAX;
- }
- 
- #define alloc_screen_info(x...)		(&screen_info)
+ 	new_bus->read = r8169_mdio_read_reg;
+ 	new_bus->write = r8169_mdio_write_reg;
 -- 
 2.30.2
 
