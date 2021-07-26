@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 958FD3D5F35
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 141103D5EA9
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:51:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235922AbhGZPRN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:17:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53050 "EHLO mail.kernel.org"
+        id S235499AbhGZPLQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:11:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237408AbhGZPPo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:15:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C0CB6101C;
-        Mon, 26 Jul 2021 15:54:31 +0000 (UTC)
+        id S236167AbhGZPIS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:08:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5DB3E60F92;
+        Mon, 26 Jul 2021 15:48:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314872;
-        bh=O3bklign98ABGAFKWn6e8vbnjb9JvA5CRHH5nI+k1Bg=;
+        s=korg; t=1627314525;
+        bh=SU9q9HvLR8orcW+YTjIQqk7eC8XYn+EfAtUwZeb0GVg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IvY3uqKs0wVwOrBKP2bezyuPjEjCmxygPGc400tol9wNB9V2IKGNz157m6q7y2uRt
-         pTe3ZOqZ367lCURyQb0Ac672s9X9wIWD/SXHlmHgSSHjk2m1XDB32D77ndjXi1x6Fd
-         5Z8QpjbohdIUmJdS0ekFgdfZy9I90X14x7VYES1c=
+        b=TxJovM8PE3j/uiI6X+xlsXKb4U15cOyTB0X7pVTzMEbZKdOMA0QcwUg2B8gWRe65t
+         5ubiJU1ilBnnAiYaSnAz5h3QC2iVRpv1naYUeQPq21dqome1rte8rh59ZssgEc2OGQ
+         TG+Ol4r667ph7JQuuXFAih5h+E452v45WmcJGjB8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Markus Boehme <markubo@amazon.com>,
-        Tony Brelinski <tonyx.brelinski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 107/120] ixgbe: Fix packet corruption due to missing DMA sync
+        stable@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>,
+        Stephan Gerhold <stephan@gerhold.net>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.14 79/82] iio: accel: bma180: Fix BMA25x bandwidth register values
 Date:   Mon, 26 Jul 2021 17:39:19 +0200
-Message-Id: <20210726153835.885170431@linuxfoundation.org>
+Message-Id: <20210726153830.745109839@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153832.339431936@linuxfoundation.org>
-References: <20210726153832.339431936@linuxfoundation.org>
+In-Reply-To: <20210726153828.144714469@linuxfoundation.org>
+References: <20210726153828.144714469@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,55 +43,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Markus Boehme <markubo@amazon.com>
+From: Stephan Gerhold <stephan@gerhold.net>
 
-commit 09cfae9f13d51700b0fecf591dcd658fc5375428 upstream.
+commit 8090d67421ddab0ae932abab5a60200598bf0bbb upstream
 
-When receiving a packet with multiple fragments, hardware may still
-touch the first fragment until the entire packet has been received. The
-driver therefore keeps the first fragment mapped for DMA until end of
-packet has been asserted, and delays its dma_sync call until then.
+According to the BMA253 datasheet [1] and BMA250 datasheet [2] the
+bandwidth value for BMA25x should be set as 01xxx:
 
-The driver tries to fit multiple receive buffers on one page. When using
-3K receive buffers (e.g. using Jumbo frames and legacy-rx is turned
-off/build_skb is being used) on an architecture with 4K pages, the
-driver allocates an order 1 compound page and uses one page per receive
-buffer. To determine the correct offset for a delayed DMA sync of the
-first fragment of a multi-fragment packet, the driver then cannot just
-use PAGE_MASK on the DMA address but has to construct a mask based on
-the actual size of the backing page.
+  "Settings 00xxx result in a bandwidth of 7.81 Hz; [...]
+   It is recommended [...] to use the range from ´01000b´ to ´01111b´
+   only in order to be compatible with future products."
 
-Using PAGE_MASK in the 3K RX buffer/4K page architecture configuration
-will always sync the first page of a compound page. With the SWIOTLB
-enabled this can lead to corrupted packets (zeroed out first fragment,
-re-used garbage from another packet) and various consequences, such as
-slow/stalling data transfers and connection resets. For example, testing
-on a link with MTU exceeding 3058 bytes on a host with SWIOTLB enabled
-(e.g. "iommu=soft swiotlb=262144,force") TCP transfers quickly fizzle
-out without this patch.
+However, at the moment the drivers sets bandwidth values from 0 to 6,
+which is not recommended and always results into 7.81 Hz bandwidth
+according to the datasheet.
 
-Cc: stable@vger.kernel.org
-Fixes: 0c5661ecc5dd7 ("ixgbe: fix crash in build_skb Rx code path")
-Signed-off-by: Markus Boehme <markubo@amazon.com>
-Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fix this by introducing a bw_offset = 8 = 01000b for BMA25x,
+so the additional bit is always set for BMA25x.
+
+[1]: https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bma253-ds000.pdf
+[2]: https://datasheet.octopart.com/BMA250-Bosch-datasheet-15540103.pdf
+
+Cc: Peter Meerwald <pmeerw@pmeerw.net>
+Fixes: 2017cff24cc0 ("iio:bma180: Add BMA250 chip support")
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20210526094408.34298-2-stephan@gerhold.net
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+[sudip: adjust context]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/ixgbe/ixgbe_main.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/iio/accel/bma180.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-+++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-@@ -1823,7 +1823,8 @@ static void ixgbe_dma_sync_frag(struct i
- 				struct sk_buff *skb)
- {
- 	if (ring_uses_build_skb(rx_ring)) {
--		unsigned long offset = (unsigned long)(skb->data) & ~PAGE_MASK;
-+		unsigned long mask = (unsigned long)ixgbe_rx_pg_size(rx_ring) - 1;
-+		unsigned long offset = (unsigned long)(skb->data) & mask;
+--- a/drivers/iio/accel/bma180.c
++++ b/drivers/iio/accel/bma180.c
+@@ -50,7 +50,7 @@ struct bma180_part_info {
  
- 		dma_sync_single_range_for_cpu(rx_ring->dev,
- 					      IXGBE_CB(skb)->dma,
+ 	u8 int_reset_reg, int_reset_mask;
+ 	u8 sleep_reg, sleep_mask;
+-	u8 bw_reg, bw_mask;
++	u8 bw_reg, bw_mask, bw_offset;
+ 	u8 scale_reg, scale_mask;
+ 	u8 power_reg, power_mask, lowpower_val;
+ 	u8 int_enable_reg, int_enable_mask;
+@@ -106,6 +106,7 @@ struct bma180_part_info {
+ 
+ #define BMA250_RANGE_MASK	GENMASK(3, 0) /* Range of accel values */
+ #define BMA250_BW_MASK		GENMASK(4, 0) /* Accel bandwidth */
++#define BMA250_BW_OFFSET	8
+ #define BMA250_SUSPEND_MASK	BIT(7) /* chip will sleep */
+ #define BMA250_LOWPOWER_MASK	BIT(6)
+ #define BMA250_DATA_INTEN_MASK	BIT(4)
+@@ -243,7 +244,8 @@ static int bma180_set_bw(struct bma180_d
+ 	for (i = 0; i < data->part_info->num_bw; ++i) {
+ 		if (data->part_info->bw_table[i] == val) {
+ 			ret = bma180_set_bits(data, data->part_info->bw_reg,
+-				data->part_info->bw_mask, i);
++				data->part_info->bw_mask,
++				i + data->part_info->bw_offset);
+ 			if (ret) {
+ 				dev_err(&data->client->dev,
+ 					"failed to set bandwidth\n");
+@@ -662,6 +664,7 @@ static const struct bma180_part_info bma
+ 		.sleep_mask = BMA250_SUSPEND_MASK,
+ 		.bw_reg = BMA250_BW_REG,
+ 		.bw_mask = BMA250_BW_MASK,
++		.bw_offset = BMA250_BW_OFFSET,
+ 		.scale_reg = BMA250_RANGE_REG,
+ 		.scale_mask = BMA250_RANGE_MASK,
+ 		.power_reg = BMA250_POWER_REG,
 
 
