@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A27363D5E6B
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:51:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E7A83D5F75
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236339AbhGZPHr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:07:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48262 "EHLO mail.kernel.org"
+        id S236949AbhGZPR7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:17:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236210AbhGZPHG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:07:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 986B060F6F;
-        Mon, 26 Jul 2021 15:47:32 +0000 (UTC)
+        id S237661AbhGZPQQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:16:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C5CD60F02;
+        Mon, 26 Jul 2021 15:56:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314453;
-        bh=hrzEr+2+EibsbRMcXGRF7SGni11POzswZuIbNQumFfI=;
+        s=korg; t=1627315005;
+        bh=uOywpBAuVfjRfxNZcXgH+CoNeQ185n7HwhNdfBCsRyA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TceyVOyNv8S7e0CzDk0gWgCczWvmAHuo9QqIBGalf78otPX/Mi8pg6xbCygT2Q+Ty
-         D0AVQRyMDtf6CPu9pOC1tUWWbtwPeoymDczJUjetCrKLZPt8QsAhYM34Nhes2IuHWp
-         svK2iZuZ3O8n27M9uS8cWv0rZIml52mSw0E/LTJY=
+        b=ylU2QcbM+owdGdKkSm5/uxrDNVDI/Gfs28SKMIiRPMU1fKt89u4fnoFDfLwKa3T8e
+         nZYgU+uWeqlwjwsO6I1zr9u5/zZr4uZ9gyRsgW/u7BN7sTtyqwDcG/BwG3nGRohnXv
+         BPPUV7dIUK1iaY6XU/DAxTe0d3oR8hlRcpqDv/Qo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+09a5d591c1f98cf5efcb@syzkaller.appspotmail.com,
-        Ziyang Xuan <william.xuanziyang@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 51/82] net: fix uninit-value in caif_seqpkt_sendmsg
+Subject: [PATCH 5.4 050/108] spi: cadence: Correct initialisation of runtime PM again
 Date:   Mon, 26 Jul 2021 17:38:51 +0200
-Message-Id: <20210726153829.838639420@linuxfoundation.org>
+Message-Id: <20210726153833.287505952@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153828.144714469@linuxfoundation.org>
-References: <20210726153828.144714469@linuxfoundation.org>
+In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
+References: <20210726153831.696295003@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,55 +41,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ziyang Xuan <william.xuanziyang@huawei.com>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit 991e634360f2622a683b48dfe44fe6d9cb765a09 ]
+[ Upstream commit 56912da7a68c8356df6a6740476237441b0b792a ]
 
-When nr_segs equal to zero in iovec_from_user, the object
-msg->msg_iter.iov is uninit stack memory in caif_seqpkt_sendmsg
-which is defined in ___sys_sendmsg. So we cann't just judge
-msg->msg_iter.iov->base directlly. We can use nr_segs to judge
-msg in caif_seqpkt_sendmsg whether has data buffers.
+The original implementation of RPM handling in probe() was mostly
+correct, except it failed to call pm_runtime_get_*() to activate the
+hardware. The subsequent fix, 734882a8bf98 ("spi: cadence: Correct
+initialisation of runtime PM"), breaks the implementation further,
+to the point where the system using this hard IP on ZynqMP hangs on
+boot, because it accesses hardware which is gated off.
 
-=====================================================
-BUG: KMSAN: uninit-value in caif_seqpkt_sendmsg+0x693/0xf60 net/caif/caif_socket.c:542
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x1c9/0x220 lib/dump_stack.c:118
- kmsan_report+0xf7/0x1e0 mm/kmsan/kmsan_report.c:118
- __msan_warning+0x58/0xa0 mm/kmsan/kmsan_instr.c:215
- caif_seqpkt_sendmsg+0x693/0xf60 net/caif/caif_socket.c:542
- sock_sendmsg_nosec net/socket.c:652 [inline]
- sock_sendmsg net/socket.c:672 [inline]
- ____sys_sendmsg+0x12b6/0x1350 net/socket.c:2343
- ___sys_sendmsg net/socket.c:2397 [inline]
- __sys_sendmmsg+0x808/0xc90 net/socket.c:2480
- __compat_sys_sendmmsg net/compat.c:656 [inline]
+Undo 734882a8bf98 ("spi: cadence: Correct initialisation of runtime
+PM") and instead add missing pm_runtime_get_noresume() and move the
+RPM disabling all the way to the end of probe(). That makes ZynqMP
+not hang on boot yet again.
 
-Reported-by: syzbot+09a5d591c1f98cf5efcb@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?id=1ace85e8fc9b0d5a45c08c2656c3e91762daa9b8
-Fixes: bece7b2398d0 ("caif: Rewritten socket implementation")
-Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 734882a8bf98 ("spi: cadence: Correct initialisation of runtime PM")
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Charles Keepax <ckeepax@opensource.cirrus.com>
+Cc: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20210716182133.218640-1-marex@denx.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/caif/caif_socket.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/spi/spi-cadence.c | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
-diff --git a/net/caif/caif_socket.c b/net/caif/caif_socket.c
-index df936d2f58bd..c44ade1b1833 100644
---- a/net/caif/caif_socket.c
-+++ b/net/caif/caif_socket.c
-@@ -539,7 +539,8 @@ static int caif_seqpkt_sendmsg(struct socket *sock, struct msghdr *msg,
- 		goto err;
+diff --git a/drivers/spi/spi-cadence.c b/drivers/spi/spi-cadence.c
+index 1d0c335b0bf8..5ac60d06c674 100644
+--- a/drivers/spi/spi-cadence.c
++++ b/drivers/spi/spi-cadence.c
+@@ -517,6 +517,12 @@ static int cdns_spi_probe(struct platform_device *pdev)
+ 		goto clk_dis_apb;
+ 	}
  
- 	ret = -EINVAL;
--	if (unlikely(msg->msg_iter.iov->iov_base == NULL))
-+	if (unlikely(msg->msg_iter.nr_segs == 0) ||
-+	    unlikely(msg->msg_iter.iov->iov_base == NULL))
- 		goto err;
- 	noblock = msg->msg_flags & MSG_DONTWAIT;
++	pm_runtime_use_autosuspend(&pdev->dev);
++	pm_runtime_set_autosuspend_delay(&pdev->dev, SPI_AUTOSUSPEND_TIMEOUT);
++	pm_runtime_get_noresume(&pdev->dev);
++	pm_runtime_set_active(&pdev->dev);
++	pm_runtime_enable(&pdev->dev);
++
+ 	ret = of_property_read_u32(pdev->dev.of_node, "num-cs", &num_cs);
+ 	if (ret < 0)
+ 		master->num_chipselect = CDNS_SPI_DEFAULT_NUM_CS;
+@@ -531,11 +537,6 @@ static int cdns_spi_probe(struct platform_device *pdev)
+ 	/* SPI controller initializations */
+ 	cdns_spi_init_hw(xspi);
  
+-	pm_runtime_set_active(&pdev->dev);
+-	pm_runtime_enable(&pdev->dev);
+-	pm_runtime_use_autosuspend(&pdev->dev);
+-	pm_runtime_set_autosuspend_delay(&pdev->dev, SPI_AUTOSUSPEND_TIMEOUT);
+-
+ 	irq = platform_get_irq(pdev, 0);
+ 	if (irq <= 0) {
+ 		ret = -ENXIO;
+@@ -566,6 +567,9 @@ static int cdns_spi_probe(struct platform_device *pdev)
+ 
+ 	master->bits_per_word_mask = SPI_BPW_MASK(8);
+ 
++	pm_runtime_mark_last_busy(&pdev->dev);
++	pm_runtime_put_autosuspend(&pdev->dev);
++
+ 	ret = spi_register_master(master);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "spi_register_master failed\n");
 -- 
 2.30.2
 
