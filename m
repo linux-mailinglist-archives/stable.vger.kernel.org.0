@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF93B3D5FC0
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D3443D5F2E
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:00:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236436AbhGZPTE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:19:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58618 "EHLO mail.kernel.org"
+        id S236351AbhGZPRJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:17:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55330 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236347AbhGZPSG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:18:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 38DD560F38;
-        Mon, 26 Jul 2021 15:58:32 +0000 (UTC)
+        id S236906AbhGZPPn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:15:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 82A5C6101E;
+        Mon, 26 Jul 2021 15:54:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315112;
-        bh=PhZhRfJRPe3LexCSI2vN0G6CEGAKLiy1QknDRae4hDU=;
+        s=korg; t=1627314880;
+        bh=J0TFvrvPXgzTM3EvxtMcT/I8V9rN3rAA41WRPDYEV0w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wj41WdelxPo6DlGljk0W4+TBFZT5y/xzA4s241C+QFQV4D1mh8BiVcOr6w18wjG4+
-         sWukngrBUQCqoUo/+vSGxANOl631aiY0GWj/6GQ+/jdRKf5iAksRpSOItBFAzbBYb8
-         wmQUpgYsXapIeYcjtJhJG34ooBGpky+BQVvO7wCA=
+        b=F8iR3gXt33IF5Cp1+WOG0akgX/hy7AexA0ZgTFIvb30R1IIKUYyz+YwI5FJb7q71r
+         9T3LdhOB1Zruw2y7ZJeFsDnUNr9D1ZgnjQIR6TCfZH7b7TWsG2HKs6n+Gm3ly+HrAk
+         HGXnpibe3qMibT7Lp3fFtiDutClBYrY5rCZJp4Fk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julian Sikorski <belegdol+github@gmail.com>
-Subject: [PATCH 5.4 081/108] USB: usb-storage: Add LaCie Rugged USB3-FW to IGNORE_UAS
+        stable@vger.kernel.org, Charles Baylis <cb-kernel@fishzet.co.uk>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH 4.19 110/120] drm: Return -ENOTTY for non-drm ioctls
 Date:   Mon, 26 Jul 2021 17:39:22 +0200
-Message-Id: <20210726153834.272443428@linuxfoundation.org>
+Message-Id: <20210726153835.996019832@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153831.696295003@linuxfoundation.org>
-References: <20210726153831.696295003@linuxfoundation.org>
+In-Reply-To: <20210726153832.339431936@linuxfoundation.org>
+References: <20210726153832.339431936@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,42 +39,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julian Sikorski <belegdol@gmail.com>
+From: Charles Baylis <cb-kernel@fishzet.co.uk>
 
-commit 6abf2fe6b4bf6e5256b80c5817908151d2d33e9f upstream.
+commit 3abab27c322e0f2acf981595aa8040c9164dc9fb upstream.
 
-LaCie Rugged USB3-FW appears to be incompatible with UAS. It generates
-errors like:
-[ 1151.582598] sd 14:0:0:0: tag#16 uas_eh_abort_handler 0 uas-tag 1 inflight: IN
-[ 1151.582602] sd 14:0:0:0: tag#16 CDB: Report supported operation codes a3 0c 01 12 00 00 00 00 02 00 00 00
-[ 1151.588594] scsi host14: uas_eh_device_reset_handler start
-[ 1151.710482] usb 2-4: reset SuperSpeed Gen 1 USB device number 2 using xhci_hcd
-[ 1151.741398] scsi host14: uas_eh_device_reset_handler success
-[ 1181.785534] scsi host14: uas_eh_device_reset_handler start
+drm: Return -ENOTTY for non-drm ioctls
 
-Signed-off-by: Julian Sikorski <belegdol+github@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210720171910.36497-1-belegdol+github@gmail.com
+Return -ENOTTY from drm_ioctl() when userspace passes in a cmd number
+which doesn't relate to the drm subsystem.
+
+Glibc uses the TCGETS ioctl to implement isatty(), and without this
+change isatty() returns it incorrectly returns true for drm devices.
+
+To test run this command:
+$ if [ -t 0 ]; then echo is a tty; fi < /dev/dri/card0
+which shows "is a tty" without this patch.
+
+This may also modify memory which the userspace application is not
+expecting.
+
+Signed-off-by: Charles Baylis <cb-kernel@fishzet.co.uk>
+Cc: stable@vger.kernel.org
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/YPG3IBlzaMhfPqCr@stando.fishzet.co.uk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/storage/unusual_uas.h |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/gpu/drm/drm_ioctl.c |    3 +++
+ include/drm/drm_ioctl.h     |    1 +
+ 2 files changed, 4 insertions(+)
 
---- a/drivers/usb/storage/unusual_uas.h
-+++ b/drivers/usb/storage/unusual_uas.h
-@@ -45,6 +45,13 @@ UNUSUAL_DEV(0x059f, 0x105f, 0x0000, 0x99
- 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
- 		US_FL_NO_REPORT_OPCODES | US_FL_NO_SAME),
+--- a/drivers/gpu/drm/drm_ioctl.c
++++ b/drivers/gpu/drm/drm_ioctl.c
+@@ -797,6 +797,9 @@ long drm_ioctl(struct file *filp,
+ 	if (drm_dev_is_unplugged(dev))
+ 		return -ENODEV;
  
-+/* Reported-by: Julian Sikorski <belegdol@gmail.com> */
-+UNUSUAL_DEV(0x059f, 0x1061, 0x0000, 0x9999,
-+		"LaCie",
-+		"Rugged USB3-FW",
-+		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
-+		US_FL_IGNORE_UAS),
++       if (DRM_IOCTL_TYPE(cmd) != DRM_IOCTL_BASE)
++               return -ENOTTY;
 +
- /*
-  * Apricorn USB3 dongle sometimes returns "USBSUSBSUSBS" in response to SCSI
-  * commands in UAS mode.  Observed with the 1.28 firmware; are there others?
+ 	is_driver_ioctl = nr >= DRM_COMMAND_BASE && nr < DRM_COMMAND_END;
+ 
+ 	if (is_driver_ioctl) {
+--- a/include/drm/drm_ioctl.h
++++ b/include/drm/drm_ioctl.h
+@@ -68,6 +68,7 @@ typedef int drm_ioctl_compat_t(struct fi
+ 			       unsigned long arg);
+ 
+ #define DRM_IOCTL_NR(n)                _IOC_NR(n)
++#define DRM_IOCTL_TYPE(n)              _IOC_TYPE(n)
+ #define DRM_MAJOR       226
+ 
+ /**
 
 
