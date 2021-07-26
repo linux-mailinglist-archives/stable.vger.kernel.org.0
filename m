@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC77F3D5FEE
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:01:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E52A3D61C1
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:14:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236840AbhGZPTs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:19:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32848 "EHLO mail.kernel.org"
+        id S233651AbhGZPcy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:32:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41244 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236285AbhGZPTq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:19:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3162360F70;
-        Mon, 26 Jul 2021 16:00:14 +0000 (UTC)
+        id S237810AbhGZP3Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:29:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E6FF261051;
+        Mon, 26 Jul 2021 16:08:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627315214;
-        bh=c9IFKQkaN+FVyWsgf+CHXwkJFglQwfG7YytRaQjHWtE=;
+        s=korg; t=1627315724;
+        bh=x2ea9C1VNUOcWDYm/FE+GejePiRouX+L7hmIegZxezs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TXRwhwzI+q5WBRpKLgH/+MO3MR0ZXZ4gSWVgSomNS+SretTv5kBlu0B7oByknRxl8
-         ZtxafdEC+l7hV7TPV+LTgbbAu8dJZE8v81FVhm6UoZlK0/FtpgEcKhcSoj4pm85gDT
-         xVp0+HIusOW2GawHG3Wl5ECFnICrUh42ZQhoqgSg=
+        b=T5yuooOi57NJa/rBIbovtK9fJxBV0hn7RaW4WW6rK1IWDA8PZQkZMGKeY1sgt/sbq
+         RvcBjX5xbhefzsHgmdeBUseav14/B6XnkiquxlVZ5V0S+WtoBrEtu62QhuZbiRBsSR
+         vDe9woLlp7+C/dliaA8zOjTQ2olDWR3vdNEN1jYk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Erez Geva <erez.geva.ext@siemens.com>,
-        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
-        Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?=C3=8D=C3=B1igo=20Huguet?= <ihuguet@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 001/167] igc: Fix use-after-free error during reset
+Subject: [PATCH 5.13 042/223] sfc: fix lack of XDP TX queues - error XDP TX failed (-22)
 Date:   Mon, 26 Jul 2021 17:37:14 +0200
-Message-Id: <20210726153839.421540833@linuxfoundation.org>
+Message-Id: <20210726153847.626952746@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
-References: <20210726153839.371771838@linuxfoundation.org>
+In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
+References: <20210726153846.245305071@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -44,91 +41,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinicius Costa Gomes <vinicius.gomes@intel.com>
+From: Íñigo Huguet <ihuguet@redhat.com>
 
-[ Upstream commit 56ea7ed103b46970e171eb1c95916f393d64eeff ]
+[ Upstream commit f28100cb9c9645c07cbd22431278ac9492f6a01c ]
 
-Cleans the next descriptor to watch (next_to_watch) when cleaning the
-TX ring.
+Fixes: e26ca4b53582 sfc: reduce the number of requested xdp ev queues
 
-Failure to do so can cause invalid memory accesses. If igc_poll() runs
-while the controller is being reset this can lead to the driver try to
-free a skb that was already freed.
+The buggy commit intended to allocate less channels for XDP in order to
+be more unlikely to reach the limit of 32 channels of the driver.
 
-Log message:
+The idea was to use each IRQ/eventqeue for more XDP TX queues than
+before, calculating which is the maximum number of TX queues that one
+event queue can handle. For example, in EF10 each event queue could
+handle up to 8 queues, better than the 4 they were handling before the
+change. This way, it would have to allocate half of channels than before
+for XDP TX.
 
- [  101.525242] refcount_t: underflow; use-after-free.
- [  101.525251] WARNING: CPU: 1 PID: 646 at lib/refcount.c:28 refcount_warn_saturate+0xab/0xf0
- [  101.525259] Modules linked in: sch_etf(E) sch_mqprio(E) rfkill(E) intel_rapl_msr(E) intel_rapl_common(E)
- x86_pkg_temp_thermal(E) intel_powerclamp(E) coretemp(E) binfmt_misc(E) kvm_intel(E) kvm(E) irqbypass(E) crc32_pclmul(E)
- ghash_clmulni_intel(E) aesni_intel(E) mei_wdt(E) libaes(E) crypto_simd(E) cryptd(E) glue_helper(E) snd_hda_codec_hdmi(E)
- rapl(E) intel_cstate(E) snd_hda_intel(E) snd_intel_dspcfg(E) sg(E) soundwire_intel(E) intel_uncore(E) at24(E)
- soundwire_generic_allocation(E) iTCO_wdt(E) soundwire_cadence(E) intel_pmc_bxt(E) serio_raw(E) snd_hda_codec(E)
- iTCO_vendor_support(E) watchdog(E) snd_hda_core(E) snd_hwdep(E) snd_soc_core(E) snd_compress(E) snd_pcsp(E)
- soundwire_bus(E) snd_pcm(E) evdev(E) snd_timer(E) mei_me(E) snd(E) soundcore(E) mei(E) configfs(E) ip_tables(E) x_tables(E)
- autofs4(E) ext4(E) crc32c_generic(E) crc16(E) mbcache(E) jbd2(E) sd_mod(E) t10_pi(E) crc_t10dif(E) crct10dif_generic(E)
- i915(E) ahci(E) libahci(E) ehci_pci(E) igb(E) xhci_pci(E) ehci_hcd(E)
- [  101.525303]  drm_kms_helper(E) dca(E) xhci_hcd(E) libata(E) crct10dif_pclmul(E) cec(E) crct10dif_common(E) tsn(E) igc(E)
- e1000e(E) ptp(E) i2c_i801(E) crc32c_intel(E) psmouse(E) i2c_algo_bit(E) i2c_smbus(E) scsi_mod(E) lpc_ich(E) pps_core(E)
- usbcore(E) drm(E) button(E) video(E)
- [  101.525318] CPU: 1 PID: 646 Comm: irq/37-enp7s0-T Tainted: G            E     5.10.30-rt37-tsn1-rt-ipipe #ipipe
- [  101.525320] Hardware name: SIEMENS AG SIMATIC IPC427D/A5E31233588, BIOS V17.02.09 03/31/2017
- [  101.525322] RIP: 0010:refcount_warn_saturate+0xab/0xf0
- [  101.525325] Code: 05 31 48 44 01 01 e8 f0 c6 42 00 0f 0b c3 80 3d 1f 48 44 01 00 75 90 48 c7 c7 78 a8 f3 a6 c6 05 0f 48
- 44 01 01 e8 d1 c6 42 00 <0f> 0b c3 80 3d fe 47 44 01 00 0f 85 6d ff ff ff 48 c7 c7 d0 a8 f3
- [  101.525327] RSP: 0018:ffffbdedc0917cb8 EFLAGS: 00010286
- [  101.525329] RAX: 0000000000000000 RBX: ffff98fd6becbf40 RCX: 0000000000000001
- [  101.525330] RDX: 0000000000000001 RSI: ffffffffa6f2700c RDI: 00000000ffffffff
- [  101.525332] RBP: ffff98fd6becc14c R08: ffffffffa7463d00 R09: ffffbdedc0917c50
- [  101.525333] R10: ffffffffa74c3578 R11: 0000000000000034 R12: 00000000ffffff00
- [  101.525335] R13: ffff98fd6b0b1000 R14: 0000000000000039 R15: ffff98fd6be35c40
- [  101.525337] FS:  0000000000000000(0000) GS:ffff98fd6e240000(0000) knlGS:0000000000000000
- [  101.525339] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- [  101.525341] CR2: 00007f34135a3a70 CR3: 0000000150210003 CR4: 00000000001706e0
- [  101.525343] Call Trace:
- [  101.525346]  sock_wfree+0x9c/0xa0
- [  101.525353]  unix_destruct_scm+0x7b/0xa0
- [  101.525358]  skb_release_head_state+0x40/0x90
- [  101.525362]  skb_release_all+0xe/0x30
- [  101.525364]  napi_consume_skb+0x57/0x160
- [  101.525367]  igc_poll+0xb7/0xc80 [igc]
- [  101.525376]  ? sched_clock+0x5/0x10
- [  101.525381]  ? sched_clock_cpu+0xe/0x100
- [  101.525385]  net_rx_action+0x14c/0x410
- [  101.525388]  __do_softirq+0xe9/0x2f4
- [  101.525391]  __local_bh_enable_ip+0xe3/0x110
- [  101.525395]  ? irq_finalize_oneshot.part.47+0xe0/0xe0
- [  101.525398]  irq_forced_thread_fn+0x6a/0x80
- [  101.525401]  irq_thread+0xe8/0x180
- [  101.525403]  ? wake_threads_waitq+0x30/0x30
- [  101.525406]  ? irq_thread_check_affinity+0xd0/0xd0
- [  101.525408]  kthread+0x183/0x1a0
- [  101.525412]  ? kthread_park+0x80/0x80
- [  101.525415]  ret_from_fork+0x22/0x30
+The problem is that the TX queues are also contained inside the channel
+structs, and there are only 4 queues per channel. Reducing the number of
+channels means also reducing the number of queues, resulting in not
+having the desired number of 1 queue per CPU.
 
-Fixes: 13b5b7fd6a4a ("igc: Add support for Tx/Rx rings")
-Reported-by: Erez Geva <erez.geva.ext@siemens.com>
-Signed-off-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
-Tested-by: Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+This leads to getting errors on XDP_TX and XDP_REDIRECT if they're
+executed from a high numbered CPU, because there only exist queues for
+the low half of CPUs, actually. If XDP_TX/REDIRECT is executed in a low
+numbered CPU, the error doesn't happen. This is the error in the logs
+(repeated many times, even rate limited):
+sfc 0000:5e:00.0 ens3f0np0: XDP TX failed (-22)
+
+This errors happens in function efx_xdp_tx_buffers, where it expects to
+have a dedicated XDP TX queue per CPU.
+
+Reverting the change makes again more likely to reach the limit of 32
+channels in machines with many CPUs. If this happen, no XDP_TX/REDIRECT
+will be possible at all, and we will have this log error messages:
+
+At interface probe:
+sfc 0000:5e:00.0: Insufficient resources for 12 XDP event queues (24 other channels, max 32)
+
+At every subsequent XDP_TX/REDIRECT failure, rate limited:
+sfc 0000:5e:00.0 ens3f0np0: XDP TX failed (-22)
+
+However, without reverting the change, it makes the user to think that
+everything is OK at probe time, but later it fails in an unpredictable
+way, depending on the CPU that handles the packet.
+
+It is better to restore the predictable behaviour. If the user sees the
+error message at probe time, he/she can try to configure the best way it
+fits his/her needs. At least, he/she will have 2 options:
+- Accept that XDP_TX/REDIRECT is not available (he/she may not need it)
+- Load sfc module with modparam 'rss_cpus' with a lower number, thus
+  creating less normal RX queues/channels, letting more free resources
+  for XDP, with some performance penalty.
+
+Anyway, let the calculation of maximum TX queues that can be handled by
+a single event queue, and use it only if it's less than the number of TX
+queues per channel. This doesn't happen in practice, but could happen if
+some constant values are tweaked in the future, such us
+EFX_MAX_TXQ_PER_CHANNEL, EFX_MAX_EVQ_SIZE or EFX_MAX_DMAQ_SIZE.
+
+Related mailing list thread:
+https://lore.kernel.org/bpf/20201215104327.2be76156@carbon/
+
+Signed-off-by: Íñigo Huguet <ihuguet@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/igc/igc_main.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/sfc/efx_channels.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/igc/igc_main.c b/drivers/net/ethernet/intel/igc/igc_main.c
-index 7b822cdcc6c5..4b58dd97a7c0 100644
---- a/drivers/net/ethernet/intel/igc/igc_main.c
-+++ b/drivers/net/ethernet/intel/igc/igc_main.c
-@@ -207,6 +207,8 @@ static void igc_clean_tx_ring(struct igc_ring *tx_ring)
- 					       DMA_TO_DEVICE);
- 		}
+diff --git a/drivers/net/ethernet/sfc/efx_channels.c b/drivers/net/ethernet/sfc/efx_channels.c
+index a3ca406a3561..5b71f8a03a6d 100644
+--- a/drivers/net/ethernet/sfc/efx_channels.c
++++ b/drivers/net/ethernet/sfc/efx_channels.c
+@@ -152,6 +152,7 @@ static int efx_allocate_msix_channels(struct efx_nic *efx,
+ 	 * maximum size.
+ 	 */
+ 	tx_per_ev = EFX_MAX_EVQ_SIZE / EFX_TXQ_MAX_ENT(efx);
++	tx_per_ev = min(tx_per_ev, EFX_MAX_TXQ_PER_CHANNEL);
+ 	n_xdp_tx = num_possible_cpus();
+ 	n_xdp_ev = DIV_ROUND_UP(n_xdp_tx, tx_per_ev);
  
-+		tx_buffer->next_to_watch = NULL;
-+
- 		/* move us one more past the eop_desc for start of next pkt */
- 		tx_buffer++;
- 		i++;
+@@ -181,7 +182,7 @@ static int efx_allocate_msix_channels(struct efx_nic *efx,
+ 		efx->xdp_tx_queue_count = 0;
+ 	} else {
+ 		efx->n_xdp_channels = n_xdp_ev;
+-		efx->xdp_tx_per_channel = EFX_MAX_TXQ_PER_CHANNEL;
++		efx->xdp_tx_per_channel = tx_per_ev;
+ 		efx->xdp_tx_queue_count = n_xdp_tx;
+ 		n_channels += n_xdp_ev;
+ 		netif_dbg(efx, drv, efx->net_dev,
 -- 
 2.30.2
 
