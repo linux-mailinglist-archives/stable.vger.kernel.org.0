@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF6633D5EAC
+	by mail.lfdr.de (Postfix) with ESMTP id A62813D5EAB
 	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 17:51:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236549AbhGZPLT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:11:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48546 "EHLO mail.kernel.org"
+        id S236462AbhGZPLR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:11:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236375AbhGZPIQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236386AbhGZPIQ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 26 Jul 2021 11:08:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2368160F9D;
-        Mon, 26 Jul 2021 15:48:36 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0997360F9F;
+        Mon, 26 Jul 2021 15:48:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627314517;
-        bh=00km/HAFiTh45Xv28FeOfd/Y+umRehlUmeqDvdTCEOw=;
+        s=korg; t=1627314520;
+        bh=YH+VDSWyxvMW7UBNTSI85qMRrwWMIYiZtz6Avz72yGQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jao+fCqqwqlpamKhMQudbDoVHKQrnNi7KQwV/BA2oLR7N8AvtIFKVGiJGC514zPTO
-         dAje0uZbkyxp9Cs+Y913fdgW9Eu0ngG5ZQqtCwzmI4+Qc5XVYcy5+zcJ4OiKGqciUk
-         v0ZpsGmiVV61fme4yng7FAOZ9mVKCl5cUoM+rCJs=
+        b=N7uYeVBM+UPXSfubAFMysOVHU+2yQK0Pb7sLPFUT44pksjbIdWXf3T3k22qLQ5XWj
+         LXN+lDCaoR48xWtrhBsS4AV0SKN2x1bx/sfWbkzL6m9GtvIY2GojV9TzeqVnyM6wVD
+         dw3yqerDbGQRzUt0jbJBVABuQvpO2/oguXGjvTGU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Doug Berger <opendmb@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 77/82] net: bcmgenet: ensure EXT_ENERGY_DET_MASK is clear
-Date:   Mon, 26 Jul 2021 17:39:17 +0200
-Message-Id: <20210726153830.681692214@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>,
+        Oleksandr Kravchenko <o.v.kravchenko@globallogic.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.14 78/82] iio: accel: bma180: Use explicit member assignment
+Date:   Mon, 26 Jul 2021 17:39:18 +0200
+Message-Id: <20210726153830.714268205@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210726153828.144714469@linuxfoundation.org>
 References: <20210726153828.144714469@linuxfoundation.org>
@@ -40,91 +42,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Doug Berger <opendmb@gmail.com>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-commit 5a3c680aa2c12c90c44af383fe6882a39875ab81 upstream.
+commit 9436abc40139503a7cea22a96437697d048f31c0 upstream
 
-Setting the EXT_ENERGY_DET_MASK bit allows the port energy detection
-logic of the internal PHY to prevent the system from sleeping. Some
-internal PHYs will report that energy is detected when the network
-interface is closed which can prevent the system from going to sleep
-if WoL is enabled when the interface is brought down.
+This uses the C99 explicit .member assignment for the
+variant data in struct bma180_part_info. This makes it
+easier to understand and add new variants.
 
-Since the driver does not support waking the system on this logic,
-this commit clears the bit whenever the internal PHY is powered up
-and the other logic for manipulating the bit is removed since it
-serves no useful function.
-
-Fixes: 1c1008c793fa ("net: bcmgenet: add main driver file")
-Signed-off-by: Doug Berger <opendmb@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: Peter Meerwald <pmeerw@pmeerw.net>
+Cc: Oleksandr Kravchenko <o.v.kravchenko@globallogic.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/genet/bcmgenet.c     |   16 ++--------------
- drivers/net/ethernet/broadcom/genet/bcmgenet_wol.c |    6 ------
- 2 files changed, 2 insertions(+), 20 deletions(-)
+ drivers/iio/accel/bma180.c |   68 +++++++++++++++++++++++++++++----------------
+ 1 file changed, 44 insertions(+), 24 deletions(-)
 
---- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-@@ -1158,7 +1158,8 @@ static void bcmgenet_power_up(struct bcm
+--- a/drivers/iio/accel/bma180.c
++++ b/drivers/iio/accel/bma180.c
+@@ -626,32 +626,52 @@ static const struct iio_chan_spec bma250
  
- 	switch (mode) {
- 	case GENET_POWER_PASSIVE:
--		reg &= ~(EXT_PWR_DOWN_DLL | EXT_PWR_DOWN_BIAS);
-+		reg &= ~(EXT_PWR_DOWN_DLL | EXT_PWR_DOWN_BIAS |
-+			 EXT_ENERGY_DET_MASK);
- 		if (GENET_IS_V5(priv)) {
- 			reg &= ~(EXT_PWR_DOWN_PHY_EN |
- 				 EXT_PWR_DOWN_PHY_RD |
-@@ -2913,12 +2914,6 @@ static int bcmgenet_open(struct net_devi
- 
- 	bcmgenet_set_hw_addr(priv, dev->dev_addr);
- 
--	if (priv->internal_phy) {
--		reg = bcmgenet_ext_readl(priv, EXT_EXT_PWR_MGMT);
--		reg |= EXT_ENERGY_DET_MASK;
--		bcmgenet_ext_writel(priv, reg, EXT_EXT_PWR_MGMT);
--	}
--
- 	/* Disable RX/TX DMA and flush TX queues */
- 	dma_ctrl = bcmgenet_dma_disable(priv);
- 
-@@ -3676,7 +3671,6 @@ static int bcmgenet_resume(struct device
- 	struct bcmgenet_priv *priv = netdev_priv(dev);
- 	unsigned long dma_ctrl;
- 	int ret;
--	u32 reg;
- 
- 	if (!netif_running(dev))
- 		return 0;
-@@ -3712,12 +3706,6 @@ static int bcmgenet_resume(struct device
- 
- 	bcmgenet_set_hw_addr(priv, dev->dev_addr);
- 
--	if (priv->internal_phy) {
--		reg = bcmgenet_ext_readl(priv, EXT_EXT_PWR_MGMT);
--		reg |= EXT_ENERGY_DET_MASK;
--		bcmgenet_ext_writel(priv, reg, EXT_EXT_PWR_MGMT);
--	}
--
- 	if (priv->wolopts)
- 		bcmgenet_power_up(priv, GENET_POWER_WOL_MAGIC);
- 
---- a/drivers/net/ethernet/broadcom/genet/bcmgenet_wol.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmgenet_wol.c
-@@ -166,12 +166,6 @@ int bcmgenet_wol_power_down_cfg(struct b
- 	reg |= CMD_RX_EN;
- 	bcmgenet_umac_writel(priv, reg, UMAC_CMD);
- 
--	if (priv->hw_params->flags & GENET_HAS_EXT) {
--		reg = bcmgenet_ext_readl(priv, EXT_EXT_PWR_MGMT);
--		reg &= ~EXT_ENERGY_DET_MASK;
--		bcmgenet_ext_writel(priv, reg, EXT_EXT_PWR_MGMT);
--	}
--
- 	return 0;
- }
+ static const struct bma180_part_info bma180_part_info[] = {
+ 	[BMA180] = {
+-		bma180_channels, ARRAY_SIZE(bma180_channels),
+-		bma180_scale_table, ARRAY_SIZE(bma180_scale_table),
+-		bma180_bw_table, ARRAY_SIZE(bma180_bw_table),
+-		BMA180_CTRL_REG0, BMA180_RESET_INT,
+-		BMA180_CTRL_REG0, BMA180_SLEEP,
+-		BMA180_BW_TCS, BMA180_BW,
+-		BMA180_OFFSET_LSB1, BMA180_RANGE,
+-		BMA180_TCO_Z, BMA180_MODE_CONFIG, BMA180_LOW_POWER,
+-		BMA180_CTRL_REG3, BMA180_NEW_DATA_INT,
+-		BMA180_RESET,
+-		bma180_chip_config,
+-		bma180_chip_disable,
++		.channels = bma180_channels,
++		.num_channels = ARRAY_SIZE(bma180_channels),
++		.scale_table = bma180_scale_table,
++		.num_scales = ARRAY_SIZE(bma180_scale_table),
++		.bw_table = bma180_bw_table,
++		.num_bw = ARRAY_SIZE(bma180_bw_table),
++		.int_reset_reg = BMA180_CTRL_REG0,
++		.int_reset_mask = BMA180_RESET_INT,
++		.sleep_reg = BMA180_CTRL_REG0,
++		.sleep_mask = BMA180_SLEEP,
++		.bw_reg = BMA180_BW_TCS,
++		.bw_mask = BMA180_BW,
++		.scale_reg = BMA180_OFFSET_LSB1,
++		.scale_mask = BMA180_RANGE,
++		.power_reg = BMA180_TCO_Z,
++		.power_mask = BMA180_MODE_CONFIG,
++		.lowpower_val = BMA180_LOW_POWER,
++		.int_enable_reg = BMA180_CTRL_REG3,
++		.int_enable_mask = BMA180_NEW_DATA_INT,
++		.softreset_reg = BMA180_RESET,
++		.chip_config = bma180_chip_config,
++		.chip_disable = bma180_chip_disable,
+ 	},
+ 	[BMA250] = {
+-		bma250_channels, ARRAY_SIZE(bma250_channels),
+-		bma250_scale_table, ARRAY_SIZE(bma250_scale_table),
+-		bma250_bw_table, ARRAY_SIZE(bma250_bw_table),
+-		BMA250_INT_RESET_REG, BMA250_INT_RESET_MASK,
+-		BMA250_POWER_REG, BMA250_SUSPEND_MASK,
+-		BMA250_BW_REG, BMA250_BW_MASK,
+-		BMA250_RANGE_REG, BMA250_RANGE_MASK,
+-		BMA250_POWER_REG, BMA250_LOWPOWER_MASK, 1,
+-		BMA250_INT_ENABLE_REG, BMA250_DATA_INTEN_MASK,
+-		BMA250_RESET_REG,
+-		bma250_chip_config,
+-		bma250_chip_disable,
++		.channels = bma250_channels,
++		.num_channels = ARRAY_SIZE(bma250_channels),
++		.scale_table = bma250_scale_table,
++		.num_scales = ARRAY_SIZE(bma250_scale_table),
++		.bw_table = bma250_bw_table,
++		.num_bw = ARRAY_SIZE(bma250_bw_table),
++		.int_reset_reg = BMA250_INT_RESET_REG,
++		.int_reset_mask = BMA250_INT_RESET_MASK,
++		.sleep_reg = BMA250_POWER_REG,
++		.sleep_mask = BMA250_SUSPEND_MASK,
++		.bw_reg = BMA250_BW_REG,
++		.bw_mask = BMA250_BW_MASK,
++		.scale_reg = BMA250_RANGE_REG,
++		.scale_mask = BMA250_RANGE_MASK,
++		.power_reg = BMA250_POWER_REG,
++		.power_mask = BMA250_LOWPOWER_MASK,
++		.lowpower_val = 1,
++		.int_enable_reg = BMA250_INT_ENABLE_REG,
++		.int_enable_mask = BMA250_DATA_INTEN_MASK,
++		.softreset_reg = BMA250_RESET_REG,
++		.chip_config = bma250_chip_config,
++		.chip_disable = bma250_chip_disable,
+ 	},
+ };
  
 
 
