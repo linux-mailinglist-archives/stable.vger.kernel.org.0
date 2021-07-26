@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 137543D6267
-	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:16:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73C7D3D612D
+	for <lists+stable@lfdr.de>; Mon, 26 Jul 2021 18:13:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231965AbhGZPfz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 11:35:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52544 "EHLO mail.kernel.org"
+        id S232164AbhGZPaO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 11:30:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42756 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233534AbhGZPfK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 11:35:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1AF2360FD7;
-        Mon, 26 Jul 2021 16:15:37 +0000 (UTC)
+        id S231557AbhGZP1k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Jul 2021 11:27:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D295E60F9D;
+        Mon, 26 Jul 2021 16:06:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627316138;
-        bh=s8ompZTZEUeJzSoDoH1NA8m5Av3ALM9MlNS/m9dsWD8=;
+        s=korg; t=1627315602;
+        bh=c14dfRxq1gmZ49vdBkjU05NPkI/FJJLBGXEkwr2xzeo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=syvpWdozXHn07wMb0zjv8pi03gGcYgPjD8mR/hmH1DbzyNvSAu1Ud6+yk8u1yfjFT
-         OSU9rwyYJtouUKC0mBhNLAPRMe83JEi5Blp+E/A0w0ceqN6MONKFam1huu1OfpUsfI
-         MdZNwxQhut0iGiyQrblQRLqPuplhjtMBC87P0PhE=
+        b=VV739c7vD6WJ2G0CxKuVaOlUASBI08zDIJyRW7pvDINPZAnptnmyT/DjyCSb+rO/A
+         E11B+i1Sb0DKpdUczHwFJgh//tABBNO9wzH/9eQTZaSYPDX5nA3QtGXR63Ii/fBUTs
+         N+KH/Ru1sY5pueUuSv2X3Jl7I+GI/KDvIcMiJjhI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ilya Dryomov <idryomov@gmail.com>,
-        Robin Geuze <robin.geuze@nl.team.blue>
-Subject: [PATCH 5.13 203/223] rbd: dont hold lock_rwsem while running_list is being drained
+        stable@vger.kernel.org, Robert Richter <rrichter@amd.com>,
+        Masahiro Yamada <masahiroy@kernel.org>
+Subject: [PATCH 5.10 162/167] Documentation: Fix intiramfs script name
 Date:   Mon, 26 Jul 2021 17:39:55 +0200
-Message-Id: <20210726153852.833420149@linuxfoundation.org>
+Message-Id: <20210726153844.844979994@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
-References: <20210726153846.245305071@linuxfoundation.org>
+In-Reply-To: <20210726153839.371771838@linuxfoundation.org>
+References: <20210726153839.371771838@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,75 +39,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilya Dryomov <idryomov@gmail.com>
+From: Robert Richter <rrichter@amd.com>
 
-commit ed9eb71085ecb7ded9a5118cec2ab70667cc7350 upstream.
+commit 5e60f363b38fd40e4d8838b5d6f4d4ecee92c777 upstream.
 
-Currently rbd_quiesce_lock() holds lock_rwsem for read while blocking
-on releasing_wait completion.  On the I/O completion side, each image
-request also needs to take lock_rwsem for read.  Because rw_semaphore
-implementation doesn't allow new readers after a writer has indicated
-interest in the lock, this can result in a deadlock if something that
-needs to take lock_rwsem for write gets involved.  For example:
+Documentation was not changed when renaming the script in commit
+80e715a06c2d ("initramfs: rename gen_initramfs_list.sh to
+gen_initramfs.sh"). Fixing this.
 
-1. watch error occurs
-2. rbd_watch_errcb() takes lock_rwsem for write, clears owner_cid and
-   releases lock_rwsem
-3. after reestablishing the watch, rbd_reregister_watch() takes
-   lock_rwsem for write and calls rbd_reacquire_lock()
-4. rbd_quiesce_lock() downgrades lock_rwsem to for read and blocks on
-   releasing_wait until running_list becomes empty
-5. another watch error occurs
-6. rbd_watch_errcb() blocks trying to take lock_rwsem for write
-7. no in-flight image request can complete and delete itself from
-   running_list because lock_rwsem won't be granted anymore
+Basically does:
 
-A similar scenario can occur with "lock has been acquired" and "lock
-has been released" notification handers which also take lock_rwsem for
-write to update owner_cid.
+ $ sed -i -e s/gen_initramfs_list.sh/gen_initramfs.sh/g $(git grep -l gen_initramfs_list.sh)
 
-We don't actually get anything useful from sitting on lock_rwsem in
-rbd_quiesce_lock() -- owner_cid updates certainly don't need to be
-synchronized with.  In fact the whole owner_cid tracking logic could
-probably be removed from the kernel client because we don't support
-proxied maintenance operations.
-
-Cc: stable@vger.kernel.org # 5.3+
-URL: https://tracker.ceph.com/issues/42757
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
-Tested-by: Robin Geuze <robin.geuze@nl.team.blue>
+Fixes: 80e715a06c2d ("initramfs: rename gen_initramfs_list.sh to gen_initramfs.sh")
+Signed-off-by: Robert Richter <rrichter@amd.com>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/block/rbd.c |   12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
+ Documentation/driver-api/early-userspace/early_userspace_support.rst |    8 ++++----
+ Documentation/filesystems/ramfs-rootfs-initramfs.rst                 |    2 +-
+ 2 files changed, 5 insertions(+), 5 deletions(-)
 
---- a/drivers/block/rbd.c
-+++ b/drivers/block/rbd.c
-@@ -4100,8 +4100,6 @@ again:
+--- a/Documentation/driver-api/early-userspace/early_userspace_support.rst
++++ b/Documentation/driver-api/early-userspace/early_userspace_support.rst
+@@ -69,17 +69,17 @@ early userspace image can be built by an
  
- static bool rbd_quiesce_lock(struct rbd_device *rbd_dev)
- {
--	bool need_wait;
--
- 	dout("%s rbd_dev %p\n", __func__, rbd_dev);
- 	lockdep_assert_held_write(&rbd_dev->lock_rwsem);
+ As a technical note, when directories and files are specified, the
+ entire CONFIG_INITRAMFS_SOURCE is passed to
+-usr/gen_initramfs_list.sh.  This means that CONFIG_INITRAMFS_SOURCE
++usr/gen_initramfs.sh.  This means that CONFIG_INITRAMFS_SOURCE
+ can really be interpreted as any legal argument to
+-gen_initramfs_list.sh.  If a directory is specified as an argument then
++gen_initramfs.sh.  If a directory is specified as an argument then
+ the contents are scanned, uid/gid translation is performed, and
+ usr/gen_init_cpio file directives are output.  If a directory is
+-specified as an argument to usr/gen_initramfs_list.sh then the
++specified as an argument to usr/gen_initramfs.sh then the
+ contents of the file are simply copied to the output.  All of the output
+ directives from directory scanning and file contents copying are
+ processed by usr/gen_init_cpio.
  
-@@ -4113,11 +4111,11 @@ static bool rbd_quiesce_lock(struct rbd_
- 	 */
- 	rbd_dev->lock_state = RBD_LOCK_STATE_RELEASING;
- 	rbd_assert(!completion_done(&rbd_dev->releasing_wait));
--	need_wait = !list_empty(&rbd_dev->running_list);
--	downgrade_write(&rbd_dev->lock_rwsem);
--	if (need_wait)
--		wait_for_completion(&rbd_dev->releasing_wait);
--	up_read(&rbd_dev->lock_rwsem);
-+	if (list_empty(&rbd_dev->running_list))
-+		return true;
-+
-+	up_write(&rbd_dev->lock_rwsem);
-+	wait_for_completion(&rbd_dev->releasing_wait);
+-See also 'usr/gen_initramfs_list.sh -h'.
++See also 'usr/gen_initramfs.sh -h'.
  
- 	down_write(&rbd_dev->lock_rwsem);
- 	if (rbd_dev->lock_state != RBD_LOCK_STATE_RELEASING)
+ Where's this all leading?
+ =========================
+--- a/Documentation/filesystems/ramfs-rootfs-initramfs.rst
++++ b/Documentation/filesystems/ramfs-rootfs-initramfs.rst
+@@ -170,7 +170,7 @@ Documentation/driver-api/early-userspace
+ The kernel does not depend on external cpio tools.  If you specify a
+ directory instead of a configuration file, the kernel's build infrastructure
+ creates a configuration file from that directory (usr/Makefile calls
+-usr/gen_initramfs_list.sh), and proceeds to package up that directory
++usr/gen_initramfs.sh), and proceeds to package up that directory
+ using the config file (by feeding it to usr/gen_init_cpio, which is created
+ from usr/gen_init_cpio.c).  The kernel's build-time cpio creation code is
+ entirely self-contained, and the kernel's boot-time extractor is also
 
 
