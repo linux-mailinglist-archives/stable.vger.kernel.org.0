@@ -2,164 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7C533D7EF9
-	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 22:17:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77BD03D7F29
+	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 22:23:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231175AbhG0URx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Jul 2021 16:17:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44612 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230425AbhG0URx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Jul 2021 16:17:53 -0400
-Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FD0AC061757
-        for <stable@vger.kernel.org>; Tue, 27 Jul 2021 13:17:52 -0700 (PDT)
-Received: by mail-pl1-x635.google.com with SMTP id f13so7057866plj.2
-        for <stable@vger.kernel.org>; Tue, 27 Jul 2021 13:17:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=35E9oCfZbtR5gDHdri5sza2SToeZ2DoTgLrYgod81Iw=;
-        b=vB0x9K9H8WbANclJjIhcA6TT7pvpgLQvfse35sOyCuwO0TlcYFu4BN2CaB+oroJyVp
-         TiJ+KbDnThd/6eEK7m7u87dZQWsyiNwLzMIo7+kmoq5svFl1KdyqFQXCnvR639KemJYQ
-         aPmIadxOgPki/r+mklbFGa6Hrtjt0qZdqS1H5Zgwy0Bol3a6qvHqwjQXueEI+xUlLjq3
-         NcFFd0zyIHf0DBCuoX6nj4KI9zyfpg4aqL9G36UK6dI3B37K4O8xTRiuvVJ+3tRKYqz4
-         KNytpX0SOefRcb71Ppu2DzzW3jiGb6L3fjFl3oQDez5KrpJzpQNvmj/zIWpY0s7vo6dt
-         LoHg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=35E9oCfZbtR5gDHdri5sza2SToeZ2DoTgLrYgod81Iw=;
-        b=ITfneZQ/P+YWZJTG9npHAWEZtWjCgXTeyzkCtB/lz6d7btXcto665IC0+8JHmSF1/W
-         JvMwEweeuICbn1TsdneOXdlGbM0h24rtoHCNPfB4FRE3hK1xh+QTFcaJmlC2TH93LheW
-         aS1aN/BVhiSAmU1x6zVtOzohKtDUSk6hHcMo0z0W86OEeNpNj4sl1O91NoN7UMCwTCbV
-         lgAhUsa/EXFdqYftMmhajukwG19I03GY5A4EgGhuE5OlGGFzu4AJ+Pv9CUOx9h/JSsGL
-         LNEnDx8S4Or+4oDoh9aVywb2dlyOGy63UqXuhyxPi6iZO+VB4zmS4KjxewyaxC3kR4tB
-         3iSA==
-X-Gm-Message-State: AOAM532tu6eeGWW7lDDU2cVlqcGhPtVT1yVPZLIK+7gWVBHuJf3PEGAO
-        9pA4AkZmdmRE6IuDSgYOzwZUKHFe3SaxPjd0
-X-Google-Smtp-Source: ABdhPJzmycYMQ3goJzfY4qtZFlHLBAMgUR21eAoRfp5ri86scnN6kQxJGOnWucdihSoGoI5O+/Vakg==
-X-Received: by 2002:a17:90a:2f8a:: with SMTP id t10mr5930157pjd.146.1627417071763;
-        Tue, 27 Jul 2021 13:17:51 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id k11sm5368850pgg.25.2021.07.27.13.17.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 27 Jul 2021 13:17:51 -0700 (PDT)
-Message-ID: <610069ef.1c69fb81.41a58.1060@mx.google.com>
-Date:   Tue, 27 Jul 2021 13:17:51 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S231431AbhG0UXP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Jul 2021 16:23:15 -0400
+Received: from mail-40133.protonmail.ch ([185.70.40.133]:60646 "EHLO
+        mail-40133.protonmail.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230426AbhG0UXP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Jul 2021 16:23:15 -0400
+Date:   Tue, 27 Jul 2021 20:23:01 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=tmb.nu;
+        s=protonmail; t=1627417390;
+        bh=ecY+hRpUReHA1pV0A42B0RF0S3Mkstot9TO5YNR2+NI=;
+        h=Date:To:From:Cc:Reply-To:Subject:From;
+        b=MBIbsH0WeA5WTICTRuUVXoZxwWuZg6iZF1e+skw5oX6vhMak3z2ZMCtOYeaweUpeC
+         WZOAz8dZyCUktTcKZ0RGMWNvZWPmBEvqZNUGttWs8uKOE2q/cFmcdpGnfGGj4fHLnK
+         n1Q2DOfgXj6+B6ixbwVvooJOVFRaTv/ZJ06Q1b1c=
+To:     Ben Greear <greearb@candelatech.com>, pgndev <pgnet.dev@gmail.com>
+From:   Thomas Backlund <tmb@tmb.nu>
+Cc:     stable@vger.kernel.org
+Reply-To: Thomas Backlund <tmb@tmb.nu>
+Subject: Re: very long boot times in 5.13 stable.
+Message-ID: <3d8ebf91-74ac-d1d3-80a7-df5da3fe7d78@tmb.nu>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.4
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.4.135-108-ga603506776c5
-Subject: stable-rc/queue/5.4 baseline: 127 runs,
- 2 regressions (v5.4.135-108-ga603506776c5)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.2 required=10.0 tests=ALL_TRUSTED,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF shortcircuit=no
+        autolearn=disabled version=3.4.4
+X-Spam-Checker-Version: SpamAssassin 3.4.4 (2020-01-24) on
+        mailout.protonmail.ch
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 baseline: 127 runs, 2 regressions (v5.4.135-108-ga60350=
-6776c5)
+Den 2021-07-27 kl. 20:06, skrev Ben Greear:
+> On 7/27/21 9:50 AM, pgndev wrote:
+>> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 embedded. checking...
+>>
+>>
+>> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 iiuc, it's got an i2c.=C2=
+=A0 possible a uart is on Irq4 thru the i2c?
+>>
+>>
+>> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if so, might wanna take a loo=
+k here:
+>>
+>>
+>> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 https://bugzilla.kernel.org/s=
+how_bug.cgi?id=3D213031
+>>
+>> <https://urldefense.proofpoint.com/v2/url?u=3Dhttps-3A__bugzilla.kernel.=
+org_show-5Fbug.cgi-3Fid-3D213031&d=3DDwMFaQ&c=3DeuGZstcaTDllvimEN8b7jXrwqOf=
+-v5A_CdpgnVfiiMM&r=3DHYKqseB9xg-u2kz3egvegqfgyXnEBhQotXfR3iCfdgM&m=3DgCRilk=
+IAaKYuJwLWOT7O5ttfWG5rta0-6eYjPBdnTz4&s=3DVSfJDrJPSqVtQuCoCZGazYrmnWTe6xldT=
+kWT_Bq7vwo&e=3D>
+>>
+>>
+>>
+>>
+>> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 maybe related?=C2=A0 at least=
+ shares symptoms...
+>>
+>>
+>> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 ACPI subsystem lead sez in of=
+flist thread re: that
+>>
+>>
+>> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 "It looks like commit 96b15a0=
+b45182f1c3da5a861196da27000da2e3c
+>> needs to
+>>
+>> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 be reverted."
+>
+> I don't see that commit in linus tree nor my stable tree, can you check
+> that hash and also
+> show me the commit message and other info so I can track it down?
+>
 
-Regressions Summary
--------------------
+AFAIK, that commit is supposed to reference
+0ec4e55e9f571f08970ed115ec0addc691eda613 in linus tree, landed in 5.13.2
+'
+and a matching thread:
+"boot of J1900 (quad-core Celeron) mobo: kernel <=3D 5.12.15, OK; kernel
+ >=3D 5.12.17, 5.13.4, slow boot (>> 660 secs) + hang/FAIL"
 
-platform | arch   | lab        | compiler | defconfig                    | =
-regressions
----------+--------+------------+----------+------------------------------+-=
------------
-d2500cc  | x86_64 | lab-clabbe | gcc-8    | x86_64_defconfig             | =
-1          =
+on stable@ ml.
 
-d2500cc  | x86_64 | lab-clabbe | gcc-8    | x86_64_defcon...6-chromebook | =
-1          =
+--
+Thomas
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
-el/v5.4.135-108-ga603506776c5/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.4
-  Describe: v5.4.135-108-ga603506776c5
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      a603506776c5a2ad47261d88eb75fb5bf9a37c63 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch   | lab        | compiler | defconfig                    | =
-regressions
----------+--------+------------+----------+------------------------------+-=
------------
-d2500cc  | x86_64 | lab-clabbe | gcc-8    | x86_64_defconfig             | =
-1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61002febf7351e4395501908
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig
-  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.135-1=
-08-ga603506776c5/x86_64/x86_64_defconfig/gcc-8/lab-clabbe/baseline-d2500cc.=
-txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.135-1=
-08-ga603506776c5/x86_64/x86_64_defconfig/gcc-8/lab-clabbe/baseline-d2500cc.=
-html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61002febf7351e4395501=
-909
-        failing since 15 days (last pass: v5.4.130-4-g2151dbfa7bb2, first f=
-ail: v5.4.131-344-g7da707277666) =
-
- =
-
-
-
-platform | arch   | lab        | compiler | defconfig                    | =
-regressions
----------+--------+------------+----------+------------------------------+-=
------------
-d2500cc  | x86_64 | lab-clabbe | gcc-8    | x86_64_defcon...6-chromebook | =
-1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6100315428750c3e565018c5
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig+x86-chromebook
-  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.135-1=
-08-ga603506776c5/x86_64/x86_64_defconfig+x86-chromebook/gcc-8/lab-clabbe/ba=
-seline-d2500cc.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.135-1=
-08-ga603506776c5/x86_64/x86_64_defconfig+x86-chromebook/gcc-8/lab-clabbe/ba=
-seline-d2500cc.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6100315428750c3e56501=
-8c6
-        failing since 16 days (last pass: v5.4.130-4-g2151dbfa7bb2, first f=
-ail: v5.4.131-344-g7da707277666) =
-
- =20
