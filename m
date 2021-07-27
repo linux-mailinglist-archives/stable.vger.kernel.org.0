@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 35C4E3D7796
-	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 15:56:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52BBB3D7795
+	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 15:56:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236576AbhG0N4L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Jul 2021 09:56:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51128 "EHLO mail.kernel.org"
+        id S232480AbhG0N4I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Jul 2021 09:56:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232185AbhG0N4L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Jul 2021 09:56:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0BE8461AA5;
-        Tue, 27 Jul 2021 13:56:09 +0000 (UTC)
+        id S232185AbhG0N4I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Jul 2021 09:56:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D627661AA8;
+        Tue, 27 Jul 2021 13:56:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627394170;
-        bh=rfGgKS2Dh5NeYNDzsBzD/yFhlRRIZYIoz+TPhxg0Kzs=;
+        s=korg; t=1627394168;
+        bh=Mt/nvEGf9Mv4zM+mlilX/0HNzK+MNep4ehAV7MoTVbM=;
         h=Subject:To:From:Date:From;
-        b=V/Z+5TpRUGZFjXxZ/QGgKu9V2bCXvLfbUHZCfGs98MrwmxshLXr63odTQHUMepDwu
-         cLuYzU83GfuOhlPXwG6JqfNk//afELIgq8FD/HSIhN9+x11pbn0EnKF5qbhGKgsTAa
-         obAkAbpkm2DFV7Iju9qFo43dtuv3dSK6FlIS9PXI=
-Subject: patch "usb: gadget: f_hid: fixed NULL pointer dereference" added to usb-linus
-To:     phil@raspberrypi.com, gregkh@linuxfoundation.org,
-        mdevaev@gmail.com, stable@vger.kernel.org
+        b=jgmLOYNm2E5URMu+DqGUD5eVViFLjvr1BAC4YFlt8pMDBcEsC0spAIwPw6LpxmfPr
+         +hpPycOHpNaGHdDH0ZbEGU+wzlT3ZbNbOJ+fE/2/xgB4cXg9BDCyWlxgLjV91dix/c
+         tMqok+NYaeUMfB9gDdfQjZ+OkDVYQzC6MEckzJAA=
+Subject: patch "usb: gadget: f_hid: added GET_IDLE and SET_IDLE handlers" added to usb-linus
+To:     mdevaev@gmail.com, balbi@kernel.org, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
 Date:   Tue, 27 Jul 2021 15:55:58 +0200
-Message-ID: <1627394158233165@kroah.com>
+Message-ID: <1627394158704@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: gadget: f_hid: fixed NULL pointer dereference
+    usb: gadget: f_hid: added GET_IDLE and SET_IDLE handlers
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -51,83 +51,78 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 2867652e4766360adf14dfda3832455e04964f2a Mon Sep 17 00:00:00 2001
-From: Phil Elwell <phil@raspberrypi.com>
-Date: Fri, 23 Jul 2021 18:59:30 +0300
-Subject: usb: gadget: f_hid: fixed NULL pointer dereference
+From afcff6dc690e24d636a41fd4bee6057e7c70eebd Mon Sep 17 00:00:00 2001
+From: Maxim Devaev <mdevaev@gmail.com>
+Date: Wed, 21 Jul 2021 21:03:51 +0300
+Subject: usb: gadget: f_hid: added GET_IDLE and SET_IDLE handlers
 
-Disconnecting and reconnecting the USB cable can lead to crashes
-and a variety of kernel log spam.
+The USB HID standard declares mandatory support for GET_IDLE and SET_IDLE
+requests for Boot Keyboard. Most hosts can handle their absence, but others
+like some old/strange UEFIs and BIOSes consider this a critical error
+and refuse to work with f_hid.
 
-The problem was found and reproduced on the Raspberry Pi [1]
-and the original fix was created in Raspberry's own fork [2].
+This primitive implementation of saving and returning idle is sufficient
+to meet the requirements of the standard and these devices.
 
-Link: https://github.com/raspberrypi/linux/issues/3870 [1]
-Link: https://github.com/raspberrypi/linux/commit/a6e47d5f4efbd2ea6a0b6565cd2f9b7bb217ded5 [2]
-Signed-off-by: Maxim Devaev <mdevaev@gmail.com>
-Signed-off-by: Phil Elwell <phil@raspberrypi.com>
+Acked-by: Felipe Balbi <balbi@kernel.org>
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210723155928.210019-1-mdevaev@gmail.com
+Signed-off-by: Maxim Devaev <mdevaev@gmail.com>
+Link: https://lore.kernel.org/r/20210721180351.129450-1-mdevaev@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/function/f_hid.c | 26 ++++++++++++++++++++------
- 1 file changed, 20 insertions(+), 6 deletions(-)
+ drivers/usb/gadget/function/f_hid.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
 diff --git a/drivers/usb/gadget/function/f_hid.c b/drivers/usb/gadget/function/f_hid.c
-index 02683ac0719d..08e73e8127b1 100644
+index 08e73e8127b1..8d50c8b127fd 100644
 --- a/drivers/usb/gadget/function/f_hid.c
 +++ b/drivers/usb/gadget/function/f_hid.c
-@@ -338,6 +338,11 @@ static ssize_t f_hidg_write(struct file *file, const char __user *buffer,
+@@ -41,6 +41,7 @@ struct f_hidg {
+ 	unsigned char			bInterfaceSubClass;
+ 	unsigned char			bInterfaceProtocol;
+ 	unsigned char			protocol;
++	unsigned char			idle;
+ 	unsigned short			report_desc_length;
+ 	char				*report_desc;
+ 	unsigned short			report_length;
+@@ -537,6 +538,14 @@ static int hidg_setup(struct usb_function *f,
+ 		goto respond;
+ 		break;
  
- 	spin_lock_irqsave(&hidg->write_spinlock, flags);
- 
-+	if (!hidg->req) {
-+		spin_unlock_irqrestore(&hidg->write_spinlock, flags);
-+		return -ESHUTDOWN;
-+	}
++	case ((USB_DIR_IN | USB_TYPE_CLASS | USB_RECIP_INTERFACE) << 8
++		  | HID_REQ_GET_IDLE):
++		VDBG(cdev, "get_idle\n");
++		length = min_t(unsigned int, length, 1);
++		((u8 *) req->buf)[0] = hidg->idle;
++		goto respond;
++		break;
 +
- #define WRITE_COND (!hidg->write_pending)
- try_again:
- 	/* write queue */
-@@ -358,8 +363,14 @@ static ssize_t f_hidg_write(struct file *file, const char __user *buffer,
- 	count  = min_t(unsigned, count, hidg->report_length);
+ 	case ((USB_DIR_OUT | USB_TYPE_CLASS | USB_RECIP_INTERFACE) << 8
+ 		  | HID_REQ_SET_REPORT):
+ 		VDBG(cdev, "set_report | wLength=%d\n", ctrl->wLength);
+@@ -560,6 +569,14 @@ static int hidg_setup(struct usb_function *f,
+ 		goto stall;
+ 		break;
  
- 	spin_unlock_irqrestore(&hidg->write_spinlock, flags);
--	status = copy_from_user(req->buf, buffer, count);
- 
-+	if (!req) {
-+		ERROR(hidg->func.config->cdev, "hidg->req is NULL\n");
-+		status = -ESHUTDOWN;
-+		goto release_write_pending;
-+	}
++	case ((USB_DIR_OUT | USB_TYPE_CLASS | USB_RECIP_INTERFACE) << 8
++		  | HID_REQ_SET_IDLE):
++		VDBG(cdev, "set_idle\n");
++		length = 0;
++		hidg->idle = value;
++		goto respond;
++		break;
 +
-+	status = copy_from_user(req->buf, buffer, count);
- 	if (status != 0) {
- 		ERROR(hidg->func.config->cdev,
- 			"copy_from_user error\n");
-@@ -387,14 +398,17 @@ static ssize_t f_hidg_write(struct file *file, const char __user *buffer,
- 
- 	spin_unlock_irqrestore(&hidg->write_spinlock, flags);
- 
-+	if (!hidg->in_ep->enabled) {
-+		ERROR(hidg->func.config->cdev, "in_ep is disabled\n");
-+		status = -ESHUTDOWN;
-+		goto release_write_pending;
-+	}
-+
- 	status = usb_ep_queue(hidg->in_ep, req, GFP_ATOMIC);
--	if (status < 0) {
--		ERROR(hidg->func.config->cdev,
--			"usb_ep_queue error on int endpoint %zd\n", status);
-+	if (status < 0)
- 		goto release_write_pending;
--	} else {
-+	else
- 		status = count;
--	}
- 
- 	return status;
- release_write_pending:
+ 	case ((USB_DIR_IN | USB_TYPE_STANDARD | USB_RECIP_INTERFACE) << 8
+ 		  | USB_REQ_GET_DESCRIPTOR):
+ 		switch (value >> 8) {
+@@ -787,6 +804,7 @@ static int hidg_bind(struct usb_configuration *c, struct usb_function *f)
+ 	hidg_interface_desc.bInterfaceSubClass = hidg->bInterfaceSubClass;
+ 	hidg_interface_desc.bInterfaceProtocol = hidg->bInterfaceProtocol;
+ 	hidg->protocol = HID_REPORT_PROTOCOL;
++	hidg->idle = 1;
+ 	hidg_ss_in_ep_desc.wMaxPacketSize = cpu_to_le16(hidg->report_length);
+ 	hidg_ss_in_comp_desc.wBytesPerInterval =
+ 				cpu_to_le16(hidg->report_length);
 -- 
 2.32.0
 
