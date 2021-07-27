@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A149C3D769C
-	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 15:30:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 940C23D769E
+	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 15:30:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237071AbhG0NaQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Jul 2021 09:30:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57220 "EHLO mail.kernel.org"
+        id S237044AbhG0NaP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Jul 2021 09:30:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57222 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236735AbhG0NUQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236737AbhG0NUQ (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 27 Jul 2021 09:20:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D164E61AA5;
-        Tue, 27 Jul 2021 13:19:32 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D05861AAA;
+        Tue, 27 Jul 2021 13:19:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1627391973;
-        bh=L7w7cyYiD/pSgblXZRqxi2P781WEAhmXqt+HMtYm/iI=;
+        s=k20201202; t=1627391974;
+        bh=YEbs7QOvzC/3+hS/9IhpZG2Zf4XkPa+k8PjsN8tmi+Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mzDNbnZodN7QzjJe7WlXzWUiwSmlmdOrrhH8izZwe4wvwUv+b8HRgp8ZRlMrjSr+5
-         VDx36K8b+GYJuq3A8xxIibpT+6EMLCgeGfJo1USIqo6uhnmeMe6nGYCFLUPbDGLly7
-         u4f7hDHCWGSFmrI5Q95VP/Ij8FGZ1FzdEsLrkCgT6ddJ3vpiBVQ1iLdFJbIL/kZJ2a
-         RQeWynPuw5LIP6JsLmWpsURE2woKnDJ0JxZVSY8qXXd3HNwdEBETo+yxRhN6NY7/Ea
-         avtzYuTQYBVb3aUqkVKRixAwidpOqy3dddPywJq8JGCxPhx9+52soiOy3+LORA7fue
-         0zIzVQsR+okAA==
+        b=P1j0qfQ7FQKaXUPZUajNogLV4uKLYFRuQnmTklsq882d7xV59BB+n/PK4n0vl5mS+
+         6ZPgx6EbGbpOoelWQnDiOQcZc9kkVO9jPPaxUDVbevpx2ta7DSYciRwKFH3X+jEJOl
+         SLpVFcbYXAWiBnMN7KKk8zmYZPDWxvu6leYt7Z3qKes2kjDf6eaVnP8i+lKa8aUefh
+         oIvIbq9OR1+H1YzM4IAvuwOU9lufy6V0HvDQEpjld005wsKWOwXJ/DU4fkqNwDcpdh
+         mrI2rvgu0c+h6AWcVvwu/kdm8fYcVaMno4Xl0B1yFr26svMsxvwax2Og1ZoNwBq7qa
+         jM6HSIK83/MtA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.13 18/21] drm/amd/display: Fix max vstartup calculation for modes with borders
-Date:   Tue, 27 Jul 2021 09:19:05 -0400
-Message-Id: <20210727131908.834086-18-sashal@kernel.org>
+Cc:     Jens Axboe <axboe@kernel.dk>, Al Viro <viro@zeniv.linux.org.uk>,
+        Sasha Levin <sashal@kernel.org>, io-uring@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 19/21] io_uring: never attempt iopoll reissue from release path
+Date:   Tue, 27 Jul 2021 09:19:06 -0400
+Message-Id: <20210727131908.834086-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210727131908.834086-1-sashal@kernel.org>
 References: <20210727131908.834086-1-sashal@kernel.org>
@@ -45,68 +41,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit d7940911fc0754d99b208f0e3098762d39f403a0 ]
+[ Upstream commit 3c30ef0f78cfb36fdb13753794b0384cf7e37cc9 ]
 
-[Why]
-Vertical and horizontal borders in timings are treated as increasing the
-active area - vblank and hblank actually shrink.
+There are two reasons why this shouldn't be done:
 
-Our input into DML does not include these borders so it incorrectly
-assumes it has more time than available for vstartup and tmdl
-calculations for some modes with borders.
+1) Ring is exiting, and we're canceling requests anyway. Any request
+   should be canceled anyway. In theory, this could iterate for a
+   number of times if someone else is also driving the target block
+   queue into request starvation, however the likelihood of this
+   happening is miniscule.
 
-An example of such a timing would be 640x480@72Hz:
+2) If the original task decided to pass the ring to another task, then
+   we don't want to be reissuing from this context as it may be an
+   unrelated task or context. No assumptions should be made about
+   the context in which ->release() is run. This can only happen for pure
+   read/write, and we'll get -EFAULT on them anyway.
 
-h_total: 832
-h_border_left: 8
-h_addressable: 640
-h_border_right: 8
-h_front_porch: 16
-h_sync_width: 40
-v_total: 520
-v_border_top: 8
-v_addressable: 480
-v_border_bottom: 8
-v_front_porch: 1
-v_sync_width: 3
-pix_clk_100hz: 315000
-
-[How]
-Include borders as part of destination vactive/hactive.
-
-This change DCN20+ so it has wide impact, but the destination vactive
-and hactive are only really used for vstartup calculation anyway.
-
-Most modes do not have vertical or horizontal borders.
-
-Reviewed-by: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
-Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Link: https://lore.kernel.org/io-uring/YPr4OaHv0iv0KTOc@zeniv-ca.linux.org.uk/
+Reported-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ fs/io_uring.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
-index d7d70b9bb387..81f583733fa8 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
-@@ -2093,8 +2093,10 @@ int dcn20_populate_dml_pipes_from_context(
- 				- timing->v_border_bottom;
- 		pipes[pipe_cnt].pipe.dest.htotal = timing->h_total;
- 		pipes[pipe_cnt].pipe.dest.vtotal = v_total;
--		pipes[pipe_cnt].pipe.dest.hactive = timing->h_addressable;
--		pipes[pipe_cnt].pipe.dest.vactive = timing->v_addressable;
-+		pipes[pipe_cnt].pipe.dest.hactive =
-+			timing->h_addressable + timing->h_border_left + timing->h_border_right;
-+		pipes[pipe_cnt].pipe.dest.vactive =
-+			timing->v_addressable + timing->v_border_top + timing->v_border_bottom;
- 		pipes[pipe_cnt].pipe.dest.interlaced = timing->flags.INTERLACE;
- 		pipes[pipe_cnt].pipe.dest.pixel_rate_mhz = timing->pix_clk_100hz/10000.0;
- 		if (timing->timing_3d_format == TIMING_3D_FORMAT_HW_FRAME_PACKING)
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index eeea6b8c8bee..7ae6043e7909 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -2240,7 +2240,7 @@ static inline bool io_run_task_work(void)
+  * Find and free completed poll iocbs
+  */
+ static void io_iopoll_complete(struct io_ring_ctx *ctx, unsigned int *nr_events,
+-			       struct list_head *done)
++			       struct list_head *done, bool resubmit)
+ {
+ 	struct req_batch rb;
+ 	struct io_kiocb *req;
+@@ -2255,7 +2255,7 @@ static void io_iopoll_complete(struct io_ring_ctx *ctx, unsigned int *nr_events,
+ 		req = list_first_entry(done, struct io_kiocb, inflight_entry);
+ 		list_del(&req->inflight_entry);
+ 
+-		if (READ_ONCE(req->result) == -EAGAIN &&
++		if (READ_ONCE(req->result) == -EAGAIN && resubmit &&
+ 		    !(req->flags & REQ_F_DONT_REISSUE)) {
+ 			req->iopoll_completed = 0;
+ 			req_ref_get(req);
+@@ -2279,7 +2279,7 @@ static void io_iopoll_complete(struct io_ring_ctx *ctx, unsigned int *nr_events,
+ }
+ 
+ static int io_do_iopoll(struct io_ring_ctx *ctx, unsigned int *nr_events,
+-			long min)
++			long min, bool resubmit)
+ {
+ 	struct io_kiocb *req, *tmp;
+ 	LIST_HEAD(done);
+@@ -2322,7 +2322,7 @@ static int io_do_iopoll(struct io_ring_ctx *ctx, unsigned int *nr_events,
+ 	}
+ 
+ 	if (!list_empty(&done))
+-		io_iopoll_complete(ctx, nr_events, &done);
++		io_iopoll_complete(ctx, nr_events, &done, resubmit);
+ 
+ 	return ret;
+ }
+@@ -2340,7 +2340,7 @@ static void io_iopoll_try_reap_events(struct io_ring_ctx *ctx)
+ 	while (!list_empty(&ctx->iopoll_list)) {
+ 		unsigned int nr_events = 0;
+ 
+-		io_do_iopoll(ctx, &nr_events, 0);
++		io_do_iopoll(ctx, &nr_events, 0, false);
+ 
+ 		/* let it sleep and repeat later if can't complete a request */
+ 		if (nr_events == 0)
+@@ -2398,7 +2398,7 @@ static int io_iopoll_check(struct io_ring_ctx *ctx, long min)
+ 			if (list_empty(&ctx->iopoll_list))
+ 				break;
+ 		}
+-		ret = io_do_iopoll(ctx, &nr_events, min);
++		ret = io_do_iopoll(ctx, &nr_events, min, true);
+ 	} while (!ret && nr_events < min && !need_resched());
+ out:
+ 	mutex_unlock(&ctx->uring_lock);
+@@ -6781,7 +6781,7 @@ static int __io_sq_thread(struct io_ring_ctx *ctx, bool cap_entries)
+ 
+ 		mutex_lock(&ctx->uring_lock);
+ 		if (!list_empty(&ctx->iopoll_list))
+-			io_do_iopoll(ctx, &nr_events, 0);
++			io_do_iopoll(ctx, &nr_events, 0, true);
+ 
+ 		/*
+ 		 * Don't submit if refs are dying, good for io_uring_register(),
 -- 
 2.30.2
 
