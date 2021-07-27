@@ -2,34 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3787A3D76A4
-	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 15:30:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDE543D769A
+	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 15:30:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237107AbhG0NaS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Jul 2021 09:30:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56490 "EHLO mail.kernel.org"
+        id S237030AbhG0NaP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Jul 2021 09:30:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236731AbhG0NUQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236738AbhG0NUQ (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 27 Jul 2021 09:20:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B11361AAB;
-        Tue, 27 Jul 2021 13:19:35 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F13661ABC;
+        Tue, 27 Jul 2021 13:19:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1627391976;
-        bh=4ZLX4XJ26jnLuU5vLhlPGEH53YsuyPOzz4KeEG4Y3/Y=;
+        s=k20201202; t=1627391977;
+        bh=CAXc8LZihg7Es+984OqvWcmER3uPykOlQi6083aw+5U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RfNfpxlQR6IlypCqTZWFq3mBoSQvFFPAQYPBfii+shQEUv/IoGs7OUJvqfmJBChzz
-         pOueGOUZ/2S4YXee+P+sqllgy67UHoyUGzZwYnmEMGLrLUopTGboVRyPLn58QRv1fS
-         x4pkrV67tBJvyIBQWWRZt7l9350cy6OLAQi74PvTSnFW8zlOBSWbaaw6cBbn5JJoIx
-         Ir6xMsDjbwAbD5XfeOkauT9t/30V3HJwyPrKfGUElHKSy0aNQi7TPqf5IoSvBWWTAV
-         mVf0EKAfbS4Q/a+F0AtdjVP/c0RtE0eM49ohCDqqJ1Jpyr/XX9hvyS6GhY35nLugUe
-         CuObKyS64rayw==
+        b=ktEqGYXftZmybaNR253XPfpQAELy5b42ROT0tMyw4u0tlWvfMMSIMyLCzhOvoBJYD
+         5dOLWaEP6XhNuF8d3dA/TJtQq1t33ll8yd/Z9/NxmVtzJDXR+0q0f+Z8PHjA9lv9ql
+         WG6wu4iel52UC6i23rkpEdpMPWI5mjGPYMDJL0x4k7T8lJRtkcOs/W++9v6TOhw8rN
+         Wye/ABj2M90Pr7R87b9flNMTXdrugk9rCZ3QhSwRSHIEzr/K4LR6nwgu4cXhEqFqdM
+         QHiuvBU31Z7iScJkew+8yItfkugahbVBQ6qSBGEgScgZGnCy7Lrzs5C9rAkz9M6qU8
+         qxteXEJqrD31w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        io-uring@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 20/21] io_uring: explicitly catch any illegal async queue attempt
-Date:   Tue, 27 Jul 2021 09:19:07 -0400
-Message-Id: <20210727131908.834086-20-sashal@kernel.org>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Jens Axboe <axboe@kernel.dk>,
+        Daniel Scally <djrscally@gmail.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org,
+        devel@acpica.org
+Subject: [PATCH AUTOSEL 5.13 21/21] ACPI: fix NULL pointer dereference
+Date:   Tue, 27 Jul 2021 09:19:08 -0400
+Message-Id: <20210727131908.834086-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210727131908.834086-1-sashal@kernel.org>
 References: <20210727131908.834086-1-sashal@kernel.org>
@@ -41,63 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit 991468dcf198bb87f24da330676724a704912b47 ]
+[ Upstream commit fc68f42aa737dc15e7665a4101d4168aadb8e4c4 ]
 
-Catch an illegal case to queue async from an unrelated task that got
-the ring fd passed to it. This should not be possible to hit, but
-better be proactive and catch it explicitly. io-wq is extended to
-check for early IO_WQ_WORK_CANCEL being set on a work item as well,
-so it can run the request through the normal cancelation path.
+Commit 71f642833284 ("ACPI: utils: Fix reference counting in
+for_each_acpi_dev_match()") started doing "acpi_dev_put()" on a pointer
+that was possibly NULL.  That fails miserably, because that helper
+inline function is not set up to handle that case.
 
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Just make acpi_dev_put() silently accept a NULL pointer, rather than
+calling down to put_device() with an invalid offset off that NULL
+pointer.
+
+Link: https://lore.kernel.org/lkml/a607c149-6bf6-0fd0-0e31-100378504da2@kernel.dk/
+Reported-and-tested-by: Jens Axboe <axboe@kernel.dk>
+Tested-by: Daniel Scally <djrscally@gmail.com>
+Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io-wq.c    |  7 ++++++-
- fs/io_uring.c | 11 +++++++++++
- 2 files changed, 17 insertions(+), 1 deletion(-)
+ include/acpi/acpi_bus.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/io-wq.c b/fs/io-wq.c
-index 60f58efdb5f4..9efecdf025b9 100644
---- a/fs/io-wq.c
-+++ b/fs/io-wq.c
-@@ -736,7 +736,12 @@ static void io_wqe_enqueue(struct io_wqe *wqe, struct io_wq_work *work)
- 	int work_flags;
- 	unsigned long flags;
+diff --git a/include/acpi/acpi_bus.h b/include/acpi/acpi_bus.h
+index 3a82faac5767..cd98af6ba155 100644
+--- a/include/acpi/acpi_bus.h
++++ b/include/acpi/acpi_bus.h
+@@ -716,7 +716,8 @@ static inline struct acpi_device *acpi_dev_get(struct acpi_device *adev)
  
--	if (test_bit(IO_WQ_BIT_EXIT, &wqe->wq->state)) {
-+	/*
-+	 * If io-wq is exiting for this task, or if the request has explicitly
-+	 * been marked as one that should not get executed, cancel it here.
-+	 */
-+	if (test_bit(IO_WQ_BIT_EXIT, &wqe->wq->state) ||
-+	    (work->flags & IO_WQ_WORK_CANCEL)) {
- 		io_run_cancel(work, wqe);
- 		return;
- 	}
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 7ae6043e7909..5f6514185a3a 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -1273,6 +1273,17 @@ static void io_queue_async_work(struct io_kiocb *req)
+ static inline void acpi_dev_put(struct acpi_device *adev)
+ {
+-	put_device(&adev->dev);
++	if (adev)
++		put_device(&adev->dev);
+ }
+ #else	/* CONFIG_ACPI */
  
- 	/* init ->work of the whole link before punting */
- 	io_prep_async_link(req);
-+
-+	/*
-+	 * Not expected to happen, but if we do have a bug where this _can_
-+	 * happen, catch it here and ensure the request is marked as
-+	 * canceled. That will make io-wq go through the usual work cancel
-+	 * procedure rather than attempt to run this request (or create a new
-+	 * worker for it).
-+	 */
-+	if (WARN_ON_ONCE(!same_thread_group(req->task, current)))
-+		req->work.flags |= IO_WQ_WORK_CANCEL;
-+
- 	trace_io_uring_queue_async_work(ctx, io_wq_is_hashed(&req->work), req,
- 					&req->work, req->flags);
- 	io_wq_enqueue(tctx->io_wq, &req->work);
 -- 
 2.30.2
 
