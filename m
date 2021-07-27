@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 639043D7667
-	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 15:28:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B6E93D765E
+	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 15:28:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236623AbhG0N17 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Jul 2021 09:27:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56510 "EHLO mail.kernel.org"
+        id S236848AbhG0N2A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Jul 2021 09:28:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236973AbhG0NUd (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236967AbhG0NUd (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 27 Jul 2021 09:20:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D34C161A8C;
-        Tue, 27 Jul 2021 13:20:17 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0875661A3B;
+        Tue, 27 Jul 2021 13:20:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1627392018;
-        bh=clXpkkKYs0rFca8LLDbeSbQ7rs6gT7Z2YGaHBpBxeRc=;
+        s=k20201202; t=1627392019;
+        bh=oVrKdfA6ZQxpCEUMlh/V5PyuyRGyRC/s/8TGW3qsUYI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HrbL2d0R6xsLqrXAGA/llhFB5fsUfNf2GXWuhkhYCiUHgjSy8fFKmj1QNgYcKTKic
-         cjV8FLmrP5qBDy24TuT6CjAFyDJI5xsY7ee7v+jcuRA//Zu817v+8DsYLVGMVvoJbS
-         0nrM0gD1ga5R/lSZUYz6SLB76oofAPLl3GBeYoVpobEXrJ/oDzHq93XSdEU2nfTp9x
-         dNOy72F5L3lRX+f8szEoBSm0EyFYMJqYKBTTfmD+Jq5Pu4HdvXPsYq/NtWMa3xvNp8
-         +2vd6DjfytqlvZi5u0Zq//azxKa5lKjGuKCpXYBfSaC7JvVIYP8AjZmcHxJkFgl+fo
-         bHgKxhYviCZng==
+        b=n9TVHvX5foMAnuruxjCVwQSaZyW3mPNkxS4GcRhjdGkbhpJHX0dBTH3kN4AY2Vw7z
+         qRr/qG881V+KWL7/jUEFvR8A1AwiLduenoWBn5ppLn4zgIY8poYP7u0n4fCAAy339T
+         2O/nRxioMdPcoqzOmJyIFyJZ/tCMeV2ekPLWz2VaBc+LS1jepPIkDwCHLH40pXQ1Hx
+         ltshDod/kmVrx9LDW5pzmq0FWn+0KfHUBBwba+RfHmV0/f0g9E5NyiVcYxHhl4bpHb
+         GH+Dg5/8ajFq+WwZkjkgl/zWr4DiipZFz6NSVD1yW9Bunr2x2HNiqPyUMb76TkVzB+
+         ar0ljBRY0DXhg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kyle Russell <bkylerussell@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.19 2/6] ASoC: tlv320aic31xx: fix reversed bclk/wclk master bits
-Date:   Tue, 27 Jul 2021 09:20:11 -0400
-Message-Id: <20210727132015.835651-2-sashal@kernel.org>
+Cc:     Takashi Iwai <tiwai@suse.de>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 3/6] r8152: Fix potential PM refcount imbalance
+Date:   Tue, 27 Jul 2021 09:20:12 -0400
+Message-Id: <20210727132015.835651-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210727132015.835651-1-sashal@kernel.org>
 References: <20210727132015.835651-1-sashal@kernel.org>
@@ -42,47 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kyle Russell <bkylerussell@gmail.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 9cf76a72af6ab81030dea6481b1d7bdd814fbdaf ]
+[ Upstream commit 9c23aa51477a37f8b56c3c40192248db0663c196 ]
 
-These are backwards from Table 7-71 of the TLV320AIC3100 spec [1].
+rtl8152_close() takes the refcount via usb_autopm_get_interface() but
+it doesn't release when RTL8152_UNPLUG test hits.  This may lead to
+the imbalance of PM refcount.  This patch addresses it.
 
-This was broken in 12eb4d66ba2e when BCLK_MASTER and WCLK_MASTER
-were converted from 0x08 and 0x04 to BIT(2) and BIT(3), respectively.
-
--#define AIC31XX_BCLK_MASTER		0x08
--#define AIC31XX_WCLK_MASTER		0x04
-+#define AIC31XX_BCLK_MASTER		BIT(2)
-+#define AIC31XX_WCLK_MASTER		BIT(3)
-
-Probably just a typo since the defines were not listed in bit order.
-
-[1] https://www.ti.com/lit/gpn/tlv320aic3100
-
-Signed-off-by: Kyle Russell <bkylerussell@gmail.com>
-Link: https://lore.kernel.org/r/20210622010941.241386-1-bkylerussell@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://bugzilla.suse.com/show_bug.cgi?id=1186194
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/tlv320aic31xx.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/usb/r8152.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/tlv320aic31xx.h b/sound/soc/codecs/tlv320aic31xx.h
-index 0b587585b38b..6071de5fca57 100644
---- a/sound/soc/codecs/tlv320aic31xx.h
-+++ b/sound/soc/codecs/tlv320aic31xx.h
-@@ -147,8 +147,8 @@ struct aic31xx_pdata {
- #define AIC31XX_WORD_LEN_24BITS		0x02
- #define AIC31XX_WORD_LEN_32BITS		0x03
- #define AIC31XX_IFACE1_MASTER_MASK	GENMASK(3, 2)
--#define AIC31XX_BCLK_MASTER		BIT(2)
--#define AIC31XX_WCLK_MASTER		BIT(3)
-+#define AIC31XX_BCLK_MASTER		BIT(3)
-+#define AIC31XX_WCLK_MASTER		BIT(2)
+diff --git a/drivers/net/usb/r8152.c b/drivers/net/usb/r8152.c
+index 726fb5561a0f..4764e4f54cef 100644
+--- a/drivers/net/usb/r8152.c
++++ b/drivers/net/usb/r8152.c
+@@ -3960,9 +3960,10 @@ static int rtl8152_close(struct net_device *netdev)
+ 		tp->rtl_ops.down(tp);
  
- /* AIC31XX_DATA_OFFSET */
- #define AIC31XX_DATA_OFFSET_MASK	GENMASK(7, 0)
+ 		mutex_unlock(&tp->control);
++	}
+ 
++	if (!res)
+ 		usb_autopm_put_interface(tp->intf);
+-	}
+ 
+ 	free_all_mem(tp);
+ 
 -- 
 2.30.2
 
