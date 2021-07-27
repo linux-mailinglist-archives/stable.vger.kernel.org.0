@@ -2,95 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F04D33D7C8E
-	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 19:50:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8AF03D7CF6
+	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 20:00:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229537AbhG0Rt7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Jul 2021 13:49:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38658 "EHLO
+        id S230139AbhG0SAC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Jul 2021 14:00:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229497AbhG0Rt7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Jul 2021 13:49:59 -0400
-Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CB36C061757;
-        Tue, 27 Jul 2021 10:49:58 -0700 (PDT)
-Received: by mail-pl1-x629.google.com with SMTP id t21so16503787plr.13;
-        Tue, 27 Jul 2021 10:49:58 -0700 (PDT)
+        with ESMTP id S229607AbhG0SAB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Jul 2021 14:00:01 -0400
+Received: from mail-qk1-x732.google.com (mail-qk1-x732.google.com [IPv6:2607:f8b0:4864:20::732])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDA7FC061757;
+        Tue, 27 Jul 2021 11:00:00 -0700 (PDT)
+Received: by mail-qk1-x732.google.com with SMTP id t66so13268416qkb.0;
+        Tue, 27 Jul 2021 11:00:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=/90bD0CMSvquUz1/IZXhJDqyvPntbvBjimJMpEbNOaw=;
-        b=GlTDNt5aNhmra8mJW5QnAHdANHHkLYUymxn8z54gn6b8nYnnI0Si90QyxitElQy7Y6
-         +z9uaJtNARJ4FMWZ+occbbdny8N3m0cOW4tDCQ9124mB7eNxHoVVmZFGCk8GYyY1B9hc
-         OppVwsE9RLVYN1Tc1uV9EEwOFo6+6ZvOVB5SvZJrwB4Ou2hyLVFyg9YAh+KC6/gSgtYY
-         RxjBqYZrdz+KCfm1gCcc/6Zu2bVcmW7sqcNkLfuwTQzVkkocVJHPdFTlTktqKfCTOjZ3
-         gPXyR6SUh66tNAPNf06O1rcQpTeNRV88pUyuK0M8Zs1rPQbDSTPnn68qQDTIFdBDgEGp
-         LlUQ==
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=qB3CqubBSoGIswHTi0IxXUO5ychUNZdJQNAeuTxBeRg=;
+        b=Uv7Cd17uiZmH2QHl0FaanQu6SiXF7Z8cvU9Ot5Yf3yaLy3x0oCjV87Yj7dGq99BrpJ
+         FHNPaSq4KLbC0cqJN9rI2RNfYARb/4N4jMFJYfo6ChozvqX3/TOB20s/iV0LbgraSOLU
+         QIQRJ1dT5mKx8xLWPv1QjcyX9rLJquh+FolWOu26uZHOLbaAyq7j48fl77Qe8SO3nO9F
+         bUnssbYzuW7muH8pG7CgZC5H1UpyJI5L1d23IuMzeZOvAJbjmHnnFgCvw6xFy245aO+p
+         iUWi0fRf+66Z/PVigl5liKaqYofla+6suTXmx6mzWv3cYiv3B2r4sWIqN8k1MEzKdC7v
+         ifWw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=/90bD0CMSvquUz1/IZXhJDqyvPntbvBjimJMpEbNOaw=;
-        b=Wizp0X023GFFD+r+7tSn/44Z8h3lvg0D+ImRAvoXL8nTOZofuVzUUQrY8+2IBI2OWC
-         J8yRTwU/5iAhBHz1vcp0HaKql9oaZJp4kd0BIIhQmkCNwwEwOTTFBdwugAukQERjPy5+
-         CTMyA15DPgii2YAuNoLOoHZjBVU1D6YqE6u9FGvAx8WkeisA8jcCRPeFwD6u138jTOyd
-         Sh4rThNeohyAagCNg6vx6nwk+kufAXmTbg0yWWzkVdHOGt2CaENNsIJElBYrQQmZst3D
-         0o/9AWBbHpD5qx2OBbABnJUJEdZTI1j8lXVaGWwuEZfPMBi9vT64p2BpJlImFjNYu9Zc
-         xm5g==
-X-Gm-Message-State: AOAM531zyWS1B96NqLpj7DFM4nHbbt9tLyZh/A8AGfo6FScBNYvF1FPj
-        aK9hu87ASHbd+iZZ4uSYCd7yGED+k3Q=
-X-Google-Smtp-Source: ABdhPJyUbOVoiRz9nAEXYv4mhtYwmlzIYfHabpSDHpn/W1tlxmcGU5e6J06hv+ykkClOfUhIGIRdww==
-X-Received: by 2002:a17:902:ed95:b029:ee:aa46:547a with SMTP id e21-20020a170902ed95b02900eeaa46547amr19712443plj.27.1627408197386;
-        Tue, 27 Jul 2021 10:49:57 -0700 (PDT)
-Received: from [10.67.49.104] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id p3sm4674708pgi.20.2021.07.27.10.49.56
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 27 Jul 2021 10:49:56 -0700 (PDT)
-Subject: Re: [PATCH 4.9 00/59] 4.9.277-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to;
+        bh=qB3CqubBSoGIswHTi0IxXUO5ychUNZdJQNAeuTxBeRg=;
+        b=aRzdr+7O5qd+vIkgdFXKZLX8LAnKJRDDWlzBRBf1C92y8HUl6IKN+sAqE9kl4qqCnq
+         8pRAb+rAd55wInOV1AhxTD2jHqa7AkABoxakB9Cr0Fy80QNcvvCqWXN4LR2850MHBgvR
+         lyifAWqeUOOYb0AOJfTGGWfr2VTpv2VnQrKHff1GLT22j86QEtI9It4NswHkfqswlKJ0
+         XVqF4clXvY1sWwkCavsHAkNbbJ3h1JJvEKamBxdROZqLR6pGKlexcCfjPvA9qK+cl1v0
+         hebORRvGjJUxtZktwrIb/FcXHpI+YZtOwvlaYdwEBgSi68MXHKUv+GHiKs72KFrsseE/
+         QR8g==
+X-Gm-Message-State: AOAM532LSeprHPgMBIEOxKKH32sm7vUhJw5i006gGYeBxwkIyS4IIkgO
+        bqbBJaEtmh6IjCvl52cGCbo=
+X-Google-Smtp-Source: ABdhPJwtRAVWH55/UYXp+4uSbAZVnnynSes4jvWy2BmEByTomrFM7/zwL55F8otB5Gg0q7C6e/hbeA==
+X-Received: by 2002:a37:684f:: with SMTP id d76mr23223888qkc.357.1627408799951;
+        Tue, 27 Jul 2021 10:59:59 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id z21sm1708802qti.73.2021.07.27.10.59.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 27 Jul 2021 10:59:59 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Tue, 27 Jul 2021 10:59:57 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
         lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        stable@vger.kernel.org
-References: <20210727061343.233942938@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <d74b066c-883a-85e2-2cd1-762a010bea8a@gmail.com>
-Date:   Tue, 27 Jul 2021 10:49:55 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 4.4 00/46] 4.4.277-rc2 review
+Message-ID: <20210727175957.GA1721083@roeck-us.net>
+References: <20210727061334.372078412@linuxfoundation.org>
 MIME-Version: 1.0
-In-Reply-To: <20210727061343.233942938@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210727061334.372078412@linuxfoundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 7/26/21 11:14 PM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.9.277 release.
-> There are 59 patches in this series, all will be posted as a response
+On Tue, Jul 27, 2021 at 08:13:51AM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.4.277 release.
+> There are 46 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 > 
-> Responses should be made by Thu, 29 Jul 2021 06:13:32 +0000.
+> Responses should be made by Thu, 29 Jul 2021 06:13:25 +0000.
 > Anything received after that time might be too late.
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.277-rc2.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
 
-On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
+Build results:
+	total: 160 pass: 160 fail: 0
+Qemu test results:
+	total: 334 pass: 334 fail: 0
 
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
--- 
-Florian
+Tested-by: Guenter Roeck <linux@roeck-us.net>
+
+Guenter
