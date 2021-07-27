@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C70BC3D7602
-	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 15:22:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C6053D768E
+	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 15:30:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236898AbhG0NUT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Jul 2021 09:20:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56490 "EHLO mail.kernel.org"
+        id S236859AbhG0NaJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Jul 2021 09:30:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56494 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236744AbhG0NTv (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236677AbhG0NTv (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 27 Jul 2021 09:19:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DF4B161A3B;
-        Tue, 27 Jul 2021 13:19:20 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4AE7061A88;
+        Tue, 27 Jul 2021 13:19:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1627391961;
-        bh=8uPZydX9gBsF0it8nG3NA0wwVehYKRnuuB9H8lWB2Lg=;
+        s=k20201202; t=1627391963;
+        bh=xq9vaZuEISXwGZ9amMGFnKhviWUhwICbRCBqRFA/CAw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pv4w4R1AXITc0+OvM0tBW/w6kT5riyNW6n2p750fN0x8Mql5AMoQ9uv5vw/e1IfRk
-         YTlHmz4ZR64MpUMD+kl4NyQkgSaNdrm0BvSfDq1H+UScy6IcbUc0C5TFEWYoahCkOQ
-         tvbm19jREVNllKS5WNNHV0hMJCECIGKrZwZt/Z9GIaZbTejdP1hqq58YBEiyklLG9Y
-         +vOTLbVvEOvwIyX/xjd/eUMK45DuZqp/6ptrQ/kS6bXHrvpYjoA6Ort1k6/h1asTfJ
-         t15PYxDTxYTHg5d4mG1XafPo5NtdQiTkQel9o8czRlyGQcEPLEj9vxqXVHl9ieS3m2
-         G01KLYrzQLuEg==
+        b=El7F25WMiH3mAolJxRq23HeBldmoDmASlEYl3SQiP/SR7cxCpGLx2zgtd+FrCSp+r
+         HG8bV78lwhs03Gc9iaACo5EgFZkN0j2KynEjWcbDKQsGuFWWnNrTxhhbq24HF4EnOt
+         /mdqAMQw++S6veLCZskHqF9Zl6VqIwKngXG7k7znkrqTFFetsZQTxsUuZYuS9CBUQX
+         ljb0VWn2QFcSCfxBJUkqwgXrwz9P+4HGhXwCN2PPk6UIhP7Y0N6PPLUo72CoZoLTgo
+         lDh+r3vfelccxMuU115/uUKbV6zaJA8MDm2KR8DrRpLYlu2r5/+OsyOnPj5HLI7eLg
+         p4qfk8nP/n3kQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jia He <justin.he@arm.com>, Lijian Zhang <Lijian.Zhang@arm.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 09/21] qed: fix possible unpaired spin_{un}lock_bh in _qed_mcp_cmd_and_union()
-Date:   Tue, 27 Jul 2021 09:18:56 -0400
-Message-Id: <20210727131908.834086-9-sashal@kernel.org>
+Cc:     Oder Chiou <oder_chiou@realtek.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.13 10/21] ASoC: rt5682: Fix the issue of garbled recording after powerd_dbus_suspend
+Date:   Tue, 27 Jul 2021 09:18:57 -0400
+Message-Id: <20210727131908.834086-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210727131908.834086-1-sashal@kernel.org>
 References: <20210727131908.834086-1-sashal@kernel.org>
@@ -42,111 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia He <justin.he@arm.com>
+From: Oder Chiou <oder_chiou@realtek.com>
 
-[ Upstream commit 6206b7981a36476f4695d661ae139f7db36a802d ]
+[ Upstream commit 6a503e1c455316fd0bfd8188c0a62cce7c5525ca ]
 
-Liajian reported a bug_on hit on a ThunderX2 arm64 server with FastLinQ
-QL41000 ethernet controller:
- BUG: scheduling while atomic: kworker/0:4/531/0x00000200
-  [qed_probe:488()]hw prepare failed
-  kernel BUG at mm/vmalloc.c:2355!
-  Internal error: Oops - BUG: 0 [#1] SMP
-  CPU: 0 PID: 531 Comm: kworker/0:4 Tainted: G W 5.4.0-77-generic #86-Ubuntu
-  pstate: 00400009 (nzcv daif +PAN -UAO)
- Call trace:
-  vunmap+0x4c/0x50
-  iounmap+0x48/0x58
-  qed_free_pci+0x60/0x80 [qed]
-  qed_probe+0x35c/0x688 [qed]
-  __qede_probe+0x88/0x5c8 [qede]
-  qede_probe+0x60/0xe0 [qede]
-  local_pci_probe+0x48/0xa0
-  work_for_cpu_fn+0x24/0x38
-  process_one_work+0x1d0/0x468
-  worker_thread+0x238/0x4e0
-  kthread+0xf0/0x118
-  ret_from_fork+0x10/0x18
+While using the DMIC recording, the garbled data will be captured by the
+DMIC. It is caused by the critical power of PLL closed in the jack detect
+function.
 
-In this case, qed_hw_prepare() returns error due to hw/fw error, but in
-theory work queue should be in process context instead of interrupt.
-
-The root cause might be the unpaired spin_{un}lock_bh() in
-_qed_mcp_cmd_and_union(), which causes botton half is disabled incorrectly.
-
-Reported-by: Lijian Zhang <Lijian.Zhang@arm.com>
-Signed-off-by: Jia He <justin.he@arm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Oder Chiou <oder_chiou@realtek.com>
+Link: https://lore.kernel.org/r/20210716085853.20170-1-oder_chiou@realtek.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qed/qed_mcp.c | 23 +++++++++++++++++------
- 1 file changed, 17 insertions(+), 6 deletions(-)
+ sound/soc/codecs/rt5682.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_mcp.c b/drivers/net/ethernet/qlogic/qed/qed_mcp.c
-index cd882c453394..caeef25c89bb 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_mcp.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_mcp.c
-@@ -474,14 +474,18 @@ _qed_mcp_cmd_and_union(struct qed_hwfn *p_hwfn,
- 
- 		spin_lock_bh(&p_hwfn->mcp_info->cmd_lock);
- 
--		if (!qed_mcp_has_pending_cmd(p_hwfn))
-+		if (!qed_mcp_has_pending_cmd(p_hwfn)) {
-+			spin_unlock_bh(&p_hwfn->mcp_info->cmd_lock);
- 			break;
-+		}
- 
- 		rc = qed_mcp_update_pending_cmd(p_hwfn, p_ptt);
--		if (!rc)
-+		if (!rc) {
-+			spin_unlock_bh(&p_hwfn->mcp_info->cmd_lock);
- 			break;
--		else if (rc != -EAGAIN)
-+		} else if (rc != -EAGAIN) {
- 			goto err;
-+		}
- 
- 		spin_unlock_bh(&p_hwfn->mcp_info->cmd_lock);
- 
-@@ -498,6 +502,8 @@ _qed_mcp_cmd_and_union(struct qed_hwfn *p_hwfn,
- 		return -EAGAIN;
- 	}
- 
-+	spin_lock_bh(&p_hwfn->mcp_info->cmd_lock);
-+
- 	/* Send the mailbox command */
- 	qed_mcp_reread_offsets(p_hwfn, p_ptt);
- 	seq_num = ++p_hwfn->mcp_info->drv_mb_seq;
-@@ -524,14 +530,18 @@ _qed_mcp_cmd_and_union(struct qed_hwfn *p_hwfn,
- 
- 		spin_lock_bh(&p_hwfn->mcp_info->cmd_lock);
- 
--		if (p_cmd_elem->b_is_completed)
-+		if (p_cmd_elem->b_is_completed) {
-+			spin_unlock_bh(&p_hwfn->mcp_info->cmd_lock);
- 			break;
-+		}
- 
- 		rc = qed_mcp_update_pending_cmd(p_hwfn, p_ptt);
--		if (!rc)
-+		if (!rc) {
-+			spin_unlock_bh(&p_hwfn->mcp_info->cmd_lock);
- 			break;
--		else if (rc != -EAGAIN)
-+		} else if (rc != -EAGAIN) {
- 			goto err;
-+		}
- 
- 		spin_unlock_bh(&p_hwfn->mcp_info->cmd_lock);
- 	} while (++cnt < max_retries);
-@@ -554,6 +564,7 @@ _qed_mcp_cmd_and_union(struct qed_hwfn *p_hwfn,
- 		return -EAGAIN;
- 	}
- 
-+	spin_lock_bh(&p_hwfn->mcp_info->cmd_lock);
- 	qed_mcp_cmd_del_elem(p_hwfn, p_cmd_elem);
- 	spin_unlock_bh(&p_hwfn->mcp_info->cmd_lock);
- 
+diff --git a/sound/soc/codecs/rt5682.c b/sound/soc/codecs/rt5682.c
+index e4c91571abae..abcd6f483788 100644
+--- a/sound/soc/codecs/rt5682.c
++++ b/sound/soc/codecs/rt5682.c
+@@ -973,10 +973,14 @@ int rt5682_headset_detect(struct snd_soc_component *component, int jack_insert)
+ 		rt5682_enable_push_button_irq(component, false);
+ 		snd_soc_component_update_bits(component, RT5682_CBJ_CTRL_1,
+ 			RT5682_TRIG_JD_MASK, RT5682_TRIG_JD_LOW);
+-		if (!snd_soc_dapm_get_pin_status(dapm, "MICBIAS"))
++		if (!snd_soc_dapm_get_pin_status(dapm, "MICBIAS") &&
++			!snd_soc_dapm_get_pin_status(dapm, "PLL1") &&
++			!snd_soc_dapm_get_pin_status(dapm, "PLL2B"))
+ 			snd_soc_component_update_bits(component,
+ 				RT5682_PWR_ANLG_1, RT5682_PWR_MB, 0);
+-		if (!snd_soc_dapm_get_pin_status(dapm, "Vref2"))
++		if (!snd_soc_dapm_get_pin_status(dapm, "Vref2") &&
++			!snd_soc_dapm_get_pin_status(dapm, "PLL1") &&
++			!snd_soc_dapm_get_pin_status(dapm, "PLL2B"))
+ 			snd_soc_component_update_bits(component,
+ 				RT5682_PWR_ANLG_1, RT5682_PWR_VREF2, 0);
+ 		snd_soc_component_update_bits(component, RT5682_PWR_ANLG_3,
 -- 
 2.30.2
 
