@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D9B03D7699
-	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 15:30:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CDD2B3D7686
+	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 15:30:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237028AbhG0NaO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Jul 2021 09:30:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56488 "EHLO mail.kernel.org"
+        id S236711AbhG0NaA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Jul 2021 09:30:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236853AbhG0NUQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Jul 2021 09:20:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A784861ACD;
-        Tue, 27 Jul 2021 13:19:39 +0000 (UTC)
+        id S236855AbhG0NUR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Jul 2021 09:20:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DB73561ABA;
+        Tue, 27 Jul 2021 13:19:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1627391980;
-        bh=42+BG0ycbiLTUvyAYa9xiB8SuDPYDhHiL+BYxOjqBXU=;
-        h=From:To:Cc:Subject:Date:From;
-        b=SXuZBCFU+MmadKKHTm8SwbTKEtbREgUy7tBSqmlPSJxdWl1BAmkp2HGh33QMh3MDK
-         ek8lZBi2bZzBOL0jkgGL5j6UWzYuRCvQocUQd58U7VMncUMNv98oOj/Q5uSkHjTwwl
-         S4qX+xxtdOaQhaovRfRczFyV45yqApwswhwiM7J0bfxGAk6BCfYHG1zWWaRiAyV0lU
-         xuvNU5LxUsx6NdKiywTAB/ONmvG059keuWMwjPC4Djv8KeNRTI7GHEpUZbMJH7PUCW
-         9MIcJEBj5HVfveoTFs82HMCimP82oZLqB/iHaQo+7/PEJA2W7oehySTq0NP7hqbUe6
-         agN1YLSVak+Sw==
+        s=k20201202; t=1627391981;
+        bh=tJ1D1zFs0Ylz1KRKABjtoasSqKI0FcM1HowOtKwSuPE=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=QpAEf19jBdG4Kh65++jUp0E8ZnHGyOiXwgZ1lE9AS4F0ztZRYs9HhuXxZqS4gVvVV
+         lRzfQ8P7J6pf/Uv80TDAhpAhgBSOFA/ixl1+XEPS+whI6YcTDVAsGJ5Sh8ocXoxIbn
+         mv/Ji9G3gQ7WbsVxn+jfcdn9go34wGgleBE7gW7CfJWDLho0i110C7IsJTOnxvTNWY
+         dtTZiYhyNWU2dLPLBEmDWSwmk+RAByXfkcBa9G/tazaVbsm2RcfMimrMjDxdRouDwx
+         JVdfdXeuEOJSBDpabFNvPuKq762K4yfCmz9dmYHVRcl39wCyyqId/MFyzIo+z17K29
+         S2F8e78elQPQw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     ChiYuan Huang <cy_huang@richtek.com>,
-        Axel Lin <axel.lin@ingics.com>,
+Cc:     Axel Lin <axel.lin@ingics.com>,
+        ChiYuan Huang <cy_huang@richtek.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.10 01/17] regulator: rtmv20: Fix wrong mask for strobe-polarity-high
-Date:   Tue, 27 Jul 2021 09:19:22 -0400
-Message-Id: <20210727131938.834920-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 02/17] regulator: rt5033: Fix n_voltages settings for BUCK and LDO
+Date:   Tue, 27 Jul 2021 09:19:23 -0400
+Message-Id: <20210727131938.834920-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210727131938.834920-1-sashal@kernel.org>
+References: <20210727131938.834920-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -41,35 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ChiYuan Huang <cy_huang@richtek.com>
+From: Axel Lin <axel.lin@ingics.com>
 
-[ Upstream commit 2b6a761be079f9fa8abf3157b5679a6f38885db4 ]
+[ Upstream commit 6549c46af8551b346bcc0b9043f93848319acd5c ]
 
-Fix wrong mask for strobe-polarity-high.
+For linear regulators, the n_voltages should be (max - min) / step + 1.
 
-Signed-off-by: ChiYuan Huang <cy_huang@richtek.com>
-In-reply-to: <CAFRkauB=0KwrJW19nJTTagdHhBR=V2R8YFWG3R3oVXt=rBRsqw@mail.gmail.com>
-Reviewed-by: Axel Lin <axel.lin@ingics.com>
-Link: https://lore.kernel.org/r/1624723112-26653-1-git-send-email-u0084500@gmail.com
+Buck voltage from 1v to 3V, per step 100mV, and vout mask is 0x1f.
+If value is from 20 to 31, the voltage will all be fixed to 3V.
+And LDO also, just vout range is different from 1.2v to 3v, step is the
+same. If value is from 18 to 31, the voltage will also be fixed to 3v.
+
+Signed-off-by: Axel Lin <axel.lin@ingics.com>
+Reviewed-by: ChiYuan Huang <cy_huang@richtek.com>
+Link: https://lore.kernel.org/r/20210627080418.1718127-1-axel.lin@ingics.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/rtmv20-regulator.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/mfd/rt5033-private.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/regulator/rtmv20-regulator.c b/drivers/regulator/rtmv20-regulator.c
-index 4bca64de0f67..2ee334174e2b 100644
---- a/drivers/regulator/rtmv20-regulator.c
-+++ b/drivers/regulator/rtmv20-regulator.c
-@@ -37,7 +37,7 @@
- #define RTMV20_WIDTH2_MASK	GENMASK(7, 0)
- #define RTMV20_LBPLVL_MASK	GENMASK(3, 0)
- #define RTMV20_LBPEN_MASK	BIT(7)
--#define RTMV20_STROBEPOL_MASK	BIT(1)
-+#define RTMV20_STROBEPOL_MASK	BIT(0)
- #define RTMV20_VSYNPOL_MASK	BIT(1)
- #define RTMV20_FSINEN_MASK	BIT(7)
- #define RTMV20_ESEN_MASK	BIT(6)
+diff --git a/include/linux/mfd/rt5033-private.h b/include/linux/mfd/rt5033-private.h
+index f812105c538c..f2271bfb3273 100644
+--- a/include/linux/mfd/rt5033-private.h
++++ b/include/linux/mfd/rt5033-private.h
+@@ -200,13 +200,13 @@ enum rt5033_reg {
+ #define RT5033_REGULATOR_BUCK_VOLTAGE_MIN		1000000U
+ #define RT5033_REGULATOR_BUCK_VOLTAGE_MAX		3000000U
+ #define RT5033_REGULATOR_BUCK_VOLTAGE_STEP		100000U
+-#define RT5033_REGULATOR_BUCK_VOLTAGE_STEP_NUM		32
++#define RT5033_REGULATOR_BUCK_VOLTAGE_STEP_NUM		21
+ 
+ /* RT5033 regulator LDO output voltage uV */
+ #define RT5033_REGULATOR_LDO_VOLTAGE_MIN		1200000U
+ #define RT5033_REGULATOR_LDO_VOLTAGE_MAX		3000000U
+ #define RT5033_REGULATOR_LDO_VOLTAGE_STEP		100000U
+-#define RT5033_REGULATOR_LDO_VOLTAGE_STEP_NUM		32
++#define RT5033_REGULATOR_LDO_VOLTAGE_STEP_NUM		19
+ 
+ /* RT5033 regulator SAFE LDO output voltage uV */
+ #define RT5033_REGULATOR_SAFE_LDO_VOLTAGE		4900000U
 -- 
 2.30.2
 
