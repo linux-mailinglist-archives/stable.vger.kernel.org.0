@@ -2,197 +2,588 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3602A3D708E
-	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 09:48:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DD503D70AA
+	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 09:56:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235656AbhG0Hqu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Jul 2021 03:46:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40686 "EHLO
+        id S235849AbhG0H4d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Jul 2021 03:56:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235629AbhG0Hqt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Jul 2021 03:46:49 -0400
-Received: from mail-pl1-x632.google.com (mail-pl1-x632.google.com [IPv6:2607:f8b0:4864:20::632])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97694C061757
-        for <stable@vger.kernel.org>; Tue, 27 Jul 2021 00:46:49 -0700 (PDT)
-Received: by mail-pl1-x632.google.com with SMTP id e14so14861639plh.8
-        for <stable@vger.kernel.org>; Tue, 27 Jul 2021 00:46:49 -0700 (PDT)
+        with ESMTP id S235829AbhG0H4c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Jul 2021 03:56:32 -0400
+Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C8F6C061757
+        for <stable@vger.kernel.org>; Tue, 27 Jul 2021 00:56:31 -0700 (PDT)
+Received: by mail-ed1-x536.google.com with SMTP id z26so14204675edr.0
+        for <stable@vger.kernel.org>; Tue, 27 Jul 2021 00:56:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=rDIn2y3BnmWb2XeDUCtivddkh9JmonD8mz0xrxtuIjo=;
-        b=OCM56yKEAzRdtLw8f9FaO5HmzsfHmGKzanydrXwGzQFzEatkRhdf1BRqWchMIu5xLu
-         nFu1Kzi9mcKwlcxPMMzNZhPDoVrW2THl1dBoS6SpIsBuWMqY6ahd31NSsCykD3Yg4zwC
-         q5adg4R/Ly6/lKVutlfcp6b7kl7jWDY/OtdZd+7DsghQ+6PJraR7oVNVloWOfIxTf2ds
-         IarlfPvkgTMSnc/tCRQNzeL8v+x0oXMsm6drGLiRiFwqtspEVuWoM064EJszZ2qnCP/H
-         LJPstKyVtfj5FV56/XtDSDHpT3B/zukTGAECvNDWCPgG+w9irKP550wupxHLHiiMPGWs
-         8vxQ==
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=OvNUT72492UbyZRsDT1/b9P0ONRlNs756QXs0rtMnSY=;
+        b=jCk0AWGgtN+g/CaugIAPBVvibSmvxhUMPtLheCin7PhODWuwrbRxRQ0YVB9DsfCKkN
+         giHTqIgSNA/hhyh4AtJDVsA6QXO6uC3g6qQvnSyrjqgvEm5ZZ2fSIJr68hKRaaiLLqws
+         nqNumAX9rR12dVHyxF3uWe8PkD6hiie5k5oT94GP6HuA52NccYlC9k9xFgZMhytKAcJz
+         N9jOmpgo/xm0ZG0dRQizhIad5FwhlmvTcYJJCqQC/AUhbmz7uT60JL8e7VgNkBoJndaL
+         +oH6dbFwHI3zFK1vWrP5bftRwfkWr3m7sdwiUnnnfUvpbwXCKNJ4Kjs0oxs1Czb3jw5y
+         mvpw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=rDIn2y3BnmWb2XeDUCtivddkh9JmonD8mz0xrxtuIjo=;
-        b=ED38Xmz5pibMj+eC9zMqdzBwos0YtHDoNkle8cODQO389TA7R1tMoxFT7T6jSBmL8y
-         6uumXp8CzBVzMLbxuOhotNrewm2ZlP/ae3jnOBisQQPmmTBxxF2G8YslC4N5+7Dll9mr
-         5ia9PEWODoniD28YZa9hS0IaXhuwcMQCGvneWSmTbsEbkSrKWU6wG1+AUguAuZI9JOPf
-         iKXQoIY9NDaLz9LSBvLoAERC6bFf03EJ11uIw9jYUQ2Bqq8y+7Npg4y3WVzu+/QcTapz
-         B4iwBX6XRGW4KDbbj+Ae3Amdx/RCaV1yKGoJWk8141QQuE9PkMw7fp/Tn/DXdtWLotXj
-         fOUQ==
-X-Gm-Message-State: AOAM532c7oLLgzHnyfP3o1Paobae08eZhpDxaNBuoqHKVqDm0pVkH2AG
-        YXJUMLBDz/RIlR1TlTsrQhAPHK+jpyLHeufj
-X-Google-Smtp-Source: ABdhPJwKpZbp6rYRvF+DNzzFkmdWie09/6WT3ENmHB7ckVSVI+RaczEUlOSBYz9oIdnuvGLIdfrwJQ==
-X-Received: by 2002:a17:90b:a4c:: with SMTP id gw12mr1552524pjb.187.1627372008998;
-        Tue, 27 Jul 2021 00:46:48 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id u21sm2407189pfh.163.2021.07.27.00.46.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 27 Jul 2021 00:46:48 -0700 (PDT)
-Message-ID: <60ffb9e8.1c69fb81.25956.8437@mx.google.com>
-Date:   Tue, 27 Jul 2021 00:46:48 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=OvNUT72492UbyZRsDT1/b9P0ONRlNs756QXs0rtMnSY=;
+        b=lLyDDuivGQ+5A3Kg5+1SF86MEX27l9oGs0UYDOaVbnJ6d3Ze7DT5gB+fhwspAo43u3
+         uu+75zhy0Js4Urjg+cc6g6hkweGHBg+94ZZcOL48IyLtGJKSUSXxp2VrN2Y4bHeNW1iZ
+         BBRcE08CqrzsUYf+eckqmQZoM3gMFMUB6QAQ2/LTnnPi5AO5TQTDddKypw6UuxBaYOw4
+         mjaylLziu0qv4Oo+Tht9GPKPZjrV1nB7XzltncyE7he9V2TYNK9w3O53OrXFdJX1cj71
+         vksYmuu6I0nhGCHvOpfUxqiTXL3ONxjix6ajEGBv1XpH5NM215IriOaZdMkkVggnGbTw
+         vhww==
+X-Gm-Message-State: AOAM53259pqPcU1+TXlFQDi7FVKshBwnsvaxS2JeyCqJkUcYv2WGk4E5
+        HiUNrwnemaOFrkpuPKkgUUbZq9Brv5iDGIAqUaoaag==
+X-Google-Smtp-Source: ABdhPJzbmGyzTFdXSz7dSgREquLIOo0uSsv5Ll/f00iR/6tpugqWo/Aoeqj3G5rijmipAZzrt7u5GNR6m2FMeUxXoBk=
+X-Received: by 2002:a05:6402:152:: with SMTP id s18mr25821207edu.221.1627372589423;
+ Tue, 27 Jul 2021 00:56:29 -0700 (PDT)
 MIME-Version: 1.0
+References: <20210726165240.137482144@linuxfoundation.org>
+In-Reply-To: <20210726165240.137482144@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 27 Jul 2021 13:26:17 +0530
+Message-ID: <CA+G9fYvRpVQDt-5L7R16obSgWTnSLtMjZ5FVA8GcgVeBKx3YWg@mail.gmail.com>
+Subject: Re: [PATCH 5.10 000/168] 5.10.54-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>,
+        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
+        linux-stable <stable@vger.kernel.org>,
+        Pavel Machek <pavel@denx.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.13
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.13.5-224-g6b468383e8ba
-Subject: stable-rc/queue/5.13 baseline: 105 runs,
- 3 regressions (v5.13.5-224-g6b468383e8ba)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.13 baseline: 105 runs, 3 regressions (v5.13.5-224-g6b4683=
-83e8ba)
+On Tue, 27 Jul 2021 at 10:36, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.10.54 release.
+> There are 168 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 28 Jul 2021 16:52:14 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.10.54-rc2.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.10.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Regressions Summary
--------------------
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-platform   | arch   | lab          | compiler | defconfig                  =
-  | regressions
------------+--------+--------------+----------+----------------------------=
---+------------
-beagle-xm  | arm    | lab-baylibre | gcc-8    | omap2plus_defconfig        =
-  | 1          =
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-d2500cc    | x86_64 | lab-clabbe   | gcc-8    | x86_64_defcon...6-chromeboo=
-k | 1          =
+## Build
+* kernel: 5.10.54-rc2
+* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
+rc.git
+* git branch: linux-5.10.y
+* git commit: f52d2bc365d20d8768af7bbd794d9f94ed40f7a7
+* git describe: v5.10.53-169-gf52d2bc365d2
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v5.10=
+.53-169-gf52d2bc365d2
 
-imx8mp-evk | arm64  | lab-nxp      | gcc-8    | defconfig                  =
-  | 1          =
+## Regressions (compared to v5.10.53-168-g53bd37407eed)
+No regressions found.
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.13/ker=
-nel/v5.13.5-224-g6b468383e8ba/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.13
-  Describe: v5.13.5-224-g6b468383e8ba
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      6b468383e8baa8fe9622bc4af971566a940a9df5 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform   | arch   | lab          | compiler | defconfig                  =
-  | regressions
------------+--------+--------------+----------+----------------------------=
---+------------
-beagle-xm  | arm    | lab-baylibre | gcc-8    | omap2plus_defconfig        =
-  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60ff829a90cd34142d3a2f35
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.5-2=
-24-g6b468383e8ba/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagle=
--xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.5-2=
-24-g6b468383e8ba/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagle=
--xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
 
+## Fixes (compared to v5.10.53-168-g53bd37407eed)
+* arc, build
+  - gcc-8-axs103_defconfig
+  - gcc-8-defconfig
+  - gcc-8-vdk_hs38_smp_defconfig
+  - gcc-9-axs103_defconfig
+  - gcc-9-defconfig
+  - gcc-9-vdk_hs38_smp_defconfig
 
-  * baseline.login: https://kernelci.org/test/case/id/60ff829a90cd34142d3a2=
-f36
-        failing since 12 days (last pass: v5.13.1-804-gbeca113be88f, first =
-fail: v5.13.1-802-gbf2d96d8a7b0) =
+* arm, build
+  - clang-10-at91_dt_defconfig
+  - clang-10-axm55xx_defconfig
+  - clang-10-bcm2835_defconfig
+  - clang-10-clps711x_defconfig
+  - clang-10-davinci_all_defconfig
+  - clang-10-defconfig
+  - clang-10-exynos_defconfig
+  - clang-10-footbridge_defconfig
+  - clang-10-imx_v4_v5_defconfig
+  - clang-10-imx_v6_v7_defconfig
+  - clang-10-integrator_defconfig
+  - clang-10-ixp4xx_defconfig
+  - clang-10-keystone_defconfig
+  - clang-10-lpc32xx_defconfig
+  - clang-10-mini2440_defconfig
+  - clang-10-multi_v5_defconfig
+  - clang-10-mxs_defconfig
+  - clang-10-nhk8815_defconfig
+  - clang-10-omap1_defconfig
+  - clang-10-omap2plus_defconfig
+  - clang-10-orion5x_defconfig
+  - clang-10-pxa910_defconfig
+  - clang-10-s3c2410_defconfig
+  - clang-10-s5pv210_defconfig
+  - clang-10-sama5_defconfig
+  - clang-10-shmobile_defconfig
+  - clang-10-u8500_defconfig
+  - clang-10-vexpress_defconfig
+  - clang-11-at91_dt_defconfig
+  - clang-11-axm55xx_defconfig
+  - clang-11-bcm2835_defconfig
+  - clang-11-clps711x_defconfig
+  - clang-11-davinci_all_defconfig
+  - clang-11-defconfig
+  - clang-11-exynos_defconfig
+  - clang-11-footbridge_defconfig
+  - clang-11-imx_v4_v5_defconfig
+  - clang-11-imx_v6_v7_defconfig
+  - clang-11-integrator_defconfig
+  - clang-11-ixp4xx_defconfig
+  - clang-11-keystone_defconfig
+  - clang-11-lpc32xx_defconfig
+  - clang-11-mini2440_defconfig
+  - clang-11-multi_v5_defconfig
+  - clang-11-mxs_defconfig
+  - clang-11-nhk8815_defconfig
+  - clang-11-omap1_defconfig
+  - clang-11-omap2plus_defconfig
+  - clang-11-orion5x_defconfig
+  - clang-11-pxa910_defconfig
+  - clang-11-s3c2410_defconfig
+  - clang-11-s5pv210_defconfig
+  - clang-11-sama5_defconfig
+  - clang-11-shmobile_defconfig
+  - clang-11-u8500_defconfig
+  - clang-11-vexpress_defconfig
+  - clang-12-at91_dt_defconfig
+  - clang-12-axm55xx_defconfig
+  - clang-12-bcm2835_defconfig
+  - clang-12-clps711x_defconfig
+  - clang-12-davinci_all_defconfig
+  - clang-12-defconfig
+  - clang-12-defconfig-50bba0f5
+  - clang-12-exynos_defconfig
+  - clang-12-footbridge_defconfig
+  - clang-12-imx_v4_v5_defconfig
+  - clang-12-imx_v6_v7_defconfig
+  - clang-12-integrator_defconfig
+  - clang-12-ixp4xx_defconfig
+  - clang-12-keystone_defconfig
+  - clang-12-lpc32xx_defconfig
+  - clang-12-mini2440_defconfig
+  - clang-12-multi_v5_defconfig
+  - clang-12-mxs_defconfig
+  - clang-12-nhk8815_defconfig
+  - clang-12-omap1_defconfig
+  - clang-12-omap2plus_defconfig
+  - clang-12-orion5x_defconfig
+  - clang-12-pxa910_defconfig
+  - clang-12-s3c2410_defconfig
+  - clang-12-s5pv210_defconfig
+  - clang-12-sama5_defconfig
+  - clang-12-shmobile_defconfig
+  - clang-12-u8500_defconfig
+  - clang-12-vexpress_defconfig
+  - gcc-10-at91_dt_defconfig
+  - gcc-10-axm55xx_defconfig
+  - gcc-10-bcm2835_defconfig
+  - gcc-10-clps711x_defconfig
+  - gcc-10-davinci_all_defconfig
+  - gcc-10-defconfig
+  - gcc-10-exynos_defconfig
+  - gcc-10-footbridge_defconfig
+  - gcc-10-imx_v4_v5_defconfig
+  - gcc-10-imx_v6_v7_defconfig
+  - gcc-10-integrator_defconfig
+  - gcc-10-ixp4xx_defconfig
+  - gcc-10-keystone_defconfig
+  - gcc-10-lpc32xx_defconfig
+  - gcc-10-mini2440_defconfig
+  - gcc-10-multi_v5_defconfig
+  - gcc-10-mxs_defconfig
+  - gcc-10-nhk8815_defconfig
+  - gcc-10-omap1_defconfig
+  - gcc-10-omap2plus_defconfig
+  - gcc-10-orion5x_defconfig
+  - gcc-10-pxa910_defconfig
+  - gcc-10-s3c2410_defconfig
+  - gcc-10-s5pv210_defconfig
+  - gcc-10-sama5_defconfig
+  - gcc-10-shmobile_defconfig
+  - gcc-10-u8500_defconfig
+  - gcc-10-vexpress_defconfig
+  - gcc-11-defconfig-493f0879
+  - gcc-11-defconfig-50bba0f5
+  - gcc-11-defconfig-5a3a4204
+  - gcc-11-defconfig-883c3502
+  - gcc-11-defconfig-a05dd807
+  - gcc-11-defconfig-c58d92d2
+  - gcc-8-at91_dt_defconfig
+  - gcc-8-axm55xx_defconfig
+  - gcc-8-bcm2835_defconfig
+  - gcc-8-clps711x_defconfig
+  - gcc-8-davinci_all_defconfig
+  - gcc-8-defconfig
+  - gcc-8-exynos_defconfig
+  - gcc-8-footbridge_defconfig
+  - gcc-8-imx_v4_v5_defconfig
+  - gcc-8-imx_v6_v7_defconfig
+  - gcc-8-integrator_defconfig
+  - gcc-8-ixp4xx_defconfig
+  - gcc-8-keystone_defconfig
+  - gcc-8-lpc32xx_defconfig
+  - gcc-8-mini2440_defconfig
+  - gcc-8-multi_v5_defconfig
+  - gcc-8-mxs_defconfig
+  - gcc-8-nhk8815_defconfig
+  - gcc-8-omap1_defconfig
+  - gcc-8-omap2plus_defconfig
+  - gcc-8-orion5x_defconfig
+  - gcc-8-pxa910_defconfig
+  - gcc-8-s3c2410_defconfig
+  - gcc-8-s5pv210_defconfig
+  - gcc-8-sama5_defconfig
+  - gcc-8-shmobile_defconfig
+  - gcc-8-u8500_defconfig
+  - gcc-8-vexpress_defconfig
+  - gcc-9-at91_dt_defconfig
+  - gcc-9-axm55xx_defconfig
+  - gcc-9-bcm2835_defconfig
+  - gcc-9-clps711x_defconfig
+  - gcc-9-davinci_all_defconfig
+  - gcc-9-defconfig
+  - gcc-9-exynos_defconfig
+  - gcc-9-footbridge_defconfig
+  - gcc-9-imx_v4_v5_defconfig
+  - gcc-9-imx_v6_v7_defconfig
+  - gcc-9-integrator_defconfig
+  - gcc-9-ixp4xx_defconfig
+  - gcc-9-keystone_defconfig
+  - gcc-9-lpc32xx_defconfig
+  - gcc-9-mini2440_defconfig
+  - gcc-9-multi_v5_defconfig
+  - gcc-9-mxs_defconfig
+  - gcc-9-nhk8815_defconfig
+  - gcc-9-omap1_defconfig
+  - gcc-9-omap2plus_defconfig
+  - gcc-9-orion5x_defconfig
+  - gcc-9-pxa910_defconfig
+  - gcc-9-s3c2410_defconfig
+  - gcc-9-s5pv210_defconfig
+  - gcc-9-sama5_defconfig
+  - gcc-9-shmobile_defconfig
+  - gcc-9-u8500_defconfig
+  - gcc-9-vexpress_defconfig
 
- =
+* arm64, build
+  - clang-10-defconfig
+  - clang-11-defconfig
+  - clang-12-defconfig
+  - clang-12-defconfig-5b09568e
+  - gcc-10-defconfig
+  - gcc-11-defconfig-389abf09
+  - gcc-11-defconfig-59041e85
+  - gcc-11-defconfig-5b09568e
+  - gcc-11-defconfig-5e73d44a
+  - gcc-11-defconfig-904271f2
+  - gcc-11-defconfig-bcbd88e2
+  - gcc-11-defconfig-eec653ad
+  - gcc-11-defconfig-fac1da4b
+  - gcc-8-defconfig
+  - gcc-9-defconfig
+
+* dragonboard-410c, build
+  - build_process
+
+* hi6220-hikey, build
+  - build_process
+
+* i386, build
+  - build_process
+  - clang-10-defconfig
+  - clang-11-defconfig
+  - clang-12-defconfig
+  - clang-12-defconfig-b9979cfa
+  - gcc-10-defconfig
+  - gcc-11-defconfig-9cda1611
+  - gcc-11-defconfig-b9979cfa
+  - gcc-11-defconfig-bb946595
+  - gcc-11-defconfig-cee60f56
+  - gcc-11-defconfig-e3753fbe
+  - gcc-11-defconfig-ec3ad359
+  - gcc-8-i386_defconfig
+  - gcc-9-i386_defconfig
+
+* juno-r2, build
+  - build_process
+
+* mips, build
+  - clang-10-defconfig
+  - clang-11-defconfig
+  - clang-12-defconfig
+  - gcc-10-ar7_defconfig
+  - gcc-10-ath79_defconfig
+  - gcc-10-bcm47xx_defconfig
+  - gcc-10-bcm63xx_defconfig
+  - gcc-10-cavium_octeon_defconfig
+  - gcc-10-defconfig
+  - gcc-10-malta_defconfig
+  - gcc-10-nlm_xlp_defconfig
+  - gcc-10-rt305x_defconfig
+  - gcc-8-ar7_defconfig
+  - gcc-8-ath79_defconfig
+  - gcc-8-bcm47xx_defconfig
+  - gcc-8-bcm63xx_defconfig
+  - gcc-8-cavium_octeon_defconfig
+  - gcc-8-defconfig
+  - gcc-8-malta_defconfig
+  - gcc-8-nlm_xlp_defconfig
+  - gcc-8-rt305x_defconfig
+  - gcc-9-ar7_defconfig
+  - gcc-9-ath79_defconfig
+  - gcc-9-bcm47xx_defconfig
+  - gcc-9-bcm63xx_defconfig
+  - gcc-9-cavium_octeon_defconfig
+  - gcc-9-defconfig
+  - gcc-9-malta_defconfig
+  - gcc-9-nlm_xlp_defconfig
+  - gcc-9-rt305x_defconfig
+
+* parisc, build
+  - gcc-10-defconfig
+  - gcc-8-defconfig
+  - gcc-9-defconfig
+
+* powerpc, build
+  - gcc-10-cell_defconfig
+  - gcc-10-defconfig
+  - gcc-10-maple_defconfig
+  - gcc-10-mpc83xx_defconfig
+  - gcc-10-ppc64e_defconfig
+  - gcc-10-ppc6xx_defconfig
+  - gcc-10-tqm8xx_defconfig
+  - gcc-8-cell_defconfig
+  - gcc-8-defconfig
+  - gcc-8-maple_defconfig
+  - gcc-8-mpc83xx_defconfig
+  - gcc-8-ppc64e_defconfig
+  - gcc-8-ppc6xx_defconfig
+  - gcc-8-tqm8xx_defconfig
+  - gcc-9-cell_defconfig
+  - gcc-9-defconfig
+  - gcc-9-maple_defconfig
+  - gcc-9-mpc83xx_defconfig
+  - gcc-9-ppc64e_defconfig
+  - gcc-9-ppc6xx_defconfig
+  - gcc-9-tqm8xx_defconfig
+
+* riscv, build
+  - clang-10-defconfig
+  - clang-11-defconfig
+  - clang-12-defconfig
+  - gcc-10-defconfig
+  - gcc-8-defconfig
+  - gcc-9-defconfig
+
+* s390, build
+  - clang-10-defconfig
+  - clang-11-defconfig
+  - clang-12-defconfig
+  - gcc-10-defconfig
+  - gcc-8-defconfig
+  - gcc-9-defconfig
+
+* sh, build
+  - gcc-10-defconfig
+  - gcc-10-dreamcast_defconfig
+  - gcc-10-microdev_defconfig
+  - gcc-10-shx3_defconfig
+  - gcc-8-defconfig
+  - gcc-8-dreamcast_defconfig
+  - gcc-8-microdev_defconfig
+  - gcc-8-shx3_defconfig
+  - gcc-9-defconfig
+  - gcc-9-dreamcast_defconfig
+  - gcc-9-microdev_defconfig
+  - gcc-9-shx3_defconfig
+
+* sparc, build
+  - gcc-10-defconfig
+  - gcc-8-defconfig
+  - gcc-9-defconfig
+
+* x15, build
+  - build_process
+
+* x86, build
+  - build_process
+
+* x86_64, build
+  - clang-10-defconfig
+  - clang-11-x86_64_defconfig
+  - clang-12-defconfig-61adc17b
+  - clang-12-defconfig-b9979cfa
+  - clang-12-x86_64_defconfig
+  - gcc-10-defconfig
+  - gcc-11-defconfig-9cda1611
+  - gcc-11-defconfig-b9979cfa
+  - gcc-11-defconfig-bb946595
+  - gcc-11-defconfig-cee60f56
+  - gcc-11-defconfig-e3753fbe
+  - gcc-11-defconfig-ec3ad359
+  - gcc-11-defconfig-fb5e7dc8
+  - gcc-8-x86_64_defconfig
+  - gcc-9-x86_64_defconfig
 
 
+## Test result summary
+ total: 82005, pass: 67588, fail: 1837, skip: 11337, xfail: 1243,
 
-platform   | arch   | lab          | compiler | defconfig                  =
-  | regressions
------------+--------+--------------+----------+----------------------------=
---+------------
-d2500cc    | x86_64 | lab-clabbe   | gcc-8    | x86_64_defcon...6-chromeboo=
-k | 1          =
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 193 total, 193 passed, 0 failed
+* arm64: 27 total, 27 passed, 0 failed
+* dragonboard-410c: 1 total, 1 passed, 0 failed
+* hi6220-hikey: 1 total, 1 passed, 0 failed
+* i386: 26 total, 26 passed, 0 failed
+* juno-r2: 1 total, 1 passed, 0 failed
+* mips: 45 total, 45 passed, 0 failed
+* parisc: 9 total, 9 passed, 0 failed
+* powerpc: 27 total, 27 passed, 0 failed
+* riscv: 21 total, 21 passed, 0 failed
+* s390: 18 total, 18 passed, 0 failed
+* sh: 18 total, 18 passed, 0 failed
+* sparc: 9 total, 9 passed, 0 failed
+* x15: 1 total, 1 passed, 0 failed
+* x86: 1 total, 1 passed, 0 failed
+* x86_64: 27 total, 27 passed, 0 failed
 
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* install-android-platform-tools-r2600
+* kselftest-
+* kselftest-android
+* kselftest-bpf
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-lkdtm
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-vsyscall-mode-native-
+* kselftest-vsyscall-mode-none-
+* kselftest-x86
+* kselftest-zram
+* kunit
+* kvm-unit-tests
+* libgpiod
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-cap_bounds[
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* rcutorture
+* ssuite
+* v4l2-compliance
 
-  Details:     https://kernelci.org/test/plan/id/60ff8da3c50d9b91483a2f5c
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig+x86-chromebook
-  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.5-2=
-24-g6b468383e8ba/x86_64/x86_64_defconfig+x86-chromebook/gcc-8/lab-clabbe/ba=
-seline-d2500cc.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.5-2=
-24-g6b468383e8ba/x86_64/x86_64_defconfig+x86-chromebook/gcc-8/lab-clabbe/ba=
-seline-d2500cc.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60ff8da3c50d9b91483a2=
-f5d
-        failing since 15 days (last pass: v5.13.1, first fail: v5.13.1-782-=
-ge04a16db1cc5) =
-
- =
-
-
-
-platform   | arch   | lab          | compiler | defconfig                  =
-  | regressions
------------+--------+--------------+----------+----------------------------=
---+------------
-imx8mp-evk | arm64  | lab-nxp      | gcc-8    | defconfig                  =
-  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60ff830e8e26648c8d3a2f23
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.5-2=
-24-g6b468383e8ba/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.5-2=
-24-g6b468383e8ba/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60ff830e8e26648c8d3a2=
-f24
-        new failure (last pass: v5.13.3-506-geae05e2c64ef) =
-
- =20
+--
+Linaro LKFT
+https://lkft.linaro.org
