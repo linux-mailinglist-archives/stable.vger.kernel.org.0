@@ -2,142 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A3363D81C0
-	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 23:24:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7B283D81D8
+	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 23:35:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231982AbhG0VYG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Jul 2021 17:24:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39142 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231719AbhG0VYG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Jul 2021 17:24:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C0D160FC4;
-        Tue, 27 Jul 2021 21:24:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1627421045;
-        bh=kQBIlKDJDPK3CRV50HKfBIx0ApYX/j28r/9bZkuFpYY=;
-        h=Date:From:To:Subject:From;
-        b=IvpMuWzJK2YQoVYpid7ZC70PmzjeuPm7k11Y/jnry4dNtwzQmnPbqyiroiCxKMRI2
-         X6qGL6Us9C+lXxlTgxHuFSQB6mgWeQJrw4wCg55W0j9UY6uoNAYHh7LHVGQSc2ERDs
-         4bBQRLCcZJsTd5DznhfWKZUtRQHnUzhVZnvr7qPw=
-Date:   Tue, 27 Jul 2021 14:24:05 -0700
-From:   akpm@linux-foundation.org
-To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        shakeelb@google.com, riel@surriel.com, mhocko@suse.com,
-        dan.carpenter@oracle.com, chris@chrisdown.name, hannes@cmpxchg.org
-Subject:  +
- =?us-ascii?Q?mm-memcontrol-fix-blocking-rstat-function-called-from-atomic?=
- =?us-ascii?Q?-cgroup1-thresholding-code.patch?= added to -mm tree
-Message-ID: <20210727212405.jKaW_%akpm@linux-foundation.org>
-User-Agent: s-nail v14.9.10
+        id S231755AbhG0Vft (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Jul 2021 17:35:49 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:33924 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231135AbhG0Vft (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Jul 2021 17:35:49 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id F39E31C0B76; Tue, 27 Jul 2021 23:35:46 +0200 (CEST)
+Date:   Tue, 27 Jul 2021 23:35:46 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Jason Ekstrand <jason@jlekstrand.net>,
+        Marcin Slusarz <marcin.slusarz@intel.com>,
+        Jason Ekstrand <jason.ekstrand@intel.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Jon Bloomfield <jon.bloomfield@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>
+Subject: Re: [PATCH 5.10 154/167] Revert "drm/i915: Propagate errors on
+ awaiting already signaled fences"
+Message-ID: <20210727213546.GA20206@amd>
+References: <20210726153839.371771838@linuxfoundation.org>
+ <20210726153844.582795218@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="XsQoSWH+UP9D9v3l"
+Content-Disposition: inline
+In-Reply-To: <20210726153844.582795218@linuxfoundation.org>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch titled
-     Subject: mm: memcontrol: fix blocking rstat function called from atomic cgroup1 thresholding code
-has been added to the -mm tree.  Its filename is
-     mm-memcontrol-fix-blocking-rstat-function-called-from-atomic-cgroup1-thresholding-code.patch
+--XsQoSWH+UP9D9v3l
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/mm-memcontrol-fix-blocking-rstat-function-called-from-atomic-cgroup1-thresholding-code.patch
-and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/mm-memcontrol-fix-blocking-rstat-function-called-from-atomic-cgroup1-thresholding-code.patch
+Hi!
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+According to changelog, this introduces security hole.
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+> From: Jason Ekstrand <jason@jlekstrand.net>
+>=20
+> commit 3761baae908a7b5012be08d70fa553cc2eb82305 upstream.
+>=20
+> This reverts commit 9e31c1fe45d555a948ff66f1f0e3fe1f83ca63f7.  Ever
+> since that commit, we've been having issues where a hang in one
+> client
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
+Hmm. Sounds like problem I'm seeing in mainline. So... good to know.
 
-------------------------------------------------------
-From: Johannes Weiner <hannes@cmpxchg.org>
-Subject: mm: memcontrol: fix blocking rstat function called from atomic cgroup1 thresholding code
+> For backporters: Please note that you _must_ have a backport of
+> https://lore.kernel.org/dri-devel/20210602164149.391653-2-jason@jlekstran=
+d.net/
+> for otherwise backporting just this patch opens up a security bug.
 
-Dan Carpenter reports:
+AFAICT we don't have that c9d9fdbc108af8915d3f497bbdf3898bf8f321b8
+drm/i915: Revert "drm/i915/gem: Asynchronous cmdparser" in 5.10 tree.
 
-    The patch 2d146aa3aa84: "mm: memcontrol: switch to rstat" from Apr
-    29, 2021, leads to the following static checker warning:
+Hmm, and it needs follow up fix:
+6e0b6528d783b2b87bd9e1bea97cf4dac87540d7 drm/i915: Correct the docs
+for intel_engine_cmd_parser.
 
-	    kernel/cgroup/rstat.c:200 cgroup_rstat_flush()
-	    warn: sleeping in atomic context
+(Someone please double check this).
 
-    mm/memcontrol.c
-      3572  static unsigned long mem_cgroup_usage(struct mem_cgroup *memcg, bool swap)
-      3573  {
-      3574          unsigned long val;
-      3575
-      3576          if (mem_cgroup_is_root(memcg)) {
-      3577                  cgroup_rstat_flush(memcg->css.cgroup);
-			    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Best regards,
+								Pavel
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
 
-    This is from static analysis and potentially a false positive.  The
-    problem is that mem_cgroup_usage() is called from __mem_cgroup_threshold()
-    which holds an rcu_read_lock().  And the cgroup_rstat_flush() function
-    can sleep.
+--XsQoSWH+UP9D9v3l
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-      3578                  val = memcg_page_state(memcg, NR_FILE_PAGES) +
-      3579                          memcg_page_state(memcg, NR_ANON_MAPPED);
-      3580                  if (swap)
-      3581                          val += memcg_page_state(memcg, MEMCG_SWAP);
-      3582          } else {
-      3583                  if (!swap)
-      3584                          val = page_counter_read(&memcg->memory);
-      3585                  else
-      3586                          val = page_counter_read(&memcg->memsw);
-      3587          }
-      3588          return val;
-      3589  }
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
-__mem_cgroup_threshold() indeed holds the rcu lock.  In addition, the
-thresholding code is invoked during stat changes, and those contexts have
-irqs disabled as well.  If the lock breaking occurs inside the flush
-function, it will result in a sleep from an atomic context.
+iEYEARECAAYFAmEAfDIACgkQMOfwapXb+vIomACgizrxI1sVaubakjiv7j7/yPSr
+XAoAoLfLe75C/9jBjXp3wcTz2ueUyNMh
+=lUJL
+-----END PGP SIGNATURE-----
 
-Use the irqsafe flushing variant in mem_cgroup_usage() to fix this.
-
-Link: https://lkml.kernel.org/r/20210726150019.251820-1-hannes@cmpxchg.org
-Fixes: 2d146aa3aa84 ("mm: memcontrol: switch to rstat")
-Signed-off-by: Johannes Weiner <hannes@cmpxchg.org>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Chris Down <chris@chrisdown.name>
-Reviewed-by: Rik van Riel <riel@surriel.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/memcontrol.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
---- a/mm/memcontrol.c~mm-memcontrol-fix-blocking-rstat-function-called-from-atomic-cgroup1-thresholding-code
-+++ a/mm/memcontrol.c
-@@ -3574,7 +3574,8 @@ static unsigned long mem_cgroup_usage(st
- 	unsigned long val;
- 
- 	if (mem_cgroup_is_root(memcg)) {
--		cgroup_rstat_flush(memcg->css.cgroup);
-+		/* mem_cgroup_threshold() calls here from irqsafe context */
-+		cgroup_rstat_flush_irqsafe(memcg->css.cgroup);
- 		val = memcg_page_state(memcg, NR_FILE_PAGES) +
- 			memcg_page_state(memcg, NR_ANON_MAPPED);
- 		if (swap)
-_
-
-Patches currently in -mm which might be from hannes@cmpxchg.org are
-
-mm-memcontrol-fix-blocking-rstat-function-called-from-atomic-cgroup1-thresholding-code.patch
-mm-remove-irqsave-restore-locking-from-contexts-with-irqs-enabled.patch
-fs-drop_caches-fix-skipping-over-shadow-cache-inodes.patch
-fs-inode-count-invalidated-shadow-pages-in-pginodesteal.patch
-vfs-keep-inodes-with-page-cache-off-the-inode-shrinker-lru.patch
-
+--XsQoSWH+UP9D9v3l--
