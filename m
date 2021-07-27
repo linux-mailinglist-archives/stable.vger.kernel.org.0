@@ -2,98 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CDF533D80F5
-	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 23:11:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A3363D81C0
+	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 23:24:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232844AbhG0VKD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Jul 2021 17:10:03 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:54670 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235239AbhG0VJV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Jul 2021 17:09:21 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1627420160;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=epqNANSa//JBOqbfDJlxqgrU5mQ/ZOYCzCBkRvtlhEQ=;
-        b=IeZyyoKjFAkH66rOLSKxrOdbLez6lR60UdcfzlYW2cWTF+gJfnWOpSrsMZX9/ECYdfX5MT
-        fpPvA9QLOJJDYvomNvopwjh6XVvJe6dY/yU/hT2FxFOwairdoficJhUuxayq7Nz80GZxGa
-        vqFDxaenCtleJRlafYpffna1KgAzLww=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-468-IR3A2OY7PgWndQt2uHqkyQ-1; Tue, 27 Jul 2021 17:09:18 -0400
-X-MC-Unique: IR3A2OY7PgWndQt2uHqkyQ-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 9D52C8010F4;
-        Tue, 27 Jul 2021 21:09:17 +0000 (UTC)
-Received: from virtlab701.virt.lab.eng.bos.redhat.com (virtlab701.virt.lab.eng.bos.redhat.com [10.19.152.228])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 27AE460C9F;
-        Tue, 27 Jul 2021 21:09:17 +0000 (UTC)
-From:   Paolo Bonzini <pbonzini@redhat.com>
-To:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc:     seanjc@google.com, stable@vger.kernel.org,
-        Stas Sergeev <stsp2@yandex.ru>
-Subject: [PATCH v3] KVM: x86: accept userspace interrupt only if no event is injected
-Date:   Tue, 27 Jul 2021 17:09:16 -0400
-Message-Id: <20210727210916.1652841-1-pbonzini@redhat.com>
+        id S231982AbhG0VYG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Jul 2021 17:24:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39142 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231719AbhG0VYG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Jul 2021 17:24:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C0D160FC4;
+        Tue, 27 Jul 2021 21:24:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1627421045;
+        bh=kQBIlKDJDPK3CRV50HKfBIx0ApYX/j28r/9bZkuFpYY=;
+        h=Date:From:To:Subject:From;
+        b=IvpMuWzJK2YQoVYpid7ZC70PmzjeuPm7k11Y/jnry4dNtwzQmnPbqyiroiCxKMRI2
+         X6qGL6Us9C+lXxlTgxHuFSQB6mgWeQJrw4wCg55W0j9UY6uoNAYHh7LHVGQSc2ERDs
+         4bBQRLCcZJsTd5DznhfWKZUtRQHnUzhVZnvr7qPw=
+Date:   Tue, 27 Jul 2021 14:24:05 -0700
+From:   akpm@linux-foundation.org
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        shakeelb@google.com, riel@surriel.com, mhocko@suse.com,
+        dan.carpenter@oracle.com, chris@chrisdown.name, hannes@cmpxchg.org
+Subject:  +
+ =?us-ascii?Q?mm-memcontrol-fix-blocking-rstat-function-called-from-atomic?=
+ =?us-ascii?Q?-cgroup1-thresholding-code.patch?= added to -mm tree
+Message-ID: <20210727212405.jKaW_%akpm@linux-foundation.org>
+User-Agent: s-nail v14.9.10
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+Content-Type: text/plain; charset=us-ascii
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Once an exception has been injected, any side effects related to
-the exception (such as setting CR2 or DR6) have been taked place.
-Therefore, once KVM sets the VM-entry interruption information
-field or the AMD EVENTINJ field, the next VM-entry must deliver that
-exception.
 
-Pending interrupts are processed after injected exceptions, so
-in theory it would not be a problem to use KVM_INTERRUPT when
-an injected exception is present.  However, DOSEMU is using
-run->ready_for_interrupt_injection to detect interrupt windows
-and then using KVM_SET_SREGS/KVM_SET_REGS to inject the
-interrupt manually.  For this to work, the interrupt window
-must be delayed after the completion of the previous event
-injection.
+The patch titled
+     Subject: mm: memcontrol: fix blocking rstat function called from atomic cgroup1 thresholding code
+has been added to the -mm tree.  Its filename is
+     mm-memcontrol-fix-blocking-rstat-function-called-from-atomic-cgroup1-thresholding-code.patch
 
-Cc: stable@vger.kernel.org
-Reported-by: Stas Sergeev <stsp2@yandex.ru>
-Tested-by: Stas Sergeev <stsp2@yandex.ru>
-Fixes: 71cc849b7093 ("KVM: x86: Fix split-irqchip vs interrupt injection window request")
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+This patch should soon appear at
+    https://ozlabs.org/~akpm/mmots/broken-out/mm-memcontrol-fix-blocking-rstat-function-called-from-atomic-cgroup1-thresholding-code.patch
+and later at
+    https://ozlabs.org/~akpm/mmotm/broken-out/mm-memcontrol-fix-blocking-rstat-function-called-from-atomic-cgroup1-thresholding-code.patch
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: Johannes Weiner <hannes@cmpxchg.org>
+Subject: mm: memcontrol: fix blocking rstat function called from atomic cgroup1 thresholding code
+
+Dan Carpenter reports:
+
+    The patch 2d146aa3aa84: "mm: memcontrol: switch to rstat" from Apr
+    29, 2021, leads to the following static checker warning:
+
+	    kernel/cgroup/rstat.c:200 cgroup_rstat_flush()
+	    warn: sleeping in atomic context
+
+    mm/memcontrol.c
+      3572  static unsigned long mem_cgroup_usage(struct mem_cgroup *memcg, bool swap)
+      3573  {
+      3574          unsigned long val;
+      3575
+      3576          if (mem_cgroup_is_root(memcg)) {
+      3577                  cgroup_rstat_flush(memcg->css.cgroup);
+			    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+    This is from static analysis and potentially a false positive.  The
+    problem is that mem_cgroup_usage() is called from __mem_cgroup_threshold()
+    which holds an rcu_read_lock().  And the cgroup_rstat_flush() function
+    can sleep.
+
+      3578                  val = memcg_page_state(memcg, NR_FILE_PAGES) +
+      3579                          memcg_page_state(memcg, NR_ANON_MAPPED);
+      3580                  if (swap)
+      3581                          val += memcg_page_state(memcg, MEMCG_SWAP);
+      3582          } else {
+      3583                  if (!swap)
+      3584                          val = page_counter_read(&memcg->memory);
+      3585                  else
+      3586                          val = page_counter_read(&memcg->memsw);
+      3587          }
+      3588          return val;
+      3589  }
+
+__mem_cgroup_threshold() indeed holds the rcu lock.  In addition, the
+thresholding code is invoked during stat changes, and those contexts have
+irqs disabled as well.  If the lock breaking occurs inside the flush
+function, it will result in a sleep from an atomic context.
+
+Use the irqsafe flushing variant in mem_cgroup_usage() to fix this.
+
+Link: https://lkml.kernel.org/r/20210726150019.251820-1-hannes@cmpxchg.org
+Fixes: 2d146aa3aa84 ("mm: memcontrol: switch to rstat")
+Signed-off-by: Johannes Weiner <hannes@cmpxchg.org>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Chris Down <chris@chrisdown.name>
+Reviewed-by: Rik van Riel <riel@surriel.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
- arch/x86/kvm/x86.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 4116567f3d44..e5d5c5ed7dd4 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -4358,8 +4358,17 @@ static int kvm_cpu_accept_dm_intr(struct kvm_vcpu *vcpu)
+ mm/memcontrol.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+--- a/mm/memcontrol.c~mm-memcontrol-fix-blocking-rstat-function-called-from-atomic-cgroup1-thresholding-code
++++ a/mm/memcontrol.c
+@@ -3574,7 +3574,8 @@ static unsigned long mem_cgroup_usage(st
+ 	unsigned long val;
  
- static int kvm_vcpu_ready_for_interrupt_injection(struct kvm_vcpu *vcpu)
- {
--	return kvm_arch_interrupt_allowed(vcpu) &&
--		kvm_cpu_accept_dm_intr(vcpu);
-+	/*
-+	 * Do not cause an interrupt window exit if an exception
-+	 * is pending or an event needs reinjection; userspace
-+	 * might want to inject the interrupt manually using KVM_SET_REGS
-+	 * or KVM_SET_SREGS.  For that to work, we must be at an
-+	 * instruction boundary and with no events half-injected.
-+	 */
-+	return (kvm_arch_interrupt_allowed(vcpu) &&
-+		kvm_cpu_accept_dm_intr(vcpu) &&
-+		!kvm_event_needs_reinjection(vcpu) &&
-+		!vcpu->arch.exception.pending);
- }
- 
- static int kvm_vcpu_ioctl_interrupt(struct kvm_vcpu *vcpu,
--- 
-2.27.0
+ 	if (mem_cgroup_is_root(memcg)) {
+-		cgroup_rstat_flush(memcg->css.cgroup);
++		/* mem_cgroup_threshold() calls here from irqsafe context */
++		cgroup_rstat_flush_irqsafe(memcg->css.cgroup);
+ 		val = memcg_page_state(memcg, NR_FILE_PAGES) +
+ 			memcg_page_state(memcg, NR_ANON_MAPPED);
+ 		if (swap)
+_
+
+Patches currently in -mm which might be from hannes@cmpxchg.org are
+
+mm-memcontrol-fix-blocking-rstat-function-called-from-atomic-cgroup1-thresholding-code.patch
+mm-remove-irqsave-restore-locking-from-contexts-with-irqs-enabled.patch
+fs-drop_caches-fix-skipping-over-shadow-cache-inodes.patch
+fs-inode-count-invalidated-shadow-pages-in-pginodesteal.patch
+vfs-keep-inodes-with-page-cache-off-the-inode-shrinker-lru.patch
 
