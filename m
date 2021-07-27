@@ -2,120 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C34023D7F55
-	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 22:38:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7FD23D7F5F
+	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 22:41:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231432AbhG0Uie (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Jul 2021 16:38:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49680 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231133AbhG0Uic (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Jul 2021 16:38:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 65FBF6056B;
-        Tue, 27 Jul 2021 20:38:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1627418312;
-        bh=m4pTLRxNjQ5nrW4+WylpHblD4H7E+5v4AVz71ixTU7U=;
-        h=From:To:Cc:Subject:Date:From;
-        b=jFFIcxi7MiAGoX1FaofoGp1RfNm/xlAaCEtXz2oOyuj+wsOwyHZt7ziSZWTza7yVA
-         yuvEvuL0XvwoePf25ipmXSDhc9RArOpGOt5oPIx8udzt71emuyQhyFp8ILQEMnYePk
-         ihKjfE4b9WZab2EG3TkDTO+EokRokdHIPIy30oy1BwLm+1ITa88OmWHjZ0nnYRfHXR
-         Z3OJ6vNOZSPoYjfkxd8i2NTt6yywGFWGJ48lA0To48MMezxXV2HtcvtT6gknQxWBLj
-         aG9g5xniVbVSNGtbGWs7KR0iKogwE3+FRA3RZWMml3ZdcuXK6u4rLnzaycTqneD1Cb
-         nh9xtn0nMtvGw==
-From:   Mike Rapoport <rppt@kernel.org>
-To:     Matt Turner <mattst88@gmail.com>
-Cc:     Michael Cree <mcree@orcon.net.nz>, Mike Rapoport <rppt@kernel.org>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, stable@vger.kernel.org
-Subject: [PATCH] alpha: register early reserved memory in memblock
-Date:   Tue, 27 Jul 2021 23:38:24 +0300
-Message-Id: <20210727203824.12312-1-rppt@kernel.org>
-X-Mailer: git-send-email 2.28.0
+        id S229681AbhG0Ulh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Jul 2021 16:41:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50090 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231211AbhG0Ulh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Jul 2021 16:41:37 -0400
+Received: from mail-qt1-x830.google.com (mail-qt1-x830.google.com [IPv6:2607:f8b0:4864:20::830])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F5E9C061757
+        for <stable@vger.kernel.org>; Tue, 27 Jul 2021 13:41:37 -0700 (PDT)
+Received: by mail-qt1-x830.google.com with SMTP id d2so10559371qto.6
+        for <stable@vger.kernel.org>; Tue, 27 Jul 2021 13:41:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:from:to:cc:references:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=St66ktSH+2+srS7jYKt2P9hTr8b0zWIBokN3M0Oxffg=;
+        b=PMjOqzihhocXBhFNYjwa0/d6WfauInTe6wEQpFNzwoWxHLuqeXaV7VVN7fCrI5Dh49
+         8YoDelQOcLrdw1fJDjDA22iAdRASyHMJAS4jZ0+ig9H5CyHo9MncjMFa2wJNg++uZ3CC
+         qoCly2zpZN5ckirQsz3lqAGhDArKVc+hPoqmu7YGIEj3JbltK8GWJPLvt12C4ZSB0F+V
+         WDJ34Kf1qY2A8fvtK8/NMLaXnp0VThOKzchZszmEzJuE0dybDOuIiTtfH21dYELdzH36
+         BPGQM2Xxn/JoO2MogB070UTrLKbWe35HOl4X48th45E67Nw4xYszkYGBRe9ALVyvcjIJ
+         zMmg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:from:to:cc:references:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=St66ktSH+2+srS7jYKt2P9hTr8b0zWIBokN3M0Oxffg=;
+        b=LS9h5i4ACkJMt12LySUkyULDFNu1qCz7/l8iE2wZarW9+6uCWcRsmgbNS6Gdw94Hpx
+         ixqLgOG00/kci/gTy+7pE738I6iQI1LYXsvQB+Vj2+4XsUXHJxlzb7SJvV30QfhCPH+H
+         5bDdTkR5A5KudNweUMy1mlIL43EoPaXOPtCOyTkd9rud7BvJtpF3WeEuNxPMMzPJnUyw
+         i2lZmSC2vxdOeZ3RWk+6biGOLL4ztphc5nMFHGPQGjr6NXM9tw0UoIyD/VhLT/2U14NT
+         jDMWXwei8EQMHQT2/s+Ux+LikAMf2LcgrQusl+FCv24HauM8XbtVkG2XBz/CF/X7oqvs
+         SD0A==
+X-Gm-Message-State: AOAM530LnRRipdPP2C11chs/NLMKvOmv3vntYkUx3tbV3DU6ZrPEaSjR
+        ZU9K0fT+nX2U21xESyNQb+Le0jqTCUM=
+X-Google-Smtp-Source: ABdhPJzAnlKMlsTFJmjaTX77FzWNyWjNd8/tZd2vKdKpPRp/FAs7xXo20jrP8dLkIa650izAB1EuUA==
+X-Received: by 2002:a05:622a:1049:: with SMTP id f9mr20696953qte.111.1627418496335;
+        Tue, 27 Jul 2021 13:41:36 -0700 (PDT)
+Received: from mua.localhost ([2600:1700:e380:2c20::47])
+        by smtp.gmail.com with ESMTPSA id a16sm2186420qkn.107.2021.07.27.13.41.35
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 27 Jul 2021 13:41:35 -0700 (PDT)
+Subject: Re: very long boot times in 5.13 stable.
+From:   PGNet Dev <pgnet.dev@gmail.com>
+To:     tmb@tmb.nu, greearb@candelatech.com
+Cc:     stable@vger.kernel.org
+References: <3d8ebf91-74ac-d1d3-80a7-df5da3fe7d78@tmb.nu>
+Message-ID: <10699753-88cb-01a1-c764-41d7b24d2269@gmail.com>
+Date:   Tue, 27 Jul 2021 16:43:49 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Firefox/78.0 Thunderbird/78.12.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <3d8ebf91-74ac-d1d3-80a7-df5da3fe7d78@tmb.nu>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Rapoport <rppt@linux.ibm.com>
+On 7/27/21 4:23 PM, Thomas Backlund wrote:
+> and a matching thread:
+> "boot of J1900 (quad-core Celeron) mobo: kernel <= 5.12.15, OK; kernel
+>   >= 5.12.17, 5.13.4, slow boot (>> 660 secs) + hang/FAIL"
+> 
+> on stable@ ml.
 
-The memory reserved by console/PALcode or non-volatile memory is not added
-to memblock.memory.
+yep, here:
 
-Since commit fa3354e4ea39 (mm: free_area_init: use maximal zone PFNs rather
-than zone sizes) the initialization of the memory map relies on the
-accuracy of memblock.memory to properly calculate zone sizes. The holes in
-memblock.memory caused by absent regions reserved by the firmware cause
-incorrect initialization of struct pages which leads to BUG() during the
-initial page freeing:
+   https://lore.kernel.org/regressions/3491db05-3bb4-a2c9-2350-881a77734070@gmail.com/
 
-BUG: Bad page state in process swapper  pfn:2ffc53
-page:fffffc000ecf14c0 refcount:0 mapcount:1 mapping:0000000000000000 index:0x0
-flags: 0x0()
-raw: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
-raw: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
-page dumped because: nonzero mapcount
-Modules linked in:
-CPU: 0 PID: 0 Comm: swapper Not tainted 5.7.0-03841-gfa3354e4ea39-dirty #26
-       fffffc0001b5bd68 fffffc0001b5be80 fffffc00011cd148 fffffc000ecf14c0
-       fffffc00019803df fffffc0001b5be80 fffffc00011ce340 fffffc000ecf14c0
-       0000000000000000 fffffc0001b5be80 fffffc0001b482c0 fffffc00027d6618
-       fffffc00027da7d0 00000000002ff97a 0000000000000000 fffffc0001b5be80
-       fffffc00011d1abc fffffc000ecf14c0 fffffc0002d00000 fffffc0001b5be80
-       fffffc0001b2350c 0000000000300000 fffffc0001b48298 fffffc0001b482c0
-Trace:
-[<fffffc00011cd148>] bad_page+0x168/0x1b0
-[<fffffc00011ce340>] free_pcp_prepare+0x1e0/0x290
-[<fffffc00011d1abc>] free_unref_page+0x2c/0xa0
-[<fffffc00014ee5f0>] cmp_ex_sort+0x0/0x30
-[<fffffc00014ee5f0>] cmp_ex_sort+0x0/0x30
-[<fffffc000101001c>] _stext+0x1c/0x20
+it showed up for me between 5.12.15 & 5.12.17 stable releases.
 
-Fix this by registering the reserved ranges in memblock.memory.
-
-Link: https://lore.kernel.org/lkml/20210726192311.uffqnanxw3ac5wwi@ivybridge
-Fixes: fa3354e4ea39 ("mm: free_area_init: use maximal zone PFNs rather than zone sizes")
-Reported-by: Matt Turner <mattst88@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
----
- arch/alpha/kernel/setup.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
-
-diff --git a/arch/alpha/kernel/setup.c b/arch/alpha/kernel/setup.c
-index 7d56c217b235..b4fbbba30aa2 100644
---- a/arch/alpha/kernel/setup.c
-+++ b/arch/alpha/kernel/setup.c
-@@ -319,18 +319,19 @@ setup_memory(void *kernel_end)
- 		       i, cluster->usage, cluster->start_pfn,
- 		       cluster->start_pfn + cluster->numpages);
- 
--		/* Bit 0 is console/PALcode reserved.  Bit 1 is
--		   non-volatile memory -- we might want to mark
--		   this for later.  */
--		if (cluster->usage & 3)
--			continue;
--
- 		end = cluster->start_pfn + cluster->numpages;
- 		if (end > max_low_pfn)
- 			max_low_pfn = end;
- 
- 		memblock_add(PFN_PHYS(cluster->start_pfn),
- 			     cluster->numpages << PAGE_SHIFT);
-+
-+		/* Bit 0 is console/PALcode reserved.  Bit 1 is
-+		   non-volatile memory -- we might want to mark
-+		   this for later.  */
-+		if (cluster->usage & 3)
-+			memblock_reserve(PFN_PHYS(cluster->start_pfn),
-+				         cluster->numpages << PAGE_SHIFT);
- 	}
- 
- 	/*
-
-base-commit: d8079fac168168b25677dc16c00ffaf9fb7df723
--- 
-2.28.0
-
+didn't realize it hadn't landed until 5.13 in linus' tree.
