@@ -2,75 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 447E13D7DBC
-	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 20:33:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 260E53D7E0B
+	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 20:54:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229763AbhG0Sdm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Jul 2021 14:33:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49144 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229453AbhG0Sdl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Jul 2021 14:33:41 -0400
-Received: from mail-lf1-x12e.google.com (mail-lf1-x12e.google.com [IPv6:2a00:1450:4864:20::12e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8294DC061757
-        for <stable@vger.kernel.org>; Tue, 27 Jul 2021 11:33:41 -0700 (PDT)
-Received: by mail-lf1-x12e.google.com with SMTP id a26so23242505lfr.11
-        for <stable@vger.kernel.org>; Tue, 27 Jul 2021 11:33:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=zkBmoT5BGY7pqcLf5WQvcbItXUocAW19PpD58jwr6I4=;
-        b=ZJoV6SH43BWuxocUbln5nwnAiIaLSW9gEqoVpgBpxnjpnEKD5D3f3Oe0przokZikPf
-         1CJWecwlQcK62g/aCy0cfJCfQyRlP3ueCHQYEVHMC89cMQXn0wiZCpCoC9a19f3zJ9EE
-         70ETHRjMId3+h0hq14mB5IoQr/SuDb/wx5HPMutx34I8XieByBsNqZ8SHZ+wi4LqF39f
-         Zx7vfWlR/WT/NDiWMxXn/q1EjxbBCAlwiHbDXveTpr7WDGI4txy7j1ue+GL5/y9vej94
-         a+jRDdN6fwGzvXQ7ceN3/vSPNU6s7SkI76QUOOOxHl3+gLgJ6nkf4T2WTmWgy7AHsraz
-         sQfw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=zkBmoT5BGY7pqcLf5WQvcbItXUocAW19PpD58jwr6I4=;
-        b=X47DN6qvDkmTvH/3MdMuxYyw0Zci6zk1XDvhltgfnNMP82qLS1NdS+STPFAvCxAfVC
-         IWLPNbgIikueUzoqEcyQOCmdJXLQzWAb1FQYzOV6UzKQfp6+VXPwLe7WX+/qgqspq5Ba
-         w+b/Ww0bEI7QhM4FGMiWwSWVdvc48Xe4BdsUJHRnz+bkieRQSvw/y99iTTqlzqSr5pTF
-         Z94SgepUZy2TM9Xt/P12A6aRlus+DEwF38AWtlEuutbZiOO4wKO1eSieSPoF8qnUPLVK
-         a+zJhcjXgDKTs+HtOKOJHBxKYw71ymig33FpKaYKeAHY6IrzVtQF87DqyfHuSRLLPp1A
-         WuUw==
-X-Gm-Message-State: AOAM530J+VX3rbbXapcOB6LuF+/6ZTjeaqus06XxVA2vmfHchYiuem9C
-        OGzcjzEFUABM1awaHOB58NM=
-X-Google-Smtp-Source: ABdhPJxq+jPcszYW/u9wQX+uepWkR3UgEu37nc27RslmHHf+jg7d5j8DSLbabhHRA88ziTweum9dTw==
-X-Received: by 2002:a19:5e4c:: with SMTP id z12mr15472623lfi.275.1627410819958;
-        Tue, 27 Jul 2021 11:33:39 -0700 (PDT)
-Received: from reki (broadband-95-84-198-152.ip.moscow.rt.ru. [95.84.198.152])
-        by smtp.gmail.com with ESMTPSA id y25sm357612lfe.276.2021.07.27.11.33.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 27 Jul 2021 11:33:39 -0700 (PDT)
-Date:   Tue, 27 Jul 2021 21:33:38 +0300
-From:   Maxim Devaev <mdevaev@gmail.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     balbi@kernel.org, stable@vger.kernel.org
-Subject: Re: patch "usb: gadget: f_hid: added GET_IDLE and SET_IDLE
- handlers" added to usb-linus
-Message-ID: <20210727213338.66f72d6b@reki>
-In-Reply-To: <YQBQCmdeCGQoAUfe@kroah.com>
-References: <1627394158704@kroah.com>
-        <20210727210754.20af2cda@reki>
-        <YQBQCmdeCGQoAUfe@kroah.com>
-X-Mailer: Claws Mail 4.0.0 (GTK+ 3.24.30; x86_64-pc-linux-gnu)
+        id S229945AbhG0SyK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Jul 2021 14:54:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44970 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229763AbhG0SyJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Jul 2021 14:54:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E3E660FC2;
+        Tue, 27 Jul 2021 18:54:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1627412049;
+        bh=CnQx3wr81XaUEHfLwYxFZaNssvQsTE5pyNST2aM3DGY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=O6wTrKBXok6bAFhOdOaSJHZcUocJ4HxPQD8/w1vrl9DMIuT00AAPgeiXtC5naPxvE
+         rZUASHsxZIpBxcD8OydtOVYLZbc8p7q2kMLqJVZJC+yUmVczh6SZyN+ESMPnyvECTM
+         nYtoEb5VmqaXFH3tfg6xVgtZ2bi+t5K4T/dr1/MfNTPATHBAwEc/nGesK+tcmo9I1D
+         Od70XrG2MRS/b/TaW/JR+jYGixEu8NqRZH/iTV49DQZDWSVQx+PcuUXgXYNlvtle4b
+         3nbRvFK3loD/hiQ4ZpYa873M2Ka8ws+Qq4XhSgUbQKvvd4ogn4Q1UOnlZYcw4j4hDU
+         j8BjDKmiMpLjg==
+Date:   Tue, 27 Jul 2021 14:54:08 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Alan Stern <stern@rowland.harvard.edu>,
+        syzbot+72af3105289dcb4c055b@syzkaller.appspotmail.com,
+        linux-usb@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.13 06/21] USB: core: Fix incorrect pipe
+ calculation in do_proc_control()
+Message-ID: <YQBWUG0w/5FB7a7S@sashalap>
+References: <20210727131908.834086-1-sashal@kernel.org>
+ <20210727131908.834086-6-sashal@kernel.org>
+ <YQAJ9LzK8S7tJqwR@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <YQAJ9LzK8S7tJqwR@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> Greg KH <gregkh@linuxfoundation.org> wrote:
-> Also, that was no way to show a "v2" of a patch, no wonder I was
-> confused, please in the future, do it in the documented way so our tools
-> properly pick it up.
+On Tue, Jul 27, 2021 at 03:28:20PM +0200, Greg Kroah-Hartman wrote:
+>On Tue, Jul 27, 2021 at 09:18:53AM -0400, Sasha Levin wrote:
+>> From: Alan Stern <stern@rowland.harvard.edu>
+>>
+>> [ Upstream commit b0863f1927323110e3d0d69f6adb6a91018a9a3c ]
+>>
+>> When the user submits a control URB via usbfs, the user supplies the
+>> bRequestType value and the kernel uses it to compute the pipe value.
+>> However, do_proc_control() performs this computation incorrectly in
+>> the case where the bRequestType direction bit is set to USB_DIR_IN and
+>> the URB's transfer length is 0: The pipe's direction is also set to IN
+>> but it should be OUT, which is the direction the actual transfer will
+>> use regardless of bRequestType.
+>>
+>> Commit 5cc59c418fde ("USB: core: WARN if pipe direction != setup
+>> packet direction") added a check to compare the direction bit in the
+>> pipe value to a control URB's actual direction and to WARN if they are
+>> different.  This can be triggered by the incorrect computation
+>> mentioned above, as found by syzbot.
+>>
+>> This patch fixes the computation, thus avoiding the WARNing.
+>>
+>> Reported-and-tested-by: syzbot+72af3105289dcb4c055b@syzkaller.appspotmail.com
+>> Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+>> Link: https://lore.kernel.org/r/20210712185436.GB326369@rowland.harvard.edu
+>> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>> Signed-off-by: Sasha Levin <sashal@kernel.org>
+>> ---
+>>  drivers/usb/core/devio.c | 2 +-
+>>  1 file changed, 1 insertion(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/usb/core/devio.c b/drivers/usb/core/devio.c
+>> index 2218941d35a3..73b60f013b20 100644
+>> --- a/drivers/usb/core/devio.c
+>> +++ b/drivers/usb/core/devio.c
+>> @@ -1133,7 +1133,7 @@ static int do_proc_control(struct usb_dev_state *ps,
+>>  		"wIndex=%04x wLength=%04x\n",
+>>  		ctrl->bRequestType, ctrl->bRequest, ctrl->wValue,
+>>  		ctrl->wIndex, ctrl->wLength);
+>> -	if (ctrl->bRequestType & 0x80) {
+>> +	if ((ctrl->bRequestType & USB_DIR_IN) && ctrl->wLength) {
+>>  		pipe = usb_rcvctrlpipe(dev, 0);
+>>  		snoop_urb(dev, NULL, pipe, ctrl->wLength, tmo, SUBMIT, NULL, 0);
+>>
+>> --
+>> 2.30.2
+>>
+>
+>This is not needed in any kernel that does not also have 5cc59c418fde
+>("USB: core: WARN if pipe direction != setup packet direction"), which
+>showed up in 5.14-rc1, so please drop this from all of the AUTOSEL
+>trees.
 
-Sorry, that patch was my first time, I got a little confused in the process.
+Will do, thanks!
 
-Thank you for explaining. I sent the v2 for this.
+-- 
+Thanks,
+Sasha
