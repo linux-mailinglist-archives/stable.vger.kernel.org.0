@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2EC13D75E6
-	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 15:20:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40B7B3D75EF
+	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 15:20:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236606AbhG0NTx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Jul 2021 09:19:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56108 "EHLO mail.kernel.org"
+        id S236678AbhG0NUF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Jul 2021 09:20:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56120 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236826AbhG0NTO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Jul 2021 09:19:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F05CE61A3A;
-        Tue, 27 Jul 2021 13:19:13 +0000 (UTC)
+        id S236832AbhG0NTP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Jul 2021 09:19:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 237F361A3D;
+        Tue, 27 Jul 2021 13:19:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1627391954;
-        bh=2r0Fhs8d3a9+YKMSBs+/2VBJgb52qadIj/04nLw/YKU=;
+        s=k20201202; t=1627391955;
+        bh=mBenjGICbGqU4sL6JcNUEpVkieVEjgsM+z7KIGEOHJE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LsK89AGv5DRWPEICydw6NqfQEWHNGZO6BfxmiWTjutgQHYrdI7fhVpX8WqQxLrsdR
-         FsRxaBBVyWDDy1thHciVVSbMhr9xQoDfsp0DYQJI0ML2oLebdIsuY++X/3LW0sPms0
-         g/BxmuePRkU/e6iwRL1/OIosK17f1wk4gferAew05+vfzjQ+8cmqUTTgfO+huU+Ta2
-         z9H+2k91wxEihyPgPV5gM0DHhFFfayXgLVJ4sktHsRT29+p9a8eOvVcFFjNyVijRRK
-         GESsGNpjWWOhJbn+QSbCyIncJlCvQZW4XdtiUIy+eiQtnVbP6V/zWK8f8N8OoXKrim
-         GjPmjHIi6z2RA==
+        b=M+ugYWeP/xvYjK61sZjwE7Adtl7tA54WmBj/QmbJ4IbA+c5tQJogoYfdVvAr1Aszh
+         OTDAubGyMZrwSvslfFFro7iMdbMdJEVUPBz/LnCWentKQgXG7yPwOgq0X0C9Aq3aLh
+         7+EwPPOGxdgJ9bW3mN3EQ9/HSPVlDjbgOS08c1Y2Lucjp/Sl3V0kZCXMq3WNByV3gL
+         3lvZ4twRvnY+/X7etSxvwC9nwAI7pqIyLdO0XfpDklCU/g2RcHVpT4srAa64Jl0um5
+         kv+02QVCPtz1ONRcPZ2PDWYPL+MvyddRXX9AnA0LLNpQ1hjMHeS0snc+7gTXwOvW+2
+         3M83u2DaMtLBA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kyle Russell <bkylerussell@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.13 04/21] ASoC: tlv320aic31xx: fix reversed bclk/wclk master bits
-Date:   Tue, 27 Jul 2021 09:18:51 -0400
-Message-Id: <20210727131908.834086-4-sashal@kernel.org>
+Cc:     Axel Lin <axel.lin@ingics.com>, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.13 05/21] regulator: mtk-dvfsrc: Fix wrong dev pointer for devm_regulator_register
+Date:   Tue, 27 Jul 2021 09:18:52 -0400
+Message-Id: <20210727131908.834086-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210727131908.834086-1-sashal@kernel.org>
 References: <20210727131908.834086-1-sashal@kernel.org>
@@ -42,47 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kyle Russell <bkylerussell@gmail.com>
+From: Axel Lin <axel.lin@ingics.com>
 
-[ Upstream commit 9cf76a72af6ab81030dea6481b1d7bdd814fbdaf ]
+[ Upstream commit ea986908ccfcc53204a03bb0841227e1b26578c4 ]
 
-These are backwards from Table 7-71 of the TLV320AIC3100 spec [1].
+If use dev->parent, the regulator_unregister will not be called when this
+driver is unloaded. Fix it by using dev instead.
 
-This was broken in 12eb4d66ba2e when BCLK_MASTER and WCLK_MASTER
-were converted from 0x08 and 0x04 to BIT(2) and BIT(3), respectively.
-
--#define AIC31XX_BCLK_MASTER		0x08
--#define AIC31XX_WCLK_MASTER		0x04
-+#define AIC31XX_BCLK_MASTER		BIT(2)
-+#define AIC31XX_WCLK_MASTER		BIT(3)
-
-Probably just a typo since the defines were not listed in bit order.
-
-[1] https://www.ti.com/lit/gpn/tlv320aic3100
-
-Signed-off-by: Kyle Russell <bkylerussell@gmail.com>
-Link: https://lore.kernel.org/r/20210622010941.241386-1-bkylerussell@gmail.com
+Signed-off-by: Axel Lin <axel.lin@ingics.com>
+Link: https://lore.kernel.org/r/20210702142140.2678130-1-axel.lin@ingics.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/tlv320aic31xx.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/regulator/mtk-dvfsrc-regulator.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/sound/soc/codecs/tlv320aic31xx.h b/sound/soc/codecs/tlv320aic31xx.h
-index 81952984613d..2513922a0292 100644
---- a/sound/soc/codecs/tlv320aic31xx.h
-+++ b/sound/soc/codecs/tlv320aic31xx.h
-@@ -151,8 +151,8 @@ struct aic31xx_pdata {
- #define AIC31XX_WORD_LEN_24BITS		0x02
- #define AIC31XX_WORD_LEN_32BITS		0x03
- #define AIC31XX_IFACE1_MASTER_MASK	GENMASK(3, 2)
--#define AIC31XX_BCLK_MASTER		BIT(2)
--#define AIC31XX_WCLK_MASTER		BIT(3)
-+#define AIC31XX_BCLK_MASTER		BIT(3)
-+#define AIC31XX_WCLK_MASTER		BIT(2)
- 
- /* AIC31XX_DATA_OFFSET */
- #define AIC31XX_DATA_OFFSET_MASK	GENMASK(7, 0)
+diff --git a/drivers/regulator/mtk-dvfsrc-regulator.c b/drivers/regulator/mtk-dvfsrc-regulator.c
+index d3d876198d6e..234af3a66c77 100644
+--- a/drivers/regulator/mtk-dvfsrc-regulator.c
++++ b/drivers/regulator/mtk-dvfsrc-regulator.c
+@@ -179,8 +179,7 @@ static int dvfsrc_vcore_regulator_probe(struct platform_device *pdev)
+ 	for (i = 0; i < regulator_init_data->size; i++) {
+ 		config.dev = dev->parent;
+ 		config.driver_data = (mt_regulators + i);
+-		rdev = devm_regulator_register(dev->parent,
+-					       &(mt_regulators + i)->desc,
++		rdev = devm_regulator_register(dev, &(mt_regulators + i)->desc,
+ 					       &config);
+ 		if (IS_ERR(rdev)) {
+ 			dev_err(dev, "failed to register %s\n",
 -- 
 2.30.2
 
