@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 967EF3D7694
+	by mail.lfdr.de (Postfix) with ESMTP id E10113D7695
 	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 15:30:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236948AbhG0NaL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Jul 2021 09:30:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56532 "EHLO mail.kernel.org"
+        id S237000AbhG0NaN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Jul 2021 09:30:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236762AbhG0NTw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Jul 2021 09:19:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A46FE61A8A;
-        Tue, 27 Jul 2021 13:19:27 +0000 (UTC)
+        id S236764AbhG0NTx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Jul 2021 09:19:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E514B61AA3;
+        Tue, 27 Jul 2021 13:19:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1627391968;
-        bh=u1luN1sMFI7o5STBnQbpqlrcozJB2enfmjp0qualJQw=;
+        s=k20201202; t=1627391969;
+        bh=fvvgQ9NlGndbKm/lUZW+jV4hnC9sgAUudL+0moyF+wo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dw/jGL3nnSEU4BMC/t+CayYx/P8K3KrpiqvfbWAZo1/qqfUH+SD7qRe2Vmwy0ZPBz
-         m+A7hF7QDm6PLLL+FyBKi+Ulf/lwRnLv/SeeekLW3rJRbSiY1OjKG6MiyR0vBbg9L7
-         bin+fcjFAyD+S2DhgOe49L5yvsz7hZR4U2fNnVYdx1+mhPmNCB2fnGHyRMPPmKnLRS
-         kMndzjFi1kL1ISiPssN3UjNV0ZdhTxWOhyIhSIudqcjlkk9DnNVzrSYQgoGj1GqO2G
-         jMgySKpaNPaje7Y4S0g/GRz11VOyjm5FLFyqmrcqisZshkMX2E0Hsx1934XX/IDLci
-         8MBhE+cZZBNgg==
+        b=bSdPWxAtUNrjtHVcWpBDEJvKVEIwmXjZwtoqNdPHUFH4YZcl09cHsbBexKUxP3pG0
+         8vpaMm2qC2Qx2dlEz0EuJnfXBxF9i50jPJjiUNAFDDnirOZIzohpcIwrINJJybRM2Q
+         7+AyHr7OXrrLIOaWtQ5OhwM/3ICMeE3TIG5eLHMu82LRjlyhGsFZuXSa+1LazPSW2c
+         AzHS9kvMPj6mrtCVWeK3FKqXxE1/0l2tdFSBykzvNDwTXRvdgnRDvE/+GjP6N9RSBw
+         hLlZ3q6i8V1AMcI+4WwmV80Bu05NFwAmYzEcaGuklxfJQ4lrLlax87dJieUisxyjAT
+         Jei5Qh56lLKlQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Ujfalusi <peter.ujfalusi@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.13 14/21] ASoC: ti: j721e-evm: Check for not initialized parent_clk_id
-Date:   Tue, 27 Jul 2021 09:19:01 -0400
-Message-Id: <20210727131908.834086-14-sashal@kernel.org>
+Cc:     Borislav Petkov <bp@suse.de>, Ard Biesheuvel <ardb@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-efi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 15/21] efi/mokvar: Reserve the table only if it is in boot services data
+Date:   Tue, 27 Jul 2021 09:19:02 -0400
+Message-Id: <20210727131908.834086-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210727131908.834086-1-sashal@kernel.org>
 References: <20210727131908.834086-1-sashal@kernel.org>
@@ -42,34 +41,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Ujfalusi <peter.ujfalusi@gmail.com>
+From: Borislav Petkov <bp@suse.de>
 
-[ Upstream commit 82d28b67f780910f816fe1cfb0f676fc38c4cbb3 ]
+[ Upstream commit 47e1e233e9d822dfda068383fb9a616451bda703 ]
 
-During probe the parent_clk_id is set to -1 which should not be used to
-array index within hsdiv_rates[].
+One of the SUSE QA tests triggered:
 
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@gmail.com>
-Link: https://lore.kernel.org/r/20210717122820.1467-3-peter.ujfalusi@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+  localhost kernel: efi: Failed to lookup EFI memory descriptor for 0x000000003dcf8000
+
+which comes from x86's version of efi_arch_mem_reserve() trying to
+reserve a memory region. Usually, that function expects
+EFI_BOOT_SERVICES_DATA memory descriptors but the above case is for the
+MOKvar table which is allocated in the EFI shim as runtime services.
+
+That lead to a fix changing the allocation of that table to boot services.
+
+However, that fix broke booting SEV guests with that shim leading to
+this kernel fix
+
+  8d651ee9c71b ("x86/ioremap: Map EFI-reserved memory as encrypted for SEV")
+
+which extended the ioremap hint to map reserved EFI boot services as
+decrypted too.
+
+However, all that wasn't needed, IMO, because that error message in
+efi_arch_mem_reserve() was innocuous in this case - if the MOKvar table
+is not in boot services, then it doesn't need to be reserved in the
+first place because it is, well, in runtime services which *should* be
+reserved anyway.
+
+So do that reservation for the MOKvar table only if it is allocated
+in boot services data. I couldn't find any requirement about where
+that table should be allocated in, unlike the ESRT which allocation is
+mandated to be done in boot services data by the UEFI spec.
+
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/ti/j721e-evm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/firmware/efi/mokvar-table.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/ti/j721e-evm.c b/sound/soc/ti/j721e-evm.c
-index 017c4ad11ca6..265bbc5a2f96 100644
---- a/sound/soc/ti/j721e-evm.c
-+++ b/sound/soc/ti/j721e-evm.c
-@@ -197,7 +197,7 @@ static int j721e_configure_refclk(struct j721e_priv *priv,
- 		return ret;
+diff --git a/drivers/firmware/efi/mokvar-table.c b/drivers/firmware/efi/mokvar-table.c
+index d8bc01340686..38722d2009e2 100644
+--- a/drivers/firmware/efi/mokvar-table.c
++++ b/drivers/firmware/efi/mokvar-table.c
+@@ -180,7 +180,10 @@ void __init efi_mokvar_table_init(void)
+ 		pr_err("EFI MOKvar config table is not valid\n");
+ 		return;
  	}
+-	efi_mem_reserve(efi.mokvar_table, map_size_needed);
++
++	if (md.type == EFI_BOOT_SERVICES_DATA)
++		efi_mem_reserve(efi.mokvar_table, map_size_needed);
++
+ 	efi_mokvar_table_size = map_size_needed;
+ }
  
--	if (priv->hsdiv_rates[domain->parent_clk_id] != scki) {
-+	if (domain->parent_clk_id == -1 || priv->hsdiv_rates[domain->parent_clk_id] != scki) {
- 		dev_dbg(priv->dev,
- 			"%s configuration for %u Hz: %s, %dxFS (SCKI: %u Hz)\n",
- 			audio_domain == J721E_AUDIO_DOMAIN_CPB ? "CPB" : "IVI",
 -- 
 2.30.2
 
