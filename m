@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C6053D768E
-	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 15:30:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F332B3D75FB
+	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 15:20:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236859AbhG0NaJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Jul 2021 09:30:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56494 "EHLO mail.kernel.org"
+        id S236622AbhG0NU1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Jul 2021 09:20:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236677AbhG0NTv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Jul 2021 09:19:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4AE7061A88;
-        Tue, 27 Jul 2021 13:19:22 +0000 (UTC)
+        id S236748AbhG0NTw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Jul 2021 09:19:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8CF7A61A8E;
+        Tue, 27 Jul 2021 13:19:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1627391963;
-        bh=xq9vaZuEISXwGZ9amMGFnKhviWUhwICbRCBqRFA/CAw=;
+        s=k20201202; t=1627391964;
+        bh=dzHacBHHy8yhCpZQWE2cxyOoZig1mtOHoMWGS7uCpvo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=El7F25WMiH3mAolJxRq23HeBldmoDmASlEYl3SQiP/SR7cxCpGLx2zgtd+FrCSp+r
-         HG8bV78lwhs03Gc9iaACo5EgFZkN0j2KynEjWcbDKQsGuFWWnNrTxhhbq24HF4EnOt
-         /mdqAMQw++S6veLCZskHqF9Zl6VqIwKngXG7k7znkrqTFFetsZQTxsUuZYuS9CBUQX
-         ljb0VWn2QFcSCfxBJUkqwgXrwz9P+4HGhXwCN2PPk6UIhP7Y0N6PPLUo72CoZoLTgo
-         lDh+r3vfelccxMuU115/uUKbV6zaJA8MDm2KR8DrRpLYlu2r5/+OsyOnPj5HLI7eLg
-         p4qfk8nP/n3kQ==
+        b=kQ97DV6fv1wtKoV5X9j6AErTOwHWGrXSYw9cADBmAcdwgza4+B07kU/UvDZB3zwCq
+         ifDU25EV23/vS0l6o0J3uBQv6qokhBmk/aIUmce93/MaPe423+SchrMOm7cL07Dfzr
+         Os9PbRgwyrghzq9QhZg3FXrj+QRZpdvzoqApMYD2NZvfj8BkroiCmCtjkUW7v6r3vy
+         85d55foAaeWlV4DNPRIlguOq7vcBl/+yTjnu0+0j3c0t5XBsfWYnTpLfYKSmAMfxzN
+         P+r2HMVX7k7oCQyk2zifBotjNGgUUMIc2loxlwQrEohYfPz6PpDyKUrOdE6Ribxw+D
+         UN/nTbnutuRDQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Oder Chiou <oder_chiou@realtek.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.13 10/21] ASoC: rt5682: Fix the issue of garbled recording after powerd_dbus_suspend
-Date:   Tue, 27 Jul 2021 09:18:57 -0400
-Message-Id: <20210727131908.834086-10-sashal@kernel.org>
+Cc:     Eric Woudstra <ericwouds@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.13 11/21] mt7530 fix mt7530_fdb_write vid missing ivl bit
+Date:   Tue, 27 Jul 2021 09:18:58 -0400
+Message-Id: <20210727131908.834086-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210727131908.834086-1-sashal@kernel.org>
 References: <20210727131908.834086-1-sashal@kernel.org>
@@ -42,43 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oder Chiou <oder_chiou@realtek.com>
+From: Eric Woudstra <ericwouds@gmail.com>
 
-[ Upstream commit 6a503e1c455316fd0bfd8188c0a62cce7c5525ca ]
+[ Upstream commit 11d8d98cbeef1496469b268d79938b05524731e8 ]
 
-While using the DMIC recording, the garbled data will be captured by the
-DMIC. It is caused by the critical power of PLL closed in the jack detect
-function.
+According to reference guides mt7530 (mt7620) and mt7531:
 
-Signed-off-by: Oder Chiou <oder_chiou@realtek.com>
-Link: https://lore.kernel.org/r/20210716085853.20170-1-oder_chiou@realtek.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+NOTE: When IVL is reset, MAC[47:0] and FID[2:0] will be used to
+read/write the address table. When IVL is set, MAC[47:0] and CVID[11:0]
+will be used to read/write the address table.
+
+Since the function only fills in CVID and no FID, we need to set the
+IVL bit. The existing code does not set it.
+
+This is a fix for the issue I dropped here earlier:
+
+http://lists.infradead.org/pipermail/linux-mediatek/2021-June/025697.html
+
+With this patch, it is now possible to delete the 'self' fdb entry
+manually. However, wifi roaming still has the same issue, the entry
+does not get deleted automatically. Wifi roaming also needs a fix
+somewhere else to function correctly in combination with vlan.
+
+Signed-off-by: Eric Woudstra <ericwouds@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/rt5682.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/net/dsa/mt7530.c | 1 +
+ drivers/net/dsa/mt7530.h | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/sound/soc/codecs/rt5682.c b/sound/soc/codecs/rt5682.c
-index e4c91571abae..abcd6f483788 100644
---- a/sound/soc/codecs/rt5682.c
-+++ b/sound/soc/codecs/rt5682.c
-@@ -973,10 +973,14 @@ int rt5682_headset_detect(struct snd_soc_component *component, int jack_insert)
- 		rt5682_enable_push_button_irq(component, false);
- 		snd_soc_component_update_bits(component, RT5682_CBJ_CTRL_1,
- 			RT5682_TRIG_JD_MASK, RT5682_TRIG_JD_LOW);
--		if (!snd_soc_dapm_get_pin_status(dapm, "MICBIAS"))
-+		if (!snd_soc_dapm_get_pin_status(dapm, "MICBIAS") &&
-+			!snd_soc_dapm_get_pin_status(dapm, "PLL1") &&
-+			!snd_soc_dapm_get_pin_status(dapm, "PLL2B"))
- 			snd_soc_component_update_bits(component,
- 				RT5682_PWR_ANLG_1, RT5682_PWR_MB, 0);
--		if (!snd_soc_dapm_get_pin_status(dapm, "Vref2"))
-+		if (!snd_soc_dapm_get_pin_status(dapm, "Vref2") &&
-+			!snd_soc_dapm_get_pin_status(dapm, "PLL1") &&
-+			!snd_soc_dapm_get_pin_status(dapm, "PLL2B"))
- 			snd_soc_component_update_bits(component,
- 				RT5682_PWR_ANLG_1, RT5682_PWR_VREF2, 0);
- 		snd_soc_component_update_bits(component, RT5682_PWR_ANLG_3,
+diff --git a/drivers/net/dsa/mt7530.c b/drivers/net/dsa/mt7530.c
+index 9b90f3d3a8f5..5ee7089da37c 100644
+--- a/drivers/net/dsa/mt7530.c
++++ b/drivers/net/dsa/mt7530.c
+@@ -365,6 +365,7 @@ mt7530_fdb_write(struct mt7530_priv *priv, u16 vid,
+ 	int i;
+ 
+ 	reg[1] |= vid & CVID_MASK;
++	reg[1] |= ATA2_IVL;
+ 	reg[2] |= (aging & AGE_TIMER_MASK) << AGE_TIMER;
+ 	reg[2] |= (port_mask & PORT_MAP_MASK) << PORT_MAP;
+ 	/* STATIC_ENT indicate that entry is static wouldn't
+diff --git a/drivers/net/dsa/mt7530.h b/drivers/net/dsa/mt7530.h
+index 0204da486f3a..ebb86a646c7b 100644
+--- a/drivers/net/dsa/mt7530.h
++++ b/drivers/net/dsa/mt7530.h
+@@ -78,6 +78,7 @@ enum mt753x_bpdu_port_fw {
+ #define  STATIC_EMP			0
+ #define  STATIC_ENT			3
+ #define MT7530_ATA2			0x78
++#define  ATA2_IVL			BIT(15)
+ 
+ /* Register for address table write data */
+ #define MT7530_ATWD			0x7c
 -- 
 2.30.2
 
