@@ -2,164 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C85593D7F45
-	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 22:30:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C34023D7F55
+	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 22:38:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231615AbhG0UaZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Jul 2021 16:30:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47566 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230409AbhG0UaY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Jul 2021 16:30:24 -0400
-Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21052C061757
-        for <stable@vger.kernel.org>; Tue, 27 Jul 2021 13:30:22 -0700 (PDT)
-Received: by mail-pl1-x630.google.com with SMTP id i1so17511876plr.9
-        for <stable@vger.kernel.org>; Tue, 27 Jul 2021 13:30:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=RaPsBWkwo5czoIwQaI+kMWQ3UsHslenhOWiatpoiGMo=;
-        b=CHuur5E85dvV1M/uk668hRNXTtDT1weTAmBXRCnvS3KcTUlymnjpRpNi2Rjionh+gG
-         j6US93xJ1utpkfiWfKGj9Yen1GaAprJYQvBLRTs0pn+SZahdlkN2Q1IUP6/rvYmqB9EX
-         48R0d+ympFtaRvuoRmlyOjdrnCbURpWBJG3wCqqkWYsGHhGzDdztEam2RADowUzzKDG7
-         rxE71dNQixFJciE6gyNHoY5bBdf1SKuHZWvThJ+X0US+byxcAZHeQ3b3IkiQ4kXWK710
-         qCQLAl7y2/QJfDo7f+VBDYJq1mSValV3o5mptX4p/aCNCBfRsaaKLPmoblgoYnm0UZEG
-         3uwg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=RaPsBWkwo5czoIwQaI+kMWQ3UsHslenhOWiatpoiGMo=;
-        b=oT7O9+8zDItU38X04Q+3FqoCXjgonDQa9ND9QHvVx7l7BoPWVD2q/pIZoxwCDs8TpB
-         kAhR2fKvqgidzTXwEgQEtlylECgor3Nyg7v4Caly48ZfaFptZezt/pp/4HTGy0VdtRsU
-         3oesL6Pr0ntu5/LztShWVFDgVw04hkpzBvMZ5KaAxngnc2IeiSoUYxVZQBdAwUndLyOf
-         CnDKZ8c3AGWbhVPj3Gh7xbi7cLkmnIcRvWh7oWcklDMac6clo8i25E2axhn4rkmHAWP+
-         jsE/w77UncZTtLw+Cs7wbFgDp9nP/3Zb+Q+e3nBc0xjGnK9Fzl6OQKEcmroZmWvYNvlu
-         PviQ==
-X-Gm-Message-State: AOAM533KNL2tgCiWMUFQmKjgKll/M4mTZBtMfjCpg0o8xLxczJgiDLX4
-        QoyOXyiSBwZpl16WOXhUZKOmXej5v2y+N7Id
-X-Google-Smtp-Source: ABdhPJwNOs8+2U/Z9r9kePLeHK8p8RBiZpSxZL9C2f8259D10GT3PFjZd2feCW2FeGqPuYXqkincNw==
-X-Received: by 2002:a65:6441:: with SMTP id s1mr24778950pgv.214.1627417822041;
-        Tue, 27 Jul 2021 13:30:22 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id c24sm4674755pfp.129.2021.07.27.13.30.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 27 Jul 2021 13:30:21 -0700 (PDT)
-Message-ID: <61006cdd.1c69fb81.cbd31.ee8d@mx.google.com>
-Date:   Tue, 27 Jul 2021 13:30:21 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S231432AbhG0Uie (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Jul 2021 16:38:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49680 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231133AbhG0Uic (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Jul 2021 16:38:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 65FBF6056B;
+        Tue, 27 Jul 2021 20:38:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1627418312;
+        bh=m4pTLRxNjQ5nrW4+WylpHblD4H7E+5v4AVz71ixTU7U=;
+        h=From:To:Cc:Subject:Date:From;
+        b=jFFIcxi7MiAGoX1FaofoGp1RfNm/xlAaCEtXz2oOyuj+wsOwyHZt7ziSZWTza7yVA
+         yuvEvuL0XvwoePf25ipmXSDhc9RArOpGOt5oPIx8udzt71emuyQhyFp8ILQEMnYePk
+         ihKjfE4b9WZab2EG3TkDTO+EokRokdHIPIy30oy1BwLm+1ITa88OmWHjZ0nnYRfHXR
+         Z3OJ6vNOZSPoYjfkxd8i2NTt6yywGFWGJ48lA0To48MMezxXV2HtcvtT6gknQxWBLj
+         aG9g5xniVbVSNGtbGWs7KR0iKogwE3+FRA3RZWMml3ZdcuXK6u4rLnzaycTqneD1Cb
+         nh9xtn0nMtvGw==
+From:   Mike Rapoport <rppt@kernel.org>
+To:     Matt Turner <mattst88@gmail.com>
+Cc:     Michael Cree <mcree@orcon.net.nz>, Mike Rapoport <rppt@kernel.org>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, stable@vger.kernel.org
+Subject: [PATCH] alpha: register early reserved memory in memblock
+Date:   Tue, 27 Jul 2021 23:38:24 +0300
+Message-Id: <20210727203824.12312-1-rppt@kernel.org>
+X-Mailer: git-send-email 2.28.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.10
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.10.53-167-g886572962bd8
-Subject: stable-rc/queue/5.10 baseline: 121 runs,
- 2 regressions (v5.10.53-167-g886572962bd8)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 baseline: 121 runs, 2 regressions (v5.10.53-167-g88657=
-2962bd8)
+From: Mike Rapoport <rppt@linux.ibm.com>
 
-Regressions Summary
--------------------
+The memory reserved by console/PALcode or non-volatile memory is not added
+to memblock.memory.
 
-platform | arch   | lab        | compiler | defconfig                    | =
-regressions
----------+--------+------------+----------+------------------------------+-=
------------
-d2500cc  | x86_64 | lab-clabbe | gcc-8    | x86_64_defcon...6-chromebook | =
-1          =
+Since commit fa3354e4ea39 (mm: free_area_init: use maximal zone PFNs rather
+than zone sizes) the initialization of the memory map relies on the
+accuracy of memblock.memory to properly calculate zone sizes. The holes in
+memblock.memory caused by absent regions reserved by the firmware cause
+incorrect initialization of struct pages which leads to BUG() during the
+initial page freeing:
 
-d2500cc  | x86_64 | lab-clabbe | gcc-8    | x86_64_defconfig             | =
-1          =
+BUG: Bad page state in process swapper  pfn:2ffc53
+page:fffffc000ecf14c0 refcount:0 mapcount:1 mapping:0000000000000000 index:0x0
+flags: 0x0()
+raw: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
+raw: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
+page dumped because: nonzero mapcount
+Modules linked in:
+CPU: 0 PID: 0 Comm: swapper Not tainted 5.7.0-03841-gfa3354e4ea39-dirty #26
+       fffffc0001b5bd68 fffffc0001b5be80 fffffc00011cd148 fffffc000ecf14c0
+       fffffc00019803df fffffc0001b5be80 fffffc00011ce340 fffffc000ecf14c0
+       0000000000000000 fffffc0001b5be80 fffffc0001b482c0 fffffc00027d6618
+       fffffc00027da7d0 00000000002ff97a 0000000000000000 fffffc0001b5be80
+       fffffc00011d1abc fffffc000ecf14c0 fffffc0002d00000 fffffc0001b5be80
+       fffffc0001b2350c 0000000000300000 fffffc0001b48298 fffffc0001b482c0
+Trace:
+[<fffffc00011cd148>] bad_page+0x168/0x1b0
+[<fffffc00011ce340>] free_pcp_prepare+0x1e0/0x290
+[<fffffc00011d1abc>] free_unref_page+0x2c/0xa0
+[<fffffc00014ee5f0>] cmp_ex_sort+0x0/0x30
+[<fffffc00014ee5f0>] cmp_ex_sort+0x0/0x30
+[<fffffc000101001c>] _stext+0x1c/0x20
 
+Fix this by registering the reserved ranges in memblock.memory.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
-nel/v5.10.53-167-g886572962bd8/plan/baseline/
+Link: https://lore.kernel.org/lkml/20210726192311.uffqnanxw3ac5wwi@ivybridge
+Fixes: fa3354e4ea39 ("mm: free_area_init: use maximal zone PFNs rather than zone sizes")
+Reported-by: Matt Turner <mattst88@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+---
+ arch/alpha/kernel/setup.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.10
-  Describe: v5.10.53-167-g886572962bd8
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      886572962bd81d1f87fc32a8fbc74bcf4723dfec =
+diff --git a/arch/alpha/kernel/setup.c b/arch/alpha/kernel/setup.c
+index 7d56c217b235..b4fbbba30aa2 100644
+--- a/arch/alpha/kernel/setup.c
++++ b/arch/alpha/kernel/setup.c
+@@ -319,18 +319,19 @@ setup_memory(void *kernel_end)
+ 		       i, cluster->usage, cluster->start_pfn,
+ 		       cluster->start_pfn + cluster->numpages);
+ 
+-		/* Bit 0 is console/PALcode reserved.  Bit 1 is
+-		   non-volatile memory -- we might want to mark
+-		   this for later.  */
+-		if (cluster->usage & 3)
+-			continue;
+-
+ 		end = cluster->start_pfn + cluster->numpages;
+ 		if (end > max_low_pfn)
+ 			max_low_pfn = end;
+ 
+ 		memblock_add(PFN_PHYS(cluster->start_pfn),
+ 			     cluster->numpages << PAGE_SHIFT);
++
++		/* Bit 0 is console/PALcode reserved.  Bit 1 is
++		   non-volatile memory -- we might want to mark
++		   this for later.  */
++		if (cluster->usage & 3)
++			memblock_reserve(PFN_PHYS(cluster->start_pfn),
++				         cluster->numpages << PAGE_SHIFT);
+ 	}
+ 
+ 	/*
 
+base-commit: d8079fac168168b25677dc16c00ffaf9fb7df723
+-- 
+2.28.0
 
-
-Test Regressions
----------------- =
-
-
-
-platform | arch   | lab        | compiler | defconfig                    | =
-regressions
----------+--------+------------+----------+------------------------------+-=
------------
-d2500cc  | x86_64 | lab-clabbe | gcc-8    | x86_64_defcon...6-chromebook | =
-1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/610032a8dbde85eb125018cb
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig+x86-chromebook
-  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.53-=
-167-g886572962bd8/x86_64/x86_64_defconfig+x86-chromebook/gcc-8/lab-clabbe/b=
-aseline-d2500cc.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.53-=
-167-g886572962bd8/x86_64/x86_64_defconfig+x86-chromebook/gcc-8/lab-clabbe/b=
-aseline-d2500cc.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/610032a8dbde85eb12501=
-8cc
-        failing since 16 days (last pass: v5.10.48-6-gea5b7eca594d, first f=
-ail: v5.10.49-580-g094fb99ca365) =
-
- =
-
-
-
-platform | arch   | lab        | compiler | defconfig                    | =
-regressions
----------+--------+------------+----------+------------------------------+-=
------------
-d2500cc  | x86_64 | lab-clabbe | gcc-8    | x86_64_defconfig             | =
-1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61003438346e7ca63b5018c1
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig
-  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.53-=
-167-g886572962bd8/x86_64/x86_64_defconfig/gcc-8/lab-clabbe/baseline-d2500cc=
-.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.53-=
-167-g886572962bd8/x86_64/x86_64_defconfig/gcc-8/lab-clabbe/baseline-d2500cc=
-.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61003438346e7ca63b501=
-8c2
-        failing since 16 days (last pass: v5.10.48-6-gea5b7eca594d, first f=
-ail: v5.10.49-580-g094fb99ca365) =
-
- =20
