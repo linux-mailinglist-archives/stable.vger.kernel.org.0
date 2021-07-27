@@ -2,272 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7933F3D7876
-	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 16:27:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 573A63D7887
+	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 16:31:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232511AbhG0O1n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Jul 2021 10:27:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47918 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236623AbhG0O1m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Jul 2021 10:27:42 -0400
-Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30914C061757
-        for <stable@vger.kernel.org>; Tue, 27 Jul 2021 07:27:42 -0700 (PDT)
-Received: by mail-pl1-x635.google.com with SMTP id d17so15917298plh.10
-        for <stable@vger.kernel.org>; Tue, 27 Jul 2021 07:27:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=ER1c5J982BaqcwyJ+0fCRSvWg+75+adPYrsoXVuLHL4=;
-        b=qqkKdTkDq025MYR1heYxVkQ67U5OGNJzNwBqqvTJpNdstbRfZEi3WJiXIYMLs+Rjac
-         2dOjzvubnPukhwb8o6Cgue4qBpa8a9Q5BjhgFnRhomqPninLqIkF62/hoHNtrarvHw1R
-         Or5fVvhyvTOcJSjfzyD+pVrO3YEOjZYK8cF1AbuMz3Y1pb1KKrOvM/0xtbzGPyo1FaUI
-         K8/rJ7I6jy50yYFh0X9TV2vlb7v9fc3yDf+H6XnMuBIR/52nYwkMIm7K2n0/30iHpGSS
-         jacCBuk19ZpmSvAvw43cNm6V7i/huilKqMUbAqk+HDKPAngajJ9X/Ao9Tfpks1wn5WEY
-         t5/w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=ER1c5J982BaqcwyJ+0fCRSvWg+75+adPYrsoXVuLHL4=;
-        b=hFsnkA+HVUCVnsDj5Svcwy+yAVJR8nsS2MIfifjH5ACjtPQsQPPMoFkX/XDzIHwkPB
-         gXgH6hw0N8YxiprpqnvqxyX6lSaYNg1dDr6izJ51zXiyLXHDYq0eP6zYzeGyAaEtQYNu
-         Qf0CvnT8WCztzC5+vHJ21QqpoPSdLN4Tzxx5k/jSbxpuDw87dJCPEvl3Zi2DIgqfiS8R
-         EOkng5YP4PBLrtMowoezFGlPpm0FQhxtUpjVM0iQtTRe1+Q9I1sFVuFL5Xn1JNDnk4iQ
-         yWwteGUlX96X/LG7glXWmeI9ZyBwX9sC218aFMReGrAUKukxsJXGIj82ZDvsMSAAeE5o
-         u0vQ==
-X-Gm-Message-State: AOAM531Yk6zbfRLGjBFs9jpZ4sKyeeVzTMjGwqZHQ3OAnJaSlVeB8MP6
-        F3xPsoA4uah2iDRJXZIGFgl+i4zbEgbBHEOU
-X-Google-Smtp-Source: ABdhPJzsTlYWYC5XDRN9skfCCmLWZCf8qTNMv6xuCsAWpJ0i1hl35dIn5aTmdo2kYMUo0n7gQ5pqpw==
-X-Received: by 2002:a17:902:7689:b029:12c:1fe6:c0e6 with SMTP id m9-20020a1709027689b029012c1fe6c0e6mr9340389pll.73.1627396061617;
-        Tue, 27 Jul 2021 07:27:41 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id w22sm3905269pfu.50.2021.07.27.07.27.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 27 Jul 2021 07:27:41 -0700 (PDT)
-Message-ID: <610017dd.1c69fb81.3801f.b9bd@mx.google.com>
-Date:   Tue, 27 Jul 2021 07:27:41 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S236792AbhG0Obu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Jul 2021 10:31:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60452 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232467AbhG0Obu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Jul 2021 10:31:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 52AA3603E7;
+        Tue, 27 Jul 2021 14:31:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1627396309;
+        bh=v0n9S4IhGOpgRhN8AzQKLDfaAhSsCwzPiuCcR5UeXkw=;
+        h=Subject:To:From:Date:From;
+        b=zPhdwN0eAJmgF0jUl6cuW3EXAkAMQQq6Ii52PMhn6ynTTRbfVOCtcXswt9rJfBLrj
+         2+/1gc/SHRQNLfNKPi0WBtoFtCtTsIEwuIgRdbhZwgs/2SMWWbdEInQrFTlwJ0o0WD
+         rfJb0vxJ5ldNWs9EwjtZEQb2YC8XnU38i+JSdqxw=
+Subject: patch "usb: host: ohci-at91: suspend/resume ports after/before OHCI accesses" added to usb-linus
+To:     claudiu.beznea@microchip.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org, stern@rowland.harvard.edu
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 27 Jul 2021 16:31:39 +0200
+Message-ID: <162739629923153@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.9
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.9.276-59-ge7069404d897
-Subject: stable-rc/queue/4.9 baseline: 142 runs,
- 5 regressions (v4.9.276-59-ge7069404d897)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.9 baseline: 142 runs, 5 regressions (v4.9.276-59-ge706940=
-4d897)
 
-Regressions Summary
--------------------
+This is a note to let you know that I've just added the patch titled
 
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
-fig | 1          =
+    usb: host: ohci-at91: suspend/resume ports after/before OHCI accesses
 
-qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
-fig | 1          =
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
 
-qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
-fig | 1          =
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
-fig | 1          =
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
 
-qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
-fig | 1          =
+If you have any questions about this process, please let me know.
 
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
-el/v4.9.276-59-ge7069404d897/plan/baseline/
+From 00de6a572f30ee93cad7e0704ec4232e5e72bda8 Mon Sep 17 00:00:00 2001
+From: Claudiu Beznea <claudiu.beznea@microchip.com>
+Date: Wed, 21 Jul 2021 16:29:05 +0300
+Subject: usb: host: ohci-at91: suspend/resume ports after/before OHCI accesses
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.9
-  Describe: v4.9.276-59-ge7069404d897
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      e7069404d89785d5cceebf7850c34c5bae067cdc =
+On SAMA7G5 suspending ports will cut the access to OHCI registers and
+any subsequent access to them will lead to CPU being blocked trying to
+access that memory. Same thing happens on resume: if OHCI memory is
+accessed before resuming ports the CPU will block on that access. The
+OCHI memory is accessed on suspend/resume though
+ohci_suspend()/ohci_resume().
 
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210721132905.1970713-1-claudiu.beznea@microchip.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/host/ohci-at91.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60ffe351b0b432e72e5018c1
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.276-5=
-9-ge7069404d897/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
-m-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.276-5=
-9-ge7069404d897/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
-m-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60ffe351b0b432e72e501=
-8c2
-        failing since 255 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60ffe74bc148d4b6bd5018cd
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.276-5=
-9-ge7069404d897/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm=
--versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.276-5=
-9-ge7069404d897/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm=
--versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+diff --git a/drivers/usb/host/ohci-at91.c b/drivers/usb/host/ohci-at91.c
+index 9bbd7ddd0003..a24aea3d2759 100644
+--- a/drivers/usb/host/ohci-at91.c
++++ b/drivers/usb/host/ohci-at91.c
+@@ -611,8 +611,6 @@ ohci_hcd_at91_drv_suspend(struct device *dev)
+ 	if (ohci_at91->wakeup)
+ 		enable_irq_wake(hcd->irq);
+ 
+-	ohci_at91_port_suspend(ohci_at91->sfr_regmap, 1);
+-
+ 	ret = ohci_suspend(hcd, ohci_at91->wakeup);
+ 	if (ret) {
+ 		if (ohci_at91->wakeup)
+@@ -632,7 +630,10 @@ ohci_hcd_at91_drv_suspend(struct device *dev)
+ 		/* flush the writes */
+ 		(void) ohci_readl (ohci, &ohci->regs->control);
+ 		msleep(1);
++		ohci_at91_port_suspend(ohci_at91->sfr_regmap, 1);
+ 		at91_stop_clock(ohci_at91);
++	} else {
++		ohci_at91_port_suspend(ohci_at91->sfr_regmap, 1);
+ 	}
+ 
+ 	return ret;
+@@ -644,6 +645,8 @@ ohci_hcd_at91_drv_resume(struct device *dev)
+ 	struct usb_hcd	*hcd = dev_get_drvdata(dev);
+ 	struct ohci_at91_priv *ohci_at91 = hcd_to_ohci_at91_priv(hcd);
+ 
++	ohci_at91_port_suspend(ohci_at91->sfr_regmap, 0);
++
+ 	if (ohci_at91->wakeup)
+ 		disable_irq_wake(hcd->irq);
+ 	else
+@@ -651,8 +654,6 @@ ohci_hcd_at91_drv_resume(struct device *dev)
+ 
+ 	ohci_resume(hcd, false);
+ 
+-	ohci_at91_port_suspend(ohci_at91->sfr_regmap, 0);
+-
+ 	return 0;
+ }
+ 
+-- 
+2.32.0
 
 
-
-  * baseline.login: https://kernelci.org/test/case/id/60ffe74bc148d4b6bd501=
-8ce
-        failing since 255 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60ffe3555cf061382f5018c1
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.276-5=
-9-ge7069404d897/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ver=
-satilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.276-5=
-9-ge7069404d897/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ver=
-satilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60ffe3555cf061382f501=
-8c2
-        failing since 255 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60ffe2ee73976d56575018db
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.276-5=
-9-ge7069404d897/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
-rm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.276-5=
-9-ge7069404d897/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
-rm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60ffe2ee73976d5657501=
-8dc
-        failing since 255 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61000c621096a47ce75018d5
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.276-5=
-9-ge7069404d897/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu=
-_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.276-5=
-9-ge7069404d897/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu=
-_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61000c621096a47ce7501=
-8d6
-        failing since 255 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =20
