@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B44383D75A6
-	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 15:15:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B490D3D75A7
+	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 15:15:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236320AbhG0NPg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Jul 2021 09:15:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54998 "EHLO mail.kernel.org"
+        id S236579AbhG0NPo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Jul 2021 09:15:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232123AbhG0NPg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Jul 2021 09:15:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3777C619FA;
-        Tue, 27 Jul 2021 13:15:36 +0000 (UTC)
+        id S232123AbhG0NPn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Jul 2021 09:15:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 875E461A2C;
+        Tue, 27 Jul 2021 13:15:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627391736;
-        bh=i44hdvMYroqkU+K1Y69oCzymfSOqZYyh4ZZ1O7XIZv8=;
+        s=korg; t=1627391744;
+        bh=/yppTdud5iNq/yKePiDyJ+s5qy28L+/8pvjjQfyDOok=;
         h=Subject:To:From:Date:From;
-        b=b7LR6D8orPih1AxH3mQuxkbG5XjRL8yT3J2Q4wrfh2YQmG/VHj71i0zWOvkDMDxHg
-         unu5BKWHnxotwPv6yJSFso1ATlfhoSz6KIAbJJ5stj8MsdOWtSoYl3MwcCFmqwF5uu
-         twncsaWrzTlIWNXnOHKuwKnAFeR096r8pe/ZlTCI=
-Subject: patch "staging: rtl8712: get rid of flush_scheduled_work" added to staging-linus
+        b=d2N4hsGOvDg+y31/567NB/V1HhBWfI/Vm1HJpwPTKueiU4vYTHaBSUrDyso3oByvg
+         uFMUCKPZjLO0m8ekpBrh+7sS6OA00tNoUo2Ki8sVgHD163iEV6lAWkj7qPmuUQf7nZ
+         yR8ZWtwUSoCyYk4qcH/F4yGsVfvbNPwqmDaCVdjg=
+Subject: patch "staging: rtl8712: error handling refactoring" added to staging-linus
 To:     paskripkin@gmail.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 27 Jul 2021 15:15:33 +0200
-Message-ID: <16273917337623@kroah.com>
+Date:   Tue, 27 Jul 2021 15:15:34 +0200
+Message-ID: <1627391734129111@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    staging: rtl8712: get rid of flush_scheduled_work
+    staging: rtl8712: error handling refactoring
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -51,101 +51,147 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 9be550ee43919b070bcd77f9228bdbbbc073245b Mon Sep 17 00:00:00 2001
+From e9e6aa51b2735d83a67d9fa0119cf11abef80d99 Mon Sep 17 00:00:00 2001
 From: Pavel Skripkin <paskripkin@gmail.com>
-Date: Wed, 21 Jul 2021 22:34:36 +0300
-Subject: staging: rtl8712: get rid of flush_scheduled_work
+Date: Wed, 21 Jul 2021 22:34:47 +0300
+Subject: staging: rtl8712: error handling refactoring
 
-This patch is preparation for following patch for error handling
-refactoring.
+There was strange error handling logic in case of fw load failure. For
+some reason fw loader callback was doing clean up stuff when fw is not
+available. I don't see any reason behind doing this. Since this driver
+doesn't have EEPROM firmware let's just disconnect it in case of fw load
+failure. Doing clean up stuff in 2 different place which can run
+concurently is not good idea and syzbot found 2 bugs related to this
+strange approach.
 
-flush_scheduled_work() takes (wq_completion)events lock and
-it can lead to deadlock when r871xu_dev_remove() is called from workqueue.
-To avoid deadlock sutiation we can change flush_scheduled_work() call to
-flush_work() call for all possibly scheduled works in this driver,
-since next patch adds device_release_driver() in case of fw load failure.
+So, in this pacth I deleted all clean up code from fw callback and made
+a call to device_release_driver() under device_lock(parent) in case of fw
+load failure. This approach is more generic and it defend driver from UAF
+bugs, since all clean up code is moved to one place.
 
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Fixes: e02a3b945816 ("staging: rtl8712: fix memory leak in rtl871x_load_fw_cb")
+Fixes: 8c213fa59199 ("staging: r8712u: Use asynchronous firmware loading")
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/6e028b4c457eeb7156c76c6ea3cdb3cb0207c7e1.1626895918.git.paskripkin@gmail.com
+Reported-and-tested-by: syzbot+5872a520e0ce0a7c7230@syzkaller.appspotmail.com
+Reported-and-tested-by: syzbot+cc699626e48a6ebaf295@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Link: https://lore.kernel.org/r/d49ecc56e97c4df181d7bd4d240b031f315eacc3.1626895918.git.paskripkin@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/rtl8712/rtl8712_led.c     | 8 ++++++++
- drivers/staging/rtl8712/rtl871x_led.h     | 1 +
- drivers/staging/rtl8712/rtl871x_pwrctrl.c | 8 ++++++++
- drivers/staging/rtl8712/rtl871x_pwrctrl.h | 1 +
- drivers/staging/rtl8712/usb_intf.c        | 3 ++-
- 5 files changed, 20 insertions(+), 1 deletion(-)
+ drivers/staging/rtl8712/hal_init.c | 30 +++++++++++------
+ drivers/staging/rtl8712/usb_intf.c | 52 +++++++++++++-----------------
+ 2 files changed, 43 insertions(+), 39 deletions(-)
 
-diff --git a/drivers/staging/rtl8712/rtl8712_led.c b/drivers/staging/rtl8712/rtl8712_led.c
-index 5901026949f2..d5fc9026b036 100644
---- a/drivers/staging/rtl8712/rtl8712_led.c
-+++ b/drivers/staging/rtl8712/rtl8712_led.c
-@@ -1820,3 +1820,11 @@ void LedControl871x(struct _adapter *padapter, enum LED_CTL_MODE LedAction)
- 		break;
- 	}
- }
-+
-+void r8712_flush_led_works(struct _adapter *padapter)
+diff --git a/drivers/staging/rtl8712/hal_init.c b/drivers/staging/rtl8712/hal_init.c
+index 22974277afa0..4eff3fdecdb8 100644
+--- a/drivers/staging/rtl8712/hal_init.c
++++ b/drivers/staging/rtl8712/hal_init.c
+@@ -29,21 +29,31 @@
+ #define FWBUFF_ALIGN_SZ 512
+ #define MAX_DUMP_FWSZ (48 * 1024)
+ 
++static void rtl871x_load_fw_fail(struct _adapter *adapter)
 +{
-+	struct led_priv *pledpriv = &padapter->ledpriv;
++	struct usb_device *udev = adapter->dvobjpriv.pusbdev;
++	struct device *dev = &udev->dev;
++	struct device *parent = dev->parent;
 +
-+	flush_work(&pledpriv->SwLed0.BlinkWorkItem);
-+	flush_work(&pledpriv->SwLed1.BlinkWorkItem);
++	complete(&adapter->rtl8712_fw_ready);
++
++	dev_err(&udev->dev, "r8712u: Firmware request failed\n");
++
++	if (parent)
++		device_lock(parent);
++
++	device_release_driver(dev);
++
++	if (parent)
++		device_unlock(parent);
 +}
-diff --git a/drivers/staging/rtl8712/rtl871x_led.h b/drivers/staging/rtl8712/rtl871x_led.h
-index ee19c873cf01..2f0768132ad8 100644
---- a/drivers/staging/rtl8712/rtl871x_led.h
-+++ b/drivers/staging/rtl8712/rtl871x_led.h
-@@ -112,6 +112,7 @@ struct led_priv {
- void r8712_InitSwLeds(struct _adapter *padapter);
- void r8712_DeInitSwLeds(struct _adapter *padapter);
- void LedControl871x(struct _adapter *padapter, enum LED_CTL_MODE LedAction);
-+void r8712_flush_led_works(struct _adapter *padapter);
++
+ static void rtl871x_load_fw_cb(const struct firmware *firmware, void *context)
+ {
+ 	struct _adapter *adapter = context;
  
- #endif
- 
-diff --git a/drivers/staging/rtl8712/rtl871x_pwrctrl.c b/drivers/staging/rtl8712/rtl871x_pwrctrl.c
-index 23cff43437e2..cd6d9ff0bebc 100644
---- a/drivers/staging/rtl8712/rtl871x_pwrctrl.c
-+++ b/drivers/staging/rtl8712/rtl871x_pwrctrl.c
-@@ -224,3 +224,11 @@ void r8712_unregister_cmd_alive(struct _adapter *padapter)
+ 	if (!firmware) {
+-		struct usb_device *udev = adapter->dvobjpriv.pusbdev;
+-		struct usb_interface *usb_intf = adapter->pusb_intf;
+-
+-		dev_err(&udev->dev, "r8712u: Firmware request failed\n");
+-		usb_put_dev(udev);
+-		usb_set_intfdata(usb_intf, NULL);
+-		r8712_free_drv_sw(adapter);
+-		adapter->dvobj_deinit(adapter);
+-		complete(&adapter->rtl8712_fw_ready);
+-		free_netdev(adapter->pnetdev);
++		rtl871x_load_fw_fail(adapter);
+ 		return;
  	}
- 	mutex_unlock(&pwrctrl->mutex_lock);
- }
-+
-+void r8712_flush_rwctrl_works(struct _adapter *padapter)
-+{
-+	struct pwrctrl_priv *pwrctrl = &padapter->pwrctrlpriv;
-+
-+	flush_work(&pwrctrl->SetPSModeWorkItem);
-+	flush_work(&pwrctrl->rpwm_workitem);
-+}
-diff --git a/drivers/staging/rtl8712/rtl871x_pwrctrl.h b/drivers/staging/rtl8712/rtl871x_pwrctrl.h
-index bf6623cfaf27..b35b9c7920eb 100644
---- a/drivers/staging/rtl8712/rtl871x_pwrctrl.h
-+++ b/drivers/staging/rtl8712/rtl871x_pwrctrl.h
-@@ -108,5 +108,6 @@ void r8712_cpwm_int_hdl(struct _adapter *padapter,
- void r8712_set_ps_mode(struct _adapter *padapter, uint ps_mode,
- 			uint smart_ps);
- void r8712_set_rpwm(struct _adapter *padapter, u8 val8);
-+void r8712_flush_rwctrl_works(struct _adapter *padapter);
- 
- #endif  /* __RTL871X_PWRCTRL_H_ */
+ 	adapter->fw = firmware;
 diff --git a/drivers/staging/rtl8712/usb_intf.c b/drivers/staging/rtl8712/usb_intf.c
-index 2434b13c8b12..643f21eb1128 100644
+index 643f21eb1128..505ebeb643dc 100644
 --- a/drivers/staging/rtl8712/usb_intf.c
 +++ b/drivers/staging/rtl8712/usb_intf.c
-@@ -606,7 +606,8 @@ static void r871xu_dev_remove(struct usb_interface *pusb_intf)
- 			padapter->surprise_removed = true;
- 		if (pnetdev->reg_state != NETREG_UNINITIALIZED)
- 			unregister_netdev(pnetdev); /* will call netdev_close() */
--		flush_scheduled_work();
-+		r8712_flush_rwctrl_works(padapter);
-+		r8712_flush_led_works(padapter);
- 		udelay(1);
- 		/* Stop driver mlme relation timer */
- 		r8712_stop_drv_timers(padapter);
+@@ -591,36 +591,30 @@ static void r871xu_dev_remove(struct usb_interface *pusb_intf)
+ {
+ 	struct net_device *pnetdev = usb_get_intfdata(pusb_intf);
+ 	struct usb_device *udev = interface_to_usbdev(pusb_intf);
++	struct _adapter *padapter = netdev_priv(pnetdev);
++
++	/* never exit with a firmware callback pending */
++	wait_for_completion(&padapter->rtl8712_fw_ready);
++	usb_set_intfdata(pusb_intf, NULL);
++	release_firmware(padapter->fw);
++	if (drvpriv.drv_registered)
++		padapter->surprise_removed = true;
++	if (pnetdev->reg_state != NETREG_UNINITIALIZED)
++		unregister_netdev(pnetdev); /* will call netdev_close() */
++	r8712_flush_rwctrl_works(padapter);
++	r8712_flush_led_works(padapter);
++	udelay(1);
++	/* Stop driver mlme relation timer */
++	r8712_stop_drv_timers(padapter);
++	r871x_dev_unload(padapter);
++	r8712_free_drv_sw(padapter);
++	free_netdev(pnetdev);
++
++	/* decrease the reference count of the usb device structure
++	 * when disconnect
++	 */
++	usb_put_dev(udev);
+ 
+-	if (pnetdev) {
+-		struct _adapter *padapter = netdev_priv(pnetdev);
+-
+-		/* never exit with a firmware callback pending */
+-		wait_for_completion(&padapter->rtl8712_fw_ready);
+-		pnetdev = usb_get_intfdata(pusb_intf);
+-		usb_set_intfdata(pusb_intf, NULL);
+-		if (!pnetdev)
+-			goto firmware_load_fail;
+-		release_firmware(padapter->fw);
+-		if (drvpriv.drv_registered)
+-			padapter->surprise_removed = true;
+-		if (pnetdev->reg_state != NETREG_UNINITIALIZED)
+-			unregister_netdev(pnetdev); /* will call netdev_close() */
+-		r8712_flush_rwctrl_works(padapter);
+-		r8712_flush_led_works(padapter);
+-		udelay(1);
+-		/* Stop driver mlme relation timer */
+-		r8712_stop_drv_timers(padapter);
+-		r871x_dev_unload(padapter);
+-		r8712_free_drv_sw(padapter);
+-		free_netdev(pnetdev);
+-
+-		/* decrease the reference count of the usb device structure
+-		 * when disconnect
+-		 */
+-		usb_put_dev(udev);
+-	}
+-firmware_load_fail:
+ 	/* If we didn't unplug usb dongle and remove/insert module, driver
+ 	 * fails on sitesurvey for the first time when device is up.
+ 	 * Reset usb port for sitesurvey fail issue.
 -- 
 2.32.0
 
