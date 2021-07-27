@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E1EB3D7674
-	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 15:29:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90B7A3D767E
+	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 15:29:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236968AbhG0N3E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Jul 2021 09:29:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57236 "EHLO mail.kernel.org"
+        id S236638AbhG0N35 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Jul 2021 09:29:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57222 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236938AbhG0NU3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236947AbhG0NU3 (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 27 Jul 2021 09:20:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5A60361B02;
-        Tue, 27 Jul 2021 13:20:11 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D3F761AFE;
+        Tue, 27 Jul 2021 13:20:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1627392012;
-        bh=6rztR91rHZ3vKiWPeolfiGQVhmqXsBJmtoXkvFV9qeI=;
+        s=k20201202; t=1627392013;
+        bh=K7sEvxaluQcGZVGgQ/AHGFUbIVDlE0JjgJajWOr5M40=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C/ozA1dXG0m1e3dnRNM9g2BSSmmphWswYEunzWNWGgzt/AvYQcHi3WLo2xvwr7tPL
-         pUtrD5890Rn0xX6hxvxbZr7vMWgfEktPQLdxlBZCwCm/ySI7sMayqGBWHIQo1l3OXm
-         dP3SvfUX/0uL2OsCG1ArxJhDMfsbU7ZeylYC2DuoZy78sM+mqyW78igExArs0inCRt
-         3r8+MRHOzVUgZi7Sezj041TAFiZ8iRPg4Se3q4sno6TCJgjXH4dVCaDNIki+eI+zix
-         hb/rOb9b9Y3ZE37p/psTklv7WoG1BQVhwxHbrvd3d+0byUbhvR3OI8t6Ae7gvs82Gu
-         B+wQ7PqFXlj7A==
+        b=ZJaana1LomwbEHEK11Z7GSNP7CwfRMSqmY8GCkcepdkAA9zcJx+YFSoxC7URrJX+a
+         4xUVxuhai+w5fLfQ0ITVUbOCLkDCYUweS7bBB0VFeKckUj2FjxPxLn73V+f0+6UIfY
+         bNw1a2uZQdo8IdGcvbekdr2pK7aFDOCfAnz3Z9oEsM2EkPMnb3nnmkwOn6b2knnB4D
+         xeMa1OEs4NFd5YQ+9VgRLRKd+eJ3NXh9PxArrpTST+5vpyDSwuQ8CcStdoAOfcTKjA
+         am/c5UcyVey/meNqQluYwWM6p9/2CAkLqH13LfGYPKroKDuWVg5WFwcwvno5WMlHJf
+         nG2zWmAg0TrOQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pravin B Shelar <pshelar@ovn.org>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 7/9] net: Fix zero-copy head len calculation.
-Date:   Tue, 27 Jul 2021 09:19:59 -0400
-Message-Id: <20210727132002.835130-7-sashal@kernel.org>
+Cc:     Keith Busch <kbusch@kernel.org>, Christoph Hellwig <hch@lst.de>,
+        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 8/9] nvme: fix nvme_setup_command metadata trace event
+Date:   Tue, 27 Jul 2021 09:20:00 -0400
+Message-Id: <20210727132002.835130-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210727132002.835130-1-sashal@kernel.org>
 References: <20210727132002.835130-1-sashal@kernel.org>
@@ -42,77 +41,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pravin B Shelar <pshelar@ovn.org>
+From: Keith Busch <kbusch@kernel.org>
 
-[ Upstream commit a17ad0961706244dce48ec941f7e476a38c0e727 ]
+[ Upstream commit 234211b8dd161fa25f192c78d5a8d2dd6bf920a0 ]
 
-In some cases skb head could be locked and entire header
-data is pulled from skb. When skb_zerocopy() called in such cases,
-following BUG is triggered. This patch fixes it by copying entire
-skb in such cases.
-This could be optimized incase this is performance bottleneck.
+The metadata address is set after the trace event, so the trace is not
+capturing anything useful. Rather than logging the memory address, it's
+useful to know if the command carries a metadata payload, so change the
+trace event to log that true/false state instead.
 
----8<---
-kernel BUG at net/core/skbuff.c:2961!
-invalid opcode: 0000 [#1] SMP PTI
-CPU: 2 PID: 0 Comm: swapper/2 Tainted: G           OE     5.4.0-77-generic #86-Ubuntu
-Hardware name: OpenStack Foundation OpenStack Nova, BIOS 1.13.0-1ubuntu1.1 04/01/2014
-RIP: 0010:skb_zerocopy+0x37a/0x3a0
-RSP: 0018:ffffbcc70013ca38 EFLAGS: 00010246
-Call Trace:
- <IRQ>
- queue_userspace_packet+0x2af/0x5e0 [openvswitch]
- ovs_dp_upcall+0x3d/0x60 [openvswitch]
- ovs_dp_process_packet+0x125/0x150 [openvswitch]
- ovs_vport_receive+0x77/0xd0 [openvswitch]
- netdev_port_receive+0x87/0x130 [openvswitch]
- netdev_frame_hook+0x4b/0x60 [openvswitch]
- __netif_receive_skb_core+0x2b4/0xc90
- __netif_receive_skb_one_core+0x3f/0xa0
- __netif_receive_skb+0x18/0x60
- process_backlog+0xa9/0x160
- net_rx_action+0x142/0x390
- __do_softirq+0xe1/0x2d6
- irq_exit+0xae/0xb0
- do_IRQ+0x5a/0xf0
- common_interrupt+0xf/0xf
-
-Code that triggered BUG:
-int
-skb_zerocopy(struct sk_buff *to, struct sk_buff *from, int len, int hlen)
-{
-        int i, j = 0;
-        int plen = 0; /* length of skb->head fragment */
-        int ret;
-        struct page *page;
-        unsigned int offset;
-
-        BUG_ON(!from->head_frag && !hlen);
-
-Signed-off-by: Pravin B Shelar <pshelar@ovn.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Keith Busch <kbusch@kernel.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/skbuff.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/nvme/host/trace.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/core/skbuff.c b/net/core/skbuff.c
-index 99d6f4d1297c..7dba091bc861 100644
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -2921,8 +2921,11 @@ skb_zerocopy_headlen(const struct sk_buff *from)
- 
- 	if (!from->head_frag ||
- 	    skb_headlen(from) < L1_CACHE_BYTES ||
--	    skb_shinfo(from)->nr_frags >= MAX_SKB_FRAGS)
-+	    skb_shinfo(from)->nr_frags >= MAX_SKB_FRAGS) {
- 		hlen = skb_headlen(from);
-+		if (!hlen)
-+			hlen = from->len;
-+	}
- 
- 	if (skb_has_frag_list(from))
- 		hlen = from->len;
+diff --git a/drivers/nvme/host/trace.h b/drivers/nvme/host/trace.h
+index daaf700eae79..35bac7a25422 100644
+--- a/drivers/nvme/host/trace.h
++++ b/drivers/nvme/host/trace.h
+@@ -56,7 +56,7 @@ TRACE_EVENT(nvme_setup_cmd,
+ 		__field(u8, fctype)
+ 		__field(u16, cid)
+ 		__field(u32, nsid)
+-		__field(u64, metadata)
++		__field(bool, metadata)
+ 		__array(u8, cdw10, 24)
+ 	    ),
+ 	    TP_fast_assign(
+@@ -66,13 +66,13 @@ TRACE_EVENT(nvme_setup_cmd,
+ 		__entry->flags = cmd->common.flags;
+ 		__entry->cid = cmd->common.command_id;
+ 		__entry->nsid = le32_to_cpu(cmd->common.nsid);
+-		__entry->metadata = le64_to_cpu(cmd->common.metadata);
++		__entry->metadata = !!blk_integrity_rq(req);
+ 		__entry->fctype = cmd->fabrics.fctype;
+ 		__assign_disk_name(__entry->disk, req->rq_disk);
+ 		memcpy(__entry->cdw10, &cmd->common.cdw10,
+ 			sizeof(__entry->cdw10));
+ 	    ),
+-	    TP_printk("nvme%d: %sqid=%d, cmdid=%u, nsid=%u, flags=0x%x, meta=0x%llx, cmd=(%s %s)",
++	    TP_printk("nvme%d: %sqid=%d, cmdid=%u, nsid=%u, flags=0x%x, meta=0x%x, cmd=(%s %s)",
+ 		      __entry->ctrl_id, __print_disk_name(__entry->disk),
+ 		      __entry->qid, __entry->cid, __entry->nsid,
+ 		      __entry->flags, __entry->metadata,
 -- 
 2.30.2
 
