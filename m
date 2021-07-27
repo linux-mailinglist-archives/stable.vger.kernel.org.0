@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CDD2B3D7686
-	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 15:30:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 510873D7687
+	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 15:30:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236711AbhG0NaA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232298AbhG0NaA (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 27 Jul 2021 09:30:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57236 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:56496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236855AbhG0NUR (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236856AbhG0NUR (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 27 Jul 2021 09:20:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DB73561ABA;
-        Tue, 27 Jul 2021 13:19:40 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D58261ABD;
+        Tue, 27 Jul 2021 13:19:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1627391981;
-        bh=tJ1D1zFs0Ylz1KRKABjtoasSqKI0FcM1HowOtKwSuPE=;
+        s=k20201202; t=1627391983;
+        bh=V+7xNq7+gPU2NOZVEY9BOCfMq/nNLrnWILtJ9O8Ro7A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QpAEf19jBdG4Kh65++jUp0E8ZnHGyOiXwgZ1lE9AS4F0ztZRYs9HhuXxZqS4gVvVV
-         lRzfQ8P7J6pf/Uv80TDAhpAhgBSOFA/ixl1+XEPS+whI6YcTDVAsGJ5Sh8ocXoxIbn
-         mv/Ji9G3gQ7WbsVxn+jfcdn9go34wGgleBE7gW7CfJWDLho0i110C7IsJTOnxvTNWY
-         dtTZiYhyNWU2dLPLBEmDWSwmk+RAByXfkcBa9G/tazaVbsm2RcfMimrMjDxdRouDwx
-         JVdfdXeuEOJSBDpabFNvPuKq762K4yfCmz9dmYHVRcl39wCyyqId/MFyzIo+z17K29
-         S2F8e78elQPQw==
+        b=QLB+7+IVp+74oXCir3IEK/nSwTXzj2dMkbuNN1bldTkQw3kyCZHqC41ogIxKnKEAy
+         3kctVRM+JlYNTjYbGmlHNVL2/cHFYRJOojSOOmVI3+Oho5bZdat6kzKUDyfnZesfDy
+         sUCvgOWrhPCIaitJyqAPB2M90KyP0PaCRAfU/CWy2nJFw3VocnOlTxjpEjOUw5avp9
+         UF+1AF3Tcwtg7qdMGNn4GkNvxfcvZGCSHEy1NTa14+adqqUkXc14rneYCjeOy7Pkcj
+         Cg+oUJyD8Q+NNQVMRr9DDHFtK1YSew9+5n9nCo1dGvQR2HCGENeK0eR8pzW341fYui
+         FA7hRI3bLnIvg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Axel Lin <axel.lin@ingics.com>,
-        ChiYuan Huang <cy_huang@richtek.com>,
+Cc:     Alain Volmat <alain.volmat@foss.st.com>,
+        Amelie Delaunay <amelie.delaunay@foss.st.com>,
         Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.10 02/17] regulator: rt5033: Fix n_voltages settings for BUCK and LDO
-Date:   Tue, 27 Jul 2021 09:19:23 -0400
-Message-Id: <20210727131938.834920-2-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.10 03/17] spi: stm32h7: fix full duplex irq handler handling
+Date:   Tue, 27 Jul 2021 09:19:24 -0400
+Message-Id: <20210727131938.834920-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210727131938.834920-1-sashal@kernel.org>
 References: <20210727131938.834920-1-sashal@kernel.org>
@@ -43,46 +45,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Axel Lin <axel.lin@ingics.com>
+From: Alain Volmat <alain.volmat@foss.st.com>
 
-[ Upstream commit 6549c46af8551b346bcc0b9043f93848319acd5c ]
+[ Upstream commit e4a5c19888a5f8a9390860ca493e643be58c8791 ]
 
-For linear regulators, the n_voltages should be (max - min) / step + 1.
+In case of Full-Duplex mode, DXP flag is set when RXP and TXP flags are
+set. But to avoid 2 different handlings, just add TXP and RXP flag in
+the mask instead of DXP, and then keep the initial handling of TXP and
+RXP events.
+Also rephrase comment about EOTIE which is one of the interrupt enable
+bits. It is not triggered by any event.
 
-Buck voltage from 1v to 3V, per step 100mV, and vout mask is 0x1f.
-If value is from 20 to 31, the voltage will all be fixed to 3V.
-And LDO also, just vout range is different from 1.2v to 3v, step is the
-same. If value is from 18 to 31, the voltage will also be fixed to 3v.
-
-Signed-off-by: Axel Lin <axel.lin@ingics.com>
-Reviewed-by: ChiYuan Huang <cy_huang@richtek.com>
-Link: https://lore.kernel.org/r/20210627080418.1718127-1-axel.lin@ingics.com
+Signed-off-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
+Signed-off-by: Alain Volmat <alain.volmat@foss.st.com>
+Reviewed-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
+Link: https://lore.kernel.org/r/1625042723-661-3-git-send-email-alain.volmat@foss.st.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/mfd/rt5033-private.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/spi/spi-stm32.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/include/linux/mfd/rt5033-private.h b/include/linux/mfd/rt5033-private.h
-index f812105c538c..f2271bfb3273 100644
---- a/include/linux/mfd/rt5033-private.h
-+++ b/include/linux/mfd/rt5033-private.h
-@@ -200,13 +200,13 @@ enum rt5033_reg {
- #define RT5033_REGULATOR_BUCK_VOLTAGE_MIN		1000000U
- #define RT5033_REGULATOR_BUCK_VOLTAGE_MAX		3000000U
- #define RT5033_REGULATOR_BUCK_VOLTAGE_STEP		100000U
--#define RT5033_REGULATOR_BUCK_VOLTAGE_STEP_NUM		32
-+#define RT5033_REGULATOR_BUCK_VOLTAGE_STEP_NUM		21
+diff --git a/drivers/spi/spi-stm32.c b/drivers/spi/spi-stm32.c
+index 0318f02d6212..f8ab58003e76 100644
+--- a/drivers/spi/spi-stm32.c
++++ b/drivers/spi/spi-stm32.c
+@@ -917,15 +917,18 @@ static irqreturn_t stm32h7_spi_irq_thread(int irq, void *dev_id)
+ 	ier = readl_relaxed(spi->base + STM32H7_SPI_IER);
  
- /* RT5033 regulator LDO output voltage uV */
- #define RT5033_REGULATOR_LDO_VOLTAGE_MIN		1200000U
- #define RT5033_REGULATOR_LDO_VOLTAGE_MAX		3000000U
- #define RT5033_REGULATOR_LDO_VOLTAGE_STEP		100000U
--#define RT5033_REGULATOR_LDO_VOLTAGE_STEP_NUM		32
-+#define RT5033_REGULATOR_LDO_VOLTAGE_STEP_NUM		19
+ 	mask = ier;
+-	/* EOTIE is triggered on EOT, SUSP and TXC events. */
++	/*
++	 * EOTIE enables irq from EOT, SUSP and TXC events. We need to set
++	 * SUSP to acknowledge it later. TXC is automatically cleared
++	 */
++
+ 	mask |= STM32H7_SPI_SR_SUSP;
+ 	/*
+-	 * When TXTF is set, DXPIE and TXPIE are cleared. So in case of
+-	 * Full-Duplex, need to poll RXP event to know if there are remaining
+-	 * data, before disabling SPI.
++	 * DXPIE is set in Full-Duplex, one IT will be raised if TXP and RXP
++	 * are set. So in case of Full-Duplex, need to poll TXP and RXP event.
+ 	 */
+-	if (spi->rx_buf && !spi->cur_usedma)
+-		mask |= STM32H7_SPI_SR_RXP;
++	if ((spi->cur_comm == SPI_FULL_DUPLEX) && !spi->cur_usedma)
++		mask |= STM32H7_SPI_SR_TXP | STM32H7_SPI_SR_RXP;
  
- /* RT5033 regulator SAFE LDO output voltage uV */
- #define RT5033_REGULATOR_SAFE_LDO_VOLTAGE		4900000U
+ 	if (!(sr & mask)) {
+ 		dev_warn(spi->dev, "spurious IT (sr=0x%08x, ier=0x%08x)\n",
 -- 
 2.30.2
 
