@@ -2,98 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 309873D7B92
-	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 19:06:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 177B83D7B95
+	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 19:06:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229670AbhG0RG3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Jul 2021 13:06:29 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:50915 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229497AbhG0RG3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Jul 2021 13:06:29 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1627405588;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=j2qe/ijQLQToepBoJMzhqETg7K1u+t/Q843JAnPvZpU=;
-        b=Ih6a58gKL6Gm0W5hp9Dqfq5nfBm022x6TJ7wGMggnDFLTvFvQXTl8gITB46a60CMvAszwa
-        RYFIt4PI45I8c2Fj4FkVDXo2aq473FnvnStBxwNh4j65jWWVlvrUWIgTnNj6aKKPU8bf+M
-        vfzStrpcwiVZ4KyN/ni9lubQdE3gmEs=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-232-WVSlZ9TlM5ylatKTca3tZA-1; Tue, 27 Jul 2021 13:06:22 -0400
-X-MC-Unique: WVSlZ9TlM5ylatKTca3tZA-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S229666AbhG0RGq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Jul 2021 13:06:46 -0400
+Received: from dispatch1-us1.ppe-hosted.com ([67.231.154.183]:3640 "EHLO
+        dispatch1-us1.ppe-hosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229818AbhG0RGp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Jul 2021 13:06:45 -0400
+X-Virus-Scanned: Proofpoint Essentials engine
+Received: from mx1-us1.ppe-hosted.com (unknown [10.110.51.179])
+        by mx1-us1.ppe-hosted.com (PPE Hosted ESMTP Server) with ESMTPS id 63E14A0073;
+        Tue, 27 Jul 2021 17:06:44 +0000 (UTC)
+Received: from mail3.candelatech.com (mail2.candelatech.com [208.74.158.173])
+        by mx1-us1.ppe-hosted.com (PPE Hosted ESMTP Server) with ESMTP id 219EFAC0082;
+        Tue, 27 Jul 2021 17:06:44 +0000 (UTC)
+Received: from [192.168.100.195] (50-251-239-81-static.hfc.comcastbusiness.net [50.251.239.81])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 08F0093921;
-        Tue, 27 Jul 2021 17:06:21 +0000 (UTC)
-Received: from virtlab701.virt.lab.eng.bos.redhat.com (virtlab701.virt.lab.eng.bos.redhat.com [10.19.152.228])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 9FBD960BD9;
-        Tue, 27 Jul 2021 17:06:20 +0000 (UTC)
-From:   Paolo Bonzini <pbonzini@redhat.com>
-To:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc:     stable@vger.kernel.org, Stas Sergeev <stsp2@yandex.ru>
-Subject: [PATCH v2] KVM: x86: accept userspace interrupt only if no event is injected
-Date:   Tue, 27 Jul 2021 13:06:20 -0400
-Message-Id: <20210727170620.1643969-1-pbonzini@redhat.com>
+        by mail3.candelatech.com (Postfix) with ESMTPSA id E74EA13C2B1;
+        Tue, 27 Jul 2021 10:06:37 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail3.candelatech.com E74EA13C2B1
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=candelatech.com;
+        s=default; t=1627405598;
+        bh=d9I0mXd0R1t5IefPUqW52TxJvXRFT80ifKTzFx1IAhQ=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=GHHCFDVbgf0b2h/IMyn7freCTIg4eWMHluIINkze2qpyt3by/L4TrRiD2kKJFsApL
+         sUcltjmikPvT72Hrhj0oopvqEXTvoPI+Sp4opeEigOOXcab7CTq150Gz5BHNHr/4HI
+         Xt4kvmKL3tsosggwFMX23aSR1gxwD6I3Wy9tMeBU=
+Subject: Re: very long boot times in 5.13 stable.
+To:     pgndev <pgnet.dev@gmail.com>
+Cc:     stable@vger.kernel.org
+References: <aeac0ff3-6606-3752-db6c-306a9c643f8f@candelatech.com>
+ <CAHv26DhDYNYGmQa7Dt4NoAz74J89pi8+4yuEprFO0bjuN9G7gg@mail.gmail.com>
+ <f8be86d0-28ac-3e5b-1969-9115e5e0472c@candelatech.com>
+ <CAHv26DjBqX__YYdqJEfMVZKFomuW8+mid5grAvUfMNmXMtC8pA@mail.gmail.com>
+From:   Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+Message-ID: <f3593f21-11e5-c568-c8e7-45b3f6657a02@candelatech.com>
+Date:   Tue, 27 Jul 2021 10:06:37 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.2
 MIME-Version: 1.0
+In-Reply-To: <CAHv26DjBqX__YYdqJEfMVZKFomuW8+mid5grAvUfMNmXMtC8pA@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+X-MDID: 1627405604-pzoBfyQGJtyT
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Once an exception has been injected, any side effects related to
-the exception (such as setting CR2 or DR6) have been taked place.
-Therefore, once KVM sets the VM-entry interruption information
-field or the AMD EVENTINJ field, the next VM-entry must deliver that
-exception.
+On 7/27/21 9:50 AM, pgndev wrote:
+>         embedded. checking...
+> 
+> 
+>         iiuc, it's got an i2c.  possible a uart is on Irq4 thru the i2c?
+> 
+> 
+>         if so, might wanna take a look here:
+> 
+> 
+>         https://bugzilla.kernel.org/show_bug.cgi?id=213031
+>         <https://urldefense.proofpoint.com/v2/url?u=https-3A__bugzilla.kernel.org_show-5Fbug.cgi-3Fid-3D213031&d=DwMFaQ&c=euGZstcaTDllvimEN8b7jXrwqOf-v5A_CdpgnVfiiMM&r=HYKqseB9xg-u2kz3egvegqfgyXnEBhQotXfR3iCfdgM&m=gCRilkIAaKYuJwLWOT7O5ttfWG5rta0-6eYjPBdnTz4&s=VSfJDrJPSqVtQuCoCZGazYrmnWTe6xldTkWT_Bq7vwo&e=>
+> 
+> 
+> 
+>         maybe related?  at least shares symptoms...
+> 
+> 
+>         ACPI subsystem lead sez in offlist thread re: that
+> 
+> 
+>         "It looks like commit 96b15a0b45182f1c3da5a861196da27000da2e3c needs to
+> 
+>         be reverted." 
 
-Pending interrupts are processed after injected exceptions, so
-in theory it would not be a problem to use KVM_INTERRUPT when
-an injected exception is present.  However, DOSEMU is using
-run->ready_for_interrupt_injection to detect interrupt windows
-and then using KVM_SET_SREGS/KVM_SET_REGS to inject the
-interrupt manually.  For this to work, the interrupt window
-must be delayed after the completion of the previous event
-injection.
+I don't see that commit in linus tree nor my stable tree, can you check that hash and also
+show me the commit message and other info so I can track it down?
 
-Cc: stable@vger.kernel.org
-Reported-by: Stas Sergeev <stsp2@yandex.ru>
-Tested-by: Stas Sergeev <stsp2@yandex.ru>
-Fixes: 71cc849b7093 ("KVM: x86: Fix split-irqchip vs interrupt injection window request")
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-(cherry picked from commit 043264d97e9ab74cc9661c8b1f9c00c8ce24cad9)
----
- arch/x86/kvm/x86.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+Thanks,
+Ben
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 4116567f3d44..5e921f1e00db 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -4358,8 +4358,18 @@ static int kvm_cpu_accept_dm_intr(struct kvm_vcpu *vcpu)
- 
- static int kvm_vcpu_ready_for_interrupt_injection(struct kvm_vcpu *vcpu)
- {
-+	/*
-+	 * Do not cause an interrupt window exit if an exception
-+	 * is pending or an event needs reinjection; userspace
-+	 * might want to inject the interrupt manually using KVM_SET_REGS
-+	 * or KVM_SET_SREGS.  For that to work, we must be at an
-+	 * instruction boundary and with no events half-injected.
-+	 */
- 	return kvm_arch_interrupt_allowed(vcpu) &&
--		kvm_cpu_accept_dm_intr(vcpu);
-+		kvm_cpu_accept_dm_intr(vcpu) &&
-+	        !kvm_event_needs_reinjection(vcpu)
-+	        !vcpu->arch.exception.pending;
-+
- }
- 
- static int kvm_vcpu_ioctl_interrupt(struct kvm_vcpu *vcpu,
+
 -- 
-2.27.0
+Ben Greear <greearb@candelatech.com>
+Candela Technologies Inc  http://www.candelatech.com
 
