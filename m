@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 57C8C3D7E87
-	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 21:35:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 468D63D7E88
+	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 21:35:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230431AbhG0TfF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Jul 2021 15:35:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33274 "EHLO mail.kernel.org"
+        id S229681AbhG0TfK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Jul 2021 15:35:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229681AbhG0TfF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Jul 2021 15:35:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AE6B060FA0;
-        Tue, 27 Jul 2021 19:35:03 +0000 (UTC)
+        id S230454AbhG0TfK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Jul 2021 15:35:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9290160FA0;
+        Tue, 27 Jul 2021 19:35:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1627414504;
-        bh=uKZHcghmffajpYpBAGCDlKA+CZqWmc2eO6n018BP6fo=;
+        s=korg; t=1627414508;
+        bh=3ZrqY4Q2nFu3UuYq1irywXFE+7ic8vFlUHSsEHt93vk=;
         h=Date:From:To:Subject:From;
-        b=0upCNpnM0HxsqfafFwyAlbv9E7RTnJHymV6jzwTO3TbYlg34zGFgydX2i2kr2QDho
-         L8BafzkQzhDxQCrbBTGrK9+VrnIVFVVjKmHXzCjTyVwOe2PFCGDIIlRcUk68ZAWWNx
-         bTJDqxQ4gllv6suihed18p1vkFfWaJmlRRLLanHQ=
-Date:   Tue, 27 Jul 2021 12:35:03 -0700
+        b=MjHOL1KKoZSDLMRYeD18EHDzKCYHvoerHK7uva202U7+sU1oTTmo434n2/d0pQujJ
+         fuubn/vN/GVKZi73nvyuJqPrO1I778/C7DbbOm8JLocTeddsTSTg5zh2RBq4IbqdX0
+         knfsUqH+R3aO28kSHCPoHUv1Zf1GhmcZe/2V5NPs=
+Date:   Tue, 27 Jul 2021 12:35:08 -0700
 From:   akpm@linux-foundation.org
-To:     aarcange@redhat.com, adelva@google.com, andreyknvl@gmail.com,
-        catalin.marinas@arm.com, Dave.Martin@arm.com, eugenis@google.com,
-        lokeshgidra@google.com, mitchp@google.com,
-        mm-commits@vger.kernel.org, pcc@google.com, stable@vger.kernel.org,
-        vincenzo.frascino@arm.com, will@kernel.org, willmcvicker@google.com
+To:     dvyukov@google.com, elver@google.com, glider@google.com,
+        gregkh@linuxfoundation.org, mm-commits@vger.kernel.org,
+        stable@vger.kernel.org
 Subject:  [merged]
- selftest-use-mmap-instead-of-posix_memalign-to-allocate-memory.patch
- removed from -mm tree
-Message-ID: <20210727193503.zZ5e2zk2S%akpm@linux-foundation.org>
+ kfence-move-the-size-check-to-the-beginning-of-__kfence_alloc.patch removed
+ from -mm tree
+Message-ID: <20210727193508.0aO69KOYK%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -38,64 +36,62 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: selftest: use mmap instead of posix_memalign to allocate memory
+     Subject: kfence: move the size check to the beginning of __kfence_alloc()
 has been removed from the -mm tree.  Its filename was
-     selftest-use-mmap-instead-of-posix_memalign-to-allocate-memory.patch
+     kfence-move-the-size-check-to-the-beginning-of-__kfence_alloc.patch
 
 This patch was dropped because it was merged into mainline or a subsystem tree
 
 ------------------------------------------------------
-From: Peter Collingbourne <pcc@google.com>
-Subject: selftest: use mmap instead of posix_memalign to allocate memory
+From: Alexander Potapenko <glider@google.com>
+Subject: kfence: move the size check to the beginning of __kfence_alloc()
 
-This test passes pointers obtained from anon_allocate_area to the
-userfaultfd and mremap APIs.  This causes a problem if the system
-allocator returns tagged pointers because with the tagged address ABI the
-kernel rejects tagged addresses passed to these APIs, which would end up
-causing the test to fail.  To make this test compatible with such system
-allocators, stop using the system allocator to allocate memory in
-anon_allocate_area, and instead just use mmap.
+Check the allocation size before toggling kfence_allocation_gate.  This
+way allocations that can't be served by KFENCE will not result in waiting
+for another CONFIG_KFENCE_SAMPLE_INTERVAL without allocating anything.
 
-Link: https://lkml.kernel.org/r/20210714195437.118982-3-pcc@google.com
-Link: https://linux-review.googlesource.com/id/Icac91064fcd923f77a83e8e133f8631c5b8fc241
-Fixes: c47174fc362a ("userfaultfd: selftest")
-Co-developed-by: Lokesh Gidra <lokeshgidra@google.com>
-Signed-off-by: Lokesh Gidra <lokeshgidra@google.com>
-Signed-off-by: Peter Collingbourne <pcc@google.com>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Cc: Dave Martin <Dave.Martin@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Alistair Delva <adelva@google.com>
-Cc: William McVicker <willmcvicker@google.com>
-Cc: Evgenii Stepanov <eugenis@google.com>
-Cc: Mitch Phillips <mitchp@google.com>
-Cc: Andrey Konovalov <andreyknvl@gmail.com>
-Cc: <stable@vger.kernel.org>	[5.4]
+Link: https://lkml.kernel.org/r/20210714092222.1890268-1-glider@google.com
+Signed-off-by: Alexander Potapenko <glider@google.com>
+Suggested-by: Marco Elver <elver@google.com>
+Reviewed-by: Marco Elver <elver@google.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Marco Elver <elver@google.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: <stable@vger.kernel.org>	[5.12+]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- tools/testing/selftests/vm/userfaultfd.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ mm/kfence/core.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/tools/testing/selftests/vm/userfaultfd.c~selftest-use-mmap-instead-of-posix_memalign-to-allocate-memory
-+++ a/tools/testing/selftests/vm/userfaultfd.c
-@@ -210,8 +210,10 @@ static void anon_release_pages(char *rel
- 
- static void anon_allocate_area(void **alloc_area)
+--- a/mm/kfence/core.c~kfence-move-the-size-check-to-the-beginning-of-__kfence_alloc
++++ a/mm/kfence/core.c
+@@ -734,6 +734,13 @@ void kfence_shutdown_cache(struct kmem_c
+ void *__kfence_alloc(struct kmem_cache *s, size_t size, gfp_t flags)
  {
--	if (posix_memalign(alloc_area, page_size, nr_pages * page_size))
--		err("posix_memalign() failed");
-+	*alloc_area = mmap(NULL, nr_pages * page_size, PROT_READ | PROT_WRITE,
-+			   MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-+	if (*alloc_area == MAP_FAILED)
-+		err("mmap of anonymous memory failed");
+ 	/*
++	 * Perform size check before switching kfence_allocation_gate, so that
++	 * we don't disable KFENCE without making an allocation.
++	 */
++	if (size > PAGE_SIZE)
++		return NULL;
++
++	/*
+ 	 * allocation_gate only needs to become non-zero, so it doesn't make
+ 	 * sense to continue writing to it and pay the associated contention
+ 	 * cost, in case we have a large number of concurrent allocations.
+@@ -757,9 +764,6 @@ void *__kfence_alloc(struct kmem_cache *
+ 	if (!READ_ONCE(kfence_enabled))
+ 		return NULL;
+ 
+-	if (size > PAGE_SIZE)
+-		return NULL;
+-
+ 	return kfence_guarded_alloc(s, size, flags);
  }
  
- static void noop_alias_mapping(__u64 *start, size_t len, unsigned long offset)
 _
 
-Patches currently in -mm which might be from pcc@google.com are
+Patches currently in -mm which might be from glider@google.com are
 
 
