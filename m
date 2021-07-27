@@ -2,179 +2,195 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 805783D712F
-	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 10:30:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 814F03D714A
+	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 10:34:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235920AbhG0I36 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Jul 2021 04:29:58 -0400
-Received: from mx0b-0064b401.pphosted.com ([205.220.178.238]:48500 "EHLO
-        mx0b-0064b401.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235629AbhG0I36 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Jul 2021 04:29:58 -0400
-Received: from pps.filterd (m0250812.ppops.net [127.0.0.1])
-        by mx0a-0064b401.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 16R8E2nE004378;
-        Tue, 27 Jul 2021 08:29:55 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=windriver.com; h=from : to : cc :
- subject : date : message-id : in-reply-to : references : content-type :
+        id S235970AbhG0Idg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Jul 2021 04:33:36 -0400
+Received: from mx0a-0064b401.pphosted.com ([205.220.166.238]:45490 "EHLO
+        mx0a-0064b401.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S235946AbhG0Idf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Jul 2021 04:33:35 -0400
+Received: from pps.filterd (m0250809.ppops.net [127.0.0.1])
+        by mx0a-0064b401.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 16R8H6NI030114;
+        Tue, 27 Jul 2021 01:33:29 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=windriver.com; h=subject : to : cc
+ : references : from : message-id : date : in-reply-to : content-type :
  content-transfer-encoding : mime-version; s=PPS06212021;
- bh=ssGNotrP2E8XYOjs9s8Xtda3mkjZOJRMvcdv9ALKJrY=;
- b=BKZTu9ILZybDIv25GiZe8jCxWR/C0lDBpRO/fUWyQdjNtUX1TXixhTHTvoX6D84ET9tq
- QePEodJ3k97ToWrl9N8hT826d5lvvvxcYSPkSGv0mem17ce7R/vMfThtEuaJbmT0IDn0
- QffT9NDShh4ord8doMvJ+zFfe247AOKqOukAwmxmfSlKmUaVrN9+6Bq3wRQtJcBoYp61
- EkFuiYbXMmfHahVhrYvVTBWuhXJzRSdLD4sykDd3AUSeo5bMI6gv2/ZmQXfzsH66mBZC
- uNlrkbL6+ID3FpiBYYiXKk86BvcSyPEdz2tnLUlR8dLRfpqoLiBlR2aUhb1CA4tHFqQO sw== 
-Received: from nam12-mw2-obe.outbound.protection.outlook.com (mail-mw2nam12lp2040.outbound.protection.outlook.com [104.47.66.40])
-        by mx0a-0064b401.pphosted.com with ESMTP id 3a2351gcr5-1
+ bh=jKGt28Kq6NaeOqdHpx2cKxQ8Wh1fBiAZkm8FNUEwJjE=;
+ b=oNfmfk6D4x3byBeDNlM8qIYvVwxi7f2V7JIQ3eLryHhPmjedDhaNHlHz8MDQt+8VOkeY
+ AZIWHMCIdyjWQYhsbME4NH+nQ9lLoOie30FWCSmXLAWsfwsgiFxvYZkZ4nXcu91ETad7
+ 5HwmZja2nayvXCjoMoEWAySQXTZKkpPYXwhTVS5bnhx8+4+ODhM8CHCiajkyHR/PuK4P
+ eLazdmS/nE95wBuPYRGsJj+0Xr3kkmXpLPw2IM38Lbzk2Fn52uF4Bg7ni5mIW3setSBc
+ EPou7ozmMTytrs7dc9IUnT1FDI9/E5QbaSqCa0Lt6G174dFgXYJf1NHqK1cBOJi0YBQy Pg== 
+Received: from nam12-dm6-obe.outbound.protection.outlook.com (mail-dm6nam12lp2177.outbound.protection.outlook.com [104.47.59.177])
+        by mx0a-0064b401.pphosted.com with ESMTP id 3a23558cra-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 27 Jul 2021 08:29:55 +0000
+        Tue, 27 Jul 2021 01:33:28 -0700
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=XpeJumv0vLw7+etikj8z+IrU5V5y11LsGt0+5cW5FSt0L5L00SUhFPu3cWzh/KHHXbQ8Okp1LW50PoGZLh3pwgZcFCt3brK4Vv1NV140mxRmEE/3ED/tktCGx9d0Fp2lJeutRDIV25r2+i3i3wyespchxI/dmSvX/eBUOhqdl9mlMpfSlVklk01NdxvffpwR4b+/vqjXXiAcBZ4y6Sc/7mEritZBxq2PeHVTNlD8VH7YYMZg+Ss6+E4anMZhP6nSCs5uZnbE+lvIOz/LF8IFwrdhH5OgY6pfS+OxRXLztrrv3fJ5nBjS+EZfpdrMUOmAKNAAh/jCChUDsEw1akhDpA==
+ b=EeUlRMdKZgNOXF0ludGt0WeQU7O4Rpg3Ts8W2OjdOl6YJQjZ50CLLxl5PhBZBoSIA83vP/NaMPxVRNCj/FOSG/VNmA81TwhO5V8V1UFW0oXd8j6/6qxxGX5NNkMtJREz2/yyr+PfSMfZX9cAyGgYVFjSEeLnlRxgzNFyrMNBgs3LCWqkH3NcXpjclMlbVBCTvzlxgJ4xxSUs2KVgsMEiZL5KuJVTpQhMWJftBbNSh4a7HhR00a9P3ccIMr0hvVvFPTgygpSVDH6vq4sPfDnMTHnAbvE2dBQ+9YPnhy0pHFIKAPwSDujBc3xuKjrPe5aD9HQKowAWqY59BLxXIS34Kw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=ssGNotrP2E8XYOjs9s8Xtda3mkjZOJRMvcdv9ALKJrY=;
- b=Rk6W2RrVgI21OznCFrwVaPHF+IcKvYxNnvAk4dyH/gM1kZ79hr2UV1OewotNPPmzZPz18naCPwyT3ITcCbRhFa8JFmz2qjJtJg51xJHB5ZMl6PZLId48+IyXJIJCb20lrB+2ksUwASr8U4+daVxW5UmPGrM38DGo3oTBOzgVPeJIZRnJ4i5m7Q7fdphLB0SAL8RkPVix/jyyDKLS17bJfak4pxDV9zv7i8n8Nx9k8BlpOsa38DchcqOwCYxty0JhCHF8/BtP0xjhBzIGD4VjyOPA3g2mM4U9UrVUkGJGfMWluwyECtNnFqA+7A0pr7FjfWyQgjMzy02Qzdcr/As5Uw==
+ bh=jKGt28Kq6NaeOqdHpx2cKxQ8Wh1fBiAZkm8FNUEwJjE=;
+ b=I+QhSZLSlnOYJgsu1NB2JWyut9WEkDQk0BlHrI3TeIAUp+MZE1zWyLeL45q6bufUxdkvUm5xnlTaRUlzZs4fWCuxQjTtYUmQQa70Ids7QJPaB/omM+ZktaG1LREGqur3vlgvdNo878x9K4VIefnlQjWIQR8zNAj9c/3FW+ilV9VaDv0GbEreYYtStSfjlX7Qa8a4X/bhJ9Sbjv4nXvRx6Zb9Ey3ixh5xCUS3RjezYkeH/zuuDmpmRQm5qTKxGae7j95flO7USyuNixx9xQIFgirq/JehhBuqyrgJapOID+HV8IJkoIainwJKURjm/ofJdJCkBpcuA/BMuOVKknwTVA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=windriver.com; dmarc=pass action=none
  header.from=windriver.com; dkim=pass header.d=windriver.com; arc=none
-Authentication-Results: vger.kernel.org; dkim=none (message not signed)
- header.d=none;vger.kernel.org; dmarc=none action=none
- header.from=windriver.com;
+Authentication-Results: ziepe.ca; dkim=none (message not signed)
+ header.d=none;ziepe.ca; dmarc=none action=none header.from=windriver.com;
 Received: from BN9PR11MB5321.namprd11.prod.outlook.com (2603:10b6:408:136::8)
- by BN6PR11MB1634.namprd11.prod.outlook.com (2603:10b6:405:c::21) with
+ by BN8PR11MB3539.namprd11.prod.outlook.com (2603:10b6:408:8b::20) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4352.26; Tue, 27 Jul
- 2021 08:29:52 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4352.25; Tue, 27 Jul
+ 2021 08:33:25 +0000
 Received: from BN9PR11MB5321.namprd11.prod.outlook.com
  ([fe80::5959:e459:a5e0:5881]) by BN9PR11MB5321.namprd11.prod.outlook.com
  ([fe80::5959:e459:a5e0:5881%9]) with mapi id 15.20.4352.031; Tue, 27 Jul 2021
- 08:29:52 +0000
+ 08:33:25 +0000
+Subject: Re: [PATCH 4.19 111/120] KVM: do not assume PTE is writable after
+ follow_pfn
+To:     Paolo Bonzini <pbonzini@redhat.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel <linux-kernel@vger.kernel.org>,
+        Stable <stable@vger.kernel.org>,
+        David Stevens <stevensd@google.com>, 3pvd@google.com,
+        Jann Horn <jannh@google.com>, Jason Gunthorpe <jgg@ziepe.ca>
+References: <20210726153832.339431936@linuxfoundation.org>
+ <20210726153836.031515657@linuxfoundation.org>
+ <CADVatmOcg_7eQno88nu4ijX9QOoA0h2QY=hoj3TZU+tNqj0TMg@mail.gmail.com>
+ <8cf86f5f-480a-7093-e890-467f290b0ed3@redhat.com>
 From:   Ovidiu Panait <ovidiu.panait@windriver.com>
-To:     stable@vger.kernel.org
-Cc:     pbonzini@redhat.com
-Subject: [PATCH v2 4.19 3/3] KVM: Use kvm_pfn_t for local PFN variable in hva_to_pfn_remapped()
-Date:   Tue, 27 Jul 2021 11:29:24 +0300
-Message-Id: <20210727082924.2336367-3-ovidiu.panait@windriver.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20210727082924.2336367-1-ovidiu.panait@windriver.com>
-References: <20210727082924.2336367-1-ovidiu.panait@windriver.com>
-Content-Type: text/plain; charset=UTF-8
+Message-ID: <ff279b6f-3a08-46cd-446c-101a4e421890@windriver.com>
+Date:   Tue, 27 Jul 2021 11:33:18 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
+In-Reply-To: <8cf86f5f-480a-7093-e890-467f290b0ed3@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: VI1PR07CA0158.eurprd07.prod.outlook.com
- (2603:10a6:802:16::45) To BN9PR11MB5321.namprd11.prod.outlook.com
+Content-Language: en-US
+X-ClientProxiedBy: VI1PR04CA0064.eurprd04.prod.outlook.com
+ (2603:10a6:802:2::35) To BN9PR11MB5321.namprd11.prod.outlook.com
  (2603:10b6:408:136::8)
 MIME-Version: 1.0
 X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from otp-linux03.wrs.com (46.97.150.20) by VI1PR07CA0158.eurprd07.prod.outlook.com (2603:10a6:802:16::45) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4373.7 via Frontend Transport; Tue, 27 Jul 2021 08:29:51 +0000
+Received: from [IPv6:2a02:2f07:6100:9700:63f0:3852:c91d:1fad] (2a02:2f07:6100:9700:63f0:3852:c91d:1fad) by VI1PR04CA0064.eurprd04.prod.outlook.com (2603:10a6:802:2::35) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4373.17 via Frontend Transport; Tue, 27 Jul 2021 08:33:23 +0000
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 6cf164ea-5a42-4802-e50c-08d950d8b479
-X-MS-TrafficTypeDiagnostic: BN6PR11MB1634:
-X-Microsoft-Antispam-PRVS: <BN6PR11MB163425DC3DA587DFDECDDE03FEE99@BN6PR11MB1634.namprd11.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:1186;
+X-MS-Office365-Filtering-Correlation-Id: 71f65904-a20c-485e-d7d8-08d950d93391
+X-MS-TrafficTypeDiagnostic: BN8PR11MB3539:
+X-Microsoft-Antispam-PRVS: <BN8PR11MB3539BA9958024BA446EE732CFEE99@BN8PR11MB3539.namprd11.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:1060;
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: sX5/a8d3R8b6nfOrXnRpHNxoWP/ZKf9IN1cq/cPT856HqdKqttkPkfxdVE+R9mMIBHbtB3Y9j06DOfO2TfsrT3M6zAOD+Rx1POlwfxEuUqFUlQhNtnhCTOuQ6jnfy21gHOZ3Pdu6fyLEfTyHWJR8zm2NOdsIBg4JI71UUUHL/JGJyGbMBGsDsrDsBsPwJkZvytX5t4KOfvfaT14aPU7KD8uctj8lGADFiivPK3Omi/5QYPmECqxyMh676yCVxw6VyL01F2CQ/qu8xKkX3OrlUX9wBX6/af1u/0wQc+9yzWV/JNHQNy5QPcqKge26pmC0MN+PgsAeJ4pTeb3g4jRE9pe+B/fHpxFkxAiDg+KHcHNOgmXetxHf3WA1AN9YyfoyJ4Mkzdqm/tpcobMzdK3NcBUxdujvXdhgq2jLf60OsdnKif5OWxdMUJyFTwy/H1mE4V0DQgeV0Mq4xCkMP435Z4SiiafIg6f7vjGu0v7HlHJpYOzxlzjUUbPghrIS760mFvr6+/glIjzfDZlIbvEe3g+4W8urhAOOWa+0Hrnawz/2Qpm5Q+xtVFLnuFSsmOz0iUVEqJ5Cddz4sI48Libb/IKjNPFKFDUwtHPqtIPCKE1uGJQvyDFZU8W43bXe65L22M00lvVvplAZODnx6obZeZSOzaydju1SbEsgCU92QomLSvIyenPplnCG3Dh79yF2
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN9PR11MB5321.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(186003)(2616005)(8676002)(956004)(5660300002)(316002)(6916009)(6486002)(52116002)(36756003)(1076003)(38350700002)(38100700002)(508600001)(8936002)(26005)(6512007)(66476007)(66556008)(66946007)(6506007)(2906002)(4326008)(6666004)(44832011)(86362001)(83380400001);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: 8d2yv3ruqgXdF0MzPi5gZ8aD6MMuJsxmf31oYUjl+QvAncH+JwUktjj/8e5V2cvgLnYYtJdFupIr0NhQDx7e5zSAkGLe9Jx8eyFrHOPRC8s3i3uwwsHyHqE1sO9YDXGjDjtT4SDk4kDhSn3bmpy8Qu+nZS8PzhoX6Bof9DFLFN9X8PiNZBraj+x0qVOAwpvYY1sjULwXsGX4iLEC4yOmuIl/O27mVDJVmmYClO5WHzCiUnDM4cKB8lmYiKNNurk9hgbyPeltkVYm6ptF1KnKBcioOhhvFhWj8dhHXvHxsFmY8HPL2Fl3Z7nuAzW0JeiluKwKCfPg0NoaA0diHr5835JTahIW/zc942UB+gKJpsHayilDFzwc+y6cvc05jQRhapdTmOuWl6jA6s6ezW3xadyQ7+isK3kR4QV0SWhNxyYZJ9Uwr4VCIDoOBW8SyZ66zzeAW8z8UaKqxqh4VIx5N6rIJczM78GY6J87YC0GG9KGW8NjkuFy7KDKr0Ezg1d4XW3hH8lLep4I7bwlwUHgY84pxxO66a1T4EUIgyCQjTVl+y3BND4Ji8qJzHgeKZ0U/fG5/iWdyQs8kAO0lIrf26+wTUsirBa7cqyaSHdZ8KNMohFDwgtYCartaBB61aOTEssoob84adIrCkBdodwdM0N06xGYj/K9ZlGwMKcyZCm0fbuw7IVS08sx77zKcIWOy2Rm1T4Oli9PMHDAXxMauDzOkIEAyvYB8N+bHXlwDnAEgJ2KtpmwytLZWo7bOi1r0vqwz3cafV74dgVfOD+nhuCWT9aHi2NORHTCIChACrO4g3wngmBhCWHmAftfRZSg
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN9PR11MB5321.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(39850400004)(396003)(346002)(136003)(366004)(376002)(6666004)(478600001)(966005)(31686004)(66946007)(54906003)(36756003)(2616005)(6486002)(31696002)(53546011)(8936002)(110136005)(38100700002)(316002)(44832011)(66556008)(66476007)(186003)(5660300002)(86362001)(8676002)(4326008)(2906002)(45980500001)(43740500002);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?dEpnc2tNaFE1bHMwQnBVRDZ6ZStFRE9XVEZDMHh1eGdabVFaa0JvbnZJUjBk?=
- =?utf-8?B?YXRadE0xVjBTT1FhV2RaNm9WYXpsOHkxSHVNUWROeHRDM09ZeXcxQkloZFQr?=
- =?utf-8?B?dThGS1IvcEM3U0tuUWtEeW9idkR3bjZIU0ZLRHdNU0JMSXJZYTJNc0llMkpP?=
- =?utf-8?B?TmxQcDhxM2tOVytNWVZHcDkvc0szUEMwdHJvQUlqeGlqNHpXR3dxSk4yRms3?=
- =?utf-8?B?MEpISi9YVUQ3Sm1qYkw4R2xGc0M1bnlOeFpYQkx2QVJjdjVqWFZCYkRYbUtL?=
- =?utf-8?B?MDRTVDF0bG1PZ0ZpYUFuTE90SlN0SjN3MUNaTUhmeGlkWVRoQ3ZpZHMrTXh0?=
- =?utf-8?B?dmJsOCtDYmJiWEJkSXd6R3VYVTBadC85UnhMZDhxaERidU5SWWZ5d3JxZG5T?=
- =?utf-8?B?QUV5QXlhcHZzQ3grU3lVVzllWDJnRklaZDdwdWhOVVBUeFpucjA4V3Z1UFpv?=
- =?utf-8?B?dWtGbzFKanJGYkh6bkI3cVRkZ3kyQkIzcU1LQlZDK0wrdWFYLzF1RkxMK3dp?=
- =?utf-8?B?bmpVdGRTUWJ5N2JrU1kxYU1lZkRyL2h1blM4am5pbngxNTZRcXNmT2praDh1?=
- =?utf-8?B?V0FnT1lSaEg1OVhWMEFDOEtmZ1RpM1FmU2JHajdBZ2NOYWUrcnNiZ051eitO?=
- =?utf-8?B?R2FyMG4rKzFrRkxxZGJaemM3RDJLc3plWE1Zby8vVlBESlQyeHFSYkREWGlR?=
- =?utf-8?B?VmJlbDh0TG92bXVIMnRIenZYajJJWnBsZ0c0U21MT25tRURJUkttYTNIbWhl?=
- =?utf-8?B?ODZqNUVRR3ZiUzdsU2dvVE1hYVZ5S1FnSzl2ZHBXdlVES01QRkNhRE1oam95?=
- =?utf-8?B?N2JYeHl2cHk3bzhhVmRZQTBsSWlNMWlMWjQvVmlvK2hDY2tTUkNFbHN0aDFO?=
- =?utf-8?B?dFU1blZBVFd3dzFXSWQzWkV6TUhHMnZ5ZEhTNG4xa2orT2VKZzZRV2J4ampV?=
- =?utf-8?B?Y20ramJyQ080SVNhbHB5elY1SUN0UmpqNmsrSVl0S3RrMjVIWEpnNzlFL1JM?=
- =?utf-8?B?dnVINmdPRnRuNWs4SWcxOUtXTVFlNnN2ay9ONkJocGFlaHFqR1VQRWllcUVF?=
- =?utf-8?B?Y3pxbVhuQ2RwdE82SndyTDJYMk9WbUtkRDA1WUhLMmJha08zdXp2RDFXaGIx?=
- =?utf-8?B?VU9hOFRSUG9FSERvMEc2a3RtNVhGNTdIK3IrU0xuZ295bzN1cWN0b2pLQmFV?=
- =?utf-8?B?TDg3SVVST0hwWEJDc1d2MytaQTg4b0Z5ZTI2eWZSaXNwT05PcVZwT2lLR1RN?=
- =?utf-8?B?Z1J1a0Y1clpsODgwKzRYL2NMWVlZc2tSMmI4WkZlNlY2RXVXQ3ZQQkl1REs4?=
- =?utf-8?B?UlczeTM0YlhQT1E2TlBra0VPb2VJaTlod1dFZmZOYklCU1A0Ry9Rd1Y4dnZi?=
- =?utf-8?B?aHhUZm9NU1hyOUJTWUJUL25oRktLaDNTajNyZFl6UjltdEQzSVlYNTllbEp4?=
- =?utf-8?B?ZnFkUndMdnBkbGw1bWtnYmNNYSt1eVlaUUx2c2hRaWV1M0Q2MDNGNnFBelBB?=
- =?utf-8?B?bVZDZ0NqdWVIVXpTeWlJOVNFTDZEQUVQbjhBeFZnVDROMlNXYlFONXBtUnBn?=
- =?utf-8?B?clZDcmxBaThIcEdrL000NElPWkc1Z0FwZGRLVjhENVpGR2wvalNHQkZVRnhZ?=
- =?utf-8?B?UVNETkE2YzRidXdReEk3MEkzK0c0TURIclE4K3NNZkJLTHVTaW0vRGtTWmV3?=
- =?utf-8?B?ZUZ2MDlQTlRYaVVXSmxIQzNDR20xSHhCZUJZZGNkTzd5cHZmYURDSENnV0Zx?=
- =?utf-8?Q?5+LgbAbjRsisGT0lSTiIshK4C7hqF4ZHYEsb1yG?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?NEk1L3pBSDU4ZnVDcFVrdXk5WnAzQk1LeG5RVnNMTGhWSHc2Vnk2M1JEQjNP?=
+ =?utf-8?B?SS9RSXNTYmk0ZW5pQTN6S3kvT2w3TUNqbmdFKzg5MFpvdmdyL1dUSHR0MnIw?=
+ =?utf-8?B?RmMrYVI2Y05Kc0NrWWxTT0xuZkM5NFBxVjI0VDczcmI0YktqTTdubEtIVVVW?=
+ =?utf-8?B?K3dxbGxqZXpRN1cvajFTK2pVcVAwQkxtU3pjbFd2NnRTaHRsYUlKeUQrRG1a?=
+ =?utf-8?B?bUsrZ0t1enhQK2pqNzZvWGZMZmRqOUJYcjlvOUYxMVdvWFBvYS80NkRvQ2Jw?=
+ =?utf-8?B?ckJzVDJSQURGbTZoNmxscE9uenp5NFZkbU9oMW92MmNWbVVzd3pBbG1qUjNi?=
+ =?utf-8?B?d1hTNDcwb0dSZjdvbFZJYnc2YngydDNtaG1oWGZEdmdEb1MwWWxYUndWUG9t?=
+ =?utf-8?B?Z0dlcHM4cVVncE5sMHJkbE9rZDlTeVRRK1NkUURNVTI5ZXhkcjdtd1RRcjMz?=
+ =?utf-8?B?Z3NZMFExeG0wYlY3QVUvOHN6K29NYmlnUWJBTVVTK0pjRUN2WXNXbXhXTzAr?=
+ =?utf-8?B?U2FEaER3eEVMUnV2aGliY0Zuai9adFdpK1ZhOTcxWUtsbm91RTBPMGdreUcz?=
+ =?utf-8?B?NlB6dHJ0R2QwbnhMbnJ2UFRZbmFhVWtNN2trRi9JZWQzMmNyUStyWDBCODRM?=
+ =?utf-8?B?U3VnWFBWbXBoNGN0ekp3Qlh0SWRMOUlSVHBNMU9HMUwvUzg5ZytHVzloU21u?=
+ =?utf-8?B?NUxaQjdJUmlPSmwreHVQWkxIUnJyTXI4MzN3YXNmNW90SnRldnJRMG1UVy82?=
+ =?utf-8?B?QzNMcW1CNFRYeTROVExoT1lvMGxsR3ZJc3NNUWs0UExMMjNyNm9jV29IRDhF?=
+ =?utf-8?B?N3Bqb0tFNmQrVXBDYzE0WVNoeHRvV2pNZVNiU0l6cGt1aEcvRkRKKzB5cHRI?=
+ =?utf-8?B?L2JqdTdXT3RQbzNSVHhTQksxbmVUYjNMdmErR25jdnRqZHVUdzRKRUFnVklN?=
+ =?utf-8?B?d2lvK3hDb3FOSFRUbjFvU3g3QTl5WFgxTldkSXQ5a0hsaFNYa011UkFrdUFY?=
+ =?utf-8?B?MFZBajYvSzVCVUF5MkhCd25OeFBHcVJJM0pxY2trS0NOUVlzWW81YmVTM0Jo?=
+ =?utf-8?B?N1NWRUQvR2xrbk10ZDNYUXcwb3EzS3NsOVY5VWRjLzlyZmRkT2hDd0k5Z1Bl?=
+ =?utf-8?B?WU5zOEpmVGRoc2cvQyttckZmNFN1d0N1QWJVQ3pJb240clBxSDVsZlpESytF?=
+ =?utf-8?B?QU83aGRJYnF6NHMyY0NNQW9NTFR1UWxCeURrbmtFTUNtVFhRYzJnblJ3UVRj?=
+ =?utf-8?B?ZjJ3cFZxSzZtS1NzOUx0VjBVSUh3bENZbzZhc3hFS3l0a3c3d0NUUDFZRmg1?=
+ =?utf-8?B?MXJTemNZNWVzWXduclFaT0VBQXdrcWQyamE5UXFKNXh0c0lOTUdQS1J0TmN1?=
+ =?utf-8?B?OUNSclpHNlFkWWEwMjUzZ293eWllcFptbkk3VEIyczFwMDZPbWxIVlVpalEr?=
+ =?utf-8?B?R1dJNHMxUnFTYitCY1VFKzJpWG1ZUnRNdlkwZ0hBZGJVVDdqUDhkTGpHOEd2?=
+ =?utf-8?B?R1VxOUNBQ0ZScEU4WUViQ0owbXpOZEJrTDNyRVlJUDg0OU5UNEJwSWcwa1ZS?=
+ =?utf-8?B?TitSK3p2WTZIdWhzT2RUYVZpZ0h6amVSZ25YNzNncEpLSnhISWZteUJFNlFY?=
+ =?utf-8?B?eFZBd3d2VXZSblVYbVlMWFlDb2pRZEJOOWN4eWRvQWpYSEEvNHZzSmlVWlB6?=
+ =?utf-8?B?QTJ5R2ZDNTdwc1krQTZTemdPVkMvbkUzOTBZajMvTGNYVW9IR1ZueTNONzZW?=
+ =?utf-8?B?aW5ZU05FMUcySVF4bkR3MDdIVjVpbVM4RmpMblFUOStWS01SaVdRcVpTUjF4?=
+ =?utf-8?B?NitSZTN4d0l0VVFZUHZLaVZGd1R3UWhsZ0s5V0tyWDlRc1hOd3F6ZjZYWWNv?=
+ =?utf-8?Q?7RXU16IWLBtDz?=
 X-OriginatorOrg: windriver.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 6cf164ea-5a42-4802-e50c-08d950d8b479
+X-MS-Exchange-CrossTenant-Network-Message-Id: 71f65904-a20c-485e-d7d8-08d950d93391
 X-MS-Exchange-CrossTenant-AuthSource: BN9PR11MB5321.namprd11.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 27 Jul 2021 08:29:52.2373
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 27 Jul 2021 08:33:25.4211
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 8ddb2873-a1ad-4a18-ae4e-4644631433be
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: yq0izG6zt4FREjivxQpdRIu7RCDb9TMBORcO1PyllB7KJMDUHxInaQLw8CQ1A8mZTrcV4+toOGkjRJEikjhV9TqhXowm5X1o/vM837ALRmI=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN6PR11MB1634
-X-Proofpoint-GUID: 2GTbX7FaFenDmiRiClILg3I4eLOVE5Mo
-X-Proofpoint-ORIG-GUID: 2GTbX7FaFenDmiRiClILg3I4eLOVE5Mo
+X-MS-Exchange-CrossTenant-UserPrincipalName: nNehiMwflTM6hDTn91xc55JIO4pv4KWpQ1MzvkIOqit/VGloO0rYf1Uu/iZpbdB60gnvxVztGeE+SiImIL9a8ifa3HVxqkVY3onxHmdOBAI=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN8PR11MB3539
+X-Proofpoint-ORIG-GUID: wjtZfI6uhkvz11hwK4oYEX87yzjShgcW
+X-Proofpoint-GUID: wjtZfI6uhkvz11hwK4oYEX87yzjShgcW
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
  definitions=2021-07-27_05,2021-07-27_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- adultscore=0 spamscore=0 lowpriorityscore=0 mlxscore=0 mlxlogscore=910
- suspectscore=0 clxscore=1015 bulkscore=0 malwarescore=0 phishscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2107140000 definitions=main-2107270048
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 phishscore=0
+ adultscore=0 spamscore=0 malwarescore=0 lowpriorityscore=0 clxscore=1011
+ mlxscore=0 mlxlogscore=888 suspectscore=0 priorityscore=1501 bulkscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2107140000
+ definitions=main-2107270048
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+Hi,
 
-commit a9545779ee9e9e103648f6f2552e73cfe808d0f4 upstream
+On 7/27/21 1:02 AM, Paolo Bonzini wrote:
 
-Use kvm_pfn_t, a.k.a. u64, for the local 'pfn' variable when retrieving
-a so called "remapped" hva/pfn pair.  In theory, the hva could resolve to
-a pfn in high memory on a 32-bit kernel.
+> [Please note: This e-mail is from an EXTERNAL e-mail address]
+>
+> On 26/07/21 23:17, Sudip Mukherjee wrote:
+>> Hi Greg,
+>>
+>> On Mon, Jul 26, 2021 at 4:58 PM Greg Kroah-Hartman
+>> <gregkh@linuxfoundation.org> wrote:
+>>>
+>>> From: Paolo Bonzini <pbonzini@redhat.com>
+>>>
+>>> commit bd2fae8da794b55bf2ac02632da3a151b10e664c upstream.
+>>
+>> The build of mips malta_kvm_defconfig fails with the error:
+>> In file included from arch/mips/kvm/../../../virt/kvm/kvm_main.c:21:
+>> arch/mips/kvm/../../../virt/kvm/kvm_main.c: In function 
+>> 'hva_to_pfn_remapped':
+>> ./include/linux/kvm_host.h:70:33: error: conversion from 'long long
+>> unsigned int' to 'long unsigned int' changes value from
+>> '9218868437227405314' to '2' [-Werror=overflow]
+>>     70 | #define KVM_PFN_ERR_RO_FAULT    (KVM_PFN_ERR_MASK + 2)
+>>        |                                 ^
+>> arch/mips/kvm/../../../virt/kvm/kvm_main.c:1530:23: note: in expansion
+>> of macro 'KVM_PFN_ERR_RO_FAULT'
+>>   1530 |                 pfn = KVM_PFN_ERR_RO_FAULT;
+>>
+>> It built fine after reverting this patch.
+>> gcc version 11.1.1 20210723
+>
+> I'll resend a version that works tomorrow (including the second patch
+> too, which depends on this one for context).
+>
+The following upstream commit needed to be backported as well:
 
-This bug was inadvertantly exposed by commit bd2fae8da794 ("KVM: do not
-assume PTE is writable after follow_pfn"), which added an error PFN value
-to the mix, causing gcc to comlain about overflowing the unsigned long.
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=a9545779ee9e9e103648f6f2552e73cfe808d0f4
 
-  arch/x86/kvm/../../../virt/kvm/kvm_main.c: In function ‘hva_to_pfn_remapped’:
-  include/linux/kvm_host.h:89:30: error: conversion from ‘long long unsigned int’
-                                  to ‘long unsigned int’ changes value from
-                                  ‘9218868437227405314’ to ‘2’ [-Werror=overflow]
-   89 | #define KVM_PFN_ERR_RO_FAULT (KVM_PFN_ERR_MASK + 2)
-      |                              ^
-virt/kvm/kvm_main.c:1935:9: note: in expansion of macro ‘KVM_PFN_ERR_RO_FAULT’
 
-Cc: stable@vger.kernel.org
-Fixes: add6a0cd1c5b ("KVM: MMU: try to fix up page faults before giving up")
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210208201940.1258328-1-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
----
- virt/kvm/kvm_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+I have sent v2 for this patchset.
 
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index 3559eba5f502..a3d82113ae1c 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -1501,7 +1501,7 @@ static int hva_to_pfn_remapped(struct vm_area_struct *vma,
- 			       bool write_fault, bool *writable,
- 			       kvm_pfn_t *p_pfn)
- {
--	unsigned long pfn;
-+	kvm_pfn_t pfn;
- 	pte_t *ptep;
- 	spinlock_t *ptl;
- 	int r;
--- 
-2.25.1
 
+Thanks!
+
+Ovidiu
+
+
+> Paolo
+>
