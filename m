@@ -2,177 +2,586 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 684143D6FA9
-	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 08:49:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D1803D701E
+	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 09:15:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235510AbhG0GtZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Jul 2021 02:49:25 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:9736 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235205AbhG0GtZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Jul 2021 02:49:25 -0400
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16R6YZZr031688;
-        Tue, 27 Jul 2021 02:49:14 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=4gKl0q2cCG3K0uWmHofx3rjoSMwefxziUQ3VJpNnV4w=;
- b=du6MRDY0J1mBENbGmQ6B5qGjstjN5EpVK/im5p0EwHOo9F//VUIWoNubMWsbZ5aGfhxF
- Z7WLvZ0A5sBT/rvP1vurgPr442mLyrK5TSrRZf8CmbUTpNEUto+QuKN/sIZ+Jge78iEA
- eJkvcBbkrJEtzwKh4SsiaNzd2F+K+av+O539a8vNKcF6uL4APDa67jxeHitgwm1bGNce
- UWj8UeGZ3VUmBf8wgrl4J/K5VCX1iLcuchyvHDkuQFuLmTa5kC/RtJ8rE5QvF9gsgm9C
- jTLium8IKThP6vv7KadyvS7i7tPcyt5XykVWvyyffIuMl6Um16YBIYWoBCuITjLlMX7q KA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3a2d080qa9-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 27 Jul 2021 02:49:14 -0400
-Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16R6Ynl7033625;
-        Tue, 27 Jul 2021 02:49:13 -0400
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3a2d080q92-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 27 Jul 2021 02:49:13 -0400
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16R6CSpi027171;
-        Tue, 27 Jul 2021 06:49:11 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma04ams.nl.ibm.com with ESMTP id 3a235m07db-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 27 Jul 2021 06:49:11 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16R6n8Zv28311894
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 27 Jul 2021 06:49:08 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 932F0A4062;
-        Tue, 27 Jul 2021 06:49:08 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id DA1CEA405B;
-        Tue, 27 Jul 2021 06:49:05 +0000 (GMT)
-Received: from [9.199.45.94] (unknown [9.199.45.94])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 27 Jul 2021 06:49:05 +0000 (GMT)
-Subject: Re: [PATCH] cpufreq:powernv: Fix init_chip_info initialization in
- numa=off
-To:     ego@linux.vnet.ibm.com
-Cc:     mpe@ellerman.id.au, rjw@rjwysocki.net, linux-pm@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, pratik.r.sampat@gmail.com
-References: <20210726170758.61041-1-psampat@linux.ibm.com>
- <20210727061656.GA10282@in.ibm.com>
-From:   Pratik Sampat <psampat@linux.ibm.com>
-Message-ID: <60aaa78a-ece1-73d2-ea4c-e3835a6e3ab8@linux.ibm.com>
-Date:   Tue, 27 Jul 2021 12:19:04 +0530
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        id S235675AbhG0HP1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Jul 2021 03:15:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33556 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235629AbhG0HP0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Jul 2021 03:15:26 -0400
+Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D418C061760
+        for <stable@vger.kernel.org>; Tue, 27 Jul 2021 00:15:27 -0700 (PDT)
+Received: by mail-ed1-x536.google.com with SMTP id y12so5980133edo.6
+        for <stable@vger.kernel.org>; Tue, 27 Jul 2021 00:15:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=IX2aZ2UCtzwQVhm7u4V1RxOAzJXY4Toz/5A5epH0fik=;
+        b=Oj/V6CIcEas+nbgCQlRJl4yCGaWlGE0xQnncVPyfuODuxWLoFDpI0CGbHs12zemSOF
+         UPDQB23f2DtGdf/XISzVCvvVS+B4ITTyJ2oEVe85OewYEQEnCb6IeiUrmpLNpEbcbXzi
+         2C+HOa62/HnqUVQLKtJUEGOUT6PFKEWdyrfCdJgj8XqPORNW3zX41JyUkshrqf2B5E4M
+         ygPk/9TeOj9Ywiriq0JPRChy2Vje4thdq8V7r75o1IPPCsmj6DnIrBRGWFv2Z+JzEca+
+         s8MpQ4cgKm6NUFdpP4yQmznNfQ7rdXH7s7ArMS5zv7KPOqzZeNS7uvOGqY8nUajtvCGA
+         kShA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=IX2aZ2UCtzwQVhm7u4V1RxOAzJXY4Toz/5A5epH0fik=;
+        b=gjdZw0h4oR/bqx5FxqS/HL25GzjAWDyiDsvHKrxvtCfwluvVOHiQixbPCzMW823OhH
+         sTiSKEtSvmkxVzSLEfpEDebSxMMW5TqtL71JvIYzmU4OAy08othjfZ73KOlnLCfpl7Te
+         CJH7Pdt0eUUkMuLq5IKoCF8anwM6ztAaWwuVFBD3lH5ZCnWFfIOq/jOYMD6oR4KDTQQi
+         lLIAVH7WMVtWx4bZSPu2D0ev2MeI9wJeETcPtgYvSGeo94nOT3ZGUPes3bESSUL1J1np
+         gAI5z9HcjI8GtbNsPHUraA6gtzGr3ab4T+xgestcAdib1VYkUn/90Ukv3vbmo8wJg9Qg
+         lkzA==
+X-Gm-Message-State: AOAM532UFYopVWy5lbd9Q9iDhXXX+Oc4Lx58uvPw2pwLD5BIJJtYGXlY
+        AxPBW0jkz00nUyRLC3mxRV0m8bmId4vTeXdr3sHHCzQkJih5M3nx
+X-Google-Smtp-Source: ABdhPJxt0GhHCrfAjZ5rOaUuIRbbeZ7eTU3fTihU8W77qEBqlxDCzSt9bD3zUtWm/whxTFFpf/CvYAaHe/ZHX4Qcfys=
+X-Received: by 2002:a05:6402:4386:: with SMTP id o6mr25883782edc.239.1627370125438;
+ Tue, 27 Jul 2021 00:15:25 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20210727061656.GA10282@in.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 2wm48rhKY5L38nFjNAYG_fYMRPhOJ6TD
-X-Proofpoint-GUID: rpSxo2XOqTUJmE7fJEZ_NqTsKBv5681R
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-07-27_04:2021-07-27,2021-07-27 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
- lowpriorityscore=0 phishscore=0 spamscore=0 clxscore=1015
- priorityscore=1501 suspectscore=0 mlxscore=0 bulkscore=0 adultscore=0
- impostorscore=0 mlxlogscore=999 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2107140000 definitions=main-2107270038
+References: <20210726165238.919699741@linuxfoundation.org>
+In-Reply-To: <20210726165238.919699741@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 27 Jul 2021 12:45:14 +0530
+Message-ID: <CA+G9fYvg+KvgTuJ6f=bcudiO1hhHtDf3Y5qWFENRL2ygS1d35g@mail.gmail.com>
+Subject: Re: [PATCH 5.13 000/224] 5.13.6-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>,
+        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
+        linux-stable <stable@vger.kernel.org>,
+        Pavel Machek <pavel@denx.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-On 27/07/21 11:46 am, Gautham R Shenoy wrote:
-> On Mon, Jul 26, 2021 at 10:37:57PM +0530, Pratik R. Sampat wrote:
->> In the numa=off kernel command-line configuration init_chip_info() loops
->> around the number of chips and attempts to copy the cpumask of that node
->> which is NULL for all iterations after the first chip.
->>
->> Hence, store the cpu mask for each chip instead of derving cpumask from
->> node while populating the "chips" struct array and copy that to the
->> chips[i].mask
->>
->> Cc: stable@vger.kernel.org
->> Fixes: 053819e0bf84 ("cpufreq: powernv: Handle throttling due to Pmax capping at chip level")
->> Signed-off-by: Pratik R. Sampat <psampat@linux.ibm.com>
->> Reported-by: Shirisha Ganta <shirisha.ganta1@ibm.com>
->> ---
->>   drivers/cpufreq/powernv-cpufreq.c | 15 +++++++++++++--
->>   1 file changed, 13 insertions(+), 2 deletions(-)
->>
->> diff --git a/drivers/cpufreq/powernv-cpufreq.c b/drivers/cpufreq/powernv-cpufreq.c
->> index 005600cef273..8ec10d9aed8f 100644
->> --- a/drivers/cpufreq/powernv-cpufreq.c
->> +++ b/drivers/cpufreq/powernv-cpufreq.c
->> @@ -1046,12 +1046,20 @@ static int init_chip_info(void)
->>   	unsigned int *chip;
->>   	unsigned int cpu, i;
->>   	unsigned int prev_chip_id = UINT_MAX;
->> +	cpumask_t *chip_cpu_mask;
->>   	int ret = 0;
->>
->>   	chip = kcalloc(num_possible_cpus(), sizeof(*chip), GFP_KERNEL);
->>   	if (!chip)
->>   		return -ENOMEM;
->>
->> +	/* Allocate a chip cpu mask large enough to fit mask for all chips */
->> +	chip_cpu_mask = kcalloc(32, sizeof(cpumask_t), GFP_KERNEL);
-> I suppose by 32 you mean the maximum number of chips possible. You
-> could use a #define for that.
-
-ack, I could #define the constant.
-
-> Otherwise, the patch looks good to me.
+On Tue, 27 Jul 2021 at 10:36, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
 >
-> Reviewed-by: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
+> This is the start of the stable review cycle for the 5.13.6 release.
+> There are 224 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 >
-Thanks
-Pratik
-
+> Responses should be made by Wed, 28 Jul 2021 16:52:07 +0000.
+> Anything received after that time might be too late.
 >
->> +	if (!chip_cpu_mask) {
->> +		ret = -ENOMEM;
->> +		goto free_and_return;
->> +	}
->> +
->>   	for_each_possible_cpu(cpu) {
->>   		unsigned int id = cpu_to_chip_id(cpu);
->>
->> @@ -1059,22 +1067,25 @@ static int init_chip_info(void)
->>   			prev_chip_id = id;
->>   			chip[nr_chips++] = id;
->>   		}
->> +		cpumask_set_cpu(cpu, &chip_cpu_mask[nr_chips-1]);
->>   	}
->>
->>   	chips = kcalloc(nr_chips, sizeof(struct chip), GFP_KERNEL);
->>   	if (!chips) {
->>   		ret = -ENOMEM;
->> -		goto free_and_return;
->> +		goto out_chip_cpu_mask;
->>   	}
->>
->>   	for (i = 0; i < nr_chips; i++) {
->>   		chips[i].id = chip[i];
->> -		cpumask_copy(&chips[i].mask, cpumask_of_node(chip[i]));
->> +		cpumask_copy(&chips[i].mask, &chip_cpu_mask[i]);
->>   		INIT_WORK(&chips[i].throttle, powernv_cpufreq_work_fn);
->>   		for_each_cpu(cpu, &chips[i].mask)
->>   			per_cpu(chip_info, cpu) =  &chips[i];
->>   	}
->>
->> +out_chip_cpu_mask:
->> +	kfree(chip_cpu_mask);
->>   free_and_return:
->>   	kfree(chip);
->>   	return ret;
->> -- 
->> 2.31.1
->>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.13.6-rc2.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.13.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
+
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+## Build
+* kernel: 5.13.6-rc2
+* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
+rc.git
+* git branch: linux-5.13.y
+* git commit: 692072e7b7faec65eef9b9fc79b980bd23745b50
+* git describe: v5.13.5-225-g692072e7b7fa
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.13.y/build/v5.13=
+.5-225-g692072e7b7fa
+
+## Regressions (compared to v5.13.5-224-gda3a182166a4)
+No regressions found.
+
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+
+## Fixes (compared to v5.13.5-224-gda3a182166a4)
+* arc, build
+  - gcc-8-axs103_defconfig
+  - gcc-8-defconfig
+  - gcc-8-vdk_hs38_smp_defconfig
+  - gcc-9-axs103_defconfig
+  - gcc-9-defconfig
+  - gcc-9-vdk_hs38_smp_defconfig
+
+* arm, build
+  - clang-10-at91_dt_defconfig
+  - clang-10-axm55xx_defconfig
+  - clang-10-bcm2835_defconfig
+  - clang-10-clps711x_defconfig
+  - clang-10-davinci_all_defconfig
+  - clang-10-defconfig
+  - clang-10-exynos_defconfig
+  - clang-10-footbridge_defconfig
+  - clang-10-imx_v4_v5_defconfig
+  - clang-10-imx_v6_v7_defconfig
+  - clang-10-integrator_defconfig
+  - clang-10-ixp4xx_defconfig
+  - clang-10-keystone_defconfig
+  - clang-10-lpc32xx_defconfig
+  - clang-10-mini2440_defconfig
+  - clang-10-multi_v5_defconfig
+  - clang-10-mxs_defconfig
+  - clang-10-nhk8815_defconfig
+  - clang-10-omap1_defconfig
+  - clang-10-omap2plus_defconfig
+  - clang-10-orion5x_defconfig
+  - clang-10-pxa910_defconfig
+  - clang-10-s3c2410_defconfig
+  - clang-10-s5pv210_defconfig
+  - clang-10-sama5_defconfig
+  - clang-10-shmobile_defconfig
+  - clang-10-u8500_defconfig
+  - clang-10-vexpress_defconfig
+  - clang-11-at91_dt_defconfig
+  - clang-11-axm55xx_defconfig
+  - clang-11-bcm2835_defconfig
+  - clang-11-clps711x_defconfig
+  - clang-11-davinci_all_defconfig
+  - clang-11-defconfig
+  - clang-11-exynos_defconfig
+  - clang-11-footbridge_defconfig
+  - clang-11-imx_v4_v5_defconfig
+  - clang-11-imx_v6_v7_defconfig
+  - clang-11-integrator_defconfig
+  - clang-11-ixp4xx_defconfig
+  - clang-11-keystone_defconfig
+  - clang-11-lpc32xx_defconfig
+  - clang-11-mini2440_defconfig
+  - clang-11-multi_v5_defconfig
+  - clang-11-mxs_defconfig
+  - clang-11-nhk8815_defconfig
+  - clang-11-omap1_defconfig
+  - clang-11-omap2plus_defconfig
+  - clang-11-orion5x_defconfig
+  - clang-11-pxa910_defconfig
+  - clang-11-s3c2410_defconfig
+  - clang-11-s5pv210_defconfig
+  - clang-11-sama5_defconfig
+  - clang-11-shmobile_defconfig
+  - clang-11-u8500_defconfig
+  - clang-11-vexpress_defconfig
+  - clang-12-at91_dt_defconfig
+  - clang-12-axm55xx_defconfig
+  - clang-12-bcm2835_defconfig
+  - clang-12-clps711x_defconfig
+  - clang-12-davinci_all_defconfig
+  - clang-12-defconfig
+  - clang-12-defconfig-50bba0f5
+  - clang-12-exynos_defconfig
+  - clang-12-footbridge_defconfig
+  - clang-12-imx_v4_v5_defconfig
+  - clang-12-imx_v6_v7_defconfig
+  - clang-12-integrator_defconfig
+  - clang-12-ixp4xx_defconfig
+  - clang-12-keystone_defconfig
+  - clang-12-lpc32xx_defconfig
+  - clang-12-mini2440_defconfig
+  - clang-12-multi_v5_defconfig
+  - clang-12-mxs_defconfig
+  - clang-12-nhk8815_defconfig
+  - clang-12-omap1_defconfig
+  - clang-12-omap2plus_defconfig
+  - clang-12-orion5x_defconfig
+  - clang-12-pxa910_defconfig
+  - clang-12-s3c2410_defconfig
+  - clang-12-s5pv210_defconfig
+  - clang-12-sama5_defconfig
+  - clang-12-shmobile_defconfig
+  - clang-12-u8500_defconfig
+  - clang-12-vexpress_defconfig
+  - gcc-10-at91_dt_defconfig
+  - gcc-10-axm55xx_defconfig
+  - gcc-10-bcm2835_defconfig
+  - gcc-10-clps711x_defconfig
+  - gcc-10-davinci_all_defconfig
+  - gcc-10-defconfig
+  - gcc-10-exynos_defconfig
+  - gcc-10-footbridge_defconfig
+  - gcc-10-imx_v4_v5_defconfig
+  - gcc-10-imx_v6_v7_defconfig
+  - gcc-10-integrator_defconfig
+  - gcc-10-ixp4xx_defconfig
+  - gcc-10-keystone_defconfig
+  - gcc-10-lpc32xx_defconfig
+  - gcc-10-mini2440_defconfig
+  - gcc-10-multi_v5_defconfig
+  - gcc-10-mxs_defconfig
+  - gcc-10-nhk8815_defconfig
+  - gcc-10-omap1_defconfig
+  - gcc-10-omap2plus_defconfig
+  - gcc-10-orion5x_defconfig
+  - gcc-10-pxa910_defconfig
+  - gcc-10-s3c2410_defconfig
+  - gcc-10-s5pv210_defconfig
+  - gcc-10-sama5_defconfig
+  - gcc-10-shmobile_defconfig
+  - gcc-10-u8500_defconfig
+  - gcc-10-vexpress_defconfig
+  - gcc-11-defconfig-493f0879
+  - gcc-11-defconfig-50bba0f5
+  - gcc-11-defconfig-5a3a4204
+  - gcc-11-defconfig-883c3502
+  - gcc-11-defconfig-a05dd807
+  - gcc-11-defconfig-c58d92d2
+  - gcc-8-at91_dt_defconfig
+  - gcc-8-axm55xx_defconfig
+  - gcc-8-bcm2835_defconfig
+  - gcc-8-clps711x_defconfig
+  - gcc-8-davinci_all_defconfig
+  - gcc-8-defconfig
+  - gcc-8-exynos_defconfig
+  - gcc-8-footbridge_defconfig
+  - gcc-8-imx_v4_v5_defconfig
+  - gcc-8-imx_v6_v7_defconfig
+  - gcc-8-integrator_defconfig
+  - gcc-8-ixp4xx_defconfig
+  - gcc-8-keystone_defconfig
+  - gcc-8-lpc32xx_defconfig
+  - gcc-8-mini2440_defconfig
+  - gcc-8-multi_v5_defconfig
+  - gcc-8-mxs_defconfig
+  - gcc-8-nhk8815_defconfig
+  - gcc-8-omap1_defconfig
+  - gcc-8-omap2plus_defconfig
+  - gcc-8-orion5x_defconfig
+  - gcc-8-pxa910_defconfig
+  - gcc-8-s3c2410_defconfig
+  - gcc-8-s5pv210_defconfig
+  - gcc-8-sama5_defconfig
+  - gcc-8-shmobile_defconfig
+  - gcc-8-u8500_defconfig
+  - gcc-8-vexpress_defconfig
+  - gcc-9-at91_dt_defconfig
+  - gcc-9-axm55xx_defconfig
+  - gcc-9-bcm2835_defconfig
+  - gcc-9-clps711x_defconfig
+  - gcc-9-davinci_all_defconfig
+  - gcc-9-defconfig
+  - gcc-9-exynos_defconfig
+  - gcc-9-footbridge_defconfig
+  - gcc-9-imx_v4_v5_defconfig
+  - gcc-9-imx_v6_v7_defconfig
+  - gcc-9-integrator_defconfig
+  - gcc-9-ixp4xx_defconfig
+  - gcc-9-keystone_defconfig
+  - gcc-9-lpc32xx_defconfig
+  - gcc-9-mini2440_defconfig
+  - gcc-9-multi_v5_defconfig
+  - gcc-9-mxs_defconfig
+  - gcc-9-nhk8815_defconfig
+  - gcc-9-omap1_defconfig
+  - gcc-9-omap2plus_defconfig
+  - gcc-9-orion5x_defconfig
+  - gcc-9-pxa910_defconfig
+  - gcc-9-s3c2410_defconfig
+  - gcc-9-s5pv210_defconfig
+  - gcc-9-sama5_defconfig
+  - gcc-9-shmobile_defconfig
+  - gcc-9-u8500_defconfig
+  - gcc-9-vexpress_defconfig
+
+* arm64, build
+  - clang-10-defconfig
+  - clang-11-defconfig
+  - clang-12-defconfig
+  - clang-12-defconfig-5b09568e
+  - gcc-10-defconfig
+  - gcc-11-defconfig-389abf09
+  - gcc-11-defconfig-59041e85
+  - gcc-11-defconfig-5b09568e
+  - gcc-11-defconfig-5e73d44a
+  - gcc-11-defconfig-904271f2
+  - gcc-11-defconfig-bcbd88e2
+  - gcc-11-defconfig-eec653ad
+  - gcc-11-defconfig-fac1da4b
+  - gcc-8-defconfig
+  - gcc-9-defconfig
+
+* dragonboard-410c, build
+  - build_process
+
+* hi6220-hikey, build
+  - build_process
+
+* i386, build
+  - build_process
+  - clang-10-defconfig
+  - clang-11-defconfig
+  - clang-12-defconfig
+  - clang-12-defconfig-b9979cfa
+  - gcc-10-defconfig
+  - gcc-11-defconfig-9cda1611
+  - gcc-11-defconfig-b9979cfa
+  - gcc-11-defconfig-bb946595
+  - gcc-11-defconfig-cee60f56
+  - gcc-11-defconfig-e3753fbe
+  - gcc-11-defconfig-ec3ad359
+  - gcc-8-i386_defconfig
+  - gcc-9-i386_defconfig
+
+* juno-r2, build
+  - build_process
+
+* mips, build
+  - clang-10-defconfig
+  - clang-11-defconfig
+  - clang-12-defconfig
+  - gcc-10-ar7_defconfig
+  - gcc-10-ath79_defconfig
+  - gcc-10-bcm47xx_defconfig
+  - gcc-10-bcm63xx_defconfig
+  - gcc-10-cavium_octeon_defconfig
+  - gcc-10-defconfig
+  - gcc-10-malta_defconfig
+  - gcc-10-nlm_xlp_defconfig
+  - gcc-10-rt305x_defconfig
+  - gcc-8-ar7_defconfig
+  - gcc-8-ath79_defconfig
+  - gcc-8-bcm47xx_defconfig
+  - gcc-8-bcm63xx_defconfig
+  - gcc-8-cavium_octeon_defconfig
+  - gcc-8-defconfig
+  - gcc-8-malta_defconfig
+  - gcc-8-nlm_xlp_defconfig
+  - gcc-8-rt305x_defconfig
+  - gcc-9-ar7_defconfig
+  - gcc-9-ath79_defconfig
+  - gcc-9-bcm47xx_defconfig
+  - gcc-9-bcm63xx_defconfig
+  - gcc-9-cavium_octeon_defconfig
+  - gcc-9-defconfig
+  - gcc-9-malta_defconfig
+  - gcc-9-nlm_xlp_defconfig
+  - gcc-9-rt305x_defconfig
+
+* parisc, build
+  - gcc-10-defconfig
+  - gcc-8-defconfig
+  - gcc-9-defconfig
+
+* powerpc, build
+  - gcc-10-cell_defconfig
+  - gcc-10-defconfig
+  - gcc-10-maple_defconfig
+  - gcc-10-mpc83xx_defconfig
+  - gcc-10-ppc64e_defconfig
+  - gcc-10-ppc6xx_defconfig
+  - gcc-10-tqm8xx_defconfig
+  - gcc-8-cell_defconfig
+  - gcc-8-defconfig
+  - gcc-8-maple_defconfig
+  - gcc-8-mpc83xx_defconfig
+  - gcc-8-ppc64e_defconfig
+  - gcc-8-ppc6xx_defconfig
+  - gcc-8-tqm8xx_defconfig
+  - gcc-9-cell_defconfig
+  - gcc-9-defconfig
+  - gcc-9-maple_defconfig
+  - gcc-9-mpc83xx_defconfig
+  - gcc-9-ppc64e_defconfig
+  - gcc-9-ppc6xx_defconfig
+  - gcc-9-tqm8xx_defconfig
+
+* riscv, build
+  - clang-10-defconfig
+  - clang-11-defconfig
+  - clang-12-defconfig
+  - gcc-10-defconfig
+  - gcc-8-defconfig
+  - gcc-9-defconfig
+
+* s390, build
+  - clang-10-defconfig
+  - clang-11-defconfig
+  - clang-12-defconfig
+  - gcc-10-defconfig
+  - gcc-8-defconfig
+  - gcc-9-defconfig
+
+* sh, build
+  - gcc-10-defconfig
+  - gcc-10-dreamcast_defconfig
+  - gcc-10-microdev_defconfig
+  - gcc-10-shx3_defconfig
+  - gcc-8-defconfig
+  - gcc-8-dreamcast_defconfig
+  - gcc-8-microdev_defconfig
+  - gcc-8-shx3_defconfig
+  - gcc-9-defconfig
+  - gcc-9-dreamcast_defconfig
+  - gcc-9-microdev_defconfig
+  - gcc-9-shx3_defconfig
+
+* sparc, build
+  - gcc-10-defconfig
+  - gcc-8-defconfig
+  - gcc-9-defconfig
+
+* x86, build
+  - build_process
+
+* x86_64, build
+  - clang-10-defconfig
+  - clang-11-x86_64_defconfig
+  - clang-12-defconfig-61adc17b
+  - clang-12-defconfig-b9979cfa
+  - clang-12-x86_64_defconfig
+  - gcc-10-defconfig
+  - gcc-11-defconfig-9cda1611
+  - gcc-11-defconfig-b9979cfa
+  - gcc-11-defconfig-bb946595
+  - gcc-11-defconfig-cee60f56
+  - gcc-11-defconfig-e3753fbe
+  - gcc-11-defconfig-ec3ad359
+  - gcc-11-defconfig-fb5e7dc8
+  - gcc-8-x86_64_defconfig
+  - gcc-9-x86_64_defconfig
+
+
+## Test result summary
+ total: 84433, pass: 69154, fail: 2102, skip: 12002, xfail: 1175,
+
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 193 total, 193 passed, 0 failed
+* arm64: 27 total, 27 passed, 0 failed
+* dragonboard-410c: 1 total, 1 passed, 0 failed
+* hi6220-hikey: 1 total, 1 passed, 0 failed
+* i386: 26 total, 26 passed, 0 failed
+* juno-r2: 1 total, 1 passed, 0 failed
+* mips: 45 total, 45 passed, 0 failed
+* parisc: 9 total, 9 passed, 0 failed
+* powerpc: 27 total, 27 passed, 0 failed
+* riscv: 21 total, 21 passed, 0 failed
+* s390: 18 total, 18 passed, 0 failed
+* sh: 18 total, 18 passed, 0 failed
+* sparc: 9 total, 9 passed, 0 failed
+* x15: 1 total, 0 passed, 1 failed
+* x86: 1 total, 1 passed, 0 failed
+* x86_64: 27 total, 27 passed, 0 failed
+
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* install-android-platform-tools-r2600
+* kselftest-
+* kselftest-android
+* kselftest-bpf
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-lkdtm
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-vsyscall-mode-native-
+* kselftest-vsyscall-mode-none-
+* kselftest-x86
+* kselftest-zram
+* kunit
+* kvm-unit-tests
+* libgpiod
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-f[
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* rcutorture
+* ssuite
+* timesync-off
+* v4l2-compliance
+
+--
+Linaro LKFT
+https://lkft.linaro.org
