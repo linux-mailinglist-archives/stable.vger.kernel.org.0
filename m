@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 838FC3D7685
-	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 15:30:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76C2F3D765F
+	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 15:28:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236576AbhG0N37 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Jul 2021 09:29:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57240 "EHLO mail.kernel.org"
+        id S236635AbhG0N2A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Jul 2021 09:28:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236949AbhG0NU3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Jul 2021 09:20:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C7D9661AED;
-        Tue, 27 Jul 2021 13:20:13 +0000 (UTC)
+        id S236970AbhG0NUd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Jul 2021 09:20:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AF8A661A6E;
+        Tue, 27 Jul 2021 13:20:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1627392014;
-        bh=k5J0mZNQw20SNwxhrdAmA8y1cCG4pluSg0R+QmQnye4=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DEHwJAOyk0uRis/Scjdj2wd/+V4A1zE4oSwPfBFSdzi/Zdni70M/vDETGSjpEbina
-         I7WZ65l0TJuRXT84vYVbYTd58JNzvsuFL2+XPePL94NwBUdhfJfVzDMSfaK9QW0WJm
-         E64B0bDuclNCQ7LhzTg+PLDrFOeVj98jbNS5zdF5gkYTV3jykW9rYvoQl6m1PGAg43
-         uQBj8x6/FOGRydes7XBh0vgh+vijZpTnaW7+YwHmtxia0hP8EciubpHs9/5dmO/XqT
-         fSJMaumURtr/3ddeW+aXNVlaE+CbaiMj9ltUlMgOYuM6C5uElXSXYvmtlG1Jc5/9tz
-         5pg0uk93KNpDA==
+        s=k20201202; t=1627392017;
+        bh=As6bvw8NATi8NkV1UwYAGMDuPYyWxXWl8+Dt7lXldyM=;
+        h=From:To:Cc:Subject:Date:From;
+        b=CEBbXmfi/1SQLD+YeEdZqVtZl1/90k3UKCUXfM4BW7Nm4mjIuCt9MVb9uS4Ow9ICN
+         iQFejrD+jFQKIibVseAsZCAECbezE9rY0gV6xWNq4Gx75LV/mFAgrSdxizVMZd6LqP
+         mXnTihnDoWDiY6F4VBUra99sBSLCDEE0jdUQ/TGVQn3g9Rvuv6TCSUG0zYdQRzSaD4
+         lSQfDzvZfD8Qgsr/HUFnBIQpxlJpG2jUaAOLTw8ZkDblkO5cdC2xW/F3UoVtYMO6os
+         qk2MqUmL3k5K9rxJ/YYG8I1XdRuepcDddJSUJQs2HDWyWHAWmkztCAoGU02SENyNnz
+         LeTY39qUD320Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Jens Axboe <axboe@kernel.dk>,
-        Daniel Scally <djrscally@gmail.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org,
-        devel@acpica.org
-Subject: [PATCH AUTOSEL 5.4 9/9] ACPI: fix NULL pointer dereference
-Date:   Tue, 27 Jul 2021 09:20:01 -0400
-Message-Id: <20210727132002.835130-9-sashal@kernel.org>
+Cc:     Axel Lin <axel.lin@ingics.com>,
+        ChiYuan Huang <cy_huang@richtek.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 1/6] regulator: rt5033: Fix n_voltages settings for BUCK and LDO
+Date:   Tue, 27 Jul 2021 09:20:10 -0400
+Message-Id: <20210727132015.835651-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210727132002.835130-1-sashal@kernel.org>
-References: <20210727132002.835130-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -45,43 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Axel Lin <axel.lin@ingics.com>
 
-[ Upstream commit fc68f42aa737dc15e7665a4101d4168aadb8e4c4 ]
+[ Upstream commit 6549c46af8551b346bcc0b9043f93848319acd5c ]
 
-Commit 71f642833284 ("ACPI: utils: Fix reference counting in
-for_each_acpi_dev_match()") started doing "acpi_dev_put()" on a pointer
-that was possibly NULL.  That fails miserably, because that helper
-inline function is not set up to handle that case.
+For linear regulators, the n_voltages should be (max - min) / step + 1.
 
-Just make acpi_dev_put() silently accept a NULL pointer, rather than
-calling down to put_device() with an invalid offset off that NULL
-pointer.
+Buck voltage from 1v to 3V, per step 100mV, and vout mask is 0x1f.
+If value is from 20 to 31, the voltage will all be fixed to 3V.
+And LDO also, just vout range is different from 1.2v to 3v, step is the
+same. If value is from 18 to 31, the voltage will also be fixed to 3v.
 
-Link: https://lore.kernel.org/lkml/a607c149-6bf6-0fd0-0e31-100378504da2@kernel.dk/
-Reported-and-tested-by: Jens Axboe <axboe@kernel.dk>
-Tested-by: Daniel Scally <djrscally@gmail.com>
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Axel Lin <axel.lin@ingics.com>
+Reviewed-by: ChiYuan Huang <cy_huang@richtek.com>
+Link: https://lore.kernel.org/r/20210627080418.1718127-1-axel.lin@ingics.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/acpi/acpi_bus.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ include/linux/mfd/rt5033-private.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/include/acpi/acpi_bus.h b/include/acpi/acpi_bus.h
-index 4d67a67964fa..1e5ae3b01eb2 100644
---- a/include/acpi/acpi_bus.h
-+++ b/include/acpi/acpi_bus.h
-@@ -681,7 +681,8 @@ acpi_dev_get_first_match_dev(const char *hid, const char *uid, s64 hrv);
+diff --git a/include/linux/mfd/rt5033-private.h b/include/linux/mfd/rt5033-private.h
+index 1b63fc2f42d1..52d53d134f72 100644
+--- a/include/linux/mfd/rt5033-private.h
++++ b/include/linux/mfd/rt5033-private.h
+@@ -203,13 +203,13 @@ enum rt5033_reg {
+ #define RT5033_REGULATOR_BUCK_VOLTAGE_MIN		1000000U
+ #define RT5033_REGULATOR_BUCK_VOLTAGE_MAX		3000000U
+ #define RT5033_REGULATOR_BUCK_VOLTAGE_STEP		100000U
+-#define RT5033_REGULATOR_BUCK_VOLTAGE_STEP_NUM		32
++#define RT5033_REGULATOR_BUCK_VOLTAGE_STEP_NUM		21
  
- static inline void acpi_dev_put(struct acpi_device *adev)
- {
--	put_device(&adev->dev);
-+	if (adev)
-+		put_device(&adev->dev);
- }
- #else	/* CONFIG_ACPI */
+ /* RT5033 regulator LDO output voltage uV */
+ #define RT5033_REGULATOR_LDO_VOLTAGE_MIN		1200000U
+ #define RT5033_REGULATOR_LDO_VOLTAGE_MAX		3000000U
+ #define RT5033_REGULATOR_LDO_VOLTAGE_STEP		100000U
+-#define RT5033_REGULATOR_LDO_VOLTAGE_STEP_NUM		32
++#define RT5033_REGULATOR_LDO_VOLTAGE_STEP_NUM		19
  
+ /* RT5033 regulator SAFE LDO output voltage uV */
+ #define RT5033_REGULATOR_SAFE_LDO_VOLTAGE		4900000U
 -- 
 2.30.2
 
