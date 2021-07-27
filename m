@@ -2,123 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98DEC3D7935
-	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 17:00:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C16373D799C
+	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 17:22:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231825AbhG0PAd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Jul 2021 11:00:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55618 "EHLO
+        id S232499AbhG0PWN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Jul 2021 11:22:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60664 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231552AbhG0PAd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Jul 2021 11:00:33 -0400
-Received: from mail-lf1-x136.google.com (mail-lf1-x136.google.com [IPv6:2a00:1450:4864:20::136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13F1FC061757
-        for <stable@vger.kernel.org>; Tue, 27 Jul 2021 08:00:33 -0700 (PDT)
-Received: by mail-lf1-x136.google.com with SMTP id bp1so22263139lfb.3
-        for <stable@vger.kernel.org>; Tue, 27 Jul 2021 08:00:32 -0700 (PDT)
+        with ESMTP id S232465AbhG0PWN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Jul 2021 11:22:13 -0400
+Received: from mail-yb1-xb36.google.com (mail-yb1-xb36.google.com [IPv6:2607:f8b0:4864:20::b36])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2888BC061757
+        for <stable@vger.kernel.org>; Tue, 27 Jul 2021 08:22:13 -0700 (PDT)
+Received: by mail-yb1-xb36.google.com with SMTP id q15so21280649ybu.2
+        for <stable@vger.kernel.org>; Tue, 27 Jul 2021 08:22:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=x9Ijoqsdh13AHKF42vRDqKmRqsGvnMKBQQ/wbCHMhzI=;
-        b=tNUKpDA4Ny4n+/1ArvsR/d2Wt1Lwl0CUQ72YQxr7tRYLOFWPYk7bxRvKYujjnRE+2B
-         +m5BmOntw8fMsyXivHs7hyEVd70U2GWM+3qVwc9LNjB2SGW06tv/NrURD1z9Ft8ZrX1X
-         wVQbxXs3zVUjWLffPgf3wdJefZ7dL29Ii1n3U4BEhNFj4iDxMOXZRgpS3iiX83/L5GiY
-         J0FMauPpF4J3qRC+Al2dgweaZnHgBJLvfNz1UOVB3YDtwo0L2YA2AJXzB/R+laecWXEY
-         hc31VkKT3F8p8M1x0fhYOqHiH2tEGiiBLsxLy9uxKujQ9T3Qsj5RNY4CnyJX6Xo9BTZt
-         sz8g==
+        d=jlekstrand-net.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=GgDEfe0zbOFECOvF5LtxR80/Jw1kTHtzvcNrB8t419k=;
+        b=utS/uh64yKWhWVJXBtQUuI+R3df/5ogtum9ukX4plgOJUusV0Kk2rYaTtbRdDX2NgA
+         efTL+nkbhIdIQ+5SR/W5Gb3Wch7V8OzOAGvAWlAJoxi4gBzfpJuGtoF6kixun9aSr2Ls
+         3HNeIuAzHACegotFF86D/XmNr7TPxUOe7/CqOzoJSuOMZBX+xd/27zulKN1JyprYDvtV
+         Yqew5/s+tYKk2rUZHuredQhsBW3YvEtSnB2DqSWtCHr/db514wlzWGT7OY6ly7fjpUTY
+         xNEIrJx2RQ9AjnNCBzIsca2Pr/650HTupRQvnuZJNe/w9T8fWbRxAaeod2mqBnhI4naT
+         fVVw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=x9Ijoqsdh13AHKF42vRDqKmRqsGvnMKBQQ/wbCHMhzI=;
-        b=MrRh2QEiHdTfOwMFzN9Cpl1ftKVhSdkdnn+TKtknQoIjGotnofP3iuf/kPxWjMbwMT
-         mfVBatIHDeutuWsuiD/CbfKoSTl8LLAf4TSHeyVcZw8GMYaUW5Pk5hsDukctejXsxDxm
-         s4HJ2kJoNIg9+4eICNrvXrJAW8B5tBsCUAQGwOy8GFwJQ4OuliZyntYwRxne+MaYACN7
-         Zm9i5JYc8m7JH1+RLp57Ax7OrnDc/HV5AFnN+HCyOfACutnkF/4kDK9okxgl6zA60ibx
-         QaR/jhToclbLtCz688WP7andzysd0WLt84wqCMrc7/exiphmGvJXC5fSt3UtxpgjW8hJ
-         HKSQ==
-X-Gm-Message-State: AOAM530dr2GSYoIT1h6RiLF0ZmPiNwP6WacpenV5D5ReLCqfwolcvEYY
-        XFpDEDE81MIikWDYG3+4uforiUWt8BchmA==
-X-Google-Smtp-Source: ABdhPJzCBVpZ9fS8tbRyCaot3YZwaF8r7NJmX3NuDKJzO9aew8gyFRaRIQmNZEMuhKbrvwkNhnkmtw==
-X-Received: by 2002:a19:f815:: with SMTP id a21mr17730092lff.507.1627398031345;
-        Tue, 27 Jul 2021 08:00:31 -0700 (PDT)
-Received: from localhost (c-9b28e555.07-21-73746f28.bbcust.telenor.se. [85.229.40.155])
-        by smtp.gmail.com with ESMTPSA id f6sm352088lfr.180.2021.07.27.08.00.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 27 Jul 2021 08:00:31 -0700 (PDT)
-From:   Anders Roxell <anders.roxell@linaro.org>
-To:     stable@vger.kernel.org
-Cc:     yhs@fb.com, ast@kernel.org, gregkh@linuxfoundation.org,
-        sashal@kernel.org
-Subject: [PATCH] tools: Allow proper CC/CXX/... override with LLVM=1 in Makefile.include
-Date:   Tue, 27 Jul 2021 17:00:27 +0200
-Message-Id: <20210727150027.3710100-1-anders.roxell@linaro.org>
-X-Mailer: git-send-email 2.30.2
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=GgDEfe0zbOFECOvF5LtxR80/Jw1kTHtzvcNrB8t419k=;
+        b=Puwv5/wPrsIKRn6OT0fWuTrClKIhHQPp47/oTUXjeYL5L8O61KTFAt1RDD+7SLgOnb
+         Y6JVHLyO6J6hruB/2a1Xajf/BN9dAs4jaLWY30RJ5vNJuvcKPk51y5tMyd42+WeF5HB1
+         ay/mQwwB9qvla/ZIRLdhNuxnr1znH6tI54ERE4uLlRmG7HsR2+WGC1TSOli0MOHxuhEV
+         T/2yJoBxHVA/QlK+GLIoNav4w+Mhnn8y1L6+/Xd5QSm1Agv3sQSGTKGCNlZdwCn3unCn
+         NDKYS56CVvq5YvuxI07m2UeBjzLhH7T6obKQRAz7HphwPnQF80o0J0yT2Qf3SORJFV7h
+         cabQ==
+X-Gm-Message-State: AOAM5321iT4CHRGgVsuG1zmrd7sjbeguOq9dKAjU3GmCSwXWuh2VYhO1
+        yoyWsPPnECO3L219kZUrrchKZRJ6hQBoHgYguRcbI4oiEANvCw==
+X-Google-Smtp-Source: ABdhPJyOzIy73aYDSgmKJaEteIb9ZVcNi5XWIFBIYg80ATpv8Xt+y3Zh3/Wh7WaGf0mexMYk7BSDnaS9YFTgIZ8BrQI=
+X-Received: by 2002:a25:b708:: with SMTP id t8mr10882235ybj.139.1627399332292;
+ Tue, 27 Jul 2021 08:22:12 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20210726231548.3511743-1-jason@jlekstrand.net>
+ <YP+WQ4Ej2jyHjIeO@kroah.com> <CAKMK7uFpmd=Or2uRfh8vrdnmeJLUFkz0HbC44ueNyv59P-T-mA@mail.gmail.com>
+In-Reply-To: <CAKMK7uFpmd=Or2uRfh8vrdnmeJLUFkz0HbC44ueNyv59P-T-mA@mail.gmail.com>
+From:   Jason Ekstrand <jason@jlekstrand.net>
+Date:   Tue, 27 Jul 2021 10:22:01 -0500
+Message-ID: <CAOFGe97sM_GgZV=BCx8HnrJ2q4UD8eGcsZky2RzhALd9W7gw=A@mail.gmail.com>
+Subject: Re: [PATCH] Revert "drm/i915/gem: Asynchronous cmdparser"
+To:     Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc:     Greg KH <gregkh@linuxfoundation.org>,
+        stable <stable@vger.kernel.org>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Jon Bloomfield <jon.bloomfield@intel.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yonghong Song <yhs@fb.com>
+On Tue, Jul 27, 2021 at 5:41 AM Daniel Vetter <daniel.vetter@ffwll.ch> wrote:
+>
+> On Tue, Jul 27, 2021 at 7:15 AM Greg KH <gregkh@linuxfoundation.org> wrote:
+> >
+> > On Mon, Jul 26, 2021 at 06:15:48PM -0500, Jason Ekstrand wrote:
+> > > commit 93b713304188844b8514074dc13ffd56d12235d3 upstream.  This version
+> > > applies to the 5.10 tree.
+> >
+> > I do not see that commit id in Linus's tree, are you sure it is correct?
+>
+> 3761baae908a ("Revert "drm/i915: Propagate errors on awaiting already
+> signaled fences"")
+>
+> Jason, you need to pick the sha1 from drm-intel-fixes, which
+> cherry-picks. Confuses -stable otherwise.
 
-[ Upstream commit f62700ce63a315b4607cc9e97aa15ea409a677b9 ]
+Sorry.  Do you want me to re-send with correct reference SHAs?
 
-selftests/bpf/Makefile includes tools/scripts/Makefile.include.
-With the following command
-  make -j60 LLVM=1 LLVM_IAS=1  <=== compile kernel
-  make -j60 -C tools/testing/selftests/bpf LLVM=1 LLVM_IAS=1 V=1
-some files are still compiled with gcc. This patch
-fixed the case if CC/AR/LD/CXX/STRIP is allowed to be
-overridden, it will be written to clang/llvm-ar/..., instead of
-gcc binaries. The definition of CC_NO_CLANG is also relocated
-to the place after the above CC is defined.
+--Jason
 
-Cc: <stable@vger.kernel.org> # v5.4 v5.10
-Signed-off-by: Yonghong Song <yhs@fb.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20210413153419.3028165-1-yhs@fb.com
----
- tools/scripts/Makefile.include | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
-
-diff --git a/tools/scripts/Makefile.include b/tools/scripts/Makefile.include
-index a402f32a145c..91130648d8e6 100644
---- a/tools/scripts/Makefile.include
-+++ b/tools/scripts/Makefile.include
-@@ -39,8 +39,6 @@ EXTRA_WARNINGS += -Wundef
- EXTRA_WARNINGS += -Wwrite-strings
- EXTRA_WARNINGS += -Wformat
- 
--CC_NO_CLANG := $(shell $(CC) -dM -E -x c /dev/null | grep -Fq "__clang__"; echo $$?)
--
- # Makefiles suck: This macro sets a default value of $(2) for the
- # variable named by $(1), unless the variable has been set by
- # environment or command line. This is necessary for CC and AR
-@@ -52,12 +50,22 @@ define allow-override
-     $(eval $(1) = $(2)))
- endef
- 
-+ifneq ($(LLVM),)
-+$(call allow-override,CC,clang)
-+$(call allow-override,AR,llvm-ar)
-+$(call allow-override,LD,ld.lld)
-+$(call allow-override,CXX,clang++)
-+$(call allow-override,STRIP,llvm-strip)
-+else
- # Allow setting various cross-compile vars or setting CROSS_COMPILE as a prefix.
- $(call allow-override,CC,$(CROSS_COMPILE)gcc)
- $(call allow-override,AR,$(CROSS_COMPILE)ar)
- $(call allow-override,LD,$(CROSS_COMPILE)ld)
- $(call allow-override,CXX,$(CROSS_COMPILE)g++)
- $(call allow-override,STRIP,$(CROSS_COMPILE)strip)
-+endif
-+
-+CC_NO_CLANG := $(shell $(CC) -dM -E -x c /dev/null | grep -Fq "__clang__"; echo $$?)
- 
- ifneq ($(LLVM),)
- HOSTAR  ?= llvm-ar
--- 
-2.30.2
-
+> Aside from that confusion, they're all there in -rc3.
+> -Daniel
+> --
+> Daniel Vetter
+> Software Engineer, Intel Corporation
+> http://blog.ffwll.ch
