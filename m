@@ -2,419 +2,169 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AA863D6EEF
-	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 08:14:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 069CF3D6F12
+	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 08:17:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235518AbhG0GOS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Jul 2021 02:14:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40808 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235307AbhG0GOR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Jul 2021 02:14:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F1B2861103;
-        Tue, 27 Jul 2021 06:14:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627366457;
-        bh=nL5hTwXdYUN5IIcycuGE73VxdFSjfTD9Ut5jIwCn3kU=;
-        h=From:To:Cc:Subject:Date:From;
-        b=RbBpQEO4ssFHYl/buXHx+RHVV+b9suPLcQJbopwYCqSss8tiTK3qSp2oSqq6jvvO2
-         LkVPiEEav3Zu/kWXHJJQnACZZJkxssBLXoZPipUHYi058+EK1VTuNZq+NkO+OLmQxu
-         KQGaYTraLn1r1sdfpuRvVJ7izXivu+/zbzGWuMAI=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: [PATCH 4.14 00/81] 4.14.241-rc2 review
-Date:   Tue, 27 Jul 2021 08:14:15 +0200
-Message-Id: <20210727061353.216979013@linuxfoundation.org>
-X-Mailer: git-send-email 2.32.0
+        id S234226AbhG0GRQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Jul 2021 02:17:16 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:54172 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S234928AbhG0GRO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Jul 2021 02:17:14 -0400
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16R6DtCQ020751;
+        Tue, 27 Jul 2021 02:17:02 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : reply-to : references : mime-version : content-type
+ : in-reply-to; s=pp1; bh=8XeYG3yg7Vf01LhGV5Z7bYY22GMqXf1CPu6wzVsB1Bw=;
+ b=AZfa2557qPr1YpYZlnyMIx50kjsTSzuPoOe2XJBJqPGvM1QBQihdzbyH9JY7CiDidF96
+ 2cH1GmSTibYpOyrZ/c9/Gl8QASw8E9gt4AKNffMlmXZC0+9fTN6zUklsKNUvPrX6Xlmp
+ 5vxNQuQgKBKxIibXhmhlUIMd9XANIZC2HkOymFZ6bBEzLJz+mWiHtLxfyTd2CF179m0O
+ JQgIKRTQmWLCeJClEJuoqknSsJ6M8q4gYlOz+Q2PZcPK/eYD0dwOogv1d0Zdy+FYN/dB
+ qa6uIi/CXatupy05awUrmBincG7YjEEh1JEgCd6mrCwtVaLXJ1gn9knvAMavhuWPmGv8 cg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3a2cph02pj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 27 Jul 2021 02:17:02 -0400
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16R6E1g9020876;
+        Tue, 27 Jul 2021 02:17:01 -0400
+Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3a2cph02p9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 27 Jul 2021 02:17:01 -0400
+Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
+        by ppma03dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16R62PBG004810;
+        Tue, 27 Jul 2021 06:17:01 GMT
+Received: from b01cxnp23034.gho.pok.ibm.com (b01cxnp23034.gho.pok.ibm.com [9.57.198.29])
+        by ppma03dal.us.ibm.com with ESMTP id 3a235nhbx3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 27 Jul 2021 06:17:01 +0000
+Received: from b01ledav006.gho.pok.ibm.com (b01ledav006.gho.pok.ibm.com [9.57.199.111])
+        by b01cxnp23034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16R6H0oJ31457626
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 27 Jul 2021 06:17:00 GMT
+Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5F58FAC05E;
+        Tue, 27 Jul 2021 06:17:00 +0000 (GMT)
+Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id EEFA3AC066;
+        Tue, 27 Jul 2021 06:16:59 +0000 (GMT)
+Received: from sofia.ibm.com (unknown [9.85.71.190])
+        by b01ledav006.gho.pok.ibm.com (Postfix) with ESMTP;
+        Tue, 27 Jul 2021 06:16:59 +0000 (GMT)
+Received: by sofia.ibm.com (Postfix, from userid 1000)
+        id 4A24D2E4A4C; Tue, 27 Jul 2021 11:46:56 +0530 (IST)
+Date:   Tue, 27 Jul 2021 11:46:56 +0530
+From:   Gautham R Shenoy <ego@linux.vnet.ibm.com>
+To:     "Pratik R. Sampat" <psampat@linux.ibm.com>
+Cc:     mpe@ellerman.id.au, rjw@rjwysocki.net, linux-pm@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, pratik.r.sampat@gmail.com
+Subject: Re: [PATCH] cpufreq:powernv: Fix init_chip_info initialization in
+ numa=off
+Message-ID: <20210727061656.GA10282@in.ibm.com>
+Reply-To: ego@linux.vnet.ibm.com
+References: <20210726170758.61041-1-psampat@linux.ibm.com>
 MIME-Version: 1.0
-User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.241-rc2.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.14.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.14.241-rc2
-X-KernelTest-Deadline: 2021-07-29T06:13+00:00
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210726170758.61041-1-psampat@linux.ibm.com>
+User-Agent: Mutt/1.5.23 (2014-03-12)
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: TBFUlIHCqR60qHwztg6isWZ6lxfaWg_M
+X-Proofpoint-GUID: JOA9zxu-8QY3hhlblipMVVHkB5WwXOxu
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-07-27_04:2021-07-27,2021-07-27 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ phishscore=0 mlxlogscore=999 mlxscore=0 lowpriorityscore=0 malwarescore=0
+ spamscore=0 adultscore=0 suspectscore=0 impostorscore=0 clxscore=1011
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2107140000 definitions=main-2107270035
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.14.241 release.
-There are 81 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
-
-Responses should be made by Thu, 29 Jul 2021 06:13:39 +0000.
-Anything received after that time might be too late.
-
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.241-rc2.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
-and the diffstat can be found below.
-
-thanks,
-
-greg k-h
-
--------------
-Pseudo-Shortlog of commits:
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.14.241-rc2
-
-Mathias Nyman <mathias.nyman@linux.intel.com>
-    xhci: add xhci_get_virt_ep() helper
-
-Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-    spi: spi-fsl-dspi: Fix a resource leak in an error handling path
-
-David Sterba <dsterba@suse.com>
-    btrfs: compression: don't try to compress if we don't have enough pages
-
-Stephan Gerhold <stephan@gerhold.net>
-    iio: accel: bma180: Fix BMA25x bandwidth register values
-
-Linus Walleij <linus.walleij@linaro.org>
-    iio: accel: bma180: Use explicit member assignment
-
-Doug Berger <opendmb@gmail.com>
-    net: bcmgenet: ensure EXT_ENERGY_DET_MASK is clear
-
-Charles Baylis <cb-kernel@fishzet.co.uk>
-    drm: Return -ENOTTY for non-drm ioctls
-
-Peter Collingbourne <pcc@google.com>
-    selftest: use mmap instead of posix_memalign to allocate memory
-
-Markus Boehme <markubo@amazon.com>
-    ixgbe: Fix packet corruption due to missing DMA sync
-
-Gustavo A. R. Silva <gustavoars@kernel.org>
-    media: ngene: Fix out-of-bounds bug in ngene_command_config_free_buf()
-
-Haoran Luo <www@aegistudio.net>
-    tracing: Fix bug in rb_per_cpu_empty() that might cause deadloop.
-
-Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
-    usb: dwc2: gadget: Fix sending zero length packet in DDMA mode.
-
-John Keeping <john@metanate.com>
-    USB: serial: cp210x: add ID for CEL EM3588 USB ZigBee stick
-
-Ian Ray <ian.ray@ge.com>
-    USB: serial: cp210x: fix comments for GE CS1000
-
-Marco De Marco <marco.demarco@posteo.net>
-    USB: serial: option: add support for u-blox LARA-R6 family
-
-Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-    usb: renesas_usbhs: Fix superfluous irqs happen after usb_pkt_pop()
-
-Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
-    usb: max-3421: Prevent corruption of freed memory
-
-Julian Sikorski <belegdol@gmail.com>
-    USB: usb-storage: Add LaCie Rugged USB3-FW to IGNORE_UAS
-
-Mathias Nyman <mathias.nyman@linux.intel.com>
-    usb: hub: Disable USB 3 device initiated lpm if exit latency is too high
-
-Nicholas Piggin <npiggin@gmail.com>
-    KVM: PPC: Book3S: Fix H_RTAS rets buffer overflow
-
-Mathias Nyman <mathias.nyman@linux.intel.com>
-    xhci: Fix lost USB 2 remote wake
-
-Takashi Iwai <tiwai@suse.de>
-    ALSA: sb: Fix potential ABBA deadlock in CSP driver
-
-Vasily Gorbik <gor@linux.ibm.com>
-    s390/ftrace: fix ftrace_update_ftrace_func implementation
-
-Huang Pei <huangpei@loongson.cn>
-    Revert "MIPS: add PMD table accounting into MIPS'pmd_alloc_one"
-
-Marcelo Henrique Cerri <marcelo.cerri@canonical.com>
-    proc: Avoid mixing integer types in mem_rw()
-
-Vincent Palatin <vpalatin@chromium.org>
-    Revert "USB: quirks: ignore remote wake-up on Fibocom L850-GL LTE modem"
-
-Marek Vasut <marex@denx.de>
-    spi: cadence: Correct initialisation of runtime PM again
-
-Dmitry Bogdanov <d.bogdanov@yadro.com>
-    scsi: target: Fix protect handling in WRITE SAME(32)
-
-Mike Christie <michael.christie@oracle.com>
-    scsi: iscsi: Fix iface sysfs attr detection
-
-Nguyen Dinh Phi <phind.uet@gmail.com>
-    netrom: Decrease sock refcount when sock timers expire
-
-Yajun Deng <yajun.deng@linux.dev>
-    net: decnet: Fix sleeping inside in af_decnet
-
-Ziyang Xuan <william.xuanziyang@huawei.com>
-    net: fix uninit-value in caif_seqpkt_sendmsg
-
-Colin Ian King <colin.king@canonical.com>
-    s390/bpf: Perform r1 range checking before accessing jit->seen_reg[r1]
-
-Colin Ian King <colin.king@canonical.com>
-    liquidio: Fix unintentional sign extension issue on left shift of u16
-
-Peter Hess <peter.hess@ph-home.de>
-    spi: mediatek: fix fifo rx mode
-
-Riccardo Mancini <rickyman7@gmail.com>
-    perf probe-file: Delete namelist in del_events() on the error path
-
-Riccardo Mancini <rickyman7@gmail.com>
-    perf test bpf: Free obj_buf
-
-Riccardo Mancini <rickyman7@gmail.com>
-    perf lzma: Close lzma stream on exit
-
-Riccardo Mancini <rickyman7@gmail.com>
-    perf probe: Fix dso->nsinfo refcounting
-
-Riccardo Mancini <rickyman7@gmail.com>
-    perf map: Fix dso->nsinfo refcounting
-
-Aleksandr Loktionov <aleksandr.loktionov@intel.com>
-    igb: Check if num of q_vectors is smaller than max before array access
-
-Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-    iavf: Fix an error handling path in 'iavf_probe()'
-
-Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-    e1000e: Fix an error handling path in 'e1000_probe()'
-
-Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-    fm10k: Fix an error handling path in 'fm10k_probe()'
-
-Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-    igb: Fix an error handling path in 'igb_probe()'
-
-Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-    ixgbe: Fix an error handling path in 'ixgbe_probe()'
-
-Vinicius Costa Gomes <vinicius.gomes@intel.com>
-    igb: Fix use-after-free error during reset
-
-Eric Dumazet <edumazet@google.com>
-    ipv6: tcp: drop silly ICMPv6 packet too big messages
-
-Eric Dumazet <edumazet@google.com>
-    tcp: annotate data races around tp->mtu_info
-
-Jason Ekstrand <jason@jlekstrand.net>
-    dma-buf/sync_file: Don't leak fences on merge failure
-
-Taehee Yoo <ap420073@gmail.com>
-    net: validate lwtstate->data before returning from skb_tunnel_info()
-
-Alexander Ovechkin <ovov@yandex-team.ru>
-    net: send SYNACK packet with accepted fwmark
-
-Pavel Skripkin <paskripkin@gmail.com>
-    net: ti: fix UAF in tlan_remove_one
-
-Pavel Skripkin <paskripkin@gmail.com>
-    net: qcom/emac: fix UAF in emac_remove
-
-Pavel Skripkin <paskripkin@gmail.com>
-    net: moxa: fix UAF in moxart_mac_probe
-
-Florian Fainelli <f.fainelli@gmail.com>
-    net: bcmgenet: Ensure all TX/RX queues DMAs are disabled
-
-Wolfgang Bumiller <w.bumiller@proxmox.com>
-    net: bridge: sync fdb to new unicast-filtering ports
-
-Vasily Averin <vvs@virtuozzo.com>
-    netfilter: ctnetlink: suspicious RCU usage in ctnetlink_dump_helpinfo
-
-Vadim Fedorenko <vfedorenko@novek.ru>
-    net: ipv6: fix return value of ip6_skb_dst_mtu
-
-Odin Ugedal <odin@uged.al>
-    sched/fair: Fix CFS bandwidth hrtimer expiry type
-
-Javed Hasan <jhasan@marvell.com>
-    scsi: libfc: Fix array index out of bound exception
-
-Colin Ian King <colin.king@canonical.com>
-    scsi: aic7xxx: Fix unintentional sign extension issue on left shift of u8
-
-Krzysztof Kozlowski <krzk@kernel.org>
-    rtc: max77686: Do not enforce (incorrect) interrupt trigger type
-
-Matthias Maennich <maennich@google.com>
-    kbuild: mkcompile_h: consider timestamp if KBUILD_BUILD_TIMESTAMP is set
-
-Yang Yingliang <yangyingliang@huawei.com>
-    thermal/core: Correct function name thermal_zone_device_unregister()
-
-Mian Yousaf Kaukab <ykaukab@suse.de>
-    arm64: dts: ls208xa: remove bus-num from dspi node
-
-Sudeep Holla <sudeep.holla@arm.com>
-    arm64: dts: juno: Update SCPI nodes as per the YAML schema
-
-Alexandre Torgue <alexandre.torgue@foss.st.com>
-    ARM: dts: stm32: fix RCC node name on stm32f429 MCU
-
-Jonathan Neuschäfer <j.neuschaefer@gmx.net>
-    ARM: imx: pm-imx5: Fix references to imx5_cpu_suspend_info
-
-Primoz Fiser <primoz.fiser@norik.com>
-    ARM: dts: imx6: phyFLEX: Fix UART hardware flow control
-
-Rafał Miłecki <rafal@milecki.pl>
-    ARM: dts: BCM63xx: Fix NAND nodes names
-
-Rafał Miłecki <rafal@milecki.pl>
-    ARM: NSP: dts: fix NAND nodes names
-
-Rafał Miłecki <rafal@milecki.pl>
-    ARM: Cygnus: dts: fix NAND nodes names
-
-Rafał Miłecki <rafal@milecki.pl>
-    ARM: brcmstb: dts: fix NAND nodes names
-
-Philipp Zabel <p.zabel@pengutronix.de>
-    reset: ti-syscon: fix to_ti_syscon_reset_data macro
-
-Elaine Zhang <zhangqing@rock-chips.com>
-    arm64: dts: rockchip: Fix power-controller node names for rk3328
-
-Elaine Zhang <zhangqing@rock-chips.com>
-    ARM: dts: rockchip: Fix power-controller node names for rk3288
-
-Ezequiel Garcia <ezequiel@collabora.com>
-    ARM: dts: rockchip: Fix the timer clocks order
-
-Johan Jonker <jbx6244@gmail.com>
-    arm64: dts: rockchip: fix pinctrl sleep nodename for rk3399.dtsi
-
-Johan Jonker <jbx6244@gmail.com>
-    ARM: dts: rockchip: fix pinctrl sleep nodename for rk3036-kylin and rk3288
-
-Corentin Labbe <clabbe@baylibre.com>
-    ARM: dts: gemini: add device_type on pci
-
-
--------------
-
-Diffstat:
-
- Makefile                                           |  4 +-
- arch/arm/boot/dts/bcm-cygnus.dtsi                  |  2 +-
- arch/arm/boot/dts/bcm-nsp.dtsi                     |  2 +-
- arch/arm/boot/dts/bcm63138.dtsi                    |  2 +-
- arch/arm/boot/dts/bcm7445-bcm97445svmb.dts         |  4 +-
- arch/arm/boot/dts/bcm7445.dtsi                     |  2 +-
- arch/arm/boot/dts/bcm911360_entphn.dts             |  4 +-
- arch/arm/boot/dts/bcm958300k.dts                   |  4 +-
- arch/arm/boot/dts/bcm958305k.dts                   |  4 +-
- arch/arm/boot/dts/bcm958522er.dts                  |  4 +-
- arch/arm/boot/dts/bcm958525er.dts                  |  4 +-
- arch/arm/boot/dts/bcm958525xmc.dts                 |  4 +-
- arch/arm/boot/dts/bcm958622hr.dts                  |  4 +-
- arch/arm/boot/dts/bcm958623hr.dts                  |  4 +-
- arch/arm/boot/dts/bcm958625hr.dts                  |  4 +-
- arch/arm/boot/dts/bcm958625k.dts                   |  4 +-
- arch/arm/boot/dts/bcm963138dvt.dts                 |  4 +-
- arch/arm/boot/dts/bcm988312hr.dts                  |  4 +-
- arch/arm/boot/dts/gemini.dtsi                      |  1 +
- arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi       |  5 +-
- arch/arm/boot/dts/rk3036-kylin.dts                 |  2 +-
- arch/arm/boot/dts/rk3188.dtsi                      |  8 +-
- arch/arm/boot/dts/rk3288.dtsi                      | 14 ++--
- arch/arm/boot/dts/stm32f429.dtsi                   |  2 +-
- arch/arm/mach-imx/suspend-imx53.S                  |  4 +-
- arch/arm64/boot/dts/arm/juno-base.dtsi             |  6 +-
- arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi     |  1 -
- arch/arm64/boot/dts/rockchip/rk3328.dtsi           |  6 +-
- arch/arm64/boot/dts/rockchip/rk3399.dtsi           |  2 +-
- arch/mips/include/asm/pgalloc.h                    | 10 +--
- arch/powerpc/kvm/book3s_rtas.c                     | 25 +++++-
- arch/s390/include/asm/ftrace.h                     |  1 +
- arch/s390/kernel/ftrace.c                          |  2 +
- arch/s390/kernel/mcount.S                          |  4 +-
- arch/s390/net/bpf_jit_comp.c                       |  2 +-
- drivers/dma-buf/sync_file.c                        | 13 ++--
- drivers/gpu/drm/drm_ioctl.c                        |  3 +
- drivers/iio/accel/bma180.c                         | 75 +++++++++++-------
- drivers/media/pci/ngene/ngene-core.c               |  2 +-
- drivers/media/pci/ngene/ngene.h                    | 14 ++--
- drivers/net/ethernet/broadcom/genet/bcmgenet.c     | 22 ++----
- drivers/net/ethernet/broadcom/genet/bcmgenet_wol.c |  6 --
- .../ethernet/cavium/liquidio/cn23xx_pf_device.c    |  2 +-
- drivers/net/ethernet/intel/e1000e/netdev.c         |  1 +
- drivers/net/ethernet/intel/fm10k/fm10k_pci.c       |  1 +
- drivers/net/ethernet/intel/i40evf/i40evf_main.c    |  1 +
- drivers/net/ethernet/intel/igb/igb_main.c          | 12 ++-
- drivers/net/ethernet/intel/ixgbe/ixgbe_main.c      |  4 +-
- drivers/net/ethernet/moxa/moxart_ether.c           |  4 +-
- drivers/net/ethernet/qualcomm/emac/emac.c          |  3 +-
- drivers/net/ethernet/ti/tlan.c                     |  3 +-
- drivers/reset/reset-ti-syscon.c                    |  4 +-
- drivers/rtc/rtc-max77686.c                         |  4 +-
- drivers/scsi/aic7xxx/aic7xxx_core.c                |  2 +-
- drivers/scsi/libfc/fc_rport.c                      | 13 ++--
- drivers/scsi/scsi_transport_iscsi.c                | 90 ++++++++--------------
- drivers/spi/spi-cadence.c                          | 14 ++--
- drivers/spi/spi-fsl-dspi.c                         |  4 +-
- drivers/spi/spi-mt65xx.c                           | 16 +++-
- drivers/target/target_core_sbc.c                   | 35 ++++-----
- drivers/thermal/thermal_core.c                     |  2 +-
- drivers/usb/core/hub.c                             | 68 +++++++++++++---
- drivers/usb/core/quirks.c                          |  4 -
- drivers/usb/dwc2/gadget.c                          | 10 ++-
- drivers/usb/host/max3421-hcd.c                     | 44 ++++-------
- drivers/usb/host/xhci-hub.c                        |  3 +-
- drivers/usb/host/xhci-ring.c                       | 58 ++++++++++----
- drivers/usb/host/xhci.h                            |  3 +-
- drivers/usb/renesas_usbhs/fifo.c                   |  7 ++
- drivers/usb/serial/cp210x.c                        |  5 +-
- drivers/usb/serial/option.c                        |  3 +
- drivers/usb/storage/unusual_uas.h                  |  7 ++
- fs/btrfs/inode.c                                   |  2 +-
- fs/proc/base.c                                     |  2 +-
- include/drm/drm_ioctl.h                            |  1 +
- include/net/dst_metadata.h                         |  4 +-
- include/net/ip6_route.h                            |  2 +-
- kernel/sched/fair.c                                |  4 +-
- kernel/trace/ring_buffer.c                         | 28 ++++++-
- net/bridge/br_if.c                                 | 17 +++-
- net/caif/caif_socket.c                             |  3 +-
- net/decnet/af_decnet.c                             | 27 +++----
- net/ipv4/tcp_ipv4.c                                |  4 +-
- net/ipv4/tcp_output.c                              |  1 +
- net/ipv6/tcp_ipv6.c                                | 22 +++++-
- net/ipv6/xfrm6_output.c                            |  2 +-
- net/netfilter/nf_conntrack_netlink.c               |  3 +
- net/netrom/nr_timer.c                              | 20 ++---
- scripts/mkcompile_h                                | 14 +++-
- sound/isa/sb/sb16_csp.c                            |  4 +
- tools/perf/tests/bpf.c                             |  2 +
- tools/perf/util/lzma.c                             |  8 +-
- tools/perf/util/map.c                              |  2 +
- tools/perf/util/probe-event.c                      |  4 +-
- tools/perf/util/probe-file.c                       |  4 +-
- tools/testing/selftests/vm/userfaultfd.c           |  6 +-
- 96 files changed, 555 insertions(+), 352 deletions(-)
-
-
+On Mon, Jul 26, 2021 at 10:37:57PM +0530, Pratik R. Sampat wrote:
+> In the numa=off kernel command-line configuration init_chip_info() loops
+> around the number of chips and attempts to copy the cpumask of that node
+> which is NULL for all iterations after the first chip.
+> 
+> Hence, store the cpu mask for each chip instead of derving cpumask from
+> node while populating the "chips" struct array and copy that to the
+> chips[i].mask
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: 053819e0bf84 ("cpufreq: powernv: Handle throttling due to Pmax capping at chip level")
+> Signed-off-by: Pratik R. Sampat <psampat@linux.ibm.com>
+> Reported-by: Shirisha Ganta <shirisha.ganta1@ibm.com>
+> ---
+>  drivers/cpufreq/powernv-cpufreq.c | 15 +++++++++++++--
+>  1 file changed, 13 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/cpufreq/powernv-cpufreq.c b/drivers/cpufreq/powernv-cpufreq.c
+> index 005600cef273..8ec10d9aed8f 100644
+> --- a/drivers/cpufreq/powernv-cpufreq.c
+> +++ b/drivers/cpufreq/powernv-cpufreq.c
+> @@ -1046,12 +1046,20 @@ static int init_chip_info(void)
+>  	unsigned int *chip;
+>  	unsigned int cpu, i;
+>  	unsigned int prev_chip_id = UINT_MAX;
+> +	cpumask_t *chip_cpu_mask;
+>  	int ret = 0;
+> 
+>  	chip = kcalloc(num_possible_cpus(), sizeof(*chip), GFP_KERNEL);
+>  	if (!chip)
+>  		return -ENOMEM;
+> 
+> +	/* Allocate a chip cpu mask large enough to fit mask for all chips */
+> +	chip_cpu_mask = kcalloc(32, sizeof(cpumask_t), GFP_KERNEL);
+
+I suppose by 32 you mean the maximum number of chips possible. You
+could use a #define for that.
+
+Otherwise, the patch looks good to me.
+
+Reviewed-by: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
+
+
+
+> +	if (!chip_cpu_mask) {
+> +		ret = -ENOMEM;
+> +		goto free_and_return;
+> +	}
+> +
+>  	for_each_possible_cpu(cpu) {
+>  		unsigned int id = cpu_to_chip_id(cpu);
+> 
+> @@ -1059,22 +1067,25 @@ static int init_chip_info(void)
+>  			prev_chip_id = id;
+>  			chip[nr_chips++] = id;
+>  		}
+> +		cpumask_set_cpu(cpu, &chip_cpu_mask[nr_chips-1]);
+>  	}
+> 
+>  	chips = kcalloc(nr_chips, sizeof(struct chip), GFP_KERNEL);
+>  	if (!chips) {
+>  		ret = -ENOMEM;
+> -		goto free_and_return;
+> +		goto out_chip_cpu_mask;
+>  	}
+> 
+>  	for (i = 0; i < nr_chips; i++) {
+>  		chips[i].id = chip[i];
+> -		cpumask_copy(&chips[i].mask, cpumask_of_node(chip[i]));
+> +		cpumask_copy(&chips[i].mask, &chip_cpu_mask[i]);
+>  		INIT_WORK(&chips[i].throttle, powernv_cpufreq_work_fn);
+>  		for_each_cpu(cpu, &chips[i].mask)
+>  			per_cpu(chip_info, cpu) =  &chips[i];
+>  	}
+> 
+> +out_chip_cpu_mask:
+> +	kfree(chip_cpu_mask);
+>  free_and_return:
+>  	kfree(chip);
+>  	return ret;
+> -- 
+> 2.31.1
+> 
