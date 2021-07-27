@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D9A63D7626
-	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 15:24:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA8553D7620
+	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 15:24:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237223AbhG0NYm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Jul 2021 09:24:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56478 "EHLO mail.kernel.org"
+        id S236773AbhG0NXp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Jul 2021 09:23:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237053AbhG0NWe (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237055AbhG0NWe (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 27 Jul 2021 09:22:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9DD8F61A8F;
-        Tue, 27 Jul 2021 13:20:37 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BF2AE61ABC;
+        Tue, 27 Jul 2021 13:20:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1627392038;
-        bh=As6bvw8NATi8NkV1UwYAGMDuPYyWxXWl8+Dt7lXldyM=;
-        h=From:To:Cc:Subject:Date:From;
-        b=cEIb+lHPPY+cRIBXcCwW7/Uu/gP4br0V5OM+otzrYbeSKqQKhamIriupI4IQutxgK
-         TG9QC0kxmY32g2rifiFn8w7EYwxd+OC1Bb5vpzHZbueacMr+Mrm2EpvQUoQ0NXguFW
-         olMtWhdsnDpg9a0DoR38LYu3NRu1eho7XDsywFEbEtdzti23k4r2VjNtlr5Bmmgb/v
-         5Cqkq7q/KtZtUpEWjoMHnLhQMB5Rmki8GsKyHEviZSj6aO0lu4EylhnQ/deBtN5DmQ
-         cW0FjljmztEoiXTkzYDVAMOm5af6LPDoiLzV0Ah2ddi3Q0egDabpJdGTecW7dyIBNs
-         GBbtU1InDYxBA==
+        s=k20201202; t=1627392039;
+        bh=oPvlV2NsK4f1ssaKBVn25F6huJX4K96v8zrnFjhoR1g=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=rCi+bFpNfx4uvNHO5zUG7UW9JL3cl7L2YMQhXyvMeN809R1GFeZim9pDFz/i3/fBU
+         utfDK5ygkH6Uf14nfUlohGDZCEsmvvWUOlt+an+pbMpVS5DJH9ptb+6PBveXqRVS31
+         KVPPiiWqAe2SEFGN77PvQdfnk0Nx6+jyksOamv7VF8rZ0XlpZhf8Pnxw0KDdVUpde5
+         DJOaD3OK/SHFEy8PsSj44k1oQUOwUlzYNWV/+FlrKYAYmyjsEIKweM8u20rkr75nIZ
+         2ov29gAPU2hBMYYh+7fLoj0wcxkyBAqOwE9mQ98dq62Z9+T6XYd6xGXOqK2XEPxjIf
+         20qQJyYl5XsGQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Axel Lin <axel.lin@ingics.com>,
-        ChiYuan Huang <cy_huang@richtek.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 1/3] regulator: rt5033: Fix n_voltages settings for BUCK and LDO
-Date:   Tue, 27 Jul 2021 09:20:34 -0400
-Message-Id: <20210727132036.835981-1-sashal@kernel.org>
+Cc:     Takashi Iwai <tiwai@suse.de>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 2/3] r8152: Fix potential PM refcount imbalance
+Date:   Tue, 27 Jul 2021 09:20:35 -0400
+Message-Id: <20210727132036.835981-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210727132036.835981-1-sashal@kernel.org>
+References: <20210727132036.835981-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -41,46 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Axel Lin <axel.lin@ingics.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 6549c46af8551b346bcc0b9043f93848319acd5c ]
+[ Upstream commit 9c23aa51477a37f8b56c3c40192248db0663c196 ]
 
-For linear regulators, the n_voltages should be (max - min) / step + 1.
+rtl8152_close() takes the refcount via usb_autopm_get_interface() but
+it doesn't release when RTL8152_UNPLUG test hits.  This may lead to
+the imbalance of PM refcount.  This patch addresses it.
 
-Buck voltage from 1v to 3V, per step 100mV, and vout mask is 0x1f.
-If value is from 20 to 31, the voltage will all be fixed to 3V.
-And LDO also, just vout range is different from 1.2v to 3v, step is the
-same. If value is from 18 to 31, the voltage will also be fixed to 3v.
-
-Signed-off-by: Axel Lin <axel.lin@ingics.com>
-Reviewed-by: ChiYuan Huang <cy_huang@richtek.com>
-Link: https://lore.kernel.org/r/20210627080418.1718127-1-axel.lin@ingics.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://bugzilla.suse.com/show_bug.cgi?id=1186194
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/mfd/rt5033-private.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/usb/r8152.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/mfd/rt5033-private.h b/include/linux/mfd/rt5033-private.h
-index 1b63fc2f42d1..52d53d134f72 100644
---- a/include/linux/mfd/rt5033-private.h
-+++ b/include/linux/mfd/rt5033-private.h
-@@ -203,13 +203,13 @@ enum rt5033_reg {
- #define RT5033_REGULATOR_BUCK_VOLTAGE_MIN		1000000U
- #define RT5033_REGULATOR_BUCK_VOLTAGE_MAX		3000000U
- #define RT5033_REGULATOR_BUCK_VOLTAGE_STEP		100000U
--#define RT5033_REGULATOR_BUCK_VOLTAGE_STEP_NUM		32
-+#define RT5033_REGULATOR_BUCK_VOLTAGE_STEP_NUM		21
+diff --git a/drivers/net/usb/r8152.c b/drivers/net/usb/r8152.c
+index 5baaa8291624..ebf6d4cf09ea 100644
+--- a/drivers/net/usb/r8152.c
++++ b/drivers/net/usb/r8152.c
+@@ -3159,9 +3159,10 @@ static int rtl8152_close(struct net_device *netdev)
+ 		tp->rtl_ops.down(tp);
  
- /* RT5033 regulator LDO output voltage uV */
- #define RT5033_REGULATOR_LDO_VOLTAGE_MIN		1200000U
- #define RT5033_REGULATOR_LDO_VOLTAGE_MAX		3000000U
- #define RT5033_REGULATOR_LDO_VOLTAGE_STEP		100000U
--#define RT5033_REGULATOR_LDO_VOLTAGE_STEP_NUM		32
-+#define RT5033_REGULATOR_LDO_VOLTAGE_STEP_NUM		19
+ 		mutex_unlock(&tp->control);
++	}
  
- /* RT5033 regulator SAFE LDO output voltage uV */
- #define RT5033_REGULATOR_SAFE_LDO_VOLTAGE		4900000U
++	if (!res)
+ 		usb_autopm_put_interface(tp->intf);
+-	}
+ 
+ 	free_all_mem(tp);
+ 
 -- 
 2.30.2
 
