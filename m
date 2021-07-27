@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 76C2F3D765F
-	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 15:28:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 639043D7667
+	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 15:28:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236635AbhG0N2A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Jul 2021 09:28:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57266 "EHLO mail.kernel.org"
+        id S236623AbhG0N17 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Jul 2021 09:27:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236970AbhG0NUd (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236973AbhG0NUd (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 27 Jul 2021 09:20:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AF8A661A6E;
-        Tue, 27 Jul 2021 13:20:16 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D34C161A8C;
+        Tue, 27 Jul 2021 13:20:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1627392017;
-        bh=As6bvw8NATi8NkV1UwYAGMDuPYyWxXWl8+Dt7lXldyM=;
-        h=From:To:Cc:Subject:Date:From;
-        b=CEBbXmfi/1SQLD+YeEdZqVtZl1/90k3UKCUXfM4BW7Nm4mjIuCt9MVb9uS4Ow9ICN
-         iQFejrD+jFQKIibVseAsZCAECbezE9rY0gV6xWNq4Gx75LV/mFAgrSdxizVMZd6LqP
-         mXnTihnDoWDiY6F4VBUra99sBSLCDEE0jdUQ/TGVQn3g9Rvuv6TCSUG0zYdQRzSaD4
-         lSQfDzvZfD8Qgsr/HUFnBIQpxlJpG2jUaAOLTw8ZkDblkO5cdC2xW/F3UoVtYMO6os
-         qk2MqUmL3k5K9rxJ/YYG8I1XdRuepcDddJSUJQs2HDWyWHAWmkztCAoGU02SENyNnz
-         LeTY39qUD320Q==
+        s=k20201202; t=1627392018;
+        bh=clXpkkKYs0rFca8LLDbeSbQ7rs6gT7Z2YGaHBpBxeRc=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=HrbL2d0R6xsLqrXAGA/llhFB5fsUfNf2GXWuhkhYCiUHgjSy8fFKmj1QNgYcKTKic
+         cjV8FLmrP5qBDy24TuT6CjAFyDJI5xsY7ee7v+jcuRA//Zu817v+8DsYLVGMVvoJbS
+         0nrM0gD1ga5R/lSZUYz6SLB76oofAPLl3GBeYoVpobEXrJ/oDzHq93XSdEU2nfTp9x
+         dNOy72F5L3lRX+f8szEoBSm0EyFYMJqYKBTTfmD+Jq5Pu4HdvXPsYq/NtWMa3xvNp8
+         +2vd6DjfytqlvZi5u0Zq//azxKa5lKjGuKCpXYBfSaC7JvVIYP8AjZmcHxJkFgl+fo
+         bHgKxhYviCZng==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Axel Lin <axel.lin@ingics.com>,
-        ChiYuan Huang <cy_huang@richtek.com>,
+Cc:     Kyle Russell <bkylerussell@gmail.com>,
         Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 1/6] regulator: rt5033: Fix n_voltages settings for BUCK and LDO
-Date:   Tue, 27 Jul 2021 09:20:10 -0400
-Message-Id: <20210727132015.835651-1-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.19 2/6] ASoC: tlv320aic31xx: fix reversed bclk/wclk master bits
+Date:   Tue, 27 Jul 2021 09:20:11 -0400
+Message-Id: <20210727132015.835651-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210727132015.835651-1-sashal@kernel.org>
+References: <20210727132015.835651-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -41,46 +42,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Axel Lin <axel.lin@ingics.com>
+From: Kyle Russell <bkylerussell@gmail.com>
 
-[ Upstream commit 6549c46af8551b346bcc0b9043f93848319acd5c ]
+[ Upstream commit 9cf76a72af6ab81030dea6481b1d7bdd814fbdaf ]
 
-For linear regulators, the n_voltages should be (max - min) / step + 1.
+These are backwards from Table 7-71 of the TLV320AIC3100 spec [1].
 
-Buck voltage from 1v to 3V, per step 100mV, and vout mask is 0x1f.
-If value is from 20 to 31, the voltage will all be fixed to 3V.
-And LDO also, just vout range is different from 1.2v to 3v, step is the
-same. If value is from 18 to 31, the voltage will also be fixed to 3v.
+This was broken in 12eb4d66ba2e when BCLK_MASTER and WCLK_MASTER
+were converted from 0x08 and 0x04 to BIT(2) and BIT(3), respectively.
 
-Signed-off-by: Axel Lin <axel.lin@ingics.com>
-Reviewed-by: ChiYuan Huang <cy_huang@richtek.com>
-Link: https://lore.kernel.org/r/20210627080418.1718127-1-axel.lin@ingics.com
+-#define AIC31XX_BCLK_MASTER		0x08
+-#define AIC31XX_WCLK_MASTER		0x04
++#define AIC31XX_BCLK_MASTER		BIT(2)
++#define AIC31XX_WCLK_MASTER		BIT(3)
+
+Probably just a typo since the defines were not listed in bit order.
+
+[1] https://www.ti.com/lit/gpn/tlv320aic3100
+
+Signed-off-by: Kyle Russell <bkylerussell@gmail.com>
+Link: https://lore.kernel.org/r/20210622010941.241386-1-bkylerussell@gmail.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/mfd/rt5033-private.h | 4 ++--
+ sound/soc/codecs/tlv320aic31xx.h | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/mfd/rt5033-private.h b/include/linux/mfd/rt5033-private.h
-index 1b63fc2f42d1..52d53d134f72 100644
---- a/include/linux/mfd/rt5033-private.h
-+++ b/include/linux/mfd/rt5033-private.h
-@@ -203,13 +203,13 @@ enum rt5033_reg {
- #define RT5033_REGULATOR_BUCK_VOLTAGE_MIN		1000000U
- #define RT5033_REGULATOR_BUCK_VOLTAGE_MAX		3000000U
- #define RT5033_REGULATOR_BUCK_VOLTAGE_STEP		100000U
--#define RT5033_REGULATOR_BUCK_VOLTAGE_STEP_NUM		32
-+#define RT5033_REGULATOR_BUCK_VOLTAGE_STEP_NUM		21
+diff --git a/sound/soc/codecs/tlv320aic31xx.h b/sound/soc/codecs/tlv320aic31xx.h
+index 0b587585b38b..6071de5fca57 100644
+--- a/sound/soc/codecs/tlv320aic31xx.h
++++ b/sound/soc/codecs/tlv320aic31xx.h
+@@ -147,8 +147,8 @@ struct aic31xx_pdata {
+ #define AIC31XX_WORD_LEN_24BITS		0x02
+ #define AIC31XX_WORD_LEN_32BITS		0x03
+ #define AIC31XX_IFACE1_MASTER_MASK	GENMASK(3, 2)
+-#define AIC31XX_BCLK_MASTER		BIT(2)
+-#define AIC31XX_WCLK_MASTER		BIT(3)
++#define AIC31XX_BCLK_MASTER		BIT(3)
++#define AIC31XX_WCLK_MASTER		BIT(2)
  
- /* RT5033 regulator LDO output voltage uV */
- #define RT5033_REGULATOR_LDO_VOLTAGE_MIN		1200000U
- #define RT5033_REGULATOR_LDO_VOLTAGE_MAX		3000000U
- #define RT5033_REGULATOR_LDO_VOLTAGE_STEP		100000U
--#define RT5033_REGULATOR_LDO_VOLTAGE_STEP_NUM		32
-+#define RT5033_REGULATOR_LDO_VOLTAGE_STEP_NUM		19
- 
- /* RT5033 regulator SAFE LDO output voltage uV */
- #define RT5033_REGULATOR_SAFE_LDO_VOLTAGE		4900000U
+ /* AIC31XX_DATA_OFFSET */
+ #define AIC31XX_DATA_OFFSET_MASK	GENMASK(7, 0)
 -- 
 2.30.2
 
