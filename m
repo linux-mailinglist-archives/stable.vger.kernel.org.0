@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 649BA3D766D
-	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 15:28:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39F2C3D767F
+	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 15:30:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236936AbhG0N2n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Jul 2021 09:28:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56488 "EHLO mail.kernel.org"
+        id S236793AbhG0N35 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Jul 2021 09:29:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236940AbhG0NU3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236942AbhG0NU3 (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 27 Jul 2021 09:20:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3175661AE2;
-        Tue, 27 Jul 2021 13:19:58 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 95F8561ACE;
+        Tue, 27 Jul 2021 13:19:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1627391999;
-        bh=fdaF6KV7EJ1NSBdpGZsLOGivkm05PpUv307VYvf1EQM=;
+        s=k20201202; t=1627392000;
+        bh=m8eVRp7kvqRylifcK3gNGxLsO1GYKoZFlzGmAUzr1Bs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZxA5QRT7hh22HTwuy2pBgYy/Kr5bCLuyAyxTsyxgUF9ZNwV0CPCd43HpjDzoRS0tv
-         w+u/2M3ePwyNqecY0B66JNz0CO23fK2RxPQgpcnXbtl3JG8HjfJEQNSIs1Od2CQyg7
-         tFqh/UnLy18UAlZfGxQUyEzVpWtw2300JoyQLIaiPxv8tpjNvx/UotJfhxWxcVucLF
-         hkPFAxfEXOK4X9vlwMiuPPoy3hI27yQ/0hvV6n2KKf155QZ0VgAs0O1wfGWuPzE4P7
-         VJt7IVad66yUaG2rilYZXCvD+3OxgK8pgjO6XFm4gQu8JKO3lUvr4scQ0SwXaTdoyJ
-         3M621j2IqbXvQ==
+        b=l/Og+HPSIgCgj/5EmSf1CBiLZWFGWITsxyH+QkNtTonjVSjlk158J/8xzyCUvooV1
+         uwcW66fsqUZ8MsevkI9+DazOclDueb0Ad5kERcv/qUJfI5vz2VOk84mt+fKdbgXS/H
+         YokBviW0WTz8tLTzNOsJ0dsjjkXGqYScxQe1byn/mZVb0kRBG+D4kBJDUp0qljPhh1
+         Qp5W75nuux4uTLJeUGxDeRqJMonCMDD/x9UDfbuG+3Kgz8/TcrbJHzLbIXQHGxzV1U
+         79ylUv3sNrNdPHUwM0LfCZPr6WieT9CxnmDqCZPeuWZmrnpHbhDp3wk/9PiqXAGAAL
+         mAagz7dNtAnyg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.10 16/17] drm/amd/display: Fix max vstartup calculation for modes with borders
-Date:   Tue, 27 Jul 2021 09:19:37 -0400
-Message-Id: <20210727131938.834920-16-sashal@kernel.org>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Jens Axboe <axboe@kernel.dk>,
+        Daniel Scally <djrscally@gmail.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org,
+        devel@acpica.org
+Subject: [PATCH AUTOSEL 5.10 17/17] ACPI: fix NULL pointer dereference
+Date:   Tue, 27 Jul 2021 09:19:38 -0400
+Message-Id: <20210727131938.834920-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210727131938.834920-1-sashal@kernel.org>
 References: <20210727131938.834920-1-sashal@kernel.org>
@@ -45,68 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit d7940911fc0754d99b208f0e3098762d39f403a0 ]
+[ Upstream commit fc68f42aa737dc15e7665a4101d4168aadb8e4c4 ]
 
-[Why]
-Vertical and horizontal borders in timings are treated as increasing the
-active area - vblank and hblank actually shrink.
+Commit 71f642833284 ("ACPI: utils: Fix reference counting in
+for_each_acpi_dev_match()") started doing "acpi_dev_put()" on a pointer
+that was possibly NULL.  That fails miserably, because that helper
+inline function is not set up to handle that case.
 
-Our input into DML does not include these borders so it incorrectly
-assumes it has more time than available for vstartup and tmdl
-calculations for some modes with borders.
+Just make acpi_dev_put() silently accept a NULL pointer, rather than
+calling down to put_device() with an invalid offset off that NULL
+pointer.
 
-An example of such a timing would be 640x480@72Hz:
-
-h_total: 832
-h_border_left: 8
-h_addressable: 640
-h_border_right: 8
-h_front_porch: 16
-h_sync_width: 40
-v_total: 520
-v_border_top: 8
-v_addressable: 480
-v_border_bottom: 8
-v_front_porch: 1
-v_sync_width: 3
-pix_clk_100hz: 315000
-
-[How]
-Include borders as part of destination vactive/hactive.
-
-This change DCN20+ so it has wide impact, but the destination vactive
-and hactive are only really used for vstartup calculation anyway.
-
-Most modes do not have vertical or horizontal borders.
-
-Reviewed-by: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
-Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Link: https://lore.kernel.org/lkml/a607c149-6bf6-0fd0-0e31-100378504da2@kernel.dk/
+Reported-and-tested-by: Jens Axboe <axboe@kernel.dk>
+Tested-by: Daniel Scally <djrscally@gmail.com>
+Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ include/acpi/acpi_bus.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
-index 1812ec7ee11b..cfe85ba1018e 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
-@@ -2077,8 +2077,10 @@ int dcn20_populate_dml_pipes_from_context(
- 				- timing->v_border_bottom;
- 		pipes[pipe_cnt].pipe.dest.htotal = timing->h_total;
- 		pipes[pipe_cnt].pipe.dest.vtotal = v_total;
--		pipes[pipe_cnt].pipe.dest.hactive = timing->h_addressable;
--		pipes[pipe_cnt].pipe.dest.vactive = timing->v_addressable;
-+		pipes[pipe_cnt].pipe.dest.hactive =
-+			timing->h_addressable + timing->h_border_left + timing->h_border_right;
-+		pipes[pipe_cnt].pipe.dest.vactive =
-+			timing->v_addressable + timing->v_border_top + timing->v_border_bottom;
- 		pipes[pipe_cnt].pipe.dest.interlaced = timing->flags.INTERLACE;
- 		pipes[pipe_cnt].pipe.dest.pixel_rate_mhz = timing->pix_clk_100hz/10000.0;
- 		if (timing->timing_3d_format == TIMING_3D_FORMAT_HW_FRAME_PACKING)
+diff --git a/include/acpi/acpi_bus.h b/include/acpi/acpi_bus.h
+index 37dac195adbb..6ad3b89a8a2e 100644
+--- a/include/acpi/acpi_bus.h
++++ b/include/acpi/acpi_bus.h
+@@ -689,7 +689,8 @@ acpi_dev_get_first_match_dev(const char *hid, const char *uid, s64 hrv);
+ 
+ static inline void acpi_dev_put(struct acpi_device *adev)
+ {
+-	put_device(&adev->dev);
++	if (adev)
++		put_device(&adev->dev);
+ }
+ #else	/* CONFIG_ACPI */
+ 
 -- 
 2.30.2
 
