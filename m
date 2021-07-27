@@ -2,69 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 929533D6B00
-	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 02:23:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 586573D6B16
+	for <lists+stable@lfdr.de>; Tue, 27 Jul 2021 02:35:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233959AbhGZXnT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Jul 2021 19:43:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58558 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233770AbhGZXnT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Jul 2021 19:43:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1846860F55;
-        Tue, 27 Jul 2021 00:23:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1627345427;
-        bh=it1r8ZVQDSmGzzDfwDCXufyBA9KAwljaPLoLLA5rKo0=;
-        h=In-Reply-To:References:Subject:From:Cc:To:Date:From;
-        b=E4RVsb7iA1A5LaXjRCHORYv1H19RscrLygQBf+ayI+tYecKHx6KPh26gEMvkRA2fm
-         F9NsNw2dRvHVMD3ScTw/m0jFA1u+RsO8kE3mL8+3xKZWE8ks8v9azLfSURrr2Ipj9t
-         PUGvF8q+6rszddPkWQmfLLPerbF41J23PI5MC2UMbWxiK9MPVS16KS7UOpB8SiBPG6
-         TvZecpvXB17eEqXnVmjuClahuF6wwrIe7Q4E97JJGnBHH+uQb4w380yblBHehNfO8p
-         Qs0NC6Gj5Qqi5bjUcXngLwxy19zikYxM7VxTx1ED6bAK815yZuOzls7aux7WIU8PSl
-         BbJNvw0wLnbdw==
-Content-Type: text/plain; charset="utf-8"
+        id S234291AbhGZXyb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Jul 2021 19:54:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56340 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234284AbhGZXya (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Jul 2021 19:54:30 -0400
+Received: from mail-oo1-xc2f.google.com (mail-oo1-xc2f.google.com [IPv6:2607:f8b0:4864:20::c2f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99F6AC061760
+        for <stable@vger.kernel.org>; Mon, 26 Jul 2021 17:34:58 -0700 (PDT)
+Received: by mail-oo1-xc2f.google.com with SMTP id s21-20020a4ae5550000b02902667598672bso2681553oot.12
+        for <stable@vger.kernel.org>; Mon, 26 Jul 2021 17:34:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxfoundation.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=UxxDUt+QIQFJNEUI2UJRDvLuTFS12Dmny94pVpbFdTU=;
+        b=eaDOiD8H+xrYAjUSN7INs5ALOgN3irxyrVExBNU6PqXiBUeAlClw8QeQRKlE+7t1Xu
+         pO+6YyruHIuKrr9maRTiDdio9/vjOBIVznOrjecVCzoYn4MNsnKRizXEsk8fxTM0G0TG
+         GlymM9RdDBdcQ5PSEo8zJRxztEinzjmR3QhSA=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=UxxDUt+QIQFJNEUI2UJRDvLuTFS12Dmny94pVpbFdTU=;
+        b=DDk1d/sBIxbgWuZmEayAEdxfuVbqdBVNd/OTZx2Et7pY7ykfPr+tRJY/Z20zYb3HC/
+         Q5d/xFiu9GvyH2KVZLtiM3clanehBhU7cCSUCF6mhN370BfARk4kaLlUB1LOP5qbTwY9
+         R/ssu2AKRg6TDKiCkpyCthPQLjkrHhOIUIw7BlUAyj/pQQvIgBcJ0jkCuWcmTYQx7wlm
+         lMyeakG2EE9HSAb3t8nJzP/ApWOP0x2t6gfgtUGaD3npj7bSaf2w42OwjI5PzTp0XU3U
+         c6ArX9ZwNyqU9dMxynvQByHqkQSMVCu2XUpkCEqpX2k7w0A1riND7F+9Cr2vWNrlJSRr
+         K8Mw==
+X-Gm-Message-State: AOAM5326zNcbz0j+gvUDCRj+7MuNk/iNOCsP1/u//xv/FxCF9EZrxT8q
+        WzjYf65W0zWxiuHpiuxppmBa9w==
+X-Google-Smtp-Source: ABdhPJxDlVnVynUKT5s1Lq4Jk90PbTxLe/cZ6kmIISs1F6qWtLh64DIj2SdfYflbNnUaDVaHPTJ32w==
+X-Received: by 2002:a4a:6042:: with SMTP id t2mr12094002oof.31.1627346097909;
+        Mon, 26 Jul 2021 17:34:57 -0700 (PDT)
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
+        by smtp.gmail.com with ESMTPSA id j30sm272348otc.43.2021.07.26.17.34.56
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 26 Jul 2021 17:34:57 -0700 (PDT)
+Subject: Re: [PATCH 5.13 000/223] 5.13.6-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org,
+        Shuah Khan <skhan@linuxfoundation.org>
+References: <20210726153846.245305071@linuxfoundation.org>
+From:   Shuah Khan <skhan@linuxfoundation.org>
+Message-ID: <78b89130-5237-a5f6-e274-a3e82b402fe7@linuxfoundation.org>
+Date:   Mon, 26 Jul 2021 18:34:56 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20210717043159.12566-1-rdunlap@infradead.org>
-References: <20210717043159.12566-1-rdunlap@infradead.org>
-Subject: Re: [PATCH] clk: hisilicon: hi3559a: select RESET_HISI
-From:   Stephen Boyd <sboyd@kernel.org>
-Cc:     Randy Dunlap <rdunlap@infradead.org>,
-        kernel test robot <lkp@intel.com>,
-        Dongjiu Geng <gengdongjiu@huawei.com>, stable@vger.kernel.org,
-        linux-clk@vger.kernel.org,
-        Michael Turquette <mturquette@baylibre.com>
-To:     Randy Dunlap <rdunlap@infradead.org>, linux-kernel@vger.kernel.org
-Date:   Mon, 26 Jul 2021 17:23:45 -0700
-Message-ID: <162734542596.2368309.11929983891973867074@swboyd.mtv.corp.google.com>
-User-Agent: alot/0.9.1
+In-Reply-To: <20210726153846.245305071@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Quoting Randy Dunlap (2021-07-16 21:31:59)
-> The clk-hi3559a driver uses functions from reset.c so it should
-> select RESET_HISI to avoid build errors.
->=20
-> Fixes these build errors:
-> aarch64-linux-ld: drivers/clk/hisilicon/clk-hi3559a.o: in function `hi355=
-9av100_crg_remove':
-> clk-hi3559a.c:(.text+0x158): undefined reference to `hisi_reset_exit'
-> aarch64-linux-ld: drivers/clk/hisilicon/clk-hi3559a.o: in function `hi355=
-9av100_crg_probe':
-> clk-hi3559a.c:(.text+0x1f4): undefined reference to `hisi_reset_init'
-> aarch64-linux-ld: clk-hi3559a.c:(.text+0x238): undefined reference to `hi=
-si_reset_exit'
->=20
-> Fixes: 6c81966107dc ("clk: hisilicon: Add clock driver for hi3559A SoC")
-> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-> Reported-by: kernel test robot <lkp@intel.com>
-> Cc: Dongjiu Geng <gengdongjiu@huawei.com>
-> Cc: Stephen Boyd <sboyd@kernel.org>
-> Cc: stable@vger.kernel.org
-> Cc: linux-clk@vger.kernel.org
-> Cc: Michael Turquette <mturquette@baylibre.com>
-> ---
+On 7/26/21 9:36 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.13.6 release.
+> There are 223 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 28 Jul 2021 15:38:12 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.13.6-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.13.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-Applied to clk-fixes
+Compiled and booted on my test system. No dmesg regressions.
+
+Tested-by: Shuah Khan <skhan@linuxfoundation.org>
+
+thanks,
+-- Shuah
