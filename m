@@ -2,103 +2,308 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D94F3D845F
-	for <lists+stable@lfdr.de>; Wed, 28 Jul 2021 02:02:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B1D13D85AF
+	for <lists+stable@lfdr.de>; Wed, 28 Jul 2021 03:52:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232837AbhG1ACl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Jul 2021 20:02:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39644 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232766AbhG1ACl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Jul 2021 20:02:41 -0400
-Received: from mail-qk1-x72f.google.com (mail-qk1-x72f.google.com [IPv6:2607:f8b0:4864:20::72f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0CB0C061757
-        for <stable@vger.kernel.org>; Tue, 27 Jul 2021 17:02:40 -0700 (PDT)
-Received: by mail-qk1-x72f.google.com with SMTP id t68so540784qkf.8
-        for <stable@vger.kernel.org>; Tue, 27 Jul 2021 17:02:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:from:to:cc:references:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=b1tI0L/93W13MQiuG/OaeJCyNiLqOD2bmNGKqJZbjBE=;
-        b=FXV42MeuBE0AnXElFk5aoiQvnL2F+nioSmK+tZItpRX5YLNUkcsnOy0TtjwD1vnQwq
-         3WuGGCQU5GoESxNMDhpH30dKTfgZQ1O41+wrCF/R0RMHzSNFLQ2FA7kkQHgnkfEqmQNu
-         F6Sy5ieFoYYuwoc9svJcUFkuFYIry5X9TT0FoZIeliq7sGmxY+85zHZelYtv6Wl3uw7o
-         mlUkOP8ri7H1wko1+RPgPcAwiI/IKx0ynvsCs1Fdtfr7m7sP7pg1mQVluxoWecQ/C47Z
-         pJVQUnNzCqTfEcvo4lfA9Mbh916Jm6aT1JH+EVSg14gC/SGjKVblKjsizzVY8BwR/T5H
-         UHDQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:from:to:cc:references:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=b1tI0L/93W13MQiuG/OaeJCyNiLqOD2bmNGKqJZbjBE=;
-        b=rpBXgFvA1RiiH87UU88+fKta2dwG7qLYZOOMzRchkfog9HT5X28M6twbSM7w0ZX2bU
-         EBpPZaXe4lgYjkyqiQmaVfPYLtKhQoWCyujOFp6jT0DV8gQ+LZaZnd3dK13W4wNbw8W7
-         8vgvutnHjUKcN7UoYktNj9cjKolsOhxAtmDiJpxoB3k+GxiRYDeHDjTk9GPAKJ6yG8Qg
-         4UFs6p7d8fWe5um9kocp/GIKXRW0Xb1rz7g7EAAzHLKhUird4j2eKoixOHUYwx4UvPzU
-         0HMWjNbsCFaSyvhpINrPewc7yJ7YnUTkoZ9pZ+ipisiH1HD/QF2pyyBUpQQsjlc8pExP
-         JQEA==
-X-Gm-Message-State: AOAM532p/8xd9HrqjggqQtvzaFEYYE2i0N9MkjZ9jeGow6FHJ9Y/TPLT
-        Av9nNaIUkTgr/lHr0MyK+id2rnNQskg=
-X-Google-Smtp-Source: ABdhPJyDvfJvw9OFL87TBYBDFbxFkwP+A8ifWM5kr7KXcXu0rc9fumUgufauJhIwzPxhViWfn0+8ng==
-X-Received: by 2002:a05:620a:319:: with SMTP id s25mr24696923qkm.411.1627430560104;
-        Tue, 27 Jul 2021 17:02:40 -0700 (PDT)
-Received: from mua.localhost ([2600:1700:e380:2c20::47])
-        by smtp.gmail.com with ESMTPSA id d3sm2067736qtp.12.2021.07.27.17.02.39
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 27 Jul 2021 17:02:39 -0700 (PDT)
-Subject: Re: very long boot times in 5.13 stable.
-From:   PGNet Dev <pgnet.dev@gmail.com>
-To:     greearb@candelatech.com
-Cc:     stable@vger.kernel.org
-References: <aeac0ff3-6606-3752-db6c-306a9c643f8f@candelatech.com>
- <CAHv26DhDYNYGmQa7Dt4NoAz74J89pi8+4yuEprFO0bjuN9G7gg@mail.gmail.com>
- <f8be86d0-28ac-3e5b-1969-9115e5e0472c@candelatech.com>
- <CAHv26DjBqX__YYdqJEfMVZKFomuW8+mid5grAvUfMNmXMtC8pA@mail.gmail.com>
- <f3593f21-11e5-c568-c8e7-45b3f6657a02@candelatech.com>
- <CAHv26DjS0iuQ636tZfgYDo9EGmZ9n-ZwB9AaXvrdUUkWyL5ORw@mail.gmail.com>
- <db5517bf-35fb-a18c-47cc-d083b0d32304@candelatech.com>
-Message-ID: <1231e3e3-d510-43ec-522a-75e3fe9175fb@gmail.com>
-Date:   Tue, 27 Jul 2021 20:04:54 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Firefox/78.0 Thunderbird/78.12.0
+        id S233260AbhG1Bwp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Jul 2021 21:52:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46676 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233234AbhG1Bwo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Jul 2021 21:52:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C81A2601FF;
+        Wed, 28 Jul 2021 01:52:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1627437164;
+        bh=bZebbcvnXhR5JIU5tUHxuvey9bFsVigx8iGinyfrMx8=;
+        h=From:To:Cc:Subject:Date:From;
+        b=PQrN3JG+y/WeffBreyMFAws4OuNvbiwN8RgJa+TIqW6JHrDVlwAluX2IUC63VMcph
+         dmTe6DWZojACuOvg+7OMlvpSddIs5/EDMj48fd3iDMJA8qT0r08NevFzkaK0KGb1AZ
+         ou6HVU0xf26qae/yVTo0UX4oERqUZlYiwQz7BN0D16RsJvIX3kkYY+CNeLf3doP5sO
+         f9G9Y2wZHkdmt/zeWYoZomqQQaHidvxHwO+o29dUGnFXEWH7z5QCAqNZqm/38vk7ox
+         WDXn1wCZJOXHVJRWX8ybszk0FsywQPR+rff9bOSPKCzcAdLvSUuMgnDGUojIAh9bSi
+         gcyflowv0pbkA==
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     linux-f2fs-devel@lists.sourceforge.net,
+        Jaegeuk Kim <jaegeuk@kernel.org>, Chao Yu <chao@kernel.org>
+Cc:     linux-fsdevel@vger.kernel.org, stable@vger.kernel.org
+Subject: [PATCH] f2fs: remove broken support for allocating DIO writes
+Date:   Tue, 27 Jul 2021 18:51:54 -0700
+Message-Id: <20210728015154.171507-1-ebiggers@kernel.org>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-In-Reply-To: <db5517bf-35fb-a18c-47cc-d083b0d32304@candelatech.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 7/27/21 7:51 PM, Ben Greear wrote:
-> 
-> I bisected to same suspect acpi commit, though it is in 5.13.1, not 5.13.2.
-> 
-> commit bf155b2eaab40e7d9862ce89ffe2b8a80f86703b (HEAD -> master, refs/patches/master/acpi-resources-add-checks-for)
-> Author: Hui Wang <hui.wang@canonical.com>
-> Date:   Wed Jun 9 10:14:42 2021 +0800
-> 
->      ACPI: resources: Add checks for ACPI IRQ override
-> 
->      [ Upstream commit 0ec4e55e9f571f08970ed115ec0addc691eda613 ]
-> 
->      The laptop keyboard doesn't work on many MEDION notebooks, but the
->      keyboard works well under Windows and Unix.
-> ...
-> 
-> 
-> Thanks,
-> Ben
+From: Eric Biggers <ebiggers@google.com>
 
-if you have a sec, pls add your result to BZ @
+Currently, non-overwrite DIO writes are fundamentally unsafe on f2fs as
+they require preallocating blocks, but f2fs doesn't support unwritten
+blocks and therefore has to preallocate the blocks as regular blocks.
+f2fs has no way to reliably roll back such preallocations, so as a
+result, f2fs will leak uninitialized blocks to users if a DIO write
+doesn't fully complete.  This can be easily reproduced by issuing a DIO
+write that will fail due to misalignment, e.g.:
 
-   https://bugzilla.kernel.org/show_bug.cgi?id=213031
+	rm -f file
+	truncate -s 1000000 file
+	dd if=/dev/zero bs=999999 oflag=direct conv=notrunc of=file
+	od -tx1 file  # shows uninitialized disk blocks
 
+Until a proper design for non-overwrite DIO writes on f2fs can be
+designed and implemented, remove support for them and make them fall
+back to buffered I/O.  This is what other filesystems that don't support
+unwritten blocks, e.g. ext2, also do, at least for non-extending DIO
+writes.  However, f2fs can't do extending DIO writes either, as f2fs
+appears to have no mechanism for guaranteeing that leftover allocated
+blocks past EOF will get truncated.  (f2fs does have an orphan list, but
+it's only used for deleting inodes, not truncating them.)
 
-the dev's "waiting a while" before fixing the regression, to see if others suffer the same/similar issue.
+This patch doesn't attempt to remove the F2FS_GET_BLOCK_{DIO,PRE_DIO}
+cases in f2fs_map_blocks(); that can be cleaned up later.
 
-your comments there should help move things along a bit.
+Fixes: bfad7c2d4033 ("f2fs: introduce a new direct_IO write path")
+Cc: stable@vger.kernel.org
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+---
 
-thx!
+This applies to the latest f2fs.git#dev branch.
+
+ fs/f2fs/data.c | 82 +++++++++++---------------------------------------
+ fs/f2fs/f2fs.h | 24 +++++----------
+ fs/f2fs/file.c | 11 ++-----
+ 3 files changed, 28 insertions(+), 89 deletions(-)
+
+diff --git a/fs/f2fs/data.c b/fs/f2fs/data.c
+index cb71d7317ad2..756b2277bf1b 100644
+--- a/fs/f2fs/data.c
++++ b/fs/f2fs/data.c
+@@ -1374,9 +1374,7 @@ int f2fs_preallocate_blocks(struct kiocb *iocb, struct iov_iter *from)
+ {
+ 	struct inode *inode = file_inode(iocb->ki_filp);
+ 	struct f2fs_map_blocks map;
+-	int flag;
+ 	int err = 0;
+-	bool direct_io = iocb->ki_flags & IOCB_DIRECT;
+ 
+ 	map.m_lblk = F2FS_BLK_ALIGN(iocb->ki_pos);
+ 	map.m_len = F2FS_BYTES_TO_BLK(iocb->ki_pos + iov_iter_count(from));
+@@ -1390,13 +1388,6 @@ int f2fs_preallocate_blocks(struct kiocb *iocb, struct iov_iter *from)
+ 	map.m_seg_type = NO_CHECK_TYPE;
+ 	map.m_may_create = true;
+ 
+-	if (direct_io) {
+-		map.m_seg_type = f2fs_rw_hint_to_seg_type(iocb->ki_hint);
+-		flag = f2fs_force_buffered_io(inode, iocb, from) ?
+-					F2FS_GET_BLOCK_PRE_AIO :
+-					F2FS_GET_BLOCK_PRE_DIO;
+-		goto map_blocks;
+-	}
+ 	if (iocb->ki_pos + iov_iter_count(from) > MAX_INLINE_DATA(inode)) {
+ 		err = f2fs_convert_inline_inode(inode);
+ 		if (err)
+@@ -1405,13 +1396,9 @@ int f2fs_preallocate_blocks(struct kiocb *iocb, struct iov_iter *from)
+ 	if (f2fs_has_inline_data(inode))
+ 		return err;
+ 
+-	flag = F2FS_GET_BLOCK_PRE_AIO;
+-
+-map_blocks:
+-	err = f2fs_map_blocks(inode, &map, 1, flag);
++	err = f2fs_map_blocks(inode, &map, 1, F2FS_GET_BLOCK_PRE_AIO);
+ 	if (map.m_len > 0 && err == -ENOSPC) {
+-		if (!direct_io)
+-			set_inode_flag(inode, FI_NO_PREALLOC);
++		set_inode_flag(inode, FI_NO_PREALLOC);
+ 		err = 0;
+ 	}
+ 	return err;
+@@ -1701,47 +1688,30 @@ static inline u64 blks_to_bytes(struct inode *inode, u64 blks)
+ 	return (blks << inode->i_blkbits);
+ }
+ 
+-static int __get_data_block(struct inode *inode, sector_t iblock,
+-			struct buffer_head *bh, int create, int flag,
+-			pgoff_t *next_pgofs, int seg_type, bool may_write)
++static int get_data_block_dio(struct inode *inode, sector_t iblock,
++			      struct buffer_head *bh, int create)
+ {
+-	struct f2fs_map_blocks map;
++	struct f2fs_map_blocks map = {
++		.m_lblk = iblock,
++		.m_len = bytes_to_blks(inode, bh->b_size),
++	};
+ 	int err;
+ 
+-	map.m_lblk = iblock;
+-	map.m_len = bytes_to_blks(inode, bh->b_size);
+-	map.m_next_pgofs = next_pgofs;
+-	map.m_next_extent = NULL;
+-	map.m_seg_type = seg_type;
+-	map.m_may_create = may_write;
+-
+-	err = f2fs_map_blocks(inode, &map, create, flag);
++	/*
++	 * We don't allocate blocks here, as that would expose uninitialized
++	 * blocks if the DIO write doesn't fully complete.  DIO writes that need
++	 * to allocate blocks will fall back to buffered writes.
++	 */
++	err = f2fs_map_blocks(inode, &map, 0, F2FS_GET_BLOCK_DEFAULT);
+ 	if (!err) {
+-		map_bh(bh, inode->i_sb, map.m_pblk);
++		if (map.m_flags & F2FS_MAP_MAPPED)
++			map_bh(bh, inode->i_sb, map.m_pblk);
+ 		bh->b_state = (bh->b_state & ~F2FS_MAP_FLAGS) | map.m_flags;
+ 		bh->b_size = blks_to_bytes(inode, map.m_len);
+ 	}
+ 	return err;
+ }
+ 
+-static int get_data_block_dio_write(struct inode *inode, sector_t iblock,
+-			struct buffer_head *bh_result, int create)
+-{
+-	return __get_data_block(inode, iblock, bh_result, create,
+-				F2FS_GET_BLOCK_DIO, NULL,
+-				f2fs_rw_hint_to_seg_type(inode->i_write_hint),
+-				true);
+-}
+-
+-static int get_data_block_dio(struct inode *inode, sector_t iblock,
+-			struct buffer_head *bh_result, int create)
+-{
+-	return __get_data_block(inode, iblock, bh_result, create,
+-				F2FS_GET_BLOCK_DIO, NULL,
+-				f2fs_rw_hint_to_seg_type(inode->i_write_hint),
+-				false);
+-}
+-
+ static int f2fs_xattr_fiemap(struct inode *inode,
+ 				struct fiemap_extent_info *fieinfo)
+ {
+@@ -3556,7 +3526,6 @@ static ssize_t f2fs_direct_IO(struct kiocb *iocb, struct iov_iter *iter)
+ 	int err;
+ 	enum rw_hint hint = iocb->ki_hint;
+ 	int whint_mode = F2FS_OPTION(sbi).whint_mode;
+-	bool do_opu;
+ 
+ 	err = check_direct_IO(inode, iter, offset);
+ 	if (err)
+@@ -3565,8 +3534,6 @@ static ssize_t f2fs_direct_IO(struct kiocb *iocb, struct iov_iter *iter)
+ 	if (f2fs_force_buffered_io(inode, iocb, iter))
+ 		return 0;
+ 
+-	do_opu = rw == WRITE && f2fs_lfs_mode(sbi);
+-
+ 	trace_f2fs_direct_IO_enter(inode, offset, count, rw);
+ 
+ 	if (rw == WRITE && whint_mode == WHINT_MODE_OFF)
+@@ -3578,27 +3545,15 @@ static ssize_t f2fs_direct_IO(struct kiocb *iocb, struct iov_iter *iter)
+ 			err = -EAGAIN;
+ 			goto out;
+ 		}
+-		if (do_opu && !down_read_trylock(&fi->i_gc_rwsem[READ])) {
+-			up_read(&fi->i_gc_rwsem[rw]);
+-			iocb->ki_hint = hint;
+-			err = -EAGAIN;
+-			goto out;
+-		}
+ 	} else {
+ 		down_read(&fi->i_gc_rwsem[rw]);
+-		if (do_opu)
+-			down_read(&fi->i_gc_rwsem[READ]);
+ 	}
+ 
+ 	err = __blockdev_direct_IO(iocb, inode, inode->i_sb->s_bdev,
+-			iter, rw == WRITE ? get_data_block_dio_write :
+-			get_data_block_dio, NULL, f2fs_dio_submit_bio,
++			iter, get_data_block_dio, NULL, f2fs_dio_submit_bio,
+ 			rw == WRITE ? DIO_LOCKING | DIO_SKIP_HOLES :
+ 			DIO_SKIP_HOLES);
+ 
+-	if (do_opu)
+-		up_read(&fi->i_gc_rwsem[READ]);
+-
+ 	up_read(&fi->i_gc_rwsem[rw]);
+ 
+ 	if (rw == WRITE) {
+@@ -3607,8 +3562,7 @@ static ssize_t f2fs_direct_IO(struct kiocb *iocb, struct iov_iter *iter)
+ 		if (err > 0) {
+ 			f2fs_update_iostat(F2FS_I_SB(inode), APP_DIRECT_IO,
+ 									err);
+-			if (!do_opu)
+-				set_inode_flag(inode, FI_UPDATE_WRITE);
++			set_inode_flag(inode, FI_UPDATE_WRITE);
+ 		} else if (err == -EIOCBQUEUED) {
+ 			f2fs_update_iostat(F2FS_I_SB(inode), APP_DIRECT_IO,
+ 						count - iov_iter_count(iter));
+diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
+index 5d16486feb8f..c99756a6ff5f 100644
+--- a/fs/f2fs/f2fs.h
++++ b/fs/f2fs/f2fs.h
+@@ -4302,17 +4302,6 @@ static inline void f2fs_i_compr_blocks_update(struct inode *inode,
+ 	f2fs_mark_inode_dirty_sync(inode, true);
+ }
+ 
+-static inline int block_unaligned_IO(struct inode *inode,
+-				struct kiocb *iocb, struct iov_iter *iter)
+-{
+-	unsigned int i_blkbits = READ_ONCE(inode->i_blkbits);
+-	unsigned int blocksize_mask = (1 << i_blkbits) - 1;
+-	loff_t offset = iocb->ki_pos;
+-	unsigned long align = offset | iov_iter_alignment(iter);
+-
+-	return align & blocksize_mask;
+-}
+-
+ static inline bool f2fs_force_buffered_io(struct inode *inode,
+ 				struct kiocb *iocb, struct iov_iter *iter)
+ {
+@@ -4329,12 +4318,13 @@ static inline bool f2fs_force_buffered_io(struct inode *inode,
+ 	 */
+ 	if (f2fs_sb_has_blkzoned(sbi))
+ 		return true;
+-	if (f2fs_lfs_mode(sbi) && (rw == WRITE)) {
+-		if (block_unaligned_IO(inode, iocb, iter))
+-			return true;
+-		if (F2FS_IO_ALIGNED(sbi))
+-			return true;
+-	}
++	/*
++	 * DIO writes in LFS mode would require preallocating blocks, which is
++	 * hard to do without exposing uninitialized blocks after short writes.
++	 */
++	if (f2fs_lfs_mode(sbi) && rw == WRITE)
++		return true;
++
+ 	if (is_sbi_flag_set(F2FS_I_SB(inode), SBI_CP_DISABLED))
+ 		return true;
+ 
+diff --git a/fs/f2fs/file.c b/fs/f2fs/file.c
+index f335d38efc76..745672ab5a2a 100644
+--- a/fs/f2fs/file.c
++++ b/fs/f2fs/file.c
+@@ -4287,14 +4287,9 @@ static ssize_t f2fs_file_write_iter(struct kiocb *iocb, struct iov_iter *from)
+ 			err = f2fs_convert_inline_inode(inode);
+ 			if (err)
+ 				goto out_err;
+-			/*
+-			 * If force_buffere_io() is true, we have to allocate
+-			 * blocks all the time, since f2fs_direct_IO will fall
+-			 * back to buffered IO.
+-			 */
+-			if (!f2fs_force_buffered_io(inode, iocb, from) &&
+-					f2fs_lfs_mode(F2FS_I_SB(inode)))
+-				goto write;
++
++			set_inode_flag(inode, FI_NO_PREALLOC);
++			goto write;
+ 		}
+ 		preallocated = true;
+ 		target_size = iocb->ki_pos + iov_iter_count(from);
+
+base-commit: 08b8de81abe13b595120973b3089c4958e3ff2da
+-- 
+2.32.0
+
