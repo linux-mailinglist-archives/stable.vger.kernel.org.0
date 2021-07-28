@@ -2,71 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 794A33D87DE
-	for <lists+stable@lfdr.de>; Wed, 28 Jul 2021 08:27:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F0783D87F0
+	for <lists+stable@lfdr.de>; Wed, 28 Jul 2021 08:30:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234635AbhG1G1c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Jul 2021 02:27:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40344 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234137AbhG1G1b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Jul 2021 02:27:31 -0400
-Received: from mail-io1-xd31.google.com (mail-io1-xd31.google.com [IPv6:2607:f8b0:4864:20::d31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 831C6C061757
-        for <stable@vger.kernel.org>; Tue, 27 Jul 2021 23:27:30 -0700 (PDT)
-Received: by mail-io1-xd31.google.com with SMTP id j21so1665431ioo.6
-        for <stable@vger.kernel.org>; Tue, 27 Jul 2021 23:27:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:sender:from:date:message-id:subject:to;
-        bh=Aauu7gYvMaBruI9Zt1CgTlkxSZ8evQwPBhKOMH6jf8s=;
-        b=uJuAdcACD7VjikunMujLdJsuTvdG21WdfTI6VsfL1ajZ0kccPSRFzvaerU+dJ+q+Ut
-         D4+ESLaDDCbSWCuC6m+JDniLIx6/xrvdUivmeUcWvECbhhfQGPEDvkbjHlYkTVOnSHL9
-         n/zzwaT+zdA0Ji3fIRxGyWFRg1yJ1m7kamkaTSaVTUEvIfs4V8zk+esukavyV7L0Tumi
-         ICw/+UeFLXKKuCBVXEQq5bzyx9i04Vgo2D0dJ6uja3IxKOjFUX6/1yqtQ3bqrxs5/i7G
-         5tNRRdtzjYN+aMpaFywYYJhPZOn/RDQl+vWK75uPVQ8jhA02hsLkg3SAr/SG/IMXzwND
-         6saA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:sender:from:date
-         :message-id:subject:to;
-        bh=Aauu7gYvMaBruI9Zt1CgTlkxSZ8evQwPBhKOMH6jf8s=;
-        b=Nnud1lnDs1aP7LZLoH4JZVTLKbp1iXgXqqos93eNTgv6FlVNHjY43FYiZiWj8E/MfJ
-         l7rXIRo2Mf6b1QNbNLsE8trWJsi1YhZlQX1XOLsbYBwRpk4QtonRUsj9/e0AWtWF7a8z
-         jxjblYqGe+bzJAPslD7GBFfhmGwaldLMgwvsvG//9aGhclGcZMLhIE63I+c/Ht+38tLG
-         zrmfxQZZPlDOOLPOWOM7JFenFL8GjhVYT6J2e2Y8szXmPb2ofvBeksYml6SvXPwEEsG0
-         Na7PmZDcbmJXm8CJa4oTFUhqu/2NnKbQvDmXWKi7SCtT7w1r1nEvEqG8/KiJHznJ690r
-         ErXg==
-X-Gm-Message-State: AOAM531miPzAo0qCsfZtp4+zWhxWcOIwjkuQhUbK1dgJct+uXJD0RxwL
-        2jN62l2Rn8eCyfqg4jJ1FlPSNZC9N5FDgB2ACIA=
-X-Google-Smtp-Source: ABdhPJyGVin8xDRRwZ1ToOIc3wfr+UVN4H4vN7PJLBAGHIf0zPsZy2D8NDv6apnh04bIersPfa8iZlfHZuPAzeiJGJI=
-X-Received: by 2002:a05:6602:584:: with SMTP id v4mr22028936iox.181.1627453649930;
- Tue, 27 Jul 2021 23:27:29 -0700 (PDT)
+        id S234122AbhG1Ga5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Jul 2021 02:30:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34294 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231484AbhG1Ga4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 28 Jul 2021 02:30:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3DBA8601FE;
+        Wed, 28 Jul 2021 06:30:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1627453855;
+        bh=jYbmCznlnAxntCDoWWWbOp/BTUdcMMju2H31HIK4w80=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=fYXIjfWfibqAzvx9wsNvDvtB0pl0j/O0XZTZFLG2PkPDt18xtteMpWfxNUm7Ypq5B
+         0Dh6gj+u2LedB07PKdPWGTp5plPL0YW/isJwJlFVg1Fo1IpUPnJHPX5b7uiTU8vm7I
+         zFQOZKtjESKDlUmH4UUXMBcei2/riNU9LA4tSS80=
+Date:   Wed, 28 Jul 2021 08:30:53 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Adrien Precigout <dev@asdrip.fr>
+Cc:     stable@vger.kernel.org
+Subject: Re: Unable to boot on multiple kernel with acpi
+Message-ID: <YQD5nXW8y6r1IyvJ@kroah.com>
+References: <9ad7219f-e8db-48b9-ad65-571bc12322d8@asdrip.fr>
 MIME-Version: 1.0
-Reply-To: godwinppter@gmail.com
-Sender: azizissa110@gmail.com
-Received: by 2002:a05:6622:58c:0:0:0:0 with HTTP; Tue, 27 Jul 2021 23:27:29
- -0700 (PDT)
-From:   Godwin Pete <godwinnpeter@gmail.com>
-Date:   Wed, 28 Jul 2021 08:27:29 +0200
-X-Google-Sender-Auth: 5IBdUxf5UD-FhXEy8O8RHnbYm6Y
-Message-ID: <CAHVQ7nEtjB8fAA-27BrJkFK8PT14jNEBjWgUqUcyvV7WORUvMw@mail.gmail.com>
-Subject: Reply immediately
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9ad7219f-e8db-48b9-ad65-571bc12322d8@asdrip.fr>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-My good friend,
+On Wed, Jul 28, 2021 at 04:49:40AM +0000, Adrien Precigout wrote:
+> Hi,
+> On my acer swift 3 (SF314-51), I can't boot on my device since 4.19.198 (no issue with 4.19.197) without adding "acpi=off" in the parameters. Same thing happens on 5.12.19 (didn't happened in 5.12.16), 5.13.4 and .5 and 5.10.52.
 
-I just want to know if you, can help me to transfer the amount of
-($6Million). After the transfer we have to share it, 50% for me, and
-50% for you. Please let me know if you can help me for more
-information in regards with the transfer. I hope you can work with me
-honestly?
+Please see this thread:
+	https://lore.kernel.org/r/1231e3e3-d510-43ec-522a-75e3fe9175fb@gmail.com
 
+I think we need to revert the change in the stable trees, as this is
+affecting more people than realized...
 
-Thanks.
+thanks,
 
-Godwin Peter,
+greg k-h
