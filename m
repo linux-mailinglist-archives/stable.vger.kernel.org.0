@@ -2,87 +2,229 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 49C1C3D91B5
-	for <lists+stable@lfdr.de>; Wed, 28 Jul 2021 17:20:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 399493D91C3
+	for <lists+stable@lfdr.de>; Wed, 28 Jul 2021 17:22:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235620AbhG1PUQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Jul 2021 11:20:16 -0400
-Received: from smtp-relay-canonical-0.canonical.com ([185.125.188.120]:45412
-        "EHLO smtp-relay-canonical-0.canonical.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235574AbhG1PUP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Jul 2021 11:20:15 -0400
-Received: from localhost.localdomain (unknown [123.112.69.26])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by smtp-relay-canonical-0.canonical.com (Postfix) with ESMTPSA id 4C6AE3FE72;
-        Wed, 28 Jul 2021 15:20:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-        s=20210705; t=1627485613;
-        bh=xSB0qaqDh/asWPJ+mudyo/EtJoVdKDKKukQIrJQJs+g=;
-        h=From:To:Cc:Subject:Date:Message-Id:MIME-Version;
-        b=vdT40IT+LVwYdZ/M5qXYcm0fy41jbEsefIDuNKFLkeMFlKOnr2NwdqW3VnNqbjfjl
-         gouitWPG3+92HoLvLfp0iNXZeYaMDVZeaa+ogfMVqP5YQPplJrQbOoOe736ZSA/kzi
-         OyPTuPe8/lFUIVsumGj67S4stEG9TrRyvmk0Ix1BoCL7emX21t90s+zD0F1JmB3pw5
-         aaaXgiE+aspv7c5hc28UvcZtv3+Am8vfMDfGdGE0Fvh0mdoVKYE0bX/b7/W1fALHXU
-         m1ofCG3jtWFZBDkM7LQ4fOcXFAeHK4sOeEZUmIu9W/3J0gwr7WUeEO3qVAxBmFNjFG
-         dp22TUB5BAbcg==
-From:   Hui Wang <hui.wang@canonical.com>
-To:     linux-acpi@vger.kernel.org, rafael.j.wysocki@intel.com,
-        stable@vger.kernel.org
-Cc:     manuelkrause@netscape.net, pgnet.dev@gmail.com
-Subject: [PATCH] Revert "ACPI: resources: Add checks for ACPI IRQ override"
-Date:   Wed, 28 Jul 2021 23:19:58 +0800
-Message-Id: <20210728151958.15205-1-hui.wang@canonical.com>
-X-Mailer: git-send-email 2.25.1
+        id S235620AbhG1PWv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Jul 2021 11:22:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51430 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235603AbhG1PWv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Jul 2021 11:22:51 -0400
+Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26A0EC061757
+        for <stable@vger.kernel.org>; Wed, 28 Jul 2021 08:22:50 -0700 (PDT)
+Received: by mail-pl1-x62f.google.com with SMTP id f13so3128326plj.2
+        for <stable@vger.kernel.org>; Wed, 28 Jul 2021 08:22:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=NjJyo0yy6XD/U9XxwqaM8krzp1yv9djngGDIsBwFmOs=;
+        b=X/oS1pQ7OOPxiRMdPFnOxjwI91GNmzPd8fmBNf7YhJOzKvAB+SBqlfOg2Grll8GOn6
+         Yr5z2dsZbelbEb8GpG1tGaO0erIInUzZr5XsOa+P2U2Tnpav+S2I1h62VKgljHbNFAkl
+         Oag5G4ZhmJfVfvyaqkNr/GYSEUSfxmhsoXBp6Pisiy3riG9CxRiJREM39wUjiDFs5DOo
+         x9CQshLWv0GfzsdqTcDmazbDOH+ZiVbC6rXLWW1Rn73jdZwXlO07WY5XK8w8T0jNIuCl
+         GuA7kunbcnNG5V47MqtUYgAfayAOh8xmXI5wNcKN878ZgE1A2QqrxSI/Flbq2ANOgzZh
+         4SGw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=NjJyo0yy6XD/U9XxwqaM8krzp1yv9djngGDIsBwFmOs=;
+        b=WFnLKVMkPbL083M80jNWO5rk50yZj11WRhbvOawrnb1uOTc/NzPQZ0alAgVA6/HPNE
+         HfEidNoEmX8LtH+cs9aPOlPzEJ8n6lH7BpadHFKNKiXw5pqSmCICKD1H3uZBb3hV24Rl
+         37wDdsZYm2uwsgLTOU6LMxMV+FrECCBZhR00seE6uHaolHpOxryG4yKdRoSmtkrGDzaB
+         C6+7dk41+ZhDw3bxtQrkfVfKhngA2dYgry/w1rFIWnqdY8TTCo4/VDMztB+T0jnfriwb
+         SEC8YmLzUkQ3n13XjrWP1gvnLIZHJW6WshF/7H1ZxuM6gfVC09dUU7sNAFVwQIPnJKed
+         s6Kg==
+X-Gm-Message-State: AOAM531udIZC8/Ce86u/xXRUDLdwK3mSYIQaf+qu2bI7JLxw8gDvGAaj
+        +I7qq+SJCt+/eg1fXxOkc+aSwReSeXx/7Zks
+X-Google-Smtp-Source: ABdhPJyX5aQEKHiT1oCDA2YdxX6dtB5x4lO+OV0ZqXbrpSBxk3Xg5GV144ngJIji5x0J5r91UDvH2g==
+X-Received: by 2002:a17:90a:c8b:: with SMTP id v11mr9798250pja.114.1627485769532;
+        Wed, 28 Jul 2021 08:22:49 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id c14sm4687532pjr.3.2021.07.28.08.22.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 28 Jul 2021 08:22:49 -0700 (PDT)
+Message-ID: <61017649.1c69fb81.49818.ff42@mx.google.com>
+Date:   Wed, 28 Jul 2021 08:22:49 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.14.241
+Subject: stable/linux-4.14.y baseline: 124 runs, 4 regressions (v4.14.241)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The commit 0ec4e55e9f57 ("ACPI: resources: Add checks for ACPI IRQ
-override") introduces regression on some platforms, at least it makes
-the UART can't get correct irq setting on two different platforms,
-and it makes the kernel can't bootup on these two platforms.
+stable/linux-4.14.y baseline: 124 runs, 4 regressions (v4.14.241)
 
-This reverts commit 0ec4e55e9f571f08970ed115ec0addc691eda613.
+Regressions Summary
+-------------------
 
-Regression-discuss: https://bugzilla.kernel.org/show_bug.cgi?id=213031
-Reported-by: PGNd <pgnet.dev@gmail.com>
-Cc: 5.4+ <stable@vger.kernel.org> # 5.4+
-Signed-off-by: Hui Wang <hui.wang@canonical.com>
----
- drivers/acpi/resource.c | 9 +--------
- 1 file changed, 1 insertion(+), 8 deletions(-)
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+meson-gxbb-p200      | arm64 | lab-baylibre  | gcc-8    | defconfig        =
+   | 1          =
 
-diff --git a/drivers/acpi/resource.c b/drivers/acpi/resource.c
-index dc01fb550b28..ee78a210c606 100644
---- a/drivers/acpi/resource.c
-+++ b/drivers/acpi/resource.c
-@@ -423,13 +423,6 @@ static void acpi_dev_get_irqresource(struct resource *res, u32 gsi,
- 	}
- }
- 
--static bool irq_is_legacy(struct acpi_resource_irq *irq)
--{
--	return irq->triggering == ACPI_EDGE_SENSITIVE &&
--		irq->polarity == ACPI_ACTIVE_HIGH &&
--		irq->shareable == ACPI_EXCLUSIVE;
--}
--
- /**
-  * acpi_dev_resource_interrupt - Extract ACPI interrupt resource information.
-  * @ares: Input ACPI resource object.
-@@ -468,7 +461,7 @@ bool acpi_dev_resource_interrupt(struct acpi_resource *ares, int index,
- 		}
- 		acpi_dev_get_irqresource(res, irq->interrupts[index],
- 					 irq->triggering, irq->polarity,
--					 irq->shareable, irq_is_legacy(irq));
-+					 irq->shareable, true);
- 		break;
- 	case ACPI_RESOURCE_TYPE_EXTENDED_IRQ:
- 		ext_irq = &ares->data.extended_irq;
--- 
-2.25.1
+qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
+ig | 1          =
 
+qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
+ig | 1          =
+
+qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
+ig | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable/branch/linux-4.14.y/kernel=
+/v4.14.241/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable
+  Branch:   linux-4.14.y
+  Describe: v4.14.241
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able.git
+  SHA:      ce4d1565392b2dc8ea33032615c934c3dc6a32bb =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+meson-gxbb-p200      | arm64 | lab-baylibre  | gcc-8    | defconfig        =
+   | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61013fa81a7b9e1bd45018ef
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable/linux-4.14.y/v4.14.241/=
+arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p200.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-4.14.y/v4.14.241/=
+arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p200.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61013fa81a7b9e1bd4501=
+8f0
+        failing since 481 days (last pass: v4.14.172, first fail: v4.14.175=
+) =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61014149a67d123f435018d7
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable/linux-4.14.y/v4.14.241/=
+arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-4.14.y/v4.14.241/=
+arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-versatilepb.ht=
+ml
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61014149a67d123f43501=
+8d8
+        failing since 251 days (last pass: v4.14.206, first fail: v4.14.207=
+) =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61013e1637992deb395018f2
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable/linux-4.14.y/v4.14.241/=
+arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-4.14.y/v4.14.241/=
+arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61013e1637992deb39501=
+8f3
+        failing since 251 days (last pass: v4.14.206, first fail: v4.14.207=
+) =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61014abaa20b93c7d05018e5
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable/linux-4.14.y/v4.14.241/=
+arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilepb.t=
+xt
+  HTML log:    https://storage.kernelci.org//stable/linux-4.14.y/v4.14.241/=
+arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilepb.h=
+tml
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61014abaa20b93c7d0501=
+8e6
+        failing since 251 days (last pass: v4.14.206, first fail: v4.14.207=
+) =
+
+ =20
