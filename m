@@ -2,77 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E37D3D8918
-	for <lists+stable@lfdr.de>; Wed, 28 Jul 2021 09:48:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 236E43D894E
+	for <lists+stable@lfdr.de>; Wed, 28 Jul 2021 09:59:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233407AbhG1Hsc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Jul 2021 03:48:32 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:40556 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234003AbhG1Hsb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Jul 2021 03:48:31 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 8DED71C0B7C; Wed, 28 Jul 2021 09:48:29 +0200 (CEST)
-Date:   Wed, 28 Jul 2021 09:48:28 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        =?iso-8859-1?Q?Bj=F6rn_T=F6pel?= <bjorn.topel@intel.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.10 014/167] net: Introduce preferred busy-polling
-Message-ID: <20210728074828.GA28860@amd>
-References: <20210726153839.371771838@linuxfoundation.org>
- <20210726153839.841834200@linuxfoundation.org>
+        id S235274AbhG1H7k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Jul 2021 03:59:40 -0400
+Received: from 8bytes.org ([81.169.241.247]:48660 "EHLO theia.8bytes.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S235273AbhG1H7Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 28 Jul 2021 03:59:24 -0400
+Received: by theia.8bytes.org (Postfix, from userid 1000)
+        id CDBAF310; Wed, 28 Jul 2021 09:59:21 +0200 (CEST)
+Date:   Wed, 28 Jul 2021 09:59:12 +0200
+From:   Joerg Roedel <joro@8bytes.org>
+To:     Nathan Chancellor <nathan@kernel.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org,
+        clang-built-linux@googlegroups.com,
+        Andrey Ryabinin <arbn@yandex-team.com>,
+        Will Deacon <will@kernel.org>,
+        kernel test robot <lkp@intel.com>
+Subject: Re: [PATCH 4.9 1/2] iommu/amd: Fix backport of
+ 140456f994195b568ecd7fc2287a34eadffef3ca
+Message-ID: <YQEOUD0uP6v/i3Y0@8bytes.org>
+References: <20210727225650.726875-1-nathan@kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="bg08WKrSYDhXBjb5"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210726153839.841834200@linuxfoundation.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+In-Reply-To: <20210727225650.726875-1-nathan@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, Jul 27, 2021 at 03:56:49PM -0700, Nathan Chancellor wrote:
+> Clang warns:
+> 
+> drivers/iommu/amd_iommu.c:1335:6: warning: variable 'flags' is used
+> uninitialized whenever 'if' condition is true
+> [-Wsometimes-uninitialized]
+>         if (!pte)
+>             ^~~~
+> drivers/iommu/amd_iommu.c:1352:40: note: uninitialized use occurs here
+>         spin_unlock_irqrestore(&domain->lock, flags);
+>                                               ^~~~~
+> drivers/iommu/amd_iommu.c:1335:2: note: remove the 'if' if its condition
+> is always false
+>         if (!pte)
+>         ^~~~~~~~~
+> drivers/iommu/amd_iommu.c:1331:21: note: initialize the variable 'flags'
+> to silence this warning
+>         unsigned long flags;
+>                            ^
+>                             = 0
+> 1 warning generated.
+> 
+> The backport of commit 140456f99419 ("iommu/amd: Fix sleeping in atomic
+> in increase_address_space()") to 4.9 as commit 1d648460d7c5 ("iommu/amd:
+> Fix sleeping in atomic in increase_address_space()") failed to keep the
+> "return false", which in 4.9 needs to be a regular "return" due to a
+> lack of commit f15d9a992f90 ("iommu/amd: Remove domain->updated").
+> 
+> This resolves the warning and matches the 4.14-4.19 backport.
+> 
+> Cc: Andrey Ryabinin <arbn@yandex-team.com>
+> Cc: Joerg Roedel <joro@8bytes.org>
+> Cc: Will Deacon <will@kernel.org>
+> Fixes: 1d648460d7c5 ("iommu/amd: Fix sleeping in atomic in increase_address_space()")
+> Reported-by: kernel test robot <lkp@intel.com>
+> Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 
---bg08WKrSYDhXBjb5
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Acked-by: Joerg Roedel <jroedel@suse.de>
 
-Hi!
-
-> From: Bj=F6rn T=F6pel <bjorn.topel@intel.com>
->=20
-> [ Upstream commit 7fd3253a7de6a317a0683f83739479fb880bffc8 ]
->=20
-> The existing busy-polling mode, enabled by the SO_BUSY_POLL socket
-> option or system-wide using the /proc/sys/net/core/busy_read knob, is
-> an opportunistic. That means that if the NAPI context is not
-
-Do we need this in -stable? It is rather long at 400 lines, and
-introduces new API feature, does not fix a bug.
-
-I can revert it on top of 5.10-stable, so I don't believe we have
-bugfix depending on it.
-
-Best regards,
-								Pavel
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
-
---bg08WKrSYDhXBjb5
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAmEBC8wACgkQMOfwapXb+vI6/QCfSm725dj6X03s11p0VOo4DPRn
-SN4AoKIyovifQCui152lZM9+nPY9m9Vo
-=h5pZ
------END PGP SIGNATURE-----
-
---bg08WKrSYDhXBjb5--
