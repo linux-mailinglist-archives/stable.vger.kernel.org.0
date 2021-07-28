@@ -2,163 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C5183D8D70
-	for <lists+stable@lfdr.de>; Wed, 28 Jul 2021 14:05:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BCC133D8D9D
+	for <lists+stable@lfdr.de>; Wed, 28 Jul 2021 14:19:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236059AbhG1MF2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Jul 2021 08:05:28 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:50990 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234805AbhG1MFZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Jul 2021 08:05:25 -0400
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16SC2VdD101996;
-        Wed, 28 Jul 2021 08:05:14 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : subject :
- date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=IQu+wCH9h7nDTOSHQeUwEGhSI28OKU5cShZSQ8xx/uw=;
- b=jSy+XZOaPcxAhtNsegAIez5qIsGtjbahHYn5lu32mUuck3t76OQQoRH7mPLp/tczyaTF
- a0o1jDf4c5IiPcaMtv2e88Y0jQx8UKzAm4FJ3mvqk5TC9zvhum9QqEna1PZ3xcVmlus2
- 7oqi2I9JJ7J3lX+qEK24RXE+3oX6JtFlyXdET60xfmoFugDrT4aobokYjVsBkyNLCeZR
- D8EHQXFQFks3bT7SFNljhYuK4YIWPJHZOLeQ875kY0BI9/atzuvD1vheginSf3pUpcnO
- ZEzrCcU0sRwrCaOofktxlokCVlG4Y3xQmt8JaVWGWQOI6X9YhTLIwPBL8j8ekZ9aK9k/ lw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3a36g897k2-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 28 Jul 2021 08:05:14 -0400
-Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16SC5D2m134022;
-        Wed, 28 Jul 2021 08:05:13 -0400
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3a36g897h7-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 28 Jul 2021 08:05:12 -0400
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16SC2pui009742;
-        Wed, 28 Jul 2021 12:05:11 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma03ams.nl.ibm.com with ESMTP id 3a235yh1fa-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 28 Jul 2021 12:05:11 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16SC58f731392066
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 28 Jul 2021 12:05:08 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9793111C050;
-        Wed, 28 Jul 2021 12:05:08 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BD98F11C058;
-        Wed, 28 Jul 2021 12:05:05 +0000 (GMT)
-Received: from pratiks-thinkpad.ibmuc.com (unknown [9.85.80.104])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 28 Jul 2021 12:05:05 +0000 (GMT)
-From:   "Pratik R. Sampat" <psampat@linux.ibm.com>
-To:     mpe@ellerman.id.au, rjw@rjwysocki.net, linux-pm@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, psampat@linux.ibm.com,
-        pratik.r.sampat@gmail.com
-Subject: [PATCH v2 1/1] cpufreq:powernv: Fix init_chip_info initialization in numa=off
-Date:   Wed, 28 Jul 2021 17:35:00 +0530
-Message-Id: <20210728120500.87549-2-psampat@linux.ibm.com>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210728120500.87549-1-psampat@linux.ibm.com>
-References: <20210728120500.87549-1-psampat@linux.ibm.com>
+        id S236220AbhG1MTW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Jul 2021 08:19:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36866 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236155AbhG1MTM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Jul 2021 08:19:12 -0400
+Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02AD0C061757
+        for <stable@vger.kernel.org>; Wed, 28 Jul 2021 05:19:10 -0700 (PDT)
+Received: by mail-pl1-x634.google.com with SMTP id n10so2441155plf.4
+        for <stable@vger.kernel.org>; Wed, 28 Jul 2021 05:19:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=3BD21+2chDFyZKPTo10PxgI5nBYv5y4huGGvuN1mdTE=;
+        b=W/ej1ctGyxzGSIda+cPdVbe31OYkI9YtqwYrrylXjTFbS3rDOTOVUUFP1Rq45aaHGf
+         8UvOHrV4yPlEWOo6FQ2qjtvEqzpqm+HqzXTIFFrSJC0yCcXfTWboeQCXFo2yJ2s+H/ti
+         G0iGQq13gpSreB0tJkwbrMR5rk/huJbp0+maQ80SA2ARv7+qenZHRnnyUHVEx60PLW6Y
+         mm7fSCBrJIfsf65D29+2zGBAmcFvyl4whOy1cccZd/7J/tw/FmOxhtSruB5seWp32h5v
+         46qDY76VtK/v3LT83SD/cS1KzRnUhqpB3G8BWQeLtHShRhZZHqrQcqvU25JaKV4juXWC
+         +btg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=3BD21+2chDFyZKPTo10PxgI5nBYv5y4huGGvuN1mdTE=;
+        b=cULu1DOo6qgrJYkCVF65PxATCB7Tf5BTaX06qTRcjx/Rg8unDtZdm/pKCheGWZxfaG
+         8Gnfg6AK9WnltQ05lIzW2FuSAtLBiwS/KC/vtj6Qoi++X5A37k7dfBFAoZYyemi4S1XG
+         1g8mDhSnW8niDeajZ/FfWK8bhPmaJycLbeYRT5WP8GKyRZzZ0SWhM5X5y/fQRQ2+yzba
+         es9Msgqk7AyW5OSYte5xuT/8ME6GFakGsZ5iQps/8W7rYxC04crenz9miapaPr40wruw
+         7+CjfZhEbGYVwD7RSp9e9qdA/g14I1hOzJ0V1fCl9MUxm2csnmkfYT5Dz1HZnCMyd0B5
+         WTtg==
+X-Gm-Message-State: AOAM533amZyOYJc47iSP54FKhYThishWrp+nZLQncll8+zTt4AfL3CYj
+        ACrGJhC3NMeIFC7oZI5BVM8oYOFzE6IdDTfc
+X-Google-Smtp-Source: ABdhPJyiD9tZc2u0bArc9LhcMVXR9PyYhdgOdamDfjdmmFttWeKvmA4gZHdAqqUZrCYlmMEUIbaNaw==
+X-Received: by 2002:a65:4101:: with SMTP id w1mr29188828pgp.5.1627474749374;
+        Wed, 28 Jul 2021 05:19:09 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id 201sm8231642pgd.37.2021.07.28.05.19.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 28 Jul 2021 05:19:09 -0700 (PDT)
+Message-ID: <61014b3d.1c69fb81.54983.94ad@mx.google.com>
+Date:   Wed, 28 Jul 2021 05:19:09 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: yy9xZxCFGgnQXWxN30-uVWG8VmOn6ZmQ
-X-Proofpoint-ORIG-GUID: 5nhJnAlooTf6GZS1GKBZpkDtRQGvr6iq
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-07-28_07:2021-07-27,2021-07-28 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 bulkscore=0
- impostorscore=0 suspectscore=0 phishscore=0 adultscore=0 malwarescore=0
- lowpriorityscore=0 mlxscore=0 mlxlogscore=999 priorityscore=1501
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2107140000 definitions=main-2107280068
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable
+X-Kernelci-Branch: linux-4.9.y
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.9.277
+Subject: stable/linux-4.9.y baseline: 20 runs, 1 regressions (v4.9.277)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In the numa=off kernel command-line configuration init_chip_info() loops
-around the number of chips and attempts to copy the cpumask of that node
-which is NULL for all iterations after the first chip.
+stable/linux-4.9.y baseline: 20 runs, 1 regressions (v4.9.277)
 
-Hence, store the cpu mask for each chip instead of derving cpumask from
-node while populating the "chips" struct array and copy that to the
-chips[i].mask
+Regressions Summary
+-------------------
 
-Cc: stable@vger.kernel.org
-Fixes: 053819e0bf84 ("cpufreq: powernv: Handle throttling due to Pmax capping at chip level")
-Signed-off-by: Pratik R. Sampat <psampat@linux.ibm.com>
-Reported-by: Shirisha Ganta <shirisha.ganta1@ibm.com>
-Reviewed-by: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
+platform           | arch  | lab          | compiler | defconfig | regressi=
+ons
+-------------------+-------+--------------+----------+-----------+---------=
 ---
- drivers/cpufreq/powernv-cpufreq.c | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+r8a7795-salvator-x | arm64 | lab-baylibre | gcc-8    | defconfig | 1       =
+   =
 
-diff --git a/drivers/cpufreq/powernv-cpufreq.c b/drivers/cpufreq/powernv-cpufreq.c
-index 005600cef273..5f0e7c315e49 100644
---- a/drivers/cpufreq/powernv-cpufreq.c
-+++ b/drivers/cpufreq/powernv-cpufreq.c
-@@ -36,6 +36,7 @@
- #define MAX_PSTATE_SHIFT	32
- #define LPSTATE_SHIFT		48
- #define GPSTATE_SHIFT		56
-+#define MAX_NR_CHIPS		32
- 
- #define MAX_RAMP_DOWN_TIME				5120
- /*
-@@ -1046,12 +1047,20 @@ static int init_chip_info(void)
- 	unsigned int *chip;
- 	unsigned int cpu, i;
- 	unsigned int prev_chip_id = UINT_MAX;
-+	cpumask_t *chip_cpu_mask;
- 	int ret = 0;
- 
- 	chip = kcalloc(num_possible_cpus(), sizeof(*chip), GFP_KERNEL);
- 	if (!chip)
- 		return -ENOMEM;
- 
-+	/* Allocate a chip cpu mask large enough to fit mask for all chips */
-+	chip_cpu_mask = kcalloc(MAX_NR_CHIPS, sizeof(cpumask_t), GFP_KERNEL);
-+	if (!chip_cpu_mask) {
-+		ret = -ENOMEM;
-+		goto free_and_return;
-+	}
-+
- 	for_each_possible_cpu(cpu) {
- 		unsigned int id = cpu_to_chip_id(cpu);
- 
-@@ -1059,22 +1068,25 @@ static int init_chip_info(void)
- 			prev_chip_id = id;
- 			chip[nr_chips++] = id;
- 		}
-+		cpumask_set_cpu(cpu, &chip_cpu_mask[nr_chips-1]);
- 	}
- 
- 	chips = kcalloc(nr_chips, sizeof(struct chip), GFP_KERNEL);
- 	if (!chips) {
- 		ret = -ENOMEM;
--		goto free_and_return;
-+		goto out_chip_cpu_mask;
- 	}
- 
- 	for (i = 0; i < nr_chips; i++) {
- 		chips[i].id = chip[i];
--		cpumask_copy(&chips[i].mask, cpumask_of_node(chip[i]));
-+		cpumask_copy(&chips[i].mask, &chip_cpu_mask[i]);
- 		INIT_WORK(&chips[i].throttle, powernv_cpufreq_work_fn);
- 		for_each_cpu(cpu, &chips[i].mask)
- 			per_cpu(chip_info, cpu) =  &chips[i];
- 	}
- 
-+out_chip_cpu_mask:
-+	kfree(chip_cpu_mask);
- free_and_return:
- 	kfree(chip);
- 	return ret;
--- 
-2.31.1
 
+  Details:  https://kernelci.org/test/job/stable/branch/linux-4.9.y/kernel/=
+v4.9.277/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable
+  Branch:   linux-4.9.y
+  Describe: v4.9.277
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able.git
+  SHA:      edcc1d3a1c2e80a7fe254889877c0b073474fd5a =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform           | arch  | lab          | compiler | defconfig | regressi=
+ons
+-------------------+-------+--------------+----------+-----------+---------=
+---
+r8a7795-salvator-x | arm64 | lab-baylibre | gcc-8    | defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/61011a866efe73ef835018d0
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable/linux-4.9.y/v4.9.277/ar=
+m64/defconfig/gcc-8/lab-baylibre/baseline-r8a7795-salvator-x.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-4.9.y/v4.9.277/ar=
+m64/defconfig/gcc-8/lab-baylibre/baseline-r8a7795-salvator-x.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61011a866efe73ef83501=
+8d1
+        failing since 251 days (last pass: v4.9.243, first fail: v4.9.244) =
+
+ =20
