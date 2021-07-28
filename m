@@ -2,133 +2,234 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 185323D89C2
-	for <lists+stable@lfdr.de>; Wed, 28 Jul 2021 10:28:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 365EC3D89CF
+	for <lists+stable@lfdr.de>; Wed, 28 Jul 2021 10:34:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235362AbhG1I2U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Jul 2021 04:28:20 -0400
-Received: from mail-eopbgr140080.outbound.protection.outlook.com ([40.107.14.80]:7687
-        "EHLO EUR01-VE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S235274AbhG1I2T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 28 Jul 2021 04:28:19 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=mFuWdbpRuJpMeOTn1shPKwxgqqEhF6cp/xuKvTYZyHIiMhslJilj0BxMjzxGCOzSfmSfMyIB/vlY/K6N2cCkkjvOfuOox266LRaUfqT+ki1cJLoNQi7EmuXTYUZIrDx7ZQKzIGx0l4d8NSopKOxRx6+tXH/xt30xUFJhHK6HRFTHxULbOIoTroGiKkoI62iOUycy6KMY8jC0Gt/senMz/sZzzW6Lvj6EFCsV+XTBIv4hlrJ1uLnJ2d7CYd+Ewvyzr3v/Dl0hmxGIEyvPBaD4HBxTn4VZ+kpqFjpoqdIefyWLFiyXP2cCUQlcE5tGg5QoqdQH76rkdgesvFalrHLxsw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=ysyx6fcv0Ac+DHs+cy+2dJSlKqlGb1cRvNoOUcNWA3c=;
- b=IFS5JFUUIFoIpwX2QCWv9frwmrliRsE5DzWUN/RKpLkk/CiaUgFkQ1xe8T93z0MUxlYyMicpF9GwadJeD79S9cxr/Fh7Qixv8fOUJGtFwDL6Z63XY6NBhewmgy+ISdHa2NwDgnkryjsn+3xyHqtHPHps+wb7KSKMBdyPc87QEdFv+SxpqGhEh/7s2LMY3kyGwOCrxh32JXq1nvaVT2lmsgiOUjRlFo+IKpIqrijoIhX1haRYO1Rvt9M66Qw9/AB8NQLX7TE+i6d1Zenk79Y9eXH1em4HCA6AjZs5FDUAEFp6Aoo2d2qS3z9/tV+8HP3z+/WVyRop8SqDdxuqMKWzdQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nxp.com; dmarc=pass action=none header.from=nxp.com; dkim=pass
- header.d=nxp.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=ysyx6fcv0Ac+DHs+cy+2dJSlKqlGb1cRvNoOUcNWA3c=;
- b=JdA8N/kX2qvwJhzyR2hyaXAXoQ8+M7Cm/muSK0cKiQAisk32AF3rgUtnOXWxk+LU3rNYXRC9JFbSTVPy24CXfrt+XqaRcQHGbf+DldXV/KHwQGA+SO9qYefxaHCpsg+r8mRARyMGKJ6ULp5asSr7bn42Z9iabADWZZSVGDts2bQ=
-Authentication-Results: kernel.org; dkim=none (message not signed)
- header.d=none;kernel.org; dmarc=none action=none header.from=nxp.com;
-Received: from VI1PR0401MB2559.eurprd04.prod.outlook.com (2603:10a6:800:57::8)
- by VI1PR04MB3247.eurprd04.prod.outlook.com (2603:10a6:802:8::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4352.30; Wed, 28 Jul
- 2021 08:28:14 +0000
-Received: from VI1PR0401MB2559.eurprd04.prod.outlook.com
- ([fe80::1dc0:b737:bf34:46b]) by VI1PR0401MB2559.eurprd04.prod.outlook.com
- ([fe80::1dc0:b737:bf34:46b%3]) with mapi id 15.20.4352.031; Wed, 28 Jul 2021
- 08:28:14 +0000
-Date:   Wed, 28 Jul 2021 11:28:11 +0300
-From:   Abel Vesa <abel.vesa@nxp.com>
-To:     Stephen Boyd <sboyd@kernel.org>
-Cc:     Dong Aisheng <aisheng.dong@nxp.com>, linux-clk@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, dongas86@gmail.com,
-        shawnguo@kernel.org, kernel@pengutronix.de, aford173@gmail.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 1/1] clk: imx6q: fix uart earlycon unwork
-Message-ID: <YQEVG1R1IDxB8odE@ryzen>
-References: <20210702085438.1988087-1-aisheng.dong@nxp.com>
- <YPVWY4h+nSP6IGZc@ryzen>
- <162741907003.2368309.8765989426815970294@swboyd.mtv.corp.google.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <162741907003.2368309.8765989426815970294@swboyd.mtv.corp.google.com>
-X-ClientProxiedBy: VE1PR03CA0003.eurprd03.prod.outlook.com
- (2603:10a6:802:a0::15) To VI1PR0401MB2559.eurprd04.prod.outlook.com
- (2603:10a6:800:57::8)
+        id S234123AbhG1IeS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Jul 2021 04:34:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36982 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233339AbhG1IeR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 28 Jul 2021 04:34:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 41E56600D4;
+        Wed, 28 Jul 2021 08:34:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1627461255;
+        bh=SExZlI1R5ZcozuGWrw7VFlxMzcsp3vIAT3KbFbBhwFA=;
+        h=From:To:Cc:Subject:Date:From;
+        b=gcoZc32iKlfva/hkJUebAPCunmbpmNIlZJJDA5ejq9pljJwfprq2vrUrwaUH2TbcY
+         W9Xi9ZlrTlExejnGyEbFJVtLszFYWc57AExWwBy2iUh5mRgtSpUsjb+6mz1NKAxjVa
+         sKo33JgxbsojydSh8QjvdFf74L/509ILlVmniUFs=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, jslaby@suse.cz,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Linux 4.4.277
+Date:   Wed, 28 Jul 2021 10:34:12 +0200
+Message-Id: <162746125213932@kroah.com>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from ryzen (188.26.184.129) by VE1PR03CA0003.eurprd03.prod.outlook.com (2603:10a6:802:a0::15) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4373.18 via Frontend Transport; Wed, 28 Jul 2021 08:28:13 +0000
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: b8aef85e-d733-44d7-0e16-08d951a1a440
-X-MS-TrafficTypeDiagnostic: VI1PR04MB3247:
-X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <VI1PR04MB324728F42CC6C067C036EA9BF6EA9@VI1PR04MB3247.eurprd04.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:9508;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: SNLjcRKyDVg84/REV6u5UVOwgYVoId4bELBcRa2SOgacY+8lWCzUoBYi6mcxNuaJPPdFtekXebXlynFXRnzx3yDmbvojuLkeOhPzcTT2gNs7T7w/zviTsXdKDnzg4iWnZ6wzNQvJLJThlDVZwvohsQd0YYKnuzUtEmvwBJdpVcENOVmRF9UUtUIDWT2u8kMySUeQB5djHjHFDyu1NgQERicFCfA7muXwuJUJX8tGi7frCOb/aTYKlCjZqRPqJSSHW37h71GNB1KYVv20emvZ2NmS/95RiBv99Jp/6VwdGE7sFYPA5jZQSfD809qCqYlaTvYMMGVjxLy4KsbmH4eTF1RP4Wz6nUBxZ/m0JYE1QCzxeIk/Yx9T58CGlwZtpNRuO5fbJZ3hL1D8SCtd2a7DM1xhfQM2g2yKba22WOfZPzD6PChPTVPazkKD9cu4knS0TeY3EY0O20UrSIcMKFf4SzQUh7H0dhIKK7PTUfB8B9q1erO+/8Yo5eC/wnFpFnm3e6E+VxW4zhz33zvgmKDr9/KeNlLEv+YBUIi7Pt4rptCtSC9dCIpb9vKUnY9DEqjjGyIAkQ/TOQnhIqNqdbOI97JE7C5f4pU3RaikHSfnC8++zSThsXT42GebTSkOXKIncwULsZENuWL9t+Q8YmlT05stF/FRYqm8cxT/IbLEwJw33gNKkh982AgfprPr4hzFKBU3cJWeGc621RSQLIAjmlez1vnmrvWxQmYEOpBSmbk=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:VI1PR0401MB2559.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(956004)(66476007)(4326008)(66556008)(508600001)(316002)(52116002)(5660300002)(66946007)(53546011)(26005)(86362001)(9686003)(38100700002)(38350700002)(6916009)(33716001)(6496006)(9576002)(8676002)(8936002)(2906002)(83380400001)(55016002)(4744005)(186003)(44832011)(32563001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?bSuGduS1wgwfOIDqYpySnv04UykDnlTJGloq8W7jt3UMRLNgPBgFoWIh4Tj7?=
- =?us-ascii?Q?RYOo+i+2xhk2z48isIr71jttpN2I6fGOzmhr4GBnv3PzHRLJAkLTruRuKhM/?=
- =?us-ascii?Q?6gduUc3aUL44EcNXLQBUljGVvRTEg1bJ8LqWoJXq+UzYG78bwwJtIaqQAUS7?=
- =?us-ascii?Q?3JK01vpFEaItqgRh+33m1jGAhdy9He8GfHQnsnUZRPllGkTf1vlBpsiuSS64?=
- =?us-ascii?Q?YjF/tDGHViFAh3BjvXymERAZn6AE4oVpA7m22b3u6ObvFxNGBvtJdRgrbA84?=
- =?us-ascii?Q?whkyVxRnrfrDYpTQ7eZveSSHqSzzer9BdR1J2SjeTZmBuy2I19ycG8fn6ZnB?=
- =?us-ascii?Q?AZQVngfVGVFybYliyufqEEgqi8Vb9KN/m8ZcxVn+hwcvG63WxaEsCHrAW76r?=
- =?us-ascii?Q?6bnib7gaG2c2ydEj7hw15mUWdG5T9qHLCS9Q1u7NJdTwROmHFfeE+DIwdqCI?=
- =?us-ascii?Q?Z7KA5bAeXwKQ0BMys8HYrv5CCVZzSsGESW4ZoHRgt+MMTDQJ2onYAVJouKFq?=
- =?us-ascii?Q?7DJ3xm/5f7phNvzp1IOCCMYMUKf9g4VqJrClyQ95yKu/8Ky3U2kh03wQiB43?=
- =?us-ascii?Q?SafvIfOxOeVjaAneGKU0+CdwMxFweRtUDsRSKVG/b1AaERo9aF4xTeR+Xjnv?=
- =?us-ascii?Q?ypk+qzVsAq6xn0B+SMAhm4P9eHyJznj5pk7nK/wMAr3cG8KJS1Rkw+m9CzTW?=
- =?us-ascii?Q?cO1PB/XRQicixpdCidhPvDv8xStffLFlMjRbW1PKZPNck/GEFGgqeXcizEXU?=
- =?us-ascii?Q?FaWXJr6+JaSz4wEV+eqpHTGJhpyDcP4CeSFj0GJgZqcOOcj+AUQDSqcKCfQX?=
- =?us-ascii?Q?XW4YMese/MkHBEt2jkXeWtJXxVDYNU0qt15jp7O0lyNXE5XEf2Y4nY7sNuIt?=
- =?us-ascii?Q?5a7qBvWr7+csK0tkAeP8wKZ4AeWt/F4lKmlIWduIWNqoXIG3tBVoHhmWYQ/E?=
- =?us-ascii?Q?BCBfvT01AqohHWFjwWE/aSTxQaZ6COk+GXxprfWi6Ide6PVexj79O5XJrKvJ?=
- =?us-ascii?Q?f+gkwr27mrnpMExNK00qlvjpBe2PhNANnAK0MzRktWKH3AgLf+Qicetr+epz?=
- =?us-ascii?Q?mUyFnDezU6N4eSI4K9QNUfP1ss64L8sg5aGzLBkLSm9TBjasGjDiUJqg48Hx?=
- =?us-ascii?Q?xqdSfPnQ6fjFtWRLgZVlMLqA2WLAfmnDGJ62c8QmP9wTViSigc+3YJQs0GBO?=
- =?us-ascii?Q?z8DK4w91GhaRfwro27jOvyhXQ84KL9Tr2pSTx2kE+hzZQkf8lHhJ5XmG3oTf?=
- =?us-ascii?Q?afGsXX1JVwRTDJt/OuK9Yxsa9k6ltAfKUJXuM8DJhp8rsR/xNUY6S2FW42si?=
- =?us-ascii?Q?F5REGUqvnebhqYJiWajCMBpD?=
-X-OriginatorOrg: nxp.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: b8aef85e-d733-44d7-0e16-08d951a1a440
-X-MS-Exchange-CrossTenant-AuthSource: VI1PR0401MB2559.eurprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 Jul 2021 08:28:13.9990
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: cD1JpLlfVZEGY/lZH1rtaxS47RVYzj7eqHaPHkUvTnuUimXzIlMhSipfeuk+EvofMhIb36FgPrIduorCtZaadQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI1PR04MB3247
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 21-07-27 13:51:10, Stephen Boyd wrote:
-> Quoting Abel Vesa (2021-07-19 03:39:31)
-> > On 21-07-02 16:54:38, Dong Aisheng wrote:
-> > > The earlycon depends on the bootloader setup UART clocks being retained.
-> > > There're actually two uart clocks (ipg, per) on MX6QDL,
-> > > but the 'Fixes' commit change to register only one which means
-> > > another clock may be disabled during booting phase
-> > > and result in the earlycon unwork.
-> > > 
-> > > Cc: stable@vger.kernel.org # v5.10+
-> > > Fixes: 379c9a24cc23 ("clk: imx: Fix reparenting of UARTs not associated with stdout")
-> > > Signed-off-by: Dong Aisheng <aisheng.dong@nxp.com>
-> > 
-> > 
-> > Reviewed-by: Abel Vesa <abel.vesa@nxp.com>
-> > 
-> > Stephen, will you pick this up ?
-> > 
-> 
-> Sure I can pick it up if you need me to pick it to fixes?
+I'm announcing the release of the 4.4.277 kernel.
 
-Yes, please.
+All users of the 4.4 kernel series must upgrade.
 
-Thanks.
+The updated 4.4.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.4.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Makefile                                           |    2 
+ arch/arm/boot/dts/bcm63138.dtsi                    |    2 
+ arch/arm/boot/dts/bcm7445-bcm97445svmb.dts         |    4 
+ arch/arm/boot/dts/bcm7445.dtsi                     |    2 
+ arch/arm/boot/dts/bcm963138dvt.dts                 |    4 
+ arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi       |    5 -
+ arch/arm/mach-imx/suspend-imx53.S                  |    4 
+ arch/powerpc/kvm/book3s_rtas.c                     |   25 +++++
+ arch/s390/include/asm/ftrace.h                     |    1 
+ arch/s390/kernel/ftrace.c                          |    2 
+ arch/s390/kernel/mcount.S                          |    4 
+ arch/s390/net/bpf_jit_comp.c                       |    2 
+ arch/x86/include/asm/fpu/internal.h                |   30 +------
+ arch/x86/kernel/fpu/xstate.c                       |   37 +++++++-
+ drivers/iio/accel/bma180.c                         |   75 +++++++++++------
+ drivers/media/pci/ngene/ngene-core.c               |    2 
+ drivers/media/pci/ngene/ngene.h                    |   14 +--
+ drivers/memory/fsl_ifc.c                           |    4 
+ drivers/net/ethernet/broadcom/genet/bcmgenet.c     |   21 +---
+ drivers/net/ethernet/broadcom/genet/bcmgenet_wol.c |    6 -
+ drivers/net/ethernet/intel/i40evf/i40evf_main.c    |    1 
+ drivers/net/ethernet/intel/igb/igb_main.c          |    9 +-
+ drivers/net/ethernet/moxa/moxart_ether.c           |    4 
+ drivers/net/ethernet/ti/tlan.c                     |    3 
+ drivers/scsi/aic7xxx/aic7xxx_core.c                |    2 
+ drivers/scsi/scsi_transport_iscsi.c                |   90 +++++++--------------
+ drivers/target/target_core_sbc.c                   |   35 +++-----
+ drivers/thermal/thermal_core.c                     |    2 
+ drivers/usb/core/hub.c                             |   68 +++++++++++++--
+ drivers/usb/core/quirks.c                          |    4 
+ drivers/usb/host/max3421-hcd.c                     |   44 +++-------
+ drivers/usb/host/xhci-hub.c                        |    3 
+ drivers/usb/renesas_usbhs/fifo.c                   |    7 +
+ drivers/usb/serial/cp210x.c                        |    5 -
+ drivers/usb/serial/option.c                        |    3 
+ drivers/usb/storage/unusual_uas.h                  |    7 +
+ fs/btrfs/inode.c                                   |    2 
+ fs/proc/base.c                                     |    2 
+ include/net/dst_metadata.h                         |    4 
+ include/net/ip6_route.h                            |    2 
+ kernel/sched/fair.c                                |    4 
+ kernel/trace/ring_buffer.c                         |   28 +++++-
+ net/caif/caif_socket.c                             |    3 
+ net/decnet/af_decnet.c                             |   27 ++----
+ net/ipv4/tcp_ipv4.c                                |    4 
+ net/ipv4/tcp_output.c                              |    1 
+ net/ipv6/tcp_ipv6.c                                |   19 +++-
+ net/ipv6/xfrm6_output.c                            |    2 
+ net/netrom/nr_timer.c                              |   20 ++--
+ scripts/mkcompile_h                                |   14 ++-
+ sound/isa/sb/sb16_csp.c                            |    4 
+ tools/perf/tests/bpf.c                             |    2 
+ tools/perf/util/probe-file.c                       |    4 
+ 53 files changed, 402 insertions(+), 273 deletions(-)
+
+Aleksandr Loktionov (1):
+      igb: Check if num of q_vectors is smaller than max before array access
+
+Christophe JAILLET (1):
+      iavf: Fix an error handling path in 'iavf_probe()'
+
+Colin Ian King (2):
+      scsi: aic7xxx: Fix unintentional sign extension issue on left shift of u8
+      s390/bpf: Perform r1 range checking before accessing jit->seen_reg[r1]
+
+David Sterba (1):
+      btrfs: compression: don't try to compress if we don't have enough pages
+
+Dmitry Bogdanov (1):
+      scsi: target: Fix protect handling in WRITE SAME(32)
+
+Doug Berger (1):
+      net: bcmgenet: ensure EXT_ENERGY_DET_MASK is clear
+
+Eric Dumazet (2):
+      tcp: annotate data races around tp->mtu_info
+      ipv6: tcp: drop silly ICMPv6 packet too big messages
+
+Florian Fainelli (1):
+      net: bcmgenet: Ensure all TX/RX queues DMAs are disabled
+
+Greg Kroah-Hartman (2):
+      Revert "memory: fsl_ifc: fix leak of IO mapping on probe failure"
+      Linux 4.4.277
+
+Gustavo A. R. Silva (1):
+      media: ngene: Fix out-of-bounds bug in ngene_command_config_free_buf()
+
+Haoran Luo (1):
+      tracing: Fix bug in rb_per_cpu_empty() that might cause deadloop.
+
+Ian Ray (1):
+      USB: serial: cp210x: fix comments for GE CS1000
+
+John Keeping (1):
+      USB: serial: cp210x: add ID for CEL EM3588 USB ZigBee stick
+
+Jonathan Neuschäfer (1):
+      ARM: imx: pm-imx5: Fix references to imx5_cpu_suspend_info
+
+Julian Sikorski (1):
+      USB: usb-storage: Add LaCie Rugged USB3-FW to IGNORE_UAS
+
+Linus Walleij (1):
+      iio: accel: bma180: Use explicit member assignment
+
+Marcelo Henrique Cerri (1):
+      proc: Avoid mixing integer types in mem_rw()
+
+Marco De Marco (1):
+      USB: serial: option: add support for u-blox LARA-R6 family
+
+Mark Tomlinson (1):
+      usb: max-3421: Prevent corruption of freed memory
+
+Mathias Nyman (2):
+      xhci: Fix lost USB 2 remote wake
+      usb: hub: Disable USB 3 device initiated lpm if exit latency is too high
+
+Matthias Maennich (1):
+      kbuild: mkcompile_h: consider timestamp if KBUILD_BUILD_TIMESTAMP is set
+
+Mike Christie (1):
+      scsi: iscsi: Fix iface sysfs attr detection
+
+Nguyen Dinh Phi (1):
+      netrom: Decrease sock refcount when sock timers expire
+
+Nicholas Piggin (1):
+      KVM: PPC: Book3S: Fix H_RTAS rets buffer overflow
+
+Odin Ugedal (1):
+      sched/fair: Fix CFS bandwidth hrtimer expiry type
+
+Pavel Skripkin (2):
+      net: moxa: fix UAF in moxart_mac_probe
+      net: ti: fix UAF in tlan_remove_one
+
+Primoz Fiser (1):
+      ARM: dts: imx6: phyFLEX: Fix UART hardware flow control
+
+Rafał Miłecki (2):
+      ARM: brcmstb: dts: fix NAND nodes names
+      ARM: dts: BCM63xx: Fix NAND nodes names
+
+Riccardo Mancini (2):
+      perf test bpf: Free obj_buf
+      perf probe-file: Delete namelist in del_events() on the error path
+
+Stephan Gerhold (1):
+      iio: accel: bma180: Fix BMA25x bandwidth register values
+
+Taehee Yoo (1):
+      net: validate lwtstate->data before returning from skb_tunnel_info()
+
+Takashi Iwai (1):
+      ALSA: sb: Fix potential ABBA deadlock in CSP driver
+
+Thomas Gleixner (1):
+      x86/fpu: Make init_fpstate correct with optimized XSAVE
+
+Vadim Fedorenko (1):
+      net: ipv6: fix return value of ip6_skb_dst_mtu
+
+Vasily Gorbik (1):
+      s390/ftrace: fix ftrace_update_ftrace_func implementation
+
+Vincent Palatin (1):
+      Revert "USB: quirks: ignore remote wake-up on Fibocom L850-GL LTE modem"
+
+Yajun Deng (1):
+      net: decnet: Fix sleeping inside in af_decnet
+
+Yang Yingliang (1):
+      thermal/core: Correct function name thermal_zone_device_unregister()
+
+Yoshihiro Shimoda (1):
+      usb: renesas_usbhs: Fix superfluous irqs happen after usb_pkt_pop()
+
+Ziyang Xuan (1):
+      net: fix uninit-value in caif_seqpkt_sendmsg
+
