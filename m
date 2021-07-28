@@ -2,142 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 080373D924A
-	for <lists+stable@lfdr.de>; Wed, 28 Jul 2021 17:45:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AAC63D9256
+	for <lists+stable@lfdr.de>; Wed, 28 Jul 2021 17:50:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229622AbhG1Pph (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Jul 2021 11:45:37 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:23224 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229900AbhG1Ppd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Jul 2021 11:45:33 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1627487121;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+        id S229880AbhG1Puk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Jul 2021 11:50:40 -0400
+Received: from smtp-out2.suse.de ([195.135.220.29]:40380 "EHLO
+        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237058AbhG1Puh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Jul 2021 11:50:37 -0400
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out2.suse.de (Postfix) with ESMTP id 2643F1FFD0;
+        Wed, 28 Jul 2021 15:49:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1627487389;
+        h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
+         cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=1GgCCl6y1CPjPsga6U9ZJtUMD5+4UWfGOjF/EDKX/eI=;
-        b=YDgCgxhflo7v4Gs0DmCdpn9GUSxPNPeg4ZIOu3BtVEAaeSaRsDIFwIHX7aBzQyulmlwlgb
-        NCnqItiaGK5I1tufBLtp6wlC5rj9lVYiNXME8XWL71ghPDivAt/41L3PB8NkJUsI4/+QUl
-        MOxI/HJzPzgZUf4nem7jmRHXTnhjzgc=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-378-rSXbtSO7PQu6wp0etv4aJA-1; Wed, 28 Jul 2021 11:45:20 -0400
-X-MC-Unique: rSXbtSO7PQu6wp0etv4aJA-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 28A308799EF;
-        Wed, 28 Jul 2021 15:45:19 +0000 (UTC)
-Received: from lorien.usersys.redhat.com (unknown [10.22.18.114])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id D7AD160C05;
-        Wed, 28 Jul 2021 15:45:10 +0000 (UTC)
-Date:   Wed, 28 Jul 2021 11:45:09 -0400
-From:   Phil Auld <pauld@redhat.com>
-To:     Peter Zijlstra <peterz@infradead.org>
-Cc:     linux-kernel <linux-kernel@vger.kernel.org>,
-        Waiman Long <longman@redhat.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] sched: Fix nr_uninterruptible race causing increasing
- load average
-Message-ID: <YQF7hXlYI8NtLKPW@lorien.usersys.redhat.com>
-References: <20210707190457.60521-1-pauld@redhat.com>
- <YOaoomJAS2FzXi7I@hirez.programming.kicks-ass.net>
- <YOb82exzMcrOxfHa@lorien.usersys.redhat.com>
- <YOg1LHSDknjobJfR@hirez.programming.kicks-ass.net>
- <YPrGZK+ud5A17lSL@lorien.usersys.redhat.com>
+        bh=upRxFQ3m+In6q7JonR1jdicgI1MGOFp1GrrhziqMYzI=;
+        b=Na/CAPpXFVMJuB/M+66gdunt27wNX8X883ICPSLEKA/ux7lVcfpVYJ+W0A4oEU5iFGsqYS
+        c2McKzq4ejJY24gqCewYoVBNvs/GsNjqUm9+ErIC/qtYLXYtMj7OmHh6RbZYdDdLFo4Md0
+        OM06XDpZoP2zGFJGx72EuNPRXmFXgPA=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1627487389;
+        h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
+         cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=upRxFQ3m+In6q7JonR1jdicgI1MGOFp1GrrhziqMYzI=;
+        b=X34D87sXWq97mAPUR05VMghmN6rKgxibZGAWER4cvAUSD1oYCt0GzCiMiMBrsGMgXFI4Rw
+        LvwPSuIGdI8LWzAw==
+Received: from ds.suse.cz (ds.suse.cz [10.100.12.205])
+        by relay2.suse.de (Postfix) with ESMTP id EA1B1A3B87;
+        Wed, 28 Jul 2021 15:49:48 +0000 (UTC)
+Received: by ds.suse.cz (Postfix, from userid 10065)
+        id 0866EDA8A7; Wed, 28 Jul 2021 17:47:03 +0200 (CEST)
+Date:   Wed, 28 Jul 2021 17:47:03 +0200
+From:   David Sterba <dsterba@suse.cz>
+To:     Filipe Manana <fdmanana@gmail.com>
+Cc:     Naohiro Aota <naohiro.aota@wdc.com>,
+        linux-btrfs <linux-btrfs@vger.kernel.org>,
+        David Sterba <dsterba@suse.com>, stable@vger.kernel.org,
+        Damien Le Moal <damien.lemoal@wdc.com>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Subject: Re: [PATCH] btrfs: properly split extent_map for REQ_OP_ZONE_APPEND
+Message-ID: <20210728154703.GO5047@twin.jikos.cz>
+Reply-To: dsterba@suse.cz
+Mail-Followup-To: dsterba@suse.cz, Filipe Manana <fdmanana@gmail.com>,
+        Naohiro Aota <naohiro.aota@wdc.com>,
+        linux-btrfs <linux-btrfs@vger.kernel.org>,
+        David Sterba <dsterba@suse.com>, stable@vger.kernel.org,
+        Damien Le Moal <damien.lemoal@wdc.com>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>
+References: <20210628085728.2813793-1-naohiro.aota@wdc.com>
+ <CAL3q7H4LsXDK8rTr3yEkftMm9ok9kWdQuwxk57Pke5oJ+EZOZQ@mail.gmail.com>
+ <CAL3q7H6dMNGQ+RKrK91pZsbXQO9852fE+pqZDzo53xOvDAeYFA@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <YPrGZK+ud5A17lSL@lorien.usersys.redhat.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+In-Reply-To: <CAL3q7H6dMNGQ+RKrK91pZsbXQO9852fE+pqZDzo53xOvDAeYFA@mail.gmail.com>
+User-Agent: Mutt/1.5.23.1-rc1 (2014-03-12)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jul 23, 2021 at 09:38:44AM -0400 Phil Auld wrote:
-> On Fri, Jul 09, 2021 at 01:38:20PM +0200 Peter Zijlstra wrote:
-> > On Thu, Jul 08, 2021 at 09:25:45AM -0400, Phil Auld wrote:
-> > > Hi Peter,
-> > > 
-> > > On Thu, Jul 08, 2021 at 09:26:26AM +0200 Peter Zijlstra wrote:
-> > > > On Wed, Jul 07, 2021 at 03:04:57PM -0400, Phil Auld wrote:
-> > > > > On systems with weaker memory ordering (e.g. power) commit dbfb089d360b
-> > > > > ("sched: Fix loadavg accounting race") causes increasing values of load
-> > > > > average (via rq->calc_load_active and calc_load_tasks) due to the wakeup
-> > > > > CPU not always seeing the write to task->sched_contributes_to_load in
-> > > > > __schedule(). Missing that we fail to decrement nr_uninterruptible when
-> > > > > waking up a task which incremented nr_uninterruptible when it slept.
-> > > > > 
-> > > > > The rq->lock serialization is insufficient across different rq->locks.
-> > > > > 
-> > > > > Add smp_wmb() to schedule and smp_rmb() before the read in
-> > > > > ttwu_do_activate().
-> > > > 
-> > > > > diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-> > > > > index 4ca80df205ce..ced7074716eb 100644
-> > > > > --- a/kernel/sched/core.c
-> > > > > +++ b/kernel/sched/core.c
-> > > > > @@ -2992,6 +2992,8 @@ ttwu_do_activate(struct rq *rq, struct task_struct *p, int wake_flags,
-> > > > >  
-> > > > >  	lockdep_assert_held(&rq->lock);
-> > > > >  
-> > > > > +	/* Pairs with smp_wmb in __schedule() */
-> > > > > +	smp_rmb();
-> > > > >  	if (p->sched_contributes_to_load)
-> > > > >  		rq->nr_uninterruptible--;
-> > > > >  
-> > > > 
-> > > > Is this really needed ?! (this question is a big fat clue the comment is
-> > > > insufficient). AFAICT try_to_wake_up() has a LOAD-ACQUIRE on p->on_rq
-> > > > and hence the p->sched_contributed_to_load must already happen after.
-> > > >
-> > > 
-> > > Yes, it is needed.  We've got idle power systems with load average of 530.21.
-> > > Calc_load_tasks is 530, and the sum of both nr_uninterruptible and
-> > > calc_load_active across all the runqueues is 530. Basically monotonically
-> > > non-decreasing load average. With the patch this no longer happens.
-> > 
-> > Have you tried without the rmb here? Do you really need both barriers?
+On Thu, Jul 01, 2021 at 05:55:51PM +0100, Filipe Manana wrote:
+> > > +       if (pre) {
+> > > +               /* Insert the middle extent_map */
+> > > +               split_mid->start = em->start + pre;
+> > > +               split_mid->len = em->len - pre - post;
+> > > +               split_mid->orig_start = split_mid->start;
+> > > +               split_mid->block_start = em->block_start + pre;
+> > > +               split_mid->block_len = split_mid->len;
+> > > +               split_mid->orig_block_len = split_mid->block_len;
+> > > +               split_mid->ram_bytes = split_mid->len;
+> > > +               split_mid->flags = flags;
+> > > +               split_mid->compress_type = em->compress_type;
+> > > +               split_mid->generation = em->generation;
+> > > +               add_extent_mapping(em_tree, split_mid, modified);
+> > > +       }
+> > > +
+> > > +       if (post) {
+> > > +               split_post->start = em->start + em->len - post;
+> > > +               split_post->len = post;
+> > > +               split_post->orig_start = split_post->start;
+> > > +               split_post->block_start = em->block_start + em->len - post;
+> > > +               split_post->block_len = split_post->len;
+> > > +               split_post->orig_block_len = split_post->block_len;
+> > > +               split_post->ram_bytes = split_post->len;
+> > > +               split_post->flags = flags;
+> > > +               split_post->compress_type = em->compress_type;
+> > > +               split_post->generation = em->generation;
+> > > +               add_extent_mapping(em_tree, split_post, modified);
+> > > +       }
 > >
+> > So this happens when running delalloc, after creating the original
+> > extent map and ordered extent, the original "em" must have had the
+> > PINNED flag set.
+> >
+> > The "pre" and "post" extent maps should have the PINNED flag set. It's
+> > important to have the flag set to prevent extent map merging, which
+> > could result in a log corruption if the file is being fsync'ed
+> > multiple times in the current transaction and running delalloc was
+> > triggered precisely by an fsync. The corruption result would be
+> > logging extent items with overlapping ranges, since we construct them
+> > based on extent maps, and that's why we have the PINNED flag to
+> > prevent merging.
 > 
-> You're right here. (I see now that you were asking about the rmb specifically
-> in the first question) The rmb is not needed. 
+> Well, it actually happens that merging should not happen because the
+> original extent map was in the list of modified extents, and so should
+> be the new extent maps.
+> But we are really supposed to have the PINNED flag from the moment we
+> run delalloc and create a new extent map until the respective ordered
+> extent completes and unpins it.
 > 
-> I was unable to reproducde it with the upstream kernel. I still think it is
-> a problem though since the code in question is all the same. The recent
-> changes to unbound workqueues which make it more likely to run on the
-> submitting cpu may be masking the problem since it obviously requires
-> multiple cpus to hit.
+> Also EXTENT_FLAG_LOGGING should not be set at this point - if it were
+> we would screw up with a task logging the extent map.
 > 
-> If I can isolate those changes I can try to revert them in upstream and
-> see if I can get it there.
-> 
-> I suppose pulling those changes back could get us past this but
-> I'm not a fan of just hiding it by making it harder to hit.
-> 
-> I've not gotten to the disable TTWU_QUEUE test, that's next...
->
+> Maybe assert that it is not set in the original extent map?
+> And also assert that the original em is in the list of modified
+> extents and has the PINNED flag set?
 
-ETOOMANYTREES
-
-Sorry for the noise. I was using the wrong tree to compare with upstream.
-The offending tree is missing f97bb5272d9e ("sched: Fix data-race in wakeup").
-I thought the loadavg increase sounded familiar...
-
-
-Cheers,
-Phil
-
-> 
-> Cheers,
-> Phil
-> 
-> -- 
-> 
-
--- 
-
+Agreed, the asserts should be here, Naohiro, please send a followup,
+thanks.
