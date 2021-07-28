@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8310C3D8CA9
-	for <lists+stable@lfdr.de>; Wed, 28 Jul 2021 13:23:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C087B3D8CA7
+	for <lists+stable@lfdr.de>; Wed, 28 Jul 2021 13:23:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234424AbhG1LX5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232165AbhG1LX5 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 28 Jul 2021 07:23:57 -0400
-Received: from smtp-out2.suse.de ([195.135.220.29]:57830 "EHLO
-        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232530AbhG1LX4 (ORCPT
+Received: from smtp-out1.suse.de ([195.135.220.28]:39770 "EHLO
+        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234424AbhG1LX4 (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 28 Jul 2021 07:23:56 -0400
 Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out2.suse.de (Postfix) with ESMTP id 83E691FF88;
+        by smtp-out1.suse.de (Postfix) with ESMTP id 90B2322317;
         Wed, 28 Jul 2021 11:23:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
         t=1627471434; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=uOLAxgFmuIdFVl8t9Q3JRIAsoz6GO4ZzUHxR55M5+qk=;
-        b=jZjnFHSfstJWxgB0XrDp+UolP1Zm4spmkVhfrYreQk1Nim5It1dv0K5Qgpd3eHvZO1/+2e
-        QdbFJcz4MjsOgOSqovgEMcjgavsBZNoDx3Mdibj141sARGvRGvRbtWqnDPuvk4RDoLNFWJ
-        ub5jOIhiMZfFPsAhkNubYRheXlno5Ic=
+        bh=zxZSXYV2Z8DNKyoSP3gHfHG8rbc/74gGdkpASn+huMw=;
+        b=HZMUzbYX0ojh0n0PkiFWpOUE8F/jTuAu4NfftFiCmXeh9jLalVFbCR2T9/LyqIcdAuQy+9
+        VvqXqHBXx+nVx/JBxcwAr57aLAW0nZt3iz3o/qUdPRoT9zPM57hPr3iyp38txtsJbaZcVJ
+        Zn5o6zf6zHjmbbayqmb/NGLxuDhrlKI=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
         s=susede2_ed25519; t=1627471434;
         h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=uOLAxgFmuIdFVl8t9Q3JRIAsoz6GO4ZzUHxR55M5+qk=;
-        b=lm+uiI0hpUG3lWwruUtGW3bJ/qKuuxB2gE/QMMuntYkAuOqbDGMChzula/mXoci1Yi/s+e
-        UhGNr1bKPwxmq9Bw==
+        bh=zxZSXYV2Z8DNKyoSP3gHfHG8rbc/74gGdkpASn+huMw=;
+        b=y37h0CWFkS8T2Wz0LLWXnZ5IQpme04sEKqk6jI4m2pX4c7jCVUUkMPvQ4CoaqdawGcXfa1
+        XVAokszAJLQ1LmBA==
 Received: from alsa1.nue.suse.com (alsa1.suse.de [10.160.4.42])
-        by relay2.suse.de (Postfix) with ESMTP id 6E388A3B81;
+        by relay2.suse.de (Postfix) with ESMTP id 816C9A3B8B;
         Wed, 28 Jul 2021 11:23:54 +0000 (UTC)
 From:   Takashi Iwai <tiwai@suse.de>
 To:     alsa-devel@alsa-project.org
-Cc:     Mark Brown <broonie@kernel.org>,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        stable@vger.kernel.org
-Subject: [PATCH 2/5] ASoC: intel: atom: Fix reference to PCM buffer address
-Date:   Wed, 28 Jul 2021 13:23:50 +0200
-Message-Id: <20210728112353.6675-3-tiwai@suse.de>
+Cc:     Mark Brown <broonie@kernel.org>, stable@vger.kernel.org
+Subject: [PATCH 3/5] ASoC: xilinx: Fix reference to PCM buffer address
+Date:   Wed, 28 Jul 2021 13:23:51 +0200
+Message-Id: <20210728112353.6675-4-tiwai@suse.de>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20210728112353.6675-1-tiwai@suse.de>
 References: <20210728112353.6675-1-tiwai@suse.de>
@@ -56,41 +53,30 @@ X-Mailing-List: stable@vger.kernel.org
 PCM buffers might be allocated dynamically when the buffer
 preallocation failed or a larger buffer is requested, and it's not
 guaranteed that substream->dma_buffer points to the actually used
-buffer.  The address should be retrieved from runtime->dma_addr,
-instead of substream->dma_buffer (and shouldn't use virt_to_phys).
+buffer.  The driver needs to refer to substream->runtime->dma_addr
+instead for the buffer address.
 
-Also, remove the line overriding runtime->dma_area superfluously,
-which was already set up at the PCM buffer allocation.
-
-Cc: Cezary Rojewski <cezary.rojewski@intel.com>
-Cc: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 ---
- sound/soc/intel/atom/sst-mfld-platform-pcm.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ sound/soc/xilinx/xlnx_formatter_pcm.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/intel/atom/sst-mfld-platform-pcm.c b/sound/soc/intel/atom/sst-mfld-platform-pcm.c
-index 4124aa2fc247..5db2f4865bbb 100644
---- a/sound/soc/intel/atom/sst-mfld-platform-pcm.c
-+++ b/sound/soc/intel/atom/sst-mfld-platform-pcm.c
-@@ -127,7 +127,7 @@ static void sst_fill_alloc_params(struct snd_pcm_substream *substream,
- 	snd_pcm_uframes_t period_size;
- 	ssize_t periodbytes;
- 	ssize_t buffer_bytes = snd_pcm_lib_buffer_bytes(substream);
--	u32 buffer_addr = virt_to_phys(substream->dma_buffer.area);
-+	u32 buffer_addr = substream->runtime->dma_addr;
+diff --git a/sound/soc/xilinx/xlnx_formatter_pcm.c b/sound/soc/xilinx/xlnx_formatter_pcm.c
+index 1d59fb668c77..91afea9d5de6 100644
+--- a/sound/soc/xilinx/xlnx_formatter_pcm.c
++++ b/sound/soc/xilinx/xlnx_formatter_pcm.c
+@@ -452,8 +452,8 @@ static int xlnx_formatter_pcm_hw_params(struct snd_soc_component *component,
  
- 	channels = substream->runtime->channels;
- 	period_size = substream->runtime->period_size;
-@@ -233,7 +233,6 @@ static int sst_platform_alloc_stream(struct snd_pcm_substream *substream,
- 	/* set codec params and inform SST driver the same */
- 	sst_fill_pcm_params(substream, &param);
- 	sst_fill_alloc_params(substream, &alloc_params);
--	substream->runtime->dma_area = substream->dma_buffer.area;
- 	str_params.sparams = param;
- 	str_params.aparams = alloc_params;
- 	str_params.codec = SST_CODEC_TYPE_PCM;
+ 	stream_data->buffer_size = size;
+ 
+-	low = lower_32_bits(substream->dma_buffer.addr);
+-	high = upper_32_bits(substream->dma_buffer.addr);
++	low = lower_32_bits(runtime->dma_addr);
++	high = upper_32_bits(runtime->dma_addr);
+ 	writel(low, stream_data->mmio + XLNX_AUD_BUFF_ADDR_LSB);
+ 	writel(high, stream_data->mmio + XLNX_AUD_BUFF_ADDR_MSB);
+ 
 -- 
 2.26.2
 
