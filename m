@@ -2,70 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 531953D94E8
-	for <lists+stable@lfdr.de>; Wed, 28 Jul 2021 20:02:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AA2B3D94F5
+	for <lists+stable@lfdr.de>; Wed, 28 Jul 2021 20:05:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229581AbhG1SC7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Jul 2021 14:02:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43588 "EHLO mail.kernel.org"
+        id S229620AbhG1SFP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Jul 2021 14:05:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229565AbhG1SC7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 28 Jul 2021 14:02:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4432860F02;
-        Wed, 28 Jul 2021 18:02:56 +0000 (UTC)
+        id S229614AbhG1SFP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 28 Jul 2021 14:05:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F15C60EB9;
+        Wed, 28 Jul 2021 18:05:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627495376;
-        bh=43HUa4geHVcPhw85fd/FCxIDlhVnj0WVDMM5dm4B3Mo=;
+        s=korg; t=1627495513;
+        bh=eZ+hxUAJISyL9CVvEcR/4RSsc0JO+QZFpy96V90ZR5Q=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=HPQqj4rhTeQaLNa46t8ssF4u1jdErhjSCGcOumVdN3R8vpPp6H40KGieRY3BnAKyQ
-         hvvzFQbrK1vSxKSI7WnDQnSv3Fr8YqqJDNtSVNEJ6GLiAJvYBhxLMufSLfxvfDhAhc
-         6OEUf+KgtWUMTLTtDumlxxNlDFuZBMJCAwQVYDpY=
-Date:   Wed, 28 Jul 2021 20:02:54 +0200
+        b=JWeXhwoXio9mFlRUG/PcGJdKFpNMCmv2KF3WUehnmKRjsLak4/Bxy5qnE17xVhhIk
+         n7MkrkcA6sQuFN5tLYIs2ON/ViH4YyERVspb2BQ5yckjR7Ky72B+8Egz1NAu0QaMFp
+         e2t7BYhShaMd4+xAqWWRduOr5qBudezuYqjlxWZs=
+Date:   Wed, 28 Jul 2021 20:05:11 +0200
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Pavel Begunkov <asml.silence@gmail.com>
-Cc:     Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        Stable <stable@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+a2910119328ce8e7996f@syzkaller.appspotmail.com
-Subject: Re: [PATCH] io_uring: fix link timeout refs
-Message-ID: <YQGbzpZHtCw+XLL7@kroah.com>
-References: <caf9dc2dc29367bb38fee4064b7d562d9837e441.1627312513.git.asml.silence@gmail.com>
- <6564af0e-72b0-5308-4561-706ec4026385@gmail.com>
- <CADVatmOa91JbMME8XpiN5ChFM_qUm5gNzPFfLaNxW4R1UZD1Sg@mail.gmail.com>
- <YQGCP8ct1ncB1oex@kroah.com>
- <bcd188e6-d849-524d-0ffe-5e1a6506f80e@gmail.com>
+To:     Nathan Chancellor <nathan@kernel.org>
+Cc:     Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org,
+        clang-built-linux@googlegroups.com,
+        Hoang Le <hoang.h.le@dektech.com.au>,
+        Jon Maloy <jon.maloy@ericsson.com>,
+        Ying Xue <ying.xue@windriver.com>,
+        kernel test robot <lkp@intel.com>
+Subject: Re: [PATCH 4.9 2/2] tipc: Fix backport of
+ b77413446408fdd256599daf00d5be72b5f3e7c6
+Message-ID: <YQGcVymPkS6+HZm3@kroah.com>
+References: <20210727225650.726875-1-nathan@kernel.org>
+ <20210727225650.726875-2-nathan@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <bcd188e6-d849-524d-0ffe-5e1a6506f80e@gmail.com>
+In-Reply-To: <20210727225650.726875-2-nathan@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jul 28, 2021 at 05:30:22PM +0100, Pavel Begunkov wrote:
-> On 7/28/21 5:13 PM, Greg Kroah-Hartman wrote:
-> > On Mon, Jul 26, 2021 at 06:07:52PM +0100, Sudip Mukherjee wrote:
-> >> On Mon, Jul 26, 2021 at 4:22 PM Pavel Begunkov <asml.silence@gmail.com> wrote:
-> >>>
-> >>> On 7/26/21 4:17 PM, Pavel Begunkov wrote:
-> >>>> [ Upstream commit a298232ee6b9a1d5d732aa497ff8be0d45b5bd82 ]
-> >>>
-> >>> Looking at it, it just reverts the backported patch,
-> >>> i.e. 0b2a990e5d2f76d020cb840c456e6ec5f0c27530.
-> >>> Wasn't needed in 5.10 in the first place.
-> >>>
-> >>> Sudip, would be great if you can try it out
-> >>
-> >> Applied on top of v5.10.54-rc2 and tested, issue not reproduced. Thanks Pavel.
-> >>
-> >> Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
-> > 
-> > So this is all good in the latest 5.10.54 release, right?
+On Tue, Jul 27, 2021 at 03:56:50PM -0700, Nathan Chancellor wrote:
+> Clang warns:
 > 
-> Right. And you can either take this or revert 0b2a990e5d2f76d0,
-> both ways are identical.
+> net/tipc/link.c:896:23: warning: variable 'hdr' is uninitialized when
+> used here [-Wuninitialized]
+>         imp = msg_importance(hdr);
+>                              ^~~
+> net/tipc/link.c:890:22: note: initialize the variable 'hdr' to silence
+> this warning
+>         struct tipc_msg *hdr;
+>                             ^
+>                              = NULL
+> 1 warning generated.
+> 
+> The backport of commit b77413446408 ("tipc: fix NULL deref in
+> tipc_link_xmit()") to 4.9 as commit 310014f572a5 ("tipc: fix NULL deref
+> in tipc_link_xmit()") added the hdr initialization above the
+> 
+>     if (unlikely(msg_size(hdr) > mtu)) {
+> 
+> like in the upstream commit; however, in 4.9, that check is below imp's
+> first use because commit 365ad353c256 ("tipc: reduce risk of user
+> starvation during link congestion") is not present. This results in hdr
+> being used uninitialized.
+> 
+> Fix this by moving hdr's initialization before imp and after the if
+> check like the original backport did.
+> 
+> Cc: Hoang Le <hoang.h.le@dektech.com.au>
+> Cc: Jon Maloy <jon.maloy@ericsson.com>
+> Cc: Ying Xue <ying.xue@windriver.com>
+> Fixes: 310014f572a5 ("tipc: fix NULL deref in tipc_link_xmit()")
+> Reported-by: kernel test robot <lkp@intel.com>
+> Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+> ---
+>  net/tipc/link.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/net/tipc/link.c b/net/tipc/link.c
+> index 06327f78f203..6fc2fa75503d 100644
+> --- a/net/tipc/link.c
+> +++ b/net/tipc/link.c
+> @@ -893,6 +893,7 @@ int tipc_link_xmit(struct tipc_link *l, struct sk_buff_head *list,
+>  	if (pkt_cnt <= 0)
+>  		return 0;
+>  
+> +	hdr = buf_msg(skb_peek(list));
+>  	imp = msg_importance(hdr);
+>  	/* Match msg importance against this and all higher backlog limits: */
+>  	if (!skb_queue_empty(backlogq)) {
+> @@ -902,7 +903,6 @@ int tipc_link_xmit(struct tipc_link *l, struct sk_buff_head *list,
+>  		}
+>  	}
+>  
+> -	hdr = buf_msg(skb_peek(list));
+>  	if (unlikely(msg_size(hdr) > mtu)) {
+>  		skb_queue_purge(list);
+>  		return -EMSGSIZE;
+> -- 
+> 2.32.0.264.g75ae10bc75
+> 
 
-Ah, I missed this, for some reason I thought this was already address.
-Ok, now queued up.  Hopefully this is now fixed...
+Thanks for these, now both queued up.
 
 greg k-h
