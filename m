@@ -2,119 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 20DB03D8B8B
-	for <lists+stable@lfdr.de>; Wed, 28 Jul 2021 12:15:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E5773D8B9C
+	for <lists+stable@lfdr.de>; Wed, 28 Jul 2021 12:20:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229574AbhG1KPE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Jul 2021 06:15:04 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:54838 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231282AbhG1KPD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Jul 2021 06:15:03 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 688A31C0B7C; Wed, 28 Jul 2021 12:15:01 +0200 (CEST)
-Date:   Wed, 28 Jul 2021 12:15:00 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+        id S231238AbhG1KUH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Jul 2021 06:20:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41304 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229574AbhG1KUG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 28 Jul 2021 06:20:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8141A60524;
+        Wed, 28 Jul 2021 10:20:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1627467603;
+        bh=zFSbDd6JWCp56TFFucOBP/1daI+vXpebuc2/z74R6tU=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=hXXb8EAQVILloBPsr+wofuDf1pR1/dQynUqMzQrWpZ06knZLf+hLQA7TIo+3Ztflk
+         tRw7CNp8sIyosItKxGsEsUoPSOBMkQNzzHgOqMkL/L2PCvKO0XoXXtRQgIM+Rd04D8
+         Rn29nyFNaTnjPR1/n6ROqKrchcJDPZmMvhIFowZU=
+Date:   Wed, 28 Jul 2021 12:20:01 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Pavel Machek <pavel@denx.de>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Namjae Jeon <namjae.jeon@samsung.com>,
-        Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.10 103/167] cifs: only write 64kb at a time when
- fallocating a small region of a file
-Message-ID: <20210728101500.GC30574@amd>
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        Carsten Schmid <carsten_schmid@mentor.com>
+Subject: Re: [PATCH 5.10 167/167] xhci: add xhci_get_virt_ep() helper
+Message-ID: <YQEvUay+1Rzp04SO@kroah.com>
 References: <20210726153839.371771838@linuxfoundation.org>
- <20210726153842.851690981@linuxfoundation.org>
+ <20210726153845.014643770@linuxfoundation.org>
+ <20210728101040.GA30574@amd>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="pAwQNkOnpTn9IO2O"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210726153842.851690981@linuxfoundation.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+In-Reply-To: <20210728101040.GA30574@amd>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, Jul 28, 2021 at 12:10:40PM +0200, Pavel Machek wrote:
+> Hi!
+> 
+> > From: Mathias Nyman <mathias.nyman@linux.intel.com>
+> > 
+> > [commit b1adc42d440df3233255e313a45ab7e9b2b74096 upstream]
+> 
+> This is yet another variation in upstream commit making. So far I was
+> using these:
+> 
+>                 ma = re.match(".*Upstream commit ([0-9a-f]*) .*", l)
+>                 if ma:
+>                     m.upstream = ma.group(1)
+>                 ma = re.match("[Cc]ommit ([0-9a-f]*) upstream[.]*", l)
+> 		if ma:
+>                     m.upstream = ma.group(1)
+>                 ma = re.match("[Cc]ommit: ([0-9a-f]*)", l)
+>                 if ma:
+>                     m.upstream = ma.group(1)
+> 
+> I guess I could update second regexp to search anywhere in the
+> line.... but at that point it will also match stuff like "commit 1234
+> upstream is broken".
+> 
+> Do you have suggestion how to extract upstream sha1 automatically?
 
---pAwQNkOnpTn9IO2O
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I use:
+	grep -E -o '[0-9a-f]{40}'
 
-Hi!
-
-> [ Upstream commit 2485bd7557a7edb4520b4072af464f0a08c8efe0 ]
->=20
-> We only allow sending single credit writes through the SMB2_write() synch=
-ronous
-> api so split this into smaller chunks.
-
-I'm not sure if this matters, but if len is ever zero, we'll return
-uninitialized value from the function.
-
-Best regards,
-								Pavel
-
-> +++ b/fs/cifs/smb2ops.c
-> @@ -3466,7 +3466,7 @@ static int smb3_simple_fallocate_write_range(unsign=
-ed int xid,
->  					     char *buf)
->  {
->  	struct cifs_io_parms io_parms =3D {0};
-> -	int nbytes;
-> +	int rc, nbytes;
->  	struct kvec iov[2];
-> =20
->  	io_parms.netfid =3D cfile->fid.netfid;
-> @@ -3474,13 +3474,25 @@ static int smb3_simple_fallocate_write_range(unsi=
-gned int xid,
->  	io_parms.tcon =3D tcon;
->  	io_parms.persistent_fid =3D cfile->fid.persistent_fid;
->  	io_parms.volatile_fid =3D cfile->fid.volatile_fid;
-> -	io_parms.offset =3D off;
-> -	io_parms.length =3D len;
-> =20
-> -	/* iov[0] is reserved for smb header */
-> -	iov[1].iov_base =3D buf;
-> -	iov[1].iov_len =3D io_parms.length;
-> -	return SMB2_write(xid, &io_parms, &nbytes, iov, 1);
-> +	while (len) {
-> +		io_parms.offset =3D off;
-> +		io_parms.length =3D len;
-> +		if (io_parms.length > SMB2_MAX_BUFFER_SIZE)
-> +			io_parms.length =3D SMB2_MAX_BUFFER_SIZE;
-> +		/* iov[0] is reserved for smb header */
-> +		iov[1].iov_base =3D buf;
-> +		iov[1].iov_len =3D io_parms.length;
-> +		rc =3D SMB2_write(xid, &io_parms, &nbytes, iov, 1);
-> +		if (rc)
-> +			break;
-> +		if (nbytes > len)
-> +			return -EINVAL;
-> +		buf +=3D nbytes;
-> +		off +=3D nbytes;
-> +		len -=3D nbytes;
-> +	}
-> +	return rc;
->  }
-> =20
->  static int smb3_simple_fallocate_range(unsigned int xid,
-
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
-
---pAwQNkOnpTn9IO2O
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAmEBLiQACgkQMOfwapXb+vKtgwCfaLJn28EwRPsIBgz2lNrVGS31
-v5cAnisWdXnEltPKtPv9nW0M6dtlOZHB
-=OwWV
------END PGP SIGNATURE-----
-
---pAwQNkOnpTn9IO2O--
