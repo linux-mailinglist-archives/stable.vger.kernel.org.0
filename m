@@ -2,232 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34C783D8824
-	for <lists+stable@lfdr.de>; Wed, 28 Jul 2021 08:46:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB4A63D8839
+	for <lists+stable@lfdr.de>; Wed, 28 Jul 2021 08:50:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231484AbhG1Gqv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Jul 2021 02:46:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44808 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231191AbhG1Gqu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Jul 2021 02:46:50 -0400
-Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79605C061757
-        for <stable@vger.kernel.org>; Tue, 27 Jul 2021 23:46:49 -0700 (PDT)
-Received: by mail-ej1-x635.google.com with SMTP id gs8so2767195ejc.13
-        for <stable@vger.kernel.org>; Tue, 27 Jul 2021 23:46:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=pjRIGe1htbdZHgyR4KVT9raJyHP9F/yxoUfa/oO0gGo=;
-        b=Y7HFYjzdqt218TOc9MTYI7Dzk8GBvHNw16WH7hu6q4JafssGSD0KXOJxMivnXBIxDx
-         BcLh6oJgvX0eaLb3FoWwi70ArpVA6nI8bR0Y0JACzZzfO65pqC2QMnlqQqM76H2ciQPg
-         Jg+PB3QUK8pW/sJc+q0jrkHkeljSmuP3oRzPqVumwuwBK36SHrGW/RqJH1KJ5SKfQmO/
-         59MSNRSO4HoSg+72M+VHBgPkDkgP29ZWeOsAzqRP2WZ2Mn1oJP3dOI6xNdfzGb/vQMbL
-         ejcTzEH7JBIoKJF5wDYhzEsoNxoNl2kMfRAUgzfo6EkRFB0QrTZ07l+o+nc7sui/qPpi
-         HxUA==
+        id S234056AbhG1GuC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Jul 2021 02:50:02 -0400
+Received: from smtp-relay-canonical-0.canonical.com ([185.125.188.120]:40092
+        "EHLO smtp-relay-canonical-0.canonical.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234949AbhG1Gt7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Jul 2021 02:49:59 -0400
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com [209.85.218.71])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by smtp-relay-canonical-0.canonical.com (Postfix) with ESMTPS id B60023F250
+        for <stable@vger.kernel.org>; Wed, 28 Jul 2021 06:49:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+        s=20210705; t=1627454970;
+        bh=u5wymAXnL9yVxfEB09vbeM1W+wc1wAMvpQhdfXWNsKY=;
+        h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Type;
+        b=s3Ukw21GfqNsxMk28D5IJJIRPYjOv+ns2lswxnPVNXGU+5TNaZ1frTPRNSG6qK5BL
+         vft1IJW8tcvwY+v6dFOgNRyUCnjLbXTgKGtFOdmbuUGVslCgptAfM45Eo5NBK8Dmbm
+         qaD7UlJvcNFiRxojM59koxMp7WnCtP+cetCdML5Czo1po7xKZrRwKGdvX/At8YFwPO
+         I0QdCcC6yEPnCs0kAvMHPTMFtqIKxQTFBZlvtM13y+aUxNQd2VuEgf3knidyaJuZTz
+         HTe1GkEkvbdWN8GVSx8P2jtjmlfmo3A1X1d2/fmKn0+cIvSaZypO/vFADWyzJcilYL
+         AiYIJTT09SLAA==
+Received: by mail-ej1-f71.google.com with SMTP id lu19-20020a170906fad3b029058768348f55so460215ejb.12
+        for <stable@vger.kernel.org>; Tue, 27 Jul 2021 23:49:30 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=pjRIGe1htbdZHgyR4KVT9raJyHP9F/yxoUfa/oO0gGo=;
-        b=ji2FHZd1BaQhqIlLXkQvdv3AI8EZHZBXJap5iwdATHMhB4jKtW9pSCABmcxfxZpotF
-         I/awdtoBXaDKTBeBDnj5MukJAJEHTwg81Q6pcSRujQBhyS+zjDaBbbr7igkMRLaRPXag
-         gU5nmq9NcJCmvlcNDHFqNeHQZwdboPtqat13P7lkUOum4rOfHVw7JExRd6EqNgWMuqev
-         kx61CeiRnRJg58C/nFN7Wxyv4BnbgvnSaDDDRcT12yT1UHv2Tb+Zxi3XlAGTxp6f4x+7
-         CSByt+wOvkwY+462gH3jhFFMmkhNc1upiFsprvJB5iNfBm7s0K7C4QqeYS4IRseIjp8k
-         6m6w==
-X-Gm-Message-State: AOAM533HtcfFdTYSUA9V0wHLWRJJbgK4GAMVDviVUKM2SmqMW64pBOK9
-        Pys4Q3jh5Phqufl8C2In8DY52zT25UXwxPmJkhZ3HA==
-X-Google-Smtp-Source: ABdhPJycUoiQJYGYojHDPEU/FGwRW4Unc6y/0nbhjP6Knawu8wNQxLHQT8RZHjhG0aW8Cg/pVj0SnNpwgvjIY1jenf4=
-X-Received: by 2002:a17:906:8606:: with SMTP id o6mr2904420ejx.247.1627454807807;
- Tue, 27 Jul 2021 23:46:47 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=u5wymAXnL9yVxfEB09vbeM1W+wc1wAMvpQhdfXWNsKY=;
+        b=aRdHFNVdlZ7Xo6uZ8emlPcYR+3Sqb3WTQFn+BKt0r0kfI/As+VQ80RWR/XVIgsi9lz
+         tcf522273BG4nkquhv+V7ny16QGgTz7iVuCCRm1CEFGdNGdXNC7dSNLNv2Yh5r/ZEsTE
+         U0DrrxCibEC9cgDSj00eERv4FlmTijO6r7g7xFUCjEgW0nrmVrA6urqeiyIwkolo0HS9
+         8zes1Ue5ghct5h2oWAC4n60EcQ/tdX/Q8TFtBfmQo/PA1gRGLcoRcyyt9qZSibkhOzY3
+         habvXog5xNcfCYi6zWbHVqMfd0RMJEkVrFMK2zBfgvqUrY8sC43/L5Ff1BEgLONvwqF1
+         WMkQ==
+X-Gm-Message-State: AOAM5307uFbs6TSmJ1MaagQD6iFR2SIold5JQP+p3HtrgfJRJ0xoj1YR
+        MqleBAhVkJiRcVHxj2ZYtWQALV0x5auZLO3ZsBUKdQ1l3z0/Wqr1sQKZ0Z1cqBBXS7DfwvRv7xv
+        RMGTaMH7Qeh+RyqQwalIYI/96uPi+LikrGQ==
+X-Received: by 2002:a17:907:629c:: with SMTP id nd28mr1086453ejc.403.1627454970421;
+        Tue, 27 Jul 2021 23:49:30 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwhwIxdK1rvmb+nHkDvXvuiqJxTKKPsvzlRGw4p6rWIs3aTz86BmAFyhMDLaycvEfVzWlJzWg==
+X-Received: by 2002:a17:907:629c:: with SMTP id nd28mr1086441ejc.403.1627454970296;
+        Tue, 27 Jul 2021 23:49:30 -0700 (PDT)
+Received: from localhost.localdomain ([86.32.47.9])
+        by smtp.gmail.com with ESMTPSA id qt10sm1656394ejb.110.2021.07.27.23.49.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 27 Jul 2021 23:49:29 -0700 (PDT)
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+To:     Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Subject: [PATCH] nfc: nfcsim: fix use after free during module unload
+Date:   Wed, 28 Jul 2021 08:49:09 +0200
+Message-Id: <20210728064909.5356-1-krzysztof.kozlowski@canonical.com>
+X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
-References: <20210727061353.216979013@linuxfoundation.org>
-In-Reply-To: <20210727061353.216979013@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Wed, 28 Jul 2021 12:16:36 +0530
-Message-ID: <CA+G9fYuSJ6ScOURncp6hoaqaxKpoBv2NuvwZFUW+rGEWqZ_rww@mail.gmail.com>
-Subject: Re: [PATCH 4.14 00/81] 4.14.241-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        linux-stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 27 Jul 2021 at 11:44, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.14.241 release.
-> There are 81 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Thu, 29 Jul 2021 06:13:39 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.14.241-rc2.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.14.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+There is a use after free memory corruption during module exit:
+ - nfcsim_exit()
+  - nfcsim_device_free(dev0)
+    - nfc_digital_unregister_device()
+      This iterates over command queue and frees all commands,
+    - dev->up = false
+    - nfcsim_link_shutdown()
+      - nfcsim_link_recv_wake()
+        This wakes the sleeping thread nfcsim_link_recv_skb().
 
+ - nfcsim_link_recv_skb()
+   Wake from wait_event_interruptible_timeout(),
+   call directly the deb->cb callback even though (dev->up == false),
+   - digital_send_cmd_complete()
+     Dereference of "struct digital_cmd" cmd which was freed earlier by
+     nfc_digital_unregister_device().
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+This causes memory corruption shortly after (with unrelated stack
+trace):
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+  nfc nfc0: NFC: nfcsim_recv_wq: Device is down
+  llcp: nfc_llcp_recv: err -19
+  nfc nfc1: NFC: nfcsim_recv_wq: Device is down
+  BUG: unable to handle page fault for address: ffffffffffffffed
+  Call Trace:
+   fsnotify+0x54b/0x5c0
+   __fsnotify_parent+0x1fe/0x300
+   ? vfs_write+0x27c/0x390
+   vfs_write+0x27c/0x390
+   ksys_write+0x63/0xe0
+   do_syscall_64+0x3b/0x90
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-## Build
-* kernel: 4.14.241-rc2
-* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
-rc.git
-* git branch: linux-4.14.y
-* git commit: 44bb6f3b2f378d6fdb758d8bab20d8ed0f8fe9b2
-* git describe: v4.14.240-82-g44bb6f3b2f37
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.14.y/build/v4.14=
-.240-82-g44bb6f3b2f37
+KASAN report:
 
-## Regressions (compared to v4.14.240-83-g449cd20526ea)
-No regressions found.
+  BUG: KASAN: use-after-free in digital_send_cmd_complete+0x16/0x50
+  Write of size 8 at addr ffff88800a05f720 by task kworker/0:2/71
+  Workqueue: events nfcsim_recv_wq [nfcsim]
+  Call Trace:
+   dump_stack_lvl+0x45/0x59
+   print_address_description.constprop.0+0x21/0x140
+   ? digital_send_cmd_complete+0x16/0x50
+   ? digital_send_cmd_complete+0x16/0x50
+   kasan_report.cold+0x7f/0x11b
+   ? digital_send_cmd_complete+0x16/0x50
+   ? digital_dep_link_down+0x60/0x60
+   digital_send_cmd_complete+0x16/0x50
+   nfcsim_recv_wq+0x38f/0x3d5 [nfcsim]
+   ? nfcsim_in_send_cmd+0x4a/0x4a [nfcsim]
+   ? lock_is_held_type+0x98/0x110
+   ? finish_wait+0x110/0x110
+   ? rcu_read_lock_sched_held+0x9c/0xd0
+   ? rcu_read_lock_bh_held+0xb0/0xb0
+   ? lockdep_hardirqs_on_prepare+0x12e/0x1f0
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+This flow of calling digital_send_cmd_complete() callback on driver exit
+is specific to nfcsim which implements reading and sending work queues.
+Since the NFC digital device was unregistered, the callback should not
+be called.
 
+Fixes: 204bddcb508f ("NFC: nfcsim: Make use of the Digital layer")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+---
+ drivers/nfc/nfcsim.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-## No fixes (compared to v4.14.240-83-g449cd20526ea)
+diff --git a/drivers/nfc/nfcsim.c b/drivers/nfc/nfcsim.c
+index a9864fcdfba6..dd27c85190d3 100644
+--- a/drivers/nfc/nfcsim.c
++++ b/drivers/nfc/nfcsim.c
+@@ -192,8 +192,7 @@ static void nfcsim_recv_wq(struct work_struct *work)
+ 
+ 		if (!IS_ERR(skb))
+ 			dev_kfree_skb(skb);
+-
+-		skb = ERR_PTR(-ENODEV);
++		return;
+ 	}
+ 
+ 	dev->cb(dev->nfc_digital_dev, dev->arg, skb);
+-- 
+2.27.0
 
-## Test result summary
- total: 62926, pass: 49179, fail: 666, skip: 10940, xfail: 2141,
-
-## Build Summary
-* arm: 97 total, 97 passed, 0 failed
-* arm64: 24 total, 24 passed, 0 failed
-* dragonboard-410c: 1 total, 1 passed, 0 failed
-* hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 14 total, 14 passed, 0 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 36 total, 36 passed, 0 failed
-* sparc: 9 total, 9 passed, 0 failed
-* x15: 1 total, 1 passed, 0 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 14 total, 14 passed, 0 failed
-
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* install-android-platform-tools-r2600
-* kselftest-android
-* kselftest-bpf
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-lkdtm
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kvm-unit-tests
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* rcutorture
-* ssuite
-* v4l2-compliance
-
---
-Linaro LKFT
-https://lkft.linaro.org
