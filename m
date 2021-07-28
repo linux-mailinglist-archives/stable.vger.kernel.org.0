@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9101F3D9942
-	for <lists+stable@lfdr.de>; Thu, 29 Jul 2021 01:08:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F3883D9943
+	for <lists+stable@lfdr.de>; Thu, 29 Jul 2021 01:08:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232230AbhG1XIc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Jul 2021 19:08:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45330 "EHLO
+        id S232244AbhG1XIk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Jul 2021 19:08:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232143AbhG1XIb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Jul 2021 19:08:31 -0400
-Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6D0BC061757
-        for <stable@vger.kernel.org>; Wed, 28 Jul 2021 16:08:28 -0700 (PDT)
-Received: by mail-pl1-x62e.google.com with SMTP id t3so2500622plg.9
-        for <stable@vger.kernel.org>; Wed, 28 Jul 2021 16:08:28 -0700 (PDT)
+        with ESMTP id S232143AbhG1XIk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Jul 2021 19:08:40 -0400
+Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62CDBC061757
+        for <stable@vger.kernel.org>; Wed, 28 Jul 2021 16:08:37 -0700 (PDT)
+Received: by mail-pj1-x1033.google.com with SMTP id j1so7465132pjv.3
+        for <stable@vger.kernel.org>; Wed, 28 Jul 2021 16:08:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=chromium.org; s=google;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=PK3KGe/b0JiwOuG3baDGQG3ZW3CXH43QMgAUQpLPOng=;
-        b=cTw0IAXemTeOnFWZbjZ55izyKOMkyY8h3y1qyuBghLntsBovog36KUvq26astDbn0F
-         dEWbND/eN0cPD8M3y7gDbZPdnZeNZgRo5xwXKWQPcyjS10rv89Q+yT39Mr+u7XYQ/Wcg
-         dpG0JsmOo7dRLJIWZkzkxiKvO4DpJZW7ZZFnM=
+        bh=hDXtnU1yyv0drT5HHp63puN2TyuPqpKCmcgCsRKIlDU=;
+        b=ktsQJvy+cl1ehh9w7IYxikhFlvUd+FY2VDQCeTyUYASBY3Vhn8F8zDA3WHgTcfJK5B
+         kKlEr8M4+nntHlx0akX/KEEQjQud2Pk2vD5Idb9aAVCxxkKnnsng9OI6cukQ/vZC93pd
+         4v0PphWZZ33yAOBf2J7aJnGrUP+H9YS3/mj1Y=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=PK3KGe/b0JiwOuG3baDGQG3ZW3CXH43QMgAUQpLPOng=;
-        b=aoyrMpvGvPxe+PVMd3Vl6/UjMJCTj6JJSVmeu2xJS+tG91AXM1konutFF+Plp8YbUc
-         xPK410hIavMbhyQQFLayMlAqIvMI7qUNkwe8/evGAGGrL2IYoB2p0/5ZatFduMqJh+u3
-         Ct2GoEz51L+1RzAjO9kNIRbOGhELx0RfZgMfklknnthxTk1TWkZVqtvqRo8szmLICxdL
-         RtGsPZbVEazwfpuTxp7ojd7zY1QwOBKB1/o6xO77aUNW9UPuwPzXGPcg4cyZ5kV4RpGJ
-         HSgvXU2LCU5S55/f99mARbk+rX9igs/rp06cgHfiDaC5kP29ohgxKZfKKtgND1q/fYLy
-         c0nA==
-X-Gm-Message-State: AOAM530XsXQ6KG0gDTk003yNyCoJFWyt/vDTHl5kqhWOoeLT+Xlm7wkA
-        d5Mt1UOLDkuW61NzVTkUAGdH5xh8zECYtg==
-X-Google-Smtp-Source: ABdhPJzFrqTyYyn8nJlbjH1rxFfw6rAC3k2lK57ym6cFG+bUq4MQnPqIKbS7061X5p66iixeB272/w==
-X-Received: by 2002:a63:117:: with SMTP id 23mr1142521pgb.63.1627513708327;
-        Wed, 28 Jul 2021 16:08:28 -0700 (PDT)
+        bh=hDXtnU1yyv0drT5HHp63puN2TyuPqpKCmcgCsRKIlDU=;
+        b=IZr9BYoKEhLObARjxZtDTqtlA3JqtQAYG1TFgDDmp5BV2PmKIoH4GPqS02MfBc0wbc
+         1C8yC3oxc0FfX/KRjc1mFCgnEsED4FohuBxHWbPsvZXFVOEX9kf8K9kCdPz1n/eyiX0P
+         jOWFBjX9ASeA4UbtCoPqC5H+5KoMGvIY6cdrBoADtFS3wNkCfKVup/UWk7tfoZOtG6Uh
+         oj8EpeV7iR2Ypq/k3DTw5GPEfqG03yFCTNxjk/m38ZSl26DshabcvZ+4H+MFiNhpmvI8
+         EzLEYWlf0dNr1zUc5JMDLYbB8WktRPsfMjC/erPd0Gbufgm1S2ZxaR/TkWSZFyYPZRv0
+         +G6A==
+X-Gm-Message-State: AOAM532YYLEa5brRI6YY7QPedYRy6FlhUoURDYDyg34y3xWcSGElSGTj
+        et0eYOMYUR0X4xkK92q5goVYGbDvES3LDA==
+X-Google-Smtp-Source: ABdhPJxmB0XicRzfhiR2r710UwE8C1j/0UHuMGb31FKSZuSD+Dd7riWpINwa+neS2s1qNzt7sXpVTg==
+X-Received: by 2002:a05:6a00:1c6d:b029:338:322:137d with SMTP id s45-20020a056a001c6db02903380322137dmr2050044pfw.38.1627513716746;
+        Wed, 28 Jul 2021 16:08:36 -0700 (PDT)
 Received: from zsm-linux.mtv.corp.google.com ([2620:15c:202:201:c9bb:c781:1aae:7a70])
-        by smtp.googlemail.com with ESMTPSA id a13sm1040689pgt.58.2021.07.28.16.08.27
+        by smtp.googlemail.com with ESMTPSA id q7sm804677pjq.36.2021.07.28.16.08.35
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 28 Jul 2021 16:08:27 -0700 (PDT)
+        Wed, 28 Jul 2021 16:08:36 -0700 (PDT)
 From:   Zubin Mithra <zsm@chromium.org>
 To:     stable@vger.kernel.org
 Cc:     gregkh@linuxfoundation.org, groeck@chromium.org,
         mlevitsk@redhat.com, pbonzini@redhat.com
-Subject: [linux-4.19.y] KVM: x86: determine if an exception has an error code only when injecting it.
-Date:   Wed, 28 Jul 2021 16:08:24 -0700
-Message-Id: <20210728230824.1762363-1-zsm@chromium.org>
+Subject: [linux-4.14.y] KVM: x86: determine if an exception has an error code only when injecting it.
+Date:   Wed, 28 Jul 2021 16:08:33 -0700
+Message-Id: <20210728230833.1762416-1-zsm@chromium.org>
 X-Mailer: git-send-email 2.32.0.432.gabb21c7263-goog
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -74,33 +74,32 @@ Signed-off-by: Zubin Mithra <zsm@chromium.org>
 ---
 Backport Note:
 * Syzkaller triggered a WARNING with the following stacktrace:
- WARNING: CPU: 3 PID: 3489 at arch/x86/kvm/x86.c:8097 kvm_arch_vcpu_ioctl_run+0x42b/0x33d7
+ WARNING: CPU: 3 PID: 3436 at arch/x86/kvm/x86.c:7529 kvm_arch_vcpu_ioctl_run+0x247/0x2dd2
  Kernel panic - not syncing: panic_on_warn set ...
 
- CPU: 3 PID: 3489 Comm: poc Not tainted 4.19.199-00120-ga89b48fe9308 #5
+ CPU: 3 PID: 3436 Comm: poc Not tainted 4.14.241-00082-gce4d1565392b #7
  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-2 04/01/2014
  Call Trace:
-  dump_stack+0x11b/0x19a
-  panic+0x188/0x2f1
-  ? __warn_printk+0xee/0xee
-  ? __probe_kernel_read+0xad/0xc8
-  ? kvm_arch_vcpu_ioctl_run+0x42b/0x33d7
-  ? kvm_arch_vcpu_ioctl_run+0x42b/0x33d7
-  __warn+0xe9/0x12a
-  ? kvm_arch_vcpu_ioctl_run+0x42b/0x33d7
+  dump_stack+0xf8/0x163
+  panic+0x15a/0x2c2
+  ? unregister_sha256_avx+0x1b/0x1b
+  ? kvm_arch_vcpu_ioctl_run+0x247/0x2dd2
+  __warn+0xe4/0x117
+  ? kvm_arch_vcpu_ioctl_run+0x247/0x2dd2
   report_bug+0x93/0xdd
   fixup_bug+0x28/0x4b
-  do_error_trap+0xd1/0x1f5
+  do_error_trap+0xb6/0x1b2
   ? fixup_bug+0x4b/0x4b
-  ? tick_nohz_tick_stopped+0x2e/0x39
-  ? __irq_work_queue_local+0x50/0x96
-  ? preempt_count_sub+0xf/0xbf
-  ? lockdep_hardirqs_off+0x10c/0x115
-  ? error_entry+0x72/0xd0
-  ? trace_hardirqs_off_caller+0x56/0x116
+  ? kasan_slab_free+0x141/0x154
+  ? kasan_slab_free+0xad/0x154
+  ? kmem_cache_free+0x14d/0x301
+  ? put_pid+0x57/0x6f
+  ? kvm_vcpu_ioctl+0x214/0x73d
+  ? vfs_ioctl+0x46/0x5a
+  ? trace_hardirqs_off_caller+0x10c/0x115
   ? trace_hardirqs_off_thunk+0x1a/0x1c
-  invalid_op+0x14/0x20
- RIP: 0010:kvm_arch_vcpu_ioctl_run+0x42b/0x33d7
+  invalid_op+0x1b/0x40
+ RIP: 0010:kvm_arch_vcpu_ioctl_run+0x247/0x2dd2
 
 * This commit is present in linux-5.13.y.
 
@@ -114,10 +113,10 @@ linux-5.10.y and older.
  1 file changed, 9 insertions(+), 4 deletions(-)
 
 diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 43fb4e296d8d..9cfc669b4a24 100644
+index 37d826acd017..d77caab7ad5e 100644
 --- a/arch/x86/kvm/x86.c
 +++ b/arch/x86/kvm/x86.c
-@@ -416,8 +416,6 @@ static void kvm_multiple_exception(struct kvm_vcpu *vcpu,
+@@ -400,8 +400,6 @@ static void kvm_multiple_exception(struct kvm_vcpu *vcpu,
  
  	if (!vcpu->arch.exception.pending && !vcpu->arch.exception.injected) {
  	queue:
@@ -126,7 +125,7 @@ index 43fb4e296d8d..9cfc669b4a24 100644
  		if (reinject) {
  			/*
  			 * On vmentry, vcpu->arch.exception.pending is only
-@@ -7114,6 +7112,13 @@ static void update_cr8_intercept(struct kvm_vcpu *vcpu)
+@@ -6624,13 +6622,20 @@ static void update_cr8_intercept(struct kvm_vcpu *vcpu)
  	kvm_x86_ops->update_cr8_intercept(vcpu, tpr, max_irr);
  }
  
@@ -140,24 +139,23 @@ index 43fb4e296d8d..9cfc669b4a24 100644
  static int inject_pending_event(struct kvm_vcpu *vcpu)
  {
  	int r;
-@@ -7121,7 +7126,7 @@ static int inject_pending_event(struct kvm_vcpu *vcpu)
- 	/* try to reinject previous events if any */
  
- 	if (vcpu->arch.exception.injected)
+ 	/* try to reinject previous events if any */
+ 	if (vcpu->arch.exception.injected) {
 -		kvm_x86_ops->queue_exception(vcpu);
 +		kvm_inject_exception(vcpu);
- 	/*
- 	 * Do not inject an NMI or interrupt if there is a pending
- 	 * exception.  Exceptions and interrupts are recognized at
-@@ -7175,7 +7180,7 @@ static int inject_pending_event(struct kvm_vcpu *vcpu)
+ 		return 0;
+ 	}
+ 
+@@ -6675,7 +6680,7 @@ static int inject_pending_event(struct kvm_vcpu *vcpu)
  			kvm_update_dr7(vcpu);
  		}
  
 -		kvm_x86_ops->queue_exception(vcpu);
 +		kvm_inject_exception(vcpu);
- 	}
- 
- 	/* Don't consider new event if we re-injected an event */
+ 	} else if (vcpu->arch.smi_pending && !is_smm(vcpu)) {
+ 		vcpu->arch.smi_pending = false;
+ 		enter_smm(vcpu);
 -- 
 2.32.0.432.gabb21c7263-goog
 
