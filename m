@@ -2,74 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F3DB3DA581
-	for <lists+stable@lfdr.de>; Thu, 29 Jul 2021 16:02:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D4063DA5F0
+	for <lists+stable@lfdr.de>; Thu, 29 Jul 2021 16:10:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238157AbhG2OCM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Jul 2021 10:02:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48872 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238461AbhG2OA0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Jul 2021 10:00:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CA76C61019;
-        Thu, 29 Jul 2021 13:59:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627567168;
-        bh=I983L7oRtDlUQSTgBEDiVJHD+hWOh53Y9trTkQwzkdo=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gbYH2u0h80QXOhUTjjM0/vXWYy5gJVp46XKbugm2eTtTaAc8Ppf5IxS4Uuce7qG2h
-         VMmuCm8TZVq+gMImKJe+mVRNCGFWX4xzRABLDepRHVq2bsTBO+ZN75+run5Exh4ArJ
-         nOvZKdLXaFYGIWW3B/8azihrNw4pQgc1rlszK89Y=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 22/22] ipv6: ip6_finish_output2: set sk into newly allocated nskb
-Date:   Thu, 29 Jul 2021 15:54:53 +0200
-Message-Id: <20210729135138.024021497@linuxfoundation.org>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210729135137.336097792@linuxfoundation.org>
-References: <20210729135137.336097792@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S239111AbhG2OKJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Jul 2021 10:10:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55620 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238665AbhG2OHd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 29 Jul 2021 10:07:33 -0400
+Received: from mail-wr1-x434.google.com (mail-wr1-x434.google.com [IPv6:2a00:1450:4864:20::434])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EB00C0619EB
+        for <stable@vger.kernel.org>; Thu, 29 Jul 2021 07:00:12 -0700 (PDT)
+Received: by mail-wr1-x434.google.com with SMTP id r2so7119561wrl.1
+        for <stable@vger.kernel.org>; Thu, 29 Jul 2021 07:00:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=liO5wucVGjUgl66CCyk5eCr9ee7CWFbOuaagBW74+qs=;
+        b=EJ2F3ITFwEJ9rcPEvHQ6lQ2DOZnQ5vBtGtiPUiaEaUYZAeiKbLrc61I8wPZVT0mmce
+         oMnATeCgB3nMSCmOY6JYICgTkdxdCA6cizvZWmE5FXgzbr/++FZUo4NbEvGTfoaVyNo1
+         0azpBzwCzgho7Xydbwqhu4X7ssL0HYuQtBhcVrHshYeuX/tgsNM/hwhRAfj6VPIYKcNn
+         SRdE5PgOBshCvRabzbztBxFP+svsg33eT/iYXEhNAvgVqbLfjYJ27YSZ+f2oEjLm1yDO
+         AhQLpqmc/tmy1CFjkjoE2k7ynXOGtOgA9wC8FJHeG8CjoVUhMUY8rhuJgR4gWWk4TaFx
+         BLGw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=liO5wucVGjUgl66CCyk5eCr9ee7CWFbOuaagBW74+qs=;
+        b=qu+hId/BSn+F7gvKs9c5yEj9KqWTHL8Q03zNa4LOr1XQIIM+qwVC14UWNrMxtgLjyS
+         myx4a/C7G0sieA9NokZHAewVqMpMy2vaYx63CvJdFlvBxb7VrZfdw08vSES0vaMvdW32
+         h6OHzX2vrjuaRbH0d4Ehe2UyPf0fQB+C9emBarc6tC0AJsbsGGdY0nZlYWQMvEprbX64
+         FU+Gtd6fFkWIhuiMyuMcrA98jPKbVTirCXUWbU0NpyS2zaQt0O1EmTX/f40aaIk9IY4s
+         K9fvcB1M7xSrSptzWSfBYJSGBGDvZOgJ/DLpH1Qs22ksJpVFkRZhywRtku66Aaob68nc
+         JeZw==
+X-Gm-Message-State: AOAM533EcGlmPEf1T3C/uucx83IJSe/i1uvytIxDU6nARoQLkxnWXQfx
+        cT6Jeu95uIzL9v5mcuuggfM1Iw==
+X-Google-Smtp-Source: ABdhPJzb3jcmoJ3eeO2z7wKiK0sm764dKThMtyfcXT/S/xhsz1jMXke7rkEjfqjma4uFzTs051Dz9A==
+X-Received: by 2002:a5d:64ac:: with SMTP id m12mr4942109wrp.89.1627567209287;
+        Thu, 29 Jul 2021 07:00:09 -0700 (PDT)
+Received: from google.com ([2a00:79e0:d:210:293a:bc89:7514:5218])
+        by smtp.gmail.com with ESMTPSA id l18sm9913097wmq.0.2021.07.29.07.00.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 29 Jul 2021 07:00:09 -0700 (PDT)
+Date:   Thu, 29 Jul 2021 15:00:05 +0100
+From:   Quentin Perret <qperret@google.com>
+To:     Marc Zyngier <maz@kernel.org>
+Cc:     kvmarm@lists.cs.columbia.edu, kvm@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        Will Deacon <will@kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        kernel-team@android.com, Catalin Marinas <catalin.marinas@arm.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] KVM: arm64: Unregister HYP sections from kmemleak in
+ protected mode
+Message-ID: <YQK0ZeRZY/53tWEZ@google.com>
+References: <20210729135016.3037277-1-maz@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210729135016.3037277-1-maz@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+On Thursday 29 Jul 2021 at 14:50:16 (+0100), Marc Zyngier wrote:
+> Booting a KVM host in protected mode with kmemleak quickly results
+> in a pretty bad crash, as kmemleak doesn't know that the HYP sections
+> have been taken away.
+> 
+> Make the unregistration from kmemleak part of marking the sections
+> as HYP-private. The rest of the HYP-specific data is obtained via
+> the page allocator, which is not subjected to kmemleak.
+> 
+> Fixes: 90134ac9cabb ("KVM: arm64: Protect the .hyp sections from the host")
+> Signed-off-by: Marc Zyngier <maz@kernel.org>
+> Cc: Quentin Perret <qperret@google.com>
+> Cc: Catalin Marinas <catalin.marinas@arm.com>
+> Cc: stable@vger.kernel.org # 5.13
+> ---
+>  arch/arm64/kvm/arm.c | 7 ++++++-
+>  1 file changed, 6 insertions(+), 1 deletion(-)
+> 
+> diff --git a/arch/arm64/kvm/arm.c b/arch/arm64/kvm/arm.c
+> index e9a2b8f27792..23f12e602878 100644
+> --- a/arch/arm64/kvm/arm.c
+> +++ b/arch/arm64/kvm/arm.c
+> @@ -15,6 +15,7 @@
+>  #include <linux/fs.h>
+>  #include <linux/mman.h>
+>  #include <linux/sched.h>
+> +#include <linux/kmemleak.h>
+>  #include <linux/kvm.h>
+>  #include <linux/kvm_irqfd.h>
+>  #include <linux/irqbypass.h>
+> @@ -1960,8 +1961,12 @@ static inline int pkvm_mark_hyp(phys_addr_t start, phys_addr_t end)
+>  }
+>  
+>  #define pkvm_mark_hyp_section(__section)		\
+> +({							\
+> +	u64 sz = __section##_end - __section##_start;	\
+> +	kmemleak_free_part(__section##_start, sz);	\
+>  	pkvm_mark_hyp(__pa_symbol(__section##_start),	\
+> -			__pa_symbol(__section##_end))
+> +		      __pa_symbol(__section##_end));	\
+> +})
 
-[ Upstream commit 2d85a1b31dde84038ea07ad825c3d8d3e71f4344 ]
+At some point we should also look into unmapping these sections from
+EL1 stage-1 as well, as that should lead to better error messages in
+case the host accesses hyp-private memory some other way. But this
+patch makes sense on its own, so:
 
-skb_set_owner_w() should set sk not to old skb but to new nskb.
+Reviewed-by: Quentin Perret <qperret@google.com>
 
-Fixes: 5796015fa968 ("ipv6: allocate enough headroom in ip6_finish_output2()")
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Link: https://lore.kernel.org/r/70c0744f-89ae-1869-7e3e-4fa292158f4b@virtuozzo.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- net/ipv6/ip6_output.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
-index b05f3f0da3a6..6062ad1d5b51 100644
---- a/net/ipv6/ip6_output.c
-+++ b/net/ipv6/ip6_output.c
-@@ -74,7 +74,7 @@ static int ip6_finish_output2(struct net *net, struct sock *sk, struct sk_buff *
- 
- 			if (likely(nskb)) {
- 				if (skb->sk)
--					skb_set_owner_w(skb, skb->sk);
-+					skb_set_owner_w(nskb, skb->sk);
- 				consume_skb(skb);
- 			} else {
- 				kfree_skb(skb);
--- 
-2.30.2
-
-
-
+Thanks,
+Quentin
