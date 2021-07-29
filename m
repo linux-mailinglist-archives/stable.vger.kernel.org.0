@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B99233DA54C
-	for <lists+stable@lfdr.de>; Thu, 29 Jul 2021 16:00:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BFDF3DA4FF
+	for <lists+stable@lfdr.de>; Thu, 29 Jul 2021 15:57:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238419AbhG2OAY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Jul 2021 10:00:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49596 "EHLO mail.kernel.org"
+        id S238116AbhG2N5g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Jul 2021 09:57:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238463AbhG2N6c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Jul 2021 09:58:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1B39C60EE2;
-        Thu, 29 Jul 2021 13:58:28 +0000 (UTC)
+        id S238020AbhG2N5U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Jul 2021 09:57:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E47860F42;
+        Thu, 29 Jul 2021 13:57:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627567109;
-        bh=+YYZygSpjsHwvtHjlTPhJkXxxFkAGF48iI4zCw+ZprY=;
+        s=korg; t=1627567036;
+        bh=gu6d9Us+WhzE3l0gwrmXsYoZU1puGJK2+pcE0jW2/ao=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dyo85IUdkeZXtTiUS8+infvSD8ron9F8Bc9vhl5rjw5lNC8gsq5chJiQtmMvewPV6
-         w2QAPovcAoerB92Gw++0OLQXLGPN+VbvkA0GH2JByo1Bv3k6CeQ8XJmROYceh2R9fV
-         kPofMrFgejnxs7BTHDatdFZrlNsLs043wspSbSac=
+        b=zmb/Mnbufk92Y8uIY7vpgS/zOSnKS+RAbiXY9KZ+HNjX+ZV0w9f66Ve9OxH/Vz82t
+         aigSnRhM0Xh7+gtHfcfuwh8leq90b60uRwLG/V9RgyIt2iNRQlQcrceB7Ux+O8LjtE
+         rargmty2XNWTLGaxyyiTCXBsyrXB0lQGU54aX5cU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Levitsky <mlevitsk@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Zubin Mithra <zsm@chromium.org>
-Subject: [PATCH 5.10 03/24] KVM: x86: determine if an exception has an error code only when injecting it.
+        stable@vger.kernel.org,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Cristian Marussi <cristian.marussi@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 16/21] firmware: arm_scmi: Fix range check for the maximum number of pending messages
 Date:   Thu, 29 Jul 2021 15:54:23 +0200
-Message-Id: <20210729135137.371970070@linuxfoundation.org>
+Message-Id: <20210729135143.427393872@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210729135137.267680390@linuxfoundation.org>
-References: <20210729135137.267680390@linuxfoundation.org>
+In-Reply-To: <20210729135142.920143237@linuxfoundation.org>
+References: <20210729135142.920143237@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,67 +42,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Levitsky <mlevitsk@redhat.com>
+From: Cristian Marussi <cristian.marussi@arm.com>
 
-commit b97f074583736c42fb36f2da1164e28c73758912 upstream.
+[ Upstream commit bdb8742dc6f7c599c3d61959234fe4c23638727b ]
 
-A page fault can be queued while vCPU is in real paged mode on AMD, and
-AMD manual asks the user to always intercept it
-(otherwise result is undefined).
-The resulting VM exit, does have an error code.
+SCMI message headers carry a sequence number and such field is sized to
+allow for MSG_TOKEN_MAX distinct numbers; moreover zero is not really an
+acceptable maximum number of pending in-flight messages.
 
-Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
-Message-Id: <20210225154135.405125-2-mlevitsk@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Zubin Mithra <zsm@chromium.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix accordingly the checks performed on the value exported by transports
+in scmi_desc.max_msg
 
+Link: https://lore.kernel.org/r/20210712141833.6628-3-cristian.marussi@arm.com
+Reported-by: Vincent Guittot <vincent.guittot@linaro.org>
+Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
+[sudeep.holla: updated the patch title and error message]
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/x86.c |   13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/firmware/arm_scmi/driver.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -541,8 +541,6 @@ static void kvm_multiple_exception(struc
+diff --git a/drivers/firmware/arm_scmi/driver.c b/drivers/firmware/arm_scmi/driver.c
+index ba2e18d9e0e4..48e6e2b48924 100644
+--- a/drivers/firmware/arm_scmi/driver.c
++++ b/drivers/firmware/arm_scmi/driver.c
+@@ -694,8 +694,9 @@ static int scmi_xfer_info_init(struct scmi_info *sinfo)
+ 	struct scmi_xfers_info *info = &sinfo->tx_minfo;
  
- 	if (!vcpu->arch.exception.pending && !vcpu->arch.exception.injected) {
- 	queue:
--		if (has_error && !is_protmode(vcpu))
--			has_error = false;
- 		if (reinject) {
- 			/*
- 			 * On vmentry, vcpu->arch.exception.pending is only
-@@ -8265,6 +8263,13 @@ static void update_cr8_intercept(struct
- 	kvm_x86_ops.update_cr8_intercept(vcpu, tpr, max_irr);
- }
- 
-+static void kvm_inject_exception(struct kvm_vcpu *vcpu)
-+{
-+	if (vcpu->arch.exception.error_code && !is_protmode(vcpu))
-+		vcpu->arch.exception.error_code = false;
-+	kvm_x86_ops.queue_exception(vcpu);
-+}
-+
- static void inject_pending_event(struct kvm_vcpu *vcpu, bool *req_immediate_exit)
- {
- 	int r;
-@@ -8273,7 +8278,7 @@ static void inject_pending_event(struct
- 	/* try to reinject previous events if any */
- 
- 	if (vcpu->arch.exception.injected) {
--		kvm_x86_ops.queue_exception(vcpu);
-+		kvm_inject_exception(vcpu);
- 		can_inject = false;
+ 	/* Pre-allocated messages, no more than what hdr.seq can support */
+-	if (WARN_ON(desc->max_msg >= MSG_TOKEN_MAX)) {
+-		dev_err(dev, "Maximum message of %d exceeds supported %ld\n",
++	if (WARN_ON(!desc->max_msg || desc->max_msg > MSG_TOKEN_MAX)) {
++		dev_err(dev,
++			"Invalid maximum messages %d, not in range [1 - %lu]\n",
+ 			desc->max_msg, MSG_TOKEN_MAX);
+ 		return -EINVAL;
  	}
- 	/*
-@@ -8336,7 +8341,7 @@ static void inject_pending_event(struct
- 			}
- 		}
- 
--		kvm_x86_ops.queue_exception(vcpu);
-+		kvm_inject_exception(vcpu);
- 		can_inject = false;
- 	}
- 
+-- 
+2.30.2
+
 
 
