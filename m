@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EE643DA4DF
-	for <lists+stable@lfdr.de>; Thu, 29 Jul 2021 15:56:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E98723DA4F5
+	for <lists+stable@lfdr.de>; Thu, 29 Jul 2021 15:57:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237988AbhG2N4o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Jul 2021 09:56:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46470 "EHLO mail.kernel.org"
+        id S238126AbhG2N5R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Jul 2021 09:57:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237924AbhG2N4k (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Jul 2021 09:56:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F3FB560F42;
-        Thu, 29 Jul 2021 13:56:32 +0000 (UTC)
+        id S238055AbhG2N5H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Jul 2021 09:57:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D6C360F42;
+        Thu, 29 Jul 2021 13:57:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627566993;
-        bh=XgbLbzi5wZdAoqd7BTj6HlFDf77mLOGO7053c4OTYnY=;
+        s=korg; t=1627567024;
+        bh=ZF9hGBT6owS1l1SG68qSLZ7neKSLXJUA5Ovk43u9nZ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xE5yWr6Zr/YLUMWVUJC5qqzRYCitjeJXVBaJQyabzKoQ0Ey3XmJH597cUBn+dWMgo
-         uU6PCNot4lfaDjtk/drXwhyG7hTvlwozEwKNoIVHSpj1+JhzrEeG/McNV5VRv8/KZD
-         WzBggcIfwtat8BuGo8k9r8iVXmoCJgc+S4PBC4+8=
+        b=SppYj8vdm0bHovfZ+Lwu9TzpCogjpzzA3jvhVpjQMOpwLqlSRpDRLnT2KxrKtKMNf
+         mFuvgFlaErrO+ItvJOFQRVi60BRzmfmft5ieAGkiO7rEf+TnFVwgRgzl0ZIRTlGPRi
+         ij0Jvd+Al9u65icg4BFKPFmqOtPXS4yRTSuVrPcg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sudeep Holla <sudeep.holla@arm.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 17/17] ARM: dts: versatile: Fix up interrupt controller node names
+        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 11/21] ipv6: allocate enough headroom in ip6_finish_output2()
 Date:   Thu, 29 Jul 2021 15:54:18 +0200
-Message-Id: <20210729135137.798474715@linuxfoundation.org>
+Message-Id: <20210729135143.275857205@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210729135137.260993951@linuxfoundation.org>
-References: <20210729135137.260993951@linuxfoundation.org>
+In-Reply-To: <20210729135142.920143237@linuxfoundation.org>
+References: <20210729135142.920143237@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,70 +40,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sudeep Holla <sudeep.holla@arm.com>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-[ Upstream commit 82a1c67554dff610d6be4e1982c425717b3c6a23 ]
+[ Upstream commit 5796015fa968a3349027a27dcd04c71d95c53ba5 ]
 
-Once the new schema interrupt-controller/arm,vic.yaml is added, we get
-the below warnings:
+When TEE target mirrors traffic to another interface, sk_buff may
+not have enough headroom to be processed correctly.
+ip_finish_output2() detect this situation for ipv4 and allocates
+new skb with enogh headroom. However ipv6 lacks this logic in
+ip_finish_output2 and it leads to skb_under_panic:
 
-        arch/arm/boot/dts/versatile-ab.dt.yaml:
-        intc@10140000: $nodename:0: 'intc@10140000' does not match
-        '^interrupt-controller(@[0-9a-f,]+)*$'
+ skbuff: skb_under_panic: text:ffffffffc0866ad4 len:96 put:24
+ head:ffff97be85e31800 data:ffff97be85e317f8 tail:0x58 end:0xc0 dev:gre0
+ ------------[ cut here ]------------
+ kernel BUG at net/core/skbuff.c:110!
+ invalid opcode: 0000 [#1] SMP PTI
+ CPU: 2 PID: 393 Comm: kworker/2:2 Tainted: G           OE     5.13.0 #13
+ Hardware name: Virtuozzo KVM, BIOS 1.11.0-2.vz7.4 04/01/2014
+ Workqueue: ipv6_addrconf addrconf_dad_work
+ RIP: 0010:skb_panic+0x48/0x4a
+ Call Trace:
+  skb_push.cold.111+0x10/0x10
+  ipgre_header+0x24/0xf0 [ip_gre]
+  neigh_connected_output+0xae/0xf0
+  ip6_finish_output2+0x1a8/0x5a0
+  ip6_output+0x5c/0x110
+  nf_dup_ipv6+0x158/0x1000 [nf_dup_ipv6]
+  tee_tg6+0x2e/0x40 [xt_TEE]
+  ip6t_do_table+0x294/0x470 [ip6_tables]
+  nf_hook_slow+0x44/0xc0
+  nf_hook.constprop.34+0x72/0xe0
+  ndisc_send_skb+0x20d/0x2e0
+  ndisc_send_ns+0xd1/0x210
+  addrconf_dad_work+0x3c8/0x540
+  process_one_work+0x1d1/0x370
+  worker_thread+0x30/0x390
+  kthread+0x116/0x130
+  ret_from_fork+0x22/0x30
 
-	arch/arm/boot/dts/versatile-ab.dt.yaml:
-	intc@10140000: 'clear-mask' does not match any of the regexes
-
-Fix the node names for the interrupt controller to conform
-to the standard node name interrupt-controller@.. Also drop invalid
-clear-mask property.
-
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20210701132118.759454-1-sudeep.holla@arm.com'
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/versatile-ab.dts | 5 ++---
- arch/arm/boot/dts/versatile-pb.dts | 2 +-
- 2 files changed, 3 insertions(+), 4 deletions(-)
+ net/ipv6/ip6_output.c | 28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
 
-diff --git a/arch/arm/boot/dts/versatile-ab.dts b/arch/arm/boot/dts/versatile-ab.dts
-index 6f4f60ba5429..990b7ef1800e 100644
---- a/arch/arm/boot/dts/versatile-ab.dts
-+++ b/arch/arm/boot/dts/versatile-ab.dts
-@@ -192,16 +192,15 @@
- 		#size-cells = <1>;
- 		ranges;
+diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
+index 33444d985681..f26ef5606d8a 100644
+--- a/net/ipv6/ip6_output.c
++++ b/net/ipv6/ip6_output.c
+@@ -59,10 +59,38 @@ static int ip6_finish_output2(struct net *net, struct sock *sk, struct sk_buff *
+ {
+ 	struct dst_entry *dst = skb_dst(skb);
+ 	struct net_device *dev = dst->dev;
++	unsigned int hh_len = LL_RESERVED_SPACE(dev);
++	int delta = hh_len - skb_headroom(skb);
+ 	const struct in6_addr *nexthop;
+ 	struct neighbour *neigh;
+ 	int ret;
  
--		vic: intc@10140000 {
-+		vic: interrupt-controller@10140000 {
- 			compatible = "arm,versatile-vic";
- 			interrupt-controller;
- 			#interrupt-cells = <1>;
- 			reg = <0x10140000 0x1000>;
--			clear-mask = <0xffffffff>;
- 			valid-mask = <0xffffffff>;
- 		};
++	/* Be paranoid, rather than too clever. */
++	if (unlikely(delta > 0) && dev->header_ops) {
++		/* pskb_expand_head() might crash, if skb is shared */
++		if (skb_shared(skb)) {
++			struct sk_buff *nskb = skb_clone(skb, GFP_ATOMIC);
++
++			if (likely(nskb)) {
++				if (skb->sk)
++					skb_set_owner_w(skb, skb->sk);
++				consume_skb(skb);
++			} else {
++				kfree_skb(skb);
++			}
++			skb = nskb;
++		}
++		if (skb &&
++		    pskb_expand_head(skb, SKB_DATA_ALIGN(delta), 0, GFP_ATOMIC)) {
++			kfree_skb(skb);
++			skb = NULL;
++		}
++		if (!skb) {
++			IP6_INC_STATS(net, ip6_dst_idev(dst), IPSTATS_MIB_OUTDISCARDS);
++			return -ENOMEM;
++		}
++	}
++
+ 	if (ipv6_addr_is_multicast(&ipv6_hdr(skb)->daddr)) {
+ 		struct inet6_dev *idev = ip6_dst_idev(skb_dst(skb));
  
--		sic: intc@10003000 {
-+		sic: interrupt-controller@10003000 {
- 			compatible = "arm,versatile-sic";
- 			interrupt-controller;
- 			#interrupt-cells = <1>;
-diff --git a/arch/arm/boot/dts/versatile-pb.dts b/arch/arm/boot/dts/versatile-pb.dts
-index 06a0fdf24026..e7e751a858d8 100644
---- a/arch/arm/boot/dts/versatile-pb.dts
-+++ b/arch/arm/boot/dts/versatile-pb.dts
-@@ -7,7 +7,7 @@
- 
- 	amba {
- 		/* The Versatile PB is using more SIC IRQ lines than the AB */
--		sic: intc@10003000 {
-+		sic: interrupt-controller@10003000 {
- 			clear-mask = <0xffffffff>;
- 			/*
- 			 * Valid interrupt lines mask according to
 -- 
 2.30.2
 
