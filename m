@@ -2,178 +2,183 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D02773DA552
-	for <lists+stable@lfdr.de>; Thu, 29 Jul 2021 16:00:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5073A3DA4F9
+	for <lists+stable@lfdr.de>; Thu, 29 Jul 2021 15:57:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238499AbhG2OA2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Jul 2021 10:00:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48872 "EHLO mail.kernel.org"
+        id S238203AbhG2N51 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Jul 2021 09:57:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47420 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238093AbhG2N6y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Jul 2021 09:58:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3506761040;
-        Thu, 29 Jul 2021 13:58:46 +0000 (UTC)
+        id S238088AbhG2N5M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Jul 2021 09:57:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E485A60F00;
+        Thu, 29 Jul 2021 13:57:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627567126;
-        bh=z/eAghivfB8PvDeoVAEx8JQz6zCL53hx6Z2aXp+N624=;
-        h=From:To:Cc:Subject:Date:From;
-        b=z9qGB7HN6ZRuDVRXwTY7HwqBEA2QyVhUH2dsdEnFAAdjR8rjPXdeR/6Zlyr78XCic
-         5mQHNF93xnwSWFiUh9GJvJZEXWr6zuoLuzUqb0SoLxy8+A11M4L77n1+0QDI4WA8GO
-         bn5dm/BsexjE9GBdOVscfrFoki0NmUmRcY1e7+TY=
+        s=korg; t=1627567029;
+        bh=aqEblzRQvvwhVJ6D62+1WhYHUV1doJep7RFhtYP7i7c=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=ve6ZDb6XP2S/g7UH3A/5/K2nYnMFYzlTCsJovsThpE87DYvLG0WKkBdwv0Q7F1AF1
+         +n+iDZ1VERvVnmqeWIZLisjQa35N3mqibsko7U8y3q4Zroq/qIfbNtqIS5FYG6nQ8/
+         kEmKvXtBrevJYQRbpfRhoenRuCsReCrmsMiO4cgA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: [PATCH 5.10 00/24] 5.10.55-rc1 review
+        stable@vger.kernel.org,
+        Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
+        Viacheslav Dubeyko <slava@dubeyko.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 13/21] hfs: fix high memory mapping in hfs_bnode_read
 Date:   Thu, 29 Jul 2021 15:54:20 +0200
-Message-Id: <20210729135137.267680390@linuxfoundation.org>
+Message-Id: <20210729135143.337365867@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-MIME-Version: 1.0
+In-Reply-To: <20210729135142.920143237@linuxfoundation.org>
+References: <20210729135142.920143237@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.55-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.10.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.10.55-rc1
-X-KernelTest-Deadline: 2021-07-31T13:51+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.10.55 release.
-There are 24 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
 
-Responses should be made by Sat, 31 Jul 2021 13:51:22 +0000.
-Anything received after that time might be too late.
+[ Upstream commit 54a5ead6f5e2b47131a7385d0c0af18e7b89cb02 ]
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.55-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-and the diffstat can be found below.
+Pages that we read in hfs_bnode_read need to be kmapped into kernel
+address space.  However, currently only the 0th page is kmapped.  If the
+given offset + length exceeds this 0th page, then we have an invalid
+memory access.
 
-thanks,
+To fix this, we kmap relevant pages one by one and copy their relevant
+portions of data.
 
-greg k-h
+An example of invalid memory access occurring without this fix can be seen
+in the following crash report:
 
--------------
-Pseudo-Shortlog of commits:
+  ==================================================================
+  BUG: KASAN: use-after-free in memcpy include/linux/fortify-string.h:191 [inline]
+  BUG: KASAN: use-after-free in hfs_bnode_read+0xc4/0xe0 fs/hfs/bnode.c:26
+  Read of size 2 at addr ffff888125fdcffe by task syz-executor5/4634
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.10.55-rc1
+  CPU: 0 PID: 4634 Comm: syz-executor5 Not tainted 5.13.0-syzkaller #0
+  Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+  Call Trace:
+   __dump_stack lib/dump_stack.c:79 [inline]
+   dump_stack+0x195/0x1f8 lib/dump_stack.c:120
+   print_address_description.constprop.0+0x1d/0x110 mm/kasan/report.c:233
+   __kasan_report mm/kasan/report.c:419 [inline]
+   kasan_report.cold+0x7b/0xd4 mm/kasan/report.c:436
+   check_region_inline mm/kasan/generic.c:180 [inline]
+   kasan_check_range+0x154/0x1b0 mm/kasan/generic.c:186
+   memcpy+0x24/0x60 mm/kasan/shadow.c:65
+   memcpy include/linux/fortify-string.h:191 [inline]
+   hfs_bnode_read+0xc4/0xe0 fs/hfs/bnode.c:26
+   hfs_bnode_read_u16 fs/hfs/bnode.c:34 [inline]
+   hfs_bnode_find+0x880/0xcc0 fs/hfs/bnode.c:365
+   hfs_brec_find+0x2d8/0x540 fs/hfs/bfind.c:126
+   hfs_brec_read+0x27/0x120 fs/hfs/bfind.c:165
+   hfs_cat_find_brec+0x19a/0x3b0 fs/hfs/catalog.c:194
+   hfs_fill_super+0xc13/0x1460 fs/hfs/super.c:419
+   mount_bdev+0x331/0x3f0 fs/super.c:1368
+   hfs_mount+0x35/0x40 fs/hfs/super.c:457
+   legacy_get_tree+0x10c/0x220 fs/fs_context.c:592
+   vfs_get_tree+0x93/0x300 fs/super.c:1498
+   do_new_mount fs/namespace.c:2905 [inline]
+   path_mount+0x13f5/0x20e0 fs/namespace.c:3235
+   do_mount fs/namespace.c:3248 [inline]
+   __do_sys_mount fs/namespace.c:3456 [inline]
+   __se_sys_mount fs/namespace.c:3433 [inline]
+   __x64_sys_mount+0x2b8/0x340 fs/namespace.c:3433
+   do_syscall_64+0x37/0xc0 arch/x86/entry/common.c:47
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
+  RIP: 0033:0x45e63a
+  Code: 48 c7 c2 bc ff ff ff f7 d8 64 89 02 b8 ff ff ff ff eb d2 e8 88 04 00 00 0f 1f 84 00 00 00 00 00 49 89 ca b8 a5 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 bc ff ff ff f7 d8 64 89 01 48
+  RSP: 002b:00007f9404d410d8 EFLAGS: 00000246 ORIG_RAX: 00000000000000a5
+  RAX: ffffffffffffffda RBX: 0000000020000248 RCX: 000000000045e63a
+  RDX: 0000000020000000 RSI: 0000000020000100 RDI: 00007f9404d41120
+  RBP: 00007f9404d41120 R08: 00000000200002c0 R09: 0000000020000000
+  R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000003
+  R13: 0000000000000003 R14: 00000000004ad5d8 R15: 0000000000000000
 
-Vasily Averin <vvs@virtuozzo.com>
-    ipv6: ip6_finish_output2: set sk into newly allocated nskb
+  The buggy address belongs to the page:
+  page:00000000dadbcf3e refcount:0 mapcount:0 mapping:0000000000000000 index:0x1 pfn:0x125fdc
+  flags: 0x2fffc0000000000(node=0|zone=2|lastcpupid=0x3fff)
+  raw: 02fffc0000000000 ffffea000497f748 ffffea000497f6c8 0000000000000000
+  raw: 0000000000000001 0000000000000000 00000000ffffffff 0000000000000000
+  page dumped because: kasan: bad access detected
 
-Sudeep Holla <sudeep.holla@arm.com>
-    ARM: dts: versatile: Fix up interrupt controller node names
+  Memory state around the buggy address:
+   ffff888125fdce80: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+   ffff888125fdcf00: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+  >ffff888125fdcf80: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+                                                                  ^
+   ffff888125fdd000: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+   ffff888125fdd080: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+  ==================================================================
 
-Christoph Hellwig <hch@lst.de>
-    iomap: remove the length variable in iomap_seek_hole
+Link: https://lkml.kernel.org/r/20210701030756.58760-3-desmondcheongzx@gmail.com
+Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+Reviewed-by: Viacheslav Dubeyko <slava@dubeyko.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Gustavo A. R. Silva <gustavoars@kernel.org>
+Cc: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ fs/hfs/bnode.c | 25 ++++++++++++++++++++-----
+ 1 file changed, 20 insertions(+), 5 deletions(-)
 
-Christoph Hellwig <hch@lst.de>
-    iomap: remove the length variable in iomap_seek_data
+diff --git a/fs/hfs/bnode.c b/fs/hfs/bnode.c
+index b63a4df7327b..c0a73a6ffb28 100644
+--- a/fs/hfs/bnode.c
++++ b/fs/hfs/bnode.c
+@@ -15,16 +15,31 @@
+ 
+ #include "btree.h"
+ 
+-void hfs_bnode_read(struct hfs_bnode *node, void *buf,
+-		int off, int len)
++void hfs_bnode_read(struct hfs_bnode *node, void *buf, int off, int len)
+ {
+ 	struct page *page;
++	int pagenum;
++	int bytes_read;
++	int bytes_to_read;
++	void *vaddr;
+ 
+ 	off += node->page_offset;
+-	page = node->page[0];
++	pagenum = off >> PAGE_SHIFT;
++	off &= ~PAGE_MASK; /* compute page offset for the first page */
+ 
+-	memcpy(buf, kmap(page) + off, len);
+-	kunmap(page);
++	for (bytes_read = 0; bytes_read < len; bytes_read += bytes_to_read) {
++		if (pagenum >= node->tree->pages_per_bnode)
++			break;
++		page = node->page[pagenum];
++		bytes_to_read = min_t(int, len - bytes_read, PAGE_SIZE - off);
++
++		vaddr = kmap_atomic(page);
++		memcpy(buf + bytes_read, vaddr + off, bytes_to_read);
++		kunmap_atomic(vaddr);
++
++		pagenum++;
++		off = 0; /* page offset only applies to the first page */
++	}
+ }
+ 
+ u16 hfs_bnode_read_u16(struct hfs_bnode *node, int off)
+-- 
+2.30.2
 
-Hyunchul Lee <hyc.lee@gmail.com>
-    cifs: fix the out of range assignment to bit fields in parse_server_interfaces
-
-Cristian Marussi <cristian.marussi@arm.com>
-    firmware: arm_scmi: Fix range check for the maximum number of pending messages
-
-Sudeep Holla <sudeep.holla@arm.com>
-    firmware: arm_scmi: Fix possible scmi_linux_errmap buffer overflow
-
-Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
-    hfs: add lock nesting notation to hfs_find_init
-
-Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
-    hfs: fix high memory mapping in hfs_bnode_read
-
-Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
-    hfs: add missing clean-up in hfs_fill_super
-
-Zheyu Ma <zheyuma97@gmail.com>
-    drm/ttm: add a check against null pointer dereference
-
-Vasily Averin <vvs@virtuozzo.com>
-    ipv6: allocate enough headroom in ip6_finish_output2()
-
-Paul E. McKenney <paulmck@kernel.org>
-    rcu-tasks: Don't delete holdouts within trc_wait_for_one_reader()
-
-Paul E. McKenney <paulmck@kernel.org>
-    rcu-tasks: Don't delete holdouts within trc_inspect_reader()
-
-Xin Long <lucien.xin@gmail.com>
-    sctp: move 198 addresses from unusable to private scope
-
-Eric Dumazet <edumazet@google.com>
-    net: annotate data race around sk_ll_usec
-
-Yang Yingliang <yangyingliang@huawei.com>
-    net/802/garp: fix memleak in garp_request_join()
-
-Yang Yingliang <yangyingliang@huawei.com>
-    net/802/mrp: fix memleak in mrp_request_join()
-
-Paul Gortmaker <paul.gortmaker@windriver.com>
-    cgroup1: fix leaked context root causing sporadic NULL deref in LTP
-
-Yang Yingliang <yangyingliang@huawei.com>
-    workqueue: fix UAF in pwq_unbound_release_workfn()
-
-Miklos Szeredi <mszeredi@redhat.com>
-    af_unix: fix garbage collect vs MSG_PEEK
-
-Maxim Levitsky <mlevitsk@redhat.com>
-    KVM: x86: determine if an exception has an error code only when injecting it.
-
-Pavel Begunkov <asml.silence@gmail.com>
-    io_uring: fix link timeout refs
-
-Yonghong Song <yhs@fb.com>
-    tools: Allow proper CC/CXX/... override with LLVM=1 in Makefile.include
-
-
--------------
-
-Diffstat:
-
- Makefile                                |  4 +--
- arch/arm/boot/dts/versatile-ab.dts      |  5 ++--
- arch/arm/boot/dts/versatile-pb.dts      |  2 +-
- arch/x86/kvm/x86.c                      | 13 ++++++---
- drivers/firmware/arm_scmi/driver.c      | 12 ++++----
- drivers/gpu/drm/ttm/ttm_range_manager.c |  3 ++
- fs/cifs/smb2ops.c                       |  4 +--
- fs/hfs/bfind.c                          | 14 ++++++++-
- fs/hfs/bnode.c                          | 25 ++++++++++++----
- fs/hfs/btree.h                          |  7 +++++
- fs/hfs/super.c                          | 10 +++----
- fs/internal.h                           |  1 -
- fs/io_uring.c                           |  1 -
- fs/iomap/seek.c                         | 25 ++++++----------
- include/linux/fs_context.h              |  1 +
- include/net/busy_poll.h                 |  2 +-
- include/net/sctp/constants.h            |  4 +--
- kernel/cgroup/cgroup-v1.c               |  4 +--
- kernel/rcu/tasks.h                      |  6 ++--
- kernel/workqueue.c                      | 20 ++++++++-----
- net/802/garp.c                          | 14 +++++++++
- net/802/mrp.c                           | 14 +++++++++
- net/core/sock.c                         |  2 +-
- net/ipv6/ip6_output.c                   | 28 ++++++++++++++++++
- net/sctp/protocol.c                     |  3 +-
- net/unix/af_unix.c                      | 51 +++++++++++++++++++++++++++++++--
- tools/scripts/Makefile.include          | 12 ++++++--
- 27 files changed, 217 insertions(+), 70 deletions(-)
 
 
