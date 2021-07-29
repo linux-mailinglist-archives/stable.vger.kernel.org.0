@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B23D3DA54E
-	for <lists+stable@lfdr.de>; Thu, 29 Jul 2021 16:00:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AED523DA518
+	for <lists+stable@lfdr.de>; Thu, 29 Jul 2021 15:58:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238482AbhG2OA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Jul 2021 10:00:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48218 "EHLO mail.kernel.org"
+        id S238198AbhG2N6J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Jul 2021 09:58:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48368 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238479AbhG2N6k (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Jul 2021 09:58:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A89C060EB2;
-        Thu, 29 Jul 2021 13:58:36 +0000 (UTC)
+        id S238183AbhG2N5t (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Jul 2021 09:57:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D2F360F5E;
+        Thu, 29 Jul 2021 13:57:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627567117;
-        bh=+q/U62PLmDJK7nlo6ToaSYluvoOo9iLoP28lQs/YE+g=;
+        s=korg; t=1627567065;
+        bh=S7P0nhfOfRBupSOYqNTo4tFCg++UMUkYFsS9chBOYA0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f6iej9gffoHko7svbRX6XK/yP7Q8faRi1IDljQDvVO9M9eQm5kqvDk/QlwaFU/hXv
-         69eAsPRAp+r9A5WJ8bq7J6XNCOynsuNFxEwIfhahGYYx6FNHjyiDeKh6NBgonwFRIz
-         Af62F+wG6y32U8ucVPMtZOsvLC2zLV6CmV9gHlGI=
+        b=vj3I4wsR6+sxNNEntW87FykFkRMMsxlhNKUrUX1sl36nbLvXAfanSP5UBPswoq0AU
+         tNnVKharnBNOJ5fHxtSr4lsuLBz3OowulaquriFc14HPYuDOyeGWUEtd2BrRXVtyAF
+         r9pb6p0xIolK5zLCa26Wb5Kheeg3DONkAoKm6TbE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Tejun Heo <tj@kernel.org>, Zefan Li <lizefan.x@bytedance.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Richard Purdie <richard.purdie@linuxfoundation.org>,
-        Paul Gortmaker <paul.gortmaker@windriver.com>
-Subject: [PATCH 5.10 06/24] cgroup1: fix leaked context root causing sporadic NULL deref in LTP
-Date:   Thu, 29 Jul 2021 15:54:26 +0200
-Message-Id: <20210729135137.470133128@linuxfoundation.org>
+        stable@vger.kernel.org, Sudeep Holla <sudeep.holla@arm.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 20/21] ARM: dts: versatile: Fix up interrupt controller node names
+Date:   Thu, 29 Jul 2021 15:54:27 +0200
+Message-Id: <20210729135143.552064391@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210729135137.267680390@linuxfoundation.org>
-References: <20210729135137.267680390@linuxfoundation.org>
+In-Reply-To: <20210729135142.920143237@linuxfoundation.org>
+References: <20210729135142.920143237@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,126 +40,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Gortmaker <paul.gortmaker@windriver.com>
+From: Sudeep Holla <sudeep.holla@arm.com>
 
-commit 1e7107c5ef44431bc1ebbd4c353f1d7c22e5f2ec upstream.
+[ Upstream commit 82a1c67554dff610d6be4e1982c425717b3c6a23 ]
 
-Richard reported sporadic (roughly one in 10 or so) null dereferences and
-other strange behaviour for a set of automated LTP tests.  Things like:
+Once the new schema interrupt-controller/arm,vic.yaml is added, we get
+the below warnings:
 
-   BUG: kernel NULL pointer dereference, address: 0000000000000008
-   #PF: supervisor read access in kernel mode
-   #PF: error_code(0x0000) - not-present page
-   PGD 0 P4D 0
-   Oops: 0000 [#1] PREEMPT SMP PTI
-   CPU: 0 PID: 1516 Comm: umount Not tainted 5.10.0-yocto-standard #1
-   Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-48-gd9c812dda519-prebuilt.qemu.org 04/01/2014
-   RIP: 0010:kernfs_sop_show_path+0x1b/0x60
+        arch/arm/boot/dts/versatile-ab.dt.yaml:
+        intc@10140000: $nodename:0: 'intc@10140000' does not match
+        '^interrupt-controller(@[0-9a-f,]+)*$'
 
-...or these others:
+	arch/arm/boot/dts/versatile-ab.dt.yaml:
+	intc@10140000: 'clear-mask' does not match any of the regexes
 
-   RIP: 0010:do_mkdirat+0x6a/0xf0
-   RIP: 0010:d_alloc_parallel+0x98/0x510
-   RIP: 0010:do_readlinkat+0x86/0x120
+Fix the node names for the interrupt controller to conform
+to the standard node name interrupt-controller@.. Also drop invalid
+clear-mask property.
 
-There were other less common instances of some kind of a general scribble
-but the common theme was mount and cgroup and a dubious dentry triggering
-the NULL dereference.  I was only able to reproduce it under qemu by
-replicating Richard's setup as closely as possible - I never did get it
-to happen on bare metal, even while keeping everything else the same.
-
-In commit 71d883c37e8d ("cgroup_do_mount(): massage calling conventions")
-we see this as a part of the overall change:
-
-   --------------
-           struct cgroup_subsys *ss;
-   -       struct dentry *dentry;
-
-   [...]
-
-   -       dentry = cgroup_do_mount(&cgroup_fs_type, fc->sb_flags, root,
-   -                                CGROUP_SUPER_MAGIC, ns);
-
-   [...]
-
-   -       if (percpu_ref_is_dying(&root->cgrp.self.refcnt)) {
-   -               struct super_block *sb = dentry->d_sb;
-   -               dput(dentry);
-   +       ret = cgroup_do_mount(fc, CGROUP_SUPER_MAGIC, ns);
-   +       if (!ret && percpu_ref_is_dying(&root->cgrp.self.refcnt)) {
-   +               struct super_block *sb = fc->root->d_sb;
-   +               dput(fc->root);
-                   deactivate_locked_super(sb);
-                   msleep(10);
-                   return restart_syscall();
-           }
-   --------------
-
-In changing from the local "*dentry" variable to using fc->root, we now
-export/leave that dentry pointer in the file context after doing the dput()
-in the unlikely "is_dying" case.   With LTP doing a crazy amount of back to
-back mount/unmount [testcases/bin/cgroup_regression_5_1.sh] the unlikely
-becomes slightly likely and then bad things happen.
-
-A fix would be to not leave the stale reference in fc->root as follows:
-
-   --------------
-                  dput(fc->root);
-  +               fc->root = NULL;
-                  deactivate_locked_super(sb);
-   --------------
-
-...but then we are just open-coding a duplicate of fc_drop_locked() so we
-simply use that instead.
-
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Tejun Heo <tj@kernel.org>
-Cc: Zefan Li <lizefan.x@bytedance.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: stable@vger.kernel.org      # v5.1+
-Reported-by: Richard Purdie <richard.purdie@linuxfoundation.org>
-Fixes: 71d883c37e8d ("cgroup_do_mount(): massage calling conventions")
-Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20210701132118.759454-1-sudeep.holla@arm.com'
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/internal.h              |    1 -
- include/linux/fs_context.h |    1 +
- kernel/cgroup/cgroup-v1.c  |    4 +---
- 3 files changed, 2 insertions(+), 4 deletions(-)
+ arch/arm/boot/dts/versatile-ab.dts | 5 ++---
+ arch/arm/boot/dts/versatile-pb.dts | 2 +-
+ 2 files changed, 3 insertions(+), 4 deletions(-)
 
---- a/fs/internal.h
-+++ b/fs/internal.h
-@@ -64,7 +64,6 @@ extern void __init chrdev_init(void);
-  */
- extern const struct fs_context_operations legacy_fs_context_ops;
- extern int parse_monolithic_mount_data(struct fs_context *, void *);
--extern void fc_drop_locked(struct fs_context *);
- extern void vfs_clean_context(struct fs_context *fc);
- extern int finish_clean_context(struct fs_context *fc);
+diff --git a/arch/arm/boot/dts/versatile-ab.dts b/arch/arm/boot/dts/versatile-ab.dts
+index 37bd41ff8dff..151c0220047d 100644
+--- a/arch/arm/boot/dts/versatile-ab.dts
++++ b/arch/arm/boot/dts/versatile-ab.dts
+@@ -195,16 +195,15 @@
+ 		#size-cells = <1>;
+ 		ranges;
  
---- a/include/linux/fs_context.h
-+++ b/include/linux/fs_context.h
-@@ -139,6 +139,7 @@ extern int vfs_parse_fs_string(struct fs
- extern int generic_parse_monolithic(struct fs_context *fc, void *data);
- extern int vfs_get_tree(struct fs_context *fc);
- extern void put_fs_context(struct fs_context *fc);
-+extern void fc_drop_locked(struct fs_context *fc);
+-		vic: intc@10140000 {
++		vic: interrupt-controller@10140000 {
+ 			compatible = "arm,versatile-vic";
+ 			interrupt-controller;
+ 			#interrupt-cells = <1>;
+ 			reg = <0x10140000 0x1000>;
+-			clear-mask = <0xffffffff>;
+ 			valid-mask = <0xffffffff>;
+ 		};
  
- /*
-  * sget() wrappers to be called from the ->get_tree() op.
---- a/kernel/cgroup/cgroup-v1.c
-+++ b/kernel/cgroup/cgroup-v1.c
-@@ -1225,9 +1225,7 @@ int cgroup1_get_tree(struct fs_context *
- 		ret = cgroup_do_get_tree(fc);
+-		sic: intc@10003000 {
++		sic: interrupt-controller@10003000 {
+ 			compatible = "arm,versatile-sic";
+ 			interrupt-controller;
+ 			#interrupt-cells = <1>;
+diff --git a/arch/arm/boot/dts/versatile-pb.dts b/arch/arm/boot/dts/versatile-pb.dts
+index 06a0fdf24026..e7e751a858d8 100644
+--- a/arch/arm/boot/dts/versatile-pb.dts
++++ b/arch/arm/boot/dts/versatile-pb.dts
+@@ -7,7 +7,7 @@
  
- 	if (!ret && percpu_ref_is_dying(&ctx->root->cgrp.self.refcnt)) {
--		struct super_block *sb = fc->root->d_sb;
--		dput(fc->root);
--		deactivate_locked_super(sb);
-+		fc_drop_locked(fc);
- 		ret = 1;
- 	}
- 
+ 	amba {
+ 		/* The Versatile PB is using more SIC IRQ lines than the AB */
+-		sic: intc@10003000 {
++		sic: interrupt-controller@10003000 {
+ 			clear-mask = <0xffffffff>;
+ 			/*
+ 			 * Valid interrupt lines mask according to
+-- 
+2.30.2
+
 
 
