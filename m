@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B9C323DA503
+	by mail.lfdr.de (Postfix) with ESMTP id 4D2563DA502
 	for <lists+stable@lfdr.de>; Thu, 29 Jul 2021 15:57:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238022AbhG2N5i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S238184AbhG2N5i (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 29 Jul 2021 09:57:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47690 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:47334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237789AbhG2N5Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Jul 2021 09:57:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4EDC960EB2;
-        Thu, 29 Jul 2021 13:57:21 +0000 (UTC)
+        id S238192AbhG2N51 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Jul 2021 09:57:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C95C960F4A;
+        Thu, 29 Jul 2021 13:57:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627567041;
-        bh=ZgYjrjVfXUcydEKwdoLCKbh6pLx5YHoRym9sok9+W2Q=;
+        s=korg; t=1627567044;
+        bh=GUAdd6L9YDOstvsg26/8BKjc5hC2LrfmA+a9Jh845m0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b8ZVCP4QELhF5JuAec3aMljPMENQ5CqLi8HA6AbnfclUfm/qH/kLaU1BC2VHmOoNO
-         rOlCNAZdkHLf26cD+/CVu+E0qhDarw9ZYJ9ocz2fonO90UPB6mL/RpmyprAwAERdc/
-         XO42/6mCuaSJBIyMgRF558DTRDLlH/tQp7oTkncc=
+        b=fdoGwI41SctDWPQnbwvkJYoX2TWDIAbLGX9saK/n3r30JyZR5UPualjFDpAgo2wIY
+         wkWYWI3DTGZM+R12a1VtqCfVrjbHyjKKbvVJzbX32ntAITDupZSsrB+QlProvDblzG
+         HF7/igUja8gf8V7SCsj4GdztyUM4a+kelWPWOQTo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Levitsky <mlevitsk@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Zubin Mithra <zsm@chromium.org>
-Subject: [PATCH 5.4 03/21] KVM: x86: determine if an exception has an error code only when injecting it.
-Date:   Thu, 29 Jul 2021 15:54:10 +0200
-Message-Id: <20210729135143.030739379@linuxfoundation.org>
+        stable@vger.kernel.org, Miklos Szeredi <mszeredi@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 04/21] af_unix: fix garbage collect vs MSG_PEEK
+Date:   Thu, 29 Jul 2021 15:54:11 +0200
+Message-Id: <20210729135143.061663971@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210729135142.920143237@linuxfoundation.org>
 References: <20210729135142.920143237@linuxfoundation.org>
@@ -40,67 +39,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Levitsky <mlevitsk@redhat.com>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-commit b97f074583736c42fb36f2da1164e28c73758912 upstream.
+commit cbcf01128d0a92e131bd09f1688fe032480b65ca upstream.
 
-A page fault can be queued while vCPU is in real paged mode on AMD, and
-AMD manual asks the user to always intercept it
-(otherwise result is undefined).
-The resulting VM exit, does have an error code.
+unix_gc() assumes that candidate sockets can never gain an external
+reference (i.e.  be installed into an fd) while the unix_gc_lock is
+held.  Except for MSG_PEEK this is guaranteed by modifying inflight
+count under the unix_gc_lock.
 
-Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
-Message-Id: <20210225154135.405125-2-mlevitsk@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Zubin Mithra <zsm@chromium.org>
+MSG_PEEK does not touch any variable protected by unix_gc_lock (file
+count is not), yet it needs to be serialized with garbage collection.
+Do this by locking/unlocking unix_gc_lock:
+
+ 1) increment file count
+
+ 2) lock/unlock barrier to make sure incremented file count is visible
+    to garbage collection
+
+ 3) install file into fd
+
+This is a lock barrier (unlike smp_mb()) that ensures that garbage
+collection is run completely before or completely after the barrier.
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- arch/x86/kvm/x86.c |   13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ net/unix/af_unix.c |   51 +++++++++++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 49 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -475,8 +475,6 @@ static void kvm_multiple_exception(struc
- 
- 	if (!vcpu->arch.exception.pending && !vcpu->arch.exception.injected) {
- 	queue:
--		if (has_error && !is_protmode(vcpu))
--			has_error = false;
- 		if (reinject) {
- 			/*
- 			 * On vmentry, vcpu->arch.exception.pending is only
-@@ -7592,6 +7590,13 @@ static void update_cr8_intercept(struct
- 	kvm_x86_ops->update_cr8_intercept(vcpu, tpr, max_irr);
+--- a/net/unix/af_unix.c
++++ b/net/unix/af_unix.c
+@@ -1512,6 +1512,53 @@ out:
+ 	return err;
  }
  
-+static void kvm_inject_exception(struct kvm_vcpu *vcpu)
++static void unix_peek_fds(struct scm_cookie *scm, struct sk_buff *skb)
 +{
-+       if (vcpu->arch.exception.error_code && !is_protmode(vcpu))
-+               vcpu->arch.exception.error_code = false;
-+       kvm_x86_ops->queue_exception(vcpu);
++	scm->fp = scm_fp_dup(UNIXCB(skb).fp);
++
++	/*
++	 * Garbage collection of unix sockets starts by selecting a set of
++	 * candidate sockets which have reference only from being in flight
++	 * (total_refs == inflight_refs).  This condition is checked once during
++	 * the candidate collection phase, and candidates are marked as such, so
++	 * that non-candidates can later be ignored.  While inflight_refs is
++	 * protected by unix_gc_lock, total_refs (file count) is not, hence this
++	 * is an instantaneous decision.
++	 *
++	 * Once a candidate, however, the socket must not be reinstalled into a
++	 * file descriptor while the garbage collection is in progress.
++	 *
++	 * If the above conditions are met, then the directed graph of
++	 * candidates (*) does not change while unix_gc_lock is held.
++	 *
++	 * Any operations that changes the file count through file descriptors
++	 * (dup, close, sendmsg) does not change the graph since candidates are
++	 * not installed in fds.
++	 *
++	 * Dequeing a candidate via recvmsg would install it into an fd, but
++	 * that takes unix_gc_lock to decrement the inflight count, so it's
++	 * serialized with garbage collection.
++	 *
++	 * MSG_PEEK is special in that it does not change the inflight count,
++	 * yet does install the socket into an fd.  The following lock/unlock
++	 * pair is to ensure serialization with garbage collection.  It must be
++	 * done between incrementing the file count and installing the file into
++	 * an fd.
++	 *
++	 * If garbage collection starts after the barrier provided by the
++	 * lock/unlock, then it will see the elevated refcount and not mark this
++	 * as a candidate.  If a garbage collection is already in progress
++	 * before the file count was incremented, then the lock/unlock pair will
++	 * ensure that garbage collection is finished before progressing to
++	 * installing the fd.
++	 *
++	 * (*) A -> B where B is on the queue of A or B is on the queue of C
++	 * which is on the queue of listening socket A.
++	 */
++	spin_lock(&unix_gc_lock);
++	spin_unlock(&unix_gc_lock);
 +}
 +
- static int inject_pending_event(struct kvm_vcpu *vcpu)
+ static int unix_scm_to_skb(struct scm_cookie *scm, struct sk_buff *skb, bool send_fds)
  {
- 	int r;
-@@ -7599,7 +7604,7 @@ static int inject_pending_event(struct k
- 	/* try to reinject previous events if any */
+ 	int err = 0;
+@@ -2137,7 +2184,7 @@ static int unix_dgram_recvmsg(struct soc
+ 		sk_peek_offset_fwd(sk, size);
  
- 	if (vcpu->arch.exception.injected)
--		kvm_x86_ops->queue_exception(vcpu);
-+		kvm_inject_exception(vcpu);
- 	/*
- 	 * Do not inject an NMI or interrupt if there is a pending
- 	 * exception.  Exceptions and interrupts are recognized at
-@@ -7665,7 +7670,7 @@ static int inject_pending_event(struct k
- 			}
- 		}
- 
--		kvm_x86_ops->queue_exception(vcpu);
-+		kvm_inject_exception(vcpu);
+ 		if (UNIXCB(skb).fp)
+-			scm.fp = scm_fp_dup(UNIXCB(skb).fp);
++			unix_peek_fds(&scm, skb);
  	}
+ 	err = (flags & MSG_TRUNC) ? skb->len - skip : size;
  
- 	/* Don't consider new event if we re-injected an event */
+@@ -2378,7 +2425,7 @@ unlock:
+ 			/* It is questionable, see note in unix_dgram_recvmsg.
+ 			 */
+ 			if (UNIXCB(skb).fp)
+-				scm.fp = scm_fp_dup(UNIXCB(skb).fp);
++				unix_peek_fds(&scm, skb);
+ 
+ 			sk_peek_offset_fwd(sk, chunk);
+ 
 
 
