@@ -2,75 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C7193DA282
-	for <lists+stable@lfdr.de>; Thu, 29 Jul 2021 13:52:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAF2B3DA4B8
+	for <lists+stable@lfdr.de>; Thu, 29 Jul 2021 15:50:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232122AbhG2Lwk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Jul 2021 07:52:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43656 "EHLO mail.kernel.org"
+        id S237613AbhG2Nu0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Jul 2021 09:50:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231674AbhG2Lwk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Jul 2021 07:52:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 05C6560720;
-        Thu, 29 Jul 2021 11:52:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1627559557;
-        bh=TcHKExQZ71Wdyku14F28gAs13SSIwm1sfNPVSRj02YQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=YF+5Dl6T36a8JJ9JpPN+19QDeqNTNKFjbw6UOykXm7cNTHgPrxRZiZAH+suLojlor
-         WiEWFmrio0Mj+bhxg2n+823tskVJWg1z69W/Ukt2DGyZDXvxkShiYyPKhO0/a//BlW
-         Avd8BOf/iIxXQPJUN+TSnbw9l6JuK+ESyjT2nMRwStPTBeBctWi0pdVlD1By8gDNyB
-         F8HFJB2m8HXQO7h9CV9JFPfEAucsHyeFAFJ8YP24VbEm+SEGwTaJmvco2xGfJ15Bc1
-         j1j3RwnnVOdFJp2uLEg4+24aZDvG67fDDTE6yPkqplv/sZay8rThHRuhAxIyEyq9+N
-         NyijGvbQqNn0Q==
-Received: from johan by xi with local (Exim 4.94.2)
-        (envelope-from <johan@kernel.org>)
-        id 1m94Zy-0002fM-P7; Thu, 29 Jul 2021 13:51:58 +0200
-Date:   Thu, 29 Jul 2021 13:51:58 +0200
-From:   Johan Hovold <johan@kernel.org>
-To:     Willy Tarreau <w@1wt.eu>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        id S237680AbhG2NuY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Jul 2021 09:50:24 -0400
+Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id E057D6023F;
+        Thu, 29 Jul 2021 13:50:21 +0000 (UTC)
+Received: from sofa.misterjones.org ([185.219.108.64] helo=hot-poop.lan)
+        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <maz@kernel.org>)
+        id 1m96QV-001nXB-Hw; Thu, 29 Jul 2021 14:50:20 +0100
+From:   Marc Zyngier <maz@kernel.org>
+To:     kvmarm@lists.cs.columbia.edu, kvm@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Cc:     Will Deacon <will@kernel.org>, James Morse <james.morse@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        kernel-team@android.com, Quentin Perret <qperret@google.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
         stable@vger.kernel.org
-Subject: Re: [PATCH] USB: serial: ch341: fix character loss at high transfer
- rates
-Message-ID: <YQKWXlTj02OW/h5S@hovoldconsulting.com>
-References: <20210724152739.18726-1-w@1wt.eu>
+Subject: [PATCH] KVM: arm64: Unregister HYP sections from kmemleak in protected mode
+Date:   Thu, 29 Jul 2021 14:50:16 +0100
+Message-Id: <20210729135016.3037277-1-maz@kernel.org>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210724152739.18726-1-w@1wt.eu>
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 185.219.108.64
+X-SA-Exim-Rcpt-To: kvmarm@lists.cs.columbia.edu, kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, will@kernel.org, james.morse@arm.com, suzuki.poulose@arm.com, alexandru.elisei@arm.com, kernel-team@android.com, qperret@google.com, catalin.marinas@arm.com, stable@vger.kernel.org
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Jul 24, 2021 at 05:27:39PM +0200, Willy Tarreau wrote:
-> The chip supports high transfer rates, but with the small default buffers
-> (64 bytes read), some entire blocks are regularly lost. This typically
-> happens at 1.5 Mbps (which is the default speed on Rockchip devices) when
-> used as a console to access U-Boot where the output of the "help" command
-> misses many lines and where "printenv" mangles the environment.
-> 
-> The FTDI driver doesn't suffer at all from this. One difference is that
-> it uses 512 bytes rx buffers and 256 bytes tx buffers. Adopting these
-> values completely resolved the issue, even the output of "dmesg" is
-> reliable. I preferred to leave the Tx value unchanged as it is not
-> involved in this issue, while a change could increase the risk of
-> triggering the same issue with other devices having too small buffers.
+Booting a KVM host in protected mode with kmemleak quickly results
+in a pretty bad crash, as kmemleak doesn't know that the HYP sections
+have been taken away.
 
-Since these device do not support automatic flow control this is indeed
-the best we can to do here (otherwise I'd probably prefer framing it
-more as an optimisation than a fix).
+Make the unregistration from kmemleak part of marking the sections
+as HYP-private. The rest of the HYP-specific data is obtained via
+the page allocator, which is not subjected to kmemleak.
 
-> I verified that it backports well (and works) at least to 5.4. It's of
-> low importance enough to be dropped where it doesn't trivially apply
-> anymore.
+Fixes: 90134ac9cabb ("KVM: arm64: Protect the .hyp sections from the host")
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Cc: Quentin Perret <qperret@google.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: stable@vger.kernel.org # 5.13
+---
+ arch/arm64/kvm/arm.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-This should be fine to backport to all stable trees.
+diff --git a/arch/arm64/kvm/arm.c b/arch/arm64/kvm/arm.c
+index e9a2b8f27792..23f12e602878 100644
+--- a/arch/arm64/kvm/arm.c
++++ b/arch/arm64/kvm/arm.c
+@@ -15,6 +15,7 @@
+ #include <linux/fs.h>
+ #include <linux/mman.h>
+ #include <linux/sched.h>
++#include <linux/kmemleak.h>
+ #include <linux/kvm.h>
+ #include <linux/kvm_irqfd.h>
+ #include <linux/irqbypass.h>
+@@ -1960,8 +1961,12 @@ static inline int pkvm_mark_hyp(phys_addr_t start, phys_addr_t end)
+ }
+ 
+ #define pkvm_mark_hyp_section(__section)		\
++({							\
++	u64 sz = __section##_end - __section##_start;	\
++	kmemleak_free_part(__section##_start, sz);	\
+ 	pkvm_mark_hyp(__pa_symbol(__section##_start),	\
+-			__pa_symbol(__section##_end))
++		      __pa_symbol(__section##_end));	\
++})
+ 
+ static int finalize_hyp_mode(void)
+ {
+-- 
+2.30.2
 
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Willy Tarreau <w@1wt.eu>
-
-Now applied for 5.14, thanks.
-
-Johan
