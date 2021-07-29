@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D29B53DA4EC
-	for <lists+stable@lfdr.de>; Thu, 29 Jul 2021 15:57:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A4AB3DA500
+	for <lists+stable@lfdr.de>; Thu, 29 Jul 2021 15:57:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238133AbhG2N5F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Jul 2021 09:57:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46848 "EHLO mail.kernel.org"
+        id S237879AbhG2N5h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Jul 2021 09:57:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47656 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238015AbhG2N4x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Jul 2021 09:56:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 12D6160F48;
-        Thu, 29 Jul 2021 13:56:48 +0000 (UTC)
+        id S238186AbhG2N5W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Jul 2021 09:57:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A1ED260F46;
+        Thu, 29 Jul 2021 13:57:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627567009;
-        bh=Fvu85sAjs319dWKeZiap0oOOGT1ZpqeMqQ0Tf/uMgwo=;
+        s=korg; t=1627567039;
+        bh=vnuB0YMTDTV4aN/s0lEZdXViNcICe+fh86uUv3TAXbo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0t2aj0kZtXoRx4NcSlqsqOiLgoqcxdFBUj+eMfRgq1g51Lq9kv9/uVTYdA4GZw/8g
-         AP7n3YlLC1PRdPmlJLaeFqCu0gi9z9jcxvdNM2baYBSYW3+GVhEU4Hx/27YOnkvnxY
-         FFU5Lyap+sEqX2iPHnj5Lh3ayENdNyTWaRcWs6Lc=
+        b=YONLQYM8np4p4MgqT22raYMQ5eLG158dF1jZayjjKq9uHz5k5HCvXImAjdWinVqGV
+         CMdzWlmgEFsvET9DkS2fK8d880hu6ak8BksmdfkxXvMRh5XeKN4WO+PQzVZD4eYqlr
+         7TMXQl3vx53G7ctWx7ZjJ8eXwE/GmrKvZceOdUI0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 08/17] net/802/garp: fix memleak in garp_request_join()
+        stable@vger.kernel.org, Yonghong Song <yhs@fb.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Anders Roxell <anders.roxell@linaro.org>
+Subject: [PATCH 5.4 02/21] tools: Allow proper CC/CXX/... override with LLVM=1 in Makefile.include
 Date:   Thu, 29 Jul 2021 15:54:09 +0200
-Message-Id: <20210729135137.525541234@linuxfoundation.org>
+Message-Id: <20210729135142.995489875@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210729135137.260993951@linuxfoundation.org>
-References: <20210729135137.260993951@linuxfoundation.org>
+In-Reply-To: <20210729135142.920143237@linuxfoundation.org>
+References: <20210729135142.920143237@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,84 +40,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Yonghong Song <yhs@fb.com>
 
-[ Upstream commit 42ca63f980842918560b25f0244307fd83b4777c ]
+commit f62700ce63a315b4607cc9e97aa15ea409a677b9 upstream.
 
-I got kmemleak report when doing fuzz test:
+selftests/bpf/Makefile includes tools/scripts/Makefile.include.
+With the following command
+  make -j60 LLVM=1 LLVM_IAS=1  <=== compile kernel
+  make -j60 -C tools/testing/selftests/bpf LLVM=1 LLVM_IAS=1 V=1
+some files are still compiled with gcc. This patch
+fixed the case if CC/AR/LD/CXX/STRIP is allowed to be
+overridden, it will be written to clang/llvm-ar/..., instead of
+gcc binaries. The definition of CC_NO_CLANG is also relocated
+to the place after the above CC is defined.
 
-BUG: memory leak
-unreferenced object 0xffff88810c909b80 (size 64):
-  comm "syz", pid 957, jiffies 4295220394 (age 399.090s)
-  hex dump (first 32 bytes):
-    01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 08 00 00 00 01 02 00 04  ................
-  backtrace:
-    [<00000000ca1f2e2e>] garp_request_join+0x285/0x3d0
-    [<00000000bf153351>] vlan_gvrp_request_join+0x15b/0x190
-    [<0000000024005e72>] vlan_dev_open+0x706/0x980
-    [<00000000dc20c4d4>] __dev_open+0x2bb/0x460
-    [<0000000066573004>] __dev_change_flags+0x501/0x650
-    [<0000000035b42f83>] rtnl_configure_link+0xee/0x280
-    [<00000000a5e69de0>] __rtnl_newlink+0xed5/0x1550
-    [<00000000a5258f4a>] rtnl_newlink+0x66/0x90
-    [<00000000506568ee>] rtnetlink_rcv_msg+0x439/0xbd0
-    [<00000000b7eaeae1>] netlink_rcv_skb+0x14d/0x420
-    [<00000000c373ce66>] netlink_unicast+0x550/0x750
-    [<00000000ec74ce74>] netlink_sendmsg+0x88b/0xda0
-    [<00000000381ff246>] sock_sendmsg+0xc9/0x120
-    [<000000008f6a2db3>] ____sys_sendmsg+0x6e8/0x820
-    [<000000008d9c1735>] ___sys_sendmsg+0x145/0x1c0
-    [<00000000aa39dd8b>] __sys_sendmsg+0xfe/0x1d0
-
-Calling garp_request_leave() after garp_request_join(), the attr->state
-is set to GARP_APPLICANT_VO, garp_attr_destroy() won't be called in last
-transmit event in garp_uninit_applicant(), the attr of applicant will be
-leaked. To fix this leak, iterate and free each attr of applicant before
-rerturning from garp_uninit_applicant().
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Yonghong Song <yhs@fb.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20210413153419.3028165-1-yhs@fb.com
+Cc: Anders Roxell <anders.roxell@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/802/garp.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ tools/scripts/Makefile.include |   12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/net/802/garp.c b/net/802/garp.c
-index 7f50d47470bd..8e19f51833d6 100644
---- a/net/802/garp.c
-+++ b/net/802/garp.c
-@@ -206,6 +206,19 @@ static void garp_attr_destroy(struct garp_applicant *app, struct garp_attr *attr
- 	kfree(attr);
- }
+--- a/tools/scripts/Makefile.include
++++ b/tools/scripts/Makefile.include
+@@ -39,8 +39,6 @@ EXTRA_WARNINGS += -Wundef
+ EXTRA_WARNINGS += -Wwrite-strings
+ EXTRA_WARNINGS += -Wformat
  
-+static void garp_attr_destroy_all(struct garp_applicant *app)
-+{
-+	struct rb_node *node, *next;
-+	struct garp_attr *attr;
+-CC_NO_CLANG := $(shell $(CC) -dM -E -x c /dev/null | grep -Fq "__clang__"; echo $$?)
+-
+ # Makefiles suck: This macro sets a default value of $(2) for the
+ # variable named by $(1), unless the variable has been set by
+ # environment or command line. This is necessary for CC and AR
+@@ -52,12 +50,22 @@ define allow-override
+     $(eval $(1) = $(2)))
+ endef
+ 
++ifneq ($(LLVM),)
++$(call allow-override,CC,clang)
++$(call allow-override,AR,llvm-ar)
++$(call allow-override,LD,ld.lld)
++$(call allow-override,CXX,clang++)
++$(call allow-override,STRIP,llvm-strip)
++else
+ # Allow setting various cross-compile vars or setting CROSS_COMPILE as a prefix.
+ $(call allow-override,CC,$(CROSS_COMPILE)gcc)
+ $(call allow-override,AR,$(CROSS_COMPILE)ar)
+ $(call allow-override,LD,$(CROSS_COMPILE)ld)
+ $(call allow-override,CXX,$(CROSS_COMPILE)g++)
+ $(call allow-override,STRIP,$(CROSS_COMPILE)strip)
++endif
 +
-+	for (node = rb_first(&app->gid);
-+	     next = node ? rb_next(node) : NULL, node != NULL;
-+	     node = next) {
-+		attr = rb_entry(node, struct garp_attr, node);
-+		garp_attr_destroy(app, attr);
-+	}
-+}
-+
- static int garp_pdu_init(struct garp_applicant *app)
- {
- 	struct sk_buff *skb;
-@@ -612,6 +625,7 @@ void garp_uninit_applicant(struct net_device *dev, struct garp_application *appl
++CC_NO_CLANG := $(shell $(CC) -dM -E -x c /dev/null | grep -Fq "__clang__"; echo $$?)
  
- 	spin_lock_bh(&app->lock);
- 	garp_gid_event(app, GARP_EVENT_TRANSMIT_PDU);
-+	garp_attr_destroy_all(app);
- 	garp_pdu_queue(app);
- 	spin_unlock_bh(&app->lock);
- 
--- 
-2.30.2
-
+ ifneq ($(LLVM),)
+ HOSTAR  ?= llvm-ar
 
 
