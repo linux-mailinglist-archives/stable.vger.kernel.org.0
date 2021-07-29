@@ -2,118 +2,183 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0124B3DAB34
+	by mail.lfdr.de (Postfix) with ESMTP id E77CD3DAB35
 	for <lists+stable@lfdr.de>; Thu, 29 Jul 2021 20:44:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229807AbhG2Sor (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Jul 2021 14:44:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40076 "EHLO
+        id S230151AbhG2Sos (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Jul 2021 14:44:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40078 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
         with ESMTP id S229921AbhG2Sor (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 29 Jul 2021 14:44:47 -0400
-Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CDEFC061765
-        for <stable@vger.kernel.org>; Thu, 29 Jul 2021 11:44:43 -0700 (PDT)
-Received: by mail-ed1-x52a.google.com with SMTP id j2so9478641edp.11
-        for <stable@vger.kernel.org>; Thu, 29 Jul 2021 11:44:43 -0700 (PDT)
+Received: from mail-ej1-x62e.google.com (mail-ej1-x62e.google.com [IPv6:2a00:1450:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A0E9C061765
+        for <stable@vger.kernel.org>; Thu, 29 Jul 2021 11:44:44 -0700 (PDT)
+Received: by mail-ej1-x62e.google.com with SMTP id go31so12313544ejc.6
+        for <stable@vger.kernel.org>; Thu, 29 Jul 2021 11:44:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=tessares-net.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=MOPZr3jaVxir08R57++rktsm7zNaxG0H/+ArfBt2i6w=;
-        b=H9HpiKF2Zjg8VnL7ymPu9midRbhAR3l/zJmYSUwhQqqCPjXaVjdF4VCGNFlE61kmc/
-         MNXDYh/P1TWkn43CT+6mr4njp8QFEbErKPHvUVvP8vuykeE9Lqi+0y4pAeRr9m7px6WN
-         oGggv9SL3B+ebYdVE5qs3KxgCF0vgPslSBh2KIzW6XFdvKDnL5S2JJdTR8pc/acnWp4I
-         0tOVXaQKOfHsC4G7z34rg+6rhSSldw3goca5KhasQef24Mu8szJG66DEYhoh60U0sKgy
-         eMdxwVjol+2I8au5hbAEgg1HsXAQKw50PqPI6xAGTF4Du5EjCT0ZERVvKooJYy/fCLgq
-         uuTQ==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=IJCtU0NB5rX9fRkjpYkWaD+fM0k0XWWOjWtRzvJseYM=;
+        b=oFkPaMbUjLcir5DMXx2v57YUTBe+yovQDDXkqR+F8kova7CgFmX1omG7BeiZxO8kzT
+         kG4p6kY6w0LP1Ij8aC5KjPr1XIIVYS3UoN28HzkHwUeVTNAb40XQX8uwe/VbFXl70hPS
+         70ScBqdkEO1Zxc1oQu48hjaDAxfQl5bcPJiRgL5H+M3pPbLETvMKhDWD5Wc8o5mhF5Ub
+         X0JAgbVlQ2UzrrJ/MCVbTru4OEQH0KgTubHqdpym74QgJaik1Vq9nfP/o4BITJm7EYr+
+         pdDdtGTUSy6H6Xr1XEUMKfYspw8BgZpEbPNnngGuAMJ627MW4sl8aXsmJl0rAv83KgIu
+         01rw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=MOPZr3jaVxir08R57++rktsm7zNaxG0H/+ArfBt2i6w=;
-        b=ntl7kVORng/0UiYw6H1KWEoM+7S2LdNUB/KN9524dG4juH1+DU8ByVJyIlT5nhfRgb
-         YRk4j58Xgb+o343f5DA95754yCnBWBqBf9feOA64B+dhSfkaj13H9wUjl8nnGBIU2YRi
-         9lSwXIjbttzCDwyRAItLyttRDUYT8zOPIoHDSxuW9AbgaTJQCeFTFmmrZGBUn5osQpbB
-         8su6cGuT0HgAn+1ZIWFmi8Di1fE8eVZz+vniNRE3Cl68mtjjTA0DBgYHIcMZAmi/NLFs
-         QoD6tIBrp/sM0PHtloqeGJ4ZmhEKQL6oLKYFCNzULcJS5/ZP587qb1u6eFyyqrXVfem4
-         FT3Q==
-X-Gm-Message-State: AOAM531bHQpYGr5iT3z4pZ767O564b61JeCMTpnWzniVX6B+hVcKmgb1
-        MqTVkWJw24ga9iQIzDdapSc/3RoKPsgoxfxf
-X-Google-Smtp-Source: ABdhPJxy0IJLp0lhwA/X2P7iYy/WiHk+MwxxQPQiacROJVYJ+WSI9E2aBAH4Gw9nHn60/hJ7nFCLXg==
-X-Received: by 2002:a05:6402:35ca:: with SMTP id z10mr7670805edc.159.1627584282026;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=IJCtU0NB5rX9fRkjpYkWaD+fM0k0XWWOjWtRzvJseYM=;
+        b=Ck+mLGuLkF7AdH164jSRUvd3FeA5P5OhfD6bFhLXuNgkMavFWn5Geemxm4ppSbbvZe
+         MTjhX1ypwqYFkC/e5bMo7XjMhUc3HSaTWFy8qgWFUbYgeAuTwviOsD4c1qmElDHeC0r4
+         NWmKINwyMM5crOIgvY47UC0TOtSR7OXHFKxGiaRWfzCflmUgv5ub2UCOTNk9+B0Qncr4
+         LJR9LRcWLWssLPpW0+shJlqK838240OObFOdmdz6yH8TrvCtOwZZH/LXE2bXeV7hBA0K
+         LLiRPFuKXbS7fyYEiTC8H0lBTl+2eXAPFDGFTyOuy7qdfSd+CYcxr67UHgd+opoK4CEQ
+         miew==
+X-Gm-Message-State: AOAM532V+ra9ArIEOdEh2oIkeLNuZr1XHXBmTGlCkniprsXxgcq3q2TZ
+        ANCPqgBdBjc786TBucCAbvjHwa/LdcoMILTA
+X-Google-Smtp-Source: ABdhPJyMxxBJ5DL26//cIOqlwit7l+m+RybERVIOER4a20p8/KH/DQycuvIKlAhpp+JkLa1lRKWZyw==
+X-Received: by 2002:a17:906:2451:: with SMTP id a17mr5860542ejb.75.1627584282704;
         Thu, 29 Jul 2021 11:44:42 -0700 (PDT)
 Received: from tsr-vdi-mbaerts.nix.tessares.net (static.23.216.130.94.clients.your-server.de. [94.130.216.23])
-        by smtp.gmail.com with ESMTPSA id l2sm1260057ejg.37.2021.07.29.11.44.41
+        by smtp.gmail.com with ESMTPSA id l2sm1260057ejg.37.2021.07.29.11.44.42
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 29 Jul 2021 11:44:41 -0700 (PDT)
+        Thu, 29 Jul 2021 11:44:42 -0700 (PDT)
 From:   Matthieu Baerts <matthieu.baerts@tessares.net>
 To:     stable@vger.kernel.org
 Cc:     Eric Dumazet <edumazet@google.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        virtualization@lists.linux-foundation.org,
+        "David S . Miller" <davem@davemloft.net>,
         Matthieu Baerts <matthieu.baerts@tessares.net>
-Subject: [PATCH 4.19 0/2] Backport fixes for 3226b158e67c
-Date:   Thu, 29 Jul 2021 20:44:25 +0200
-Message-Id: <20210729184427.3202526-1-matthieu.baerts@tessares.net>
+Subject: [PATCH 4.19 1/2] virtio_net: Do not pull payload in skb->head
+Date:   Thu, 29 Jul 2021 20:44:26 +0200
+Message-Id: <20210729184427.3202526-2-matthieu.baerts@tessares.net>
 X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20210729184427.3202526-1-matthieu.baerts@tessares.net>
+References: <20210729184427.3202526-1-matthieu.baerts@tessares.net>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit 3226b158e67c ("net: avoid 32 x truesize under-estimation for tiny skbs")
-introduces a ~10% performance drop when using virtio-net drivers.
+From: Eric Dumazet <edumazet@google.com>
 
-This commit has been backported to v4.19 in commit 669c0b5782fb and this
-performance drop is also visible there.
-Here at Tessares, we can also notice this drop with the MPTCP fork [1]
-on top of the v4.19 kernel.
+[ Upstream commit 0f6925b3e8da0dbbb52447ca8a8b42b371aac7db ]
 
-Eric Dumazet already fixed this issue a few months ago, see
-commit 0f6925b3e8da ("virtio_net: Do not pull payload in skb->head").
+Xuan Zhuo reported that commit 3226b158e67c ("net: avoid 32 x truesize
+under-estimation for tiny skbs") brought  a ~10% performance drop.
 
-Unfortunately, this patch has not been backported to < v5.4 because it
-caused issues [2]. Indeed, after having backported it, the kernel failed
-to compile because one commit was missing, see
-commit 503d539a6e41 ("virtio_net: Add XDP meta data support"). However,
-this missing commit has been added in 4.19.186 but probably because
-there were still some opened discussions [3] around
-commit 0f6925b3e8da ("virtio_net: Do not pull payload in skb->head"),
-the latter has not been backported at all in v4.19.
+The reason for the performance drop was that GRO was forced
+to chain sk_buff (using skb_shinfo(skb)->frag_list), which
+uses more memory but also cause packet consumers to go over
+a lot of overhead handling all the tiny skbs.
 
-A cherry-pick of this patch without any modification is proposed here.
-It has been validated: it fixes the original issue on v4.19 as well.
+It turns out that virtio_net page_to_skb() has a wrong strategy :
+It allocates skbs with GOOD_COPY_LEN (128) bytes in skb->head, then
+copies 128 bytes from the page, before feeding the packet to GRO stack.
 
-Please note that there is also a fix for the fix, see
-commit 38ec4944b593 ("gro: ensure frag0 meets IP header alignment").
+This was suboptimal before commit 3226b158e67c ("net: avoid 32 x truesize
+under-estimation for tiny skbs") because GRO was using 2 frags per MSS,
+meaning we were not packing MSS with 100% efficiency.
 
-This second fix has also not been backported because it caused issues as
-well [4]. Here, it was due to a conflict but also a compilation error
-when the conflict has been resolved. Please refer to patch 2/2 for more
-details.
+Fix is to pull only the ethernet header in page_to_skb()
 
-One last note: these two patches have also been backported and validated
-on a v4.14 release. A second series is going to be sent.
-It looks like it could be interesting to backport these two patches to
-v4.9 and v4.4 as well but unfortunately, the backport of these two
-patches fails with conflicts and I don't have any setup to validate the
-performance drop and fix with v4.9 and v4.4 kernels.
+Then, we change virtio_net_hdr_to_skb() to pull the missing
+headers, instead of assuming they were already pulled by callers.
 
-[1] https://github.com/multipath-tcp/mptcp
-[2] https://lore.kernel.org/stable/161806389686151@kroah.com/
-[3] https://lore.kernel.org/stable/20210412051204-mutt-send-email-mst@kernel.org/
-[4] https://lore.kernel.org/stable/1618749018155126@kroah.com/
+This fixes the performance regression, but could also allow virtio_net
+to accept packets with more than 128bytes of headers.
 
-Eric Dumazet (2):
-  virtio_net: Do not pull payload in skb->head
-  gro: ensure frag0 meets IP header alignment
+Many thanks to Xuan Zhuo for his report, and his tests/help.
 
+Fixes: 3226b158e67c ("net: avoid 32 x truesize under-estimation for tiny skbs")
+Reported-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Link: https://www.spinics.net/lists/netdev/msg731397.html
+Co-Developed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: virtualization@lists.linux-foundation.org
+Acked-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+---
  drivers/net/virtio_net.c   | 10 +++++++---
- include/linux/skbuff.h     |  9 +++++++++
  include/linux/virtio_net.h | 14 +++++++++-----
- net/core/dev.c             |  3 ++-
- 4 files changed, 27 insertions(+), 9 deletions(-)
+ 2 files changed, 16 insertions(+), 8 deletions(-)
 
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 5e8b40630286..1a8fe5bacb19 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -413,9 +413,13 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
+ 	offset += hdr_padded_len;
+ 	p += hdr_padded_len;
+ 
+-	copy = len;
+-	if (copy > skb_tailroom(skb))
+-		copy = skb_tailroom(skb);
++	/* Copy all frame if it fits skb->head, otherwise
++	 * we let virtio_net_hdr_to_skb() and GRO pull headers as needed.
++	 */
++	if (len <= skb_tailroom(skb))
++		copy = len;
++	else
++		copy = ETH_HLEN + metasize;
+ 	skb_put_data(skb, p, copy);
+ 
+ 	if (metasize) {
+diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+index a1829139ff4a..8f48264f5dab 100644
+--- a/include/linux/virtio_net.h
++++ b/include/linux/virtio_net.h
+@@ -65,14 +65,18 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
+ 	skb_reset_mac_header(skb);
+ 
+ 	if (hdr->flags & VIRTIO_NET_HDR_F_NEEDS_CSUM) {
+-		u16 start = __virtio16_to_cpu(little_endian, hdr->csum_start);
+-		u16 off = __virtio16_to_cpu(little_endian, hdr->csum_offset);
++		u32 start = __virtio16_to_cpu(little_endian, hdr->csum_start);
++		u32 off = __virtio16_to_cpu(little_endian, hdr->csum_offset);
++		u32 needed = start + max_t(u32, thlen, off + sizeof(__sum16));
++
++		if (!pskb_may_pull(skb, needed))
++			return -EINVAL;
+ 
+ 		if (!skb_partial_csum_set(skb, start, off))
+ 			return -EINVAL;
+ 
+ 		p_off = skb_transport_offset(skb) + thlen;
+-		if (p_off > skb_headlen(skb))
++		if (!pskb_may_pull(skb, p_off))
+ 			return -EINVAL;
+ 	} else {
+ 		/* gso packets without NEEDS_CSUM do not set transport_offset.
+@@ -102,14 +106,14 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
+ 			}
+ 
+ 			p_off = keys.control.thoff + thlen;
+-			if (p_off > skb_headlen(skb) ||
++			if (!pskb_may_pull(skb, p_off) ||
+ 			    keys.basic.ip_proto != ip_proto)
+ 				return -EINVAL;
+ 
+ 			skb_set_transport_header(skb, keys.control.thoff);
+ 		} else if (gso_type) {
+ 			p_off = thlen;
+-			if (p_off > skb_headlen(skb))
++			if (!pskb_may_pull(skb, p_off))
+ 				return -EINVAL;
+ 		}
+ 	}
 -- 
 2.31.1
 
