@@ -2,101 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8756D3D9D60
-	for <lists+stable@lfdr.de>; Thu, 29 Jul 2021 07:58:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B1CF3D9DC7
+	for <lists+stable@lfdr.de>; Thu, 29 Jul 2021 08:44:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233934AbhG2F6q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Jul 2021 01:58:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52402 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233929AbhG2F6q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 29 Jul 2021 01:58:46 -0400
-Received: from mail-io1-xd2a.google.com (mail-io1-xd2a.google.com [IPv6:2607:f8b0:4864:20::d2a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBA00C061757
-        for <stable@vger.kernel.org>; Wed, 28 Jul 2021 22:58:43 -0700 (PDT)
-Received: by mail-io1-xd2a.google.com with SMTP id a13so5578112iol.5
-        for <stable@vger.kernel.org>; Wed, 28 Jul 2021 22:58:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=QpDRWGFIK+Oln4PWA6QkkpVe40JSJ8McnR2s+RnmGkE=;
-        b=mmEdZWH9QO6nTwu1Vap8c1ufo0haYzJ8+AoIt9koR+Oq6F9tciWkxYwiyOr/1kks/t
-         +wKXMxFzePzvH3ebDbbHnYTXduaI5UNG9WqujvKrMq0oix+whigIbboTajwuo5SArw9r
-         xA/96OufmolG8tE1YH1ypC4LDe3rKlEtDr8TE=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=QpDRWGFIK+Oln4PWA6QkkpVe40JSJ8McnR2s+RnmGkE=;
-        b=XmOO//tV1jO4l8lI+oK2qKNOY7VgN562cBtTxWQEa9VL2s82QoPgHBmSMm5Q6+c5sy
-         6DE2jlPUgVIGKowcZ0jt2jv2wNhAQxZeo7qo+ntkgy/JUad3y6j++ugH9ZbuVRwKtmRR
-         qC5C/vvGJp90UkgEqVBo/sAByRFrEHJrD0Pr0Ft0ygoHaT5Dgp+AZWOn8FJ6I4F4cmJR
-         YYOXDNcVacGlxBn+PPggi7w1LieKqFqpKToZ2Po3m5AMiyGpx+dUHYrQrOdJf9beRbIH
-         aOuS2GxHEUanJPODYxpQVjo7dRmW5uJ5jisSgijKWPPT+xdF714tjTp9CClurO7s6kgO
-         /XoA==
-X-Gm-Message-State: AOAM532+f+Lgt5h7md1wTdbp1OqWlKAKO42DqwbDh1PSMOGxM+WhgjDJ
-        vD0dejmS9eZqjFVHdwWF0jfyb8QKXDYqpd6GTO+vUQ==
-X-Google-Smtp-Source: ABdhPJyuGOXvEqwUIs3qU6ruO+/WOCDkqKZfKJc8oEGOVFJCqgihZ7D+ruxIRmlxDQfsEfCMhexgtinohW6+4bJCHhU=
-X-Received: by 2002:a6b:c9d3:: with SMTP id z202mr2669436iof.44.1627538323171;
- Wed, 28 Jul 2021 22:58:43 -0700 (PDT)
+        id S234248AbhG2Gok (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Jul 2021 02:44:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38952 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S234079AbhG2Gok (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Jul 2021 02:44:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 392D36103A;
+        Thu, 29 Jul 2021 06:44:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1627541077;
+        bh=RHX9JTGkdMLfmWI9+WuU6af06aiyeev/pCmfbjrTROU=;
+        h=Subject:To:From:Date:From;
+        b=mcL2kdJbeAL4znsENqwmC288zpUVDrKW4TFiyx80On2KDoacBkS8f/jg+TKCoTGrE
+         xYcyM4bTFgajm9wivHYwx8qI8YZhGuCYp45hy45idWUaErn6urhqArh5x3tOFeNIZ9
+         S4LmAalEzPjsQQxtEQ5KOWiGkIzqugrBFtw3SSwk=
+Subject: patch "usb: cdns3: Fixed incorrect gadget state" added to usb-linus
+To:     pawell@cadence.com, peter.chen@kernel.org, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 29 Jul 2021 08:44:35 +0200
+Message-ID: <16275410751116@kroah.com>
 MIME-Version: 1.0
-References: <20210727174025.10552-1-linux@fw-web.de> <CAJMQK-g8g5QJbBkU-A6th1VSWafxVv2fGtym+enQa_hDVaVoBw@mail.gmail.com>
- <97C4FA94-B28A-4F0E-9CD3-4E33B01BA353@fw-web.de> <CAJMQK-gQeMidjBZ1E=ReMmffC5G8oiFawB4Ey1PNb2ZWXw_1Bg@mail.gmail.com>
- <6BFE13A3-6A42-455E-BDF7-CD285CC6C66D@fw-web.de>
-In-Reply-To: <6BFE13A3-6A42-455E-BDF7-CD285CC6C66D@fw-web.de>
-From:   Hsin-Yi Wang <hsinyi@chromium.org>
-Date:   Thu, 29 Jul 2021 13:58:17 +0800
-Message-ID: <CAJMQK-iHfJWnGQRq299pZ9B9ABMsXPEkptyCrGtQqkEyc=HNFg@mail.gmail.com>
-Subject: Re: [PATCH] soc: mmsys: mediatek: add mask to mmsys routes
-To:     Frank Wunderlich <linux@fw-web.de>
-Cc:     "moderated list:ARM/Mediatek SoC support" 
-        <linux-mediatek@lists.infradead.org>, CK Hu <ck.hu@mediatek.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-        "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" 
-        <linux-arm-kernel@lists.infradead.org>,
-        lkml <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
-        Frank Wunderlich <frank-w@public-files.de>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jul 29, 2021 at 1:54 PM Frank Wunderlich <linux@fw-web.de> wrote:
->
-> Am 29. Juli 2021 07:47:03 MESZ schrieb Hsin-Yi Wang <hsinyi@chromium.org>:
-> >On Thu, Jul 29, 2021 at 1:40 PM Frank Wunderlich <linux@fw-web.de>
-> >wrote:
-> >>
-> >
-> >>
-> > struct mtk_mmsys_routes {
-> >         u32 from_comp;
-> >         u32 to_comp;
-> >         u32 addr;
-> > +       u32 mask;
-> >         u32 val;
-> >  };
-> >mask is not the last element, and mmsys_mt8183_routing_table = {
-> >  {
-> >    DDP_COMPONENT_OVL0, DDP_COMPONENT_OVL_2L0,
-> >    MT8183_DISP_OVL0_MOUT_EN, MT8183_OVL0_MOUT_EN_OVL0_2L
-> >  }
-> >...
-> >so the mask and val will be wrong. CK, do you know what mask we should
-> >set for mt8183? Or can we just set a dummy 0 mask.
->
-> Ahhh...mt8183 has own mmsys-table and
-> i had only changed the default one,so
-> value is now missing because value is now the mask. I have used same order as
-> CK to avoid confusion and make it easier
-> to review.
-> Afaik you could use same value as value to reset same bits...did this in default routing table too.
->
-Should I create another patch based on this or can you help update the
-mt8183 table in this patch?
 
-Thanks
+This is a note to let you know that I've just added the patch titled
 
-> regards Frank
+    usb: cdns3: Fixed incorrect gadget state
+
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From aa35772f61752d4c636d46be51a4f7ca6c029ee6 Mon Sep 17 00:00:00 2001
+From: Pawel Laszczak <pawell@cadence.com>
+Date: Wed, 23 Jun 2021 09:02:47 +0200
+Subject: usb: cdns3: Fixed incorrect gadget state
+
+For delayed status phase, the usb_gadget->state was set
+to USB_STATE_ADDRESS and it has never been updated to
+USB_STATE_CONFIGURED.
+Patch updates the gadget state to correct USB_STATE_CONFIGURED.
+As a result of this bug the controller was not able to enter to
+Test Mode while using MSC function.
+
+Cc: <stable@vger.kernel.org>
+Fixes: 7733f6c32e36 ("usb: cdns3: Add Cadence USB3 DRD Driver")
+Signed-off-by: Pawel Laszczak <pawell@cadence.com>
+Link: https://lore.kernel.org/r/20210623070247.46151-1-pawell@gli-login.cadence.com
+Signed-off-by: Peter Chen <peter.chen@kernel.org>
+---
+ drivers/usb/cdns3/cdns3-ep0.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/usb/cdns3/cdns3-ep0.c b/drivers/usb/cdns3/cdns3-ep0.c
+index 02ec7ab4bb48..e29989d57bef 100644
+--- a/drivers/usb/cdns3/cdns3-ep0.c
++++ b/drivers/usb/cdns3/cdns3-ep0.c
+@@ -731,6 +731,7 @@ static int cdns3_gadget_ep0_queue(struct usb_ep *ep,
+ 		request->actual = 0;
+ 		priv_dev->status_completion_no_call = true;
+ 		priv_dev->pending_status_request = request;
++		usb_gadget_set_state(&priv_dev->gadget, USB_STATE_CONFIGURED);
+ 		spin_unlock_irqrestore(&priv_dev->lock, flags);
+ 
+ 		/*
+-- 
+2.32.0
+
+
