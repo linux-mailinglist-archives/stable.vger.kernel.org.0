@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F3A703DA577
-	for <lists+stable@lfdr.de>; Thu, 29 Jul 2021 16:02:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EBB13DA558
+	for <lists+stable@lfdr.de>; Thu, 29 Jul 2021 16:00:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238154AbhG2OCF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Jul 2021 10:02:05 -0400
+        id S238329AbhG2OAb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Jul 2021 10:00:31 -0400
 Received: from mail.kernel.org ([198.145.29.99]:49148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238226AbhG2OA3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Jul 2021 10:00:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DA43F6108C;
-        Thu, 29 Jul 2021 13:59:44 +0000 (UTC)
+        id S238269AbhG2N7A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Jul 2021 09:59:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E87860F5C;
+        Thu, 29 Jul 2021 13:58:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627567185;
-        bh=ehVN1lUmJP5gTZ3vI5IQKKSPb1DWaFucAs0vsktFrAg=;
+        s=korg; t=1627567136;
+        bh=FKrrQ8Gi30RvCs3YOeBpr+NloAzApquSZOvPnNgVdIk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fhvLuVkKGLhXJjumFnTY/RhT1AfWIrozlzTQ5d86QY/wogTpqmHjRPp4koOd9TVLh
-         FT7AqTIOypF+RCwdc8T4gEAb0z3J58YP8MKqosfZrrz+oGgRBLiqaQAKMFFXScxdtO
-         rRQHt5f7uDHZSUUMZN5QvnKi/S+0H/7GwhIrlcMI=
+        b=r7TGlZsScDcqJs7P2aAjrEl0IfUf/gpUHqdYBCF4u7VEE4K9FtrLy4GVT1yn6kUY3
+         Hrub3+kb8NTS1SCucgVcgvS0bvq1ZSQapmHOg6IJm2u2lTtyTsldqUV57nBlI7oze9
+         EkGfKk1Vfw4fwQ/egwCpNku/6w5+pVs2kE+KCa+0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Xu, Yanfei" <yanfei.xu@windriver.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
+        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 09/22] rcu-tasks: Dont delete holdouts within trc_wait_for_one_reader()
-Date:   Thu, 29 Jul 2021 15:54:40 +0200
-Message-Id: <20210729135137.632633169@linuxfoundation.org>
+Subject: [PATCH 5.13 10/22] ipv6: allocate enough headroom in ip6_finish_output2()
+Date:   Thu, 29 Jul 2021 15:54:41 +0200
+Message-Id: <20210729135137.662440746@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210729135137.336097792@linuxfoundation.org>
 References: <20210729135137.336097792@linuxfoundation.org>
@@ -40,38 +40,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul E. McKenney <paulmck@kernel.org>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-[ Upstream commit a9ab9cce9367a2cc02a3c7eb57a004dc0b8f380d ]
+[ Upstream commit 5796015fa968a3349027a27dcd04c71d95c53ba5 ]
 
-Invoking trc_del_holdout() from within trc_wait_for_one_reader() is
-only a performance optimization because the RCU Tasks Trace grace-period
-kthread will eventually do this within check_all_holdout_tasks_trace().
-But it is not a particularly important performance optimization because
-it only applies to the grace-period kthread, of which there is but one.
-This commit therefore removes this invocation of trc_del_holdout() in
-favor of the one in check_all_holdout_tasks_trace() in the grace-period
-kthread.
+When TEE target mirrors traffic to another interface, sk_buff may
+not have enough headroom to be processed correctly.
+ip_finish_output2() detect this situation for ipv4 and allocates
+new skb with enogh headroom. However ipv6 lacks this logic in
+ip_finish_output2 and it leads to skb_under_panic:
 
-Reported-by: "Xu, Yanfei" <yanfei.xu@windriver.com>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+ skbuff: skb_under_panic: text:ffffffffc0866ad4 len:96 put:24
+ head:ffff97be85e31800 data:ffff97be85e317f8 tail:0x58 end:0xc0 dev:gre0
+ ------------[ cut here ]------------
+ kernel BUG at net/core/skbuff.c:110!
+ invalid opcode: 0000 [#1] SMP PTI
+ CPU: 2 PID: 393 Comm: kworker/2:2 Tainted: G           OE     5.13.0 #13
+ Hardware name: Virtuozzo KVM, BIOS 1.11.0-2.vz7.4 04/01/2014
+ Workqueue: ipv6_addrconf addrconf_dad_work
+ RIP: 0010:skb_panic+0x48/0x4a
+ Call Trace:
+  skb_push.cold.111+0x10/0x10
+  ipgre_header+0x24/0xf0 [ip_gre]
+  neigh_connected_output+0xae/0xf0
+  ip6_finish_output2+0x1a8/0x5a0
+  ip6_output+0x5c/0x110
+  nf_dup_ipv6+0x158/0x1000 [nf_dup_ipv6]
+  tee_tg6+0x2e/0x40 [xt_TEE]
+  ip6t_do_table+0x294/0x470 [ip6_tables]
+  nf_hook_slow+0x44/0xc0
+  nf_hook.constprop.34+0x72/0xe0
+  ndisc_send_skb+0x20d/0x2e0
+  ndisc_send_ns+0xd1/0x210
+  addrconf_dad_work+0x3c8/0x540
+  process_one_work+0x1d1/0x370
+  worker_thread+0x30/0x390
+  kthread+0x116/0x130
+  ret_from_fork+0x22/0x30
+
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/tasks.h | 1 -
- 1 file changed, 1 deletion(-)
+ net/ipv6/ip6_output.c | 28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
 
-diff --git a/kernel/rcu/tasks.h b/kernel/rcu/tasks.h
-index 71e9d625371a..fcef5f0c60b8 100644
---- a/kernel/rcu/tasks.h
-+++ b/kernel/rcu/tasks.h
-@@ -937,7 +937,6 @@ static void trc_wait_for_one_reader(struct task_struct *t,
- 	// The current task had better be in a quiescent state.
- 	if (t == current) {
- 		t->trc_reader_checked = true;
--		trc_del_holdout(t);
- 		WARN_ON_ONCE(t->trc_reader_nesting);
- 		return;
- 	}
+diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
+index b7ffb4f227a4..b05f3f0da3a6 100644
+--- a/net/ipv6/ip6_output.c
++++ b/net/ipv6/ip6_output.c
+@@ -60,10 +60,38 @@ static int ip6_finish_output2(struct net *net, struct sock *sk, struct sk_buff *
+ {
+ 	struct dst_entry *dst = skb_dst(skb);
+ 	struct net_device *dev = dst->dev;
++	unsigned int hh_len = LL_RESERVED_SPACE(dev);
++	int delta = hh_len - skb_headroom(skb);
+ 	const struct in6_addr *nexthop;
+ 	struct neighbour *neigh;
+ 	int ret;
+ 
++	/* Be paranoid, rather than too clever. */
++	if (unlikely(delta > 0) && dev->header_ops) {
++		/* pskb_expand_head() might crash, if skb is shared */
++		if (skb_shared(skb)) {
++			struct sk_buff *nskb = skb_clone(skb, GFP_ATOMIC);
++
++			if (likely(nskb)) {
++				if (skb->sk)
++					skb_set_owner_w(skb, skb->sk);
++				consume_skb(skb);
++			} else {
++				kfree_skb(skb);
++			}
++			skb = nskb;
++		}
++		if (skb &&
++		    pskb_expand_head(skb, SKB_DATA_ALIGN(delta), 0, GFP_ATOMIC)) {
++			kfree_skb(skb);
++			skb = NULL;
++		}
++		if (!skb) {
++			IP6_INC_STATS(net, ip6_dst_idev(dst), IPSTATS_MIB_OUTDISCARDS);
++			return -ENOMEM;
++		}
++	}
++
+ 	if (ipv6_addr_is_multicast(&ipv6_hdr(skb)->daddr)) {
+ 		struct inet6_dev *idev = ip6_dst_idev(skb_dst(skb));
+ 
 -- 
 2.30.2
 
