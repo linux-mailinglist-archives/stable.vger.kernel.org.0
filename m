@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 45EBE3DA56A
-	for <lists+stable@lfdr.de>; Thu, 29 Jul 2021 16:02:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C8423DA583
+	for <lists+stable@lfdr.de>; Thu, 29 Jul 2021 16:02:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238279AbhG2OBd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Jul 2021 10:01:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50540 "EHLO mail.kernel.org"
+        id S238259AbhG2OCO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Jul 2021 10:02:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48218 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238598AbhG2N7V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Jul 2021 09:59:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DAFB760F6F;
-        Thu, 29 Jul 2021 13:59:17 +0000 (UTC)
+        id S238114AbhG2N7c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Jul 2021 09:59:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D363E60EE2;
+        Thu, 29 Jul 2021 13:59:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627567158;
-        bh=NBwycyZpcWFpXMuqm52Myl7XVI6DIA0P1rTPJSPJshM=;
+        s=korg; t=1627567163;
+        bh=+tUf8UsEFsnhIbkN1zSKvp4omNtzqg1OVxJOYm4VOpw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mP51sYWhOxigSw2C2hwIOWGV2D3p7qIwCLrsVQIsIcA8elT35YX3Z2d0+PyXNzbdH
-         2341p5HF4gOHRBC724ffGtvif31sDvPY6WLDiU2F/D+wegajlG8NP3gHXhL+56At94
-         8uu3gGe0KK5y9aVL5Dba+ZZjt9O120BkEdk6KS1o=
+        b=JeUhMtWm4f/1TQw5cOVFaxN/lUNa5+82R1mEK4cSoyey28a+I8jxodNJsGsOVZ7Pw
+         m/AjTaQKLfrYySmhllicqkqbF6usOX8IfUkZ7IGCen2kbaJVaruwt9PzzTMpfnMnA5
+         o9cKQCCn1Hwgu7c0aSLsUJQ+dqIsAvsqLi319aHU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -28,9 +28,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         "Darrick J. Wong" <djwong@kernel.org>,
         "Matthew Wilcox (Oracle)" <willy@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 19/22] iomap: remove the length variable in iomap_seek_data
-Date:   Thu, 29 Jul 2021 15:54:50 +0200
-Message-Id: <20210729135137.932682588@linuxfoundation.org>
+Subject: [PATCH 5.13 20/22] iomap: remove the length variable in iomap_seek_hole
+Date:   Thu, 29 Jul 2021 15:54:51 +0200
+Message-Id: <20210729135137.962725840@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210729135137.336097792@linuxfoundation.org>
 References: <20210729135137.336097792@linuxfoundation.org>
@@ -44,7 +44,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit 3ac1d426510f97ace05093ae9f2f710d9cbe6215 ]
+[ Upstream commit 49694d14ff68fa4b5f86019dbcfb44a8bd213e58 ]
 
 The length variable is rather pointless given that it can be trivially
 deduced from offset and size.  Also the initial calculation can lead
@@ -57,15 +57,15 @@ Signed-off-by: Darrick J. Wong <djwong@kernel.org>
 Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/iomap/seek.c | 16 ++++++----------
- 1 file changed, 6 insertions(+), 10 deletions(-)
+ fs/iomap/seek.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
 diff --git a/fs/iomap/seek.c b/fs/iomap/seek.c
-index dab1b02eba5b..50b8f1418f26 100644
+index 50b8f1418f26..ce6fb810854f 100644
 --- a/fs/iomap/seek.c
 +++ b/fs/iomap/seek.c
-@@ -83,27 +83,23 @@ loff_t
- iomap_seek_data(struct inode *inode, loff_t offset, const struct iomap_ops *ops)
+@@ -35,23 +35,20 @@ loff_t
+ iomap_seek_hole(struct inode *inode, loff_t offset, const struct iomap_ops *ops)
  {
  	loff_t size = i_size_read(inode);
 -	loff_t length = size - offset;
@@ -77,27 +77,20 @@ index dab1b02eba5b..50b8f1418f26 100644
  
 -	while (length > 0) {
 -		ret = iomap_apply(inode, offset, length, IOMAP_REPORT, ops,
--				  &offset, iomap_seek_data_actor);
+-				  &offset, iomap_seek_hole_actor);
 +	while (offset < size) {
 +		ret = iomap_apply(inode, offset, size - offset, IOMAP_REPORT,
-+				  ops, &offset, iomap_seek_data_actor);
++				  ops, &offset, iomap_seek_hole_actor);
  		if (ret < 0)
  			return ret;
  		if (ret == 0)
--			break;
+ 			break;
 -
-+			return offset;
  		offset += ret;
 -		length -= ret;
  	}
  
--	if (length <= 0)
--		return -ENXIO;
--	return offset;
-+	/* We've reached the end of the file without finding data */
-+	return -ENXIO;
- }
- EXPORT_SYMBOL_GPL(iomap_seek_data);
+ 	return offset;
 -- 
 2.30.2
 
