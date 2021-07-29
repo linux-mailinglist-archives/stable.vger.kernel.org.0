@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CFC1B3DA4E3
-	for <lists+stable@lfdr.de>; Thu, 29 Jul 2021 15:56:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 177FA3DA4E6
+	for <lists+stable@lfdr.de>; Thu, 29 Jul 2021 15:56:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238005AbhG2N4q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Jul 2021 09:56:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46662 "EHLO mail.kernel.org"
+        id S238026AbhG2N4x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Jul 2021 09:56:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237966AbhG2N4p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Jul 2021 09:56:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F6BA60FD7;
-        Thu, 29 Jul 2021 13:56:42 +0000 (UTC)
+        id S237997AbhG2N4s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Jul 2021 09:56:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 94CD160EB2;
+        Thu, 29 Jul 2021 13:56:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627567002;
-        bh=xGNvBE/H2gr1ZrfITWBYQOrVkC1DrqRTEWGzVmIQNdU=;
+        s=korg; t=1627567005;
+        bh=fJcaC7hiVepfn+gMVUskEuKKiWU4K8ICEasCdq99rYc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bp+KIv9EDNSHerNRkwkmYqznRKiNuwaZeWhndtXcRZnX70PNdBKRZFF3KvQlhVvh0
-         LicCbmZdNGWbJB8hglrHPNwaIHe9hzUyUT5RsFR8NsoWQ0L4mxv/E0EwD8brlDPFXF
-         bsNkwg8x55X8c8dYVpxhYzUWV/9RwKRsqtsmiSQ0=
+        b=08101v+/gTCldJkosJ2MCsFveMcvLDhJ5b5/7IwKxks1//VlrXr+H7yu649jtWCIe
+         Db/2ZFsc6tVrHgznR9kqNcxsRsajxX2GjNn0O3ofQOJ0COrRfKhfSO0onOjiTwASri
+         yoR/m7aXnZ19p+TVmu0NpBs8aSgIuOWtnqlQEP7k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miklos Szeredi <mszeredi@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 05/17] af_unix: fix garbage collect vs MSG_PEEK
-Date:   Thu, 29 Jul 2021 15:54:06 +0200
-Message-Id: <20210729135137.432633743@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Lai Jiangshan <jiangshanlai@gmail.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Pavel Skripkin <paskripkin@gmail.com>,
+        Tejun Heo <tj@kernel.org>
+Subject: [PATCH 4.19 06/17] workqueue: fix UAF in pwq_unbound_release_workfn()
+Date:   Thu, 29 Jul 2021 15:54:07 +0200
+Message-Id: <20210729135137.463599936@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210729135137.260993951@linuxfoundation.org>
 References: <20210729135137.260993951@linuxfoundation.org>
@@ -39,110 +42,149 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miklos Szeredi <mszeredi@redhat.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit cbcf01128d0a92e131bd09f1688fe032480b65ca upstream.
+commit b42b0bddcbc87b4c66f6497f66fc72d52b712aa7 upstream.
 
-unix_gc() assumes that candidate sockets can never gain an external
-reference (i.e.  be installed into an fd) while the unix_gc_lock is
-held.  Except for MSG_PEEK this is guaranteed by modifying inflight
-count under the unix_gc_lock.
+I got a UAF report when doing fuzz test:
 
-MSG_PEEK does not touch any variable protected by unix_gc_lock (file
-count is not), yet it needs to be serialized with garbage collection.
-Do this by locking/unlocking unix_gc_lock:
+[  152.880091][ T8030] ==================================================================
+[  152.881240][ T8030] BUG: KASAN: use-after-free in pwq_unbound_release_workfn+0x50/0x190
+[  152.882442][ T8030] Read of size 4 at addr ffff88810d31bd00 by task kworker/3:2/8030
+[  152.883578][ T8030]
+[  152.883932][ T8030] CPU: 3 PID: 8030 Comm: kworker/3:2 Not tainted 5.13.0+ #249
+[  152.885014][ T8030] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
+[  152.886442][ T8030] Workqueue: events pwq_unbound_release_workfn
+[  152.887358][ T8030] Call Trace:
+[  152.887837][ T8030]  dump_stack_lvl+0x75/0x9b
+[  152.888525][ T8030]  ? pwq_unbound_release_workfn+0x50/0x190
+[  152.889371][ T8030]  print_address_description.constprop.10+0x48/0x70
+[  152.890326][ T8030]  ? pwq_unbound_release_workfn+0x50/0x190
+[  152.891163][ T8030]  ? pwq_unbound_release_workfn+0x50/0x190
+[  152.891999][ T8030]  kasan_report.cold.15+0x82/0xdb
+[  152.892740][ T8030]  ? pwq_unbound_release_workfn+0x50/0x190
+[  152.893594][ T8030]  __asan_load4+0x69/0x90
+[  152.894243][ T8030]  pwq_unbound_release_workfn+0x50/0x190
+[  152.895057][ T8030]  process_one_work+0x47b/0x890
+[  152.895778][ T8030]  worker_thread+0x5c/0x790
+[  152.896439][ T8030]  ? process_one_work+0x890/0x890
+[  152.897163][ T8030]  kthread+0x223/0x250
+[  152.897747][ T8030]  ? set_kthread_struct+0xb0/0xb0
+[  152.898471][ T8030]  ret_from_fork+0x1f/0x30
+[  152.899114][ T8030]
+[  152.899446][ T8030] Allocated by task 8884:
+[  152.900084][ T8030]  kasan_save_stack+0x21/0x50
+[  152.900769][ T8030]  __kasan_kmalloc+0x88/0xb0
+[  152.901416][ T8030]  __kmalloc+0x29c/0x460
+[  152.902014][ T8030]  alloc_workqueue+0x111/0x8e0
+[  152.902690][ T8030]  __btrfs_alloc_workqueue+0x11e/0x2a0
+[  152.903459][ T8030]  btrfs_alloc_workqueue+0x6d/0x1d0
+[  152.904198][ T8030]  scrub_workers_get+0x1e8/0x490
+[  152.904929][ T8030]  btrfs_scrub_dev+0x1b9/0x9c0
+[  152.905599][ T8030]  btrfs_ioctl+0x122c/0x4e50
+[  152.906247][ T8030]  __x64_sys_ioctl+0x137/0x190
+[  152.906916][ T8030]  do_syscall_64+0x34/0xb0
+[  152.907535][ T8030]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[  152.908365][ T8030]
+[  152.908688][ T8030] Freed by task 8884:
+[  152.909243][ T8030]  kasan_save_stack+0x21/0x50
+[  152.909893][ T8030]  kasan_set_track+0x20/0x30
+[  152.910541][ T8030]  kasan_set_free_info+0x24/0x40
+[  152.911265][ T8030]  __kasan_slab_free+0xf7/0x140
+[  152.911964][ T8030]  kfree+0x9e/0x3d0
+[  152.912501][ T8030]  alloc_workqueue+0x7d7/0x8e0
+[  152.913182][ T8030]  __btrfs_alloc_workqueue+0x11e/0x2a0
+[  152.913949][ T8030]  btrfs_alloc_workqueue+0x6d/0x1d0
+[  152.914703][ T8030]  scrub_workers_get+0x1e8/0x490
+[  152.915402][ T8030]  btrfs_scrub_dev+0x1b9/0x9c0
+[  152.916077][ T8030]  btrfs_ioctl+0x122c/0x4e50
+[  152.916729][ T8030]  __x64_sys_ioctl+0x137/0x190
+[  152.917414][ T8030]  do_syscall_64+0x34/0xb0
+[  152.918034][ T8030]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[  152.918872][ T8030]
+[  152.919203][ T8030] The buggy address belongs to the object at ffff88810d31bc00
+[  152.919203][ T8030]  which belongs to the cache kmalloc-512 of size 512
+[  152.921155][ T8030] The buggy address is located 256 bytes inside of
+[  152.921155][ T8030]  512-byte region [ffff88810d31bc00, ffff88810d31be00)
+[  152.922993][ T8030] The buggy address belongs to the page:
+[  152.923800][ T8030] page:ffffea000434c600 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x10d318
+[  152.925249][ T8030] head:ffffea000434c600 order:2 compound_mapcount:0 compound_pincount:0
+[  152.926399][ T8030] flags: 0x57ff00000010200(slab|head|node=1|zone=2|lastcpupid=0x7ff)
+[  152.927515][ T8030] raw: 057ff00000010200 dead000000000100 dead000000000122 ffff888009c42c80
+[  152.928716][ T8030] raw: 0000000000000000 0000000080100010 00000001ffffffff 0000000000000000
+[  152.929890][ T8030] page dumped because: kasan: bad access detected
+[  152.930759][ T8030]
+[  152.931076][ T8030] Memory state around the buggy address:
+[  152.931851][ T8030]  ffff88810d31bc00: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[  152.932967][ T8030]  ffff88810d31bc80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[  152.934068][ T8030] >ffff88810d31bd00: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[  152.935189][ T8030]                    ^
+[  152.935763][ T8030]  ffff88810d31bd80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[  152.936847][ T8030]  ffff88810d31be00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[  152.937940][ T8030] ==================================================================
 
- 1) increment file count
+If apply_wqattrs_prepare() fails in alloc_workqueue(), it will call put_pwq()
+which invoke a work queue to call pwq_unbound_release_workfn() and use the 'wq'.
+The 'wq' allocated in alloc_workqueue() will be freed in error path when
+apply_wqattrs_prepare() fails. So it will lead a UAF.
 
- 2) lock/unlock barrier to make sure incremented file count is visible
-    to garbage collection
+CPU0                                          CPU1
+alloc_workqueue()
+alloc_and_link_pwqs()
+apply_wqattrs_prepare() fails
+apply_wqattrs_cleanup()
+schedule_work(&pwq->unbound_release_work)
+kfree(wq)
+                                              worker_thread()
+                                              pwq_unbound_release_workfn() <- trigger uaf here
 
- 3) install file into fd
+If apply_wqattrs_prepare() fails, the new pwq are not linked, it doesn't
+hold any reference to the 'wq', 'wq' is invalid to access in the worker,
+so add check pwq if linked to fix this.
 
-This is a lock barrier (unlike smp_mb()) that ensures that garbage
-collection is run completely before or completely after the barrier.
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 2d5f0764b526 ("workqueue: split apply_workqueue_attrs() into 3 stages")
+Cc: stable@vger.kernel.org # v4.2+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Suggested-by: Lai Jiangshan <jiangshanlai@gmail.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Lai Jiangshan <jiangshanlai@gmail.com>
+Tested-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/unix/af_unix.c |   51 +++++++++++++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 49 insertions(+), 2 deletions(-)
+ kernel/workqueue.c |   20 +++++++++++++-------
+ 1 file changed, 13 insertions(+), 7 deletions(-)
 
---- a/net/unix/af_unix.c
-+++ b/net/unix/af_unix.c
-@@ -1517,6 +1517,53 @@ out:
- 	return err;
- }
+--- a/kernel/workqueue.c
++++ b/kernel/workqueue.c
+@@ -3498,15 +3498,21 @@ static void pwq_unbound_release_workfn(s
+ 						  unbound_release_work);
+ 	struct workqueue_struct *wq = pwq->wq;
+ 	struct worker_pool *pool = pwq->pool;
+-	bool is_last;
++	bool is_last = false;
  
-+static void unix_peek_fds(struct scm_cookie *scm, struct sk_buff *skb)
-+{
-+	scm->fp = scm_fp_dup(UNIXCB(skb).fp);
-+
+-	if (WARN_ON_ONCE(!(wq->flags & WQ_UNBOUND)))
+-		return;
 +	/*
-+	 * Garbage collection of unix sockets starts by selecting a set of
-+	 * candidate sockets which have reference only from being in flight
-+	 * (total_refs == inflight_refs).  This condition is checked once during
-+	 * the candidate collection phase, and candidates are marked as such, so
-+	 * that non-candidates can later be ignored.  While inflight_refs is
-+	 * protected by unix_gc_lock, total_refs (file count) is not, hence this
-+	 * is an instantaneous decision.
-+	 *
-+	 * Once a candidate, however, the socket must not be reinstalled into a
-+	 * file descriptor while the garbage collection is in progress.
-+	 *
-+	 * If the above conditions are met, then the directed graph of
-+	 * candidates (*) does not change while unix_gc_lock is held.
-+	 *
-+	 * Any operations that changes the file count through file descriptors
-+	 * (dup, close, sendmsg) does not change the graph since candidates are
-+	 * not installed in fds.
-+	 *
-+	 * Dequeing a candidate via recvmsg would install it into an fd, but
-+	 * that takes unix_gc_lock to decrement the inflight count, so it's
-+	 * serialized with garbage collection.
-+	 *
-+	 * MSG_PEEK is special in that it does not change the inflight count,
-+	 * yet does install the socket into an fd.  The following lock/unlock
-+	 * pair is to ensure serialization with garbage collection.  It must be
-+	 * done between incrementing the file count and installing the file into
-+	 * an fd.
-+	 *
-+	 * If garbage collection starts after the barrier provided by the
-+	 * lock/unlock, then it will see the elevated refcount and not mark this
-+	 * as a candidate.  If a garbage collection is already in progress
-+	 * before the file count was incremented, then the lock/unlock pair will
-+	 * ensure that garbage collection is finished before progressing to
-+	 * installing the fd.
-+	 *
-+	 * (*) A -> B where B is on the queue of A or B is on the queue of C
-+	 * which is on the queue of listening socket A.
++	 * when @pwq is not linked, it doesn't hold any reference to the
++	 * @wq, and @wq is invalid to access.
 +	 */
-+	spin_lock(&unix_gc_lock);
-+	spin_unlock(&unix_gc_lock);
-+}
-+
- static int unix_scm_to_skb(struct scm_cookie *scm, struct sk_buff *skb, bool send_fds)
- {
- 	int err = 0;
-@@ -2142,7 +2189,7 @@ static int unix_dgram_recvmsg(struct soc
- 		sk_peek_offset_fwd(sk, size);
++	if (!list_empty(&pwq->pwqs_node)) {
++		if (WARN_ON_ONCE(!(wq->flags & WQ_UNBOUND)))
++			return;
  
- 		if (UNIXCB(skb).fp)
--			scm.fp = scm_fp_dup(UNIXCB(skb).fp);
-+			unix_peek_fds(&scm, skb);
- 	}
- 	err = (flags & MSG_TRUNC) ? skb->len - skip : size;
+-	mutex_lock(&wq->mutex);
+-	list_del_rcu(&pwq->pwqs_node);
+-	is_last = list_empty(&wq->pwqs);
+-	mutex_unlock(&wq->mutex);
++		mutex_lock(&wq->mutex);
++		list_del_rcu(&pwq->pwqs_node);
++		is_last = list_empty(&wq->pwqs);
++		mutex_unlock(&wq->mutex);
++	}
  
-@@ -2383,7 +2430,7 @@ unlock:
- 			/* It is questionable, see note in unix_dgram_recvmsg.
- 			 */
- 			if (UNIXCB(skb).fp)
--				scm.fp = scm_fp_dup(UNIXCB(skb).fp);
-+				unix_peek_fds(&scm, skb);
- 
- 			sk_peek_offset_fwd(sk, chunk);
- 
+ 	mutex_lock(&wq_pool_mutex);
+ 	put_unbound_pool(pool);
 
 
