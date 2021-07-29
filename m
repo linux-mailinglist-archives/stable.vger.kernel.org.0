@@ -2,137 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A85BE3DAA8E
-	for <lists+stable@lfdr.de>; Thu, 29 Jul 2021 19:58:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DD6B3DAAF7
+	for <lists+stable@lfdr.de>; Thu, 29 Jul 2021 20:35:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229657AbhG2R61 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Jul 2021 13:58:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57118 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229556AbhG2R60 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 29 Jul 2021 13:58:26 -0400
-Received: from mail-yb1-xb29.google.com (mail-yb1-xb29.google.com [IPv6:2607:f8b0:4864:20::b29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4398BC0613C1
-        for <stable@vger.kernel.org>; Thu, 29 Jul 2021 10:58:23 -0700 (PDT)
-Received: by mail-yb1-xb29.google.com with SMTP id w17so11546019ybl.11
-        for <stable@vger.kernel.org>; Thu, 29 Jul 2021 10:58:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=MNF/a5bvjN6yY0NeAS2hdIVXm+roMge2alW9pMwmuko=;
-        b=JlWiJ2f5koN6Y68by0SWuY+92qEnvMIOc2he5kK7q1SnoJT3F9Zd095fzzg9kQ3tuJ
-         NZeDROszr1wuGVbp9O1DhIA51YCLqVzmwZqyR3T31agkmOsp0C/W6m4yFPWvVJUz6yzT
-         PsJifjS/67SA3HSweicaIkprreujK0QusAotg1Bu/tbc7WObkADK1WPPxvr860k4Gmrm
-         jXuKDicPuuMYN4evKAMV4JNUk3UhW+mnrHg56jmpvViSStnETT4p7i6D1ZnJrWfg8rXj
-         qu59EQfBXjFlgJ2vfyPlevS+l4+1AFPEmWtGwUqqLLyKo7Ptq744bn3tu+78gUCFixJa
-         1K5A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=MNF/a5bvjN6yY0NeAS2hdIVXm+roMge2alW9pMwmuko=;
-        b=bjCXNwMJFqy5TfxwPPC+6vJ+IJQ8L2Yk/w4AZ+NlwAf7U4EFtf1ekyHZkZGjA+NvUK
-         PbEWpZhk4iEUTnUg6WB+gaGxg9oAr0KGUQ72zmLhKITzcTKtpisxqgzEIFlRENL2knso
-         G4O/o9PhTpM7Oe05p/U8AV41DQLzhQPyc5DlCgllV6/C3qh4t/OXNckPOzmInYAD7G3V
-         a72+D4usRq30WbE/rSmc0LabUoYhMARmuFhLaNPn+OcO3ecxIM9du3ynuPnqZggJ1rzJ
-         KrVXrRU3ryyciE6dzQIR/STkL2q6Fr/Ky8gZTWIp+nZBsZF0Qjd1pdSQ1mQL0v0OX9QK
-         o+iA==
-X-Gm-Message-State: AOAM53145JlK2X+DCpCL/sFw7vnCIHOrB6VFjELtuaQ9rcAmG9rUtgHv
-        LhC8X/+FpARUoRCeX5VtB1gDvGUOilE/urc1dttwczrp8S1KUg==
-X-Google-Smtp-Source: ABdhPJyK28UZkM+Ty6/iCidlB0ZYhzrKD6e0bUr4OwrKaDjd2ib4GWegHiwFsPSJaBTQebky3wO+5VhAeNsqpnMrSQw=
-X-Received: by 2002:a25:d70b:: with SMTP id o11mr7840807ybg.213.1627581502347;
- Thu, 29 Jul 2021 10:58:22 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210726153846.245305071@linuxfoundation.org> <20210726153852.445207631@linuxfoundation.org>
-In-Reply-To: <20210726153852.445207631@linuxfoundation.org>
-From:   Peter Collingbourne <pcc@google.com>
-Date:   Thu, 29 Jul 2021 10:58:11 -0700
-Message-ID: <CAMn1gO42sPYDajZN7MuysTeGJmxvby=sFuU1eXt0APo_Y5FFSQ@mail.gmail.com>
-Subject: Re: [PATCH 5.13 191/223] selftest: use mmap instead of posix_memalign
- to allocate memory
+        id S230002AbhG2Sf0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Jul 2021 14:35:26 -0400
+Received: from mail-bn8nam08on2046.outbound.protection.outlook.com ([40.107.100.46]:28704
+        "EHLO NAM04-BN8-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S229921AbhG2SfZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Jul 2021 14:35:25 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=ZgTbdXZIoy63X0Aun1zI9+b8ovXOxma4EIHiEMhBrIMFoIIkw9agftZtrilHafGDhdxdw25Lwfkzred3Rrhb9Ep/znf6dRpYiXYfA2Dub9pysDN8VKKdMFKvOrCMJ/RevSPvW8g7HLJHMp/hHXkBWnIcaurHETVas2jZMppUnyQ0MIKW8uRYWCJyJR/2VUMmDOddKm5RDei2w4PayOAKvzFRRBUNGPy5lIQzym+K4vhwzgSnd2dn3gGlw7L3g8biIdTnF6f2yNBvnv/zWUCRl4Fegma5HmbG8smCvjkveMB0D20ujgtRxRgL6jU2xtSTX+Rv2oL/bmi942bJzX0BVQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=rDvvM4+ThnVbvyofADCo2OUkcvGGBI3SGtiWyXzfAVo=;
+ b=SnPdbCF8oPjiN8BznJmhCZ53pJX6F0X0UEwvGxM659ISSDlashcDcrSKddqnYL8+CL+lidXguEgzbYibRVhKTcKxeuAxvogRMQ7Sv4tC+et4vWi535lvf0VnVKwXi5JMXTEPy3sRmFFJh+ZQiOUSUtLiVVcmS+2Y9vpCIlR2XEpJxRUMCl9l9C6E1kyWPULXBqU3qbbh5DRsnxsO98UvJXy3UrMcbYdyM49EALeANo1YNSm3vHGhJrLWgxyiomZBwyr7Sy9ZwjewgMBwmzlWclwmYPlokwEOZKzr9pvXC0ck1N31ZrOWPDT4OncFgNzit4ryyZJPOVea6TAEcVlxMw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.112.36) smtp.rcpttodomain=denx.de smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=quarantine sp=none pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=rDvvM4+ThnVbvyofADCo2OUkcvGGBI3SGtiWyXzfAVo=;
+ b=soXO926VcnNK8WZHtS+5McjvO5qqwzz9zJed+kXrmbkKvVJsKLcVp6DzD+DyDzRNKq+b1jZVjQekQf236DiprGOzy8OIjTuV0Gtttq83ZuEdonJTzYzAiBBrbBeESZb8PQNlsh+VRu4iVi0D+maQemIEYL/uUuS3BYPNrA74S0Ll286hEJyTZcfC/xlJjCPDibeNQL/a1uHFHuTtjK6kf2L+B2N4Kd3WH2m4YIV8pTP0P6JtJSLlAb52QZgvy+VKiGkFHQdc3N2CNDuOhh1/OIMK+mRYhyocKNchLhQfh6Nlspn0TUT+2Ub0zJpItaXhf7X/EM28nRahkjnRjWFRTw==
+Received: from DM6PR07CA0037.namprd07.prod.outlook.com (2603:10b6:5:74::14) by
+ DM8PR12MB5399.namprd12.prod.outlook.com (2603:10b6:8:34::5) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.4373.21; Thu, 29 Jul 2021 18:35:20 +0000
+Received: from DM6NAM11FT065.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:5:74:cafe::65) by DM6PR07CA0037.outlook.office365.com
+ (2603:10b6:5:74::14) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4373.18 via Frontend
+ Transport; Thu, 29 Jul 2021 18:35:20 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.112.36)
+ smtp.mailfrom=nvidia.com; denx.de; dkim=none (message not signed)
+ header.d=none;denx.de; dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.112.36 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.112.36; helo=mail.nvidia.com;
+Received: from mail.nvidia.com (216.228.112.36) by
+ DM6NAM11FT065.mail.protection.outlook.com (10.13.172.109) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.20.4373.18 via Frontend Transport; Thu, 29 Jul 2021 18:35:20 +0000
+Received: from HQMAIL111.nvidia.com (172.20.187.18) by HQMAIL101.nvidia.com
+ (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Thu, 29 Jul
+ 2021 18:35:19 +0000
+Received: from jonathanh-vm-01.nvidia.com (172.20.187.6) by mail.nvidia.com
+ (172.20.187.18) with Microsoft SMTP Server (TLS) id 15.0.1497.2 via Frontend
+ Transport; Thu, 29 Jul 2021 18:35:19 +0000
+From:   Jon Hunter <jonathanh@nvidia.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Lokesh Gidra <lokeshgidra@google.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Dave Martin <Dave.Martin@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Alistair Delva <adelva@google.com>,
-        William McVicker <willmcvicker@google.com>,
-        Evgenii Stepanov <eugenis@google.com>,
-        Mitch Phillips <mitchp@google.com>,
-        Andrey Konovalov <andreyknvl@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        donnyxia@google.com
-Content-Type: text/plain; charset="UTF-8"
+CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
+        <stable@vger.kernel.org>, <linux-tegra@vger.kernel.org>
+Subject: Re: [PATCH 4.19 00/17] 4.19.200-rc1 review
+In-Reply-To: <20210729135137.260993951@linuxfoundation.org>
+References: <20210729135137.260993951@linuxfoundation.org>
+X-NVConfidentiality: public
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Message-ID: <ea85a466be2d4537beccac4591330fe6@HQMAIL111.nvidia.com>
+Date:   Thu, 29 Jul 2021 18:35:19 +0000
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 1d4e9121-095e-4358-0ae1-08d952bf9ef6
+X-MS-TrafficTypeDiagnostic: DM8PR12MB5399:
+X-Microsoft-Antispam-PRVS: <DM8PR12MB5399BF77CCC2F203C7E4440AD9EB9@DM8PR12MB5399.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:9508;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 0IfA6SYO3f0kTHc37aVvDD1R4AicG1HTtaEmXGU2BFxhHeVIMtQxScmdEB1xTauR+eWrTaqo3JtwVZzJ5BGJEnEcuBIHul5Ca/ep32jzD+syt2S5bjVtKNKFDpe1/nRTrvB3iYTtcYJSDJnS4R0G8FRsz2QtoekwdJEOJNW+zceBp4nL/HSTEIhBz1gfWnTpbFSqi7zlF7LxWETvgvBTnPqx4pFx+wG1oG4QqTNdU91D7YVUXsUXLFUfD2YcZzsMihpmS18vXViXtu+ZcLoizti50jnjaiehtOQ8v23fQZh9nkhaPYH9azGdf09bTk47SakFboohEQABvnEjqYlRDhSekkDfMoEjap41JmkEjlA/i+oyKDqbpS+xBCCT/szwWbaSsgp9BGEChXckr9WsyRVZgrU14d0eqEzL0srTi7q74jHM97+C7qGcDmGeu2R9z2ISQvBW6zZg2ex6MAH5mTJ6tXZ7Vb1kbKnDPHujOgb/oaAOdiVuF8xsiadlJlwovs4c0Nrm7U6smfFxVjAyHWXouaFjRhzqHY35x6ofNOIjykhRUmUf70tr4FqO1cXgo4sHMHI/3n/W2YMCTsOUkyDCXa3BtTWglwI9DO8oR5M01lI1/049QKyLPMVTVfoNi0J3ltXWdUvih4sg49lnzHyUuj06ifDsjFSaf7BM/SA27qKzAH3JxOmc+iBnrSUycQ2bGdxY44v3UARvia1h3iTI14xigl1/4iFGKF2B+yOGv33tJY9bw1A2YmZP1+rEZnciLo6RS6zywaZ9Vq8aYGM9UskZC+cWzdwbkIqO0Ks=
+X-Forefront-Antispam-Report: CIP:216.228.112.36;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:schybrid05.nvidia.com;CAT:NONE;SFS:(4636009)(36840700001)(46966006)(36906005)(316002)(36860700001)(54906003)(7636003)(47076005)(4326008)(186003)(426003)(7416002)(6916009)(966005)(70206006)(2906002)(82310400003)(70586007)(8936002)(26005)(508600001)(8676002)(356005)(336012)(24736004)(86362001)(5660300002)(108616005);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Jul 2021 18:35:20.6822
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 1d4e9121-095e-4358-0ae1-08d952bf9ef6
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.112.36];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT065.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM8PR12MB5399
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jul 26, 2021 at 9:16 AM Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> From: Peter Collingbourne <pcc@google.com>
->
-> commit 0db282ba2c12c1515d490d14a1ff696643ab0f1b upstream.
->
-> This test passes pointers obtained from anon_allocate_area to the
-> userfaultfd and mremap APIs.  This causes a problem if the system
-> allocator returns tagged pointers because with the tagged address ABI
-> the kernel rejects tagged addresses passed to these APIs, which would
-> end up causing the test to fail.  To make this test compatible with such
-> system allocators, stop using the system allocator to allocate memory in
-> anon_allocate_area, and instead just use mmap.
->
-> Link: https://lkml.kernel.org/r/20210714195437.118982-3-pcc@google.com
-> Link: https://linux-review.googlesource.com/id/Icac91064fcd923f77a83e8e133f8631c5b8fc241
-> Fixes: c47174fc362a ("userfaultfd: selftest")
-> Co-developed-by: Lokesh Gidra <lokeshgidra@google.com>
-> Signed-off-by: Lokesh Gidra <lokeshgidra@google.com>
-> Signed-off-by: Peter Collingbourne <pcc@google.com>
-> Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-> Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
-> Cc: Dave Martin <Dave.Martin@arm.com>
-> Cc: Will Deacon <will@kernel.org>
-> Cc: Andrea Arcangeli <aarcange@redhat.com>
-> Cc: Alistair Delva <adelva@google.com>
-> Cc: William McVicker <willmcvicker@google.com>
-> Cc: Evgenii Stepanov <eugenis@google.com>
-> Cc: Mitch Phillips <mitchp@google.com>
-> Cc: Andrey Konovalov <andreyknvl@gmail.com>
-> Cc: <stable@vger.kernel.org>    [5.4]
-> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-> Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> ---
->  tools/testing/selftests/vm/userfaultfd.c |    6 ++++--
->  1 file changed, 4 insertions(+), 2 deletions(-)
->
-> --- a/tools/testing/selftests/vm/userfaultfd.c
-> +++ b/tools/testing/selftests/vm/userfaultfd.c
-> @@ -197,8 +197,10 @@ static int anon_release_pages(char *rel_
->
->  static void anon_allocate_area(void **alloc_area)
->  {
-> -       if (posix_memalign(alloc_area, page_size, nr_pages * page_size)) {
-> -               fprintf(stderr, "out of memory\n");
-> +       *alloc_area = mmap(NULL, nr_pages * page_size, PROT_READ | PROT_WRITE,
-> +                          MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-> +       if (*alloc_area == MAP_FAILED)
+On Thu, 29 Jul 2021 15:54:01 +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.19.200 release.
+> There are 17 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sat, 31 Jul 2021 13:51:22 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.200-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Hi Greg,
+All tests passing for Tegra ...
 
-It looks like your backport of this patch (and the backports to stable
-kernels) are missing a left brace here.
+Test results for stable-v4.19:
+    10 builds:	10 pass, 0 fail
+    22 boots:	22 pass, 0 fail
+    40 tests:	40 pass, 0 fail
 
-Peter
+Linux version:	4.19.200-rc1-g3b0f6d777e85
+Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
+                tegra194-p2972-0000, tegra20-ventana,
+                tegra210-p2371-2180, tegra30-cardhu-a04
 
-> +               fprintf(stderr, "mmap of anonymous memory failed");
->                 *alloc_area = NULL;
->         }
->  }
->
->
+Tested-by: Jon Hunter <jonathanh@nvidia.com>
+
+Jon
