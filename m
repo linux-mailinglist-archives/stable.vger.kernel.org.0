@@ -2,33 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B7EB63DA55F
-	for <lists+stable@lfdr.de>; Thu, 29 Jul 2021 16:01:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76BA73DA565
+	for <lists+stable@lfdr.de>; Thu, 29 Jul 2021 16:01:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238174AbhG2OBJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Jul 2021 10:01:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50198 "EHLO mail.kernel.org"
+        id S238361AbhG2OBP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Jul 2021 10:01:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238370AbhG2N7F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Jul 2021 09:59:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C9BA60F42;
-        Thu, 29 Jul 2021 13:59:01 +0000 (UTC)
+        id S238535AbhG2N7P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Jul 2021 09:59:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C35C60F48;
+        Thu, 29 Jul 2021 13:59:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627567141;
-        bh=SgS92D8YtZxt1ox6McgFTvBPWgU+hwBTL57t+PUqMl8=;
+        s=korg; t=1627567144;
+        bh=xWkpJRPBgVu7ghb0+9m/dqBnIov78P5tyBMJYtPGLao=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M2n5mSYxCLDKK8qnXMH2goATCzisKJyhpWEIvwKX2XIO5Fwb5GXpbBNe7LTrBZcmC
-         Qe7WzhHSvMcUYqgan5hob3GjUkaNSYWqnYhzIWrPcxYQTXvuGAzas49fXpQESSpb0F
-         poP8ckTvoQNkmFjBV1jeyxP5LIyNA8wrZQ+eyUSI=
+        b=i+msQoccBiutMy1DDf8bj+jZbrtolynZilI/jZDcEvoWWiNw65tJ4GFosSlPcZKJd
+         jxo10RkIYw14VromGPgeEXzcsWs3/IPyklJw4ejMUwX9LAO1gKnVY7I434A75VIbBb
+         85Mz99PZziYZ+hJ49UwKegi/D8eGWac9QIc8JgXY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        stable@vger.kernel.org,
+        Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
+        Viacheslav Dubeyko <slava@dubeyko.com>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 12/22] drm/ttm: add a check against null pointer dereference
-Date:   Thu, 29 Jul 2021 15:54:43 +0200
-Message-Id: <20210729135137.731453496@linuxfoundation.org>
+Subject: [PATCH 5.13 13/22] hfs: add missing clean-up in hfs_fill_super
+Date:   Thu, 29 Jul 2021 15:54:44 +0200
+Message-Id: <20210729135137.759721903@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210729135137.336097792@linuxfoundation.org>
 References: <20210729135137.336097792@linuxfoundation.org>
@@ -40,54 +46,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
 
-[ Upstream commit 9e5c772954406829e928dbe59891d08938ead04b ]
+[ Upstream commit 16ee572eaf0d09daa4c8a755fdb71e40dbf8562d ]
 
-When calling ttm_range_man_fini(), 'man' may be uninitialized, which may
-cause a null pointer dereference bug.
+Patch series "hfs: fix various errors", v2.
 
-Fix this by checking if it is a null pointer.
+This series ultimately aims to address a lockdep warning in
+hfs_find_init reported by Syzbot [1].
 
-This log reveals it:
+The work done for this led to the discovery of another bug, and the
+Syzkaller repro test also reveals an invalid memory access error after
+clearing the lockdep warning.  Hence, this series is broken up into
+three patches:
 
-[    7.902580 ] BUG: kernel NULL pointer dereference, address: 0000000000000058
-[    7.905721 ] RIP: 0010:ttm_range_man_fini+0x40/0x160
-[    7.911826 ] Call Trace:
-[    7.911826 ]  radeon_ttm_fini+0x167/0x210
-[    7.911826 ]  radeon_bo_fini+0x15/0x40
-[    7.913767 ]  rs400_fini+0x55/0x80
-[    7.914358 ]  radeon_device_fini+0x3c/0x140
-[    7.914358 ]  radeon_driver_unload_kms+0x5c/0xe0
-[    7.914358 ]  radeon_driver_load_kms+0x13a/0x200
-[    7.914358 ]  ? radeon_driver_unload_kms+0xe0/0xe0
-[    7.914358 ]  drm_dev_register+0x1db/0x290
-[    7.914358 ]  radeon_pci_probe+0x16a/0x230
-[    7.914358 ]  local_pci_probe+0x4a/0xb0
+1. Add a missing call to hfs_find_exit for an error path in
+   hfs_fill_super
 
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/1626274459-8148-1-git-send-email-zheyuma97@gmail.com
-Signed-off-by: Christian König <christian.koenig@amd.com>
+2. Fix memory mapping in hfs_bnode_read by fixing calls to kmap
+
+3. Add lock nesting notation to tell lockdep that the observed locking
+   hierarchy is safe
+
+This patch (of 3):
+
+Before exiting hfs_fill_super, the struct hfs_find_data used in
+hfs_find_init should be passed to hfs_find_exit to be cleaned up, and to
+release the lock held on the btree.
+
+The call to hfs_find_exit is missing from an error path.  We add it back
+in by consolidating calls to hfs_find_exit for error paths.
+
+Link: https://syzkaller.appspot.com/bug?id=f007ef1d7a31a469e3be7aeb0fde0769b18585db [1]
+Link: https://lkml.kernel.org/r/20210701030756.58760-1-desmondcheongzx@gmail.com
+Link: https://lkml.kernel.org/r/20210701030756.58760-2-desmondcheongzx@gmail.com
+Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+Reviewed-by: Viacheslav Dubeyko <slava@dubeyko.com>
+Cc: Gustavo A. R. Silva <gustavoars@kernel.org>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Shuah Khan <skhan@linuxfoundation.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/ttm/ttm_range_manager.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/hfs/super.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/ttm/ttm_range_manager.c b/drivers/gpu/drm/ttm/ttm_range_manager.c
-index 707e5c152896..ed053fd15c90 100644
---- a/drivers/gpu/drm/ttm/ttm_range_manager.c
-+++ b/drivers/gpu/drm/ttm/ttm_range_manager.c
-@@ -146,6 +146,9 @@ int ttm_range_man_fini(struct ttm_device *bdev,
- 	struct drm_mm *mm = &rman->mm;
- 	int ret;
+diff --git a/fs/hfs/super.c b/fs/hfs/super.c
+index 44d07c9e3a7f..12d9bae39363 100644
+--- a/fs/hfs/super.c
++++ b/fs/hfs/super.c
+@@ -420,14 +420,12 @@ static int hfs_fill_super(struct super_block *sb, void *data, int silent)
+ 	if (!res) {
+ 		if (fd.entrylength > sizeof(rec) || fd.entrylength < 0) {
+ 			res =  -EIO;
+-			goto bail;
++			goto bail_hfs_find;
+ 		}
+ 		hfs_bnode_read(fd.bnode, &rec, fd.entryoffset, fd.entrylength);
+ 	}
+-	if (res) {
+-		hfs_find_exit(&fd);
+-		goto bail_no_root;
+-	}
++	if (res)
++		goto bail_hfs_find;
+ 	res = -EINVAL;
+ 	root_inode = hfs_iget(sb, &fd.search_key->cat, &rec);
+ 	hfs_find_exit(&fd);
+@@ -443,6 +441,8 @@ static int hfs_fill_super(struct super_block *sb, void *data, int silent)
+ 	/* everything's okay */
+ 	return 0;
  
-+	if (!man)
-+		return 0;
-+
- 	ttm_resource_manager_set_used(man, false);
- 
- 	ret = ttm_resource_manager_evict_all(bdev, man);
++bail_hfs_find:
++	hfs_find_exit(&fd);
+ bail_no_root:
+ 	pr_err("get root inode failed\n");
+ bail:
 -- 
 2.30.2
 
