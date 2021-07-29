@@ -2,63 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AD943DAB50
-	for <lists+stable@lfdr.de>; Thu, 29 Jul 2021 20:47:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E98F3DAB51
+	for <lists+stable@lfdr.de>; Thu, 29 Jul 2021 20:47:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229672AbhG2Srr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Jul 2021 14:47:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40842 "EHLO
+        id S231622AbhG2Srs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Jul 2021 14:47:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231622AbhG2Srq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 29 Jul 2021 14:47:46 -0400
-Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4358EC061765
+        with ESMTP id S230085AbhG2Srr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 29 Jul 2021 14:47:47 -0400
+Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5A46C061765
         for <stable@vger.kernel.org>; Thu, 29 Jul 2021 11:47:43 -0700 (PDT)
-Received: by mail-ed1-x52e.google.com with SMTP id x14so9496445edr.12
+Received: by mail-ed1-x52f.google.com with SMTP id h8so9550308ede.4
         for <stable@vger.kernel.org>; Thu, 29 Jul 2021 11:47:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=tessares-net.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=BgBym8v1bQm8+j2u4zCKvAvNrbscmdxOo2VMNucpSCo=;
-        b=Gcix2J/TNu77oCzRj3OGSxP+YfC33Fxvz6speicNa0dScEKYc1T2xCs/44rZxfKAgy
-         8IrAvyG1o9LoJ7gnSAKKfvhtJrFpye7QpjnTld3RN7JEDga15z6Ep1mJKYTmC0nftFH+
-         fF9hvCCocAyN8VohmXk6HyxsLS2/hbHgS/G7Ne4Sf/rxAC++XAgaz8czxvAINK8gT+I7
-         JrjIxVH6XmnV0i9l6GyXlR8Yd3qM9rohorzbRmFxzZ62jbBzYxzlJrdJwJX3G9IoOfVX
-         NKLoDZdu2/Vrqc2lo2twDyuqhJlgguF9YRh+Uo07XOZygB9KT8bLLzq6jdGpeWCOa1ZF
-         ajyQ==
+        bh=56q/XfG7Ej/3qxK6s3TSsQbB3POYVRyE+XuRUxq+S4k=;
+        b=jy3/MU6nnWq74n3b+nhBEcAvkLhYIjvkkVkLCVWB7U545pW9KWQX3KlKrRp41PwB0h
+         fKiawnOEqjF1SkeaouH8OGIJWHzpgOiMfOhrgkK9UTe85PmxiCMvW2hXd8PcstjojXk7
+         WPyyg0mW6O0x9XFn2kfYsJWt2LT2CFClOzNKQTh55qNech3p+Nir2qdUedut+2Dq10fK
+         2bGRfOFbbZy7eoGSrWNkADkmHGHLHJAQdmxzYEyAKzSJDHJw7zCxTXdhO7c095AlNcc5
+         Q/Ci3wEuPNiTwYgHQIs9D8Sqoy4wJBPEsRfb1twVSn5WkSAaf1Clpuk+hsF+evpSRdHE
+         q86A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=BgBym8v1bQm8+j2u4zCKvAvNrbscmdxOo2VMNucpSCo=;
-        b=jE3DW7TBYRnE+AryvGasegcq3ia7yjc05zAmNV/vpFkrfK0AS4FZenn2GU6maUwIkh
-         sXAImN69RNHdpj1okXxkydt7syKhVnwmadfNSggkYqSUjh3Kao1hWNK3Q4H8llUfYrXI
-         HUu8yPeDD7Y1k1PqjKDhBAQnqXMxALpWrc1ohxsS5V/EasRv9jF6ajVH4536yjs/Wuio
-         esbAwzZHgT97KmE4wCMCHYmI1zQF+F95eiyte2JtDiOMSIBKycDP3NbNCgRrDLoOvcag
-         qg7hZswJ+RLukFOBBOdQGHPiohZT2NtNB4Q7NNOElud6uu+DCmxnWjoaJmLcXgWlTyOY
-         k2AA==
-X-Gm-Message-State: AOAM530u/UbjBE8PoW8xchnZWhIR3uMAfPe/sCRlaeKxsKM691ldXHWX
-        twGQMl3HWqM/GmW6cJEPHFaNO3KBrz+V9+RF
-X-Google-Smtp-Source: ABdhPJyfqH4k7DOV8g4pbEgol/pJMSyB8EQV8ztujqxjnQkXoXleEhim3AjnyoKepYDjtWKec7VRVQ==
-X-Received: by 2002:aa7:da02:: with SMTP id r2mr7679882eds.249.1627584461697;
-        Thu, 29 Jul 2021 11:47:41 -0700 (PDT)
+        bh=56q/XfG7Ej/3qxK6s3TSsQbB3POYVRyE+XuRUxq+S4k=;
+        b=pPXnDqpIyCWaJYPZwWPKgXUAndjO6bUgMlA2mMQxBKIUvoXROQyD0Bh0qfNxtHsgH6
+         1KnF3+lwwq0t89OIt/iewd04FXOLvo7vzfnKO9WHoucNF1he6ZTC4I0UyQoEdaSvmRRM
+         O61I4QWL1Ait0fquIpzwR2Ga0aRAT9w/qGLh8hhlcVz9xXaDNcpjx9xiBrOM9v6X43ho
+         sfn0Dh3N/uif2M17AYc1hcDtvgw/9qCMlIOjEpSPbvpl3WHvD1CSg9kyI7GtpDWmrVta
+         ggIbKOCGdjtTf2TLc5zQ+G5dLyKdy22kUn/IqfZhBaefcNXt1dni+GbJjkjJyLJeKhWC
+         kPVQ==
+X-Gm-Message-State: AOAM532Sf8XpE6jvf+VjFjCFZV7d54ud0pAy92Hoy+r1Vszdkd18RRIC
+        ACYB1m2UaD3+BZg4pLGWFY8FyS9yt9wRHlFO
+X-Google-Smtp-Source: ABdhPJyoGl71Cm239CsRRKY1fVY4g9ajnLVwnSyXcjH8VNClvN3QlC8AcE7gMXoL9OMXp17wI9yKmA==
+X-Received: by 2002:aa7:c857:: with SMTP id g23mr7595959edt.100.1627584462325;
+        Thu, 29 Jul 2021 11:47:42 -0700 (PDT)
 Received: from tsr-vdi-mbaerts.nix.tessares.net (static.23.216.130.94.clients.your-server.de. [94.130.216.23])
         by smtp.gmail.com with ESMTPSA id c14sm1250207ejb.78.2021.07.29.11.47.41
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 29 Jul 2021 11:47:41 -0700 (PDT)
+        Thu, 29 Jul 2021 11:47:42 -0700 (PDT)
 From:   Matthieu Baerts <matthieu.baerts@tessares.net>
 To:     stable@vger.kernel.org
 Cc:     Eric Dumazet <edumazet@google.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
         "Michael S. Tsirkin" <mst@redhat.com>,
         Jason Wang <jasowang@redhat.com>,
-        virtualization@lists.linux-foundation.org,
         "David S . Miller" <davem@davemloft.net>,
         Matthieu Baerts <matthieu.baerts@tessares.net>
-Subject: [PATCH 4.14 1/2] virtio_net: Do not pull payload in skb->head
-Date:   Thu, 29 Jul 2021 20:47:32 +0200
-Message-Id: <20210729184733.3217814-2-matthieu.baerts@tessares.net>
+Subject: [PATCH 4.14 2/2] gro: ensure frag0 meets IP header alignment
+Date:   Thu, 29 Jul 2021 20:47:33 +0200
+Message-Id: <20210729184733.3217814-3-matthieu.baerts@tessares.net>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210729184733.3217814-1-matthieu.baerts@tessares.net>
 References: <20210729184733.3217814-1-matthieu.baerts@tessares.net>
@@ -70,128 +70,107 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 0f6925b3e8da0dbbb52447ca8a8b42b371aac7db ]
+[ Upstream commit 38ec4944b593fd90c5ef42aaaa53e66ae5769d04 ]
 
-Xuan Zhuo reported that commit 3226b158e67c ("net: avoid 32 x truesize
-under-estimation for tiny skbs") brought  a ~10% performance drop.
+After commit 0f6925b3e8da ("virtio_net: Do not pull payload in skb->head")
+Guenter Roeck reported one failure in his tests using sh architecture.
 
-The reason for the performance drop was that GRO was forced
-to chain sk_buff (using skb_shinfo(skb)->frag_list), which
-uses more memory but also cause packet consumers to go over
-a lot of overhead handling all the tiny skbs.
+After much debugging, we have been able to spot silent unaligned accesses
+in inet_gro_receive()
 
-It turns out that virtio_net page_to_skb() has a wrong strategy :
-It allocates skbs with GOOD_COPY_LEN (128) bytes in skb->head, then
-copies 128 bytes from the page, before feeding the packet to GRO stack.
+The issue at hand is that upper networking stacks assume their header
+is word-aligned. Low level drivers are supposed to reserve NET_IP_ALIGN
+bytes before the Ethernet header to make that happen.
 
-This was suboptimal before commit 3226b158e67c ("net: avoid 32 x truesize
-under-estimation for tiny skbs") because GRO was using 2 frags per MSS,
-meaning we were not packing MSS with 100% efficiency.
+This patch hardens skb_gro_reset_offset() to not allow frag0 fast-path
+if the fragment is not properly aligned.
 
-Fix is to pull only the ethernet header in page_to_skb()
+Some arches like x86, arm64 and powerpc do not care and define NET_IP_ALIGN
+as 0, this extra check will be a NOP for them.
 
-Then, we change virtio_net_hdr_to_skb() to pull the missing
-headers, instead of assuming they were already pulled by callers.
-
-This fixes the performance regression, but could also allow virtio_net
-to accept packets with more than 128bytes of headers.
-
-Many thanks to Xuan Zhuo for his report, and his tests/help.
+Note that if frag0 is not used, GRO will call pskb_may_pull()
+as many times as needed to pull network and transport headers.
 
 [ Backport note ]
 
-    There was no conflict but the upstream patch was using a variable
-    (metasize) not defined in < v5.7 kernels. This new variable has been
-    introduced by commit 503d539a6e417 ("virtio_net: Add XDP meta data support").
-    This commit has been backported in 5.4.112 and 4.19.186 to allow this
-    commit 0f6925b3e8da0 ("virtio_net: Do not pull payload in skb->head")
-    to be backported without issue.
+    A small conflict has been reported:
 
-    I don't think we want to backport this new feature related to XDP in
-    older kernels < v4.19. In this version here, we simply drop this
-    'metasize' variable as there is no need for it.
+        ++<<<<<<< HEAD
+         +      if (skb_mac_header(skb) == skb_tail_pointer(skb) &&
+         +          pinfo->nr_frags &&
+         +          !PageHighMem(skb_frag_page(frag0))) {
+        ++=======
+        +       if (!skb_headlen(skb) && pinfo->nr_frags &&
+        +           !PageHighMem(skb_frag_page(frag0)) &&
+        +           (!NET_IP_ALIGN || !(skb_frag_off(frag0) & 3))) {
+        ++>>>>>>> 38ec4944b593 (gro: ensure frag0 meets IP header alignment)
 
-Fixes: 3226b158e67c ("net: avoid 32 x truesize under-estimation for tiny skbs")
-Reported-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Link: https://www.spinics.net/lists/netdev/msg731397.html
-Co-Developed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+    This is expected because older kernels are missing
+    commit 8aef998df3979 ("net: core: allow fast GRO for skbs with Ethernet header in head").
+    This commit modifies the beginning of the 'if' statement.
+
+    The resolution was easy: the patch we want to backport here is
+    adding new conditions to the 'if' statement:
+
+        && (!NET_IP_ALIGN || !(skb_frag_off(frag0) & 3))
+
+    We simply append these new conditions to it on older kernels.
+
+    Another issue had to be resolved: skb_frag_off() is used in this
+    patch we want to backport but this function is not defined in
+    kernels < 5.4. It has then been extracted and imported from
+    commit 7240b60c98d63 ("linux: Add skb_frag_t page_offset accessors").
+
+Fixes: 0f6925b3e8da ("virtio_net: Do not pull payload in skb->head")
+Fixes: 78a478d0efd9 ("gro: Inline skb_gro_header and cache frag0 virtual address")
 Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 Cc: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: Jason Wang <jasowang@redhat.com>
-Cc: virtualization@lists.linux-foundation.org
-Acked-by: Jason Wang <jasowang@redhat.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Tested-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
 ---
- drivers/net/virtio_net.c   | 10 +++++++---
- include/linux/virtio_net.h | 14 +++++++++-----
- 2 files changed, 16 insertions(+), 8 deletions(-)
+ include/linux/skbuff.h | 9 +++++++++
+ net/core/dev.c         | 3 ++-
+ 2 files changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index c8abbf81ef52..9e18389309cf 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -339,9 +339,13 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
- 	offset += hdr_padded_len;
- 	p += hdr_padded_len;
+diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
+index de3e59329b02..2f303454a323 100644
+--- a/include/linux/skbuff.h
++++ b/include/linux/skbuff.h
+@@ -2784,6 +2784,15 @@ static inline void skb_propagate_pfmemalloc(struct page *page,
+ 		skb->pfmemalloc = true;
+ }
  
--	copy = len;
--	if (copy > skb_tailroom(skb))
--		copy = skb_tailroom(skb);
-+	/* Copy all frame if it fits skb->head, otherwise
-+	 * we let virtio_net_hdr_to_skb() and GRO pull headers as needed.
-+	 */
-+	if (len <= skb_tailroom(skb))
-+		copy = len;
-+	else
-+		copy = ETH_HLEN;
- 	skb_put_data(skb, p, copy);
- 
- 	len -= copy;
-diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
-index 48afea1b8b4e..ca68826d8449 100644
---- a/include/linux/virtio_net.h
-+++ b/include/linux/virtio_net.h
-@@ -65,14 +65,18 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
- 	skb_reset_mac_header(skb);
- 
- 	if (hdr->flags & VIRTIO_NET_HDR_F_NEEDS_CSUM) {
--		u16 start = __virtio16_to_cpu(little_endian, hdr->csum_start);
--		u16 off = __virtio16_to_cpu(little_endian, hdr->csum_offset);
-+		u32 start = __virtio16_to_cpu(little_endian, hdr->csum_start);
-+		u32 off = __virtio16_to_cpu(little_endian, hdr->csum_offset);
-+		u32 needed = start + max_t(u32, thlen, off + sizeof(__sum16));
++/**
++ * skb_frag_off() - Returns the offset of a skb fragment
++ * @frag: the paged fragment
++ */
++static inline unsigned int skb_frag_off(const skb_frag_t *frag)
++{
++	return frag->page_offset;
++}
 +
-+		if (!pskb_may_pull(skb, needed))
-+			return -EINVAL;
+ /**
+  * skb_frag_page - retrieve the page referred to by a paged fragment
+  * @frag: the paged fragment
+diff --git a/net/core/dev.c b/net/core/dev.c
+index aa419f3162b8..ea09e0809c12 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -4763,7 +4763,8 @@ static void skb_gro_reset_offset(struct sk_buff *skb)
  
- 		if (!skb_partial_csum_set(skb, start, off))
- 			return -EINVAL;
- 
- 		p_off = skb_transport_offset(skb) + thlen;
--		if (p_off > skb_headlen(skb))
-+		if (!pskb_may_pull(skb, p_off))
- 			return -EINVAL;
- 	} else {
- 		/* gso packets without NEEDS_CSUM do not set transport_offset.
-@@ -100,14 +104,14 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
- 			}
- 
- 			p_off = keys.control.thoff + thlen;
--			if (p_off > skb_headlen(skb) ||
-+			if (!pskb_may_pull(skb, p_off) ||
- 			    keys.basic.ip_proto != ip_proto)
- 				return -EINVAL;
- 
- 			skb_set_transport_header(skb, keys.control.thoff);
- 		} else if (gso_type) {
- 			p_off = thlen;
--			if (p_off > skb_headlen(skb))
-+			if (!pskb_may_pull(skb, p_off))
- 				return -EINVAL;
- 		}
- 	}
+ 	if (skb_mac_header(skb) == skb_tail_pointer(skb) &&
+ 	    pinfo->nr_frags &&
+-	    !PageHighMem(skb_frag_page(frag0))) {
++	    !PageHighMem(skb_frag_page(frag0)) &&
++	    (!NET_IP_ALIGN || !(skb_frag_off(frag0) & 3))) {
+ 		NAPI_GRO_CB(skb)->frag0 = skb_frag_address(frag0);
+ 		NAPI_GRO_CB(skb)->frag0_len = min_t(unsigned int,
+ 						    skb_frag_size(frag0),
 -- 
 2.31.1
 
