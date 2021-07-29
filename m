@@ -2,40 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E0DFA3DA4D6
-	for <lists+stable@lfdr.de>; Thu, 29 Jul 2021 15:56:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F41E3DA4D8
+	for <lists+stable@lfdr.de>; Thu, 29 Jul 2021 15:56:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237907AbhG2N42 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Jul 2021 09:56:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46150 "EHLO mail.kernel.org"
+        id S237941AbhG2N4d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Jul 2021 09:56:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237904AbhG2N41 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Jul 2021 09:56:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 29DB76023F;
-        Thu, 29 Jul 2021 13:56:24 +0000 (UTC)
+        id S237904AbhG2N4a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Jul 2021 09:56:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5AABB60F42;
+        Thu, 29 Jul 2021 13:56:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627566984;
-        bh=iwY2UIX29yvhgYYsGAvG5Ti4MqpDN7jWYSdzmf6P4uw=;
+        s=korg; t=1627566986;
+        bh=HU/h5JM1C29O1nAMl0oqPOG0u+jjV4o7o5r8iUmQyBE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VlvXdltzTPJdFwjACEp26whZBzftoqUgbnoH3caGQAa4vKvi/9KV0wn8gyC6HFFen
-         GCTMs3qE8IuLAHtlvITS0gcHr8Plzg5gs/qeF3g8TAffcY3o9zmsr57tJjEsAlWJhI
-         jysaJOqdq7IggRP+ydu1pXlJnS7DnSVf8MYqzBXk=
+        b=CyjPB5j5qFVZNSwqAJwZ7yqPzubq24Io+6u0aOT5jwwe0P+QAHZmzJjTs/dctRK2w
+         Jv0Cr4Jp8jdKOSC+MFwbpWzj7JcOji/T6sp+HRhA2USjcE/BbtT0cdOoNeR0iaTZBG
+         HX2KVq433VkfSffKXbeQycOWxVpI310INbJRmlb4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
-        syzbot+b718ec84a87b7e73ade4@syzkaller.appspotmail.com,
-        Viacheslav Dubeyko <slava@dubeyko.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Cristian Marussi <cristian.marussi@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 13/17] hfs: add lock nesting notation to hfs_find_init
-Date:   Thu, 29 Jul 2021 15:54:14 +0200
-Message-Id: <20210729135137.678656929@linuxfoundation.org>
+Subject: [PATCH 4.19 14/17] firmware: arm_scmi: Fix possible scmi_linux_errmap buffer overflow
+Date:   Thu, 29 Jul 2021 15:54:15 +0200
+Message-Id: <20210729135137.708594423@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210729135137.260993951@linuxfoundation.org>
 References: <20210729135137.260993951@linuxfoundation.org>
@@ -47,88 +42,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+From: Sudeep Holla <sudeep.holla@arm.com>
 
-[ Upstream commit b3b2177a2d795e35dc11597b2609eb1e7e57e570 ]
+[ Upstream commit 7a691f16ccad05d770f813d9c4b4337a30c6d63f ]
 
-Syzbot reports a possible recursive lock in [1].
+The scmi_linux_errmap buffer access index is supposed to depend on the
+array size to prevent element out of bounds access. It uses SCMI_ERR_MAX
+to check bounds but that can mismatch with the array size. It also
+changes the success into -EIO though scmi_linux_errmap is never used in
+case of success, it is expected to work for success case too.
 
-This happens due to missing lock nesting information.  From the logs, we
-see that a call to hfs_fill_super is made to mount the hfs filesystem.
-While searching for the root inode, the lock on the catalog btree is
-grabbed.  Then, when the parent of the root isn't found, a call to
-__hfs_bnode_create is made to create the parent of the root.  This
-eventually leads to a call to hfs_ext_read_extent which grabs a lock on
-the extents btree.
+It is slightly confusing code as the negative of the error code
+is used as index to the buffer. Fix it by negating it at the start and
+make it more readable.
 
-Since the order of locking is catalog btree -> extents btree, this lock
-hierarchy does not lead to a deadlock.
-
-To tell lockdep that this locking is safe, we add nesting notation to
-distinguish between catalog btrees, extents btrees, and attributes
-btrees (for HFS+).  This has already been done in hfsplus.
-
-Link: https://syzkaller.appspot.com/bug?id=f007ef1d7a31a469e3be7aeb0fde0769b18585db [1]
-Link: https://lkml.kernel.org/r/20210701030756.58760-4-desmondcheongzx@gmail.com
-Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
-Reported-by: syzbot+b718ec84a87b7e73ade4@syzkaller.appspotmail.com
-Tested-by: syzbot+b718ec84a87b7e73ade4@syzkaller.appspotmail.com
-Reviewed-by: Viacheslav Dubeyko <slava@dubeyko.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Gustavo A. R. Silva <gustavoars@kernel.org>
-Cc: Shuah Khan <skhan@linuxfoundation.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://lore.kernel.org/r/20210707135028.1869642-1-sudeep.holla@arm.com
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Cristian Marussi <cristian.marussi@arm.com>
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/hfs/bfind.c | 14 +++++++++++++-
- fs/hfs/btree.h |  7 +++++++
- 2 files changed, 20 insertions(+), 1 deletion(-)
+ drivers/firmware/arm_scmi/driver.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/fs/hfs/bfind.c b/fs/hfs/bfind.c
-index 4af318fbda77..ef9498a6e88a 100644
---- a/fs/hfs/bfind.c
-+++ b/fs/hfs/bfind.c
-@@ -25,7 +25,19 @@ int hfs_find_init(struct hfs_btree *tree, struct hfs_find_data *fd)
- 	fd->key = ptr + tree->max_key_len + 2;
- 	hfs_dbg(BNODE_REFS, "find_init: %d (%p)\n",
- 		tree->cnid, __builtin_return_address(0));
--	mutex_lock(&tree->tree_lock);
-+	switch (tree->cnid) {
-+	case HFS_CAT_CNID:
-+		mutex_lock_nested(&tree->tree_lock, CATALOG_BTREE_MUTEX);
-+		break;
-+	case HFS_EXT_CNID:
-+		mutex_lock_nested(&tree->tree_lock, EXTENTS_BTREE_MUTEX);
-+		break;
-+	case HFS_ATTR_CNID:
-+		mutex_lock_nested(&tree->tree_lock, ATTR_BTREE_MUTEX);
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
- 	return 0;
+diff --git a/drivers/firmware/arm_scmi/driver.c b/drivers/firmware/arm_scmi/driver.c
+index effc4c17e0fb..081fbe28da4b 100644
+--- a/drivers/firmware/arm_scmi/driver.c
++++ b/drivers/firmware/arm_scmi/driver.c
+@@ -48,7 +48,6 @@ enum scmi_error_codes {
+ 	SCMI_ERR_GENERIC = -8,	/* Generic Error */
+ 	SCMI_ERR_HARDWARE = -9,	/* Hardware Error */
+ 	SCMI_ERR_PROTOCOL = -10,/* Protocol Error */
+-	SCMI_ERR_MAX
+ };
+ 
+ /* List of all SCMI devices active in system */
+@@ -168,8 +167,10 @@ static const int scmi_linux_errmap[] = {
+ 
+ static inline int scmi_to_linux_errno(int errno)
+ {
+-	if (errno < SCMI_SUCCESS && errno > SCMI_ERR_MAX)
+-		return scmi_linux_errmap[-errno];
++	int err_idx = -errno;
++
++	if (err_idx >= SCMI_SUCCESS && err_idx < ARRAY_SIZE(scmi_linux_errmap))
++		return scmi_linux_errmap[err_idx];
+ 	return -EIO;
  }
  
-diff --git a/fs/hfs/btree.h b/fs/hfs/btree.h
-index dcc2aab1b2c4..25ac9a8bb57a 100644
---- a/fs/hfs/btree.h
-+++ b/fs/hfs/btree.h
-@@ -13,6 +13,13 @@ typedef int (*btree_keycmp)(const btree_key *, const btree_key *);
- 
- #define NODE_HASH_SIZE  256
- 
-+/* B-tree mutex nested subclasses */
-+enum hfs_btree_mutex_classes {
-+	CATALOG_BTREE_MUTEX,
-+	EXTENTS_BTREE_MUTEX,
-+	ATTR_BTREE_MUTEX,
-+};
-+
- /* A HFS BTree held in memory */
- struct hfs_btree {
- 	struct super_block *sb;
 -- 
 2.30.2
 
