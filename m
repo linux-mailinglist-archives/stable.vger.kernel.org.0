@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 324103DA54D
-	for <lists+stable@lfdr.de>; Thu, 29 Jul 2021 16:00:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6DAA3DA51D
+	for <lists+stable@lfdr.de>; Thu, 29 Jul 2021 15:58:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238459AbhG2OA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Jul 2021 10:00:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49652 "EHLO mail.kernel.org"
+        id S238394AbhG2N6P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Jul 2021 09:58:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238466AbhG2N6g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Jul 2021 09:58:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E68A6023F;
-        Thu, 29 Jul 2021 13:58:31 +0000 (UTC)
+        id S238128AbhG2N5x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Jul 2021 09:57:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F2E4F60F6F;
+        Thu, 29 Jul 2021 13:57:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627567111;
-        bh=oLQGeibRBwNxthgzYP1TFlZyNKkzA0leGJLNR89TfrI=;
+        s=korg; t=1627567070;
+        bh=I/+Q/zFFDQxipqZuuw6/+vIJwIvOLyAIjYB2YVACA/g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=09AiminxzTJ1Eb/BF/HHWHN52jEpqh1QHCP/Z05/PBrLKXd9qaKn1TwT8thfVBzL3
-         mswB8UL1kXS+Nd4CRD9EqXtk+yTYVx2D7zuRb9Kfe2eT1fys5Z4GhqESh38HLHgQmu
-         NPlFuq5m3zseWZAgx16QbLbEhtCSkAlyy/wnH+Uk=
+        b=Ndxd9rcW3pY/2AGOqqxhsmODC0HTRBvZqcivbs8PISyucY5tAeHKF+i0i3DQzZzDC
+         NOxpBe1vNI8qFuXWoSBnVLH4eQcDx78nkA8lTQxAPLDyEhSLEs4ufpWp9y2X6lp8e8
+         A9yHK0By5tYp+NkyEMgiq+vrvKrxfguSXKkPU5Fs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miklos Szeredi <mszeredi@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 04/24] af_unix: fix garbage collect vs MSG_PEEK
+        stable@vger.kernel.org, Hyunchul Lee <hyc.lee@gmail.com>,
+        Steve French <stfrench@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 17/21] cifs: fix the out of range assignment to bit fields in parse_server_interfaces
 Date:   Thu, 29 Jul 2021 15:54:24 +0200
-Message-Id: <20210729135137.407209650@linuxfoundation.org>
+Message-Id: <20210729135143.457398354@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210729135137.267680390@linuxfoundation.org>
-References: <20210729135137.267680390@linuxfoundation.org>
+In-Reply-To: <20210729135142.920143237@linuxfoundation.org>
+References: <20210729135142.920143237@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,110 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miklos Szeredi <mszeredi@redhat.com>
+From: Hyunchul Lee <hyc.lee@gmail.com>
 
-commit cbcf01128d0a92e131bd09f1688fe032480b65ca upstream.
+[ Upstream commit c9c9c6815f9004ee1ec87401ed0796853bd70f1b ]
 
-unix_gc() assumes that candidate sockets can never gain an external
-reference (i.e.  be installed into an fd) while the unix_gc_lock is
-held.  Except for MSG_PEEK this is guaranteed by modifying inflight
-count under the unix_gc_lock.
+Because the out of range assignment to bit fields
+are compiler-dependant, the fields could have wrong
+value.
 
-MSG_PEEK does not touch any variable protected by unix_gc_lock (file
-count is not), yet it needs to be serialized with garbage collection.
-Do this by locking/unlocking unix_gc_lock:
-
- 1) increment file count
-
- 2) lock/unlock barrier to make sure incremented file count is visible
-    to garbage collection
-
- 3) install file into fd
-
-This is a lock barrier (unlike smp_mb()) that ensures that garbage
-collection is run completely before or completely after the barrier.
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Hyunchul Lee <hyc.lee@gmail.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/unix/af_unix.c |   51 +++++++++++++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 49 insertions(+), 2 deletions(-)
+ fs/cifs/smb2ops.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/unix/af_unix.c
-+++ b/net/unix/af_unix.c
-@@ -1521,6 +1521,53 @@ out:
- 	return err;
- }
+diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
+index bf6b4f71dc58..defee1d208d2 100644
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -498,8 +498,8 @@ parse_server_interfaces(struct network_interface_info_ioctl_rsp *buf,
+ 	p = buf;
+ 	while (bytes_left >= sizeof(*p)) {
+ 		info->speed = le64_to_cpu(p->LinkSpeed);
+-		info->rdma_capable = le32_to_cpu(p->Capability & RDMA_CAPABLE);
+-		info->rss_capable = le32_to_cpu(p->Capability & RSS_CAPABLE);
++		info->rdma_capable = le32_to_cpu(p->Capability & RDMA_CAPABLE) ? 1 : 0;
++		info->rss_capable = le32_to_cpu(p->Capability & RSS_CAPABLE) ? 1 : 0;
  
-+static void unix_peek_fds(struct scm_cookie *scm, struct sk_buff *skb)
-+{
-+	scm->fp = scm_fp_dup(UNIXCB(skb).fp);
-+
-+	/*
-+	 * Garbage collection of unix sockets starts by selecting a set of
-+	 * candidate sockets which have reference only from being in flight
-+	 * (total_refs == inflight_refs).  This condition is checked once during
-+	 * the candidate collection phase, and candidates are marked as such, so
-+	 * that non-candidates can later be ignored.  While inflight_refs is
-+	 * protected by unix_gc_lock, total_refs (file count) is not, hence this
-+	 * is an instantaneous decision.
-+	 *
-+	 * Once a candidate, however, the socket must not be reinstalled into a
-+	 * file descriptor while the garbage collection is in progress.
-+	 *
-+	 * If the above conditions are met, then the directed graph of
-+	 * candidates (*) does not change while unix_gc_lock is held.
-+	 *
-+	 * Any operations that changes the file count through file descriptors
-+	 * (dup, close, sendmsg) does not change the graph since candidates are
-+	 * not installed in fds.
-+	 *
-+	 * Dequeing a candidate via recvmsg would install it into an fd, but
-+	 * that takes unix_gc_lock to decrement the inflight count, so it's
-+	 * serialized with garbage collection.
-+	 *
-+	 * MSG_PEEK is special in that it does not change the inflight count,
-+	 * yet does install the socket into an fd.  The following lock/unlock
-+	 * pair is to ensure serialization with garbage collection.  It must be
-+	 * done between incrementing the file count and installing the file into
-+	 * an fd.
-+	 *
-+	 * If garbage collection starts after the barrier provided by the
-+	 * lock/unlock, then it will see the elevated refcount and not mark this
-+	 * as a candidate.  If a garbage collection is already in progress
-+	 * before the file count was incremented, then the lock/unlock pair will
-+	 * ensure that garbage collection is finished before progressing to
-+	 * installing the fd.
-+	 *
-+	 * (*) A -> B where B is on the queue of A or B is on the queue of C
-+	 * which is on the queue of listening socket A.
-+	 */
-+	spin_lock(&unix_gc_lock);
-+	spin_unlock(&unix_gc_lock);
-+}
-+
- static int unix_scm_to_skb(struct scm_cookie *scm, struct sk_buff *skb, bool send_fds)
- {
- 	int err = 0;
-@@ -2170,7 +2217,7 @@ static int unix_dgram_recvmsg(struct soc
- 		sk_peek_offset_fwd(sk, size);
- 
- 		if (UNIXCB(skb).fp)
--			scm.fp = scm_fp_dup(UNIXCB(skb).fp);
-+			unix_peek_fds(&scm, skb);
- 	}
- 	err = (flags & MSG_TRUNC) ? skb->len - skip : size;
- 
-@@ -2413,7 +2460,7 @@ unlock:
- 			/* It is questionable, see note in unix_dgram_recvmsg.
- 			 */
- 			if (UNIXCB(skb).fp)
--				scm.fp = scm_fp_dup(UNIXCB(skb).fp);
-+				unix_peek_fds(&scm, skb);
- 
- 			sk_peek_offset_fwd(sk, chunk);
- 
+ 		cifs_dbg(FYI, "%s: adding iface %zu\n", __func__, *iface_count);
+ 		cifs_dbg(FYI, "%s: speed %zu bps\n", __func__, info->speed);
+-- 
+2.30.2
+
 
 
