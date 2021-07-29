@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 395053DA55C
-	for <lists+stable@lfdr.de>; Thu, 29 Jul 2021 16:01:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB6CE3DA559
+	for <lists+stable@lfdr.de>; Thu, 29 Jul 2021 16:00:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237891AbhG2OAw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Jul 2021 10:00:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49786 "EHLO mail.kernel.org"
+        id S238317AbhG2OAb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Jul 2021 10:00:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48368 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238352AbhG2N6n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Jul 2021 09:58:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B89060F4B;
-        Thu, 29 Jul 2021 13:58:38 +0000 (UTC)
+        id S238086AbhG2N6u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Jul 2021 09:58:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 932856103A;
+        Thu, 29 Jul 2021 13:58:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627567119;
-        bh=GEMrgZ1BSUX+9zlkMV2VjhWoKC9SDQxjvZcaOc7xg3k=;
+        s=korg; t=1627567122;
+        bh=grUaTF2TqPMP7+8rV+DF67i7oeqjiW5BPvbjkAs20xc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VF1wekUuPhczCY1ixXCfKiqI8jQ9cDj7s8aW/qBaTP/mHb4O3BznpEymCCkViWzJQ
-         t6gwiISY764wC7NMtQoeJ0nsM3XZ/Rf6tnbLN99x4n7LXOiyDMErQiYSNKeDFq8M4C
-         rX84j0m4j3HXflTDlzz76LvHCAnBeDzSTJNgVFps=
+        b=viWNzF/OP8Zz1WmHzqoPDTS44IRFMRcZe9VBVS3KoarBWyGTYc4NE9GUIz6GC4nA4
+         Dd3K6+eW5vGwN1lYaP8p8LNumO411DNtd2XahtImYaz9zqIzSqMtI6npvMZHeaS+6E
+         Xu5cuRi0nZlU6ncJFnmX5wGqKFI6r0rZi2d4ThOc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Yang Yingliang <yangyingliang@huawei.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 07/24] net/802/mrp: fix memleak in mrp_request_join()
-Date:   Thu, 29 Jul 2021 15:54:27 +0200
-Message-Id: <20210729135137.500011883@linuxfoundation.org>
+Subject: [PATCH 5.10 08/24] net/802/garp: fix memleak in garp_request_join()
+Date:   Thu, 29 Jul 2021 15:54:28 +0200
+Message-Id: <20210729135137.529502517@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210729135137.267680390@linuxfoundation.org>
 References: <20210729135137.267680390@linuxfoundation.org>
@@ -43,84 +43,78 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 996af62167d0e0ec69b938a3561e96f84ffff1aa ]
+[ Upstream commit 42ca63f980842918560b25f0244307fd83b4777c ]
 
 I got kmemleak report when doing fuzz test:
 
 BUG: memory leak
-unreferenced object 0xffff88810c239500 (size 64):
-comm "syz-executor940", pid 882, jiffies 4294712870 (age 14.631s)
-hex dump (first 32 bytes):
-01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
-00 00 00 00 00 00 00 00 01 00 00 00 01 02 00 04 ................
-backtrace:
-[<00000000a323afa4>] slab_alloc_node mm/slub.c:2972 [inline]
-[<00000000a323afa4>] slab_alloc mm/slub.c:2980 [inline]
-[<00000000a323afa4>] __kmalloc+0x167/0x340 mm/slub.c:4130
-[<000000005034ca11>] kmalloc include/linux/slab.h:595 [inline]
-[<000000005034ca11>] mrp_attr_create net/802/mrp.c:276 [inline]
-[<000000005034ca11>] mrp_request_join+0x265/0x550 net/802/mrp.c:530
-[<00000000fcfd81f3>] vlan_mvrp_request_join+0x145/0x170 net/8021q/vlan_mvrp.c:40
-[<000000009258546e>] vlan_dev_open+0x477/0x890 net/8021q/vlan_dev.c:292
-[<0000000059acd82b>] __dev_open+0x281/0x410 net/core/dev.c:1609
-[<000000004e6dc695>] __dev_change_flags+0x424/0x560 net/core/dev.c:8767
-[<00000000471a09af>] rtnl_configure_link+0xd9/0x210 net/core/rtnetlink.c:3122
-[<0000000037a4672b>] __rtnl_newlink+0xe08/0x13e0 net/core/rtnetlink.c:3448
-[<000000008d5d0fda>] rtnl_newlink+0x64/0xa0 net/core/rtnetlink.c:3488
-[<000000004882fe39>] rtnetlink_rcv_msg+0x369/0xa10 net/core/rtnetlink.c:5552
-[<00000000907e6c54>] netlink_rcv_skb+0x134/0x3d0 net/netlink/af_netlink.c:2504
-[<00000000e7d7a8c4>] netlink_unicast_kernel net/netlink/af_netlink.c:1314 [inline]
-[<00000000e7d7a8c4>] netlink_unicast+0x4a0/0x6a0 net/netlink/af_netlink.c:1340
-[<00000000e0645d50>] netlink_sendmsg+0x78e/0xc90 net/netlink/af_netlink.c:1929
-[<00000000c24559b7>] sock_sendmsg_nosec net/socket.c:654 [inline]
-[<00000000c24559b7>] sock_sendmsg+0x139/0x170 net/socket.c:674
-[<00000000fc210bc2>] ____sys_sendmsg+0x658/0x7d0 net/socket.c:2350
-[<00000000be4577b5>] ___sys_sendmsg+0xf8/0x170 net/socket.c:2404
+unreferenced object 0xffff88810c909b80 (size 64):
+  comm "syz", pid 957, jiffies 4295220394 (age 399.090s)
+  hex dump (first 32 bytes):
+    01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 08 00 00 00 01 02 00 04  ................
+  backtrace:
+    [<00000000ca1f2e2e>] garp_request_join+0x285/0x3d0
+    [<00000000bf153351>] vlan_gvrp_request_join+0x15b/0x190
+    [<0000000024005e72>] vlan_dev_open+0x706/0x980
+    [<00000000dc20c4d4>] __dev_open+0x2bb/0x460
+    [<0000000066573004>] __dev_change_flags+0x501/0x650
+    [<0000000035b42f83>] rtnl_configure_link+0xee/0x280
+    [<00000000a5e69de0>] __rtnl_newlink+0xed5/0x1550
+    [<00000000a5258f4a>] rtnl_newlink+0x66/0x90
+    [<00000000506568ee>] rtnetlink_rcv_msg+0x439/0xbd0
+    [<00000000b7eaeae1>] netlink_rcv_skb+0x14d/0x420
+    [<00000000c373ce66>] netlink_unicast+0x550/0x750
+    [<00000000ec74ce74>] netlink_sendmsg+0x88b/0xda0
+    [<00000000381ff246>] sock_sendmsg+0xc9/0x120
+    [<000000008f6a2db3>] ____sys_sendmsg+0x6e8/0x820
+    [<000000008d9c1735>] ___sys_sendmsg+0x145/0x1c0
+    [<00000000aa39dd8b>] __sys_sendmsg+0xfe/0x1d0
 
-Calling mrp_request_leave() after mrp_request_join(), the attr->state
-is set to MRP_APPLICANT_VO, mrp_attr_destroy() won't be called in last
-TX event in mrp_uninit_applicant(), the attr of applicant will be leaked.
-To fix this leak, iterate and free each attr of applicant before rerturning
-from mrp_uninit_applicant().
+Calling garp_request_leave() after garp_request_join(), the attr->state
+is set to GARP_APPLICANT_VO, garp_attr_destroy() won't be called in last
+transmit event in garp_uninit_applicant(), the attr of applicant will be
+leaked. To fix this leak, iterate and free each attr of applicant before
+rerturning from garp_uninit_applicant().
 
 Reported-by: Hulk Robot <hulkci@huawei.com>
 Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/802/mrp.c | 14 ++++++++++++++
+ net/802/garp.c | 14 ++++++++++++++
  1 file changed, 14 insertions(+)
 
-diff --git a/net/802/mrp.c b/net/802/mrp.c
-index bea6e43d45a0..35e04cc5390c 100644
---- a/net/802/mrp.c
-+++ b/net/802/mrp.c
-@@ -292,6 +292,19 @@ static void mrp_attr_destroy(struct mrp_applicant *app, struct mrp_attr *attr)
+diff --git a/net/802/garp.c b/net/802/garp.c
+index 400bd857e5f5..f6012f8e59f0 100644
+--- a/net/802/garp.c
++++ b/net/802/garp.c
+@@ -203,6 +203,19 @@ static void garp_attr_destroy(struct garp_applicant *app, struct garp_attr *attr
  	kfree(attr);
  }
  
-+static void mrp_attr_destroy_all(struct mrp_applicant *app)
++static void garp_attr_destroy_all(struct garp_applicant *app)
 +{
 +	struct rb_node *node, *next;
-+	struct mrp_attr *attr;
++	struct garp_attr *attr;
 +
-+	for (node = rb_first(&app->mad);
++	for (node = rb_first(&app->gid);
 +	     next = node ? rb_next(node) : NULL, node != NULL;
 +	     node = next) {
-+		attr = rb_entry(node, struct mrp_attr, node);
-+		mrp_attr_destroy(app, attr);
++		attr = rb_entry(node, struct garp_attr, node);
++		garp_attr_destroy(app, attr);
 +	}
 +}
 +
- static int mrp_pdu_init(struct mrp_applicant *app)
+ static int garp_pdu_init(struct garp_applicant *app)
  {
  	struct sk_buff *skb;
-@@ -895,6 +908,7 @@ void mrp_uninit_applicant(struct net_device *dev, struct mrp_application *appl)
+@@ -609,6 +622,7 @@ void garp_uninit_applicant(struct net_device *dev, struct garp_application *appl
  
  	spin_lock_bh(&app->lock);
- 	mrp_mad_event(app, MRP_EVENT_TX);
-+	mrp_attr_destroy_all(app);
- 	mrp_pdu_queue(app);
+ 	garp_gid_event(app, GARP_EVENT_TRANSMIT_PDU);
++	garp_attr_destroy_all(app);
+ 	garp_pdu_queue(app);
  	spin_unlock_bh(&app->lock);
  
 -- 
