@@ -2,127 +2,235 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E91D3DAC54
-	for <lists+stable@lfdr.de>; Thu, 29 Jul 2021 22:01:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB1253DAD6B
+	for <lists+stable@lfdr.de>; Thu, 29 Jul 2021 22:21:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229642AbhG2UBY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Jul 2021 16:01:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43270 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229638AbhG2UBY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Jul 2021 16:01:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 60C4D60EBC;
-        Thu, 29 Jul 2021 20:01:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1627588880;
-        bh=W5SjuvH5wpnW7xNlfWfTbe2oqoqC7tBV0c9yiwxaXE0=;
-        h=Date:From:To:Subject:From;
-        b=SrnOVOTlysiIqvos+iuPsiar9voUjG3wytgm7K7cgNqVDjhqa9MVjvEVUntNVbzl4
-         jS9wEC8X7VKoP3pfHFhq/CvO2+ILM7JbtMwl+m7q6RKplnBo2wh2gi/O9RHQVd/Wq8
-         eCUU2cJ1CZzc+nuDiTHE4hcw26RO4weFi3gVk7Ic=
-Date:   Thu, 29 Jul 2021 13:01:19 -0700
-From:   akpm@linux-foundation.org
-To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        ptikhomirov@virtuozzo.com, miltonm@bga.com, millerjo@us.ibm.com,
-        manfred@colorfullife.com, ebiederm@xmission.com, dave@stgolabs.net,
-        alexander@mihalicyn.com, alexander.mikhalitsyn@virtuozzo.com
-Subject:  [to-be-updated]
- shm-skip-shm_destroy-if-task-ipc-namespace-was-changed.patch removed from -mm
- tree
-Message-ID: <20210729200119.lnuxr%akpm@linux-foundation.org>
-User-Agent: s-nail v14.9.10
+        id S232750AbhG2UVL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Jul 2021 16:21:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34950 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232745AbhG2UVK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 29 Jul 2021 16:21:10 -0400
+Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 777C0C061765
+        for <stable@vger.kernel.org>; Thu, 29 Jul 2021 13:21:07 -0700 (PDT)
+Received: by mail-pl1-x62c.google.com with SMTP id u2so45024plg.10
+        for <stable@vger.kernel.org>; Thu, 29 Jul 2021 13:21:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=jiXBmPGo/DwvstWlMyREidsF9ubmVrvdHMzSEy/wg24=;
+        b=00CfqIpEghQNAL7P8lapoXC/OdTSMXtlfVDyo4ZIi4RHzt2gZJcVRsS+Iyv3SNZqvG
+         Gtijt4LjhaGkVNgOzOkHE4Uh/WPenkEe9A5zAdEtdVo28Qhykaa+6ECXsIdEKZdABjEX
+         RAMu4/06kr35ms43XV4tM7RBZ4+tIveLTa0INC+37vnZrZQHSq8dq4RRPaE+1SsCZvsH
+         WywqOO//GZ8mz+bMpdgNcRHWupA7ROffCCafRtmKg79yFVLzzQ/RcQU/x3YEZ2wiCUOx
+         zI0exFHpOIrC0lVAy0WDsVkmY/oCe5lR/ZWq3CrAQs2Gy+j2aIMzQ9CxZAS9V3zYZZQ5
+         7FBg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=jiXBmPGo/DwvstWlMyREidsF9ubmVrvdHMzSEy/wg24=;
+        b=f5z4l2eIt5woz9w2YTCALxce0kfsX+hXli0qfTdiMBbYQ3aPCpUaHWBYXxOZ5H1k8l
+         7ovD4/8kbE+p+0yn7ZxjGtV2Fvz+0V2FL+a1/JXUJHFTUhiclPs0CizDQ18cv2ApJdbi
+         t5f/WgcigfGhbx6I5+ct2ksxsjlLy+3STwQSjyIwIvEdxnM5G1LkK+w/ZjmEvsX+F8n9
+         +oyiBR4h4B68yHqfeUE4WYP311uTHnBC+dHRecBd1FXQayU0h0kGenJz1X7ehvG5R/4/
+         PqsEHhlddOEjBDN1Ut4mG6LMARBJrs/8wwa3BhpgqlXaU3CL34J2y9dReUPuTbQwVJfr
+         wraA==
+X-Gm-Message-State: AOAM532Nddi6K0aBBK31340BQl59RKPHk0T9rUuLsaxygjoo1Xx0zuRR
+        lU4YtV7cXtZvPtiZ9vgD5rFY15JVXRPPdfXJ
+X-Google-Smtp-Source: ABdhPJw8HLlp3ncgDV4MqXFUAEUG/6cr48HKFsJWwv+dVHyrMoasLQ06iTvVJ7FIZ5PNg1F2o1ChCA==
+X-Received: by 2002:a05:6a00:91:b029:330:8ab3:d7d9 with SMTP id c17-20020a056a000091b02903308ab3d7d9mr6814184pfj.22.1627590066723;
+        Thu, 29 Jul 2021 13:21:06 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id z11sm7379123pjq.13.2021.07.29.13.21.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 29 Jul 2021 13:21:06 -0700 (PDT)
+Message-ID: <61030db2.1c69fb81.b1cb9.6ea2@mx.google.com>
+Date:   Thu, 29 Jul 2021 13:21:06 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.19
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.19.199-17-gb297088c8b30
+Subject: stable-rc/queue/4.19 baseline: 133 runs,
+ 4 regressions (v4.19.199-17-gb297088c8b30)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/queue/4.19 baseline: 133 runs, 4 regressions (v4.19.199-17-gb2970=
+88c8b30)
 
-The patch titled
-     Subject: shm: skip shm_destroy if task IPC namespace was changed
-has been removed from the -mm tree.  Its filename was
-     shm-skip-shm_destroy-if-task-ipc-namespace-was-changed.patch
+Regressions Summary
+-------------------
 
-This patch was dropped because an updated version will be merged
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+imx6sx-sdb           | arm  | lab-nxp       | gcc-8    | multi_v7_defconfig=
+  | 1          =
 
-------------------------------------------------------
-From: Alexander Mikhalitsyn <alexander.mikhalitsyn@virtuozzo.com>
-Subject: shm: skip shm_destroy if task IPC namespace was changed
+qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
+g | 1          =
 
-Patch series "shm: omit forced shm destroy if task IPC namespace was changed".
+qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
+g | 1          =
 
-Task IPC namespace shm's has shm_rmid_forced feature which is per IPC
-namespace and controlled by kernel.shm_rmid_forced sysctl.  When feature
-is turned on, then during task exit (and unshare(CLONE_NEWIPC)) all
-sysvshm's will be destroyed by exit_shm(struct task_struct *task)
-function.
-
-But there is a problem if task was changed IPC namespace since shmget()
-call.  In such situation exit_shm() function will try to call
-shm_destroy(<new_ipc_namespace_ptr>, <sysvshmem_from_old_ipc_namespace>)
-which leads to the situation when sysvshm object still attached to old IPC
-namespace but freed; later during old IPC namespace cleanup we will try to
-free such sysvshm object for the second time and will get the problem :)
-
-First patch solves this problem by postponing shm_destroy to the moment
-when IPC namespace cleanup will be called.  Second patch is useful to
-prevent (or easy catch) such bugs in the future by adding corresponding
-WARNings.
+qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
+g | 1          =
 
 
-This patch (of 2):
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
+nel/v4.19.199-17-gb297088c8b30/plan/baseline/
 
-Task may change IPC namespace by doing setns() but sysvshm objects remains
-at the origin IPC namespace (=IPC namespace where task was when shmget()
-was called).  Let's skip forced shm destroy in such case because we can't
-determine IPC namespace by shm only.  These problematic sysvshm's will be
-destroyed on ipc namespace cleanup.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.19
+  Describe: v4.19.199-17-gb297088c8b30
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      b297088c8b30cfeda30109de0db811cd8f06494e =
 
-Link: https://lkml.kernel.org/r/20210706132259.71740-1-alexander.mikhalitsyn@virtuozzo.com
-Link: https://lkml.kernel.org/r/20210706132259.71740-2-alexander.mikhalitsyn@virtuozzo.com
-Fixes: ab602f79915 ("shm: make exit_shm work proportional to task activity")
-Signed-off-by: Alexander Mikhalitsyn <alexander.mikhalitsyn@virtuozzo.com>
-Cc: Milton Miller <miltonm@bga.com>
-Cc: Jack Miller <millerjo@us.ibm.com>
-Cc: Pavel Tikhomirov <ptikhomirov@virtuozzo.com>
-Cc: Alexander Mikhalitsyn <alexander@mihalicyn.com>
-Cc: Manfred Spraul <manfred@colorfullife.com>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
 
- ipc/shm.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/ipc/shm.c~shm-skip-shm_destroy-if-task-ipc-namespace-was-changed
-+++ a/ipc/shm.c
-@@ -173,6 +173,14 @@ static inline struct shmid_kernel *shm_o
- 	return container_of(ipcp, struct shmid_kernel, shm_perm);
- }
- 
-+static inline bool is_shm_in_ns(struct ipc_namespace *ns, struct shmid_kernel *shp)
-+{
-+	int idx = ipcid_to_idx(shp->shm_perm.id);
-+	struct shmid_kernel *tshp = shm_obtain_object(ns, idx);
-+
-+	return !IS_ERR(tshp) && tshp == shp;
-+}
-+
- /*
-  * shm_lock_(check_) routines are called in the paths where the rwsem
-  * is not necessarily held.
-@@ -415,7 +423,7 @@ void exit_shm(struct task_struct *task)
- 	list_for_each_entry_safe(shp, n, &task->sysvshm.shm_clist, shm_clist) {
- 		shp->shm_creator = NULL;
- 
--		if (shm_may_destroy(ns, shp)) {
-+		if (is_shm_in_ns(ns, shp) && shm_may_destroy(ns, shp)) {
- 			shm_lock_by_ptr(shp);
- 			shm_destroy(ns, shp);
- 		}
-_
+Test Regressions
+---------------- =
 
-Patches currently in -mm which might be from alexander.mikhalitsyn@virtuozzo.com are
 
-ipc-warn-if-trying-to-remove-ipc-object-which-is-absent.patch
 
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+imx6sx-sdb           | arm  | lab-nxp       | gcc-8    | multi_v7_defconfig=
+  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6102da47daa96e1a5a5018cc
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.199=
+-17-gb297088c8b30/arm/multi_v7_defconfig/gcc-8/lab-nxp/baseline-imx6sx-sdb.=
+txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.199=
+-17-gb297088c8b30/arm/multi_v7_defconfig/gcc-8/lab-nxp/baseline-imx6sx-sdb.=
+html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6102da47daa96e1a5a501=
+8cd
+        new failure (last pass: v4.19.199-2-g6e7bdd8caac9) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6102d6d5198893197a5018cc
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.199=
+-17-gb297088c8b30/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.199=
+-17-gb297088c8b30/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6102d6d5198893197a501=
+8cd
+        failing since 257 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6102d6c8198893197a5018c6
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.199=
+-17-gb297088c8b30/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.199=
+-17-gb297088c8b30/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6102d6c8198893197a501=
+8c7
+        failing since 257 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6102d9811c28f8d5b95018d8
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.199=
+-17-gb297088c8b30/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
+_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.199=
+-17-gb297088c8b30/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
+_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6102d9811c28f8d5b9501=
+8d9
+        failing since 257 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =20
