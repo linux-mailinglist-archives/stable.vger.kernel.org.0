@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 69ADF3DA55E
-	for <lists+stable@lfdr.de>; Thu, 29 Jul 2021 16:01:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70C183DA54B
+	for <lists+stable@lfdr.de>; Thu, 29 Jul 2021 16:00:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238010AbhG2OBJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Jul 2021 10:01:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50158 "EHLO mail.kernel.org"
+        id S238104AbhG2OAU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Jul 2021 10:00:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49564 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238347AbhG2N7D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Jul 2021 09:59:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0DF3B60FED;
-        Thu, 29 Jul 2021 13:58:58 +0000 (UTC)
+        id S238453AbhG2N6b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Jul 2021 09:58:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D72C26101C;
+        Thu, 29 Jul 2021 13:58:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627567139;
-        bh=8oO8zU6RVLCFAMpa90qlQnaZOD0gsh2DnhwZzXsPtqI=;
+        s=korg; t=1627567107;
+        bh=8mW5LOfHd/0SVuLd0fSKIgVlKgyZ/PRI5ivodnmqkRU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aqU/q1qu7ng9kWo07ABUExcpkCXoGYRzsBftBJGJFxEgFKRoTpNiZW6c65IQq8GGk
-         j6HlWXd5i+DlBpm96IU5SHun8X3O7l6JDone+DB9ZTuWpt+mmlwRX3lowKjKXJgnT2
-         R4kxrITauEugrMxk4J2dKq1wLEFoWFzx4FbCttuQ=
+        b=iOcZCdscbhuD3E4zkmABmKBvZI6GieHrfcA9NzW+Ez/Az8yJf0f+HRq2SAH4qFdjC
+         NLuTyISE+rW14KX75ier5RDomJyaL2p27xwYU0/M1otFgRLgM1Z3aczjWW8SQHq6wr
+         kh0s1pPwkJ+FoZkZRZc+kCqylvSMMHtmO+yoH8sU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Casey Chen <cachen@purestorage.com>,
-        Keith Busch <kbusch@kernel.org>,
-        Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>,
-        Yuanyuan Zhong <yzhong@purestorage.com>
-Subject: [PATCH 5.13 11/22] nvme-pci: fix multiple races in nvme_setup_io_queues
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        "Leizhen (ThunderTown)" <thunder.leizhen@huawei.com>,
+        "Darrick J. Wong" <djwong@kernel.org>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 22/24] iomap: remove the length variable in iomap_seek_hole
 Date:   Thu, 29 Jul 2021 15:54:42 +0200
-Message-Id: <20210729135137.691986338@linuxfoundation.org>
+Message-Id: <20210729135137.956388064@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210729135137.336097792@linuxfoundation.org>
-References: <20210729135137.336097792@linuxfoundation.org>
+In-Reply-To: <20210729135137.267680390@linuxfoundation.org>
+References: <20210729135137.267680390@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,222 +42,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Casey Chen <cachen@purestorage.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit e4b9852a0f4afe40604afb442e3af4452722050a ]
+[ Upstream commit 49694d14ff68fa4b5f86019dbcfb44a8bd213e58 ]
 
-Below two paths could overlap each other if we power off a drive quickly
-after powering it on. There are multiple races in nvme_setup_io_queues()
-because of shutdown_lock missing and improper use of NVMEQ_ENABLED bit.
+The length variable is rather pointless given that it can be trivially
+deduced from offset and size.  Also the initial calculation can lead
+to KASAN warnings.
 
-nvme_reset_work()                                nvme_remove()
-  nvme_setup_io_queues()                           nvme_dev_disable()
-  ...                                              ...
-A1  clear NVMEQ_ENABLED bit for admin queue          lock
-    retry:                                       B1  nvme_suspend_io_queues()
-A2    pci_free_irq() admin queue                 B2  nvme_suspend_queue() admin queue
-A3    pci_free_irq_vectors()                         nvme_pci_disable()
-A4    nvme_setup_irqs();                         B3    pci_free_irq_vectors()
-      ...                                            unlock
-A5    queue_request_irq() for admin queue
-      set NVMEQ_ENABLED bit
-      ...
-      nvme_create_io_queues()
-A6      result = queue_request_irq();
-        set NVMEQ_ENABLED bit
-      ...
-      fail to allocate enough IO queues:
-A7      nvme_suspend_io_queues()
-        goto retry
-
-If B3 runs in between A1 and A2, it will crash if irqaction haven't
-been freed by A2. B2 is supposed to free admin queue IRQ but it simply
-can't fulfill the job as A1 has cleared NVMEQ_ENABLED bit.
-
-Fix: combine A1 A2 so IRQ get freed as soon as the NVMEQ_ENABLED bit
-gets cleared.
-
-After solved #1, A2 could race with B3 if A2 is freeing IRQ while B3
-is checking irqaction. A3 also could race with B2 if B2 is freeing
-IRQ while A3 is checking irqaction.
-
-Fix: A2 and A3 take lock for mutual exclusion.
-
-A3 could race with B3 since they could run free_msi_irqs() in parallel.
-
-Fix: A3 takes lock for mutual exclusion.
-
-A4 could fail to allocate all needed IRQ vectors if A3 and A4 are
-interrupted by B3.
-
-Fix: A4 takes lock for mutual exclusion.
-
-If A5/A6 happened after B2/B1, B3 will crash since irqaction is not NULL.
-They are just allocated by A5/A6.
-
-Fix: Lock queue_request_irq() and setting of NVMEQ_ENABLED bit.
-
-A7 could get chance to pci_free_irq() for certain IO queue while B3 is
-checking irqaction.
-
-Fix: A7 takes lock.
-
-nvme_dev->online_queues need to be protected by shutdown_lock. Since it
-is not atomic, both paths could modify it using its own copy.
-
-Co-developed-by: Yuanyuan Zhong <yzhong@purestorage.com>
-Signed-off-by: Casey Chen <cachen@purestorage.com>
-Reviewed-by: Keith Busch <kbusch@kernel.org>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reported-by: Leizhen (ThunderTown) <thunder.leizhen@huawei.com>
+Reviewed-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: Darrick J. Wong <djwong@kernel.org>
+Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/pci.c | 66 ++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 58 insertions(+), 8 deletions(-)
+ fs/iomap/seek.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index fb1c5ae0da39..d963f25fc7ae 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -1562,6 +1562,28 @@ static void nvme_init_queue(struct nvme_queue *nvmeq, u16 qid)
- 	wmb(); /* ensure the first interrupt sees the initialization */
- }
- 
-+/*
-+ * Try getting shutdown_lock while setting up IO queues.
-+ */
-+static int nvme_setup_io_queues_trylock(struct nvme_dev *dev)
-+{
-+	/*
-+	 * Give up if the lock is being held by nvme_dev_disable.
-+	 */
-+	if (!mutex_trylock(&dev->shutdown_lock))
-+		return -ENODEV;
-+
-+	/*
-+	 * Controller is in wrong state, fail early.
-+	 */
-+	if (dev->ctrl.state != NVME_CTRL_CONNECTING) {
-+		mutex_unlock(&dev->shutdown_lock);
-+		return -ENODEV;
-+	}
-+
-+	return 0;
-+}
-+
- static int nvme_create_queue(struct nvme_queue *nvmeq, int qid, bool polled)
+diff --git a/fs/iomap/seek.c b/fs/iomap/seek.c
+index 271edcc84a28..220c306167f7 100644
+--- a/fs/iomap/seek.c
++++ b/fs/iomap/seek.c
+@@ -140,23 +140,20 @@ loff_t
+ iomap_seek_hole(struct inode *inode, loff_t offset, const struct iomap_ops *ops)
  {
- 	struct nvme_dev *dev = nvmeq->dev;
-@@ -1590,8 +1612,11 @@ static int nvme_create_queue(struct nvme_queue *nvmeq, int qid, bool polled)
- 		goto release_cq;
+ 	loff_t size = i_size_read(inode);
+-	loff_t length = size - offset;
+ 	loff_t ret;
  
- 	nvmeq->cq_vector = vector;
--	nvme_init_queue(nvmeq, qid);
+ 	/* Nothing to be found before or beyond the end of the file. */
+ 	if (offset < 0 || offset >= size)
+ 		return -ENXIO;
  
-+	result = nvme_setup_io_queues_trylock(dev);
-+	if (result)
-+		return result;
-+	nvme_init_queue(nvmeq, qid);
- 	if (!polled) {
- 		result = queue_request_irq(nvmeq);
- 		if (result < 0)
-@@ -1599,10 +1624,12 @@ static int nvme_create_queue(struct nvme_queue *nvmeq, int qid, bool polled)
- 	}
- 
- 	set_bit(NVMEQ_ENABLED, &nvmeq->flags);
-+	mutex_unlock(&dev->shutdown_lock);
- 	return result;
- 
- release_sq:
- 	dev->online_queues--;
-+	mutex_unlock(&dev->shutdown_lock);
- 	adapter_delete_sq(dev, qid);
- release_cq:
- 	adapter_delete_cq(dev, qid);
-@@ -2176,7 +2203,18 @@ static int nvme_setup_io_queues(struct nvme_dev *dev)
- 	if (nr_io_queues == 0)
- 		return 0;
- 
--	clear_bit(NVMEQ_ENABLED, &adminq->flags);
-+	/*
-+	 * Free IRQ resources as soon as NVMEQ_ENABLED bit transitions
-+	 * from set to unset. If there is a window to it is truely freed,
-+	 * pci_free_irq_vectors() jumping into this window will crash.
-+	 * And take lock to avoid racing with pci_free_irq_vectors() in
-+	 * nvme_dev_disable() path.
-+	 */
-+	result = nvme_setup_io_queues_trylock(dev);
-+	if (result)
-+		return result;
-+	if (test_and_clear_bit(NVMEQ_ENABLED, &adminq->flags))
-+		pci_free_irq(pdev, 0, adminq);
- 
- 	if (dev->cmb_use_sqes) {
- 		result = nvme_cmb_qdepth(dev, nr_io_queues,
-@@ -2192,14 +2230,17 @@ static int nvme_setup_io_queues(struct nvme_dev *dev)
- 		result = nvme_remap_bar(dev, size);
- 		if (!result)
+-	while (length > 0) {
+-		ret = iomap_apply(inode, offset, length, IOMAP_REPORT, ops,
+-				  &offset, iomap_seek_hole_actor);
++	while (offset < size) {
++		ret = iomap_apply(inode, offset, size - offset, IOMAP_REPORT,
++				  ops, &offset, iomap_seek_hole_actor);
+ 		if (ret < 0)
+ 			return ret;
+ 		if (ret == 0)
  			break;
--		if (!--nr_io_queues)
--			return -ENOMEM;
-+		if (!--nr_io_queues) {
-+			result = -ENOMEM;
-+			goto out_unlock;
-+		}
- 	} while (1);
- 	adminq->q_db = dev->dbs;
- 
-  retry:
- 	/* Deregister the admin queue's interrupt */
--	pci_free_irq(pdev, 0, adminq);
-+	if (test_and_clear_bit(NVMEQ_ENABLED, &adminq->flags))
-+		pci_free_irq(pdev, 0, adminq);
- 
- 	/*
- 	 * If we enable msix early due to not intx, disable it again before
-@@ -2208,8 +2249,10 @@ static int nvme_setup_io_queues(struct nvme_dev *dev)
- 	pci_free_irq_vectors(pdev);
- 
- 	result = nvme_setup_irqs(dev, nr_io_queues);
--	if (result <= 0)
--		return -EIO;
-+	if (result <= 0) {
-+		result = -EIO;
-+		goto out_unlock;
-+	}
- 
- 	dev->num_vecs = result;
- 	result = max(result - 1, 1);
-@@ -2223,8 +2266,9 @@ static int nvme_setup_io_queues(struct nvme_dev *dev)
- 	 */
- 	result = queue_request_irq(adminq);
- 	if (result)
--		return result;
-+		goto out_unlock;
- 	set_bit(NVMEQ_ENABLED, &adminq->flags);
-+	mutex_unlock(&dev->shutdown_lock);
- 
- 	result = nvme_create_io_queues(dev);
- 	if (result || dev->online_queues < 2)
-@@ -2233,6 +2277,9 @@ static int nvme_setup_io_queues(struct nvme_dev *dev)
- 	if (dev->online_queues - 1 < dev->max_qid) {
- 		nr_io_queues = dev->online_queues - 1;
- 		nvme_disable_io_queues(dev);
-+		result = nvme_setup_io_queues_trylock(dev);
-+		if (result)
-+			return result;
- 		nvme_suspend_io_queues(dev);
- 		goto retry;
+-
+ 		offset += ret;
+-		length -= ret;
  	}
-@@ -2241,6 +2288,9 @@ static int nvme_setup_io_queues(struct nvme_dev *dev)
- 					dev->io_queues[HCTX_TYPE_READ],
- 					dev->io_queues[HCTX_TYPE_POLL]);
- 	return 0;
-+out_unlock:
-+	mutex_unlock(&dev->shutdown_lock);
-+	return result;
- }
  
- static void nvme_del_queue_end(struct request *req, blk_status_t error)
+ 	return offset;
 -- 
 2.30.2
 
