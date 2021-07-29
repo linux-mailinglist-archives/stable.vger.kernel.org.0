@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EBB13DA558
-	for <lists+stable@lfdr.de>; Thu, 29 Jul 2021 16:00:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 495013DA539
+	for <lists+stable@lfdr.de>; Thu, 29 Jul 2021 15:59:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238329AbhG2OAb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Jul 2021 10:00:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49148 "EHLO mail.kernel.org"
+        id S238148AbhG2N7U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Jul 2021 09:59:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238269AbhG2N7A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Jul 2021 09:59:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E87860F5C;
-        Thu, 29 Jul 2021 13:58:56 +0000 (UTC)
+        id S238237AbhG2N62 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Jul 2021 09:58:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 622AF60EBC;
+        Thu, 29 Jul 2021 13:58:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627567136;
-        bh=FKrrQ8Gi30RvCs3YOeBpr+NloAzApquSZOvPnNgVdIk=;
+        s=korg; t=1627567105;
+        bh=EN23vqeUyFQKL/fSjyJOpav1qRy5l+MKE1zie0Pd8QY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r7TGlZsScDcqJs7P2aAjrEl0IfUf/gpUHqdYBCF4u7VEE4K9FtrLy4GVT1yn6kUY3
-         Hrub3+kb8NTS1SCucgVcgvS0bvq1ZSQapmHOg6IJm2u2lTtyTsldqUV57nBlI7oze9
-         EkGfKk1Vfw4fwQ/egwCpNku/6w5+pVs2kE+KCa+0=
+        b=LAp885ZxGHZfz8uNrGYcvQ3T0VPe8N9SGXe3C80esMoOF6S5lQwplqQcl9GIlqNvW
+         Y1y0JiPgBfMrVYRj7SStAluDwxrHTyG+9uVGZ0xlHPPUCJljijBYp6XjqiDRYu1vvo
+         8qKIT7IYp4gTv8tl7eoAsmO9WE2GzCJlIOeVEHfg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        "Leizhen (ThunderTown)" <thunder.leizhen@huawei.com>,
+        "Darrick J. Wong" <djwong@kernel.org>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 10/22] ipv6: allocate enough headroom in ip6_finish_output2()
+Subject: [PATCH 5.10 21/24] iomap: remove the length variable in iomap_seek_data
 Date:   Thu, 29 Jul 2021 15:54:41 +0200
-Message-Id: <20210729135137.662440746@linuxfoundation.org>
+Message-Id: <20210729135137.925878051@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210729135137.336097792@linuxfoundation.org>
-References: <20210729135137.336097792@linuxfoundation.org>
+In-Reply-To: <20210729135137.267680390@linuxfoundation.org>
+References: <20210729135137.267680390@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,94 +42,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit 5796015fa968a3349027a27dcd04c71d95c53ba5 ]
+[ Upstream commit 3ac1d426510f97ace05093ae9f2f710d9cbe6215 ]
 
-When TEE target mirrors traffic to another interface, sk_buff may
-not have enough headroom to be processed correctly.
-ip_finish_output2() detect this situation for ipv4 and allocates
-new skb with enogh headroom. However ipv6 lacks this logic in
-ip_finish_output2 and it leads to skb_under_panic:
+The length variable is rather pointless given that it can be trivially
+deduced from offset and size.  Also the initial calculation can lead
+to KASAN warnings.
 
- skbuff: skb_under_panic: text:ffffffffc0866ad4 len:96 put:24
- head:ffff97be85e31800 data:ffff97be85e317f8 tail:0x58 end:0xc0 dev:gre0
- ------------[ cut here ]------------
- kernel BUG at net/core/skbuff.c:110!
- invalid opcode: 0000 [#1] SMP PTI
- CPU: 2 PID: 393 Comm: kworker/2:2 Tainted: G           OE     5.13.0 #13
- Hardware name: Virtuozzo KVM, BIOS 1.11.0-2.vz7.4 04/01/2014
- Workqueue: ipv6_addrconf addrconf_dad_work
- RIP: 0010:skb_panic+0x48/0x4a
- Call Trace:
-  skb_push.cold.111+0x10/0x10
-  ipgre_header+0x24/0xf0 [ip_gre]
-  neigh_connected_output+0xae/0xf0
-  ip6_finish_output2+0x1a8/0x5a0
-  ip6_output+0x5c/0x110
-  nf_dup_ipv6+0x158/0x1000 [nf_dup_ipv6]
-  tee_tg6+0x2e/0x40 [xt_TEE]
-  ip6t_do_table+0x294/0x470 [ip6_tables]
-  nf_hook_slow+0x44/0xc0
-  nf_hook.constprop.34+0x72/0xe0
-  ndisc_send_skb+0x20d/0x2e0
-  ndisc_send_ns+0xd1/0x210
-  addrconf_dad_work+0x3c8/0x540
-  process_one_work+0x1d1/0x370
-  worker_thread+0x30/0x390
-  kthread+0x116/0x130
-  ret_from_fork+0x22/0x30
-
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reported-by: Leizhen (ThunderTown) <thunder.leizhen@huawei.com>
+Reviewed-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: Darrick J. Wong <djwong@kernel.org>
+Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/ip6_output.c | 28 ++++++++++++++++++++++++++++
- 1 file changed, 28 insertions(+)
+ fs/iomap/seek.c | 16 ++++++----------
+ 1 file changed, 6 insertions(+), 10 deletions(-)
 
-diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
-index b7ffb4f227a4..b05f3f0da3a6 100644
---- a/net/ipv6/ip6_output.c
-+++ b/net/ipv6/ip6_output.c
-@@ -60,10 +60,38 @@ static int ip6_finish_output2(struct net *net, struct sock *sk, struct sk_buff *
+diff --git a/fs/iomap/seek.c b/fs/iomap/seek.c
+index 107ee80c3568..271edcc84a28 100644
+--- a/fs/iomap/seek.c
++++ b/fs/iomap/seek.c
+@@ -186,27 +186,23 @@ loff_t
+ iomap_seek_data(struct inode *inode, loff_t offset, const struct iomap_ops *ops)
  {
- 	struct dst_entry *dst = skb_dst(skb);
- 	struct net_device *dev = dst->dev;
-+	unsigned int hh_len = LL_RESERVED_SPACE(dev);
-+	int delta = hh_len - skb_headroom(skb);
- 	const struct in6_addr *nexthop;
- 	struct neighbour *neigh;
- 	int ret;
+ 	loff_t size = i_size_read(inode);
+-	loff_t length = size - offset;
+ 	loff_t ret;
  
-+	/* Be paranoid, rather than too clever. */
-+	if (unlikely(delta > 0) && dev->header_ops) {
-+		/* pskb_expand_head() might crash, if skb is shared */
-+		if (skb_shared(skb)) {
-+			struct sk_buff *nskb = skb_clone(skb, GFP_ATOMIC);
-+
-+			if (likely(nskb)) {
-+				if (skb->sk)
-+					skb_set_owner_w(skb, skb->sk);
-+				consume_skb(skb);
-+			} else {
-+				kfree_skb(skb);
-+			}
-+			skb = nskb;
-+		}
-+		if (skb &&
-+		    pskb_expand_head(skb, SKB_DATA_ALIGN(delta), 0, GFP_ATOMIC)) {
-+			kfree_skb(skb);
-+			skb = NULL;
-+		}
-+		if (!skb) {
-+			IP6_INC_STATS(net, ip6_dst_idev(dst), IPSTATS_MIB_OUTDISCARDS);
-+			return -ENOMEM;
-+		}
-+	}
-+
- 	if (ipv6_addr_is_multicast(&ipv6_hdr(skb)->daddr)) {
- 		struct inet6_dev *idev = ip6_dst_idev(skb_dst(skb));
+ 	/* Nothing to be found before or beyond the end of the file. */
+ 	if (offset < 0 || offset >= size)
+ 		return -ENXIO;
  
+-	while (length > 0) {
+-		ret = iomap_apply(inode, offset, length, IOMAP_REPORT, ops,
+-				  &offset, iomap_seek_data_actor);
++	while (offset < size) {
++		ret = iomap_apply(inode, offset, size - offset, IOMAP_REPORT,
++				  ops, &offset, iomap_seek_data_actor);
+ 		if (ret < 0)
+ 			return ret;
+ 		if (ret == 0)
+-			break;
+-
++			return offset;
+ 		offset += ret;
+-		length -= ret;
+ 	}
+ 
+-	if (length <= 0)
+-		return -ENXIO;
+-	return offset;
++	/* We've reached the end of the file without finding data */
++	return -ENXIO;
+ }
+ EXPORT_SYMBOL_GPL(iomap_seek_data);
 -- 
 2.30.2
 
