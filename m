@@ -2,189 +2,167 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 177FA3DA4E6
-	for <lists+stable@lfdr.de>; Thu, 29 Jul 2021 15:56:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 558323DA511
+	for <lists+stable@lfdr.de>; Thu, 29 Jul 2021 15:57:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238026AbhG2N4x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Jul 2021 09:56:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46716 "EHLO mail.kernel.org"
+        id S238232AbhG2N57 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Jul 2021 09:57:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47870 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237997AbhG2N4s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Jul 2021 09:56:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 94CD160EB2;
-        Thu, 29 Jul 2021 13:56:44 +0000 (UTC)
+        id S238198AbhG2N5l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Jul 2021 09:57:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C549760F4A;
+        Thu, 29 Jul 2021 13:57:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627567005;
-        bh=fJcaC7hiVepfn+gMVUskEuKKiWU4K8ICEasCdq99rYc=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=08101v+/gTCldJkosJ2MCsFveMcvLDhJ5b5/7IwKxks1//VlrXr+H7yu649jtWCIe
-         Db/2ZFsc6tVrHgznR9kqNcxsRsajxX2GjNn0O3ofQOJ0COrRfKhfSO0onOjiTwASri
-         yoR/m7aXnZ19p+TVmu0NpBs8aSgIuOWtnqlQEP7k=
+        s=korg; t=1627567058;
+        bh=iCL5HkI/sRDxKnME9GJMSwdMLwVWk5r0QJcSkAKB3Fg=;
+        h=From:To:Cc:Subject:Date:From;
+        b=RofrtwCLQpY3LAjT5cb35IGlyYSyZg+VZWaIF7EvClbp00TLgJrygoZX+6AY+LbT7
+         HXxNC6z0M57ywDjHwC5ErQGn6PKcA8rIpV3jxU1OvqYgCAbhuKZn3PzgnnP72S+8G7
+         f8UDFOYMo0DfKv3e5cyUn2TG7OhYfHGTGtYenXfE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Lai Jiangshan <jiangshanlai@gmail.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Pavel Skripkin <paskripkin@gmail.com>,
-        Tejun Heo <tj@kernel.org>
-Subject: [PATCH 4.19 06/17] workqueue: fix UAF in pwq_unbound_release_workfn()
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 5.4 00/21] 5.4.137-rc1 review
 Date:   Thu, 29 Jul 2021 15:54:07 +0200
-Message-Id: <20210729135137.463599936@linuxfoundation.org>
+Message-Id: <20210729135142.920143237@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210729135137.260993951@linuxfoundation.org>
-References: <20210729135137.260993951@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.137-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.4.137-rc1
+X-KernelTest-Deadline: 2021-07-31T13:51+00:00
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+This is the start of the stable review cycle for the 5.4.137 release.
+There are 21 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit b42b0bddcbc87b4c66f6497f66fc72d52b712aa7 upstream.
+Responses should be made by Sat, 31 Jul 2021 13:51:22 +0000.
+Anything received after that time might be too late.
 
-I got a UAF report when doing fuzz test:
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.137-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+and the diffstat can be found below.
 
-[  152.880091][ T8030] ==================================================================
-[  152.881240][ T8030] BUG: KASAN: use-after-free in pwq_unbound_release_workfn+0x50/0x190
-[  152.882442][ T8030] Read of size 4 at addr ffff88810d31bd00 by task kworker/3:2/8030
-[  152.883578][ T8030]
-[  152.883932][ T8030] CPU: 3 PID: 8030 Comm: kworker/3:2 Not tainted 5.13.0+ #249
-[  152.885014][ T8030] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
-[  152.886442][ T8030] Workqueue: events pwq_unbound_release_workfn
-[  152.887358][ T8030] Call Trace:
-[  152.887837][ T8030]  dump_stack_lvl+0x75/0x9b
-[  152.888525][ T8030]  ? pwq_unbound_release_workfn+0x50/0x190
-[  152.889371][ T8030]  print_address_description.constprop.10+0x48/0x70
-[  152.890326][ T8030]  ? pwq_unbound_release_workfn+0x50/0x190
-[  152.891163][ T8030]  ? pwq_unbound_release_workfn+0x50/0x190
-[  152.891999][ T8030]  kasan_report.cold.15+0x82/0xdb
-[  152.892740][ T8030]  ? pwq_unbound_release_workfn+0x50/0x190
-[  152.893594][ T8030]  __asan_load4+0x69/0x90
-[  152.894243][ T8030]  pwq_unbound_release_workfn+0x50/0x190
-[  152.895057][ T8030]  process_one_work+0x47b/0x890
-[  152.895778][ T8030]  worker_thread+0x5c/0x790
-[  152.896439][ T8030]  ? process_one_work+0x890/0x890
-[  152.897163][ T8030]  kthread+0x223/0x250
-[  152.897747][ T8030]  ? set_kthread_struct+0xb0/0xb0
-[  152.898471][ T8030]  ret_from_fork+0x1f/0x30
-[  152.899114][ T8030]
-[  152.899446][ T8030] Allocated by task 8884:
-[  152.900084][ T8030]  kasan_save_stack+0x21/0x50
-[  152.900769][ T8030]  __kasan_kmalloc+0x88/0xb0
-[  152.901416][ T8030]  __kmalloc+0x29c/0x460
-[  152.902014][ T8030]  alloc_workqueue+0x111/0x8e0
-[  152.902690][ T8030]  __btrfs_alloc_workqueue+0x11e/0x2a0
-[  152.903459][ T8030]  btrfs_alloc_workqueue+0x6d/0x1d0
-[  152.904198][ T8030]  scrub_workers_get+0x1e8/0x490
-[  152.904929][ T8030]  btrfs_scrub_dev+0x1b9/0x9c0
-[  152.905599][ T8030]  btrfs_ioctl+0x122c/0x4e50
-[  152.906247][ T8030]  __x64_sys_ioctl+0x137/0x190
-[  152.906916][ T8030]  do_syscall_64+0x34/0xb0
-[  152.907535][ T8030]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-[  152.908365][ T8030]
-[  152.908688][ T8030] Freed by task 8884:
-[  152.909243][ T8030]  kasan_save_stack+0x21/0x50
-[  152.909893][ T8030]  kasan_set_track+0x20/0x30
-[  152.910541][ T8030]  kasan_set_free_info+0x24/0x40
-[  152.911265][ T8030]  __kasan_slab_free+0xf7/0x140
-[  152.911964][ T8030]  kfree+0x9e/0x3d0
-[  152.912501][ T8030]  alloc_workqueue+0x7d7/0x8e0
-[  152.913182][ T8030]  __btrfs_alloc_workqueue+0x11e/0x2a0
-[  152.913949][ T8030]  btrfs_alloc_workqueue+0x6d/0x1d0
-[  152.914703][ T8030]  scrub_workers_get+0x1e8/0x490
-[  152.915402][ T8030]  btrfs_scrub_dev+0x1b9/0x9c0
-[  152.916077][ T8030]  btrfs_ioctl+0x122c/0x4e50
-[  152.916729][ T8030]  __x64_sys_ioctl+0x137/0x190
-[  152.917414][ T8030]  do_syscall_64+0x34/0xb0
-[  152.918034][ T8030]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-[  152.918872][ T8030]
-[  152.919203][ T8030] The buggy address belongs to the object at ffff88810d31bc00
-[  152.919203][ T8030]  which belongs to the cache kmalloc-512 of size 512
-[  152.921155][ T8030] The buggy address is located 256 bytes inside of
-[  152.921155][ T8030]  512-byte region [ffff88810d31bc00, ffff88810d31be00)
-[  152.922993][ T8030] The buggy address belongs to the page:
-[  152.923800][ T8030] page:ffffea000434c600 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x10d318
-[  152.925249][ T8030] head:ffffea000434c600 order:2 compound_mapcount:0 compound_pincount:0
-[  152.926399][ T8030] flags: 0x57ff00000010200(slab|head|node=1|zone=2|lastcpupid=0x7ff)
-[  152.927515][ T8030] raw: 057ff00000010200 dead000000000100 dead000000000122 ffff888009c42c80
-[  152.928716][ T8030] raw: 0000000000000000 0000000080100010 00000001ffffffff 0000000000000000
-[  152.929890][ T8030] page dumped because: kasan: bad access detected
-[  152.930759][ T8030]
-[  152.931076][ T8030] Memory state around the buggy address:
-[  152.931851][ T8030]  ffff88810d31bc00: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[  152.932967][ T8030]  ffff88810d31bc80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[  152.934068][ T8030] >ffff88810d31bd00: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[  152.935189][ T8030]                    ^
-[  152.935763][ T8030]  ffff88810d31bd80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[  152.936847][ T8030]  ffff88810d31be00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-[  152.937940][ T8030] ==================================================================
+thanks,
 
-If apply_wqattrs_prepare() fails in alloc_workqueue(), it will call put_pwq()
-which invoke a work queue to call pwq_unbound_release_workfn() and use the 'wq'.
-The 'wq' allocated in alloc_workqueue() will be freed in error path when
-apply_wqattrs_prepare() fails. So it will lead a UAF.
+greg k-h
 
-CPU0                                          CPU1
-alloc_workqueue()
-alloc_and_link_pwqs()
-apply_wqattrs_prepare() fails
-apply_wqattrs_cleanup()
-schedule_work(&pwq->unbound_release_work)
-kfree(wq)
-                                              worker_thread()
-                                              pwq_unbound_release_workfn() <- trigger uaf here
+-------------
+Pseudo-Shortlog of commits:
 
-If apply_wqattrs_prepare() fails, the new pwq are not linked, it doesn't
-hold any reference to the 'wq', 'wq' is invalid to access in the worker,
-so add check pwq if linked to fix this.
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.4.137-rc1
 
-Fixes: 2d5f0764b526 ("workqueue: split apply_workqueue_attrs() into 3 stages")
-Cc: stable@vger.kernel.org # v4.2+
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Suggested-by: Lai Jiangshan <jiangshanlai@gmail.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Lai Jiangshan <jiangshanlai@gmail.com>
-Tested-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- kernel/workqueue.c |   20 +++++++++++++-------
- 1 file changed, 13 insertions(+), 7 deletions(-)
+Vasily Averin <vvs@virtuozzo.com>
+    ipv6: ip6_finish_output2: set sk into newly allocated nskb
 
---- a/kernel/workqueue.c
-+++ b/kernel/workqueue.c
-@@ -3498,15 +3498,21 @@ static void pwq_unbound_release_workfn(s
- 						  unbound_release_work);
- 	struct workqueue_struct *wq = pwq->wq;
- 	struct worker_pool *pool = pwq->pool;
--	bool is_last;
-+	bool is_last = false;
- 
--	if (WARN_ON_ONCE(!(wq->flags & WQ_UNBOUND)))
--		return;
-+	/*
-+	 * when @pwq is not linked, it doesn't hold any reference to the
-+	 * @wq, and @wq is invalid to access.
-+	 */
-+	if (!list_empty(&pwq->pwqs_node)) {
-+		if (WARN_ON_ONCE(!(wq->flags & WQ_UNBOUND)))
-+			return;
- 
--	mutex_lock(&wq->mutex);
--	list_del_rcu(&pwq->pwqs_node);
--	is_last = list_empty(&wq->pwqs);
--	mutex_unlock(&wq->mutex);
-+		mutex_lock(&wq->mutex);
-+		list_del_rcu(&pwq->pwqs_node);
-+		is_last = list_empty(&wq->pwqs);
-+		mutex_unlock(&wq->mutex);
-+	}
- 
- 	mutex_lock(&wq_pool_mutex);
- 	put_unbound_pool(pool);
+Sudeep Holla <sudeep.holla@arm.com>
+    ARM: dts: versatile: Fix up interrupt controller node names
+
+Christoph Hellwig <hch@lst.de>
+    iomap: remove the length variable in iomap_seek_hole
+
+Christoph Hellwig <hch@lst.de>
+    iomap: remove the length variable in iomap_seek_data
+
+Hyunchul Lee <hyc.lee@gmail.com>
+    cifs: fix the out of range assignment to bit fields in parse_server_interfaces
+
+Cristian Marussi <cristian.marussi@arm.com>
+    firmware: arm_scmi: Fix range check for the maximum number of pending messages
+
+Sudeep Holla <sudeep.holla@arm.com>
+    firmware: arm_scmi: Fix possible scmi_linux_errmap buffer overflow
+
+Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+    hfs: add lock nesting notation to hfs_find_init
+
+Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+    hfs: fix high memory mapping in hfs_bnode_read
+
+Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+    hfs: add missing clean-up in hfs_fill_super
+
+Vasily Averin <vvs@virtuozzo.com>
+    ipv6: allocate enough headroom in ip6_finish_output2()
+
+Xin Long <lucien.xin@gmail.com>
+    sctp: move 198 addresses from unusable to private scope
+
+Eric Dumazet <edumazet@google.com>
+    net: annotate data race around sk_ll_usec
+
+Yang Yingliang <yangyingliang@huawei.com>
+    net/802/garp: fix memleak in garp_request_join()
+
+Yang Yingliang <yangyingliang@huawei.com>
+    net/802/mrp: fix memleak in mrp_request_join()
+
+Paul Gortmaker <paul.gortmaker@windriver.com>
+    cgroup1: fix leaked context root causing sporadic NULL deref in LTP
+
+Yang Yingliang <yangyingliang@huawei.com>
+    workqueue: fix UAF in pwq_unbound_release_workfn()
+
+Miklos Szeredi <mszeredi@redhat.com>
+    af_unix: fix garbage collect vs MSG_PEEK
+
+Maxim Levitsky <mlevitsk@redhat.com>
+    KVM: x86: determine if an exception has an error code only when injecting it.
+
+Yonghong Song <yhs@fb.com>
+    tools: Allow proper CC/CXX/... override with LLVM=1 in Makefile.include
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    selftest: fix build error in tools/testing/selftests/vm/userfaultfd.c
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                 |  4 +--
+ arch/arm/boot/dts/versatile-ab.dts       |  5 ++--
+ arch/arm/boot/dts/versatile-pb.dts       |  2 +-
+ arch/x86/kvm/x86.c                       | 13 +++++---
+ drivers/firmware/arm_scmi/driver.c       | 12 ++++----
+ fs/cifs/smb2ops.c                        |  4 +--
+ fs/hfs/bfind.c                           | 14 ++++++++-
+ fs/hfs/bnode.c                           | 25 ++++++++++++----
+ fs/hfs/btree.h                           |  7 +++++
+ fs/hfs/super.c                           | 10 +++----
+ fs/internal.h                            |  1 -
+ fs/iomap/seek.c                          | 25 ++++++----------
+ include/linux/fs_context.h               |  1 +
+ include/net/busy_poll.h                  |  2 +-
+ include/net/sctp/constants.h             |  4 +--
+ kernel/cgroup/cgroup-v1.c                |  4 +--
+ kernel/workqueue.c                       | 20 ++++++++-----
+ net/802/garp.c                           | 14 +++++++++
+ net/802/mrp.c                            | 14 +++++++++
+ net/core/sock.c                          |  2 +-
+ net/ipv6/ip6_output.c                    | 28 ++++++++++++++++++
+ net/sctp/protocol.c                      |  3 +-
+ net/unix/af_unix.c                       | 51 ++++++++++++++++++++++++++++++--
+ tools/scripts/Makefile.include           | 12 ++++++--
+ tools/testing/selftests/vm/userfaultfd.c |  2 +-
+ 25 files changed, 213 insertions(+), 66 deletions(-)
 
 
