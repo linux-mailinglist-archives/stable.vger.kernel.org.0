@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BC923DA520
-	for <lists+stable@lfdr.de>; Thu, 29 Jul 2021 15:58:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D08AE3DA538
+	for <lists+stable@lfdr.de>; Thu, 29 Jul 2021 15:59:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237975AbhG2N6U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Jul 2021 09:58:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48544 "EHLO mail.kernel.org"
+        id S238467AbhG2N7U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Jul 2021 09:59:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238289AbhG2N54 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Jul 2021 09:57:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8780E61019;
-        Thu, 29 Jul 2021 13:57:52 +0000 (UTC)
+        id S238425AbhG2N6X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Jul 2021 09:58:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5240761019;
+        Thu, 29 Jul 2021 13:58:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627567073;
-        bh=vnuB0YMTDTV4aN/s0lEZdXViNcICe+fh86uUv3TAXbo=;
+        s=korg; t=1627567099;
+        bh=6bDxJbptT1U1JLaiy0NDMKZe5KA7OH27FqhYrY53oD0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C3lBLIFosCmqkVg62b8qLBI4UiElN4BJmTzSqoOV3owMC5bsPzbGYbxyyNuZ99sYc
-         Pj7cUWIsf3srNstrmPUIv6ybpnRrgLLx0nHxiNAqJDIw4m+poS7ogB0+maI42yso5x
-         9NlCgsQ1Xm/SuyqhPN+FWg1W1wi0l1Nsg0reQLpI=
+        b=rZCGavLuNFg4gx3LYB5UFWXPelL+Z0KKiQgYBGtjEz6yjUaClHqGtqhYltp1lajwF
+         Ybr7FNktd/StQ9GiTZe76n+oRS0wPvvZw72XVRWyS8eEVdnewUH4BzVSUI2vUkUkUd
+         PC7YeJrEB0xLXvIZKNO3tQC8lO9gO0MjGM52Ok6A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yonghong Song <yhs@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Anders Roxell <anders.roxell@linaro.org>
-Subject: [PATCH 5.10 01/24] tools: Allow proper CC/CXX/... override with LLVM=1 in Makefile.include
-Date:   Thu, 29 Jul 2021 15:54:21 +0200
-Message-Id: <20210729135137.312664710@linuxfoundation.org>
+        syzbot+a2910119328ce8e7996f@syzkaller.appspotmail.com,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
+Subject: [PATCH 5.10 02/24] [PATCH] io_uring: fix link timeout refs
+Date:   Thu, 29 Jul 2021 15:54:22 +0200
+Message-Id: <20210729135137.342673263@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210729135137.267680390@linuxfoundation.org>
 References: <20210729135137.267680390@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -42,62 +41,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yonghong Song <yhs@fb.com>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-commit f62700ce63a315b4607cc9e97aa15ea409a677b9 upstream.
+[ Upstream commit a298232ee6b9a1d5d732aa497ff8be0d45b5bd82 ]
 
-selftests/bpf/Makefile includes tools/scripts/Makefile.include.
-With the following command
-  make -j60 LLVM=1 LLVM_IAS=1  <=== compile kernel
-  make -j60 -C tools/testing/selftests/bpf LLVM=1 LLVM_IAS=1 V=1
-some files are still compiled with gcc. This patch
-fixed the case if CC/AR/LD/CXX/STRIP is allowed to be
-overridden, it will be written to clang/llvm-ar/..., instead of
-gcc binaries. The definition of CC_NO_CLANG is also relocated
-to the place after the above CC is defined.
+WARNING: CPU: 0 PID: 10242 at lib/refcount.c:28 refcount_warn_saturate+0x15b/0x1a0 lib/refcount.c:28
+RIP: 0010:refcount_warn_saturate+0x15b/0x1a0 lib/refcount.c:28
+Call Trace:
+ __refcount_sub_and_test include/linux/refcount.h:283 [inline]
+ __refcount_dec_and_test include/linux/refcount.h:315 [inline]
+ refcount_dec_and_test include/linux/refcount.h:333 [inline]
+ io_put_req fs/io_uring.c:2140 [inline]
+ io_queue_linked_timeout fs/io_uring.c:6300 [inline]
+ __io_queue_sqe+0xbef/0xec0 fs/io_uring.c:6354
+ io_submit_sqe fs/io_uring.c:6534 [inline]
+ io_submit_sqes+0x2bbd/0x7c50 fs/io_uring.c:6660
+ __do_sys_io_uring_enter fs/io_uring.c:9240 [inline]
+ __se_sys_io_uring_enter+0x256/0x1d60 fs/io_uring.c:9182
 
-Signed-off-by: Yonghong Song <yhs@fb.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20210413153419.3028165-1-yhs@fb.com
-Cc: Anders Roxell <anders.roxell@linaro.org>
+io_link_timeout_fn() should put only one reference of the linked timeout
+request, however in case of racing with the master request's completion
+first io_req_complete() puts one and then io_put_req_deferred() is
+called.
+
+Cc: stable@vger.kernel.org # 5.12+
+Fixes: 9ae1f8dd372e0 ("io_uring: fix inconsistent lock state")
+Reported-by: syzbot+a2910119328ce8e7996f@syzkaller.appspotmail.com
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/r/ff51018ff29de5ffa76f09273ef48cb24c720368.1620417627.git.asml.silence@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/scripts/Makefile.include |   12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ fs/io_uring.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/tools/scripts/Makefile.include
-+++ b/tools/scripts/Makefile.include
-@@ -39,8 +39,6 @@ EXTRA_WARNINGS += -Wundef
- EXTRA_WARNINGS += -Wwrite-strings
- EXTRA_WARNINGS += -Wformat
- 
--CC_NO_CLANG := $(shell $(CC) -dM -E -x c /dev/null | grep -Fq "__clang__"; echo $$?)
--
- # Makefiles suck: This macro sets a default value of $(2) for the
- # variable named by $(1), unless the variable has been set by
- # environment or command line. This is necessary for CC and AR
-@@ -52,12 +50,22 @@ define allow-override
-     $(eval $(1) = $(2)))
- endef
- 
-+ifneq ($(LLVM),)
-+$(call allow-override,CC,clang)
-+$(call allow-override,AR,llvm-ar)
-+$(call allow-override,LD,ld.lld)
-+$(call allow-override,CXX,clang++)
-+$(call allow-override,STRIP,llvm-strip)
-+else
- # Allow setting various cross-compile vars or setting CROSS_COMPILE as a prefix.
- $(call allow-override,CC,$(CROSS_COMPILE)gcc)
- $(call allow-override,AR,$(CROSS_COMPILE)ar)
- $(call allow-override,LD,$(CROSS_COMPILE)ld)
- $(call allow-override,CXX,$(CROSS_COMPILE)g++)
- $(call allow-override,STRIP,$(CROSS_COMPILE)strip)
-+endif
-+
-+CC_NO_CLANG := $(shell $(CC) -dM -E -x c /dev/null | grep -Fq "__clang__"; echo $$?)
- 
- ifneq ($(LLVM),)
- HOSTAR  ?= llvm-ar
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -6266,7 +6266,6 @@ static enum hrtimer_restart io_link_time
+ 	if (prev) {
+ 		io_async_find_and_cancel(ctx, req, prev->user_data, -ETIME);
+ 		io_put_req_deferred(prev, 1);
+-		io_put_req_deferred(req, 1);
+ 	} else {
+ 		io_cqring_add_event(req, -ETIME, 0);
+ 		io_put_req_deferred(req, 1);
 
 
