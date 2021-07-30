@@ -2,151 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D50293DB793
-	for <lists+stable@lfdr.de>; Fri, 30 Jul 2021 13:06:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 602B43DB7A6
+	for <lists+stable@lfdr.de>; Fri, 30 Jul 2021 13:15:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238568AbhG3LGr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Jul 2021 07:06:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59316 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238602AbhG3LGq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 30 Jul 2021 07:06:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AA1BE60EFF;
-        Fri, 30 Jul 2021 11:06:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627643202;
-        bh=+cH5drkkScA/bKsKgR5Ozh1qGjbcH9rb5ZOBWyPff9U=;
-        h=Subject:To:From:Date:From;
-        b=emFS7q0RruKXp2CZRSqyJkTW6mtXQk9IyPjSjqrtPhvQSDCbbh2aF0s8yOR7C346V
-         mLL9HFaXinI1gY0jvCa0qSqub5uML0r/UzB1D9G4+6Yjth83LL9yPkFZaKFg2QyWrN
-         Cg1EqxExPMjXKKcDU/U3ViD6lohxKTanTBVuRivM=
-Subject: patch "serial: 8250_pci: Avoid irq sharing for MSI(-X) interrupts." added to tty-linus
-To:     mario.kleiner.de@gmail.com, andy.shevchenko@gmail.com,
-        gregkh@linuxfoundation.org, ralf.ramsauer@oth-regensburg.de,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 30 Jul 2021 13:06:39 +0200
-Message-ID: <162764319918594@kroah.com>
+        id S230157AbhG3LPW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Jul 2021 07:15:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47846 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238403AbhG3LPW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 30 Jul 2021 07:15:22 -0400
+Received: from mail-wm1-x32a.google.com (mail-wm1-x32a.google.com [IPv6:2a00:1450:4864:20::32a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEA54C061765
+        for <stable@vger.kernel.org>; Fri, 30 Jul 2021 04:15:16 -0700 (PDT)
+Received: by mail-wm1-x32a.google.com with SMTP id m20-20020a05600c4f54b029024e75a15716so6150489wmq.2
+        for <stable@vger.kernel.org>; Fri, 30 Jul 2021 04:15:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:subject:to:cc:references:message-id:date:user-agent
+         :mime-version:in-reply-to:content-transfer-encoding:content-language;
+        bh=OU8qXUqqKAFOyFA5tQd0rObl29gMPArhi8rvRuKwPE4=;
+        b=L2rTxClAjjr063XV7f1Ov9xNxKa+RADAi6fRy1NFCLbqtdEZdHkMlZoyFFXtMeWqVj
+         YME0TSap5plenvCBYHGdqhNkJrP3LuN/4sGdg4+z4eT/SvSeBHv3yOdm/ZiwDV/wMVbs
+         NLAjYzAPzIAP2TleouvoSZ3/qm645U/OM9zOmP2gyEnKHcdta9tMZI62vN7RpyDTl5TB
+         zEtBjK2Nu2htZAnuOOr039tsFXRSHkEBNfel+lp2zL53Y2DwUqtgrT3aWcpnk3TpUuDb
+         ngNBxRo8R34PnG3hb+QzyGNDwZQOEQ9Y33hqLKq3+fjczvZtjzYA/o5j5wh9aMhZ/PRg
+         lmvg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:subject:to:cc:references:message-id:date
+         :user-agent:mime-version:in-reply-to:content-transfer-encoding
+         :content-language;
+        bh=OU8qXUqqKAFOyFA5tQd0rObl29gMPArhi8rvRuKwPE4=;
+        b=sDwrQWkwRjI9IktPEXC1AGsxgoWdU3nRzNQmPs4jIlgE7kLYTPyYAD9gJp4h58vlte
+         +EKnJxWVruAOtXiSm8QTK0aF0LND5joEZQUzg3d48oq34bRyaaZHDtr07gP52cWpnu22
+         FIEpgK9a4GO12gDn3LGfFzl0gCdyBoSuI4OJYw6+h9mC2hrr+NV+xIyM4afYdTwRXzDV
+         kwtsJ+tRqPhqAZ7qzrOlsGihc5fmq2vN0/jTkJrTrBoANtTytWeMFjIgqspyJpYB5ZJ+
+         fErMW3wDPlR+RnFENWIWZVqP5KV0mSaPxyJ7KD+vFHi3KEA0ryE3PjERVe+MeJdVRhYu
+         q/9A==
+X-Gm-Message-State: AOAM532hbWYi/BuObY6tPB2rhuQAX64uImXUkbNNpEBZ/MRd1IIru4yX
+        YVeaXjwmfLvDKQIBtl59GGM=
+X-Google-Smtp-Source: ABdhPJx7DmqPMtPPF6ohIohQs3zsG00AegDUvivhR6iE6Ew+rdSD7kr77ZLQ3XbxHEfW05faMoKw5A==
+X-Received: by 2002:a7b:c416:: with SMTP id k22mr2452145wmi.177.1627643715047;
+        Fri, 30 Jul 2021 04:15:15 -0700 (PDT)
+Received: from [192.168.11.11] (156.133.46.217.dyn.plus.net. [217.46.133.156])
+        by smtp.googlemail.com with ESMTPSA id m9sm1397894wrz.75.2021.07.30.04.15.14
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 30 Jul 2021 04:15:14 -0700 (PDT)
+From:   Alan Young <consult.awy@gmail.com>
+Subject: Re: FAILED: patch "[PATCH] ALSA: pcm: Call substream ack() method
+ upon compat mmap" failed to apply to 5.4-stable tree
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, tiwai@suse.de
+References: <162728697013399@kroah.com>
+ <e26c27fb-12e8-f1c1-0dde-50fd68623118@gmail.com> <YQPFqOmmJCJM9Ref@kroah.com>
+Message-ID: <acb7f13d-a7bf-8820-363c-98798faa7a09@gmail.com>
+Date:   Fri, 30 Jul 2021 12:15:14 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <YQPFqOmmJCJM9Ref@kroah.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-GB
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 30/07/2021 10:26, Greg KH wrote:
+> On Fri, Jul 30, 2021 at 09:38:52AM +0100, Alan Young wrote:
+>> This commit is not applicable before the 64-bit time_t in user space with
+>> 32-bit compatibility changes introduces by
+>> 80fe7430c7085951d1246d83f638cc17e6c0be36 in 5.6.
+> That is odd, as that is not what you wrote in the patch itself:
+>
+>>      Fixes: 9027c4639ef1 ("ALSA: pcm: Call ack() whenever appl_ptr is updated")
+> So is the Fixes: tag here incorrect?
+>
+> thanks,
+>
+> greg k-h
 
-This is a note to let you know that I've just added the patch titled
+I did not add the Fixes tag. I guess Takashi Iwai did.
 
-    serial: 8250_pci: Avoid irq sharing for MSI(-X) interrupts.
+I think that 9027c4639ef1 added some functionality that was broken by 
+80fe7430c7085951 and which my patch corrects. So the Fixes: 9027c4639ef1 
+tag refers to the actual functionality, not the breaking of it.
 
-to my tty git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
-in the tty-linus branch.
+I have no idea if that is the correct usage of the Fixes tag which, as I 
+said, I did not add.
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From 341abd693d10e5f337a51f140ae3e7a1ae0febf6 Mon Sep 17 00:00:00 2001
-From: Mario Kleiner <mario.kleiner.de@gmail.com>
-Date: Thu, 29 Jul 2021 06:33:06 +0200
-Subject: serial: 8250_pci: Avoid irq sharing for MSI(-X) interrupts.
-
-This attempts to fix a bug found with a serial port card which uses
-an MCS9922 chip, one of the 4 models for which MSI-X interrupts are
-currently supported. I don't possess such a card, and i'm not
-experienced with the serial subsystem, so this patch is based on what
-i think i found as a likely reason for failure, based on walking the
-user who actually owns the card through some diagnostic.
-
-The user who reported the problem finds the following in his dmesg
-output for the relevant ttyS4 and ttyS5:
-
-[    0.580425] serial 0000:02:00.0: enabling device (0000 -> 0003)
-[    0.601448] 0000:02:00.0: ttyS4 at I/O 0x3010 (irq = 125, base_baud = 115200) is a ST16650V2
-[    0.603089] serial 0000:02:00.1: enabling device (0000 -> 0003)
-[    0.624119] 0000:02:00.1: ttyS5 at I/O 0x3000 (irq = 126, base_baud = 115200) is a ST16650V2
-...
-[    6.323784] genirq: Flags mismatch irq 128. 00000080 (ttyS5) vs. 00000000 (xhci_hcd)
-[    6.324128] genirq: Flags mismatch irq 128. 00000080 (ttyS5) vs. 00000000 (xhci_hcd)
-...
-
-Output of setserial -a:
-
-/dev/ttyS4, Line 4, UART: 16650V2, Port: 0x3010, IRQ: 127
-	Baud_base: 115200, close_delay: 50, divisor: 0
-	closing_wait: 3000
-	Flags: spd_normal skip_test
-
-This suggests to me that the serial driver wants to register and share a
-MSI/MSI-X irq 128 with the xhci_hcd driver, whereas the xhci driver does
-not want to share the irq, as flags 0x00000080 (== IRQF_SHARED) from the
-serial port driver means to share the irq, and this mismatch ends in some
-failed irq init?
-
-With this setup, data reception works very unreliable, with dropped data,
-already at a transmission rate of only a 16 Bytes chunk every 1/120th of
-a second, ie. 1920 Bytes/sec, presumably due to rx fifo overflow due to
-mishandled or not used at all rx irq's?
-
-See full discussion thread with attempted diagnosis at:
-
-https://psychtoolbox.discourse.group/t/issues-with-iscan-serial-port-recording/3886
-
-Disabling the use of MSI interrupts for the serial port pci card did
-fix the reliability problems. The user executed the following sequence
-of commands to achieve this:
-
-echo 0000:02:00.0 | sudo tee /sys/bus/pci/drivers/serial/unbind
-echo 0000:02:00.1 | sudo tee /sys/bus/pci/drivers/serial/unbind
-
-echo 0 | sudo tee /sys/bus/pci/devices/0000:02:00.0/msi_bus
-echo 0 | sudo tee /sys/bus/pci/devices/0000:02:00.1/msi_bus
-
-echo 0000:02:00.0 | sudo tee /sys/bus/pci/drivers/serial/bind
-echo 0000:02:00.1 | sudo tee /sys/bus/pci/drivers/serial/bind
-
-This resulted in the following log output:
-
-[   82.179021] pci 0000:02:00.0: MSI/MSI-X disallowed for future drivers
-[   87.003031] pci 0000:02:00.1: MSI/MSI-X disallowed for future drivers
-[   98.537010] 0000:02:00.0: ttyS4 at I/O 0x3010 (irq = 17, base_baud = 115200) is a ST16650V2
-[  103.648124] 0000:02:00.1: ttyS5 at I/O 0x3000 (irq = 18, base_baud = 115200) is a ST16650V2
-
-This patch attempts to fix the problem by disabling irq sharing when
-using MSI irq's. Note that all i know for sure is that disabling MSI
-irq's fixed the problem for the user, so this patch could be wrong and
-is untested. Please review with caution, keeping this in mind.
-
-Fixes: 8428413b1d14 ("serial: 8250_pci: Implement MSI(-X) support")
-Cc: Ralf Ramsauer <ralf.ramsauer@oth-regensburg.de>
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Mario Kleiner <mario.kleiner.de@gmail.com>
-Link: https://lore.kernel.org/r/20210729043306.18528-1-mario.kleiner.de@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/tty/serial/8250/8250_pci.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/tty/serial/8250/8250_pci.c b/drivers/tty/serial/8250/8250_pci.c
-index 02985cf90ef2..a808c283883e 100644
---- a/drivers/tty/serial/8250/8250_pci.c
-+++ b/drivers/tty/serial/8250/8250_pci.c
-@@ -4002,6 +4002,7 @@ pciserial_init_ports(struct pci_dev *dev, const struct pciserial_board *board)
- 		if (pci_match_id(pci_use_msi, dev)) {
- 			dev_dbg(&dev->dev, "Using MSI(-X) interrupts\n");
- 			pci_set_master(dev);
-+			uart.port.flags &= ~UPF_SHARE_IRQ;
- 			rc = pci_alloc_irq_vectors(dev, 1, 1, PCI_IRQ_ALL_TYPES);
- 		} else {
- 			dev_dbg(&dev->dev, "Using legacy interrupts\n");
--- 
-2.32.0
-
+Alan.
 
