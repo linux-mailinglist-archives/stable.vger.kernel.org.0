@@ -2,119 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 034EC3DB71B
-	for <lists+stable@lfdr.de>; Fri, 30 Jul 2021 12:25:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CEF693DB742
+	for <lists+stable@lfdr.de>; Fri, 30 Jul 2021 12:39:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238420AbhG3KZo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Jul 2021 06:25:44 -0400
-Received: from mail-am6eur05on2048.outbound.protection.outlook.com ([40.107.22.48]:47840
-        "EHLO EUR05-AM6-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S238368AbhG3KZn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 30 Jul 2021 06:25:43 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=dqUsAkeGfgUZHk7ea75hiqpUG7ubhsjP92s6Bv0sj+egLKPudSsDFH9s/8rBKBaprNEN46H60fRsNqynjvYhVBRIKn0+MQslHJ8Ti3znCz6LCFcAQ5ptHQ92TXQvywDMYN3Xujv7kAEMEov42E/t2MzepWEPdwjnpU36mV5idCmeFwR5LMbwZo8MWq48Li0Kmvjkxfvx1Ica3NjcPwABab8t8ffzEtvtURak30P9BwX+gPNEendsr26b7gBcezpkaYNvF3GXFGzDEL5c7CqYIYwU2PCPXYDN7t6Yh7D25SR4TxvNvkn6AiF2RmTszV6J5kAmMdsse7U3t+sAMtbbgA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=YpBb4Gmt4JUqxA5CYudIoX6SNxBPAkpKKB3y89mUsZQ=;
- b=Jo3TkWy5Uy0uvLWZWLhaDGiK0qbEjqvgHBUcfT+pn6r/mn+yfY22+ALCtdPm4F5IyR26VpnNL5Phyp6p7SjZ8I3G+UzW88RVFQuy37YgKSL938RKTjEyVWfT9yDivsL2HxgTqowcEVMmPWHm239rP/9MQYplzBVT+4mbQ8MkWoNWrfFbQucLBSeuZBOG9EksdvUQT3QldLAY7IeZjP80HX4PCZjsBaIsQeFSTC9hk8gR3f4C7v/kmzpYCt/dzwYrZyAwug1nn0todA7EfoaKs2ZF/sNJnISlfc/TQK2dNOpNnhzye0MQeQxhgYdl+OUTh7PEhWpTjYMnDascX2Y3iQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=urjc.es; dmarc=pass action=none header.from=urjc.es; dkim=pass
- header.d=urjc.es; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=urjc.onmicrosoft.com;
- s=selector2-urjc-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=YpBb4Gmt4JUqxA5CYudIoX6SNxBPAkpKKB3y89mUsZQ=;
- b=eJCW5vkG5LD0kbC3HHnnJUHi4s4MZLOlWnUTeDu772oOchSIe0MuAESC/oOS1DeNt2/l0tLBu//o9gsaTemCraOuKWjwCcFHB/3YdCQIATP/SCmAnkcZXgqoc6NOPrKxYNIxha7QvuKSXabjAmdiQXuBMjRxLSpxTrzxrwUJ1SY=
-Authentication-Results: vger.kernel.org; dkim=none (message not signed)
- header.d=none;vger.kernel.org; dmarc=none action=none header.from=urjc.es;
-Received: from DB7PR02MB4663.eurprd02.prod.outlook.com (2603:10a6:10:5c::15)
- by DB3PR0202MB3433.eurprd02.prod.outlook.com (2603:10a6:8:d::12) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4352.29; Fri, 30 Jul
- 2021 10:25:34 +0000
-Received: from DB7PR02MB4663.eurprd02.prod.outlook.com
- ([fe80::1048:a385:a5d8:1f0e]) by DB7PR02MB4663.eurprd02.prod.outlook.com
- ([fe80::1048:a385:a5d8:1f0e%7]) with mapi id 15.20.4352.035; Fri, 30 Jul 2021
- 10:25:34 +0000
-Date:   Fri, 30 Jul 2021 12:25:32 +0200
-From:   Javier Pello <javier.pello@urjc.es>
-To:     stable@vger.kernel.org
-Subject: Patch "Kernel oopses on ext2 filesystems after 782b76d7abdf"
-Message-Id: <20210730122532.6966a03a1d2e07b81486e0f4@urjc.es>
-Organization: Universidad Rey Juan Carlos
-X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.32; x86_64-unknown-linux-gnu)
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: MR2P264CA0040.FRAP264.PROD.OUTLOOK.COM (2603:10a6:500::28)
- To DB7PR02MB4663.eurprd02.prod.outlook.com (2603:10a6:10:5c::15)
+        id S238438AbhG3KjS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Jul 2021 06:39:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54408 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S238629AbhG3KjO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 30 Jul 2021 06:39:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 81E4760F6B;
+        Fri, 30 Jul 2021 10:39:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1627641549;
+        bh=3W1/+5Gzu0BlXunwr1Q1uIBfHX/3wsDCuqKH3tFcyEo=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=NDhYyZSBEpGHYr+4NC8Gd/UW2ykj8MBGL+lxBxVK17n98MnjYrb4TOkSQka+9jXBQ
+         zSU1L2BYxcjT71Jnpr4x3DjOKwQK+qfwfe+M1otNiZGJjL7d1hEe+QsE+91r70eDd0
+         WGhdxoTOFZY6KSmvKQI7BBNnS/GfcEO6Ta1iv00o=
+Date:   Fri, 30 Jul 2021 12:39:06 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     Yang Yingliang <yangyingliang@huawei.com>, stable@vger.kernel.org
+Subject: Re: [PATCH 5.10] io_uring: fix null-ptr-deref in
+ io_sq_offload_start()
+Message-ID: <YQPWyp2U7yTFwChj@kroah.com>
+References: <20210729142338.1085951-1-yangyingliang@huawei.com>
+ <85ef170c-8efe-e574-951b-81b3f8a62a31@kernel.dk>
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from mo-dep2-d036-01.escet.urjc.es (212.128.1.36) by MR2P264CA0040.FRAP264.PROD.OUTLOOK.COM (2603:10a6:500::28) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4373.17 via Frontend Transport; Fri, 30 Jul 2021 10:25:33 +0000
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 22763aa8-0065-4b2e-48dd-08d953445d59
-X-MS-TrafficTypeDiagnostic: DB3PR0202MB3433:
-X-Microsoft-Antispam-PRVS: <DB3PR0202MB343364201BC3572A24F77DD09BEC9@DB3PR0202MB3433.eurprd02.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:1923;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: +jdOLduy6jGYOD1T92aLDQoegbBknGnNUKA/WBDTnjQFacEgH312+DeufcAd0bFQ/MZFh5MbJFY+b12Wv77b9FtHVM2Sbfc2S63/nTlmGk48qH/0Pp4/sWODar8VVDxbFF5pJKAnLmctT2W88b0bjKg6PVsnLIy0sS5yJGjtQF5WFLj1AWP9Wzd++xER5H/cXlVN1xGDVA6BQGSKJdcnu2y09TyqYphvHPxBLjI6FWCljME4IoF/L+YgVTdRz82yXP6nKOfrG1sPVd367t/GWtkFNBp9CeaTnHy5WRtaT1usDZyWTfZNhquBr8zdgGJwPUveXAjeoiwhOy44GkAFTdcnifupHwehOc5JspiYaHNgu/JwsV5dgVpM96rsAy4BLxa/zz7qBpIgtbfTny8EGUpr5E+MM1y7invPSwtZvlUalfwU0t9ZwWNjMlogHWhEa4BaQzXxeXZ4C/eJz1oId+rfdd9n7gZ2idVFUaK7PEtN3majW/DLB+/UzeNd2nPoRvabmhxdUQAx04zQnNmLdISJwUOhm873u0uB0oQ5DjGeHnN7JMEo8a1CjwA1w11ALyr/nGk4Onvn5PA15TX+Uu/tvtH0Og752CaFw5uY4llROw3jW5MUvfo5pUV1+mGISobbJqZlIUEk3txODPQ4EcEBipHk2dYD8O55kApzs/CLWS1wn1hvoqV1SE47PB+lVShedyhhWpX09J4uSL4IE1kYcvAnrNv3Pi7Iv/ttnXpZ5neGP2ECenMgWJythIRxfzZgN9ooJwOJ5wlqSfehH5OK4cfgpH2cSKA0qOQ27VA=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DB7PR02MB4663.eurprd02.prod.outlook.com;PTR:;CAT:NONE;SFS:(376002)(136003)(346002)(39840400004)(366004)(396003)(36916002)(66556008)(83380400001)(44832011)(5660300002)(36756003)(8676002)(786003)(86362001)(8936002)(66476007)(38100700002)(186003)(956004)(316002)(966005)(6486002)(1076003)(66946007)(2616005)(7696005)(4744005)(38350700002)(6916009)(52116002)(26005)(2906002)(478600001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?d8lJRwzrahe7Vqu58tOpSyVSDKPS31w8eUzTCd/tn3ujqJBYTboN/Jqmv1WU?=
- =?us-ascii?Q?bld2L3+NEi6Ayx4aXQ3odeNqusc6fYjjC0C0nXtg97nmEmRhLDAGfjInh6qF?=
- =?us-ascii?Q?hONct6hHtNXmnvj9W3y7jNeONRqcfpXve5NFXjsZA/gDt+n2KI+XVrUKVhZQ?=
- =?us-ascii?Q?8xaMS4K43pit47EtH0Vm4wOhI90WoqZgb1qdgDfSyGQYZgzc9TOEtj+MM+AL?=
- =?us-ascii?Q?l2fUVAtLrJ4uMAkXDgkECKA//b/0yIcep7vazeZaW3oe3CwaTFejRqXeCTq6?=
- =?us-ascii?Q?Qa2ltW85bRT3Xgvax5rTWjCkx8MkwQibG9GDiP+jyW06Xxf15iKGOgXjCLmD?=
- =?us-ascii?Q?Y/fjHU5xnepr31MUBGhbv53rre1ofTdYWWqxQDU3IWPjT+V89MgYlPpVb5qD?=
- =?us-ascii?Q?WdHn8AnKXdQ/mctxO6Tikk31HUJKKfI3nyoNDH+ieXeIjt32SkJlBDl1J5/b?=
- =?us-ascii?Q?dQbej6DsSyHE2tEEyt6mZIrMN86AqxwkMehGfZKLS0uyp3GoF/glTNasSQW9?=
- =?us-ascii?Q?MwtjxsRQyMxTL+mYyfsG4LrLbfMlBszl1tIDB5wAjw3v9sdcD8dKW5GWiK8f?=
- =?us-ascii?Q?n173F2EUoucyO+IrLXDnMT6z10vbyMXZAAwKLIRR3YwAvXDbsbPWvZWMcj/w?=
- =?us-ascii?Q?++b4K54u8JO9KyAE25TjTuLoSiQkX/6o+Gq20RTZCuEtB8TGAKo3SzNZ5XFR?=
- =?us-ascii?Q?6GLeDb8wdVYmaK3tcbpeW9dPq6tK/Zf6EtrDeJKhG9Odgv6mDCMkJwYE6RrC?=
- =?us-ascii?Q?dBZz1QpkqGFroOECIRbmaZ40WqaAGLK4PlP8eO2O/AXLr4ICcw25CEFvUj0D?=
- =?us-ascii?Q?S7kpYyobtnkpdxfPYC9VYSrmgEkkBDnr1pWcAASjX/Nt6Zzzy728ZhRRTT/Y?=
- =?us-ascii?Q?kaHOicBBF6hnJRQH38EzrLeo+CUzLV2rJ+dDwqsANm77EXBCHWfGsFIhP3yI?=
- =?us-ascii?Q?/6jdLEE+TYR4rvzNjQjeSyNseU4O55Auhlzv63eUwbA+QJc8USH9xzjpTeTs?=
- =?us-ascii?Q?bthzSoQ1JCMuZ2KWKa6kolNIKofZy5Eo/kAWn4hkz195pz+ifDD67LOdrIjW?=
- =?us-ascii?Q?/IA25Go/Kr6mjz4MSmvUQ9agHFLhQBS8jvQLU62OWpEu0+qYRhxlygzbELYn?=
- =?us-ascii?Q?rP7r6iRVREslBcPTnPxIwWq2KHgb+9/4UdFs5ggQuoOQGR/8AjX9SkDEw/Hx?=
- =?us-ascii?Q?7vZaUuIBwQBLs9bCHcLfHN6ULbInyn8jOIbF9pELbBR+eJkAOZSSqCaRu4Cf?=
- =?us-ascii?Q?Sz6k+quZaMqBls/CbkZ2ZbWFdj5BOGXY58VREBuF/6FNtMO+qCK6W5sxzBlw?=
- =?us-ascii?Q?VNqhZ8Lz6IrXF/20fiEWXlLb?=
-X-OriginatorOrg: urjc.es
-X-MS-Exchange-CrossTenant-Network-Message-Id: 22763aa8-0065-4b2e-48dd-08d953445d59
-X-MS-Exchange-CrossTenant-AuthSource: DB7PR02MB4663.eurprd02.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 30 Jul 2021 10:25:34.0968
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 5f84c4ea-370d-4b9e-830c-756f8bf1b51f
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: Caqf5biX5MJGRZ7AwbZEPDlV5hYhLo2mjK4c77g+Ktb0+B2QGV69Hwq0psQ9ZYLOL73/iesc7WHiCcIKMGhOvg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB3PR0202MB3433
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <85ef170c-8efe-e574-951b-81b3f8a62a31@kernel.dk>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear list,
+On Thu, Jul 29, 2021 at 02:28:28PM -0600, Jens Axboe wrote:
+> On 7/29/21 8:23 AM, Yang Yingliang wrote:
+> > I met a null-ptr-deref when doing fault-inject test:
+> > 
+> > [   65.441626][ T8299] general protection fault, probably for non-canonical address 0xdffffc0000000029: 0000 [#1] PREEMPT SMP KASAN
+> > [   65.443219][ T8299] KASAN: null-ptr-deref in range [0x0000000000000148-0x000000000000014f]
+> > [   65.444331][ T8299] CPU: 2 PID: 8299 Comm: test Not tainted 5.10.49+ #499
+> > [   65.445277][ T8299] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
+> > [   65.446614][ T8299] RIP: 0010:io_disable_sqo_submit+0x124/0x260
+> > [   65.447554][ T8299] Code: 7b 40 89 ee e8 2d b9 9a ff 85 ed 74 40 e8 04 b8 9a ff 49 8d be 48 01 00 00 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <80> 3c 02 00 0f 85 22 01 00 00 49 8b ae 48 01 00 00 48 85 ed 74 0d
+> > [   65.450860][ T8299] RSP: 0018:ffffc9000122fd70 EFLAGS: 00010202
+> > [   65.451826][ T8299] RAX: dffffc0000000000 RBX: ffff88801b11f000 RCX: ffffffff81d5d783
+> > [   65.453166][ T8299] RDX: 0000000000000029 RSI: ffffffff81d5d78c RDI: 0000000000000148
+> > [   65.454606][ T8299] RBP: 0000000000000002 R08: ffff88810168c280 R09: ffffed1003623e79
+> > [   65.456063][ T8299] R10: ffffc9000122fd70 R11: ffffed1003623e78 R12: ffff88801b11f040
+> > [   65.457542][ T8299] R13: ffff88801b11f3c0 R14: 0000000000000000 R15: 000000000000001a
+> > [   65.458910][ T8299] FS:  00007ffb602e3500(0000) GS:ffff888064100000(0000) knlGS:0000000000000000
+> > [   65.460533][ T8299] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> > [   65.461736][ T8299] CR2: 00007ffb5fe7eb24 CR3: 000000010a619000 CR4: 0000000000750ee0
+> > [   65.463146][ T8299] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+> > [   65.464618][ T8299] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+> > [   65.466052][ T8299] PKRU: 55555554
+> > [   65.466708][ T8299] Call Trace:
+> > [   65.467304][ T8299]  io_uring_setup+0x2041/0x3ac0
+> > [   65.468169][ T8299]  ? io_iopoll_check+0x500/0x500
+> > [   65.469123][ T8299]  ? syscall_enter_from_user_mode+0x1c/0x50
+> > [   65.470241][ T8299]  do_syscall_64+0x2d/0x70
+> > [   65.471028][ T8299]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+> > [   65.472099][ T8299] RIP: 0033:0x7ffb5fdec839
+> > [   65.472925][ T8299] Code: 00 f3 c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 1f f6 2c 00 f7 d8 64 89 01 48
+> > [   65.476465][ T8299] RSP: 002b:00007ffc33539ef8 EFLAGS: 00000206 ORIG_RAX: 00000000000001a9
+> > [   65.478026][ T8299] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007ffb5fdec839
+> > [   65.479503][ T8299] RDX: 0000000020ffd000 RSI: 0000000020000080 RDI: 0000000000100001
+> > [   65.480927][ T8299] RBP: 00007ffc33539f70 R08: 0000000000000000 R09: 0000000000000000
+> > [   65.482416][ T8299] R10: 0000000000000000 R11: 0000000000000206 R12: 0000555e85531320
+> > [   65.483845][ T8299] R13: 00007ffc3353a0a0 R14: 0000000000000000 R15: 0000000000000000
+> > [   65.485331][ T8299] Modules linked in:
+> > [   65.486000][ T8299] Dumping ftrace buffer:
+> > [   65.486772][ T8299]    (ftrace buffer empty)
+> > [   65.487595][ T8299] ---[ end trace a9a5fad3ebb303b7 ]---
+> > 
+> > If io_allocate_scq_urings() fails in io_uring_create(), 'ctx->sq_data'
+> > is not set yet, when calling io_sq_offload_start() in io_disable_sqo_submit()
+> > in error path, it will lead a null-ptr-deref.
+> > 
+> > The io_disable_sqo_submit() has been removed in mainline by commit
+> > 70aacfe66136 ("io_uring: kill sqo_dead and sqo submission halting"),
+> > so the bug has been eliminated in mainline, it's a fix only for stable-5.10.
+> 
+> Looks fine, it got fixed differently in newer kernels, but this patch can be
+> safely applied to 5.10 and 5.11 stable.
 
-The current 5.13 stable kernel branch oopses when handling ext2
-filesystems, and the filesystem is not usable, sometimes leading
-to a panic.
+Thanks, now queued up.
 
-The bug was introduced during the 5.13 development cycle.
-A complete analysis can be found here:
-https://lore.kernel.org/linux-ext4/20210713165821.8a268e2c1db4fd5cf452acd2@urjc.es/T/
-
-A fix for this bug has been recently merged into the mainline
-kernel, with commit id 728d392f8a799f037812d0f2b254fb3b5e115fcf.
-
-The 5.13 branch is the only one affected by this bug.
-
-Best regards,
-Javier
+greg k-h
