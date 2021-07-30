@@ -2,238 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E11BE3DB4A3
-	for <lists+stable@lfdr.de>; Fri, 30 Jul 2021 09:43:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 282E23DB51B
+	for <lists+stable@lfdr.de>; Fri, 30 Jul 2021 10:40:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237767AbhG3Hnw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Jul 2021 03:43:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51864 "EHLO
+        id S230335AbhG3Ikn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Jul 2021 04:40:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237789AbhG3Hnv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 30 Jul 2021 03:43:51 -0400
-Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DD4CC0613CF
-        for <stable@vger.kernel.org>; Fri, 30 Jul 2021 00:43:47 -0700 (PDT)
-Received: by mail-ej1-x629.google.com with SMTP id o5so15231339ejy.2
-        for <stable@vger.kernel.org>; Fri, 30 Jul 2021 00:43:47 -0700 (PDT)
+        with ESMTP id S237612AbhG3Ikm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 30 Jul 2021 04:40:42 -0400
+Received: from mail-wr1-x42b.google.com (mail-wr1-x42b.google.com [IPv6:2a00:1450:4864:20::42b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 387E1C061765
+        for <stable@vger.kernel.org>; Fri, 30 Jul 2021 01:40:38 -0700 (PDT)
+Received: by mail-wr1-x42b.google.com with SMTP id b7so10274118wri.8
+        for <stable@vger.kernel.org>; Fri, 30 Jul 2021 01:40:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=XNb1vdDFyUaitEth7U9Mw3bRVjScfkX4yuNTGRHOOZI=;
-        b=WOMkP1gUuGLYiBgd6mH86nsLknzRL5bXpAPNk/5UwcXfcZ9EQv9MRr0f+D9hGjPlks
-         bgrCF827NmTWYILTDg23M0IKQHIjQ4aXkX8EuXYFUDMbRjztqs5FJozIxBGLZYiVH/rf
-         oyoOnV5A5N2c9Dyx6fFvtnNuLy3GGahc8bfdgY7VKafbsk+ct6Dif/g+2KeKF1Pz7G2o
-         dZRGDHaGQ3Ohe2rDDlR2odQiTGOFY4P0vLRglEYx/RvIszvla7R+DKNuw91Lsa/HED+p
-         XzH2AClE0grQhthEAL+ZGYS2I18RLx4moNnKcDUKjLlCe4tcd3RDmhBJTYrTdjFrQbj1
-         o6iA==
+        d=gmail.com; s=20161025;
+        h=from:subject:to:references:message-id:date:user-agent:mime-version
+         :in-reply-to:content-transfer-encoding:content-language;
+        bh=g2itzJeIpMNCAqG1YlZBsXbYW3EsF2aa/nDX59h6V1c=;
+        b=Lk22eEVyV6RaQNyTELa8r1JC+Ssy2Aoa1SIPx9dRlaHaeN+qZbcVIwzbb7u5Pvc7jA
+         c1yicdfW39XRUoEluLNosHN/rq9BO0gW7tlLVgBepfYtY3Xqp0iBX8E4iFTvKEc1OWMh
+         MUER+m5UeCiRZP8Jja61sdi7go4bOP9jHVazVMVprfG8YanmUf9arzJYhwDBG8FHpKla
+         ScNT66xgH7ErAtv7pMo9lZGNZp+TU6b6jbnkJ+IakRFQ8EyBXcwMbxF84BXOVuVqASya
+         fXthMqIj5bHM4tUFRIcC/6mBadTc03Oci3hPThnxjco1dNQsqEQPeE42UmLRLtzzjWZS
+         TmJA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=XNb1vdDFyUaitEth7U9Mw3bRVjScfkX4yuNTGRHOOZI=;
-        b=hKUp0Q2UPq4+ZdoTD5BKl+HUbFK+FPecySgDCIxAlF+boLb+C0jYMroEDL4DycFWmu
-         U2ZfDmmZd9oFGxTfDBNhnyYYdVSJK5L18IQWVGo2fImtT8aqm7b3baHUnmBbYjCskvsD
-         X5xpfDUd716MmdIeEbbSsOzp9lbE74f4/ZNMq1domw/2iBu2F9OwqLH8d9G2pKpbDXst
-         YNuAQxTG6AHA/ymIFzZLGASZ2OSK2CYBgLo8pFMJSUqr6C50oBKCKV9BUNtxw1hx6bIi
-         HHjNdeNWjnsuATyWmh56WPjhhdbmYf3bJBXOp6LFs/BJUvJHyJGbgAwsHAzKa0ybBUEQ
-         GYyg==
-X-Gm-Message-State: AOAM5326NoHR4u2Ay5sVfnTCBEaeb6jAHuFWlazbL1VytIKIFTZhZtR6
-        2z1pmO+HYG/zL+0WWxaW+z3kUL7FYPTLpDp/Q+tsxS1/6rFDa7l3
-X-Google-Smtp-Source: ABdhPJyjd5Ruhtz7xbinzt2RW6nVODmDy6NaOTTXBdA0vGpDB2dMCIucBKKENRmccDApb7FWHODHlJL2DcsTdYbsGsw=
-X-Received: by 2002:a17:906:c447:: with SMTP id ck7mr1354289ejb.18.1627631025894;
- Fri, 30 Jul 2021 00:43:45 -0700 (PDT)
+        h=x-gm-message-state:from:subject:to:references:message-id:date
+         :user-agent:mime-version:in-reply-to:content-transfer-encoding
+         :content-language;
+        bh=g2itzJeIpMNCAqG1YlZBsXbYW3EsF2aa/nDX59h6V1c=;
+        b=DEd9fcAvfUSQ3tL7U7CO/3rOjnaw4w/E1v6OnI3e4CJc3zbXi8DEgwiOdQrBPhEGL5
+         gjxx0lNP5guLZyz12oyEgsFUioKzo58nw0Tdli2TXphtUrAByuuxcbWwc/EykeOQuDo2
+         1pqSCddIrBr7yQX1HpjqkdNJE70EAmFg0OTjMfXRxQygOSnKaEeZw49gmre9Z7zfp9tP
+         0XHws5AiLKJ7yb1LGLpwKwE24QiECVeclQXWTR5QeSx1aQTPkistF/HrNtaRioUpcU0z
+         kIgWto1jCDsTYlRBB6qZB64oQpeL8U5D9rfDfPiAtRiwOlM7q7kibhGUZsSsTYkxhO2o
+         DVGw==
+X-Gm-Message-State: AOAM5303UH+ABFb+uG5wLqTk/LEsc/Jhi7M9HCOxrdq0ZBmUIJJywmzU
+        IBdKWHOl3px0sV4Sg2XQOJE=
+X-Google-Smtp-Source: ABdhPJwxMtKc+b+jvqbg3J6rKcd8vouih1BNmM9sIpTIdEuy4n3sYdn1CPrOJGCVaMm5V1Wwr3Xrkw==
+X-Received: by 2002:a5d:64c8:: with SMTP id f8mr1768595wri.290.1627634436832;
+        Fri, 30 Jul 2021 01:40:36 -0700 (PDT)
+Received: from [192.168.11.11] (156.133.46.217.dyn.plus.net. [217.46.133.156])
+        by smtp.googlemail.com with ESMTPSA id y19sm1085169wma.21.2021.07.30.01.40.36
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 30 Jul 2021 01:40:36 -0700 (PDT)
+From:   Alan Young <consult.awy@gmail.com>
+Subject: Re: FAILED: patch "[PATCH] ALSA: pcm: Call substream ack() method
+ upon compat mmap" failed to apply to 4.19-stable tree
+To:     gregkh@linuxfoundation.org, stable@vger.kernel.org, tiwai@suse.de
+References: <1627286970184147@kroah.com>
+Message-ID: <76f4a874-a7f2-5310-99f3-ae77506ad803@gmail.com>
+Date:   Fri, 30 Jul 2021 09:40:36 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.1
 MIME-Version: 1.0
-References: <20210729135142.920143237@linuxfoundation.org>
-In-Reply-To: <20210729135142.920143237@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Fri, 30 Jul 2021 13:13:34 +0530
-Message-ID: <CA+G9fYvazOLwch-JupVP6uhAYYdMuYpfgWAEYVyipmUsUqCasQ@mail.gmail.com>
-Subject: Re: [PATCH 5.4 00/21] 5.4.137-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        linux-stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <1627286970184147@kroah.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-GB
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 29 Jul 2021 at 19:28, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.4.137 release.
-> There are 21 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sat, 31 Jul 2021 13:51:22 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.4.137-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.4.y
-> and the diffstat can be found below.
+This commit is not applicable before the 64-bit time_t in user space 
+with 32-bit compatibility changes introduces by 
+80fe7430c7085951d1246d83f638cc17e6c0be36 in 5.6.
+
+On 26/07/2021 09:09, gregkh@linuxfoundation.org wrote:
+> The patch below does not apply to the 4.19-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to<stable@vger.kernel.org>.
 >
 > thanks,
 >
 > greg k-h
+>
+> ------------------ original commit in Linus's tree ------------------
+>
+>  From 2e2832562c877e6530b8480982d99a4ff90c6777 Mon Sep 17 00:00:00 2001
+> From: Alan Young<consult.awy@gmail.com>
+> Date: Fri, 9 Jul 2021 09:48:54 +0100
+> Subject: [PATCH] ALSA: pcm: Call substream ack() method upon compat mmap
+>   commit
+>
+> If a 32-bit application is being used with a 64-bit kernel and is using
+> the mmap mechanism to write data, then the SNDRV_PCM_IOCTL_SYNC_PTR
+> ioctl results in calling snd_pcm_ioctl_sync_ptr_compat(). Make this use
+> pcm_lib_apply_appl_ptr() so that the substream's ack() method, if
+> defined, is called.
+>
+> The snd_pcm_sync_ptr() function, used in the 64-bit ioctl case, already
+> uses snd_pcm_ioctl_sync_ptr_compat().
+>
+> Fixes: 9027c4639ef1 ("ALSA: pcm: Call ack() whenever appl_ptr is updated")
+> Signed-off-by: Alan Young<consult.awy@gmail.com>
+> Cc:<stable@vger.kernel.org>
+> Link:https://lore.kernel.org/r/c441f18c-eb2a-3bdd-299a-696ccca2de9c@gmail.com
+> Signed-off-by: Takashi Iwai<tiwai@suse.de>
+>
+> diff --git a/sound/core/pcm_native.c b/sound/core/pcm_native.c
+> index 14e32825c339..c88c4316c417 100644
+> --- a/sound/core/pcm_native.c
+> +++ b/sound/core/pcm_native.c
+> @@ -3063,9 +3063,14 @@ static int snd_pcm_ioctl_sync_ptr_compat(struct snd_pcm_substream *substream,
+>   		boundary = 0x7fffffff;
+>   	snd_pcm_stream_lock_irq(substream);
+>   	/* FIXME: we should consider the boundary for the sync from app */
+> -	if (!(sflags & SNDRV_PCM_SYNC_PTR_APPL))
+> -		control->appl_ptr = scontrol.appl_ptr;
+> -	else
+> +	if (!(sflags & SNDRV_PCM_SYNC_PTR_APPL)) {
+> +		err = pcm_lib_apply_appl_ptr(substream,
+> +				scontrol.appl_ptr);
+> +		if (err < 0) {
+> +			snd_pcm_stream_unlock_irq(substream);
+> +			return err;
+> +		}
+> +	} else
+>   		scontrol.appl_ptr = control->appl_ptr % boundary;
+>   	if (!(sflags & SNDRV_PCM_SYNC_PTR_AVAIL_MIN))
+>   		control->avail_min = scontrol.avail_min;
+>
 
-
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
-
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
-
-## Build
-* kernel: 5.4.137-rc1
-* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
-rc.git
-* git branch: linux-5.4.y
-* git commit: f73de39e1fb7b0cbd29bf959b3a305eca0e182e7
-* git describe: v5.4.136-22-gf73de39e1fb7
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.4.y/build/v5.4.1=
-36-22-gf73de39e1fb7
-
-## No regressions (compared to v5.4.135-109-g77cfe86f3223)
-
-## No fixes (compared to v5.4.135-109-g77cfe86f3223)
-
-
-## Test result summary
- total: 76416, pass: 61164, fail: 1313, skip: 12522, xfail: 1417,
-
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 192 total, 192 passed, 0 failed
-* arm64: 26 total, 26 passed, 0 failed
-* dragonboard-410c: 1 total, 1 passed, 0 failed
-* hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 15 total, 15 passed, 0 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 45 total, 45 passed, 0 failed
-* parisc: 9 total, 9 passed, 0 failed
-* powerpc: 27 total, 27 passed, 0 failed
-* riscv: 21 total, 21 passed, 0 failed
-* s390: 9 total, 9 passed, 0 failed
-* sh: 18 total, 18 passed, 0 failed
-* sparc: 9 total, 9 passed, 0 failed
-* x15: 1 total, 1 passed, 0 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 26 total, 26 passed, 0 failed
-
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* install-android-platform-tools-r2600
-* kselftest-
-* kselftest-android
-* kselftest-bpf
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-lkdtm
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-vsyscall-mode-native-
-* kselftest-x86
-* kselftest-zram
-* kvm-unit-tests
-* libgpiod
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* rcutorture
-* ssuite
-* v4l2-compliance
-
---
-Linaro LKFT
-https://lkft.linaro.org
