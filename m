@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A0BE63DBE27
-	for <lists+stable@lfdr.de>; Fri, 30 Jul 2021 20:14:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E94B63DBE43
+	for <lists+stable@lfdr.de>; Fri, 30 Jul 2021 20:21:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230119AbhG3SOM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Jul 2021 14:14:12 -0400
-Received: from smtp-out2.suse.de ([195.135.220.29]:58492 "EHLO
+        id S230094AbhG3SVF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Jul 2021 14:21:05 -0400
+Received: from smtp-out2.suse.de ([195.135.220.29]:58998 "EHLO
         smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230327AbhG3SOK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 30 Jul 2021 14:14:10 -0400
+        with ESMTP id S229921AbhG3SVE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 30 Jul 2021 14:21:04 -0400
 Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out2.suse.de (Postfix) with ESMTP id D05D51FE18;
-        Fri, 30 Jul 2021 18:14:04 +0000 (UTC)
+        by smtp-out2.suse.de (Postfix) with ESMTP id 0477E1FE1A;
+        Fri, 30 Jul 2021 18:20:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1627668844; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+        t=1627669259; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=idx3YgWYCV0+BlxRTpZYV7ghIt+Y0zRtysPXY1vhzOM=;
-        b=njyF0EWEYUOoZoXKnFriXFx+NKF90A4AMUszVeqFp+WPuRStXgtLUI6ztymFrcjgNvnrr8
-        g425JuQ6Re+W6kY0yUavSaby/ZZ8cyN15TmP/Es7t2E9FCjSF9yNvXwZAB/x6ufz+wxkC8
-        xAVgBx9YKxMQyQCMS+ggTgjRrFX4Vtk=
+        bh=8gm5/hy1GrGnwuqRxtbN+uzT3z75lnxlad024nIFP1A=;
+        b=14dUCwDRgc1TBPH1v/vn3Kp5sc9enQj0qCb3urJQENHyarshBWQx0Z2MKuDdWfKiNluVSl
+        LWMaBT/WaDTKl6RzlWdQzITMInNE389H4Ka8bi1dMSZ8YJHtKEP7u2OL9/E3hTmfDOEwVy
+        1dbutQsDyrnwu4tmHFpej2e6vCVwd24=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1627668844;
+        s=susede2_ed25519; t=1627669259;
         h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=idx3YgWYCV0+BlxRTpZYV7ghIt+Y0zRtysPXY1vhzOM=;
-        b=EOHwbthka2/gAiluGxqixTljzkoaBnaAAqi5rpiGINWMg1qO904zx9hjnwdDNppBpz4uDP
-        1BxtmalPfCvnvTBQ==
+        bh=8gm5/hy1GrGnwuqRxtbN+uzT3z75lnxlad024nIFP1A=;
+        b=x7StZRyroq32GicunDmBRMhloplvltOOk0RACvB+SYQwzfE/5ruV5a1CwLXh7AxlqekSps
+        jttLNsQIxbjqIpBA==
 Received: from alsa1.suse.de (alsa1.suse.de [10.160.4.42])
-        by relay2.suse.de (Postfix) with ESMTP id C374AA3B88;
-        Fri, 30 Jul 2021 18:14:04 +0000 (UTC)
-Date:   Fri, 30 Jul 2021 20:14:04 +0200
-Message-ID: <s5hczqz7jpv.wl-tiwai@suse.de>
+        by relay2.suse.de (Postfix) with ESMTP id E8426A3B87;
+        Fri, 30 Jul 2021 18:20:58 +0000 (UTC)
+Date:   Fri, 30 Jul 2021 20:20:58 +0200
+Message-ID: <s5ha6m37jed.wl-tiwai@suse.de>
 From:   Takashi Iwai <tiwai@suse.de>
-To:     Mark Brown <broonie@kernel.org>
-Cc:     alsa-devel@alsa-project.org, stable@vger.kernel.org
-Subject: Re: [PATCH 1/5] ASoC: amd: Fix reference to PCM buffer address
-In-Reply-To: <20210730162025.GB4670@sirena.org.uk>
-References: <20210728112353.6675-1-tiwai@suse.de>
-        <20210728112353.6675-2-tiwai@suse.de>
-        <20210730162025.GB4670@sirena.org.uk>
+To:     Jaroslav Kysela <perex@perex.cz>
+Cc:     ALSA development <alsa-devel@alsa-project.org>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] ALSA: pcm - fix mmap capability check for the snd-dummy driver
+In-Reply-To: <20210730090254.612478-1-perex@perex.cz>
+References: <20210730090254.612478-1-perex@perex.cz>
 User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI/1.14.6 (Maruoka)
  FLIM/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL/10.8 Emacs/25.3
  (x86_64-suse-linux-gnu) MULE/6.0 (HANACHIRUSATO)
@@ -52,27 +51,17 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 30 Jul 2021 18:20:25 +0200,
-Mark Brown wrote:
+On Fri, 30 Jul 2021 11:02:54 +0200,
+Jaroslav Kysela wrote:
 > 
-> On Wed, Jul 28, 2021 at 01:23:49PM +0200, Takashi Iwai wrote:
-> > PCM buffers might be allocated dynamically when the buffer
-> > preallocation failed or a larger buffer is requested, and it's not
-> > guaranteed that substream->dma_buffer points to the actually used
-> > buffer.  The driver needs to refer to substream->runtime->dma_addr
-> > instead for the buffer address.
+> The snd-dummy driver (fake_buffer configuration) uses the ops->page
+> callback for the mmap operations. Allow mmap for this case, too.
 > 
-> This breaks the build for me on an x86-64 allmodconfig:
-> 
-> /mnt/kernel/sound/soc/amd/renoir/acp3x-pdm-dma.c: In function 'acp_pdm_dma_hw_params':
-> /mnt/kernel/sound/soc/amd/renoir/acp3x-pdm-dma.c:245:18: error: 'runtime' undeclared (first use in this function); did you mean 'vtime'?
->   rtd->dma_addr = runtime->dma_addr;
->                   ^~~~~~~
->                   vtime
+> Cc: <stable@vger.kernel.org>
+> Fixes: c4824ae7db41 ("ALSA: pcm: Fix mmap capability check")
+> Signed-off-by: Jaroslav Kysela <perex@perex.cz>
 
-Oops, will resubmit the fixed patch set.
+Applied, thanks.
 
-
-thanks,
 
 Takashi
