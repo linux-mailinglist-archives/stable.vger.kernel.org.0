@@ -2,150 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BCDD83DB43D
-	for <lists+stable@lfdr.de>; Fri, 30 Jul 2021 09:05:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E61F3DB4A1
+	for <lists+stable@lfdr.de>; Fri, 30 Jul 2021 09:43:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237907AbhG3HFu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Jul 2021 03:05:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42758 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237826AbhG3HFn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 30 Jul 2021 03:05:43 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 060FCC0613CF
-        for <stable@vger.kernel.org>; Fri, 30 Jul 2021 00:05:39 -0700 (PDT)
-Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=bjornoya.blackshift.org)
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <mkl@pengutronix.de>)
-        id 1m9MaP-000674-E0
-        for stable@vger.kernel.org; Fri, 30 Jul 2021 09:05:37 +0200
-Received: from dspam.blackshift.org (localhost [127.0.0.1])
-        by bjornoya.blackshift.org (Postfix) with SMTP id B22AA65B7CA
-        for <stable@vger.kernel.org>; Fri, 30 Jul 2021 07:05:33 +0000 (UTC)
-Received: from hardanger.blackshift.org (unknown [172.20.34.65])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (Client did not present a certificate)
-        by bjornoya.blackshift.org (Postfix) with ESMTPS id 908F465B79C;
-        Fri, 30 Jul 2021 07:05:29 +0000 (UTC)
-Received: from blackshift.org (localhost [::1])
-        by hardanger.blackshift.org (OpenSMTPD) with ESMTP id a61cec51;
-        Fri, 30 Jul 2021 07:05:28 +0000 (UTC)
-From:   Marc Kleine-Budde <mkl@pengutronix.de>
-To:     netdev@vger.kernel.org
-Cc:     davem@davemloft.net, kuba@kernel.org, linux-can@vger.kernel.org,
-        kernel@pengutronix.de, Pavel Skripkin <paskripkin@gmail.com>,
-        linux-stable <stable@vger.kernel.org>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH net 6/6] can: esd_usb2: fix memory leak
-Date:   Fri, 30 Jul 2021 09:05:26 +0200
-Message-Id: <20210730070526.1699867-7-mkl@pengutronix.de>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210730070526.1699867-1-mkl@pengutronix.de>
-References: <20210730070526.1699867-1-mkl@pengutronix.de>
+        id S237667AbhG3Hn3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Jul 2021 03:43:29 -0400
+Received: from szxga02-in.huawei.com ([45.249.212.188]:12425 "EHLO
+        szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237767AbhG3Hn3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 30 Jul 2021 03:43:29 -0400
+Received: from dggeme756-chm.china.huawei.com (unknown [172.30.72.57])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4GbfS82bjtzcjrr;
+        Fri, 30 Jul 2021 15:39:52 +0800 (CST)
+Received: from huawei.com (100.120.247.70) by dggeme756-chm.china.huawei.com
+ (10.3.19.102) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2176.2; Fri, 30
+ Jul 2021 15:43:21 +0800
+From:   Liang Wang <wangliang101@huawei.com>
+To:     <palmerdabbelt@google.com>, <mcgrof@kernel.org>,
+        <linux-kernel@vger.kernel.org>, <gregkh@linuxfoundation.org>,
+        <linux@armlinux.org.uk>, <linux-arm-kernel@lists.infradead.org>
+CC:     <stable@vger.kernel.org>, <wangliang101@huawei.com>,
+        <wangle6@huawei.com>, <kepler.chenxin@huawei.com>,
+        <nixiaoming@huawei.com>, <wangkefeng.wang@huawei.com>
+Subject: [PATCH v2] lib: Use PFN_PHYS() in devmem_is_allowed()
+Date:   Fri, 30 Jul 2021 15:43:15 +0800
+Message-ID: <20210730074315.63232-1-wangliang101@huawei.com>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
-X-SA-Exim-Mail-From: mkl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [100.120.247.70]
+X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
+ dggeme756-chm.china.huawei.com (10.3.19.102)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+The physical address may exceed 32 bits on ARM(when ARM_LPAE enabled),
+use PFN_PHYS() in devmem_is_allowed(), or the physical address may
+overflow and be truncated.
 
-In esd_usb2_setup_rx_urbs() MAX_RX_URBS coherent buffers are allocated
-and there is nothing, that frees them:
+This bug was initially introduced from v2.6.37, and the function was moved
+to lib when v5.11.
 
-1) In callback function the urb is resubmitted and that's all
-2) In disconnect function urbs are simply killed, but URB_FREE_BUFFER
-   is not set (see esd_usb2_setup_rx_urbs) and this flag cannot be used
-   with coherent buffers.
-
-So, all allocated buffers should be freed with usb_free_coherent()
-explicitly.
-
-Side note: This code looks like a copy-paste of other can drivers. The
-same patch was applied to mcba_usb driver and it works nice with real
-hardware. There is no change in functionality, only clean-up code for
-coherent buffers.
-
-Fixes: 96d8e90382dc ("can: Add driver for esd CAN-USB/2 device")
-Link: https://lore.kernel.org/r/b31b096926dcb35998ad0271aac4b51770ca7cc8.1627404470.git.paskripkin@gmail.com
-Cc: linux-stable <stable@vger.kernel.org>
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: 087aaffcdf9c ("ARM: implement CONFIG_STRICT_DEVMEM by disabling access to RAM via /dev/mem")
+Fixes: 527701eda5f1 ("lib: Add a generic version of devmem_is_allowed()")
+Cc: stable@vger.kernel.org # v2.6.37
+Signed-off-by: Liang Wang <wangliang101@huawei.com>
 ---
- drivers/net/can/usb/esd_usb2.c | 16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+v2: update subject and changelog
+ lib/devmem_is_allowed.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/can/usb/esd_usb2.c b/drivers/net/can/usb/esd_usb2.c
-index 65b58f8fc328..66fa8b07c2e6 100644
---- a/drivers/net/can/usb/esd_usb2.c
-+++ b/drivers/net/can/usb/esd_usb2.c
-@@ -195,6 +195,8 @@ struct esd_usb2 {
- 	int net_count;
- 	u32 version;
- 	int rxinitdone;
-+	void *rxbuf[MAX_RX_URBS];
-+	dma_addr_t rxbuf_dma[MAX_RX_URBS];
- };
- 
- struct esd_usb2_net_priv {
-@@ -545,6 +547,7 @@ static int esd_usb2_setup_rx_urbs(struct esd_usb2 *dev)
- 	for (i = 0; i < MAX_RX_URBS; i++) {
- 		struct urb *urb = NULL;
- 		u8 *buf = NULL;
-+		dma_addr_t buf_dma;
- 
- 		/* create a URB, and a buffer for it */
- 		urb = usb_alloc_urb(0, GFP_KERNEL);
-@@ -554,7 +557,7 @@ static int esd_usb2_setup_rx_urbs(struct esd_usb2 *dev)
- 		}
- 
- 		buf = usb_alloc_coherent(dev->udev, RX_BUFFER_SIZE, GFP_KERNEL,
--					 &urb->transfer_dma);
-+					 &buf_dma);
- 		if (!buf) {
- 			dev_warn(dev->udev->dev.parent,
- 				 "No memory left for USB buffer\n");
-@@ -562,6 +565,8 @@ static int esd_usb2_setup_rx_urbs(struct esd_usb2 *dev)
- 			goto freeurb;
- 		}
- 
-+		urb->transfer_dma = buf_dma;
-+
- 		usb_fill_bulk_urb(urb, dev->udev,
- 				  usb_rcvbulkpipe(dev->udev, 1),
- 				  buf, RX_BUFFER_SIZE,
-@@ -574,8 +579,12 @@ static int esd_usb2_setup_rx_urbs(struct esd_usb2 *dev)
- 			usb_unanchor_urb(urb);
- 			usb_free_coherent(dev->udev, RX_BUFFER_SIZE, buf,
- 					  urb->transfer_dma);
-+			goto freeurb;
- 		}
- 
-+		dev->rxbuf[i] = buf;
-+		dev->rxbuf_dma[i] = buf_dma;
-+
- freeurb:
- 		/* Drop reference, USB core will take care of freeing it */
- 		usb_free_urb(urb);
-@@ -663,6 +672,11 @@ static void unlink_all_urbs(struct esd_usb2 *dev)
- 	int i, j;
- 
- 	usb_kill_anchored_urbs(&dev->rx_submitted);
-+
-+	for (i = 0; i < MAX_RX_URBS; ++i)
-+		usb_free_coherent(dev->udev, RX_BUFFER_SIZE,
-+				  dev->rxbuf[i], dev->rxbuf_dma[i]);
-+
- 	for (i = 0; i < dev->net_count; i++) {
- 		priv = dev->nets[i];
- 		if (priv) {
+diff --git a/lib/devmem_is_allowed.c b/lib/devmem_is_allowed.c
+index c0d67c541849..60be9e24bd57 100644
+--- a/lib/devmem_is_allowed.c
++++ b/lib/devmem_is_allowed.c
+@@ -19,7 +19,7 @@
+  */
+ int devmem_is_allowed(unsigned long pfn)
+ {
+-	if (iomem_is_exclusive(pfn << PAGE_SHIFT))
++	if (iomem_is_exclusive(PFN_PHYS(pfn)))
+ 		return 0;
+ 	if (!page_is_ram(pfn))
+ 		return 1;
 -- 
-2.30.2
-
+2.32.0
 
