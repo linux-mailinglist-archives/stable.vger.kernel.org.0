@@ -2,97 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B064E3DB801
-	for <lists+stable@lfdr.de>; Fri, 30 Jul 2021 13:45:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46ED73DB820
+	for <lists+stable@lfdr.de>; Fri, 30 Jul 2021 13:59:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238652AbhG3Lp6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Jul 2021 07:45:58 -0400
-Received: from mout.gmx.net ([212.227.17.21]:38947 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230157AbhG3Lp5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 30 Jul 2021 07:45:57 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1627645548;
-        bh=5nwtFUK6rZsQSaPedvMtggo0kXPpIuOZXQXwWmwUXyw=;
-        h=X-UI-Sender-Class:From:To:Cc:Subject:Date:In-Reply-To:References;
-        b=QV220zb7rpnBcz4J0qAKKimC58tuXv5SUSM1V8eY52hw/duRbaqxszjCI1958pJ26
-         O9+H+cF/22/Pj3Z0YLmtgWe9eSYl1Ppn1phH9vW4QatTygOrQLQdhvo8cJos/Em1m2
-         4B4P8er62f0ZqOOUidr13ckYbn+FBhHEYMuxvw3A=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from [87.130.101.138] ([87.130.101.138]) by web-mail.gmx.net
- (3c-app-gmx-bs53.server.lan [172.19.170.137]) (via HTTP); Fri, 30 Jul 2021
- 13:45:48 +0200
-MIME-Version: 1.0
-Message-ID: <trinity-23757337-a194-45c1-864b-6f96a754fed1-1627645548572@3c-app-gmx-bs53>
-From:   Lino Sanfilippo <LinoSanfilippo@gmx.de>
-To:     Jarkko Sakkinen <jarkko@kernel.org>
-Cc:     peterhuewe@gmx.de, jgg@ziepe.ca, linus.walleij@linaro.org,
-        linux-integrity@vger.kernel.org, linux-kernel@vger.kernel.org,
+        id S238687AbhG3L7l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Jul 2021 07:59:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59064 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238617AbhG3L7k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 30 Jul 2021 07:59:40 -0400
+Received: from mail-lj1-x234.google.com (mail-lj1-x234.google.com [IPv6:2a00:1450:4864:20::234])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 337A1C0613C1
+        for <stable@vger.kernel.org>; Fri, 30 Jul 2021 04:59:35 -0700 (PDT)
+Received: by mail-lj1-x234.google.com with SMTP id x7so11982281ljn.10
+        for <stable@vger.kernel.org>; Fri, 30 Jul 2021 04:59:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=semihalf-com.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Yz5kF6DMmS/F2Ek3OiwjPMR6AkCQ12zzDtN+t3btcmY=;
+        b=nNzA7G+QrYsKDtYPp4WacLy0pohEOxM30ACTb4XbKW3I2FXUAj+/KdwmBEpqXmjgtX
+         us0taLYD9bRwfc04SPEVa1FZmAHS3nK2tTlIEbcskWXKB2fNDETxxI17Fkh1bNiCy5NJ
+         N5Nu2jjxXzXUc3B5JYuBvCwwA+bYaTcWp2fMtGzfVS93tTPtUilFf7GQG9EtvyImsUVE
+         toTUBQeriz6HYnC7LtywE4XQcFkK92FXgIki5Lf1Gw1WqYGinguxOF/Ws1W+fFs2+46s
+         ptfWooud7RXcYVe5oly8+zK2FlpbjY5Ghj+YUncF4XboU4DOGB4wPhlh/3o/M/xtavhQ
+         TxKw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Yz5kF6DMmS/F2Ek3OiwjPMR6AkCQ12zzDtN+t3btcmY=;
+        b=rDKjq1eTSqCYwMkliRuDdpghJCaGYWFsRUS6AAjoptFrNUkWbUipPGH7pGFBZW58s/
+         jN67aytMF5bKr4rPvI/SxEVtUwpdun4qx2N8cBpoHdFV6BZjpgICgn2GYe+PPudKoemP
+         HzhZKqkWiXywQJMsTv6maz8Nx69Rfa0bqrBtWrq20jlz//9qNJjDpTRwjFaE8nv935ZH
+         NBJjtgEVrVXilx5ImyWlKNzs/m+xUuZxztV1+oogRVTZPTQP75qa/uOTveyLSseE4Qxs
+         w+4aRGRk+5C/f9FvdTKyn0Gnzgxic+iheYBuMECinVBmzkhuL2HGCBX4AQsaKd0sR9fi
+         XQCg==
+X-Gm-Message-State: AOAM533YhUR0tM6Ohj0hYcDti8qXoV2rwUfLpINaboFTual7BlUp+Nyu
+        Yvm/vlwYNAUC8h4zETIQcqZ48g==
+X-Google-Smtp-Source: ABdhPJxdLp3s/e9v5mAJRhkjnsGH+Ro2Aomhtvu0FFU8OH3ojilQ7WiMkXMAIcyREE+yS4IO3qKGOg==
+X-Received: by 2002:a2e:a817:: with SMTP id l23mr1441919ljq.86.1627646373566;
+        Fri, 30 Jul 2021 04:59:33 -0700 (PDT)
+Received: from lmajczak1-l.roam.corp.google.com ([83.142.187.84])
+        by smtp.gmail.com with ESMTPSA id p16sm134034lfr.122.2021.07.30.04.59.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 30 Jul 2021 04:59:32 -0700 (PDT)
+From:   Lukasz Majczak <lma@semihalf.com>
+To:     Cezary Rojewski <cezary.rojewski@intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Cc:     upstream@semihalf.com, alsa-devel@alsa-project.org,
+        linux-kernel@vger.kernel.org, Lukasz Majczak <lma@semihalf.com>,
         stable@vger.kernel.org
-Subject: Aw: Re: [PATCH v2] tpm, tpm_tis_spi: Allow to sleep in the
- interrupt handler
-Content-Type: text/plain; charset=UTF-8
-Date:   Fri, 30 Jul 2021 13:45:48 +0200
-Importance: normal
-Sensitivity: Normal
-In-Reply-To: <20210623133420.gw2lziue5nkvjtps@kernel.org>
-References: <20210620023444.14684-1-LinoSanfilippo@gmx.de>
- <20210623133420.gw2lziue5nkvjtps@kernel.org>
-X-UI-Message-Type: mail
-X-Priority: 3
-X-Provags-ID: V03:K1:iD0cgET1uosZgRcmeBTa/6zynHtSmS9RAa0zPzePWzPxyajS59Lk2bD+DghdCYoGMy3wl
- DVtcWR7eCEnJfdRwqKPuGaFNH6Y3TpQqnsas/6vYDwDPfhn7M41UIlWtz89kdV+bjN4Ki89TvXhu
- +fUryqpBqjDFTa0tBFgrBf6oEOiZaMx2SD3ao8FO3BQRyNESKtUiSZvY7gtvP60roXZLLMJyyY+s
- yxfYG1aZIMutHe979SBulg30sI8rVFFQ6gUiTT2l3vBJENW/DB295om1QJnPTtjil5Y5Cni93mBI
- Bw=
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:Sx8Hbnu69Tk=:P2zLXADOnYyEPlPGwyUGkl
- JDPf3njtHtSOnAvZRuaDs4w0PlIoy/fIbUyRQ7nv9sejlZ0e+S2K3DzLwjyvQuK5GtRfL5FL1
- EfZ3nbSpVQE6m0cwDoeDJnCbeaJiYjjacb3ru9yeVCxPIIPX+5iY3qNrCXbBgkA6u/BA4Td9q
- 9H8QJjyuZFiw6joWvmw34iF+7Khtas7W4FsCuU1g03Y89Pzp7+LPonualQwIy4WVgvIRGTX3S
- +SU+U5DdLzl2zzBkB6bhO9ZGtX9ghU8eH0cNAYw1SjhU0cKu1JQGP2WODjQVns08Y1n30hzPV
- vSC44X9smcn/6j6A0bhC5KcBtMMf9jZewxqDDEqPVfQq6JlVyl/zoU7N8BYssQSjMhsVfPizH
- D8ew9d0iNVCT9w+dLBoQV83w9Ckj51kxUcR2wrIuNc2KJT/4qRKMSve3/F2vQx8krAxTbjj/N
- rudugvjvRAhJiKQ7k7pEkCsGO8qODhDXKMFI0/Z3xur0cO9uAt1iUbho7BfcXwsCymQjKrC1L
- X4yz5FEsW7+I0dDwQ8EeqafdOmhqpbSRva8kmIiiBLaIJKgElr7L1K8Bo7mSoPxlfoaO2HBkg
- IFdM6aMJuqCL0mPVR7BFm7kOc9nC30cg2AcsR0eLUjf90dDm6RlRdpRsCa1uNpZnosuuQ+gD9
- CMf6UTvH3A1rnVbhnI2Gswf0G2JPHaO+Tj+hvTb+Fs/1dR8qCEMZwL0mPQAiTpGGFBHz8VzSK
- R6anq5zpgN0mFUTK+LzjvToPLVJ/6jBs4irH8ejum0omELXzMlWkJrC/x9dW4aZJLgajW9DHP
- 17NNPKbrfjOJg5pyfDjOhAncMHGbQ==
-Content-Transfer-Encoding: quoted-printable
+Subject: [PATCH v1] ASoC: Intel: kbl_da7219_max98357a: fix drv_name
+Date:   Fri, 30 Jul 2021 13:59:06 +0200
+Message-Id: <20210730115906.144300-1-lma@semihalf.com>
+X-Mailer: git-send-email 2.32.0.554.ge1b32706d8-goog
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Jarko,
+platform_id for kbl_da7219_max98357a was shrunk for kbl_da7219_mx98357a,
+but the drv_name was changed for kbl_da7219_max98373. Tested on a
+Pixelbook (Atlas).
 
-> Gesendet: Mittwoch, 23. Juni 2021 um 15:34 Uhr
-> Von: "Jarkko Sakkinen" <jarkko@kernel.org>
-> An: "Lino Sanfilippo" <LinoSanfilippo@gmx.de>
-> Cc: peterhuewe@gmx.de, jgg@ziepe.ca, linus.walleij@linaro.org, linux-int=
-egrity@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.o=
-rg
-> Betreff: Re: [PATCH v2] tpm, tpm_tis_spi: Allow to sleep in the interrup=
-t handler
->
-> On Sun, Jun 20, 2021 at 04:34:44AM +0200, Lino Sanfilippo wrote:
-> > Interrupt handling at least includes reading and writing the interrupt
-> > status register within the interrupt routine. For accesses over SPI a =
-mutex
-> > is used in the concerning functions. Since this requires a sleepable
-> > context request a threaded interrupt handler for this case.
-> >
-> > Cc: stable@vger.kernel.org
-> > Fixes: 1a339b658d9d ("tpm_tis_spi: Pass the SPI IRQ down to the driver=
-")
-> > Signed-off-by: Lino Sanfilippo <LinoSanfilippo@gmx.de>
->
-> I'll test this after rc1 PR (I have one NUC which uses tpm_tis_spi).
->
-> /Jarkko
->
+Fixes: 94efd726b947 ("ASoC: Intel: kbl_da7219_max98357a: shrink platform_id below 20 characters")
+Cc: <stable@vger.kernel.org> # 5.4+
+Reported-by: Cezary Rojewski <cezary.rojewski@intel.com>
+Tested-by: Lukasz Majczak <lma@semihalf.com>
+Signed-off-by: Lukasz Majczak <lma@semihalf.com>
+---
+ sound/soc/intel/common/soc-acpi-intel-kbl-match.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-any news from this patch? Did you already have the opportunity to test it?
+diff --git a/sound/soc/intel/common/soc-acpi-intel-kbl-match.c b/sound/soc/intel/common/soc-acpi-intel-kbl-match.c
+index ba5ff468c265..8cab91a00b1a 100644
+--- a/sound/soc/intel/common/soc-acpi-intel-kbl-match.c
++++ b/sound/soc/intel/common/soc-acpi-intel-kbl-match.c
+@@ -87,7 +87,7 @@ struct snd_soc_acpi_mach snd_soc_acpi_intel_kbl_machines[] = {
+ 	},
+ 	{
+ 		.id = "DLGS7219",
+-		.drv_name = "kbl_da7219_max98357a",
++		.drv_name = "kbl_da7219_mx98357a",
+ 		.fw_filename = "intel/dsp_fw_kbl.bin",
+ 		.machine_quirk = snd_soc_acpi_codec_list,
+ 		.quirk_data = &kbl_7219_98357_codecs,
+@@ -113,7 +113,7 @@ struct snd_soc_acpi_mach snd_soc_acpi_intel_kbl_machines[] = {
+ 	},
+ 	{
+ 		.id = "DLGS7219",
+-		.drv_name = "kbl_da7219_mx98373",
++		.drv_name = "kbl_da7219_max98373",
+ 		.fw_filename = "intel/dsp_fw_kbl.bin",
+ 		.machine_quirk = snd_soc_acpi_codec_list,
+ 		.quirk_data = &kbl_7219_98373_codecs,
+-- 
+2.32.0.554.ge1b32706d8-goog
 
-Regards,
-Lino
