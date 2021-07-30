@@ -2,86 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4BA93DBD3F
-	for <lists+stable@lfdr.de>; Fri, 30 Jul 2021 18:46:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D2CE3DBD62
+	for <lists+stable@lfdr.de>; Fri, 30 Jul 2021 18:53:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229925AbhG3QqF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Jul 2021 12:46:05 -0400
-Received: from mga05.intel.com ([192.55.52.43]:61645 "EHLO mga05.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229773AbhG3QqE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 30 Jul 2021 12:46:04 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10061"; a="298717470"
-X-IronPort-AV: E=Sophos;i="5.84,282,1620716400"; 
-   d="scan'208";a="298717470"
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Jul 2021 09:45:59 -0700
-X-IronPort-AV: E=Sophos;i="5.84,282,1620716400"; 
-   d="scan'208";a="508283326"
-Received: from dwillia2-desk3.jf.intel.com (HELO dwillia2-desk3.amr.corp.intel.com) ([10.54.39.25])
-  by fmsmga003-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Jul 2021 09:45:59 -0700
-Subject: [PATCH] ACPI: NFIT: Fix support for virtual SPA ranges
-From:   Dan Williams <dan.j.williams@intel.com>
-To:     nvdimm@lists.linux.dev
-Cc:     Jacek Zloch <jacek.zloch@intel.com>,
-        Lukasz Sobieraj <lukasz.sobieraj@intel.com>,
-        "Lee, Chun-Yi" <jlee@suse.com>, stable@vger.kernel.org,
-        Krzysztof Rusocki <krzysztof.rusocki@intel.com>,
-        Damian Bassa <damian.bassa@intel.com>, vishal.l.verma@intel.com
-Date:   Fri, 30 Jul 2021 09:45:58 -0700
-Message-ID: <162766355874.3223041.9582643895337437921.stgit@dwillia2-desk3.amr.corp.intel.com>
-User-Agent: StGit/0.18-3-g996c
+        id S229738AbhG3QyB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Jul 2021 12:54:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51444 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230049AbhG3QyA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 30 Jul 2021 12:54:00 -0400
+Received: from mail-ot1-x32f.google.com (mail-ot1-x32f.google.com [IPv6:2607:f8b0:4864:20::32f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07B0FC061765
+        for <stable@vger.kernel.org>; Fri, 30 Jul 2021 09:53:55 -0700 (PDT)
+Received: by mail-ot1-x32f.google.com with SMTP id i39-20020a9d17270000b02904cf73f54f4bso10192041ota.2
+        for <stable@vger.kernel.org>; Fri, 30 Jul 2021 09:53:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxtx.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=/zz8SlCDjP/5EQCBECZsztr338jbNBe1TGYsR7QJMKI=;
+        b=H2+fZMiUKFckMowCPbbNdkkTnbf+DqEQ2E7LMQHDSzMS/LM7xqhmaTLGbvBpVP6Avy
+         Sm6DSNPHfTMLatbrXLneDunGFY19kbi69fX3hc8mwxZgAt3g9heVtXmSqJD8upr0rKDP
+         PVnFPnpygQocQIjWrFHxpPWU2qT9xRwxnY3Dk=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=/zz8SlCDjP/5EQCBECZsztr338jbNBe1TGYsR7QJMKI=;
+        b=QlVY68Ty1rsamr8AD95ADfMu+lraCRi3E1btxN9HtnQtIyHBruTPvVZMN/CK9oROI2
+         kHsNBhc6PBkeIaclpHz3vVhOUzs/j10p9GuPvib0v9ZYGL8D4gws3TeYQBEEOJpp4/qr
+         QzuJn3fuRLu/hiOkehpgE2UrZN24FjsCFuMHfLViB4pFELMN0NsWDAgIHSJWnHSzQSj7
+         9c0G3bUbUJc9HX2jmgMmwNvqY9vcAfQeSt2tHS8gpe6IaSi5S4rdbbNorSiNVmJbhRSm
+         JFvq0hydTJA7aTMfyIF9X3u/TpPhIh7+C0qtsNKxgEYtJaOGz+agrp/J0ym0/uLxNqAM
+         buZQ==
+X-Gm-Message-State: AOAM5331LLGdhe4vj8H3xt5taksmnUr0uKdp6kEf2uw6NuOkD3yHepUI
+        tYxdFJoqvbqvsZs9/9iIkoONjA==
+X-Google-Smtp-Source: ABdhPJwkjqlRmT9N9mjzp7K74H0hjjP+/6LGfLhSwRRdMevLvjjU2udtdo7p3yCMPqpFk+ppVh8dug==
+X-Received: by 2002:a9d:628:: with SMTP id 37mr2343240otn.126.1627664034228;
+        Fri, 30 Jul 2021 09:53:54 -0700 (PDT)
+Received: from fedora64.linuxtx.org (104-189-158-32.lightspeed.rcsntx.sbcglobal.net. [104.189.158.32])
+        by smtp.gmail.com with ESMTPSA id x14sm374703oiv.4.2021.07.30.09.53.53
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 30 Jul 2021 09:53:53 -0700 (PDT)
+Date:   Fri, 30 Jul 2021 11:53:52 -0500
+From:   Justin Forbes <jmforbes@linuxtx.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 5.13 00/22] 5.13.7-rc1 review
+Message-ID: <YQQuoEHcxtZdxWLT@fedora64.linuxtx.org>
+References: <20210729135137.336097792@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210729135137.336097792@linuxfoundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Fix the NFIT parsing code to treat a 0 index in a SPA Range Structure as
-a special case and not match Region Mapping Structures that use 0 to
-indicate that they are not mapped. Without this fix some platform BIOS
-descriptions of "virtual disk" ranges do not result in the pmem driver
-attaching to the range.
+On Thu, Jul 29, 2021 at 03:54:31PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.13.7 release.
+> There are 22 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sat, 31 Jul 2021 13:51:22 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.13.7-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.13.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-Details:
-In addition to typical persistent memory ranges, the ACPI NFIT may also
-convey "virtual" ranges. These ranges are indicated by a UUID in the SPA
-Range Structure of UUID_VOLATILE_VIRTUAL_DISK, UUID_VOLATILE_VIRTUAL_CD,
-UUID_PERSISTENT_VIRTUAL_DISK, or UUID_PERSISTENT_VIRTUAL_CD. The
-critical difference between virtual ranges and UUID_PERSISTENT_MEMORY, is
-that virtual do not support associations with Region Mapping Structures.
-For this reason the "index" value of virtual SPA Range Structures is
-allowed to be 0. If a platform BIOS decides to represent unmapped
-NVDIMMs with a 0 index in their "SPA Range Structure Index" the driver
-falsely matches them and may falsely require labels where "virtual
-disks" are expected to be label-less. I.e. label-less is where the
-namespace-range == region-range and the pmem driver attaches with no
-user action to create a namespace.
+Tested rc1 against the Fedora build system (aarch64, armv7, ppc64le,
+s390x, x86_64), and boot tested x86_64. No regressions noted.
 
-Cc: Jacek Zloch <jacek.zloch@intel.com>
-Cc: Lukasz Sobieraj <lukasz.sobieraj@intel.com>
-Cc: "Lee, Chun-Yi" <jlee@suse.com>
-Cc: <stable@vger.kernel.org>
-Fixes: c2f32acdf848 ("acpi, nfit: treat virtual ramdisk SPA as pmem region")
-Reported-by: Krzysztof Rusocki <krzysztof.rusocki@intel.com>
-Reported-by: Damian Bassa <damian.bassa@intel.com>
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
----
- drivers/acpi/nfit/core.c |    2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/drivers/acpi/nfit/core.c b/drivers/acpi/nfit/core.c
-index 23d9a09d7060..6f15e56ef955 100644
---- a/drivers/acpi/nfit/core.c
-+++ b/drivers/acpi/nfit/core.c
-@@ -3021,6 +3021,8 @@ static int acpi_nfit_register_region(struct acpi_nfit_desc *acpi_desc,
- 		struct acpi_nfit_memory_map *memdev = nfit_memdev->memdev;
- 		struct nd_mapping_desc *mapping;
- 
-+		if (memdev->range_index == 0 || spa->range_index == 0)
-+			continue;
- 		if (memdev->range_index != spa->range_index)
- 			continue;
- 		if (count >= ND_MAX_MAPPINGS) {
+Tested-by: Justin M. Forbes <jforbes@fedoraproject.org>
 
