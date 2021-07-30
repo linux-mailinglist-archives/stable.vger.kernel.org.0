@@ -2,128 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FBFB3DB51C
-	for <lists+stable@lfdr.de>; Fri, 30 Jul 2021 10:40:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45C6C3DB548
+	for <lists+stable@lfdr.de>; Fri, 30 Jul 2021 10:51:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237612AbhG3Ikz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Jul 2021 04:40:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37332 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237956AbhG3Ikz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 30 Jul 2021 04:40:55 -0400
-Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 053D0C0613C1
-        for <stable@vger.kernel.org>; Fri, 30 Jul 2021 01:40:51 -0700 (PDT)
-Received: by mail-wr1-x42c.google.com with SMTP id d8so10269820wrm.4
-        for <stable@vger.kernel.org>; Fri, 30 Jul 2021 01:40:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:subject:to:references:message-id:date:user-agent:mime-version
-         :in-reply-to:content-transfer-encoding:content-language;
-        bh=N9CfuVrE8NyENUiWEeWRoNMyrUFC6+MrHNF+wvFKAa4=;
-        b=dY54A5JJtUnUmtjAXSSXy582NMn7sjKikE8oXVGK3P4NkbPQSRfnFK/t7w7JlP5eyK
-         +4WezJ4eeWO/O4C7KyEIt4b0FVxKdztwH6LALy+uxUQoJ+K+J5Y/D1JyZKKOv8QMROl8
-         gM82ONzfcnydgnbxD66UTCPnAF9vKmmLGruPbp4oyRUatBNQu9NYAhNmlIcFpFXyHJUP
-         sZT5YDGkSy3NNF4yndjgWSHeRIQkqfRmU62/5DWBpXY+IgBkImEoJWAZTf6fs5XGtqdP
-         HyDq10b5gCU8JGIHA2Ip+zIWRNlPqjlWq/L0JqaAsVyv6zH1ksycj7xWNLzHI0zBGAFB
-         /v9A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:subject:to:references:message-id:date
-         :user-agent:mime-version:in-reply-to:content-transfer-encoding
-         :content-language;
-        bh=N9CfuVrE8NyENUiWEeWRoNMyrUFC6+MrHNF+wvFKAa4=;
-        b=es9WQwzPabnmldERXGiM4OY1NizuiM0uegW+cRLGlF3E0JCGaBAk3AaK/7g5+bDIsX
-         UvXnyDBnKAaI9AFJ3ouAmrVVnPkVqUHba14EtmI2LizZkTiGFODV31BQeRv6X6QpTpE3
-         xG0TXakPz1nlEKT43CilPmWSKG1xHEi91PcrwgI9JCesAZ062C99ACJDE92GXHhPJa8G
-         QacKUQNUWbH2b/LuU/SKA4TAkhkfL+UKYGyqXkajCG4WFEkogzpbyYaTR6Vdj0jKs3/S
-         GS3vbasDlNvit5Wyifd6r6S543o++3cVc8mQhikRKpBmmbZ9xdfUc8VQKusUgt2qvcEu
-         /BPQ==
-X-Gm-Message-State: AOAM531GPmIK3cr4ss+27F3NX1RxnCPEtez/Ukqt0dDEYmc4WRIWXuku
-        sw8Y2RvgijEbJJOvs78ToiA=
-X-Google-Smtp-Source: ABdhPJx7fIjxEUopvxM27V9IPXbst19PQVpBh75dmPQ2RveKfTQH2M7reiSV9RpwbWeskmCdTFjn1A==
-X-Received: by 2002:adf:f602:: with SMTP id t2mr1741410wrp.232.1627634449694;
-        Fri, 30 Jul 2021 01:40:49 -0700 (PDT)
-Received: from [192.168.11.11] (156.133.46.217.dyn.plus.net. [217.46.133.156])
-        by smtp.googlemail.com with ESMTPSA id x15sm912946wrs.57.2021.07.30.01.40.49
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 30 Jul 2021 01:40:49 -0700 (PDT)
-From:   Alan Young <consult.awy@gmail.com>
-Subject: Re: FAILED: patch "[PATCH] ALSA: pcm: Call substream ack() method
- upon compat mmap" failed to apply to 4.14-stable tree
-To:     gregkh@linuxfoundation.org, stable@vger.kernel.org, tiwai@suse.de
-References: <1627286971116209@kroah.com>
-Message-ID: <d5aad089-e2f5-2637-eed2-7e9551cfdb26@gmail.com>
-Date:   Fri, 30 Jul 2021 09:40:49 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.1
+        id S238173AbhG3IvJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Jul 2021 04:51:09 -0400
+Received: from mailgw01.mediatek.com ([60.244.123.138]:41564 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S237928AbhG3Iuu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 30 Jul 2021 04:50:50 -0400
+X-UUID: 053be6fc763f45d8ac664e2e2b7e5a62-20210730
+X-UUID: 053be6fc763f45d8ac664e2e2b7e5a62-20210730
+Received: from mtkmbs10n2.mediatek.inc [(172.21.101.183)] by mailgw01.mediatek.com
+        (envelope-from <chunfeng.yun@mediatek.com>)
+        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
+        with ESMTP id 1007530290; Fri, 30 Jul 2021 16:50:43 +0800
+Received: from mtkcas11.mediatek.inc (172.21.101.40) by
+ mtkmbs06n1.mediatek.inc (172.21.101.129) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Fri, 30 Jul 2021 16:50:42 +0800
+Received: from localhost.localdomain (10.17.3.153) by mtkcas11.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Fri, 30 Jul 2021 16:50:41 +0800
+From:   Chunfeng Yun <chunfeng.yun@mediatek.com>
+To:     Rob Herring <robh+dt@kernel.org>,
+        Mathias Nyman <mathias.nyman@intel.com>
+CC:     Chunfeng Yun <chunfeng.yun@mediatek.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        <linux-usb@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>, <devicetree@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>,
+        Eddie Hung <eddie.hung@mediatek.com>, <stable@vger.kernel.org>
+Subject: [PATCH 07/11] usb: xhci-mtk: fix issue of out-of-bounds array access
+Date:   Fri, 30 Jul 2021 16:49:58 +0800
+Message-ID: <1627635002-24521-7-git-send-email-chunfeng.yun@mediatek.com>
+X-Mailer: git-send-email 1.8.1.1.dirty
+In-Reply-To: <1627635002-24521-1-git-send-email-chunfeng.yun@mediatek.com>
+References: <1627635002-24521-1-git-send-email-chunfeng.yun@mediatek.com>
 MIME-Version: 1.0
-In-Reply-To: <1627286971116209@kroah.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-GB
+Content-Type: text/plain
+X-MTK:  N
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This commit is not applicable before the 64-bit time_t in user space 
-with 32-bit compatibility changes introduces by 
-80fe7430c7085951d1246d83f638cc17e6c0be36 in 5.6.
+Bus bandwidth array access is based on esit, increase one
+will cause out-of-bounds issue; for example, when esit is
+XHCI_MTK_MAX_ESIT, will overstep boundary.
 
-On 26/07/2021 09:09, gregkh@linuxfoundation.org wrote:
-> The patch below does not apply to the 4.14-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to<stable@vger.kernel.org>.
->
-> thanks,
->
-> greg k-h
->
-> ------------------ original commit in Linus's tree ------------------
->
->  From 2e2832562c877e6530b8480982d99a4ff90c6777 Mon Sep 17 00:00:00 2001
-> From: Alan Young<consult.awy@gmail.com>
-> Date: Fri, 9 Jul 2021 09:48:54 +0100
-> Subject: [PATCH] ALSA: pcm: Call substream ack() method upon compat mmap
->   commit
->
-> If a 32-bit application is being used with a 64-bit kernel and is using
-> the mmap mechanism to write data, then the SNDRV_PCM_IOCTL_SYNC_PTR
-> ioctl results in calling snd_pcm_ioctl_sync_ptr_compat(). Make this use
-> pcm_lib_apply_appl_ptr() so that the substream's ack() method, if
-> defined, is called.
->
-> The snd_pcm_sync_ptr() function, used in the 64-bit ioctl case, already
-> uses snd_pcm_ioctl_sync_ptr_compat().
->
-> Fixes: 9027c4639ef1 ("ALSA: pcm: Call ack() whenever appl_ptr is updated")
-> Signed-off-by: Alan Young<consult.awy@gmail.com>
-> Cc:<stable@vger.kernel.org>
-> Link:https://lore.kernel.org/r/c441f18c-eb2a-3bdd-299a-696ccca2de9c@gmail.com
-> Signed-off-by: Takashi Iwai<tiwai@suse.de>
->
-> diff --git a/sound/core/pcm_native.c b/sound/core/pcm_native.c
-> index 14e32825c339..c88c4316c417 100644
-> --- a/sound/core/pcm_native.c
-> +++ b/sound/core/pcm_native.c
-> @@ -3063,9 +3063,14 @@ static int snd_pcm_ioctl_sync_ptr_compat(struct snd_pcm_substream *substream,
->   		boundary = 0x7fffffff;
->   	snd_pcm_stream_lock_irq(substream);
->   	/* FIXME: we should consider the boundary for the sync from app */
-> -	if (!(sflags & SNDRV_PCM_SYNC_PTR_APPL))
-> -		control->appl_ptr = scontrol.appl_ptr;
-> -	else
-> +	if (!(sflags & SNDRV_PCM_SYNC_PTR_APPL)) {
-> +		err = pcm_lib_apply_appl_ptr(substream,
-> +				scontrol.appl_ptr);
-> +		if (err < 0) {
-> +			snd_pcm_stream_unlock_irq(substream);
-> +			return err;
-> +		}
-> +	} else
->   		scontrol.appl_ptr = control->appl_ptr % boundary;
->   	if (!(sflags & SNDRV_PCM_SYNC_PTR_AVAIL_MIN))
->   		control->avail_min = scontrol.avail_min;
->
+Fixes: 7c986fbc16ae ("usb: xhci-mtk: get the microframe boundary for ESIT")
+Cc: <stable@vger.kernel.org>
+Reported-by: Stan Lu <stan.lu@mediatek.com>
+Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
+---
+ drivers/usb/host/xhci-mtk-sch.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/usb/host/xhci-mtk-sch.c b/drivers/usb/host/xhci-mtk-sch.c
+index cffcaf4dfa9f..0bb1a6295d64 100644
+--- a/drivers/usb/host/xhci-mtk-sch.c
++++ b/drivers/usb/host/xhci-mtk-sch.c
+@@ -575,10 +575,12 @@ static u32 get_esit_boundary(struct mu3h_sch_ep_info *sch_ep)
+ 	u32 boundary = sch_ep->esit;
+ 
+ 	if (sch_ep->sch_tt) { /* LS/FS with TT */
+-		/* tune for CS */
+-		if (sch_ep->ep_type != ISOC_OUT_EP)
+-			boundary++;
+-		else if (boundary > 1) /* normally esit >= 8 for FS/LS */
++		/*
++		 * tune for CS, normally esit >= 8 for FS/LS,
++		 * not add one for other types to avoid access array
++		 * out of boundary
++		 */
++		if (sch_ep->ep_type == ISOC_OUT_EP && boundary > 1)
+ 			boundary--;
+ 	}
+ 
+-- 
+2.18.0
 
