@@ -2,116 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 917203DB2AD
-	for <lists+stable@lfdr.de>; Fri, 30 Jul 2021 07:16:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29F8B3DB328
+	for <lists+stable@lfdr.de>; Fri, 30 Jul 2021 08:06:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237211AbhG3FQV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Jul 2021 01:16:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48804 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237337AbhG3FP2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 30 Jul 2021 01:15:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E7EBE60F6B;
-        Fri, 30 Jul 2021 05:15:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627622124;
-        bh=SZgPYAVk+Jn1ph5fyQURoEM4zoEZDM4DR0ObZtVKyRE=;
-        h=Subject:To:From:Date:From;
-        b=Y3vjM/bcUQuj+k8SwA/s/puitryDwDY0MJQNprAzmZl24UOPasSzRGYsW8D2G3w6f
-         5hNReBUtr/W5ptvtMfTu03Y66XRETHGW545jflH9p3gW4VGoI0XsryPsmxFMKtrc4i
-         VU3o+gX91di6CHv3vzyO902UZHXkjzJVCpFLB9UY=
-Subject: patch "serial: 8250_mtk: fix uart corruption issue when rx power off" added to tty-linus
-To:     zhiyong.tao@mediatek.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 30 Jul 2021 07:15:21 +0200
-Message-ID: <1627622121107151@kroah.com>
+        id S230349AbhG3GGO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Jul 2021 02:06:14 -0400
+Received: from mo-csw1114.securemx.jp ([210.130.202.156]:48262 "EHLO
+        mo-csw.securemx.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230282AbhG3GGN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 30 Jul 2021 02:06:13 -0400
+Received: by mo-csw.securemx.jp (mx-mo-csw1114) id 16U65wPi016588; Fri, 30 Jul 2021 15:05:58 +0900
+X-Iguazu-Qid: 2wHI1WtxBs3emqi1J9
+X-Iguazu-QSIG: v=2; s=0; t=1627625158; q=2wHI1WtxBs3emqi1J9; m=eZJfxFr76tO++OS5wcPR6gyPkRjdrdoJeFZyrgoajUY=
+Received: from imx12-a.toshiba.co.jp (imx12-a.toshiba.co.jp [61.202.160.135])
+        by relay.securemx.jp (mx-mr1110) id 16U65vWB032243
+        (version=TLSv1.2 cipher=AES128-GCM-SHA256 bits=128 verify=NOT);
+        Fri, 30 Jul 2021 15:05:58 +0900
+Received: from enc02.toshiba.co.jp (enc02.toshiba.co.jp [61.202.160.51])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by imx12-a.toshiba.co.jp (Postfix) with ESMTPS id D3165100137;
+        Fri, 30 Jul 2021 15:05:57 +0900 (JST)
+Received: from hop101.toshiba.co.jp ([133.199.85.107])
+        by enc02.toshiba.co.jp  with ESMTP id 16U65v8M000740;
+        Fri, 30 Jul 2021 15:05:57 +0900
+From:   Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+To:     stable@vger.kernel.org
+Cc:     gregkh@linuxfoundation.org, sashal@kernel.org,
+        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+Subject: [RFC/PATCH 0/2] Backports CVE-2021-21781 for 4.4 and 4.9
+Date:   Fri, 30 Jul 2021 15:05:21 +0900
+X-TSB-HOP: ON
+Message-Id: <20210730060521.342390-1-nobuhiro1.iwamatsu@toshiba.co.jp>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi,
 
-This is a note to let you know that I've just added the patch titled
+This is a patch series to CVE-2021-21781.
+The patch 9c698bff66ab ("RM: ensure the signal page contains defined
+contents") depepds on memset32. However, this function is not provided
+in 4.4 and 4.9. Therefore, we need the patch 3b3c4babd898 ("lib/string.c:
+add multibyte memset functions") to apply this feature.
+Another option is to implement only the memset32 function in
+arch/arm/kernel/signal.c only or using loop memset, but for simplicity
+we have taken the way of applying the original patch 3b3c4babd898
+("lib/string.c: add multibyte memset functions") that provides memset32
+in mainline kernel.
 
-    serial: 8250_mtk: fix uart corruption issue when rx power off
+Best regards,
+     Nobuhiro
 
-to my tty git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
-in the tty-linus branch.
+Matthew Wilcox (1):
+  lib/string.c: add multibyte memset functions
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+Russell King (1):
+  ARM: ensure the signal page contains defined contents
 
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
+ arch/arm/kernel/signal.c | 14 +++++----
+ include/linux/string.h   | 30 ++++++++++++++++++
+ lib/string.c             | 66 ++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 104 insertions(+), 6 deletions(-)
 
-If you have any questions about this process, please let me know.
+-- 
+2.32.0
 
+From 97cc3a4817c982954ff69355d2577a92bddbad4a Mon Sep 17 00:00:00 2001
+From: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+Date: Fri, 30 Jul 2021 14:40:55 +0900
+Subject: [RFC/PATCH 0/2] Backports CVE-2021-21781 for 4.4 and 4.9
 
-From 7c4a509d3815a260c423c0633bd73695250ac26d Mon Sep 17 00:00:00 2001
-From: Zhiyong Tao <zhiyong.tao@mediatek.com>
-Date: Thu, 29 Jul 2021 16:46:40 +0800
-Subject: serial: 8250_mtk: fix uart corruption issue when rx power off
+Hi,
 
-Fix uart corruption issue when rx power off.
-Add spin lock in mtk8250_dma_rx_complete function in APDMA mode.
+This is a patch series to CVE-2021-21781.
+The patch 9c698bff66ab ("RM: ensure the signal page contains defined
+contents") depepds on memset32. However, this function is not provided
+in 4.4 and 4.9. Therefore, we need the patch 3b3c4babd898 ("lib/string.c:
+add multibyte memset functions") to apply this feature.
+Another option is to implement only the memset32 function in
+arch/arm/kernel/signal.c only, but for simplicity we have taken the
+way of applying the original patch 3b3c4babd898 ("lib/string.c: add
+multibyte memset functions") that provides memset32 in mainline kernel.
 
-when uart is used as a communication port with external device(GPS).
-when external device(GPS) power off, the power of rx pin is also from
-1.8v to 0v. Even if there is not any data in rx. But uart rx pin can
-capture the data "0".
-If uart don't receive any data in specified cycle, uart will generates
-BI(Break interrupt) interrupt.
-If external device(GPS) power off, we found that BI interrupt appeared
-continuously and very frequently.
-When uart interrupt type is BI, uart IRQ handler(8250 framwork
-API:serial8250_handle_irq) will push data to tty buffer.
-mtk8250_dma_rx_complete is a task of mtk_uart_apdma_rx_handler.
-mtk8250_dma_rx_complete priority is lower than uart irq
-handler(serial8250_handle_irq).
-if we are in process of mtk8250_dma_rx_complete, uart appear BI
-interrupt:1)serial8250_handle_irq will priority execution.2)it may cause
-write tty buffer conflict in mtk8250_dma_rx_complete.
-So the spin lock protect the rx receive data process is not break.
+Best regards,
+     Nobuhiro
 
-Signed-off-by: Zhiyong Tao <zhiyong.tao@mediatek.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210729084640.17613-2-zhiyong.tao@mediatek.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/tty/serial/8250/8250_mtk.c | 5 +++++
- 1 file changed, 5 insertions(+)
+Matthew Wilcox (1):
+  lib/string.c: add multibyte memset functions
 
-diff --git a/drivers/tty/serial/8250/8250_mtk.c b/drivers/tty/serial/8250/8250_mtk.c
-index f7d3023f860f..fb65dc601b23 100644
---- a/drivers/tty/serial/8250/8250_mtk.c
-+++ b/drivers/tty/serial/8250/8250_mtk.c
-@@ -93,10 +93,13 @@ static void mtk8250_dma_rx_complete(void *param)
- 	struct dma_tx_state state;
- 	int copied, total, cnt;
- 	unsigned char *ptr;
-+	unsigned long flags;
- 
- 	if (data->rx_status == DMA_RX_SHUTDOWN)
- 		return;
- 
-+	spin_lock_irqsave(&up->port.lock, flags);
-+
- 	dmaengine_tx_status(dma->rxchan, dma->rx_cookie, &state);
- 	total = dma->rx_size - state.residue;
- 	cnt = total;
-@@ -120,6 +123,8 @@ static void mtk8250_dma_rx_complete(void *param)
- 	tty_flip_buffer_push(tty_port);
- 
- 	mtk8250_rx_dma(up);
-+
-+	spin_unlock_irqrestore(&up->port.lock, flags);
- }
- 
- static void mtk8250_rx_dma(struct uart_8250_port *up)
+Russell King (1):
+  ARM: ensure the signal page contains defined contents
+
+ arch/arm/kernel/signal.c | 23 ++++++++++----
+ include/linux/string.h   | 30 ++++++++++++++++++
+ lib/string.c             | 66 ++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 113 insertions(+), 6 deletions(-)
+
 -- 
 2.32.0
 
