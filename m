@@ -2,81 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D10933DB42A
-	for <lists+stable@lfdr.de>; Fri, 30 Jul 2021 09:04:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0424E3DB43B
+	for <lists+stable@lfdr.de>; Fri, 30 Jul 2021 09:05:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237686AbhG3HES (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Jul 2021 03:04:18 -0400
-Received: from szxga08-in.huawei.com ([45.249.212.255]:13215 "EHLO
-        szxga08-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237781AbhG3HEN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 30 Jul 2021 03:04:13 -0400
-Received: from dggemv704-chm.china.huawei.com (unknown [172.30.72.54])
-        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4GbdX03z0yz1CQdl;
-        Fri, 30 Jul 2021 14:58:08 +0800 (CST)
-Received: from dggpemm500001.china.huawei.com (7.185.36.107) by
- dggemv704-chm.china.huawei.com (10.3.19.47) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2176.2; Fri, 30 Jul 2021 15:04:06 +0800
-Received: from [10.174.177.243] (10.174.177.243) by
- dggpemm500001.china.huawei.com (7.185.36.107) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2176.2; Fri, 30 Jul 2021 15:04:05 +0800
-Subject: Re: [PATCH v2] lib: Use PFN_PHYS() in devmem_is_allowed()
-To:     Liang Wang <wangliang101@huawei.com>, <palmerdabbelt@google.com>,
-        <mcgrof@kernel.org>, <linux-kernel@vger.kernel.org>,
-        <gregkh@linuxfoundation.org>, <linux@armlinux.org.uk>,
-        <linux-arm-kernel@lists.infradead.org>
-CC:     <stable@vger.kernel.org>, <wangle6@huawei.com>,
-        <kepler.chenxin@huawei.com>, <nixiaoming@huawei.com>
-References: <20210730064915.56249-1-wangliang101@huawei.com>
-From:   Kefeng Wang <wangkefeng.wang@huawei.com>
-Message-ID: <12e37243-0cdb-6765-c3ef-c98fd291591c@huawei.com>
-Date:   Fri, 30 Jul 2021 15:04:05 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.0
+        id S237901AbhG3HFs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Jul 2021 03:05:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42768 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237824AbhG3HFn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 30 Jul 2021 03:05:43 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8CDBC0613D3
+        for <stable@vger.kernel.org>; Fri, 30 Jul 2021 00:05:38 -0700 (PDT)
+Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=bjornoya.blackshift.org)
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <mkl@pengutronix.de>)
+        id 1m9MaP-00066f-C1
+        for stable@vger.kernel.org; Fri, 30 Jul 2021 09:05:37 +0200
+Received: from dspam.blackshift.org (localhost [127.0.0.1])
+        by bjornoya.blackshift.org (Postfix) with SMTP id DFE7E65B7C7
+        for <stable@vger.kernel.org>; Fri, 30 Jul 2021 07:05:32 +0000 (UTC)
+Received: from hardanger.blackshift.org (unknown [172.20.34.65])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (Client did not present a certificate)
+        by bjornoya.blackshift.org (Postfix) with ESMTPS id 18C3165B794;
+        Fri, 30 Jul 2021 07:05:29 +0000 (UTC)
+Received: from blackshift.org (localhost [::1])
+        by hardanger.blackshift.org (OpenSMTPD) with ESMTP id f8636b5d;
+        Fri, 30 Jul 2021 07:05:28 +0000 (UTC)
+From:   Marc Kleine-Budde <mkl@pengutronix.de>
+To:     netdev@vger.kernel.org
+Cc:     davem@davemloft.net, kuba@kernel.org, linux-can@vger.kernel.org,
+        kernel@pengutronix.de, Pavel Skripkin <paskripkin@gmail.com>,
+        linux-stable <stable@vger.kernel.org>,
+        Yasushi SHOJI <yasushi.shoji@gmail.com>,
+        Yasushi SHOJI <yashi@spacecubics.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH net 3/6] can: mcba_usb_start(): add missing urb->transfer_dma initialization
+Date:   Fri, 30 Jul 2021 09:05:23 +0200
+Message-Id: <20210730070526.1699867-4-mkl@pengutronix.de>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210730070526.1699867-1-mkl@pengutronix.de>
+References: <20210730070526.1699867-1-mkl@pengutronix.de>
 MIME-Version: 1.0
-In-Reply-To: <20210730064915.56249-1-wangliang101@huawei.com>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-Originating-IP: [10.174.177.243]
-X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
- dggpemm500001.china.huawei.com (7.185.36.107)
-X-CFilter-Loop: Reflected
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
+X-SA-Exim-Mail-From: mkl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-On 2021/7/30 14:49, Liang Wang wrote:
-> The physical address may exceed 32 bits on ARM(when ARM_LPAE enabled),
-> use PFN_PHYS() in devmem_is_allowed(), or the physical address may
-> overflow and be truncated.
->
-> This bug was initially introduced from v2.6.37, and the function was moved
-> to lib when v5.10.
->
-> Fixes: 087aaffcdf9c ("ARM: implement CONFIG_STRICT_DEVMEM by disabling access to RAM via /dev/mem")
-> Fixes: 527701eda5f1 ("lib: Add a generic version of devmem_is_allowed()")
-> Cc: stable@vger.kernel.org # v2.6.37
-> Signed-off-by: Liang Wang <wangliang101@huawei.com>
-Reviewed-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-> ---
-> v2: update subject and changelog
->   lib/devmem_is_allowed.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/lib/devmem_is_allowed.c b/lib/devmem_is_allowed.c
-> index c0d67c541849..60be9e24bd57 100644
-> --- a/lib/devmem_is_allowed.c
-> +++ b/lib/devmem_is_allowed.c
-> @@ -19,7 +19,7 @@
->    */
->   int devmem_is_allowed(unsigned long pfn)
->   {
-> -	if (iomem_is_exclusive(pfn << PAGE_SHIFT))
-> +	if (iomem_is_exclusive(PFN_PHYS(pfn)))
->   		return 0;
->   	if (!page_is_ram(pfn))
->   		return 1;
+Yasushi reported, that his Microchip CAN Analyzer stopped working
+since commit 91c02557174b ("can: mcba_usb: fix memory leak in
+mcba_usb"). The problem was in missing urb->transfer_dma
+initialization.
+
+In my previous patch to this driver I refactored mcba_usb_start() code
+to avoid leaking usb coherent buffers. To archive it, I passed local
+stack variable to usb_alloc_coherent() and then saved it to private
+array to correctly free all coherent buffers on ->close() call. But I
+forgot to initialize urb->transfer_dma with variable passed to
+usb_alloc_coherent().
+
+All of this was causing device to not work, since dma addr 0 is not
+valid and following log can be found on bug report page, which points
+exactly to problem described above.
+
+| DMAR: [DMA Write] Request device [00:14.0] PASID ffffffff fault addr 0 [fault reason 05] PTE Write access is not set
+
+Fixes: 91c02557174b ("can: mcba_usb: fix memory leak in mcba_usb")
+Link: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=990850
+Link: https://lore.kernel.org/r/20210725103630.23864-1-paskripkin@gmail.com
+Cc: linux-stable <stable@vger.kernel.org>
+Reported-by: Yasushi SHOJI <yasushi.shoji@gmail.com>
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Tested-by: Yasushi SHOJI <yashi@spacecubics.com>
+[mkl: fixed typos in commit message - thanks Yasushi SHOJI]
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+---
+ drivers/net/can/usb/mcba_usb.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/net/can/usb/mcba_usb.c b/drivers/net/can/usb/mcba_usb.c
+index a45865bd7254..a1a154c08b7f 100644
+--- a/drivers/net/can/usb/mcba_usb.c
++++ b/drivers/net/can/usb/mcba_usb.c
+@@ -653,6 +653,8 @@ static int mcba_usb_start(struct mcba_priv *priv)
+ 			break;
+ 		}
+ 
++		urb->transfer_dma = buf_dma;
++
+ 		usb_fill_bulk_urb(urb, priv->udev,
+ 				  usb_rcvbulkpipe(priv->udev, MCBA_USB_EP_IN),
+ 				  buf, MCBA_USB_RX_BUFF_SIZE,
+-- 
+2.30.2
+
+
