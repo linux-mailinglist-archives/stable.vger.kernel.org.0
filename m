@@ -2,135 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93E1240D903
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 13:45:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C67140D971
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 14:04:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238203AbhIPLq2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 07:46:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39810 "EHLO mail.kernel.org"
+        id S238992AbhIPMFw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 08:05:52 -0400
+Received: from www.linuxtv.org ([130.149.80.248]:53708 "EHLO www.linuxtv.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237952AbhIPLq1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 07:46:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A91C560F3A;
-        Thu, 16 Sep 2021 11:45:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631792707;
-        bh=AJ1KkjnvIE+QcVe8giadY2v9LfVNqivpphrKWxtOCnw=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QTbMlY1PIzEPqsf1ldf7QdzysqvgTUXvKc9nxPHvNHWJuB0ekHhHebu6SBa5mJffF
-         iUhsKq9Oip5/bdQnUz7zH7edRF1vEs34y1CowPCcHQf4pghRdJ0KuKupLKQYg30s5W
-         7dHrBZ2b5zfurxrmG+FMI5BSX+bkolRUWmcW3Ki4=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
-        torvalds@linux-foundation.org, stable@vger.kernel.org
-Cc:     lwn@lwn.net, jslaby@suse.cz,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Linux 5.4.147
-Date:   Thu, 16 Sep 2021 13:44:56 +0200
-Message-Id: <163179268620542@kroah.com>
-X-Mailer: git-send-email 2.33.0
-In-Reply-To: <16317926868288@kroah.com>
-References: <16317926868288@kroah.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S238988AbhIPMFw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 08:05:52 -0400
+Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
+        (envelope-from <mchehab@linuxtv.org>)
+        id 1mQq7w-00CdFB-EE; Thu, 16 Sep 2021 12:04:28 +0000
+From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Date:   Fri, 30 Jul 2021 10:59:18 +0000
+Subject: [git:media_tree/master] media: rtl28xxu: fix zero-length control request
+To:     linuxtv-commits@linuxtv.org
+Cc:     Sean Young <sean@mess.org>, Johan Hovold <johan@kernel.org>,
+        Antti Palosaari <crope@iki.fi>,
+        Eero Lehtinen <debiangamer2@gmail.com>, stable@vger.kernel.org
+Mail-followup-to: linux-media@vger.kernel.org
+Forward-to: linux-media@vger.kernel.org
+Reply-to: linux-media@vger.kernel.org
+Message-Id: <E1mQq7w-00CdFB-EE@www.linuxtv.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index 48d0c03acfc5..98227dae3494 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
- VERSION = 5
- PATCHLEVEL = 4
--SUBLEVEL = 146
-+SUBLEVEL = 147
- EXTRAVERSION =
- NAME = Kleptomaniac Octopus
- 
-diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-index bc3ab98855cf..25e81b1a59a5 100644
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -1744,17 +1744,7 @@ static int nbd_dev_add(int index)
- 	refcount_set(&nbd->refs, 1);
- 	INIT_LIST_HEAD(&nbd->list);
- 	disk->major = NBD_MAJOR;
--
--	/* Too big first_minor can cause duplicate creation of
--	 * sysfs files/links, since first_minor will be truncated to
--	 * byte in __device_add_disk().
--	 */
- 	disk->first_minor = index << part_shift;
--	if (disk->first_minor > 0xff) {
--		err = -EINVAL;
--		goto out_free_idr;
--	}
--
- 	disk->fops = &nbd_fops;
- 	disk->private_data = nbd;
- 	sprintf(disk->disk_name, "nbd%d", index);
-diff --git a/include/linux/time64.h b/include/linux/time64.h
-index f6059c505986..5eab3f263518 100644
---- a/include/linux/time64.h
-+++ b/include/linux/time64.h
-@@ -33,9 +33,7 @@ struct itimerspec64 {
- #define TIME64_MIN			(-TIME64_MAX - 1)
- 
- #define KTIME_MAX			((s64)~((u64)1 << 63))
--#define KTIME_MIN			(-KTIME_MAX - 1)
- #define KTIME_SEC_MAX			(KTIME_MAX / NSEC_PER_SEC)
--#define KTIME_SEC_MIN			(KTIME_MIN / NSEC_PER_SEC)
- 
- /*
-  * Limits for settimeofday():
-@@ -134,13 +132,10 @@ static inline bool timespec64_valid_settod(const struct timespec64 *ts)
-  */
- static inline s64 timespec64_to_ns(const struct timespec64 *ts)
- {
--	/* Prevent multiplication overflow / underflow */
--	if (ts->tv_sec >= KTIME_SEC_MAX)
-+	/* Prevent multiplication overflow */
-+	if ((unsigned long long)ts->tv_sec >= KTIME_SEC_MAX)
- 		return KTIME_MAX;
- 
--	if (ts->tv_sec <= KTIME_SEC_MIN)
--		return KTIME_MIN;
--
- 	return ((s64) ts->tv_sec * NSEC_PER_SEC) + ts->tv_nsec;
- }
- 
-diff --git a/kernel/time/posix-cpu-timers.c b/kernel/time/posix-cpu-timers.c
-index 30e061b210b7..eacb0ca30193 100644
---- a/kernel/time/posix-cpu-timers.c
-+++ b/kernel/time/posix-cpu-timers.c
-@@ -1201,6 +1201,8 @@ void set_process_cpu_timer(struct task_struct *tsk, unsigned int clkid,
- 			}
- 		}
- 
-+		if (!*newval)
-+			return;
- 		*newval += now;
+This is an automatic generated email to let you know that the following patch were queued:
+
+Subject: media: rtl28xxu: fix zero-length control request
+Author:  Johan Hovold <johan@kernel.org>
+Date:    Wed Jun 23 10:45:21 2021 +0200
+
+The direction of the pipe argument must match the request-type direction
+bit or control requests may fail depending on the host-controller-driver
+implementation.
+
+Control transfers without a data stage are treated as OUT requests by
+the USB stack and should be using usb_sndctrlpipe(). Failing to do so
+will now trigger a warning.
+
+The driver uses a zero-length i2c-read request for type detection so
+update the control-request code to use usb_sndctrlpipe() in this case.
+
+Note that actually trying to read the i2c register in question does not
+work as the register might not exist (e.g. depending on the demodulator)
+as reported by Eero Lehtinen <debiangamer2@gmail.com>.
+
+Reported-by: syzbot+faf11bbadc5a372564da@syzkaller.appspotmail.com
+Reported-by: Eero Lehtinen <debiangamer2@gmail.com>
+Tested-by: Eero Lehtinen <debiangamer2@gmail.com>
+Fixes: d0f232e823af ("[media] rtl28xxu: add heuristic to detect chip type")
+Cc: stable@vger.kernel.org      # 4.0
+Cc: Antti Palosaari <crope@iki.fi>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+
+ drivers/media/usb/dvb-usb-v2/rtl28xxu.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
+
+---
+
+diff --git a/drivers/media/usb/dvb-usb-v2/rtl28xxu.c b/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
+index 0cbdb95f8d35..795a012d4020 100644
+--- a/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
++++ b/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
+@@ -37,7 +37,16 @@ static int rtl28xxu_ctrl_msg(struct dvb_usb_device *d, struct rtl28xxu_req *req)
+ 	} else {
+ 		/* read */
+ 		requesttype = (USB_TYPE_VENDOR | USB_DIR_IN);
+-		pipe = usb_rcvctrlpipe(d->udev, 0);
++
++		/*
++		 * Zero-length transfers must use usb_sndctrlpipe() and
++		 * rtl28xxu_identify_state() uses a zero-length i2c read
++		 * command to determine the chip type.
++		 */
++		if (req->size)
++			pipe = usb_rcvctrlpipe(d->udev, 0);
++		else
++			pipe = usb_sndctrlpipe(d->udev, 0);
  	}
  
-diff --git a/net/bluetooth/hci_core.c b/net/bluetooth/hci_core.c
-index bdd330527cfa..c50e3e8afbd3 100644
---- a/net/bluetooth/hci_core.c
-+++ b/net/bluetooth/hci_core.c
-@@ -1691,14 +1691,6 @@ int hci_dev_do_close(struct hci_dev *hdev)
- 	hci_request_cancel_all(hdev);
- 	hci_req_sync_lock(hdev);
- 
--	if (!hci_dev_test_flag(hdev, HCI_UNREGISTER) &&
--	    !hci_dev_test_flag(hdev, HCI_USER_CHANNEL) &&
--	    test_bit(HCI_UP, &hdev->flags)) {
--		/* Execute vendor specific shutdown routine */
--		if (hdev->shutdown)
--			hdev->shutdown(hdev);
--	}
--
- 	if (!test_and_clear_bit(HCI_UP, &hdev->flags)) {
- 		cancel_delayed_work_sync(&hdev->cmd_timer);
- 		hci_req_sync_unlock(hdev);
+ 	ret = usb_control_msg(d->udev, pipe, 0, requesttype, req->value,
