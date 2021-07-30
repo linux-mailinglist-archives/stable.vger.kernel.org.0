@@ -2,84 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 45C6C3DB548
-	for <lists+stable@lfdr.de>; Fri, 30 Jul 2021 10:51:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69FB93DB59D
+	for <lists+stable@lfdr.de>; Fri, 30 Jul 2021 11:03:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238173AbhG3IvJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Jul 2021 04:51:09 -0400
-Received: from mailgw01.mediatek.com ([60.244.123.138]:41564 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S237928AbhG3Iuu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 30 Jul 2021 04:50:50 -0400
-X-UUID: 053be6fc763f45d8ac664e2e2b7e5a62-20210730
-X-UUID: 053be6fc763f45d8ac664e2e2b7e5a62-20210730
-Received: from mtkmbs10n2.mediatek.inc [(172.21.101.183)] by mailgw01.mediatek.com
-        (envelope-from <chunfeng.yun@mediatek.com>)
-        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
-        with ESMTP id 1007530290; Fri, 30 Jul 2021 16:50:43 +0800
-Received: from mtkcas11.mediatek.inc (172.21.101.40) by
- mtkmbs06n1.mediatek.inc (172.21.101.129) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Fri, 30 Jul 2021 16:50:42 +0800
-Received: from localhost.localdomain (10.17.3.153) by mtkcas11.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Fri, 30 Jul 2021 16:50:41 +0800
-From:   Chunfeng Yun <chunfeng.yun@mediatek.com>
-To:     Rob Herring <robh+dt@kernel.org>,
-        Mathias Nyman <mathias.nyman@intel.com>
-CC:     Chunfeng Yun <chunfeng.yun@mediatek.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        <linux-usb@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>, <devicetree@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>,
-        Eddie Hung <eddie.hung@mediatek.com>, <stable@vger.kernel.org>
-Subject: [PATCH 07/11] usb: xhci-mtk: fix issue of out-of-bounds array access
-Date:   Fri, 30 Jul 2021 16:49:58 +0800
-Message-ID: <1627635002-24521-7-git-send-email-chunfeng.yun@mediatek.com>
-X-Mailer: git-send-email 1.8.1.1.dirty
-In-Reply-To: <1627635002-24521-1-git-send-email-chunfeng.yun@mediatek.com>
-References: <1627635002-24521-1-git-send-email-chunfeng.yun@mediatek.com>
+        id S230513AbhG3JDM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Jul 2021 05:03:12 -0400
+Received: from mail1.perex.cz ([77.48.224.245]:49828 "EHLO mail1.perex.cz"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230402AbhG3JDL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 30 Jul 2021 05:03:11 -0400
+Received: from mail1.perex.cz (localhost [127.0.0.1])
+        by smtp1.perex.cz (Perex's E-mail Delivery System) with ESMTP id 1088CA003F;
+        Fri, 30 Jul 2021 11:03:05 +0200 (CEST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.perex.cz 1088CA003F
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=perex.cz; s=default;
+        t=1627635785; bh=esDYRbz6AalQmhVyKPdaKQ9dA13PxErSDR/m1A34si4=;
+        h=From:To:Cc:Subject:Date:From;
+        b=mz/iHq08wy95u48V76l+wfaHKNNSArXTzG7wJLw5dBUY8qeHOhp+NbN2IdufWHeR8
+         I0AsKi+DC4IiZJfDxshMX+00y38/jWwaSsfVVKCFOr9v/9sOI76VkbiJEiv1TsGS75
+         Ll2xSAjqJOOmM2bHb/zBavL6scknnh33BDKRDdcM=
+Received: from p1gen2.perex-int.cz (unknown [192.168.100.98])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        (Authenticated sender: perex)
+        by mail1.perex.cz (Perex's E-mail Delivery System) with ESMTPSA;
+        Fri, 30 Jul 2021 11:03:00 +0200 (CEST)
+From:   Jaroslav Kysela <perex@perex.cz>
+To:     ALSA development <alsa-devel@alsa-project.org>
+Cc:     Takashi Iwai <tiwai@suse.de>, Jaroslav Kysela <perex@perex.cz>,
+        stable@vger.kernel.org
+Subject: [PATCH] ALSA: pcm - fix mmap capability check for the snd-dummy driver
+Date:   Fri, 30 Jul 2021 11:02:54 +0200
+Message-Id: <20210730090254.612478-1-perex@perex.cz>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-Content-Type: text/plain
-X-MTK:  N
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Bus bandwidth array access is based on esit, increase one
-will cause out-of-bounds issue; for example, when esit is
-XHCI_MTK_MAX_ESIT, will overstep boundary.
+The snd-dummy driver (fake_buffer configuration) uses the ops->page
+callback for the mmap operations. Allow mmap for this case, too.
 
-Fixes: 7c986fbc16ae ("usb: xhci-mtk: get the microframe boundary for ESIT")
 Cc: <stable@vger.kernel.org>
-Reported-by: Stan Lu <stan.lu@mediatek.com>
-Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
+Fixes: c4824ae7db41 ("ALSA: pcm: Fix mmap capability check")
+Signed-off-by: Jaroslav Kysela <perex@perex.cz>
 ---
- drivers/usb/host/xhci-mtk-sch.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ sound/core/pcm_native.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/host/xhci-mtk-sch.c b/drivers/usb/host/xhci-mtk-sch.c
-index cffcaf4dfa9f..0bb1a6295d64 100644
---- a/drivers/usb/host/xhci-mtk-sch.c
-+++ b/drivers/usb/host/xhci-mtk-sch.c
-@@ -575,10 +575,12 @@ static u32 get_esit_boundary(struct mu3h_sch_ep_info *sch_ep)
- 	u32 boundary = sch_ep->esit;
+diff --git a/sound/core/pcm_native.c b/sound/core/pcm_native.c
+index 6a2971a7e6a1..09c0e2a6489c 100644
+--- a/sound/core/pcm_native.c
++++ b/sound/core/pcm_native.c
+@@ -246,7 +246,7 @@ static bool hw_support_mmap(struct snd_pcm_substream *substream)
+ 	if (!(substream->runtime->hw.info & SNDRV_PCM_INFO_MMAP))
+ 		return false;
  
- 	if (sch_ep->sch_tt) { /* LS/FS with TT */
--		/* tune for CS */
--		if (sch_ep->ep_type != ISOC_OUT_EP)
--			boundary++;
--		else if (boundary > 1) /* normally esit >= 8 for FS/LS */
-+		/*
-+		 * tune for CS, normally esit >= 8 for FS/LS,
-+		 * not add one for other types to avoid access array
-+		 * out of boundary
-+		 */
-+		if (sch_ep->ep_type == ISOC_OUT_EP && boundary > 1)
- 			boundary--;
- 	}
+-	if (substream->ops->mmap)
++	if (substream->ops->mmap || substream->ops->page)
+ 		return true;
  
+ 	switch (substream->dma_buffer.dev.type) {
 -- 
-2.18.0
-
+2.31.1
