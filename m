@@ -2,94 +2,233 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 602B43DB7A6
-	for <lists+stable@lfdr.de>; Fri, 30 Jul 2021 13:15:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6779B3DB7D3
+	for <lists+stable@lfdr.de>; Fri, 30 Jul 2021 13:27:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230157AbhG3LPW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Jul 2021 07:15:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47846 "EHLO
+        id S238593AbhG3L1j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Jul 2021 07:27:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50994 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238403AbhG3LPW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 30 Jul 2021 07:15:22 -0400
-Received: from mail-wm1-x32a.google.com (mail-wm1-x32a.google.com [IPv6:2a00:1450:4864:20::32a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEA54C061765
-        for <stable@vger.kernel.org>; Fri, 30 Jul 2021 04:15:16 -0700 (PDT)
-Received: by mail-wm1-x32a.google.com with SMTP id m20-20020a05600c4f54b029024e75a15716so6150489wmq.2
-        for <stable@vger.kernel.org>; Fri, 30 Jul 2021 04:15:16 -0700 (PDT)
+        with ESMTP id S238576AbhG3L1j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 30 Jul 2021 07:27:39 -0400
+Received: from mail-oi1-x232.google.com (mail-oi1-x232.google.com [IPv6:2607:f8b0:4864:20::232])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96783C0613C1
+        for <stable@vger.kernel.org>; Fri, 30 Jul 2021 04:27:34 -0700 (PDT)
+Received: by mail-oi1-x232.google.com with SMTP id x15so12707424oic.9
+        for <stable@vger.kernel.org>; Fri, 30 Jul 2021 04:27:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:subject:to:cc:references:message-id:date:user-agent
-         :mime-version:in-reply-to:content-transfer-encoding:content-language;
-        bh=OU8qXUqqKAFOyFA5tQd0rObl29gMPArhi8rvRuKwPE4=;
-        b=L2rTxClAjjr063XV7f1Ov9xNxKa+RADAi6fRy1NFCLbqtdEZdHkMlZoyFFXtMeWqVj
-         YME0TSap5plenvCBYHGdqhNkJrP3LuN/4sGdg4+z4eT/SvSeBHv3yOdm/ZiwDV/wMVbs
-         NLAjYzAPzIAP2TleouvoSZ3/qm645U/OM9zOmP2gyEnKHcdta9tMZI62vN7RpyDTl5TB
-         zEtBjK2Nu2htZAnuOOr039tsFXRSHkEBNfel+lp2zL53Y2DwUqtgrT3aWcpnk3TpUuDb
-         ngNBxRo8R34PnG3hb+QzyGNDwZQOEQ9Y33hqLKq3+fjczvZtjzYA/o5j5wh9aMhZ/PRg
-         lmvg==
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=baSZDbp/TLfSVx/yL2xSQkCjVpnpVUlEm4g8HBHorpU=;
+        b=mZIoDrxU50xRM6Wn8vF50yMhNsSCSqFSWAIfiFQNia0CmRRxIrF8yFwwl08NCpd+IB
+         ERw5ETkaoxfiiB5OC7RQhMz/P3lQ3Wl8Pc3QAq7cObIUlYi/SEOXpEFHI7i4P7RI9OIV
+         1izPkYB4ZA45XjNrHHNWBa1dYGjTmLNq2Mm4Y59BtJTffGOblCiZ2mjL+cFrlydj2erh
+         hCMlmLcut9dSUpHRsi+MVOQ9mlP1bgttTDeToVyIz+1DV16O5X9FVcsiVEqJVfoJdkqC
+         9nQc3XZ+MLmQvwFuoMGvZc//5/YQSPipwI9uFzp04GQXxBL4zXXhvjGhcSjctcnqZTZg
+         49ZQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:subject:to:cc:references:message-id:date
-         :user-agent:mime-version:in-reply-to:content-transfer-encoding
-         :content-language;
-        bh=OU8qXUqqKAFOyFA5tQd0rObl29gMPArhi8rvRuKwPE4=;
-        b=sDwrQWkwRjI9IktPEXC1AGsxgoWdU3nRzNQmPs4jIlgE7kLYTPyYAD9gJp4h58vlte
-         +EKnJxWVruAOtXiSm8QTK0aF0LND5joEZQUzg3d48oq34bRyaaZHDtr07gP52cWpnu22
-         FIEpgK9a4GO12gDn3LGfFzl0gCdyBoSuI4OJYw6+h9mC2hrr+NV+xIyM4afYdTwRXzDV
-         kwtsJ+tRqPhqAZ7qzrOlsGihc5fmq2vN0/jTkJrTrBoANtTytWeMFjIgqspyJpYB5ZJ+
-         fErMW3wDPlR+RnFENWIWZVqP5KV0mSaPxyJ7KD+vFHi3KEA0ryE3PjERVe+MeJdVRhYu
-         q/9A==
-X-Gm-Message-State: AOAM532hbWYi/BuObY6tPB2rhuQAX64uImXUkbNNpEBZ/MRd1IIru4yX
-        YVeaXjwmfLvDKQIBtl59GGM=
-X-Google-Smtp-Source: ABdhPJx7DmqPMtPPF6ohIohQs3zsG00AegDUvivhR6iE6Ew+rdSD7kr77ZLQ3XbxHEfW05faMoKw5A==
-X-Received: by 2002:a7b:c416:: with SMTP id k22mr2452145wmi.177.1627643715047;
-        Fri, 30 Jul 2021 04:15:15 -0700 (PDT)
-Received: from [192.168.11.11] (156.133.46.217.dyn.plus.net. [217.46.133.156])
-        by smtp.googlemail.com with ESMTPSA id m9sm1397894wrz.75.2021.07.30.04.15.14
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 30 Jul 2021 04:15:14 -0700 (PDT)
-From:   Alan Young <consult.awy@gmail.com>
-Subject: Re: FAILED: patch "[PATCH] ALSA: pcm: Call substream ack() method
- upon compat mmap" failed to apply to 5.4-stable tree
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, tiwai@suse.de
-References: <162728697013399@kroah.com>
- <e26c27fb-12e8-f1c1-0dde-50fd68623118@gmail.com> <YQPFqOmmJCJM9Ref@kroah.com>
-Message-ID: <acb7f13d-a7bf-8820-363c-98798faa7a09@gmail.com>
-Date:   Fri, 30 Jul 2021 12:15:14 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.1
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=baSZDbp/TLfSVx/yL2xSQkCjVpnpVUlEm4g8HBHorpU=;
+        b=j3pkPmb1rV4kI+8HrjAn5Y/P3K+zFAywGRxAuxD8uozCc3D5DzIwHJM8w/Fyebi9g/
+         8SIlskFKSTbYmzKo88ZnMImpm3VM4l13a2EmEzegWdDcjnuyCaIG4w66uB+zz6A2Bk6S
+         e+/tthAmWg96EHZDPMOLYGWW4pSGb+IvSoRGjiY5AqKuPTVyONsn+gpCKzwDBzfZutk4
+         b64H5UKJp3bRrhGCHtQD3tHQcdj9SGvR3cd7PhjHBGSzGzUUwvRGwMjGiSm9qKoMz71E
+         5SYyrajH4dXhJQhI2/9AWakSyUdNh0MKTOTRL18cRTskg2/c+zE9HakK1jvLdhheML5L
+         qZ2w==
+X-Gm-Message-State: AOAM532x0vyPHL/Mp21FYQln8SSwpkpLQu5EqK7U1nSWuvig+YJiy/Ng
+        x1hp5HRQnWuIo0WW2Opd6ZXXgNULOvMJ2UrtVwIKvg==
+X-Google-Smtp-Source: ABdhPJzRJCBt0UBigVVSxKV2WvYCH1JKioBiGRJDS74Vx3uHlUqc1DSJWIt1/zsvRy3o0CDJ/fx4HHiOlJHfcl+qtWY=
+X-Received: by 2002:aca:abd4:: with SMTP id u203mr1444918oie.13.1627644453703;
+ Fri, 30 Jul 2021 04:27:33 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <YQPFqOmmJCJM9Ref@kroah.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-GB
+References: <20210729135137.260993951@linuxfoundation.org>
+In-Reply-To: <20210729135137.260993951@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Fri, 30 Jul 2021 16:57:22 +0530
+Message-ID: <CA+G9fYspx_fMweJFMevdL84q6-FNp8DqMA-ng--iLGboLgMpAg@mail.gmail.com>
+Subject: Re: [PATCH 4.19 00/17] 4.19.200-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        linux-stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 30/07/2021 10:26, Greg KH wrote:
-> On Fri, Jul 30, 2021 at 09:38:52AM +0100, Alan Young wrote:
->> This commit is not applicable before the 64-bit time_t in user space with
->> 32-bit compatibility changes introduces by
->> 80fe7430c7085951d1246d83f638cc17e6c0be36 in 5.6.
-> That is odd, as that is not what you wrote in the patch itself:
+On Thu, 29 Jul 2021 at 19:27, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
 >
->>      Fixes: 9027c4639ef1 ("ALSA: pcm: Call ack() whenever appl_ptr is updated")
-> So is the Fixes: tag here incorrect?
+> This is the start of the stable review cycle for the 4.19.200 release.
+> There are 17 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Sat, 31 Jul 2021 13:51:22 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.19.200-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.19.y
+> and the diffstat can be found below.
 >
 > thanks,
 >
 > greg k-h
+>
 
-I did not add the Fixes tag. I guess Takashi Iwai did.
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-I think that 9027c4639ef1 added some functionality that was broken by 
-80fe7430c7085951 and which my patch corrects. So the Fixes: 9027c4639ef1 
-tag refers to the actual functionality, not the breaking of it.
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-I have no idea if that is the correct usage of the Fixes tag which, as I 
-said, I did not add.
+## Build
+* kernel: 4.19.200-rc1
+* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
+rc.git
+* git branch: linux-4.19.y
+* git commit: 3b0f6d777e8545324198eca00a5758c7b287aee7
+* git describe: v4.19.199-18-g3b0f6d777e85
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19.y/build/v4.19=
+.199-18-g3b0f6d777e85
 
-Alan.
+## No regressions (compared to v4.19.198-120-gb72fc3c0016d)
 
+## No fixes (compared to v4.19.198-120-gb72fc3c0016d)
+
+## Test result summary
+ total: 74142, pass: 57856, fail: 1674, skip: 12842, xfail: 1770,
+
+## Build Summary
+* arm: 97 total, 97 passed, 0 failed
+* arm64: 25 total, 25 passed, 0 failed
+* dragonboard-410c: 1 total, 1 passed, 0 failed
+* hi6220-hikey: 1 total, 1 passed, 0 failed
+* i386: 14 total, 13 passed, 1 failed
+* juno-r2: 1 total, 1 passed, 0 failed
+* mips: 39 total, 39 passed, 0 failed
+* s390: 9 total, 9 passed, 0 failed
+* sparc: 9 total, 9 passed, 0 failed
+* x15: 1 total, 1 passed, 0 failed
+* x86: 1 total, 1 passed, 0 failed
+* x86_64: 15 total, 15 passed, 0 failed
+
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* install-android-platform-tools-r2600
+* kselftest-
+* kselftest-android
+* kselftest-bpf
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-lkdtm
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-vsyscall-mode-native-
+* kselftest-vsyscall-mode-none-
+* kselftest-x86
+* kselftest-zram
+* kvm-unit-tests
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* ltp[
+* network-basic-tests
+* packetdrill
+* perf
+* rcutorture
+* ssuite
+* v4l2-compliance
+
+--
+Linaro LKFT
+https://lkft.linaro.org
