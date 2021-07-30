@@ -2,113 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47E143DC137
-	for <lists+stable@lfdr.de>; Sat, 31 Jul 2021 00:42:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B24AA3DC14A
+	for <lists+stable@lfdr.de>; Sat, 31 Jul 2021 00:53:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232745AbhG3Wm1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Jul 2021 18:42:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53736 "EHLO
+        id S230395AbhG3WyB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Jul 2021 18:54:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56488 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231189AbhG3Wm0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 30 Jul 2021 18:42:26 -0400
-Received: from mail-lj1-x236.google.com (mail-lj1-x236.google.com [IPv6:2a00:1450:4864:20::236])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 337CBC061765
-        for <stable@vger.kernel.org>; Fri, 30 Jul 2021 15:42:21 -0700 (PDT)
-Received: by mail-lj1-x236.google.com with SMTP id m9so14487133ljp.7
-        for <stable@vger.kernel.org>; Fri, 30 Jul 2021 15:42:21 -0700 (PDT)
+        with ESMTP id S233574AbhG3WyA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 30 Jul 2021 18:54:00 -0400
+Received: from mail-lj1-x22d.google.com (mail-lj1-x22d.google.com [IPv6:2a00:1450:4864:20::22d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A5D5C061765
+        for <stable@vger.kernel.org>; Fri, 30 Jul 2021 15:53:54 -0700 (PDT)
+Received: by mail-lj1-x22d.google.com with SMTP id q2so14552633ljq.5
+        for <stable@vger.kernel.org>; Fri, 30 Jul 2021 15:53:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
+        d=linux-foundation.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=MvaRlaXK64PpiXVCxXFWPZrJ6CRVJKhlEggaPSUWrrw=;
-        b=CamcDOtb4w32+Iwghtae/iPJ4AawESCpvZfWvezZMZ2GmChsXM+D5S/WHRuAsK/sol
-         k/QhziJbAl+EIxdK2SdZbk3RdfRUppMIsuc5kTQMewaCPzJw4aKEI3Eu9wRyh11Drmrd
-         FHMc6zK2PGlNcCN+FurZ+iWO7OY7901V6GveTFJszVCrRN+K7AfRjSRkqJDeDBdmVZSU
-         raKAAS798S1kv0LiK803/HbxaTWfj5vPSmOpNDyid0UXwxTPdpQepcngNnOntz5HsaOY
-         0piJrOFdPamO6NdoWP36W+lhaXKHPRPzIbxZjEHwznYdw4lSsxaaWgv8LKp2PquT/SOl
-         OoZA==
+        bh=yYbtWfX/VpaE9nHQJkZCw7fSJcFmIUlyV/5TayfE7hA=;
+        b=Fqxp+6NowYbKv5rRJ/gXfT9fQE7WNRfQMz7ewsVfXqQCI/6qccNDGPRAZ8zIWLRWJw
+         fn5tMHr8L2OzrRt1sMfOgIznX3bwi2JxoMG5PJWoRba5cMouN2loaRB8zJe9tVwaWunw
+         MagpwR4oinoVQdlPXNhpjkx0/5EUNLis/kcmw=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=MvaRlaXK64PpiXVCxXFWPZrJ6CRVJKhlEggaPSUWrrw=;
-        b=Lc9o+m2fjYGBqXvcsZ4s4W6hiQAZSKgi66OGkgHuNMPPwGlBxwr9ohNxiodOIwopBm
-         xP4fDmeElJ7LqrWyiIYxl3wJyCVzJRfnYONCAL65ptal73K1bOKoJLTTieHJKF0hkQvk
-         gxDeSduAy7a5Ij/nGteYFsGndhdpl6uIP04FqldqWgrnhP7jf7hVhZoxoHEl6W99IBYk
-         glkNNRRSh8uJhIVjiRNWKVBOSZQVM6P+jI9ggM4IGMdEsTavZ7HsDIX1vulpYsQ1Rv9D
-         WPsuFp4oCK2/FZwHxkhM07GbTMEldyOJ2kso9uVQ4aaVDoxTkjou+aizK148ER3fNb5j
-         IX4w==
-X-Gm-Message-State: AOAM531KDOuk7ivfanFFCvDBJVzOZ10HDXHxAeMMdgUVslAMJxRLthn3
-        rTU5EsRccXGjzeelLa4bVyRDjhKSYu8Use+4pCxLyg==
-X-Google-Smtp-Source: ABdhPJyYcoAlBscQqMvEJrhnjGcd6z5rpKgZtxpVVf0dTcdK3fafeVwt6xvkwGgxYlTtM9T4m9li4Zp+sJzl9DmJwXA=
-X-Received: by 2002:a2e:a911:: with SMTP id j17mr3212666ljq.341.1627684939283;
- Fri, 30 Jul 2021 15:42:19 -0700 (PDT)
+        bh=yYbtWfX/VpaE9nHQJkZCw7fSJcFmIUlyV/5TayfE7hA=;
+        b=U4BJX5kWpRGnGiNoQUW7/C8TVft8Uy2b/pBtwOg3ob+o5OKxok8ZyYEyx74Z/fB0SZ
+         H/6gKcg+cxhvV3CXDkzfbE0N6ftwRQN/5XUQ0j8i9I0D9PgPidG61VGrISz5vSxW3oKk
+         T7QdELFjnXttGD0Xy+u31sHV5ZftRPh0xD8ch8Jgd3KRs746Xj3YxxryUvkEp7uX06Q6
+         pZ+px+CTiWXcf3tINjQkqsMp+Xie1bRP0yTJFXGr1iXJBIl4CoAYxcVEAfNr9WclCC6m
+         xAtL+oXw5XuPoLs+vWFVMjvJyx3W/ooQyNhmqi0ivIqtGg0m2SrA2iXoKktH9bj+2ZNy
+         UdHg==
+X-Gm-Message-State: AOAM533MBMPxXu7RVulRHqicl/PVrQ9loZPRWdahTCYovW5m9dYa/KQm
+        EEe3vaf274lieJYD0gc8E3uqFribuxVbVw88Ajo=
+X-Google-Smtp-Source: ABdhPJyPVp3GT6pzW+x1OeCiMwTytWklpeTkUW9IhmZqTfxB6ADWMy7ByrLzC1Ps4s8JsYy3Y4DiNA==
+X-Received: by 2002:a2e:9d0a:: with SMTP id t10mr3226217lji.282.1627685632289;
+        Fri, 30 Jul 2021 15:53:52 -0700 (PDT)
+Received: from mail-lf1-f49.google.com (mail-lf1-f49.google.com. [209.85.167.49])
+        by smtp.gmail.com with ESMTPSA id 24sm255477lft.98.2021.07.30.15.53.50
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 30 Jul 2021 15:53:51 -0700 (PDT)
+Received: by mail-lf1-f49.google.com with SMTP id g13so20817865lfj.12
+        for <stable@vger.kernel.org>; Fri, 30 Jul 2021 15:53:50 -0700 (PDT)
+X-Received: by 2002:ac2:44ad:: with SMTP id c13mr3528996lfm.377.1627685630269;
+ Fri, 30 Jul 2021 15:53:50 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210730223815.1382706-1-nathan@kernel.org>
-In-Reply-To: <20210730223815.1382706-1-nathan@kernel.org>
-From:   Nick Desaulniers <ndesaulniers@google.com>
-Date:   Fri, 30 Jul 2021 15:42:08 -0700
-Message-ID: <CAKwvOdnJ9VMZfZrZprD6k0oWxVJVSNePUM7fbzFTJygXfO24Pw@mail.gmail.com>
-Subject: Re: [PATCH] vmlinux.lds.h: Handle clang's module.{c,d}tor sections
-To:     Nathan Chancellor <nathan@kernel.org>
-Cc:     Kees Cook <keescook@chromium.org>, Arnd Bergmann <arnd@arndb.de>,
-        Fangrui Song <maskray@google.com>,
-        Marco Elver <elver@google.com>, linux-arch@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kasan-dev@googlegroups.com,
-        clang-built-linux@googlegroups.com, stable@vger.kernel.org
+References: <20210729222635.2937453-1-sspatil@android.com> <20210729222635.2937453-2-sspatil@android.com>
+ <CAHk-=wh-DWvsFykwAy6uwyv24nasJ39d7SHT+15x+xEXBtSm_Q@mail.gmail.com>
+ <cee514d6-8551-8838-6d61-098d04e226ca@android.com> <CAHk-=wjStQurUzSAPVajL6Rj=CaPuSSgwaMO=0FJzFvSD66ACw@mail.gmail.com>
+In-Reply-To: <CAHk-=wjStQurUzSAPVajL6Rj=CaPuSSgwaMO=0FJzFvSD66ACw@mail.gmail.com>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Fri, 30 Jul 2021 15:53:34 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wjrfasYJUaZ-rJmYt9xa=DqmJ5-sVRG7cJ2X8nNcSXp9g@mail.gmail.com>
+Message-ID: <CAHk-=wjrfasYJUaZ-rJmYt9xa=DqmJ5-sVRG7cJ2X8nNcSXp9g@mail.gmail.com>
+Subject: Re: [PATCH 1/1] fs: pipe: wakeup readers everytime new data written
+ is to pipe
+To:     Sandeep Patil <sspatil@android.com>
+Cc:     linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        David Howells <dhowells@redhat.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable <stable@vger.kernel.org>,
+        Android Kernel Team <kernel-team@android.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jul 30, 2021 at 3:38 PM Nathan Chancellor <nathan@kernel.org> wrote:
+On Fri, Jul 30, 2021 at 12:23 PM Linus Torvalds
+<torvalds@linux-foundation.org> wrote:
 >
-> A recent change in LLVM causes module_{c,d}tor sections to appear when
-> CONFIG_K{A,C}SAN are enabled, which results in orphan section warnings
-> because these are not handled anywhere:
->
-> ld.lld: warning: arch/x86/pci/built-in.a(legacy.o):(.text.asan.module_ctor) is being placed in '.text.asan.module_ctor'
-> ld.lld: warning: arch/x86/pci/built-in.a(legacy.o):(.text.asan.module_dtor) is being placed in '.text.asan.module_dtor'
-> ld.lld: warning: arch/x86/pci/built-in.a(legacy.o):(.text.tsan.module_ctor) is being placed in '.text.tsan.module_ctor'
+> I'll mull it over a bit more, but whatever I'll do I'll do before rc4
+> and mark it for stable.
 
-^ .text.tsan.*
+Ok, I ended up committing the minimal possible change (and fixing up
+the comment above it).
 
->
-> Place them in the TEXT_TEXT section so that these technologies continue
-> to work with the newer compiler versions. All of the KASAN and KCSAN
-> KUnit tests continue to pass after this change.
->
-> Cc: stable@vger.kernel.org
-> Link: https://github.com/ClangBuiltLinux/linux/issues/1432
-> Link: https://github.com/llvm/llvm-project/commit/7b789562244ee941b7bf2cefeb3fc08a59a01865
-> Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-> ---
->  include/asm-generic/vmlinux.lds.h | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
-> index 17325416e2de..3b79b1e76556 100644
-> --- a/include/asm-generic/vmlinux.lds.h
-> +++ b/include/asm-generic/vmlinux.lds.h
-> @@ -586,6 +586,7 @@
->                 NOINSTR_TEXT                                            \
->                 *(.text..refcount)                                      \
->                 *(.ref.text)                                            \
-> +               *(.text.asan .text.asan.*)                              \
+It's very much *not* the original behavior either, but that original
+behavior was truly insane ("wake up for each hunk written"), and I'm
+trying to at least keep the kernel code from doing actively stupid
+things.
 
-Will this match .text.tsan.module_ctor?
+Since that old patch of mine worked for your test-case, then clearly
+that realm-core library didn't rely on _that_ kind of insane internal
+kernel implementation details exposed as semantics. So The minimal
+patch basically says "each write() system call wil do at least one
+wake-up, whether really necessary or not".
 
-Do we want to add these conditionally on
-CONFIG_KASAN_GENERIC/CONFIG_KCSAN like we do for SANITIZER_DISCARDS?
+I also intentionally kept the read side untouched, in that there
+apparently still isn't a case that would need the confused semantics
+for read events.
 
->                 TEXT_CFI_JT                                             \
->         MEM_KEEP(init.text*)                                            \
->         MEM_KEEP(exit.text*)                                            \
->
-> base-commit: 4669e13cd67f8532be12815ed3d37e775a9bdc16
-> --
+End result: the commit message is a lot bigger than the patch, with
+most of it being trying to explain the background.
 
+I've pushed it out as commit 3a34b13a88ca ("pipe: make pipe writes
+always wake up readers"). Holler if you notice anything odd remaining.
 
--- 
-Thanks,
-~Nick Desaulniers
+              Linus
