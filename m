@@ -2,197 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A138A3DBFC6
-	for <lists+stable@lfdr.de>; Fri, 30 Jul 2021 22:25:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17D393DC0CC
+	for <lists+stable@lfdr.de>; Sat, 31 Jul 2021 00:06:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231549AbhG3UZW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Jul 2021 16:25:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48614 "EHLO
+        id S233481AbhG3WG0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Jul 2021 18:06:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231757AbhG3UZU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 30 Jul 2021 16:25:20 -0400
-Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37CFCC0613CF
-        for <stable@vger.kernel.org>; Fri, 30 Jul 2021 13:25:15 -0700 (PDT)
-Received: by mail-pj1-x1034.google.com with SMTP id nh14so5120305pjb.2
-        for <stable@vger.kernel.org>; Fri, 30 Jul 2021 13:25:15 -0700 (PDT)
+        with ESMTP id S232593AbhG3WG0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 30 Jul 2021 18:06:26 -0400
+Received: from mail-lj1-x230.google.com (mail-lj1-x230.google.com [IPv6:2a00:1450:4864:20::230])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B75DDC06175F
+        for <stable@vger.kernel.org>; Fri, 30 Jul 2021 15:06:19 -0700 (PDT)
+Received: by mail-lj1-x230.google.com with SMTP id l4so14420084ljq.4
+        for <stable@vger.kernel.org>; Fri, 30 Jul 2021 15:06:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=vry7rYnUiHvjtjNxv7wAaEvFudLRFDP4cjdqW0w6CSc=;
-        b=N74r18CbM8NkSP68Bmdll3vnFs7D+uertjQ8aSbgXJa6gHYnJGLdshUb71P+vEqG3Z
-         TLDjBumiF6glJ1MgHMsTDuGemx/mtYOuDol71azzZcHsIAaW8izheoAxieLj27rIaG1Y
-         egECCdOMfP6qJs7EF2qlailBXPj1OaI/oLqoycgoKxRSmBKT6UM+HtRVCTjKR2zE3rTF
-         cGEOjpzWQrvh3sEC/fHLfSPpRkac5PA10HDkSX4Gdm/aXy3uTb7LgRoumPFQ1z5lwEvb
-         CIxSeitIcMOto5YUq7Lh/ltBcwzQOAGjXGza2Wum3QX7xaIwo4aeSiiYRcvGafT8m8aI
-         sHGw==
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=hRvMxRopOfk4wfDLGrvSeXWbdrziagZNRb9gSwqHbig=;
+        b=fTtEbfGJErUIEPLddkT7tQyhajByiXgFt5iXayW/HiQx8Dz9DZMcdwPNxxqNYehVe7
+         hJZPw2H7EiB5LE9kx1MOr25zYr/xlEHqZYCVytn+vE6iaIqTJ3K0bTNFYUZwOZUEOrj4
+         o1BXtaR3EvlPz3z2x5EKHntoIKuG8VQ5rDkII=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=vry7rYnUiHvjtjNxv7wAaEvFudLRFDP4cjdqW0w6CSc=;
-        b=WjaUZ7seqDarUxrXOFJpGDR9cqbfDPT1b532Qm7OJ2n9qhCEOJ0JDivdI7yydJGEva
-         MjR2BitqezxS3VZFE1jITAB2LlFVjn9DTTciMA5TFKufu6C2VzfcAtUJqMN2CTqp56OB
-         pePd5zE3vpLM5OznU1W57DnBx6QxfplHt3tCQPX/l6qYXQKkbLtp9w1yjiJ1dA+yz79y
-         TvdTdxQ6n381FW9z1X4VRnveKTF/yE8zNJ7GDcjZrOo0JtboKFEVK9qfGejEgfTwADzH
-         1/9SyNf9Cafm/IVRIFu3sapHDHDjktBfpgL8kRr/Via8dJRza1Rb+zHTTcEIDCCnBetg
-         S8rA==
-X-Gm-Message-State: AOAM5330Nd+liHoB4nA0QiUjXaUNZBC3Zfzf6eSl01P/N3Nx7I3fMJJC
-        jskqInu71TpjM9DzmPY6/aaguvjmn5SD31pT
-X-Google-Smtp-Source: ABdhPJxyf+po+fH8kguOnj+DODWNVi71iiC6APRf3nRwgoLKWN5r5+2UOjgmzYHY7Ts+9Ue0ECT32g==
-X-Received: by 2002:aa7:8298:0:b029:338:340:a085 with SMTP id s24-20020aa782980000b02903380340a085mr4506264pfm.46.1627676714444;
-        Fri, 30 Jul 2021 13:25:14 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id f3sm3241178pfe.123.2021.07.30.13.25.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 30 Jul 2021 13:25:14 -0700 (PDT)
-Message-ID: <6104602a.1c69fb81.34fbb.9113@mx.google.com>
-Date:   Fri, 30 Jul 2021 13:25:14 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=hRvMxRopOfk4wfDLGrvSeXWbdrziagZNRb9gSwqHbig=;
+        b=KfwkSnaM6JdsZOBE7h6GfwmqYKGIi3eIswGYsvD0TzSuIxrrc7MN+jf6IlK+4Acjz9
+         PmFOkHvTmXOTQdbYscvKxArOZoLsH7PzFRAij9Vr58DOdMFsY+AWAF9qiiAw4wYwSpM1
+         WybKsbBfG6lFIEJSNcoOtLLVaTjxvJ0aWLoeeahy0xD9TiDEFcmS4/Ve6kAqsHf6Kq7I
+         0gEBg83+iRi0waNAQOhyoF9i93553ZjAFMZOlI/ixwCydIq5+tB2z2Orh1Gguc5Vub/R
+         dqe785OpLkN03hIJlVMX5vxoi1RmvJmKW6g3QGgwAxrnPWOKQR/Lrk6qOwTDFL/vDx4Z
+         WKnA==
+X-Gm-Message-State: AOAM533SF/HtCyuACyqHqgmF3RMQbGlXH/e8rUwWJRu3yeafC0aFeMDG
+        vmWlYvn98MvA49LUcvx6hB7eZXhWMczJ5xIZSJM=
+X-Google-Smtp-Source: ABdhPJz7siYAnd8SEdy1pb8DbVVHcvRX2sZcA1fo1WIO2ATX73y5IjF5vCRgHCBAXrVpqGFPzsVDow==
+X-Received: by 2002:a05:651c:245:: with SMTP id x5mr3160172ljn.92.1627682777879;
+        Fri, 30 Jul 2021 15:06:17 -0700 (PDT)
+Received: from mail-lf1-f53.google.com (mail-lf1-f53.google.com. [209.85.167.53])
+        by smtp.gmail.com with ESMTPSA id v20sm247327lfo.158.2021.07.30.15.06.16
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 30 Jul 2021 15:06:16 -0700 (PDT)
+Received: by mail-lf1-f53.google.com with SMTP id a26so20617597lfr.11
+        for <stable@vger.kernel.org>; Fri, 30 Jul 2021 15:06:16 -0700 (PDT)
+X-Received: by 2002:ac2:4475:: with SMTP id y21mr3384042lfl.487.1627682776227;
+ Fri, 30 Jul 2021 15:06:16 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.10
-X-Kernelci-Kernel: v5.10.54-1-g413d16971b6e
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.10 baseline: 171 runs,
- 3 regressions (v5.10.54-1-g413d16971b6e)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <20210729222635.2937453-1-sspatil@android.com> <20210729222635.2937453-2-sspatil@android.com>
+ <CAHk-=wh-DWvsFykwAy6uwyv24nasJ39d7SHT+15x+xEXBtSm_Q@mail.gmail.com>
+ <cee514d6-8551-8838-6d61-098d04e226ca@android.com> <CAHk-=wjStQurUzSAPVajL6Rj=CaPuSSgwaMO=0FJzFvSD66ACw@mail.gmail.com>
+ <b1688f32-cb0e-04e1-3c91-aa8cddbcf41d@android.com>
+In-Reply-To: <b1688f32-cb0e-04e1-3c91-aa8cddbcf41d@android.com>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Fri, 30 Jul 2021 15:06:00 -0700
+X-Gmail-Original-Message-ID: <CAHk-=witY33b-vqqp=ApqyoFDpx9p+n4PwG9N-TvF8bq7-tsHw@mail.gmail.com>
+Message-ID: <CAHk-=witY33b-vqqp=ApqyoFDpx9p+n4PwG9N-TvF8bq7-tsHw@mail.gmail.com>
+Subject: Re: [PATCH 1/1] fs: pipe: wakeup readers everytime new data written
+ is to pipe
+To:     Sandeep Patil <sspatil@android.com>
+Cc:     linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        David Howells <dhowells@redhat.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable <stable@vger.kernel.org>,
+        Android Kernel Team <kernel-team@android.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 baseline: 171 runs, 3 regressions (v5.10.54-1-g413d169=
-71b6e)
+On Fri, Jul 30, 2021 at 12:47 PM Sandeep Patil <sspatil@android.com> wrote:
+>
+> aren't we supposed to wakeup on each write in level-triggered (default)
+> case though?
 
-Regressions Summary
--------------------
+No.
 
-platform           | arch  | lab           | compiler | defconfig         |=
- regressions
--------------------+-------+---------------+----------+-------------------+=
-------------
-bcm2837-rpi-3-b-32 | arm   | lab-baylibre  | gcc-8    | bcm2835_defconfig |=
- 2          =
+The thing about level triggered is that if the condition was already
+true, it would not need a wakeup in the first place.
 
-hip07-d05          | arm64 | lab-collabora | gcc-8    | defconfig         |=
- 1          =
+Put another way: select() and poll() are both fundamentally
+level-triggered. If the condition was already true, they will return
+success immediately, and don't need any extraneous wakeups.
 
+This is literally an epoll() confusion about what an "edge" is.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
-nel/v5.10.54-1-g413d16971b6e/plan/baseline/
+An edge is not "somebody wrote more data". An edge is "there was no
+data, now there is data".
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.10
-  Describe: v5.10.54-1-g413d16971b6e
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      413d16971b6efe8d9f0653d9651f6e4ca590ebc4 =
+And a level triggered event is *also* not "somebody wrote more data".
+A level-triggered signal is simply "there is data".
 
+Notice how neither edge nor level are about "more data". One is about
+the edge of "no data" -> "some data", and the other is just a "data is
+available".
 
+Sadly, it seems that our old "we'll wake things up whether needed or
+not" implementation ended up being something that people thought was
+edge-triggered semantics.
 
-Test Regressions
----------------- =
+But we have the policy that regressions aren't about documentation or
+even sane behavior.
 
+Regressions are about whether a user application broke in a noticeable way.
 
-
-platform           | arch  | lab           | compiler | defconfig         |=
- regressions
--------------------+-------+---------------+----------+-------------------+=
-------------
-bcm2837-rpi-3-b-32 | arm   | lab-baylibre  | gcc-8    | bcm2835_defconfig |=
- 2          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6104283581cd88365185f45e
-
-  Results:     4 PASS, 2 FAIL, 0 SKIP
-  Full config: bcm2835_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.54-=
-1-g413d16971b6e/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837-r=
-pi-3-b-32.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.54-=
-1-g413d16971b6e/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837-r=
-pi-3-b-32.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.alert: https://kernelci.org/test/case/id/6104283581cd883=
-65185f465
-        failing since 0 day (last pass: v5.10.54-2-geb01b613f84f, first fai=
-l: v5.10.54-24-gcf47f1842d05)
-        4 lines
-
-    2021-07-30T16:26:16.116075  kern  :alert : 8<--- cut here ---
-    2021-07-30T16:26:16.152157  kern  :alert : Unable to handle kernel pagi=
-ng request at virtual address 54555551
-    2021-07-30T16:26:16.153473  ke<8>[   42.826131] <LAVA_SIGNAL_TESTCASE T=
-EST_CASE_ID=3Dalert RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D4>   =
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/6104283581cd883=
-65185f466
-        failing since 0 day (last pass: v5.10.54-2-geb01b613f84f, first fai=
-l: v5.10.54-24-gcf47f1842d05)
-        105 lines
-
-    2021-07-30T16:26:16.157127  rn  :alert : pgd =3D 0fd80534
-    2021-07-30T16:26:16.157848  kern  :alert : [54555551] *pgd=3D00000000
-    2021-07-30T16:26:16.202274  kern  :emerg : Internal error: Oops: 5 [#1]=
- ARM
-    2021-07-30T16:26:16.203883  kern  :emerg : Process udevd (pid: 105, sta=
-ck limit =3D 0xe8d25c06)
-    2021-07-30T16:26:16.204698  kern  :emerg : Stack: (0xc424da40 to 0xc424=
-e000)
-    2021-07-30T16:26:16.205724  kern  :emerg : da40: c0e04248 c424da9c c051=
-31a0 00000000 00000001 00000000 c424da94 c424da68
-    2021-07-30T16:26:16.206870  kern  :emerg : da60: c0510940 c0428040 c421=
-8610 c1415f5c 00000000 94d5ac84 c4218610 c0f25d40
-    2021-07-30T16:26:16.207583  kern  :emerg : da80: c0e04248 c4218654 c424=
-dacc c424da98 c0512dd0 c05108e8 c424daec c4218610
-    2021-07-30T16:26:16.245937  kern  :emerg : daa0: 00000001 94d5ac84 0000=
-0cc0 c4218610 c0f25d40 c4218610 c0e04248 c157a610
-    2021-07-30T16:26:16.247540  kern  :emerg : dac0: c424dadc c424dad0 c051=
-32b0 c0512d08 c424dafc c424dae0 c0511884 c05132a0 =
-
-    ... (84 line(s) more)  =
-
- =
-
-
-
-platform           | arch  | lab           | compiler | defconfig         |=
- regressions
--------------------+-------+---------------+----------+-------------------+=
-------------
-hip07-d05          | arm64 | lab-collabora | gcc-8    | defconfig         |=
- 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6104318da5367b5a2785f525
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.54-=
-1-g413d16971b6e/arm64/defconfig/gcc-8/lab-collabora/baseline-hip07-d05.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.54-=
-1-g413d16971b6e/arm64/defconfig/gcc-8/lab-collabora/baseline-hip07-d05.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6104318da5367b5a2785f=
-526
-        failing since 29 days (last pass: v5.10.46-100-gce5b41f85637, first=
- fail: v5.10.46-100-g3b96099161c8b) =
-
- =20
+                     Linus
