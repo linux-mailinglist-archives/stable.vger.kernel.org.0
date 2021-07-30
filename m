@@ -2,49 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A48F43DBE22
-	for <lists+stable@lfdr.de>; Fri, 30 Jul 2021 20:13:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0BE63DBE27
+	for <lists+stable@lfdr.de>; Fri, 30 Jul 2021 20:14:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230094AbhG3SNE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Jul 2021 14:13:04 -0400
-Received: from smtp-out2.suse.de ([195.135.220.29]:58458 "EHLO
+        id S230119AbhG3SOM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Jul 2021 14:14:12 -0400
+Received: from smtp-out2.suse.de ([195.135.220.29]:58492 "EHLO
         smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230119AbhG3SNE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 30 Jul 2021 14:13:04 -0400
+        with ESMTP id S230327AbhG3SOK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 30 Jul 2021 14:14:10 -0400
 Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out2.suse.de (Postfix) with ESMTP id F24CD1FE18;
-        Fri, 30 Jul 2021 18:12:57 +0000 (UTC)
+        by smtp-out2.suse.de (Postfix) with ESMTP id D05D51FE18;
+        Fri, 30 Jul 2021 18:14:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1627668778; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+        t=1627668844; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=MGEsSw+8h28RTdpyuS/LsATTQxuq5VuD93DHe5vosi0=;
-        b=hNOJRekzzq85hAL+ZYNnRmBfrROMev/voEE2+17lYixs3wWm/TU79QbVtUno/BW2RnvKIC
-        GcHMo+wBOJolv/NIZ8C0Y7sAtrXpxG0OFIkYO3VEQtt9P+1GnbLc/6JPNUmkOeqTRjumO2
-        3ry74KMntDsyfk0tNzLGHfE8hKyfcSY=
+        bh=idx3YgWYCV0+BlxRTpZYV7ghIt+Y0zRtysPXY1vhzOM=;
+        b=njyF0EWEYUOoZoXKnFriXFx+NKF90A4AMUszVeqFp+WPuRStXgtLUI6ztymFrcjgNvnrr8
+        g425JuQ6Re+W6kY0yUavSaby/ZZ8cyN15TmP/Es7t2E9FCjSF9yNvXwZAB/x6ufz+wxkC8
+        xAVgBx9YKxMQyQCMS+ggTgjRrFX4Vtk=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1627668778;
+        s=susede2_ed25519; t=1627668844;
         h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=MGEsSw+8h28RTdpyuS/LsATTQxuq5VuD93DHe5vosi0=;
-        b=uOkVmqSF5D5FygTIc7r7UCqM51i7nYz7W4FPbQNrpTn/Y6s5Y3FAz+3WpdDL2xUaz2ZGAC
-        RUxE5RVtS5mQWjBQ==
+        bh=idx3YgWYCV0+BlxRTpZYV7ghIt+Y0zRtysPXY1vhzOM=;
+        b=EOHwbthka2/gAiluGxqixTljzkoaBnaAAqi5rpiGINWMg1qO904zx9hjnwdDNppBpz4uDP
+        1BxtmalPfCvnvTBQ==
 Received: from alsa1.suse.de (alsa1.suse.de [10.160.4.42])
-        by relay2.suse.de (Postfix) with ESMTP id E78B3A3B87;
-        Fri, 30 Jul 2021 18:12:57 +0000 (UTC)
-Date:   Fri, 30 Jul 2021 20:12:57 +0200
-Message-ID: <s5heebf7jrq.wl-tiwai@suse.de>
+        by relay2.suse.de (Postfix) with ESMTP id C374AA3B88;
+        Fri, 30 Jul 2021 18:14:04 +0000 (UTC)
+Date:   Fri, 30 Jul 2021 20:14:04 +0200
+Message-ID: <s5hczqz7jpv.wl-tiwai@suse.de>
 From:   Takashi Iwai <tiwai@suse.de>
-To:     Alan Young <consult.awy@gmail.com>
-Cc:     Greg KH <gregkh@linuxfoundation.org>, stable@vger.kernel.org,
-        tiwai@suse.de
-Subject: Re: FAILED: patch "[PATCH] ALSA: pcm: Call substream ack() method upon compat mmap" failed to apply to 5.4-stable tree
-In-Reply-To: <acb7f13d-a7bf-8820-363c-98798faa7a09@gmail.com>
-References: <162728697013399@kroah.com>
-        <e26c27fb-12e8-f1c1-0dde-50fd68623118@gmail.com>
-        <YQPFqOmmJCJM9Ref@kroah.com>
-        <acb7f13d-a7bf-8820-363c-98798faa7a09@gmail.com>
+To:     Mark Brown <broonie@kernel.org>
+Cc:     alsa-devel@alsa-project.org, stable@vger.kernel.org
+Subject: Re: [PATCH 1/5] ASoC: amd: Fix reference to PCM buffer address
+In-Reply-To: <20210730162025.GB4670@sirena.org.uk>
+References: <20210728112353.6675-1-tiwai@suse.de>
+        <20210728112353.6675-2-tiwai@suse.de>
+        <20210730162025.GB4670@sirena.org.uk>
 User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI/1.14.6 (Maruoka)
  FLIM/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL/10.8 Emacs/25.3
  (x86_64-suse-linux-gnu) MULE/6.0 (HANACHIRUSATO)
@@ -54,36 +52,27 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 30 Jul 2021 13:15:14 +0200,
-Alan Young wrote:
+On Fri, 30 Jul 2021 18:20:25 +0200,
+Mark Brown wrote:
 > 
-> On 30/07/2021 10:26, Greg KH wrote:
-> > On Fri, Jul 30, 2021 at 09:38:52AM +0100, Alan Young wrote:
-> >> This commit is not applicable before the 64-bit time_t in user space with
-> >> 32-bit compatibility changes introduces by
-> >> 80fe7430c7085951d1246d83f638cc17e6c0be36 in 5.6.
-> > That is odd, as that is not what you wrote in the patch itself:
-> >
-> >>      Fixes: 9027c4639ef1 ("ALSA: pcm: Call ack() whenever appl_ptr is updated")
-> > So is the Fixes: tag here incorrect?
-> >
-> > thanks,
-> >
-> > greg k-h
+> On Wed, Jul 28, 2021 at 01:23:49PM +0200, Takashi Iwai wrote:
+> > PCM buffers might be allocated dynamically when the buffer
+> > preallocation failed or a larger buffer is requested, and it's not
+> > guaranteed that substream->dma_buffer points to the actually used
+> > buffer.  The driver needs to refer to substream->runtime->dma_addr
+> > instead for the buffer address.
 > 
-> I did not add the Fixes tag. I guess Takashi Iwai did.
+> This breaks the build for me on an x86-64 allmodconfig:
 > 
-> I think that 9027c4639ef1 added some functionality that was broken by
-> 80fe7430c7085951 and which my patch corrects. So the Fixes:
-> 9027c4639ef1 tag refers to the actual functionality, not the breaking
-> of it.
-> 
-> I have no idea if that is the correct usage of the Fixes tag which, as
-> I said, I did not add.
+> /mnt/kernel/sound/soc/amd/renoir/acp3x-pdm-dma.c: In function 'acp_pdm_dma_hw_params':
+> /mnt/kernel/sound/soc/amd/renoir/acp3x-pdm-dma.c:245:18: error: 'runtime' undeclared (first use in this function); did you mean 'vtime'?
+>   rtd->dma_addr = runtime->dma_addr;
+>                   ^~~~~~~
+>                   vtime
 
-Yeah, sorry for the mess, I was confused that the function already
-missed that point.  But the patch can't be applied in anyway, so it
-can't go wrong at least :)
+Oops, will resubmit the fixed patch set.
 
+
+thanks,
 
 Takashi
