@@ -2,31 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 95F743DC40D
-	for <lists+stable@lfdr.de>; Sat, 31 Jul 2021 08:37:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1458E3DC418
+	for <lists+stable@lfdr.de>; Sat, 31 Jul 2021 08:41:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236749AbhGaGhV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Jul 2021 02:37:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44886 "EHLO mail.kernel.org"
+        id S232115AbhGaGl6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Jul 2021 02:41:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229683AbhGaGhU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 31 Jul 2021 02:37:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BD68360FE7;
-        Sat, 31 Jul 2021 06:37:14 +0000 (UTC)
+        id S232079AbhGaGl6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Jul 2021 02:41:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1041660EC0;
+        Sat, 31 Jul 2021 06:41:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627713435;
-        bh=sa8OC7pwFCsUZQKuohMlGaBJQgNorEGA9WHrdBjhuHE=;
+        s=korg; t=1627713711;
+        bh=f+qF1vZ81QmIVQ3D09nIQOud6p/OwzuvZDkc7M8JS3s=;
         h=Subject:To:Cc:From:Date:From;
-        b=xz9+V6LObWBx+rdSMmhSOXQ3koAC6cwIz7R/5hvQO34vEO2240Ca5cmGEuHqA5jKS
-         ojRHOXLLdl33H/AmJAQ5x9KEdz7Gw0+G/VLVKAuawxRB+AgJZ7UaC1Op0wZmviFQ0g
-         Au/A6eYlcJz4BCSVxA1MlrVQuyh2EF/8+Vz82sWo=
-Subject: FAILED: patch "[PATCH] can: raw: raw_setsockopt(): fix raw_rcv panic for sock UAF" failed to apply to 4.9-stable tree
-To:     william.xuanziyang@huawei.com, mkl@pengutronix.de,
-        socketcan@hartkopp.net, stable@vger.kernel.org
+        b=jWf1sTqPOMtuaqNGi09GDpiNrvq275qpGdolOZl5bbUCnpvQ/6pNzdFrEIJxDn4aS
+         j+lJDFJxtFXyMyWAUc+UlrUbaBFcsbGYWgmeBpj6ThFuDuv7ejX9Ex/Yk1Nku+XhwG
+         HtA4b/E3blgd/3XYHgbMESZQ0QcppNkXITokOQVg=
+Subject: FAILED: patch "[PATCH] blk-iocost: fix operation ordering in iocg_wake_fn()" failed to apply to 5.4-stable tree
+To:     tj@kernel.org, axboe@kernel.dk, riel@surriel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 31 Jul 2021 08:37:05 +0200
-Message-ID: <162771342523956@kroah.com>
+Date:   Sat, 31 Jul 2021 08:41:49 +0200
+Message-ID: <162771370957@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -46,161 +45,80 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 54f93336d000229f72c26d8a3f69dd256b744528 Mon Sep 17 00:00:00 2001
-From: Ziyang Xuan <william.xuanziyang@huawei.com>
-Date: Thu, 22 Jul 2021 15:08:19 +0800
-Subject: [PATCH] can: raw: raw_setsockopt(): fix raw_rcv panic for sock UAF
+From 5ab189cf3abbc9994bae3be524c5b88589ed56e2 Mon Sep 17 00:00:00 2001
+From: Tejun Heo <tj@kernel.org>
+Date: Tue, 27 Jul 2021 14:38:09 -1000
+Subject: [PATCH] blk-iocost: fix operation ordering in iocg_wake_fn()
 
-We get a bug during ltp can_filter test as following.
+iocg_wake_fn() open-codes wait_queue_entry removal and wakeup because it
+wants the wq_entry to be always removed whether it ended up waking the
+task or not. finish_wait() tests whether wq_entry needs removal without
+grabbing the wait_queue lock and expects the waker to use
+list_del_init_careful() after all waking operations are complete, which
+iocg_wake_fn() didn't do. The operation order was wrong and the regular
+list_del_init() was used.
 
-===========================================
-[60919.264984] BUG: unable to handle kernel NULL pointer dereference at 0000000000000010
-[60919.265223] PGD 8000003dda726067 P4D 8000003dda726067 PUD 3dda727067 PMD 0
-[60919.265443] Oops: 0000 [#1] SMP PTI
-[60919.265550] CPU: 30 PID: 3638365 Comm: can_filter Kdump: loaded Tainted: G        W         4.19.90+ #1
-[60919.266068] RIP: 0010:selinux_socket_sock_rcv_skb+0x3e/0x200
-[60919.293289] RSP: 0018:ffff8d53bfc03cf8 EFLAGS: 00010246
-[60919.307140] RAX: 0000000000000000 RBX: 000000000000001d RCX: 0000000000000007
-[60919.320756] RDX: 0000000000000001 RSI: ffff8d5104a8ed00 RDI: ffff8d53bfc03d30
-[60919.334319] RBP: ffff8d9338056800 R08: ffff8d53bfc29d80 R09: 0000000000000001
-[60919.347969] R10: ffff8d53bfc03ec0 R11: ffffb8526ef47c98 R12: ffff8d53bfc03d30
-[60919.350320] perf: interrupt took too long (3063 > 2500), lowering kernel.perf_event_max_sample_rate to 65000
-[60919.361148] R13: 0000000000000001 R14: ffff8d53bcf90000 R15: 0000000000000000
-[60919.361151] FS:  00007fb78b6b3600(0000) GS:ffff8d53bfc00000(0000) knlGS:0000000000000000
-[60919.400812] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[60919.413730] CR2: 0000000000000010 CR3: 0000003e3f784006 CR4: 00000000007606e0
-[60919.426479] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[60919.439339] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[60919.451608] PKRU: 55555554
-[60919.463622] Call Trace:
-[60919.475617]  <IRQ>
-[60919.487122]  ? update_load_avg+0x89/0x5d0
-[60919.498478]  ? update_load_avg+0x89/0x5d0
-[60919.509822]  ? account_entity_enqueue+0xc5/0xf0
-[60919.520709]  security_sock_rcv_skb+0x2a/0x40
-[60919.531413]  sk_filter_trim_cap+0x47/0x1b0
-[60919.542178]  ? kmem_cache_alloc+0x38/0x1b0
-[60919.552444]  sock_queue_rcv_skb+0x17/0x30
-[60919.562477]  raw_rcv+0x110/0x190 [can_raw]
-[60919.572539]  can_rcv_filter+0xbc/0x1b0 [can]
-[60919.582173]  can_receive+0x6b/0xb0 [can]
-[60919.591595]  can_rcv+0x31/0x70 [can]
-[60919.600783]  __netif_receive_skb_one_core+0x5a/0x80
-[60919.609864]  process_backlog+0x9b/0x150
-[60919.618691]  net_rx_action+0x156/0x400
-[60919.627310]  ? sched_clock_cpu+0xc/0xa0
-[60919.635714]  __do_softirq+0xe8/0x2e9
-[60919.644161]  do_softirq_own_stack+0x2a/0x40
-[60919.652154]  </IRQ>
-[60919.659899]  do_softirq.part.17+0x4f/0x60
-[60919.667475]  __local_bh_enable_ip+0x60/0x70
-[60919.675089]  __dev_queue_xmit+0x539/0x920
-[60919.682267]  ? finish_wait+0x80/0x80
-[60919.689218]  ? finish_wait+0x80/0x80
-[60919.695886]  ? sock_alloc_send_pskb+0x211/0x230
-[60919.702395]  ? can_send+0xe5/0x1f0 [can]
-[60919.708882]  can_send+0xe5/0x1f0 [can]
-[60919.715037]  raw_sendmsg+0x16d/0x268 [can_raw]
+The result is that if a waiter wakes up racing the waker, it can free pop
+the wq_entry off stack before the waker is still looking at it, which can
+lead to a backtrace like the following.
 
-It's because raw_setsockopt() concurrently with
-unregister_netdevice_many(). Concurrent scenario as following.
+  [7312084.588951] general protection fault, probably for non-canonical address 0x586bf4005b2b88: 0000 [#1] SMP
+  ...
+  [7312084.647079] RIP: 0010:queued_spin_lock_slowpath+0x171/0x1b0
+  ...
+  [7312084.858314] Call Trace:
+  [7312084.863548]  _raw_spin_lock_irqsave+0x22/0x30
+  [7312084.872605]  try_to_wake_up+0x4c/0x4f0
+  [7312084.880444]  iocg_wake_fn+0x71/0x80
+  [7312084.887763]  __wake_up_common+0x71/0x140
+  [7312084.895951]  iocg_kick_waitq+0xe8/0x2b0
+  [7312084.903964]  ioc_rqos_throttle+0x275/0x650
+  [7312084.922423]  __rq_qos_throttle+0x20/0x30
+  [7312084.930608]  blk_mq_make_request+0x120/0x650
+  [7312084.939490]  generic_make_request+0xca/0x310
+  [7312084.957600]  submit_bio+0x173/0x200
+  [7312084.981806]  swap_readpage+0x15c/0x240
+  [7312084.989646]  read_swap_cache_async+0x58/0x60
+  [7312084.998527]  swap_cluster_readahead+0x201/0x320
+  [7312085.023432]  swapin_readahead+0x2df/0x450
+  [7312085.040672]  do_swap_page+0x52f/0x820
+  [7312085.058259]  handle_mm_fault+0xa16/0x1420
+  [7312085.066620]  do_page_fault+0x2c6/0x5c0
+  [7312085.074459]  page_fault+0x2f/0x40
 
-	cpu0						cpu1
-raw_bind
-raw_setsockopt					unregister_netdevice_many
-						unlist_netdevice
-dev_get_by_index				raw_notifier
-raw_enable_filters				......
-can_rx_register
-can_rcv_list_find(..., net->can.rx_alldev_list)
+Fix it by switching to list_del_init_careful() and putting it at the end.
 
-......
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Reported-by: Rik van Riel <riel@surriel.com>
+Fixes: 7caa47151ab2 ("blkcg: implement blk-iocost")
+Cc: stable@vger.kernel.org # v5.4+
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
-sock_close
-raw_release(sock_a)
-
-......
-
-can_receive
-can_rcv_filter(net->can.rx_alldev_list, ...)
-raw_rcv(skb, sock_a)
-BUG
-
-After unlist_netdevice(), dev_get_by_index() return NULL in
-raw_setsockopt(). Function raw_enable_filters() will add sock
-and can_filter to net->can.rx_alldev_list. Then the sock is closed.
-Followed by, we sock_sendmsg() to a new vcan device use the same
-can_filter. Protocol stack match the old receiver whose sock has
-been released on net->can.rx_alldev_list in can_rcv_filter().
-Function raw_rcv() uses the freed sock. UAF BUG is triggered.
-
-We can find that the key issue is that net_device has not been
-protected in raw_setsockopt(). Use rtnl_lock to protect net_device
-in raw_setsockopt().
-
-Fixes: c18ce101f2e4 ("[CAN]: Add raw protocol")
-Link: https://lore.kernel.org/r/20210722070819.1048263-1-william.xuanziyang@huawei.com
-Cc: linux-stable <stable@vger.kernel.org>
-Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
-Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-
-diff --git a/net/can/raw.c b/net/can/raw.c
-index ed4fcb7ab0c3..cd5a49380116 100644
---- a/net/can/raw.c
-+++ b/net/can/raw.c
-@@ -546,10 +546,18 @@ static int raw_setsockopt(struct socket *sock, int level, int optname,
- 				return -EFAULT;
- 		}
+diff --git a/block/blk-iocost.c b/block/blk-iocost.c
+index c2d6bc88d3f1..5fac3757e6e0 100644
+--- a/block/blk-iocost.c
++++ b/block/blk-iocost.c
+@@ -1440,16 +1440,17 @@ static int iocg_wake_fn(struct wait_queue_entry *wq_entry, unsigned mode,
+ 		return -1;
  
-+		rtnl_lock();
- 		lock_sock(sk);
+ 	iocg_commit_bio(ctx->iocg, wait->bio, wait->abs_cost, cost);
++	wait->committed = true;
  
--		if (ro->bound && ro->ifindex)
-+		if (ro->bound && ro->ifindex) {
- 			dev = dev_get_by_index(sock_net(sk), ro->ifindex);
-+			if (!dev) {
-+				if (count > 1)
-+					kfree(filter);
-+				err = -ENODEV;
-+				goto out_fil;
-+			}
-+		}
- 
- 		if (ro->bound) {
- 			/* (try to) register the new filters */
-@@ -588,6 +596,7 @@ static int raw_setsockopt(struct socket *sock, int level, int optname,
- 			dev_put(dev);
- 
- 		release_sock(sk);
-+		rtnl_unlock();
- 
- 		break;
- 
-@@ -600,10 +609,16 @@ static int raw_setsockopt(struct socket *sock, int level, int optname,
- 
- 		err_mask &= CAN_ERR_MASK;
- 
-+		rtnl_lock();
- 		lock_sock(sk);
- 
--		if (ro->bound && ro->ifindex)
-+		if (ro->bound && ro->ifindex) {
- 			dev = dev_get_by_index(sock_net(sk), ro->ifindex);
-+			if (!dev) {
-+				err = -ENODEV;
-+				goto out_err;
-+			}
-+		}
- 
- 		/* remove current error mask */
- 		if (ro->bound) {
-@@ -627,6 +642,7 @@ static int raw_setsockopt(struct socket *sock, int level, int optname,
- 			dev_put(dev);
- 
- 		release_sock(sk);
-+		rtnl_unlock();
- 
- 		break;
+ 	/*
+ 	 * autoremove_wake_function() removes the wait entry only when it
+-	 * actually changed the task state.  We want the wait always
+-	 * removed.  Remove explicitly and use default_wake_function().
++	 * actually changed the task state. We want the wait always removed.
++	 * Remove explicitly and use default_wake_function(). Note that the
++	 * order of operations is important as finish_wait() tests whether
++	 * @wq_entry is removed without grabbing the lock.
+ 	 */
+-	list_del_init(&wq_entry->entry);
+-	wait->committed = true;
+-
+ 	default_wake_function(wq_entry, mode, flags, key);
++	list_del_init_careful(&wq_entry->entry);
+ 	return 0;
+ }
  
 
