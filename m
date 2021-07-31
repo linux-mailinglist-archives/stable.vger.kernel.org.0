@@ -2,931 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F7E73DC43F
-	for <lists+stable@lfdr.de>; Sat, 31 Jul 2021 09:08:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 909993DC441
+	for <lists+stable@lfdr.de>; Sat, 31 Jul 2021 09:08:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230439AbhGaHII (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Jul 2021 03:08:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54834 "EHLO mail.kernel.org"
+        id S231672AbhGaHIL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Jul 2021 03:08:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229758AbhGaHII (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 31 Jul 2021 03:08:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DB20861042;
-        Sat, 31 Jul 2021 07:08:01 +0000 (UTC)
+        id S231902AbhGaHIK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Jul 2021 03:08:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 355F06103B;
+        Sat, 31 Jul 2021 07:08:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627715282;
-        bh=a6m/HtM4NQxMmK9boANe6mPXlvks7uwDp99buuBFJXs=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W/+tSe2UURl1JeecLAI5YMKMeR+G4TbEGryL4QSXdX8ULwi7WUNFpK3GG2hhDfhEZ
-         EgTJMLU0aA4oI2743NdctimCrtON3S41XB7XpjOCdeKh+8lzQy/Er1FsybNxB1UT+V
-         S0Uwg25ky3uWyWjcX32WRt/40YPwHTsRWZAl//WY=
+        s=korg; t=1627715284;
+        bh=Fwsx1PmfWEYX1QpBtn2K9QdnebdsBQqmrDKVLqfjDgI=;
+        h=From:To:Cc:Subject:Date:From;
+        b=kkPYquwDwrdJuVoXQMmDrdi4h9B3bOupjaDjI/6vRcwY0FMqRYXxm1yNGRzymHJYd
+         fLQVfoAxj4ae5BcVcROlbi86EqRhf1omWaGwmqZHVEDYvMWe2V7D8nsNk+CWO2IlOo
+         y0QHXMBXZYQyRUY/1UOXj9ytwKVeG15G2YGo/oXA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Linux 4.19.200
-Date:   Sat, 31 Jul 2021 09:07:54 +0200
-Message-Id: <1627715273202254@kroah.com>
+Subject: Linux 5.4.137
+Date:   Sat, 31 Jul 2021 09:07:59 +0200
+Message-Id: <162771527994171@kroah.com>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <162771527342248@kroah.com>
-References: <162771527342248@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index f3ad63a089a1..a4ea351c4e5d 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
- VERSION = 4
- PATCHLEVEL = 19
--SUBLEVEL = 199
-+SUBLEVEL = 200
- EXTRAVERSION =
- NAME = "People's Front"
- 
-diff --git a/arch/arm/boot/dts/versatile-ab.dts b/arch/arm/boot/dts/versatile-ab.dts
-index 6f4f60ba5429..990b7ef1800e 100644
---- a/arch/arm/boot/dts/versatile-ab.dts
-+++ b/arch/arm/boot/dts/versatile-ab.dts
-@@ -192,16 +192,15 @@
- 		#size-cells = <1>;
- 		ranges;
- 
--		vic: intc@10140000 {
-+		vic: interrupt-controller@10140000 {
- 			compatible = "arm,versatile-vic";
- 			interrupt-controller;
- 			#interrupt-cells = <1>;
- 			reg = <0x10140000 0x1000>;
--			clear-mask = <0xffffffff>;
- 			valid-mask = <0xffffffff>;
- 		};
- 
--		sic: intc@10003000 {
-+		sic: interrupt-controller@10003000 {
- 			compatible = "arm,versatile-sic";
- 			interrupt-controller;
- 			#interrupt-cells = <1>;
-diff --git a/arch/arm/boot/dts/versatile-pb.dts b/arch/arm/boot/dts/versatile-pb.dts
-index 06a0fdf24026..e7e751a858d8 100644
---- a/arch/arm/boot/dts/versatile-pb.dts
-+++ b/arch/arm/boot/dts/versatile-pb.dts
-@@ -7,7 +7,7 @@
- 
- 	amba {
- 		/* The Versatile PB is using more SIC IRQ lines than the AB */
--		sic: intc@10003000 {
-+		sic: interrupt-controller@10003000 {
- 			clear-mask = <0xffffffff>;
- 			/*
- 			 * Valid interrupt lines mask according to
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 43fb4e296d8d..9cfc669b4a24 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -416,8 +416,6 @@ static void kvm_multiple_exception(struct kvm_vcpu *vcpu,
- 
- 	if (!vcpu->arch.exception.pending && !vcpu->arch.exception.injected) {
- 	queue:
--		if (has_error && !is_protmode(vcpu))
--			has_error = false;
- 		if (reinject) {
- 			/*
- 			 * On vmentry, vcpu->arch.exception.pending is only
-@@ -7114,6 +7112,13 @@ static void update_cr8_intercept(struct kvm_vcpu *vcpu)
- 	kvm_x86_ops->update_cr8_intercept(vcpu, tpr, max_irr);
- }
- 
-+static void kvm_inject_exception(struct kvm_vcpu *vcpu)
-+{
-+       if (vcpu->arch.exception.error_code && !is_protmode(vcpu))
-+               vcpu->arch.exception.error_code = false;
-+       kvm_x86_ops->queue_exception(vcpu);
-+}
-+
- static int inject_pending_event(struct kvm_vcpu *vcpu)
- {
- 	int r;
-@@ -7121,7 +7126,7 @@ static int inject_pending_event(struct kvm_vcpu *vcpu)
- 	/* try to reinject previous events if any */
- 
- 	if (vcpu->arch.exception.injected)
--		kvm_x86_ops->queue_exception(vcpu);
-+		kvm_inject_exception(vcpu);
- 	/*
- 	 * Do not inject an NMI or interrupt if there is a pending
- 	 * exception.  Exceptions and interrupts are recognized at
-@@ -7175,7 +7180,7 @@ static int inject_pending_event(struct kvm_vcpu *vcpu)
- 			kvm_update_dr7(vcpu);
- 		}
- 
--		kvm_x86_ops->queue_exception(vcpu);
-+		kvm_inject_exception(vcpu);
- 	}
- 
- 	/* Don't consider new event if we re-injected an event */
-diff --git a/drivers/firmware/arm_scmi/driver.c b/drivers/firmware/arm_scmi/driver.c
-index effc4c17e0fb..af5139eb96b5 100644
---- a/drivers/firmware/arm_scmi/driver.c
-+++ b/drivers/firmware/arm_scmi/driver.c
-@@ -48,7 +48,6 @@ enum scmi_error_codes {
- 	SCMI_ERR_GENERIC = -8,	/* Generic Error */
- 	SCMI_ERR_HARDWARE = -9,	/* Hardware Error */
- 	SCMI_ERR_PROTOCOL = -10,/* Protocol Error */
--	SCMI_ERR_MAX
- };
- 
- /* List of all SCMI devices active in system */
-@@ -168,8 +167,10 @@ static const int scmi_linux_errmap[] = {
- 
- static inline int scmi_to_linux_errno(int errno)
- {
--	if (errno < SCMI_SUCCESS && errno > SCMI_ERR_MAX)
--		return scmi_linux_errmap[-errno];
-+	int err_idx = -errno;
-+
-+	if (err_idx >= SCMI_SUCCESS && err_idx < ARRAY_SIZE(scmi_linux_errmap))
-+		return scmi_linux_errmap[err_idx];
- 	return -EIO;
- }
- 
-@@ -628,8 +629,9 @@ static int scmi_xfer_info_init(struct scmi_info *sinfo)
- 	struct scmi_xfers_info *info = &sinfo->minfo;
- 
- 	/* Pre-allocated messages, no more than what hdr.seq can support */
--	if (WARN_ON(desc->max_msg >= MSG_TOKEN_MAX)) {
--		dev_err(dev, "Maximum message of %d exceeds supported %ld\n",
-+	if (WARN_ON(!desc->max_msg || desc->max_msg > MSG_TOKEN_MAX)) {
-+		dev_err(dev,
-+			"Invalid maximum messages %d, not in range [1 - %lu]\n",
- 			desc->max_msg, MSG_TOKEN_MAX);
- 		return -EINVAL;
- 	}
-diff --git a/drivers/iio/dac/ds4424.c b/drivers/iio/dac/ds4424.c
-index 714a97f91319..ae9be792693b 100644
---- a/drivers/iio/dac/ds4424.c
-+++ b/drivers/iio/dac/ds4424.c
-@@ -236,12 +236,6 @@ static int ds4424_probe(struct i2c_client *client,
- 	indio_dev->dev.of_node = client->dev.of_node;
- 	indio_dev->dev.parent = &client->dev;
- 
--	if (!client->dev.of_node) {
--		dev_err(&client->dev,
--				"Not found DT.\n");
--		return -ENODEV;
--	}
--
- 	data->vcc_reg = devm_regulator_get(&client->dev, "vcc");
- 	if (IS_ERR(data->vcc_reg)) {
- 		dev_err(&client->dev,
-diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
-index 5a14f518cd97..61955a7c838b 100644
---- a/fs/cifs/smb2ops.c
-+++ b/fs/cifs/smb2ops.c
-@@ -386,8 +386,8 @@ parse_server_interfaces(struct network_interface_info_ioctl_rsp *buf,
- 	p = buf;
- 	while (bytes_left >= sizeof(*p)) {
- 		info->speed = le64_to_cpu(p->LinkSpeed);
--		info->rdma_capable = le32_to_cpu(p->Capability & RDMA_CAPABLE);
--		info->rss_capable = le32_to_cpu(p->Capability & RSS_CAPABLE);
-+		info->rdma_capable = le32_to_cpu(p->Capability & RDMA_CAPABLE) ? 1 : 0;
-+		info->rss_capable = le32_to_cpu(p->Capability & RSS_CAPABLE) ? 1 : 0;
- 
- 		cifs_dbg(FYI, "%s: adding iface %zu\n", __func__, *iface_count);
- 		cifs_dbg(FYI, "%s: speed %zu bps\n", __func__, info->speed);
-diff --git a/fs/hfs/bfind.c b/fs/hfs/bfind.c
-index 4af318fbda77..ef9498a6e88a 100644
---- a/fs/hfs/bfind.c
-+++ b/fs/hfs/bfind.c
-@@ -25,7 +25,19 @@ int hfs_find_init(struct hfs_btree *tree, struct hfs_find_data *fd)
- 	fd->key = ptr + tree->max_key_len + 2;
- 	hfs_dbg(BNODE_REFS, "find_init: %d (%p)\n",
- 		tree->cnid, __builtin_return_address(0));
--	mutex_lock(&tree->tree_lock);
-+	switch (tree->cnid) {
-+	case HFS_CAT_CNID:
-+		mutex_lock_nested(&tree->tree_lock, CATALOG_BTREE_MUTEX);
-+		break;
-+	case HFS_EXT_CNID:
-+		mutex_lock_nested(&tree->tree_lock, EXTENTS_BTREE_MUTEX);
-+		break;
-+	case HFS_ATTR_CNID:
-+		mutex_lock_nested(&tree->tree_lock, ATTR_BTREE_MUTEX);
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
- 	return 0;
- }
- 
-diff --git a/fs/hfs/bnode.c b/fs/hfs/bnode.c
-index b63a4df7327b..c0a73a6ffb28 100644
---- a/fs/hfs/bnode.c
-+++ b/fs/hfs/bnode.c
-@@ -15,16 +15,31 @@
- 
- #include "btree.h"
- 
--void hfs_bnode_read(struct hfs_bnode *node, void *buf,
--		int off, int len)
-+void hfs_bnode_read(struct hfs_bnode *node, void *buf, int off, int len)
- {
- 	struct page *page;
-+	int pagenum;
-+	int bytes_read;
-+	int bytes_to_read;
-+	void *vaddr;
- 
- 	off += node->page_offset;
--	page = node->page[0];
-+	pagenum = off >> PAGE_SHIFT;
-+	off &= ~PAGE_MASK; /* compute page offset for the first page */
- 
--	memcpy(buf, kmap(page) + off, len);
--	kunmap(page);
-+	for (bytes_read = 0; bytes_read < len; bytes_read += bytes_to_read) {
-+		if (pagenum >= node->tree->pages_per_bnode)
-+			break;
-+		page = node->page[pagenum];
-+		bytes_to_read = min_t(int, len - bytes_read, PAGE_SIZE - off);
-+
-+		vaddr = kmap_atomic(page);
-+		memcpy(buf + bytes_read, vaddr + off, bytes_to_read);
-+		kunmap_atomic(vaddr);
-+
-+		pagenum++;
-+		off = 0; /* page offset only applies to the first page */
-+	}
- }
- 
- u16 hfs_bnode_read_u16(struct hfs_bnode *node, int off)
-diff --git a/fs/hfs/btree.h b/fs/hfs/btree.h
-index dcc2aab1b2c4..25ac9a8bb57a 100644
---- a/fs/hfs/btree.h
-+++ b/fs/hfs/btree.h
-@@ -13,6 +13,13 @@ typedef int (*btree_keycmp)(const btree_key *, const btree_key *);
- 
- #define NODE_HASH_SIZE  256
- 
-+/* B-tree mutex nested subclasses */
-+enum hfs_btree_mutex_classes {
-+	CATALOG_BTREE_MUTEX,
-+	EXTENTS_BTREE_MUTEX,
-+	ATTR_BTREE_MUTEX,
-+};
-+
- /* A HFS BTree held in memory */
- struct hfs_btree {
- 	struct super_block *sb;
-diff --git a/fs/hfs/super.c b/fs/hfs/super.c
-index 173876782f73..77b6f35a4aa9 100644
---- a/fs/hfs/super.c
-+++ b/fs/hfs/super.c
-@@ -427,14 +427,12 @@ static int hfs_fill_super(struct super_block *sb, void *data, int silent)
- 	if (!res) {
- 		if (fd.entrylength > sizeof(rec) || fd.entrylength < 0) {
- 			res =  -EIO;
--			goto bail;
-+			goto bail_hfs_find;
- 		}
- 		hfs_bnode_read(fd.bnode, &rec, fd.entryoffset, fd.entrylength);
- 	}
--	if (res) {
--		hfs_find_exit(&fd);
--		goto bail_no_root;
--	}
-+	if (res)
-+		goto bail_hfs_find;
- 	res = -EINVAL;
- 	root_inode = hfs_iget(sb, &fd.search_key->cat, &rec);
- 	hfs_find_exit(&fd);
-@@ -450,6 +448,8 @@ static int hfs_fill_super(struct super_block *sb, void *data, int silent)
- 	/* everything's okay */
- 	return 0;
- 
-+bail_hfs_find:
-+	hfs_find_exit(&fd);
- bail_no_root:
- 	pr_err("get root inode failed\n");
- bail:
-diff --git a/include/net/af_unix.h b/include/net/af_unix.h
-index a5ba41b3b867..7ec1cdb66be8 100644
---- a/include/net/af_unix.h
-+++ b/include/net/af_unix.h
-@@ -10,6 +10,7 @@
- 
- void unix_inflight(struct user_struct *user, struct file *fp);
- void unix_notinflight(struct user_struct *user, struct file *fp);
-+void unix_destruct_scm(struct sk_buff *skb);
- void unix_gc(void);
- void wait_for_unix_gc(void);
- struct sock *unix_get_socket(struct file *filp);
-diff --git a/include/net/busy_poll.h b/include/net/busy_poll.h
-index cf8f792743ec..c76a5e9894da 100644
---- a/include/net/busy_poll.h
-+++ b/include/net/busy_poll.h
-@@ -48,7 +48,7 @@ static inline bool net_busy_loop_on(void)
- 
- static inline bool sk_can_busy_loop(const struct sock *sk)
- {
--	return sk->sk_ll_usec && !signal_pending(current);
-+	return READ_ONCE(sk->sk_ll_usec) && !signal_pending(current);
- }
- 
- bool sk_busy_loop_end(void *p, unsigned long start_time);
-diff --git a/include/net/sctp/constants.h b/include/net/sctp/constants.h
-index 48d74674d5e9..bc22e44ffcdf 100644
---- a/include/net/sctp/constants.h
-+++ b/include/net/sctp/constants.h
-@@ -348,8 +348,7 @@ enum {
- #define SCTP_SCOPE_POLICY_MAX	SCTP_SCOPE_POLICY_LINK
- 
- /* Based on IPv4 scoping <draft-stewart-tsvwg-sctp-ipv4-00.txt>,
-- * SCTP IPv4 unusable addresses: 0.0.0.0/8, 224.0.0.0/4, 198.18.0.0/24,
-- * 192.88.99.0/24.
-+ * SCTP IPv4 unusable addresses: 0.0.0.0/8, 224.0.0.0/4, 192.88.99.0/24.
-  * Also, RFC 8.4, non-unicast addresses are not considered valid SCTP
-  * addresses.
-  */
-@@ -357,7 +356,6 @@ enum {
- 	((htonl(INADDR_BROADCAST) == a) ||  \
- 	 ipv4_is_multicast(a) ||	    \
- 	 ipv4_is_zeronet(a) ||		    \
--	 ipv4_is_test_198(a) ||		    \
- 	 ipv4_is_anycast_6to4(a))
- 
- /* Flags used for the bind address copy functions.  */
-diff --git a/kernel/workqueue.c b/kernel/workqueue.c
-index f278e2f584fd..1573d1bf6300 100644
---- a/kernel/workqueue.c
-+++ b/kernel/workqueue.c
-@@ -3498,15 +3498,21 @@ static void pwq_unbound_release_workfn(struct work_struct *work)
- 						  unbound_release_work);
- 	struct workqueue_struct *wq = pwq->wq;
- 	struct worker_pool *pool = pwq->pool;
--	bool is_last;
-+	bool is_last = false;
- 
--	if (WARN_ON_ONCE(!(wq->flags & WQ_UNBOUND)))
--		return;
-+	/*
-+	 * when @pwq is not linked, it doesn't hold any reference to the
-+	 * @wq, and @wq is invalid to access.
-+	 */
-+	if (!list_empty(&pwq->pwqs_node)) {
-+		if (WARN_ON_ONCE(!(wq->flags & WQ_UNBOUND)))
-+			return;
- 
--	mutex_lock(&wq->mutex);
--	list_del_rcu(&pwq->pwqs_node);
--	is_last = list_empty(&wq->pwqs);
--	mutex_unlock(&wq->mutex);
-+		mutex_lock(&wq->mutex);
-+		list_del_rcu(&pwq->pwqs_node);
-+		is_last = list_empty(&wq->pwqs);
-+		mutex_unlock(&wq->mutex);
-+	}
- 
- 	mutex_lock(&wq_pool_mutex);
- 	put_unbound_pool(pool);
-diff --git a/net/802/garp.c b/net/802/garp.c
-index 7f50d47470bd..8e19f51833d6 100644
---- a/net/802/garp.c
-+++ b/net/802/garp.c
-@@ -206,6 +206,19 @@ static void garp_attr_destroy(struct garp_applicant *app, struct garp_attr *attr
- 	kfree(attr);
- }
- 
-+static void garp_attr_destroy_all(struct garp_applicant *app)
-+{
-+	struct rb_node *node, *next;
-+	struct garp_attr *attr;
-+
-+	for (node = rb_first(&app->gid);
-+	     next = node ? rb_next(node) : NULL, node != NULL;
-+	     node = next) {
-+		attr = rb_entry(node, struct garp_attr, node);
-+		garp_attr_destroy(app, attr);
-+	}
-+}
-+
- static int garp_pdu_init(struct garp_applicant *app)
- {
- 	struct sk_buff *skb;
-@@ -612,6 +625,7 @@ void garp_uninit_applicant(struct net_device *dev, struct garp_application *appl
- 
- 	spin_lock_bh(&app->lock);
- 	garp_gid_event(app, GARP_EVENT_TRANSMIT_PDU);
-+	garp_attr_destroy_all(app);
- 	garp_pdu_queue(app);
- 	spin_unlock_bh(&app->lock);
- 
-diff --git a/net/802/mrp.c b/net/802/mrp.c
-index a808dd5bbb27..32f87d458f05 100644
---- a/net/802/mrp.c
-+++ b/net/802/mrp.c
-@@ -295,6 +295,19 @@ static void mrp_attr_destroy(struct mrp_applicant *app, struct mrp_attr *attr)
- 	kfree(attr);
- }
- 
-+static void mrp_attr_destroy_all(struct mrp_applicant *app)
-+{
-+	struct rb_node *node, *next;
-+	struct mrp_attr *attr;
-+
-+	for (node = rb_first(&app->mad);
-+	     next = node ? rb_next(node) : NULL, node != NULL;
-+	     node = next) {
-+		attr = rb_entry(node, struct mrp_attr, node);
-+		mrp_attr_destroy(app, attr);
-+	}
-+}
-+
- static int mrp_pdu_init(struct mrp_applicant *app)
- {
- 	struct sk_buff *skb;
-@@ -898,6 +911,7 @@ void mrp_uninit_applicant(struct net_device *dev, struct mrp_application *appl)
- 
- 	spin_lock_bh(&app->lock);
- 	mrp_mad_event(app, MRP_EVENT_TX);
-+	mrp_attr_destroy_all(app);
- 	mrp_pdu_queue(app);
- 	spin_unlock_bh(&app->lock);
- 
-diff --git a/net/Makefile b/net/Makefile
-index bdaf53925acd..449fc0b221f8 100644
---- a/net/Makefile
-+++ b/net/Makefile
-@@ -18,7 +18,7 @@ obj-$(CONFIG_NETFILTER)		+= netfilter/
- obj-$(CONFIG_INET)		+= ipv4/
- obj-$(CONFIG_TLS)		+= tls/
- obj-$(CONFIG_XFRM)		+= xfrm/
--obj-$(CONFIG_UNIX)		+= unix/
-+obj-$(CONFIG_UNIX_SCM)		+= unix/
- obj-$(CONFIG_NET)		+= ipv6/
- obj-$(CONFIG_BPFILTER)		+= bpfilter/
- obj-$(CONFIG_PACKET)		+= packet/
-diff --git a/net/core/sock.c b/net/core/sock.c
-index e6cbe137cb6f..956af38aa0d6 100644
---- a/net/core/sock.c
-+++ b/net/core/sock.c
-@@ -989,7 +989,7 @@ int sock_setsockopt(struct socket *sock, int level, int optname,
- 			if (val < 0)
- 				ret = -EINVAL;
- 			else
--				sk->sk_ll_usec = val;
-+				WRITE_ONCE(sk->sk_ll_usec, val);
- 		}
- 		break;
- #endif
-diff --git a/net/sctp/protocol.c b/net/sctp/protocol.c
-index dd5125658255..7207a9769f1a 100644
---- a/net/sctp/protocol.c
-+++ b/net/sctp/protocol.c
-@@ -412,7 +412,8 @@ static enum sctp_scope sctp_v4_scope(union sctp_addr *addr)
- 		retval = SCTP_SCOPE_LINK;
- 	} else if (ipv4_is_private_10(addr->v4.sin_addr.s_addr) ||
- 		   ipv4_is_private_172(addr->v4.sin_addr.s_addr) ||
--		   ipv4_is_private_192(addr->v4.sin_addr.s_addr)) {
-+		   ipv4_is_private_192(addr->v4.sin_addr.s_addr) ||
-+		   ipv4_is_test_198(addr->v4.sin_addr.s_addr)) {
- 		retval = SCTP_SCOPE_PRIVATE;
- 	} else {
- 		retval = SCTP_SCOPE_GLOBAL;
-diff --git a/net/unix/Kconfig b/net/unix/Kconfig
-index 8b31ab85d050..3b9e450656a4 100644
---- a/net/unix/Kconfig
-+++ b/net/unix/Kconfig
-@@ -19,6 +19,11 @@ config UNIX
- 
- 	  Say Y unless you know what you are doing.
- 
-+config UNIX_SCM
-+	bool
-+	depends on UNIX
-+	default y
-+
- config UNIX_DIAG
- 	tristate "UNIX: socket monitoring interface"
- 	depends on UNIX
-diff --git a/net/unix/Makefile b/net/unix/Makefile
-index ffd0a275c3a7..54e58cc4f945 100644
---- a/net/unix/Makefile
-+++ b/net/unix/Makefile
-@@ -10,3 +10,5 @@ unix-$(CONFIG_SYSCTL)	+= sysctl_net_unix.o
- 
- obj-$(CONFIG_UNIX_DIAG)	+= unix_diag.o
- unix_diag-y		:= diag.o
-+
-+obj-$(CONFIG_UNIX_SCM)	+= scm.o
-diff --git a/net/unix/af_unix.c b/net/unix/af_unix.c
-index 53fe5ada5a83..98c253afa0db 100644
---- a/net/unix/af_unix.c
-+++ b/net/unix/af_unix.c
-@@ -119,6 +119,8 @@
- #include <linux/freezer.h>
- #include <linux/file.h>
- 
-+#include "scm.h"
-+
- struct hlist_head unix_socket_table[2 * UNIX_HASH_SIZE];
- EXPORT_SYMBOL_GPL(unix_socket_table);
- DEFINE_SPINLOCK(unix_table_lock);
-@@ -1515,65 +1517,51 @@ static int unix_getname(struct socket *sock, struct sockaddr *uaddr, int peer)
- 	return err;
- }
- 
--static void unix_detach_fds(struct scm_cookie *scm, struct sk_buff *skb)
--{
--	int i;
--
--	scm->fp = UNIXCB(skb).fp;
--	UNIXCB(skb).fp = NULL;
--
--	for (i = scm->fp->count-1; i >= 0; i--)
--		unix_notinflight(scm->fp->user, scm->fp->fp[i]);
--}
--
--static void unix_destruct_scm(struct sk_buff *skb)
--{
--	struct scm_cookie scm;
--	memset(&scm, 0, sizeof(scm));
--	scm.pid  = UNIXCB(skb).pid;
--	if (UNIXCB(skb).fp)
--		unix_detach_fds(&scm, skb);
--
--	/* Alas, it calls VFS */
--	/* So fscking what? fput() had been SMP-safe since the last Summer */
--	scm_destroy(&scm);
--	sock_wfree(skb);
--}
--
--/*
-- * The "user->unix_inflight" variable is protected by the garbage
-- * collection lock, and we just read it locklessly here. If you go
-- * over the limit, there might be a tiny race in actually noticing
-- * it across threads. Tough.
-- */
--static inline bool too_many_unix_fds(struct task_struct *p)
--{
--	struct user_struct *user = current_user();
--
--	if (unlikely(user->unix_inflight > task_rlimit(p, RLIMIT_NOFILE)))
--		return !capable(CAP_SYS_RESOURCE) && !capable(CAP_SYS_ADMIN);
--	return false;
--}
--
--static int unix_attach_fds(struct scm_cookie *scm, struct sk_buff *skb)
-+static void unix_peek_fds(struct scm_cookie *scm, struct sk_buff *skb)
- {
--	int i;
--
--	if (too_many_unix_fds(current))
--		return -ETOOMANYREFS;
-+	scm->fp = scm_fp_dup(UNIXCB(skb).fp);
- 
- 	/*
--	 * Need to duplicate file references for the sake of garbage
--	 * collection.  Otherwise a socket in the fps might become a
--	 * candidate for GC while the skb is not yet queued.
-+	 * Garbage collection of unix sockets starts by selecting a set of
-+	 * candidate sockets which have reference only from being in flight
-+	 * (total_refs == inflight_refs).  This condition is checked once during
-+	 * the candidate collection phase, and candidates are marked as such, so
-+	 * that non-candidates can later be ignored.  While inflight_refs is
-+	 * protected by unix_gc_lock, total_refs (file count) is not, hence this
-+	 * is an instantaneous decision.
-+	 *
-+	 * Once a candidate, however, the socket must not be reinstalled into a
-+	 * file descriptor while the garbage collection is in progress.
-+	 *
-+	 * If the above conditions are met, then the directed graph of
-+	 * candidates (*) does not change while unix_gc_lock is held.
-+	 *
-+	 * Any operations that changes the file count through file descriptors
-+	 * (dup, close, sendmsg) does not change the graph since candidates are
-+	 * not installed in fds.
-+	 *
-+	 * Dequeing a candidate via recvmsg would install it into an fd, but
-+	 * that takes unix_gc_lock to decrement the inflight count, so it's
-+	 * serialized with garbage collection.
-+	 *
-+	 * MSG_PEEK is special in that it does not change the inflight count,
-+	 * yet does install the socket into an fd.  The following lock/unlock
-+	 * pair is to ensure serialization with garbage collection.  It must be
-+	 * done between incrementing the file count and installing the file into
-+	 * an fd.
-+	 *
-+	 * If garbage collection starts after the barrier provided by the
-+	 * lock/unlock, then it will see the elevated refcount and not mark this
-+	 * as a candidate.  If a garbage collection is already in progress
-+	 * before the file count was incremented, then the lock/unlock pair will
-+	 * ensure that garbage collection is finished before progressing to
-+	 * installing the fd.
-+	 *
-+	 * (*) A -> B where B is on the queue of A or B is on the queue of C
-+	 * which is on the queue of listening socket A.
- 	 */
--	UNIXCB(skb).fp = scm_fp_dup(scm->fp);
--	if (!UNIXCB(skb).fp)
--		return -ENOMEM;
--
--	for (i = scm->fp->count - 1; i >= 0; i--)
--		unix_inflight(scm->fp->user, scm->fp->fp[i]);
--	return 0;
-+	spin_lock(&unix_gc_lock);
-+	spin_unlock(&unix_gc_lock);
- }
- 
- static int unix_scm_to_skb(struct scm_cookie *scm, struct sk_buff *skb, bool send_fds)
-@@ -2201,7 +2189,7 @@ static int unix_dgram_recvmsg(struct socket *sock, struct msghdr *msg,
- 		sk_peek_offset_fwd(sk, size);
- 
- 		if (UNIXCB(skb).fp)
--			scm.fp = scm_fp_dup(UNIXCB(skb).fp);
-+			unix_peek_fds(&scm, skb);
- 	}
- 	err = (flags & MSG_TRUNC) ? skb->len - skip : size;
- 
-@@ -2442,7 +2430,7 @@ static int unix_stream_read_generic(struct unix_stream_read_state *state,
- 			/* It is questionable, see note in unix_dgram_recvmsg.
- 			 */
- 			if (UNIXCB(skb).fp)
--				scm.fp = scm_fp_dup(UNIXCB(skb).fp);
-+				unix_peek_fds(&scm, skb);
- 
- 			sk_peek_offset_fwd(sk, chunk);
- 
-diff --git a/net/unix/garbage.c b/net/unix/garbage.c
-index c36757e72844..8bbe1b8e4ff7 100644
---- a/net/unix/garbage.c
-+++ b/net/unix/garbage.c
-@@ -86,77 +86,13 @@
- #include <net/scm.h>
- #include <net/tcp_states.h>
- 
-+#include "scm.h"
-+
- /* Internal data structures and random procedures: */
- 
--static LIST_HEAD(gc_inflight_list);
- static LIST_HEAD(gc_candidates);
--static DEFINE_SPINLOCK(unix_gc_lock);
- static DECLARE_WAIT_QUEUE_HEAD(unix_gc_wait);
- 
--unsigned int unix_tot_inflight;
--
--struct sock *unix_get_socket(struct file *filp)
--{
--	struct sock *u_sock = NULL;
--	struct inode *inode = file_inode(filp);
--
--	/* Socket ? */
--	if (S_ISSOCK(inode->i_mode) && !(filp->f_mode & FMODE_PATH)) {
--		struct socket *sock = SOCKET_I(inode);
--		struct sock *s = sock->sk;
--
--		/* PF_UNIX ? */
--		if (s && sock->ops && sock->ops->family == PF_UNIX)
--			u_sock = s;
--	}
--	return u_sock;
--}
--
--/* Keep the number of times in flight count for the file
-- * descriptor if it is for an AF_UNIX socket.
-- */
--
--void unix_inflight(struct user_struct *user, struct file *fp)
--{
--	struct sock *s = unix_get_socket(fp);
--
--	spin_lock(&unix_gc_lock);
--
--	if (s) {
--		struct unix_sock *u = unix_sk(s);
--
--		if (atomic_long_inc_return(&u->inflight) == 1) {
--			BUG_ON(!list_empty(&u->link));
--			list_add_tail(&u->link, &gc_inflight_list);
--		} else {
--			BUG_ON(list_empty(&u->link));
--		}
--		unix_tot_inflight++;
--	}
--	user->unix_inflight++;
--	spin_unlock(&unix_gc_lock);
--}
--
--void unix_notinflight(struct user_struct *user, struct file *fp)
--{
--	struct sock *s = unix_get_socket(fp);
--
--	spin_lock(&unix_gc_lock);
--
--	if (s) {
--		struct unix_sock *u = unix_sk(s);
--
--		BUG_ON(!atomic_long_read(&u->inflight));
--		BUG_ON(list_empty(&u->link));
--
--		if (atomic_long_dec_and_test(&u->inflight))
--			list_del_init(&u->link);
--		unix_tot_inflight--;
--	}
--	user->unix_inflight--;
--	spin_unlock(&unix_gc_lock);
--}
--
- static void scan_inflight(struct sock *x, void (*func)(struct unix_sock *),
- 			  struct sk_buff_head *hitlist)
- {
-diff --git a/net/unix/scm.c b/net/unix/scm.c
-new file mode 100644
-index 000000000000..83413ade7983
---- /dev/null
-+++ b/net/unix/scm.c
-@@ -0,0 +1,148 @@
-+// SPDX-License-Identifier: GPL-2.0
-+#include <linux/module.h>
-+#include <linux/kernel.h>
-+#include <linux/string.h>
-+#include <linux/socket.h>
-+#include <linux/net.h>
-+#include <linux/fs.h>
-+#include <net/af_unix.h>
-+#include <net/scm.h>
-+#include <linux/init.h>
-+
-+#include "scm.h"
-+
-+unsigned int unix_tot_inflight;
-+EXPORT_SYMBOL(unix_tot_inflight);
-+
-+LIST_HEAD(gc_inflight_list);
-+EXPORT_SYMBOL(gc_inflight_list);
-+
-+DEFINE_SPINLOCK(unix_gc_lock);
-+EXPORT_SYMBOL(unix_gc_lock);
-+
-+struct sock *unix_get_socket(struct file *filp)
-+{
-+	struct sock *u_sock = NULL;
-+	struct inode *inode = file_inode(filp);
-+
-+	/* Socket ? */
-+	if (S_ISSOCK(inode->i_mode) && !(filp->f_mode & FMODE_PATH)) {
-+		struct socket *sock = SOCKET_I(inode);
-+		struct sock *s = sock->sk;
-+
-+		/* PF_UNIX ? */
-+		if (s && sock->ops && sock->ops->family == PF_UNIX)
-+			u_sock = s;
-+	}
-+	return u_sock;
-+}
-+EXPORT_SYMBOL(unix_get_socket);
-+
-+/* Keep the number of times in flight count for the file
-+ * descriptor if it is for an AF_UNIX socket.
-+ */
-+void unix_inflight(struct user_struct *user, struct file *fp)
-+{
-+	struct sock *s = unix_get_socket(fp);
-+
-+	spin_lock(&unix_gc_lock);
-+
-+	if (s) {
-+		struct unix_sock *u = unix_sk(s);
-+
-+		if (atomic_long_inc_return(&u->inflight) == 1) {
-+			BUG_ON(!list_empty(&u->link));
-+			list_add_tail(&u->link, &gc_inflight_list);
-+		} else {
-+			BUG_ON(list_empty(&u->link));
-+		}
-+		unix_tot_inflight++;
-+	}
-+	user->unix_inflight++;
-+	spin_unlock(&unix_gc_lock);
-+}
-+
-+void unix_notinflight(struct user_struct *user, struct file *fp)
-+{
-+	struct sock *s = unix_get_socket(fp);
-+
-+	spin_lock(&unix_gc_lock);
-+
-+	if (s) {
-+		struct unix_sock *u = unix_sk(s);
-+
-+		BUG_ON(!atomic_long_read(&u->inflight));
-+		BUG_ON(list_empty(&u->link));
-+
-+		if (atomic_long_dec_and_test(&u->inflight))
-+			list_del_init(&u->link);
-+		unix_tot_inflight--;
-+	}
-+	user->unix_inflight--;
-+	spin_unlock(&unix_gc_lock);
-+}
-+
-+/*
-+ * The "user->unix_inflight" variable is protected by the garbage
-+ * collection lock, and we just read it locklessly here. If you go
-+ * over the limit, there might be a tiny race in actually noticing
-+ * it across threads. Tough.
-+ */
-+static inline bool too_many_unix_fds(struct task_struct *p)
-+{
-+	struct user_struct *user = current_user();
-+
-+	if (unlikely(user->unix_inflight > task_rlimit(p, RLIMIT_NOFILE)))
-+		return !capable(CAP_SYS_RESOURCE) && !capable(CAP_SYS_ADMIN);
-+	return false;
-+}
-+
-+int unix_attach_fds(struct scm_cookie *scm, struct sk_buff *skb)
-+{
-+	int i;
-+
-+	if (too_many_unix_fds(current))
-+		return -ETOOMANYREFS;
-+
-+	/*
-+	 * Need to duplicate file references for the sake of garbage
-+	 * collection.  Otherwise a socket in the fps might become a
-+	 * candidate for GC while the skb is not yet queued.
-+	 */
-+	UNIXCB(skb).fp = scm_fp_dup(scm->fp);
-+	if (!UNIXCB(skb).fp)
-+		return -ENOMEM;
-+
-+	for (i = scm->fp->count - 1; i >= 0; i--)
-+		unix_inflight(scm->fp->user, scm->fp->fp[i]);
-+	return 0;
-+}
-+EXPORT_SYMBOL(unix_attach_fds);
-+
-+void unix_detach_fds(struct scm_cookie *scm, struct sk_buff *skb)
-+{
-+	int i;
-+
-+	scm->fp = UNIXCB(skb).fp;
-+	UNIXCB(skb).fp = NULL;
-+
-+	for (i = scm->fp->count-1; i >= 0; i--)
-+		unix_notinflight(scm->fp->user, scm->fp->fp[i]);
-+}
-+EXPORT_SYMBOL(unix_detach_fds);
-+
-+void unix_destruct_scm(struct sk_buff *skb)
-+{
-+	struct scm_cookie scm;
-+
-+	memset(&scm, 0, sizeof(scm));
-+	scm.pid  = UNIXCB(skb).pid;
-+	if (UNIXCB(skb).fp)
-+		unix_detach_fds(&scm, skb);
-+
-+	/* Alas, it calls VFS */
-+	/* So fscking what? fput() had been SMP-safe since the last Summer */
-+	scm_destroy(&scm);
-+	sock_wfree(skb);
-+}
-+EXPORT_SYMBOL(unix_destruct_scm);
-diff --git a/net/unix/scm.h b/net/unix/scm.h
-new file mode 100644
-index 000000000000..5a255a477f16
---- /dev/null
-+++ b/net/unix/scm.h
-@@ -0,0 +1,10 @@
-+#ifndef NET_UNIX_SCM_H
-+#define NET_UNIX_SCM_H
-+
-+extern struct list_head gc_inflight_list;
-+extern spinlock_t unix_gc_lock;
-+
-+int unix_attach_fds(struct scm_cookie *scm, struct sk_buff *skb);
-+void unix_detach_fds(struct scm_cookie *scm, struct sk_buff *skb);
-+
-+#endif
-diff --git a/tools/testing/selftests/vm/userfaultfd.c b/tools/testing/selftests/vm/userfaultfd.c
-index 16d42b2de424..1963440f6725 100644
---- a/tools/testing/selftests/vm/userfaultfd.c
-+++ b/tools/testing/selftests/vm/userfaultfd.c
-@@ -131,7 +131,7 @@ static void anon_allocate_area(void **alloc_area)
- {
- 	*alloc_area = mmap(NULL, nr_pages * page_size, PROT_READ | PROT_WRITE,
- 			   MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
--	if (*alloc_area == MAP_FAILED)
-+	if (*alloc_area == MAP_FAILED) {
- 		fprintf(stderr, "mmap of anonymous memory failed");
- 		*alloc_area = NULL;
- 	}
+I'm announcing the release of the 5.4.137 kernel.
+
+All users of the 5.4 kernel series must upgrade.
+
+The updated 5.4.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.4.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Makefile                                 |    2 -
+ arch/arm/boot/dts/versatile-ab.dts       |    5 +--
+ arch/arm/boot/dts/versatile-pb.dts       |    2 -
+ arch/x86/kvm/x86.c                       |   13 +++++--
+ drivers/firmware/arm_scmi/driver.c       |   12 ++++---
+ fs/cifs/smb2ops.c                        |    4 +-
+ fs/hfs/bfind.c                           |   14 +++++++-
+ fs/hfs/bnode.c                           |   25 ++++++++++++---
+ fs/hfs/btree.h                           |    7 ++++
+ fs/hfs/super.c                           |   10 +++---
+ fs/internal.h                            |    1 
+ fs/iomap/seek.c                          |   25 +++++----------
+ include/linux/fs_context.h               |    1 
+ include/net/busy_poll.h                  |    2 -
+ include/net/sctp/constants.h             |    4 --
+ kernel/cgroup/cgroup-v1.c                |    4 --
+ kernel/workqueue.c                       |   20 +++++++-----
+ net/802/garp.c                           |   14 ++++++++
+ net/802/mrp.c                            |   14 ++++++++
+ net/core/sock.c                          |    2 -
+ net/ipv6/ip6_output.c                    |   28 +++++++++++++++++
+ net/sctp/protocol.c                      |    3 +
+ net/unix/af_unix.c                       |   51 +++++++++++++++++++++++++++++--
+ tools/scripts/Makefile.include           |   12 ++++++-
+ tools/testing/selftests/vm/userfaultfd.c |    2 -
+ 25 files changed, 212 insertions(+), 65 deletions(-)
+
+Christoph Hellwig (2):
+      iomap: remove the length variable in iomap_seek_data
+      iomap: remove the length variable in iomap_seek_hole
+
+Cristian Marussi (1):
+      firmware: arm_scmi: Fix range check for the maximum number of pending messages
+
+Desmond Cheong Zhi Xi (3):
+      hfs: add missing clean-up in hfs_fill_super
+      hfs: fix high memory mapping in hfs_bnode_read
+      hfs: add lock nesting notation to hfs_find_init
+
+Eric Dumazet (1):
+      net: annotate data race around sk_ll_usec
+
+Greg Kroah-Hartman (2):
+      selftest: fix build error in tools/testing/selftests/vm/userfaultfd.c
+      Linux 5.4.137
+
+Hyunchul Lee (1):
+      cifs: fix the out of range assignment to bit fields in parse_server_interfaces
+
+Maxim Levitsky (1):
+      KVM: x86: determine if an exception has an error code only when injecting it.
+
+Miklos Szeredi (1):
+      af_unix: fix garbage collect vs MSG_PEEK
+
+Paul Gortmaker (1):
+      cgroup1: fix leaked context root causing sporadic NULL deref in LTP
+
+Sudeep Holla (2):
+      firmware: arm_scmi: Fix possible scmi_linux_errmap buffer overflow
+      ARM: dts: versatile: Fix up interrupt controller node names
+
+Vasily Averin (2):
+      ipv6: allocate enough headroom in ip6_finish_output2()
+      ipv6: ip6_finish_output2: set sk into newly allocated nskb
+
+Xin Long (1):
+      sctp: move 198 addresses from unusable to private scope
+
+Yang Yingliang (3):
+      workqueue: fix UAF in pwq_unbound_release_workfn()
+      net/802/mrp: fix memleak in mrp_request_join()
+      net/802/garp: fix memleak in garp_request_join()
+
+Yonghong Song (1):
+      tools: Allow proper CC/CXX/... override with LLVM=1 in Makefile.include
+
