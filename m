@@ -2,819 +2,161 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E86D3DC448
-	for <lists+stable@lfdr.de>; Sat, 31 Jul 2021 09:08:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A5C53DC466
+	for <lists+stable@lfdr.de>; Sat, 31 Jul 2021 09:19:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237369AbhGaHId (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Jul 2021 03:08:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55226 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232705AbhGaHIY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 31 Jul 2021 03:08:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0CDD461042;
-        Sat, 31 Jul 2021 07:08:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627715298;
-        bh=eab5HMCIjbqWB+K3nlq+IfxVLJk7lBZw9BTMBzozaw8=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NL+YezK733XfYsiudbD9ZoiYwQq9kR+nipXab3IMt5uS6/z2jwMEBT+0C1+OfsSxN
-         iYibtMFi0naY++HONO/Fflp4ECKFnW/P31ROHJLTIhJ6VsogD3UoBJQdKsS8/SjuLy
-         X2ZwznpFGdD9/mFGAx6GO/sgbRMUl4pStu3ZQSMo=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
-        torvalds@linux-foundation.org, stable@vger.kernel.org
-Cc:     lwn@lwn.net, jslaby@suse.cz,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Linux 5.13.7
-Date:   Sat, 31 Jul 2021 09:08:13 +0200
-Message-Id: <16277152922114@kroah.com>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <16277152925037@kroah.com>
-References: <16277152925037@kroah.com>
+        id S232301AbhGaHTJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Jul 2021 03:19:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33948 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232345AbhGaHTD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 31 Jul 2021 03:19:03 -0400
+Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94EB8C06175F
+        for <stable@vger.kernel.org>; Sat, 31 Jul 2021 00:18:56 -0700 (PDT)
+Received: by mail-pj1-x102a.google.com with SMTP id m10-20020a17090a34cab0290176b52c60ddso17580768pjf.4
+        for <stable@vger.kernel.org>; Sat, 31 Jul 2021 00:18:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=gmCzxhLJg5H1BbShM/j9JqL0CZ7kIwr/Ag8jcHNo7SQ=;
+        b=iyO7g9kO3wF+EDMSU4U5v3O3dfqz1xjxEXkZAZyGya/ZEIC3KDcir4IWNLn7NMndSI
+         HunylBjIqAoXHNElqUkLXo4hBjlcoU/skaJhBWDOZWCDHjteM5GLPYQhHOdcuDGYYQvl
+         Ls4743dNGI2gWJAn8MTMVPbu+tnh/+DVfB/+Co36qvbT1uro8hIyb+u3WqKp8rdFrdvo
+         Im2eju27pnAhITIVf9OHNoUQe2tmdOEUn9Ga8thgiy5PEBCw+R3dRPlqpwAMSV5zVKXB
+         GPaqHoBHZIWW0CaK9COM1UGKQbPN5bJYWude6QP51cGKF+b7kXA0YV4K1igpSS0HLNcd
+         O1Kw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=gmCzxhLJg5H1BbShM/j9JqL0CZ7kIwr/Ag8jcHNo7SQ=;
+        b=UxL3Uhqh6OTbmAFMziHcuN+auR0sQRgNANoV/A9Txm5cmZ1Vz5K2VPsSkuCK6UWPXm
+         YHISUaSBgW2MFtPAmA5mz805FlOtYLZb45n4IOcMc+ysFx+zs1hsFLfhkxFQavVwoTVw
+         YbGqDjMu/88MCZUlQ8aqxYcLduaF638bE2oJ8Kk+aEIl+AsQPEaOJl5J8Zlh+VuRMciL
+         jMgloEBH3+cN9VxTt8pOPy+OfSo8TUygNjlB3T5YvjKV8B0ePTlbnzgiEZ0/tbOUsn68
+         Rvya/bzZZ/FqOVXegIdyBarAbE8lhRJVML6/v2IFImGbDYAoPgNkgqMX/zN4UsduuyYU
+         R3OA==
+X-Gm-Message-State: AOAM533p3R8VtzAKw0Cb86xQ9Cck8dqQGqN/OxCdvPqfTpM1pvygoPLQ
+        nqr5EsgfcKovIMr1OCK/jo6nTVTIzhqvBVtd
+X-Google-Smtp-Source: ABdhPJyd5WTdgvOrn3+de6DVXZAgU1YTAPMWGr0QYTtKj1KBAMOXEEERwbRwenN+BwESoh2lLYBZYg==
+X-Received: by 2002:a17:90a:bc4c:: with SMTP id t12mr6989691pjv.92.1627715935927;
+        Sat, 31 Jul 2021 00:18:55 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id y17sm4978743pfp.147.2021.07.31.00.18.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 31 Jul 2021 00:18:55 -0700 (PDT)
+Message-ID: <6104f95f.1c69fb81.1feb7.de24@mx.google.com>
+Date:   Sat, 31 Jul 2021 00:18:55 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/5.10
+X-Kernelci-Kernel: v5.10.54-2-g41c54732efb5
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/5.10 baseline: 173 runs,
+ 2 regressions (v5.10.54-2-g41c54732efb5)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index 96967f895193..614327400aea 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
- VERSION = 5
- PATCHLEVEL = 13
--SUBLEVEL = 6
-+SUBLEVEL = 7
- EXTRAVERSION =
- NAME = Opossums on Parade
- 
-diff --git a/arch/arm/boot/dts/versatile-ab.dts b/arch/arm/boot/dts/versatile-ab.dts
-index 37bd41ff8dff..151c0220047d 100644
---- a/arch/arm/boot/dts/versatile-ab.dts
-+++ b/arch/arm/boot/dts/versatile-ab.dts
-@@ -195,16 +195,15 @@ amba {
- 		#size-cells = <1>;
- 		ranges;
- 
--		vic: intc@10140000 {
-+		vic: interrupt-controller@10140000 {
- 			compatible = "arm,versatile-vic";
- 			interrupt-controller;
- 			#interrupt-cells = <1>;
- 			reg = <0x10140000 0x1000>;
--			clear-mask = <0xffffffff>;
- 			valid-mask = <0xffffffff>;
- 		};
- 
--		sic: intc@10003000 {
-+		sic: interrupt-controller@10003000 {
- 			compatible = "arm,versatile-sic";
- 			interrupt-controller;
- 			#interrupt-cells = <1>;
-diff --git a/arch/arm/boot/dts/versatile-pb.dts b/arch/arm/boot/dts/versatile-pb.dts
-index 06a0fdf24026..e7e751a858d8 100644
---- a/arch/arm/boot/dts/versatile-pb.dts
-+++ b/arch/arm/boot/dts/versatile-pb.dts
-@@ -7,7 +7,7 @@ / {
- 
- 	amba {
- 		/* The Versatile PB is using more SIC IRQ lines than the AB */
--		sic: intc@10003000 {
-+		sic: interrupt-controller@10003000 {
- 			clear-mask = <0xffffffff>;
- 			/*
- 			 * Valid interrupt lines mask according to
-diff --git a/drivers/firmware/arm_scmi/driver.c b/drivers/firmware/arm_scmi/driver.c
-index 74986bf96656..c9fda6261c6b 100644
---- a/drivers/firmware/arm_scmi/driver.c
-+++ b/drivers/firmware/arm_scmi/driver.c
-@@ -47,7 +47,6 @@ enum scmi_error_codes {
- 	SCMI_ERR_GENERIC = -8,	/* Generic Error */
- 	SCMI_ERR_HARDWARE = -9,	/* Hardware Error */
- 	SCMI_ERR_PROTOCOL = -10,/* Protocol Error */
--	SCMI_ERR_MAX
- };
- 
- /* List of all SCMI devices active in system */
-@@ -166,8 +165,10 @@ static const int scmi_linux_errmap[] = {
- 
- static inline int scmi_to_linux_errno(int errno)
- {
--	if (errno < SCMI_SUCCESS && errno > SCMI_ERR_MAX)
--		return scmi_linux_errmap[-errno];
-+	int err_idx = -errno;
-+
-+	if (err_idx >= SCMI_SUCCESS && err_idx < ARRAY_SIZE(scmi_linux_errmap))
-+		return scmi_linux_errmap[err_idx];
- 	return -EIO;
- }
- 
-@@ -1029,8 +1030,9 @@ static int __scmi_xfer_info_init(struct scmi_info *sinfo,
- 	const struct scmi_desc *desc = sinfo->desc;
- 
- 	/* Pre-allocated messages, no more than what hdr.seq can support */
--	if (WARN_ON(desc->max_msg >= MSG_TOKEN_MAX)) {
--		dev_err(dev, "Maximum message of %d exceeds supported %ld\n",
-+	if (WARN_ON(!desc->max_msg || desc->max_msg > MSG_TOKEN_MAX)) {
-+		dev_err(dev,
-+			"Invalid maximum messages %d, not in range [1 - %lu]\n",
- 			desc->max_msg, MSG_TOKEN_MAX);
- 		return -EINVAL;
- 	}
-diff --git a/drivers/gpu/drm/ttm/ttm_range_manager.c b/drivers/gpu/drm/ttm/ttm_range_manager.c
-index 707e5c152896..ed053fd15c90 100644
---- a/drivers/gpu/drm/ttm/ttm_range_manager.c
-+++ b/drivers/gpu/drm/ttm/ttm_range_manager.c
-@@ -146,6 +146,9 @@ int ttm_range_man_fini(struct ttm_device *bdev,
- 	struct drm_mm *mm = &rman->mm;
- 	int ret;
- 
-+	if (!man)
-+		return 0;
-+
- 	ttm_resource_manager_set_used(man, false);
- 
- 	ret = ttm_resource_manager_evict_all(bdev, man);
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index fb1c5ae0da39..d963f25fc7ae 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -1562,6 +1562,28 @@ static void nvme_init_queue(struct nvme_queue *nvmeq, u16 qid)
- 	wmb(); /* ensure the first interrupt sees the initialization */
- }
- 
-+/*
-+ * Try getting shutdown_lock while setting up IO queues.
-+ */
-+static int nvme_setup_io_queues_trylock(struct nvme_dev *dev)
-+{
-+	/*
-+	 * Give up if the lock is being held by nvme_dev_disable.
-+	 */
-+	if (!mutex_trylock(&dev->shutdown_lock))
-+		return -ENODEV;
-+
-+	/*
-+	 * Controller is in wrong state, fail early.
-+	 */
-+	if (dev->ctrl.state != NVME_CTRL_CONNECTING) {
-+		mutex_unlock(&dev->shutdown_lock);
-+		return -ENODEV;
-+	}
-+
-+	return 0;
-+}
-+
- static int nvme_create_queue(struct nvme_queue *nvmeq, int qid, bool polled)
- {
- 	struct nvme_dev *dev = nvmeq->dev;
-@@ -1590,8 +1612,11 @@ static int nvme_create_queue(struct nvme_queue *nvmeq, int qid, bool polled)
- 		goto release_cq;
- 
- 	nvmeq->cq_vector = vector;
--	nvme_init_queue(nvmeq, qid);
- 
-+	result = nvme_setup_io_queues_trylock(dev);
-+	if (result)
-+		return result;
-+	nvme_init_queue(nvmeq, qid);
- 	if (!polled) {
- 		result = queue_request_irq(nvmeq);
- 		if (result < 0)
-@@ -1599,10 +1624,12 @@ static int nvme_create_queue(struct nvme_queue *nvmeq, int qid, bool polled)
- 	}
- 
- 	set_bit(NVMEQ_ENABLED, &nvmeq->flags);
-+	mutex_unlock(&dev->shutdown_lock);
- 	return result;
- 
- release_sq:
- 	dev->online_queues--;
-+	mutex_unlock(&dev->shutdown_lock);
- 	adapter_delete_sq(dev, qid);
- release_cq:
- 	adapter_delete_cq(dev, qid);
-@@ -2176,7 +2203,18 @@ static int nvme_setup_io_queues(struct nvme_dev *dev)
- 	if (nr_io_queues == 0)
- 		return 0;
- 
--	clear_bit(NVMEQ_ENABLED, &adminq->flags);
-+	/*
-+	 * Free IRQ resources as soon as NVMEQ_ENABLED bit transitions
-+	 * from set to unset. If there is a window to it is truely freed,
-+	 * pci_free_irq_vectors() jumping into this window will crash.
-+	 * And take lock to avoid racing with pci_free_irq_vectors() in
-+	 * nvme_dev_disable() path.
-+	 */
-+	result = nvme_setup_io_queues_trylock(dev);
-+	if (result)
-+		return result;
-+	if (test_and_clear_bit(NVMEQ_ENABLED, &adminq->flags))
-+		pci_free_irq(pdev, 0, adminq);
- 
- 	if (dev->cmb_use_sqes) {
- 		result = nvme_cmb_qdepth(dev, nr_io_queues,
-@@ -2192,14 +2230,17 @@ static int nvme_setup_io_queues(struct nvme_dev *dev)
- 		result = nvme_remap_bar(dev, size);
- 		if (!result)
- 			break;
--		if (!--nr_io_queues)
--			return -ENOMEM;
-+		if (!--nr_io_queues) {
-+			result = -ENOMEM;
-+			goto out_unlock;
-+		}
- 	} while (1);
- 	adminq->q_db = dev->dbs;
- 
-  retry:
- 	/* Deregister the admin queue's interrupt */
--	pci_free_irq(pdev, 0, adminq);
-+	if (test_and_clear_bit(NVMEQ_ENABLED, &adminq->flags))
-+		pci_free_irq(pdev, 0, adminq);
- 
- 	/*
- 	 * If we enable msix early due to not intx, disable it again before
-@@ -2208,8 +2249,10 @@ static int nvme_setup_io_queues(struct nvme_dev *dev)
- 	pci_free_irq_vectors(pdev);
- 
- 	result = nvme_setup_irqs(dev, nr_io_queues);
--	if (result <= 0)
--		return -EIO;
-+	if (result <= 0) {
-+		result = -EIO;
-+		goto out_unlock;
-+	}
- 
- 	dev->num_vecs = result;
- 	result = max(result - 1, 1);
-@@ -2223,8 +2266,9 @@ static int nvme_setup_io_queues(struct nvme_dev *dev)
- 	 */
- 	result = queue_request_irq(adminq);
- 	if (result)
--		return result;
-+		goto out_unlock;
- 	set_bit(NVMEQ_ENABLED, &adminq->flags);
-+	mutex_unlock(&dev->shutdown_lock);
- 
- 	result = nvme_create_io_queues(dev);
- 	if (result || dev->online_queues < 2)
-@@ -2233,6 +2277,9 @@ static int nvme_setup_io_queues(struct nvme_dev *dev)
- 	if (dev->online_queues - 1 < dev->max_qid) {
- 		nr_io_queues = dev->online_queues - 1;
- 		nvme_disable_io_queues(dev);
-+		result = nvme_setup_io_queues_trylock(dev);
-+		if (result)
-+			return result;
- 		nvme_suspend_io_queues(dev);
- 		goto retry;
- 	}
-@@ -2241,6 +2288,9 @@ static int nvme_setup_io_queues(struct nvme_dev *dev)
- 					dev->io_queues[HCTX_TYPE_READ],
- 					dev->io_queues[HCTX_TYPE_POLL]);
- 	return 0;
-+out_unlock:
-+	mutex_unlock(&dev->shutdown_lock);
-+	return result;
- }
- 
- static void nvme_del_queue_end(struct request *req, blk_status_t error)
-diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
-index 64cad843ce72..398c941e3897 100644
---- a/fs/cifs/smb2ops.c
-+++ b/fs/cifs/smb2ops.c
-@@ -555,8 +555,8 @@ parse_server_interfaces(struct network_interface_info_ioctl_rsp *buf,
- 	p = buf;
- 	while (bytes_left >= sizeof(*p)) {
- 		info->speed = le64_to_cpu(p->LinkSpeed);
--		info->rdma_capable = le32_to_cpu(p->Capability & RDMA_CAPABLE);
--		info->rss_capable = le32_to_cpu(p->Capability & RSS_CAPABLE);
-+		info->rdma_capable = le32_to_cpu(p->Capability & RDMA_CAPABLE) ? 1 : 0;
-+		info->rss_capable = le32_to_cpu(p->Capability & RSS_CAPABLE) ? 1 : 0;
- 
- 		cifs_dbg(FYI, "%s: adding iface %zu\n", __func__, *iface_count);
- 		cifs_dbg(FYI, "%s: speed %zu bps\n", __func__, info->speed);
-diff --git a/fs/hfs/bfind.c b/fs/hfs/bfind.c
-index 4af318fbda77..ef9498a6e88a 100644
---- a/fs/hfs/bfind.c
-+++ b/fs/hfs/bfind.c
-@@ -25,7 +25,19 @@ int hfs_find_init(struct hfs_btree *tree, struct hfs_find_data *fd)
- 	fd->key = ptr + tree->max_key_len + 2;
- 	hfs_dbg(BNODE_REFS, "find_init: %d (%p)\n",
- 		tree->cnid, __builtin_return_address(0));
--	mutex_lock(&tree->tree_lock);
-+	switch (tree->cnid) {
-+	case HFS_CAT_CNID:
-+		mutex_lock_nested(&tree->tree_lock, CATALOG_BTREE_MUTEX);
-+		break;
-+	case HFS_EXT_CNID:
-+		mutex_lock_nested(&tree->tree_lock, EXTENTS_BTREE_MUTEX);
-+		break;
-+	case HFS_ATTR_CNID:
-+		mutex_lock_nested(&tree->tree_lock, ATTR_BTREE_MUTEX);
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
- 	return 0;
- }
- 
-diff --git a/fs/hfs/bnode.c b/fs/hfs/bnode.c
-index b63a4df7327b..c0a73a6ffb28 100644
---- a/fs/hfs/bnode.c
-+++ b/fs/hfs/bnode.c
-@@ -15,16 +15,31 @@
- 
- #include "btree.h"
- 
--void hfs_bnode_read(struct hfs_bnode *node, void *buf,
--		int off, int len)
-+void hfs_bnode_read(struct hfs_bnode *node, void *buf, int off, int len)
- {
- 	struct page *page;
-+	int pagenum;
-+	int bytes_read;
-+	int bytes_to_read;
-+	void *vaddr;
- 
- 	off += node->page_offset;
--	page = node->page[0];
-+	pagenum = off >> PAGE_SHIFT;
-+	off &= ~PAGE_MASK; /* compute page offset for the first page */
- 
--	memcpy(buf, kmap(page) + off, len);
--	kunmap(page);
-+	for (bytes_read = 0; bytes_read < len; bytes_read += bytes_to_read) {
-+		if (pagenum >= node->tree->pages_per_bnode)
-+			break;
-+		page = node->page[pagenum];
-+		bytes_to_read = min_t(int, len - bytes_read, PAGE_SIZE - off);
-+
-+		vaddr = kmap_atomic(page);
-+		memcpy(buf + bytes_read, vaddr + off, bytes_to_read);
-+		kunmap_atomic(vaddr);
-+
-+		pagenum++;
-+		off = 0; /* page offset only applies to the first page */
-+	}
- }
- 
- u16 hfs_bnode_read_u16(struct hfs_bnode *node, int off)
-diff --git a/fs/hfs/btree.h b/fs/hfs/btree.h
-index 4ba45caf5939..0e6baee93245 100644
---- a/fs/hfs/btree.h
-+++ b/fs/hfs/btree.h
-@@ -13,6 +13,13 @@ typedef int (*btree_keycmp)(const btree_key *, const btree_key *);
- 
- #define NODE_HASH_SIZE  256
- 
-+/* B-tree mutex nested subclasses */
-+enum hfs_btree_mutex_classes {
-+	CATALOG_BTREE_MUTEX,
-+	EXTENTS_BTREE_MUTEX,
-+	ATTR_BTREE_MUTEX,
-+};
-+
- /* A HFS BTree held in memory */
- struct hfs_btree {
- 	struct super_block *sb;
-diff --git a/fs/hfs/super.c b/fs/hfs/super.c
-index 44d07c9e3a7f..12d9bae39363 100644
---- a/fs/hfs/super.c
-+++ b/fs/hfs/super.c
-@@ -420,14 +420,12 @@ static int hfs_fill_super(struct super_block *sb, void *data, int silent)
- 	if (!res) {
- 		if (fd.entrylength > sizeof(rec) || fd.entrylength < 0) {
- 			res =  -EIO;
--			goto bail;
-+			goto bail_hfs_find;
- 		}
- 		hfs_bnode_read(fd.bnode, &rec, fd.entryoffset, fd.entrylength);
- 	}
--	if (res) {
--		hfs_find_exit(&fd);
--		goto bail_no_root;
--	}
-+	if (res)
-+		goto bail_hfs_find;
- 	res = -EINVAL;
- 	root_inode = hfs_iget(sb, &fd.search_key->cat, &rec);
- 	hfs_find_exit(&fd);
-@@ -443,6 +441,8 @@ static int hfs_fill_super(struct super_block *sb, void *data, int silent)
- 	/* everything's okay */
- 	return 0;
- 
-+bail_hfs_find:
-+	hfs_find_exit(&fd);
- bail_no_root:
- 	pr_err("get root inode failed\n");
- bail:
-diff --git a/fs/internal.h b/fs/internal.h
-index 6aeae7ef3380..728f8d70d7f1 100644
---- a/fs/internal.h
-+++ b/fs/internal.h
-@@ -61,7 +61,6 @@ extern void __init chrdev_init(void);
-  */
- extern const struct fs_context_operations legacy_fs_context_ops;
- extern int parse_monolithic_mount_data(struct fs_context *, void *);
--extern void fc_drop_locked(struct fs_context *);
- extern void vfs_clean_context(struct fs_context *fc);
- extern int finish_clean_context(struct fs_context *fc);
- 
-diff --git a/fs/iomap/seek.c b/fs/iomap/seek.c
-index dab1b02eba5b..ce6fb810854f 100644
---- a/fs/iomap/seek.c
-+++ b/fs/iomap/seek.c
-@@ -35,23 +35,20 @@ loff_t
- iomap_seek_hole(struct inode *inode, loff_t offset, const struct iomap_ops *ops)
- {
- 	loff_t size = i_size_read(inode);
--	loff_t length = size - offset;
- 	loff_t ret;
- 
- 	/* Nothing to be found before or beyond the end of the file. */
- 	if (offset < 0 || offset >= size)
- 		return -ENXIO;
- 
--	while (length > 0) {
--		ret = iomap_apply(inode, offset, length, IOMAP_REPORT, ops,
--				  &offset, iomap_seek_hole_actor);
-+	while (offset < size) {
-+		ret = iomap_apply(inode, offset, size - offset, IOMAP_REPORT,
-+				  ops, &offset, iomap_seek_hole_actor);
- 		if (ret < 0)
- 			return ret;
- 		if (ret == 0)
- 			break;
--
- 		offset += ret;
--		length -= ret;
- 	}
- 
- 	return offset;
-@@ -83,27 +80,23 @@ loff_t
- iomap_seek_data(struct inode *inode, loff_t offset, const struct iomap_ops *ops)
- {
- 	loff_t size = i_size_read(inode);
--	loff_t length = size - offset;
- 	loff_t ret;
- 
- 	/* Nothing to be found before or beyond the end of the file. */
- 	if (offset < 0 || offset >= size)
- 		return -ENXIO;
- 
--	while (length > 0) {
--		ret = iomap_apply(inode, offset, length, IOMAP_REPORT, ops,
--				  &offset, iomap_seek_data_actor);
-+	while (offset < size) {
-+		ret = iomap_apply(inode, offset, size - offset, IOMAP_REPORT,
-+				  ops, &offset, iomap_seek_data_actor);
- 		if (ret < 0)
- 			return ret;
- 		if (ret == 0)
--			break;
--
-+			return offset;
- 		offset += ret;
--		length -= ret;
- 	}
- 
--	if (length <= 0)
--		return -ENXIO;
--	return offset;
-+	/* We've reached the end of the file without finding data */
-+	return -ENXIO;
- }
- EXPORT_SYMBOL_GPL(iomap_seek_data);
-diff --git a/include/linux/fs_context.h b/include/linux/fs_context.h
-index 37e1e8f7f08d..5b44b0195a28 100644
---- a/include/linux/fs_context.h
-+++ b/include/linux/fs_context.h
-@@ -139,6 +139,7 @@ extern int vfs_parse_fs_string(struct fs_context *fc, const char *key,
- extern int generic_parse_monolithic(struct fs_context *fc, void *data);
- extern int vfs_get_tree(struct fs_context *fc);
- extern void put_fs_context(struct fs_context *fc);
-+extern void fc_drop_locked(struct fs_context *fc);
- 
- /*
-  * sget() wrappers to be called from the ->get_tree() op.
-diff --git a/include/net/busy_poll.h b/include/net/busy_poll.h
-index 73af4a64a599..40296ed976a9 100644
---- a/include/net/busy_poll.h
-+++ b/include/net/busy_poll.h
-@@ -38,7 +38,7 @@ static inline bool net_busy_loop_on(void)
- 
- static inline bool sk_can_busy_loop(const struct sock *sk)
- {
--	return sk->sk_ll_usec && !signal_pending(current);
-+	return READ_ONCE(sk->sk_ll_usec) && !signal_pending(current);
- }
- 
- bool sk_busy_loop_end(void *p, unsigned long start_time);
-diff --git a/include/net/sctp/constants.h b/include/net/sctp/constants.h
-index 14a0d22c9113..bf23a2ed92da 100644
---- a/include/net/sctp/constants.h
-+++ b/include/net/sctp/constants.h
-@@ -342,8 +342,7 @@ enum {
- #define SCTP_SCOPE_POLICY_MAX	SCTP_SCOPE_POLICY_LINK
- 
- /* Based on IPv4 scoping <draft-stewart-tsvwg-sctp-ipv4-00.txt>,
-- * SCTP IPv4 unusable addresses: 0.0.0.0/8, 224.0.0.0/4, 198.18.0.0/24,
-- * 192.88.99.0/24.
-+ * SCTP IPv4 unusable addresses: 0.0.0.0/8, 224.0.0.0/4, 192.88.99.0/24.
-  * Also, RFC 8.4, non-unicast addresses are not considered valid SCTP
-  * addresses.
-  */
-@@ -351,7 +350,6 @@ enum {
- 	((htonl(INADDR_BROADCAST) == a) ||  \
- 	 ipv4_is_multicast(a) ||	    \
- 	 ipv4_is_zeronet(a) ||		    \
--	 ipv4_is_test_198(a) ||		    \
- 	 ipv4_is_anycast_6to4(a))
- 
- /* Flags used for the bind address copy functions.  */
-diff --git a/kernel/cgroup/cgroup-v1.c b/kernel/cgroup/cgroup-v1.c
-index d189eff4c92f..583790d2060c 100644
---- a/kernel/cgroup/cgroup-v1.c
-+++ b/kernel/cgroup/cgroup-v1.c
-@@ -1225,9 +1225,7 @@ int cgroup1_get_tree(struct fs_context *fc)
- 		ret = cgroup_do_get_tree(fc);
- 
- 	if (!ret && percpu_ref_is_dying(&ctx->root->cgrp.self.refcnt)) {
--		struct super_block *sb = fc->root->d_sb;
--		dput(fc->root);
--		deactivate_locked_super(sb);
-+		fc_drop_locked(fc);
- 		ret = 1;
- 	}
- 
-diff --git a/kernel/rcu/tasks.h b/kernel/rcu/tasks.h
-index 350ebf5051f9..fcef5f0c60b8 100644
---- a/kernel/rcu/tasks.h
-+++ b/kernel/rcu/tasks.h
-@@ -908,10 +908,9 @@ static bool trc_inspect_reader(struct task_struct *t, void *arg)
- 		in_qs = likely(!t->trc_reader_nesting);
- 	}
- 
--	// Mark as checked.  Because this is called from the grace-period
--	// kthread, also remove the task from the holdout list.
-+	// Mark as checked so that the grace-period kthread will
-+	// remove it from the holdout list.
- 	t->trc_reader_checked = true;
--	trc_del_holdout(t);
- 
- 	if (in_qs)
- 		return true;  // Already in quiescent state, done!!!
-@@ -938,7 +937,6 @@ static void trc_wait_for_one_reader(struct task_struct *t,
- 	// The current task had better be in a quiescent state.
- 	if (t == current) {
- 		t->trc_reader_checked = true;
--		trc_del_holdout(t);
- 		WARN_ON_ONCE(t->trc_reader_nesting);
- 		return;
- 	}
-diff --git a/kernel/workqueue.c b/kernel/workqueue.c
-index 50142fc08902..f148eacda55a 100644
---- a/kernel/workqueue.c
-+++ b/kernel/workqueue.c
-@@ -3676,15 +3676,21 @@ static void pwq_unbound_release_workfn(struct work_struct *work)
- 						  unbound_release_work);
- 	struct workqueue_struct *wq = pwq->wq;
- 	struct worker_pool *pool = pwq->pool;
--	bool is_last;
-+	bool is_last = false;
- 
--	if (WARN_ON_ONCE(!(wq->flags & WQ_UNBOUND)))
--		return;
-+	/*
-+	 * when @pwq is not linked, it doesn't hold any reference to the
-+	 * @wq, and @wq is invalid to access.
-+	 */
-+	if (!list_empty(&pwq->pwqs_node)) {
-+		if (WARN_ON_ONCE(!(wq->flags & WQ_UNBOUND)))
-+			return;
- 
--	mutex_lock(&wq->mutex);
--	list_del_rcu(&pwq->pwqs_node);
--	is_last = list_empty(&wq->pwqs);
--	mutex_unlock(&wq->mutex);
-+		mutex_lock(&wq->mutex);
-+		list_del_rcu(&pwq->pwqs_node);
-+		is_last = list_empty(&wq->pwqs);
-+		mutex_unlock(&wq->mutex);
-+	}
- 
- 	mutex_lock(&wq_pool_mutex);
- 	put_unbound_pool(pool);
-diff --git a/net/802/garp.c b/net/802/garp.c
-index 400bd857e5f5..f6012f8e59f0 100644
---- a/net/802/garp.c
-+++ b/net/802/garp.c
-@@ -203,6 +203,19 @@ static void garp_attr_destroy(struct garp_applicant *app, struct garp_attr *attr
- 	kfree(attr);
- }
- 
-+static void garp_attr_destroy_all(struct garp_applicant *app)
-+{
-+	struct rb_node *node, *next;
-+	struct garp_attr *attr;
-+
-+	for (node = rb_first(&app->gid);
-+	     next = node ? rb_next(node) : NULL, node != NULL;
-+	     node = next) {
-+		attr = rb_entry(node, struct garp_attr, node);
-+		garp_attr_destroy(app, attr);
-+	}
-+}
-+
- static int garp_pdu_init(struct garp_applicant *app)
- {
- 	struct sk_buff *skb;
-@@ -609,6 +622,7 @@ void garp_uninit_applicant(struct net_device *dev, struct garp_application *appl
- 
- 	spin_lock_bh(&app->lock);
- 	garp_gid_event(app, GARP_EVENT_TRANSMIT_PDU);
-+	garp_attr_destroy_all(app);
- 	garp_pdu_queue(app);
- 	spin_unlock_bh(&app->lock);
- 
-diff --git a/net/802/mrp.c b/net/802/mrp.c
-index bea6e43d45a0..35e04cc5390c 100644
---- a/net/802/mrp.c
-+++ b/net/802/mrp.c
-@@ -292,6 +292,19 @@ static void mrp_attr_destroy(struct mrp_applicant *app, struct mrp_attr *attr)
- 	kfree(attr);
- }
- 
-+static void mrp_attr_destroy_all(struct mrp_applicant *app)
-+{
-+	struct rb_node *node, *next;
-+	struct mrp_attr *attr;
-+
-+	for (node = rb_first(&app->mad);
-+	     next = node ? rb_next(node) : NULL, node != NULL;
-+	     node = next) {
-+		attr = rb_entry(node, struct mrp_attr, node);
-+		mrp_attr_destroy(app, attr);
-+	}
-+}
-+
- static int mrp_pdu_init(struct mrp_applicant *app)
- {
- 	struct sk_buff *skb;
-@@ -895,6 +908,7 @@ void mrp_uninit_applicant(struct net_device *dev, struct mrp_application *appl)
- 
- 	spin_lock_bh(&app->lock);
- 	mrp_mad_event(app, MRP_EVENT_TX);
-+	mrp_attr_destroy_all(app);
- 	mrp_pdu_queue(app);
- 	spin_unlock_bh(&app->lock);
- 
-diff --git a/net/core/sock.c b/net/core/sock.c
-index 2003c5ebb4c2..37d732fe3fcf 100644
---- a/net/core/sock.c
-+++ b/net/core/sock.c
-@@ -1172,7 +1172,7 @@ int sock_setsockopt(struct socket *sock, int level, int optname,
- 			if (val < 0)
- 				ret = -EINVAL;
- 			else
--				sk->sk_ll_usec = val;
-+				WRITE_ONCE(sk->sk_ll_usec, val);
- 		}
- 		break;
- 	case SO_PREFER_BUSY_POLL:
-diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
-index b7ffb4f227a4..6062ad1d5b51 100644
---- a/net/ipv6/ip6_output.c
-+++ b/net/ipv6/ip6_output.c
-@@ -60,10 +60,38 @@ static int ip6_finish_output2(struct net *net, struct sock *sk, struct sk_buff *
- {
- 	struct dst_entry *dst = skb_dst(skb);
- 	struct net_device *dev = dst->dev;
-+	unsigned int hh_len = LL_RESERVED_SPACE(dev);
-+	int delta = hh_len - skb_headroom(skb);
- 	const struct in6_addr *nexthop;
- 	struct neighbour *neigh;
- 	int ret;
- 
-+	/* Be paranoid, rather than too clever. */
-+	if (unlikely(delta > 0) && dev->header_ops) {
-+		/* pskb_expand_head() might crash, if skb is shared */
-+		if (skb_shared(skb)) {
-+			struct sk_buff *nskb = skb_clone(skb, GFP_ATOMIC);
-+
-+			if (likely(nskb)) {
-+				if (skb->sk)
-+					skb_set_owner_w(nskb, skb->sk);
-+				consume_skb(skb);
-+			} else {
-+				kfree_skb(skb);
-+			}
-+			skb = nskb;
-+		}
-+		if (skb &&
-+		    pskb_expand_head(skb, SKB_DATA_ALIGN(delta), 0, GFP_ATOMIC)) {
-+			kfree_skb(skb);
-+			skb = NULL;
-+		}
-+		if (!skb) {
-+			IP6_INC_STATS(net, ip6_dst_idev(dst), IPSTATS_MIB_OUTDISCARDS);
-+			return -ENOMEM;
-+		}
-+	}
-+
- 	if (ipv6_addr_is_multicast(&ipv6_hdr(skb)->daddr)) {
- 		struct inet6_dev *idev = ip6_dst_idev(skb_dst(skb));
- 
-diff --git a/net/sctp/protocol.c b/net/sctp/protocol.c
-index 25192b378e2e..9b444df5e53e 100644
---- a/net/sctp/protocol.c
-+++ b/net/sctp/protocol.c
-@@ -398,7 +398,8 @@ static enum sctp_scope sctp_v4_scope(union sctp_addr *addr)
- 		retval = SCTP_SCOPE_LINK;
- 	} else if (ipv4_is_private_10(addr->v4.sin_addr.s_addr) ||
- 		   ipv4_is_private_172(addr->v4.sin_addr.s_addr) ||
--		   ipv4_is_private_192(addr->v4.sin_addr.s_addr)) {
-+		   ipv4_is_private_192(addr->v4.sin_addr.s_addr) ||
-+		   ipv4_is_test_198(addr->v4.sin_addr.s_addr)) {
- 		retval = SCTP_SCOPE_PRIVATE;
- 	} else {
- 		retval = SCTP_SCOPE_GLOBAL;
-diff --git a/net/unix/af_unix.c b/net/unix/af_unix.c
-index 5d1192ceb139..68a9591d0144 100644
---- a/net/unix/af_unix.c
-+++ b/net/unix/af_unix.c
-@@ -1522,6 +1522,53 @@ static int unix_getname(struct socket *sock, struct sockaddr *uaddr, int peer)
- 	return err;
- }
- 
-+static void unix_peek_fds(struct scm_cookie *scm, struct sk_buff *skb)
-+{
-+	scm->fp = scm_fp_dup(UNIXCB(skb).fp);
-+
-+	/*
-+	 * Garbage collection of unix sockets starts by selecting a set of
-+	 * candidate sockets which have reference only from being in flight
-+	 * (total_refs == inflight_refs).  This condition is checked once during
-+	 * the candidate collection phase, and candidates are marked as such, so
-+	 * that non-candidates can later be ignored.  While inflight_refs is
-+	 * protected by unix_gc_lock, total_refs (file count) is not, hence this
-+	 * is an instantaneous decision.
-+	 *
-+	 * Once a candidate, however, the socket must not be reinstalled into a
-+	 * file descriptor while the garbage collection is in progress.
-+	 *
-+	 * If the above conditions are met, then the directed graph of
-+	 * candidates (*) does not change while unix_gc_lock is held.
-+	 *
-+	 * Any operations that changes the file count through file descriptors
-+	 * (dup, close, sendmsg) does not change the graph since candidates are
-+	 * not installed in fds.
-+	 *
-+	 * Dequeing a candidate via recvmsg would install it into an fd, but
-+	 * that takes unix_gc_lock to decrement the inflight count, so it's
-+	 * serialized with garbage collection.
-+	 *
-+	 * MSG_PEEK is special in that it does not change the inflight count,
-+	 * yet does install the socket into an fd.  The following lock/unlock
-+	 * pair is to ensure serialization with garbage collection.  It must be
-+	 * done between incrementing the file count and installing the file into
-+	 * an fd.
-+	 *
-+	 * If garbage collection starts after the barrier provided by the
-+	 * lock/unlock, then it will see the elevated refcount and not mark this
-+	 * as a candidate.  If a garbage collection is already in progress
-+	 * before the file count was incremented, then the lock/unlock pair will
-+	 * ensure that garbage collection is finished before progressing to
-+	 * installing the fd.
-+	 *
-+	 * (*) A -> B where B is on the queue of A or B is on the queue of C
-+	 * which is on the queue of listening socket A.
-+	 */
-+	spin_lock(&unix_gc_lock);
-+	spin_unlock(&unix_gc_lock);
-+}
-+
- static int unix_scm_to_skb(struct scm_cookie *scm, struct sk_buff *skb, bool send_fds)
- {
- 	int err = 0;
-@@ -2171,7 +2218,7 @@ static int unix_dgram_recvmsg(struct socket *sock, struct msghdr *msg,
- 		sk_peek_offset_fwd(sk, size);
- 
- 		if (UNIXCB(skb).fp)
--			scm.fp = scm_fp_dup(UNIXCB(skb).fp);
-+			unix_peek_fds(&scm, skb);
- 	}
- 	err = (flags & MSG_TRUNC) ? skb->len - skip : size;
- 
-@@ -2414,7 +2461,7 @@ static int unix_stream_read_generic(struct unix_stream_read_state *state,
- 			/* It is questionable, see note in unix_dgram_recvmsg.
- 			 */
- 			if (UNIXCB(skb).fp)
--				scm.fp = scm_fp_dup(UNIXCB(skb).fp);
-+				unix_peek_fds(&scm, skb);
- 
- 			sk_peek_offset_fwd(sk, chunk);
- 
+stable-rc/queue/5.10 baseline: 173 runs, 2 regressions (v5.10.54-2-g41c5473=
+2efb5)
+
+Regressions Summary
+-------------------
+
+platform           | arch  | lab           | compiler | defconfig         |=
+ regressions
+-------------------+-------+---------------+----------+-------------------+=
+------------
+bcm2837-rpi-3-b-32 | arm   | lab-baylibre  | gcc-8    | bcm2835_defconfig |=
+ 1          =
+
+hip07-d05          | arm64 | lab-collabora | gcc-8    | defconfig         |=
+ 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
+nel/v5.10.54-2-g41c54732efb5/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.10
+  Describe: v5.10.54-2-g41c54732efb5
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      41c54732efb52c3df0e1ab8058a8954ddfe9ebe6 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform           | arch  | lab           | compiler | defconfig         |=
+ regressions
+-------------------+-------+---------------+----------+-------------------+=
+------------
+bcm2837-rpi-3-b-32 | arm   | lab-baylibre  | gcc-8    | bcm2835_defconfig |=
+ 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6104c3577e969f8acb85f46f
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: bcm2835_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.54-=
+2-g41c54732efb5/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837-r=
+pi-3-b-32.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.54-=
+2-g41c54732efb5/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837-r=
+pi-3-b-32.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6104c3577e969f8acb85f=
+470
+        new failure (last pass: v5.10.54-1-g413d16971b6e) =
+
+ =
+
+
+
+platform           | arch  | lab           | compiler | defconfig         |=
+ regressions
+-------------------+-------+---------------+----------+-------------------+=
+------------
+hip07-d05          | arm64 | lab-collabora | gcc-8    | defconfig         |=
+ 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6104d8ca11911b572585f45a
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.54-=
+2-g41c54732efb5/arm64/defconfig/gcc-8/lab-collabora/baseline-hip07-d05.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.54-=
+2-g41c54732efb5/arm64/defconfig/gcc-8/lab-collabora/baseline-hip07-d05.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6104d8ca11911b572585f=
+45b
+        failing since 29 days (last pass: v5.10.46-100-gce5b41f85637, first=
+ fail: v5.10.46-100-g3b96099161c8b) =
+
+ =20
