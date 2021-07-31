@@ -2,92 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73FA33DC41F
-	for <lists+stable@lfdr.de>; Sat, 31 Jul 2021 08:44:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F3AC3DC43D
+	for <lists+stable@lfdr.de>; Sat, 31 Jul 2021 09:07:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232090AbhGaGo4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Jul 2021 02:44:56 -0400
-Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:36213 "EHLO
-        wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232079AbhGaGoz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 31 Jul 2021 02:44:55 -0400
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-        by mailout.west.internal (Postfix) with ESMTP id 13444320069B;
-        Sat, 31 Jul 2021 02:44:49 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute2.internal (MEProxy); Sat, 31 Jul 2021 02:44:49 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=Xno7pN/bu/SGnAHXr6d7yt65uNI
-        mXev0rVH6lvzDklo=; b=XOgHkgAWgpSuBwD/yU1rT+NNGaaQP+lMJxKsPGrHVpn
-        Uny2zqqqje/wI3Hx0C66ikzl0h0zkZ7WFUF2Yo4MWJjgt0m8bfdyUN/BKJFC4gzH
-        +1bty82tnv86vh+oj/Dbgc5Xi85F4ESyQqAUhXmLRM4fUl/B8fROv4h5BNeKV9Nu
-        JLMAAULSn3ORVvHRIcjduOfEaOgKPtIN3aNgq+5GKRUBRC+yRjZV9xpbzxRu/kmB
-        8KfDSpDKh5tfG9DKucIxyBbDNXLC/QcB//+wXg3HQ9JQDPPvOUVMTknzYF040tmQ
-        Va6vg6MO0ivR7gNWOUAOHd8ACOJcfuQUD7Nrf1iX31g==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=Xno7pN
-        /bu/SGnAHXr6d7yt65uNImXev0rVH6lvzDklo=; b=wDJnGHUzUmUCk6eZQlLQuq
-        9ZyfqY2cKWxDNhCv28ds6oVlFBCOKKlBcvrUXqzc3Sr5HHIBygpkAwexQXBBLZRG
-        pX9qOGsUom3hulYoZDxAm5ctcPreqkD2MZb/2YJfKtTVrB36ZPIvYhpvmyglZ45N
-        rcBbJOB9toZyKwq2Og5lHyxjgNRT96IrNOliM7tey8S8s70siCA6Bf0vsnu5Hpg9
-        lztRkbXlVIsmDS5/ZnTqQvzzdo0wC9fEQMTDDbOZzf+4nXWML0YTM0XqJVA2Gkoi
-        GkUhZ4ybqcucC8PZIVFmr4KRXxt9aMyuTk2jbeUmY3dJ33HH4JLnk9KaZosXQYEg
-        ==
-X-ME-Sender: <xms:X_EEYcYebhs4K3Y6MMhwqobXeeg3HqALKMRyU5OL8snmYpe6ABTxvA>
-    <xme:X_EEYXYaB_ihHpMylvQbptATlZIjK0QO0o4J8iu5qnw_bmAxW0bM9hoY1ZFanNAWg
-    9hthie1IXsvSQ>
-X-ME-Received: <xmr:X_EEYW-g9Ky9mwsoQp83upWBX3HY1GLUvoCaIPM4ZtbvmhuCU5lHkcei8StsasGsNxs6GJtAoAW1tWV-DYqNACTomTBx4yGY>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrheeigddutdekucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
-    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucevlhhushht
-    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
-    drtghomh
-X-ME-Proxy: <xmx:X_EEYWp1g9mpqudWk6-0O3m-UV6t7xWB2_hg1riCjQSkMhZfKSfK3g>
-    <xmx:X_EEYXr-cR5If4xAiOgeIkiU70pgtSuNJrIy2ht9JPEHXtYwS2N3Fg>
-    <xmx:X_EEYUSSiUZQqBJuIroNCtkZ2Kh8YKz7ccNry_s1gBkZU8R_5M-cAg>
-    <xmx:YPEEYbeCWF393l639HnWRGUmzHGy9M6rzXD22iiRohDX_6wfSXk6gQ>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sat,
- 31 Jul 2021 02:44:47 -0400 (EDT)
-Date:   Sat, 31 Jul 2021 08:44:45 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Jason Ekstrand <jason@jlekstrand.net>
-Cc:     stable@vger.kernel.org,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Jon Bloomfield <jon.bloomfield@intel.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: Re: [PATCH] drm/i915: Revert "drm/i915/gem: Asynchronous cmdparser"
-Message-ID: <YQTxXYk8ORBYxWCe@kroah.com>
-References: <20210727163024.3536962-1-jason@jlekstrand.net>
+        id S229724AbhGaHID (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Jul 2021 03:08:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54706 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229758AbhGaHIC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Jul 2021 03:08:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A0A86103B;
+        Sat, 31 Jul 2021 07:07:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1627715277;
+        bh=9mpDDPQdhS+DaI2bj8l92WM7lmK5+lg/yY/eUsOMpQI=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Ao8GokU4i2pZEAT42TIZNjIhUYVvajYjOYOTSewg536tnGKF1YSFtdycjLOjIdAIP
+         S5YecxlrsNeNToQOu+AcWgF+jiNdlMkAq0qkiNBrc2JQ0t3G1rFHKWFZ088jdMUXdg
+         L69p0DGlh7DRBgVsW2e0c4BOLZ8/KPSISKKFW9es=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, jslaby@suse.cz,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Linux 4.19.200
+Date:   Sat, 31 Jul 2021 09:07:53 +0200
+Message-Id: <162771527342248@kroah.com>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210727163024.3536962-1-jason@jlekstrand.net>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 27, 2021 at 11:30:23AM -0500, Jason Ekstrand wrote:
-> commit c9d9fdbc108af8915d3f497bbdf3898bf8f321b8 upstream.  This version
-> applies to the 5.10 tree.
+I'm announcing the release of the 4.19.200 kernel.
 
-<snip>
+All users of the 4.19 kernel series must upgrade.
 
-I don't know if you noticed the other failure messages, but there were
-other patches in this area that we had to drop from pending stable
-releases.
-
-So if you could please review all of them, and resubmit all missing
-patches as a series, so that we can apply them to the needed 5.10.y and
-5.13.y trees, that would be wonderful.  As it is, I can not take just
-this one, because it depends on other patches in the series from what I
-can tell.
+The updated 4.19.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.19.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
 
 thanks,
 
 greg k-h
+
+------------
+
+ Makefile                                 |    2 
+ arch/arm/boot/dts/versatile-ab.dts       |    5 -
+ arch/arm/boot/dts/versatile-pb.dts       |    2 
+ arch/x86/kvm/x86.c                       |   13 +-
+ drivers/firmware/arm_scmi/driver.c       |   12 +-
+ drivers/iio/dac/ds4424.c                 |    6 -
+ fs/cifs/smb2ops.c                        |    4 
+ fs/hfs/bfind.c                           |   14 ++
+ fs/hfs/bnode.c                           |   25 ++++-
+ fs/hfs/btree.h                           |    7 +
+ fs/hfs/super.c                           |   10 +-
+ include/net/af_unix.h                    |    1 
+ include/net/busy_poll.h                  |    2 
+ include/net/sctp/constants.h             |    4 
+ kernel/workqueue.c                       |   20 ++--
+ net/802/garp.c                           |   14 ++
+ net/802/mrp.c                            |   14 ++
+ net/Makefile                             |    2 
+ net/core/sock.c                          |    2 
+ net/sctp/protocol.c                      |    3 
+ net/unix/Kconfig                         |    5 +
+ net/unix/Makefile                        |    2 
+ net/unix/af_unix.c                       |  102 +++++++++------------
+ net/unix/garbage.c                       |   68 --------------
+ net/unix/scm.c                           |  148 +++++++++++++++++++++++++++++++
+ net/unix/scm.h                           |   10 ++
+ tools/testing/selftests/vm/userfaultfd.c |    2 
+ 27 files changed, 328 insertions(+), 171 deletions(-)
+
+Cristian Marussi (1):
+      firmware: arm_scmi: Fix range check for the maximum number of pending messages
+
+Desmond Cheong Zhi Xi (3):
+      hfs: add missing clean-up in hfs_fill_super
+      hfs: fix high memory mapping in hfs_bnode_read
+      hfs: add lock nesting notation to hfs_find_init
+
+Eric Dumazet (1):
+      net: annotate data race around sk_ll_usec
+
+Greg Kroah-Hartman (2):
+      selftest: fix build error in tools/testing/selftests/vm/userfaultfd.c
+      Linux 4.19.200
+
+Hyunchul Lee (1):
+      cifs: fix the out of range assignment to bit fields in parse_server_interfaces
+
+Jens Axboe (1):
+      net: split out functions related to registering inflight socket files
+
+Maxim Levitsky (1):
+      KVM: x86: determine if an exception has an error code only when injecting it.
+
+Miklos Szeredi (1):
+      af_unix: fix garbage collect vs MSG_PEEK
+
+Ruslan Babayev (1):
+      iio: dac: ds4422/ds4424 drop of_node check
+
+Sudeep Holla (2):
+      firmware: arm_scmi: Fix possible scmi_linux_errmap buffer overflow
+      ARM: dts: versatile: Fix up interrupt controller node names
+
+Xin Long (1):
+      sctp: move 198 addresses from unusable to private scope
+
+Yang Yingliang (3):
+      workqueue: fix UAF in pwq_unbound_release_workfn()
+      net/802/mrp: fix memleak in mrp_request_join()
+      net/802/garp: fix memleak in garp_request_join()
+
