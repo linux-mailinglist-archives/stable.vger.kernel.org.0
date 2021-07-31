@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BF993DC3FF
-	for <lists+stable@lfdr.de>; Sat, 31 Jul 2021 08:32:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D81B03DC401
+	for <lists+stable@lfdr.de>; Sat, 31 Jul 2021 08:33:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232000AbhGaGcW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Jul 2021 02:32:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44130 "EHLO mail.kernel.org"
+        id S232012AbhGaGdf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Jul 2021 02:33:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229683AbhGaGcW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 31 Jul 2021 02:32:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F19360F00;
-        Sat, 31 Jul 2021 06:32:15 +0000 (UTC)
+        id S229683AbhGaGdf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Jul 2021 02:33:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E3D660D07;
+        Sat, 31 Jul 2021 06:33:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627713136;
-        bh=VoUymrjyHWrA1g7oldnNDK+ZnjougcJhMdIH9NKGT9k=;
+        s=korg; t=1627713209;
+        bh=4sVfawbLplKATv8nBuaI9tXuC/X0lC2LkZGbI8jbH1U=;
         h=Subject:To:Cc:From:Date:From;
-        b=Sbx0bwT/PV3ol7jaaWw5D83PKYK9rD5e/NxGa2rm7gw6y8g6qJCZfZrgETvuwqCp3
-         HYh0WoL61/U1/1KVzTSOn+NIDd49pQmzLLztM6YGWAsy5wMkW1aRSTfJ++aDhVNqSw
-         s3B7isZTUjCfCKetN0Unvwuy0pvSIAtkDBTtzao0=
-Subject: FAILED: patch "[PATCH] btrfs: fix lost inode on log replay after mix of fsync," failed to apply to 5.10-stable tree
-To:     fdmanana@suse.com, dsterba@suse.com
+        b=kRfkktOEovqKp7JCGfhSQPJT6N9qVlNCai0yWzBJV7H8Dd0YoqFM6AB0myheNNREb
+         e4dpIhByB8wHxdmTVRW7kC+YQZ2BAi2YmswWMPP4aIWmus+imnuAWSef1801aEhmKa
+         NNHkbHNCHwxZLi0m8rjGtkxf43MINy6ZvQpa7f4c=
+Subject: FAILED: patch "[PATCH] btrfs: mark compressed range uptodate only if all bio succeed" failed to apply to 4.4-stable tree
+To:     rgoldwyn@suse.de, dsterba@suse.com, rgoldwyn@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 31 Jul 2021 08:32:09 +0200
-Message-ID: <1627713129222247@kroah.com>
+Date:   Sat, 31 Jul 2021 08:33:27 +0200
+Message-ID: <16277132073194@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -45,99 +45,38 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From ecc64fab7d49c678e70bd4c35fe64d2ab3e3d212 Mon Sep 17 00:00:00 2001
-From: Filipe Manana <fdmanana@suse.com>
-Date: Tue, 27 Jul 2021 11:24:43 +0100
-Subject: [PATCH] btrfs: fix lost inode on log replay after mix of fsync,
- rename and inode eviction
+From 240246f6b913b0c23733cfd2def1d283f8cc9bbe Mon Sep 17 00:00:00 2001
+From: Goldwyn Rodrigues <rgoldwyn@suse.de>
+Date: Fri, 9 Jul 2021 11:29:22 -0500
+Subject: [PATCH] btrfs: mark compressed range uptodate only if all bio succeed
 
-When checking if we need to log the new name of a renamed inode, we are
-checking if the inode and its parent inode have been logged before, and if
-not we don't log the new name. The check however is buggy, as it directly
-compares the logged_trans field of the inodes versus the ID of the current
-transaction. The problem is that logged_trans is a transient field, only
-stored in memory and never persisted in the inode item, so if an inode
-was logged before, evicted and reloaded, its logged_trans field is set to
-a value of 0, meaning the check will return false and the new name of the
-renamed inode is not logged. If the old parent directory was previously
-fsynced and we deleted the logged directory entries corresponding to the
-old name, we end up with a log that when replayed will delete the renamed
-inode.
+In compression write endio sequence, the range which the compressed_bio
+writes is marked as uptodate if the last bio of the compressed (sub)bios
+is completed successfully. There could be previous bio which may
+have failed which is recorded in cb->errors.
 
-The following example triggers the problem:
+Set the writeback range as uptodate only if cb->errors is zero, as opposed
+to checking only the last bio's status.
 
-  $ mkfs.btrfs -f /dev/sdc
-  $ mount /dev/sdc /mnt
+Backporting notes: in all versions up to 4.4 the last argument is always
+replaced by "!cb->errors".
 
-  $ mkdir /mnt/A
-  $ mkdir /mnt/B
-  $ echo -n "hello world" > /mnt/A/foo
-
-  $ sync
-
-  # Add some new file to A and fsync directory A.
-  $ touch /mnt/A/bar
-  $ xfs_io -c "fsync" /mnt/A
-
-  # Now trigger inode eviction. We are only interested in triggering
-  # eviction for the inode of directory A.
-  $ echo 2 > /proc/sys/vm/drop_caches
-
-  # Move foo from directory A to directory B.
-  # This deletes the directory entries for foo in A from the log, and
-  # does not add the new name for foo in directory B to the log, because
-  # logged_trans of A is 0, which is less than the current transaction ID.
-  $ mv /mnt/A/foo /mnt/B/foo
-
-  # Now make an fsync to anything except A, B or any file inside them,
-  # like for example create a file at the root directory and fsync this
-  # new file. This syncs the log that contains all the changes done by
-  # previous rename operation.
-  $ touch /mnt/baz
-  $ xfs_io -c "fsync" /mnt/baz
-
-  <power fail>
-
-  # Mount the filesystem and replay the log.
-  $ mount /dev/sdc /mnt
-
-  # Check the filesystem content.
-  $ ls -1R /mnt
-  /mnt/:
-  A
-  B
-  baz
-
-  /mnt/A:
-  bar
-
-  /mnt/B:
-  $
-
-  # File foo is gone, it's neither in A/ nor in B/.
-
-Fix this by using the inode_logged() helper at btrfs_log_new_name(), which
-safely checks if an inode was logged before in the current transaction.
-
-A test case for fstests will follow soon.
-
-CC: stable@vger.kernel.org # 4.14+
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Goldwyn Rodrigues <rgoldwyn@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 
-diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
-index 9fd0348be7f5..e6430ac9bbe8 100644
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -6503,8 +6503,8 @@ void btrfs_log_new_name(struct btrfs_trans_handle *trans,
- 	 * if this inode hasn't been logged and directory we're renaming it
- 	 * from hasn't been logged, we don't need to log it
- 	 */
--	if (inode->logged_trans < trans->transid &&
--	    (!old_dir || old_dir->logged_trans < trans->transid))
-+	if (!inode_logged(trans, inode) &&
-+	    (!old_dir || !inode_logged(trans, old_dir)))
- 		return;
+diff --git a/fs/btrfs/compression.c b/fs/btrfs/compression.c
+index 9a023ae0f98b..30d82cdf128c 100644
+--- a/fs/btrfs/compression.c
++++ b/fs/btrfs/compression.c
+@@ -352,7 +352,7 @@ static void end_compressed_bio_write(struct bio *bio)
+ 	btrfs_record_physical_zoned(inode, cb->start, bio);
+ 	btrfs_writepage_endio_finish_ordered(BTRFS_I(inode), NULL,
+ 			cb->start, cb->start + cb->len - 1,
+-			bio->bi_status == BLK_STS_OK);
++			!cb->errors);
  
- 	/*
+ 	end_compressed_writeback(inode, cb);
+ 	/* note, our inode could be gone now */
 
