@@ -2,200 +2,205 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C8893DC409
-	for <lists+stable@lfdr.de>; Sat, 31 Jul 2021 08:36:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EFF73DC40C
+	for <lists+stable@lfdr.de>; Sat, 31 Jul 2021 08:37:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231887AbhGaGgS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Jul 2021 02:36:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51928 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229683AbhGaGgS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 31 Jul 2021 02:36:18 -0400
-Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6F26C06175F
-        for <stable@vger.kernel.org>; Fri, 30 Jul 2021 23:36:12 -0700 (PDT)
-Received: by mail-pj1-x102c.google.com with SMTP id q17-20020a17090a2e11b02901757deaf2c8so17699651pjd.0
-        for <stable@vger.kernel.org>; Fri, 30 Jul 2021 23:36:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=el60X9Ojmej19CiuIQUfWGgZ8wA6WOyaO7qSs8UyM3o=;
-        b=1ZJx8yyMQlfp73I2ZZJuOQk0lmp6N8Yt3f3afBsI5WRbPp4XzaucARAtz12c1a+Yve
-         Z/tZ7or/hytnMfv3Oj/QsgRhCXsXdbCt3d9lywFCqRlV7nOmVSlCGLziYyVQtY5tBYyl
-         k0Yn8Oq/k8vjU51+Zhvbd3Z5cN1uvahf4AgIaz5M/Pd3QUpnAm6FARLkZE4XHdbQSeS2
-         f73sDKoa965AAA/FDthIrWbsoiJCXyE/6hzLcU0SR9oDhiUMOEbKSjw3SPyvgI1OalZw
-         fRd0xNgVQZEm5tEB3+9T3qtgEUzmvuNEUonbqYj8jRmHhiewUncgTcDJ4JsDs2sh+dl7
-         SZbA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=el60X9Ojmej19CiuIQUfWGgZ8wA6WOyaO7qSs8UyM3o=;
-        b=Zf7XPvNqpO94BvAsTm+m5v7Ja+nKsSapQNkM8QvqiMvoQ/pPFq2pkrQcH3DgKP2yyh
-         2uvcHU+k6GK+nMB7whDHW1YlteWViXFE2nNbQXh7S4OwoQuNqIuwNg6g+Km5x6OwJxlO
-         S7WTKx2XdEuBbzDGX6ll6RIm8KQ9ubr7ZmqZBOZw13o3u4U1L6b77C9XjsBb6kioR3hl
-         dWjexeacZnXaCPn3U7CjYapqxLAzardFqLSCCbBOv69TE0PVFS/Xi7yDNm/i8qdIaeHc
-         TpErCJsevU0VGFsYG/ODJj+b2SpZi6QZMJsErqAqGjmne+D/SMykaehkS1dOE3w4c1Gc
-         Mb5g==
-X-Gm-Message-State: AOAM532m//7jWggZG+xGddatonCimxUMnM4B6kj4enlF6mZZ4sNaloHd
-        SxsrG43OpWEzoIhb+SYjurXLyZTWe2ptHyxl
-X-Google-Smtp-Source: ABdhPJw7m1L5NRdcETCL5PXVNW3YaliB7OPh9IKnNIdECbj6lAAXLpWwlTr68BDzh5OwroJZJy7I+g==
-X-Received: by 2002:a63:5c1b:: with SMTP id q27mr5537186pgb.284.1627713372011;
-        Fri, 30 Jul 2021 23:36:12 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id d13sm4305955pfn.136.2021.07.30.23.36.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 30 Jul 2021 23:36:11 -0700 (PDT)
-Message-ID: <6104ef5b.1c69fb81.e39f7.ca63@mx.google.com>
-Date:   Fri, 30 Jul 2021 23:36:11 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S236647AbhGaGhL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Jul 2021 02:37:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44846 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229683AbhGaGhL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Jul 2021 02:37:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 49EE460FE7;
+        Sat, 31 Jul 2021 06:37:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1627713425;
+        bh=2phPzrEHoBgjXaOh/YBVuzZQYH/xDwjVffb6ZEkMr9I=;
+        h=Subject:To:Cc:From:Date:From;
+        b=tJQ6VIJC7VIEHGT+AGF64qaPNHm+XEHAMiqbB/tmUGB3YdJj+BDPm23P2d5pnzMd/
+         dvN9txjIrpNmF0Ehd/VK8S99ruh1JKMzbWoQG6EnTkzAJIWTPqRQDJeKe9DKD9kKMj
+         7H4XE7Ow0Irl9J1zDYCWRP0qLYVLaiTDCTawpmMY=
+Subject: FAILED: patch "[PATCH] can: raw: raw_setsockopt(): fix raw_rcv panic for sock UAF" failed to apply to 4.4-stable tree
+To:     william.xuanziyang@huawei.com, mkl@pengutronix.de,
+        socketcan@hartkopp.net, stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Sat, 31 Jul 2021 08:37:03 +0200
+Message-ID: <162771342350200@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/4.19
-X-Kernelci-Kernel: v4.19.199-3-g72fd65069bfc
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/4.19 baseline: 120 runs,
- 3 regressions (v4.19.199-3-g72fd65069bfc)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 120 runs, 3 regressions (v4.19.199-3-g72fd65=
-069bfc)
 
-Regressions Summary
--------------------
+The patch below does not apply to the 4.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
-g | 1          =
+thanks,
 
-qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
-g | 1          =
+greg k-h
 
-qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
-g | 1          =
+------------------ original commit in Linus's tree ------------------
 
+From 54f93336d000229f72c26d8a3f69dd256b744528 Mon Sep 17 00:00:00 2001
+From: Ziyang Xuan <william.xuanziyang@huawei.com>
+Date: Thu, 22 Jul 2021 15:08:19 +0800
+Subject: [PATCH] can: raw: raw_setsockopt(): fix raw_rcv panic for sock UAF
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.199-3-g72fd65069bfc/plan/baseline/
+We get a bug during ltp can_filter test as following.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.199-3-g72fd65069bfc
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      72fd65069bfc6f13130e7c1c778a5569732ca180 =
+===========================================
+[60919.264984] BUG: unable to handle kernel NULL pointer dereference at 0000000000000010
+[60919.265223] PGD 8000003dda726067 P4D 8000003dda726067 PUD 3dda727067 PMD 0
+[60919.265443] Oops: 0000 [#1] SMP PTI
+[60919.265550] CPU: 30 PID: 3638365 Comm: can_filter Kdump: loaded Tainted: G        W         4.19.90+ #1
+[60919.266068] RIP: 0010:selinux_socket_sock_rcv_skb+0x3e/0x200
+[60919.293289] RSP: 0018:ffff8d53bfc03cf8 EFLAGS: 00010246
+[60919.307140] RAX: 0000000000000000 RBX: 000000000000001d RCX: 0000000000000007
+[60919.320756] RDX: 0000000000000001 RSI: ffff8d5104a8ed00 RDI: ffff8d53bfc03d30
+[60919.334319] RBP: ffff8d9338056800 R08: ffff8d53bfc29d80 R09: 0000000000000001
+[60919.347969] R10: ffff8d53bfc03ec0 R11: ffffb8526ef47c98 R12: ffff8d53bfc03d30
+[60919.350320] perf: interrupt took too long (3063 > 2500), lowering kernel.perf_event_max_sample_rate to 65000
+[60919.361148] R13: 0000000000000001 R14: ffff8d53bcf90000 R15: 0000000000000000
+[60919.361151] FS:  00007fb78b6b3600(0000) GS:ffff8d53bfc00000(0000) knlGS:0000000000000000
+[60919.400812] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[60919.413730] CR2: 0000000000000010 CR3: 0000003e3f784006 CR4: 00000000007606e0
+[60919.426479] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[60919.439339] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[60919.451608] PKRU: 55555554
+[60919.463622] Call Trace:
+[60919.475617]  <IRQ>
+[60919.487122]  ? update_load_avg+0x89/0x5d0
+[60919.498478]  ? update_load_avg+0x89/0x5d0
+[60919.509822]  ? account_entity_enqueue+0xc5/0xf0
+[60919.520709]  security_sock_rcv_skb+0x2a/0x40
+[60919.531413]  sk_filter_trim_cap+0x47/0x1b0
+[60919.542178]  ? kmem_cache_alloc+0x38/0x1b0
+[60919.552444]  sock_queue_rcv_skb+0x17/0x30
+[60919.562477]  raw_rcv+0x110/0x190 [can_raw]
+[60919.572539]  can_rcv_filter+0xbc/0x1b0 [can]
+[60919.582173]  can_receive+0x6b/0xb0 [can]
+[60919.591595]  can_rcv+0x31/0x70 [can]
+[60919.600783]  __netif_receive_skb_one_core+0x5a/0x80
+[60919.609864]  process_backlog+0x9b/0x150
+[60919.618691]  net_rx_action+0x156/0x400
+[60919.627310]  ? sched_clock_cpu+0xc/0xa0
+[60919.635714]  __do_softirq+0xe8/0x2e9
+[60919.644161]  do_softirq_own_stack+0x2a/0x40
+[60919.652154]  </IRQ>
+[60919.659899]  do_softirq.part.17+0x4f/0x60
+[60919.667475]  __local_bh_enable_ip+0x60/0x70
+[60919.675089]  __dev_queue_xmit+0x539/0x920
+[60919.682267]  ? finish_wait+0x80/0x80
+[60919.689218]  ? finish_wait+0x80/0x80
+[60919.695886]  ? sock_alloc_send_pskb+0x211/0x230
+[60919.702395]  ? can_send+0xe5/0x1f0 [can]
+[60919.708882]  can_send+0xe5/0x1f0 [can]
+[60919.715037]  raw_sendmsg+0x16d/0x268 [can_raw]
 
+It's because raw_setsockopt() concurrently with
+unregister_netdevice_many(). Concurrent scenario as following.
 
+	cpu0						cpu1
+raw_bind
+raw_setsockopt					unregister_netdevice_many
+						unlist_netdevice
+dev_get_by_index				raw_notifier
+raw_enable_filters				......
+can_rx_register
+can_rcv_list_find(..., net->can.rx_alldev_list)
 
-Test Regressions
----------------- =
+......
 
+sock_close
+raw_release(sock_a)
 
+......
 
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
-g | 1          =
+can_receive
+can_rcv_filter(net->can.rx_alldev_list, ...)
+raw_rcv(skb, sock_a)
+BUG
 
+After unlist_netdevice(), dev_get_by_index() return NULL in
+raw_setsockopt(). Function raw_enable_filters() will add sock
+and can_filter to net->can.rx_alldev_list. Then the sock is closed.
+Followed by, we sock_sendmsg() to a new vcan device use the same
+can_filter. Protocol stack match the old receiver whose sock has
+been released on net->can.rx_alldev_list in can_rcv_filter().
+Function raw_rcv() uses the freed sock. UAF BUG is triggered.
 
-  Details:     https://kernelci.org/test/plan/id/6104b7493a4a05411285f463
+We can find that the key issue is that net_device has not been
+protected in raw_setsockopt(). Use rtnl_lock to protect net_device
+in raw_setsockopt().
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.199=
--3-g72fd65069bfc/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_a=
-rm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.199=
--3-g72fd65069bfc/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_a=
-rm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+Fixes: c18ce101f2e4 ("[CAN]: Add raw protocol")
+Link: https://lore.kernel.org/r/20210722070819.1048263-1-william.xuanziyang@huawei.com
+Cc: linux-stable <stable@vger.kernel.org>
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 
+diff --git a/net/can/raw.c b/net/can/raw.c
+index ed4fcb7ab0c3..cd5a49380116 100644
+--- a/net/can/raw.c
++++ b/net/can/raw.c
+@@ -546,10 +546,18 @@ static int raw_setsockopt(struct socket *sock, int level, int optname,
+ 				return -EFAULT;
+ 		}
+ 
++		rtnl_lock();
+ 		lock_sock(sk);
+ 
+-		if (ro->bound && ro->ifindex)
++		if (ro->bound && ro->ifindex) {
+ 			dev = dev_get_by_index(sock_net(sk), ro->ifindex);
++			if (!dev) {
++				if (count > 1)
++					kfree(filter);
++				err = -ENODEV;
++				goto out_fil;
++			}
++		}
+ 
+ 		if (ro->bound) {
+ 			/* (try to) register the new filters */
+@@ -588,6 +596,7 @@ static int raw_setsockopt(struct socket *sock, int level, int optname,
+ 			dev_put(dev);
+ 
+ 		release_sock(sk);
++		rtnl_unlock();
+ 
+ 		break;
+ 
+@@ -600,10 +609,16 @@ static int raw_setsockopt(struct socket *sock, int level, int optname,
+ 
+ 		err_mask &= CAN_ERR_MASK;
+ 
++		rtnl_lock();
+ 		lock_sock(sk);
+ 
+-		if (ro->bound && ro->ifindex)
++		if (ro->bound && ro->ifindex) {
+ 			dev = dev_get_by_index(sock_net(sk), ro->ifindex);
++			if (!dev) {
++				err = -ENODEV;
++				goto out_err;
++			}
++		}
+ 
+ 		/* remove current error mask */
+ 		if (ro->bound) {
+@@ -627,6 +642,7 @@ static int raw_setsockopt(struct socket *sock, int level, int optname,
+ 			dev_put(dev);
+ 
+ 		release_sock(sk);
++		rtnl_unlock();
+ 
+ 		break;
+ 
 
-
-  * baseline.login: https://kernelci.org/test/case/id/6104b7493a4a05411285f=
-464
-        failing since 259 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
-
- =
-
-
-
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6104b739664240971b85f45a
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.199=
--3-g72fd65069bfc/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ve=
-rsatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.199=
--3-g72fd65069bfc/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ve=
-rsatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6104b739664240971b85f=
-45b
-        failing since 259 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
-
- =
-
-
-
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6104c42df64ade7cff85f45a
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.199=
--3-g72fd65069bfc/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_=
-arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.199=
--3-g72fd65069bfc/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_=
-arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6104c42df64ade7cff85f=
-45b
-        failing since 259 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
-
- =20
