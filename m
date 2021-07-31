@@ -2,236 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 130D83DC654
-	for <lists+stable@lfdr.de>; Sat, 31 Jul 2021 16:38:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82CF13DC65D
+	for <lists+stable@lfdr.de>; Sat, 31 Jul 2021 16:44:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232752AbhGaOiz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Jul 2021 10:38:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58990 "EHLO
+        id S233035AbhGaOon (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Jul 2021 10:44:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60536 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232770AbhGaOix (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 31 Jul 2021 10:38:53 -0400
-Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17829C06175F
-        for <stable@vger.kernel.org>; Sat, 31 Jul 2021 07:38:47 -0700 (PDT)
-Received: by mail-pl1-x62e.google.com with SMTP id c16so14520510plh.7
-        for <stable@vger.kernel.org>; Sat, 31 Jul 2021 07:38:47 -0700 (PDT)
+        with ESMTP id S232770AbhGaOon (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 31 Jul 2021 10:44:43 -0400
+Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C140C06175F
+        for <stable@vger.kernel.org>; Sat, 31 Jul 2021 07:44:37 -0700 (PDT)
+Received: by mail-pj1-x1031.google.com with SMTP id mt6so19399963pjb.1
+        for <stable@vger.kernel.org>; Sat, 31 Jul 2021 07:44:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=MxrMvIxhWnZTA4ZsT/A4gRPoXi3QzxUXi9/nlGIiIiE=;
-        b=egyELTm+YX8fdX9DWg9gWnQlRIox2tiWKeOTNQ8Nypm/VH6bpaM/GesFkrUnSKhdjM
-         y5QPk2v35xUrmuIZJqshTC3Xr0WTc8pNoa4iqZW9dWvSRG+fvXLutM7r/6Eclsj+X6Ik
-         wkfIii6J3sSOQ8FrVaEWmLLesZjNHXoJ8gDkBcfWCtonG7D7UYOXL7urdzrLFeIoF0WN
-         /G08jRuluc57ywoEno5kF99P7iHY+De0OFmp+udqpIeIdQ6bMUDliz/URoLiaqM7IDM1
-         T7BHacQNekMPldXBW4kOOwXrZPdIDDoSIk9WGb+/9G5Pf2reyOvjKQG8aeNiU8ZzD9+B
-         Lppg==
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=S4m6wbbRZcjiiWDM7HOysQzUpiwccX+wzX8bPiKcwUU=;
+        b=Qngn5E8VM4GZfzaMjj9OYQfmuApzu6uoy0ZPVfVR04OMYjDSo20Q6VGIZPJIqYDpUN
+         bkS9tRnZizfqgohm0GBc8pFw3Ymmqm1JtJFEeP+SU/0/UpEq3T/usXyXlKAmJ+o+tcle
+         u8iDB8Dtvt9wkHgX0w8ULVLNwuxkONg+DvVyL6TSIv1JhzplSf66JTqKQSAjddKDpoGL
+         YVegp5phW3wx8LOIP2VZIhctdvDr3FC0ogTa+qGPEAMKnYJ0CqUgRWswLgD0RlsyLXvk
+         BjZYE55c+/BKNiBs+xabxXDexc3dO4XseZ+z8YqvSAYhxmBfDlGt397yRO2yKpofYvP1
+         z7Fw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=MxrMvIxhWnZTA4ZsT/A4gRPoXi3QzxUXi9/nlGIiIiE=;
-        b=UnIgi4vfBnnXWMKWzHP/JhQDs0PEpxblDAcI9z9K0XpI+m7UJUDNjsRLBmYtjdIcFm
-         beY7fWHWj1O9WeVNM4OvT4X2Jt927B/IdcEVwzf53a7BA+iUDj8OFQmXNDVAKVpu35lv
-         pDXHyIWZn+0/eqB+IasnboffTCfBXqPduV+3XuTiqxzghMPMgBHTOgUOkOKK1IUGdf1x
-         vfNLHWNys+45qL6htBZzYAVTNlWVs2+cMYfHQGZPRfDFTjUhltVT9m6ku40ZVsPa5LxB
-         Mjtgewcroif/givsqywYUHoukGI0BmneSaHqcEJ/uiMBbeUih9MkaBNeMLUp1Uo8kZkQ
-         iAnA==
-X-Gm-Message-State: AOAM533WdVG+Qg2A6ReZZOUfQtRRjJ6ue72OmqVbk13xz89F67UsTsYZ
-        ghIieshZyiUSbk04HBOytVU0nWJ/Qyx1aM/R
-X-Google-Smtp-Source: ABdhPJymdrmHwZEyFV1uaMa3JQB1w3+7u5X1vvFYyR+0IcCyI6zFYecWVD/9+lh2nS2lG6K8oVK4xA==
-X-Received: by 2002:a17:90b:4c0f:: with SMTP id na15mr8648018pjb.8.1627742326357;
-        Sat, 31 Jul 2021 07:38:46 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id u17sm1650463pfh.184.2021.07.31.07.38.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 31 Jul 2021 07:38:46 -0700 (PDT)
-Message-ID: <61056076.1c69fb81.70e8c.3594@mx.google.com>
-Date:   Sat, 31 Jul 2021 07:38:46 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=S4m6wbbRZcjiiWDM7HOysQzUpiwccX+wzX8bPiKcwUU=;
+        b=D3GogfdmOe0FlPDvvz5/sC/iuCXqYk9dsF4YC6V+Pf4Cxb4Itr3VUQKL/dpT9qk5Hg
+         Dl/0mBfYYmeFJ90CWCm4u3In6XU4bAgOLEvz4ECJYwyTdqD0Zgr2ZDaJOV1Qf2lo4dUk
+         J8zDcb07o6DROFBw77uxWJPUYJiXrGV9pfrOdIStyhb9HhQQo39lkMw+sMijkxD3ptKt
+         STC35bgywuIciceKXA5MjL+GgRg0lkC59PYGdOi73792Y/Oeicn9KxnFTL3FqkttXggJ
+         1i1H0qJZPXc+gn7ROjuvHZP4TR5QLyH7THHIil/PVfT4mz7Jb3DyU71NdKa8i/a+ZY1Q
+         7JAA==
+X-Gm-Message-State: AOAM530PvSTeGU8ds137ye7DtD6sdhPTebUumWMQ4qkG0Rn5i21q1+IZ
+        TD5c0689oo2UgGoh/dsScNrThKnHrtbf1Ejt
+X-Google-Smtp-Source: ABdhPJz/yFXPSEU8y35G8O3tSLXdMLSQHdhW3u1ORrK0J9movrBqYDQvU1LqL8dANVqcapSodoo6kg==
+X-Received: by 2002:a17:90a:d910:: with SMTP id c16mr8588477pjv.62.1627742676321;
+        Sat, 31 Jul 2021 07:44:36 -0700 (PDT)
+Received: from [192.168.1.116] ([198.8.77.61])
+        by smtp.gmail.com with ESMTPSA id h16sm6121402pfr.39.2021.07.31.07.44.35
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 31 Jul 2021 07:44:35 -0700 (PDT)
+Subject: Re: FAILED: patch "[PATCH] io_uring: fix race in unified task_work
+ running" failed to apply to 5.13-stable tree
+To:     gregkh@linuxfoundation.org, forza@tnonline.net
+Cc:     stable@vger.kernel.org
+References: <162771380065153@kroah.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <e3a7acb2-41ad-8c7b-c3d2-8f8d5b40f250@kernel.dk>
+Date:   Sat, 31 Jul 2021 08:44:33 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Kernel: v4.14.241-27-gc9a4a7fd3215
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.14.y baseline: 114 runs,
- 4 regressions (v4.14.241-27-gc9a4a7fd3215)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <162771380065153@kroah.com>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y baseline: 114 runs, 4 regressions (v4.14.241-27-gc9a=
-4a7fd3215)
+On 7/31/21 12:43 AM, gregkh@linuxfoundation.org wrote:
+> 
+> The patch below does not apply to the 5.13-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
 
-Regressions Summary
--------------------
+Here's a tested 5.13-stable port.
 
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-meson-gxbb-p200      | arm64 | lab-baylibre  | gcc-8    | defconfig        =
-   | 1          =
+From: Jens Axboe <axboe@kernel.dk>
+Subject: io_uring: fix race in unified task_work running
 
-qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
-ig | 1          =
+commit 110aa25c3ce417a44e35990cf8ed22383277933a upstream.
 
-qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
-ig | 1          =
+We use a bit to manage if we need to add the shared task_work, but
+a list + lock for the pending work. Before aborting a current run
+of the task_work we check if the list is empty, but we do so without
+grabbing the lock that protects it. This can lead to races where
+we think we have nothing left to run, where in practice we could be
+racing with a task adding new work to the list. If we do hit that
+race condition, we could be left with work items that need processing,
+but the shared task_work is not active.
 
-qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
-ig | 1          =
+Ensure that we grab the lock before checking if the list is empty,
+so we know if it's safe to exit the run or not.
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.14.y/ker=
-nel/v4.14.241-27-gc9a4a7fd3215/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.14.y
-  Describe: v4.14.241-27-gc9a4a7fd3215
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      c9a4a7fd32157b71db9458f41deacb6ae540e265 =
+Link: https://lore.kernel.org/io-uring/c6bd5987-e9ae-cd02-49d0-1b3ac1ef65b1@tnonline.net/
+Cc: stable@vger.kernel.org # 5.11+
+Reported-by: Forza <forza@tnonline.net>
+Tested-by: Forza <forza@tnonline.net>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
 
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index df4288776815..3be33819ee42 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -1890,7 +1890,7 @@ static void tctx_task_work(struct callback_head *cb)
+ 
+ 	clear_bit(0, &tctx->task_state);
+ 
+-	while (!wq_list_empty(&tctx->task_list)) {
++	while (true) {
+ 		struct io_ring_ctx *ctx = NULL;
+ 		struct io_wq_work_list list;
+ 		struct io_wq_work_node *node;
+@@ -1900,6 +1900,9 @@ static void tctx_task_work(struct callback_head *cb)
+ 		INIT_WQ_LIST(&tctx->task_list);
+ 		spin_unlock_irq(&tctx->task_lock);
+ 
++		if (wq_list_empty(&list))
++			break;
++
+ 		node = list.first;
+ 		while (node) {
+ 			struct io_wq_work_node *next = node->next;
 
-Test Regressions
----------------- =
+-- 
+Jens Axboe
 
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-meson-gxbb-p200      | arm64 | lab-baylibre  | gcc-8    | defconfig        =
-   | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61052cec4270c27ab985f45a
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-41-27-gc9a4a7fd3215/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-=
-p200.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-41-27-gc9a4a7fd3215/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-=
-p200.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61052cec4270c27ab985f=
-45b
-        failing since 486 days (last pass: v4.14.172-114-g734382e2d26e, fir=
-st fail: v4.14.174-131-g234ce78cac23) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61052f425e6ae887a585f472
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-41-27-gc9a4a7fd3215/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qem=
-u_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-41-27-gc9a4a7fd3215/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qem=
-u_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61052f425e6ae887a585f=
-473
-        failing since 258 days (last pass: v4.14.206-21-gf1262f26e4d0, firs=
-t fail: v4.14.206-23-g520c3568920c8) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61052f3e0b42379c7285f49c
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-41-27-gc9a4a7fd3215/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm=
--versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-41-27-gc9a4a7fd3215/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm=
--versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61052f3e0b42379c7285f=
-49d
-        failing since 258 days (last pass: v4.14.206-21-gf1262f26e4d0, firs=
-t fail: v4.14.206-23-g520c3568920c8) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61052f20e10a19cc9085f467
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-41-27-gc9a4a7fd3215/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qe=
-mu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-41-27-gc9a4a7fd3215/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qe=
-mu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61052f20e10a19cc9085f=
-468
-        failing since 258 days (last pass: v4.14.206-21-gf1262f26e4d0, firs=
-t fail: v4.14.206-23-g520c3568920c8) =
-
- =20
