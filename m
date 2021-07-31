@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EFF73DC40C
-	for <lists+stable@lfdr.de>; Sat, 31 Jul 2021 08:37:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95F743DC40D
+	for <lists+stable@lfdr.de>; Sat, 31 Jul 2021 08:37:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236647AbhGaGhL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Jul 2021 02:37:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44846 "EHLO mail.kernel.org"
+        id S236749AbhGaGhV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Jul 2021 02:37:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44886 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229683AbhGaGhL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 31 Jul 2021 02:37:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 49EE460FE7;
-        Sat, 31 Jul 2021 06:37:05 +0000 (UTC)
+        id S229683AbhGaGhU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Jul 2021 02:37:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BD68360FE7;
+        Sat, 31 Jul 2021 06:37:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627713425;
-        bh=2phPzrEHoBgjXaOh/YBVuzZQYH/xDwjVffb6ZEkMr9I=;
+        s=korg; t=1627713435;
+        bh=sa8OC7pwFCsUZQKuohMlGaBJQgNorEGA9WHrdBjhuHE=;
         h=Subject:To:Cc:From:Date:From;
-        b=tJQ6VIJC7VIEHGT+AGF64qaPNHm+XEHAMiqbB/tmUGB3YdJj+BDPm23P2d5pnzMd/
-         dvN9txjIrpNmF0Ehd/VK8S99ruh1JKMzbWoQG6EnTkzAJIWTPqRQDJeKe9DKD9kKMj
-         7H4XE7Ow0Irl9J1zDYCWRP0qLYVLaiTDCTawpmMY=
-Subject: FAILED: patch "[PATCH] can: raw: raw_setsockopt(): fix raw_rcv panic for sock UAF" failed to apply to 4.4-stable tree
+        b=xz9+V6LObWBx+rdSMmhSOXQ3koAC6cwIz7R/5hvQO34vEO2240Ca5cmGEuHqA5jKS
+         ojRHOXLLdl33H/AmJAQ5x9KEdz7Gw0+G/VLVKAuawxRB+AgJZ7UaC1Op0wZmviFQ0g
+         Au/A6eYlcJz4BCSVxA1MlrVQuyh2EF/8+Vz82sWo=
+Subject: FAILED: patch "[PATCH] can: raw: raw_setsockopt(): fix raw_rcv panic for sock UAF" failed to apply to 4.9-stable tree
 To:     william.xuanziyang@huawei.com, mkl@pengutronix.de,
         socketcan@hartkopp.net, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 31 Jul 2021 08:37:03 +0200
-Message-ID: <162771342350200@kroah.com>
+Date:   Sat, 31 Jul 2021 08:37:05 +0200
+Message-ID: <162771342523956@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
