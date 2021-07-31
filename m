@@ -2,90 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 303A03DC49A
-	for <lists+stable@lfdr.de>; Sat, 31 Jul 2021 09:51:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA24F3DC4A4
+	for <lists+stable@lfdr.de>; Sat, 31 Jul 2021 09:53:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229703AbhGaHvj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Jul 2021 03:51:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41888 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230338AbhGaHvi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 31 Jul 2021 03:51:38 -0400
-Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BA0DC06175F;
-        Sat, 31 Jul 2021 00:51:32 -0700 (PDT)
-Received: by mail-pl1-x629.google.com with SMTP id k1so13774628plt.12;
-        Sat, 31 Jul 2021 00:51:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=ICg7XziMcUYzjn1qRXDJ14WuqLuOzl3YM5j40dQBDlw=;
-        b=EIHM+GAcsV8TM1RJ4o8DVuPQuYkFo00AhWxIxFLIhy0a1c3z54nkn3msX5ZsbMBQTR
-         s+YndkkL74kzROEichM9TWYRRpKso6+JrsfT3+al573f7ethxmVm4DUzK2MgCG1fdlRP
-         tbwfDDDWJALiNnTwF1baqRYDKMI7pzRfr1wXmXaXp3ytF6IhN/CyRpnho8XIkmEkpubF
-         xDv0V/YK1UAZlclAFI7mtlvgVSaYQvAsv2UUR0I7H2WdwKj3A+oul3+N4K1qZWUSmtpj
-         fNaRkFe94uySYsC573z1tPC3qEBObPWwypqEuTHN5BywMhOPwb1pLDXCc/Vkmltyl9/L
-         rwXA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=ICg7XziMcUYzjn1qRXDJ14WuqLuOzl3YM5j40dQBDlw=;
-        b=bRYsQJBtGC6LlnqxIGVXiaVAYi7y1lv3CukJLB6bDm5f6RPt9wvCxPxR4jp1BSehDb
-         TkeZ5YTzhip5xozoMs9wQ050uHDAZ7a0Cg3kfEa2LQIQZQgjMRQXDi+BazSIesMVua7a
-         LqnOqa6nprWBqLVFB0VYKZ04Y1m+WwPZ/nXetn/uTWidJU1LeGxabp85RIXnPn2zL3TQ
-         Nim6wsaMjwVv4/PgjkK0mmU5nQUul6yJ1MPLcWUncLQEjafyouw+qBqZeFo9c20h4rTS
-         TTsM4Gk4rxFrgOTWE+q9/lnnMZLpjvmIQinn2Cywq+7SwzNoFmOeCtOgzGZL82IT7TKk
-         NXcw==
-X-Gm-Message-State: AOAM533uOXTXDW2DF9F642q4wJ0Mck3hsui/ZgLgTQPAhIhhj3obRkpj
-        G5bN7o3VxnYTNV/HiQxhgYjpNnMYDFlvO1hB2jo=
-X-Google-Smtp-Source: ABdhPJxXfaac4MuBtORdnHVamlNwhdM1sCUXS352jdFyt4BpSCVEgMsfqKgorkAweS+wI9nC7Gr6VA==
-X-Received: by 2002:a17:90a:5588:: with SMTP id c8mr7306990pji.36.1627717891203;
-        Sat, 31 Jul 2021 00:51:31 -0700 (PDT)
-Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [71.19.144.195])
-        by smtp.gmail.com with ESMTPSA id i25sm4714400pfo.20.2021.07.31.00.51.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 31 Jul 2021 00:51:30 -0700 (PDT)
-Message-ID: <61050102.1c69fb81.d0073.d7ea@mx.google.com>
-Date:   Sat, 31 Jul 2021 00:51:30 -0700 (PDT)
-X-Google-Original-Date: Sat, 31 Jul 2021 07:51:24 GMT
-From:   Fox Chen <foxhlchen@gmail.com>
-In-Reply-To: <20210729135137.267680390@linuxfoundation.org>
-Subject: RE: [PATCH 5.10 00/24] 5.10.55-rc1 review
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org,
-        Fox Chen <foxhlchen@gmail.com>
-Content-Transfer-Encoding: 7bit
+        id S229703AbhGaHxt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Jul 2021 03:53:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40396 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230503AbhGaHxt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Jul 2021 03:53:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3529C60F46;
+        Sat, 31 Jul 2021 07:53:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1627718023;
+        bh=1KJVYCEuJ5jV6qNfQDq5kolD2QvDiKAsaWJLINb42vk=;
+        h=In-Reply-To:References:Subject:From:Cc:To:Date:From;
+        b=KTmL4svsIHOnIZK42fAMAfvm0IXfzS3/1ujkK42dwR7TSFBuzdsgZeeR72OOAnwl1
+         yt2Jqn759Qni/JoQv8jUSAkdOqNLMzcqHtTAHQxLWm8DB6mBLcxrjV/d8ySCt20mqS
+         arIVOI9OSRIulhNLeHbouD7NTxXz37Cv2eCI8UKBcDM9E29DfvPz4xGr3xG/pBsQ2C
+         Ukyu1v3ERT0VcFSLhIgIjEle3DxUFjlIXKWwDc7yRMwF5uIotZ2ibMJ9Ht8DW2428y
+         +CkEqTdKVp2smYz5XbqOHm82hklDrLsGZVPVIcFBik3Fwur2l4T8eqxSiiTEqQScc2
+         cTcWRfPUA5A7Q==
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20210731025950.2238582-1-briannorris@chromium.org>
+References: <20210731025950.2238582-1-briannorris@chromium.org>
+Subject: Re: [PATCH] clk: fix leak on devm_clk_bulk_get_all() unwind
+From:   Stephen Boyd <sboyd@kernel.org>
+Cc:     linux-clk@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Brian Norris <briannorris@chromium.org>,
+        Dong Aisheng <aisheng.dong@nxp.com>, stable@vger.kernel.org
+To:     Brian Norris <briannorris@chromium.org>,
+        Michael Turquette <mturquette@baylibre.com>
+Date:   Sat, 31 Jul 2021 00:53:41 -0700
+Message-ID: <162771802186.714452.5743429710136064714@swboyd.mtv.corp.google.com>
+User-Agent: alot/0.9.1
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 29 Jul 2021 15:54:20 +0200, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-> This is the start of the stable review cycle for the 5.10.55 release.
-> There are 24 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sat, 31 Jul 2021 13:51:22 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.55-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+Quoting Brian Norris (2021-07-30 19:59:50)
+> clk_bulk_get_all() allocates an array of struct clk_bulk data for us
+> (unlike clk_bulk_get()), so we need to free it. Let's use the
+> clk_bulk_put_all() helper.
+>=20
+> kmemleak complains, on an RK3399 Gru/Kevin system:
+>=20
+> unreferenced object 0xffffff80045def00 (size 128):
+>   comm "swapper/0", pid 1, jiffies 4294667682 (age 86.394s)
+>   hex dump (first 32 bytes):
+>     44 32 60 fe fe ff ff ff 00 00 00 00 00 00 00 00  D2`.............
+>     48 32 60 fe fe ff ff ff 00 00 00 00 00 00 00 00  H2`.............
+>   backtrace:
+>     [<00000000742860d6>] __kmalloc+0x22c/0x39c
+>     [<00000000b0493f2c>] clk_bulk_get_all+0x64/0x188
+>     [<00000000325f5900>] devm_clk_bulk_get_all+0x58/0xa8
+>     [<00000000175b9bc5>] dwc3_probe+0x8ac/0xb5c
+>     [<000000009169e2f9>] platform_drv_probe+0x9c/0xbc
+>     [<000000005c51e2ee>] really_probe+0x13c/0x378
+>     [<00000000c47b1f24>] driver_probe_device+0x84/0xc0
+>     [<00000000f870fcfb>] __device_attach_driver+0x94/0xb0
+>     [<000000004d1b92ae>] bus_for_each_drv+0x8c/0xd8
+>     [<00000000481d60c3>] __device_attach+0xc4/0x150
+>     [<00000000a163bd36>] device_initial_probe+0x1c/0x28
+>     [<00000000accb6bad>] bus_probe_device+0x3c/0x9c
+>     [<000000001a199f89>] device_add+0x218/0x3cc
+>     [<000000001bd84952>] of_device_add+0x40/0x50
+>     [<000000009c658c29>] of_platform_device_create_pdata+0xac/0x100
+>     [<0000000021c69ba4>] of_platform_bus_create+0x190/0x224
+>=20
+> Fixes: f08c2e2865f6 ("clk: add managed version of clk_bulk_get_all")
+> Cc: Dong Aisheng <aisheng.dong@nxp.com>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Brian Norris <briannorris@chromium.org>
+> ---
 
-5.10.55-rc1 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
-                
-Tested-by: Fox Chen <foxhlchen@gmail.com>
-
+Applied to clk-fixes
