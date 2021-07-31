@@ -2,164 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C5AA3DC693
-	for <lists+stable@lfdr.de>; Sat, 31 Jul 2021 17:19:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0A393DC6AA
+	for <lists+stable@lfdr.de>; Sat, 31 Jul 2021 17:27:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233369AbhGaPT0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Jul 2021 11:19:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42002 "EHLO
+        id S233291AbhGaP1v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Jul 2021 11:27:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233361AbhGaPTZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 31 Jul 2021 11:19:25 -0400
-Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4789C06175F
-        for <stable@vger.kernel.org>; Sat, 31 Jul 2021 08:19:18 -0700 (PDT)
-Received: by mail-pj1-x102d.google.com with SMTP id mt6so19473284pjb.1
-        for <stable@vger.kernel.org>; Sat, 31 Jul 2021 08:19:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=f4bXBgY99druVxO6HeRsl0dnwFIN37KKzGtmINpNFbQ=;
-        b=vGGp4Etq6rnqaEhgF1rwjXcT6x1ZpuzxPWCE/qn8V6dD1okff2P6xc58iZGbS4zD+h
-         tujJ1OsfLKlZi5w2v9AILyIP5gWJYs9aZ70aSf2L+Ez5oCbzw0d/nJsldNm2jb4eq78S
-         nNB2ZR4582NPIQSXYWv4V5NLa5yEfJaCBDTTTUIdfUX3Br1H2K22TnUXpn9vfI25qvNd
-         cNC56GR3s59ZNvKY5Ari1R9dwBvUUIfQsQ7pD2YcqF8+VQTfcUfxqhCksZuwTkEtl4Ml
-         skjBwvbP6pdDIPtAPkCGWi+nBcLb7F4sHhHJDfxRuEDDRCIWoPb6FNcZjs/qsE7HkeLT
-         fn6g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=f4bXBgY99druVxO6HeRsl0dnwFIN37KKzGtmINpNFbQ=;
-        b=QQMUgFRJt7ub593vIKRr6f5OCUBfrOJOC8h3tu+fzNODZPDiapE3x7t0IfmyllwYg1
-         Q/E9e0OZwUcn3+sqrrS/Enpetu1ciTcMTzp8rtDLqT1ax0XYnQfxhdaFh1vSiBb4FKcJ
-         gz4qxEYDW33CovIAtPYAePhTmeFbkoV4wAZq1qIL13LDDRDgCeap26QYmYw5h+LANV3W
-         hzzICF8csbD0f4EX+wAfYxe6nReFlAJ4hsnaMAtSQd9Kd/rgtCbNdxCEM2NqaDkt9zKq
-         dtMYQf6OctSRgxLpRTUFr3pEjO2Zksn1AjUsJKOHyr42mVU7EuUmFUQ0LxFEOy5jNPZr
-         l7lg==
-X-Gm-Message-State: AOAM530O39xE3iHMuFih9ynMU7UMUC5TaHG/x6t1v3HMsj8Eytr/0ZKF
-        E13f8w4YDKVitWDBCeYujXPh6tK8J62RHlz/
-X-Google-Smtp-Source: ABdhPJxPMPzwwNbWKX0arkuKiGRHoB04U8DbQWxsVArh1L6RN6nq97dKKkFgKxkqMCeEqHOLHIDA3Q==
-X-Received: by 2002:a17:90b:4f8d:: with SMTP id qe13mr8674934pjb.204.1627744757866;
-        Sat, 31 Jul 2021 08:19:17 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id a23sm5937864pff.43.2021.07.31.08.19.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 31 Jul 2021 08:19:17 -0700 (PDT)
-Message-ID: <610569f5.1c69fb81.a5277.025d@mx.google.com>
-Date:   Sat, 31 Jul 2021 08:19:17 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S233578AbhGaP1v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 31 Jul 2021 11:27:51 -0400
+Received: from smtp-1909.mail.infomaniak.ch (smtp-1909.mail.infomaniak.ch [IPv6:2001:1600:3:17::1909])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CCA5C0613CF
+        for <stable@vger.kernel.org>; Sat, 31 Jul 2021 08:27:45 -0700 (PDT)
+Received: from smtp-3-0000.mail.infomaniak.ch (unknown [10.4.36.107])
+        by smtp-2-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4GcSnT3zMLzMprMF;
+        Sat, 31 Jul 2021 17:27:41 +0200 (CEST)
+Received: from [IPv6:2a01:cb00:a36:2c00:aa:7049:abed:a55d] (unknown [IPV6:2a01:cb00:a36:2c00:aa:7049:abed:a55d])
+        by smtp-3-0000.mail.infomaniak.ch (Postfix) with ESMTPA id 4GcSnS5fBhzlh8TG;
+        Sat, 31 Jul 2021 17:27:40 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=asdrip.fr;
+        s=20210424; t=1627745261;
+        bh=xe0VfNJnGUmf5zyVeLLOuRkOkSlS2Spd3dthfEc47ao=;
+        h=From:Subject:To:Cc:References:Date:In-Reply-To:From;
+        b=CGaoHCHwDs6gJwSrXJZof0s+Y84uB1abBkJHuvjnjDhCzA4tzdH9Mx0J7TGAZDt2r
+         W3YVKbCMzWdLPIDoBPwn1SaoQwulT1oIDDZrH4ShQ7nc6PsDmdLRZ60S3OTvIFIPHi
+         Inm2/5gRSxNnSaZ6q7IO5YkyuTARy/OIq4+Xlt80=
+From:   Adrien Precigout <dev@asdrip.fr>
+Subject: Re: Tr: Unable to boot on multiple kernel with acpi
+To:     stable@vger.kernel.org
+Cc:     regressions@lists.linux.dev, erik.kaneda@intel.com
+References: <fc66decb-ed13-45dd-bf82-91f0cc516a30@asdrip.fr>
+Message-ID: <eb9250ed-2ae9-07d5-e966-9063fffa34f8@asdrip.fr>
+Date:   Sat, 31 Jul 2021 17:27:39 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.12.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.13
-X-Kernelci-Kernel: v5.13.7-34-g59fb97ea0e16
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.13 baseline: 155 runs,
- 2 regressions (v5.13.7-34-g59fb97ea0e16)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <fc66decb-ed13-45dd-bf82-91f0cc516a30@asdrip.fr>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.13 baseline: 155 runs, 2 regressions (v5.13.7-34-g59fb97e=
-a0e16)
+> Hi,
+>
+> On my acer swift 3 (SF314-51), I can't boot on my device since 
+> 4.19.198 (no issue with 4.19.197) without adding "acpi=off" in the 
+> parameters. Same thing happens on 5.12.19 (didn't happened in 
+> 5.12.16), 5.13.4 and .5 and 5.10.52.
+>
+> If acpi is not off issue is :
+> -black screen after grub,
+> -no errors, no activity (tested by leaving the pc 10 hours), no tty, 
+> no logs whatsoever in journalctl as if the kernel didn't start. Even 
+> adding 'debug' or 'initcall_debug' doesn't show anything.
+>
+> If I add acpi=off, the screen blinks one time and boots normally but 
+> after kernel 5.10 (5.12 and 5.13) I loose usage of keyboard and touchpad.
+>
+> Notes:
+> - I'm using Manjaro KDE
+> - I have tested with 4.19.198 Vanilla (config file attached) and same 
+> thing happened
+> - setting nomodeset doesn't change anything
+> - tried every acpi parameters, only =off worked
+> - Bios was not updated, but the bug persisted after upgrading it
+> - Acpi issue is recurrent with this pc it seems below 4.11 
+> (https://askubuntu.com/questions/929904/cant-pass-the-acpi-off-problem 
+> <https://askubuntu.com/questions/929904/cant-pass-the-acpi-off-problem>)
+>
+> Thank you for your help,
+> Adrien
+>
+Hi again,
 
-Regressions Summary
--------------------
+I've done a bisect on the 4.19.y branch and I've found that it is the 
+commit 2bf1f848ca0af4e3d49624df49cbbd5511ec49a3 [ACPICA: Fix memory leak 
+caused by _CID repair function] that introduced the bug. By doing a git 
+revert and building the kernel I can boot normally but as long as this 
+commit exist I just get a black screen as explained above.
 
-platform                | arch  | lab          | compiler | defconfig      =
-     | regressions
-------------------------+-------+--------------+----------+----------------=
------+------------
-beagle-xm               | arm   | lab-baylibre | gcc-8    | omap2plus_defco=
-nfig | 1          =
+BR,
 
-sun50i-a64-bananapi-m64 | arm64 | lab-clabbe   | gcc-8    | defconfig      =
-     | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.13/ker=
-nel/v5.13.7-34-g59fb97ea0e16/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.13
-  Describe: v5.13.7-34-g59fb97ea0e16
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      59fb97ea0e16d4bde4610d460b6cab36da7e0e13 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                | arch  | lab          | compiler | defconfig      =
-     | regressions
-------------------------+-------+--------------+----------+----------------=
------+------------
-beagle-xm               | arm   | lab-baylibre | gcc-8    | omap2plus_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/610533f502c3b81d2885f466
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.7-3=
-4-g59fb97ea0e16/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagle-=
-xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.7-3=
-4-g59fb97ea0e16/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagle-=
-xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+Adrien
 
 
 
-  * baseline.login: https://kernelci.org/test/case/id/610533f502c3b81d2885f=
-467
-        failing since 2 days (last pass: v5.13.5-224-g078d5e3a85db, first f=
-ail: v5.13.5-223-g3a7649e5ffb5) =
-
- =
-
-
-
-platform                | arch  | lab          | compiler | defconfig      =
-     | regressions
-------------------------+-------+--------------+----------+----------------=
------+------------
-sun50i-a64-bananapi-m64 | arm64 | lab-clabbe   | gcc-8    | defconfig      =
-     | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/610533229fb3586ead85f467
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.7-3=
-4-g59fb97ea0e16/arm64/defconfig/gcc-8/lab-clabbe/baseline-sun50i-a64-banana=
-pi-m64.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.7-3=
-4-g59fb97ea0e16/arm64/defconfig/gcc-8/lab-clabbe/baseline-sun50i-a64-banana=
-pi-m64.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/610533229fb3586ead85f=
-468
-        failing since 1 day (last pass: v5.13.5-223-g3a7649e5ffb5, first fa=
-il: v5.13.6-22-g42e97d352a41) =
-
- =20
