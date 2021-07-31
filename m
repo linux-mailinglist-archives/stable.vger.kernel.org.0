@@ -2,55 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E36443DC3EF
-	for <lists+stable@lfdr.de>; Sat, 31 Jul 2021 08:29:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4AFD3DC3FC
+	for <lists+stable@lfdr.de>; Sat, 31 Jul 2021 08:32:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229683AbhGaG3Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Jul 2021 02:29:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43474 "EHLO mail.kernel.org"
+        id S231887AbhGaGcN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Jul 2021 02:32:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232049AbhGaG3Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 31 Jul 2021 02:29:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EBFB660D07;
-        Sat, 31 Jul 2021 06:29:08 +0000 (UTC)
+        id S229683AbhGaGcN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Jul 2021 02:32:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F197D60F46;
+        Sat, 31 Jul 2021 06:32:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627712949;
-        bh=qB2Wy8qiHb0MYp5dIQ4CdQ5opxLsEZcT26fWLEqUk/I=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=GFhUxOXSeDsOCWe+4dCcq8iLYiNDGjEItMUY8S6+uSHW4HpJpm0mRCuxJ/l1SOlpU
-         /gDOG8yXG0jxiKQpOXRmW6eIGj6mRdTyoDpvWR1eHTakkHNtMrRGLGl5uCLb4z593r
-         YczRidAee64QJDlWvOtrRO7pN/z+yJ+bimMVlsjM=
-Date:   Sat, 31 Jul 2021 08:29:07 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Javier Pello <javier.pello@urjc.es>
-Cc:     stable@vger.kernel.org
-Subject: Re: Patch "Kernel oopses on ext2 filesystems after 782b76d7abdf"
-Message-ID: <YQTts7zkCcuG/Psu@kroah.com>
-References: <20210730122532.6966a03a1d2e07b81486e0f4@urjc.es>
+        s=korg; t=1627713126;
+        bh=w/u+1IzkyjHuA+ytjCkyRHjlt9r3+FJM6dmjowulEdE=;
+        h=Subject:To:Cc:From:Date:From;
+        b=GM4WXIEJm4nj7SSnCcsvtXfXEqp6K7Y5X0GZmug0ZZVt98Roi3U2uTCuYVD+/+44h
+         XQ5Xmb12boerpiIfvsxl0V1kk/tDNQWf4xTfIErW58/4FT1XqCMNMfz99EXU7TFhnO
+         J86lhP5WJUeHwd47FXeAcQ/6TMT9hZOP6Y3wsT30=
+Subject: FAILED: patch "[PATCH] btrfs: fix lost inode on log replay after mix of fsync," failed to apply to 4.14-stable tree
+To:     fdmanana@suse.com, dsterba@suse.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Sat, 31 Jul 2021 08:32:04 +0200
+Message-ID: <162771312422337@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210730122532.6966a03a1d2e07b81486e0f4@urjc.es>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jul 30, 2021 at 12:25:32PM +0200, Javier Pello wrote:
-> Dear list,
-> 
-> The current 5.13 stable kernel branch oopses when handling ext2
-> filesystems, and the filesystem is not usable, sometimes leading
-> to a panic.
-> 
-> The bug was introduced during the 5.13 development cycle.
-> A complete analysis can be found here:
-> https://lore.kernel.org/linux-ext4/20210713165821.8a268e2c1db4fd5cf452acd2@urjc.es/T/
-> 
-> A fix for this bug has been recently merged into the mainline
-> kernel, with commit id 728d392f8a799f037812d0f2b254fb3b5e115fcf.
-> 
-> The 5.13 branch is the only one affected by this bug.
 
-Now queued up, thanks.
+The patch below does not apply to the 4.14-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From ecc64fab7d49c678e70bd4c35fe64d2ab3e3d212 Mon Sep 17 00:00:00 2001
+From: Filipe Manana <fdmanana@suse.com>
+Date: Tue, 27 Jul 2021 11:24:43 +0100
+Subject: [PATCH] btrfs: fix lost inode on log replay after mix of fsync,
+ rename and inode eviction
+
+When checking if we need to log the new name of a renamed inode, we are
+checking if the inode and its parent inode have been logged before, and if
+not we don't log the new name. The check however is buggy, as it directly
+compares the logged_trans field of the inodes versus the ID of the current
+transaction. The problem is that logged_trans is a transient field, only
+stored in memory and never persisted in the inode item, so if an inode
+was logged before, evicted and reloaded, its logged_trans field is set to
+a value of 0, meaning the check will return false and the new name of the
+renamed inode is not logged. If the old parent directory was previously
+fsynced and we deleted the logged directory entries corresponding to the
+old name, we end up with a log that when replayed will delete the renamed
+inode.
+
+The following example triggers the problem:
+
+  $ mkfs.btrfs -f /dev/sdc
+  $ mount /dev/sdc /mnt
+
+  $ mkdir /mnt/A
+  $ mkdir /mnt/B
+  $ echo -n "hello world" > /mnt/A/foo
+
+  $ sync
+
+  # Add some new file to A and fsync directory A.
+  $ touch /mnt/A/bar
+  $ xfs_io -c "fsync" /mnt/A
+
+  # Now trigger inode eviction. We are only interested in triggering
+  # eviction for the inode of directory A.
+  $ echo 2 > /proc/sys/vm/drop_caches
+
+  # Move foo from directory A to directory B.
+  # This deletes the directory entries for foo in A from the log, and
+  # does not add the new name for foo in directory B to the log, because
+  # logged_trans of A is 0, which is less than the current transaction ID.
+  $ mv /mnt/A/foo /mnt/B/foo
+
+  # Now make an fsync to anything except A, B or any file inside them,
+  # like for example create a file at the root directory and fsync this
+  # new file. This syncs the log that contains all the changes done by
+  # previous rename operation.
+  $ touch /mnt/baz
+  $ xfs_io -c "fsync" /mnt/baz
+
+  <power fail>
+
+  # Mount the filesystem and replay the log.
+  $ mount /dev/sdc /mnt
+
+  # Check the filesystem content.
+  $ ls -1R /mnt
+  /mnt/:
+  A
+  B
+  baz
+
+  /mnt/A:
+  bar
+
+  /mnt/B:
+  $
+
+  # File foo is gone, it's neither in A/ nor in B/.
+
+Fix this by using the inode_logged() helper at btrfs_log_new_name(), which
+safely checks if an inode was logged before in the current transaction.
+
+A test case for fstests will follow soon.
+
+CC: stable@vger.kernel.org # 4.14+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+
+diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
+index 9fd0348be7f5..e6430ac9bbe8 100644
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -6503,8 +6503,8 @@ void btrfs_log_new_name(struct btrfs_trans_handle *trans,
+ 	 * if this inode hasn't been logged and directory we're renaming it
+ 	 * from hasn't been logged, we don't need to log it
+ 	 */
+-	if (inode->logged_trans < trans->transid &&
+-	    (!old_dir || old_dir->logged_trans < trans->transid))
++	if (!inode_logged(trans, inode) &&
++	    (!old_dir || !inode_logged(trans, old_dir)))
+ 		return;
+ 
+ 	/*
+
