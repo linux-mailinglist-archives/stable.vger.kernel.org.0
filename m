@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 375043DC3FD
-	for <lists+stable@lfdr.de>; Sat, 31 Jul 2021 08:32:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAD813DC3FE
+	for <lists+stable@lfdr.de>; Sat, 31 Jul 2021 08:32:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232009AbhGaGcP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Jul 2021 02:32:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44074 "EHLO mail.kernel.org"
+        id S232138AbhGaGcS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Jul 2021 02:32:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229683AbhGaGcP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 31 Jul 2021 02:32:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 623FF60F48;
-        Sat, 31 Jul 2021 06:32:09 +0000 (UTC)
+        id S229683AbhGaGcS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Jul 2021 02:32:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DF2760F46;
+        Sat, 31 Jul 2021 06:32:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627713129;
-        bh=+Kjb0CFabFxKRINNLwf8VNnxXNLoqBuCSutNMDquIX4=;
+        s=korg; t=1627713132;
+        bh=MoIujvlT4U/Z/VWpWdTLi93DGiJQOfC5ctuFAev200k=;
         h=Subject:To:Cc:From:Date:From;
-        b=r8nPC5jiiturZzUV0PB6bl17yPwKGNz0gsYrmpAZuhjJt9PtkOXW0RS41Ung/j+7K
-         IejIuezHo0X2HWyjE3FBIgOyhzNT38+OGSN4UW1YOW4FuH5k7e6RIu+OUi6+iZXMY0
-         LOUv2U6RNa0Y986hnN6hwP0T6eBfHokpFSk//A6k=
-Subject: FAILED: patch "[PATCH] btrfs: fix lost inode on log replay after mix of fsync," failed to apply to 4.19-stable tree
+        b=rJ5XKpV4iNBtE/9E+aQ0Aj0fbzNEsmnZpx3F06jv/rf06u+EncaWYTCCn1+OXoIj9
+         ZJSMlnjPVTSED7Vnl+zZY6XzqBWJF8+i/5clVtF+Q8sK0VPI7nLwLztLXQLBck3gPC
+         lf9rxz/tgeFiQWObqihEkceu6ItBltTbUCfxRX6Y=
+Subject: FAILED: patch "[PATCH] btrfs: fix lost inode on log replay after mix of fsync," failed to apply to 5.4-stable tree
 To:     fdmanana@suse.com, dsterba@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 31 Jul 2021 08:32:06 +0200
-Message-ID: <162771312610124@kroah.com>
+Date:   Sat, 31 Jul 2021 08:32:07 +0200
+Message-ID: <162771312735254@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
