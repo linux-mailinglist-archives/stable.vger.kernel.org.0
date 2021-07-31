@@ -2,81 +2,200 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A9563DC404
-	for <lists+stable@lfdr.de>; Sat, 31 Jul 2021 08:33:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C8893DC409
+	for <lists+stable@lfdr.de>; Sat, 31 Jul 2021 08:36:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232115AbhGaGds (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Jul 2021 02:33:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44364 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232090AbhGaGdr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 31 Jul 2021 02:33:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 931AC60D07;
-        Sat, 31 Jul 2021 06:33:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627713222;
-        bh=IQvGwPf8vObFblEaV3KaqW7P6YI2J9DvkKS7ZL+8spU=;
-        h=Subject:To:Cc:From:Date:From;
-        b=gtujDlkl9xCOslpVqEZzs0OqDY8PcUzjbIKS92ES+IgbYU3iu6JMzZpXiWAULRh4U
-         SH7vT3WHxmxRndpucgIh0mmeVp3Fhv2h1xfPS4mf0je3Da0Yjyz6IxaOuKzr6nrXD/
-         zMKHb++UJu6DRmHh9wALhSzUbKSttHvF3bmTZfzo=
-Subject: FAILED: patch "[PATCH] btrfs: mark compressed range uptodate only if all bio succeed" failed to apply to 4.14-stable tree
-To:     rgoldwyn@suse.de, dsterba@suse.com, rgoldwyn@suse.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 31 Jul 2021 08:33:28 +0200
-Message-ID: <16277132082290@kroah.com>
+        id S231887AbhGaGgS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Jul 2021 02:36:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51928 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229683AbhGaGgS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 31 Jul 2021 02:36:18 -0400
+Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6F26C06175F
+        for <stable@vger.kernel.org>; Fri, 30 Jul 2021 23:36:12 -0700 (PDT)
+Received: by mail-pj1-x102c.google.com with SMTP id q17-20020a17090a2e11b02901757deaf2c8so17699651pjd.0
+        for <stable@vger.kernel.org>; Fri, 30 Jul 2021 23:36:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=el60X9Ojmej19CiuIQUfWGgZ8wA6WOyaO7qSs8UyM3o=;
+        b=1ZJx8yyMQlfp73I2ZZJuOQk0lmp6N8Yt3f3afBsI5WRbPp4XzaucARAtz12c1a+Yve
+         Z/tZ7or/hytnMfv3Oj/QsgRhCXsXdbCt3d9lywFCqRlV7nOmVSlCGLziYyVQtY5tBYyl
+         k0Yn8Oq/k8vjU51+Zhvbd3Z5cN1uvahf4AgIaz5M/Pd3QUpnAm6FARLkZE4XHdbQSeS2
+         f73sDKoa965AAA/FDthIrWbsoiJCXyE/6hzLcU0SR9oDhiUMOEbKSjw3SPyvgI1OalZw
+         fRd0xNgVQZEm5tEB3+9T3qtgEUzmvuNEUonbqYj8jRmHhiewUncgTcDJ4JsDs2sh+dl7
+         SZbA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=el60X9Ojmej19CiuIQUfWGgZ8wA6WOyaO7qSs8UyM3o=;
+        b=Zf7XPvNqpO94BvAsTm+m5v7Ja+nKsSapQNkM8QvqiMvoQ/pPFq2pkrQcH3DgKP2yyh
+         2uvcHU+k6GK+nMB7whDHW1YlteWViXFE2nNbQXh7S4OwoQuNqIuwNg6g+Km5x6OwJxlO
+         S7WTKx2XdEuBbzDGX6ll6RIm8KQ9ubr7ZmqZBOZw13o3u4U1L6b77C9XjsBb6kioR3hl
+         dWjexeacZnXaCPn3U7CjYapqxLAzardFqLSCCbBOv69TE0PVFS/Xi7yDNm/i8qdIaeHc
+         TpErCJsevU0VGFsYG/ODJj+b2SpZi6QZMJsErqAqGjmne+D/SMykaehkS1dOE3w4c1Gc
+         Mb5g==
+X-Gm-Message-State: AOAM532m//7jWggZG+xGddatonCimxUMnM4B6kj4enlF6mZZ4sNaloHd
+        SxsrG43OpWEzoIhb+SYjurXLyZTWe2ptHyxl
+X-Google-Smtp-Source: ABdhPJw7m1L5NRdcETCL5PXVNW3YaliB7OPh9IKnNIdECbj6lAAXLpWwlTr68BDzh5OwroJZJy7I+g==
+X-Received: by 2002:a63:5c1b:: with SMTP id q27mr5537186pgb.284.1627713372011;
+        Fri, 30 Jul 2021 23:36:12 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id d13sm4305955pfn.136.2021.07.30.23.36.11
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 30 Jul 2021 23:36:11 -0700 (PDT)
+Message-ID: <6104ef5b.1c69fb81.e39f7.ca63@mx.google.com>
+Date:   Fri, 30 Jul 2021 23:36:11 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/4.19
+X-Kernelci-Kernel: v4.19.199-3-g72fd65069bfc
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/4.19 baseline: 120 runs,
+ 3 regressions (v4.19.199-3-g72fd65069bfc)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/queue/4.19 baseline: 120 runs, 3 regressions (v4.19.199-3-g72fd65=
+069bfc)
 
-The patch below does not apply to the 4.14-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Regressions Summary
+-------------------
 
-thanks,
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
+g | 1          =
 
-greg k-h
+qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
+g | 1          =
 
------------------- original commit in Linus's tree ------------------
+qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
+g | 1          =
 
-From 240246f6b913b0c23733cfd2def1d283f8cc9bbe Mon Sep 17 00:00:00 2001
-From: Goldwyn Rodrigues <rgoldwyn@suse.de>
-Date: Fri, 9 Jul 2021 11:29:22 -0500
-Subject: [PATCH] btrfs: mark compressed range uptodate only if all bio succeed
 
-In compression write endio sequence, the range which the compressed_bio
-writes is marked as uptodate if the last bio of the compressed (sub)bios
-is completed successfully. There could be previous bio which may
-have failed which is recorded in cb->errors.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
+nel/v4.19.199-3-g72fd65069bfc/plan/baseline/
 
-Set the writeback range as uptodate only if cb->errors is zero, as opposed
-to checking only the last bio's status.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.19
+  Describe: v4.19.199-3-g72fd65069bfc
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      72fd65069bfc6f13130e7c1c778a5569732ca180 =
 
-Backporting notes: in all versions up to 4.4 the last argument is always
-replaced by "!cb->errors".
 
-CC: stable@vger.kernel.org # 4.4+
-Signed-off-by: Goldwyn Rodrigues <rgoldwyn@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
 
-diff --git a/fs/btrfs/compression.c b/fs/btrfs/compression.c
-index 9a023ae0f98b..30d82cdf128c 100644
---- a/fs/btrfs/compression.c
-+++ b/fs/btrfs/compression.c
-@@ -352,7 +352,7 @@ static void end_compressed_bio_write(struct bio *bio)
- 	btrfs_record_physical_zoned(inode, cb->start, bio);
- 	btrfs_writepage_endio_finish_ordered(BTRFS_I(inode), NULL,
- 			cb->start, cb->start + cb->len - 1,
--			bio->bi_status == BLK_STS_OK);
-+			!cb->errors);
- 
- 	end_compressed_writeback(inode, cb);
- 	/* note, our inode could be gone now */
+Test Regressions
+---------------- =
 
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6104b7493a4a05411285f463
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.199=
+-3-g72fd65069bfc/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_a=
+rm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.199=
+-3-g72fd65069bfc/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_a=
+rm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6104b7493a4a05411285f=
+464
+        failing since 259 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6104b739664240971b85f45a
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.199=
+-3-g72fd65069bfc/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ve=
+rsatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.199=
+-3-g72fd65069bfc/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ve=
+rsatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6104b739664240971b85f=
+45b
+        failing since 259 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6104c42df64ade7cff85f45a
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.199=
+-3-g72fd65069bfc/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_=
+arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.199=
+-3-g72fd65069bfc/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_=
+arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6104c42df64ade7cff85f=
+45b
+        failing since 259 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =20
