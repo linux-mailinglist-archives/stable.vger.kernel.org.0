@@ -2,227 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF8333DCD32
-	for <lists+stable@lfdr.de>; Sun,  1 Aug 2021 21:11:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA3493DCD33
+	for <lists+stable@lfdr.de>; Sun,  1 Aug 2021 21:11:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229837AbhHATME (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 1 Aug 2021 15:12:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52124 "EHLO mail.kernel.org"
+        id S229915AbhHATMH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 1 Aug 2021 15:12:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52172 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229497AbhHATME (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 1 Aug 2021 15:12:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C0BB60EFF;
-        Sun,  1 Aug 2021 19:11:54 +0000 (UTC)
+        id S229497AbhHATMG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 1 Aug 2021 15:12:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AE66F61059;
+        Sun,  1 Aug 2021 19:11:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1627845114;
-        bh=rJsiPKkTv45pp9LIx/yBGwR/tChuFkl6+KCh57aLbS0=;
+        s=korg; t=1627845117;
+        bh=Syeh1lCF5/JHyYWrWl2wFmvsdWXHfUpr2p43fB5d/sc=;
         h=Date:From:To:Subject:From;
-        b=Ic2228o8CoyC7kIwLOjq7dOAf6aoRWnMi8Nu8brN4X4Mapjup+LnY++kCYFwk3JiW
-         m3Yv6ekc4tuHqd4XAz7E0JZe053FnJfCzg8n44tzRSi/IbS6SuVqJ7Y8dNS5aqAvE0
-         yTDOffva+iZblFIrXLy/+Py55nvs8PXz6GAVTbpw=
-Date:   Sun, 01 Aug 2021 12:11:54 -0700
+        b=iLeW9WCOem5msw7zfSTAqDCDggnYhgk0SSYcWJMeHVrr8HteBf9qMr/joAShtyadF
+         PFNzQWUKUKievOxxy726Dwcfy2wSQjkjWLgdzUNSFHhQWkYn1/z8smmml6w3Tajobo
+         YokoYpAVZ/h1J1CmFRAdvXhF2/Tho/KqgLdKdjOw=
+Date:   Sun, 01 Aug 2021 12:11:57 -0700
 From:   akpm@linux-foundation.org
-To:     gechangwei@live.cn, ghe@suse.com, jlbec@evilplan.org,
-        joseph.qi@linux.alibaba.com, junxiao.bi@oracle.com,
-        mark@fasheh.com, mm-commits@vger.kernel.org, piaojun@huawei.com,
-        stable@vger.kernel.org
-Subject:  [merged] ocfs2-issue-zeroout-to-eof-blocks.patch removed
- from -mm tree
-Message-ID: <20210801191154.bIR5i0uYs%akpm@linux-foundation.org>
+To:     chris@chrisdown.name, dan.carpenter@oracle.com, hannes@cmpxchg.org,
+        mhocko@suse.com, mm-commits@vger.kernel.org, riel@surriel.com,
+        shakeelb@google.com, stable@vger.kernel.org
+Subject:  [merged]
+ =?US-ASCII?Q?mm-memcontrol-fix-blocking-rstat-function-called-from-atomic?=
+ =?US-ASCII?Q?-cgroup1-thresholding-code.patch?= removed from -mm tree
+Message-ID: <20210801191157._NKo6lYAE%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: ocfs2: issue zeroout to EOF blocks
+     Subject: mm: memcontrol: fix blocking rstat function called from atomic cgroup1 thresholding code
 has been removed from the -mm tree.  Its filename was
-     ocfs2-issue-zeroout-to-eof-blocks.patch
+     mm-memcontrol-fix-blocking-rstat-function-called-from-atomic-cgroup1-thresholding-code.patch
 
 This patch was dropped because it was merged into mainline or a subsystem tree
 
 ------------------------------------------------------
-From: Junxiao Bi <junxiao.bi@oracle.com>
-Subject: ocfs2: issue zeroout to EOF blocks
+From: Johannes Weiner <hannes@cmpxchg.org>
+Subject: mm: memcontrol: fix blocking rstat function called from atomic cgroup1 thresholding code
 
-For punch holes in EOF blocks, fallocate used buffer write to zero the EOF
-blocks in last cluster.  But since ->writepage will ignore EOF pages,
-those zeros will not be flushed.
+Dan Carpenter reports:
 
-This "looks" ok as commit 6bba4471f0cc ("ocfs2: fix data corruption by
-fallocate") will zero the EOF blocks when extend the file size, but it
-isn't.  The problem happened on those EOF pages, before writeback, those
-pages had DIRTY flag set and all buffer_head in them also had DIRTY flag
-set, when writeback run by write_cache_pages(), DIRTY flag on the page was
-cleared, but DIRTY flag on the buffer_head not.
+    The patch 2d146aa3aa84: "mm: memcontrol: switch to rstat" from Apr
+    29, 2021, leads to the following static checker warning:
 
-When next write happened to those EOF pages, since buffer_head already had
-DIRTY flag set, it would not mark page DIRTY again.  That made writeback
-ignore them forever.  That will cause data corruption.  Even directio
-write can't work because it will fail when trying to drop pages caches
-before direct io, as it found the buffer_head for those pages still had
-DIRTY flag set, then it will fall back to buffer io mode.
+	    kernel/cgroup/rstat.c:200 cgroup_rstat_flush()
+	    warn: sleeping in atomic context
 
-To make a summary of the issue, as writeback ingores EOF pages, once any
-EOF page is generated, any write to it will only go to the page cache, it
-will never be flushed to disk even file size extends and that page is not
-EOF page any more.  The fix is to avoid zero EOF blocks with buffer write.
+    mm/memcontrol.c
+      3572  static unsigned long mem_cgroup_usage(struct mem_cgroup *memcg, bool swap)
+      3573  {
+      3574          unsigned long val;
+      3575
+      3576          if (mem_cgroup_is_root(memcg)) {
+      3577                  cgroup_rstat_flush(memcg->css.cgroup);
+			    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The following code snippet from qemu-img could trigger the corruption.
+    This is from static analysis and potentially a false positive.  The
+    problem is that mem_cgroup_usage() is called from __mem_cgroup_threshold()
+    which holds an rcu_read_lock().  And the cgroup_rstat_flush() function
+    can sleep.
 
-656   open("6b3711ae-3306-4bdd-823c-cf1c0060a095.conv.2", O_RDWR|O_DIRECT|O_CLOEXEC) = 11
-...
-660   fallocate(11, FALLOC_FL_KEEP_SIZE|FALLOC_FL_PUNCH_HOLE, 2275868672, 327680 <unfinished ...>
-660   fallocate(11, 0, 2275868672, 327680) = 0
-658   pwrite64(11, "
+      3578                  val = memcg_page_state(memcg, NR_FILE_PAGES) +
+      3579                          memcg_page_state(memcg, NR_ANON_MAPPED);
+      3580                  if (swap)
+      3581                          val += memcg_page_state(memcg, MEMCG_SWAP);
+      3582          } else {
+      3583                  if (!swap)
+      3584                          val = page_counter_read(&memcg->memory);
+      3585                  else
+      3586                          val = page_counter_read(&memcg->memsw);
+      3587          }
+      3588          return val;
+      3589  }
 
-Link: https://lkml.kernel.org/r/20210722054923.24389-2-junxiao.bi@oracle.com
-Signed-off-by: Junxiao Bi <junxiao.bi@oracle.com>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
+__mem_cgroup_threshold() indeed holds the rcu lock.  In addition, the
+thresholding code is invoked during stat changes, and those contexts have
+irqs disabled as well.  If the lock breaking occurs inside the flush
+function, it will result in a sleep from an atomic context.
+
+Use the irqsafe flushing variant in mem_cgroup_usage() to fix this.
+
+Link: https://lkml.kernel.org/r/20210726150019.251820-1-hannes@cmpxchg.org
+Fixes: 2d146aa3aa84 ("mm: memcontrol: switch to rstat")
+Signed-off-by: Johannes Weiner <hannes@cmpxchg.org>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Chris Down <chris@chrisdown.name>
+Reviewed-by: Rik van Riel <riel@surriel.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- fs/ocfs2/file.c |   99 +++++++++++++++++++++++++++-------------------
- 1 file changed, 60 insertions(+), 39 deletions(-)
+ mm/memcontrol.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/ocfs2/file.c~ocfs2-issue-zeroout-to-eof-blocks
-+++ a/fs/ocfs2/file.c
-@@ -1529,6 +1529,45 @@ static void ocfs2_truncate_cluster_pages
- 	}
- }
+--- a/mm/memcontrol.c~mm-memcontrol-fix-blocking-rstat-function-called-from-atomic-cgroup1-thresholding-code
++++ a/mm/memcontrol.c
+@@ -3574,7 +3574,8 @@ static unsigned long mem_cgroup_usage(st
+ 	unsigned long val;
  
-+/*
-+ * zero out partial blocks of one cluster.
-+ *
-+ * start: file offset where zero starts, will be made upper block aligned.
-+ * len: it will be trimmed to the end of current cluster if "start + len"
-+ *      is bigger than it.
-+ */
-+static int ocfs2_zeroout_partial_cluster(struct inode *inode,
-+					u64 start, u64 len)
-+{
-+	int ret;
-+	u64 start_block, end_block, nr_blocks;
-+	u64 p_block, offset;
-+	u32 cluster, p_cluster, nr_clusters;
-+	struct super_block *sb = inode->i_sb;
-+	u64 end = ocfs2_align_bytes_to_clusters(sb, start);
-+
-+	if (start + len < end)
-+		end = start + len;
-+
-+	start_block = ocfs2_blocks_for_bytes(sb, start);
-+	end_block = ocfs2_blocks_for_bytes(sb, end);
-+	nr_blocks = end_block - start_block;
-+	if (!nr_blocks)
-+		return 0;
-+
-+	cluster = ocfs2_bytes_to_clusters(sb, start);
-+	ret = ocfs2_get_clusters(inode, cluster, &p_cluster,
-+				&nr_clusters, NULL);
-+	if (ret)
-+		return ret;
-+	if (!p_cluster)
-+		return 0;
-+
-+	offset = start_block - ocfs2_clusters_to_blocks(sb, cluster);
-+	p_block = ocfs2_clusters_to_blocks(sb, p_cluster) + offset;
-+	return sb_issue_zeroout(sb, p_block, nr_blocks, GFP_NOFS);
-+}
-+
- static int ocfs2_zero_partial_clusters(struct inode *inode,
- 				       u64 start, u64 len)
- {
-@@ -1538,6 +1577,7 @@ static int ocfs2_zero_partial_clusters(s
- 	struct ocfs2_super *osb = OCFS2_SB(inode->i_sb);
- 	unsigned int csize = osb->s_clustersize;
- 	handle_t *handle;
-+	loff_t isize = i_size_read(inode);
- 
- 	/*
- 	 * The "start" and "end" values are NOT necessarily part of
-@@ -1558,6 +1598,26 @@ static int ocfs2_zero_partial_clusters(s
- 	if ((start & (csize - 1)) == 0 && (end & (csize - 1)) == 0)
- 		goto out;
- 
-+	/* No page cache for EOF blocks, issue zero out to disk. */
-+	if (end > isize) {
-+		/*
-+		 * zeroout eof blocks in last cluster starting from
-+		 * "isize" even "start" > "isize" because it is
-+		 * complicated to zeroout just at "start" as "start"
-+		 * may be not aligned with block size, buffer write
-+		 * would be required to do that, but out of eof buffer
-+		 * write is not supported.
-+		 */
-+		ret = ocfs2_zeroout_partial_cluster(inode, isize,
-+					end - isize);
-+		if (ret) {
-+			mlog_errno(ret);
-+			goto out;
-+		}
-+		if (start >= isize)
-+			goto out;
-+		end = isize;
-+	}
- 	handle = ocfs2_start_trans(osb, OCFS2_INODE_UPDATE_CREDITS);
- 	if (IS_ERR(handle)) {
- 		ret = PTR_ERR(handle);
-@@ -1856,45 +1916,6 @@ out:
- }
- 
- /*
-- * zero out partial blocks of one cluster.
-- *
-- * start: file offset where zero starts, will be made upper block aligned.
-- * len: it will be trimmed to the end of current cluster if "start + len"
-- *      is bigger than it.
-- */
--static int ocfs2_zeroout_partial_cluster(struct inode *inode,
--					u64 start, u64 len)
--{
--	int ret;
--	u64 start_block, end_block, nr_blocks;
--	u64 p_block, offset;
--	u32 cluster, p_cluster, nr_clusters;
--	struct super_block *sb = inode->i_sb;
--	u64 end = ocfs2_align_bytes_to_clusters(sb, start);
--
--	if (start + len < end)
--		end = start + len;
--
--	start_block = ocfs2_blocks_for_bytes(sb, start);
--	end_block = ocfs2_blocks_for_bytes(sb, end);
--	nr_blocks = end_block - start_block;
--	if (!nr_blocks)
--		return 0;
--
--	cluster = ocfs2_bytes_to_clusters(sb, start);
--	ret = ocfs2_get_clusters(inode, cluster, &p_cluster,
--				&nr_clusters, NULL);
--	if (ret)
--		return ret;
--	if (!p_cluster)
--		return 0;
--
--	offset = start_block - ocfs2_clusters_to_blocks(sb, cluster);
--	p_block = ocfs2_clusters_to_blocks(sb, p_cluster) + offset;
--	return sb_issue_zeroout(sb, p_block, nr_blocks, GFP_NOFS);
--}
--
--/*
-  * Parts of this function taken from xfs_change_file_space()
-  */
- static int __ocfs2_change_file_space(struct file *file, struct inode *inode,
+ 	if (mem_cgroup_is_root(memcg)) {
+-		cgroup_rstat_flush(memcg->css.cgroup);
++		/* mem_cgroup_threshold() calls here from irqsafe context */
++		cgroup_rstat_flush_irqsafe(memcg->css.cgroup);
+ 		val = memcg_page_state(memcg, NR_FILE_PAGES) +
+ 			memcg_page_state(memcg, NR_ANON_MAPPED);
+ 		if (swap)
 _
 
-Patches currently in -mm which might be from junxiao.bi@oracle.com are
+Patches currently in -mm which might be from hannes@cmpxchg.org are
 
+mm-remove-irqsave-restore-locking-from-contexts-with-irqs-enabled.patch
+fs-drop_caches-fix-skipping-over-shadow-cache-inodes.patch
+fs-inode-count-invalidated-shadow-pages-in-pginodesteal.patch
+vfs-keep-inodes-with-page-cache-off-the-inode-shrinker-lru.patch
 
