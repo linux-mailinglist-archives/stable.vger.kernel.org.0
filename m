@@ -2,117 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 68D333DCD34
-	for <lists+stable@lfdr.de>; Sun,  1 Aug 2021 21:12:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DB003DCDBB
+	for <lists+stable@lfdr.de>; Sun,  1 Aug 2021 22:30:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229990AbhHATMP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 1 Aug 2021 15:12:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52286 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229497AbhHATMP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 1 Aug 2021 15:12:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A1BA161059;
-        Sun,  1 Aug 2021 19:12:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1627845127;
-        bh=1FQmK7UZdhX8p/xb8eLsxPNYNz9JRBIIAqGLThaglII=;
-        h=Date:From:To:Subject:From;
-        b=Vig2jQATcJ5+Eok2ku/ggYTTCJdh425xulYC+7k9GxJMSFZbuVx7bzCz2YNrAcZ4P
-         ig9P9VcXXX3DFpjdtnrilvaBCzEt9N1UO8U2rlhZfcj7GmGKxNmtrwQ48BLS4cPCDj
-         5/QRLRSH0/YTMh8D+YEtk5kFZiyRg6KdqXeCsviU=
-Date:   Sun, 01 Aug 2021 12:12:06 -0700
-From:   akpm@linux-foundation.org
-To:     ast@kernel.org, cl@linux.com, guro@fb.com, hannes@cmpxchg.org,
-        iamjoonsoo.kim@lge.com, mhocko@suse.com,
-        mm-commits@vger.kernel.org, penberg@kernel.org,
-        rientjes@google.com, shakeelb@google.com, songmuchun@bytedance.com,
-        stable@vger.kernel.org, vbabka@suse.cz, wanghai38@huawei.com,
-        wangkefeng.wang@huawei.com
-Subject:  [merged]
- mm-memcg-fix-null-pointer-dereference-in-memcg_slab_free_hook.patch removed
- from -mm tree
-Message-ID: <20210801191206.Rl7utsOt9%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S230255AbhHAUaR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 1 Aug 2021 16:30:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47048 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230104AbhHAUaQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 1 Aug 2021 16:30:16 -0400
+Received: from mail-lj1-x22a.google.com (mail-lj1-x22a.google.com [IPv6:2a00:1450:4864:20::22a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12BECC06175F
+        for <stable@vger.kernel.org>; Sun,  1 Aug 2021 13:30:07 -0700 (PDT)
+Received: by mail-lj1-x22a.google.com with SMTP id r23so21213221lji.3
+        for <stable@vger.kernel.org>; Sun, 01 Aug 2021 13:30:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:sender:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=4UJ4VdvnjH1UiyxFLhfo4+Yb9Ryf1kMpy89iq5kXl0w=;
+        b=HRhPc23sWKNZYDWEfl6HcPSsePIu0uANLNBCYTKVivuTYrmM62Eje6SqYWn7AQrDCG
+         dVNPDy5zSIFqNGTZtkQif9Ls90uYb7B2yjwE2PchLFiIviYx+I768ABB4otmFVAGBL80
+         aZEHSo6f4lSQ5NEQuNLOdqXovpe9q7HMZrKXO0L2rfeVNuWri4Ej/cvkwx4QvI5nlDMk
+         aG9mzi5l0LRAdGYu5epnlk5ZJ5pHuZ7cSaP7Cv7hy9PoKRuBiHXvmjKayuML8WqokPzf
+         E5arCAUiD/l+DW0royw9AfIAXqwOpyCM5fn/aGG/QRHn5pi36R43i1yg58kVHiTU1K3h
+         iUKg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
+         :to:content-transfer-encoding;
+        bh=4UJ4VdvnjH1UiyxFLhfo4+Yb9Ryf1kMpy89iq5kXl0w=;
+        b=X2+ov7cHOVI/VpG36qLW6JtvIFtXSmk5dr65DzSrQbA2k/yG1G0S9WdRacgZeKBOlT
+         GewLNpfRFbzM3x7lZ8SJgyDo2ouA/b8vCQKFUpoIezt61eF90TK3G26S8C10y+BtvQF+
+         lwongPCpLcyFXAqjNunxmRlqixbjdmvbomxyp3HZtV0GgV+3hOvcGCUJ3un3FHh4Z4vC
+         hhX7jTopv8q5h/z3ZS1hZvFbYokCGmRS490T2BWYlGEHkXKXG2tmbmI2/jGBu+DKsP0E
+         6TM3v2N4bvA10DQW8zIFC9Vq2QsHO2Fodnd4MK8SnlTCgeLlid3wlUCXoMuoR8AsKZae
+         Ge9Q==
+X-Gm-Message-State: AOAM5302IjkDjm2XdL/nu/WEGr3nHWGo7Umt7UvaXRQR/9M708tk2gg2
+        8YZ67S7THLRgWMd2w5txp3pOXlCVdmmBcyWqYBA=
+X-Google-Smtp-Source: ABdhPJxcd1Bv28reIGVUbJfUQNohZutfuD20og6IgNxpkVQtNEUQIs4viGhu0nkZEeAK+OzgcOQpfPr7zx4jG6ARc0g=
+X-Received: by 2002:a2e:1611:: with SMTP id w17mr9025402ljd.106.1627849805487;
+ Sun, 01 Aug 2021 13:30:05 -0700 (PDT)
+MIME-Version: 1.0
+Sender: sgtdanieldailey33@gmail.com
+Received: by 2002:a2e:2201:0:0:0:0:0 with HTTP; Sun, 1 Aug 2021 13:30:05 -0700 (PDT)
+From:   Kayla Manthey <sgtkaylamanthey612@gmail.com>
+Date:   Sun, 1 Aug 2021 21:30:05 +0100
+X-Google-Sender-Auth: 73D3OndZ5KkWR2gIyS4b7bTYXYM
+Message-ID: <CAM5qAYQby_PbS_WLNe-iNG2KbOyypmu820s=MpuWuFR+27F8NQ@mail.gmail.com>
+Subject: 
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-The patch titled
-     Subject: mm/memcg: fix NULL pointer dereference in memcg_slab_free_hook()
-has been removed from the -mm tree.  Its filename was
-     mm-memcg-fix-null-pointer-dereference-in-memcg_slab_free_hook.patch
-
-This patch was dropped because it was merged into mainline or a subsystem tree
-
-------------------------------------------------------
-From: Wang Hai <wanghai38@huawei.com>
-Subject: mm/memcg: fix NULL pointer dereference in memcg_slab_free_hook()
-
-When I use kfree_rcu() to free a large memory allocated by kmalloc_node(),
-the following dump occurs.
-
-BUG: kernel NULL pointer dereference, address: 0000000000000020
-[...]
-Oops: 0000 [#1] SMP
-[...]
-Workqueue: events kfree_rcu_work
-RIP: 0010:__obj_to_index include/linux/slub_def.h:182 [inline]
-RIP: 0010:obj_to_index include/linux/slub_def.h:191 [inline]
-RIP: 0010:memcg_slab_free_hook+0x120/0x260 mm/slab.h:363
-[...]
-Call Trace:
- kmem_cache_free_bulk+0x58/0x630 mm/slub.c:3293
- kfree_bulk include/linux/slab.h:413 [inline]
- kfree_rcu_work+0x1ab/0x200 kernel/rcu/tree.c:3300
- process_one_work+0x207/0x530 kernel/workqueue.c:2276
- worker_thread+0x320/0x610 kernel/workqueue.c:2422
- kthread+0x13d/0x160 kernel/kthread.c:313
- ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:294
-
-When kmalloc_node() a large memory, page is allocated, not slab, so when
-freeing memory via kfree_rcu(), this large memory should not be used by
-memcg_slab_free_hook(), because memcg_slab_free_hook() is is used for
-slab.
-
-Using page_objcgs_check() instead of page_objcgs() in
-memcg_slab_free_hook() to fix this bug.
-
-Link: https://lkml.kernel.org/r/20210728145655.274476-1-wanghai38@huawei.com
-Fixes: 270c6a71460e ("mm: memcontrol/slab: Use helpers to access slab page's memcg_data")
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Roman Gushchin <guro@fb.com>
-Reviewed-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Reviewed-by: Muchun Song <songmuchun@bytedance.com>
-Cc: Christoph Lameter <cl@linux.com>
-Cc: Pekka Enberg <penberg@kernel.org>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/slab.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- a/mm/slab.h~mm-memcg-fix-null-pointer-dereference-in-memcg_slab_free_hook
-+++ a/mm/slab.h
-@@ -346,7 +346,7 @@ static inline void memcg_slab_free_hook(
- 			continue;
- 
- 		page = virt_to_head_page(p[i]);
--		objcgs = page_objcgs(page);
-+		objcgs = page_objcgs_check(page);
- 		if (!objcgs)
- 			continue;
- 
-_
-
-Patches currently in -mm which might be from wanghai38@huawei.com are
-
-
+=C5=BDivjo, ali ste prejeli moja dva prej=C5=A1nja sporo=C4=8Dila? prosim p=
+reverite
+in mi odgovorite.
