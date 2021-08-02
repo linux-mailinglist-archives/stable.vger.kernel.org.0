@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BF9B3DD8C8
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:55:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD35E3DD97F
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 16:00:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234284AbhHBNz2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:55:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33012 "EHLO mail.kernel.org"
+        id S234992AbhHBOAj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 10:00:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235027AbhHBNxM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:53:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BFAA761029;
-        Mon,  2 Aug 2021 13:52:09 +0000 (UTC)
+        id S236286AbhHBN7S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:59:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 130D961154;
+        Mon,  2 Aug 2021 13:55:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912330;
-        bh=iSLtEkpFk9MrEizFwbezePfuZzbMzIi/nyefbTUI4D8=;
+        s=korg; t=1627912537;
+        bh=oX4bt3aMhM2CYDvV680uKXCAwQn1fcA/pgcZgVoIkMY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fryrE0fQySrYC4/NFP6O9l+jENlA0k+gC8mUc1q1LUTUxIFXQiZIUJ8xoDlZKdXT3
-         eiMX8dUzQRBZFsc9pAobotJ5vwcDy4K/iWIjyiMtTou1yMUfaj/IJ2fufL3E9Q/C6I
-         YIiVqH3h0dn4CcuzrjW1JQEjwWdw71ppr09U5R1Q=
+        b=vlpI2+yfiMTz8wD8aYjmMhix4TkoqpQiIFZ48kOCFBukdjne0S3hJRqfuVhjo2r+X
+         Qszvmmzdi3/tgamzMpzuN8HeIQYBXX5RXBj3N6Kb/1b8yTYsMjhlHldOVb7jsxAoT6
+         gIPFHeN5f3H0vgI4vfGNx26r0lQprjMqB448XPbM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Junxiao Bi <junxiao.bi@oracle.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 11/67] ocfs2: issue zeroout to EOF blocks
+        stable@vger.kernel.org,
+        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 037/104] platform/x86: amd-pmc: Fix SMU firmware reporting mechanism
 Date:   Mon,  2 Aug 2021 15:44:34 +0200
-Message-Id: <20210802134339.402337965@linuxfoundation.org>
+Message-Id: <20210802134345.240210722@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134339.023067817@linuxfoundation.org>
-References: <20210802134339.023067817@linuxfoundation.org>
+In-Reply-To: <20210802134344.028226640@linuxfoundation.org>
+References: <20210802134344.028226640@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,186 +41,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Junxiao Bi <junxiao.bi@oracle.com>
+From: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
 
-commit 9449ad33be8480f538b11a593e2dda2fb33ca06d upstream.
+[ Upstream commit 4c06d35dfedf4c1fd03702e0f05292a69d020e21 ]
 
-For punch holes in EOF blocks, fallocate used buffer write to zero the
-EOF blocks in last cluster.  But since ->writepage will ignore EOF
-pages, those zeros will not be flushed.
+It was lately understood that the current mechanism available in the
+driver to get SMU firmware info works only on internal SMU builds and
+there is a separate way to get all the SMU logging counters (addressed
+in the next patch). Hence remove all the smu info shown via debugfs as it
+is no more useful.
 
-This "looks" ok as commit 6bba4471f0cc ("ocfs2: fix data corruption by
-fallocate") will zero the EOF blocks when extend the file size, but it
-isn't.  The problem happened on those EOF pages, before writeback, those
-pages had DIRTY flag set and all buffer_head in them also had DIRTY flag
-set, when writeback run by write_cache_pages(), DIRTY flag on the page
-was cleared, but DIRTY flag on the buffer_head not.
-
-When next write happened to those EOF pages, since buffer_head already
-had DIRTY flag set, it would not mark page DIRTY again.  That made
-writeback ignore them forever.  That will cause data corruption.  Even
-directio write can't work because it will fail when trying to drop pages
-caches before direct io, as it found the buffer_head for those pages
-still had DIRTY flag set, then it will fall back to buffer io mode.
-
-To make a summary of the issue, as writeback ingores EOF pages, once any
-EOF page is generated, any write to it will only go to the page cache,
-it will never be flushed to disk even file size extends and that page is
-not EOF page any more.  The fix is to avoid zero EOF blocks with buffer
-write.
-
-The following code snippet from qemu-img could trigger the corruption.
-
-  656   open("6b3711ae-3306-4bdd-823c-cf1c0060a095.conv.2", O_RDWR|O_DIRECT|O_CLOEXEC) = 11
-  ...
-  660   fallocate(11, FALLOC_FL_KEEP_SIZE|FALLOC_FL_PUNCH_HOLE, 2275868672, 327680 <unfinished ...>
-  660   fallocate(11, 0, 2275868672, 327680) = 0
-  658   pwrite64(11, "
-
-Link: https://lkml.kernel.org/r/20210722054923.24389-2-junxiao.bi@oracle.com
-Signed-off-by: Junxiao Bi <junxiao.bi@oracle.com>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 156ec4731cb2 ("platform/x86: amd-pmc: Add AMD platform support for S2Idle")
+Signed-off-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20210629084803.248498-3-Shyam-sundar.S-k@amd.com
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/file.c |   99 +++++++++++++++++++++++++++++++++-----------------------
- 1 file changed, 60 insertions(+), 39 deletions(-)
+ drivers/platform/x86/amd-pmc.c | 10 ----------
+ 1 file changed, 10 deletions(-)
 
---- a/fs/ocfs2/file.c
-+++ b/fs/ocfs2/file.c
-@@ -1529,6 +1529,45 @@ static void ocfs2_truncate_cluster_pages
- 	}
- }
+diff --git a/drivers/platform/x86/amd-pmc.c b/drivers/platform/x86/amd-pmc.c
+index 1b5f149932c1..b1d6175a13b2 100644
+--- a/drivers/platform/x86/amd-pmc.c
++++ b/drivers/platform/x86/amd-pmc.c
+@@ -52,7 +52,6 @@
+ #define AMD_CPU_ID_PCO			AMD_CPU_ID_RV
+ #define AMD_CPU_ID_CZN			AMD_CPU_ID_RN
  
-+/*
-+ * zero out partial blocks of one cluster.
-+ *
-+ * start: file offset where zero starts, will be made upper block aligned.
-+ * len: it will be trimmed to the end of current cluster if "start + len"
-+ *      is bigger than it.
-+ */
-+static int ocfs2_zeroout_partial_cluster(struct inode *inode,
-+					u64 start, u64 len)
-+{
-+	int ret;
-+	u64 start_block, end_block, nr_blocks;
-+	u64 p_block, offset;
-+	u32 cluster, p_cluster, nr_clusters;
-+	struct super_block *sb = inode->i_sb;
-+	u64 end = ocfs2_align_bytes_to_clusters(sb, start);
-+
-+	if (start + len < end)
-+		end = start + len;
-+
-+	start_block = ocfs2_blocks_for_bytes(sb, start);
-+	end_block = ocfs2_blocks_for_bytes(sb, end);
-+	nr_blocks = end_block - start_block;
-+	if (!nr_blocks)
-+		return 0;
-+
-+	cluster = ocfs2_bytes_to_clusters(sb, start);
-+	ret = ocfs2_get_clusters(inode, cluster, &p_cluster,
-+				&nr_clusters, NULL);
-+	if (ret)
-+		return ret;
-+	if (!p_cluster)
-+		return 0;
-+
-+	offset = start_block - ocfs2_clusters_to_blocks(sb, cluster);
-+	p_block = ocfs2_clusters_to_blocks(sb, p_cluster) + offset;
-+	return sb_issue_zeroout(sb, p_block, nr_blocks, GFP_NOFS);
-+}
-+
- static int ocfs2_zero_partial_clusters(struct inode *inode,
- 				       u64 start, u64 len)
+-#define AMD_SMU_FW_VERSION		0x0
+ #define PMC_MSG_DELAY_MIN_US		100
+ #define RESPONSE_REGISTER_LOOP_MAX	200
+ 
+@@ -89,11 +88,6 @@ static inline void amd_pmc_reg_write(struct amd_pmc_dev *dev, int reg_offset, u3
+ #ifdef CONFIG_DEBUG_FS
+ static int smu_fw_info_show(struct seq_file *s, void *unused)
  {
-@@ -1538,6 +1577,7 @@ static int ocfs2_zero_partial_clusters(s
- 	struct ocfs2_super *osb = OCFS2_SB(inode->i_sb);
- 	unsigned int csize = osb->s_clustersize;
- 	handle_t *handle;
-+	loff_t isize = i_size_read(inode);
- 
- 	/*
- 	 * The "start" and "end" values are NOT necessarily part of
-@@ -1558,6 +1598,26 @@ static int ocfs2_zero_partial_clusters(s
- 	if ((start & (csize - 1)) == 0 && (end & (csize - 1)) == 0)
- 		goto out;
- 
-+	/* No page cache for EOF blocks, issue zero out to disk. */
-+	if (end > isize) {
-+		/*
-+		 * zeroout eof blocks in last cluster starting from
-+		 * "isize" even "start" > "isize" because it is
-+		 * complicated to zeroout just at "start" as "start"
-+		 * may be not aligned with block size, buffer write
-+		 * would be required to do that, but out of eof buffer
-+		 * write is not supported.
-+		 */
-+		ret = ocfs2_zeroout_partial_cluster(inode, isize,
-+					end - isize);
-+		if (ret) {
-+			mlog_errno(ret);
-+			goto out;
-+		}
-+		if (start >= isize)
-+			goto out;
-+		end = isize;
-+	}
- 	handle = ocfs2_start_trans(osb, OCFS2_INODE_UPDATE_CREDITS);
- 	if (IS_ERR(handle)) {
- 		ret = PTR_ERR(handle);
-@@ -1856,45 +1916,6 @@ out:
+-	struct amd_pmc_dev *dev = s->private;
+-	u32 value;
+-
+-	value = ioread32(dev->smu_base + AMD_SMU_FW_VERSION);
+-	seq_printf(s, "SMU FW Info: %x\n", value);
+ 	return 0;
  }
+ DEFINE_SHOW_ATTRIBUTE(smu_fw_info);
+@@ -280,10 +274,6 @@ static int amd_pmc_probe(struct platform_device *pdev)
+ 	pci_dev_put(rdev);
+ 	base_addr = ((u64)base_addr_hi << 32 | base_addr_lo);
  
- /*
-- * zero out partial blocks of one cluster.
-- *
-- * start: file offset where zero starts, will be made upper block aligned.
-- * len: it will be trimmed to the end of current cluster if "start + len"
-- *      is bigger than it.
-- */
--static int ocfs2_zeroout_partial_cluster(struct inode *inode,
--					u64 start, u64 len)
--{
--	int ret;
--	u64 start_block, end_block, nr_blocks;
--	u64 p_block, offset;
--	u32 cluster, p_cluster, nr_clusters;
--	struct super_block *sb = inode->i_sb;
--	u64 end = ocfs2_align_bytes_to_clusters(sb, start);
+-	dev->smu_base = devm_ioremap(dev->dev, base_addr, AMD_PMC_MAPPING_SIZE);
+-	if (!dev->smu_base)
+-		return -ENOMEM;
 -
--	if (start + len < end)
--		end = start + len;
--
--	start_block = ocfs2_blocks_for_bytes(sb, start);
--	end_block = ocfs2_blocks_for_bytes(sb, end);
--	nr_blocks = end_block - start_block;
--	if (!nr_blocks)
--		return 0;
--
--	cluster = ocfs2_bytes_to_clusters(sb, start);
--	ret = ocfs2_get_clusters(inode, cluster, &p_cluster,
--				&nr_clusters, NULL);
--	if (ret)
--		return ret;
--	if (!p_cluster)
--		return 0;
--
--	offset = start_block - ocfs2_clusters_to_blocks(sb, cluster);
--	p_block = ocfs2_clusters_to_blocks(sb, p_cluster) + offset;
--	return sb_issue_zeroout(sb, p_block, nr_blocks, GFP_NOFS);
--}
--
--/*
-  * Parts of this function taken from xfs_change_file_space()
-  */
- static int __ocfs2_change_file_space(struct file *file, struct inode *inode,
+ 	dev->regbase = devm_ioremap(dev->dev, base_addr + AMD_PMC_BASE_ADDR_OFFSET,
+ 				    AMD_PMC_MAPPING_SIZE);
+ 	if (!dev->regbase)
+-- 
+2.30.2
+
 
 
