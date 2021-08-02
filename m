@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1396F3DD885
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:52:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7070A3DD847
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:50:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235298AbhHBNw4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:52:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34364 "EHLO mail.kernel.org"
+        id S234431AbhHBNvB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:51:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235139AbhHBNvf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:51:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6A5C3610FE;
-        Mon,  2 Aug 2021 13:51:00 +0000 (UTC)
+        id S234776AbhHBNuH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:50:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3BE62610A2;
+        Mon,  2 Aug 2021 13:49:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912260;
-        bh=2jn9FWGO1qoY5uU5T2PrJ4ffgaBkKIi44ZJygy7kA24=;
+        s=korg; t=1627912197;
+        bh=DlpeUvM4nbaj/m4gPxOY/yQNRlt01m766oZv6prERtc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2TSJA7g08YbZKBU07RDv9TkvXObzmwlYdL5s11CO73hzZ+GVVkf1LTsTV0fKUUe+x
-         AdwckGcNvLSf7kivzXmGJoG9W35APr1KIouO4KF8i/fBrp8o0eDe5c54i60TI+paFk
-         RkoGVAfVCZdO8JizGkKJXY1bkp0hgU/9Q6QAdD3s=
+        b=dt4q2RE1MaR6UX8LGK0jIUE49zqJm6FXcgsRvdDedA+/sHHh3xpgB9t9mISAAhJCi
+         qKMQfXVKH2MHkeWynKBZxxpgBvKptnNZVhMYBGpb52Su2YcGpolX0HfJ07JGVCyek+
+         ughHqu3VoGvw0/ti5N4lgAY2LOJRsyGtTcCZ+jhY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 20/40] netfilter: conntrack: adjust stop timestamp to real expiry value
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+5e5a981ad7cc54c4b2b4@syzkaller.appspotmail.com
+Subject: [PATCH 4.19 22/30] net: llc: fix skb_over_panic
 Date:   Mon,  2 Aug 2021 15:45:00 +0200
-Message-Id: <20210802134336.035104638@linuxfoundation.org>
+Message-Id: <20210802134334.774370788@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134335.408294521@linuxfoundation.org>
-References: <20210802134335.408294521@linuxfoundation.org>
+In-Reply-To: <20210802134334.081433902@linuxfoundation.org>
+References: <20210802134334.081433902@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,42 +41,159 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 30a56a2b881821625f79837d4d968c679852444e ]
+[ Upstream commit c7c9d2102c9c098916ab9e0ab248006107d00d6c ]
 
-In case the entry is evicted via garbage collection there is
-delay between the timeout value and the eviction event.
+Syzbot reported skb_over_panic() in llc_pdu_init_as_xid_cmd(). The
+problem was in wrong LCC header manipulations.
 
-This adjusts the stop value based on how much time has passed.
+Syzbot's reproducer tries to send XID packet. llc_ui_sendmsg() is
+doing following steps:
 
-Fixes: b87a2f9199ea82 ("netfilter: conntrack: add gc worker to remove timed-out entries")
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+	1. skb allocation with size = len + header size
+		len is passed from userpace and header size
+		is 3 since addr->sllc_xid is set.
+
+	2. skb_reserve() for header_len = 3
+	3. filling all other space with memcpy_from_msg()
+
+Ok, at this moment we have fully loaded skb, only headers needs to be
+filled.
+
+Then code comes to llc_sap_action_send_xid_c(). This function pushes 3
+bytes for LLC PDU header and initializes it. Then comes
+llc_pdu_init_as_xid_cmd(). It initalizes next 3 bytes *AFTER* LLC PDU
+header and call skb_push(skb, 3). This looks wrong for 2 reasons:
+
+	1. Bytes rigth after LLC header are user data, so this function
+	   was overwriting payload.
+
+	2. skb_push(skb, 3) call can cause skb_over_panic() since
+	   all free space was filled in llc_ui_sendmsg(). (This can
+	   happen is user passed 686 len: 686 + 14 (eth header) + 3 (LLC
+	   header) = 703. SKB_DATA_ALIGN(703) = 704)
+
+So, in this patch I added 2 new private constansts: LLC_PDU_TYPE_U_XID
+and LLC_PDU_LEN_U_XID. LLC_PDU_LEN_U_XID is used to correctly reserve
+header size to handle LLC + XID case. LLC_PDU_TYPE_U_XID is used by
+llc_pdu_header_init() function to push 6 bytes instead of 3. And finally
+I removed skb_push() call from llc_pdu_init_as_xid_cmd().
+
+This changes should not affect other parts of LLC, since after
+all steps we just transmit buffer.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reported-and-tested-by: syzbot+5e5a981ad7cc54c4b2b4@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_conntrack_core.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ include/net/llc_pdu.h | 31 +++++++++++++++++++++++--------
+ net/llc/af_llc.c      | 10 +++++++++-
+ net/llc/llc_s_ac.c    |  2 +-
+ 3 files changed, 33 insertions(+), 10 deletions(-)
 
-diff --git a/net/netfilter/nf_conntrack_core.c b/net/netfilter/nf_conntrack_core.c
-index 9a40312b1f16..4a988ce4264c 100644
---- a/net/netfilter/nf_conntrack_core.c
-+++ b/net/netfilter/nf_conntrack_core.c
-@@ -660,8 +660,13 @@ bool nf_ct_delete(struct nf_conn *ct, u32 portid, int report)
- 		return false;
+diff --git a/include/net/llc_pdu.h b/include/net/llc_pdu.h
+index c0f0a13ed818..49aa79c7b278 100644
+--- a/include/net/llc_pdu.h
++++ b/include/net/llc_pdu.h
+@@ -15,9 +15,11 @@
+ #include <linux/if_ether.h>
  
- 	tstamp = nf_conn_tstamp_find(ct);
--	if (tstamp && tstamp->stop == 0)
-+	if (tstamp) {
-+		s32 timeout = ct->timeout - nfct_time_stamp;
-+
- 		tstamp->stop = ktime_get_real_ns();
-+		if (timeout < 0)
-+			tstamp->stop -= jiffies_to_nsecs(-timeout);
+ /* Lengths of frame formats */
+-#define LLC_PDU_LEN_I	4       /* header and 2 control bytes */
+-#define LLC_PDU_LEN_S	4
+-#define LLC_PDU_LEN_U	3       /* header and 1 control byte */
++#define LLC_PDU_LEN_I		4       /* header and 2 control bytes */
++#define LLC_PDU_LEN_S		4
++#define LLC_PDU_LEN_U		3       /* header and 1 control byte */
++/* header and 1 control byte and XID info */
++#define LLC_PDU_LEN_U_XID	(LLC_PDU_LEN_U + sizeof(struct llc_xid_info))
+ /* Known SAP addresses */
+ #define LLC_GLOBAL_SAP	0xFF
+ #define LLC_NULL_SAP	0x00	/* not network-layer visible */
+@@ -50,9 +52,10 @@
+ #define LLC_PDU_TYPE_U_MASK    0x03	/* 8-bit control field */
+ #define LLC_PDU_TYPE_MASK      0x03
+ 
+-#define LLC_PDU_TYPE_I	0	/* first bit */
+-#define LLC_PDU_TYPE_S	1	/* first two bits */
+-#define LLC_PDU_TYPE_U	3	/* first two bits */
++#define LLC_PDU_TYPE_I		0	/* first bit */
++#define LLC_PDU_TYPE_S		1	/* first two bits */
++#define LLC_PDU_TYPE_U		3	/* first two bits */
++#define LLC_PDU_TYPE_U_XID	4	/* private type for detecting XID commands */
+ 
+ #define LLC_PDU_TYPE_IS_I(pdu) \
+ 	((!(pdu->ctrl_1 & LLC_PDU_TYPE_I_MASK)) ? 1 : 0)
+@@ -230,9 +233,18 @@ static inline struct llc_pdu_un *llc_pdu_un_hdr(struct sk_buff *skb)
+ static inline void llc_pdu_header_init(struct sk_buff *skb, u8 type,
+ 				       u8 ssap, u8 dsap, u8 cr)
+ {
+-	const int hlen = type == LLC_PDU_TYPE_U ? 3 : 4;
++	int hlen = 4; /* default value for I and S types */
+ 	struct llc_pdu_un *pdu;
+ 
++	switch (type) {
++	case LLC_PDU_TYPE_U:
++		hlen = 3;
++		break;
++	case LLC_PDU_TYPE_U_XID:
++		hlen = 6;
++		break;
 +	}
++
+ 	skb_push(skb, hlen);
+ 	skb_reset_network_header(skb);
+ 	pdu = llc_pdu_un_hdr(skb);
+@@ -374,7 +386,10 @@ static inline void llc_pdu_init_as_xid_cmd(struct sk_buff *skb,
+ 	xid_info->fmt_id = LLC_XID_FMT_ID;	/* 0x81 */
+ 	xid_info->type	 = svcs_supported;
+ 	xid_info->rw	 = rx_window << 1;	/* size of receive window */
+-	skb_put(skb, sizeof(struct llc_xid_info));
++
++	/* no need to push/put since llc_pdu_header_init() has already
++	 * pushed 3 + 3 bytes
++	 */
+ }
  
- 	if (nf_conntrack_event_report(IPCT_DESTROY, ct,
- 				    portid, report) < 0) {
+ /**
+diff --git a/net/llc/af_llc.c b/net/llc/af_llc.c
+index bcba579e292f..89a3dc7d5d40 100644
+--- a/net/llc/af_llc.c
++++ b/net/llc/af_llc.c
+@@ -98,8 +98,16 @@ static inline u8 llc_ui_header_len(struct sock *sk, struct sockaddr_llc *addr)
+ {
+ 	u8 rc = LLC_PDU_LEN_U;
+ 
+-	if (addr->sllc_test || addr->sllc_xid)
++	if (addr->sllc_test)
+ 		rc = LLC_PDU_LEN_U;
++	else if (addr->sllc_xid)
++		/* We need to expand header to sizeof(struct llc_xid_info)
++		 * since llc_pdu_init_as_xid_cmd() sets 4,5,6 bytes of LLC header
++		 * as XID PDU. In llc_ui_sendmsg() we reserved header size and then
++		 * filled all other space with user data. If we won't reserve this
++		 * bytes, llc_pdu_init_as_xid_cmd() will overwrite user data
++		 */
++		rc = LLC_PDU_LEN_U_XID;
+ 	else if (sk->sk_type == SOCK_STREAM)
+ 		rc = LLC_PDU_LEN_I;
+ 	return rc;
+diff --git a/net/llc/llc_s_ac.c b/net/llc/llc_s_ac.c
+index 7ae4cc684d3a..9fa3342c7a82 100644
+--- a/net/llc/llc_s_ac.c
++++ b/net/llc/llc_s_ac.c
+@@ -79,7 +79,7 @@ int llc_sap_action_send_xid_c(struct llc_sap *sap, struct sk_buff *skb)
+ 	struct llc_sap_state_ev *ev = llc_sap_ev(skb);
+ 	int rc;
+ 
+-	llc_pdu_header_init(skb, LLC_PDU_TYPE_U, ev->saddr.lsap,
++	llc_pdu_header_init(skb, LLC_PDU_TYPE_U_XID, ev->saddr.lsap,
+ 			    ev->daddr.lsap, LLC_PDU_CMD);
+ 	llc_pdu_init_as_xid_cmd(skb, LLC_XID_NULL_CLASS_2, 0);
+ 	rc = llc_mac_hdr_init(skb, ev->saddr.mac, ev->daddr.mac);
 -- 
 2.30.2
 
