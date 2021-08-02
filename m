@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 87B1E3DD81F
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:49:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36C553DD87D
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:52:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234743AbhHBNty (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:49:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60706 "EHLO mail.kernel.org"
+        id S235124AbhHBNww (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:52:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233719AbhHBNta (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:49:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6C7D960FA0;
-        Mon,  2 Aug 2021 13:49:20 +0000 (UTC)
+        id S235117AbhHBNvc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:51:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 10D8D60F50;
+        Mon,  2 Aug 2021 13:50:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912160;
-        bh=QnfZFrJxQUEGBbtwaQ6h3iB1rrwG0NwCaCY4gQllYVY=;
+        s=korg; t=1627912256;
+        bh=1lXYdALOl7aLdgSDwhY3HsBeZnHOG09Cs7MGMZDAqrE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x361RwUKz5Glr0TNyJ4tP1sH+73L/V1LZuTU94PEYIIf21anYwtg8CuFS5mHEbqhe
-         JIjJEmu4nEYTAEGgTXovA25venFllnWoTKh3M+V1ejMFkOA6mezk+c/7gjKCWwWtzV
-         4cD9V0t7oUo8EOUpE+fIsBY01teeQXMibG9jYmII=
+        b=GENGJmGC/DWH7F2QS1gdjJAxJvaUyGM0Vsy7KoFEnHVc+68iRlRkApEgqX4n74wDf
+         SjggWG69UxuvRAsbiiNFy27sCOQQXYND3/a3StP71lHB3k0pdB9hY80LAVpntJZ9Th
+         Z6RQbCSxAyvyPD/0mJXbz8nlqN58A+AEtbi9OJVQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wang Hai <wanghai38@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 36/38] sis900: Fix missing pci_disable_device() in probe and remove
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 18/40] nfc: nfcsim: fix use after free during module unload
 Date:   Mon,  2 Aug 2021 15:44:58 +0200
-Message-Id: <20210802134335.968857303@linuxfoundation.org>
+Message-Id: <20210802134335.971241777@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134334.835358048@linuxfoundation.org>
-References: <20210802134334.835358048@linuxfoundation.org>
+In-Reply-To: <20210802134335.408294521@linuxfoundation.org>
+References: <20210802134335.408294521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,64 +40,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
-[ Upstream commit 89fb62fde3b226f99b7015280cf132e2a7438edf ]
+commit 5e7b30d24a5b8cb691c173b45b50e3ca0191be19 upstream.
 
-Replace pci_enable_device() with pcim_enable_device(),
-pci_disable_device() and pci_release_regions() will be
-called in release automatically.
+There is a use after free memory corruption during module exit:
+ - nfcsim_exit()
+  - nfcsim_device_free(dev0)
+    - nfc_digital_unregister_device()
+      This iterates over command queue and frees all commands,
+    - dev->up = false
+    - nfcsim_link_shutdown()
+      - nfcsim_link_recv_wake()
+        This wakes the sleeping thread nfcsim_link_recv_skb().
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
+ - nfcsim_link_recv_skb()
+   Wake from wait_event_interruptible_timeout(),
+   call directly the deb->cb callback even though (dev->up == false),
+   - digital_send_cmd_complete()
+     Dereference of "struct digital_cmd" cmd which was freed earlier by
+     nfc_digital_unregister_device().
+
+This causes memory corruption shortly after (with unrelated stack
+trace):
+
+  nfc nfc0: NFC: nfcsim_recv_wq: Device is down
+  llcp: nfc_llcp_recv: err -19
+  nfc nfc1: NFC: nfcsim_recv_wq: Device is down
+  BUG: unable to handle page fault for address: ffffffffffffffed
+  Call Trace:
+   fsnotify+0x54b/0x5c0
+   __fsnotify_parent+0x1fe/0x300
+   ? vfs_write+0x27c/0x390
+   vfs_write+0x27c/0x390
+   ksys_write+0x63/0xe0
+   do_syscall_64+0x3b/0x90
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+KASAN report:
+
+  BUG: KASAN: use-after-free in digital_send_cmd_complete+0x16/0x50
+  Write of size 8 at addr ffff88800a05f720 by task kworker/0:2/71
+  Workqueue: events nfcsim_recv_wq [nfcsim]
+  Call Trace:
+   dump_stack_lvl+0x45/0x59
+   print_address_description.constprop.0+0x21/0x140
+   ? digital_send_cmd_complete+0x16/0x50
+   ? digital_send_cmd_complete+0x16/0x50
+   kasan_report.cold+0x7f/0x11b
+   ? digital_send_cmd_complete+0x16/0x50
+   ? digital_dep_link_down+0x60/0x60
+   digital_send_cmd_complete+0x16/0x50
+   nfcsim_recv_wq+0x38f/0x3d5 [nfcsim]
+   ? nfcsim_in_send_cmd+0x4a/0x4a [nfcsim]
+   ? lock_is_held_type+0x98/0x110
+   ? finish_wait+0x110/0x110
+   ? rcu_read_lock_sched_held+0x9c/0xd0
+   ? rcu_read_lock_bh_held+0xb0/0xb0
+   ? lockdep_hardirqs_on_prepare+0x12e/0x1f0
+
+This flow of calling digital_send_cmd_complete() callback on driver exit
+is specific to nfcsim which implements reading and sending work queues.
+Since the NFC digital device was unregistered, the callback should not
+be called.
+
+Fixes: 204bddcb508f ("NFC: nfcsim: Make use of the Digital layer")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/sis/sis900.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ drivers/nfc/nfcsim.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/sis/sis900.c b/drivers/net/ethernet/sis/sis900.c
-index 43b090f61cdc..aebc85a5e08a 100644
---- a/drivers/net/ethernet/sis/sis900.c
-+++ b/drivers/net/ethernet/sis/sis900.c
-@@ -441,7 +441,7 @@ static int sis900_probe(struct pci_dev *pci_dev,
- #endif
+--- a/drivers/nfc/nfcsim.c
++++ b/drivers/nfc/nfcsim.c
+@@ -192,8 +192,7 @@ static void nfcsim_recv_wq(struct work_s
  
- 	/* setup various bits in PCI command register */
--	ret = pci_enable_device(pci_dev);
-+	ret = pcim_enable_device(pci_dev);
- 	if(ret) return ret;
- 
- 	i = pci_set_dma_mask(pci_dev, DMA_BIT_MASK(32));
-@@ -467,7 +467,7 @@ static int sis900_probe(struct pci_dev *pci_dev,
- 	ioaddr = pci_iomap(pci_dev, 0, 0);
- 	if (!ioaddr) {
- 		ret = -ENOMEM;
--		goto err_out_cleardev;
-+		goto err_out;
+ 		if (!IS_ERR(skb))
+ 			dev_kfree_skb(skb);
+-
+-		skb = ERR_PTR(-ENODEV);
++		return;
  	}
  
- 	sis_priv = netdev_priv(net_dev);
-@@ -575,8 +575,6 @@ err_unmap_tx:
- 		sis_priv->tx_ring_dma);
- err_out_unmap:
- 	pci_iounmap(pci_dev, ioaddr);
--err_out_cleardev:
--	pci_release_regions(pci_dev);
-  err_out:
- 	free_netdev(net_dev);
- 	return ret;
-@@ -2423,7 +2421,6 @@ static void sis900_remove(struct pci_dev *pci_dev)
- 		sis_priv->tx_ring_dma);
- 	pci_iounmap(pci_dev, sis_priv->ioaddr);
- 	free_netdev(net_dev);
--	pci_release_regions(pci_dev);
- }
- 
- #ifdef CONFIG_PM
--- 
-2.30.2
-
+ 	dev->cb(dev->nfc_digital_dev, dev->arg, skb);
 
 
