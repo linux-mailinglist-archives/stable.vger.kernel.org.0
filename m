@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC18A3DD816
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:49:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7E793DD9A8
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 16:02:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234440AbhHBNto (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:49:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58622 "EHLO mail.kernel.org"
+        id S235758AbhHBOCS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 10:02:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234617AbhHBNst (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:48:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E378D60FF2;
-        Mon,  2 Aug 2021 13:48:38 +0000 (UTC)
+        id S236907AbhHBOAE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 10:00:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D0D4F611C0;
+        Mon,  2 Aug 2021 13:56:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912119;
-        bh=0nkrGKpUTHXQsWkRKwRjM7B0LGQap7dtgrYiB5EGdlk=;
+        s=korg; t=1627912566;
+        bh=JVRvvpINC5kk+0QNBhD3y5xoeFxtrVrWwGd2uzlosz0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SyxFLJjGuhwejle4sclD7qiclpOjzUWxeW8w4BDytZSr1m7A4tHAGjDJu+493hLmK
-         TMk39Wk6qLiwY0zvLSyspy/2h4Hq0iG5K3taT+SuHqcHcNqRulyFiVKl3T1JlPtZOX
-         wwXpPQjBylzH/9LGKkFmo3H5H1OrjfGbO/hHYbgQ=
+        b=wx1o14XtRs3GJIJx+RKj1COad66xcxvnp2C8GvaPeWWHUkXqJYOm8ioNgJ8j+NLFq
+         b3zlj1JEJyFurPo6/d/jfJ+51/N7l45fX1+Av81z4bit0bJy70oWEesV2JXUEIyG4F
+         0MGaZxJPE0pp0T0qvVCO0oBU3riqgEn0sFfdYfCo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        Shannon Nelson <shannon.lee.nelson@gmail.com>,
+        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
+        Jon Maloy <jmaloy@redhat.com>,
         "David S. Miller" <davem@davemloft.net>,
-        Paul Jakma <paul@jakma.org>
-Subject: [PATCH 4.14 24/38] NIU: fix incorrect error return, missed in previous revert
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 049/104] tipc: fix implicit-connect for SYN+
 Date:   Mon,  2 Aug 2021 15:44:46 +0200
-Message-Id: <20210802134335.592848179@linuxfoundation.org>
+Message-Id: <20210802134345.646497104@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134334.835358048@linuxfoundation.org>
-References: <20210802134334.835358048@linuxfoundation.org>
+In-Reply-To: <20210802134344.028226640@linuxfoundation.org>
+References: <20210802134344.028226640@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +41,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Jakma <paul@jakma.org>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit 15bbf8bb4d4ab87108ecf5f4155ec8ffa3c141d6 upstream.
+[ Upstream commit f8dd60de194817c86bf812700980762bb5a8d9a4 ]
 
-Commit 7930742d6, reverting 26fd962, missed out on reverting an incorrect
-change to a return value.  The niu_pci_vpd_scan_props(..) == 1 case appears
-to be a normal path - treating it as an error and return -EINVAL was
-breaking VPD_SCAN and causing the driver to fail to load.
+For implicit-connect, when it's either SYN- or SYN+, an ACK should
+be sent back to the client immediately. It's not appropriate for
+the client to enter established state only after receiving data
+from the server.
 
-Fix, so my Neptune card works again.
+On client side, after the SYN is sent out, tipc_wait_for_connect()
+should be called to wait for the ACK if timeout is set.
 
-Cc: Kangjie Lu <kjlu@umn.edu>
-Cc: Shannon Nelson <shannon.lee.nelson@gmail.com>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: stable <stable@vger.kernel.org>
-Fixes: 7930742d ('Revert "niu: fix missing checks of niu_pci_eeprom_read"')
-Signed-off-by: Paul Jakma <paul@jakma.org>
+This patch also restricts __tipc_sendstream() to call __sendmsg()
+only when it's in TIPC_OPEN state, so that the client can program
+in a single loop doing both connecting and data sending like:
+
+  for (...)
+      sendmsg(dest, buf);
+
+This makes the implicit-connect more implicit.
+
+Fixes: b97bf3fd8f6a ("[TIPC] Initial merge")
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: Jon Maloy <jmaloy@redhat.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/sun/niu.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/tipc/socket.c | 21 +++++++++++++--------
+ 1 file changed, 13 insertions(+), 8 deletions(-)
 
---- a/drivers/net/ethernet/sun/niu.c
-+++ b/drivers/net/ethernet/sun/niu.c
-@@ -8211,8 +8211,9 @@ static int niu_pci_vpd_fetch(struct niu
- 		err = niu_pci_vpd_scan_props(np, here, end);
- 		if (err < 0)
- 			return err;
-+		/* ret == 1 is not an error */
- 		if (err == 1)
--			return -EINVAL;
-+			return 0;
+diff --git a/net/tipc/socket.c b/net/tipc/socket.c
+index 53af72824c9c..c52b0d00887b 100644
+--- a/net/tipc/socket.c
++++ b/net/tipc/socket.c
+@@ -160,6 +160,7 @@ static void tipc_sk_remove(struct tipc_sock *tsk);
+ static int __tipc_sendstream(struct socket *sock, struct msghdr *m, size_t dsz);
+ static int __tipc_sendmsg(struct socket *sock, struct msghdr *m, size_t dsz);
+ static void tipc_sk_push_backlog(struct tipc_sock *tsk, bool nagle_ack);
++static int tipc_wait_for_connect(struct socket *sock, long *timeo_p);
+ 
+ static const struct proto_ops packet_ops;
+ static const struct proto_ops stream_ops;
+@@ -1525,8 +1526,13 @@ static int __tipc_sendmsg(struct socket *sock, struct msghdr *m, size_t dlen)
+ 		rc = 0;
  	}
- 	return 0;
+ 
+-	if (unlikely(syn && !rc))
++	if (unlikely(syn && !rc)) {
+ 		tipc_set_sk_state(sk, TIPC_CONNECTING);
++		if (timeout) {
++			timeout = msecs_to_jiffies(timeout);
++			tipc_wait_for_connect(sock, &timeout);
++		}
++	}
+ 
+ 	return rc ? rc : dlen;
  }
+@@ -1574,7 +1580,7 @@ static int __tipc_sendstream(struct socket *sock, struct msghdr *m, size_t dlen)
+ 		return -EMSGSIZE;
+ 
+ 	/* Handle implicit connection setup */
+-	if (unlikely(dest)) {
++	if (unlikely(dest && sk->sk_state == TIPC_OPEN)) {
+ 		rc = __tipc_sendmsg(sock, m, dlen);
+ 		if (dlen && dlen == rc) {
+ 			tsk->peer_caps = tipc_node_get_capabilities(net, dnode);
+@@ -2708,9 +2714,10 @@ static int tipc_accept(struct socket *sock, struct socket *new_sock, int flags,
+ 		       bool kern)
+ {
+ 	struct sock *new_sk, *sk = sock->sk;
+-	struct sk_buff *buf;
+ 	struct tipc_sock *new_tsock;
++	struct msghdr m = {NULL,};
+ 	struct tipc_msg *msg;
++	struct sk_buff *buf;
+ 	long timeo;
+ 	int res;
+ 
+@@ -2755,19 +2762,17 @@ static int tipc_accept(struct socket *sock, struct socket *new_sock, int flags,
+ 	}
+ 
+ 	/*
+-	 * Respond to 'SYN-' by discarding it & returning 'ACK'-.
+-	 * Respond to 'SYN+' by queuing it on new socket.
++	 * Respond to 'SYN-' by discarding it & returning 'ACK'.
++	 * Respond to 'SYN+' by queuing it on new socket & returning 'ACK'.
+ 	 */
+ 	if (!msg_data_sz(msg)) {
+-		struct msghdr m = {NULL,};
+-
+ 		tsk_advance_rx_queue(sk);
+-		__tipc_sendstream(new_sock, &m, 0);
+ 	} else {
+ 		__skb_dequeue(&sk->sk_receive_queue);
+ 		__skb_queue_head(&new_sk->sk_receive_queue, buf);
+ 		skb_set_owner_r(buf, new_sk);
+ 	}
++	__tipc_sendstream(new_sock, &m, 0);
+ 	release_sock(new_sk);
+ exit:
+ 	release_sock(sk);
+-- 
+2.30.2
+
 
 
