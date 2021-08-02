@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F25223DD977
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 16:00:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EEA963DD7ED
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:48:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236095AbhHBOAe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 10:00:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40754 "EHLO mail.kernel.org"
+        id S234508AbhHBNsd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:48:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236293AbhHBN7S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:59:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D6F3B61101;
-        Mon,  2 Aug 2021 13:55:34 +0000 (UTC)
+        id S234497AbhHBNsR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:48:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0916E60FF2;
+        Mon,  2 Aug 2021 13:48:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912535;
-        bh=fFTB295NzYOz/Rd+1HQBqf+CP7sbJaWkDqBX1gL9IvU=;
+        s=korg; t=1627912088;
+        bh=WuzcneIIfGTT2mxr3UNm4I8v2xzTdf47LIJTCrgQ4HU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2rqTzuVwMBWaWNmu2rSxiSTLOWFBUkBR3rIwpVJMGAHq7Cx2DM22oTSXAIukoPYt6
-         Adq2MahM3rehD9tirtb3IhFlos0N2y5THUW7ptDpOy6pZvBZ3D4G7e5/jgNZPRkj/n
-         UXHZ1awggaw7RbpWP81gw3wucEYY2ZxcEzlwTClA=
+        b=bwrhfy9ICHbZ6h1mN7vhvqyjt+vPkg1ZWAX7BARCLxHytmp7YBIS826ENQG4pD0+I
+         xPMHvgfByQGLvDhNp0Zjzy6/HLDxeAHYyj2HZY42KDgj9Tyo0B99uSTxlzToXp6hAK
+         eZw4hCJWvCiVScOz3rbFPUmC2z9BHu0ahZsbZ35c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
-        Raul E Rangel <rrangel@chromium.org>,
-        Hans de Goede <hdegoede@redhat.com>,
+        Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
+        Viacheslav Dubeyko <slava@dubeyko.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 036/104] platform/x86: amd-pmc: Fix command completion code
+Subject: [PATCH 4.14 11/38] hfs: fix high memory mapping in hfs_bnode_read
 Date:   Mon,  2 Aug 2021 15:44:33 +0200
-Message-Id: <20210802134345.209372674@linuxfoundation.org>
+Message-Id: <20210802134335.194231488@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134344.028226640@linuxfoundation.org>
-References: <20210802134344.028226640@linuxfoundation.org>
+In-Reply-To: <20210802134334.835358048@linuxfoundation.org>
+References: <20210802134334.835358048@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,111 +46,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
 
-[ Upstream commit 95e1b60f8dc8f225b14619e9aca9bdd7d99167db ]
+[ Upstream commit 54a5ead6f5e2b47131a7385d0c0af18e7b89cb02 ]
 
-The protocol to submit a job request to SMU is to wait for
-AMD_PMC_REGISTER_RESPONSE to return 1,meaning SMU is ready to take
-requests. PMC driver has to make sure that the response code is always
-AMD_PMC_RESULT_OK before making any command submissions.
+Pages that we read in hfs_bnode_read need to be kmapped into kernel
+address space.  However, currently only the 0th page is kmapped.  If the
+given offset + length exceeds this 0th page, then we have an invalid
+memory access.
 
-When we submit a message to SMU, we have to wait until it processes
-the request. Adding a read_poll_timeout() check as this was missing in
-the existing code.
+To fix this, we kmap relevant pages one by one and copy their relevant
+portions of data.
 
-Also, add a mutex to protect amd_pmc_send_cmd() calls to SMU.
+An example of invalid memory access occurring without this fix can be seen
+in the following crash report:
 
-Fixes: 156ec4731cb2 ("platform/x86: amd-pmc: Add AMD platform support for S2Idle")
-Signed-off-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
-Acked-by: Raul E Rangel <rrangel@chromium.org>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20210629084803.248498-2-Shyam-sundar.S-k@amd.com
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+  ==================================================================
+  BUG: KASAN: use-after-free in memcpy include/linux/fortify-string.h:191 [inline]
+  BUG: KASAN: use-after-free in hfs_bnode_read+0xc4/0xe0 fs/hfs/bnode.c:26
+  Read of size 2 at addr ffff888125fdcffe by task syz-executor5/4634
+
+  CPU: 0 PID: 4634 Comm: syz-executor5 Not tainted 5.13.0-syzkaller #0
+  Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+  Call Trace:
+   __dump_stack lib/dump_stack.c:79 [inline]
+   dump_stack+0x195/0x1f8 lib/dump_stack.c:120
+   print_address_description.constprop.0+0x1d/0x110 mm/kasan/report.c:233
+   __kasan_report mm/kasan/report.c:419 [inline]
+   kasan_report.cold+0x7b/0xd4 mm/kasan/report.c:436
+   check_region_inline mm/kasan/generic.c:180 [inline]
+   kasan_check_range+0x154/0x1b0 mm/kasan/generic.c:186
+   memcpy+0x24/0x60 mm/kasan/shadow.c:65
+   memcpy include/linux/fortify-string.h:191 [inline]
+   hfs_bnode_read+0xc4/0xe0 fs/hfs/bnode.c:26
+   hfs_bnode_read_u16 fs/hfs/bnode.c:34 [inline]
+   hfs_bnode_find+0x880/0xcc0 fs/hfs/bnode.c:365
+   hfs_brec_find+0x2d8/0x540 fs/hfs/bfind.c:126
+   hfs_brec_read+0x27/0x120 fs/hfs/bfind.c:165
+   hfs_cat_find_brec+0x19a/0x3b0 fs/hfs/catalog.c:194
+   hfs_fill_super+0xc13/0x1460 fs/hfs/super.c:419
+   mount_bdev+0x331/0x3f0 fs/super.c:1368
+   hfs_mount+0x35/0x40 fs/hfs/super.c:457
+   legacy_get_tree+0x10c/0x220 fs/fs_context.c:592
+   vfs_get_tree+0x93/0x300 fs/super.c:1498
+   do_new_mount fs/namespace.c:2905 [inline]
+   path_mount+0x13f5/0x20e0 fs/namespace.c:3235
+   do_mount fs/namespace.c:3248 [inline]
+   __do_sys_mount fs/namespace.c:3456 [inline]
+   __se_sys_mount fs/namespace.c:3433 [inline]
+   __x64_sys_mount+0x2b8/0x340 fs/namespace.c:3433
+   do_syscall_64+0x37/0xc0 arch/x86/entry/common.c:47
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
+  RIP: 0033:0x45e63a
+  Code: 48 c7 c2 bc ff ff ff f7 d8 64 89 02 b8 ff ff ff ff eb d2 e8 88 04 00 00 0f 1f 84 00 00 00 00 00 49 89 ca b8 a5 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 bc ff ff ff f7 d8 64 89 01 48
+  RSP: 002b:00007f9404d410d8 EFLAGS: 00000246 ORIG_RAX: 00000000000000a5
+  RAX: ffffffffffffffda RBX: 0000000020000248 RCX: 000000000045e63a
+  RDX: 0000000020000000 RSI: 0000000020000100 RDI: 00007f9404d41120
+  RBP: 00007f9404d41120 R08: 00000000200002c0 R09: 0000000020000000
+  R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000003
+  R13: 0000000000000003 R14: 00000000004ad5d8 R15: 0000000000000000
+
+  The buggy address belongs to the page:
+  page:00000000dadbcf3e refcount:0 mapcount:0 mapping:0000000000000000 index:0x1 pfn:0x125fdc
+  flags: 0x2fffc0000000000(node=0|zone=2|lastcpupid=0x3fff)
+  raw: 02fffc0000000000 ffffea000497f748 ffffea000497f6c8 0000000000000000
+  raw: 0000000000000001 0000000000000000 00000000ffffffff 0000000000000000
+  page dumped because: kasan: bad access detected
+
+  Memory state around the buggy address:
+   ffff888125fdce80: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+   ffff888125fdcf00: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+  >ffff888125fdcf80: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+                                                                  ^
+   ffff888125fdd000: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+   ffff888125fdd080: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+  ==================================================================
+
+Link: https://lkml.kernel.org/r/20210701030756.58760-3-desmondcheongzx@gmail.com
+Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+Reviewed-by: Viacheslav Dubeyko <slava@dubeyko.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Gustavo A. R. Silva <gustavoars@kernel.org>
+Cc: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/amd-pmc.c | 38 ++++++++++++++++++++++++++++++++--
- 1 file changed, 36 insertions(+), 2 deletions(-)
+ fs/hfs/bnode.c | 25 ++++++++++++++++++++-----
+ 1 file changed, 20 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/platform/x86/amd-pmc.c b/drivers/platform/x86/amd-pmc.c
-index b9da58ee9b1e..1b5f149932c1 100644
---- a/drivers/platform/x86/amd-pmc.c
-+++ b/drivers/platform/x86/amd-pmc.c
-@@ -68,6 +68,7 @@ struct amd_pmc_dev {
- 	u32 base_addr;
- 	u32 cpu_id;
- 	struct device *dev;
-+	struct mutex lock; /* generic mutex lock */
- #if IS_ENABLED(CONFIG_DEBUG_FS)
- 	struct dentry *dbgfs_dir;
- #endif /* CONFIG_DEBUG_FS */
-@@ -138,9 +139,10 @@ static int amd_pmc_send_cmd(struct amd_pmc_dev *dev, bool set)
- 	u8 msg;
- 	u32 val;
+diff --git a/fs/hfs/bnode.c b/fs/hfs/bnode.c
+index 8aec5e732abf..bca3ea4137ee 100644
+--- a/fs/hfs/bnode.c
++++ b/fs/hfs/bnode.c
+@@ -15,16 +15,31 @@
  
-+	mutex_lock(&dev->lock);
- 	/* Wait until we get a valid response */
- 	rc = readx_poll_timeout(ioread32, dev->regbase + AMD_PMC_REGISTER_RESPONSE,
--				val, val > 0, PMC_MSG_DELAY_MIN_US,
-+				val, val != 0, PMC_MSG_DELAY_MIN_US,
- 				PMC_MSG_DELAY_MIN_US * RESPONSE_REGISTER_LOOP_MAX);
- 	if (rc) {
- 		dev_err(dev->dev, "failed to talk to SMU\n");
-@@ -156,7 +158,37 @@ static int amd_pmc_send_cmd(struct amd_pmc_dev *dev, bool set)
- 	/* Write message ID to message ID register */
- 	msg = (dev->cpu_id == AMD_CPU_ID_RN) ? MSG_OS_HINT_RN : MSG_OS_HINT_PCO;
- 	amd_pmc_reg_write(dev, AMD_PMC_REGISTER_MESSAGE, msg);
--	return 0;
-+	/* Wait until we get a valid response */
-+	rc = readx_poll_timeout(ioread32, dev->regbase + AMD_PMC_REGISTER_RESPONSE,
-+				val, val != 0, PMC_MSG_DELAY_MIN_US,
-+				PMC_MSG_DELAY_MIN_US * RESPONSE_REGISTER_LOOP_MAX);
-+	if (rc) {
-+		dev_err(dev->dev, "SMU response timed out\n");
-+		goto out_unlock;
-+	}
+ #include "btree.h"
+ 
+-void hfs_bnode_read(struct hfs_bnode *node, void *buf,
+-		int off, int len)
++void hfs_bnode_read(struct hfs_bnode *node, void *buf, int off, int len)
+ {
+ 	struct page *page;
++	int pagenum;
++	int bytes_read;
++	int bytes_to_read;
++	void *vaddr;
+ 
+ 	off += node->page_offset;
+-	page = node->page[0];
++	pagenum = off >> PAGE_SHIFT;
++	off &= ~PAGE_MASK; /* compute page offset for the first page */
+ 
+-	memcpy(buf, kmap(page) + off, len);
+-	kunmap(page);
++	for (bytes_read = 0; bytes_read < len; bytes_read += bytes_to_read) {
++		if (pagenum >= node->tree->pages_per_bnode)
++			break;
++		page = node->page[pagenum];
++		bytes_to_read = min_t(int, len - bytes_read, PAGE_SIZE - off);
 +
-+	switch (val) {
-+	case AMD_PMC_RESULT_OK:
-+		break;
-+	case AMD_PMC_RESULT_CMD_REJECT_BUSY:
-+		dev_err(dev->dev, "SMU not ready. err: 0x%x\n", val);
-+		rc = -EBUSY;
-+		goto out_unlock;
-+	case AMD_PMC_RESULT_CMD_UNKNOWN:
-+		dev_err(dev->dev, "SMU cmd unknown. err: 0x%x\n", val);
-+		rc = -EINVAL;
-+		goto out_unlock;
-+	case AMD_PMC_RESULT_CMD_REJECT_PREREQ:
-+	case AMD_PMC_RESULT_FAILED:
-+	default:
-+		dev_err(dev->dev, "SMU cmd failed. err: 0x%x\n", val);
-+		rc = -EIO;
-+		goto out_unlock;
-+	}
++		vaddr = kmap_atomic(page);
++		memcpy(buf + bytes_read, vaddr + off, bytes_to_read);
++		kunmap_atomic(vaddr);
 +
-+out_unlock:
-+	mutex_unlock(&dev->lock);
-+	return rc;
++		pagenum++;
++		off = 0; /* page offset only applies to the first page */
++	}
  }
  
- static int __maybe_unused amd_pmc_suspend(struct device *dev)
-@@ -259,6 +291,7 @@ static int amd_pmc_probe(struct platform_device *pdev)
- 
- 	amd_pmc_dump_registers(dev);
- 
-+	mutex_init(&dev->lock);
- 	platform_set_drvdata(pdev, dev);
- 	amd_pmc_dbgfs_register(dev);
- 	return 0;
-@@ -269,6 +302,7 @@ static int amd_pmc_remove(struct platform_device *pdev)
- 	struct amd_pmc_dev *dev = platform_get_drvdata(pdev);
- 
- 	amd_pmc_dbgfs_unregister(dev);
-+	mutex_destroy(&dev->lock);
- 	return 0;
- }
- 
+ u16 hfs_bnode_read_u16(struct hfs_bnode *node, int off)
 -- 
 2.30.2
 
