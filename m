@@ -2,32 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A0A43DD97E
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 16:00:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F26693DD93D
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:58:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236176AbhHBOAi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 10:00:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40874 "EHLO mail.kernel.org"
+        id S234921AbhHBN6v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:58:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235207AbhHBN5e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:57:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 231D260527;
-        Mon,  2 Aug 2021 13:54:59 +0000 (UTC)
+        id S235988AbhHBN44 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:56:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 04D5961159;
+        Mon,  2 Aug 2021 13:54:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912500;
-        bh=9EanXT9K/lLuEddXNAYery6xH4iprDKzrwQNVyDUSw4=;
+        s=korg; t=1627912476;
+        bh=dB5qXChcL5U5nIwu+gk/y3fdb2nYynTde59+abisi+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EqxzP6idXx8bstakSoqelFQzjhfuSAA1G/U68Tq7VH//poBTKm73ANYYCagiAC3Hs
-         0X4ANLOrHKsFdpg5JJqQgSKRVZ0GjBl9mNtpPtW7sjThba3WWWdOm8So0QKHoaCOf3
-         aR305P9xCu4/oAOJk68ADS4It3AIcoE94+9tlJc0=
+        b=GgpTSCQQjTy22QpG4a1bIUG3RFnQlHF1FrCs6sqMhPmG2/R63karZtjI8sopqKGVU
+         0QN83PqdD/yYaMBlB6SltY5jreb/tN7pBoawVFySKzllzR92ItrRxYENUb2QvE8JsQ
+         Bco+P7qOgQ0/psotGqZoyZzcDWtIQ8LZklxMhiGY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Xu <peterx@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.13 009/104] KVM: add missing compat KVM_CLEAR_DIRTY_LOG
-Date:   Mon,  2 Aug 2021 15:44:06 +0200
-Message-Id: <20210802134344.322905923@linuxfoundation.org>
+        stable@vger.kernel.org, Junxiao Bi <junxiao.bi@oracle.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Jun Piao <piaojun@huawei.com>, Mark Fasheh <mark@fasheh.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.13 010/104] ocfs2: fix zero out valid data
+Date:   Mon,  2 Aug 2021 15:44:07 +0200
+Message-Id: <20210802134344.352827056@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210802134344.028226640@linuxfoundation.org>
 References: <20210802134344.028226640@linuxfoundation.org>
@@ -39,69 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Junxiao Bi <junxiao.bi@oracle.com>
 
-commit 8750f9bbda115f3f79bfe43be85551ee5e12b6ff upstream.
+commit f267aeb6dea5e468793e5b8eb6a9c72c0020d418 upstream.
 
-The arguments to the KVM_CLEAR_DIRTY_LOG ioctl include a pointer,
-therefore it needs a compat ioctl implementation.  Otherwise,
-32-bit userspace fails to invoke it on 64-bit kernels; for x86
-it might work fine by chance if the padding is zero, but not
-on big-endian architectures.
+If append-dio feature is enabled, direct-io write and fallocate could
+run in parallel to extend file size, fallocate used "orig_isize" to
+record i_size before taking "ip_alloc_sem", when
+ocfs2_zeroout_partial_cluster() zeroout EOF blocks, i_size maybe already
+extended by ocfs2_dio_end_io_write(), that will cause valid data zeroed
+out.
 
-Reported-by: Thomas Sattler
-Cc: stable@vger.kernel.org
-Fixes: 2a31b9db1535 ("kvm: introduce manual dirty log reprotect")
-Reviewed-by: Peter Xu <peterx@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Link: https://lkml.kernel.org/r/20210722054923.24389-1-junxiao.bi@oracle.com
+Fixes: 6bba4471f0cc ("ocfs2: fix data corruption by fallocate")
+Signed-off-by: Junxiao Bi <junxiao.bi@oracle.com>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Jun Piao <piaojun@huawei.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- virt/kvm/kvm_main.c |   28 ++++++++++++++++++++++++++++
- 1 file changed, 28 insertions(+)
+ fs/ocfs2/file.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -4183,6 +4183,16 @@ struct compat_kvm_dirty_log {
- 	};
- };
+--- a/fs/ocfs2/file.c
++++ b/fs/ocfs2/file.c
+@@ -1935,7 +1935,6 @@ static int __ocfs2_change_file_space(str
+ 		goto out_inode_unlock;
+ 	}
  
-+struct compat_kvm_clear_dirty_log {
-+	__u32 slot;
-+	__u32 num_pages;
-+	__u64 first_page;
-+	union {
-+		compat_uptr_t dirty_bitmap; /* one bit per page */
-+		__u64 padding2;
-+	};
-+};
-+
- static long kvm_vm_compat_ioctl(struct file *filp,
- 			   unsigned int ioctl, unsigned long arg)
- {
-@@ -4192,6 +4202,24 @@ static long kvm_vm_compat_ioctl(struct f
- 	if (kvm->mm != current->mm)
- 		return -EIO;
- 	switch (ioctl) {
-+#ifdef CONFIG_KVM_GENERIC_DIRTYLOG_READ_PROTECT
-+	case KVM_CLEAR_DIRTY_LOG: {
-+		struct compat_kvm_clear_dirty_log compat_log;
-+		struct kvm_clear_dirty_log log;
-+
-+		if (copy_from_user(&compat_log, (void __user *)arg,
-+				   sizeof(compat_log)))
-+			return -EFAULT;
-+		log.slot	 = compat_log.slot;
-+		log.num_pages	 = compat_log.num_pages;
-+		log.first_page	 = compat_log.first_page;
-+		log.padding2	 = compat_log.padding2;
-+		log.dirty_bitmap = compat_ptr(compat_log.dirty_bitmap);
-+
-+		r = kvm_vm_ioctl_clear_dirty_log(kvm, &log);
-+		break;
-+	}
-+#endif
- 	case KVM_GET_DIRTY_LOG: {
- 		struct compat_kvm_dirty_log compat_log;
- 		struct kvm_dirty_log log;
+-	orig_isize = i_size_read(inode);
+ 	switch (sr->l_whence) {
+ 	case 0: /*SEEK_SET*/
+ 		break;
+@@ -1943,7 +1942,7 @@ static int __ocfs2_change_file_space(str
+ 		sr->l_start += f_pos;
+ 		break;
+ 	case 2: /*SEEK_END*/
+-		sr->l_start += orig_isize;
++		sr->l_start += i_size_read(inode);
+ 		break;
+ 	default:
+ 		ret = -EINVAL;
+@@ -1998,6 +1997,7 @@ static int __ocfs2_change_file_space(str
+ 		ret = -EINVAL;
+ 	}
+ 
++	orig_isize = i_size_read(inode);
+ 	/* zeroout eof blocks in the cluster. */
+ 	if (!ret && change_size && orig_isize < size) {
+ 		ret = ocfs2_zeroout_partial_cluster(inode, orig_isize,
 
 
