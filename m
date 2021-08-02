@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 36C553DD87D
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:52:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D18F83DD8DC
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:56:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235124AbhHBNww (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:52:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33086 "EHLO mail.kernel.org"
+        id S234628AbhHBNzn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:55:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34094 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235117AbhHBNvc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:51:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 10D8D60F50;
-        Mon,  2 Aug 2021 13:50:55 +0000 (UTC)
+        id S235960AbhHBNym (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:54:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3079261100;
+        Mon,  2 Aug 2021 13:53:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912256;
-        bh=1lXYdALOl7aLdgSDwhY3HsBeZnHOG09Cs7MGMZDAqrE=;
+        s=korg; t=1627912382;
+        bh=9w+AKdstYzJS+D1LFVHyh0EdriL9Ar92AZpiVv6btYo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GENGJmGC/DWH7F2QS1gdjJAxJvaUyGM0Vsy7KoFEnHVc+68iRlRkApEgqX4n74wDf
-         SjggWG69UxuvRAsbiiNFy27sCOQQXYND3/a3StP71lHB3k0pdB9hY80LAVpntJZ9Th
-         Z6RQbCSxAyvyPD/0mJXbz8nlqN58A+AEtbi9OJVQ=
+        b=fs59DOLKOIn7LcmkWjuo3KtxpKjBNqusglQsvl5iiDLMTzlinHRephGwTuzkIPXNK
+         MKrlXcE26Dl3XOMPy3ptdw/Jjaeg6NRaoZCNBALN6mztqQx/5ic5OsB3RhuqS8dHm8
+         ybm66AEa5jSyIRqJ0TW4fz0zHaVO0nIdJFzVy6i4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 18/40] nfc: nfcsim: fix use after free during module unload
+        Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>,
+        Jedrzej Jagielski <jedrzej.jagielski@intel.com>,
+        Imam Hassan Reza Biswas <imam.hassan.reza.biswas@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 35/67] i40e: Fix queue-to-TC mapping on Tx
 Date:   Mon,  2 Aug 2021 15:44:58 +0200
-Message-Id: <20210802134335.971241777@linuxfoundation.org>
+Message-Id: <20210802134340.214356935@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134335.408294521@linuxfoundation.org>
-References: <20210802134335.408294521@linuxfoundation.org>
+In-Reply-To: <20210802134339.023067817@linuxfoundation.org>
+References: <20210802134339.023067817@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,90 +43,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Jedrzej Jagielski <jedrzej.jagielski@intel.com>
 
-commit 5e7b30d24a5b8cb691c173b45b50e3ca0191be19 upstream.
+[ Upstream commit 89ec1f0886c127c7e41ac61a6b6d539f4fb2510b ]
 
-There is a use after free memory corruption during module exit:
- - nfcsim_exit()
-  - nfcsim_device_free(dev0)
-    - nfc_digital_unregister_device()
-      This iterates over command queue and frees all commands,
-    - dev->up = false
-    - nfcsim_link_shutdown()
-      - nfcsim_link_recv_wake()
-        This wakes the sleeping thread nfcsim_link_recv_skb().
+In SW DCB mode the packets sent receive incorrect UP tags. They are
+constructed correctly and put into tx_ring, but UP is later remapped by
+HW on the basis of TCTUPR register contents according to Tx queue
+selected, and BW used is consistent with the new UP values. This is
+caused by Tx queue selection in kernel not taking into account DCB
+configuration. This patch fixes the issue by implementing the
+ndo_select_queue NDO callback.
 
- - nfcsim_link_recv_skb()
-   Wake from wait_event_interruptible_timeout(),
-   call directly the deb->cb callback even though (dev->up == false),
-   - digital_send_cmd_complete()
-     Dereference of "struct digital_cmd" cmd which was freed earlier by
-     nfc_digital_unregister_device().
-
-This causes memory corruption shortly after (with unrelated stack
-trace):
-
-  nfc nfc0: NFC: nfcsim_recv_wq: Device is down
-  llcp: nfc_llcp_recv: err -19
-  nfc nfc1: NFC: nfcsim_recv_wq: Device is down
-  BUG: unable to handle page fault for address: ffffffffffffffed
-  Call Trace:
-   fsnotify+0x54b/0x5c0
-   __fsnotify_parent+0x1fe/0x300
-   ? vfs_write+0x27c/0x390
-   vfs_write+0x27c/0x390
-   ksys_write+0x63/0xe0
-   do_syscall_64+0x3b/0x90
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-KASAN report:
-
-  BUG: KASAN: use-after-free in digital_send_cmd_complete+0x16/0x50
-  Write of size 8 at addr ffff88800a05f720 by task kworker/0:2/71
-  Workqueue: events nfcsim_recv_wq [nfcsim]
-  Call Trace:
-   dump_stack_lvl+0x45/0x59
-   print_address_description.constprop.0+0x21/0x140
-   ? digital_send_cmd_complete+0x16/0x50
-   ? digital_send_cmd_complete+0x16/0x50
-   kasan_report.cold+0x7f/0x11b
-   ? digital_send_cmd_complete+0x16/0x50
-   ? digital_dep_link_down+0x60/0x60
-   digital_send_cmd_complete+0x16/0x50
-   nfcsim_recv_wq+0x38f/0x3d5 [nfcsim]
-   ? nfcsim_in_send_cmd+0x4a/0x4a [nfcsim]
-   ? lock_is_held_type+0x98/0x110
-   ? finish_wait+0x110/0x110
-   ? rcu_read_lock_sched_held+0x9c/0xd0
-   ? rcu_read_lock_bh_held+0xb0/0xb0
-   ? lockdep_hardirqs_on_prepare+0x12e/0x1f0
-
-This flow of calling digital_send_cmd_complete() callback on driver exit
-is specific to nfcsim which implements reading and sending work queues.
-Since the NFC digital device was unregistered, the callback should not
-be called.
-
-Fixes: 204bddcb508f ("NFC: nfcsim: Make use of the Digital layer")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: fd0a05ce74ef ("i40e: transmit, receive, and NAPI")
+Signed-off-by: Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>
+Signed-off-by: Jedrzej Jagielski <jedrzej.jagielski@intel.com>
+Tested-by: Imam Hassan Reza Biswas <imam.hassan.reza.biswas@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nfc/nfcsim.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/ethernet/intel/i40e/i40e_main.c |  1 +
+ drivers/net/ethernet/intel/i40e/i40e_txrx.c | 50 +++++++++++++++++++++
+ drivers/net/ethernet/intel/i40e/i40e_txrx.h |  2 +
+ 3 files changed, 53 insertions(+)
 
---- a/drivers/nfc/nfcsim.c
-+++ b/drivers/nfc/nfcsim.c
-@@ -192,8 +192,7 @@ static void nfcsim_recv_wq(struct work_s
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index 112a18dd13c4..b3a9dec414a5 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -12809,6 +12809,7 @@ static const struct net_device_ops i40e_netdev_ops = {
+ 	.ndo_poll_controller	= i40e_netpoll,
+ #endif
+ 	.ndo_setup_tc		= __i40e_setup_tc,
++	.ndo_select_queue	= i40e_lan_select_queue,
+ 	.ndo_set_features	= i40e_set_features,
+ 	.ndo_set_vf_mac		= i40e_ndo_set_vf_mac,
+ 	.ndo_set_vf_vlan	= i40e_ndo_set_vf_port_vlan,
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_txrx.c b/drivers/net/ethernet/intel/i40e/i40e_txrx.c
+index c40ac82db863..615802b07521 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_txrx.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_txrx.c
+@@ -3524,6 +3524,56 @@ dma_error:
+ 	return -1;
+ }
  
- 		if (!IS_ERR(skb))
- 			dev_kfree_skb(skb);
--
--		skb = ERR_PTR(-ENODEV);
-+		return;
- 	}
++static u16 i40e_swdcb_skb_tx_hash(struct net_device *dev,
++				  const struct sk_buff *skb,
++				  u16 num_tx_queues)
++{
++	u32 jhash_initval_salt = 0xd631614b;
++	u32 hash;
++
++	if (skb->sk && skb->sk->sk_hash)
++		hash = skb->sk->sk_hash;
++	else
++		hash = (__force u16)skb->protocol ^ skb->hash;
++
++	hash = jhash_1word(hash, jhash_initval_salt);
++
++	return (u16)(((u64)hash * num_tx_queues) >> 32);
++}
++
++u16 i40e_lan_select_queue(struct net_device *netdev,
++			  struct sk_buff *skb,
++			  struct net_device __always_unused *sb_dev)
++{
++	struct i40e_netdev_priv *np = netdev_priv(netdev);
++	struct i40e_vsi *vsi = np->vsi;
++	struct i40e_hw *hw;
++	u16 qoffset;
++	u16 qcount;
++	u8 tclass;
++	u16 hash;
++	u8 prio;
++
++	/* is DCB enabled at all? */
++	if (vsi->tc_config.numtc == 1)
++		return i40e_swdcb_skb_tx_hash(netdev, skb,
++					      netdev->real_num_tx_queues);
++
++	prio = skb->priority;
++	hw = &vsi->back->hw;
++	tclass = hw->local_dcbx_config.etscfg.prioritytable[prio];
++	/* sanity check */
++	if (unlikely(!(vsi->tc_config.enabled_tc & BIT(tclass))))
++		tclass = 0;
++
++	/* select a queue assigned for the given TC */
++	qcount = vsi->tc_config.tc_info[tclass].qcount;
++	hash = i40e_swdcb_skb_tx_hash(netdev, skb, qcount);
++
++	qoffset = vsi->tc_config.tc_info[tclass].qoffset;
++	return qoffset + hash;
++}
++
+ /**
+  * i40e_xmit_xdp_ring - transmits an XDP buffer to an XDP Tx ring
+  * @xdpf: data to transmit
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_txrx.h b/drivers/net/ethernet/intel/i40e/i40e_txrx.h
+index 2feed920ef8a..93ac201f68b8 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_txrx.h
++++ b/drivers/net/ethernet/intel/i40e/i40e_txrx.h
+@@ -449,6 +449,8 @@ static inline unsigned int i40e_rx_pg_order(struct i40e_ring *ring)
  
- 	dev->cb(dev->nfc_digital_dev, dev->arg, skb);
+ bool i40e_alloc_rx_buffers(struct i40e_ring *rxr, u16 cleaned_count);
+ netdev_tx_t i40e_lan_xmit_frame(struct sk_buff *skb, struct net_device *netdev);
++u16 i40e_lan_select_queue(struct net_device *netdev, struct sk_buff *skb,
++			  struct net_device *sb_dev);
+ void i40e_clean_tx_ring(struct i40e_ring *tx_ring);
+ void i40e_clean_rx_ring(struct i40e_ring *rx_ring);
+ int i40e_setup_tx_descriptors(struct i40e_ring *tx_ring);
+-- 
+2.30.2
+
 
 
