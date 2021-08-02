@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 253DE3DD8BC
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:55:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 847C13DD9E5
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 16:05:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234964AbhHBNzS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:55:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33086 "EHLO mail.kernel.org"
+        id S235402AbhHBOFJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 10:05:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235265AbhHBNww (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:52:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A195760551;
-        Mon,  2 Aug 2021 13:51:39 +0000 (UTC)
+        id S235452AbhHBODI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 10:03:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E57D861208;
+        Mon,  2 Aug 2021 13:57:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912300;
-        bh=j34rqbkjDUG74k2x7CXphuk7DnB+5Qwigbx4HerbAuY=;
+        s=korg; t=1627912629;
+        bh=+gSNiW5h03Ed1RDtqAHCy6UznWIMDeYH1bhgBXKIZbc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=doxdH0FmxhMMoE245gQSvq7v5wsT4Zc38pRj8nap8RKCAlWO9eXK+2YRuahhWNKPd
-         SgZN0AsI6rT/naX8e/ZHiDKcmH/azVKsgKOZ6vty9GRdXNh9Kj11H17h8PincBVklU
-         oyMINp19Oy74L4GUuBuIyaAfK0BZXLfNe9j7Om3A=
+        b=zfWDPfodGQDlGctGERBvkthbisCLaM4C9dwJBWpA/Lbvty0RrOJmafzpsB/u+T79r
+         3iQiaD2Zz9RDbqwVRyaFA/74RVsL1VXz1eiD6Tjj3pZ6kxLidCLTpDWlENxYT+ZXz8
+         kaBNLG+aWTbdIgJXap+Dp8mox9s1pXonj1EUBQ3I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shmuel Hazan <sh@tkos.co.il>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-        Baruch Siach <baruch@tkos.co.il>
-Subject: [PATCH 5.4 36/40] PCI: mvebu: Setup BAR0 in order to fix MSI
+        stable@vger.kernel.org, Tariq Toukan <tariqt@nvidia.com>,
+        Moshe Shemesh <moshe@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 079/104] net/mlx5e: RX, Avoid possible data corruption when relaxed ordering and LRO combined
 Date:   Mon,  2 Aug 2021 15:45:16 +0200
-Message-Id: <20210802134336.542092671@linuxfoundation.org>
+Message-Id: <20210802134346.612168034@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134335.408294521@linuxfoundation.org>
-References: <20210802134335.408294521@linuxfoundation.org>
+In-Reply-To: <20210802134344.028226640@linuxfoundation.org>
+References: <20210802134344.028226640@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,92 +41,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shmuel Hazan <sh@tkos.co.il>
+From: Tariq Toukan <tariqt@nvidia.com>
 
-commit 216f8e95aacc8e9690d8e2286c472671b65f4128 upstream.
+[ Upstream commit e2351e517068718724f1d3b4010e2a41ec91fa76 ]
 
-According to the Armada XP datasheet, section 10.2.6: "in order for
-the device to do a write to the MSI doorbell address, it needs to write
-to a register in the internal registers space".
+When HW aggregates packets for an LRO session, it writes the payload
+of two consecutive packets of a flow contiguously, so that they usually
+share a cacheline.
 
-As a result of the requirement above, without this patch, MSI won't
-function and therefore some devices won't operate properly without
-pci=nomsi.
+The first byte of a packet's payload is written immediately after
+the last byte of the preceding packet.
+In this flow, there are two consecutive write requests to the shared
+cacheline:
+1. Regular write for the earlier packet.
+2. Read-modify-write for the following packet.
 
-This requirement was not present at the time of writing this driver
-since the vendor u-boot always initializes all PCIe controllers
-(incl. BAR0 initialization) and for some time, the vendor u-boot was
-the only available bootloader for this driver's SoCs (e.g. A38x,A37x,
-etc).
+In case of relaxed-ordering on, these two writes might be re-ordered.
+Using the end padding optimization (to avoid partial write for the last
+cacheline of a packet) becomes problematic if the two writes occur
+out-of-order, as the padding would overwrite payload that belongs to
+the following packet, causing data corruption.
 
-Tested on an Armada 385 board on mainline u-boot (2020.4), without
-u-boot PCI initialization and the following PCIe devices:
-        - Wilocity Wil6200 rev 2 (wil6210)
-        - Qualcomm Atheros QCA6174 (ath10k_pci)
+Avoid this by disabling the end padding optimization when both
+LRO and relaxed-ordering are enabled.
 
-Both failed to get a response from the device after loading the
-firmware and seem to operate properly with this patch.
-
-Link: https://lore.kernel.org/r/20200623060334.108444-1-sh@tkos.co.il
-Signed-off-by: Shmuel Hazan <sh@tkos.co.il>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Acked-by: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
-Cc: Baruch Siach <baruch@tkos.co.il>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 17347d5430c4 ("net/mlx5e: Add support for PCI relaxed ordering")
+Signed-off-by: Tariq Toukan <tariqt@nvidia.com>
+Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-mvebu.c |   16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en/params.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
---- a/drivers/pci/controller/pci-mvebu.c
-+++ b/drivers/pci/controller/pci-mvebu.c
-@@ -105,6 +105,7 @@ struct mvebu_pcie_port {
- 	struct mvebu_pcie_window memwin;
- 	struct mvebu_pcie_window iowin;
- 	u32 saved_pcie_stat;
-+	struct resource regs;
- };
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/params.c b/drivers/net/ethernet/mellanox/mlx5/core/en/params.c
+index f410c1268422..133eb13facfd 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/params.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/params.c
+@@ -471,6 +471,15 @@ static void mlx5e_build_rx_cq_param(struct mlx5_core_dev *mdev,
+ 	param->cq_period_mode = params->rx_cq_moderation.cq_period_mode;
+ }
  
- static inline void mvebu_writel(struct mvebu_pcie_port *port, u32 val, u32 reg)
-@@ -149,7 +150,9 @@ static void mvebu_pcie_set_local_dev_nr(
- 
- /*
-  * Setup PCIE BARs and Address Decode Wins:
-- * BAR[0,2] -> disabled, BAR[1] -> covers all DRAM banks
-+ * BAR[0] -> internal registers (needed for MSI)
-+ * BAR[1] -> covers all DRAM banks
-+ * BAR[2] -> Disabled
-  * WIN[0-3] -> DRAM bank[0-3]
-  */
- static void mvebu_pcie_setup_wins(struct mvebu_pcie_port *port)
-@@ -203,6 +206,12 @@ static void mvebu_pcie_setup_wins(struct
- 	mvebu_writel(port, 0, PCIE_BAR_HI_OFF(1));
- 	mvebu_writel(port, ((size - 1) & 0xffff0000) | 1,
- 		     PCIE_BAR_CTRL_OFF(1));
++static u8 rq_end_pad_mode(struct mlx5_core_dev *mdev, struct mlx5e_params *params)
++{
++	bool ro = pcie_relaxed_ordering_enabled(mdev->pdev) &&
++		MLX5_CAP_GEN(mdev, relaxed_ordering_write);
 +
-+	/*
-+	 * Point BAR[0] to the device's internal registers.
-+	 */
-+	mvebu_writel(port, round_down(port->regs.start, SZ_1M), PCIE_BAR_LO_OFF(0));
-+	mvebu_writel(port, 0, PCIE_BAR_HI_OFF(0));
- }
++	return ro && params->lro_en ?
++		MLX5_WQ_END_PAD_MODE_NONE : MLX5_WQ_END_PAD_MODE_ALIGN;
++}
++
+ int mlx5e_build_rq_param(struct mlx5_core_dev *mdev,
+ 			 struct mlx5e_params *params,
+ 			 struct mlx5e_xsk_param *xsk,
+@@ -508,7 +517,7 @@ int mlx5e_build_rq_param(struct mlx5_core_dev *mdev,
+ 	}
  
- static void mvebu_pcie_setup_hw(struct mvebu_pcie_port *port)
-@@ -708,14 +717,13 @@ static void __iomem *mvebu_pcie_map_regi
- 					      struct device_node *np,
- 					      struct mvebu_pcie_port *port)
- {
--	struct resource regs;
- 	int ret = 0;
- 
--	ret = of_address_to_resource(np, 0, &regs);
-+	ret = of_address_to_resource(np, 0, &port->regs);
- 	if (ret)
- 		return ERR_PTR(ret);
- 
--	return devm_ioremap_resource(&pdev->dev, &regs);
-+	return devm_ioremap_resource(&pdev->dev, &port->regs);
- }
- 
- #define DT_FLAGS_TO_TYPE(flags)       (((flags) >> 24) & 0x03)
+ 	MLX5_SET(wq, wq, wq_type,          params->rq_wq_type);
+-	MLX5_SET(wq, wq, end_padding_mode, MLX5_WQ_END_PAD_MODE_ALIGN);
++	MLX5_SET(wq, wq, end_padding_mode, rq_end_pad_mode(mdev, params));
+ 	MLX5_SET(wq, wq, log_wq_stride,
+ 		 mlx5e_get_rqwq_log_stride(params->rq_wq_type, ndsegs));
+ 	MLX5_SET(wq, wq, pd,               mdev->mlx5e_res.hw_objs.pdn);
+-- 
+2.30.2
+
 
 
