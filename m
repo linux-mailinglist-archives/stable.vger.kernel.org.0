@@ -2,35 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 50A833DD7C3
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:48:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6F573DD7FC
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:48:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233958AbhHBNsI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:48:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57410 "EHLO mail.kernel.org"
+        id S234101AbhHBNsy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:48:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59412 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234365AbhHBNrf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:47:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 89FD060F6D;
-        Mon,  2 Aug 2021 13:47:16 +0000 (UTC)
+        id S234545AbhHBNsd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:48:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E4CD6112F;
+        Mon,  2 Aug 2021 13:48:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912037;
-        bh=NJOEvPpoLwptY8+Dkqrp/K+sE5xEPdIjyk6kEAlIF/M=;
+        s=korg; t=1627912103;
+        bh=gbvOpWXixT7F4E4J9FR9oNUSUmoAcmgZ2ske3iZvqhA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zXG35PkT+yMDD/b9PO6WoQte9vozSfnNz0BaeTfzk0mSOOCtS43SaxHNL6t1EU+yo
-         AvVKmzfTp7/TaAzRLqKjiM7hxIm4Br8d7Qi9edWbe0U+81M5lRJRqEfiqnrXNRhUz7
-         th8HT1hE1LIJps4MmoPmd8g4NhgIXsxTBn3BZgTw=
+        b=vfph0BhjMFgK4Y3KyoYTD8Dmo23qAWR1ok9g2orQZGn/mtPHGRPc/0bkiDQkjyhFi
+         zJdoWoBTfa2iqu33xrD0rYEnroXuI8V27L/p+e1CveM/t0P5PhqJfF2koEcA/gIqd5
+         z3NLqdbapaP+dM7GYCrwX3kJdYRJ3Zm2JgIkWTS4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 4.9 20/32] can: esd_usb2: fix memory leak
+        stable@vger.kernel.org, Junxiao Bi <junxiao.bi@oracle.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 18/38] ocfs2: issue zeroout to EOF blocks
 Date:   Mon,  2 Aug 2021 15:44:40 +0200
-Message-Id: <20210802134333.562182241@linuxfoundation.org>
+Message-Id: <20210802134335.407982263@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134332.931915241@linuxfoundation.org>
-References: <20210802134332.931915241@linuxfoundation.org>
+In-Reply-To: <20210802134334.835358048@linuxfoundation.org>
+References: <20210802134334.835358048@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,97 +45,186 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Junxiao Bi <junxiao.bi@oracle.com>
 
-commit 928150fad41ba16df7fcc9f7f945747d0f56cbb6 upstream.
+commit 9449ad33be8480f538b11a593e2dda2fb33ca06d upstream.
 
-In esd_usb2_setup_rx_urbs() MAX_RX_URBS coherent buffers are allocated
-and there is nothing, that frees them:
+For punch holes in EOF blocks, fallocate used buffer write to zero the
+EOF blocks in last cluster.  But since ->writepage will ignore EOF
+pages, those zeros will not be flushed.
 
-1) In callback function the urb is resubmitted and that's all
-2) In disconnect function urbs are simply killed, but URB_FREE_BUFFER
-   is not set (see esd_usb2_setup_rx_urbs) and this flag cannot be used
-   with coherent buffers.
+This "looks" ok as commit 6bba4471f0cc ("ocfs2: fix data corruption by
+fallocate") will zero the EOF blocks when extend the file size, but it
+isn't.  The problem happened on those EOF pages, before writeback, those
+pages had DIRTY flag set and all buffer_head in them also had DIRTY flag
+set, when writeback run by write_cache_pages(), DIRTY flag on the page
+was cleared, but DIRTY flag on the buffer_head not.
 
-So, all allocated buffers should be freed with usb_free_coherent()
-explicitly.
+When next write happened to those EOF pages, since buffer_head already
+had DIRTY flag set, it would not mark page DIRTY again.  That made
+writeback ignore them forever.  That will cause data corruption.  Even
+directio write can't work because it will fail when trying to drop pages
+caches before direct io, as it found the buffer_head for those pages
+still had DIRTY flag set, then it will fall back to buffer io mode.
 
-Side note: This code looks like a copy-paste of other can drivers. The
-same patch was applied to mcba_usb driver and it works nice with real
-hardware. There is no change in functionality, only clean-up code for
-coherent buffers.
+To make a summary of the issue, as writeback ingores EOF pages, once any
+EOF page is generated, any write to it will only go to the page cache,
+it will never be flushed to disk even file size extends and that page is
+not EOF page any more.  The fix is to avoid zero EOF blocks with buffer
+write.
 
-Fixes: 96d8e90382dc ("can: Add driver for esd CAN-USB/2 device")
-Link: https://lore.kernel.org/r/b31b096926dcb35998ad0271aac4b51770ca7cc8.1627404470.git.paskripkin@gmail.com
-Cc: linux-stable <stable@vger.kernel.org>
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+The following code snippet from qemu-img could trigger the corruption.
+
+  656   open("6b3711ae-3306-4bdd-823c-cf1c0060a095.conv.2", O_RDWR|O_DIRECT|O_CLOEXEC) = 11
+  ...
+  660   fallocate(11, FALLOC_FL_KEEP_SIZE|FALLOC_FL_PUNCH_HOLE, 2275868672, 327680 <unfinished ...>
+  660   fallocate(11, 0, 2275868672, 327680) = 0
+  658   pwrite64(11, "
+
+Link: https://lkml.kernel.org/r/20210722054923.24389-2-junxiao.bi@oracle.com
+Signed-off-by: Junxiao Bi <junxiao.bi@oracle.com>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/usb/esd_usb2.c |   16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+ fs/ocfs2/file.c |   99 +++++++++++++++++++++++++++++++++-----------------------
+ 1 file changed, 60 insertions(+), 39 deletions(-)
 
---- a/drivers/net/can/usb/esd_usb2.c
-+++ b/drivers/net/can/usb/esd_usb2.c
-@@ -207,6 +207,8 @@ struct esd_usb2 {
- 	int net_count;
- 	u32 version;
- 	int rxinitdone;
-+	void *rxbuf[MAX_RX_URBS];
-+	dma_addr_t rxbuf_dma[MAX_RX_URBS];
- };
+--- a/fs/ocfs2/file.c
++++ b/fs/ocfs2/file.c
+@@ -1535,6 +1535,45 @@ static void ocfs2_truncate_cluster_pages
+ 	}
+ }
  
- struct esd_usb2_net_priv {
-@@ -556,6 +558,7 @@ static int esd_usb2_setup_rx_urbs(struct
- 	for (i = 0; i < MAX_RX_URBS; i++) {
- 		struct urb *urb = NULL;
- 		u8 *buf = NULL;
-+		dma_addr_t buf_dma;
- 
- 		/* create a URB, and a buffer for it */
- 		urb = usb_alloc_urb(0, GFP_KERNEL);
-@@ -565,7 +568,7 @@ static int esd_usb2_setup_rx_urbs(struct
- 		}
- 
- 		buf = usb_alloc_coherent(dev->udev, RX_BUFFER_SIZE, GFP_KERNEL,
--					 &urb->transfer_dma);
-+					 &buf_dma);
- 		if (!buf) {
- 			dev_warn(dev->udev->dev.parent,
- 				 "No memory left for USB buffer\n");
-@@ -573,6 +576,8 @@ static int esd_usb2_setup_rx_urbs(struct
- 			goto freeurb;
- 		}
- 
-+		urb->transfer_dma = buf_dma;
++/*
++ * zero out partial blocks of one cluster.
++ *
++ * start: file offset where zero starts, will be made upper block aligned.
++ * len: it will be trimmed to the end of current cluster if "start + len"
++ *      is bigger than it.
++ */
++static int ocfs2_zeroout_partial_cluster(struct inode *inode,
++					u64 start, u64 len)
++{
++	int ret;
++	u64 start_block, end_block, nr_blocks;
++	u64 p_block, offset;
++	u32 cluster, p_cluster, nr_clusters;
++	struct super_block *sb = inode->i_sb;
++	u64 end = ocfs2_align_bytes_to_clusters(sb, start);
 +
- 		usb_fill_bulk_urb(urb, dev->udev,
- 				  usb_rcvbulkpipe(dev->udev, 1),
- 				  buf, RX_BUFFER_SIZE,
-@@ -585,8 +590,12 @@ static int esd_usb2_setup_rx_urbs(struct
- 			usb_unanchor_urb(urb);
- 			usb_free_coherent(dev->udev, RX_BUFFER_SIZE, buf,
- 					  urb->transfer_dma);
-+			goto freeurb;
- 		}
++	if (start + len < end)
++		end = start + len;
++
++	start_block = ocfs2_blocks_for_bytes(sb, start);
++	end_block = ocfs2_blocks_for_bytes(sb, end);
++	nr_blocks = end_block - start_block;
++	if (!nr_blocks)
++		return 0;
++
++	cluster = ocfs2_bytes_to_clusters(sb, start);
++	ret = ocfs2_get_clusters(inode, cluster, &p_cluster,
++				&nr_clusters, NULL);
++	if (ret)
++		return ret;
++	if (!p_cluster)
++		return 0;
++
++	offset = start_block - ocfs2_clusters_to_blocks(sb, cluster);
++	p_block = ocfs2_clusters_to_blocks(sb, p_cluster) + offset;
++	return sb_issue_zeroout(sb, p_block, nr_blocks, GFP_NOFS);
++}
++
+ static int ocfs2_zero_partial_clusters(struct inode *inode,
+ 				       u64 start, u64 len)
+ {
+@@ -1544,6 +1583,7 @@ static int ocfs2_zero_partial_clusters(s
+ 	struct ocfs2_super *osb = OCFS2_SB(inode->i_sb);
+ 	unsigned int csize = osb->s_clustersize;
+ 	handle_t *handle;
++	loff_t isize = i_size_read(inode);
  
-+		dev->rxbuf[i] = buf;
-+		dev->rxbuf_dma[i] = buf_dma;
-+
- freeurb:
- 		/* Drop reference, USB core will take care of freeing it */
- 		usb_free_urb(urb);
-@@ -674,6 +683,11 @@ static void unlink_all_urbs(struct esd_u
- 	int i, j;
+ 	/*
+ 	 * The "start" and "end" values are NOT necessarily part of
+@@ -1564,6 +1604,26 @@ static int ocfs2_zero_partial_clusters(s
+ 	if ((start & (csize - 1)) == 0 && (end & (csize - 1)) == 0)
+ 		goto out;
  
- 	usb_kill_anchored_urbs(&dev->rx_submitted);
-+
-+	for (i = 0; i < MAX_RX_URBS; ++i)
-+		usb_free_coherent(dev->udev, RX_BUFFER_SIZE,
-+				  dev->rxbuf[i], dev->rxbuf_dma[i]);
-+
- 	for (i = 0; i < dev->net_count; i++) {
- 		priv = dev->nets[i];
- 		if (priv) {
++	/* No page cache for EOF blocks, issue zero out to disk. */
++	if (end > isize) {
++		/*
++		 * zeroout eof blocks in last cluster starting from
++		 * "isize" even "start" > "isize" because it is
++		 * complicated to zeroout just at "start" as "start"
++		 * may be not aligned with block size, buffer write
++		 * would be required to do that, but out of eof buffer
++		 * write is not supported.
++		 */
++		ret = ocfs2_zeroout_partial_cluster(inode, isize,
++					end - isize);
++		if (ret) {
++			mlog_errno(ret);
++			goto out;
++		}
++		if (start >= isize)
++			goto out;
++		end = isize;
++	}
+ 	handle = ocfs2_start_trans(osb, OCFS2_INODE_UPDATE_CREDITS);
+ 	if (IS_ERR(handle)) {
+ 		ret = PTR_ERR(handle);
+@@ -1862,45 +1922,6 @@ out:
+ }
+ 
+ /*
+- * zero out partial blocks of one cluster.
+- *
+- * start: file offset where zero starts, will be made upper block aligned.
+- * len: it will be trimmed to the end of current cluster if "start + len"
+- *      is bigger than it.
+- */
+-static int ocfs2_zeroout_partial_cluster(struct inode *inode,
+-					u64 start, u64 len)
+-{
+-	int ret;
+-	u64 start_block, end_block, nr_blocks;
+-	u64 p_block, offset;
+-	u32 cluster, p_cluster, nr_clusters;
+-	struct super_block *sb = inode->i_sb;
+-	u64 end = ocfs2_align_bytes_to_clusters(sb, start);
+-
+-	if (start + len < end)
+-		end = start + len;
+-
+-	start_block = ocfs2_blocks_for_bytes(sb, start);
+-	end_block = ocfs2_blocks_for_bytes(sb, end);
+-	nr_blocks = end_block - start_block;
+-	if (!nr_blocks)
+-		return 0;
+-
+-	cluster = ocfs2_bytes_to_clusters(sb, start);
+-	ret = ocfs2_get_clusters(inode, cluster, &p_cluster,
+-				&nr_clusters, NULL);
+-	if (ret)
+-		return ret;
+-	if (!p_cluster)
+-		return 0;
+-
+-	offset = start_block - ocfs2_clusters_to_blocks(sb, cluster);
+-	p_block = ocfs2_clusters_to_blocks(sb, p_cluster) + offset;
+-	return sb_issue_zeroout(sb, p_block, nr_blocks, GFP_NOFS);
+-}
+-
+-/*
+  * Parts of this function taken from xfs_change_file_space()
+  */
+ static int __ocfs2_change_file_space(struct file *file, struct inode *inode,
 
 
