@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 155FE3DD8BF
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:55:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03EBC3DD90A
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:56:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235119AbhHBNzT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:55:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34294 "EHLO mail.kernel.org"
+        id S234878AbhHBN4p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:56:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235276AbhHBNwx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:52:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C772061106;
-        Mon,  2 Aug 2021 13:51:41 +0000 (UTC)
+        id S234606AbhHBNzS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:55:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 331F861184;
+        Mon,  2 Aug 2021 13:53:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912302;
-        bh=AeDzqH4bg9uXWTQuX9nMpV58zohiDQS1Ex+hgWyz8fI=;
+        s=korg; t=1627912430;
+        bh=u3DG5+c+JoKveGRqZGTlbu75hQaaI2ARiW/VJ+oR/PU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LH+sCWzWEO5Dt4BKiamCIAoh+JkmakNC5M5rcsbEiMHDMGcAkufMf5X4SX5XWI4+S
-         TzvzxwvpCqTbHOePMkSyXcqZ26U5ikiZyDF0cF2I/gwxeQ9TiB/mpFhLIRgs1+KMjj
-         RtejBjgzmLlylR18VnVes3XI39Z7UdHBFYSdA+BY=
+        b=uEfNBUJgsN+5OqSyLgOCh6I3erqhrIqhy3qIq2lqSqJvC3vqoWUo1vCUSyRk0bzqr
+         bRk3Rsn/+n3gIRQEYoDdTYEwkhhHZPpIGIvS1ABn2pb67T+DWEGg7CO1/yjosvYnmz
+         4aYOmE1naPs+c4AkE7UPOO7szdidfHoHIpVxZJ0M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, marc.c.dionne@gmail.com,
-        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.4 37/40] powerpc/pseries: Fix regression while building external modules
-Date:   Mon,  2 Aug 2021 15:45:17 +0200
-Message-Id: <20210802134336.580902550@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang Hai <wanghai38@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 55/67] tulip: windbond-840: Fix missing pci_disable_device() in probe and remove
+Date:   Mon,  2 Aug 2021 15:45:18 +0200
+Message-Id: <20210802134340.917900403@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134335.408294521@linuxfoundation.org>
-References: <20210802134335.408294521@linuxfoundation.org>
+In-Reply-To: <20210802134339.023067817@linuxfoundation.org>
+References: <20210802134339.023067817@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,77 +41,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+From: Wang Hai <wanghai38@huawei.com>
 
-commit 333cf507465fbebb3727f5b53e77538467df312a upstream.
+[ Upstream commit 76a16be07b209a3f507c72abe823bd3af1c8661a ]
 
-With commit c9f3401313a5 ("powerpc: Always enable queued spinlocks for
-64s, disable for others") CONFIG_PPC_QUEUED_SPINLOCKS is always
-enabled on ppc64le, external modules that use spinlock APIs are
-failing.
+Replace pci_enable_device() with pcim_enable_device(),
+pci_disable_device() and pci_release_regions() will be
+called in release automatically.
 
-  ERROR: modpost: GPL-incompatible module XXX.ko uses GPL-only symbol 'shared_processor'
-
-Before the above commit, modules were able to build without any
-issues. Also this problem is not seen on other architectures. This
-problem can be workaround if CONFIG_UNINLINE_SPIN_UNLOCK is enabled in
-the config. However CONFIG_UNINLINE_SPIN_UNLOCK is not enabled by
-default and only enabled in certain conditions like
-CONFIG_DEBUG_SPINLOCKS is set in the kernel config.
-
-  #include <linux/module.h>
-  spinlock_t spLock;
-
-  static int __init spinlock_test_init(void)
-  {
-          spin_lock_init(&spLock);
-          spin_lock(&spLock);
-          spin_unlock(&spLock);
-          return 0;
-  }
-
-  static void __exit spinlock_test_exit(void)
-  {
-  	printk("spinlock_test unloaded\n");
-  }
-  module_init(spinlock_test_init);
-  module_exit(spinlock_test_exit);
-
-  MODULE_DESCRIPTION ("spinlock_test");
-  MODULE_LICENSE ("non-GPL");
-  MODULE_AUTHOR ("Srikar Dronamraju");
-
-Given that spin locks are one of the basic facilities for module code,
-this effectively makes it impossible to build/load almost any non GPL
-modules on ppc64le.
-
-This was first reported at https://github.com/openzfs/zfs/issues/11172
-
-Currently shared_processor is exported as GPL only symbol.
-Fix this for parity with other architectures by exposing
-shared_processor to non-GPL modules too.
-
-Fixes: 14c73bd344da ("powerpc/vcpu: Assume dedicated processors as non-preempt")
-Cc: stable@vger.kernel.org # v5.5+
-Reported-by: marc.c.dionne@gmail.com
-Signed-off-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210729060449.292780-1-srikar@linux.vnet.ibm.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/pseries/setup.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/dec/tulip/winbond-840.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
---- a/arch/powerpc/platforms/pseries/setup.c
-+++ b/arch/powerpc/platforms/pseries/setup.c
-@@ -75,7 +75,7 @@
- #include "../../../../drivers/pci/pci.h"
+diff --git a/drivers/net/ethernet/dec/tulip/winbond-840.c b/drivers/net/ethernet/dec/tulip/winbond-840.c
+index 89cbdc1f4857..6161e1c604c0 100644
+--- a/drivers/net/ethernet/dec/tulip/winbond-840.c
++++ b/drivers/net/ethernet/dec/tulip/winbond-840.c
+@@ -357,7 +357,7 @@ static int w840_probe1(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	int i, option = find_cnt < MAX_UNITS ? options[find_cnt] : 0;
+ 	void __iomem *ioaddr;
  
- DEFINE_STATIC_KEY_FALSE(shared_processor);
--EXPORT_SYMBOL_GPL(shared_processor);
-+EXPORT_SYMBOL(shared_processor);
+-	i = pci_enable_device(pdev);
++	i = pcim_enable_device(pdev);
+ 	if (i) return i;
  
- int CMO_PrPSP = -1;
- int CMO_SecPSP = -1;
+ 	pci_set_master(pdev);
+@@ -379,7 +379,7 @@ static int w840_probe1(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 
+ 	ioaddr = pci_iomap(pdev, TULIP_BAR, netdev_res_size);
+ 	if (!ioaddr)
+-		goto err_out_free_res;
++		goto err_out_netdev;
+ 
+ 	for (i = 0; i < 3; i++)
+ 		((__le16 *)dev->dev_addr)[i] = cpu_to_le16(eeprom_read(ioaddr, i));
+@@ -458,8 +458,6 @@ static int w840_probe1(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 
+ err_out_cleardev:
+ 	pci_iounmap(pdev, ioaddr);
+-err_out_free_res:
+-	pci_release_regions(pdev);
+ err_out_netdev:
+ 	free_netdev (dev);
+ 	return -ENODEV;
+@@ -1526,7 +1524,6 @@ static void w840_remove1(struct pci_dev *pdev)
+ 	if (dev) {
+ 		struct netdev_private *np = netdev_priv(dev);
+ 		unregister_netdev(dev);
+-		pci_release_regions(pdev);
+ 		pci_iounmap(pdev, np->base_addr);
+ 		free_netdev(dev);
+ 	}
+-- 
+2.30.2
+
 
 
