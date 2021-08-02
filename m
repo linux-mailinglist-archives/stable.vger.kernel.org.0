@@ -2,40 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A76FF3DD887
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:52:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9102D3DD810
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:49:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235341AbhHBNxB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:53:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33468 "EHLO mail.kernel.org"
+        id S234555AbhHBNth (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:49:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59412 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234513AbhHBNvk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:51:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5242061101;
-        Mon,  2 Aug 2021 13:51:13 +0000 (UTC)
+        id S234556AbhHBNsz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:48:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9B16260F6D;
+        Mon,  2 Aug 2021 13:48:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912273;
-        bh=dB5qXChcL5U5nIwu+gk/y3fdb2nYynTde59+abisi+4=;
+        s=korg; t=1627912126;
+        bh=6qEE6ZhHEMSPTEgRzMaDmSsdjbgmkEyeRU/rtemkRcE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CJJEP27JvU9RjGIeAseTcvzwlHsHXQXBF9TRn3nWjNVKlCi+75/yEVT0PCpYV7FUf
-         OEpu+IFFJGGBbeuxJJmA3cu+l34fsrwkv+Bkq93l5iDhgZ3MUIWAyS8hoSocWy/Swu
-         ECFG6sHhuga0KckbPxxdE5NJ3DpzE/lmY5OQ6lKI=
+        b=T5me1iTVH14Y6AQTy1rem19S61vRwdi8enHSmf5jyyRTalrLkP2MAzxIKNWFF3ka+
+         3PH4LZEs054a1x1jwpflPCFBhiN70qRuH8g1KG11/C00+kclBVMceHFlnQFCj0Y8kT
+         BA2YUBWTKd417dD0i0RJoeQ7mSmfAQ6o5iwfxt/c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Junxiao Bi <junxiao.bi@oracle.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Jun Piao <piaojun@huawei.com>, Mark Fasheh <mark@fasheh.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 08/40] ocfs2: fix zero out valid data
-Date:   Mon,  2 Aug 2021 15:44:48 +0200
-Message-Id: <20210802134335.665639525@linuxfoundation.org>
+        stable@vger.kernel.org, Nguyen Dinh Phi <phind.uet@gmail.com>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.14 27/38] cfg80211: Fix possible memory leak in function cfg80211_bss_update
+Date:   Mon,  2 Aug 2021 15:44:49 +0200
+Message-Id: <20210802134335.681796474@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134335.408294521@linuxfoundation.org>
-References: <20210802134335.408294521@linuxfoundation.org>
+In-Reply-To: <20210802134334.835358048@linuxfoundation.org>
+References: <20210802134334.835358048@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,60 +39,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Junxiao Bi <junxiao.bi@oracle.com>
+From: Nguyen Dinh Phi <phind.uet@gmail.com>
 
-commit f267aeb6dea5e468793e5b8eb6a9c72c0020d418 upstream.
+commit f9a5c358c8d26fed0cc45f2afc64633d4ba21dff upstream.
 
-If append-dio feature is enabled, direct-io write and fallocate could
-run in parallel to extend file size, fallocate used "orig_isize" to
-record i_size before taking "ip_alloc_sem", when
-ocfs2_zeroout_partial_cluster() zeroout EOF blocks, i_size maybe already
-extended by ocfs2_dio_end_io_write(), that will cause valid data zeroed
-out.
+When we exceed the limit of BSS entries, this function will free the
+new entry, however, at this time, it is the last door to access the
+inputed ies, so these ies will be unreferenced objects and cause memory
+leak.
+Therefore we should free its ies before deallocating the new entry, beside
+of dropping it from hidden_list.
 
-Link: https://lkml.kernel.org/r/20210722054923.24389-1-junxiao.bi@oracle.com
-Fixes: 6bba4471f0cc ("ocfs2: fix data corruption by fallocate")
-Signed-off-by: Junxiao Bi <junxiao.bi@oracle.com>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Jun Piao <piaojun@huawei.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Nguyen Dinh Phi <phind.uet@gmail.com>
+Link: https://lore.kernel.org/r/20210628132334.851095-1-phind.uet@gmail.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ocfs2/file.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/wireless/scan.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/fs/ocfs2/file.c
-+++ b/fs/ocfs2/file.c
-@@ -1935,7 +1935,6 @@ static int __ocfs2_change_file_space(str
- 		goto out_inode_unlock;
- 	}
+--- a/net/wireless/scan.c
++++ b/net/wireless/scan.c
+@@ -1026,16 +1026,14 @@ cfg80211_bss_update(struct cfg80211_regi
+ 			 * be grouped with this beacon for updates ...
+ 			 */
+ 			if (!cfg80211_combine_bsses(rdev, new)) {
+-				kfree(new);
++				bss_ref_put(rdev, new);
+ 				goto drop;
+ 			}
+ 		}
  
--	orig_isize = i_size_read(inode);
- 	switch (sr->l_whence) {
- 	case 0: /*SEEK_SET*/
- 		break;
-@@ -1943,7 +1942,7 @@ static int __ocfs2_change_file_space(str
- 		sr->l_start += f_pos;
- 		break;
- 	case 2: /*SEEK_END*/
--		sr->l_start += orig_isize;
-+		sr->l_start += i_size_read(inode);
- 		break;
- 	default:
- 		ret = -EINVAL;
-@@ -1998,6 +1997,7 @@ static int __ocfs2_change_file_space(str
- 		ret = -EINVAL;
- 	}
+ 		if (rdev->bss_entries >= bss_entries_limit &&
+ 		    !cfg80211_bss_expire_oldest(rdev)) {
+-			if (!list_empty(&new->hidden_list))
+-				list_del(&new->hidden_list);
+-			kfree(new);
++			bss_ref_put(rdev, new);
+ 			goto drop;
+ 		}
  
-+	orig_isize = i_size_read(inode);
- 	/* zeroout eof blocks in the cluster. */
- 	if (!ret && change_size && orig_isize < size) {
- 		ret = ocfs2_zeroout_partial_cluster(inode, orig_isize,
 
 
