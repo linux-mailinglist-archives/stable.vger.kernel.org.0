@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A4773DD8DD
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:56:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51B0A3DD9B8
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 16:03:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234177AbhHBNzo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:55:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40684 "EHLO mail.kernel.org"
+        id S235782AbhHBODR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 10:03:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236077AbhHBNy5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:54:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8530B611CE;
-        Mon,  2 Aug 2021 13:53:06 +0000 (UTC)
+        id S234552AbhHBOBR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 10:01:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DD62D611F2;
+        Mon,  2 Aug 2021 13:56:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912387;
-        bh=uQA00636DhftkDXnt8Orn9kC8cnTw9fDbYKzxjacgvY=;
+        s=korg; t=1627912592;
+        bh=k+RdHU1r+os3V+84IRDdh50azqQ888IS+VnuIL+aiRA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZEQaYCpGSr+MCEl7i/osykaZKQaIthdXC5H7hlzloJKJAzGlnkDcWMmM4S50lZOY/
-         XDx92RP1V+w+eadVrS2IivCgN57mwM1OopVm4oxoGFcCCToa6vB+pZb4fNKwhA99pD
-         mzJ1eiN3PekWt/jJmtr+ps7kaOcsKfYCqSzIHAz4=
+        b=FSA2ESb563S5kClpSs0A1vqEekb9xWWaRrjtmjpOoVcAMuJ1T8TCTgX3fzxBE8BN5
+         F2bhao25pLFEKEbuIrPZa/ZZ2ay/w7sDSwn9rUdTfYthcsNeWEUILkyQZb2iY+KAod
+         k6n5xbJWTBwKwgyqyCxlnEReFHeW6Tahi8TBH004=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
-        Jon Maloy <jmaloy@redhat.com>,
+        stable@vger.kernel.org, Geetha sowjanya <gakula@marvell.com>,
+        Hariprasad Kelam <hkelam@marvell.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 37/67] tipc: fix implicit-connect for SYN+
+Subject: [PATCH 5.13 063/104] octeontx2-pf: Dont enable backpressure on LBK links
 Date:   Mon,  2 Aug 2021 15:45:00 +0200
-Message-Id: <20210802134340.287944875@linuxfoundation.org>
+Message-Id: <20210802134346.068728534@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134339.023067817@linuxfoundation.org>
-References: <20210802134339.023067817@linuxfoundation.org>
+In-Reply-To: <20210802134344.028226640@linuxfoundation.org>
+References: <20210802134344.028226640@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,107 +41,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Hariprasad Kelam <hkelam@marvell.com>
 
-[ Upstream commit f8dd60de194817c86bf812700980762bb5a8d9a4 ]
+[ Upstream commit 4c85e57575fb9e6405d02d55aef8025c60abb824 ]
 
-For implicit-connect, when it's either SYN- or SYN+, an ACK should
-be sent back to the client immediately. It's not appropriate for
-the client to enter established state only after receiving data
-from the server.
+Avoid configure backpressure for LBK links as they
+don't support it and enable lmacs before configuration
+pause frames.
 
-On client side, after the SYN is sent out, tipc_wait_for_connect()
-should be called to wait for the ACK if timeout is set.
-
-This patch also restricts __tipc_sendstream() to call __sendmsg()
-only when it's in TIPC_OPEN state, so that the client can program
-in a single loop doing both connecting and data sending like:
-
-  for (...)
-      sendmsg(dest, buf);
-
-This makes the implicit-connect more implicit.
-
-Fixes: b97bf3fd8f6a ("[TIPC] Initial merge")
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Jon Maloy <jmaloy@redhat.com>
+Fixes: 75f36270990c ("octeontx2-pf: Support to enable/disable pause frames via ethtool")
+Signed-off-by: Geetha sowjanya <gakula@marvell.com>
+Signed-off-by: Hariprasad Kelam <hkelam@marvell.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/socket.c | 21 +++++++++++++--------
- 1 file changed, 13 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/marvell/octeontx2/af/cgx.c    |  2 +-
+ .../ethernet/marvell/octeontx2/nic/otx2_common.c   | 14 ++++++++------
+ 2 files changed, 9 insertions(+), 7 deletions(-)
 
-diff --git a/net/tipc/socket.c b/net/tipc/socket.c
-index 9f7cc9e1e4ef..694c432b9710 100644
---- a/net/tipc/socket.c
-+++ b/net/tipc/socket.c
-@@ -148,6 +148,7 @@ static void tipc_sk_remove(struct tipc_sock *tsk);
- static int __tipc_sendstream(struct socket *sock, struct msghdr *m, size_t dsz);
- static int __tipc_sendmsg(struct socket *sock, struct msghdr *m, size_t dsz);
- static void tipc_sk_push_backlog(struct tipc_sock *tsk, bool nagle_ack);
-+static int tipc_wait_for_connect(struct socket *sock, long *timeo_p);
+diff --git a/drivers/net/ethernet/marvell/octeontx2/af/cgx.c b/drivers/net/ethernet/marvell/octeontx2/af/cgx.c
+index fac6474ad694..f43cb1407e8c 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/af/cgx.c
++++ b/drivers/net/ethernet/marvell/octeontx2/af/cgx.c
+@@ -1243,8 +1243,8 @@ static int cgx_lmac_init(struct cgx *cgx)
  
- static const struct proto_ops packet_ops;
- static const struct proto_ops stream_ops;
-@@ -1508,8 +1509,13 @@ static int __tipc_sendmsg(struct socket *sock, struct msghdr *m, size_t dlen)
- 		rc = 0;
+ 		/* Add reference */
+ 		cgx->lmac_idmap[lmac->lmac_id] = lmac;
+-		cgx->mac_ops->mac_pause_frm_config(cgx, lmac->lmac_id, true);
+ 		set_bit(lmac->lmac_id, &cgx->lmac_bmap);
++		cgx->mac_ops->mac_pause_frm_config(cgx, lmac->lmac_id, true);
  	}
  
--	if (unlikely(syn && !rc))
-+	if (unlikely(syn && !rc)) {
- 		tipc_set_sk_state(sk, TIPC_CONNECTING);
-+		if (timeout) {
-+			timeout = msecs_to_jiffies(timeout);
-+			tipc_wait_for_connect(sock, &timeout);
+ 	return cgx_lmac_verify_fwi_version(cgx);
+diff --git a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
+index cf7875d51d87..16ba457197a2 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
++++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
+@@ -921,12 +921,14 @@ static int otx2_cq_init(struct otx2_nic *pfvf, u16 qidx)
+ 		aq->cq.drop = RQ_DROP_LVL_CQ(pfvf->hw.rq_skid, cq->cqe_cnt);
+ 		aq->cq.drop_ena = 1;
+ 
+-		/* Enable receive CQ backpressure */
+-		aq->cq.bp_ena = 1;
+-		aq->cq.bpid = pfvf->bpid[0];
++		if (!is_otx2_lbkvf(pfvf->pdev)) {
++			/* Enable receive CQ backpressure */
++			aq->cq.bp_ena = 1;
++			aq->cq.bpid = pfvf->bpid[0];
+ 
+-		/* Set backpressure level is same as cq pass level */
+-		aq->cq.bp = RQ_PASS_LVL_CQ(pfvf->hw.rq_skid, qset->rqe_cnt);
++			/* Set backpressure level is same as cq pass level */
++			aq->cq.bp = RQ_PASS_LVL_CQ(pfvf->hw.rq_skid, qset->rqe_cnt);
 +		}
-+	}
- 
- 	return rc ? rc : dlen;
- }
-@@ -1557,7 +1563,7 @@ static int __tipc_sendstream(struct socket *sock, struct msghdr *m, size_t dlen)
- 		return -EMSGSIZE;
- 
- 	/* Handle implicit connection setup */
--	if (unlikely(dest)) {
-+	if (unlikely(dest && sk->sk_state == TIPC_OPEN)) {
- 		rc = __tipc_sendmsg(sock, m, dlen);
- 		if (dlen && dlen == rc) {
- 			tsk->peer_caps = tipc_node_get_capabilities(net, dnode);
-@@ -2686,9 +2692,10 @@ static int tipc_accept(struct socket *sock, struct socket *new_sock, int flags,
- 		       bool kern)
- {
- 	struct sock *new_sk, *sk = sock->sk;
--	struct sk_buff *buf;
- 	struct tipc_sock *new_tsock;
-+	struct msghdr m = {NULL,};
- 	struct tipc_msg *msg;
-+	struct sk_buff *buf;
- 	long timeo;
- 	int res;
- 
-@@ -2733,19 +2740,17 @@ static int tipc_accept(struct socket *sock, struct socket *new_sock, int flags,
  	}
  
- 	/*
--	 * Respond to 'SYN-' by discarding it & returning 'ACK'-.
--	 * Respond to 'SYN+' by queuing it on new socket.
-+	 * Respond to 'SYN-' by discarding it & returning 'ACK'.
-+	 * Respond to 'SYN+' by queuing it on new socket & returning 'ACK'.
- 	 */
- 	if (!msg_data_sz(msg)) {
--		struct msghdr m = {NULL,};
--
- 		tsk_advance_rx_queue(sk);
--		__tipc_sendstream(new_sock, &m, 0);
- 	} else {
- 		__skb_dequeue(&sk->sk_receive_queue);
- 		__skb_queue_head(&new_sk->sk_receive_queue, buf);
- 		skb_set_owner_r(buf, new_sk);
- 	}
-+	__tipc_sendstream(new_sock, &m, 0);
- 	release_sock(new_sk);
- exit:
- 	release_sock(sk);
+ 	/* Fill AQ info */
+@@ -1183,7 +1185,7 @@ static int otx2_aura_init(struct otx2_nic *pfvf, int aura_id,
+ 	aq->aura.fc_hyst_bits = 0; /* Store count on all updates */
+ 
+ 	/* Enable backpressure for RQ aura */
+-	if (aura_id < pfvf->hw.rqpool_cnt) {
++	if (aura_id < pfvf->hw.rqpool_cnt && !is_otx2_lbkvf(pfvf->pdev)) {
+ 		aq->aura.bp_ena = 0;
+ 		aq->aura.nix0_bpid = pfvf->bpid[0];
+ 		/* Set backpressure level for RQ's Aura */
 -- 
 2.30.2
 
