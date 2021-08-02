@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A8ED33DD9BF
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 16:03:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C35C53DD882
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:52:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236066AbhHBODd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 10:03:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49164 "EHLO mail.kernel.org"
+        id S234635AbhHBNwz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:52:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34568 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235770AbhHBOBa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 10:01:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6665E6120F;
-        Mon,  2 Aug 2021 13:56:38 +0000 (UTC)
+        id S234614AbhHBNvf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:51:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EB81961100;
+        Mon,  2 Aug 2021 13:51:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912598;
-        bh=DUEL/2iTrGvytBaZL4KoDGsDkh3QmOAEGwVtZZHng2c=;
+        s=korg; t=1627912267;
+        bh=MnNewfPaXUXgVf9a7IQXTsEKHvccMFYpDYVLAZeRXwA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X06remQ+leypGjce72kOvuX2jl8i62YnYD2y+Hb7kTiy5U6HXIikZbxOe3CQBRqpP
-         TUDn+gqMvtsW+dzZ5i0+02y+wiXdAcVIL/4yVTA/t8bcPvCaqy9opyzrkdEgoJHK+i
-         cZgPIl6R77Kk1Ux44T+lw0a0wDXOA14n/Q2S7kD4=
+        b=kSIOODbEYk10C5R4eOP4zmTOl2y6JeIRqRJtv5rKVEjp/Q/XfvtRJGIZOOobCemb7
+         4Ca+obQ4Zf4orNiV4/pPLNahxD2U68bQV7WOC9I/wI6KSINpjFRVWn9Nbl/PfCOtZ/
+         AmbFUG1GvuTwCPHLYM+Bszs5y3y305q4XCzEBg/c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jagan Teki <jagan@amarulasolutions.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
+        stable@vger.kernel.org,
+        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
+        Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>,
+        Imam Hassan Reza Biswas <imam.hassan.reza.biswas@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 066/104] drm/panel: panel-simple: Fix proper bpc for ytc700tlag_05_201c
+Subject: [PATCH 5.4 23/40] i40e: Fix firmware LLDP agent related warning
 Date:   Mon,  2 Aug 2021 15:45:03 +0200
-Message-Id: <20210802134346.175931442@linuxfoundation.org>
+Message-Id: <20210802134336.132235092@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134344.028226640@linuxfoundation.org>
-References: <20210802134344.028226640@linuxfoundation.org>
+In-Reply-To: <20210802134335.408294521@linuxfoundation.org>
+References: <20210802134335.408294521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jagan Teki <jagan@amarulasolutions.com>
+From: Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>
 
-[ Upstream commit 44379b986424b02acfa6e8c85ec5d68d89d3ccc4 ]
+[ Upstream commit 71d6fdba4b2d82fdd883fec31dee77fbcf59773a ]
 
-ytc700tlag_05_201c panel support 8 bpc not 6 bpc as per
-recent testing in i.MX8MM platform.
+Make warning meaningful for the user.
 
-Fix it.
+Previously the trace:
+"Starting FW LLDP agent failed: error: I40E_ERR_ADMIN_QUEUE_ERROR, I40E_AQ_RC_EAGAIN"
+was produced when user tried to start Firmware LLDP agent,
+just after it was stopped with sequence:
+ethtool --set-priv-flags <dev> disable-fw-lldp on
+ethtool --set-priv-flags <dev> disable-fw-lldp off
+(without any delay between the commands)
+At that point the firmware is still processing stop command, the behavior
+is expected.
 
-Fixes: 7a1f4fa4a629 ("drm/panel: simple: Add YTC700TLAG-05-201C")
-Signed-off-by: Jagan Teki <jagan@amarulasolutions.com>
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210725174737.891106-1-jagan@amarulasolutions.com
+Fixes: c1041d070437 ("i40e: Missing response checks in driver when starting/stopping FW LLDP")
+Signed-off-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
+Signed-off-by: Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>
+Tested-by: Imam Hassan Reza Biswas <imam.hassan.reza.biswas@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/panel/panel-simple.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/intel/i40e/i40e_ethtool.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/gpu/drm/panel/panel-simple.c b/drivers/gpu/drm/panel/panel-simple.c
-index be312b5c04dd..1301d42cfffb 100644
---- a/drivers/gpu/drm/panel/panel-simple.c
-+++ b/drivers/gpu/drm/panel/panel-simple.c
-@@ -4124,7 +4124,7 @@ static const struct drm_display_mode yes_optoelectronics_ytc700tlag_05_201c_mode
- static const struct panel_desc yes_optoelectronics_ytc700tlag_05_201c = {
- 	.modes = &yes_optoelectronics_ytc700tlag_05_201c_mode,
- 	.num_modes = 1,
--	.bpc = 6,
-+	.bpc = 8,
- 	.size = {
- 		.width = 154,
- 		.height = 90,
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
+index 2288a3855e52..5e20d5082532 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
+@@ -5087,6 +5087,10 @@ flags_complete:
+ 					dev_warn(&pf->pdev->dev,
+ 						 "Device configuration forbids SW from starting the LLDP agent.\n");
+ 					return -EINVAL;
++				case I40E_AQ_RC_EAGAIN:
++					dev_warn(&pf->pdev->dev,
++						 "Stop FW LLDP agent command is still being processed, please try again in a second.\n");
++					return -EBUSY;
+ 				default:
+ 					dev_warn(&pf->pdev->dev,
+ 						 "Starting FW LLDP agent failed: error: %s, %s\n",
 -- 
 2.30.2
 
