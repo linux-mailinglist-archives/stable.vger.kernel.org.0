@@ -2,35 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CC883DD8D3
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:56:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9C343DD7D9
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:48:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234585AbhHBNzh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:55:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33468 "EHLO mail.kernel.org"
+        id S234240AbhHBNsV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:48:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58240 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235758AbhHBNyV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:54:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 858B66115B;
-        Mon,  2 Aug 2021 13:52:42 +0000 (UTC)
+        id S234184AbhHBNsD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:48:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 20E86610CC;
+        Mon,  2 Aug 2021 13:47:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912363;
-        bh=RUh4AusaX0Jn78izoGVYrMovVe91oBO13ieA2j5M3WM=;
+        s=korg; t=1627912073;
+        bh=v1qiqfhFMO1GSTZsyfLloq/DE5Y82veJh03AVlehs40=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XpempK6MNjUJtMTHfxZl+7VbH/gJvredy6pPgwf6OBIUIgzaGt0kEhrYvSKN7/Uz9
-         CNuaeG3NDMM3pUvWeUoopnxSnnBamnV/r4yE52eltG6azW6YCy+kPitS3C0TtdEclh
-         gDMlaElIi2opMOGseRacbx0a7z+aDjtaUDNO3H6U=
+        b=SaYUoITGtrTwmYG5adbaA2fO07yNo5Q6KBM2tN1qzecAI/OVG0ZUiPn9+sCTWg9CF
+         XCysuOLklkieJCUGNmMKL4roBam6/zRjwM8BfOvaEzclU4OiJQGO39aR7U/0Kn2rtz
+         MOxuyvavmerAZ65C91386vE3vvNGMBGyrjc2vIAI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.10 08/67] x86/kvm: fix vcpu-id indexed array sizes
+        stable@vger.kernel.org,
+        Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
+        syzbot+b718ec84a87b7e73ade4@syzkaller.appspotmail.com,
+        Viacheslav Dubeyko <slava@dubeyko.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 11/32] hfs: add lock nesting notation to hfs_find_init
 Date:   Mon,  2 Aug 2021 15:44:31 +0200
-Message-Id: <20210802134339.303797471@linuxfoundation.org>
+Message-Id: <20210802134333.284790750@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134339.023067817@linuxfoundation.org>
-References: <20210802134339.023067817@linuxfoundation.org>
+In-Reply-To: <20210802134332.931915241@linuxfoundation.org>
+References: <20210802134332.931915241@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,59 +47,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
 
-commit 76b4f357d0e7d8f6f0013c733e6cba1773c266d3 upstream.
+[ Upstream commit b3b2177a2d795e35dc11597b2609eb1e7e57e570 ]
 
-KVM_MAX_VCPU_ID is the maximum vcpu-id of a guest, and not the number
-of vcpu-ids. Fix array indexed by vcpu-id to have KVM_MAX_VCPU_ID+1
-elements.
+Syzbot reports a possible recursive lock in [1].
 
-Note that this is currently no real problem, as KVM_MAX_VCPU_ID is
-an odd number, resulting in always enough padding being available at
-the end of those arrays.
+This happens due to missing lock nesting information.  From the logs, we
+see that a call to hfs_fill_super is made to mount the hfs filesystem.
+While searching for the root inode, the lock on the catalog btree is
+grabbed.  Then, when the parent of the root isn't found, a call to
+__hfs_bnode_create is made to create the parent of the root.  This
+eventually leads to a call to hfs_ext_read_extent which grabs a lock on
+the extents btree.
 
-Nevertheless this should be fixed in order to avoid rare problems in
-case someone is using an even number for KVM_MAX_VCPU_ID.
+Since the order of locking is catalog btree -> extents btree, this lock
+hierarchy does not lead to a deadlock.
 
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Message-Id: <20210701154105.23215-2-jgross@suse.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To tell lockdep that this locking is safe, we add nesting notation to
+distinguish between catalog btrees, extents btrees, and attributes
+btrees (for HFS+).  This has already been done in hfsplus.
+
+Link: https://syzkaller.appspot.com/bug?id=f007ef1d7a31a469e3be7aeb0fde0769b18585db [1]
+Link: https://lkml.kernel.org/r/20210701030756.58760-4-desmondcheongzx@gmail.com
+Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+Reported-by: syzbot+b718ec84a87b7e73ade4@syzkaller.appspotmail.com
+Tested-by: syzbot+b718ec84a87b7e73ade4@syzkaller.appspotmail.com
+Reviewed-by: Viacheslav Dubeyko <slava@dubeyko.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Gustavo A. R. Silva <gustavoars@kernel.org>
+Cc: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/ioapic.c |    2 +-
- arch/x86/kvm/ioapic.h |    4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ fs/hfs/bfind.c | 14 +++++++++++++-
+ fs/hfs/btree.h |  7 +++++++
+ 2 files changed, 20 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kvm/ioapic.c
-+++ b/arch/x86/kvm/ioapic.c
-@@ -96,7 +96,7 @@ static unsigned long ioapic_read_indirec
- static void rtc_irq_eoi_tracking_reset(struct kvm_ioapic *ioapic)
- {
- 	ioapic->rtc_status.pending_eoi = 0;
--	bitmap_zero(ioapic->rtc_status.dest_map.map, KVM_MAX_VCPU_ID);
-+	bitmap_zero(ioapic->rtc_status.dest_map.map, KVM_MAX_VCPU_ID + 1);
+diff --git a/fs/hfs/bfind.c b/fs/hfs/bfind.c
+index de69d8a24f6d..7f2ef95dcd05 100644
+--- a/fs/hfs/bfind.c
++++ b/fs/hfs/bfind.c
+@@ -24,7 +24,19 @@ int hfs_find_init(struct hfs_btree *tree, struct hfs_find_data *fd)
+ 	fd->key = ptr + tree->max_key_len + 2;
+ 	hfs_dbg(BNODE_REFS, "find_init: %d (%p)\n",
+ 		tree->cnid, __builtin_return_address(0));
+-	mutex_lock(&tree->tree_lock);
++	switch (tree->cnid) {
++	case HFS_CAT_CNID:
++		mutex_lock_nested(&tree->tree_lock, CATALOG_BTREE_MUTEX);
++		break;
++	case HFS_EXT_CNID:
++		mutex_lock_nested(&tree->tree_lock, EXTENTS_BTREE_MUTEX);
++		break;
++	case HFS_ATTR_CNID:
++		mutex_lock_nested(&tree->tree_lock, ATTR_BTREE_MUTEX);
++		break;
++	default:
++		return -EINVAL;
++	}
+ 	return 0;
  }
  
- static void kvm_rtc_eoi_tracking_restore_all(struct kvm_ioapic *ioapic);
---- a/arch/x86/kvm/ioapic.h
-+++ b/arch/x86/kvm/ioapic.h
-@@ -43,13 +43,13 @@ struct kvm_vcpu;
+diff --git a/fs/hfs/btree.h b/fs/hfs/btree.h
+index 2715f416b5a8..308b5f1af65b 100644
+--- a/fs/hfs/btree.h
++++ b/fs/hfs/btree.h
+@@ -12,6 +12,13 @@ typedef int (*btree_keycmp)(const btree_key *, const btree_key *);
  
- struct dest_map {
- 	/* vcpu bitmap where IRQ has been sent */
--	DECLARE_BITMAP(map, KVM_MAX_VCPU_ID);
-+	DECLARE_BITMAP(map, KVM_MAX_VCPU_ID + 1);
+ #define NODE_HASH_SIZE  256
  
- 	/*
- 	 * Vector sent to a given vcpu, only valid when
- 	 * the vcpu's bit in map is set
- 	 */
--	u8 vectors[KVM_MAX_VCPU_ID];
-+	u8 vectors[KVM_MAX_VCPU_ID + 1];
- };
- 
- 
++/* B-tree mutex nested subclasses */
++enum hfs_btree_mutex_classes {
++	CATALOG_BTREE_MUTEX,
++	EXTENTS_BTREE_MUTEX,
++	ATTR_BTREE_MUTEX,
++};
++
+ /* A HFS BTree held in memory */
+ struct hfs_btree {
+ 	struct super_block *sb;
+-- 
+2.30.2
+
 
 
