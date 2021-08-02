@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DA1F3DD831
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:50:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF62E3DD994
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 16:01:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234841AbhHBNuU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:50:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33052 "EHLO mail.kernel.org"
+        id S236016AbhHBOBi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 10:01:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234423AbhHBNtp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:49:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A7EAA610CC;
-        Mon,  2 Aug 2021 13:49:35 +0000 (UTC)
+        id S236695AbhHBN7v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:59:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2DE4B60725;
+        Mon,  2 Aug 2021 13:55:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912176;
-        bh=gzGV27JQXs/HPah6FF9LQ2YPsSVSA9iOrr7ozmERj/A=;
+        s=korg; t=1627912557;
+        bh=YbJ2oPzxDMUHrGrJo5WNDONfc5xRW4726IXKczgJRq4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ck3w/cL6k1Y4fIPnl8VqOaqNy+h454RdlYkH+LX8h/LDRBgh/Hr2cDqOp9LGlUtH+
-         OK6JJrlPTB3jhekvI0ILeqa9emTz1W2P/IRuNc5SQfq9lopUpDCfldqAcRZvk+pSfJ
-         DBWk1LK1zJTnWyie+KmRasy4bdMJ+Gp4kYKwNYYQ=
+        b=CdNktkd2Rba4/hkNPB/NakmzdVsMRD/C0875Pw+5S9xFhcN15nZhKRCcNxRdA9yXY
+         qsKx2NGRF4TopbuZaEgrQm9kclNE5btaqQpbQAATnlzLIvgi0Ux+gM0dzKUey4PkkP
+         WerrZKmeWGYiyzBPfZQ5AneuDQehoo/ZjJ8kHPuk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+a70e2ad0879f160b9217@syzkaller.appspotmail.com,
-        Anand Jain <anand.jain@oracle.com>,
-        Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.19 04/30] btrfs: fix rw device counting in __btrfs_free_extra_devids
+        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
+        Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>,
+        Tony Brelinski <tonyx.brelinski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 045/104] i40e: Fix logic of disabling queues
 Date:   Mon,  2 Aug 2021 15:44:42 +0200
-Message-Id: <20210802134334.222025444@linuxfoundation.org>
+Message-Id: <20210802134345.509140824@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134334.081433902@linuxfoundation.org>
-References: <20210802134334.081433902@linuxfoundation.org>
+In-Reply-To: <20210802134344.028226640@linuxfoundation.org>
+References: <20210802134344.028226640@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,113 +43,159 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+From: Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>
 
-commit b2a616676839e2a6b02c8e40be7f886f882ed194 upstream.
+[ Upstream commit 65662a8dcdd01342b71ee44234bcfd0162e195af ]
 
-When removing a writeable device in __btrfs_free_extra_devids, the rw
-device count should be decremented.
+Correct the message flow between driver and firmware when disabling
+queues.
 
-This error was caught by Syzbot which reported a warning in
-close_fs_devices:
+Previously in case of PF reset (due to required reinit after reconfig),
+the error like: "VSI seid 397 Tx ring 60 disable timeout" could show up
+occasionally. The error was not a real issue of hardware or firmware,
+it was caused by wrong sequence of messages invoked by the driver.
 
-  WARNING: CPU: 1 PID: 9355 at fs/btrfs/volumes.c:1168 close_fs_devices+0x763/0x880 fs/btrfs/volumes.c:1168
-  Modules linked in:
-  CPU: 0 PID: 9355 Comm: syz-executor552 Not tainted 5.13.0-rc1-syzkaller #0
-  Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-  RIP: 0010:close_fs_devices+0x763/0x880 fs/btrfs/volumes.c:1168
-  RSP: 0018:ffffc9000333f2f0 EFLAGS: 00010293
-  RAX: ffffffff8365f5c3 RBX: 0000000000000001 RCX: ffff888029afd4c0
-  RDX: 0000000000000000 RSI: 0000000000000001 RDI: 0000000000000000
-  RBP: ffff88802846f508 R08: ffffffff8365f525 R09: ffffed100337d128
-  R10: ffffed100337d128 R11: 0000000000000000 R12: dffffc0000000000
-  R13: ffff888019be8868 R14: 1ffff1100337d10d R15: 1ffff1100337d10a
-  FS:  00007f6f53828700(0000) GS:ffff8880b9a00000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 000000000047c410 CR3: 00000000302a6000 CR4: 00000000001506f0
-  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  Call Trace:
-   btrfs_close_devices+0xc9/0x450 fs/btrfs/volumes.c:1180
-   open_ctree+0x8e1/0x3968 fs/btrfs/disk-io.c:3693
-   btrfs_fill_super fs/btrfs/super.c:1382 [inline]
-   btrfs_mount_root+0xac5/0xc60 fs/btrfs/super.c:1749
-   legacy_get_tree+0xea/0x180 fs/fs_context.c:592
-   vfs_get_tree+0x86/0x270 fs/super.c:1498
-   fc_mount fs/namespace.c:993 [inline]
-   vfs_kern_mount+0xc9/0x160 fs/namespace.c:1023
-   btrfs_mount+0x3d3/0xb50 fs/btrfs/super.c:1809
-   legacy_get_tree+0xea/0x180 fs/fs_context.c:592
-   vfs_get_tree+0x86/0x270 fs/super.c:1498
-   do_new_mount fs/namespace.c:2905 [inline]
-   path_mount+0x196f/0x2be0 fs/namespace.c:3235
-   do_mount fs/namespace.c:3248 [inline]
-   __do_sys_mount fs/namespace.c:3456 [inline]
-   __se_sys_mount+0x2f9/0x3b0 fs/namespace.c:3433
-   do_syscall_64+0x3f/0xb0 arch/x86/entry/common.c:47
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Because fs_devices->rw_devices was not 0 after
-closing all devices. Here is the call trace that was observed:
-
-  btrfs_mount_root():
-    btrfs_scan_one_device():
-      device_list_add();   <---------------- device added
-    btrfs_open_devices():
-      open_fs_devices():
-        btrfs_open_one_device();   <-------- writable device opened,
-	                                     rw device count ++
-    btrfs_fill_super():
-      open_ctree():
-        btrfs_free_extra_devids():
-	  __btrfs_free_extra_devids();  <--- writable device removed,
-	                              rw device count not decremented
-	  fail_tree_roots:
-	    btrfs_close_devices():
-	      close_fs_devices();   <------- rw device count off by 1
-
-As a note, prior to commit cf89af146b7e ("btrfs: dev-replace: fail
-mount if we don't have replace item with target device"), rw_devices
-was decremented on removing a writable device in
-__btrfs_free_extra_devids only if the BTRFS_DEV_STATE_REPLACE_TGT bit
-was not set for the device. However, this check does not need to be
-reinstated as it is now redundant and incorrect.
-
-In __btrfs_free_extra_devids, we skip removing the device if it is the
-target for replacement. This is done by checking whether device->devid
-== BTRFS_DEV_REPLACE_DEVID. Since BTRFS_DEV_STATE_REPLACE_TGT is set
-only on the device with devid BTRFS_DEV_REPLACE_DEVID, no devices
-should have the BTRFS_DEV_STATE_REPLACE_TGT bit set after the check,
-and so it's redundant to test for that bit.
-
-Additionally, following commit 82372bc816d7 ("Btrfs: make
-the logic of source device removing more clear"), rw_devices is
-incremented whenever a writeable device is added to the alloc
-list (including the target device in btrfs_dev_replace_finishing), so
-all removals of writable devices from the alloc list should also be
-accompanied by a decrement to rw_devices.
-
-Reported-by: syzbot+a70e2ad0879f160b9217@syzkaller.appspotmail.com
-Fixes: cf89af146b7e ("btrfs: dev-replace: fail mount if we don't have replace item with target device")
-CC: stable@vger.kernel.org # 5.10+
-Tested-by: syzbot+a70e2ad0879f160b9217@syzkaller.appspotmail.com
-Reviewed-by: Anand Jain <anand.jain@oracle.com>
-Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 41c445ff0f48 ("i40e: main driver core")
+Signed-off-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
+Signed-off-by: Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>
+Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/volumes.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/intel/i40e/i40e_main.c | 58 ++++++++++++---------
+ 1 file changed, 34 insertions(+), 24 deletions(-)
 
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -995,6 +995,7 @@ again:
- 		if (test_bit(BTRFS_DEV_STATE_WRITEABLE, &device->dev_state)) {
- 			list_del_init(&device->dev_alloc_list);
- 			clear_bit(BTRFS_DEV_STATE_WRITEABLE, &device->dev_state);
-+			fs_devices->rw_devices--;
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index f9fe500d4ec4..951423e5f2c0 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -4454,11 +4454,10 @@ int i40e_control_wait_tx_q(int seid, struct i40e_pf *pf, int pf_q,
+ }
+ 
+ /**
+- * i40e_vsi_control_tx - Start or stop a VSI's rings
++ * i40e_vsi_enable_tx - Start a VSI's rings
+  * @vsi: the VSI being configured
+- * @enable: start or stop the rings
+  **/
+-static int i40e_vsi_control_tx(struct i40e_vsi *vsi, bool enable)
++static int i40e_vsi_enable_tx(struct i40e_vsi *vsi)
+ {
+ 	struct i40e_pf *pf = vsi->back;
+ 	int i, pf_q, ret = 0;
+@@ -4467,7 +4466,7 @@ static int i40e_vsi_control_tx(struct i40e_vsi *vsi, bool enable)
+ 	for (i = 0; i < vsi->num_queue_pairs; i++, pf_q++) {
+ 		ret = i40e_control_wait_tx_q(vsi->seid, pf,
+ 					     pf_q,
+-					     false /*is xdp*/, enable);
++					     false /*is xdp*/, true);
+ 		if (ret)
+ 			break;
+ 
+@@ -4476,7 +4475,7 @@ static int i40e_vsi_control_tx(struct i40e_vsi *vsi, bool enable)
+ 
+ 		ret = i40e_control_wait_tx_q(vsi->seid, pf,
+ 					     pf_q + vsi->alloc_queue_pairs,
+-					     true /*is xdp*/, enable);
++					     true /*is xdp*/, true);
+ 		if (ret)
+ 			break;
+ 	}
+@@ -4574,32 +4573,25 @@ int i40e_control_wait_rx_q(struct i40e_pf *pf, int pf_q, bool enable)
+ }
+ 
+ /**
+- * i40e_vsi_control_rx - Start or stop a VSI's rings
++ * i40e_vsi_enable_rx - Start a VSI's rings
+  * @vsi: the VSI being configured
+- * @enable: start or stop the rings
+  **/
+-static int i40e_vsi_control_rx(struct i40e_vsi *vsi, bool enable)
++static int i40e_vsi_enable_rx(struct i40e_vsi *vsi)
+ {
+ 	struct i40e_pf *pf = vsi->back;
+ 	int i, pf_q, ret = 0;
+ 
+ 	pf_q = vsi->base_queue;
+ 	for (i = 0; i < vsi->num_queue_pairs; i++, pf_q++) {
+-		ret = i40e_control_wait_rx_q(pf, pf_q, enable);
++		ret = i40e_control_wait_rx_q(pf, pf_q, true);
+ 		if (ret) {
+ 			dev_info(&pf->pdev->dev,
+-				 "VSI seid %d Rx ring %d %sable timeout\n",
+-				 vsi->seid, pf_q, (enable ? "en" : "dis"));
++				 "VSI seid %d Rx ring %d enable timeout\n",
++				 vsi->seid, pf_q);
+ 			break;
  		}
- 		list_del_init(&device->dev_list);
- 		fs_devices->num_devices--;
+ 	}
+ 
+-	/* Due to HW errata, on Rx disable only, the register can indicate done
+-	 * before it really is. Needs 50ms to be sure
+-	 */
+-	if (!enable)
+-		mdelay(50);
+-
+ 	return ret;
+ }
+ 
+@@ -4612,29 +4604,47 @@ int i40e_vsi_start_rings(struct i40e_vsi *vsi)
+ 	int ret = 0;
+ 
+ 	/* do rx first for enable and last for disable */
+-	ret = i40e_vsi_control_rx(vsi, true);
++	ret = i40e_vsi_enable_rx(vsi);
+ 	if (ret)
+ 		return ret;
+-	ret = i40e_vsi_control_tx(vsi, true);
++	ret = i40e_vsi_enable_tx(vsi);
+ 
+ 	return ret;
+ }
+ 
++#define I40E_DISABLE_TX_GAP_MSEC	50
++
+ /**
+  * i40e_vsi_stop_rings - Stop a VSI's rings
+  * @vsi: the VSI being configured
+  **/
+ void i40e_vsi_stop_rings(struct i40e_vsi *vsi)
+ {
++	struct i40e_pf *pf = vsi->back;
++	int pf_q, err, q_end;
++
+ 	/* When port TX is suspended, don't wait */
+ 	if (test_bit(__I40E_PORT_SUSPENDED, vsi->back->state))
+ 		return i40e_vsi_stop_rings_no_wait(vsi);
+ 
+-	/* do rx first for enable and last for disable
+-	 * Ignore return value, we need to shutdown whatever we can
+-	 */
+-	i40e_vsi_control_tx(vsi, false);
+-	i40e_vsi_control_rx(vsi, false);
++	q_end = vsi->base_queue + vsi->num_queue_pairs;
++	for (pf_q = vsi->base_queue; pf_q < q_end; pf_q++)
++		i40e_pre_tx_queue_cfg(&pf->hw, (u32)pf_q, false);
++
++	for (pf_q = vsi->base_queue; pf_q < q_end; pf_q++) {
++		err = i40e_control_wait_rx_q(pf, pf_q, false);
++		if (err)
++			dev_info(&pf->pdev->dev,
++				 "VSI seid %d Rx ring %d dissable timeout\n",
++				 vsi->seid, pf_q);
++	}
++
++	msleep(I40E_DISABLE_TX_GAP_MSEC);
++	pf_q = vsi->base_queue;
++	for (pf_q = vsi->base_queue; pf_q < q_end; pf_q++)
++		wr32(&pf->hw, I40E_QTX_ENA(pf_q), 0);
++
++	i40e_vsi_wait_queues_disabled(vsi);
+ }
+ 
+ /**
+-- 
+2.30.2
+
 
 
