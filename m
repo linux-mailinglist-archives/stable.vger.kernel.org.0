@@ -2,87 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 612CB3DDF95
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 20:50:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 771F13DDFB2
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 20:59:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230420AbhHBSuK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 14:50:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58390 "EHLO
+        id S230448AbhHBS7P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 14:59:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229537AbhHBSuJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Aug 2021 14:50:09 -0400
-Received: from mail-yb1-xb34.google.com (mail-yb1-xb34.google.com [IPv6:2607:f8b0:4864:20::b34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54BB9C06175F
-        for <stable@vger.kernel.org>; Mon,  2 Aug 2021 11:50:00 -0700 (PDT)
-Received: by mail-yb1-xb34.google.com with SMTP id z128so3571815ybc.10
-        for <stable@vger.kernel.org>; Mon, 02 Aug 2021 11:50:00 -0700 (PDT)
+        with ESMTP id S230409AbhHBS7O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Aug 2021 14:59:14 -0400
+Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E66F6C06175F
+        for <stable@vger.kernel.org>; Mon,  2 Aug 2021 11:59:04 -0700 (PDT)
+Received: by mail-pj1-x102b.google.com with SMTP id b1-20020a17090a8001b029017700de3903so693525pjn.1
+        for <stable@vger.kernel.org>; Mon, 02 Aug 2021 11:59:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=jlekstrand-net.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=P/uyuMe+KXvhXgEAfGyAFi5lTv7MdpXbhBdlFK0tsZ0=;
-        b=dKbfy5zWEEfRjXBTTIBbBGnN5Kp0pb2Nz1IVI9qICWSNk5LZcX45mdqxH7lhBmZtnQ
-         uPUZPYK4rJoJH7cB56TCHf+Vj7RZNwOZKhDenDjG3bMIScY1Lq2W+mlXLRMq1uIOCBP6
-         sxAhsSqfykMB7qVwTsCav94QLWpmHUTHjfyhDDB2NBF24ta9YhcQORn3hOL9Qyr90izD
-         BUhDLzlfzZ9zpePztqBCoeepdhpaN8x5wCbmtaKOKKctBhvrvlPO4Y1t18JrZAFaLshi
-         mgQwNsCn16ahezMzeP1Z1geVvfkKuxWLIjO4J2oa/CreJNgCFU8JsAqhcmONNH6c4mFG
-         wdVg==
+        d=android.com; s=20210112;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=ohR8MWK5z6tQgaHzKRw4z/9ZmwZHAJlnfek7VuSAWHE=;
+        b=L2XLjUI8HeOqDyYuw9UZPUofbh1myp7tASYZwPPGk1eYrihjC7WlcdMVrBDbf5o8yt
+         TblwUbG7lhiV1NGwUK4evO3ikpN8AHycGh6Wff5qujpld8ERJrhT8+HYFxsUw2WCDuyG
+         FcamSDP7RkvedijB0Eva2Q8J6DHoorwAZdpAk+QN2Vv3iBmpzelHklnasHrdDcTWeX5h
+         dCCZ//wqNcJ5NFdMhXRj/F8h4p/bEqpI2bKFc9yAW8XdriJZMrrIRrHNfKe9bE38XZyv
+         GNjcTLQyN0QBTIuKPjzv0Wg4a8XhWKdK0mKVfhCxY0A5GEQYwRe+WwoHJ6L7NN6BiRAs
+         lDBQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=P/uyuMe+KXvhXgEAfGyAFi5lTv7MdpXbhBdlFK0tsZ0=;
-        b=G1ZhG0L6JtLpa8lzlFWabCtgKVgEl3D8fL5cXI0N0wQW2/TM35uOO0fh8djosAvm+3
-         X1xwzOd37sl/NFZ/V1scDThZMqopjo0PTc5FtSt4rduUMJHtVnKpELFKfp70Qcsz1nu1
-         GEvTCh8bzH3zM0e1MVVyQrb50M9fJxMR3a1SDt9h1LlthxVeU3P2DKIP4ftjfCGihOTj
-         H2hHVdGdlh5ENBWoicqKUFvsC4g4kuSUfN72c0+sbhshal+HtUaBr8GietfMX4uPPr9m
-         xAmQv7JKkwrlnVBvzBt2kA+PN1QvozmdAC2bVzwr1oHQPMZUCsCjr376fKcOQAMac4n1
-         D4cQ==
-X-Gm-Message-State: AOAM530zW1C2NBctTHG6K0a6HgaORIlrzw0u2J2tJ3AIMyTi1usu3/O9
-        qDIUgkXB73+dDUX1dbBx4bWEEOvGdoi6OXiNUix4UymlqLAeVw==
-X-Google-Smtp-Source: ABdhPJwpOrwanAWNeHZmx7jZxyJIqG6rYsn+HK44fjP3XgAXGYyxaTf4vOQTLGymfIQxaIVSkN53alnFM1H6SRyNnv4=
-X-Received: by 2002:a25:d714:: with SMTP id o20mr21834861ybg.287.1627930199392;
- Mon, 02 Aug 2021 11:49:59 -0700 (PDT)
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=ohR8MWK5z6tQgaHzKRw4z/9ZmwZHAJlnfek7VuSAWHE=;
+        b=ER8w521hk+FyW6YA81tbj7TXCa1OZZaQ9ujKvvkum2OcK1r7v2WYFQ5iJnn3D8+Vew
+         iTI10iv+EB3s2PTWG1TQLbLyCJivYhxGy9tg6bigfqJd6mu0e/M2P3bayC6gQnK8c7Dd
+         83ce75o8n5Axn92vDzAwA3YJycCdrSrt7n2NEivCG1/wIGp6ueWwuwqNuUU/dQ1Zin5d
+         15X5FWCribmj5IDewCQjye0ovzHKtzurnP3tHSYu7h99ot36cZTPEeuz1okKWsK8D3LQ
+         PBCComdF+d8npsTx8HSTQdQ7I1kocUyyNe/SNhxYXccGhBTeyurdnw3tf/EEHD4IfFnb
+         rOsg==
+X-Gm-Message-State: AOAM530eOCfyJ6bEr13AGY097GlW3weqpWFre/xOJrzHeOmueWRWpCem
+        OQ8iNvOkrTPxRMgIiZbGG9zmWA==
+X-Google-Smtp-Source: ABdhPJw0PZIQU+a+lKpgEKgrBypeszyyvsh48xyNukQdoijIoZro31ZDTgCwHQ9cjrxbem1kEDfS7g==
+X-Received: by 2002:a63:f145:: with SMTP id o5mr234562pgk.273.1627930744547;
+        Mon, 02 Aug 2021 11:59:04 -0700 (PDT)
+Received: from sspatil2.c.googlers.com (190.40.105.34.bc.googleusercontent.com. [34.105.40.190])
+        by smtp.gmail.com with ESMTPSA id c14sm615337pjr.3.2021.08.02.11.59.03
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 02 Aug 2021 11:59:04 -0700 (PDT)
+Subject: Re: [PATCH 1/1] fs: pipe: wakeup readers everytime new data written
+ is to pipe
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        David Howells <dhowells@redhat.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable <stable@vger.kernel.org>,
+        Android Kernel Team <kernel-team@android.com>
+References: <20210729222635.2937453-1-sspatil@android.com>
+ <20210729222635.2937453-2-sspatil@android.com>
+ <CAHk-=wh-DWvsFykwAy6uwyv24nasJ39d7SHT+15x+xEXBtSm_Q@mail.gmail.com>
+ <cee514d6-8551-8838-6d61-098d04e226ca@android.com>
+ <CAHk-=wjStQurUzSAPVajL6Rj=CaPuSSgwaMO=0FJzFvSD66ACw@mail.gmail.com>
+ <CAHk-=wjrfasYJUaZ-rJmYt9xa=DqmJ5-sVRG7cJ2X8nNcSXp9g@mail.gmail.com>
+From:   Sandeep Patil <sspatil@android.com>
+Message-ID: <fc0e2c8a-96cc-7787-6866-3802a1d5c50e@android.com>
+Date:   Mon, 2 Aug 2021 18:59:03 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.12.0
 MIME-Version: 1.0
-References: <20210727163024.3536962-1-jason@jlekstrand.net> <YQTxXYk8ORBYxWCe@kroah.com>
-In-Reply-To: <YQTxXYk8ORBYxWCe@kroah.com>
-From:   Jason Ekstrand <jason@jlekstrand.net>
-Date:   Mon, 2 Aug 2021 13:49:48 -0500
-Message-ID: <CAOFGe95ypAwsycqnG6r3bhnnnH+20A5WoCtkQ7bTtEQ21GzWFg@mail.gmail.com>
-Subject: Re: [PATCH] drm/i915: Revert "drm/i915/gem: Asynchronous cmdparser"
-To:     Greg KH <greg@kroah.com>
-Cc:     stable <stable@vger.kernel.org>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Jon Bloomfield <jon.bloomfield@intel.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <CAHk-=wjrfasYJUaZ-rJmYt9xa=DqmJ5-sVRG7cJ2X8nNcSXp9g@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Jul 31, 2021 at 1:44 AM Greg KH <greg@kroah.com> wrote:
->
-> On Tue, Jul 27, 2021 at 11:30:23AM -0500, Jason Ekstrand wrote:
-> > commit c9d9fdbc108af8915d3f497bbdf3898bf8f321b8 upstream.  This version
-> > applies to the 5.10 tree.
->
-> <snip>
->
-> I don't know if you noticed the other failure messages, but there were
-> other patches in this area that we had to drop from pending stable
-> releases.
->
-> So if you could please review all of them, and resubmit all missing
-> patches as a series, so that we can apply them to the needed 5.10.y and
-> 5.13.y trees, that would be wonderful.  As it is, I can not take just
-> this one, because it depends on other patches in the series from what I
-> can tell.
+On 7/30/21 10:53 PM, Linus Torvalds wrote:
+> On Fri, Jul 30, 2021 at 12:23 PM Linus Torvalds
+> <torvalds@linux-foundation.org> wrote:
+>>
+>> I'll mull it over a bit more, but whatever I'll do I'll do before rc4
+>> and mark it for stable.
+> 
+> Ok, I ended up committing the minimal possible change (and fixing up
+> the comment above it).
+> 
+> It's very much *not* the original behavior either, but that original
+> behavior was truly insane ("wake up for each hunk written"), and I'm
+> trying to at least keep the kernel code from doing actively stupid
+> things.
+> 
+> Since that old patch of mine worked for your test-case, then clearly
+> that realm-core library didn't rely on _that_ kind of insane internal
+> kernel implementation details exposed as semantics. So The minimal
+> patch basically says "each write() system call wil do at least one
+> wake-up, whether really necessary or not".
+> 
+> I also intentionally kept the read side untouched, in that there
+> apparently still isn't a case that would need the confused semantics
+> for read events.
+> 
+> End result: the commit message is a lot bigger than the patch, with
+> most of it being trying to explain the background.
+> 
+> I've pushed it out as commit 3a34b13a88ca ("pipe: make pipe writes
+> always wake up readers"). Holler if you notice anything odd remaining.
 
-As far as I can tell, there were only two patches of mine that need to
-go to stable.  There's a third that got stabled tagged but it's a
-false alarm.  It's also just a docs fix.
+Since what you merged isn't different than what I tested, I don't
+expect any surprises but I will test it regardless. I will come back
+if I see anything unexpected.
 
-I've sent two series to stable@vger.kernel.org, one for 5.10 and one
-for 5.13.  They're clearly labled in the cover letter.
+Thanks for the explanation about the default behavior earlier
+in the thread.
 
---Jason
+- ssp
