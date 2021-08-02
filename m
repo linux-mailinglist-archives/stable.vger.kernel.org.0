@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 250093DD783
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:45:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A6EA3DD795
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:46:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233980AbhHBNqF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:46:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55328 "EHLO mail.kernel.org"
+        id S234165AbhHBNq3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:46:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233976AbhHBNqE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:46:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 81DBF60FA0;
-        Mon,  2 Aug 2021 13:45:54 +0000 (UTC)
+        id S233981AbhHBNqW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:46:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9EBC160555;
+        Mon,  2 Aug 2021 13:46:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627911955;
-        bh=qN86r9VFCwwwbpQ6WASZrAkhL/zY+5BbuJQ35+nBrSs=;
+        s=korg; t=1627911972;
+        bh=onN+AG9ioMbM04VJN/xrnWqij2LxuOIGiSndtJGtRuo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WR13VFV4NoaeXWdeS6DG0YhDH2laT90PongR/pFwRusqL67jKQklmTY4tfvhII32y
-         asLrosTC2WyTJqFHthn7ZAX1KW0jNhXGse5sQsP66mzqSsJNwv1ev+ce04PTqmlnt+
-         i+pbfg73dgRptv9WQCwxCJDmErD9fBVzwOtmJx1Q=
+        b=mXqrwsWs2ukx0+zfBYx3tm/qTLK5SCL26U93gu1kQvCIZmBpYeUKajHCJIdkDz6X2
+         RwiXRDvlFoqc33X9tOfL22BZMxL4YrohM6PU7VN0Oh1CR0gl6NrLVs/sKa+ZqQMpeL
+         bu6eSEF8m44PN/z4LEXzaosPT3J4GumvrCbk2zOk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hannes Reinecke <hare@suse.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.4 01/26] net: split out functions related to registering inflight socket files
-Date:   Mon,  2 Aug 2021 15:44:11 +0200
-Message-Id: <20210802134332.079531555@linuxfoundation.org>
+        stable@vger.kernel.org, Miklos Szeredi <mszeredi@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.4 02/26] af_unix: fix garbage collect vs MSG_PEEK
+Date:   Mon,  2 Aug 2021 15:44:12 +0200
+Message-Id: <20210802134332.110702961@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210802134332.033552261@linuxfoundation.org>
 References: <20210802134332.033552261@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -42,428 +39,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-commit f4e65870e5cede5ca1ec0006b6c9803994e5f7b8 upstream.
+commit cbcf01128d0a92e131bd09f1688fe032480b65ca upstream.
 
-We need this functionality for the io_uring file registration, but
-we cannot rely on it since CONFIG_UNIX can be modular. Move the helpers
-to a separate file, that's always builtin to the kernel if CONFIG_UNIX is
-m/y.
+unix_gc() assumes that candidate sockets can never gain an external
+reference (i.e.  be installed into an fd) while the unix_gc_lock is
+held.  Except for MSG_PEEK this is guaranteed by modifying inflight
+count under the unix_gc_lock.
 
-No functional changes in this patch, just moving code around.
+MSG_PEEK does not touch any variable protected by unix_gc_lock (file
+count is not), yet it needs to be serialized with garbage collection.
+Do this by locking/unlocking unix_gc_lock:
 
-Reviewed-by: Hannes Reinecke <hare@suse.com>
-Acked-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-[ backported to older kernels to get access to unix_gc_lock - gregkh ]
+ 1) increment file count
+
+ 2) lock/unlock barrier to make sure incremented file count is visible
+    to garbage collection
+
+ 3) install file into fd
+
+This is a lock barrier (unlike smp_mb()) that ensures that garbage
+collection is run completely before or completely after the barrier.
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/af_unix.h |    1 
- net/Makefile          |    2 
- net/unix/Kconfig      |    5 +
- net/unix/Makefile     |    2 
- net/unix/af_unix.c    |   76 -----------------------
- net/unix/garbage.c    |   68 ---------------------
- net/unix/scm.c        |  161 ++++++++++++++++++++++++++++++++++++++++++++++++++
- net/unix/scm.h        |   10 +++
- 8 files changed, 184 insertions(+), 141 deletions(-)
- create mode 100644 net/unix/scm.c
- create mode 100644 net/unix/scm.h
+ net/unix/af_unix.c |   51 +++++++++++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 49 insertions(+), 2 deletions(-)
 
---- a/include/net/af_unix.h
-+++ b/include/net/af_unix.h
-@@ -8,6 +8,7 @@
- 
- void unix_inflight(struct user_struct *user, struct file *fp);
- void unix_notinflight(struct user_struct *user, struct file *fp);
-+void unix_destruct_scm(struct sk_buff *skb);
- void unix_gc(void);
- void wait_for_unix_gc(void);
- struct sock *unix_get_socket(struct file *filp);
---- a/net/Makefile
-+++ b/net/Makefile
-@@ -16,7 +16,7 @@ obj-$(CONFIG_NET)		+= ethernet/ 802/ sch
- obj-$(CONFIG_NETFILTER)		+= netfilter/
- obj-$(CONFIG_INET)		+= ipv4/
- obj-$(CONFIG_XFRM)		+= xfrm/
--obj-$(CONFIG_UNIX)		+= unix/
-+obj-$(CONFIG_UNIX_SCM)		+= unix/
- obj-$(CONFIG_NET)		+= ipv6/
- obj-$(CONFIG_PACKET)		+= packet/
- obj-$(CONFIG_NET_KEY)		+= key/
---- a/net/unix/Kconfig
-+++ b/net/unix/Kconfig
-@@ -19,6 +19,11 @@ config UNIX
- 
- 	  Say Y unless you know what you are doing.
- 
-+config UNIX_SCM
-+	bool
-+	depends on UNIX
-+	default y
-+
- config UNIX_DIAG
- 	tristate "UNIX: socket monitoring interface"
- 	depends on UNIX
---- a/net/unix/Makefile
-+++ b/net/unix/Makefile
-@@ -9,3 +9,5 @@ unix-$(CONFIG_SYSCTL)	+= sysctl_net_unix
- 
- obj-$(CONFIG_UNIX_DIAG)	+= unix_diag.o
- unix_diag-y		:= diag.o
-+
-+obj-$(CONFIG_UNIX_SCM)	+= scm.o
 --- a/net/unix/af_unix.c
 +++ b/net/unix/af_unix.c
-@@ -118,6 +118,8 @@
- #include <linux/security.h>
- #include <linux/freezer.h>
- 
-+#include "scm.h"
-+
- struct hlist_head unix_socket_table[2 * UNIX_HASH_SIZE];
- EXPORT_SYMBOL_GPL(unix_socket_table);
- DEFINE_SPINLOCK(unix_table_lock);
-@@ -1504,80 +1506,6 @@ out:
+@@ -1506,6 +1506,53 @@ out:
  	return err;
  }
  
--static void unix_detach_fds(struct scm_cookie *scm, struct sk_buff *skb)
--{
--	int i;
--
--	scm->fp = UNIXCB(skb).fp;
--	UNIXCB(skb).fp = NULL;
--
--	for (i = scm->fp->count-1; i >= 0; i--)
--		unix_notinflight(scm->fp->user, scm->fp->fp[i]);
--}
--
--static void unix_destruct_scm(struct sk_buff *skb)
--{
--	struct scm_cookie scm;
--	memset(&scm, 0, sizeof(scm));
--	scm.pid  = UNIXCB(skb).pid;
--	if (UNIXCB(skb).fp)
--		unix_detach_fds(&scm, skb);
--
--	/* Alas, it calls VFS */
--	/* So fscking what? fput() had been SMP-safe since the last Summer */
--	scm_destroy(&scm);
--	sock_wfree(skb);
--}
--
--/*
-- * The "user->unix_inflight" variable is protected by the garbage
-- * collection lock, and we just read it locklessly here. If you go
-- * over the limit, there might be a tiny race in actually noticing
-- * it across threads. Tough.
-- */
--static inline bool too_many_unix_fds(struct task_struct *p)
--{
--	struct user_struct *user = current_user();
--
--	if (unlikely(user->unix_inflight > task_rlimit(p, RLIMIT_NOFILE)))
--		return !capable(CAP_SYS_RESOURCE) && !capable(CAP_SYS_ADMIN);
--	return false;
--}
--
--#define MAX_RECURSION_LEVEL 4
--
--static int unix_attach_fds(struct scm_cookie *scm, struct sk_buff *skb)
--{
--	int i;
--	unsigned char max_level = 0;
--
--	if (too_many_unix_fds(current))
--		return -ETOOMANYREFS;
--
--	for (i = scm->fp->count - 1; i >= 0; i--) {
--		struct sock *sk = unix_get_socket(scm->fp->fp[i]);
--
--		if (sk)
--			max_level = max(max_level,
--					unix_sk(sk)->recursion_level);
--	}
--	if (unlikely(max_level > MAX_RECURSION_LEVEL))
--		return -ETOOMANYREFS;
--
--	/*
--	 * Need to duplicate file references for the sake of garbage
--	 * collection.  Otherwise a socket in the fps might become a
--	 * candidate for GC while the skb is not yet queued.
--	 */
--	UNIXCB(skb).fp = scm_fp_dup(scm->fp);
--	if (!UNIXCB(skb).fp)
--		return -ENOMEM;
--
--	for (i = scm->fp->count - 1; i >= 0; i--)
--		unix_inflight(scm->fp->user, scm->fp->fp[i]);
--	return max_level;
--}
--
++static void unix_peek_fds(struct scm_cookie *scm, struct sk_buff *skb)
++{
++	scm->fp = scm_fp_dup(UNIXCB(skb).fp);
++
++	/*
++	 * Garbage collection of unix sockets starts by selecting a set of
++	 * candidate sockets which have reference only from being in flight
++	 * (total_refs == inflight_refs).  This condition is checked once during
++	 * the candidate collection phase, and candidates are marked as such, so
++	 * that non-candidates can later be ignored.  While inflight_refs is
++	 * protected by unix_gc_lock, total_refs (file count) is not, hence this
++	 * is an instantaneous decision.
++	 *
++	 * Once a candidate, however, the socket must not be reinstalled into a
++	 * file descriptor while the garbage collection is in progress.
++	 *
++	 * If the above conditions are met, then the directed graph of
++	 * candidates (*) does not change while unix_gc_lock is held.
++	 *
++	 * Any operations that changes the file count through file descriptors
++	 * (dup, close, sendmsg) does not change the graph since candidates are
++	 * not installed in fds.
++	 *
++	 * Dequeing a candidate via recvmsg would install it into an fd, but
++	 * that takes unix_gc_lock to decrement the inflight count, so it's
++	 * serialized with garbage collection.
++	 *
++	 * MSG_PEEK is special in that it does not change the inflight count,
++	 * yet does install the socket into an fd.  The following lock/unlock
++	 * pair is to ensure serialization with garbage collection.  It must be
++	 * done between incrementing the file count and installing the file into
++	 * an fd.
++	 *
++	 * If garbage collection starts after the barrier provided by the
++	 * lock/unlock, then it will see the elevated refcount and not mark this
++	 * as a candidate.  If a garbage collection is already in progress
++	 * before the file count was incremented, then the lock/unlock pair will
++	 * ensure that garbage collection is finished before progressing to
++	 * installing the fd.
++	 *
++	 * (*) A -> B where B is on the queue of A or B is on the queue of C
++	 * which is on the queue of listening socket A.
++	 */
++	spin_lock(&unix_gc_lock);
++	spin_unlock(&unix_gc_lock);
++}
++
  static int unix_scm_to_skb(struct scm_cookie *scm, struct sk_buff *skb, bool send_fds)
  {
  	int err = 0;
---- a/net/unix/garbage.c
-+++ b/net/unix/garbage.c
-@@ -86,77 +86,13 @@
- #include <net/scm.h>
- #include <net/tcp_states.h>
+@@ -2131,7 +2178,7 @@ static int unix_dgram_recvmsg(struct soc
+ 		sk_peek_offset_fwd(sk, size);
  
-+#include "scm.h"
-+
- /* Internal data structures and random procedures: */
+ 		if (UNIXCB(skb).fp)
+-			scm.fp = scm_fp_dup(UNIXCB(skb).fp);
++			unix_peek_fds(&scm, skb);
+ 	}
+ 	err = (flags & MSG_TRUNC) ? skb->len - skip : size;
  
--static LIST_HEAD(gc_inflight_list);
- static LIST_HEAD(gc_candidates);
--static DEFINE_SPINLOCK(unix_gc_lock);
- static DECLARE_WAIT_QUEUE_HEAD(unix_gc_wait);
+@@ -2376,7 +2423,7 @@ unlock:
+ 			/* It is questionable, see note in unix_dgram_recvmsg.
+ 			 */
+ 			if (UNIXCB(skb).fp)
+-				scm.fp = scm_fp_dup(UNIXCB(skb).fp);
++				unix_peek_fds(&scm, skb);
  
--unsigned int unix_tot_inflight;
--
--struct sock *unix_get_socket(struct file *filp)
--{
--	struct sock *u_sock = NULL;
--	struct inode *inode = file_inode(filp);
--
--	/* Socket ? */
--	if (S_ISSOCK(inode->i_mode) && !(filp->f_mode & FMODE_PATH)) {
--		struct socket *sock = SOCKET_I(inode);
--		struct sock *s = sock->sk;
--
--		/* PF_UNIX ? */
--		if (s && sock->ops && sock->ops->family == PF_UNIX)
--			u_sock = s;
--	}
--	return u_sock;
--}
--
--/* Keep the number of times in flight count for the file
-- * descriptor if it is for an AF_UNIX socket.
-- */
--
--void unix_inflight(struct user_struct *user, struct file *fp)
--{
--	struct sock *s = unix_get_socket(fp);
--
--	spin_lock(&unix_gc_lock);
--
--	if (s) {
--		struct unix_sock *u = unix_sk(s);
--
--		if (atomic_long_inc_return(&u->inflight) == 1) {
--			BUG_ON(!list_empty(&u->link));
--			list_add_tail(&u->link, &gc_inflight_list);
--		} else {
--			BUG_ON(list_empty(&u->link));
--		}
--		unix_tot_inflight++;
--	}
--	user->unix_inflight++;
--	spin_unlock(&unix_gc_lock);
--}
--
--void unix_notinflight(struct user_struct *user, struct file *fp)
--{
--	struct sock *s = unix_get_socket(fp);
--
--	spin_lock(&unix_gc_lock);
--
--	if (s) {
--		struct unix_sock *u = unix_sk(s);
--
--		BUG_ON(!atomic_long_read(&u->inflight));
--		BUG_ON(list_empty(&u->link));
--
--		if (atomic_long_dec_and_test(&u->inflight))
--			list_del_init(&u->link);
--		unix_tot_inflight--;
--	}
--	user->unix_inflight--;
--	spin_unlock(&unix_gc_lock);
--}
--
- static void scan_inflight(struct sock *x, void (*func)(struct unix_sock *),
- 			  struct sk_buff_head *hitlist)
- {
---- /dev/null
-+++ b/net/unix/scm.c
-@@ -0,0 +1,161 @@
-+// SPDX-License-Identifier: GPL-2.0
-+#include <linux/module.h>
-+#include <linux/kernel.h>
-+#include <linux/string.h>
-+#include <linux/socket.h>
-+#include <linux/net.h>
-+#include <linux/fs.h>
-+#include <net/af_unix.h>
-+#include <net/scm.h>
-+#include <linux/init.h>
-+
-+#include "scm.h"
-+
-+unsigned int unix_tot_inflight;
-+EXPORT_SYMBOL(unix_tot_inflight);
-+
-+LIST_HEAD(gc_inflight_list);
-+EXPORT_SYMBOL(gc_inflight_list);
-+
-+DEFINE_SPINLOCK(unix_gc_lock);
-+EXPORT_SYMBOL(unix_gc_lock);
-+
-+struct sock *unix_get_socket(struct file *filp)
-+{
-+	struct sock *u_sock = NULL;
-+	struct inode *inode = file_inode(filp);
-+
-+	/* Socket ? */
-+	if (S_ISSOCK(inode->i_mode) && !(filp->f_mode & FMODE_PATH)) {
-+		struct socket *sock = SOCKET_I(inode);
-+		struct sock *s = sock->sk;
-+
-+		/* PF_UNIX ? */
-+		if (s && sock->ops && sock->ops->family == PF_UNIX)
-+			u_sock = s;
-+	}
-+	return u_sock;
-+}
-+EXPORT_SYMBOL(unix_get_socket);
-+
-+/* Keep the number of times in flight count for the file
-+ * descriptor if it is for an AF_UNIX socket.
-+ */
-+void unix_inflight(struct user_struct *user, struct file *fp)
-+{
-+	struct sock *s = unix_get_socket(fp);
-+
-+	spin_lock(&unix_gc_lock);
-+
-+	if (s) {
-+		struct unix_sock *u = unix_sk(s);
-+
-+		if (atomic_long_inc_return(&u->inflight) == 1) {
-+			BUG_ON(!list_empty(&u->link));
-+			list_add_tail(&u->link, &gc_inflight_list);
-+		} else {
-+			BUG_ON(list_empty(&u->link));
-+		}
-+		unix_tot_inflight++;
-+	}
-+	user->unix_inflight++;
-+	spin_unlock(&unix_gc_lock);
-+}
-+
-+void unix_notinflight(struct user_struct *user, struct file *fp)
-+{
-+	struct sock *s = unix_get_socket(fp);
-+
-+	spin_lock(&unix_gc_lock);
-+
-+	if (s) {
-+		struct unix_sock *u = unix_sk(s);
-+
-+		BUG_ON(!atomic_long_read(&u->inflight));
-+		BUG_ON(list_empty(&u->link));
-+
-+		if (atomic_long_dec_and_test(&u->inflight))
-+			list_del_init(&u->link);
-+		unix_tot_inflight--;
-+	}
-+	user->unix_inflight--;
-+	spin_unlock(&unix_gc_lock);
-+}
-+
-+/*
-+ * The "user->unix_inflight" variable is protected by the garbage
-+ * collection lock, and we just read it locklessly here. If you go
-+ * over the limit, there might be a tiny race in actually noticing
-+ * it across threads. Tough.
-+ */
-+static inline bool too_many_unix_fds(struct task_struct *p)
-+{
-+	struct user_struct *user = current_user();
-+
-+	if (unlikely(user->unix_inflight > task_rlimit(p, RLIMIT_NOFILE)))
-+		return !capable(CAP_SYS_RESOURCE) && !capable(CAP_SYS_ADMIN);
-+	return false;
-+}
-+
-+#define MAX_RECURSION_LEVEL 4
-+
-+int unix_attach_fds(struct scm_cookie *scm, struct sk_buff *skb)
-+{
-+	int i;
-+	unsigned char max_level = 0;
-+
-+	if (too_many_unix_fds(current))
-+		return -ETOOMANYREFS;
-+
-+	for (i = scm->fp->count - 1; i >= 0; i--) {
-+		struct sock *sk = unix_get_socket(scm->fp->fp[i]);
-+
-+		if (sk)
-+			max_level = max(max_level,
-+					unix_sk(sk)->recursion_level);
-+	}
-+	if (unlikely(max_level > MAX_RECURSION_LEVEL))
-+		return -ETOOMANYREFS;
-+
-+	/*
-+	 * Need to duplicate file references for the sake of garbage
-+	 * collection.  Otherwise a socket in the fps might become a
-+	 * candidate for GC while the skb is not yet queued.
-+	 */
-+	UNIXCB(skb).fp = scm_fp_dup(scm->fp);
-+	if (!UNIXCB(skb).fp)
-+		return -ENOMEM;
-+
-+	for (i = scm->fp->count - 1; i >= 0; i--)
-+		unix_inflight(scm->fp->user, scm->fp->fp[i]);
-+	return max_level;
-+}
-+EXPORT_SYMBOL(unix_attach_fds);
-+
-+void unix_detach_fds(struct scm_cookie *scm, struct sk_buff *skb)
-+{
-+	int i;
-+
-+	scm->fp = UNIXCB(skb).fp;
-+	UNIXCB(skb).fp = NULL;
-+
-+	for (i = scm->fp->count-1; i >= 0; i--)
-+		unix_notinflight(scm->fp->user, scm->fp->fp[i]);
-+}
-+EXPORT_SYMBOL(unix_detach_fds);
-+
-+void unix_destruct_scm(struct sk_buff *skb)
-+{
-+	struct scm_cookie scm;
-+
-+	memset(&scm, 0, sizeof(scm));
-+	scm.pid  = UNIXCB(skb).pid;
-+	if (UNIXCB(skb).fp)
-+		unix_detach_fds(&scm, skb);
-+
-+	/* Alas, it calls VFS */
-+	/* So fscking what? fput() had been SMP-safe since the last Summer */
-+	scm_destroy(&scm);
-+	sock_wfree(skb);
-+}
-+EXPORT_SYMBOL(unix_destruct_scm);
---- /dev/null
-+++ b/net/unix/scm.h
-@@ -0,0 +1,10 @@
-+#ifndef NET_UNIX_SCM_H
-+#define NET_UNIX_SCM_H
-+
-+extern struct list_head gc_inflight_list;
-+extern spinlock_t unix_gc_lock;
-+
-+int unix_attach_fds(struct scm_cookie *scm, struct sk_buff *skb);
-+void unix_detach_fds(struct scm_cookie *scm, struct sk_buff *skb);
-+
-+#endif
+ 			sk_peek_offset_fwd(sk, chunk);
+ 
 
 
