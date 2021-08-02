@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 487183DD892
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:53:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1FF53DDA19
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 16:06:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234165AbhHBNxO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:53:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33052 "EHLO mail.kernel.org"
+        id S236493AbhHBOGL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 10:06:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234792AbhHBNwF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:52:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E3BDE610FD;
-        Mon,  2 Aug 2021 13:51:30 +0000 (UTC)
+        id S236353AbhHBOCK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 10:02:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9189D61206;
+        Mon,  2 Aug 2021 13:57:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912291;
-        bh=9s0+jIRRx+lf0HGF/rUXYbRC0k0MzN9myWE59gt82XA=;
+        s=korg; t=1627912625;
+        bh=BX+yWh97LQhZaktYnVrL82g/nJzEZjkgIoevaOt8Kno=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Oe80Sc9Z7PPRUPehLFqInQ/i1WNJbt6ZhsgQmqw/wWoimUDb/CEcnCFU0WfqYl0kh
-         a2ADFUxz/cgbkLjCruPGSHrV89CvA+RJk60F3ctUo52VeIqWtWoKhL3VVSAxz+TTR3
-         x6S6IbNUwoIInI1nvhwvu3c0Cc0Q86bVkubn0JW0=
+        b=bPLhYvEhAellKJZGsaETSSiPDJKqbqwZCN6Xlw57BUcPfQBz7v2gyaxepkA5L2NTe
+         dph4kIXZJcaEBerHoxO76i15/ok9XBvrAQ3iNtcWO4AlOM7xG8TsjBF84w2aCI3ykc
+         qw2VPsLQ5ZsjY6RwhQsHw1LY4fGbnobJou+2MGuI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wang Hai <wanghai38@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Maor Dickman <maord@nvidia.com>,
+        Roi Dayan <roid@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 33/40] tulip: windbond-840: Fix missing pci_disable_device() in probe and remove
-Date:   Mon,  2 Aug 2021 15:45:13 +0200
-Message-Id: <20210802134336.443810996@linuxfoundation.org>
+Subject: [PATCH 5.13 077/104] net/mlx5: E-Switch, Set destination vport vhca id only when merged eswitch is supported
+Date:   Mon,  2 Aug 2021 15:45:14 +0200
+Message-Id: <20210802134346.549045440@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134335.408294521@linuxfoundation.org>
-References: <20210802134335.408294521@linuxfoundation.org>
+In-Reply-To: <20210802134344.028226640@linuxfoundation.org>
+References: <20210802134344.028226640@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,62 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Maor Dickman <maord@nvidia.com>
 
-[ Upstream commit 76a16be07b209a3f507c72abe823bd3af1c8661a ]
+[ Upstream commit c671972534c6f7fce789ac8156a2bc3bd146f806 ]
 
-Replace pci_enable_device() with pcim_enable_device(),
-pci_disable_device() and pci_release_regions() will be
-called in release automatically.
+Destination vport vhca id is valid flag is set only merged eswitch isn't supported.
+Change destination vport vhca id value to be set also only when merged eswitch
+is supported.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: e4ad91f23f10 ("net/mlx5e: Split offloaded eswitch TC rules for port mirroring")
+Signed-off-by: Maor Dickman <maord@nvidia.com>
+Reviewed-by: Roi Dayan <roid@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/dec/tulip/winbond-840.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/dec/tulip/winbond-840.c b/drivers/net/ethernet/dec/tulip/winbond-840.c
-index 70cb2d689c2c..79bdd2a79dbd 100644
---- a/drivers/net/ethernet/dec/tulip/winbond-840.c
-+++ b/drivers/net/ethernet/dec/tulip/winbond-840.c
-@@ -367,7 +367,7 @@ static int w840_probe1(struct pci_dev *pdev, const struct pci_device_id *ent)
- 	int i, option = find_cnt < MAX_UNITS ? options[find_cnt] : 0;
- 	void __iomem *ioaddr;
- 
--	i = pci_enable_device(pdev);
-+	i = pcim_enable_device(pdev);
- 	if (i) return i;
- 
- 	pci_set_master(pdev);
-@@ -389,7 +389,7 @@ static int w840_probe1(struct pci_dev *pdev, const struct pci_device_id *ent)
- 
- 	ioaddr = pci_iomap(pdev, TULIP_BAR, netdev_res_size);
- 	if (!ioaddr)
--		goto err_out_free_res;
-+		goto err_out_netdev;
- 
- 	for (i = 0; i < 3; i++)
- 		((__le16 *)dev->dev_addr)[i] = cpu_to_le16(eeprom_read(ioaddr, i));
-@@ -468,8 +468,6 @@ static int w840_probe1(struct pci_dev *pdev, const struct pci_device_id *ent)
- 
- err_out_cleardev:
- 	pci_iounmap(pdev, ioaddr);
--err_out_free_res:
--	pci_release_regions(pdev);
- err_out_netdev:
- 	free_netdev (dev);
- 	return -ENODEV;
-@@ -1535,7 +1533,6 @@ static void w840_remove1(struct pci_dev *pdev)
- 	if (dev) {
- 		struct netdev_private *np = netdev_priv(dev);
- 		unregister_netdev(dev);
--		pci_release_regions(pdev);
- 		pci_iounmap(pdev, np->base_addr);
- 		free_netdev(dev);
- 	}
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
+index d18a28a6e9a6..91571156a89d 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
+@@ -382,10 +382,11 @@ esw_setup_vport_dest(struct mlx5_flow_destination *dest, struct mlx5_flow_act *f
+ {
+ 	dest[dest_idx].type = MLX5_FLOW_DESTINATION_TYPE_VPORT;
+ 	dest[dest_idx].vport.num = esw_attr->dests[attr_idx].rep->vport;
+-	dest[dest_idx].vport.vhca_id =
+-		MLX5_CAP_GEN(esw_attr->dests[attr_idx].mdev, vhca_id);
+-	if (MLX5_CAP_ESW(esw->dev, merged_eswitch))
++	if (MLX5_CAP_ESW(esw->dev, merged_eswitch)) {
++		dest[dest_idx].vport.vhca_id =
++			MLX5_CAP_GEN(esw_attr->dests[attr_idx].mdev, vhca_id);
+ 		dest[dest_idx].vport.flags |= MLX5_FLOW_DEST_VPORT_VHCA_ID;
++	}
+ 	if (esw_attr->dests[attr_idx].flags & MLX5_ESW_DEST_ENCAP) {
+ 		if (pkt_reformat) {
+ 			flow_act->action |= MLX5_FLOW_CONTEXT_ACTION_PACKET_REFORMAT;
 -- 
 2.30.2
 
