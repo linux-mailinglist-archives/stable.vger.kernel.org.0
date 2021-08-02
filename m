@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E90EF3DD843
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:50:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 633253DD9B6
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 16:03:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234768AbhHBNu4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:50:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33536 "EHLO mail.kernel.org"
+        id S234337AbhHBODP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 10:03:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234770AbhHBNuC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:50:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D96DD61103;
-        Mon,  2 Aug 2021 13:49:52 +0000 (UTC)
+        id S234806AbhHBOBQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 10:01:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8779261184;
+        Mon,  2 Aug 2021 13:56:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912193;
-        bh=KFdNe7Jh42YGEmZ1gQ/r+HkoAS86CXfZzlbotX9vKuE=;
+        s=korg; t=1627912588;
+        bh=eG0MVS+ns74U2oOzbqDmKfPXvRJohM30sdCjJ9bqqww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DIYpwKXSU1QInMWd57X9TP+H87Cs2IWRX81S4wRqsub6mpzoeksFetRJTVo0zSajR
-         SNTyCrt9HGW8TGSGbnRLVKeXdO2dGA11cdWaxG3OmRHFWtkpQNRKqkNGQ00g6Kx3lj
-         hS7T+7ZB20sF2+4B452EkMMdpWYsQL7AnJStYVps=
+        b=nY7+7kgG5OJ14blnOBMOhmogyGHwQhAyx+jJpp2r6ljBsKLk1fcsvalHXIv8sSP1A
+         wVfuAAQ3IZ4F4Tz+EdnES+uHIWq8eMD3h9Hbc8MTOxKyjkz2fH6U7hd2X8A0et0alk
+         5L/HuVG2vabUBDc1HAHCoKIv1qADqfEK5UgnCYOI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Maloy <jmaloy@redhat.com>,
-        Hoang Le <hoang.h.le@dektech.com.au>,
+        stable@vger.kernel.org, Shuang Li <shuali@redhat.com>,
+        Xin Long <lucien.xin@gmail.com>, Jon Maloy <jmaloy@redhat.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 20/30] tipc: fix sleeping in tipc accept routine
+Subject: [PATCH 5.13 061/104] tipc: do not write skb_shinfo frags when doing decrytion
 Date:   Mon,  2 Aug 2021 15:44:58 +0200
-Message-Id: <20210802134334.714170253@linuxfoundation.org>
+Message-Id: <20210802134346.006568285@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134334.081433902@linuxfoundation.org>
-References: <20210802134334.081433902@linuxfoundation.org>
+In-Reply-To: <20210802134344.028226640@linuxfoundation.org>
+References: <20210802134344.028226640@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,60 +41,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hoang Le <hoang.h.le@dektech.com.au>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit d237a7f11719ff9320721be5818352e48071aab6 ]
+[ Upstream commit 3cf4375a090473d240281a0d2b04a3a5aaeac34b ]
 
-The release_sock() is blocking function, it would change the state
-after sleeping. In order to evaluate the stated condition outside
-the socket lock context, switch to use wait_woken() instead.
+One skb's skb_shinfo frags are not writable, and they can be shared with
+other skbs' like by pskb_copy(). To write the frags may cause other skb's
+data crash.
 
-Fixes: 6398e23cdb1d8 ("tipc: standardize accept routine")
+So before doing en/decryption, skb_cow_data() should always be called for
+a cloned or nonlinear skb if req dst is using the same sg as req src.
+While at it, the likely branch can be removed, as it will be covered
+by skb_cow_data().
+
+Note that esp_input() has the same issue, and I will fix it in another
+patch. tipc_aead_encrypt() doesn't have this issue, as it only processes
+linear data in the unlikely branch.
+
+Fixes: fc1b6d6de220 ("tipc: introduce TIPC encryption & authentication")
+Reported-by: Shuang Li <shuali@redhat.com>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
 Acked-by: Jon Maloy <jmaloy@redhat.com>
-Signed-off-by: Hoang Le <hoang.h.le@dektech.com.au>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/socket.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ net/tipc/crypto.c | 14 ++++----------
+ 1 file changed, 4 insertions(+), 10 deletions(-)
 
-diff --git a/net/tipc/socket.c b/net/tipc/socket.c
-index 3c41fb8edc5f..6aead6deaa6c 100644
---- a/net/tipc/socket.c
-+++ b/net/tipc/socket.c
-@@ -2440,7 +2440,7 @@ static int tipc_listen(struct socket *sock, int len)
- static int tipc_wait_for_accept(struct socket *sock, long timeo)
- {
- 	struct sock *sk = sock->sk;
--	DEFINE_WAIT(wait);
-+	DEFINE_WAIT_FUNC(wait, woken_wake_function);
- 	int err;
+diff --git a/net/tipc/crypto.c b/net/tipc/crypto.c
+index e5c43d4d5a75..c9391d38de85 100644
+--- a/net/tipc/crypto.c
++++ b/net/tipc/crypto.c
+@@ -898,16 +898,10 @@ static int tipc_aead_decrypt(struct net *net, struct tipc_aead *aead,
+ 	if (unlikely(!aead))
+ 		return -ENOKEY;
  
- 	/* True wake-one mechanism for incoming connections: only
-@@ -2449,12 +2449,12 @@ static int tipc_wait_for_accept(struct socket *sock, long timeo)
- 	 * anymore, the common case will execute the loop only once.
- 	*/
- 	for (;;) {
--		prepare_to_wait_exclusive(sk_sleep(sk), &wait,
--					  TASK_INTERRUPTIBLE);
- 		if (timeo && skb_queue_empty(&sk->sk_receive_queue)) {
-+			add_wait_queue(sk_sleep(sk), &wait);
- 			release_sock(sk);
--			timeo = schedule_timeout(timeo);
-+			timeo = wait_woken(&wait, TASK_INTERRUPTIBLE, timeo);
- 			lock_sock(sk);
-+			remove_wait_queue(sk_sleep(sk), &wait);
- 		}
- 		err = 0;
- 		if (!skb_queue_empty(&sk->sk_receive_queue))
-@@ -2466,7 +2466,6 @@ static int tipc_wait_for_accept(struct socket *sock, long timeo)
- 		if (signal_pending(current))
- 			break;
+-	/* Cow skb data if needed */
+-	if (likely(!skb_cloned(skb) &&
+-		   (!skb_is_nonlinear(skb) || !skb_has_frag_list(skb)))) {
+-		nsg = 1 + skb_shinfo(skb)->nr_frags;
+-	} else {
+-		nsg = skb_cow_data(skb, 0, &unused);
+-		if (unlikely(nsg < 0)) {
+-			pr_err("RX: skb_cow_data() returned %d\n", nsg);
+-			return nsg;
+-		}
++	nsg = skb_cow_data(skb, 0, &unused);
++	if (unlikely(nsg < 0)) {
++		pr_err("RX: skb_cow_data() returned %d\n", nsg);
++		return nsg;
  	}
--	finish_wait(sk_sleep(sk), &wait);
- 	return err;
- }
  
+ 	/* Allocate memory for the AEAD operation */
 -- 
 2.30.2
 
