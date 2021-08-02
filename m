@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C54683DD7B6
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:47:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F6613DD987
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 16:01:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234292AbhHBNrz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:47:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56714 "EHLO mail.kernel.org"
+        id S235814AbhHBOBI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 10:01:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234239AbhHBNq4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:46:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B38B60FC1;
-        Mon,  2 Aug 2021 13:46:46 +0000 (UTC)
+        id S236443AbhHBN7a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:59:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 675166120D;
+        Mon,  2 Aug 2021 13:55:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912006;
-        bh=JkSY3ycioVZNLgNmrHqts3OiCAFSHW9Sy0kYi5K4aUw=;
+        s=korg; t=1627912541;
+        bh=+c53tSanS34N+6wuyCQziUeyxAyUg7S5Doy2u4NJt2I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GvNZomNBRgXwCwntjRWEwssXe4H3fcXIGdb0yBFcx22lVr8cBN9p7dUGSNqv4KOMS
-         g0Fjw93UzHoL72HySJveULXyQE2JDZa33M9cGKMcVtGzVofoIEMzucKaZrD31m7YDg
-         4jtyS3nfNSrq4Oy5EMEDYg8SyoR8rxYVyxioMKY8=
+        b=Woi4gjkuYPmPB0jtKWeaAdkz+uMzt9fx6qpC4Y93Re2A8Upn50wxVAmvszl4patWL
+         ft8hKBvqLuS5bMd14gYDJhnkLVlWQI0DlMRELDULkd3GxBS/iMNOi0eIdzGDzFOFf7
+         bZMlc9lhJ/cSjI75/dCg2wKdYSbRIexxg8PnNEfw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wang Hai <wanghai38@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Bob Pearson <rpearsonhpe@gmail.com>,
+        Zhu Yanjun <zyjzyj2000@gmail.com>,
+        =?UTF-8?q?H=C3=A5kon=20Bugge?= <haakon.bugge@oracle.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 25/26] tulip: windbond-840: Fix missing pci_disable_device() in probe and remove
-Date:   Mon,  2 Aug 2021 15:44:35 +0200
-Message-Id: <20210802134332.845536760@linuxfoundation.org>
+Subject: [PATCH 5.13 039/104] RDMA/rxe: Fix memory leak in error path code
+Date:   Mon,  2 Aug 2021 15:44:36 +0200
+Message-Id: <20210802134345.303620063@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134332.033552261@linuxfoundation.org>
-References: <20210802134332.033552261@linuxfoundation.org>
+In-Reply-To: <20210802134344.028226640@linuxfoundation.org>
+References: <20210802134344.028226640@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,62 +42,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Bob Pearson <rpearsonhpe@gmail.com>
 
-[ Upstream commit 76a16be07b209a3f507c72abe823bd3af1c8661a ]
+[ Upstream commit b18c7da63fcb46e2f9a093cc18d7c219e13a887c ]
 
-Replace pci_enable_device() with pcim_enable_device(),
-pci_disable_device() and pci_release_regions() will be
-called in release automatically.
+In rxe_mr_init_user() at the third error the driver fails to free the
+memory at mr->map. This patch adds code to do that.  This error only
+occurs if page_address() fails to return a non zero address which should
+never happen for 64 bit architectures.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 8700e3e7c485 ("Soft RoCE driver")
+Link: https://lore.kernel.org/r/20210705164153.17652-1-rpearsonhpe@gmail.com
+Reported by: Haakon Bugge <haakon.bugge@oracle.com>
+Signed-off-by: Bob Pearson <rpearsonhpe@gmail.com>
+Reviewed-by: Zhu Yanjun <zyjzyj2000@gmail.com>
+Reviewed-by: Håkon Bugge <haakon.bugge@oracle.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/dec/tulip/winbond-840.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ drivers/infiniband/sw/rxe/rxe_mr.c | 27 +++++++++++++++++----------
+ 1 file changed, 17 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/net/ethernet/dec/tulip/winbond-840.c b/drivers/net/ethernet/dec/tulip/winbond-840.c
-index 3c0e4d5c5fef..abc66eb13c35 100644
---- a/drivers/net/ethernet/dec/tulip/winbond-840.c
-+++ b/drivers/net/ethernet/dec/tulip/winbond-840.c
-@@ -368,7 +368,7 @@ static int w840_probe1(struct pci_dev *pdev, const struct pci_device_id *ent)
- 	int i, option = find_cnt < MAX_UNITS ? options[find_cnt] : 0;
- 	void __iomem *ioaddr;
+diff --git a/drivers/infiniband/sw/rxe/rxe_mr.c b/drivers/infiniband/sw/rxe/rxe_mr.c
+index fe2b7d223183..fa3d29825ef6 100644
+--- a/drivers/infiniband/sw/rxe/rxe_mr.c
++++ b/drivers/infiniband/sw/rxe/rxe_mr.c
+@@ -130,13 +130,14 @@ int rxe_mr_init_user(struct rxe_pd *pd, u64 start, u64 length, u64 iova,
+ 	int			num_buf;
+ 	void			*vaddr;
+ 	int err;
++	int i;
  
--	i = pci_enable_device(pdev);
-+	i = pcim_enable_device(pdev);
- 	if (i) return i;
- 
- 	pci_set_master(pdev);
-@@ -390,7 +390,7 @@ static int w840_probe1(struct pci_dev *pdev, const struct pci_device_id *ent)
- 
- 	ioaddr = pci_iomap(pdev, TULIP_BAR, netdev_res_size);
- 	if (!ioaddr)
--		goto err_out_free_res;
-+		goto err_out_netdev;
- 
- 	for (i = 0; i < 3; i++)
- 		((__le16 *)dev->dev_addr)[i] = cpu_to_le16(eeprom_read(ioaddr, i));
-@@ -469,8 +469,6 @@ static int w840_probe1(struct pci_dev *pdev, const struct pci_device_id *ent)
- 
- err_out_cleardev:
- 	pci_iounmap(pdev, ioaddr);
--err_out_free_res:
--	pci_release_regions(pdev);
- err_out_netdev:
- 	free_netdev (dev);
- 	return -ENODEV;
-@@ -1537,7 +1535,6 @@ static void w840_remove1(struct pci_dev *pdev)
- 	if (dev) {
- 		struct netdev_private *np = netdev_priv(dev);
- 		unregister_netdev(dev);
--		pci_release_regions(pdev);
- 		pci_iounmap(pdev, np->base_addr);
- 		free_netdev(dev);
+ 	umem = ib_umem_get(pd->ibpd.device, start, length, access);
+ 	if (IS_ERR(umem)) {
+-		pr_warn("err %d from rxe_umem_get\n",
+-			(int)PTR_ERR(umem));
++		pr_warn("%s: Unable to pin memory region err = %d\n",
++			__func__, (int)PTR_ERR(umem));
+ 		err = PTR_ERR(umem);
+-		goto err1;
++		goto err_out;
  	}
+ 
+ 	mr->umem = umem;
+@@ -146,9 +147,9 @@ int rxe_mr_init_user(struct rxe_pd *pd, u64 start, u64 length, u64 iova,
+ 
+ 	err = rxe_mr_alloc(mr, num_buf);
+ 	if (err) {
+-		pr_warn("err %d from rxe_mr_alloc\n", err);
+-		ib_umem_release(umem);
+-		goto err1;
++		pr_warn("%s: Unable to allocate memory for map\n",
++				__func__);
++		goto err_release_umem;
+ 	}
+ 
+ 	mr->page_shift = PAGE_SHIFT;
+@@ -168,10 +169,10 @@ int rxe_mr_init_user(struct rxe_pd *pd, u64 start, u64 length, u64 iova,
+ 
+ 			vaddr = page_address(sg_page_iter_page(&sg_iter));
+ 			if (!vaddr) {
+-				pr_warn("null vaddr\n");
+-				ib_umem_release(umem);
++				pr_warn("%s: Unable to get virtual address\n",
++						__func__);
+ 				err = -ENOMEM;
+-				goto err1;
++				goto err_cleanup_map;
+ 			}
+ 
+ 			buf->addr = (uintptr_t)vaddr;
+@@ -194,7 +195,13 @@ int rxe_mr_init_user(struct rxe_pd *pd, u64 start, u64 length, u64 iova,
+ 
+ 	return 0;
+ 
+-err1:
++err_cleanup_map:
++	for (i = 0; i < mr->num_map; i++)
++		kfree(mr->map[i]);
++	kfree(mr->map);
++err_release_umem:
++	ib_umem_release(umem);
++err_out:
+ 	return err;
+ }
+ 
 -- 
 2.30.2
 
