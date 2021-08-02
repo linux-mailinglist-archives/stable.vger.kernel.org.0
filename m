@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 225913DD80A
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:49:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12AF43DD859
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:51:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234417AbhHBNte (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:49:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60256 "EHLO mail.kernel.org"
+        id S234705AbhHBNvg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:51:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34568 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234663AbhHBNtE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:49:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 51060610FC;
-        Mon,  2 Aug 2021 13:48:54 +0000 (UTC)
+        id S234563AbhHBNui (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:50:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 885416052B;
+        Mon,  2 Aug 2021 13:50:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912134;
-        bh=GU1zacVHJv5MgowImoB/P1F5KFMh5p6C4bGb1u3AsP0=;
+        s=korg; t=1627912226;
+        bh=1on7F6qjqqXQipDnaqQP814c2+8+InJRDOYMzSi5di4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mQRbQJ4Wl1rDhDPMcHBhAi2V/zetBiCiypw2SdFOMxYvEeY9n8zM5Qb3NC6KfhPz8
-         fUPA/buTxPUU8zYQ85NJ64ZH6gI/zL490Z7rfyf4uSljIYdUaNCvLW7zI5b1erKirw
-         k6AfPgkKcKXZhHUzSgG94mxAMhR0OuSIRJ5ImYok=
+        b=eyxgbO9lcARBS06mc+2SMpds/Jgl6+uT00xFWyKPymSX4lozkdU+gO1T0iDji/Yuw
+         0kwg8HgwSy5mnp007l2KoY7UYqAUzHbMHhfxVIdQWTU+88IEfIUPaB4tg3VuybVTYv
+         Pn6QnzQlgDuiVSerxA/1ttJ8IVrJN+Zu1TEQJRQE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Maloy <jmaloy@redhat.com>,
-        Hoang Le <hoang.h.le@dektech.com.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 30/38] tipc: fix sleeping in tipc accept routine
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 14/30] nfc: nfcsim: fix use after free during module unload
 Date:   Mon,  2 Aug 2021 15:44:52 +0200
-Message-Id: <20210802134335.773332823@linuxfoundation.org>
+Message-Id: <20210802134334.535733136@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134334.835358048@linuxfoundation.org>
-References: <20210802134334.835358048@linuxfoundation.org>
+In-Reply-To: <20210802134334.081433902@linuxfoundation.org>
+References: <20210802134334.081433902@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,62 +40,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hoang Le <hoang.h.le@dektech.com.au>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
-[ Upstream commit d237a7f11719ff9320721be5818352e48071aab6 ]
+commit 5e7b30d24a5b8cb691c173b45b50e3ca0191be19 upstream.
 
-The release_sock() is blocking function, it would change the state
-after sleeping. In order to evaluate the stated condition outside
-the socket lock context, switch to use wait_woken() instead.
+There is a use after free memory corruption during module exit:
+ - nfcsim_exit()
+  - nfcsim_device_free(dev0)
+    - nfc_digital_unregister_device()
+      This iterates over command queue and frees all commands,
+    - dev->up = false
+    - nfcsim_link_shutdown()
+      - nfcsim_link_recv_wake()
+        This wakes the sleeping thread nfcsim_link_recv_skb().
 
-Fixes: 6398e23cdb1d8 ("tipc: standardize accept routine")
-Acked-by: Jon Maloy <jmaloy@redhat.com>
-Signed-off-by: Hoang Le <hoang.h.le@dektech.com.au>
+ - nfcsim_link_recv_skb()
+   Wake from wait_event_interruptible_timeout(),
+   call directly the deb->cb callback even though (dev->up == false),
+   - digital_send_cmd_complete()
+     Dereference of "struct digital_cmd" cmd which was freed earlier by
+     nfc_digital_unregister_device().
+
+This causes memory corruption shortly after (with unrelated stack
+trace):
+
+  nfc nfc0: NFC: nfcsim_recv_wq: Device is down
+  llcp: nfc_llcp_recv: err -19
+  nfc nfc1: NFC: nfcsim_recv_wq: Device is down
+  BUG: unable to handle page fault for address: ffffffffffffffed
+  Call Trace:
+   fsnotify+0x54b/0x5c0
+   __fsnotify_parent+0x1fe/0x300
+   ? vfs_write+0x27c/0x390
+   vfs_write+0x27c/0x390
+   ksys_write+0x63/0xe0
+   do_syscall_64+0x3b/0x90
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+KASAN report:
+
+  BUG: KASAN: use-after-free in digital_send_cmd_complete+0x16/0x50
+  Write of size 8 at addr ffff88800a05f720 by task kworker/0:2/71
+  Workqueue: events nfcsim_recv_wq [nfcsim]
+  Call Trace:
+   dump_stack_lvl+0x45/0x59
+   print_address_description.constprop.0+0x21/0x140
+   ? digital_send_cmd_complete+0x16/0x50
+   ? digital_send_cmd_complete+0x16/0x50
+   kasan_report.cold+0x7f/0x11b
+   ? digital_send_cmd_complete+0x16/0x50
+   ? digital_dep_link_down+0x60/0x60
+   digital_send_cmd_complete+0x16/0x50
+   nfcsim_recv_wq+0x38f/0x3d5 [nfcsim]
+   ? nfcsim_in_send_cmd+0x4a/0x4a [nfcsim]
+   ? lock_is_held_type+0x98/0x110
+   ? finish_wait+0x110/0x110
+   ? rcu_read_lock_sched_held+0x9c/0xd0
+   ? rcu_read_lock_bh_held+0xb0/0xb0
+   ? lockdep_hardirqs_on_prepare+0x12e/0x1f0
+
+This flow of calling digital_send_cmd_complete() callback on driver exit
+is specific to nfcsim which implements reading and sending work queues.
+Since the NFC digital device was unregistered, the callback should not
+be called.
+
+Fixes: 204bddcb508f ("NFC: nfcsim: Make use of the Digital layer")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/tipc/socket.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/nfc/nfcsim.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/net/tipc/socket.c b/net/tipc/socket.c
-index 14e6cb814e4c..2e4d892768f9 100644
---- a/net/tipc/socket.c
-+++ b/net/tipc/socket.c
-@@ -2001,7 +2001,7 @@ static int tipc_listen(struct socket *sock, int len)
- static int tipc_wait_for_accept(struct socket *sock, long timeo)
- {
- 	struct sock *sk = sock->sk;
--	DEFINE_WAIT(wait);
-+	DEFINE_WAIT_FUNC(wait, woken_wake_function);
- 	int err;
+--- a/drivers/nfc/nfcsim.c
++++ b/drivers/nfc/nfcsim.c
+@@ -201,8 +201,7 @@ static void nfcsim_recv_wq(struct work_s
  
- 	/* True wake-one mechanism for incoming connections: only
-@@ -2010,12 +2010,12 @@ static int tipc_wait_for_accept(struct socket *sock, long timeo)
- 	 * anymore, the common case will execute the loop only once.
- 	*/
- 	for (;;) {
--		prepare_to_wait_exclusive(sk_sleep(sk), &wait,
--					  TASK_INTERRUPTIBLE);
- 		if (timeo && skb_queue_empty(&sk->sk_receive_queue)) {
-+			add_wait_queue(sk_sleep(sk), &wait);
- 			release_sock(sk);
--			timeo = schedule_timeout(timeo);
-+			timeo = wait_woken(&wait, TASK_INTERRUPTIBLE, timeo);
- 			lock_sock(sk);
-+			remove_wait_queue(sk_sleep(sk), &wait);
- 		}
- 		err = 0;
- 		if (!skb_queue_empty(&sk->sk_receive_queue))
-@@ -2027,7 +2027,6 @@ static int tipc_wait_for_accept(struct socket *sock, long timeo)
- 		if (signal_pending(current))
- 			break;
+ 		if (!IS_ERR(skb))
+ 			dev_kfree_skb(skb);
+-
+-		skb = ERR_PTR(-ENODEV);
++		return;
  	}
--	finish_wait(sk_sleep(sk), &wait);
- 	return err;
- }
  
--- 
-2.30.2
-
+ 	dev->cb(dev->nfc_digital_dev, dev->arg, skb);
 
 
