@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4EAD3DD793
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:46:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DF0F3DD7B1
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:47:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234151AbhHBNq1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:46:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55872 "EHLO mail.kernel.org"
+        id S234229AbhHBNrv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:47:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57096 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234114AbhHBNqT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:46:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 787AE6052B;
-        Mon,  2 Aug 2021 13:46:09 +0000 (UTC)
+        id S233984AbhHBNrS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:47:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B322960EBB;
+        Mon,  2 Aug 2021 13:47:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627911969;
-        bh=BDV3K1PhCApNz856lNY2ERPhhXPmMP3x1YhagOtRpMk=;
+        s=korg; t=1627912024;
+        bh=gcRNNfMiXFcKk4tWGirTCkC3Ks8AkDuQgrrRNPgdTg0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=017cpMRhCAgjjKmzqc8E+YJ5s/Et0uwRnGSojafNdXjbEwX41bGl2f4SLXdAIaKj2
-         5mrEX9vnfb4/sTjDR7UQSSd6jK8mKLt8P8U3kpv6mnpSMlbWxRD6+4ufxQSGKdv4Ss
-         IV5kfhqm+HxbmbB3sqYIiXFIor9KhGs8HnTknzhQ=
+        b=uLD6Fjgozf7gJ2LQDL2LT6PLv6om3SZbpThaM9IfqYpNp6UssnuraoBfp8yJ3wMw8
+         wOcen74mL3NIuya5KvWamjOkUWdqbDEFIX/gNRtZYEWrnIRd9cQ/tHUV0Uni0ihGDv
+         JH8lx47fmrlqsgsO3V6NepdkpqshN78jZzdw1saE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 4.4 16/26] can: ems_usb: fix memory leak
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 06/32] net/802/mrp: fix memleak in mrp_request_join()
 Date:   Mon,  2 Aug 2021 15:44:26 +0200
-Message-Id: <20210802134332.561784418@linuxfoundation.org>
+Message-Id: <20210802134333.129599408@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134332.033552261@linuxfoundation.org>
-References: <20210802134332.033552261@linuxfoundation.org>
+In-Reply-To: <20210802134332.931915241@linuxfoundation.org>
+References: <20210802134332.931915241@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,93 +41,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit 9969e3c5f40c166e3396acc36c34f9de502929f6 upstream.
+[ Upstream commit 996af62167d0e0ec69b938a3561e96f84ffff1aa ]
 
-In ems_usb_start() MAX_RX_URBS coherent buffers are allocated and
-there is nothing, that frees them:
+I got kmemleak report when doing fuzz test:
 
-1) In callback function the urb is resubmitted and that's all
-2) In disconnect function urbs are simply killed, but URB_FREE_BUFFER
-   is not set (see ems_usb_start) and this flag cannot be used with
-   coherent buffers.
+BUG: memory leak
+unreferenced object 0xffff88810c239500 (size 64):
+comm "syz-executor940", pid 882, jiffies 4294712870 (age 14.631s)
+hex dump (first 32 bytes):
+01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+00 00 00 00 00 00 00 00 01 00 00 00 01 02 00 04 ................
+backtrace:
+[<00000000a323afa4>] slab_alloc_node mm/slub.c:2972 [inline]
+[<00000000a323afa4>] slab_alloc mm/slub.c:2980 [inline]
+[<00000000a323afa4>] __kmalloc+0x167/0x340 mm/slub.c:4130
+[<000000005034ca11>] kmalloc include/linux/slab.h:595 [inline]
+[<000000005034ca11>] mrp_attr_create net/802/mrp.c:276 [inline]
+[<000000005034ca11>] mrp_request_join+0x265/0x550 net/802/mrp.c:530
+[<00000000fcfd81f3>] vlan_mvrp_request_join+0x145/0x170 net/8021q/vlan_mvrp.c:40
+[<000000009258546e>] vlan_dev_open+0x477/0x890 net/8021q/vlan_dev.c:292
+[<0000000059acd82b>] __dev_open+0x281/0x410 net/core/dev.c:1609
+[<000000004e6dc695>] __dev_change_flags+0x424/0x560 net/core/dev.c:8767
+[<00000000471a09af>] rtnl_configure_link+0xd9/0x210 net/core/rtnetlink.c:3122
+[<0000000037a4672b>] __rtnl_newlink+0xe08/0x13e0 net/core/rtnetlink.c:3448
+[<000000008d5d0fda>] rtnl_newlink+0x64/0xa0 net/core/rtnetlink.c:3488
+[<000000004882fe39>] rtnetlink_rcv_msg+0x369/0xa10 net/core/rtnetlink.c:5552
+[<00000000907e6c54>] netlink_rcv_skb+0x134/0x3d0 net/netlink/af_netlink.c:2504
+[<00000000e7d7a8c4>] netlink_unicast_kernel net/netlink/af_netlink.c:1314 [inline]
+[<00000000e7d7a8c4>] netlink_unicast+0x4a0/0x6a0 net/netlink/af_netlink.c:1340
+[<00000000e0645d50>] netlink_sendmsg+0x78e/0xc90 net/netlink/af_netlink.c:1929
+[<00000000c24559b7>] sock_sendmsg_nosec net/socket.c:654 [inline]
+[<00000000c24559b7>] sock_sendmsg+0x139/0x170 net/socket.c:674
+[<00000000fc210bc2>] ____sys_sendmsg+0x658/0x7d0 net/socket.c:2350
+[<00000000be4577b5>] ___sys_sendmsg+0xf8/0x170 net/socket.c:2404
 
-So, all allocated buffers should be freed with usb_free_coherent()
-explicitly.
+Calling mrp_request_leave() after mrp_request_join(), the attr->state
+is set to MRP_APPLICANT_VO, mrp_attr_destroy() won't be called in last
+TX event in mrp_uninit_applicant(), the attr of applicant will be leaked.
+To fix this leak, iterate and free each attr of applicant before rerturning
+from mrp_uninit_applicant().
 
-Side note: This code looks like a copy-paste of other can drivers. The
-same patch was applied to mcba_usb driver and it works nice with real
-hardware. There is no change in functionality, only clean-up code for
-coherent buffers.
-
-Fixes: 702171adeed3 ("ems_usb: Added support for EMS CPC-USB/ARM7 CAN/USB interface")
-Link: https://lore.kernel.org/r/59aa9fbc9a8cbf9af2bbd2f61a659c480b415800.1627404470.git.paskripkin@gmail.com
-Cc: linux-stable <stable@vger.kernel.org>
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/ems_usb.c |   14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ net/802/mrp.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
---- a/drivers/net/can/usb/ems_usb.c
-+++ b/drivers/net/can/usb/ems_usb.c
-@@ -267,6 +267,8 @@ struct ems_usb {
- 	unsigned int free_slots; /* remember number of available slots */
+diff --git a/net/802/mrp.c b/net/802/mrp.c
+index 72db2785ef2c..4ee3af3d400b 100644
+--- a/net/802/mrp.c
++++ b/net/802/mrp.c
+@@ -295,6 +295,19 @@ static void mrp_attr_destroy(struct mrp_applicant *app, struct mrp_attr *attr)
+ 	kfree(attr);
+ }
  
- 	struct ems_cpc_msg active_params; /* active controller parameters */
-+	void *rxbuf[MAX_RX_URBS];
-+	dma_addr_t rxbuf_dma[MAX_RX_URBS];
- };
- 
- static void ems_usb_read_interrupt_callback(struct urb *urb)
-@@ -600,6 +602,7 @@ static int ems_usb_start(struct ems_usb
- 	for (i = 0; i < MAX_RX_URBS; i++) {
- 		struct urb *urb = NULL;
- 		u8 *buf = NULL;
-+		dma_addr_t buf_dma;
- 
- 		/* create a URB, and a buffer for it */
- 		urb = usb_alloc_urb(0, GFP_KERNEL);
-@@ -610,7 +613,7 @@ static int ems_usb_start(struct ems_usb
- 		}
- 
- 		buf = usb_alloc_coherent(dev->udev, RX_BUFFER_SIZE, GFP_KERNEL,
--					 &urb->transfer_dma);
-+					 &buf_dma);
- 		if (!buf) {
- 			netdev_err(netdev, "No memory left for USB buffer\n");
- 			usb_free_urb(urb);
-@@ -618,6 +621,8 @@ static int ems_usb_start(struct ems_usb
- 			break;
- 		}
- 
-+		urb->transfer_dma = buf_dma;
++static void mrp_attr_destroy_all(struct mrp_applicant *app)
++{
++	struct rb_node *node, *next;
++	struct mrp_attr *attr;
 +
- 		usb_fill_bulk_urb(urb, dev->udev, usb_rcvbulkpipe(dev->udev, 2),
- 				  buf, RX_BUFFER_SIZE,
- 				  ems_usb_read_bulk_callback, dev);
-@@ -633,6 +638,9 @@ static int ems_usb_start(struct ems_usb
- 			break;
- 		}
- 
-+		dev->rxbuf[i] = buf;
-+		dev->rxbuf_dma[i] = buf_dma;
++	for (node = rb_first(&app->mad);
++	     next = node ? rb_next(node) : NULL, node != NULL;
++	     node = next) {
++		attr = rb_entry(node, struct mrp_attr, node);
++		mrp_attr_destroy(app, attr);
++	}
++}
 +
- 		/* Drop reference, USB core will take care of freeing it */
- 		usb_free_urb(urb);
- 	}
-@@ -698,6 +706,10 @@ static void unlink_all_urbs(struct ems_u
+ static int mrp_pdu_init(struct mrp_applicant *app)
+ {
+ 	struct sk_buff *skb;
+@@ -900,6 +913,7 @@ void mrp_uninit_applicant(struct net_device *dev, struct mrp_application *appl)
  
- 	usb_kill_anchored_urbs(&dev->rx_submitted);
+ 	spin_lock_bh(&app->lock);
+ 	mrp_mad_event(app, MRP_EVENT_TX);
++	mrp_attr_destroy_all(app);
+ 	mrp_pdu_queue(app);
+ 	spin_unlock_bh(&app->lock);
  
-+	for (i = 0; i < MAX_RX_URBS; ++i)
-+		usb_free_coherent(dev->udev, RX_BUFFER_SIZE,
-+				  dev->rxbuf[i], dev->rxbuf_dma[i]);
-+
- 	usb_kill_anchored_urbs(&dev->tx_submitted);
- 	atomic_set(&dev->active_tx_urbs, 0);
- 
+-- 
+2.30.2
+
 
 
