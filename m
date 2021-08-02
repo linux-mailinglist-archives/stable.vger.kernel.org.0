@@ -2,41 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 859E73DD7B8
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:47:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D44CC3DD8F2
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:56:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234179AbhHBNr5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:47:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57194 "EHLO mail.kernel.org"
+        id S235247AbhHBN4c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:56:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234120AbhHBNrT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:47:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A0B76052B;
-        Mon,  2 Aug 2021 13:47:10 +0000 (UTC)
+        id S235471AbhHBNx2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:53:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F27061167;
+        Mon,  2 Aug 2021 13:52:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912030;
-        bh=DF4hA7SDh3Fu9QOQMet+PTrVxD2NPKS3GLN57TzKVnc=;
+        s=korg; t=1627912336;
+        bh=bxJ8tGCXaqtCch2tzQcZ2uv/t86rYWidShSEfUuHCcM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yyFjFVmk66OZldombQStfTMgpOuNbNdfpvMqUeNxAwFT3crrkPm7AS9wUL+h/Z6Ap
-         o0El0WBShRF4emrg6kAa6WY1BTXzUuJYGAzmjWeYX7RdrXpVUlYKzdW3pSXkQIJRcz
-         7NlpctS5K4su8CVNMcw7aED6XX1kwidJszNYG/X4=
+        b=do+vMeC9nfl28P21oC6liU5v0X3br9FzWRvz7ThQJS5+CCtuImm6B4Rn8OwrfsNhA
+         8pNWR+UlDc4yWHqXMTYgCqTzGe1U9pwAApzSuv2mQdiU7MtjbN+z33AuP5M2C/jTB0
+         Kaap90lVqnpEr25vTFlZcSdiM6tdYL77MRc2z7XQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Junxiao Bi <junxiao.bi@oracle.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 17/32] ocfs2: issue zeroout to EOF blocks
+        stable@vger.kernel.org,
+        Stephane Grosjean <s.grosjean@peak-system.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.10 14/67] can: peak_usb: pcan_usb_handle_bus_evt(): fix reading rxerr/txerr values
 Date:   Mon,  2 Aug 2021 15:44:37 +0200
-Message-Id: <20210802134333.471174638@linuxfoundation.org>
+Message-Id: <20210802134339.501924102@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134332.931915241@linuxfoundation.org>
-References: <20210802134332.931915241@linuxfoundation.org>
+In-Reply-To: <20210802134339.023067817@linuxfoundation.org>
+References: <20210802134339.023067817@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,186 +40,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Junxiao Bi <junxiao.bi@oracle.com>
+From: Stephane Grosjean <s.grosjean@peak-system.com>
 
-commit 9449ad33be8480f538b11a593e2dda2fb33ca06d upstream.
+commit 590eb2b7d8cfafb27e8108d52d4bf4850626d31d upstream.
 
-For punch holes in EOF blocks, fallocate used buffer write to zero the
-EOF blocks in last cluster.  But since ->writepage will ignore EOF
-pages, those zeros will not be flushed.
+This patch fixes an incorrect way of reading error counters in messages
+received for this purpose from the PCAN-USB interface. These messages
+inform about the increase or decrease of the error counters, whose values
+are placed in bytes 1 and 2 of the message data (not 0 and 1).
 
-This "looks" ok as commit 6bba4471f0cc ("ocfs2: fix data corruption by
-fallocate") will zero the EOF blocks when extend the file size, but it
-isn't.  The problem happened on those EOF pages, before writeback, those
-pages had DIRTY flag set and all buffer_head in them also had DIRTY flag
-set, when writeback run by write_cache_pages(), DIRTY flag on the page
-was cleared, but DIRTY flag on the buffer_head not.
-
-When next write happened to those EOF pages, since buffer_head already
-had DIRTY flag set, it would not mark page DIRTY again.  That made
-writeback ignore them forever.  That will cause data corruption.  Even
-directio write can't work because it will fail when trying to drop pages
-caches before direct io, as it found the buffer_head for those pages
-still had DIRTY flag set, then it will fall back to buffer io mode.
-
-To make a summary of the issue, as writeback ingores EOF pages, once any
-EOF page is generated, any write to it will only go to the page cache,
-it will never be flushed to disk even file size extends and that page is
-not EOF page any more.  The fix is to avoid zero EOF blocks with buffer
-write.
-
-The following code snippet from qemu-img could trigger the corruption.
-
-  656   open("6b3711ae-3306-4bdd-823c-cf1c0060a095.conv.2", O_RDWR|O_DIRECT|O_CLOEXEC) = 11
-  ...
-  660   fallocate(11, FALLOC_FL_KEEP_SIZE|FALLOC_FL_PUNCH_HOLE, 2275868672, 327680 <unfinished ...>
-  660   fallocate(11, 0, 2275868672, 327680) = 0
-  658   pwrite64(11, "
-
-Link: https://lkml.kernel.org/r/20210722054923.24389-2-junxiao.bi@oracle.com
-Signed-off-by: Junxiao Bi <junxiao.bi@oracle.com>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: ea8b33bde76c ("can: pcan_usb: add support of rxerr/txerr counters")
+Link: https://lore.kernel.org/r/20210625130931.27438-4-s.grosjean@peak-system.com
+Cc: linux-stable <stable@vger.kernel.org>
+Signed-off-by: Stephane Grosjean <s.grosjean@peak-system.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ocfs2/file.c |   99 +++++++++++++++++++++++++++++++++-----------------------
- 1 file changed, 60 insertions(+), 39 deletions(-)
+ drivers/net/can/usb/peak_usb/pcan_usb.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
---- a/fs/ocfs2/file.c
-+++ b/fs/ocfs2/file.c
-@@ -1511,6 +1511,45 @@ static void ocfs2_truncate_cluster_pages
- 	}
- }
+--- a/drivers/net/can/usb/peak_usb/pcan_usb.c
++++ b/drivers/net/can/usb/peak_usb/pcan_usb.c
+@@ -117,7 +117,8 @@ MODULE_SUPPORTED_DEVICE("PEAK-System PCA
+ #define PCAN_USB_BERR_MASK	(PCAN_USB_ERR_RXERR | PCAN_USB_ERR_TXERR)
  
-+/*
-+ * zero out partial blocks of one cluster.
-+ *
-+ * start: file offset where zero starts, will be made upper block aligned.
-+ * len: it will be trimmed to the end of current cluster if "start + len"
-+ *      is bigger than it.
-+ */
-+static int ocfs2_zeroout_partial_cluster(struct inode *inode,
-+					u64 start, u64 len)
-+{
-+	int ret;
-+	u64 start_block, end_block, nr_blocks;
-+	u64 p_block, offset;
-+	u32 cluster, p_cluster, nr_clusters;
-+	struct super_block *sb = inode->i_sb;
-+	u64 end = ocfs2_align_bytes_to_clusters(sb, start);
-+
-+	if (start + len < end)
-+		end = start + len;
-+
-+	start_block = ocfs2_blocks_for_bytes(sb, start);
-+	end_block = ocfs2_blocks_for_bytes(sb, end);
-+	nr_blocks = end_block - start_block;
-+	if (!nr_blocks)
-+		return 0;
-+
-+	cluster = ocfs2_bytes_to_clusters(sb, start);
-+	ret = ocfs2_get_clusters(inode, cluster, &p_cluster,
-+				&nr_clusters, NULL);
-+	if (ret)
-+		return ret;
-+	if (!p_cluster)
-+		return 0;
-+
-+	offset = start_block - ocfs2_clusters_to_blocks(sb, cluster);
-+	p_block = ocfs2_clusters_to_blocks(sb, p_cluster) + offset;
-+	return sb_issue_zeroout(sb, p_block, nr_blocks, GFP_NOFS);
-+}
-+
- static int ocfs2_zero_partial_clusters(struct inode *inode,
- 				       u64 start, u64 len)
- {
-@@ -1520,6 +1559,7 @@ static int ocfs2_zero_partial_clusters(s
- 	struct ocfs2_super *osb = OCFS2_SB(inode->i_sb);
- 	unsigned int csize = osb->s_clustersize;
- 	handle_t *handle;
-+	loff_t isize = i_size_read(inode);
+ /* identify bus event packets with rx/tx error counters */
+-#define PCAN_USB_ERR_CNT		0x80
++#define PCAN_USB_ERR_CNT_DEC		0x00	/* counters are decreasing */
++#define PCAN_USB_ERR_CNT_INC		0x80	/* counters are increasing */
  
- 	/*
- 	 * The "start" and "end" values are NOT necessarily part of
-@@ -1540,6 +1580,26 @@ static int ocfs2_zero_partial_clusters(s
- 	if ((start & (csize - 1)) == 0 && (end & (csize - 1)) == 0)
- 		goto out;
+ /* private to PCAN-USB adapter */
+ struct pcan_usb {
+@@ -611,11 +612,12 @@ static int pcan_usb_handle_bus_evt(struc
  
-+	/* No page cache for EOF blocks, issue zero out to disk. */
-+	if (end > isize) {
-+		/*
-+		 * zeroout eof blocks in last cluster starting from
-+		 * "isize" even "start" > "isize" because it is
-+		 * complicated to zeroout just at "start" as "start"
-+		 * may be not aligned with block size, buffer write
-+		 * would be required to do that, but out of eof buffer
-+		 * write is not supported.
-+		 */
-+		ret = ocfs2_zeroout_partial_cluster(inode, isize,
-+					end - isize);
-+		if (ret) {
-+			mlog_errno(ret);
-+			goto out;
-+		}
-+		if (start >= isize)
-+			goto out;
-+		end = isize;
-+	}
- 	handle = ocfs2_start_trans(osb, OCFS2_INODE_UPDATE_CREDITS);
- 	if (IS_ERR(handle)) {
- 		ret = PTR_ERR(handle);
-@@ -1839,45 +1899,6 @@ out:
- }
+ 	/* acccording to the content of the packet */
+ 	switch (ir) {
+-	case PCAN_USB_ERR_CNT:
++	case PCAN_USB_ERR_CNT_DEC:
++	case PCAN_USB_ERR_CNT_INC:
  
- /*
-- * zero out partial blocks of one cluster.
-- *
-- * start: file offset where zero starts, will be made upper block aligned.
-- * len: it will be trimmed to the end of current cluster if "start + len"
-- *      is bigger than it.
-- */
--static int ocfs2_zeroout_partial_cluster(struct inode *inode,
--					u64 start, u64 len)
--{
--	int ret;
--	u64 start_block, end_block, nr_blocks;
--	u64 p_block, offset;
--	u32 cluster, p_cluster, nr_clusters;
--	struct super_block *sb = inode->i_sb;
--	u64 end = ocfs2_align_bytes_to_clusters(sb, start);
--
--	if (start + len < end)
--		end = start + len;
--
--	start_block = ocfs2_blocks_for_bytes(sb, start);
--	end_block = ocfs2_blocks_for_bytes(sb, end);
--	nr_blocks = end_block - start_block;
--	if (!nr_blocks)
--		return 0;
--
--	cluster = ocfs2_bytes_to_clusters(sb, start);
--	ret = ocfs2_get_clusters(inode, cluster, &p_cluster,
--				&nr_clusters, NULL);
--	if (ret)
--		return ret;
--	if (!p_cluster)
--		return 0;
--
--	offset = start_block - ocfs2_clusters_to_blocks(sb, cluster);
--	p_block = ocfs2_clusters_to_blocks(sb, p_cluster) + offset;
--	return sb_issue_zeroout(sb, p_block, nr_blocks, GFP_NOFS);
--}
--
--/*
-  * Parts of this function taken from xfs_change_file_space()
-  */
- static int __ocfs2_change_file_space(struct file *file, struct inode *inode,
+ 		/* save rx/tx error counters from in the device context */
+-		pdev->bec.rxerr = mc->ptr[0];
+-		pdev->bec.txerr = mc->ptr[1];
++		pdev->bec.rxerr = mc->ptr[1];
++		pdev->bec.txerr = mc->ptr[2];
+ 		break;
+ 
+ 	default:
 
 
