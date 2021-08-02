@@ -2,133 +2,190 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 050223DD4E2
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 13:47:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11F693DD4EE
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 13:51:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233483AbhHBLrM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 07:47:12 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:40816 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233341AbhHBLrL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Aug 2021 07:47:11 -0400
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 172BYQLU020153;
-        Mon, 2 Aug 2021 07:46:53 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=u+Y6F5QtBSt4VUckLV0sPWwGGN6ZjKtKBgxX2XNTfig=;
- b=aSJ3jH42W5k2fcz4VyHSJiozCmgoAVVfnTyTpehvQ9q9u5rGk35j41crgeupZZfQABC8
- g1FPETQIS/VOHGzo89u9HyFJZWOqHLZaLkLOk2MfKPljlH+Kv+QXoVC+OExS5/1tjhvN
- Cyi65WBzZAicyXbxRMBHF6vCxG64Qrc7gsqmrC6MmeEWRgpILcmS7H6SFxH9yf6OljIo
- F5Dv2Un9OjuAsvtLkvWusrYOx4E7hpge0nH7OfswJaJDXK0GJsQBINoEsFywMIIDrFZb
- QQwqNe4hBD1ixeJ+MZWAPsyg3mzWaH3AJNFnzmfBbNZT0dZ0zmmPG8ZbNTAy23Y/diiI HQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3a5ke59mba-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 02 Aug 2021 07:46:53 -0400
-Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 172BZqjF025050;
-        Mon, 2 Aug 2021 07:46:53 -0400
-Received: from ppma04dal.us.ibm.com (7a.29.35a9.ip4.static.sl-reverse.com [169.53.41.122])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3a5ke59may-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 02 Aug 2021 07:46:53 -0400
-Received: from pps.filterd (ppma04dal.us.ibm.com [127.0.0.1])
-        by ppma04dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 172BkaTP027039;
-        Mon, 2 Aug 2021 11:46:52 GMT
-Received: from b01cxnp23032.gho.pok.ibm.com (b01cxnp23032.gho.pok.ibm.com [9.57.198.27])
-        by ppma04dal.us.ibm.com with ESMTP id 3a4x5aww6k-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 02 Aug 2021 11:46:52 +0000
-Received: from b01ledav002.gho.pok.ibm.com (b01ledav002.gho.pok.ibm.com [9.57.199.107])
-        by b01cxnp23032.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 172Bkp1C52560244
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 2 Aug 2021 11:46:51 GMT
-Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1A9A9124075;
-        Mon,  2 Aug 2021 11:46:51 +0000 (GMT)
-Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 08EC6124052;
-        Mon,  2 Aug 2021 11:46:46 +0000 (GMT)
-Received: from localhost.localdomain (unknown [9.199.34.7])
-        by b01ledav002.gho.pok.ibm.com (Postfix) with ESMTP;
-        Mon,  2 Aug 2021 11:46:45 +0000 (GMT)
-Subject: Re: [PATCH v3] fpga: dfl: fme: Fix cpu hotplug issue in performance
- reporting
-To:     Moritz Fischer <mdf@kernel.org>
-Cc:     will@kernel.org, hao.wu@intel.com, mark.rutland@arm.com,
-        trix@redhat.com, yilun.xu@intel.com, linux-fpga@vger.kernel.org,
-        maddy@linux.ibm.com, atrajeev@linux.vnet.ibm.com,
-        linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        rnsastry@linux.ibm.com, linux-perf-users@vger.kernel.org,
-        stable@vger.kernel.org
-References: <20210713074216.208391-1-kjain@linux.ibm.com>
- <61495dc0-f496-992c-1d2a-9229a04e6e44@linux.ibm.com>
- <YQezqZcOrePV/FnW@archbook>
-From:   kajoljain <kjain@linux.ibm.com>
-Message-ID: <0d31afc5-b86e-4da6-878c-be4ba7b4a23a@linux.ibm.com>
-Date:   Mon, 2 Aug 2021 17:16:42 +0530
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.1
+        id S233382AbhHBLv1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 07:51:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46748 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233341AbhHBLv0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 07:51:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EEDCF60EC0;
+        Mon,  2 Aug 2021 11:51:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1627905077;
+        bh=KqxjkbwDLNBI+G7VNPTUIMKbZ01oZVRccxi595oRQvU=;
+        h=Subject:To:Cc:From:Date:From;
+        b=Zc5zKh/LiWIlH2m21NpvTfAKLKEDHYPRLj/KusC8opgPlxnRxDp2cS5ncCxsfLI6y
+         iGB9LlyhKXQ6sHPoR0BjAZmtr8Ale9x6V1kxQvz3Q3lFch//OA9J4MjWz4Qgcj3T9j
+         C/NujHJiaSakbaOhGULTFEuQwm+oXsdNmoHEg7S8=
+Subject: FAILED: patch "[PATCH] bpf, sockmap: On cleanup we additionally need to remove" failed to apply to 5.4-stable tree
+To:     john.fastabend@gmail.com, andrii@kernel.org, jakub@cloudflare.com,
+        kafai@fb.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 02 Aug 2021 13:51:15 +0200
+Message-ID: <162790507510829@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <YQezqZcOrePV/FnW@archbook>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 1Gca7qDh268Hhxr5iv5qsOpjYdAOm4rx
-X-Proofpoint-ORIG-GUID: 1UMGX8qImnvnJCp0cj0jdn-uhbyA4gR0
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-08-02_05:2021-08-02,2021-08-02 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 phishscore=0
- priorityscore=1501 clxscore=1015 bulkscore=0 mlxlogscore=999
- suspectscore=0 mlxscore=0 lowpriorityscore=0 adultscore=0 spamscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2107140000 definitions=main-2108020077
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
+The patch below does not apply to the 5.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-On 8/2/21 2:28 PM, Moritz Fischer wrote:
-> On Mon, Aug 02, 2021 at 01:15:00PM +0530, kajoljain wrote:
->>
->>
->> On 7/13/21 1:12 PM, Kajol Jain wrote:
->>> The performance reporting driver added cpu hotplug
->>> feature but it didn't add pmu migration call in cpu
->>> offline function.
->>> This can create an issue incase the current designated
->>> cpu being used to collect fme pmu data got offline,
->>> as based on current code we are not migrating fme pmu to
->>> new target cpu. Because of that perf will still try to
->>> fetch data from that offline cpu and hence we will not
->>> get counter data.
->>>
->>> Patch fixed this issue by adding pmu_migrate_context call
->>> in fme_perf_offline_cpu function.
->>>
->>> Fixes: 724142f8c42a ("fpga: dfl: fme: add performance reporting support")
->>> Tested-by: Xu Yilun <yilun.xu@intel.com>
->>> Acked-by: Wu Hao <hao.wu@intel.com>
->>> Signed-off-by: Kajol Jain <kjain@linux.ibm.com>
->>> Cc: stable@vger.kernel.org
->>> ---
->>
->> Any update on this patch? Please let me know if any changes required.
->>
->> Thanks,
->> Kajol Jain
-> 
-> It's in my 'fixes' branch.
+thanks,
 
-Thanks Moritz for informing me.
+greg k-h
 
-Thanks,
-Kajol Jain
+------------------ original commit in Linus's tree ------------------
 
-> 
-> - Moritz
-> 
+From 476d98018f32e68e7c5d4e8456940cf2b6d66f10 Mon Sep 17 00:00:00 2001
+From: John Fastabend <john.fastabend@gmail.com>
+Date: Tue, 27 Jul 2021 09:04:59 -0700
+Subject: [PATCH] bpf, sockmap: On cleanup we additionally need to remove
+ cached skb
+
+Its possible if a socket is closed and the receive thread is under memory
+pressure it may have cached a skb. We need to ensure these skbs are
+free'd along with the normal ingress_skb queue.
+
+Before 799aa7f98d53 ("skmsg: Avoid lock_sock() in sk_psock_backlog()") tear
+down and backlog processing both had sock_lock for the common case of
+socket close or unhash. So it was not possible to have both running in
+parrallel so all we would need is the kfree in those kernels.
+
+But, latest kernels include the commit 799aa7f98d5e and this requires a
+bit more work. Without the ingress_lock guarding reading/writing the
+state->skb case its possible the tear down could run before the state
+update causing it to leak memory or worse when the backlog reads the state
+it could potentially run interleaved with the tear down and we might end up
+free'ing the state->skb from tear down side but already have the reference
+from backlog side. To resolve such races we wrap accesses in ingress_lock
+on both sides serializing tear down and backlog case. In both cases this
+only happens after an EAGAIN error case so having an extra lock in place
+is likely fine. The normal path will skip the locks.
+
+Note, we check state->skb before grabbing lock. This works because
+we can only enqueue with the mutex we hold already. Avoiding a race
+on adding state->skb after the check. And if tear down path is running
+that is also fine if the tear down path then removes state->skb we
+will simply set skb=NULL and the subsequent goto is skipped. This
+slight complication avoids locking in normal case.
+
+With this fix we no longer see this warning splat from tcp side on
+socket close when we hit the above case with redirect to ingress self.
+
+[224913.935822] WARNING: CPU: 3 PID: 32100 at net/core/stream.c:208 sk_stream_kill_queues+0x212/0x220
+[224913.935841] Modules linked in: fuse overlay bpf_preload x86_pkg_temp_thermal intel_uncore wmi_bmof squashfs sch_fq_codel efivarfs ip_tables x_tables uas xhci_pci ixgbe mdio xfrm_algo xhci_hcd wmi
+[224913.935897] CPU: 3 PID: 32100 Comm: fgs-bench Tainted: G          I       5.14.0-rc1alu+ #181
+[224913.935908] Hardware name: Dell Inc. Precision 5820 Tower/002KVM, BIOS 1.9.2 01/24/2019
+[224913.935914] RIP: 0010:sk_stream_kill_queues+0x212/0x220
+[224913.935923] Code: 8b 83 20 02 00 00 85 c0 75 20 5b 5d 41 5c 41 5d 41 5e 41 5f c3 48 89 df e8 2b 11 fe ff eb c3 0f 0b e9 7c ff ff ff 0f 0b eb ce <0f> 0b 5b 5d 41 5c 41 5d 41 5e 41 5f c3 90 0f 1f 44 00 00 41 57 41
+[224913.935932] RSP: 0018:ffff88816271fd38 EFLAGS: 00010206
+[224913.935941] RAX: 0000000000000ae8 RBX: ffff88815acd5240 RCX: dffffc0000000000
+[224913.935948] RDX: 0000000000000003 RSI: 0000000000000ae8 RDI: ffff88815acd5460
+[224913.935954] RBP: ffff88815acd5460 R08: ffffffff955c0ae8 R09: fffffbfff2e6f543
+[224913.935961] R10: ffffffff9737aa17 R11: fffffbfff2e6f542 R12: ffff88815acd5390
+[224913.935967] R13: ffff88815acd5480 R14: ffffffff98d0c080 R15: ffffffff96267500
+[224913.935974] FS:  00007f86e6bd1700(0000) GS:ffff888451cc0000(0000) knlGS:0000000000000000
+[224913.935981] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[224913.935988] CR2: 000000c0008eb000 CR3: 00000001020e0005 CR4: 00000000003706e0
+[224913.935994] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[224913.936000] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[224913.936007] Call Trace:
+[224913.936016]  inet_csk_destroy_sock+0xba/0x1f0
+[224913.936033]  __tcp_close+0x620/0x790
+[224913.936047]  tcp_close+0x20/0x80
+[224913.936056]  inet_release+0x8f/0xf0
+[224913.936070]  __sock_release+0x72/0x120
+[224913.936083]  sock_close+0x14/0x20
+
+Fixes: a136678c0bdbb ("bpf: sk_msg, zap ingress queue on psock down")
+Signed-off-by: John Fastabend <john.fastabend@gmail.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Acked-by: Jakub Sitnicki <jakub@cloudflare.com>
+Acked-by: Martin KaFai Lau <kafai@fb.com>
+Link: https://lore.kernel.org/bpf/20210727160500.1713554-3-john.fastabend@gmail.com
+
+diff --git a/net/core/skmsg.c b/net/core/skmsg.c
+index 28115ef742e8..036cdb33a94a 100644
+--- a/net/core/skmsg.c
++++ b/net/core/skmsg.c
+@@ -590,23 +590,42 @@ static void sock_drop(struct sock *sk, struct sk_buff *skb)
+ 	kfree_skb(skb);
+ }
+ 
++static void sk_psock_skb_state(struct sk_psock *psock,
++			       struct sk_psock_work_state *state,
++			       struct sk_buff *skb,
++			       int len, int off)
++{
++	spin_lock_bh(&psock->ingress_lock);
++	if (sk_psock_test_state(psock, SK_PSOCK_TX_ENABLED)) {
++		state->skb = skb;
++		state->len = len;
++		state->off = off;
++	} else {
++		sock_drop(psock->sk, skb);
++	}
++	spin_unlock_bh(&psock->ingress_lock);
++}
++
+ static void sk_psock_backlog(struct work_struct *work)
+ {
+ 	struct sk_psock *psock = container_of(work, struct sk_psock, work);
+ 	struct sk_psock_work_state *state = &psock->work_state;
+-	struct sk_buff *skb;
++	struct sk_buff *skb = NULL;
+ 	bool ingress;
+ 	u32 len, off;
+ 	int ret;
+ 
+ 	mutex_lock(&psock->work_mutex);
+-	if (state->skb) {
++	if (unlikely(state->skb)) {
++		spin_lock_bh(&psock->ingress_lock);
+ 		skb = state->skb;
+ 		len = state->len;
+ 		off = state->off;
+ 		state->skb = NULL;
+-		goto start;
++		spin_unlock_bh(&psock->ingress_lock);
+ 	}
++	if (skb)
++		goto start;
+ 
+ 	while ((skb = skb_dequeue(&psock->ingress_skb))) {
+ 		len = skb->len;
+@@ -621,9 +640,8 @@ static void sk_psock_backlog(struct work_struct *work)
+ 							  len, ingress);
+ 			if (ret <= 0) {
+ 				if (ret == -EAGAIN) {
+-					state->skb = skb;
+-					state->len = len;
+-					state->off = off;
++					sk_psock_skb_state(psock, state, skb,
++							   len, off);
+ 					goto end;
+ 				}
+ 				/* Hard errors break pipe and stop xmit. */
+@@ -722,6 +740,11 @@ static void __sk_psock_zap_ingress(struct sk_psock *psock)
+ 		skb_bpf_redirect_clear(skb);
+ 		sock_drop(psock->sk, skb);
+ 	}
++	kfree_skb(psock->work_state.skb);
++	/* We null the skb here to ensure that calls to sk_psock_backlog
++	 * do not pick up the free'd skb.
++	 */
++	psock->work_state.skb = NULL;
+ 	__sk_psock_purge_ingress_msg(psock);
+ }
+ 
+
