@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EB5D3DD98E
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 16:01:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87EA23DD7BB
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:48:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234935AbhHBOBU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 10:01:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40884 "EHLO mail.kernel.org"
+        id S234029AbhHBNsA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:48:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57254 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236439AbhHBN7a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:59:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9473A61103;
-        Mon,  2 Aug 2021 13:55:43 +0000 (UTC)
+        id S234129AbhHBNrW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:47:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4005360527;
+        Mon,  2 Aug 2021 13:47:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912544;
-        bh=tpqwPqZ4e4cMpqo6fbr9lU4eU/UzFrEs1TWJjKcclAE=;
+        s=korg; t=1627912032;
+        bh=PTKHef7/1KwNBx3M/xRqz3zbDFV1TQC+jLV4zizl9T8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EXtSmybiEDNCbZHvk5HG1UZl6pi5OY9+HdMPmjWPu/baoWWW/YlJAicPew79vbAXo
-         BcibTajbmzIJgoQgWR2mieRTZWO8NDR79UNZbY71vLgW/pOH//kRl4abqYN8DXX3FY
-         wTI3cdfwzGZk7lecenH68oklmAFs1aY8PkslbF4c=
+        b=DQyEB/2q8gBjtpi1kUluAjmb+yenmIQ7NPcS5NQohEZExm14hdeftfpSdan5cnH4b
+         kSfi25dtuPW/+S1nz3bAZoNNXML9jOqEyTYv4pFSjPn1l0LdBmJq2kJ+Z9tMdeN4aH
+         lwQBHo+mqV6ojMbiEaNOY3sows+8RCDg//qb82Sg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
-        kernel test robot <lkp@intel.com>,
-        Dongliang Mu <mudongliangabcd@gmail.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 040/104] netfilter: nf_tables: fix audit memory leak in nf_tables_commit
-Date:   Mon,  2 Aug 2021 15:44:37 +0200
-Message-Id: <20210802134345.336233969@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 4.9 18/32] can: usb_8dev: fix memory leak
+Date:   Mon,  2 Aug 2021 15:44:38 +0200
+Message-Id: <20210802134333.502877440@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134344.028226640@linuxfoundation.org>
-References: <20210802134344.028226640@linuxfoundation.org>
+In-Reply-To: <20210802134332.931915241@linuxfoundation.org>
+References: <20210802134332.931915241@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,79 +39,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit cfbe3650dd3ef2ea9a4420ca89d9a4df98af3fb6 ]
+commit 0e865f0c31928d6a313269ef624907eec55287c4 upstream.
 
-In nf_tables_commit, if nf_tables_commit_audit_alloc fails, it does not
-free the adp variable.
+In usb_8dev_start() MAX_RX_URBS coherent buffers are allocated and
+there is nothing, that frees them:
 
-Fix this by adding nf_tables_commit_audit_free which frees
-the linked list with the head node adl.
+1) In callback function the urb is resubmitted and that's all
+2) In disconnect function urbs are simply killed, but URB_FREE_BUFFER
+   is not set (see usb_8dev_start) and this flag cannot be used with
+   coherent buffers.
 
-backtrace:
-  kmalloc include/linux/slab.h:591 [inline]
-  kzalloc include/linux/slab.h:721 [inline]
-  nf_tables_commit_audit_alloc net/netfilter/nf_tables_api.c:8439 [inline]
-  nf_tables_commit+0x16e/0x1760 net/netfilter/nf_tables_api.c:8508
-  nfnetlink_rcv_batch+0x512/0xa80 net/netfilter/nfnetlink.c:562
-  nfnetlink_rcv_skb_batch net/netfilter/nfnetlink.c:634 [inline]
-  nfnetlink_rcv+0x1fa/0x220 net/netfilter/nfnetlink.c:652
-  netlink_unicast_kernel net/netlink/af_netlink.c:1314 [inline]
-  netlink_unicast+0x2c7/0x3e0 net/netlink/af_netlink.c:1340
-  netlink_sendmsg+0x36b/0x6b0 net/netlink/af_netlink.c:1929
-  sock_sendmsg_nosec net/socket.c:702 [inline]
-  sock_sendmsg+0x56/0x80 net/socket.c:722
+So, all allocated buffers should be freed with usb_free_coherent()
+explicitly.
 
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Fixes: c520292f29b8 ("audit: log nftables configuration change events once per table")
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Side note: This code looks like a copy-paste of other can drivers. The
+same patch was applied to mcba_usb driver and it works nice with real
+hardware. There is no change in functionality, only clean-up code for
+coherent buffers.
+
+Fixes: 0024d8ad1639 ("can: usb_8dev: Add support for USB2CAN interface from 8 devices")
+Link: https://lore.kernel.org/r/d39b458cd425a1cf7f512f340224e6e9563b07bd.1627404470.git.paskripkin@gmail.com
+Cc: linux-stable <stable@vger.kernel.org>
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/nf_tables_api.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/net/can/usb/usb_8dev.c |   15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
 
-diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
-index a5db7c59ad4e..7512bb819dff 100644
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -8479,6 +8479,16 @@ static int nf_tables_commit_audit_alloc(struct list_head *adl,
- 	return 0;
- }
+--- a/drivers/net/can/usb/usb_8dev.c
++++ b/drivers/net/can/usb/usb_8dev.c
+@@ -148,7 +148,8 @@ struct usb_8dev_priv {
+ 	u8 *cmd_msg_buffer;
  
-+static void nf_tables_commit_audit_free(struct list_head *adl)
-+{
-+	struct nft_audit_data *adp, *adn;
-+
-+	list_for_each_entry_safe(adp, adn, adl, list) {
-+		list_del(&adp->list);
-+		kfree(adp);
-+	}
-+}
-+
- static void nf_tables_commit_audit_collect(struct list_head *adl,
- 					   struct nft_table *table, u32 op)
- {
-@@ -8543,6 +8553,7 @@ static int nf_tables_commit(struct net *net, struct sk_buff *skb)
- 		ret = nf_tables_commit_audit_alloc(&adl, trans->ctx.table);
- 		if (ret) {
- 			nf_tables_commit_chain_prepare_cancel(net);
-+			nf_tables_commit_audit_free(&adl);
- 			return ret;
+ 	struct mutex usb_8dev_cmd_lock;
+-
++	void *rxbuf[MAX_RX_URBS];
++	dma_addr_t rxbuf_dma[MAX_RX_URBS];
+ };
+ 
+ /* tx frame */
+@@ -744,6 +745,7 @@ static int usb_8dev_start(struct usb_8de
+ 	for (i = 0; i < MAX_RX_URBS; i++) {
+ 		struct urb *urb = NULL;
+ 		u8 *buf;
++		dma_addr_t buf_dma;
+ 
+ 		/* create a URB, and a buffer for it */
+ 		urb = usb_alloc_urb(0, GFP_KERNEL);
+@@ -753,7 +755,7 @@ static int usb_8dev_start(struct usb_8de
  		}
- 		if (trans->msg_type == NFT_MSG_NEWRULE ||
-@@ -8552,6 +8563,7 @@ static int nf_tables_commit(struct net *net, struct sk_buff *skb)
- 			ret = nf_tables_commit_chain_prepare(net, chain);
- 			if (ret < 0) {
- 				nf_tables_commit_chain_prepare_cancel(net);
-+				nf_tables_commit_audit_free(&adl);
- 				return ret;
- 			}
+ 
+ 		buf = usb_alloc_coherent(priv->udev, RX_BUFFER_SIZE, GFP_KERNEL,
+-					 &urb->transfer_dma);
++					 &buf_dma);
+ 		if (!buf) {
+ 			netdev_err(netdev, "No memory left for USB buffer\n");
+ 			usb_free_urb(urb);
+@@ -761,6 +763,8 @@ static int usb_8dev_start(struct usb_8de
+ 			break;
  		}
--- 
-2.30.2
-
+ 
++		urb->transfer_dma = buf_dma;
++
+ 		usb_fill_bulk_urb(urb, priv->udev,
+ 				  usb_rcvbulkpipe(priv->udev,
+ 						  USB_8DEV_ENDP_DATA_RX),
+@@ -778,6 +782,9 @@ static int usb_8dev_start(struct usb_8de
+ 			break;
+ 		}
+ 
++		priv->rxbuf[i] = buf;
++		priv->rxbuf_dma[i] = buf_dma;
++
+ 		/* Drop reference, USB core will take care of freeing it */
+ 		usb_free_urb(urb);
+ 	}
+@@ -847,6 +854,10 @@ static void unlink_all_urbs(struct usb_8
+ 
+ 	usb_kill_anchored_urbs(&priv->rx_submitted);
+ 
++	for (i = 0; i < MAX_RX_URBS; ++i)
++		usb_free_coherent(priv->udev, RX_BUFFER_SIZE,
++				  priv->rxbuf[i], priv->rxbuf_dma[i]);
++
+ 	usb_kill_anchored_urbs(&priv->tx_submitted);
+ 	atomic_set(&priv->active_tx_urbs, 0);
+ 
 
 
