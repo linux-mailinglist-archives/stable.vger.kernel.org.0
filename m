@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 473B23DD792
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:46:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE6273DD7DF
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:48:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234148AbhHBNq0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:46:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55854 "EHLO mail.kernel.org"
+        id S234529AbhHBNsZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:48:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234113AbhHBNqS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:46:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C52960527;
-        Mon,  2 Aug 2021 13:46:07 +0000 (UTC)
+        id S234426AbhHBNsL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:48:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C63ED61102;
+        Mon,  2 Aug 2021 13:48:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627911967;
-        bh=q9BfzDomZedtm90dS53k6AcUupc0ZGqFmbWYOJESi58=;
+        s=korg; t=1627912082;
+        bh=PwX6S6xuuJTyKR/wHlaCefLqFwGLjWpW0BTMFicXAho=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0sIQJvUjxn+cjIcJr6GQVFIBtTgq0KKqCFApMAIpUOagVSwZWWl2iYfN2yIWzA52s
-         c2v8wUNyo0oTSxrKbz82stFSfrz3PxTF/kA9wNiDYaigld2sZFXkU63L5vma0IVHTg
-         FPwfqX4cUUtpQ2zQ6DQLd6OO/wT6xi19aJzbNQw0=
+        b=oTUKUrBD2uwRsDJwtQhoUNbi+42jTVlaPEg5BmQvs4/zYRGdG58by7NOO3VJ8nxMj
+         298vlysrjl7A7kTay2CSUmz1lkPmSwG0HQUJPOEYYhJ9al5x9CWq2QgDDWVui/+v0K
+         4p/SlTg2YxZD+zD+UvkJM127rC0xaSNP4Fyz01b0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 4.4 15/26] can: usb_8dev: fix memory leak
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Lai Jiangshan <jiangshanlai@gmail.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Pavel Skripkin <paskripkin@gmail.com>,
+        Tejun Heo <tj@kernel.org>
+Subject: [PATCH 4.9 05/32] workqueue: fix UAF in pwq_unbound_release_workfn()
 Date:   Mon,  2 Aug 2021 15:44:25 +0200
-Message-Id: <20210802134332.523822865@linuxfoundation.org>
+Message-Id: <20210802134333.098832920@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134332.033552261@linuxfoundation.org>
-References: <20210802134332.033552261@linuxfoundation.org>
+In-Reply-To: <20210802134332.931915241@linuxfoundation.org>
+References: <20210802134332.931915241@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,94 +42,149 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit 0e865f0c31928d6a313269ef624907eec55287c4 upstream.
+commit b42b0bddcbc87b4c66f6497f66fc72d52b712aa7 upstream.
 
-In usb_8dev_start() MAX_RX_URBS coherent buffers are allocated and
-there is nothing, that frees them:
+I got a UAF report when doing fuzz test:
 
-1) In callback function the urb is resubmitted and that's all
-2) In disconnect function urbs are simply killed, but URB_FREE_BUFFER
-   is not set (see usb_8dev_start) and this flag cannot be used with
-   coherent buffers.
+[  152.880091][ T8030] ==================================================================
+[  152.881240][ T8030] BUG: KASAN: use-after-free in pwq_unbound_release_workfn+0x50/0x190
+[  152.882442][ T8030] Read of size 4 at addr ffff88810d31bd00 by task kworker/3:2/8030
+[  152.883578][ T8030]
+[  152.883932][ T8030] CPU: 3 PID: 8030 Comm: kworker/3:2 Not tainted 5.13.0+ #249
+[  152.885014][ T8030] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
+[  152.886442][ T8030] Workqueue: events pwq_unbound_release_workfn
+[  152.887358][ T8030] Call Trace:
+[  152.887837][ T8030]  dump_stack_lvl+0x75/0x9b
+[  152.888525][ T8030]  ? pwq_unbound_release_workfn+0x50/0x190
+[  152.889371][ T8030]  print_address_description.constprop.10+0x48/0x70
+[  152.890326][ T8030]  ? pwq_unbound_release_workfn+0x50/0x190
+[  152.891163][ T8030]  ? pwq_unbound_release_workfn+0x50/0x190
+[  152.891999][ T8030]  kasan_report.cold.15+0x82/0xdb
+[  152.892740][ T8030]  ? pwq_unbound_release_workfn+0x50/0x190
+[  152.893594][ T8030]  __asan_load4+0x69/0x90
+[  152.894243][ T8030]  pwq_unbound_release_workfn+0x50/0x190
+[  152.895057][ T8030]  process_one_work+0x47b/0x890
+[  152.895778][ T8030]  worker_thread+0x5c/0x790
+[  152.896439][ T8030]  ? process_one_work+0x890/0x890
+[  152.897163][ T8030]  kthread+0x223/0x250
+[  152.897747][ T8030]  ? set_kthread_struct+0xb0/0xb0
+[  152.898471][ T8030]  ret_from_fork+0x1f/0x30
+[  152.899114][ T8030]
+[  152.899446][ T8030] Allocated by task 8884:
+[  152.900084][ T8030]  kasan_save_stack+0x21/0x50
+[  152.900769][ T8030]  __kasan_kmalloc+0x88/0xb0
+[  152.901416][ T8030]  __kmalloc+0x29c/0x460
+[  152.902014][ T8030]  alloc_workqueue+0x111/0x8e0
+[  152.902690][ T8030]  __btrfs_alloc_workqueue+0x11e/0x2a0
+[  152.903459][ T8030]  btrfs_alloc_workqueue+0x6d/0x1d0
+[  152.904198][ T8030]  scrub_workers_get+0x1e8/0x490
+[  152.904929][ T8030]  btrfs_scrub_dev+0x1b9/0x9c0
+[  152.905599][ T8030]  btrfs_ioctl+0x122c/0x4e50
+[  152.906247][ T8030]  __x64_sys_ioctl+0x137/0x190
+[  152.906916][ T8030]  do_syscall_64+0x34/0xb0
+[  152.907535][ T8030]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[  152.908365][ T8030]
+[  152.908688][ T8030] Freed by task 8884:
+[  152.909243][ T8030]  kasan_save_stack+0x21/0x50
+[  152.909893][ T8030]  kasan_set_track+0x20/0x30
+[  152.910541][ T8030]  kasan_set_free_info+0x24/0x40
+[  152.911265][ T8030]  __kasan_slab_free+0xf7/0x140
+[  152.911964][ T8030]  kfree+0x9e/0x3d0
+[  152.912501][ T8030]  alloc_workqueue+0x7d7/0x8e0
+[  152.913182][ T8030]  __btrfs_alloc_workqueue+0x11e/0x2a0
+[  152.913949][ T8030]  btrfs_alloc_workqueue+0x6d/0x1d0
+[  152.914703][ T8030]  scrub_workers_get+0x1e8/0x490
+[  152.915402][ T8030]  btrfs_scrub_dev+0x1b9/0x9c0
+[  152.916077][ T8030]  btrfs_ioctl+0x122c/0x4e50
+[  152.916729][ T8030]  __x64_sys_ioctl+0x137/0x190
+[  152.917414][ T8030]  do_syscall_64+0x34/0xb0
+[  152.918034][ T8030]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[  152.918872][ T8030]
+[  152.919203][ T8030] The buggy address belongs to the object at ffff88810d31bc00
+[  152.919203][ T8030]  which belongs to the cache kmalloc-512 of size 512
+[  152.921155][ T8030] The buggy address is located 256 bytes inside of
+[  152.921155][ T8030]  512-byte region [ffff88810d31bc00, ffff88810d31be00)
+[  152.922993][ T8030] The buggy address belongs to the page:
+[  152.923800][ T8030] page:ffffea000434c600 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x10d318
+[  152.925249][ T8030] head:ffffea000434c600 order:2 compound_mapcount:0 compound_pincount:0
+[  152.926399][ T8030] flags: 0x57ff00000010200(slab|head|node=1|zone=2|lastcpupid=0x7ff)
+[  152.927515][ T8030] raw: 057ff00000010200 dead000000000100 dead000000000122 ffff888009c42c80
+[  152.928716][ T8030] raw: 0000000000000000 0000000080100010 00000001ffffffff 0000000000000000
+[  152.929890][ T8030] page dumped because: kasan: bad access detected
+[  152.930759][ T8030]
+[  152.931076][ T8030] Memory state around the buggy address:
+[  152.931851][ T8030]  ffff88810d31bc00: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[  152.932967][ T8030]  ffff88810d31bc80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[  152.934068][ T8030] >ffff88810d31bd00: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[  152.935189][ T8030]                    ^
+[  152.935763][ T8030]  ffff88810d31bd80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[  152.936847][ T8030]  ffff88810d31be00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[  152.937940][ T8030] ==================================================================
 
-So, all allocated buffers should be freed with usb_free_coherent()
-explicitly.
+If apply_wqattrs_prepare() fails in alloc_workqueue(), it will call put_pwq()
+which invoke a work queue to call pwq_unbound_release_workfn() and use the 'wq'.
+The 'wq' allocated in alloc_workqueue() will be freed in error path when
+apply_wqattrs_prepare() fails. So it will lead a UAF.
 
-Side note: This code looks like a copy-paste of other can drivers. The
-same patch was applied to mcba_usb driver and it works nice with real
-hardware. There is no change in functionality, only clean-up code for
-coherent buffers.
+CPU0                                          CPU1
+alloc_workqueue()
+alloc_and_link_pwqs()
+apply_wqattrs_prepare() fails
+apply_wqattrs_cleanup()
+schedule_work(&pwq->unbound_release_work)
+kfree(wq)
+                                              worker_thread()
+                                              pwq_unbound_release_workfn() <- trigger uaf here
 
-Fixes: 0024d8ad1639 ("can: usb_8dev: Add support for USB2CAN interface from 8 devices")
-Link: https://lore.kernel.org/r/d39b458cd425a1cf7f512f340224e6e9563b07bd.1627404470.git.paskripkin@gmail.com
-Cc: linux-stable <stable@vger.kernel.org>
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+If apply_wqattrs_prepare() fails, the new pwq are not linked, it doesn't
+hold any reference to the 'wq', 'wq' is invalid to access in the worker,
+so add check pwq if linked to fix this.
+
+Fixes: 2d5f0764b526 ("workqueue: split apply_workqueue_attrs() into 3 stages")
+Cc: stable@vger.kernel.org # v4.2+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Suggested-by: Lai Jiangshan <jiangshanlai@gmail.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Lai Jiangshan <jiangshanlai@gmail.com>
+Tested-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/usb/usb_8dev.c |   15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
+ kernel/workqueue.c |   20 +++++++++++++-------
+ 1 file changed, 13 insertions(+), 7 deletions(-)
 
---- a/drivers/net/can/usb/usb_8dev.c
-+++ b/drivers/net/can/usb/usb_8dev.c
-@@ -148,7 +148,8 @@ struct usb_8dev_priv {
- 	u8 *cmd_msg_buffer;
+--- a/kernel/workqueue.c
++++ b/kernel/workqueue.c
+@@ -3397,15 +3397,21 @@ static void pwq_unbound_release_workfn(s
+ 						  unbound_release_work);
+ 	struct workqueue_struct *wq = pwq->wq;
+ 	struct worker_pool *pool = pwq->pool;
+-	bool is_last;
++	bool is_last = false;
  
- 	struct mutex usb_8dev_cmd_lock;
--
-+	void *rxbuf[MAX_RX_URBS];
-+	dma_addr_t rxbuf_dma[MAX_RX_URBS];
- };
+-	if (WARN_ON_ONCE(!(wq->flags & WQ_UNBOUND)))
+-		return;
++	/*
++	 * when @pwq is not linked, it doesn't hold any reference to the
++	 * @wq, and @wq is invalid to access.
++	 */
++	if (!list_empty(&pwq->pwqs_node)) {
++		if (WARN_ON_ONCE(!(wq->flags & WQ_UNBOUND)))
++			return;
  
- /* tx frame */
-@@ -746,6 +747,7 @@ static int usb_8dev_start(struct usb_8de
- 	for (i = 0; i < MAX_RX_URBS; i++) {
- 		struct urb *urb = NULL;
- 		u8 *buf;
-+		dma_addr_t buf_dma;
+-	mutex_lock(&wq->mutex);
+-	list_del_rcu(&pwq->pwqs_node);
+-	is_last = list_empty(&wq->pwqs);
+-	mutex_unlock(&wq->mutex);
++		mutex_lock(&wq->mutex);
++		list_del_rcu(&pwq->pwqs_node);
++		is_last = list_empty(&wq->pwqs);
++		mutex_unlock(&wq->mutex);
++	}
  
- 		/* create a URB, and a buffer for it */
- 		urb = usb_alloc_urb(0, GFP_KERNEL);
-@@ -756,7 +758,7 @@ static int usb_8dev_start(struct usb_8de
- 		}
- 
- 		buf = usb_alloc_coherent(priv->udev, RX_BUFFER_SIZE, GFP_KERNEL,
--					 &urb->transfer_dma);
-+					 &buf_dma);
- 		if (!buf) {
- 			netdev_err(netdev, "No memory left for USB buffer\n");
- 			usb_free_urb(urb);
-@@ -764,6 +766,8 @@ static int usb_8dev_start(struct usb_8de
- 			break;
- 		}
- 
-+		urb->transfer_dma = buf_dma;
-+
- 		usb_fill_bulk_urb(urb, priv->udev,
- 				  usb_rcvbulkpipe(priv->udev,
- 						  USB_8DEV_ENDP_DATA_RX),
-@@ -781,6 +785,9 @@ static int usb_8dev_start(struct usb_8de
- 			break;
- 		}
- 
-+		priv->rxbuf[i] = buf;
-+		priv->rxbuf_dma[i] = buf_dma;
-+
- 		/* Drop reference, USB core will take care of freeing it */
- 		usb_free_urb(urb);
- 	}
-@@ -850,6 +857,10 @@ static void unlink_all_urbs(struct usb_8
- 
- 	usb_kill_anchored_urbs(&priv->rx_submitted);
- 
-+	for (i = 0; i < MAX_RX_URBS; ++i)
-+		usb_free_coherent(priv->udev, RX_BUFFER_SIZE,
-+				  priv->rxbuf[i], priv->rxbuf_dma[i]);
-+
- 	usb_kill_anchored_urbs(&priv->tx_submitted);
- 	atomic_set(&priv->active_tx_urbs, 0);
- 
+ 	mutex_lock(&wq_pool_mutex);
+ 	put_unbound_pool(pool);
 
 
