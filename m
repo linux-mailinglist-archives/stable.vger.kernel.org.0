@@ -2,193 +2,152 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4ADDB3DD117
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 09:22:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 697B83DD16F
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 09:45:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232124AbhHBHWT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 03:22:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56876 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232093AbhHBHWT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Aug 2021 03:22:19 -0400
-Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94C3BC06175F
-        for <stable@vger.kernel.org>; Mon,  2 Aug 2021 00:22:09 -0700 (PDT)
-Received: by mail-pj1-x1031.google.com with SMTP id m10-20020a17090a34cab0290176b52c60ddso23375988pjf.4
-        for <stable@vger.kernel.org>; Mon, 02 Aug 2021 00:22:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=hjJXz+A7KAvLk92UcwHzOdHIct9oHGXXCICM5JITRLQ=;
-        b=McSykT4TXE7gMhYBJ7ipdz0fKRzWAsMuSW+J6r3G1LzsZpZH1dD7+EXr+K5kyXX34G
-         AhYaNO9OdnGzZMWVfiUmGH1uA6f6QTvE/gUzYhu7Ivon8rF9GNclruT57c1wVYEcHeDd
-         aVBvcZkJYOrakA+3SrpBtIpcZUh4nOodcrMQzSGIWrcEeFkA4IxZIbY/C9LMjwMuHGP/
-         MjOUI+/ozvALDg7DDKGk718pn23JlBGq1fAHmEfvx8Da6bp/32Hf4TqKSOq/RWg00fqG
-         7YLYqgwuUlpx5iCp1pl/+aNXdlGI8a/2Iw/pqO8oEyl+fE447a2zYuvjo9BRKsjfafdS
-         0zeg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=hjJXz+A7KAvLk92UcwHzOdHIct9oHGXXCICM5JITRLQ=;
-        b=uaMHZb2gSmZ1g60zFuuQUMR5fHTUbCUrNOqGLgpPXFbgQzzLOjm1vVjAsZj3tfp2Or
-         grngXs8wJ3Va8XcygTLbSt2RHVl8C/rITXNVOvn7EjXzRtx6+o3xqAJ28fW0OT4yUAEk
-         HABD/bmtkgxcI9uba3ybhb93PpGAVCXAkYdObGjUw9bnSvWJigPFuzvnmn1H9OWR9Qqq
-         LqWbLfYbk72zPhZgKh0qHpw7enHpA86fGrj2Uxl2rByM30EkY1Tv3ytJFrKqeeO/k97D
-         hxhchHZVROl1fC66B0hkEI6B600J3U3Rsu65/ff025h8w7Hy8wAuCBhbKhIuBkb6Bi3w
-         mh7g==
-X-Gm-Message-State: AOAM533l3QrX+9oTdLaDV5nCiSyTnuFGJXBcIFA693OXzW8UuThUhlN+
-        C9XvQEQT7wQR6jCp0bOM+nV/fRmYHTDkCT93
-X-Google-Smtp-Source: ABdhPJzL9+897kVoInIiQvwvNzhF3Mvnky4hWoxibFSaOM2d06oygav8FrRugiZyXQBXOp6sx5sDvQ==
-X-Received: by 2002:a05:6a00:1786:b029:32c:c315:7348 with SMTP id s6-20020a056a001786b029032cc3157348mr15606294pfg.42.1627888928884;
-        Mon, 02 Aug 2021 00:22:08 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id y14sm7786814pfa.166.2021.08.02.00.22.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 Aug 2021 00:22:08 -0700 (PDT)
-Message-ID: <61079d20.1c69fb81.36785.75ec@mx.google.com>
-Date:   Mon, 02 Aug 2021 00:22:08 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S232531AbhHBHpb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 03:45:31 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:25942 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232482AbhHBHp3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Aug 2021 03:45:29 -0400
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 1727Y5rd125744;
+        Mon, 2 Aug 2021 03:45:12 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=3GTKSoYuyeI7amyWljKoeZqQ+nHMylTD/J3zpAbpSkU=;
+ b=opXA+N2F/OyCTrMckSbOQvv0dIelBOVELlf0qOm/01gfXdjEuvk6vCiHmojnt3SMYS8K
+ bxW+LNNfiXRU7UgPKtR4usSebN/rk1tanddBuxxEMvc8FRtczuLXIVPnjwSFJgxozrim
+ zD8r7WT5rh1J5mZs1h0CVY2lRQwX67Qo2K9kKqyBQp7M/LNmVWXi/5p3gxxnDiJaCLN9
+ rZs1ekfust89aikdjGSboEL5x7zhilaaveAazi3oEk70xDpx1YXVJKNxQDDkLJ3jZa23
+ DxTIk25KIE8o9mHofZKFkLQtN+Lxjp+q7mu/NEr2rJCrB2HANs6cVKDtn15Evjr5PfHQ iQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3a5kjutct4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 02 Aug 2021 03:45:12 -0400
+Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1727cEhp137848;
+        Mon, 2 Aug 2021 03:45:11 -0400
+Received: from ppma01wdc.us.ibm.com (fd.55.37a9.ip4.static.sl-reverse.com [169.55.85.253])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3a5kjutcs5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 02 Aug 2021 03:45:11 -0400
+Received: from pps.filterd (ppma01wdc.us.ibm.com [127.0.0.1])
+        by ppma01wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1727bmXr009344;
+        Mon, 2 Aug 2021 07:45:09 GMT
+Received: from b01cxnp22035.gho.pok.ibm.com (b01cxnp22035.gho.pok.ibm.com [9.57.198.25])
+        by ppma01wdc.us.ibm.com with ESMTP id 3a4x5a7t7y-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 02 Aug 2021 07:45:09 +0000
+Received: from b01ledav003.gho.pok.ibm.com (b01ledav003.gho.pok.ibm.com [9.57.199.108])
+        by b01cxnp22035.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1727j9XO21889420
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 2 Aug 2021 07:45:09 GMT
+Received: from b01ledav003.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id F3602B2064;
+        Mon,  2 Aug 2021 07:45:08 +0000 (GMT)
+Received: from b01ledav003.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 09D95B2068;
+        Mon,  2 Aug 2021 07:45:04 +0000 (GMT)
+Received: from localhost.localdomain (unknown [9.199.36.88])
+        by b01ledav003.gho.pok.ibm.com (Postfix) with ESMTP;
+        Mon,  2 Aug 2021 07:45:03 +0000 (GMT)
+Subject: Re: [PATCH v3] fpga: dfl: fme: Fix cpu hotplug issue in performance
+ reporting
+To:     will@kernel.org, hao.wu@intel.com, mark.rutland@arm.com
+Cc:     trix@redhat.com, yilun.xu@intel.com, mdf@kernel.org,
+        linux-fpga@vger.kernel.org, maddy@linux.ibm.com,
+        atrajeev@linux.vnet.ibm.com, linux-kernel@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, rnsastry@linux.ibm.com,
+        linux-perf-users@vger.kernel.org, stable@vger.kernel.org
+References: <20210713074216.208391-1-kjain@linux.ibm.com>
+From:   kajoljain <kjain@linux.ibm.com>
+Message-ID: <61495dc0-f496-992c-1d2a-9229a04e6e44@linux.ibm.com>
+Date:   Mon, 2 Aug 2021 13:15:00 +0530
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.1
+In-Reply-To: <20210713074216.208391-1-kjain@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: RyHz5855e0unzEdNSw03Cg5mCfzhtRmF
+X-Proofpoint-GUID: W10U2EPBpxzuTFdcHfQHeMJ90pMtAAy-
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.4
-X-Kernelci-Kernel: v5.4.137-35-gf41d7703aea0
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.4 baseline: 193 runs,
- 4 regressions (v5.4.137-35-gf41d7703aea0)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-08-02_01:2021-08-02,2021-08-02 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 phishscore=0 impostorscore=0 suspectscore=0 adultscore=0
+ mlxlogscore=999 bulkscore=0 mlxscore=0 clxscore=1015 lowpriorityscore=0
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2107140000 definitions=main-2108020053
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 baseline: 193 runs, 4 regressions (v5.4.137-35-gf41d770=
-3aea0)
-
-Regressions Summary
--------------------
-
-platform          | arch | lab           | compiler | defconfig           |=
- regressions
-------------------+------+---------------+----------+---------------------+=
-------------
-imx6sll-evk       | arm  | lab-nxp       | gcc-8    | imx_v6_v7_defconfig |=
- 1          =
-
-rk3288-veyron-jaq | arm  | lab-collabora | gcc-8    | multi_v7_defconfig  |=
- 3          =
 
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
-el/v5.4.137-35-gf41d7703aea0/plan/baseline/
+On 7/13/21 1:12 PM, Kajol Jain wrote:
+> The performance reporting driver added cpu hotplug
+> feature but it didn't add pmu migration call in cpu
+> offline function.
+> This can create an issue incase the current designated
+> cpu being used to collect fme pmu data got offline,
+> as based on current code we are not migrating fme pmu to
+> new target cpu. Because of that perf will still try to
+> fetch data from that offline cpu and hence we will not
+> get counter data.
+> 
+> Patch fixed this issue by adding pmu_migrate_context call
+> in fme_perf_offline_cpu function.
+> 
+> Fixes: 724142f8c42a ("fpga: dfl: fme: add performance reporting support")
+> Tested-by: Xu Yilun <yilun.xu@intel.com>
+> Acked-by: Wu Hao <hao.wu@intel.com>
+> Signed-off-by: Kajol Jain <kjain@linux.ibm.com>
+> Cc: stable@vger.kernel.org
+> ---
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.4
-  Describe: v5.4.137-35-gf41d7703aea0
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      f41d7703aea0714f1d0ca78cf96ebc57f71f39a6 =
+Any update on this patch? Please let me know if any changes required.
 
+Thanks,
+Kajol Jain
 
-
-Test Regressions
----------------- =
-
-
-
-platform          | arch | lab           | compiler | defconfig           |=
- regressions
-------------------+------+---------------+----------+---------------------+=
-------------
-imx6sll-evk       | arm  | lab-nxp       | gcc-8    | imx_v6_v7_defconfig |=
- 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61076c4f720b3d6d2685f45f
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: imx_v6_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.137-3=
-5-gf41d7703aea0/arm/imx_v6_v7_defconfig/gcc-8/lab-nxp/baseline-imx6sll-evk.=
-txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.137-3=
-5-gf41d7703aea0/arm/imx_v6_v7_defconfig/gcc-8/lab-nxp/baseline-imx6sll-evk.=
-html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61076c4f720b3d6d2685f=
-460
-        new failure (last pass: v5.4.137-35-g8b67247ad78e) =
-
- =
-
-
-
-platform          | arch | lab           | compiler | defconfig           |=
- regressions
-------------------+------+---------------+----------+---------------------+=
-------------
-rk3288-veyron-jaq | arm  | lab-collabora | gcc-8    | multi_v7_defconfig  |=
- 3          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61077a0f7fd966d98685f45b
-
-  Results:     67 PASS, 3 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.137-3=
-5-gf41d7703aea0/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288-=
-veyron-jaq.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.137-3=
-5-gf41d7703aea0/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288-=
-veyron-jaq.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-iodomain-grf-probed: https://kernelci.org/test=
-/case/id/61077a0f7fd966d98685f46f
-        failing since 48 days (last pass: v5.4.125-37-g7cda316475cf, first =
-fail: v5.4.125-84-g411d62eda127)
-
-    2021-08-02T04:52:11.442095  /lava-4303352/1/../bin/lava-test-case<8>[  =
- 15.101153] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Drockchip-iodomain-grf-prob=
-ed RESULT=3Dfail>
-    2021-08-02T04:52:11.442495  =
-
-    2021-08-02T04:52:11.442696  /lava-4303352/1/../bin/lava-test-case   =
-
-
-  * baseline.bootrr.dwmmc_rockchip-sdio0-probed: https://kernelci.org/test/=
-case/id/61077a0f7fd966d98685f487
-        failing since 48 days (last pass: v5.4.125-37-g7cda316475cf, first =
-fail: v5.4.125-84-g411d62eda127)
-
-    2021-08-02T04:52:10.019046  /lava-4303352/1/../bin/lava-test-case<8>[  =
- 13.677371] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Ddwmmc_rockchip-sdio0-probe=
-d RESULT=3Dfail>
-    2021-08-02T04:52:10.019388  =
-
-    2021-08-02T04:52:10.019583  /lava-4303352/1/../bin/lava-test-case   =
-
-
-  * baseline.bootrr.dwmmc_rockchip-sdmmc-probed: https://kernelci.org/test/=
-case/id/61077a0f7fd966d98685f488
-        failing since 48 days (last pass: v5.4.125-37-g7cda316475cf, first =
-fail: v5.4.125-84-g411d62eda127)
-
-    2021-08-02T04:52:08.981216  /lava-4303352/1/../bin/lava-test-case
-    2021-08-02T04:52:08.986966  <8>[   12.657599] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Ddwmmc_rockchip-sdmmc-probed RESULT=3Dfail>   =
-
- =20
+>  drivers/fpga/dfl-fme-perf.c | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> ---
+> Changelog:
+> v2 -> v3:
+> - Added Acked-by tag
+> - Removed comment as suggested by Wu Hao
+> - Link to patch v2: https://lkml.org/lkml/2021/7/9/143
+> 
+> v1 -> v2:
+> - Add stable@vger.kernel.org in cc list
+> - Link to patch v1: https://lkml.org/lkml/2021/6/28/275
+> 
+> RFC -> PATCH v1
+> - Remove RFC tag
+> - Did nits changes on subject and commit message as suggested by Xu Yilun
+> - Added Tested-by tag
+> - Link to rfc patch: https://lkml.org/lkml/2021/6/28/112
+> ---
+> 
+> diff --git a/drivers/fpga/dfl-fme-perf.c b/drivers/fpga/dfl-fme-perf.c
+> index 4299145ef347..587c82be12f7 100644
+> --- a/drivers/fpga/dfl-fme-perf.c
+> +++ b/drivers/fpga/dfl-fme-perf.c
+> @@ -953,6 +953,8 @@ static int fme_perf_offline_cpu(unsigned int cpu, struct hlist_node *node)
+>  		return 0;
+>  
+>  	priv->cpu = target;
+> +	perf_pmu_migrate_context(&priv->pmu, cpu, target);
+> +
+>  	return 0;
+>  }
+>  
+> 
