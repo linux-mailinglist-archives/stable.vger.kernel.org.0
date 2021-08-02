@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BF7F3DD8E2
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:56:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 962253DD9BB
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 16:03:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234307AbhHBNzt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:55:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34430 "EHLO mail.kernel.org"
+        id S236564AbhHBODZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 10:03:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236095AbhHBNy6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:54:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AF80360FF2;
-        Mon,  2 Aug 2021 13:53:08 +0000 (UTC)
+        id S235060AbhHBOBX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 10:01:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1161B6120E;
+        Mon,  2 Aug 2021 13:56:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912389;
-        bh=tO9UUuTQNQKd/bo2w1JXgnCgQC2G2hjgPQP5tBsGR60=;
+        s=korg; t=1627912594;
+        bh=DRGdif0+md7ffSLCRW0MUogZtHNJWeZBOKThkqeTa5g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q4lFSkTlsSVJzWgFfuJdNQaKJ2svknYTcqwbB6JcLg7J4EKfJiWl9lVgMNFFTJRPC
-         OuNlhocHGsXO+bCK/YHAzEFDaZrgRbs8691QvpSK1+5rpnWBiIGU3ja+d6B9bMqpbU
-         JEiLxtU/0Q2SAss4NbsHfUMAZlO41HngyaRurcQ8=
+        b=aGwaEE6pC3QYfOAieqaw/V5h2DHt4lftV5wYpnL/8P8ezCn1geNObJfQUgIgrnLqA
+         UiKHJIafs3F0JKo87TopOqFj8jvGkF0n6VPZHdkIT3c5VbL7k8lakto430oHWz7bDd
+         xznmdsYRcpaDe7nUaS3T3MFKWmcg1IGgUQjtFoHE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Maloy <jmaloy@redhat.com>,
-        Hoang Le <hoang.h.le@dektech.com.au>,
+        stable@vger.kernel.org, Kevin Lo <kevlo@kevlo.org>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 38/67] tipc: fix sleeping in tipc accept routine
+Subject: [PATCH 5.13 064/104] net: phy: broadcom: re-add check for PHY_BRCM_DIS_TXCRXC_NOENRGY on the BCM54811 PHY
 Date:   Mon,  2 Aug 2021 15:45:01 +0200
-Message-Id: <20210802134340.323058565@linuxfoundation.org>
+Message-Id: <20210802134346.100599184@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134339.023067817@linuxfoundation.org>
-References: <20210802134339.023067817@linuxfoundation.org>
+In-Reply-To: <20210802134344.028226640@linuxfoundation.org>
+References: <20210802134344.028226640@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,60 +41,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hoang Le <hoang.h.le@dektech.com.au>
+From: Kevin Lo <kevlo@kevlo.org>
 
-[ Upstream commit d237a7f11719ff9320721be5818352e48071aab6 ]
+[ Upstream commit ad4e1e48a6291f7fb53fbef38ca264966ffd65c9 ]
 
-The release_sock() is blocking function, it would change the state
-after sleeping. In order to evaluate the stated condition outside
-the socket lock context, switch to use wait_woken() instead.
+Restore PHY_ID_BCM54811 accidently removed by commit 5d4358ede8eb.
 
-Fixes: 6398e23cdb1d8 ("tipc: standardize accept routine")
-Acked-by: Jon Maloy <jmaloy@redhat.com>
-Signed-off-by: Hoang Le <hoang.h.le@dektech.com.au>
+Fixes: 5d4358ede8eb ("net: phy: broadcom: Allow BCM54210E to configure APD")
+Signed-off-by: Kevin Lo <kevlo@kevlo.org>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/socket.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/net/phy/broadcom.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/tipc/socket.c b/net/tipc/socket.c
-index 694c432b9710..4f9bd95b4eee 100644
---- a/net/tipc/socket.c
-+++ b/net/tipc/socket.c
-@@ -2650,7 +2650,7 @@ static int tipc_listen(struct socket *sock, int len)
- static int tipc_wait_for_accept(struct socket *sock, long timeo)
- {
- 	struct sock *sk = sock->sk;
--	DEFINE_WAIT(wait);
-+	DEFINE_WAIT_FUNC(wait, woken_wake_function);
- 	int err;
- 
- 	/* True wake-one mechanism for incoming connections: only
-@@ -2659,12 +2659,12 @@ static int tipc_wait_for_accept(struct socket *sock, long timeo)
- 	 * anymore, the common case will execute the loop only once.
- 	*/
- 	for (;;) {
--		prepare_to_wait_exclusive(sk_sleep(sk), &wait,
--					  TASK_INTERRUPTIBLE);
- 		if (timeo && skb_queue_empty(&sk->sk_receive_queue)) {
-+			add_wait_queue(sk_sleep(sk), &wait);
- 			release_sock(sk);
--			timeo = schedule_timeout(timeo);
-+			timeo = wait_woken(&wait, TASK_INTERRUPTIBLE, timeo);
- 			lock_sock(sk);
-+			remove_wait_queue(sk_sleep(sk), &wait);
- 		}
- 		err = 0;
- 		if (!skb_queue_empty(&sk->sk_receive_queue))
-@@ -2676,7 +2676,6 @@ static int tipc_wait_for_accept(struct socket *sock, long timeo)
- 		if (signal_pending(current))
- 			break;
- 	}
--	finish_wait(sk_sleep(sk), &wait);
- 	return err;
- }
- 
+diff --git a/drivers/net/phy/broadcom.c b/drivers/net/phy/broadcom.c
+index 7bf3011b8e77..83aea5c5cd03 100644
+--- a/drivers/net/phy/broadcom.c
++++ b/drivers/net/phy/broadcom.c
+@@ -288,7 +288,7 @@ static void bcm54xx_adjust_rxrefclk(struct phy_device *phydev)
+ 	if (phydev->dev_flags & PHY_BRCM_DIS_TXCRXC_NOENRGY) {
+ 		if (BRCM_PHY_MODEL(phydev) == PHY_ID_BCM54210E ||
+ 		    BRCM_PHY_MODEL(phydev) == PHY_ID_BCM54810 ||
+-		    BRCM_PHY_MODEL(phydev) == PHY_ID_BCM54210E)
++		    BRCM_PHY_MODEL(phydev) == PHY_ID_BCM54811)
+ 			val |= BCM54XX_SHD_SCR3_RXCTXC_DIS;
+ 		else
+ 			val |= BCM54XX_SHD_SCR3_TRDDAPD;
 -- 
 2.30.2
 
