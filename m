@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A4E93DD8E5
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:56:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D44ED3DD7EA
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:48:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235256AbhHBNzv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:55:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34568 "EHLO mail.kernel.org"
+        id S234492AbhHBNsb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:48:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57094 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236113AbhHBNy6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:54:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 197A3610FD;
-        Mon,  2 Aug 2021 13:53:12 +0000 (UTC)
+        id S233979AbhHBNrr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:47:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A78EF61104;
+        Mon,  2 Aug 2021 13:47:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912393;
-        bh=VWn1pRYRch8VQtd9CdKf2P13Rx3yuBIScbJ1pJ6oaHs=;
+        s=korg; t=1627912050;
+        bh=bGwZJDrafhoBL3FL+deMOlcQZuvPztcf6tCHmH7Spco=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cwCFNWEGUcotDnEe926TX+2sC6UJf7uNB1rXpYs8mmTl+rP/ul35QGiptmiFMXYEB
-         m55gWWCUul4VsUwfhaOfEEXVcjV7zHpGVx88LTG03Xte7UjCoAM8XWSnJOEpCbV9Fu
-         W+BBi3qrXsfSGlrXZCaraZvCTqGF2VzCcEKE01Cc=
+        b=GRoh7XzrkcKnIcSS3VN7EglpdM3mxm/IJM+ZbItbj9ai66336g4B7OQQJ7AaqxO9E
+         3rJAFlaX6MRpDNH71SU1PHN9gwfN4JNrd7muZvTlrrxcfEK22//7Hl30ZzNBXcfDES
+         bl7seVsV4vUUd8F/Tu4Bf7+3JnBIuC+QQMNO1yBc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cyr Aric <aric.cyr@amd.com>,
-        Solomon Chiu <solomon.chiu@amd.com>,
-        Dale Zhao <dale.zhao@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.10 22/67] drm/amd/display: ensure dentist display clock update finished in DCN20
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 25/32] netfilter: conntrack: adjust stop timestamp to real expiry value
 Date:   Mon,  2 Aug 2021 15:44:45 +0200
-Message-Id: <20210802134339.771646255@linuxfoundation.org>
+Message-Id: <20210802134333.716493568@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134339.023067817@linuxfoundation.org>
-References: <20210802134339.023067817@linuxfoundation.org>
+In-Reply-To: <20210802134332.931915241@linuxfoundation.org>
+References: <20210802134332.931915241@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,42 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dale Zhao <dale.zhao@amd.com>
+From: Florian Westphal <fw@strlen.de>
 
-commit b53e041d8e4308f7324999398aec092dbcb130f5 upstream.
+[ Upstream commit 30a56a2b881821625f79837d4d968c679852444e ]
 
-[Why]
-We don't check DENTIST_DISPCLK_CHG_DONE to ensure dentist
-display clockis updated to target value. In some scenarios with large
-display clock margin, it will deliver unfinished display clock and cause
-issues like display black screen.
+In case the entry is evicted via garbage collection there is
+delay between the timeout value and the eviction event.
 
-[How]
-Checking DENTIST_DISPCLK_CHG_DONE to ensure display clock
-has been update to target value before driver do other clock related
-actions.
+This adjusts the stop value based on how much time has passed.
 
-Reviewed-by: Cyr Aric <aric.cyr@amd.com>
-Acked-by: Solomon Chiu <solomon.chiu@amd.com>
-Signed-off-by: Dale Zhao <dale.zhao@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: b87a2f9199ea82 ("netfilter: conntrack: add gc worker to remove timed-out entries")
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/clk_mgr/dcn20/dcn20_clk_mgr.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/netfilter/nf_conntrack_core.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn20/dcn20_clk_mgr.c
-+++ b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn20/dcn20_clk_mgr.c
-@@ -135,7 +135,7 @@ void dcn20_update_clocks_update_dentist(
+diff --git a/net/netfilter/nf_conntrack_core.c b/net/netfilter/nf_conntrack_core.c
+index ddd90a3820d3..d03f06717844 100644
+--- a/net/netfilter/nf_conntrack_core.c
++++ b/net/netfilter/nf_conntrack_core.c
+@@ -491,8 +491,13 @@ bool nf_ct_delete(struct nf_conn *ct, u32 portid, int report)
+ 		return false;
  
- 	REG_UPDATE(DENTIST_DISPCLK_CNTL,
- 			DENTIST_DISPCLK_WDIVIDER, dispclk_wdivider);
--//	REG_WAIT(DENTIST_DISPCLK_CNTL, DENTIST_DISPCLK_CHG_DONE, 1, 5, 100);
-+	REG_WAIT(DENTIST_DISPCLK_CNTL, DENTIST_DISPCLK_CHG_DONE, 1, 50, 1000);
- 	REG_UPDATE(DENTIST_DISPCLK_CNTL,
- 			DENTIST_DPPCLK_WDIVIDER, dppclk_wdivider);
- 	REG_WAIT(DENTIST_DISPCLK_CNTL, DENTIST_DPPCLK_CHG_DONE, 1, 5, 100);
+ 	tstamp = nf_conn_tstamp_find(ct);
+-	if (tstamp && tstamp->stop == 0)
++	if (tstamp) {
++		s32 timeout = ct->timeout - nfct_time_stamp;
++
+ 		tstamp->stop = ktime_get_real_ns();
++		if (timeout < 0)
++			tstamp->stop -= jiffies_to_nsecs(-timeout);
++	}
+ 
+ 	if (nf_conntrack_event_report(IPCT_DESTROY, ct,
+ 				    portid, report) < 0) {
+-- 
+2.30.2
+
 
 
