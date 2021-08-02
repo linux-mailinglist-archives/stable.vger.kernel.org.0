@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BAFB3DD98F
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 16:01:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E4C3E3DD82F
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:50:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235576AbhHBOB2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 10:01:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40902 "EHLO mail.kernel.org"
+        id S234509AbhHBNuR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:50:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236493AbhHBN7f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:59:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3036661178;
-        Mon,  2 Aug 2021 13:55:50 +0000 (UTC)
+        id S233907AbhHBNtl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:49:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 518C060EBB;
+        Mon,  2 Aug 2021 13:49:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912550;
-        bh=aVv69bOH2TtShIyhTj773uLwMnJXJi6e8yAXHGAmDkA=;
+        s=korg; t=1627912171;
+        bh=/e5zulU3h+QDkdbo2OsZDNCrGnJk/UFrA8CCIRWVNCI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OIvEkgwpNdmcV5vpNL58JgkN04sjWwYnxMeOwjHTWJtI6Sp3CqRLhxi9U/cKWv/Oa
-         3oG7wnS7zJfA+Ozqyhs2g8Etm+U7dyHXC2QbcKAKiXRccKGmp44SynIoBX9c9Xcf5F
-         tSO6477KzCW9hEFgBr00vDnC4aA+rW2+AVsI5EQM=
+        b=mcnJ8k9CGRwfslYFV8ZBOWWq+zZbThGN+LZxb/TPCjKgTGA5/SUMo7zSvwFbmnEWa
+         HRgELYNzIKu0njFkw5lJ17vwGgIP8p7UGGwQTo5a3vkzSiYLfRmx0GsVmBsGQ0BlMJ
+         OyQkHq9WttBKpLTxQUVnRDmCP792IYU5QJiiS4tw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 043/104] netfilter: conntrack: adjust stop timestamp to real expiry value
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Matthieu Baerts <matthieu.baerts@tessares.net>
+Subject: [PATCH 4.19 02/30] gro: ensure frag0 meets IP header alignment
 Date:   Mon,  2 Aug 2021 15:44:40 +0200
-Message-Id: <20210802134345.440503465@linuxfoundation.org>
+Message-Id: <20210802134334.163184381@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134344.028226640@linuxfoundation.org>
-References: <20210802134344.028226640@linuxfoundation.org>
+In-Reply-To: <20210802134334.081433902@linuxfoundation.org>
+References: <20210802134334.081433902@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,44 +44,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 30a56a2b881821625f79837d4d968c679852444e ]
+commit 38ec4944b593fd90c5ef42aaaa53e66ae5769d04 upstream.
 
-In case the entry is evicted via garbage collection there is
-delay between the timeout value and the eviction event.
+After commit 0f6925b3e8da ("virtio_net: Do not pull payload in skb->head")
+Guenter Roeck reported one failure in his tests using sh architecture.
 
-This adjusts the stop value based on how much time has passed.
+After much debugging, we have been able to spot silent unaligned accesses
+in inet_gro_receive()
 
-Fixes: b87a2f9199ea82 ("netfilter: conntrack: add gc worker to remove timed-out entries")
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The issue at hand is that upper networking stacks assume their header
+is word-aligned. Low level drivers are supposed to reserve NET_IP_ALIGN
+bytes before the Ethernet header to make that happen.
+
+This patch hardens skb_gro_reset_offset() to not allow frag0 fast-path
+if the fragment is not properly aligned.
+
+Some arches like x86, arm64 and powerpc do not care and define NET_IP_ALIGN
+as 0, this extra check will be a NOP for them.
+
+Note that if frag0 is not used, GRO will call pskb_may_pull()
+as many times as needed to pull network and transport headers.
+
+Fixes: 0f6925b3e8da ("virtio_net: Do not pull payload in skb->head")
+Fixes: 78a478d0efd9 ("gro: Inline skb_gro_header and cache frag0 virtual address")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Tested-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/nf_conntrack_core.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ include/linux/skbuff.h |    9 +++++++++
+ net/core/dev.c         |    3 ++-
+ 2 files changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/net/netfilter/nf_conntrack_core.c b/net/netfilter/nf_conntrack_core.c
-index e0befcf8113a..69079a382d3a 100644
---- a/net/netfilter/nf_conntrack_core.c
-+++ b/net/netfilter/nf_conntrack_core.c
-@@ -666,8 +666,13 @@ bool nf_ct_delete(struct nf_conn *ct, u32 portid, int report)
- 		return false;
+--- a/include/linux/skbuff.h
++++ b/include/linux/skbuff.h
+@@ -2789,6 +2789,15 @@ static inline void skb_propagate_pfmemal
+ }
  
- 	tstamp = nf_conn_tstamp_find(ct);
--	if (tstamp && tstamp->stop == 0)
-+	if (tstamp) {
-+		s32 timeout = ct->timeout - nfct_time_stamp;
+ /**
++ * skb_frag_off() - Returns the offset of a skb fragment
++ * @frag: the paged fragment
++ */
++static inline unsigned int skb_frag_off(const skb_frag_t *frag)
++{
++	return frag->page_offset;
++}
 +
- 		tstamp->stop = ktime_get_real_ns();
-+		if (timeout < 0)
-+			tstamp->stop -= jiffies_to_nsecs(-timeout);
-+	}
++/**
+  * skb_frag_page - retrieve the page referred to by a paged fragment
+  * @frag: the paged fragment
+  *
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -5400,7 +5400,8 @@ static void skb_gro_reset_offset(struct
  
- 	if (nf_conntrack_event_report(IPCT_DESTROY, ct,
- 				    portid, report) < 0) {
--- 
-2.30.2
-
+ 	if (skb_mac_header(skb) == skb_tail_pointer(skb) &&
+ 	    pinfo->nr_frags &&
+-	    !PageHighMem(skb_frag_page(frag0))) {
++	    !PageHighMem(skb_frag_page(frag0)) &&
++	    (!NET_IP_ALIGN || !(skb_frag_off(frag0) & 3))) {
+ 		NAPI_GRO_CB(skb)->frag0 = skb_frag_address(frag0);
+ 		NAPI_GRO_CB(skb)->frag0_len = min_t(unsigned int,
+ 						    skb_frag_size(frag0),
 
 
