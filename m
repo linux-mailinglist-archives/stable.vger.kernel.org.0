@@ -2,70 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 299653DDA17
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 16:06:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD2853DD7CF
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:48:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236451AbhHBOGK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 10:06:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49060 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237120AbhHBOEk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 10:04:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1FE7A61250;
-        Mon,  2 Aug 2021 13:58:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912681;
-        bh=MhNPi2JdnrrlnTq1wlVrt7SFbv/+OFwl/mU8FeAPQOk=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UUsaMqvPvTGWwv0EG7Umcvn/d1tKq4FLRQ65Euer464MgXKXa4S1WyZlNZPsJHlxz
-         quHnHR/mBy27JeQRBin7i4OKx2/gIwgnJg2IBBNVGwpmgm6XyMpMchO0sRvH/K+JXX
-         66u46JkVBsDO5yVCo3vtBTtW2+4jYvnB38yroxjM=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sunil Goutham <sgoutham@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.13 104/104] octeontx2-af: Remove unnecessary devm_kfree
-Date:   Mon,  2 Aug 2021 15:45:41 +0200
-Message-Id: <20210802134347.420679949@linuxfoundation.org>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134344.028226640@linuxfoundation.org>
-References: <20210802134344.028226640@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S234452AbhHBNsP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:48:15 -0400
+Received: from szxga02-in.huawei.com ([45.249.212.188]:7917 "EHLO
+        szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234257AbhHBNrf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Aug 2021 09:47:35 -0400
+Received: from dggemv711-chm.china.huawei.com (unknown [172.30.72.53])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4GdfNB5NzHz83CY;
+        Mon,  2 Aug 2021 21:43:22 +0800 (CST)
+Received: from dggpemm500006.china.huawei.com (7.185.36.236) by
+ dggemv711-chm.china.huawei.com (10.1.198.66) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2176.2; Mon, 2 Aug 2021 21:47:11 +0800
+Received: from thunder-town.china.huawei.com (10.174.179.0) by
+ dggpemm500006.china.huawei.com (7.185.36.236) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2176.2; Mon, 2 Aug 2021 21:47:11 +0800
+From:   Zhen Lei <thunder.leizhen@huawei.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable <stable@vger.kernel.org>
+CC:     Zhen Lei <thunder.leizhen@huawei.com>,
+        Anna-Maria Gleixner <anna-maria@linutronix.de>,
+        Mike Galbraith <efault@gmx.de>,
+        Sasha Levin <sasha.levin@oracle.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH 4.4 00/11] Fix a potential infinite loop in RT futex-pi scenarios
+Date:   Mon, 2 Aug 2021 21:46:13 +0800
+Message-ID: <20210802134624.1934-1-thunder.leizhen@huawei.com>
+X-Mailer: git-send-email 2.26.0.windows.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.174.179.0]
+X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
+ dggpemm500006.china.huawei.com (7.185.36.236)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sunil Goutham <sgoutham@marvell.com>
+Commit 73d786bd043e "futex: Rework inconsistent rt_mutex/futex_q state"
+mentions that it could cause an infinite loop, and will fix it in the later
+patches:
+bebe5b514345f09 futex: Futex_unlock_pi() determinism
+cfafcd117da0216 futex: Rework futex_lock_pi() to use rt_mutex_*_proxy_lock()
 
-commit d72e91efcae12f2f24ced984d00d60517c677857 upstream.
+But at the moment they're not backported. In a single-core environment, the
+probability of triggering is high.
 
-Remove devm_kfree of memory where VLAN entry to RVU PF mapping
-info is saved. This will be freed anyway at driver exit.
-Having this could result in warning from devm_kfree() if
-the memory is not allocated due to errors in rvu_nix_block_init()
-before nix_setup_txvlan().
+I also backported commit b4abf91047cf ("rtmutex: Make wait_lock irq safe"),
+it fixes a potential deadlock problem. Although it hasn't actually been
+triggered in our environment at the moment.
 
-Fixes: 9a946def264d ("octeontx2-af: Modify nix_vtag_cfg mailbox to support TX VTAG entries")
-Signed-off-by: Sunil Goutham <sgoutham@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c |    1 -
- 1 file changed, 1 deletion(-)
+Other patches are used to resolve conflicts or fix problems caused by new
+patches.
 
---- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c
-+++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c
-@@ -3587,7 +3587,6 @@ static void rvu_nix_block_freemem(struct
- 		vlan = &nix_hw->txvlan;
- 		kfree(vlan->rsrc.bmap);
- 		mutex_destroy(&vlan->rsrc_lock);
--		devm_kfree(rvu->dev, vlan->entry2pfvf_map);
- 
- 		mcast = &nix_hw->mcast;
- 		qmem_free(rvu->dev, mcast->mce_ctx);
 
+Anna-Maria Gleixner (1):
+  rcu: Update documentation of rcu_read_unlock()
+
+Mike Galbraith (1):
+  futex: Handle transient "ownerless" rtmutex state correctly
+
+Peter Zijlstra (6):
+  futex: Cleanup refcounting
+  futex,rt_mutex: Introduce rt_mutex_init_waiter()
+  futex: Pull rt_mutex_futex_unlock() out from under hb->lock
+  futex: Rework futex_lock_pi() to use rt_mutex_*_proxy_lock()
+  futex: Futex_unlock_pi() determinism
+  futex,rt_mutex: Fix rt_mutex_cleanup_proxy_lock()
+
+Thomas Gleixner (3):
+  futex: Rename free_pi_state() to put_pi_state()
+  rtmutex: Make wait_lock irq safe
+  futex: Avoid freeing an active timer
+
+ include/linux/rcupdate.h        |   4 +-
+ kernel/futex.c                  | 245 +++++++++++++++++++++-----------
+ kernel/locking/rtmutex.c        | 185 +++++++++++++-----------
+ kernel/locking/rtmutex_common.h |   2 +-
+ 4 files changed, 262 insertions(+), 174 deletions(-)
+
+-- 
+2.26.0.106.g9fadedd
 
