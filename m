@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14B643DD82A
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:50:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CA2C3DD7D3
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:48:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234740AbhHBNuN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:50:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60326 "EHLO mail.kernel.org"
+        id S234502AbhHBNsS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:48:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234674AbhHBNtI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:49:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AF9E4610FE;
-        Mon,  2 Aug 2021 13:48:58 +0000 (UTC)
+        id S234139AbhHBNrs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:47:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7EA4B610FC;
+        Mon,  2 Aug 2021 13:47:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912139;
-        bh=ZyNDkR7D1sp5FxN3LyPE/ovIOwzSfkw0AEDjZWkIZpo=;
+        s=korg; t=1627912048;
+        bh=mYSAb2tblnHSTGfIlA7dILXS4txeVAS9pK0nlQbYLr4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NENjqk4vYBU1Zs89t7Gtc99oASSvK1HI3RxToPh4k/K80J+lloHy8L4cdTfZ9iLC4
-         AMEUidzDfJlBW6mYFH/ciEhqTnRj1iTIWGn+FJaX/Tt8q2E5/icxP3Nk3ysS9jI1Xm
-         0hjWVoHu1pdSjII/VVSdHHE9LSTWTzkma8zdt98Y=
+        b=UIMasPlRYJOUTaVXWCyfXhWzGgqTkIjb7dHZ/K4+sBczcQhv7lInebRtUB/tyntXo
+         CpxQCvK5RBfo1bnjuLnJAZyFuNhF6VaTkM4hSizDoVukUre4/UAUM1wewaad9zxvCQ
+         iU0f4iV9QSKfUBfb8lSktK+Av2cjff/AYSFiqFRE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Lai Jiangshan <jiangshanlai@gmail.com>,
         Yang Yingliang <yangyingliang@huawei.com>,
-        Pavel Skripkin <paskripkin@gmail.com>,
-        Tejun Heo <tj@kernel.org>
-Subject: [PATCH 4.14 05/38] workqueue: fix UAF in pwq_unbound_release_workfn()
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 07/32] net/802/garp: fix memleak in garp_request_join()
 Date:   Mon,  2 Aug 2021 15:44:27 +0200
-Message-Id: <20210802134335.001923748@linuxfoundation.org>
+Message-Id: <20210802134333.158621637@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134334.835358048@linuxfoundation.org>
-References: <20210802134334.835358048@linuxfoundation.org>
+In-Reply-To: <20210802134332.931915241@linuxfoundation.org>
+References: <20210802134332.931915241@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,147 +43,82 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit b42b0bddcbc87b4c66f6497f66fc72d52b712aa7 upstream.
+[ Upstream commit 42ca63f980842918560b25f0244307fd83b4777c ]
 
-I got a UAF report when doing fuzz test:
+I got kmemleak report when doing fuzz test:
 
-[  152.880091][ T8030] ==================================================================
-[  152.881240][ T8030] BUG: KASAN: use-after-free in pwq_unbound_release_workfn+0x50/0x190
-[  152.882442][ T8030] Read of size 4 at addr ffff88810d31bd00 by task kworker/3:2/8030
-[  152.883578][ T8030]
-[  152.883932][ T8030] CPU: 3 PID: 8030 Comm: kworker/3:2 Not tainted 5.13.0+ #249
-[  152.885014][ T8030] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
-[  152.886442][ T8030] Workqueue: events pwq_unbound_release_workfn
-[  152.887358][ T8030] Call Trace:
-[  152.887837][ T8030]  dump_stack_lvl+0x75/0x9b
-[  152.888525][ T8030]  ? pwq_unbound_release_workfn+0x50/0x190
-[  152.889371][ T8030]  print_address_description.constprop.10+0x48/0x70
-[  152.890326][ T8030]  ? pwq_unbound_release_workfn+0x50/0x190
-[  152.891163][ T8030]  ? pwq_unbound_release_workfn+0x50/0x190
-[  152.891999][ T8030]  kasan_report.cold.15+0x82/0xdb
-[  152.892740][ T8030]  ? pwq_unbound_release_workfn+0x50/0x190
-[  152.893594][ T8030]  __asan_load4+0x69/0x90
-[  152.894243][ T8030]  pwq_unbound_release_workfn+0x50/0x190
-[  152.895057][ T8030]  process_one_work+0x47b/0x890
-[  152.895778][ T8030]  worker_thread+0x5c/0x790
-[  152.896439][ T8030]  ? process_one_work+0x890/0x890
-[  152.897163][ T8030]  kthread+0x223/0x250
-[  152.897747][ T8030]  ? set_kthread_struct+0xb0/0xb0
-[  152.898471][ T8030]  ret_from_fork+0x1f/0x30
-[  152.899114][ T8030]
-[  152.899446][ T8030] Allocated by task 8884:
-[  152.900084][ T8030]  kasan_save_stack+0x21/0x50
-[  152.900769][ T8030]  __kasan_kmalloc+0x88/0xb0
-[  152.901416][ T8030]  __kmalloc+0x29c/0x460
-[  152.902014][ T8030]  alloc_workqueue+0x111/0x8e0
-[  152.902690][ T8030]  __btrfs_alloc_workqueue+0x11e/0x2a0
-[  152.903459][ T8030]  btrfs_alloc_workqueue+0x6d/0x1d0
-[  152.904198][ T8030]  scrub_workers_get+0x1e8/0x490
-[  152.904929][ T8030]  btrfs_scrub_dev+0x1b9/0x9c0
-[  152.905599][ T8030]  btrfs_ioctl+0x122c/0x4e50
-[  152.906247][ T8030]  __x64_sys_ioctl+0x137/0x190
-[  152.906916][ T8030]  do_syscall_64+0x34/0xb0
-[  152.907535][ T8030]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-[  152.908365][ T8030]
-[  152.908688][ T8030] Freed by task 8884:
-[  152.909243][ T8030]  kasan_save_stack+0x21/0x50
-[  152.909893][ T8030]  kasan_set_track+0x20/0x30
-[  152.910541][ T8030]  kasan_set_free_info+0x24/0x40
-[  152.911265][ T8030]  __kasan_slab_free+0xf7/0x140
-[  152.911964][ T8030]  kfree+0x9e/0x3d0
-[  152.912501][ T8030]  alloc_workqueue+0x7d7/0x8e0
-[  152.913182][ T8030]  __btrfs_alloc_workqueue+0x11e/0x2a0
-[  152.913949][ T8030]  btrfs_alloc_workqueue+0x6d/0x1d0
-[  152.914703][ T8030]  scrub_workers_get+0x1e8/0x490
-[  152.915402][ T8030]  btrfs_scrub_dev+0x1b9/0x9c0
-[  152.916077][ T8030]  btrfs_ioctl+0x122c/0x4e50
-[  152.916729][ T8030]  __x64_sys_ioctl+0x137/0x190
-[  152.917414][ T8030]  do_syscall_64+0x34/0xb0
-[  152.918034][ T8030]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-[  152.918872][ T8030]
-[  152.919203][ T8030] The buggy address belongs to the object at ffff88810d31bc00
-[  152.919203][ T8030]  which belongs to the cache kmalloc-512 of size 512
-[  152.921155][ T8030] The buggy address is located 256 bytes inside of
-[  152.921155][ T8030]  512-byte region [ffff88810d31bc00, ffff88810d31be00)
-[  152.922993][ T8030] The buggy address belongs to the page:
-[  152.923800][ T8030] page:ffffea000434c600 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x10d318
-[  152.925249][ T8030] head:ffffea000434c600 order:2 compound_mapcount:0 compound_pincount:0
-[  152.926399][ T8030] flags: 0x57ff00000010200(slab|head|node=1|zone=2|lastcpupid=0x7ff)
-[  152.927515][ T8030] raw: 057ff00000010200 dead000000000100 dead000000000122 ffff888009c42c80
-[  152.928716][ T8030] raw: 0000000000000000 0000000080100010 00000001ffffffff 0000000000000000
-[  152.929890][ T8030] page dumped because: kasan: bad access detected
-[  152.930759][ T8030]
-[  152.931076][ T8030] Memory state around the buggy address:
-[  152.931851][ T8030]  ffff88810d31bc00: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[  152.932967][ T8030]  ffff88810d31bc80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[  152.934068][ T8030] >ffff88810d31bd00: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[  152.935189][ T8030]                    ^
-[  152.935763][ T8030]  ffff88810d31bd80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[  152.936847][ T8030]  ffff88810d31be00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-[  152.937940][ T8030] ==================================================================
+BUG: memory leak
+unreferenced object 0xffff88810c909b80 (size 64):
+  comm "syz", pid 957, jiffies 4295220394 (age 399.090s)
+  hex dump (first 32 bytes):
+    01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 08 00 00 00 01 02 00 04  ................
+  backtrace:
+    [<00000000ca1f2e2e>] garp_request_join+0x285/0x3d0
+    [<00000000bf153351>] vlan_gvrp_request_join+0x15b/0x190
+    [<0000000024005e72>] vlan_dev_open+0x706/0x980
+    [<00000000dc20c4d4>] __dev_open+0x2bb/0x460
+    [<0000000066573004>] __dev_change_flags+0x501/0x650
+    [<0000000035b42f83>] rtnl_configure_link+0xee/0x280
+    [<00000000a5e69de0>] __rtnl_newlink+0xed5/0x1550
+    [<00000000a5258f4a>] rtnl_newlink+0x66/0x90
+    [<00000000506568ee>] rtnetlink_rcv_msg+0x439/0xbd0
+    [<00000000b7eaeae1>] netlink_rcv_skb+0x14d/0x420
+    [<00000000c373ce66>] netlink_unicast+0x550/0x750
+    [<00000000ec74ce74>] netlink_sendmsg+0x88b/0xda0
+    [<00000000381ff246>] sock_sendmsg+0xc9/0x120
+    [<000000008f6a2db3>] ____sys_sendmsg+0x6e8/0x820
+    [<000000008d9c1735>] ___sys_sendmsg+0x145/0x1c0
+    [<00000000aa39dd8b>] __sys_sendmsg+0xfe/0x1d0
 
-If apply_wqattrs_prepare() fails in alloc_workqueue(), it will call put_pwq()
-which invoke a work queue to call pwq_unbound_release_workfn() and use the 'wq'.
-The 'wq' allocated in alloc_workqueue() will be freed in error path when
-apply_wqattrs_prepare() fails. So it will lead a UAF.
+Calling garp_request_leave() after garp_request_join(), the attr->state
+is set to GARP_APPLICANT_VO, garp_attr_destroy() won't be called in last
+transmit event in garp_uninit_applicant(), the attr of applicant will be
+leaked. To fix this leak, iterate and free each attr of applicant before
+rerturning from garp_uninit_applicant().
 
-CPU0                                          CPU1
-alloc_workqueue()
-alloc_and_link_pwqs()
-apply_wqattrs_prepare() fails
-apply_wqattrs_cleanup()
-schedule_work(&pwq->unbound_release_work)
-kfree(wq)
-                                              worker_thread()
-                                              pwq_unbound_release_workfn() <- trigger uaf here
-
-If apply_wqattrs_prepare() fails, the new pwq are not linked, it doesn't
-hold any reference to the 'wq', 'wq' is invalid to access in the worker,
-so add check pwq if linked to fix this.
-
-Fixes: 2d5f0764b526 ("workqueue: split apply_workqueue_attrs() into 3 stages")
-Cc: stable@vger.kernel.org # v4.2+
 Reported-by: Hulk Robot <hulkci@huawei.com>
-Suggested-by: Lai Jiangshan <jiangshanlai@gmail.com>
 Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Lai Jiangshan <jiangshanlai@gmail.com>
-Tested-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/workqueue.c |   20 +++++++++++++-------
- 1 file changed, 13 insertions(+), 7 deletions(-)
+ net/802/garp.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
---- a/kernel/workqueue.c
-+++ b/kernel/workqueue.c
-@@ -3441,15 +3441,21 @@ static void pwq_unbound_release_workfn(s
- 						  unbound_release_work);
- 	struct workqueue_struct *wq = pwq->wq;
- 	struct worker_pool *pool = pwq->pool;
--	bool is_last;
-+	bool is_last = false;
+diff --git a/net/802/garp.c b/net/802/garp.c
+index b38ee6dcba45..5239b8f244e7 100644
+--- a/net/802/garp.c
++++ b/net/802/garp.c
+@@ -206,6 +206,19 @@ static void garp_attr_destroy(struct garp_applicant *app, struct garp_attr *attr
+ 	kfree(attr);
+ }
  
--	if (WARN_ON_ONCE(!(wq->flags & WQ_UNBOUND)))
--		return;
-+	/*
-+	 * when @pwq is not linked, it doesn't hold any reference to the
-+	 * @wq, and @wq is invalid to access.
-+	 */
-+	if (!list_empty(&pwq->pwqs_node)) {
-+		if (WARN_ON_ONCE(!(wq->flags & WQ_UNBOUND)))
-+			return;
- 
--	mutex_lock(&wq->mutex);
--	list_del_rcu(&pwq->pwqs_node);
--	is_last = list_empty(&wq->pwqs);
--	mutex_unlock(&wq->mutex);
-+		mutex_lock(&wq->mutex);
-+		list_del_rcu(&pwq->pwqs_node);
-+		is_last = list_empty(&wq->pwqs);
-+		mutex_unlock(&wq->mutex);
++static void garp_attr_destroy_all(struct garp_applicant *app)
++{
++	struct rb_node *node, *next;
++	struct garp_attr *attr;
++
++	for (node = rb_first(&app->gid);
++	     next = node ? rb_next(node) : NULL, node != NULL;
++	     node = next) {
++		attr = rb_entry(node, struct garp_attr, node);
++		garp_attr_destroy(app, attr);
 +	}
++}
++
+ static int garp_pdu_init(struct garp_applicant *app)
+ {
+ 	struct sk_buff *skb;
+@@ -612,6 +625,7 @@ void garp_uninit_applicant(struct net_device *dev, struct garp_application *appl
  
- 	mutex_lock(&wq_pool_mutex);
- 	put_unbound_pool(pool);
+ 	spin_lock_bh(&app->lock);
+ 	garp_gid_event(app, GARP_EVENT_TRANSMIT_PDU);
++	garp_attr_destroy_all(app);
+ 	garp_pdu_queue(app);
+ 	spin_unlock_bh(&app->lock);
+ 
+-- 
+2.30.2
+
 
 
