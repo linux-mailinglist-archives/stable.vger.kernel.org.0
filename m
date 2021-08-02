@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C0163DD976
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 16:00:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E3843DD7A3
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:47:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235512AbhHBOAd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 10:00:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41966 "EHLO mail.kernel.org"
+        id S233916AbhHBNrH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:47:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236283AbhHBN7S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:59:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ADF9361179;
-        Mon,  2 Aug 2021 13:55:32 +0000 (UTC)
+        id S233994AbhHBNqt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:46:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C491860527;
+        Mon,  2 Aug 2021 13:46:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912533;
-        bh=Wmsc3hKDVyhGQCS8aSWrmBFATR4jeRw+nwgFCI8b/a0=;
+        s=korg; t=1627912000;
+        bh=iQcu7CsfD8tjdJ3BJklQRoNL+bjJ1nq6ktJ6QaVMAmI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bG8uKpDh7Ky3OpNVpLsS2qpeHyqkoAcFzz8oXJY19UElu2Hhjf/c4Zzxzsr3LtmAl
-         DL6plFMYeSh8VwBYrS3c1zdBZBeKcdOOtrYl7T/xMKyStTR8lkzu6gC/+RbpSXFNy3
-         q+mPKJ21Z5tAM1U7yOH39VZTzusIei2jyH4HQKUc=
+        b=TUQjdX4nOFRUI8KnmCeTm/14toF6ZrCnmXIE1iZPhsFXFUCHp8LyNSuFQ+qD7MdTe
+         jCvafGlpgIVmz14aS/YSEm9dduhr6pe4gZNBApYGOQK3yAh76Ug+cPGS25SFhQbL8D
+         Kitzw472I/Y5s0XgPQG/vNP/RV92INFyG0csYJE0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Naresh Kumar PBS <nareshkumar.pbs@broadcom.com>,
-        Selvin Xavier <selvin.xavier@broadcom.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Jon Maloy <jmaloy@redhat.com>,
+        Hoang Le <hoang.h.le@dektech.com.au>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 035/104] RDMA/bnxt_re: Fix stats counters
+Subject: [PATCH 4.4 22/26] tipc: fix sleeping in tipc accept routine
 Date:   Mon,  2 Aug 2021 15:44:32 +0200
-Message-Id: <20210802134345.177396765@linuxfoundation.org>
+Message-Id: <20210802134332.749168639@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134344.028226640@linuxfoundation.org>
-References: <20210802134344.028226640@linuxfoundation.org>
+In-Reply-To: <20210802134332.033552261@linuxfoundation.org>
+References: <20210802134332.033552261@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,107 +41,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Naresh Kumar PBS <nareshkumar.pbs@broadcom.com>
+From: Hoang Le <hoang.h.le@dektech.com.au>
 
-[ Upstream commit 0c23af52ccd1605926480b5dfd1dd857ef604611 ]
+[ Upstream commit d237a7f11719ff9320721be5818352e48071aab6 ]
 
-Statistical counters are not incrementing in some adapter versions with
-newer FW. This is due to the stats context length mismatch between FW and
-driver. Since the L2 driver updates the length correctly, use the stats
-length from L2 driver while allocating the DMA'able memory and creating
-the stats context.
+The release_sock() is blocking function, it would change the state
+after sleeping. In order to evaluate the stated condition outside
+the socket lock context, switch to use wait_woken() instead.
 
-Fixes: 9d6b648c3112 ("bnxt_en: Update firmware interface spec to 1.10.1.65.")
-Link: https://lore.kernel.org/r/1626010296-6076-1-git-send-email-selvin.xavier@broadcom.com
-Signed-off-by: Naresh Kumar PBS <nareshkumar.pbs@broadcom.com>
-Signed-off-by: Selvin Xavier <selvin.xavier@broadcom.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: 6398e23cdb1d8 ("tipc: standardize accept routine")
+Acked-by: Jon Maloy <jmaloy@redhat.com>
+Signed-off-by: Hoang Le <hoang.h.le@dektech.com.au>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/bnxt_re/main.c      |  4 +++-
- drivers/infiniband/hw/bnxt_re/qplib_res.c | 10 ++++------
- drivers/infiniband/hw/bnxt_re/qplib_res.h |  1 +
- 3 files changed, 8 insertions(+), 7 deletions(-)
+ net/tipc/socket.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/infiniband/hw/bnxt_re/main.c b/drivers/infiniband/hw/bnxt_re/main.c
-index 8bfbf0231a9e..25550d982238 100644
---- a/drivers/infiniband/hw/bnxt_re/main.c
-+++ b/drivers/infiniband/hw/bnxt_re/main.c
-@@ -120,6 +120,7 @@ static int bnxt_re_setup_chip_ctx(struct bnxt_re_dev *rdev, u8 wqe_mode)
- 	if (!chip_ctx)
- 		return -ENOMEM;
- 	chip_ctx->chip_num = bp->chip_num;
-+	chip_ctx->hw_stats_size = bp->hw_ring_stats_size;
- 
- 	rdev->chip_ctx = chip_ctx;
- 	/* rest members to follow eventually */
-@@ -547,6 +548,7 @@ static int bnxt_re_net_stats_ctx_alloc(struct bnxt_re_dev *rdev,
- 				       dma_addr_t dma_map,
- 				       u32 *fw_stats_ctx_id)
+diff --git a/net/tipc/socket.c b/net/tipc/socket.c
+index 3ad9158ecf30..9d15bb865eea 100644
+--- a/net/tipc/socket.c
++++ b/net/tipc/socket.c
+@@ -1987,7 +1987,7 @@ static int tipc_listen(struct socket *sock, int len)
+ static int tipc_wait_for_accept(struct socket *sock, long timeo)
  {
-+	struct bnxt_qplib_chip_ctx *chip_ctx = rdev->chip_ctx;
- 	struct hwrm_stat_ctx_alloc_output resp = {0};
- 	struct hwrm_stat_ctx_alloc_input req = {0};
- 	struct bnxt_en_dev *en_dev = rdev->en_dev;
-@@ -563,7 +565,7 @@ static int bnxt_re_net_stats_ctx_alloc(struct bnxt_re_dev *rdev,
- 	bnxt_re_init_hwrm_hdr(rdev, (void *)&req, HWRM_STAT_CTX_ALLOC, -1, -1);
- 	req.update_period_ms = cpu_to_le32(1000);
- 	req.stats_dma_addr = cpu_to_le64(dma_map);
--	req.stats_dma_length = cpu_to_le16(sizeof(struct ctx_hw_stats_ext));
-+	req.stats_dma_length = cpu_to_le16(chip_ctx->hw_stats_size);
- 	req.stat_ctx_flags = STAT_CTX_ALLOC_REQ_STAT_CTX_FLAGS_ROCE;
- 	bnxt_re_fill_fw_msg(&fw_msg, (void *)&req, sizeof(req), (void *)&resp,
- 			    sizeof(resp), DFLT_HWRM_CMD_TIMEOUT);
-diff --git a/drivers/infiniband/hw/bnxt_re/qplib_res.c b/drivers/infiniband/hw/bnxt_re/qplib_res.c
-index 3ca47004b752..754dcebeb4ca 100644
---- a/drivers/infiniband/hw/bnxt_re/qplib_res.c
-+++ b/drivers/infiniband/hw/bnxt_re/qplib_res.c
-@@ -56,6 +56,7 @@
- static void bnxt_qplib_free_stats_ctx(struct pci_dev *pdev,
- 				      struct bnxt_qplib_stats *stats);
- static int bnxt_qplib_alloc_stats_ctx(struct pci_dev *pdev,
-+				      struct bnxt_qplib_chip_ctx *cctx,
- 				      struct bnxt_qplib_stats *stats);
+ 	struct sock *sk = sock->sk;
+-	DEFINE_WAIT(wait);
++	DEFINE_WAIT_FUNC(wait, woken_wake_function);
+ 	int err;
  
- /* PBL */
-@@ -559,7 +560,7 @@ int bnxt_qplib_alloc_ctx(struct bnxt_qplib_res *res,
- 		goto fail;
- stats_alloc:
- 	/* Stats */
--	rc = bnxt_qplib_alloc_stats_ctx(res->pdev, &ctx->stats);
-+	rc = bnxt_qplib_alloc_stats_ctx(res->pdev, res->cctx, &ctx->stats);
- 	if (rc)
- 		goto fail;
- 
-@@ -889,15 +890,12 @@ static void bnxt_qplib_free_stats_ctx(struct pci_dev *pdev,
+ 	/* True wake-one mechanism for incoming connections: only
+@@ -1996,12 +1996,12 @@ static int tipc_wait_for_accept(struct socket *sock, long timeo)
+ 	 * anymore, the common case will execute the loop only once.
+ 	*/
+ 	for (;;) {
+-		prepare_to_wait_exclusive(sk_sleep(sk), &wait,
+-					  TASK_INTERRUPTIBLE);
+ 		if (timeo && skb_queue_empty(&sk->sk_receive_queue)) {
++			add_wait_queue(sk_sleep(sk), &wait);
+ 			release_sock(sk);
+-			timeo = schedule_timeout(timeo);
++			timeo = wait_woken(&wait, TASK_INTERRUPTIBLE, timeo);
+ 			lock_sock(sk);
++			remove_wait_queue(sk_sleep(sk), &wait);
+ 		}
+ 		err = 0;
+ 		if (!skb_queue_empty(&sk->sk_receive_queue))
+@@ -2016,7 +2016,6 @@ static int tipc_wait_for_accept(struct socket *sock, long timeo)
+ 		if (signal_pending(current))
+ 			break;
+ 	}
+-	finish_wait(sk_sleep(sk), &wait);
+ 	return err;
  }
- 
- static int bnxt_qplib_alloc_stats_ctx(struct pci_dev *pdev,
-+				      struct bnxt_qplib_chip_ctx *cctx,
- 				      struct bnxt_qplib_stats *stats)
- {
- 	memset(stats, 0, sizeof(*stats));
- 	stats->fw_id = -1;
--	/* 128 byte aligned context memory is required only for 57500.
--	 * However making this unconditional, it does not harm previous
--	 * generation.
--	 */
--	stats->size = ALIGN(sizeof(struct ctx_hw_stats), 128);
-+	stats->size = cctx->hw_stats_size;
- 	stats->dma = dma_alloc_coherent(&pdev->dev, stats->size,
- 					&stats->dma_map, GFP_KERNEL);
- 	if (!stats->dma) {
-diff --git a/drivers/infiniband/hw/bnxt_re/qplib_res.h b/drivers/infiniband/hw/bnxt_re/qplib_res.h
-index 7a1ab38b95da..58bad6f78456 100644
---- a/drivers/infiniband/hw/bnxt_re/qplib_res.h
-+++ b/drivers/infiniband/hw/bnxt_re/qplib_res.h
-@@ -60,6 +60,7 @@ struct bnxt_qplib_chip_ctx {
- 	u16	chip_num;
- 	u8	chip_rev;
- 	u8	chip_metal;
-+	u16	hw_stats_size;
- 	struct bnxt_qplib_drv_modes modes;
- };
  
 -- 
 2.30.2
