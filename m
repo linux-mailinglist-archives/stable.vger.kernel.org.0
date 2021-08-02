@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9888C3DD91F
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:57:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9C643DD998
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 16:01:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236237AbhHBN5V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:57:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40754 "EHLO mail.kernel.org"
+        id S236107AbhHBOBx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 10:01:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235435AbhHBNzk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:55:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B7F8D60551;
-        Mon,  2 Aug 2021 13:54:07 +0000 (UTC)
+        id S236757AbhHBN7y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:59:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 551C76117A;
+        Mon,  2 Aug 2021 13:55:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912448;
-        bh=ycYnckxHiwK6o3thCMS/KVwMBi2G5QpfGPS+8aUeJZY=;
+        s=korg; t=1627912559;
+        bh=CbHqfKkY1wgCkbRplNT5SH0BTFiahUojKwPdvoQlDTI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kOoJRRo7EYuVbOOdK9kcldRhGAeSvp0L2xFtcJLoiuUZ78pdMz9NAM4oKZVGcqIGe
-         KacMPMkUBkkjwK3xKJm+zFDQteEIOoeHtbuHc1VYOyHpp2Uu/2DSsGe5fuxpQeZ4eR
-         ViDvktXyv8MSRcRq7DCS96j+NLR5OUyXzJWlFeXc=
+        b=uHIUx96yTor7IAjy4b8cu4MP67Tb1pybaVHOm+rESCjQvPEjqt8SdDiOeSxIrQEBX
+         fLIw0S3csvLUOACdk7sgFPwehNy54VHh4HhklqHE9tEXgHAKWBniFPuCW+WpzQ7Y0D
+         uFHskB9TeVfcl0GXFOHpU49n2EiXhK8oIWiIkmHU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>,
-        Ping Cheng <ping.cheng@wacom.com>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 5.10 20/67] HID: wacom: Re-enable touch by default for Cintiq 24HDT / 27QHDT
+        stable@vger.kernel.org,
+        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
+        Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>,
+        Imam Hassan Reza Biswas <imam.hassan.reza.biswas@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 046/104] i40e: Fix firmware LLDP agent related warning
 Date:   Mon,  2 Aug 2021 15:44:43 +0200
-Message-Id: <20210802134339.701461753@linuxfoundation.org>
+Message-Id: <20210802134345.540766466@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134339.023067817@linuxfoundation.org>
-References: <20210802134339.023067817@linuxfoundation.org>
+In-Reply-To: <20210802134344.028226640@linuxfoundation.org>
+References: <20210802134344.028226640@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,43 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gerecke <killertofu@gmail.com>
+From: Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>
 
-commit 6ca2350e11f09d5d3e53777d1eff8ff6d300ed93 upstream.
+[ Upstream commit 71d6fdba4b2d82fdd883fec31dee77fbcf59773a ]
 
-Commit 670e90924bfe ("HID: wacom: support named keys on older devices")
-added support for sending named events from the soft buttons on the
-24HDT and 27QHDT. In the process, however, it inadvertantly disabled the
-touchscreen of the 24HDT and 27QHDT by default. The
-`wacom_set_shared_values` function would normally enable touch by default
-but because it checks the state of the non-shared `has_mute_touch_switch`
-flag and `wacom_setup_touch_input_capabilities` sets the state of the
-/shared/ version, touch ends up being disabled by default.
+Make warning meaningful for the user.
 
-This patch sets the non-shared flag, letting `wacom_set_shared_values`
-take care of copying the value over to the shared version and setting
-the default touch state to "on".
+Previously the trace:
+"Starting FW LLDP agent failed: error: I40E_ERR_ADMIN_QUEUE_ERROR, I40E_AQ_RC_EAGAIN"
+was produced when user tried to start Firmware LLDP agent,
+just after it was stopped with sequence:
+ethtool --set-priv-flags <dev> disable-fw-lldp on
+ethtool --set-priv-flags <dev> disable-fw-lldp off
+(without any delay between the commands)
+At that point the firmware is still processing stop command, the behavior
+is expected.
 
-Fixes: 670e90924bfe ("HID: wacom: support named keys on older devices")
-CC: stable@vger.kernel.org # 5.4+
-Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-Reviewed-by: Ping Cheng <ping.cheng@wacom.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: c1041d070437 ("i40e: Missing response checks in driver when starting/stopping FW LLDP")
+Signed-off-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
+Signed-off-by: Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>
+Tested-by: Imam Hassan Reza Biswas <imam.hassan.reza.biswas@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/wacom_wac.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/intel/i40e/i40e_ethtool.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -3829,7 +3829,7 @@ int wacom_setup_touch_input_capabilities
- 		    wacom_wac->shared->touch->product == 0xF6) {
- 			input_dev->evbit[0] |= BIT_MASK(EV_SW);
- 			__set_bit(SW_MUTE_DEVICE, input_dev->swbit);
--			wacom_wac->shared->has_mute_touch_switch = true;
-+			wacom_wac->has_mute_touch_switch = true;
- 		}
- 		fallthrough;
- 
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
+index 3e822bad4851..d9e26f9713a5 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
+@@ -5294,6 +5294,10 @@ flags_complete:
+ 					dev_warn(&pf->pdev->dev,
+ 						 "Device configuration forbids SW from starting the LLDP agent.\n");
+ 					return -EINVAL;
++				case I40E_AQ_RC_EAGAIN:
++					dev_warn(&pf->pdev->dev,
++						 "Stop FW LLDP agent command is still being processed, please try again in a second.\n");
++					return -EBUSY;
+ 				default:
+ 					dev_warn(&pf->pdev->dev,
+ 						 "Starting FW LLDP agent failed: error: %s, %s\n",
+-- 
+2.30.2
+
 
 
