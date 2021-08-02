@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ACF763DD845
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:50:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BF7F3DD8E2
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:56:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234782AbhHBNu7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:50:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33720 "EHLO mail.kernel.org"
+        id S234307AbhHBNzt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:55:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234468AbhHBNuJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:50:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 697F461100;
-        Mon,  2 Aug 2021 13:49:59 +0000 (UTC)
+        id S236095AbhHBNy6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:54:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AF80360FF2;
+        Mon,  2 Aug 2021 13:53:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912199;
-        bh=FndJ1ltxFPginKLxbfbbkoswSQLimv+mTAj00VtZxtU=;
+        s=korg; t=1627912389;
+        bh=tO9UUuTQNQKd/bo2w1JXgnCgQC2G2hjgPQP5tBsGR60=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dcju4q+F66CEVY+PUE2xMquDsNMISDRNDaYyoBQbtxJmdO1B3jrcQyuIIfSafWCWW
-         TijFj20vQRhWN5YbuWUJZDaopgZ/8C1S4Vn4k97UATR7a+AGvVutDQzEUpDBOSUy9E
-         6dpQN9vWeMd+f2YFMZWFXULpQ5Rnr/CjgwwEAdiU=
+        b=Q4lFSkTlsSVJzWgFfuJdNQaKJ2svknYTcqwbB6JcLg7J4EKfJiWl9lVgMNFFTJRPC
+         OuNlhocHGsXO+bCK/YHAzEFDaZrgRbs8691QvpSK1+5rpnWBiIGU3ja+d6B9bMqpbU
+         JEiLxtU/0Q2SAss4NbsHfUMAZlO41HngyaRurcQ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maor Gottlieb <maorg@nvidia.com>,
-        Mark Bloch <mbloch@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        stable@vger.kernel.org, Jon Maloy <jmaloy@redhat.com>,
+        Hoang Le <hoang.h.le@dektech.com.au>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 23/30] net/mlx5: Fix flow table chaining
+Subject: [PATCH 5.10 38/67] tipc: fix sleeping in tipc accept routine
 Date:   Mon,  2 Aug 2021 15:45:01 +0200
-Message-Id: <20210802134334.811360207@linuxfoundation.org>
+Message-Id: <20210802134340.323058565@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134334.081433902@linuxfoundation.org>
-References: <20210802134334.081433902@linuxfoundation.org>
+In-Reply-To: <20210802134339.023067817@linuxfoundation.org>
+References: <20210802134339.023067817@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,86 +41,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maor Gottlieb <maorg@nvidia.com>
+From: Hoang Le <hoang.h.le@dektech.com.au>
 
-[ Upstream commit 8b54874ef1617185048029a3083d510569e93751 ]
+[ Upstream commit d237a7f11719ff9320721be5818352e48071aab6 ]
 
-Fix a bug when flow table is created in priority that already
-has other flow tables as shown in the below diagram.
-If the new flow table (FT-B) has the lowest level in the priority,
-we need to connect the flow tables from the previous priority (p0)
-to this new table. In addition when this flow table is destroyed
-(FT-B), we need to connect the flow tables from the previous
-priority (p0) to the next level flow table (FT-C) in the same
-priority of the destroyed table (if exists).
+The release_sock() is blocking function, it would change the state
+after sleeping. In order to evaluate the stated condition outside
+the socket lock context, switch to use wait_woken() instead.
 
-                       ---------
-                       |root_ns|
-                       ---------
-                            |
-            --------------------------------
-            |               |              |
-       ----------      ----------      ---------
-       |p(prio)-x|     |   p-y  |      |   p-n |
-       ----------      ----------      ---------
-            |               |
-     ----------------  ------------------
-     |ns(e.g bypass)|  |ns(e.g. kernel) |
-     ----------------  ------------------
-            |            |           |
-	-------	       ------       ----
-        |  p0 |        | p1 |       |p2|
-        -------        ------       ----
-           |             |    \
-        --------       ------- ------
-        | FT-A |       |FT-B | |FT-C|
-        --------       ------- ------
-
-Fixes: f90edfd279f3 ("net/mlx5_core: Connect flow tables")
-Signed-off-by: Maor Gottlieb <maorg@nvidia.com>
-Reviewed-by: Mark Bloch <mbloch@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Fixes: 6398e23cdb1d8 ("tipc: standardize accept routine")
+Acked-by: Jon Maloy <jmaloy@redhat.com>
+Signed-off-by: Hoang Le <hoang.h.le@dektech.com.au>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/fs_core.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ net/tipc/socket.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c b/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
-index a38a0c86705a..774f0a619a6d 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
-@@ -904,17 +904,19 @@ static int connect_fwd_rules(struct mlx5_core_dev *dev,
- static int connect_flow_table(struct mlx5_core_dev *dev, struct mlx5_flow_table *ft,
- 			      struct fs_prio *prio)
+diff --git a/net/tipc/socket.c b/net/tipc/socket.c
+index 694c432b9710..4f9bd95b4eee 100644
+--- a/net/tipc/socket.c
++++ b/net/tipc/socket.c
+@@ -2650,7 +2650,7 @@ static int tipc_listen(struct socket *sock, int len)
+ static int tipc_wait_for_accept(struct socket *sock, long timeo)
  {
--	struct mlx5_flow_table *next_ft;
-+	struct mlx5_flow_table *next_ft, *first_ft;
- 	int err = 0;
+ 	struct sock *sk = sock->sk;
+-	DEFINE_WAIT(wait);
++	DEFINE_WAIT_FUNC(wait, woken_wake_function);
+ 	int err;
  
- 	/* Connect_prev_fts and update_root_ft_create are mutually exclusive */
+ 	/* True wake-one mechanism for incoming connections: only
+@@ -2659,12 +2659,12 @@ static int tipc_wait_for_accept(struct socket *sock, long timeo)
+ 	 * anymore, the common case will execute the loop only once.
+ 	*/
+ 	for (;;) {
+-		prepare_to_wait_exclusive(sk_sleep(sk), &wait,
+-					  TASK_INTERRUPTIBLE);
+ 		if (timeo && skb_queue_empty(&sk->sk_receive_queue)) {
++			add_wait_queue(sk_sleep(sk), &wait);
+ 			release_sock(sk);
+-			timeo = schedule_timeout(timeo);
++			timeo = wait_woken(&wait, TASK_INTERRUPTIBLE, timeo);
+ 			lock_sock(sk);
++			remove_wait_queue(sk_sleep(sk), &wait);
+ 		}
+ 		err = 0;
+ 		if (!skb_queue_empty(&sk->sk_receive_queue))
+@@ -2676,7 +2676,6 @@ static int tipc_wait_for_accept(struct socket *sock, long timeo)
+ 		if (signal_pending(current))
+ 			break;
+ 	}
+-	finish_wait(sk_sleep(sk), &wait);
+ 	return err;
+ }
  
--	if (list_empty(&prio->node.children)) {
-+	first_ft = list_first_entry_or_null(&prio->node.children,
-+					    struct mlx5_flow_table, node.list);
-+	if (!first_ft || first_ft->level > ft->level) {
- 		err = connect_prev_fts(dev, ft, prio);
- 		if (err)
- 			return err;
- 
--		next_ft = find_next_chained_ft(prio);
-+		next_ft = first_ft ? first_ft : find_next_chained_ft(prio);
- 		err = connect_fwd_rules(dev, ft, next_ft);
- 		if (err)
- 			return err;
-@@ -1945,7 +1947,7 @@ static int disconnect_flow_table(struct mlx5_flow_table *ft)
- 				node.list) == ft))
- 		return 0;
- 
--	next_ft = find_next_chained_ft(prio);
-+	next_ft = find_next_ft(ft);
- 	err = connect_fwd_rules(dev, next_ft, ft);
- 	if (err)
- 		return err;
 -- 
 2.30.2
 
