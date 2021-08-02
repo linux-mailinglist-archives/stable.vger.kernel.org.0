@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D21ED3DD79D
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:46:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA9FD3DD80F
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:49:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234145AbhHBNqt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:46:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56432 "EHLO mail.kernel.org"
+        id S234651AbhHBNtg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:49:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234109AbhHBNqn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:46:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3BBE061057;
-        Mon,  2 Aug 2021 13:46:33 +0000 (UTC)
+        id S234165AbhHBNtM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:49:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1434360551;
+        Mon,  2 Aug 2021 13:49:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627911993;
-        bh=AQdRtbEklsMatPJvXlOJbnAN69r6mMvhpup5NRvTdu0=;
+        s=korg; t=1627912143;
+        bh=mTGxb1Ejz9EMtgv3s0iB2uOWO/0q9PqqAQqhujIkmYw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VhCODGJhsIapzVZPBGxipYL5EO7R7deYSVaAJVxDIAb1i5HTNbtLWjU/3cGvAG4Pp
-         Q1bqDWdWFVpQXh+d8uUYgGOzd5gmJN0IbrQat07NWzRL2wu5QV+qoTt8WMg3XCUJ+3
-         Sz1EhE9Q2HhkwVY+co43NDaID7QKT/daeERuDHZs=
+        b=osLNyrChrIp0wMfPbjWe2fyRE9Urvnho7exNfFGb/pAYTv+1T4pPTxm9A/RlJdMtt
+         B89iYVOMXD5vVVqhDqtxepJdQY4InSqfznuOT2NNLb35L1J1mGSXN4FfROFEF4/biS
+         qTN0bzG1PxTsYv6r5BMLBMOHyD1Q14GB09E/apfc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kiszka <jan.kiszka@siemens.com>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 19/26] x86/asm: Ensure asm/proto.h can be included stand-alone
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 07/38] net/802/garp: fix memleak in garp_request_join()
 Date:   Mon,  2 Aug 2021 15:44:29 +0200
-Message-Id: <20210802134332.655434834@linuxfoundation.org>
+Message-Id: <20210802134335.068510222@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134332.033552261@linuxfoundation.org>
-References: <20210802134332.033552261@linuxfoundation.org>
+In-Reply-To: <20210802134334.835358048@linuxfoundation.org>
+References: <20210802134334.835358048@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,48 +41,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kiszka <jan.kiszka@siemens.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit f7b21a0e41171d22296b897dac6e4c41d2a3643c ]
+[ Upstream commit 42ca63f980842918560b25f0244307fd83b4777c ]
 
-Fix:
+I got kmemleak report when doing fuzz test:
 
-  ../arch/x86/include/asm/proto.h:14:30: warning: ‘struct task_struct’ declared \
-    inside parameter list will not be visible outside of this definition or declaration
-  long do_arch_prctl_64(struct task_struct *task, int option, unsigned long arg2);
-                               ^~~~~~~~~~~
+BUG: memory leak
+unreferenced object 0xffff88810c909b80 (size 64):
+  comm "syz", pid 957, jiffies 4295220394 (age 399.090s)
+  hex dump (first 32 bytes):
+    01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 08 00 00 00 01 02 00 04  ................
+  backtrace:
+    [<00000000ca1f2e2e>] garp_request_join+0x285/0x3d0
+    [<00000000bf153351>] vlan_gvrp_request_join+0x15b/0x190
+    [<0000000024005e72>] vlan_dev_open+0x706/0x980
+    [<00000000dc20c4d4>] __dev_open+0x2bb/0x460
+    [<0000000066573004>] __dev_change_flags+0x501/0x650
+    [<0000000035b42f83>] rtnl_configure_link+0xee/0x280
+    [<00000000a5e69de0>] __rtnl_newlink+0xed5/0x1550
+    [<00000000a5258f4a>] rtnl_newlink+0x66/0x90
+    [<00000000506568ee>] rtnetlink_rcv_msg+0x439/0xbd0
+    [<00000000b7eaeae1>] netlink_rcv_skb+0x14d/0x420
+    [<00000000c373ce66>] netlink_unicast+0x550/0x750
+    [<00000000ec74ce74>] netlink_sendmsg+0x88b/0xda0
+    [<00000000381ff246>] sock_sendmsg+0xc9/0x120
+    [<000000008f6a2db3>] ____sys_sendmsg+0x6e8/0x820
+    [<000000008d9c1735>] ___sys_sendmsg+0x145/0x1c0
+    [<00000000aa39dd8b>] __sys_sendmsg+0xfe/0x1d0
 
-  .../arch/x86/include/asm/proto.h:40:34: warning: ‘struct task_struct’ declared \
-    inside parameter list will not be visible outside of this definition or declaration
-   long do_arch_prctl_common(struct task_struct *task, int option,
-                                    ^~~~~~~~~~~
+Calling garp_request_leave() after garp_request_join(), the attr->state
+is set to GARP_APPLICANT_VO, garp_attr_destroy() won't be called in last
+transmit event in garp_uninit_applicant(), the attr of applicant will be
+leaked. To fix this leak, iterate and free each attr of applicant before
+rerturning from garp_uninit_applicant().
 
-if linux/sched.h hasn't be included previously. This fixes a build error
-when this header is used outside of the kernel tree.
-
- [ bp: Massage commit message. ]
-
-Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/b76b4be3-cf66-f6b2-9a6c-3e7ef54f9845@web.de
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/proto.h | 2 ++
- 1 file changed, 2 insertions(+)
+ net/802/garp.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/arch/x86/include/asm/proto.h b/arch/x86/include/asm/proto.h
-index a4a77286cb1d..ae6f1592530b 100644
---- a/arch/x86/include/asm/proto.h
-+++ b/arch/x86/include/asm/proto.h
-@@ -3,6 +3,8 @@
+diff --git a/net/802/garp.c b/net/802/garp.c
+index 2dac647ff420..237f6f076355 100644
+--- a/net/802/garp.c
++++ b/net/802/garp.c
+@@ -206,6 +206,19 @@ static void garp_attr_destroy(struct garp_applicant *app, struct garp_attr *attr
+ 	kfree(attr);
+ }
  
- #include <asm/ldt.h>
- 
-+struct task_struct;
++static void garp_attr_destroy_all(struct garp_applicant *app)
++{
++	struct rb_node *node, *next;
++	struct garp_attr *attr;
 +
- /* misc architecture specific prototypes */
++	for (node = rb_first(&app->gid);
++	     next = node ? rb_next(node) : NULL, node != NULL;
++	     node = next) {
++		attr = rb_entry(node, struct garp_attr, node);
++		garp_attr_destroy(app, attr);
++	}
++}
++
+ static int garp_pdu_init(struct garp_applicant *app)
+ {
+ 	struct sk_buff *skb;
+@@ -612,6 +625,7 @@ void garp_uninit_applicant(struct net_device *dev, struct garp_application *appl
  
- void syscall_init(void);
+ 	spin_lock_bh(&app->lock);
+ 	garp_gid_event(app, GARP_EVENT_TRANSMIT_PDU);
++	garp_attr_destroy_all(app);
+ 	garp_pdu_queue(app);
+ 	spin_unlock_bh(&app->lock);
+ 
 -- 
 2.30.2
 
