@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 756723DDA1D
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 16:06:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 155FE3DD8BF
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:55:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236434AbhHBOGQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 10:06:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48986 "EHLO mail.kernel.org"
+        id S235119AbhHBNzT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:55:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235731AbhHBODR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 10:03:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 46EFD6124B;
-        Mon,  2 Aug 2021 13:57:13 +0000 (UTC)
+        id S235276AbhHBNwx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:52:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C772061106;
+        Mon,  2 Aug 2021 13:51:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912633;
-        bh=cVelJkhvseI4o4ns7nAQi66mJf1r3ubjKSeahjw8QLI=;
+        s=korg; t=1627912302;
+        bh=AeDzqH4bg9uXWTQuX9nMpV58zohiDQS1Ex+hgWyz8fI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LwNOYxdjNXHYZNr6MamFI5fCqiuXDlpsx7WbVKDcgSfqqb1qo83uc+aPwYuTDBFxP
-         90nFr8SDTRNlHeOGUQnnbXLly+zIgnAi280n4B9iEnGGIqWng4/ar2N/wMIWYxopEC
-         L7hI/JNnh5dcDFEaPecdYjf2d3UnFzATYUMhkMjk=
+        b=LH+sCWzWEO5Dt4BKiamCIAoh+JkmakNC5M5rcsbEiMHDMGcAkufMf5X4SX5XWI4+S
+         TzvzxwvpCqTbHOePMkSyXcqZ26U5ikiZyDF0cF2I/gwxeQ9TiB/mpFhLIRgs1+KMjj
+         RtejBjgzmLlylR18VnVes3XI39Z7UdHBFYSdA+BY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@nvidia.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 080/104] net/mlx5e: Add NETIF_F_HW_TC to hw_features when HTB offload is available
+        stable@vger.kernel.org, marc.c.dionne@gmail.com,
+        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.4 37/40] powerpc/pseries: Fix regression while building external modules
 Date:   Mon,  2 Aug 2021 15:45:17 +0200
-Message-Id: <20210802134346.642859271@linuxfoundation.org>
+Message-Id: <20210802134336.580902550@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134344.028226640@linuxfoundation.org>
-References: <20210802134344.028226640@linuxfoundation.org>
+In-Reply-To: <20210802134335.408294521@linuxfoundation.org>
+References: <20210802134335.408294521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,50 +40,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Mikityanskiy <maximmi@nvidia.com>
+From: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
 
-[ Upstream commit 9841d58f3550d11c6181424427e8ad8c9c80f1b6 ]
+commit 333cf507465fbebb3727f5b53e77538467df312a upstream.
 
-If a feature flag is only present in features, but not in hw_features,
-the user can't reset it. Although hw_features may contain NETIF_F_HW_TC
-by the point where the driver checks whether HTB offload is supported,
-this flag is controlled by another condition that may not hold. Set it
-explicitly to make sure the user can disable it.
+With commit c9f3401313a5 ("powerpc: Always enable queued spinlocks for
+64s, disable for others") CONFIG_PPC_QUEUED_SPINLOCKS is always
+enabled on ppc64le, external modules that use spinlock APIs are
+failing.
 
-Fixes: 214baf22870c ("net/mlx5e: Support HTB offload")
-Signed-off-by: Maxim Mikityanskiy <maximmi@nvidia.com>
-Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  ERROR: modpost: GPL-incompatible module XXX.ko uses GPL-only symbol 'shared_processor'
+
+Before the above commit, modules were able to build without any
+issues. Also this problem is not seen on other architectures. This
+problem can be workaround if CONFIG_UNINLINE_SPIN_UNLOCK is enabled in
+the config. However CONFIG_UNINLINE_SPIN_UNLOCK is not enabled by
+default and only enabled in certain conditions like
+CONFIG_DEBUG_SPINLOCKS is set in the kernel config.
+
+  #include <linux/module.h>
+  spinlock_t spLock;
+
+  static int __init spinlock_test_init(void)
+  {
+          spin_lock_init(&spLock);
+          spin_lock(&spLock);
+          spin_unlock(&spLock);
+          return 0;
+  }
+
+  static void __exit spinlock_test_exit(void)
+  {
+  	printk("spinlock_test unloaded\n");
+  }
+  module_init(spinlock_test_init);
+  module_exit(spinlock_test_exit);
+
+  MODULE_DESCRIPTION ("spinlock_test");
+  MODULE_LICENSE ("non-GPL");
+  MODULE_AUTHOR ("Srikar Dronamraju");
+
+Given that spin locks are one of the basic facilities for module code,
+this effectively makes it impossible to build/load almost any non GPL
+modules on ppc64le.
+
+This was first reported at https://github.com/openzfs/zfs/issues/11172
+
+Currently shared_processor is exported as GPL only symbol.
+Fix this for parity with other architectures by exposing
+shared_processor to non-GPL modules too.
+
+Fixes: 14c73bd344da ("powerpc/vcpu: Assume dedicated processors as non-preempt")
+Cc: stable@vger.kernel.org # v5.5+
+Reported-by: marc.c.dionne@gmail.com
+Signed-off-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210729060449.292780-1-srikar@linux.vnet.ibm.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_main.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/powerpc/platforms/pseries/setup.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-index 86a27b0b42cb..d0d9acb17253 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-@@ -4866,6 +4866,9 @@ static void mlx5e_build_nic_netdev(struct net_device *netdev)
- 	if (MLX5_CAP_ETH(mdev, scatter_fcs))
- 		netdev->hw_features |= NETIF_F_RXFCS;
+--- a/arch/powerpc/platforms/pseries/setup.c
++++ b/arch/powerpc/platforms/pseries/setup.c
+@@ -75,7 +75,7 @@
+ #include "../../../../drivers/pci/pci.h"
  
-+	if (mlx5_qos_is_supported(mdev))
-+		netdev->hw_features |= NETIF_F_HW_TC;
-+
- 	netdev->features          = netdev->hw_features;
+ DEFINE_STATIC_KEY_FALSE(shared_processor);
+-EXPORT_SYMBOL_GPL(shared_processor);
++EXPORT_SYMBOL(shared_processor);
  
- 	/* Defaults */
-@@ -4886,8 +4889,6 @@ static void mlx5e_build_nic_netdev(struct net_device *netdev)
- 		netdev->hw_features	 |= NETIF_F_NTUPLE;
- #endif
- 	}
--	if (mlx5_qos_is_supported(mdev))
--		netdev->features |= NETIF_F_HW_TC;
- 
- 	netdev->features         |= NETIF_F_HIGHDMA;
- 	netdev->features         |= NETIF_F_HW_VLAN_STAG_FILTER;
--- 
-2.30.2
-
+ int CMO_PrPSP = -1;
+ int CMO_SecPSP = -1;
 
 
