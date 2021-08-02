@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DCBE3DD963
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 16:00:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D5093DD97C
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 16:00:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234661AbhHBOAN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 10:00:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40832 "EHLO mail.kernel.org"
+        id S234143AbhHBOAh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 10:00:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40886 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236229AbhHBN5U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:57:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 932476115B;
-        Mon,  2 Aug 2021 13:54:53 +0000 (UTC)
+        id S235163AbhHBN5e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:57:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BEB0761156;
+        Mon,  2 Aug 2021 13:54:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912494;
-        bh=0XcB6HIfVFLpVBNMqwdsa/GmiNeSFd0sMov7Z0yD9R0=;
+        s=korg; t=1627912496;
+        bh=rhU+x3Q+q9wRUeuLNNUDEwueUlY9MyUsE1nn2CaTkp8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oq1nt/Gz+Jb41v2ZTfohUXh/LaecYU0VsZ074KVZ84te+OcYDnAb0u+yofueyiI6O
-         k0keEkSOlTNGiDD52HA4kBrEJnJ1y1vdAxMTqfHhcVhQF3DUkdlSkLU8m6kEhvP1MP
-         AOGLyQ7wVNOOjGaLyfUlYNo049kDuCoSc5feIIew=
+        b=gynrtgU8hbmcM5Wtg59eE9FFzcl8+wO5JMrZx8bllXiGK0ZeG26j2FiuyLgJMLEq0
+         vkKhaWwlFYEztcyZDaF2KnZfgzFz/jmhmbLnZBUIgIfVDJTJ1acU9NffiRJdqOim/e
+         4ASY5TLI8qL04iNlg/RQt/Y53omE3vScW7E2QufE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, PGNd <pgnet.dev@gmail.com>,
-        Hui Wang <hui.wang@canonical.com>,
+        stable@vger.kernel.org,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
         "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.13 006/104] Revert "ACPI: resources: Add checks for ACPI IRQ override"
-Date:   Mon,  2 Aug 2021 15:44:03 +0200
-Message-Id: <20210802134344.228002849@linuxfoundation.org>
+Subject: [PATCH 5.13 007/104] ACPI: DPTF: Fix reading of attributes
+Date:   Mon,  2 Aug 2021 15:44:04 +0200
+Message-Id: <20210802134344.259414182@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210802134344.028226640@linuxfoundation.org>
 References: <20210802134344.028226640@linuxfoundation.org>
@@ -40,52 +40,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Wang <hui.wang@canonical.com>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-commit e0eef3690dc66b3ecc6e0f1267f332403eb22bea upstream.
+commit 41a8457f3f6f829be1f8f8fa7577a46b9b7223ef upstream.
 
-The commit 0ec4e55e9f57 ("ACPI: resources: Add checks for ACPI IRQ
-override") introduces regression on some platforms, at least it makes
-the UART can't get correct irq setting on two different platforms,
-and it makes the kernel can't bootup on these two platforms.
+The current assumption that methods to read PCH FIVR attributes will
+return integer, is not correct. There is no good way to return integer
+as negative numbers are also valid.
 
-This reverts commit 0ec4e55e9f571f08970ed115ec0addc691eda613.
+These read methods return a package of integers. The first integer returns
+status, which is 0 on success and any other value for failure. When the
+returned status is zero, then the second integer returns the actual value.
 
-Regression-discuss: https://bugzilla.kernel.org/show_bug.cgi?id=213031
-Reported-by: PGNd <pgnet.dev@gmail.com>
-Cc: 5.4+ <stable@vger.kernel.org> # 5.4+
-Signed-off-by: Hui Wang <hui.wang@canonical.com>
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This change fixes this issue by replacing acpi_evaluate_integer() with
+acpi_evaluate_object() and use acpi_extract_package() to extract results.
+
+Fixes: 2ce6324eadb01 ("ACPI: DPTF: Add PCH FIVR participant driver")
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: 5.10+ <stable@vger.kernel.org> # 5.10+
 Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/resource.c |    9 +--------
- 1 file changed, 1 insertion(+), 8 deletions(-)
+ drivers/acpi/dptf/dptf_pch_fivr.c |   51 ++++++++++++++++++++++++++++++++------
+ 1 file changed, 43 insertions(+), 8 deletions(-)
 
---- a/drivers/acpi/resource.c
-+++ b/drivers/acpi/resource.c
-@@ -423,13 +423,6 @@ static void acpi_dev_get_irqresource(str
- 	}
+--- a/drivers/acpi/dptf/dptf_pch_fivr.c
++++ b/drivers/acpi/dptf/dptf_pch_fivr.c
+@@ -9,6 +9,42 @@
+ #include <linux/module.h>
+ #include <linux/platform_device.h>
+ 
++struct pch_fivr_resp {
++	u64 status;
++	u64 result;
++};
++
++static int pch_fivr_read(acpi_handle handle, char *method, struct pch_fivr_resp *fivr_resp)
++{
++	struct acpi_buffer resp = { sizeof(struct pch_fivr_resp), fivr_resp};
++	struct acpi_buffer buffer = { ACPI_ALLOCATE_BUFFER, NULL };
++	struct acpi_buffer format = { sizeof("NN"), "NN" };
++	union acpi_object *obj;
++	acpi_status status;
++	int ret = -EFAULT;
++
++	status = acpi_evaluate_object(handle, method, NULL, &buffer);
++	if (ACPI_FAILURE(status))
++		return ret;
++
++	obj = buffer.pointer;
++	if (!obj || obj->type != ACPI_TYPE_PACKAGE)
++		goto release_buffer;
++
++	status = acpi_extract_package(obj, &format, &resp);
++	if (ACPI_FAILURE(status))
++		goto release_buffer;
++
++	if (fivr_resp->status)
++		goto release_buffer;
++
++	ret = 0;
++
++release_buffer:
++	kfree(buffer.pointer);
++	return ret;
++}
++
+ /*
+  * Presentation of attributes which are defined for INT1045
+  * They are:
+@@ -23,15 +59,14 @@ static ssize_t name##_show(struct device
+ 			   char *buf)\
+ {\
+ 	struct acpi_device *acpi_dev = dev_get_drvdata(dev);\
+-	unsigned long long val;\
+-	acpi_status status;\
++	struct pch_fivr_resp fivr_resp;\
++	int status;\
++\
++	status = pch_fivr_read(acpi_dev->handle, #method, &fivr_resp);\
++	if (status)\
++		return status;\
+ \
+-	status = acpi_evaluate_integer(acpi_dev->handle, #method,\
+-				       NULL, &val);\
+-	if (ACPI_SUCCESS(status))\
+-		return sprintf(buf, "%d\n", (int)val);\
+-	else\
+-		return -EINVAL;\
++	return sprintf(buf, "%llu\n", fivr_resp.result);\
  }
  
--static bool irq_is_legacy(struct acpi_resource_irq *irq)
--{
--	return irq->triggering == ACPI_EDGE_SENSITIVE &&
--		irq->polarity == ACPI_ACTIVE_HIGH &&
--		irq->shareable == ACPI_EXCLUSIVE;
--}
--
- /**
-  * acpi_dev_resource_interrupt - Extract ACPI interrupt resource information.
-  * @ares: Input ACPI resource object.
-@@ -468,7 +461,7 @@ bool acpi_dev_resource_interrupt(struct
- 		}
- 		acpi_dev_get_irqresource(res, irq->interrupts[index],
- 					 irq->triggering, irq->polarity,
--					 irq->shareable, irq_is_legacy(irq));
-+					 irq->shareable, true);
- 		break;
- 	case ACPI_RESOURCE_TYPE_EXTENDED_IRQ:
- 		ext_irq = &ares->data.extended_irq;
+ #define PCH_FIVR_STORE(name, method) \
 
 
