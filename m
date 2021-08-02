@@ -2,40 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E4C3E3DD82F
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:50:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 50A833DD7C3
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:48:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234509AbhHBNuR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:50:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32904 "EHLO mail.kernel.org"
+        id S233958AbhHBNsI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:48:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233907AbhHBNtl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:49:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 518C060EBB;
-        Mon,  2 Aug 2021 13:49:31 +0000 (UTC)
+        id S234365AbhHBNrf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:47:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 89FD060F6D;
+        Mon,  2 Aug 2021 13:47:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912171;
-        bh=/e5zulU3h+QDkdbo2OsZDNCrGnJk/UFrA8CCIRWVNCI=;
+        s=korg; t=1627912037;
+        bh=NJOEvPpoLwptY8+Dkqrp/K+sE5xEPdIjyk6kEAlIF/M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mcnJ8k9CGRwfslYFV8ZBOWWq+zZbThGN+LZxb/TPCjKgTGA5/SUMo7zSvwFbmnEWa
-         HRgELYNzIKu0njFkw5lJ17vwGgIP8p7UGGwQTo5a3vkzSiYLfRmx0GsVmBsGQ0BlMJ
-         OyQkHq9WttBKpLTxQUVnRDmCP792IYU5QJiiS4tw=
+        b=zXG35PkT+yMDD/b9PO6WoQte9vozSfnNz0BaeTfzk0mSOOCtS43SaxHNL6t1EU+yo
+         AvVKmzfTp7/TaAzRLqKjiM7hxIm4Br8d7Qi9edWbe0U+81M5lRJRqEfiqnrXNRhUz7
+         th8HT1hE1LIJps4MmoPmd8g4NhgIXsxTBn3BZgTw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Matthieu Baerts <matthieu.baerts@tessares.net>
-Subject: [PATCH 4.19 02/30] gro: ensure frag0 meets IP header alignment
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 4.9 20/32] can: esd_usb2: fix memory leak
 Date:   Mon,  2 Aug 2021 15:44:40 +0200
-Message-Id: <20210802134334.163184381@linuxfoundation.org>
+Message-Id: <20210802134333.562182241@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134334.081433902@linuxfoundation.org>
-References: <20210802134334.081433902@linuxfoundation.org>
+In-Reply-To: <20210802134332.931915241@linuxfoundation.org>
+References: <20210802134332.931915241@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,75 +39,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit 38ec4944b593fd90c5ef42aaaa53e66ae5769d04 upstream.
+commit 928150fad41ba16df7fcc9f7f945747d0f56cbb6 upstream.
 
-After commit 0f6925b3e8da ("virtio_net: Do not pull payload in skb->head")
-Guenter Roeck reported one failure in his tests using sh architecture.
+In esd_usb2_setup_rx_urbs() MAX_RX_URBS coherent buffers are allocated
+and there is nothing, that frees them:
 
-After much debugging, we have been able to spot silent unaligned accesses
-in inet_gro_receive()
+1) In callback function the urb is resubmitted and that's all
+2) In disconnect function urbs are simply killed, but URB_FREE_BUFFER
+   is not set (see esd_usb2_setup_rx_urbs) and this flag cannot be used
+   with coherent buffers.
 
-The issue at hand is that upper networking stacks assume their header
-is word-aligned. Low level drivers are supposed to reserve NET_IP_ALIGN
-bytes before the Ethernet header to make that happen.
+So, all allocated buffers should be freed with usb_free_coherent()
+explicitly.
 
-This patch hardens skb_gro_reset_offset() to not allow frag0 fast-path
-if the fragment is not properly aligned.
+Side note: This code looks like a copy-paste of other can drivers. The
+same patch was applied to mcba_usb driver and it works nice with real
+hardware. There is no change in functionality, only clean-up code for
+coherent buffers.
 
-Some arches like x86, arm64 and powerpc do not care and define NET_IP_ALIGN
-as 0, this extra check will be a NOP for them.
-
-Note that if frag0 is not used, GRO will call pskb_may_pull()
-as many times as needed to pull network and transport headers.
-
-Fixes: 0f6925b3e8da ("virtio_net: Do not pull payload in skb->head")
-Fixes: 78a478d0efd9 ("gro: Inline skb_gro_header and cache frag0 virtual address")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Tested-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Fixes: 96d8e90382dc ("can: Add driver for esd CAN-USB/2 device")
+Link: https://lore.kernel.org/r/b31b096926dcb35998ad0271aac4b51770ca7cc8.1627404470.git.paskripkin@gmail.com
+Cc: linux-stable <stable@vger.kernel.org>
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/skbuff.h |    9 +++++++++
- net/core/dev.c         |    3 ++-
- 2 files changed, 11 insertions(+), 1 deletion(-)
+ drivers/net/can/usb/esd_usb2.c |   16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
---- a/include/linux/skbuff.h
-+++ b/include/linux/skbuff.h
-@@ -2789,6 +2789,15 @@ static inline void skb_propagate_pfmemal
- }
+--- a/drivers/net/can/usb/esd_usb2.c
++++ b/drivers/net/can/usb/esd_usb2.c
+@@ -207,6 +207,8 @@ struct esd_usb2 {
+ 	int net_count;
+ 	u32 version;
+ 	int rxinitdone;
++	void *rxbuf[MAX_RX_URBS];
++	dma_addr_t rxbuf_dma[MAX_RX_URBS];
+ };
  
- /**
-+ * skb_frag_off() - Returns the offset of a skb fragment
-+ * @frag: the paged fragment
-+ */
-+static inline unsigned int skb_frag_off(const skb_frag_t *frag)
-+{
-+	return frag->page_offset;
-+}
+ struct esd_usb2_net_priv {
+@@ -556,6 +558,7 @@ static int esd_usb2_setup_rx_urbs(struct
+ 	for (i = 0; i < MAX_RX_URBS; i++) {
+ 		struct urb *urb = NULL;
+ 		u8 *buf = NULL;
++		dma_addr_t buf_dma;
+ 
+ 		/* create a URB, and a buffer for it */
+ 		urb = usb_alloc_urb(0, GFP_KERNEL);
+@@ -565,7 +568,7 @@ static int esd_usb2_setup_rx_urbs(struct
+ 		}
+ 
+ 		buf = usb_alloc_coherent(dev->udev, RX_BUFFER_SIZE, GFP_KERNEL,
+-					 &urb->transfer_dma);
++					 &buf_dma);
+ 		if (!buf) {
+ 			dev_warn(dev->udev->dev.parent,
+ 				 "No memory left for USB buffer\n");
+@@ -573,6 +576,8 @@ static int esd_usb2_setup_rx_urbs(struct
+ 			goto freeurb;
+ 		}
+ 
++		urb->transfer_dma = buf_dma;
 +
-+/**
-  * skb_frag_page - retrieve the page referred to by a paged fragment
-  * @frag: the paged fragment
-  *
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -5400,7 +5400,8 @@ static void skb_gro_reset_offset(struct
+ 		usb_fill_bulk_urb(urb, dev->udev,
+ 				  usb_rcvbulkpipe(dev->udev, 1),
+ 				  buf, RX_BUFFER_SIZE,
+@@ -585,8 +590,12 @@ static int esd_usb2_setup_rx_urbs(struct
+ 			usb_unanchor_urb(urb);
+ 			usb_free_coherent(dev->udev, RX_BUFFER_SIZE, buf,
+ 					  urb->transfer_dma);
++			goto freeurb;
+ 		}
  
- 	if (skb_mac_header(skb) == skb_tail_pointer(skb) &&
- 	    pinfo->nr_frags &&
--	    !PageHighMem(skb_frag_page(frag0))) {
-+	    !PageHighMem(skb_frag_page(frag0)) &&
-+	    (!NET_IP_ALIGN || !(skb_frag_off(frag0) & 3))) {
- 		NAPI_GRO_CB(skb)->frag0 = skb_frag_address(frag0);
- 		NAPI_GRO_CB(skb)->frag0_len = min_t(unsigned int,
- 						    skb_frag_size(frag0),
++		dev->rxbuf[i] = buf;
++		dev->rxbuf_dma[i] = buf_dma;
++
+ freeurb:
+ 		/* Drop reference, USB core will take care of freeing it */
+ 		usb_free_urb(urb);
+@@ -674,6 +683,11 @@ static void unlink_all_urbs(struct esd_u
+ 	int i, j;
+ 
+ 	usb_kill_anchored_urbs(&dev->rx_submitted);
++
++	for (i = 0; i < MAX_RX_URBS; ++i)
++		usb_free_coherent(dev->udev, RX_BUFFER_SIZE,
++				  dev->rxbuf[i], dev->rxbuf_dma[i]);
++
+ 	for (i = 0; i < dev->net_count; i++) {
+ 		priv = dev->nets[i];
+ 		if (priv) {
 
 
