@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 200483DDA37
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 16:08:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E3613DDA35
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 16:08:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235938AbhHBOHy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 10:07:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47228 "EHLO mail.kernel.org"
+        id S235897AbhHBOHr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 10:07:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237737AbhHBOFA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 10:05:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6191361263;
-        Mon,  2 Aug 2021 13:58:16 +0000 (UTC)
+        id S237854AbhHBOFD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 10:05:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 904456124C;
+        Mon,  2 Aug 2021 13:58:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912696;
-        bh=pCE7L2+LcEgONgEt3Yvc6QFZSu+MUHUKJxmtPo5sL+8=;
+        s=korg; t=1627912699;
+        bh=CwkRCANt2YDAhNZ1Yxv2SmEpwFcFZxmCXUlNM8tEypA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XteSyrN0sk8Ft+hbTzMFJO2WI50c60YDU9zxjRPxI6jEH1ryOS/wJDMp7E3EwuF9/
-         cJC/rtGTScJGkWx5gXaq9eB/7Jo4O1p92/1F7qV5qLA7yrYsc9j+fmejCUjCSIUbND
-         cMDk2fASIADHknFPkqqifKN/dXSDfYcnDl82p8TE=
+        b=gkvDr4CFJZxzcWt4i/4eE9bFaBIrfx2KEdqM2Ip3GvbWtnR9a0U1t30IOBt58LNDF
+         ClR75HDM2lshQCMpiuFC/Mi6JzoL1uzNeCOA7yv7KEdg+HbhJREVOQMJHt30z0OLF7
+         c2EQ5/rr8SLaWSfLNin4btzBXhAyWm96zK1IMbm8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.13 095/104] bpf: Fix pointer arithmetic mask tightening under state pruning
-Date:   Mon,  2 Aug 2021 15:45:32 +0200
-Message-Id: <20210802134347.132714317@linuxfoundation.org>
+        stable@vger.kernel.org, Ronnie Sahlberg <lsahlber@redhat.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.13 096/104] SMB3: fix readpage for large swap cache
+Date:   Mon,  2 Aug 2021 15:45:33 +0200
+Message-Id: <20210802134347.163046996@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210802134344.028226640@linuxfoundation.org>
 References: <20210802134344.028226640@linuxfoundation.org>
@@ -39,121 +39,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: Steve French <stfrench@microsoft.com>
 
-commit e042aa532c84d18ff13291d00620502ce7a38dda upstream.
+commit f2a26a3cff27dfa456fef386fe5df56dcb4b47b6 upstream.
 
-In 7fedb63a8307 ("bpf: Tighten speculative pointer arithmetic mask") we
-narrowed the offset mask for unprivileged pointer arithmetic in order to
-mitigate a corner case where in the speculative domain it is possible to
-advance, for example, the map value pointer by up to value_size-1 out-of-
-bounds in order to leak kernel memory via side-channel to user space.
+readpage was calculating the offset of the page incorrectly
+for the case of large swapcaches.
 
-The verifier's state pruning for scalars leaves one corner case open
-where in the first verification path R_x holds an unknown scalar with an
-aux->alu_limit of e.g. 7, and in a second verification path that same
-register R_x, here denoted as R_x', holds an unknown scalar which has
-tighter bounds and would thus satisfy range_within(R_x, R_x') as well as
-tnum_in(R_x, R_x') for state pruning, yielding an aux->alu_limit of 3:
-Given the second path fits the register constraints for pruning, the final
-generated mask from aux->alu_limit will remain at 7. While technically
-not wrong for the non-speculative domain, it would however be possible
-to craft similar cases where the mask would be too wide as in 7fedb63a8307.
+    loff_t offset = (loff_t)page->index << PAGE_SHIFT;
 
-One way to fix it is to detect the presence of unknown scalar map pointer
-arithmetic and force a deeper search on unknown scalars to ensure that
-we do not run into a masking mismatch.
+As pointed out by Matthew Wilcox, this needs to use
+page_file_offset() to calculate the offset instead.
+Pages coming from the swap cache have page->index set
+to their index within the swapcache, not within the backing
+file.  For a sufficiently large swapcache, we could have
+overlapping values of page->index within the same backing file.
 
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Alexei Starovoitov <ast@kernel.org>
+Suggested by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Cc: <stable@vger.kernel.org> # v5.7+
+Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/bpf_verifier.h |    1 +
- kernel/bpf/verifier.c        |   27 +++++++++++++++++----------
- 2 files changed, 18 insertions(+), 10 deletions(-)
+ fs/cifs/file.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/linux/bpf_verifier.h
-+++ b/include/linux/bpf_verifier.h
-@@ -414,6 +414,7 @@ struct bpf_verifier_env {
- 	u32 used_map_cnt;		/* number of used maps */
- 	u32 used_btf_cnt;		/* number of used BTF objects */
- 	u32 id_gen;			/* used to generate unique reg IDs */
-+	bool explore_alu_limits;
- 	bool allow_ptr_leaks;
- 	bool allow_uninit_stack;
- 	bool allow_ptr_to_map_access;
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -6535,6 +6535,12 @@ static int sanitize_ptr_alu(struct bpf_v
- 		alu_state |= off_is_imm ? BPF_ALU_IMMEDIATE : 0;
- 		alu_state |= ptr_is_dst_reg ?
- 			     BPF_ALU_SANITIZE_SRC : BPF_ALU_SANITIZE_DST;
-+
-+		/* Limit pruning on unknown scalars to enable deep search for
-+		 * potential masking differences from other program paths.
-+		 */
-+		if (!off_is_imm)
-+			env->explore_alu_limits = true;
- 	}
+--- a/fs/cifs/file.c
++++ b/fs/cifs/file.c
+@@ -4631,7 +4631,7 @@ read_complete:
  
- 	err = update_alu_sanitation_state(aux, alu_state, alu_limit);
-@@ -9905,8 +9911,8 @@ next:
- }
- 
- /* Returns true if (rold safe implies rcur safe) */
--static bool regsafe(struct bpf_reg_state *rold, struct bpf_reg_state *rcur,
--		    struct bpf_id_pair *idmap)
-+static bool regsafe(struct bpf_verifier_env *env, struct bpf_reg_state *rold,
-+		    struct bpf_reg_state *rcur, struct bpf_id_pair *idmap)
+ static int cifs_readpage(struct file *file, struct page *page)
  {
- 	bool equal;
+-	loff_t offset = (loff_t)page->index << PAGE_SHIFT;
++	loff_t offset = page_file_offset(page);
+ 	int rc = -EACCES;
+ 	unsigned int xid;
  
-@@ -9932,6 +9938,8 @@ static bool regsafe(struct bpf_reg_state
- 		return false;
- 	switch (rold->type) {
- 	case SCALAR_VALUE:
-+		if (env->explore_alu_limits)
-+			return false;
- 		if (rcur->type == SCALAR_VALUE) {
- 			if (!rold->precise && !rcur->precise)
- 				return true;
-@@ -10022,9 +10030,8 @@ static bool regsafe(struct bpf_reg_state
- 	return false;
- }
- 
--static bool stacksafe(struct bpf_func_state *old,
--		      struct bpf_func_state *cur,
--		      struct bpf_id_pair *idmap)
-+static bool stacksafe(struct bpf_verifier_env *env, struct bpf_func_state *old,
-+		      struct bpf_func_state *cur, struct bpf_id_pair *idmap)
- {
- 	int i, spi;
- 
-@@ -10069,9 +10076,8 @@ static bool stacksafe(struct bpf_func_st
- 			continue;
- 		if (old->stack[spi].slot_type[0] != STACK_SPILL)
- 			continue;
--		if (!regsafe(&old->stack[spi].spilled_ptr,
--			     &cur->stack[spi].spilled_ptr,
--			     idmap))
-+		if (!regsafe(env, &old->stack[spi].spilled_ptr,
-+			     &cur->stack[spi].spilled_ptr, idmap))
- 			/* when explored and current stack slot are both storing
- 			 * spilled registers, check that stored pointers types
- 			 * are the same as well.
-@@ -10128,10 +10134,11 @@ static bool func_states_equal(struct bpf
- 
- 	memset(env->idmap_scratch, 0, sizeof(env->idmap_scratch));
- 	for (i = 0; i < MAX_BPF_REG; i++)
--		if (!regsafe(&old->regs[i], &cur->regs[i], env->idmap_scratch))
-+		if (!regsafe(env, &old->regs[i], &cur->regs[i],
-+			     env->idmap_scratch))
- 			return false;
- 
--	if (!stacksafe(old, cur, env->idmap_scratch))
-+	if (!stacksafe(env, old, cur, env->idmap_scratch))
- 		return false;
- 
- 	if (!refsafe(old, cur))
 
 
