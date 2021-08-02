@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A993C3DDA1B
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 16:06:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE0783DD8F6
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:56:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236350AbhHBOGN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 10:06:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47240 "EHLO mail.kernel.org"
+        id S235769AbhHBN4C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:56:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40308 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236352AbhHBOCK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 10:02:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6AAEC611C5;
-        Mon,  2 Aug 2021 13:57:02 +0000 (UTC)
+        id S236219AbhHBNzJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:55:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3EB6E6117A;
+        Mon,  2 Aug 2021 13:53:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912622;
-        bh=c3ELT/LzO++DLj+iIONOcmMj4XD+MDLUQjEsDxdt4Vw=;
+        s=korg; t=1627912419;
+        bh=5RuXNqgjEmhkTK80IcY3+uVcJLZlcJw8MTVEstNlzjM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oXDSonKVEV+qaO+Pg+ExVzG1YcZPddKI33dgl0GOQ0Wf5Ese3QRIlqB/HeRy+DjQk
-         In7YuEbWGnqqPxa+W5dJDxFZnnDh04bz8PDplrihSNeqHpazf9lZzTe378+6D5syFx
-         wq/NF9f4OIvlKe3M2chnvfYE9xInZKY2lC6HkXNI=
+        b=UG/XHiWzEBSW481NXqDrYdeuxaCTnjkuqOYgtd/4LdyZl67tLMYVvizdq8Z/1cAZC
+         cFDWH1H5vs8dz0pndTonwadHXpiTWhTrFtkTP7WgCCYqvrGB0haj63ntDW/D/gFvyx
+         DeCI0v38ySglbNngH4KQaqw1/V4TvvqKqirRi/IQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maor Dickman <maord@nvidia.com>,
-        Roi Dayan <roid@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        stable@vger.kernel.org,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 076/104] net/mlx5e: Disable Rx ntuple offload for uplink representor
+Subject: [PATCH 5.10 50/67] drm/msm/dp: Initialize the INTF_CONFIG register
 Date:   Mon,  2 Aug 2021 15:45:13 +0200
-Message-Id: <20210802134346.519085439@linuxfoundation.org>
+Message-Id: <20210802134340.740659982@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134344.028226640@linuxfoundation.org>
-References: <20210802134344.028226640@linuxfoundation.org>
+In-Reply-To: <20210802134339.023067817@linuxfoundation.org>
+References: <20210802134339.023067817@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,122 +42,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maor Dickman <maord@nvidia.com>
+From: Bjorn Andersson <bjorn.andersson@linaro.org>
 
-[ Upstream commit 90b22b9bcd242a3ba238f2c6f7eab771799001f8 ]
+[ Upstream commit f9a39932fa54b6421e751ada7a285da809146421 ]
 
-Rx ntuple offload is not supported in switchdev mode.
-Tryng to enable it cause kernel panic.
+Some bootloaders set the widebus enable bit in the INTF_CONFIG register,
+but configuration of widebus isn't yet supported ensure that the
+register has a known value, with widebus disabled.
 
- BUG: kernel NULL pointer dereference, address: 0000000000000008
- #PF: supervisor read access in kernel mode
- #PF: error_code(0x0000) - not-present page
- PGD 80000001065a5067 P4D 80000001065a5067 PUD 106594067 PMD 0
- Oops: 0000 [#1] SMP PTI
- CPU: 7 PID: 1089 Comm: ethtool Not tainted 5.13.0-rc7_for_upstream_min_debug_2021_06_23_16_44 #1
- Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
- RIP: 0010:mlx5e_arfs_enable+0x70/0xd0 [mlx5_core]
- Code: 44 24 10 00 00 00 00 48 c7 44 24 18 00 00 00 00 49 63 c4 48 89 e2 44 89 e6 48 69 c0 20 08 00 00 48 89 ef 48 03 85 68 ac 00 00 <48> 8b 40 08 48 89 44 24 08 e8 d2 aa fd ff 48 83 05 82 96 18 00 01
- RSP: 0018:ffff8881047679e0 EFLAGS: 00010246
- RAX: 0000000000000000 RBX: 0000004000000000 RCX: 0000004000000000
- RDX: ffff8881047679e0 RSI: 0000000000000000 RDI: ffff888115100880
- RBP: ffff888115100880 R08: ffffffffa00f6cb0 R09: ffff888104767a18
- R10: ffff8881151000a0 R11: ffff888109479540 R12: 0000000000000000
- R13: ffff888104767bb8 R14: ffff888115100000 R15: ffff8881151000a0
- FS:  00007f41a64ab740(0000) GS:ffff8882f5dc0000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 0000000000000008 CR3: 0000000104cbc005 CR4: 0000000000370ea0
- DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
- DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
- Call Trace:
-  set_feature_arfs+0x1e/0x40 [mlx5_core]
-  mlx5e_handle_feature+0x43/0xa0 [mlx5_core]
-  mlx5e_set_features+0x139/0x1b0 [mlx5_core]
-  __netdev_update_features+0x2b3/0xaf0
-  ethnl_set_features+0x176/0x3a0
-  ? __nla_parse+0x22/0x30
-  genl_family_rcv_msg_doit+0xe2/0x140
-  genl_rcv_msg+0xde/0x1d0
-  ? features_reply_size+0xe0/0xe0
-  ? genl_get_cmd+0xd0/0xd0
-  netlink_rcv_skb+0x4e/0xf0
-  genl_rcv+0x24/0x40
-  netlink_unicast+0x1f6/0x2b0
-  netlink_sendmsg+0x225/0x450
-  sock_sendmsg+0x33/0x40
-  __sys_sendto+0xd4/0x120
-  ? __sys_recvmsg+0x4e/0x90
-  ? exc_page_fault+0x219/0x740
-  __x64_sys_sendto+0x25/0x30
-  do_syscall_64+0x3f/0x80
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
- RIP: 0033:0x7f41a65b0cba
- Code: d8 64 89 02 48 c7 c0 ff ff ff ff eb b8 0f 1f 00 f3 0f 1e fa 41 89 ca 64 8b 04 25 18 00 00 00 85 c0 75 15 b8 2c 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 76 c3 0f 1f 44 00 00 55 48 83 ec 30 44 89 4c
- RSP: 002b:00007ffd8d688358 EFLAGS: 00000246 ORIG_RAX: 000000000000002c
- RAX: ffffffffffffffda RBX: 00000000010f42a0 RCX: 00007f41a65b0cba
- RDX: 0000000000000058 RSI: 00000000010f43b0 RDI: 0000000000000003
- RBP: 000000000047ae60 R08: 00007f41a667c000 R09: 000000000000000c
- R10: 0000000000000000 R11: 0000000000000246 R12: 00000000010f4340
- R13: 00000000010f4350 R14: 00007ffd8d688400 R15: 00000000010f42a0
- Modules linked in: mlx5_vdpa vhost_iotlb vdpa xt_conntrack xt_MASQUERADE nf_conntrack_netlink nfnetlink xt_addrtype iptable_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 br_netfilter rpcrdma rdma_ucm ib_iser libiscsi scsi_transport_iscsi ib_umad ib_ipoib rdma_cm iw_cm ib_cm mlx5_ib ib_uverbs ib_core overlay mlx5_core ptp pps_core fuse
- CR2: 0000000000000008
- ---[ end trace c66523f2aba94b43 ]---
-
-Fixes: 7a9fb35e8c3a ("net/mlx5e: Do not reload ethernet ports when changing eswitch mode")
-Signed-off-by: Maor Dickman <maord@nvidia.com>
-Reviewed-by: Roi Dayan <roid@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Fixes: c943b4948b58 ("drm/msm/dp: add displayPort driver support")
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Link: https://lore.kernel.org/r/20210722024434.3313167-1-bjorn.andersson@linaro.org
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/mellanox/mlx5/core/en_main.c | 29 +++++++++++++------
- 1 file changed, 20 insertions(+), 9 deletions(-)
+ drivers/gpu/drm/msm/dp/dp_catalog.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-index d26b8ed51195..86a27b0b42cb 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-@@ -3825,6 +3825,24 @@ int mlx5e_set_features(struct net_device *netdev, netdev_features_t features)
+diff --git a/drivers/gpu/drm/msm/dp/dp_catalog.c b/drivers/gpu/drm/msm/dp/dp_catalog.c
+index 4963bfe6a472..aeca8b2ac5c6 100644
+--- a/drivers/gpu/drm/msm/dp/dp_catalog.c
++++ b/drivers/gpu/drm/msm/dp/dp_catalog.c
+@@ -740,6 +740,7 @@ int dp_catalog_panel_timing_cfg(struct dp_catalog *dp_catalog)
+ 	dp_write_link(catalog, REG_DP_HSYNC_VSYNC_WIDTH_POLARITY,
+ 				dp_catalog->width_blanking);
+ 	dp_write_link(catalog, REG_DP_ACTIVE_HOR_VER, dp_catalog->dp_active);
++	dp_write_p0(catalog, MMSS_DP_INTF_CONFIG, 0);
  	return 0;
  }
- 
-+static netdev_features_t mlx5e_fix_uplink_rep_features(struct net_device *netdev,
-+						       netdev_features_t features)
-+{
-+	features &= ~NETIF_F_HW_TLS_RX;
-+	if (netdev->features & NETIF_F_HW_TLS_RX)
-+		netdev_warn(netdev, "Disabling hw_tls_rx, not supported in switchdev mode\n");
-+
-+	features &= ~NETIF_F_HW_TLS_TX;
-+	if (netdev->features & NETIF_F_HW_TLS_TX)
-+		netdev_warn(netdev, "Disabling hw_tls_tx, not supported in switchdev mode\n");
-+
-+	features &= ~NETIF_F_NTUPLE;
-+	if (netdev->features & NETIF_F_NTUPLE)
-+		netdev_warn(netdev, "Disabling ntuple, not supported in switchdev mode\n");
-+
-+	return features;
-+}
-+
- static netdev_features_t mlx5e_fix_features(struct net_device *netdev,
- 					    netdev_features_t features)
- {
-@@ -3856,15 +3874,8 @@ static netdev_features_t mlx5e_fix_features(struct net_device *netdev,
- 			netdev_warn(netdev, "Disabling rxhash, not supported when CQE compress is active\n");
- 	}
- 
--	if (mlx5e_is_uplink_rep(priv)) {
--		features &= ~NETIF_F_HW_TLS_RX;
--		if (netdev->features & NETIF_F_HW_TLS_RX)
--			netdev_warn(netdev, "Disabling hw_tls_rx, not supported in switchdev mode\n");
--
--		features &= ~NETIF_F_HW_TLS_TX;
--		if (netdev->features & NETIF_F_HW_TLS_TX)
--			netdev_warn(netdev, "Disabling hw_tls_tx, not supported in switchdev mode\n");
--	}
-+	if (mlx5e_is_uplink_rep(priv))
-+		features = mlx5e_fix_uplink_rep_features(netdev, features);
- 
- 	mutex_unlock(&priv->state_lock);
  
 -- 
 2.30.2
