@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 472643DD88D
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:53:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 063C13DD856
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:51:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234714AbhHBNxI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:53:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33684 "EHLO mail.kernel.org"
+        id S234292AbhHBNvd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:51:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235012AbhHBNv4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:51:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F0F216113A;
-        Mon,  2 Aug 2021 13:51:19 +0000 (UTC)
+        id S234893AbhHBNu0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:50:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DC9B660FF2;
+        Mon,  2 Aug 2021 13:50:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912280;
-        bh=k4h1MxhslHtYf3FpDSfYUWgKXCp9I8ZCgB+e8ScY/NU=;
+        s=korg; t=1627912217;
+        bh=zfEK27B3VJLeHZ8xlJ5XAClufhFaaukVn6StCpQeLvw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T14kwlNpUy9QM8l4HUXbuc4lo7Rb5xt0O+0fKIIhavSZQOBxLZgMfXqRozKlW3l0q
-         Ofiu4zZpGYk8IheBJx8Rr76ibEvyL+rLvvzXnkiE1qtBqeWgzkkIU1P36/k+YuyNjL
-         V4nFZqyjrhqIsUni4NeSrjVeNw+vl6u8Tff+75ts=
+        b=MZrehf3KwoXT07skoSLQ+hTticZXLHbJbvfmUQNKbWFzQqTDQnD0NGY0MlUefoI6b
+         WJSgIK/Cm7QiFnXJYBIt6ha7eBGETFDRxIc9kNHJ81RQNTbrBDDGStbp3XtbHwR+cq
+         r323fsCoK/H9Hs7BthKXJozLCOZ7YlKiYpjhCtf0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abaci Robot <abaci@linux.alibaba.com>,
-        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 28/40] mlx4: Fix missing error code in mlx4_load_one()
+        stable@vger.kernel.org,
+        Lukasz Cieplicki <lukaszx.cieplicki@intel.com>,
+        Michal Maloszewski <michal.maloszewski@intel.com>,
+        Tony Brelinski <tonyx.brelinski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>
+Subject: [PATCH 4.19 30/30] i40e: Add additional info to PHY type error
 Date:   Mon,  2 Aug 2021 15:45:08 +0200
-Message-Id: <20210802134336.290750751@linuxfoundation.org>
+Message-Id: <20210802134335.055290075@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134335.408294521@linuxfoundation.org>
-References: <20210802134335.408294521@linuxfoundation.org>
+In-Reply-To: <20210802134334.081433902@linuxfoundation.org>
+References: <20210802134334.081433902@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,42 +42,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+From: Lukasz Cieplicki <lukaszx.cieplicki@intel.com>
 
-[ Upstream commit 7e4960b3d66d7248b23de3251118147812b42da2 ]
+commit dc614c46178b0b89bde86ac54fc687a28580d2b7 upstream.
 
-The error code is missing in this code scenario, add the error code
-'-EINVAL' to the return value 'err'.
+In case of PHY type error occurs, the message was too generic.
+Add additional info to PHY type error indicating that it can be
+wrong cable connected.
 
-Eliminate the follow smatch warning:
-
-drivers/net/ethernet/mellanox/mlx4/main.c:3538 mlx4_load_one() warn:
-missing error code 'err'.
-
-Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-Fixes: 7ae0e400cd93 ("net/mlx4_core: Flexible (asymmetric) allocation of EQs and MSI-X vectors for PF/VFs")
-Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
-Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 124ed15bf126 ("i40e: Add dual speed module support")
+Signed-off-by: Lukasz Cieplicki <lukaszx.cieplicki@intel.com>
+Signed-off-by: Michal Maloszewski <michal.maloszewski@intel.com>
+Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx4/main.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/intel/i40e/i40e_ethtool.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx4/main.c b/drivers/net/ethernet/mellanox/mlx4/main.c
-index cb4664a040ab..35882d6ded8b 100644
---- a/drivers/net/ethernet/mellanox/mlx4/main.c
-+++ b/drivers/net/ethernet/mellanox/mlx4/main.c
-@@ -3526,6 +3526,7 @@ slave_start:
- 
- 		if (!SRIOV_VALID_STATE(dev->flags)) {
- 			mlx4_err(dev, "Invalid SRIOV state\n");
-+			err = -EINVAL;
- 			goto err_close;
- 		}
+--- a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
+@@ -674,7 +674,7 @@ static void i40e_get_settings_link_up(st
+ 	default:
+ 		/* if we got here and link is up something bad is afoot */
+ 		netdev_info(netdev,
+-			    "WARNING: Link is up but PHY type 0x%x is not recognized.\n",
++			    "WARNING: Link is up but PHY type 0x%x is not recognized, or incorrect cable is in use\n",
+ 			    hw_link_info->phy_type);
  	}
--- 
-2.30.2
-
+ 
 
 
