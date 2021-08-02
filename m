@@ -2,43 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47D3B3DD82D
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:50:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7A153DD98D
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 16:01:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234457AbhHBNuP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:50:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32854 "EHLO mail.kernel.org"
+        id S234709AbhHBOBS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 10:01:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40308 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233956AbhHBNti (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:49:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2745E60FC2;
-        Mon,  2 Aug 2021 13:49:29 +0000 (UTC)
+        id S236448AbhHBN7b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:59:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F0FC161168;
+        Mon,  2 Aug 2021 13:55:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912169;
-        bh=vJIBOiTKBn2Pw8XTRqsavUutmB6ffwpZU+05RjBBOEs=;
+        s=korg; t=1627912548;
+        bh=0SxXdrzgCMf+XGpPMBcK0MfRTFpmHNYKS0tjM7kJg/8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FWFmcziQGdnEOLGTGOV8C9rsnG6LZoD7bIdlEmpO1F3O0+lnJGe7oLCt3aFewhPrN
-         lTiAUnZb723/NjVHgWiIIeTD5zrYPoCuXgPkqM+XpI98EymwZB6FEEWe/s6YdHuTu4
-         8tVdd1SrNoKTvZGrFzVreT8IWjvAX+jyvKzL285k=
+        b=qBJbta2lAtAV/Cn9tFlIwkHg4YhKZAL3Cg8djdgdzbJE3LVOJjadfbtipGFHpZOGh
+         QHZ0fGLeN3fwqBc58LospUVaRWtm2vm+bhxYjSYVu6YRzLZ7YR4RCETLCxvJQq2CRi
+         2FP9TP6G5fHChbEy9JTcPbwk5R4qnn85FUIFwbkU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        virtualization@lists.linux-foundation.org,
-        "David S. Miller" <davem@davemloft.net>,
-        Matthieu Baerts <matthieu.baerts@tessares.net>
-Subject: [PATCH 4.19 01/30] virtio_net: Do not pull payload in skb->head
+        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 042/104] mac80211: fix enabling 4-address mode on a sta vif after assoc
 Date:   Mon,  2 Aug 2021 15:44:39 +0200
-Message-Id: <20210802134334.130644975@linuxfoundation.org>
+Message-Id: <20210802134345.409860407@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134334.081433902@linuxfoundation.org>
-References: <20210802134334.081433902@linuxfoundation.org>
+In-Reply-To: <20210802134344.028226640@linuxfoundation.org>
+References: <20210802134344.028226640@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -46,113 +40,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Felix Fietkau <nbd@nbd.name>
 
-commit 0f6925b3e8da0dbbb52447ca8a8b42b371aac7db upstream.
+[ Upstream commit a5d3cbdb09ff1f52cbe040932e06c8b9915c6dad ]
 
-Xuan Zhuo reported that commit 3226b158e67c ("net: avoid 32 x truesize
-under-estimation for tiny skbs") brought  a ~10% performance drop.
+Notify the driver about the 4-address mode change and also send a nulldata
+packet to the AP to notify it about the change
 
-The reason for the performance drop was that GRO was forced
-to chain sk_buff (using skb_shinfo(skb)->frag_list), which
-uses more memory but also cause packet consumers to go over
-a lot of overhead handling all the tiny skbs.
-
-It turns out that virtio_net page_to_skb() has a wrong strategy :
-It allocates skbs with GOOD_COPY_LEN (128) bytes in skb->head, then
-copies 128 bytes from the page, before feeding the packet to GRO stack.
-
-This was suboptimal before commit 3226b158e67c ("net: avoid 32 x truesize
-under-estimation for tiny skbs") because GRO was using 2 frags per MSS,
-meaning we were not packing MSS with 100% efficiency.
-
-Fix is to pull only the ethernet header in page_to_skb()
-
-Then, we change virtio_net_hdr_to_skb() to pull the missing
-headers, instead of assuming they were already pulled by callers.
-
-This fixes the performance regression, but could also allow virtio_net
-to accept packets with more than 128bytes of headers.
-
-Many thanks to Xuan Zhuo for his report, and his tests/help.
-
-Fixes: 3226b158e67c ("net: avoid 32 x truesize under-estimation for tiny skbs")
-Reported-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Link: https://www.spinics.net/lists/netdev/msg731397.html
-Co-Developed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: virtualization@lists.linux-foundation.org
-Acked-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1ff4e8f2dec8 ("mac80211: notify the driver when a sta uses 4-address mode")
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Link: https://lore.kernel.org/r/20210702050111.47546-1-nbd@nbd.name
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/virtio_net.c   |   10 +++++++---
- include/linux/virtio_net.h |   14 +++++++++-----
- 2 files changed, 16 insertions(+), 8 deletions(-)
+ net/mac80211/cfg.c         | 19 +++++++++++++++++++
+ net/mac80211/ieee80211_i.h |  2 ++
+ net/mac80211/mlme.c        |  4 ++--
+ 3 files changed, 23 insertions(+), 2 deletions(-)
 
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -413,9 +413,13 @@ static struct sk_buff *page_to_skb(struc
- 	offset += hdr_padded_len;
- 	p += hdr_padded_len;
+diff --git a/net/mac80211/cfg.c b/net/mac80211/cfg.c
+index 7a99892e5aba..9f1443459852 100644
+--- a/net/mac80211/cfg.c
++++ b/net/mac80211/cfg.c
+@@ -152,6 +152,8 @@ static int ieee80211_change_iface(struct wiphy *wiphy,
+ 				  struct vif_params *params)
+ {
+ 	struct ieee80211_sub_if_data *sdata = IEEE80211_DEV_TO_SUB_IF(dev);
++	struct ieee80211_local *local = sdata->local;
++	struct sta_info *sta;
+ 	int ret;
  
--	copy = len;
--	if (copy > skb_tailroom(skb))
--		copy = skb_tailroom(skb);
-+	/* Copy all frame if it fits skb->head, otherwise
-+	 * we let virtio_net_hdr_to_skb() and GRO pull headers as needed.
-+	 */
-+	if (len <= skb_tailroom(skb))
-+		copy = len;
-+	else
-+		copy = ETH_HLEN + metasize;
- 	skb_put_data(skb, p, copy);
- 
- 	if (metasize) {
---- a/include/linux/virtio_net.h
-+++ b/include/linux/virtio_net.h
-@@ -65,14 +65,18 @@ static inline int virtio_net_hdr_to_skb(
- 	skb_reset_mac_header(skb);
- 
- 	if (hdr->flags & VIRTIO_NET_HDR_F_NEEDS_CSUM) {
--		u16 start = __virtio16_to_cpu(little_endian, hdr->csum_start);
--		u16 off = __virtio16_to_cpu(little_endian, hdr->csum_offset);
-+		u32 start = __virtio16_to_cpu(little_endian, hdr->csum_start);
-+		u32 off = __virtio16_to_cpu(little_endian, hdr->csum_offset);
-+		u32 needed = start + max_t(u32, thlen, off + sizeof(__sum16));
+ 	ret = ieee80211_if_change_type(sdata, type);
+@@ -162,7 +164,24 @@ static int ieee80211_change_iface(struct wiphy *wiphy,
+ 		RCU_INIT_POINTER(sdata->u.vlan.sta, NULL);
+ 		ieee80211_check_fast_rx_iface(sdata);
+ 	} else if (type == NL80211_IFTYPE_STATION && params->use_4addr >= 0) {
++		struct ieee80211_if_managed *ifmgd = &sdata->u.mgd;
 +
-+		if (!pskb_may_pull(skb, needed))
-+			return -EINVAL;
- 
- 		if (!skb_partial_csum_set(skb, start, off))
- 			return -EINVAL;
- 
- 		p_off = skb_transport_offset(skb) + thlen;
--		if (p_off > skb_headlen(skb))
-+		if (!pskb_may_pull(skb, p_off))
- 			return -EINVAL;
- 	} else {
- 		/* gso packets without NEEDS_CSUM do not set transport_offset.
-@@ -102,14 +106,14 @@ retry:
- 			}
- 
- 			p_off = keys.control.thoff + thlen;
--			if (p_off > skb_headlen(skb) ||
-+			if (!pskb_may_pull(skb, p_off) ||
- 			    keys.basic.ip_proto != ip_proto)
- 				return -EINVAL;
- 
- 			skb_set_transport_header(skb, keys.control.thoff);
- 		} else if (gso_type) {
- 			p_off = thlen;
--			if (p_off > skb_headlen(skb))
-+			if (!pskb_may_pull(skb, p_off))
- 				return -EINVAL;
- 		}
++		if (params->use_4addr == ifmgd->use_4addr)
++			return 0;
++
+ 		sdata->u.mgd.use_4addr = params->use_4addr;
++		if (!ifmgd->associated)
++			return 0;
++
++		mutex_lock(&local->sta_mtx);
++		sta = sta_info_get(sdata, ifmgd->bssid);
++		if (sta)
++			drv_sta_set_4addr(local, sdata, &sta->sta,
++					  params->use_4addr);
++		mutex_unlock(&local->sta_mtx);
++
++		if (params->use_4addr)
++			ieee80211_send_4addr_nullfunc(local, sdata);
  	}
+ 
+ 	if (sdata->vif.type == NL80211_IFTYPE_MONITOR) {
+diff --git a/net/mac80211/ieee80211_i.h b/net/mac80211/ieee80211_i.h
+index 648696b49f89..1e1d2e72de4a 100644
+--- a/net/mac80211/ieee80211_i.h
++++ b/net/mac80211/ieee80211_i.h
+@@ -2045,6 +2045,8 @@ void ieee80211_dynamic_ps_timer(struct timer_list *t);
+ void ieee80211_send_nullfunc(struct ieee80211_local *local,
+ 			     struct ieee80211_sub_if_data *sdata,
+ 			     bool powersave);
++void ieee80211_send_4addr_nullfunc(struct ieee80211_local *local,
++				   struct ieee80211_sub_if_data *sdata);
+ void ieee80211_sta_tx_notify(struct ieee80211_sub_if_data *sdata,
+ 			     struct ieee80211_hdr *hdr, bool ack, u16 tx_time);
+ 
+diff --git a/net/mac80211/mlme.c b/net/mac80211/mlme.c
+index b1c44fa63a06..9bed6464c5bd 100644
+--- a/net/mac80211/mlme.c
++++ b/net/mac80211/mlme.c
+@@ -1115,8 +1115,8 @@ void ieee80211_send_nullfunc(struct ieee80211_local *local,
+ 	ieee80211_tx_skb(sdata, skb);
+ }
+ 
+-static void ieee80211_send_4addr_nullfunc(struct ieee80211_local *local,
+-					  struct ieee80211_sub_if_data *sdata)
++void ieee80211_send_4addr_nullfunc(struct ieee80211_local *local,
++				   struct ieee80211_sub_if_data *sdata)
+ {
+ 	struct sk_buff *skb;
+ 	struct ieee80211_hdr *nullfunc;
+-- 
+2.30.2
+
 
 
