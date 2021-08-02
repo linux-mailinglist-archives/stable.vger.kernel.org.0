@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E78C43DD7E7
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:48:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBC473DD8D6
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:56:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234233AbhHBNs2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:48:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57150 "EHLO mail.kernel.org"
+        id S235429AbhHBNzj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:55:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234127AbhHBNrr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:47:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 572E960FF2;
-        Mon,  2 Aug 2021 13:47:25 +0000 (UTC)
+        id S235827AbhHBNy3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:54:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 19FDC611C8;
+        Mon,  2 Aug 2021 13:52:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912045;
-        bh=aajXcoGXJYjIcFceZgEHPqa5csuIAtkLTzG115AiRMw=;
+        s=korg; t=1627912369;
+        bh=kE9Bk9DFA1RgdtiMAimfsy3v2qOuPct73DWDjzSZdYw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hBbJPFp2bLKBlFOJIhbg61iPbZC64pMWKZpoLiK8Bkeq27NIkfw7vsyDa+08UWTJQ
-         vTJlDeY3bKA7EBDZ4vXZ11IpzOl1gJHrHLy/ofldKKtpxFsQGsPmlB65Dga+J4ms9Q
-         SmUmgrUi8LirnsrjUEm1MTL9GQYZF1vATNbiEbd8=
+        b=S8AmlCSnRZgtWZOb+zsRWFBL5NGlmAWD/5g4YKyj0JeBHxB6xD8Yc81+YNfv4r4zN
+         96XNqsO/6mc4kdNoi3NkqS+rzCS+3ytoTX2fPWoEKclDX8GIZWPVNWaDFukFDfyAH5
+         bNZcSg/PShwIadXxM+UYqG/FfJu3RLYJkYben1cI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nguyen Dinh Phi <phind.uet@gmail.com>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.9 24/32] cfg80211: Fix possible memory leak in function cfg80211_bss_update
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        Shannon Nelson <shannon.lee.nelson@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Paul Jakma <paul@jakma.org>
+Subject: [PATCH 5.10 21/67] NIU: fix incorrect error return, missed in previous revert
 Date:   Mon,  2 Aug 2021 15:44:44 +0200
-Message-Id: <20210802134333.685861590@linuxfoundation.org>
+Message-Id: <20210802134339.740742388@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134332.931915241@linuxfoundation.org>
-References: <20210802134332.931915241@linuxfoundation.org>
+In-Reply-To: <20210802134339.023067817@linuxfoundation.org>
+References: <20210802134339.023067817@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,45 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nguyen Dinh Phi <phind.uet@gmail.com>
+From: Paul Jakma <paul@jakma.org>
 
-commit f9a5c358c8d26fed0cc45f2afc64633d4ba21dff upstream.
+commit 15bbf8bb4d4ab87108ecf5f4155ec8ffa3c141d6 upstream.
 
-When we exceed the limit of BSS entries, this function will free the
-new entry, however, at this time, it is the last door to access the
-inputed ies, so these ies will be unreferenced objects and cause memory
-leak.
-Therefore we should free its ies before deallocating the new entry, beside
-of dropping it from hidden_list.
+Commit 7930742d6, reverting 26fd962, missed out on reverting an incorrect
+change to a return value.  The niu_pci_vpd_scan_props(..) == 1 case appears
+to be a normal path - treating it as an error and return -EINVAL was
+breaking VPD_SCAN and causing the driver to fail to load.
 
-Signed-off-by: Nguyen Dinh Phi <phind.uet@gmail.com>
-Link: https://lore.kernel.org/r/20210628132334.851095-1-phind.uet@gmail.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fix, so my Neptune card works again.
+
+Cc: Kangjie Lu <kjlu@umn.edu>
+Cc: Shannon Nelson <shannon.lee.nelson@gmail.com>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: stable <stable@vger.kernel.org>
+Fixes: 7930742d ('Revert "niu: fix missing checks of niu_pci_eeprom_read"')
+Signed-off-by: Paul Jakma <paul@jakma.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/wireless/scan.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/sun/niu.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/wireless/scan.c
-+++ b/net/wireless/scan.c
-@@ -949,16 +949,14 @@ cfg80211_bss_update(struct cfg80211_regi
- 			 * be grouped with this beacon for updates ...
- 			 */
- 			if (!cfg80211_combine_bsses(rdev, new)) {
--				kfree(new);
-+				bss_ref_put(rdev, new);
- 				goto drop;
- 			}
- 		}
- 
- 		if (rdev->bss_entries >= bss_entries_limit &&
- 		    !cfg80211_bss_expire_oldest(rdev)) {
--			if (!list_empty(&new->hidden_list))
--				list_del(&new->hidden_list);
--			kfree(new);
-+			bss_ref_put(rdev, new);
- 			goto drop;
- 		}
- 
+--- a/drivers/net/ethernet/sun/niu.c
++++ b/drivers/net/ethernet/sun/niu.c
+@@ -8191,8 +8191,9 @@ static int niu_pci_vpd_fetch(struct niu
+ 		err = niu_pci_vpd_scan_props(np, here, end);
+ 		if (err < 0)
+ 			return err;
++		/* ret == 1 is not an error */
+ 		if (err == 1)
+-			return -EINVAL;
++			return 0;
+ 	}
+ 	return 0;
+ }
 
 
