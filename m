@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 12AF43DD859
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:51:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 839DD3DD91D
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:57:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234705AbhHBNvg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:51:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34568 "EHLO mail.kernel.org"
+        id S236228AbhHBN5U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:57:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40742 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234563AbhHBNui (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:50:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 885416052B;
-        Mon,  2 Aug 2021 13:50:25 +0000 (UTC)
+        id S235407AbhHBNzj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:55:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8ED59611C9;
+        Mon,  2 Aug 2021 13:54:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912226;
-        bh=1on7F6qjqqXQipDnaqQP814c2+8+InJRDOYMzSi5di4=;
+        s=korg; t=1627912446;
+        bh=jI+YS/i+yRrMJsmjX9PV8o/kWoZul4RIIHZhNbtJnWI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eyxgbO9lcARBS06mc+2SMpds/Jgl6+uT00xFWyKPymSX4lozkdU+gO1T0iDji/Yuw
-         0kwg8HgwSy5mnp007l2KoY7UYqAUzHbMHhfxVIdQWTU+88IEfIUPaB4tg3VuybVTYv
-         Pn6QnzQlgDuiVSerxA/1ttJ8IVrJN+Zu1TEQJRQE=
+        b=1iJhMfxkRi3Xr5Q4Mq8Rk6Xp4CsVnLbAPKnfBlilODGh/bi86kMzy4kMtUJHW9VOc
+         no91Zg2+7PGNvV2u0EsDCVBcSL0zVqLdZ/zzFR7XS42v6bZlQoltV15eKZ5nSA6s7D
+         9rQ4vbOVvZu4ueYfxHBh88sg1Ut/jXLEwj6X9zqU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 14/30] nfc: nfcsim: fix use after free during module unload
+        stable@vger.kernel.org, Lorenz Bauer <lmb@cloudflare.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 29/67] bpf: Fix OOB read when printing XDP link fdinfo
 Date:   Mon,  2 Aug 2021 15:44:52 +0200
-Message-Id: <20210802134334.535733136@linuxfoundation.org>
+Message-Id: <20210802134340.007690469@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134334.081433902@linuxfoundation.org>
-References: <20210802134334.081433902@linuxfoundation.org>
+In-Reply-To: <20210802134339.023067817@linuxfoundation.org>
+References: <20210802134339.023067817@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,90 +40,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Lorenz Bauer <lmb@cloudflare.com>
 
-commit 5e7b30d24a5b8cb691c173b45b50e3ca0191be19 upstream.
+[ Upstream commit d6371c76e20d7d3f61b05fd67b596af4d14a8886 ]
 
-There is a use after free memory corruption during module exit:
- - nfcsim_exit()
-  - nfcsim_device_free(dev0)
-    - nfc_digital_unregister_device()
-      This iterates over command queue and frees all commands,
-    - dev->up = false
-    - nfcsim_link_shutdown()
-      - nfcsim_link_recv_wake()
-        This wakes the sleeping thread nfcsim_link_recv_skb().
+We got the following UBSAN report on one of our testing machines:
 
- - nfcsim_link_recv_skb()
-   Wake from wait_event_interruptible_timeout(),
-   call directly the deb->cb callback even though (dev->up == false),
-   - digital_send_cmd_complete()
-     Dereference of "struct digital_cmd" cmd which was freed earlier by
-     nfc_digital_unregister_device().
+    ================================================================================
+    UBSAN: array-index-out-of-bounds in kernel/bpf/syscall.c:2389:24
+    index 6 is out of range for type 'char *[6]'
+    CPU: 43 PID: 930921 Comm: systemd-coredum Tainted: G           O      5.10.48-cloudflare-kasan-2021.7.0 #1
+    Hardware name: <snip>
+    Call Trace:
+     dump_stack+0x7d/0xa3
+     ubsan_epilogue+0x5/0x40
+     __ubsan_handle_out_of_bounds.cold+0x43/0x48
+     ? seq_printf+0x17d/0x250
+     bpf_link_show_fdinfo+0x329/0x380
+     ? bpf_map_value_size+0xe0/0xe0
+     ? put_files_struct+0x20/0x2d0
+     ? __kasan_kmalloc.constprop.0+0xc2/0xd0
+     seq_show+0x3f7/0x540
+     seq_read_iter+0x3f8/0x1040
+     seq_read+0x329/0x500
+     ? seq_read_iter+0x1040/0x1040
+     ? __fsnotify_parent+0x80/0x820
+     ? __fsnotify_update_child_dentry_flags+0x380/0x380
+     vfs_read+0x123/0x460
+     ksys_read+0xed/0x1c0
+     ? __x64_sys_pwrite64+0x1f0/0x1f0
+     do_syscall_64+0x33/0x40
+     entry_SYSCALL_64_after_hwframe+0x44/0xa9
+    <snip>
+    ================================================================================
+    ================================================================================
+    UBSAN: object-size-mismatch in kernel/bpf/syscall.c:2384:2
 
-This causes memory corruption shortly after (with unrelated stack
-trace):
+>From the report, we can infer that some array access in bpf_link_show_fdinfo at index 6
+is out of bounds. The obvious candidate is bpf_link_type_strs[BPF_LINK_TYPE_XDP] with
+BPF_LINK_TYPE_XDP == 6. It turns out that BPF_LINK_TYPE_XDP is missing from bpf_types.h
+and therefore doesn't have an entry in bpf_link_type_strs:
 
-  nfc nfc0: NFC: nfcsim_recv_wq: Device is down
-  llcp: nfc_llcp_recv: err -19
-  nfc nfc1: NFC: nfcsim_recv_wq: Device is down
-  BUG: unable to handle page fault for address: ffffffffffffffed
-  Call Trace:
-   fsnotify+0x54b/0x5c0
-   __fsnotify_parent+0x1fe/0x300
-   ? vfs_write+0x27c/0x390
-   vfs_write+0x27c/0x390
-   ksys_write+0x63/0xe0
-   do_syscall_64+0x3b/0x90
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
+    pos:	0
+    flags:	02000000
+    mnt_id:	13
+    link_type:	(null)
+    link_id:	4
+    prog_tag:	bcf7977d3b93787c
+    prog_id:	4
+    ifindex:	1
 
-KASAN report:
-
-  BUG: KASAN: use-after-free in digital_send_cmd_complete+0x16/0x50
-  Write of size 8 at addr ffff88800a05f720 by task kworker/0:2/71
-  Workqueue: events nfcsim_recv_wq [nfcsim]
-  Call Trace:
-   dump_stack_lvl+0x45/0x59
-   print_address_description.constprop.0+0x21/0x140
-   ? digital_send_cmd_complete+0x16/0x50
-   ? digital_send_cmd_complete+0x16/0x50
-   kasan_report.cold+0x7f/0x11b
-   ? digital_send_cmd_complete+0x16/0x50
-   ? digital_dep_link_down+0x60/0x60
-   digital_send_cmd_complete+0x16/0x50
-   nfcsim_recv_wq+0x38f/0x3d5 [nfcsim]
-   ? nfcsim_in_send_cmd+0x4a/0x4a [nfcsim]
-   ? lock_is_held_type+0x98/0x110
-   ? finish_wait+0x110/0x110
-   ? rcu_read_lock_sched_held+0x9c/0xd0
-   ? rcu_read_lock_bh_held+0xb0/0xb0
-   ? lockdep_hardirqs_on_prepare+0x12e/0x1f0
-
-This flow of calling digital_send_cmd_complete() callback on driver exit
-is specific to nfcsim which implements reading and sending work queues.
-Since the NFC digital device was unregistered, the callback should not
-be called.
-
-Fixes: 204bddcb508f ("NFC: nfcsim: Make use of the Digital layer")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: aa8d3a716b59 ("bpf, xdp: Add bpf_link-based XDP attachment API")
+Signed-off-by: Lorenz Bauer <lmb@cloudflare.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/20210719085134.43325-2-lmb@cloudflare.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nfc/nfcsim.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ include/linux/bpf_types.h | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/nfc/nfcsim.c
-+++ b/drivers/nfc/nfcsim.c
-@@ -201,8 +201,7 @@ static void nfcsim_recv_wq(struct work_s
- 
- 		if (!IS_ERR(skb))
- 			dev_kfree_skb(skb);
--
--		skb = ERR_PTR(-ENODEV);
-+		return;
- 	}
- 
- 	dev->cb(dev->nfc_digital_dev, dev->arg, skb);
+diff --git a/include/linux/bpf_types.h b/include/linux/bpf_types.h
+index 2e6f568377f1..a8137bb6dd3c 100644
+--- a/include/linux/bpf_types.h
++++ b/include/linux/bpf_types.h
+@@ -133,4 +133,5 @@ BPF_LINK_TYPE(BPF_LINK_TYPE_CGROUP, cgroup)
+ BPF_LINK_TYPE(BPF_LINK_TYPE_ITER, iter)
+ #ifdef CONFIG_NET
+ BPF_LINK_TYPE(BPF_LINK_TYPE_NETNS, netns)
++BPF_LINK_TYPE(BPF_LINK_TYPE_XDP, xdp)
+ #endif
+-- 
+2.30.2
+
 
 
