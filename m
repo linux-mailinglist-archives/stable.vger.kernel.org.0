@@ -2,37 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 07F863DD969
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 16:00:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52F193DD789
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:46:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235960AbhHBOAQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 10:00:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40902 "EHLO mail.kernel.org"
+        id S234067AbhHBNqJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:46:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235759AbhHBN5x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:57:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B01DE60F50;
-        Mon,  2 Aug 2021 13:55:06 +0000 (UTC)
+        id S234050AbhHBNqI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:46:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B60AD60551;
+        Mon,  2 Aug 2021 13:45:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912507;
-        bh=kE9Bk9DFA1RgdtiMAimfsy3v2qOuPct73DWDjzSZdYw=;
+        s=korg; t=1627911959;
+        bh=b0saL8J3s6+9oapU053BK5uSPEpPoSD9qdafvyzheqw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LiRrI2C0rDTh+iS7HAVdpH2jToYadyo3QUkfQPbY7F0S//M2Kj+19/wEUnocSuBMa
-         h6pVzfuscGsTn1ImBOKwd1b5nbrva4F0Q1BUMVQcmG6CBgNBX1QZQbp4rVLU2xKbSS
-         DAWXGZuTfF6So1BGLcYxhtj5OWRnIOMgkhRXG8M4=
+        b=z9TU1o48j3qjuywOh40YOiUZDVMenIm7o7FLg2/AJuDeo9SxWmdP1b7xs9wElCcX4
+         8my+pqSfdh0K/atySAYjfpe2FDHzwQ5vuOpJwgaLq5dL7sZaSGvnhpoKy3zzFQartq
+         DI+I4ZcsArgDwIKDUnl8mHFj6HEGyJgCS218NdlI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        Shannon Nelson <shannon.lee.nelson@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Paul Jakma <paul@jakma.org>
-Subject: [PATCH 5.13 024/104] NIU: fix incorrect error return, missed in previous revert
+        stable@vger.kernel.org, Matthew Wilcox <mawilcox@microsoft.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        David Miller <davem@davemloft.net>,
+        Ingo Molnar <mingo@elte.hu>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        Matt Turner <mattst88@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Minchan Kim <minchan@kernel.org>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        Richard Henderson <rth@twiddle.net>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        "Nobuhiro Iwamatsu (CIP)" <nobuhiro1.iwamatsu@toshiba.co.jp>
+Subject: [PATCH 4.4 11/26] lib/string.c: add multibyte memset functions
 Date:   Mon,  2 Aug 2021 15:44:21 +0200
-Message-Id: <20210802134344.814010895@linuxfoundation.org>
+Message-Id: <20210802134332.402019664@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134344.028226640@linuxfoundation.org>
-References: <20210802134344.028226640@linuxfoundation.org>
+In-Reply-To: <20210802134332.033552261@linuxfoundation.org>
+References: <20210802134332.033552261@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +56,169 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Jakma <paul@jakma.org>
+From: Matthew Wilcox <mawilcox@microsoft.com>
 
-commit 15bbf8bb4d4ab87108ecf5f4155ec8ffa3c141d6 upstream.
+commit 3b3c4babd898715926d24ae10aa64778ace33aae upstream.
 
-Commit 7930742d6, reverting 26fd962, missed out on reverting an incorrect
-change to a return value.  The niu_pci_vpd_scan_props(..) == 1 case appears
-to be a normal path - treating it as an error and return -EINVAL was
-breaking VPD_SCAN and causing the driver to fail to load.
+Patch series "Multibyte memset variations", v4.
 
-Fix, so my Neptune card works again.
+A relatively common idiom we're missing is a function to fill an area of
+memory with a pattern which is larger than a single byte.  I first
+noticed this with a zram patch which wanted to fill a page with an
+'unsigned long' value.  There turn out to be quite a few places in the
+kernel which can benefit from using an optimised function rather than a
+loop; sometimes text size, sometimes speed, and sometimes both.  The
+optimised PowerPC version (not included here) improves performance by
+about 30% on POWER8 on just the raw memset_l().
 
-Cc: Kangjie Lu <kjlu@umn.edu>
-Cc: Shannon Nelson <shannon.lee.nelson@gmail.com>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: stable <stable@vger.kernel.org>
-Fixes: 7930742d ('Revert "niu: fix missing checks of niu_pci_eeprom_read"')
-Signed-off-by: Paul Jakma <paul@jakma.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Most of the extra lines of code come from the three testcases I added.
+
+This patch (of 8):
+
+memset16(), memset32() and memset64() are like memset(), but allow the
+caller to fill the destination with a value larger than a single byte.
+memset_l() and memset_p() allow the caller to use unsigned long and
+pointer values respectively.
+
+Link: http://lkml.kernel.org/r/20170720184539.31609-2-willy@infradead.org
+Signed-off-by: Matthew Wilcox <mawilcox@microsoft.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>
+Cc: "Martin K. Petersen" <martin.petersen@oracle.com>
+Cc: David Miller <davem@davemloft.net>
+Cc: Ingo Molnar <mingo@elte.hu>
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: Matt Turner <mattst88@gmail.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Cc: Richard Henderson <rth@twiddle.net>
+Cc: Russell King <rmk+kernel@armlinux.org.uk>
+Cc: Sam Ravnborg <sam@ravnborg.org>
+Cc: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Nobuhiro Iwamatsu (CIP) <nobuhiro1.iwamatsu@toshiba.co.jp>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/sun/niu.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ include/linux/string.h |   30 ++++++++++++++++++++++
+ lib/string.c           |   66 +++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 96 insertions(+)
 
---- a/drivers/net/ethernet/sun/niu.c
-+++ b/drivers/net/ethernet/sun/niu.c
-@@ -8191,8 +8191,9 @@ static int niu_pci_vpd_fetch(struct niu
- 		err = niu_pci_vpd_scan_props(np, here, end);
- 		if (err < 0)
- 			return err;
-+		/* ret == 1 is not an error */
- 		if (err == 1)
--			return -EINVAL;
-+			return 0;
- 	}
- 	return 0;
+--- a/include/linux/string.h
++++ b/include/linux/string.h
+@@ -102,6 +102,36 @@ extern __kernel_size_t strcspn(const cha
+ #ifndef __HAVE_ARCH_MEMSET
+ extern void * memset(void *,int,__kernel_size_t);
+ #endif
++
++#ifndef __HAVE_ARCH_MEMSET16
++extern void *memset16(uint16_t *, uint16_t, __kernel_size_t);
++#endif
++
++#ifndef __HAVE_ARCH_MEMSET32
++extern void *memset32(uint32_t *, uint32_t, __kernel_size_t);
++#endif
++
++#ifndef __HAVE_ARCH_MEMSET64
++extern void *memset64(uint64_t *, uint64_t, __kernel_size_t);
++#endif
++
++static inline void *memset_l(unsigned long *p, unsigned long v,
++		__kernel_size_t n)
++{
++	if (BITS_PER_LONG == 32)
++		return memset32((uint32_t *)p, v, n);
++	else
++		return memset64((uint64_t *)p, v, n);
++}
++
++static inline void *memset_p(void **p, void *v, __kernel_size_t n)
++{
++	if (BITS_PER_LONG == 32)
++		return memset32((uint32_t *)p, (uintptr_t)v, n);
++	else
++		return memset64((uint64_t *)p, (uintptr_t)v, n);
++}
++
+ #ifndef __HAVE_ARCH_MEMCPY
+ extern void * memcpy(void *,const void *,__kernel_size_t);
+ #endif
+--- a/lib/string.c
++++ b/lib/string.c
+@@ -728,6 +728,72 @@ void memzero_explicit(void *s, size_t co
  }
+ EXPORT_SYMBOL(memzero_explicit);
+ 
++#ifndef __HAVE_ARCH_MEMSET16
++/**
++ * memset16() - Fill a memory area with a uint16_t
++ * @s: Pointer to the start of the area.
++ * @v: The value to fill the area with
++ * @count: The number of values to store
++ *
++ * Differs from memset() in that it fills with a uint16_t instead
++ * of a byte.  Remember that @count is the number of uint16_ts to
++ * store, not the number of bytes.
++ */
++void *memset16(uint16_t *s, uint16_t v, size_t count)
++{
++	uint16_t *xs = s;
++
++	while (count--)
++		*xs++ = v;
++	return s;
++}
++EXPORT_SYMBOL(memset16);
++#endif
++
++#ifndef __HAVE_ARCH_MEMSET32
++/**
++ * memset32() - Fill a memory area with a uint32_t
++ * @s: Pointer to the start of the area.
++ * @v: The value to fill the area with
++ * @count: The number of values to store
++ *
++ * Differs from memset() in that it fills with a uint32_t instead
++ * of a byte.  Remember that @count is the number of uint32_ts to
++ * store, not the number of bytes.
++ */
++void *memset32(uint32_t *s, uint32_t v, size_t count)
++{
++	uint32_t *xs = s;
++
++	while (count--)
++		*xs++ = v;
++	return s;
++}
++EXPORT_SYMBOL(memset32);
++#endif
++
++#ifndef __HAVE_ARCH_MEMSET64
++/**
++ * memset64() - Fill a memory area with a uint64_t
++ * @s: Pointer to the start of the area.
++ * @v: The value to fill the area with
++ * @count: The number of values to store
++ *
++ * Differs from memset() in that it fills with a uint64_t instead
++ * of a byte.  Remember that @count is the number of uint64_ts to
++ * store, not the number of bytes.
++ */
++void *memset64(uint64_t *s, uint64_t v, size_t count)
++{
++	uint64_t *xs = s;
++
++	while (count--)
++		*xs++ = v;
++	return s;
++}
++EXPORT_SYMBOL(memset64);
++#endif
++
+ #ifndef __HAVE_ARCH_MEMCPY
+ /**
+  * memcpy - Copy one area of memory to another
 
 
