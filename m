@@ -2,22 +2,22 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD2853DD7CF
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:48:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B83A83DD7D1
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:48:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234452AbhHBNsP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:48:15 -0400
-Received: from szxga02-in.huawei.com ([45.249.212.188]:7917 "EHLO
-        szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234257AbhHBNrf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Aug 2021 09:47:35 -0400
-Received: from dggemv711-chm.china.huawei.com (unknown [172.30.72.53])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4GdfNB5NzHz83CY;
-        Mon,  2 Aug 2021 21:43:22 +0800 (CST)
+        id S234494AbhHBNsR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:48:17 -0400
+Received: from szxga03-in.huawei.com ([45.249.212.189]:12337 "EHLO
+        szxga03-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234284AbhHBNrg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Aug 2021 09:47:36 -0400
+Received: from dggemv704-chm.china.huawei.com (unknown [172.30.72.53])
+        by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4GdfM33TBhz81w6;
+        Mon,  2 Aug 2021 21:42:23 +0800 (CST)
 Received: from dggpemm500006.china.huawei.com (7.185.36.236) by
- dggemv711-chm.china.huawei.com (10.1.198.66) with Microsoft SMTP Server
+ dggemv704-chm.china.huawei.com (10.3.19.47) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2176.2; Mon, 2 Aug 2021 21:47:11 +0800
+ 15.1.2176.2; Mon, 2 Aug 2021 21:47:12 +0800
 Received: from thunder-town.china.huawei.com (10.174.179.0) by
  dggpemm500006.china.huawei.com (7.185.36.236) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
@@ -33,10 +33,12 @@ CC:     Zhen Lei <thunder.leizhen@huawei.com>,
         Peter Zijlstra <peterz@infradead.org>,
         Thomas Gleixner <tglx@linutronix.de>,
         linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH 4.4 00/11] Fix a potential infinite loop in RT futex-pi scenarios
-Date:   Mon, 2 Aug 2021 21:46:13 +0800
-Message-ID: <20210802134624.1934-1-thunder.leizhen@huawei.com>
+Subject: [PATCH 4.4 01/11] futex: Rename free_pi_state() to put_pi_state()
+Date:   Mon, 2 Aug 2021 21:46:14 +0800
+Message-ID: <20210802134624.1934-2-thunder.leizhen@huawei.com>
 X-Mailer: git-send-email 2.26.0.windows.1
+In-Reply-To: <20210802134624.1934-1-thunder.leizhen@huawei.com>
+References: <20210802134624.1934-1-thunder.leizhen@huawei.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
 Content-Type:   text/plain; charset=US-ASCII
@@ -48,48 +50,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit 73d786bd043e "futex: Rework inconsistent rt_mutex/futex_q state"
-mentions that it could cause an infinite loop, and will fix it in the later
-patches:
-bebe5b514345f09 futex: Futex_unlock_pi() determinism
-cfafcd117da0216 futex: Rework futex_lock_pi() to use rt_mutex_*_proxy_lock()
+From: Thomas Gleixner <tglx@linutronix.de>
 
-But at the moment they're not backported. In a single-core environment, the
-probability of triggering is high.
+[ Upstream commit 29e9ee5d48c35d6cf8afe09bdf03f77125c9ac11 ]
 
-I also backported commit b4abf91047cf ("rtmutex: Make wait_lock irq safe"),
-it fixes a potential deadlock problem. Although it hasn't actually been
-triggered in our environment at the moment.
+free_pi_state() is confusing as it is in fact only freeing/caching the
+pi state when the last reference is gone. Rename it to put_pi_state()
+which reflects better what it is doing.
 
-Other patches are used to resolve conflicts or fix problems caused by new
-patches.
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Darren Hart <darren@dvhart.com>
+Cc: Davidlohr Bueso <dave@stgolabs.net>
+Cc: Bhuvanesh_Surachari@mentor.com
+Cc: Andy Lowe <Andy_Lowe@mentor.com>
+Link: http://lkml.kernel.org/r/20151219200607.259636467@linutronix.de
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+---
+ kernel/futex.c | 17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
-
-Anna-Maria Gleixner (1):
-  rcu: Update documentation of rcu_read_unlock()
-
-Mike Galbraith (1):
-  futex: Handle transient "ownerless" rtmutex state correctly
-
-Peter Zijlstra (6):
-  futex: Cleanup refcounting
-  futex,rt_mutex: Introduce rt_mutex_init_waiter()
-  futex: Pull rt_mutex_futex_unlock() out from under hb->lock
-  futex: Rework futex_lock_pi() to use rt_mutex_*_proxy_lock()
-  futex: Futex_unlock_pi() determinism
-  futex,rt_mutex: Fix rt_mutex_cleanup_proxy_lock()
-
-Thomas Gleixner (3):
-  futex: Rename free_pi_state() to put_pi_state()
-  rtmutex: Make wait_lock irq safe
-  futex: Avoid freeing an active timer
-
- include/linux/rcupdate.h        |   4 +-
- kernel/futex.c                  | 245 +++++++++++++++++++++-----------
- kernel/locking/rtmutex.c        | 185 +++++++++++++-----------
- kernel/locking/rtmutex_common.h |   2 +-
- 4 files changed, 262 insertions(+), 174 deletions(-)
-
+diff --git a/kernel/futex.c b/kernel/futex.c
+index ff5499b0c5b34f7..dbb38e14f6fcc8e 100644
+--- a/kernel/futex.c
++++ b/kernel/futex.c
+@@ -859,9 +859,12 @@ static void pi_state_update_owner(struct futex_pi_state *pi_state,
+ }
+ 
+ /*
++ * Drops a reference to the pi_state object and frees or caches it
++ * when the last reference is gone.
++ *
+  * Must be called with the hb lock held.
+  */
+-static void free_pi_state(struct futex_pi_state *pi_state)
++static void put_pi_state(struct futex_pi_state *pi_state)
+ {
+ 	if (!pi_state)
+ 		return;
+@@ -2121,7 +2124,7 @@ retry_private:
+ 		case 0:
+ 			break;
+ 		case -EFAULT:
+-			free_pi_state(pi_state);
++			put_pi_state(pi_state);
+ 			pi_state = NULL;
+ 			double_unlock_hb(hb1, hb2);
+ 			hb_waiters_dec(hb2);
+@@ -2139,7 +2142,7 @@ retry_private:
+ 			 *   exit to complete.
+ 			 * - EAGAIN: The user space value changed.
+ 			 */
+-			free_pi_state(pi_state);
++			put_pi_state(pi_state);
+ 			pi_state = NULL;
+ 			double_unlock_hb(hb1, hb2);
+ 			hb_waiters_dec(hb2);
+@@ -2214,7 +2217,7 @@ retry_private:
+ 			} else if (ret) {
+ 				/* -EDEADLK */
+ 				this->pi_state = NULL;
+-				free_pi_state(pi_state);
++				put_pi_state(pi_state);
+ 				goto out_unlock;
+ 			}
+ 		}
+@@ -2223,7 +2226,7 @@ retry_private:
+ 	}
+ 
+ out_unlock:
+-	free_pi_state(pi_state);
++	put_pi_state(pi_state);
+ 	double_unlock_hb(hb1, hb2);
+ 	wake_up_q(&wake_q);
+ 	hb_waiters_dec(hb2);
+@@ -2376,7 +2379,7 @@ static void unqueue_me_pi(struct futex_q *q)
+ 	__unqueue_futex(q);
+ 
+ 	BUG_ON(!q->pi_state);
+-	free_pi_state(q->pi_state);
++	put_pi_state(q->pi_state);
+ 	q->pi_state = NULL;
+ 
+ 	spin_unlock(q->lock_ptr);
+@@ -3210,7 +3213,7 @@ static int futex_wait_requeue_pi(u32 __user *uaddr, unsigned int flags,
+ 			 * Drop the reference to the pi state which
+ 			 * the requeue_pi() code acquired for us.
+ 			 */
+-			free_pi_state(q.pi_state);
++			put_pi_state(q.pi_state);
+ 			spin_unlock(q.lock_ptr);
+ 			/*
+ 			 * Adjust the return value. It's either -EFAULT or
 -- 
 2.26.0.106.g9fadedd
 
