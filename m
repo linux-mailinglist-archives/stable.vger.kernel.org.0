@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F69E3DD815
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:49:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9E9B3DD840
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:50:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234063AbhHBNtl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:49:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57092 "EHLO mail.kernel.org"
+        id S234308AbhHBNuw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:50:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234549AbhHBNsv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:48:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2545C60527;
-        Mon,  2 Aug 2021 13:48:41 +0000 (UTC)
+        id S234223AbhHBNt4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:49:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F19160555;
+        Mon,  2 Aug 2021 13:49:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912121;
-        bh=1on7F6qjqqXQipDnaqQP814c2+8+InJRDOYMzSi5di4=;
+        s=korg; t=1627912186;
+        bh=tkkSI88kQPQWaYqDavHKIDe2QK26mEXf/Cak9DdlHAo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ix4jY0IUSVbypI5qXSXCei0viXb+f4vnESFwStVB05HOYtjVEbnBd9FQkYxPKf5WD
-         jXxgVGfKnNUzFbfO816E2XmJZADOoKySychIJI1TmGw+tu9raxM1go5avkf8hkSKrC
-         JqUYPqbudwI/31gRGWS8W1xtT5Wjdw+6lhshls7c=
+        b=1g0MWN6sMXzH7S+Jp4iC/uqbKPOoEYGZfuaXlow1ltc4ZWdlsmtBt+D4fXwrDZmZp
+         ysBWhgrHEGpueFr8GtXh7LmX6ImAoGOqCQYSmqAEF6Tblmt3aKkZc4/ikXN+NNTsg4
+         bKZ/6tbskK4l+OV+34sW4nYU+z0kluJdzxyLphBU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 25/38] nfc: nfcsim: fix use after free during module unload
+        stable@vger.kernel.org, Yasushi SHOJI <yasushi.shoji@gmail.com>,
+        Pavel Skripkin <paskripkin@gmail.com>,
+        Yasushi SHOJI <yashi@spacecubics.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 4.19 09/30] can: mcba_usb_start(): add missing urb->transfer_dma initialization
 Date:   Mon,  2 Aug 2021 15:44:47 +0200
-Message-Id: <20210802134335.621597430@linuxfoundation.org>
+Message-Id: <20210802134334.378742477@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134334.835358048@linuxfoundation.org>
-References: <20210802134334.835358048@linuxfoundation.org>
+In-Reply-To: <20210802134334.081433902@linuxfoundation.org>
+References: <20210802134334.081433902@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,90 +41,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit 5e7b30d24a5b8cb691c173b45b50e3ca0191be19 upstream.
+commit fc43fb69a7af92839551f99c1a96a37b77b3ae7a upstream.
 
-There is a use after free memory corruption during module exit:
- - nfcsim_exit()
-  - nfcsim_device_free(dev0)
-    - nfc_digital_unregister_device()
-      This iterates over command queue and frees all commands,
-    - dev->up = false
-    - nfcsim_link_shutdown()
-      - nfcsim_link_recv_wake()
-        This wakes the sleeping thread nfcsim_link_recv_skb().
+Yasushi reported, that his Microchip CAN Analyzer stopped working
+since commit 91c02557174b ("can: mcba_usb: fix memory leak in
+mcba_usb"). The problem was in missing urb->transfer_dma
+initialization.
 
- - nfcsim_link_recv_skb()
-   Wake from wait_event_interruptible_timeout(),
-   call directly the deb->cb callback even though (dev->up == false),
-   - digital_send_cmd_complete()
-     Dereference of "struct digital_cmd" cmd which was freed earlier by
-     nfc_digital_unregister_device().
+In my previous patch to this driver I refactored mcba_usb_start() code
+to avoid leaking usb coherent buffers. To archive it, I passed local
+stack variable to usb_alloc_coherent() and then saved it to private
+array to correctly free all coherent buffers on ->close() call. But I
+forgot to initialize urb->transfer_dma with variable passed to
+usb_alloc_coherent().
 
-This causes memory corruption shortly after (with unrelated stack
-trace):
+All of this was causing device to not work, since dma addr 0 is not
+valid and following log can be found on bug report page, which points
+exactly to problem described above.
 
-  nfc nfc0: NFC: nfcsim_recv_wq: Device is down
-  llcp: nfc_llcp_recv: err -19
-  nfc nfc1: NFC: nfcsim_recv_wq: Device is down
-  BUG: unable to handle page fault for address: ffffffffffffffed
-  Call Trace:
-   fsnotify+0x54b/0x5c0
-   __fsnotify_parent+0x1fe/0x300
-   ? vfs_write+0x27c/0x390
-   vfs_write+0x27c/0x390
-   ksys_write+0x63/0xe0
-   do_syscall_64+0x3b/0x90
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
+| DMAR: [DMA Write] Request device [00:14.0] PASID ffffffff fault addr 0 [fault reason 05] PTE Write access is not set
 
-KASAN report:
-
-  BUG: KASAN: use-after-free in digital_send_cmd_complete+0x16/0x50
-  Write of size 8 at addr ffff88800a05f720 by task kworker/0:2/71
-  Workqueue: events nfcsim_recv_wq [nfcsim]
-  Call Trace:
-   dump_stack_lvl+0x45/0x59
-   print_address_description.constprop.0+0x21/0x140
-   ? digital_send_cmd_complete+0x16/0x50
-   ? digital_send_cmd_complete+0x16/0x50
-   kasan_report.cold+0x7f/0x11b
-   ? digital_send_cmd_complete+0x16/0x50
-   ? digital_dep_link_down+0x60/0x60
-   digital_send_cmd_complete+0x16/0x50
-   nfcsim_recv_wq+0x38f/0x3d5 [nfcsim]
-   ? nfcsim_in_send_cmd+0x4a/0x4a [nfcsim]
-   ? lock_is_held_type+0x98/0x110
-   ? finish_wait+0x110/0x110
-   ? rcu_read_lock_sched_held+0x9c/0xd0
-   ? rcu_read_lock_bh_held+0xb0/0xb0
-   ? lockdep_hardirqs_on_prepare+0x12e/0x1f0
-
-This flow of calling digital_send_cmd_complete() callback on driver exit
-is specific to nfcsim which implements reading and sending work queues.
-Since the NFC digital device was unregistered, the callback should not
-be called.
-
-Fixes: 204bddcb508f ("NFC: nfcsim: Make use of the Digital layer")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 91c02557174b ("can: mcba_usb: fix memory leak in mcba_usb")
+Link: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=990850
+Link: https://lore.kernel.org/r/20210725103630.23864-1-paskripkin@gmail.com
+Cc: linux-stable <stable@vger.kernel.org>
+Reported-by: Yasushi SHOJI <yasushi.shoji@gmail.com>
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Tested-by: Yasushi SHOJI <yashi@spacecubics.com>
+[mkl: fixed typos in commit message - thanks Yasushi SHOJI]
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nfc/nfcsim.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/can/usb/mcba_usb.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/nfc/nfcsim.c
-+++ b/drivers/nfc/nfcsim.c
-@@ -201,8 +201,7 @@ static void nfcsim_recv_wq(struct work_s
+--- a/drivers/net/can/usb/mcba_usb.c
++++ b/drivers/net/can/usb/mcba_usb.c
+@@ -664,6 +664,8 @@ static int mcba_usb_start(struct mcba_pr
+ 			break;
+ 		}
  
- 		if (!IS_ERR(skb))
- 			dev_kfree_skb(skb);
--
--		skb = ERR_PTR(-ENODEV);
-+		return;
- 	}
- 
- 	dev->cb(dev->nfc_digital_dev, dev->arg, skb);
++		urb->transfer_dma = buf_dma;
++
+ 		usb_fill_bulk_urb(urb, priv->udev,
+ 				  usb_rcvbulkpipe(priv->udev, MCBA_USB_EP_IN),
+ 				  buf, MCBA_USB_RX_BUFF_SIZE,
 
 
