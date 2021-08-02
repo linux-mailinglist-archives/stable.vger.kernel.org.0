@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60C883DD9E3
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 16:05:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 426413DD891
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:53:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235225AbhHBOFI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 10:05:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49762 "EHLO mail.kernel.org"
+        id S235038AbhHBNxN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:53:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236343AbhHBOCK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 10:02:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1645D61132;
-        Mon,  2 Aug 2021 13:56:57 +0000 (UTC)
+        id S235033AbhHBNv5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:51:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8622F6052B;
+        Mon,  2 Aug 2021 13:51:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912618;
-        bh=LledJ40SuU6u/o005yaxGhJF2oQz7Xfix55IiIKMjXA=;
+        s=korg; t=1627912287;
+        bh=4fWRaax8e3GcJXQxrv8TCa6zr8eu4IMTbjRkEKTPzxs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FzpEC9j1Bd+xUFAaUfENNA5qGJQ+D3n/6q+GbNM7YqqnYlCJYxwrswt3Ddoad0nOR
-         0t2LMpxlXmGtr4jTGQ34BcptlovActGglHJgztX6Z8AhjBJOj0IWUbeZgIWyYNwpQK
-         M1mfzI2idkwF4jp/AWhwzT5qtJgwyKRHQd4YStcU=
+        b=JYNksWsPh+OW12EBVR+eMLMM71Py6IXCuD8yBkUSq3lJJ1c7VxMF+EKxMVMCFqZ8o
+         PoC1mlemjjWMOtgrnVgHTXmARxk5oY25HKM4/jEtBzX/7wsOkbRhX3y8HZknHu3KVF
+         wBD/wYMY34Q8KQX/FejkKNbySQ7nTZqTQwD8NoPc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
-        Martin KaFai Lau <kafai@fb.com>,
+        stable@vger.kernel.org, Dima Chumak <dchumak@nvidia.com>,
+        Vlad Buslov <vladbu@nvidia.com>, Roi Dayan <roid@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 074/104] bpf, sockmap: Zap ingress queues after stopping strparser
+Subject: [PATCH 5.4 31/40] net/mlx5e: Fix nullptr in mlx5e_hairpin_get_mdev()
 Date:   Mon,  2 Aug 2021 15:45:11 +0200
-Message-Id: <20210802134346.452247267@linuxfoundation.org>
+Message-Id: <20210802134336.382461268@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134344.028226640@linuxfoundation.org>
-References: <20210802134344.028226640@linuxfoundation.org>
+In-Reply-To: <20210802134335.408294521@linuxfoundation.org>
+References: <20210802134335.408294521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,51 +41,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Fastabend <john.fastabend@gmail.com>
+From: Dima Chumak <dchumak@nvidia.com>
 
-[ Upstream commit 343597d558e79fe704ba8846b5b2ed24056b89c2 ]
+[ Upstream commit b1c2f6312c5005c928a72e668bf305a589d828d4 ]
 
-We don't want strparser to run and pass skbs into skmsg handlers when
-the psock is null. We just sk_drop them in this case. When removing
-a live socket from map it means extra drops that we do not need to
-incur. Move the zap below strparser close to avoid this condition.
+The result of __dev_get_by_index() is not checked for NULL and then gets
+dereferenced immediately.
 
-This way we stop the stream parser first stopping it from processing
-packets and then delete the psock.
+Also, __dev_get_by_index() must be called while holding either RTNL lock
+or @dev_base_lock, which isn't satisfied by mlx5e_hairpin_get_mdev() or
+its callers. This makes the underlying hlist_for_each_entry() loop not
+safe, and can have adverse effects in itself.
 
-Fixes: a136678c0bdbb ("bpf: sk_msg, zap ingress queue on psock down")
-Signed-off-by: John Fastabend <john.fastabend@gmail.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Acked-by: Jakub Sitnicki <jakub@cloudflare.com>
-Acked-by: Martin KaFai Lau <kafai@fb.com>
-Link: https://lore.kernel.org/bpf/20210727160500.1713554-2-john.fastabend@gmail.com
+Fix by using dev_get_by_index() and handling nullptr return value when
+ifindex device is not found. Update mlx5e_hairpin_get_mdev() callers to
+check for possible PTR_ERR() result.
+
+Fixes: 77ab67b7f0f9 ("net/mlx5e: Basic setup of hairpin object")
+Addresses-Coverity: ("Dereference null return value")
+Signed-off-by: Dima Chumak <dchumak@nvidia.com>
+Reviewed-by: Vlad Buslov <vladbu@nvidia.com>
+Reviewed-by: Roi Dayan <roid@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/skmsg.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ .../net/ethernet/mellanox/mlx5/core/en_tc.c   | 33 +++++++++++++++++--
+ 1 file changed, 31 insertions(+), 2 deletions(-)
 
-diff --git a/net/core/skmsg.c b/net/core/skmsg.c
-index b2410a1bfa23..45b3a3adc886 100644
---- a/net/core/skmsg.c
-+++ b/net/core/skmsg.c
-@@ -790,8 +790,6 @@ static void sk_psock_destroy(struct work_struct *work)
- 
- void sk_psock_drop(struct sock *sk, struct sk_psock *psock)
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
+index 9d26463f3fa5..5abc15a92cfa 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
+@@ -444,12 +444,32 @@ static void mlx5e_detach_mod_hdr(struct mlx5e_priv *priv,
+ static
+ struct mlx5_core_dev *mlx5e_hairpin_get_mdev(struct net *net, int ifindex)
  {
--	sk_psock_stop(psock, false);
--
- 	write_lock_bh(&sk->sk_callback_lock);
- 	sk_psock_restore_proto(sk, psock);
- 	rcu_assign_sk_user_data(sk, NULL);
-@@ -801,6 +799,8 @@ void sk_psock_drop(struct sock *sk, struct sk_psock *psock)
- 		sk_psock_stop_verdict(sk, psock);
- 	write_unlock_bh(&sk->sk_callback_lock);
++	struct mlx5_core_dev *mdev;
+ 	struct net_device *netdev;
+ 	struct mlx5e_priv *priv;
  
-+	sk_psock_stop(psock, false);
+-	netdev = __dev_get_by_index(net, ifindex);
++	netdev = dev_get_by_index(net, ifindex);
++	if (!netdev)
++		return ERR_PTR(-ENODEV);
 +
- 	INIT_RCU_WORK(&psock->rwork, sk_psock_destroy);
- 	queue_rcu_work(system_wq, &psock->rwork);
+ 	priv = netdev_priv(netdev);
+-	return priv->mdev;
++	mdev = priv->mdev;
++	dev_put(netdev);
++
++	/* Mirred tc action holds a refcount on the ifindex net_device (see
++	 * net/sched/act_mirred.c:tcf_mirred_get_dev). So, it's okay to continue using mdev
++	 * after dev_put(netdev), while we're in the context of adding a tc flow.
++	 *
++	 * The mdev pointer corresponds to the peer/out net_device of a hairpin. It is then
++	 * stored in a hairpin object, which exists until all flows, that refer to it, get
++	 * removed.
++	 *
++	 * On the other hand, after a hairpin object has been created, the peer net_device may
++	 * be removed/unbound while there are still some hairpin flows that are using it. This
++	 * case is handled by mlx5e_tc_hairpin_update_dead_peer, which is hooked to
++	 * NETDEV_UNREGISTER event of the peer net_device.
++	 */
++	return mdev;
  }
+ 
+ static int mlx5e_hairpin_create_transport(struct mlx5e_hairpin *hp)
+@@ -648,6 +668,10 @@ mlx5e_hairpin_create(struct mlx5e_priv *priv, struct mlx5_hairpin_params *params
+ 
+ 	func_mdev = priv->mdev;
+ 	peer_mdev = mlx5e_hairpin_get_mdev(dev_net(priv->netdev), peer_ifindex);
++	if (IS_ERR(peer_mdev)) {
++		err = PTR_ERR(peer_mdev);
++		goto create_pair_err;
++	}
+ 
+ 	pair = mlx5_core_hairpin_create(func_mdev, peer_mdev, params);
+ 	if (IS_ERR(pair)) {
+@@ -786,6 +810,11 @@ static int mlx5e_hairpin_flow_add(struct mlx5e_priv *priv,
+ 	int err;
+ 
+ 	peer_mdev = mlx5e_hairpin_get_mdev(dev_net(priv->netdev), peer_ifindex);
++	if (IS_ERR(peer_mdev)) {
++		NL_SET_ERR_MSG_MOD(extack, "invalid ifindex of mirred device");
++		return PTR_ERR(peer_mdev);
++	}
++
+ 	if (!MLX5_CAP_GEN(priv->mdev, hairpin) || !MLX5_CAP_GEN(peer_mdev, hairpin)) {
+ 		NL_SET_ERR_MSG_MOD(extack, "hairpin is not supported");
+ 		return -EOPNOTSUPP;
 -- 
 2.30.2
 
