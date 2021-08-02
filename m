@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC1053DD799
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:46:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AFD2E3DD99D
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 16:02:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234110AbhHBNqn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:46:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56060 "EHLO mail.kernel.org"
+        id S235182AbhHBOCE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 10:02:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234159AbhHBNq2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:46:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1EE9E6052B;
-        Mon,  2 Aug 2021 13:46:17 +0000 (UTC)
+        id S236892AbhHBOAD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 10:00:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B4D2611F0;
+        Mon,  2 Aug 2021 13:56:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627911978;
-        bh=mYSAb2tblnHSTGfIlA7dILXS4txeVAS9pK0nlQbYLr4=;
+        s=korg; t=1627912568;
+        bh=kIzYnuZFMrxLllh/y9GtgzQuBkfdQkXRMCDWVGkflII=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IDZzRvPd4XTwWwBWLOmXJsFX5t9ofRtyuqwA2YtMRsm7kB+bxqBUi8pyFMMCkRBok
-         ZqEjf8kdq1akabgJwb9KkXwVLG0gs/1ZN8vhP1goYv0bK26VhSYTwok1YIi+NKVhN3
-         467cpYkOaDQuUx+chIca15Dc/0nXRHbKFBEbNoxs=
+        b=kBRhWNlJFuIKXDCZRCddhZ4QSm7tr1Bf8mpfkzpRwTHHGaklxiFH7Aka8eOY9UzV6
+         XoNGY5BJvQiOOXGA3HDtpZ06PL5WwzNafJqTneVE2jKBy0mKuzGmTHKAvShXlVjxOQ
+         PugYm5+k/3YbqO0jCOgO4hG3YIWGEnVu9eCdJVAg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 05/26] net/802/garp: fix memleak in garp_request_join()
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.13 018/104] can: usb_8dev: fix memory leak
 Date:   Mon,  2 Aug 2021 15:44:15 +0200
-Message-Id: <20210802134332.205668288@linuxfoundation.org>
+Message-Id: <20210802134344.616210795@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134332.033552261@linuxfoundation.org>
-References: <20210802134332.033552261@linuxfoundation.org>
+In-Reply-To: <20210802134344.028226640@linuxfoundation.org>
+References: <20210802134344.028226640@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,84 +39,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 42ca63f980842918560b25f0244307fd83b4777c ]
+commit 0e865f0c31928d6a313269ef624907eec55287c4 upstream.
 
-I got kmemleak report when doing fuzz test:
+In usb_8dev_start() MAX_RX_URBS coherent buffers are allocated and
+there is nothing, that frees them:
 
-BUG: memory leak
-unreferenced object 0xffff88810c909b80 (size 64):
-  comm "syz", pid 957, jiffies 4295220394 (age 399.090s)
-  hex dump (first 32 bytes):
-    01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 08 00 00 00 01 02 00 04  ................
-  backtrace:
-    [<00000000ca1f2e2e>] garp_request_join+0x285/0x3d0
-    [<00000000bf153351>] vlan_gvrp_request_join+0x15b/0x190
-    [<0000000024005e72>] vlan_dev_open+0x706/0x980
-    [<00000000dc20c4d4>] __dev_open+0x2bb/0x460
-    [<0000000066573004>] __dev_change_flags+0x501/0x650
-    [<0000000035b42f83>] rtnl_configure_link+0xee/0x280
-    [<00000000a5e69de0>] __rtnl_newlink+0xed5/0x1550
-    [<00000000a5258f4a>] rtnl_newlink+0x66/0x90
-    [<00000000506568ee>] rtnetlink_rcv_msg+0x439/0xbd0
-    [<00000000b7eaeae1>] netlink_rcv_skb+0x14d/0x420
-    [<00000000c373ce66>] netlink_unicast+0x550/0x750
-    [<00000000ec74ce74>] netlink_sendmsg+0x88b/0xda0
-    [<00000000381ff246>] sock_sendmsg+0xc9/0x120
-    [<000000008f6a2db3>] ____sys_sendmsg+0x6e8/0x820
-    [<000000008d9c1735>] ___sys_sendmsg+0x145/0x1c0
-    [<00000000aa39dd8b>] __sys_sendmsg+0xfe/0x1d0
+1) In callback function the urb is resubmitted and that's all
+2) In disconnect function urbs are simply killed, but URB_FREE_BUFFER
+   is not set (see usb_8dev_start) and this flag cannot be used with
+   coherent buffers.
 
-Calling garp_request_leave() after garp_request_join(), the attr->state
-is set to GARP_APPLICANT_VO, garp_attr_destroy() won't be called in last
-transmit event in garp_uninit_applicant(), the attr of applicant will be
-leaked. To fix this leak, iterate and free each attr of applicant before
-rerturning from garp_uninit_applicant().
+So, all allocated buffers should be freed with usb_free_coherent()
+explicitly.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Side note: This code looks like a copy-paste of other can drivers. The
+same patch was applied to mcba_usb driver and it works nice with real
+hardware. There is no change in functionality, only clean-up code for
+coherent buffers.
+
+Fixes: 0024d8ad1639 ("can: usb_8dev: Add support for USB2CAN interface from 8 devices")
+Link: https://lore.kernel.org/r/d39b458cd425a1cf7f512f340224e6e9563b07bd.1627404470.git.paskripkin@gmail.com
+Cc: linux-stable <stable@vger.kernel.org>
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/802/garp.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/net/can/usb/usb_8dev.c |   15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
 
-diff --git a/net/802/garp.c b/net/802/garp.c
-index b38ee6dcba45..5239b8f244e7 100644
---- a/net/802/garp.c
-+++ b/net/802/garp.c
-@@ -206,6 +206,19 @@ static void garp_attr_destroy(struct garp_applicant *app, struct garp_attr *attr
- 	kfree(attr);
- }
+--- a/drivers/net/can/usb/usb_8dev.c
++++ b/drivers/net/can/usb/usb_8dev.c
+@@ -137,7 +137,8 @@ struct usb_8dev_priv {
+ 	u8 *cmd_msg_buffer;
  
-+static void garp_attr_destroy_all(struct garp_applicant *app)
-+{
-+	struct rb_node *node, *next;
-+	struct garp_attr *attr;
+ 	struct mutex usb_8dev_cmd_lock;
+-
++	void *rxbuf[MAX_RX_URBS];
++	dma_addr_t rxbuf_dma[MAX_RX_URBS];
+ };
+ 
+ /* tx frame */
+@@ -733,6 +734,7 @@ static int usb_8dev_start(struct usb_8de
+ 	for (i = 0; i < MAX_RX_URBS; i++) {
+ 		struct urb *urb = NULL;
+ 		u8 *buf;
++		dma_addr_t buf_dma;
+ 
+ 		/* create a URB, and a buffer for it */
+ 		urb = usb_alloc_urb(0, GFP_KERNEL);
+@@ -742,7 +744,7 @@ static int usb_8dev_start(struct usb_8de
+ 		}
+ 
+ 		buf = usb_alloc_coherent(priv->udev, RX_BUFFER_SIZE, GFP_KERNEL,
+-					 &urb->transfer_dma);
++					 &buf_dma);
+ 		if (!buf) {
+ 			netdev_err(netdev, "No memory left for USB buffer\n");
+ 			usb_free_urb(urb);
+@@ -750,6 +752,8 @@ static int usb_8dev_start(struct usb_8de
+ 			break;
+ 		}
+ 
++		urb->transfer_dma = buf_dma;
 +
-+	for (node = rb_first(&app->gid);
-+	     next = node ? rb_next(node) : NULL, node != NULL;
-+	     node = next) {
-+		attr = rb_entry(node, struct garp_attr, node);
-+		garp_attr_destroy(app, attr);
-+	}
-+}
+ 		usb_fill_bulk_urb(urb, priv->udev,
+ 				  usb_rcvbulkpipe(priv->udev,
+ 						  USB_8DEV_ENDP_DATA_RX),
+@@ -767,6 +771,9 @@ static int usb_8dev_start(struct usb_8de
+ 			break;
+ 		}
+ 
++		priv->rxbuf[i] = buf;
++		priv->rxbuf_dma[i] = buf_dma;
 +
- static int garp_pdu_init(struct garp_applicant *app)
- {
- 	struct sk_buff *skb;
-@@ -612,6 +625,7 @@ void garp_uninit_applicant(struct net_device *dev, struct garp_application *appl
+ 		/* Drop reference, USB core will take care of freeing it */
+ 		usb_free_urb(urb);
+ 	}
+@@ -836,6 +843,10 @@ static void unlink_all_urbs(struct usb_8
  
- 	spin_lock_bh(&app->lock);
- 	garp_gid_event(app, GARP_EVENT_TRANSMIT_PDU);
-+	garp_attr_destroy_all(app);
- 	garp_pdu_queue(app);
- 	spin_unlock_bh(&app->lock);
+ 	usb_kill_anchored_urbs(&priv->rx_submitted);
  
--- 
-2.30.2
-
++	for (i = 0; i < MAX_RX_URBS; ++i)
++		usb_free_coherent(priv->udev, RX_BUFFER_SIZE,
++				  priv->rxbuf[i], priv->rxbuf_dma[i]);
++
+ 	usb_kill_anchored_urbs(&priv->tx_submitted);
+ 	atomic_set(&priv->active_tx_urbs, 0);
+ 
 
 
