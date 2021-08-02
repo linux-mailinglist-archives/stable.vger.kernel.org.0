@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33A373DD80B
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:49:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4EAD3DD793
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:46:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234582AbhHBNtf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:49:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60288 "EHLO mail.kernel.org"
+        id S234151AbhHBNq1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:46:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234092AbhHBNtG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:49:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 836C3610FD;
-        Mon,  2 Aug 2021 13:48:56 +0000 (UTC)
+        id S234114AbhHBNqT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:46:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 787AE6052B;
+        Mon,  2 Aug 2021 13:46:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912137;
-        bh=gSdtKr0cRYtGAPGsVhL7WmzBPiOB29M1QA8/jgqgXGo=;
+        s=korg; t=1627911969;
+        bh=BDV3K1PhCApNz856lNY2ERPhhXPmMP3x1YhagOtRpMk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P8KTFeYaMnM4oiMHie9qgrmDSHSgt/qJJKEsHOCfa+6e8jvU69D0j9d92OtkOmENY
-         IbUKykCSHpknf8R1ka8RnwWXvHTXgD6biaWpMEybzlxCak1pbps2NmwMITeR8/D+Hr
-         kIjDROw1VskkW64EZin5FOu0/xbIAddjd0rtCv0g=
+        b=017cpMRhCAgjjKmzqc8E+YJ5s/Et0uwRnGSojafNdXjbEwX41bGl2f4SLXdAIaKj2
+         5mrEX9vnfb4/sTjDR7UQSSd6jK8mKLt8P8U3kpv6mnpSMlbWxRD6+4ufxQSGKdv4Ss
+         IV5kfhqm+HxbmbB3sqYIiXFIor9KhGs8HnTknzhQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miklos Szeredi <mszeredi@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 04/38] af_unix: fix garbage collect vs MSG_PEEK
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 4.4 16/26] can: ems_usb: fix memory leak
 Date:   Mon,  2 Aug 2021 15:44:26 +0200
-Message-Id: <20210802134334.972631041@linuxfoundation.org>
+Message-Id: <20210802134332.561784418@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134334.835358048@linuxfoundation.org>
-References: <20210802134334.835358048@linuxfoundation.org>
+In-Reply-To: <20210802134332.033552261@linuxfoundation.org>
+References: <20210802134332.033552261@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,110 +39,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miklos Szeredi <mszeredi@redhat.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit cbcf01128d0a92e131bd09f1688fe032480b65ca upstream.
+commit 9969e3c5f40c166e3396acc36c34f9de502929f6 upstream.
 
-unix_gc() assumes that candidate sockets can never gain an external
-reference (i.e.  be installed into an fd) while the unix_gc_lock is
-held.  Except for MSG_PEEK this is guaranteed by modifying inflight
-count under the unix_gc_lock.
+In ems_usb_start() MAX_RX_URBS coherent buffers are allocated and
+there is nothing, that frees them:
 
-MSG_PEEK does not touch any variable protected by unix_gc_lock (file
-count is not), yet it needs to be serialized with garbage collection.
-Do this by locking/unlocking unix_gc_lock:
+1) In callback function the urb is resubmitted and that's all
+2) In disconnect function urbs are simply killed, but URB_FREE_BUFFER
+   is not set (see ems_usb_start) and this flag cannot be used with
+   coherent buffers.
 
- 1) increment file count
+So, all allocated buffers should be freed with usb_free_coherent()
+explicitly.
 
- 2) lock/unlock barrier to make sure incremented file count is visible
-    to garbage collection
+Side note: This code looks like a copy-paste of other can drivers. The
+same patch was applied to mcba_usb driver and it works nice with real
+hardware. There is no change in functionality, only clean-up code for
+coherent buffers.
 
- 3) install file into fd
-
-This is a lock barrier (unlike smp_mb()) that ensures that garbage
-collection is run completely before or completely after the barrier.
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 702171adeed3 ("ems_usb: Added support for EMS CPC-USB/ARM7 CAN/USB interface")
+Link: https://lore.kernel.org/r/59aa9fbc9a8cbf9af2bbd2f61a659c480b415800.1627404470.git.paskripkin@gmail.com
+Cc: linux-stable <stable@vger.kernel.org>
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/unix/af_unix.c |   51 +++++++++++++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 49 insertions(+), 2 deletions(-)
+ drivers/net/can/usb/ems_usb.c |   14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
---- a/net/unix/af_unix.c
-+++ b/net/unix/af_unix.c
-@@ -1521,6 +1521,53 @@ out:
- 	return err;
- }
+--- a/drivers/net/can/usb/ems_usb.c
++++ b/drivers/net/can/usb/ems_usb.c
+@@ -267,6 +267,8 @@ struct ems_usb {
+ 	unsigned int free_slots; /* remember number of available slots */
  
-+static void unix_peek_fds(struct scm_cookie *scm, struct sk_buff *skb)
-+{
-+	scm->fp = scm_fp_dup(UNIXCB(skb).fp);
-+
-+	/*
-+	 * Garbage collection of unix sockets starts by selecting a set of
-+	 * candidate sockets which have reference only from being in flight
-+	 * (total_refs == inflight_refs).  This condition is checked once during
-+	 * the candidate collection phase, and candidates are marked as such, so
-+	 * that non-candidates can later be ignored.  While inflight_refs is
-+	 * protected by unix_gc_lock, total_refs (file count) is not, hence this
-+	 * is an instantaneous decision.
-+	 *
-+	 * Once a candidate, however, the socket must not be reinstalled into a
-+	 * file descriptor while the garbage collection is in progress.
-+	 *
-+	 * If the above conditions are met, then the directed graph of
-+	 * candidates (*) does not change while unix_gc_lock is held.
-+	 *
-+	 * Any operations that changes the file count through file descriptors
-+	 * (dup, close, sendmsg) does not change the graph since candidates are
-+	 * not installed in fds.
-+	 *
-+	 * Dequeing a candidate via recvmsg would install it into an fd, but
-+	 * that takes unix_gc_lock to decrement the inflight count, so it's
-+	 * serialized with garbage collection.
-+	 *
-+	 * MSG_PEEK is special in that it does not change the inflight count,
-+	 * yet does install the socket into an fd.  The following lock/unlock
-+	 * pair is to ensure serialization with garbage collection.  It must be
-+	 * done between incrementing the file count and installing the file into
-+	 * an fd.
-+	 *
-+	 * If garbage collection starts after the barrier provided by the
-+	 * lock/unlock, then it will see the elevated refcount and not mark this
-+	 * as a candidate.  If a garbage collection is already in progress
-+	 * before the file count was incremented, then the lock/unlock pair will
-+	 * ensure that garbage collection is finished before progressing to
-+	 * installing the fd.
-+	 *
-+	 * (*) A -> B where B is on the queue of A or B is on the queue of C
-+	 * which is on the queue of listening socket A.
-+	 */
-+	spin_lock(&unix_gc_lock);
-+	spin_unlock(&unix_gc_lock);
-+}
-+
- static int unix_scm_to_skb(struct scm_cookie *scm, struct sk_buff *skb, bool send_fds)
- {
- 	int err = 0;
-@@ -2146,7 +2193,7 @@ static int unix_dgram_recvmsg(struct soc
- 		sk_peek_offset_fwd(sk, size);
+ 	struct ems_cpc_msg active_params; /* active controller parameters */
++	void *rxbuf[MAX_RX_URBS];
++	dma_addr_t rxbuf_dma[MAX_RX_URBS];
+ };
  
- 		if (UNIXCB(skb).fp)
--			scm.fp = scm_fp_dup(UNIXCB(skb).fp);
-+			unix_peek_fds(&scm, skb);
+ static void ems_usb_read_interrupt_callback(struct urb *urb)
+@@ -600,6 +602,7 @@ static int ems_usb_start(struct ems_usb
+ 	for (i = 0; i < MAX_RX_URBS; i++) {
+ 		struct urb *urb = NULL;
+ 		u8 *buf = NULL;
++		dma_addr_t buf_dma;
+ 
+ 		/* create a URB, and a buffer for it */
+ 		urb = usb_alloc_urb(0, GFP_KERNEL);
+@@ -610,7 +613,7 @@ static int ems_usb_start(struct ems_usb
+ 		}
+ 
+ 		buf = usb_alloc_coherent(dev->udev, RX_BUFFER_SIZE, GFP_KERNEL,
+-					 &urb->transfer_dma);
++					 &buf_dma);
+ 		if (!buf) {
+ 			netdev_err(netdev, "No memory left for USB buffer\n");
+ 			usb_free_urb(urb);
+@@ -618,6 +621,8 @@ static int ems_usb_start(struct ems_usb
+ 			break;
+ 		}
+ 
++		urb->transfer_dma = buf_dma;
++
+ 		usb_fill_bulk_urb(urb, dev->udev, usb_rcvbulkpipe(dev->udev, 2),
+ 				  buf, RX_BUFFER_SIZE,
+ 				  ems_usb_read_bulk_callback, dev);
+@@ -633,6 +638,9 @@ static int ems_usb_start(struct ems_usb
+ 			break;
+ 		}
+ 
++		dev->rxbuf[i] = buf;
++		dev->rxbuf_dma[i] = buf_dma;
++
+ 		/* Drop reference, USB core will take care of freeing it */
+ 		usb_free_urb(urb);
  	}
- 	err = (flags & MSG_TRUNC) ? skb->len - skip : size;
+@@ -698,6 +706,10 @@ static void unlink_all_urbs(struct ems_u
  
-@@ -2387,7 +2434,7 @@ unlock:
- 			/* It is questionable, see note in unix_dgram_recvmsg.
- 			 */
- 			if (UNIXCB(skb).fp)
--				scm.fp = scm_fp_dup(UNIXCB(skb).fp);
-+				unix_peek_fds(&scm, skb);
+ 	usb_kill_anchored_urbs(&dev->rx_submitted);
  
- 			sk_peek_offset_fwd(sk, chunk);
++	for (i = 0; i < MAX_RX_URBS; ++i)
++		usb_free_coherent(dev->udev, RX_BUFFER_SIZE,
++				  dev->rxbuf[i], dev->rxbuf_dma[i]);
++
+ 	usb_kill_anchored_urbs(&dev->tx_submitted);
+ 	atomic_set(&dev->active_tx_urbs, 0);
  
 
 
