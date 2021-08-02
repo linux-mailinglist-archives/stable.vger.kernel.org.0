@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CCBD3DD8D5
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:56:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C0163DD976
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 16:00:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235424AbhHBNzj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:55:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33536 "EHLO mail.kernel.org"
+        id S235512AbhHBOAd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 10:00:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235775AbhHBNy0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:54:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B183260F41;
-        Mon,  2 Aug 2021 13:52:44 +0000 (UTC)
+        id S236283AbhHBN7S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:59:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ADF9361179;
+        Mon,  2 Aug 2021 13:55:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912365;
-        bh=voG3CVZomaCHcJwbP4BJ0FYFj/FXmFV8kOSaUwIg700=;
+        s=korg; t=1627912533;
+        bh=Wmsc3hKDVyhGQCS8aSWrmBFATR4jeRw+nwgFCI8b/a0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DmHwLBeSUFOkC7jfuBCy0K3ljsfhCKvIgVnibFC6fzYvxSpo5odpr9UTtjd+CyE0J
-         V9xbhaFJnR5zDILgWBL9QF4/O+c4VcoONdq1db3LRtTgkYT7q0frkJuyMYSpnTxbA/
-         1As9KndGO3fTiCf/EQvkv7iex2IYsOakrv5rS10Y=
+        b=bG8uKpDh7Ky3OpNVpLsS2qpeHyqkoAcFzz8oXJY19UElu2Hhjf/c4Zzxzsr3LtmAl
+         DL6plFMYeSh8VwBYrS3c1zdBZBeKcdOOtrYl7T/xMKyStTR8lkzu6gC/+RbpSXFNy3
+         q+mPKJ21Z5tAM1U7yOH39VZTzusIei2jyH4HQKUc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Xu <peterx@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.10 09/67] KVM: add missing compat KVM_CLEAR_DIRTY_LOG
+        stable@vger.kernel.org,
+        Naresh Kumar PBS <nareshkumar.pbs@broadcom.com>,
+        Selvin Xavier <selvin.xavier@broadcom.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 035/104] RDMA/bnxt_re: Fix stats counters
 Date:   Mon,  2 Aug 2021 15:44:32 +0200
-Message-Id: <20210802134339.333434436@linuxfoundation.org>
+Message-Id: <20210802134345.177396765@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134339.023067817@linuxfoundation.org>
-References: <20210802134339.023067817@linuxfoundation.org>
+In-Reply-To: <20210802134344.028226640@linuxfoundation.org>
+References: <20210802134344.028226640@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,69 +42,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Naresh Kumar PBS <nareshkumar.pbs@broadcom.com>
 
-commit 8750f9bbda115f3f79bfe43be85551ee5e12b6ff upstream.
+[ Upstream commit 0c23af52ccd1605926480b5dfd1dd857ef604611 ]
 
-The arguments to the KVM_CLEAR_DIRTY_LOG ioctl include a pointer,
-therefore it needs a compat ioctl implementation.  Otherwise,
-32-bit userspace fails to invoke it on 64-bit kernels; for x86
-it might work fine by chance if the padding is zero, but not
-on big-endian architectures.
+Statistical counters are not incrementing in some adapter versions with
+newer FW. This is due to the stats context length mismatch between FW and
+driver. Since the L2 driver updates the length correctly, use the stats
+length from L2 driver while allocating the DMA'able memory and creating
+the stats context.
 
-Reported-by: Thomas Sattler
-Cc: stable@vger.kernel.org
-Fixes: 2a31b9db1535 ("kvm: introduce manual dirty log reprotect")
-Reviewed-by: Peter Xu <peterx@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 9d6b648c3112 ("bnxt_en: Update firmware interface spec to 1.10.1.65.")
+Link: https://lore.kernel.org/r/1626010296-6076-1-git-send-email-selvin.xavier@broadcom.com
+Signed-off-by: Naresh Kumar PBS <nareshkumar.pbs@broadcom.com>
+Signed-off-by: Selvin Xavier <selvin.xavier@broadcom.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- virt/kvm/kvm_main.c |   28 ++++++++++++++++++++++++++++
- 1 file changed, 28 insertions(+)
+ drivers/infiniband/hw/bnxt_re/main.c      |  4 +++-
+ drivers/infiniband/hw/bnxt_re/qplib_res.c | 10 ++++------
+ drivers/infiniband/hw/bnxt_re/qplib_res.h |  1 +
+ 3 files changed, 8 insertions(+), 7 deletions(-)
 
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -3896,6 +3896,16 @@ struct compat_kvm_dirty_log {
- 	};
+diff --git a/drivers/infiniband/hw/bnxt_re/main.c b/drivers/infiniband/hw/bnxt_re/main.c
+index 8bfbf0231a9e..25550d982238 100644
+--- a/drivers/infiniband/hw/bnxt_re/main.c
++++ b/drivers/infiniband/hw/bnxt_re/main.c
+@@ -120,6 +120,7 @@ static int bnxt_re_setup_chip_ctx(struct bnxt_re_dev *rdev, u8 wqe_mode)
+ 	if (!chip_ctx)
+ 		return -ENOMEM;
+ 	chip_ctx->chip_num = bp->chip_num;
++	chip_ctx->hw_stats_size = bp->hw_ring_stats_size;
+ 
+ 	rdev->chip_ctx = chip_ctx;
+ 	/* rest members to follow eventually */
+@@ -547,6 +548,7 @@ static int bnxt_re_net_stats_ctx_alloc(struct bnxt_re_dev *rdev,
+ 				       dma_addr_t dma_map,
+ 				       u32 *fw_stats_ctx_id)
+ {
++	struct bnxt_qplib_chip_ctx *chip_ctx = rdev->chip_ctx;
+ 	struct hwrm_stat_ctx_alloc_output resp = {0};
+ 	struct hwrm_stat_ctx_alloc_input req = {0};
+ 	struct bnxt_en_dev *en_dev = rdev->en_dev;
+@@ -563,7 +565,7 @@ static int bnxt_re_net_stats_ctx_alloc(struct bnxt_re_dev *rdev,
+ 	bnxt_re_init_hwrm_hdr(rdev, (void *)&req, HWRM_STAT_CTX_ALLOC, -1, -1);
+ 	req.update_period_ms = cpu_to_le32(1000);
+ 	req.stats_dma_addr = cpu_to_le64(dma_map);
+-	req.stats_dma_length = cpu_to_le16(sizeof(struct ctx_hw_stats_ext));
++	req.stats_dma_length = cpu_to_le16(chip_ctx->hw_stats_size);
+ 	req.stat_ctx_flags = STAT_CTX_ALLOC_REQ_STAT_CTX_FLAGS_ROCE;
+ 	bnxt_re_fill_fw_msg(&fw_msg, (void *)&req, sizeof(req), (void *)&resp,
+ 			    sizeof(resp), DFLT_HWRM_CMD_TIMEOUT);
+diff --git a/drivers/infiniband/hw/bnxt_re/qplib_res.c b/drivers/infiniband/hw/bnxt_re/qplib_res.c
+index 3ca47004b752..754dcebeb4ca 100644
+--- a/drivers/infiniband/hw/bnxt_re/qplib_res.c
++++ b/drivers/infiniband/hw/bnxt_re/qplib_res.c
+@@ -56,6 +56,7 @@
+ static void bnxt_qplib_free_stats_ctx(struct pci_dev *pdev,
+ 				      struct bnxt_qplib_stats *stats);
+ static int bnxt_qplib_alloc_stats_ctx(struct pci_dev *pdev,
++				      struct bnxt_qplib_chip_ctx *cctx,
+ 				      struct bnxt_qplib_stats *stats);
+ 
+ /* PBL */
+@@ -559,7 +560,7 @@ int bnxt_qplib_alloc_ctx(struct bnxt_qplib_res *res,
+ 		goto fail;
+ stats_alloc:
+ 	/* Stats */
+-	rc = bnxt_qplib_alloc_stats_ctx(res->pdev, &ctx->stats);
++	rc = bnxt_qplib_alloc_stats_ctx(res->pdev, res->cctx, &ctx->stats);
+ 	if (rc)
+ 		goto fail;
+ 
+@@ -889,15 +890,12 @@ static void bnxt_qplib_free_stats_ctx(struct pci_dev *pdev,
+ }
+ 
+ static int bnxt_qplib_alloc_stats_ctx(struct pci_dev *pdev,
++				      struct bnxt_qplib_chip_ctx *cctx,
+ 				      struct bnxt_qplib_stats *stats)
+ {
+ 	memset(stats, 0, sizeof(*stats));
+ 	stats->fw_id = -1;
+-	/* 128 byte aligned context memory is required only for 57500.
+-	 * However making this unconditional, it does not harm previous
+-	 * generation.
+-	 */
+-	stats->size = ALIGN(sizeof(struct ctx_hw_stats), 128);
++	stats->size = cctx->hw_stats_size;
+ 	stats->dma = dma_alloc_coherent(&pdev->dev, stats->size,
+ 					&stats->dma_map, GFP_KERNEL);
+ 	if (!stats->dma) {
+diff --git a/drivers/infiniband/hw/bnxt_re/qplib_res.h b/drivers/infiniband/hw/bnxt_re/qplib_res.h
+index 7a1ab38b95da..58bad6f78456 100644
+--- a/drivers/infiniband/hw/bnxt_re/qplib_res.h
++++ b/drivers/infiniband/hw/bnxt_re/qplib_res.h
+@@ -60,6 +60,7 @@ struct bnxt_qplib_chip_ctx {
+ 	u16	chip_num;
+ 	u8	chip_rev;
+ 	u8	chip_metal;
++	u16	hw_stats_size;
+ 	struct bnxt_qplib_drv_modes modes;
  };
  
-+struct compat_kvm_clear_dirty_log {
-+	__u32 slot;
-+	__u32 num_pages;
-+	__u64 first_page;
-+	union {
-+		compat_uptr_t dirty_bitmap; /* one bit per page */
-+		__u64 padding2;
-+	};
-+};
-+
- static long kvm_vm_compat_ioctl(struct file *filp,
- 			   unsigned int ioctl, unsigned long arg)
- {
-@@ -3905,6 +3915,24 @@ static long kvm_vm_compat_ioctl(struct f
- 	if (kvm->mm != current->mm)
- 		return -EIO;
- 	switch (ioctl) {
-+#ifdef CONFIG_KVM_GENERIC_DIRTYLOG_READ_PROTECT
-+	case KVM_CLEAR_DIRTY_LOG: {
-+		struct compat_kvm_clear_dirty_log compat_log;
-+		struct kvm_clear_dirty_log log;
-+
-+		if (copy_from_user(&compat_log, (void __user *)arg,
-+				   sizeof(compat_log)))
-+			return -EFAULT;
-+		log.slot	 = compat_log.slot;
-+		log.num_pages	 = compat_log.num_pages;
-+		log.first_page	 = compat_log.first_page;
-+		log.padding2	 = compat_log.padding2;
-+		log.dirty_bitmap = compat_ptr(compat_log.dirty_bitmap);
-+
-+		r = kvm_vm_ioctl_clear_dirty_log(kvm, &log);
-+		break;
-+	}
-+#endif
- 	case KVM_GET_DIRTY_LOG: {
- 		struct compat_kvm_dirty_log compat_log;
- 		struct kvm_dirty_log log;
+-- 
+2.30.2
+
 
 
