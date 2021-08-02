@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2295A3DD7F5
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:48:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EBA6B3DD7B0
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:47:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234416AbhHBNsj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:48:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59024 "EHLO mail.kernel.org"
+        id S234227AbhHBNrv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:47:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57150 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234514AbhHBNsY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:48:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A84760551;
-        Mon,  2 Aug 2021 13:48:14 +0000 (UTC)
+        id S234021AbhHBNrS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:47:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E90A96113D;
+        Mon,  2 Aug 2021 13:47:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912095;
-        bh=1yqFSfZW7LcjYBwmmxWCElw/fXIIy1D4JlGsxkNbb2c=;
+        s=korg; t=1627912028;
+        bh=uGggKJwXB1mT2oXtYwnSUtsMjHkK5yv+CjgCzmOphao=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NXDF2z/vnpQUbS72CcdOCX5MjduaBR2kzP8NcB7XTfsT9jxE31fdUfqRDP24FJO6w
-         IvU4cPpzq32ac2WHc+gKxOPBCXgSjLbbr45pQHEDWTn+6Jn2MfLdMDzHecjZjnJAJc
-         k1/zePpln771S6MGiNHz9xP8BZvf8YHgmkU/1cKk=
+        b=MuxdZ0de4oxzJYoyp26LRTtKWFsBgNdf5nfmWeHmh3HLFIByYQ6EAUAGR33HdF+gA
+         SNJZ4fFoHP6RPiSmUIiLY0H4+UcpawB8Ko6GbIi01ywHv1jF6UDAdzrRit67bNz3mG
+         yK1zkXd8Rpo5kGANv4F/dChr9LgtU7YhkzXrb6fg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        virtualization@lists.linux-foundation.org,
-        "David S. Miller" <davem@davemloft.net>,
-        Matthieu Baerts <matthieu.baerts@tessares.net>
-Subject: [PATCH 4.14 14/38] virtio_net: Do not pull payload in skb->head
+        stable@vger.kernel.org, Junxiao Bi <junxiao.bi@oracle.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Jun Piao <piaojun@huawei.com>, Mark Fasheh <mark@fasheh.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.9 16/32] ocfs2: fix zero out valid data
 Date:   Mon,  2 Aug 2021 15:44:36 +0200
-Message-Id: <20210802134335.285560278@linuxfoundation.org>
+Message-Id: <20210802134333.438972029@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134334.835358048@linuxfoundation.org>
-References: <20210802134334.835358048@linuxfoundation.org>
+In-Reply-To: <20210802134332.931915241@linuxfoundation.org>
+References: <20210802134332.931915241@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,113 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Junxiao Bi <junxiao.bi@oracle.com>
 
-commit 0f6925b3e8da0dbbb52447ca8a8b42b371aac7db upstream.
+commit f267aeb6dea5e468793e5b8eb6a9c72c0020d418 upstream.
 
-Xuan Zhuo reported that commit 3226b158e67c ("net: avoid 32 x truesize
-under-estimation for tiny skbs") brought  a ~10% performance drop.
+If append-dio feature is enabled, direct-io write and fallocate could
+run in parallel to extend file size, fallocate used "orig_isize" to
+record i_size before taking "ip_alloc_sem", when
+ocfs2_zeroout_partial_cluster() zeroout EOF blocks, i_size maybe already
+extended by ocfs2_dio_end_io_write(), that will cause valid data zeroed
+out.
 
-The reason for the performance drop was that GRO was forced
-to chain sk_buff (using skb_shinfo(skb)->frag_list), which
-uses more memory but also cause packet consumers to go over
-a lot of overhead handling all the tiny skbs.
-
-It turns out that virtio_net page_to_skb() has a wrong strategy :
-It allocates skbs with GOOD_COPY_LEN (128) bytes in skb->head, then
-copies 128 bytes from the page, before feeding the packet to GRO stack.
-
-This was suboptimal before commit 3226b158e67c ("net: avoid 32 x truesize
-under-estimation for tiny skbs") because GRO was using 2 frags per MSS,
-meaning we were not packing MSS with 100% efficiency.
-
-Fix is to pull only the ethernet header in page_to_skb()
-
-Then, we change virtio_net_hdr_to_skb() to pull the missing
-headers, instead of assuming they were already pulled by callers.
-
-This fixes the performance regression, but could also allow virtio_net
-to accept packets with more than 128bytes of headers.
-
-Many thanks to Xuan Zhuo for his report, and his tests/help.
-
-Fixes: 3226b158e67c ("net: avoid 32 x truesize under-estimation for tiny skbs")
-Reported-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Link: https://www.spinics.net/lists/netdev/msg731397.html
-Co-Developed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: virtualization@lists.linux-foundation.org
-Acked-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Link: https://lkml.kernel.org/r/20210722054923.24389-1-junxiao.bi@oracle.com
+Fixes: 6bba4471f0cc ("ocfs2: fix data corruption by fallocate")
+Signed-off-by: Junxiao Bi <junxiao.bi@oracle.com>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Jun Piao <piaojun@huawei.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/virtio_net.c   |   10 +++++++---
- include/linux/virtio_net.h |   14 +++++++++-----
- 2 files changed, 16 insertions(+), 8 deletions(-)
+ fs/ocfs2/file.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -339,9 +339,13 @@ static struct sk_buff *page_to_skb(struc
- 	offset += hdr_padded_len;
- 	p += hdr_padded_len;
- 
--	copy = len;
--	if (copy > skb_tailroom(skb))
--		copy = skb_tailroom(skb);
-+	/* Copy all frame if it fits skb->head, otherwise
-+	 * we let virtio_net_hdr_to_skb() and GRO pull headers as needed.
-+	 */
-+	if (len <= skb_tailroom(skb))
-+		copy = len;
-+	else
-+		copy = ETH_HLEN;
- 	skb_put_data(skb, p, copy);
- 
- 	len -= copy;
---- a/include/linux/virtio_net.h
-+++ b/include/linux/virtio_net.h
-@@ -65,14 +65,18 @@ static inline int virtio_net_hdr_to_skb(
- 	skb_reset_mac_header(skb);
- 
- 	if (hdr->flags & VIRTIO_NET_HDR_F_NEEDS_CSUM) {
--		u16 start = __virtio16_to_cpu(little_endian, hdr->csum_start);
--		u16 off = __virtio16_to_cpu(little_endian, hdr->csum_offset);
-+		u32 start = __virtio16_to_cpu(little_endian, hdr->csum_start);
-+		u32 off = __virtio16_to_cpu(little_endian, hdr->csum_offset);
-+		u32 needed = start + max_t(u32, thlen, off + sizeof(__sum16));
-+
-+		if (!pskb_may_pull(skb, needed))
-+			return -EINVAL;
- 
- 		if (!skb_partial_csum_set(skb, start, off))
- 			return -EINVAL;
- 
- 		p_off = skb_transport_offset(skb) + thlen;
--		if (p_off > skb_headlen(skb))
-+		if (!pskb_may_pull(skb, p_off))
- 			return -EINVAL;
- 	} else {
- 		/* gso packets without NEEDS_CSUM do not set transport_offset.
-@@ -100,14 +104,14 @@ retry:
- 			}
- 
- 			p_off = keys.control.thoff + thlen;
--			if (p_off > skb_headlen(skb) ||
-+			if (!pskb_may_pull(skb, p_off) ||
- 			    keys.basic.ip_proto != ip_proto)
- 				return -EINVAL;
- 
- 			skb_set_transport_header(skb, keys.control.thoff);
- 		} else if (gso_type) {
- 			p_off = thlen;
--			if (p_off > skb_headlen(skb))
-+			if (!pskb_may_pull(skb, p_off))
- 				return -EINVAL;
- 		}
+--- a/fs/ocfs2/file.c
++++ b/fs/ocfs2/file.c
+@@ -1918,7 +1918,6 @@ static int __ocfs2_change_file_space(str
+ 		goto out_inode_unlock;
  	}
+ 
+-	orig_isize = i_size_read(inode);
+ 	switch (sr->l_whence) {
+ 	case 0: /*SEEK_SET*/
+ 		break;
+@@ -1926,7 +1925,7 @@ static int __ocfs2_change_file_space(str
+ 		sr->l_start += f_pos;
+ 		break;
+ 	case 2: /*SEEK_END*/
+-		sr->l_start += orig_isize;
++		sr->l_start += i_size_read(inode);
+ 		break;
+ 	default:
+ 		ret = -EINVAL;
+@@ -1981,6 +1980,7 @@ static int __ocfs2_change_file_space(str
+ 		ret = -EINVAL;
+ 	}
+ 
++	orig_isize = i_size_read(inode);
+ 	/* zeroout eof blocks in the cluster. */
+ 	if (!ret && change_size && orig_isize < size) {
+ 		ret = ocfs2_zeroout_partial_cluster(inode, orig_isize,
 
 
