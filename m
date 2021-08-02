@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F2453DD7A5
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:47:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 047A93DD7DD
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:48:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234248AbhHBNrS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:47:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56192 "EHLO mail.kernel.org"
+        id S234422AbhHBNsX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:48:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234201AbhHBNqr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:46:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 960DB60FC1;
-        Mon,  2 Aug 2021 13:46:37 +0000 (UTC)
+        id S234379AbhHBNsF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:48:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4AC3F61057;
+        Mon,  2 Aug 2021 13:47:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627911998;
-        bh=kL2EQXr4ru6P7opxcnGRicOb5nZpJZPMJcKIQJTvl8w=;
+        s=korg; t=1627912075;
+        bh=/YLE1i6wXKxsu9XqjoLR7bM/xs7iFwxeKPsG/6BQkwM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lsGVAp8kIHDkrVIt+3tjLjvVx3wUjGePnY13qAQ2f1ioEQ5YXuZZyW4fTOxiB91Eb
-         jWo1Y66wXVfoq5PdZQs/4xuyRWfHMFQS0A8xfP5XblOfp7uE9TOP59qCT7ORAFeQRU
-         qr0J3Mc1d5NtaRiSvdOZdJnaRPR9sK0cOZlebTAk=
+        b=y4wH31WEzTqCOsdGmQTiCCaA4jlrN2TGKClhgeObfogsfRt42wy4x9DGB4XdNv2s+
+         FoJEUvaUs8A2OuROHNghaUXhR5viqyTKMBDSITK72T9yIfAxlvSfP6Y1rGWePfnSNA
+         W5Gcr/jJP451/y/f5jyrjuZjWet4K6y9ERt4JssA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 21/26] netfilter: nft_nat: allow to specify layer 4 protocol NAT only
-Date:   Mon,  2 Aug 2021 15:44:31 +0200
-Message-Id: <20210802134332.717966255@linuxfoundation.org>
+        stable@vger.kernel.org, Sudeep Holla <sudeep.holla@arm.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 12/32] ARM: dts: versatile: Fix up interrupt controller node names
+Date:   Mon,  2 Aug 2021 15:44:32 +0200
+Message-Id: <20210802134333.315221261@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134332.033552261@linuxfoundation.org>
-References: <20210802134332.033552261@linuxfoundation.org>
+In-Reply-To: <20210802134332.931915241@linuxfoundation.org>
+References: <20210802134332.931915241@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,36 +40,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Sudeep Holla <sudeep.holla@arm.com>
 
-[ Upstream commit a33f387ecd5aafae514095c2c4a8c24f7aea7e8b ]
+[ Upstream commit 82a1c67554dff610d6be4e1982c425717b3c6a23 ]
 
-nft_nat reports a bogus EAFNOSUPPORT if no layer 3 information is specified.
+Once the new schema interrupt-controller/arm,vic.yaml is added, we get
+the below warnings:
 
-Fixes: d07db9884a5f ("netfilter: nf_tables: introduce nft_validate_register_load()")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+        arch/arm/boot/dts/versatile-ab.dt.yaml:
+        intc@10140000: $nodename:0: 'intc@10140000' does not match
+        '^interrupt-controller(@[0-9a-f,]+)*$'
+
+	arch/arm/boot/dts/versatile-ab.dt.yaml:
+	intc@10140000: 'clear-mask' does not match any of the regexes
+
+Fix the node names for the interrupt controller to conform
+to the standard node name interrupt-controller@.. Also drop invalid
+clear-mask property.
+
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20210701132118.759454-1-sudeep.holla@arm.com'
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_nat.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/versatile-ab.dts |    5 ++---
+ arch/arm/boot/dts/versatile-pb.dts |    2 +-
+ 2 files changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/net/netfilter/nft_nat.c b/net/netfilter/nft_nat.c
-index 868480b83649..182704b980d1 100644
---- a/net/netfilter/nft_nat.c
-+++ b/net/netfilter/nft_nat.c
-@@ -157,7 +157,9 @@ static int nft_nat_init(const struct nft_ctx *ctx, const struct nft_expr *expr,
- 		alen = FIELD_SIZEOF(struct nf_nat_range, min_addr.ip6);
- 		break;
- 	default:
--		return -EAFNOSUPPORT;
-+		if (tb[NFTA_NAT_REG_ADDR_MIN])
-+			return -EAFNOSUPPORT;
-+		break;
- 	}
- 	priv->family = family;
+--- a/arch/arm/boot/dts/versatile-ab.dts
++++ b/arch/arm/boot/dts/versatile-ab.dts
+@@ -154,16 +154,15 @@
+ 		#size-cells = <1>;
+ 		ranges;
  
--- 
-2.30.2
-
+-		vic: intc@10140000 {
++		vic: interrupt-controller@10140000 {
+ 			compatible = "arm,versatile-vic";
+ 			interrupt-controller;
+ 			#interrupt-cells = <1>;
+ 			reg = <0x10140000 0x1000>;
+-			clear-mask = <0xffffffff>;
+ 			valid-mask = <0xffffffff>;
+ 		};
+ 
+-		sic: intc@10003000 {
++		sic: interrupt-controller@10003000 {
+ 			compatible = "arm,versatile-sic";
+ 			interrupt-controller;
+ 			#interrupt-cells = <1>;
+--- a/arch/arm/boot/dts/versatile-pb.dts
++++ b/arch/arm/boot/dts/versatile-pb.dts
+@@ -6,7 +6,7 @@
+ 
+ 	amba {
+ 		/* The Versatile PB is using more SIC IRQ lines than the AB */
+-		sic: intc@10003000 {
++		sic: interrupt-controller@10003000 {
+ 			clear-mask = <0xffffffff>;
+ 			/*
+ 			 * Valid interrupt lines mask according to
 
 
