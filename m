@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 257EC3DD9A1
+	by mail.lfdr.de (Postfix) with ESMTP id F234C3DD9A3
 	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 16:02:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236377AbhHBOCN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 10:02:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47240 "EHLO mail.kernel.org"
+        id S234344AbhHBOCP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 10:02:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236995AbhHBOAI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 10:00:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 84B6F61176;
-        Mon,  2 Aug 2021 13:56:14 +0000 (UTC)
+        id S236972AbhHBOAH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 10:00:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B0BF760F36;
+        Mon,  2 Aug 2021 13:56:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912575;
-        bh=fqyVpTxEudKsY7rBvzaKqtJhdIPBCp0F5YsRiTxn9h8=;
+        s=korg; t=1627912577;
+        bh=W197chaIuqbqCG8MDUNuoZCxccGMLkS6E9plZlF+100=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LQEga/9N/OiMP8gnJkAzzOyDl7k1vrgf2osXwepjVi44MiuEmAjkK1U901Vqwpm4C
-         d5sUDX4rdhblEkbTHqLzB6XdZDfELvgZE3adRgEiWXk9QqeP6chfFTROHRUpxur+Bt
-         Gpes1qD2E+HuRlCZbL8hwIgRNOuebpKqUIC6DHVc=
+        b=Lweybdc60PgXgXQGJ56Fqt0Njez3uuDCfzv3hveyTKPmLrHGKFrhBwZ2kX9ETeI6q
+         K61vKhYOPF/PpjmU9RhvQHM9tobbw55YnN/JtzKDVyHA34I82tUog/5xoO8WTMIwUt
+         1zclzLnzyB7JG/0xR3BQ4v9EmQwo1wHPdjEMnNqw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matt Turner <mattst88@gmail.com>,
-        Mike Rapoport <rppt@linux.ibm.com>
-Subject: [PATCH 5.13 021/104] alpha: register early reserved memory in memblock
-Date:   Mon,  2 Aug 2021 15:44:18 +0200
-Message-Id: <20210802134344.703835485@linuxfoundation.org>
+        stable@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>,
+        Ping Cheng <ping.cheng@wacom.com>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 5.13 022/104] HID: wacom: Re-enable touch by default for Cintiq 24HDT / 27QHDT
+Date:   Mon,  2 Aug 2021 15:44:19 +0200
+Message-Id: <20210802134344.744632510@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210802134344.028226640@linuxfoundation.org>
 References: <20210802134344.028226640@linuxfoundation.org>
@@ -39,82 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Rapoport <rppt@linux.ibm.com>
+From: Jason Gerecke <killertofu@gmail.com>
 
-commit 640b7ea5f888b521dcf28e2564ce75d08a783fd7 upstream.
+commit 6ca2350e11f09d5d3e53777d1eff8ff6d300ed93 upstream.
 
-The memory reserved by console/PALcode or non-volatile memory is not added
-to memblock.memory.
+Commit 670e90924bfe ("HID: wacom: support named keys on older devices")
+added support for sending named events from the soft buttons on the
+24HDT and 27QHDT. In the process, however, it inadvertantly disabled the
+touchscreen of the 24HDT and 27QHDT by default. The
+`wacom_set_shared_values` function would normally enable touch by default
+but because it checks the state of the non-shared `has_mute_touch_switch`
+flag and `wacom_setup_touch_input_capabilities` sets the state of the
+/shared/ version, touch ends up being disabled by default.
 
-Since commit fa3354e4ea39 (mm: free_area_init: use maximal zone PFNs rather
-than zone sizes) the initialization of the memory map relies on the
-accuracy of memblock.memory to properly calculate zone sizes. The holes in
-memblock.memory caused by absent regions reserved by the firmware cause
-incorrect initialization of struct pages which leads to BUG() during the
-initial page freeing:
+This patch sets the non-shared flag, letting `wacom_set_shared_values`
+take care of copying the value over to the shared version and setting
+the default touch state to "on".
 
-BUG: Bad page state in process swapper  pfn:2ffc53
-page:fffffc000ecf14c0 refcount:0 mapcount:1 mapping:0000000000000000 index:0x0
-flags: 0x0()
-raw: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
-raw: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
-page dumped because: nonzero mapcount
-Modules linked in:
-CPU: 0 PID: 0 Comm: swapper Not tainted 5.7.0-03841-gfa3354e4ea39-dirty #26
-       fffffc0001b5bd68 fffffc0001b5be80 fffffc00011cd148 fffffc000ecf14c0
-       fffffc00019803df fffffc0001b5be80 fffffc00011ce340 fffffc000ecf14c0
-       0000000000000000 fffffc0001b5be80 fffffc0001b482c0 fffffc00027d6618
-       fffffc00027da7d0 00000000002ff97a 0000000000000000 fffffc0001b5be80
-       fffffc00011d1abc fffffc000ecf14c0 fffffc0002d00000 fffffc0001b5be80
-       fffffc0001b2350c 0000000000300000 fffffc0001b48298 fffffc0001b482c0
-Trace:
-[<fffffc00011cd148>] bad_page+0x168/0x1b0
-[<fffffc00011ce340>] free_pcp_prepare+0x1e0/0x290
-[<fffffc00011d1abc>] free_unref_page+0x2c/0xa0
-[<fffffc00014ee5f0>] cmp_ex_sort+0x0/0x30
-[<fffffc00014ee5f0>] cmp_ex_sort+0x0/0x30
-[<fffffc000101001c>] _stext+0x1c/0x20
-
-Fix this by registering the reserved ranges in memblock.memory.
-
-Link: https://lore.kernel.org/lkml/20210726192311.uffqnanxw3ac5wwi@ivybridge
-Fixes: fa3354e4ea39 ("mm: free_area_init: use maximal zone PFNs rather than zone sizes")
-Reported-by: Matt Turner <mattst88@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-Signed-off-by: Matt Turner <mattst88@gmail.com>
+Fixes: 670e90924bfe ("HID: wacom: support named keys on older devices")
+CC: stable@vger.kernel.org # 5.4+
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+Reviewed-by: Ping Cheng <ping.cheng@wacom.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/alpha/kernel/setup.c |   13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ drivers/hid/wacom_wac.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/alpha/kernel/setup.c
-+++ b/arch/alpha/kernel/setup.c
-@@ -325,18 +325,19 @@ setup_memory(void *kernel_end)
- 		       i, cluster->usage, cluster->start_pfn,
- 		       cluster->start_pfn + cluster->numpages);
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -3831,7 +3831,7 @@ int wacom_setup_touch_input_capabilities
+ 		    wacom_wac->shared->touch->product == 0xF6) {
+ 			input_dev->evbit[0] |= BIT_MASK(EV_SW);
+ 			__set_bit(SW_MUTE_DEVICE, input_dev->swbit);
+-			wacom_wac->shared->has_mute_touch_switch = true;
++			wacom_wac->has_mute_touch_switch = true;
+ 		}
+ 		fallthrough;
  
--		/* Bit 0 is console/PALcode reserved.  Bit 1 is
--		   non-volatile memory -- we might want to mark
--		   this for later.  */
--		if (cluster->usage & 3)
--			continue;
--
- 		end = cluster->start_pfn + cluster->numpages;
- 		if (end > max_low_pfn)
- 			max_low_pfn = end;
- 
- 		memblock_add(PFN_PHYS(cluster->start_pfn),
- 			     cluster->numpages << PAGE_SHIFT);
-+
-+		/* Bit 0 is console/PALcode reserved.  Bit 1 is
-+		   non-volatile memory -- we might want to mark
-+		   this for later.  */
-+		if (cluster->usage & 3)
-+			memblock_reserve(PFN_PHYS(cluster->start_pfn),
-+				         cluster->numpages << PAGE_SHIFT);
- 	}
- 
- 	/*
 
 
