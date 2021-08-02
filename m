@@ -2,36 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 569E63DD8F1
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:56:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47D3B3DD82D
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:50:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235871AbhHBN4c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:56:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34138 "EHLO mail.kernel.org"
+        id S234457AbhHBNuP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:50:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234381AbhHBNyE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:54:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C3A0461179;
-        Mon,  2 Aug 2021 13:52:20 +0000 (UTC)
+        id S233956AbhHBNti (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:49:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2745E60FC2;
+        Mon,  2 Aug 2021 13:49:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912341;
-        bh=kIzYnuZFMrxLllh/y9GtgzQuBkfdQkXRMCDWVGkflII=;
+        s=korg; t=1627912169;
+        bh=vJIBOiTKBn2Pw8XTRqsavUutmB6ffwpZU+05RjBBOEs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oIGW4eSTVlHzQiYBG4j59Po3ahu9xLyCz2iX/rGLdBsIFyTPTaxspUt1oDqoJyh03
-         LdLoDu6PPyR9w/LaFea8JUfN9p42cLaC+8mWkcepdQTEI0nbDEuyAfXQWmlL0IJhI0
-         PT1Sn2Rh7vKb+r16CWzKX9dqR7bzUPgh49nO7M3E=
+        b=FWFmcziQGdnEOLGTGOV8C9rsnG6LZoD7bIdlEmpO1F3O0+lnJGe7oLCt3aFewhPrN
+         lTiAUnZb723/NjVHgWiIIeTD5zrYPoCuXgPkqM+XpI98EymwZB6FEEWe/s6YdHuTu4
+         8tVdd1SrNoKTvZGrFzVreT8IWjvAX+jyvKzL285k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.10 16/67] can: usb_8dev: fix memory leak
+        stable@vger.kernel.org, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        Eric Dumazet <edumazet@google.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        virtualization@lists.linux-foundation.org,
+        "David S. Miller" <davem@davemloft.net>,
+        Matthieu Baerts <matthieu.baerts@tessares.net>
+Subject: [PATCH 4.19 01/30] virtio_net: Do not pull payload in skb->head
 Date:   Mon,  2 Aug 2021 15:44:39 +0200
-Message-Id: <20210802134339.572141213@linuxfoundation.org>
+Message-Id: <20210802134334.130644975@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134339.023067817@linuxfoundation.org>
-References: <20210802134339.023067817@linuxfoundation.org>
+In-Reply-To: <20210802134334.081433902@linuxfoundation.org>
+References: <20210802134334.081433902@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -39,94 +46,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 0e865f0c31928d6a313269ef624907eec55287c4 upstream.
+commit 0f6925b3e8da0dbbb52447ca8a8b42b371aac7db upstream.
 
-In usb_8dev_start() MAX_RX_URBS coherent buffers are allocated and
-there is nothing, that frees them:
+Xuan Zhuo reported that commit 3226b158e67c ("net: avoid 32 x truesize
+under-estimation for tiny skbs") brought  a ~10% performance drop.
 
-1) In callback function the urb is resubmitted and that's all
-2) In disconnect function urbs are simply killed, but URB_FREE_BUFFER
-   is not set (see usb_8dev_start) and this flag cannot be used with
-   coherent buffers.
+The reason for the performance drop was that GRO was forced
+to chain sk_buff (using skb_shinfo(skb)->frag_list), which
+uses more memory but also cause packet consumers to go over
+a lot of overhead handling all the tiny skbs.
 
-So, all allocated buffers should be freed with usb_free_coherent()
-explicitly.
+It turns out that virtio_net page_to_skb() has a wrong strategy :
+It allocates skbs with GOOD_COPY_LEN (128) bytes in skb->head, then
+copies 128 bytes from the page, before feeding the packet to GRO stack.
 
-Side note: This code looks like a copy-paste of other can drivers. The
-same patch was applied to mcba_usb driver and it works nice with real
-hardware. There is no change in functionality, only clean-up code for
-coherent buffers.
+This was suboptimal before commit 3226b158e67c ("net: avoid 32 x truesize
+under-estimation for tiny skbs") because GRO was using 2 frags per MSS,
+meaning we were not packing MSS with 100% efficiency.
 
-Fixes: 0024d8ad1639 ("can: usb_8dev: Add support for USB2CAN interface from 8 devices")
-Link: https://lore.kernel.org/r/d39b458cd425a1cf7f512f340224e6e9563b07bd.1627404470.git.paskripkin@gmail.com
-Cc: linux-stable <stable@vger.kernel.org>
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fix is to pull only the ethernet header in page_to_skb()
+
+Then, we change virtio_net_hdr_to_skb() to pull the missing
+headers, instead of assuming they were already pulled by callers.
+
+This fixes the performance regression, but could also allow virtio_net
+to accept packets with more than 128bytes of headers.
+
+Many thanks to Xuan Zhuo for his report, and his tests/help.
+
+Fixes: 3226b158e67c ("net: avoid 32 x truesize under-estimation for tiny skbs")
+Reported-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Link: https://www.spinics.net/lists/netdev/msg731397.html
+Co-Developed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: virtualization@lists.linux-foundation.org
+Acked-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/usb/usb_8dev.c |   15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
+ drivers/net/virtio_net.c   |   10 +++++++---
+ include/linux/virtio_net.h |   14 +++++++++-----
+ 2 files changed, 16 insertions(+), 8 deletions(-)
 
---- a/drivers/net/can/usb/usb_8dev.c
-+++ b/drivers/net/can/usb/usb_8dev.c
-@@ -137,7 +137,8 @@ struct usb_8dev_priv {
- 	u8 *cmd_msg_buffer;
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -413,9 +413,13 @@ static struct sk_buff *page_to_skb(struc
+ 	offset += hdr_padded_len;
+ 	p += hdr_padded_len;
  
- 	struct mutex usb_8dev_cmd_lock;
--
-+	void *rxbuf[MAX_RX_URBS];
-+	dma_addr_t rxbuf_dma[MAX_RX_URBS];
- };
+-	copy = len;
+-	if (copy > skb_tailroom(skb))
+-		copy = skb_tailroom(skb);
++	/* Copy all frame if it fits skb->head, otherwise
++	 * we let virtio_net_hdr_to_skb() and GRO pull headers as needed.
++	 */
++	if (len <= skb_tailroom(skb))
++		copy = len;
++	else
++		copy = ETH_HLEN + metasize;
+ 	skb_put_data(skb, p, copy);
  
- /* tx frame */
-@@ -733,6 +734,7 @@ static int usb_8dev_start(struct usb_8de
- 	for (i = 0; i < MAX_RX_URBS; i++) {
- 		struct urb *urb = NULL;
- 		u8 *buf;
-+		dma_addr_t buf_dma;
+ 	if (metasize) {
+--- a/include/linux/virtio_net.h
++++ b/include/linux/virtio_net.h
+@@ -65,14 +65,18 @@ static inline int virtio_net_hdr_to_skb(
+ 	skb_reset_mac_header(skb);
  
- 		/* create a URB, and a buffer for it */
- 		urb = usb_alloc_urb(0, GFP_KERNEL);
-@@ -742,7 +744,7 @@ static int usb_8dev_start(struct usb_8de
- 		}
- 
- 		buf = usb_alloc_coherent(priv->udev, RX_BUFFER_SIZE, GFP_KERNEL,
--					 &urb->transfer_dma);
-+					 &buf_dma);
- 		if (!buf) {
- 			netdev_err(netdev, "No memory left for USB buffer\n");
- 			usb_free_urb(urb);
-@@ -750,6 +752,8 @@ static int usb_8dev_start(struct usb_8de
- 			break;
- 		}
- 
-+		urb->transfer_dma = buf_dma;
+ 	if (hdr->flags & VIRTIO_NET_HDR_F_NEEDS_CSUM) {
+-		u16 start = __virtio16_to_cpu(little_endian, hdr->csum_start);
+-		u16 off = __virtio16_to_cpu(little_endian, hdr->csum_offset);
++		u32 start = __virtio16_to_cpu(little_endian, hdr->csum_start);
++		u32 off = __virtio16_to_cpu(little_endian, hdr->csum_offset);
++		u32 needed = start + max_t(u32, thlen, off + sizeof(__sum16));
 +
- 		usb_fill_bulk_urb(urb, priv->udev,
- 				  usb_rcvbulkpipe(priv->udev,
- 						  USB_8DEV_ENDP_DATA_RX),
-@@ -767,6 +771,9 @@ static int usb_8dev_start(struct usb_8de
- 			break;
- 		}
++		if (!pskb_may_pull(skb, needed))
++			return -EINVAL;
  
-+		priv->rxbuf[i] = buf;
-+		priv->rxbuf_dma[i] = buf_dma;
-+
- 		/* Drop reference, USB core will take care of freeing it */
- 		usb_free_urb(urb);
+ 		if (!skb_partial_csum_set(skb, start, off))
+ 			return -EINVAL;
+ 
+ 		p_off = skb_transport_offset(skb) + thlen;
+-		if (p_off > skb_headlen(skb))
++		if (!pskb_may_pull(skb, p_off))
+ 			return -EINVAL;
+ 	} else {
+ 		/* gso packets without NEEDS_CSUM do not set transport_offset.
+@@ -102,14 +106,14 @@ retry:
+ 			}
+ 
+ 			p_off = keys.control.thoff + thlen;
+-			if (p_off > skb_headlen(skb) ||
++			if (!pskb_may_pull(skb, p_off) ||
+ 			    keys.basic.ip_proto != ip_proto)
+ 				return -EINVAL;
+ 
+ 			skb_set_transport_header(skb, keys.control.thoff);
+ 		} else if (gso_type) {
+ 			p_off = thlen;
+-			if (p_off > skb_headlen(skb))
++			if (!pskb_may_pull(skb, p_off))
+ 				return -EINVAL;
+ 		}
  	}
-@@ -836,6 +843,10 @@ static void unlink_all_urbs(struct usb_8
- 
- 	usb_kill_anchored_urbs(&priv->rx_submitted);
- 
-+	for (i = 0; i < MAX_RX_URBS; ++i)
-+		usb_free_coherent(priv->udev, RX_BUFFER_SIZE,
-+				  priv->rxbuf[i], priv->rxbuf_dma[i]);
-+
- 	usb_kill_anchored_urbs(&priv->tx_submitted);
- 	atomic_set(&priv->active_tx_urbs, 0);
- 
 
 
