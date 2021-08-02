@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB50F3DD84B
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:51:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3387C3DD87E
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:52:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234455AbhHBNvE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:51:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33610 "EHLO mail.kernel.org"
+        id S235066AbhHBNwx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:52:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234565AbhHBNuF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:50:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 13CCC610FC;
-        Mon,  2 Aug 2021 13:49:54 +0000 (UTC)
+        id S234990AbhHBNvc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:51:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 42A3260F41;
+        Mon,  2 Aug 2021 13:50:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912195;
-        bh=e72jQk2CinegedZsmoOFdvPMlYsDsyV/qHihCuyi9WY=;
+        s=korg; t=1627912258;
+        bh=hdiXrvsG9NBKG+5eMK1AkbMzZVab2LrkHtcz0zqCmyk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L6jpegpy10dBrI0KXPwzxwY0n7Tg51m4+StdG4OH111VV1RtVpUBY2yznLI6PpdxE
-         2XssKxKFv+UEF3BvNS4uMxwtsaGLwiWJqnYEMm638swsbvcVuiJKVFEDJCpLOIBi4t
-         rrVwv5jAU/CuLWtxsON5/ysjW8j+I/fpajfor1rg=
+        b=pLuOBjFOusYYTtgS1pasyvsSPijOkbef+2gM5SAtMo3AOUDjhtUVEat+WdcmLcC5l
+         FS53K8PKk/2VuKKZd6Qes2nBLsL8sF5u2CA4Kw6tX1EpKo+BzZO57i5FkPS3iRsR+m
+         UJIFZn38T6jeIoynLS373HTjN/bxvtibIUx5LLoU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abaci Robot <abaci@linux.alibaba.com>,
-        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 21/30] mlx4: Fix missing error code in mlx4_load_one()
+        stable@vger.kernel.org, Nguyen Dinh Phi <phind.uet@gmail.com>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.4 19/40] cfg80211: Fix possible memory leak in function cfg80211_bss_update
 Date:   Mon,  2 Aug 2021 15:44:59 +0200
-Message-Id: <20210802134334.743739039@linuxfoundation.org>
+Message-Id: <20210802134336.003473216@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134334.081433902@linuxfoundation.org>
-References: <20210802134334.081433902@linuxfoundation.org>
+In-Reply-To: <20210802134335.408294521@linuxfoundation.org>
+References: <20210802134335.408294521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,42 +39,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+From: Nguyen Dinh Phi <phind.uet@gmail.com>
 
-[ Upstream commit 7e4960b3d66d7248b23de3251118147812b42da2 ]
+commit f9a5c358c8d26fed0cc45f2afc64633d4ba21dff upstream.
 
-The error code is missing in this code scenario, add the error code
-'-EINVAL' to the return value 'err'.
+When we exceed the limit of BSS entries, this function will free the
+new entry, however, at this time, it is the last door to access the
+inputed ies, so these ies will be unreferenced objects and cause memory
+leak.
+Therefore we should free its ies before deallocating the new entry, beside
+of dropping it from hidden_list.
 
-Eliminate the follow smatch warning:
-
-drivers/net/ethernet/mellanox/mlx4/main.c:3538 mlx4_load_one() warn:
-missing error code 'err'.
-
-Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-Fixes: 7ae0e400cd93 ("net/mlx4_core: Flexible (asymmetric) allocation of EQs and MSI-X vectors for PF/VFs")
-Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
-Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Nguyen Dinh Phi <phind.uet@gmail.com>
+Link: https://lore.kernel.org/r/20210628132334.851095-1-phind.uet@gmail.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx4/main.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/wireless/scan.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx4/main.c b/drivers/net/ethernet/mellanox/mlx4/main.c
-index a0affcb090a0..d9707d47f1e7 100644
---- a/drivers/net/ethernet/mellanox/mlx4/main.c
-+++ b/drivers/net/ethernet/mellanox/mlx4/main.c
-@@ -3515,6 +3515,7 @@ slave_start:
- 
- 		if (!SRIOV_VALID_STATE(dev->flags)) {
- 			mlx4_err(dev, "Invalid SRIOV state\n");
-+			err = -EINVAL;
- 			goto err_close;
+--- a/net/wireless/scan.c
++++ b/net/wireless/scan.c
+@@ -1250,16 +1250,14 @@ cfg80211_bss_update(struct cfg80211_regi
+ 			 * be grouped with this beacon for updates ...
+ 			 */
+ 			if (!cfg80211_combine_bsses(rdev, new)) {
+-				kfree(new);
++				bss_ref_put(rdev, new);
+ 				goto drop;
+ 			}
  		}
- 	}
--- 
-2.30.2
-
+ 
+ 		if (rdev->bss_entries >= bss_entries_limit &&
+ 		    !cfg80211_bss_expire_oldest(rdev)) {
+-			if (!list_empty(&new->hidden_list))
+-				list_del(&new->hidden_list);
+-			kfree(new);
++			bss_ref_put(rdev, new);
+ 			goto drop;
+ 		}
+ 
 
 
