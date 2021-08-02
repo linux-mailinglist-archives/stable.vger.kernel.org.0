@@ -2,60 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E26133DDF8D
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 20:48:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B461D3DDF8E
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 20:48:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230323AbhHBSsT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 14:48:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57930 "EHLO
+        id S230372AbhHBSsX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 14:48:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229537AbhHBSsT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Aug 2021 14:48:19 -0400
-Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9696C06175F
-        for <stable@vger.kernel.org>; Mon,  2 Aug 2021 11:48:09 -0700 (PDT)
-Received: by mail-pl1-x62c.google.com with SMTP id k1so20688115plt.12
-        for <stable@vger.kernel.org>; Mon, 02 Aug 2021 11:48:09 -0700 (PDT)
+        with ESMTP id S229537AbhHBSsU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Aug 2021 14:48:20 -0400
+Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 515F4C06175F
+        for <stable@vger.kernel.org>; Mon,  2 Aug 2021 11:48:11 -0700 (PDT)
+Received: by mail-pj1-x1029.google.com with SMTP id pj14-20020a17090b4f4eb029017786cf98f9so1311289pjb.2
+        for <stable@vger.kernel.org>; Mon, 02 Aug 2021 11:48:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=jlekstrand-net.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=/uuPPLonj/sWnB/9LM+BBP/1ZP7ZctZAquFBEaGVmUc=;
-        b=S+PfpnU9/J7iPHzV8zn6WD9lgo3aMxwpgEFK45MuN5/78mrTEyWYy46lKp8TeNxWN+
-         1aqDOQTS8rtBcfoz9SRnCT9EFB+V3OD8Al18KM7eInWm0o/AYnKlmlMwsxZdwauauzot
-         nTq4bWxfcacV/wnMkI3Ch064KglQ5TYPBiUnHYyFupi5DRgzQ4Y12QiHL00MCW85XQ+H
-         Kfm0/aovVFrtEUx7sF2Se2vGQvHdpNtSzOT+L/clAw4zq4o//R8DxTyGSIXCcakuFSQe
-         ERYDGHABbeeDnlzTpZgKteMP0UppxuNgSdzphSnVXEIUvfkVdlkn3aZb38maiPfOPXLQ
-         BX1Q==
+        bh=ictjcxkLz+p2L00FlRj8tctodcJDOmssBZ2DadTrU/8=;
+        b=DZ7bKaHfHcyhMq2695H0lIi+qQSTooQO2e8GRE1W1gqTXiSurYDdSgHgiKkR+vufcT
+         ElCLMmsByCz01haCVehV1cPo0DmSq/Mv5jBzhY2IxMP9FqgoOOzmvtELTcluLMjwZIo0
+         z8MxkYwIhKuQE2Z0TRzcpdxjbLSQfwIsPxLVmKmXsHhzQGUQnbj0qVbU52uH7T55MgBd
+         DJ2kLekjUexLPKI2ZTqsbefOWlRygWM42DveD1sTCfBtF3InZ6Nl353yBMBts95xIL4/
+         CXOZEnBR2sZvwTQvTEhJZ8h6lzPhcaYfuCAXhrK5+p+JaQxZjwI1s+t4OVYPnrkKVw3g
+         BiyA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=/uuPPLonj/sWnB/9LM+BBP/1ZP7ZctZAquFBEaGVmUc=;
-        b=kV7l2lVFkZHtLmsFqKSdPpz+/8CnzSLvrU3xDF4heS0vMr+e/ZXbFnC0rdB/hrdoe9
-         etVvf/sAkadKryhuaers0hZd4yA74syOrNWvrcy6sI/n2bpnrgIntjXi5kdeUBQ1JJGn
-         jfQcKbcWvoLxlzlkE2nNGu679PsJgN4ERAiu1PptGRJbJ0awDhhxepCxKVaXYq6PZ0ie
-         fsB0tNxc7ueCfSalPN6HKTdbw42sARheCeIjRMvkFrKBsVAIBo8+xh1b4I0LcGeIwi7z
-         2Sw8Y5RvqIal47S/ydyj3mctv1/XqVM95Imd2iq6U7doiINKmP2Qv/bMUVlP65ti9KLa
-         2WtA==
-X-Gm-Message-State: AOAM533iOghGntrLVf7m3zqP6yfj74uB3ft/5Lsx8xJ3Sc+JoA/zFusE
-        x7dRjFsH8E2VBqNvtmIwb8hUKiHI/Pv+AWtt
-X-Google-Smtp-Source: ABdhPJxwSWzpUFiC+TfAoeOPqQYCQtBNeuFPXwgmW34lt9GSZDogbMizt3XHeIzPVYMwvk93fP548g==
-X-Received: by 2002:a65:448b:: with SMTP id l11mr2528086pgq.218.1627930088886;
-        Mon, 02 Aug 2021 11:48:08 -0700 (PDT)
+        bh=ictjcxkLz+p2L00FlRj8tctodcJDOmssBZ2DadTrU/8=;
+        b=DncvZ5zGK+036aEAHEuTJRLPQs1SbH9nRCfeXLa3WwpuUbvVi1WP1ARNv9yRHcp6xI
+         D0+bD8IKHB32AqZoA5YBPqJtk7BHJVYRx6/qT04ObLC+GVNMRWAZJgg6BYAMUcJaHT43
+         Uie/I3dyPhY7YLLauCdLPJBm8GPumZT7tXM9z3R6KAS6mh61GZtSX1HTy7viOl/2RGrk
+         37l8ASlJewfyD8gpCpA6sXtiXC7QUjUCLpZppfJH/hnSVQ9CzsQIJCUTi1JZXO7aiQEh
+         P11Muo7lSpwggUB2lbfYOHUSKpTC8VgwrJo7Dmf+XjdslLLdUD8zxFc58VQGkbb9V+Ea
+         k5lg==
+X-Gm-Message-State: AOAM532nJHCgDPBzLlxEn1Hmekx3gLUypvRs/rE0xuCpS2B2uxLBqvm5
+        DoyZT8KL6Vqjm3GHdPOIGtyEbY0tCTpRaiW9
+X-Google-Smtp-Source: ABdhPJyPAuRYkaltO/QmTda/s70TxOSKYcT0zI6rFDWd71TJSy3ImZvu92LnqplS8Dpa+arl10QDFQ==
+X-Received: by 2002:a17:90a:ca93:: with SMTP id y19mr301198pjt.142.1627930090605;
+        Mon, 02 Aug 2021 11:48:10 -0700 (PDT)
 Received: from omlet.lan ([134.134.137.81])
-        by smtp.gmail.com with ESMTPSA id w9sm849931pfg.151.2021.08.02.11.48.07
+        by smtp.gmail.com with ESMTPSA id w9sm849931pfg.151.2021.08.02.11.48.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 Aug 2021 11:48:08 -0700 (PDT)
+        Mon, 02 Aug 2021 11:48:10 -0700 (PDT)
 From:   Jason Ekstrand <jason@jlekstrand.net>
 To:     stable@vger.kernel.org
 Cc:     Jason Ekstrand <jason@jlekstrand.net>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Marcin Slusarz <marcin.slusarz@intel.com>,
+        Jason Ekstrand <jason.ekstrand@intel.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
         Jon Bloomfield <jon.bloomfield@intel.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH 1/2] drm/i915: Revert "drm/i915/gem: Asynchronous cmdparser"
-Date:   Mon,  2 Aug 2021 13:48:01 -0500
-Message-Id: <20210802184802.414849-2-jason@jlekstrand.net>
+        Rodrigo Vivi <rodrigo.vivi@intel.com>
+Subject: [PATCH 2/2] Revert "drm/i915: Propagate errors on awaiting already signaled fences"
+Date:   Mon,  2 Aug 2021 13:48:02 -0500
+Message-Id: <20210802184802.414849-3-jason@jlekstrand.net>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210802184802.414849-1-jason@jlekstrand.net>
 References: <20210802184802.414849-1-jason@jlekstrand.net>
@@ -65,341 +67,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit c9d9fdbc108af8915d3f497bbdf3898bf8f321b8 upstream.  This version
+commit 3761baae908a7b5012be08d70fa553cc2eb82305 upstream.  This version
 applies to the 5.10 tree.
 
-This reverts 686c7c35abc2 ("drm/i915/gem: Asynchronous cmdparser").  The
-justification for this commit in the git history was a vague comment
-about getting it out from under the struct_mutex.  While this may
-improve perf for some workloads on Gen7 platforms where we rely on the
-command parser for features such as indirect rendering, no numbers were
-provided to prove such an improvement.  It claims to closed two
-gitlab/bugzilla issues but with no explanation whatsoever as to why or
-what bug it's fixing.
+This reverts commit 9e31c1fe45d555a948ff66f1f0e3fe1f83ca63f7.  Ever
+since that commit, we've been having issues where a hang in one client
+can propagate to another.  In particular, a hang in an app can propagate
+to the X server which causes the whole desktop to lock up.
 
-Meanwhile, by moving command parsing off to an async callback, it leaves
-us with a problem of what to do on error.  When things were synchronous,
-EXECBUFFER2 would fail with an error code if parsing failed.  When
-moving it to async, we needed another way to handle that error and the
-solution employed was to set an error on the dma_fence and then trust
-that said error gets propagated to the client eventually.  Moving back
-to synchronous will help us untangle the fence error propagation mess.
+Error propagation along fences sound like a good idea, but as your bug
+shows, surprising consequences, since propagating errors across security
+boundaries is not a good thing.
 
-This also reverts most of 0edbb9ba1bfe ("drm/i915: Move cmd parser
-pinning to execbuffer") which is a refactor of some of our allocation
-paths for asynchronous parsing.  Now that everything is synchronous, we
-don't need it.
+What we do have is track the hangs on the ctx, and report information to
+userspace using RESET_STATS. That's how arb_robustness works. Also, if my
+understanding is still correct, the EIO from execbuf is when your context
+is banned (because not recoverable or too many hangs). And in all these
+cases it's up to userspace to figure out what is all impacted and should
+be reported to the application, that's not on the kernel to guess and
+automatically propagate.
 
-v2 (Daniel Vetter):
- - Add stabel Cc and Fixes tag
+What's more, we're also building more features on top of ctx error
+reporting with RESET_STATS ioctl: Encrypted buffers use the same, and the
+userspace fence wait also relies on that mechanism. So it is the path
+going forward for reporting gpu hangs and resets to userspace.
+
+So all together that's why I think we should just bury this idea again as
+not quite the direction we want to go to, hence why I think the revert is
+the right option here.
+
+For backporters: Please note that you _must_ have a backport of
+https://lore.kernel.org/dri-devel/20210602164149.391653-2-jason@jlekstrand.net/
+for otherwise backporting just this patch opens up a security bug.
+
+v2: Augment commit message. Also restore Jason's sob that I
+accidentally lost.
+
+v3: Add a note for backporters
 
 Signed-off-by: Jason Ekstrand <jason@jlekstrand.net>
+Reported-by: Marcin Slusarz <marcin.slusarz@intel.com>
 Cc: <stable@vger.kernel.org> # v5.6+
+Cc: Jason Ekstrand <jason.ekstrand@intel.com>
+Cc: Marcin Slusarz <marcin.slusarz@intel.com>
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/3080
 Fixes: 9e31c1fe45d5 ("drm/i915: Propagate errors on awaiting already signaled fences")
-Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Reviewed-by: Jon Bloomfield <jon.bloomfield@intel.com>
 Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Reviewed-by: Jon Bloomfield <jon.bloomfield@intel.com>
 Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210714193419.1459723-2-jason@jlekstrand.net
+Link: https://patchwork.freedesktop.org/patch/msgid/20210714193419.1459723-3-jason@jlekstrand.net
+(cherry picked from commit 93a2711cddd5760e2f0f901817d71c93183c3b87)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 ---
- .../gpu/drm/i915/gem/i915_gem_execbuffer.c    | 164 +-----------------
- drivers/gpu/drm/i915/i915_cmd_parser.c        |  28 +--
- 2 files changed, 25 insertions(+), 167 deletions(-)
+ drivers/gpu/drm/i915/i915_request.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-index bd3046e5a934..e5ac0936a587 100644
---- a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-@@ -24,7 +24,6 @@
- #include "i915_gem_clflush.h"
- #include "i915_gem_context.h"
- #include "i915_gem_ioctls.h"
--#include "i915_sw_fence_work.h"
- #include "i915_trace.h"
- #include "i915_user_extensions.h"
+diff --git a/drivers/gpu/drm/i915/i915_request.c b/drivers/gpu/drm/i915/i915_request.c
+index 0e813819b041..d8fef42ca38e 100644
+--- a/drivers/gpu/drm/i915/i915_request.c
++++ b/drivers/gpu/drm/i915/i915_request.c
+@@ -1285,10 +1285,8 @@ i915_request_await_execution(struct i915_request *rq,
  
-@@ -1401,6 +1400,10 @@ static u32 *reloc_gpu(struct i915_execbuffer *eb,
- 		int err;
- 		struct intel_engine_cs *engine = eb->engine;
+ 	do {
+ 		fence = *child++;
+-		if (test_bit(DMA_FENCE_FLAG_SIGNALED_BIT, &fence->flags)) {
+-			i915_sw_fence_set_error_once(&rq->submit, fence->error);
++		if (test_bit(DMA_FENCE_FLAG_SIGNALED_BIT, &fence->flags))
+ 			continue;
+-		}
  
-+		/* If we need to copy for the cmdparser, we will stall anyway */
-+		if (eb_use_cmdparser(eb))
-+			return ERR_PTR(-EWOULDBLOCK);
-+
- 		if (!reloc_can_use_engine(engine)) {
- 			engine = engine->gt->engine_class[COPY_ENGINE_CLASS][0];
- 			if (!engine)
-@@ -2267,152 +2270,6 @@ shadow_batch_pin(struct i915_execbuffer *eb,
- 	return vma;
- }
+ 		if (fence->context == rq->fence.context)
+ 			continue;
+@@ -1386,10 +1384,8 @@ i915_request_await_dma_fence(struct i915_request *rq, struct dma_fence *fence)
  
--struct eb_parse_work {
--	struct dma_fence_work base;
--	struct intel_engine_cs *engine;
--	struct i915_vma *batch;
--	struct i915_vma *shadow;
--	struct i915_vma *trampoline;
--	unsigned long batch_offset;
--	unsigned long batch_length;
--};
--
--static int __eb_parse(struct dma_fence_work *work)
--{
--	struct eb_parse_work *pw = container_of(work, typeof(*pw), base);
--
--	return intel_engine_cmd_parser(pw->engine,
--				       pw->batch,
--				       pw->batch_offset,
--				       pw->batch_length,
--				       pw->shadow,
--				       pw->trampoline);
--}
--
--static void __eb_parse_release(struct dma_fence_work *work)
--{
--	struct eb_parse_work *pw = container_of(work, typeof(*pw), base);
--
--	if (pw->trampoline)
--		i915_active_release(&pw->trampoline->active);
--	i915_active_release(&pw->shadow->active);
--	i915_active_release(&pw->batch->active);
--}
--
--static const struct dma_fence_work_ops eb_parse_ops = {
--	.name = "eb_parse",
--	.work = __eb_parse,
--	.release = __eb_parse_release,
--};
--
--static inline int
--__parser_mark_active(struct i915_vma *vma,
--		     struct intel_timeline *tl,
--		     struct dma_fence *fence)
--{
--	struct intel_gt_buffer_pool_node *node = vma->private;
--
--	return i915_active_ref(&node->active, tl->fence_context, fence);
--}
--
--static int
--parser_mark_active(struct eb_parse_work *pw, struct intel_timeline *tl)
--{
--	int err;
--
--	mutex_lock(&tl->mutex);
--
--	err = __parser_mark_active(pw->shadow, tl, &pw->base.dma);
--	if (err)
--		goto unlock;
--
--	if (pw->trampoline) {
--		err = __parser_mark_active(pw->trampoline, tl, &pw->base.dma);
--		if (err)
--			goto unlock;
--	}
--
--unlock:
--	mutex_unlock(&tl->mutex);
--	return err;
--}
--
--static int eb_parse_pipeline(struct i915_execbuffer *eb,
--			     struct i915_vma *shadow,
--			     struct i915_vma *trampoline)
--{
--	struct eb_parse_work *pw;
--	int err;
--
--	GEM_BUG_ON(overflows_type(eb->batch_start_offset, pw->batch_offset));
--	GEM_BUG_ON(overflows_type(eb->batch_len, pw->batch_length));
--
--	pw = kzalloc(sizeof(*pw), GFP_KERNEL);
--	if (!pw)
--		return -ENOMEM;
--
--	err = i915_active_acquire(&eb->batch->vma->active);
--	if (err)
--		goto err_free;
--
--	err = i915_active_acquire(&shadow->active);
--	if (err)
--		goto err_batch;
--
--	if (trampoline) {
--		err = i915_active_acquire(&trampoline->active);
--		if (err)
--			goto err_shadow;
--	}
--
--	dma_fence_work_init(&pw->base, &eb_parse_ops);
--
--	pw->engine = eb->engine;
--	pw->batch = eb->batch->vma;
--	pw->batch_offset = eb->batch_start_offset;
--	pw->batch_length = eb->batch_len;
--	pw->shadow = shadow;
--	pw->trampoline = trampoline;
--
--	/* Mark active refs early for this worker, in case we get interrupted */
--	err = parser_mark_active(pw, eb->context->timeline);
--	if (err)
--		goto err_commit;
--
--	err = dma_resv_reserve_shared(pw->batch->resv, 1);
--	if (err)
--		goto err_commit;
--
--	/* Wait for all writes (and relocs) into the batch to complete */
--	err = i915_sw_fence_await_reservation(&pw->base.chain,
--					      pw->batch->resv, NULL, false,
--					      0, I915_FENCE_GFP);
--	if (err < 0)
--		goto err_commit;
--
--	/* Keep the batch alive and unwritten as we parse */
--	dma_resv_add_shared_fence(pw->batch->resv, &pw->base.dma);
--
--	/* Force execution to wait for completion of the parser */
--	dma_resv_add_excl_fence(shadow->resv, &pw->base.dma);
--
--	dma_fence_work_commit_imm(&pw->base);
--	return 0;
--
--err_commit:
--	i915_sw_fence_set_error_once(&pw->base.chain, err);
--	dma_fence_work_commit_imm(&pw->base);
--	return err;
--
--err_shadow:
--	i915_active_release(&shadow->active);
--err_batch:
--	i915_active_release(&eb->batch->vma->active);
--err_free:
--	kfree(pw);
--	return err;
--}
--
- static struct i915_vma *eb_dispatch_secure(struct i915_execbuffer *eb, struct i915_vma *vma)
- {
- 	/*
-@@ -2494,13 +2351,11 @@ static int eb_parse(struct i915_execbuffer *eb)
- 		eb->batch_flags |= I915_DISPATCH_SECURE;
- 	}
+ 	do {
+ 		fence = *child++;
+-		if (test_bit(DMA_FENCE_FLAG_SIGNALED_BIT, &fence->flags)) {
+-			i915_sw_fence_set_error_once(&rq->submit, fence->error);
++		if (test_bit(DMA_FENCE_FLAG_SIGNALED_BIT, &fence->flags))
+ 			continue;
+-		}
  
--	batch = eb_dispatch_secure(eb, shadow);
--	if (IS_ERR(batch)) {
--		err = PTR_ERR(batch);
--		goto err_trampoline;
--	}
--
--	err = eb_parse_pipeline(eb, shadow, trampoline);
-+	err = intel_engine_cmd_parser(eb->engine,
-+				      eb->batch->vma,
-+				      eb->batch_start_offset,
-+				      eb->batch_len,
-+				      shadow, trampoline);
- 	if (err)
- 		goto err_unpin_batch;
- 
-@@ -2522,7 +2377,6 @@ static int eb_parse(struct i915_execbuffer *eb)
- err_unpin_batch:
- 	if (batch)
- 		i915_vma_unpin(batch);
--err_trampoline:
- 	if (trampoline)
- 		i915_vma_unpin(trampoline);
- err_shadow:
-diff --git a/drivers/gpu/drm/i915/i915_cmd_parser.c b/drivers/gpu/drm/i915/i915_cmd_parser.c
-index 9ce174950340..635aae9145cb 100644
---- a/drivers/gpu/drm/i915/i915_cmd_parser.c
-+++ b/drivers/gpu/drm/i915/i915_cmd_parser.c
-@@ -1143,27 +1143,30 @@ find_reg(const struct intel_engine_cs *engine, u32 addr)
- /* Returns a vmap'd pointer to dst_obj, which the caller must unmap */
- static u32 *copy_batch(struct drm_i915_gem_object *dst_obj,
- 		       struct drm_i915_gem_object *src_obj,
--		       unsigned long offset, unsigned long length)
-+		       u32 offset, u32 length)
- {
--	bool needs_clflush;
-+	unsigned int src_needs_clflush;
-+	unsigned int dst_needs_clflush;
- 	void *dst, *src;
- 	int ret;
- 
-+	ret = i915_gem_object_prepare_write(dst_obj, &dst_needs_clflush);
-+	if (ret)
-+		return ERR_PTR(ret);
-+
- 	dst = i915_gem_object_pin_map(dst_obj, I915_MAP_FORCE_WB);
-+	i915_gem_object_finish_access(dst_obj);
- 	if (IS_ERR(dst))
- 		return dst;
- 
--	ret = i915_gem_object_pin_pages(src_obj);
-+	ret = i915_gem_object_prepare_read(src_obj, &src_needs_clflush);
- 	if (ret) {
- 		i915_gem_object_unpin_map(dst_obj);
- 		return ERR_PTR(ret);
- 	}
- 
--	needs_clflush =
--		!(src_obj->cache_coherent & I915_BO_CACHE_COHERENT_FOR_READ);
--
- 	src = ERR_PTR(-ENODEV);
--	if (needs_clflush && i915_has_memcpy_from_wc()) {
-+	if (src_needs_clflush && i915_has_memcpy_from_wc()) {
- 		src = i915_gem_object_pin_map(src_obj, I915_MAP_WC);
- 		if (!IS_ERR(src)) {
- 			i915_unaligned_memcpy_from_wc(dst,
-@@ -1185,7 +1188,7 @@ static u32 *copy_batch(struct drm_i915_gem_object *dst_obj,
- 		 * validate up to the end of the batch.
- 		 */
- 		remain = length;
--		if (!(dst_obj->cache_coherent & I915_BO_CACHE_COHERENT_FOR_READ))
-+		if (dst_needs_clflush & CLFLUSH_BEFORE)
- 			remain = round_up(remain,
- 					  boot_cpu_data.x86_clflush_size);
- 
-@@ -1195,7 +1198,7 @@ static u32 *copy_batch(struct drm_i915_gem_object *dst_obj,
- 			int len = min(remain, PAGE_SIZE - x);
- 
- 			src = kmap_atomic(i915_gem_object_get_page(src_obj, n));
--			if (needs_clflush)
-+			if (src_needs_clflush)
- 				drm_clflush_virt_range(src + x, len);
- 			memcpy(ptr, src + x, len);
- 			kunmap_atomic(src);
-@@ -1206,11 +1209,10 @@ static u32 *copy_batch(struct drm_i915_gem_object *dst_obj,
- 		}
- 	}
- 
--	i915_gem_object_unpin_pages(src_obj);
-+	i915_gem_object_finish_access(src_obj);
- 
- 	memset32(dst + length, 0, (dst_obj->base.size - length) / sizeof(u32));
- 
--	/* dst_obj is returned with vmap pinned */
- 	return dst;
- }
- 
-@@ -1417,6 +1419,7 @@ static unsigned long *alloc_whitelist(u32 batch_length)
-  * Return: non-zero if the parser finds violations or otherwise fails; -EACCES
-  * if the batch appears legal but should use hardware parsing
-  */
-+
- int intel_engine_cmd_parser(struct intel_engine_cs *engine,
- 			    struct i915_vma *batch,
- 			    unsigned long batch_offset,
-@@ -1437,7 +1440,8 @@ int intel_engine_cmd_parser(struct intel_engine_cs *engine,
- 				     batch->size));
- 	GEM_BUG_ON(!batch_length);
- 
--	cmd = copy_batch(shadow->obj, batch->obj, batch_offset, batch_length);
-+	cmd = copy_batch(shadow->obj, batch->obj,
-+			 batch_offset, batch_length);
- 	if (IS_ERR(cmd)) {
- 		DRM_DEBUG("CMD: Failed to copy batch\n");
- 		return PTR_ERR(cmd);
+ 		/*
+ 		 * Requests on the same timeline are explicitly ordered, along
 -- 
 2.31.1
 
