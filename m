@@ -2,42 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B77243DD7EF
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:48:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CCBD3DD8D5
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:56:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234564AbhHBNsf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:48:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57092 "EHLO mail.kernel.org"
+        id S235424AbhHBNzj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:55:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234465AbhHBNsQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:48:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 03B9860EBB;
-        Mon,  2 Aug 2021 13:48:06 +0000 (UTC)
+        id S235775AbhHBNy0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:54:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B183260F41;
+        Mon,  2 Aug 2021 13:52:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912086;
-        bh=jJqvK8HGRjD3gSq3yeANfgSOtangEB0762+udH++WA8=;
+        s=korg; t=1627912365;
+        bh=voG3CVZomaCHcJwbP4BJ0FYFj/FXmFV8kOSaUwIg700=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yuoOuR4PxLAVEgSDeA1FYTriKjU4B7YrloeziKZgwtxIznPqDv0Hf+YKHLfbo10YL
-         2+YkI0L3bejtz49Nj7zZexntEikEKXp05NN9bh28hrAZ6A6XIhRf8+jPoZ1ENN2IM7
-         LAhF2HHBEpszTbf+UpaZsGFwzyc8tXKHQ/SpkIpQ=
+        b=DmHwLBeSUFOkC7jfuBCy0K3ljsfhCKvIgVnibFC6fzYvxSpo5odpr9UTtjd+CyE0J
+         V9xbhaFJnR5zDILgWBL9QF4/O+c4VcoONdq1db3LRtTgkYT7q0frkJuyMYSpnTxbA/
+         1As9KndGO3fTiCf/EQvkv7iex2IYsOakrv5rS10Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
-        Viacheslav Dubeyko <slava@dubeyko.com>,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 10/38] hfs: add missing clean-up in hfs_fill_super
+        stable@vger.kernel.org, Peter Xu <peterx@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.10 09/67] KVM: add missing compat KVM_CLEAR_DIRTY_LOG
 Date:   Mon,  2 Aug 2021 15:44:32 +0200
-Message-Id: <20210802134335.162194888@linuxfoundation.org>
+Message-Id: <20210802134339.333434436@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134334.835358048@linuxfoundation.org>
-References: <20210802134334.835358048@linuxfoundation.org>
+In-Reply-To: <20210802134339.023067817@linuxfoundation.org>
+References: <20210802134339.023067817@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,86 +39,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
 
-[ Upstream commit 16ee572eaf0d09daa4c8a755fdb71e40dbf8562d ]
+commit 8750f9bbda115f3f79bfe43be85551ee5e12b6ff upstream.
 
-Patch series "hfs: fix various errors", v2.
+The arguments to the KVM_CLEAR_DIRTY_LOG ioctl include a pointer,
+therefore it needs a compat ioctl implementation.  Otherwise,
+32-bit userspace fails to invoke it on 64-bit kernels; for x86
+it might work fine by chance if the padding is zero, but not
+on big-endian architectures.
 
-This series ultimately aims to address a lockdep warning in
-hfs_find_init reported by Syzbot [1].
-
-The work done for this led to the discovery of another bug, and the
-Syzkaller repro test also reveals an invalid memory access error after
-clearing the lockdep warning.  Hence, this series is broken up into
-three patches:
-
-1. Add a missing call to hfs_find_exit for an error path in
-   hfs_fill_super
-
-2. Fix memory mapping in hfs_bnode_read by fixing calls to kmap
-
-3. Add lock nesting notation to tell lockdep that the observed locking
-   hierarchy is safe
-
-This patch (of 3):
-
-Before exiting hfs_fill_super, the struct hfs_find_data used in
-hfs_find_init should be passed to hfs_find_exit to be cleaned up, and to
-release the lock held on the btree.
-
-The call to hfs_find_exit is missing from an error path.  We add it back
-in by consolidating calls to hfs_find_exit for error paths.
-
-Link: https://syzkaller.appspot.com/bug?id=f007ef1d7a31a469e3be7aeb0fde0769b18585db [1]
-Link: https://lkml.kernel.org/r/20210701030756.58760-1-desmondcheongzx@gmail.com
-Link: https://lkml.kernel.org/r/20210701030756.58760-2-desmondcheongzx@gmail.com
-Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
-Reviewed-by: Viacheslav Dubeyko <slava@dubeyko.com>
-Cc: Gustavo A. R. Silva <gustavoars@kernel.org>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Shuah Khan <skhan@linuxfoundation.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Thomas Sattler
+Cc: stable@vger.kernel.org
+Fixes: 2a31b9db1535 ("kvm: introduce manual dirty log reprotect")
+Reviewed-by: Peter Xu <peterx@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/hfs/super.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ virt/kvm/kvm_main.c |   28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
 
-diff --git a/fs/hfs/super.c b/fs/hfs/super.c
-index 7e0d65e9586c..691810b0e6bc 100644
---- a/fs/hfs/super.c
-+++ b/fs/hfs/super.c
-@@ -427,14 +427,12 @@ static int hfs_fill_super(struct super_block *sb, void *data, int silent)
- 	if (!res) {
- 		if (fd.entrylength > sizeof(rec) || fd.entrylength < 0) {
- 			res =  -EIO;
--			goto bail;
-+			goto bail_hfs_find;
- 		}
- 		hfs_bnode_read(fd.bnode, &rec, fd.entryoffset, fd.entrylength);
- 	}
--	if (res) {
--		hfs_find_exit(&fd);
--		goto bail_no_root;
--	}
-+	if (res)
-+		goto bail_hfs_find;
- 	res = -EINVAL;
- 	root_inode = hfs_iget(sb, &fd.search_key->cat, &rec);
- 	hfs_find_exit(&fd);
-@@ -450,6 +448,8 @@ static int hfs_fill_super(struct super_block *sb, void *data, int silent)
- 	/* everything's okay */
- 	return 0;
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -3896,6 +3896,16 @@ struct compat_kvm_dirty_log {
+ 	};
+ };
  
-+bail_hfs_find:
-+	hfs_find_exit(&fd);
- bail_no_root:
- 	pr_err("get root inode failed\n");
- bail:
--- 
-2.30.2
-
++struct compat_kvm_clear_dirty_log {
++	__u32 slot;
++	__u32 num_pages;
++	__u64 first_page;
++	union {
++		compat_uptr_t dirty_bitmap; /* one bit per page */
++		__u64 padding2;
++	};
++};
++
+ static long kvm_vm_compat_ioctl(struct file *filp,
+ 			   unsigned int ioctl, unsigned long arg)
+ {
+@@ -3905,6 +3915,24 @@ static long kvm_vm_compat_ioctl(struct f
+ 	if (kvm->mm != current->mm)
+ 		return -EIO;
+ 	switch (ioctl) {
++#ifdef CONFIG_KVM_GENERIC_DIRTYLOG_READ_PROTECT
++	case KVM_CLEAR_DIRTY_LOG: {
++		struct compat_kvm_clear_dirty_log compat_log;
++		struct kvm_clear_dirty_log log;
++
++		if (copy_from_user(&compat_log, (void __user *)arg,
++				   sizeof(compat_log)))
++			return -EFAULT;
++		log.slot	 = compat_log.slot;
++		log.num_pages	 = compat_log.num_pages;
++		log.first_page	 = compat_log.first_page;
++		log.padding2	 = compat_log.padding2;
++		log.dirty_bitmap = compat_ptr(compat_log.dirty_bitmap);
++
++		r = kvm_vm_ioctl_clear_dirty_log(kvm, &log);
++		break;
++	}
++#endif
+ 	case KVM_GET_DIRTY_LOG: {
+ 		struct compat_kvm_dirty_log compat_log;
+ 		struct kvm_dirty_log log;
 
 
