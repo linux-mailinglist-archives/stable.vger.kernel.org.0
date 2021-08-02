@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C80B3DD902
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:56:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F38F3DD937
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:58:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235765AbhHBN4T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:56:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34568 "EHLO mail.kernel.org"
+        id S233958AbhHBN6Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:58:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234620AbhHBNwz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:52:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4DDC160555;
-        Mon,  2 Aug 2021 13:51:48 +0000 (UTC)
+        id S236303AbhHBN4X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:56:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C79A86113E;
+        Mon,  2 Aug 2021 13:54:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912308;
-        bh=+dsKwnnReKoHkgjNqx1g7+OyrDcwFH6QCnfIcEnTTsU=;
+        s=korg; t=1627912472;
+        bh=9tJuRX9Qp1ToO185blhtRO+oQzh78cM80OJNjrYgTQo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=znAjx3ZMIzqsWV0VAYMvoyVP2tGPdxkqCknjHBi628tzURjPqik3N0TcmhEQ74Wii
-         yq//58kPElZzS6ffygGiiUbBY/bqpfqZTRZYDFXj294jTLXna1xgTKefKb7OzIuniU
-         A+OmUPcEumZAzs5XFYCnYxjd2SYxMUkzMPR0LgGE=
+        b=qXrF03DafKHtzCS7lx+qQW1Iu7SG87/lrnyrSLT64m8wVzEJx5uOp2iE4uIykGrDZ
+         XBETPmIIFV2I4A/6ZDQgTUZQHFGh+iq3G5gYm6oWSeKXu+v9JgdjGmmvV/4/+ARsFI
+         /jF4C+DkS5nvT8a9C8t/u8c+ttZTeA1TLtU5Ig0E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaochen Zou <xzou017@ucr.edu>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.4 40/40] can: j1939: j1939_session_deactivate(): clarify lifetime of session object
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 57/67] can: hi311x: fix a signedness bug in hi3110_cmd()
 Date:   Mon,  2 Aug 2021 15:45:20 +0200
-Message-Id: <20210802134336.673660790@linuxfoundation.org>
+Message-Id: <20210802134340.996410352@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134335.408294521@linuxfoundation.org>
-References: <20210802134335.408294521@linuxfoundation.org>
+In-Reply-To: <20210802134339.023067817@linuxfoundation.org>
+References: <20210802134339.023067817@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,53 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleksij Rempel <o.rempel@pengutronix.de>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 0c71437dd50dd687c15d8ca80b3b68f10bb21d63 upstream.
+[ Upstream commit f6b3c7848e66e9046c8a79a5b88fd03461cc252b ]
 
-The j1939_session_deactivate() is decrementing the session ref-count and
-potentially can free() the session. This would cause use-after-free
-situation.
+The hi3110_cmd() is supposed to return zero on success and negative
+error codes on failure, but it was accidentally declared as a u8 when
+it needs to be an int type.
 
-However, the code calling j1939_session_deactivate() does always hold
-another reference to the session, so that it would not be free()ed in
-this code path.
-
-This patch adds a comment to make this clear and a WARN_ON, to ensure
-that future changes will not violate this requirement. Further this
-patch avoids dereferencing the session pointer as a precaution to avoid
-use-after-free if the session is actually free()ed.
-
-Fixes: 9d71dd0c7009 ("can: add support of SAE J1939 protocol")
-Link: https://lore.kernel.org/r/20210714111602.24021-1-o.rempel@pengutronix.de
-Reported-by: Xiaochen Zou <xzou017@ucr.edu>
-Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Fixes: 57e83fb9b746 ("can: hi311x: Add Holt HI-311x CAN driver")
+Link: https://lore.kernel.org/r/20210729141246.GA1267@kili
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/can/j1939/transport.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/net/can/spi/hi311x.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/can/j1939/transport.c
-+++ b/net/can/j1939/transport.c
-@@ -1075,11 +1075,16 @@ static bool j1939_session_deactivate_loc
- 
- static bool j1939_session_deactivate(struct j1939_session *session)
- {
-+	struct j1939_priv *priv = session->priv;
- 	bool active;
- 
--	j1939_session_list_lock(session->priv);
-+	j1939_session_list_lock(priv);
-+	/* This function should be called with a session ref-count of at
-+	 * least 2.
-+	 */
-+	WARN_ON_ONCE(kref_read(&session->kref) < 2);
- 	active = j1939_session_deactivate_locked(session);
--	j1939_session_list_unlock(session->priv);
-+	j1939_session_list_unlock(priv);
- 
- 	return active;
+diff --git a/drivers/net/can/spi/hi311x.c b/drivers/net/can/spi/hi311x.c
+index 73d48c3b8ded..7d2315c8cacb 100644
+--- a/drivers/net/can/spi/hi311x.c
++++ b/drivers/net/can/spi/hi311x.c
+@@ -218,7 +218,7 @@ static int hi3110_spi_trans(struct spi_device *spi, int len)
+ 	return ret;
  }
+ 
+-static u8 hi3110_cmd(struct spi_device *spi, u8 command)
++static int hi3110_cmd(struct spi_device *spi, u8 command)
+ {
+ 	struct hi3110_priv *priv = spi_get_drvdata(spi);
+ 
+-- 
+2.30.2
+
 
 
