@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A63C3DD912
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:56:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F69E3DD815
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:49:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234739AbhHBN47 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:56:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40708 "EHLO mail.kernel.org"
+        id S234063AbhHBNtl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:49:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57092 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235365AbhHBNz2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:55:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 98E99611C2;
-        Mon,  2 Aug 2021 13:53:54 +0000 (UTC)
+        id S234549AbhHBNsv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:48:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2545C60527;
+        Mon,  2 Aug 2021 13:48:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912435;
-        bh=wRvpam9wRRmddnFA/h83MnJHXmly/iKG/iGbSVRRF2Y=;
+        s=korg; t=1627912121;
+        bh=1on7F6qjqqXQipDnaqQP814c2+8+InJRDOYMzSi5di4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1cXFaK57n2FYJP+TWBWMOVDwJzncPDMXN0mrkBq/+W9y2A5qfD0uFCUtFS8bLzBK6
-         C3UajVq4UlQfZW8QTJQiJhkGY3Bz+fzKO9LMDc3LxS9WDvDE4gtb249ghF06mZiRIi
-         NyU1dbsc3i9oLN4A0OFIryi6EHLFVun7AKTl+gpU=
+        b=Ix4jY0IUSVbypI5qXSXCei0viXb+f4vnESFwStVB05HOYtjVEbnBd9FQkYxPKf5WD
+         jXxgVGfKnNUzFbfO816E2XmJZADOoKySychIJI1TmGw+tu9raxM1go5avkf8hkSKrC
+         JqUYPqbudwI/31gRGWS8W1xtT5Wjdw+6lhshls7c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vojtech Pavlik <vojtech@ucw.cz>,
-        Jiri Kosina <jkosina@suse.cz>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.10 24/67] drm/amdgpu: Fix resource leak on probe error path
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 25/38] nfc: nfcsim: fix use after free during module unload
 Date:   Mon,  2 Aug 2021 15:44:47 +0200
-Message-Id: <20210802134339.842433681@linuxfoundation.org>
+Message-Id: <20210802134335.621597430@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134339.023067817@linuxfoundation.org>
-References: <20210802134339.023067817@linuxfoundation.org>
+In-Reply-To: <20210802134334.835358048@linuxfoundation.org>
+References: <20210802134334.835358048@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,64 +40,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Kosina <jkosina@suse.cz>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
-commit d47255d3f87338164762ac56df1f28d751e27246 upstream.
+commit 5e7b30d24a5b8cb691c173b45b50e3ca0191be19 upstream.
 
-This reverts commit 4192f7b5768912ceda82be2f83c87ea7181f9980.
+There is a use after free memory corruption during module exit:
+ - nfcsim_exit()
+  - nfcsim_device_free(dev0)
+    - nfc_digital_unregister_device()
+      This iterates over command queue and frees all commands,
+    - dev->up = false
+    - nfcsim_link_shutdown()
+      - nfcsim_link_recv_wake()
+        This wakes the sleeping thread nfcsim_link_recv_skb().
 
-It is not true (as stated in the reverted commit changelog) that we never
-unmap the BAR on failure; it actually does happen properly on
-amdgpu_driver_load_kms() -> amdgpu_driver_unload_kms() ->
-amdgpu_device_fini() error path.
+ - nfcsim_link_recv_skb()
+   Wake from wait_event_interruptible_timeout(),
+   call directly the deb->cb callback even though (dev->up == false),
+   - digital_send_cmd_complete()
+     Dereference of "struct digital_cmd" cmd which was freed earlier by
+     nfc_digital_unregister_device().
 
-What's worse, this commit actually completely breaks resource freeing on
-probe failure (like e.g. failure to load microcode), as
-amdgpu_driver_unload_kms() notices adev->rmmio being NULL and bails too
-early, leaving all the resources that'd normally be freed in
-amdgpu_acpi_fini() and amdgpu_device_fini() still hanging around, leading
-to all sorts of oopses when someone tries to, for example, access the
-sysfs and procfs resources which are still around while the driver is
-gone.
+This causes memory corruption shortly after (with unrelated stack
+trace):
 
-Fixes: 4192f7b57689 ("drm/amdgpu: unmap register bar on device init failure")
-Reported-by: Vojtech Pavlik <vojtech@ucw.cz>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+  nfc nfc0: NFC: nfcsim_recv_wq: Device is down
+  llcp: nfc_llcp_recv: err -19
+  nfc nfc1: NFC: nfcsim_recv_wq: Device is down
+  BUG: unable to handle page fault for address: ffffffffffffffed
+  Call Trace:
+   fsnotify+0x54b/0x5c0
+   __fsnotify_parent+0x1fe/0x300
+   ? vfs_write+0x27c/0x390
+   vfs_write+0x27c/0x390
+   ksys_write+0x63/0xe0
+   do_syscall_64+0x3b/0x90
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+KASAN report:
+
+  BUG: KASAN: use-after-free in digital_send_cmd_complete+0x16/0x50
+  Write of size 8 at addr ffff88800a05f720 by task kworker/0:2/71
+  Workqueue: events nfcsim_recv_wq [nfcsim]
+  Call Trace:
+   dump_stack_lvl+0x45/0x59
+   print_address_description.constprop.0+0x21/0x140
+   ? digital_send_cmd_complete+0x16/0x50
+   ? digital_send_cmd_complete+0x16/0x50
+   kasan_report.cold+0x7f/0x11b
+   ? digital_send_cmd_complete+0x16/0x50
+   ? digital_dep_link_down+0x60/0x60
+   digital_send_cmd_complete+0x16/0x50
+   nfcsim_recv_wq+0x38f/0x3d5 [nfcsim]
+   ? nfcsim_in_send_cmd+0x4a/0x4a [nfcsim]
+   ? lock_is_held_type+0x98/0x110
+   ? finish_wait+0x110/0x110
+   ? rcu_read_lock_sched_held+0x9c/0xd0
+   ? rcu_read_lock_bh_held+0xb0/0xb0
+   ? lockdep_hardirqs_on_prepare+0x12e/0x1f0
+
+This flow of calling digital_send_cmd_complete() callback on driver exit
+is specific to nfcsim which implements reading and sending work queues.
+Since the NFC digital device was unregistered, the callback should not
+be called.
+
+Fixes: 204bddcb508f ("NFC: nfcsim: Make use of the Digital layer")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_device.c |    8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ drivers/nfc/nfcsim.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-@@ -3322,13 +3322,13 @@ int amdgpu_device_init(struct amdgpu_dev
- 	r = amdgpu_device_get_job_timeout_settings(adev);
- 	if (r) {
- 		dev_err(adev->dev, "invalid lockup_timeout parameter syntax\n");
--		goto failed_unmap;
-+		return r;
+--- a/drivers/nfc/nfcsim.c
++++ b/drivers/nfc/nfcsim.c
+@@ -201,8 +201,7 @@ static void nfcsim_recv_wq(struct work_s
+ 
+ 		if (!IS_ERR(skb))
+ 			dev_kfree_skb(skb);
+-
+-		skb = ERR_PTR(-ENODEV);
++		return;
  	}
  
- 	/* early init functions */
- 	r = amdgpu_device_ip_early_init(adev);
- 	if (r)
--		goto failed_unmap;
-+		return r;
- 
- 	/* doorbell bar mapping and doorbell index init*/
- 	amdgpu_device_doorbell_init(adev);
-@@ -3532,10 +3532,6 @@ failed:
- 	if (boco)
- 		vga_switcheroo_fini_domain_pm_ops(adev->dev);
- 
--failed_unmap:
--	iounmap(adev->rmmio);
--	adev->rmmio = NULL;
--
- 	return r;
- }
- 
+ 	dev->cb(dev->nfc_digital_dev, dev->arg, skb);
 
 
