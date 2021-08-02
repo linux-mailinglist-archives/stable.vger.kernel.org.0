@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EB1E3DD9EA
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 16:05:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 397E63DD920
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:57:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234423AbhHBOFM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 10:05:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49164 "EHLO mail.kernel.org"
+        id S234980AbhHBN5W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:57:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236591AbhHBODc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 10:03:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C0A0461211;
-        Mon,  2 Aug 2021 13:57:19 +0000 (UTC)
+        id S235440AbhHBNzk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:55:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EAC2360555;
+        Mon,  2 Aug 2021 13:54:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912640;
-        bh=PpLBshF79vpConzbkrHRkjI2D8Qk/JOWna+XLDYDzTU=;
+        s=korg; t=1627912450;
+        bh=gRS1IDSyb2Y6rvBgv+FHgNrodjDER+aKBPe0ygygkVI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oobBpshVb5dTyYmbBOsXfVLAXjoi8bckrV09eKckOE9F+esWZ5j+aFwHgED/EcDmG
-         hzBKYOtWnWv85OewuE8QDiroJwiR/JhjDeqyOkn4W8djuyayOEvYNBVxLkn2d+isae
-         PwMl4xMUMmuMkzk73imc/Pfb7Gf0yksoH3yZ9XHs=
+        b=epcjXbpvQzOrWwWaSahfNzbveB8ccdBXPUdAZYj/mLVJFVT7tnG1CYYw7M7cPKZho
+         TrcaufxcoAaPmHuf6qX1ehPoCFfxjkITQe5MUSMyj1xoX+S1+aD/SY8H1wV7xMPzBG
+         D9Qo2Sy7RAVuXTTy8q8Gf9mHAyMIpsblFUts6/kw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aya Levin <ayal@nvidia.com>,
-        Moshe Shemesh <moshe@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
+        Piotr Krysiuk <piotras@gmail.com>,
+        Benedict Schlueter <benedict.schlueter@rub.de>,
+        Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 083/104] net/mlx5: Unload device upon firmware fatal error
-Date:   Mon,  2 Aug 2021 15:45:20 +0200
-Message-Id: <20210802134346.743470990@linuxfoundation.org>
+Subject: [PATCH 5.10 58/67] bpf: Introduce BPF nospec instruction for mitigating Spectre v4
+Date:   Mon,  2 Aug 2021 15:45:21 +0200
+Message-Id: <20210802134341.027957134@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134344.028226640@linuxfoundation.org>
-References: <20210802134344.028226640@linuxfoundation.org>
+In-Reply-To: <20210802134339.023067817@linuxfoundation.org>
+References: <20210802134339.023067817@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,47 +42,320 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aya Levin <ayal@nvidia.com>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-[ Upstream commit 7f331bf0f060c2727e36d64f9b098b4ee5f3dfad ]
+[ Upstream commit f5e81d1117501546b7be050c5fbafa6efd2c722c ]
 
-When fw_fatal reporter reports an error, the firmware in not responding.
-Unload the device to ensure that the driver closes all its resources,
-even if recovery is not due (user disabled auto-recovery or reporter is
-in grace period). On successful recovery the device is loaded back up.
+In case of JITs, each of the JIT backends compiles the BPF nospec instruction
+/either/ to a machine instruction which emits a speculation barrier /or/ to
+/no/ machine instruction in case the underlying architecture is not affected
+by Speculative Store Bypass or has different mitigations in place already.
 
-Fixes: b3bd076f7501 ("net/mlx5: Report devlink health on FW fatal issues")
-Signed-off-by: Aya Levin <ayal@nvidia.com>
-Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+This covers both x86 and (implicitly) arm64: In case of x86, we use 'lfence'
+instruction for mitigation. In case of arm64, we rely on the firmware mitigation
+as controlled via the ssbd kernel parameter. Whenever the mitigation is enabled,
+it works for all of the kernel code with no need to provide any additional
+instructions here (hence only comment in arm64 JIT). Other archs can follow
+as needed. The BPF nospec instruction is specifically targeting Spectre v4
+since i) we don't use a serialization barrier for the Spectre v1 case, and
+ii) mitigation instructions for v1 and v4 might be different on some archs.
+
+The BPF nospec is required for a future commit, where the BPF verifier does
+annotate intermediate BPF programs with speculation barriers.
+
+Co-developed-by: Piotr Krysiuk <piotras@gmail.com>
+Co-developed-by: Benedict Schlueter <benedict.schlueter@rub.de>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Piotr Krysiuk <piotras@gmail.com>
+Signed-off-by: Benedict Schlueter <benedict.schlueter@rub.de>
+Acked-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/health.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ arch/arm/net/bpf_jit_32.c         |  3 +++
+ arch/arm64/net/bpf_jit_comp.c     | 13 +++++++++++++
+ arch/mips/net/ebpf_jit.c          |  3 +++
+ arch/powerpc/net/bpf_jit_comp64.c |  6 ++++++
+ arch/riscv/net/bpf_jit_comp32.c   |  4 ++++
+ arch/riscv/net/bpf_jit_comp64.c   |  4 ++++
+ arch/s390/net/bpf_jit_comp.c      |  5 +++++
+ arch/sparc/net/bpf_jit_comp_64.c  |  3 +++
+ arch/x86/net/bpf_jit_comp.c       |  7 +++++++
+ arch/x86/net/bpf_jit_comp32.c     |  6 ++++++
+ include/linux/filter.h            | 15 +++++++++++++++
+ kernel/bpf/core.c                 | 19 ++++++++++++++++++-
+ kernel/bpf/disasm.c               | 16 +++++++++-------
+ 13 files changed, 96 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/health.c b/drivers/net/ethernet/mellanox/mlx5/core/health.c
-index 9ff163c5bcde..9abeb80ffa31 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/health.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/health.c
-@@ -626,8 +626,16 @@ static void mlx5_fw_fatal_reporter_err_work(struct work_struct *work)
- 	}
- 	fw_reporter_ctx.err_synd = health->synd;
- 	fw_reporter_ctx.miss_counter = health->miss_counter;
--	devlink_health_report(health->fw_fatal_reporter,
--			      "FW fatal error reported", &fw_reporter_ctx);
-+	if (devlink_health_report(health->fw_fatal_reporter,
-+				  "FW fatal error reported", &fw_reporter_ctx) == -ECANCELED) {
-+		/* If recovery wasn't performed, due to grace period,
-+		 * unload the driver. This ensures that the driver
-+		 * closes all its resources and it is not subjected to
-+		 * requests from the kernel.
-+		 */
-+		mlx5_core_err(dev, "Driver is in error state. Unloading\n");
-+		mlx5_unload_one(dev);
-+	}
- }
+diff --git a/arch/arm/net/bpf_jit_32.c b/arch/arm/net/bpf_jit_32.c
+index 0207b6ea6e8a..ce8b04326352 100644
+--- a/arch/arm/net/bpf_jit_32.c
++++ b/arch/arm/net/bpf_jit_32.c
+@@ -1602,6 +1602,9 @@ static int build_insn(const struct bpf_insn *insn, struct jit_ctx *ctx)
+ 		rn = arm_bpf_get_reg32(src_lo, tmp2[1], ctx);
+ 		emit_ldx_r(dst, rn, off, ctx, BPF_SIZE(code));
+ 		break;
++	/* speculation barrier */
++	case BPF_ST | BPF_NOSPEC:
++		break;
+ 	/* ST: *(size *)(dst + off) = imm */
+ 	case BPF_ST | BPF_MEM | BPF_W:
+ 	case BPF_ST | BPF_MEM | BPF_H:
+diff --git a/arch/arm64/net/bpf_jit_comp.c b/arch/arm64/net/bpf_jit_comp.c
+index ef9f1d5e989d..345066b8e9fc 100644
+--- a/arch/arm64/net/bpf_jit_comp.c
++++ b/arch/arm64/net/bpf_jit_comp.c
+@@ -829,6 +829,19 @@ static int build_insn(const struct bpf_insn *insn, struct jit_ctx *ctx,
+ 			return ret;
+ 		break;
  
- static const struct devlink_health_reporter_ops mlx5_fw_fatal_reporter_ops = {
++	/* speculation barrier */
++	case BPF_ST | BPF_NOSPEC:
++		/*
++		 * Nothing required here.
++		 *
++		 * In case of arm64, we rely on the firmware mitigation of
++		 * Speculative Store Bypass as controlled via the ssbd kernel
++		 * parameter. Whenever the mitigation is enabled, it works
++		 * for all of the kernel code with no need to provide any
++		 * additional instructions.
++		 */
++		break;
++
+ 	/* ST: *(size *)(dst + off) = imm */
+ 	case BPF_ST | BPF_MEM | BPF_W:
+ 	case BPF_ST | BPF_MEM | BPF_H:
+diff --git a/arch/mips/net/ebpf_jit.c b/arch/mips/net/ebpf_jit.c
+index 561154cbcc40..b31b91e57c34 100644
+--- a/arch/mips/net/ebpf_jit.c
++++ b/arch/mips/net/ebpf_jit.c
+@@ -1355,6 +1355,9 @@ static int build_one_insn(const struct bpf_insn *insn, struct jit_ctx *ctx,
+ 		}
+ 		break;
+ 
++	case BPF_ST | BPF_NOSPEC: /* speculation barrier */
++		break;
++
+ 	case BPF_ST | BPF_B | BPF_MEM:
+ 	case BPF_ST | BPF_H | BPF_MEM:
+ 	case BPF_ST | BPF_W | BPF_MEM:
+diff --git a/arch/powerpc/net/bpf_jit_comp64.c b/arch/powerpc/net/bpf_jit_comp64.c
+index 022103c6a201..658ca2bab13c 100644
+--- a/arch/powerpc/net/bpf_jit_comp64.c
++++ b/arch/powerpc/net/bpf_jit_comp64.c
+@@ -646,6 +646,12 @@ static int bpf_jit_build_body(struct bpf_prog *fp, u32 *image,
+ 			}
+ 			break;
+ 
++		/*
++		 * BPF_ST NOSPEC (speculation barrier)
++		 */
++		case BPF_ST | BPF_NOSPEC:
++			break;
++
+ 		/*
+ 		 * BPF_ST(X)
+ 		 */
+diff --git a/arch/riscv/net/bpf_jit_comp32.c b/arch/riscv/net/bpf_jit_comp32.c
+index 579575f9cdae..f300f93ba645 100644
+--- a/arch/riscv/net/bpf_jit_comp32.c
++++ b/arch/riscv/net/bpf_jit_comp32.c
+@@ -1251,6 +1251,10 @@ int bpf_jit_emit_insn(const struct bpf_insn *insn, struct rv_jit_context *ctx,
+ 			return -1;
+ 		break;
+ 
++	/* speculation barrier */
++	case BPF_ST | BPF_NOSPEC:
++		break;
++
+ 	case BPF_ST | BPF_MEM | BPF_B:
+ 	case BPF_ST | BPF_MEM | BPF_H:
+ 	case BPF_ST | BPF_MEM | BPF_W:
+diff --git a/arch/riscv/net/bpf_jit_comp64.c b/arch/riscv/net/bpf_jit_comp64.c
+index 8a56b5293117..c113ae818b14 100644
+--- a/arch/riscv/net/bpf_jit_comp64.c
++++ b/arch/riscv/net/bpf_jit_comp64.c
+@@ -939,6 +939,10 @@ int bpf_jit_emit_insn(const struct bpf_insn *insn, struct rv_jit_context *ctx,
+ 		emit_ld(rd, 0, RV_REG_T1, ctx);
+ 		break;
+ 
++	/* speculation barrier */
++	case BPF_ST | BPF_NOSPEC:
++		break;
++
+ 	/* ST: *(size *)(dst + off) = imm */
+ 	case BPF_ST | BPF_MEM | BPF_B:
+ 		emit_imm(RV_REG_T1, imm, ctx);
+diff --git a/arch/s390/net/bpf_jit_comp.c b/arch/s390/net/bpf_jit_comp.c
+index fc44dce59536..dee01d3b23a4 100644
+--- a/arch/s390/net/bpf_jit_comp.c
++++ b/arch/s390/net/bpf_jit_comp.c
+@@ -1153,6 +1153,11 @@ static noinline int bpf_jit_insn(struct bpf_jit *jit, struct bpf_prog *fp,
+ 			break;
+ 		}
+ 		break;
++	/*
++	 * BPF_NOSPEC (speculation barrier)
++	 */
++	case BPF_ST | BPF_NOSPEC:
++		break;
+ 	/*
+ 	 * BPF_ST(X)
+ 	 */
+diff --git a/arch/sparc/net/bpf_jit_comp_64.c b/arch/sparc/net/bpf_jit_comp_64.c
+index 3364e2a00989..fef734473c0f 100644
+--- a/arch/sparc/net/bpf_jit_comp_64.c
++++ b/arch/sparc/net/bpf_jit_comp_64.c
+@@ -1287,6 +1287,9 @@ static int build_insn(const struct bpf_insn *insn, struct jit_ctx *ctx)
+ 			return 1;
+ 		break;
+ 	}
++	/* speculation barrier */
++	case BPF_ST | BPF_NOSPEC:
++		break;
+ 	/* ST: *(size *)(dst + off) = imm */
+ 	case BPF_ST | BPF_MEM | BPF_W:
+ 	case BPF_ST | BPF_MEM | BPF_H:
+diff --git a/arch/x86/net/bpf_jit_comp.c b/arch/x86/net/bpf_jit_comp.c
+index d5fa77256058..0a962cd6bac1 100644
+--- a/arch/x86/net/bpf_jit_comp.c
++++ b/arch/x86/net/bpf_jit_comp.c
+@@ -1141,6 +1141,13 @@ static int do_jit(struct bpf_prog *bpf_prog, int *addrs, u8 *image,
+ 			}
+ 			break;
+ 
++			/* speculation barrier */
++		case BPF_ST | BPF_NOSPEC:
++			if (boot_cpu_has(X86_FEATURE_XMM2))
++				/* Emit 'lfence' */
++				EMIT3(0x0F, 0xAE, 0xE8);
++			break;
++
+ 			/* ST: *(u8*)(dst_reg + off) = imm */
+ 		case BPF_ST | BPF_MEM | BPF_B:
+ 			if (is_ereg(dst_reg))
+diff --git a/arch/x86/net/bpf_jit_comp32.c b/arch/x86/net/bpf_jit_comp32.c
+index 2cf4d217840d..4bd0f98df700 100644
+--- a/arch/x86/net/bpf_jit_comp32.c
++++ b/arch/x86/net/bpf_jit_comp32.c
+@@ -1705,6 +1705,12 @@ static int do_jit(struct bpf_prog *bpf_prog, int *addrs, u8 *image,
+ 			i++;
+ 			break;
+ 		}
++		/* speculation barrier */
++		case BPF_ST | BPF_NOSPEC:
++			if (boot_cpu_has(X86_FEATURE_XMM2))
++				/* Emit 'lfence' */
++				EMIT3(0x0F, 0xAE, 0xE8);
++			break;
+ 		/* ST: *(u8*)(dst_reg + off) = imm */
+ 		case BPF_ST | BPF_MEM | BPF_H:
+ 		case BPF_ST | BPF_MEM | BPF_B:
+diff --git a/include/linux/filter.h b/include/linux/filter.h
+index e2ffa02f9067..822b701c803d 100644
+--- a/include/linux/filter.h
++++ b/include/linux/filter.h
+@@ -72,6 +72,11 @@ struct ctl_table_header;
+ /* unused opcode to mark call to interpreter with arguments */
+ #define BPF_CALL_ARGS	0xe0
+ 
++/* unused opcode to mark speculation barrier for mitigating
++ * Speculative Store Bypass
++ */
++#define BPF_NOSPEC	0xc0
++
+ /* As per nm, we expose JITed images as text (code) section for
+  * kallsyms. That way, tools like perf can find it to match
+  * addresses.
+@@ -372,6 +377,16 @@ static inline bool insn_is_zext(const struct bpf_insn *insn)
+ 		.off   = 0,					\
+ 		.imm   = 0 })
+ 
++/* Speculation barrier */
++
++#define BPF_ST_NOSPEC()						\
++	((struct bpf_insn) {					\
++		.code  = BPF_ST | BPF_NOSPEC,			\
++		.dst_reg = 0,					\
++		.src_reg = 0,					\
++		.off   = 0,					\
++		.imm   = 0 })
++
+ /* Internal classic blocks for direct assignment */
+ 
+ #define __BPF_STMT(CODE, K)					\
+diff --git a/kernel/bpf/core.c b/kernel/bpf/core.c
+index 75c2d184018a..d12efb2550d3 100644
+--- a/kernel/bpf/core.c
++++ b/kernel/bpf/core.c
+@@ -32,6 +32,8 @@
+ #include <linux/perf_event.h>
+ #include <linux/extable.h>
+ #include <linux/log2.h>
++
++#include <asm/barrier.h>
+ #include <asm/unaligned.h>
+ 
+ /* Registers */
+@@ -1380,6 +1382,7 @@ static u64 ___bpf_prog_run(u64 *regs, const struct bpf_insn *insn, u64 *stack)
+ 		/* Non-UAPI available opcodes. */
+ 		[BPF_JMP | BPF_CALL_ARGS] = &&JMP_CALL_ARGS,
+ 		[BPF_JMP | BPF_TAIL_CALL] = &&JMP_TAIL_CALL,
++		[BPF_ST  | BPF_NOSPEC] = &&ST_NOSPEC,
+ 		[BPF_LDX | BPF_PROBE_MEM | BPF_B] = &&LDX_PROBE_MEM_B,
+ 		[BPF_LDX | BPF_PROBE_MEM | BPF_H] = &&LDX_PROBE_MEM_H,
+ 		[BPF_LDX | BPF_PROBE_MEM | BPF_W] = &&LDX_PROBE_MEM_W,
+@@ -1624,7 +1627,21 @@ static u64 ___bpf_prog_run(u64 *regs, const struct bpf_insn *insn, u64 *stack)
+ 	COND_JMP(s, JSGE, >=)
+ 	COND_JMP(s, JSLE, <=)
+ #undef COND_JMP
+-	/* STX and ST and LDX*/
++	/* ST, STX and LDX*/
++	ST_NOSPEC:
++		/* Speculation barrier for mitigating Speculative Store Bypass.
++		 * In case of arm64, we rely on the firmware mitigation as
++		 * controlled via the ssbd kernel parameter. Whenever the
++		 * mitigation is enabled, it works for all of the kernel code
++		 * with no need to provide any additional instructions here.
++		 * In case of x86, we use 'lfence' insn for mitigation. We
++		 * reuse preexisting logic from Spectre v1 mitigation that
++		 * happens to produce the required code on x86 for v4 as well.
++		 */
++#ifdef CONFIG_X86
++		barrier_nospec();
++#endif
++		CONT;
+ #define LDST(SIZEOP, SIZE)						\
+ 	STX_MEM_##SIZEOP:						\
+ 		*(SIZE *)(unsigned long) (DST + insn->off) = SRC;	\
+diff --git a/kernel/bpf/disasm.c b/kernel/bpf/disasm.c
+index b44d8c447afd..ff1dd7d45b58 100644
+--- a/kernel/bpf/disasm.c
++++ b/kernel/bpf/disasm.c
+@@ -162,15 +162,17 @@ void print_bpf_insn(const struct bpf_insn_cbs *cbs,
+ 		else
+ 			verbose(cbs->private_data, "BUG_%02x\n", insn->code);
+ 	} else if (class == BPF_ST) {
+-		if (BPF_MODE(insn->code) != BPF_MEM) {
++		if (BPF_MODE(insn->code) == BPF_MEM) {
++			verbose(cbs->private_data, "(%02x) *(%s *)(r%d %+d) = %d\n",
++				insn->code,
++				bpf_ldst_string[BPF_SIZE(insn->code) >> 3],
++				insn->dst_reg,
++				insn->off, insn->imm);
++		} else if (BPF_MODE(insn->code) == 0xc0 /* BPF_NOSPEC, no UAPI */) {
++			verbose(cbs->private_data, "(%02x) nospec\n", insn->code);
++		} else {
+ 			verbose(cbs->private_data, "BUG_st_%02x\n", insn->code);
+-			return;
+ 		}
+-		verbose(cbs->private_data, "(%02x) *(%s *)(r%d %+d) = %d\n",
+-			insn->code,
+-			bpf_ldst_string[BPF_SIZE(insn->code) >> 3],
+-			insn->dst_reg,
+-			insn->off, insn->imm);
+ 	} else if (class == BPF_LDX) {
+ 		if (BPF_MODE(insn->code) != BPF_MEM) {
+ 			verbose(cbs->private_data, "BUG_ldx_%02x\n", insn->code);
 -- 
 2.30.2
 
