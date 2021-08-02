@@ -2,195 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 660253DD7A6
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:47:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 302433DD944
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:58:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234335AbhHBNrT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:47:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56300 "EHLO mail.kernel.org"
+        id S235311AbhHBN67 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:58:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234058AbhHBNqj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:46:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B294260F6D;
-        Mon,  2 Aug 2021 13:46:28 +0000 (UTC)
+        id S236071AbhHBN47 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:56:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7AEF361167;
+        Mon,  2 Aug 2021 13:54:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627911989;
-        bh=e6PekA7Irec1lEjiPv97qbqcAsPUFP/IHOnPpEKJqK4=;
-        h=From:To:Cc:Subject:Date:From;
-        b=ZKvoSgdbR4jsXJmMxXaNGpFAR5RegcNGq+X2Vw+s7TIv8XBxXUJ83jwglZ3bcU2+L
-         YMEs/Ii/DQ6EoGRkLjuH3rWAB541045GOEKEGInT4zcmxK9QstZyfLxuTJI/nxcBfi
-         T8MPR38b2BMa6w08laO122ojP5u0NjdHxlllibHo=
+        s=korg; t=1627912483;
+        bh=J5jZaVtgq2HwXYklkyka55c+ubzUflzBxn1Q+IdGoJU=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=eqToirT77xM5RNLha/VGez26HdUZEvEhVivjF96LQmqRKdqrFZODL0T2jfucXW0yy
+         7gH4xv9u0sBpPcuzlA0nt1cYdd2L3pdFQuGBm1AH5BbMISx9XNDvQyvY9Q8D2K/gTc
+         Om+2duSu9+z6+TNXbHhBnlutt6Bfi5QMQ3o97XOs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: [PATCH 4.4 00/26] 4.4.278-rc1 review
+        stable@vger.kernel.org, Wang Hai <wanghai38@huawei.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Michal Hocko <mhocko@suse.com>, Roman Gushchin <guro@fb.com>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Christoph Lameter <cl@linux.com>,
+        Pekka Enberg <penberg@kernel.org>,
+        David Rientjes <rientjes@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.13 013/104] mm/memcg: fix NULL pointer dereference in memcg_slab_free_hook()
 Date:   Mon,  2 Aug 2021 15:44:10 +0200
-Message-Id: <20210802134332.033552261@linuxfoundation.org>
+Message-Id: <20210802134344.451782516@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-MIME-Version: 1.0
+In-Reply-To: <20210802134344.028226640@linuxfoundation.org>
+References: <20210802134344.028226640@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.278-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.4.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.4.278-rc1
-X-KernelTest-Deadline: 2021-08-04T13:43+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.4.278 release.
-There are 26 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Wang Hai <wanghai38@huawei.com>
 
-Responses should be made by Wed, 04 Aug 2021 13:43:24 +0000.
-Anything received after that time might be too late.
+commit 121dffe20b141c9b27f39d49b15882469cbebae7 upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.278-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
-and the diffstat can be found below.
+When I use kfree_rcu() to free a large memory allocated by kmalloc_node(),
+the following dump occurs.
 
-thanks,
+  BUG: kernel NULL pointer dereference, address: 0000000000000020
+  [...]
+  Oops: 0000 [#1] SMP
+  [...]
+  Workqueue: events kfree_rcu_work
+  RIP: 0010:__obj_to_index include/linux/slub_def.h:182 [inline]
+  RIP: 0010:obj_to_index include/linux/slub_def.h:191 [inline]
+  RIP: 0010:memcg_slab_free_hook+0x120/0x260 mm/slab.h:363
+  [...]
+  Call Trace:
+    kmem_cache_free_bulk+0x58/0x630 mm/slub.c:3293
+    kfree_bulk include/linux/slab.h:413 [inline]
+    kfree_rcu_work+0x1ab/0x200 kernel/rcu/tree.c:3300
+    process_one_work+0x207/0x530 kernel/workqueue.c:2276
+    worker_thread+0x320/0x610 kernel/workqueue.c:2422
+    kthread+0x13d/0x160 kernel/kthread.c:313
+    ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:294
 
-greg k-h
+When kmalloc_node() a large memory, page is allocated, not slab, so when
+freeing memory via kfree_rcu(), this large memory should not be used by
+memcg_slab_free_hook(), because memcg_slab_free_hook() is is used for
+slab.
 
--------------
-Pseudo-Shortlog of commits:
+Using page_objcgs_check() instead of page_objcgs() in
+memcg_slab_free_hook() to fix this bug.
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.4.278-rc1
+Link: https://lkml.kernel.org/r/20210728145655.274476-1-wanghai38@huawei.com
+Fixes: 270c6a71460e ("mm: memcontrol/slab: Use helpers to access slab page's memcg_data")
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Roman Gushchin <guro@fb.com>
+Reviewed-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Reviewed-by: Muchun Song <songmuchun@bytedance.com>
+Cc: Christoph Lameter <cl@linux.com>
+Cc: Pekka Enberg <penberg@kernel.org>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Alexei Starovoitov <ast@kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ mm/slab.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Wang Hai <wanghai38@huawei.com>
-    sis900: Fix missing pci_disable_device() in probe and remove
-
-Wang Hai <wanghai38@huawei.com>
-    tulip: windbond-840: Fix missing pci_disable_device() in probe and remove
-
-Pavel Skripkin <paskripkin@gmail.com>
-    net: llc: fix skb_over_panic
-
-Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
-    mlx4: Fix missing error code in mlx4_load_one()
-
-Hoang Le <hoang.h.le@dektech.com.au>
-    tipc: fix sleeping in tipc accept routine
-
-Pablo Neira Ayuso <pablo@netfilter.org>
-    netfilter: nft_nat: allow to specify layer 4 protocol NAT only
-
-Nguyen Dinh Phi <phind.uet@gmail.com>
-    cfg80211: Fix possible memory leak in function cfg80211_bss_update
-
-Jan Kiszka <jan.kiszka@siemens.com>
-    x86/asm: Ensure asm/proto.h can be included stand-alone
-
-Paul Jakma <paul@jakma.org>
-    NIU: fix incorrect error return, missed in previous revert
-
-Pavel Skripkin <paskripkin@gmail.com>
-    can: esd_usb2: fix memory leak
-
-Pavel Skripkin <paskripkin@gmail.com>
-    can: ems_usb: fix memory leak
-
-Pavel Skripkin <paskripkin@gmail.com>
-    can: usb_8dev: fix memory leak
-
-Junxiao Bi <junxiao.bi@oracle.com>
-    ocfs2: issue zeroout to EOF blocks
-
-Junxiao Bi <junxiao.bi@oracle.com>
-    ocfs2: fix zero out valid data
-
-Russell King <rmk+kernel@armlinux.org.uk>
-    ARM: ensure the signal page contains defined contents
-
-Matthew Wilcox <mawilcox@microsoft.com>
-    lib/string.c: add multibyte memset functions
-
-Sudeep Holla <sudeep.holla@arm.com>
-    ARM: dts: versatile: Fix up interrupt controller node names
-
-Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
-    hfs: add lock nesting notation to hfs_find_init
-
-Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
-    hfs: fix high memory mapping in hfs_bnode_read
-
-Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
-    hfs: add missing clean-up in hfs_fill_super
-
-Xin Long <lucien.xin@gmail.com>
-    sctp: move 198 addresses from unusable to private scope
-
-Yang Yingliang <yangyingliang@huawei.com>
-    net/802/garp: fix memleak in garp_request_join()
-
-Yang Yingliang <yangyingliang@huawei.com>
-    net/802/mrp: fix memleak in mrp_request_join()
-
-Yang Yingliang <yangyingliang@huawei.com>
-    workqueue: fix UAF in pwq_unbound_release_workfn()
-
-Miklos Szeredi <mszeredi@redhat.com>
-    af_unix: fix garbage collect vs MSG_PEEK
-
-Jens Axboe <axboe@kernel.dk>
-    net: split out functions related to registering inflight socket files
-
-
--------------
-
-Diffstat:
-
- Makefile                                     |   4 +-
- arch/arm/boot/dts/versatile-ab.dts           |   5 +-
- arch/arm/boot/dts/versatile-pb.dts           |   2 +-
- arch/arm/kernel/signal.c                     |  14 ++-
- arch/x86/include/asm/proto.h                 |   2 +
- drivers/net/can/usb/ems_usb.c                |  14 ++-
- drivers/net/can/usb/esd_usb2.c               |  16 ++-
- drivers/net/can/usb/usb_8dev.c               |  15 ++-
- drivers/net/ethernet/dec/tulip/winbond-840.c |   7 +-
- drivers/net/ethernet/mellanox/mlx4/main.c    |   1 +
- drivers/net/ethernet/sis/sis900.c            |   7 +-
- drivers/net/ethernet/sun/niu.c               |   3 +-
- fs/hfs/bfind.c                               |  14 ++-
- fs/hfs/bnode.c                               |  25 ++++-
- fs/hfs/btree.h                               |   7 ++
- fs/hfs/super.c                               |  10 +-
- fs/ocfs2/file.c                              | 103 ++++++++++-------
- include/linux/string.h                       |  30 +++++
- include/net/af_unix.h                        |   1 +
- include/net/llc_pdu.h                        |  31 ++++--
- include/net/sctp/constants.h                 |   4 +-
- kernel/workqueue.c                           |  20 ++--
- lib/string.c                                 |  66 +++++++++++
- net/802/garp.c                               |  14 +++
- net/802/mrp.c                                |  14 +++
- net/Makefile                                 |   2 +-
- net/llc/af_llc.c                             |  10 +-
- net/llc/llc_s_ac.c                           |   2 +-
- net/netfilter/nft_nat.c                      |   4 +-
- net/sctp/protocol.c                          |   3 +-
- net/tipc/socket.c                            |   9 +-
- net/unix/Kconfig                             |   5 +
- net/unix/Makefile                            |   2 +
- net/unix/af_unix.c                           | 115 ++++++++-----------
- net/unix/garbage.c                           |  68 +----------
- net/unix/scm.c                               | 161 +++++++++++++++++++++++++++
- net/unix/scm.h                               |  10 ++
- net/wireless/scan.c                          |   6 +-
- 38 files changed, 579 insertions(+), 247 deletions(-)
+--- a/mm/slab.h
++++ b/mm/slab.h
+@@ -350,7 +350,7 @@ static inline void memcg_slab_free_hook(
+ 			continue;
+ 
+ 		page = virt_to_head_page(p[i]);
+-		objcgs = page_objcgs(page);
++		objcgs = page_objcgs_check(page);
+ 		if (!objcgs)
+ 			continue;
+ 
 
 
