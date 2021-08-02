@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A42BF3DD7AF
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:47:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7094E3DD7F7
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:48:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234199AbhHBNrr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:47:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56780 "EHLO mail.kernel.org"
+        id S234435AbhHBNss (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:48:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234208AbhHBNq6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:46:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 712D360F6D;
-        Mon,  2 Aug 2021 13:46:48 +0000 (UTC)
+        id S234434AbhHBNs0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:48:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B4B8F60527;
+        Mon,  2 Aug 2021 13:48:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912008;
-        bh=VvBuBiEOi4IMRx68PoRoXUSYbCgSvqJ/oUCpji9yI+w=;
+        s=korg; t=1627912097;
+        bh=1AHzE05BbaalJaN6KjfewZz5ZdvNI7ewp+MwKyy4qQk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0AxSDSnwL6zNTnP9OTQFmIGd9Ycpy27doc3ysnj4J3Ag/NM/vveZFQeDbb+dNurNy
-         FxHKwOcLGUD1vPCXUoARwmo5EgculmtIsQ2f6DHFctH5/Es6tiQbRPl6ElV9A9k+C4
-         l4OcJnEpmw5x2vDDmt7S9H99WCWy7oeAWPs3hFSE=
+        b=U/QWw0367oOEijXyZ/CVmvRMzch7MRMO7NE8QWfKYfNdBhlluLgKHf9ojmmjz9Ao+
+         vBbS70PoeSB4q5GzV7xhB9GFFOxPg5vHQ53kJ3Di3Ni/wJX8k1Ud1iBSBGZ7boGsx3
+         QAqbcoUCmU7J/Xy2xJ2JHT2br5GQv5tyNwEfAaSc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wang Hai <wanghai38@huawei.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
         "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 26/26] sis900: Fix missing pci_disable_device() in probe and remove
-Date:   Mon,  2 Aug 2021 15:44:36 +0200
-Message-Id: <20210802134332.873857383@linuxfoundation.org>
+        Matthieu Baerts <matthieu.baerts@tessares.net>
+Subject: [PATCH 4.14 15/38] gro: ensure frag0 meets IP header alignment
+Date:   Mon,  2 Aug 2021 15:44:37 +0200
+Message-Id: <20210802134335.316313436@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134332.033552261@linuxfoundation.org>
-References: <20210802134332.033552261@linuxfoundation.org>
+In-Reply-To: <20210802134334.835358048@linuxfoundation.org>
+References: <20210802134334.835358048@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,64 +44,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 89fb62fde3b226f99b7015280cf132e2a7438edf ]
+commit 38ec4944b593fd90c5ef42aaaa53e66ae5769d04 upstream.
 
-Replace pci_enable_device() with pcim_enable_device(),
-pci_disable_device() and pci_release_regions() will be
-called in release automatically.
+After commit 0f6925b3e8da ("virtio_net: Do not pull payload in skb->head")
+Guenter Roeck reported one failure in his tests using sh architecture.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
+After much debugging, we have been able to spot silent unaligned accesses
+in inet_gro_receive()
+
+The issue at hand is that upper networking stacks assume their header
+is word-aligned. Low level drivers are supposed to reserve NET_IP_ALIGN
+bytes before the Ethernet header to make that happen.
+
+This patch hardens skb_gro_reset_offset() to not allow frag0 fast-path
+if the fragment is not properly aligned.
+
+Some arches like x86, arm64 and powerpc do not care and define NET_IP_ALIGN
+as 0, this extra check will be a NOP for them.
+
+Note that if frag0 is not used, GRO will call pskb_may_pull()
+as many times as needed to pull network and transport headers.
+
+Fixes: 0f6925b3e8da ("virtio_net: Do not pull payload in skb->head")
+Fixes: 78a478d0efd9 ("gro: Inline skb_gro_header and cache frag0 virtual address")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Tested-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/sis/sis900.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ include/linux/skbuff.h |    9 +++++++++
+ net/core/dev.c         |    3 ++-
+ 2 files changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/sis/sis900.c b/drivers/net/ethernet/sis/sis900.c
-index dff5b56738d3..9fe5d13402e0 100644
---- a/drivers/net/ethernet/sis/sis900.c
-+++ b/drivers/net/ethernet/sis/sis900.c
-@@ -442,7 +442,7 @@ static int sis900_probe(struct pci_dev *pci_dev,
- #endif
- 
- 	/* setup various bits in PCI command register */
--	ret = pci_enable_device(pci_dev);
-+	ret = pcim_enable_device(pci_dev);
- 	if(ret) return ret;
- 
- 	i = pci_set_dma_mask(pci_dev, DMA_BIT_MASK(32));
-@@ -468,7 +468,7 @@ static int sis900_probe(struct pci_dev *pci_dev,
- 	ioaddr = pci_iomap(pci_dev, 0, 0);
- 	if (!ioaddr) {
- 		ret = -ENOMEM;
--		goto err_out_cleardev;
-+		goto err_out;
- 	}
- 
- 	sis_priv = netdev_priv(net_dev);
-@@ -576,8 +576,6 @@ err_unmap_tx:
- 		sis_priv->tx_ring_dma);
- err_out_unmap:
- 	pci_iounmap(pci_dev, ioaddr);
--err_out_cleardev:
--	pci_release_regions(pci_dev);
-  err_out:
- 	free_netdev(net_dev);
- 	return ret;
-@@ -2425,7 +2423,6 @@ static void sis900_remove(struct pci_dev *pci_dev)
- 		sis_priv->tx_ring_dma);
- 	pci_iounmap(pci_dev, sis_priv->ioaddr);
- 	free_netdev(net_dev);
--	pci_release_regions(pci_dev);
+--- a/include/linux/skbuff.h
++++ b/include/linux/skbuff.h
+@@ -2785,6 +2785,15 @@ static inline void skb_propagate_pfmemal
  }
  
- #ifdef CONFIG_PM
--- 
-2.30.2
-
+ /**
++ * skb_frag_off() - Returns the offset of a skb fragment
++ * @frag: the paged fragment
++ */
++static inline unsigned int skb_frag_off(const skb_frag_t *frag)
++{
++	return frag->page_offset;
++}
++
++/**
+  * skb_frag_page - retrieve the page referred to by a paged fragment
+  * @frag: the paged fragment
+  *
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -4763,7 +4763,8 @@ static void skb_gro_reset_offset(struct
+ 
+ 	if (skb_mac_header(skb) == skb_tail_pointer(skb) &&
+ 	    pinfo->nr_frags &&
+-	    !PageHighMem(skb_frag_page(frag0))) {
++	    !PageHighMem(skb_frag_page(frag0)) &&
++	    (!NET_IP_ALIGN || !(skb_frag_off(frag0) & 3))) {
+ 		NAPI_GRO_CB(skb)->frag0 = skb_frag_address(frag0);
+ 		NAPI_GRO_CB(skb)->frag0_len = min_t(unsigned int,
+ 						    skb_frag_size(frag0),
 
 
