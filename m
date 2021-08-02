@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BB413DD9CE
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 16:04:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E8AA3DD8DF
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:56:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234910AbhHBOEI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 10:04:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49530 "EHLO mail.kernel.org"
+        id S234362AbhHBNzt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:55:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40708 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236123AbhHBOBy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 10:01:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B9ED961215;
-        Mon,  2 Aug 2021 13:56:42 +0000 (UTC)
+        id S236094AbhHBNy6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:54:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9818861102;
+        Mon,  2 Aug 2021 13:53:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912603;
-        bh=75ydvlkxzI2lOQKegpJKGTjz/apSNRyVkaj7VQ4fzlI=;
+        s=korg; t=1627912400;
+        bh=QGaWAku/PPXSmCt+AyDqwaH/JxxS7MUukL+O0MH1q8A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F5rHWpmZZaKMpezqMF1h6t5PEPP2atPQOSg5VUeTZtpnIxd9brxdhrUMPzdSh9TeP
-         M48lMv+mvOqf3v2hxi87m6dm64BncFM+mRw0JaArnUcclOaOthlxwnVY0YD5nq30Pj
-         IngbfOlC7Rn6jsvveuyzATmXjXd9/0g8/VpAcDjI=
+        b=JZGn97aNX6kawO3Oomf1tFZpqre6JJ6QJnlXFF34w3TY5JHzAfXD9eX1Ncu3tTFci
+         rm8Rc9sohWZg3zHVKV34C8ANSYU8eRAd8X3LvA0taz+OfOh8QKbOguptlVJmAmqIbB
+         AI1VBsdYcNEZH65pOv81i+xnHutDIYR009NVMIlU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Maxim Levitsky <mlevitsk@redhat.com>,
-        Oliver Upton <oupton@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org, Shannon Nelson <snelson@pensando.io>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 068/104] KVM: x86: Check the right feature bit for MSR_KVM_ASYNC_PF_ACK access
+Subject: [PATCH 5.10 42/67] ionic: fix up dim accounting for tx and rx
 Date:   Mon,  2 Aug 2021 15:45:05 +0200
-Message-Id: <20210802134346.247628112@linuxfoundation.org>
+Message-Id: <20210802134340.451375972@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134344.028226640@linuxfoundation.org>
-References: <20210802134344.028226640@linuxfoundation.org>
+In-Reply-To: <20210802134339.023067817@linuxfoundation.org>
+References: <20210802134339.023067817@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,47 +40,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: Shannon Nelson <snelson@pensando.io>
 
-[ Upstream commit 0a31df6823232516f61f174907e444f710941dfe ]
+[ Upstream commit 76ed8a4a00b484dcccef819ef2618bcf8e46f560 ]
 
-MSR_KVM_ASYNC_PF_ACK MSR is part of interrupt based asynchronous page fault
-interface and not the original (deprecated) KVM_FEATURE_ASYNC_PF. This is
-stated in Documentation/virt/kvm/msr.rst.
+We need to count the correct Tx and/or Rx packets for dynamic
+interrupt moderation, depending on which we're processing on
+the queue interrupt.
 
-Fixes: 66570e966dd9 ("kvm: x86: only provide PV features if enabled in guest's CPUID")
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
-Reviewed-by: Oliver Upton <oupton@google.com>
-Message-Id: <20210722123018.260035-1-vkuznets@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 04a834592bf5 ("ionic: dynamic interrupt moderation")
+Signed-off-by: Shannon Nelson <snelson@pensando.io>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/x86.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ .../net/ethernet/pensando/ionic/ionic_txrx.c  | 28 ++++++++++++++-----
+ 1 file changed, 21 insertions(+), 7 deletions(-)
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index b5a3de788b5f..d6a9f0518784 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -3314,7 +3314,7 @@ int kvm_set_msr_common(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
- 			return 1;
- 		break;
- 	case MSR_KVM_ASYNC_PF_ACK:
--		if (!guest_pv_has(vcpu, KVM_FEATURE_ASYNC_PF))
-+		if (!guest_pv_has(vcpu, KVM_FEATURE_ASYNC_PF_INT))
- 			return 1;
- 		if (data & 0x1) {
- 			vcpu->arch.apf.pageready_pending = false;
-@@ -3646,7 +3646,7 @@ int kvm_get_msr_common(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
- 		msr_info->data = vcpu->arch.apf.msr_int_val;
- 		break;
- 	case MSR_KVM_ASYNC_PF_ACK:
--		if (!guest_pv_has(vcpu, KVM_FEATURE_ASYNC_PF))
-+		if (!guest_pv_has(vcpu, KVM_FEATURE_ASYNC_PF_INT))
- 			return 1;
+diff --git a/drivers/net/ethernet/pensando/ionic/ionic_txrx.c b/drivers/net/ethernet/pensando/ionic/ionic_txrx.c
+index ec064327c998..52213fee054d 100644
+--- a/drivers/net/ethernet/pensando/ionic/ionic_txrx.c
++++ b/drivers/net/ethernet/pensando/ionic/ionic_txrx.c
+@@ -417,11 +417,12 @@ void ionic_rx_empty(struct ionic_queue *q)
+ 	}
+ }
  
- 		msr_info->data = 0;
+-static void ionic_dim_update(struct ionic_qcq *qcq)
++static void ionic_dim_update(struct ionic_qcq *qcq, int napi_mode)
+ {
+ 	struct dim_sample dim_sample;
+ 	struct ionic_lif *lif;
+ 	unsigned int qi;
++	u64 pkts, bytes;
+ 
+ 	if (!qcq->intr.dim_coal_hw)
+ 		return;
+@@ -429,10 +430,23 @@ static void ionic_dim_update(struct ionic_qcq *qcq)
+ 	lif = qcq->q.lif;
+ 	qi = qcq->cq.bound_q->index;
+ 
++	switch (napi_mode) {
++	case IONIC_LIF_F_TX_DIM_INTR:
++		pkts = lif->txqstats[qi].pkts;
++		bytes = lif->txqstats[qi].bytes;
++		break;
++	case IONIC_LIF_F_RX_DIM_INTR:
++		pkts = lif->rxqstats[qi].pkts;
++		bytes = lif->rxqstats[qi].bytes;
++		break;
++	default:
++		pkts = lif->txqstats[qi].pkts + lif->rxqstats[qi].pkts;
++		bytes = lif->txqstats[qi].bytes + lif->rxqstats[qi].bytes;
++		break;
++	}
++
+ 	dim_update_sample(qcq->cq.bound_intr->rearm_count,
+-			  lif->txqstats[qi].pkts,
+-			  lif->txqstats[qi].bytes,
+-			  &dim_sample);
++			  pkts, bytes, &dim_sample);
+ 
+ 	net_dim(&qcq->dim, dim_sample);
+ }
+@@ -453,7 +467,7 @@ int ionic_tx_napi(struct napi_struct *napi, int budget)
+ 				     ionic_tx_service, NULL, NULL);
+ 
+ 	if (work_done < budget && napi_complete_done(napi, work_done)) {
+-		ionic_dim_update(qcq);
++		ionic_dim_update(qcq, IONIC_LIF_F_TX_DIM_INTR);
+ 		flags |= IONIC_INTR_CRED_UNMASK;
+ 		cq->bound_intr->rearm_count++;
+ 	}
+@@ -489,7 +503,7 @@ int ionic_rx_napi(struct napi_struct *napi, int budget)
+ 		ionic_rx_fill(cq->bound_q);
+ 
+ 	if (work_done < budget && napi_complete_done(napi, work_done)) {
+-		ionic_dim_update(qcq);
++		ionic_dim_update(qcq, IONIC_LIF_F_RX_DIM_INTR);
+ 		flags |= IONIC_INTR_CRED_UNMASK;
+ 		cq->bound_intr->rearm_count++;
+ 	}
+@@ -531,7 +545,7 @@ int ionic_txrx_napi(struct napi_struct *napi, int budget)
+ 		ionic_rx_fill_cb(rxcq->bound_q);
+ 
+ 	if (rx_work_done < budget && napi_complete_done(napi, rx_work_done)) {
+-		ionic_dim_update(qcq);
++		ionic_dim_update(qcq, 0);
+ 		flags |= IONIC_INTR_CRED_UNMASK;
+ 		rxcq->bound_intr->rearm_count++;
+ 	}
 -- 
 2.30.2
 
