@@ -2,35 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 130A73DD811
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:49:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B3523DD9B4
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 16:03:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234486AbhHBNti (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:49:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58758 "EHLO mail.kernel.org"
+        id S234833AbhHBODK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 10:03:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234638AbhHBNsx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:48:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 65E9E60FA0;
-        Mon,  2 Aug 2021 13:48:43 +0000 (UTC)
+        id S235762AbhHBOBI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 10:01:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 39574611C8;
+        Mon,  2 Aug 2021 13:56:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912123;
-        bh=qz3Qm9UzbMKkj0gqArsNkS5oZ2oF1xpS93lp+bgF/d4=;
+        s=korg; t=1627912583;
+        bh=jmRWFUcfC8KhEV3vhVBmVTECd1YL6QmemgNy4kThsaM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zIy5tyheNfGyMxx75MgSxYjz7plKFlBoWoTehFZLuKnvMFvK4iOzhOJlTuv3f/1mq
-         MQucYP19jBkGlmdPT0oZzHYOqnbbxN/Ic3JmGr8YqhuVT6dgh53/ocEKMYrokYYf+j
-         R0rK0uaV5cqMZwN0DmATZTvi0TCwG+W76UuiKMgQ=
+        b=l+aLlSOeK4mV/4uF2XstwjxbDtX67376u521dsrz3psBXjJ+ug9DS8ic8BarsI97v
+         NxkhnIXZtsEBUL3dC7wttdkP0ifWqkY19RrgY2+HcPNyEoKlAbpSTlLywvn+gDKHLF
+         Y3dnNal+R0djzotxofS+xejcgA0bbF1PuDhDxMfQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kiszka <jan.kiszka@siemens.com>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 26/38] x86/asm: Ensure asm/proto.h can be included stand-alone
+        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+        Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>,
+        David Ahern <dsahern@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        Gilad Naaman <gnaaman@drivenets.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 051/104] net: Set true network header for ECN decapsulation
 Date:   Mon,  2 Aug 2021 15:44:48 +0200
-Message-Id: <20210802134335.651221435@linuxfoundation.org>
+Message-Id: <20210802134345.703691865@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134334.835358048@linuxfoundation.org>
-References: <20210802134334.835358048@linuxfoundation.org>
+In-Reply-To: <20210802134344.028226640@linuxfoundation.org>
+References: <20210802134344.028226640@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,48 +44,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kiszka <jan.kiszka@siemens.com>
+From: Gilad Naaman <gnaaman@drivenets.com>
 
-[ Upstream commit f7b21a0e41171d22296b897dac6e4c41d2a3643c ]
+[ Upstream commit 227adfb2b1dfbc53dfc53b9dd7a93a6298ff7c56 ]
 
-Fix:
+In cases where the header straight after the tunnel header was
+another ethernet header (TEB), instead of the network header,
+the ECN decapsulation code would treat the ethernet header as if
+it was an IP header, resulting in mishandling and possible
+wrong drops or corruption of the IP header.
 
-  ../arch/x86/include/asm/proto.h:14:30: warning: ‘struct task_struct’ declared \
-    inside parameter list will not be visible outside of this definition or declaration
-  long do_arch_prctl_64(struct task_struct *task, int option, unsigned long arg2);
-                               ^~~~~~~~~~~
+In this case, ECT(1) is sent, so IP_ECN_decapsulate tries to copy it to the
+inner IPv4 header, and correct its checksum.
 
-  .../arch/x86/include/asm/proto.h:40:34: warning: ‘struct task_struct’ declared \
-    inside parameter list will not be visible outside of this definition or declaration
-   long do_arch_prctl_common(struct task_struct *task, int option,
-                                    ^~~~~~~~~~~
+The offset of the ECT bits in an IPv4 header corresponds to the
+lower 2 bits of the second octet of the destination MAC address
+in the ethernet header.
+The IPv4 checksum corresponds to end of the source address.
 
-if linux/sched.h hasn't be included previously. This fixes a build error
-when this header is used outside of the kernel tree.
+In order to reproduce:
 
- [ bp: Massage commit message. ]
+    $ ip netns add A
+    $ ip netns add B
+    $ ip -n A link add _v0 type veth peer name _v1 netns B
+    $ ip -n A link set _v0 up
+    $ ip -n A addr add dev _v0 10.254.3.1/24
+    $ ip -n A route add default dev _v0 scope global
+    $ ip -n B link set _v1 up
+    $ ip -n B addr add dev _v1 10.254.1.6/24
+    $ ip -n B route add default dev _v1 scope global
+    $ ip -n B link add gre1 type gretap local 10.254.1.6 remote 10.254.3.1 key 0x49000000
+    $ ip -n B link set gre1 up
 
-Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/b76b4be3-cf66-f6b2-9a6c-3e7ef54f9845@web.de
+    # Now send an IPv4/GRE/Eth/IPv4 frame where the outer header has ECT(1),
+    # and the inner header has no ECT bits set:
+
+    $ cat send_pkt.py
+        #!/usr/bin/env python3
+        from scapy.all import *
+
+        pkt = IP(b'E\x01\x00\xa7\x00\x00\x00\x00@/`%\n\xfe\x03\x01\n\xfe\x01\x06 \x00eXI\x00'
+                 b'\x00\x00\x18\xbe\x92\xa0\xee&\x18\xb0\x92\xa0l&\x08\x00E\x00\x00}\x8b\x85'
+                 b'@\x00\x01\x01\xe4\xf2\x82\x82\x82\x01\x82\x82\x82\x02\x08\x00d\x11\xa6\xeb'
+                 b'3\x1e\x1e\\xf3\\xf7`\x00\x00\x00\x00ZN\x00\x00\x00\x00\x00\x00\x10\x11\x12'
+                 b'\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f !"#$%&\'()*+,-./01234'
+                 b'56789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ')
+
+        send(pkt)
+    $ sudo ip netns exec B tcpdump -neqlllvi gre1 icmp & ; sleep 1
+    $ sudo ip netns exec A python3 send_pkt.py
+
+In the original packet, the source/destinatio MAC addresses are
+dst=18:be:92:a0:ee:26 src=18:b0:92:a0:6c:26
+
+In the received packet, they are
+dst=18:bd:92:a0:ee:26 src=18:b0:92:a0:6c:27
+
+Thanks to Lahav Schlesinger <lschlesinger@drivenets.com> and Isaac Garzon <isaac@speed.io>
+for helping me pinpoint the origin.
+
+Fixes: b723748750ec ("tunnel: Propagate ECT(1) when decapsulating as recommended by RFC6040")
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>
+Cc: David Ahern <dsahern@kernel.org>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: Toke Høiland-Jørgensen <toke@redhat.com>
+Signed-off-by: Gilad Naaman <gnaaman@drivenets.com>
+Acked-by: Toke Høiland-Jørgensen <toke@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/proto.h | 2 ++
- 1 file changed, 2 insertions(+)
+ net/ipv4/ip_tunnel.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/include/asm/proto.h b/arch/x86/include/asm/proto.h
-index 6e81788a30c1..0eaca7a130c9 100644
---- a/arch/x86/include/asm/proto.h
-+++ b/arch/x86/include/asm/proto.h
-@@ -4,6 +4,8 @@
+diff --git a/net/ipv4/ip_tunnel.c b/net/ipv4/ip_tunnel.c
+index 0dca00745ac3..be75b409445c 100644
+--- a/net/ipv4/ip_tunnel.c
++++ b/net/ipv4/ip_tunnel.c
+@@ -390,7 +390,7 @@ int ip_tunnel_rcv(struct ip_tunnel *tunnel, struct sk_buff *skb,
+ 		tunnel->i_seqno = ntohl(tpi->seq) + 1;
+ 	}
  
- #include <asm/ldt.h>
+-	skb_reset_network_header(skb);
++	skb_set_network_header(skb, (tunnel->dev->type == ARPHRD_ETHER) ? ETH_HLEN : 0);
  
-+struct task_struct;
-+
- /* misc architecture specific prototypes */
- 
- void syscall_init(void);
+ 	err = IP_ECN_decapsulate(iph, skb);
+ 	if (unlikely(err)) {
 -- 
 2.30.2
 
