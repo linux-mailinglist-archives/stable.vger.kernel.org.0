@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 559CD3DD967
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 16:00:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 344EE3DD796
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:46:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235777AbhHBOAQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 10:00:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40308 "EHLO mail.kernel.org"
+        id S234090AbhHBNqg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:46:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235510AbhHBN5q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:57:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 870676052B;
-        Mon,  2 Aug 2021 13:55:04 +0000 (UTC)
+        id S234129AbhHBNqX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:46:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CBEB360F6D;
+        Mon,  2 Aug 2021 13:46:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912505;
-        bh=0m/ZD/FNh0dbpyUtTxkvS9Y3NX1t8VyPhou79lmjI80=;
+        s=korg; t=1627911974;
+        bh=BGDB6N3AWkBtj1Kf44cRytIppTrIVWKy7vmo2wgBN3Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AoF0VA/AW3qKcyWN5gu5OwndRhANZMewIBcKjlI8n7zM0f6KO6n0++k0pqP5B44m2
-         3rvnExi/Di68wtU/2SBwnkxM5IeqbPC+QUtIi/skDnkmsHVc4fUEXNpy1lgD/r/Lza
-         X/PCqlfu63F5aQjim/IUt9yccAqLAlIp4Wjr0yH0=
+        b=mCIaE0piqscgGumltcW6TYOVdgf/XRVUlcFXZVF/j8/IG2GK3dtR/cLu9XDIuloQt
+         cNa13EqakqbOzSziNAoRd0GqHGhdqla4iAKApUDfLW4Oug60jC3SMzYrCThyiQKtOY
+         k5BR1M+L2C1at9PE+uKAmZetFtcQOrfJEb7BBcR4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ziyang Xuan <william.xuanziyang@huawei.com>,
-        Oliver Hartkopp <socketcan@hartkopp.net>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.13 015/104] can: raw: raw_setsockopt(): fix raw_rcv panic for sock UAF
-Date:   Mon,  2 Aug 2021 15:44:12 +0200
-Message-Id: <20210802134344.517954731@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Lai Jiangshan <jiangshanlai@gmail.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Pavel Skripkin <paskripkin@gmail.com>,
+        Tejun Heo <tj@kernel.org>
+Subject: [PATCH 4.4 03/26] workqueue: fix UAF in pwq_unbound_release_workfn()
+Date:   Mon,  2 Aug 2021 15:44:13 +0200
+Message-Id: <20210802134332.142286804@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134344.028226640@linuxfoundation.org>
-References: <20210802134344.028226640@linuxfoundation.org>
+In-Reply-To: <20210802134332.033552261@linuxfoundation.org>
+References: <20210802134332.033552261@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,163 +42,149 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ziyang Xuan <william.xuanziyang@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit 54f93336d000229f72c26d8a3f69dd256b744528 upstream.
+commit b42b0bddcbc87b4c66f6497f66fc72d52b712aa7 upstream.
 
-We get a bug during ltp can_filter test as following.
+I got a UAF report when doing fuzz test:
 
-===========================================
-[60919.264984] BUG: unable to handle kernel NULL pointer dereference at 0000000000000010
-[60919.265223] PGD 8000003dda726067 P4D 8000003dda726067 PUD 3dda727067 PMD 0
-[60919.265443] Oops: 0000 [#1] SMP PTI
-[60919.265550] CPU: 30 PID: 3638365 Comm: can_filter Kdump: loaded Tainted: G        W         4.19.90+ #1
-[60919.266068] RIP: 0010:selinux_socket_sock_rcv_skb+0x3e/0x200
-[60919.293289] RSP: 0018:ffff8d53bfc03cf8 EFLAGS: 00010246
-[60919.307140] RAX: 0000000000000000 RBX: 000000000000001d RCX: 0000000000000007
-[60919.320756] RDX: 0000000000000001 RSI: ffff8d5104a8ed00 RDI: ffff8d53bfc03d30
-[60919.334319] RBP: ffff8d9338056800 R08: ffff8d53bfc29d80 R09: 0000000000000001
-[60919.347969] R10: ffff8d53bfc03ec0 R11: ffffb8526ef47c98 R12: ffff8d53bfc03d30
-[60919.350320] perf: interrupt took too long (3063 > 2500), lowering kernel.perf_event_max_sample_rate to 65000
-[60919.361148] R13: 0000000000000001 R14: ffff8d53bcf90000 R15: 0000000000000000
-[60919.361151] FS:  00007fb78b6b3600(0000) GS:ffff8d53bfc00000(0000) knlGS:0000000000000000
-[60919.400812] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[60919.413730] CR2: 0000000000000010 CR3: 0000003e3f784006 CR4: 00000000007606e0
-[60919.426479] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[60919.439339] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[60919.451608] PKRU: 55555554
-[60919.463622] Call Trace:
-[60919.475617]  <IRQ>
-[60919.487122]  ? update_load_avg+0x89/0x5d0
-[60919.498478]  ? update_load_avg+0x89/0x5d0
-[60919.509822]  ? account_entity_enqueue+0xc5/0xf0
-[60919.520709]  security_sock_rcv_skb+0x2a/0x40
-[60919.531413]  sk_filter_trim_cap+0x47/0x1b0
-[60919.542178]  ? kmem_cache_alloc+0x38/0x1b0
-[60919.552444]  sock_queue_rcv_skb+0x17/0x30
-[60919.562477]  raw_rcv+0x110/0x190 [can_raw]
-[60919.572539]  can_rcv_filter+0xbc/0x1b0 [can]
-[60919.582173]  can_receive+0x6b/0xb0 [can]
-[60919.591595]  can_rcv+0x31/0x70 [can]
-[60919.600783]  __netif_receive_skb_one_core+0x5a/0x80
-[60919.609864]  process_backlog+0x9b/0x150
-[60919.618691]  net_rx_action+0x156/0x400
-[60919.627310]  ? sched_clock_cpu+0xc/0xa0
-[60919.635714]  __do_softirq+0xe8/0x2e9
-[60919.644161]  do_softirq_own_stack+0x2a/0x40
-[60919.652154]  </IRQ>
-[60919.659899]  do_softirq.part.17+0x4f/0x60
-[60919.667475]  __local_bh_enable_ip+0x60/0x70
-[60919.675089]  __dev_queue_xmit+0x539/0x920
-[60919.682267]  ? finish_wait+0x80/0x80
-[60919.689218]  ? finish_wait+0x80/0x80
-[60919.695886]  ? sock_alloc_send_pskb+0x211/0x230
-[60919.702395]  ? can_send+0xe5/0x1f0 [can]
-[60919.708882]  can_send+0xe5/0x1f0 [can]
-[60919.715037]  raw_sendmsg+0x16d/0x268 [can_raw]
+[  152.880091][ T8030] ==================================================================
+[  152.881240][ T8030] BUG: KASAN: use-after-free in pwq_unbound_release_workfn+0x50/0x190
+[  152.882442][ T8030] Read of size 4 at addr ffff88810d31bd00 by task kworker/3:2/8030
+[  152.883578][ T8030]
+[  152.883932][ T8030] CPU: 3 PID: 8030 Comm: kworker/3:2 Not tainted 5.13.0+ #249
+[  152.885014][ T8030] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
+[  152.886442][ T8030] Workqueue: events pwq_unbound_release_workfn
+[  152.887358][ T8030] Call Trace:
+[  152.887837][ T8030]  dump_stack_lvl+0x75/0x9b
+[  152.888525][ T8030]  ? pwq_unbound_release_workfn+0x50/0x190
+[  152.889371][ T8030]  print_address_description.constprop.10+0x48/0x70
+[  152.890326][ T8030]  ? pwq_unbound_release_workfn+0x50/0x190
+[  152.891163][ T8030]  ? pwq_unbound_release_workfn+0x50/0x190
+[  152.891999][ T8030]  kasan_report.cold.15+0x82/0xdb
+[  152.892740][ T8030]  ? pwq_unbound_release_workfn+0x50/0x190
+[  152.893594][ T8030]  __asan_load4+0x69/0x90
+[  152.894243][ T8030]  pwq_unbound_release_workfn+0x50/0x190
+[  152.895057][ T8030]  process_one_work+0x47b/0x890
+[  152.895778][ T8030]  worker_thread+0x5c/0x790
+[  152.896439][ T8030]  ? process_one_work+0x890/0x890
+[  152.897163][ T8030]  kthread+0x223/0x250
+[  152.897747][ T8030]  ? set_kthread_struct+0xb0/0xb0
+[  152.898471][ T8030]  ret_from_fork+0x1f/0x30
+[  152.899114][ T8030]
+[  152.899446][ T8030] Allocated by task 8884:
+[  152.900084][ T8030]  kasan_save_stack+0x21/0x50
+[  152.900769][ T8030]  __kasan_kmalloc+0x88/0xb0
+[  152.901416][ T8030]  __kmalloc+0x29c/0x460
+[  152.902014][ T8030]  alloc_workqueue+0x111/0x8e0
+[  152.902690][ T8030]  __btrfs_alloc_workqueue+0x11e/0x2a0
+[  152.903459][ T8030]  btrfs_alloc_workqueue+0x6d/0x1d0
+[  152.904198][ T8030]  scrub_workers_get+0x1e8/0x490
+[  152.904929][ T8030]  btrfs_scrub_dev+0x1b9/0x9c0
+[  152.905599][ T8030]  btrfs_ioctl+0x122c/0x4e50
+[  152.906247][ T8030]  __x64_sys_ioctl+0x137/0x190
+[  152.906916][ T8030]  do_syscall_64+0x34/0xb0
+[  152.907535][ T8030]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[  152.908365][ T8030]
+[  152.908688][ T8030] Freed by task 8884:
+[  152.909243][ T8030]  kasan_save_stack+0x21/0x50
+[  152.909893][ T8030]  kasan_set_track+0x20/0x30
+[  152.910541][ T8030]  kasan_set_free_info+0x24/0x40
+[  152.911265][ T8030]  __kasan_slab_free+0xf7/0x140
+[  152.911964][ T8030]  kfree+0x9e/0x3d0
+[  152.912501][ T8030]  alloc_workqueue+0x7d7/0x8e0
+[  152.913182][ T8030]  __btrfs_alloc_workqueue+0x11e/0x2a0
+[  152.913949][ T8030]  btrfs_alloc_workqueue+0x6d/0x1d0
+[  152.914703][ T8030]  scrub_workers_get+0x1e8/0x490
+[  152.915402][ T8030]  btrfs_scrub_dev+0x1b9/0x9c0
+[  152.916077][ T8030]  btrfs_ioctl+0x122c/0x4e50
+[  152.916729][ T8030]  __x64_sys_ioctl+0x137/0x190
+[  152.917414][ T8030]  do_syscall_64+0x34/0xb0
+[  152.918034][ T8030]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[  152.918872][ T8030]
+[  152.919203][ T8030] The buggy address belongs to the object at ffff88810d31bc00
+[  152.919203][ T8030]  which belongs to the cache kmalloc-512 of size 512
+[  152.921155][ T8030] The buggy address is located 256 bytes inside of
+[  152.921155][ T8030]  512-byte region [ffff88810d31bc00, ffff88810d31be00)
+[  152.922993][ T8030] The buggy address belongs to the page:
+[  152.923800][ T8030] page:ffffea000434c600 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x10d318
+[  152.925249][ T8030] head:ffffea000434c600 order:2 compound_mapcount:0 compound_pincount:0
+[  152.926399][ T8030] flags: 0x57ff00000010200(slab|head|node=1|zone=2|lastcpupid=0x7ff)
+[  152.927515][ T8030] raw: 057ff00000010200 dead000000000100 dead000000000122 ffff888009c42c80
+[  152.928716][ T8030] raw: 0000000000000000 0000000080100010 00000001ffffffff 0000000000000000
+[  152.929890][ T8030] page dumped because: kasan: bad access detected
+[  152.930759][ T8030]
+[  152.931076][ T8030] Memory state around the buggy address:
+[  152.931851][ T8030]  ffff88810d31bc00: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[  152.932967][ T8030]  ffff88810d31bc80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[  152.934068][ T8030] >ffff88810d31bd00: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[  152.935189][ T8030]                    ^
+[  152.935763][ T8030]  ffff88810d31bd80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[  152.936847][ T8030]  ffff88810d31be00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[  152.937940][ T8030] ==================================================================
 
-It's because raw_setsockopt() concurrently with
-unregister_netdevice_many(). Concurrent scenario as following.
+If apply_wqattrs_prepare() fails in alloc_workqueue(), it will call put_pwq()
+which invoke a work queue to call pwq_unbound_release_workfn() and use the 'wq'.
+The 'wq' allocated in alloc_workqueue() will be freed in error path when
+apply_wqattrs_prepare() fails. So it will lead a UAF.
 
-	cpu0						cpu1
-raw_bind
-raw_setsockopt					unregister_netdevice_many
-						unlist_netdevice
-dev_get_by_index				raw_notifier
-raw_enable_filters				......
-can_rx_register
-can_rcv_list_find(..., net->can.rx_alldev_list)
+CPU0                                          CPU1
+alloc_workqueue()
+alloc_and_link_pwqs()
+apply_wqattrs_prepare() fails
+apply_wqattrs_cleanup()
+schedule_work(&pwq->unbound_release_work)
+kfree(wq)
+                                              worker_thread()
+                                              pwq_unbound_release_workfn() <- trigger uaf here
 
-......
+If apply_wqattrs_prepare() fails, the new pwq are not linked, it doesn't
+hold any reference to the 'wq', 'wq' is invalid to access in the worker,
+so add check pwq if linked to fix this.
 
-sock_close
-raw_release(sock_a)
-
-......
-
-can_receive
-can_rcv_filter(net->can.rx_alldev_list, ...)
-raw_rcv(skb, sock_a)
-BUG
-
-After unlist_netdevice(), dev_get_by_index() return NULL in
-raw_setsockopt(). Function raw_enable_filters() will add sock
-and can_filter to net->can.rx_alldev_list. Then the sock is closed.
-Followed by, we sock_sendmsg() to a new vcan device use the same
-can_filter. Protocol stack match the old receiver whose sock has
-been released on net->can.rx_alldev_list in can_rcv_filter().
-Function raw_rcv() uses the freed sock. UAF BUG is triggered.
-
-We can find that the key issue is that net_device has not been
-protected in raw_setsockopt(). Use rtnl_lock to protect net_device
-in raw_setsockopt().
-
-Fixes: c18ce101f2e4 ("[CAN]: Add raw protocol")
-Link: https://lore.kernel.org/r/20210722070819.1048263-1-william.xuanziyang@huawei.com
-Cc: linux-stable <stable@vger.kernel.org>
-Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
-Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: 2d5f0764b526 ("workqueue: split apply_workqueue_attrs() into 3 stages")
+Cc: stable@vger.kernel.org # v4.2+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Suggested-by: Lai Jiangshan <jiangshanlai@gmail.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Lai Jiangshan <jiangshanlai@gmail.com>
+Tested-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/can/raw.c |   20 ++++++++++++++++++--
- 1 file changed, 18 insertions(+), 2 deletions(-)
+ kernel/workqueue.c |   20 +++++++++++++-------
+ 1 file changed, 13 insertions(+), 7 deletions(-)
 
---- a/net/can/raw.c
-+++ b/net/can/raw.c
-@@ -546,10 +546,18 @@ static int raw_setsockopt(struct socket
- 				return -EFAULT;
- 		}
+--- a/kernel/workqueue.c
++++ b/kernel/workqueue.c
+@@ -3309,15 +3309,21 @@ static void pwq_unbound_release_workfn(s
+ 						  unbound_release_work);
+ 	struct workqueue_struct *wq = pwq->wq;
+ 	struct worker_pool *pool = pwq->pool;
+-	bool is_last;
++	bool is_last = false;
  
-+		rtnl_lock();
- 		lock_sock(sk);
+-	if (WARN_ON_ONCE(!(wq->flags & WQ_UNBOUND)))
+-		return;
++	/*
++	 * when @pwq is not linked, it doesn't hold any reference to the
++	 * @wq, and @wq is invalid to access.
++	 */
++	if (!list_empty(&pwq->pwqs_node)) {
++		if (WARN_ON_ONCE(!(wq->flags & WQ_UNBOUND)))
++			return;
  
--		if (ro->bound && ro->ifindex)
-+		if (ro->bound && ro->ifindex) {
- 			dev = dev_get_by_index(sock_net(sk), ro->ifindex);
-+			if (!dev) {
-+				if (count > 1)
-+					kfree(filter);
-+				err = -ENODEV;
-+				goto out_fil;
-+			}
-+		}
+-	mutex_lock(&wq->mutex);
+-	list_del_rcu(&pwq->pwqs_node);
+-	is_last = list_empty(&wq->pwqs);
+-	mutex_unlock(&wq->mutex);
++		mutex_lock(&wq->mutex);
++		list_del_rcu(&pwq->pwqs_node);
++		is_last = list_empty(&wq->pwqs);
++		mutex_unlock(&wq->mutex);
++	}
  
- 		if (ro->bound) {
- 			/* (try to) register the new filters */
-@@ -588,6 +596,7 @@ static int raw_setsockopt(struct socket
- 			dev_put(dev);
- 
- 		release_sock(sk);
-+		rtnl_unlock();
- 
- 		break;
- 
-@@ -600,10 +609,16 @@ static int raw_setsockopt(struct socket
- 
- 		err_mask &= CAN_ERR_MASK;
- 
-+		rtnl_lock();
- 		lock_sock(sk);
- 
--		if (ro->bound && ro->ifindex)
-+		if (ro->bound && ro->ifindex) {
- 			dev = dev_get_by_index(sock_net(sk), ro->ifindex);
-+			if (!dev) {
-+				err = -ENODEV;
-+				goto out_err;
-+			}
-+		}
- 
- 		/* remove current error mask */
- 		if (ro->bound) {
-@@ -627,6 +642,7 @@ static int raw_setsockopt(struct socket
- 			dev_put(dev);
- 
- 		release_sock(sk);
-+		rtnl_unlock();
- 
- 		break;
- 
+ 	mutex_lock(&wq_pool_mutex);
+ 	put_unbound_pool(pool);
 
 
