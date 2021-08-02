@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 472943DD883
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:52:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D5F93DD9BE
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 16:03:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235294AbhHBNwz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:52:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34462 "EHLO mail.kernel.org"
+        id S235102AbhHBODd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 10:03:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235138AbhHBNvf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:51:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BA3F261057;
-        Mon,  2 Aug 2021 13:51:04 +0000 (UTC)
+        id S235810AbhHBOBa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 10:01:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E3B96120C;
+        Mon,  2 Aug 2021 13:56:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912265;
-        bh=Xj2UQhSsly0w3e0BH8lHI/bWR+t2QLzCWTxtI+ebpT0=;
+        s=korg; t=1627912596;
+        bh=UfUyn9/pYIKv79cGUxfwYbkVUZbl5aotPAlYrdeQfqQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SQtReUQ8vRfZRQXGaIU/GaJyG0jdE8AIOGouSjmkeqM+oipsbjLq/GJJBiSAMxXa7
-         xAWQzIasEuM3DU+947jJRSjOoJ/0tLm0XHW3ZSggPnMFDRAmmSS4u1MuDCVIy9jxQr
-         4aVpPKzprTUnXGdwT28wEly1oq0498GVhPd6G8q0=
+        b=OOG5gHbwjVO5vs8j+bE9D+UB3ysLaC94jYuhVBDWeVZVYcWCh/dX4pH30e0nRyo4R
+         NSsZIg4OsNpxbMnVPasfSXz3JJ4+R/+0w+Qpyge2wDqfe5rkGRLksbGkJtt6sA/l6K
+         8vta2A3I7qivY101+D/UNy8kaRimCkEZA0nxzEnY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
-        Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>,
-        Tony Brelinski <tonyx.brelinski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Abaci Robot <abaci@linux.alibaba.com>,
+        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
+        Tariq Toukan <tariqt@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 22/40] i40e: Fix logic of disabling queues
+Subject: [PATCH 5.13 065/104] mlx4: Fix missing error code in mlx4_load_one()
 Date:   Mon,  2 Aug 2021 15:45:02 +0200
-Message-Id: <20210802134336.102207599@linuxfoundation.org>
+Message-Id: <20210802134346.140410895@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134335.408294521@linuxfoundation.org>
-References: <20210802134335.408294521@linuxfoundation.org>
+In-Reply-To: <20210802134344.028226640@linuxfoundation.org>
+References: <20210802134344.028226640@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,157 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>
+From: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
 
-[ Upstream commit 65662a8dcdd01342b71ee44234bcfd0162e195af ]
+[ Upstream commit 7e4960b3d66d7248b23de3251118147812b42da2 ]
 
-Correct the message flow between driver and firmware when disabling
-queues.
+The error code is missing in this code scenario, add the error code
+'-EINVAL' to the return value 'err'.
 
-Previously in case of PF reset (due to required reinit after reconfig),
-the error like: "VSI seid 397 Tx ring 60 disable timeout" could show up
-occasionally. The error was not a real issue of hardware or firmware,
-it was caused by wrong sequence of messages invoked by the driver.
+Eliminate the follow smatch warning:
 
-Fixes: 41c445ff0f48 ("i40e: main driver core")
-Signed-off-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
-Signed-off-by: Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>
-Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+drivers/net/ethernet/mellanox/mlx4/main.c:3538 mlx4_load_one() warn:
+missing error code 'err'.
+
+Reported-by: Abaci Robot <abaci@linux.alibaba.com>
+Fixes: 7ae0e400cd93 ("net/mlx4_core: Flexible (asymmetric) allocation of EQs and MSI-X vectors for PF/VFs")
+Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_main.c | 58 ++++++++++++---------
- 1 file changed, 34 insertions(+), 24 deletions(-)
+ drivers/net/ethernet/mellanox/mlx4/main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
-index 4f4ec1f166ef..3514e36d1487 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -4403,11 +4403,10 @@ int i40e_control_wait_tx_q(int seid, struct i40e_pf *pf, int pf_q,
- }
+diff --git a/drivers/net/ethernet/mellanox/mlx4/main.c b/drivers/net/ethernet/mellanox/mlx4/main.c
+index 00c84656b2e7..28ac4693da3c 100644
+--- a/drivers/net/ethernet/mellanox/mlx4/main.c
++++ b/drivers/net/ethernet/mellanox/mlx4/main.c
+@@ -3535,6 +3535,7 @@ slave_start:
  
- /**
-- * i40e_vsi_control_tx - Start or stop a VSI's rings
-+ * i40e_vsi_enable_tx - Start a VSI's rings
-  * @vsi: the VSI being configured
-- * @enable: start or stop the rings
-  **/
--static int i40e_vsi_control_tx(struct i40e_vsi *vsi, bool enable)
-+static int i40e_vsi_enable_tx(struct i40e_vsi *vsi)
- {
- 	struct i40e_pf *pf = vsi->back;
- 	int i, pf_q, ret = 0;
-@@ -4416,7 +4415,7 @@ static int i40e_vsi_control_tx(struct i40e_vsi *vsi, bool enable)
- 	for (i = 0; i < vsi->num_queue_pairs; i++, pf_q++) {
- 		ret = i40e_control_wait_tx_q(vsi->seid, pf,
- 					     pf_q,
--					     false /*is xdp*/, enable);
-+					     false /*is xdp*/, true);
- 		if (ret)
- 			break;
- 
-@@ -4425,7 +4424,7 @@ static int i40e_vsi_control_tx(struct i40e_vsi *vsi, bool enable)
- 
- 		ret = i40e_control_wait_tx_q(vsi->seid, pf,
- 					     pf_q + vsi->alloc_queue_pairs,
--					     true /*is xdp*/, enable);
-+					     true /*is xdp*/, true);
- 		if (ret)
- 			break;
- 	}
-@@ -4523,32 +4522,25 @@ int i40e_control_wait_rx_q(struct i40e_pf *pf, int pf_q, bool enable)
- }
- 
- /**
-- * i40e_vsi_control_rx - Start or stop a VSI's rings
-+ * i40e_vsi_enable_rx - Start a VSI's rings
-  * @vsi: the VSI being configured
-- * @enable: start or stop the rings
-  **/
--static int i40e_vsi_control_rx(struct i40e_vsi *vsi, bool enable)
-+static int i40e_vsi_enable_rx(struct i40e_vsi *vsi)
- {
- 	struct i40e_pf *pf = vsi->back;
- 	int i, pf_q, ret = 0;
- 
- 	pf_q = vsi->base_queue;
- 	for (i = 0; i < vsi->num_queue_pairs; i++, pf_q++) {
--		ret = i40e_control_wait_rx_q(pf, pf_q, enable);
-+		ret = i40e_control_wait_rx_q(pf, pf_q, true);
- 		if (ret) {
- 			dev_info(&pf->pdev->dev,
--				 "VSI seid %d Rx ring %d %sable timeout\n",
--				 vsi->seid, pf_q, (enable ? "en" : "dis"));
-+				 "VSI seid %d Rx ring %d enable timeout\n",
-+				 vsi->seid, pf_q);
- 			break;
+ 		if (!SRIOV_VALID_STATE(dev->flags)) {
+ 			mlx4_err(dev, "Invalid SRIOV state\n");
++			err = -EINVAL;
+ 			goto err_close;
  		}
  	}
- 
--	/* Due to HW errata, on Rx disable only, the register can indicate done
--	 * before it really is. Needs 50ms to be sure
--	 */
--	if (!enable)
--		mdelay(50);
--
- 	return ret;
- }
- 
-@@ -4561,29 +4553,47 @@ int i40e_vsi_start_rings(struct i40e_vsi *vsi)
- 	int ret = 0;
- 
- 	/* do rx first for enable and last for disable */
--	ret = i40e_vsi_control_rx(vsi, true);
-+	ret = i40e_vsi_enable_rx(vsi);
- 	if (ret)
- 		return ret;
--	ret = i40e_vsi_control_tx(vsi, true);
-+	ret = i40e_vsi_enable_tx(vsi);
- 
- 	return ret;
- }
- 
-+#define I40E_DISABLE_TX_GAP_MSEC	50
-+
- /**
-  * i40e_vsi_stop_rings - Stop a VSI's rings
-  * @vsi: the VSI being configured
-  **/
- void i40e_vsi_stop_rings(struct i40e_vsi *vsi)
- {
-+	struct i40e_pf *pf = vsi->back;
-+	int pf_q, err, q_end;
-+
- 	/* When port TX is suspended, don't wait */
- 	if (test_bit(__I40E_PORT_SUSPENDED, vsi->back->state))
- 		return i40e_vsi_stop_rings_no_wait(vsi);
- 
--	/* do rx first for enable and last for disable
--	 * Ignore return value, we need to shutdown whatever we can
--	 */
--	i40e_vsi_control_tx(vsi, false);
--	i40e_vsi_control_rx(vsi, false);
-+	q_end = vsi->base_queue + vsi->num_queue_pairs;
-+	for (pf_q = vsi->base_queue; pf_q < q_end; pf_q++)
-+		i40e_pre_tx_queue_cfg(&pf->hw, (u32)pf_q, false);
-+
-+	for (pf_q = vsi->base_queue; pf_q < q_end; pf_q++) {
-+		err = i40e_control_wait_rx_q(pf, pf_q, false);
-+		if (err)
-+			dev_info(&pf->pdev->dev,
-+				 "VSI seid %d Rx ring %d dissable timeout\n",
-+				 vsi->seid, pf_q);
-+	}
-+
-+	msleep(I40E_DISABLE_TX_GAP_MSEC);
-+	pf_q = vsi->base_queue;
-+	for (pf_q = vsi->base_queue; pf_q < q_end; pf_q++)
-+		wr32(&pf->hw, I40E_QTX_ENA(pf_q), 0);
-+
-+	i40e_vsi_wait_queues_disabled(vsi);
- }
- 
- /**
 -- 
 2.30.2
 
