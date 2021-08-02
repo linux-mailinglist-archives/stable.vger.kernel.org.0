@@ -2,122 +2,195 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3228C3DD942
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:58:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 660253DD7A6
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:47:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235156AbhHBN66 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:58:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41636 "EHLO mail.kernel.org"
+        id S234335AbhHBNrT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:47:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236070AbhHBN47 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:56:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 722726115C;
-        Mon,  2 Aug 2021 13:54:40 +0000 (UTC)
+        id S234058AbhHBNqj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:46:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B294260F6D;
+        Mon,  2 Aug 2021 13:46:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912480;
-        bh=Ix+EIv2FJ3EbJS8waMUtLO+G5ZHGIfvxMkbNAnRPKj8=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xo6MFl0nW1zWNuzQUe13AjvYg6//4Yxi4/+sUDSd9J1vlE5C4F8q+FOvIaWRZasCR
-         Ztb2gtbE5cd0wcCXCDmzv9DO77StHJ4gfePMvdSe2t9BO3KGX5EGOFnJlc+nbMRx/v
-         KqiI0O5D1qhyDJlnFXn8iaqHqRe/Saz/7zyLREWs=
+        s=korg; t=1627911989;
+        bh=e6PekA7Irec1lEjiPv97qbqcAsPUFP/IHOnPpEKJqK4=;
+        h=From:To:Cc:Subject:Date:From;
+        b=ZKvoSgdbR4jsXJmMxXaNGpFAR5RegcNGq+X2Vw+s7TIv8XBxXUJ83jwglZ3bcU2+L
+         YMEs/Ii/DQ6EoGRkLjuH3rWAB541045GOEKEGInT4zcmxK9QstZyfLxuTJI/nxcBfi
+         T8MPR38b2BMa6w08laO122ojP5u0NjdHxlllibHo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Weiner <hannes@cmpxchg.org>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Chris Down <chris@chrisdown.name>,
-        Rik van Riel <riel@surriel.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.13 012/104] mm: memcontrol: fix blocking rstat function called from atomic cgroup1 thresholding code
-Date:   Mon,  2 Aug 2021 15:44:09 +0200
-Message-Id: <20210802134344.419426208@linuxfoundation.org>
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 4.4 00/26] 4.4.278-rc1 review
+Date:   Mon,  2 Aug 2021 15:44:10 +0200
+Message-Id: <20210802134332.033552261@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134344.028226640@linuxfoundation.org>
-References: <20210802134344.028226640@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.278-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.4.278-rc1
+X-KernelTest-Deadline: 2021-08-04T13:43+00:00
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Weiner <hannes@cmpxchg.org>
+This is the start of the stable review cycle for the 4.4.278 release.
+There are 26 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit 30def93565e5ba08676aa2b9083f253fc586dbed upstream.
+Responses should be made by Wed, 04 Aug 2021 13:43:24 +0000.
+Anything received after that time might be too late.
 
-Dan Carpenter reports:
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.278-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
+and the diffstat can be found below.
 
-    The patch 2d146aa3aa84: "mm: memcontrol: switch to rstat" from Apr
-    29, 2021, leads to the following static checker warning:
+thanks,
 
-	    kernel/cgroup/rstat.c:200 cgroup_rstat_flush()
-	    warn: sleeping in atomic context
+greg k-h
 
-    mm/memcontrol.c
-      3572  static unsigned long mem_cgroup_usage(struct mem_cgroup *memcg, bool swap)
-      3573  {
-      3574          unsigned long val;
-      3575
-      3576          if (mem_cgroup_is_root(memcg)) {
-      3577                  cgroup_rstat_flush(memcg->css.cgroup);
-			    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-------------
+Pseudo-Shortlog of commits:
 
-    This is from static analysis and potentially a false positive.  The
-    problem is that mem_cgroup_usage() is called from __mem_cgroup_threshold()
-    which holds an rcu_read_lock().  And the cgroup_rstat_flush() function
-    can sleep.
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.4.278-rc1
 
-      3578                  val = memcg_page_state(memcg, NR_FILE_PAGES) +
-      3579                          memcg_page_state(memcg, NR_ANON_MAPPED);
-      3580                  if (swap)
-      3581                          val += memcg_page_state(memcg, MEMCG_SWAP);
-      3582          } else {
-      3583                  if (!swap)
-      3584                          val = page_counter_read(&memcg->memory);
-      3585                  else
-      3586                          val = page_counter_read(&memcg->memsw);
-      3587          }
-      3588          return val;
-      3589  }
+Wang Hai <wanghai38@huawei.com>
+    sis900: Fix missing pci_disable_device() in probe and remove
 
-__mem_cgroup_threshold() indeed holds the rcu lock.  In addition, the
-thresholding code is invoked during stat changes, and those contexts
-have irqs disabled as well.  If the lock breaking occurs inside the
-flush function, it will result in a sleep from an atomic context.
+Wang Hai <wanghai38@huawei.com>
+    tulip: windbond-840: Fix missing pci_disable_device() in probe and remove
 
-Use the irqsafe flushing variant in mem_cgroup_usage() to fix this.
+Pavel Skripkin <paskripkin@gmail.com>
+    net: llc: fix skb_over_panic
 
-Link: https://lkml.kernel.org/r/20210726150019.251820-1-hannes@cmpxchg.org
-Fixes: 2d146aa3aa84 ("mm: memcontrol: switch to rstat")
-Signed-off-by: Johannes Weiner <hannes@cmpxchg.org>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Chris Down <chris@chrisdown.name>
-Reviewed-by: Rik van Riel <riel@surriel.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- mm/memcontrol.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+    mlx4: Fix missing error code in mlx4_load_one()
 
---- a/mm/memcontrol.c
-+++ b/mm/memcontrol.c
-@@ -3394,7 +3394,8 @@ static unsigned long mem_cgroup_usage(st
- 	unsigned long val;
- 
- 	if (mem_cgroup_is_root(memcg)) {
--		cgroup_rstat_flush(memcg->css.cgroup);
-+		/* mem_cgroup_threshold() calls here from irqsafe context */
-+		cgroup_rstat_flush_irqsafe(memcg->css.cgroup);
- 		val = memcg_page_state(memcg, NR_FILE_PAGES) +
- 			memcg_page_state(memcg, NR_ANON_MAPPED);
- 		if (swap)
+Hoang Le <hoang.h.le@dektech.com.au>
+    tipc: fix sleeping in tipc accept routine
+
+Pablo Neira Ayuso <pablo@netfilter.org>
+    netfilter: nft_nat: allow to specify layer 4 protocol NAT only
+
+Nguyen Dinh Phi <phind.uet@gmail.com>
+    cfg80211: Fix possible memory leak in function cfg80211_bss_update
+
+Jan Kiszka <jan.kiszka@siemens.com>
+    x86/asm: Ensure asm/proto.h can be included stand-alone
+
+Paul Jakma <paul@jakma.org>
+    NIU: fix incorrect error return, missed in previous revert
+
+Pavel Skripkin <paskripkin@gmail.com>
+    can: esd_usb2: fix memory leak
+
+Pavel Skripkin <paskripkin@gmail.com>
+    can: ems_usb: fix memory leak
+
+Pavel Skripkin <paskripkin@gmail.com>
+    can: usb_8dev: fix memory leak
+
+Junxiao Bi <junxiao.bi@oracle.com>
+    ocfs2: issue zeroout to EOF blocks
+
+Junxiao Bi <junxiao.bi@oracle.com>
+    ocfs2: fix zero out valid data
+
+Russell King <rmk+kernel@armlinux.org.uk>
+    ARM: ensure the signal page contains defined contents
+
+Matthew Wilcox <mawilcox@microsoft.com>
+    lib/string.c: add multibyte memset functions
+
+Sudeep Holla <sudeep.holla@arm.com>
+    ARM: dts: versatile: Fix up interrupt controller node names
+
+Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+    hfs: add lock nesting notation to hfs_find_init
+
+Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+    hfs: fix high memory mapping in hfs_bnode_read
+
+Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+    hfs: add missing clean-up in hfs_fill_super
+
+Xin Long <lucien.xin@gmail.com>
+    sctp: move 198 addresses from unusable to private scope
+
+Yang Yingliang <yangyingliang@huawei.com>
+    net/802/garp: fix memleak in garp_request_join()
+
+Yang Yingliang <yangyingliang@huawei.com>
+    net/802/mrp: fix memleak in mrp_request_join()
+
+Yang Yingliang <yangyingliang@huawei.com>
+    workqueue: fix UAF in pwq_unbound_release_workfn()
+
+Miklos Szeredi <mszeredi@redhat.com>
+    af_unix: fix garbage collect vs MSG_PEEK
+
+Jens Axboe <axboe@kernel.dk>
+    net: split out functions related to registering inflight socket files
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                     |   4 +-
+ arch/arm/boot/dts/versatile-ab.dts           |   5 +-
+ arch/arm/boot/dts/versatile-pb.dts           |   2 +-
+ arch/arm/kernel/signal.c                     |  14 ++-
+ arch/x86/include/asm/proto.h                 |   2 +
+ drivers/net/can/usb/ems_usb.c                |  14 ++-
+ drivers/net/can/usb/esd_usb2.c               |  16 ++-
+ drivers/net/can/usb/usb_8dev.c               |  15 ++-
+ drivers/net/ethernet/dec/tulip/winbond-840.c |   7 +-
+ drivers/net/ethernet/mellanox/mlx4/main.c    |   1 +
+ drivers/net/ethernet/sis/sis900.c            |   7 +-
+ drivers/net/ethernet/sun/niu.c               |   3 +-
+ fs/hfs/bfind.c                               |  14 ++-
+ fs/hfs/bnode.c                               |  25 ++++-
+ fs/hfs/btree.h                               |   7 ++
+ fs/hfs/super.c                               |  10 +-
+ fs/ocfs2/file.c                              | 103 ++++++++++-------
+ include/linux/string.h                       |  30 +++++
+ include/net/af_unix.h                        |   1 +
+ include/net/llc_pdu.h                        |  31 ++++--
+ include/net/sctp/constants.h                 |   4 +-
+ kernel/workqueue.c                           |  20 ++--
+ lib/string.c                                 |  66 +++++++++++
+ net/802/garp.c                               |  14 +++
+ net/802/mrp.c                                |  14 +++
+ net/Makefile                                 |   2 +-
+ net/llc/af_llc.c                             |  10 +-
+ net/llc/llc_s_ac.c                           |   2 +-
+ net/netfilter/nft_nat.c                      |   4 +-
+ net/sctp/protocol.c                          |   3 +-
+ net/tipc/socket.c                            |   9 +-
+ net/unix/Kconfig                             |   5 +
+ net/unix/Makefile                            |   2 +
+ net/unix/af_unix.c                           | 115 ++++++++-----------
+ net/unix/garbage.c                           |  68 +----------
+ net/unix/scm.c                               | 161 +++++++++++++++++++++++++++
+ net/unix/scm.h                               |  10 ++
+ net/wireless/scan.c                          |   6 +-
+ 38 files changed, 579 insertions(+), 247 deletions(-)
 
 
