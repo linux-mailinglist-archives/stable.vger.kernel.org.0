@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F0F53DD8FC
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:56:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B31583DDA22
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 16:06:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234767AbhHBN4f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:56:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33012 "EHLO mail.kernel.org"
+        id S235432AbhHBOGV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 10:06:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235850AbhHBNya (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:54:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6880860F50;
-        Mon,  2 Aug 2021 13:52:53 +0000 (UTC)
+        id S236376AbhHBOEH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 10:04:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 12C236121F;
+        Mon,  2 Aug 2021 13:57:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912373;
-        bh=ZtaFqGVNTbtzbbJC1xi0DYcx1OmZu94B3O9QLS3xKRA=;
+        s=korg; t=1627912655;
+        bh=G0PIvq9s0DOagE/IHDbUslPQGfgB6iAjvxtsdY/vI2s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CU3VaCpgpsOZwA/Fhi+G+KKz2RJWAoRw8cn8T1evvhgHRX0BLWsNHNmHow9thgPnK
-         +OtxRkrEyyU7WceYJZHUpk/Ll0kw+bUdWXUNOuRX8p6qY8qqwSXv6KDtQVuaoGLlt7
-         PtKt24ht1cRufhasAJ0Jj0RoavQGYtkXbDBZ1D0Q=
+        b=nuUxH4wC2MoX+iUNUmMQ2/tDcaB1JlrJlYequfTVJ5pqX3vmj9l32yYuPgCkrTGmQ
+         tUY1AcCkNi5B1xFVOB3smwdtV6dWMqP7nGe55+K2Ta3+2IfL1oDYiKft5hcDeGdcLU
+         6163VS2ad4OtYjMwdJ/36TZHkKQjisgVa1fZZq3Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Shannon Nelson <snelson@pensando.io>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 31/67] netfilter: conntrack: adjust stop timestamp to real expiry value
+Subject: [PATCH 5.13 057/104] ionic: remove intr coalesce update from napi
 Date:   Mon,  2 Aug 2021 15:44:54 +0200
-Message-Id: <20210802134340.080656722@linuxfoundation.org>
+Message-Id: <20210802134345.882482813@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134339.023067817@linuxfoundation.org>
-References: <20210802134339.023067817@linuxfoundation.org>
+In-Reply-To: <20210802134344.028226640@linuxfoundation.org>
+References: <20210802134344.028226640@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,42 +40,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Shannon Nelson <snelson@pensando.io>
 
-[ Upstream commit 30a56a2b881821625f79837d4d968c679852444e ]
+[ Upstream commit a6ff85e0a2d9d074a4b4c291ba9ec1e5b0aba22b ]
 
-In case the entry is evicted via garbage collection there is
-delay between the timeout value and the eviction event.
+Move the interrupt coalesce value update out of the napi
+thread and into the dim_work thread and set it only when it
+has actually changed.
 
-This adjusts the stop value based on how much time has passed.
-
-Fixes: b87a2f9199ea82 ("netfilter: conntrack: add gc worker to remove timed-out entries")
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 04a834592bf5 ("ionic: dynamic interrupt moderation")
+Signed-off-by: Shannon Nelson <snelson@pensando.io>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_conntrack_core.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/pensando/ionic/ionic_lif.c  | 14 +++++++++++++-
+ drivers/net/ethernet/pensando/ionic/ionic_txrx.c |  4 ----
+ 2 files changed, 13 insertions(+), 5 deletions(-)
 
-diff --git a/net/netfilter/nf_conntrack_core.c b/net/netfilter/nf_conntrack_core.c
-index ff0168736f6e..f9f2af26ccb3 100644
---- a/net/netfilter/nf_conntrack_core.c
-+++ b/net/netfilter/nf_conntrack_core.c
-@@ -661,8 +661,13 @@ bool nf_ct_delete(struct nf_conn *ct, u32 portid, int report)
- 		return false;
- 
- 	tstamp = nf_conn_tstamp_find(ct);
--	if (tstamp && tstamp->stop == 0)
-+	if (tstamp) {
-+		s32 timeout = ct->timeout - nfct_time_stamp;
+diff --git a/drivers/net/ethernet/pensando/ionic/ionic_lif.c b/drivers/net/ethernet/pensando/ionic/ionic_lif.c
+index 7815e9034fb8..e795fa63ca12 100644
+--- a/drivers/net/ethernet/pensando/ionic/ionic_lif.c
++++ b/drivers/net/ethernet/pensando/ionic/ionic_lif.c
+@@ -53,7 +53,19 @@ static void ionic_dim_work(struct work_struct *work)
+ 	cur_moder = net_dim_get_rx_moderation(dim->mode, dim->profile_ix);
+ 	qcq = container_of(dim, struct ionic_qcq, dim);
+ 	new_coal = ionic_coal_usec_to_hw(qcq->q.lif->ionic, cur_moder.usec);
+-	qcq->intr.dim_coal_hw = new_coal ? new_coal : 1;
++	new_coal = new_coal ? new_coal : 1;
 +
- 		tstamp->stop = ktime_get_real_ns();
-+		if (timeout < 0)
-+			tstamp->stop -= jiffies_to_nsecs(-timeout);
++	if (qcq->intr.dim_coal_hw != new_coal) {
++		unsigned int qi = qcq->cq.bound_q->index;
++		struct ionic_lif *lif = qcq->q.lif;
++
++		qcq->intr.dim_coal_hw = new_coal;
++
++		ionic_intr_coal_init(lif->ionic->idev.intr_ctrl,
++				     lif->rxqcqs[qi]->intr.index,
++				     qcq->intr.dim_coal_hw);
 +	}
++
+ 	dim->state = DIM_START_MEASURE;
+ }
  
- 	if (nf_conntrack_event_report(IPCT_DESTROY, ct,
- 				    portid, report) < 0) {
+diff --git a/drivers/net/ethernet/pensando/ionic/ionic_txrx.c b/drivers/net/ethernet/pensando/ionic/ionic_txrx.c
+index 08934888575c..9d3a04110685 100644
+--- a/drivers/net/ethernet/pensando/ionic/ionic_txrx.c
++++ b/drivers/net/ethernet/pensando/ionic/ionic_txrx.c
+@@ -463,10 +463,6 @@ static void ionic_dim_update(struct ionic_qcq *qcq)
+ 	lif = qcq->q.lif;
+ 	qi = qcq->cq.bound_q->index;
+ 
+-	ionic_intr_coal_init(lif->ionic->idev.intr_ctrl,
+-			     lif->rxqcqs[qi]->intr.index,
+-			     qcq->intr.dim_coal_hw);
+-
+ 	dim_update_sample(qcq->cq.bound_intr->rearm_count,
+ 			  lif->txqstats[qi].pkts,
+ 			  lif->txqstats[qi].bytes,
 -- 
 2.30.2
 
