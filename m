@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E5513DD78B
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:46:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E4543DD7AD
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:47:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234050AbhHBNqL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:46:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55640 "EHLO mail.kernel.org"
+        id S234051AbhHBNrj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:47:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234058AbhHBNqK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:46:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 10DB560555;
-        Mon,  2 Aug 2021 13:46:00 +0000 (UTC)
+        id S234269AbhHBNrE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:47:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F2B5160FF2;
+        Mon,  2 Aug 2021 13:46:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627911961;
-        bh=TLuHBacfy6zJyeCibSLTST2gSrfB2psfKd7bI6DsLCQ=;
+        s=korg; t=1627912015;
+        bh=+TbxYEZT3IXSthwpO6A8R0xgy2cihLk8uOxAnY25psc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HeMOrsrFm62Y0jJ7Ku/U+4tFMuvXzput08Dj6hGL0GxvfR+XOILIdqikftR2V4Hia
-         SY010Wp65eTXv+0wneOl+gkleA/MbEyvQGbR2jahta1VIcPsihmVs7eI/iotx78kXE
-         /oi+I1H7Chb+KGMhCe8q3xZ4LQo7bMqgT/dZXsIs=
+        b=RYoU0JpApyk4xFx8ctDvZnRv8QBTDsbSCOhG74wdGUQwuysH1trCxvM7hjZFk8Hhx
+         N8z9yBaB/dz96lPl/kUVXhDW93kul3AJnw0z0a3lkItpRIX+HSfmoQs1URNOjrMbrO
+         6KnQfW8cs5voju4H2YCIOxKa244HfHWsIQmOXfzA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        "Nobuhiro Iwamatsu (CIP)" <nobuhiro1.iwamatsu@toshiba.co.jp>
-Subject: [PATCH 4.4 12/26] ARM: ensure the signal page contains defined contents
+        stable@vger.kernel.org, Hoang Le <hoang.h.le@dektech.com.au>,
+        Jon Maloy <jon.maloy@ericsson.com>,
+        Ying Xue <ying.xue@windriver.com>,
+        kernel test robot <lkp@intel.com>,
+        Nathan Chancellor <nathan@kernel.org>
+Subject: [PATCH 4.9 02/32] tipc: Fix backport of b77413446408fdd256599daf00d5be72b5f3e7c6
 Date:   Mon,  2 Aug 2021 15:44:22 +0200
-Message-Id: <20210802134332.437696492@linuxfoundation.org>
+Message-Id: <20210802134333.008488234@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134332.033552261@linuxfoundation.org>
-References: <20210802134332.033552261@linuxfoundation.org>
+In-Reply-To: <20210802134332.931915241@linuxfoundation.org>
+References: <20210802134332.931915241@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,50 +42,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <rmk+kernel@armlinux.org.uk>
+From: Nathan Chancellor <nathan@kernel.org>
 
-commit 9c698bff66ab4914bb3d71da7dc6112519bde23e upstream.
+Clang warns:
 
-Ensure that the signal page contains our poison instruction to increase
-the protection against ROP attacks and also contains well defined
-contents.
+net/tipc/link.c:896:23: warning: variable 'hdr' is uninitialized when
+used here [-Wuninitialized]
+        imp = msg_importance(hdr);
+                             ^~~
+net/tipc/link.c:890:22: note: initialize the variable 'hdr' to silence
+this warning
+        struct tipc_msg *hdr;
+                            ^
+                             = NULL
+1 warning generated.
 
-Acked-by: Will Deacon <will@kernel.org>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Nobuhiro Iwamatsu (CIP) <nobuhiro1.iwamatsu@toshiba.co.jp>
+The backport of commit b77413446408 ("tipc: fix NULL deref in
+tipc_link_xmit()") to 4.9 as commit 310014f572a5 ("tipc: fix NULL deref
+in tipc_link_xmit()") added the hdr initialization above the
+
+    if (unlikely(msg_size(hdr) > mtu)) {
+
+like in the upstream commit; however, in 4.9, that check is below imp's
+first use because commit 365ad353c256 ("tipc: reduce risk of user
+starvation during link congestion") is not present. This results in hdr
+being used uninitialized.
+
+Fix this by moving hdr's initialization before imp and after the if
+check like the original backport did.
+
+Cc: Hoang Le <hoang.h.le@dektech.com.au>
+Cc: Jon Maloy <jon.maloy@ericsson.com>
+Cc: Ying Xue <ying.xue@windriver.com>
+Fixes: 310014f572a5 ("tipc: fix NULL deref in tipc_link_xmit()")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/kernel/signal.c |   14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ net/tipc/link.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm/kernel/signal.c
-+++ b/arch/arm/kernel/signal.c
-@@ -625,18 +625,20 @@ struct page *get_signal_page(void)
+--- a/net/tipc/link.c
++++ b/net/tipc/link.c
+@@ -893,6 +893,7 @@ int tipc_link_xmit(struct tipc_link *l,
+ 	if (pkt_cnt <= 0)
+ 		return 0;
  
- 	addr = page_address(page);
++	hdr = buf_msg(skb_peek(list));
+ 	imp = msg_importance(hdr);
+ 	/* Match msg importance against this and all higher backlog limits: */
+ 	if (!skb_queue_empty(backlogq)) {
+@@ -902,7 +903,6 @@ int tipc_link_xmit(struct tipc_link *l,
+ 		}
+ 	}
  
-+	/* Poison the entire page */
-+	memset32(addr, __opcode_to_mem_arm(0xe7fddef1),
-+		 PAGE_SIZE / sizeof(u32));
-+
- 	/* Give the signal return code some randomness */
- 	offset = 0x200 + (get_random_int() & 0x7fc);
- 	signal_return_offset = offset;
- 
--	/*
--	 * Copy signal return handlers into the vector page, and
--	 * set sigreturn to be a pointer to these.
--	 */
-+	/* Copy signal return handlers into the page */
- 	memcpy(addr + offset, sigreturn_codes, sizeof(sigreturn_codes));
- 
--	ptr = (unsigned long)addr + offset;
--	flush_icache_range(ptr, ptr + sizeof(sigreturn_codes));
-+	/* Flush out all instructions in this page */
-+	ptr = (unsigned long)addr;
-+	flush_icache_range(ptr, ptr + PAGE_SIZE);
- 
- 	return page;
- }
+-	hdr = buf_msg(skb_peek(list));
+ 	if (unlikely(msg_size(hdr) > mtu)) {
+ 		skb_queue_purge(list);
+ 		return -EMSGSIZE;
 
 
