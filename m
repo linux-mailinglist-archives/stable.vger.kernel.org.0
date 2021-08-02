@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26CAC3DD7BD
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:48:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 569E63DD8F1
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:56:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234338AbhHBNsD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:48:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57350 "EHLO mail.kernel.org"
+        id S235871AbhHBN4c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:56:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234355AbhHBNrf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:47:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6169A61151;
-        Mon,  2 Aug 2021 13:47:14 +0000 (UTC)
+        id S234381AbhHBNyE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:54:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C3A0461179;
+        Mon,  2 Aug 2021 13:52:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912034;
-        bh=amS3J7JYAEwsQ82JVWTBmpY6Hz62KTOrP+34DQ2bFW8=;
+        s=korg; t=1627912341;
+        bh=kIzYnuZFMrxLllh/y9GtgzQuBkfdQkXRMCDWVGkflII=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b/n4YkdltyvK/wmnHdq1/we5cx1xl3kIsOHigfhjDJV8TAd8JtrdK6XT3Y4L/tt3h
-         aavwmSH7F0DGkoOo7Zpk5vnSMIz5r8NRx3g+hUCEA5YAGKZGGm197OoEEDnlREa2V8
-         IiH6Uk1dFbNZwqSkwW3XOcylt75N7Gy02wCEqRf0=
+        b=oIGW4eSTVlHzQiYBG4j59Po3ahu9xLyCz2iX/rGLdBsIFyTPTaxspUt1oDqoJyh03
+         LdLoDu6PPyR9w/LaFea8JUfN9p42cLaC+8mWkcepdQTEI0nbDEuyAfXQWmlL0IJhI0
+         PT1Sn2Rh7vKb+r16CWzKX9dqR7bzUPgh49nO7M3E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
         Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 4.9 19/32] can: ems_usb: fix memory leak
+Subject: [PATCH 5.10 16/67] can: usb_8dev: fix memory leak
 Date:   Mon,  2 Aug 2021 15:44:39 +0200
-Message-Id: <20210802134333.531900720@linuxfoundation.org>
+Message-Id: <20210802134339.572141213@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134332.931915241@linuxfoundation.org>
-References: <20210802134332.931915241@linuxfoundation.org>
+In-Reply-To: <20210802134339.023067817@linuxfoundation.org>
+References: <20210802134339.023067817@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,14 +41,14 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit 9969e3c5f40c166e3396acc36c34f9de502929f6 upstream.
+commit 0e865f0c31928d6a313269ef624907eec55287c4 upstream.
 
-In ems_usb_start() MAX_RX_URBS coherent buffers are allocated and
+In usb_8dev_start() MAX_RX_URBS coherent buffers are allocated and
 there is nothing, that frees them:
 
 1) In callback function the urb is resubmitted and that's all
 2) In disconnect function urbs are simply killed, but URB_FREE_BUFFER
-   is not set (see ems_usb_start) and this flag cannot be used with
+   is not set (see usb_8dev_start) and this flag cannot be used with
    coherent buffers.
 
 So, all allocated buffers should be freed with usb_free_coherent()
@@ -59,73 +59,74 @@ same patch was applied to mcba_usb driver and it works nice with real
 hardware. There is no change in functionality, only clean-up code for
 coherent buffers.
 
-Fixes: 702171adeed3 ("ems_usb: Added support for EMS CPC-USB/ARM7 CAN/USB interface")
-Link: https://lore.kernel.org/r/59aa9fbc9a8cbf9af2bbd2f61a659c480b415800.1627404470.git.paskripkin@gmail.com
+Fixes: 0024d8ad1639 ("can: usb_8dev: Add support for USB2CAN interface from 8 devices")
+Link: https://lore.kernel.org/r/d39b458cd425a1cf7f512f340224e6e9563b07bd.1627404470.git.paskripkin@gmail.com
 Cc: linux-stable <stable@vger.kernel.org>
 Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/usb/ems_usb.c |   14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ drivers/net/can/usb/usb_8dev.c |   15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
 
---- a/drivers/net/can/usb/ems_usb.c
-+++ b/drivers/net/can/usb/ems_usb.c
-@@ -267,6 +267,8 @@ struct ems_usb {
- 	unsigned int free_slots; /* remember number of available slots */
+--- a/drivers/net/can/usb/usb_8dev.c
++++ b/drivers/net/can/usb/usb_8dev.c
+@@ -137,7 +137,8 @@ struct usb_8dev_priv {
+ 	u8 *cmd_msg_buffer;
  
- 	struct ems_cpc_msg active_params; /* active controller parameters */
+ 	struct mutex usb_8dev_cmd_lock;
+-
 +	void *rxbuf[MAX_RX_URBS];
 +	dma_addr_t rxbuf_dma[MAX_RX_URBS];
  };
  
- static void ems_usb_read_interrupt_callback(struct urb *urb)
-@@ -598,6 +600,7 @@ static int ems_usb_start(struct ems_usb
+ /* tx frame */
+@@ -733,6 +734,7 @@ static int usb_8dev_start(struct usb_8de
  	for (i = 0; i < MAX_RX_URBS; i++) {
  		struct urb *urb = NULL;
- 		u8 *buf = NULL;
+ 		u8 *buf;
 +		dma_addr_t buf_dma;
  
  		/* create a URB, and a buffer for it */
  		urb = usb_alloc_urb(0, GFP_KERNEL);
-@@ -607,7 +610,7 @@ static int ems_usb_start(struct ems_usb
+@@ -742,7 +744,7 @@ static int usb_8dev_start(struct usb_8de
  		}
  
- 		buf = usb_alloc_coherent(dev->udev, RX_BUFFER_SIZE, GFP_KERNEL,
+ 		buf = usb_alloc_coherent(priv->udev, RX_BUFFER_SIZE, GFP_KERNEL,
 -					 &urb->transfer_dma);
 +					 &buf_dma);
  		if (!buf) {
  			netdev_err(netdev, "No memory left for USB buffer\n");
  			usb_free_urb(urb);
-@@ -615,6 +618,8 @@ static int ems_usb_start(struct ems_usb
+@@ -750,6 +752,8 @@ static int usb_8dev_start(struct usb_8de
  			break;
  		}
  
 +		urb->transfer_dma = buf_dma;
 +
- 		usb_fill_bulk_urb(urb, dev->udev, usb_rcvbulkpipe(dev->udev, 2),
- 				  buf, RX_BUFFER_SIZE,
- 				  ems_usb_read_bulk_callback, dev);
-@@ -630,6 +635,9 @@ static int ems_usb_start(struct ems_usb
+ 		usb_fill_bulk_urb(urb, priv->udev,
+ 				  usb_rcvbulkpipe(priv->udev,
+ 						  USB_8DEV_ENDP_DATA_RX),
+@@ -767,6 +771,9 @@ static int usb_8dev_start(struct usb_8de
  			break;
  		}
  
-+		dev->rxbuf[i] = buf;
-+		dev->rxbuf_dma[i] = buf_dma;
++		priv->rxbuf[i] = buf;
++		priv->rxbuf_dma[i] = buf_dma;
 +
  		/* Drop reference, USB core will take care of freeing it */
  		usb_free_urb(urb);
  	}
-@@ -695,6 +703,10 @@ static void unlink_all_urbs(struct ems_u
+@@ -836,6 +843,10 @@ static void unlink_all_urbs(struct usb_8
  
- 	usb_kill_anchored_urbs(&dev->rx_submitted);
+ 	usb_kill_anchored_urbs(&priv->rx_submitted);
  
 +	for (i = 0; i < MAX_RX_URBS; ++i)
-+		usb_free_coherent(dev->udev, RX_BUFFER_SIZE,
-+				  dev->rxbuf[i], dev->rxbuf_dma[i]);
++		usb_free_coherent(priv->udev, RX_BUFFER_SIZE,
++				  priv->rxbuf[i], priv->rxbuf_dma[i]);
 +
- 	usb_kill_anchored_urbs(&dev->tx_submitted);
- 	atomic_set(&dev->active_tx_urbs, 0);
+ 	usb_kill_anchored_urbs(&priv->tx_submitted);
+ 	atomic_set(&priv->active_tx_urbs, 0);
  
 
 
