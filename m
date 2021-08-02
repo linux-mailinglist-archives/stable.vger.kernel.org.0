@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66C1B3DD901
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:56:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A4773DD8DD
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:56:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234335AbhHBN4h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:56:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34138 "EHLO mail.kernel.org"
+        id S234177AbhHBNzo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:55:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236007AbhHBNyv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:54:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5BBF36052B;
-        Mon,  2 Aug 2021 13:53:04 +0000 (UTC)
+        id S236077AbhHBNy5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:54:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8530B611CE;
+        Mon,  2 Aug 2021 13:53:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912384;
-        bh=lvIAxlLhGE2iuoi5wxCJ5/WOViEUZ5YmrqZyje3/kNM=;
+        s=korg; t=1627912387;
+        bh=uQA00636DhftkDXnt8Orn9kC8cnTw9fDbYKzxjacgvY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TsiaTsEx9Py3lK6KxrLWtrnWTZU5k3A+FqaiIgIUFxOHhnitX+oCOObQFUEj9xZdM
-         vKaMOwzdhfQrAuoiDAsTMzgUHfYcy5hlaWLssNnJd5cJR2RCh/8kqRdI5+g7xzEBzX
-         qq6b2v1CQCLM1ZlpSFlMOsgGEozPQtmV4JSoPRog=
+        b=ZEQaYCpGSr+MCEl7i/osykaZKQaIthdXC5H7hlzloJKJAzGlnkDcWMmM4S50lZOY/
+         XDx92RP1V+w+eadVrS2IivCgN57mwM1OopVm4oxoGFcCCToa6vB+pZb4fNKwhA99pD
+         mzJ1eiN3PekWt/jJmtr+ps7kaOcsKfYCqSzIHAz4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Grzegorz Szczurek <grzegorzx.szczurek@intel.com>,
-        Jedrzej Jagielski <jedrzej.jagielski@intel.com>,
-        Imam Hassan Reza Biswas <imam.hassan.reza.biswas@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
+        Jon Maloy <jmaloy@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 36/67] i40e: Fix log TC creation failure when max num of queues is exceeded
-Date:   Mon,  2 Aug 2021 15:44:59 +0200
-Message-Id: <20210802134340.253386501@linuxfoundation.org>
+Subject: [PATCH 5.10 37/67] tipc: fix implicit-connect for SYN+
+Date:   Mon,  2 Aug 2021 15:45:00 +0200
+Message-Id: <20210802134340.287944875@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210802134339.023067817@linuxfoundation.org>
 References: <20210802134339.023067817@linuxfoundation.org>
@@ -43,36 +41,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jedrzej Jagielski <jedrzej.jagielski@intel.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit ea52faae1d17cd3048681d86d2e8641f44de484d ]
+[ Upstream commit f8dd60de194817c86bf812700980762bb5a8d9a4 ]
 
-Fix missing failed message if driver does not have enough queues to
-complete TC command. Without this fix no message is displayed in dmesg.
+For implicit-connect, when it's either SYN- or SYN+, an ACK should
+be sent back to the client immediately. It's not appropriate for
+the client to enter established state only after receiving data
+from the server.
 
-Fixes: a9ce82f744dc ("i40e: Enable 'channel' mode in mqprio for TC configs")
-Signed-off-by: Grzegorz Szczurek <grzegorzx.szczurek@intel.com>
-Signed-off-by: Jedrzej Jagielski <jedrzej.jagielski@intel.com>
-Tested-by: Imam Hassan Reza Biswas <imam.hassan.reza.biswas@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+On client side, after the SYN is sent out, tipc_wait_for_connect()
+should be called to wait for the ACK if timeout is set.
+
+This patch also restricts __tipc_sendstream() to call __sendmsg()
+only when it's in TIPC_OPEN state, so that the client can program
+in a single loop doing both connecting and data sending like:
+
+  for (...)
+      sendmsg(dest, buf);
+
+This makes the implicit-connect more implicit.
+
+Fixes: b97bf3fd8f6a ("[TIPC] Initial merge")
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: Jon Maloy <jmaloy@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_main.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/tipc/socket.c | 21 +++++++++++++--------
+ 1 file changed, 13 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
-index b3a9dec414a5..bc648ce0743c 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -6933,6 +6933,8 @@ static int i40e_validate_mqprio_qopt(struct i40e_vsi *vsi,
+diff --git a/net/tipc/socket.c b/net/tipc/socket.c
+index 9f7cc9e1e4ef..694c432b9710 100644
+--- a/net/tipc/socket.c
++++ b/net/tipc/socket.c
+@@ -148,6 +148,7 @@ static void tipc_sk_remove(struct tipc_sock *tsk);
+ static int __tipc_sendstream(struct socket *sock, struct msghdr *m, size_t dsz);
+ static int __tipc_sendmsg(struct socket *sock, struct msghdr *m, size_t dsz);
+ static void tipc_sk_push_backlog(struct tipc_sock *tsk, bool nagle_ack);
++static int tipc_wait_for_connect(struct socket *sock, long *timeo_p);
+ 
+ static const struct proto_ops packet_ops;
+ static const struct proto_ops stream_ops;
+@@ -1508,8 +1509,13 @@ static int __tipc_sendmsg(struct socket *sock, struct msghdr *m, size_t dlen)
+ 		rc = 0;
  	}
- 	if (vsi->num_queue_pairs <
- 	    (mqprio_qopt->qopt.offset[i] + mqprio_qopt->qopt.count[i])) {
-+		dev_err(&vsi->back->pdev->dev,
-+			"Failed to create traffic channel, insufficient number of queues.\n");
- 		return -EINVAL;
+ 
+-	if (unlikely(syn && !rc))
++	if (unlikely(syn && !rc)) {
+ 		tipc_set_sk_state(sk, TIPC_CONNECTING);
++		if (timeout) {
++			timeout = msecs_to_jiffies(timeout);
++			tipc_wait_for_connect(sock, &timeout);
++		}
++	}
+ 
+ 	return rc ? rc : dlen;
+ }
+@@ -1557,7 +1563,7 @@ static int __tipc_sendstream(struct socket *sock, struct msghdr *m, size_t dlen)
+ 		return -EMSGSIZE;
+ 
+ 	/* Handle implicit connection setup */
+-	if (unlikely(dest)) {
++	if (unlikely(dest && sk->sk_state == TIPC_OPEN)) {
+ 		rc = __tipc_sendmsg(sock, m, dlen);
+ 		if (dlen && dlen == rc) {
+ 			tsk->peer_caps = tipc_node_get_capabilities(net, dnode);
+@@ -2686,9 +2692,10 @@ static int tipc_accept(struct socket *sock, struct socket *new_sock, int flags,
+ 		       bool kern)
+ {
+ 	struct sock *new_sk, *sk = sock->sk;
+-	struct sk_buff *buf;
+ 	struct tipc_sock *new_tsock;
++	struct msghdr m = {NULL,};
+ 	struct tipc_msg *msg;
++	struct sk_buff *buf;
+ 	long timeo;
+ 	int res;
+ 
+@@ -2733,19 +2740,17 @@ static int tipc_accept(struct socket *sock, struct socket *new_sock, int flags,
  	}
- 	if (sum_max_rate > i40e_get_link_speed(vsi)) {
+ 
+ 	/*
+-	 * Respond to 'SYN-' by discarding it & returning 'ACK'-.
+-	 * Respond to 'SYN+' by queuing it on new socket.
++	 * Respond to 'SYN-' by discarding it & returning 'ACK'.
++	 * Respond to 'SYN+' by queuing it on new socket & returning 'ACK'.
+ 	 */
+ 	if (!msg_data_sz(msg)) {
+-		struct msghdr m = {NULL,};
+-
+ 		tsk_advance_rx_queue(sk);
+-		__tipc_sendstream(new_sock, &m, 0);
+ 	} else {
+ 		__skb_dequeue(&sk->sk_receive_queue);
+ 		__skb_queue_head(&new_sk->sk_receive_queue, buf);
+ 		skb_set_owner_r(buf, new_sk);
+ 	}
++	__tipc_sendstream(new_sock, &m, 0);
+ 	release_sock(new_sk);
+ exit:
+ 	release_sock(sk);
 -- 
 2.30.2
 
