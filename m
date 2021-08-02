@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B19F3DD8D0
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:56:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33A373DD80B
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:49:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234844AbhHBNzf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:55:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34568 "EHLO mail.kernel.org"
+        id S234582AbhHBNtf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:49:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60288 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235702AbhHBNyR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:54:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A763D61175;
-        Mon,  2 Aug 2021 13:52:31 +0000 (UTC)
+        id S234092AbhHBNtG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:49:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 836C3610FD;
+        Mon,  2 Aug 2021 13:48:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912352;
-        bh=+nhR7Sws45yNyohBAIdBEK4tFivJRZ1V8e5YbOvadrM=;
+        s=korg; t=1627912137;
+        bh=gSdtKr0cRYtGAPGsVhL7WmzBPiOB29M1QA8/jgqgXGo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ygttGTG2cgAO+lhQIphGQj1n8AupVNi2ABnnIbpfutZsf5JsreOjGFh4nlpPnAmGE
-         PzOOXdMtMbRzC5wkIZ/64U1LVWH1Ca7jkhhk68PQQNU6LM7H4t+l3XnWYtvzv3c/gq
-         O/nKXzy6iVLTzRbO2TLBovD30dCqzzUVy1AqaVrk=
+        b=P8KTFeYaMnM4oiMHie9qgrmDSHSgt/qJJKEsHOCfa+6e8jvU69D0j9d92OtkOmENY
+         IbUKykCSHpknf8R1ka8RnwWXvHTXgD6biaWpMEybzlxCak1pbps2NmwMITeR8/D+Hr
+         kIjDROw1VskkW64EZin5FOu0/xbIAddjd0rtCv0g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sandeep Patil <sspatil@android.com>,
-        Michael Kerrisk <mtk.manpages@gmail.com>,
+        stable@vger.kernel.org, Miklos Szeredi <mszeredi@redhat.com>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 03/67] pipe: make pipe writes always wake up readers
+Subject: [PATCH 4.14 04/38] af_unix: fix garbage collect vs MSG_PEEK
 Date:   Mon,  2 Aug 2021 15:44:26 +0200
-Message-Id: <20210802134339.131493909@linuxfoundation.org>
+Message-Id: <20210802134334.972631041@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134339.023067817@linuxfoundation.org>
-References: <20210802134339.023067817@linuxfoundation.org>
+In-Reply-To: <20210802134334.835358048@linuxfoundation.org>
+References: <20210802134334.835358048@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,100 +39,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-commit 3a34b13a88caeb2800ab44a4918f230041b37dd9 upstream.
+commit cbcf01128d0a92e131bd09f1688fe032480b65ca upstream.
 
-Since commit 1b6b26ae7053 ("pipe: fix and clarify pipe write wakeup
-logic") we have sanitized the pipe write logic, and would only try to
-wake up readers if they needed it.
+unix_gc() assumes that candidate sockets can never gain an external
+reference (i.e.  be installed into an fd) while the unix_gc_lock is
+held.  Except for MSG_PEEK this is guaranteed by modifying inflight
+count under the unix_gc_lock.
 
-In particular, if the pipe already had data in it before the write,
-there was no point in trying to wake up a reader, since any existing
-readers must have been aware of the pre-existing data already.  Doing
-extraneous wakeups will only cause potential thundering herd problems.
+MSG_PEEK does not touch any variable protected by unix_gc_lock (file
+count is not), yet it needs to be serialized with garbage collection.
+Do this by locking/unlocking unix_gc_lock:
 
-However, it turns out that some Android libraries have misused the EPOLL
-interface, and expected "edge triggered" be to "any new write will
-trigger it".  Even if there was no edge in sight.
+ 1) increment file count
 
-Quoting Sandeep Patil:
- "The commit 1b6b26ae7053 ('pipe: fix and clarify pipe write wakeup
-  logic') changed pipe write logic to wakeup readers only if the pipe
-  was empty at the time of write. However, there are libraries that
-  relied upon the older behavior for notification scheme similar to
-  what's described in [1]
+ 2) lock/unlock barrier to make sure incremented file count is visible
+    to garbage collection
 
-  One such library 'realm-core'[2] is used by numerous Android
-  applications. The library uses a similar notification mechanism as GNU
-  Make but it never drains the pipe until it is full. When Android moved
-  to v5.10 kernel, all applications using this library stopped working.
+ 3) install file into fd
 
-  The library has since been fixed[3] but it will be a while before all
-  applications incorporate the updated library"
+This is a lock barrier (unlike smp_mb()) that ensures that garbage
+collection is run completely before or completely after the barrier.
 
-Our regression rule for the kernel is that if applications break from
-new behavior, it's a regression, even if it was because the application
-did something patently wrong.  Also note the original report [4] by
-Michal Kerrisk about a test for this epoll behavior - but at that point
-we didn't know of any actual broken use case.
-
-So add the extraneous wakeup, to approximate the old behavior.
-
-[ I say "approximate", because the exact old behavior was to do a wakeup
-  not for each write(), but for each pipe buffer chunk that was filled
-  in. The behavior introduced by this change is not that - this is just
-  "every write will cause a wakeup, whether necessary or not", which
-  seems to be sufficient for the broken library use. ]
-
-It's worth noting that this adds the extraneous wakeup only for the
-write side, while the read side still considers the "edge" to be purely
-about reading enough from the pipe to allow further writes.
-
-See commit f467a6a66419 ("pipe: fix and clarify pipe read wakeup logic")
-for the pipe read case, which remains that "only wake up if the pipe was
-full, and we read something from it".
-
-Link: https://lore.kernel.org/lkml/CAHk-=wjeG0q1vgzu4iJhW5juPkTsjTYmiqiMUYAebWW+0bam6w@mail.gmail.com/ [1]
-Link: https://github.com/realm/realm-core [2]
-Link: https://github.com/realm/realm-core/issues/4666 [3]
-Link: https://lore.kernel.org/lkml/CAKgNAkjMBGeAwF=2MKK758BhxvW58wYTgYKB2V-gY1PwXxrH+Q@mail.gmail.com/ [4]
-Link: https://lore.kernel.org/lkml/20210729222635.2937453-1-sspatil@android.com/
-Reported-by: Sandeep Patil <sspatil@android.com>
-Cc: Michael Kerrisk <mtk.manpages@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/pipe.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ net/unix/af_unix.c |   51 +++++++++++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 49 insertions(+), 2 deletions(-)
 
---- a/fs/pipe.c
-+++ b/fs/pipe.c
-@@ -429,20 +429,20 @@ pipe_write(struct kiocb *iocb, struct io
- #endif
+--- a/net/unix/af_unix.c
++++ b/net/unix/af_unix.c
+@@ -1521,6 +1521,53 @@ out:
+ 	return err;
+ }
  
- 	/*
--	 * Only wake up if the pipe started out empty, since
--	 * otherwise there should be no readers waiting.
-+	 * Epoll nonsensically wants a wakeup whether the pipe
-+	 * was already empty or not.
- 	 *
- 	 * If it wasn't empty we try to merge new data into
- 	 * the last buffer.
- 	 *
- 	 * That naturally merges small writes, but it also
--	 * page-aligs the rest of the writes for large writes
-+	 * page-aligns the rest of the writes for large writes
- 	 * spanning multiple pages.
- 	 */
- 	head = pipe->head;
--	was_empty = pipe_empty(head, pipe->tail);
-+	was_empty = true;
- 	chars = total_len & (PAGE_SIZE-1);
--	if (chars && !was_empty) {
-+	if (chars && !pipe_empty(head, pipe->tail)) {
- 		unsigned int mask = pipe->ring_size - 1;
- 		struct pipe_buffer *buf = &pipe->bufs[(head - 1) & mask];
- 		int offset = buf->offset + buf->len;
++static void unix_peek_fds(struct scm_cookie *scm, struct sk_buff *skb)
++{
++	scm->fp = scm_fp_dup(UNIXCB(skb).fp);
++
++	/*
++	 * Garbage collection of unix sockets starts by selecting a set of
++	 * candidate sockets which have reference only from being in flight
++	 * (total_refs == inflight_refs).  This condition is checked once during
++	 * the candidate collection phase, and candidates are marked as such, so
++	 * that non-candidates can later be ignored.  While inflight_refs is
++	 * protected by unix_gc_lock, total_refs (file count) is not, hence this
++	 * is an instantaneous decision.
++	 *
++	 * Once a candidate, however, the socket must not be reinstalled into a
++	 * file descriptor while the garbage collection is in progress.
++	 *
++	 * If the above conditions are met, then the directed graph of
++	 * candidates (*) does not change while unix_gc_lock is held.
++	 *
++	 * Any operations that changes the file count through file descriptors
++	 * (dup, close, sendmsg) does not change the graph since candidates are
++	 * not installed in fds.
++	 *
++	 * Dequeing a candidate via recvmsg would install it into an fd, but
++	 * that takes unix_gc_lock to decrement the inflight count, so it's
++	 * serialized with garbage collection.
++	 *
++	 * MSG_PEEK is special in that it does not change the inflight count,
++	 * yet does install the socket into an fd.  The following lock/unlock
++	 * pair is to ensure serialization with garbage collection.  It must be
++	 * done between incrementing the file count and installing the file into
++	 * an fd.
++	 *
++	 * If garbage collection starts after the barrier provided by the
++	 * lock/unlock, then it will see the elevated refcount and not mark this
++	 * as a candidate.  If a garbage collection is already in progress
++	 * before the file count was incremented, then the lock/unlock pair will
++	 * ensure that garbage collection is finished before progressing to
++	 * installing the fd.
++	 *
++	 * (*) A -> B where B is on the queue of A or B is on the queue of C
++	 * which is on the queue of listening socket A.
++	 */
++	spin_lock(&unix_gc_lock);
++	spin_unlock(&unix_gc_lock);
++}
++
+ static int unix_scm_to_skb(struct scm_cookie *scm, struct sk_buff *skb, bool send_fds)
+ {
+ 	int err = 0;
+@@ -2146,7 +2193,7 @@ static int unix_dgram_recvmsg(struct soc
+ 		sk_peek_offset_fwd(sk, size);
+ 
+ 		if (UNIXCB(skb).fp)
+-			scm.fp = scm_fp_dup(UNIXCB(skb).fp);
++			unix_peek_fds(&scm, skb);
+ 	}
+ 	err = (flags & MSG_TRUNC) ? skb->len - skip : size;
+ 
+@@ -2387,7 +2434,7 @@ unlock:
+ 			/* It is questionable, see note in unix_dgram_recvmsg.
+ 			 */
+ 			if (UNIXCB(skb).fp)
+-				scm.fp = scm_fp_dup(UNIXCB(skb).fp);
++				unix_peek_fds(&scm, skb);
+ 
+ 			sk_peek_offset_fwd(sk, chunk);
+ 
 
 
