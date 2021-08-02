@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E8AA3DD8DF
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:56:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2F3B3DD888
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:52:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234362AbhHBNzt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:55:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40708 "EHLO mail.kernel.org"
+        id S234586AbhHBNxC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:53:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236094AbhHBNy6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:54:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9818861102;
-        Mon,  2 Aug 2021 13:53:19 +0000 (UTC)
+        id S234662AbhHBNvj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:51:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A6DF61132;
+        Mon,  2 Aug 2021 13:51:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912400;
-        bh=QGaWAku/PPXSmCt+AyDqwaH/JxxS7MUukL+O0MH1q8A=;
+        s=korg; t=1627912271;
+        bh=RvlzaTi2SKCSZoar0AlM44q+r7STlw19hRUlkkU7cxs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JZGn97aNX6kawO3Oomf1tFZpqre6JJ6QJnlXFF34w3TY5JHzAfXD9eX1Ncu3tTFci
-         rm8Rc9sohWZg3zHVKV34C8ANSYU8eRAd8X3LvA0taz+OfOh8QKbOguptlVJmAmqIbB
-         AI1VBsdYcNEZH65pOv81i+xnHutDIYR009NVMIlU=
+        b=gF9sXCdkC8MBLY1LsHF8OU8cF87Lr9tnlGF/s1X/nFh0ysKf4ucyRUQ33bplMUL0R
+         vKxpbqXzFlahbZ16xthAzy4ERap9+6vGDbi4aQcvaHBAYLah4ET/1dm9IYFCm6vjJt
+         kXN5ElJA66lXJmVAGe78s9EC6LN+YvydXlezNSas=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shannon Nelson <snelson@pensando.io>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Grzegorz Szczurek <grzegorzx.szczurek@intel.com>,
+        Jedrzej Jagielski <jedrzej.jagielski@intel.com>,
+        Imam Hassan Reza Biswas <imam.hassan.reza.biswas@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 42/67] ionic: fix up dim accounting for tx and rx
+Subject: [PATCH 5.4 25/40] i40e: Fix log TC creation failure when max num of queues is exceeded
 Date:   Mon,  2 Aug 2021 15:45:05 +0200
-Message-Id: <20210802134340.451375972@linuxfoundation.org>
+Message-Id: <20210802134336.192626684@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134339.023067817@linuxfoundation.org>
-References: <20210802134339.023067817@linuxfoundation.org>
+In-Reply-To: <20210802134335.408294521@linuxfoundation.org>
+References: <20210802134335.408294521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,94 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shannon Nelson <snelson@pensando.io>
+From: Jedrzej Jagielski <jedrzej.jagielski@intel.com>
 
-[ Upstream commit 76ed8a4a00b484dcccef819ef2618bcf8e46f560 ]
+[ Upstream commit ea52faae1d17cd3048681d86d2e8641f44de484d ]
 
-We need to count the correct Tx and/or Rx packets for dynamic
-interrupt moderation, depending on which we're processing on
-the queue interrupt.
+Fix missing failed message if driver does not have enough queues to
+complete TC command. Without this fix no message is displayed in dmesg.
 
-Fixes: 04a834592bf5 ("ionic: dynamic interrupt moderation")
-Signed-off-by: Shannon Nelson <snelson@pensando.io>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: a9ce82f744dc ("i40e: Enable 'channel' mode in mqprio for TC configs")
+Signed-off-by: Grzegorz Szczurek <grzegorzx.szczurek@intel.com>
+Signed-off-by: Jedrzej Jagielski <jedrzej.jagielski@intel.com>
+Tested-by: Imam Hassan Reza Biswas <imam.hassan.reza.biswas@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/pensando/ionic/ionic_txrx.c  | 28 ++++++++++++++-----
- 1 file changed, 21 insertions(+), 7 deletions(-)
+ drivers/net/ethernet/intel/i40e/i40e_main.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/pensando/ionic/ionic_txrx.c b/drivers/net/ethernet/pensando/ionic/ionic_txrx.c
-index ec064327c998..52213fee054d 100644
---- a/drivers/net/ethernet/pensando/ionic/ionic_txrx.c
-+++ b/drivers/net/ethernet/pensando/ionic/ionic_txrx.c
-@@ -417,11 +417,12 @@ void ionic_rx_empty(struct ionic_queue *q)
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index 7140c1386143..21ab7d2caddf 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -6878,6 +6878,8 @@ static int i40e_validate_mqprio_qopt(struct i40e_vsi *vsi,
  	}
- }
- 
--static void ionic_dim_update(struct ionic_qcq *qcq)
-+static void ionic_dim_update(struct ionic_qcq *qcq, int napi_mode)
- {
- 	struct dim_sample dim_sample;
- 	struct ionic_lif *lif;
- 	unsigned int qi;
-+	u64 pkts, bytes;
- 
- 	if (!qcq->intr.dim_coal_hw)
- 		return;
-@@ -429,10 +430,23 @@ static void ionic_dim_update(struct ionic_qcq *qcq)
- 	lif = qcq->q.lif;
- 	qi = qcq->cq.bound_q->index;
- 
-+	switch (napi_mode) {
-+	case IONIC_LIF_F_TX_DIM_INTR:
-+		pkts = lif->txqstats[qi].pkts;
-+		bytes = lif->txqstats[qi].bytes;
-+		break;
-+	case IONIC_LIF_F_RX_DIM_INTR:
-+		pkts = lif->rxqstats[qi].pkts;
-+		bytes = lif->rxqstats[qi].bytes;
-+		break;
-+	default:
-+		pkts = lif->txqstats[qi].pkts + lif->rxqstats[qi].pkts;
-+		bytes = lif->txqstats[qi].bytes + lif->rxqstats[qi].bytes;
-+		break;
-+	}
-+
- 	dim_update_sample(qcq->cq.bound_intr->rearm_count,
--			  lif->txqstats[qi].pkts,
--			  lif->txqstats[qi].bytes,
--			  &dim_sample);
-+			  pkts, bytes, &dim_sample);
- 
- 	net_dim(&qcq->dim, dim_sample);
- }
-@@ -453,7 +467,7 @@ int ionic_tx_napi(struct napi_struct *napi, int budget)
- 				     ionic_tx_service, NULL, NULL);
- 
- 	if (work_done < budget && napi_complete_done(napi, work_done)) {
--		ionic_dim_update(qcq);
-+		ionic_dim_update(qcq, IONIC_LIF_F_TX_DIM_INTR);
- 		flags |= IONIC_INTR_CRED_UNMASK;
- 		cq->bound_intr->rearm_count++;
+ 	if (vsi->num_queue_pairs <
+ 	    (mqprio_qopt->qopt.offset[i] + mqprio_qopt->qopt.count[i])) {
++		dev_err(&vsi->back->pdev->dev,
++			"Failed to create traffic channel, insufficient number of queues.\n");
+ 		return -EINVAL;
  	}
-@@ -489,7 +503,7 @@ int ionic_rx_napi(struct napi_struct *napi, int budget)
- 		ionic_rx_fill(cq->bound_q);
- 
- 	if (work_done < budget && napi_complete_done(napi, work_done)) {
--		ionic_dim_update(qcq);
-+		ionic_dim_update(qcq, IONIC_LIF_F_RX_DIM_INTR);
- 		flags |= IONIC_INTR_CRED_UNMASK;
- 		cq->bound_intr->rearm_count++;
- 	}
-@@ -531,7 +545,7 @@ int ionic_txrx_napi(struct napi_struct *napi, int budget)
- 		ionic_rx_fill_cb(rxcq->bound_q);
- 
- 	if (rx_work_done < budget && napi_complete_done(napi, rx_work_done)) {
--		ionic_dim_update(qcq);
-+		ionic_dim_update(qcq, 0);
- 		flags |= IONIC_INTR_CRED_UNMASK;
- 		rxcq->bound_intr->rearm_count++;
- 	}
+ 	if (sum_max_rate > i40e_get_link_speed(vsi)) {
 -- 
 2.30.2
 
