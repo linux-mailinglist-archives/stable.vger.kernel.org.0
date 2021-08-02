@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 233283DD975
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 16:00:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D21ED3DD79D
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:46:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235064AbhHBOAb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 10:00:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44056 "EHLO mail.kernel.org"
+        id S234145AbhHBNqt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:46:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234854AbhHBN65 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:58:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1242C61102;
-        Mon,  2 Aug 2021 13:55:23 +0000 (UTC)
+        id S234109AbhHBNqn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:46:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3BBE061057;
+        Mon,  2 Aug 2021 13:46:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912524;
-        bh=yosduxXD2clLVed6Vwmw2V0gfLWlIOHxG7KM7qRW608=;
+        s=korg; t=1627911993;
+        bh=AQdRtbEklsMatPJvXlOJbnAN69r6mMvhpup5NRvTdu0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=khX/bFCkTEudaGXxgC2MxFmvQaUCMhrs/+v4K380ZL6UNjUOAmtjWMlhBjuWgusLe
-         d+k9fykGPLpZRNwJswOZW8YnVmVD5VKOiVQsTXGhdsKxBZDSHhY4MG1Sfw2R9LN/kw
-         Wi98lSIGJEYvoxNexzXWiwx+H3S+LlHYj9geeF40=
+        b=VhCODGJhsIapzVZPBGxipYL5EO7R7deYSVaAJVxDIAb1i5HTNbtLWjU/3cGvAG4Pp
+         Q1bqDWdWFVpQXh+d8uUYgGOzd5gmJN0IbrQat07NWzRL2wu5QV+qoTt8WMg3XCUJ+3
+         Sz1EhE9Q2HhkwVY+co43NDaID7QKT/daeERuDHZs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabian Ebner <f.ebner@proxmox.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.13 032/104] io_uring: dont block level reissue off completion path
+        stable@vger.kernel.org, Jan Kiszka <jan.kiszka@siemens.com>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 19/26] x86/asm: Ensure asm/proto.h can be included stand-alone
 Date:   Mon,  2 Aug 2021 15:44:29 +0200
-Message-Id: <20210802134345.073963914@linuxfoundation.org>
+Message-Id: <20210802134332.655434834@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134344.028226640@linuxfoundation.org>
-References: <20210802134344.028226640@linuxfoundation.org>
+In-Reply-To: <20210802134332.033552261@linuxfoundation.org>
+References: <20210802134332.033552261@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,46 +39,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Jan Kiszka <jan.kiszka@siemens.com>
 
-commit ef04688871f3386b6d40ade8f5c664290420f819 upstream.
+[ Upstream commit f7b21a0e41171d22296b897dac6e4c41d2a3643c ]
 
-Some setups, like SCSI, can throw spurious -EAGAIN off the softirq
-completion path. Normally we expect this to happen inline as part
-of submission, but apparently SCSI has a weird corner case where it
-can happen as part of normal completions.
+Fix:
 
-This should be solved by having the -EAGAIN bubble back up the stack
-as part of submission, but previous attempts at this failed and we're
-not just quite there yet. Instead we currently use REQ_F_REISSUE to
-handle this case.
+  ../arch/x86/include/asm/proto.h:14:30: warning: ‘struct task_struct’ declared \
+    inside parameter list will not be visible outside of this definition or declaration
+  long do_arch_prctl_64(struct task_struct *task, int option, unsigned long arg2);
+                               ^~~~~~~~~~~
 
-For now, catch it in io_rw_should_reissue() and prevent a reissue
-from a bogus path.
+  .../arch/x86/include/asm/proto.h:40:34: warning: ‘struct task_struct’ declared \
+    inside parameter list will not be visible outside of this definition or declaration
+   long do_arch_prctl_common(struct task_struct *task, int option,
+                                    ^~~~~~~~~~~
 
-Cc: stable@vger.kernel.org
-Reported-by: Fabian Ebner <f.ebner@proxmox.com>
-Tested-by: Fabian Ebner <f.ebner@proxmox.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+if linux/sched.h hasn't be included previously. This fixes a build error
+when this header is used outside of the kernel tree.
+
+ [ bp: Massage commit message. ]
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/b76b4be3-cf66-f6b2-9a6c-3e7ef54f9845@web.de
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/x86/include/asm/proto.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -2457,6 +2457,12 @@ static bool io_rw_should_reissue(struct
- 	 */
- 	if (percpu_ref_is_dying(&ctx->refs))
- 		return false;
-+	/*
-+	 * Play it safe and assume not safe to re-import and reissue if we're
-+	 * not in the original thread group (or in task context).
-+	 */
-+	if (!same_thread_group(req->task, current) || !in_task())
-+		return false;
- 	return true;
- }
- #else
+diff --git a/arch/x86/include/asm/proto.h b/arch/x86/include/asm/proto.h
+index a4a77286cb1d..ae6f1592530b 100644
+--- a/arch/x86/include/asm/proto.h
++++ b/arch/x86/include/asm/proto.h
+@@ -3,6 +3,8 @@
+ 
+ #include <asm/ldt.h>
+ 
++struct task_struct;
++
+ /* misc architecture specific prototypes */
+ 
+ void syscall_init(void);
+-- 
+2.30.2
+
 
 
