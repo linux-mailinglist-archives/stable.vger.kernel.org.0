@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71A9E3DD872
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:52:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5908C3DD7E3
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:48:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234331AbhHBNwQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:52:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34014 "EHLO mail.kernel.org"
+        id S234073AbhHBNs1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:48:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234202AbhHBNvN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:51:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7382A60F6D;
-        Mon,  2 Aug 2021 13:50:49 +0000 (UTC)
+        id S234211AbhHBNrr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:47:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F249461103;
+        Mon,  2 Aug 2021 13:47:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912249;
-        bh=9o16gPzS/KDaIxvlKZ6tdpwutcU0Jo6AZP1S3JwO9Eo=;
+        s=korg; t=1627912054;
+        bh=wnslEh+/CqGL10fP+rL+33qA8HgDQectD4DqqV+0yHg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T5d+ROhLF2LiwnwdOUDaalIt529ESV3P6t+ldu7XG78PwTjM8ARN6d7zCRFF/rMK6
-         6cf+cn3TMamPCJVwqr351RD3dC7V9gMNcj4eQntRlSwwvxN7/0iuuW7Uw/cPsRDjCY
-         AtcRSstZ15dF40grsK1hgCmmLWl57c9t7ITAAvXQ=
+        b=zLD0kAqniWfW3DGo7yPoWmOxGh0lK3F6Ag7CavoYlPE872ArzoeBQEQqmCLwZsiyp
+         mmoi63XutUBrxftlhNIZD2AEhrtwqdDoAxfgWXR/CQkiPoYIOkqJg6jnMiyH6JBMTv
+         cL/l5wrvToC80rVJq0SEDBWp+uqHasElOuDJkDcs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Xu <peterx@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.4 07/40] KVM: add missing compat KVM_CLEAR_DIRTY_LOG
+        stable@vger.kernel.org, Jon Maloy <jmaloy@redhat.com>,
+        Hoang Le <hoang.h.le@dektech.com.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 27/32] tipc: fix sleeping in tipc accept routine
 Date:   Mon,  2 Aug 2021 15:44:47 +0200
-Message-Id: <20210802134335.634793928@linuxfoundation.org>
+Message-Id: <20210802134333.778879018@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134335.408294521@linuxfoundation.org>
-References: <20210802134335.408294521@linuxfoundation.org>
+In-Reply-To: <20210802134332.931915241@linuxfoundation.org>
+References: <20210802134332.931915241@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,69 +41,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Hoang Le <hoang.h.le@dektech.com.au>
 
-commit 8750f9bbda115f3f79bfe43be85551ee5e12b6ff upstream.
+[ Upstream commit d237a7f11719ff9320721be5818352e48071aab6 ]
 
-The arguments to the KVM_CLEAR_DIRTY_LOG ioctl include a pointer,
-therefore it needs a compat ioctl implementation.  Otherwise,
-32-bit userspace fails to invoke it on 64-bit kernels; for x86
-it might work fine by chance if the padding is zero, but not
-on big-endian architectures.
+The release_sock() is blocking function, it would change the state
+after sleeping. In order to evaluate the stated condition outside
+the socket lock context, switch to use wait_woken() instead.
 
-Reported-by: Thomas Sattler
-Cc: stable@vger.kernel.org
-Fixes: 2a31b9db1535 ("kvm: introduce manual dirty log reprotect")
-Reviewed-by: Peter Xu <peterx@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 6398e23cdb1d8 ("tipc: standardize accept routine")
+Acked-by: Jon Maloy <jmaloy@redhat.com>
+Signed-off-by: Hoang Le <hoang.h.le@dektech.com.au>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- virt/kvm/kvm_main.c |   28 ++++++++++++++++++++++++++++
- 1 file changed, 28 insertions(+)
+ net/tipc/socket.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -3570,6 +3570,16 @@ struct compat_kvm_dirty_log {
- 	};
- };
- 
-+struct compat_kvm_clear_dirty_log {
-+	__u32 slot;
-+	__u32 num_pages;
-+	__u64 first_page;
-+	union {
-+		compat_uptr_t dirty_bitmap; /* one bit per page */
-+		__u64 padding2;
-+	};
-+};
-+
- static long kvm_vm_compat_ioctl(struct file *filp,
- 			   unsigned int ioctl, unsigned long arg)
+diff --git a/net/tipc/socket.c b/net/tipc/socket.c
+index c1b9074f3325..607785077445 100644
+--- a/net/tipc/socket.c
++++ b/net/tipc/socket.c
+@@ -1985,7 +1985,7 @@ static int tipc_listen(struct socket *sock, int len)
+ static int tipc_wait_for_accept(struct socket *sock, long timeo)
  {
-@@ -3579,6 +3589,24 @@ static long kvm_vm_compat_ioctl(struct f
- 	if (kvm->mm != current->mm)
- 		return -EIO;
- 	switch (ioctl) {
-+#ifdef CONFIG_KVM_GENERIC_DIRTYLOG_READ_PROTECT
-+	case KVM_CLEAR_DIRTY_LOG: {
-+		struct compat_kvm_clear_dirty_log compat_log;
-+		struct kvm_clear_dirty_log log;
-+
-+		if (copy_from_user(&compat_log, (void __user *)arg,
-+				   sizeof(compat_log)))
-+			return -EFAULT;
-+		log.slot	 = compat_log.slot;
-+		log.num_pages	 = compat_log.num_pages;
-+		log.first_page	 = compat_log.first_page;
-+		log.padding2	 = compat_log.padding2;
-+		log.dirty_bitmap = compat_ptr(compat_log.dirty_bitmap);
-+
-+		r = kvm_vm_ioctl_clear_dirty_log(kvm, &log);
-+		break;
-+	}
-+#endif
- 	case KVM_GET_DIRTY_LOG: {
- 		struct compat_kvm_dirty_log compat_log;
- 		struct kvm_dirty_log log;
+ 	struct sock *sk = sock->sk;
+-	DEFINE_WAIT(wait);
++	DEFINE_WAIT_FUNC(wait, woken_wake_function);
+ 	int err;
+ 
+ 	/* True wake-one mechanism for incoming connections: only
+@@ -1994,12 +1994,12 @@ static int tipc_wait_for_accept(struct socket *sock, long timeo)
+ 	 * anymore, the common case will execute the loop only once.
+ 	*/
+ 	for (;;) {
+-		prepare_to_wait_exclusive(sk_sleep(sk), &wait,
+-					  TASK_INTERRUPTIBLE);
+ 		if (timeo && skb_queue_empty(&sk->sk_receive_queue)) {
++			add_wait_queue(sk_sleep(sk), &wait);
+ 			release_sock(sk);
+-			timeo = schedule_timeout(timeo);
++			timeo = wait_woken(&wait, TASK_INTERRUPTIBLE, timeo);
+ 			lock_sock(sk);
++			remove_wait_queue(sk_sleep(sk), &wait);
+ 		}
+ 		err = 0;
+ 		if (!skb_queue_empty(&sk->sk_receive_queue))
+@@ -2014,7 +2014,6 @@ static int tipc_wait_for_accept(struct socket *sock, long timeo)
+ 		if (signal_pending(current))
+ 			break;
+ 	}
+-	finish_wait(sk_sleep(sk), &wait);
+ 	return err;
+ }
+ 
+-- 
+2.30.2
+
 
 
