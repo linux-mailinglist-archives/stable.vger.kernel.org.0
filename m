@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 633253DD9B6
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 16:03:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24A413DD9BA
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 16:03:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234337AbhHBODP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 10:03:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48968 "EHLO mail.kernel.org"
+        id S235802AbhHBODS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 10:03:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48988 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234806AbhHBOBQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 10:01:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8779261184;
-        Mon,  2 Aug 2021 13:56:27 +0000 (UTC)
+        id S235085AbhHBOBR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 10:01:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B34E5611CC;
+        Mon,  2 Aug 2021 13:56:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912588;
-        bh=eG0MVS+ns74U2oOzbqDmKfPXvRJohM30sdCjJ9bqqww=;
+        s=korg; t=1627912590;
+        bh=3LFOd4PwfknOxOLtsuVzLg1QZNOdncPJDeADEZJeLxQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nY7+7kgG5OJ14blnOBMOhmogyGHwQhAyx+jJpp2r6ljBsKLk1fcsvalHXIv8sSP1A
-         wVfuAAQ3IZ4F4Tz+EdnES+uHIWq8eMD3h9Hbc8MTOxKyjkz2fH6U7hd2X8A0et0alk
-         5L/HuVG2vabUBDc1HAHCoKIv1qADqfEK5UgnCYOI=
+        b=qpAhsC0DbB1Ny+JNNoJw1/p/CT2yCT/ltSyIbTDcjePiWki2sDAvn+D6mhKzDReKa
+         wA3E63ejizTzQuBB2n8dQ5ByJ0+fhb6nzhzA+bYIgwuAo6OKSci6Ei1MRIzMED5mSg
+         HN0MNYl5pK4M3RZctp1f33Tj9vzjT1IDd1L8Z5XM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shuang Li <shuali@redhat.com>,
-        Xin Long <lucien.xin@gmail.com>, Jon Maloy <jmaloy@redhat.com>,
+        stable@vger.kernel.org, Geetha sowjanya <gakula@marvell.com>,
+        Sunil Kovvuri Goutham <Sunil.Goutham@cavium.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 061/104] tipc: do not write skb_shinfo frags when doing decrytion
-Date:   Mon,  2 Aug 2021 15:44:58 +0200
-Message-Id: <20210802134346.006568285@linuxfoundation.org>
+Subject: [PATCH 5.13 062/104] octeontx2-pf: Fix interface down flag on error
+Date:   Mon,  2 Aug 2021 15:44:59 +0200
+Message-Id: <20210802134346.036098009@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210802134344.028226640@linuxfoundation.org>
 References: <20210802134344.028226640@linuxfoundation.org>
@@ -41,58 +41,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Geetha sowjanya <gakula@marvell.com>
 
-[ Upstream commit 3cf4375a090473d240281a0d2b04a3a5aaeac34b ]
+[ Upstream commit 69f0aeb13bb548e2d5710a350116e03f0273302e ]
 
-One skb's skb_shinfo frags are not writable, and they can be shared with
-other skbs' like by pskb_copy(). To write the frags may cause other skb's
-data crash.
+In the existing code while changing the number of TX/RX
+queues using ethtool the PF/VF interface resources are
+freed and reallocated (otx2_stop and otx2_open is called)
+if the device is in running state. If any resource allocation
+fails in otx2_open, driver free already allocated resources
+and return. But again, when the number of queues changes
+as the device state still running oxt2_stop is called.
+In which we try to free already freed resources leading
+to driver crash.
+This patch fixes the issue by setting the INTF_DOWN flag on
+error and free the resources in otx2_stop only if the flag is
+not set.
 
-So before doing en/decryption, skb_cow_data() should always be called for
-a cloned or nonlinear skb if req dst is using the same sg as req src.
-While at it, the likely branch can be removed, as it will be covered
-by skb_cow_data().
-
-Note that esp_input() has the same issue, and I will fix it in another
-patch. tipc_aead_encrypt() doesn't have this issue, as it only processes
-linear data in the unlikely branch.
-
-Fixes: fc1b6d6de220 ("tipc: introduce TIPC encryption & authentication")
-Reported-by: Shuang Li <shuali@redhat.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Jon Maloy <jmaloy@redhat.com>
+Fixes: 50fe6c02e5ad ("octeontx2-pf: Register and handle link notifications")
+Signed-off-by: Geetha sowjanya <gakula@marvell.com>
+Signed-off-by: Sunil Kovvuri Goutham <Sunil.Goutham@cavium.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/crypto.c | 14 ++++----------
- 1 file changed, 4 insertions(+), 10 deletions(-)
+ drivers/net/ethernet/marvell/octeontx2/nic/otx2_ethtool.c | 7 +++----
+ drivers/net/ethernet/marvell/octeontx2/nic/otx2_pf.c      | 5 +++++
+ 2 files changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/net/tipc/crypto.c b/net/tipc/crypto.c
-index e5c43d4d5a75..c9391d38de85 100644
---- a/net/tipc/crypto.c
-+++ b/net/tipc/crypto.c
-@@ -898,16 +898,10 @@ static int tipc_aead_decrypt(struct net *net, struct tipc_aead *aead,
- 	if (unlikely(!aead))
- 		return -ENOKEY;
+diff --git a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_ethtool.c b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_ethtool.c
+index 9d9a2e438acf..ae06eeeb5a45 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_ethtool.c
++++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_ethtool.c
+@@ -292,15 +292,14 @@ static int otx2_set_channels(struct net_device *dev,
+ 	err = otx2_set_real_num_queues(dev, channel->tx_count,
+ 				       channel->rx_count);
+ 	if (err)
+-		goto fail;
++		return err;
  
--	/* Cow skb data if needed */
--	if (likely(!skb_cloned(skb) &&
--		   (!skb_is_nonlinear(skb) || !skb_has_frag_list(skb)))) {
--		nsg = 1 + skb_shinfo(skb)->nr_frags;
--	} else {
--		nsg = skb_cow_data(skb, 0, &unused);
--		if (unlikely(nsg < 0)) {
--			pr_err("RX: skb_cow_data() returned %d\n", nsg);
--			return nsg;
--		}
-+	nsg = skb_cow_data(skb, 0, &unused);
-+	if (unlikely(nsg < 0)) {
-+		pr_err("RX: skb_cow_data() returned %d\n", nsg);
-+		return nsg;
- 	}
+ 	pfvf->hw.rx_queues = channel->rx_count;
+ 	pfvf->hw.tx_queues = channel->tx_count;
+ 	pfvf->qset.cq_cnt = pfvf->hw.tx_queues +  pfvf->hw.rx_queues;
  
- 	/* Allocate memory for the AEAD operation */
+-fail:
+ 	if (if_up)
+-		dev->netdev_ops->ndo_open(dev);
++		err = dev->netdev_ops->ndo_open(dev);
+ 
+ 	netdev_info(dev, "Setting num Tx rings to %d, Rx rings to %d success\n",
+ 		    pfvf->hw.tx_queues, pfvf->hw.rx_queues);
+@@ -404,7 +403,7 @@ static int otx2_set_ringparam(struct net_device *netdev,
+ 	qs->rqe_cnt = rx_count;
+ 
+ 	if (if_up)
+-		netdev->netdev_ops->ndo_open(netdev);
++		return netdev->netdev_ops->ndo_open(netdev);
+ 
+ 	return 0;
+ }
+diff --git a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_pf.c b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_pf.c
+index 03004fdac0c6..2af50250d13c 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_pf.c
++++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_pf.c
+@@ -1648,6 +1648,7 @@ int otx2_open(struct net_device *netdev)
+ err_tx_stop_queues:
+ 	netif_tx_stop_all_queues(netdev);
+ 	netif_carrier_off(netdev);
++	pf->flags |= OTX2_FLAG_INTF_DOWN;
+ err_free_cints:
+ 	otx2_free_cints(pf, qidx);
+ 	vec = pci_irq_vector(pf->pdev,
+@@ -1675,6 +1676,10 @@ int otx2_stop(struct net_device *netdev)
+ 	struct otx2_rss_info *rss;
+ 	int qidx, vec, wrk;
+ 
++	/* If the DOWN flag is set resources are already freed */
++	if (pf->flags & OTX2_FLAG_INTF_DOWN)
++		return 0;
++
+ 	netif_carrier_off(netdev);
+ 	netif_tx_stop_all_queues(netdev);
+ 
 -- 
 2.30.2
 
