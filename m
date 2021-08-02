@@ -2,177 +2,157 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 76A923DDEE8
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 20:06:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFB313DDEEF
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 20:09:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229551AbhHBSG6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 14:06:58 -0400
-Received: from mga09.intel.com ([134.134.136.24]:7550 "EHLO mga09.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229537AbhHBSG5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 14:06:57 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10064"; a="213493985"
-X-IronPort-AV: E=Sophos;i="5.84,289,1620716400"; 
-   d="scan'208";a="213493985"
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Aug 2021 11:06:34 -0700
-X-IronPort-AV: E=Sophos;i="5.84,289,1620716400"; 
-   d="scan'208";a="500512640"
-Received: from skarumur-mobl.amr.corp.intel.com (HELO pbossart-mobl3.intel.com) ([10.212.72.192])
-  by orsmga001-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Aug 2021 11:06:33 -0700
-From:   Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-To:     stable@vger.kernel.org
-Cc:     gregkh@linuxfoundation.org, broonie@kernel.org,
-        Rander Wang <rander.wang@intel.com>,
-        Bard Liao <bard.liao@intel.com>,
-        =?UTF-8?q?P=C3=A9ter=20Ujfalusi?= <peter.ujfalusi@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Subject: [PATCH] ASoC: Intel: boards: fix xrun issue on platform with max98373
-Date:   Mon,  2 Aug 2021 13:06:14 -0500
-Message-Id: <20210802180614.23940-1-pierre-louis.bossart@linux.intel.com>
-X-Mailer: git-send-email 2.25.1
+        id S230182AbhHBSJe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 14:09:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48036 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230194AbhHBSJd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Aug 2021 14:09:33 -0400
+Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29BC4C061760
+        for <stable@vger.kernel.org>; Mon,  2 Aug 2021 11:09:24 -0700 (PDT)
+Received: by mail-pj1-x1035.google.com with SMTP id g23-20020a17090a5797b02901765d605e14so1128376pji.5
+        for <stable@vger.kernel.org>; Mon, 02 Aug 2021 11:09:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=Ml7BD8iYURmJy50gUfJr1ECkhkmifjzHk1PWycuYsYg=;
+        b=B1hsKqt7lY1I8lZ5YV5X75+1jAZ0DURLcFA43ipZyUbUU42AF1KgYN3D5iyVYWWEZq
+         N6YB7yvS7S6bcTKzBoeaqARBxjSJyDhkLl147em4QWpvQpUzgaOEOplCN0L8tLwoXOGh
+         AxXOfmQapKmY8IGw+VGE2hkV/oqqxpVOmVBnBJE/pRdiVA/wncajyom972QLMhjDFEAj
+         oLRXP7QHnBvIq0SC1w/6KbC2kDfkzYJwWQliBcYYyXK3xm9Xm0E36GmJb7YZhnHcktVL
+         VWwoVCduu07kk+fd8Lk4oDbQ7TjUP3IHPYuG5mRk1RuSg3pGESlBXe+rhKPflPd3qcrf
+         ywdg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=Ml7BD8iYURmJy50gUfJr1ECkhkmifjzHk1PWycuYsYg=;
+        b=jPLLQ19USqWebcHyPeR9L8rXklztJzEOcGluZDSI84Bp2QsRftEcJ4IpjoVm6rJGNH
+         NAGORHAX4Bn+saPh7TRBzrrJ3G7WrGqJAhY6H3EUxrgQMmOvWoz5aJuWryFmOV+HdZe0
+         ermZcBkdvwZZmgi1rG9U8HgzDb5KrZ0qFhDfGjrsoeDGE62Jc5PalSrZgXTEnIzYe3KU
+         pt+awMpMRCxkkoKKrPFHiOFIuUvo3WzLQmlbWNmOO7LJ4psliIQIie6XhWo3hs+ej5JT
+         hdRzrXIodcCDUw3nygRFA2DRHVL5eL7morByGWLV4pn1D3r9BM3c7xn0qw3ufNxa2gMK
+         W6CQ==
+X-Gm-Message-State: AOAM531xWQmxtqsqtX6YRqcw1BbUQlD+svBF/gbX3H0ra1AdZ2f7HqBG
+        6a4w/h+7XWQMtVZI/p6A3oSYaobdzNy2//b8
+X-Google-Smtp-Source: ABdhPJy6PzJgMOyzWPI+FpilC4C/JM+ZfEl+VCSDjbLc+wQ7iyLfkoSU/O3b2N/CDOf7XeszWcjoNA==
+X-Received: by 2002:a62:17d8:0:b029:3b1:c2b0:287c with SMTP id 207-20020a6217d80000b02903b1c2b0287cmr15054666pfx.23.1627927763476;
+        Mon, 02 Aug 2021 11:09:23 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id 10sm12674816pjc.41.2021.08.02.11.09.22
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 02 Aug 2021 11:09:23 -0700 (PDT)
+Message-ID: <610834d3.1c69fb81.1665f.2ab1@mx.google.com>
+Date:   Mon, 02 Aug 2021 11:09:23 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/5.4
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.4.137-41-ge6ba61752450
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/5.4 baseline: 173 runs,
+ 3 regressions (v5.4.137-41-ge6ba61752450)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rander Wang <rander.wang@intel.com>
+stable-rc/queue/5.4 baseline: 173 runs, 3 regressions (v5.4.137-41-ge6ba617=
+52450)
 
-commit 33c8516841ea4fa12fdb8961711bf95095c607ee upstream
+Regressions Summary
+-------------------
 
-On TGL platform with max98373 codec the trigger start sequence is
-fe first, then codec component and sdw link is the last. Recently
-a delay was introduced in max98373 codec driver and this resulted
-to the start of sdw stream transmission was delayed and the data
-transmitted by fw can't be consumed by sdw controller, so xrun happened.
+platform          | arch | lab           | compiler | defconfig          | =
+regressions
+------------------+------+---------------+----------+--------------------+-=
+-----------
+rk3288-veyron-jaq | arm  | lab-collabora | gcc-8    | multi_v7_defconfig | =
+3          =
 
-Adding delay in trigger function is a bad idea. This patch enable spk
-pin in prepare function and disable it in hw_free to avoid xrun issue
-caused by delay in trigger.
 
-Fixes: 3a27875e91fb ("ASoC: max98373: Added 30ms turn on/off time delay")
-BugLink: https://github.com/thesofproject/sof/issues/4066
-Reviewed-by: Bard Liao <bard.liao@intel.com>
-Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Signed-off-by: Rander Wang <rander.wang@intel.com>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20210625205042.65181-2-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
----
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
+el/v5.4.137-41-ge6ba61752450/plan/baseline/
 
-backport to stable/linux-5.13.y and stable/linux-5.12.y since upstream
-commit does not apply directly due to a rename in 9c5046e4b3e7 which
-creates a conflict.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.4
+  Describe: v5.4.137-41-ge6ba61752450
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      e6ba6175245028b50daea574421df118568d2605 =
 
-There is no need to apply this patch to earlier versions since the
-commit 3a27875e91fb is only present in V5.12+
 
- sound/soc/intel/boards/sof_sdw_max98373.c | 81 +++++++++++++++--------
- 1 file changed, 53 insertions(+), 28 deletions(-)
 
-diff --git a/sound/soc/intel/boards/sof_sdw_max98373.c b/sound/soc/intel/boards/sof_sdw_max98373.c
-index cfdf970c5800..25daef910aee 100644
---- a/sound/soc/intel/boards/sof_sdw_max98373.c
-+++ b/sound/soc/intel/boards/sof_sdw_max98373.c
-@@ -55,43 +55,68 @@ static int spk_init(struct snd_soc_pcm_runtime *rtd)
- 	return ret;
- }
- 
--static int max98373_sdw_trigger(struct snd_pcm_substream *substream, int cmd)
-+static int mx8373_enable_spk_pin(struct snd_pcm_substream *substream, bool enable)
- {
-+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
-+	struct snd_soc_dai *codec_dai;
-+	struct snd_soc_dai *cpu_dai;
- 	int ret;
-+	int j;
- 
--	switch (cmd) {
--	case SNDRV_PCM_TRIGGER_START:
--	case SNDRV_PCM_TRIGGER_RESUME:
--	case SNDRV_PCM_TRIGGER_PAUSE_RELEASE:
--		/* enable max98373 first */
--		ret = max98373_trigger(substream, cmd);
--		if (ret < 0)
--			break;
--
--		ret = sdw_trigger(substream, cmd);
--		break;
--	case SNDRV_PCM_TRIGGER_STOP:
--	case SNDRV_PCM_TRIGGER_SUSPEND:
--	case SNDRV_PCM_TRIGGER_PAUSE_PUSH:
--		ret = sdw_trigger(substream, cmd);
--		if (ret < 0)
--			break;
--
--		ret = max98373_trigger(substream, cmd);
--		break;
--	default:
--		ret = -EINVAL;
--		break;
-+	/* set spk pin by playback only */
-+	if (substream->stream == SNDRV_PCM_STREAM_CAPTURE)
-+		return 0;
-+
-+	cpu_dai = asoc_rtd_to_cpu(rtd, 0);
-+	for_each_rtd_codec_dais(rtd, j, codec_dai) {
-+		struct snd_soc_dapm_context *dapm =
-+				snd_soc_component_get_dapm(cpu_dai->component);
-+		char pin_name[16];
-+
-+		snprintf(pin_name, ARRAY_SIZE(pin_name), "%s Spk",
-+			 codec_dai->component->name_prefix);
-+
-+		if (enable)
-+			ret = snd_soc_dapm_enable_pin(dapm, pin_name);
-+		else
-+			ret = snd_soc_dapm_disable_pin(dapm, pin_name);
-+
-+		if (!ret)
-+			snd_soc_dapm_sync(dapm);
- 	}
- 
--	return ret;
-+	return 0;
-+}
-+
-+static int mx8373_sdw_prepare(struct snd_pcm_substream *substream)
-+{
-+	int ret = 0;
-+
-+	/* according to soc_pcm_prepare dai link prepare is called first */
-+	ret = sdw_prepare(substream);
-+	if (ret < 0)
-+		return ret;
-+
-+	return mx8373_enable_spk_pin(substream, true);
-+}
-+
-+static int mx8373_sdw_hw_free(struct snd_pcm_substream *substream)
-+{
-+	int ret = 0;
-+
-+	/* according to soc_pcm_hw_free dai link free is called first */
-+	ret = sdw_hw_free(substream);
-+	if (ret < 0)
-+		return ret;
-+
-+	return mx8373_enable_spk_pin(substream, false);
- }
- 
- static const struct snd_soc_ops max_98373_sdw_ops = {
- 	.startup = sdw_startup,
--	.prepare = sdw_prepare,
--	.trigger = max98373_sdw_trigger,
--	.hw_free = sdw_hw_free,
-+	.prepare = mx8373_sdw_prepare,
-+	.trigger = sdw_trigger,
-+	.hw_free = mx8373_sdw_hw_free,
- 	.shutdown = sdw_shutdown,
- };
- 
--- 
-2.25.1
+Test Regressions
+---------------- =
 
+
+
+platform          | arch | lab           | compiler | defconfig          | =
+regressions
+------------------+------+---------------+----------+--------------------+-=
+-----------
+rk3288-veyron-jaq | arm  | lab-collabora | gcc-8    | multi_v7_defconfig | =
+3          =
+
+
+  Details:     https://kernelci.org/test/plan/id/610802ae2055994c05b1367a
+
+  Results:     67 PASS, 3 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.137-4=
+1-ge6ba61752450/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288-=
+veyron-jaq.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.137-4=
+1-ge6ba61752450/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288-=
+veyron-jaq.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-iodomain-grf-probed: https://kernelci.org/test=
+/case/id/610802ae2055994c05b13692
+        failing since 48 days (last pass: v5.4.125-37-g7cda316475cf, first =
+fail: v5.4.125-84-g411d62eda127)
+
+    2021-08-02T14:35:03.212399  /lava-4306820/1/../bin/lava-test-case<8>[  =
+ 15.478852] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Drockchip-iodomain-grf-prob=
+ed RESULT=3Dfail>
+    2021-08-02T14:35:03.212883  =
+
+    2021-08-02T14:35:03.213168  /lava-4306820/1/../bin/lava-test-case   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdio0-probed: https://kernelci.org/test/=
+case/id/610802ae2055994c05b136aa
+        failing since 48 days (last pass: v5.4.125-37-g7cda316475cf, first =
+fail: v5.4.125-84-g411d62eda127)
+
+    2021-08-02T14:35:01.769580  /lava-4306820/1/../bin/lava-test-case
+    2021-08-02T14:35:01.788105  <8>[   14.053699] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Ddwmmc_rockchip-sdio0-probed RESULT=3Dfail>
+    2021-08-02T14:35:01.788337  /lava-4306820/1/../bin/lava-test-case   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdmmc-probed: https://kernelci.org/test/=
+case/id/610802af2055994c05b136ab
+        failing since 48 days (last pass: v5.4.125-37-g7cda316475cf, first =
+fail: v5.4.125-84-g411d62eda127)
+
+    2021-08-02T14:35:00.757034  /lava-4306820/1/../bin/lava-test-case<8>[  =
+ 13.034353] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Ddwmmc_rockchip-sdmmc-probe=
+d RESULT=3Dfail>
+    2021-08-02T14:35:00.757358     =
+
+ =20
