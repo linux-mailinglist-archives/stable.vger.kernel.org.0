@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3387C3DD87E
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:52:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FFDB3DD821
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:49:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235066AbhHBNwx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:52:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34294 "EHLO mail.kernel.org"
+        id S234120AbhHBNtz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:49:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234990AbhHBNvc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:51:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 42A3260F41;
-        Mon,  2 Aug 2021 13:50:58 +0000 (UTC)
+        id S234248AbhHBNtd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:49:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9BEE560FC1;
+        Mon,  2 Aug 2021 13:49:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912258;
-        bh=hdiXrvsG9NBKG+5eMK1AkbMzZVab2LrkHtcz0zqCmyk=;
+        s=korg; t=1627912163;
+        bh=Oo+qsc4/7ji7Qm2PiW+BLBGjaNcR4eM7qYHqGZrvnco=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pLuOBjFOusYYTtgS1pasyvsSPijOkbef+2gM5SAtMo3AOUDjhtUVEat+WdcmLcC5l
-         FS53K8PKk/2VuKKZd6Qes2nBLsL8sF5u2CA4Kw6tX1EpKo+BzZO57i5FkPS3iRsR+m
-         UJIFZn38T6jeIoynLS373HTjN/bxvtibIUx5LLoU=
+        b=sKjwmF98Hog7T9YyaGCXgDebngBDBG2+MFtedeooUmFi3KylQ5YCa4QlrXguhOsj7
+         uDy9rBqWJrMoiSgAxj8zg6PLePiJZLLRHgANOcH1Keu6XOb/M6GIzZy5v7Io2wzicT
+         C+ZT2AipF6dUWqkvPWWk8rcfjXMpmm45V+i4uQh8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nguyen Dinh Phi <phind.uet@gmail.com>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.4 19/40] cfg80211: Fix possible memory leak in function cfg80211_bss_update
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 37/38] can: hi311x: fix a signedness bug in hi3110_cmd()
 Date:   Mon,  2 Aug 2021 15:44:59 +0200
-Message-Id: <20210802134336.003473216@linuxfoundation.org>
+Message-Id: <20210802134335.998730665@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134335.408294521@linuxfoundation.org>
-References: <20210802134335.408294521@linuxfoundation.org>
+In-Reply-To: <20210802134334.835358048@linuxfoundation.org>
+References: <20210802134334.835358048@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,45 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nguyen Dinh Phi <phind.uet@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit f9a5c358c8d26fed0cc45f2afc64633d4ba21dff upstream.
+[ Upstream commit f6b3c7848e66e9046c8a79a5b88fd03461cc252b ]
 
-When we exceed the limit of BSS entries, this function will free the
-new entry, however, at this time, it is the last door to access the
-inputed ies, so these ies will be unreferenced objects and cause memory
-leak.
-Therefore we should free its ies before deallocating the new entry, beside
-of dropping it from hidden_list.
+The hi3110_cmd() is supposed to return zero on success and negative
+error codes on failure, but it was accidentally declared as a u8 when
+it needs to be an int type.
 
-Signed-off-by: Nguyen Dinh Phi <phind.uet@gmail.com>
-Link: https://lore.kernel.org/r/20210628132334.851095-1-phind.uet@gmail.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 57e83fb9b746 ("can: hi311x: Add Holt HI-311x CAN driver")
+Link: https://lore.kernel.org/r/20210729141246.GA1267@kili
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/scan.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/net/can/spi/hi311x.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/wireless/scan.c
-+++ b/net/wireless/scan.c
-@@ -1250,16 +1250,14 @@ cfg80211_bss_update(struct cfg80211_regi
- 			 * be grouped with this beacon for updates ...
- 			 */
- 			if (!cfg80211_combine_bsses(rdev, new)) {
--				kfree(new);
-+				bss_ref_put(rdev, new);
- 				goto drop;
- 			}
- 		}
+diff --git a/drivers/net/can/spi/hi311x.c b/drivers/net/can/spi/hi311x.c
+index ddaf46239e39..472175e37055 100644
+--- a/drivers/net/can/spi/hi311x.c
++++ b/drivers/net/can/spi/hi311x.c
+@@ -236,7 +236,7 @@ static int hi3110_spi_trans(struct spi_device *spi, int len)
+ 	return ret;
+ }
  
- 		if (rdev->bss_entries >= bss_entries_limit &&
- 		    !cfg80211_bss_expire_oldest(rdev)) {
--			if (!list_empty(&new->hidden_list))
--				list_del(&new->hidden_list);
--			kfree(new);
-+			bss_ref_put(rdev, new);
- 			goto drop;
- 		}
+-static u8 hi3110_cmd(struct spi_device *spi, u8 command)
++static int hi3110_cmd(struct spi_device *spi, u8 command)
+ {
+ 	struct hi3110_priv *priv = spi_get_drvdata(spi);
  
+-- 
+2.30.2
+
 
 
