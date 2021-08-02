@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CB3E3DD80C
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:49:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3BCB3DD7A4
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:47:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234598AbhHBNtf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:49:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57350 "EHLO mail.kernel.org"
+        id S234274AbhHBNrN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:47:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234725AbhHBNtK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:49:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DE4CF60555;
-        Mon,  2 Aug 2021 13:49:00 +0000 (UTC)
+        id S234083AbhHBNqk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:46:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0CAD860527;
+        Mon,  2 Aug 2021 13:46:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912141;
-        bh=PF1aZHjhxSIoQ12j84c96WVtObXYfrE78zjkP4+1AU4=;
+        s=korg; t=1627911991;
+        bh=3q494ZTRD0FYNLe8FGVRRXJETCXL4zPyz71GQjS4XJk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1taRA58DtuqUnV+flfE/vMTTwByJf5LcfadFFqXeMOuL04omNvJcf6hyfZB+ygFsb
-         EMAPeozXkUl933LkoxK2O05m8NB8DXYgUfd//UDAJ0ICHu59iDrE98keBpKJjMAUM+
-         yn3IwAaZSTFnIcrtuqATqBd8f0iBZ/MVMi/ibj3s=
+        b=Uol6b1V+7XBOOpF9Vaasnqajkz/eu+seODVSiWck0jF5BbdvSjqj20w+BDCvlrpjB
+         BiigJaPTSzqXPW0B7fhqkg8Ih5eCmiWsl9AI3NRBsSzVFU1F1v88MTgzTGBhjBGUfY
+         g1R/nOcxK+0l432eqAWwcIoybzAk4Y6sfKYqwgzE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        Shannon Nelson <shannon.lee.nelson@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 06/38] net/802/mrp: fix memleak in mrp_request_join()
+        Paul Jakma <paul@jakma.org>
+Subject: [PATCH 4.4 18/26] NIU: fix incorrect error return, missed in previous revert
 Date:   Mon,  2 Aug 2021 15:44:28 +0200
-Message-Id: <20210802134335.031627093@linuxfoundation.org>
+Message-Id: <20210802134332.623517363@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134334.835358048@linuxfoundation.org>
-References: <20210802134334.835358048@linuxfoundation.org>
+In-Reply-To: <20210802134332.033552261@linuxfoundation.org>
+References: <20210802134332.033552261@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,90 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Paul Jakma <paul@jakma.org>
 
-[ Upstream commit 996af62167d0e0ec69b938a3561e96f84ffff1aa ]
+commit 15bbf8bb4d4ab87108ecf5f4155ec8ffa3c141d6 upstream.
 
-I got kmemleak report when doing fuzz test:
+Commit 7930742d6, reverting 26fd962, missed out on reverting an incorrect
+change to a return value.  The niu_pci_vpd_scan_props(..) == 1 case appears
+to be a normal path - treating it as an error and return -EINVAL was
+breaking VPD_SCAN and causing the driver to fail to load.
 
-BUG: memory leak
-unreferenced object 0xffff88810c239500 (size 64):
-comm "syz-executor940", pid 882, jiffies 4294712870 (age 14.631s)
-hex dump (first 32 bytes):
-01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
-00 00 00 00 00 00 00 00 01 00 00 00 01 02 00 04 ................
-backtrace:
-[<00000000a323afa4>] slab_alloc_node mm/slub.c:2972 [inline]
-[<00000000a323afa4>] slab_alloc mm/slub.c:2980 [inline]
-[<00000000a323afa4>] __kmalloc+0x167/0x340 mm/slub.c:4130
-[<000000005034ca11>] kmalloc include/linux/slab.h:595 [inline]
-[<000000005034ca11>] mrp_attr_create net/802/mrp.c:276 [inline]
-[<000000005034ca11>] mrp_request_join+0x265/0x550 net/802/mrp.c:530
-[<00000000fcfd81f3>] vlan_mvrp_request_join+0x145/0x170 net/8021q/vlan_mvrp.c:40
-[<000000009258546e>] vlan_dev_open+0x477/0x890 net/8021q/vlan_dev.c:292
-[<0000000059acd82b>] __dev_open+0x281/0x410 net/core/dev.c:1609
-[<000000004e6dc695>] __dev_change_flags+0x424/0x560 net/core/dev.c:8767
-[<00000000471a09af>] rtnl_configure_link+0xd9/0x210 net/core/rtnetlink.c:3122
-[<0000000037a4672b>] __rtnl_newlink+0xe08/0x13e0 net/core/rtnetlink.c:3448
-[<000000008d5d0fda>] rtnl_newlink+0x64/0xa0 net/core/rtnetlink.c:3488
-[<000000004882fe39>] rtnetlink_rcv_msg+0x369/0xa10 net/core/rtnetlink.c:5552
-[<00000000907e6c54>] netlink_rcv_skb+0x134/0x3d0 net/netlink/af_netlink.c:2504
-[<00000000e7d7a8c4>] netlink_unicast_kernel net/netlink/af_netlink.c:1314 [inline]
-[<00000000e7d7a8c4>] netlink_unicast+0x4a0/0x6a0 net/netlink/af_netlink.c:1340
-[<00000000e0645d50>] netlink_sendmsg+0x78e/0xc90 net/netlink/af_netlink.c:1929
-[<00000000c24559b7>] sock_sendmsg_nosec net/socket.c:654 [inline]
-[<00000000c24559b7>] sock_sendmsg+0x139/0x170 net/socket.c:674
-[<00000000fc210bc2>] ____sys_sendmsg+0x658/0x7d0 net/socket.c:2350
-[<00000000be4577b5>] ___sys_sendmsg+0xf8/0x170 net/socket.c:2404
+Fix, so my Neptune card works again.
 
-Calling mrp_request_leave() after mrp_request_join(), the attr->state
-is set to MRP_APPLICANT_VO, mrp_attr_destroy() won't be called in last
-TX event in mrp_uninit_applicant(), the attr of applicant will be leaked.
-To fix this leak, iterate and free each attr of applicant before rerturning
-from mrp_uninit_applicant().
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Cc: Kangjie Lu <kjlu@umn.edu>
+Cc: Shannon Nelson <shannon.lee.nelson@gmail.com>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: stable <stable@vger.kernel.org>
+Fixes: 7930742d ('Revert "niu: fix missing checks of niu_pci_eeprom_read"')
+Signed-off-by: Paul Jakma <paul@jakma.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/802/mrp.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/net/ethernet/sun/niu.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/802/mrp.c b/net/802/mrp.c
-index be4dd3165347..7a893a03e795 100644
---- a/net/802/mrp.c
-+++ b/net/802/mrp.c
-@@ -295,6 +295,19 @@ static void mrp_attr_destroy(struct mrp_applicant *app, struct mrp_attr *attr)
- 	kfree(attr);
+--- a/drivers/net/ethernet/sun/niu.c
++++ b/drivers/net/ethernet/sun/niu.c
+@@ -8213,8 +8213,9 @@ static int niu_pci_vpd_fetch(struct niu
+ 		err = niu_pci_vpd_scan_props(np, here, end);
+ 		if (err < 0)
+ 			return err;
++		/* ret == 1 is not an error */
+ 		if (err == 1)
+-			return -EINVAL;
++			return 0;
+ 	}
+ 	return 0;
  }
- 
-+static void mrp_attr_destroy_all(struct mrp_applicant *app)
-+{
-+	struct rb_node *node, *next;
-+	struct mrp_attr *attr;
-+
-+	for (node = rb_first(&app->mad);
-+	     next = node ? rb_next(node) : NULL, node != NULL;
-+	     node = next) {
-+		attr = rb_entry(node, struct mrp_attr, node);
-+		mrp_attr_destroy(app, attr);
-+	}
-+}
-+
- static int mrp_pdu_init(struct mrp_applicant *app)
- {
- 	struct sk_buff *skb;
-@@ -899,6 +912,7 @@ void mrp_uninit_applicant(struct net_device *dev, struct mrp_application *appl)
- 
- 	spin_lock_bh(&app->lock);
- 	mrp_mad_event(app, MRP_EVENT_TX);
-+	mrp_attr_destroy_all(app);
- 	mrp_pdu_queue(app);
- 	spin_unlock_bh(&app->lock);
- 
--- 
-2.30.2
-
 
 
