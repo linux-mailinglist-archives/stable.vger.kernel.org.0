@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C1FD3DD917
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:57:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB9C43DD80E
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:49:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234271AbhHBN5K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:57:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41744 "EHLO mail.kernel.org"
+        id S234657AbhHBNtg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:49:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59478 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235145AbhHBNze (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:55:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2BBCC611C7;
-        Mon,  2 Aug 2021 13:54:01 +0000 (UTC)
+        id S234326AbhHBNs5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:48:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C55CF61029;
+        Mon,  2 Aug 2021 13:48:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912441;
-        bh=jwiD68Kt9Ea8IEOA1Eb8yzP4bQY8DfSsIb0n8LdyZYY=;
+        s=korg; t=1627912128;
+        bh=Zhu2f35svkVVcaajZJtS5Cr8IXrQUSR49SOvyaC9jaw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hp2/GSvmop3U66ngmZrHW54BEmjnaZ5YE+k1fMqVD5RMnSYSQuF/WRZBk5Z0XuJMX
-         2+AX6rI6I/zsr8nN6B1BWgGFRBPsWlC9arOr8VPUaSiSJlcOBYEGYgA4IeUVsRQsok
-         HVvPhYchVtXSXyvqITXD25gOmUveE+JjeS4NV0NA=
+        b=hW/9An6zQWhnbgAZjcUAsmAHDXSkJCZON/jFfpyZusuKP71+bbACdspAMGDQFpwQd
+         rJBPyQ2ufa3V9o1sS0n79zG/qZmQodyUybiBkMWoFKRCwlFY9QioDJlyuac7CG0eKx
+         ZsZ5FtbmONcDuwOVWYulYlUIBQFGHNzpJObmyq5s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nguyen Dinh Phi <phind.uet@gmail.com>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.10 27/67] cfg80211: Fix possible memory leak in function cfg80211_bss_update
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 28/38] netfilter: conntrack: adjust stop timestamp to real expiry value
 Date:   Mon,  2 Aug 2021 15:44:50 +0200
-Message-Id: <20210802134339.942278538@linuxfoundation.org>
+Message-Id: <20210802134335.712469272@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134339.023067817@linuxfoundation.org>
-References: <20210802134339.023067817@linuxfoundation.org>
+In-Reply-To: <20210802134334.835358048@linuxfoundation.org>
+References: <20210802134334.835358048@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,45 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nguyen Dinh Phi <phind.uet@gmail.com>
+From: Florian Westphal <fw@strlen.de>
 
-commit f9a5c358c8d26fed0cc45f2afc64633d4ba21dff upstream.
+[ Upstream commit 30a56a2b881821625f79837d4d968c679852444e ]
 
-When we exceed the limit of BSS entries, this function will free the
-new entry, however, at this time, it is the last door to access the
-inputed ies, so these ies will be unreferenced objects and cause memory
-leak.
-Therefore we should free its ies before deallocating the new entry, beside
-of dropping it from hidden_list.
+In case the entry is evicted via garbage collection there is
+delay between the timeout value and the eviction event.
 
-Signed-off-by: Nguyen Dinh Phi <phind.uet@gmail.com>
-Link: https://lore.kernel.org/r/20210628132334.851095-1-phind.uet@gmail.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This adjusts the stop value based on how much time has passed.
+
+Fixes: b87a2f9199ea82 ("netfilter: conntrack: add gc worker to remove timed-out entries")
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/scan.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ net/netfilter/nf_conntrack_core.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/net/wireless/scan.c
-+++ b/net/wireless/scan.c
-@@ -1746,16 +1746,14 @@ cfg80211_bss_update(struct cfg80211_regi
- 			 * be grouped with this beacon for updates ...
- 			 */
- 			if (!cfg80211_combine_bsses(rdev, new)) {
--				kfree(new);
-+				bss_ref_put(rdev, new);
- 				goto drop;
- 			}
- 		}
+diff --git a/net/netfilter/nf_conntrack_core.c b/net/netfilter/nf_conntrack_core.c
+index ede0ab5dc400..f13b476378aa 100644
+--- a/net/netfilter/nf_conntrack_core.c
++++ b/net/netfilter/nf_conntrack_core.c
+@@ -506,8 +506,13 @@ bool nf_ct_delete(struct nf_conn *ct, u32 portid, int report)
+ 		return false;
  
- 		if (rdev->bss_entries >= bss_entries_limit &&
- 		    !cfg80211_bss_expire_oldest(rdev)) {
--			if (!list_empty(&new->hidden_list))
--				list_del(&new->hidden_list);
--			kfree(new);
-+			bss_ref_put(rdev, new);
- 			goto drop;
- 		}
+ 	tstamp = nf_conn_tstamp_find(ct);
+-	if (tstamp && tstamp->stop == 0)
++	if (tstamp) {
++		s32 timeout = ct->timeout - nfct_time_stamp;
++
+ 		tstamp->stop = ktime_get_real_ns();
++		if (timeout < 0)
++			tstamp->stop -= jiffies_to_nsecs(-timeout);
++	}
  
+ 	if (nf_conntrack_event_report(IPCT_DESTROY, ct,
+ 				    portid, report) < 0) {
+-- 
+2.30.2
+
 
 
