@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF7C63DD9EE
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 16:05:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A1513DD7D6
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:48:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236045AbhHBOFO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 10:05:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49706 "EHLO mail.kernel.org"
+        id S234224AbhHBNsT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:48:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234102AbhHBOEE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 10:04:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AA73861216;
-        Mon,  2 Aug 2021 13:57:30 +0000 (UTC)
+        id S234310AbhHBNr5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:47:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DC300610FD;
+        Mon,  2 Aug 2021 13:47:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912651;
-        bh=x42L7hEDxCxop1qxxMMubj71zrzWVLtffKqCvM2gyT4=;
+        s=korg; t=1627912065;
+        bh=joNAro/gVbiWLdK5wZF5BtH/rSA25Lcax58mBxFIgHk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hb+ZuKnWVRXxu3ZtWf3DnqcffW62QWbLqli0f/ltJCja8sdMYd3kNCg3y3OX0S9CA
-         TPz5jghmn1iRdLxLxoH6FXfwOb4I0go5jKfiBeIEnR40f7STnOkOjTZlPQS51WriGh
-         e6OtOK0SrWdhpGBtpAK+DAp2BYIxNuiBzsOxbk1M=
+        b=nfd1SE7j4+ChRjH1IPt5sc9fU6WM5c32VtOMsKYK1eGCS8NVzuLFjF67hVFwSO1RC
+         pf8p7nikD7YwYyjR+HCs4xpdwneDr/YYytGPjhBLAAy3e30Ws5RtvMRaVIQxVL8/Mb
+         4gtU2OfqZAhY3W/C5bLSlw/sfQlLl8qOduvOnURY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shannon Nelson <snelson@pensando.io>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang Hai <wanghai38@huawei.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 055/104] ionic: make all rx_mode work threadsafe
+Subject: [PATCH 4.9 32/32] sis900: Fix missing pci_disable_device() in probe and remove
 Date:   Mon,  2 Aug 2021 15:44:52 +0200
-Message-Id: <20210802134345.821511335@linuxfoundation.org>
+Message-Id: <20210802134333.940594691@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134344.028226640@linuxfoundation.org>
-References: <20210802134344.028226640@linuxfoundation.org>
+In-Reply-To: <20210802134332.931915241@linuxfoundation.org>
+References: <20210802134332.931915241@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,350 +41,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shannon Nelson <snelson@pensando.io>
+From: Wang Hai <wanghai38@huawei.com>
 
-[ Upstream commit 6840e17b8ea992453e2d6f460d403cb05d194e76 ]
+[ Upstream commit 89fb62fde3b226f99b7015280cf132e2a7438edf ]
 
-Move the bulk of the code from ionic_set_rx_mode(), which
-can be called from atomic context, into ionic_lif_rx_mode()
-which is a safe context.
+Replace pci_enable_device() with pcim_enable_device(),
+pci_disable_device() and pci_release_regions() will be
+called in release automatically.
 
-A call from the stack will get pushed off into a work thread,
-but it is also possible to simultaneously have a call driven
-by a queue reconfig request from an ethtool command or fw
-recovery event.  We add a mutex around the rx_mode work to be
-sure they don't collide.
-
-Fixes: 81dbc24147f9 ("ionic: change set_rx_mode from_ndo to can_sleep")
-Signed-off-by: Shannon Nelson <snelson@pensando.io>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/pensando/ionic/ionic_lif.c   | 183 ++++++++----------
- .../net/ethernet/pensando/ionic/ionic_lif.h   |   4 +-
- 2 files changed, 85 insertions(+), 102 deletions(-)
+ drivers/net/ethernet/sis/sis900.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/pensando/ionic/ionic_lif.c b/drivers/net/ethernet/pensando/ionic/ionic_lif.c
-index af3a5368529c..7815e9034fb8 100644
---- a/drivers/net/ethernet/pensando/ionic/ionic_lif.c
-+++ b/drivers/net/ethernet/pensando/ionic/ionic_lif.c
-@@ -29,7 +29,7 @@ static const u8 ionic_qtype_versions[IONIC_QTYPE_MAX] = {
- 				      */
- };
+diff --git a/drivers/net/ethernet/sis/sis900.c b/drivers/net/ethernet/sis/sis900.c
+index ae9b983e8e5c..4a0e69a2d4f5 100644
+--- a/drivers/net/ethernet/sis/sis900.c
++++ b/drivers/net/ethernet/sis/sis900.c
+@@ -442,7 +442,7 @@ static int sis900_probe(struct pci_dev *pci_dev,
+ #endif
  
--static void ionic_lif_rx_mode(struct ionic_lif *lif, unsigned int rx_mode);
-+static void ionic_lif_rx_mode(struct ionic_lif *lif);
- static int ionic_lif_addr_add(struct ionic_lif *lif, const u8 *addr);
- static int ionic_lif_addr_del(struct ionic_lif *lif, const u8 *addr);
- static void ionic_link_status_check(struct ionic_lif *lif);
-@@ -77,7 +77,7 @@ static void ionic_lif_deferred_work(struct work_struct *work)
+ 	/* setup various bits in PCI command register */
+-	ret = pci_enable_device(pci_dev);
++	ret = pcim_enable_device(pci_dev);
+ 	if(ret) return ret;
  
- 		switch (w->type) {
- 		case IONIC_DW_TYPE_RX_MODE:
--			ionic_lif_rx_mode(lif, w->rx_mode);
-+			ionic_lif_rx_mode(lif);
- 			break;
- 		case IONIC_DW_TYPE_RX_ADDR_ADD:
- 			ionic_lif_addr_add(lif, w->addr);
-@@ -1301,10 +1301,8 @@ static int ionic_lif_addr_del(struct ionic_lif *lif, const u8 *addr)
- 	return 0;
- }
- 
--static int ionic_lif_addr(struct ionic_lif *lif, const u8 *addr, bool add,
--			  bool can_sleep)
-+static int ionic_lif_addr(struct ionic_lif *lif, const u8 *addr, bool add)
- {
--	struct ionic_deferred_work *work;
- 	unsigned int nmfilters;
- 	unsigned int nufilters;
- 
-@@ -1330,97 +1328,46 @@ static int ionic_lif_addr(struct ionic_lif *lif, const u8 *addr, bool add,
- 			lif->nucast--;
+ 	i = pci_set_dma_mask(pci_dev, DMA_BIT_MASK(32));
+@@ -468,7 +468,7 @@ static int sis900_probe(struct pci_dev *pci_dev,
+ 	ioaddr = pci_iomap(pci_dev, 0, 0);
+ 	if (!ioaddr) {
+ 		ret = -ENOMEM;
+-		goto err_out_cleardev;
++		goto err_out;
  	}
  
--	if (!can_sleep) {
--		work = kzalloc(sizeof(*work), GFP_ATOMIC);
--		if (!work)
--			return -ENOMEM;
--		work->type = add ? IONIC_DW_TYPE_RX_ADDR_ADD :
--				   IONIC_DW_TYPE_RX_ADDR_DEL;
--		memcpy(work->addr, addr, ETH_ALEN);
--		netdev_dbg(lif->netdev, "deferred: rx_filter %s %pM\n",
--			   add ? "add" : "del", addr);
--		ionic_lif_deferred_enqueue(&lif->deferred, work);
--	} else {
--		netdev_dbg(lif->netdev, "rx_filter %s %pM\n",
--			   add ? "add" : "del", addr);
--		if (add)
--			return ionic_lif_addr_add(lif, addr);
--		else
--			return ionic_lif_addr_del(lif, addr);
--	}
-+	netdev_dbg(lif->netdev, "rx_filter %s %pM\n",
-+		   add ? "add" : "del", addr);
-+	if (add)
-+		return ionic_lif_addr_add(lif, addr);
-+	else
-+		return ionic_lif_addr_del(lif, addr);
- 
- 	return 0;
+ 	sis_priv = netdev_priv(net_dev);
+@@ -576,8 +576,6 @@ err_unmap_tx:
+ 		sis_priv->tx_ring_dma);
+ err_out_unmap:
+ 	pci_iounmap(pci_dev, ioaddr);
+-err_out_cleardev:
+-	pci_release_regions(pci_dev);
+  err_out:
+ 	free_netdev(net_dev);
+ 	return ret;
+@@ -2425,7 +2423,6 @@ static void sis900_remove(struct pci_dev *pci_dev)
+ 		sis_priv->tx_ring_dma);
+ 	pci_iounmap(pci_dev, sis_priv->ioaddr);
+ 	free_netdev(net_dev);
+-	pci_release_regions(pci_dev);
  }
  
- static int ionic_addr_add(struct net_device *netdev, const u8 *addr)
- {
--	return ionic_lif_addr(netdev_priv(netdev), addr, ADD_ADDR, CAN_SLEEP);
--}
--
--static int ionic_ndo_addr_add(struct net_device *netdev, const u8 *addr)
--{
--	return ionic_lif_addr(netdev_priv(netdev), addr, ADD_ADDR, CAN_NOT_SLEEP);
-+	return ionic_lif_addr(netdev_priv(netdev), addr, ADD_ADDR);
- }
- 
- static int ionic_addr_del(struct net_device *netdev, const u8 *addr)
- {
--	return ionic_lif_addr(netdev_priv(netdev), addr, DEL_ADDR, CAN_SLEEP);
-+	return ionic_lif_addr(netdev_priv(netdev), addr, DEL_ADDR);
- }
- 
--static int ionic_ndo_addr_del(struct net_device *netdev, const u8 *addr)
-+static void ionic_lif_rx_mode(struct ionic_lif *lif)
- {
--	return ionic_lif_addr(netdev_priv(netdev), addr, DEL_ADDR, CAN_NOT_SLEEP);
--}
--
--static void ionic_lif_rx_mode(struct ionic_lif *lif, unsigned int rx_mode)
--{
--	struct ionic_admin_ctx ctx = {
--		.work = COMPLETION_INITIALIZER_ONSTACK(ctx.work),
--		.cmd.rx_mode_set = {
--			.opcode = IONIC_CMD_RX_MODE_SET,
--			.lif_index = cpu_to_le16(lif->index),
--			.rx_mode = cpu_to_le16(rx_mode),
--		},
--	};
-+	struct net_device *netdev = lif->netdev;
-+	unsigned int nfilters;
-+	unsigned int nd_flags;
- 	char buf[128];
--	int err;
-+	u16 rx_mode;
- 	int i;
- #define REMAIN(__x) (sizeof(buf) - (__x))
- 
--	i = scnprintf(buf, sizeof(buf), "rx_mode 0x%04x -> 0x%04x:",
--		      lif->rx_mode, rx_mode);
--	if (rx_mode & IONIC_RX_MODE_F_UNICAST)
--		i += scnprintf(&buf[i], REMAIN(i), " RX_MODE_F_UNICAST");
--	if (rx_mode & IONIC_RX_MODE_F_MULTICAST)
--		i += scnprintf(&buf[i], REMAIN(i), " RX_MODE_F_MULTICAST");
--	if (rx_mode & IONIC_RX_MODE_F_BROADCAST)
--		i += scnprintf(&buf[i], REMAIN(i), " RX_MODE_F_BROADCAST");
--	if (rx_mode & IONIC_RX_MODE_F_PROMISC)
--		i += scnprintf(&buf[i], REMAIN(i), " RX_MODE_F_PROMISC");
--	if (rx_mode & IONIC_RX_MODE_F_ALLMULTI)
--		i += scnprintf(&buf[i], REMAIN(i), " RX_MODE_F_ALLMULTI");
--	netdev_dbg(lif->netdev, "lif%d %s\n", lif->index, buf);
--
--	err = ionic_adminq_post_wait(lif, &ctx);
--	if (err)
--		netdev_warn(lif->netdev, "set rx_mode 0x%04x failed: %d\n",
--			    rx_mode, err);
--	else
--		lif->rx_mode = rx_mode;
--}
-+	mutex_lock(&lif->config_lock);
- 
--static void ionic_set_rx_mode(struct net_device *netdev, bool can_sleep)
--{
--	struct ionic_lif *lif = netdev_priv(netdev);
--	struct ionic_deferred_work *work;
--	unsigned int nfilters;
--	unsigned int rx_mode;
-+	/* grab the flags once for local use */
-+	nd_flags = netdev->flags;
- 
- 	rx_mode = IONIC_RX_MODE_F_UNICAST;
--	rx_mode |= (netdev->flags & IFF_MULTICAST) ? IONIC_RX_MODE_F_MULTICAST : 0;
--	rx_mode |= (netdev->flags & IFF_BROADCAST) ? IONIC_RX_MODE_F_BROADCAST : 0;
--	rx_mode |= (netdev->flags & IFF_PROMISC) ? IONIC_RX_MODE_F_PROMISC : 0;
--	rx_mode |= (netdev->flags & IFF_ALLMULTI) ? IONIC_RX_MODE_F_ALLMULTI : 0;
-+	rx_mode |= (nd_flags & IFF_MULTICAST) ? IONIC_RX_MODE_F_MULTICAST : 0;
-+	rx_mode |= (nd_flags & IFF_BROADCAST) ? IONIC_RX_MODE_F_BROADCAST : 0;
-+	rx_mode |= (nd_flags & IFF_PROMISC) ? IONIC_RX_MODE_F_PROMISC : 0;
-+	rx_mode |= (nd_flags & IFF_ALLMULTI) ? IONIC_RX_MODE_F_ALLMULTI : 0;
- 
- 	/* sync unicast addresses
- 	 * next check to see if we're in an overflow state
-@@ -1429,49 +1376,83 @@ static void ionic_set_rx_mode(struct net_device *netdev, bool can_sleep)
- 	 *       we remove our overflow flag and check the netdev flags
- 	 *       to see if we can disable NIC PROMISC
- 	 */
--	if (can_sleep)
--		__dev_uc_sync(netdev, ionic_addr_add, ionic_addr_del);
--	else
--		__dev_uc_sync(netdev, ionic_ndo_addr_add, ionic_ndo_addr_del);
-+	__dev_uc_sync(netdev, ionic_addr_add, ionic_addr_del);
- 	nfilters = le32_to_cpu(lif->identity->eth.max_ucast_filters);
- 	if (netdev_uc_count(netdev) + 1 > nfilters) {
- 		rx_mode |= IONIC_RX_MODE_F_PROMISC;
- 		lif->uc_overflow = true;
- 	} else if (lif->uc_overflow) {
- 		lif->uc_overflow = false;
--		if (!(netdev->flags & IFF_PROMISC))
-+		if (!(nd_flags & IFF_PROMISC))
- 			rx_mode &= ~IONIC_RX_MODE_F_PROMISC;
- 	}
- 
- 	/* same for multicast */
--	if (can_sleep)
--		__dev_mc_sync(netdev, ionic_addr_add, ionic_addr_del);
--	else
--		__dev_mc_sync(netdev, ionic_ndo_addr_add, ionic_ndo_addr_del);
-+	__dev_mc_sync(netdev, ionic_addr_add, ionic_addr_del);
- 	nfilters = le32_to_cpu(lif->identity->eth.max_mcast_filters);
- 	if (netdev_mc_count(netdev) > nfilters) {
- 		rx_mode |= IONIC_RX_MODE_F_ALLMULTI;
- 		lif->mc_overflow = true;
- 	} else if (lif->mc_overflow) {
- 		lif->mc_overflow = false;
--		if (!(netdev->flags & IFF_ALLMULTI))
-+		if (!(nd_flags & IFF_ALLMULTI))
- 			rx_mode &= ~IONIC_RX_MODE_F_ALLMULTI;
- 	}
- 
-+	i = scnprintf(buf, sizeof(buf), "rx_mode 0x%04x -> 0x%04x:",
-+		      lif->rx_mode, rx_mode);
-+	if (rx_mode & IONIC_RX_MODE_F_UNICAST)
-+		i += scnprintf(&buf[i], REMAIN(i), " RX_MODE_F_UNICAST");
-+	if (rx_mode & IONIC_RX_MODE_F_MULTICAST)
-+		i += scnprintf(&buf[i], REMAIN(i), " RX_MODE_F_MULTICAST");
-+	if (rx_mode & IONIC_RX_MODE_F_BROADCAST)
-+		i += scnprintf(&buf[i], REMAIN(i), " RX_MODE_F_BROADCAST");
-+	if (rx_mode & IONIC_RX_MODE_F_PROMISC)
-+		i += scnprintf(&buf[i], REMAIN(i), " RX_MODE_F_PROMISC");
-+	if (rx_mode & IONIC_RX_MODE_F_ALLMULTI)
-+		i += scnprintf(&buf[i], REMAIN(i), " RX_MODE_F_ALLMULTI");
-+	if (rx_mode & IONIC_RX_MODE_F_RDMA_SNIFFER)
-+		i += scnprintf(&buf[i], REMAIN(i), " RX_MODE_F_RDMA_SNIFFER");
-+	netdev_dbg(netdev, "lif%d %s\n", lif->index, buf);
-+
- 	if (lif->rx_mode != rx_mode) {
--		if (!can_sleep) {
--			work = kzalloc(sizeof(*work), GFP_ATOMIC);
--			if (!work) {
--				netdev_err(lif->netdev, "rxmode change dropped\n");
--				return;
--			}
--			work->type = IONIC_DW_TYPE_RX_MODE;
--			work->rx_mode = rx_mode;
--			netdev_dbg(lif->netdev, "deferred: rx_mode\n");
--			ionic_lif_deferred_enqueue(&lif->deferred, work);
--		} else {
--			ionic_lif_rx_mode(lif, rx_mode);
-+		struct ionic_admin_ctx ctx = {
-+			.work = COMPLETION_INITIALIZER_ONSTACK(ctx.work),
-+			.cmd.rx_mode_set = {
-+				.opcode = IONIC_CMD_RX_MODE_SET,
-+				.lif_index = cpu_to_le16(lif->index),
-+			},
-+		};
-+		int err;
-+
-+		ctx.cmd.rx_mode_set.rx_mode = cpu_to_le16(rx_mode);
-+		err = ionic_adminq_post_wait(lif, &ctx);
-+		if (err)
-+			netdev_warn(netdev, "set rx_mode 0x%04x failed: %d\n",
-+				    rx_mode, err);
-+		else
-+			lif->rx_mode = rx_mode;
-+	}
-+
-+	mutex_unlock(&lif->config_lock);
-+}
-+
-+static void ionic_set_rx_mode(struct net_device *netdev, bool can_sleep)
-+{
-+	struct ionic_lif *lif = netdev_priv(netdev);
-+	struct ionic_deferred_work *work;
-+
-+	if (!can_sleep) {
-+		work = kzalloc(sizeof(*work), GFP_ATOMIC);
-+		if (!work) {
-+			netdev_err(lif->netdev, "rxmode change dropped\n");
-+			return;
- 		}
-+		work->type = IONIC_DW_TYPE_RX_MODE;
-+		netdev_dbg(lif->netdev, "deferred: rx_mode\n");
-+		ionic_lif_deferred_enqueue(&lif->deferred, work);
-+	} else {
-+		ionic_lif_rx_mode(lif);
- 	}
- }
- 
-@@ -3058,6 +3039,7 @@ void ionic_lif_deinit(struct ionic_lif *lif)
- 	ionic_lif_qcq_deinit(lif, lif->notifyqcq);
- 	ionic_lif_qcq_deinit(lif, lif->adminqcq);
- 
-+	mutex_destroy(&lif->config_lock);
- 	mutex_destroy(&lif->queue_lock);
- 	ionic_lif_reset(lif);
- }
-@@ -3185,7 +3167,7 @@ static int ionic_station_set(struct ionic_lif *lif)
- 		 */
- 		if (!ether_addr_equal(ctx.comp.lif_getattr.mac,
- 				      netdev->dev_addr))
--			ionic_lif_addr(lif, netdev->dev_addr, ADD_ADDR, CAN_SLEEP);
-+			ionic_lif_addr(lif, netdev->dev_addr, ADD_ADDR);
- 	} else {
- 		/* Update the netdev mac with the device's mac */
- 		memcpy(addr.sa_data, ctx.comp.lif_getattr.mac, netdev->addr_len);
-@@ -3202,7 +3184,7 @@ static int ionic_station_set(struct ionic_lif *lif)
- 
- 	netdev_dbg(lif->netdev, "adding station MAC addr %pM\n",
- 		   netdev->dev_addr);
--	ionic_lif_addr(lif, netdev->dev_addr, ADD_ADDR, CAN_SLEEP);
-+	ionic_lif_addr(lif, netdev->dev_addr, ADD_ADDR);
- 
- 	return 0;
- }
-@@ -3225,6 +3207,7 @@ int ionic_lif_init(struct ionic_lif *lif)
- 
- 	lif->hw_index = le16_to_cpu(comp.hw_index);
- 	mutex_init(&lif->queue_lock);
-+	mutex_init(&lif->config_lock);
- 
- 	/* now that we have the hw_index we can figure out our doorbell page */
- 	lif->dbid_count = le32_to_cpu(lif->ionic->ident.dev.ndbpgs_per_lif);
-diff --git a/drivers/net/ethernet/pensando/ionic/ionic_lif.h b/drivers/net/ethernet/pensando/ionic/ionic_lif.h
-index 346506f01715..af291303bd7a 100644
---- a/drivers/net/ethernet/pensando/ionic/ionic_lif.h
-+++ b/drivers/net/ethernet/pensando/ionic/ionic_lif.h
-@@ -108,7 +108,6 @@ struct ionic_deferred_work {
- 	struct list_head list;
- 	enum ionic_deferred_work_type type;
- 	union {
--		unsigned int rx_mode;
- 		u8 addr[ETH_ALEN];
- 		u8 fw_status;
- 	};
-@@ -179,6 +178,7 @@ struct ionic_lif {
- 	unsigned int index;
- 	unsigned int hw_index;
- 	struct mutex queue_lock;	/* lock for queue structures */
-+	struct mutex config_lock;	/* lock for config actions */
- 	spinlock_t adminq_lock;		/* lock for AdminQ operations */
- 	struct ionic_qcq *adminqcq;
- 	struct ionic_qcq *notifyqcq;
-@@ -199,7 +199,7 @@ struct ionic_lif {
- 	unsigned int nrxq_descs;
- 	u32 rx_copybreak;
- 	u64 rxq_features;
--	unsigned int rx_mode;
-+	u16 rx_mode;
- 	u64 hw_features;
- 	bool registered;
- 	bool mc_overflow;
+ #ifdef CONFIG_PM
 -- 
 2.30.2
 
