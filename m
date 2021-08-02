@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 11F693DD4EE
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 13:51:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B36A3DD4EF
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 13:51:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233382AbhHBLv1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 07:51:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46748 "EHLO mail.kernel.org"
+        id S233455AbhHBLvh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 07:51:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233341AbhHBLv0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 07:51:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EEDCF60EC0;
-        Mon,  2 Aug 2021 11:51:16 +0000 (UTC)
+        id S233341AbhHBLvh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 07:51:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A03FF60F5A;
+        Mon,  2 Aug 2021 11:51:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627905077;
-        bh=KqxjkbwDLNBI+G7VNPTUIMKbZ01oZVRccxi595oRQvU=;
+        s=korg; t=1627905087;
+        bh=SFwrNgl0VrPj5hrhcMvNJoUyhKsLFOg4rZFAWhAoux0=;
         h=Subject:To:Cc:From:Date:From;
-        b=Zc5zKh/LiWIlH2m21NpvTfAKLKEDHYPRLj/KusC8opgPlxnRxDp2cS5ncCxsfLI6y
-         iGB9LlyhKXQ6sHPoR0BjAZmtr8Ale9x6V1kxQvz3Q3lFch//OA9J4MjWz4Qgcj3T9j
-         C/NujHJiaSakbaOhGULTFEuQwm+oXsdNmoHEg7S8=
-Subject: FAILED: patch "[PATCH] bpf, sockmap: On cleanup we additionally need to remove" failed to apply to 5.4-stable tree
+        b=zCmIPdpFFD3Eoa7aL4DJM52YId3ed/4f2G+b+ozp7CD5MocLLhwjoc5go0IO9QHYH
+         qo8GrlC77sGETXLYPHaY6gLYl/N+uUW+T5d+zLOtZyL0IcM11JaJpFo3iJ/Z2MnW9/
+         Xyn7h7FtrwTeCSHcjuZaqeLGjAOODz237hgXD7DE=
+Subject: FAILED: patch "[PATCH] bpf, sockmap: On cleanup we additionally need to remove" failed to apply to 5.10-stable tree
 To:     john.fastabend@gmail.com, andrii@kernel.org, jakub@cloudflare.com,
         kafai@fb.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 02 Aug 2021 13:51:15 +0200
-Message-ID: <162790507510829@kroah.com>
+Date:   Mon, 02 Aug 2021 13:51:17 +0200
+Message-ID: <16279050771444@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
