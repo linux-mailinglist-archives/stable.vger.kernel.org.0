@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D44CC3DD8F2
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:56:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EB5D3DD98E
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 16:01:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235247AbhHBN4c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:56:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34014 "EHLO mail.kernel.org"
+        id S234935AbhHBOBU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 10:01:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235471AbhHBNx2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:53:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F27061167;
-        Mon,  2 Aug 2021 13:52:16 +0000 (UTC)
+        id S236439AbhHBN7a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:59:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9473A61103;
+        Mon,  2 Aug 2021 13:55:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912336;
-        bh=bxJ8tGCXaqtCch2tzQcZ2uv/t86rYWidShSEfUuHCcM=;
+        s=korg; t=1627912544;
+        bh=tpqwPqZ4e4cMpqo6fbr9lU4eU/UzFrEs1TWJjKcclAE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=do+vMeC9nfl28P21oC6liU5v0X3br9FzWRvz7ThQJS5+CCtuImm6B4Rn8OwrfsNhA
-         8pNWR+UlDc4yWHqXMTYgCqTzGe1U9pwAApzSuv2mQdiU7MtjbN+z33AuP5M2C/jTB0
-         Kaap90lVqnpEr25vTFlZcSdiM6tdYL77MRc2z7XQ=
+        b=EXtSmybiEDNCbZHvk5HG1UZl6pi5OY9+HdMPmjWPu/baoWWW/YlJAicPew79vbAXo
+         BcibTajbmzIJgoQgWR2mieRTZWO8NDR79UNZbY71vLgW/pOH//kRl4abqYN8DXX3FY
+         wTI3cdfwzGZk7lecenH68oklmAFs1aY8PkslbF4c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Stephane Grosjean <s.grosjean@peak-system.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.10 14/67] can: peak_usb: pcan_usb_handle_bus_evt(): fix reading rxerr/txerr values
+        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
+        kernel test robot <lkp@intel.com>,
+        Dongliang Mu <mudongliangabcd@gmail.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 040/104] netfilter: nf_tables: fix audit memory leak in nf_tables_commit
 Date:   Mon,  2 Aug 2021 15:44:37 +0200
-Message-Id: <20210802134339.501924102@linuxfoundation.org>
+Message-Id: <20210802134345.336233969@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134339.023067817@linuxfoundation.org>
-References: <20210802134339.023067817@linuxfoundation.org>
+In-Reply-To: <20210802134344.028226640@linuxfoundation.org>
+References: <20210802134344.028226640@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,52 +42,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephane Grosjean <s.grosjean@peak-system.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-commit 590eb2b7d8cfafb27e8108d52d4bf4850626d31d upstream.
+[ Upstream commit cfbe3650dd3ef2ea9a4420ca89d9a4df98af3fb6 ]
 
-This patch fixes an incorrect way of reading error counters in messages
-received for this purpose from the PCAN-USB interface. These messages
-inform about the increase or decrease of the error counters, whose values
-are placed in bytes 1 and 2 of the message data (not 0 and 1).
+In nf_tables_commit, if nf_tables_commit_audit_alloc fails, it does not
+free the adp variable.
 
-Fixes: ea8b33bde76c ("can: pcan_usb: add support of rxerr/txerr counters")
-Link: https://lore.kernel.org/r/20210625130931.27438-4-s.grosjean@peak-system.com
-Cc: linux-stable <stable@vger.kernel.org>
-Signed-off-by: Stephane Grosjean <s.grosjean@peak-system.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix this by adding nf_tables_commit_audit_free which frees
+the linked list with the head node adl.
+
+backtrace:
+  kmalloc include/linux/slab.h:591 [inline]
+  kzalloc include/linux/slab.h:721 [inline]
+  nf_tables_commit_audit_alloc net/netfilter/nf_tables_api.c:8439 [inline]
+  nf_tables_commit+0x16e/0x1760 net/netfilter/nf_tables_api.c:8508
+  nfnetlink_rcv_batch+0x512/0xa80 net/netfilter/nfnetlink.c:562
+  nfnetlink_rcv_skb_batch net/netfilter/nfnetlink.c:634 [inline]
+  nfnetlink_rcv+0x1fa/0x220 net/netfilter/nfnetlink.c:652
+  netlink_unicast_kernel net/netlink/af_netlink.c:1314 [inline]
+  netlink_unicast+0x2c7/0x3e0 net/netlink/af_netlink.c:1340
+  netlink_sendmsg+0x36b/0x6b0 net/netlink/af_netlink.c:1929
+  sock_sendmsg_nosec net/socket.c:702 [inline]
+  sock_sendmsg+0x56/0x80 net/socket.c:722
+
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Fixes: c520292f29b8 ("audit: log nftables configuration change events once per table")
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/peak_usb/pcan_usb.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ net/netfilter/nf_tables_api.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/drivers/net/can/usb/peak_usb/pcan_usb.c
-+++ b/drivers/net/can/usb/peak_usb/pcan_usb.c
-@@ -117,7 +117,8 @@ MODULE_SUPPORTED_DEVICE("PEAK-System PCA
- #define PCAN_USB_BERR_MASK	(PCAN_USB_ERR_RXERR | PCAN_USB_ERR_TXERR)
+diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
+index a5db7c59ad4e..7512bb819dff 100644
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -8479,6 +8479,16 @@ static int nf_tables_commit_audit_alloc(struct list_head *adl,
+ 	return 0;
+ }
  
- /* identify bus event packets with rx/tx error counters */
--#define PCAN_USB_ERR_CNT		0x80
-+#define PCAN_USB_ERR_CNT_DEC		0x00	/* counters are decreasing */
-+#define PCAN_USB_ERR_CNT_INC		0x80	/* counters are increasing */
- 
- /* private to PCAN-USB adapter */
- struct pcan_usb {
-@@ -611,11 +612,12 @@ static int pcan_usb_handle_bus_evt(struc
- 
- 	/* acccording to the content of the packet */
- 	switch (ir) {
--	case PCAN_USB_ERR_CNT:
-+	case PCAN_USB_ERR_CNT_DEC:
-+	case PCAN_USB_ERR_CNT_INC:
- 
- 		/* save rx/tx error counters from in the device context */
--		pdev->bec.rxerr = mc->ptr[0];
--		pdev->bec.txerr = mc->ptr[1];
-+		pdev->bec.rxerr = mc->ptr[1];
-+		pdev->bec.txerr = mc->ptr[2];
- 		break;
- 
- 	default:
++static void nf_tables_commit_audit_free(struct list_head *adl)
++{
++	struct nft_audit_data *adp, *adn;
++
++	list_for_each_entry_safe(adp, adn, adl, list) {
++		list_del(&adp->list);
++		kfree(adp);
++	}
++}
++
+ static void nf_tables_commit_audit_collect(struct list_head *adl,
+ 					   struct nft_table *table, u32 op)
+ {
+@@ -8543,6 +8553,7 @@ static int nf_tables_commit(struct net *net, struct sk_buff *skb)
+ 		ret = nf_tables_commit_audit_alloc(&adl, trans->ctx.table);
+ 		if (ret) {
+ 			nf_tables_commit_chain_prepare_cancel(net);
++			nf_tables_commit_audit_free(&adl);
+ 			return ret;
+ 		}
+ 		if (trans->msg_type == NFT_MSG_NEWRULE ||
+@@ -8552,6 +8563,7 @@ static int nf_tables_commit(struct net *net, struct sk_buff *skb)
+ 			ret = nf_tables_commit_chain_prepare(net, chain);
+ 			if (ret < 0) {
+ 				nf_tables_commit_chain_prepare_cancel(net);
++				nf_tables_commit_audit_free(&adl);
+ 				return ret;
+ 			}
+ 		}
+-- 
+2.30.2
+
 
 
