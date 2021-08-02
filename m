@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A6EA3DD795
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:46:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 559CD3DD967
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 16:00:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234165AbhHBNq3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:46:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55918 "EHLO mail.kernel.org"
+        id S235777AbhHBOAQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 10:00:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40308 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233981AbhHBNqW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:46:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9EBC160555;
-        Mon,  2 Aug 2021 13:46:11 +0000 (UTC)
+        id S235510AbhHBN5q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:57:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 870676052B;
+        Mon,  2 Aug 2021 13:55:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627911972;
-        bh=onN+AG9ioMbM04VJN/xrnWqij2LxuOIGiSndtJGtRuo=;
+        s=korg; t=1627912505;
+        bh=0m/ZD/FNh0dbpyUtTxkvS9Y3NX1t8VyPhou79lmjI80=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mXqrwsWs2ukx0+zfBYx3tm/qTLK5SCL26U93gu1kQvCIZmBpYeUKajHCJIdkDz6X2
-         RwiXRDvlFoqc33X9tOfL22BZMxL4YrohM6PU7VN0Oh1CR0gl6NrLVs/sKa+ZqQMpeL
-         bu6eSEF8m44PN/z4LEXzaosPT3J4GumvrCbk2zOk=
+        b=AoF0VA/AW3qKcyWN5gu5OwndRhANZMewIBcKjlI8n7zM0f6KO6n0++k0pqP5B44m2
+         3rvnExi/Di68wtU/2SBwnkxM5IeqbPC+QUtIi/skDnkmsHVc4fUEXNpy1lgD/r/Lza
+         X/PCqlfu63F5aQjim/IUt9yccAqLAlIp4Wjr0yH0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miklos Szeredi <mszeredi@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.4 02/26] af_unix: fix garbage collect vs MSG_PEEK
+        stable@vger.kernel.org,
+        Ziyang Xuan <william.xuanziyang@huawei.com>,
+        Oliver Hartkopp <socketcan@hartkopp.net>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.13 015/104] can: raw: raw_setsockopt(): fix raw_rcv panic for sock UAF
 Date:   Mon,  2 Aug 2021 15:44:12 +0200
-Message-Id: <20210802134332.110702961@linuxfoundation.org>
+Message-Id: <20210802134344.517954731@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134332.033552261@linuxfoundation.org>
-References: <20210802134332.033552261@linuxfoundation.org>
+In-Reply-To: <20210802134344.028226640@linuxfoundation.org>
+References: <20210802134344.028226640@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,110 +41,163 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miklos Szeredi <mszeredi@redhat.com>
+From: Ziyang Xuan <william.xuanziyang@huawei.com>
 
-commit cbcf01128d0a92e131bd09f1688fe032480b65ca upstream.
+commit 54f93336d000229f72c26d8a3f69dd256b744528 upstream.
 
-unix_gc() assumes that candidate sockets can never gain an external
-reference (i.e.  be installed into an fd) while the unix_gc_lock is
-held.  Except for MSG_PEEK this is guaranteed by modifying inflight
-count under the unix_gc_lock.
+We get a bug during ltp can_filter test as following.
 
-MSG_PEEK does not touch any variable protected by unix_gc_lock (file
-count is not), yet it needs to be serialized with garbage collection.
-Do this by locking/unlocking unix_gc_lock:
+===========================================
+[60919.264984] BUG: unable to handle kernel NULL pointer dereference at 0000000000000010
+[60919.265223] PGD 8000003dda726067 P4D 8000003dda726067 PUD 3dda727067 PMD 0
+[60919.265443] Oops: 0000 [#1] SMP PTI
+[60919.265550] CPU: 30 PID: 3638365 Comm: can_filter Kdump: loaded Tainted: G        W         4.19.90+ #1
+[60919.266068] RIP: 0010:selinux_socket_sock_rcv_skb+0x3e/0x200
+[60919.293289] RSP: 0018:ffff8d53bfc03cf8 EFLAGS: 00010246
+[60919.307140] RAX: 0000000000000000 RBX: 000000000000001d RCX: 0000000000000007
+[60919.320756] RDX: 0000000000000001 RSI: ffff8d5104a8ed00 RDI: ffff8d53bfc03d30
+[60919.334319] RBP: ffff8d9338056800 R08: ffff8d53bfc29d80 R09: 0000000000000001
+[60919.347969] R10: ffff8d53bfc03ec0 R11: ffffb8526ef47c98 R12: ffff8d53bfc03d30
+[60919.350320] perf: interrupt took too long (3063 > 2500), lowering kernel.perf_event_max_sample_rate to 65000
+[60919.361148] R13: 0000000000000001 R14: ffff8d53bcf90000 R15: 0000000000000000
+[60919.361151] FS:  00007fb78b6b3600(0000) GS:ffff8d53bfc00000(0000) knlGS:0000000000000000
+[60919.400812] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[60919.413730] CR2: 0000000000000010 CR3: 0000003e3f784006 CR4: 00000000007606e0
+[60919.426479] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[60919.439339] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[60919.451608] PKRU: 55555554
+[60919.463622] Call Trace:
+[60919.475617]  <IRQ>
+[60919.487122]  ? update_load_avg+0x89/0x5d0
+[60919.498478]  ? update_load_avg+0x89/0x5d0
+[60919.509822]  ? account_entity_enqueue+0xc5/0xf0
+[60919.520709]  security_sock_rcv_skb+0x2a/0x40
+[60919.531413]  sk_filter_trim_cap+0x47/0x1b0
+[60919.542178]  ? kmem_cache_alloc+0x38/0x1b0
+[60919.552444]  sock_queue_rcv_skb+0x17/0x30
+[60919.562477]  raw_rcv+0x110/0x190 [can_raw]
+[60919.572539]  can_rcv_filter+0xbc/0x1b0 [can]
+[60919.582173]  can_receive+0x6b/0xb0 [can]
+[60919.591595]  can_rcv+0x31/0x70 [can]
+[60919.600783]  __netif_receive_skb_one_core+0x5a/0x80
+[60919.609864]  process_backlog+0x9b/0x150
+[60919.618691]  net_rx_action+0x156/0x400
+[60919.627310]  ? sched_clock_cpu+0xc/0xa0
+[60919.635714]  __do_softirq+0xe8/0x2e9
+[60919.644161]  do_softirq_own_stack+0x2a/0x40
+[60919.652154]  </IRQ>
+[60919.659899]  do_softirq.part.17+0x4f/0x60
+[60919.667475]  __local_bh_enable_ip+0x60/0x70
+[60919.675089]  __dev_queue_xmit+0x539/0x920
+[60919.682267]  ? finish_wait+0x80/0x80
+[60919.689218]  ? finish_wait+0x80/0x80
+[60919.695886]  ? sock_alloc_send_pskb+0x211/0x230
+[60919.702395]  ? can_send+0xe5/0x1f0 [can]
+[60919.708882]  can_send+0xe5/0x1f0 [can]
+[60919.715037]  raw_sendmsg+0x16d/0x268 [can_raw]
 
- 1) increment file count
+It's because raw_setsockopt() concurrently with
+unregister_netdevice_many(). Concurrent scenario as following.
 
- 2) lock/unlock barrier to make sure incremented file count is visible
-    to garbage collection
+	cpu0						cpu1
+raw_bind
+raw_setsockopt					unregister_netdevice_many
+						unlist_netdevice
+dev_get_by_index				raw_notifier
+raw_enable_filters				......
+can_rx_register
+can_rcv_list_find(..., net->can.rx_alldev_list)
 
- 3) install file into fd
+......
 
-This is a lock barrier (unlike smp_mb()) that ensures that garbage
-collection is run completely before or completely after the barrier.
+sock_close
+raw_release(sock_a)
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+......
+
+can_receive
+can_rcv_filter(net->can.rx_alldev_list, ...)
+raw_rcv(skb, sock_a)
+BUG
+
+After unlist_netdevice(), dev_get_by_index() return NULL in
+raw_setsockopt(). Function raw_enable_filters() will add sock
+and can_filter to net->can.rx_alldev_list. Then the sock is closed.
+Followed by, we sock_sendmsg() to a new vcan device use the same
+can_filter. Protocol stack match the old receiver whose sock has
+been released on net->can.rx_alldev_list in can_rcv_filter().
+Function raw_rcv() uses the freed sock. UAF BUG is triggered.
+
+We can find that the key issue is that net_device has not been
+protected in raw_setsockopt(). Use rtnl_lock to protect net_device
+in raw_setsockopt().
+
+Fixes: c18ce101f2e4 ("[CAN]: Add raw protocol")
+Link: https://lore.kernel.org/r/20210722070819.1048263-1-william.xuanziyang@huawei.com
+Cc: linux-stable <stable@vger.kernel.org>
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/unix/af_unix.c |   51 +++++++++++++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 49 insertions(+), 2 deletions(-)
+ net/can/raw.c |   20 ++++++++++++++++++--
+ 1 file changed, 18 insertions(+), 2 deletions(-)
 
---- a/net/unix/af_unix.c
-+++ b/net/unix/af_unix.c
-@@ -1506,6 +1506,53 @@ out:
- 	return err;
- }
+--- a/net/can/raw.c
++++ b/net/can/raw.c
+@@ -546,10 +546,18 @@ static int raw_setsockopt(struct socket
+ 				return -EFAULT;
+ 		}
  
-+static void unix_peek_fds(struct scm_cookie *scm, struct sk_buff *skb)
-+{
-+	scm->fp = scm_fp_dup(UNIXCB(skb).fp);
-+
-+	/*
-+	 * Garbage collection of unix sockets starts by selecting a set of
-+	 * candidate sockets which have reference only from being in flight
-+	 * (total_refs == inflight_refs).  This condition is checked once during
-+	 * the candidate collection phase, and candidates are marked as such, so
-+	 * that non-candidates can later be ignored.  While inflight_refs is
-+	 * protected by unix_gc_lock, total_refs (file count) is not, hence this
-+	 * is an instantaneous decision.
-+	 *
-+	 * Once a candidate, however, the socket must not be reinstalled into a
-+	 * file descriptor while the garbage collection is in progress.
-+	 *
-+	 * If the above conditions are met, then the directed graph of
-+	 * candidates (*) does not change while unix_gc_lock is held.
-+	 *
-+	 * Any operations that changes the file count through file descriptors
-+	 * (dup, close, sendmsg) does not change the graph since candidates are
-+	 * not installed in fds.
-+	 *
-+	 * Dequeing a candidate via recvmsg would install it into an fd, but
-+	 * that takes unix_gc_lock to decrement the inflight count, so it's
-+	 * serialized with garbage collection.
-+	 *
-+	 * MSG_PEEK is special in that it does not change the inflight count,
-+	 * yet does install the socket into an fd.  The following lock/unlock
-+	 * pair is to ensure serialization with garbage collection.  It must be
-+	 * done between incrementing the file count and installing the file into
-+	 * an fd.
-+	 *
-+	 * If garbage collection starts after the barrier provided by the
-+	 * lock/unlock, then it will see the elevated refcount and not mark this
-+	 * as a candidate.  If a garbage collection is already in progress
-+	 * before the file count was incremented, then the lock/unlock pair will
-+	 * ensure that garbage collection is finished before progressing to
-+	 * installing the fd.
-+	 *
-+	 * (*) A -> B where B is on the queue of A or B is on the queue of C
-+	 * which is on the queue of listening socket A.
-+	 */
-+	spin_lock(&unix_gc_lock);
-+	spin_unlock(&unix_gc_lock);
-+}
-+
- static int unix_scm_to_skb(struct scm_cookie *scm, struct sk_buff *skb, bool send_fds)
- {
- 	int err = 0;
-@@ -2131,7 +2178,7 @@ static int unix_dgram_recvmsg(struct soc
- 		sk_peek_offset_fwd(sk, size);
++		rtnl_lock();
+ 		lock_sock(sk);
  
- 		if (UNIXCB(skb).fp)
--			scm.fp = scm_fp_dup(UNIXCB(skb).fp);
-+			unix_peek_fds(&scm, skb);
- 	}
- 	err = (flags & MSG_TRUNC) ? skb->len - skip : size;
+-		if (ro->bound && ro->ifindex)
++		if (ro->bound && ro->ifindex) {
+ 			dev = dev_get_by_index(sock_net(sk), ro->ifindex);
++			if (!dev) {
++				if (count > 1)
++					kfree(filter);
++				err = -ENODEV;
++				goto out_fil;
++			}
++		}
  
-@@ -2376,7 +2423,7 @@ unlock:
- 			/* It is questionable, see note in unix_dgram_recvmsg.
- 			 */
- 			if (UNIXCB(skb).fp)
--				scm.fp = scm_fp_dup(UNIXCB(skb).fp);
-+				unix_peek_fds(&scm, skb);
+ 		if (ro->bound) {
+ 			/* (try to) register the new filters */
+@@ -588,6 +596,7 @@ static int raw_setsockopt(struct socket
+ 			dev_put(dev);
  
- 			sk_peek_offset_fwd(sk, chunk);
+ 		release_sock(sk);
++		rtnl_unlock();
+ 
+ 		break;
+ 
+@@ -600,10 +609,16 @@ static int raw_setsockopt(struct socket
+ 
+ 		err_mask &= CAN_ERR_MASK;
+ 
++		rtnl_lock();
+ 		lock_sock(sk);
+ 
+-		if (ro->bound && ro->ifindex)
++		if (ro->bound && ro->ifindex) {
+ 			dev = dev_get_by_index(sock_net(sk), ro->ifindex);
++			if (!dev) {
++				err = -ENODEV;
++				goto out_err;
++			}
++		}
+ 
+ 		/* remove current error mask */
+ 		if (ro->bound) {
+@@ -627,6 +642,7 @@ static int raw_setsockopt(struct socket
+ 			dev_put(dev);
+ 
+ 		release_sock(sk);
++		rtnl_unlock();
+ 
+ 		break;
  
 
 
