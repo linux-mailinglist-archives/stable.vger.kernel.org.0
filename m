@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DDA23DD8D9
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:56:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B3F03DD842
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:50:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234804AbhHBNzl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:55:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33052 "EHLO mail.kernel.org"
+        id S235037AbhHBNuz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:50:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235882AbhHBNyc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:54:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C6A7260527;
-        Mon,  2 Aug 2021 13:52:57 +0000 (UTC)
+        id S234252AbhHBNt6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:49:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 89B3260FC1;
+        Mon,  2 Aug 2021 13:49:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912378;
-        bh=zT1pm3HVlnomMr6unaHZszA+IgMFL0pf5w5LxSQZrJI=;
+        s=korg; t=1627912189;
+        bh=rXt75TT93Gi13l+g61fRJcFN/y6faas4MtIgp971LKk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oqesMmLn2SXecAkFXtPD0LxeYW1leGu1zQ5ygWLxsJJ+LVY5Efhfef3ZWQF0qZdDK
-         bv589CuOTqZdqzmW/TExZp7RiVLykqlrgOJOnihWhHpyZ546yemdE4VLyzKE96WkWx
-         hbYgw+kXPmzBp8TvwV+kUUx0l6yKYcvqj11LeBtE=
+        b=NrNONEEkSs/Hfdzd0AdEKIeY+Pu/VZ005UWF6PYLBc6ML1Vv8fsCo2uPfzQudgMTq
+         mkVmhOQIQ9y+c+zivEgAx6946l2dNBLi1DNUMNU/TUlvWfLidl2lG36yw0eZxWb9DL
+         STi1wIfNihtvJBO29Hae9e5QdkiRtx5Y4cVeCqmY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -29,12 +29,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Tony Brelinski <tonyx.brelinski@intel.com>,
         Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 33/67] i40e: Fix logic of disabling queues
+Subject: [PATCH 4.19 18/30] i40e: Fix logic of disabling queues
 Date:   Mon,  2 Aug 2021 15:44:56 +0200
-Message-Id: <20210802134340.152228134@linuxfoundation.org>
+Message-Id: <20210802134334.651692684@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134339.023067817@linuxfoundation.org>
-References: <20210802134339.023067817@linuxfoundation.org>
+In-Reply-To: <20210802134334.081433902@linuxfoundation.org>
+References: <20210802134334.081433902@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -66,10 +66,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 34 insertions(+), 24 deletions(-)
 
 diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
-index 52e31f712a54..112a18dd13c4 100644
+index 1b101b526ed3..a35445ea7064 100644
 --- a/drivers/net/ethernet/intel/i40e/i40e_main.c
 +++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -4425,11 +4425,10 @@ int i40e_control_wait_tx_q(int seid, struct i40e_pf *pf, int pf_q,
+@@ -4310,11 +4310,10 @@ int i40e_control_wait_tx_q(int seid, struct i40e_pf *pf, int pf_q,
  }
  
  /**
@@ -83,7 +83,7 @@ index 52e31f712a54..112a18dd13c4 100644
  {
  	struct i40e_pf *pf = vsi->back;
  	int i, pf_q, ret = 0;
-@@ -4438,7 +4437,7 @@ static int i40e_vsi_control_tx(struct i40e_vsi *vsi, bool enable)
+@@ -4323,7 +4322,7 @@ static int i40e_vsi_control_tx(struct i40e_vsi *vsi, bool enable)
  	for (i = 0; i < vsi->num_queue_pairs; i++, pf_q++) {
  		ret = i40e_control_wait_tx_q(vsi->seid, pf,
  					     pf_q,
@@ -92,7 +92,7 @@ index 52e31f712a54..112a18dd13c4 100644
  		if (ret)
  			break;
  
-@@ -4447,7 +4446,7 @@ static int i40e_vsi_control_tx(struct i40e_vsi *vsi, bool enable)
+@@ -4332,7 +4331,7 @@ static int i40e_vsi_control_tx(struct i40e_vsi *vsi, bool enable)
  
  		ret = i40e_control_wait_tx_q(vsi->seid, pf,
  					     pf_q + vsi->alloc_queue_pairs,
@@ -101,7 +101,7 @@ index 52e31f712a54..112a18dd13c4 100644
  		if (ret)
  			break;
  	}
-@@ -4545,32 +4544,25 @@ int i40e_control_wait_rx_q(struct i40e_pf *pf, int pf_q, bool enable)
+@@ -4430,32 +4429,25 @@ int i40e_control_wait_rx_q(struct i40e_pf *pf, int pf_q, bool enable)
  }
  
  /**
@@ -139,7 +139,7 @@ index 52e31f712a54..112a18dd13c4 100644
  	return ret;
  }
  
-@@ -4583,29 +4575,47 @@ int i40e_vsi_start_rings(struct i40e_vsi *vsi)
+@@ -4468,29 +4460,47 @@ int i40e_vsi_start_rings(struct i40e_vsi *vsi)
  	int ret = 0;
  
  	/* do rx first for enable and last for disable */
