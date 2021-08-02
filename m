@@ -2,40 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B3523DD9B4
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 16:03:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 221463DD850
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:51:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234833AbhHBODK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 10:03:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48776 "EHLO mail.kernel.org"
+        id S235063AbhHBNvU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:51:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34094 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235762AbhHBOBI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 10:01:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 39574611C8;
-        Mon,  2 Aug 2021 13:56:23 +0000 (UTC)
+        id S234844AbhHBNuU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:50:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F646610CC;
+        Mon,  2 Aug 2021 13:50:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912583;
-        bh=jmRWFUcfC8KhEV3vhVBmVTECd1YL6QmemgNy4kThsaM=;
+        s=korg; t=1627912210;
+        bh=PTKHef7/1KwNBx3M/xRqz3zbDFV1TQC+jLV4zizl9T8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l+aLlSOeK4mV/4uF2XstwjxbDtX67376u521dsrz3psBXjJ+ug9DS8ic8BarsI97v
-         NxkhnIXZtsEBUL3dC7wttdkP0ifWqkY19RrgY2+HcPNyEoKlAbpSTlLywvn+gDKHLF
-         Y3dnNal+R0djzotxofS+xejcgA0bbF1PuDhDxMfQ=
+        b=QqMbRMIUwWkEovmRL8NY8HWisfIeJMkWMsyiyR1JdKP0MOP1axKSFV9NNo61aPb0L
+         zDMlzcSLpCAyklR0KGLDbMcyJ6TUE8g8v8VSOoXkFRj/UuFfHHctYktN/6tGgKtLhy
+         vIaQMMLiecpbi7aq9Z3T2VDzZAVJeTNeMg5RYQ5U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
-        Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>,
-        David Ahern <dsahern@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
-        Gilad Naaman <gnaaman@drivenets.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 051/104] net: Set true network header for ECN decapsulation
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 4.19 10/30] can: usb_8dev: fix memory leak
 Date:   Mon,  2 Aug 2021 15:44:48 +0200
-Message-Id: <20210802134345.703691865@linuxfoundation.org>
+Message-Id: <20210802134334.409098788@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134344.028226640@linuxfoundation.org>
-References: <20210802134344.028226640@linuxfoundation.org>
+In-Reply-To: <20210802134334.081433902@linuxfoundation.org>
+References: <20210802134334.081433902@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,94 +39,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gilad Naaman <gnaaman@drivenets.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 227adfb2b1dfbc53dfc53b9dd7a93a6298ff7c56 ]
+commit 0e865f0c31928d6a313269ef624907eec55287c4 upstream.
 
-In cases where the header straight after the tunnel header was
-another ethernet header (TEB), instead of the network header,
-the ECN decapsulation code would treat the ethernet header as if
-it was an IP header, resulting in mishandling and possible
-wrong drops or corruption of the IP header.
+In usb_8dev_start() MAX_RX_URBS coherent buffers are allocated and
+there is nothing, that frees them:
 
-In this case, ECT(1) is sent, so IP_ECN_decapsulate tries to copy it to the
-inner IPv4 header, and correct its checksum.
+1) In callback function the urb is resubmitted and that's all
+2) In disconnect function urbs are simply killed, but URB_FREE_BUFFER
+   is not set (see usb_8dev_start) and this flag cannot be used with
+   coherent buffers.
 
-The offset of the ECT bits in an IPv4 header corresponds to the
-lower 2 bits of the second octet of the destination MAC address
-in the ethernet header.
-The IPv4 checksum corresponds to end of the source address.
+So, all allocated buffers should be freed with usb_free_coherent()
+explicitly.
 
-In order to reproduce:
+Side note: This code looks like a copy-paste of other can drivers. The
+same patch was applied to mcba_usb driver and it works nice with real
+hardware. There is no change in functionality, only clean-up code for
+coherent buffers.
 
-    $ ip netns add A
-    $ ip netns add B
-    $ ip -n A link add _v0 type veth peer name _v1 netns B
-    $ ip -n A link set _v0 up
-    $ ip -n A addr add dev _v0 10.254.3.1/24
-    $ ip -n A route add default dev _v0 scope global
-    $ ip -n B link set _v1 up
-    $ ip -n B addr add dev _v1 10.254.1.6/24
-    $ ip -n B route add default dev _v1 scope global
-    $ ip -n B link add gre1 type gretap local 10.254.1.6 remote 10.254.3.1 key 0x49000000
-    $ ip -n B link set gre1 up
-
-    # Now send an IPv4/GRE/Eth/IPv4 frame where the outer header has ECT(1),
-    # and the inner header has no ECT bits set:
-
-    $ cat send_pkt.py
-        #!/usr/bin/env python3
-        from scapy.all import *
-
-        pkt = IP(b'E\x01\x00\xa7\x00\x00\x00\x00@/`%\n\xfe\x03\x01\n\xfe\x01\x06 \x00eXI\x00'
-                 b'\x00\x00\x18\xbe\x92\xa0\xee&\x18\xb0\x92\xa0l&\x08\x00E\x00\x00}\x8b\x85'
-                 b'@\x00\x01\x01\xe4\xf2\x82\x82\x82\x01\x82\x82\x82\x02\x08\x00d\x11\xa6\xeb'
-                 b'3\x1e\x1e\\xf3\\xf7`\x00\x00\x00\x00ZN\x00\x00\x00\x00\x00\x00\x10\x11\x12'
-                 b'\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f !"#$%&\'()*+,-./01234'
-                 b'56789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ')
-
-        send(pkt)
-    $ sudo ip netns exec B tcpdump -neqlllvi gre1 icmp & ; sleep 1
-    $ sudo ip netns exec A python3 send_pkt.py
-
-In the original packet, the source/destinatio MAC addresses are
-dst=18:be:92:a0:ee:26 src=18:b0:92:a0:6c:26
-
-In the received packet, they are
-dst=18:bd:92:a0:ee:26 src=18:b0:92:a0:6c:27
-
-Thanks to Lahav Schlesinger <lschlesinger@drivenets.com> and Isaac Garzon <isaac@speed.io>
-for helping me pinpoint the origin.
-
-Fixes: b723748750ec ("tunnel: Propagate ECT(1) when decapsulating as recommended by RFC6040")
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>
-Cc: David Ahern <dsahern@kernel.org>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Toke Høiland-Jørgensen <toke@redhat.com>
-Signed-off-by: Gilad Naaman <gnaaman@drivenets.com>
-Acked-by: Toke Høiland-Jørgensen <toke@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 0024d8ad1639 ("can: usb_8dev: Add support for USB2CAN interface from 8 devices")
+Link: https://lore.kernel.org/r/d39b458cd425a1cf7f512f340224e6e9563b07bd.1627404470.git.paskripkin@gmail.com
+Cc: linux-stable <stable@vger.kernel.org>
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/ip_tunnel.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/can/usb/usb_8dev.c |   15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
 
-diff --git a/net/ipv4/ip_tunnel.c b/net/ipv4/ip_tunnel.c
-index 0dca00745ac3..be75b409445c 100644
---- a/net/ipv4/ip_tunnel.c
-+++ b/net/ipv4/ip_tunnel.c
-@@ -390,7 +390,7 @@ int ip_tunnel_rcv(struct ip_tunnel *tunnel, struct sk_buff *skb,
- 		tunnel->i_seqno = ntohl(tpi->seq) + 1;
+--- a/drivers/net/can/usb/usb_8dev.c
++++ b/drivers/net/can/usb/usb_8dev.c
+@@ -148,7 +148,8 @@ struct usb_8dev_priv {
+ 	u8 *cmd_msg_buffer;
+ 
+ 	struct mutex usb_8dev_cmd_lock;
+-
++	void *rxbuf[MAX_RX_URBS];
++	dma_addr_t rxbuf_dma[MAX_RX_URBS];
+ };
+ 
+ /* tx frame */
+@@ -744,6 +745,7 @@ static int usb_8dev_start(struct usb_8de
+ 	for (i = 0; i < MAX_RX_URBS; i++) {
+ 		struct urb *urb = NULL;
+ 		u8 *buf;
++		dma_addr_t buf_dma;
+ 
+ 		/* create a URB, and a buffer for it */
+ 		urb = usb_alloc_urb(0, GFP_KERNEL);
+@@ -753,7 +755,7 @@ static int usb_8dev_start(struct usb_8de
+ 		}
+ 
+ 		buf = usb_alloc_coherent(priv->udev, RX_BUFFER_SIZE, GFP_KERNEL,
+-					 &urb->transfer_dma);
++					 &buf_dma);
+ 		if (!buf) {
+ 			netdev_err(netdev, "No memory left for USB buffer\n");
+ 			usb_free_urb(urb);
+@@ -761,6 +763,8 @@ static int usb_8dev_start(struct usb_8de
+ 			break;
+ 		}
+ 
++		urb->transfer_dma = buf_dma;
++
+ 		usb_fill_bulk_urb(urb, priv->udev,
+ 				  usb_rcvbulkpipe(priv->udev,
+ 						  USB_8DEV_ENDP_DATA_RX),
+@@ -778,6 +782,9 @@ static int usb_8dev_start(struct usb_8de
+ 			break;
+ 		}
+ 
++		priv->rxbuf[i] = buf;
++		priv->rxbuf_dma[i] = buf_dma;
++
+ 		/* Drop reference, USB core will take care of freeing it */
+ 		usb_free_urb(urb);
  	}
+@@ -847,6 +854,10 @@ static void unlink_all_urbs(struct usb_8
  
--	skb_reset_network_header(skb);
-+	skb_set_network_header(skb, (tunnel->dev->type == ARPHRD_ETHER) ? ETH_HLEN : 0);
+ 	usb_kill_anchored_urbs(&priv->rx_submitted);
  
- 	err = IP_ECN_decapsulate(iph, skb);
- 	if (unlikely(err)) {
--- 
-2.30.2
-
++	for (i = 0; i < MAX_RX_URBS; ++i)
++		usb_free_coherent(priv->udev, RX_BUFFER_SIZE,
++				  priv->rxbuf[i], priv->rxbuf_dma[i]);
++
+ 	usb_kill_anchored_urbs(&priv->tx_submitted);
+ 	atomic_set(&priv->active_tx_urbs, 0);
+ 
 
 
