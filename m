@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C9C343DD7D9
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:48:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2AEB3DD813
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:49:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234240AbhHBNsV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:48:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58240 "EHLO mail.kernel.org"
+        id S233985AbhHBNtj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:49:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234184AbhHBNsD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:48:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 20E86610CC;
-        Mon,  2 Aug 2021 13:47:53 +0000 (UTC)
+        id S234789AbhHBNtR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:49:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 75F1B60EBB;
+        Mon,  2 Aug 2021 13:49:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912073;
-        bh=v1qiqfhFMO1GSTZsyfLloq/DE5Y82veJh03AVlehs40=;
+        s=korg; t=1627912147;
+        bh=XwBRdNzQ8bhr3FxMYdiLgpab1x5S1ZUiuwwhtvHt4Ks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SaYUoITGtrTwmYG5adbaA2fO07yNo5Q6KBM2tN1qzecAI/OVG0ZUiPn9+sCTWg9CF
-         XCysuOLklkieJCUGNmMKL4roBam6/zRjwM8BfOvaEzclU4OiJQGO39aR7U/0Kn2rtz
-         MOxuyvavmerAZ65C91386vE3vvNGMBGyrjc2vIAI=
+        b=LpxlUDrgxdl7D/qtEkxRGJqkc6C5XWjw2CI4/EiVt9yiONh6kNdq/r0rsCn2uZ3le
+         uoopBk3vN/HHeLa7QsmP8txa8MYDGQCpdr/X4KM7MyNtCIFu9ATUpaLlq7wLveFAxg
+         wSnfuwTYQnWAdLGsAAscxOnAxMJ5puEPlrLBzNuY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
-        syzbot+b718ec84a87b7e73ade4@syzkaller.appspotmail.com,
-        Viacheslav Dubeyko <slava@dubeyko.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        =?UTF-8?q?S=C3=A9rgio?= <surkamp@gmail.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 11/32] hfs: add lock nesting notation to hfs_find_init
+Subject: [PATCH 4.14 09/38] sctp: move 198 addresses from unusable to private scope
 Date:   Mon,  2 Aug 2021 15:44:31 +0200
-Message-Id: <20210802134333.284790750@linuxfoundation.org>
+Message-Id: <20210802134335.132297405@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134332.931915241@linuxfoundation.org>
-References: <20210802134332.931915241@linuxfoundation.org>
+In-Reply-To: <20210802134334.835358048@linuxfoundation.org>
+References: <20210802134334.835358048@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,88 +43,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit b3b2177a2d795e35dc11597b2609eb1e7e57e570 ]
+[ Upstream commit 1d11fa231cabeae09a95cb3e4cf1d9dd34e00f08 ]
 
-Syzbot reports a possible recursive lock in [1].
+The doc draft-stewart-tsvwg-sctp-ipv4-00 that restricts 198 addresses
+was never published. These addresses as private addresses should be
+allowed to use in SCTP.
 
-This happens due to missing lock nesting information.  From the logs, we
-see that a call to hfs_fill_super is made to mount the hfs filesystem.
-While searching for the root inode, the lock on the catalog btree is
-grabbed.  Then, when the parent of the root isn't found, a call to
-__hfs_bnode_create is made to create the parent of the root.  This
-eventually leads to a call to hfs_ext_read_extent which grabs a lock on
-the extents btree.
+As Michael Tuexen suggested, this patch is to move 198 addresses from
+unusable to private scope.
 
-Since the order of locking is catalog btree -> extents btree, this lock
-hierarchy does not lead to a deadlock.
-
-To tell lockdep that this locking is safe, we add nesting notation to
-distinguish between catalog btrees, extents btrees, and attributes
-btrees (for HFS+).  This has already been done in hfsplus.
-
-Link: https://syzkaller.appspot.com/bug?id=f007ef1d7a31a469e3be7aeb0fde0769b18585db [1]
-Link: https://lkml.kernel.org/r/20210701030756.58760-4-desmondcheongzx@gmail.com
-Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
-Reported-by: syzbot+b718ec84a87b7e73ade4@syzkaller.appspotmail.com
-Tested-by: syzbot+b718ec84a87b7e73ade4@syzkaller.appspotmail.com
-Reviewed-by: Viacheslav Dubeyko <slava@dubeyko.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Gustavo A. R. Silva <gustavoars@kernel.org>
-Cc: Shuah Khan <skhan@linuxfoundation.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reported-by: Sérgio <surkamp@gmail.com>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/hfs/bfind.c | 14 +++++++++++++-
- fs/hfs/btree.h |  7 +++++++
- 2 files changed, 20 insertions(+), 1 deletion(-)
+ include/net/sctp/constants.h | 4 +---
+ net/sctp/protocol.c          | 3 ++-
+ 2 files changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/fs/hfs/bfind.c b/fs/hfs/bfind.c
-index de69d8a24f6d..7f2ef95dcd05 100644
---- a/fs/hfs/bfind.c
-+++ b/fs/hfs/bfind.c
-@@ -24,7 +24,19 @@ int hfs_find_init(struct hfs_btree *tree, struct hfs_find_data *fd)
- 	fd->key = ptr + tree->max_key_len + 2;
- 	hfs_dbg(BNODE_REFS, "find_init: %d (%p)\n",
- 		tree->cnid, __builtin_return_address(0));
--	mutex_lock(&tree->tree_lock);
-+	switch (tree->cnid) {
-+	case HFS_CAT_CNID:
-+		mutex_lock_nested(&tree->tree_lock, CATALOG_BTREE_MUTEX);
-+		break;
-+	case HFS_EXT_CNID:
-+		mutex_lock_nested(&tree->tree_lock, EXTENTS_BTREE_MUTEX);
-+		break;
-+	case HFS_ATTR_CNID:
-+		mutex_lock_nested(&tree->tree_lock, ATTR_BTREE_MUTEX);
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
- 	return 0;
- }
+diff --git a/include/net/sctp/constants.h b/include/net/sctp/constants.h
+index d4da07048aa3..cbf96458ce22 100644
+--- a/include/net/sctp/constants.h
++++ b/include/net/sctp/constants.h
+@@ -348,8 +348,7 @@ enum {
+ #define SCTP_SCOPE_POLICY_MAX	SCTP_SCOPE_POLICY_LINK
  
-diff --git a/fs/hfs/btree.h b/fs/hfs/btree.h
-index 2715f416b5a8..308b5f1af65b 100644
---- a/fs/hfs/btree.h
-+++ b/fs/hfs/btree.h
-@@ -12,6 +12,13 @@ typedef int (*btree_keycmp)(const btree_key *, const btree_key *);
+ /* Based on IPv4 scoping <draft-stewart-tsvwg-sctp-ipv4-00.txt>,
+- * SCTP IPv4 unusable addresses: 0.0.0.0/8, 224.0.0.0/4, 198.18.0.0/24,
+- * 192.88.99.0/24.
++ * SCTP IPv4 unusable addresses: 0.0.0.0/8, 224.0.0.0/4, 192.88.99.0/24.
+  * Also, RFC 8.4, non-unicast addresses are not considered valid SCTP
+  * addresses.
+  */
+@@ -357,7 +356,6 @@ enum {
+ 	((htonl(INADDR_BROADCAST) == a) ||  \
+ 	 ipv4_is_multicast(a) ||	    \
+ 	 ipv4_is_zeronet(a) ||		    \
+-	 ipv4_is_test_198(a) ||		    \
+ 	 ipv4_is_anycast_6to4(a))
  
- #define NODE_HASH_SIZE  256
- 
-+/* B-tree mutex nested subclasses */
-+enum hfs_btree_mutex_classes {
-+	CATALOG_BTREE_MUTEX,
-+	EXTENTS_BTREE_MUTEX,
-+	ATTR_BTREE_MUTEX,
-+};
-+
- /* A HFS BTree held in memory */
- struct hfs_btree {
- 	struct super_block *sb;
+ /* Flags used for the bind address copy functions.  */
+diff --git a/net/sctp/protocol.c b/net/sctp/protocol.c
+index d5cf05efddfd..868b97607601 100644
+--- a/net/sctp/protocol.c
++++ b/net/sctp/protocol.c
+@@ -423,7 +423,8 @@ static enum sctp_scope sctp_v4_scope(union sctp_addr *addr)
+ 		retval = SCTP_SCOPE_LINK;
+ 	} else if (ipv4_is_private_10(addr->v4.sin_addr.s_addr) ||
+ 		   ipv4_is_private_172(addr->v4.sin_addr.s_addr) ||
+-		   ipv4_is_private_192(addr->v4.sin_addr.s_addr)) {
++		   ipv4_is_private_192(addr->v4.sin_addr.s_addr) ||
++		   ipv4_is_test_198(addr->v4.sin_addr.s_addr)) {
+ 		retval = SCTP_SCOPE_PRIVATE;
+ 	} else {
+ 		retval = SCTP_SCOPE_GLOBAL;
 -- 
 2.30.2
 
