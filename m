@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BBC473DD8D6
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:56:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 851823DD835
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:50:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235429AbhHBNzj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:55:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33684 "EHLO mail.kernel.org"
+        id S234890AbhHBNuZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:50:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60514 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235827AbhHBNy3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:54:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 19FDC611C8;
-        Mon,  2 Aug 2021 13:52:48 +0000 (UTC)
+        id S234371AbhHBNtt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:49:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D636260527;
+        Mon,  2 Aug 2021 13:49:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912369;
-        bh=kE9Bk9DFA1RgdtiMAimfsy3v2qOuPct73DWDjzSZdYw=;
+        s=korg; t=1627912180;
+        bh=cuT1ovZiZklR2yQqdQN3LsYBKEjN1BFIptv5ws/+e7Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S8AmlCSnRZgtWZOb+zsRWFBL5NGlmAWD/5g4YKyj0JeBHxB6xD8Yc81+YNfv4r4zN
-         96XNqsO/6mc4kdNoi3NkqS+rzCS+3ytoTX2fPWoEKclDX8GIZWPVNWaDFukFDfyAH5
-         bNZcSg/PShwIadXxM+UYqG/FfJu3RLYJkYben1cI=
+        b=fgxRA5FY/Y3BnroNCJSAs/SkYqNHKZIYAqQ9ZDyp95lCEnFzgzFfsqscwEWwrNxB7
+         uQtHGTUMb2hI6xZuJFudbn8u9UgicEkyvtejL+zO7QuL1GbxdNw2gu/C0udeE1odWM
+         8Z9sb74z43RyLNqHHkvo3keoW4ZsIcpf+huBRMhU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        Shannon Nelson <shannon.lee.nelson@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Paul Jakma <paul@jakma.org>
-Subject: [PATCH 5.10 21/67] NIU: fix incorrect error return, missed in previous revert
+        stable@vger.kernel.org, Junxiao Bi <junxiao.bi@oracle.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Jun Piao <piaojun@huawei.com>, Mark Fasheh <mark@fasheh.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 06/30] ocfs2: fix zero out valid data
 Date:   Mon,  2 Aug 2021 15:44:44 +0200
-Message-Id: <20210802134339.740742388@linuxfoundation.org>
+Message-Id: <20210802134334.281588173@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134339.023067817@linuxfoundation.org>
-References: <20210802134339.023067817@linuxfoundation.org>
+In-Reply-To: <20210802134334.081433902@linuxfoundation.org>
+References: <20210802134334.081433902@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Jakma <paul@jakma.org>
+From: Junxiao Bi <junxiao.bi@oracle.com>
 
-commit 15bbf8bb4d4ab87108ecf5f4155ec8ffa3c141d6 upstream.
+commit f267aeb6dea5e468793e5b8eb6a9c72c0020d418 upstream.
 
-Commit 7930742d6, reverting 26fd962, missed out on reverting an incorrect
-change to a return value.  The niu_pci_vpd_scan_props(..) == 1 case appears
-to be a normal path - treating it as an error and return -EINVAL was
-breaking VPD_SCAN and causing the driver to fail to load.
+If append-dio feature is enabled, direct-io write and fallocate could
+run in parallel to extend file size, fallocate used "orig_isize" to
+record i_size before taking "ip_alloc_sem", when
+ocfs2_zeroout_partial_cluster() zeroout EOF blocks, i_size maybe already
+extended by ocfs2_dio_end_io_write(), that will cause valid data zeroed
+out.
 
-Fix, so my Neptune card works again.
-
-Cc: Kangjie Lu <kjlu@umn.edu>
-Cc: Shannon Nelson <shannon.lee.nelson@gmail.com>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: stable <stable@vger.kernel.org>
-Fixes: 7930742d ('Revert "niu: fix missing checks of niu_pci_eeprom_read"')
-Signed-off-by: Paul Jakma <paul@jakma.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lkml.kernel.org/r/20210722054923.24389-1-junxiao.bi@oracle.com
+Fixes: 6bba4471f0cc ("ocfs2: fix data corruption by fallocate")
+Signed-off-by: Junxiao Bi <junxiao.bi@oracle.com>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Jun Piao <piaojun@huawei.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/sun/niu.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/ocfs2/file.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/sun/niu.c
-+++ b/drivers/net/ethernet/sun/niu.c
-@@ -8191,8 +8191,9 @@ static int niu_pci_vpd_fetch(struct niu
- 		err = niu_pci_vpd_scan_props(np, here, end);
- 		if (err < 0)
- 			return err;
-+		/* ret == 1 is not an error */
- 		if (err == 1)
--			return -EINVAL;
-+			return 0;
+--- a/fs/ocfs2/file.c
++++ b/fs/ocfs2/file.c
+@@ -1943,7 +1943,6 @@ static int __ocfs2_change_file_space(str
+ 		goto out_inode_unlock;
  	}
- 	return 0;
- }
+ 
+-	orig_isize = i_size_read(inode);
+ 	switch (sr->l_whence) {
+ 	case 0: /*SEEK_SET*/
+ 		break;
+@@ -1951,7 +1950,7 @@ static int __ocfs2_change_file_space(str
+ 		sr->l_start += f_pos;
+ 		break;
+ 	case 2: /*SEEK_END*/
+-		sr->l_start += orig_isize;
++		sr->l_start += i_size_read(inode);
+ 		break;
+ 	default:
+ 		ret = -EINVAL;
+@@ -2006,6 +2005,7 @@ static int __ocfs2_change_file_space(str
+ 		ret = -EINVAL;
+ 	}
+ 
++	orig_isize = i_size_read(inode);
+ 	/* zeroout eof blocks in the cluster. */
+ 	if (!ret && change_size && orig_isize < size) {
+ 		ret = ocfs2_zeroout_partial_cluster(inode, orig_isize,
 
 
