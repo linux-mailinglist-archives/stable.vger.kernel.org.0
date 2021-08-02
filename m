@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D22BB3DD903
-	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:56:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 472943DD883
+	for <lists+stable@lfdr.de>; Mon,  2 Aug 2021 15:52:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234724AbhHBN4i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 09:56:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34294 "EHLO mail.kernel.org"
+        id S235294AbhHBNwz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 09:52:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236089AbhHBNy5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Aug 2021 09:54:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DBA0661108;
-        Mon,  2 Aug 2021 13:53:10 +0000 (UTC)
+        id S235138AbhHBNvf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 09:51:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BA3F261057;
+        Mon,  2 Aug 2021 13:51:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1627912391;
-        bh=jmRWFUcfC8KhEV3vhVBmVTECd1YL6QmemgNy4kThsaM=;
+        s=korg; t=1627912265;
+        bh=Xj2UQhSsly0w3e0BH8lHI/bWR+t2QLzCWTxtI+ebpT0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tN5VazOxOKpRLt0SmtPo3QX89Phsz7NVKXUhPS1snBgIP198PBofipSeC5OzNOxc+
-         G9Ei0pBpqsep2Nu5wrg+0xKihBuhUuM0e3sOXr/2ugclAzOCjbJcoFMwHMsrJAGUc5
-         3ny4VTLmiul071aQRrRxprWUSljFme0MuZaFBvj0=
+        b=SQtReUQ8vRfZRQXGaIU/GaJyG0jdE8AIOGouSjmkeqM+oipsbjLq/GJJBiSAMxXa7
+         xAWQzIasEuM3DU+947jJRSjOoJ/0tLm0XHW3ZSggPnMFDRAmmSS4u1MuDCVIy9jxQr
+         4aVpPKzprTUnXGdwT28wEly1oq0498GVhPd6G8q0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
-        Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>,
-        David Ahern <dsahern@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
-        Gilad Naaman <gnaaman@drivenets.com>,
+        stable@vger.kernel.org,
+        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
+        Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>,
+        Tony Brelinski <tonyx.brelinski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 39/67] net: Set true network header for ECN decapsulation
+Subject: [PATCH 5.4 22/40] i40e: Fix logic of disabling queues
 Date:   Mon,  2 Aug 2021 15:45:02 +0200
-Message-Id: <20210802134340.353155847@linuxfoundation.org>
+Message-Id: <20210802134336.102207599@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210802134339.023067817@linuxfoundation.org>
-References: <20210802134339.023067817@linuxfoundation.org>
+In-Reply-To: <20210802134335.408294521@linuxfoundation.org>
+References: <20210802134335.408294521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,92 +43,157 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gilad Naaman <gnaaman@drivenets.com>
+From: Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>
 
-[ Upstream commit 227adfb2b1dfbc53dfc53b9dd7a93a6298ff7c56 ]
+[ Upstream commit 65662a8dcdd01342b71ee44234bcfd0162e195af ]
 
-In cases where the header straight after the tunnel header was
-another ethernet header (TEB), instead of the network header,
-the ECN decapsulation code would treat the ethernet header as if
-it was an IP header, resulting in mishandling and possible
-wrong drops or corruption of the IP header.
+Correct the message flow between driver and firmware when disabling
+queues.
 
-In this case, ECT(1) is sent, so IP_ECN_decapsulate tries to copy it to the
-inner IPv4 header, and correct its checksum.
+Previously in case of PF reset (due to required reinit after reconfig),
+the error like: "VSI seid 397 Tx ring 60 disable timeout" could show up
+occasionally. The error was not a real issue of hardware or firmware,
+it was caused by wrong sequence of messages invoked by the driver.
 
-The offset of the ECT bits in an IPv4 header corresponds to the
-lower 2 bits of the second octet of the destination MAC address
-in the ethernet header.
-The IPv4 checksum corresponds to end of the source address.
-
-In order to reproduce:
-
-    $ ip netns add A
-    $ ip netns add B
-    $ ip -n A link add _v0 type veth peer name _v1 netns B
-    $ ip -n A link set _v0 up
-    $ ip -n A addr add dev _v0 10.254.3.1/24
-    $ ip -n A route add default dev _v0 scope global
-    $ ip -n B link set _v1 up
-    $ ip -n B addr add dev _v1 10.254.1.6/24
-    $ ip -n B route add default dev _v1 scope global
-    $ ip -n B link add gre1 type gretap local 10.254.1.6 remote 10.254.3.1 key 0x49000000
-    $ ip -n B link set gre1 up
-
-    # Now send an IPv4/GRE/Eth/IPv4 frame where the outer header has ECT(1),
-    # and the inner header has no ECT bits set:
-
-    $ cat send_pkt.py
-        #!/usr/bin/env python3
-        from scapy.all import *
-
-        pkt = IP(b'E\x01\x00\xa7\x00\x00\x00\x00@/`%\n\xfe\x03\x01\n\xfe\x01\x06 \x00eXI\x00'
-                 b'\x00\x00\x18\xbe\x92\xa0\xee&\x18\xb0\x92\xa0l&\x08\x00E\x00\x00}\x8b\x85'
-                 b'@\x00\x01\x01\xe4\xf2\x82\x82\x82\x01\x82\x82\x82\x02\x08\x00d\x11\xa6\xeb'
-                 b'3\x1e\x1e\\xf3\\xf7`\x00\x00\x00\x00ZN\x00\x00\x00\x00\x00\x00\x10\x11\x12'
-                 b'\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f !"#$%&\'()*+,-./01234'
-                 b'56789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ')
-
-        send(pkt)
-    $ sudo ip netns exec B tcpdump -neqlllvi gre1 icmp & ; sleep 1
-    $ sudo ip netns exec A python3 send_pkt.py
-
-In the original packet, the source/destinatio MAC addresses are
-dst=18:be:92:a0:ee:26 src=18:b0:92:a0:6c:26
-
-In the received packet, they are
-dst=18:bd:92:a0:ee:26 src=18:b0:92:a0:6c:27
-
-Thanks to Lahav Schlesinger <lschlesinger@drivenets.com> and Isaac Garzon <isaac@speed.io>
-for helping me pinpoint the origin.
-
-Fixes: b723748750ec ("tunnel: Propagate ECT(1) when decapsulating as recommended by RFC6040")
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>
-Cc: David Ahern <dsahern@kernel.org>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Toke Høiland-Jørgensen <toke@redhat.com>
-Signed-off-by: Gilad Naaman <gnaaman@drivenets.com>
-Acked-by: Toke Høiland-Jørgensen <toke@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 41c445ff0f48 ("i40e: main driver core")
+Signed-off-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
+Signed-off-by: Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>
+Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/ip_tunnel.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/intel/i40e/i40e_main.c | 58 ++++++++++++---------
+ 1 file changed, 34 insertions(+), 24 deletions(-)
 
-diff --git a/net/ipv4/ip_tunnel.c b/net/ipv4/ip_tunnel.c
-index 0dca00745ac3..be75b409445c 100644
---- a/net/ipv4/ip_tunnel.c
-+++ b/net/ipv4/ip_tunnel.c
-@@ -390,7 +390,7 @@ int ip_tunnel_rcv(struct ip_tunnel *tunnel, struct sk_buff *skb,
- 		tunnel->i_seqno = ntohl(tpi->seq) + 1;
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index 4f4ec1f166ef..3514e36d1487 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -4403,11 +4403,10 @@ int i40e_control_wait_tx_q(int seid, struct i40e_pf *pf, int pf_q,
+ }
+ 
+ /**
+- * i40e_vsi_control_tx - Start or stop a VSI's rings
++ * i40e_vsi_enable_tx - Start a VSI's rings
+  * @vsi: the VSI being configured
+- * @enable: start or stop the rings
+  **/
+-static int i40e_vsi_control_tx(struct i40e_vsi *vsi, bool enable)
++static int i40e_vsi_enable_tx(struct i40e_vsi *vsi)
+ {
+ 	struct i40e_pf *pf = vsi->back;
+ 	int i, pf_q, ret = 0;
+@@ -4416,7 +4415,7 @@ static int i40e_vsi_control_tx(struct i40e_vsi *vsi, bool enable)
+ 	for (i = 0; i < vsi->num_queue_pairs; i++, pf_q++) {
+ 		ret = i40e_control_wait_tx_q(vsi->seid, pf,
+ 					     pf_q,
+-					     false /*is xdp*/, enable);
++					     false /*is xdp*/, true);
+ 		if (ret)
+ 			break;
+ 
+@@ -4425,7 +4424,7 @@ static int i40e_vsi_control_tx(struct i40e_vsi *vsi, bool enable)
+ 
+ 		ret = i40e_control_wait_tx_q(vsi->seid, pf,
+ 					     pf_q + vsi->alloc_queue_pairs,
+-					     true /*is xdp*/, enable);
++					     true /*is xdp*/, true);
+ 		if (ret)
+ 			break;
+ 	}
+@@ -4523,32 +4522,25 @@ int i40e_control_wait_rx_q(struct i40e_pf *pf, int pf_q, bool enable)
+ }
+ 
+ /**
+- * i40e_vsi_control_rx - Start or stop a VSI's rings
++ * i40e_vsi_enable_rx - Start a VSI's rings
+  * @vsi: the VSI being configured
+- * @enable: start or stop the rings
+  **/
+-static int i40e_vsi_control_rx(struct i40e_vsi *vsi, bool enable)
++static int i40e_vsi_enable_rx(struct i40e_vsi *vsi)
+ {
+ 	struct i40e_pf *pf = vsi->back;
+ 	int i, pf_q, ret = 0;
+ 
+ 	pf_q = vsi->base_queue;
+ 	for (i = 0; i < vsi->num_queue_pairs; i++, pf_q++) {
+-		ret = i40e_control_wait_rx_q(pf, pf_q, enable);
++		ret = i40e_control_wait_rx_q(pf, pf_q, true);
+ 		if (ret) {
+ 			dev_info(&pf->pdev->dev,
+-				 "VSI seid %d Rx ring %d %sable timeout\n",
+-				 vsi->seid, pf_q, (enable ? "en" : "dis"));
++				 "VSI seid %d Rx ring %d enable timeout\n",
++				 vsi->seid, pf_q);
+ 			break;
+ 		}
  	}
  
--	skb_reset_network_header(skb);
-+	skb_set_network_header(skb, (tunnel->dev->type == ARPHRD_ETHER) ? ETH_HLEN : 0);
+-	/* Due to HW errata, on Rx disable only, the register can indicate done
+-	 * before it really is. Needs 50ms to be sure
+-	 */
+-	if (!enable)
+-		mdelay(50);
+-
+ 	return ret;
+ }
  
- 	err = IP_ECN_decapsulate(iph, skb);
- 	if (unlikely(err)) {
+@@ -4561,29 +4553,47 @@ int i40e_vsi_start_rings(struct i40e_vsi *vsi)
+ 	int ret = 0;
+ 
+ 	/* do rx first for enable and last for disable */
+-	ret = i40e_vsi_control_rx(vsi, true);
++	ret = i40e_vsi_enable_rx(vsi);
+ 	if (ret)
+ 		return ret;
+-	ret = i40e_vsi_control_tx(vsi, true);
++	ret = i40e_vsi_enable_tx(vsi);
+ 
+ 	return ret;
+ }
+ 
++#define I40E_DISABLE_TX_GAP_MSEC	50
++
+ /**
+  * i40e_vsi_stop_rings - Stop a VSI's rings
+  * @vsi: the VSI being configured
+  **/
+ void i40e_vsi_stop_rings(struct i40e_vsi *vsi)
+ {
++	struct i40e_pf *pf = vsi->back;
++	int pf_q, err, q_end;
++
+ 	/* When port TX is suspended, don't wait */
+ 	if (test_bit(__I40E_PORT_SUSPENDED, vsi->back->state))
+ 		return i40e_vsi_stop_rings_no_wait(vsi);
+ 
+-	/* do rx first for enable and last for disable
+-	 * Ignore return value, we need to shutdown whatever we can
+-	 */
+-	i40e_vsi_control_tx(vsi, false);
+-	i40e_vsi_control_rx(vsi, false);
++	q_end = vsi->base_queue + vsi->num_queue_pairs;
++	for (pf_q = vsi->base_queue; pf_q < q_end; pf_q++)
++		i40e_pre_tx_queue_cfg(&pf->hw, (u32)pf_q, false);
++
++	for (pf_q = vsi->base_queue; pf_q < q_end; pf_q++) {
++		err = i40e_control_wait_rx_q(pf, pf_q, false);
++		if (err)
++			dev_info(&pf->pdev->dev,
++				 "VSI seid %d Rx ring %d dissable timeout\n",
++				 vsi->seid, pf_q);
++	}
++
++	msleep(I40E_DISABLE_TX_GAP_MSEC);
++	pf_q = vsi->base_queue;
++	for (pf_q = vsi->base_queue; pf_q < q_end; pf_q++)
++		wr32(&pf->hw, I40E_QTX_ENA(pf_q), 0);
++
++	i40e_vsi_wait_queues_disabled(vsi);
+ }
+ 
+ /**
 -- 
 2.30.2
 
