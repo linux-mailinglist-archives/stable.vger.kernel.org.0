@@ -2,93 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF3733DEB10
-	for <lists+stable@lfdr.de>; Tue,  3 Aug 2021 12:38:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 978DA3DEB28
+	for <lists+stable@lfdr.de>; Tue,  3 Aug 2021 12:42:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234935AbhHCKi6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Aug 2021 06:38:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57650 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234904AbhHCKi6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Aug 2021 06:38:58 -0400
-Received: from mail-wm1-x335.google.com (mail-wm1-x335.google.com [IPv6:2a00:1450:4864:20::335])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CFCCC06175F;
-        Tue,  3 Aug 2021 03:38:46 -0700 (PDT)
-Received: by mail-wm1-x335.google.com with SMTP id x17so5935210wmc.5;
-        Tue, 03 Aug 2021 03:38:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=y3Sf/19mqziYuyg73TVTxwI84Fr7QdBKK8+Wfg8/egU=;
-        b=td/i9hTYhw1106SfQdK9kBcvWnSPc0OmtxVMi0Tq4HPjP4PH9USjVyq7UF3NQLRlcX
-         mDdR5QrSr/Ct7f44DrEkIwbj/z4bcCkyukuCvU694ulEnN5MI8IZlQQsjrB4xzuyd7vR
-         fO7iaTvJVQSJBNGBzY6yfD24MWQd071MKIJcZ6jKAMkGJssy8T6Csc1ofJit7BM+WkqF
-         LhoaQSydDh18+JzvRO4iHSUGwiq9tVCWWCSEwV6C9bk6pugYT7R4l6166231ki/u46Kw
-         ZxPf+0QG0Psnt935WaeNHOo8NZAuGMwuE58oVNs3KW31ti9ps4hV7i1R+PyQiRGbv+l7
-         XlQw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=y3Sf/19mqziYuyg73TVTxwI84Fr7QdBKK8+Wfg8/egU=;
-        b=fOgDLxLd7UXBQaxb2gK50qR67FmD6r96PJ/2yQ0Icxb6cimONuPxtqLQcbnWfcqMpB
-         YeypUiKD3TMSBXlCrHpn0ZyF/5gPzgfpt74C93Cz0rV+MCj9MRIyISwrelsm69mVYqp3
-         XBKP62OqocXc07GwyzlrHTnaucPASNDM6OTM9RISDm348TcwJrsp0ZGuDbJikQ+BlQrr
-         bVj6aQOqRhFwF3xjaH4XBB0gSqbB/H67YOeGGVRAjEhcNHeLtrR5ORhJ9pqdoU9XTtXB
-         ZtvIZI+tSpRXrlWm+qvlR6z3tKr9i/bS2P8wDNeXmQFpRQeEpSzIIj21eMYaaXGC/996
-         zrYw==
-X-Gm-Message-State: AOAM5334cBnBmrZCxTspsx1v8m0avqofhDy/Q6htZxzJI2LZTEA/flAY
-        3tYxKn5G38oxa83Ajl/qSXA=
-X-Google-Smtp-Source: ABdhPJzLQj8zd/VsrZdU1occFxkchrEwxirhK+9nVxaMLu2TsRdV+OEWITl2CYUD52gf5UBR8Iq2aw==
-X-Received: by 2002:a05:600c:3b94:: with SMTP id n20mr10455505wms.54.1627987124863;
-        Tue, 03 Aug 2021 03:38:44 -0700 (PDT)
-Received: from debian ([78.40.148.180])
-        by smtp.gmail.com with ESMTPSA id q7sm12854870wmq.33.2021.08.03.03.38.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Aug 2021 03:38:44 -0700 (PDT)
-Date:   Tue, 3 Aug 2021 11:38:42 +0100
-From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: Re: [PATCH 5.10 00/67] 5.10.56-rc1 review
-Message-ID: <YQkcsqYu6BKlgQGF@debian>
-References: <20210802134339.023067817@linuxfoundation.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210802134339.023067817@linuxfoundation.org>
+        id S235294AbhHCKmj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Aug 2021 06:42:39 -0400
+Received: from alexa-out.qualcomm.com ([129.46.98.28]:20922 "EHLO
+        alexa-out.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235306AbhHCKmi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Aug 2021 06:42:38 -0400
+Received: from ironmsg07-lv.qualcomm.com ([10.47.202.151])
+  by alexa-out.qualcomm.com with ESMTP; 03 Aug 2021 03:42:28 -0700
+X-QCInternal: smtphost
+Received: from ironmsg02-blr.qualcomm.com ([10.86.208.131])
+  by ironmsg07-lv.qualcomm.com with ESMTP/TLS/AES256-SHA; 03 Aug 2021 03:42:25 -0700
+X-QCInternal: smtphost
+Received: from kalyant-linux.qualcomm.com ([10.204.66.210])
+  by ironmsg02-blr.qualcomm.com with ESMTP; 03 Aug 2021 16:11:50 +0530
+Received: by kalyant-linux.qualcomm.com (Postfix, from userid 94428)
+        id 904134BA3; Tue,  3 Aug 2021 03:41:48 -0700 (PDT)
+From:   Kalyan Thota <kalyan_t@codeaurora.org>
+To:     dri-devel@lists.freedesktop.org, linux-arm-msm@vger.kernel.org,
+        freedreno@lists.freedesktop.org, devicetree@vger.kernel.org
+Cc:     Kalyan Thota <kalyan_t@codeaurora.org>,
+        linux-kernel@vger.kernel.org, robdclark@gmail.com,
+        dianders@chromium.org, mkrishn@codeaurora.org,
+        saiprakash.ranjan@codeaurora.org, rnayak@codeaurora.org,
+        stable@vger.kernel.org
+Subject: [v2] drm/msm/disp/dpu1: add safe lut config in dpu driver
+Date:   Tue,  3 Aug 2021 03:41:47 -0700
+Message-Id: <1627987307-29347-1-git-send-email-kalyan_t@codeaurora.org>
+X-Mailer: git-send-email 2.7.4
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+Add safe lut configuration for all the targets in dpu
+driver as per QOS recommendation.
 
-On Mon, Aug 02, 2021 at 03:44:23PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.56 release.
-> There are 67 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 04 Aug 2021 13:43:24 +0000.
-> Anything received after that time might be too late.
+Issue reported on SC7280:
 
-Build test:
-mips (gcc version 11.1.1 20210723): 63 configs -> no failure
-arm (gcc version 11.1.1 20210723): 105 configs -> no new failure
-arm64 (gcc version 11.1.1 20210723): 3 configs -> no failure
-x86_64 (gcc version 10.2.1 20210110): 2 configs -> no failure
+With wait-for-safe feature in smmu enabled, RT client
+buffer levels are checked to be safe before smmu invalidation.
+Since display was always set to unsafe it was delaying the
+invalidaiton process thus impacting the performance on NRT clients
+such as eMMC and NVMe.
 
-Boot test:
-x86_64: Booted on my test laptop. No regression.
-x86_64: Booted on qemu. No regression.
-arm64: Booted on rpi4b (4GB model). No regression.
+Validated this change on SC7280, With this change eMMC performance
+has improved significantly.
 
-Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
+Changes in v1:
+- Add fixes tag (Sai)
+- CC stable kernel (Dimtry)
 
---
-Regards
-Sudip
+Fixes: cfacf946a464d4(drm/msm/disp/dpu1: add support for display for SC7280 target)
+Signed-off-by: Kalyan Thota <kalyan_t@codeaurora.org>
+Tested-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org> (sc7280, sc7180)
+---
+ drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
+index d01c4c9..2e482cd 100644
+--- a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
++++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
+@@ -974,6 +974,7 @@ static const struct dpu_perf_cfg sdm845_perf_data = {
+ 	.amortizable_threshold = 25,
+ 	.min_prefill_lines = 24,
+ 	.danger_lut_tbl = {0xf, 0xffff, 0x0},
++	.safe_lut_tbl = {0xfff0, 0xf000, 0xffff},
+ 	.qos_lut_tbl = {
+ 		{.nentry = ARRAY_SIZE(sdm845_qos_linear),
+ 		.entries = sdm845_qos_linear
+@@ -1001,6 +1002,7 @@ static const struct dpu_perf_cfg sc7180_perf_data = {
+ 	.min_dram_ib = 1600000,
+ 	.min_prefill_lines = 24,
+ 	.danger_lut_tbl = {0xff, 0xffff, 0x0},
++	.safe_lut_tbl = {0xfff0, 0xff00, 0xffff},
+ 	.qos_lut_tbl = {
+ 		{.nentry = ARRAY_SIZE(sc7180_qos_linear),
+ 		.entries = sc7180_qos_linear
+@@ -1028,6 +1030,7 @@ static const struct dpu_perf_cfg sm8150_perf_data = {
+ 	.min_dram_ib = 800000,
+ 	.min_prefill_lines = 24,
+ 	.danger_lut_tbl = {0xf, 0xffff, 0x0},
++	.safe_lut_tbl = {0xfff8, 0xf000, 0xffff},
+ 	.qos_lut_tbl = {
+ 		{.nentry = ARRAY_SIZE(sm8150_qos_linear),
+ 		.entries = sm8150_qos_linear
+@@ -1056,6 +1059,7 @@ static const struct dpu_perf_cfg sm8250_perf_data = {
+ 	.min_dram_ib = 800000,
+ 	.min_prefill_lines = 35,
+ 	.danger_lut_tbl = {0xf, 0xffff, 0x0},
++	.safe_lut_tbl = {0xfff0, 0xff00, 0xffff},
+ 	.qos_lut_tbl = {
+ 		{.nentry = ARRAY_SIZE(sc7180_qos_linear),
+ 		.entries = sc7180_qos_linear
+@@ -1084,6 +1088,7 @@ static const struct dpu_perf_cfg sc7280_perf_data = {
+ 	.min_dram_ib = 1600000,
+ 	.min_prefill_lines = 24,
+ 	.danger_lut_tbl = {0xffff, 0xffff, 0x0},
++	.safe_lut_tbl = {0xff00, 0xff00, 0xffff},
+ 	.qos_lut_tbl = {
+ 		{.nentry = ARRAY_SIZE(sc7180_qos_macrotile),
+ 		.entries = sc7180_qos_macrotile
+-- 
+2.7.4
+
