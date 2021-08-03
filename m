@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE40F3DEC91
-	for <lists+stable@lfdr.de>; Tue,  3 Aug 2021 13:44:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F1FF3DEC95
+	for <lists+stable@lfdr.de>; Tue,  3 Aug 2021 13:44:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235933AbhHCLom (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Aug 2021 07:44:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35054 "EHLO mail.kernel.org"
+        id S235657AbhHCLon (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Aug 2021 07:44:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235900AbhHCLoN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Aug 2021 07:44:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A7FFD60F92;
-        Tue,  3 Aug 2021 11:44:01 +0000 (UTC)
+        id S235946AbhHCLoO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Aug 2021 07:44:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CA1B360EE9;
+        Tue,  3 Aug 2021 11:44:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1627991042;
-        bh=btAsWNFwkIaXSn8TsKrBntDZORAVNEY1cv5+S42XIlA=;
+        s=k20201202; t=1627991043;
+        bh=q4kLnBUtg70BAak9qRJZeHe9ng5xHLv4QKUDSg6mxrc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jvc9wPe7iM53uQXKeloDMdge5FNmnDTni/jHJaO4e/3K/MLKSZzkJMGcXtuc0LYPx
-         eIhjc6QphLumyCX9PtMIM7ndGh4Kqbp4kQdOMZi0EpYovLKheb0BeECv5hwYl/Gs9W
-         OsaiNuAxr1fQs7Xn4Bqg6q96hMbNzykv1SNAB7Ig9oPYdhNO6gOT+GS2hF81zs08AF
-         oQK3DBkbdgaUDgOLDJKaWGwroAQX5Ye1vjgl7qZdJWERCsDB98lz1cZCuNlffAoTwG
-         bbpoF7Id8LWbdqIPO/ggnEJTCiZeOz827g/hTrM75irkGFxU/PXGmP8PJTlbzWG39j
-         mBMJ+ZMytvF0A==
+        b=bxOj/7iB2Oj8hiS/e/RsLfwfj7783S4P5f4yL7nlH6Gqc5C7tOzFJM4Yf/W116a4U
+         qvKzlZhthEwK1KNK/osUXDQ22QLutGYJfPJh2MGrmvRvyJ1Lv0G92t0pn5ZynRTg4H
+         +4uay/Hpa+WG7YaH2GM6xGipc8BYHP2I0nSqlQiOYKxaoklogeP3gwaQe8HaVUPxLy
+         S87m7C4dCcG34NGSHrow9q+60RIsc0BZCRE4oCjO2MlGIFalp+WU4AcpaRyrOAY4zL
+         NYMr5DZcDmOsujKiJqpyEaPTGGo2d4agIc9Kc5BZhYsTYmSjLqb3C9w0SHX7jNxzSS
+         hNBUXIldapPXA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Letu Ren <fantasquex@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 07/11] net/qla3xxx: fix schedule while atomic in ql_wait_for_drvr_lock and ql_adapter_reset
-Date:   Tue,  3 Aug 2021 07:43:48 -0400
-Message-Id: <20210803114352.2252544-7-sashal@kernel.org>
+Cc:     Steve French <stfrench@microsoft.com>,
+        kernel test robot <lkp@intel.com>,
+        Paulo Alcantara <pc@cjr.nz>, Sasha Levin <sashal@kernel.org>,
+        linux-cifs@vger.kernel.org, samba-technical@lists.samba.org,
+        clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 5.13 08/11] smb3: rc uninitialized in one fallocate path
+Date:   Tue,  3 Aug 2021 07:43:49 -0400
+Message-Id: <20210803114352.2252544-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210803114352.2252544-1-sashal@kernel.org>
 References: <20210803114352.2252544-1-sashal@kernel.org>
@@ -42,55 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Letu Ren <fantasquex@gmail.com>
+From: Steve French <stfrench@microsoft.com>
 
-[ Upstream commit 92766c4628ea349c8ddab0cd7bd0488f36e5c4ce ]
+[ Upstream commit 5ad4df56cd2158965f73416d41fce37906724822 ]
 
-When calling the 'ql_wait_for_drvr_lock' and 'ql_adapter_reset', the driver
-has already acquired the spin lock, so the driver should not call 'ssleep'
-in atomic context.
+Clang detected a problem with rc possibly being unitialized
+(when length is zero) in a recently added fallocate code path.
 
-This bug can be fixed by using 'mdelay' instead of 'ssleep'.
-
-Reported-by: Letu Ren <fantasquex@gmail.com>
-Signed-off-by: Letu Ren <fantasquex@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: kernel test robot <lkp@intel.com>
+Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qla3xxx.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ fs/cifs/smb2ops.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qla3xxx.c b/drivers/net/ethernet/qlogic/qla3xxx.c
-index 2376b2729633..c00ad57575ea 100644
---- a/drivers/net/ethernet/qlogic/qla3xxx.c
-+++ b/drivers/net/ethernet/qlogic/qla3xxx.c
-@@ -154,7 +154,7 @@ static int ql_wait_for_drvr_lock(struct ql3_adapter *qdev)
- 				      "driver lock acquired\n");
- 			return 1;
- 		}
--		ssleep(1);
-+		mdelay(1000);
- 	} while (++i < 10);
+diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
+index 398c941e3897..f77156187a0a 100644
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -3613,7 +3613,8 @@ static int smb3_simple_fallocate_write_range(unsigned int xid,
+ 					     char *buf)
+ {
+ 	struct cifs_io_parms io_parms = {0};
+-	int rc, nbytes;
++	int nbytes;
++	int rc = 0;
+ 	struct kvec iov[2];
  
- 	netdev_err(qdev->ndev, "Timed out waiting for driver lock...\n");
-@@ -3274,7 +3274,7 @@ static int ql_adapter_reset(struct ql3_adapter *qdev)
- 		if ((value & ISP_CONTROL_SR) == 0)
- 			break;
- 
--		ssleep(1);
-+		mdelay(1000);
- 	} while ((--max_wait_time));
- 
- 	/*
-@@ -3310,7 +3310,7 @@ static int ql_adapter_reset(struct ql3_adapter *qdev)
- 						   ispControlStatus);
- 			if ((value & ISP_CONTROL_FSR) == 0)
- 				break;
--			ssleep(1);
-+			mdelay(1000);
- 		} while ((--max_wait_time));
- 	}
- 	if (max_wait_time == 0)
+ 	io_parms.netfid = cfile->fid.netfid;
 -- 
 2.30.2
 
