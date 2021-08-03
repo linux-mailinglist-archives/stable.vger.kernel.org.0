@@ -2,232 +2,183 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A897E3DEA84
-	for <lists+stable@lfdr.de>; Tue,  3 Aug 2021 12:10:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F38963DEAE6
+	for <lists+stable@lfdr.de>; Tue,  3 Aug 2021 12:28:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235059AbhHCKKa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Aug 2021 06:10:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50530 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235058AbhHCKK3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Aug 2021 06:10:29 -0400
-Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com [IPv6:2a00:1450:4864:20::533])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07D68C06175F
-        for <stable@vger.kernel.org>; Tue,  3 Aug 2021 03:10:19 -0700 (PDT)
-Received: by mail-ed1-x533.google.com with SMTP id ec13so27761959edb.0
-        for <stable@vger.kernel.org>; Tue, 03 Aug 2021 03:10:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=LGkg+tEKNi+6cq7JJd/Wd28kqNOTiVmWoVZkricfcWw=;
-        b=F1jU1sEiGki0ctpVPHy+pXuqLkqJkeqWSChQJKEdwh/u4o1jDamuddMmMW/UfAOpo7
-         kEe2fWxs1bPUKAulnqt1CeJXlyH4qVlVHle+tWY1Zc4xvBAHa2Y1j/jX3QLJI7JfFlom
-         Qa5BzIK1ESybsMJMySYplEpG4JUPbkURQYf4ZUlpH8g0eET0WNSNRJTDAUhuvPI+HHlR
-         GvAVjZyQm0aJKVELk/xoBRkPFjUwK9C/hLxFr6UBmblZu2Iyo/WaHV59gyqsMGKyUrwN
-         fZuUL48T1cAQLQqMifNSeKG4ffMbSUt5cAPW7ZNQUFz1qeYwXsN8IZCmfvAqWPFJo7va
-         aZYQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=LGkg+tEKNi+6cq7JJd/Wd28kqNOTiVmWoVZkricfcWw=;
-        b=Qc4wlLPnioGFvouXKAeAiWSdTpKFAezmldXgQ3gASTgrf7Jv2Teq0C8s1NgQ12Pwg4
-         LQulsOcZwsfEIGwIWmDj8Gi6A8yqCC97B+17R1TkjWTFnRRVz6QKUCninDwyXQJSqObO
-         lKXC/d1BcOB8/vSKIMp2AZ7QVScT760wWsiKxqKz1Voqgxsuf6odriywk8v6MRg1j4pn
-         1H+H8ZixHDtgu2zQsXBzyO2qSF/HX0KIy5CJN3m1OBeq1lCVLCEq2IGhSa5ZyFQo9JA9
-         Ei/GUHJJrW9FesEhU1Xv4DQSFywvpF+/bsHEFALW83/fjV8yo7hFccYMij1thvvDuRA/
-         S21g==
-X-Gm-Message-State: AOAM533YoUbe58vi3x2tXthMfuRttxyhdU5MTKijATQ9Y9an7aPzpBEz
-        If+oEaQ3TqdWbg0ng1FqwMayosppCrPfhV8Px9XNjc8DfPv/ZgOK
-X-Google-Smtp-Source: ABdhPJz+oc77cT1vGzJEr5sly502MyYWV7G7l2sd/9HCUeJ+E/mmE0fonNgXIsX6F4GWqyj4uS+8Rqga3E8JhUqkoqk=
-X-Received: by 2002:aa7:c647:: with SMTP id z7mr24239038edr.52.1627985417407;
- Tue, 03 Aug 2021 03:10:17 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210802134334.081433902@linuxfoundation.org>
-In-Reply-To: <20210802134334.081433902@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 3 Aug 2021 15:40:06 +0530
-Message-ID: <CA+G9fYu+Bax17kwqWMFniMfPZO+qh2Spz9mXvdgXiEA7fsptQw@mail.gmail.com>
-Subject: Re: [PATCH 4.19 00/30] 4.19.201-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
-        linux-stable <stable@vger.kernel.org>,
-        Pavel Machek <pavel@denx.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        id S234813AbhHCK2U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Aug 2021 06:28:20 -0400
+Received: from foss.arm.com ([217.140.110.172]:46794 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S235040AbhHCK2T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Aug 2021 06:28:19 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id E4ABB106F;
+        Tue,  3 Aug 2021 03:28:07 -0700 (PDT)
+Received: from e123648.arm.com (unknown [10.57.9.94])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id EA3D43F40C;
+        Tue,  3 Aug 2021 03:28:02 -0700 (PDT)
+From:   Lukasz Luba <lukasz.luba@arm.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     Chris.Redpath@arm.com, lukasz.luba@arm.com,
+        dietmar.eggemann@arm.com, morten.rasmussen@arm.com,
+        qperret@google.com, linux-pm@vger.kernel.org,
+        stable@vger.kernel.org, peterz@infradead.org, rjw@rjwysocki.net,
+        viresh.kumar@linaro.org, vincent.guittot@linaro.org,
+        mingo@redhat.com, juri.lelli@redhat.com, rostedt@goodmis.org,
+        segall@google.com, mgorman@suse.de, bristot@redhat.com,
+        CCj.Yeh@mediatek.com
+Subject: [PATCH v3] PM: EM: Increase energy calculation precision
+Date:   Tue,  3 Aug 2021 11:27:43 +0100
+Message-Id: <20210803102744.23654-1-lukasz.luba@arm.com>
+X-Mailer: git-send-email 2.17.1
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 2 Aug 2021 at 19:19, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.19.201 release.
-> There are 30 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 04 Aug 2021 13:43:24 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.19.201-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.19.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+The Energy Model (EM) provides useful information about device power in
+each performance state to other subsystems like: Energy Aware Scheduler
+(EAS). The energy calculation in EAS does arithmetic operation based on
+the EM em_cpu_energy(). Current implementation of that function uses
+em_perf_state::cost as a pre-computed cost coefficient equal to:
+cost = power * max_frequency / frequency.
+The 'power' is expressed in milli-Watts (or in abstract scale).
 
+There are corner cases when the EAS energy calculation for two Performance
+Domains (PDs) return the same value. The EAS compares these values to
+choose smaller one. It might happen that this values are equal due to
+rounding error. In such scenario, we need better resolution, e.g. 1000
+times better. To provide this possibility increase the resolution in the
+em_perf_state::cost for 64-bit architectures. The cost of increasing
+resolution on 32-bit is pretty high (64-bit division) and is not justified
+since there are no new 32bit big.LITTLE EAS systems expected which would
+benefit from this higher resolution.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+This patch allows to avoid the rounding to milli-Watt errors, which might
+occur in EAS energy estimation for each PD. The rounding error is common
+for small tasks which have small utilization value.
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+There are two places in the code where it makes a difference:
+1. In the find_energy_efficient_cpu() where we are searching for
+best_delta. We might suffer there when two PDs return the same result,
+like in the example below.
 
-## Build
-* kernel: 4.19.201-rc1
-* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
-rc.git
-* git branch: linux-4.19.y
-* git commit: 7d0b2cf6631fd9776096a6a1bc52a89946f15d4c
-* git describe: v4.19.200-31-g7d0b2cf6631f
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19.y/build/v4.19=
-.200-31-g7d0b2cf6631f
+Scenario:
+Low utilized system e.g. ~200 sum_util for PD0 and ~220 for PD1. There
+are quite a few small tasks ~10-15 util. These tasks would suffer for
+the rounding error. These utilization values are typical when running games
+on Android. One of our partners has reported 5..10mA less battery drain
+when running with increased resolution.
 
-## No regressions (compared to v4.19.200-15-g5b0f1f3c91d6)
+Some details:
+We have two PDs: PD0 (big) and PD1 (little)
+Let's compare w/o patch set ('old') and w/ patch set ('new')
+We are comparing energy w/ task and w/o task placed in the PDs
 
-## No fixes (compared to v4.19.200-15-g5b0f1f3c91d6)
+a) 'old' w/o patch set, PD0
+task_util = 13
+cost = 480
+sum_util_w/o_task = 215
+sum_util_w_task = 228
+scale_cpu = 1024
+energy_w/o_task = 480 * 215 / 1024 = 100.78 => 100
+energy_w_task = 480 * 228 / 1024 = 106.87 => 106
+energy_diff = 106 - 100 = 6
+(this is equal to 'old' PD1's energy_diff in 'c)')
 
-## Test result summary
- total: 71236, pass: 55001, fail: 1762, skip: 12270, xfail: 2203,
+b) 'new' w/ patch set, PD0
+task_util = 13
+cost = 480 * 1000 = 480000
+sum_util_w/o_task = 215
+sum_util_w_task = 228
+energy_w/o_task = 480000 * 215 / 1024 = 100781
+energy_w_task = 480000 * 228 / 1024  = 106875
+energy_diff = 106875 - 100781 = 6094
+(this is not equal to 'new' PD1's energy_diff in 'd)')
 
-## Build Summary
-* arm: 97 total, 97 passed, 0 failed
-* arm64: 25 total, 25 passed, 0 failed
-* dragonboard-410c: 1 total, 1 passed, 0 failed
-* hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 14 total, 14 passed, 0 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 39 total, 39 passed, 0 failed
-* s390: 9 total, 9 passed, 0 failed
-* sparc: 9 total, 9 passed, 0 failed
-* x15: 1 total, 1 passed, 0 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 15 total, 15 passed, 0 failed
+c) 'old' w/o patch set, PD1
+task_util = 13
+cost = 160
+sum_util_w/o_task = 283
+sum_util_w_task = 293
+scale_cpu = 355
+energy_w/o_task = 160 * 283 / 355 = 127.55 => 127
+energy_w_task = 160 * 296 / 355 = 133.41 => 133
+energy_diff = 133 - 127 = 6
+(this is equal to 'old' PD0's energy_diff in 'a)')
 
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* install-android-platform-tools-r2600
-* kselftest-
-* kselftest-android
-* kselftest-bpf
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-lkdtm
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-vsyscall-mode-native-
-* kselftest-vsyscall-mode-none-
-* kselftest-x86
-* kselftest-zram
-* kvm-unit-tests
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* rcutorture
-* ssuite
-* v4l2-compliance
+d) 'new' w/ patch set, PD1
+task_util = 13
+cost = 160 * 1000 = 160000
+sum_util_w/o_task = 283
+sum_util_w_task = 293
+scale_cpu = 355
+energy_w/o_task = 160000 * 283 / 355 = 127549
+energy_w_task = 160000 * 296 / 355 =   133408
+energy_diff = 133408 - 127549 = 5859
+(this is not equal to 'new' PD0's energy_diff in 'b)')
 
---
-Linaro LKFT
-https://lkft.linaro.org
+2. Difference in the 6% energy margin filter at the end of
+find_energy_efficient_cpu(). With this patch the margin comparison also
+has better resolution, so it's possible to have better task placement
+thanks to that.
+
+Fixes: 27871f7a8a341ef ("PM: Introduce an Energy Model management framework")
+Reported-by: CCJ Yeh <CCj.Yeh@mediatek.com>
+Reviewed-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Signed-off-by: Lukasz Luba <lukasz.luba@arm.com>
+---
+
+v3 changes:
+- adjusted patch description according to Dietmar's comments
+- added Dietmar's review tag
+- added one empty line in the code to separate them
+
+ include/linux/energy_model.h | 16 ++++++++++++++++
+ kernel/power/energy_model.c  |  4 +++-
+ 2 files changed, 19 insertions(+), 1 deletion(-)
+
+diff --git a/include/linux/energy_model.h b/include/linux/energy_model.h
+index 3f221dbf5f95..1834752c5617 100644
+--- a/include/linux/energy_model.h
++++ b/include/linux/energy_model.h
+@@ -53,6 +53,22 @@ struct em_perf_domain {
+ #ifdef CONFIG_ENERGY_MODEL
+ #define EM_MAX_POWER 0xFFFF
+ 
++/*
++ * Increase resolution of energy estimation calculations for 64-bit
++ * architectures. The extra resolution improves decision made by EAS for the
++ * task placement when two Performance Domains might provide similar energy
++ * estimation values (w/o better resolution the values could be equal).
++ *
++ * We increase resolution only if we have enough bits to allow this increased
++ * resolution (i.e. 64-bit). The costs for increasing resolution when 32-bit
++ * are pretty high and the returns do not justify the increased costs.
++ */
++#ifdef CONFIG_64BIT
++#define em_scale_power(p) ((p) * 1000)
++#else
++#define em_scale_power(p) (p)
++#endif
++
+ struct em_data_callback {
+ 	/**
+ 	 * active_power() - Provide power at the next performance state of
+diff --git a/kernel/power/energy_model.c b/kernel/power/energy_model.c
+index 0f4530b3a8cd..a332ccd829e2 100644
+--- a/kernel/power/energy_model.c
++++ b/kernel/power/energy_model.c
+@@ -170,7 +170,9 @@ static int em_create_perf_table(struct device *dev, struct em_perf_domain *pd,
+ 	/* Compute the cost of each performance state. */
+ 	fmax = (u64) table[nr_states - 1].frequency;
+ 	for (i = 0; i < nr_states; i++) {
+-		table[i].cost = div64_u64(fmax * table[i].power,
++		unsigned long power_res = em_scale_power(table[i].power);
++
++		table[i].cost = div64_u64(fmax * power_res,
+ 					  table[i].frequency);
+ 	}
+ 
+-- 
+2.17.1
+
