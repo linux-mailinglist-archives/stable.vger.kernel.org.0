@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23ABF3DECA1
-	for <lists+stable@lfdr.de>; Tue,  3 Aug 2021 13:44:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D7BE3DECE6
+	for <lists+stable@lfdr.de>; Tue,  3 Aug 2021 13:45:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236282AbhHCLov (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S236293AbhHCLov (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 3 Aug 2021 07:44:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35206 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:35212 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236158AbhHCLo0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Aug 2021 07:44:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E27060F92;
-        Tue,  3 Aug 2021 11:44:14 +0000 (UTC)
+        id S236168AbhHCLo1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Aug 2021 07:44:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B374060EFD;
+        Tue,  3 Aug 2021 11:44:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1627991055;
-        bh=i90K1F3cN9255PTEE8cgq6ze8clGUsHG29sCiNHzhOk=;
+        s=k20201202; t=1627991056;
+        bh=6pfrQY5QyDEqVrt2lMWcXkE5SO4dTw+z8f67Irfj2EA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UHNESZrHQslD2oHwUZw/xIVJfzMZa1KRBNQd/dwvM37b0lP0QSBYoV+KPRhBxuIPm
-         lNihb89dJclrLrlTY9kjZfAIAYO5FKTJw5QfGRHoVl3LZXT9rkt9WjaQcDR1ReLttf
-         uKaxvrsGmC4+eVJfvNBp5XxmbgM7GWjAQ49ro+Ragosq4bYzjkTCwli0ZfECwju77u
-         zh3yZpn0kL4bEYdEKZv0Oq4T/KKiDBXZCwziFsk9Pcce+ZR0O7jt7debi+/OeI/h+o
-         iUYpaO/6bssGYyDeY7sQkJUtjLpVaUUOUJnpkIHm0EYgazFCVwFzMvUaNAaOI7jsxd
-         IHi9+x2cGU0ZQ==
+        b=ExIOw9ueZBbSesxTUQxpRWpj75BmWqluzoSr8MF4TzrM2UjyTxSMdqlkHxudoQhvM
+         HLx5DQ0yVgdx6Ds7TNGz7zlIWHoIocq2DihvE97w+Mq3V+pRpaOJX2NRnWY4iPhEMn
+         rsi2K5zJBqTIFtebMU0SzRIC/3XrO6bqwZQreSd1bGuGIB1gbjff2ykK/Xqdj0xyAq
+         D82pqZQ8IeYJu5WYhc2uMn5IUD6PXeK3EHfWFALjUUT0kYiclzLGMCmtapzrnll4oO
+         CR+4jq3RRqyxHFN7AyS0e04UhJ9R0WhESDeBCF0ZbhG0c7f3tA9OXcrGKizwLel3z/
+         dYghaQsU+HB7Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Harshvardhan Jha <harshvardhan.jha@oracle.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 5/9] net: qede: Fix end of loop tests for list_for_each_entry
-Date:   Tue,  3 Aug 2021 07:44:04 -0400
-Message-Id: <20210803114408.2252713-5-sashal@kernel.org>
+Cc:     Prarit Bhargava <prarit@redhat.com>,
+        Richard Henderson <rth@twiddle.net>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        Matt Turner <mattst88@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-alpha@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 6/9] alpha: Send stop IPI to send to online CPUs
+Date:   Tue,  3 Aug 2021 07:44:05 -0400
+Message-Id: <20210803114408.2252713-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210803114408.2252713-1-sashal@kernel.org>
 References: <20210803114408.2252713-1-sashal@kernel.org>
@@ -42,42 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harshvardhan Jha <harshvardhan.jha@oracle.com>
+From: Prarit Bhargava <prarit@redhat.com>
 
-[ Upstream commit 795e3d2ea68e489ee7039ac29e98bfea0e34a96c ]
+[ Upstream commit caace6ca4e06f09413fb8f8a63319594cfb7d47d ]
 
-The list_for_each_entry() iterator, "vlan" in this code, can never be
-NULL so the warning will never be printed.
+This issue was noticed while debugging a shutdown issue where some
+secondary CPUs are not being shutdown correctly.  A fix for that [1] requires
+that secondary cpus be offlined using the cpu_online_mask so that the
+stop operation is a no-op if CPU HOTPLUG is disabled.  I, like the author in
+[1] looked at the architectures and found that alpha is one of two
+architectures that executes smp_send_stop() on all possible CPUs.
 
-Signed-off-by: Harshvardhan Jha <harshvardhan.jha@oracle.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+On alpha, smp_send_stop() sends an IPI to all possible CPUs but only needs
+to send them to online CPUs.
+
+Send the stop IPI to only the online CPUs.
+
+[1] https://lkml.org/lkml/2020/1/10/250
+
+Signed-off-by: Prarit Bhargava <prarit@redhat.com>
+Cc: Richard Henderson <rth@twiddle.net>
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Signed-off-by: Matt Turner <mattst88@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qede/qede_filter.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/alpha/kernel/smp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qede/qede_filter.c b/drivers/net/ethernet/qlogic/qede/qede_filter.c
-index c59b72c90293..a2e4dfb5cb44 100644
---- a/drivers/net/ethernet/qlogic/qede/qede_filter.c
-+++ b/drivers/net/ethernet/qlogic/qede/qede_filter.c
-@@ -831,7 +831,7 @@ int qede_configure_vlan_filters(struct qede_dev *edev)
- int qede_vlan_rx_kill_vid(struct net_device *dev, __be16 proto, u16 vid)
+diff --git a/arch/alpha/kernel/smp.c b/arch/alpha/kernel/smp.c
+index 4b2575f936d4..cb64e4797d2a 100644
+--- a/arch/alpha/kernel/smp.c
++++ b/arch/alpha/kernel/smp.c
+@@ -582,7 +582,7 @@ void
+ smp_send_stop(void)
  {
- 	struct qede_dev *edev = netdev_priv(dev);
--	struct qede_vlan *vlan = NULL;
-+	struct qede_vlan *vlan;
- 	int rc = 0;
- 
- 	DP_VERBOSE(edev, NETIF_MSG_IFDOWN, "Removing vlan 0x%04x\n", vid);
-@@ -842,7 +842,7 @@ int qede_vlan_rx_kill_vid(struct net_device *dev, __be16 proto, u16 vid)
- 		if (vlan->vid == vid)
- 			break;
- 
--	if (!vlan || (vlan->vid != vid)) {
-+	if (list_entry_is_head(vlan, &edev->vlan_list, list)) {
- 		DP_VERBOSE(edev, (NETIF_MSG_IFUP | NETIF_MSG_IFDOWN),
- 			   "Vlan isn't configured\n");
- 		goto out;
+ 	cpumask_t to_whom;
+-	cpumask_copy(&to_whom, cpu_possible_mask);
++	cpumask_copy(&to_whom, cpu_online_mask);
+ 	cpumask_clear_cpu(smp_processor_id(), &to_whom);
+ #ifdef DEBUG_IPI_MSG
+ 	if (hard_smp_processor_id() != boot_cpu_id)
 -- 
 2.30.2
 
