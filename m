@@ -2,87 +2,211 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CBA73DEB95
-	for <lists+stable@lfdr.de>; Tue,  3 Aug 2021 13:14:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6BA53DEBB3
+	for <lists+stable@lfdr.de>; Tue,  3 Aug 2021 13:26:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235478AbhHCLOT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Aug 2021 07:14:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37954 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234156AbhHCLOM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Aug 2021 07:14:12 -0400
-Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03171C061757
-        for <stable@vger.kernel.org>; Tue,  3 Aug 2021 04:13:56 -0700 (PDT)
-Received: by mail-pj1-x102b.google.com with SMTP id ca5so29153952pjb.5
-        for <stable@vger.kernel.org>; Tue, 03 Aug 2021 04:13:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=heitbaum.com; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=7Gr5ftWgiJSvDbRnCS2TnO6KMHVq0WjNOvJJwrjZOEM=;
-        b=lqQi1yG6Vr4L7esOiXxd+NMKstSaPTYUs+NWc2DDUO/qh0Nynt3+4fi6xMyBDyK9Iv
-         anVQU0Ije/Z6IUjGsBE0THWIV/95xDUcVKB+GYRAi4UtzYe91lhpHr+NODVBBE5W7T2K
-         RtBzb5P7eRk7QGwUnPsENJBhDwr9ZkFpnjk/k=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=7Gr5ftWgiJSvDbRnCS2TnO6KMHVq0WjNOvJJwrjZOEM=;
-        b=aE2X3s74mYeNyVq519PYUsRvqJ6pvc/bkTY9dj732okT/AQai7Uzzh4La/N7Xc+7bP
-         YYzj7C9YpjGOrvDqROZLb+Q+lkSc+RRaV/U81s54hajQK1E7iYIY0knV5QaalUlZsm0B
-         EuERdJ5NpfVe9xvFCtTFuydnKRFPbShIuqY9BRhvfcoR0V7gxvkOr5eGF12g7X19cthu
-         PsSLvMamO1k19ezizm8e0lrYBMfbZsxchYk6cLJf7WvjZCoY5p4gWEoTXYQEcLFRvP1m
-         wErBS7fW5dadXmNdmcBHO4gAKbEAsJwdcDyVcXWRDwWKPcONOmfy0fwFT/owbBGErTET
-         rY9w==
-X-Gm-Message-State: AOAM530ThVw4Pfb2TlddOo7SNaavgyI8ex/YoXgMqp0LpVuXwbEypxfV
-        ccn0it+jNlVCqxNR8ThBNcrK8Q==
-X-Google-Smtp-Source: ABdhPJwAWLXABmqiaVIE3+NQJJCX+CvS8zFkgVKT89mB7cwEtiXiEW4AxxmAvoF7UzZsnlkjzeb/+Q==
-X-Received: by 2002:a17:90a:1f8a:: with SMTP id x10mr21949725pja.167.1627989235469;
-        Tue, 03 Aug 2021 04:13:55 -0700 (PDT)
-Received: from a4d683274626 (194-193-55-226.tpgi.com.au. [194.193.55.226])
-        by smtp.gmail.com with ESMTPSA id y62sm1947476pfy.183.2021.08.03.04.13.51
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 03 Aug 2021 04:13:55 -0700 (PDT)
-Date:   Tue, 3 Aug 2021 21:13:48 +1000
-From:   Rudi Heitbaum <rudi@heitbaum.com>
+        id S235556AbhHCL0g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Aug 2021 07:26:36 -0400
+Received: from mo4-p00-ob.smtp.rzone.de ([81.169.146.163]:17960 "EHLO
+        mo4-p00-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235554AbhHCL0g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Aug 2021 07:26:36 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1627989798;
+    s=strato-dkim-0002; d=hartkopp.net;
+    h=Message-Id:Date:Subject:Cc:To:From:Cc:Date:From:Subject:Sender;
+    bh=02bxvCoDOe0IHW3IpUIMEklenO/33KVZPTAhxGyNx/0=;
+    b=LbzhjXAZLmr657qMNtZa8j/Oixoq4UjXBDC5fOa+KtG0hIKHzfe7nbElPN1YGINqxS
+    EwFTrc7ocxNyWibxWTkEUoY+fFA2/DhQRpcc2jKTqQ2y+T0lGIohrxPvTd6h1n4WbHMu
+    lm/PBYrKlEHR8d0MF8suOJWG5LfOg/tMuj2akA/KoigZ6bn6tnpG7rlKhYcds1BIJdrV
+    sDF+yckESwDKUs1sPkvZHNUzaUHmZM+E3Iih5MzSZX+5t7JJ/4Kvnp1PtISrYOp5d+qw
+    7V41o6siETSRYSkM3y6eVq9QsCyJoZqUoOJSbSHBbr8Atof2m6IscwsoJy+I05VmhU4+
+    xBAQ==
+Authentication-Results: strato.com;
+    dkim=none
+X-RZG-AUTH: ":P2MHfkW8eP4Mre39l357AZT/I7AY/7nT2yrDxb8mjGrp7owjzFK3JbFk1mS/xvEDlBxgAcPNuVYUcPxoP37qlUJyScjc1GiW8jydNgHFJOxomnM="
+X-RZG-CLASS-ID: mo00
+Received: from wopr.fritz.box
+    by smtp.strato.de (RZmta 47.28.1 AUTH)
+    with ESMTPSA id Z03199x73BNIp5J
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
+        (Client did not present a certificate);
+    Tue, 3 Aug 2021 13:23:18 +0200 (CEST)
+From:   Oliver Hartkopp <socketcan@hartkopp.net>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: Re: [PATCH 5.10 00/67] 5.10.56-rc1 review
-Message-ID: <20210803111344.GA914752@a4d683274626>
-References: <20210802134339.023067817@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, linux-can@vger.kernel.org,
+        Oliver Hartkopp <socketcan@hartkopp.net>,
+        linux-stable <stable@vger.kernel.org>,
+        Ziyang Xuan <william.xuanziyang@huawei.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH stable 4.4 4.9] can: raw: raw_setsockopt(): fix raw_rcv panic for sock UAF
+Date:   Tue,  3 Aug 2021 13:22:41 +0200
+Message-Id: <20210803112241.3253-1-socketcan@hartkopp.net>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210802134339.023067817@linuxfoundation.org>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 02, 2021 at 03:44:23PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.56 release.
-> There are 67 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+From: Ziyang Xuan <william.xuanziyang@huawei.com>
 
-Run tested ok on:
-- Tiger Lake x86_64
-- Radxa ROCK Pi N10 (rk3399pro)
+commit 54f93336d000229f72c26d8a3f69dd256b744528 upstream.
 
-In addition build tested on:
-- Allwinner H3
-- Allwinner H6
-- NXP iMX6
-- NXP iMX8
-- Qualcomm Dragonboard
-- Rockchip RK3288
-- Rockchip RK3328
-- Samsung Exynos
+We get a bug during ltp can_filter test as following.
 
-Tested-by: Rudi Heitbaum <rudi@heitbaum.com>
+===========================================
+[60919.264984] BUG: unable to handle kernel NULL pointer dereference at 0000000000000010
+[60919.265223] PGD 8000003dda726067 P4D 8000003dda726067 PUD 3dda727067 PMD 0
+[60919.265443] Oops: 0000 [#1] SMP PTI
+[60919.265550] CPU: 30 PID: 3638365 Comm: can_filter Kdump: loaded Tainted: G        W         4.19.90+ #1
+[60919.266068] RIP: 0010:selinux_socket_sock_rcv_skb+0x3e/0x200
+[60919.293289] RSP: 0018:ffff8d53bfc03cf8 EFLAGS: 00010246
+[60919.307140] RAX: 0000000000000000 RBX: 000000000000001d RCX: 0000000000000007
+[60919.320756] RDX: 0000000000000001 RSI: ffff8d5104a8ed00 RDI: ffff8d53bfc03d30
+[60919.334319] RBP: ffff8d9338056800 R08: ffff8d53bfc29d80 R09: 0000000000000001
+[60919.347969] R10: ffff8d53bfc03ec0 R11: ffffb8526ef47c98 R12: ffff8d53bfc03d30
+[60919.350320] perf: interrupt took too long (3063 > 2500), lowering kernel.perf_event_max_sample_rate to 65000
+[60919.361148] R13: 0000000000000001 R14: ffff8d53bcf90000 R15: 0000000000000000
+[60919.361151] FS:  00007fb78b6b3600(0000) GS:ffff8d53bfc00000(0000) knlGS:0000000000000000
+[60919.400812] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[60919.413730] CR2: 0000000000000010 CR3: 0000003e3f784006 CR4: 00000000007606e0
+[60919.426479] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[60919.439339] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[60919.451608] PKRU: 55555554
+[60919.463622] Call Trace:
+[60919.475617]  <IRQ>
+[60919.487122]  ? update_load_avg+0x89/0x5d0
+[60919.498478]  ? update_load_avg+0x89/0x5d0
+[60919.509822]  ? account_entity_enqueue+0xc5/0xf0
+[60919.520709]  security_sock_rcv_skb+0x2a/0x40
+[60919.531413]  sk_filter_trim_cap+0x47/0x1b0
+[60919.542178]  ? kmem_cache_alloc+0x38/0x1b0
+[60919.552444]  sock_queue_rcv_skb+0x17/0x30
+[60919.562477]  raw_rcv+0x110/0x190 [can_raw]
+[60919.572539]  can_rcv_filter+0xbc/0x1b0 [can]
+[60919.582173]  can_receive+0x6b/0xb0 [can]
+[60919.591595]  can_rcv+0x31/0x70 [can]
+[60919.600783]  __netif_receive_skb_one_core+0x5a/0x80
+[60919.609864]  process_backlog+0x9b/0x150
+[60919.618691]  net_rx_action+0x156/0x400
+[60919.627310]  ? sched_clock_cpu+0xc/0xa0
+[60919.635714]  __do_softirq+0xe8/0x2e9
+[60919.644161]  do_softirq_own_stack+0x2a/0x40
+[60919.652154]  </IRQ>
+[60919.659899]  do_softirq.part.17+0x4f/0x60
+[60919.667475]  __local_bh_enable_ip+0x60/0x70
+[60919.675089]  __dev_queue_xmit+0x539/0x920
+[60919.682267]  ? finish_wait+0x80/0x80
+[60919.689218]  ? finish_wait+0x80/0x80
+[60919.695886]  ? sock_alloc_send_pskb+0x211/0x230
+[60919.702395]  ? can_send+0xe5/0x1f0 [can]
+[60919.708882]  can_send+0xe5/0x1f0 [can]
+[60919.715037]  raw_sendmsg+0x16d/0x268 [can_raw]
+
+It's because raw_setsockopt() concurrently with
+unregister_netdevice_many(). Concurrent scenario as following.
+
+	cpu0						cpu1
+raw_bind
+raw_setsockopt					unregister_netdevice_many
+						unlist_netdevice
+dev_get_by_index				raw_notifier
+raw_enable_filters				......
+can_rx_register
+can_rcv_list_find(..., net->can.rx_alldev_list)
+
+......
+
+sock_close
+raw_release(sock_a)
+
+......
+
+can_receive
+can_rcv_filter(net->can.rx_alldev_list, ...)
+raw_rcv(skb, sock_a)
+BUG
+
+After unlist_netdevice(), dev_get_by_index() return NULL in
+raw_setsockopt(). Function raw_enable_filters() will add sock
+and can_filter to net->can.rx_alldev_list. Then the sock is closed.
+Followed by, we sock_sendmsg() to a new vcan device use the same
+can_filter. Protocol stack match the old receiver whose sock has
+been released on net->can.rx_alldev_list in can_rcv_filter().
+Function raw_rcv() uses the freed sock. UAF BUG is triggered.
+
+We can find that the key issue is that net_device has not been
+protected in raw_setsockopt(). Use rtnl_lock to protect net_device
+in raw_setsockopt().
+
+Fixes: c18ce101f2e4 ("[CAN]: Add raw protocol")
+Link: https://lore.kernel.org/r/20210722070819.1048263-1-william.xuanziyang@huawei.com
+Cc: linux-stable <stable@vger.kernel.org>
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+---
+ net/can/raw.c | 20 ++++++++++++++++++--
+ 1 file changed, 18 insertions(+), 2 deletions(-)
+
+diff --git a/net/can/raw.c b/net/can/raw.c
+index 2bb50b1535c2..082965c8dcaf 100644
+--- a/net/can/raw.c
++++ b/net/can/raw.c
+@@ -541,10 +541,18 @@ static int raw_setsockopt(struct socket *sock, int level, int optname,
+ 				return -EFAULT;
+ 		}
+ 
++		rtnl_lock();
+ 		lock_sock(sk);
+ 
+-		if (ro->bound && ro->ifindex)
++		if (ro->bound && ro->ifindex) {
+ 			dev = dev_get_by_index(&init_net, ro->ifindex);
++			if (!dev) {
++				if (count > 1)
++					kfree(filter);
++				err = -ENODEV;
++				goto out_fil;
++			}
++		}
+ 
+ 		if (ro->bound) {
+ 			/* (try to) register the new filters */
+@@ -581,6 +589,7 @@ static int raw_setsockopt(struct socket *sock, int level, int optname,
+ 			dev_put(dev);
+ 
+ 		release_sock(sk);
++		rtnl_unlock();
+ 
+ 		break;
+ 
+@@ -593,10 +602,16 @@ static int raw_setsockopt(struct socket *sock, int level, int optname,
+ 
+ 		err_mask &= CAN_ERR_MASK;
+ 
++		rtnl_lock();
+ 		lock_sock(sk);
+ 
+-		if (ro->bound && ro->ifindex)
++		if (ro->bound && ro->ifindex) {
+ 			dev = dev_get_by_index(&init_net, ro->ifindex);
++			if (!dev) {
++				err = -ENODEV;
++				goto out_err;
++			}
++		}
+ 
+ 		/* remove current error mask */
+ 		if (ro->bound) {
+@@ -618,6 +633,7 @@ static int raw_setsockopt(struct socket *sock, int level, int optname,
+ 			dev_put(dev);
+ 
+ 		release_sock(sk);
++		rtnl_unlock();
+ 
+ 		break;
+ 
 -- 
-Rudi
+2.30.2
+
