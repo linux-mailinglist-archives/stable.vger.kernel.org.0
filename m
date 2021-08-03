@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7635D3DECD3
-	for <lists+stable@lfdr.de>; Tue,  3 Aug 2021 13:45:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80C243DECCD
+	for <lists+stable@lfdr.de>; Tue,  3 Aug 2021 13:45:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236450AbhHCLpS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Aug 2021 07:45:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35854 "EHLO mail.kernel.org"
+        id S236227AbhHCLpQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Aug 2021 07:45:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236157AbhHCLpA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Aug 2021 07:45:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D597C610A8;
-        Tue,  3 Aug 2021 11:44:48 +0000 (UTC)
+        id S236002AbhHCLpB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Aug 2021 07:45:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A046610CC;
+        Tue,  3 Aug 2021 11:44:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1627991089;
-        bh=LYjyc63jsorzTTicwAcsOut1pYnO/rIODKOVBZpAcPQ=;
+        s=k20201202; t=1627991090;
+        bh=3/4sIaaFElelnzWqEYEbJuoxm01lynaT1jMQ92lvVTw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SEeWlnFMCWssXJgNoHN4DwF/kWWAAvr1HR1Jx+FG0B/cSGf/cjHW3oCepkhN2cwPu
-         TilLKpC0Td181NOaArulfOIhdRyygvERLIrGoYUNTkuQfsyE/1T17n9Ss0j8MEg+E/
-         ugJ5lHL4DV8/U/lEPunlKt2FR04+SQN94mHOMsc/khcuuDQ4OUWZqxeVxlZZLMgjno
-         maKdTbH0bl9Mp2nN5YC4ikg17o/RirAebnaQnLCYonmCjgrt6wqI8wO67kiccFc9RK
-         feRrzX6ZfVBz7HQ2HLO+LJjrimRTy+dqtwmn6IbgI71I5wqYi6FV0XX4k0/El/KAkh
-         VnRVMfgBjmhfw==
+        b=U+hsTc1Bv3JN8hlj+fLmLvJ287246jPY1cjd8KIpXtjeuJisPEqrxQ6Mrr5bRZA8D
+         ljh5hx1pL7wYW+1pyvQkxayBfWm5hahRtbNNw9TAv2CCyNiaKfi83bEnFMXjwbZ8Em
+         o5jxsejbePl9IW1dSK5xOHZWZq8bdtQRqz/LNuOO63RggDQuIbBrUUCxcCPAwntyM7
+         8xOeB+OsFbOXI/cgq7Pye5EsxXFAQgSWkXJbj3lQsPkyzLaDFgKER6jfoRrMbOJNi+
+         v65+PoBaWi/j7yCd/kVJVnR03ZTdve/3/slPdTeb/fLKK0yA/qrdZUuvyZIQ7ZWP1w
+         vehJGX2EWqn7g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Prarit Bhargava <prarit@redhat.com>,
-        Richard Henderson <rth@twiddle.net>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Matt Turner <mattst88@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-alpha@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 3/4] alpha: Send stop IPI to send to online CPUs
-Date:   Tue,  3 Aug 2021 07:44:43 -0400
-Message-Id: <20210803114445.2253179-3-sashal@kernel.org>
+Cc:     Letu Ren <fantasquex@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 4/4] net/qla3xxx: fix schedule while atomic in ql_wait_for_drvr_lock and ql_adapter_reset
+Date:   Tue,  3 Aug 2021 07:44:44 -0400
+Message-Id: <20210803114445.2253179-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210803114445.2253179-1-sashal@kernel.org>
 References: <20210803114445.2253179-1-sashal@kernel.org>
@@ -44,46 +42,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Prarit Bhargava <prarit@redhat.com>
+From: Letu Ren <fantasquex@gmail.com>
 
-[ Upstream commit caace6ca4e06f09413fb8f8a63319594cfb7d47d ]
+[ Upstream commit 92766c4628ea349c8ddab0cd7bd0488f36e5c4ce ]
 
-This issue was noticed while debugging a shutdown issue where some
-secondary CPUs are not being shutdown correctly.  A fix for that [1] requires
-that secondary cpus be offlined using the cpu_online_mask so that the
-stop operation is a no-op if CPU HOTPLUG is disabled.  I, like the author in
-[1] looked at the architectures and found that alpha is one of two
-architectures that executes smp_send_stop() on all possible CPUs.
+When calling the 'ql_wait_for_drvr_lock' and 'ql_adapter_reset', the driver
+has already acquired the spin lock, so the driver should not call 'ssleep'
+in atomic context.
 
-On alpha, smp_send_stop() sends an IPI to all possible CPUs but only needs
-to send them to online CPUs.
+This bug can be fixed by using 'mdelay' instead of 'ssleep'.
 
-Send the stop IPI to only the online CPUs.
-
-[1] https://lkml.org/lkml/2020/1/10/250
-
-Signed-off-by: Prarit Bhargava <prarit@redhat.com>
-Cc: Richard Henderson <rth@twiddle.net>
-Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Signed-off-by: Matt Turner <mattst88@gmail.com>
+Reported-by: Letu Ren <fantasquex@gmail.com>
+Signed-off-by: Letu Ren <fantasquex@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/alpha/kernel/smp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/qlogic/qla3xxx.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/alpha/kernel/smp.c b/arch/alpha/kernel/smp.c
-index 46bf263c3153..d2477a502ce7 100644
---- a/arch/alpha/kernel/smp.c
-+++ b/arch/alpha/kernel/smp.c
-@@ -584,7 +584,7 @@ void
- smp_send_stop(void)
- {
- 	cpumask_t to_whom;
--	cpumask_copy(&to_whom, cpu_possible_mask);
-+	cpumask_copy(&to_whom, cpu_online_mask);
- 	cpumask_clear_cpu(smp_processor_id(), &to_whom);
- #ifdef DEBUG_IPI_MSG
- 	if (hard_smp_processor_id() != boot_cpu_id)
+diff --git a/drivers/net/ethernet/qlogic/qla3xxx.c b/drivers/net/ethernet/qlogic/qla3xxx.c
+index 192950a112c9..cb9d43c871c4 100644
+--- a/drivers/net/ethernet/qlogic/qla3xxx.c
++++ b/drivers/net/ethernet/qlogic/qla3xxx.c
+@@ -155,7 +155,7 @@ static int ql_wait_for_drvr_lock(struct ql3_adapter *qdev)
+ 				      "driver lock acquired\n");
+ 			return 1;
+ 		}
+-		ssleep(1);
++		mdelay(1000);
+ 	} while (++i < 10);
+ 
+ 	netdev_err(qdev->ndev, "Timed out waiting for driver lock...\n");
+@@ -3287,7 +3287,7 @@ static int ql_adapter_reset(struct ql3_adapter *qdev)
+ 		if ((value & ISP_CONTROL_SR) == 0)
+ 			break;
+ 
+-		ssleep(1);
++		mdelay(1000);
+ 	} while ((--max_wait_time));
+ 
+ 	/*
+@@ -3323,7 +3323,7 @@ static int ql_adapter_reset(struct ql3_adapter *qdev)
+ 						   ispControlStatus);
+ 			if ((value & ISP_CONTROL_FSR) == 0)
+ 				break;
+-			ssleep(1);
++			mdelay(1000);
+ 		} while ((--max_wait_time));
+ 	}
+ 	if (max_wait_time == 0)
 -- 
 2.30.2
 
