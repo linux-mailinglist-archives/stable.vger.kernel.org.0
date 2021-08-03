@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FFAB3DECCF
+	by mail.lfdr.de (Postfix) with ESMTP id 68EDE3DECD0
 	for <lists+stable@lfdr.de>; Tue,  3 Aug 2021 13:45:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236440AbhHCLpQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Aug 2021 07:45:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35982 "EHLO mail.kernel.org"
+        id S236444AbhHCLpR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Aug 2021 07:45:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236343AbhHCLpE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Aug 2021 07:45:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A9C1960F56;
-        Tue,  3 Aug 2021 11:44:52 +0000 (UTC)
+        id S236350AbhHCLpF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Aug 2021 07:45:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C94CF610FD;
+        Tue,  3 Aug 2021 11:44:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1627991093;
-        bh=N95X6vvnJYJ0RYkEtYepk8jK3Izt2Eu+vkdvc+bxJR0=;
-        h=From:To:Cc:Subject:Date:From;
-        b=g8iu2ePw5j8rsY7/YINEPofownbG1SjbqBYS0FgstOnIcGsBjX9puJfCtn3XVYyRx
-         3Y1FgGneEaFqCz/t8OMMPNKI82nHMWmGXmWfFIwtyC0emfqM/IQ0BELjp/LW/Lh6af
-         uNz/CXb3pWp++pgVRKXpG5MTPvUWhAEm7/gOZsvlFTDwaXVesmyk3c4JgdoMqQ5tOh
-         L5unbh2/grbYwCWA8AuWfYzapG2wqCW8hdVm4wVd3/d+wdVdef7GWb7uNApgEqjkak
-         tTV9vmXf0r7C0DDy+oPdj/hxoq6pCeBZVIFDrov2WoWV1n7GBSEdotylqKvEtluFSD
-         1xVW5g+4k1chQ==
+        s=k20201202; t=1627991094;
+        bh=Fra+xviE6GKyepm+SKDA3lXdcyo451/6M8Jg6WcLpuI=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=H5uel+OVV8y7QtIJUHOv88hpDzjLYSnUK6u9C4RhNmxF1jyTXWNre81fKIih7e5vQ
+         uMg0vEAdxCpU7xDSVd2ndbbccZcGkcPMWP6IiGmjMsXV4EVG65Q3358o67EKPaFAva
+         nHxflwxi9OSBF+T6h8tR3eRlTPjZEzdUe6UVxLPdTf0KW8K+DTlJeLozLyYaz/TCo7
+         Uz4Ie5bRIJVbRDBLC1Zmnb8gfYy8LYZJqy6oy6zerXZaXKsvlN442DCnle2d20Fjcg
+         DAMBSILfD/S8TVVsaYMPZ8OIor+WZTqVMlojh0tlnVgG94+HoscdHy15LPJ3Ec08j4
+         zDuGwUfx8ZMAQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yu Kuai <yukuai3@huawei.com>, Jan Kara <jack@suse.cz>,
-        Sasha Levin <sashal@kernel.org>, reiserfs-devel@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 1/4] reiserfs: add check for root_inode in reiserfs_fill_super
-Date:   Tue,  3 Aug 2021 07:44:48 -0400
-Message-Id: <20210803114451.2253268-1-sashal@kernel.org>
+Cc:     Shreyansh Chouhan <chouhan.shreyansh630@gmail.com>,
+        syzbot+c31a48e6702ccb3d64c9@syzkaller.appspotmail.com,
+        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        reiserfs-devel@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 2/4] reiserfs: check directory items on read from disk
+Date:   Tue,  3 Aug 2021 07:44:49 -0400
+Message-Id: <20210803114451.2253268-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210803114451.2253268-1-sashal@kernel.org>
+References: <20210803114451.2253268-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -39,96 +43,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Shreyansh Chouhan <chouhan.shreyansh630@gmail.com>
 
-[ Upstream commit 2acf15b94d5b8ea8392c4b6753a6ffac3135cd78 ]
+[ Upstream commit 13d257503c0930010ef9eed78b689cec417ab741 ]
 
-Our syzcaller report a NULL pointer dereference:
+While verifying the leaf item that we read from the disk, reiserfs
+doesn't check the directory items, this could cause a crash when we
+read a directory item from the disk that has an invalid deh_location.
 
-BUG: kernel NULL pointer dereference, address: 0000000000000000
-PGD 116e95067 P4D 116e95067 PUD 1080b5067 PMD 0
-Oops: 0010 [#1] SMP KASAN
-CPU: 7 PID: 592 Comm: a.out Not tainted 5.13.0-next-20210629-dirty #67
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ?-20190727_073836-buildvm-p4
-RIP: 0010:0x0
-Code: Unable to access opcode bytes at RIP 0xffffffffffffffd6.
-RSP: 0018:ffff888114e779b8 EFLAGS: 00010246
-RAX: 0000000000000000 RBX: 1ffff110229cef39 RCX: ffffffffaa67e1aa
-RDX: 0000000000000000 RSI: ffff88810a58ee00 RDI: ffff8881233180b0
-RBP: ffffffffac38e9c0 R08: ffffffffaa67e17e R09: 0000000000000001
-R10: ffffffffb91c5557 R11: fffffbfff7238aaa R12: ffff88810a58ee00
-R13: ffff888114e77aa0 R14: 0000000000000000 R15: ffff8881233180b0
-FS:  00007f946163c480(0000) GS:ffff88839f1c0000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: ffffffffffffffd6 CR3: 00000001099c1000 CR4: 00000000000006e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- __lookup_slow+0x116/0x2d0
- ? page_put_link+0x120/0x120
- ? __d_lookup+0xfc/0x320
- ? d_lookup+0x49/0x90
- lookup_one_len+0x13c/0x170
- ? __lookup_slow+0x2d0/0x2d0
- ? reiserfs_schedule_old_flush+0x31/0x130
- reiserfs_lookup_privroot+0x64/0x150
- reiserfs_fill_super+0x158c/0x1b90
- ? finish_unfinished+0xb10/0xb10
- ? bprintf+0xe0/0xe0
- ? __mutex_lock_slowpath+0x30/0x30
- ? __kasan_check_write+0x20/0x30
- ? up_write+0x51/0xb0
- ? set_blocksize+0x9f/0x1f0
- mount_bdev+0x27c/0x2d0
- ? finish_unfinished+0xb10/0xb10
- ? reiserfs_kill_sb+0x120/0x120
- get_super_block+0x19/0x30
- legacy_get_tree+0x76/0xf0
- vfs_get_tree+0x49/0x160
- ? capable+0x1d/0x30
- path_mount+0xacc/0x1380
- ? putname+0x97/0xd0
- ? finish_automount+0x450/0x450
- ? kmem_cache_free+0xf8/0x5a0
- ? putname+0x97/0xd0
- do_mount+0xe2/0x110
- ? path_mount+0x1380/0x1380
- ? copy_mount_options+0x69/0x140
- __x64_sys_mount+0xf0/0x190
- do_syscall_64+0x35/0x80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
+This patch adds a check to the directory items read from the disk that
+does a bounds check on deh_location for the directory entries. Any
+directory entry header with a directory entry offset greater than the
+item length is considered invalid.
 
-This is because 'root_inode' is initialized with wrong mode, and
-it's i_op is set to 'reiserfs_special_inode_operations'. Thus add
-check for 'root_inode' to fix the problem.
-
-Link: https://lore.kernel.org/r/20210702040743.1918552-1-yukuai3@huawei.com
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Link: https://lore.kernel.org/r/20210709152929.766363-1-chouhan.shreyansh630@gmail.com
+Reported-by: syzbot+c31a48e6702ccb3d64c9@syzkaller.appspotmail.com
+Signed-off-by: Shreyansh Chouhan <chouhan.shreyansh630@gmail.com>
 Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/reiserfs/super.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ fs/reiserfs/stree.c | 31 ++++++++++++++++++++++++++-----
+ 1 file changed, 26 insertions(+), 5 deletions(-)
 
-diff --git a/fs/reiserfs/super.c b/fs/reiserfs/super.c
-index 503d8c06e0d9..2ffcbe451202 100644
---- a/fs/reiserfs/super.c
-+++ b/fs/reiserfs/super.c
-@@ -2050,6 +2050,14 @@ static int reiserfs_fill_super(struct super_block *s, void *data, int silent)
- 		unlock_new_inode(root_inode);
- 	}
+diff --git a/fs/reiserfs/stree.c b/fs/reiserfs/stree.c
+index 33b78ee9fb9e..13322c39e6cc 100644
+--- a/fs/reiserfs/stree.c
++++ b/fs/reiserfs/stree.c
+@@ -386,6 +386,24 @@ void pathrelse(struct treepath *search_path)
+ 	search_path->path_length = ILLEGAL_PATH_ELEMENT_OFFSET;
+ }
  
-+	if (!S_ISDIR(root_inode->i_mode) || !inode_get_bytes(root_inode) ||
-+	    !root_inode->i_size) {
-+		SWARN(silent, s, "", "corrupt root inode, run fsck");
-+		iput(root_inode);
-+		errval = -EUCLEAN;
-+		goto error;
++static int has_valid_deh_location(struct buffer_head *bh, struct item_head *ih)
++{
++	struct reiserfs_de_head *deh;
++	int i;
++
++	deh = B_I_DEH(bh, ih);
++	for (i = 0; i < ih_entry_count(ih); i++) {
++		if (deh_location(&deh[i]) > ih_item_len(ih)) {
++			reiserfs_warning(NULL, "reiserfs-5094",
++					 "directory entry location seems wrong %h",
++					 &deh[i]);
++			return 0;
++		}
 +	}
 +
- 	s->s_root = d_make_root(root_inode);
- 	if (!s->s_root)
- 		goto error;
++	return 1;
++}
++
+ static int is_leaf(char *buf, int blocksize, struct buffer_head *bh)
+ {
+ 	struct block_head *blkh;
+@@ -453,11 +471,14 @@ static int is_leaf(char *buf, int blocksize, struct buffer_head *bh)
+ 					 "(second one): %h", ih);
+ 			return 0;
+ 		}
+-		if (is_direntry_le_ih(ih) && (ih_item_len(ih) < (ih_entry_count(ih) * IH_SIZE))) {
+-			reiserfs_warning(NULL, "reiserfs-5093",
+-					 "item entry count seems wrong %h",
+-					 ih);
+-			return 0;
++		if (is_direntry_le_ih(ih)) {
++			if (ih_item_len(ih) < (ih_entry_count(ih) * IH_SIZE)) {
++				reiserfs_warning(NULL, "reiserfs-5093",
++						 "item entry count seems wrong %h",
++						 ih);
++				return 0;
++			}
++			return has_valid_deh_location(bh, ih);
+ 		}
+ 		prev_location = ih_location(ih);
+ 	}
 -- 
 2.30.2
 
