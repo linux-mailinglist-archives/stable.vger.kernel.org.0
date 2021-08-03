@@ -2,227 +2,211 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F2B473DEEF3
-	for <lists+stable@lfdr.de>; Tue,  3 Aug 2021 15:17:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 503343DEF0C
+	for <lists+stable@lfdr.de>; Tue,  3 Aug 2021 15:27:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236195AbhHCNRx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Aug 2021 09:17:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40672 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235954AbhHCNRx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Aug 2021 09:17:53 -0400
-Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43197C06175F
-        for <stable@vger.kernel.org>; Tue,  3 Aug 2021 06:17:41 -0700 (PDT)
-Received: by mail-ed1-x52e.google.com with SMTP id z11so6496377edb.11
-        for <stable@vger.kernel.org>; Tue, 03 Aug 2021 06:17:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=yR4S2ZQmok+LMwRMPbSCkfcF7S1VTidPl8mrJI1OXHY=;
-        b=naF0LMmxmvdiLihArultg5bRuKRC75ZA5oWeTTC3K8Gs/UBvNgSO5Y0pKskfkvVX9Y
-         PKIBdIDo0+5rXqpPU5tR8qnQjh6k1dBD1GRaVm/I4Zr13QVFdTsfJkkpItu6QNaRo7Ik
-         BPeRCtCf9LM0/A8/+Ia5JjhUW1D3uMVVnZDR/uIN+PRFc9xSmWuk8EEgWJtgZDlxTG3j
-         wPzumiw9qSYshJU+/WtnjNO6T6mYPFBJdgewUQAmnKHb7gaEpNzsZGfE/OzXwE2UPdGR
-         6j0hsAnvja18HbJ1S9IGnXdZMjSrRk+LgtCyPnZ1uZ46nZcR212YSVtVNV5nHVyhpQuX
-         Mu4A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=yR4S2ZQmok+LMwRMPbSCkfcF7S1VTidPl8mrJI1OXHY=;
-        b=fkOtvaMV4lcIRB/9tRWZmp5CXUud00dS3d/IjeY5+O6U6wOqy0974iwv7QHgfNcHzV
-         e05aSzaUtZtekkmunelJ28P0em6QKi7x1+k8udBrLdh+NR2SZhb7+9IWXEIYB9SowDX4
-         IhET7xnUMdC+/ujC6ONS2FyMz/duaqXgrWd2W7Kiw3Jc0evZpNxVMTGz/ng8K2oW97X3
-         Wt8QUSkApd8WmTsmzKWN9jUcySIigfnfLZ36tmEzR98Y2O98HbvMDkMFHHsTCr9KagML
-         z+Pndg8VEdUau3wB8nRhzlsccSpVz2uycOoWT5tvTNRuvCKySWcuI0vzRGOfbYXTTjUY
-         U4/Q==
-X-Gm-Message-State: AOAM531WgzVhD109HSJTbRmW36bRFOQemOUCWwEUfoAloVX2FRusbOUU
-        2bguKEgJi9MLHGR1zCyXX1tLrd18dW4o5TGpAe168w==
-X-Google-Smtp-Source: ABdhPJxmVBMhBwyLrU9wZlYjM14fpf07QrSSuWhRKwy/bhfuFtk/QC+rp3AfFWRskkGwVtWXmT29uvhG1IgahYzr+mw=
-X-Received: by 2002:aa7:c805:: with SMTP id a5mr25236154edt.23.1627996659650;
- Tue, 03 Aug 2021 06:17:39 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210802134334.835358048@linuxfoundation.org>
-In-Reply-To: <20210802134334.835358048@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 3 Aug 2021 18:47:27 +0530
-Message-ID: <CA+G9fYui0Z1RMgMx4Sa41btUxTXMMuZ2uEL6Nhe3G9w7hZH6Pg@mail.gmail.com>
-Subject: Re: [PATCH 4.14 00/38] 4.14.242-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
-        linux-stable <stable@vger.kernel.org>,
-        Pavel Machek <pavel@denx.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        id S236366AbhHCN2D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Aug 2021 09:28:03 -0400
+Received: from mga12.intel.com ([192.55.52.136]:37709 "EHLO mga12.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S236245AbhHCN2C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Aug 2021 09:28:02 -0400
+X-IronPort-AV: E=McAfee;i="6200,9189,10064"; a="193280914"
+X-IronPort-AV: E=Sophos;i="5.84,291,1620716400"; 
+   d="scan'208";a="193280914"
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Aug 2021 06:27:51 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.84,291,1620716400"; 
+   d="scan'208";a="502394202"
+Received: from otc-lr-04.jf.intel.com ([10.54.39.41])
+  by fmsmga004.fm.intel.com with ESMTP; 03 Aug 2021 06:27:50 -0700
+From:   kan.liang@linux.intel.com
+To:     peterz@infradead.org, mingo@redhat.com,
+        linux-kernel@vger.kernel.org
+Cc:     ak@linux.intel.com, Kan Liang <kan.liang@linux.intel.com>,
+        stable@vger.kernel.org
+Subject: [PATCH V2] perf/x86/intel: Apply mid ACK for small core
+Date:   Tue,  3 Aug 2021 06:25:28 -0700
+Message-Id: <1627997128-57891-1-git-send-email-kan.liang@linux.intel.com>
+X-Mailer: git-send-email 2.7.4
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 2 Aug 2021 at 19:19, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.14.242 release.
-> There are 38 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 04 Aug 2021 13:43:24 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.14.242-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.14.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+From: Kan Liang <kan.liang@linux.intel.com>
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+A warning as below may be occasionally triggered in an ADL machine when
+these conditions occur,
+- Two perf record commands run one by one. Both record a PEBS event.
+- Both runs on small cores.
+- They have different adaptive PEBS configuration (PEBS_DATA_CFG).
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+[  673.663291] WARNING: CPU: 4 PID: 9874 at
+arch/x86/events/intel/ds.c:1743
+setup_pebs_adaptive_sample_data+0x55e/0x5b0
+[  673.663348] RIP: 0010:setup_pebs_adaptive_sample_data+0x55e/0x5b0
+[  673.663357] Call Trace:
+[  673.663357]  <NMI>
+[  673.663357]  intel_pmu_drain_pebs_icl+0x48b/0x810
+[  673.663360]  perf_event_nmi_handler+0x41/0x80
+[  673.663368]  </NMI>
+[  673.663370]  __perf_event_task_sched_in+0x2c2/0x3a0
 
-## Build
-* kernel: 4.14.242-rc1
-* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
-rc.git
-* git branch: linux-4.14.y
-* git commit: ec038bb8339f8cbc9d78324a4e62c5cb3992e69f
-* git describe: v4.14.241-39-gec038bb8339f
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.14.y/build/v4.14=
-.241-39-gec038bb8339f
+Different from the big core, the small core requires the ACK right
+before re-enabling counters in the NMI handler, otherwise a stale PEBS
+record may be dumped into the later NMI handler, which trigger the
+warning.
 
-## No regressions (compared to v4.14.241-14-g8cb34df08062)
+Add a new mid_ack flag to track the case. Add all PMI handler bits in
+the struct x86_hybrid_pmu to track the bits for different types of PMUs.
+Apply mid ACK for the small cores on an Alder Lake machine.
 
-## No fixes (compared to v4.14.241-14-g8cb34df08062)
+The existing hybrid() macro has a compile error when taking address of a
+bit-field variable. Add a new macro hybrid_bit() to get the bit-field
+value of a given PMU.
 
-## Test result summary
- total: 66149, pass: 52221, fail: 673, skip: 11274, xfail: 1981,
+Fixes: f83d2f91d259 ("perf/x86/intel: Add Alder Lake Hybrid support")
+Reported-by: Ammy Yi <ammy.yi@intel.com>
+Tested-by: Ammy Yi <ammy.yi@intel.com>
+Reviewed-by: Andi Kleen <ak@linux.intel.com>
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Cc: stable@vger.kernel.org
+---
 
-## Build Summary
-* arm: 97 total, 97 passed, 0 failed
-* arm64: 24 total, 24 passed, 0 failed
-* dragonboard-410c: 1 total, 1 passed, 0 failed
-* hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 14 total, 14 passed, 0 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 36 total, 36 passed, 0 failed
-* sparc: 9 total, 9 passed, 0 failed
-* x15: 1 total, 1 passed, 0 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 14 total, 14 passed, 0 failed
+The V1 patch set can be found at
+https://lore.kernel.org/lkml/1625774073-153697-1-git-send-email-kan.liang@linux.intel.com/
 
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* install-android-platform-tools-r2600
-* kselftest-android
-* kselftest-bpf
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-lkdtm
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kvm-unit-tests
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* rcutorture
-* ssuite
-* v4l2-compliance
+Changes since v1:
+- Introduce mid ACK. The early ACK in V1 may trigger other issue based
+  on the latest test result.
+- Add comments regarding early, mid and late ACK.
 
---
-Linaro LKFT
-https://lkft.linaro.org
+ arch/x86/events/intel/core.c | 23 +++++++++++++++--------
+ arch/x86/events/perf_event.h | 15 +++++++++++++++
+ 2 files changed, 30 insertions(+), 8 deletions(-)
+
+diff --git a/arch/x86/events/intel/core.c b/arch/x86/events/intel/core.c
+index d76be3b..511d1f9 100644
+--- a/arch/x86/events/intel/core.c
++++ b/arch/x86/events/intel/core.c
+@@ -2904,24 +2904,28 @@ static int handle_pmi_common(struct pt_regs *regs, u64 status)
+  */
+ static int intel_pmu_handle_irq(struct pt_regs *regs)
+ {
+-	struct cpu_hw_events *cpuc;
++	struct cpu_hw_events *cpuc = this_cpu_ptr(&cpu_hw_events);
++	bool late_ack = hybrid_bit(cpuc->pmu, late_ack);
++	bool mid_ack = hybrid_bit(cpuc->pmu, mid_ack);
+ 	int loops;
+ 	u64 status;
+ 	int handled;
+ 	int pmu_enabled;
+ 
+-	cpuc = this_cpu_ptr(&cpu_hw_events);
+-
+ 	/*
+ 	 * Save the PMU state.
+ 	 * It needs to be restored when leaving the handler.
+ 	 */
+ 	pmu_enabled = cpuc->enabled;
+ 	/*
+-	 * No known reason to not always do late ACK,
+-	 * but just in case do it opt-in.
++	 * In general, the early ACK is only applied for old platforms.
++	 * For the big core starts from Haswell, the late ACK should be
++	 * applied.
++	 * For the small core after Tremont, we have to do the ACK right
++	 * before re-enabling counters, which is in the middle of the
++	 * NMI handler.
+ 	 */
+-	if (!x86_pmu.late_ack)
++	if (!late_ack && !mid_ack)
+ 		apic_write(APIC_LVTPC, APIC_DM_NMI);
+ 	intel_bts_disable_local();
+ 	cpuc->enabled = 0;
+@@ -2958,6 +2962,8 @@ static int intel_pmu_handle_irq(struct pt_regs *regs)
+ 		goto again;
+ 
+ done:
++	if (mid_ack)
++		apic_write(APIC_LVTPC, APIC_DM_NMI);
+ 	/* Only restore PMU state when it's active. See x86_pmu_disable(). */
+ 	cpuc->enabled = pmu_enabled;
+ 	if (pmu_enabled)
+@@ -2969,7 +2975,7 @@ static int intel_pmu_handle_irq(struct pt_regs *regs)
+ 	 * have been reset. This avoids spurious NMIs on
+ 	 * Haswell CPUs.
+ 	 */
+-	if (x86_pmu.late_ack)
++	if (late_ack)
+ 		apic_write(APIC_LVTPC, APIC_DM_NMI);
+ 	return handled;
+ }
+@@ -6123,7 +6129,6 @@ __init int intel_pmu_init(void)
+ 		static_branch_enable(&perf_is_hybrid);
+ 		x86_pmu.num_hybrid_pmus = X86_HYBRID_NUM_PMUS;
+ 
+-		x86_pmu.late_ack = true;
+ 		x86_pmu.pebs_aliases = NULL;
+ 		x86_pmu.pebs_prec_dist = true;
+ 		x86_pmu.pebs_block = true;
+@@ -6161,6 +6166,7 @@ __init int intel_pmu_init(void)
+ 		pmu = &x86_pmu.hybrid_pmu[X86_HYBRID_PMU_CORE_IDX];
+ 		pmu->name = "cpu_core";
+ 		pmu->cpu_type = hybrid_big;
++		pmu->late_ack = true;
+ 		if (cpu_feature_enabled(X86_FEATURE_HYBRID_CPU)) {
+ 			pmu->num_counters = x86_pmu.num_counters + 2;
+ 			pmu->num_counters_fixed = x86_pmu.num_counters_fixed + 1;
+@@ -6186,6 +6192,7 @@ __init int intel_pmu_init(void)
+ 		pmu = &x86_pmu.hybrid_pmu[X86_HYBRID_PMU_ATOM_IDX];
+ 		pmu->name = "cpu_atom";
+ 		pmu->cpu_type = hybrid_small;
++		pmu->mid_ack = true;
+ 		pmu->num_counters = x86_pmu.num_counters;
+ 		pmu->num_counters_fixed = x86_pmu.num_counters_fixed;
+ 		pmu->max_pebs_events = x86_pmu.max_pebs_events;
+diff --git a/arch/x86/events/perf_event.h b/arch/x86/events/perf_event.h
+index ad87cb3..eec7ce8 100644
+--- a/arch/x86/events/perf_event.h
++++ b/arch/x86/events/perf_event.h
+@@ -655,6 +655,10 @@ struct x86_hybrid_pmu {
+ 	struct event_constraint		*event_constraints;
+ 	struct event_constraint		*pebs_constraints;
+ 	struct extra_reg		*extra_regs;
++
++	unsigned int			late_ack	:1,
++					mid_ack		:1,
++					enabled_ack	:1;
+ };
+ 
+ static __always_inline struct x86_hybrid_pmu *hybrid_pmu(struct pmu *pmu)
+@@ -685,6 +689,16 @@ extern struct static_key_false perf_is_hybrid;
+ 	__Fp;						\
+ }))
+ 
++#define hybrid_bit(_pmu, _field)			\
++({							\
++	bool __Fp = x86_pmu._field;			\
++							\
++	if (is_hybrid() && (_pmu))			\
++		__Fp = hybrid_pmu(_pmu)->_field;	\
++							\
++	__Fp;						\
++})
++
+ enum hybrid_pmu_type {
+ 	hybrid_big		= 0x40,
+ 	hybrid_small		= 0x20,
+@@ -754,6 +768,7 @@ struct x86_pmu {
+ 
+ 	/* PMI handler bits */
+ 	unsigned int	late_ack		:1,
++			mid_ack			:1,
+ 			enabled_ack		:1;
+ 	/*
+ 	 * sysfs attrs
+-- 
+2.7.4
+
