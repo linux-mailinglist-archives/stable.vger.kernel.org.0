@@ -2,183 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F38963DEAE6
-	for <lists+stable@lfdr.de>; Tue,  3 Aug 2021 12:28:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 514F53DEB05
+	for <lists+stable@lfdr.de>; Tue,  3 Aug 2021 12:36:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234813AbhHCK2U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Aug 2021 06:28:20 -0400
-Received: from foss.arm.com ([217.140.110.172]:46794 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235040AbhHCK2T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Aug 2021 06:28:19 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id E4ABB106F;
-        Tue,  3 Aug 2021 03:28:07 -0700 (PDT)
-Received: from e123648.arm.com (unknown [10.57.9.94])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id EA3D43F40C;
-        Tue,  3 Aug 2021 03:28:02 -0700 (PDT)
-From:   Lukasz Luba <lukasz.luba@arm.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     Chris.Redpath@arm.com, lukasz.luba@arm.com,
-        dietmar.eggemann@arm.com, morten.rasmussen@arm.com,
-        qperret@google.com, linux-pm@vger.kernel.org,
-        stable@vger.kernel.org, peterz@infradead.org, rjw@rjwysocki.net,
-        viresh.kumar@linaro.org, vincent.guittot@linaro.org,
-        mingo@redhat.com, juri.lelli@redhat.com, rostedt@goodmis.org,
-        segall@google.com, mgorman@suse.de, bristot@redhat.com,
-        CCj.Yeh@mediatek.com
-Subject: [PATCH v3] PM: EM: Increase energy calculation precision
-Date:   Tue,  3 Aug 2021 11:27:43 +0100
-Message-Id: <20210803102744.23654-1-lukasz.luba@arm.com>
-X-Mailer: git-send-email 2.17.1
+        id S234904AbhHCKgN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Aug 2021 06:36:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56948 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235254AbhHCKgN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Aug 2021 06:36:13 -0400
+Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B45BC06175F;
+        Tue,  3 Aug 2021 03:36:01 -0700 (PDT)
+Received: by mail-wr1-x42a.google.com with SMTP id b13so13906098wrs.3;
+        Tue, 03 Aug 2021 03:36:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=5gnsnzTGI54ChlStN7U51FwYFJHyQet6tZdsRBwdagg=;
+        b=fpkA1Qr8QHvpMIZSgQrmalSO/MWPPaXNJAQT7Roa2w/W/+Ia+CO5lg7HoDNFoMsakw
+         eXh+v9wno5ozCZ6s2Tz04fsjKhnUQ4SubcOvMe2K2C+9a8Owtd01rK/EmN4EF+eLFM0K
+         s4GDlBLexIjFbj0EISKPdqgSdUTYL8DxPc5es6bXdr4094u0gVpLBjZI8b/9TMeBtumb
+         S9H9Dm7ylMHRkRBi3706be7xyuFO/mn9YlcoHzYOohYpAQFWL61v0iR3Q+YBB9A9iknN
+         pOZlIBf47VIH/AhMjVq8dWXgv6wqvp/CcHIPKhDL56qF4ItyS5q0F5mgf/spXIf4NDwV
+         IAxQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=5gnsnzTGI54ChlStN7U51FwYFJHyQet6tZdsRBwdagg=;
+        b=sY0dQ+EOalCJCXkMYvdq5AczMwT/uxkG6WqKFoBGJ4eETy41nas9MXSB0j2YHy6ydq
+         lb565yxPH/YmxQQV5v3WJ1vxZtoRjE7x5BOiggdjkZtrOLPzrnq1+lMDknIf8n4pr3+x
+         /gGXa2GnEvENUXy4WnEYwvXUkSYXT0t6btDDlW4qSeMlv9Ko7LUIWK2JJutkVzgps4Gn
+         3fDeYCWsgFUQhbuYVokJGi2EfpJNwI6BNRtlxOQjWzNa6yC/LowajteZlAFP+wmuQgO1
+         RFweRMizZn/rUNUZfoWEEIKFlJqzpAgAVK/cW4bS/yDIf57B12jHkh6WJYing0HnNvaz
+         y5bg==
+X-Gm-Message-State: AOAM530Jq42TE/gZCyg3xTnMzreBUIKneKco2TtgAUpLErBKaXZOFOEh
+        +uy6CK7G7zUN+POnDZ9QciQ=
+X-Google-Smtp-Source: ABdhPJyWpLkXEiPW9udwjTC40JRgY4wWWDkK1h+sS4aphghCXTY/a8GS6BK94LrUzev5Gq8waSAokg==
+X-Received: by 2002:a5d:61c8:: with SMTP id q8mr22211371wrv.151.1627986959799;
+        Tue, 03 Aug 2021 03:35:59 -0700 (PDT)
+Received: from debian ([78.40.148.180])
+        by smtp.gmail.com with ESMTPSA id l2sm13580435wru.67.2021.08.03.03.35.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 03 Aug 2021 03:35:59 -0700 (PDT)
+Date:   Tue, 3 Aug 2021 11:35:57 +0100
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 5.4 00/40] 5.4.138-rc1 review
+Message-ID: <YQkcDRc8iF/+wHnA@debian>
+References: <20210802134335.408294521@linuxfoundation.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210802134335.408294521@linuxfoundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The Energy Model (EM) provides useful information about device power in
-each performance state to other subsystems like: Energy Aware Scheduler
-(EAS). The energy calculation in EAS does arithmetic operation based on
-the EM em_cpu_energy(). Current implementation of that function uses
-em_perf_state::cost as a pre-computed cost coefficient equal to:
-cost = power * max_frequency / frequency.
-The 'power' is expressed in milli-Watts (or in abstract scale).
+Hi Greg,
 
-There are corner cases when the EAS energy calculation for two Performance
-Domains (PDs) return the same value. The EAS compares these values to
-choose smaller one. It might happen that this values are equal due to
-rounding error. In such scenario, we need better resolution, e.g. 1000
-times better. To provide this possibility increase the resolution in the
-em_perf_state::cost for 64-bit architectures. The cost of increasing
-resolution on 32-bit is pretty high (64-bit division) and is not justified
-since there are no new 32bit big.LITTLE EAS systems expected which would
-benefit from this higher resolution.
+On Mon, Aug 02, 2021 at 03:44:40PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.138 release.
+> There are 40 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 04 Aug 2021 13:43:24 +0000.
+> Anything received after that time might be too late.
 
-This patch allows to avoid the rounding to milli-Watt errors, which might
-occur in EAS energy estimation for each PD. The rounding error is common
-for small tasks which have small utilization value.
+Build test:
+mips (gcc version 11.1.1 20210723): 65 configs -> no failure
+arm (gcc version 11.1.1 20210723): 107 configs -> no new failure
+arm64 (gcc version 11.1.1 20210723): 2 configs -> no failure
+x86_64 (gcc version 10.2.1 20210110): 2 configs -> no failure
 
-There are two places in the code where it makes a difference:
-1. In the find_energy_efficient_cpu() where we are searching for
-best_delta. We might suffer there when two PDs return the same result,
-like in the example below.
+Boot test:
+x86_64: Booted on my test laptop. No regression.
+x86_64: Booted on qemu. No regression.
 
-Scenario:
-Low utilized system e.g. ~200 sum_util for PD0 and ~220 for PD1. There
-are quite a few small tasks ~10-15 util. These tasks would suffer for
-the rounding error. These utilization values are typical when running games
-on Android. One of our partners has reported 5..10mA less battery drain
-when running with increased resolution.
 
-Some details:
-We have two PDs: PD0 (big) and PD1 (little)
-Let's compare w/o patch set ('old') and w/ patch set ('new')
-We are comparing energy w/ task and w/o task placed in the PDs
+Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
 
-a) 'old' w/o patch set, PD0
-task_util = 13
-cost = 480
-sum_util_w/o_task = 215
-sum_util_w_task = 228
-scale_cpu = 1024
-energy_w/o_task = 480 * 215 / 1024 = 100.78 => 100
-energy_w_task = 480 * 228 / 1024 = 106.87 => 106
-energy_diff = 106 - 100 = 6
-(this is equal to 'old' PD1's energy_diff in 'c)')
-
-b) 'new' w/ patch set, PD0
-task_util = 13
-cost = 480 * 1000 = 480000
-sum_util_w/o_task = 215
-sum_util_w_task = 228
-energy_w/o_task = 480000 * 215 / 1024 = 100781
-energy_w_task = 480000 * 228 / 1024  = 106875
-energy_diff = 106875 - 100781 = 6094
-(this is not equal to 'new' PD1's energy_diff in 'd)')
-
-c) 'old' w/o patch set, PD1
-task_util = 13
-cost = 160
-sum_util_w/o_task = 283
-sum_util_w_task = 293
-scale_cpu = 355
-energy_w/o_task = 160 * 283 / 355 = 127.55 => 127
-energy_w_task = 160 * 296 / 355 = 133.41 => 133
-energy_diff = 133 - 127 = 6
-(this is equal to 'old' PD0's energy_diff in 'a)')
-
-d) 'new' w/ patch set, PD1
-task_util = 13
-cost = 160 * 1000 = 160000
-sum_util_w/o_task = 283
-sum_util_w_task = 293
-scale_cpu = 355
-energy_w/o_task = 160000 * 283 / 355 = 127549
-energy_w_task = 160000 * 296 / 355 =   133408
-energy_diff = 133408 - 127549 = 5859
-(this is not equal to 'new' PD0's energy_diff in 'b)')
-
-2. Difference in the 6% energy margin filter at the end of
-find_energy_efficient_cpu(). With this patch the margin comparison also
-has better resolution, so it's possible to have better task placement
-thanks to that.
-
-Fixes: 27871f7a8a341ef ("PM: Introduce an Energy Model management framework")
-Reported-by: CCJ Yeh <CCj.Yeh@mediatek.com>
-Reviewed-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
-Signed-off-by: Lukasz Luba <lukasz.luba@arm.com>
----
-
-v3 changes:
-- adjusted patch description according to Dietmar's comments
-- added Dietmar's review tag
-- added one empty line in the code to separate them
-
- include/linux/energy_model.h | 16 ++++++++++++++++
- kernel/power/energy_model.c  |  4 +++-
- 2 files changed, 19 insertions(+), 1 deletion(-)
-
-diff --git a/include/linux/energy_model.h b/include/linux/energy_model.h
-index 3f221dbf5f95..1834752c5617 100644
---- a/include/linux/energy_model.h
-+++ b/include/linux/energy_model.h
-@@ -53,6 +53,22 @@ struct em_perf_domain {
- #ifdef CONFIG_ENERGY_MODEL
- #define EM_MAX_POWER 0xFFFF
- 
-+/*
-+ * Increase resolution of energy estimation calculations for 64-bit
-+ * architectures. The extra resolution improves decision made by EAS for the
-+ * task placement when two Performance Domains might provide similar energy
-+ * estimation values (w/o better resolution the values could be equal).
-+ *
-+ * We increase resolution only if we have enough bits to allow this increased
-+ * resolution (i.e. 64-bit). The costs for increasing resolution when 32-bit
-+ * are pretty high and the returns do not justify the increased costs.
-+ */
-+#ifdef CONFIG_64BIT
-+#define em_scale_power(p) ((p) * 1000)
-+#else
-+#define em_scale_power(p) (p)
-+#endif
-+
- struct em_data_callback {
- 	/**
- 	 * active_power() - Provide power at the next performance state of
-diff --git a/kernel/power/energy_model.c b/kernel/power/energy_model.c
-index 0f4530b3a8cd..a332ccd829e2 100644
---- a/kernel/power/energy_model.c
-+++ b/kernel/power/energy_model.c
-@@ -170,7 +170,9 @@ static int em_create_perf_table(struct device *dev, struct em_perf_domain *pd,
- 	/* Compute the cost of each performance state. */
- 	fmax = (u64) table[nr_states - 1].frequency;
- 	for (i = 0; i < nr_states; i++) {
--		table[i].cost = div64_u64(fmax * table[i].power,
-+		unsigned long power_res = em_scale_power(table[i].power);
-+
-+		table[i].cost = div64_u64(fmax * power_res,
- 					  table[i].frequency);
- 	}
- 
--- 
-2.17.1
+--
+Regards
+Sudip
 
