@@ -2,115 +2,240 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EC593DF6A0
-	for <lists+stable@lfdr.de>; Tue,  3 Aug 2021 22:52:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E78593DF8B2
+	for <lists+stable@lfdr.de>; Wed,  4 Aug 2021 01:58:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231479AbhHCUwj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Aug 2021 16:52:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40584 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231351AbhHCUwj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Aug 2021 16:52:39 -0400
-Received: from mail-ot1-x32b.google.com (mail-ot1-x32b.google.com [IPv6:2607:f8b0:4864:20::32b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEABEC061757;
-        Tue,  3 Aug 2021 13:52:27 -0700 (PDT)
-Received: by mail-ot1-x32b.google.com with SMTP id v8-20020a0568301bc8b02904d5b4e5ca3aso9767365ota.13;
-        Tue, 03 Aug 2021 13:52:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=VtphRU8oFphgqW5P1QLuJue1xk+Dt0j5gKSN+F1DYxk=;
-        b=U7VCqY0WXTGadjSfnxfoaKYmee/gjmyDh45M1yOpdumZVN+km8uYA5i2zmyczuD8vC
-         TDThmysG5EOvIIWfeWzzsKb0HA1zMXSLyqu/Ie8gGbB1WGycxkHNUaB0auSBDVfu64vW
-         XA8m7nAaNKGwzPOAlDjA4VYQlp3T6coP9jH8//DadGZLe0N/DDvMx/Om8H4bmy9dH1Ra
-         JDd4ev5S2KIh63RYmQprOXftGWmJx8bfcSU7hz+Pnqq0ZszFqWeN86ewOs8Se2b6qc7+
-         lzeejxUJEt8iHwlXND5muYkeAVfFH1p+eqsnQ7RxN2cHMlY3qR6ST3eQgk1oz/fAiBhr
-         fnHw==
+        id S234854AbhHCX6S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Aug 2021 19:58:18 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:55740 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234815AbhHCX6S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Aug 2021 19:58:18 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1628035086;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=qOdbN9oq5wgbhXmE9nWKp7NOdIdfMTNTOBDUpUb2TSQ=;
+        b=gqF+zkB4nGtLE4R5rbVUN31T75uIyJ7GoXulGTWEHtc3a0e2ruKY1HzJnMMVrXXT/YHJ1i
+        M03nDSc+c/zk6/4jcla1c0+utS2u0MzodH5zlybFko4aZDYOiT7n6Dd2JGVHoXUcnJg419
+        /8tdr97YsnT1Ntp3UoYtQp4fmY15mT4=
+Received: from mail-qv1-f70.google.com (mail-qv1-f70.google.com
+ [209.85.219.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-517-NzAy_d9dNn-otvSfKkV3Tw-1; Tue, 03 Aug 2021 19:58:05 -0400
+X-MC-Unique: NzAy_d9dNn-otvSfKkV3Tw-1
+Received: by mail-qv1-f70.google.com with SMTP id t18-20020a0cd4120000b02902fbda5d4988so399644qvh.11
+        for <stable@vger.kernel.org>; Tue, 03 Aug 2021 16:58:05 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
+        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
+         :references:organization:user-agent:mime-version
          :content-transfer-encoding;
-        bh=VtphRU8oFphgqW5P1QLuJue1xk+Dt0j5gKSN+F1DYxk=;
-        b=PO5k0sszxjsehiCcK8P5cFTVzWFrILJmixg0A17JiFqdIs4Rqn1EpI4jj92i+imFFz
-         YpAfRmF7e7BA3pkXuroeAtIrQ37+YJ5PblSCUQNxjJZQ8ZAxNnPDV8irvql08z1ICGnN
-         C/uWd1CAWU027XJ7/Kg1mDaqWJvbk+COZ/Fv60Hbb+rRbgolfgtYypUIdPVW5Ti0wFlH
-         CM1u9zwREln05Cwzkn/LSbsCyWaA9bA4IAhkHb6W6R9JwGW14Nrcnski9LkCj5Fsh/JN
-         T4LLi8p4yj9RBDF9nbPU1EQK8WnffwQcuvFV3SAM+f2CRsnt96tsfLp8hPtlAAEEb/4q
-         qMog==
-X-Gm-Message-State: AOAM533Mw79N0R+ge6m9USryJlbMYaSEBZgpmyQ7Xk1QJ7QYX8ouNB58
-        73k7okcCLWy63GkG8KksiKmGGxaX7eM=
-X-Google-Smtp-Source: ABdhPJyBoTrMlO3Oi4wC4m7X3eNMpBoVGZcEPHwiLqIfRVdRy9e2O5wOnTXYF1YcEWnsS6a7wL5/pw==
-X-Received: by 2002:a9d:63da:: with SMTP id e26mr149665otl.153.1628023946961;
-        Tue, 03 Aug 2021 13:52:26 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id g1sm29698otk.21.2021.08.03.13.52.25
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 03 Aug 2021 13:52:26 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Subject: Re: [PATCH 5.10 00/67] 5.10.56-rc1 review
-To:     Pavel Machek <pavel@denx.de>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-References: <20210802134339.023067817@linuxfoundation.org>
- <20210803192607.GA14540@duo.ucw.cz>
- <c1d12ff5-06d5-075c-e01f-5184ffb09e69@roeck-us.net>
- <20210803195026.GA16178@duo.ucw.cz>
-From:   Guenter Roeck <linux@roeck-us.net>
-Message-ID: <fb1e3a3a-9e6b-f397-c803-054fe96fc3c4@roeck-us.net>
-Date:   Tue, 3 Aug 2021 13:52:24 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        bh=qOdbN9oq5wgbhXmE9nWKp7NOdIdfMTNTOBDUpUb2TSQ=;
+        b=mXG5bCKOYmv1ROPOFcMpC+M63hO1oEjdVQwxiGGM1dJpkjdftklnp2TTztq1n/aYnC
+         Qdaw9dq8yUSWhDTVMFay1xZEVzIgrlCkWnm29y2Tu3WAAHBo+GiYmQqc53genPoMQli0
+         bsvJjXsjyVmNymxVSjZlk8KDUG8lXPwuAzEZEQ8EcC8gaZetYcxmiSiKpzf9/TI2+6uH
+         Syo/DARtWfciA15nLwJ+epL+UngA5W56xsx1wLrdQ2ItuBJ/0+WfM46AoUQNDq+x/G02
+         MGUXZFBrwxCOaHTqW04uWLy2tSfN8VRw12rIyMvpP6KCSLGV2ByR9MCtulbHFEIl+hoB
+         QYXg==
+X-Gm-Message-State: AOAM532gr0MbrE44GjjkrmYJAC+anSCHJKEQkoxdHk4fmGGOrgJHS7RY
+        KEJrrOpj6gn+Kssd3HmNEhnah6WW3Ztmfd0k3qbAyoMrzzvVb1xglOWYlfiQMFn6Sz7q5Y0nf7k
+        Ixm0nj06er0BUoAbG
+X-Received: by 2002:a37:a241:: with SMTP id l62mr22827929qke.47.1628035084759;
+        Tue, 03 Aug 2021 16:58:04 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxZQq86qV+cRINIc3n2R6aJQR48IK3qTXfFSMVb6lXn1UuTPa1mvkPnTGI8cKRalktIaKepxw==
+X-Received: by 2002:a37:a241:: with SMTP id l62mr22827906qke.47.1628035084523;
+        Tue, 03 Aug 2021 16:58:04 -0700 (PDT)
+Received: from Ruby.lyude.net (pool-108-49-102-102.bstnma.fios.verizon.net. [108.49.102.102])
+        by smtp.gmail.com with ESMTPSA id i67sm321775qkd.90.2021.08.03.16.58.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 03 Aug 2021 16:58:03 -0700 (PDT)
+Message-ID: <69a5f39580f0d3519468f45ecbfd50d7ad1b3036.camel@redhat.com>
+Subject: Re: [PATCH 2/4] drm/dp_mst: Only create connector for connected end
+ device
+From:   Lyude Paul <lyude@redhat.com>
+To:     Wayne Lin <Wayne.Lin@amd.com>, dri-devel@lists.freedesktop.org
+Cc:     Nicholas.Kazlauskas@amd.com, harry.wentland@amd.com,
+        jerry.zuo@amd.com, hersenxs.wu@amd.com,
+        Juston Li <juston.li@intel.com>,
+        Imre Deak <imre.deak@intel.com>,
+        Ville =?ISO-8859-1?Q?Syrj=E4l=E4?= 
+        <ville.syrjala@linux.intel.com>, Harry Wentland <hwentlan@amd.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Sean Paul <sean@poorly.run>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Aurabindo Pillai <aurabindo.pillai@amd.com>,
+        Eryk Brol <eryk.brol@amd.com>,
+        Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>,
+        Nikola Cornij <nikola.cornij@amd.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Manasi Navare <manasi.d.navare@intel.com>,
+        Ankit Nautiyal <ankit.k.nautiyal@intel.com>,
+        =?ISO-8859-1?Q?Jos=E9?= Roberto de Souza 
+        <jose.souza@intel.com>, Sean Paul <seanpaul@chromium.org>,
+        Ben Skeggs <bskeggs@redhat.com>, stable@vger.kernel.org
+Date:   Tue, 03 Aug 2021 19:58:00 -0400
+In-Reply-To: <20210720160342.11415-3-Wayne.Lin@amd.com>
+References: <20210720160342.11415-1-Wayne.Lin@amd.com>
+         <20210720160342.11415-3-Wayne.Lin@amd.com>
+Organization: Red Hat
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.38.4 (3.38.4-1.fc33) 
 MIME-Version: 1.0
-In-Reply-To: <20210803195026.GA16178@duo.ucw.cz>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 8/3/21 12:50 PM, Pavel Machek wrote:
-> On Tue 2021-08-03 12:37:29, Guenter Roeck wrote:
->> On 8/3/21 12:26 PM, Pavel Machek wrote:
->>> Hi!
->>>
->>>> This is the start of the stable review cycle for the 5.10.56 release.
->>>> There are 67 patches in this series, all will be posted as a response
->>>> to this one.  If anyone has any issues with these being applied, please
->>>> let me know.
->>>
->>> Not sure what went wrong, but 50 or so patches disappeared from the queue:
->>>
->>> 48156f3dce81b215b9d6dd524ea34f7e5e029e6b (origin/queue/5.10) btrfs: fix lost inode on log replay after mix of fsync, rename and inode eviction
->>> 474a423936753742c112e265b5481dddd8c02f33 btrfs: fix race causing unnecessary inode logging during link and rename
->>> 2fb9fc485825505e31b634b68d4c05e193a224da Revert "drm/i915: Propagate errors on awaiting already signaled fences"
->>> b1c92988bfcb7aa46bdf8198541f305c9ff2df25 drm/i915: Revert "drm/i915/gem: Asynchronous cmdparser"
->>> 11fe69a17195cf58eff523f26f90de50660d0100 (tag: v5.10.55) Linux 5.10.55
->>> 984e93b8e20731f83e453dd056f8a3931b4a66e5 ipv6: ip6_finish_output2: set
->>> sk into newly allocated nskb
->>
->> FWIW, the git repository matches the shortlog and summary.
-> 
-> git log --pretty=oneline origin/linux-5.10.y
-> 
-> seems to match shortlog/summary.
-> 
-> git log --pretty=oneline origin/queue/5.10
-> 
-> is unexpectedly short. Short changelog can also be seen on the web:
-> 
-> https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/log/?h=queue/5.10
-> 
-> (and 4.19/ 4.4 repositories have same problem, it is even more visible
-> there.)
-> 
+On Wed, 2021-07-21 at 00:03 +0800, Wayne Lin wrote:
+> [Why]
+> Currently, we will create connectors for all output ports no matter
+> it's connected or not. However, in MST, we can only determine
+> whether an output port really stands for a "connector" till it is
+> connected and check its peer device type as an end device.
 
-Ah, that explains it. No idea what the queue/ branches are for.
-My scripts use the linux- branches.
+What is this commit trying to solve exactly? e.g. is AMD currently running
+into issues with there being too many DRM connectors or something like that?
+Ideally this is behavior I'd very much like us to keep as-is unless there's
+good reason to change it.
 
-Guenter
+Some context here btw - there's a lot of subtleties with MST locking that
+isn't immediately obvious. It's been a while since I wrote this code, but if I
+recall correctly one of those subtleties is that trying to create/destroy
+connectors on the fly when ports change types introduces a lot of potential
+issues with locking and some very complicated state transitions. Note that
+because we maintain the topology as much as possible across suspend/resumes
+this means there's a lot of potential state transitions with drm_dp_mst_port
+and drm_dp_mst_branch we need to handle that would typically be impossible to
+run into otherwise.
+
+An example of this, if we were to try to prune connectors based on PDT
+on the fly: assume we have a simple topology like this
+
+Root MSTB -> Port 1 -> MSTB 1.1 (Connected w/ display)
+          -> Port 2 -> MSTB 2.1
+
+We suspend the system, unplug MSTB 1.1, and then resume. Once the
+system starts reprobing, it will notice that MSTB 1.1 has been
+disconnected. Since we no longer have a PDT, we decide to unregister our
+connector. But there's a catch! We had a display connected to MSTB 1.1,
+so even after unregistering the connector it's going to stay around
+until userspace has committed a new mode with the connector disabled.
+
+Now - assuming we're still in the same spot in the resume processs, let's assume
+somehow MSTB 1.1 is suddenly plugged back in. Once we've finished
+responding to the hotplug event, we will have created a connector for
+it. Now we've hit a bug - userspace hasn't removed the previous zombie
+connector which means we have references to the drm_dp_mst_port in our
+atomic state and potentially also our payload tables (?? unsure about
+this one).
+
+So then how do we manage to add/remove connectors for input connectors
+on the fly? Well, that's one of the fun normally-impossible state
+transitions I mentioned before. According to the spec input ports are always
+disconnected, so we'll never receive a CSN for them. This means in
+theory the only possible way we could have a connector go from being an
+input connector to an output connector connector would be if the entire
+topology was swapped out during suspend/resume, and the input/output
+ports in the two topologies topology happen to be in different places.
+Since we only have to reprobe once during resume before we get
+hotplugging enabled, we're guaranteed this state transition will only
+happen once in this state - which means the second replug I described in
+the previous paragraph can never happen.
+
+Note that while I don't actually know if there's topologies with input
+ports at indexes other than 0, since the specification isn't super clear
+on this bit we play it safe and assume it is possible.
+
+Anyway-this is -all- based off my memory, so please point out anything
+here that I've explained that doesn't make sense or doesn't seem
+correct :). It's totally possible I might have misremembered something.
+
+> 
+> In current code, we have chance to create connectors for output ports
+> connected with branch device and these are redundant connectors. e.g.
+> StarTech 1-to-4 DP hub is constructed by internal 2 layer 1-to-2 branch
+> devices. Creating connectors for such internal output ports are
+> redundant.
+> 
+> [How]
+> Put constraint on creating connector for connected end device only.
+> 
+> Fixes: 6f85f73821f6 ("drm/dp_mst: Add basic topology reprobing when
+> resuming")
+> Cc: Juston Li <juston.li@intel.com>
+> Cc: Imre Deak <imre.deak@intel.com>
+> Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> Cc: Harry Wentland <hwentlan@amd.com>
+> Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+> Cc: Sean Paul <sean@poorly.run>
+> Cc: Lyude Paul <lyude@redhat.com>
+> Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+> Cc: Maxime Ripard <mripard@kernel.org>
+> Cc: Thomas Zimmermann <tzimmermann@suse.de>
+> Cc: David Airlie <airlied@linux.ie>
+> Cc: Daniel Vetter <daniel@ffwll.ch>
+> Cc: Alex Deucher <alexander.deucher@amd.com>
+> Cc: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+> Cc: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+> Cc: Aurabindo Pillai <aurabindo.pillai@amd.com>
+> Cc: Eryk Brol <eryk.brol@amd.com>
+> Cc: Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>
+> Cc: Nikola Cornij <nikola.cornij@amd.com>
+> Cc: Wayne Lin <Wayne.Lin@amd.com>
+> Cc: "Ville Syrjälä" <ville.syrjala@linux.intel.com>
+> Cc: Jani Nikula <jani.nikula@intel.com>
+> Cc: Manasi Navare <manasi.d.navare@intel.com>
+> Cc: Ankit Nautiyal <ankit.k.nautiyal@intel.com>
+> Cc: "José Roberto de Souza" <jose.souza@intel.com>
+> Cc: Sean Paul <seanpaul@chromium.org>
+> Cc: Ben Skeggs <bskeggs@redhat.com>
+> Cc: dri-devel@lists.freedesktop.org
+> Cc: <stable@vger.kernel.org> # v5.5+
+> Signed-off-by: Wayne Lin <Wayne.Lin@amd.com>
+> ---
+>  drivers/gpu/drm/drm_dp_mst_topology.c | 7 ++++++-
+>  1 file changed, 6 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/gpu/drm/drm_dp_mst_topology.c
+> b/drivers/gpu/drm/drm_dp_mst_topology.c
+> index 51cd7f74f026..f13c7187b07f 100644
+> --- a/drivers/gpu/drm/drm_dp_mst_topology.c
+> +++ b/drivers/gpu/drm/drm_dp_mst_topology.c
+> @@ -2474,7 +2474,8 @@ drm_dp_mst_handle_link_address_port(struct
+> drm_dp_mst_branch *mstb,
+>  
+>         if (port->connector)
+>                 drm_modeset_unlock(&mgr->base.lock);
+> -       else if (!port->input)
+> +       else if (!port->input && port->pdt != DP_PEER_DEVICE_NONE &&
+> +                drm_dp_mst_is_end_device(port->pdt, port->mcs))
+>                 drm_dp_mst_port_add_connector(mstb, port);
+>  
+>         if (send_link_addr && port->mstb) {
+> @@ -2557,6 +2558,10 @@ drm_dp_mst_handle_conn_stat(struct drm_dp_mst_branch
+> *mstb,
+>                 dowork = false;
+>         }
+>  
+> +       if (!port->input && !port->connector && new_pdt !=
+> DP_PEER_DEVICE_NONE &&
+> +           drm_dp_mst_is_end_device(new_pdt, new_mcs))
+> +               create_connector = true;
+> +
+>         if (port->connector)
+>                 drm_modeset_unlock(&mgr->base.lock);
+>         else if (create_connector)
+
+-- 
+Cheers,
+ Lyude Paul (she/her)
+ Software Engineer at Red Hat
+
