@@ -2,110 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 978DA3DEB28
-	for <lists+stable@lfdr.de>; Tue,  3 Aug 2021 12:42:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CBA73DEB95
+	for <lists+stable@lfdr.de>; Tue,  3 Aug 2021 13:14:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235294AbhHCKmj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Aug 2021 06:42:39 -0400
-Received: from alexa-out.qualcomm.com ([129.46.98.28]:20922 "EHLO
-        alexa-out.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235306AbhHCKmi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Aug 2021 06:42:38 -0400
-Received: from ironmsg07-lv.qualcomm.com ([10.47.202.151])
-  by alexa-out.qualcomm.com with ESMTP; 03 Aug 2021 03:42:28 -0700
-X-QCInternal: smtphost
-Received: from ironmsg02-blr.qualcomm.com ([10.86.208.131])
-  by ironmsg07-lv.qualcomm.com with ESMTP/TLS/AES256-SHA; 03 Aug 2021 03:42:25 -0700
-X-QCInternal: smtphost
-Received: from kalyant-linux.qualcomm.com ([10.204.66.210])
-  by ironmsg02-blr.qualcomm.com with ESMTP; 03 Aug 2021 16:11:50 +0530
-Received: by kalyant-linux.qualcomm.com (Postfix, from userid 94428)
-        id 904134BA3; Tue,  3 Aug 2021 03:41:48 -0700 (PDT)
-From:   Kalyan Thota <kalyan_t@codeaurora.org>
-To:     dri-devel@lists.freedesktop.org, linux-arm-msm@vger.kernel.org,
-        freedreno@lists.freedesktop.org, devicetree@vger.kernel.org
-Cc:     Kalyan Thota <kalyan_t@codeaurora.org>,
-        linux-kernel@vger.kernel.org, robdclark@gmail.com,
-        dianders@chromium.org, mkrishn@codeaurora.org,
-        saiprakash.ranjan@codeaurora.org, rnayak@codeaurora.org,
-        stable@vger.kernel.org
-Subject: [v2] drm/msm/disp/dpu1: add safe lut config in dpu driver
-Date:   Tue,  3 Aug 2021 03:41:47 -0700
-Message-Id: <1627987307-29347-1-git-send-email-kalyan_t@codeaurora.org>
-X-Mailer: git-send-email 2.7.4
+        id S235478AbhHCLOT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Aug 2021 07:14:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37954 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234156AbhHCLOM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Aug 2021 07:14:12 -0400
+Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03171C061757
+        for <stable@vger.kernel.org>; Tue,  3 Aug 2021 04:13:56 -0700 (PDT)
+Received: by mail-pj1-x102b.google.com with SMTP id ca5so29153952pjb.5
+        for <stable@vger.kernel.org>; Tue, 03 Aug 2021 04:13:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=heitbaum.com; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=7Gr5ftWgiJSvDbRnCS2TnO6KMHVq0WjNOvJJwrjZOEM=;
+        b=lqQi1yG6Vr4L7esOiXxd+NMKstSaPTYUs+NWc2DDUO/qh0Nynt3+4fi6xMyBDyK9Iv
+         anVQU0Ije/Z6IUjGsBE0THWIV/95xDUcVKB+GYRAi4UtzYe91lhpHr+NODVBBE5W7T2K
+         RtBzb5P7eRk7QGwUnPsENJBhDwr9ZkFpnjk/k=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=7Gr5ftWgiJSvDbRnCS2TnO6KMHVq0WjNOvJJwrjZOEM=;
+        b=aE2X3s74mYeNyVq519PYUsRvqJ6pvc/bkTY9dj732okT/AQai7Uzzh4La/N7Xc+7bP
+         YYzj7C9YpjGOrvDqROZLb+Q+lkSc+RRaV/U81s54hajQK1E7iYIY0knV5QaalUlZsm0B
+         EuERdJ5NpfVe9xvFCtTFuydnKRFPbShIuqY9BRhvfcoR0V7gxvkOr5eGF12g7X19cthu
+         PsSLvMamO1k19ezizm8e0lrYBMfbZsxchYk6cLJf7WvjZCoY5p4gWEoTXYQEcLFRvP1m
+         wErBS7fW5dadXmNdmcBHO4gAKbEAsJwdcDyVcXWRDwWKPcONOmfy0fwFT/owbBGErTET
+         rY9w==
+X-Gm-Message-State: AOAM530ThVw4Pfb2TlddOo7SNaavgyI8ex/YoXgMqp0LpVuXwbEypxfV
+        ccn0it+jNlVCqxNR8ThBNcrK8Q==
+X-Google-Smtp-Source: ABdhPJwAWLXABmqiaVIE3+NQJJCX+CvS8zFkgVKT89mB7cwEtiXiEW4AxxmAvoF7UzZsnlkjzeb/+Q==
+X-Received: by 2002:a17:90a:1f8a:: with SMTP id x10mr21949725pja.167.1627989235469;
+        Tue, 03 Aug 2021 04:13:55 -0700 (PDT)
+Received: from a4d683274626 (194-193-55-226.tpgi.com.au. [194.193.55.226])
+        by smtp.gmail.com with ESMTPSA id y62sm1947476pfy.183.2021.08.03.04.13.51
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Tue, 03 Aug 2021 04:13:55 -0700 (PDT)
+Date:   Tue, 3 Aug 2021 21:13:48 +1000
+From:   Rudi Heitbaum <rudi@heitbaum.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 5.10 00/67] 5.10.56-rc1 review
+Message-ID: <20210803111344.GA914752@a4d683274626>
+References: <20210802134339.023067817@linuxfoundation.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210802134339.023067817@linuxfoundation.org>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Add safe lut configuration for all the targets in dpu
-driver as per QOS recommendation.
+On Mon, Aug 02, 2021 at 03:44:23PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.56 release.
+> There are 67 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 
-Issue reported on SC7280:
+Run tested ok on:
+- Tiger Lake x86_64
+- Radxa ROCK Pi N10 (rk3399pro)
 
-With wait-for-safe feature in smmu enabled, RT client
-buffer levels are checked to be safe before smmu invalidation.
-Since display was always set to unsafe it was delaying the
-invalidaiton process thus impacting the performance on NRT clients
-such as eMMC and NVMe.
+In addition build tested on:
+- Allwinner H3
+- Allwinner H6
+- NXP iMX6
+- NXP iMX8
+- Qualcomm Dragonboard
+- Rockchip RK3288
+- Rockchip RK3328
+- Samsung Exynos
 
-Validated this change on SC7280, With this change eMMC performance
-has improved significantly.
-
-Changes in v1:
-- Add fixes tag (Sai)
-- CC stable kernel (Dimtry)
-
-Fixes: cfacf946a464d4(drm/msm/disp/dpu1: add support for display for SC7280 target)
-Signed-off-by: Kalyan Thota <kalyan_t@codeaurora.org>
-Tested-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org> (sc7280, sc7180)
----
- drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c | 5 +++++
- 1 file changed, 5 insertions(+)
-
-diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
-index d01c4c9..2e482cd 100644
---- a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
-+++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
-@@ -974,6 +974,7 @@ static const struct dpu_perf_cfg sdm845_perf_data = {
- 	.amortizable_threshold = 25,
- 	.min_prefill_lines = 24,
- 	.danger_lut_tbl = {0xf, 0xffff, 0x0},
-+	.safe_lut_tbl = {0xfff0, 0xf000, 0xffff},
- 	.qos_lut_tbl = {
- 		{.nentry = ARRAY_SIZE(sdm845_qos_linear),
- 		.entries = sdm845_qos_linear
-@@ -1001,6 +1002,7 @@ static const struct dpu_perf_cfg sc7180_perf_data = {
- 	.min_dram_ib = 1600000,
- 	.min_prefill_lines = 24,
- 	.danger_lut_tbl = {0xff, 0xffff, 0x0},
-+	.safe_lut_tbl = {0xfff0, 0xff00, 0xffff},
- 	.qos_lut_tbl = {
- 		{.nentry = ARRAY_SIZE(sc7180_qos_linear),
- 		.entries = sc7180_qos_linear
-@@ -1028,6 +1030,7 @@ static const struct dpu_perf_cfg sm8150_perf_data = {
- 	.min_dram_ib = 800000,
- 	.min_prefill_lines = 24,
- 	.danger_lut_tbl = {0xf, 0xffff, 0x0},
-+	.safe_lut_tbl = {0xfff8, 0xf000, 0xffff},
- 	.qos_lut_tbl = {
- 		{.nentry = ARRAY_SIZE(sm8150_qos_linear),
- 		.entries = sm8150_qos_linear
-@@ -1056,6 +1059,7 @@ static const struct dpu_perf_cfg sm8250_perf_data = {
- 	.min_dram_ib = 800000,
- 	.min_prefill_lines = 35,
- 	.danger_lut_tbl = {0xf, 0xffff, 0x0},
-+	.safe_lut_tbl = {0xfff0, 0xff00, 0xffff},
- 	.qos_lut_tbl = {
- 		{.nentry = ARRAY_SIZE(sc7180_qos_linear),
- 		.entries = sc7180_qos_linear
-@@ -1084,6 +1088,7 @@ static const struct dpu_perf_cfg sc7280_perf_data = {
- 	.min_dram_ib = 1600000,
- 	.min_prefill_lines = 24,
- 	.danger_lut_tbl = {0xffff, 0xffff, 0x0},
-+	.safe_lut_tbl = {0xff00, 0xff00, 0xffff},
- 	.qos_lut_tbl = {
- 		{.nentry = ARRAY_SIZE(sc7180_qos_macrotile),
- 		.entries = sc7180_qos_macrotile
+Tested-by: Rudi Heitbaum <rudi@heitbaum.com>
 -- 
-2.7.4
-
+Rudi
