@@ -2,236 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CBD143DE3E2
-	for <lists+stable@lfdr.de>; Tue,  3 Aug 2021 03:15:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE8C53DE3E8
+	for <lists+stable@lfdr.de>; Tue,  3 Aug 2021 03:19:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233066AbhHCBPK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Aug 2021 21:15:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37702 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232891AbhHCBPK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Aug 2021 21:15:10 -0400
-Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40716C06175F
-        for <stable@vger.kernel.org>; Mon,  2 Aug 2021 18:15:00 -0700 (PDT)
-Received: by mail-pj1-x102d.google.com with SMTP id u9-20020a17090a1f09b029017554809f35so1555971pja.5
-        for <stable@vger.kernel.org>; Mon, 02 Aug 2021 18:15:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=rWwBxWU2EoS0//VooQ7L/gbV5CYc4/tvHmIZ68UlTxE=;
-        b=oJ1oukHavvWc0ZfPxVR7PIwODfmHV0b2pZIUpWK1NzyTzD+fDGv/VXv6sUkW7wogGM
-         HJ7keSTTEy54Ee3ZvGAWDa1L/u8459nkWNeuj6RT/lfATrs0qlGBTdDUpH3eB23VfPjN
-         NSxmUCIynumcYNCV9SI4zDgSbT9lqCNPjT/NiNTKyS9UxJHjn0E2mTGZwB1c4coOcRKK
-         /U0Jug9E+Vhu8svwFmH41GkHmwsjNElBP4xV4+cnqdQR9UOIfq1WFpgG9Qavi6OfQZx2
-         cpVuBdnIeGcIfyZd29h9A8kx5l5dIZeRT/eAVFr2PvCLrMjzWRcE3UqrU4mlbjqmUbAH
-         rlWw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=rWwBxWU2EoS0//VooQ7L/gbV5CYc4/tvHmIZ68UlTxE=;
-        b=OuLIWIsSaflV8L/KsfWbi5fDDjCtF74LmDJ6Fel+5dHRkO0myu4TTXIoqt6/wPnXJY
-         K6hUOt2gU33P0uTAJdjdpC8vwb8cezZXNsmd9hfQO1rNSiMacuhJ+i5LUsHcm3VLFtGs
-         u2dgJVaSR/iPtRjvxODUOabFo/e9WH2mWPA5/m0mES73tE194xh8Bvz3nfvBYUTqopf2
-         K14TK17uXbA/jr/RrHf4sVELNkFDNK9rdDdriwRNaefzFEdii8q2PAXvpNIPv/D1LZ9v
-         rJdZ1sf0PubNmbHbNs/j0nPu4/VcgBOfwBnjb2Ay1dIdt05TziHRPfpreE7Cc8uSRqyl
-         C49g==
-X-Gm-Message-State: AOAM5329T8sh8nHZE92Mml1YgAFsG5SKLd57TL3qLbeTcB90oNSWik3Q
-        PFeSeGq2/Bcz70IgiKqnRid9LItHJJ6bJLQ6
-X-Google-Smtp-Source: ABdhPJz3/6jrhpF5i72YbFMp9JTx77+S7dfRqhlE+J3YkIpWCHnyOE98fTI0p+oGEww6rP2c775UAQ==
-X-Received: by 2002:aa7:870e:0:b029:3c2:f326:468b with SMTP id b14-20020aa7870e0000b02903c2f326468bmr3445056pfo.53.1627953299542;
-        Mon, 02 Aug 2021 18:14:59 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id s5sm12786168pfk.114.2021.08.02.18.14.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 Aug 2021 18:14:59 -0700 (PDT)
-Message-ID: <61089893.1c69fb81.21cca.5ce0@mx.google.com>
-Date:   Mon, 02 Aug 2021 18:14:59 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S232904AbhHCBTY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Aug 2021 21:19:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44892 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232891AbhHCBTX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Aug 2021 21:19:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D6B6160EFF;
+        Tue,  3 Aug 2021 01:19:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1627953553;
+        bh=MHctK3vcMIjG05hTw3nq1KHBUvlKG/a6cUvMRnmiMgo=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=otLihmXIjm3Jzy/9vU4q9nxn0/nRX7PKb+ZudFug5dZkAcF5YJ1hEkacyu+pCUwyl
+         kM6F9L9UtbV+xwka6uICieOxPxzHcnb5pdvLS4W9cg7qlxkid1m0wM53FChBbyDc0+
+         d49OmCuBKHGpculT+u4t9wZTV/OTQeC+NfTOnvvBoSYGTG/M4TTwbMHK7F5FYA2z3Z
+         +V6D/flUop3Dr8KWHGC75G3rsKtO+r04100yeVIRSTUKeCevJJnJIJ4D4JMbIxByyR
+         E36MPG7BgCJ0bHaT5d0GcPBd+rUjRa4ZrxvTu+FGH45MZHVhlxmDdZTnAK/eMRlQMy
+         4ueBpUe894USg==
+Subject: Re: [PATCH] f2fs: remove broken support for allocating DIO writes
+To:     Jaegeuk Kim <jaegeuk@kernel.org>
+Cc:     Eric Biggers <ebiggers@kernel.org>, Theodore Ts'o <tytso@mit.edu>,
+        linux-f2fs-devel@lists.sourceforge.net,
+        linux-fsdevel@vger.kernel.org, stable@vger.kernel.org
+References: <20210728015154.171507-1-ebiggers@kernel.org>
+ <YQRQRh1zUHSIzcC/@gmail.com> <YQS5eBljtztWwOFE@mit.edu>
+ <YQd3Hbid/mFm0o24@sol.localdomain>
+ <a3cdd7cb-50a7-1b37-fe58-dced586712a2@kernel.org>
+ <YQg4Lukc2dXX3aJc@google.com>
+From:   Chao Yu <chao@kernel.org>
+Message-ID: <b88328b4-db3e-0097-d8cc-f250ee678e5b@kernel.org>
+Date:   Tue, 3 Aug 2021 09:19:11 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.12.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/4.9
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.9.277-32-g4d2b3a84608a
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/4.9 baseline: 110 runs,
- 4 regressions (v4.9.277-32-g4d2b3a84608a)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <YQg4Lukc2dXX3aJc@google.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.9 baseline: 110 runs, 4 regressions (v4.9.277-32-g4d2b3a8=
-4608a)
+On 2021/8/3 2:23, Jaegeuk Kim wrote:
+> On 08/02, Chao Yu wrote:
+>> On 2021/8/2 12:39, Eric Biggers wrote:
+>>> On Fri, Jul 30, 2021 at 10:46:16PM -0400, Theodore Ts'o wrote:
+>>>> On Fri, Jul 30, 2021 at 12:17:26PM -0700, Eric Biggers wrote:
+>>>>>> Currently, non-overwrite DIO writes are fundamentally unsafe on f2fs as
+>>>>>> they require preallocating blocks, but f2fs doesn't support unwritten
+>>>>>> blocks and therefore has to preallocate the blocks as regular blocks.
+>>>>>> f2fs has no way to reliably roll back such preallocations, so as a
+>>>>>> result, f2fs will leak uninitialized blocks to users if a DIO write
+>>>>>> doesn't fully complete.
+>>>>
+>>>> There's another way of solving this problem which doesn't require
+>>>> supporting unwritten blocks.  What a file system *could* do is to
+>>>> allocate the blocks, but *not* update the on-disk data structures ---
+>>>> so the allocation happens in memory only, so you know that the
+>>>> physical blocks won't get used for another files, and then issue the
+>>>> data block writes.  On the block I/O completion, trigger a workqueue
+>>>> function which updates the on-disk metadata to assign physical blocks
+>>>> to the inode.
+>>>>
+>>>> That way if you crash before the data I/O has a chance to complete,
+>>>> the on-disk logical block -> physical block map hasn't been updated
+>>>> yet, and so you don't need to worry about leaking uninitialized blocks.
+>>
+>> Thanks for your suggestion, I think it makes sense.
+>>
+>>>>
+>>>> Cheers,
+>>>>
+>>>> 					- Ted
+>>>
+>>> Jaegeuk and Chao, any idea how feasible it would be for f2fs to do this?
+>>
+>> Firstly, let's notice that below metadata will be touched during DIO
+>> preallocation flow:
+>> - log header
+>> - sit bitmap/count
+>> - free seg/sec bitmap/count
+>> - dirty seg/sec bitmap/count
+>>
+>> And there is one case we need to concern about is: checkpoint() can be
+>> triggered randomly in between dio_preallocate() and dio_end_io(), we should
+>> not persist any DIO preallocation related metadata during checkpoint(),
+>> otherwise, sudden power-cut after the checkpoint will corrupt filesytem.
+>>
+>> So it needs to well separate two kinds of metadata update:
+>> a) belong to dio preallocation
+>> b) the left one
+>>
+>> After that, it will simply checkpoint() flow to just flush metadata b), for
+>> other flow, like GC, data/node allocation, it needs to query/update metadata
+>> after we combine metadata a) and b).
+>>
+>> In addition, there is an existing in-memory log header framework in f2fs,
+>> based on this fwk, it's very easy for us to add a new in-memory log header
+>> for DIO preallocation.
+>>
+>> So it seems feasible for me until now...
+>>
+>> Jaegeuk, any other concerns about the implementation details?
+> 
+> Hmm, I'm still trying to deal with this as a corner case where the writes
+> haven't completed due to an error. How about keeping the preallocated block
+> offsets and releasing them if we get an error? Do we need to handle EIO right?
 
-Regressions Summary
--------------------
+What about the case that CP + SPO following DIO preallocation? User will
+encounter uninitialized block after recovery.
 
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
-g | 1          =
+Thanks,
 
-qemu_arm-versatilepb | arm  | lab-broonie   | gcc-8    | versatile_defconfi=
-g | 1          =
-
-qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
-g | 1          =
-
-qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
-el/v4.9.277-32-g4d2b3a84608a/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.9
-  Describe: v4.9.277-32-g4d2b3a84608a
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      4d2b3a84608ae3b6ae55ecfee1987d40620d7620 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61085eacc35908393cb1366e
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.277-3=
-2-g4d2b3a84608a/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
-m-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.277-3=
-2-g4d2b3a84608a/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
-m-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61085eacc35908393cb13=
-66f
-        failing since 261 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-broonie   | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/610862eedf5ec4ccd1b13672
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.277-3=
-2-g4d2b3a84608a/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm=
--versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.277-3=
-2-g4d2b3a84608a/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm=
--versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/610862eedf5ec4ccd1b13=
-673
-        failing since 261 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61085e9bc35908393cb13661
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.277-3=
-2-g4d2b3a84608a/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ver=
-satilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.277-3=
-2-g4d2b3a84608a/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ver=
-satilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61085e9bc35908393cb13=
-662
-        failing since 261 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/610863852a216234a7b13669
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.277-3=
-2-g4d2b3a84608a/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
-rm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.277-3=
-2-g4d2b3a84608a/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
-rm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/610863852a216234a7b13=
-66a
-        failing since 261 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =20
+> 
+>>
+>> Thanks,
+>>
+>>>
+>>> - Eric
+>>>
