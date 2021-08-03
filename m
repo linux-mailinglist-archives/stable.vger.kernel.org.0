@@ -2,136 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 18C4D3DF3E2
-	for <lists+stable@lfdr.de>; Tue,  3 Aug 2021 19:25:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EACF3DF416
+	for <lists+stable@lfdr.de>; Tue,  3 Aug 2021 19:49:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238187AbhHCRZv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Aug 2021 13:25:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47222 "EHLO
+        id S238389AbhHCRuF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Aug 2021 13:50:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238179AbhHCRZv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Aug 2021 13:25:51 -0400
-Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5110C061757
-        for <stable@vger.kernel.org>; Tue,  3 Aug 2021 10:25:39 -0700 (PDT)
-Received: by mail-wr1-x42f.google.com with SMTP id z4so26160558wrv.11
-        for <stable@vger.kernel.org>; Tue, 03 Aug 2021 10:25:39 -0700 (PDT)
+        with ESMTP id S238316AbhHCRuE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Aug 2021 13:50:04 -0400
+Received: from mail-lj1-x233.google.com (mail-lj1-x233.google.com [IPv6:2a00:1450:4864:20::233])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D8A4C061757;
+        Tue,  3 Aug 2021 10:49:52 -0700 (PDT)
+Received: by mail-lj1-x233.google.com with SMTP id y7so680710ljp.3;
+        Tue, 03 Aug 2021 10:49:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=konsulko.com; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=DZtgNPYIMF2GH+kBEiYVWNNpqyFEpbchmbi2/jtU99g=;
-        b=DUQgQ1QLi+T1hIGIVT1YaG/pDdtuuIjeMpcv9yblDCEuibRXixp4NZiH1D/BGnQ08f
-         0lFsQevDaLGXgkSNzjHoy/xl4QEAuOKc66dwk8e6U8GabYP0z9il7ZlfnJff8VhVPHyJ
-         BZyCNGQAYInGG/lJJAHcngO9XwN4HmK8d3SHA=
+        bh=appGSUBpUB7Z4hxXq9WMmGcqxVJ6QSkBfy4QZnBqvu4=;
+        b=ltB7icxkbjWA6hiTSxZX9NyK/fLidSmbgMv/3wIkhgNxLQBfkelhQFZeWet4CfDZgc
+         wYLhi7xOSxfOTl0n7NcTOJcUZM+ESkP9HBbeqWeGQrefIs62L3Z6iSbqGOFLoTexAm18
+         nPKpwUD4KxRJIZSIWg0/XHOOUVwJe2cPGaPHfdsP4Nj/Q153ZDRNnrFUFheDOYXYB3fK
+         KNq9/k4N9725qjtBn8BrYp5eEqE34Y7cHeykO/EiJgEAU+S0jLpTuYYliXQYWda0Imte
+         w3U4w/GngXULgKUGBw5owqS9gTUnMrDCPvTciP5gh0IBtRYFG1i5tsHXZqD6y3wePLBZ
+         6Bog==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=DZtgNPYIMF2GH+kBEiYVWNNpqyFEpbchmbi2/jtU99g=;
-        b=VaytqIbv8ocQ9rVfJctX0WGkOM2cc2hoFsVYVcA7kWqwzMDZLmBFur1mbl5PPXSqRO
-         DtddqwSOxaZAcbq8D+ynq8xFyKP2XGoRvLYvd/pJBWs+cRh1+dpDLQM3DZvXwpvMsZcb
-         tPfPdpJxm6OX8ZO5ri104UfooIbo+boopP/veecqhtCqwsoviEOnTEIP4qzbK/DcY8gm
-         Njm1rSRsOLgvJ0p2E8YO9mEA114rTR/rJgfYzGHUk5iU+plgQychu62FrUadnD6wvQSO
-         ga4JRxQ/5QmbjamJ+gWuhnSMW+e2xIX5hhbflrfHnk72ZJ/G3htvI7hJsDz1ZAX8vlht
-         8F8A==
-X-Gm-Message-State: AOAM530nY8uvI2WZDQzII1sHaysexVTGsCZ3Tjcxqwvbz6dIi5b4Wanm
-        0B2P2fqwHo54HqI1duLk+Wj/kw==
-X-Google-Smtp-Source: ABdhPJxPnIT2g6MrRP1wmlmOzlaYcqr2AKbwg5vdhYveNQZ11lhlqAHU1Zm4XsZcHrz+DFyszd2Dog==
-X-Received: by 2002:adf:f847:: with SMTP id d7mr24805041wrq.352.1628011538517;
-        Tue, 03 Aug 2021 10:25:38 -0700 (PDT)
-Received: from taos.k.g (lan.nucleusys.com. [92.247.61.126])
-        by smtp.gmail.com with ESMTPSA id e5sm18489190wrr.36.2021.08.03.10.25.37
+        bh=appGSUBpUB7Z4hxXq9WMmGcqxVJ6QSkBfy4QZnBqvu4=;
+        b=km5KqVBhz2g+xyWy6JYpdhRXU5dBzA8wm0LpanTM459DVXajqA/HNTembIVRqPjVcY
+         QTXopApqXWdcJXR231N3aJegNt5pbCIXFL2+0UtRGd9XiB46cEV03TxoE6Z+NM57s8iR
+         cXA+T/QIBFepP00v/e8TlOuHOTzAgvv3ZtHGUjNW8IBM+n6azQKtX3Ak9t2bQALrUWw5
+         h1kGS1N1itSALGSU92nK3crRxIEHZXEFeeTXvM0eMG8Zu2lCHT9XZS16XGkokhGNyGv8
+         bxd3jZBCQvnPc8UwV5NLkxzJhIo7mcJgIf70N8dXNZjZKx+YgGzH8wBuxlZOi6FJPQUw
+         jDZQ==
+X-Gm-Message-State: AOAM531+3mEJad9qRHy502DN5+sKkjS7ridypQEoZPRsBw13VXjvP0iV
+        HkycIt4kASmECLuRJF48fKY=
+X-Google-Smtp-Source: ABdhPJwONsWN0deq41ItULAiY4kLBQgqlUipGLJwKN/ehwJvw74A3i73Oye1AgVseUpWQ1K0d1kucw==
+X-Received: by 2002:a05:651c:1144:: with SMTP id h4mr15079623ljo.396.1628012990846;
+        Tue, 03 Aug 2021 10:49:50 -0700 (PDT)
+Received: from localhost.localdomain (broadband-90-154-71-87.ip.moscow.rt.ru. [90.154.71.87])
+        by smtp.gmail.com with ESMTPSA id w7sm1306481lft.285.2021.08.03.10.49.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Aug 2021 10:25:38 -0700 (PDT)
-From:   Petko Manolov <petko.manolov@konsulko.com>
-To:     netdev@vger.kernel.org
-Cc:     paskripkin@gmail.com, davem@davemloft.net,
+        Tue, 03 Aug 2021 10:49:50 -0700 (PDT)
+Date:   Tue, 3 Aug 2021 20:49:46 +0300
+From:   Pavel Skripkin <paskripkin@gmail.com>
+To:     Petko Manolov <petko.manolov@konsulko.com>
+Cc:     netdev@vger.kernel.org, davem@davemloft.net,
         gregkh@linuxfoundation.org, stable@vger.kernel.org,
         Petko Manolov <petkan@nucleusys.com>
-Subject: [PATCH net v3 2/2] net: usb: pegasus: Remove the changelog and DRIVER_VERSION.
-Date:   Tue,  3 Aug 2021 20:25:24 +0300
-Message-Id: <20210803172524.6088-3-petko.manolov@konsulko.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210803172524.6088-1-petko.manolov@konsulko.com>
+Subject: Re: [PATCH net v3 1/2] net: usb: pegasus: Check the return value of
+ get_geristers() and friends;
+Message-ID: <20210803204946.38978b72@gmail.com>
+In-Reply-To: <20210803172524.6088-2-petko.manolov@konsulko.com>
 References: <20210803172524.6088-1-petko.manolov@konsulko.com>
+        <20210803172524.6088-2-petko.manolov@konsulko.com>
+X-Mailer: Claws Mail 3.17.8git77 (GTK+ 2.24.33; x86_64-suse-linux-gnu)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petko Manolov <petkan@nucleusys.com>
+On Tue,  3 Aug 2021 20:25:23 +0300
+Petko Manolov <petko.manolov@konsulko.com> wrote:
 
-These are now deemed redundant.
+> From: Petko Manolov <petkan@nucleusys.com>
+> 
+> Certain call sites of get_geristers() did not do proper error
+> handling.  This could be a problem as get_geristers() typically
+> return the data via pointer to a buffer.  If an error occurred the
+> code is carelessly manipulating the wrong data.
+> 
+> Signed-off-by: Petko Manolov <petkan@nucleusys.com>
+> ---
+>  drivers/net/usb/pegasus.c | 108
+> ++++++++++++++++++++++++++------------ 1 file changed, 75
+> insertions(+), 33 deletions(-)
+> 
 
-Signed-off-by: Petko Manolov <petkan@nucleusys.com>
----
- drivers/net/usb/pegasus.c | 30 ++----------------------------
- 1 file changed, 2 insertions(+), 28 deletions(-)
+All's good! Thank you :)
 
-diff --git a/drivers/net/usb/pegasus.c b/drivers/net/usb/pegasus.c
-index 22353bab76c8..f18b03be1b87 100644
---- a/drivers/net/usb/pegasus.c
-+++ b/drivers/net/usb/pegasus.c
-@@ -1,31 +1,7 @@
- // SPDX-License-Identifier: GPL-2.0-only
- /*
-- *  Copyright (c) 1999-2013 Petko Manolov (petkan@nucleusys.com)
-+ *  Copyright (c) 1999-2021 Petko Manolov (petkan@nucleusys.com)
-  *
-- *	ChangeLog:
-- *		....	Most of the time spent on reading sources & docs.
-- *		v0.2.x	First official release for the Linux kernel.
-- *		v0.3.0	Beutified and structured, some bugs fixed.
-- *		v0.3.x	URBifying bulk requests and bugfixing. First relatively
-- *			stable release. Still can touch device's registers only
-- *			from top-halves.
-- *		v0.4.0	Control messages remained unurbified are now URBs.
-- *			Now we can touch the HW at any time.
-- *		v0.4.9	Control urbs again use process context to wait. Argh...
-- *			Some long standing bugs (enable_net_traffic) fixed.
-- *			Also nasty trick about resubmiting control urb from
-- *			interrupt context used. Please let me know how it
-- *			behaves. Pegasus II support added since this version.
-- *			TODO: suppressing HCD warnings spewage on disconnect.
-- *		v0.4.13	Ethernet address is now set at probe(), not at open()
-- *			time as this seems to break dhcpd.
-- *		v0.5.0	branch to 2.5.x kernels
-- *		v0.5.1	ethtool support added
-- *		v0.5.5	rx socket buffers are in a pool and the their allocation
-- *			is out of the interrupt routine.
-- *		...
-- *		v0.9.3	simplified [get|set]_register(s), async update registers
-- *			logic revisited, receive skb_pool removed.
-  */
- 
- #include <linux/sched.h>
-@@ -45,7 +21,6 @@
- /*
-  * Version Information
-  */
--#define DRIVER_VERSION "v0.9.3 (2013/04/25)"
- #define DRIVER_AUTHOR "Petko Manolov <petkan@nucleusys.com>"
- #define DRIVER_DESC "Pegasus/Pegasus II USB Ethernet driver"
- 
-@@ -914,7 +889,6 @@ static void pegasus_get_drvinfo(struct net_device *dev,
- 	pegasus_t *pegasus = netdev_priv(dev);
- 
- 	strlcpy(info->driver, driver_name, sizeof(info->driver));
--	strlcpy(info->version, DRIVER_VERSION, sizeof(info->version));
- 	usb_make_path(pegasus->usb, info->bus_info, sizeof(info->bus_info));
- }
- 
-@@ -1338,7 +1312,7 @@ static void __init parse_id(char *id)
- 
- static int __init pegasus_init(void)
- {
--	pr_info("%s: %s, " DRIVER_DESC "\n", driver_name, DRIVER_VERSION);
-+	pr_info("%s: " DRIVER_DESC "\n", driver_name);
- 	if (devid)
- 		parse_id(devid);
- 	return usb_register(&pegasus_driver);
--- 
-2.30.2
+Reviewed-by: Pavel Skripkin <paskripkin@gmail.com>
 
+
+With regards,
+Pavel Skripkin
