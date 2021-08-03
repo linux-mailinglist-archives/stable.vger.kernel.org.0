@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5897E3DECB1
-	for <lists+stable@lfdr.de>; Tue,  3 Aug 2021 13:44:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C59A3DECBC
+	for <lists+stable@lfdr.de>; Tue,  3 Aug 2021 13:45:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236357AbhHCLo6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Aug 2021 07:44:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35350 "EHLO mail.kernel.org"
+        id S236185AbhHCLpB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Aug 2021 07:45:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35364 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235654AbhHCLoh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Aug 2021 07:44:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EFF8660FA0;
-        Tue,  3 Aug 2021 11:44:25 +0000 (UTC)
+        id S235745AbhHCLoj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Aug 2021 07:44:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3611660F11;
+        Tue,  3 Aug 2021 11:44:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1627991066;
-        bh=MoZyFUn/L43HQ7SCPVtdqYj3nRTjcC/Hn3C0nmfTl4Q=;
+        s=k20201202; t=1627991068;
+        bh=SWzNVkkJN/YQ3UperAk+X4Zg45n7gU01oc91TaBOFXs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jUTSLJV4wsHc/Bwq+i+it5rrt+54/PeLzIqRAWOIBzp555wjUptoXhWoO5ZsjmAlB
-         +4m9d2CHEjwNT99Km+CnX2Nz0xLJojt8jXfFwVTSanacQPS6GUtr4nLHRSzD5d3wcX
-         GR3cRVjZ8QRCMpUqi/nSoeniAuAHXchqfRCqY5vPUNsk9Lk5liwwy4/pMIcKj1xpRr
-         /dj+OK5VDO1FXUDHoI14I0aA2j64QLC9pYLABXNhc6IP7CzBssg//fwwGMBYK7yxEU
-         wv1gcHvVdTTbYIW/v80itptzKxS6YTwp6JW//0c37azPPYb5YtrsaCG1b+HrCRV6ot
-         flm6gcGT40mSg==
+        b=uINeUu7Bwzryu+P0Y6HVCdt9hHAuGRUgUJtCk1eW+KOAJmbopZrJNeOmSypdym6AL
+         PpRZBlsDN0Uz7dow19tj0UPfMLSwRRemAJ+3NDpuEuXRAj793ZEuNKXN4xceeOM5Nq
+         pIX+y/TzgNILe+bVsF7TfX63s9JbnGTwQi5Yo8IDEDdhDH8a9xygAaSL7cEhCoUKCk
+         31o0dq4CjulKr/BhUBWp7blVqJd8n5dCI0UxpQc/5nupfFVKqJ4WF9Xu0T8XJbwVk9
+         PoWXqjHAVJCOZh3F051Etkwr1dgtTlPDvCuLqCgUfJ79pJVN9Bc7w3bQZIJYzvy5/W
+         5HbC5okCxj28A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Matteo Croce <mcroce@microsoft.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 4/6] virt_wifi: fix error on connect
-Date:   Tue,  3 Aug 2021 07:44:19 -0400
-Message-Id: <20210803114421.2252840-4-sashal@kernel.org>
+Cc:     Prarit Bhargava <prarit@redhat.com>,
+        Richard Henderson <rth@twiddle.net>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        Matt Turner <mattst88@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-alpha@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 5/6] alpha: Send stop IPI to send to online CPUs
+Date:   Tue,  3 Aug 2021 07:44:20 -0400
+Message-Id: <20210803114421.2252840-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210803114421.2252840-1-sashal@kernel.org>
 References: <20210803114421.2252840-1-sashal@kernel.org>
@@ -43,153 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matteo Croce <mcroce@microsoft.com>
+From: Prarit Bhargava <prarit@redhat.com>
 
-[ Upstream commit 17109e9783799be2a063b2bd861a508194b0a487 ]
+[ Upstream commit caace6ca4e06f09413fb8f8a63319594cfb7d47d ]
 
-When connecting without first doing a scan, the BSS list is empty
-and __cfg80211_connect_result() generates this warning:
+This issue was noticed while debugging a shutdown issue where some
+secondary CPUs are not being shutdown correctly.  A fix for that [1] requires
+that secondary cpus be offlined using the cpu_online_mask so that the
+stop operation is a no-op if CPU HOTPLUG is disabled.  I, like the author in
+[1] looked at the architectures and found that alpha is one of two
+architectures that executes smp_send_stop() on all possible CPUs.
 
-$ iw dev wlan0 connect -w VirtWifi
-[   15.371989] ------------[ cut here ]------------
-[   15.372179] WARNING: CPU: 0 PID: 92 at net/wireless/sme.c:756 __cfg80211_connect_result+0x402/0x440
-[   15.372383] CPU: 0 PID: 92 Comm: kworker/u2:2 Not tainted 5.13.0-kvm #444
-[   15.372512] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.14.0-3.fc34 04/01/2014
-[   15.372597] Workqueue: cfg80211 cfg80211_event_work
-[   15.372756] RIP: 0010:__cfg80211_connect_result+0x402/0x440
-[   15.372818] Code: 48 2b 04 25 28 00 00 00 75 59 48 8b 3b 48 8b 76 10 48 8d 65 e0 5b 41 5c 41 5d 41 5e 5d 49 8d 65 f0 41 5d e9 d0 d4 fd ff 0f 0b <0f> 0b e9 f6 fd ff ff e8 f2 4a b4 ff e9 ec fd ff ff 0f 0b e9 19 fd
-[   15.372966] RSP: 0018:ffffc900005cbdc0 EFLAGS: 00010246
-[   15.373022] RAX: 0000000000000000 RBX: ffff8880028e2400 RCX: ffff8880028e2472
-[   15.373088] RDX: 0000000000000002 RSI: 00000000fffffe01 RDI: ffffffff815335ba
-[   15.373149] RBP: ffffc900005cbe00 R08: 0000000000000008 R09: ffff888002bdf8b8
-[   15.373209] R10: ffff88803ec208f0 R11: ffffffffffffe9ae R12: ffff88801d687d98
-[   15.373280] R13: ffff88801b5fe000 R14: ffffc900005cbdc0 R15: dead000000000100
-[   15.373330] FS:  0000000000000000(0000) GS:ffff88803ec00000(0000) knlGS:0000000000000000
-[   15.373382] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   15.373425] CR2: 000056421c468958 CR3: 000000001b458001 CR4: 0000000000170eb0
-[   15.373478] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[   15.373529] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[   15.373580] Call Trace:
-[   15.373611]  ? cfg80211_process_wdev_events+0x10e/0x170
-[   15.373743]  cfg80211_process_wdev_events+0x10e/0x170
-[   15.373783]  cfg80211_process_rdev_events+0x21/0x40
-[   15.373846]  cfg80211_event_work+0x20/0x30
-[   15.373892]  process_one_work+0x1e9/0x340
-[   15.373956]  worker_thread+0x4b/0x3f0
-[   15.374017]  ? process_one_work+0x340/0x340
-[   15.374053]  kthread+0x11f/0x140
-[   15.374089]  ? set_kthread_struct+0x30/0x30
-[   15.374153]  ret_from_fork+0x1f/0x30
-[   15.374187] ---[ end trace 321ef0cb7e9c0be1 ]---
-wlan0 (phy #0): connected to 00:00:00:00:00:00
+On alpha, smp_send_stop() sends an IPI to all possible CPUs but only needs
+to send them to online CPUs.
 
-Add the fake bss just before the connect so that cfg80211_get_bss()
-finds the virtual network.
-As some code was duplicated, move it in a common function.
+Send the stop IPI to only the online CPUs.
 
-Signed-off-by: Matteo Croce <mcroce@microsoft.com>
-Link: https://lore.kernel.org/r/20210706154423.11065-1-mcroce@linux.microsoft.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+[1] https://lkml.org/lkml/2020/1/10/250
+
+Signed-off-by: Prarit Bhargava <prarit@redhat.com>
+Cc: Richard Henderson <rth@twiddle.net>
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Signed-off-by: Matt Turner <mattst88@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/virt_wifi.c | 52 ++++++++++++++++++++------------
- 1 file changed, 32 insertions(+), 20 deletions(-)
+ arch/alpha/kernel/smp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/virt_wifi.c b/drivers/net/wireless/virt_wifi.c
-index 9d04ca53229b..4e906910f110 100644
---- a/drivers/net/wireless/virt_wifi.c
-+++ b/drivers/net/wireless/virt_wifi.c
-@@ -136,6 +136,29 @@ static struct ieee80211_supported_band band_5ghz = {
- /* Assigned at module init. Guaranteed locally-administered and unicast. */
- static u8 fake_router_bssid[ETH_ALEN] __ro_after_init = {};
- 
-+static void virt_wifi_inform_bss(struct wiphy *wiphy)
-+{
-+	u64 tsf = div_u64(ktime_get_boottime_ns(), 1000);
-+	struct cfg80211_bss *informed_bss;
-+	static const struct {
-+		u8 tag;
-+		u8 len;
-+		u8 ssid[8];
-+	} __packed ssid = {
-+		.tag = WLAN_EID_SSID,
-+		.len = 8,
-+		.ssid = "VirtWifi",
-+	};
-+
-+	informed_bss = cfg80211_inform_bss(wiphy, &channel_5ghz,
-+					   CFG80211_BSS_FTYPE_PRESP,
-+					   fake_router_bssid, tsf,
-+					   WLAN_CAPABILITY_ESS, 0,
-+					   (void *)&ssid, sizeof(ssid),
-+					   DBM_TO_MBM(-50), GFP_KERNEL);
-+	cfg80211_put_bss(wiphy, informed_bss);
-+}
-+
- /* Called with the rtnl lock held. */
- static int virt_wifi_scan(struct wiphy *wiphy,
- 			  struct cfg80211_scan_request *request)
-@@ -156,28 +179,13 @@ static int virt_wifi_scan(struct wiphy *wiphy,
- /* Acquires and releases the rdev BSS lock. */
- static void virt_wifi_scan_result(struct work_struct *work)
+diff --git a/arch/alpha/kernel/smp.c b/arch/alpha/kernel/smp.c
+index 5f90df30be20..06fd42417aa9 100644
+--- a/arch/alpha/kernel/smp.c
++++ b/arch/alpha/kernel/smp.c
+@@ -585,7 +585,7 @@ void
+ smp_send_stop(void)
  {
--	struct {
--		u8 tag;
--		u8 len;
--		u8 ssid[8];
--	} __packed ssid = {
--		.tag = WLAN_EID_SSID, .len = 8, .ssid = "VirtWifi",
--	};
--	struct cfg80211_bss *informed_bss;
- 	struct virt_wifi_wiphy_priv *priv =
- 		container_of(work, struct virt_wifi_wiphy_priv,
- 			     scan_result.work);
- 	struct wiphy *wiphy = priv_to_wiphy(priv);
- 	struct cfg80211_scan_info scan_info = { .aborted = false };
--	u64 tsf = div_u64(ktime_get_boottime_ns(), 1000);
- 
--	informed_bss = cfg80211_inform_bss(wiphy, &channel_5ghz,
--					   CFG80211_BSS_FTYPE_PRESP,
--					   fake_router_bssid, tsf,
--					   WLAN_CAPABILITY_ESS, 0,
--					   (void *)&ssid, sizeof(ssid),
--					   DBM_TO_MBM(-50), GFP_KERNEL);
--	cfg80211_put_bss(wiphy, informed_bss);
-+	virt_wifi_inform_bss(wiphy);
- 
- 	/* Schedules work which acquires and releases the rtnl lock. */
- 	cfg80211_scan_done(priv->scan_request, &scan_info);
-@@ -225,10 +233,12 @@ static int virt_wifi_connect(struct wiphy *wiphy, struct net_device *netdev,
- 	if (!could_schedule)
- 		return -EBUSY;
- 
--	if (sme->bssid)
-+	if (sme->bssid) {
- 		ether_addr_copy(priv->connect_requested_bss, sme->bssid);
--	else
-+	} else {
-+		virt_wifi_inform_bss(wiphy);
- 		eth_zero_addr(priv->connect_requested_bss);
-+	}
- 
- 	wiphy_debug(wiphy, "connect\n");
- 
-@@ -241,11 +251,13 @@ static void virt_wifi_connect_complete(struct work_struct *work)
- 	struct virt_wifi_netdev_priv *priv =
- 		container_of(work, struct virt_wifi_netdev_priv, connect.work);
- 	u8 *requested_bss = priv->connect_requested_bss;
--	bool has_addr = !is_zero_ether_addr(requested_bss);
- 	bool right_addr = ether_addr_equal(requested_bss, fake_router_bssid);
- 	u16 status = WLAN_STATUS_SUCCESS;
- 
--	if (!priv->is_up || (has_addr && !right_addr))
-+	if (is_zero_ether_addr(requested_bss))
-+		requested_bss = NULL;
-+
-+	if (!priv->is_up || (requested_bss && !right_addr))
- 		status = WLAN_STATUS_UNSPECIFIED_FAILURE;
- 	else
- 		priv->is_connected = true;
+ 	cpumask_t to_whom;
+-	cpumask_copy(&to_whom, cpu_possible_mask);
++	cpumask_copy(&to_whom, cpu_online_mask);
+ 	cpumask_clear_cpu(smp_processor_id(), &to_whom);
+ #ifdef DEBUG_IPI_MSG
+ 	if (hard_smp_processor_id() != boot_cpu_id)
 -- 
 2.30.2
 
