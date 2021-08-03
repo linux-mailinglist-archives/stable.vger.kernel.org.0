@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4ACAC3DECDD
-	for <lists+stable@lfdr.de>; Tue,  3 Aug 2021 13:45:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74CFF3DECC3
+	for <lists+stable@lfdr.de>; Tue,  3 Aug 2021 13:45:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236457AbhHCLpZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Aug 2021 07:45:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35728 "EHLO mail.kernel.org"
+        id S236408AbhHCLpI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Aug 2021 07:45:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236333AbhHCLoz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Aug 2021 07:44:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AB0E36104F;
-        Tue,  3 Aug 2021 11:44:43 +0000 (UTC)
+        id S235854AbhHCLo6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Aug 2021 07:44:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 76C22610A0;
+        Tue,  3 Aug 2021 11:44:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1627991084;
-        bh=gMNr1xTa7PcEHktNqKlEk3P0MqfPUA5Xwga69/sqMn0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GcN3GZcqdMnmQ0TDHuhIphozJZD89QVkYn/57brAuTi4PRs4MBe23UKrcwvRJqicb
-         4b3cL49icOFlEZ/u4KnH/yF0NL7Jc3Bd3UwaFNRSmVj3P+PhGcI+sEViPJVTWw4laF
-         Qzta0xfbaZRgeq3WfsinkqclWOfcRi4y6YyGsKdDp5dJaYAPmLJ1BpQch6u/IR03W2
-         Ro8dXdnpzc1jppBao5KCMhKNoYc3v5cnc8EoDJ4wcEZglpl94mv7X4d98WRjTCSZPG
-         Pnp8OTj12zyQSdcRq7Cmg25Mct779Yp4BROqv0+yEP0Ff50bYlfuPJjUSiEz430cTZ
-         4BP/30sfejoAg==
+        s=k20201202; t=1627991087;
+        bh=bKqrxxAZGEMecussvSD3pEir8sHp7toRotHyMrBTYEQ=;
+        h=From:To:Cc:Subject:Date:From;
+        b=HkBlUIFsUkGeNi6CNbeTJBE5ckkYhgNgx3dPQPc799hhHQP3tDrnvvXDe8xsS/RI3
+         LAFS88mP877AsHqCem2r/9KL20+5CaANw6Tfn17lqIWBSd9IiU0Sf9nTseMg6eGKo4
+         xLU2ncCfAOJLVEHXzdAkKPziZWwISPqI3v0jn8Y93sV56UUXkmWzviOGBwUX6RD0am
+         JjBQNoDuwk6mTdF/W7dRgahbvmbCiJAJlxKSiZ95tnpwX5yrOdIu+Q5QkXL2S8QUwU
+         vuSE843tTGQQ4k19kI/zys+5udz3uYeQTSUxDtOOnUYqQ3cNuuCfFWQ944un9n3p31
+         ATWZMtYTkv72A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Letu Ren <fantasquex@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 5/5] net/qla3xxx: fix schedule while atomic in ql_wait_for_drvr_lock and ql_adapter_reset
-Date:   Tue,  3 Aug 2021 07:44:37 -0400
-Message-Id: <20210803114437.2253079-5-sashal@kernel.org>
+Cc:     Yu Kuai <yukuai3@huawei.com>, Jan Kara <jack@suse.cz>,
+        Sasha Levin <sashal@kernel.org>, reiserfs-devel@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 1/4] reiserfs: add check for root_inode in reiserfs_fill_super
+Date:   Tue,  3 Aug 2021 07:44:41 -0400
+Message-Id: <20210803114445.2253179-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210803114437.2253079-1-sashal@kernel.org>
-References: <20210803114437.2253079-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -42,55 +39,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Letu Ren <fantasquex@gmail.com>
+From: Yu Kuai <yukuai3@huawei.com>
 
-[ Upstream commit 92766c4628ea349c8ddab0cd7bd0488f36e5c4ce ]
+[ Upstream commit 2acf15b94d5b8ea8392c4b6753a6ffac3135cd78 ]
 
-When calling the 'ql_wait_for_drvr_lock' and 'ql_adapter_reset', the driver
-has already acquired the spin lock, so the driver should not call 'ssleep'
-in atomic context.
+Our syzcaller report a NULL pointer dereference:
 
-This bug can be fixed by using 'mdelay' instead of 'ssleep'.
+BUG: kernel NULL pointer dereference, address: 0000000000000000
+PGD 116e95067 P4D 116e95067 PUD 1080b5067 PMD 0
+Oops: 0010 [#1] SMP KASAN
+CPU: 7 PID: 592 Comm: a.out Not tainted 5.13.0-next-20210629-dirty #67
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ?-20190727_073836-buildvm-p4
+RIP: 0010:0x0
+Code: Unable to access opcode bytes at RIP 0xffffffffffffffd6.
+RSP: 0018:ffff888114e779b8 EFLAGS: 00010246
+RAX: 0000000000000000 RBX: 1ffff110229cef39 RCX: ffffffffaa67e1aa
+RDX: 0000000000000000 RSI: ffff88810a58ee00 RDI: ffff8881233180b0
+RBP: ffffffffac38e9c0 R08: ffffffffaa67e17e R09: 0000000000000001
+R10: ffffffffb91c5557 R11: fffffbfff7238aaa R12: ffff88810a58ee00
+R13: ffff888114e77aa0 R14: 0000000000000000 R15: ffff8881233180b0
+FS:  00007f946163c480(0000) GS:ffff88839f1c0000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: ffffffffffffffd6 CR3: 00000001099c1000 CR4: 00000000000006e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ __lookup_slow+0x116/0x2d0
+ ? page_put_link+0x120/0x120
+ ? __d_lookup+0xfc/0x320
+ ? d_lookup+0x49/0x90
+ lookup_one_len+0x13c/0x170
+ ? __lookup_slow+0x2d0/0x2d0
+ ? reiserfs_schedule_old_flush+0x31/0x130
+ reiserfs_lookup_privroot+0x64/0x150
+ reiserfs_fill_super+0x158c/0x1b90
+ ? finish_unfinished+0xb10/0xb10
+ ? bprintf+0xe0/0xe0
+ ? __mutex_lock_slowpath+0x30/0x30
+ ? __kasan_check_write+0x20/0x30
+ ? up_write+0x51/0xb0
+ ? set_blocksize+0x9f/0x1f0
+ mount_bdev+0x27c/0x2d0
+ ? finish_unfinished+0xb10/0xb10
+ ? reiserfs_kill_sb+0x120/0x120
+ get_super_block+0x19/0x30
+ legacy_get_tree+0x76/0xf0
+ vfs_get_tree+0x49/0x160
+ ? capable+0x1d/0x30
+ path_mount+0xacc/0x1380
+ ? putname+0x97/0xd0
+ ? finish_automount+0x450/0x450
+ ? kmem_cache_free+0xf8/0x5a0
+ ? putname+0x97/0xd0
+ do_mount+0xe2/0x110
+ ? path_mount+0x1380/0x1380
+ ? copy_mount_options+0x69/0x140
+ __x64_sys_mount+0xf0/0x190
+ do_syscall_64+0x35/0x80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Reported-by: Letu Ren <fantasquex@gmail.com>
-Signed-off-by: Letu Ren <fantasquex@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This is because 'root_inode' is initialized with wrong mode, and
+it's i_op is set to 'reiserfs_special_inode_operations'. Thus add
+check for 'root_inode' to fix the problem.
+
+Link: https://lore.kernel.org/r/20210702040743.1918552-1-yukuai3@huawei.com
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qla3xxx.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ fs/reiserfs/super.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/net/ethernet/qlogic/qla3xxx.c b/drivers/net/ethernet/qlogic/qla3xxx.c
-index a8bb061e1a8a..36c7d78ba780 100644
---- a/drivers/net/ethernet/qlogic/qla3xxx.c
-+++ b/drivers/net/ethernet/qlogic/qla3xxx.c
-@@ -155,7 +155,7 @@ static int ql_wait_for_drvr_lock(struct ql3_adapter *qdev)
- 				      "driver lock acquired\n");
- 			return 1;
- 		}
--		ssleep(1);
-+		mdelay(1000);
- 	} while (++i < 10);
- 
- 	netdev_err(qdev->ndev, "Timed out waiting for driver lock...\n");
-@@ -3291,7 +3291,7 @@ static int ql_adapter_reset(struct ql3_adapter *qdev)
- 		if ((value & ISP_CONTROL_SR) == 0)
- 			break;
- 
--		ssleep(1);
-+		mdelay(1000);
- 	} while ((--max_wait_time));
- 
- 	/*
-@@ -3327,7 +3327,7 @@ static int ql_adapter_reset(struct ql3_adapter *qdev)
- 						   ispControlStatus);
- 			if ((value & ISP_CONTROL_FSR) == 0)
- 				break;
--			ssleep(1);
-+			mdelay(1000);
- 		} while ((--max_wait_time));
+diff --git a/fs/reiserfs/super.c b/fs/reiserfs/super.c
+index c533d8715a6c..0d324c07762a 100644
+--- a/fs/reiserfs/super.c
++++ b/fs/reiserfs/super.c
+@@ -2059,6 +2059,14 @@ static int reiserfs_fill_super(struct super_block *s, void *data, int silent)
+ 		unlock_new_inode(root_inode);
  	}
- 	if (max_wait_time == 0)
+ 
++	if (!S_ISDIR(root_inode->i_mode) || !inode_get_bytes(root_inode) ||
++	    !root_inode->i_size) {
++		SWARN(silent, s, "", "corrupt root inode, run fsck");
++		iput(root_inode);
++		errval = -EUCLEAN;
++		goto error;
++	}
++
+ 	s->s_root = d_make_root(root_inode);
+ 	if (!s->s_root)
+ 		goto error;
 -- 
 2.30.2
 
