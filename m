@@ -2,92 +2,155 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EACF3DF416
-	for <lists+stable@lfdr.de>; Tue,  3 Aug 2021 19:49:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95BC53DF418
+	for <lists+stable@lfdr.de>; Tue,  3 Aug 2021 19:51:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238389AbhHCRuF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Aug 2021 13:50:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52974 "EHLO
+        id S238396AbhHCRvU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Aug 2021 13:51:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238316AbhHCRuE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Aug 2021 13:50:04 -0400
-Received: from mail-lj1-x233.google.com (mail-lj1-x233.google.com [IPv6:2a00:1450:4864:20::233])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D8A4C061757;
-        Tue,  3 Aug 2021 10:49:52 -0700 (PDT)
-Received: by mail-lj1-x233.google.com with SMTP id y7so680710ljp.3;
-        Tue, 03 Aug 2021 10:49:52 -0700 (PDT)
+        with ESMTP id S238316AbhHCRvU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Aug 2021 13:51:20 -0400
+Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1ECFEC06175F
+        for <stable@vger.kernel.org>; Tue,  3 Aug 2021 10:51:08 -0700 (PDT)
+Received: by mail-pj1-x102d.google.com with SMTP id nh14so18903509pjb.2
+        for <stable@vger.kernel.org>; Tue, 03 Aug 2021 10:51:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=appGSUBpUB7Z4hxXq9WMmGcqxVJ6QSkBfy4QZnBqvu4=;
-        b=ltB7icxkbjWA6hiTSxZX9NyK/fLidSmbgMv/3wIkhgNxLQBfkelhQFZeWet4CfDZgc
-         wYLhi7xOSxfOTl0n7NcTOJcUZM+ESkP9HBbeqWeGQrefIs62L3Z6iSbqGOFLoTexAm18
-         nPKpwUD4KxRJIZSIWg0/XHOOUVwJe2cPGaPHfdsP4Nj/Q153ZDRNnrFUFheDOYXYB3fK
-         KNq9/k4N9725qjtBn8BrYp5eEqE34Y7cHeykO/EiJgEAU+S0jLpTuYYliXQYWda0Imte
-         w3U4w/GngXULgKUGBw5owqS9gTUnMrDCPvTciP5gh0IBtRYFG1i5tsHXZqD6y3wePLBZ
-         6Bog==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=t0dS792FKIZgoNCbH3DPbnI8hL4zCqEhuI4WBzavYW8=;
+        b=ytg1P4sBz+qR2+xj6+AtMGijBdTjB7DAneN3tslo7SnPpI42U0fAyG8Ppe/G8wTTEp
+         KI9IM61RgT7NE11VGzaypPx1yVsHHiwU8uvmwNQry9CehgZ9DqvGnt2kj2E9BDDXxvhr
+         C1hcnS5NAmR9yCJd1GMYNELz489LoCClJQR+ygm62aiZXUh9OFF12yV1NChRbLpOHMFL
+         bileUKdpfOI/otLubxtySmWwkDFrGwz5gVL6BoMyggMd0O18y69gcGWAGttva/yAJPaV
+         /EohjNMidJduFLpBGHSRwgZoEJhDHcJY9b1WtVVs8KoGprXXH3RfGKB8oN1zDbtnUPjT
+         95hg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=appGSUBpUB7Z4hxXq9WMmGcqxVJ6QSkBfy4QZnBqvu4=;
-        b=km5KqVBhz2g+xyWy6JYpdhRXU5dBzA8wm0LpanTM459DVXajqA/HNTembIVRqPjVcY
-         QTXopApqXWdcJXR231N3aJegNt5pbCIXFL2+0UtRGd9XiB46cEV03TxoE6Z+NM57s8iR
-         cXA+T/QIBFepP00v/e8TlOuHOTzAgvv3ZtHGUjNW8IBM+n6azQKtX3Ak9t2bQALrUWw5
-         h1kGS1N1itSALGSU92nK3crRxIEHZXEFeeTXvM0eMG8Zu2lCHT9XZS16XGkokhGNyGv8
-         bxd3jZBCQvnPc8UwV5NLkxzJhIo7mcJgIf70N8dXNZjZKx+YgGzH8wBuxlZOi6FJPQUw
-         jDZQ==
-X-Gm-Message-State: AOAM531+3mEJad9qRHy502DN5+sKkjS7ridypQEoZPRsBw13VXjvP0iV
-        HkycIt4kASmECLuRJF48fKY=
-X-Google-Smtp-Source: ABdhPJwONsWN0deq41ItULAiY4kLBQgqlUipGLJwKN/ehwJvw74A3i73Oye1AgVseUpWQ1K0d1kucw==
-X-Received: by 2002:a05:651c:1144:: with SMTP id h4mr15079623ljo.396.1628012990846;
-        Tue, 03 Aug 2021 10:49:50 -0700 (PDT)
-Received: from localhost.localdomain (broadband-90-154-71-87.ip.moscow.rt.ru. [90.154.71.87])
-        by smtp.gmail.com with ESMTPSA id w7sm1306481lft.285.2021.08.03.10.49.49
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=t0dS792FKIZgoNCbH3DPbnI8hL4zCqEhuI4WBzavYW8=;
+        b=HbqRf2wrbeULFT/nt6aXza5sTvDz8IYIvDMkHRdH+5Qaw1jUp39Y4+HqWl6o5WJDJq
+         YB4Pq9rixsw1/GXtQ46rdS1DYBZ+OsciGNjLLZ7hcjysIj2Oru+raBP5ge1G7+fNqhmy
+         /5Cyss3LdBVGo6/G8UmDszfPSTzerokGtRLFt80770r1QP3JikkqhhsUBfwRBiSaakAd
+         nY/6Ilcaad3lYXqWf7no4VtyLsUqA9V6IanTc0uegBpmy9l80/fmMcIoML0tJoIjkO56
+         VlN0pfYP2O530nu9fpplgk2dzajDXDgUey8cVp70gGILoHpb8Xu38xtSgl1JFmgbtT4o
+         2gkQ==
+X-Gm-Message-State: AOAM533Jbe+Hm3H/+e5hGUPOaW1SetI1GoAFLNaaZX8r6J3Flf4pTRaK
+        xjLB11nZ4hsh5s4lEzsOdrPfDEQ/OIlrWdl/
+X-Google-Smtp-Source: ABdhPJwnJVBpx8Yg9Z3EzoJsTOTw4lmI9HE3YPIU3ujqWlJ6LY6CfJNAedxjwI+GAXlxr4peYfDOvg==
+X-Received: by 2002:a65:6107:: with SMTP id z7mr471963pgu.43.1628013067450;
+        Tue, 03 Aug 2021 10:51:07 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id k3sm16581965pfc.16.2021.08.03.10.51.07
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Aug 2021 10:49:50 -0700 (PDT)
-Date:   Tue, 3 Aug 2021 20:49:46 +0300
-From:   Pavel Skripkin <paskripkin@gmail.com>
-To:     Petko Manolov <petko.manolov@konsulko.com>
-Cc:     netdev@vger.kernel.org, davem@davemloft.net,
-        gregkh@linuxfoundation.org, stable@vger.kernel.org,
-        Petko Manolov <petkan@nucleusys.com>
-Subject: Re: [PATCH net v3 1/2] net: usb: pegasus: Check the return value of
- get_geristers() and friends;
-Message-ID: <20210803204946.38978b72@gmail.com>
-In-Reply-To: <20210803172524.6088-2-petko.manolov@konsulko.com>
-References: <20210803172524.6088-1-petko.manolov@konsulko.com>
-        <20210803172524.6088-2-petko.manolov@konsulko.com>
-X-Mailer: Claws Mail 3.17.8git77 (GTK+ 2.24.33; x86_64-suse-linux-gnu)
+        Tue, 03 Aug 2021 10:51:07 -0700 (PDT)
+Message-ID: <6109820b.1c69fb81.b0f9b.0208@mx.google.com>
+Date:   Tue, 03 Aug 2021 10:51:07 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/5.4
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.4.137-4-g2645f0d8ddfb
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/5.4 baseline: 187 runs,
+ 3 regressions (v5.4.137-4-g2645f0d8ddfb)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue,  3 Aug 2021 20:25:23 +0300
-Petko Manolov <petko.manolov@konsulko.com> wrote:
+stable-rc/queue/5.4 baseline: 187 runs, 3 regressions (v5.4.137-4-g2645f0d8=
+ddfb)
 
-> From: Petko Manolov <petkan@nucleusys.com>
-> 
-> Certain call sites of get_geristers() did not do proper error
-> handling.  This could be a problem as get_geristers() typically
-> return the data via pointer to a buffer.  If an error occurred the
-> code is carelessly manipulating the wrong data.
-> 
-> Signed-off-by: Petko Manolov <petkan@nucleusys.com>
-> ---
->  drivers/net/usb/pegasus.c | 108
-> ++++++++++++++++++++++++++------------ 1 file changed, 75
-> insertions(+), 33 deletions(-)
-> 
+Regressions Summary
+-------------------
 
-All's good! Thank you :)
-
-Reviewed-by: Pavel Skripkin <paskripkin@gmail.com>
+platform          | arch | lab           | compiler | defconfig          | =
+regressions
+------------------+------+---------------+----------+--------------------+-=
+-----------
+rk3288-veyron-jaq | arm  | lab-collabora | gcc-8    | multi_v7_defconfig | =
+3          =
 
 
-With regards,
-Pavel Skripkin
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
+el/v5.4.137-4-g2645f0d8ddfb/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.4
+  Describe: v5.4.137-4-g2645f0d8ddfb
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      2645f0d8ddfb64be3876d60794747bf45b13ed56 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform          | arch | lab           | compiler | defconfig          | =
+regressions
+------------------+------+---------------+----------+--------------------+-=
+-----------
+rk3288-veyron-jaq | arm  | lab-collabora | gcc-8    | multi_v7_defconfig | =
+3          =
+
+
+  Details:     https://kernelci.org/test/plan/id/610955064ebdf7e619b136d5
+
+  Results:     67 PASS, 3 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.137-4=
+-g2645f0d8ddfb/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288-v=
+eyron-jaq.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.137-4=
+-g2645f0d8ddfb/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288-v=
+eyron-jaq.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-iodomain-grf-probed: https://kernelci.org/test=
+/case/id/610955064ebdf7e619b136ed
+        failing since 49 days (last pass: v5.4.125-37-g7cda316475cf, first =
+fail: v5.4.125-84-g411d62eda127)
+
+    2021-08-03T14:38:45.274318  /lava-4317958/1/../bin/lava-test-case
+    2021-08-03T14:38:45.291352  <8>[   15.272102] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-iodomain-grf-probed RESULT=3Dfail>   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdio0-probed: https://kernelci.org/test/=
+case/id/610955064ebdf7e619b13702
+        failing since 49 days (last pass: v5.4.125-37-g7cda316475cf, first =
+fail: v5.4.125-84-g411d62eda127)
+
+    2021-08-03T14:38:43.866780  /lava-4317958/1/../bin/lava-test-case<8>[  =
+ 13.846882] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Ddwmmc_rockchip-sdio0-probe=
+d RESULT=3Dfail>
+    2021-08-03T14:38:43.867380  =
+
+    2021-08-03T14:38:43.867763  /lava-4317958/1/../bin/lava-test-case   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdmmc-probed: https://kernelci.org/test/=
+case/id/610955064ebdf7e619b13703
+        failing since 49 days (last pass: v5.4.125-37-g7cda316475cf, first =
+fail: v5.4.125-84-g411d62eda127)
+
+    2021-08-03T14:38:42.829390  /lava-4317958/1/../bin/lava-test-case
+    2021-08-03T14:38:42.834757  <8>[   12.827280] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Ddwmmc_rockchip-sdmmc-probed RESULT=3Dfail>   =
+
+ =20
