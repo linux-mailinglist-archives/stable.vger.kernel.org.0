@@ -2,211 +2,152 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 503343DEF0C
-	for <lists+stable@lfdr.de>; Tue,  3 Aug 2021 15:27:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E9D13DEF14
+	for <lists+stable@lfdr.de>; Tue,  3 Aug 2021 15:30:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236366AbhHCN2D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Aug 2021 09:28:03 -0400
-Received: from mga12.intel.com ([192.55.52.136]:37709 "EHLO mga12.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236245AbhHCN2C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Aug 2021 09:28:02 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10064"; a="193280914"
-X-IronPort-AV: E=Sophos;i="5.84,291,1620716400"; 
-   d="scan'208";a="193280914"
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Aug 2021 06:27:51 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.84,291,1620716400"; 
-   d="scan'208";a="502394202"
-Received: from otc-lr-04.jf.intel.com ([10.54.39.41])
-  by fmsmga004.fm.intel.com with ESMTP; 03 Aug 2021 06:27:50 -0700
-From:   kan.liang@linux.intel.com
-To:     peterz@infradead.org, mingo@redhat.com,
-        linux-kernel@vger.kernel.org
-Cc:     ak@linux.intel.com, Kan Liang <kan.liang@linux.intel.com>,
-        stable@vger.kernel.org
-Subject: [PATCH V2] perf/x86/intel: Apply mid ACK for small core
-Date:   Tue,  3 Aug 2021 06:25:28 -0700
-Message-Id: <1627997128-57891-1-git-send-email-kan.liang@linux.intel.com>
-X-Mailer: git-send-email 2.7.4
+        id S236431AbhHCNaO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Aug 2021 09:30:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43586 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236346AbhHCNaN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Aug 2021 09:30:13 -0400
+Received: from mail-qv1-xf2e.google.com (mail-qv1-xf2e.google.com [IPv6:2607:f8b0:4864:20::f2e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB2C6C061757
+        for <stable@vger.kernel.org>; Tue,  3 Aug 2021 06:30:02 -0700 (PDT)
+Received: by mail-qv1-xf2e.google.com with SMTP id cg4so5518035qvb.5
+        for <stable@vger.kernel.org>; Tue, 03 Aug 2021 06:30:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=T5LWJvLNPFvrsP+8rTSctWTnBPUV+sbu54F2/XzyL04=;
+        b=E6R+q4WD1t1XqkKiv21e6XxoY3rFhv0SUhabTeyBnlgtYjYkcuLEL2myi7zpIuFI83
+         0JaWLF5/xzmhLU/qAQeCbCFjodX3T8KK2qtxtj8uLvgrSP82TlPHQkDLcKL3Xb7Nn8m+
+         yZYTnDb8nSQJz43u71xWnFYk0OlWdf1+jMb8rMTl2Akyu/QeulcJHs2hbG+RaQH8h21z
+         hSnhqu8cocPiEDi1rAyTJgb0lYgW26KuwQHbWeAaYxl3EkacCTGQknHBCBqcN5VAsVLa
+         6MfptddAV/eaZXWdiEgJ6u7UYk0HqMdidvm98aRF7DA83RUDOTsgE8k3D8FpiarUSIXr
+         q6gg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=T5LWJvLNPFvrsP+8rTSctWTnBPUV+sbu54F2/XzyL04=;
+        b=mPNNoU6fbSvdix4uXxk5Y8n9YJbzLTZ+rGXKplii7S+7vqU6o4OoI1gKxh7RzcwAn8
+         03N+g/FskidJdANBuZm4nvo/Yc59jHIVEKdWL785qdGjzehuGXDfbz+wC9auMlaGgYCa
+         Zg1IgNI9fRuvP6wZV7bQANDicIF4ZqALAalDP1N4P0BvC8g111hBWRffpaNNnrZHNYtF
+         5GEjk1Jq7f9lhEdxOjGSElJDhv4d3w2M3RJ4oZnFrKz61iD8soAZfWeadUwfNqegTBNa
+         ZudIZl7Odi5A4qWIFvMbkjUqQ5yhpGTCY6VzZ8Tyoj9TtxD42DRyZaLcKBWGkNxZtsTe
+         4e+Q==
+X-Gm-Message-State: AOAM531/0L8xg5t52IwVPz8sk1UT9PLgbOMp8m0pwh8EatU94Bxnf1YH
+        pAZyYYfWVBpTcX2fNi8zi1y3VqGIIwsr+yk+X+Pcfg==
+X-Google-Smtp-Source: ABdhPJx51VqlQMR3Ad0jd5YW0uaLDMWfS3K+CFXKdlzNGEDquQFkMceVecHmwQWoRFCePUdCzX792/HbKXHewVIIelA=
+X-Received: by 2002:a05:6214:1021:: with SMTP id k1mr21594531qvr.4.1627997401968;
+ Tue, 03 Aug 2021 06:30:01 -0700 (PDT)
+MIME-Version: 1.0
+References: <1627987307-29347-1-git-send-email-kalyan_t@codeaurora.org>
+In-Reply-To: <1627987307-29347-1-git-send-email-kalyan_t@codeaurora.org>
+From:   Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Date:   Tue, 3 Aug 2021 16:29:51 +0300
+Message-ID: <CAA8EJpotuiBFDXvNP3BRKYGmjMt0MzduggXJye__jYbAshfLUA@mail.gmail.com>
+Subject: Re: [v2] drm/msm/disp/dpu1: add safe lut config in dpu driver
+To:     Kalyan Thota <kalyan_t@codeaurora.org>
+Cc:     "open list:DRM DRIVER FOR MSM ADRENO GPU" 
+        <dri-devel@lists.freedesktop.org>,
+        "open list:DRM DRIVER FOR MSM ADRENO GPU" 
+        <linux-arm-msm@vger.kernel.org>,
+        freedreno <freedreno@lists.freedesktop.org>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
+        <devicetree@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        Rob Clark <robdclark@gmail.com>,
+        Douglas Anderson <dianders@chromium.org>,
+        Krishna Manikandan <mkrishn@codeaurora.org>,
+        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
+        Rajendra Nayak <rnayak@codeaurora.org>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kan Liang <kan.liang@linux.intel.com>
+On Tue, 3 Aug 2021 at 13:42, Kalyan Thota <kalyan_t@codeaurora.org> wrote:
+>
+> Add safe lut configuration for all the targets in dpu
+> driver as per QOS recommendation.
+>
+> Issue reported on SC7280:
+>
+> With wait-for-safe feature in smmu enabled, RT client
+> buffer levels are checked to be safe before smmu invalidation.
+> Since display was always set to unsafe it was delaying the
+> invalidaiton process thus impacting the performance on NRT clients
+> such as eMMC and NVMe.
+>
+> Validated this change on SC7280, With this change eMMC performance
+> has improved significantly.
+>
+> Changes in v1:
+> - Add fixes tag (Sai)
+> - CC stable kernel (Dimtry)
+>
+> Fixes: cfacf946a464d4(drm/msm/disp/dpu1: add support for display for SC7280 target)
+> Signed-off-by: Kalyan Thota <kalyan_t@codeaurora.org>
+> Tested-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org> (sc7280, sc7180)
 
-A warning as below may be occasionally triggered in an ADL machine when
-these conditions occur,
-- Two perf record commands run one by one. Both record a PEBS event.
-- Both runs on small cores.
-- They have different adaptive PEBS configuration (PEBS_DATA_CFG).
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[  673.663291] WARNING: CPU: 4 PID: 9874 at
-arch/x86/events/intel/ds.c:1743
-setup_pebs_adaptive_sample_data+0x55e/0x5b0
-[  673.663348] RIP: 0010:setup_pebs_adaptive_sample_data+0x55e/0x5b0
-[  673.663357] Call Trace:
-[  673.663357]  <NMI>
-[  673.663357]  intel_pmu_drain_pebs_icl+0x48b/0x810
-[  673.663360]  perf_event_nmi_handler+0x41/0x80
-[  673.663368]  </NMI>
-[  673.663370]  __perf_event_task_sched_in+0x2c2/0x3a0
+> ---
+>  drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c | 5 +++++
+>  1 file changed, 5 insertions(+)
+>
+> diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
+> index d01c4c9..2e482cd 100644
+> --- a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
+> +++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
+> @@ -974,6 +974,7 @@ static const struct dpu_perf_cfg sdm845_perf_data = {
+>         .amortizable_threshold = 25,
+>         .min_prefill_lines = 24,
+>         .danger_lut_tbl = {0xf, 0xffff, 0x0},
+> +       .safe_lut_tbl = {0xfff0, 0xf000, 0xffff},
+>         .qos_lut_tbl = {
+>                 {.nentry = ARRAY_SIZE(sdm845_qos_linear),
+>                 .entries = sdm845_qos_linear
+> @@ -1001,6 +1002,7 @@ static const struct dpu_perf_cfg sc7180_perf_data = {
+>         .min_dram_ib = 1600000,
+>         .min_prefill_lines = 24,
+>         .danger_lut_tbl = {0xff, 0xffff, 0x0},
+> +       .safe_lut_tbl = {0xfff0, 0xff00, 0xffff},
+>         .qos_lut_tbl = {
+>                 {.nentry = ARRAY_SIZE(sc7180_qos_linear),
+>                 .entries = sc7180_qos_linear
+> @@ -1028,6 +1030,7 @@ static const struct dpu_perf_cfg sm8150_perf_data = {
+>         .min_dram_ib = 800000,
+>         .min_prefill_lines = 24,
+>         .danger_lut_tbl = {0xf, 0xffff, 0x0},
+> +       .safe_lut_tbl = {0xfff8, 0xf000, 0xffff},
+>         .qos_lut_tbl = {
+>                 {.nentry = ARRAY_SIZE(sm8150_qos_linear),
+>                 .entries = sm8150_qos_linear
+> @@ -1056,6 +1059,7 @@ static const struct dpu_perf_cfg sm8250_perf_data = {
+>         .min_dram_ib = 800000,
+>         .min_prefill_lines = 35,
+>         .danger_lut_tbl = {0xf, 0xffff, 0x0},
+> +       .safe_lut_tbl = {0xfff0, 0xff00, 0xffff},
+>         .qos_lut_tbl = {
+>                 {.nentry = ARRAY_SIZE(sc7180_qos_linear),
+>                 .entries = sc7180_qos_linear
+> @@ -1084,6 +1088,7 @@ static const struct dpu_perf_cfg sc7280_perf_data = {
+>         .min_dram_ib = 1600000,
+>         .min_prefill_lines = 24,
+>         .danger_lut_tbl = {0xffff, 0xffff, 0x0},
+> +       .safe_lut_tbl = {0xff00, 0xff00, 0xffff},
+>         .qos_lut_tbl = {
+>                 {.nentry = ARRAY_SIZE(sc7180_qos_macrotile),
+>                 .entries = sc7180_qos_macrotile
+> --
+> 2.7.4
+>
 
-Different from the big core, the small core requires the ACK right
-before re-enabling counters in the NMI handler, otherwise a stale PEBS
-record may be dumped into the later NMI handler, which trigger the
-warning.
 
-Add a new mid_ack flag to track the case. Add all PMI handler bits in
-the struct x86_hybrid_pmu to track the bits for different types of PMUs.
-Apply mid ACK for the small cores on an Alder Lake machine.
-
-The existing hybrid() macro has a compile error when taking address of a
-bit-field variable. Add a new macro hybrid_bit() to get the bit-field
-value of a given PMU.
-
-Fixes: f83d2f91d259 ("perf/x86/intel: Add Alder Lake Hybrid support")
-Reported-by: Ammy Yi <ammy.yi@intel.com>
-Tested-by: Ammy Yi <ammy.yi@intel.com>
-Reviewed-by: Andi Kleen <ak@linux.intel.com>
-Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
-Cc: stable@vger.kernel.org
----
-
-The V1 patch set can be found at
-https://lore.kernel.org/lkml/1625774073-153697-1-git-send-email-kan.liang@linux.intel.com/
-
-Changes since v1:
-- Introduce mid ACK. The early ACK in V1 may trigger other issue based
-  on the latest test result.
-- Add comments regarding early, mid and late ACK.
-
- arch/x86/events/intel/core.c | 23 +++++++++++++++--------
- arch/x86/events/perf_event.h | 15 +++++++++++++++
- 2 files changed, 30 insertions(+), 8 deletions(-)
-
-diff --git a/arch/x86/events/intel/core.c b/arch/x86/events/intel/core.c
-index d76be3b..511d1f9 100644
---- a/arch/x86/events/intel/core.c
-+++ b/arch/x86/events/intel/core.c
-@@ -2904,24 +2904,28 @@ static int handle_pmi_common(struct pt_regs *regs, u64 status)
-  */
- static int intel_pmu_handle_irq(struct pt_regs *regs)
- {
--	struct cpu_hw_events *cpuc;
-+	struct cpu_hw_events *cpuc = this_cpu_ptr(&cpu_hw_events);
-+	bool late_ack = hybrid_bit(cpuc->pmu, late_ack);
-+	bool mid_ack = hybrid_bit(cpuc->pmu, mid_ack);
- 	int loops;
- 	u64 status;
- 	int handled;
- 	int pmu_enabled;
- 
--	cpuc = this_cpu_ptr(&cpu_hw_events);
--
- 	/*
- 	 * Save the PMU state.
- 	 * It needs to be restored when leaving the handler.
- 	 */
- 	pmu_enabled = cpuc->enabled;
- 	/*
--	 * No known reason to not always do late ACK,
--	 * but just in case do it opt-in.
-+	 * In general, the early ACK is only applied for old platforms.
-+	 * For the big core starts from Haswell, the late ACK should be
-+	 * applied.
-+	 * For the small core after Tremont, we have to do the ACK right
-+	 * before re-enabling counters, which is in the middle of the
-+	 * NMI handler.
- 	 */
--	if (!x86_pmu.late_ack)
-+	if (!late_ack && !mid_ack)
- 		apic_write(APIC_LVTPC, APIC_DM_NMI);
- 	intel_bts_disable_local();
- 	cpuc->enabled = 0;
-@@ -2958,6 +2962,8 @@ static int intel_pmu_handle_irq(struct pt_regs *regs)
- 		goto again;
- 
- done:
-+	if (mid_ack)
-+		apic_write(APIC_LVTPC, APIC_DM_NMI);
- 	/* Only restore PMU state when it's active. See x86_pmu_disable(). */
- 	cpuc->enabled = pmu_enabled;
- 	if (pmu_enabled)
-@@ -2969,7 +2975,7 @@ static int intel_pmu_handle_irq(struct pt_regs *regs)
- 	 * have been reset. This avoids spurious NMIs on
- 	 * Haswell CPUs.
- 	 */
--	if (x86_pmu.late_ack)
-+	if (late_ack)
- 		apic_write(APIC_LVTPC, APIC_DM_NMI);
- 	return handled;
- }
-@@ -6123,7 +6129,6 @@ __init int intel_pmu_init(void)
- 		static_branch_enable(&perf_is_hybrid);
- 		x86_pmu.num_hybrid_pmus = X86_HYBRID_NUM_PMUS;
- 
--		x86_pmu.late_ack = true;
- 		x86_pmu.pebs_aliases = NULL;
- 		x86_pmu.pebs_prec_dist = true;
- 		x86_pmu.pebs_block = true;
-@@ -6161,6 +6166,7 @@ __init int intel_pmu_init(void)
- 		pmu = &x86_pmu.hybrid_pmu[X86_HYBRID_PMU_CORE_IDX];
- 		pmu->name = "cpu_core";
- 		pmu->cpu_type = hybrid_big;
-+		pmu->late_ack = true;
- 		if (cpu_feature_enabled(X86_FEATURE_HYBRID_CPU)) {
- 			pmu->num_counters = x86_pmu.num_counters + 2;
- 			pmu->num_counters_fixed = x86_pmu.num_counters_fixed + 1;
-@@ -6186,6 +6192,7 @@ __init int intel_pmu_init(void)
- 		pmu = &x86_pmu.hybrid_pmu[X86_HYBRID_PMU_ATOM_IDX];
- 		pmu->name = "cpu_atom";
- 		pmu->cpu_type = hybrid_small;
-+		pmu->mid_ack = true;
- 		pmu->num_counters = x86_pmu.num_counters;
- 		pmu->num_counters_fixed = x86_pmu.num_counters_fixed;
- 		pmu->max_pebs_events = x86_pmu.max_pebs_events;
-diff --git a/arch/x86/events/perf_event.h b/arch/x86/events/perf_event.h
-index ad87cb3..eec7ce8 100644
---- a/arch/x86/events/perf_event.h
-+++ b/arch/x86/events/perf_event.h
-@@ -655,6 +655,10 @@ struct x86_hybrid_pmu {
- 	struct event_constraint		*event_constraints;
- 	struct event_constraint		*pebs_constraints;
- 	struct extra_reg		*extra_regs;
-+
-+	unsigned int			late_ack	:1,
-+					mid_ack		:1,
-+					enabled_ack	:1;
- };
- 
- static __always_inline struct x86_hybrid_pmu *hybrid_pmu(struct pmu *pmu)
-@@ -685,6 +689,16 @@ extern struct static_key_false perf_is_hybrid;
- 	__Fp;						\
- }))
- 
-+#define hybrid_bit(_pmu, _field)			\
-+({							\
-+	bool __Fp = x86_pmu._field;			\
-+							\
-+	if (is_hybrid() && (_pmu))			\
-+		__Fp = hybrid_pmu(_pmu)->_field;	\
-+							\
-+	__Fp;						\
-+})
-+
- enum hybrid_pmu_type {
- 	hybrid_big		= 0x40,
- 	hybrid_small		= 0x20,
-@@ -754,6 +768,7 @@ struct x86_pmu {
- 
- 	/* PMI handler bits */
- 	unsigned int	late_ack		:1,
-+			mid_ack			:1,
- 			enabled_ack		:1;
- 	/*
- 	 * sysfs attrs
 -- 
-2.7.4
-
+With best wishes
+Dmitry
