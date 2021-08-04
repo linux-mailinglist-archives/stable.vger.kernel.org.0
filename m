@@ -2,50 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0A393DFB64
-	for <lists+stable@lfdr.de>; Wed,  4 Aug 2021 08:21:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8048C3DFB6C
+	for <lists+stable@lfdr.de>; Wed,  4 Aug 2021 08:25:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234880AbhHDGVb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Aug 2021 02:21:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45826 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232618AbhHDGVb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Aug 2021 02:21:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ABA7560EC0;
-        Wed,  4 Aug 2021 06:21:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628058079;
-        bh=15mNVwPUZUnKdrckow9HJOnc4KPgvOEMNmgHx4cAbZ8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=HeHmUCcLuz4CbK9g9lysNY0//odzKqGg6axDLC3d48mGI6Lef68GbJ+GNzGGCeVtu
-         Y0tbjbd9hrPp6o967QS2QcFHUJSGjDvk43T8126eYVOCbfm2IcHrbNUmkLPxUM0ASF
-         2tTgG3z8l+M76Z6wBBcn3YznuFAvs3oJFgrfJXm0=
-Date:   Wed, 4 Aug 2021 08:21:16 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Pavel Machek <pavel@denx.de>
+        id S234831AbhHDGZw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Aug 2021 02:25:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57142 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233280AbhHDGZv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Aug 2021 02:25:51 -0400
+Received: from lahtoruutu.iki.fi (lahtoruutu.iki.fi [IPv6:2a0b:5c81:1c1::37])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11164C0613D5;
+        Tue,  3 Aug 2021 23:25:39 -0700 (PDT)
+Received: from [10.32.112.20] (55862176.cust.multi.fi [85.134.33.118])
+        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        (Authenticated sender: tmb)
+        by lahtoruutu.iki.fi (Postfix) with ESMTPSA id 388791B001E8;
+        Wed,  4 Aug 2021 09:25:35 +0300 (EEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=iki.fi; s=lahtoruutu;
+        t=1628058335;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=wxtt8KNuWwpP7gtvj6O94l8wyhQFK14FxF4B830ik+k=;
+        b=d/pxRZXfthkNC6xGq8HNha1T3HjDzc+spHVHA1P4d7vTGTm0R1vDXzRlqB5okijQgNPC6Y
+        ewgZexVVtghUM1uwOBw1heKxF4jugd4FVDjWcsvRRZhBoXmDARhUyXYYWNo9r3aRtIQHdD
+        8lOs2sdMD71tgrsDQh0zsixdBxH8dB1zGjihOV7scFjSwYS/3hdgBV3V+/u002YBkJfGQz
+        mhfCJlrTDqPv7WvRrlnl3tyTR9hVSrN5pM9x/d0MQK6vKPBmhFqjktALTP9OoRLG29aDhX
+        ZqhNbx2/lKrF96C3H4fUgoh5g7kKNYXk/1mvbcSUCNLE3Nr/GI79fHcLEyBDAQ==
+Subject: Re: [PATCH 5.10 00/67] 5.10.56-rc1 review
+To:     Pavel Machek <pavel@denx.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
         akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
         patches@kernelci.org, lkft-triage@lists.linaro.org,
         jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: Re: [PATCH 5.10 00/67] 5.10.56-rc1 review
-Message-ID: <YQox3CvsEz6kW9R+@kroah.com>
 References: <20210802134339.023067817@linuxfoundation.org>
  <20210803192607.GA14540@duo.ucw.cz>
+From:   Thomas Backlund <tmb@iki.fi>
+Message-ID: <e591d78c-0196-a218-59dd-91d83aa65f90@iki.fi>
+Date:   Wed, 4 Aug 2021 09:25:34 +0300
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.12.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <20210803192607.GA14540@duo.ucw.cz>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Language: sv
+Content-Transfer-Encoding: 7bit
+ARC-Authentication-Results: i=1;
+        ORIGINATING;
+        auth=pass smtp.auth=tmb smtp.mailfrom=tmb@iki.fi
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=iki.fi;
+        s=lahtoruutu; t=1628058335;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=wxtt8KNuWwpP7gtvj6O94l8wyhQFK14FxF4B830ik+k=;
+        b=p9XqdDbKzBPrZybQvzAqglHBkNNWRh9BQNVd2/981R+eLCajaOqhnynKLYt7gL41q4DMWo
+        7SpT/wOVjeWG9hTAyPrgY4H+HjgYiKv0va1xAA+jr8P6F1PdlysSuhKhr6gWnnIWojV5DD
+        cgpEktxVGcKMmcHUUsexycZjH+Nz62vtCh56stvNfTnj3CWxEOLNSNdMuDYKjbiM+l2pJZ
+        Hpc3IxDRotpFgJf9LHU1WA8yX8hFDKyGFoEU7K3sFCmikex1uuaP7JOP2MLMmYt/AgPhdX
+        at2/M9mZQueL6ubE2NCVs7A4w8ZUhFPxFGnHDuZIs7M5YgKGQHCUTf8ch2L6LQ==
+ARC-Seal: i=1; s=lahtoruutu; d=iki.fi; t=1628058335; a=rsa-sha256;
+        cv=none;
+        b=GLrdONjZ15KCe67xuhNxmDuv9dGd8U7vnCEQietyqwk5L/3pQZ6VX8U9TIclG0ucVsh2Wt
+        spXRntV4aZCmNyUqXSEFUSwIXahTGMAeCDswLvLQ9ZyLFQF2qNbPewhJxptDijBLEivDpU
+        3/quacx77s21C/z2Y9FNcO6t+c3z2CbOVIL53zWzSGUP89H+nav+6FXg6DRn0f+yosIRoW
+        JlS83fmQbV+2lrDS67bjKHuEcOVW+O/+Sm6eLkwCYSEc0Q6h2vTmfjNoOKVnJHU1RNR7tm
+        VJb6eL1AdddTk9/DnkStfu/Q4j0XyqJ4bDnOJzwjC5zERDPor6PNPsvtGHXBMQ==
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 03, 2021 at 09:26:07PM +0200, Pavel Machek wrote:
+Den 03-08-2021 kl. 22:26, skrev Pavel Machek:
 > Hi!
 > 
-> > This is the start of the stable review cycle for the 5.10.56 release.
-> > There are 67 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
+>> This is the start of the stable review cycle for the 5.10.56 release.
+>> There are 67 patches in this series, all will be posted as a response
+>> to this one.  If anyone has any issues with these being applied, please
+>> let me know.
 > 
 > Not sure what went wrong, but 50 or so patches disappeared from the queue:
 > 
@@ -56,14 +95,15 @@ On Tue, Aug 03, 2021 at 09:26:07PM +0200, Pavel Machek wrote:
 > 11fe69a17195cf58eff523f26f90de50660d0100 (tag: v5.10.55) Linux 5.10.55
 > 984e93b8e20731f83e453dd056f8a3931b4a66e5 ipv6: ip6_finish_output2: set
 > sk into newly allocated nskb
+> 
+> Best regards,
 
-Look at commit e87bda470c72 ("move 5.10 patches back into -rc and queued
-patches") as an example of what happened here.
+Looks like a fallout of switching to use rc-* for current review queues 
+and apparently keep queue-* for upcoming stuff
 
-The "queue" branches are odd and auto-generated and not all that smart
-at times.  Stick to the -rc branches that I announce if you want to be
-sure you are testing the proper thing.
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git/tree/ 
 
-thanks,
 
-greg k-h
+
+--
+Thomas
