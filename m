@@ -2,108 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9303C3DF8E2
-	for <lists+stable@lfdr.de>; Wed,  4 Aug 2021 02:21:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 952443DF9D0
+	for <lists+stable@lfdr.de>; Wed,  4 Aug 2021 04:56:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234610AbhHDAWC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Aug 2021 20:22:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49780 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233759AbhHDAWC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Aug 2021 20:22:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B331F60F46;
-        Wed,  4 Aug 2021 00:21:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1628036509;
-        bh=s/ruTlnn1ChuucTiostqFTQUlcvakiAUmn7lWJLSI6M=;
-        h=Date:From:To:Subject:From;
-        b=DO5urH0QGHCyYeDI9iCGWxAn/wXrhnwrgHXS7ZiZih2DyKytcaFha8vNpEsrAHmNO
-         pemUHboBZn80vPsHhfp7aE+zDRzqTsOtiU4kmv//ZJ/ITOccymCKCUGeZMwuh5SZ0W
-         /L/Zqj8dv2Q66s37RQiL0FBo617jKBF6ksPa1Z8s=
-Date:   Tue, 03 Aug 2021 17:21:48 -0700
-From:   akpm@linux-foundation.org
-To:     mm-commits@vger.kernel.org, wangkefeng.wang@huawei.com,
-        stable@vger.kernel.org, palmerdabbelt@google.com,
-        nixiaoming@huawei.com, mcgrof@kernel.org, linux@armlinux.org.uk,
-        gregkh@linuxfoundation.org, wangliang101@huawei.com
-Subject:  + lib-use-pfn_phys-in-devmem_is_allowed.patch added to -mm
- tree
-Message-ID: <20210804002148.96Sth%akpm@linux-foundation.org>
-User-Agent: s-nail v14.9.10
+        id S234674AbhHDC4l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Aug 2021 22:56:41 -0400
+Received: from szxga01-in.huawei.com ([45.249.212.187]:16040 "EHLO
+        szxga01-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231396AbhHDC4k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Aug 2021 22:56:40 -0400
+Received: from dggemv711-chm.china.huawei.com (unknown [172.30.72.55])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4Gfbrj1fgSzZxJk;
+        Wed,  4 Aug 2021 10:52:53 +0800 (CST)
+Received: from dggemi762-chm.china.huawei.com (10.1.198.148) by
+ dggemv711-chm.china.huawei.com (10.1.198.66) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
+ 15.1.2176.2; Wed, 4 Aug 2021 10:56:26 +0800
+Received: from [10.174.178.208] (10.174.178.208) by
+ dggemi762-chm.china.huawei.com (10.1.198.148) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
+ 15.1.2176.2; Wed, 4 Aug 2021 10:56:25 +0800
+Subject: Re: [PATCH 4.14 00/38] 4.14.242-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
+        <stable@vger.kernel.org>
+References: <20210802134334.835358048@linuxfoundation.org>
+From:   Samuel Zou <zou_wei@huawei.com>
+Message-ID: <dd7fcb28-586d-c43a-814c-631951508e7c@huawei.com>
+Date:   Wed, 4 Aug 2021 10:56:25 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
+MIME-Version: 1.0
+In-Reply-To: <20210802134334.835358048@linuxfoundation.org>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.174.178.208]
+X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
+ dggemi762-chm.china.huawei.com (10.1.198.148)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch titled
-     Subject: lib: use PFN_PHYS() in devmem_is_allowed()
-has been added to the -mm tree.  Its filename is
-     lib-use-pfn_phys-in-devmem_is_allowed.patch
 
-This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/lib-use-pfn_phys-in-devmem_is_allowed.patch
-and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/lib-use-pfn_phys-in-devmem_is_allowed.patch
+On 2021/8/2 21:44, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.14.242 release.
+> There are 38 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 04 Aug 2021 13:43:24 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.242-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+Tested on x86 for 4.14.242-rc1,
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+Kernel repo:
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+Branch: linux-4.14.y
+Version: 4.14.242-rc1
+Commit: ec038bb8339f8cbc9d78324a4e62c5cb3992e69f
+Compiler: gcc version 7.3.0 (GCC)
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
+x86:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 8836
+passed: 8836
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
 
-------------------------------------------------------
-From: Liang Wang <wangliang101@huawei.com>
-Subject: lib: use PFN_PHYS() in devmem_is_allowed()
-
-The physical address may exceed 32 bits on 32-bit systems with more than
-32 bits of physcial address,use PFN_PHYS() in devmem_is_allowed(), or the
-physical address may overflow and be truncated.
-
-We found this bug when mapping a high addresses through devmem tool, when
-CONFIG_STRICT_DEVMEM is enabled on the ARM with ARM_LPAE and devmem is
-used to map a high address that is not in the iomem address range, an
-unexpected error indicating no permission is returned.
-
-This bug was initially introduced from v2.6.37, and the function was moved
-to lib when v5.11.
-
-Link: https://lkml.kernel.org/r/20210731025057.78825-1-wangliang101@huawei.com
-Fixes: 087aaffcdf9c ("ARM: implement CONFIG_STRICT_DEVMEM by disabling access to RAM via /dev/mem")
-Fixes: 527701eda5f1 ("lib: Add a generic version of devmem_is_allowed()")
-Signed-off-by: Liang Wang <wangliang101@huawei.com>
-Cc: Palmer Dabbelt <palmerdabbelt@google.com>
-Cc: Luis Chamberlain <mcgrof@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: Liang Wang <wangliang101@huawei.com>
-Cc: Xiaoming Ni <nixiaoming@huawei.com>
-Cc: Kefeng Wang <wangkefeng.wang@huawei.com>
-Cc: <stable@vger.kernel.org>	[2.6.37+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- lib/devmem_is_allowed.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- a/lib/devmem_is_allowed.c~lib-use-pfn_phys-in-devmem_is_allowed
-+++ a/lib/devmem_is_allowed.c
-@@ -19,7 +19,7 @@
-  */
- int devmem_is_allowed(unsigned long pfn)
- {
--	if (iomem_is_exclusive(pfn << PAGE_SHIFT))
-+	if (iomem_is_exclusive(PFN_PHYS(pfn)))
- 		return 0;
- 	if (!page_is_ram(pfn))
- 		return 1;
-_
-
-Patches currently in -mm which might be from wangliang101@huawei.com are
-
-lib-use-pfn_phys-in-devmem_is_allowed.patch
-
+Tested-by: Hulk Robot <hulkrobot@huawei.com>
