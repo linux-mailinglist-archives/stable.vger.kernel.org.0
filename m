@@ -2,80 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB5723DFDFC
-	for <lists+stable@lfdr.de>; Wed,  4 Aug 2021 11:29:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 335A23DFE0B
+	for <lists+stable@lfdr.de>; Wed,  4 Aug 2021 11:32:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235436AbhHDJ3c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Aug 2021 05:29:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35648 "EHLO mail.kernel.org"
+        id S236633AbhHDJdA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Aug 2021 05:33:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235427AbhHDJ3c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Aug 2021 05:29:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8479A60EB9;
-        Wed,  4 Aug 2021 09:29:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628069359;
-        bh=F+pN4N1gCpcgAacPjKXnlhSvfsbduWSEH5hSqYGQZho=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=OUqwhSgOHz5aASIUVzmFjsN4XW6wWo/6hB1iKEtbR1O83smCX+Jtkv/WclRRQFI/O
-         0WDCWtQBmV8zTOfhyzuPgqcQdvu7SDFE9As4eXWNKu5HaB8nuuoDsJteva510sQIXR
-         RYPw/u1iE225cq1l47QW6rnCrNXarVMbRokKmAJA=
-Date:   Wed, 4 Aug 2021 11:29:16 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Kalyan Thota <kalyan_t@codeaurora.org>
-Cc:     dri-devel@lists.freedesktop.org, linux-arm-msm@vger.kernel.org,
-        freedreno@lists.freedesktop.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, robdclark@gmail.com,
-        dianders@chromium.org, mkrishn@codeaurora.org,
-        saiprakash.ranjan@codeaurora.org, rnayak@codeaurora.org,
-        stable@vger.kernel.org
-Subject: Re: [Resend v3] drm/msm/disp/dpu1: add safe lut config in dpu driver
-Message-ID: <YQpd7P7xYaaf45OS@kroah.com>
-References: <1628066313-9717-1-git-send-email-kalyan_t@codeaurora.org>
+        id S236599AbhHDJc7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Aug 2021 05:32:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8047360EB9;
+        Wed,  4 Aug 2021 09:32:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1628069567;
+        bh=lCyffb9PLH1HfSBsp6TDN9RZ6eNQihkh5qfjzkNc6Jo=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=WQ5cF1jNoOVb2h5Tm/m6MVCYxkBWsu64VNhQA39CL/0vukZFhTJLWNseIiT+azT5j
+         cDFfmwNugKgDLMIPmB/n2GVcI1LI3oiUcfZRW8ePl1ls7T9Q1gBa7wgX8tM28Ko5+A
+         b5f2f6p9z3gkeXk41plHcoHx4Uq88fGN+kAzIv9CAEf36P2xglBR3b08lLMhRQfUfb
+         HKPKUdTyY1is1RlGN6B9tccVizWDwup+dshJCv/vg1+XjwJp3ro3c59jlnV1ZH9V8G
+         6DLNLjHAkgh6Q/mFeDrIqcnime9Zv2XxEg4mCHqu04G+D92tZIPUYqmMVC5KXhfm3n
+         rB7NdLiBjWbnQ==
+Received: from johan by xi.lan with local (Exim 4.94.2)
+        (envelope-from <johan@kernel.org>)
+        id 1mBDFt-0006T8-MT; Wed, 04 Aug 2021 11:32:05 +0200
+From:   Johan Hovold <johan@kernel.org>
+To:     Johan Hovold <johan@kernel.org>
+Cc:     linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Vasily Khoruzhick <anarsoul@gmail.com>, stable@vger.kernel.org
+Subject: [PATCH] USB: serial: pl2303: fix GT type detection
+Date:   Wed,  4 Aug 2021 11:31:00 +0200
+Message-Id: <20210804093100.24811-1-johan@kernel.org>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <YQpeE19WIeQO2b//@hovoldconsulting.com>
+References: <YQpeE19WIeQO2b//@hovoldconsulting.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1628066313-9717-1-git-send-email-kalyan_t@codeaurora.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Aug 04, 2021 at 01:38:33AM -0700, Kalyan Thota wrote:
-> Add safe lut configuration for all the targets in dpu
-> driver as per QOS recommendation.
-> 
-> Issue reported on SC7280:
-> 
-> With wait-for-safe feature in smmu enabled, RT client
-> buffer levels are checked to be safe before smmu invalidation.
-> Since display was always set to unsafe it was delaying the
-> invalidaiton process thus impacting the performance on NRT clients
-> such as eMMC and NVMe.
-> 
-> Validated this change on SC7280, With this change eMMC performance
-> has improved significantly.
-> 
-> Changes in v2:
-> - Add fixes tag (Sai)
-> - CC stable kernel (Dimtry)
-> 
-> Changes in v3:
-> - Correct fixes tag with appropriate hash (stephen)
-> - Resend patch adding reviewed by tag
-> 
-> Fixes: 591e34a091d1 ("drm/msm/disp/dpu1: add support for display for SC7280 target")
-> Signed-off-by: Kalyan Thota <kalyan_t@codeaurora.org>
-> Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-> Tested-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org> (sc7280, sc7180)
-> ---
->  drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c | 5 +++++
->  1 file changed, 5 insertions(+)
+At least some PL2303GT have a bcdDevice of 0x305 instead of 0x100 as the
+datasheet claims. Add it to the list of known release numbers for the
+HXN (G) type.
 
-<formletter>
+Fixes: 894758d0571d ("USB: serial: pl2303: tighten type HXN (G) detection")
+Reported-by: Vasily Khoruzhick <anarsoul@gmail.com>
+Tested-by: Vasily Khoruzhick <anarsoul@gmail.com>
+Cc: stable@vger.kernel.org	# 5.13
+Signed-off-by: Johan Hovold <johan@kernel.org>
+---
+ drivers/usb/serial/pl2303.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-This is not the correct way to submit patches for inclusion in the
-stable kernel tree.  Please read:
-    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-for how to do this properly.
+diff --git a/drivers/usb/serial/pl2303.c b/drivers/usb/serial/pl2303.c
+index 17601e32083e..930b3d50a330 100644
+--- a/drivers/usb/serial/pl2303.c
++++ b/drivers/usb/serial/pl2303.c
+@@ -432,6 +432,7 @@ static int pl2303_detect_type(struct usb_serial *serial)
+ 	case 0x200:
+ 		switch (bcdDevice) {
+ 		case 0x100:
++		case 0x305:
+ 			/*
+ 			 * Assume it's an HXN-type if the device doesn't
+ 			 * support the old read request value.
+-- 
+2.31.1
 
-</formletter>
