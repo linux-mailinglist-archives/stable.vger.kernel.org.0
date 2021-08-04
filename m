@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DF0E3E065C
-	for <lists+stable@lfdr.de>; Wed,  4 Aug 2021 19:09:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12A4E3E06AB
+	for <lists+stable@lfdr.de>; Wed,  4 Aug 2021 19:20:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239797AbhHDRKH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Aug 2021 13:10:07 -0400
-Received: from mx0a-0064b401.pphosted.com ([205.220.166.238]:55160 "EHLO
+        id S230056AbhHDRUa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Aug 2021 13:20:30 -0400
+Received: from mx0a-0064b401.pphosted.com ([205.220.166.238]:46224 "EHLO
         mx0a-0064b401.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S239790AbhHDRKG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Aug 2021 13:10:06 -0400
+        by vger.kernel.org with ESMTP id S229873AbhHDRUa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Aug 2021 13:20:30 -0400
 Received: from pps.filterd (m0250810.ppops.net [127.0.0.1])
-        by mx0a-0064b401.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 174FpFA1032119;
-        Wed, 4 Aug 2021 10:09:42 -0700
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=windriver.com; h=from : to : cc :
- subject : date : message-id : in-reply-to : references :
- content-transfer-encoding : content-type : mime-version; s=PPS06212021;
- bh=XZTSLUw4C4eeYXtd+Rlmyy4SYoT11tzDBv7rIG001+4=;
- b=lHEU6Dd6zda0KKH0RMnKSjxWdaJTdR/8bk7dOo8xzYT4yRMI8BqgZQ0aDy0aVFDtuVck
- IAbKjDwMJOmi3TvF4MNu8AkLITt1NNO1DWwDArz+23/zybatRHuEKJNFU4kC2MU3H0P7
- I7DegvR/ZldtPeApU8TcASREr9Q/qBa76S10JmlxfrIG1OGAPQChrdGeY4VqlTNinkY0
- V2WmmUDTAMp2bVcefTohmHx8rGN8B8PdAgXjRaN8n+2jIIymwfuI+UW5o+U16S32wupB
- 0+kKIrG5LsTCbLvlEg/JmeIOLXt1ua9+NFf0atSm4z4LV0U3HRvFahxIXMU7+QNUMOsZ jA== 
-Received: from nam11-dm6-obe.outbound.protection.outlook.com (mail-dm6nam11lp2175.outbound.protection.outlook.com [104.47.57.175])
-        by mx0a-0064b401.pphosted.com with ESMTP id 3a7vt6r425-2
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 04 Aug 2021 10:09:41 -0700
+        by mx0a-0064b401.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 174HGmCO012138
+        for <stable@vger.kernel.org>; Wed, 4 Aug 2021 10:20:17 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=windriver.com; h=from : to :
+ subject : date : message-id : content-transfer-encoding : content-type :
+ mime-version; s=PPS06212021;
+ bh=DkPMxZNlP48PGo/xmxeyciLhwr91gvdbzjRuqgGmIuc=;
+ b=jElFRfp7U9JHW+mzuRH06iKVSiw3BNFiD2ejkutaD+B8DiPpwJmPfQti/zM4zSr77TIN
+ qtmay6WdsypRNL+97PU4QGcbO1fI4+ewJj4x0UyD2o6eC0ZD+AZCH2rKnVzBv8dxgtVx
+ Gmsyrd3ARJOI/JSdTEdNj3jwV5+6T/22bK/RpuQ5E8cjsdvXYXezk4Fm/Hi0p3e/e51Z
+ 6AhK86a82zC3BT5s6fvqavw/VlPR9tRA1bSfUHzc5zmH8EMyIgCk+YhQSNC77hC4VTxd
+ IoGliCoGhY1QGy4mbYoIR1fKfovlX3rV6ygHixeMAnAuaWRQ2nerC4LGiRGEH/3lguoC xw== 
+Received: from nam12-mw2-obe.outbound.protection.outlook.com (mail-mw2nam12lp2041.outbound.protection.outlook.com [104.47.66.41])
+        by mx0a-0064b401.pphosted.com with ESMTP id 3a7vt6r4a6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <stable@vger.kernel.org>; Wed, 04 Aug 2021 10:20:17 -0700
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=h1y3Qs+T45MJexHpaPwNO8+VU4pCurBuadtEBB1hPY/KNdsXk5ZkFn6gPP+AU9tFRMyxvvaJr0axL5atONJUwbWDRObjiixZWUqjiY8RGcDqgdlATNm1DYe3NnqwDisw2O++vCO0uOWKq5BDNIe/z6Gl9yNLokLE6rfFWaBZPOMMjeY3sSTSHcWA6o0d59uLD0kF4e6ci00o/8FvKAsDztlXMmB8S3oeRZpERUvmcvmE1LvwYKY2a67alvKYU28GD6uzWgICUj0/qmYjklDvGs+rrI7t5LhE3M3aFzBgmbSesQMYgZ2Zf47ldiELtra3Cn9kTKYWoxs+XrIUPxGRGg==
+ b=me1ksNHUeLWKMoC6IDfV9XBet7HayQ9ahWZNdEprJERinNRm8t6Ei6ZW78ZALPK9VvB2b2NB/Jfv8sSxIIgZGR3sQAC9BPtEd64tmVB5ECHFO+OWH1NsMhAd5RTlVilzeS+uaYcNttypPdTKRXv6hdy3TIys1aSnw7ZiEsDPfB1Bk5eTBmEQ68pkmxcUpcQiL2Uzbnu7HwUH1QNv1iL0bR/ANJQlY2xO6uCtHvEoXAi/kRScaZlQEdP/4zYiqqMSVsNAiQ15ZOIx+l5M/x/MOqHiLybvG7dXy8e4Ph1eF9czwsST2rna0mgstXZG9De+Df+OgGEKENNGYQ6WT3+syg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=XZTSLUw4C4eeYXtd+Rlmyy4SYoT11tzDBv7rIG001+4=;
- b=QwRUn0vnR0J2aIqzv2a8Lj6BE8YgMRAbNzyuQhPrs4pLnRgOmjrBdhBQEkJhY4U4Ny2RiEB5HmIm8ecbuc6C0wlJPILm4zNarpVyDKi8aJPQZyplNViCxppL28/lBtuKFzcme0bvhMrAqDAr0PPc2nTQTo/awnvB/gJIg7HIlxTE2htgSv/zVZGoEEZPUdsdJh8h2kGTxN1Qo9SGq1u2cQPjmLDW8yw1wR8s5zko2rIi7yaXUXgIpyXNI1C8u+BIUAauNAovoYyrbH9alTpjzXATObMSxgI9gV72NeA3aKW1Ig2cTUpF24ww40dUeIEAE3AydKDJwUoQvkNEAKp2GQ==
+ bh=DkPMxZNlP48PGo/xmxeyciLhwr91gvdbzjRuqgGmIuc=;
+ b=GjhUL1v2qvVvm+bUWHladDU3Of/aHtNJ/FGf23stZx7mAmKE5kbSlWazH8g95B34JNfvp5fNfAkBf4eqQa/EbB6lTUIo/DyPte4144R9CBRGsZMkRcZ7zk+kanfI6rNP1gZk1VrFUH5ohTXzg67tPgdOaMgQg8dokVgLjp+sxJ2H7b+hFzQREeBBAt3NOHibld2o4tYiQ/e04V2MEJbYdAagAp3KeiwLvxrjZhXxodzbO3JYiYabid/ShFMNbNhclpoPRph80/r6VpDB4mattXw07YRnrLaKL3+k8BcTK/mb8b7Y4rM8ZEMsfNgXZ5bmRS2yoZNuxOeU8mxoxKmwZw==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=windriver.com; dmarc=pass action=none
  header.from=windriver.com; dkim=pass header.d=windriver.com; arc=none
@@ -41,221 +41,105 @@ Authentication-Results: vger.kernel.org; dkim=none (message not signed)
  header.d=none;vger.kernel.org; dmarc=none action=none
  header.from=windriver.com;
 Received: from DM4PR11MB5327.namprd11.prod.outlook.com (2603:10b6:5:392::22)
- by DM5PR11MB1834.namprd11.prod.outlook.com (2603:10b6:3:113::19) with
+ by DM6PR11MB4169.namprd11.prod.outlook.com (2603:10b6:5:19b::14) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4373.25; Wed, 4 Aug
- 2021 17:09:41 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4373.20; Wed, 4 Aug
+ 2021 17:20:16 +0000
 Received: from DM4PR11MB5327.namprd11.prod.outlook.com
  ([fe80::ccb:2bce:6896:a0c3]) by DM4PR11MB5327.namprd11.prod.outlook.com
  ([fe80::ccb:2bce:6896:a0c3%7]) with mapi id 15.20.4394.017; Wed, 4 Aug 2021
- 17:09:41 +0000
+ 17:20:15 +0000
 From:   Ovidiu Panait <ovidiu.panait@windriver.com>
 To:     stable@vger.kernel.org
-Cc:     bpf@vger.kernel.org, daniel@iogearbox.net
-Subject: [PATCH 5.10 6/6] selftest/bpf: Verifier tests for var-off access
-Date:   Wed,  4 Aug 2021 20:09:17 +0300
-Message-Id: <20210804170917.3842969-7-ovidiu.panait@windriver.com>
+Subject: [PATCH 5.4 0/1] bpf: selftests: fix verifier selftests
+Date:   Wed,  4 Aug 2021 20:20:00 +0300
+Message-Id: <20210804172001.3909228-1-ovidiu.panait@windriver.com>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20210804170917.3842969-1-ovidiu.panait@windriver.com>
-References: <20210804170917.3842969-1-ovidiu.panait@windriver.com>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-ClientProxiedBy: VI1P190CA0033.EURP190.PROD.OUTLOOK.COM
- (2603:10a6:802:2b::46) To DM4PR11MB5327.namprd11.prod.outlook.com
+X-ClientProxiedBy: VI1PR08CA0156.eurprd08.prod.outlook.com
+ (2603:10a6:800:d5::34) To DM4PR11MB5327.namprd11.prod.outlook.com
  (2603:10b6:5:392::22)
 MIME-Version: 1.0
 X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from otp-linux03.wrs.com (46.97.150.20) by VI1P190CA0033.EURP190.PROD.OUTLOOK.COM (2603:10a6:802:2b::46) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4394.15 via Frontend Transport; Wed, 4 Aug 2021 17:09:40 +0000
+Received: from otp-linux03.wrs.com (46.97.150.20) by VI1PR08CA0156.eurprd08.prod.outlook.com (2603:10a6:800:d5::34) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4394.16 via Frontend Transport; Wed, 4 Aug 2021 17:20:15 +0000
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 40aa51fe-86cd-48ce-8b14-08d9576aa5d8
-X-MS-TrafficTypeDiagnostic: DM5PR11MB1834:
-X-Microsoft-Antispam-PRVS: <DM5PR11MB1834FD8702DC5AA2F93BFC80FEF19@DM5PR11MB1834.namprd11.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:595;
+X-MS-Office365-Filtering-Correlation-Id: 015eddbf-91fb-42d3-67a9-08d9576c2021
+X-MS-TrafficTypeDiagnostic: DM6PR11MB4169:
+X-Microsoft-Antispam-PRVS: <DM6PR11MB4169B7A54C3652CAA3D9291CFEF19@DM6PR11MB4169.namprd11.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:1728;
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: HXYg9wNdOTnvYwKBw23QgFcpV54T8pKpanHyPXYJcYLqEUh2bHaAdExdOqerb1RRDXKYB2d0sVP8Vmqa/I1D3+Ivoy459xdtrKLNPe6vYFjCgOIy0DH5UTkuG09kx4zP3i6jSAChuyWx3gv+dC2EkLPDF2b9yk4Ny9w76IfkVYyazMZmdi+TaC0J1TVEOQtGgHnoS3/5ffPWp7x+xk/sljrd3tz9hgZKXkZZbzECHwsw2g4dU6EicY78UQEER56cFh40+Y1yo7ghZLdUi0hT+XLpi0bgO+kYeK1ETCMty/TXCG+xCeVSHHwdMMNbK8PtOBCcx1r3yFnwknHyBA7sifVzGygTZ5ayBVeAC7KjrAgvfZWtovuFFHmZazTotETPXXrGXTdIpkkEdSr+fXUMDOEB/98uz3jgccS/VMMTBMq2JoAOwIpt8Lml5Eh+504kr6fjJmeUAWAfdjgmmmkfJXgssUZbTbB0fUQx9k+GqoFvW04H4Ktpf4v/XFVpN3jKjZKStz7LeOsC+F1Ge7jv9Laf34LkNEHMg0NnwZAuMJBrtWKOkQPdBFoDYe69PvuKKCWYzDlLHSTEPlyMg7X1u0pfdgRgNYUbvL7jsTraRoWyxc1i/WMIKhBiaEw5HGPbrnRTYKveuWK+tjNtdMPHyfh6Vxolr23Syx90bgTWFGfYHZEvEVDms9lIWWcZD9F3FzU0vQ4/mYlscXoC4d9rtGu1vVPC7Kh4Dl/QNw4CbM8ixGsHfv7Eo3/Jrw2WToaThIN9GXqTW8bjWtX/HrqxnxOudFGaO0OHRGBaodfGoVA=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM4PR11MB5327.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(39850400004)(136003)(366004)(396003)(346002)(376002)(6666004)(38100700002)(316002)(6506007)(1076003)(86362001)(38350700002)(52116002)(83380400001)(478600001)(44832011)(2906002)(5660300002)(8936002)(956004)(6486002)(2616005)(4326008)(966005)(6916009)(186003)(36756003)(66556008)(66476007)(8676002)(6512007)(66946007)(26005);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: yna/jFkTTdIR9Q+IdBS6mQ9rxN1UcxhHjWd1OLNcguJICexecSc4R4zuozbzuFtjLFwxwyZ8mNrs2tqnXRLADyeccvBd6TlILLzHhh7qKZQhxdK5u0hedVZ5stMpHRUUESylAa+OXjvHdenHRk2qHub5Im07Dka58Tl7I27J4ieyCmeTIqENZ4pQ7KhB9XGu0Aq2ekELXgHuWzeNG2PfQqad731uFJlnGV/2ZpYiZX8qIo8LatdxLv3qx4aEox1EWh6+GMWFP8sxDeD5UmMITTNJzrdqRV+YRVohTEJWnim0sNcpmmQOMpBqkjXaU6WxJRSLl5ftf1lpfa7oBNOBlh3Z7giNJqj1HUMJ50jEuJtbCYqvfmkAbsD6e1oygs8MrxkXwNK3PyHDY0mZtv4NJwTuaqcV+Uivd+xNAhAJzk3PaTSxTinFEKdzMhfy920Njq+HBfA7qMVqY1GtRcL+fFWK7LCVJxyDAAQkeru4fNPveNvZNCkwf5GK3XTYFmB3/5r9eUm6y54DLCKNzR1EitN3h9u0UVTzWfCB1f1jJqcrhXgG2gIQbq5+1FAtNAouRQ9L6hk3grpRsvs0mIchPDabNefLexuOmlN0W9rk5mn5kRinVp9hLX7hKgRCUzcRy58mH6WmuUEWnRbuEj56ovc1zDaKtxDjcizGynHz65sLW+h6OgYY8cblYpNwOpMHNrkTNJYo8asDYj5ipdK4cA==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM4PR11MB5327.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(83380400001)(2616005)(38350700002)(66556008)(66476007)(44832011)(66946007)(8676002)(38100700002)(52116002)(26005)(36756003)(8936002)(316002)(86362001)(956004)(186003)(6506007)(6512007)(508600001)(6486002)(6916009)(5660300002)(4744005)(1076003)(6666004)(2906002);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?e3H3ibKNaHS4yk3ebUiFS3HNYa8YvRIHopwTp03GX+OoMNX4zdFZXHKLxazX?=
- =?us-ascii?Q?BsGp4OeL7nXrtpCIov4aEjLSLzNW4aMyHFtuJzBKiO04N4OKJaTUp/2E3jUA?=
- =?us-ascii?Q?m2jruJNDaqIJKPz+Qkdlq/J1gFKtHULdzXT2hYIRU3LCdesb02eTlvXsb7IZ?=
- =?us-ascii?Q?BvMFgvnLAqOG8GJD+zd5DRp7qxxu2oUedsiIlVSiP2ofPLb3TdNrqzzUaLbE?=
- =?us-ascii?Q?5OiRWOVLWJEuCMxuA3CjITpGRM/CxxwGevODzdWqvGUzbSwlbqUh/Be+a33b?=
- =?us-ascii?Q?hfotEMo/7AEDgEVgdjGWbFNuH3fy0AErIkGUlt2Www83YXF86DxlOA5v9/UD?=
- =?us-ascii?Q?nZGEJoVmJvX51U5hT6l/YYXjhiXwAywfwvClU/aM0dSa6UJ0aH6eva98Ezr/?=
- =?us-ascii?Q?0HAnKIBBeqW+xTOSM4rieZZUvHW2oLMWvRwhcpPNzjVzU3KOetyEYcrWSaUa?=
- =?us-ascii?Q?r6tzZugPMoH+6yeWtNqNgu8UV6rHQngG7hLWsna9Zt+r/I71rPWNjA+9YJh+?=
- =?us-ascii?Q?9IXPdLZF+FwI27PcXCoVxVW34hPfs8El1IZ70kmlNpchmJYWwBoFNvbydkEY?=
- =?us-ascii?Q?xoMDW50vuIfsFhSRXXS9SodFTNEZssY7UrBi/2ogp2epBrRhM9E2NcMgb4Q3?=
- =?us-ascii?Q?TH2u0Gl2zbJfxF9kudwEGSmx6Xh9jo/bb031EkqJ2DtToG6WCtJ48lZFKUeL?=
- =?us-ascii?Q?RPirZsyq+AcNLaRWWInyPi3R+XPNm0UH2ssI28Jcb/WrPgKZJB73AdjA2B7g?=
- =?us-ascii?Q?qtLemoowFq+yiChVvlsxg/quGGlrYbDD7XSSXqz9vBbitgzQGkYGqt5Ggr0n?=
- =?us-ascii?Q?FGDHLRRi4CmxfZHTKAIn1pSLlzJQ6aTSeZhFCH1s57NOwZ4k9lr3lKltnrc/?=
- =?us-ascii?Q?I5cspTIhZJVySAZQSVG6sCm+M+HePefmpo4031coOKMy+HKvB3UtA+P8hKO8?=
- =?us-ascii?Q?JoIYbX6XMiko9ww0C8ryKh7pRolF1lxLBMCKSJIItXhl4UYZc+DLEyfkqH4Q?=
- =?us-ascii?Q?qDtgckwdiKaG6jeOAYKUmDHecnCN08mluUuCF0EmnPxU6TvBBd8ckQ0iP7gp?=
- =?us-ascii?Q?P6fGlxavaxgnEf7fht1gYQjwCiw5HI+qcw+n34SGEkghNmo8C/HZXC6nAVc2?=
- =?us-ascii?Q?AWYJ0bqW4hISURjqq5ZU+Oxo2Ji9Qkt8UHREQsGq7DAcG+7aqup1MpxunW65?=
- =?us-ascii?Q?0X2sIomdZHjH1EOwjGHBUuzh5ruANRz9JJcT6BslLDswF9yrzaNv5wqokTuO?=
- =?us-ascii?Q?cQPyZtcv+GBAwvTxPmRO8huo8IkK/j5+e1lFyIrEz76SNF1sp/bcEwshMF5I?=
- =?us-ascii?Q?cgA6MRm1H2vAglNIXHe4mN3j?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?ygjeAbJo1zwlrDtSSCYI4jDuB4795uvZnUG+pMDL8s0o3JmBxFyrmbwPLocc?=
+ =?us-ascii?Q?g3zuqorMmcZbsQI0nB1nVSysHGO6AqUSgE1ecRYrH4nBmDgvXpeBAbXU9x7Z?=
+ =?us-ascii?Q?TMUkce36U7Gczbz4kDzKVzvN2BijbAFY0FtuYIrxNsBIyi00HTLPUId/LuDa?=
+ =?us-ascii?Q?5b78drKwkooPj1I+omt7zdr+KfwQ0TIW2KGsf5emRev06ESU/f1AQBebWjIt?=
+ =?us-ascii?Q?YrTCAjGU2mlNb7UnJigZVynfVBMNRWoXVQo4/ep4lEYNNWDnN1JxiE2JKVl5?=
+ =?us-ascii?Q?qnRhbQBL/znjRj5ecQ3w6tioZDHVDVhadaSZCqA/UbdBPDW7Lhs6jJjHGGjq?=
+ =?us-ascii?Q?+ts7bBXrrR4GMTT645SAQxB70sbKaOyv/6+cgL/3MCA8ajWOQNTdjbKpNcag?=
+ =?us-ascii?Q?ck+xOA51wiGxGqDZwGpaY7flQtWhzudXcNT8zYiifN8rSwqPTcx4Lil88w1J?=
+ =?us-ascii?Q?B/ZALFJM6KZXQfSsuebbVcfko94Vk6+Qyl5tz2lT2WF2gaXIT37zKtH56E7v?=
+ =?us-ascii?Q?oydXF/q7QeBGktThayOpo3EZH6+b5/K2Gun1LlBhLmTpE54f8kxVxyeyJ0e/?=
+ =?us-ascii?Q?oaajWMc404q/SZxrMoelpspxGYzr8ad/5c2Yrz7Q1ottuFEQp6rMf6Dnlv6l?=
+ =?us-ascii?Q?gcJ3ZIA+ssCNYkYYs/DSaa2nQ7KleRALZwUu6QfLpnUivmSnpKe7F6U99TdA?=
+ =?us-ascii?Q?kT2gsRu54o8p28VhJSswL0KCJE6IIkH4khEEMtKqEY2Z6HUwS7fLoH9omLuF?=
+ =?us-ascii?Q?Ly5aXgaWDhrRRN7ZygLrjLHR5TusaKkvUu6K6mu0lBp4NBrVCltZ05YxffZ5?=
+ =?us-ascii?Q?OP00yPPRSYW70+N42JoU09oJJI/h0D9Y9gCHSJveOrD+77l3xARMqlbZLPiq?=
+ =?us-ascii?Q?nzXN48Dv9nbKND1iy9URO2iNzlsXwSgI15u6fPtLOM91p4DZUsIS2TIoyJs4?=
+ =?us-ascii?Q?116zVtRnTOmxHVvt7JAehxJJIxslFQPSoO2jhgN+W9j+zyUGfwjJecou0UfT?=
+ =?us-ascii?Q?bocMS9PKJS43JIvn2+f8RCEt5hcGNfx6uYpBd0hicCJ75nJcmWSVoK/5nUnP?=
+ =?us-ascii?Q?sOTNYFnW1K0BKx12rtBk6oUSRAxDUHHGRg7mf+eBkWB6QBdAypPL9gpb2ekn?=
+ =?us-ascii?Q?hzubwfAI/Lvn/5xmxKPVBqsnuty6Ojh6wGzryH2In+p2kVAi5RYqVnhiW/NY?=
+ =?us-ascii?Q?j6azn5+2kvQsMasoBc1au2LoXXnzmrPle5m7FBdVsLUA36tedB2E2aSddyFZ?=
+ =?us-ascii?Q?N+XDdKzNXK4q/XtxYkHsYSMLTHVrHw7rfeKqAP9bBTNt8KjA9A9a1sk1YXNW?=
+ =?us-ascii?Q?bpHFJbQP0xHCwbK8OY/6r3Xz?=
 X-OriginatorOrg: windriver.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 40aa51fe-86cd-48ce-8b14-08d9576aa5d8
+X-MS-Exchange-CrossTenant-Network-Message-Id: 015eddbf-91fb-42d3-67a9-08d9576c2021
 X-MS-Exchange-CrossTenant-AuthSource: DM4PR11MB5327.namprd11.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 Aug 2021 17:09:41.1253
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 Aug 2021 17:20:15.9209
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 8ddb2873-a1ad-4a18-ae4e-4644631433be
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 5NoVPd41GRxvVenLDri8gDkHd+9utJf6rnxRegXeCxAGKv3bn13ySZcmX7PqPiDn0Ftk+fPcTypj4Cfs2C5mufkCdyn7RhasFxtZmF0UUF8=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM5PR11MB1834
-X-Proofpoint-GUID: r-p1DKfXrLuC1ANLwlKr6RkxF6D48oYC
-X-Proofpoint-ORIG-GUID: r-p1DKfXrLuC1ANLwlKr6RkxF6D48oYC
+X-MS-Exchange-CrossTenant-UserPrincipalName: Dmt0Mlj62FXNurdObaNWoOTg8J27hK7X3Ip2yteL0h7Y2ZgS3/z/YAt1S8l7fS4o6bVEAr/VxwlHXX2ju9svRqOwTB3boI62nNYKUVk+LlU=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR11MB4169
+X-Proofpoint-GUID: kDHLIPuhEPdnCI7u7KcooiUuQP9wu5XS
+X-Proofpoint-ORIG-GUID: kDHLIPuhEPdnCI7u7KcooiUuQP9wu5XS
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
  definitions=2021-08-04_05,2021-08-04_03,2020-04-07_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
- mlxlogscore=994 mlxscore=0 adultscore=0 lowpriorityscore=0 impostorscore=0
+ mlxlogscore=610 mlxscore=0 adultscore=0 lowpriorityscore=0 impostorscore=0
  priorityscore=1501 phishscore=0 clxscore=1015 spamscore=0 bulkscore=0
  suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2107140000 definitions=main-2108040098
+ engine=8.12.0-2107140000 definitions=main-2108040099
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrei Matei <andreimatei1@gmail.com>
+This patchseries fixes all failing bpf verifier selftests:
 
-commit 7a22930c4179b51352f2ec9feb35167cbe79afd9 upstream
+root@intel-x86-64:~# ./test_verifier
+...
+#1054/p XDP pkt read, pkt_meta' <= pkt_data, bad access 1 OK
+#1055/p XDP pkt read, pkt_meta' <= pkt_data, bad access 2 OK
+#1056/p XDP pkt read, pkt_data <= pkt_meta', good access OK
+#1057/p XDP pkt read, pkt_data <= pkt_meta', bad access 1 OK
+#1058/p XDP pkt read, pkt_data <= pkt_meta', bad access 2 OK
+Summary: 1566 PASSED, 0 SKIPPED, 0 FAILED
 
-Add tests for the new functionality - reading and writing to the stack
-through a variable-offset pointer.
+Daniel Borkmann (1):
+  bpf, selftests: Adjust few selftest result_unpriv outcomes
 
-Signed-off-by: Andrei Matei <andreimatei1@gmail.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20210207011027.676572-4-andreimatei1@gmail.com
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
----
- .../testing/selftests/bpf/verifier/var_off.c  | 99 ++++++++++++++++++-
- 1 file changed, 97 insertions(+), 2 deletions(-)
+ tools/testing/selftests/bpf/verifier/stack_ptr.c       | 2 --
+ tools/testing/selftests/bpf/verifier/value_ptr_arith.c | 8 --------
+ 2 files changed, 10 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/verifier/var_off.c b/tools/testing/selftests/bpf/verifier/var_off.c
-index 49b78a1a261b..eab1f7f56e2f 100644
---- a/tools/testing/selftests/bpf/verifier/var_off.c
-+++ b/tools/testing/selftests/bpf/verifier/var_off.c
-@@ -31,14 +31,109 @@
- 	 * we don't know which
- 	 */
- 	BPF_ALU64_REG(BPF_ADD, BPF_REG_2, BPF_REG_10),
--	/* dereference it */
-+	/* dereference it for a stack read */
-+	BPF_LDX_MEM(BPF_W, BPF_REG_0, BPF_REG_2, 0),
-+	BPF_MOV64_IMM(BPF_REG_0, 0),
-+	BPF_EXIT_INSN(),
-+	},
-+	.result = ACCEPT,
-+	.result_unpriv = REJECT,
-+	.errstr_unpriv = "R2 variable stack access prohibited for !root",
-+	.prog_type = BPF_PROG_TYPE_CGROUP_SKB,
-+},
-+{
-+	"variable-offset stack read, uninitialized",
-+	.insns = {
-+	/* Get an unknown value */
-+	BPF_LDX_MEM(BPF_W, BPF_REG_2, BPF_REG_1, 0),
-+	/* Make it small and 4-byte aligned */
-+	BPF_ALU64_IMM(BPF_AND, BPF_REG_2, 4),
-+	BPF_ALU64_IMM(BPF_SUB, BPF_REG_2, 8),
-+	/* add it to fp.  We now have either fp-4 or fp-8, but
-+	 * we don't know which
-+	 */
-+	BPF_ALU64_REG(BPF_ADD, BPF_REG_2, BPF_REG_10),
-+	/* dereference it for a stack read */
- 	BPF_LDX_MEM(BPF_W, BPF_REG_0, BPF_REG_2, 0),
-+	BPF_MOV64_IMM(BPF_REG_0, 0),
- 	BPF_EXIT_INSN(),
- 	},
--	.errstr = "variable stack access var_off=(0xfffffffffffffff8; 0x4)",
- 	.result = REJECT,
-+	.errstr = "invalid variable-offset read from stack R2",
- 	.prog_type = BPF_PROG_TYPE_LWT_IN,
- },
-+{
-+	"variable-offset stack write, priv vs unpriv",
-+	.insns = {
-+	/* Get an unknown value */
-+	BPF_LDX_MEM(BPF_W, BPF_REG_2, BPF_REG_1, 0),
-+	/* Make it small and 8-byte aligned */
-+	BPF_ALU64_IMM(BPF_AND, BPF_REG_2, 8),
-+	BPF_ALU64_IMM(BPF_SUB, BPF_REG_2, 16),
-+	/* Add it to fp.  We now have either fp-8 or fp-16, but
-+	 * we don't know which
-+	 */
-+	BPF_ALU64_REG(BPF_ADD, BPF_REG_2, BPF_REG_10),
-+	/* Dereference it for a stack write */
-+	BPF_ST_MEM(BPF_DW, BPF_REG_2, 0, 0),
-+	/* Now read from the address we just wrote. This shows
-+	 * that, after a variable-offset write, a priviledged
-+	 * program can read the slots that were in the range of
-+	 * that write (even if the verifier doesn't actually know
-+	 * if the slot being read was really written to or not.
-+	 */
-+	BPF_LDX_MEM(BPF_DW, BPF_REG_3, BPF_REG_2, 0),
-+	BPF_MOV64_IMM(BPF_REG_0, 0),
-+	BPF_EXIT_INSN(),
-+	},
-+	/* Variable stack access is rejected for unprivileged.
-+	 */
-+	.errstr_unpriv = "R2 variable stack access prohibited for !root",
-+	.result_unpriv = REJECT,
-+	.result = ACCEPT,
-+},
-+{
-+	"variable-offset stack write clobbers spilled regs",
-+	.insns = {
-+	/* Dummy instruction; needed because we need to patch the next one
-+	 * and we can't patch the first instruction.
-+	 */
-+	BPF_MOV64_IMM(BPF_REG_6, 0),
-+	/* Make R0 a map ptr */
-+	BPF_LD_MAP_FD(BPF_REG_0, 0),
-+	/* Get an unknown value */
-+	BPF_LDX_MEM(BPF_W, BPF_REG_2, BPF_REG_1, 0),
-+	/* Make it small and 8-byte aligned */
-+	BPF_ALU64_IMM(BPF_AND, BPF_REG_2, 8),
-+	BPF_ALU64_IMM(BPF_SUB, BPF_REG_2, 16),
-+	/* Add it to fp. We now have either fp-8 or fp-16, but
-+	 * we don't know which.
-+	 */
-+	BPF_ALU64_REG(BPF_ADD, BPF_REG_2, BPF_REG_10),
-+	/* Spill R0(map ptr) into stack */
-+	BPF_STX_MEM(BPF_DW, BPF_REG_10, BPF_REG_0, -8),
-+	/* Dereference the unknown value for a stack write */
-+	BPF_ST_MEM(BPF_DW, BPF_REG_2, 0, 0),
-+	/* Fill the register back into R2 */
-+	BPF_LDX_MEM(BPF_DW, BPF_REG_2, BPF_REG_10, -8),
-+	/* Try to dereference R2 for a memory load */
-+	BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_2, 8),
-+	BPF_EXIT_INSN(),
-+	},
-+	.fixup_map_hash_8b = { 1 },
-+	/* The unpriviledged case is not too interesting; variable
-+	 * stack access is rejected.
-+	 */
-+	.errstr_unpriv = "R2 variable stack access prohibited for !root",
-+	.result_unpriv = REJECT,
-+	/* In the priviledged case, dereferencing a spilled-and-then-filled
-+	 * register is rejected because the previous variable offset stack
-+	 * write might have overwritten the spilled pointer (i.e. we lose track
-+	 * of the spilled register when we analyze the write).
-+	 */
-+	.errstr = "R2 invalid mem access 'inv'",
-+	.result = REJECT,
-+},
- {
- 	"indirect variable-offset stack access, unbounded",
- 	.insns = {
 -- 
 2.25.1
 
