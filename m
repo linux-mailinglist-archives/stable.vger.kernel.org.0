@@ -2,100 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C9F7D3DF9E5
-	for <lists+stable@lfdr.de>; Wed,  4 Aug 2021 05:05:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D06BD3DFA72
+	for <lists+stable@lfdr.de>; Wed,  4 Aug 2021 06:32:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232671AbhHDDGJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Aug 2021 23:06:09 -0400
-Received: from szxga01-in.huawei.com ([45.249.212.187]:16041 "EHLO
-        szxga01-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230088AbhHDDGJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Aug 2021 23:06:09 -0400
-Received: from dggemv704-chm.china.huawei.com (unknown [172.30.72.55])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4Gfc3f0zt1zZxJP;
-        Wed,  4 Aug 2021 11:02:22 +0800 (CST)
-Received: from dggemi762-chm.china.huawei.com (10.1.198.148) by
- dggemv704-chm.china.huawei.com (10.3.19.47) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
- 15.1.2176.2; Wed, 4 Aug 2021 11:05:49 +0800
-Received: from [10.174.178.208] (10.174.178.208) by
- dggemi762-chm.china.huawei.com (10.1.198.148) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2176.2; Wed, 4 Aug 2021 11:05:48 +0800
-Subject: Re: [PATCH 5.10 00/67] 5.10.56-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
-        <stable@vger.kernel.org>
-References: <20210802134339.023067817@linuxfoundation.org>
-From:   Samuel Zou <zou_wei@huawei.com>
-Message-ID: <97854714-3f7e-5ac5-c104-ccc7b114cbd7@huawei.com>
-Date:   Wed, 4 Aug 2021 11:05:48 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S234703AbhHDEcs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Aug 2021 00:32:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60252 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234269AbhHDEcr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Aug 2021 00:32:47 -0400
+Received: from mail-io1-xd41.google.com (mail-io1-xd41.google.com [IPv6:2607:f8b0:4864:20::d41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 998F8C0613D5
+        for <stable@vger.kernel.org>; Tue,  3 Aug 2021 21:32:34 -0700 (PDT)
+Received: by mail-io1-xd41.google.com with SMTP id f6so1011800ioc.6
+        for <stable@vger.kernel.org>; Tue, 03 Aug 2021 21:32:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=GvSEm2IhMBJ052xe9DI9VvCgaL6z88P134FZp7B8Jpk=;
+        b=TlAf6vnJBGKzJb6lkw/aZfLQfFxPhZ5KDbOoLY84WvUsM43tA3jhZ39irbjeKOmJJy
+         p0hDBJNlTXnBEiH/YpK1XraTXDQXOqU1V+uVMOLZ3EUxOMB+ZlFTY/9Kxipdyz1uEYlx
+         5alvFh2CiPWDGZtS6sywyR1Sl99Ngu+z5wT7Y2ltHfYSzCf2PqgocYdSVLA6vMjnWfak
+         sE4TdP+dKZVErrlcl5RexMMySLPAUtcH7/DFyOaoAXZ3VdBOFkeefbCD62sAmDF2b70N
+         5AJyebbUvsMn25hOb6KN0XWsJUVTXXT/cUZzgkZ1Eya5RFmgOhiUK1mYq7kMD4h4UuSF
+         pfpw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=GvSEm2IhMBJ052xe9DI9VvCgaL6z88P134FZp7B8Jpk=;
+        b=Af0ix6IHFZnuu5aYM6fnxEOJtJEbva/DjqL0tPkRRXF3cRuKwGIO8tefI+z+/Aj9Q6
+         gLeq4JZBxx/iGuuH7FAtb4HOXiBmtrt/u6Tfpf9tZqW+9VLCwYAWtQOBji3rYpZpvaEL
+         cen1/zmUYaJPRyubkEINiuOGiU33T3E30Rrtmjze5P3q5q4A/iqzmjUwfdQ2bdtd/gZL
+         lpHZm68ai+8rv8lUoKUc/Y2ENdL0b1tMlj4QVeAbhWtPDKD2g8oQvHxXO/c3Rcrk8QEZ
+         XGKrcEq6DdaZLv4TzyGxJQQelOZeaNvfvdSuq0v5dNfNc98FhtVJ4gq/XykYItw9ar1h
+         k7Zg==
+X-Gm-Message-State: AOAM532RZQs4Lnw+MtDISjN5g/QAiF21oLOKRKXSFNmYpMLDHywWENmm
+        G2ANOcZOhKGYaSu1HIVGFQcjSU6wYYHVbcTckx4=
+X-Google-Smtp-Source: ABdhPJwBkT9GMFOP0QTJWjJnJH4eJflnGGXzOHeTgN2PmMMaa2B7JO/2zjAp4++qkkKA3fKo79pHnMlQlv5NhPIUUUA=
+X-Received: by 2002:a05:6638:2714:: with SMTP id m20mr4773969jav.41.1628051554102;
+ Tue, 03 Aug 2021 21:32:34 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20210802134339.023067817@linuxfoundation.org>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.174.178.208]
-X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
- dggemi762-chm.china.huawei.com (10.1.198.148)
-X-CFilter-Loop: Reflected
+Received: by 2002:a02:b157:0:0:0:0:0 with HTTP; Tue, 3 Aug 2021 21:32:33 -0700 (PDT)
+Reply-To: ablahikazabl67@gmail.com
+From:   Abdoulahi Kazim <aishagaddafi.lpw.ag@gmail.com>
+Date:   Wed, 4 Aug 2021 05:32:33 +0100
+Message-ID: <CAEax+HETH1iXqAQipGFuAc-HzmB+qObwq4zh8_bD3XUdHj7ugw@mail.gmail.com>
+Subject: More Information
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+-- 
+Dear Partner,
+
+I am soliciting your partnership to relocate $12.5 Million to your
+country for investment on my behalf and you will be entitled to 30% of
+the sum once the transaction is successful made.
+
+ Please indicate your genuine interest if you are capable so that i
+will send you the authentic details and documents of the transaction
+in awareness with some of my fellow Directors in the bank.
+If you are interested, here is my private Email address: (
+ablahikazabl67@gmail.com )
+For more authentic and legit information.
 
 
-On 2021/8/2 21:44, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.56 release.
-> There are 67 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 04 Aug 2021 13:43:24 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.56-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
-
-Tested on arm64 and x86 for 5.10.56-rc1,
-
-Kernel repo:
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-Branch: linux-5.10.y
-Version: 5.10.56-rc1
-Commit: f9063e43ccbb353c5b2cafe59c6b9534aa7ddc14
-Compiler: gcc version 7.3.0 (GCC)
-
-arm64:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 8906
-passed: 8906
-failed: 0
-timeout: 0
---------------------------------------------------------------------
-
-x86:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 8906
-passed: 8906
-failed: 0
-timeout: 0
---------------------------------------------------------------------
-
-Tested-by: Hulk Robot <hulkrobot@huawei.com>
+Regards : Abdoulahi Kazim
