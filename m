@@ -2,108 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BAD783DF8DB
-	for <lists+stable@lfdr.de>; Wed,  4 Aug 2021 02:20:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9303C3DF8E2
+	for <lists+stable@lfdr.de>; Wed,  4 Aug 2021 02:21:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234555AbhHDAUO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Aug 2021 20:20:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60532 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233759AbhHDAUO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Aug 2021 20:20:14 -0400
-Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03B91C06175F
-        for <stable@vger.kernel.org>; Tue,  3 Aug 2021 17:20:02 -0700 (PDT)
-Received: by mail-pj1-x1033.google.com with SMTP id mz5-20020a17090b3785b0290176ecf64922so6296416pjb.3
-        for <stable@vger.kernel.org>; Tue, 03 Aug 2021 17:20:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:subject:in-reply-to:cc:from:to:message-id:mime-version
-         :content-transfer-encoding;
-        bh=anLcT6NmPw5Wq6jaqp4SuN5fczQ6h6jMYqdGqLcfbzU=;
-        b=eLYmNPskipBKjMlAN7IVq5LvbAcMs0NDKXctVa0zr0pvARvfLDE6Jcy7dAqfaRn7yb
-         3eazISO9/z1ST9Naz1Kg16wOnphutXVpjbFngl8lcyEvqr24yDdHe3PYTggeRUDHRRuk
-         NA14FZluM7XdhqHp2RazqrefbsTajF5z3obW3qBvrUT58XviVkANjpRHmCYWMwhiIBvu
-         AZN5e1f57nL1LE0X2kD5rc+D/aj4kcFRkqMOPOVAHUwa3brWo1np5HuAkeOciGgOScp7
-         /S5jALGuMN8xzVodhCToux9qnTC7asCQnn9LtIH4tp4qDNuiaTLMKNxn1Je0vJEunDTA
-         LOGg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:subject:in-reply-to:cc:from:to:message-id
-         :mime-version:content-transfer-encoding;
-        bh=anLcT6NmPw5Wq6jaqp4SuN5fczQ6h6jMYqdGqLcfbzU=;
-        b=f1t3u44Ft4rpVPSO3ubHE722akVwWuOxWIts4c/b6e4N0cm+G4y2KmesoifqQIkI2d
-         NG04BGBHq0ylB/IAW0gwVpPE1bCACMzFSQ29YeVi0h4W5Vv6vTfWn+E2LmPkOxc0uamG
-         qzwfostmHE4k0+pMAtC+jO49dDzdEdlohaQabbk24QET840qzSow/+g79JAEymP5utld
-         TjC1THUjRmRl4fX+UIzi/ToKMMPb3sCDGgM8UtIT/hILNm6Og+zszzOCBq9IQ2FDxA7H
-         1IjpWAzXdcnvKKEn/IyEzBCbQOsNBXKYjpCrN2iRBm4X00Uv84nm1B5KoGl86MhnHzFb
-         nkBw==
-X-Gm-Message-State: AOAM533Y6a5zysxxF2WVT61AkqUyGSr3DJcLwjsjVOIe64hW0er20VPz
-        b5Emc35/mynw1V6LKiDZI5FF7g==
-X-Google-Smtp-Source: ABdhPJzPpbQ+hNLyy6tCVMaIw6/IAa/BqOg7qYT4dqYiH62tlIo1eEJRV92SpuuauEdd5A1EYA0Yag==
-X-Received: by 2002:a63:5703:: with SMTP id l3mr1046571pgb.338.1628036401309;
-        Tue, 03 Aug 2021 17:20:01 -0700 (PDT)
-Received: from localhost (76-210-143-223.lightspeed.sntcca.sbcglobal.net. [76.210.143.223])
-        by smtp.gmail.com with ESMTPSA id y8sm360674pfe.162.2021.08.03.17.20.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Aug 2021 17:20:00 -0700 (PDT)
-Date:   Tue, 03 Aug 2021 17:20:00 -0700 (PDT)
-X-Google-Original-Date: Tue, 03 Aug 2021 17:19:57 PDT (-0700)
-Subject:     Re: [PATCH v2] lib: Use PFN_PHYS() in devmem_is_allowed()
-In-Reply-To: <12e37243-0cdb-6765-c3ef-c98fd291591c@huawei.com>
-CC:     wangliang101@huawei.com, mcgrof@kernel.org,
-        linux-kernel@vger.kernel.org, Greg KH <gregkh@linuxfoundation.org>,
-        linux@armlinux.org.uk, linux-arm-kernel@lists.infradead.org,
-        stable@vger.kernel.org, wangle6@huawei.com,
-        kepler.chenxin@huawei.com, nixiaoming@huawei.com
-From:   Palmer Dabbelt <palmerdabbelt@google.com>
-To:     wangkefeng.wang@huawei.com
-Message-ID: <mhng-e101fb5a-2f16-45a0-8436-454ac2bf4223@palmerdabbelt-glaptop>
-Mime-Version: 1.0 (MHng)
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+        id S234610AbhHDAWC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Aug 2021 20:22:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49780 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233759AbhHDAWC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Aug 2021 20:22:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B331F60F46;
+        Wed,  4 Aug 2021 00:21:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1628036509;
+        bh=s/ruTlnn1ChuucTiostqFTQUlcvakiAUmn7lWJLSI6M=;
+        h=Date:From:To:Subject:From;
+        b=DO5urH0QGHCyYeDI9iCGWxAn/wXrhnwrgHXS7ZiZih2DyKytcaFha8vNpEsrAHmNO
+         pemUHboBZn80vPsHhfp7aE+zDRzqTsOtiU4kmv//ZJ/ITOccymCKCUGeZMwuh5SZ0W
+         /L/Zqj8dv2Q66s37RQiL0FBo617jKBF6ksPa1Z8s=
+Date:   Tue, 03 Aug 2021 17:21:48 -0700
+From:   akpm@linux-foundation.org
+To:     mm-commits@vger.kernel.org, wangkefeng.wang@huawei.com,
+        stable@vger.kernel.org, palmerdabbelt@google.com,
+        nixiaoming@huawei.com, mcgrof@kernel.org, linux@armlinux.org.uk,
+        gregkh@linuxfoundation.org, wangliang101@huawei.com
+Subject:  + lib-use-pfn_phys-in-devmem_is_allowed.patch added to -mm
+ tree
+Message-ID: <20210804002148.96Sth%akpm@linux-foundation.org>
+User-Agent: s-nail v14.9.10
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 30 Jul 2021 00:04:05 PDT (-0700), wangkefeng.wang@huawei.com wrote:
->
-> On 2021/7/30 14:49, Liang Wang wrote:
->> The physical address may exceed 32 bits on ARM(when ARM_LPAE enabled),
->> use PFN_PHYS() in devmem_is_allowed(), or the physical address may
->> overflow and be truncated.
->>
->> This bug was initially introduced from v2.6.37, and the function was moved
->> to lib when v5.10.
->>
->> Fixes: 087aaffcdf9c ("ARM: implement CONFIG_STRICT_DEVMEM by disabling access to RAM via /dev/mem")
->> Fixes: 527701eda5f1 ("lib: Add a generic version of devmem_is_allowed()")
->> Cc: stable@vger.kernel.org # v2.6.37
->> Signed-off-by: Liang Wang <wangliang101@huawei.com>
-> Reviewed-by: Kefeng Wang <wangkefeng.wang@huawei.com>
->> ---
->> v2: update subject and changelog
->>   lib/devmem_is_allowed.c | 2 +-
->>   1 file changed, 1 insertion(+), 1 deletion(-)
->>
->> diff --git a/lib/devmem_is_allowed.c b/lib/devmem_is_allowed.c
->> index c0d67c541849..60be9e24bd57 100644
->> --- a/lib/devmem_is_allowed.c
->> +++ b/lib/devmem_is_allowed.c
->> @@ -19,7 +19,7 @@
->>    */
->>   int devmem_is_allowed(unsigned long pfn)
->>   {
->> -	if (iomem_is_exclusive(pfn << PAGE_SHIFT))
->> +	if (iomem_is_exclusive(PFN_PHYS(pfn)))
->>   		return 0;
->>   	if (!page_is_ram(pfn))
->>   		return 1;
 
-Acked-by: Palmer Dabbelt <palmerdabbelt@google.com>
+The patch titled
+     Subject: lib: use PFN_PHYS() in devmem_is_allowed()
+has been added to the -mm tree.  Its filename is
+     lib-use-pfn_phys-in-devmem_is_allowed.patch
 
-I only see the reply so I'm assuming this is going in through some other 
-tree, but LMK if you want it via the RISC-V tree as IIRC we're using it 
-too.
+This patch should soon appear at
+    https://ozlabs.org/~akpm/mmots/broken-out/lib-use-pfn_phys-in-devmem_is_allowed.patch
+and later at
+    https://ozlabs.org/~akpm/mmotm/broken-out/lib-use-pfn_phys-in-devmem_is_allowed.patch
 
-Thanks!
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: Liang Wang <wangliang101@huawei.com>
+Subject: lib: use PFN_PHYS() in devmem_is_allowed()
+
+The physical address may exceed 32 bits on 32-bit systems with more than
+32 bits of physcial address,use PFN_PHYS() in devmem_is_allowed(), or the
+physical address may overflow and be truncated.
+
+We found this bug when mapping a high addresses through devmem tool, when
+CONFIG_STRICT_DEVMEM is enabled on the ARM with ARM_LPAE and devmem is
+used to map a high address that is not in the iomem address range, an
+unexpected error indicating no permission is returned.
+
+This bug was initially introduced from v2.6.37, and the function was moved
+to lib when v5.11.
+
+Link: https://lkml.kernel.org/r/20210731025057.78825-1-wangliang101@huawei.com
+Fixes: 087aaffcdf9c ("ARM: implement CONFIG_STRICT_DEVMEM by disabling access to RAM via /dev/mem")
+Fixes: 527701eda5f1 ("lib: Add a generic version of devmem_is_allowed()")
+Signed-off-by: Liang Wang <wangliang101@huawei.com>
+Cc: Palmer Dabbelt <palmerdabbelt@google.com>
+Cc: Luis Chamberlain <mcgrof@kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: Liang Wang <wangliang101@huawei.com>
+Cc: Xiaoming Ni <nixiaoming@huawei.com>
+Cc: Kefeng Wang <wangkefeng.wang@huawei.com>
+Cc: <stable@vger.kernel.org>	[2.6.37+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ lib/devmem_is_allowed.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/lib/devmem_is_allowed.c~lib-use-pfn_phys-in-devmem_is_allowed
++++ a/lib/devmem_is_allowed.c
+@@ -19,7 +19,7 @@
+  */
+ int devmem_is_allowed(unsigned long pfn)
+ {
+-	if (iomem_is_exclusive(pfn << PAGE_SHIFT))
++	if (iomem_is_exclusive(PFN_PHYS(pfn)))
+ 		return 0;
+ 	if (!page_is_ram(pfn))
+ 		return 1;
+_
+
+Patches currently in -mm which might be from wangliang101@huawei.com are
+
+lib-use-pfn_phys-in-devmem_is_allowed.patch
+
