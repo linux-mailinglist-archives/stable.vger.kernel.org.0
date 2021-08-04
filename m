@@ -2,93 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B7633DFAF3
-	for <lists+stable@lfdr.de>; Wed,  4 Aug 2021 07:14:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D52833DFB28
+	for <lists+stable@lfdr.de>; Wed,  4 Aug 2021 07:37:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235158AbhHDFOl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Aug 2021 01:14:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41450 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234982AbhHDFOk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Aug 2021 01:14:40 -0400
-Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13F68C061799
-        for <stable@vger.kernel.org>; Tue,  3 Aug 2021 22:14:29 -0700 (PDT)
-Received: by mail-pj1-x102c.google.com with SMTP id u13-20020a17090abb0db0290177e1d9b3f7so7107479pjr.1
-        for <stable@vger.kernel.org>; Tue, 03 Aug 2021 22:14:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=dabbelt-com.20150623.gappssmtp.com; s=20150623;
-        h=date:subject:in-reply-to:cc:from:to:message-id:mime-version
-         :content-transfer-encoding;
-        bh=TgttGRrn42Wk3tVPMIYmGm1GfuxDDOvbYQ1YEYQrY5s=;
-        b=Cfvijs9NjDh9/cHQq4TuO/oE5weZBw1NKPW07ktsuth/aPd0GMJmrt4+CvVvSnq/c5
-         RD1zlyeKdVcJqAUyL0yuwyoYcS4uTw2HSsoBgc6+ffWoNW76wY05eQ4Zimo13HH5aVoQ
-         BCdEqLza0BvdY5gZEK/YB1i/yXKn8se0sjeZITBtYE8/jA+/tC3F9tuucqfBzGF62lYG
-         1sU4HEv6bNnc4BnfpXgEkoRLDGFR/AF8guh+J04VaaXdG3svY85wBUhz8Pd+wCI4eSYQ
-         5U0wy0Ucy9BdWiI1WXlJIRdStsdE3oJKvxK7ufMdE4VuRotrJk5iytZnI6gZ2XMaH9Rz
-         OqpA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:subject:in-reply-to:cc:from:to:message-id
-         :mime-version:content-transfer-encoding;
-        bh=TgttGRrn42Wk3tVPMIYmGm1GfuxDDOvbYQ1YEYQrY5s=;
-        b=GPoBQgJ9oUAcofmq4SBr1I4y8r+sjh6Kiw3+idd6i6X7OKULzRkx2nFrvWN8R7FtVt
-         DdePMem0Im4TnLNrt8Q6H9ZgYtHyLVJkmQ6jdVu2sH8VVRVYcNsvZYVV4ony3oHkH1WP
-         58pV87qSdCEreBMZj8GPGG18E13PgslntQ0pmCp4Biu36enlw4jCy7DelHdcmvWK48+J
-         8tJ0MOX7dEK4lklTW1rjvZsXMKfSrN1jYYd/V4Yn8+3/7EIGkTVpP69eL9d3zSeSwe10
-         u6kWslFmDcSudPFdy8xe1kJLrI04wMk78g7JhNFu7UOx5OB1yDVtFLSSm4QEZgRWK61i
-         Zwjw==
-X-Gm-Message-State: AOAM531OYQG3Taz/6DuR99HeoRkd7L3qSpa0twcSAeqOS2TRVOfrJ09k
-        3evdjDzyqE0e2XlMnqy3Khra/g==
-X-Google-Smtp-Source: ABdhPJwqL4AK2HoFKfE6/E3/tmh2ol5nX6WaH9kwoRTC543TL+kYoaJbR4i8jXRVxTsiuiG1oM3MOA==
-X-Received: by 2002:a17:90a:8404:: with SMTP id j4mr8003213pjn.66.1628054068622;
-        Tue, 03 Aug 2021 22:14:28 -0700 (PDT)
-Received: from localhost (76-210-143-223.lightspeed.sntcca.sbcglobal.net. [76.210.143.223])
-        by smtp.gmail.com with ESMTPSA id f66sm1007015pfa.21.2021.08.03.22.14.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Aug 2021 22:14:28 -0700 (PDT)
-Date:   Tue, 03 Aug 2021 22:14:28 -0700 (PDT)
-X-Google-Original-Date: Tue, 03 Aug 2021 22:14:23 PDT (-0700)
-Subject:     Re: [PATCH v3] lib: Use PFN_PHYS() in devmem_is_allowed()
-In-Reply-To: <668986ec-bdc5-482f-39ed-8e059008016d@huawei.com>
-CC:     wangliang101@huawei.com, mcgrof@kernel.org,
-        linux-kernel@vger.kernel.org, Greg KH <gregkh@linuxfoundation.org>,
-        linux@armlinux.org.uk, linux-arm-kernel@lists.infradead.org,
-        stable@vger.kernel.org, wangle6@huawei.com,
-        kepler.chenxin@huawei.com, nixiaoming@huawei.com
-From:   Palmer Dabbelt <palmer@dabbelt.com>
-To:     wangkefeng.wang@huawei.com
-Message-ID: <mhng-9a8d70d0-a3d6-4e2b-8bad-46bf87abc80c@palmerdabbelt-glaptop>
-Mime-Version: 1.0 (MHng)
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+        id S235297AbhHDFiG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Aug 2021 01:38:06 -0400
+Received: from m43-7.mailgun.net ([69.72.43.7]:54773 "EHLO m43-7.mailgun.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S235140AbhHDFiF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Aug 2021 01:38:05 -0400
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1628055473; h=Message-ID: References: In-Reply-To: Subject:
+ Cc: To: From: Date: Content-Transfer-Encoding: Content-Type:
+ MIME-Version: Sender; bh=XdIMy/+KYlx0LiNJkuSBANk6R6Hn89TlHZhiYcNm2Ec=;
+ b=nZNN40QKzq3rUdvk1OJSJPSzShI8uU78wMlJg3H8alKwC88qcQffaQKF8aqYj13rM7TSfs6p
+ UxvaoTBZ2ottUFEluheBBV+zbLs3rGSonrlbMGF/usUNuryaF2zepw5G8/Dl65h7R3jovcJW
+ utNfuhOXwF7YEe1VVONLP3rOf5w=
+X-Mailgun-Sending-Ip: 69.72.43.7
+X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
+Received: from smtp.codeaurora.org
+ (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
+ smtp-out-n05.prod.us-east-1.postgun.com with SMTP id
+ 610a27a6041a739c46d95c01 (version=TLS1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Wed, 04 Aug 2021 05:37:42
+ GMT
+Sender: kalyan_t=codeaurora.org@mg.codeaurora.org
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id A9293C43217; Wed,  4 Aug 2021 05:37:41 +0000 (UTC)
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        aws-us-west-2-caf-mail-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-2.9 required=2.0 tests=ALL_TRUSTED,BAYES_00,
+        URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
+Received: from mail.codeaurora.org (localhost.localdomain [127.0.0.1])
+        (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        (Authenticated sender: kalyan_t)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id BDDD1C433D3;
+        Wed,  4 Aug 2021 05:37:40 +0000 (UTC)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+Date:   Wed, 04 Aug 2021 11:07:40 +0530
+From:   kalyan_t@codeaurora.org
+To:     Stephen Boyd <swboyd@chromium.org>
+Cc:     devicetree@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        freedreno@lists.freedesktop.org, linux-arm-msm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, robdclark@gmail.com,
+        dianders@chromium.org, mkrishn@codeaurora.org,
+        saiprakash.ranjan@codeaurora.org, rnayak@codeaurora.org,
+        stable@vger.kernel.org
+Subject: Re: [Freedreno] [v2] drm/msm/disp/dpu1: add safe lut config in dpu
+ driver
+In-Reply-To: <CAE-0n52+PvNpz5uqf3O_NsfQ4q2taeZmdSdoM3fGDLp5aQVj-A@mail.gmail.com>
+References: <1627987307-29347-1-git-send-email-kalyan_t@codeaurora.org>
+ <CAE-0n52+PvNpz5uqf3O_NsfQ4q2taeZmdSdoM3fGDLp5aQVj-A@mail.gmail.com>
+Message-ID: <b6aca5dda4e100694a3d8cb39cfc650d@codeaurora.org>
+X-Sender: kalyan_t@codeaurora.org
+User-Agent: Roundcube Webmail/1.3.9
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 03 Aug 2021 22:01:46 PDT (-0700), wangkefeng.wang@huawei.com wrote:
->
-> On 2021/7/31 10:50, Liang Wang wrote:
->> The physical address may exceed 32 bits on 32-bit systems with
->> more than 32 bits of physcial address,use PFN_PHYS() in devmem_is_allowed(),
->> or the physical address may overflow and be truncated.
->> We found this bug when mapping a high addresses through devmem tool,
->> when CONFIG_STRICT_DEVMEM is enabled on the ARM with ARM_LPAE and devmem
->> is used to map a high address that is not in the iomem address range,
->> an unexpected error indicating no permission is returned.
->>
->> This bug was initially introduced from v2.6.37, and the function was moved
->> to lib when v5.11.
->>
->> Cc: Luis Chamberlain <mcgrof@kernel.org>
->> Fixes: 087aaffcdf9c ("ARM: implement CONFIG_STRICT_DEVMEM by disabling access to RAM via /dev/mem")
->> Fixes: 527701eda5f1 ("lib: Add a generic version of devmem_is_allowed()")
->> Cc: stable@vger.kernel.org # v2.6.37
->> Signed-off-by: Liang Wang <wangliang101@huawei.com>
-> Reviewed-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+On 2021-08-04 01:43, Stephen Boyd wrote:
+> Quoting Kalyan Thota (2021-08-03 03:41:47)
+>> Add safe lut configuration for all the targets in dpu
+>> driver as per QOS recommendation.
+>> 
+>> Issue reported on SC7280:
+>> 
+>> With wait-for-safe feature in smmu enabled, RT client
+>> buffer levels are checked to be safe before smmu invalidation.
+>> Since display was always set to unsafe it was delaying the
+>> invalidaiton process thus impacting the performance on NRT clients
+>> such as eMMC and NVMe.
+>> 
+>> Validated this change on SC7280, With this change eMMC performance
+>> has improved significantly.
+>> 
+>> Changes in v1:
+>> - Add fixes tag (Sai)
+>> - CC stable kernel (Dimtry)
+>> 
+>> Fixes: cfacf946a464d4(drm/msm/disp/dpu1: add support for display for 
+>> SC7280 target)
+> 
+> This is wrong format and commit hash
+> 
+My bad, i'll fix it right away
+- KT
 
-Weird, it's still only your replies that are coming through.  Given that 
-this only manifests on 32-bit Arm systems, I'm going to leave this up to 
-them for now.
-
-Acked-by: Palmer Dabbelt <palmerdabbelt@google.com>
+> Fixes: 591e34a091d1 ("drm/msm/disp/dpu1: add support for display for
+> SC7280 target")
+> 
+>> Signed-off-by: Kalyan Thota <kalyan_t@codeaurora.org>
+>> Tested-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org> 
+>> (sc7280, sc7180)
