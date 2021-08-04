@@ -2,96 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7646B3E0624
-	for <lists+stable@lfdr.de>; Wed,  4 Aug 2021 18:48:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B6FFB3E062A
+	for <lists+stable@lfdr.de>; Wed,  4 Aug 2021 18:53:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239634AbhHDQsV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Aug 2021 12:48:21 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:37044 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S239632AbhHDQsV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Aug 2021 12:48:21 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1628095688;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=D/r6+kzYMCDVx1VLQXqiLSVKfFaLFfVPLYwPUC+uk6w=;
-        b=fUsQThnOFcgnHBBWLyiuF9bshX5rvM1dhxU5scpbcbkFuYZZ/R5JOs5qtf+vePndVz76We
-        wZW/NBl6B4pk76RcnWZ7EuDFkQgk2/e8cebbJYFT8d4572gWQ6OayPGZDmgE7kQQL4zNF7
-        an/DQhdx02g7ytRjxqmUMdgjsUcDWPg=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-556-jrlCdIc3P4OwL9rpjbE78w-1; Wed, 04 Aug 2021 12:48:07 -0400
-X-MC-Unique: jrlCdIc3P4OwL9rpjbE78w-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 494098799F9
-        for <stable@vger.kernel.org>; Wed,  4 Aug 2021 16:48:06 +0000 (UTC)
-Received: from fs-i40c-03.fs.lab.eng.bos.redhat.com (fs-i40c-03.fs.lab.eng.bos.redhat.com [10.16.224.23])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 5AB755DD68;
-        Wed,  4 Aug 2021 16:48:02 +0000 (UTC)
-From:   Alexander Aring <aahringo@redhat.com>
-To:     teigland@redhat.com
-Cc:     cluster-devel@redhat.com, stable@vger.kernel.org
-Subject: [PATCH] dlm: remove lock_sock to avoid scheduling while atomic
-Date:   Wed,  4 Aug 2021 12:48:01 -0400
-Message-Id: <20210804164801.962733-1-aahringo@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+        id S230021AbhHDQx3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Aug 2021 12:53:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60388 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229798AbhHDQx3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Aug 2021 12:53:29 -0400
+Received: from mail-il1-x12c.google.com (mail-il1-x12c.google.com [IPv6:2607:f8b0:4864:20::12c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E50DC0613D5
+        for <stable@vger.kernel.org>; Wed,  4 Aug 2021 09:53:15 -0700 (PDT)
+Received: by mail-il1-x12c.google.com with SMTP id k3so2283189ilu.2
+        for <stable@vger.kernel.org>; Wed, 04 Aug 2021 09:53:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:message-id:in-reply-to:references:subject
+         :mime-version:content-transfer-encoding;
+        bh=SpSYu1z69a0jpVO2LbxgfPc2QvfwNfjCudd2tD1/bko=;
+        b=MBAS7cLIwbd+XAo8i/Cf6+X7R/aOwmCAV7dJkcrJoDoeVsb/4XqYJWQVpEm87GeW9g
+         iEgH2nu0VKSwkGqPzqORCXGdNTdtUbhtyswH+7pEyAUZLTvC3HdCIOsINA2EO/648QZM
+         Ju1zjQH1P0s1X/icpVLBTU0fV8XwPY/kIIuzZ8htQ+A5F7IxQmI70CjEnaHoEZ7hQL/A
+         EGdte260NO4sG3SLUFxq+DonULCxH4Fspc2kfzGlxb5Nqp/6QTxfqFRkWx9CAw1NG4IH
+         kcq1gDSDumaPFrqBh+nVpMpz/erB65URZdUDRM53TxuR0yRzDaHy9vK5H3DZxD2hZPee
+         wM3g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:message-id:in-reply-to
+         :references:subject:mime-version:content-transfer-encoding;
+        bh=SpSYu1z69a0jpVO2LbxgfPc2QvfwNfjCudd2tD1/bko=;
+        b=NLL9vIRhIN/cxb3bArNkEZxCBD5L1sMkyGIIITlIn6yRRrx2icClTuD0kqW6p5Iu89
+         R6sM+RZOas7F3E1WWDnOqqMPnCvfr921Bb2OCESXZ+sb9LN5U5o0Tarr/hL64jbxU24o
+         YEL8jW0DG8KdqEUFxOEwDjB8bEKElzpxUdBOtrkxSYVvR/n3XPxqvE4lQT6+z5I9+zjr
+         mVoB5YZZLai3B06IAG7D1D1FElugA8f8/KjOA2EVHYezUpmkg8tn93s/zispUqT4xBPo
+         qM1pchSs38wt2jBuxXGy5pFJX8Vy9PgaaeAIre7c3bu23kJTy4uxO/1tUgti9VORnTZb
+         BibQ==
+X-Gm-Message-State: AOAM533gN++urKHUlsz1fDX8aTCT3vnhA0OjJs3dm+kZG1Xfdw1vReUA
+        8iWYKWwWBOtGvhCKMkkGrHQ=
+X-Google-Smtp-Source: ABdhPJzwD+9q4eeGogY3y5Xa0sxtCdWRzIauji4+rgOWH69B1Cl6HcWwWqwhiY4uLnlVlQWSLBeuwg==
+X-Received: by 2002:a92:c54d:: with SMTP id a13mr391720ilj.74.1628095995056;
+        Wed, 04 Aug 2021 09:53:15 -0700 (PDT)
+Received: from localhost ([172.243.157.240])
+        by smtp.gmail.com with ESMTPSA id i2sm1330505ils.84.2021.08.04.09.53.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 04 Aug 2021 09:53:14 -0700 (PDT)
+Date:   Wed, 04 Aug 2021 09:53:08 -0700
+From:   John Fastabend <john.fastabend@gmail.com>
+To:     gregkh@linuxfoundation.org, john.fastabend@gmail.com,
+        andrii@kernel.org, jakub@cloudflare.com, kafai@fb.com
+Cc:     stable@vger.kernel.org
+Message-ID: <610ac5f436445_10ef4208a@john-XPS-13-9370.notmuch>
+In-Reply-To: <162790507510829@kroah.com>
+References: <162790507510829@kroah.com>
+Subject: RE: FAILED: patch "[PATCH] bpf, sockmap: On cleanup we additionally
+ need to remove" failed to apply to 5.4-stable tree
+Mime-Version: 1.0
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Peterson <rpeterso@redhat.com>
+gregkh@ wrote:
+> 
+> The patch below does not apply to the 5.4-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
+> 
+> thanks,
+> 
+> greg k-h
 
-Before this patch, functions save_callbacks and restore_callbacks
-called function lock_sock and release_sock to prevent other processes
-from messing with the struct sock while the callbacks were saved and
-restored. However, function add_sock calls write_lock_bh prior to
-calling it save_callbacks, which disables preempts. So the call to
-lock_sock would try to schedule when we can't schedule.
+Hi Greg,
 
-Cc: stable@vger.kernel.org # 4.9.x
-Fixes: b81171cb6869 ("DLM: Save and restore socket callbacks properly")
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
-Signed-off-by: David Teigland <teigland@redhat.com>
-Signed-off-by: Alexander Aring <aahringo@redhat.com>
----
- fs/dlm/lowcomms.c | 4 ----
- 1 file changed, 4 deletions(-)
+We should get it backported its a fairly rare event, but then we get
+bug reports when it happens.
 
-diff --git a/fs/dlm/lowcomms.c b/fs/dlm/lowcomms.c
-index 0d8aaf9c61be..9a9fc5ce1166 100644
---- a/fs/dlm/lowcomms.c
-+++ b/fs/dlm/lowcomms.c
-@@ -519,24 +519,20 @@ static void lowcomms_error_report(struct sock *sk)
- /* Note: sk_callback_lock must be locked before calling this function. */
- static void save_callbacks(struct connection *con, struct sock *sk)
- {
--	lock_sock(sk);
- 	con->orig_data_ready = sk->sk_data_ready;
- 	con->orig_state_change = sk->sk_state_change;
- 	con->orig_write_space = sk->sk_write_space;
- 	con->orig_error_report = sk->sk_error_report;
--	release_sock(sk);
- }
- 
- static void restore_callbacks(struct connection *con, struct sock *sk)
- {
- 	write_lock_bh(&sk->sk_callback_lock);
--	lock_sock(sk);
- 	sk->sk_user_data = NULL;
- 	sk->sk_data_ready = con->orig_data_ready;
- 	sk->sk_state_change = con->orig_state_change;
- 	sk->sk_write_space = con->orig_write_space;
- 	sk->sk_error_report = con->orig_error_report;
--	release_sock(sk);
- 	write_unlock_bh(&sk->sk_callback_lock);
- }
- 
--- 
-2.27.0
+I'll prepare patches, let them run in our test env for a bit and then
+send them out.
 
+Thanks!
+John
+
+> 
+> ------------------ original commit in Linus's tree ------------------
+> 
+> From 476d98018f32e68e7c5d4e8456940cf2b6d66f10 Mon Sep 17 00:00:00 2001
+> From: John Fastabend <john.fastabend@gmail.com>
+> Date: Tue, 27 Jul 2021 09:04:59 -0700
+> Subject: [PATCH] bpf, sockmap: On cleanup we additionally need to remove
+>  cached skb
+> 
+> Its possible if a socket is closed and the receive thread is under memory
+> pressure it may have cached a skb. We need to ensure these skbs are
+> free'd along with the normal ingress_skb queue.
+> 
+
+[...]
