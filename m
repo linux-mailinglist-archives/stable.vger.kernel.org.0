@@ -2,170 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 799783E1757
-	for <lists+stable@lfdr.de>; Thu,  5 Aug 2021 16:55:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A1E13E1768
+	for <lists+stable@lfdr.de>; Thu,  5 Aug 2021 16:56:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229892AbhHEOzg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Aug 2021 10:55:36 -0400
-Received: from fllv0015.ext.ti.com ([198.47.19.141]:32904 "EHLO
-        fllv0015.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234937AbhHEOzf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Aug 2021 10:55:35 -0400
-Received: from fllv0035.itg.ti.com ([10.64.41.0])
-        by fllv0015.ext.ti.com (8.15.2/8.15.2) with ESMTP id 175EtFrl056240;
-        Thu, 5 Aug 2021 09:55:15 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
-        s=ti-com-17Q1; t=1628175315;
-        bh=2LdFqgWlvM+4vTpd2kfGWADiBHDbiAlaALFeWQxuafU=;
-        h=From:To:CC:Subject:Date;
-        b=MCxqj3vCvtfUFeAWrQTuZUTJ8Ja+gqGeMCpeVbFh3mkirdgXZG8hTwWKgCvr1P+uC
-         nSykrM2Vd4My2hzdvkiVcwK9IP9C1/zcRpmiB0HUPnyp2/08tZqpW5ddPaLzUO6IYA
-         Wv4VvPwPJO137Q2j1u30AlIiDayXZFuDMUz9b6DM=
-Received: from DLEE112.ent.ti.com (dlee112.ent.ti.com [157.170.170.23])
-        by fllv0035.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 175EtFJw104616
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Thu, 5 Aug 2021 09:55:15 -0500
-Received: from DLEE112.ent.ti.com (157.170.170.23) by DLEE112.ent.ti.com
- (157.170.170.23) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2176.2; Thu, 5 Aug
- 2021 09:55:14 -0500
-Received: from fllv0040.itg.ti.com (10.64.41.20) by DLEE112.ent.ti.com
- (157.170.170.23) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2176.2 via
- Frontend Transport; Thu, 5 Aug 2021 09:55:14 -0500
-Received: from localhost (ileax41-snat.itg.ti.com [10.172.224.153])
-        by fllv0040.itg.ti.com (8.15.2/8.15.2) with ESMTP id 175EtDfA116829;
-        Thu, 5 Aug 2021 09:55:14 -0500
-From:   Grygorii Strashko <grygorii.strashko@ti.com>
-To:     "David S. Miller" <davem@davemloft.net>, <netdev@vger.kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Ben Hutchings <ben.hutchings@essensium.com>
-CC:     <linux-kernel@vger.kernel.org>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        <linux-omap@vger.kernel.org>, Lokesh Vutla <lokeshvutla@ti.com>,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        <stable@vger.kernel.org>
-Subject: [PATCH net v2] net: ethernet: ti: cpsw: fix min eth packet size for non-switch use-cases
-Date:   Thu, 5 Aug 2021 17:55:11 +0300
-Message-ID: <20210805145511.12016-1-grygorii.strashko@ti.com>
-X-Mailer: git-send-email 2.17.1
+        id S240268AbhHEO4m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Aug 2021 10:56:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48444 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233269AbhHEO4m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Aug 2021 10:56:42 -0400
+Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 781BCC0613D5
+        for <stable@vger.kernel.org>; Thu,  5 Aug 2021 07:56:27 -0700 (PDT)
+Received: by mail-ed1-x52d.google.com with SMTP id p21so8773110edi.9
+        for <stable@vger.kernel.org>; Thu, 05 Aug 2021 07:56:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=Mozi9talEt/mI/l6KvxWbDISyLan2Xy8GUlPURIr5DU=;
+        b=dBJ4orWE4wbjz/7v8qxzGdzVPP34CGlyICUyvVShe6aFWPl2f+906og5lmqDKqKh8p
+         9R42niRsqWDmFN6nC0o8SQlObuGKFlNVmuHq6j6Dx8y356maPolP5/IdWngORYa0oGS3
+         3nqzPNdUejQGE35N+ZTsaw0nvZzdMs+mvpb5i+CwN1ktED8Q2Uun8mG87SkuvUanshgP
+         W0CwRRpWVAnHrSxM44/MM5ShyiYzJqhk7srbbQNRfdgspeyhQbL6fPKfL4BAVKPOZ/UX
+         wA8mXCqx/PNKn3Vf26cHAKUCKN8IRQjW6YSYc2mD+eMntNfPc2AETZZCvpWGN97OGJKO
+         154A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=Mozi9talEt/mI/l6KvxWbDISyLan2Xy8GUlPURIr5DU=;
+        b=m2zAyPGVzhyl2swDhj95Vcog1Fdpun8OCeGSVO6+0htOiflYDYq0XjhAGFYgzI+POb
+         rKeab5oR/Rz176+PGzCFKFOtDDV7FgZ6LUJqSchcrSPAVqpoDt6hyKQCxH5oV3NzoEjB
+         PY7ShT4YIKz1FQir6wXdNlT5sqV2ab2isTPtvnWHbRtuwTDj0FIp3h5f0r2jy9Hsx0bZ
+         F7aVfWgM//13EWArI105RPH//5YwfapP+HpPDdT/8ioPdF+7q0CVwdu7DPfW5dpYBGiQ
+         0qz3cYo/e0OP7a0j9UTruYIxiqpa5F/nDgRCENr0IfuXpa9Lmw6Qccmj/4Wd7TRDqpdD
+         vrhg==
+X-Gm-Message-State: AOAM5300RX7qA1bKIcqNIJL+tAPkznw3ejuwhPiSsU2DSN9sPuWhqGhF
+        uAkhOcyspg295kxgOckcEn9a9e1K5Id1sU6FN3E=
+X-Google-Smtp-Source: ABdhPJyIHtZWza6sOpQRy9AM3j8qtwGD4x/EUZHpKyo4EubRy8iwVLAPW/EqiYfbLo4PXa/uGYlS2HbJ5SPHtwWrMlc=
+X-Received: by 2002:aa7:d144:: with SMTP id r4mr7095642edo.111.1628175386112;
+ Thu, 05 Aug 2021 07:56:26 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain
-X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
+Received: by 2002:a05:6402:358c:0:0:0:0 with HTTP; Thu, 5 Aug 2021 07:56:25
+ -0700 (PDT)
+Reply-To: georgemike7031@gmail.com
+From:   george mike <kotsllos2000@gmail.com>
+Date:   Thu, 5 Aug 2021 16:56:25 +0200
+Message-ID: <CAKnPpxCqZ=dKyttJ+JDk2t5OUK7JOdepaXdYesuyTh+D+CY6Mg@mail.gmail.com>
+Subject: 
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The CPSW switchdev driver inherited fix from commit 9421c9015047 ("net:
-ethernet: ti: cpsw: fix min eth packet size") which changes min TX packet
-size to 64bytes (VLAN_ETH_ZLEN, excluding ETH_FCS). It was done to fix HW
-packed drop issue when packets are sent from Host to the port with PVID and
-un-tagging enabled. Unfortunately this breaks some other non-switch
-specific use-cases, like:
-- [1] CPSW port as DSA CPU port with DSA-tag applied at the end of the
-packet
-- [2] Some industrial protocols, which expects min TX packet size 60Bytes
-(excluding FCS).
+Hallo
 
-Fix it by configuring min TX packet size depending on driver mode
- - 60Bytes (ETH_ZLEN) for multi mac (dual-mac) mode
- - 64Bytes (VLAN_ETH_ZLEN) for switch mode
-and update it during driver mode change and annotate with
-READ_ONCE()/WRITE_ONCE() as it can be read by napi while writing.
+Mein Name ist George Mike, ich bin von Beruf Rechtsanwalt. Ich m=C3=B6chte
+dir anbieten
+der n=C3=A4chste Angeh=C3=B6rige meines Klienten. Sie erben die Summe von (=
+8,5
+Millionen US-Dollar)
+Dollar, die mein Mandant vor seinem Tod auf der Bank hinterlie=C3=9F.
 
-[1] https://lore.kernel.org/netdev/20210531124051.GA15218@cephalopod/
-[2] https://e2e.ti.com/support/arm/sitara_arm/f/791/t/701669
+Mein Mandant ist ein B=C3=BCrger Ihres Landes, der mit seiner Frau bei
+einem Autounfall gestorben ist
+und einziger Sohn. Ich habe Anspruch auf 50% des Gesamtfonds, w=C3=A4hrend
+50% dies tun werden
+sein f=C3=BCr dich.
+Bitte kontaktieren Sie meine private E-Mail hier f=C3=BCr weitere
+Details:georgemike7031@gmail.com
 
-
-Cc: stable@vger.kernel.org
-Fixes: ed3525eda4c4 ("net: ethernet: ti: introduce cpsw switchdev based driver part 1 - dual-emac")
-Reported-by: Ben Hutchings <ben.hutchings@essensium.com>
-Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
----
-
-Changes in v2:
-- use skb_put_padto
-- update description
-- annotate tx_packet_min with READ_ONCE()/WRITE_ONCE()
-
-I'm not going to add additional changes in cpdma configuration interface and, 
-instead, will send patches to convert all cpdma users to use skb_put_padto() and
-drop frames padding from cpdma.
-
-v1: https://patchwork.kernel.org/project/netdevbpf/patch/20210611132732.10690-1-grygorii.strashko@ti.com/
-
- drivers/net/ethernet/ti/cpsw_new.c  | 7 +++++--
- drivers/net/ethernet/ti/cpsw_priv.h | 4 +++-
- 2 files changed, 8 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/net/ethernet/ti/cpsw_new.c b/drivers/net/ethernet/ti/cpsw_new.c
-index ae167223e87f..d904f4ca4b37 100644
---- a/drivers/net/ethernet/ti/cpsw_new.c
-+++ b/drivers/net/ethernet/ti/cpsw_new.c
-@@ -921,7 +921,7 @@ static netdev_tx_t cpsw_ndo_start_xmit(struct sk_buff *skb,
- 	struct cpdma_chan *txch;
- 	int ret, q_idx;
- 
--	if (skb_padto(skb, CPSW_MIN_PACKET_SIZE)) {
-+	if (skb_put_padto(skb, READ_ONCE(priv->tx_packet_min))) {
- 		cpsw_err(priv, tx_err, "packet pad failed\n");
- 		ndev->stats.tx_dropped++;
- 		return NET_XMIT_DROP;
-@@ -1101,7 +1101,7 @@ static int cpsw_ndo_xdp_xmit(struct net_device *ndev, int n,
- 
- 	for (i = 0; i < n; i++) {
- 		xdpf = frames[i];
--		if (xdpf->len < CPSW_MIN_PACKET_SIZE)
-+		if (xdpf->len < READ_ONCE(priv->tx_packet_min))
- 			break;
- 
- 		if (cpsw_xdp_tx_frame(priv, xdpf, NULL, priv->emac_port))
-@@ -1390,6 +1390,7 @@ static int cpsw_create_ports(struct cpsw_common *cpsw)
- 		priv->dev  = dev;
- 		priv->msg_enable = netif_msg_init(debug_level, CPSW_DEBUG);
- 		priv->emac_port = i + 1;
-+		priv->tx_packet_min = CPSW_MIN_PACKET_SIZE;
- 
- 		if (is_valid_ether_addr(slave_data->mac_addr)) {
- 			ether_addr_copy(priv->mac_addr, slave_data->mac_addr);
-@@ -1698,6 +1699,7 @@ static int cpsw_dl_switch_mode_set(struct devlink *dl, u32 id,
- 
- 			priv = netdev_priv(sl_ndev);
- 			slave->port_vlan = vlan;
-+			WRITE_ONCE(priv->tx_packet_min, CPSW_MIN_PACKET_SIZE_VLAN);
- 			if (netif_running(sl_ndev))
- 				cpsw_port_add_switch_def_ale_entries(priv,
- 								     slave);
-@@ -1726,6 +1728,7 @@ static int cpsw_dl_switch_mode_set(struct devlink *dl, u32 id,
- 
- 			priv = netdev_priv(slave->ndev);
- 			slave->port_vlan = slave->data->dual_emac_res_vlan;
-+			WRITE_ONCE(priv->tx_packet_min, CPSW_MIN_PACKET_SIZE);
- 			cpsw_port_add_dual_emac_def_ale_entries(priv, slave);
- 		}
- 
-diff --git a/drivers/net/ethernet/ti/cpsw_priv.h b/drivers/net/ethernet/ti/cpsw_priv.h
-index a323bea54faa..2951fb7b9dae 100644
---- a/drivers/net/ethernet/ti/cpsw_priv.h
-+++ b/drivers/net/ethernet/ti/cpsw_priv.h
-@@ -89,7 +89,8 @@ do {								\
- 
- #define CPSW_POLL_WEIGHT	64
- #define CPSW_RX_VLAN_ENCAP_HDR_SIZE		4
--#define CPSW_MIN_PACKET_SIZE	(VLAN_ETH_ZLEN)
-+#define CPSW_MIN_PACKET_SIZE_VLAN	(VLAN_ETH_ZLEN)
-+#define CPSW_MIN_PACKET_SIZE	(ETH_ZLEN)
- #define CPSW_MAX_PACKET_SIZE	(VLAN_ETH_FRAME_LEN +\
- 				 ETH_FCS_LEN +\
- 				 CPSW_RX_VLAN_ENCAP_HDR_SIZE)
-@@ -380,6 +381,7 @@ struct cpsw_priv {
- 	u32 emac_port;
- 	struct cpsw_common *cpsw;
- 	int offload_fwd_mark;
-+	u32 tx_packet_min;
- };
- 
- #define ndev_to_cpsw(ndev) (((struct cpsw_priv *)netdev_priv(ndev))->cpsw)
--- 
-2.17.1
-
+Vielen Dank im Voraus,
+Herr George Mike,
