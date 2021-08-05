@@ -2,108 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2795C3E17D3
-	for <lists+stable@lfdr.de>; Thu,  5 Aug 2021 17:24:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF7283E18A1
+	for <lists+stable@lfdr.de>; Thu,  5 Aug 2021 17:49:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242011AbhHEPYl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Aug 2021 11:24:41 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:59084 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S242111AbhHEPYW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Aug 2021 11:24:22 -0400
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 175F5Y3j008904;
-        Thu, 5 Aug 2021 11:23:15 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=0GX9Gy92NioS8ROteRDHc23LAjtxoFW5Spf0GoAraME=;
- b=Zd6kosr749DqeIi26gidnbkgCGIPPjzJwyPs1ijMJz6W2lPAXS6Tfc8+vN6QFumUDlTq
- rKwm33Pi339RXEF59StpQq3GKAimn20k7yGCK9NZetue+f1MzZrb/UubxvsKH+U1Scvo
- pEKRBTUbaCHo5CfXeFghwROYaFS1ZlZFez8KVb5cwGhzmBf+hBC1R4hX0eu0iEgnGDwM
- zHXi9KcWYzZclfinfC0W7L/YDfd0gvmsXkKL02o1MDpBav4aIOn2UI2GsSQzyYfyBWFJ
- 08yZq1uzWip9OoJyoSbr9bfPHzxL1zQQ4w8eINV6w9Tu2mCGYxfQj3lBosi6pohItmtQ oA== 
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3a846beprv-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 05 Aug 2021 11:23:14 -0400
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 175FEAwI029064;
-        Thu, 5 Aug 2021 15:23:13 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma06fra.de.ibm.com with ESMTP id 3a4wsj28e8-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 05 Aug 2021 15:23:12 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 175FNAml50790670
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 5 Aug 2021 15:23:10 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0AC3B4C052;
-        Thu,  5 Aug 2021 15:23:10 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C09224C066;
-        Thu,  5 Aug 2021 15:23:09 +0000 (GMT)
-Received: from localhost.localdomain (unknown [9.145.150.16])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu,  5 Aug 2021 15:23:09 +0000 (GMT)
-From:   Laurent Dufour <ldufour@linux.ibm.com>
-To:     mpe@ellerman.id.au, benh@kernel.crashing.org, paulus@samba.org
-Cc:     linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: [PATCH] powerpc/pseries: Fix update of LPAR security flavor after LPM
-Date:   Thu,  5 Aug 2021 17:23:08 +0200
-Message-Id: <20210805152308.33988-1-ldufour@linux.ibm.com>
-X-Mailer: git-send-email 2.32.0
+        id S242381AbhHEPtv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Aug 2021 11:49:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51718 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S242199AbhHEPtv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 5 Aug 2021 11:49:51 -0400
+Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id DDEC660F35;
+        Thu,  5 Aug 2021 15:49:36 +0000 (UTC)
+Received: from rostedt by gandalf.local.home with local (Exim 4.94.2)
+        (envelope-from <rostedt@goodmis.org>)
+        id 1mBfcl-0037vr-NR; Thu, 05 Aug 2021 11:49:35 -0400
+Message-ID: <20210805154935.553422403@goodmis.org>
+User-Agent: quilt/0.66
+Date:   Thu, 05 Aug 2021 11:43:37 -0400
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org, Kamal Agrawal <kamaagra@codeaurora.org>
+Subject: [for-linus][PATCH 1/6] tracing: Fix NULL pointer dereference in start_creating
+References: <20210805154336.208362117@goodmis.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: Uthitbwvlqbjp2dE_DIA7AA5jeqzhNgf
-X-Proofpoint-GUID: Uthitbwvlqbjp2dE_DIA7AA5jeqzhNgf
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-08-05_05:2021-08-05,2021-08-05 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 mlxscore=0
- suspectscore=0 priorityscore=1501 bulkscore=0 mlxlogscore=798
- malwarescore=0 adultscore=0 phishscore=0 lowpriorityscore=0
- impostorscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2107140000 definitions=main-2108050092
+Content-Type: text/plain; charset=UTF-8
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-After LPM, when migrating from a system with security mitigation enabled to
-a system with mitigation disabled, the security flavor exposed in /proc is
-not correctly set back to 0.
+From: Kamal Agrawal <kamaagra@codeaurora.org>
 
-Do not assume the value of the security flavor is set to 0 when entering
-init_cpu_char_feature_flags(), so when called after a LPM, the value is set
-correctly even if the mitigation are not turned off.
+The event_trace_add_tracer() can fail. In this case, it leads to a crash
+in start_creating with below call stack. Handle the error scenario
+properly in trace_array_create_dir.
 
-Fixes: 6ce56e1ac380 ("powerpc/pseries: export LPAR security flavor in
-lparcfg")
+Call trace:
+down_write+0x7c/0x204
+start_creating.25017+0x6c/0x194
+tracefs_create_file+0xc4/0x2b4
+init_tracer_tracefs+0x5c/0x940
+trace_array_create_dir+0x58/0xb4
+trace_array_create+0x1bc/0x2b8
+trace_array_get_by_name+0xdc/0x18c
 
-Cc: stable@vger.kernel.org # 5.13.x
-Signed-off-by: Laurent Dufour <ldufour@linux.ibm.com>
+Link: https://lkml.kernel.org/r/1627651386-21315-1-git-send-email-kamaagra@codeaurora.org
+
+Cc: stable@vger.kernel.org
+Fixes: 4114fbfd02f1 ("tracing: Enable creating new instance early boot")
+Signed-off-by: Kamal Agrawal <kamaagra@codeaurora.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 ---
- arch/powerpc/platforms/pseries/setup.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ kernel/trace/trace.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/platforms/pseries/setup.c b/arch/powerpc/platforms/pseries/setup.c
-index 6b0886668465..0dfaa6ab44cc 100644
---- a/arch/powerpc/platforms/pseries/setup.c
-+++ b/arch/powerpc/platforms/pseries/setup.c
-@@ -539,9 +539,10 @@ static void init_cpu_char_feature_flags(struct h_cpu_char_result *result)
- 	 * H_CPU_BEHAV_FAVOUR_SECURITY_H could be set only if
- 	 * H_CPU_BEHAV_FAVOUR_SECURITY is.
- 	 */
--	if (!(result->behaviour & H_CPU_BEHAV_FAVOUR_SECURITY))
-+	if (!(result->behaviour & H_CPU_BEHAV_FAVOUR_SECURITY)) {
- 		security_ftr_clear(SEC_FTR_FAVOUR_SECURITY);
--	else if (result->behaviour & H_CPU_BEHAV_FAVOUR_SECURITY_H)
-+		pseries_security_flavor = 0;
-+	} else if (result->behaviour & H_CPU_BEHAV_FAVOUR_SECURITY_H)
- 		pseries_security_flavor = 1;
- 	else
- 		pseries_security_flavor = 2;
+diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
+index c59dd35a6da5..33899a71fdc1 100644
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -9135,8 +9135,10 @@ static int trace_array_create_dir(struct trace_array *tr)
+ 		return -EINVAL;
+ 
+ 	ret = event_trace_add_tracer(tr->dir, tr);
+-	if (ret)
++	if (ret) {
+ 		tracefs_remove(tr->dir);
++		return ret;
++	}
+ 
+ 	init_tracer_tracefs(tr, tr->dir);
+ 	__update_tracer_options(tr);
 -- 
-2.32.0
-
+2.30.2
