@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 91E063E18CC
-	for <lists+stable@lfdr.de>; Thu,  5 Aug 2021 17:54:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD80B3E18C9
+	for <lists+stable@lfdr.de>; Thu,  5 Aug 2021 17:54:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242611AbhHEPyp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Aug 2021 11:54:45 -0400
-Received: from mx0a-0064b401.pphosted.com ([205.220.166.238]:2698 "EHLO
+        id S242606AbhHEPyo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Aug 2021 11:54:44 -0400
+Received: from mx0a-0064b401.pphosted.com ([205.220.166.238]:2700 "EHLO
         mx0a-0064b401.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235472AbhHEPyo (ORCPT
+        by vger.kernel.org with ESMTP id S242426AbhHEPyo (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 5 Aug 2021 11:54:44 -0400
 Received: from pps.filterd (m0250809.ppops.net [127.0.0.1])
-        by mx0a-0064b401.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 175DxKEo010741;
-        Thu, 5 Aug 2021 08:54:03 -0700
+        by mx0a-0064b401.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 175DgFAl013062;
+        Thu, 5 Aug 2021 08:54:05 -0700
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=windriver.com; h=from : to : cc :
- subject : date : message-id : content-transfer-encoding : content-type :
- mime-version; s=PPS06212021;
- bh=nB5ZhNFsOGKwn9pCRszEj1tFcgM5Djg6QhZY5ZLVbwk=;
- b=DeizE5TEuwJ1sNsNNrA7e6YVjmRw1jcD1KGH2bcp4EW6wMndX4w4GKVy1UPS6XS914tJ
- YTqAc3goN2ZHRvqRqUPSZqQCe6QjaaJejcl/52IF+88sX5u8Bk7MMCZS77m3RbkLdzm1
- uoSIVpk2EiHdVexQ7gD9govY7OT7np5PdXuGJggScbFUoRIyhVzd4Re/CJpX6anijXqN
- FmAOCrRyyznJ4QGWHb65ig0ra9T2uSBSd6hkYHA2MnSBAQFzYxo5AjY6XnCTDbat1pj0
- baWO5gqt4OpopcRNUmpXlz2HL/YJvlTuPWVNyxAskVbk/2vjwYo/5GjZK+maGAUzSht+ rw== 
-Received: from nam12-bn8-obe.outbound.protection.outlook.com (mail-bn8nam12lp2169.outbound.protection.outlook.com [104.47.55.169])
-        by mx0a-0064b401.pphosted.com with ESMTP id 3a800vrrb7-1
+ subject : date : message-id : in-reply-to : references :
+ content-transfer-encoding : content-type : mime-version; s=PPS06212021;
+ bh=5drvWY7sfCjvwKY5eYRDnvjjF+gJDAGaepUGHICHw1Y=;
+ b=ntOgFunx49wxs09dvDldL89Pg2iqtgCUuHirm0DHCQd3CLim3qN8g6sXOhV/RLQNI+6H
+ U2w1R6FuQlq87PWBdrZ4X8vNdidPJT3jdXqHsxDjXEfSoTwzgr509a+nU8qHVyzN+U/9
+ bhgXybp9hdQgUUjDezWl6TIZ+tuboiIp7pZw9Fcq9n0VZAr0kRvhpF7g3Q1OoAHOmoO/
+ KiNflIxlNxEC6cbWSeFW621rg0qFS2rKEbNBYaZuEsTlLATNRweEUvPEbTUBVfYZWZHo
+ YB0433C4IYzGrpy/CGd81wPizPHW9jP/UMBUJ4HOfg7w2F2Ilx8NvSKfS+orYpCgMibe tA== 
+Received: from nam12-bn8-obe.outbound.protection.outlook.com (mail-bn8nam12lp2174.outbound.protection.outlook.com [104.47.55.174])
+        by mx0a-0064b401.pphosted.com with ESMTP id 3a800vrrb8-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 05 Aug 2021 08:54:03 -0700
+        Thu, 05 Aug 2021 08:54:04 -0700
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=CkI2JfG8ju8F8C17vHjhO7IbL+QW5NZrN5ASyAfBs14yZiCUYEyGGGFtYQwmIWwkTIXuwsM5wT3ID5sNaddwrlQzNtZ5125VQ0Nty46jQ+eobeTiFgV+u/lVVhf04EQUaQAshVx6BqCBKMH5izLDTBkPlVDVT9Cyj2jMmetKMOfQQheLCscL01NWXKoYo56HYIshMwZ6aj71pKdevv4dOtjkvfMAArWp3qu2P1imM6dBxqPHKPQ3wH4MPOXS2+4BLo57btOZBX32AVFVDwYGM5hRx5s2DY+Bq3ygGEiWoIFKJ0VeCOgIEAd2WYawzA/eF4ZmJHGYYNJ2gByWb+ly9Q==
+ b=g6Mk8dV20Ytlhw8ap9MPlB72FILPb18UaUEmLF6L2/DRrcK7Z3wNmcoKoWX3fnZdBJixUATQBokAHk5jeBmfICP27r9V7gnycaDkoEncbrnpykiya5N5QjSHI/RoETLa2u2wWoZhyTZNJg0Y+OrKz2mnsLJrUcxvr2uKl0R5IBFl64ejJPaGjBtB9MqQ/e9GwDwansUovk9OSDorsQIzm9pYW5L77zlHbytxeW1XSUDHpGlBFKOOdcf0C+3FKEobXR6d3KdnRDD0bnZEOnzTiE8oUEIwdgU9uoUr86QtbCR/0qRwVNWKD9ziYsNh4A1W+NME8C4f0l4oA6YyUeU1ew==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=nB5ZhNFsOGKwn9pCRszEj1tFcgM5Djg6QhZY5ZLVbwk=;
- b=IKZmXh9dVwNr3lWGhopaXR+cjYkIqWG+QHj2JksgImo2bpcFfRIHReiCXkK0ASd1HiE9VwPPMsrKctt7mzIhchxi0MzSGfc0VZ8pebZJg3WzT3Mns5HCLg1jt6ZYup9nt3UJPIkydub/X+BW7wabyeBsI3b4ZUK/wKoh96rFpbjWJnQRls/jVACunfnxTnG56egaR4uQ+YQH+wz24v8ZycXphFECNNw8R1RgzrIWLgpZLA5Ygai7p4GL4W/0SeoSQtKA6HAr34nLQV59S2jqu0L0vazmFjtjAuROrNcZ4jhn8Rx64zhnpvJxzOChGv3jDklHbDAa/9z63uT2M5TwLQ==
+ bh=5drvWY7sfCjvwKY5eYRDnvjjF+gJDAGaepUGHICHw1Y=;
+ b=Ke0/P5k7tfQU4yIaS4IMM1vs7Maaj7k1Qlx+8b4IVbg3tpzJKoyAGSKwfANxQBHMi3/a2ppc2Au1L6NR71jtK/Ov9bHIZ+Ls7iStkX1YYW3Sc1dP42t8l4+lvoFXRKt+6InUgslfUER7JZ7d9pn0DCeW3e2lhXfkbitHzOxko/QMM7E6faP/WjF3/i64kN/6HM/GaSwyxGX7iuVSPtWAMnSlZLG8p0GERSYCWSnKXmnNGTW/5oXr3KLo5Gdr6TpeGjpdMSXTb/ldhFSGXnKDb9iDk883If4acQT9xePpqHHmsrddbLG0AjwC6rPN4/7pNOPVGeAazxpfXTIU523ZxA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=windriver.com; dmarc=pass action=none
  header.from=windriver.com; dkim=pass header.d=windriver.com; arc=none
@@ -43,20 +43,22 @@ Authentication-Results: vger.kernel.org; dkim=none (message not signed)
 Received: from DM4PR11MB5327.namprd11.prod.outlook.com (2603:10b6:5:392::22)
  by DM5PR11MB1722.namprd11.prod.outlook.com (2603:10b6:3:f::10) with Microsoft
  SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.4394.15; Thu, 5 Aug 2021 15:54:01 +0000
+ 15.20.4394.15; Thu, 5 Aug 2021 15:54:03 +0000
 Received: from DM4PR11MB5327.namprd11.prod.outlook.com
  ([fe80::ccb:2bce:6896:a0c3]) by DM4PR11MB5327.namprd11.prod.outlook.com
  ([fe80::ccb:2bce:6896:a0c3%7]) with mapi id 15.20.4394.017; Thu, 5 Aug 2021
- 15:54:01 +0000
+ 15:54:03 +0000
 From:   Ovidiu Panait <ovidiu.panait@windriver.com>
 To:     stable@vger.kernel.org
 Cc:     bpf@vger.kernel.org, daniel@iogearbox.net, ast@kernel.org,
         john.fastabend@gmail.com, benedict.schlueter@rub.de,
         piotras@gmail.com
-Subject: [PATCH 5.4 0/6] bpf: backport fixes for CVE-2021-33624
-Date:   Thu,  5 Aug 2021 18:53:37 +0300
-Message-Id: <20210805155343.3618696-1-ovidiu.panait@windriver.com>
+Subject: [PATCH 5.4 1/6] bpf: Inherit expanded/patched seen count from old aux data
+Date:   Thu,  5 Aug 2021 18:53:38 +0300
+Message-Id: <20210805155343.3618696-2-ovidiu.panait@windriver.com>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20210805155343.3618696-1-ovidiu.panait@windriver.com>
+References: <20210805155343.3618696-1-ovidiu.panait@windriver.com>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
 X-ClientProxiedBy: VI1PR0501CA0002.eurprd05.prod.outlook.com
@@ -64,59 +66,59 @@ X-ClientProxiedBy: VI1PR0501CA0002.eurprd05.prod.outlook.com
  (2603:10b6:5:392::22)
 MIME-Version: 1.0
 X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from otp-linux03.wrs.com (46.97.150.20) by VI1PR0501CA0002.eurprd05.prod.outlook.com (2603:10a6:800:92::12) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4394.15 via Frontend Transport; Thu, 5 Aug 2021 15:53:59 +0000
+Received: from otp-linux03.wrs.com (46.97.150.20) by VI1PR0501CA0002.eurprd05.prod.outlook.com (2603:10a6:800:92::12) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4394.15 via Frontend Transport; Thu, 5 Aug 2021 15:54:01 +0000
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: ba6285fc-8a43-46b1-49fc-08d958293e70
+X-MS-Office365-Filtering-Correlation-Id: cee0eb06-9f4e-4ea0-0cd7-08d958293f8e
 X-MS-TrafficTypeDiagnostic: DM5PR11MB1722:
-X-Microsoft-Antispam-PRVS: <DM5PR11MB1722E22B1D9A05B5DA7C947AFEF29@DM5PR11MB1722.namprd11.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:6430;
+X-Microsoft-Antispam-PRVS: <DM5PR11MB17225ACABBCFFB98686D6445FEF29@DM5PR11MB1722.namprd11.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:639;
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: lY48jZP2vjVDQ/loFW4jgZlKm3VBl2LdF9MzmuZ+hAFQIK6D/eDwx0aEFTrQJdJkhJi3bKnZU3BHXeBKLFs2eeEBM3UmsIGhiktKsfMEOaxmdBx19k1osB2zy6qxO0oVrD1SIhGiYImS3+14Ix0AwNaG8MQPEQJA81Y9YtdQlENwZRkO8peW8pRkl/Z/HbauaxOz/gYZbOH486CHC4m/sOpjLbypfzVqWsv1wh/B8BEa2qKns/vbhdDE870TdKppjxBJTAC0RpB0nxElJ8HgmpYoEAr4+xreXh27iBwgg7KXrEDknVCoBSEj/hqYOO0VY4rA6/NMn+WU8SdAFC12P+q4UiGBfoiF6v86XpCD49Vwzfr5JRf7Z0Mq72/o/Hu1ygil6SpR/4eiqOvRUTVctd3dzvR2iZQdNz430RcTNQshzd9WsX5R7vSeST7u1kjlJNMveYW+wfVIcaVAX5Z/Z+ra4D2xS4VRAgGDFZIzYb0EvRZyO2ZBld6Zou/LmQOhq9mxKR6xqfBMqp8rq3PX/E/FPsOaVlH0qWYRFhfYDE5LPUFk/ukvJIPspuRwRO/0MIGCC88sBvj6HXzBcSuH/Lp0KMt/jMJrikp2771uLXkfxgHo6g3TX/mGM1/NpBkVIQXJrXQjTbKsJsAUs2zyp9P5kJ+mUOO45OJcz8UjmbrQFV1upEFcOO6meJmZATZQRQTpBer7qgCl3J05A15XwIUYK/+QxZmbae1HE7Gb9gxKmktJL2TRQpDknipqrUnkus1ZqGdGH2uRMXWyXowE6IubSHoidtjH0LXNlc68wyU=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM4PR11MB5327.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(39850400004)(396003)(376002)(366004)(346002)(136003)(478600001)(6506007)(6486002)(956004)(36756003)(966005)(2616005)(186003)(38100700002)(1076003)(8676002)(5660300002)(38350700002)(316002)(6512007)(8936002)(6666004)(2906002)(52116002)(83380400001)(66946007)(44832011)(26005)(4326008)(6916009)(66476007)(66556008)(86362001);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: JgI39XSHJ+TXmTpC64ZAYTh89cN2T3MFL4R/K/lw1YvzaeiwmClJewgoEbqn8+m4jFt7CvhbohapRzX/u5xu57rw7AXBnFjVuYzNbLKJAWf7T6l+zWFrarQmJZVjnGUCSKYIxQBCGDeEqXdLsMEOK1HoFGc28EY6puTfjQZ3RQzNZqt+EtRler8hSIHQ7Jmi0OaryBn0fM3mGZtIHktkNchv14inOsy0T0uZNFe0KYg0K4xWlEejxvFKpZiGBeTmJNb2xxmT5HP9zdwL1FNX3r7bBrrAJqaDPgO6sU7XpPk5ZHunnWoCXLnn6wGl/vzg/OrBTjhMgIvdPUh+Tp0gQzLPZ2pkLP3wXJB0eadkfC8oZtlDgdc0NPvwNZmsD96QFINkICv2GkZYpk30vyF1F2rMBMRQEf3uWOp2FVqR9A0C18C0LcGU0Dy1gh6IKaYWDQbRFnczXgGosdefoLlbLbJsacPg4u1x/1WaHoCIOV7/wLWUyNktz/HnGmdQrEjTckhkxbOEESljfc7HImsFQxWADKaUTlrqNTcOn4DmTL3KKmNNnr6Dbc+8xasLFXms3INzzpThardUC7/YJWhCM64KFJrSNWrXXbaMSpARD7C02WSrYUYlRmr1ncEJ4O3ISvoAYEbkcgybxHH1He2AsyaQaBCdr1ONcJRYjuh4QQkrCyQGLtEpUJoroCvjW48SP9GRlkax6pfkhBsvnMLa5g==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM4PR11MB5327.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(39850400004)(396003)(376002)(366004)(346002)(136003)(478600001)(6506007)(6486002)(956004)(36756003)(2616005)(186003)(38100700002)(1076003)(8676002)(5660300002)(38350700002)(316002)(6512007)(8936002)(6666004)(2906002)(52116002)(83380400001)(66946007)(44832011)(26005)(4326008)(6916009)(66476007)(66556008)(86362001);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?L7LuHHwXzbETkFsyc/JqTvTYWJbKe3qgIjQ98QvQz8pBKiiJ2oOE42MnLbQU?=
- =?us-ascii?Q?u6NYCZORdRFQGaDdhFPVx/vul/tt7ZnaE4qOtw11SDCTmtBe/4YrA40g7VWp?=
- =?us-ascii?Q?SlUcizmrkHd/Un3GzGHyfR03yJoTejX57aoXbhhDuVVpgWujGs3tM4i14Ot1?=
- =?us-ascii?Q?zXKE6oSQFiUaa+kUalEXQadG2YmkkAb4R3A2VPEwNVIJN67GRRWMlHkCGtFg?=
- =?us-ascii?Q?rCwD+G5mEr1fiLer6XwbvNGV1863EINwMbtvZHIHZ+NQNxs14C3h/DJWQi/Y?=
- =?us-ascii?Q?MNQw1hfru0v21flEOH4XXY3Axf+5Sg2BmG/2wM1t8Fjl4QNYzgOLLan3A02F?=
- =?us-ascii?Q?16wO6UrAQ94xsKhQQ8SG8HVZTYq6w0VKe/jrhpoOoMnQ4RxLEsnvOHrb/Joj?=
- =?us-ascii?Q?DIHpHt+Os/X4AWdbPA000m0IXjl7M5S7faedeK165y1xVCP8/GWwC4AdMAK6?=
- =?us-ascii?Q?P02L1x1zlB3rZpGrQjmNjBuGmXuQP7ezjRA0zOjSbm1R2zueDkU2xCFPzK+p?=
- =?us-ascii?Q?qJ6jemNt+er/krUnoS6tBVpkjMhJyUUoOq0A4eBKK1LaDkkh4YRk4jfw5hBe?=
- =?us-ascii?Q?9d2l1k8JWtTlhu2metZBcqX0qs1Q4/eyScCWTYjK3uUmpypRmd8Cunrz/q2Y?=
- =?us-ascii?Q?O2ZBm95brWmXnfH/fRD5BfwPXmbq7DS38eAos5c9i4iDvz4qrElm5CptfBVJ?=
- =?us-ascii?Q?bq1cGn3ydIfBxmEqk+4sJt574reGpJKsM26V/XZl0jmIiJWafWdDLOC6k+Rj?=
- =?us-ascii?Q?wJekzQhEBuB7PkjrZlUX/NgPw5F3x4nd35kJPsh/BI3F5+qvjCYWSXaK7m9h?=
- =?us-ascii?Q?wLDUVJ1NqoEth0hQc7IAcIms5kit7ahVfL74NCqywlu3CFR9op6lGNN2hs+A?=
- =?us-ascii?Q?wZYEs2qyGHFJt3PCLjkn/fvjDMTxyujWo1p8txyRIqzg1tR+1rcHAxjmi21W?=
- =?us-ascii?Q?u4N8sgfOadRd0BGQaCgDmcFrXUoThtxZoAnQOwi5INgfNdWdjSZICpGfrOev?=
- =?us-ascii?Q?NhGWJDJaI/ohToxZk66v7034KYkriKnRznKCshhZlzW3glCQAottC82PRMkR?=
- =?us-ascii?Q?dJK9k859ynuUAd9bgL1GaYUyy3lKhW9H47ezKFRjQAM9NZFoSH3UGAIIZShx?=
- =?us-ascii?Q?y5OFLfg/t0tDoaTX4jd2PM2qVlEMFE+4EgqtReRU6z1SmvBwNoKMa/2NDAVN?=
- =?us-ascii?Q?1p12/E+s2oMEgnXVYKaSPU1BtXF242YYyimMbfZMJ7oZSlI672TTtWVWOlZP?=
- =?us-ascii?Q?RJXsxGJh07eLVVXyFmJJV8BYMIhXS1iIkKIHrwRfK5Msdkl2R0F7n4iOcW/C?=
- =?us-ascii?Q?pR61heDzgMLyk2SyKGpkoTKo?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?lWsmXEZyKXCgZa2k1NMsnUNsr1uBWlL70A0BKQ37KrE4t0N5cjbTlW+t+bv4?=
+ =?us-ascii?Q?KG58/rOxWiv9HH/TqZD1pblpv0HiH+bnsEtUZlIIKA5H67uMAALlodgnBpFH?=
+ =?us-ascii?Q?giL2pxVuW/GsezwMaarkTZI1xFiNLymgte/cPNSS+MPZhtlSAKMNXhv7WXP5?=
+ =?us-ascii?Q?b82vzvRp5Cpqav9Tzu7Jvzp2YtjvMlipkc7L3u2rUMU+9N2i2HzcLv5wRmwv?=
+ =?us-ascii?Q?F1oyzSqansapp6ZgcbADl0h4a8Ya1kmpvhNSrS5rDFDzU0twSzFILQNfCrhB?=
+ =?us-ascii?Q?wgftiN2o00Roc2JQQg5ZTuHvFmOCZDnpAG8bQ36Z0BZjVDA9sW8JccGYxpRI?=
+ =?us-ascii?Q?lhnd8iZBVW6I5xN2YqKZZArLqmtDlnvv4DXk89RBMdxwpK3/9FZYdr5MUMzY?=
+ =?us-ascii?Q?PkZsxujFdg1sbq2h7z88dHnLIc+tAAVGJ/Xkej+P39UJxjA7rGT1urzESn1K?=
+ =?us-ascii?Q?wDnE1nl4NVlU2uenKtxvxGsP4GgpIB3C4ZacolWfbxCJu5pCWrUWUS8eu5iK?=
+ =?us-ascii?Q?sREMgcyDRcOkXhWpVdffssBLi+PWQShNO9Ly8qHPeHAMvOonxYyiHsu5tPBw?=
+ =?us-ascii?Q?EaI21VZuc/j6V6HvJ8W1NINyLZKxgNMltnQfxkEeG7CZ7nbm6BdIR23VCdTY?=
+ =?us-ascii?Q?fUyC1/HFvns9jAdnoSAyN0sgUkhjCDSkjmnG7bkbFiTSl438BDwYW24xqYPJ?=
+ =?us-ascii?Q?ilRSPqlz9ixbY7NYo+AG59Fva09RG1F6CgAIMo+Lx2FvFRS0EiPoEWMLxLzP?=
+ =?us-ascii?Q?bxPZcNlOhN3tbJLOoyPZZ/jNaosMZymlhAAlvtiAnqhIUtktBCweA75RoQVx?=
+ =?us-ascii?Q?Qf286eo5IdGX4Sx+1qqESn3117lqFyItwezrHnq3o9Zrk3g8rNq910t9kAyx?=
+ =?us-ascii?Q?WzsqoD1N2mFqsW4r0wVWtVd3vO5298Mw88MFY46DItwVMZXywMP/+IXC67dt?=
+ =?us-ascii?Q?2GfL2cdfUxxj2EdPpGtYDp/1xYein1h//4EKnhZ8DUZQUum4Sy+EBBxL+jNv?=
+ =?us-ascii?Q?XxmGY/vje2Ic4y2gIgdicfC5lwx45FBS1vAjKo0HK7Y/zTuuPNghgI1yJjJv?=
+ =?us-ascii?Q?y9sLdH+QPelb2rt6NAk5fnDRfVgO63bdAwoRtpUcPQ6jmm2fpVcUXnqIffb/?=
+ =?us-ascii?Q?95ZJL6lX7CfuVYc9pbGzYFiL7pQ7vvmKYPgcIetYbMuEn01HH57MpN0DqnoB?=
+ =?us-ascii?Q?cR8DpFzX0FYy9Xq+eJ1/y5SKAHpDmPLVE3mjQ9Mo2kB+vuytD2mF5CcGQqgh?=
+ =?us-ascii?Q?UdQhtoZxIVQi+bG62nS5dyo+HbMang2klYikH1wX+V5JQC73VCR4b2em7GHs?=
+ =?us-ascii?Q?4lcZnSCRJI2OuTfAX3ETUPwF?=
 X-OriginatorOrg: windriver.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: ba6285fc-8a43-46b1-49fc-08d958293e70
+X-MS-Exchange-CrossTenant-Network-Message-Id: cee0eb06-9f4e-4ea0-0cd7-08d958293f8e
 X-MS-Exchange-CrossTenant-AuthSource: DM4PR11MB5327.namprd11.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Aug 2021 15:54:01.4991
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Aug 2021 15:54:03.4147
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 8ddb2873-a1ad-4a18-ae4e-4644631433be
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 4JiSZ6k7+VnGEf5q+ALxETcy5zoi5pHVLtUhoiOj6jdvV9GBqvv4vmBEZkvZX0o3VEuOYGRnXc2AZbemzv5aBerJwiZWo097swQ3qLW6xZk=
+X-MS-Exchange-CrossTenant-UserPrincipalName: +Ot+RYZsXTgQSfNIXaG+mFvF2CrBaTXHf90YoQ19j6QySt1MQ7e6pWYz4rVDMjuYzEn9R2EeW7fNvKmxv+1faNQTdqmtZSSK5Ihkh/kJYtE=
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM5PR11MB1722
-X-Proofpoint-ORIG-GUID: zZAfSoH1X0ahZkyOLUPDmqrt7EGLNEnD
-X-Proofpoint-GUID: zZAfSoH1X0ahZkyOLUPDmqrt7EGLNEnD
+X-Proofpoint-ORIG-GUID: Xi_H4Ure9pIAXHXWu4pesyJef9elmUrK
+X-Proofpoint-GUID: Xi_H4Ure9pIAXHXWu4pesyJef9elmUrK
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
  definitions=2021-08-05_05,2021-08-05_02,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxlogscore=773
- spamscore=0 mlxscore=0 clxscore=1011 phishscore=0 lowpriorityscore=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxlogscore=861
+ spamscore=0 mlxscore=0 clxscore=1015 phishscore=0 lowpriorityscore=0
  adultscore=0 suspectscore=0 priorityscore=1501 malwarescore=0
  impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2107140000 definitions=main-2108050097
@@ -124,44 +126,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-NOTE: the fixes were manually adjusted to apply to 5.4, so copying bpf@ to see
-if there are any concerns.
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-With this patchseries (applied on top of [1], which was not merged yet), all
-bpf verifier selftests pass:
-root@intel-x86-64:~# ./test_verifier
-...
-#1056/p XDP pkt read, pkt_meta' <= pkt_data, good access OK
-#1057/p XDP pkt read, pkt_meta' <= pkt_data, bad access 1 OK
-#1058/p XDP pkt read, pkt_meta' <= pkt_data, bad access 2 OK
-#1059/p XDP pkt read, pkt_data <= pkt_meta', good access OK
-#1060/p XDP pkt read, pkt_data <= pkt_meta', bad access 1 OK
-#1061/p XDP pkt read, pkt_data <= pkt_meta', bad access 2 OK
-Summary: 1571 PASSED, 0 SKIPPED, 0 FAILED
+commit d203b0fd863a2261e5d00b97f3d060c4c2a6db71 upstream
 
-[1] https://lore.kernel.org/stable/20210804172001.3909228-2-ovidiu.panait@windriver.com/T/#u
+Instead of relying on current env->pass_cnt, use the seen count from the
+old aux data in adjust_insn_aux_data(), and expand it to the new range of
+patched instructions. This change is valid given we always expand 1:n
+with n>=1, so what applies to the old/original instruction needs to apply
+for the replacement as well.
 
-Daniel Borkmann (4):
-  bpf: Inherit expanded/patched seen count from old aux data
-  bpf: Do not mark insn as seen under speculative path verification
-  bpf: Fix leakage under speculation on mispredicted branches
-  bpf, selftests: Adjust few selftest outcomes wrt unreachable code
+Not relying on env->pass_cnt is a prerequisite for a later change where we
+want to avoid marking an instruction seen when verified under speculative
+execution path.
 
-John Fastabend (2):
-  bpf: Test_verifier, add alu32 bounds tracking tests
-  bpf, selftests: Add a verifier test for assigning 32bit reg states to
-    64bit ones
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Reviewed-by: John Fastabend <john.fastabend@gmail.com>
+Reviewed-by: Benedict Schlueter <benedict.schlueter@rub.de>
+Reviewed-by: Piotr Krysiuk <piotras@gmail.com>
+Acked-by: Alexei Starovoitov <ast@kernel.org>
+[OP: declare old_data as bool instead of u32 (struct bpf_insn_aux_data.seen
+     is bool in 5.4)]
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+---
+ kernel/bpf/verifier.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
- kernel/bpf/verifier.c                         | 65 +++++++++++++++++--
- tools/testing/selftests/bpf/test_verifier.c   |  2 +-
- tools/testing/selftests/bpf/verifier/bounds.c | 65 +++++++++++++++++++
- .../selftests/bpf/verifier/dead_code.c        |  2 +
- tools/testing/selftests/bpf/verifier/jmp32.c  | 22 +++++++
- tools/testing/selftests/bpf/verifier/jset.c   | 10 +--
- tools/testing/selftests/bpf/verifier/unpriv.c |  2 +
- .../selftests/bpf/verifier/value_ptr_arith.c  |  7 +-
- 8 files changed, 160 insertions(+), 15 deletions(-)
-
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index aefd94794796..526e52f45ab3 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -8304,6 +8304,7 @@ static int adjust_insn_aux_data(struct bpf_verifier_env *env,
+ {
+ 	struct bpf_insn_aux_data *new_data, *old_data = env->insn_aux_data;
+ 	struct bpf_insn *insn = new_prog->insnsi;
++	bool old_seen = old_data[off].seen;
+ 	u32 prog_len;
+ 	int i;
+ 
+@@ -8324,7 +8325,8 @@ static int adjust_insn_aux_data(struct bpf_verifier_env *env,
+ 	memcpy(new_data + off + cnt - 1, old_data + off,
+ 	       sizeof(struct bpf_insn_aux_data) * (prog_len - off - cnt + 1));
+ 	for (i = off; i < off + cnt - 1; i++) {
+-		new_data[i].seen = true;
++		/* Expand insni[off]'s seen count to the patched range. */
++		new_data[i].seen = old_seen;
+ 		new_data[i].zext_dst = insn_has_def32(env, insn + i);
+ 	}
+ 	env->insn_aux_data = new_data;
 -- 
 2.25.1
 
