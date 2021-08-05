@@ -2,78 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A1E13E1768
-	for <lists+stable@lfdr.de>; Thu,  5 Aug 2021 16:56:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2795C3E17D3
+	for <lists+stable@lfdr.de>; Thu,  5 Aug 2021 17:24:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240268AbhHEO4m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Aug 2021 10:56:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48444 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233269AbhHEO4m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Aug 2021 10:56:42 -0400
-Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 781BCC0613D5
-        for <stable@vger.kernel.org>; Thu,  5 Aug 2021 07:56:27 -0700 (PDT)
-Received: by mail-ed1-x52d.google.com with SMTP id p21so8773110edi.9
-        for <stable@vger.kernel.org>; Thu, 05 Aug 2021 07:56:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=Mozi9talEt/mI/l6KvxWbDISyLan2Xy8GUlPURIr5DU=;
-        b=dBJ4orWE4wbjz/7v8qxzGdzVPP34CGlyICUyvVShe6aFWPl2f+906og5lmqDKqKh8p
-         9R42niRsqWDmFN6nC0o8SQlObuGKFlNVmuHq6j6Dx8y356maPolP5/IdWngORYa0oGS3
-         3nqzPNdUejQGE35N+ZTsaw0nvZzdMs+mvpb5i+CwN1ktED8Q2Uun8mG87SkuvUanshgP
-         W0CwRRpWVAnHrSxM44/MM5ShyiYzJqhk7srbbQNRfdgspeyhQbL6fPKfL4BAVKPOZ/UX
-         wA8mXCqx/PNKn3Vf26cHAKUCKN8IRQjW6YSYc2mD+eMntNfPc2AETZZCvpWGN97OGJKO
-         154A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=Mozi9talEt/mI/l6KvxWbDISyLan2Xy8GUlPURIr5DU=;
-        b=m2zAyPGVzhyl2swDhj95Vcog1Fdpun8OCeGSVO6+0htOiflYDYq0XjhAGFYgzI+POb
-         rKeab5oR/Rz176+PGzCFKFOtDDV7FgZ6LUJqSchcrSPAVqpoDt6hyKQCxH5oV3NzoEjB
-         PY7ShT4YIKz1FQir6wXdNlT5sqV2ab2isTPtvnWHbRtuwTDj0FIp3h5f0r2jy9Hsx0bZ
-         F7aVfWgM//13EWArI105RPH//5YwfapP+HpPDdT/8ioPdF+7q0CVwdu7DPfW5dpYBGiQ
-         0qz3cYo/e0OP7a0j9UTruYIxiqpa5F/nDgRCENr0IfuXpa9Lmw6Qccmj/4Wd7TRDqpdD
-         vrhg==
-X-Gm-Message-State: AOAM5300RX7qA1bKIcqNIJL+tAPkznw3ejuwhPiSsU2DSN9sPuWhqGhF
-        uAkhOcyspg295kxgOckcEn9a9e1K5Id1sU6FN3E=
-X-Google-Smtp-Source: ABdhPJyIHtZWza6sOpQRy9AM3j8qtwGD4x/EUZHpKyo4EubRy8iwVLAPW/EqiYfbLo4PXa/uGYlS2HbJ5SPHtwWrMlc=
-X-Received: by 2002:aa7:d144:: with SMTP id r4mr7095642edo.111.1628175386112;
- Thu, 05 Aug 2021 07:56:26 -0700 (PDT)
+        id S242011AbhHEPYl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Aug 2021 11:24:41 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:59084 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S242111AbhHEPYW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Aug 2021 11:24:22 -0400
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 175F5Y3j008904;
+        Thu, 5 Aug 2021 11:23:15 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=0GX9Gy92NioS8ROteRDHc23LAjtxoFW5Spf0GoAraME=;
+ b=Zd6kosr749DqeIi26gidnbkgCGIPPjzJwyPs1ijMJz6W2lPAXS6Tfc8+vN6QFumUDlTq
+ rKwm33Pi339RXEF59StpQq3GKAimn20k7yGCK9NZetue+f1MzZrb/UubxvsKH+U1Scvo
+ pEKRBTUbaCHo5CfXeFghwROYaFS1ZlZFez8KVb5cwGhzmBf+hBC1R4hX0eu0iEgnGDwM
+ zHXi9KcWYzZclfinfC0W7L/YDfd0gvmsXkKL02o1MDpBav4aIOn2UI2GsSQzyYfyBWFJ
+ 08yZq1uzWip9OoJyoSbr9bfPHzxL1zQQ4w8eINV6w9Tu2mCGYxfQj3lBosi6pohItmtQ oA== 
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3a846beprv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 05 Aug 2021 11:23:14 -0400
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 175FEAwI029064;
+        Thu, 5 Aug 2021 15:23:13 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma06fra.de.ibm.com with ESMTP id 3a4wsj28e8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 05 Aug 2021 15:23:12 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 175FNAml50790670
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 5 Aug 2021 15:23:10 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0AC3B4C052;
+        Thu,  5 Aug 2021 15:23:10 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C09224C066;
+        Thu,  5 Aug 2021 15:23:09 +0000 (GMT)
+Received: from localhost.localdomain (unknown [9.145.150.16])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu,  5 Aug 2021 15:23:09 +0000 (GMT)
+From:   Laurent Dufour <ldufour@linux.ibm.com>
+To:     mpe@ellerman.id.au, benh@kernel.crashing.org, paulus@samba.org
+Cc:     linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: [PATCH] powerpc/pseries: Fix update of LPAR security flavor after LPM
+Date:   Thu,  5 Aug 2021 17:23:08 +0200
+Message-Id: <20210805152308.33988-1-ldufour@linux.ibm.com>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-Received: by 2002:a05:6402:358c:0:0:0:0 with HTTP; Thu, 5 Aug 2021 07:56:25
- -0700 (PDT)
-Reply-To: georgemike7031@gmail.com
-From:   george mike <kotsllos2000@gmail.com>
-Date:   Thu, 5 Aug 2021 16:56:25 +0200
-Message-ID: <CAKnPpxCqZ=dKyttJ+JDk2t5OUK7JOdepaXdYesuyTh+D+CY6Mg@mail.gmail.com>
-Subject: 
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: Uthitbwvlqbjp2dE_DIA7AA5jeqzhNgf
+X-Proofpoint-GUID: Uthitbwvlqbjp2dE_DIA7AA5jeqzhNgf
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-08-05_05:2021-08-05,2021-08-05 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 mlxscore=0
+ suspectscore=0 priorityscore=1501 bulkscore=0 mlxlogscore=798
+ malwarescore=0 adultscore=0 phishscore=0 lowpriorityscore=0
+ impostorscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2107140000 definitions=main-2108050092
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hallo
+After LPM, when migrating from a system with security mitigation enabled to
+a system with mitigation disabled, the security flavor exposed in /proc is
+not correctly set back to 0.
 
-Mein Name ist George Mike, ich bin von Beruf Rechtsanwalt. Ich m=C3=B6chte
-dir anbieten
-der n=C3=A4chste Angeh=C3=B6rige meines Klienten. Sie erben die Summe von (=
-8,5
-Millionen US-Dollar)
-Dollar, die mein Mandant vor seinem Tod auf der Bank hinterlie=C3=9F.
+Do not assume the value of the security flavor is set to 0 when entering
+init_cpu_char_feature_flags(), so when called after a LPM, the value is set
+correctly even if the mitigation are not turned off.
 
-Mein Mandant ist ein B=C3=BCrger Ihres Landes, der mit seiner Frau bei
-einem Autounfall gestorben ist
-und einziger Sohn. Ich habe Anspruch auf 50% des Gesamtfonds, w=C3=A4hrend
-50% dies tun werden
-sein f=C3=BCr dich.
-Bitte kontaktieren Sie meine private E-Mail hier f=C3=BCr weitere
-Details:georgemike7031@gmail.com
+Fixes: 6ce56e1ac380 ("powerpc/pseries: export LPAR security flavor in
+lparcfg")
 
-Vielen Dank im Voraus,
-Herr George Mike,
+Cc: stable@vger.kernel.org # 5.13.x
+Signed-off-by: Laurent Dufour <ldufour@linux.ibm.com>
+---
+ arch/powerpc/platforms/pseries/setup.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/arch/powerpc/platforms/pseries/setup.c b/arch/powerpc/platforms/pseries/setup.c
+index 6b0886668465..0dfaa6ab44cc 100644
+--- a/arch/powerpc/platforms/pseries/setup.c
++++ b/arch/powerpc/platforms/pseries/setup.c
+@@ -539,9 +539,10 @@ static void init_cpu_char_feature_flags(struct h_cpu_char_result *result)
+ 	 * H_CPU_BEHAV_FAVOUR_SECURITY_H could be set only if
+ 	 * H_CPU_BEHAV_FAVOUR_SECURITY is.
+ 	 */
+-	if (!(result->behaviour & H_CPU_BEHAV_FAVOUR_SECURITY))
++	if (!(result->behaviour & H_CPU_BEHAV_FAVOUR_SECURITY)) {
+ 		security_ftr_clear(SEC_FTR_FAVOUR_SECURITY);
+-	else if (result->behaviour & H_CPU_BEHAV_FAVOUR_SECURITY_H)
++		pseries_security_flavor = 0;
++	} else if (result->behaviour & H_CPU_BEHAV_FAVOUR_SECURITY_H)
+ 		pseries_security_flavor = 1;
+ 	else
+ 		pseries_security_flavor = 2;
+-- 
+2.32.0
+
