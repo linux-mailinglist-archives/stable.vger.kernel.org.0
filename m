@@ -2,162 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F21EE3E12A1
-	for <lists+stable@lfdr.de>; Thu,  5 Aug 2021 12:27:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 426B93E12A2
+	for <lists+stable@lfdr.de>; Thu,  5 Aug 2021 12:27:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240091AbhHEK1Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Aug 2021 06:27:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42792 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239963AbhHEK1Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Aug 2021 06:27:16 -0400
-Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 796F9C061765
-        for <stable@vger.kernel.org>; Thu,  5 Aug 2021 03:27:02 -0700 (PDT)
-Received: by mail-pj1-x1035.google.com with SMTP id dw2-20020a17090b0942b0290177cb475142so13614801pjb.2
-        for <stable@vger.kernel.org>; Thu, 05 Aug 2021 03:27:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=JludiCXgZ9xa4hV0jCqyma/H6ra3XMe+R/e7w4MbI4g=;
-        b=Aj6CdJeTk9Wu3W3p/99dczbi1NO8UCDGSeCc008dlJX7rqoukA2YM1EQXMb1HrdEy6
-         Sz681knndB5+Suq+72ZnXQiJX/eRv9lEZE/aGPL/BL1amIokVe1ZigfGbDpBQNpBlRKb
-         mHu2j4M2Bqt8+eziICjUQv00XGZh0hP9xZdPB8zes7HgnEnuWGag8M83Nm35dNndmQ8S
-         dJ4PK2P9UJKblCt5destG85zy5GavxRqZfUCxPbtrvd5OfHfeEZQkpifMlL1SkmqS+TN
-         ZJFPilaxGpgqj7TYkZYiOTZOzUlTx35nDZK/wZWOV+R/6E/RFqtaQMo6OBt3Yab/+i6g
-         axqA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=JludiCXgZ9xa4hV0jCqyma/H6ra3XMe+R/e7w4MbI4g=;
-        b=Pe2yS7mj9R4uZFLJ8k2SREW073Ns/5Dr37f7LCXyHt38p7FRUbG7s3gbvB9ul2PEIU
-         7FustHqKl3JMODJkU8QGYS75RG6IaE3rzMwq47FFbQ9ChrWUqWFt0uI4bT5hLGE3o2bg
-         7QpkjQweeXht8rJj4FIZJJ7Cr59NYOoT1BvTxmHG1bwR26Flx2oLlYzUK7S/75Chz2MJ
-         2eRo2HXkVUlhGbZV0gAtWZbbhEpyIpVLt6L7QP/hdCvLpskPfJubnfFK5VUUjU2cim9C
-         r9ilh7c2RNZuubrEIYGpazBn5MXj0D4ZixOzu2CIIAQVLK3JvPT0bWXzKiE2oQNJx3vL
-         ccEA==
-X-Gm-Message-State: AOAM533TeYJNhwXfqRoSUA8XPe2Z4Pi6vP49CfSPEOh7uSc3oOt6zfjD
-        g+HTSrFE/3kfAnGfSQAJTiWZ6Cbw+whzP6xvkDU=
-X-Google-Smtp-Source: ABdhPJxBH8gXOXCipaIGUmKLtedjw5/kLzzoW4tOUqO1rZePKSvKZauw4/FYcZ5R+0Jk11ZxoqTDKg==
-X-Received: by 2002:a17:90b:4b50:: with SMTP id mi16mr14802899pjb.55.1628159221340;
-        Thu, 05 Aug 2021 03:27:01 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id ci23sm5377264pjb.47.2021.08.05.03.27.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 05 Aug 2021 03:27:01 -0700 (PDT)
-Message-ID: <610bbcf5.1c69fb81.7051.009d@mx.google.com>
-Date:   Thu, 05 Aug 2021 03:27:01 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S239963AbhHEK2J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Aug 2021 06:28:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35836 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S234785AbhHEK2I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 5 Aug 2021 06:28:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9133C610A2;
+        Thu,  5 Aug 2021 10:27:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1628159274;
+        bh=i4TQuKQiBnBVsGu1T06mgmFNBZiIwfdE4DscqB97neA=;
+        h=Subject:To:From:Date:From;
+        b=FLnqgpYDNRmBrar6aC505mBRhCffdmbg+hz1pGXydmE7Z/omQOrpwImmwKuvJ1JVS
+         6L0cyrk3kqBeHqG4TGQSoPxil/NEK8vnw6wAv1/IOLeTlCACACGjemyj33OQuww6ld
+         RFxox6TxlHxMQaJE/N0UY8+KmsM77UjhytOcBU2k=
+Subject: patch "usb: typec: tcpm: Keep other events when receiving FRS and" added to usb-linus
+To:     kyletso@google.com, badhri@google.com, gregkh@linuxfoundation.org,
+        linux@roeck-us.net, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 05 Aug 2021 12:27:51 +0200
+Message-ID: <162815927119212@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.10
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.10.56-19-g64ac3b65bc37
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/5.10 baseline: 121 runs,
- 2 regressions (v5.10.56-19-g64ac3b65bc37)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 baseline: 121 runs, 2 regressions (v5.10.56-19-g64ac3b=
-65bc37)
 
-Regressions Summary
--------------------
+This is a note to let you know that I've just added the patch titled
 
-platform           | arch | lab          | compiler | defconfig          | =
-regressions
--------------------+------+--------------+----------+--------------------+-=
------------
-bcm2837-rpi-3-b-32 | arm  | lab-baylibre | gcc-8    | bcm2835_defconfig  | =
-1          =
+    usb: typec: tcpm: Keep other events when receiving FRS and
 
-imx6sll-evk        | arm  | lab-nxp      | gcc-8    | multi_v7_defconfig | =
-1          =
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
 
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
-nel/v5.10.56-19-g64ac3b65bc37/plan/baseline/
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.10
-  Describe: v5.10.56-19-g64ac3b65bc37
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      64ac3b65bc37a71f5abefbcd1091bd29be1dce72 =
+If you have any questions about this process, please let me know.
 
 
+From 43ad944cd73f2360ec8ff31d29ea44830b3119af Mon Sep 17 00:00:00 2001
+From: Kyle Tso <kyletso@google.com>
+Date: Tue, 3 Aug 2021 17:13:14 +0800
+Subject: usb: typec: tcpm: Keep other events when receiving FRS and
+ Sourcing_vbus events
 
-Test Regressions
----------------- =
+When receiving FRS and Sourcing_Vbus events from low-level drivers, keep
+other events which come a bit earlier so that they will not be ignored
+in the event handler.
 
+Fixes: 8dc4bd073663 ("usb: typec: tcpm: Add support for Sink Fast Role SWAP(FRS)")
+Cc: stable <stable@vger.kernel.org>
+Cc: Badhri Jagan Sridharan <badhri@google.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Badhri Jagan Sridharan <badhri@google.com>
+Signed-off-by: Kyle Tso <kyletso@google.com>
+Link: https://lore.kernel.org/r/20210803091314.3051302-1-kyletso@google.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/typec/tcpm/tcpm.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-
-platform           | arch | lab          | compiler | defconfig          | =
-regressions
--------------------+------+--------------+----------+--------------------+-=
------------
-bcm2837-rpi-3-b-32 | arm  | lab-baylibre | gcc-8    | bcm2835_defconfig  | =
-1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/610b86bc7177b9fbfab13670
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: bcm2835_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.56-=
-19-g64ac3b65bc37/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837-=
-rpi-3-b-32.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.56-=
-19-g64ac3b65bc37/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837-=
-rpi-3-b-32.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/610b86bc7177b9fbfab13=
-671
-        new failure (last pass: v5.10.56-4-g7057d5a05593) =
-
- =
-
-
-
-platform           | arch | lab          | compiler | defconfig          | =
-regressions
--------------------+------+--------------+----------+--------------------+-=
------------
-imx6sll-evk        | arm  | lab-nxp      | gcc-8    | multi_v7_defconfig | =
-1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/610b8dd61aa17f25f1b13671
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.56-=
-19-g64ac3b65bc37/arm/multi_v7_defconfig/gcc-8/lab-nxp/baseline-imx6sll-evk.=
-txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.56-=
-19-g64ac3b65bc37/arm/multi_v7_defconfig/gcc-8/lab-nxp/baseline-imx6sll-evk.=
-html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+diff --git a/drivers/usb/typec/tcpm/tcpm.c b/drivers/usb/typec/tcpm/tcpm.c
+index 5b22a1c931a9..b9bb63d749ec 100644
+--- a/drivers/usb/typec/tcpm/tcpm.c
++++ b/drivers/usb/typec/tcpm/tcpm.c
+@@ -5369,7 +5369,7 @@ EXPORT_SYMBOL_GPL(tcpm_pd_hard_reset);
+ void tcpm_sink_frs(struct tcpm_port *port)
+ {
+ 	spin_lock(&port->pd_event_lock);
+-	port->pd_events = TCPM_FRS_EVENT;
++	port->pd_events |= TCPM_FRS_EVENT;
+ 	spin_unlock(&port->pd_event_lock);
+ 	kthread_queue_work(port->wq, &port->event_work);
+ }
+@@ -5378,7 +5378,7 @@ EXPORT_SYMBOL_GPL(tcpm_sink_frs);
+ void tcpm_sourcing_vbus(struct tcpm_port *port)
+ {
+ 	spin_lock(&port->pd_event_lock);
+-	port->pd_events = TCPM_SOURCING_VBUS;
++	port->pd_events |= TCPM_SOURCING_VBUS;
+ 	spin_unlock(&port->pd_event_lock);
+ 	kthread_queue_work(port->wq, &port->event_work);
+ }
+-- 
+2.32.0
 
 
-
-  * baseline.login: https://kernelci.org/test/case/id/610b8dd61aa17f25f1b13=
-672
-        new failure (last pass: v5.10.56-4-g7057d5a05593) =
-
- =20
