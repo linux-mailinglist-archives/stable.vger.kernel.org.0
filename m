@@ -2,153 +2,170 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 932793E171C
-	for <lists+stable@lfdr.de>; Thu,  5 Aug 2021 16:40:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 799783E1757
+	for <lists+stable@lfdr.de>; Thu,  5 Aug 2021 16:55:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241648AbhHEOlK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Aug 2021 10:41:10 -0400
-Received: from sonic308-54.consmr.mail.gq1.yahoo.com ([98.137.68.30]:40795
-        "EHLO sonic308-54.consmr.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S241189AbhHEOlK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Aug 2021 10:41:10 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.ca; s=s2048; t=1628174456; bh=fwbHdeP437tCU2ko/QDbESZB4htsuRB5ELv1H5ubPIw=; h=From:To:Cc:Subject:Date:References:From:Subject:Reply-To; b=MczBU/Z8So2eqaucEKzK5anokdNbe9wIcWt9a0eeuh3ttOXu03nErUmodRkqxiJWem+ExZE+bgw7jZKRNJk7cM6Sb4qPQQjGp9hzT45JkVFuWPt3GX+qAukXQF45THysf5TZlOQA8bfGQeRXM8LBugPEVwGkPWuUwo0EzuCnXdO6gZ97XqQYhkKUY6ZhiFELT1EGULfb6LJXsXavqWxZvqh63KxNcZPvqDkw5xYRPiXMscMk3vB5nmfuVJBnkLSQ4Cj/PlOkswUeJ94gkRZPd3RjrzT3sLiRqSLHDxAsq/gWNYaXxtA1opTsgUAbS+DbFlqo+vHk3fmrlCIx4qltmw==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1628174456; bh=QcwPXF8n/HpDDX2OYLZtPvh9Wkd//xi1jURcudsqMhW=; h=X-Sonic-MF:From:To:Subject:Date:From:Subject; b=f++jXK/jsk4tbBdVuD0nHY7b59uYsbhACy7/Su78Ze5z/4E+3SS+qniMJkPVEs62NmjV/PsR+xvdPWxUtUu4cqLG0TFJn16+hK5ByNeGzYN70MsAAS0B5hPR3GyrOsIZcM1FZm8YWiDQoZzR9rKAgN6SPGyCfhQ9zGqup+TqdBKF278+H81WEKnKqX3RQ/njKdc70Ja3KRvvGG6hQhVgnfy1S9zduO5YD1GBXR/+NxKyz16aVDhPObwAopPXDQpWAB2r0wbIdz7zhEe9rJuLa+xbcaFAvGLemkv0d//jaV1yRcoMXL+Yf76zICAxImDJtjdAIojIwAhv/759lmeN2w==
-X-YMail-OSG: KxWa1usVM1leM52TRzjXo_iHBnXDpJOX2_DFAKlvoyDlvq5MnAzojd7_2NeSF6A
- 5ienRCkP0t7H89J8PJmGkwt3c3GlDq4J3hyzsreVmvy0Jsgyf6wuBzF6FyavkschcnddzXGBA0Rs
- PZ54J0ILjPmGrTFWvFyX9RI8xjrVbaSGinKoMRrLC52rJOVBPcYt6tBpt2IZF1REX5x55d1jlcHG
- 6de.HtHK2502hYD3joAkt4fVPjCrlnBUPlrcC34y5Yoy__YKakf54Yt9qF4SDyd5G79k8bgAvadW
- h2V.7OPnper5cQcwzcQ__srKpwbdPrsDCsH2OGO.SdWTUeqy27EPBjhmEHPozGyABBk4g4iMFDvE
- jFljFVq9D4locQfkJEBa4yLvTRRX3ibvViOxOEQ9bcfEhqkxhPb6V_AZdm6ViamrJpDIv0JNtPhy
- JeW6CoXBBxHjvA41jZcY1XZyTDpOhDNX9O4OQeB4mytIeKuxwfLu6fWZokm_zxbnxu1A6OeBmYg2
- NR2ewCCWSexy2hH9IDa9SLOZaxQnGG.GpJ221IcO0t_51AYLUe3m_KTr4f43hwDXqw6rwoL5Yurl
- XOR7KK7m6StoDxf7lnM03fSLHUOszMi.bpjh8swRbNlhkTG83w4UL3VWcCG6BjVfHrMmhtiCQnTA
- QYnIzbddPWqWDZFWNTLbyMzKSA.dqajxpP1UJJUX2I_Kny_9GXzj.VX.wUIp.qXlUhzdw5ykU8Lb
- gD2SDlxkJlJ.Y6fhDkS2U7JWNsqhzJl1d4ubI2.QlPt9D6TyGbQ2ZV9hWPNO9BhUbOVWRubh7MYL
- cd0yNUdIyc6rZP9hEhQ.s.lc6_xYW69k1X.s0_pseVHmJydRv24WdbA0fHxy8wJAhKbEdjd7eFVk
- n7MF9.UbA81WpijMAvOrqFGMifvSIkfmFeMXfvlmFMVzuyZUa0a98L3beO9.9ycK.toJGdaQIHOi
- ZU8YK25Vc7QqC.yGyqF6U5WTaqLEyrdZP_CDD1w405llmMIXaUCZ3N_dmgCMhURliqv8JGULmEmw
- eKaoP4L3PCwkZEP5YBrU4U3pmQyhmJdB2JH8c2nZH9I4vKyT1XRMCBjM7mL8zJJ1wxys8ze6QXkz
- ZC5HOCsmtEKR5QD5SmJJCsq9znBXVEg5xyZwyG_1qV2tSK2TMCWrMFexLy4Ezv72V0YVzVckqkoy
- TyldiYpZTs6d3JiNIeZq9lymcNrh_.3QQFUiyeUbKpw8XVSZMVcPh0o_Ryb5qCwcU9T5lSR6mtyN
- PpwIp1mbampDls3WeE2HEAGqrsXQ3lGrxKkHsqAUwN.97VIAg_tWs4tCIC4HTKLtUrfQpxYiFaVe
- Rlip4YO.5ck7GiFhvifAYkZXDpYCxnCKUlcrzqZGFtKCnFhAIbjGHBVgbIrE9da4PooXWa7GAQXB
- 4mW1LM8Rv3133Yfo6tHei9Hgy2RW2VRAQjSISuHYdiRT.QG2XvPncaNK9a9SlzivGUuj8h2Ut1xv
- _tYf0dC3CvmJMJnmNRFXa1NygHlC6yn2Cki4jw2IKlFAH086i_bh7vwc0CyscUpg31iOCa1Qcw5E
- vUNN7ypwf_wSawzPjk.yXO9lOPGjowYyOL1dVQpyesV4agDMuwcedpE_.LMwKcR8FykZZ176ZYmo
- YSwdFLcz1oaZ_84i0yiEvQT04F9cArfClt.laQgbj21SOc3Iet5GsKvDmAciPL9LC61pZ2t3QQlg
- uUXhmmRkJYZs2PciBJsMyAWVWK38FmEpyThPCeqe.WuQQw9Yqpl63KheJOJyxvoxnXhZsWRCFv46
- VSNofvYXwB6PXkMhjUCB.0fFvV8SmEzTdG_CmAI9pPMaDYrxeyjOLQpbRBRQpGEEYYjmDzzxRhwl
- CJqqkMi65Y4W_dD8x84ePrSMfTr3K1hFFMTlUVW7iq_Be2Rvg1H0H5mXdrkg2E3kv4DP.UB.86K7
- 7y9ZwxTGX3m27qHsphfr.vwiTK8un2mfFx6iICnh9Chz54zYxxCkSzb1UuTlxzHLxg10H9Lf0pRp
- BLdw.kXdlGMRzMSy4rOhXbNhcY.QUbj1dFR7mtW4OVIh1IshUXFZ_SGEGvEXeHQNW8geKv_xKozQ
- dl3mNGYZd86bru.J8Qa0.CpdPoHJIvUCMjVxqHtmo6bscqT3Oi3hENdKNdCVZVxmTWYx4m6GMAl_
- tEqvFGYnPDM02TD99Gkv.6xnwyJszeb9E7You37JgOt4AcVTW6bkqeWUVqaQdSGTw90lihq3t2Qq
- wPoQl.K2B5.iNNiy0au9kOY2enXOool8YhXnNDDlJRD.wVjnSH0xSHlIFwiOE2WgfXLOLSxYdmWz
- xefo_cyoYUmfGPz0ZeifofXD3aB84fYyJTpz61NRHwVaaiRE4V6Z7VyicwhqzHxYVeNhuGpTcYTw
- pSkdZEWInTBOQxp7sPAu3FuS9SfebbblEhnP1cIP0LdXxgGLBgP2XGzFJ10qNR3UE3PhIhoVBamh
- NBuOUmA.tlSrJKx_9SrvMuLfLAOmGhANwpKM7XFst.gqFulBPGu9y9_RfWSPylYVSasjfd9yOtG0
- B.aoFPhP0JRij68ocmXqwU2hEWCNXWqa4LzgaTgjXA7BtKQs0.YfiYhj_S3FYy9sBftLfrEYIkHT
- aUcwe9l9qC12Z0SMLuLHBxJCvefszuEyQ6efBxY8Zs55eiOAxcELoicG2UDUPWyGVj3J92E37S17
- vRr4w6Mu.gkAVL8wrpTOpU8a_v4sWl3fIQmNQUbkabYVhXvwFEq5x6NbWK9nRPmf9F.wOLkG4Ljy
- 7HjtvbLP7vn08FmbmoFgJvHDdt7sq3ulsVN3th_dTSwv7zyVCDdir40S.RxXmVRUtgIjHlXqPeMV
- 6EavnnJNWKxivn0JLnLEMz_6H.rn.ApFHnt8Wtt_OQej24O_VYedcTgcrjOtCaOuA4pxcbRkPQEV
- RTDnzR_w03t6wa4KIAadGIi8lDSgqWaBUxmyaIzIHe3KdYIbx.eGfmC_Kwa.dhHlovKFjYH936t_
- BBlpm95GwumF5_wEdg304GBIlX.Xpr9RL9r42CRantxmVt0ZfUa55OFVGS35s_TWeLLQ5H04.G7G
- JroZIsejvv1oBM6ctlYiOhtITyuY.yiHZ7OGYzGd8vhPf7.Bmqn4vus6XLnA2pe8KSU6hiduN.aF
- 2t_bIhi3VnLG6MpHoT52QT4CP0nrH1jH0zTWS7cIYtMrUE1LF17pjCo0mdgBAKuAoRYABddcAViW
- fUwfOq4zeJEz2ryOpj1vRd611D1bm7bTUZ6me_tPaCp1FNmkF4J7OkHwzYtuNBSYyQzYh5d.ULiM
- LcKStHFi8Ttk9jn7Q96qT4sOSfjQCks2sxARwOQCiX4.UxlC0oBS9S.8h0KrbwWz7H.Li75jCH2n
- S5CWJ1AzCiHdMlRueCBkoQoTqY7o8Xqph
-X-Sonic-MF: <alex_y_xu@yahoo.ca>
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic308.consmr.mail.gq1.yahoo.com with HTTP; Thu, 5 Aug 2021 14:40:56 +0000
-Received: by kubenode503.mail-prod1.omega.gq1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID ce6bf6fcf5da7d3f48ed15ca8e5ee197;
-          Thu, 05 Aug 2021 14:40:50 +0000 (UTC)
-From:   "Alex Xu (Hello71)" <alex_y_xu@yahoo.ca>
-To:     torvalds@linux-foundation.org
-Cc:     linux-fsdevel@vger.kernel.org, linux-api@vger.kernel.org,
-        linux-kernel@vger.kernel.org, dhowells@redhat.com,
-        linux@rasmusvillemoes.dk, gregkh@linuxfoundation.org,
-        peterz@infradead.org, nicolas.dichtel@6wind.com, raven@themaw.net,
-        christian@brauner.io, "Alex Xu (Hello71)" <alex_y_xu@yahoo.ca>,
-        stable@vger.kernel.org
-Subject: [PATCH] pipe: increase minimum default pipe size to 2 pages
-Date:   Thu,  5 Aug 2021 10:40:47 -0400
-Message-Id: <20210805144047.13518-1-alex_y_xu@yahoo.ca>
-X-Mailer: git-send-email 2.32.0
+        id S229892AbhHEOzg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Aug 2021 10:55:36 -0400
+Received: from fllv0015.ext.ti.com ([198.47.19.141]:32904 "EHLO
+        fllv0015.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234937AbhHEOzf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Aug 2021 10:55:35 -0400
+Received: from fllv0035.itg.ti.com ([10.64.41.0])
+        by fllv0015.ext.ti.com (8.15.2/8.15.2) with ESMTP id 175EtFrl056240;
+        Thu, 5 Aug 2021 09:55:15 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
+        s=ti-com-17Q1; t=1628175315;
+        bh=2LdFqgWlvM+4vTpd2kfGWADiBHDbiAlaALFeWQxuafU=;
+        h=From:To:CC:Subject:Date;
+        b=MCxqj3vCvtfUFeAWrQTuZUTJ8Ja+gqGeMCpeVbFh3mkirdgXZG8hTwWKgCvr1P+uC
+         nSykrM2Vd4My2hzdvkiVcwK9IP9C1/zcRpmiB0HUPnyp2/08tZqpW5ddPaLzUO6IYA
+         Wv4VvPwPJO137Q2j1u30AlIiDayXZFuDMUz9b6DM=
+Received: from DLEE112.ent.ti.com (dlee112.ent.ti.com [157.170.170.23])
+        by fllv0035.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 175EtFJw104616
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Thu, 5 Aug 2021 09:55:15 -0500
+Received: from DLEE112.ent.ti.com (157.170.170.23) by DLEE112.ent.ti.com
+ (157.170.170.23) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2176.2; Thu, 5 Aug
+ 2021 09:55:14 -0500
+Received: from fllv0040.itg.ti.com (10.64.41.20) by DLEE112.ent.ti.com
+ (157.170.170.23) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2176.2 via
+ Frontend Transport; Thu, 5 Aug 2021 09:55:14 -0500
+Received: from localhost (ileax41-snat.itg.ti.com [10.172.224.153])
+        by fllv0040.itg.ti.com (8.15.2/8.15.2) with ESMTP id 175EtDfA116829;
+        Thu, 5 Aug 2021 09:55:14 -0500
+From:   Grygorii Strashko <grygorii.strashko@ti.com>
+To:     "David S. Miller" <davem@davemloft.net>, <netdev@vger.kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Ben Hutchings <ben.hutchings@essensium.com>
+CC:     <linux-kernel@vger.kernel.org>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        <linux-omap@vger.kernel.org>, Lokesh Vutla <lokeshvutla@ti.com>,
+        Grygorii Strashko <grygorii.strashko@ti.com>,
+        <stable@vger.kernel.org>
+Subject: [PATCH net v2] net: ethernet: ti: cpsw: fix min eth packet size for non-switch use-cases
+Date:   Thu, 5 Aug 2021 17:55:11 +0300
+Message-ID: <20210805145511.12016-1-grygorii.strashko@ti.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-References: <20210805144047.13518-1-alex_y_xu.ref@yahoo.ca>
+Content-Type: text/plain
+X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This program always prints 4096 and hangs before the patch, and always
-prints 8192 and exits successfully after:
+The CPSW switchdev driver inherited fix from commit 9421c9015047 ("net:
+ethernet: ti: cpsw: fix min eth packet size") which changes min TX packet
+size to 64bytes (VLAN_ETH_ZLEN, excluding ETH_FCS). It was done to fix HW
+packed drop issue when packets are sent from Host to the port with PVID and
+un-tagging enabled. Unfortunately this breaks some other non-switch
+specific use-cases, like:
+- [1] CPSW port as DSA CPU port with DSA-tag applied at the end of the
+packet
+- [2] Some industrial protocols, which expects min TX packet size 60Bytes
+(excluding FCS).
 
-int main() {
-    int pipefd[2];
-    for (int i = 0; i < 1025; i++)
-        if (pipe(pipefd) == -1)
-            return 1;
-    size_t bufsz = fcntl(pipefd[1], F_GETPIPE_SZ);
-    printf("%zd\n", bufsz);
-    char *buf = calloc(bufsz, 1);
-    write(pipefd[1], buf, bufsz);
-    read(pipefd[0], buf, bufsz-1);
-    write(pipefd[1], buf, 1);
-}
+Fix it by configuring min TX packet size depending on driver mode
+ - 60Bytes (ETH_ZLEN) for multi mac (dual-mac) mode
+ - 64Bytes (VLAN_ETH_ZLEN) for switch mode
+and update it during driver mode change and annotate with
+READ_ONCE()/WRITE_ONCE() as it can be read by napi while writing.
 
-Note that you may need to increase your RLIMIT_NOFILE before running the
-program.
+[1] https://lore.kernel.org/netdev/20210531124051.GA15218@cephalopod/
+[2] https://e2e.ti.com/support/arm/sitara_arm/f/791/t/701669
 
-Fixes: 759c01142a ("pipe: limit the per-user amount of pages allocated in pipes")
-Cc: <stable@vger.kernel.org>
 
-Link: https://lore.kernel.org/lkml/1628086770.5rn8p04n6j.none@localhost/
-Link: https://lore.kernel.org/lkml/1628127094.lxxn016tj7.none@localhost/
-
-Signed-off-by: Alex Xu (Hello71) <alex_y_xu@yahoo.ca>
+Cc: stable@vger.kernel.org
+Fixes: ed3525eda4c4 ("net: ethernet: ti: introduce cpsw switchdev based driver part 1 - dual-emac")
+Reported-by: Ben Hutchings <ben.hutchings@essensium.com>
+Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
 ---
- fs/pipe.c | 19 +++++++++++++++++--
- 1 file changed, 17 insertions(+), 2 deletions(-)
 
-diff --git a/fs/pipe.c b/fs/pipe.c
-index 9ef4231cce61..8e6ef62aeb1c 100644
---- a/fs/pipe.c
-+++ b/fs/pipe.c
-@@ -31,6 +31,21 @@
+Changes in v2:
+- use skb_put_padto
+- update description
+- annotate tx_packet_min with READ_ONCE()/WRITE_ONCE()
+
+I'm not going to add additional changes in cpdma configuration interface and, 
+instead, will send patches to convert all cpdma users to use skb_put_padto() and
+drop frames padding from cpdma.
+
+v1: https://patchwork.kernel.org/project/netdevbpf/patch/20210611132732.10690-1-grygorii.strashko@ti.com/
+
+ drivers/net/ethernet/ti/cpsw_new.c  | 7 +++++--
+ drivers/net/ethernet/ti/cpsw_priv.h | 4 +++-
+ 2 files changed, 8 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/net/ethernet/ti/cpsw_new.c b/drivers/net/ethernet/ti/cpsw_new.c
+index ae167223e87f..d904f4ca4b37 100644
+--- a/drivers/net/ethernet/ti/cpsw_new.c
++++ b/drivers/net/ethernet/ti/cpsw_new.c
+@@ -921,7 +921,7 @@ static netdev_tx_t cpsw_ndo_start_xmit(struct sk_buff *skb,
+ 	struct cpdma_chan *txch;
+ 	int ret, q_idx;
  
- #include "internal.h"
+-	if (skb_padto(skb, CPSW_MIN_PACKET_SIZE)) {
++	if (skb_put_padto(skb, READ_ONCE(priv->tx_packet_min))) {
+ 		cpsw_err(priv, tx_err, "packet pad failed\n");
+ 		ndev->stats.tx_dropped++;
+ 		return NET_XMIT_DROP;
+@@ -1101,7 +1101,7 @@ static int cpsw_ndo_xdp_xmit(struct net_device *ndev, int n,
  
-+/*
-+ * New pipe buffers will be restricted to this size while the user is exceeding
-+ * their pipe buffer quota. The general pipe use case needs at least two
-+ * buffers: one for data yet to be read, and one for new data. If this is less
-+ * than two, then a write to a non-empty pipe may block even if the pipe is not
-+ * full. This can occur with GNU make jobserver or similar uses of pipes as
-+ * semaphores: multiple processes may be waiting to write tokens back to the
-+ * pipe before reading tokens: https://lore.kernel.org/lkml/1628086770.5rn8p04n6j.none@localhost/.
-+ *
-+ * Users can reduce their pipe buffers with F_SETPIPE_SZ below this at their
-+ * own risk, namely: pipe writes to non-full pipes may block until the pipe is
-+ * emptied.
-+ */
-+#define PIPE_MIN_DEF_BUFFERS 2
-+
- /*
-  * The max size that a non-root user is allowed to grow the pipe. Can
-  * be set by root in /proc/sys/fs/pipe-max-size
-@@ -781,8 +796,8 @@ struct pipe_inode_info *alloc_pipe_info(void)
- 	user_bufs = account_pipe_buffers(user, 0, pipe_bufs);
+ 	for (i = 0; i < n; i++) {
+ 		xdpf = frames[i];
+-		if (xdpf->len < CPSW_MIN_PACKET_SIZE)
++		if (xdpf->len < READ_ONCE(priv->tx_packet_min))
+ 			break;
  
- 	if (too_many_pipe_buffers_soft(user_bufs) && pipe_is_unprivileged_user()) {
--		user_bufs = account_pipe_buffers(user, pipe_bufs, 1);
--		pipe_bufs = 1;
-+		user_bufs = account_pipe_buffers(user, pipe_bufs, PIPE_MIN_DEF_BUFFERS);
-+		pipe_bufs = PIPE_MIN_DEF_BUFFERS;
- 	}
+ 		if (cpsw_xdp_tx_frame(priv, xdpf, NULL, priv->emac_port))
+@@ -1390,6 +1390,7 @@ static int cpsw_create_ports(struct cpsw_common *cpsw)
+ 		priv->dev  = dev;
+ 		priv->msg_enable = netif_msg_init(debug_level, CPSW_DEBUG);
+ 		priv->emac_port = i + 1;
++		priv->tx_packet_min = CPSW_MIN_PACKET_SIZE;
  
- 	if (too_many_pipe_buffers_hard(user_bufs) && pipe_is_unprivileged_user())
+ 		if (is_valid_ether_addr(slave_data->mac_addr)) {
+ 			ether_addr_copy(priv->mac_addr, slave_data->mac_addr);
+@@ -1698,6 +1699,7 @@ static int cpsw_dl_switch_mode_set(struct devlink *dl, u32 id,
+ 
+ 			priv = netdev_priv(sl_ndev);
+ 			slave->port_vlan = vlan;
++			WRITE_ONCE(priv->tx_packet_min, CPSW_MIN_PACKET_SIZE_VLAN);
+ 			if (netif_running(sl_ndev))
+ 				cpsw_port_add_switch_def_ale_entries(priv,
+ 								     slave);
+@@ -1726,6 +1728,7 @@ static int cpsw_dl_switch_mode_set(struct devlink *dl, u32 id,
+ 
+ 			priv = netdev_priv(slave->ndev);
+ 			slave->port_vlan = slave->data->dual_emac_res_vlan;
++			WRITE_ONCE(priv->tx_packet_min, CPSW_MIN_PACKET_SIZE);
+ 			cpsw_port_add_dual_emac_def_ale_entries(priv, slave);
+ 		}
+ 
+diff --git a/drivers/net/ethernet/ti/cpsw_priv.h b/drivers/net/ethernet/ti/cpsw_priv.h
+index a323bea54faa..2951fb7b9dae 100644
+--- a/drivers/net/ethernet/ti/cpsw_priv.h
++++ b/drivers/net/ethernet/ti/cpsw_priv.h
+@@ -89,7 +89,8 @@ do {								\
+ 
+ #define CPSW_POLL_WEIGHT	64
+ #define CPSW_RX_VLAN_ENCAP_HDR_SIZE		4
+-#define CPSW_MIN_PACKET_SIZE	(VLAN_ETH_ZLEN)
++#define CPSW_MIN_PACKET_SIZE_VLAN	(VLAN_ETH_ZLEN)
++#define CPSW_MIN_PACKET_SIZE	(ETH_ZLEN)
+ #define CPSW_MAX_PACKET_SIZE	(VLAN_ETH_FRAME_LEN +\
+ 				 ETH_FCS_LEN +\
+ 				 CPSW_RX_VLAN_ENCAP_HDR_SIZE)
+@@ -380,6 +381,7 @@ struct cpsw_priv {
+ 	u32 emac_port;
+ 	struct cpsw_common *cpsw;
+ 	int offload_fwd_mark;
++	u32 tx_packet_min;
+ };
+ 
+ #define ndev_to_cpsw(ndev) (((struct cpsw_priv *)netdev_priv(ndev))->cpsw)
 -- 
-2.32.0
+2.17.1
 
