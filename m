@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26DD13E10BA
-	for <lists+stable@lfdr.de>; Thu,  5 Aug 2021 11:02:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 278143E10BB
+	for <lists+stable@lfdr.de>; Thu,  5 Aug 2021 11:02:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232046AbhHEJCo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Aug 2021 05:02:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60166 "EHLO mail.kernel.org"
+        id S238356AbhHEJCt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Aug 2021 05:02:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60222 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238785AbhHEJCj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 5 Aug 2021 05:02:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C4C36104F;
-        Thu,  5 Aug 2021 09:02:25 +0000 (UTC)
+        id S232517AbhHEJCt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 5 Aug 2021 05:02:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B519861029;
+        Thu,  5 Aug 2021 09:02:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628154146;
-        bh=qBvrvK35zG/Twz/GCjhJsBGy3uVroSRQpOSjb3JMmb8=;
+        s=korg; t=1628154155;
+        bh=H6o4eoPYw/7dQuor+RnHhXMF4VLVMSRjGMf6yCYb/rE=;
         h=Subject:To:From:Date:From;
-        b=yLHYO0g55ruEZhCybhhurifCUlY+5HTjKmqoEDD0yW9gAqWzR/8cB7QX7POWH1mww
-         VNytO58h4gTmYqTPO7HPODU7d/QnAfn9XA9BYBdIC6hj9dlBG/mIINIcZ/4G5bot+1
-         HK6YzVPud7ikS4J3qBAN9VBf7SylBWptxLdrdyrw=
-Subject: patch "usb: dwc3: gadget: Use list_replace_init() before traversing lists" added to usb-linus
+        b=FvUarn0r6NxfTuqcda2IR3IxEj8zvhodqF8ibjwuKoWM/rPR+t+MLcO/oYZz5yk/m
+         mC3RaTvMwjgpLRENnX7QsDsiiR6ZbFFIuefNrMm5RB6K1ddYbHGj8fkDH4eWMUez4w
+         /GTexszXcLHYZqQEFe14UwLso/RwFi2lX22WPuak=
+Subject: patch "usb: dwc3: gadget: Avoid runtime resume if disabling pullup" added to usb-linus
 To:     wcheng@codeaurora.org, balbi@kernel.org,
         gregkh@linuxfoundation.org, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 05 Aug 2021 11:02:23 +0200
-Message-ID: <162815414349184@kroah.com>
+Date:   Thu, 05 Aug 2021 11:02:24 +0200
+Message-ID: <162815414450243@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: dwc3: gadget: Use list_replace_init() before traversing lists
+    usb: dwc3: gadget: Avoid runtime resume if disabling pullup
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -51,120 +51,70 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From d25d85061bd856d6be221626605319154f9b5043 Mon Sep 17 00:00:00 2001
+From cb10f68ad8150f243964b19391711aaac5e8ff42 Mon Sep 17 00:00:00 2001
 From: Wesley Cheng <wcheng@codeaurora.org>
-Date: Thu, 29 Jul 2021 00:33:14 -0700
-Subject: usb: dwc3: gadget: Use list_replace_init() before traversing lists
+Date: Tue, 3 Aug 2021 23:24:05 -0700
+Subject: usb: dwc3: gadget: Avoid runtime resume if disabling pullup
 
-The list_for_each_entry_safe() macro saves the current item (n) and
-the item after (n+1), so that n can be safely removed without
-corrupting the list.  However, when traversing the list and removing
-items using gadget giveback, the DWC3 lock is briefly released,
-allowing other routines to execute.  There is a situation where, while
-items are being removed from the cancelled_list using
-dwc3_gadget_ep_cleanup_cancelled_requests(), the pullup disable
-routine is running in parallel (due to UDC unbind).  As the cleanup
-routine removes n, and the pullup disable removes n+1, once the
-cleanup retakes the DWC3 lock, it references a request who was already
-removed/handled.  With list debug enabled, this leads to a panic.
-Ensure all instances of the macro are replaced where gadget giveback
-is used.
+If the device is already in the runtime suspended state, any call to
+the pullup routine will issue a runtime resume on the DWC3 core
+device.  If the USB gadget is disabling the pullup, then avoid having
+to issue a runtime resume, as DWC3 gadget has already been
+halted/stopped.
 
-Example call stack:
+This fixes an issue where the following condition occurs:
 
-Thread#1:
-__dwc3_gadget_ep_set_halt() - CLEAR HALT
-  -> dwc3_gadget_ep_cleanup_cancelled_requests()
-    ->list_for_each_entry_safe()
-    ->dwc3_gadget_giveback(n)
-      ->dwc3_gadget_del_and_unmap_request()- n deleted[cancelled_list]
-      ->spin_unlock
-      ->Thread#2 executes
-      ...
-    ->dwc3_gadget_giveback(n+1)
-      ->Already removed!
+usb_gadget_remove_driver()
+-->usb_gadget_disconnect()
+ -->dwc3_gadget_pullup(0)
+  -->pm_runtime_get_sync() -> ret = 0
+  -->pm_runtime_put() [async]
+-->usb_gadget_udc_stop()
+ -->dwc3_gadget_stop()
+  -->dwc->gadget_driver = NULL
+...
 
-Thread#2:
-dwc3_gadget_pullup()
-  ->waiting for dwc3 spin_lock
-  ...
-  ->Thread#1 released lock
-  ->dwc3_stop_active_transfers()
-    ->dwc3_remove_requests()
-      ->fetches n+1 item from cancelled_list (n removed by Thread#1)
-      ->dwc3_gadget_giveback()
-        ->dwc3_gadget_del_and_unmap_request()- n+1
-deleted[cancelled_list]
-        ->spin_unlock
+dwc3_suspend_common()
+-->dwc3_gadget_suspend()
+ -->DWC3 halt/stop routine skipped, driver_data == NULL
 
-Fix this condition by utilizing list_replace_init(), and traversing
-through a local copy of the current elements in the endpoint lists.
-This will also set the parent list as empty, so if another thread is
-also looping through the list, it will be empty on the next iteration.
+This leads to a situation where the DWC3 gadget is not properly
+stopped, as the runtime resume would have re-enabled EP0 and event
+interrupts, and since we avoided the DWC3 gadget suspend, these
+resources were never disabled.
 
-Fixes: d4f1afe5e896 ("usb: dwc3: gadget: move requests to cancelled_list")
+Fixes: 77adb8bdf422 ("usb: dwc3: gadget: Allow runtime suspend if UDC unbinded")
 Cc: stable <stable@vger.kernel.org>
 Acked-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Wesley Cheng <wcheng@codeaurora.org>
-Link: https://lore.kernel.org/r/1627543994-20327-1-git-send-email-wcheng@codeaurora.org
+Link: https://lore.kernel.org/r/1628058245-30692-1-git-send-email-wcheng@codeaurora.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/gadget.c | 18 ++++++++++++++++--
- 1 file changed, 16 insertions(+), 2 deletions(-)
+ drivers/usb/dwc3/gadget.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
 diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index 45f2bc0807e8..a1b262669574 100644
+index a1b262669574..b8d4b2d327b2 100644
 --- a/drivers/usb/dwc3/gadget.c
 +++ b/drivers/usb/dwc3/gadget.c
-@@ -1741,9 +1741,13 @@ static void dwc3_gadget_ep_cleanup_cancelled_requests(struct dwc3_ep *dep)
- {
- 	struct dwc3_request		*req;
- 	struct dwc3_request		*tmp;
-+	struct list_head		local;
- 	struct dwc3			*dwc = dep->dwc;
- 
--	list_for_each_entry_safe(req, tmp, &dep->cancelled_list, list) {
-+restart:
-+	list_replace_init(&dep->cancelled_list, &local);
-+
-+	list_for_each_entry_safe(req, tmp, &local, list) {
- 		dwc3_gadget_ep_skip_trbs(dep, req);
- 		switch (req->status) {
- 		case DWC3_REQUEST_STATUS_DISCONNECTED:
-@@ -1761,6 +1765,9 @@ static void dwc3_gadget_ep_cleanup_cancelled_requests(struct dwc3_ep *dep)
- 			break;
+@@ -2256,6 +2256,17 @@ static int dwc3_gadget_pullup(struct usb_gadget *g, int is_on)
  		}
  	}
+ 
++	/*
++	 * Avoid issuing a runtime resume if the device is already in the
++	 * suspended state during gadget disconnect.  DWC3 gadget was already
++	 * halted/stopped during runtime suspend.
++	 */
++	if (!is_on) {
++		pm_runtime_barrier(dwc->dev);
++		if (pm_runtime_suspended(dwc->dev))
++			return 0;
++	}
 +
-+	if (!list_empty(&dep->cancelled_list))
-+		goto restart;
- }
- 
- static int dwc3_gadget_ep_dequeue(struct usb_ep *ep,
-@@ -2958,8 +2965,12 @@ static void dwc3_gadget_ep_cleanup_completed_requests(struct dwc3_ep *dep,
- {
- 	struct dwc3_request	*req;
- 	struct dwc3_request	*tmp;
-+	struct list_head	local;
- 
--	list_for_each_entry_safe(req, tmp, &dep->started_list, list) {
-+restart:
-+	list_replace_init(&dep->started_list, &local);
-+
-+	list_for_each_entry_safe(req, tmp, &local, list) {
- 		int ret;
- 
- 		ret = dwc3_gadget_ep_cleanup_completed_request(dep, event,
-@@ -2967,6 +2978,9 @@ static void dwc3_gadget_ep_cleanup_completed_requests(struct dwc3_ep *dep,
- 		if (ret)
- 			break;
- 	}
-+
-+	if (!list_empty(&dep->started_list))
-+		goto restart;
- }
- 
- static bool dwc3_gadget_ep_should_continue(struct dwc3_ep *dep)
+ 	/*
+ 	 * Check the return value for successful resume, or error.  For a
+ 	 * successful resume, the DWC3 runtime PM resume routine will handle
 -- 
 2.32.0
 
