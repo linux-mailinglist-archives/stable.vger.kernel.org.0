@@ -2,70 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 03BC13E148B
-	for <lists+stable@lfdr.de>; Thu,  5 Aug 2021 14:17:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 618ED3E15A3
+	for <lists+stable@lfdr.de>; Thu,  5 Aug 2021 15:27:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241209AbhHEMRZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Aug 2021 08:17:25 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:40572 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239778AbhHEMRZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Aug 2021 08:17:25 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 6067B1C0B7C; Thu,  5 Aug 2021 14:17:10 +0200 (CEST)
-Date:   Thu, 5 Aug 2021 14:17:09 +0200
-From:   Pavel Machek <pavel@ucw.cz>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Keith Busch <kbusch@kernel.org>,
-        Christoph Hellwig <hch@lst.de>, linux-nvme@lists.infradead.org
-Subject: Re: [PATCH AUTOSEL 5.10 14/17] nvme: fix nvme_setup_command metadata
- trace event
-Message-ID: <20210805121709.GA20159@amd>
-References: <20210727131938.834920-1-sashal@kernel.org>
- <20210727131938.834920-14-sashal@kernel.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="LQksG6bCIzRHxTLp"
-Content-Disposition: inline
-In-Reply-To: <20210727131938.834920-14-sashal@kernel.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+        id S240993AbhHEN1i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Aug 2021 09:27:38 -0400
+Received: from mail.efficios.com ([167.114.26.124]:35262 "EHLO
+        mail.efficios.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236676AbhHEN1i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Aug 2021 09:27:38 -0400
+Received: from localhost (localhost [127.0.0.1])
+        by mail.efficios.com (Postfix) with ESMTP id 6F37B370901;
+        Thu,  5 Aug 2021 09:27:23 -0400 (EDT)
+Received: from mail.efficios.com ([127.0.0.1])
+        by localhost (mail03.efficios.com [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id JzP46YLb5rOc; Thu,  5 Aug 2021 09:27:22 -0400 (EDT)
+Received: from localhost (localhost [127.0.0.1])
+        by mail.efficios.com (Postfix) with ESMTP id CF456370459;
+        Thu,  5 Aug 2021 09:27:22 -0400 (EDT)
+DKIM-Filter: OpenDKIM Filter v2.10.3 mail.efficios.com CF456370459
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=efficios.com;
+        s=default; t=1628170042;
+        bh=jtV0eyy5OGRjmfLEo93OnurRPMzroe3nrfzjTSNp0Qc=;
+        h=From:To:Date:Message-Id;
+        b=ghnFTssNirNRDx8cUNY6drI9/0JS35QIGegYGBd9l1jk8aiTQhkFD9zAcDuszPtkh
+         JABxPQ/spaQzj6wjjeMPrUKZroSAcK34LeHzSMzgapRZQGAf4kB59ICWk+Qk9EQcn3
+         eh3/hyS/AdpPJp005xYVNwEcDfRf2ih07kU7FSlM+xhoR2+LKafa6rhNWL+A2dCvlJ
+         cpp6biJYFAvqc7pI45yngwbfNfMaFOAwU0SRLR31G9X8e6FFbzJzMkfddwpJSv3bbL
+         NvAQ4M8EHECnULI/5PrVpTPLZpLcfoT6+oJIR0+y441UPXLRUVdAVbGEsjp2XQxk0E
+         k1/wF7RhMgm5A==
+X-Virus-Scanned: amavisd-new at efficios.com
+Received: from mail.efficios.com ([127.0.0.1])
+        by localhost (mail03.efficios.com [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id HLSJAf3mlfNf; Thu,  5 Aug 2021 09:27:22 -0400 (EDT)
+Received: from localhost.localdomain (173-246-27-5.qc.cable.ebox.net [173.246.27.5])
+        by mail.efficios.com (Postfix) with ESMTPSA id 925FD370457;
+        Thu,  5 Aug 2021 09:27:22 -0400 (EDT)
+From:   Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+To:     Steven Rostedt <rostedt@goodmis.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Stefan Metzmacher <metze@samba.org>, stable@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Subject: [PATCH 0/3] tracepoint static call fixes
+Date:   Thu,  5 Aug 2021 09:27:14 -0400
+Message-Id: <20210805132717.23813-1-mathieu.desnoyers@efficios.com>
+X-Mailer: git-send-email 2.17.1
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+This series fixes issues with tracepoint callback function vs data
+argument mismatch when back-to-back registrations/unregistrations are
+performed.
 
---LQksG6bCIzRHxTLp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Those issues were introduced by the tracepoint optimizations using
+static_call().
 
-Hi!
+Thanks,
 
-> The metadata address is set after the trace event, so the trace is not
-> capturing anything useful. Rather than logging the memory address, it's
-> useful to know if the command carries a metadata payload, so change the
-> trace event to log that true/false state instead.
+Mathieu
 
-I see this makes sense for mainline, but I'm not sure if it is
-severe-enough bug for -stable.
+Mathieu Desnoyers (3):
+  Fix: tracepoint: static call: compare data on transition from 2->1
+    callees
+  Fix: tracepoint: static call function vs data state mismatch (v2)
+  Fix: tracepoint: rcu get state and cond sync for static call updates
+    (v2)
 
-Best regards,
-								Pavel
-							=09
---=20
-http://www.livejournal.com/~pavelmachek
+ kernel/tracepoint.c | 159 ++++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 139 insertions(+), 20 deletions(-)
 
---LQksG6bCIzRHxTLp
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+-- 
+2.17.1
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAmEL1sUACgkQMOfwapXb+vKKkgCgu2gVX0pMthBnrewv9t4Iivam
-+RkAn3pZLe940bLmbmZkDD2Wdjw3Twbt
-=qbOu
------END PGP SIGNATURE-----
-
---LQksG6bCIzRHxTLp--
