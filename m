@@ -2,73 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 79FFF3E1A63
-	for <lists+stable@lfdr.de>; Thu,  5 Aug 2021 19:29:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B5173E1A90
+	for <lists+stable@lfdr.de>; Thu,  5 Aug 2021 19:39:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236981AbhHERaH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Aug 2021 13:30:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56136 "EHLO
+        id S237396AbhHERjj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Aug 2021 13:39:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230385AbhHERaH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Aug 2021 13:30:07 -0400
-Received: from mail-oi1-x233.google.com (mail-oi1-x233.google.com [IPv6:2607:f8b0:4864:20::233])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E775CC061765
-        for <stable@vger.kernel.org>; Thu,  5 Aug 2021 10:29:52 -0700 (PDT)
-Received: by mail-oi1-x233.google.com with SMTP id o20so8317742oiw.12
-        for <stable@vger.kernel.org>; Thu, 05 Aug 2021 10:29:52 -0700 (PDT)
+        with ESMTP id S240362AbhHERjj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Aug 2021 13:39:39 -0400
+Received: from mail-oo1-xc31.google.com (mail-oo1-xc31.google.com [IPv6:2607:f8b0:4864:20::c31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7364C06179C
+        for <stable@vger.kernel.org>; Thu,  5 Aug 2021 10:39:24 -0700 (PDT)
+Received: by mail-oo1-xc31.google.com with SMTP id 13-20020a4ae1ad0000b029024b19a4d98eso1526276ooy.5
+        for <stable@vger.kernel.org>; Thu, 05 Aug 2021 10:39:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to;
-        bh=//g4i7dPmM5LMqLCjDXvcXRGd95uXE2vgn4qzLwU0SY=;
-        b=PNO1jlvypvti+ViP9dl5Diewq2aHSsq40M5p0Wqa+L9WT+44MTQSg1X1U6nqPKtrLo
-         079s+m7XLwWWSMFhtqT1UzXcfEuxXhvdEFz2UP/2pZyIXwWP1ip2DK6RToSOzK/QFqhv
-         JN+I2kapp0zDV54QCVs0q3XJkFY4L6nBQFoqzIC4xzNvy2mN8Hx1yM49GYLUcwWTQc4C
-         4owJPLl7VPJ0V94PRv50dCGkKAtAJkG0uz1zVkLYU4gEMFfre/4e3Ev4Vo4a+SI9hsbG
-         MqtIqstPyq4m0Lfs/SLvy60Ts2nDq6oa3o+B3QSWXJgJyyEr/lhA4oAGmgtsOkFq784v
-         K4QA==
+        bh=IqGgYBMNpNT1DdCbjXthB9OTaG+Xk6tkCmQF824Essk=;
+        b=L51hoAWwUgwn2V6nX30QPrDPROKg0C0z4Kk2NRvmNRNigYs7PQo5/RbFSHiz/h/uNK
+         sJ+uhsWV2LrMCZo663qNpZ0pa5TQIHuD7aIKEYM/B7it9nX1FwOOHkhg+PHQGccRSxYT
+         MUmPHChcB7yuZdCQlcHTi6ZCuj+f8WVdub12ObTv3HhKEbYER6snd2ES5K7tjTwXRhsH
+         HeQ3UCAEqvI/lCmooYXE/A33ZKPrEeZdp6yQdVO2/VilWGUE5v/h1Yz4lW/Ay4PDxZxA
+         HhQBaFxA2LxJJ7+4I3kQTEPhSHDgNCcNRj0qwJpehP0ulNt14mSBXBRhfwQapYvsSXUC
+         U1Xw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
          :references:mime-version:content-disposition:in-reply-to;
-        bh=//g4i7dPmM5LMqLCjDXvcXRGd95uXE2vgn4qzLwU0SY=;
-        b=Lo+OerTguFojtDGxl2wkXfSDmL05WlGgNq1z5Lr/hbfVxCUh8KJEKkzkiF76vDLMsp
-         vk+gwUNORZGzYWQROj3Ao+lCdQkRPXC3qEh39cYXzlns77FabXnpABQ0JRfpuG/NlTI8
-         SUjSdCHjwW3bNFpjxDH11XVm77x0FCvCxbSHdbqsw+oTbyXlvId5JbgytXHam3ypozCm
-         jdToGtHXx4FLIIe1yWYYNGs2mTn0d5aLTIpVnNl/Op8R2qifcuxeHcR2sxDm0h0ftEvG
-         ZA5XdrsSdV6nWmY0pPIOwQegM1Ci/4pQf+tJAPO/gOAZfDkbP8sXzOpHy8Ja1H2c3ihT
-         IpNw==
-X-Gm-Message-State: AOAM532r3rl8ckv/PaE6fuLoscAw4PkKzJdQOnetFdUlNboLs1Khq5UB
-        qc5M9+3sg0wcXdgopmLGFqs=
-X-Google-Smtp-Source: ABdhPJxcW4dwR86PUIrvhW4r/RPUDG5pOXDxqMkHXvbE6yN5FiwYoSlyFDmiCBcH4y7+k8UDEIxZ1w==
-X-Received: by 2002:aca:32c5:: with SMTP id y188mr10900993oiy.127.1628184592287;
-        Thu, 05 Aug 2021 10:29:52 -0700 (PDT)
+        bh=IqGgYBMNpNT1DdCbjXthB9OTaG+Xk6tkCmQF824Essk=;
+        b=JJN/ETsIcXBR0bOAt1zzp/k1yopuTV6jONjDJVujlRLTkdGkH+tItfzyF13tHVl8SO
+         gXDBT1EkrOahmDvvSW2zIEY1C5q0WyQM9369s6A6CAELqtaEX+EXYLEM0bgw27IydmEE
+         mnGSWZTeyObcnd/0bYt0NL9wP+uUTbcoechp38KF0uO/Xc+CSJ5qifD2Q6tW8gsUE6jG
+         WZe3gqpvN/PPQZInXp8x61xmPLquPNyO9cDFAdgY06K077KJmaQD/ZGiR4PRBRggJAs/
+         W2dAJtRiUZnAEejITELWwo4rFkY2G7Ns4l/KjG+EQoN5nKvjlG3lDuSMqIE2Kr23b7Hs
+         6xyA==
+X-Gm-Message-State: AOAM530K1I5R6PuSiY4Q0qPgFSHLim/xLTeu1fyj9IhxGObxV2HrL2id
+        vIjVSrQF2mUNQEwi7x4Qie4=
+X-Google-Smtp-Source: ABdhPJxH2gBHqiUoZ+lU7XSlSsfqrO+s4EPE1uoYGLYMmbKnUqFqQTp1XYg54jWrd4aOav2UDaV/uA==
+X-Received: by 2002:a4a:306:: with SMTP id 6mr4049143ooi.49.1628185163989;
+        Thu, 05 Aug 2021 10:39:23 -0700 (PDT)
 Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id n9sm1033267otn.54.2021.08.05.10.29.50
+        by smtp.gmail.com with ESMTPSA id o13sm1039633otl.58.2021.08.05.10.39.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 05 Aug 2021 10:29:51 -0700 (PDT)
+        Thu, 05 Aug 2021 10:39:23 -0700 (PDT)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Thu, 5 Aug 2021 10:29:49 -0700
+Date:   Thu, 5 Aug 2021 10:39:22 -0700
 From:   Guenter Roeck <linux@roeck-us.net>
-To:     Willy Tarreau <w@1wt.eu>
-Cc:     stable <stable@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable <stable@vger.kernel.org>, Sasha Levin <sashal@kernel.org>
 Subject: Re: Regressions in stable releases
-Message-ID: <20210805172949.GA3691426@roeck-us.net>
+Message-ID: <20210805173922.GB3691426@roeck-us.net>
 References: <efee3a58-a4d2-af22-0931-e81b877ab539@roeck-us.net>
- <20210805164254.GG17808@1wt.eu>
+ <YQwPg1VQZTyPSkXe@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210805164254.GG17808@1wt.eu>
+In-Reply-To: <YQwPg1VQZTyPSkXe@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Aug 05, 2021 at 06:42:54PM +0200, Willy Tarreau wrote:
-> Hi Guenter,
-> 
+On Thu, Aug 05, 2021 at 06:19:15PM +0200, Greg Kroah-Hartman wrote:
 > On Thu, Aug 05, 2021 at 09:11:02AM -0700, Guenter Roeck wrote:
 > > Hi folks,
 > > 
@@ -84,7 +80,15 @@ On Thu, Aug 05, 2021 at 06:42:54PM +0200, Willy Tarreau wrote:
 > > 60789afc02f5 Bluetooth: Shutdown controller after workqueues are flushed or cancelled
 > > 	Breaks Bluetooth on various devices (Mediatek and possibly others)
 > > 	Discussion: https://lkml.org/lkml/2021/7/28/569
-> > 
+> 
+> Are either of these being tracked on the regressions list?  I have not
+> noticed them being reported there, or on the stable list :(
+> 
+
+I wasn't aware of regressions@lists.linux.dev. Clueless me. And this is the
+report on the stable list, or at least that was the idea. Should I send separate
+emails to regressions@ with details ?
+
 > > Unfortunately, it appears that all our testing doesn't cover SPI and Bluetooth.
 > > 
 > > I understand that upstream is just as broken until fixes are applied there.
@@ -94,28 +98,11 @@ On Thu, Aug 05, 2021 at 06:42:54PM +0200, Willy Tarreau wrote:
 > > 
 > > If you have an idea how to improve the situation, please let me know.
 > 
-> The first one is really interesting. The author did all the job right
-> by documenting what commit this patch fixed, this commit was indeed
-> present in the stable branches, and given that the change is probably
-> only understood by the driver's maintainer, it's very likely that he
-> did that in good faith after some testing on real hardware. So there's
-> little chance that any extra form of automated testing will catch this
-> if it worked at least in one place.
+> We need to get tests running in kernelci on real hardware, that's going
+> to be much more helpful here.
 > 
-> It looks like a typical "works for me" regression. The best thing that
-> could possibly be done to limit such occurrences would be to wait "long
-> enough" before backporting them, in hope to catch breakage reports before
-> the backport, but here there were already 3 weeks between the patch was
-> submitted and it was backported.
 
-No. The patch is wrong. It just _looks_ correct at first glance. It claims
-to fix something that wasn't broken. FIFO rx mode was working just fine,
-handled in the receive interrupt as one would expect. The patch copies
-data from the rx fifo before the transfer is even started. I do not
-think it was tested on real hardware, or at least fifo receive transfer
-was not tested.
-
-The patch _does_ fix a problem on the transmit side, but the patch subject
-doesn't mention that.
+Yes, I know. Of course it didn't help that our internal testing didn't catch
+the problem until after the fact either.
 
 Guenter
