@@ -2,23 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE8A23E1CD9
-	for <lists+stable@lfdr.de>; Thu,  5 Aug 2021 21:38:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A40353E1CEA
+	for <lists+stable@lfdr.de>; Thu,  5 Aug 2021 21:42:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243065AbhHETif (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Aug 2021 15:38:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36044 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242990AbhHETie (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 5 Aug 2021 15:38:34 -0400
-Received: from oasis.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 775CE61104;
-        Thu,  5 Aug 2021 19:38:19 +0000 (UTC)
-Date:   Thu, 5 Aug 2021 15:38:17 -0400
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+        id S229594AbhHETnJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Aug 2021 15:43:09 -0400
+Received: from mail.efficios.com ([167.114.26.124]:51844 "EHLO
+        mail.efficios.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230107AbhHETnJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Aug 2021 15:43:09 -0400
+Received: from localhost (localhost [127.0.0.1])
+        by mail.efficios.com (Postfix) with ESMTP id ABBD4372F8B;
+        Thu,  5 Aug 2021 15:42:54 -0400 (EDT)
+Received: from mail.efficios.com ([127.0.0.1])
+        by localhost (mail03.efficios.com [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id bBhCztCMCFQO; Thu,  5 Aug 2021 15:42:54 -0400 (EDT)
+Received: from localhost (localhost [127.0.0.1])
+        by mail.efficios.com (Postfix) with ESMTP id 3766B372F34;
+        Thu,  5 Aug 2021 15:42:54 -0400 (EDT)
+DKIM-Filter: OpenDKIM Filter v2.10.3 mail.efficios.com 3766B372F34
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=efficios.com;
+        s=default; t=1628192574;
+        bh=WfyReBBO77MmxWvFmimPtSti1ktLJSjFb/I5kgd3NBs=;
+        h=Date:From:To:Message-ID:MIME-Version;
+        b=UaWBoc2qMVukxbBTu4cClk4l6MmtkSS/YJuzmJQ0+Q6cmuulm7/OwhmpamiBTX37S
+         ++ykDHMUu243uyaXq89zRxsSvsceolZ96DVoDTHYM5Jkyc42Nh49pCHXd4vEopaIsl
+         ajp10VstbXvY1uoTjYLJDimH/5zO/T8eQnQDO4V4BDo6WGJsqJiQLdmK4NR5jqtaJv
+         tE2L4ao5lWoAdDYgCOjpAAQMBR2nDZuWQVF3JnE2MGDo1i4AUFddZssE1qbJwjRIzm
+         emU+bSFK1l+q1cHYRckyJncRPoJA/NfypMwInOuroCUPeXDEhXP8Fs9qz7S6VGjfAD
+         xz41YKVXX34Ow==
+X-Virus-Scanned: amavisd-new at efficios.com
+Received: from mail.efficios.com ([127.0.0.1])
+        by localhost (mail03.efficios.com [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id ylGBmg4v5Crb; Thu,  5 Aug 2021 15:42:54 -0400 (EDT)
+Received: from mail03.efficios.com (mail03.efficios.com [167.114.26.124])
+        by mail.efficios.com (Postfix) with ESMTP id 28381372F8A;
+        Thu,  5 Aug 2021 15:42:54 -0400 (EDT)
+Date:   Thu, 5 Aug 2021 15:42:54 -0400 (EDT)
+From:   Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+To:     rostedt <rostedt@goodmis.org>
 Cc:     Ingo Molnar <mingo@redhat.com>,
         Peter Zijlstra <peterz@infradead.org>,
         Andrew Morton <akpm@linux-foundation.org>,
@@ -26,61 +48,75 @@ Cc:     Ingo Molnar <mingo@redhat.com>,
         Stefan Metzmacher <metze@samba.org>,
         stable <stable@vger.kernel.org>,
         linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <1847120259.7313.1628192574061.JavaMail.zimbra@efficios.com>
+In-Reply-To: <20210805153817.1c82dcc6@oasis.local.home>
+References: <20210805132717.23813-1-mathieu.desnoyers@efficios.com> <20210805132717.23813-3-mathieu.desnoyers@efficios.com> <20210805145631.609e0a80@oasis.local.home> <1058325468.7289.1628190943244.JavaMail.zimbra@efficios.com> <20210805153817.1c82dcc6@oasis.local.home>
 Subject: Re: [PATCH 2/3] Fix: tracepoint: static call function vs data state
  mismatch (v2)
-Message-ID: <20210805153817.1c82dcc6@oasis.local.home>
-In-Reply-To: <1058325468.7289.1628190943244.JavaMail.zimbra@efficios.com>
-References: <20210805132717.23813-1-mathieu.desnoyers@efficios.com>
-        <20210805132717.23813-3-mathieu.desnoyers@efficios.com>
-        <20210805145631.609e0a80@oasis.local.home>
-        <1058325468.7289.1628190943244.JavaMail.zimbra@efficios.com>
-X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
+X-Originating-IP: [167.114.26.124]
+X-Mailer: Zimbra 8.8.15_GA_4101 (ZimbraWebClient - FF90 (Linux)/8.8.15_GA_4059)
+Thread-Topic: tracepoint: static call function vs data state mismatch (v2)
+Thread-Index: gu64SixZMRBVcbuhVyuhsvUJVLtG0Q==
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 5 Aug 2021 15:15:43 -0400 (EDT)
-Mathieu Desnoyers <mathieu.desnoyers@efficios.com> wrote:
+----- On Aug 5, 2021, at 3:38 PM, rostedt rostedt@goodmis.org wrote:
 
-> ----- On Aug 5, 2021, at 2:56 PM, rostedt rostedt@goodmis.org wrote:
+> On Thu, 5 Aug 2021 15:15:43 -0400 (EDT)
+> Mathieu Desnoyers <mathieu.desnoyers@efficios.com> wrote:
 > 
-> > Note, there shouldn't be a "(v2)" outside the "[PATCH ]" part.
-> > Otherwise it gets added into the git commit during "git am".  
+>> ----- On Aug 5, 2021, at 2:56 PM, rostedt rostedt@goodmis.org wrote:
+>> 
+>> > Note, there shouldn't be a "(v2)" outside the "[PATCH ]" part.
+>> > Otherwise it gets added into the git commit during "git am".
+>> 
+>> Out of curiosity, do you know any way to annotate my local commits to have the
+>> [PATCH v2] tag automatically generated by git send-email ?
 > 
-> Out of curiosity, do you know any way to annotate my local commits to have the
-> [PATCH v2] tag automatically generated by git send-email ?
+> I pass -v2 to git send-email, and it adds the v2 for me.
 
-I pass -v2 to git send-email, and it adds the v2 for me.
-
-> > This is a big enough regression, I'll even add a Fixes tag to the next
-> > patch on the final sha1 of this patch! Such that this patch won't be
-> > backported without the next patch.  
-> 
-> This makes sense. I still wanted to keep the two patches separate so we would
-> introduce the (slow) state machine in the first patch, and optimize for
-> speed in the second. My intent is to facilitate of small logical changes,
-> and make bisection more precise in the future if we introduce an issue
-> here.
-
-I agree which is why I didn't ask you to fold them. The logic in this
-code was a big enough change, where I agree it should be kept separate.
-Unfortunately, it caused a huge performance regression :-(, but at the
-same time, fixed a correctness issue, which Thomas always says that
-correctness trumps performance.
-
-But the compromise is to add a Fixes tag to the next patch and document
-why they are separated, but still required to act as "one". I'll add
-that commentary.
-
--- Steve
+OK, so you version the entire patch series in one go. It makes sense.
 
 > 
-> Calling out more clearly how slow things become with this patch is indeed
-> important.
+>> > This is a big enough regression, I'll even add a Fixes tag to the next
+>> > patch on the final sha1 of this patch! Such that this patch won't be
+>> > backported without the next patch.
+>> 
+>> This makes sense. I still wanted to keep the two patches separate so we would
+>> introduce the (slow) state machine in the first patch, and optimize for
+>> speed in the second. My intent is to facilitate of small logical changes,
+>> and make bisection more precise in the future if we introduce an issue
+>> here.
 > 
-> >   
-> >> 
+> I agree which is why I didn't ask you to fold them. The logic in this
+> code was a big enough change, where I agree it should be kept separate.
+> Unfortunately, it caused a huge performance regression :-(, but at the
+> same time, fixed a correctness issue, which Thomas always says that
+> correctness trumps performance.
 > 
+> But the compromise is to add a Fixes tag to the next patch and document
+> why they are separated, but still required to act as "one". I'll add
+> that commentary.
+
+Perfect, thanks!
+
+Mathieu
+
+> 
+> -- Steve
+> 
+>> 
+>> Calling out more clearly how slow things become with this patch is indeed
+>> important.
+>> 
+>> >   
+>> >> 
+
+-- 
+Mathieu Desnoyers
+EfficiOS Inc.
+http://www.efficios.com
