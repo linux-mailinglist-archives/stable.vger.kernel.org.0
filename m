@@ -2,114 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A69B3E19BA
-	for <lists+stable@lfdr.de>; Thu,  5 Aug 2021 18:37:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 084383E19C4
+	for <lists+stable@lfdr.de>; Thu,  5 Aug 2021 18:43:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232709AbhHEQiL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Aug 2021 12:38:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44166 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231154AbhHEQiL (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Thu, 5 Aug 2021 12:38:11 -0400
-Received: from mail-il1-x134.google.com (mail-il1-x134.google.com [IPv6:2607:f8b0:4864:20::134])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8CC9C061765
-        for <Stable@vger.kernel.org>; Thu,  5 Aug 2021 09:37:55 -0700 (PDT)
-Received: by mail-il1-x134.google.com with SMTP id k3so5755238ilu.2
-        for <Stable@vger.kernel.org>; Thu, 05 Aug 2021 09:37:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=/Mqfwm2VsgMW+UlkRNpNUPRQjYaN1K1+KDSraubvzB0=;
-        b=i69GLJropGrvxlBXc/GCCu0N1wnnvOheO2RKVpFg5BqnoEWpN0RTd5ddzoOJ/lzGeZ
-         0B96GAwBwig89ICKe79puLK4vw8iZ44Iru3rXJ/f4GTOGs5Px0lfEauAvvxITn/Q9V+F
-         GMSsA8DDae86NmIvFZ1N4mprFHffCC4r1W6l4QIBodaQh/Sn31q3p2hHzoQNMVASIOBq
-         NhZo8+mwHOez1ijvU5AXUTtRch7rDccjYg+0MC7xxTJcEXPhFBLwu9wx6G96TE1/UTbl
-         NN7e0DhUxzRW2wrW8wQzhRrg7bEXlQgzs2VDfI/7JHhAeNHXwgKLDUenupS3rWR8lHiz
-         rvqA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=/Mqfwm2VsgMW+UlkRNpNUPRQjYaN1K1+KDSraubvzB0=;
-        b=lRbC+c+OIrnxWT9PiQly98BjHzrPtuydUzL5FY4pO6KwNpBDjeym8JApwvOUqhuFXP
-         ptSFHEeSKvNx1tiR0XOZ5I1sSZ9kExOJVUYPNoytbRLiKmYhCPFdMjzG7FkebcsB/4Il
-         AuwVbnjNnqEFXdN2TIVpNxmQIcQ1PG0CFgKWVPwu2/oWbDqSCzDW5pctTneDBJK0vWWW
-         wEbfo24YP51SyvoUSdFWjALFA1z1C4vYdWcibmq2ij2ZtGBxwLexjRZsobeYhm6XGDAs
-         e3PQ5ZoFC/IEsZCurDDhg7aY8QLmLf6aA9Y+vO5AsIlGsqnYmXEcpMqIdMRe7NDjyMgO
-         DbmQ==
-X-Gm-Message-State: AOAM530gSNfClxEkWuXRdG7zQCKmhoPHJ5NpRN8i8ujP5ephc4T7p2ZM
-        XINFkqVwmO7+oVhs1IwUc+7yqE0yID7/HBK57dE=
-X-Google-Smtp-Source: ABdhPJxF2GTFWhch7iPqp1HbW+oVT95enqPYgwYu7AQ5x5NTlABdlsOfKOIY0RPxfNir+e0Qam6p6WpyEN57dw6DotQ=
-X-Received: by 2002:a05:6e02:2196:: with SMTP id j22mr647985ila.240.1628181474429;
- Thu, 05 Aug 2021 09:37:54 -0700 (PDT)
+        id S233242AbhHEQn1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Aug 2021 12:43:27 -0400
+Received: from wtarreau.pck.nerim.net ([62.212.114.60]:34690 "EHLO 1wt.eu"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233551AbhHEQn1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 5 Aug 2021 12:43:27 -0400
+Received: (from willy@localhost)
+        by pcw.home.local (8.15.2/8.15.2/Submit) id 175GgsRE021493;
+        Thu, 5 Aug 2021 18:42:54 +0200
+Date:   Thu, 5 Aug 2021 18:42:54 +0200
+From:   Willy Tarreau <w@1wt.eu>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     stable <stable@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: Regressions in stable releases
+Message-ID: <20210805164254.GG17808@1wt.eu>
+References: <efee3a58-a4d2-af22-0931-e81b877ab539@roeck-us.net>
 MIME-Version: 1.0
-Received: by 2002:a5d:88c4:0:0:0:0:0 with HTTP; Thu, 5 Aug 2021 09:37:53 -0700 (PDT)
-Reply-To: abraaahammorrison@gmail.com
-From:   Abraham Morrison <johnego001@gmail.com>
-Date:   Thu, 5 Aug 2021 16:37:53 +0000
-Message-ID: <CACOK_JvFmc2UFMN=M=bUKRkHWg-wTUhAjgUYMtPOi5onH9oqJQ@mail.gmail.com>
-Subject: Good day!
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <efee3a58-a4d2-af22-0931-e81b877ab539@roeck-us.net>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Uzman=C4=ABbu l=C5=ABdzu,
+Hi Guenter,
 
-M=C4=93s esam Starptautisk=C4=81 Val=C5=ABtas fonda deleg=C4=81ti sadarb=C4=
-=ABb=C4=81 ar Apvienoto
-N=C4=81ciju Organiz=C4=81cijas (ANO) =C4=80frikas Savien=C4=ABbas (=C4=80S)=
-, Eiropas Savien=C4=ABbas
-(ES) un FIB pal=C4=ABdz=C4=ABbu, lai katrs samaks=C4=81tu kr=C4=81p=C5=A1an=
-as upuriem 500
-000,00 USD.
+On Thu, Aug 05, 2021 at 09:11:02AM -0700, Guenter Roeck wrote:
+> Hi folks,
+> 
+> we have (at least) two severe regressions in stable releases right now.
+> 
+> [SHAs are from linux-5.10.y]
+> 
+> 2435dcfd16ac spi: mediatek: fix fifo rx mode
+> 	Breaks SPI access on all Mediatek devices for small transactions
+> 	(including all Mediatek based Chromebooks since they use small SPI
+> 	 transactions for EC communication)
+> 
+> 60789afc02f5 Bluetooth: Shutdown controller after workqueues are flushed or cancelled
+> 	Breaks Bluetooth on various devices (Mediatek and possibly others)
+> 	Discussion: https://lkml.org/lkml/2021/7/28/569
+> 
+> Unfortunately, it appears that all our testing doesn't cover SPI and Bluetooth.
+> 
+> I understand that upstream is just as broken until fixes are applied there.
+> Still, it shows that our test coverage is far from where it needs to be,
+> and/or that we may be too aggressive with backporting patches to stable
+> releases.
+> 
+> If you have an idea how to improve the situation, please let me know.
 
-M=C5=ABsu izmekl=C4=93=C5=A1anas gait=C4=81 Apvienoto N=C4=81ciju Organiz=
-=C4=81cijas Noziedz=C4=ABbas
-apkaro=C5=A1anas komisija un Starptautiskais Val=C5=ABtas fonds (SVF) lika
-naudu, kas atg=C5=ABta no kr=C4=81pniekiem, sadal=C4=ABt starp laim=C4=ABga=
-jiem cilv=C4=93kiem
-vis=C4=81 pasaul=C4=93 par kompens=C4=81ciju.
+The first one is really interesting. The author did all the job right
+by documenting what commit this patch fixed, this commit was indeed
+present in the stable branches, and given that the change is probably
+only understood by the driver's maintainer, it's very likely that he
+did that in good faith after some testing on real hardware. So there's
+little chance that any extra form of automated testing will catch this
+if it worked at least in one place.
 
-=C5=A0=C4=AB v=C4=93stule jums tika nos=C5=ABt=C4=ABta, jo j=C5=ABsu e -pas=
-ta adrese tika atrasta
-k=C4=81d=C4=81 no kr=C4=81pnieku failiem un dators ir cietais disks m=C5=AB=
-su izmekl=C4=93=C5=A1anas
-laik=C4=81. Varb=C5=ABt j=C5=ABs esat kr=C4=81pts vai n=C4=93, t=C4=81 tiek=
- kompens=C4=93ta ar summu 500
-000,00 USD.
+It looks like a typical "works for me" regression. The best thing that
+could possibly be done to limit such occurrences would be to wait "long
+enough" before backporting them, in hope to catch breakage reports before
+the backport, but here there were already 3 weeks between the patch was
+submitted and it was backported.
 
-Jums tiek l=C5=ABgts sazin=C4=81ties ar m=C5=ABsu maks=C4=81jumu virsnieku =
-par bankom=C4=81ta
-karti 500 000,00 ASV dol=C4=81ru apm=C4=93r=C4=81, kuru m=C4=93s jums patur=
-=C4=93j=C4=81m.
-Sazinieties ar vi=C5=86u t=C5=ABl=C4=ABt bez kav=C4=93=C5=A1an=C4=81s.
+One solution might be to further increase the delay between the patch
+and its integration, but do we think it could increase the likelyhood
+that the bug is detected and reported in *some* environment ? And if
+so, is the overall situation any better with *some* users experiencing
+a possible rare regression compared to leaving 100% of the users exposed
+to a known bug in stable branches ? That's always difficult. As a user
+of the stable branches I personally prefer to risk a rare regression and
+report it than not getting fixes, because if the risk of regression in a
+patch is 1%, I'd rather get 99 useful fixes and 1 regression than no fix
+for a bug that bothers me.
 
-V=C4=81rds: Linda Koffi jaunkundze
-E -pasts: misslindakoffi01@gmail.com
+So very likely the most robust solution is to further encourage users
+to report regressions as soon as they are met so that the faulty commits
+are spotted, reverted, and their author is aware that a corner case was
+identified. Greg is always very fast to respond to requests for reverts.
 
-L=C5=ABdzu, v=C4=93lreiz apstipriniet vi=C5=86ai =C5=A1=C4=81du inform=C4=
-=81ciju:
+Also, for a developer, being aware of a deployment exhibiting an issue
+is extremely valuable, and the chances of spotting an issue and getting
+it fixed are much higher if the delay between integration and deployment
+is shorter. Otherwise it can sometimes take months to years before driver
+code lands into users' hands, especially with embedded systems where the
+rule remains "if it's not broken, don't touch it".
 
-Tavs pilnais v=C4=81rds:........
-J=C5=ABsu adrese:..........
-Tava valsts:..........
-Tavs vecums:.........
-J=C5=ABsu nodarbo=C5=A1an=C4=81s:..........
-J=C5=ABsu mobil=C4=81 t=C4=81lru=C5=86a numurs: ..........
-J=C5=ABsu pase vai autovad=C4=ABt=C4=81ja apliec=C4=ABba: .........
+So in the end, the more often users upgrade, the better both for them and
+to spot issues. I know it doesn't please everyone, but while nobody likes
+bugs, someone has to face them at some point in order to report them :-/
 
-=C5=85emiet v=C4=93r=C4=81, ka, ja j=C5=ABs neesat vi=C5=86ai nos=C5=ABt=C4=
-=ABjis iepriek=C5=A1 min=C4=93to
-inform=C4=81ciju, vi=C5=86a neatbr=C4=ABvos jums bankom=C4=81ta karti, jo v=
-i=C5=86ai ir j=C4=81b=C5=ABt
-p=C4=81rliecin=C4=81tai, ka t=C4=81 esat j=C5=ABs. Pal=C5=ABdziet vi=C5=86a=
-i nos=C5=ABt=C4=ABt jums kop=C4=93jo
-(500 000,00 USD) bankom=C4=81ta karti, kuru m=C4=93s jums patur=C4=93j=C4=
-=81m.
+In an ideal world we could imagine that postponing sensitive backports to
+older branches would improve their stability and reduce users' exposure.
+We're doing this to a certain extent in haproxy and it sort-of works. But
+the cost of keeping fixes in queue and postponing them is high and the
+risk of failing a backport is much higher this way, because either you
+prepare all the backports at once and you risk that the context changed
+between the initial backport and the merge, or you have to them at the
+last moment, without remembering any of the analysis that had to be done
+for the first branches.
 
-Ar laba v=C4=93l=C4=93jumiem,
-=C4=80brahama Morisona kungs
+Maybe in the end a sweet spot could be to just release older branches less
+often and with more patches each time, offering more chances to expose the
+faulty backports to more recent branches and affecting super-stable users
+even less ?
+
+Just my two cents on this never-ending debate :-/
+Willy
