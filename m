@@ -2,193 +2,308 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 053E03E0F56
-	for <lists+stable@lfdr.de>; Thu,  5 Aug 2021 09:35:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 226363E0FB9
+	for <lists+stable@lfdr.de>; Thu,  5 Aug 2021 09:56:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232270AbhHEHgH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Aug 2021 03:36:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59638 "EHLO
+        id S236977AbhHEH4l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Aug 2021 03:56:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237869AbhHEHfc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Aug 2021 03:35:32 -0400
-Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BADBC061765
-        for <stable@vger.kernel.org>; Thu,  5 Aug 2021 00:35:19 -0700 (PDT)
-Received: by mail-pj1-x1033.google.com with SMTP id u13-20020a17090abb0db0290177e1d9b3f7so12789281pjr.1
-        for <stable@vger.kernel.org>; Thu, 05 Aug 2021 00:35:19 -0700 (PDT)
+        with ESMTP id S232191AbhHEH4l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Aug 2021 03:56:41 -0400
+Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7CFDC061765
+        for <stable@vger.kernel.org>; Thu,  5 Aug 2021 00:56:27 -0700 (PDT)
+Received: by mail-pj1-x102b.google.com with SMTP id j1so6820359pjv.3
+        for <stable@vger.kernel.org>; Thu, 05 Aug 2021 00:56:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=O3kHV4CzCnHG+bTxMB2iuVhcRuwS9UsO30Dc+RBSeUU=;
-        b=WYUdnXCDrH8VBrbfaAAugJXz8374zHKiMgI8l5nkCwqRhu6+T6CIkzeXGsZUdfsovr
-         Ydc5rmuyvTCHujAcxpS9ZgsUEfnaxgrfdl2NBos+9MNSLcMRNn8KGB7fQZOZ9L5jggnd
-         L8C4+JiNsGKtStcx9LifH+WrR225zuWN3uWo/UIWBmzx5FMX0RFtEkCmvsxee9px9zOS
-         jd/SVEKEKko4HDBMYMi5vM8tgIBkHB6qP7emlje7IEe85zaaSLlILP0K4rErrXoYDDK5
-         1uc7HMPa3PIwGVaruLdb/XJxLy/tJSbg3Us6H8PHRbl65DpAGCp/sjcudtuUcLHcD3kU
-         4KFA==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=7wQEhtgDnZ4r701eYxRtO3mWFFlUu7kT2P5882nFQPM=;
+        b=tC4QAr4mlSuAf1619zLpljHmUtM2AKwR5RhcRuUvweGqhQoaqcaS1Kz04v7l8aF48i
+         CDrNmwvE+LBaly6hi3ahyxd36pvDVXFiLd1UhytUIhhWa0Y1ipVBetwuHHsKbCr9pbLg
+         gCyAeF0BquEi7v1BpB0HFom7d45hpe+2RSXsqyHnIkAvZgXQH1dJhTJ440EER2Jn/p6m
+         nkKKTeCU/Pc85FiA+UAcye+ugWtglWInNK7C2flkUZRwjfNk+ayPZ8hhmmDsHIAhEMC3
+         Lb7P/ZSfVGjf2sHITNJ+PvP0ffEIJaSA3vKBZjmh2kirbNxko7WGCzPuRIpn/fP/cbu/
+         g4Vg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=O3kHV4CzCnHG+bTxMB2iuVhcRuwS9UsO30Dc+RBSeUU=;
-        b=Nh4ZcDaqPRPtZQHB/A0doTQEON0a7/6Jfd0FggXA8Bk74Tj97OQMYSEN/s3m/Sc8qp
-         DMkmNrvwRfluH3NWdVVexfQiAByYWcSa0QMxSRgc61AJ/JENKs82rg2Tbf0omUX4UWjk
-         PDPd15VfHkC3kS3v+7hOCjBakD27ys2NgkcSpod+O7uXjFoy+LAKMGxaWDChbCalKCpz
-         eBPILUPlQrr9BCa1Bq7rY1AtonNqIMsDsbFy0j1FUQyG5jB84epuNaBZTxTBnD6V1Ncc
-         3hrEFMQAXGnAidhK1RmOZ1VjHvvcVKpc2TAU60xwLXT8F+G1zcHBb6+mNfbLkMoDbslr
-         Tlug==
-X-Gm-Message-State: AOAM530iGw4UpOAMkr+A0RnaoxtEknEVqeyoOofoUzlno1LT5X5htdPx
-        rGw4o1knOW/fqt7tW6C2ZGj8Qg==
-X-Google-Smtp-Source: ABdhPJxc6BeCQ7/WLKBo+mP4K21u22l91OshxYvB4S3tTfjkjkPEXzSufI9TGNK9nKPQ8vA/DbCFAg==
-X-Received: by 2002:a63:f904:: with SMTP id h4mr327718pgi.238.1628148918688;
-        Thu, 05 Aug 2021 00:35:18 -0700 (PDT)
-Received: from localhost ([122.172.201.85])
-        by smtp.gmail.com with ESMTPSA id r7sm6352968pga.44.2021.08.05.00.35.17
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=7wQEhtgDnZ4r701eYxRtO3mWFFlUu7kT2P5882nFQPM=;
+        b=sZvsuGmzrwsqQzlVAI67Ww2EThDSYDXMCPknRUh/rZj9Dh01e8rFk8aBXGAJJgSRMb
+         YZQx70vgeUD0dYXpSaIYC9+4y971oz3bdhHoSZC3AC+y+snateORsO/kb33c5trsEvce
+         7hAnvqJVi/lGeTtFdaa4gtbM2Da9J1Y1taTEwvqfUl4E71kv7CkSk0d1Y7dJP/jWLPjH
+         n/SCSizL7Qg/CK1nyQsNMy8blpK8NTWnZZqjRpgm9OFIa0zorfORcx7JIKJP9UfNIAyY
+         RZXttYSDydgaeyTVXUnvSrGyqne7XIiSSVRGQBJqhA3QPpIp11VSJv7INeKtv+tAVuCJ
+         uPdQ==
+X-Gm-Message-State: AOAM533QUo0EeLCoxtvzYTg0bowtabs7zCx39Da0JzjSB0taM2euhXWj
+        CkjdnzqBA1iSZMzrkw+iAcSDgubMGPATmbhEeNo=
+X-Google-Smtp-Source: ABdhPJy5vf9LEXeYvh33sbfpPir6POUjxmeHnyohOeFaUw3Sis+sn/ewcerrlJw00C+Pd5JaD8rxEA==
+X-Received: by 2002:a17:90b:1bcc:: with SMTP id oa12mr3440345pjb.94.1628150187028;
+        Thu, 05 Aug 2021 00:56:27 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id y2sm5211569pjl.6.2021.08.05.00.56.26
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 05 Aug 2021 00:35:18 -0700 (PDT)
-Date:   Thu, 5 Aug 2021 13:05:16 +0530
-From:   Viresh Kumar <viresh.kumar@linaro.org>
-To:     Kevin Hao <haokexin@gmail.com>
-Cc:     "Rafael J . Wysocki" <rjw@rjwysocki.net>,
-        Ingo Molnar <mingo@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v2] cpufreq: schedutil: Use kobject release() method to
- free sugov_tunables
-Message-ID: <20210805073516.qzpzifjoqluqfwhy@vireshk-i7>
-References: <20210805072917.8762-1-haokexin@gmail.com>
+        Thu, 05 Aug 2021 00:56:26 -0700 (PDT)
+Message-ID: <610b99aa.1c69fb81.db40a.f625@mx.google.com>
+Date:   Thu, 05 Aug 2021 00:56:26 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210805072917.8762-1-haokexin@gmail.com>
-User-Agent: NeoMutt/20180716-391-311a52
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/4.4
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.4.278-4-g57213ee2aa44
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/4.4 baseline: 70 runs,
+ 6 regressions (v4.4.278-4-g57213ee2aa44)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 05-08-21, 15:29, Kevin Hao wrote:
-> The struct sugov_tunables is protected by the kobject, so we can't free
-> it directly. Otherwise we would get a call trace like this:
->   ODEBUG: free active (active state 0) object type: timer_list hint: delayed_work_timer_fn+0x0/0x30
->   WARNING: CPU: 3 PID: 720 at lib/debugobjects.c:505 debug_print_object+0xb8/0x100
->   Modules linked in:
->   CPU: 3 PID: 720 Comm: a.sh Tainted: G        W         5.14.0-rc1-next-20210715-yocto-standard+ #507
->   Hardware name: Marvell OcteonTX CN96XX board (DT)
->   pstate: 40400009 (nZcv daif +PAN -UAO -TCO BTYPE=--)
->   pc : debug_print_object+0xb8/0x100
->   lr : debug_print_object+0xb8/0x100
->   sp : ffff80001ecaf910
->   x29: ffff80001ecaf910 x28: ffff00011b10b8d0 x27: ffff800011043d80
->   x26: ffff00011a8f0000 x25: ffff800013cb3ff0 x24: 0000000000000000
->   x23: ffff80001142aa68 x22: ffff800011043d80 x21: ffff00010de46f20
->   x20: ffff800013c0c520 x19: ffff800011d8f5b0 x18: 0000000000000010
->   x17: 6e6968207473696c x16: 5f72656d6974203a x15: 6570797420746365
->   x14: 6a626f2029302065 x13: 303378302f307830 x12: 2b6e665f72656d69
->   x11: ffff8000124b1560 x10: ffff800012331520 x9 : ffff8000100ca6b0
->   x8 : 000000000017ffe8 x7 : c0000000fffeffff x6 : 0000000000000001
->   x5 : ffff800011d8c000 x4 : ffff800011d8c740 x3 : 0000000000000000
->   x2 : ffff0001108301c0 x1 : ab3c90eedf9c0f00 x0 : 0000000000000000
->   Call trace:
->    debug_print_object+0xb8/0x100
->    __debug_check_no_obj_freed+0x1c0/0x230
->    debug_check_no_obj_freed+0x20/0x88
->    slab_free_freelist_hook+0x154/0x1c8
->    kfree+0x114/0x5d0
->    sugov_exit+0xbc/0xc0
->    cpufreq_exit_governor+0x44/0x90
->    cpufreq_set_policy+0x268/0x4a8
->    store_scaling_governor+0xe0/0x128
->    store+0xc0/0xf0
->    sysfs_kf_write+0x54/0x80
->    kernfs_fop_write_iter+0x128/0x1c0
->    new_sync_write+0xf0/0x190
->    vfs_write+0x2d4/0x478
->    ksys_write+0x74/0x100
->    __arm64_sys_write+0x24/0x30
->    invoke_syscall.constprop.0+0x54/0xe0
->    do_el0_svc+0x64/0x158
->    el0_svc+0x2c/0xb0
->    el0t_64_sync_handler+0xb0/0xb8
->    el0t_64_sync+0x198/0x19c
->   irq event stamp: 5518
->   hardirqs last  enabled at (5517): [<ffff8000100cbd7c>] console_unlock+0x554/0x6c8
->   hardirqs last disabled at (5518): [<ffff800010fc0638>] el1_dbg+0x28/0xa0
->   softirqs last  enabled at (5504): [<ffff8000100106e0>] __do_softirq+0x4d0/0x6c0
->   softirqs last disabled at (5483): [<ffff800010049548>] irq_exit+0x1b0/0x1b8
-> 
-> So split the original sugov_tunables_free() into two functions,
-> sugov_clear_global_tunables() is just used to clear the global_tunables
-> and the new sugov_tunables_free() is used as kobj_type::release to
-> release the sugov_tunables safely.
-> 
-> Fixes: 9bdcb44e391d ("cpufreq: schedutil: New governor based on scheduler utilization data")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Kevin Hao <haokexin@gmail.com>
-> ---
-> v2: Introduce sugov_clear_global_tunables() as suggested by Rafael.
-> 
->  kernel/sched/cpufreq_schedutil.c | 16 +++++++++++-----
->  1 file changed, 11 insertions(+), 5 deletions(-)
-> 
-> diff --git a/kernel/sched/cpufreq_schedutil.c b/kernel/sched/cpufreq_schedutil.c
-> index 57124614363d..e7af18857371 100644
-> --- a/kernel/sched/cpufreq_schedutil.c
-> +++ b/kernel/sched/cpufreq_schedutil.c
-> @@ -537,9 +537,17 @@ static struct attribute *sugov_attrs[] = {
->  };
->  ATTRIBUTE_GROUPS(sugov);
->  
-> +static void sugov_tunables_free(struct kobject *kobj)
-> +{
-> +	struct gov_attr_set *attr_set = container_of(kobj, struct gov_attr_set, kobj);
-> +
-> +	kfree(to_sugov_tunables(attr_set));
-> +}
-> +
->  static struct kobj_type sugov_tunables_ktype = {
->  	.default_groups = sugov_groups,
->  	.sysfs_ops = &governor_sysfs_ops,
-> +	.release = &sugov_tunables_free,
->  };
->  
->  /********************** cpufreq governor interface *********************/
-> @@ -639,12 +647,10 @@ static struct sugov_tunables *sugov_tunables_alloc(struct sugov_policy *sg_polic
->  	return tunables;
->  }
->  
-> -static void sugov_tunables_free(struct sugov_tunables *tunables)
-> +static void sugov_clear_global_tunables(void)
->  {
->  	if (!have_governor_per_policy())
->  		global_tunables = NULL;
-> -
-> -	kfree(tunables);
->  }
->  
->  static int sugov_init(struct cpufreq_policy *policy)
-> @@ -707,7 +713,7 @@ static int sugov_init(struct cpufreq_policy *policy)
->  fail:
->  	kobject_put(&tunables->attr_set.kobj);
->  	policy->governor_data = NULL;
-> -	sugov_tunables_free(tunables);
-> +	sugov_clear_global_tunables();
->  
->  stop_kthread:
->  	sugov_kthread_stop(sg_policy);
-> @@ -734,7 +740,7 @@ static void sugov_exit(struct cpufreq_policy *policy)
->  	count = gov_attr_set_put(&tunables->attr_set, &sg_policy->tunables_hook);
->  	policy->governor_data = NULL;
->  	if (!count)
-> -		sugov_tunables_free(tunables);
-> +		sugov_clear_global_tunables();
->  
->  	mutex_unlock(&global_tunables_lock);
+stable-rc/queue/4.4 baseline: 70 runs, 6 regressions (v4.4.278-4-g57213ee2a=
+a44)
 
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+Regressions Summary
+-------------------
 
--- 
-viresh
+platform            | arch | lab             | compiler | defconfig        =
+  | regressions
+--------------------+------+-----------------+----------+------------------=
+--+------------
+qemu_arm-virt-gicv2 | arm  | lab-baylibre    | gcc-8    | multi_v7_defconfi=
+g | 1          =
+
+qemu_arm-virt-gicv2 | arm  | lab-cip         | gcc-8    | multi_v7_defconfi=
+g | 1          =
+
+qemu_arm-virt-gicv2 | arm  | lab-linaro-lkft | gcc-8    | multi_v7_defconfi=
+g | 1          =
+
+qemu_arm-virt-gicv3 | arm  | lab-baylibre    | gcc-8    | multi_v7_defconfi=
+g | 1          =
+
+qemu_arm-virt-gicv3 | arm  | lab-cip         | gcc-8    | multi_v7_defconfi=
+g | 1          =
+
+qemu_arm-virt-gicv3 | arm  | lab-linaro-lkft | gcc-8    | multi_v7_defconfi=
+g | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
+el/v4.4.278-4-g57213ee2aa44/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.4
+  Describe: v4.4.278-4-g57213ee2aa44
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      57213ee2aa446efd10626182e8060cfde1077330 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform            | arch | lab             | compiler | defconfig        =
+  | regressions
+--------------------+------+-----------------+----------+------------------=
+--+------------
+qemu_arm-virt-gicv2 | arm  | lab-baylibre    | gcc-8    | multi_v7_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/610b61836ed6df4006b13664
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.278-4=
+-g57213ee2aa44/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-=
+virt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.278-4=
+-g57213ee2aa44/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-=
+virt-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/610b61836ed6df4006b13=
+665
+        failing since 264 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
+ fail: v4.4.243-19-g71b6c961c7fe) =
+
+ =
+
+
+
+platform            | arch | lab             | compiler | defconfig        =
+  | regressions
+--------------------+------+-----------------+----------+------------------=
+--+------------
+qemu_arm-virt-gicv2 | arm  | lab-cip         | gcc-8    | multi_v7_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/610b61f8813a843ee4b1366d
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.278-4=
+-g57213ee2aa44/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-virt-=
+gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.278-4=
+-g57213ee2aa44/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-virt-=
+gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/610b61f8813a843ee4b13=
+66e
+        failing since 264 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
+ fail: v4.4.243-19-g71b6c961c7fe) =
+
+ =
+
+
+
+platform            | arch | lab             | compiler | defconfig        =
+  | regressions
+--------------------+------+-----------------+----------+------------------=
+--+------------
+qemu_arm-virt-gicv2 | arm  | lab-linaro-lkft | gcc-8    | multi_v7_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/610b626a40ed782b63b13693
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.278-4=
+-g57213ee2aa44/arm/multi_v7_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu_a=
+rm-virt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.278-4=
+-g57213ee2aa44/arm/multi_v7_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu_a=
+rm-virt-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/610b626a40ed782b63b13=
+694
+        failing since 264 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
+ fail: v4.4.243-19-g71b6c961c7fe) =
+
+ =
+
+
+
+platform            | arch | lab             | compiler | defconfig        =
+  | regressions
+--------------------+------+-----------------+----------+------------------=
+--+------------
+qemu_arm-virt-gicv3 | arm  | lab-baylibre    | gcc-8    | multi_v7_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/610b61f94dd6765c6eb13662
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.278-4=
+-g57213ee2aa44/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-=
+virt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.278-4=
+-g57213ee2aa44/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-=
+virt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/610b61f94dd6765c6eb13=
+663
+        failing since 264 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
+ fail: v4.4.243-19-g71b6c961c7fe) =
+
+ =
+
+
+
+platform            | arch | lab             | compiler | defconfig        =
+  | regressions
+--------------------+------+-----------------+----------+------------------=
+--+------------
+qemu_arm-virt-gicv3 | arm  | lab-cip         | gcc-8    | multi_v7_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/610b622cbfc021ed1bb13672
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.278-4=
+-g57213ee2aa44/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-virt-=
+gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.278-4=
+-g57213ee2aa44/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-virt-=
+gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/610b622cbfc021ed1bb13=
+673
+        failing since 264 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
+ fail: v4.4.243-19-g71b6c961c7fe) =
+
+ =
+
+
+
+platform            | arch | lab             | compiler | defconfig        =
+  | regressions
+--------------------+------+-----------------+----------+------------------=
+--+------------
+qemu_arm-virt-gicv3 | arm  | lab-linaro-lkft | gcc-8    | multi_v7_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/610b627ea964d7fd10b13673
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.278-4=
+-g57213ee2aa44/arm/multi_v7_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu_a=
+rm-virt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.278-4=
+-g57213ee2aa44/arm/multi_v7_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu_a=
+rm-virt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/610b627ea964d7fd10b13=
+674
+        failing since 264 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
+ fail: v4.4.243-19-g71b6c961c7fe) =
+
+ =20
