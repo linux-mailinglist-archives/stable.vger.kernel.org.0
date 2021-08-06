@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB13A3E2530
-	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:18:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 837C13E2534
+	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:18:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243946AbhHFISG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Aug 2021 04:18:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47072 "EHLO mail.kernel.org"
+        id S243962AbhHFISL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Aug 2021 04:18:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47152 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244028AbhHFIQo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Aug 2021 04:16:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C32FC611C9;
-        Fri,  6 Aug 2021 08:16:28 +0000 (UTC)
+        id S244042AbhHFIQs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Aug 2021 04:16:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A4678611CE;
+        Fri,  6 Aug 2021 08:16:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628237789;
-        bh=XSP1N50eCmVZBmkrGtseVsGl1gL12EnJ4xSd7B0/GUk=;
+        s=korg; t=1628237792;
+        bh=MXBS4NdaYTZUtLMjFg2tRS12IH7gjij01FImmTHeLvE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DIM028Qyk5rg+sUmgSirjE+fUqA4P77Q8aQBuuTQolczG2x4m/I0lfj1RkfaoE+jc
-         mMdiM2pKbUt/9B+REcZXUu+E6jBNuJgZkArhSJhqlP/eNCgHHTeiFGGeos68wDZDCp
-         ZrdnFrnwPanZXaCHxhCqzSUqXd0ivX5BLBxHSfdY=
+        b=RzLtTI0Io9FW5O4+wswtHHdxKWdTxgLRUhlZCLq8UdXjArXCfxa/h4RlYUMvx5Umg
+         WyBJ2xnmT9gSbKq2XOB3MYQWPvZci5PJ++O58regA56y1Dyo1B0xnA2cpc9Gmq3zDM
+         /hVSesbpEARYtIVnQqhcO1Qt9kB5VjzY4n2A3SDQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pravin B Shelar <pshelar@ovn.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 06/16] net: Fix zero-copy head len calculation.
-Date:   Fri,  6 Aug 2021 10:14:57 +0200
-Message-Id: <20210806081111.349183528@linuxfoundation.org>
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Jan Kara <jack@suse.cz>, Bart Van Assche <bvanassche@acm.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 07/16] bdi: move bdi_dev_name out of line
+Date:   Fri,  6 Aug 2021 10:14:58 +0200
+Message-Id: <20210806081111.382172684@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210806081111.144943357@linuxfoundation.org>
 References: <20210806081111.144943357@linuxfoundation.org>
@@ -40,77 +40,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pravin B Shelar <pshelar@ovn.org>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit a17ad0961706244dce48ec941f7e476a38c0e727 ]
+[ Upstream commit eb7ae5e06bb6e6ac6bb86872d27c43ebab92f6b2 ]
 
-In some cases skb head could be locked and entire header
-data is pulled from skb. When skb_zerocopy() called in such cases,
-following BUG is triggered. This patch fixes it by copying entire
-skb in such cases.
-This could be optimized incase this is performance bottleneck.
+bdi_dev_name is not a fast path function, move it out of line.  This
+prepares for using it from modular callers without having to export
+an implementation detail like bdi_unknown_name.
 
----8<---
-kernel BUG at net/core/skbuff.c:2961!
-invalid opcode: 0000 [#1] SMP PTI
-CPU: 2 PID: 0 Comm: swapper/2 Tainted: G           OE     5.4.0-77-generic #86-Ubuntu
-Hardware name: OpenStack Foundation OpenStack Nova, BIOS 1.13.0-1ubuntu1.1 04/01/2014
-RIP: 0010:skb_zerocopy+0x37a/0x3a0
-RSP: 0018:ffffbcc70013ca38 EFLAGS: 00010246
-Call Trace:
- <IRQ>
- queue_userspace_packet+0x2af/0x5e0 [openvswitch]
- ovs_dp_upcall+0x3d/0x60 [openvswitch]
- ovs_dp_process_packet+0x125/0x150 [openvswitch]
- ovs_vport_receive+0x77/0xd0 [openvswitch]
- netdev_port_receive+0x87/0x130 [openvswitch]
- netdev_frame_hook+0x4b/0x60 [openvswitch]
- __netif_receive_skb_core+0x2b4/0xc90
- __netif_receive_skb_one_core+0x3f/0xa0
- __netif_receive_skb+0x18/0x60
- process_backlog+0xa9/0x160
- net_rx_action+0x142/0x390
- __do_softirq+0xe1/0x2d6
- irq_exit+0xae/0xb0
- do_IRQ+0x5a/0xf0
- common_interrupt+0xf/0xf
-
-Code that triggered BUG:
-int
-skb_zerocopy(struct sk_buff *to, struct sk_buff *from, int len, int hlen)
-{
-        int i, j = 0;
-        int plen = 0; /* length of skb->head fragment */
-        int ret;
-        struct page *page;
-        unsigned int offset;
-
-        BUG_ON(!from->head_frag && !hlen);
-
-Signed-off-by: Pravin B Shelar <pshelar@ovn.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/skbuff.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ include/linux/backing-dev.h |  9 +--------
+ mm/backing-dev.c            | 10 +++++++++-
+ 2 files changed, 10 insertions(+), 9 deletions(-)
 
-diff --git a/net/core/skbuff.c b/net/core/skbuff.c
-index ea9684bcc2e8..e1daab49b0eb 100644
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -2705,8 +2705,11 @@ skb_zerocopy_headlen(const struct sk_buff *from)
+diff --git a/include/linux/backing-dev.h b/include/linux/backing-dev.h
+index 1ef4aca7b953..d28d57eefe9f 100644
+--- a/include/linux/backing-dev.h
++++ b/include/linux/backing-dev.h
+@@ -499,13 +499,6 @@ static inline int bdi_rw_congested(struct backing_dev_info *bdi)
+ 				  (1 << WB_async_congested));
+ }
  
- 	if (!from->head_frag ||
- 	    skb_headlen(from) < L1_CACHE_BYTES ||
--	    skb_shinfo(from)->nr_frags >= MAX_SKB_FRAGS)
-+	    skb_shinfo(from)->nr_frags >= MAX_SKB_FRAGS) {
- 		hlen = skb_headlen(from);
-+		if (!hlen)
-+			hlen = from->len;
-+	}
+-extern const char *bdi_unknown_name;
+-
+-static inline const char *bdi_dev_name(struct backing_dev_info *bdi)
+-{
+-	if (!bdi || !bdi->dev)
+-		return bdi_unknown_name;
+-	return dev_name(bdi->dev);
+-}
++const char *bdi_dev_name(struct backing_dev_info *bdi);
  
- 	if (skb_has_frag_list(from))
- 		hlen = from->len;
+ #endif	/* _LINUX_BACKING_DEV_H */
+diff --git a/mm/backing-dev.c b/mm/backing-dev.c
+index 2152e85891d1..8501b033bca8 100644
+--- a/mm/backing-dev.c
++++ b/mm/backing-dev.c
+@@ -19,7 +19,7 @@ struct backing_dev_info noop_backing_dev_info = {
+ EXPORT_SYMBOL_GPL(noop_backing_dev_info);
+ 
+ static struct class *bdi_class;
+-const char *bdi_unknown_name = "(unknown)";
++static const char *bdi_unknown_name = "(unknown)";
+ 
+ /*
+  * bdi_lock protects updates to bdi_list. bdi_list has RCU reader side
+@@ -976,6 +976,14 @@ void bdi_put(struct backing_dev_info *bdi)
+ }
+ EXPORT_SYMBOL(bdi_put);
+ 
++const char *bdi_dev_name(struct backing_dev_info *bdi)
++{
++	if (!bdi || !bdi->dev)
++		return bdi_unknown_name;
++	return dev_name(bdi->dev);
++}
++EXPORT_SYMBOL_GPL(bdi_dev_name);
++
+ static wait_queue_head_t congestion_wqh[2] = {
+ 		__WAIT_QUEUE_HEAD_INITIALIZER(congestion_wqh[0]),
+ 		__WAIT_QUEUE_HEAD_INITIALIZER(congestion_wqh[1])
 -- 
 2.30.2
 
