@@ -2,112 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DCB63E2AF0
-	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 14:50:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26DF23E2B0B
+	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 14:59:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343854AbhHFMua (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Aug 2021 08:50:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59344 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343859AbhHFMuJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Aug 2021 08:50:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9AF4661181;
-        Fri,  6 Aug 2021 12:49:52 +0000 (UTC)
-Date:   Fri, 6 Aug 2021 13:49:44 +0100
-From:   Catalin Marinas <catalin.marinas@arm.com>
-To:     Will Deacon <will@kernel.org>
-Cc:     linux-arm-kernel@lists.infradead.org, kernel-team@android.com,
-        Marc Zyngier <maz@kernel.org>,
-        Jade Alglave <jade.alglave@arm.com>,
-        Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
-        kvmarm@lists.cs.columbia.edu, linux-arch@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 1/4] arm64: mm: Fix TLBI vs ASID rollover
-Message-ID: <20210806124944.GK6719@arm.com>
-References: <20210806113109.2475-1-will@kernel.org>
- <20210806113109.2475-2-will@kernel.org>
- <20210806115927.GJ6719@arm.com>
- <20210806124241.GA2814@willie-the-truck>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210806124241.GA2814@willie-the-truck>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+        id S1343865AbhHFNAI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Aug 2021 09:00:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38292 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1343864AbhHFNAH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Aug 2021 09:00:07 -0400
+Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E086C061798;
+        Fri,  6 Aug 2021 05:59:51 -0700 (PDT)
+Received: by mail-pj1-x1030.google.com with SMTP id nh14so16541136pjb.2;
+        Fri, 06 Aug 2021 05:59:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=message-id:date:from:in-reply-to:subject:to:cc
+         :content-transfer-encoding;
+        bh=QV8+3vxOb9JThgWsgTPyy60jjUFyxGwn5YBsNirDpJ4=;
+        b=V2aQmuI1Li4HyKLsJmJAy3RB1WEgkNcZ0PpvmsniElHeDuF3uCPHnjfJRBmYNrgYpl
+         0z2jwMiC2gd5806n2k/A/wkbS8qDKeLQIr+83g3oPuh4RQXcyJT7I0kvAH8xBvuJyn6X
+         Nqc+kJd6//RJf/6N6P2wk6G/sakmbsdCkaGx1Hz/Ah2IhVu692rxAxW6wg6MELJaFzAM
+         CWnWhIl3COKnAdERmHw1zRh6pWYK312Egg96aCSmY9wFDXe+nZ9MbYI8pqJaB2CoZezY
+         SVxfV5J/9nO8UCrFBOlYr6HZRe9+nVjmHbxNJ/quDEp/9SlTTGj4eNpoy59ECrfhDTlm
+         ZLvw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
+         :content-transfer-encoding;
+        bh=QV8+3vxOb9JThgWsgTPyy60jjUFyxGwn5YBsNirDpJ4=;
+        b=MNUmp2YXQZxEJTc/jY2XVuKWcXsxFr1eS3BrlbALr4c+kiJ+NTpIpgctDtpE/I/QxV
+         OtyzcLEGysdK/gc7xcQOy0pUhS1Vwkelq/zo8c8H6BzM0VuqDJtBcNRzvU1xdGbu7BLg
+         rn9UPLIblKGsYJl6Lcuff18hoJEazaLlcMnWyQEMYJDuTSr0wi6GNt2B3peA/6A04Tof
+         ZSZD1YI/z+AIwRJZ+K6jZ4EdeAnuWEVya0pEFI1mCW87+rMZF+ow/BptJqTKQMf4qE44
+         n2IAENji6n/EMomkSb76EfZmHmLajYhMyiA6HcXW0le7ikakAEFzreMsBCUOW02XzHPH
+         ctEw==
+X-Gm-Message-State: AOAM530h/8nCCW8zASphxRMb24RZKJYdi4iydIt8sEutUHZ7x9Nagd3d
+        3B4sdbJNsHBUxZHIDCs/d3W5fDWt7lKRwlYhAzU=
+X-Google-Smtp-Source: ABdhPJzVEYLb9xsccjSNAw5fPzp3ODozg0bM2b0LChJm1rRb1E4dIWMZXnAiYHfQ7dI0KBo1OOdaKg==
+X-Received: by 2002:a65:63d0:: with SMTP id n16mr737682pgv.432.1628254790482;
+        Fri, 06 Aug 2021 05:59:50 -0700 (PDT)
+Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [71.19.144.195])
+        by smtp.gmail.com with ESMTPSA id d17sm10347201pfn.110.2021.08.06.05.59.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 06 Aug 2021 05:59:49 -0700 (PDT)
+Message-ID: <610d3245.1c69fb81.5c341.f18c@mx.google.com>
+Date:   Fri, 06 Aug 2021 05:59:49 -0700 (PDT)
+X-Google-Original-Date: Fri, 06 Aug 2021 12:59:43 GMT
+From:   Fox Chen <foxhlchen@gmail.com>
+In-Reply-To: <20210806081113.126861800@linuxfoundation.org>
+Subject: RE: [PATCH 5.10 00/30] 5.10.57-rc1 review
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org,
+        Fox Chen <foxhlchen@gmail.com>
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Aug 06, 2021 at 01:42:42PM +0100, Will Deacon wrote:
-> On Fri, Aug 06, 2021 at 12:59:28PM +0100, Catalin Marinas wrote:
-> > On Fri, Aug 06, 2021 at 12:31:04PM +0100, Will Deacon wrote:
-> > > diff --git a/arch/arm64/include/asm/mmu.h b/arch/arm64/include/asm/mmu.h
-> > > index 75beffe2ee8a..e9c30859f80c 100644
-> > > --- a/arch/arm64/include/asm/mmu.h
-> > > +++ b/arch/arm64/include/asm/mmu.h
-> > > @@ -27,11 +27,32 @@ typedef struct {
-> > >  } mm_context_t;
-> > >  
-> > >  /*
-> > > - * This macro is only used by the TLBI and low-level switch_mm() code,
-> > > - * neither of which can race with an ASID change. We therefore don't
-> > > - * need to reload the counter using atomic64_read().
-> > > + * We use atomic64_read() here because the ASID for an 'mm_struct' can
-> > > + * be reallocated when scheduling one of its threads following a
-> > > + * rollover event (see new_context() and flush_context()). In this case,
-> > > + * a concurrent TLBI (e.g. via try_to_unmap_one() and ptep_clear_flush())
-> > > + * may use a stale ASID. This is fine in principle as the new ASID is
-> > > + * guaranteed to be clean in the TLB, but the TLBI routines have to take
-> > > + * care to handle the following race:
-> > > + *
-> > > + *    CPU 0                    CPU 1                          CPU 2
-> > > + *
-> > > + *    // ptep_clear_flush(mm)
-> > > + *    xchg_relaxed(pte, 0)
-> > > + *    DSB ISHST
-> > > + *    old = ASID(mm)
-> > 
-> > We'd need specs clarified (ARM ARM, cat model) that the DSB ISHST is
-> > sufficient to order the pte write with the subsequent ASID read.
+On Fri,  6 Aug 2021 10:16:38 +0200, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
+> This is the start of the stable review cycle for the 5.10.57 release.
+> There are 30 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> Although I agree that the cat model needs updating and also that the Arm
-> ARM isn't helpful by trying to define DMB and DSB at the same time, it
-> does clearly state the following:
+> Responses should be made by Sun, 08 Aug 2021 08:11:03 +0000.
+> Anything received after that time might be too late.
 > 
->   // B2-149
->   | A DSB instruction executed by a PE, PEe, completes when all of the
->   | following apply:
->   |
->   | * All explicit memory accesses of the required access types appearing
->   |   in program order before the DSB are complete for the set of observers
->   |   in the required shareability domain.
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.57-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
 > 
->   [...]
+> thanks,
 > 
->   // B2-150
->   | In addition, no instruction that appears in program order after the
->   | DSB instruction can alter any state of the system or perform any part
->   | of its functionality until the DSB completes other than:
->   |
->   | * Being fetched from memory and decoded.
->   | * Reading the general-purpose, SIMD and floating-point, Special-purpose,
->   |   or System registers that are directly or indirectly read without
->   |   causing side-effects.
+> greg k-h
 > 
-> Which means that the ASID read cannot return its data before the DSB ISHST
-> has completed and the DSB ISHST cannot complete until the PTE write has
-> completed.
 
-Thanks for the explanation.
+5.10.57-rc1 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
+                
+Tested-by: Fox Chen <foxhlchen@gmail.com>
 
-> > Otherwise the patch looks fine to me:
-> > 
-> > Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-> 
-> Thanks! Do you want to queue it for 5.15? I don't think there's a need to
-> rush it into 5.14 given that we don't have any evidence of it happening
-> in practice.
-
-Happy to queue it for 5.15.
-
--- 
-Catalin
