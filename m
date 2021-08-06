@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FB843E25B1
-	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:22:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 654303E2591
+	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:21:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244262AbhHFIV5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Aug 2021 04:21:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46112 "EHLO mail.kernel.org"
+        id S243952AbhHFIUz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Aug 2021 04:20:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244143AbhHFIUv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Aug 2021 04:20:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 28D886120A;
-        Fri,  6 Aug 2021 08:20:22 +0000 (UTC)
+        id S244017AbhHFIT4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Aug 2021 04:19:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2DC84611CE;
+        Fri,  6 Aug 2021 08:19:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628238023;
-        bh=xq9vaZuEISXwGZ9amMGFnKhviWUhwICbRCBqRFA/CAw=;
+        s=korg; t=1628237980;
+        bh=Qu27UQFO8jORTADI8/bf30PqQmjO4O0AKYuIGAXgvoY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UMo9HhhIbhoLuQ8EpesrxKnyC8bLXcY6v5cdKhzodWr/ZNzLypLPQdG2OKqST3cFn
-         +oWVXJmQAHkmvisG2eUfYshsZawMS/QpOlGP6z/HGTkC0A1/u+07fKtKA5Uxu9/zzt
-         YPqRlorr9rSA1wvd/RX2IjMB0NW47AG1RpoIph4E=
+        b=WkRAzYhaqSUg1NcZHpLkUoNuggByvY2R41rErMNPwgmTmjdnlfX54hQdK94Cgbyer
+         m6/duyzWge1NtpDrSAKw7MIOfFcMNkEnCAYzk2ff9OlgrKRBh2JrH82edi/ZapL8LS
+         G1DxWfwk/qBP9TCbLgolWxWH/1UenGFYjo511Te4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oder Chiou <oder_chiou@realtek.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 22/35] ASoC: rt5682: Fix the issue of garbled recording after powerd_dbus_suspend
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 5.10 27/30] bpf, selftests: Adjust few selftest result_unpriv outcomes
 Date:   Fri,  6 Aug 2021 10:17:05 +0200
-Message-Id: <20210806081114.458380450@linuxfoundation.org>
+Message-Id: <20210806081114.046059421@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210806081113.718626745@linuxfoundation.org>
-References: <20210806081113.718626745@linuxfoundation.org>
+In-Reply-To: <20210806081113.126861800@linuxfoundation.org>
+References: <20210806081113.126861800@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,45 +40,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oder Chiou <oder_chiou@realtek.com>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-[ Upstream commit 6a503e1c455316fd0bfd8188c0a62cce7c5525ca ]
+commit 1bad6fd52be4ce12d207e2820ceb0f29ab31fc53 upstream
 
-While using the DMIC recording, the garbled data will be captured by the
-DMIC. It is caused by the critical power of PLL closed in the jack detect
-function.
+Given we don't need to simulate the speculative domain for registers with
+immediates anymore since the verifier uses direct imm-based rewrites instead
+of having to mask, we can also lift a few cases that were previously rejected.
 
-Signed-off-by: Oder Chiou <oder_chiou@realtek.com>
-Link: https://lore.kernel.org/r/20210716085853.20170-1-oder_chiou@realtek.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/rt5682.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ tools/testing/selftests/bpf/verifier/stack_ptr.c       |    2 --
+ tools/testing/selftests/bpf/verifier/value_ptr_arith.c |    8 --------
+ 2 files changed, 10 deletions(-)
 
-diff --git a/sound/soc/codecs/rt5682.c b/sound/soc/codecs/rt5682.c
-index e4c91571abae..abcd6f483788 100644
---- a/sound/soc/codecs/rt5682.c
-+++ b/sound/soc/codecs/rt5682.c
-@@ -973,10 +973,14 @@ int rt5682_headset_detect(struct snd_soc_component *component, int jack_insert)
- 		rt5682_enable_push_button_irq(component, false);
- 		snd_soc_component_update_bits(component, RT5682_CBJ_CTRL_1,
- 			RT5682_TRIG_JD_MASK, RT5682_TRIG_JD_LOW);
--		if (!snd_soc_dapm_get_pin_status(dapm, "MICBIAS"))
-+		if (!snd_soc_dapm_get_pin_status(dapm, "MICBIAS") &&
-+			!snd_soc_dapm_get_pin_status(dapm, "PLL1") &&
-+			!snd_soc_dapm_get_pin_status(dapm, "PLL2B"))
- 			snd_soc_component_update_bits(component,
- 				RT5682_PWR_ANLG_1, RT5682_PWR_MB, 0);
--		if (!snd_soc_dapm_get_pin_status(dapm, "Vref2"))
-+		if (!snd_soc_dapm_get_pin_status(dapm, "Vref2") &&
-+			!snd_soc_dapm_get_pin_status(dapm, "PLL1") &&
-+			!snd_soc_dapm_get_pin_status(dapm, "PLL2B"))
- 			snd_soc_component_update_bits(component,
- 				RT5682_PWR_ANLG_1, RT5682_PWR_VREF2, 0);
- 		snd_soc_component_update_bits(component, RT5682_PWR_ANLG_3,
--- 
-2.30.2
-
+--- a/tools/testing/selftests/bpf/verifier/stack_ptr.c
++++ b/tools/testing/selftests/bpf/verifier/stack_ptr.c
+@@ -295,8 +295,6 @@
+ 	BPF_LDX_MEM(BPF_B, BPF_REG_0, BPF_REG_1, 0),
+ 	BPF_EXIT_INSN(),
+ 	},
+-	.result_unpriv = REJECT,
+-	.errstr_unpriv = "invalid write to stack R1 off=0 size=1",
+ 	.result = ACCEPT,
+ 	.retval = 42,
+ },
+--- a/tools/testing/selftests/bpf/verifier/value_ptr_arith.c
++++ b/tools/testing/selftests/bpf/verifier/value_ptr_arith.c
+@@ -302,8 +302,6 @@
+ 	},
+ 	.fixup_map_array_48b = { 3 },
+ 	.result = ACCEPT,
+-	.result_unpriv = REJECT,
+-	.errstr_unpriv = "R0 pointer arithmetic of map value goes out of range",
+ 	.retval = 1,
+ },
+ {
+@@ -373,8 +371,6 @@
+ 	},
+ 	.fixup_map_array_48b = { 3 },
+ 	.result = ACCEPT,
+-	.result_unpriv = REJECT,
+-	.errstr_unpriv = "R0 pointer arithmetic of map value goes out of range",
+ 	.retval = 1,
+ },
+ {
+@@ -474,8 +470,6 @@
+ 	},
+ 	.fixup_map_array_48b = { 3 },
+ 	.result = ACCEPT,
+-	.result_unpriv = REJECT,
+-	.errstr_unpriv = "R0 pointer arithmetic of map value goes out of range",
+ 	.retval = 1,
+ },
+ {
+@@ -768,8 +762,6 @@
+ 	},
+ 	.fixup_map_array_48b = { 3 },
+ 	.result = ACCEPT,
+-	.result_unpriv = REJECT,
+-	.errstr_unpriv = "R0 pointer arithmetic of map value goes out of range",
+ 	.retval = 1,
+ },
+ {
 
 
