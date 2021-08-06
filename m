@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 90CFE3E257B
-	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:20:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA1C23E2565
+	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:20:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244102AbhHFIUS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Aug 2021 04:20:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47918 "EHLO mail.kernel.org"
+        id S243996AbhHFITv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Aug 2021 04:19:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244103AbhHFISu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Aug 2021 04:18:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 920FD6121F;
-        Fri,  6 Aug 2021 08:18:23 +0000 (UTC)
+        id S243939AbhHFITF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Aug 2021 04:19:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C9B9611C9;
+        Fri,  6 Aug 2021 08:18:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628237904;
-        bh=kxkZ5pjcqKOV9vNovoFF0tKjKjrZ5+0Q2p484H/DDIc=;
+        s=korg; t=1628237929;
+        bh=K7sEvxaluQcGZVGgQ/AHGFUbIVDlE0JjgJajWOr5M40=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sqQoREjrX0wImP84HN9cWiUdWOJAxPgowBfqWQxlSAj7OYHwGGvdD3qmAKm0R8USH
-         2cqd6//lBjFYy5uD89AKnACkV0fnE0LRftOEDohMSjLUv82D1Yrl7OOYedURS6YLCa
-         +0uRZw1MY3eLXNh69lVVeKZVlE05A4MxGnk1shtY=
+        b=PK9eHDNNfLwaZhWMOPwR+tSiZNYSi9jGWknFYCNi20CWAW8ge4RmCluy4YRckbgRO
+         d07xOptgKYtpHdUrzAjAWmeOBaaeJcbF3BBGXJBM9SvpeTk1RvB00LD23z9nFNtU07
+         A1/WaYS92LQn8ObMGXnh3kWbO+E+F8I3xOjmEjJM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Yonghong Song <yhs@fb.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 5.4 22/23] bpf, selftests: Add a verifier test for assigning 32bit reg states to 64bit ones
+        stable@vger.kernel.org, Keith Busch <kbusch@kernel.org>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 16/30] nvme: fix nvme_setup_command metadata trace event
 Date:   Fri,  6 Aug 2021 10:16:54 +0200
-Message-Id: <20210806081112.900244614@linuxfoundation.org>
+Message-Id: <20210806081113.681341055@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210806081112.104686873@linuxfoundation.org>
-References: <20210806081112.104686873@linuxfoundation.org>
+In-Reply-To: <20210806081113.126861800@linuxfoundation.org>
+References: <20210806081113.126861800@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,53 +39,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Fastabend <john.fastabend@gmail.com>
+From: Keith Busch <kbusch@kernel.org>
 
-commit cf66c29bd7534813d2e1971fab71e25fe87c7e0a upstream
+[ Upstream commit 234211b8dd161fa25f192c78d5a8d2dd6bf920a0 ]
 
-Added a verifier test for assigning 32bit reg states to
-64bit where 32bit reg holds a constant value of 0.
+The metadata address is set after the trace event, so the trace is not
+capturing anything useful. Rather than logging the memory address, it's
+useful to know if the command carries a metadata payload, so change the
+trace event to log that true/false state instead.
 
-Without previous kernel verifier.c fix, the test in
-this patch will fail.
-
-Signed-off-by: Yonghong Song <yhs@fb.com>
-Signed-off-by: John Fastabend <john.fastabend@gmail.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/159077335867.6014.2075350327073125374.stgit@john-Precision-5820-Tower
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Keith Busch <kbusch@kernel.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/verifier/bounds.c |   22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
+ drivers/nvme/host/trace.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/tools/testing/selftests/bpf/verifier/bounds.c
-+++ b/tools/testing/selftests/bpf/verifier/bounds.c
-@@ -545,3 +545,25 @@
- 	},
- 	.result = ACCEPT
- },
-+{
-+	"assigning 32bit bounds to 64bit for wA = 0, wB = wA",
-+	.insns = {
-+	BPF_LDX_MEM(BPF_W, BPF_REG_8, BPF_REG_1,
-+		    offsetof(struct __sk_buff, data_end)),
-+	BPF_LDX_MEM(BPF_W, BPF_REG_7, BPF_REG_1,
-+		    offsetof(struct __sk_buff, data)),
-+	BPF_MOV32_IMM(BPF_REG_9, 0),
-+	BPF_MOV32_REG(BPF_REG_2, BPF_REG_9),
-+	BPF_MOV64_REG(BPF_REG_6, BPF_REG_7),
-+	BPF_ALU64_REG(BPF_ADD, BPF_REG_6, BPF_REG_2),
-+	BPF_MOV64_REG(BPF_REG_3, BPF_REG_6),
-+	BPF_ALU64_IMM(BPF_ADD, BPF_REG_3, 8),
-+	BPF_JMP_REG(BPF_JGT, BPF_REG_3, BPF_REG_8, 1),
-+	BPF_LDX_MEM(BPF_W, BPF_REG_5, BPF_REG_6, 0),
-+	BPF_MOV64_IMM(BPF_REG_0, 0),
-+	BPF_EXIT_INSN(),
-+	},
-+	.prog_type = BPF_PROG_TYPE_SCHED_CLS,
-+	.result = ACCEPT,
-+	.flags = F_NEEDS_EFFICIENT_UNALIGNED_ACCESS,
-+},
+diff --git a/drivers/nvme/host/trace.h b/drivers/nvme/host/trace.h
+index daaf700eae79..35bac7a25422 100644
+--- a/drivers/nvme/host/trace.h
++++ b/drivers/nvme/host/trace.h
+@@ -56,7 +56,7 @@ TRACE_EVENT(nvme_setup_cmd,
+ 		__field(u8, fctype)
+ 		__field(u16, cid)
+ 		__field(u32, nsid)
+-		__field(u64, metadata)
++		__field(bool, metadata)
+ 		__array(u8, cdw10, 24)
+ 	    ),
+ 	    TP_fast_assign(
+@@ -66,13 +66,13 @@ TRACE_EVENT(nvme_setup_cmd,
+ 		__entry->flags = cmd->common.flags;
+ 		__entry->cid = cmd->common.command_id;
+ 		__entry->nsid = le32_to_cpu(cmd->common.nsid);
+-		__entry->metadata = le64_to_cpu(cmd->common.metadata);
++		__entry->metadata = !!blk_integrity_rq(req);
+ 		__entry->fctype = cmd->fabrics.fctype;
+ 		__assign_disk_name(__entry->disk, req->rq_disk);
+ 		memcpy(__entry->cdw10, &cmd->common.cdw10,
+ 			sizeof(__entry->cdw10));
+ 	    ),
+-	    TP_printk("nvme%d: %sqid=%d, cmdid=%u, nsid=%u, flags=0x%x, meta=0x%llx, cmd=(%s %s)",
++	    TP_printk("nvme%d: %sqid=%d, cmdid=%u, nsid=%u, flags=0x%x, meta=0x%x, cmd=(%s %s)",
+ 		      __entry->ctrl_id, __print_disk_name(__entry->disk),
+ 		      __entry->qid, __entry->cid, __entry->nsid,
+ 		      __entry->flags, __entry->metadata,
+-- 
+2.30.2
+
 
 
