@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 65CFF3E259D
-	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:21:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4704A3E2580
+	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:20:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244092AbhHFIVQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Aug 2021 04:21:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47846 "EHLO mail.kernel.org"
+        id S244160AbhHFIUW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Aug 2021 04:20:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244149AbhHFIUS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Aug 2021 04:20:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 102AF6120C;
-        Fri,  6 Aug 2021 08:20:02 +0000 (UTC)
+        id S244297AbhHFITd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Aug 2021 04:19:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 56B9E61206;
+        Fri,  6 Aug 2021 08:19:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628238003;
-        bh=DnyF/8wo0ypetlUigOZoC03X6UydV132z1q6X2J2+gg=;
+        s=korg; t=1628237957;
+        bh=7Hr6HNXRZ5qtxvCoRW1jPF50KSlB2rwvYL0Rzok0DYE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gUT+yVJSvcGVUsNLP9BYJ0RKZ6MQlpusMT06lWr9L4hMzvOr1W3UvhZiK5Frd/3/2
-         muC9oa5gzSPMCPHV59MtyJxuqWfqNIMt2JXp3SVuNyafdUFR10tSU9tCJlWgILHUT2
-         9Irhm8hhAQ/199/5/RmHqurRh6GMqLA4veAmMlsk=
+        b=XkfTQVIViCVrziVTD7avuUDMmuEHVMPg/7xppI44zscBd3VxxCNeK8WjyRWYM9d1l
+         hKFPWwz3wP9QawlJI/F/KSbQvWDHtWnU90zubgYGcytNWj1Yn0lyIVjEYfW5U/fbBU
+         WNMaBBww0CwMBhPmhrZ0ImCzBNzdOswOujm6r430=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Axel Lin <axel.lin@ingics.com>,
-        ChiYuan Huang <cy_huang@richtek.com>,
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Peter Hess <peter.hess@ph-home.de>,
+        Frank Wunderlich <frank-w@public-files.de>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 15/35] regulator: rt5033: Fix n_voltages settings for BUCK and LDO
+Subject: [PATCH 5.10 20/30] Revert "spi: mediatek: fix fifo rx mode"
 Date:   Fri,  6 Aug 2021 10:16:58 +0200
-Message-Id: <20210806081114.214488249@linuxfoundation.org>
+Message-Id: <20210806081113.814362149@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210806081113.718626745@linuxfoundation.org>
-References: <20210806081113.718626745@linuxfoundation.org>
+In-Reply-To: <20210806081113.126861800@linuxfoundation.org>
+References: <20210806081113.126861800@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,48 +42,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Axel Lin <axel.lin@ingics.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit 6549c46af8551b346bcc0b9043f93848319acd5c ]
+This reverts commit 2435dcfd16ac482803c6ecf2ba0d2a0553214d54 which is
+commit 3a70dd2d050331ee4cf5ad9d5c0a32d83ead9a43 upstream.
 
-For linear regulators, the n_voltages should be (max - min) / step + 1.
+It has been found to have problems.
 
-Buck voltage from 1v to 3V, per step 100mV, and vout mask is 0x1f.
-If value is from 20 to 31, the voltage will all be fixed to 3V.
-And LDO also, just vout range is different from 1.2v to 3v, step is the
-same. If value is from 18 to 31, the voltage will also be fixed to 3v.
-
-Signed-off-by: Axel Lin <axel.lin@ingics.com>
-Reviewed-by: ChiYuan Huang <cy_huang@richtek.com>
-Link: https://lore.kernel.org/r/20210627080418.1718127-1-axel.lin@ingics.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Cc: Peter Hess <peter.hess@ph-home.de>
+Cc: Frank Wunderlich <frank-w@public-files.de>
+Cc: Mark Brown <broonie@kernel.org>
+Cc: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/efee3a58-a4d2-af22-0931-e81b877ab539@roeck-us.net
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/mfd/rt5033-private.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/spi/spi-mt65xx.c |   16 +++-------------
+ 1 file changed, 3 insertions(+), 13 deletions(-)
 
-diff --git a/include/linux/mfd/rt5033-private.h b/include/linux/mfd/rt5033-private.h
-index 2d1895c3efbf..40a0c2dfb80f 100644
---- a/include/linux/mfd/rt5033-private.h
-+++ b/include/linux/mfd/rt5033-private.h
-@@ -200,13 +200,13 @@ enum rt5033_reg {
- #define RT5033_REGULATOR_BUCK_VOLTAGE_MIN		1000000U
- #define RT5033_REGULATOR_BUCK_VOLTAGE_MAX		3000000U
- #define RT5033_REGULATOR_BUCK_VOLTAGE_STEP		100000U
--#define RT5033_REGULATOR_BUCK_VOLTAGE_STEP_NUM		32
-+#define RT5033_REGULATOR_BUCK_VOLTAGE_STEP_NUM		21
+--- a/drivers/spi/spi-mt65xx.c
++++ b/drivers/spi/spi-mt65xx.c
+@@ -434,23 +434,13 @@ static int mtk_spi_fifo_transfer(struct
+ 	mtk_spi_setup_packet(master);
  
- /* RT5033 regulator LDO output voltage uV */
- #define RT5033_REGULATOR_LDO_VOLTAGE_MIN		1200000U
- #define RT5033_REGULATOR_LDO_VOLTAGE_MAX		3000000U
- #define RT5033_REGULATOR_LDO_VOLTAGE_STEP		100000U
--#define RT5033_REGULATOR_LDO_VOLTAGE_STEP_NUM		32
-+#define RT5033_REGULATOR_LDO_VOLTAGE_STEP_NUM		19
+ 	cnt = xfer->len / 4;
+-	if (xfer->tx_buf)
+-		iowrite32_rep(mdata->base + SPI_TX_DATA_REG, xfer->tx_buf, cnt);
+-
+-	if (xfer->rx_buf)
+-		ioread32_rep(mdata->base + SPI_RX_DATA_REG, xfer->rx_buf, cnt);
++	iowrite32_rep(mdata->base + SPI_TX_DATA_REG, xfer->tx_buf, cnt);
  
- /* RT5033 regulator SAFE LDO output voltage uV */
- #define RT5033_REGULATOR_SAFE_LDO_VOLTAGE		4900000U
--- 
-2.30.2
-
+ 	remainder = xfer->len % 4;
+ 	if (remainder > 0) {
+ 		reg_val = 0;
+-		if (xfer->tx_buf) {
+-			memcpy(&reg_val, xfer->tx_buf + (cnt * 4), remainder);
+-			writel(reg_val, mdata->base + SPI_TX_DATA_REG);
+-		}
+-		if (xfer->rx_buf) {
+-			reg_val = readl(mdata->base + SPI_RX_DATA_REG);
+-			memcpy(xfer->rx_buf + (cnt * 4), &reg_val, remainder);
+-		}
++		memcpy(&reg_val, xfer->tx_buf + (cnt * 4), remainder);
++		writel(reg_val, mdata->base + SPI_TX_DATA_REG);
+ 	}
+ 
+ 	mtk_spi_enable_transfer(master);
 
 
