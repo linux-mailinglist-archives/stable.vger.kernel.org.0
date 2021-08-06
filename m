@@ -2,98 +2,213 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EED6D3E2553
-	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:19:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9D113E2582
+	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:20:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237982AbhHFITl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Aug 2021 04:19:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48828 "EHLO mail.kernel.org"
+        id S244177AbhHFIUX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Aug 2021 04:20:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231467AbhHFISX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Aug 2021 04:18:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E7A6761206;
-        Fri,  6 Aug 2021 08:18:06 +0000 (UTC)
+        id S244273AbhHFITc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Aug 2021 04:19:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DBC216120D;
+        Fri,  6 Aug 2021 08:19:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628237887;
-        bh=qSEns+MXNNVsRcQSIIG1yF3bMbjgW97SBuOSxpfLiLk=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K0p4CxYahHHE206EZiSaKjxhou0k/glWbj6qFnurVMRcW3QLTuNWmTc6mXLl4/Fqu
-         30jgFwZ6gcqMM/17/q31jMtqqZtTWifTVLbsnWuBPTGbx893iYYUnRqJ8mbtymSMsr
-         yjfUhUBWxWUZ2Kczx/+O5YOyVCU9aNOKSSy8n2Oo=
+        s=korg; t=1628237955;
+        bh=RTwdxbk2mr34Wy0D5fjScpdzoBJPiMGygSsvcwUxzBQ=;
+        h=From:To:Cc:Subject:Date:From;
+        b=A1Tpf/a3HmUDCa4uvgb20iPRMv83JFoAks+k3EfzUK5HUC34uLsaxvPVC+Q3k/jEI
+         n/G2IIGUDfoJzeQr/BeRiEnfLFFWCQorZ/nj6h2yxwneQHcAR3F/9Qa6P/WORi8Jif
+         zGzJQaIdIuhNQaZlgw9elShja60ZPIWprJJXwF6A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Amelie Delaunay <amelie.delaunay@foss.st.com>,
-        Alain Volmat <alain.volmat@foss.st.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 06/23] spi: stm32h7: fix full duplex irq handler handling
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 5.10 00/30] 5.10.57-rc1 review
 Date:   Fri,  6 Aug 2021 10:16:38 +0200
-Message-Id: <20210806081112.327880707@linuxfoundation.org>
+Message-Id: <20210806081113.126861800@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210806081112.104686873@linuxfoundation.org>
-References: <20210806081112.104686873@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.57-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.10.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.10.57-rc1
+X-KernelTest-Deadline: 2021-08-08T08:11+00:00
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alain Volmat <alain.volmat@foss.st.com>
+This is the start of the stable review cycle for the 5.10.57 release.
+There are 30 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-[ Upstream commit e4a5c19888a5f8a9390860ca493e643be58c8791 ]
+Responses should be made by Sun, 08 Aug 2021 08:11:03 +0000.
+Anything received after that time might be too late.
 
-In case of Full-Duplex mode, DXP flag is set when RXP and TXP flags are
-set. But to avoid 2 different handlings, just add TXP and RXP flag in
-the mask instead of DXP, and then keep the initial handling of TXP and
-RXP events.
-Also rephrase comment about EOTIE which is one of the interrupt enable
-bits. It is not triggered by any event.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.57-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+and the diffstat can be found below.
 
-Signed-off-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
-Signed-off-by: Alain Volmat <alain.volmat@foss.st.com>
-Reviewed-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
-Link: https://lore.kernel.org/r/1625042723-661-3-git-send-email-alain.volmat@foss.st.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/spi/spi-stm32.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+thanks,
 
-diff --git a/drivers/spi/spi-stm32.c b/drivers/spi/spi-stm32.c
-index e9d48e94f5ed..9ae16092206d 100644
---- a/drivers/spi/spi-stm32.c
-+++ b/drivers/spi/spi-stm32.c
-@@ -913,15 +913,18 @@ static irqreturn_t stm32h7_spi_irq_thread(int irq, void *dev_id)
- 	ier = readl_relaxed(spi->base + STM32H7_SPI_IER);
- 
- 	mask = ier;
--	/* EOTIE is triggered on EOT, SUSP and TXC events. */
-+	/*
-+	 * EOTIE enables irq from EOT, SUSP and TXC events. We need to set
-+	 * SUSP to acknowledge it later. TXC is automatically cleared
-+	 */
-+
- 	mask |= STM32H7_SPI_SR_SUSP;
- 	/*
--	 * When TXTF is set, DXPIE and TXPIE are cleared. So in case of
--	 * Full-Duplex, need to poll RXP event to know if there are remaining
--	 * data, before disabling SPI.
-+	 * DXPIE is set in Full-Duplex, one IT will be raised if TXP and RXP
-+	 * are set. So in case of Full-Duplex, need to poll TXP and RXP event.
- 	 */
--	if (spi->rx_buf && !spi->cur_usedma)
--		mask |= STM32H7_SPI_SR_RXP;
-+	if ((spi->cur_comm == SPI_FULL_DUPLEX) && !spi->cur_usedma)
-+		mask |= STM32H7_SPI_SR_TXP | STM32H7_SPI_SR_RXP;
- 
- 	if (!(sr & mask)) {
- 		dev_warn(spi->dev, "spurious IT (sr=0x%08x, ier=0x%08x)\n",
--- 
-2.30.2
+greg k-h
 
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.10.57-rc1
+
+Andrei Matei <andreimatei1@gmail.com>
+    selftest/bpf: Verifier tests for var-off access
+
+Daniel Borkmann <daniel@iogearbox.net>
+    bpf, selftests: Adjust few selftest outcomes wrt unreachable code
+
+Daniel Borkmann <daniel@iogearbox.net>
+    bpf: Update selftests to reflect new error states
+
+Daniel Borkmann <daniel@iogearbox.net>
+    bpf, selftests: Adjust few selftest result_unpriv outcomes
+
+Andrei Matei <andreimatei1@gmail.com>
+    selftest/bpf: Adjust expected verifier errors
+
+Yonghong Song <yhs@fb.com>
+    selftests/bpf: Add a test for ptr_to_map_value on stack for helper access
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Revert "watchdog: iTCO_wdt: Account for rebooting on second timeout"
+
+Cristian Marussi <cristian.marussi@arm.com>
+    firmware: arm_scmi: Add delayed response status check
+
+Sudeep Holla <sudeep.holla@arm.com>
+    firmware: arm_scmi: Ensure drivers provide a probe function
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Revert "Bluetooth: Shutdown controller after workqueues are flushed or cancelled"
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Revert "spi: mediatek: fix fifo rx mode"
+
+Linus Torvalds <torvalds@linux-foundation.org>
+    ACPI: fix NULL pointer dereference
+
+Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+    drm/amd/display: Fix max vstartup calculation for modes with borders
+
+Victor Lu <victorchengchi.lu@amd.com>
+    drm/amd/display: Fix comparison error in dcn21 DML
+
+Keith Busch <kbusch@kernel.org>
+    nvme: fix nvme_setup_command metadata trace event
+
+Borislav Petkov <bp@suse.de>
+    efi/mokvar: Reserve the table only if it is in boot services data
+
+Peter Ujfalusi <peter.ujfalusi@gmail.com>
+    ASoC: ti: j721e-evm: Check for not initialized parent_clk_id
+
+Peter Ujfalusi <peter.ujfalusi@gmail.com>
+    ASoC: ti: j721e-evm: Fix unbalanced domain activity tracking during startup
+
+Pravin B Shelar <pshelar@ovn.org>
+    net: Fix zero-copy head len calculation.
+
+Oder Chiou <oder_chiou@realtek.com>
+    ASoC: rt5682: Fix the issue of garbled recording after powerd_dbus_suspend
+
+Jia He <justin.he@arm.com>
+    qed: fix possible unpaired spin_{un}lock_bh in _qed_mcp_cmd_and_union()
+
+Takashi Iwai <tiwai@suse.de>
+    r8152: Fix potential PM refcount imbalance
+
+Kyle Russell <bkylerussell@gmail.com>
+    ASoC: tlv320aic31xx: fix reversed bclk/wclk master bits
+
+Alain Volmat <alain.volmat@foss.st.com>
+    spi: stm32h7: fix full duplex irq handler handling
+
+Axel Lin <axel.lin@ingics.com>
+    regulator: rt5033: Fix n_voltages settings for BUCK and LDO
+
+ChiYuan Huang <cy_huang@richtek.com>
+    regulator: rtmv20: Fix wrong mask for strobe-polarity-high
+
+Filipe Manana <fdmanana@suse.com>
+    btrfs: fix lost inode on log replay after mix of fsync, rename and inode eviction
+
+Filipe Manana <fdmanana@suse.com>
+    btrfs: fix race causing unnecessary inode logging during link and rename
+
+Jason Ekstrand <jason@jlekstrand.net>
+    Revert "drm/i915: Propagate errors on awaiting already signaled fences"
+
+Jason Ekstrand <jason@jlekstrand.net>
+    drm/i915: Revert "drm/i915/gem: Asynchronous cmdparser"
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                           |   4 +-
+ drivers/firmware/arm_scmi/bus.c                    |   3 +
+ drivers/firmware/arm_scmi/driver.c                 |   8 +-
+ drivers/firmware/efi/mokvar-table.c                |   5 +-
+ .../gpu/drm/amd/display/dc/dcn20/dcn20_resource.c  |   6 +-
+ .../amd/display/dc/dml/dcn21/display_mode_vba_21.c |   2 +-
+ drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c     | 164 ++-------------------
+ drivers/gpu/drm/i915/i915_cmd_parser.c             |  28 ++--
+ drivers/gpu/drm/i915/i915_request.c                |   8 +-
+ drivers/net/ethernet/qlogic/qed/qed_mcp.c          |  23 ++-
+ drivers/net/usb/r8152.c                            |   3 +-
+ drivers/nvme/host/trace.h                          |   6 +-
+ drivers/regulator/rtmv20-regulator.c               |   2 +-
+ drivers/spi/spi-mt65xx.c                           |  16 +-
+ drivers/spi/spi-stm32.c                            |  15 +-
+ drivers/watchdog/iTCO_wdt.c                        |  12 +-
+ fs/btrfs/tree-log.c                                |   5 +-
+ include/acpi/acpi_bus.h                            |   3 +-
+ include/linux/mfd/rt5033-private.h                 |   4 +-
+ net/bluetooth/hci_core.c                           |  16 +-
+ net/core/skbuff.c                                  |   5 +-
+ sound/soc/codecs/rt5682.c                          |   8 +-
+ sound/soc/codecs/tlv320aic31xx.h                   |   4 +-
+ sound/soc/ti/j721e-evm.c                           |  18 ++-
+ tools/testing/selftests/bpf/progs/bpf_iter_task.c  |   3 +-
+ tools/testing/selftests/bpf/test_verifier.c        |   2 +-
+ tools/testing/selftests/bpf/verifier/and.c         |   2 +
+ tools/testing/selftests/bpf/verifier/basic_stack.c |   2 +-
+ tools/testing/selftests/bpf/verifier/bounds.c      |  19 ++-
+ .../selftests/bpf/verifier/bounds_deduction.c      |  21 +--
+ .../bpf/verifier/bounds_mix_sign_unsign.c          |  13 --
+ tools/testing/selftests/bpf/verifier/calls.c       |   4 +-
+ tools/testing/selftests/bpf/verifier/const_or.c    |   4 +-
+ tools/testing/selftests/bpf/verifier/dead_code.c   |   2 +
+ .../selftests/bpf/verifier/helper_access_var_len.c |  12 +-
+ tools/testing/selftests/bpf/verifier/int_ptr.c     |   6 +-
+ tools/testing/selftests/bpf/verifier/jmp32.c       |  22 +++
+ tools/testing/selftests/bpf/verifier/jset.c        |  10 +-
+ tools/testing/selftests/bpf/verifier/map_ptr.c     |   4 +-
+ tools/testing/selftests/bpf/verifier/raw_stack.c   |  10 +-
+ tools/testing/selftests/bpf/verifier/stack_ptr.c   |  22 +--
+ tools/testing/selftests/bpf/verifier/unpriv.c      |   9 +-
+ .../selftests/bpf/verifier/value_ptr_arith.c       |  17 +--
+ tools/testing/selftests/bpf/verifier/var_off.c     | 115 +++++++++++++--
+ 44 files changed, 331 insertions(+), 336 deletions(-)
 
 
