@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A077D3E24FE
-	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:16:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E71EE3E2506
+	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:16:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243860AbhHFIP5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Aug 2021 04:15:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45206 "EHLO mail.kernel.org"
+        id S243929AbhHFIQO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Aug 2021 04:16:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243851AbhHFIP3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Aug 2021 04:15:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 381C2611F2;
-        Fri,  6 Aug 2021 08:15:13 +0000 (UTC)
+        id S243675AbhHFIPq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Aug 2021 04:15:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C3B9611F0;
+        Fri,  6 Aug 2021 08:15:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628237713;
-        bh=lRH3ZJEzy7Ok8b2XgvXIowhje5ZHe/MDQkvbr++q7s8=;
+        s=korg; t=1628237726;
+        bh=UB9FSzuLu6oUUchX3FiJuVuwfavG4iH+VsVWHUrpWN4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VbbSRjQGMlq4zeI6uDdyGaZCQbFScg72qF7CRV6MJBMEr4xABDn8t/j3iXCzEjYD1
-         7VcMzEaMZsKuVbqZP1iyecudZAu2tOlsy5o3oYnoPEjGKFJh4pw0Bs01pfu2495HYw
-         spqFdI9TCOoQ21h711yoKj8f8T5sIr9kZBTAH/m4=
+        b=OvsnIXd44xRu1TSfindSuUiJBItD+XsvyDRrYB6PXL5EjJymwOVr0qUr1lh7mIcll
+         GrC5Ux7pJAhgutk/f6bvnXhACj1OpLS4e9bXOgHSAWclnPo2EvdB0dfPfikISpggvw
+         rSRyBPUKiZTnojONCuhYKAr1UlQGB3niqr16wZ1U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pravin B Shelar <pshelar@ovn.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Goldwyn Rodrigues <rgoldwyn@suse.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 4/7] net: Fix zero-copy head len calculation.
-Date:   Fri,  6 Aug 2021 10:14:43 +0200
-Message-Id: <20210806081109.462710839@linuxfoundation.org>
+Subject: [PATCH 4.14 01/11] btrfs: mark compressed range uptodate only if all bio succeed
+Date:   Fri,  6 Aug 2021 10:14:44 +0200
+Message-Id: <20210806081110.562910408@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210806081109.324409899@linuxfoundation.org>
-References: <20210806081109.324409899@linuxfoundation.org>
+In-Reply-To: <20210806081110.511221879@linuxfoundation.org>
+References: <20210806081110.511221879@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -40,77 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pravin B Shelar <pshelar@ovn.org>
+From: Goldwyn Rodrigues <rgoldwyn@suse.de>
 
-[ Upstream commit a17ad0961706244dce48ec941f7e476a38c0e727 ]
+[ Upstream commit 240246f6b913b0c23733cfd2def1d283f8cc9bbe ]
 
-In some cases skb head could be locked and entire header
-data is pulled from skb. When skb_zerocopy() called in such cases,
-following BUG is triggered. This patch fixes it by copying entire
-skb in such cases.
-This could be optimized incase this is performance bottleneck.
+In compression write endio sequence, the range which the compressed_bio
+writes is marked as uptodate if the last bio of the compressed (sub)bios
+is completed successfully. There could be previous bio which may
+have failed which is recorded in cb->errors.
 
----8<---
-kernel BUG at net/core/skbuff.c:2961!
-invalid opcode: 0000 [#1] SMP PTI
-CPU: 2 PID: 0 Comm: swapper/2 Tainted: G           OE     5.4.0-77-generic #86-Ubuntu
-Hardware name: OpenStack Foundation OpenStack Nova, BIOS 1.13.0-1ubuntu1.1 04/01/2014
-RIP: 0010:skb_zerocopy+0x37a/0x3a0
-RSP: 0018:ffffbcc70013ca38 EFLAGS: 00010246
-Call Trace:
- <IRQ>
- queue_userspace_packet+0x2af/0x5e0 [openvswitch]
- ovs_dp_upcall+0x3d/0x60 [openvswitch]
- ovs_dp_process_packet+0x125/0x150 [openvswitch]
- ovs_vport_receive+0x77/0xd0 [openvswitch]
- netdev_port_receive+0x87/0x130 [openvswitch]
- netdev_frame_hook+0x4b/0x60 [openvswitch]
- __netif_receive_skb_core+0x2b4/0xc90
- __netif_receive_skb_one_core+0x3f/0xa0
- __netif_receive_skb+0x18/0x60
- process_backlog+0xa9/0x160
- net_rx_action+0x142/0x390
- __do_softirq+0xe1/0x2d6
- irq_exit+0xae/0xb0
- do_IRQ+0x5a/0xf0
- common_interrupt+0xf/0xf
+Set the writeback range as uptodate only if cb->errors is zero, as opposed
+to checking only the last bio's status.
 
-Code that triggered BUG:
-int
-skb_zerocopy(struct sk_buff *to, struct sk_buff *from, int len, int hlen)
-{
-        int i, j = 0;
-        int plen = 0; /* length of skb->head fragment */
-        int ret;
-        struct page *page;
-        unsigned int offset;
+Backporting notes: in all versions up to 4.4 the last argument is always
+replaced by "!cb->errors".
 
-        BUG_ON(!from->head_frag && !hlen);
-
-Signed-off-by: Pravin B Shelar <pshelar@ovn.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Goldwyn Rodrigues <rgoldwyn@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/skbuff.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ fs/btrfs/compression.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/core/skbuff.c b/net/core/skbuff.c
-index 076444dac96d..0e34f5ad6216 100644
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -2288,8 +2288,11 @@ skb_zerocopy_headlen(const struct sk_buff *from)
+diff --git a/fs/btrfs/compression.c b/fs/btrfs/compression.c
+index ccd9c709375e..24341c97c13f 100644
+--- a/fs/btrfs/compression.c
++++ b/fs/btrfs/compression.c
+@@ -286,7 +286,7 @@ static void end_compressed_bio_write(struct bio *bio)
+ 					 cb->start,
+ 					 cb->start + cb->len - 1,
+ 					 NULL,
+-					 bio->bi_status ? 0 : 1);
++					 !cb->errors);
+ 	cb->compressed_pages[0]->mapping = NULL;
  
- 	if (!from->head_frag ||
- 	    skb_headlen(from) < L1_CACHE_BYTES ||
--	    skb_shinfo(from)->nr_frags >= MAX_SKB_FRAGS)
-+	    skb_shinfo(from)->nr_frags >= MAX_SKB_FRAGS) {
- 		hlen = skb_headlen(from);
-+		if (!hlen)
-+			hlen = from->len;
-+	}
- 
- 	if (skb_has_frag_list(from))
- 		hlen = from->len;
+ 	end_compressed_writeback(inode, cb);
 -- 
 2.30.2
 
