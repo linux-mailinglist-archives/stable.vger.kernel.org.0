@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CCF63E2517
+	by mail.lfdr.de (Postfix) with ESMTP id A9F4B3E2519
 	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:17:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241889AbhHFIRa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Aug 2021 04:17:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46112 "EHLO mail.kernel.org"
+        id S243877AbhHFIRh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Aug 2021 04:17:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46174 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243782AbhHFIQC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Aug 2021 04:16:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3CE8760238;
-        Fri,  6 Aug 2021 08:15:46 +0000 (UTC)
+        id S231823AbhHFIQF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Aug 2021 04:16:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B9BFD61167;
+        Fri,  6 Aug 2021 08:15:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628237746;
-        bh=XOJsaRYVYTuMJJmgcRZaIbiBoeuFOeJ3eghoL6PTJUE=;
+        s=korg; t=1628237749;
+        bh=zQV37iLZUQpmTgGqLJyg26WRtdpfR90zV+yIoY3A9vI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U5Jz5qCgk4CiIKMGTk77uMo2YflI492HSMz7Ndc3FzYk++3HV65xdj1RYdljJZ1hc
-         ENnfDPWKzWLGJEFZycJSeSiWbAwGe4m/7/3sypeLM+7QPe2nOJ7kqbQic7adRuqyQn
-         GMYSvTe27RWGc2xUD7VWD/ODftfc+ROpBlW5Qc74=
+        b=EVJU4l+EMqMuGvlRapjsdj5+EDCjKLUiD9qX2fJyITPaAD56WVI81GMAqifNVCoFg
+         d32Sk0P9YNVg9HcsgvCJqUBE7q2P4idd453Ai5WOvQHmNEnPHhmK8Uuf24crLz8IJd
+         6DxI4Y3BFXNYloZIDE4y7QvR9Esh7Dizksd5pXlY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 07/11] Revert "Bluetooth: Shutdown controller after workqueues are flushed or cancelled"
-Date:   Fri,  6 Aug 2021 10:14:50 +0200
-Message-Id: <20210806081110.754296437@linuxfoundation.org>
+        stable@vger.kernel.org, David Stevens <stevensd@google.com>,
+        3pvd@google.com, Jann Horn <jannh@google.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 4.14 08/11] KVM: do not assume PTE is writable after follow_pfn
+Date:   Fri,  6 Aug 2021 10:14:51 +0200
+Message-Id: <20210806081110.785046751@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210806081110.511221879@linuxfoundation.org>
 References: <20210806081110.511221879@linuxfoundation.org>
@@ -41,55 +42,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Paolo Bonzini <pbonzini@redhat.com>
 
-This reverts commit 854e6d767a33bd53b00902d65dced7d1e7abfe1a which is
-commit 0ea9fd001a14ebc294f112b0361a4e601551d508 upstream.
+commit bd2fae8da794b55bf2ac02632da3a151b10e664c upstream.
 
-It has been reported to have problems:
-	https://lore.kernel.org/linux-bluetooth/8735ryk0o7.fsf@baylibre.com/
+In order to convert an HVA to a PFN, KVM usually tries to use
+the get_user_pages family of functinso.  This however is not
+possible for VM_IO vmas; in that case, KVM instead uses follow_pfn.
 
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Cc: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Cc: Marcel Holtmann <marcel@holtmann.org>
-Cc: Sasha Levin <sashal@kernel.org>
-Link: https://lore.kernel.org/r/efee3a58-a4d2-af22-0931-e81b877ab539@roeck-us.net
+In doing this however KVM loses the information on whether the
+PFN is writable.  That is usually not a problem because the main
+use of VM_IO vmas with KVM is for BARs in PCI device assignment,
+however it is a bug.  To fix it, use follow_pte and check pte_write
+while under the protection of the PTE lock.  The information can
+be used to fail hva_to_pfn_remapped or passed back to the
+caller via *writable.
+
+Usage of follow_pfn was introduced in commit add6a0cd1c5b ("KVM: MMU: try to fix
+up page faults before giving up", 2016-07-05); however, even older version
+have the same issue, all the way back to commit 2e2e3738af33 ("KVM:
+Handle vma regions with no backing page", 2008-07-20), as they also did
+not check whether the PFN was writable.
+
+Fixes: 2e2e3738af33 ("KVM: Handle vma regions with no backing page")
+Reported-by: David Stevens <stevensd@google.com>
+Cc: 3pvd@google.com
+Cc: Jann Horn <jannh@google.com>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+[OP: backport to 4.14, adjust follow_pte() -> follow_pte_pmd()]
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bluetooth/hci_core.c |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ virt/kvm/kvm_main.c |   15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
---- a/net/bluetooth/hci_core.c
-+++ b/net/bluetooth/hci_core.c
-@@ -1569,6 +1569,14 @@ int hci_dev_do_close(struct hci_dev *hde
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -1491,9 +1491,11 @@ static int hva_to_pfn_remapped(struct vm
+ 			       kvm_pfn_t *p_pfn)
+ {
+ 	unsigned long pfn;
++	pte_t *ptep;
++	spinlock_t *ptl;
+ 	int r;
  
- 	BT_DBG("%s %p", hdev->name, hdev);
+-	r = follow_pfn(vma, addr, &pfn);
++	r = follow_pte_pmd(vma->vm_mm, addr, NULL, NULL, &ptep, NULL, &ptl);
+ 	if (r) {
+ 		/*
+ 		 * get_user_pages fails for VM_IO and VM_PFNMAP vmas and does
+@@ -1508,14 +1510,19 @@ static int hva_to_pfn_remapped(struct vm
+ 		if (r)
+ 			return r;
  
-+	if (!hci_dev_test_flag(hdev, HCI_UNREGISTER) &&
-+	    !hci_dev_test_flag(hdev, HCI_USER_CHANNEL) &&
-+	    test_bit(HCI_UP, &hdev->flags)) {
-+		/* Execute vendor specific shutdown routine */
-+		if (hdev->shutdown)
-+			hdev->shutdown(hdev);
+-		r = follow_pfn(vma, addr, &pfn);
++		r = follow_pte_pmd(vma->vm_mm, addr, NULL, NULL, &ptep, NULL, &ptl);
+ 		if (r)
+ 			return r;
 +	}
-+
- 	cancel_delayed_work(&hdev->power_off);
  
- 	hci_request_cancel_all(hdev);
-@@ -1636,14 +1644,6 @@ int hci_dev_do_close(struct hci_dev *hde
- 		clear_bit(HCI_INIT, &hdev->flags);
++	if (write_fault && !pte_write(*ptep)) {
++		pfn = KVM_PFN_ERR_RO_FAULT;
++		goto out;
  	}
  
--	if (!hci_dev_test_flag(hdev, HCI_UNREGISTER) &&
--	    !hci_dev_test_flag(hdev, HCI_USER_CHANNEL) &&
--	    test_bit(HCI_UP, &hdev->flags)) {
--		/* Execute vendor specific shutdown routine */
--		if (hdev->shutdown)
--			hdev->shutdown(hdev);
--	}
--
- 	/* flush cmd  work */
- 	flush_work(&hdev->cmd_work);
+ 	if (writable)
+-		*writable = true;
++		*writable = pte_write(*ptep);
++	pfn = pte_pfn(*ptep);
  
+ 	/*
+ 	 * Get a reference here because callers of *hva_to_pfn* and
+@@ -1530,6 +1537,8 @@ static int hva_to_pfn_remapped(struct vm
+ 	 */ 
+ 	kvm_get_pfn(pfn);
+ 
++out:
++	pte_unmap_unlock(ptep, ptl);
+ 	*p_pfn = pfn;
+ 	return 0;
+ }
 
 
