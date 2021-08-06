@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78C563E254D
-	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:19:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B471C3E2560
+	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:20:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243940AbhHFITF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Aug 2021 04:19:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48492 "EHLO mail.kernel.org"
+        id S243857AbhHFITr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Aug 2021 04:19:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47072 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243920AbhHFISL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Aug 2021 04:18:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4AB4F61207;
-        Fri,  6 Aug 2021 08:17:54 +0000 (UTC)
+        id S243731AbhHFITC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Aug 2021 04:19:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0CC9261181;
+        Fri,  6 Aug 2021 08:18:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628237874;
-        bh=eT6BjlNhNV89V8Cy+xtEwv40UcjJm1hXKk3R0beNwwk=;
+        s=korg; t=1628237919;
+        bh=IBReA0ZJ7ZHnOCVbifrLy8cSCzXqtrX7JIsw4zXFL84=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cdRJpXq2p9wMXmR376bXbt9G7XQsSyvUj3htlWf3UcwFTwl/5Lyr+A80AYGvTtb8B
-         gV7VysOOe9b/r438LmWaZ2+RtreujRWcBw+pJJdoSu49mEiwCctWhvoecefyWfhn8X
-         RTIqzVZbIz9oL12F1r1mNZ85klWGbMGVwuQ0zub0=
+        b=Rgn8UctZS7Asd/CsIYJPY+W6eElPNdFMcVJczL41h7BaKUBX06xfyKlxV3uDYAy2a
+         WaTBXgXOGMKNbncfI6CUlAq/FmDlcVf9amP7/PxmWSrSn5b7nwV+GN5EBWkcC9WjqF
+         ysAi2vvwQjY5KcLqnGbCzSSxdbOUHpnwn3pbVObo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Benedict Schlueter <benedict.schlueter@rub.de>,
-        Piotr Krysiuk <piotras@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 5.4 18/23] bpf: Inherit expanded/patched seen count from old aux data
+        stable@vger.kernel.org, Pravin B Shelar <pshelar@ovn.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 12/30] net: Fix zero-copy head len calculation.
 Date:   Fri,  6 Aug 2021 10:16:50 +0200
-Message-Id: <20210806081112.763477052@linuxfoundation.org>
+Message-Id: <20210806081113.546372389@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210806081112.104686873@linuxfoundation.org>
-References: <20210806081112.104686873@linuxfoundation.org>
+In-Reply-To: <20210806081113.126861800@linuxfoundation.org>
+References: <20210806081113.126861800@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,52 +40,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: Pravin B Shelar <pshelar@ovn.org>
 
-commit d203b0fd863a2261e5d00b97f3d060c4c2a6db71 upstream
+[ Upstream commit a17ad0961706244dce48ec941f7e476a38c0e727 ]
 
-Instead of relying on current env->pass_cnt, use the seen count from the
-old aux data in adjust_insn_aux_data(), and expand it to the new range of
-patched instructions. This change is valid given we always expand 1:n
-with n>=1, so what applies to the old/original instruction needs to apply
-for the replacement as well.
+In some cases skb head could be locked and entire header
+data is pulled from skb. When skb_zerocopy() called in such cases,
+following BUG is triggered. This patch fixes it by copying entire
+skb in such cases.
+This could be optimized incase this is performance bottleneck.
 
-Not relying on env->pass_cnt is a prerequisite for a later change where we
-want to avoid marking an instruction seen when verified under speculative
-execution path.
+---8<---
+kernel BUG at net/core/skbuff.c:2961!
+invalid opcode: 0000 [#1] SMP PTI
+CPU: 2 PID: 0 Comm: swapper/2 Tainted: G           OE     5.4.0-77-generic #86-Ubuntu
+Hardware name: OpenStack Foundation OpenStack Nova, BIOS 1.13.0-1ubuntu1.1 04/01/2014
+RIP: 0010:skb_zerocopy+0x37a/0x3a0
+RSP: 0018:ffffbcc70013ca38 EFLAGS: 00010246
+Call Trace:
+ <IRQ>
+ queue_userspace_packet+0x2af/0x5e0 [openvswitch]
+ ovs_dp_upcall+0x3d/0x60 [openvswitch]
+ ovs_dp_process_packet+0x125/0x150 [openvswitch]
+ ovs_vport_receive+0x77/0xd0 [openvswitch]
+ netdev_port_receive+0x87/0x130 [openvswitch]
+ netdev_frame_hook+0x4b/0x60 [openvswitch]
+ __netif_receive_skb_core+0x2b4/0xc90
+ __netif_receive_skb_one_core+0x3f/0xa0
+ __netif_receive_skb+0x18/0x60
+ process_backlog+0xa9/0x160
+ net_rx_action+0x142/0x390
+ __do_softirq+0xe1/0x2d6
+ irq_exit+0xae/0xb0
+ do_IRQ+0x5a/0xf0
+ common_interrupt+0xf/0xf
 
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: John Fastabend <john.fastabend@gmail.com>
-Reviewed-by: Benedict Schlueter <benedict.schlueter@rub.de>
-Reviewed-by: Piotr Krysiuk <piotras@gmail.com>
-Acked-by: Alexei Starovoitov <ast@kernel.org>
-[OP: declare old_data as bool instead of u32 (struct bpf_insn_aux_data.seen
-     is bool in 5.4)]
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Code that triggered BUG:
+int
+skb_zerocopy(struct sk_buff *to, struct sk_buff *from, int len, int hlen)
+{
+        int i, j = 0;
+        int plen = 0; /* length of skb->head fragment */
+        int ret;
+        struct page *page;
+        unsigned int offset;
+
+        BUG_ON(!from->head_frag && !hlen);
+
+Signed-off-by: Pravin B Shelar <pshelar@ovn.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/verifier.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/core/skbuff.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -8304,6 +8304,7 @@ static int adjust_insn_aux_data(struct b
- {
- 	struct bpf_insn_aux_data *new_data, *old_data = env->insn_aux_data;
- 	struct bpf_insn *insn = new_prog->insnsi;
-+	bool old_seen = old_data[off].seen;
- 	u32 prog_len;
- 	int i;
+diff --git a/net/core/skbuff.c b/net/core/skbuff.c
+index 2d27aae6d36f..825e6b988003 100644
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -2922,8 +2922,11 @@ skb_zerocopy_headlen(const struct sk_buff *from)
  
-@@ -8324,7 +8325,8 @@ static int adjust_insn_aux_data(struct b
- 	memcpy(new_data + off + cnt - 1, old_data + off,
- 	       sizeof(struct bpf_insn_aux_data) * (prog_len - off - cnt + 1));
- 	for (i = off; i < off + cnt - 1; i++) {
--		new_data[i].seen = true;
-+		/* Expand insni[off]'s seen count to the patched range. */
-+		new_data[i].seen = old_seen;
- 		new_data[i].zext_dst = insn_has_def32(env, insn + i);
- 	}
- 	env->insn_aux_data = new_data;
+ 	if (!from->head_frag ||
+ 	    skb_headlen(from) < L1_CACHE_BYTES ||
+-	    skb_shinfo(from)->nr_frags >= MAX_SKB_FRAGS)
++	    skb_shinfo(from)->nr_frags >= MAX_SKB_FRAGS) {
+ 		hlen = skb_headlen(from);
++		if (!hlen)
++			hlen = from->len;
++	}
+ 
+ 	if (skb_has_frag_list(from))
+ 		hlen = from->len;
+-- 
+2.30.2
+
 
 
