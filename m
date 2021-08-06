@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ADE843E2577
-	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:20:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FB693E25B6
+	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:22:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244136AbhHFIUQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Aug 2021 04:20:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47846 "EHLO mail.kernel.org"
+        id S243990AbhHFIWF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Aug 2021 04:22:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241151AbhHFISu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Aug 2021 04:18:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B7EB961220;
-        Fri,  6 Aug 2021 08:18:20 +0000 (UTC)
+        id S244106AbhHFIUI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Aug 2021 04:20:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5204D61212;
+        Fri,  6 Aug 2021 08:19:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628237901;
-        bh=ECQJY4M4aufuxj5j0EWXm7QYorICMFUHTR53N99EfRo=;
+        s=korg; t=1628237990;
+        bh=J6uoLnHVZRVH/EQko5/ekow/TIAlnuGZDg5TfS16leE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZmlCaml66vXxDL+iK4my//HIjLl8sc2zp7nBiqewG+BEk/MHhk5MkWpGfz+u5UIKt
-         xFLxPhS3zeCOWWoGUJS8NsKvUlnHuAI3lLdG7v3Ti7/bNEuNKjvF7hYfrCquWX0VXR
-         MtuGehILYAJIgk4JRYWWIgrZi0KZBb1H0rp96VJ4=
+        b=104d9NhGkx+Q0DW0mkGs2/q3uxaDD1aW/G/oBj0gXLWTJengxMBuH7inQMeHH8gGR
+         kJvFXhCJbLLfLGQLKHXBgQIfwEUYafX/N4R2U6MQ0nlDzhNw9vCJR1AEBnI/ii9CYZ
+         BoWNLcu9PpfkHMZGUVB39y7PH9bt2+k/b4pExidU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 5.4 21/23] bpf: Test_verifier, add alu32 bounds tracking tests
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 10/35] net: dsa: sja1105: fix address learning getting disabled on the CPU port
 Date:   Fri,  6 Aug 2021 10:16:53 +0200
-Message-Id: <20210806081112.866840862@linuxfoundation.org>
+Message-Id: <20210806081114.046174410@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210806081112.104686873@linuxfoundation.org>
-References: <20210806081112.104686873@linuxfoundation.org>
+In-Reply-To: <20210806081113.718626745@linuxfoundation.org>
+References: <20210806081113.718626745@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,88 +40,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Fastabend <john.fastabend@gmail.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-commit 41f70fe0649dddf02046315dc566e06da5a2dc91 upstream
+[ Upstream commit b0b33b048dcfbd7da82c3cde4fab02751dfab4d6 ]
 
-Its possible to have divergent ALU32 and ALU64 bounds when using JMP32
-instructins and ALU64 arithmatic operations. Sometimes the clang will
-even generate this code. Because the case is a bit tricky lets add
-a specific test for it.
+In May 2019 when commit 640f763f98c2 ("net: dsa: sja1105: Add support
+for Spanning Tree Protocol") was introduced, the comment that "STP does
+not get called for the CPU port" was true. This changed after commit
+0394a63acfe2 ("net: dsa: enable and disable all ports") in August 2019
+and went largely unnoticed, because the sja1105_bridge_stp_state_set()
+method did nothing different compared to the static setup done by
+sja1105_init_mac_settings().
 
-Here is  pseudocode asm version to illustrate the idea,
+With the ability to turn address learning off introduced by the blamed
+commit, there is a new priv->learn_ena port mask in the driver. When
+sja1105_bridge_stp_state_set() gets called and we are in
+BR_STATE_LEARNING or later, address learning is enabled or not depending
+on priv->learn_ena & BIT(port).
 
- 1 r0 = 0xffffffff00000001;
- 2 if w0 > 1 goto %l[fail];
- 3 r0 += 1
- 5 if w0 > 2 goto %l[fail]
- 6 exit
+So what happens is that priv->learn_ena is not being set from anywhere
+for the CPU port, and the static configuration done by
+sja1105_init_mac_settings() is being overwritten.
 
-The intent here is the verifier will fail the load if the 32bit bounds
-are not tracked correctly through ALU64 op. Similarly we can check the
-64bit bounds are correctly zero extended after ALU32 ops.
+To solve this, acknowledge that the static configuration of STP state is
+no longer necessary because the STP state is being set by the DSA core
+now, but what is necessary is to set priv->learn_ena for the CPU port.
 
- 1 r0 = 0xffffffff00000001;
- 2 w0 += 1
- 2 if r0 > 3 goto %l[fail];
- 6 exit
-
-The above will fail if we do not correctly zero extend 64bit bounds
-after 32bit op.
-
-Signed-off-by: John Fastabend <john.fastabend@gmail.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/158560430155.10843.514209255758200922.stgit@john-Precision-5820-Tower
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 4d9423549501 ("net: dsa: sja1105: offload bridge port flags to device")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/verifier/bounds.c |   39 ++++++++++++++++++++++++++
- 1 file changed, 39 insertions(+)
+ drivers/net/dsa/sja1105/sja1105_main.c | 14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
 
---- a/tools/testing/selftests/bpf/verifier/bounds.c
-+++ b/tools/testing/selftests/bpf/verifier/bounds.c
-@@ -506,3 +506,42 @@
- 	.errstr = "map_value pointer and 1000000000000",
- 	.result = REJECT
- },
-+{
-+	"bounds check mixed 32bit and 64bit arithmatic. test1",
-+	.insns = {
-+	BPF_MOV64_IMM(BPF_REG_0, 0),
-+	BPF_MOV64_IMM(BPF_REG_1, -1),
-+	BPF_ALU64_IMM(BPF_LSH, BPF_REG_1, 32),
-+	BPF_ALU64_IMM(BPF_ADD, BPF_REG_1, 1),
-+	/* r1 = 0xffffFFFF00000001 */
-+	BPF_JMP32_IMM(BPF_JGT, BPF_REG_1, 1, 3),
-+	/* check ALU64 op keeps 32bit bounds */
-+	BPF_ALU64_IMM(BPF_ADD, BPF_REG_1, 1),
-+	BPF_JMP32_IMM(BPF_JGT, BPF_REG_1, 2, 1),
-+	BPF_JMP_A(1),
-+	/* invalid ldx if bounds are lost above */
-+	BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_0, -1),
-+	BPF_EXIT_INSN(),
-+	},
-+	.result = ACCEPT
-+},
-+{
-+	"bounds check mixed 32bit and 64bit arithmatic. test2",
-+	.insns = {
-+	BPF_MOV64_IMM(BPF_REG_0, 0),
-+	BPF_MOV64_IMM(BPF_REG_1, -1),
-+	BPF_ALU64_IMM(BPF_LSH, BPF_REG_1, 32),
-+	BPF_ALU64_IMM(BPF_ADD, BPF_REG_1, 1),
-+	/* r1 = 0xffffFFFF00000001 */
-+	BPF_MOV64_IMM(BPF_REG_2, 3),
-+	/* r1 = 0x2 */
-+	BPF_ALU32_IMM(BPF_ADD, BPF_REG_1, 1),
-+	/* check ALU32 op zero extends 64bit bounds */
-+	BPF_JMP_REG(BPF_JGT, BPF_REG_1, BPF_REG_2, 1),
-+	BPF_JMP_A(1),
-+	/* invalid ldx if bounds are lost above */
-+	BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_0, -1),
-+	BPF_EXIT_INSN(),
-+	},
-+	.result = ACCEPT
-+},
+diff --git a/drivers/net/dsa/sja1105/sja1105_main.c b/drivers/net/dsa/sja1105/sja1105_main.c
+index ebb6966eba8e..5b7947832b87 100644
+--- a/drivers/net/dsa/sja1105/sja1105_main.c
++++ b/drivers/net/dsa/sja1105/sja1105_main.c
+@@ -130,14 +130,12 @@ static int sja1105_init_mac_settings(struct sja1105_private *priv)
+ 
+ 	for (i = 0; i < ds->num_ports; i++) {
+ 		mac[i] = default_mac;
+-		if (i == dsa_upstream_port(priv->ds, i)) {
+-			/* STP doesn't get called for CPU port, so we need to
+-			 * set the I/O parameters statically.
+-			 */
+-			mac[i].dyn_learn = true;
+-			mac[i].ingress = true;
+-			mac[i].egress = true;
+-		}
++
++		/* Let sja1105_bridge_stp_state_set() keep address learning
++		 * enabled for the CPU port.
++		 */
++		if (dsa_is_cpu_port(ds, i))
++			priv->learn_ena |= BIT(i);
+ 	}
+ 
+ 	return 0;
+-- 
+2.30.2
+
 
 
