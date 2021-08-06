@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F9C73E256E
-	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:20:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65F7B3E2597
+	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:21:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244065AbhHFIT7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Aug 2021 04:19:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48692 "EHLO mail.kernel.org"
+        id S241874AbhHFIVI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Aug 2021 04:21:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244145AbhHFITS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Aug 2021 04:19:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8CCD5611C6;
-        Fri,  6 Aug 2021 08:18:51 +0000 (UTC)
+        id S244126AbhHFIUL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Aug 2021 04:20:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A4AD06120F;
+        Fri,  6 Aug 2021 08:19:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628237932;
-        bh=MDcVSK2GDmf3O0O+rkmm2pczFRVhWr9fQajH+o6Cd1M=;
+        s=korg; t=1628237996;
+        bh=W5tMbAxEV8Y/S+3PCcCtDkxndkFdfSegIKHP8WFZZYM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J8TO9BAU/Z51u3GKq+3QKjBUrWoO3Rtraogbyw1M1UeZg3SMNhmQQG2S26rwG+x3K
-         h2duvRo9B6YxirLHK2v3/jVou45Z4HigI6FUuQMY3tAL/BT3q/7749q+qtbxHRV6ty
-         FQnPZOGsnkz/ET6lEDINFYJ5IoM4X2pwJ+iN6VoQ=
+        b=ireRKmO1gWO3396h6jadwdyxCOZIUldwwwLk4654d8zQEMFDa7hzyFaeFbF8zX3my
+         Yhs6Dh8AZ7d+3IDDlHyGOODhyKeFuHhYagBaUHV0xmt44wx5rJBnhTS6H+TBgoMOTF
+         z8YYA9Zj1F1ff+BeUYC+XCY8/sNKWPOyzR17GDMg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>,
-        Yongqiang Sun <Yongqiang.Sun@amd.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Victor Lu <victorchengchi.lu@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 17/30] drm/amd/display: Fix comparison error in dcn21 DML
+Subject: [PATCH 5.13 12/35] ASoC: Intel: boards: create sof-maxim-common module
 Date:   Fri,  6 Aug 2021 10:16:55 +0200
-Message-Id: <20210806081113.717577254@linuxfoundation.org>
+Message-Id: <20210806081114.120633911@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210806081113.126861800@linuxfoundation.org>
-References: <20210806081113.126861800@linuxfoundation.org>
+In-Reply-To: <20210806081113.718626745@linuxfoundation.org>
+References: <20210806081113.718626745@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +43,240 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Victor Lu <victorchengchi.lu@amd.com>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit ec3102dc6b36c692104c4a0546d4119de59a3bc1 ]
+[ Upstream commit 9c5046e4b3e736eec5b9a8f1d59c07bb0ed78a7a ]
 
-[why]
-A comparison error made it possible to not iterate through all the
-specified prefetch modes.
+sof_maxim_common.o is linked twice, move to a dedicated module.
 
-[how]
-Correct "<" to "<="
+Also clean-up interfaces to use a consistent 'max_98373' prefix for
+all symbols.
 
-Reviewed-by: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
-Reviewed-by: Yongqiang Sun <Yongqiang.Sun@amd.com>
-Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Signed-off-by: Victor Lu <victorchengchi.lu@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
+Link: https://lore.kernel.org/r/20210505163705.305616-7-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dml/dcn21/display_mode_vba_21.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/intel/boards/Kconfig            |  5 +++++
+ sound/soc/intel/boards/Makefile           |  6 ++++--
+ sound/soc/intel/boards/sof_maxim_common.c | 24 ++++++++++++++++-------
+ sound/soc/intel/boards/sof_maxim_common.h |  6 +++---
+ sound/soc/intel/boards/sof_rt5682.c       |  5 +++--
+ sound/soc/intel/boards/sof_sdw.c          |  1 +
+ sound/soc/intel/boards/sof_sdw_max98373.c |  4 ++--
+ 7 files changed, 35 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn21/display_mode_vba_21.c b/drivers/gpu/drm/amd/display/dc/dml/dcn21/display_mode_vba_21.c
-index 367c82b5ab4c..c09bca335068 100644
---- a/drivers/gpu/drm/amd/display/dc/dml/dcn21/display_mode_vba_21.c
-+++ b/drivers/gpu/drm/amd/display/dc/dml/dcn21/display_mode_vba_21.c
-@@ -4888,7 +4888,7 @@ void dml21_ModeSupportAndSystemConfigurationFull(struct display_mode_lib *mode_l
- 				}
- 			} while ((locals->PrefetchSupported[i][j] != true || locals->VRatioInPrefetchSupported[i][j] != true)
- 					&& (mode_lib->vba.NextMaxVStartup != mode_lib->vba.MaxMaxVStartup[0][0]
--						|| mode_lib->vba.NextPrefetchMode < mode_lib->vba.MaxPrefetchMode));
-+						|| mode_lib->vba.NextPrefetchMode <= mode_lib->vba.MaxPrefetchMode));
+diff --git a/sound/soc/intel/boards/Kconfig b/sound/soc/intel/boards/Kconfig
+index ec4d754eb348..ceeb618bd950 100644
+--- a/sound/soc/intel/boards/Kconfig
++++ b/sound/soc/intel/boards/Kconfig
+@@ -29,6 +29,9 @@ config SND_SOC_INTEL_USER_FRIENDLY_LONG_NAMES
+ config SND_SOC_INTEL_HDA_DSP_COMMON
+ 	tristate
  
- 			if (locals->PrefetchSupported[i][j] == true && locals->VRatioInPrefetchSupported[i][j] == true) {
- 				mode_lib->vba.BandwidthAvailableForImmediateFlip = locals->ReturnBWPerState[i][0];
++config SND_SOC_INTEL_SOF_MAXIM_COMMON
++	tristate
++
+ if SND_SOC_INTEL_CATPT
+ 
+ config SND_SOC_INTEL_HASWELL_MACH
+@@ -469,6 +472,7 @@ config SND_SOC_INTEL_SOF_RT5682_MACH
+ 	select SND_SOC_DMIC
+ 	select SND_SOC_HDAC_HDMI
+ 	select SND_SOC_INTEL_HDA_DSP_COMMON
++	select SND_SOC_INTEL_SOF_MAXIM_COMMON
+ 	help
+ 	   This adds support for ASoC machine driver for SOF platforms
+ 	   with rt5682 codec.
+@@ -579,6 +583,7 @@ config SND_SOC_INTEL_SOUNDWIRE_SOF_MACH
+ 	select SND_SOC_RT5682_SDW
+ 	select SND_SOC_DMIC
+ 	select SND_SOC_INTEL_HDA_DSP_COMMON
++	select SND_SOC_INTEL_SOF_MAXIM_COMMON
+ 	help
+ 	  Add support for Intel SoundWire-based platforms connected to
+ 	  MAX98373, RT700, RT711, RT1308 and RT715
+diff --git a/sound/soc/intel/boards/Makefile b/sound/soc/intel/boards/Makefile
+index a48ee9b74e73..855296e8dfb8 100644
+--- a/sound/soc/intel/boards/Makefile
++++ b/sound/soc/intel/boards/Makefile
+@@ -19,7 +19,7 @@ snd-soc-sst-byt-cht-cx2072x-objs := bytcht_cx2072x.o
+ snd-soc-sst-byt-cht-da7213-objs := bytcht_da7213.o
+ snd-soc-sst-byt-cht-es8316-objs := bytcht_es8316.o
+ snd-soc-sst-byt-cht-nocodec-objs := bytcht_nocodec.o
+-snd-soc-sof_rt5682-objs := sof_rt5682.o sof_maxim_common.o sof_realtek_common.o
++snd-soc-sof_rt5682-objs := sof_rt5682.o sof_realtek_common.o
+ snd-soc-cml_rt1011_rt5682-objs := cml_rt1011_rt5682.o
+ snd-soc-kbl_da7219_max98357a-objs := kbl_da7219_max98357a.o
+ snd-soc-kbl_da7219_max98927-objs := kbl_da7219_max98927.o
+@@ -38,7 +38,6 @@ snd-soc-sof-sdw-objs += sof_sdw.o				\
+ 			sof_sdw_rt5682.o sof_sdw_rt700.o	\
+ 			sof_sdw_rt711.o sof_sdw_rt711_sdca.o 	\
+ 			sof_sdw_rt715.o	sof_sdw_rt715_sdca.o 	\
+-			sof_maxim_common.o                      \
+ 			sof_sdw_dmic.o sof_sdw_hdmi.o
+ obj-$(CONFIG_SND_SOC_INTEL_SOF_RT5682_MACH) += snd-soc-sof_rt5682.o
+ obj-$(CONFIG_SND_SOC_INTEL_HASWELL_MACH) += snd-soc-sst-haswell.o
+@@ -78,3 +77,6 @@ obj-$(CONFIG_SND_SOC_INTEL_SOUNDWIRE_SOF_MACH) += snd-soc-sof-sdw.o
+ # common modules
+ snd-soc-intel-hda-dsp-common-objs := hda_dsp_common.o
+ obj-$(CONFIG_SND_SOC_INTEL_HDA_DSP_COMMON) += snd-soc-intel-hda-dsp-common.o
++
++snd-soc-intel-sof-maxim-common-objs += sof_maxim_common.o
++obj-$(CONFIG_SND_SOC_INTEL_SOF_MAXIM_COMMON) += snd-soc-intel-sof-maxim-common.o
+diff --git a/sound/soc/intel/boards/sof_maxim_common.c b/sound/soc/intel/boards/sof_maxim_common.c
+index 437d20562753..7c4af6ec58e8 100644
+--- a/sound/soc/intel/boards/sof_maxim_common.c
++++ b/sound/soc/intel/boards/sof_maxim_common.c
+@@ -1,6 +1,7 @@
+ // SPDX-License-Identifier: GPL-2.0-only
+ //
+ // Copyright(c) 2020 Intel Corporation. All rights reserved.
++#include <linux/module.h>
+ #include <linux/string.h>
+ #include <sound/pcm.h>
+ #include <sound/soc.h>
+@@ -16,6 +17,7 @@ const struct snd_soc_dapm_route max_98373_dapm_routes[] = {
+ 	{ "Left Spk", NULL, "Left BE_OUT" },
+ 	{ "Right Spk", NULL, "Right BE_OUT" },
+ };
++EXPORT_SYMBOL_NS(max_98373_dapm_routes, SND_SOC_INTEL_SOF_MAXIM_COMMON);
+ 
+ static struct snd_soc_codec_conf max_98373_codec_conf[] = {
+ 	{
+@@ -38,9 +40,10 @@ struct snd_soc_dai_link_component max_98373_components[] = {
+ 		.dai_name = MAX_98373_CODEC_DAI,
+ 	},
+ };
++EXPORT_SYMBOL_NS(max_98373_components, SND_SOC_INTEL_SOF_MAXIM_COMMON);
+ 
+-static int max98373_hw_params(struct snd_pcm_substream *substream,
+-			      struct snd_pcm_hw_params *params)
++static int max_98373_hw_params(struct snd_pcm_substream *substream,
++			       struct snd_pcm_hw_params *params)
+ {
+ 	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+ 	struct snd_soc_dai *codec_dai;
+@@ -59,7 +62,7 @@ static int max98373_hw_params(struct snd_pcm_substream *substream,
+ 	return 0;
+ }
+ 
+-int max98373_trigger(struct snd_pcm_substream *substream, int cmd)
++int max_98373_trigger(struct snd_pcm_substream *substream, int cmd)
+ {
+ 	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+ 	struct snd_soc_dai *codec_dai;
+@@ -102,13 +105,15 @@ int max98373_trigger(struct snd_pcm_substream *substream, int cmd)
+ 
+ 	return ret;
+ }
++EXPORT_SYMBOL_NS(max_98373_trigger, SND_SOC_INTEL_SOF_MAXIM_COMMON);
+ 
+ struct snd_soc_ops max_98373_ops = {
+-	.hw_params = max98373_hw_params,
+-	.trigger = max98373_trigger,
++	.hw_params = max_98373_hw_params,
++	.trigger = max_98373_trigger,
+ };
++EXPORT_SYMBOL_NS(max_98373_ops, SND_SOC_INTEL_SOF_MAXIM_COMMON);
+ 
+-int max98373_spk_codec_init(struct snd_soc_pcm_runtime *rtd)
++int max_98373_spk_codec_init(struct snd_soc_pcm_runtime *rtd)
+ {
+ 	struct snd_soc_card *card = rtd->card;
+ 	int ret;
+@@ -119,9 +124,14 @@ int max98373_spk_codec_init(struct snd_soc_pcm_runtime *rtd)
+ 		dev_err(rtd->dev, "Speaker map addition failed: %d\n", ret);
+ 	return ret;
+ }
++EXPORT_SYMBOL_NS(max_98373_spk_codec_init, SND_SOC_INTEL_SOF_MAXIM_COMMON);
+ 
+-void sof_max98373_codec_conf(struct snd_soc_card *card)
++void max_98373_set_codec_conf(struct snd_soc_card *card)
+ {
+ 	card->codec_conf = max_98373_codec_conf;
+ 	card->num_configs = ARRAY_SIZE(max_98373_codec_conf);
+ }
++EXPORT_SYMBOL_NS(max_98373_set_codec_conf, SND_SOC_INTEL_SOF_MAXIM_COMMON);
++
++MODULE_DESCRIPTION("ASoC Intel SOF Maxim helpers");
++MODULE_LICENSE("GPL");
+diff --git a/sound/soc/intel/boards/sof_maxim_common.h b/sound/soc/intel/boards/sof_maxim_common.h
+index 5240b1c9d379..566a664d5a63 100644
+--- a/sound/soc/intel/boards/sof_maxim_common.h
++++ b/sound/soc/intel/boards/sof_maxim_common.h
+@@ -20,8 +20,8 @@ extern struct snd_soc_dai_link_component max_98373_components[2];
+ extern struct snd_soc_ops max_98373_ops;
+ extern const struct snd_soc_dapm_route max_98373_dapm_routes[];
+ 
+-int max98373_spk_codec_init(struct snd_soc_pcm_runtime *rtd);
+-void sof_max98373_codec_conf(struct snd_soc_card *card);
+-int max98373_trigger(struct snd_pcm_substream *substream, int cmd);
++int max_98373_spk_codec_init(struct snd_soc_pcm_runtime *rtd);
++void max_98373_set_codec_conf(struct snd_soc_card *card);
++int max_98373_trigger(struct snd_pcm_substream *substream, int cmd);
+ 
+ #endif /* __SOF_MAXIM_COMMON_H */
+diff --git a/sound/soc/intel/boards/sof_rt5682.c b/sound/soc/intel/boards/sof_rt5682.c
+index 52401cc0de92..78262c659983 100644
+--- a/sound/soc/intel/boards/sof_rt5682.c
++++ b/sound/soc/intel/boards/sof_rt5682.c
+@@ -742,7 +742,7 @@ static struct snd_soc_dai_link *sof_card_dai_links_create(struct device *dev,
+ 				SOF_MAX98373_SPEAKER_AMP_PRESENT) {
+ 			links[id].codecs = max_98373_components;
+ 			links[id].num_codecs = ARRAY_SIZE(max_98373_components);
+-			links[id].init = max98373_spk_codec_init;
++			links[id].init = max_98373_spk_codec_init;
+ 			links[id].ops = &max_98373_ops;
+ 			/* feedback stream */
+ 			links[id].dpcm_capture = 1;
+@@ -863,7 +863,7 @@ static int sof_audio_probe(struct platform_device *pdev)
+ 		sof_audio_card_rt5682.num_links++;
+ 
+ 	if (sof_rt5682_quirk & SOF_MAX98373_SPEAKER_AMP_PRESENT)
+-		sof_max98373_codec_conf(&sof_audio_card_rt5682);
++		max_98373_set_codec_conf(&sof_audio_card_rt5682);
+ 	else if (sof_rt5682_quirk & SOF_RT1011_SPEAKER_AMP_PRESENT)
+ 		sof_rt1011_codec_conf(&sof_audio_card_rt5682);
+ 	else if (sof_rt5682_quirk & SOF_RT1015P_SPEAKER_AMP_PRESENT)
+@@ -995,3 +995,4 @@ MODULE_ALIAS("platform:cml_rt1015_rt5682");
+ MODULE_ALIAS("platform:tgl_rt1011_rt5682");
+ MODULE_ALIAS("platform:jsl_rt5682_rt1015p");
+ MODULE_IMPORT_NS(SND_SOC_INTEL_HDA_DSP_COMMON);
++MODULE_IMPORT_NS(SND_SOC_INTEL_SOF_MAXIM_COMMON);
+diff --git a/sound/soc/intel/boards/sof_sdw.c b/sound/soc/intel/boards/sof_sdw.c
+index 5e4d26e9bb7d..3ca7e1ab48ab 100644
+--- a/sound/soc/intel/boards/sof_sdw.c
++++ b/sound/soc/intel/boards/sof_sdw.c
+@@ -1319,3 +1319,4 @@ MODULE_AUTHOR("Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>");
+ MODULE_LICENSE("GPL v2");
+ MODULE_ALIAS("platform:sof_sdw");
+ MODULE_IMPORT_NS(SND_SOC_INTEL_HDA_DSP_COMMON);
++MODULE_IMPORT_NS(SND_SOC_INTEL_SOF_MAXIM_COMMON);
+diff --git a/sound/soc/intel/boards/sof_sdw_max98373.c b/sound/soc/intel/boards/sof_sdw_max98373.c
+index cfdf970c5800..0e7ed906b341 100644
+--- a/sound/soc/intel/boards/sof_sdw_max98373.c
++++ b/sound/soc/intel/boards/sof_sdw_max98373.c
+@@ -64,7 +64,7 @@ static int max98373_sdw_trigger(struct snd_pcm_substream *substream, int cmd)
+ 	case SNDRV_PCM_TRIGGER_RESUME:
+ 	case SNDRV_PCM_TRIGGER_PAUSE_RELEASE:
+ 		/* enable max98373 first */
+-		ret = max98373_trigger(substream, cmd);
++		ret = max_98373_trigger(substream, cmd);
+ 		if (ret < 0)
+ 			break;
+ 
+@@ -77,7 +77,7 @@ static int max98373_sdw_trigger(struct snd_pcm_substream *substream, int cmd)
+ 		if (ret < 0)
+ 			break;
+ 
+-		ret = max98373_trigger(substream, cmd);
++		ret = max_98373_trigger(substream, cmd);
+ 		break;
+ 	default:
+ 		ret = -EINVAL;
 -- 
 2.30.2
 
