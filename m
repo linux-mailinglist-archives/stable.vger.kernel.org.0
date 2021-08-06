@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EEC33E25A1
-	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:21:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C91023E2587
+	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:20:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243352AbhHFIVT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Aug 2021 04:21:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52162 "EHLO mail.kernel.org"
+        id S243536AbhHFIUf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Aug 2021 04:20:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244182AbhHFIUY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Aug 2021 04:20:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5653D6103B;
-        Fri,  6 Aug 2021 08:20:08 +0000 (UTC)
+        id S243725AbhHFITn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Aug 2021 04:19:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5FB61611C9;
+        Fri,  6 Aug 2021 08:19:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628238008;
-        bh=2r0Fhs8d3a9+YKMSBs+/2VBJgb52qadIj/04nLw/YKU=;
+        s=korg; t=1628237967;
+        bh=M7pAnftMKUCRIxOpK5wdnlnvAQSiHACpEAV+cSxhRhU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hSnVtK1ikjIkjQv+XQxRBa4avYxn60ZZzFK19VztqgbuNzIxPKRX5Lid5WOpsVdzM
-         5O62eYNxhBsIBGRNUWYOQxyCS5vfP9AoxNqwBoeckwToh9aSDMBuV8vNDpd3smp/pP
-         llMmiXYWhoM/cqEezVFLgA7WZmpn1p3ZEBxvnlng=
+        b=hjPm5iDylX3bWJf5+V0jjDODvQ18h5J5vo9ZiespHlflBhQEhio0wBQtZegdS/A45
+         DmngZoK3syE/gF4dYPu6uSd2TqNKd/3tK6QkgclLLkC9ww0P07kaBtb0sowPAj/anD
+         FyrXFRbdQ4ASR4MY2Vjx1QtyY4t+he7otbVUUaPU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kyle Russell <bkylerussell@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 17/35] ASoC: tlv320aic31xx: fix reversed bclk/wclk master bits
+        stable@vger.kernel.org,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Cristian Marussi <cristian.marussi@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>
+Subject: [PATCH 5.10 22/30] firmware: arm_scmi: Ensure drivers provide a probe function
 Date:   Fri,  6 Aug 2021 10:17:00 +0200
-Message-Id: <20210806081114.291039573@linuxfoundation.org>
+Message-Id: <20210806081113.880138462@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210806081113.718626745@linuxfoundation.org>
-References: <20210806081113.718626745@linuxfoundation.org>
+In-Reply-To: <20210806081113.126861800@linuxfoundation.org>
+References: <20210806081113.126861800@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,49 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kyle Russell <bkylerussell@gmail.com>
+From: Sudeep Holla <sudeep.holla@arm.com>
 
-[ Upstream commit 9cf76a72af6ab81030dea6481b1d7bdd814fbdaf ]
+commit 5e469dac326555d2038d199a6329458cc82a34e5 upstream.
 
-These are backwards from Table 7-71 of the TLV320AIC3100 spec [1].
+The bus probe callback calls the driver callback without further
+checking. Better be safe than sorry and refuse registration of a driver
+without a probe function to prevent a NULL pointer exception.
 
-This was broken in 12eb4d66ba2e when BCLK_MASTER and WCLK_MASTER
-were converted from 0x08 and 0x04 to BIT(2) and BIT(3), respectively.
-
--#define AIC31XX_BCLK_MASTER		0x08
--#define AIC31XX_WCLK_MASTER		0x04
-+#define AIC31XX_BCLK_MASTER		BIT(2)
-+#define AIC31XX_WCLK_MASTER		BIT(3)
-
-Probably just a typo since the defines were not listed in bit order.
-
-[1] https://www.ti.com/lit/gpn/tlv320aic3100
-
-Signed-off-by: Kyle Russell <bkylerussell@gmail.com>
-Link: https://lore.kernel.org/r/20210622010941.241386-1-bkylerussell@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/20210624095059.4010157-2-sudeep.holla@arm.com
+Fixes: 933c504424a2 ("firmware: arm_scmi: add scmi protocol bus to enumerate protocol devices")
+Reported-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Tested-by: Cristian Marussi <cristian.marussi@arm.com>
+Reviewed-by: Cristian Marussi <cristian.marussi@arm.com>
+Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/tlv320aic31xx.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/firmware/arm_scmi/bus.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/sound/soc/codecs/tlv320aic31xx.h b/sound/soc/codecs/tlv320aic31xx.h
-index 81952984613d..2513922a0292 100644
---- a/sound/soc/codecs/tlv320aic31xx.h
-+++ b/sound/soc/codecs/tlv320aic31xx.h
-@@ -151,8 +151,8 @@ struct aic31xx_pdata {
- #define AIC31XX_WORD_LEN_24BITS		0x02
- #define AIC31XX_WORD_LEN_32BITS		0x03
- #define AIC31XX_IFACE1_MASTER_MASK	GENMASK(3, 2)
--#define AIC31XX_BCLK_MASTER		BIT(2)
--#define AIC31XX_WCLK_MASTER		BIT(3)
-+#define AIC31XX_BCLK_MASTER		BIT(3)
-+#define AIC31XX_WCLK_MASTER		BIT(2)
+--- a/drivers/firmware/arm_scmi/bus.c
++++ b/drivers/firmware/arm_scmi/bus.c
+@@ -113,6 +113,9 @@ int scmi_driver_register(struct scmi_dri
+ {
+ 	int retval;
  
- /* AIC31XX_DATA_OFFSET */
- #define AIC31XX_DATA_OFFSET_MASK	GENMASK(7, 0)
--- 
-2.30.2
-
++	if (!driver->probe)
++		return -EINVAL;
++
+ 	driver->driver.bus = &scmi_bus_type;
+ 	driver->driver.name = driver->name;
+ 	driver->driver.owner = owner;
 
 
