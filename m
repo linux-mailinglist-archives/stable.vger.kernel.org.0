@@ -2,85 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E624D3E2F98
-	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 20:59:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CAC1A3E2FE3
+	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 21:50:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233111AbhHFTAC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Aug 2021 15:00:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34824 "EHLO
+        id S232350AbhHFTvA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Aug 2021 15:51:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234249AbhHFTAC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 Aug 2021 15:00:02 -0400
-Received: from mail-qk1-x732.google.com (mail-qk1-x732.google.com [IPv6:2607:f8b0:4864:20::732])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5823CC0613CF;
-        Fri,  6 Aug 2021 11:59:45 -0700 (PDT)
-Received: by mail-qk1-x732.google.com with SMTP id t68so10980614qkf.8;
-        Fri, 06 Aug 2021 11:59:45 -0700 (PDT)
+        with ESMTP id S232157AbhHFTvA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Aug 2021 15:51:00 -0400
+Received: from mail-wr1-x432.google.com (mail-wr1-x432.google.com [IPv6:2a00:1450:4864:20::432])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F122BC0613CF;
+        Fri,  6 Aug 2021 12:50:42 -0700 (PDT)
+Received: by mail-wr1-x432.google.com with SMTP id n12so2364675wrr.2;
+        Fri, 06 Aug 2021 12:50:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=p6/1u1KqCpVSt9cGpO7GbIFfJWv7QwOJjFwb5VbHFqw=;
-        b=ZdegmBt4a0ggoNFhQXP2ezMmPBCZHbb90dvX4WxDZnl3t08hqJDpXBBhPbn94T6nBZ
-         2sqI8eE9cI6Bw99jNzmHdTYMFQx3PwZVKPCbhXw06q0LNddtTHCBnhBwhZzz0++PlX4v
-         FgU/bWZO9yJTsWYx31Ct10nslO9WDuGfGDKW9EN4JJUtE/Y26o3UzYyurNS48yR/eRKj
-         J/xrHUtRo3WI1NylYKaiZRgevgk7v9qF7yWVWnIRrGsUQoyUUKekrv1GqA5xCuB4gyCj
-         6hVev9nUYxrYF1h6eLeRinIaVV/+IXsc8Boj2RrHa60kygQWOkWAmtGgP/+mFlczE+rD
-         PG4A==
+        h=from:to:cc:subject:date:message-id;
+        bh=7O3R+/YLffFIYvFcx+ISW6vN6f2/4fupamLlutQquIc=;
+        b=c50ZRqd7ZJ6rDenkIu2zwLRWu610VC1kr2a2yRbI76WF7Ote8TGhdSFADq/5c50sOj
+         d2rmnjr4Zl4jJm/bMbKe4V19IKJ340mNqZmMtTjiW+y/hXbWI6uL7tZyVeXBDjXnUTPb
+         9N5lmDPxY74qUdW5DOzuPsX1DraD09dg3FU/mfLcXUfDefz/D4km6HWrjio+7btOe9jA
+         VTPC55FP80lSZaOjnmG+QNCBx3tNIKuG2Jlq69+4UgvEtIf6i3OIjr7arnXdQUEP0Jsa
+         WxKpMeWC6RD4yon3wE4dJlmGBy5TtNDqTAuVdonMVKAOHo9N8EtL2BqNY9NU29jl/O9m
+         9SLw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=p6/1u1KqCpVSt9cGpO7GbIFfJWv7QwOJjFwb5VbHFqw=;
-        b=FV0Z5+sI5DaBovIbcVj9eQSJinmP3/wpUhZ0RJrPnplrPqG6M8lvHeHKZbr1gT1EW4
-         +715QN9rGNAPFyP0f9FJyNTHjwah7cnefZlYmK38mHAYQ5NRUDxe9Mm/xY3ZLmFjDUPP
-         jwwRvjtRqZ2TMFi4ncSIljuI561hngXsD3EXPjAU/kKBbwiFqnkYFBo8lObmFHfy2jQX
-         K2CUOqlb+DtuKCtHcYIHZaJSAUBQP7QkoJZoNhx3zf/i1/vq1lPZhoq3XtmR98wh1YQF
-         AZIl2xUup6+EIZd4dk1F7rtAGGGIHIJV0tXHTPQmV2U78FkpAA0MYDYt4XjPFBAjmZHv
-         e7OA==
-X-Gm-Message-State: AOAM533GYyxWlGJw47d/IY/nCdsXaiIW4obrFhenPONbIuilY8EsGcKW
-        212Q56tRtWzon23CcKsK3/g=
-X-Google-Smtp-Source: ABdhPJx3Pansb75WO1jC+sW76/lAlTqazZS9yVjW7MqhsvotP0rearPuh/kuDdeqoNrVA3wjdnKgdg==
-X-Received: by 2002:a37:88b:: with SMTP id 133mr878940qki.339.1628276384615;
-        Fri, 06 Aug 2021 11:59:44 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id c4sm3637632qtd.62.2021.08.06.11.59.43
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=7O3R+/YLffFIYvFcx+ISW6vN6f2/4fupamLlutQquIc=;
+        b=Rqu5aDbk6y9XQzuwmqlPFmSZkppjbJ7By3iXKJzQkH6jDEJEqKnD73uGcEhwNjXDCg
+         aGK0GIGMjg4874cJGL9lM9N3sNm8d+3JzfF+aENqCk/yP3Svxm80nwXuhD5hKURcD4KR
+         2+Vk12Ahxm5zquB4h0L59a3i1hY/fnGFbPrlcpoCsV97GdHrTt496UHz7ngOLws/DlJt
+         CYyLyzQkXvY9t9rpCOVTdUIj0VPVyKpYnOieadL6UlbhTg5qN96yLh5pUQOG54/ltBrr
+         a/v12VzSgHkXSO93LheOMVfquFiSanNjEcUBW87lIoXb/7mZ0cvy6PaE0eJ4TW3j5IUi
+         sZBw==
+X-Gm-Message-State: AOAM532k+KnJGDIovMQpDHYbzzDUbby4BazHq3d2eJJcForzzbuvItwO
+        eoJevBxrxQpq9Mj1D5y1oiw=
+X-Google-Smtp-Source: ABdhPJyVkry3+m5663VZZQh74vfTfSXLCzeg+mztE3FgXtryBM4F/fD+UDroRS8T07tJ8EED0JtNcw==
+X-Received: by 2002:a5d:49c8:: with SMTP id t8mr12342235wrs.365.1628279441558;
+        Fri, 06 Aug 2021 12:50:41 -0700 (PDT)
+Received: from felia.fritz.box ([2001:16b8:2dc9:8d00:2198:3536:ca51:cd82])
+        by smtp.gmail.com with ESMTPSA id y197sm13477902wmc.7.2021.08.06.12.50.40
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 06 Aug 2021 11:59:44 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Fri, 6 Aug 2021 11:59:42 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: Re: [PATCH 5.13 00/35] 5.13.9-rc1 review
-Message-ID: <20210806185942.GG2680592@roeck-us.net>
-References: <20210806081113.718626745@linuxfoundation.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210806081113.718626745@linuxfoundation.org>
+        Fri, 06 Aug 2021 12:50:41 -0700 (PDT)
+From:   Lukas Bulwahn <lukas.bulwahn@gmail.com>
+To:     Steven Rostedt <rostedt@goodmis.org>,
+        Ingo Molnar <mingo@redhat.com>
+Cc:     Josh Poimboeuf <jpoimboe@redhat.com>,
+        Jiri Kosina <jikos@kernel.org>, live-patching@vger.kernel.org,
+        Peter Zijlstra <peterz@infradead.org>,
+        Miroslav Benes <mbenes@suse.cz>,
+        kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Lukas Bulwahn <lukas.bulwahn@gmail.com>, stable@vger.kernel.org
+Subject: [PATCH] tracing: define needed config DYNAMIC_FTRACE_WITH_ARGS
+Date:   Fri,  6 Aug 2021 21:50:27 +0200
+Message-Id: <20210806195027.16808-1-lukas.bulwahn@gmail.com>
+X-Mailer: git-send-email 2.17.1
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Aug 06, 2021 at 10:16:43AM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.13.9 release.
-> There are 35 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sun, 08 Aug 2021 08:11:03 +0000.
-> Anything received after that time might be too late.
-> 
+Commit 2860cd8a2353 ("livepatch: Use the default ftrace_ops instead of
+REGS when ARGS is available") intends to enable config LIVEPATCH when
+ftrace with ARGS is available. However, the chain of configs to enable
+LIVEPATCH is incomplete, as HAVE_DYNAMIC_FTRACE_WITH_ARGS is available,
+but the definition of DYNAMIC_FTRACE_WITH_ARGS, combining DYNAMIC_FTRACE
+and HAVE_DYNAMIC_FTRACE_WITH_ARGS, needed to enable LIVEPATCH, is missing
+in the commit.
 
-Build results:
-	total: 154 pass: 154 fail: 0
-Qemu test results:
-	total: 481 pass: 481 fail: 0
+Fortunately, ./scripts/checkkconfigsymbols.py detects this and warns:
 
-Tested-by: Guenter Roeck <linux@roeck-us.net>
+DYNAMIC_FTRACE_WITH_ARGS
+Referencing files: kernel/livepatch/Kconfig
 
-Guenter
+So, define the config DYNAMIC_FTRACE_WITH_ARGS analogously to the already
+existing similar configs, DYNAMIC_FTRACE_WITH_REGS and
+DYNAMIC_FTRACE_WITH_DIRECT_CALLS, in ./kernel/trace/Kconfig to connect the
+chain of configs.
+
+Fixes: 2860cd8a2353 ("livepatch: Use the default ftrace_ops instead of REGS when ARGS is available")
+Cc: <stable@vger.kernel.org> # 5.10.x
+Signed-off-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+---
+
+Steven, thanks for the quick response; please pick this quick config fix.
+
+ kernel/trace/Kconfig | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/kernel/trace/Kconfig b/kernel/trace/Kconfig
+index d567b1717c4c..3ee23f4d437f 100644
+--- a/kernel/trace/Kconfig
++++ b/kernel/trace/Kconfig
+@@ -219,6 +219,11 @@ config DYNAMIC_FTRACE_WITH_DIRECT_CALLS
+ 	depends on DYNAMIC_FTRACE_WITH_REGS
+ 	depends on HAVE_DYNAMIC_FTRACE_WITH_DIRECT_CALLS
+ 
++config DYNAMIC_FTRACE_WITH_ARGS
++	def_bool y
++	depends on DYNAMIC_FTRACE
++	depends on HAVE_DYNAMIC_FTRACE_WITH_ARGS
++
+ config FUNCTION_PROFILER
+ 	bool "Kernel function profiler"
+ 	depends on FUNCTION_TRACER
+-- 
+2.17.1
+
