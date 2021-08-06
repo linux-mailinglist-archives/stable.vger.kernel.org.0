@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 65F7B3E2597
-	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:21:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A2043E2578
+	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:20:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241874AbhHFIVI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Aug 2021 04:21:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51602 "EHLO mail.kernel.org"
+        id S243637AbhHFIUR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Aug 2021 04:20:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244126AbhHFIUL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Aug 2021 04:20:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A4AD06120F;
-        Fri,  6 Aug 2021 08:19:55 +0000 (UTC)
+        id S244104AbhHFISu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Aug 2021 04:18:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 24F17611CC;
+        Fri,  6 Aug 2021 08:18:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628237996;
-        bh=W5tMbAxEV8Y/S+3PCcCtDkxndkFdfSegIKHP8WFZZYM=;
+        s=korg; t=1628237906;
+        bh=MPa1JgkJs9RmjmjeuFCmig4SEGQk4yquDBcryqFj0Yw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ireRKmO1gWO3396h6jadwdyxCOZIUldwwwLk4654d8zQEMFDa7hzyFaeFbF8zX3my
-         Yhs6Dh8AZ7d+3IDDlHyGOODhyKeFuHhYagBaUHV0xmt44wx5rJBnhTS6H+TBgoMOTF
-         z8YYA9Zj1F1ff+BeUYC+XCY8/sNKWPOyzR17GDMg=
+        b=FnfL821V4LtdBKiflwEOBh0kD4Y7FCYfTljN2j7xLfPM1F0FFli9KzuK1OQlKZWxr
+         ovuoiNELRcHhTBc4a6cLcPmwrqf6Nm3Frp7iZhmdj7Wu6p7WM4JEf4hmfs2UecfEQx
+         39Q3pHtOVFUzKxYwCQEXiw8E82tLBkcgwk74wJcA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 12/35] ASoC: Intel: boards: create sof-maxim-common module
+        Daniel Borkmann <daniel@iogearbox.net>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 5.4 23/23] bpf, selftests: Adjust few selftest outcomes wrt unreachable code
 Date:   Fri,  6 Aug 2021 10:16:55 +0200
-Message-Id: <20210806081114.120633911@linuxfoundation.org>
+Message-Id: <20210806081112.932560406@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210806081113.718626745@linuxfoundation.org>
-References: <20210806081113.718626745@linuxfoundation.org>
+In-Reply-To: <20210806081112.104686873@linuxfoundation.org>
+References: <20210806081112.104686873@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,242 +41,256 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-[ Upstream commit 9c5046e4b3e736eec5b9a8f1d59c07bb0ed78a7a ]
+commit 973377ffe8148180b2651825b92ae91988141b05 upstream
 
-sof_maxim_common.o is linked twice, move to a dedicated module.
+In almost all cases from test_verifier that have been changed in here, we've
+had an unreachable path with a load from a register which has an invalid
+address on purpose. This was basically to make sure that we never walk this
+path and to have the verifier complain if it would otherwise. Change it to
+match on the right error for unprivileged given we now test these paths
+under speculative execution.
 
-Also clean-up interfaces to use a consistent 'max_98373' prefix for
-all symbols.
+There's one case where we match on exact # of insns_processed. Due to the
+extra path, this will of course mismatch on unprivileged. Thus, restrict the
+test->insn_processed check to privileged-only.
 
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-Link: https://lore.kernel.org/r/20210505163705.305616-7-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+In one other case, we result in a 'pointer comparison prohibited' error. This
+is similarly due to verifying an 'invalid' branch where we end up with a value
+pointer on one side of the comparison.
+
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Reviewed-by: John Fastabend <john.fastabend@gmail.com>
+Acked-by: Alexei Starovoitov <ast@kernel.org>
+[OP: ignore changes to tests that do not exist in 5.4]
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/intel/boards/Kconfig            |  5 +++++
- sound/soc/intel/boards/Makefile           |  6 ++++--
- sound/soc/intel/boards/sof_maxim_common.c | 24 ++++++++++++++++-------
- sound/soc/intel/boards/sof_maxim_common.h |  6 +++---
- sound/soc/intel/boards/sof_rt5682.c       |  5 +++--
- sound/soc/intel/boards/sof_sdw.c          |  1 +
- sound/soc/intel/boards/sof_sdw_max98373.c |  4 ++--
- 7 files changed, 35 insertions(+), 16 deletions(-)
+ tools/testing/selftests/bpf/test_verifier.c            |    2 -
+ tools/testing/selftests/bpf/verifier/bounds.c          |    4 +++
+ tools/testing/selftests/bpf/verifier/dead_code.c       |    2 +
+ tools/testing/selftests/bpf/verifier/jmp32.c           |   22 +++++++++++++++++
+ tools/testing/selftests/bpf/verifier/jset.c            |   10 ++++---
+ tools/testing/selftests/bpf/verifier/unpriv.c          |    2 +
+ tools/testing/selftests/bpf/verifier/value_ptr_arith.c |    7 +++--
+ 7 files changed, 41 insertions(+), 8 deletions(-)
 
-diff --git a/sound/soc/intel/boards/Kconfig b/sound/soc/intel/boards/Kconfig
-index ec4d754eb348..ceeb618bd950 100644
---- a/sound/soc/intel/boards/Kconfig
-+++ b/sound/soc/intel/boards/Kconfig
-@@ -29,6 +29,9 @@ config SND_SOC_INTEL_USER_FRIENDLY_LONG_NAMES
- config SND_SOC_INTEL_HDA_DSP_COMMON
- 	tristate
+--- a/tools/testing/selftests/bpf/test_verifier.c
++++ b/tools/testing/selftests/bpf/test_verifier.c
+@@ -980,7 +980,7 @@ static void do_test_single(struct bpf_te
+ 		}
+ 	}
  
-+config SND_SOC_INTEL_SOF_MAXIM_COMMON
-+	tristate
-+
- if SND_SOC_INTEL_CATPT
+-	if (test->insn_processed) {
++	if (!unpriv && test->insn_processed) {
+ 		uint32_t insn_processed;
+ 		char *proc;
  
- config SND_SOC_INTEL_HASWELL_MACH
-@@ -469,6 +472,7 @@ config SND_SOC_INTEL_SOF_RT5682_MACH
- 	select SND_SOC_DMIC
- 	select SND_SOC_HDAC_HDMI
- 	select SND_SOC_INTEL_HDA_DSP_COMMON
-+	select SND_SOC_INTEL_SOF_MAXIM_COMMON
- 	help
- 	   This adds support for ASoC machine driver for SOF platforms
- 	   with rt5682 codec.
-@@ -579,6 +583,7 @@ config SND_SOC_INTEL_SOUNDWIRE_SOF_MACH
- 	select SND_SOC_RT5682_SDW
- 	select SND_SOC_DMIC
- 	select SND_SOC_INTEL_HDA_DSP_COMMON
-+	select SND_SOC_INTEL_SOF_MAXIM_COMMON
- 	help
- 	  Add support for Intel SoundWire-based platforms connected to
- 	  MAX98373, RT700, RT711, RT1308 and RT715
-diff --git a/sound/soc/intel/boards/Makefile b/sound/soc/intel/boards/Makefile
-index a48ee9b74e73..855296e8dfb8 100644
---- a/sound/soc/intel/boards/Makefile
-+++ b/sound/soc/intel/boards/Makefile
-@@ -19,7 +19,7 @@ snd-soc-sst-byt-cht-cx2072x-objs := bytcht_cx2072x.o
- snd-soc-sst-byt-cht-da7213-objs := bytcht_da7213.o
- snd-soc-sst-byt-cht-es8316-objs := bytcht_es8316.o
- snd-soc-sst-byt-cht-nocodec-objs := bytcht_nocodec.o
--snd-soc-sof_rt5682-objs := sof_rt5682.o sof_maxim_common.o sof_realtek_common.o
-+snd-soc-sof_rt5682-objs := sof_rt5682.o sof_realtek_common.o
- snd-soc-cml_rt1011_rt5682-objs := cml_rt1011_rt5682.o
- snd-soc-kbl_da7219_max98357a-objs := kbl_da7219_max98357a.o
- snd-soc-kbl_da7219_max98927-objs := kbl_da7219_max98927.o
-@@ -38,7 +38,6 @@ snd-soc-sof-sdw-objs += sof_sdw.o				\
- 			sof_sdw_rt5682.o sof_sdw_rt700.o	\
- 			sof_sdw_rt711.o sof_sdw_rt711_sdca.o 	\
- 			sof_sdw_rt715.o	sof_sdw_rt715_sdca.o 	\
--			sof_maxim_common.o                      \
- 			sof_sdw_dmic.o sof_sdw_hdmi.o
- obj-$(CONFIG_SND_SOC_INTEL_SOF_RT5682_MACH) += snd-soc-sof_rt5682.o
- obj-$(CONFIG_SND_SOC_INTEL_HASWELL_MACH) += snd-soc-sst-haswell.o
-@@ -78,3 +77,6 @@ obj-$(CONFIG_SND_SOC_INTEL_SOUNDWIRE_SOF_MACH) += snd-soc-sof-sdw.o
- # common modules
- snd-soc-intel-hda-dsp-common-objs := hda_dsp_common.o
- obj-$(CONFIG_SND_SOC_INTEL_HDA_DSP_COMMON) += snd-soc-intel-hda-dsp-common.o
-+
-+snd-soc-intel-sof-maxim-common-objs += sof_maxim_common.o
-+obj-$(CONFIG_SND_SOC_INTEL_SOF_MAXIM_COMMON) += snd-soc-intel-sof-maxim-common.o
-diff --git a/sound/soc/intel/boards/sof_maxim_common.c b/sound/soc/intel/boards/sof_maxim_common.c
-index 437d20562753..7c4af6ec58e8 100644
---- a/sound/soc/intel/boards/sof_maxim_common.c
-+++ b/sound/soc/intel/boards/sof_maxim_common.c
-@@ -1,6 +1,7 @@
- // SPDX-License-Identifier: GPL-2.0-only
- //
- // Copyright(c) 2020 Intel Corporation. All rights reserved.
-+#include <linux/module.h>
- #include <linux/string.h>
- #include <sound/pcm.h>
- #include <sound/soc.h>
-@@ -16,6 +17,7 @@ const struct snd_soc_dapm_route max_98373_dapm_routes[] = {
- 	{ "Left Spk", NULL, "Left BE_OUT" },
- 	{ "Right Spk", NULL, "Right BE_OUT" },
- };
-+EXPORT_SYMBOL_NS(max_98373_dapm_routes, SND_SOC_INTEL_SOF_MAXIM_COMMON);
- 
- static struct snd_soc_codec_conf max_98373_codec_conf[] = {
- 	{
-@@ -38,9 +40,10 @@ struct snd_soc_dai_link_component max_98373_components[] = {
- 		.dai_name = MAX_98373_CODEC_DAI,
+--- a/tools/testing/selftests/bpf/verifier/bounds.c
++++ b/tools/testing/selftests/bpf/verifier/bounds.c
+@@ -523,6 +523,8 @@
+ 	BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_0, -1),
+ 	BPF_EXIT_INSN(),
  	},
- };
-+EXPORT_SYMBOL_NS(max_98373_components, SND_SOC_INTEL_SOF_MAXIM_COMMON);
- 
--static int max98373_hw_params(struct snd_pcm_substream *substream,
--			      struct snd_pcm_hw_params *params)
-+static int max_98373_hw_params(struct snd_pcm_substream *substream,
-+			       struct snd_pcm_hw_params *params)
++	.errstr_unpriv = "R0 invalid mem access 'inv'",
++	.result_unpriv = REJECT,
+ 	.result = ACCEPT
+ },
  {
- 	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
- 	struct snd_soc_dai *codec_dai;
-@@ -59,7 +62,7 @@ static int max98373_hw_params(struct snd_pcm_substream *substream,
- 	return 0;
- }
- 
--int max98373_trigger(struct snd_pcm_substream *substream, int cmd)
-+int max_98373_trigger(struct snd_pcm_substream *substream, int cmd)
+@@ -543,6 +545,8 @@
+ 	BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_0, -1),
+ 	BPF_EXIT_INSN(),
+ 	},
++	.errstr_unpriv = "R0 invalid mem access 'inv'",
++	.result_unpriv = REJECT,
+ 	.result = ACCEPT
+ },
  {
- 	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
- 	struct snd_soc_dai *codec_dai;
-@@ -102,13 +105,15 @@ int max98373_trigger(struct snd_pcm_substream *substream, int cmd)
- 
- 	return ret;
- }
-+EXPORT_SYMBOL_NS(max_98373_trigger, SND_SOC_INTEL_SOF_MAXIM_COMMON);
- 
- struct snd_soc_ops max_98373_ops = {
--	.hw_params = max98373_hw_params,
--	.trigger = max98373_trigger,
-+	.hw_params = max_98373_hw_params,
-+	.trigger = max_98373_trigger,
- };
-+EXPORT_SYMBOL_NS(max_98373_ops, SND_SOC_INTEL_SOF_MAXIM_COMMON);
- 
--int max98373_spk_codec_init(struct snd_soc_pcm_runtime *rtd)
-+int max_98373_spk_codec_init(struct snd_soc_pcm_runtime *rtd)
+--- a/tools/testing/selftests/bpf/verifier/dead_code.c
++++ b/tools/testing/selftests/bpf/verifier/dead_code.c
+@@ -8,6 +8,8 @@
+ 	BPF_JMP_IMM(BPF_JGE, BPF_REG_0, 10, -4),
+ 	BPF_EXIT_INSN(),
+ 	},
++	.errstr_unpriv = "R9 !read_ok",
++	.result_unpriv = REJECT,
+ 	.result = ACCEPT,
+ 	.retval = 7,
+ },
+--- a/tools/testing/selftests/bpf/verifier/jmp32.c
++++ b/tools/testing/selftests/bpf/verifier/jmp32.c
+@@ -72,6 +72,8 @@
+ 	BPF_LDX_MEM(BPF_B, BPF_REG_8, BPF_REG_9, 0),
+ 	BPF_EXIT_INSN(),
+ 	},
++	.errstr_unpriv = "R9 !read_ok",
++	.result_unpriv = REJECT,
+ 	.result = ACCEPT,
+ },
  {
- 	struct snd_soc_card *card = rtd->card;
- 	int ret;
-@@ -119,9 +124,14 @@ int max98373_spk_codec_init(struct snd_soc_pcm_runtime *rtd)
- 		dev_err(rtd->dev, "Speaker map addition failed: %d\n", ret);
- 	return ret;
- }
-+EXPORT_SYMBOL_NS(max_98373_spk_codec_init, SND_SOC_INTEL_SOF_MAXIM_COMMON);
- 
--void sof_max98373_codec_conf(struct snd_soc_card *card)
-+void max_98373_set_codec_conf(struct snd_soc_card *card)
+@@ -135,6 +137,8 @@
+ 	BPF_LDX_MEM(BPF_B, BPF_REG_8, BPF_REG_9, 0),
+ 	BPF_EXIT_INSN(),
+ 	},
++	.errstr_unpriv = "R9 !read_ok",
++	.result_unpriv = REJECT,
+ 	.result = ACCEPT,
+ },
  {
- 	card->codec_conf = max_98373_codec_conf;
- 	card->num_configs = ARRAY_SIZE(max_98373_codec_conf);
- }
-+EXPORT_SYMBOL_NS(max_98373_set_codec_conf, SND_SOC_INTEL_SOF_MAXIM_COMMON);
-+
-+MODULE_DESCRIPTION("ASoC Intel SOF Maxim helpers");
-+MODULE_LICENSE("GPL");
-diff --git a/sound/soc/intel/boards/sof_maxim_common.h b/sound/soc/intel/boards/sof_maxim_common.h
-index 5240b1c9d379..566a664d5a63 100644
---- a/sound/soc/intel/boards/sof_maxim_common.h
-+++ b/sound/soc/intel/boards/sof_maxim_common.h
-@@ -20,8 +20,8 @@ extern struct snd_soc_dai_link_component max_98373_components[2];
- extern struct snd_soc_ops max_98373_ops;
- extern const struct snd_soc_dapm_route max_98373_dapm_routes[];
- 
--int max98373_spk_codec_init(struct snd_soc_pcm_runtime *rtd);
--void sof_max98373_codec_conf(struct snd_soc_card *card);
--int max98373_trigger(struct snd_pcm_substream *substream, int cmd);
-+int max_98373_spk_codec_init(struct snd_soc_pcm_runtime *rtd);
-+void max_98373_set_codec_conf(struct snd_soc_card *card);
-+int max_98373_trigger(struct snd_pcm_substream *substream, int cmd);
- 
- #endif /* __SOF_MAXIM_COMMON_H */
-diff --git a/sound/soc/intel/boards/sof_rt5682.c b/sound/soc/intel/boards/sof_rt5682.c
-index 52401cc0de92..78262c659983 100644
---- a/sound/soc/intel/boards/sof_rt5682.c
-+++ b/sound/soc/intel/boards/sof_rt5682.c
-@@ -742,7 +742,7 @@ static struct snd_soc_dai_link *sof_card_dai_links_create(struct device *dev,
- 				SOF_MAX98373_SPEAKER_AMP_PRESENT) {
- 			links[id].codecs = max_98373_components;
- 			links[id].num_codecs = ARRAY_SIZE(max_98373_components);
--			links[id].init = max98373_spk_codec_init;
-+			links[id].init = max_98373_spk_codec_init;
- 			links[id].ops = &max_98373_ops;
- 			/* feedback stream */
- 			links[id].dpcm_capture = 1;
-@@ -863,7 +863,7 @@ static int sof_audio_probe(struct platform_device *pdev)
- 		sof_audio_card_rt5682.num_links++;
- 
- 	if (sof_rt5682_quirk & SOF_MAX98373_SPEAKER_AMP_PRESENT)
--		sof_max98373_codec_conf(&sof_audio_card_rt5682);
-+		max_98373_set_codec_conf(&sof_audio_card_rt5682);
- 	else if (sof_rt5682_quirk & SOF_RT1011_SPEAKER_AMP_PRESENT)
- 		sof_rt1011_codec_conf(&sof_audio_card_rt5682);
- 	else if (sof_rt5682_quirk & SOF_RT1015P_SPEAKER_AMP_PRESENT)
-@@ -995,3 +995,4 @@ MODULE_ALIAS("platform:cml_rt1015_rt5682");
- MODULE_ALIAS("platform:tgl_rt1011_rt5682");
- MODULE_ALIAS("platform:jsl_rt5682_rt1015p");
- MODULE_IMPORT_NS(SND_SOC_INTEL_HDA_DSP_COMMON);
-+MODULE_IMPORT_NS(SND_SOC_INTEL_SOF_MAXIM_COMMON);
-diff --git a/sound/soc/intel/boards/sof_sdw.c b/sound/soc/intel/boards/sof_sdw.c
-index 5e4d26e9bb7d..3ca7e1ab48ab 100644
---- a/sound/soc/intel/boards/sof_sdw.c
-+++ b/sound/soc/intel/boards/sof_sdw.c
-@@ -1319,3 +1319,4 @@ MODULE_AUTHOR("Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>");
- MODULE_LICENSE("GPL v2");
- MODULE_ALIAS("platform:sof_sdw");
- MODULE_IMPORT_NS(SND_SOC_INTEL_HDA_DSP_COMMON);
-+MODULE_IMPORT_NS(SND_SOC_INTEL_SOF_MAXIM_COMMON);
-diff --git a/sound/soc/intel/boards/sof_sdw_max98373.c b/sound/soc/intel/boards/sof_sdw_max98373.c
-index cfdf970c5800..0e7ed906b341 100644
---- a/sound/soc/intel/boards/sof_sdw_max98373.c
-+++ b/sound/soc/intel/boards/sof_sdw_max98373.c
-@@ -64,7 +64,7 @@ static int max98373_sdw_trigger(struct snd_pcm_substream *substream, int cmd)
- 	case SNDRV_PCM_TRIGGER_RESUME:
- 	case SNDRV_PCM_TRIGGER_PAUSE_RELEASE:
- 		/* enable max98373 first */
--		ret = max98373_trigger(substream, cmd);
-+		ret = max_98373_trigger(substream, cmd);
- 		if (ret < 0)
- 			break;
- 
-@@ -77,7 +77,7 @@ static int max98373_sdw_trigger(struct snd_pcm_substream *substream, int cmd)
- 		if (ret < 0)
- 			break;
- 
--		ret = max98373_trigger(substream, cmd);
-+		ret = max_98373_trigger(substream, cmd);
- 		break;
- 	default:
- 		ret = -EINVAL;
--- 
-2.30.2
-
+@@ -198,6 +202,8 @@
+ 	BPF_LDX_MEM(BPF_B, BPF_REG_8, BPF_REG_9, 0),
+ 	BPF_EXIT_INSN(),
+ 	},
++	.errstr_unpriv = "R9 !read_ok",
++	.result_unpriv = REJECT,
+ 	.result = ACCEPT,
+ },
+ {
+@@ -265,6 +271,8 @@
+ 	BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_0, 0),
+ 	BPF_EXIT_INSN(),
+ 	},
++	.errstr_unpriv = "R0 invalid mem access 'inv'",
++	.result_unpriv = REJECT,
+ 	.result = ACCEPT,
+ 	.retval = 2,
+ },
+@@ -333,6 +341,8 @@
+ 	BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_0, 0),
+ 	BPF_EXIT_INSN(),
+ 	},
++	.errstr_unpriv = "R0 invalid mem access 'inv'",
++	.result_unpriv = REJECT,
+ 	.result = ACCEPT,
+ 	.retval = 2,
+ },
+@@ -401,6 +411,8 @@
+ 	BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_0, 0),
+ 	BPF_EXIT_INSN(),
+ 	},
++	.errstr_unpriv = "R0 invalid mem access 'inv'",
++	.result_unpriv = REJECT,
+ 	.result = ACCEPT,
+ 	.retval = 2,
+ },
+@@ -469,6 +481,8 @@
+ 	BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_0, 0),
+ 	BPF_EXIT_INSN(),
+ 	},
++	.errstr_unpriv = "R0 invalid mem access 'inv'",
++	.result_unpriv = REJECT,
+ 	.result = ACCEPT,
+ 	.retval = 2,
+ },
+@@ -537,6 +551,8 @@
+ 	BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_0, 0),
+ 	BPF_EXIT_INSN(),
+ 	},
++	.errstr_unpriv = "R0 invalid mem access 'inv'",
++	.result_unpriv = REJECT,
+ 	.result = ACCEPT,
+ 	.retval = 2,
+ },
+@@ -605,6 +621,8 @@
+ 	BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_0, 0),
+ 	BPF_EXIT_INSN(),
+ 	},
++	.errstr_unpriv = "R0 invalid mem access 'inv'",
++	.result_unpriv = REJECT,
+ 	.result = ACCEPT,
+ 	.retval = 2,
+ },
+@@ -673,6 +691,8 @@
+ 	BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_0, 0),
+ 	BPF_EXIT_INSN(),
+ 	},
++	.errstr_unpriv = "R0 invalid mem access 'inv'",
++	.result_unpriv = REJECT,
+ 	.result = ACCEPT,
+ 	.retval = 2,
+ },
+@@ -741,6 +761,8 @@
+ 	BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_0, 0),
+ 	BPF_EXIT_INSN(),
+ 	},
++	.errstr_unpriv = "R0 invalid mem access 'inv'",
++	.result_unpriv = REJECT,
+ 	.result = ACCEPT,
+ 	.retval = 2,
+ },
+--- a/tools/testing/selftests/bpf/verifier/jset.c
++++ b/tools/testing/selftests/bpf/verifier/jset.c
+@@ -82,8 +82,8 @@
+ 	BPF_EXIT_INSN(),
+ 	},
+ 	.prog_type = BPF_PROG_TYPE_SOCKET_FILTER,
+-	.retval_unpriv = 1,
+-	.result_unpriv = ACCEPT,
++	.errstr_unpriv = "R9 !read_ok",
++	.result_unpriv = REJECT,
+ 	.retval = 1,
+ 	.result = ACCEPT,
+ },
+@@ -141,7 +141,8 @@
+ 	BPF_EXIT_INSN(),
+ 	},
+ 	.prog_type = BPF_PROG_TYPE_SOCKET_FILTER,
+-	.result_unpriv = ACCEPT,
++	.errstr_unpriv = "R9 !read_ok",
++	.result_unpriv = REJECT,
+ 	.result = ACCEPT,
+ },
+ {
+@@ -162,6 +163,7 @@
+ 	BPF_EXIT_INSN(),
+ 	},
+ 	.prog_type = BPF_PROG_TYPE_SOCKET_FILTER,
+-	.result_unpriv = ACCEPT,
++	.errstr_unpriv = "R9 !read_ok",
++	.result_unpriv = REJECT,
+ 	.result = ACCEPT,
+ },
+--- a/tools/testing/selftests/bpf/verifier/unpriv.c
++++ b/tools/testing/selftests/bpf/verifier/unpriv.c
+@@ -418,6 +418,8 @@
+ 	BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_7, 0),
+ 	BPF_EXIT_INSN(),
+ 	},
++	.errstr_unpriv = "R7 invalid mem access 'inv'",
++	.result_unpriv = REJECT,
+ 	.result = ACCEPT,
+ 	.retval = 0,
+ },
+--- a/tools/testing/selftests/bpf/verifier/value_ptr_arith.c
++++ b/tools/testing/selftests/bpf/verifier/value_ptr_arith.c
+@@ -120,7 +120,7 @@
+ 	.fixup_map_array_48b = { 1 },
+ 	.result = ACCEPT,
+ 	.result_unpriv = REJECT,
+-	.errstr_unpriv = "R2 tried to add from different maps, paths or scalars",
++	.errstr_unpriv = "R2 pointer comparison prohibited",
+ 	.retval = 0,
+ },
+ {
+@@ -159,7 +159,8 @@
+ 	BPF_MOV64_IMM(BPF_REG_0, 0),
+ 	BPF_EXIT_INSN(),
+ 	// fake-dead code; targeted from branch A to
+-	// prevent dead code sanitization
++	// prevent dead code sanitization, rejected
++	// via branch B however
+ 	BPF_LDX_MEM(BPF_B, BPF_REG_0, BPF_REG_0, 0),
+ 	BPF_MOV64_IMM(BPF_REG_0, 0),
+ 	BPF_EXIT_INSN(),
+@@ -167,7 +168,7 @@
+ 	.fixup_map_array_48b = { 1 },
+ 	.result = ACCEPT,
+ 	.result_unpriv = REJECT,
+-	.errstr_unpriv = "R2 tried to add from different maps, paths or scalars",
++	.errstr_unpriv = "R0 invalid mem access 'inv'",
+ 	.retval = 0,
+ },
+ {
 
 
