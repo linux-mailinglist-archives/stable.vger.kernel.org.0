@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 52EE43E254B
-	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:19:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BD5C3E25D4
+	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:22:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237819AbhHFITE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Aug 2021 04:19:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47214 "EHLO mail.kernel.org"
+        id S244223AbhHFIWx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Aug 2021 04:22:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243955AbhHFISH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Aug 2021 04:18:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E8788611C9;
-        Fri,  6 Aug 2021 08:17:51 +0000 (UTC)
+        id S244220AbhHFIVm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Aug 2021 04:21:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 319F561052;
+        Fri,  6 Aug 2021 08:21:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628237872;
-        bh=r892OH2/ovPe1SZxgsBGR8AQn5jwOqOTXRdqnb3mLFI=;
+        s=korg; t=1628238066;
+        bh=fLUtY4f+huXtYcYoyIYEvo1j3B1AhkHJ/JR08t4lg6E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dB47lsgL8gtrGM94bzRPX5D3ItsMvKTbH5gxjcRJowKRyqAzuvPb/D8sA4b9mAEkb
-         i3XcCaBChuKKAyAAF2Qk+WXkjMEG4zdig/UOlQsN3qsC9aN8aujZHe4Y+HodkXbTbT
-         JKNitUBDsXALTj+OFvgdM8pYFmDG8cHJ7wOnRCS8=
+        b=alsa1ESwhJkFKPEIfwVx9K19mDEUu0tZFaaGeHNaYI+DXdUjTPkU4cVj7PGAXHj2B
+         a2woK93Glr0/htD+sWzEilx16+LI9gOZ49hVk/N8K8e9bPd++uLLEzeUPUZ2HgsP4l
+         +K/+GyLqLNCIfXbGfxq5s879wrrrGyzWIXaD8LsY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jean Delvare <jdelvare@suse.de>,
-        Jan Kiszka <jan.kiszka@siemens.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        stable@vger.kernel.org, Ronnie Sahlberg <lsahlber@redhat.com>,
+        Pavel Shilovsky <pshilovsky@samba.org>,
+        Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 17/23] Revert "watchdog: iTCO_wdt: Account for rebooting on second timeout"
-Date:   Fri,  6 Aug 2021 10:16:49 +0200
-Message-Id: <20210806081112.727151425@linuxfoundation.org>
+Subject: [PATCH 5.13 07/35] cifs: use helpers when parsing uid/gid mount options and validate them
+Date:   Fri,  6 Aug 2021 10:16:50 +0200
+Message-Id: <20210806081113.951060612@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210806081112.104686873@linuxfoundation.org>
-References: <20210806081112.104686873@linuxfoundation.org>
+In-Reply-To: <20210806081113.718626745@linuxfoundation.org>
+References: <20210806081113.718626745@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,60 +41,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Ronnie Sahlberg <lsahlber@redhat.com>
 
-This reverts commit f58ab0b02ee7b095e0cae4ba706caa86fff5557b which is
-commit cb011044e34c293e139570ce5c01aed66a34345c upstream.
+[ Upstream commit e0a3cbcd5cef00cace01546cc6eaaa3b31940da9 ]
 
-It is reported to cause problems with systems and probably should not
-have been backported in the first place :(
+Use the nice helpers to initialize and the uid/gid/cred_uid when passed as mount arguments.
 
-Link: https://lore.kernel.org/r/20210803165108.4154cd52@endymion
-Reported-by: Jean Delvare <jdelvare@suse.de>
-Cc: Jan Kiszka <jan.kiszka@siemens.com>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>
-Cc: Sasha Levin <sashal@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Acked-by: Pavel Shilovsky <pshilovsky@samba.org>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/iTCO_wdt.c |   12 +++---------
- 1 file changed, 3 insertions(+), 9 deletions(-)
+ fs/cifs/fs_context.c | 24 +++++++++++++++++++-----
+ fs/cifs/fs_context.h |  1 +
+ 2 files changed, 20 insertions(+), 5 deletions(-)
 
---- a/drivers/watchdog/iTCO_wdt.c
-+++ b/drivers/watchdog/iTCO_wdt.c
-@@ -72,8 +72,6 @@
- #define TCOBASE(p)	((p)->tco_res->start)
- /* SMI Control and Enable Register */
- #define SMI_EN(p)	((p)->smi_res->start)
--#define TCO_EN		(1 << 13)
--#define GBL_SMI_EN	(1 << 0)
+diff --git a/fs/cifs/fs_context.c b/fs/cifs/fs_context.c
+index 92d4ab029c91..553adfbcc22a 100644
+--- a/fs/cifs/fs_context.c
++++ b/fs/cifs/fs_context.c
+@@ -322,7 +322,6 @@ smb3_fs_context_dup(struct smb3_fs_context *new_ctx, struct smb3_fs_context *ctx
+ 	new_ctx->UNC = NULL;
+ 	new_ctx->source = NULL;
+ 	new_ctx->iocharset = NULL;
+-
+ 	/*
+ 	 * Make sure to stay in sync with smb3_cleanup_fs_context_contents()
+ 	 */
+@@ -792,6 +791,8 @@ static int smb3_fs_context_parse_param(struct fs_context *fc,
+ 	int i, opt;
+ 	bool is_smb3 = !strcmp(fc->fs_type->name, "smb3");
+ 	bool skip_parsing = false;
++	kuid_t uid;
++	kgid_t gid;
  
- #define TCO_RLD(p)	(TCOBASE(p) + 0x00) /* TCO Timer Reload/Curr. Value */
- #define TCOv1_TMR(p)	(TCOBASE(p) + 0x01) /* TCOv1 Timer Initial Value*/
-@@ -346,12 +344,8 @@ static int iTCO_wdt_set_timeout(struct w
+ 	cifs_dbg(FYI, "CIFS: parsing cifs mount option '%s'\n", param->key);
  
- 	tmrval = seconds_to_ticks(p, t);
+@@ -904,18 +905,31 @@ static int smb3_fs_context_parse_param(struct fs_context *fc,
+ 		}
+ 		break;
+ 	case Opt_uid:
+-		ctx->linux_uid.val = result.uint_32;
++		uid = make_kuid(current_user_ns(), result.uint_32);
++		if (!uid_valid(uid))
++			goto cifs_parse_mount_err;
++		ctx->linux_uid = uid;
+ 		ctx->uid_specified = true;
+ 		break;
+ 	case Opt_cruid:
+-		ctx->cred_uid.val = result.uint_32;
++		uid = make_kuid(current_user_ns(), result.uint_32);
++		if (!uid_valid(uid))
++			goto cifs_parse_mount_err;
++		ctx->cred_uid = uid;
++		ctx->cruid_specified = true;
+ 		break;
+ 	case Opt_backupgid:
+-		ctx->backupgid.val = result.uint_32;
++		gid = make_kgid(current_user_ns(), result.uint_32);
++		if (!gid_valid(gid))
++			goto cifs_parse_mount_err;
++		ctx->backupgid = gid;
+ 		ctx->backupgid_specified = true;
+ 		break;
+ 	case Opt_gid:
+-		ctx->linux_gid.val = result.uint_32;
++		gid = make_kgid(current_user_ns(), result.uint_32);
++		if (!gid_valid(gid))
++			goto cifs_parse_mount_err;
++		ctx->linux_gid = gid;
+ 		ctx->gid_specified = true;
+ 		break;
+ 	case Opt_port:
+diff --git a/fs/cifs/fs_context.h b/fs/cifs/fs_context.h
+index 2a71c8e411ac..b6243972edf3 100644
+--- a/fs/cifs/fs_context.h
++++ b/fs/cifs/fs_context.h
+@@ -155,6 +155,7 @@ enum cifs_param {
  
--	/*
--	 * If TCO SMIs are off, the timer counts down twice before rebooting.
--	 * Otherwise, the BIOS generally reboots when the SMI triggers.
--	 */
--	if (p->smi_res &&
--	    (SMI_EN(p) & (TCO_EN | GBL_SMI_EN)) != (TCO_EN | GBL_SMI_EN))
-+	/* For TCO v1 the timer counts down twice before rebooting */
-+	if (p->iTCO_version == 1)
- 		tmrval /= 2;
- 
- 	/* from the specs: */
-@@ -516,7 +510,7 @@ static int iTCO_wdt_probe(struct platfor
- 		 * Disables TCO logic generating an SMI#
- 		 */
- 		val32 = inl(SMI_EN(p));
--		val32 &= ~TCO_EN;	/* Turn off SMI clearing watchdog */
-+		val32 &= 0xffffdfff;	/* Turn off SMI clearing watchdog */
- 		outl(val32, SMI_EN(p));
- 	}
- 
+ struct smb3_fs_context {
+ 	bool uid_specified;
++	bool cruid_specified;
+ 	bool gid_specified;
+ 	bool sloppy;
+ 	bool got_ip;
+-- 
+2.30.2
+
 
 
