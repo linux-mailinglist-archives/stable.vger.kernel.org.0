@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B70093E2575
-	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:20:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 250D73E2569
+	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:20:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244052AbhHFIUP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Aug 2021 04:20:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49000 "EHLO mail.kernel.org"
+        id S240985AbhHFITx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Aug 2021 04:19:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244070AbhHFISa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Aug 2021 04:18:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F405B6120E;
-        Fri,  6 Aug 2021 08:18:13 +0000 (UTC)
+        id S244171AbhHFITZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Aug 2021 04:19:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F37D61207;
+        Fri,  6 Aug 2021 08:18:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628237894;
-        bh=hXFpP/tClzM8yodHRLTENI8Kw1lr94iQfEEzuorVa64=;
+        s=korg; t=1628237938;
+        bh=TeLO9gAxDj6YaTXtxuLF1pntS5ZsT/hnTGPhOnvVTjA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nbDEnvTyZM21fFtR3sriMXXdlu702DPIbZXUgA4nd2k3W4KUlVuVNVA+q/nqDgV6M
-         Oj9wsVYreezouK+vQLLxNziBdyMfcEQjvwXI9JPg2DLQ7Qqi2/SsHUeMOlpcos8XFO
-         bCGrxRqdwNadPpAXG/h9wxwG2YnvpKIe+nM1y0Dc=
+        b=PtIM3V9OX+6NpONRBCuTVysrs42fuViUEoKvkmU8ynnm9wnSt74iHusEVWHD3V2pU
+         AZ2i8/+PRqqNXhu+xFs7mFFyOd9Grjz1kXtF7z65GKWdKCsuol6VBZJmprmHAojd1S
+         RnLJEYbfeygJ1Hbxe5uPNDRz+bI42khaB++sr52Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lijian Zhang <Lijian.Zhang@arm.com>,
-        Jia He <justin.he@arm.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 09/23] qed: fix possible unpaired spin_{un}lock_bh in _qed_mcp_cmd_and_union()
+Subject: [PATCH 5.10 03/30] btrfs: fix race causing unnecessary inode logging during link and rename
 Date:   Fri,  6 Aug 2021 10:16:41 +0200
-Message-Id: <20210806081112.445135981@linuxfoundation.org>
+Message-Id: <20210806081113.245614581@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210806081112.104686873@linuxfoundation.org>
-References: <20210806081112.104686873@linuxfoundation.org>
+In-Reply-To: <20210806081113.126861800@linuxfoundation.org>
+References: <20210806081113.126861800@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,111 +40,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia He <justin.he@arm.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit 6206b7981a36476f4695d661ae139f7db36a802d ]
+[ Upstream commit de53d892e5c51dfa0a158e812575a75a6c991f39 ]
 
-Liajian reported a bug_on hit on a ThunderX2 arm64 server with FastLinQ
-QL41000 ethernet controller:
- BUG: scheduling while atomic: kworker/0:4/531/0x00000200
-  [qed_probe:488()]hw prepare failed
-  kernel BUG at mm/vmalloc.c:2355!
-  Internal error: Oops - BUG: 0 [#1] SMP
-  CPU: 0 PID: 531 Comm: kworker/0:4 Tainted: G W 5.4.0-77-generic #86-Ubuntu
-  pstate: 00400009 (nzcv daif +PAN -UAO)
- Call trace:
-  vunmap+0x4c/0x50
-  iounmap+0x48/0x58
-  qed_free_pci+0x60/0x80 [qed]
-  qed_probe+0x35c/0x688 [qed]
-  __qede_probe+0x88/0x5c8 [qede]
-  qede_probe+0x60/0xe0 [qede]
-  local_pci_probe+0x48/0xa0
-  work_for_cpu_fn+0x24/0x38
-  process_one_work+0x1d0/0x468
-  worker_thread+0x238/0x4e0
-  kthread+0xf0/0x118
-  ret_from_fork+0x10/0x18
+When we are doing a rename or a link operation for an inode that was logged
+in the previous transaction and that transaction is still committing, we
+have a time window where we incorrectly consider that the inode was logged
+previously in the current transaction and therefore decide to log it to
+update it in the log. The following steps give an example on how this
+happens during a link operation:
 
-In this case, qed_hw_prepare() returns error due to hw/fw error, but in
-theory work queue should be in process context instead of interrupt.
+1) Inode X is logged in transaction 1000, so its logged_trans field is set
+   to 1000;
 
-The root cause might be the unpaired spin_{un}lock_bh() in
-_qed_mcp_cmd_and_union(), which causes botton half is disabled incorrectly.
+2) Task A starts to commit transaction 1000;
 
-Reported-by: Lijian Zhang <Lijian.Zhang@arm.com>
-Signed-off-by: Jia He <justin.he@arm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+3) The state of transaction 1000 is changed to TRANS_STATE_UNBLOCKED;
+
+4) Task B starts a link operation for inode X, and as a consequence it
+   starts transaction 1001;
+
+5) Task A is still committing transaction 1000, therefore the value stored
+   at fs_info->last_trans_committed is still 999;
+
+6) Task B calls btrfs_log_new_name(), it reads a value of 999 from
+   fs_info->last_trans_committed and because the logged_trans field of
+   inode X has a value of 1000, the function does not return immediately,
+   instead it proceeds to logging the inode, which should not happen
+   because the inode was logged in the previous transaction (1000) and
+   not in the current one (1001).
+
+This is not a functional problem, just wasted time and space logging an
+inode that does not need to be logged, contributing to higher latency
+for link and rename operations.
+
+So fix this by comparing the inodes' logged_trans field with the
+generation of the current transaction instead of comparing with the value
+stored in fs_info->last_trans_committed.
+
+This case is often hit when running dbench for a long enough duration, as
+it does lots of rename operations.
+
+This patch belongs to a patch set that is comprised of the following
+patches:
+
+  btrfs: fix race causing unnecessary inode logging during link and rename
+  btrfs: fix race that results in logging old extents during a fast fsync
+  btrfs: fix race that causes unnecessary logging of ancestor inodes
+  btrfs: fix race that makes inode logging fallback to transaction commit
+  btrfs: fix race leading to unnecessary transaction commit when logging inode
+  btrfs: do not block inode logging for so long during transaction commit
+
+Performance results are mentioned in the change log of the last patch.
+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qed/qed_mcp.c | 23 +++++++++++++++++------
- 1 file changed, 17 insertions(+), 6 deletions(-)
+ fs/btrfs/tree-log.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_mcp.c b/drivers/net/ethernet/qlogic/qed/qed_mcp.c
-index 9401b49275f0..5d85ae59bc51 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_mcp.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_mcp.c
-@@ -498,14 +498,18 @@ _qed_mcp_cmd_and_union(struct qed_hwfn *p_hwfn,
+diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
+index 4b913de2f24f..d3a2bec931ca 100644
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -6443,7 +6443,6 @@ void btrfs_log_new_name(struct btrfs_trans_handle *trans,
+ 			struct btrfs_inode *inode, struct btrfs_inode *old_dir,
+ 			struct dentry *parent)
+ {
+-	struct btrfs_fs_info *fs_info = trans->fs_info;
+ 	struct btrfs_log_ctx ctx;
  
- 		spin_lock_bh(&p_hwfn->mcp_info->cmd_lock);
+ 	/*
+@@ -6457,8 +6456,8 @@ void btrfs_log_new_name(struct btrfs_trans_handle *trans,
+ 	 * if this inode hasn't been logged and directory we're renaming it
+ 	 * from hasn't been logged, we don't need to log it
+ 	 */
+-	if (inode->logged_trans <= fs_info->last_trans_committed &&
+-	    (!old_dir || old_dir->logged_trans <= fs_info->last_trans_committed))
++	if (inode->logged_trans < trans->transid &&
++	    (!old_dir || old_dir->logged_trans < trans->transid))
+ 		return;
  
--		if (!qed_mcp_has_pending_cmd(p_hwfn))
-+		if (!qed_mcp_has_pending_cmd(p_hwfn)) {
-+			spin_unlock_bh(&p_hwfn->mcp_info->cmd_lock);
- 			break;
-+		}
- 
- 		rc = qed_mcp_update_pending_cmd(p_hwfn, p_ptt);
--		if (!rc)
-+		if (!rc) {
-+			spin_unlock_bh(&p_hwfn->mcp_info->cmd_lock);
- 			break;
--		else if (rc != -EAGAIN)
-+		} else if (rc != -EAGAIN) {
- 			goto err;
-+		}
- 
- 		spin_unlock_bh(&p_hwfn->mcp_info->cmd_lock);
- 
-@@ -522,6 +526,8 @@ _qed_mcp_cmd_and_union(struct qed_hwfn *p_hwfn,
- 		return -EAGAIN;
- 	}
- 
-+	spin_lock_bh(&p_hwfn->mcp_info->cmd_lock);
-+
- 	/* Send the mailbox command */
- 	qed_mcp_reread_offsets(p_hwfn, p_ptt);
- 	seq_num = ++p_hwfn->mcp_info->drv_mb_seq;
-@@ -548,14 +554,18 @@ _qed_mcp_cmd_and_union(struct qed_hwfn *p_hwfn,
- 
- 		spin_lock_bh(&p_hwfn->mcp_info->cmd_lock);
- 
--		if (p_cmd_elem->b_is_completed)
-+		if (p_cmd_elem->b_is_completed) {
-+			spin_unlock_bh(&p_hwfn->mcp_info->cmd_lock);
- 			break;
-+		}
- 
- 		rc = qed_mcp_update_pending_cmd(p_hwfn, p_ptt);
--		if (!rc)
-+		if (!rc) {
-+			spin_unlock_bh(&p_hwfn->mcp_info->cmd_lock);
- 			break;
--		else if (rc != -EAGAIN)
-+		} else if (rc != -EAGAIN) {
- 			goto err;
-+		}
- 
- 		spin_unlock_bh(&p_hwfn->mcp_info->cmd_lock);
- 	} while (++cnt < max_retries);
-@@ -576,6 +586,7 @@ _qed_mcp_cmd_and_union(struct qed_hwfn *p_hwfn,
- 		return -EAGAIN;
- 	}
- 
-+	spin_lock_bh(&p_hwfn->mcp_info->cmd_lock);
- 	qed_mcp_cmd_del_elem(p_hwfn, p_cmd_elem);
- 	spin_unlock_bh(&p_hwfn->mcp_info->cmd_lock);
- 
+ 	btrfs_init_log_ctx(&ctx, &inode->vfs_inode);
 -- 
 2.30.2
 
