@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E71EE3E2506
-	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:16:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 560463E24FD
+	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:16:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243929AbhHFIQO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Aug 2021 04:16:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45704 "EHLO mail.kernel.org"
+        id S243770AbhHFIP4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Aug 2021 04:15:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243675AbhHFIPq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Aug 2021 04:15:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C3B9611F0;
-        Fri,  6 Aug 2021 08:15:25 +0000 (UTC)
+        id S237396AbhHFIPc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Aug 2021 04:15:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BEEF9611CE;
+        Fri,  6 Aug 2021 08:15:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628237726;
-        bh=UB9FSzuLu6oUUchX3FiJuVuwfavG4iH+VsVWHUrpWN4=;
+        s=korg; t=1628237716;
+        bh=T2F1OsJf+yDhlxm+yG/g64d34PD/nqagj3Vt+LAp9Ao=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OvsnIXd44xRu1TSfindSuUiJBItD+XsvyDRrYB6PXL5EjJymwOVr0qUr1lh7mIcll
-         GrC5Ux7pJAhgutk/f6bvnXhACj1OpLS4e9bXOgHSAWclnPo2EvdB0dfPfikISpggvw
-         rSRyBPUKiZTnojONCuhYKAr1UlQGB3niqr16wZ1U=
+        b=etSLRB628/9uVBLGR1o4bON9Wk5wn+9OvLUMZebHntTFsEmB43/qzTk3UGgRPw6bg
+         iZlYfUKnpuq6jfWWOus+1Rra2174JjJ4JZPqSrwVoOLI1vTBgDbTEky3YlOR4OHc7Z
+         YggxX/Mf1qvhSonLHEi2zBt8tHvEmAU8DVxdW74c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Goldwyn Rodrigues <rgoldwyn@suse.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Peter Hess <peter.hess@ph-home.de>,
+        Frank Wunderlich <frank-w@public-files.de>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 01/11] btrfs: mark compressed range uptodate only if all bio succeed
+Subject: [PATCH 4.9 5/7] Revert "spi: mediatek: fix fifo rx mode"
 Date:   Fri,  6 Aug 2021 10:14:44 +0200
-Message-Id: <20210806081110.562910408@linuxfoundation.org>
+Message-Id: <20210806081109.494832272@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210806081110.511221879@linuxfoundation.org>
-References: <20210806081110.511221879@linuxfoundation.org>
+In-Reply-To: <20210806081109.324409899@linuxfoundation.org>
+References: <20210806081109.324409899@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -42,45 +42,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Goldwyn Rodrigues <rgoldwyn@suse.de>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit 240246f6b913b0c23733cfd2def1d283f8cc9bbe ]
+This reverts commit 42982d02f56445cec2cbaea31811c88bb9db2947 which is
+commit 3a70dd2d050331ee4cf5ad9d5c0a32d83ead9a43 upstream.
 
-In compression write endio sequence, the range which the compressed_bio
-writes is marked as uptodate if the last bio of the compressed (sub)bios
-is completed successfully. There could be previous bio which may
-have failed which is recorded in cb->errors.
+It has been found to have problems.
 
-Set the writeback range as uptodate only if cb->errors is zero, as opposed
-to checking only the last bio's status.
-
-Backporting notes: in all versions up to 4.4 the last argument is always
-replaced by "!cb->errors".
-
-CC: stable@vger.kernel.org # 4.4+
-Signed-off-by: Goldwyn Rodrigues <rgoldwyn@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Cc: Peter Hess <peter.hess@ph-home.de>
+Cc: Frank Wunderlich <frank-w@public-files.de>
+Cc: Mark Brown <broonie@kernel.org>
+Cc: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/efee3a58-a4d2-af22-0931-e81b877ab539@roeck-us.net
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/compression.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/spi/spi-mt65xx.c |   16 +++-------------
+ 1 file changed, 3 insertions(+), 13 deletions(-)
 
-diff --git a/fs/btrfs/compression.c b/fs/btrfs/compression.c
-index ccd9c709375e..24341c97c13f 100644
---- a/fs/btrfs/compression.c
-+++ b/fs/btrfs/compression.c
-@@ -286,7 +286,7 @@ static void end_compressed_bio_write(struct bio *bio)
- 					 cb->start,
- 					 cb->start + cb->len - 1,
- 					 NULL,
--					 bio->bi_status ? 0 : 1);
-+					 !cb->errors);
- 	cb->compressed_pages[0]->mapping = NULL;
+--- a/drivers/spi/spi-mt65xx.c
++++ b/drivers/spi/spi-mt65xx.c
+@@ -338,23 +338,13 @@ static int mtk_spi_fifo_transfer(struct
+ 	mtk_spi_setup_packet(master);
  
- 	end_compressed_writeback(inode, cb);
--- 
-2.30.2
-
+ 	cnt = xfer->len / 4;
+-	if (xfer->tx_buf)
+-		iowrite32_rep(mdata->base + SPI_TX_DATA_REG, xfer->tx_buf, cnt);
+-
+-	if (xfer->rx_buf)
+-		ioread32_rep(mdata->base + SPI_RX_DATA_REG, xfer->rx_buf, cnt);
++	iowrite32_rep(mdata->base + SPI_TX_DATA_REG, xfer->tx_buf, cnt);
+ 
+ 	remainder = xfer->len % 4;
+ 	if (remainder > 0) {
+ 		reg_val = 0;
+-		if (xfer->tx_buf) {
+-			memcpy(&reg_val, xfer->tx_buf + (cnt * 4), remainder);
+-			writel(reg_val, mdata->base + SPI_TX_DATA_REG);
+-		}
+-		if (xfer->rx_buf) {
+-			reg_val = readl(mdata->base + SPI_RX_DATA_REG);
+-			memcpy(xfer->rx_buf + (cnt * 4), &reg_val, remainder);
+-		}
++		memcpy(&reg_val, xfer->tx_buf + (cnt * 4), remainder);
++		writel(reg_val, mdata->base + SPI_TX_DATA_REG);
+ 	}
+ 
+ 	mtk_spi_enable_transfer(master);
 
 
