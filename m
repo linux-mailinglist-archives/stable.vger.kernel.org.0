@@ -2,112 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E4FC3E2B6B
-	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 15:32:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 946D63E2B7F
+	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 15:37:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243907AbhHFNdF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Aug 2021 09:33:05 -0400
-Received: from mail-oo1-f48.google.com ([209.85.161.48]:34480 "EHLO
-        mail-oo1-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243664AbhHFNdF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 Aug 2021 09:33:05 -0400
-Received: by mail-oo1-f48.google.com with SMTP id w2-20020a4a9e420000b02902859adadf0fso1364038ook.1;
-        Fri, 06 Aug 2021 06:32:48 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=VlUEltVPjDOqA4sdJqXGHn/FwTmAHCb9CTU/HCaOEy8=;
-        b=gw+gvWWWp245wdq56EWI37r1coVxK0e1Q3INX4SEFNpLiGtLnpXHzOV15H2UK+dHwl
-         7+WLMkVHV0Z1ydiCaKfMe81SeqpP9N1OnnTTsFJ0+yxUNOf/U60y+oPHl69f2nWlFL+A
-         Pvg/+kFOV5rEFs5N1ucqTa630zbZMZnY2EHfRewxiIZjUTXtIaWRUFML15sm1T5yBq23
-         pmoWnXnd+yvVm6yUWHFjBZ29uFRFCAa5SuMZRVY9Jp17EvsYzBWOrJ0HI9R52ZwBEDyo
-         AQ4LKABUAkrZww82PD8AGFBbWu9/VlaHS3Fbozj7VqTuPCTIT/CI20BZ1Grj2Lsxj0UT
-         SdIA==
-X-Gm-Message-State: AOAM532lBPCqDK9SxmzCL66XCxpc4ukQ/o4SXhO1L2MWocQo+PU34rUj
-        yRxe1nJ08xtfyjNHatvi5BkxA2G51JW3+fjhF10=
-X-Google-Smtp-Source: ABdhPJyAwEzgWzXdyGc/qvPQD7aNe1AHQkem56COPaU8jhTLS0VDzcZrve2+CM3QoH56tYvEoH5OLoDreIQTStwLWj8=
-X-Received: by 2002:a4a:3b85:: with SMTP id s127mr6453856oos.44.1628256768243;
- Fri, 06 Aug 2021 06:32:48 -0700 (PDT)
+        id S1344122AbhHFNiF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Aug 2021 09:38:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42176 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1344121AbhHFNiE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Aug 2021 09:38:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 52F8C61104;
+        Fri,  6 Aug 2021 13:37:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1628257067;
+        bh=AUeZtw2SIwTTqejnUcJO6v4kzKk3M/R1rJH5RbNbHdQ=;
+        h=Subject:To:From:Date:From;
+        b=lPe2bCMEJEtEZdgjjAsKAGISrJavtn39anZx/Gl+jzeJgXQlcQPQNZ8x3wxEH4RTB
+         OTj6tz/37eUUE1nsUnLo5F4HoQ7Ytu/CIKelYxauHnDBsKKG7JQMesTjim0K7bhcR5
+         eLewYRBdzEF/kr/qiD2JcSYCRgFeN40+m9Gmp2XY=
+Subject: patch "nvmem: core: fix error handling while validating keepout regions" added to char-misc-testing
+To:     srinivas.kandagatla@linaro.org, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 06 Aug 2021 15:37:31 +0200
+Message-ID: <1628257051158158@kroah.com>
 MIME-Version: 1.0
-References: <20210803102744.23654-1-lukasz.luba@arm.com> <4e6b02fb-b421-860b-4a07-ed6cccdc1570@arm.com>
- <CAJZ5v0hgpM+ErHMTYLFFasvn=Ptc0MyaaFn=HSxOcGcDcBwMVg@mail.gmail.com> <c23f8fac-4515-5891-0778-18e65eeb7087@arm.com>
-In-Reply-To: <c23f8fac-4515-5891-0778-18e65eeb7087@arm.com>
-From:   "Rafael J. Wysocki" <rafael@kernel.org>
-Date:   Fri, 6 Aug 2021 15:32:37 +0200
-Message-ID: <CAJZ5v0iB_vbbqzee6HSoLbVwVBWMmpvHWLZ_5_neWWqXr1JqoQ@mail.gmail.com>
-Subject: Re: [PATCH v3] PM: EM: Increase energy calculation precision
-To:     Lukasz Luba <lukasz.luba@arm.com>
-Cc:     "Rafael J. Wysocki" <rafael@kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Chris Redpath <Chris.Redpath@arm.com>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Morten Rasmussen <morten.rasmussen@arm.com>,
-        Quentin Perret <qperret@google.com>,
-        Linux PM <linux-pm@vger.kernel.org>,
-        Stable <stable@vger.kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Steven Rostedt <rostedt@goodmis.org>, segall@google.com,
-        Mel Gorman <mgorman@suse.de>,
-        Daniel Bristot de Oliveira <bristot@redhat.com>,
-        CCj.Yeh@mediatek.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Aug 5, 2021 at 12:00 PM Lukasz Luba <lukasz.luba@arm.com> wrote:
->
->
->
-> On 8/4/21 7:10 PM, Rafael J. Wysocki wrote:
-> > On Tue, Aug 3, 2021 at 3:31 PM Lukasz Luba <lukasz.luba@arm.com> wrote:
-> >>
-> >> Hi Rafael,
-> >>
-> >> On 8/3/21 11:27 AM, Lukasz Luba wrote:
-> >>
-> >> [snip]
-> >>
-> >>>
-> >>> Fixes: 27871f7a8a341ef ("PM: Introduce an Energy Model management framework")
-> >>> Reported-by: CCJ Yeh <CCj.Yeh@mediatek.com>
-> >>> Reviewed-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
-> >>> Signed-off-by: Lukasz Luba <lukasz.luba@arm.com>
-> >>> ---
-> >>>
-> >>> v3 changes:
-> >>> - adjusted patch description according to Dietmar's comments
-> >>> - added Dietmar's review tag
-> >>> - added one empty line in the code to separate them
-> >>>
-> >>>    include/linux/energy_model.h | 16 ++++++++++++++++
-> >>>    kernel/power/energy_model.c  |  4 +++-
-> >>>    2 files changed, 19 insertions(+), 1 deletion(-)
-> >>>
-> >>
-> >> Could you take this patch via your PM tree, please?
-> >
-> > I can do that, but do you want a Cc:stable tag on it?
-> >
->
-> No, thank you. I'll prepare a dedicated patches and send them after this
-> patch gets a proper commit ID. I've done similar things recently with
-> some thermal stuff and different stable versions [1].
->
-> Please take this patch. I will handle the stable testing, preparation
-> separately.
->
-> [1] https://lore.kernel.org/lkml/20210514104916.19975-1-lukasz.luba@arm.com/
 
-OK, applied as 5.15 material.
+This is a note to let you know that I've just added the patch titled
 
-However, since I'm on vacation next week, it will show up in
-linux-next after -rc6.
+    nvmem: core: fix error handling while validating keepout regions
 
-Thanks!
+to my char-misc git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
+in the char-misc-testing branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will be merged to the char-misc-next branch sometime soon,
+after it passes testing, and the merge window is open.
+
+If you have any questions about this process, please let me know.
+
+
+From de0534df93474f268486c486ea7e01b44a478026 Mon Sep 17 00:00:00 2001
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Date: Fri, 6 Aug 2021 09:59:47 +0100
+Subject: nvmem: core: fix error handling while validating keepout regions
+
+Current error path on failure of validating keepout regions is calling
+put_device, eventhough the device is not even registered at that point.
+
+Fix this by adding proper error handling of freeing ida and nvmem.
+
+Fixes: fd3bb8f54a88 ("nvmem: core: Add support for keepout regions")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20210806085947.22682-5-srinivas.kandagatla@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/nvmem/core.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
+index b3bc30a04ed7..3d87fadaa160 100644
+--- a/drivers/nvmem/core.c
++++ b/drivers/nvmem/core.c
+@@ -824,8 +824,11 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
+ 
+ 	if (nvmem->nkeepout) {
+ 		rval = nvmem_validate_keepouts(nvmem);
+-		if (rval)
+-			goto err_put_device;
++		if (rval) {
++			ida_free(&nvmem_ida, nvmem->id);
++			kfree(nvmem);
++			return ERR_PTR(rval);
++		}
+ 	}
+ 
+ 	dev_dbg(&nvmem->dev, "Registering nvmem device %s\n", config->name);
+-- 
+2.32.0
+
+
