@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 693943E254A
-	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:19:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 575183E255C
+	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:20:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243879AbhHFITC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Aug 2021 04:19:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47072 "EHLO mail.kernel.org"
+        id S243634AbhHFITq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Aug 2021 04:19:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241874AbhHFISF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Aug 2021 04:18:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A80E4611C6;
-        Fri,  6 Aug 2021 08:17:49 +0000 (UTC)
+        id S244115AbhHFIS4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Aug 2021 04:18:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 46A116103B;
+        Fri,  6 Aug 2021 08:18:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628237870;
-        bh=3gM4iBaPymdoBT/+hBirb8JgpgMbSgYZW7ijT+Z4d5A=;
+        s=korg; t=1628237916;
+        bh=B9xYAL/8m8xchTS/11Noy/LV1czP1hU/TtmNdYqMCos=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yfYtxSEbq90BfE9kZGmq+X0ucgWEigiL+tItF6iy9QShTPtaFwMVGvltBOYHImKwi
-         5Lul2p42+9D/40T1iE1VgtVXqgsjf8/6m+1D6qSkL210lDbHA6CP8vI3kfu87ZF11J
-         +w15aoS0jZ+6jalFyDbaBdKUpsByg/31fzCsjLQI=
+        b=Fln/7konMWcCcGQ6cvxe0OZFbxsO/KBiQoww4j/vDAxGZwqo4UEHVCta8mbbwhMmg
+         R8i/8A8tVeIHvQ+mT8eMP2SFaDGJGn40tq4Yrk7Q5RD5rQu0xixh2+QV7PSgn/YyKx
+         4g4iQISyKAn1CPMDYcJ5s1BW/KYOtCtP18pb4Oi8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Cristian Marussi <cristian.marussi@arm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>
-Subject: [PATCH 5.4 16/23] firmware: arm_scmi: Add delayed response status check
-Date:   Fri,  6 Aug 2021 10:16:48 +0200
-Message-Id: <20210806081112.696391850@linuxfoundation.org>
+        stable@vger.kernel.org, Oder Chiou <oder_chiou@realtek.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 11/30] ASoC: rt5682: Fix the issue of garbled recording after powerd_dbus_suspend
+Date:   Fri,  6 Aug 2021 10:16:49 +0200
+Message-Id: <20210806081113.506255283@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210806081112.104686873@linuxfoundation.org>
-References: <20210806081112.104686873@linuxfoundation.org>
+In-Reply-To: <20210806081113.126861800@linuxfoundation.org>
+References: <20210806081113.126861800@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,40 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cristian Marussi <cristian.marussi@arm.com>
+From: Oder Chiou <oder_chiou@realtek.com>
 
-commit f1748b1ee1fa0fd1a074504045b530b62f949188 upstream.
+[ Upstream commit 6a503e1c455316fd0bfd8188c0a62cce7c5525ca ]
 
-A successfully received delayed response could anyway report a failure at
-the protocol layer in the message status field.
+While using the DMIC recording, the garbled data will be captured by the
+DMIC. It is caused by the critical power of PLL closed in the jack detect
+function.
 
-Add a check also for this error condition.
-
-Link: https://lore.kernel.org/r/20210608103056.3388-1-cristian.marussi@arm.com
-Fixes: 58ecdf03dbb9 ("firmware: arm_scmi: Add support for asynchronous commands and delayed response")
-Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Oder Chiou <oder_chiou@realtek.com>
+Link: https://lore.kernel.org/r/20210716085853.20170-1-oder_chiou@realtek.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/arm_scmi/driver.c |    8 ++++++--
+ sound/soc/codecs/rt5682.c | 8 ++++++--
  1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/firmware/arm_scmi/driver.c
-+++ b/drivers/firmware/arm_scmi/driver.c
-@@ -515,8 +515,12 @@ int scmi_do_xfer_with_response(const str
- 	xfer->async_done = &async_response;
- 
- 	ret = scmi_do_xfer(handle, xfer);
--	if (!ret && !wait_for_completion_timeout(xfer->async_done, timeout))
--		ret = -ETIMEDOUT;
-+	if (!ret) {
-+		if (!wait_for_completion_timeout(xfer->async_done, timeout))
-+			ret = -ETIMEDOUT;
-+		else if (xfer->hdr.status)
-+			ret = scmi_to_linux_errno(xfer->hdr.status);
-+	}
- 
- 	xfer->async_done = NULL;
- 	return ret;
+diff --git a/sound/soc/codecs/rt5682.c b/sound/soc/codecs/rt5682.c
+index d9878173ff89..2e41b8c169e5 100644
+--- a/sound/soc/codecs/rt5682.c
++++ b/sound/soc/codecs/rt5682.c
+@@ -971,10 +971,14 @@ int rt5682_headset_detect(struct snd_soc_component *component, int jack_insert)
+ 		rt5682_enable_push_button_irq(component, false);
+ 		snd_soc_component_update_bits(component, RT5682_CBJ_CTRL_1,
+ 			RT5682_TRIG_JD_MASK, RT5682_TRIG_JD_LOW);
+-		if (!snd_soc_dapm_get_pin_status(dapm, "MICBIAS"))
++		if (!snd_soc_dapm_get_pin_status(dapm, "MICBIAS") &&
++			!snd_soc_dapm_get_pin_status(dapm, "PLL1") &&
++			!snd_soc_dapm_get_pin_status(dapm, "PLL2B"))
+ 			snd_soc_component_update_bits(component,
+ 				RT5682_PWR_ANLG_1, RT5682_PWR_MB, 0);
+-		if (!snd_soc_dapm_get_pin_status(dapm, "Vref2"))
++		if (!snd_soc_dapm_get_pin_status(dapm, "Vref2") &&
++			!snd_soc_dapm_get_pin_status(dapm, "PLL1") &&
++			!snd_soc_dapm_get_pin_status(dapm, "PLL2B"))
+ 			snd_soc_component_update_bits(component,
+ 				RT5682_PWR_ANLG_1, RT5682_PWR_VREF2, 0);
+ 		snd_soc_component_update_bits(component, RT5682_PWR_ANLG_3,
+-- 
+2.30.2
+
 
 
