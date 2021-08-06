@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF3BF3E25CF
-	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:22:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 693943E254A
+	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:19:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244351AbhHFIWp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Aug 2021 04:22:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52206 "EHLO mail.kernel.org"
+        id S243879AbhHFITC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Aug 2021 04:19:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47072 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243303AbhHFIV3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Aug 2021 04:21:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BFB0B61167;
-        Fri,  6 Aug 2021 08:21:01 +0000 (UTC)
+        id S241874AbhHFISF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Aug 2021 04:18:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A80E4611C6;
+        Fri,  6 Aug 2021 08:17:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628238062;
-        bh=eEKZqAgjmEcThEttKHyKHo1qwFUoMaa+zEpU6hFzRxw=;
+        s=korg; t=1628237870;
+        bh=3gM4iBaPymdoBT/+hBirb8JgpgMbSgYZW7ijT+Z4d5A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ieQucogLeaNFMprxBWhmJ+ZLCr0uEgVI/kXdU1LOoUhvA1+OMoEgKPK1qHekOAFaE
-         cm/4W1pzQVKvYMVXmm59SfMSfA00SwwpWH3z/6L1oakRCRUyP9zNcqx0yn0KKlW2hr
-         z+tAQWmXf0oVt0DnOYGSIGsxTQDuNMFYB8m4m3+s=
+        b=yfYtxSEbq90BfE9kZGmq+X0ucgWEigiL+tItF6iy9QShTPtaFwMVGvltBOYHImKwi
+         5Lul2p42+9D/40T1iE1VgtVXqgsjf8/6m+1D6qSkL210lDbHA6CP8vI3kfu87ZF11J
+         +w15aoS0jZ+6jalFyDbaBdKUpsByg/31fzCsjLQI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cong Wang <cong.wang@bytedance.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 05/35] skmsg: Pass source psock to sk_psock_skb_redirect()
+        stable@vger.kernel.org,
+        Cristian Marussi <cristian.marussi@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>
+Subject: [PATCH 5.4 16/23] firmware: arm_scmi: Add delayed response status check
 Date:   Fri,  6 Aug 2021 10:16:48 +0200
-Message-Id: <20210806081113.890848812@linuxfoundation.org>
+Message-Id: <20210806081112.696391850@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210806081113.718626745@linuxfoundation.org>
-References: <20210806081113.718626745@linuxfoundation.org>
+In-Reply-To: <20210806081112.104686873@linuxfoundation.org>
+References: <20210806081112.104686873@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,73 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <cong.wang@bytedance.com>
+From: Cristian Marussi <cristian.marussi@arm.com>
 
-[ Upstream commit 42830571f1fd9751b3fbf38084bbb253320e185f ]
+commit f1748b1ee1fa0fd1a074504045b530b62f949188 upstream.
 
-sk_psock_skb_redirect() only takes skb as a parameter, we
-will need to know where this skb is from, so just pass
-the source psock to this function as a new parameter.
-This patch prepares for the next one.
+A successfully received delayed response could anyway report a failure at
+the protocol layer in the message status field.
 
-Signed-off-by: Cong Wang <cong.wang@bytedance.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Acked-by: Jakub Sitnicki <jakub@cloudflare.com>
-Link: https://lore.kernel.org/bpf/20210615021342.7416-8-xiyou.wangcong@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Add a check also for this error condition.
+
+Link: https://lore.kernel.org/r/20210608103056.3388-1-cristian.marussi@arm.com
+Fixes: 58ecdf03dbb9 ("firmware: arm_scmi: Add support for asynchronous commands and delayed response")
+Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/skmsg.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/firmware/arm_scmi/driver.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/net/core/skmsg.c b/net/core/skmsg.c
-index d428368a0d87..b088fe07fc00 100644
---- a/net/core/skmsg.c
-+++ b/net/core/skmsg.c
-@@ -859,7 +859,7 @@ int sk_psock_msg_verdict(struct sock *sk, struct sk_psock *psock,
- }
- EXPORT_SYMBOL_GPL(sk_psock_msg_verdict);
+--- a/drivers/firmware/arm_scmi/driver.c
++++ b/drivers/firmware/arm_scmi/driver.c
+@@ -515,8 +515,12 @@ int scmi_do_xfer_with_response(const str
+ 	xfer->async_done = &async_response;
  
--static int sk_psock_skb_redirect(struct sk_buff *skb)
-+static int sk_psock_skb_redirect(struct sk_psock *from, struct sk_buff *skb)
- {
- 	struct sk_psock *psock_other;
- 	struct sock *sk_other;
-@@ -896,11 +896,12 @@ static int sk_psock_skb_redirect(struct sk_buff *skb)
- 	return 0;
- }
+ 	ret = scmi_do_xfer(handle, xfer);
+-	if (!ret && !wait_for_completion_timeout(xfer->async_done, timeout))
+-		ret = -ETIMEDOUT;
++	if (!ret) {
++		if (!wait_for_completion_timeout(xfer->async_done, timeout))
++			ret = -ETIMEDOUT;
++		else if (xfer->hdr.status)
++			ret = scmi_to_linux_errno(xfer->hdr.status);
++	}
  
--static void sk_psock_tls_verdict_apply(struct sk_buff *skb, struct sock *sk, int verdict)
-+static void sk_psock_tls_verdict_apply(struct sk_buff *skb,
-+				       struct sk_psock *from, int verdict)
- {
- 	switch (verdict) {
- 	case __SK_REDIRECT:
--		sk_psock_skb_redirect(skb);
-+		sk_psock_skb_redirect(from, skb);
- 		break;
- 	case __SK_PASS:
- 	case __SK_DROP:
-@@ -924,7 +925,7 @@ int sk_psock_tls_strp_read(struct sk_psock *psock, struct sk_buff *skb)
- 		ret = sk_psock_map_verd(ret, skb_bpf_redirect_fetch(skb));
- 		skb->sk = NULL;
- 	}
--	sk_psock_tls_verdict_apply(skb, psock->sk, ret);
-+	sk_psock_tls_verdict_apply(skb, psock, ret);
- 	rcu_read_unlock();
+ 	xfer->async_done = NULL;
  	return ret;
- }
-@@ -971,7 +972,7 @@ static int sk_psock_verdict_apply(struct sk_psock *psock, struct sk_buff *skb,
- 		}
- 		break;
- 	case __SK_REDIRECT:
--		err = sk_psock_skb_redirect(skb);
-+		err = sk_psock_skb_redirect(psock, skb);
- 		break;
- 	case __SK_DROP:
- 	default:
--- 
-2.30.2
-
 
 
