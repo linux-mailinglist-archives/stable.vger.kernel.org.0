@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4704A3E2580
-	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:20:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B01A13E259E
+	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:21:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244160AbhHFIUW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Aug 2021 04:20:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48014 "EHLO mail.kernel.org"
+        id S244081AbhHFIVS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Aug 2021 04:21:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244297AbhHFITd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Aug 2021 04:19:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 56B9E61206;
-        Fri,  6 Aug 2021 08:19:17 +0000 (UTC)
+        id S243538AbhHFIUW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Aug 2021 04:20:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BDC2161211;
+        Fri,  6 Aug 2021 08:20:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628237957;
-        bh=7Hr6HNXRZ5qtxvCoRW1jPF50KSlB2rwvYL0Rzok0DYE=;
+        s=korg; t=1628238006;
+        bh=FiM9Ouxl3/T/dWjCq1Yq1eASepxBbDOq7itEEDXVa9Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XkfTQVIViCVrziVTD7avuUDMmuEHVMPg/7xppI44zscBd3VxxCNeK8WjyRWYM9d1l
-         hKFPWwz3wP9QawlJI/F/KSbQvWDHtWnU90zubgYGcytNWj1Yn0lyIVjEYfW5U/fbBU
-         WNMaBBww0CwMBhPmhrZ0ImCzBNzdOswOujm6r430=
+        b=Mf3l0uB9tBf+9/JhK+SCXpI1i1x/M86LFCnNFaE98GMVQXJAi9g/54b8tIr3/I+wZ
+         7Lt7DUdDw8p3aasH8kbT3FmFSiLbwHkOSlgYXMmCpUY5tmpv2Q2h4cnq1CaXHnh6Vg
+         IDoAEB53akJWObtNzwJDPfdgXcQuWwgQIbE8CxEY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        Peter Hess <peter.hess@ph-home.de>,
-        Frank Wunderlich <frank-w@public-files.de>,
+        stable@vger.kernel.org,
+        Amelie Delaunay <amelie.delaunay@foss.st.com>,
+        Alain Volmat <alain.volmat@foss.st.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 20/30] Revert "spi: mediatek: fix fifo rx mode"
-Date:   Fri,  6 Aug 2021 10:16:58 +0200
-Message-Id: <20210806081113.814362149@linuxfoundation.org>
+Subject: [PATCH 5.13 16/35] spi: stm32h7: fix full duplex irq handler handling
+Date:   Fri,  6 Aug 2021 10:16:59 +0200
+Message-Id: <20210806081114.252079907@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210806081113.126861800@linuxfoundation.org>
-References: <20210806081113.126861800@linuxfoundation.org>
+In-Reply-To: <20210806081113.718626745@linuxfoundation.org>
+References: <20210806081113.718626745@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,52 +42,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Alain Volmat <alain.volmat@foss.st.com>
 
-This reverts commit 2435dcfd16ac482803c6ecf2ba0d2a0553214d54 which is
-commit 3a70dd2d050331ee4cf5ad9d5c0a32d83ead9a43 upstream.
+[ Upstream commit e4a5c19888a5f8a9390860ca493e643be58c8791 ]
 
-It has been found to have problems.
+In case of Full-Duplex mode, DXP flag is set when RXP and TXP flags are
+set. But to avoid 2 different handlings, just add TXP and RXP flag in
+the mask instead of DXP, and then keep the initial handling of TXP and
+RXP events.
+Also rephrase comment about EOTIE which is one of the interrupt enable
+bits. It is not triggered by any event.
 
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Cc: Peter Hess <peter.hess@ph-home.de>
-Cc: Frank Wunderlich <frank-w@public-files.de>
-Cc: Mark Brown <broonie@kernel.org>
-Cc: Sasha Levin <sashal@kernel.org>
-Link: https://lore.kernel.org/r/efee3a58-a4d2-af22-0931-e81b877ab539@roeck-us.net
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
+Signed-off-by: Alain Volmat <alain.volmat@foss.st.com>
+Reviewed-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
+Link: https://lore.kernel.org/r/1625042723-661-3-git-send-email-alain.volmat@foss.st.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-mt65xx.c |   16 +++-------------
- 1 file changed, 3 insertions(+), 13 deletions(-)
+ drivers/spi/spi-stm32.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
---- a/drivers/spi/spi-mt65xx.c
-+++ b/drivers/spi/spi-mt65xx.c
-@@ -434,23 +434,13 @@ static int mtk_spi_fifo_transfer(struct
- 	mtk_spi_setup_packet(master);
+diff --git a/drivers/spi/spi-stm32.c b/drivers/spi/spi-stm32.c
+index a92a28933edb..05618a618939 100644
+--- a/drivers/spi/spi-stm32.c
++++ b/drivers/spi/spi-stm32.c
+@@ -884,15 +884,18 @@ static irqreturn_t stm32h7_spi_irq_thread(int irq, void *dev_id)
+ 	ier = readl_relaxed(spi->base + STM32H7_SPI_IER);
  
- 	cnt = xfer->len / 4;
--	if (xfer->tx_buf)
--		iowrite32_rep(mdata->base + SPI_TX_DATA_REG, xfer->tx_buf, cnt);
--
--	if (xfer->rx_buf)
--		ioread32_rep(mdata->base + SPI_RX_DATA_REG, xfer->rx_buf, cnt);
-+	iowrite32_rep(mdata->base + SPI_TX_DATA_REG, xfer->tx_buf, cnt);
+ 	mask = ier;
+-	/* EOTIE is triggered on EOT, SUSP and TXC events. */
++	/*
++	 * EOTIE enables irq from EOT, SUSP and TXC events. We need to set
++	 * SUSP to acknowledge it later. TXC is automatically cleared
++	 */
++
+ 	mask |= STM32H7_SPI_SR_SUSP;
+ 	/*
+-	 * When TXTF is set, DXPIE and TXPIE are cleared. So in case of
+-	 * Full-Duplex, need to poll RXP event to know if there are remaining
+-	 * data, before disabling SPI.
++	 * DXPIE is set in Full-Duplex, one IT will be raised if TXP and RXP
++	 * are set. So in case of Full-Duplex, need to poll TXP and RXP event.
+ 	 */
+-	if (spi->rx_buf && !spi->cur_usedma)
+-		mask |= STM32H7_SPI_SR_RXP;
++	if ((spi->cur_comm == SPI_FULL_DUPLEX) && !spi->cur_usedma)
++		mask |= STM32H7_SPI_SR_TXP | STM32H7_SPI_SR_RXP;
  
- 	remainder = xfer->len % 4;
- 	if (remainder > 0) {
- 		reg_val = 0;
--		if (xfer->tx_buf) {
--			memcpy(&reg_val, xfer->tx_buf + (cnt * 4), remainder);
--			writel(reg_val, mdata->base + SPI_TX_DATA_REG);
--		}
--		if (xfer->rx_buf) {
--			reg_val = readl(mdata->base + SPI_RX_DATA_REG);
--			memcpy(xfer->rx_buf + (cnt * 4), &reg_val, remainder);
--		}
-+		memcpy(&reg_val, xfer->tx_buf + (cnt * 4), remainder);
-+		writel(reg_val, mdata->base + SPI_TX_DATA_REG);
- 	}
- 
- 	mtk_spi_enable_transfer(master);
+ 	if (!(sr & mask)) {
+ 		dev_warn(spi->dev, "spurious IT (sr=0x%08x, ier=0x%08x)\n",
+-- 
+2.30.2
+
 
 
