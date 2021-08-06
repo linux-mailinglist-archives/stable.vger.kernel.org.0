@@ -2,96 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E9C03E2F7D
-	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 20:54:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A54D3E2F89
+	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 20:57:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229581AbhHFSyk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Aug 2021 14:54:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33524 "EHLO
+        id S231816AbhHFS5u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Aug 2021 14:57:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243429AbhHFSy3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 Aug 2021 14:54:29 -0400
-Received: from mail-qk1-x72a.google.com (mail-qk1-x72a.google.com [IPv6:2607:f8b0:4864:20::72a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EA7DC0613CF;
-        Fri,  6 Aug 2021 11:54:12 -0700 (PDT)
-Received: by mail-qk1-x72a.google.com with SMTP id az7so10949680qkb.5;
-        Fri, 06 Aug 2021 11:54:12 -0700 (PDT)
+        with ESMTP id S229918AbhHFS5u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Aug 2021 14:57:50 -0400
+Received: from mail-qv1-xf2c.google.com (mail-qv1-xf2c.google.com [IPv6:2607:f8b0:4864:20::f2c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F5E2C0613CF;
+        Fri,  6 Aug 2021 11:57:33 -0700 (PDT)
+Received: by mail-qv1-xf2c.google.com with SMTP id em4so5468923qvb.0;
+        Fri, 06 Aug 2021 11:57:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=ukOHyjXaZwRM7DApW60zHscwgybdaHrIkrvrkuNcGnw=;
-        b=DugJcaj0yP1tAvYcQOIoXE9IyRuPV4wqsfIoErzO8+KSRWd9bmabIAODM6+lxfCrRM
-         4rN2O4mZewqIc+5jyH/U3Ux2ywnL9Hr2iCqil0JT9DyCGR6x2p4eNr3LHBEqJSMbLxvq
-         KwrE7rEDLnYtIzz7Vi2sVRYPA1vUB1kE5svHf2esL0988N09MX2ES5gvkQuLjKZxemO2
-         Jb4geJdh5Y/VuZ54NgK5BoypGvsgmcXwb5q2ylXa+DtnvcYh77mYdCj542EZEj1aJVBQ
-         MtPWdWQx2zdSekxE7TL1oFWvnea5KISarkKsQUFaSVfB1tuwIHR5kFOGh8xzjw6Dgn7+
-         /KjQ==
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=HoLbeTTbQZVD0ezcQl6FigfEYZA+jZ1EgzCffFW5aUU=;
+        b=IX+MbFHGhtgZbirStmqhB7qjlQHx2H+Zp2nfnXvpelTvOI/vywCx9aGnEnGEQrbX/p
+         YbffPrr3xTmhpVcfWEZE5O5qCslFb8e/gRM3wuYpKmxQz4i6x9NdpaYkU+xJOnHG6h3z
+         NqgQzJSibHDgqYL+do+OoGXLsctTGDX9IHFz6/IP1Lcjwqjrscqf3O1knQzaer6xMQqU
+         3nMUgLplwS4btSmYsccpXjgxK5xucRJbl7EYEm09EejV70SoiOBZpJSQ+ltgZdWD1xbn
+         3MOXeuzLeVYi76IamBd2qTmaUQbFprL9MlKJjNIUu5AVmAAGcB8VuL6hP2mZRL0BRQbU
+         i1UQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=ukOHyjXaZwRM7DApW60zHscwgybdaHrIkrvrkuNcGnw=;
-        b=oj8ZM59/YlfYyvrDHTvs5Y80z7VXOJ5CL3He0ZgtOJDdCUv1ffYlsAcKae1q0noxUz
-         bZqi8XY3jjp1RdhWmTn4XqgztugfxNhgVT0pM47Abo7MYDrP9afgf6S1YA/BEcbKp3QI
-         EtnSZ35Sn8tVTsX2EI/tsFIhXwWxcX8EdCuH9UlsNcPb30Nrn5PtJ/w88gv3zGXvmSjZ
-         2J1n91nZAA/AUq4DeclK6iWPY0gjMWfz4CAwYn316JMRZ/mDzuv9Q6SOMje+lhgMayHA
-         Y6hapZ2+t+/m4aX4iON15xq89eTO+R3NzI8UMIZmlMH8iYiopD36fwX8BRzJiKjMgwu7
-         PuiA==
-X-Gm-Message-State: AOAM530C+jmY9/6Ne50F2Jt5wNNBxgBhTCMXerTZTMhc4bJKLeN64yqP
-        e/TkQIvowg1FRqOICWRMGtU=
-X-Google-Smtp-Source: ABdhPJxhS4lIwNvHN7DPB1kygf/LhPlurkdKREGECoP+gWsigcmAt3rHji2pxXTn4009b5l6PBEaWA==
-X-Received: by 2002:a05:620a:448c:: with SMTP id x12mr11391509qkp.39.1628276051272;
-        Fri, 06 Aug 2021 11:54:11 -0700 (PDT)
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to;
+        bh=HoLbeTTbQZVD0ezcQl6FigfEYZA+jZ1EgzCffFW5aUU=;
+        b=kis2H/bevYKqyhnfJh/YSGvXv5cSYbG6lncMENcmaGb+xDdvGuodjPJBYrDiERLePa
+         mMEHJqCflllWpOyuA6YywNJBeMKlLkvCTt4KBIRur31ikzCf/4PQ6QilL9NLLTXLDS6m
+         yJn1B/isk8gZSYtbCiKmuZ+Hsyqp0Q6/U0lisD82mF5Nui+OUIVBsRquGTVheuje5N2Y
+         XO+n1jwV0nfEe+X6FkRhlJki+Irr9dhHRBb++Mr2pUNEAXMq8LJlcpp5anLAACSZO7cb
+         miiM/NeZjiHWDiRNF+xEyzdJhXCbeE0rgCjtsSqUT3KqYwU8OL0Vi/y9yGQ5mpMvbUTF
+         Abaw==
+X-Gm-Message-State: AOAM531HGkuij2Wlaoeg+shx67Bc31FOKOBMZjNf9AOAYOJOyPFV359Y
+        MWc8GZ6m5t8oNFHR6eHitzY=
+X-Google-Smtp-Source: ABdhPJyICH3nixDKojp7XgbHdRUl1XbOxrNxCNkloWMzJ/hpZUCav1e4f5Pa6C5PSZ6cgZTF/5LYlA==
+X-Received: by 2002:a05:6214:8c6:: with SMTP id da6mr1433804qvb.18.1628276252386;
+        Fri, 06 Aug 2021 11:57:32 -0700 (PDT)
 Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id t124sm5061621qke.16.2021.08.06.11.54.09
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 06 Aug 2021 11:54:10 -0700 (PDT)
+        by smtp.gmail.com with ESMTPSA id h7sm3838203qto.22.2021.08.06.11.57.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 06 Aug 2021 11:57:32 -0700 (PDT)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Subject: Re: [PATCH 5.13 32/35] Revert "spi: mediatek: fix fifo rx mode"
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, Peter Hess <peter.hess@ph-home.de>,
-        Frank Wunderlich <frank-w@public-files.de>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-References: <20210806081113.718626745@linuxfoundation.org>
- <20210806081114.781183194@linuxfoundation.org>
+Date:   Fri, 6 Aug 2021 11:57:30 -0700
 From:   Guenter Roeck <linux@roeck-us.net>
-Message-ID: <1be93ec0-43cd-f86b-aeb8-64971b4fcedd@roeck-us.net>
-Date:   Fri, 6 Aug 2021 11:54:08 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 4.4 0/6] 4.4.279-rc1 review
+Message-ID: <20210806185730.GA2680592@roeck-us.net>
+References: <20210806081108.939164003@linuxfoundation.org>
 MIME-Version: 1.0
-In-Reply-To: <20210806081114.781183194@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210806081108.939164003@linuxfoundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 8/6/21 1:17 AM, Greg Kroah-Hartman wrote:
-> From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+On Fri, Aug 06, 2021 at 10:14:32AM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.4.279 release.
+> There are 6 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> This reverts commit 09b8cc7810587257e5f82080884001301e1a1ba9 which is
-> commit 3a70dd2d050331ee4cf5ad9d5c0a32d83ead9a43 upstream.
+> Responses should be made by Sun, 08 Aug 2021 08:11:03 +0000.
+> Anything received after that time might be too late.
 > 
-> It has been found to have problems.
-> 
-> Reported-by: Guenter Roeck <linux@roeck-us.net>
-> Cc: Peter Hess <peter.hess@ph-home.de>
-> Cc: Frank Wunderlich <frank-w@public-files.de>
-> Cc: Mark Brown <broonie@kernel.org>
-> Cc: Sasha Levin <sashal@kernel.org>
-> Link: https://lore.kernel.org/r/efee3a58-a4d2-af22-0931-e81b877ab539@roeck-us.net
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-The problem with the reverted patch has now been fixed in the mainline
-kernel with commit 0d5c3954b35e ("spi: mediatek: Fix fifo transfer").
-So an alternative to this revert might be to apply commit 0d5c3954b35e
-instead.
+Build results:
+	total: 160 pass: 160 fail: 0
+Qemu test results:
+	total: 340 pass: 340 fail: 0
 
-Thanks,
+Tested-by: Guenter Roeck <linux@roeck-us.net>
+
 Guenter
