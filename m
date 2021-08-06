@@ -2,136 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BDF03E2885
-	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 12:24:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D19B13E28C7
+	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 12:39:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244990AbhHFKZM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Aug 2021 06:25:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58742 "EHLO
+        id S245248AbhHFKjR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Aug 2021 06:39:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33860 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244970AbhHFKZM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 Aug 2021 06:25:12 -0400
-Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com [IPv6:2a00:1450:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 992F5C061799
-        for <stable@vger.kernel.org>; Fri,  6 Aug 2021 03:24:56 -0700 (PDT)
-Received: by mail-wr1-x431.google.com with SMTP id z4so10408903wrv.11
-        for <stable@vger.kernel.org>; Fri, 06 Aug 2021 03:24:56 -0700 (PDT)
+        with ESMTP id S245239AbhHFKjR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Aug 2021 06:39:17 -0400
+Received: from mail-oi1-x22d.google.com (mail-oi1-x22d.google.com [IPv6:2607:f8b0:4864:20::22d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C449CC061798;
+        Fri,  6 Aug 2021 03:39:00 -0700 (PDT)
+Received: by mail-oi1-x22d.google.com with SMTP id s13so2216276oie.10;
+        Fri, 06 Aug 2021 03:39:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id;
-        bh=1M+kjBe5LJfHMKPYebEvjyNaiKWDMDU0Hnt7bpr7e5A=;
-        b=SyY5P3/3fn3OPSGo81KmIl2K9Y502cNWmKbU9aTw7C+3CMdbgYAMOdrU0sphIJVJaf
-         A4qkFfiU+075rWAkUPF3xkwV0v2K2kvwD+XgvgHliCYW5CBMvwzm4nf0TwECQvZMVV10
-         LvGbpOrinF4IpxYj6+F9M69H0Gm5I0JD81bhT+SeiEXkqUUbAZwP0alzGz/76+D1vv0/
-         8QvQA7FyThN88MOFBp8GCCfY9iuTZMPRCaxyQR6Ro6b+Je1y96jRbrdn2rcKG5cXUaxx
-         Iq3cSXTbP7T75vjY22yR7POqfg2iumeMN8q3svM7RijFlkg134qZKrZQ/kRs3+IWsXi9
-         g2pQ==
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=2ir6yLMeV4DESAzPY3E3mdRxy6afP5yS47hC9DvqQSI=;
+        b=Vz3Uu4W06bG5tmTR5vY5XH2wf6cTKSRdpy2vRFxAry7Id5kweTChj6c3ND3UVI8GS9
+         VlRkwr60IGl3cCzDSO7nb7BRj1DHoambPq1oCEfdNVR7Kx1Z0O0F5a/qFrpqOSaTie3M
+         NSeboXSAIfklLSbyp53RdvlW21bMW1mXTizjqqhFwDi+LzTGVcABY3VTnQBc3mYkuQNQ
+         mUd8EBG8j9dToK42tBJA25qoDnMgfrwJCjC2Vk2rQ3MqdUryfwCmB+rKbdrOf6C9bsfv
+         xC2vGGkO5CVdtEdSZi1OwNc6UbIhVJBFVgPTdRqrPaAqbhXvbNe8BxqjSGrhu6Rb6n68
+         JS1Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=1M+kjBe5LJfHMKPYebEvjyNaiKWDMDU0Hnt7bpr7e5A=;
-        b=k8nW0XRDbUiPEWGyXMhEC1xzk6w5dLhKSGL5MepFYvUU5QdWFLim7JmjEfURtt5c6N
-         YMYy0YiU4JtwmuoJkQUVYuSEVlhvWfl3Njo0jCny7NhjHgdEYUAsWtdkAQP7cS1Cljbu
-         KsKrGOs69VCakKoZXgjUmEcKDryFxs+zaMstvCtF6VeWHrsYbpUx6mW8BDXSQoOYTx3r
-         /Ba9ojybmwj808xvXwGhrexM7MCZsYW3yF/9SDk0NoaVxspI6wjWrbVrSjSitApGQUNT
-         C/Q8ORzneP+K3I1h58fL2P+M6YlhxdZdM6C/ohrnBTodRqWccQPItoSwEQaSeg3TfA3O
-         +6eA==
-X-Gm-Message-State: AOAM533HvihSm1MHUfcDDD8QP/cxJgNjYH1vaFxx2j7/Rta5o13P4uPN
-        s4vwnWc0/l/7CyWo3AHUzFQh0A==
-X-Google-Smtp-Source: ABdhPJxSzwnrWJd6HOIHDdO0i5FgxOaiJVWQPX9HROVajB1M+Pbg6yh5sjgRNWN0X88hjVAkTPTQvQ==
-X-Received: by 2002:a5d:4a84:: with SMTP id o4mr9729993wrq.273.1628245495152;
-        Fri, 06 Aug 2021 03:24:55 -0700 (PDT)
-Received: from localhost.localdomain ([2a01:e0a:82c:5f0:69b5:b274:5cfc:ef2])
-        by smtp.gmail.com with ESMTPSA id k17sm9046540wrw.53.2021.08.06.03.24.54
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 06 Aug 2021 03:24:54 -0700 (PDT)
-From:   Loic Poulain <loic.poulain@linaro.org>
-To:     davem@davemloft.net, kuba@kernel.org
-Cc:     netdev@vger.kernel.org, ryazanov.s.a@gmail.com,
-        Loic Poulain <loic.poulain@linaro.org>, stable@vger.kernel.org
-Subject: [PATCH net-next] net: wwan: mhi_wwan_ctrl: Fix possible deadlock
-Date:   Fri,  6 Aug 2021 12:35:09 +0200
-Message-Id: <1628246109-27425-1-git-send-email-loic.poulain@linaro.org>
-X-Mailer: git-send-email 2.7.4
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=2ir6yLMeV4DESAzPY3E3mdRxy6afP5yS47hC9DvqQSI=;
+        b=KtYcPGevje4IQ6f5g1DPBZkVNPXOZCWjNYJbIjwmfOT0pLBB4mi8e7z7PyqJdcvB+r
+         vHQjrf8FwncIb0oIIBCrpnUVWLOL0/NKHSH0SrvEJmUssxH0n9cBxtRnlAiDzmJRyJDo
+         1ElttR3nEnID79FjU182SXbN8JT/wn1ByeP4Fi7IydxPLbziEd9OEbOHGOhYQfGKkhhq
+         gbdh63ZoLIFqyuGOrBNVtSHl5RIIdM1v8EDaa+I7lyMxNsTMqfzsL8ORIG+4iBeNAXlI
+         LCIXVsow7uQW4go0dX/JcyaOamb7syqBEqTV7eCPRb+xs0yhToBBkw3kKiQyP/mdkFfk
+         78CA==
+X-Gm-Message-State: AOAM533nDUjmjRR24p/ARqmvk2btXkeTdmjECMFYOhiugjAHW/GQ3c4I
+        kh3DOOY4v6DgCqCxNfgRcIT17uj585IWHnTZfU55TWnP
+X-Google-Smtp-Source: ABdhPJxu03ZChp9YO7FrEqNokK/BTwGoh/imeOCY1vfLOz+CfntN+3WCL1KmcikKjJ+qwNH8/X+33DNbk6QMYQWTfss=
+X-Received: by 2002:aca:eb0f:: with SMTP id j15mr4933802oih.63.1628246340243;
+ Fri, 06 Aug 2021 03:39:00 -0700 (PDT)
+MIME-Version: 1.0
+References: <1628246109-27425-1-git-send-email-loic.poulain@linaro.org>
+In-Reply-To: <1628246109-27425-1-git-send-email-loic.poulain@linaro.org>
+From:   Sergey Ryazanov <ryazanov.s.a@gmail.com>
+Date:   Fri, 6 Aug 2021 13:38:49 +0300
+Message-ID: <CAHNKnsQCNfLhxm8FxAb8EPKuK+6YFPVx55_SvJMTcg12MjUnJw@mail.gmail.com>
+Subject: Re: [PATCH net-next] net: wwan: mhi_wwan_ctrl: Fix possible deadlock
+To:     Loic Poulain <loic.poulain@linaro.org>
+Cc:     David Miller <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Lockdep detected possible interrupt unsafe locking scenario:
+On Fri, Aug 6, 2021 at 1:24 PM Loic Poulain <loic.poulain@linaro.org> wrote:
+> Lockdep detected possible interrupt unsafe locking scenario:
+>
+>         CPU0                    CPU1
+>         ----                    ----
+>    lock(&mhiwwan->rx_lock);
+>                                local_irq_disable();
+>                                lock(&mhi_cntrl->pm_lock);
+>                                lock(&mhiwwan->rx_lock);
+>    <Interrupt>
+>      lock(&mhi_cntrl->pm_lock);
+>
+>   *** DEADLOCK ***
+>
+> To prevent this we need to disable the soft-interrupts when taking
+> the rx_lock.
+>
+> Cc: stable@vger.kernel.org
+> Fixes: fa588eba632d ("net: Add Qcom WWAN control driver")
+> Reported-by: Thomas Perrot <thomas.perrot@bootlin.com>
+> Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
 
-        CPU0                    CPU1
-        ----                    ----
-   lock(&mhiwwan->rx_lock);
-                               local_irq_disable();
-                               lock(&mhi_cntrl->pm_lock);
-                               lock(&mhiwwan->rx_lock);
-   <Interrupt>
-     lock(&mhi_cntrl->pm_lock);
-
-  *** DEADLOCK ***
-
-To prevent this we need to disable the soft-interrupts when taking
-the rx_lock.
-
-Cc: stable@vger.kernel.org
-Fixes: fa588eba632d ("net: Add Qcom WWAN control driver")
-Reported-by: Thomas Perrot <thomas.perrot@bootlin.com>
-Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
----
- drivers/net/wwan/mhi_wwan_ctrl.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/net/wwan/mhi_wwan_ctrl.c b/drivers/net/wwan/mhi_wwan_ctrl.c
-index 1e18420..d0a98f3 100644
---- a/drivers/net/wwan/mhi_wwan_ctrl.c
-+++ b/drivers/net/wwan/mhi_wwan_ctrl.c
-@@ -41,14 +41,14 @@ struct mhi_wwan_dev {
- /* Increment RX budget and schedule RX refill if necessary */
- static void mhi_wwan_rx_budget_inc(struct mhi_wwan_dev *mhiwwan)
- {
--	spin_lock(&mhiwwan->rx_lock);
-+	spin_lock_bh(&mhiwwan->rx_lock);
- 
- 	mhiwwan->rx_budget++;
- 
- 	if (test_bit(MHI_WWAN_RX_REFILL, &mhiwwan->flags))
- 		schedule_work(&mhiwwan->rx_refill);
- 
--	spin_unlock(&mhiwwan->rx_lock);
-+	spin_unlock_bh(&mhiwwan->rx_lock);
- }
- 
- /* Decrement RX budget if non-zero and return true on success */
-@@ -56,7 +56,7 @@ static bool mhi_wwan_rx_budget_dec(struct mhi_wwan_dev *mhiwwan)
- {
- 	bool ret = false;
- 
--	spin_lock(&mhiwwan->rx_lock);
-+	spin_lock_bh(&mhiwwan->rx_lock);
- 
- 	if (mhiwwan->rx_budget) {
- 		mhiwwan->rx_budget--;
-@@ -64,7 +64,7 @@ static bool mhi_wwan_rx_budget_dec(struct mhi_wwan_dev *mhiwwan)
- 			ret = true;
- 	}
- 
--	spin_unlock(&mhiwwan->rx_lock);
-+	spin_unlock_bh(&mhiwwan->rx_lock);
- 
- 	return ret;
- }
-@@ -130,9 +130,9 @@ static void mhi_wwan_ctrl_stop(struct wwan_port *port)
- {
- 	struct mhi_wwan_dev *mhiwwan = wwan_port_get_drvdata(port);
- 
--	spin_lock(&mhiwwan->rx_lock);
-+	spin_lock_bh(&mhiwwan->rx_lock);
- 	clear_bit(MHI_WWAN_RX_REFILL, &mhiwwan->flags);
--	spin_unlock(&mhiwwan->rx_lock);
-+	spin_unlock_bh(&mhiwwan->rx_lock);
- 
- 	cancel_work_sync(&mhiwwan->rx_refill);
- 
--- 
-2.7.4
-
+Reviewed-by: Sergey Ryazanov <ryazanov.s.a@gmail.com>
