@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E633D3E25D5
-	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:22:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DA303E2561
+	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:20:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244356AbhHFIW4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Aug 2021 04:22:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50684 "EHLO mail.kernel.org"
+        id S243867AbhHFITs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Aug 2021 04:19:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244380AbhHFIVn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Aug 2021 04:21:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ABB9061246;
-        Fri,  6 Aug 2021 08:21:08 +0000 (UTC)
+        id S243804AbhHFITD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Aug 2021 04:19:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ECE4A61163;
+        Fri,  6 Aug 2021 08:18:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628238069;
-        bh=GsUR3eFBk9QBw/kYGHobqfEsbKBD2IC+iY9bTejvPtA=;
+        s=korg; t=1628237924;
+        bh=u1luN1sMFI7o5STBnQbpqlrcozJB2enfmjp0qualJQw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1TvNqKIs6SodradlfU1LuGhjebasbAwMe2xHv7M4j8UMJ0sYNLwM/BMrPEl6xigtN
-         WF03xKAAyPSwzU+rxFkb8iW41NA1Mav4idrJfSDwkDgxQxtumM3xNSRafcZvY0VR+S
-         28NCRhXkTNKXF2v4IG1PiHDy4d3oR+9H0mSFQ7as=
+        b=npQYikMANYVeE4fthdJRtsYB9EdhOIYGyyYng7DYElbV1FrjT4/RMe7Tpx40baCMY
+         ks3ODsY4i1s8kH1zXitGf6me4YCqicvV2gKTCQI3HGDSV8AtFh0wKyEBqDcsUAXbsx
+         /eRPuEt5NmqreQFbQWRXO8WKTkhz319bpgIHkVC8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ronnie Sahlberg <lsahlber@redhat.com>,
-        Shyam Prasad N <sprasad@microsoft.com>,
-        Xiaoli Feng <xifeng@redhat.com>,
-        Steve French <stfrench@microsoft.com>,
+        stable@vger.kernel.org, Peter Ujfalusi <peter.ujfalusi@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 08/35] cifs: add missing parsing of backupuid
-Date:   Fri,  6 Aug 2021 10:16:51 +0200
-Message-Id: <20210806081113.982390511@linuxfoundation.org>
+Subject: [PATCH 5.10 14/30] ASoC: ti: j721e-evm: Check for not initialized parent_clk_id
+Date:   Fri,  6 Aug 2021 10:16:52 +0200
+Message-Id: <20210806081113.620583972@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210806081113.718626745@linuxfoundation.org>
-References: <20210806081113.718626745@linuxfoundation.org>
+In-Reply-To: <20210806081113.126861800@linuxfoundation.org>
+References: <20210806081113.126861800@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,41 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ronnie Sahlberg <lsahlber@redhat.com>
+From: Peter Ujfalusi <peter.ujfalusi@gmail.com>
 
-[ Upstream commit b946dbcfa4df80ec81b442964e07ad37000cc059 ]
+[ Upstream commit 82d28b67f780910f816fe1cfb0f676fc38c4cbb3 ]
 
-We lost parsing of backupuid in the switch to new mount API.
-Add it back.
+During probe the parent_clk_id is set to -1 which should not be used to
+array index within hsdiv_rates[].
 
-Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Reviewed-by: Shyam Prasad N <sprasad@microsoft.com>
-Cc: <stable@vger.kernel.org> # v5.11+
-Reported-by: Xiaoli Feng <xifeng@redhat.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@gmail.com>
+Link: https://lore.kernel.org/r/20210717122820.1467-3-peter.ujfalusi@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/fs_context.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ sound/soc/ti/j721e-evm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/cifs/fs_context.c b/fs/cifs/fs_context.c
-index 553adfbcc22a..72742eb1df4a 100644
---- a/fs/cifs/fs_context.c
-+++ b/fs/cifs/fs_context.c
-@@ -918,6 +918,13 @@ static int smb3_fs_context_parse_param(struct fs_context *fc,
- 		ctx->cred_uid = uid;
- 		ctx->cruid_specified = true;
- 		break;
-+	case Opt_backupuid:
-+		uid = make_kuid(current_user_ns(), result.uint_32);
-+		if (!uid_valid(uid))
-+			goto cifs_parse_mount_err;
-+		ctx->backupuid = uid;
-+		ctx->backupuid_specified = true;
-+		break;
- 	case Opt_backupgid:
- 		gid = make_kgid(current_user_ns(), result.uint_32);
- 		if (!gid_valid(gid))
+diff --git a/sound/soc/ti/j721e-evm.c b/sound/soc/ti/j721e-evm.c
+index 017c4ad11ca6..265bbc5a2f96 100644
+--- a/sound/soc/ti/j721e-evm.c
++++ b/sound/soc/ti/j721e-evm.c
+@@ -197,7 +197,7 @@ static int j721e_configure_refclk(struct j721e_priv *priv,
+ 		return ret;
+ 	}
+ 
+-	if (priv->hsdiv_rates[domain->parent_clk_id] != scki) {
++	if (domain->parent_clk_id == -1 || priv->hsdiv_rates[domain->parent_clk_id] != scki) {
+ 		dev_dbg(priv->dev,
+ 			"%s configuration for %u Hz: %s, %dxFS (SCKI: %u Hz)\n",
+ 			audio_domain == J721E_AUDIO_DOMAIN_CPB ? "CPB" : "IVI",
 -- 
 2.30.2
 
