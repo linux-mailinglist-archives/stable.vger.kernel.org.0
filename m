@@ -2,200 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2ECF3E2F38
-	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 20:23:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E9C03E2F7D
+	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 20:54:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240460AbhHFSYL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Aug 2021 14:24:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55018 "EHLO
+        id S229581AbhHFSyk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Aug 2021 14:54:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33524 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236916AbhHFSYK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 Aug 2021 14:24:10 -0400
-Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 927FCC0613CF
-        for <stable@vger.kernel.org>; Fri,  6 Aug 2021 11:23:54 -0700 (PDT)
-Received: by mail-pj1-x1029.google.com with SMTP id mt6so17960325pjb.1
-        for <stable@vger.kernel.org>; Fri, 06 Aug 2021 11:23:54 -0700 (PDT)
+        with ESMTP id S243429AbhHFSy3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Aug 2021 14:54:29 -0400
+Received: from mail-qk1-x72a.google.com (mail-qk1-x72a.google.com [IPv6:2607:f8b0:4864:20::72a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EA7DC0613CF;
+        Fri,  6 Aug 2021 11:54:12 -0700 (PDT)
+Received: by mail-qk1-x72a.google.com with SMTP id az7so10949680qkb.5;
+        Fri, 06 Aug 2021 11:54:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=ZcOOdzhHrPLpRBXfXslMomo3EuK8IOCd/CIGnhtWfao=;
-        b=YZY7jKtPDFnUDtRGws+Z1qXZpj2dFKkZcKaCtBnZizuBQwzK834ANGU9ADCZYrM6ZN
-         Xt110dxHmlvSCfyTCOJHGZQjF6B4WI1r++1krZmdDDwe5vFj6QvVabFzf6ArzvQ1rfVH
-         fGsbaO5UIcbEt7v7XdnDca1nX3k6VowbJmjMtrdu3OongWkGZhH8X0TEGaikBsAKXQl2
-         /p6ZLc6CPiWFC96KwyPn+Hm4NFuLvGHaiAHl7g/vt4VVFRwkMOlu/GjOd5N46n2gMBMq
-         ib6SaYRrYaSubAxbmD+JH5CkJG+w0+xgQ0Zq8IM7Fm6ryeAT3hFK5c+7Tts+BTdzVaPp
-         bVFQ==
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=ukOHyjXaZwRM7DApW60zHscwgybdaHrIkrvrkuNcGnw=;
+        b=DugJcaj0yP1tAvYcQOIoXE9IyRuPV4wqsfIoErzO8+KSRWd9bmabIAODM6+lxfCrRM
+         4rN2O4mZewqIc+5jyH/U3Ux2ywnL9Hr2iCqil0JT9DyCGR6x2p4eNr3LHBEqJSMbLxvq
+         KwrE7rEDLnYtIzz7Vi2sVRYPA1vUB1kE5svHf2esL0988N09MX2ES5gvkQuLjKZxemO2
+         Jb4geJdh5Y/VuZ54NgK5BoypGvsgmcXwb5q2ylXa+DtnvcYh77mYdCj542EZEj1aJVBQ
+         MtPWdWQx2zdSekxE7TL1oFWvnea5KISarkKsQUFaSVfB1tuwIHR5kFOGh8xzjw6Dgn7+
+         /KjQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=ZcOOdzhHrPLpRBXfXslMomo3EuK8IOCd/CIGnhtWfao=;
-        b=ge4rqw9oTe/vUTVrQCVvZW6F2tlhRHXfHQH5WLX2xhif6yX2W4EtietBPvs7bIqac4
-         UOXrFeVIFtw2Hwl+yiIoXBpoe8EQVVrKM16mrcSqaOuB9W21cPQcvahwTRP8XRoTL4+N
-         NlzqId9TKAUDaA1QueSljMoYAbl5+KqaxSkoci+cxXo/z8sObDsFqLrQx+uE3eOhR8YW
-         /hRjVF43sTxjzErufRRL5xTfHi8p6McO/EEl+Aq7865Tchv1F4CQBHKmSO/CK7HvcDSm
-         bQ6S7LJb6hY7VXsDWX8Z7szQQ9CMY98z6E+KcvL2sIVos1TKSyN+9/RrCQX6473j9WBV
-         LLUw==
-X-Gm-Message-State: AOAM530HFsKFaqDqOvdTMT79phc4nDT++Hz4SY79wzufT3VLRjUREGY9
-        rOJCIq4amctorvNT3jzfl75NSgYHglKtyw==
-X-Google-Smtp-Source: ABdhPJykoHleiNu4TAujpFvArPXCPlKvxlPFxitULp3hMSsk7dtQ5/9WhDUdnvdrP2pvl2YMvSiLsA==
-X-Received: by 2002:a65:6554:: with SMTP id a20mr92069pgw.107.1628274233424;
-        Fri, 06 Aug 2021 11:23:53 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id n35sm12997383pgb.90.2021.08.06.11.23.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 06 Aug 2021 11:23:52 -0700 (PDT)
-Message-ID: <610d7e38.1c69fb81.dc8ca.6984@mx.google.com>
-Date:   Fri, 06 Aug 2021 11:23:52 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=ukOHyjXaZwRM7DApW60zHscwgybdaHrIkrvrkuNcGnw=;
+        b=oj8ZM59/YlfYyvrDHTvs5Y80z7VXOJ5CL3He0ZgtOJDdCUv1ffYlsAcKae1q0noxUz
+         bZqi8XY3jjp1RdhWmTn4XqgztugfxNhgVT0pM47Abo7MYDrP9afgf6S1YA/BEcbKp3QI
+         EtnSZ35Sn8tVTsX2EI/tsFIhXwWxcX8EdCuH9UlsNcPb30Nrn5PtJ/w88gv3zGXvmSjZ
+         2J1n91nZAA/AUq4DeclK6iWPY0gjMWfz4CAwYn316JMRZ/mDzuv9Q6SOMje+lhgMayHA
+         Y6hapZ2+t+/m4aX4iON15xq89eTO+R3NzI8UMIZmlMH8iYiopD36fwX8BRzJiKjMgwu7
+         PuiA==
+X-Gm-Message-State: AOAM530C+jmY9/6Ne50F2Jt5wNNBxgBhTCMXerTZTMhc4bJKLeN64yqP
+        e/TkQIvowg1FRqOICWRMGtU=
+X-Google-Smtp-Source: ABdhPJxhS4lIwNvHN7DPB1kygf/LhPlurkdKREGECoP+gWsigcmAt3rHji2pxXTn4009b5l6PBEaWA==
+X-Received: by 2002:a05:620a:448c:: with SMTP id x12mr11391509qkp.39.1628276051272;
+        Fri, 06 Aug 2021 11:54:11 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id t124sm5061621qke.16.2021.08.06.11.54.09
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 06 Aug 2021 11:54:10 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Subject: Re: [PATCH 5.13 32/35] Revert "spi: mediatek: fix fifo rx mode"
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, Peter Hess <peter.hess@ph-home.de>,
+        Frank Wunderlich <frank-w@public-files.de>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+References: <20210806081113.718626745@linuxfoundation.org>
+ <20210806081114.781183194@linuxfoundation.org>
+From:   Guenter Roeck <linux@roeck-us.net>
+Message-ID: <1be93ec0-43cd-f86b-aeb8-64971b4fcedd@roeck-us.net>
+Date:   Fri, 6 Aug 2021 11:54:08 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.9.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.9.278-8-g36c4ea3b072f
-X-Kernelci-Report-Type: test
-Subject: stable-rc/linux-4.9.y baseline: 63 runs,
- 3 regressions (v4.9.278-8-g36c4ea3b072f)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <20210806081114.781183194@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y baseline: 63 runs, 3 regressions (v4.9.278-8-g36c4ea3=
-b072f)
+On 8/6/21 1:17 AM, Greg Kroah-Hartman wrote:
+> From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> 
+> This reverts commit 09b8cc7810587257e5f82080884001301e1a1ba9 which is
+> commit 3a70dd2d050331ee4cf5ad9d5c0a32d83ead9a43 upstream.
+> 
+> It has been found to have problems.
+> 
+> Reported-by: Guenter Roeck <linux@roeck-us.net>
+> Cc: Peter Hess <peter.hess@ph-home.de>
+> Cc: Frank Wunderlich <frank-w@public-files.de>
+> Cc: Mark Brown <broonie@kernel.org>
+> Cc: Sasha Levin <sashal@kernel.org>
+> Link: https://lore.kernel.org/r/efee3a58-a4d2-af22-0931-e81b877ab539@roeck-us.net
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Regressions Summary
--------------------
+The problem with the reverted patch has now been fixed in the mainline
+kernel with commit 0d5c3954b35e ("spi: mediatek: Fix fifo transfer").
+So an alternative to this revert might be to apply commit 0d5c3954b35e
+instead.
 
-platform             | arch  | lab          | compiler | defconfig         =
-  | regressions
----------------------+-------+--------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm   | lab-baylibre | gcc-8    | versatile_defconfi=
-g | 1          =
-
-qemu_arm-versatilepb | arm   | lab-cip      | gcc-8    | versatile_defconfi=
-g | 1          =
-
-r8a7795-salvator-x   | arm64 | lab-baylibre | gcc-8    | defconfig         =
-  | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.9.y/kern=
-el/v4.9.278-8-g36c4ea3b072f/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.9.y
-  Describe: v4.9.278-8-g36c4ea3b072f
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      36c4ea3b072f93b011cbb5d863808049e393bdff =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch  | lab          | compiler | defconfig         =
-  | regressions
----------------------+-------+--------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm   | lab-baylibre | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/610d4360c5c1e096c3b13697
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.278=
--8-g36c4ea3b072f/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_a=
-rm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.278=
--8-g36c4ea3b072f/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_a=
-rm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/610d4360c5c1e096c3b13=
-698
-        failing since 264 days (last pass: v4.9.243-17-g9c24315b745a0, firs=
-t fail: v4.9.243-26-g7b603f689c1c) =
-
- =
-
-
-
-platform             | arch  | lab          | compiler | defconfig         =
-  | regressions
----------------------+-------+--------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm   | lab-cip      | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/610d437e679c1d5140b13698
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.278=
--8-g36c4ea3b072f/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ve=
-rsatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.278=
--8-g36c4ea3b072f/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ve=
-rsatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/610d437e679c1d5140b13=
-699
-        failing since 264 days (last pass: v4.9.243-17-g9c24315b745a0, firs=
-t fail: v4.9.243-26-g7b603f689c1c) =
-
- =
-
-
-
-platform             | arch  | lab          | compiler | defconfig         =
-  | regressions
----------------------+-------+--------------+----------+-------------------=
---+------------
-r8a7795-salvator-x   | arm64 | lab-baylibre | gcc-8    | defconfig         =
-  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/610d4290c52cebf694b13688
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.278=
--8-g36c4ea3b072f/arm64/defconfig/gcc-8/lab-baylibre/baseline-r8a7795-salvat=
-or-x.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.278=
--8-g36c4ea3b072f/arm64/defconfig/gcc-8/lab-baylibre/baseline-r8a7795-salvat=
-or-x.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/610d4290c52cebf694b13=
-689
-        failing since 261 days (last pass: v4.9.243-17-g9c24315b745a0, firs=
-t fail: v4.9.243-79-gd3e70b39d31a) =
-
- =20
+Thanks,
+Guenter
