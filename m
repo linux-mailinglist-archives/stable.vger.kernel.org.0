@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D80433E25A4
-	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:21:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 463653E258B
+	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:21:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244375AbhHFIVa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Aug 2021 04:21:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52206 "EHLO mail.kernel.org"
+        id S244267AbhHFIUs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Aug 2021 04:20:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244210AbhHFIU0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Aug 2021 04:20:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C54C611C6;
-        Fri,  6 Aug 2021 08:20:10 +0000 (UTC)
+        id S243136AbhHFITp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Aug 2021 04:19:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B3CBD61131;
+        Fri,  6 Aug 2021 08:19:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628238011;
-        bh=mBenjGICbGqU4sL6JcNUEpVkieVEjgsM+z7KIGEOHJE=;
+        s=korg; t=1628237970;
+        bh=/1rvwdDxaYdDSPUX7l2VGsQveUviF0T/6kVQQgn0Wns=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jx0WI//TE2wkksvZuZsGSPPl5PFp8lFvpieA6AVfVotBVrJlxE/akoOlcdgnfKpZk
-         qSAYmZP4xIDH6E/aEAKTj9WuEtU26vcSySWqk37dAFw/6SRcXJJETeAbQXkIw0QGi+
-         uGnZ1dFvzCQd1+exSIHrBjjDxOoHxQ4ZGLalYBOQ=
+        b=0htH57Pbp3XeBA8TcB2WVpURVoj977kY9LANxJHms6bu0k/waQmNvx8/GeysCryPN
+         zKOImAIgefD9VRJM0AWqp2opUgwuUbZBdR+bAru/ruxQbeNDICnNduK0f5p+jaTUeF
+         T3XKlfBM1IkiZhP62zlfQLg49xsCxeo/9IkZ8zKw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Axel Lin <axel.lin@ingics.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 18/35] regulator: mtk-dvfsrc: Fix wrong dev pointer for devm_regulator_register
+        stable@vger.kernel.org,
+        Cristian Marussi <cristian.marussi@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>
+Subject: [PATCH 5.10 23/30] firmware: arm_scmi: Add delayed response status check
 Date:   Fri,  6 Aug 2021 10:17:01 +0200
-Message-Id: <20210806081114.321583628@linuxfoundation.org>
+Message-Id: <20210806081113.919744983@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210806081113.718626745@linuxfoundation.org>
-References: <20210806081113.718626745@linuxfoundation.org>
+In-Reply-To: <20210806081113.126861800@linuxfoundation.org>
+References: <20210806081113.126861800@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Axel Lin <axel.lin@ingics.com>
+From: Cristian Marussi <cristian.marussi@arm.com>
 
-[ Upstream commit ea986908ccfcc53204a03bb0841227e1b26578c4 ]
+commit f1748b1ee1fa0fd1a074504045b530b62f949188 upstream.
 
-If use dev->parent, the regulator_unregister will not be called when this
-driver is unloaded. Fix it by using dev instead.
+A successfully received delayed response could anyway report a failure at
+the protocol layer in the message status field.
 
-Signed-off-by: Axel Lin <axel.lin@ingics.com>
-Link: https://lore.kernel.org/r/20210702142140.2678130-1-axel.lin@ingics.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Add a check also for this error condition.
+
+Link: https://lore.kernel.org/r/20210608103056.3388-1-cristian.marussi@arm.com
+Fixes: 58ecdf03dbb9 ("firmware: arm_scmi: Add support for asynchronous commands and delayed response")
+Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/regulator/mtk-dvfsrc-regulator.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/firmware/arm_scmi/driver.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/regulator/mtk-dvfsrc-regulator.c b/drivers/regulator/mtk-dvfsrc-regulator.c
-index d3d876198d6e..234af3a66c77 100644
---- a/drivers/regulator/mtk-dvfsrc-regulator.c
-+++ b/drivers/regulator/mtk-dvfsrc-regulator.c
-@@ -179,8 +179,7 @@ static int dvfsrc_vcore_regulator_probe(struct platform_device *pdev)
- 	for (i = 0; i < regulator_init_data->size; i++) {
- 		config.dev = dev->parent;
- 		config.driver_data = (mt_regulators + i);
--		rdev = devm_regulator_register(dev->parent,
--					       &(mt_regulators + i)->desc,
-+		rdev = devm_regulator_register(dev, &(mt_regulators + i)->desc,
- 					       &config);
- 		if (IS_ERR(rdev)) {
- 			dev_err(dev, "failed to register %s\n",
--- 
-2.30.2
-
+--- a/drivers/firmware/arm_scmi/driver.c
++++ b/drivers/firmware/arm_scmi/driver.c
+@@ -436,8 +436,12 @@ int scmi_do_xfer_with_response(const str
+ 	xfer->async_done = &async_response;
+ 
+ 	ret = scmi_do_xfer(handle, xfer);
+-	if (!ret && !wait_for_completion_timeout(xfer->async_done, timeout))
+-		ret = -ETIMEDOUT;
++	if (!ret) {
++		if (!wait_for_completion_timeout(xfer->async_done, timeout))
++			ret = -ETIMEDOUT;
++		else if (xfer->hdr.status)
++			ret = scmi_to_linux_errno(xfer->hdr.status);
++	}
+ 
+ 	xfer->async_done = NULL;
+ 	return ret;
 
 
