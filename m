@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14F433E250F
+	by mail.lfdr.de (Postfix) with ESMTP id 5E35B3E2510
 	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:16:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244008AbhHFIQk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Aug 2021 04:16:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45900 "EHLO mail.kernel.org"
+        id S244010AbhHFIQm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Aug 2021 04:16:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243727AbhHFIPy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Aug 2021 04:15:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E621611CC;
-        Fri,  6 Aug 2021 08:15:37 +0000 (UTC)
+        id S243763AbhHFIP4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Aug 2021 04:15:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BE323611C9;
+        Fri,  6 Aug 2021 08:15:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628237738;
-        bh=IEMBuGM2e14tCOC30Js/a/PP3e+BUjqDR2jRxGaGQkc=;
+        s=korg; t=1628237741;
+        bh=qIGfDpru0oO9Fr0i0PAGsSNQxUD60VwsnCq72zqnMA4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oKfV/Z1FDsN8yWLN3bdN+E5nzJdq+ZV+LD/1/J/LcFF+X10J3dbix2FMcAxztyV3n
-         TzMQd+ZYKGohAxe1e625NI/UGSQpbcJKVlioFMhgPFI2+pcziqmhy06clcaYuFQ8+W
-         BKXuvG4WFdzlJTJb5/w6VomH6C5Ugab6Pbx4JmRA=
+        b=x9hLFZpl8jvlHtmYERcSm/vxjr7+eOe23tnxpXGHAqtYLRBzULjVyBmUZFNG28scs
+         +H9iPnFxzU7Cd3SCftGZenHtwPv5yJ7FI91tvUpwVoVVLqrS4EkrFUAJvu79XpX+QL
+         kL9ZE6dRJIPHO9IFyso3iLaBWOC4u5K9Fu2osIF8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lijian Zhang <Lijian.Zhang@arm.com>,
-        Jia He <justin.he@arm.com>,
+        stable@vger.kernel.org, Pravin B Shelar <pshelar@ovn.org>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 04/11] qed: fix possible unpaired spin_{un}lock_bh in _qed_mcp_cmd_and_union()
-Date:   Fri,  6 Aug 2021 10:14:47 +0200
-Message-Id: <20210806081110.659147198@linuxfoundation.org>
+Subject: [PATCH 4.14 05/11] net: Fix zero-copy head len calculation.
+Date:   Fri,  6 Aug 2021 10:14:48 +0200
+Message-Id: <20210806081110.692690159@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210806081110.511221879@linuxfoundation.org>
 References: <20210806081110.511221879@linuxfoundation.org>
@@ -41,111 +40,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia He <justin.he@arm.com>
+From: Pravin B Shelar <pshelar@ovn.org>
 
-[ Upstream commit 6206b7981a36476f4695d661ae139f7db36a802d ]
+[ Upstream commit a17ad0961706244dce48ec941f7e476a38c0e727 ]
 
-Liajian reported a bug_on hit on a ThunderX2 arm64 server with FastLinQ
-QL41000 ethernet controller:
- BUG: scheduling while atomic: kworker/0:4/531/0x00000200
-  [qed_probe:488()]hw prepare failed
-  kernel BUG at mm/vmalloc.c:2355!
-  Internal error: Oops - BUG: 0 [#1] SMP
-  CPU: 0 PID: 531 Comm: kworker/0:4 Tainted: G W 5.4.0-77-generic #86-Ubuntu
-  pstate: 00400009 (nzcv daif +PAN -UAO)
- Call trace:
-  vunmap+0x4c/0x50
-  iounmap+0x48/0x58
-  qed_free_pci+0x60/0x80 [qed]
-  qed_probe+0x35c/0x688 [qed]
-  __qede_probe+0x88/0x5c8 [qede]
-  qede_probe+0x60/0xe0 [qede]
-  local_pci_probe+0x48/0xa0
-  work_for_cpu_fn+0x24/0x38
-  process_one_work+0x1d0/0x468
-  worker_thread+0x238/0x4e0
-  kthread+0xf0/0x118
-  ret_from_fork+0x10/0x18
+In some cases skb head could be locked and entire header
+data is pulled from skb. When skb_zerocopy() called in such cases,
+following BUG is triggered. This patch fixes it by copying entire
+skb in such cases.
+This could be optimized incase this is performance bottleneck.
 
-In this case, qed_hw_prepare() returns error due to hw/fw error, but in
-theory work queue should be in process context instead of interrupt.
+---8<---
+kernel BUG at net/core/skbuff.c:2961!
+invalid opcode: 0000 [#1] SMP PTI
+CPU: 2 PID: 0 Comm: swapper/2 Tainted: G           OE     5.4.0-77-generic #86-Ubuntu
+Hardware name: OpenStack Foundation OpenStack Nova, BIOS 1.13.0-1ubuntu1.1 04/01/2014
+RIP: 0010:skb_zerocopy+0x37a/0x3a0
+RSP: 0018:ffffbcc70013ca38 EFLAGS: 00010246
+Call Trace:
+ <IRQ>
+ queue_userspace_packet+0x2af/0x5e0 [openvswitch]
+ ovs_dp_upcall+0x3d/0x60 [openvswitch]
+ ovs_dp_process_packet+0x125/0x150 [openvswitch]
+ ovs_vport_receive+0x77/0xd0 [openvswitch]
+ netdev_port_receive+0x87/0x130 [openvswitch]
+ netdev_frame_hook+0x4b/0x60 [openvswitch]
+ __netif_receive_skb_core+0x2b4/0xc90
+ __netif_receive_skb_one_core+0x3f/0xa0
+ __netif_receive_skb+0x18/0x60
+ process_backlog+0xa9/0x160
+ net_rx_action+0x142/0x390
+ __do_softirq+0xe1/0x2d6
+ irq_exit+0xae/0xb0
+ do_IRQ+0x5a/0xf0
+ common_interrupt+0xf/0xf
 
-The root cause might be the unpaired spin_{un}lock_bh() in
-_qed_mcp_cmd_and_union(), which causes botton half is disabled incorrectly.
+Code that triggered BUG:
+int
+skb_zerocopy(struct sk_buff *to, struct sk_buff *from, int len, int hlen)
+{
+        int i, j = 0;
+        int plen = 0; /* length of skb->head fragment */
+        int ret;
+        struct page *page;
+        unsigned int offset;
 
-Reported-by: Lijian Zhang <Lijian.Zhang@arm.com>
-Signed-off-by: Jia He <justin.he@arm.com>
+        BUG_ON(!from->head_frag && !hlen);
+
+Signed-off-by: Pravin B Shelar <pshelar@ovn.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qed/qed_mcp.c | 23 +++++++++++++++++------
- 1 file changed, 17 insertions(+), 6 deletions(-)
+ net/core/skbuff.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_mcp.c b/drivers/net/ethernet/qlogic/qed/qed_mcp.c
-index ef17ca09d303..789ecc19c412 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_mcp.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_mcp.c
-@@ -497,14 +497,18 @@ _qed_mcp_cmd_and_union(struct qed_hwfn *p_hwfn,
+diff --git a/net/core/skbuff.c b/net/core/skbuff.c
+index 18dc8524e525..a278258e68cb 100644
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -2702,8 +2702,11 @@ skb_zerocopy_headlen(const struct sk_buff *from)
  
- 		spin_lock_bh(&p_hwfn->mcp_info->cmd_lock);
+ 	if (!from->head_frag ||
+ 	    skb_headlen(from) < L1_CACHE_BYTES ||
+-	    skb_shinfo(from)->nr_frags >= MAX_SKB_FRAGS)
++	    skb_shinfo(from)->nr_frags >= MAX_SKB_FRAGS) {
+ 		hlen = skb_headlen(from);
++		if (!hlen)
++			hlen = from->len;
++	}
  
--		if (!qed_mcp_has_pending_cmd(p_hwfn))
-+		if (!qed_mcp_has_pending_cmd(p_hwfn)) {
-+			spin_unlock_bh(&p_hwfn->mcp_info->cmd_lock);
- 			break;
-+		}
- 
- 		rc = qed_mcp_update_pending_cmd(p_hwfn, p_ptt);
--		if (!rc)
-+		if (!rc) {
-+			spin_unlock_bh(&p_hwfn->mcp_info->cmd_lock);
- 			break;
--		else if (rc != -EAGAIN)
-+		} else if (rc != -EAGAIN) {
- 			goto err;
-+		}
- 
- 		spin_unlock_bh(&p_hwfn->mcp_info->cmd_lock);
- 
-@@ -521,6 +525,8 @@ _qed_mcp_cmd_and_union(struct qed_hwfn *p_hwfn,
- 		return -EAGAIN;
- 	}
- 
-+	spin_lock_bh(&p_hwfn->mcp_info->cmd_lock);
-+
- 	/* Send the mailbox command */
- 	qed_mcp_reread_offsets(p_hwfn, p_ptt);
- 	seq_num = ++p_hwfn->mcp_info->drv_mb_seq;
-@@ -547,14 +553,18 @@ _qed_mcp_cmd_and_union(struct qed_hwfn *p_hwfn,
- 
- 		spin_lock_bh(&p_hwfn->mcp_info->cmd_lock);
- 
--		if (p_cmd_elem->b_is_completed)
-+		if (p_cmd_elem->b_is_completed) {
-+			spin_unlock_bh(&p_hwfn->mcp_info->cmd_lock);
- 			break;
-+		}
- 
- 		rc = qed_mcp_update_pending_cmd(p_hwfn, p_ptt);
--		if (!rc)
-+		if (!rc) {
-+			spin_unlock_bh(&p_hwfn->mcp_info->cmd_lock);
- 			break;
--		else if (rc != -EAGAIN)
-+		} else if (rc != -EAGAIN) {
- 			goto err;
-+		}
- 
- 		spin_unlock_bh(&p_hwfn->mcp_info->cmd_lock);
- 	} while (++cnt < max_retries);
-@@ -575,6 +585,7 @@ _qed_mcp_cmd_and_union(struct qed_hwfn *p_hwfn,
- 		return -EAGAIN;
- 	}
- 
-+	spin_lock_bh(&p_hwfn->mcp_info->cmd_lock);
- 	qed_mcp_cmd_del_elem(p_hwfn, p_cmd_elem);
- 	spin_unlock_bh(&p_hwfn->mcp_info->cmd_lock);
- 
+ 	if (skb_has_frag_list(from))
+ 		hlen = from->len;
 -- 
 2.30.2
 
