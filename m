@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5193E3E24E9
-	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:15:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 603773E24F6
+	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:15:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243634AbhHFIPP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Aug 2021 04:15:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44478 "EHLO mail.kernel.org"
+        id S243728AbhHFIPr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Aug 2021 04:15:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243659AbhHFIPF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Aug 2021 04:15:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F58C60238;
-        Fri,  6 Aug 2021 08:14:48 +0000 (UTC)
+        id S243731AbhHFIPR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Aug 2021 04:15:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 98D17611C6;
+        Fri,  6 Aug 2021 08:14:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628237689;
-        bh=As6bvw8NATi8NkV1UwYAGMDuPYyWxXWl8+Dt7lXldyM=;
+        s=korg; t=1628237699;
+        bh=oPvlV2NsK4f1ssaKBVn25F6huJX4K96v8zrnFjhoR1g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pFpqrEOg1G1EDKPd54pScmfburDGD7HB/exQSIYg0A49tXn6mial3Fl7/T33eFbUu
-         siPL1cmbJZUMYiWLaBO20vcUWdFAhzcfkB8QW2z2cU+45IBDkvT7q4pf/F4AjYB/9H
-         UcMHyuEL894YMi9ko/yWPAVxyvurmFn7zcrePRyo=
+        b=PDbpZr4uZHWzi482ob5BNwJezj2jvr0JA+yCE15kG8mz7ziEkpTYs4H+PbO2f1T6J
+         AGSvu/G3rHfwxVSu3U9NhfqzJz+Gm080OcgMiXUTOJPvbgXsDwB1rS5ykDhdcAARHi
+         RwiH069EAHTi137CZS6Mj/KKFMjyFkZ7p5NAHYTM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Axel Lin <axel.lin@ingics.com>,
-        ChiYuan Huang <cy_huang@richtek.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 2/6] regulator: rt5033: Fix n_voltages settings for BUCK and LDO
-Date:   Fri,  6 Aug 2021 10:14:34 +0200
-Message-Id: <20210806081109.017640610@linuxfoundation.org>
+Subject: [PATCH 4.4 3/6] r8152: Fix potential PM refcount imbalance
+Date:   Fri,  6 Aug 2021 10:14:35 +0200
+Message-Id: <20210806081109.047228695@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210806081108.939164003@linuxfoundation.org>
 References: <20210806081108.939164003@linuxfoundation.org>
@@ -41,46 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Axel Lin <axel.lin@ingics.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 6549c46af8551b346bcc0b9043f93848319acd5c ]
+[ Upstream commit 9c23aa51477a37f8b56c3c40192248db0663c196 ]
 
-For linear regulators, the n_voltages should be (max - min) / step + 1.
+rtl8152_close() takes the refcount via usb_autopm_get_interface() but
+it doesn't release when RTL8152_UNPLUG test hits.  This may lead to
+the imbalance of PM refcount.  This patch addresses it.
 
-Buck voltage from 1v to 3V, per step 100mV, and vout mask is 0x1f.
-If value is from 20 to 31, the voltage will all be fixed to 3V.
-And LDO also, just vout range is different from 1.2v to 3v, step is the
-same. If value is from 18 to 31, the voltage will also be fixed to 3v.
-
-Signed-off-by: Axel Lin <axel.lin@ingics.com>
-Reviewed-by: ChiYuan Huang <cy_huang@richtek.com>
-Link: https://lore.kernel.org/r/20210627080418.1718127-1-axel.lin@ingics.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://bugzilla.suse.com/show_bug.cgi?id=1186194
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/mfd/rt5033-private.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/usb/r8152.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/mfd/rt5033-private.h b/include/linux/mfd/rt5033-private.h
-index 1b63fc2f42d1..52d53d134f72 100644
---- a/include/linux/mfd/rt5033-private.h
-+++ b/include/linux/mfd/rt5033-private.h
-@@ -203,13 +203,13 @@ enum rt5033_reg {
- #define RT5033_REGULATOR_BUCK_VOLTAGE_MIN		1000000U
- #define RT5033_REGULATOR_BUCK_VOLTAGE_MAX		3000000U
- #define RT5033_REGULATOR_BUCK_VOLTAGE_STEP		100000U
--#define RT5033_REGULATOR_BUCK_VOLTAGE_STEP_NUM		32
-+#define RT5033_REGULATOR_BUCK_VOLTAGE_STEP_NUM		21
+diff --git a/drivers/net/usb/r8152.c b/drivers/net/usb/r8152.c
+index 5baaa8291624..ebf6d4cf09ea 100644
+--- a/drivers/net/usb/r8152.c
++++ b/drivers/net/usb/r8152.c
+@@ -3159,9 +3159,10 @@ static int rtl8152_close(struct net_device *netdev)
+ 		tp->rtl_ops.down(tp);
  
- /* RT5033 regulator LDO output voltage uV */
- #define RT5033_REGULATOR_LDO_VOLTAGE_MIN		1200000U
- #define RT5033_REGULATOR_LDO_VOLTAGE_MAX		3000000U
- #define RT5033_REGULATOR_LDO_VOLTAGE_STEP		100000U
--#define RT5033_REGULATOR_LDO_VOLTAGE_STEP_NUM		32
-+#define RT5033_REGULATOR_LDO_VOLTAGE_STEP_NUM		19
+ 		mutex_unlock(&tp->control);
++	}
  
- /* RT5033 regulator SAFE LDO output voltage uV */
- #define RT5033_REGULATOR_SAFE_LDO_VOLTAGE		4900000U
++	if (!res)
+ 		usb_autopm_put_interface(tp->intf);
+-	}
+ 
+ 	free_all_mem(tp);
+ 
 -- 
 2.30.2
 
