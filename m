@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 575183E255C
-	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:20:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F5DA3E25D3
+	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:22:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243634AbhHFITq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Aug 2021 04:19:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45966 "EHLO mail.kernel.org"
+        id S244180AbhHFIWu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Aug 2021 04:22:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244115AbhHFIS4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Aug 2021 04:18:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 46A116103B;
-        Fri,  6 Aug 2021 08:18:36 +0000 (UTC)
+        id S244218AbhHFIVm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Aug 2021 04:21:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DD3D560E78;
+        Fri,  6 Aug 2021 08:21:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628237916;
-        bh=B9xYAL/8m8xchTS/11Noy/LV1czP1hU/TtmNdYqMCos=;
+        s=korg; t=1628238064;
+        bh=U3wpp39ttZ7JtGdhKEAewnwsZRHBtecmIFaCv3DQGc0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fln/7konMWcCcGQ6cvxe0OZFbxsO/KBiQoww4j/vDAxGZwqo4UEHVCta8mbbwhMmg
-         R8i/8A8tVeIHvQ+mT8eMP2SFaDGJGn40tq4Yrk7Q5RD5rQu0xixh2+QV7PSgn/YyKx
-         4g4iQISyKAn1CPMDYcJ5s1BW/KYOtCtP18pb4Oi8=
+        b=vYjvdISkNAaYEoqVrLgKVklKwnz5qqkKugAyH4yluMbzSUkBbUD7pWU38/sBg8rC4
+         k/aSNx4X804pzSsGEjpDthfe5MS1KGTNjdVDf0RU33yKyV6SS67bKIakOElLHcNQwn
+         ctm7YnhRJDmk+pZ7rOb50BAeWHMvHjuc5W/3ylls=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oder Chiou <oder_chiou@realtek.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Jakub Sitnicki <jakub@cloudflare.com>,
+        Martin KaFai Lau <kafai@fb.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 11/30] ASoC: rt5682: Fix the issue of garbled recording after powerd_dbus_suspend
+Subject: [PATCH 5.13 06/35] bpf, sockmap: On cleanup we additionally need to remove cached skb
 Date:   Fri,  6 Aug 2021 10:16:49 +0200
-Message-Id: <20210806081113.506255283@linuxfoundation.org>
+Message-Id: <20210806081113.920577986@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210806081113.126861800@linuxfoundation.org>
-References: <20210806081113.126861800@linuxfoundation.org>
+In-Reply-To: <20210806081113.718626745@linuxfoundation.org>
+References: <20210806081113.718626745@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,43 +42,150 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oder Chiou <oder_chiou@realtek.com>
+From: John Fastabend <john.fastabend@gmail.com>
 
-[ Upstream commit 6a503e1c455316fd0bfd8188c0a62cce7c5525ca ]
+[ Upstream commit 476d98018f32e68e7c5d4e8456940cf2b6d66f10 ]
 
-While using the DMIC recording, the garbled data will be captured by the
-DMIC. It is caused by the critical power of PLL closed in the jack detect
-function.
+Its possible if a socket is closed and the receive thread is under memory
+pressure it may have cached a skb. We need to ensure these skbs are
+free'd along with the normal ingress_skb queue.
 
-Signed-off-by: Oder Chiou <oder_chiou@realtek.com>
-Link: https://lore.kernel.org/r/20210716085853.20170-1-oder_chiou@realtek.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Before 799aa7f98d53 ("skmsg: Avoid lock_sock() in sk_psock_backlog()") tear
+down and backlog processing both had sock_lock for the common case of
+socket close or unhash. So it was not possible to have both running in
+parrallel so all we would need is the kfree in those kernels.
+
+But, latest kernels include the commit 799aa7f98d5e and this requires a
+bit more work. Without the ingress_lock guarding reading/writing the
+state->skb case its possible the tear down could run before the state
+update causing it to leak memory or worse when the backlog reads the state
+it could potentially run interleaved with the tear down and we might end up
+free'ing the state->skb from tear down side but already have the reference
+from backlog side. To resolve such races we wrap accesses in ingress_lock
+on both sides serializing tear down and backlog case. In both cases this
+only happens after an EAGAIN error case so having an extra lock in place
+is likely fine. The normal path will skip the locks.
+
+Note, we check state->skb before grabbing lock. This works because
+we can only enqueue with the mutex we hold already. Avoiding a race
+on adding state->skb after the check. And if tear down path is running
+that is also fine if the tear down path then removes state->skb we
+will simply set skb=NULL and the subsequent goto is skipped. This
+slight complication avoids locking in normal case.
+
+With this fix we no longer see this warning splat from tcp side on
+socket close when we hit the above case with redirect to ingress self.
+
+[224913.935822] WARNING: CPU: 3 PID: 32100 at net/core/stream.c:208 sk_stream_kill_queues+0x212/0x220
+[224913.935841] Modules linked in: fuse overlay bpf_preload x86_pkg_temp_thermal intel_uncore wmi_bmof squashfs sch_fq_codel efivarfs ip_tables x_tables uas xhci_pci ixgbe mdio xfrm_algo xhci_hcd wmi
+[224913.935897] CPU: 3 PID: 32100 Comm: fgs-bench Tainted: G          I       5.14.0-rc1alu+ #181
+[224913.935908] Hardware name: Dell Inc. Precision 5820 Tower/002KVM, BIOS 1.9.2 01/24/2019
+[224913.935914] RIP: 0010:sk_stream_kill_queues+0x212/0x220
+[224913.935923] Code: 8b 83 20 02 00 00 85 c0 75 20 5b 5d 41 5c 41 5d 41 5e 41 5f c3 48 89 df e8 2b 11 fe ff eb c3 0f 0b e9 7c ff ff ff 0f 0b eb ce <0f> 0b 5b 5d 41 5c 41 5d 41 5e 41 5f c3 90 0f 1f 44 00 00 41 57 41
+[224913.935932] RSP: 0018:ffff88816271fd38 EFLAGS: 00010206
+[224913.935941] RAX: 0000000000000ae8 RBX: ffff88815acd5240 RCX: dffffc0000000000
+[224913.935948] RDX: 0000000000000003 RSI: 0000000000000ae8 RDI: ffff88815acd5460
+[224913.935954] RBP: ffff88815acd5460 R08: ffffffff955c0ae8 R09: fffffbfff2e6f543
+[224913.935961] R10: ffffffff9737aa17 R11: fffffbfff2e6f542 R12: ffff88815acd5390
+[224913.935967] R13: ffff88815acd5480 R14: ffffffff98d0c080 R15: ffffffff96267500
+[224913.935974] FS:  00007f86e6bd1700(0000) GS:ffff888451cc0000(0000) knlGS:0000000000000000
+[224913.935981] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[224913.935988] CR2: 000000c0008eb000 CR3: 00000001020e0005 CR4: 00000000003706e0
+[224913.935994] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[224913.936000] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[224913.936007] Call Trace:
+[224913.936016]  inet_csk_destroy_sock+0xba/0x1f0
+[224913.936033]  __tcp_close+0x620/0x790
+[224913.936047]  tcp_close+0x20/0x80
+[224913.936056]  inet_release+0x8f/0xf0
+[224913.936070]  __sock_release+0x72/0x120
+[224913.936083]  sock_close+0x14/0x20
+
+Fixes: a136678c0bdbb ("bpf: sk_msg, zap ingress queue on psock down")
+Signed-off-by: John Fastabend <john.fastabend@gmail.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Acked-by: Jakub Sitnicki <jakub@cloudflare.com>
+Acked-by: Martin KaFai Lau <kafai@fb.com>
+Link: https://lore.kernel.org/bpf/20210727160500.1713554-3-john.fastabend@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/rt5682.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ net/core/skmsg.c | 35 +++++++++++++++++++++++++++++------
+ 1 file changed, 29 insertions(+), 6 deletions(-)
 
-diff --git a/sound/soc/codecs/rt5682.c b/sound/soc/codecs/rt5682.c
-index d9878173ff89..2e41b8c169e5 100644
---- a/sound/soc/codecs/rt5682.c
-+++ b/sound/soc/codecs/rt5682.c
-@@ -971,10 +971,14 @@ int rt5682_headset_detect(struct snd_soc_component *component, int jack_insert)
- 		rt5682_enable_push_button_irq(component, false);
- 		snd_soc_component_update_bits(component, RT5682_CBJ_CTRL_1,
- 			RT5682_TRIG_JD_MASK, RT5682_TRIG_JD_LOW);
--		if (!snd_soc_dapm_get_pin_status(dapm, "MICBIAS"))
-+		if (!snd_soc_dapm_get_pin_status(dapm, "MICBIAS") &&
-+			!snd_soc_dapm_get_pin_status(dapm, "PLL1") &&
-+			!snd_soc_dapm_get_pin_status(dapm, "PLL2B"))
- 			snd_soc_component_update_bits(component,
- 				RT5682_PWR_ANLG_1, RT5682_PWR_MB, 0);
--		if (!snd_soc_dapm_get_pin_status(dapm, "Vref2"))
-+		if (!snd_soc_dapm_get_pin_status(dapm, "Vref2") &&
-+			!snd_soc_dapm_get_pin_status(dapm, "PLL1") &&
-+			!snd_soc_dapm_get_pin_status(dapm, "PLL2B"))
- 			snd_soc_component_update_bits(component,
- 				RT5682_PWR_ANLG_1, RT5682_PWR_VREF2, 0);
- 		snd_soc_component_update_bits(component, RT5682_PWR_ANLG_3,
+diff --git a/net/core/skmsg.c b/net/core/skmsg.c
+index b088fe07fc00..7e7205e93258 100644
+--- a/net/core/skmsg.c
++++ b/net/core/skmsg.c
+@@ -613,23 +613,42 @@ static void sock_drop(struct sock *sk, struct sk_buff *skb)
+ 	kfree_skb(skb);
+ }
+ 
++static void sk_psock_skb_state(struct sk_psock *psock,
++			       struct sk_psock_work_state *state,
++			       struct sk_buff *skb,
++			       int len, int off)
++{
++	spin_lock_bh(&psock->ingress_lock);
++	if (sk_psock_test_state(psock, SK_PSOCK_TX_ENABLED)) {
++		state->skb = skb;
++		state->len = len;
++		state->off = off;
++	} else {
++		sock_drop(psock->sk, skb);
++	}
++	spin_unlock_bh(&psock->ingress_lock);
++}
++
+ static void sk_psock_backlog(struct work_struct *work)
+ {
+ 	struct sk_psock *psock = container_of(work, struct sk_psock, work);
+ 	struct sk_psock_work_state *state = &psock->work_state;
+-	struct sk_buff *skb;
++	struct sk_buff *skb = NULL;
+ 	bool ingress;
+ 	u32 len, off;
+ 	int ret;
+ 
+ 	mutex_lock(&psock->work_mutex);
+-	if (state->skb) {
++	if (unlikely(state->skb)) {
++		spin_lock_bh(&psock->ingress_lock);
+ 		skb = state->skb;
+ 		len = state->len;
+ 		off = state->off;
+ 		state->skb = NULL;
+-		goto start;
++		spin_unlock_bh(&psock->ingress_lock);
+ 	}
++	if (skb)
++		goto start;
+ 
+ 	while ((skb = skb_dequeue(&psock->ingress_skb))) {
+ 		len = skb->len;
+@@ -644,9 +663,8 @@ static void sk_psock_backlog(struct work_struct *work)
+ 							  len, ingress);
+ 			if (ret <= 0) {
+ 				if (ret == -EAGAIN) {
+-					state->skb = skb;
+-					state->len = len;
+-					state->off = off;
++					sk_psock_skb_state(psock, state, skb,
++							   len, off);
+ 					goto end;
+ 				}
+ 				/* Hard errors break pipe and stop xmit. */
+@@ -745,6 +763,11 @@ static void __sk_psock_zap_ingress(struct sk_psock *psock)
+ 		skb_bpf_redirect_clear(skb);
+ 		sock_drop(psock->sk, skb);
+ 	}
++	kfree_skb(psock->work_state.skb);
++	/* We null the skb here to ensure that calls to sk_psock_backlog
++	 * do not pick up the free'd skb.
++	 */
++	psock->work_state.skb = NULL;
+ 	__sk_psock_purge_ingress_msg(psock);
+ }
+ 
 -- 
 2.30.2
 
