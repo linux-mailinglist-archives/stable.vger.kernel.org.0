@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DEEE3E2567
-	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:20:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9935A3E256A
+	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:20:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244014AbhHFITw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Aug 2021 04:19:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48952 "EHLO mail.kernel.org"
+        id S243861AbhHFITx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Aug 2021 04:19:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244178AbhHFIT0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Aug 2021 04:19:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 62CBE611CE;
-        Fri,  6 Aug 2021 08:19:00 +0000 (UTC)
+        id S244193AbhHFIT1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Aug 2021 04:19:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9678B611EF;
+        Fri,  6 Aug 2021 08:19:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628237940;
-        bh=6/hdxhINZsR96j7PxOiNzrGz5TyaWq5RuKIP9PyFVEU=;
+        s=korg; t=1628237943;
+        bh=42+BG0ycbiLTUvyAYa9xiB8SuDPYDhHiL+BYxOjqBXU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=snv+h3iU2snDtDSe93bROC5ezuJciO3vVf536XnoF71qOVsuLGFC6K8CD4YKe3QKj
-         uFXbMTM0woo4B+xe3Z+ZrOTosz9hO0JEVAf+ebsePEUpF8fvZAM1KthUgomnR/nuL3
-         UzQTl32oIW+tgeiojGskRwZQsAnNyB2pzvUyaO2M=
+        b=KAoX3Ho2TREl2h13HqLyxExpFC81hf4s9yxLwgFaadKZu0WVgmnaGTGMTIZ78Jj1s
+         47IWsmI45BZiyzdw1Vaeg7byPWo+AO6xLu3wzEFCKc5fXOizzMqRaWHKIdwtNDwzJI
+         qrrw2D+ItDL3GixQ2kOxECrnn11LaAdbqSTcfOFc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, ChiYuan Huang <cy_huang@richtek.com>,
+        Axel Lin <axel.lin@ingics.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 04/30] btrfs: fix lost inode on log replay after mix of fsync, rename and inode eviction
-Date:   Fri,  6 Aug 2021 10:16:42 +0200
-Message-Id: <20210806081113.276899570@linuxfoundation.org>
+Subject: [PATCH 5.10 05/30] regulator: rtmv20: Fix wrong mask for strobe-polarity-high
+Date:   Fri,  6 Aug 2021 10:16:43 +0200
+Message-Id: <20210806081113.309253681@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210806081113.126861800@linuxfoundation.org>
 References: <20210806081113.126861800@linuxfoundation.org>
@@ -40,103 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: ChiYuan Huang <cy_huang@richtek.com>
 
-[ Upstream commit ecc64fab7d49c678e70bd4c35fe64d2ab3e3d212 ]
+[ Upstream commit 2b6a761be079f9fa8abf3157b5679a6f38885db4 ]
 
-When checking if we need to log the new name of a renamed inode, we are
-checking if the inode and its parent inode have been logged before, and if
-not we don't log the new name. The check however is buggy, as it directly
-compares the logged_trans field of the inodes versus the ID of the current
-transaction. The problem is that logged_trans is a transient field, only
-stored in memory and never persisted in the inode item, so if an inode
-was logged before, evicted and reloaded, its logged_trans field is set to
-a value of 0, meaning the check will return false and the new name of the
-renamed inode is not logged. If the old parent directory was previously
-fsynced and we deleted the logged directory entries corresponding to the
-old name, we end up with a log that when replayed will delete the renamed
-inode.
+Fix wrong mask for strobe-polarity-high.
 
-The following example triggers the problem:
-
-  $ mkfs.btrfs -f /dev/sdc
-  $ mount /dev/sdc /mnt
-
-  $ mkdir /mnt/A
-  $ mkdir /mnt/B
-  $ echo -n "hello world" > /mnt/A/foo
-
-  $ sync
-
-  # Add some new file to A and fsync directory A.
-  $ touch /mnt/A/bar
-  $ xfs_io -c "fsync" /mnt/A
-
-  # Now trigger inode eviction. We are only interested in triggering
-  # eviction for the inode of directory A.
-  $ echo 2 > /proc/sys/vm/drop_caches
-
-  # Move foo from directory A to directory B.
-  # This deletes the directory entries for foo in A from the log, and
-  # does not add the new name for foo in directory B to the log, because
-  # logged_trans of A is 0, which is less than the current transaction ID.
-  $ mv /mnt/A/foo /mnt/B/foo
-
-  # Now make an fsync to anything except A, B or any file inside them,
-  # like for example create a file at the root directory and fsync this
-  # new file. This syncs the log that contains all the changes done by
-  # previous rename operation.
-  $ touch /mnt/baz
-  $ xfs_io -c "fsync" /mnt/baz
-
-  <power fail>
-
-  # Mount the filesystem and replay the log.
-  $ mount /dev/sdc /mnt
-
-  # Check the filesystem content.
-  $ ls -1R /mnt
-  /mnt/:
-  A
-  B
-  baz
-
-  /mnt/A:
-  bar
-
-  /mnt/B:
-  $
-
-  # File foo is gone, it's neither in A/ nor in B/.
-
-Fix this by using the inode_logged() helper at btrfs_log_new_name(), which
-safely checks if an inode was logged before in the current transaction.
-
-A test case for fstests will follow soon.
-
-CC: stable@vger.kernel.org # 4.14+
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: ChiYuan Huang <cy_huang@richtek.com>
+In-reply-to: <CAFRkauB=0KwrJW19nJTTagdHhBR=V2R8YFWG3R3oVXt=rBRsqw@mail.gmail.com>
+Reviewed-by: Axel Lin <axel.lin@ingics.com>
+Link: https://lore.kernel.org/r/1624723112-26653-1-git-send-email-u0084500@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/tree-log.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/regulator/rtmv20-regulator.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
-index d3a2bec931ca..f36928efcf92 100644
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -6456,8 +6456,8 @@ void btrfs_log_new_name(struct btrfs_trans_handle *trans,
- 	 * if this inode hasn't been logged and directory we're renaming it
- 	 * from hasn't been logged, we don't need to log it
- 	 */
--	if (inode->logged_trans < trans->transid &&
--	    (!old_dir || old_dir->logged_trans < trans->transid))
-+	if (!inode_logged(trans, inode) &&
-+	    (!old_dir || !inode_logged(trans, old_dir)))
- 		return;
- 
- 	btrfs_init_log_ctx(&ctx, &inode->vfs_inode);
+diff --git a/drivers/regulator/rtmv20-regulator.c b/drivers/regulator/rtmv20-regulator.c
+index 4bca64de0f67..2ee334174e2b 100644
+--- a/drivers/regulator/rtmv20-regulator.c
++++ b/drivers/regulator/rtmv20-regulator.c
+@@ -37,7 +37,7 @@
+ #define RTMV20_WIDTH2_MASK	GENMASK(7, 0)
+ #define RTMV20_LBPLVL_MASK	GENMASK(3, 0)
+ #define RTMV20_LBPEN_MASK	BIT(7)
+-#define RTMV20_STROBEPOL_MASK	BIT(1)
++#define RTMV20_STROBEPOL_MASK	BIT(0)
+ #define RTMV20_VSYNPOL_MASK	BIT(1)
+ #define RTMV20_FSINEN_MASK	BIT(7)
+ #define RTMV20_ESEN_MASK	BIT(6)
 -- 
 2.30.2
 
