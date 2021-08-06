@@ -2,115 +2,200 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE3603E1FCE
-	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 02:11:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F3183E202C
+	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 02:47:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236745AbhHFALs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Aug 2021 20:11:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40824 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242724AbhHFAL0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 5 Aug 2021 20:11:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DFAD960F25;
-        Fri,  6 Aug 2021 00:11:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1628208671;
-        bh=09gEvtd2SL4jbKh/NXm632UOPNtYql6ThdlYDiUh+rM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=j8pg/eWTT/OgVA9B/NL0ClMr5x1Y628jFqPTEDyYPcCM801Gwg5//uISO+5yPcF6F
-         sxMIcxe51R8d0JeUFz/o29ebJB6U4dXZjdbA/qm9z5z+ztEEwjzdRPqbk91DSDW+p6
-         RF9kjCNRVJGLq7CudkIi7cPm3rN9PVSDdW3cWl/7XGItYAONHMjqjxyPawexhenOqj
-         wNKFB09FGt1UT6juigM5EDop8YsNsbsOVQ6sW+L3qAb4ZGjMmjKwb+XrvR64ABgibO
-         egwzbh3E6BVMGBD+snVaQForZWapV5D3/fqEVZh/FdWgO4tNPrGQ9NTqnbxsuaQZOA
-         H+GIasUvVAP+g==
-Date:   Thu, 5 Aug 2021 17:11:10 -0700
-From:   Nathan Chancellor <nathan@kernel.org>
-To:     Nick Desaulniers <ndesaulniers@google.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     kernel test robot <lkp@intel.com>,
-        clang-built-linux@googlegroups.com, kbuild-all@lists.01.org,
-        linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linux Memory Management List <linux-mm@kvack.org>,
-        stable@vger.kernel.org
-Subject: Re: [linux-stable-rc:linux-4.19.y 1181/1498] ERROR:
- "__compiletime_assert_491" [drivers/gpu/drm/i915/i915.ko] undefined!
-Message-ID: <YQx+HjjUrzIEkG/O@Ryzen-9-3900X.localdomain>
-References: <202108060412.oMqAe0rc-lkp@intel.com>
- <CAKwvOdk6PNK1unJ2Yym4WHV=AXjdYwEyfWf_fPxO013ZtJa6Yw@mail.gmail.com>
+        id S241240AbhHFAsJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Aug 2021 20:48:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42160 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229735AbhHFAsI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Aug 2021 20:48:08 -0400
+Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2705CC0613D5
+        for <stable@vger.kernel.org>; Thu,  5 Aug 2021 17:47:54 -0700 (PDT)
+Received: by mail-pj1-x102a.google.com with SMTP id mt6so13178248pjb.1
+        for <stable@vger.kernel.org>; Thu, 05 Aug 2021 17:47:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=/fdzil+Ti6YQ02VIvazSYNCZKQb+XYDJTLqEWhweSXw=;
+        b=c6XSzgenhumwCTdBtZUMy9v8ie8c1JVvP9rc1+RNv++au/CsWsIDR2uGyzfQLt2C9f
+         Idy0uY0qEQjha/+pkmsfT1Qwne4Plzuz9TSKmJZaDBDw5DJZc/By3YSyUBARslRWudju
+         Cx61bOMLdfygTU5Qa7StTbZMXUNZIhUbJIrhCQR13kxIp4mr+uRl+iTjG1UIDHv4gLi6
+         4qzaEdgORnGMRUqgAfCrB9mNANfMEdTFp0jO2HTdH9wHxj5jRcmuBA5BY+5+DWQMI7jz
+         h361Vf/nmB9Uh3qYCxrYaPrpiVFJ/g+n83g6oQqwXsOg1xeVGQvGBD3OR//FV6dRs+H/
+         MIfA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=/fdzil+Ti6YQ02VIvazSYNCZKQb+XYDJTLqEWhweSXw=;
+        b=LrgpF0DwhKtVUV3ryCtmiM1+FORgAWWfGTlKfwcGbBLcl8c0Iimjfp62RYAtzhM+Vk
+         /V9Fv1e9GiM9m2IXZp1azsxkij9H7L+o+x2JAf9AlEn3G6WdCJ6Sv7C3u+2lFaMwjZNs
+         cnuVOO0GHvnxe/rUanRJ/nw5+H+tzGrBZIHU/IQDac4Q1yj3gV0TmsRCClgLbuFMhU7V
+         Yo25BeIMnzcgol3RrlJstkfPS4SR+T5R35moD/1EAwlgO/PKQAAYRYCHEj9eveMPVRIN
+         87lo0Uk8HGh720PGYKEfO0vL95IuA3SCNn0aho5OKkZwU8jiZIfwx2rf9DaVfQqcIsut
+         3aCA==
+X-Gm-Message-State: AOAM5339hg8TEHSNWy+H3nTXrcecB8FABAmJarX4t3/TbUtPFxY4HBfj
+        3O3+px+bdOXy3RoBUjzFbRK5h17IrOX8iL97
+X-Google-Smtp-Source: ABdhPJwHAutUdCBqX3Idxj2GnDdaJM4KF1wyOPKb+L8m8hUDr2wbZypPFEYvZVwY+k1Ps9OnQ9MCsg==
+X-Received: by 2002:a17:90a:bd06:: with SMTP id y6mr7490692pjr.6.1628210873387;
+        Thu, 05 Aug 2021 17:47:53 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id u3sm10272533pjr.2.2021.08.05.17.47.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 05 Aug 2021 17:47:52 -0700 (PDT)
+Message-ID: <610c86b8.1c69fb81.6668f.1974@mx.google.com>
+Date:   Thu, 05 Aug 2021 17:47:52 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAKwvOdk6PNK1unJ2Yym4WHV=AXjdYwEyfWf_fPxO013ZtJa6Yw@mail.gmail.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/4.9
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.9.278-4-g6fd552aac83f
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/4.9 baseline: 82 runs,
+ 3 regressions (v4.9.278-4-g6fd552aac83f)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Aug 05, 2021 at 04:23:40PM -0700, Nick Desaulniers wrote:
-> On Thu, Aug 5, 2021 at 1:24 PM kernel test robot <lkp@intel.com> wrote:
-> >
-> > Hi Nick,
-> >
-> > First bad commit (maybe != root cause):
-> >
-> > tree:   https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-> > head:   7457eed4b647560ae1b1800c295efc5f1db22e4b
-> > commit: 7c29fd831799d09474dfdae556207b7102647a45 [1181/1498] lib/string.c: implement stpcpy
-> > config: x86_64-randconfig-r024-20210805 (attached as .config)
-> > compiler: clang version 14.0.0 (https://github.com/llvm/llvm-project 31a71a393f65d9e07b5b0756fef9dd16690950ee)
-> > reproduce (this is a W=1 build):
-> >         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-> >         chmod +x ~/bin/make.cross
-> >         # https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/commit/?id=7c29fd831799d09474dfdae556207b7102647a45
-> >         git remote add linux-stable-rc https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-> >         git fetch --no-tags linux-stable-rc linux-4.19.y
-> >         git checkout 7c29fd831799d09474dfdae556207b7102647a45
-> >         # save the attached .config to linux build tree
-> >         COMPILER_INSTALL_PATH=$HOME/0day COMPILER=clang make.cross ARCH=x86_64
-> >
-> > If you fix the issue, kindly add following tag as appropriate
-> > Reported-by: kernel test robot <lkp@intel.com>
-> >
-> > All errors (new ones prefixed by >>):
-> >
-> > >> ERROR: "__compiletime_assert_491" [drivers/gpu/drm/i915/i915.ko] undefined!
-> 
-> ^ I'm actively trying to improve these diagnostics in LLVM at the
-> moment. Hopefully that will make this report clearer!
-> https://reviews.llvm.org/D106030
+stable-rc/queue/4.9 baseline: 82 runs, 3 regressions (v4.9.278-4-g6fd552aac=
+83f)
 
-It does help :)
+Regressions Summary
+-------------------
 
-drivers/gpu/drm/i915/intel_engine_cs.c:466:2: error: call to '__compiletime_assert_491' declared with attribute error: BUILD_BUG_ON failed: (execlists_num_ports(execlists)) == 0 || (((execlists_num_ports(execlists)) & ((execlists_num_ports(execlists)) - 1)) != 0)
-        BUILD_BUG_ON_NOT_POWER_OF_2(execlists_num_ports(execlists));
-        ^
-include/linux/build_bug.h:21:2: note: expanded from macro 'BUILD_BUG_ON_NOT_POWER_OF_2'
-        BUILD_BUG_ON((n) == 0 || (((n) & ((n) - 1)) != 0))
-        ^
-include/linux/build_bug.h:69:2: note: expanded from macro 'BUILD_BUG_ON'
-        BUILD_BUG_ON_MSG(condition, "BUILD_BUG_ON failed: " #condition)
-        ^
-include/linux/build_bug.h:45:37: note: expanded from macro 'BUILD_BUG_ON_MSG'
-#define BUILD_BUG_ON_MSG(cond, msg) compiletime_assert(!(cond), msg)
-                                    ^
-note: (skipping 1 expansions in backtrace; use -fmacro-backtrace-limit=0 to see all)
-include/linux/compiler.h:336:2: note: expanded from macro '_compiletime_assert'
-        __compiletime_assert(condition, msg, prefix, suffix)
-        ^
-include/linux/compiler.h:329:4: note: expanded from macro '__compiletime_assert'
-                        prefix ## suffix();                             \
-                        ^
-<scratch space>:83:1: note: expanded from here
-__compiletime_assert_491
-^
-4 warnings and 1 error generated.
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
+fig | 1          =
 
-As it turns out, this has come up before and it was fixed by commit
-410ed5731a65 ("drm/i915: Ensure intel_engine_init_execlist() builds with
-Clang").
+qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
+fig | 1          =
 
-Greg and Sasha, could this be picked up for 4.19?
+qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
+fig | 1          =
 
-Cheers,
-Nathan
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
+el/v4.9.278-4-g6fd552aac83f/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.9
+  Describe: v4.9.278-4-g6fd552aac83f
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      6fd552aac83f2f09b5faf3098d93e8ab30c4bd8a =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/610c4c7f87b73b79f0b1369f
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.278-4=
+-g6fd552aac83f/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm=
+-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.278-4=
+-g6fd552aac83f/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm=
+-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/610c4c7f87b73b79f0b13=
+6a0
+        failing since 264 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/610c4c8487b73b79f0b136a3
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.278-4=
+-g6fd552aac83f/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-vers=
+atilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.278-4=
+-g6fd552aac83f/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-vers=
+atilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/610c4c8487b73b79f0b13=
+6a4
+        failing since 264 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/610c4ce4acbf78f604b13672
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.278-4=
+-g6fd552aac83f/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu_=
+arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.278-4=
+-g6fd552aac83f/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu_=
+arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/610c4ce4acbf78f604b13=
+673
+        failing since 264 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =20
