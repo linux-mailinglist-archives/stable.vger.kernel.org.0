@@ -2,78 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 171733E1F6D
-	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 01:42:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE3603E1FCE
+	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 02:11:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239740AbhHEXm3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Aug 2021 19:42:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55656 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239723AbhHEXm3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Aug 2021 19:42:29 -0400
-Received: from mail-io1-xd2c.google.com (mail-io1-xd2c.google.com [IPv6:2607:f8b0:4864:20::d2c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1336C0613D5
-        for <stable@vger.kernel.org>; Thu,  5 Aug 2021 16:42:13 -0700 (PDT)
-Received: by mail-io1-xd2c.google.com with SMTP id a13so8945498iol.5
-        for <stable@vger.kernel.org>; Thu, 05 Aug 2021 16:42:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=truzF62HDJI3twhgvIQQSrroY3TJqn5zL5pQkMiPoDE=;
-        b=paR7ZCkTB4uJs8lwhYdxwb7afVscmQ52y/Xl6uoi9BhEX/taok6QLfhf5MnOwG8ov5
-         BfTGWnDAGfsKyJbNfnauAIZieWVs+cWP+Epwyh6K64lCu4nOeJ5m7P545gp9AbHay2k3
-         203tRKTYE7/AdgptpijakmiZFNO4aSVpUR6SX7mfYAIqh/oogL0nHgaF0tIdReUabcQ1
-         JG9re5tFYWc1olNp+g5SVPBdgwZVFPK0NuG4+xtXKF9J3qVnEOK57+xGHzLqulCWDeep
-         m4Wkwht5kHT1mQA5yPC5KxfR8taqwpCcTvBbiY8wG+rj/kKvR8dZ4qPOYFfs78+1TFrr
-         zTeQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=truzF62HDJI3twhgvIQQSrroY3TJqn5zL5pQkMiPoDE=;
-        b=uXVJCnS0QSna954L90PDVpcxwJBwog/mub22wNy6eT/4Ws6OGJ5vqn/IxrfkBundSs
-         LPKug04kLoH4/Gbz1OnGt1I/K9vACjWGwuMZAR0eFE2ff8UROPfmqSNgXl44AXKpmxO5
-         Xe8bN2uMn/XW9Xku8I2OtOEVPGqz0IVaX3zB1mfny7gXBOlvPpvf6KvDjs27WRVALpCN
-         O0gb4QkgPLeZkDVNiDCpXdgmUiprXPbFS6XPUJ1QAAtuItyejdQwZ672dPjR5QO1sMbI
-         VLqpV1/xWRvWQRncjYcybLuXWnUPZclai7jaXZcAOOf/I0hshZ38tTQp+hnfU6l867Ix
-         hX/w==
-X-Gm-Message-State: AOAM533EuAMv95lu/IRq9cb/IZWoJnLzDL+VygOV2YQ40TXiSDRvfOno
-        5MlqNLIzU+xsBBlOm4b2ta1tK+LidR5kKPqkT3w=
-X-Google-Smtp-Source: ABdhPJxKIMv6btUxJ5p4fTiGVQQsjxJjG6EbsbmpIYjg+j0FK1sqD4F/7h18k7eeEmPyLKk48K/2sQWhB2Zs+ePBjYM=
-X-Received: by 2002:a02:9385:: with SMTP id z5mr6947755jah.95.1628206933194;
- Thu, 05 Aug 2021 16:42:13 -0700 (PDT)
+        id S236745AbhHFALs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Aug 2021 20:11:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40824 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S242724AbhHFAL0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 5 Aug 2021 20:11:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DFAD960F25;
+        Fri,  6 Aug 2021 00:11:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1628208671;
+        bh=09gEvtd2SL4jbKh/NXm632UOPNtYql6ThdlYDiUh+rM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=j8pg/eWTT/OgVA9B/NL0ClMr5x1Y628jFqPTEDyYPcCM801Gwg5//uISO+5yPcF6F
+         sxMIcxe51R8d0JeUFz/o29ebJB6U4dXZjdbA/qm9z5z+ztEEwjzdRPqbk91DSDW+p6
+         RF9kjCNRVJGLq7CudkIi7cPm3rN9PVSDdW3cWl/7XGItYAONHMjqjxyPawexhenOqj
+         wNKFB09FGt1UT6juigM5EDop8YsNsbsOVQ6sW+L3qAb4ZGjMmjKwb+XrvR64ABgibO
+         egwzbh3E6BVMGBD+snVaQForZWapV5D3/fqEVZh/FdWgO4tNPrGQ9NTqnbxsuaQZOA
+         H+GIasUvVAP+g==
+Date:   Thu, 5 Aug 2021 17:11:10 -0700
+From:   Nathan Chancellor <nathan@kernel.org>
+To:     Nick Desaulniers <ndesaulniers@google.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     kernel test robot <lkp@intel.com>,
+        clang-built-linux@googlegroups.com, kbuild-all@lists.01.org,
+        linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linux Memory Management List <linux-mm@kvack.org>,
+        stable@vger.kernel.org
+Subject: Re: [linux-stable-rc:linux-4.19.y 1181/1498] ERROR:
+ "__compiletime_assert_491" [drivers/gpu/drm/i915/i915.ko] undefined!
+Message-ID: <YQx+HjjUrzIEkG/O@Ryzen-9-3900X.localdomain>
+References: <202108060412.oMqAe0rc-lkp@intel.com>
+ <CAKwvOdk6PNK1unJ2Yym4WHV=AXjdYwEyfWf_fPxO013ZtJa6Yw@mail.gmail.com>
 MIME-Version: 1.0
-Received: by 2002:a02:c617:0:0:0:0:0 with HTTP; Thu, 5 Aug 2021 16:42:12 -0700 (PDT)
-Reply-To: j44788@outlook.com
-From:   John Zaka <aanadunabolle@gmail.com>
-Date:   Thu, 5 Aug 2021 16:42:12 -0700
-Message-ID: <CAFCqP-V=UtLHDM1cfVXN3ofwKFkekh6CkmhiY4Vg3CEDD7RtBA@mail.gmail.com>
-Subject: .
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAKwvOdk6PNK1unJ2Yym4WHV=AXjdYwEyfWf_fPxO013ZtJa6Yw@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear friend,
+On Thu, Aug 05, 2021 at 04:23:40PM -0700, Nick Desaulniers wrote:
+> On Thu, Aug 5, 2021 at 1:24 PM kernel test robot <lkp@intel.com> wrote:
+> >
+> > Hi Nick,
+> >
+> > First bad commit (maybe != root cause):
+> >
+> > tree:   https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+> > head:   7457eed4b647560ae1b1800c295efc5f1db22e4b
+> > commit: 7c29fd831799d09474dfdae556207b7102647a45 [1181/1498] lib/string.c: implement stpcpy
+> > config: x86_64-randconfig-r024-20210805 (attached as .config)
+> > compiler: clang version 14.0.0 (https://github.com/llvm/llvm-project 31a71a393f65d9e07b5b0756fef9dd16690950ee)
+> > reproduce (this is a W=1 build):
+> >         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+> >         chmod +x ~/bin/make.cross
+> >         # https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/commit/?id=7c29fd831799d09474dfdae556207b7102647a45
+> >         git remote add linux-stable-rc https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+> >         git fetch --no-tags linux-stable-rc linux-4.19.y
+> >         git checkout 7c29fd831799d09474dfdae556207b7102647a45
+> >         # save the attached .config to linux build tree
+> >         COMPILER_INSTALL_PATH=$HOME/0day COMPILER=clang make.cross ARCH=x86_64
+> >
+> > If you fix the issue, kindly add following tag as appropriate
+> > Reported-by: kernel test robot <lkp@intel.com>
+> >
+> > All errors (new ones prefixed by >>):
+> >
+> > >> ERROR: "__compiletime_assert_491" [drivers/gpu/drm/i915/i915.ko] undefined!
+> 
+> ^ I'm actively trying to improve these diagnostics in LLVM at the
+> moment. Hopefully that will make this report clearer!
+> https://reviews.llvm.org/D106030
 
-Greetings to you, i am Mr. John Zaka the Manager of the Coris bank
-international Burkina faso.
+It does help :)
 
-I want to transfer the sum of 12.7 million dollars into your bank
-account through the swift fund transfer.
+drivers/gpu/drm/i915/intel_engine_cs.c:466:2: error: call to '__compiletime_assert_491' declared with attribute error: BUILD_BUG_ON failed: (execlists_num_ports(execlists)) == 0 || (((execlists_num_ports(execlists)) & ((execlists_num_ports(execlists)) - 1)) != 0)
+        BUILD_BUG_ON_NOT_POWER_OF_2(execlists_num_ports(execlists));
+        ^
+include/linux/build_bug.h:21:2: note: expanded from macro 'BUILD_BUG_ON_NOT_POWER_OF_2'
+        BUILD_BUG_ON((n) == 0 || (((n) & ((n) - 1)) != 0))
+        ^
+include/linux/build_bug.h:69:2: note: expanded from macro 'BUILD_BUG_ON'
+        BUILD_BUG_ON_MSG(condition, "BUILD_BUG_ON failed: " #condition)
+        ^
+include/linux/build_bug.h:45:37: note: expanded from macro 'BUILD_BUG_ON_MSG'
+#define BUILD_BUG_ON_MSG(cond, msg) compiletime_assert(!(cond), msg)
+                                    ^
+note: (skipping 1 expansions in backtrace; use -fmacro-backtrace-limit=0 to see all)
+include/linux/compiler.h:336:2: note: expanded from macro '_compiletime_assert'
+        __compiletime_assert(condition, msg, prefix, suffix)
+        ^
+include/linux/compiler.h:329:4: note: expanded from macro '__compiletime_assert'
+                        prefix ## suffix();                             \
+                        ^
+<scratch space>:83:1: note: expanded from here
+__compiletime_assert_491
+^
+4 warnings and 1 error generated.
 
-Please there is no risk involved, and if you are interested please
-kindly send me these below needed information to get started.
+As it turns out, this has come up before and it was fixed by commit
+410ed5731a65 ("drm/i915: Ensure intel_engine_init_execlist() builds with
+Clang").
 
-1. Your name and surname.
-2. Your country name and address.
-3. Your Occupation.
-4. Your identity card or passport copy scanned.
-5. Your phone number.
+Greg and Sasha, could this be picked up for 4.19?
 
-If i have recieved these above needed information from you, then i
-will give you the details of this transaction and we get started.
-
-Thanks from,
-Mr. John Zaka.
+Cheers,
+Nathan
