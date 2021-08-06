@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B471C3E2560
-	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:20:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABB413E2579
+	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:20:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243857AbhHFITr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Aug 2021 04:19:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47072 "EHLO mail.kernel.org"
+        id S243920AbhHFIUS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Aug 2021 04:20:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243731AbhHFITC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Aug 2021 04:19:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0CC9261181;
-        Fri,  6 Aug 2021 08:18:38 +0000 (UTC)
+        id S244105AbhHFISw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Aug 2021 04:18:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 75A9A61241;
+        Fri,  6 Aug 2021 08:18:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628237919;
-        bh=IBReA0ZJ7ZHnOCVbifrLy8cSCzXqtrX7JIsw4zXFL84=;
+        s=korg; t=1628237909;
+        bh=8MgA3rxV71I99YDci/hPYfcfHV0ARvPGiCFPKZtAYLI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rgn8UctZS7Asd/CsIYJPY+W6eElPNdFMcVJczL41h7BaKUBX06xfyKlxV3uDYAy2a
-         WaTBXgXOGMKNbncfI6CUlAq/FmDlcVf9amP7/PxmWSrSn5b7nwV+GN5EBWkcC9WjqF
-         ysAi2vvwQjY5KcLqnGbCzSSxdbOUHpnwn3pbVObo=
+        b=1bvgsCRXIJf7oYxwNGs8Xw9IugECDAX28ExbmNtM67/xQb80uMZmTRP+GKA3cdkBN
+         X8ByGgDesKmeD0Zo1sRIvVM4TQPUMUnddoANNjcdm0Yem1cPo0fXX7VpS5ax+ipVGr
+         B3JmV1BTtrpayHzpgPB2qpkkJldIWU++VkCuoWKQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pravin B Shelar <pshelar@ovn.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 12/30] net: Fix zero-copy head len calculation.
-Date:   Fri,  6 Aug 2021 10:16:50 +0200
-Message-Id: <20210806081113.546372389@linuxfoundation.org>
+        Daniel Borkmann <daniel@iogearbox.net>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Benedict Schlueter <benedict.schlueter@rub.de>,
+        Piotr Krysiuk <piotras@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 5.4 19/23] bpf: Do not mark insn as seen under speculative path verification
+Date:   Fri,  6 Aug 2021 10:16:51 +0200
+Message-Id: <20210806081112.802430319@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210806081113.126861800@linuxfoundation.org>
-References: <20210806081113.126861800@linuxfoundation.org>
+In-Reply-To: <20210806081112.104686873@linuxfoundation.org>
+References: <20210806081112.104686873@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,79 +43,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pravin B Shelar <pshelar@ovn.org>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-[ Upstream commit a17ad0961706244dce48ec941f7e476a38c0e727 ]
+commit fe9a5ca7e370e613a9a75a13008a3845ea759d6e upstream
 
-In some cases skb head could be locked and entire header
-data is pulled from skb. When skb_zerocopy() called in such cases,
-following BUG is triggered. This patch fixes it by copying entire
-skb in such cases.
-This could be optimized incase this is performance bottleneck.
+... in such circumstances, we do not want to mark the instruction as seen given
+the goal is still to jmp-1 rewrite/sanitize dead code, if it is not reachable
+from the non-speculative path verification. We do however want to verify it for
+safety regardless.
 
----8<---
-kernel BUG at net/core/skbuff.c:2961!
-invalid opcode: 0000 [#1] SMP PTI
-CPU: 2 PID: 0 Comm: swapper/2 Tainted: G           OE     5.4.0-77-generic #86-Ubuntu
-Hardware name: OpenStack Foundation OpenStack Nova, BIOS 1.13.0-1ubuntu1.1 04/01/2014
-RIP: 0010:skb_zerocopy+0x37a/0x3a0
-RSP: 0018:ffffbcc70013ca38 EFLAGS: 00010246
-Call Trace:
- <IRQ>
- queue_userspace_packet+0x2af/0x5e0 [openvswitch]
- ovs_dp_upcall+0x3d/0x60 [openvswitch]
- ovs_dp_process_packet+0x125/0x150 [openvswitch]
- ovs_vport_receive+0x77/0xd0 [openvswitch]
- netdev_port_receive+0x87/0x130 [openvswitch]
- netdev_frame_hook+0x4b/0x60 [openvswitch]
- __netif_receive_skb_core+0x2b4/0xc90
- __netif_receive_skb_one_core+0x3f/0xa0
- __netif_receive_skb+0x18/0x60
- process_backlog+0xa9/0x160
- net_rx_action+0x142/0x390
- __do_softirq+0xe1/0x2d6
- irq_exit+0xae/0xb0
- do_IRQ+0x5a/0xf0
- common_interrupt+0xf/0xf
+With the patch as-is all the insns that have been marked as seen before the
+patch will also be marked as seen after the patch (just with a potentially
+different non-zero count). An upcoming patch will also verify paths that are
+unreachable in the non-speculative domain, hence this extension is needed.
 
-Code that triggered BUG:
-int
-skb_zerocopy(struct sk_buff *to, struct sk_buff *from, int len, int hlen)
-{
-        int i, j = 0;
-        int plen = 0; /* length of skb->head fragment */
-        int ret;
-        struct page *page;
-        unsigned int offset;
-
-        BUG_ON(!from->head_frag && !hlen);
-
-Signed-off-by: Pravin B Shelar <pshelar@ovn.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Reviewed-by: John Fastabend <john.fastabend@gmail.com>
+Reviewed-by: Benedict Schlueter <benedict.schlueter@rub.de>
+Reviewed-by: Piotr Krysiuk <piotras@gmail.com>
+Acked-by: Alexei Starovoitov <ast@kernel.org>
+[OP: - env->pass_cnt is not used in 5.4, so adjust sanitize_mark_insn_seen()
+       to assign "true" instead
+     - drop sanitize_insn_aux_data() comment changes, as the function is not
+       present in 5.4]
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/skbuff.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ kernel/bpf/verifier.c |   17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
-diff --git a/net/core/skbuff.c b/net/core/skbuff.c
-index 2d27aae6d36f..825e6b988003 100644
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -2922,8 +2922,11 @@ skb_zerocopy_headlen(const struct sk_buff *from)
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -4435,6 +4435,19 @@ do_sim:
+ 	return !ret ? REASON_STACK : 0;
+ }
  
- 	if (!from->head_frag ||
- 	    skb_headlen(from) < L1_CACHE_BYTES ||
--	    skb_shinfo(from)->nr_frags >= MAX_SKB_FRAGS)
-+	    skb_shinfo(from)->nr_frags >= MAX_SKB_FRAGS) {
- 		hlen = skb_headlen(from);
-+		if (!hlen)
-+			hlen = from->len;
-+	}
++static void sanitize_mark_insn_seen(struct bpf_verifier_env *env)
++{
++	struct bpf_verifier_state *vstate = env->cur_state;
++
++	/* If we simulate paths under speculation, we don't update the
++	 * insn as 'seen' such that when we verify unreachable paths in
++	 * the non-speculative domain, sanitize_dead_code() can still
++	 * rewrite/sanitize them.
++	 */
++	if (!vstate->speculative)
++		env->insn_aux_data[env->insn_idx].seen = true;
++}
++
+ static int sanitize_err(struct bpf_verifier_env *env,
+ 			const struct bpf_insn *insn, int reason,
+ 			const struct bpf_reg_state *off_reg,
+@@ -7790,7 +7803,7 @@ static int do_check(struct bpf_verifier_
+ 		}
  
- 	if (skb_has_frag_list(from))
- 		hlen = from->len;
--- 
-2.30.2
-
+ 		regs = cur_regs(env);
+-		env->insn_aux_data[env->insn_idx].seen = true;
++		sanitize_mark_insn_seen(env);
+ 		prev_insn_idx = env->insn_idx;
+ 
+ 		if (class == BPF_ALU || class == BPF_ALU64) {
+@@ -8025,7 +8038,7 @@ process_bpf_exit:
+ 					return err;
+ 
+ 				env->insn_idx++;
+-				env->insn_aux_data[env->insn_idx].seen = true;
++				sanitize_mark_insn_seen(env);
+ 			} else {
+ 				verbose(env, "invalid BPF_LD mode\n");
+ 				return -EINVAL;
 
 
