@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33ADF3E2546
-	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:19:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C37D3E25AA
+	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:22:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243791AbhHFISz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Aug 2021 04:18:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46750 "EHLO mail.kernel.org"
+        id S244379AbhHFIVn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Aug 2021 04:21:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240985AbhHFIR6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Aug 2021 04:17:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A6A7D61163;
-        Fri,  6 Aug 2021 08:17:42 +0000 (UTC)
+        id S244255AbhHFIUd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Aug 2021 04:20:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 98D7A61206;
+        Fri,  6 Aug 2021 08:20:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628237863;
-        bh=vCYzaH73mr7+laPtAqJNRmn06a60xTyWcrevB2c1rW0=;
+        s=korg; t=1628238016;
+        bh=vV1kBFJSLi3yOLCobttpep3V2bs02zHCnpF5GWEKdV8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qskhj9cwrs/fvVfYPIkxFeoUncqJ4/G5biTPTe++AKfGFMvmZMU4gDZ8NLnSIQmiL
-         oqFBqrtjDKiXihPKdKSxSBMj14YX8bdw7esUI6TMmkjnRFhwsaWos/zdysg7Gk2sPX
-         R3muOASc1ZK5lLainZAdYgw0cwqywROFS2TKV774=
+        b=Fp7fbE7EjzqU6/lTfutHsnVlSNrExeOSE8lTphb8M2N5lsRvUqT+LdhLZSXuUGkbN
+         Rom6mYCXoXiuBfxaobNZ2KT8WjWn6nBtxDLigdJ1XxWfiYcxbNMPJrgq9yOMmmIHXB
+         Pb3pbp2+ctxwDJIVyNIuCz2E9zHLauMlX6vZL2wo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        Peter Hess <peter.hess@ph-home.de>,
-        Frank Wunderlich <frank-w@public-files.de>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Jason Ekstrand <jason@jlekstrand.net>,
+        Marcin Slusarz <marcin.slusarz@intel.com>,
+        Jason Ekstrand <jason.ekstrand@intel.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Jon Bloomfield <jon.bloomfield@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 13/23] Revert "spi: mediatek: fix fifo rx mode"
+Subject: [PATCH 5.13 02/35] Revert "drm/i915: Propagate errors on awaiting already signaled fences"
 Date:   Fri,  6 Aug 2021 10:16:45 +0200
-Message-Id: <20210806081112.584823349@linuxfoundation.org>
+Message-Id: <20210806081113.796798036@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210806081112.104686873@linuxfoundation.org>
-References: <20210806081112.104686873@linuxfoundation.org>
+In-Reply-To: <20210806081113.718626745@linuxfoundation.org>
+References: <20210806081113.718626745@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,52 +44,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Jason Ekstrand <jason@jlekstrand.net>
 
-This reverts commit d99aaf07365fa9b8585f49d8ecd493f658fbe9a5 which is
-commit 3a70dd2d050331ee4cf5ad9d5c0a32d83ead9a43 upstream.
+commit 3761baae908a7b5012be08d70fa553cc2eb82305 upstream.
 
-It has been found to have problems.
+This reverts commit 9e31c1fe45d555a948ff66f1f0e3fe1f83ca63f7.  Ever
+since that commit, we've been having issues where a hang in one client
+can propagate to another.  In particular, a hang in an app can propagate
+to the X server which causes the whole desktop to lock up.
 
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Cc: Peter Hess <peter.hess@ph-home.de>
-Cc: Frank Wunderlich <frank-w@public-files.de>
-Cc: Mark Brown <broonie@kernel.org>
-Cc: Sasha Levin <sashal@kernel.org>
-Link: https://lore.kernel.org/r/efee3a58-a4d2-af22-0931-e81b877ab539@roeck-us.net
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Error propagation along fences sound like a good idea, but as your bug
+shows, surprising consequences, since propagating errors across security
+boundaries is not a good thing.
+
+What we do have is track the hangs on the ctx, and report information to
+userspace using RESET_STATS. That's how arb_robustness works. Also, if my
+understanding is still correct, the EIO from execbuf is when your context
+is banned (because not recoverable or too many hangs). And in all these
+cases it's up to userspace to figure out what is all impacted and should
+be reported to the application, that's not on the kernel to guess and
+automatically propagate.
+
+What's more, we're also building more features on top of ctx error
+reporting with RESET_STATS ioctl: Encrypted buffers use the same, and the
+userspace fence wait also relies on that mechanism. So it is the path
+going forward for reporting gpu hangs and resets to userspace.
+
+So all together that's why I think we should just bury this idea again as
+not quite the direction we want to go to, hence why I think the revert is
+the right option here.
+
+For backporters: Please note that you _must_ have a backport of
+https://lore.kernel.org/dri-devel/20210602164149.391653-2-jason@jlekstrand.net/
+for otherwise backporting just this patch opens up a security bug.
+
+v2: Augment commit message. Also restore Jason's sob that I
+accidentally lost.
+
+v3: Add a note for backporters
+
+Signed-off-by: Jason Ekstrand <jason@jlekstrand.net>
+Reported-by: Marcin Slusarz <marcin.slusarz@intel.com>
+Cc: <stable@vger.kernel.org> # v5.6+
+Cc: Jason Ekstrand <jason.ekstrand@intel.com>
+Cc: Marcin Slusarz <marcin.slusarz@intel.com>
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/3080
+Fixes: 9e31c1fe45d5 ("drm/i915: Propagate errors on awaiting already signaled fences")
+Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Reviewed-by: Jon Bloomfield <jon.bloomfield@intel.com>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210714193419.1459723-3-jason@jlekstrand.net
+(cherry picked from commit 93a2711cddd5760e2f0f901817d71c93183c3b87)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-mt65xx.c |   16 +++-------------
- 1 file changed, 3 insertions(+), 13 deletions(-)
+ drivers/gpu/drm/i915/i915_request.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
---- a/drivers/spi/spi-mt65xx.c
-+++ b/drivers/spi/spi-mt65xx.c
-@@ -427,23 +427,13 @@ static int mtk_spi_fifo_transfer(struct
- 	mtk_spi_setup_packet(master);
+diff --git a/drivers/gpu/drm/i915/i915_request.c b/drivers/gpu/drm/i915/i915_request.c
+index bec9c3652188..59d48a6a83d2 100644
+--- a/drivers/gpu/drm/i915/i915_request.c
++++ b/drivers/gpu/drm/i915/i915_request.c
+@@ -1426,10 +1426,8 @@ i915_request_await_execution(struct i915_request *rq,
  
- 	cnt = xfer->len / 4;
--	if (xfer->tx_buf)
--		iowrite32_rep(mdata->base + SPI_TX_DATA_REG, xfer->tx_buf, cnt);
--
--	if (xfer->rx_buf)
--		ioread32_rep(mdata->base + SPI_RX_DATA_REG, xfer->rx_buf, cnt);
-+	iowrite32_rep(mdata->base + SPI_TX_DATA_REG, xfer->tx_buf, cnt);
- 
- 	remainder = xfer->len % 4;
- 	if (remainder > 0) {
- 		reg_val = 0;
--		if (xfer->tx_buf) {
--			memcpy(&reg_val, xfer->tx_buf + (cnt * 4), remainder);
--			writel(reg_val, mdata->base + SPI_TX_DATA_REG);
+ 	do {
+ 		fence = *child++;
+-		if (test_bit(DMA_FENCE_FLAG_SIGNALED_BIT, &fence->flags)) {
+-			i915_sw_fence_set_error_once(&rq->submit, fence->error);
++		if (test_bit(DMA_FENCE_FLAG_SIGNALED_BIT, &fence->flags))
+ 			continue;
 -		}
--		if (xfer->rx_buf) {
--			reg_val = readl(mdata->base + SPI_RX_DATA_REG);
--			memcpy(xfer->rx_buf + (cnt * 4), &reg_val, remainder);
--		}
-+		memcpy(&reg_val, xfer->tx_buf + (cnt * 4), remainder);
-+		writel(reg_val, mdata->base + SPI_TX_DATA_REG);
- 	}
  
- 	mtk_spi_enable_transfer(master);
+ 		if (fence->context == rq->fence.context)
+ 			continue;
+@@ -1527,10 +1525,8 @@ i915_request_await_dma_fence(struct i915_request *rq, struct dma_fence *fence)
+ 
+ 	do {
+ 		fence = *child++;
+-		if (test_bit(DMA_FENCE_FLAG_SIGNALED_BIT, &fence->flags)) {
+-			i915_sw_fence_set_error_once(&rq->submit, fence->error);
++		if (test_bit(DMA_FENCE_FLAG_SIGNALED_BIT, &fence->flags))
+ 			continue;
+-		}
+ 
+ 		/*
+ 		 * Requests on the same timeline are explicitly ordered, along
+-- 
+2.30.2
+
 
 
