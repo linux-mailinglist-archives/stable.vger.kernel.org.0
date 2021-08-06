@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD5783E24EA
-	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:15:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DE253E24EC
+	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:15:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243788AbhHFIPQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Aug 2021 04:15:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44596 "EHLO mail.kernel.org"
+        id S243764AbhHFIPT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Aug 2021 04:15:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44652 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243727AbhHFIPH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Aug 2021 04:15:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4BC03611B0;
-        Fri,  6 Aug 2021 08:14:51 +0000 (UTC)
+        id S243763AbhHFIPJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Aug 2021 04:15:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BE90B611CE;
+        Fri,  6 Aug 2021 08:14:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628237692;
-        bh=AKWERcjtrAvwWQy4q8XKeRbtEAr4BgA0Qm2Sbx46Vao=;
+        s=korg; t=1628237694;
+        bh=/bT9lnLsRgo1oLJYpz2EtkO4AcjDzcA2znDE/Lz4PUs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kg4PLzfWXcopBMFURw20XPQ2BlGq1EgxSe4fvFsUTNHoSvVG6i+UDHEOjo6Lk+ut9
-         H10E2iuGiVk4tuaQxsXnPMaqBiedgJ2w0vOrAvNPw7jmwV8sMuHB1Ph3+kDTzoZlLi
-         ovoYqAVLPhaVxCooTV48dU2XmTgSAg40/C5PLJC8=
+        b=YuP3g08cyFySdYLfEpxy+val1NjZxOoEco8BY9dH/R5/h4El3GsQ5ugCowpUola/y
+         dFMWJuwNNUjwrchdsy+j4M5477hRQ8GFV5zIz9On8gZBQukTKDJvBf5ZoWUZhNmKAF
+         n5+GsN2h/KH7HsgYbEVfBUDZ0sjMuFp9HIAz3fjc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pravin B Shelar <pshelar@ovn.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 4/6] net: Fix zero-copy head len calculation.
-Date:   Fri,  6 Aug 2021 10:14:36 +0200
-Message-Id: <20210806081109.080645847@linuxfoundation.org>
+Subject: [PATCH 4.4 5/6] Revert "Bluetooth: Shutdown controller after workqueues are flushed or cancelled"
+Date:   Fri,  6 Aug 2021 10:14:37 +0200
+Message-Id: <20210806081109.110744766@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210806081108.939164003@linuxfoundation.org>
 References: <20210806081108.939164003@linuxfoundation.org>
@@ -40,79 +41,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pravin B Shelar <pshelar@ovn.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit a17ad0961706244dce48ec941f7e476a38c0e727 ]
+This reverts commit 5d16a8280078701fc03d6a0367c3251809743274 which is
+commit 0ea9fd001a14ebc294f112b0361a4e601551d508 upstream.
 
-In some cases skb head could be locked and entire header
-data is pulled from skb. When skb_zerocopy() called in such cases,
-following BUG is triggered. This patch fixes it by copying entire
-skb in such cases.
-This could be optimized incase this is performance bottleneck.
+It has been reported to have problems:
+	https://lore.kernel.org/linux-bluetooth/8735ryk0o7.fsf@baylibre.com/
 
----8<---
-kernel BUG at net/core/skbuff.c:2961!
-invalid opcode: 0000 [#1] SMP PTI
-CPU: 2 PID: 0 Comm: swapper/2 Tainted: G           OE     5.4.0-77-generic #86-Ubuntu
-Hardware name: OpenStack Foundation OpenStack Nova, BIOS 1.13.0-1ubuntu1.1 04/01/2014
-RIP: 0010:skb_zerocopy+0x37a/0x3a0
-RSP: 0018:ffffbcc70013ca38 EFLAGS: 00010246
-Call Trace:
- <IRQ>
- queue_userspace_packet+0x2af/0x5e0 [openvswitch]
- ovs_dp_upcall+0x3d/0x60 [openvswitch]
- ovs_dp_process_packet+0x125/0x150 [openvswitch]
- ovs_vport_receive+0x77/0xd0 [openvswitch]
- netdev_port_receive+0x87/0x130 [openvswitch]
- netdev_frame_hook+0x4b/0x60 [openvswitch]
- __netif_receive_skb_core+0x2b4/0xc90
- __netif_receive_skb_one_core+0x3f/0xa0
- __netif_receive_skb+0x18/0x60
- process_backlog+0xa9/0x160
- net_rx_action+0x142/0x390
- __do_softirq+0xe1/0x2d6
- irq_exit+0xae/0xb0
- do_IRQ+0x5a/0xf0
- common_interrupt+0xf/0xf
-
-Code that triggered BUG:
-int
-skb_zerocopy(struct sk_buff *to, struct sk_buff *from, int len, int hlen)
-{
-        int i, j = 0;
-        int plen = 0; /* length of skb->head fragment */
-        int ret;
-        struct page *page;
-        unsigned int offset;
-
-        BUG_ON(!from->head_frag && !hlen);
-
-Signed-off-by: Pravin B Shelar <pshelar@ovn.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Cc: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Cc: Marcel Holtmann <marcel@holtmann.org>
+Cc: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/efee3a58-a4d2-af22-0931-e81b877ab539@roeck-us.net
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/skbuff.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ net/bluetooth/hci_core.c |   16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/net/core/skbuff.c b/net/core/skbuff.c
-index 7665154c85c2..58989a5ba362 100644
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -2243,8 +2243,11 @@ skb_zerocopy_headlen(const struct sk_buff *from)
+--- a/net/bluetooth/hci_core.c
++++ b/net/bluetooth/hci_core.c
+@@ -1666,6 +1666,14 @@ int hci_dev_do_close(struct hci_dev *hde
  
- 	if (!from->head_frag ||
- 	    skb_headlen(from) < L1_CACHE_BYTES ||
--	    skb_shinfo(from)->nr_frags >= MAX_SKB_FRAGS)
-+	    skb_shinfo(from)->nr_frags >= MAX_SKB_FRAGS) {
- 		hlen = skb_headlen(from);
-+		if (!hlen)
-+			hlen = from->len;
+ 	BT_DBG("%s %p", hdev->name, hdev);
+ 
++	if (!hci_dev_test_flag(hdev, HCI_UNREGISTER) &&
++	    !hci_dev_test_flag(hdev, HCI_USER_CHANNEL) &&
++	    test_bit(HCI_UP, &hdev->flags)) {
++		/* Execute vendor specific shutdown routine */
++		if (hdev->shutdown)
++			hdev->shutdown(hdev);
 +	}
++
+ 	cancel_delayed_work(&hdev->power_off);
  
- 	if (skb_has_frag_list(from))
- 		hlen = from->len;
--- 
-2.30.2
-
+ 	hci_req_cancel(hdev, ENODEV);
+@@ -1738,14 +1746,6 @@ int hci_dev_do_close(struct hci_dev *hde
+ 		clear_bit(HCI_INIT, &hdev->flags);
+ 	}
+ 
+-	if (!hci_dev_test_flag(hdev, HCI_UNREGISTER) &&
+-	    !hci_dev_test_flag(hdev, HCI_USER_CHANNEL) &&
+-	    test_bit(HCI_UP, &hdev->flags)) {
+-		/* Execute vendor specific shutdown routine */
+-		if (hdev->shutdown)
+-			hdev->shutdown(hdev);
+-	}
+-
+ 	/* flush cmd  work */
+ 	flush_work(&hdev->cmd_work);
+ 
 
 
