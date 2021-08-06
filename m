@@ -2,271 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F2533E2E3C
-	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 18:17:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26B693E2E57
+	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 18:35:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230437AbhHFQSE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Aug 2021 12:18:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55370 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229552AbhHFQSE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 Aug 2021 12:18:04 -0400
-Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87CD0C0613CF
-        for <stable@vger.kernel.org>; Fri,  6 Aug 2021 09:17:47 -0700 (PDT)
-Received: by mail-pj1-x102c.google.com with SMTP id s22-20020a17090a1c16b0290177caeba067so23537258pjs.0
-        for <stable@vger.kernel.org>; Fri, 06 Aug 2021 09:17:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=PXEi5h7nxhPspu/KnzAM9+z+k1RD0+Otcu8Wrc91jeQ=;
-        b=sSnJDE+CFw2UKKGSvoQsdmAcHneuBtZ0hVVl3IDL+RzLAgfdEQRaD8uvp6gqfJP86i
-         uUXLti52nfeO6e9AoIEvyNxLLIU8A1EENDI2d1/MJF+0GA5X59tZmyuC7ESZenmjGWk0
-         9+IAmLtsM0sah+O83ZMa+JDEGNMuZqUBVIKU6tZShO67FER1E/7CjG0GohDUxGaF20N0
-         VPDpM7bClCx9evjF8k3sYP8TKcfjTQEHTt5F6gl5avbp66ZXP/oQ0GX3Q7YV7km816ct
-         uZ24IEBZTIrwBzovSZyRgKcX7uSi2CuNRHYhAXz8/AZFaPDNNI81S8i6A9rGPaN0pM2E
-         HFbw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=PXEi5h7nxhPspu/KnzAM9+z+k1RD0+Otcu8Wrc91jeQ=;
-        b=TeLYwXk4ma0I9wLegtiZAy4KW0RRQZt52YTClagpmfgIdA+J+lP3Kr77+sypVJgISY
-         ef6G6Cx7Tcql7HLixBOskp28PqARZS4y8ZkWppJR9nEeH2vWZlzRXj3mpug17N64AmB2
-         Ay7bfc8HkumlyypiIJk6tpmoUs9SsdhdJuZkU1Xnn4r6QVY5+iIHVtFKatRHcaNBw5lh
-         Oa9GNcV9J+pGqHTVWj9rs4AEZQc9BCk+ddcB4kqnHcHR39jQxflrd+aVxWhkiDDqu40Q
-         xbgiulBdUcJJk2te2Vj+1wJBw+oEi8ASdfx5CYp950fDBK/XbQFYCmXUNShpYVb9un2K
-         T+Kg==
-X-Gm-Message-State: AOAM533SMP7GGpzmS0pe8dLM5b1meWKMDT1o007YX07x9rAXvmHs9wBZ
-        iYpRgsHsjFv3vT7rCIwMdSeicDOLmquOWg==
-X-Google-Smtp-Source: ABdhPJyJ+9Dg0gIWib7l8mhGrFeAn/BP5DnGr1IDeFdmSmlrEsNfoX2fgBuSmJjPhs1kQY/oYQz8WA==
-X-Received: by 2002:aa7:8752:0:b029:3bd:82f0:3bf9 with SMTP id g18-20020aa787520000b02903bd82f03bf9mr11482871pfo.75.1628266666840;
-        Fri, 06 Aug 2021 09:17:46 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id q4sm12536624pgv.16.2021.08.06.09.17.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 06 Aug 2021 09:17:46 -0700 (PDT)
-Message-ID: <610d60aa.1c69fb81.aaf11.509a@mx.google.com>
-Date:   Fri, 06 Aug 2021 09:17:46 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S232251AbhHFQfu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Aug 2021 12:35:50 -0400
+Received: from mail-bn8nam12on2073.outbound.protection.outlook.com ([40.107.237.73]:24347
+        "EHLO NAM12-BN8-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S231682AbhHFQfu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Aug 2021 12:35:50 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=AOXifPzpk7ePeuum0HYdfW9c/OcJD4BiwvKHrRheMbrEyKjRx3nWChlRix4Ib1qby/y5x1kYTopHnSAQL3qpGtGzMTV2acIT1qiypLhSi+Q6Yb217hAqZv06VdGzvPkcqMvQmv1YRAbZglWNd9UzG6HVNwwy0FZ48Ie3+hnpt2DMc14PFiqkwvTHTdxQH3FsTatGjdkwsL4gGQscwNw9xppTbcAlY6xzQoMt15H7Ed1Y/EuzYmaMTJQLjnhA2Ux1um0qGf0C/HijbsqDHa8DNXJX4fTTYdy0SpEf5HTCV0pQ4TpFptj6/KH+qYTIttLlQ5rPwiRw7cBR8jUPdQfCIw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=E2cyG43YGVFsuk6CcwXDn50EhHzgw5QOFK4i2eke05I=;
+ b=mWJg9Lr8NOAX40LJEHaGC7enEIHEvhzPf2EG77Eq9souJNYs48etynULmYtg7JPIPdRwXkYNpB9LS2KEDBL6SLxhkfXd8ltf4YK4iK5ezDkoho0BvymfR8HEfvI636ZS+GuIB9d7ZmPf4oGnIN8vjFKwNTCN5LGqr4HoEMX5pLDme409CHrD/2lyE0xQLuGoWa9A6PAzWS6Xb2aovytdbkLZTW67HHT6xm2pig9S+48dmHObSOxwFj9W8V42QPgAQz51H1l/XMKVawoK7StMJO3AvsoeVWHPlXfL0KfceifKAZsuhmeFK1ZZW9gvDYz/RnNzIUDQ6T1FOnM8AnMzeA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 165.204.84.17) smtp.rcpttodomain=lists.freedesktop.org smtp.mailfrom=amd.com;
+ dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
+ header.from=amd.com; dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=E2cyG43YGVFsuk6CcwXDn50EhHzgw5QOFK4i2eke05I=;
+ b=PNSGeIueueTI0PQIYKyfL8hP2aZm6dpFaixrDMXSVQvVnm0cxIkrtMaIbLL/KEN+aU8HZY0BGLx+YH1HyGYoqbZ98QSZnlDuSdpj0FaAqNCdQOMgV2sWyGtFetw3oR3ZKeOIAd4RkiIMXl01ykMAQoj7RjBMKRk1zb8oBmbtQf4=
+Received: from BN6PR17CA0014.namprd17.prod.outlook.com (2603:10b6:404:65::24)
+ by DM6PR12MB4267.namprd12.prod.outlook.com (2603:10b6:5:21e::16) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4394.17; Fri, 6 Aug
+ 2021 16:35:32 +0000
+Received: from BN8NAM11FT051.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:404:65:cafe::b9) by BN6PR17CA0014.outlook.office365.com
+ (2603:10b6:404:65::24) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4394.15 via Frontend
+ Transport; Fri, 6 Aug 2021 16:35:32 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
+ smtp.mailfrom=amd.com; lists.freedesktop.org; dkim=none (message not signed)
+ header.d=none;lists.freedesktop.org; dmarc=pass action=none
+ header.from=amd.com;
+Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
+ 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
+ client-ip=165.204.84.17; helo=SATLEXMB03.amd.com;
+Received: from SATLEXMB03.amd.com (165.204.84.17) by
+ BN8NAM11FT051.mail.protection.outlook.com (10.13.177.66) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.20.4394.16 via Frontend Transport; Fri, 6 Aug 2021 16:35:32 +0000
+Received: from SATLEXMB04.amd.com (10.181.40.145) by SATLEXMB03.amd.com
+ (10.181.40.144) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2242.12; Fri, 6 Aug
+ 2021 11:35:31 -0500
+Received: from Bumblebee.amd.com (10.180.168.240) by SATLEXMB04.amd.com
+ (10.181.40.145) with Microsoft SMTP Server id 15.1.2242.12 via Frontend
+ Transport; Fri, 6 Aug 2021 11:35:28 -0500
+From:   Anson Jacob <Anson.Jacob@amd.com>
+To:     <amd-gfx@lists.freedesktop.org>
+CC:     <Harry.Wentland@amd.com>, <Sunpeng.Li@amd.com>,
+        <Bhawanpreet.Lakha@amd.com>, <Rodrigo.Siqueira@amd.com>,
+        <Aurabindo.Pillai@amd.com>, <Qingqing.Zhuo@amd.com>,
+        <Eryk.Brol@amd.com>, <bindu.r@amd.com>, <Anson.Jacob@amd.com>,
+        Eric Bernstein <eric.bernstein@amd.com>,
+        Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>,
+        <stable@vger.kernel.org>
+Subject: [PATCH 01/13] drm/amd/display: Remove invalid assert for ODM + MPC case
+Date:   Fri, 6 Aug 2021 12:34:37 -0400
+Message-ID: <20210806163449.349757-2-Anson.Jacob@amd.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20210806163449.349757-1-Anson.Jacob@amd.com>
+References: <20210806163449.349757-1-Anson.Jacob@amd.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.4.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.4.278-7-g155338eca25e
-X-Kernelci-Report-Type: test
-Subject: stable-rc/linux-4.4.y baseline: 58 runs,
- 5 regressions (v4.4.278-7-g155338eca25e)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 8e482d85-245e-4c2d-1f87-08d958f8359e
+X-MS-TrafficTypeDiagnostic: DM6PR12MB4267:
+X-Microsoft-Antispam-PRVS: <DM6PR12MB4267818D4F0E346422578093EBF39@DM6PR12MB4267.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:1303;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: kzMGOyhNpdasKPTstun7UKit/dsCKZXouwtZEAncsorfJDzmQ7gGQCIc0sNL+ymye/QpgMPIIt1tvqcG2lej4ZK+Kuyk67q+c+w3KwtqnNFbtBg7ZE+rzhfsu9xLNeFPqijH/pKIo9Ebxl5jyTfFbbVUrrWtf0Gs9mQVRy2fAUB4TGvxzaMJvcAGvlpqePgcXiFk7q4J6o69RjKe12zHHKjj+T0C3muazoWQWsz83UFJzwSKuLDcqJjYxksKyI92sRFqllgbVmqg4rlaEKKjHQhHKU3G1wtRwoFjOIjf5SBvJmVQgLqDInyT64VsTCsiiUFSObjwtByX9kU1XPiXieRQmWFJdJiEDbmW+Aq+EIllmB6hk7S4zCjeBJfDMJGiozOG157MOtTtFBuIw16yQlDEMGGepG90lxLkYtr0hE8wc2YCZCzJZl1NHGjStIm+e+IIwYcpf856E5y9+ajaWjSusnKaSWVtUl3k3oLlg7EARwiQ7pgeRyxuJNopw/XrD8LzrtWZe3uiYaCPe5LPTSks/mE3PQnLD9+mgnz5GTnyJCZVd+hNhKOza3r6lNbjSK0qUSBTTcY3U5JZT0hs9j8TBIOOC957tc9JSUBEIMpjqBgEnGxkg0ctJJbisSNEjdcskOmXHbDYYZDLJgBIJ89xRf7i2SAfQDpeUUZvyxfc6it3zHZYxOh1nucnpM7V/d+tLrZpI2SFoAGliCgY0egc5h/pvknM4JkCuYWWRXc=
+X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB03.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(4636009)(46966006)(36840700001)(2616005)(508600001)(316002)(86362001)(5660300002)(4744005)(336012)(6666004)(70586007)(70206006)(2906002)(82310400003)(83380400001)(47076005)(6916009)(1076003)(4326008)(8936002)(26005)(36756003)(7696005)(8676002)(54906003)(36860700001)(81166007)(356005)(426003)(186003)(36900700001);DIR:OUT;SFP:1101;
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Aug 2021 16:35:32.3894
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 8e482d85-245e-4c2d-1f87-08d958f8359e
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB03.amd.com]
+X-MS-Exchange-CrossTenant-AuthSource: BN8NAM11FT051.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB4267
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y baseline: 58 runs, 5 regressions (v4.4.278-7-g155338e=
-ca25e)
+From: Eric Bernstein <eric.bernstein@amd.com>
 
-Regressions Summary
--------------------
+Reviewed-by: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
+Acked-by: Anson Jacob <Anson.Jacob@amd.com>
+Signed-off-by: Eric Bernstein <eric.bernstein@amd.com>
+Cc: stable@vger.kernel.org
+---
+ drivers/gpu/drm/amd/display/dc/dcn30/dcn30_resource.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-platform            | arch | lab             | compiler | defconfig        =
-  | regressions
---------------------+------+-----------------+----------+------------------=
---+------------
-dove-cubox          | arm  | lab-pengutronix | gcc-8    | mvebu_v7_defconfi=
-g | 1          =
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_resource.c b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_resource.c
+index 253654d605c2..28e15ebf2f43 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_resource.c
+@@ -1788,7 +1788,6 @@ static bool dcn30_split_stream_for_mpc_or_odm(
+ 		}
+ 		pri_pipe->next_odm_pipe = sec_pipe;
+ 		sec_pipe->prev_odm_pipe = pri_pipe;
+-		ASSERT(sec_pipe->top_pipe == NULL);
+ 
+ 		if (!sec_pipe->top_pipe)
+ 			sec_pipe->stream_res.opp = pool->opps[pipe_idx];
+-- 
+2.25.1
 
-qemu_arm-virt-gicv2 | arm  | lab-baylibre    | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-qemu_arm-virt-gicv2 | arm  | lab-cip         | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-qemu_arm-virt-gicv3 | arm  | lab-baylibre    | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-qemu_arm-virt-gicv3 | arm  | lab-cip         | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.4.y/kern=
-el/v4.4.278-7-g155338eca25e/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.4.y
-  Describe: v4.4.278-7-g155338eca25e
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      155338eca25e98640866913820fbb3c0d3efed49 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform            | arch | lab             | compiler | defconfig        =
-  | regressions
---------------------+------+-----------------+----------+------------------=
---+------------
-dove-cubox          | arm  | lab-pengutronix | gcc-8    | mvebu_v7_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/610d27ddc55802003fb13668
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: mvebu_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.278=
--7-g155338eca25e/arm/mvebu_v7_defconfig/gcc-8/lab-pengutronix/baseline-dove=
--cubox.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.278=
--7-g155338eca25e/arm/mvebu_v7_defconfig/gcc-8/lab-pengutronix/baseline-dove=
--cubox.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/610d27ddc55802003fb13=
-669
-        new failure (last pass: v4.4.278) =
-
- =
-
-
-
-platform            | arch | lab             | compiler | defconfig        =
-  | regressions
---------------------+------+-----------------+----------+------------------=
---+------------
-qemu_arm-virt-gicv2 | arm  | lab-baylibre    | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/610d2f1ebf90718dfdb13686
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.278=
--7-g155338eca25e/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
-m-virt-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.278=
--7-g155338eca25e/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
-m-virt-gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/610d2f1ebf90718dfdb13=
-687
-        failing since 264 days (last pass: v4.4.243-14-gcb8e837cb602, first=
- fail: v4.4.243-20-g3c35b64319c2) =
-
- =
-
-
-
-platform            | arch | lab             | compiler | defconfig        =
-  | regressions
---------------------+------+-----------------+----------+------------------=
---+------------
-qemu_arm-virt-gicv2 | arm  | lab-cip         | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/610d25cdf947c86404b1366f
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.278=
--7-g155338eca25e/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-vir=
-t-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.278=
--7-g155338eca25e/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-vir=
-t-gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/610d25cdf947c86404b13=
-670
-        failing since 264 days (last pass: v4.4.243-14-gcb8e837cb602, first=
- fail: v4.4.243-20-g3c35b64319c2) =
-
- =
-
-
-
-platform            | arch | lab             | compiler | defconfig        =
-  | regressions
---------------------+------+-----------------+----------+------------------=
---+------------
-qemu_arm-virt-gicv3 | arm  | lab-baylibre    | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/610d2fbf234d43ee59b13665
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.278=
--7-g155338eca25e/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
-m-virt-gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.278=
--7-g155338eca25e/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
-m-virt-gicv3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/610d2fbf234d43ee59b13=
-666
-        failing since 264 days (last pass: v4.4.243-14-gcb8e837cb602, first=
- fail: v4.4.243-20-g3c35b64319c2) =
-
- =
-
-
-
-platform            | arch | lab             | compiler | defconfig        =
-  | regressions
---------------------+------+-----------------+----------+------------------=
---+------------
-qemu_arm-virt-gicv3 | arm  | lab-cip         | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/610d2630cdd4f95a46b136c0
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.278=
--7-g155338eca25e/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-vir=
-t-gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.278=
--7-g155338eca25e/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-vir=
-t-gicv3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/610d2630cdd4f95a46b13=
-6c1
-        failing since 264 days (last pass: v4.4.243-14-gcb8e837cb602, first=
- fail: v4.4.243-20-g3c35b64319c2) =
-
- =20
