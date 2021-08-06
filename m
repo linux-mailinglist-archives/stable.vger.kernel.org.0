@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BE153E2599
-	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:21:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90CFE3E257B
+	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:20:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243420AbhHFIVN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Aug 2021 04:21:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51558 "EHLO mail.kernel.org"
+        id S244102AbhHFIUS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Aug 2021 04:20:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244118AbhHFIUJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Aug 2021 04:20:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 15CC461205;
-        Fri,  6 Aug 2021 08:19:52 +0000 (UTC)
+        id S244103AbhHFISu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Aug 2021 04:18:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 920FD6121F;
+        Fri,  6 Aug 2021 08:18:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628237993;
-        bh=l8RpuUUgU+SuIJlTemegzzRXYBEGfYOIWODXXJFZU+4=;
+        s=korg; t=1628237904;
+        bh=kxkZ5pjcqKOV9vNovoFF0tKjKjrZ5+0Q2p484H/DDIc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xORnwMAkCKvP7PY6mS9rF6uiVKsMEUG5e+fOra5kiyVkdS6SRSIizlSA+Q86jlRFd
-         kee98iT06RuQTloN81ZZRTuC/VYFgZBTi4Yw7gPq1e/EaUHM8RfvmPcw+mWEbvpdHN
-         zS5NAR5ct8XkPKQ9zjdYPND7uq7uoNl8vBzRgojo=
+        b=sqQoREjrX0wImP84HN9cWiUdWOJAxPgowBfqWQxlSAj7OYHwGGvdD3qmAKm0R8USH
+         2cqd6//lBjFYy5uD89AKnACkV0fnE0LRftOEDohMSjLUv82D1Yrl7OOYedURS6YLCa
+         +0uRZw1MY3eLXNh69lVVeKZVlE05A4MxGnk1shtY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.13 11/35] ASoC: Intel: boards: handle hda-dsp-common as a module
+        Yonghong Song <yhs@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 5.4 22/23] bpf, selftests: Add a verifier test for assigning 32bit reg states to 64bit ones
 Date:   Fri,  6 Aug 2021 10:16:54 +0200
-Message-Id: <20210806081114.084938297@linuxfoundation.org>
+Message-Id: <20210806081112.900244614@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210806081113.718626745@linuxfoundation.org>
-References: <20210806081113.718626745@linuxfoundation.org>
+In-Reply-To: <20210806081112.104686873@linuxfoundation.org>
+References: <20210806081112.104686873@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,302 +41,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: John Fastabend <john.fastabend@gmail.com>
 
-hda-dsp-common.o is linked multiple times due to copy/paste and
-inertia. Move to a dedicated module with a namespace.
+commit cf66c29bd7534813d2e1971fab71e25fe87c7e0a upstream
 
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-Link: https://lore.kernel.org/r/20210505163705.305616-6-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Added a verifier test for assigning 32bit reg states to
+64bit where 32bit reg holds a constant value of 0.
+
+Without previous kernel verifier.c fix, the test in
+this patch will fail.
+
+Signed-off-by: Yonghong Song <yhs@fb.com>
+Signed-off-by: John Fastabend <john.fastabend@gmail.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/159077335867.6014.2075350327073125374.stgit@john-Precision-5820-Tower
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/intel/boards/Kconfig                | 13 ++++++++++
- sound/soc/intel/boards/Makefile               | 24 +++++++++++--------
- sound/soc/intel/boards/bxt_da7219_max98357a.c |  1 +
- sound/soc/intel/boards/bxt_rt298.c            |  1 +
- sound/soc/intel/boards/cml_rt1011_rt5682.c    |  1 +
- sound/soc/intel/boards/ehl_rt5660.c           |  1 +
- sound/soc/intel/boards/glk_rt5682_max98357a.c |  1 +
- sound/soc/intel/boards/hda_dsp_common.c       |  5 ++++
- sound/soc/intel/boards/skl_hda_dsp_generic.c  |  1 +
- sound/soc/intel/boards/sof_da7219_max98373.c  |  1 +
- sound/soc/intel/boards/sof_pcm512x.c          |  1 +
- sound/soc/intel/boards/sof_rt5682.c           |  1 +
- sound/soc/intel/boards/sof_sdw.c              |  1 +
- 13 files changed, 42 insertions(+), 10 deletions(-)
+ tools/testing/selftests/bpf/verifier/bounds.c |   22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
 
-diff --git a/sound/soc/intel/boards/Kconfig b/sound/soc/intel/boards/Kconfig
-index 58379393b8e4..ec4d754eb348 100644
---- a/sound/soc/intel/boards/Kconfig
-+++ b/sound/soc/intel/boards/Kconfig
-@@ -26,6 +26,9 @@ config SND_SOC_INTEL_USER_FRIENDLY_LONG_NAMES
- 	  interface.
- 	  If unsure select N.
- 
-+config SND_SOC_INTEL_HDA_DSP_COMMON
-+	tristate
-+
- if SND_SOC_INTEL_CATPT
- 
- config SND_SOC_INTEL_HASWELL_MACH
-@@ -278,6 +281,7 @@ config SND_SOC_INTEL_DA7219_MAX98357A_GENERIC
- 	select SND_SOC_MAX98390
- 	select SND_SOC_DMIC
- 	select SND_SOC_HDAC_HDMI
-+	select SND_SOC_INTEL_HDA_DSP_COMMON
- 
- config SND_SOC_INTEL_BXT_DA7219_MAX98357A_COMMON
- 	tristate
-@@ -304,6 +308,7 @@ config SND_SOC_INTEL_BXT_RT298_MACH
- 	select SND_SOC_RT298
- 	select SND_SOC_DMIC
- 	select SND_SOC_HDAC_HDMI
-+	select SND_SOC_INTEL_HDA_DSP_COMMON
- 	help
- 	   This adds support for ASoC machine driver for Broxton platforms
- 	   with RT286 I2S audio codec.
-@@ -422,6 +427,7 @@ config SND_SOC_INTEL_GLK_RT5682_MAX98357A_MACH
- 	select SND_SOC_MAX98357A
- 	select SND_SOC_DMIC
- 	select SND_SOC_HDAC_HDMI
-+	select SND_SOC_INTEL_HDA_DSP_COMMON
- 	help
- 	   This adds support for ASoC machine driver for Geminilake platforms
- 	   with RT5682 + MAX98357A I2S audio codec.
-@@ -437,6 +443,7 @@ config SND_SOC_INTEL_SKL_HDA_DSP_GENERIC_MACH
- 	depends on SND_HDA_CODEC_HDMI
- 	depends on GPIOLIB
- 	select SND_SOC_HDAC_HDMI
-+	select SND_SOC_INTEL_HDA_DSP_COMMON
- 	select SND_SOC_DMIC
- 	# SND_SOC_HDAC_HDA is already selected
- 	help
-@@ -461,6 +468,7 @@ config SND_SOC_INTEL_SOF_RT5682_MACH
- 	select SND_SOC_RT5682_I2C
- 	select SND_SOC_DMIC
- 	select SND_SOC_HDAC_HDMI
-+	select SND_SOC_INTEL_HDA_DSP_COMMON
- 	help
- 	   This adds support for ASoC machine driver for SOF platforms
- 	   with rt5682 codec.
-@@ -473,6 +481,7 @@ config SND_SOC_INTEL_SOF_PCM512x_MACH
- 	depends on (SND_SOC_SOF_HDA_AUDIO_CODEC && (MFD_INTEL_LPSS || COMPILE_TEST)) ||\
- 		   (SND_SOC_SOF_BAYTRAIL && (X86_INTEL_LPSS || COMPILE_TEST))
- 	depends on SND_HDA_CODEC_HDMI
-+	select SND_SOC_INTEL_HDA_DSP_COMMON
- 	select SND_SOC_PCM512x_I2C
- 	help
- 	  This adds support for ASoC machine driver for SOF platforms
-@@ -504,6 +513,7 @@ config SND_SOC_INTEL_SOF_CML_RT1011_RT5682_MACH
- 	select SND_SOC_RT5682_I2C
- 	select SND_SOC_DMIC
- 	select SND_SOC_HDAC_HDMI
-+	select SND_SOC_INTEL_HDA_DSP_COMMON
- 	help
- 	  This adds support for ASoC machine driver for SOF platform with
- 	  RT1011 + RT5682 I2S codec.
-@@ -519,6 +529,7 @@ config SND_SOC_INTEL_SOF_DA7219_MAX98373_MACH
- 	depends on I2C && ACPI && GPIOLIB
- 	depends on MFD_INTEL_LPSS || COMPILE_TEST
- 	depends on SND_HDA_CODEC_HDMI && SND_SOC_SOF_HDA_AUDIO_CODEC
-+	select SND_SOC_INTEL_HDA_DSP_COMMON
- 	select SND_SOC_DA7219
- 	select SND_SOC_MAX98373_I2C
- 	select SND_SOC_DMIC
-@@ -539,6 +550,7 @@ config SND_SOC_INTEL_EHL_RT5660_MACH
- 	depends on SND_HDA_CODEC_HDMI && SND_SOC_SOF_HDA_AUDIO_CODEC
- 	select SND_SOC_RT5660
- 	select SND_SOC_DMIC
-+	select SND_SOC_INTEL_HDA_DSP_COMMON
- 	help
- 	  This adds support for ASoC machine driver for Elkhart Lake
- 	  platform with RT5660 I2S audio codec.
-@@ -566,6 +578,7 @@ config SND_SOC_INTEL_SOUNDWIRE_SOF_MACH
- 	select SND_SOC_RT715_SDCA_SDW
- 	select SND_SOC_RT5682_SDW
- 	select SND_SOC_DMIC
-+	select SND_SOC_INTEL_HDA_DSP_COMMON
- 	help
- 	  Add support for Intel SoundWire-based platforms connected to
- 	  MAX98373, RT700, RT711, RT1308 and RT715
-diff --git a/sound/soc/intel/boards/Makefile b/sound/soc/intel/boards/Makefile
-index 616c5fbab7d5..a48ee9b74e73 100644
---- a/sound/soc/intel/boards/Makefile
-+++ b/sound/soc/intel/boards/Makefile
-@@ -3,11 +3,11 @@ snd-soc-sst-haswell-objs := haswell.o
- snd-soc-sst-bdw-rt5650-mach-objs := bdw-rt5650.o
- snd-soc-sst-bdw-rt5677-mach-objs := bdw-rt5677.o
- snd-soc-sst-broadwell-objs := broadwell.o
--snd-soc-sst-bxt-da7219_max98357a-objs := bxt_da7219_max98357a.o hda_dsp_common.o
--snd-soc-sst-bxt-rt298-objs := bxt_rt298.o hda_dsp_common.o
--snd-soc-sst-sof-pcm512x-objs := sof_pcm512x.o hda_dsp_common.o
-+snd-soc-sst-bxt-da7219_max98357a-objs := bxt_da7219_max98357a.o
-+snd-soc-sst-bxt-rt298-objs := bxt_rt298.o
-+snd-soc-sst-sof-pcm512x-objs := sof_pcm512x.o
- snd-soc-sst-sof-wm8804-objs := sof_wm8804.o
--snd-soc-sst-glk-rt5682_max98357a-objs := glk_rt5682_max98357a.o hda_dsp_common.o
-+snd-soc-sst-glk-rt5682_max98357a-objs := glk_rt5682_max98357a.o
- snd-soc-sst-bytcr-rt5640-objs := bytcr_rt5640.o
- snd-soc-sst-bytcr-rt5651-objs := bytcr_rt5651.o
- snd-soc-sst-bytcr-wm5102-objs := bytcr_wm5102.o
-@@ -19,19 +19,19 @@ snd-soc-sst-byt-cht-cx2072x-objs := bytcht_cx2072x.o
- snd-soc-sst-byt-cht-da7213-objs := bytcht_da7213.o
- snd-soc-sst-byt-cht-es8316-objs := bytcht_es8316.o
- snd-soc-sst-byt-cht-nocodec-objs := bytcht_nocodec.o
--snd-soc-sof_rt5682-objs := sof_rt5682.o hda_dsp_common.o sof_maxim_common.o sof_realtek_common.o
--snd-soc-cml_rt1011_rt5682-objs := cml_rt1011_rt5682.o hda_dsp_common.o
-+snd-soc-sof_rt5682-objs := sof_rt5682.o sof_maxim_common.o sof_realtek_common.o
-+snd-soc-cml_rt1011_rt5682-objs := cml_rt1011_rt5682.o
- snd-soc-kbl_da7219_max98357a-objs := kbl_da7219_max98357a.o
- snd-soc-kbl_da7219_max98927-objs := kbl_da7219_max98927.o
- snd-soc-kbl_rt5663_max98927-objs := kbl_rt5663_max98927.o
- snd-soc-kbl_rt5663_rt5514_max98927-objs := kbl_rt5663_rt5514_max98927.o
- snd-soc-kbl_rt5660-objs := kbl_rt5660.o
- snd-soc-skl_rt286-objs := skl_rt286.o
--snd-soc-skl_hda_dsp-objs := skl_hda_dsp_generic.o skl_hda_dsp_common.o hda_dsp_common.o
-+snd-soc-skl_hda_dsp-objs := skl_hda_dsp_generic.o skl_hda_dsp_common.o
- snd-skl_nau88l25_max98357a-objs := skl_nau88l25_max98357a.o
- snd-soc-skl_nau88l25_ssm4567-objs := skl_nau88l25_ssm4567.o
--snd-soc-sof_da7219_max98373-objs := sof_da7219_max98373.o hda_dsp_common.o
--snd-soc-ehl-rt5660-objs := ehl_rt5660.o hda_dsp_common.o
-+snd-soc-sof_da7219_max98373-objs := sof_da7219_max98373.o
-+snd-soc-ehl-rt5660-objs := ehl_rt5660.o
- snd-soc-sof-sdw-objs += sof_sdw.o				\
- 			sof_sdw_max98373.o			\
- 			sof_sdw_rt1308.o sof_sdw_rt1316.o	\
-@@ -39,7 +39,7 @@ snd-soc-sof-sdw-objs += sof_sdw.o				\
- 			sof_sdw_rt711.o sof_sdw_rt711_sdca.o 	\
- 			sof_sdw_rt715.o	sof_sdw_rt715_sdca.o 	\
- 			sof_maxim_common.o                      \
--			sof_sdw_dmic.o sof_sdw_hdmi.o hda_dsp_common.o
-+			sof_sdw_dmic.o sof_sdw_hdmi.o
- obj-$(CONFIG_SND_SOC_INTEL_SOF_RT5682_MACH) += snd-soc-sof_rt5682.o
- obj-$(CONFIG_SND_SOC_INTEL_HASWELL_MACH) += snd-soc-sst-haswell.o
- obj-$(CONFIG_SND_SOC_INTEL_BXT_DA7219_MAX98357A_COMMON) += snd-soc-sst-bxt-da7219_max98357a.o
-@@ -74,3 +74,7 @@ obj-$(CONFIG_SND_SOC_INTEL_SKL_HDA_DSP_GENERIC_MACH) += snd-soc-skl_hda_dsp.o
- obj-$(CONFIG_SND_SOC_INTEL_SOF_DA7219_MAX98373_MACH) += snd-soc-sof_da7219_max98373.o
- obj-$(CONFIG_SND_SOC_INTEL_EHL_RT5660_MACH) += snd-soc-ehl-rt5660.o
- obj-$(CONFIG_SND_SOC_INTEL_SOUNDWIRE_SOF_MACH) += snd-soc-sof-sdw.o
-+
-+# common modules
-+snd-soc-intel-hda-dsp-common-objs := hda_dsp_common.o
-+obj-$(CONFIG_SND_SOC_INTEL_HDA_DSP_COMMON) += snd-soc-intel-hda-dsp-common.o
-diff --git a/sound/soc/intel/boards/bxt_da7219_max98357a.c b/sound/soc/intel/boards/bxt_da7219_max98357a.c
-index 9ffef396f8f2..07ae950b0127 100644
---- a/sound/soc/intel/boards/bxt_da7219_max98357a.c
-+++ b/sound/soc/intel/boards/bxt_da7219_max98357a.c
-@@ -869,3 +869,4 @@ MODULE_LICENSE("GPL v2");
- MODULE_ALIAS("platform:bxt_da7219_max98357a");
- MODULE_ALIAS("platform:glk_da7219_max98357a");
- MODULE_ALIAS("platform:cml_da7219_max98357a");
-+MODULE_IMPORT_NS(SND_SOC_INTEL_HDA_DSP_COMMON);
-diff --git a/sound/soc/intel/boards/bxt_rt298.c b/sound/soc/intel/boards/bxt_rt298.c
-index 0f3157dfa838..32a776fa0b86 100644
---- a/sound/soc/intel/boards/bxt_rt298.c
-+++ b/sound/soc/intel/boards/bxt_rt298.c
-@@ -667,3 +667,4 @@ MODULE_DESCRIPTION("Intel SST Audio for Broxton");
- MODULE_LICENSE("GPL v2");
- MODULE_ALIAS("platform:bxt_alc298s_i2s");
- MODULE_ALIAS("platform:glk_alc298s_i2s");
-+MODULE_IMPORT_NS(SND_SOC_INTEL_HDA_DSP_COMMON);
-diff --git a/sound/soc/intel/boards/cml_rt1011_rt5682.c b/sound/soc/intel/boards/cml_rt1011_rt5682.c
-index 14813beb33d1..27615acddacd 100644
---- a/sound/soc/intel/boards/cml_rt1011_rt5682.c
-+++ b/sound/soc/intel/boards/cml_rt1011_rt5682.c
-@@ -594,3 +594,4 @@ MODULE_AUTHOR("Shuming Fan <shumingf@realtek.com>");
- MODULE_AUTHOR("Mac Chiang <mac.chiang@intel.com>");
- MODULE_LICENSE("GPL v2");
- MODULE_ALIAS("platform:cml_rt1011_rt5682");
-+MODULE_IMPORT_NS(SND_SOC_INTEL_HDA_DSP_COMMON);
-diff --git a/sound/soc/intel/boards/ehl_rt5660.c b/sound/soc/intel/boards/ehl_rt5660.c
-index 7c0d4e915406..b9b72d05b335 100644
---- a/sound/soc/intel/boards/ehl_rt5660.c
-+++ b/sound/soc/intel/boards/ehl_rt5660.c
-@@ -321,3 +321,4 @@ MODULE_DESCRIPTION("ASoC Intel(R) Elkhartlake + rt5660 Machine driver");
- MODULE_AUTHOR("libin.yang@intel.com");
- MODULE_LICENSE("GPL v2");
- MODULE_ALIAS("platform:ehl_rt5660");
-+MODULE_IMPORT_NS(SND_SOC_INTEL_HDA_DSP_COMMON);
-diff --git a/sound/soc/intel/boards/glk_rt5682_max98357a.c b/sound/soc/intel/boards/glk_rt5682_max98357a.c
-index 62cca511522e..19e2ff90886a 100644
---- a/sound/soc/intel/boards/glk_rt5682_max98357a.c
-+++ b/sound/soc/intel/boards/glk_rt5682_max98357a.c
-@@ -642,3 +642,4 @@ MODULE_AUTHOR("Naveen Manohar <naveen.m@intel.com>");
- MODULE_AUTHOR("Harsha Priya <harshapriya.n@intel.com>");
- MODULE_LICENSE("GPL v2");
- MODULE_ALIAS("platform:glk_rt5682_max98357a");
-+MODULE_IMPORT_NS(SND_SOC_INTEL_HDA_DSP_COMMON);
-diff --git a/sound/soc/intel/boards/hda_dsp_common.c b/sound/soc/intel/boards/hda_dsp_common.c
-index 91ad2a0ad1ce..efdc4bc4bb1f 100644
---- a/sound/soc/intel/boards/hda_dsp_common.c
-+++ b/sound/soc/intel/boards/hda_dsp_common.c
-@@ -2,6 +2,7 @@
- //
- // Copyright(c) 2019 Intel Corporation. All rights reserved.
- 
-+#include <linux/module.h>
- #include <sound/pcm.h>
- #include <sound/soc.h>
- #include <sound/hda_codec.h>
-@@ -82,5 +83,9 @@ int hda_dsp_hdmi_build_controls(struct snd_soc_card *card,
- 
- 	return err;
- }
-+EXPORT_SYMBOL_NS(hda_dsp_hdmi_build_controls, SND_SOC_INTEL_HDA_DSP_COMMON);
- 
- #endif
-+
-+MODULE_DESCRIPTION("ASoC Intel HDMI helpers");
-+MODULE_LICENSE("GPL");
-diff --git a/sound/soc/intel/boards/skl_hda_dsp_generic.c b/sound/soc/intel/boards/skl_hda_dsp_generic.c
-index bc50eda297ab..f4b4eeca3e03 100644
---- a/sound/soc/intel/boards/skl_hda_dsp_generic.c
-+++ b/sound/soc/intel/boards/skl_hda_dsp_generic.c
-@@ -258,3 +258,4 @@ MODULE_DESCRIPTION("SKL/KBL/BXT/APL HDA Generic Machine driver");
- MODULE_AUTHOR("Rakesh Ughreja <rakesh.a.ughreja@intel.com>");
- MODULE_LICENSE("GPL v2");
- MODULE_ALIAS("platform:skl_hda_dsp_generic");
-+MODULE_IMPORT_NS(SND_SOC_INTEL_HDA_DSP_COMMON);
-diff --git a/sound/soc/intel/boards/sof_da7219_max98373.c b/sound/soc/intel/boards/sof_da7219_max98373.c
-index 8d1ad892e86b..2116d70d1ea8 100644
---- a/sound/soc/intel/boards/sof_da7219_max98373.c
-+++ b/sound/soc/intel/boards/sof_da7219_max98373.c
-@@ -458,3 +458,4 @@ MODULE_AUTHOR("Yong Zhi <yong.zhi@intel.com>");
- MODULE_LICENSE("GPL v2");
- MODULE_ALIAS("platform:sof_da7219_max98360a");
- MODULE_ALIAS("platform:sof_da7219_max98373");
-+MODULE_IMPORT_NS(SND_SOC_INTEL_HDA_DSP_COMMON);
-diff --git a/sound/soc/intel/boards/sof_pcm512x.c b/sound/soc/intel/boards/sof_pcm512x.c
-index d2b0456236c7..8620d4f38493 100644
---- a/sound/soc/intel/boards/sof_pcm512x.c
-+++ b/sound/soc/intel/boards/sof_pcm512x.c
-@@ -437,3 +437,4 @@ MODULE_DESCRIPTION("ASoC Intel(R) SOF + PCM512x Machine driver");
- MODULE_AUTHOR("Pierre-Louis Bossart");
- MODULE_LICENSE("GPL v2");
- MODULE_ALIAS("platform:sof_pcm512x");
-+MODULE_IMPORT_NS(SND_SOC_INTEL_HDA_DSP_COMMON);
-diff --git a/sound/soc/intel/boards/sof_rt5682.c b/sound/soc/intel/boards/sof_rt5682.c
-index cf1d053733e2..52401cc0de92 100644
---- a/sound/soc/intel/boards/sof_rt5682.c
-+++ b/sound/soc/intel/boards/sof_rt5682.c
-@@ -994,3 +994,4 @@ MODULE_ALIAS("platform:jsl_rt5682_max98360a");
- MODULE_ALIAS("platform:cml_rt1015_rt5682");
- MODULE_ALIAS("platform:tgl_rt1011_rt5682");
- MODULE_ALIAS("platform:jsl_rt5682_rt1015p");
-+MODULE_IMPORT_NS(SND_SOC_INTEL_HDA_DSP_COMMON);
-diff --git a/sound/soc/intel/boards/sof_sdw.c b/sound/soc/intel/boards/sof_sdw.c
-index 5827a16773c9..5e4d26e9bb7d 100644
---- a/sound/soc/intel/boards/sof_sdw.c
-+++ b/sound/soc/intel/boards/sof_sdw.c
-@@ -1318,3 +1318,4 @@ MODULE_AUTHOR("Rander Wang <rander.wang@linux.intel.com>");
- MODULE_AUTHOR("Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>");
- MODULE_LICENSE("GPL v2");
- MODULE_ALIAS("platform:sof_sdw");
-+MODULE_IMPORT_NS(SND_SOC_INTEL_HDA_DSP_COMMON);
--- 
-2.30.2
-
+--- a/tools/testing/selftests/bpf/verifier/bounds.c
++++ b/tools/testing/selftests/bpf/verifier/bounds.c
+@@ -545,3 +545,25 @@
+ 	},
+ 	.result = ACCEPT
+ },
++{
++	"assigning 32bit bounds to 64bit for wA = 0, wB = wA",
++	.insns = {
++	BPF_LDX_MEM(BPF_W, BPF_REG_8, BPF_REG_1,
++		    offsetof(struct __sk_buff, data_end)),
++	BPF_LDX_MEM(BPF_W, BPF_REG_7, BPF_REG_1,
++		    offsetof(struct __sk_buff, data)),
++	BPF_MOV32_IMM(BPF_REG_9, 0),
++	BPF_MOV32_REG(BPF_REG_2, BPF_REG_9),
++	BPF_MOV64_REG(BPF_REG_6, BPF_REG_7),
++	BPF_ALU64_REG(BPF_ADD, BPF_REG_6, BPF_REG_2),
++	BPF_MOV64_REG(BPF_REG_3, BPF_REG_6),
++	BPF_ALU64_IMM(BPF_ADD, BPF_REG_3, 8),
++	BPF_JMP_REG(BPF_JGT, BPF_REG_3, BPF_REG_8, 1),
++	BPF_LDX_MEM(BPF_W, BPF_REG_5, BPF_REG_6, 0),
++	BPF_MOV64_IMM(BPF_REG_0, 0),
++	BPF_EXIT_INSN(),
++	},
++	.prog_type = BPF_PROG_TYPE_SCHED_CLS,
++	.result = ACCEPT,
++	.flags = F_NEEDS_EFFICIENT_UNALIGNED_ACCESS,
++},
 
 
