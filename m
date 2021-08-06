@@ -2,70 +2,145 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 659603E2CDA
-	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 16:41:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6737F3E2CDD
+	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 16:43:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240937AbhHFOmN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Aug 2021 10:42:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33790 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241071AbhHFOmL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 Aug 2021 10:42:11 -0400
-Received: from mail-ej1-x636.google.com (mail-ej1-x636.google.com [IPv6:2a00:1450:4864:20::636])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BB6AC06179C
-        for <stable@vger.kernel.org>; Fri,  6 Aug 2021 07:41:54 -0700 (PDT)
-Received: by mail-ej1-x636.google.com with SMTP id hw6so15421247ejc.10
-        for <stable@vger.kernel.org>; Fri, 06 Aug 2021 07:41:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=/oMubRmlLM5EZ/UdY6Fj3wsfS2kyoMzN9ASXgZ3xneY=;
-        b=Bwoup+8csuZ0aplYDrhW1xTORktIbRO14S6hXUsMZ9qnVQK/Wen6vIADpq80JjLLvK
-         2pA4sCb9U7+sKuLkDvBPL+7glCU3yWZXzZXfnOqNPlpUMIi37fJjkb1OyWFGaXbn+7qJ
-         ZgpNgioUv5oIUkujl6qgAeZCEY+5dL8nHoDIeUBJmbLeQbGLl8RMPfl5e1I7TVQtz72M
-         YgCtE5Ps5pu1XK1Wap/uxFRItrSEKSh9T9SE6S/+fyFaZRR8rqClRcvW6amRZLYFOpTd
-         W9AfLqI29XcgUqeuC8OIG9xIi1Y7WAzEvjmjWDuPPWYUqQ4diYsAuxjLzXbMOPuFHMkS
-         MwFA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=/oMubRmlLM5EZ/UdY6Fj3wsfS2kyoMzN9ASXgZ3xneY=;
-        b=cOQepjFh4ebtFnIkmtYHldZFsIuyPw80mheGihr3YKrlHi4fXvVr26fcC99l9DDSo2
-         /5jO+SshBjqonlgAukisNUNoBdz5jzpoRswsV3HyIAg3NaO9EdWm3oq5Y7bgDD7PwmzD
-         pTMfI7EQHtsuMwbYQqlDgTDQ/deTC8/m3P7juKRI4zcl8EX2dfSo3yOLhZd6wB6NMEsO
-         TNh5QKMkrGya2HR332I2uq6+IhjcAS4cMV0Q8XMmqzEffDaQI4KYSbIYK2INQagHF4LX
-         QgaL0FTbZLhU2HnPoH2NUtPGDWnXhwDrKW7+8p1Hc5Qx81WEdSf57ilwKPI6JHpS2LnD
-         jRFA==
-X-Gm-Message-State: AOAM5313pBzhsCNJYYYK65IteqTBiZJY+RTlZxL2ucDUokyqEwX0w2zX
-        1PUOWcH1vxYps6B1NwXj6dn9hW/R10y7J4aHZfI=
-X-Google-Smtp-Source: ABdhPJzhoMwSsDxi4S8EoWL0J76UmqUWdvA8vv3/aAh6CaNxty+Qan2PxETx4EBDoNgIDXjmLPth7CopVqd9zmwjhmA=
-X-Received: by 2002:a17:906:648f:: with SMTP id e15mr10312451ejm.451.1628260912483;
- Fri, 06 Aug 2021 07:41:52 -0700 (PDT)
+        id S241062AbhHFOnU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Aug 2021 10:43:20 -0400
+Received: from wtarreau.pck.nerim.net ([62.212.114.60]:34721 "EHLO 1wt.eu"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231739AbhHFOnT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Aug 2021 10:43:19 -0400
+Received: (from willy@localhost)
+        by pcw.home.local (8.15.2/8.15.2/Submit) id 176EgiVv029591;
+        Fri, 6 Aug 2021 16:42:44 +0200
+Date:   Fri, 6 Aug 2021 16:42:44 +0200
+From:   Willy Tarreau <w@1wt.eu>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     stable <stable@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: Regressions in stable releases
+Message-ID: <20210806144244.GE27218@1wt.eu>
+References: <efee3a58-a4d2-af22-0931-e81b877ab539@roeck-us.net>
+ <20210805164254.GG17808@1wt.eu>
+ <20210805172949.GA3691426@roeck-us.net>
+ <20210805183055.GA21961@1wt.eu>
+ <dcb1a1ad-fb1a-8b4a-44c9-c47ed0164355@roeck-us.net>
 MIME-Version: 1.0
-Received: by 2002:ab4:a729:0:0:0:0:0 with HTTP; Fri, 6 Aug 2021 07:41:51 -0700 (PDT)
-Reply-To: mrmaxwellwatford@gmail.com
-From:   Maxwell Watford <kazahalima@gmail.com>
-Date:   Fri, 6 Aug 2021 14:41:51 +0000
-Message-ID: <CAA3roWncDd30x6RhoupgCfnn44FVPeEfYLaNFmHeDGvKLtq7EQ@mail.gmail.com>
-Subject: i need your reply
-To:     kazahalima@gmail.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <dcb1a1ad-fb1a-8b4a-44c9-c47ed0164355@roeck-us.net>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Greetings,
+On Fri, Aug 06, 2021 at 07:16:32AM -0700, Guenter Roeck wrote:
+> On 8/5/21 11:30 AM, Willy Tarreau wrote:
+> > On Thu, Aug 05, 2021 at 10:29:49AM -0700, Guenter Roeck wrote:
+> > > > It looks like a typical "works for me" regression. The best thing that
+> > > > could possibly be done to limit such occurrences would be to wait "long
+> > > > enough" before backporting them, in hope to catch breakage reports before
+> > > > the backport, but here there were already 3 weeks between the patch was
+> > > > submitted and it was backported.
+> > > 
+> > > No. The patch is wrong. It just _looks_ correct at first glance.
+> > 
+> > So that's the core of the problem. Stable maintainers cannot be tasked
+> > to try to analyse each patch in its finest details to figure whether a
+> > maintainer that's expected to be more knowledgeable than them on their
+> > driver did something wrong.
+> > 
+> > Then in my opinion we should encourage *not* to use "Fixes:" on untested
+> > patches (untested patches will always happen due to hardware availability
+> > or lack of a reliable reproducer).
+> > 
+> > What about this to try to improve the situation in this specific case ?
+> > 
+> > Willy
+> > 
+> > 
+> > > From ef646bae2139ba005de78940064c464126c430e6 Mon Sep 17 00:00:00 2001
+> > From: Willy Tarreau <w@1wt.eu>
+> > Date: Thu, 5 Aug 2021 20:24:30 +0200
+> > Subject: docs: process: submitting-patches.rst: recommend against 'Fixes:' if
+> >   untested
+> > 
+> > 'Fixes:' usually is taken as authority and often results in a backport. If
+> > a patch couldn't be tested although it looks perfectly valid, better not
+> > add this tag to leave a final chance for backporters to ask about the
+> > relevance of the backport or to check for future tests.
+> > 
+> > Cc: Guenter Roeck <linux@roeck-us.net>
+> > Signed-off-by: Willy Tarreau <w@1wt.eu>
+> > ---
+> >   Documentation/process/submitting-patches.rst | 9 +++++++++
+> >   1 file changed, 9 insertions(+)
+> > 
+> > diff --git a/Documentation/process/submitting-patches.rst b/Documentation/process/submitting-patches.rst
+> > index 0852bcf73630..54782b0e2f4c 100644
+> > --- a/Documentation/process/submitting-patches.rst
+> > +++ b/Documentation/process/submitting-patches.rst
+> > @@ -140,6 +140,15 @@ An example call::
+> >   	$ git log -1 --pretty=fixes 54a4f0239f2e
+> >   	Fixes: 54a4f0239f2e ("KVM: MMU: make kvm_mmu_zap_page() return the number of pages it actually freed")
+> > +Please note that a 'Fixes:' tag will most often result in your patch being
+> > +automatically backported to stable branches. If for any reason you could not
+> > +test that it really fixes the problem (for example, because the bug is not
+> > +reproducible, or because you did not have access to the required hardware
+> > +at the time of writing the patch to verify it does not cause regressions),
+> > +even if you are absolutely certain of your patch's validity, do not include
+> > +a 'Fixes:' tag and instead explain the situation in the commit message in
+> > +plain English.
+> > +
+> 
+> I don't think that would be a good idea, First, it would discourage people
+> from using Fixes: tags, and second it would not really solve the problem either.
+> 
+> While I am sure that the patch in question wasn't really tested (after all,
+> it broke EC communication on all Mediatek Chromebooks using SPI to communicate
+> with the EC), we don't know what the author tested. It may well be (and is quite
+> likely) that the author _did_ test the patch, only not the affected code path.
+> That means the author may still have added a Fixes: tag in the wrong belief
+> to have tested the fix, even with the above restrictions in place.
 
-We are writing to you from Ecowas Finance Controller Office Lome Togo,
-because we have received a file from the Ministry of Finance Lome-
-Togo, concerning an Inherited Fund bearing your name on it, And after
-our verifications, we found out that the funds belong to you.
+But this is exactly the principle of a regression, and the first rule that
+evreyone learns in programming is that 100% coverage never exists. That's
+particularly true in large projects where the skills are distributed over
+many people. Everyone faithfully tests the faulty case (i.e. I tested that
+it does solve the problem I could reproduce), without a knowledge of plenty
+of other cases. I do cause regressions myself when fixing bugs, despite
+running plenty of regtests, and I hate this. The only thing I can do in
+this case is to communicate about it as soon as detected and produce another
+fix as fast as possible.
 
-It has been awarded and I will like to guide you to claim the funds.
-Please contact me at my private email address
-(mrmaxwellwatford@gmail.com) for more information and directive
+> No, I think all we can do is to improve test coverage.
 
-I am looking forward to your urgent reply,
-Best regards
-Mr Maxwell Watford
+Improving test coverage is a way to *reduce* the frequency of regressions,
+it *never* eliminates them. And I'd really like that people start to accept
+that they are part of a normal development process, as careful as it can
+be, and that it's precisely why deploying updates from least sensitive to
+most sensitive environments is extremely important, and why bug reports
+are critical to the overall stability. There's never a zero-risk software
+nor their is any zero-risk upgrade. It's probably convenient to some users
+to complain that "the kernel maintainers" broke their system during an
+update between two stable releases, but this is just looking at the single
+failure in the middle of thousands of fixes and the fact that they maybe
+didn't even prepare the necessary rollback plan that must come with *any*
+software upgrade. And given that the alternative is to keep all their bugs
+unfixed, I find this a bit exagerated sometimes.
+
+I noticed that among people who I've seen complaining about regressions in
+-stable that extremely rare are those who faced more than one in a major
+branch. Sure some are more painful than others, but that's still an extremely
+high success rate.
+
+Now maybe there are *classes* of bugs that could be better detected through
+automated testing (new platforms, new workloads etc). But I strongly doubt
+it will make whiners complain less given that their use cases are probably
+mostly widely covered already and still slip through the rare cracks. And
+they are likely not the ones reporting problems here in the first place.
+
+Cheers,
+Willy
