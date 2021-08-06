@@ -2,88 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 357FF3E2CF3
-	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 16:53:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BBF83E2CF8
+	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 16:54:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230515AbhHFOx0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Aug 2021 10:53:26 -0400
-Received: from wtarreau.pck.nerim.net ([62.212.114.60]:34725 "EHLO 1wt.eu"
+        id S238683AbhHFOyZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Aug 2021 10:54:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230302AbhHFOx0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Aug 2021 10:53:26 -0400
-Received: (from willy@localhost)
-        by pcw.home.local (8.15.2/8.15.2/Submit) id 176Eqmad029650;
-        Fri, 6 Aug 2021 16:52:48 +0200
-Date:   Fri, 6 Aug 2021 16:52:48 +0200
-From:   Willy Tarreau <w@1wt.eu>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Guenter Roeck <linux@roeck-us.net>,
-        stable <stable@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Regressions in stable releases
-Message-ID: <20210806145248.GF27218@1wt.eu>
-References: <efee3a58-a4d2-af22-0931-e81b877ab539@roeck-us.net>
- <20210805164254.GG17808@1wt.eu>
- <20210805172949.GA3691426@roeck-us.net>
- <20210805183055.GA21961@1wt.eu>
- <YQ1JO1KpaBrRdSNo@sashalap>
+        id S230302AbhHFOyZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Aug 2021 10:54:25 -0400
+Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 37921610FF;
+        Fri,  6 Aug 2021 14:54:09 +0000 (UTC)
+Received: from rostedt by gandalf.local.home with local (Exim 4.94.2)
+        (envelope-from <rostedt@goodmis.org>)
+        id 1mC1Ed-003EUE-Vz; Fri, 06 Aug 2021 10:54:07 -0400
+Message-ID: <20210806145407.819812399@goodmis.org>
+User-Agent: quilt/0.66
+Date:   Fri, 06 Aug 2021 10:53:00 -0400
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Stefan Metzmacher <metze@samba.org>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Subject: [for-linus][PATCH 1/3] tracepoint: static call: Compare data on transition from 2->1 callees
+References: <20210806145259.240934834@goodmis.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YQ1JO1KpaBrRdSNo@sashalap>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=UTF-8
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Sasha,
+From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
 
-On Fri, Aug 06, 2021 at 10:37:47AM -0400, Sasha Levin wrote:
-> > Then in my opinion we should encourage *not* to use "Fixes:" on untested
-> > patches (untested patches will always happen due to hardware availability
-> > or lack of a reliable reproducer).
-> > 
-> > What about this to try to improve the situation in this specific case ?
-> 
-> No, please let's not. If there is no testing story behind a buggy patch
-> then it'll explode either when we go to the next version, or when we
-> pull it into -stable.
-> 
-> If we avoid taking groups of patches into -stable it'll just mean that
-> we end up with a huge amount of issues waiting for us during a version
-> upgrade.
+On transition from 2->1 callees, we should be comparing .data rather
+than .func, because the same callback can be registered twice with
+different data, and what we care about here is that the data of array
+element 0 is unchanged to skip rcu sync.
 
-I agree with this and that was the point I was explaining as well: someone
-has to detect those bugs, and unfortunately if they're so hard to see that
-they can't be detected before the users, it has to hit a user.
+Link: https://lkml.kernel.org/r/20210805132717.23813-2-mathieu.desnoyers@efficios.com
+Link: https://lore.kernel.org/io-uring/4ebea8f0-58c9-e571-fd30-0ce4f6f09c70@samba.org/
 
-> Yes, we may be taking bugs in now, but the regression rate (according to
-> LWN) is pretty low, and the somewhat linear distribution of those bugs
-> throughout our releases makes them managable (to review when they're
-> sent out, to find during testing, to bisect if we hit the bug).
+Cc: stable@vger.kernel.org
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: "Paul E. McKenney" <paulmck@kernel.org>
+Cc: Stefan Metzmacher <metze@samba.org>
+Fixes: 547305a64632 ("tracepoint: Fix out of sync data passing by static caller")
+Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+---
+ kernel/tracepoint.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-I totally agree that they're extremely low. I only faced one in production
-in 4 or 5 years now, and even then it was not a true one, it was caused by
-a context change that made one local patch silently apply at the wrong place.
-
-> As Guenter points out, the path forward should be to improve our testing
-> story.
-
-Yes but we also have to make people understand that it only improves the
-situation a little bit and doesn't magically result in zero regression.
-Most whiners seem to say "I've met a regression once, that's unacceptable".
-This will not change their experience, it will just reduce the number of
-whiners who complain about their first bug ever. The amount of effort to
-invest in testing to reduce regressions by just 1% can be huge, and at
-some point one has to wonder where resources are better assigned.
-
-Again, I tend to think that releasing older releases less often (and with
-more patches each time) could reassure some users. It used to happen in
-the past when Paul, Ben and I were in charge of older & slower branches,
-and it sometimes allowed us to drop one patch and its subsequent revert
-from a series. That's still one regression saved whenever it happens.
-And this maintains the principle of "older==extremely stable with slower
-fixes, newer==very stable with faster fixes".
-
-Cheers,
-Willy
+diff --git a/kernel/tracepoint.c b/kernel/tracepoint.c
+index fc32821f8240..133b6454b287 100644
+--- a/kernel/tracepoint.c
++++ b/kernel/tracepoint.c
+@@ -338,7 +338,7 @@ static int tracepoint_remove_func(struct tracepoint *tp,
+ 	} else {
+ 		rcu_assign_pointer(tp->funcs, tp_funcs);
+ 		tracepoint_update_call(tp, tp_funcs,
+-				       tp_funcs[0].func != old[0].func);
++				       tp_funcs[0].data != old[0].data);
+ 	}
+ 	release_probes(old);
+ 	return 0;
+-- 
+2.30.2
