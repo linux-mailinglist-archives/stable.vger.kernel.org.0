@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CC0B3E2552
-	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:19:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EBA13E2556
+	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:20:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239260AbhHFITk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Aug 2021 04:19:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48648 "EHLO mail.kernel.org"
+        id S243161AbhHFITm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Aug 2021 04:19:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243981AbhHFISP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Aug 2021 04:18:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E795611CE;
-        Fri,  6 Aug 2021 08:17:58 +0000 (UTC)
+        id S244024AbhHFISS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Aug 2021 04:18:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C05AE611EF;
+        Fri,  6 Aug 2021 08:18:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628237879;
-        bh=ozXUjPSP2wP7bKtElQr31xsKXqQV/YvDlpygHDvFU+E=;
+        s=korg; t=1628237882;
+        bh=gDam2yPuJeNbhIfpl/uTCptDWHlUU7MVSIE+t+pDmyE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NrbC2r9+HFcvYiuDHe56nto1GclvyNM/vmL/Dz5d7yyF69LrcV7jMtgOhMmSKm+Xf
-         G+gi5xh6dNIiooVYquo5AYi7c2nX5dX2Jo2nxvltkTL+xEMoMSl4HwjcAV6MTvanp6
-         nzOf9wBFvqUcF7JR5uLu5PVCxLG1wFeHD2TXltNM=
+        b=2dgIEujP78sWdXiz0nhYiJU5vUeALAWREO8m9I2zPU8dXkZQzHa6v6iEUFkpu+ry1
+         /MIGJToBBGnWmS33uMZdEgCct7vLyCt2r0nXjg26FEBoezzY9pfBVo9PVG10nGEs17
+         2b6w9BHRs/Vd2Y3PxhE5bieyNemkjtlYgO1HUQCQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
         David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 03/23] btrfs: fix race causing unnecessary inode logging during link and rename
-Date:   Fri,  6 Aug 2021 10:16:35 +0200
-Message-Id: <20210806081112.226646648@linuxfoundation.org>
+Subject: [PATCH 5.4 04/23] btrfs: fix lost inode on log replay after mix of fsync, rename and inode eviction
+Date:   Fri,  6 Aug 2021 10:16:36 +0200
+Message-Id: <20210806081112.257041336@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210806081112.104686873@linuxfoundation.org>
 References: <20210806081112.104686873@linuxfoundation.org>
@@ -42,85 +42,98 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit de53d892e5c51dfa0a158e812575a75a6c991f39 ]
+[ Upstream commit ecc64fab7d49c678e70bd4c35fe64d2ab3e3d212 ]
 
-When we are doing a rename or a link operation for an inode that was logged
-in the previous transaction and that transaction is still committing, we
-have a time window where we incorrectly consider that the inode was logged
-previously in the current transaction and therefore decide to log it to
-update it in the log. The following steps give an example on how this
-happens during a link operation:
+When checking if we need to log the new name of a renamed inode, we are
+checking if the inode and its parent inode have been logged before, and if
+not we don't log the new name. The check however is buggy, as it directly
+compares the logged_trans field of the inodes versus the ID of the current
+transaction. The problem is that logged_trans is a transient field, only
+stored in memory and never persisted in the inode item, so if an inode
+was logged before, evicted and reloaded, its logged_trans field is set to
+a value of 0, meaning the check will return false and the new name of the
+renamed inode is not logged. If the old parent directory was previously
+fsynced and we deleted the logged directory entries corresponding to the
+old name, we end up with a log that when replayed will delete the renamed
+inode.
 
-1) Inode X is logged in transaction 1000, so its logged_trans field is set
-   to 1000;
+The following example triggers the problem:
 
-2) Task A starts to commit transaction 1000;
+  $ mkfs.btrfs -f /dev/sdc
+  $ mount /dev/sdc /mnt
 
-3) The state of transaction 1000 is changed to TRANS_STATE_UNBLOCKED;
+  $ mkdir /mnt/A
+  $ mkdir /mnt/B
+  $ echo -n "hello world" > /mnt/A/foo
 
-4) Task B starts a link operation for inode X, and as a consequence it
-   starts transaction 1001;
+  $ sync
 
-5) Task A is still committing transaction 1000, therefore the value stored
-   at fs_info->last_trans_committed is still 999;
+  # Add some new file to A and fsync directory A.
+  $ touch /mnt/A/bar
+  $ xfs_io -c "fsync" /mnt/A
 
-6) Task B calls btrfs_log_new_name(), it reads a value of 999 from
-   fs_info->last_trans_committed and because the logged_trans field of
-   inode X has a value of 1000, the function does not return immediately,
-   instead it proceeds to logging the inode, which should not happen
-   because the inode was logged in the previous transaction (1000) and
-   not in the current one (1001).
+  # Now trigger inode eviction. We are only interested in triggering
+  # eviction for the inode of directory A.
+  $ echo 2 > /proc/sys/vm/drop_caches
 
-This is not a functional problem, just wasted time and space logging an
-inode that does not need to be logged, contributing to higher latency
-for link and rename operations.
+  # Move foo from directory A to directory B.
+  # This deletes the directory entries for foo in A from the log, and
+  # does not add the new name for foo in directory B to the log, because
+  # logged_trans of A is 0, which is less than the current transaction ID.
+  $ mv /mnt/A/foo /mnt/B/foo
 
-So fix this by comparing the inodes' logged_trans field with the
-generation of the current transaction instead of comparing with the value
-stored in fs_info->last_trans_committed.
+  # Now make an fsync to anything except A, B or any file inside them,
+  # like for example create a file at the root directory and fsync this
+  # new file. This syncs the log that contains all the changes done by
+  # previous rename operation.
+  $ touch /mnt/baz
+  $ xfs_io -c "fsync" /mnt/baz
 
-This case is often hit when running dbench for a long enough duration, as
-it does lots of rename operations.
+  <power fail>
 
-This patch belongs to a patch set that is comprised of the following
-patches:
+  # Mount the filesystem and replay the log.
+  $ mount /dev/sdc /mnt
 
-  btrfs: fix race causing unnecessary inode logging during link and rename
-  btrfs: fix race that results in logging old extents during a fast fsync
-  btrfs: fix race that causes unnecessary logging of ancestor inodes
-  btrfs: fix race that makes inode logging fallback to transaction commit
-  btrfs: fix race leading to unnecessary transaction commit when logging inode
-  btrfs: do not block inode logging for so long during transaction commit
+  # Check the filesystem content.
+  $ ls -1R /mnt
+  /mnt/:
+  A
+  B
+  baz
 
-Performance results are mentioned in the change log of the last patch.
+  /mnt/A:
+  bar
 
+  /mnt/B:
+  $
+
+  # File foo is gone, it's neither in A/ nor in B/.
+
+Fix this by using the inode_logged() helper at btrfs_log_new_name(), which
+safely checks if an inode was logged before in the current transaction.
+
+A test case for fstests will follow soon.
+
+CC: stable@vger.kernel.org # 4.14+
 Signed-off-by: Filipe Manana <fdmanana@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/tree-log.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ fs/btrfs/tree-log.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
-index 53607156b008..9912b5231bcf 100644
+index 9912b5231bcf..5412361d0c27 100644
 --- a/fs/btrfs/tree-log.c
 +++ b/fs/btrfs/tree-log.c
-@@ -6437,7 +6437,6 @@ void btrfs_log_new_name(struct btrfs_trans_handle *trans,
- 			struct btrfs_inode *inode, struct btrfs_inode *old_dir,
- 			struct dentry *parent)
- {
--	struct btrfs_fs_info *fs_info = trans->fs_info;
- 	struct btrfs_log_ctx ctx;
- 
- 	/*
-@@ -6451,8 +6450,8 @@ void btrfs_log_new_name(struct btrfs_trans_handle *trans,
+@@ -6450,8 +6450,8 @@ void btrfs_log_new_name(struct btrfs_trans_handle *trans,
  	 * if this inode hasn't been logged and directory we're renaming it
  	 * from hasn't been logged, we don't need to log it
  	 */
--	if (inode->logged_trans <= fs_info->last_trans_committed &&
--	    (!old_dir || old_dir->logged_trans <= fs_info->last_trans_committed))
-+	if (inode->logged_trans < trans->transid &&
-+	    (!old_dir || old_dir->logged_trans < trans->transid))
+-	if (inode->logged_trans < trans->transid &&
+-	    (!old_dir || old_dir->logged_trans < trans->transid))
++	if (!inode_logged(trans, inode) &&
++	    (!old_dir || !inode_logged(trans, old_dir)))
  		return;
  
  	btrfs_init_log_ctx(&ctx, &inode->vfs_inode);
