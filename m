@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E24053E256B
-	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:20:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4F7F3E2558
+	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:20:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243915AbhHFITy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Aug 2021 04:19:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48828 "EHLO mail.kernel.org"
+        id S232709AbhHFITo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Aug 2021 04:19:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244168AbhHFITZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Aug 2021 04:19:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E838461205;
-        Fri,  6 Aug 2021 08:18:55 +0000 (UTC)
+        id S244057AbhHFIS2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Aug 2021 04:18:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C9A426120A;
+        Fri,  6 Aug 2021 08:18:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628237936;
-        bh=SyoPct+cDIETvuJP9Nr39Sk4NZK825b0fa1JC9H3wwc=;
+        s=korg; t=1628237892;
+        bh=IOb5L09PKj7J3uOQVbZ+w3JTUbB0AwULpZmvMN+jWv4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W7aNKtirHNFkE9pmLcJBO4pTIvP1ig0EN654jGhgnd/4WOV92QNdLeTWPcv8+99Hh
-         /hywBBcQYdx7Rzhol0yrlXrlGF7LarAwPuBZO1AGfbqgA6iPjDwyDTwoJfe2L1dk9J
-         C1gvpKhIk+YfkilsRXe2F9+LtJKnw7Sk4B7VE2N8=
+        b=fESjrLsB2YBCutAykmJJsiBph8vyEe1GCBLUnp6LCKPQEUM06mxmY/h8fCgyKid97
+         MBO+SL2rapv7wyq4U1wAF4KS2wP9WIUWJ5ZmnAHmVxHd3Z/EMWt/zbsoZeLtIPig7b
+         PQ5rR94KfNyeKfA1devxCxKCz8vJOT/cMGny8ErY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Ekstrand <jason@jlekstrand.net>,
-        Marcin Slusarz <marcin.slusarz@intel.com>,
-        Jason Ekstrand <jason.ekstrand@intel.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Jon Bloomfield <jon.bloomfield@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 02/30] Revert "drm/i915: Propagate errors on awaiting already signaled fences"
+Subject: [PATCH 5.4 08/23] r8152: Fix potential PM refcount imbalance
 Date:   Fri,  6 Aug 2021 10:16:40 +0200
-Message-Id: <20210806081113.213387289@linuxfoundation.org>
+Message-Id: <20210806081112.405995437@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210806081113.126861800@linuxfoundation.org>
-References: <20210806081113.126861800@linuxfoundation.org>
+In-Reply-To: <20210806081112.104686873@linuxfoundation.org>
+References: <20210806081112.104686873@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,91 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Ekstrand <jason@jlekstrand.net>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 3761baae908a7b5012be08d70fa553cc2eb82305 upstream.
+[ Upstream commit 9c23aa51477a37f8b56c3c40192248db0663c196 ]
 
-This reverts commit 9e31c1fe45d555a948ff66f1f0e3fe1f83ca63f7.  Ever
-since that commit, we've been having issues where a hang in one client
-can propagate to another.  In particular, a hang in an app can propagate
-to the X server which causes the whole desktop to lock up.
+rtl8152_close() takes the refcount via usb_autopm_get_interface() but
+it doesn't release when RTL8152_UNPLUG test hits.  This may lead to
+the imbalance of PM refcount.  This patch addresses it.
 
-Error propagation along fences sound like a good idea, but as your bug
-shows, surprising consequences, since propagating errors across security
-boundaries is not a good thing.
-
-What we do have is track the hangs on the ctx, and report information to
-userspace using RESET_STATS. That's how arb_robustness works. Also, if my
-understanding is still correct, the EIO from execbuf is when your context
-is banned (because not recoverable or too many hangs). And in all these
-cases it's up to userspace to figure out what is all impacted and should
-be reported to the application, that's not on the kernel to guess and
-automatically propagate.
-
-What's more, we're also building more features on top of ctx error
-reporting with RESET_STATS ioctl: Encrypted buffers use the same, and the
-userspace fence wait also relies on that mechanism. So it is the path
-going forward for reporting gpu hangs and resets to userspace.
-
-So all together that's why I think we should just bury this idea again as
-not quite the direction we want to go to, hence why I think the revert is
-the right option here.
-
-For backporters: Please note that you _must_ have a backport of
-https://lore.kernel.org/dri-devel/20210602164149.391653-2-jason@jlekstrand.net/
-for otherwise backporting just this patch opens up a security bug.
-
-v2: Augment commit message. Also restore Jason's sob that I
-accidentally lost.
-
-v3: Add a note for backporters
-
-Signed-off-by: Jason Ekstrand <jason@jlekstrand.net>
-Reported-by: Marcin Slusarz <marcin.slusarz@intel.com>
-Cc: <stable@vger.kernel.org> # v5.6+
-Cc: Jason Ekstrand <jason.ekstrand@intel.com>
-Cc: Marcin Slusarz <marcin.slusarz@intel.com>
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/3080
-Fixes: 9e31c1fe45d5 ("drm/i915: Propagate errors on awaiting already signaled fences")
-Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Reviewed-by: Jon Bloomfield <jon.bloomfield@intel.com>
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210714193419.1459723-3-jason@jlekstrand.net
-(cherry picked from commit 93a2711cddd5760e2f0f901817d71c93183c3b87)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Link: https://bugzilla.suse.com/show_bug.cgi?id=1186194
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/i915_request.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ drivers/net/usb/r8152.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/i915/i915_request.c b/drivers/gpu/drm/i915/i915_request.c
-index 0e813819b041..d8fef42ca38e 100644
---- a/drivers/gpu/drm/i915/i915_request.c
-+++ b/drivers/gpu/drm/i915/i915_request.c
-@@ -1285,10 +1285,8 @@ i915_request_await_execution(struct i915_request *rq,
+diff --git a/drivers/net/usb/r8152.c b/drivers/net/usb/r8152.c
+index 24d124633037..873f288e7cec 100644
+--- a/drivers/net/usb/r8152.c
++++ b/drivers/net/usb/r8152.c
+@@ -4317,9 +4317,10 @@ static int rtl8152_close(struct net_device *netdev)
+ 		tp->rtl_ops.down(tp);
  
- 	do {
- 		fence = *child++;
--		if (test_bit(DMA_FENCE_FLAG_SIGNALED_BIT, &fence->flags)) {
--			i915_sw_fence_set_error_once(&rq->submit, fence->error);
-+		if (test_bit(DMA_FENCE_FLAG_SIGNALED_BIT, &fence->flags))
- 			continue;
--		}
+ 		mutex_unlock(&tp->control);
++	}
  
- 		if (fence->context == rq->fence.context)
- 			continue;
-@@ -1386,10 +1384,8 @@ i915_request_await_dma_fence(struct i915_request *rq, struct dma_fence *fence)
++	if (!res)
+ 		usb_autopm_put_interface(tp->intf);
+-	}
  
- 	do {
- 		fence = *child++;
--		if (test_bit(DMA_FENCE_FLAG_SIGNALED_BIT, &fence->flags)) {
--			i915_sw_fence_set_error_once(&rq->submit, fence->error);
-+		if (test_bit(DMA_FENCE_FLAG_SIGNALED_BIT, &fence->flags))
- 			continue;
--		}
+ 	free_all_mem(tp);
  
- 		/*
- 		 * Requests on the same timeline are explicitly ordered, along
 -- 
 2.30.2
 
