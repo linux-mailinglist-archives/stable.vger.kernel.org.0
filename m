@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AD383E2584
-	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:20:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EEC33E25A1
+	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:21:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244231AbhHFIU1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Aug 2021 04:20:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48492 "EHLO mail.kernel.org"
+        id S243352AbhHFIVT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Aug 2021 04:21:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243489AbhHFITk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Aug 2021 04:19:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B09FA61181;
-        Fri,  6 Aug 2021 08:19:24 +0000 (UTC)
+        id S244182AbhHFIUY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Aug 2021 04:20:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5653D6103B;
+        Fri,  6 Aug 2021 08:20:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628237965;
-        bh=SdhviKGqWh5NJAAVoC4paW7+mtc3p0pRaBRx3sLjAJ8=;
+        s=korg; t=1628238008;
+        bh=2r0Fhs8d3a9+YKMSBs+/2VBJgb52qadIj/04nLw/YKU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K/NqDVsKQsXah5agFNPBHdJ73u/MgOnXWOiesV5nOvsUcEpWtRbc20kC+QQPrb3S/
-         tVMqqyNk1ZkICtMfLLS6YF9H5NSKf+5puxlcl6+URPfVPjZcshOabJnvWXYrpU3oMv
-         YqGS0BPj6y581zO0YHRQruHOVottSIQDcJFTXyRM=
+        b=hSnVtK1ikjIkjQv+XQxRBa4avYxn60ZZzFK19VztqgbuNzIxPKRX5Lid5WOpsVdzM
+         5O62eYNxhBsIBGRNUWYOQxyCS5vfP9AoxNqwBoeckwToh9aSDMBuV8vNDpd3smp/pP
+         llMmiXYWhoM/cqEezVFLgA7WZmpn1p3ZEBxvnlng=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Kyle Russell <bkylerussell@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 21/30] Revert "Bluetooth: Shutdown controller after workqueues are flushed or cancelled"
-Date:   Fri,  6 Aug 2021 10:16:59 +0200
-Message-Id: <20210806081113.842771022@linuxfoundation.org>
+Subject: [PATCH 5.13 17/35] ASoC: tlv320aic31xx: fix reversed bclk/wclk master bits
+Date:   Fri,  6 Aug 2021 10:17:00 +0200
+Message-Id: <20210806081114.291039573@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210806081113.126861800@linuxfoundation.org>
-References: <20210806081113.126861800@linuxfoundation.org>
+In-Reply-To: <20210806081113.718626745@linuxfoundation.org>
+References: <20210806081113.718626745@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,55 +40,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Kyle Russell <bkylerussell@gmail.com>
 
-This reverts commit 60789afc02f592b8d91217b60930e7a76271ae07 which is
-commit 0ea9fd001a14ebc294f112b0361a4e601551d508 upstream.
+[ Upstream commit 9cf76a72af6ab81030dea6481b1d7bdd814fbdaf ]
 
-It has been reported to have problems:
-	https://lore.kernel.org/linux-bluetooth/8735ryk0o7.fsf@baylibre.com/
+These are backwards from Table 7-71 of the TLV320AIC3100 spec [1].
 
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Cc: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Cc: Marcel Holtmann <marcel@holtmann.org>
-Cc: Sasha Levin <sashal@kernel.org>
-Link: https://lore.kernel.org/r/efee3a58-a4d2-af22-0931-e81b877ab539@roeck-us.net
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This was broken in 12eb4d66ba2e when BCLK_MASTER and WCLK_MASTER
+were converted from 0x08 and 0x04 to BIT(2) and BIT(3), respectively.
+
+-#define AIC31XX_BCLK_MASTER		0x08
+-#define AIC31XX_WCLK_MASTER		0x04
++#define AIC31XX_BCLK_MASTER		BIT(2)
++#define AIC31XX_WCLK_MASTER		BIT(3)
+
+Probably just a typo since the defines were not listed in bit order.
+
+[1] https://www.ti.com/lit/gpn/tlv320aic3100
+
+Signed-off-by: Kyle Russell <bkylerussell@gmail.com>
+Link: https://lore.kernel.org/r/20210622010941.241386-1-bkylerussell@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_core.c |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ sound/soc/codecs/tlv320aic31xx.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/bluetooth/hci_core.c
-+++ b/net/bluetooth/hci_core.c
-@@ -1713,6 +1713,14 @@ int hci_dev_do_close(struct hci_dev *hde
+diff --git a/sound/soc/codecs/tlv320aic31xx.h b/sound/soc/codecs/tlv320aic31xx.h
+index 81952984613d..2513922a0292 100644
+--- a/sound/soc/codecs/tlv320aic31xx.h
++++ b/sound/soc/codecs/tlv320aic31xx.h
+@@ -151,8 +151,8 @@ struct aic31xx_pdata {
+ #define AIC31XX_WORD_LEN_24BITS		0x02
+ #define AIC31XX_WORD_LEN_32BITS		0x03
+ #define AIC31XX_IFACE1_MASTER_MASK	GENMASK(3, 2)
+-#define AIC31XX_BCLK_MASTER		BIT(2)
+-#define AIC31XX_WCLK_MASTER		BIT(3)
++#define AIC31XX_BCLK_MASTER		BIT(3)
++#define AIC31XX_WCLK_MASTER		BIT(2)
  
- 	BT_DBG("%s %p", hdev->name, hdev);
- 
-+	if (!hci_dev_test_flag(hdev, HCI_UNREGISTER) &&
-+	    !hci_dev_test_flag(hdev, HCI_USER_CHANNEL) &&
-+	    test_bit(HCI_UP, &hdev->flags)) {
-+		/* Execute vendor specific shutdown routine */
-+		if (hdev->shutdown)
-+			hdev->shutdown(hdev);
-+	}
-+
- 	cancel_delayed_work(&hdev->power_off);
- 
- 	hci_request_cancel_all(hdev);
-@@ -1788,14 +1796,6 @@ int hci_dev_do_close(struct hci_dev *hde
- 		clear_bit(HCI_INIT, &hdev->flags);
- 	}
- 
--	if (!hci_dev_test_flag(hdev, HCI_UNREGISTER) &&
--	    !hci_dev_test_flag(hdev, HCI_USER_CHANNEL) &&
--	    test_bit(HCI_UP, &hdev->flags)) {
--		/* Execute vendor specific shutdown routine */
--		if (hdev->shutdown)
--			hdev->shutdown(hdev);
--	}
--
- 	/* flush cmd  work */
- 	flush_work(&hdev->cmd_work);
- 
+ /* AIC31XX_DATA_OFFSET */
+ #define AIC31XX_DATA_OFFSET_MASK	GENMASK(7, 0)
+-- 
+2.30.2
+
 
 
