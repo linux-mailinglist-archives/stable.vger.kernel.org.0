@@ -2,162 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CAC53E2CE5
-	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 16:44:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 357FF3E2CF3
+	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 16:53:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241602AbhHFOos (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Aug 2021 10:44:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34368 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232160AbhHFOon (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 Aug 2021 10:44:43 -0400
-Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AFB0C0613CF
-        for <stable@vger.kernel.org>; Fri,  6 Aug 2021 07:44:27 -0700 (PDT)
-Received: by mail-pl1-x62d.google.com with SMTP id d17so7334826plr.12
-        for <stable@vger.kernel.org>; Fri, 06 Aug 2021 07:44:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=WH8UVSusZB2q+PkM6MIQG7RhZ1yeU3KXOQ1QG/kBtCk=;
-        b=yqe5elNJ9LmNxaz8STuA1FVkmuD5sC3zBI6WkzZzeurR600ptLKKrM7N9UD6fiFVVv
-         9eU3IftbO+ZMywJdrYFv/or9XPMMsMcFzPcN6I5y6VYP6Q9nyyJPRqYQwoCVHE8U1agu
-         onjc6JmkHc1PQjbSTA2Oyjx/w+kOOVdAT+RbonfJa/sLfHVPYKkaUKEXXFQ/RS6Xx80Y
-         d+Elvbyel/gtBHwoP9IKYn+kUkpg6KHFsf28OI6kdqKPZgz2GG4HBO9GI/urMpqknTpL
-         AtfP1WGY9oGpJgF5jX/LQSMer9dX+yDHfV2V7wcG4ZTUMAi0p8hUgxoPNN/KPnOMaFw1
-         hpBQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=WH8UVSusZB2q+PkM6MIQG7RhZ1yeU3KXOQ1QG/kBtCk=;
-        b=o6vka9h51tAoy4FCyVO8mcmGnYc1Io/oMEvGGBqNa6uwr+lqbAGFJLaadFDMpUN+r8
-         tYQVAe6x9HgmNDHzmiPzvJUPFNcWw2a+gx3babi1ru6yeeaOQdKDdT8ePNrtmAOC9G+X
-         8CqhKZeEu+Y34Zu7AZWPcrFaxOjfCFbtuEupAa73mV4XOxH3NiycAWqFJx2omb8pGz9k
-         UAg5TA4B9F/IuGJV36z68f1VAvdLQV0GeZGgV/lqPCTQBM1g6kVKp/P1v4H+Wz0Dn2RE
-         76EogGc28lQ8Iw3E165ZPLg4R+7LB4ERYI2zmfTWyE7/Hg20hohJSainlm0uACltvxUF
-         TJyw==
-X-Gm-Message-State: AOAM531wWFAmdMhVuELrcwywc6XlF8KlHW0ZBaB5ZXvUa5TK4asC+Tuy
-        6hs0K9wrF9xoLphWPmG6XYoARIM+uggztA==
-X-Google-Smtp-Source: ABdhPJwVmy/YUHjyiYJP5lRRHnPD8fAXmI1R6UHS3WkxDAq1OGQZWLD+fmJUlMw48dKVIOo8sngKlw==
-X-Received: by 2002:a17:90a:c506:: with SMTP id k6mr21249398pjt.198.1628261066168;
-        Fri, 06 Aug 2021 07:44:26 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id s36sm13091711pgk.64.2021.08.06.07.44.25
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 06 Aug 2021 07:44:25 -0700 (PDT)
-Message-ID: <610d4ac9.1c69fb81.7c329.57cd@mx.google.com>
-Date:   Fri, 06 Aug 2021 07:44:25 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S230515AbhHFOx0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Aug 2021 10:53:26 -0400
+Received: from wtarreau.pck.nerim.net ([62.212.114.60]:34725 "EHLO 1wt.eu"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230302AbhHFOx0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Aug 2021 10:53:26 -0400
+Received: (from willy@localhost)
+        by pcw.home.local (8.15.2/8.15.2/Submit) id 176Eqmad029650;
+        Fri, 6 Aug 2021 16:52:48 +0200
+Date:   Fri, 6 Aug 2021 16:52:48 +0200
+From:   Willy Tarreau <w@1wt.eu>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Guenter Roeck <linux@roeck-us.net>,
+        stable <stable@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: Regressions in stable releases
+Message-ID: <20210806145248.GF27218@1wt.eu>
+References: <efee3a58-a4d2-af22-0931-e81b877ab539@roeck-us.net>
+ <20210805164254.GG17808@1wt.eu>
+ <20210805172949.GA3691426@roeck-us.net>
+ <20210805183055.GA21961@1wt.eu>
+ <YQ1JO1KpaBrRdSNo@sashalap>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.4
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.4.138-23-ge3ae776a76c3
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/5.4 baseline: 112 runs,
- 2 regressions (v5.4.138-23-ge3ae776a76c3)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YQ1JO1KpaBrRdSNo@sashalap>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 baseline: 112 runs, 2 regressions (v5.4.138-23-ge3ae776=
-a76c3)
+Hi Sasha,
 
-Regressions Summary
--------------------
+On Fri, Aug 06, 2021 at 10:37:47AM -0400, Sasha Levin wrote:
+> > Then in my opinion we should encourage *not* to use "Fixes:" on untested
+> > patches (untested patches will always happen due to hardware availability
+> > or lack of a reliable reproducer).
+> > 
+> > What about this to try to improve the situation in this specific case ?
+> 
+> No, please let's not. If there is no testing story behind a buggy patch
+> then it'll explode either when we go to the next version, or when we
+> pull it into -stable.
+> 
+> If we avoid taking groups of patches into -stable it'll just mean that
+> we end up with a huge amount of issues waiting for us during a version
+> upgrade.
 
-platform         | arch | lab     | compiler | defconfig           | regres=
-sions
------------------+------+---------+----------+---------------------+-------=
------
-imx6qp-sabresd   | arm  | lab-nxp | gcc-8    | imx_v6_v7_defconfig | 1     =
-     =
+I agree with this and that was the point I was explaining as well: someone
+has to detect those bugs, and unfortunately if they're so hard to see that
+they can't be detected before the users, it has to hit a user.
 
-imx6ul-14x14-evk | arm  | lab-nxp | gcc-8    | imx_v6_v7_defconfig | 1     =
-     =
+> Yes, we may be taking bugs in now, but the regression rate (according to
+> LWN) is pretty low, and the somewhat linear distribution of those bugs
+> throughout our releases makes them managable (to review when they're
+> sent out, to find during testing, to bisect if we hit the bug).
 
+I totally agree that they're extremely low. I only faced one in production
+in 4 or 5 years now, and even then it was not a true one, it was caused by
+a context change that made one local patch silently apply at the wrong place.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
-el/v5.4.138-23-ge3ae776a76c3/plan/baseline/
+> As Guenter points out, the path forward should be to improve our testing
+> story.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.4
-  Describe: v5.4.138-23-ge3ae776a76c3
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      e3ae776a76c326b5dcbe2b5a4b296444a71b12a8 =
+Yes but we also have to make people understand that it only improves the
+situation a little bit and doesn't magically result in zero regression.
+Most whiners seem to say "I've met a regression once, that's unacceptable".
+This will not change their experience, it will just reduce the number of
+whiners who complain about their first bug ever. The amount of effort to
+invest in testing to reduce regressions by just 1% can be huge, and at
+some point one has to wonder where resources are better assigned.
 
+Again, I tend to think that releasing older releases less often (and with
+more patches each time) could reassure some users. It used to happen in
+the past when Paul, Ben and I were in charge of older & slower branches,
+and it sometimes allowed us to drop one patch and its subsequent revert
+from a series. That's still one regression saved whenever it happens.
+And this maintains the principle of "older==extremely stable with slower
+fixes, newer==very stable with faster fixes".
 
-
-Test Regressions
----------------- =
-
-
-
-platform         | arch | lab     | compiler | defconfig           | regres=
-sions
------------------+------+---------+----------+---------------------+-------=
------
-imx6qp-sabresd   | arm  | lab-nxp | gcc-8    | imx_v6_v7_defconfig | 1     =
-     =
-
-
-  Details:     https://kernelci.org/test/plan/id/610d15c5a330c23b25b13662
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: imx_v6_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.138-2=
-3-ge3ae776a76c3/arm/imx_v6_v7_defconfig/gcc-8/lab-nxp/baseline-imx6qp-sabre=
-sd.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.138-2=
-3-ge3ae776a76c3/arm/imx_v6_v7_defconfig/gcc-8/lab-nxp/baseline-imx6qp-sabre=
-sd.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/610d15c5a330c23b25b13=
-663
-        new failure (last pass: v5.4.138-14-ge260fd2fcbfb) =
-
- =
-
-
-
-platform         | arch | lab     | compiler | defconfig           | regres=
-sions
------------------+------+---------+----------+---------------------+-------=
------
-imx6ul-14x14-evk | arm  | lab-nxp | gcc-8    | imx_v6_v7_defconfig | 1     =
-     =
-
-
-  Details:     https://kernelci.org/test/plan/id/610d15c9f1b92b6c09b1366d
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: imx_v6_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.138-2=
-3-ge3ae776a76c3/arm/imx_v6_v7_defconfig/gcc-8/lab-nxp/baseline-imx6ul-14x14=
--evk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.138-2=
-3-ge3ae776a76c3/arm/imx_v6_v7_defconfig/gcc-8/lab-nxp/baseline-imx6ul-14x14=
--evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/610d15c9f1b92b6c09b13=
-66e
-        new failure (last pass: v5.4.138-14-ge260fd2fcbfb) =
-
- =20
+Cheers,
+Willy
