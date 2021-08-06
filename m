@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 75DCE3E2594
-	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:21:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C27EA3E259B
+	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:21:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244306AbhHFIU7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Aug 2021 04:20:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51310 "EHLO mail.kernel.org"
+        id S244330AbhHFIVP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Aug 2021 04:21:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243970AbhHFIUC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Aug 2021 04:20:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6297A61207;
-        Fri,  6 Aug 2021 08:19:45 +0000 (UTC)
+        id S244099AbhHFIUS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Aug 2021 04:20:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AC5C861216;
+        Fri,  6 Aug 2021 08:20:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628237985;
-        bh=m8eVRp7kvqRylifcK3gNGxLsO1GYKoZFlzGmAUzr1Bs=;
+        s=korg; t=1628238001;
+        bh=42+BG0ycbiLTUvyAYa9xiB8SuDPYDhHiL+BYxOjqBXU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tvJx0vIWjk5GC5wv0DiikEdim/DbG0gqRl/N+XEIwBgS1ocBIrjlzQZY3obmQmMFS
-         B7jxqF6oOWt3dAR9g6+vblOfhJzTetLi0LhsQP6PHIoGmD6o8nKaJG35cipxA7HA5H
-         33VHYFZOfu9O7D4kA5+E1JZOMx1Xs2k7DCs7M0ys=
+        b=lTUdAW99AbUeaOTqaTHg/OcPPzMGZNHEy4BFYoIRakpsyclhD0pyiNznzZVixz6XO
+         h1/4cft1Haq9fN6thBCgueDvg7VcXBjTO6iVSZgPR8DeX/OIU+MWLwAlabFVqeKR/b
+         zlOTSFVYtscgf4ub21168fBN2dVAe/Wr16y/bBZQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Scally <djrscally@gmail.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.10 19/30] ACPI: fix NULL pointer dereference
+        stable@vger.kernel.org, ChiYuan Huang <cy_huang@richtek.com>,
+        Axel Lin <axel.lin@ingics.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 14/35] regulator: rtmv20: Fix wrong mask for strobe-polarity-high
 Date:   Fri,  6 Aug 2021 10:16:57 +0200
-Message-Id: <20210806081113.780004075@linuxfoundation.org>
+Message-Id: <20210806081114.184129482@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210806081113.126861800@linuxfoundation.org>
-References: <20210806081113.126861800@linuxfoundation.org>
+In-Reply-To: <20210806081113.718626745@linuxfoundation.org>
+References: <20210806081113.718626745@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,43 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: ChiYuan Huang <cy_huang@richtek.com>
 
-[ Upstream commit fc68f42aa737dc15e7665a4101d4168aadb8e4c4 ]
+[ Upstream commit 2b6a761be079f9fa8abf3157b5679a6f38885db4 ]
 
-Commit 71f642833284 ("ACPI: utils: Fix reference counting in
-for_each_acpi_dev_match()") started doing "acpi_dev_put()" on a pointer
-that was possibly NULL.  That fails miserably, because that helper
-inline function is not set up to handle that case.
+Fix wrong mask for strobe-polarity-high.
 
-Just make acpi_dev_put() silently accept a NULL pointer, rather than
-calling down to put_device() with an invalid offset off that NULL
-pointer.
-
-Link: https://lore.kernel.org/lkml/a607c149-6bf6-0fd0-0e31-100378504da2@kernel.dk/
-Reported-and-tested-by: Jens Axboe <axboe@kernel.dk>
-Tested-by: Daniel Scally <djrscally@gmail.com>
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: ChiYuan Huang <cy_huang@richtek.com>
+In-reply-to: <CAFRkauB=0KwrJW19nJTTagdHhBR=V2R8YFWG3R3oVXt=rBRsqw@mail.gmail.com>
+Reviewed-by: Axel Lin <axel.lin@ingics.com>
+Link: https://lore.kernel.org/r/1624723112-26653-1-git-send-email-u0084500@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/acpi/acpi_bus.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/regulator/rtmv20-regulator.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/acpi/acpi_bus.h b/include/acpi/acpi_bus.h
-index 37dac195adbb..6ad3b89a8a2e 100644
---- a/include/acpi/acpi_bus.h
-+++ b/include/acpi/acpi_bus.h
-@@ -689,7 +689,8 @@ acpi_dev_get_first_match_dev(const char *hid, const char *uid, s64 hrv);
- 
- static inline void acpi_dev_put(struct acpi_device *adev)
- {
--	put_device(&adev->dev);
-+	if (adev)
-+		put_device(&adev->dev);
- }
- #else	/* CONFIG_ACPI */
- 
+diff --git a/drivers/regulator/rtmv20-regulator.c b/drivers/regulator/rtmv20-regulator.c
+index 4bca64de0f67..2ee334174e2b 100644
+--- a/drivers/regulator/rtmv20-regulator.c
++++ b/drivers/regulator/rtmv20-regulator.c
+@@ -37,7 +37,7 @@
+ #define RTMV20_WIDTH2_MASK	GENMASK(7, 0)
+ #define RTMV20_LBPLVL_MASK	GENMASK(3, 0)
+ #define RTMV20_LBPEN_MASK	BIT(7)
+-#define RTMV20_STROBEPOL_MASK	BIT(1)
++#define RTMV20_STROBEPOL_MASK	BIT(0)
+ #define RTMV20_VSYNPOL_MASK	BIT(1)
+ #define RTMV20_FSINEN_MASK	BIT(7)
+ #define RTMV20_ESEN_MASK	BIT(6)
 -- 
 2.30.2
 
