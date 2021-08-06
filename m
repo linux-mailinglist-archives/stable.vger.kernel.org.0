@@ -2,36 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A23873E25D7
-	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:22:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 08B953E255B
+	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 10:20:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244369AbhHFIW6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Aug 2021 04:22:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48692 "EHLO mail.kernel.org"
+        id S243228AbhHFITp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Aug 2021 04:19:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243140AbhHFIVx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Aug 2021 04:21:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 687DF61104;
-        Fri,  6 Aug 2021 08:21:11 +0000 (UTC)
+        id S244090AbhHFISe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Aug 2021 04:18:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C44D61211;
+        Fri,  6 Aug 2021 08:18:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628238071;
-        bh=faAR7FhzeJhXwq1K9uKtk642ZoZ3pFk9ue5dIHlei48=;
+        s=korg; t=1628237899;
+        bh=DVYmlBwS7+Lnrdak7azkSpyd/aSu5qcfFj/zU48VUU0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BxE9Auim2D5UnaldckvSsR6BEO4NidpUaLB3bPejAXtwHzz1mTaJKh/qNC1KlnOyz
-         ToveDY0OTAQrJ4KYj5Bdvxs0gkGvOVrDvGsHE92+IgKWS+SehCSAYj0q1T6vaUxFR9
-         PPAXYMFAWNzAHogHoy0LjnndKvAsbVPlnu7p5v1w=
+        b=iCiaktDaWvaMxYNsjiwg9OIb35J3GOLDmmEjCUjRtJP9gynjFBEX/dJRiqrNtflqW
+         pYNnbIt+29KHhZFcSf0kVbZVMOfj6Ez9lTv8CWYCZrUbxWLHH1ESl6WMoG6uY+u8BT
+         o/oOTMF7m6yC1/My415hvvGtJWu85iHOxJy18+TI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 09/35] net: dsa: sja1105: parameterize the number of ports
+        Adam Morrison <mad@cs.tau.ac.il>,
+        Ofek Kirzner <ofekkir@gmail.com>,
+        Benedict Schlueter <benedict.schlueter@rub.de>,
+        Piotr Krysiuk <piotras@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 5.4 20/23] bpf: Fix leakage under speculation on mispredicted branches
 Date:   Fri,  6 Aug 2021 10:16:52 +0200
-Message-Id: <20210806081114.014364715@linuxfoundation.org>
+Message-Id: <20210806081112.835819450@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210806081113.718626745@linuxfoundation.org>
-References: <20210806081113.718626745@linuxfoundation.org>
+In-Reply-To: <20210806081112.104686873@linuxfoundation.org>
+References: <20210806081112.104686873@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,442 +45,220 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-[ Upstream commit 542043e91df452ed09f382d8c41cdf3788f31b5e ]
+commit 9183671af6dbf60a1219371d4ed73e23f43b49db upstream
 
-The sja1105 driver will gain support for the next-gen SJA1110 switch,
-which is very similar except for the fact it has more than 5 ports.
+The verifier only enumerates valid control-flow paths and skips paths that
+are unreachable in the non-speculative domain. And so it can miss issues
+under speculative execution on mispredicted branches.
 
-So we need to replace the hardcoded SJA1105_NUM_PORTS in this driver
-with ds->num_ports. This patch is as mechanical as possible (save for
-the fact that ds->num_ports is not an integer constant expression).
+For example, a type confusion has been demonstrated with the following
+crafted program:
 
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  // r0 = pointer to a map array entry
+  // r6 = pointer to readable stack slot
+  // r9 = scalar controlled by attacker
+  1: r0 = *(u64 *)(r0) // cache miss
+  2: if r0 != 0x0 goto line 4
+  3: r6 = r9
+  4: if r0 != 0x1 goto line 6
+  5: r9 = *(u8 *)(r6)
+  6: // leak r9
+
+Since line 3 runs iff r0 == 0 and line 5 runs iff r0 == 1, the verifier
+concludes that the pointer dereference on line 5 is safe. But: if the
+attacker trains both the branches to fall-through, such that the following
+is speculatively executed ...
+
+  r6 = r9
+  r9 = *(u8 *)(r6)
+  // leak r9
+
+... then the program will dereference an attacker-controlled value and could
+leak its content under speculative execution via side-channel. This requires
+to mistrain the branch predictor, which can be rather tricky, because the
+branches are mutually exclusive. However such training can be done at
+congruent addresses in user space using different branches that are not
+mutually exclusive. That is, by training branches in user space ...
+
+  A:  if r0 != 0x0 goto line C
+  B:  ...
+  C:  if r0 != 0x0 goto line D
+  D:  ...
+
+... such that addresses A and C collide to the same CPU branch prediction
+entries in the PHT (pattern history table) as those of the BPF program's
+lines 2 and 4, respectively. A non-privileged attacker could simply brute
+force such collisions in the PHT until observing the attack succeeding.
+
+Alternative methods to mistrain the branch predictor are also possible that
+avoid brute forcing the collisions in the PHT. A reliable attack has been
+demonstrated, for example, using the following crafted program:
+
+  // r0 = pointer to a [control] map array entry
+  // r7 = *(u64 *)(r0 + 0), training/attack phase
+  // r8 = *(u64 *)(r0 + 8), oob address
+  // [...]
+  // r0 = pointer to a [data] map array entry
+  1: if r7 == 0x3 goto line 3
+  2: r8 = r0
+  // crafted sequence of conditional jumps to separate the conditional
+  // branch in line 193 from the current execution flow
+  3: if r0 != 0x0 goto line 5
+  4: if r0 == 0x0 goto exit
+  5: if r0 != 0x0 goto line 7
+  6: if r0 == 0x0 goto exit
+  [...]
+  187: if r0 != 0x0 goto line 189
+  188: if r0 == 0x0 goto exit
+  // load any slowly-loaded value (due to cache miss in phase 3) ...
+  189: r3 = *(u64 *)(r0 + 0x1200)
+  // ... and turn it into known zero for verifier, while preserving slowly-
+  // loaded dependency when executing:
+  190: r3 &= 1
+  191: r3 &= 2
+  // speculatively bypassed phase dependency
+  192: r7 += r3
+  193: if r7 == 0x3 goto exit
+  194: r4 = *(u8 *)(r8 + 0)
+  // leak r4
+
+As can be seen, in training phase (phase != 0x3), the condition in line 1
+turns into false and therefore r8 with the oob address is overridden with
+the valid map value address, which in line 194 we can read out without
+issues. However, in attack phase, line 2 is skipped, and due to the cache
+miss in line 189 where the map value is (zeroed and later) added to the
+phase register, the condition in line 193 takes the fall-through path due
+to prior branch predictor training, where under speculation, it'll load the
+byte at oob address r8 (unknown scalar type at that point) which could then
+be leaked via side-channel.
+
+One way to mitigate these is to 'branch off' an unreachable path, meaning,
+the current verification path keeps following the is_branch_taken() path
+and we push the other branch to the verification stack. Given this is
+unreachable from the non-speculative domain, this branch's vstate is
+explicitly marked as speculative. This is needed for two reasons: i) if
+this path is solely seen from speculative execution, then we later on still
+want the dead code elimination to kick in in order to sanitize these
+instructions with jmp-1s, and ii) to ensure that paths walked in the
+non-speculative domain are not pruned from earlier walks of paths walked in
+the speculative domain. Additionally, for robustness, we mark the registers
+which have been part of the conditional as unknown in the speculative path
+given there should be no assumptions made on their content.
+
+The fix in here mitigates type confusion attacks described earlier due to
+i) all code paths in the BPF program being explored and ii) existing
+verifier logic already ensuring that given memory access instruction
+references one specific data structure.
+
+An alternative to this fix that has also been looked at in this scope was to
+mark aux->alu_state at the jump instruction with a BPF_JMP_TAKEN state as
+well as direction encoding (always-goto, always-fallthrough, unknown), such
+that mixing of different always-* directions themselves as well as mixing of
+always-* with unknown directions would cause a program rejection by the
+verifier, e.g. programs with constructs like 'if ([...]) { x = 0; } else
+{ x = 1; }' with subsequent 'if (x == 1) { [...] }'. For unprivileged, this
+would result in only single direction always-* taken paths, and unknown taken
+paths being allowed, such that the former could be patched from a conditional
+jump to an unconditional jump (ja). Compared to this approach here, it would
+have two downsides: i) valid programs that otherwise are not performing any
+pointer arithmetic, etc, would potentially be rejected/broken, and ii) we are
+required to turn off path pruning for unprivileged, where both can be avoided
+in this work through pushing the invalid branch to the verification stack.
+
+The issue was originally discovered by Adam and Ofek, and later independently
+discovered and reported as a result of Benedict and Piotr's research work.
+
+Fixes: b2157399cc98 ("bpf: prevent out-of-bounds speculation")
+Reported-by: Adam Morrison <mad@cs.tau.ac.il>
+Reported-by: Ofek Kirzner <ofekkir@gmail.com>
+Reported-by: Benedict Schlueter <benedict.schlueter@rub.de>
+Reported-by: Piotr Krysiuk <piotras@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Reviewed-by: John Fastabend <john.fastabend@gmail.com>
+Reviewed-by: Benedict Schlueter <benedict.schlueter@rub.de>
+Reviewed-by: Piotr Krysiuk <piotras@gmail.com>
+Acked-by: Alexei Starovoitov <ast@kernel.org>
+[OP: use allow_ptr_leaks instead of bypass_spec_v1]
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/sja1105/sja1105_clocking.c |  3 +-
- drivers/net/dsa/sja1105/sja1105_flower.c   |  9 ++--
- drivers/net/dsa/sja1105/sja1105_main.c     | 61 +++++++++++++---------
- drivers/net/dsa/sja1105/sja1105_spi.c      |  4 +-
- drivers/net/dsa/sja1105/sja1105_tas.c      | 14 ++---
- 5 files changed, 53 insertions(+), 38 deletions(-)
+ kernel/bpf/verifier.c |   46 +++++++++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 41 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/dsa/sja1105/sja1105_clocking.c b/drivers/net/dsa/sja1105/sja1105_clocking.c
-index 2a9b8a6a5306..f54b4d03a002 100644
---- a/drivers/net/dsa/sja1105/sja1105_clocking.c
-+++ b/drivers/net/dsa/sja1105/sja1105_clocking.c
-@@ -721,9 +721,10 @@ int sja1105_clocking_setup_port(struct sja1105_private *priv, int port)
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -4346,6 +4346,27 @@ struct bpf_sanitize_info {
+ 	bool mask_to_left;
+ };
  
- int sja1105_clocking_setup(struct sja1105_private *priv)
- {
-+	struct dsa_switch *ds = priv->ds;
- 	int port, rc;
- 
--	for (port = 0; port < SJA1105_NUM_PORTS; port++) {
-+	for (port = 0; port < ds->num_ports; port++) {
- 		rc = sja1105_clocking_setup_port(priv, port);
- 		if (rc < 0)
- 			return rc;
-diff --git a/drivers/net/dsa/sja1105/sja1105_flower.c b/drivers/net/dsa/sja1105/sja1105_flower.c
-index 973761132fc3..77c54126b3fc 100644
---- a/drivers/net/dsa/sja1105/sja1105_flower.c
-+++ b/drivers/net/dsa/sja1105/sja1105_flower.c
-@@ -35,6 +35,7 @@ static int sja1105_setup_bcast_policer(struct sja1105_private *priv,
- {
- 	struct sja1105_rule *rule = sja1105_rule_find(priv, cookie);
- 	struct sja1105_l2_policing_entry *policing;
-+	struct dsa_switch *ds = priv->ds;
- 	bool new_rule = false;
- 	unsigned long p;
- 	int rc;
-@@ -59,7 +60,7 @@ static int sja1105_setup_bcast_policer(struct sja1105_private *priv,
- 
- 	policing = priv->static_config.tables[BLK_IDX_L2_POLICING].entries;
- 
--	if (policing[(SJA1105_NUM_PORTS * SJA1105_NUM_TC) + port].sharindx != port) {
-+	if (policing[(ds->num_ports * SJA1105_NUM_TC) + port].sharindx != port) {
- 		NL_SET_ERR_MSG_MOD(extack,
- 				   "Port already has a broadcast policer");
- 		rc = -EEXIST;
-@@ -72,7 +73,7 @@ static int sja1105_setup_bcast_policer(struct sja1105_private *priv,
- 	 * point to the newly allocated policer
- 	 */
- 	for_each_set_bit(p, &rule->port_mask, SJA1105_NUM_PORTS) {
--		int bcast = (SJA1105_NUM_PORTS * SJA1105_NUM_TC) + p;
-+		int bcast = (ds->num_ports * SJA1105_NUM_TC) + p;
- 
- 		policing[bcast].sharindx = rule->bcast_pol.sharindx;
- 	}
-@@ -435,7 +436,7 @@ int sja1105_cls_flower_del(struct dsa_switch *ds, int port,
- 	policing = priv->static_config.tables[BLK_IDX_L2_POLICING].entries;
- 
- 	if (rule->type == SJA1105_RULE_BCAST_POLICER) {
--		int bcast = (SJA1105_NUM_PORTS * SJA1105_NUM_TC) + port;
-+		int bcast = (ds->num_ports * SJA1105_NUM_TC) + port;
- 
- 		old_sharindx = policing[bcast].sharindx;
- 		policing[bcast].sharindx = port;
-@@ -486,7 +487,7 @@ void sja1105_flower_setup(struct dsa_switch *ds)
- 
- 	INIT_LIST_HEAD(&priv->flow_block.rules);
- 
--	for (port = 0; port < SJA1105_NUM_PORTS; port++)
-+	for (port = 0; port < ds->num_ports; port++)
- 		priv->flow_block.l2_policer_used[port] = true;
- }
- 
-diff --git a/drivers/net/dsa/sja1105/sja1105_main.c b/drivers/net/dsa/sja1105/sja1105_main.c
-index 6e5dbe9f3892..ebb6966eba8e 100644
---- a/drivers/net/dsa/sja1105/sja1105_main.c
-+++ b/drivers/net/dsa/sja1105/sja1105_main.c
-@@ -107,6 +107,7 @@ static int sja1105_init_mac_settings(struct sja1105_private *priv)
- 		.ingress = false,
- 	};
- 	struct sja1105_mac_config_entry *mac;
-+	struct dsa_switch *ds = priv->ds;
- 	struct sja1105_table *table;
- 	int i;
- 
-@@ -118,16 +119,16 @@ static int sja1105_init_mac_settings(struct sja1105_private *priv)
- 		table->entry_count = 0;
- 	}
- 
--	table->entries = kcalloc(SJA1105_NUM_PORTS,
-+	table->entries = kcalloc(ds->num_ports,
- 				 table->ops->unpacked_entry_size, GFP_KERNEL);
- 	if (!table->entries)
- 		return -ENOMEM;
- 
--	table->entry_count = SJA1105_NUM_PORTS;
-+	table->entry_count = ds->num_ports;
- 
- 	mac = table->entries;
- 
--	for (i = 0; i < SJA1105_NUM_PORTS; i++) {
-+	for (i = 0; i < ds->num_ports; i++) {
- 		mac[i] = default_mac;
- 		if (i == dsa_upstream_port(priv->ds, i)) {
- 			/* STP doesn't get called for CPU port, so we need to
-@@ -162,6 +163,7 @@ static int sja1105_init_mii_settings(struct sja1105_private *priv,
- {
- 	struct device *dev = &priv->spidev->dev;
- 	struct sja1105_xmii_params_entry *mii;
-+	struct dsa_switch *ds = priv->ds;
- 	struct sja1105_table *table;
- 	int i;
- 
-@@ -183,7 +185,7 @@ static int sja1105_init_mii_settings(struct sja1105_private *priv,
- 
- 	mii = table->entries;
- 
--	for (i = 0; i < SJA1105_NUM_PORTS; i++) {
-+	for (i = 0; i < ds->num_ports; i++) {
- 		if (dsa_is_unused_port(priv->ds, i))
- 			continue;
- 
-@@ -267,8 +269,6 @@ static int sja1105_init_static_fdb(struct sja1105_private *priv)
- 
- static int sja1105_init_l2_lookup_params(struct sja1105_private *priv)
- {
--	struct sja1105_table *table;
--	u64 max_fdb_entries = SJA1105_MAX_L2_LOOKUP_COUNT / SJA1105_NUM_PORTS;
- 	struct sja1105_l2_lookup_params_entry default_l2_lookup_params = {
- 		/* Learned FDB entries are forgotten after 300 seconds */
- 		.maxage = SJA1105_AGEING_TIME_MS(300000),
-@@ -276,8 +276,6 @@ static int sja1105_init_l2_lookup_params(struct sja1105_private *priv)
- 		.dyn_tbsz = SJA1105ET_FDB_BIN_SIZE,
- 		/* And the P/Q/R/S equivalent setting: */
- 		.start_dynspc = 0,
--		.maxaddrp = {max_fdb_entries, max_fdb_entries, max_fdb_entries,
--			     max_fdb_entries, max_fdb_entries, },
- 		/* 2^8 + 2^5 + 2^3 + 2^2 + 2^1 + 1 in Koopman notation */
- 		.poly = 0x97,
- 		/* This selects between Independent VLAN Learning (IVL) and
-@@ -301,6 +299,15 @@ static int sja1105_init_l2_lookup_params(struct sja1105_private *priv)
- 		.owr_dyn = true,
- 		.drpnolearn = true,
- 	};
-+	struct dsa_switch *ds = priv->ds;
-+	struct sja1105_table *table;
-+	u64 max_fdb_entries;
-+	int port;
++static struct bpf_verifier_state *
++sanitize_speculative_path(struct bpf_verifier_env *env,
++			  const struct bpf_insn *insn,
++			  u32 next_idx, u32 curr_idx)
++{
++	struct bpf_verifier_state *branch;
++	struct bpf_reg_state *regs;
 +
-+	max_fdb_entries = SJA1105_MAX_L2_LOOKUP_COUNT / ds->num_ports;
++	branch = push_stack(env, next_idx, curr_idx, true);
++	if (branch && insn) {
++		regs = branch->frame[branch->curframe]->regs;
++		if (BPF_SRC(insn->code) == BPF_K) {
++			mark_reg_unknown(env, regs, insn->dst_reg);
++		} else if (BPF_SRC(insn->code) == BPF_X) {
++			mark_reg_unknown(env, regs, insn->dst_reg);
++			mark_reg_unknown(env, regs, insn->src_reg);
++		}
++	}
++	return branch;
++}
 +
-+	for (port = 0; port < ds->num_ports; port++)
-+		default_l2_lookup_params.maxaddrp[port] = max_fdb_entries;
- 
- 	table = &priv->static_config.tables[BLK_IDX_L2_LOOKUP_PARAMS];
- 
-@@ -393,6 +400,7 @@ static int sja1105_init_static_vlan(struct sja1105_private *priv)
- static int sja1105_init_l2_forwarding(struct sja1105_private *priv)
- {
- 	struct sja1105_l2_forwarding_entry *l2fwd;
-+	struct dsa_switch *ds = priv->ds;
- 	struct sja1105_table *table;
- 	int i, j;
- 
-@@ -413,7 +421,7 @@ static int sja1105_init_l2_forwarding(struct sja1105_private *priv)
- 	l2fwd = table->entries;
- 
- 	/* First 5 entries define the forwarding rules */
--	for (i = 0; i < SJA1105_NUM_PORTS; i++) {
-+	for (i = 0; i < ds->num_ports; i++) {
- 		unsigned int upstream = dsa_upstream_port(priv->ds, i);
- 
- 		for (j = 0; j < SJA1105_NUM_TC; j++)
-@@ -441,8 +449,8 @@ static int sja1105_init_l2_forwarding(struct sja1105_private *priv)
- 	 * Create a one-to-one mapping.
- 	 */
- 	for (i = 0; i < SJA1105_NUM_TC; i++)
--		for (j = 0; j < SJA1105_NUM_PORTS; j++)
--			l2fwd[SJA1105_NUM_PORTS + i].vlan_pmap[j] = i;
-+		for (j = 0; j < ds->num_ports; j++)
-+			l2fwd[ds->num_ports + i].vlan_pmap[j] = i;
- 
- 	return 0;
- }
-@@ -538,7 +546,7 @@ static int sja1105_init_general_params(struct sja1105_private *priv)
- 		 */
- 		.host_port = dsa_upstream_port(priv->ds, 0),
- 		/* Default to an invalid value */
--		.mirr_port = SJA1105_NUM_PORTS,
-+		.mirr_port = priv->ds->num_ports,
- 		/* Link-local traffic received on casc_port will be forwarded
- 		 * to host_port without embedding the source port and device ID
- 		 * info in the destination MAC address (presumably because it
-@@ -546,7 +554,7 @@ static int sja1105_init_general_params(struct sja1105_private *priv)
- 		 * that). Default to an invalid port (to disable the feature)
- 		 * and overwrite this if we find any DSA (cascaded) ports.
- 		 */
--		.casc_port = SJA1105_NUM_PORTS,
-+		.casc_port = priv->ds->num_ports,
- 		/* No TTEthernet */
- 		.vllupformat = SJA1105_VL_FORMAT_PSFP,
- 		.vlmarker = 0,
-@@ -667,6 +675,7 @@ static int sja1105_init_avb_params(struct sja1105_private *priv)
- static int sja1105_init_l2_policing(struct sja1105_private *priv)
- {
- 	struct sja1105_l2_policing_entry *policing;
-+	struct dsa_switch *ds = priv->ds;
- 	struct sja1105_table *table;
- 	int port, tc;
- 
-@@ -688,8 +697,8 @@ static int sja1105_init_l2_policing(struct sja1105_private *priv)
- 	policing = table->entries;
- 
- 	/* Setup shared indices for the matchall policers */
--	for (port = 0; port < SJA1105_NUM_PORTS; port++) {
--		int bcast = (SJA1105_NUM_PORTS * SJA1105_NUM_TC) + port;
-+	for (port = 0; port < ds->num_ports; port++) {
-+		int bcast = (ds->num_ports * SJA1105_NUM_TC) + port;
- 
- 		for (tc = 0; tc < SJA1105_NUM_TC; tc++)
- 			policing[port * SJA1105_NUM_TC + tc].sharindx = port;
-@@ -698,7 +707,7 @@ static int sja1105_init_l2_policing(struct sja1105_private *priv)
+ static int sanitize_ptr_alu(struct bpf_verifier_env *env,
+ 			    struct bpf_insn *insn,
+ 			    const struct bpf_reg_state *ptr_reg,
+@@ -4429,7 +4450,8 @@ do_sim:
+ 		tmp = *dst_reg;
+ 		*dst_reg = *ptr_reg;
+ 	}
+-	ret = push_stack(env, env->insn_idx + 1, env->insn_idx, true);
++	ret = sanitize_speculative_path(env, NULL, env->insn_idx + 1,
++					env->insn_idx);
+ 	if (!ptr_is_dst_reg && ret)
+ 		*dst_reg = tmp;
+ 	return !ret ? REASON_STACK : 0;
+@@ -6079,14 +6101,28 @@ static int check_cond_jmp_op(struct bpf_
+ 		if (err)
+ 			return err;
+ 	}
++
+ 	if (pred == 1) {
+-		/* only follow the goto, ignore fall-through */
++		/* Only follow the goto, ignore fall-through. If needed, push
++		 * the fall-through branch for simulation under speculative
++		 * execution.
++		 */
++		if (!env->allow_ptr_leaks &&
++		    !sanitize_speculative_path(env, insn, *insn_idx + 1,
++					       *insn_idx))
++			return -EFAULT;
+ 		*insn_idx += insn->off;
+ 		return 0;
+ 	} else if (pred == 0) {
+-		/* only follow fall-through branch, since
+-		 * that's where the program will go
+-		 */
++		/* Only follow the fall-through branch, since that's where the
++		 * program will go. If needed, push the goto branch for
++		 * simulation under speculative execution.
++		 */
++		if (!env->allow_ptr_leaks &&
++		    !sanitize_speculative_path(env, insn,
++					       *insn_idx + insn->off + 1,
++					       *insn_idx))
++			return -EFAULT;
+ 		return 0;
  	}
  
- 	/* Setup the matchall policer parameters */
--	for (port = 0; port < SJA1105_NUM_PORTS; port++) {
-+	for (port = 0; port < ds->num_ports; port++) {
- 		int mtu = VLAN_ETH_FRAME_LEN + ETH_FCS_LEN;
- 
- 		if (dsa_is_cpu_port(priv->ds, port))
-@@ -764,9 +773,10 @@ static int sja1105_static_config_load(struct sja1105_private *priv,
- static int sja1105_parse_rgmii_delays(struct sja1105_private *priv,
- 				      const struct sja1105_dt_port *ports)
- {
-+	struct dsa_switch *ds = priv->ds;
- 	int i;
- 
--	for (i = 0; i < SJA1105_NUM_PORTS; i++) {
-+	for (i = 0; i < ds->num_ports; i++) {
- 		if (ports[i].role == XMII_MAC)
- 			continue;
- 
-@@ -1641,7 +1651,7 @@ static int sja1105_bridge_member(struct dsa_switch *ds, int port,
- 
- 	l2_fwd = priv->static_config.tables[BLK_IDX_L2_FORWARDING].entries;
- 
--	for (i = 0; i < SJA1105_NUM_PORTS; i++) {
-+	for (i = 0; i < ds->num_ports; i++) {
- 		/* Add this port to the forwarding matrix of the
- 		 * other ports in the same bridge, and viceversa.
- 		 */
-@@ -1863,7 +1873,7 @@ int sja1105_static_config_reload(struct sja1105_private *priv,
- 	 * switch wants to see in the static config in order to allow us to
- 	 * change it through the dynamic interface later.
- 	 */
--	for (i = 0; i < SJA1105_NUM_PORTS; i++) {
-+	for (i = 0; i < ds->num_ports; i++) {
- 		speed_mbps[i] = sja1105_speed[mac[i].speed];
- 		mac[i].speed = SJA1105_SPEED_AUTO;
- 	}
-@@ -1915,7 +1925,7 @@ int sja1105_static_config_reload(struct sja1105_private *priv,
- 	if (rc < 0)
- 		goto out;
- 
--	for (i = 0; i < SJA1105_NUM_PORTS; i++) {
-+	for (i = 0; i < ds->num_ports; i++) {
- 		rc = sja1105_adjust_port_config(priv, i, speed_mbps[i]);
- 		if (rc < 0)
- 			goto out;
-@@ -3055,7 +3065,7 @@ static void sja1105_teardown(struct dsa_switch *ds)
- 	struct sja1105_bridge_vlan *v, *n;
- 	int port;
- 
--	for (port = 0; port < SJA1105_NUM_PORTS; port++) {
-+	for (port = 0; port < ds->num_ports; port++) {
- 		struct sja1105_port *sp = &priv->ports[port];
- 
- 		if (!dsa_is_user_port(ds, port))
-@@ -3258,6 +3268,7 @@ static int sja1105_mirror_apply(struct sja1105_private *priv, int from, int to,
- {
- 	struct sja1105_general_params_entry *general_params;
- 	struct sja1105_mac_config_entry *mac;
-+	struct dsa_switch *ds = priv->ds;
- 	struct sja1105_table *table;
- 	bool already_enabled;
- 	u64 new_mirr_port;
-@@ -3268,7 +3279,7 @@ static int sja1105_mirror_apply(struct sja1105_private *priv, int from, int to,
- 
- 	mac = priv->static_config.tables[BLK_IDX_MAC_CONFIG].entries;
- 
--	already_enabled = (general_params->mirr_port != SJA1105_NUM_PORTS);
-+	already_enabled = (general_params->mirr_port != ds->num_ports);
- 	if (already_enabled && enabled && general_params->mirr_port != to) {
- 		dev_err(priv->ds->dev,
- 			"Delete mirroring rules towards port %llu first\n",
-@@ -3282,7 +3293,7 @@ static int sja1105_mirror_apply(struct sja1105_private *priv, int from, int to,
- 		int port;
- 
- 		/* Anybody still referencing mirr_port? */
--		for (port = 0; port < SJA1105_NUM_PORTS; port++) {
-+		for (port = 0; port < ds->num_ports; port++) {
- 			if (mac[port].ing_mirr || mac[port].egr_mirr) {
- 				keep = true;
- 				break;
-@@ -3290,7 +3301,7 @@ static int sja1105_mirror_apply(struct sja1105_private *priv, int from, int to,
- 		}
- 		/* Unset already_enabled for next time */
- 		if (!keep)
--			new_mirr_port = SJA1105_NUM_PORTS;
-+			new_mirr_port = ds->num_ports;
- 	}
- 	if (new_mirr_port != general_params->mirr_port) {
- 		general_params->mirr_port = new_mirr_port;
-@@ -3686,7 +3697,7 @@ static int sja1105_probe(struct spi_device *spi)
- 	}
- 
- 	/* Connections between dsa_port and sja1105_port */
--	for (port = 0; port < SJA1105_NUM_PORTS; port++) {
-+	for (port = 0; port < ds->num_ports; port++) {
- 		struct sja1105_port *sp = &priv->ports[port];
- 		struct dsa_port *dp = dsa_to_port(ds, port);
- 		struct net_device *slave;
-diff --git a/drivers/net/dsa/sja1105/sja1105_spi.c b/drivers/net/dsa/sja1105/sja1105_spi.c
-index f7a1514f81e8..923d617cbec6 100644
---- a/drivers/net/dsa/sja1105/sja1105_spi.c
-+++ b/drivers/net/dsa/sja1105/sja1105_spi.c
-@@ -339,10 +339,10 @@ int static_config_buf_prepare_for_upload(struct sja1105_private *priv,
- 
- int sja1105_static_config_upload(struct sja1105_private *priv)
- {
--	unsigned long port_bitmap = GENMASK_ULL(SJA1105_NUM_PORTS - 1, 0);
- 	struct sja1105_static_config *config = &priv->static_config;
- 	const struct sja1105_regs *regs = priv->info->regs;
- 	struct device *dev = &priv->spidev->dev;
-+	struct dsa_switch *ds = priv->ds;
- 	struct sja1105_status status;
- 	int rc, retries = RETRIES;
- 	u8 *config_buf;
-@@ -363,7 +363,7 @@ int sja1105_static_config_upload(struct sja1105_private *priv)
- 	 * Tx on all ports and waiting for current packet to drain.
- 	 * Otherwise, the PHY will see an unterminated Ethernet packet.
- 	 */
--	rc = sja1105_inhibit_tx(priv, port_bitmap, true);
-+	rc = sja1105_inhibit_tx(priv, GENMASK_ULL(ds->num_ports - 1, 0), true);
- 	if (rc < 0) {
- 		dev_err(dev, "Failed to inhibit Tx on ports\n");
- 		rc = -ENXIO;
-diff --git a/drivers/net/dsa/sja1105/sja1105_tas.c b/drivers/net/dsa/sja1105/sja1105_tas.c
-index 31d8acff1f01..e6153848a950 100644
---- a/drivers/net/dsa/sja1105/sja1105_tas.c
-+++ b/drivers/net/dsa/sja1105/sja1105_tas.c
-@@ -27,7 +27,7 @@ static int sja1105_tas_set_runtime_params(struct sja1105_private *priv)
- 
- 	tas_data->enabled = false;
- 
--	for (port = 0; port < SJA1105_NUM_PORTS; port++) {
-+	for (port = 0; port < ds->num_ports; port++) {
- 		const struct tc_taprio_qopt_offload *offload;
- 
- 		offload = tas_data->offload[port];
-@@ -164,6 +164,7 @@ int sja1105_init_scheduling(struct sja1105_private *priv)
- 	struct sja1105_tas_data *tas_data = &priv->tas_data;
- 	struct sja1105_gating_config *gating_cfg = &tas_data->gating_cfg;
- 	struct sja1105_schedule_entry *schedule;
-+	struct dsa_switch *ds = priv->ds;
- 	struct sja1105_table *table;
- 	int schedule_start_idx;
- 	s64 entry_point_delta;
-@@ -207,7 +208,7 @@ int sja1105_init_scheduling(struct sja1105_private *priv)
- 	}
- 
- 	/* Figure out the dimensioning of the problem */
--	for (port = 0; port < SJA1105_NUM_PORTS; port++) {
-+	for (port = 0; port < ds->num_ports; port++) {
- 		if (tas_data->offload[port]) {
- 			num_entries += tas_data->offload[port]->num_entries;
- 			num_cycles++;
-@@ -269,7 +270,7 @@ int sja1105_init_scheduling(struct sja1105_private *priv)
- 	schedule_entry_points_params->clksrc = SJA1105_TAS_CLKSRC_PTP;
- 	schedule_entry_points_params->actsubsch = num_cycles - 1;
- 
--	for (port = 0; port < SJA1105_NUM_PORTS; port++) {
-+	for (port = 0; port < ds->num_ports; port++) {
- 		const struct tc_taprio_qopt_offload *offload;
- 		/* Relative base time */
- 		s64 rbt;
-@@ -468,6 +469,7 @@ bool sja1105_gating_check_conflicts(struct sja1105_private *priv, int port,
- 	struct sja1105_gating_config *gating_cfg = &priv->tas_data.gating_cfg;
- 	size_t num_entries = gating_cfg->num_entries;
- 	struct tc_taprio_qopt_offload *dummy;
-+	struct dsa_switch *ds = priv->ds;
- 	struct sja1105_gate_entry *e;
- 	bool conflict;
- 	int i = 0;
-@@ -491,7 +493,7 @@ bool sja1105_gating_check_conflicts(struct sja1105_private *priv, int port,
- 	if (port != -1) {
- 		conflict = sja1105_tas_check_conflicts(priv, port, dummy);
- 	} else {
--		for (port = 0; port < SJA1105_NUM_PORTS; port++) {
-+		for (port = 0; port < ds->num_ports; port++) {
- 			conflict = sja1105_tas_check_conflicts(priv, port,
- 							       dummy);
- 			if (conflict)
-@@ -554,7 +556,7 @@ int sja1105_setup_tc_taprio(struct dsa_switch *ds, int port,
- 		}
- 	}
- 
--	for (other_port = 0; other_port < SJA1105_NUM_PORTS; other_port++) {
-+	for (other_port = 0; other_port < ds->num_ports; other_port++) {
- 		if (other_port == port)
- 			continue;
- 
-@@ -885,7 +887,7 @@ void sja1105_tas_teardown(struct dsa_switch *ds)
- 
- 	cancel_work_sync(&priv->tas_data.tas_work);
- 
--	for (port = 0; port < SJA1105_NUM_PORTS; port++) {
-+	for (port = 0; port < ds->num_ports; port++) {
- 		offload = priv->tas_data.offload[port];
- 		if (!offload)
- 			continue;
--- 
-2.30.2
-
 
 
