@@ -2,159 +2,200 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CAEE3E299C
-	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 13:31:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 835E43E2999
+	for <lists+stable@lfdr.de>; Fri,  6 Aug 2021 13:31:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242760AbhHFLbj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Aug 2021 07:31:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55654 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239694AbhHFLbi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Aug 2021 07:31:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8259961058;
-        Fri,  6 Aug 2021 11:31:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1628249483;
-        bh=mo5wDPhEHYGqKKM336AjWzR67zEBISf0qmWTSG4w3FU=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sOW8954Np0TRki2NQdRgjPDxmAZzhqGNSxZXmycNwYPxzXwddUObeqilT03yvpj1T
-         lKefspovDCqksqUaPtilAvlMfADzP/44EdArMZh7ECFvLrJdui1+jOMdCKfZVZy4qD
-         fxXQK/7nzgDNYuxMmDTEi39066TBaVNpzhmWG2mqrfUhE5WcS3LzMs0ns82bs4CJ7q
-         BI44cpMQf3KErVQMPnx5QaeTh1mDPqNCKPI6CfsCBZBH/KpQWQk+cWi7JPm2ulIGkN
-         PDEUuFFHlIG9o1SujCaSVINBHOXjmEU6A1AapxAY5tf+Kn6eNSnM9PBiq5aqERLJCs
-         +e3F+WCTV8qFQ==
-From:   Will Deacon <will@kernel.org>
-To:     linux-arm-kernel@lists.infradead.org
-Cc:     kernel-team@android.com, Will Deacon <will@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Marc Zyngier <maz@kernel.org>,
-        Jade Alglave <jade.alglave@arm.com>,
-        Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
-        kvmarm@lists.cs.columbia.edu, linux-arch@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: [PATCH 1/4] arm64: mm: Fix TLBI vs ASID rollover
-Date:   Fri,  6 Aug 2021 12:31:04 +0100
-Message-Id: <20210806113109.2475-2-will@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20210806113109.2475-1-will@kernel.org>
-References: <20210806113109.2475-1-will@kernel.org>
+        id S236974AbhHFLbb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Aug 2021 07:31:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45756 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236130AbhHFLbb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Aug 2021 07:31:31 -0400
+Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7E99C061798
+        for <stable@vger.kernel.org>; Fri,  6 Aug 2021 04:31:15 -0700 (PDT)
+Received: by mail-pl1-x62b.google.com with SMTP id j3so6658492plx.4
+        for <stable@vger.kernel.org>; Fri, 06 Aug 2021 04:31:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=g4trEunHVpTZpPnGdV3WaY1jzeje0sC2D86od5hZwQk=;
+        b=uUJJy0uS8lx0QPhThAYIFsudlUynvb9FqJimvTn+2BkOm7rFChNasHhNKPNU6zgCE+
+         ag7hiEYnjJC/Yo5SLTkxGQbfeMzbNw/vlCnwacwz0++L40vyi2qEcQfzDrYYxaGgObXF
+         khx69nMRzmMer9ZB+1ObuO8tRnlZosbzH0lYf8hSRYK3AGfcofHwZ7GdDJBzS3nfZiOI
+         zGilXaioQxSV0PKeWs2+TNwYgUBQ1mWSe8q5mExCBzQuAppUXtOIoIBxUC50rNm8SDL3
+         NtwZPR8nzTsRPmuctuYuCvY1wcFgbW2fu0Bdd/+hOQ+kQ31869iWCO8Shi/sGjvK7R7m
+         lWQQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=g4trEunHVpTZpPnGdV3WaY1jzeje0sC2D86od5hZwQk=;
+        b=OUdoN+O9qE9Cyagqdapn4Vxc8dSaftdYCDFJomA0ECuHwxJz0tXpbKcIBDd1zklwIq
+         r6dNwVC8OrGVUslNlNdp92r4A/kJJYfClckoengdvvSiFrXJyuYqLsOiI1Am0stZ3sgf
+         SCDXVjK4GoS8pV5mmz6B0Pwsc47ggCNN4EGUN0eoUu+Pefxy6I1AsVLYBoKqxsadgM1w
+         hTkF9YEt72G4ByjiJXoxpYF8oAaWe1IaAW/Zne+ncjDs2xiw/OO0sraDRkMYTp6vdmcY
+         NtdFKGGHyf8fFsSi4/wd9xg7J/UqR+eozgoVDnJHNLSIyhj6Q86KBq3+LnmWoKa3XmUN
+         XlEg==
+X-Gm-Message-State: AOAM532SV8BYB0Xz15iyr0QMIs05VUfD95a5NvXSms9kfgD9McOqXn29
+        cnZr5oWkxCQlzpvtbb9BOfJQfFt4e0/Agg==
+X-Google-Smtp-Source: ABdhPJynptljdgHWXUoOu4ZJty72aVzgjX9+p6TlENorHa4sRQcDOzJm017ILyn43ZM5pLsBvxs3pA==
+X-Received: by 2002:a65:4785:: with SMTP id e5mr562747pgs.186.1628249475182;
+        Fri, 06 Aug 2021 04:31:15 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id v15sm8718149pja.53.2021.08.06.04.31.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 06 Aug 2021 04:31:14 -0700 (PDT)
+Message-ID: <610d1d82.1c69fb81.e971b.9fd6@mx.google.com>
+Date:   Fri, 06 Aug 2021 04:31:14 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/4.9
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.9.278-6-g289266ac6f24
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/4.9 baseline: 75 runs,
+ 3 regressions (v4.9.278-6-g289266ac6f24)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When switching to an 'mm_struct' for the first time following an ASID
-rollover, a new ASID may be allocated and assigned to 'mm->context.id'.
-This reassignment can happen concurrently with other operations on the
-mm, such as unmapping pages and subsequently issuing TLB invalidation.
+stable-rc/queue/4.9 baseline: 75 runs, 3 regressions (v4.9.278-6-g289266ac6=
+f24)
 
-Consequently, we need to ensure that (a) accesses to 'mm->context.id'
-are atomic and (b) all page-table updates made prior to a TLBI using the
-old ASID are guaranteed to be visible to CPUs running with the new ASID.
+Regressions Summary
+-------------------
 
-This was found by inspection after reviewing the VMID changes from
-Shameer but it looks like a real (yet hard to hit) bug.
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
+fig | 1          =
 
-Cc: <stable@vger.kernel.org>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Marc Zyngier <maz@kernel.org>
-Cc: Jade Alglave <jade.alglave@arm.com>
-Cc: Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>
-Signed-off-by: Will Deacon <will@kernel.org>
----
- arch/arm64/include/asm/mmu.h      | 29 +++++++++++++++++++++++++----
- arch/arm64/include/asm/tlbflush.h | 11 ++++++-----
- 2 files changed, 31 insertions(+), 9 deletions(-)
+qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
+fig | 1          =
 
-diff --git a/arch/arm64/include/asm/mmu.h b/arch/arm64/include/asm/mmu.h
-index 75beffe2ee8a..e9c30859f80c 100644
---- a/arch/arm64/include/asm/mmu.h
-+++ b/arch/arm64/include/asm/mmu.h
-@@ -27,11 +27,32 @@ typedef struct {
- } mm_context_t;
- 
- /*
-- * This macro is only used by the TLBI and low-level switch_mm() code,
-- * neither of which can race with an ASID change. We therefore don't
-- * need to reload the counter using atomic64_read().
-+ * We use atomic64_read() here because the ASID for an 'mm_struct' can
-+ * be reallocated when scheduling one of its threads following a
-+ * rollover event (see new_context() and flush_context()). In this case,
-+ * a concurrent TLBI (e.g. via try_to_unmap_one() and ptep_clear_flush())
-+ * may use a stale ASID. This is fine in principle as the new ASID is
-+ * guaranteed to be clean in the TLB, but the TLBI routines have to take
-+ * care to handle the following race:
-+ *
-+ *    CPU 0                    CPU 1                          CPU 2
-+ *
-+ *    // ptep_clear_flush(mm)
-+ *    xchg_relaxed(pte, 0)
-+ *    DSB ISHST
-+ *    old = ASID(mm)
-+ *         |                                                  <rollover>
-+ *         |                   new = new_context(mm)
-+ *         \-----------------> atomic_set(mm->context.id, new)
-+ *                             cpu_switch_mm(mm)
-+ *                             // Hardware walk of pte using new ASID
-+ *    TLBI(old)
-+ *
-+ * In this scenario, the barrier on CPU 0 and the dependency on CPU 1
-+ * ensure that the page-table walker on CPU 1 *must* see the invalid PTE
-+ * written by CPU 0.
-  */
--#define ASID(mm)	((mm)->context.id.counter & 0xffff)
-+#define ASID(mm)	(atomic64_read(&(mm)->context.id) & 0xffff)
- 
- static inline bool arm64_kernel_unmapped_at_el0(void)
- {
-diff --git a/arch/arm64/include/asm/tlbflush.h b/arch/arm64/include/asm/tlbflush.h
-index cc3f5a33ff9c..36f02892e1df 100644
---- a/arch/arm64/include/asm/tlbflush.h
-+++ b/arch/arm64/include/asm/tlbflush.h
-@@ -245,9 +245,10 @@ static inline void flush_tlb_all(void)
- 
- static inline void flush_tlb_mm(struct mm_struct *mm)
- {
--	unsigned long asid = __TLBI_VADDR(0, ASID(mm));
-+	unsigned long asid;
- 
- 	dsb(ishst);
-+	asid = __TLBI_VADDR(0, ASID(mm));
- 	__tlbi(aside1is, asid);
- 	__tlbi_user(aside1is, asid);
- 	dsb(ish);
-@@ -256,9 +257,10 @@ static inline void flush_tlb_mm(struct mm_struct *mm)
- static inline void flush_tlb_page_nosync(struct vm_area_struct *vma,
- 					 unsigned long uaddr)
- {
--	unsigned long addr = __TLBI_VADDR(uaddr, ASID(vma->vm_mm));
-+	unsigned long addr;
- 
- 	dsb(ishst);
-+	addr = __TLBI_VADDR(uaddr, ASID(vma->vm_mm));
- 	__tlbi(vale1is, addr);
- 	__tlbi_user(vale1is, addr);
- }
-@@ -283,9 +285,7 @@ static inline void __flush_tlb_range(struct vm_area_struct *vma,
- {
- 	int num = 0;
- 	int scale = 0;
--	unsigned long asid = ASID(vma->vm_mm);
--	unsigned long addr;
--	unsigned long pages;
-+	unsigned long asid, addr, pages;
- 
- 	start = round_down(start, stride);
- 	end = round_up(end, stride);
-@@ -305,6 +305,7 @@ static inline void __flush_tlb_range(struct vm_area_struct *vma,
- 	}
- 
- 	dsb(ishst);
-+	asid = ASID(vma->vm_mm);
- 
- 	/*
- 	 * When the CPU does not support TLB range operations, flush the TLB
--- 
-2.32.0.605.g8dce9f2422-goog
+qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
+fig | 1          =
 
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
+el/v4.9.278-6-g289266ac6f24/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.9
+  Describe: v4.9.278-6-g289266ac6f24
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      289266ac6f245f8244a617326864594ee81b1825 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/610ce3bef782540563b13689
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.278-6=
+-g289266ac6f24/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm=
+-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.278-6=
+-g289266ac6f24/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm=
+-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/610ce3bef782540563b13=
+68a
+        failing since 265 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/610ce2ff36c80f39f9b13665
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.278-6=
+-g289266ac6f24/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-vers=
+atilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.278-6=
+-g289266ac6f24/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-vers=
+atilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/610ce2ff36c80f39f9b13=
+666
+        failing since 265 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/610ce276eb44e66764b1367c
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.278-6=
+-g289266ac6f24/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu_=
+arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.278-6=
+-g289266ac6f24/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu_=
+arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/610ce276eb44e66764b13=
+67d
+        failing since 265 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =20
