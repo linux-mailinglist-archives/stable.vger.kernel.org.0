@@ -2,71 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2692A3E3422
-	for <lists+stable@lfdr.de>; Sat,  7 Aug 2021 10:40:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C9D53E344D
+	for <lists+stable@lfdr.de>; Sat,  7 Aug 2021 11:26:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231556AbhHGIkX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 7 Aug 2021 04:40:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38836 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229803AbhHGIkX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 7 Aug 2021 04:40:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPS id D5E4F61052;
-        Sat,  7 Aug 2021 08:40:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1628325605;
-        bh=zlL9JIUIOF7wyXReo/dORhij+k8kFatTXxcOUgAWbho=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=uGxsF1M9b2pMeUSzSdUKi6JnXO4sTZM47D1pC3MBk2zQfPSVg+kRNh9tifmYBlpFL
-         klndjGRTi4WBxStTppP2bE1hbK/9i4Uv73Bfxpw+svsTHsz9sYQc9/XegTh7j8GDsF
-         PiYzNhGa+JA1f+NgefkRT/dI0uR9WieEicK+6vVzF7+HnEFUJ/970iNicqT7nvwkiG
-         oXwc9k1u9vXU8/Nbh+85Xsgh+3xN0U+ZGOQD/RyGEJEX4L2vdwmG3/gjcLplKTkihQ
-         Aam8VeEByf7GtJaZDf+Y//tMaCPFqytKrWnQz4Ex3qUgOYV9ZxhH53nn7/BS4zAiVq
-         zH+z/ghTKEHSQ==
-Received: from pdx-korg-docbuild-2.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by pdx-korg-docbuild-2.ci.codeaurora.org (Postfix) with ESMTP id C292A60A7C;
-        Sat,  7 Aug 2021 08:40:05 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net-next] net: wwan: mhi_wwan_ctrl: Fix possible deadlock
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <162832560579.30769.12000853900536681427.git-patchwork-notify@kernel.org>
-Date:   Sat, 07 Aug 2021 08:40:05 +0000
-References: <1628246109-27425-1-git-send-email-loic.poulain@linaro.org>
-In-Reply-To: <1628246109-27425-1-git-send-email-loic.poulain@linaro.org>
-To:     Loic Poulain <loic.poulain@linaro.org>
-Cc:     davem@davemloft.net, kuba@kernel.org, netdev@vger.kernel.org,
-        ryazanov.s.a@gmail.com, stable@vger.kernel.org
+        id S231608AbhHGJ0u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 7 Aug 2021 05:26:50 -0400
+Received: from smtp-out2.suse.de ([195.135.220.29]:54776 "EHLO
+        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231603AbhHGJ0u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 7 Aug 2021 05:26:50 -0400
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out2.suse.de (Postfix) with ESMTP id AE7D21FF39;
+        Sat,  7 Aug 2021 09:26:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1628328392; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=vlKA8UKfl2p3PP4/aX652JQZs39iI//1koem5Cv6x/8=;
+        b=hQghiuenvSRfzYBBx8E2fRZFZMSfFx8WmkxFpXOfeTOgpO2ayU11Zdk7RdNIfz9KQpy8O1
+        ZAVuN6PdW6T5lzSciIYK4JP13tKPXIpYVdePK2nWDxfcUmBsAxTwGI2eVs872UgH69XXza
+        8z3sUjaE2tOXevBWomtHKFviwsckdj4=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1628328392;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=vlKA8UKfl2p3PP4/aX652JQZs39iI//1koem5Cv6x/8=;
+        b=a6ziqDjPnBwIQohEkgvcQfia0ejzefQODSwHUEcyQH6C1k1uRK5v+Ugocm3x94M05slM3v
+        WLAA74bZ4TQI61AQ==
+Received: from alsa1.suse.de (alsa1.suse.de [10.160.4.42])
+        by relay2.suse.de (Postfix) with ESMTP id 915DAA3B87;
+        Sat,  7 Aug 2021 09:26:32 +0000 (UTC)
+Date:   Sat, 07 Aug 2021 11:26:32 +0200
+Message-ID: <s5htuk1ppvb.wl-tiwai@suse.de>
+From:   Takashi Iwai <tiwai@suse.de>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Jeff Woods <jwoods@fnordco.com>, alsa-devel@alsa-project.org,
+        stable <stable@vger.kernel.org>,
+        regressions <regressions@lists.linux.dev>
+Subject: Re: Kernel 5.13.6 breaks mmap with snd-hdsp module
+In-Reply-To: <YQ5Bb+mPgPivLqvX@kroah.com>
+References: <17b1f9647ee.1179b6a05461889.5940365952430364689@fnordco.com>
+        <YQ5Bb+mPgPivLqvX@kroah.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI/1.14.6 (Maruoka)
+ FLIM/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL/10.8 Emacs/25.3
+ (x86_64-suse-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI 1.14.6 - "Maruoka")
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello:
-
-This patch was applied to netdev/net.git (refs/heads/master):
-
-On Fri,  6 Aug 2021 12:35:09 +0200 you wrote:
-> Lockdep detected possible interrupt unsafe locking scenario:
+On Sat, 07 Aug 2021 10:16:47 +0200,
+Greg KH wrote:
 > 
->         CPU0                    CPU1
->         ----                    ----
->    lock(&mhiwwan->rx_lock);
->                                local_irq_disable();
->                                lock(&mhi_cntrl->pm_lock);
->                                lock(&mhiwwan->rx_lock);
->    <Interrupt>
->      lock(&mhi_cntrl->pm_lock);
+> On Sat, Aug 07, 2021 at 12:49:07AM -0700, Jeff Woods wrote:
+> > Specifically, commit c4824ae7db418aee6f50f308a20b832e58e997fd triggers the problem. Reverting this change restores functionality.
+> > 
+> > The device is an RME Multiface II, using the snd-hdsp driver.
+> > 
+> > Expected behavior: Device plays sound normally
+> > 
+> > Exhibited behavior: When a program attempts to open the device, the following ALSA lib error happens:
+> > 
+> > ALSA lib pcm_direct.c:1169:(snd1_pcm_direct_initialize_slave) slave plugin does not support mmap interleaved or mmap noninterleaved access
+> > 
+> > This change hasn't affected my other computers with less esoteric hardware, so probably the problem lies with the snd-hdsp driver, but the device is unusable without reverting that commit.
+> > 
+> > I am available to test any patches for this issue.
 > 
-> [...]
+> Have you notified the developers involved in this change about this
+> issue?
 
-Here is the summary with links:
-  - [net-next] net: wwan: mhi_wwan_ctrl: Fix possible deadlock
-    https://git.kernel.org/netdev/net/c/34737e1320db
+No, it's a new report :)
 
-You are awesome, thank you!
---
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+> Adding them now...
 
+Could you try the patch below?
+
+
+thanks,
+
+Takashi
+
+-- 8< --
+From: Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH] ALSA: pci: rme: Fix mmap breakage
+
+The recent change in the PCM core restricts the mmap of unknown buffer
+type, and this broke the mmap on RME9652 and HDSP drivers that didn't
+set up properly.  Actually those driver do use the buffers allocated
+in a standard way, and the proper calls should fix the breakage.
+
+Fixes: c4824ae7db41 ("ALSA: pcm: Fix mmap capability check")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+---
+ sound/pci/rme9652/hdsp.c    | 6 ++----
+ sound/pci/rme9652/rme9652.c | 6 ++----
+ 2 files changed, 4 insertions(+), 8 deletions(-)
+
+diff --git a/sound/pci/rme9652/hdsp.c b/sound/pci/rme9652/hdsp.c
+index 8457a4bbc3df..b32a72e28917 100644
+--- a/sound/pci/rme9652/hdsp.c
++++ b/sound/pci/rme9652/hdsp.c
+@@ -4518,8 +4518,7 @@ static int snd_hdsp_playback_open(struct snd_pcm_substream *substream)
+ 	snd_pcm_set_sync(substream);
+ 
+         runtime->hw = snd_hdsp_playback_subinfo;
+-	runtime->dma_area = hdsp->playback_buffer;
+-	runtime->dma_bytes = HDSP_DMA_AREA_BYTES;
++	snd_pcm_set_runtime_buffer(substream, hdsp->playback_dma_buf);
+ 
+ 	hdsp->playback_pid = current->pid;
+ 	hdsp->playback_substream = substream;
+@@ -4595,8 +4594,7 @@ static int snd_hdsp_capture_open(struct snd_pcm_substream *substream)
+ 	snd_pcm_set_sync(substream);
+ 
+ 	runtime->hw = snd_hdsp_capture_subinfo;
+-	runtime->dma_area = hdsp->capture_buffer;
+-	runtime->dma_bytes = HDSP_DMA_AREA_BYTES;
++	snd_pcm_set_runtime_buffer(substream, hdsp->capture_dma_buf);
+ 
+ 	hdsp->capture_pid = current->pid;
+ 	hdsp->capture_substream = substream;
+diff --git a/sound/pci/rme9652/rme9652.c b/sound/pci/rme9652/rme9652.c
+index f1aad38760d6..8036ed761d53 100644
+--- a/sound/pci/rme9652/rme9652.c
++++ b/sound/pci/rme9652/rme9652.c
+@@ -2279,8 +2279,7 @@ static int snd_rme9652_playback_open(struct snd_pcm_substream *substream)
+ 	snd_pcm_set_sync(substream);
+ 
+         runtime->hw = snd_rme9652_playback_subinfo;
+-	runtime->dma_area = rme9652->playback_buffer;
+-	runtime->dma_bytes = RME9652_DMA_AREA_BYTES;
++	snd_pcm_set_runtime_buffer(substream, rme9652->playback_dma_buf);
+ 
+ 	if (rme9652->capture_substream == NULL) {
+ 		rme9652_stop(rme9652);
+@@ -2339,8 +2338,7 @@ static int snd_rme9652_capture_open(struct snd_pcm_substream *substream)
+ 	snd_pcm_set_sync(substream);
+ 
+ 	runtime->hw = snd_rme9652_capture_subinfo;
+-	runtime->dma_area = rme9652->capture_buffer;
+-	runtime->dma_bytes = RME9652_DMA_AREA_BYTES;
++	snd_pcm_set_runtime_buffer(substream, rme9652->capture_dma_buf);
+ 
+ 	if (rme9652->playback_substream == NULL) {
+ 		rme9652_stop(rme9652);
+-- 
+2.26.2
 
