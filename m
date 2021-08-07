@@ -2,93 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26F723E3566
-	for <lists+stable@lfdr.de>; Sat,  7 Aug 2021 15:03:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBB8F3E357D
+	for <lists+stable@lfdr.de>; Sat,  7 Aug 2021 15:16:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232207AbhHGNDe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 7 Aug 2021 09:03:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53130 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230291AbhHGNDb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 7 Aug 2021 09:03:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 614F06103B;
-        Sat,  7 Aug 2021 13:03:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628341393;
-        bh=9l3EJ0YBPIF1kfrYIR/gJmgGJa6PXd3PrWvodfL1AWQ=;
-        h=Subject:To:From:Date:From;
-        b=159TJhOr+87eyBSs7wM5wIctILg5lvIWHEQzXBUCrDfr3/U+lZw1YnWi/mh04EsCd
-         8g8mpCIa0A8X63lZhQdyyApaF4lCiE4MAz98rPaWQPZKNz6T6+A5XhfAmCrdoSdSB0
-         q+PhZEJGGEjKIvDl6fkrn3V2b7zGypieRjQN5JQk=
-Subject: patch "nvmem: core: fix error handling while validating keepout regions" added to char-misc-next
-To:     srinivas.kandagatla@linaro.org, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 07 Aug 2021 15:02:59 +0200
-Message-ID: <162834137973105@kroah.com>
+        id S232254AbhHGNQw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 7 Aug 2021 09:16:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48662 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232192AbhHGNQv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 7 Aug 2021 09:16:51 -0400
+Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC1A9C0613CF;
+        Sat,  7 Aug 2021 06:16:34 -0700 (PDT)
+Received: by mail-pj1-x1033.google.com with SMTP id dw2-20020a17090b0942b0290177cb475142so26879081pjb.2;
+        Sat, 07 Aug 2021 06:16:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=6TT4hOLY1K73fDIL51uEPsxccZa0W+CXeROOV5HZmgA=;
+        b=INhakPtYip3LHyQDHcAWledr4vurbhhp5vxYJLOVifH6M96tcXwotbEjxK26wHAgVB
+         gSIeiawHk55m9LpRmXCBSqxd8CsLg7A8KQGJVQeDAUww4L4paQ18MMN0jI9Z2SROcxGU
+         ZzOCSqrzObMtHf3WxsBknuGolGy7cs8geWt86HCOHUrzUjfZ9/fQQbqxAUvb7+uJb81C
+         eUK54X8CqAWxp2UCI64bA2EL87Ef1o6i9c+xWxJERDa/0hnY40nlKZOZ/odwwOUYvGDl
+         LU7BzvU3spDK0yoIOhLX9ui9PzTtoGF1koBbAB1TsgowoYaldgDM/KEpPKagavkmqv65
+         A/MQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=6TT4hOLY1K73fDIL51uEPsxccZa0W+CXeROOV5HZmgA=;
+        b=hvseuAsUfCkQXZ4AsZiarL/a6iSUR2L+i9MrmsBtmwNRZ7bmgP2PJ4JOWF5EC7s3Gt
+         PAX8iA9kbEHfCghSgoZuZy7/Y7+SsVE5iwZFt9VhkB0+/K/mrZ34uD2SngfJ4OQo/XQK
+         clxC5rxWdnmh6HBemhnX/+KuFt9STlfmfBpd5NQ2onZvl4ybohOX8MugkLvfj/HNnRTb
+         6hYpRG7RR/7vxWODA6Tex3QVcUelQFCvsMrcMn1I1ouolnUZ/cMGe+ZDn7N2qP1AYimj
+         YJxkOE6YpKDpL+X1FrcQeB7ab+9SD0F2rtebILmnQ8wuGTzfWBbnE9CgmWAeEYOgXL4l
+         44BQ==
+X-Gm-Message-State: AOAM530Z6cWaVwD1LUok7LdwKno7pkDQv9v5WNEEe+P8vcA0xBAlvevF
+        xfA/2EEY1zlOh/c6qdTarI0=
+X-Google-Smtp-Source: ABdhPJysE6YSCCLLPFzwRL4lYhNbyDmnNOcco0kdfRGWbndFhstFV3cFeKjCKIo0qtiupNPZaZ/qsg==
+X-Received: by 2002:a17:90a:69c5:: with SMTP id s63mr15218482pjj.190.1628342194170;
+        Sat, 07 Aug 2021 06:16:34 -0700 (PDT)
+Received: from localhost ([49.207.135.150])
+        by smtp.gmail.com with ESMTPSA id v5sm1979460pjs.45.2021.08.07.06.16.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 07 Aug 2021 06:16:33 -0700 (PDT)
+Date:   Sat, 7 Aug 2021 18:46:31 +0530
+From:   Aakash Hemadri <aakashhemadri123@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 5.13 00/35] 5.13.9-rc1 review
+Message-ID: <20210807131631.7ca4rrl6744i6rhx@xps.yggdrail>
+References: <20210806081113.718626745@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210806081113.718626745@linuxfoundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 21/08/06 10:16AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.13.9 release.
+> There are 35 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sun, 08 Aug 2021 08:11:03 +0000.
+> Anything received after that time might be too late.
 
-This is a note to let you know that I've just added the patch titled
+Compiled, booted, with no regressions
 
-    nvmem: core: fix error handling while validating keepout regions
+Tested-by: Aakash Hemadri <aakashhemdri123@gmail.com>
 
-to my char-misc git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
-in the char-misc-next branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will also be merged in the next major kernel release
-during the merge window.
-
-If you have any questions about this process, please let me know.
-
-
-From de0534df93474f268486c486ea7e01b44a478026 Mon Sep 17 00:00:00 2001
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Date: Fri, 6 Aug 2021 09:59:47 +0100
-Subject: nvmem: core: fix error handling while validating keepout regions
-
-Current error path on failure of validating keepout regions is calling
-put_device, eventhough the device is not even registered at that point.
-
-Fix this by adding proper error handling of freeing ida and nvmem.
-
-Fixes: fd3bb8f54a88 ("nvmem: core: Add support for keepout regions")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20210806085947.22682-5-srinivas.kandagatla@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/nvmem/core.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
-index b3bc30a04ed7..3d87fadaa160 100644
---- a/drivers/nvmem/core.c
-+++ b/drivers/nvmem/core.c
-@@ -824,8 +824,11 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
- 
- 	if (nvmem->nkeepout) {
- 		rval = nvmem_validate_keepouts(nvmem);
--		if (rval)
--			goto err_put_device;
-+		if (rval) {
-+			ida_free(&nvmem_ida, nvmem->id);
-+			kfree(nvmem);
-+			return ERR_PTR(rval);
-+		}
- 	}
- 
- 	dev_dbg(&nvmem->dev, "Registering nvmem device %s\n", config->name);
--- 
-2.32.0
-
-
+Aakash Hemdri
