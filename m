@@ -2,308 +2,364 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BBFA33E35D8
-	for <lists+stable@lfdr.de>; Sat,  7 Aug 2021 16:21:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3E403E35E4
+	for <lists+stable@lfdr.de>; Sat,  7 Aug 2021 16:29:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232372AbhHGOVV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 7 Aug 2021 10:21:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34330 "EHLO
+        id S232427AbhHGO3V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 7 Aug 2021 10:29:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232417AbhHGOUU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 7 Aug 2021 10:20:20 -0400
-Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B28EC0613CF
-        for <stable@vger.kernel.org>; Sat,  7 Aug 2021 07:20:03 -0700 (PDT)
-Received: by mail-pj1-x1031.google.com with SMTP id a8so20965309pjk.4
-        for <stable@vger.kernel.org>; Sat, 07 Aug 2021 07:20:03 -0700 (PDT)
+        with ESMTP id S232313AbhHGO3V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 7 Aug 2021 10:29:21 -0400
+Received: from mail-oi1-x22e.google.com (mail-oi1-x22e.google.com [IPv6:2607:f8b0:4864:20::22e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFD41C0613CF;
+        Sat,  7 Aug 2021 07:29:03 -0700 (PDT)
+Received: by mail-oi1-x22e.google.com with SMTP id s13so7453958oie.10;
+        Sat, 07 Aug 2021 07:29:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=8MHEWERC+waP6vYKA8LFtDzfdlBkzvMbdAJDMItBJis=;
-        b=CodBHvRjQqXlGdnDuGbQTEBhKtrIKR0/wvDZGachE3VtuMKOO12eJbgXXOd55yhghz
-         EtCd46d/tnU5pZv4hot+emgrO1+1XhRkBuc2WEiWwGjHDm0uGaVq+pr/JGtSaa2jCMru
-         /EnyZFeFatli1PAcHiDIzLz6rX3f1zppMve+gs3gZCno54q3796vNyXvFYJZJdNhWzya
-         e+4SB9sVP9Ih54Xe+lTRXuDxEFT4swdJ/7qehbOeTaOmr5UeXOU42UCsaHRr6ZAV07Dj
-         Nb/BpiZCeG7UjwYuikh4x8UkBBK7BigIEHkanKOG4mEDuW3ufZWqLL7ez7DKD6UsY9vq
-         DTuQ==
+        d=gmail.com; s=20161025;
+        h=mime-version:from:date:message-id:subject:to:cc;
+        bh=TfqRwzqta/UmYDzbxnvXrLmTMpNTiMW+sJo+7ulhkMU=;
+        b=CRYI+yPsNJvq4bhelYMjjGbwRv6ayQh7Fm0kXjaMqUrEsQHJK/AnBXmDA/8uQnHLWy
+         TKOt9CWBewulfUc0ikDdlc0+NgrZDDGQceB8JlvvTXvmyXi5ZLApfLKCqW7W2H+uoGtv
+         4E0cQdKvd3IdIIjiRtPFK6DJUUN/0VbryVi8P5Roeb5dR57nBJj5zUwlXaHgbVmjYVxl
+         WdOsXVDeb+PT+DmE5Ybbo5Q75YOIv/p9yFL2tOO45pXF/QJXM1G5amx5VHprQdwUoUJR
+         ZIIbiqmdI7PMzzZ3rBFbnPwP+lhvki7cUI9z61ZQMBAeZ9SaEeoHNh2kLDGi3x/VW4ia
+         3VAQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=8MHEWERC+waP6vYKA8LFtDzfdlBkzvMbdAJDMItBJis=;
-        b=QAazvoPPv+/+mVQzlctCBwqde1kwDAtPA/qNZk+2Uiqe04v25iZhr+BFRj5GqQbx3S
-         CRdrK7Q/gAYuL737XB1/y6wetOETBUvKSjvKHifyXVGaO2l8Ddlako90lb0RiPPrtRea
-         Dsi3vVJZNC6p0HWe2WF3NSLdIZZ02fCYWiUVjx6ZRFv8JjqftKTeSHYFm6yjzRHn/eUG
-         CNDBatthopnG0rX2Gu/IRLPkXyCIZHtZ+pv1VQwqqzBSHW3weKHBm/uAiRa6krWBPs/I
-         iAfGIyy6AuBwB2NvHRlIWMvmb9hSwnwNTNvyvwDFWx5TBJc6SRcoCa8/xNDMz1cNYn9i
-         AuYA==
-X-Gm-Message-State: AOAM530LYuid5Xb1Unj8PRgYEGHB3Sv/WSIOuzDn+vhr+624QfowuyDu
-        oNPARA4L96a8nSLyihaGF57eFyq6tcQ4oJ5A
-X-Google-Smtp-Source: ABdhPJzOHd65fHyf0cJVt9DPJ1qIDdgOsBZfcL6IMgWdsG5CAqxQ2azj7imqRpmWIuOkk6StCewLmw==
-X-Received: by 2002:a17:90a:5994:: with SMTP id l20mr15376416pji.201.1628346002760;
-        Sat, 07 Aug 2021 07:20:02 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id a22sm14413377pfa.137.2021.08.07.07.20.01
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 07 Aug 2021 07:20:02 -0700 (PDT)
-Message-ID: <610e9692.1c69fb81.90299.9985@mx.google.com>
-Date:   Sat, 07 Aug 2021 07:20:02 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
+        bh=TfqRwzqta/UmYDzbxnvXrLmTMpNTiMW+sJo+7ulhkMU=;
+        b=lJeb/MawucNZ4/ymnG3fyD2eCp5GDjUu0l1tmAn6LQWAW+kBXvn2xTSOAXjnd7Sxhm
+         uvrZOQJpVd39W4L35w3WgCI3t4CLgnwaLRfzwWP6p8E9c/NcPDTScUG978CyDbOwdl+5
+         d1DxLtoej7zQ3lO+B1/sQ44VExq0pVb42RQROfEjCPm5DfO+Gz+ykuGCj6RpYzqe6vBI
+         CSC4W1k5f+0lzwcOoR2BhbG9aR8JKVU2/to2nSY2OjPs5qfkH7a18tV5FvMmfsamo5/v
+         Js6IyTPcg8u1qMiHq5UuHoeu0NBMpfsaanfuF+Xlgv25TB1nejLkGCGYCxlhgXeunYgS
+         YXCA==
+X-Gm-Message-State: AOAM5304ESpqwobAkD6Fbu97p5kGB1JN9OQ14gWaH9uNxGoE6rPdMLwa
+        txflB2Ebu1jNJRE6EjNrArkQo77j45CSXIjmlTbKqBC6nY8TRQ==
+X-Google-Smtp-Source: ABdhPJx2wm0d3W37GRnTzyJaKEZz0oszN+K9M+KYCdt0lmZ7LYMl0c9r0BcrslKIOcSVGeHJAbw5q60X+YHodAUEOAg=
+X-Received: by 2002:a05:6808:601:: with SMTP id y1mr9167584oih.27.1628346543146;
+ Sat, 07 Aug 2021 07:29:03 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/4.4
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.4.278-6-gaa5affdfd540
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/4.4 baseline: 67 runs,
- 6 regressions (v4.4.278-6-gaa5affdfd540)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+From:   Mikael Pettersson <mikpelinux@gmail.com>
+Date:   Sat, 7 Aug 2021 16:28:52 +0200
+Message-ID: <CAM43=SM4KFE8C1ekwiw_kBYZKSwycnTYcbBXfw5OhUn4h=r9YA@mail.gmail.com>
+Subject: [BISECTED][REGRESSION] 5.10.56 longterm kernel breakage on m68k/aranym
+To:     Linux Kernel list <linux-kernel@vger.kernel.org>
+Cc:     linux-m68k@lists.linux-m68k.org, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.4 baseline: 67 runs, 6 regressions (v4.4.278-6-gaa5affdfd=
-540)
-
-Regressions Summary
--------------------
-
-platform            | arch | lab             | compiler | defconfig        =
-  | regressions
---------------------+------+-----------------+----------+------------------=
---+------------
-qemu_arm-virt-gicv2 | arm  | lab-baylibre    | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-qemu_arm-virt-gicv2 | arm  | lab-broonie     | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-qemu_arm-virt-gicv2 | arm  | lab-linaro-lkft | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-qemu_arm-virt-gicv3 | arm  | lab-baylibre    | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-qemu_arm-virt-gicv3 | arm  | lab-broonie     | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-qemu_arm-virt-gicv3 | arm  | lab-linaro-lkft | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
-el/v4.4.278-6-gaa5affdfd540/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.4
-  Describe: v4.4.278-6-gaa5affdfd540
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      aa5affdfd540cd86cd5468629a9ad196833cc9f3 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform            | arch | lab             | compiler | defconfig        =
-  | regressions
---------------------+------+-----------------+----------+------------------=
---+------------
-qemu_arm-virt-gicv2 | arm  | lab-baylibre    | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/610e5d39142454b511b136a2
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.278-6=
--gaa5affdfd540/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-=
-virt-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.278-6=
--gaa5affdfd540/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-=
-virt-gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/610e5d39142454b511b13=
-6a3
-        failing since 266 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
- fail: v4.4.243-19-g71b6c961c7fe) =
-
- =
-
-
-
-platform            | arch | lab             | compiler | defconfig        =
-  | regressions
---------------------+------+-----------------+----------+------------------=
---+------------
-qemu_arm-virt-gicv2 | arm  | lab-broonie     | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/610e5d8747aebe38feb136ab
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.278-6=
--gaa5affdfd540/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-v=
-irt-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.278-6=
--gaa5affdfd540/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-v=
-irt-gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/610e5d8747aebe38feb13=
-6ac
-        failing since 266 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
- fail: v4.4.243-19-g71b6c961c7fe) =
-
- =
-
-
-
-platform            | arch | lab             | compiler | defconfig        =
-  | regressions
---------------------+------+-----------------+----------+------------------=
---+------------
-qemu_arm-virt-gicv2 | arm  | lab-linaro-lkft | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/610e5d46e798714cd3b1368a
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.278-6=
--gaa5affdfd540/arm/multi_v7_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu_a=
-rm-virt-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.278-6=
--gaa5affdfd540/arm/multi_v7_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu_a=
-rm-virt-gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/610e5d46e798714cd3b13=
-68b
-        failing since 266 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
- fail: v4.4.243-19-g71b6c961c7fe) =
-
- =
-
-
-
-platform            | arch | lab             | compiler | defconfig        =
-  | regressions
---------------------+------+-----------------+----------+------------------=
---+------------
-qemu_arm-virt-gicv3 | arm  | lab-baylibre    | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/610e5d38142454b511b13697
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.278-6=
--gaa5affdfd540/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-=
-virt-gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.278-6=
--gaa5affdfd540/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-=
-virt-gicv3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/610e5d38142454b511b13=
-698
-        failing since 266 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
- fail: v4.4.243-19-g71b6c961c7fe) =
-
- =
-
-
-
-platform            | arch | lab             | compiler | defconfig        =
-  | regressions
---------------------+------+-----------------+----------+------------------=
---+------------
-qemu_arm-virt-gicv3 | arm  | lab-broonie     | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/610e5d4be1a76dbcfcb136e2
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.278-6=
--gaa5affdfd540/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-v=
-irt-gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.278-6=
--gaa5affdfd540/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-v=
-irt-gicv3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/610e5d4be1a76dbcfcb13=
-6e3
-        failing since 266 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
- fail: v4.4.243-19-g71b6c961c7fe) =
-
- =
-
-
-
-platform            | arch | lab             | compiler | defconfig        =
-  | regressions
---------------------+------+-----------------+----------+------------------=
---+------------
-qemu_arm-virt-gicv3 | arm  | lab-linaro-lkft | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/610e5d45e1a76dbcfcb136c7
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.278-6=
--gaa5affdfd540/arm/multi_v7_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu_a=
-rm-virt-gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.278-6=
--gaa5affdfd540/arm/multi_v7_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu_a=
-rm-virt-gicv3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/610e5d45e1a76dbcfcb13=
-6c8
-        failing since 266 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
- fail: v4.4.243-19-g71b6c961c7fe) =
-
- =20
+I updated the 5.10 longterm kernel on one of my m68k/aranym VMs from
+5.10.47 to 5.10.56, and the new kernel failed to boot:
+
+ARAnyM 1.1.0
+Using config file: 'aranym1.headless.config'
+Could not open joystick 0
+ARAnyM RTC Timer: /dev/rtc: Permission denied
+ARAnyM LILO: Error loading ramdisk 'root.bin'
+Blitter tried to read byte from register ff8a00 at 0077ee
+
+At this point it kept running, but produced no output to the console,
+and would never get to the point of starting user-space. Attaching gdb
+to aranym showed nothing interesting, i.e. it seemed to be executing
+normally.
+
+A git bisect identified the following commit between 5.10.52 and
+5.10.53 as the culprit:
+# first bad commit: [9e1cf2d1ed37c934c9935f2c0b2f8b15d9355654]
+mm/userfaultfd: fix uffd-wp special cases for fork()
+
+5.10.52, 5.11.22, 5.12.19, and 5.13.8 all boot fine. 5.10.53 to
+5.10.56 all fail as described above.
+
+grep ^CONFIG .config below, everything omitted is of course disabled,
+including I might add CONFIG_USERFAULTFD.
+
+/Mikael
+
+CONFIG_CC_VERSION_TEXT="m68k-unknown-linux-gcc (GCC) 10.3.1 20210424"
+CONFIG_CC_IS_GCC=y
+CONFIG_GCC_VERSION=100301
+CONFIG_LD_VERSION=231010000
+CONFIG_CLANG_VERSION=0
+CONFIG_LLD_VERSION=0
+CONFIG_CC_CAN_LINK=y
+CONFIG_CC_CAN_LINK_STATIC=y
+CONFIG_CC_HAS_ASM_GOTO=y
+CONFIG_CC_HAS_ASM_INLINE=y
+CONFIG_IRQ_WORK=y
+CONFIG_BROKEN_ON_SMP=y
+CONFIG_INIT_ENV_ARG_LIMIT=32
+CONFIG_LOCALVERSION=""
+CONFIG_BUILD_SALT=""
+CONFIG_DEFAULT_INIT=""
+CONFIG_DEFAULT_HOSTNAME="(none)"
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_SYSVIPC_SYSCTL=y
+CONFIG_GENERIC_IRQ_SHOW=y
+CONFIG_PREEMPT_NONE=y
+CONFIG_TICK_CPU_ACCOUNTING=y
+CONFIG_TINY_RCU=y
+CONFIG_SRCU=y
+CONFIG_TINY_SRCU=y
+CONFIG_LOG_BUF_SHIFT=15
+CONFIG_PRINTK_SAFE_LOG_BUF_SHIFT=13
+CONFIG_CGROUPS=y
+CONFIG_BLK_DEV_INITRD=y
+CONFIG_INITRAMFS_SOURCE=""
+CONFIG_RD_GZIP=y
+CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE=y
+CONFIG_SYSCTL=y
+CONFIG_HAVE_UID16=y
+CONFIG_BPF=y
+CONFIG_EXPERT=y
+CONFIG_UID16=y
+CONFIG_MULTIUSER=y
+CONFIG_FHANDLE=y
+CONFIG_POSIX_TIMERS=y
+CONFIG_PRINTK=y
+CONFIG_BUG=y
+CONFIG_ELF_CORE=y
+CONFIG_BASE_FULL=y
+CONFIG_FUTEX=y
+CONFIG_FUTEX_PI=y
+CONFIG_HAVE_FUTEX_CMPXCHG=y
+CONFIG_EPOLL=y
+CONFIG_SIGNALFD=y
+CONFIG_TIMERFD=y
+CONFIG_EVENTFD=y
+CONFIG_SHMEM=y
+CONFIG_ADVISE_SYSCALLS=y
+CONFIG_KALLSYMS=y
+CONFIG_KALLSYMS_BASE_RELATIVE=y
+CONFIG_EMBEDDED=y
+CONFIG_SLUB=y
+CONFIG_SLAB_MERGE_DEFAULT=y
+CONFIG_M68K=y
+CONFIG_CPU_BIG_ENDIAN=y
+CONFIG_GENERIC_HWEIGHT=y
+CONFIG_GENERIC_CALIBRATE_DELAY=y
+CONFIG_TIME_LOW_RES=y
+CONFIG_NO_IOPORT_MAP=y
+CONFIG_ZONE_DMA=y
+CONFIG_HZ=100
+CONFIG_PGTABLE_LEVELS=3
+CONFIG_MMU=y
+CONFIG_MMU_MOTOROLA=y
+CONFIG_M68KCLASSIC=y
+CONFIG_M68020=y
+CONFIG_M68030=y
+CONFIG_M68040=y
+CONFIG_M68060=y
+CONFIG_M68KFPU_EMU=y
+CONFIG_M68KFPU_EMU_EXTRAPREC=y
+CONFIG_ADVANCED=y
+CONFIG_RMW_INSNS=y
+CONFIG_ARCH_DISCONTIGMEM_ENABLE=y
+CONFIG_NODES_SHIFT=3
+CONFIG_CPU_HAS_ADDRESS_SPACES=y
+CONFIG_FPU=y
+CONFIG_ATARI=y
+CONFIG_ATARI_KBD_CORE=y
+CONFIG_PROC_HARDWARE=y
+CONFIG_NATFEAT=y
+CONFIG_NFBLOCK=y
+CONFIG_NFCON=y
+CONFIG_NFETH=y
+CONFIG_CRASH_CORE=y
+CONFIG_SET_FS=y
+CONFIG_ARCH_32BIT_OFF_T=y
+CONFIG_HAVE_ASM_MODVERSIONS=y
+CONFIG_MMU_GATHER_NO_RANGE=y
+CONFIG_ARCH_HAVE_NMI_SAFE_CMPXCHG=y
+CONFIG_ARCH_WANT_IPC_PARSE_VERSION=y
+CONFIG_HAVE_MOD_ARCH_SPECIFIC=y
+CONFIG_MODULES_USE_ELF_RELA=y
+CONFIG_MODULES_USE_ELF_REL=y
+CONFIG_HAVE_ARCH_NVRAM_OPS=y
+CONFIG_OLD_SIGSUSPEND3=y
+CONFIG_OLD_SIGACTION=y
+CONFIG_COMPAT_32BIT_TIME=y
+CONFIG_ARCH_NO_PREEMPT=y
+CONFIG_RT_MUTEXES=y
+CONFIG_BASE_SMALL=0
+CONFIG_MODULES=y
+CONFIG_MODULE_UNLOAD=y
+CONFIG_BLOCK=y
+CONFIG_BLK_SCSI_REQUEST=y
+CONFIG_BLK_DEV_BSG=y
+CONFIG_PARTITION_ADVANCED=y
+CONFIG_ATARI_PARTITION=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_INLINE_SPIN_UNLOCK_IRQ=y
+CONFIG_INLINE_READ_UNLOCK=y
+CONFIG_INLINE_READ_UNLOCK_IRQ=y
+CONFIG_INLINE_WRITE_UNLOCK=y
+CONFIG_INLINE_WRITE_UNLOCK_IRQ=y
+CONFIG_BINFMT_ELF=y
+CONFIG_ELFCORE=y
+CONFIG_CORE_DUMP_DEFAULT_ELF_HEADERS=y
+CONFIG_BINFMT_SCRIPT=y
+CONFIG_ARCH_HAS_BINFMT_FLAT=y
+CONFIG_BINFMT_FLAT_ARGVP_ENVP_ON_STACK=y
+CONFIG_HAVE_AOUT=y
+CONFIG_COREDUMP=y
+CONFIG_DISCONTIGMEM=y
+CONFIG_FLAT_NODE_MEM_MAP=y
+CONFIG_NEED_MULTIPLE_NODES=y
+CONFIG_SPLIT_PTLOCK_CPUS=4
+CONFIG_BOUNCE=y
+CONFIG_VIRT_TO_BUS=y
+CONFIG_DEFAULT_MMAP_MIN_ADDR=4096
+CONFIG_NEED_PER_CPU_KM=y
+CONFIG_NET=y
+CONFIG_PACKET=y
+CONFIG_UNIX=y
+CONFIG_UNIX_SCM=y
+CONFIG_INET=y
+CONFIG_TCP_CONG_CUBIC=y
+CONFIG_DEFAULT_TCP_CONG="cubic"
+CONFIG_IPV6=m
+CONFIG_HAVE_NET_DSA=y
+CONFIG_NET_RX_BUSY_POLL=y
+CONFIG_BQL=y
+CONFIG_DEVTMPFS=y
+CONFIG_DEVTMPFS_MOUNT=y
+CONFIG_STANDALONE=y
+CONFIG_PREVENT_FIRMWARE_BUILD=y
+CONFIG_GENERIC_CPU_DEVICES=y
+CONFIG_BLK_DEV=y
+CONFIG_BLK_DEV_LOOP=m
+CONFIG_BLK_DEV_LOOP_MIN_COUNT=8
+CONFIG_HAVE_IDE=y
+CONFIG_SCSI_MOD=y
+CONFIG_NETDEVICES=y
+CONFIG_ETHERNET=y
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_INPUT_EVDEV=m
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATARI=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_ATARI=y
+CONFIG_INPUT_MISC=y
+CONFIG_INPUT_M68K_BEEP=y
+CONFIG_TTY=y
+CONFIG_VT=y
+CONFIG_CONSOLE_TRANSLATIONS=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+CONFIG_VT_HW_CONSOLE_BINDING=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_LDISC_AUTOLOAD=y
+CONFIG_NVRAM=y
+CONFIG_SSB_POSSIBLE=y
+CONFIG_BCMA_POSSIBLE=y
+CONFIG_FB_CMDLINE=y
+CONFIG_FB_NOTIFY=y
+CONFIG_FB=y
+CONFIG_FB_CFB_FILLRECT=y
+CONFIG_FB_CFB_COPYAREA=y
+CONFIG_FB_CFB_IMAGEBLIT=y
+CONFIG_FB_ATARI=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_DUMMY_CONSOLE_COLUMNS=80
+CONFIG_DUMMY_CONSOLE_ROWS=25
+CONFIG_FRAMEBUFFER_CONSOLE=y
+CONFIG_USB_OHCI_LITTLE_ENDIAN=y
+CONFIG_RTC_LIB=y
+CONFIG_RTC_CLASS=y
+CONFIG_RTC_HCTOSYS=y
+CONFIG_RTC_HCTOSYS_DEVICE="rtc0"
+CONFIG_RTC_INTF_SYSFS=y
+CONFIG_RTC_INTF_PROC=y
+CONFIG_RTC_INTF_DEV=y
+CONFIG_RTC_DRV_GENERIC=y
+CONFIG_FS_IOMAP=y
+CONFIG_EXT4_FS=y
+CONFIG_EXT4_USE_FOR_EXT2=y
+CONFIG_EXT4_FS_POSIX_ACL=y
+CONFIG_EXT4_FS_SECURITY=y
+CONFIG_JBD2=y
+CONFIG_FS_MBCACHE=y
+CONFIG_FS_POSIX_ACL=y
+CONFIG_EXPORTFS=y
+CONFIG_FILE_LOCKING=y
+CONFIG_FSNOTIFY=y
+CONFIG_DNOTIFY=y
+CONFIG_INOTIFY_USER=y
+CONFIG_FANOTIFY=y
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
+CONFIG_PROC_SYSCTL=y
+CONFIG_KERNFS=y
+CONFIG_SYSFS=y
+CONFIG_TMPFS=y
+CONFIG_TMPFS_POSIX_ACL=y
+CONFIG_TMPFS_XATTR=y
+CONFIG_MEMFD_CREATE=y
+CONFIG_SECURITY=y
+CONFIG_HAVE_HARDENED_USERCOPY_ALLOCATOR=y
+CONFIG_DEFAULT_SECURITY_DAC=y
+CONFIG_LSM="lockdown,yama,loadpin,safesetid,integrity,bpf"
+CONFIG_INIT_STACK_NONE=y
+CONFIG_CRYPTO=y
+CONFIG_CRYPTO_ALGAPI=y
+CONFIG_CRYPTO_ALGAPI2=y
+CONFIG_CRYPTO_HASH=y
+CONFIG_CRYPTO_HASH2=y
+CONFIG_CRYPTO_MANAGER_DISABLE_TESTS=y
+CONFIG_CRYPTO_CRC32C=y
+CONFIG_CRYPTO_AES=y
+CONFIG_CRYPTO_LIB_AES=y
+CONFIG_CRYPTO_LIB_POLY1305_RSIZE=1
+CONFIG_BITREVERSE=y
+CONFIG_GENERIC_STRNCPY_FROM_USER=y
+CONFIG_GENERIC_STRNLEN_USER=y
+CONFIG_GENERIC_NET_UTILS=y
+CONFIG_GENERIC_PCI_IOMAP=y
+CONFIG_GENERIC_IOMAP=y
+CONFIG_CRC16=y
+CONFIG_CRC32=y
+CONFIG_CRC32_SLICEBY8=y
+CONFIG_ZLIB_INFLATE=y
+CONFIG_DECOMPRESS_GZIP=y
+CONFIG_GENERIC_ALLOCATOR=y
+CONFIG_HAS_IOMEM=y
+CONFIG_HAS_DMA=y
+CONFIG_ARCH_HAS_SYNC_DMA_FOR_DEVICE=y
+CONFIG_ARCH_HAS_DMA_PREP_COHERENT=y
+CONFIG_DMA_NONCOHERENT_MMAP=y
+CONFIG_DMA_COHERENT_POOL=y
+CONFIG_DMA_REMAP=y
+CONFIG_DMA_DIRECT_REMAP=y
+CONFIG_DQL=y
+CONFIG_NLATTR=y
+CONFIG_GENERIC_ATOMIC64=y
+CONFIG_FONT_SUPPORT=y
+CONFIG_FONT_8x8=y
+CONFIG_FONT_8x16=y
+CONFIG_SBITMAP=y
+CONFIG_CONSOLE_LOGLEVEL_DEFAULT=7
+CONFIG_CONSOLE_LOGLEVEL_QUIET=4
+CONFIG_MESSAGE_LOGLEVEL_DEFAULT=4
+CONFIG_DEBUG_BUGVERBOSE=y
+CONFIG_ENABLE_MUST_CHECK=y
+CONFIG_FRAME_WARN=1024
+CONFIG_STRIP_ASM_SYMS=y
+CONFIG_SECTION_MISMATCH_WARN_ONLY=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_MAGIC_SYSRQ_DEFAULT_ENABLE=0x1
+CONFIG_DEBUG_KERNEL=y
+CONFIG_CC_HAS_WORKING_NOSANITIZE_ADDRESS=y
+CONFIG_PANIC_ON_OOPS_VALUE=0
+CONFIG_PANIC_TIMEOUT=0
+CONFIG_HAVE_DEBUG_BUGVERBOSE=y
+CONFIG_CC_HAS_SANCOV_TRACE_PC=y
