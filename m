@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DA5F3E38BD
-	for <lists+stable@lfdr.de>; Sun,  8 Aug 2021 06:57:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1C423E38FA
+	for <lists+stable@lfdr.de>; Sun,  8 Aug 2021 07:20:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229526AbhHHE57 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Aug 2021 00:57:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53502 "EHLO
+        id S229726AbhHHFUU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Aug 2021 01:20:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229473AbhHHE54 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 8 Aug 2021 00:57:56 -0400
-Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA78DC061760
-        for <stable@vger.kernel.org>; Sat,  7 Aug 2021 21:57:36 -0700 (PDT)
-Received: by mail-ed1-x52a.google.com with SMTP id bo19so129349edb.9
-        for <stable@vger.kernel.org>; Sat, 07 Aug 2021 21:57:36 -0700 (PDT)
+        with ESMTP id S229572AbhHHFUU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 8 Aug 2021 01:20:20 -0400
+Received: from mail-ed1-x531.google.com (mail-ed1-x531.google.com [IPv6:2a00:1450:4864:20::531])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7409FC0613CF
+        for <stable@vger.kernel.org>; Sat,  7 Aug 2021 22:19:51 -0700 (PDT)
+Received: by mail-ed1-x531.google.com with SMTP id cf5so19494078edb.2
+        for <stable@vger.kernel.org>; Sat, 07 Aug 2021 22:19:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=BHHFo7Idw/9uaOjm2GZ570NChGXVkddZgvopJOV+1hQ=;
-        b=BnbU+B8cpFnAZgZb0EZJ21MS21ooiFg2zawpKGQhgpnG+wL5R513n9pjP15ZkMvQDq
-         46i6FC2eCatptg3DE7UrEcHhzVOxoKNQxckG0GABAEBbEALi6D7OS1T1zOnrLy0stesO
-         pc6y5+zdwHXKMXdUyMgOd89yd5nijYf1TZdp6vI++FaZ+y1hzQ2U+KGVn4CT6Lcq/kZt
-         Stb4efXovniCs17bi3XyLlZMX2Deq5Rxe8OkFKthH5oJxXrc5ynfpAaiB5KgAwUAsOIx
-         92OgW8boHQZG9wbPxij1xDek8x5Avj/knXxyHImPPRpzEQr3xVVQSVJKIhB7tGTjTy72
-         OzHA==
+        bh=szE9GFRCIHuxvVJhNeFP3Xehlnf1RTGGoQA9iVKN3rA=;
+        b=tYf0wVjShWa20hsZNWJkVIc3BewnTkYlPaANvnoIanBWROd51qMVAfx4tSS1zWAkSl
+         qbpXwDkrw2DdplpnXrLWSFQHb0DGhBIhax2hAVon/N1z6Jw/bs1SeV5BNCSt9YOPRdun
+         5szke7ye98HVQOOsBg4m9eMZHGOFYxuQ55mYdzV31QEroff6KDpxS3JlVDzlQS/lNeh2
+         KLacLoVDWS+BBq2x4EnH9Aic9kJsV+LRUB+KfzUYkEtLjMkoQG5DI8WKaMKYKIz7/g92
+         4nVgJqCmzlx7028+/+MzVQBkiVAl7ZKcSidcMLXDXWHpvhvrCSNzC4SkeNLnKZFSDc6J
+         iRtA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=BHHFo7Idw/9uaOjm2GZ570NChGXVkddZgvopJOV+1hQ=;
-        b=tmXDRvrrPibIO7Huq64LPaYB0xkZhKdMjmnti8O58cerdokKKy3DekRv9Gh/98KyXR
-         7lxDLa2Wc+lT4yLwPhVCMq0Q07mScIAHYKxvbgMdup7uHyNaY3w6GBTAH6YEAYK+xLQe
-         n1ppA4m0OurHRI7XLXGWBcicdOlA7NjO+s6SCgaOwujGmZ0Oui7O8QsQKxY2byjENsir
-         v5uB+NOw6gJa9ww3AnIgkBdaORHpMe6rEH44LGVlp1jO0plwU4VGgZQLxUwpr8jn3dCW
-         vapCzrKENQvs4yqSwYTVwEninFbZ/7i5dF6lactteLyKvjPif0+pZwZjaMjGWWN6iXbt
-         j+cA==
-X-Gm-Message-State: AOAM530Q8fA6HtSbKAFgi1scC31UpVJr7OORAaA0voTRCgfiFeAx6+nB
-        xplm+Ay91rI7gQ1/psLYvhEkeqRvmY3NUW5g4yK3Yw==
-X-Google-Smtp-Source: ABdhPJyPR5Ts0oEWNaZfz+B/eeTNUIButemnx+FzOuwRHmewEF0qFsimJ+clFLstUKI5se44rfUjLzcag0+pdEYPlUI=
-X-Received: by 2002:a05:6402:b6e:: with SMTP id cb14mr21877512edb.239.1628398655111;
- Sat, 07 Aug 2021 21:57:35 -0700 (PDT)
+        bh=szE9GFRCIHuxvVJhNeFP3Xehlnf1RTGGoQA9iVKN3rA=;
+        b=CsUJYeZT5wUihXGj8TBtGnZm7r9JDVdWpy9tpTrp/OkLfirM766wa9W8K9Rviq7aPk
+         WIozMDxGzKZI/hrvMZePg/Dd915nLq+U84Ihmhs4shehxoB62cFC/o7CIiwb3ivYb7EK
+         mekzwomDx/yd98ClxHWkIHv8zSy1dBR39MIXp1aRc/dte8mIfYhbIkpVBtDF6xkB1+vF
+         wQmp+ja7tqLQZlqU2LL1zbrGCQkFGZyoxZw2QUwXkKPZmxT8S/zmf+eTade4pZ+CQwAL
+         4d/s7MxbA9KmO/Yqwzh7xo3hIL5zy4IOgOwrAFCCBNIHAhl7RNfrcpqXMIkaHojg5hAT
+         6m/g==
+X-Gm-Message-State: AOAM531UvCaonmoClGN7/2Q4HTAXjwNg2PEya/u+OjsBC2OHL2xhMcST
+        vUHkbIDHPGj4ME9x+/xPzC93/hfu/eyzC7mwT8p1qQ==
+X-Google-Smtp-Source: ABdhPJz4lkrOiyCGk8pst8p3Iy11JyIH0qsqE8ujjPBarj+HK7x5PC7GQ29VtJRri6B66gmniv0TRb4zQTrSHey1vu8=
+X-Received: by 2002:aa7:cb9a:: with SMTP id r26mr22449656edt.78.1628399989813;
+ Sat, 07 Aug 2021 22:19:49 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210806081110.511221879@linuxfoundation.org>
-In-Reply-To: <20210806081110.511221879@linuxfoundation.org>
+References: <20210806081109.324409899@linuxfoundation.org>
+In-Reply-To: <20210806081109.324409899@linuxfoundation.org>
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Sun, 8 Aug 2021 10:27:23 +0530
-Message-ID: <CA+G9fYsHx=ueQc5B7Ogku=m7_phkYxQ_AhM28AjJ0i+yFSTVeA@mail.gmail.com>
-Subject: Re: [PATCH 4.14 00/11] 4.14.243-rc1 review
+Date:   Sun, 8 Aug 2021 10:49:38 +0530
+Message-ID: <CA+G9fYuAWacnee28FEBZ3nPqmQJf_Eo7KpRQRu=RUnDipuM1jQ@mail.gmail.com>
+Subject: Re: [PATCH 4.9 0/7] 4.9.279-rc1 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     open list <linux-kernel@vger.kernel.org>,
         Shuah Khan <shuah@kernel.org>,
@@ -66,11 +66,11 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 6 Aug 2021 at 13:46, Greg Kroah-Hartman
+On Fri, 6 Aug 2021 at 13:45, Greg Kroah-Hartman
 <gregkh@linuxfoundation.org> wrote:
 >
-> This is the start of the stable review cycle for the 4.14.243 release.
-> There are 11 patches in this series, all will be posted as a response
+> This is the start of the stable review cycle for the 4.9.279 release.
+> There are 7 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 >
@@ -79,10 +79,10 @@ On Fri, 6 Aug 2021 at 13:46, Greg Kroah-Hartman
 >
 > The whole patch series can be found in one patch at:
 >         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.14.243-rc1.gz
+4.9.279-rc1.gz
 > or in the git tree and branch at:
 >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.14.y
+-rc.git linux-4.9.y
 > and the diffstat can be found below.
 >
 > thanks,
@@ -95,22 +95,24 @@ No regressions on arm64, arm, x86_64, and i386.
 Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
 ## Build
-* kernel: 4.14.243-rc1
+* kernel: 4.9.279-rc1
 * git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
 rc.git
-* git branch: linux-4.14.y
-* git commit: d7decc4b25e5f95848a688261db9ff2d18604b39
-* git describe: v4.14.242-12-gd7decc4b25e5
+* git branch: linux-4.9.y
+* git commit: 36c4ea3b072f93b011cbb5d863808049e393bdff
+* git describe: v4.9.278-8-g36c4ea3b072f
 * test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.14.y/build/v4.14=
-.242-12-gd7decc4b25e5
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.9.y/build/v4.9.2=
+78-8-g36c4ea3b072f
 
-## No regressions (compared to v4.14.242)
+## No regressions (compared to v4.9.278)
 
-## No fixes (compared to v4.14.242)
+
+## No fixes (compared to v4.9.278)
+
 
 ## Test result summary
-total: 64520, pass: 50896, fail: 677, skip: 11151, xfail: 1796
+total: 64266, pass: 50078, fail: 611, skip: 11601, xfail: 1976
 
 ## Build Summary
 * arm: 97 total, 97 passed, 0 failed
@@ -178,7 +180,6 @@ total: 64520, pass: 50896, fail: 677, skip: 11151, xfail: 1796
 * kselftest-static_keys
 * kselftest-sync
 * kselftest-sysctl
-* kselftest-tc-testing
 * kselftest-timens
 * kselftest-timers
 * kselftest-tmpfs
@@ -219,7 +220,6 @@ total: 64520, pass: 50896, fail: 677, skip: 11151, xfail: 1796
 * network-basic-tests
 * packetdrill
 * perf
-* rcutorture
 * ssuite
 * v4l2-compliance
 
