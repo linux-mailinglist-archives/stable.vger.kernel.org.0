@@ -2,235 +2,229 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A50553E3C45
-	for <lists+stable@lfdr.de>; Sun,  8 Aug 2021 20:49:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82CF83E3C76
+	for <lists+stable@lfdr.de>; Sun,  8 Aug 2021 21:10:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230448AbhHHSuO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Aug 2021 14:50:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36280 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229977AbhHHSuO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 8 Aug 2021 14:50:14 -0400
-Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01551C061760
-        for <stable@vger.kernel.org>; Sun,  8 Aug 2021 11:49:55 -0700 (PDT)
-Received: by mail-pj1-x1033.google.com with SMTP id u5-20020a17090ae005b029017842fe8f82so17204158pjy.0
-        for <stable@vger.kernel.org>; Sun, 08 Aug 2021 11:49:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=BJcW8KkQj52B1Str+YnIq6X8C5qBeoe6s5+SVtDaObk=;
-        b=S5qwd/H1RyuXEgYNcFH+fefpOoZOHEX2v79aO8MPyYLLtyMjLzwqDcIkkNCnfYv6RY
-         Y+a8CcIeeCofhT2snSoY+EjzY0auYHvx+YxP/hUSDx+B+Ikri8MgXh5jbuEtpfcQUAoQ
-         6ftxQmGgIlDanCX0UEqfq7btgIRla/3CdbZIeVZi5WzonareyV9oJ3z1AmijgBxoSNcJ
-         p9OvYs7gB+crdKwXwhGyhORVksjTfXGUiX6lA31dQ+blVyzuqFvRfBXEslZnS3YSsbCG
-         mVHeWaTsGdO+Du1NtRQL55vfVAWW4XhGAjsS9bUryiul4aGzXAWTyyGBAENuXe9iKVbw
-         ip+g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=BJcW8KkQj52B1Str+YnIq6X8C5qBeoe6s5+SVtDaObk=;
-        b=MuJdENJevuZWfthSNKH9i+f56Isl78BVmaG/HHl+1bcPxrzmSz6K4aryfE5R4ORfYN
-         uZ8ws88vlJJNUd1lVOKhSybStxlHPRwD29Z3pj1QZGXkydpF1d8w/6aTrOMB+bs0S31L
-         RhWyDO3ZjNrb5vMY4ywKE8W/e2FUhQgFV2FHPfYxgU6vyFphI3XPpzVcHn0Gj5FJfQaF
-         L5ofXEPX20nYVdrm1ooQecF92ykaDlm3lRnFBB0rQbMpJiLv1344mQY8mFVR0BK8KBjW
-         XbszWb3JBsgvXPPot/Q0n0Mq1M8Fz4Zykv7oIjBJLT9pH1LT2mQRvBKGudFejrBZgQUQ
-         X5bA==
-X-Gm-Message-State: AOAM530CLWxcjVRxen3ADAj7bQmsjX2Vm6yzan3kA1L232ScAEH9ufTd
-        C4jVr72M0/Lh1ddDAVdTL/tjC8y4dPX/Sxtz
-X-Google-Smtp-Source: ABdhPJwz+NKSO/ryF20HQD0gVxY4Gs4bpq8LoiRE1oRUqfAlgvqn0zsSqPCrHSjn6zCdj13/4TUwCw==
-X-Received: by 2002:aa7:90d4:0:b029:3b3:2746:5449 with SMTP id k20-20020aa790d40000b02903b327465449mr20691069pfk.81.1628448594360;
-        Sun, 08 Aug 2021 11:49:54 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id c13sm17293046pfi.71.2021.08.08.11.49.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 08 Aug 2021 11:49:54 -0700 (PDT)
-Message-ID: <61102752.1c69fb81.8a0b8.2782@mx.google.com>
-Date:   Sun, 08 Aug 2021 11:49:54 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S232353AbhHHTKW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Aug 2021 15:10:22 -0400
+Received: from sender4-of-o58.zoho.com ([136.143.188.58]:21846 "EHLO
+        sender4-of-o58.zoho.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231717AbhHHTKW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 8 Aug 2021 15:10:22 -0400
+ARC-Seal: i=1; a=rsa-sha256; t=1628449785; cv=none; 
+        d=zohomail.com; s=zohoarc; 
+        b=V/0g2zXgkcnEU7cZqd5oiW0yljfwQUgoFSMTLTOIL59AX6tHln+I9VfTWR4GMEhWQH7Q4RIbgT3xmNggxqBDEOpBusz9TiLuRw4jJIN1Tmcdt9r7H07qbC9/jYMLIBUYFJbZ/3YNCG14KO+9AVhaxD9lEzX7OuFbnGHB+zIHVz4=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+        t=1628449785; h=Content-Type:Content-Transfer-Encoding:Cc:Date:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:To; 
+        bh=gA8w0xb5eG5/2ysoihZoWJ6NWEiS8D1GIp2NAPTBvaQ=; 
+        b=PPKrFfTDN2hou47rD8f9uAT91bBicSORfVOTjSxzCF/0KsvXuDIBBx55ipJeyVfyiR8fp0SKPh9NMx/fy71QAlJbvxPQmG6k0jO3a97nBXOvNYI2h7D3rG3C5T2EcpOU0gyOcsbVvWKXjBP7w/yCZgdvSq6LLMtVS4BBELUTgg4=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+        dkim=pass  header.i=fnordco.com;
+        spf=pass  smtp.mailfrom=klaatu@fnordco.com;
+        dmarc=pass header.from=<jwoods@fnordco.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1628449785;
+        s=zoho; d=fnordco.com; i=jwoods@fnordco.com;
+        h=Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:MIME-Version:Content-Type:Content-Transfer-Encoding;
+        bh=gA8w0xb5eG5/2ysoihZoWJ6NWEiS8D1GIp2NAPTBvaQ=;
+        b=ObkVyKdS3g9X6GA1Kx9n0D9LAixHVtrX/JfwMzlBA7rR4Y8kl9l46ya4iR3/4v1d
+        PxCkhV6nW/hQ7H/UY/2kbOQhRp0zus/HbFxZuPId+H1CzMZrHLnPJ6EFfoikFq1X0Mu
+        sSa7itZA8WDEOPpV8vy12xLAgQSdWMLN3JOHQdUM=
+Received: from mail.zoho.com by mx.zohomail.com
+        with SMTP id 1628449778840774.0347226881267; Sun, 8 Aug 2021 12:09:38 -0700 (PDT)
+Date:   Sun, 08 Aug 2021 12:09:38 -0700
+From:   Jeff Woods <jwoods@fnordco.com>
+To:     "Takashi Iwai" <tiwai@suse.de>
+Cc:     "Greg KH" <gregkh@linuxfoundation.org>,
+        "alsa-devel" <alsa-devel@alsa-project.org>,
+        "stable" <stable@vger.kernel.org>,
+        "regressions" <regressions@lists.linux.dev>
+Message-ID: <17b272bac81.10ac3bd0570099.4091761174182420511@fnordco.com>
+In-Reply-To: <s5him0gpghv.wl-tiwai@suse.de>
+References: <17b1f9647ee.1179b6a05461889.5940365952430364689@fnordco.com>
+        <YQ5Bb+mPgPivLqvX@kroah.com>
+        <s5htuk1ppvb.wl-tiwai@suse.de>
+        <17b22d08355.f21da1f938057.6900412371441404465@fnordco.com> <s5him0gpghv.wl-tiwai@suse.de>
+Subject: Re: Kernel 5.13.6 breaks mmap with snd-hdsp module
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/4.19
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.19.201-16-gce588829808f
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/4.19 baseline: 119 runs,
- 4 regressions (v4.19.201-16-gce588829808f)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Importance: Medium
+User-Agent: Zoho Mail
+X-Mailer: Zoho Mail
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 119 runs, 4 regressions (v4.19.201-16-gce588=
-829808f)
+ ---- On Sun, 08 Aug 2021 00:01:16 -0700 Takashi Iwai <tiwai@suse.de> wrote ----
+ > On Sun, 08 Aug 2021 00:51:35 +0200,
+ > Jeff Woods wrote:
+ > > 
+ > >  ---- On Sat, 07 Aug 2021 02:26:32 -0700 Takashi Iwai <tiwai@suse.de> wrote ----
+ > >  > On Sat, 07 Aug 2021 10:16:47 +0200,
+ > >  > Greg KH wrote:
+ > >  > > 
+ > >  > > On Sat, Aug 07, 2021 at 12:49:07AM -0700, Jeff Woods wrote:
+ > >  > > > Specifically, commit c4824ae7db418aee6f50f308a20b832e58e997fd triggers the problem. Reverting this change restores functionality.
+ > >  > > > 
+ > >  > > > The device is an RME Multiface II, using the snd-hdsp driver.
+ > >  > > > 
+ > >  > > > Expected behavior: Device plays sound normally
+ > >  > > > 
+ > >  > > > Exhibited behavior: When a program attempts to open the device, the following ALSA lib error happens:
+ > >  > > > 
+ > >  > > > ALSA lib pcm_direct.c:1169:(snd1_pcm_direct_initialize_slave) slave plugin does not support mmap interleaved or mmap noninterleaved access
+ > >  > > > 
+ > >  > > > This change hasn't affected my other computers with less esoteric hardware, so probably the problem lies with the snd-hdsp driver, but the device is unusable without reverting that commit.
+ > >  > > > 
+ > >  > > > I am available to test any patches for this issue.
+ > >  > > 
+ > >  > > Have you notified the developers involved in this change about this
+ > >  > > issue?
+ > >  > 
+ > >  > No, it's a new report :)
+ > >  > 
+ > >  > > Adding them now...
+ > >  > 
+ > >  > Could you try the patch below?
+ > >  > 
+ > >  > 
+ > >  > thanks,
+ > >  > 
+ > >  > Takashi
+ > >  > 
+ > >  > -- 8< --
+ > >  > From: Takashi Iwai <tiwai@suse.de>
+ > >  > Subject: [PATCH] ALSA: pci: rme: Fix mmap breakage
+ > >  > 
+ > >  > The recent change in the PCM core restricts the mmap of unknown buffer
+ > >  > type, and this broke the mmap on RME9652 and HDSP drivers that didn't
+ > >  > set up properly.  Actually those driver do use the buffers allocated
+ > >  > in a standard way, and the proper calls should fix the breakage.
+ > >  > 
+ > >  > Fixes: c4824ae7db41 ("ALSA: pcm: Fix mmap capability check")
+ > >  > Cc: <stable@vger.kernel.org>
+ > >  > Signed-off-by: Takashi Iwai <tiwai@suse.de>
+ > >  > ---
+ > >  >  sound/pci/rme9652/hdsp.c    | 6 ++----
+ > >  >  sound/pci/rme9652/rme9652.c | 6 ++----
+ > >  >  2 files changed, 4 insertions(+), 8 deletions(-)
+ > >  > 
+ > >  > diff --git a/sound/pci/rme9652/hdsp.c b/sound/pci/rme9652/hdsp.c
+ > >  > index 8457a4bbc3df..b32a72e28917 100644
+ > >  > --- a/sound/pci/rme9652/hdsp.c
+ > >  > +++ b/sound/pci/rme9652/hdsp.c
+ > >  > @@ -4518,8 +4518,7 @@ static int snd_hdsp_playback_open(struct snd_pcm_substream *substream)
+ > >  >      snd_pcm_set_sync(substream);
+ > >  >  
+ > >  >          runtime->hw = snd_hdsp_playback_subinfo;
+ > >  > -    runtime->dma_area = hdsp->playback_buffer;
+ > >  > -    runtime->dma_bytes = HDSP_DMA_AREA_BYTES;
+ > >  > +    snd_pcm_set_runtime_buffer(substream, hdsp->playback_dma_buf);
+ > >  >  
+ > >  >      hdsp->playback_pid = current->pid;
+ > >  >      hdsp->playback_substream = substream;
+ > >  > @@ -4595,8 +4594,7 @@ static int snd_hdsp_capture_open(struct snd_pcm_substream *substream)
+ > >  >      snd_pcm_set_sync(substream);
+ > >  >  
+ > >  >      runtime->hw = snd_hdsp_capture_subinfo;
+ > >  > -    runtime->dma_area = hdsp->capture_buffer;
+ > >  > -    runtime->dma_bytes = HDSP_DMA_AREA_BYTES;
+ > >  > +    snd_pcm_set_runtime_buffer(substream, hdsp->capture_dma_buf);
+ > >  >  
+ > >  >      hdsp->capture_pid = current->pid;
+ > >  >      hdsp->capture_substream = substream;
+ > >  > diff --git a/sound/pci/rme9652/rme9652.c b/sound/pci/rme9652/rme9652.c
+ > >  > index f1aad38760d6..8036ed761d53 100644
+ > >  > --- a/sound/pci/rme9652/rme9652.c
+ > >  > +++ b/sound/pci/rme9652/rme9652.c
+ > >  > @@ -2279,8 +2279,7 @@ static int snd_rme9652_playback_open(struct snd_pcm_substream *substream)
+ > >  >      snd_pcm_set_sync(substream);
+ > >  >  
+ > >  >          runtime->hw = snd_rme9652_playback_subinfo;
+ > >  > -    runtime->dma_area = rme9652->playback_buffer;
+ > >  > -    runtime->dma_bytes = RME9652_DMA_AREA_BYTES;
+ > >  > +    snd_pcm_set_runtime_buffer(substream, rme9652->playback_dma_buf);
+ > >  >  
+ > >  >      if (rme9652->capture_substream == NULL) {
+ > >  >          rme9652_stop(rme9652);
+ > >  > @@ -2339,8 +2338,7 @@ static int snd_rme9652_capture_open(struct snd_pcm_substream *substream)
+ > >  >      snd_pcm_set_sync(substream);
+ > >  >  
+ > >  >      runtime->hw = snd_rme9652_capture_subinfo;
+ > >  > -    runtime->dma_area = rme9652->capture_buffer;
+ > >  > -    runtime->dma_bytes = RME9652_DMA_AREA_BYTES;
+ > >  > +    snd_pcm_set_runtime_buffer(substream, rme9652->capture_dma_buf);
+ > >  >  
+ > >  >      if (rme9652->playback_substream == NULL) {
+ > >  >          rme9652_stop(rme9652);
+ > >  > -- 
+ > >  > 2.26.2
+ > >  > 
+ > >  
+ > > I applied the patch to kernel 5.13.8, but compilation fails with these errors:
+ > 
+ > Oops, sorry, that was the patch for linux-next, and I forgot the
+ > recent code change.  And it turned out not to be effective.
+ > 
+ > Below is another try.  Scratch the previous one (although it cannot
+ > hurt), and try this one instead.
+ > 
+ > 
+ > thanks,
+ > 
+ > Takashi
+ > 
+ > -- 8< --
+ > From: Takashi Iwai <tiwai@suse.de>
+ > Subject: [PATCH] ALSA: pcm: Fix mmap breakage without explicit buffer setup
+ > 
+ > The recent fix c4824ae7db41 ("ALSA: pcm: Fix mmap capability check")
+ > restricts the mmap capability only to the drivers that properly set up
+ > the buffers, but it caused a regression for a few drivers that manage
+ > the buffer on its own way.
+ > 
+ > For those with UNKNOWN buffer type (i.e. the uninitialized / unused
+ > substream->dma_buffer), just assume that the driver handles the mmap
+ > properly and blindly trust the hardware info bit.
+ > 
+ > Fixes: c4824ae7db41 ("ALSA: pcm: Fix mmap capability check")
+ > Cc: <stable@vger.kernel.org>
+ > Signed-off-by: Takashi Iwai <tiwai@suse.de>
+ > ---
+ >  sound/core/pcm_native.c | 5 ++++-
+ >  1 file changed, 4 insertions(+), 1 deletion(-)
+ > 
+ > diff --git a/sound/core/pcm_native.c b/sound/core/pcm_native.c
+ > index 09c0e2a6489c..71323d807dbf 100644
+ > --- a/sound/core/pcm_native.c
+ > +++ b/sound/core/pcm_native.c
+ > @@ -251,7 +251,10 @@ static bool hw_support_mmap(struct snd_pcm_substream *substream)
+ >  
+ >      switch (substream->dma_buffer.dev.type) {
+ >      case SNDRV_DMA_TYPE_UNKNOWN:
+ > -        return false;
+ > +        /* we can't know the device, so just assume that the driver does
+ > +         * everything right
+ > +         */
+ > +        return true;
+ >      case SNDRV_DMA_TYPE_CONTINUOUS:
+ >      case SNDRV_DMA_TYPE_VMALLOC:
+ >          return true;
+ > -- 
+ > 2.26.2
+ > 
+ > 
 
-Regressions Summary
--------------------
+I applied the patch to 5.13.9, and it did indeed solve the problem.
 
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-imx6ull-14x14-evk    | arm  | lab-nxp         | gcc-8    | imx_v6_v7_defcon=
-fig | 1          =
+Thank you very much!
 
-qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
-fig | 1          =
+For future reference, if I am reporting an issue with stable and I know the
+commit that caused it, should I contact the committer directly *and* cc the
+stable and regressions list?
 
-qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
-fig | 1          =
+I'm trying to keep protocol and not spam things up too much.
 
-qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
-fig | 1          =
+Thanks,
+Jeff
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.201-16-gce588829808f/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.201-16-gce588829808f
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      ce588829808fbc421be6a6f864762d2e0f920002 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-imx6ull-14x14-evk    | arm  | lab-nxp         | gcc-8    | imx_v6_v7_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/610ff82d7e9f82452ab1369b
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: imx_v6_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.201=
--16-gce588829808f/arm/imx_v6_v7_defconfig/gcc-8/lab-nxp/baseline-imx6ull-14=
-x14-evk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.201=
--16-gce588829808f/arm/imx_v6_v7_defconfig/gcc-8/lab-nxp/baseline-imx6ull-14=
-x14-evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/610ff82d7e9f82452ab13=
-69c
-        new failure (last pass: v4.19.201-12-g0bdb8864dde6) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/610fea94fda4efe90ab13695
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.201=
--16-gce588829808f/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
-arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.201=
--16-gce588829808f/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
-arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/610fea94fda4efe90ab13=
-696
-        failing since 267 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61100b2050ce6aa345b13661
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.201=
--16-gce588829808f/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
-rm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.201=
--16-gce588829808f/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
-rm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61100b2050ce6aa345b13=
-662
-        failing since 267 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/610fef224cef73be6db13662
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.201=
--16-gce588829808f/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qe=
-mu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.201=
--16-gce588829808f/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qe=
-mu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/610fef224cef73be6db13=
-663
-        failing since 267 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
-
- =20
