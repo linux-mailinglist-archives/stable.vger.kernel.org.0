@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EEC893E3977
-	for <lists+stable@lfdr.de>; Sun,  8 Aug 2021 09:23:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D0E23E3979
+	for <lists+stable@lfdr.de>; Sun,  8 Aug 2021 09:24:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231586AbhHHHXn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Aug 2021 03:23:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55452 "EHLO mail.kernel.org"
+        id S231359AbhHHHYF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Aug 2021 03:24:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55550 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231576AbhHHHXf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Aug 2021 03:23:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E8DE60C40;
-        Sun,  8 Aug 2021 07:23:15 +0000 (UTC)
+        id S231444AbhHHHXk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Aug 2021 03:23:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7631561078;
+        Sun,  8 Aug 2021 07:23:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628407396;
-        bh=t2x4MMJGjpeLVqHrlnTStvWC0xWniWrXx/JRaH3tJuY=;
+        s=korg; t=1628407399;
+        bh=KN7RioHkbUYpen5v2+u3FXY+CFPQSgLiPsGCX2wQpn0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dZYBZM22HNC8iHtWlupw5xzk0yNDySCzbQl3XVmSyy6XlWQl3x0+e93hBb13T9zFk
-         Hs3Nc+NUr3kTlPTHnC93q38j189PY4lVPxThKjqkFQ9jKvrGv2f41Mk9crgRHwoe+A
-         fUkfqCu5senawOPhvfTIL3RGk5RsbNX8aZZ2NiZU=
+        b=f2bwoaheQYc/ca8hYJV/y8u70ypXHomGXT0RMn/qAAAOogS6dAd7Or/mzpzh1rzNk
+         qam36JFoi39ARudWG/XYKnhDpx0S+5SkZt09eZU4vlp7AhtxisaJhlyL3TafbjYTLH
+         W6lWSatnOcpeAUMZxRMSKmuJ81cM3rtgAMbH5I5M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gratian Crisan <gratian.crisan@ni.com>,
-        Mike Galbraith <efault@gmx.de>,
+        stable@vger.kernel.org,
+        Alexander Levin <alexander.levin@verizon.com>,
         Thomas Gleixner <tglx@linutronix.de>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Ingo Molnar <mingo@kernel.org>,
         Zhen Lei <thunder.leizhen@huawei.com>,
         Joe Korty <joe.korty@concurrent-rt.com>
-Subject: [PATCH 4.4 08/11] futex: Handle transient "ownerless" rtmutex state correctly
-Date:   Sun,  8 Aug 2021 09:22:43 +0200
-Message-Id: <20210808072217.606471864@linuxfoundation.org>
+Subject: [PATCH 4.4 09/11] futex: Avoid freeing an active timer
+Date:   Sun,  8 Aug 2021 09:22:44 +0200
+Message-Id: <20210808072217.637655944@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210808072217.322468704@linuxfoundation.org>
 References: <20210808072217.322468704@linuxfoundation.org>
@@ -42,81 +45,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Galbraith <efault@gmx.de>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit 9f5d1c336a10c0d24e83e40b4c1b9539f7dba627 ]
+[ Upstream commit 97181f9bd57405b879403763284537e27d46963d ]
 
-Gratian managed to trigger the BUG_ON(!newowner) in fixup_pi_state_owner().
-This is one possible chain of events leading to this:
+Alexander reported a hrtimer debug_object splat:
 
-Task Prio       Operation
-T1   120	lock(F)
-T2   120	lock(F)   -> blocks (top waiter)
-T3   50 (RT)	lock(F)   -> boosts T1 and blocks (new top waiter)
-XX   		timeout/  -> wakes T2
-		signal
-T1   50		unlock(F) -> wakes T3 (rtmutex->owner == NULL, waiter bit is set)
-T2   120	cleanup   -> try_to_take_mutex() fails because T3 is the top waiter
-     			     and the lower priority T2 cannot steal the lock.
-     			  -> fixup_pi_state_owner() sees newowner == NULL -> BUG_ON()
+  ODEBUG: free active (active state 0) object type: hrtimer hint: hrtimer_wakeup (kernel/time/hrtimer.c:1423)
 
-The comment states that this is invalid and rt_mutex_real_owner() must
-return a non NULL owner when the trylock failed, but in case of a queued
-and woken up waiter rt_mutex_real_owner() == NULL is a valid transient
-state. The higher priority waiter has simply not yet managed to take over
-the rtmutex.
+  debug_object_free (lib/debugobjects.c:603)
+  destroy_hrtimer_on_stack (kernel/time/hrtimer.c:427)
+  futex_lock_pi (kernel/futex.c:2740)
+  do_futex (kernel/futex.c:3399)
+  SyS_futex (kernel/futex.c:3447 kernel/futex.c:3415)
+  do_syscall_64 (arch/x86/entry/common.c:284)
+  entry_SYSCALL64_slow_path (arch/x86/entry/entry_64.S:249)
 
-The BUG_ON() is therefore wrong and this is just another retry condition in
-fixup_pi_state_owner().
+Which was caused by commit:
 
-Drop the locks, so that T3 can make progress, and then try the fixup again.
+  cfafcd117da0 ("futex: Rework futex_lock_pi() to use rt_mutex_*_proxy_lock()")
 
-Gratian provided a great analysis, traces and a reproducer. The analysis is
-to the point, but it confused the hell out of that tglx dude who had to
-page in all the futex horrors again. Condensed version is above.
+... losing the hrtimer_cancel() in the shuffle. Where previously the
+hrtimer_cancel() was done by rt_mutex_slowlock() we now need to do it
+manually.
 
-[ tglx: Wrote comment and changelog ]
-
-Fixes: c1e2f0eaf015 ("futex: Avoid violating the 10th rule of futex")
-Reported-by: Gratian Crisan <gratian.crisan@ni.com>
-Signed-off-by: Mike Galbraith <efault@gmx.de>
+Reported-by: Alexander Levin <alexander.levin@verizon.com>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/87a6w6x7bb.fsf@ni.com
-Link: https://lore.kernel.org/r/87sg9pkvf7.fsf@nanos.tec.linutronix.de
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Fixes: cfafcd117da0 ("futex: Rework futex_lock_pi() to use rt_mutex_*_proxy_lock()")
+Link: http://lkml.kernel.org/r/alpine.DEB.2.20.1704101802370.2906@nanos
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
 Acked-by: Joe Korty <joe.korty@concurrent-rt.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/futex.c |   16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ kernel/futex.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
 --- a/kernel/futex.c
 +++ b/kernel/futex.c
-@@ -2437,10 +2437,22 @@ retry:
- 		}
+@@ -2960,8 +2960,10 @@ out_unlock_put_key:
+ out_put_key:
+ 	put_futex_key(&q.key);
+ out:
+-	if (to)
++	if (to) {
++		hrtimer_cancel(&to->timer);
+ 		destroy_hrtimer_on_stack(&to->timer);
++	}
+ 	return ret != -EINTR ? ret : -ERESTARTNOINTR;
  
- 		/*
--		 * Since we just failed the trylock; there must be an owner.
-+		 * The trylock just failed, so either there is an owner or
-+		 * there is a higher priority waiter than this one.
- 		 */
- 		newowner = rt_mutex_owner(&pi_state->pi_mutex);
--		BUG_ON(!newowner);
-+		/*
-+		 * If the higher priority waiter has not yet taken over the
-+		 * rtmutex then newowner is NULL. We can't return here with
-+		 * that state because it's inconsistent vs. the user space
-+		 * state. So drop the locks and try again. It's a valid
-+		 * situation and not any different from the other retry
-+		 * conditions.
-+		 */
-+		if (unlikely(!newowner)) {
-+			err = -EAGAIN;
-+			goto handle_fault;
-+		}
- 	} else {
- 		WARN_ON_ONCE(argowner != current);
- 		if (oldowner == current) {
+ uaddr_faulted:
 
 
