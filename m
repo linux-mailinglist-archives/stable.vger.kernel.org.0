@@ -2,118 +2,612 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A682B3E394E
-	for <lists+stable@lfdr.de>; Sun,  8 Aug 2021 09:15:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58C5F3E3950
+	for <lists+stable@lfdr.de>; Sun,  8 Aug 2021 09:15:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230443AbhHHHPw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Aug 2021 03:15:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49168 "EHLO mail.kernel.org"
+        id S230469AbhHHHQB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Aug 2021 03:16:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230397AbhHHHPv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Aug 2021 03:15:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 47BE560F42;
-        Sun,  8 Aug 2021 07:15:31 +0000 (UTC)
+        id S230435AbhHHHP4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Aug 2021 03:15:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AB6F461078;
+        Sun,  8 Aug 2021 07:15:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628406931;
-        bh=YlmSMOi+cgizIRx1C2e5a/jJLSNzxnzc8tSRA3KqM1s=;
-        h=From:To:Cc:Subject:Date:From;
-        b=AFD/YJVFhQqw6g5ydgja9wVFQDuc0YIA4KUDUWQjRPwiPuIC35B1NXdhdaiOX1qpo
-         LznqYUTO4j4L6GV2vkOUNiDyacG0TFy4z/S4BZpMHsBT+JYiHm7EGpXK9fwvObo27a
-         2F925Qikr+0vdZXpmHU2PoyHEfoSSjCwbre5SfHg=
+        s=korg; t=1628406937;
+        bh=wbpKHoVdFRyq4TKGrEkAPeis9c/OeDFtTgCvaj4mQnM=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=E9mmmfQZDekEgVJyue0EMgOP1Q/F+YYAIHov63ZJ1GzZGnwRhf+mrsKyaSmslByec
+         s18cS9OrvboEuCkTuMwlFJT+ALeBAXGAQBZegx+E0ug2LA0ghvg4oMTAN7Cjk4c4k6
+         xDq+OOritS+VTiJP6NmEtKc5yYlvYRNVrUjOyVt0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Linux 4.19.202
-Date:   Sun,  8 Aug 2021 09:15:25 +0200
-Message-Id: <162840692587205@kroah.com>
+Subject: Re: Linux 4.19.202
+Date:   Sun,  8 Aug 2021 09:15:26 +0200
+Message-Id: <16284069258015@kroah.com>
 X-Mailer: git-send-email 2.32.0
+In-Reply-To: <162840692587205@kroah.com>
+References: <162840692587205@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I'm announcing the release of the 4.19.202 kernel.
-
-All users of the 4.19 kernel series must upgrade.
-
-The updated 4.19.y git tree can be found at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.19.y
-and can be browsed at the normal kernel.org git web browser:
-	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
-
-thanks,
-
-greg k-h
-
-------------
-
- Makefile                                  |    2 +-
- block/bfq-iosched.c                       |    6 ++++--
- block/blk-cgroup.c                        |    2 +-
- drivers/firmware/arm_scmi/bus.c           |    3 +++
- drivers/gpu/drm/i915/intel_engine_cs.c    |    2 +-
- drivers/net/ethernet/qlogic/qed/qed_mcp.c |   23 +++++++++++++++++------
- drivers/net/usb/r8152.c                   |    3 ++-
- drivers/spi/spi-mt65xx.c                  |   19 +++++--------------
- drivers/watchdog/iTCO_wdt.c               |   12 +++---------
- fs/btrfs/compression.c                    |    3 +--
- fs/ceph/debugfs.c                         |    2 +-
- include/linux/backing-dev-defs.h          |    1 +
- include/linux/backing-dev.h               |    9 +--------
- include/linux/cpuhotplug.h                |    1 +
- include/linux/mfd/rt5033-private.h        |    4 ++--
- include/linux/padata.h                    |    6 ++++--
- include/trace/events/wbt.h                |    8 ++++----
- kernel/padata.c                           |   28 ++++++++++++++++++++--------
- mm/backing-dev.c                          |   13 +++++++++++--
- net/bluetooth/hci_core.c                  |   16 ++++++++--------
- net/core/skbuff.c                         |    5 ++++-
- sound/soc/codecs/tlv320aic31xx.h          |    4 ++--
- 22 files changed, 97 insertions(+), 75 deletions(-)
-
-Axel Lin (1):
-      regulator: rt5033: Fix n_voltages settings for BUCK and LDO
-
-Christoph Hellwig (2):
-      bdi: move bdi_dev_name out of line
-      bdi: add a ->dev_name field to struct backing_dev_info
-
-Daniel Jordan (2):
-      padata: validate cpumask without removed CPU during offline
-      padata: add separate cpuhp node for CPUHP_PADATA_DEAD
-
-Goldwyn Rodrigues (1):
-      btrfs: mark compressed range uptodate only if all bio succeed
-
-Greg Kroah-Hartman (3):
-      Revert "Bluetooth: Shutdown controller after workqueues are flushed or cancelled"
-      Revert "watchdog: iTCO_wdt: Account for rebooting on second timeout"
-      Linux 4.19.202
-
-Guenter Roeck (1):
-      spi: mediatek: Fix fifo transfer
-
-Jani Nikula (1):
-      drm/i915: Ensure intel_engine_init_execlist() builds with Clang
-
-Jia He (1):
-      qed: fix possible unpaired spin_{un}lock_bh in _qed_mcp_cmd_and_union()
-
-Kyle Russell (1):
-      ASoC: tlv320aic31xx: fix reversed bclk/wclk master bits
-
-Pravin B Shelar (1):
-      net: Fix zero-copy head len calculation.
-
-Sudeep Holla (1):
-      firmware: arm_scmi: Ensure drivers provide a probe function
-
-Takashi Iwai (1):
-      r8152: Fix potential PM refcount imbalance
-
-Yufen Yu (1):
-      bdi: use bdi_dev_name() to get device name
-
+diff --git a/Makefile b/Makefile
+index 80954901733d..b0f3a4d5a85d 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,7 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0
+ VERSION = 4
+ PATCHLEVEL = 19
+-SUBLEVEL = 201
++SUBLEVEL = 202
+ EXTRAVERSION =
+ NAME = "People's Front"
+ 
+diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
+index d984592b0995..5b3e5483c657 100644
+--- a/block/bfq-iosched.c
++++ b/block/bfq-iosched.c
+@@ -132,6 +132,7 @@
+ #include <linux/ioprio.h>
+ #include <linux/sbitmap.h>
+ #include <linux/delay.h>
++#include <linux/backing-dev.h>
+ 
+ #include "blk.h"
+ #include "blk-mq.h"
+@@ -4212,8 +4213,9 @@ bfq_set_next_ioprio_data(struct bfq_queue *bfqq, struct bfq_io_cq *bic)
+ 	ioprio_class = IOPRIO_PRIO_CLASS(bic->ioprio);
+ 	switch (ioprio_class) {
+ 	default:
+-		dev_err(bfqq->bfqd->queue->backing_dev_info->dev,
+-			"bfq: bad prio class %d\n", ioprio_class);
++		pr_err("bdi %s: bfq: bad prio class %d\n",
++				bdi_dev_name(bfqq->bfqd->queue->backing_dev_info),
++				ioprio_class);
+ 		/* fall through */
+ 	case IOPRIO_CLASS_NONE:
+ 		/*
+diff --git a/block/blk-cgroup.c b/block/blk-cgroup.c
+index 85bd46e0a745..ddde117eb2e0 100644
+--- a/block/blk-cgroup.c
++++ b/block/blk-cgroup.c
+@@ -474,7 +474,7 @@ const char *blkg_dev_name(struct blkcg_gq *blkg)
+ {
+ 	/* some drivers (floppy) instantiate a queue w/o disk registered */
+ 	if (blkg->q->backing_dev_info->dev)
+-		return dev_name(blkg->q->backing_dev_info->dev);
++		return bdi_dev_name(blkg->q->backing_dev_info);
+ 	return NULL;
+ }
+ EXPORT_SYMBOL_GPL(blkg_dev_name);
+diff --git a/drivers/firmware/arm_scmi/bus.c b/drivers/firmware/arm_scmi/bus.c
+index 7a30952b463d..66d445b14e51 100644
+--- a/drivers/firmware/arm_scmi/bus.c
++++ b/drivers/firmware/arm_scmi/bus.c
+@@ -100,6 +100,9 @@ int scmi_driver_register(struct scmi_driver *driver, struct module *owner,
+ {
+ 	int retval;
+ 
++	if (!driver->probe)
++		return -EINVAL;
++
+ 	driver->driver.bus = &scmi_bus_type;
+ 	driver->driver.name = driver->name;
+ 	driver->driver.owner = owner;
+diff --git a/drivers/gpu/drm/i915/intel_engine_cs.c b/drivers/gpu/drm/i915/intel_engine_cs.c
+index 2d1952849d69..12ade478533f 100644
+--- a/drivers/gpu/drm/i915/intel_engine_cs.c
++++ b/drivers/gpu/drm/i915/intel_engine_cs.c
+@@ -463,7 +463,7 @@ static void intel_engine_init_execlist(struct intel_engine_cs *engine)
+ 	struct intel_engine_execlists * const execlists = &engine->execlists;
+ 
+ 	execlists->port_mask = 1;
+-	BUILD_BUG_ON_NOT_POWER_OF_2(execlists_num_ports(execlists));
++	GEM_BUG_ON(!is_power_of_2(execlists_num_ports(execlists)));
+ 	GEM_BUG_ON(execlists_num_ports(execlists) > EXECLIST_MAX_PORTS);
+ 
+ 	execlists->queue_priority = INT_MIN;
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_mcp.c b/drivers/net/ethernet/qlogic/qed/qed_mcp.c
+index 938ace333af1..0d62db3241be 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_mcp.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_mcp.c
+@@ -498,14 +498,18 @@ _qed_mcp_cmd_and_union(struct qed_hwfn *p_hwfn,
+ 
+ 		spin_lock_bh(&p_hwfn->mcp_info->cmd_lock);
+ 
+-		if (!qed_mcp_has_pending_cmd(p_hwfn))
++		if (!qed_mcp_has_pending_cmd(p_hwfn)) {
++			spin_unlock_bh(&p_hwfn->mcp_info->cmd_lock);
+ 			break;
++		}
+ 
+ 		rc = qed_mcp_update_pending_cmd(p_hwfn, p_ptt);
+-		if (!rc)
++		if (!rc) {
++			spin_unlock_bh(&p_hwfn->mcp_info->cmd_lock);
+ 			break;
+-		else if (rc != -EAGAIN)
++		} else if (rc != -EAGAIN) {
+ 			goto err;
++		}
+ 
+ 		spin_unlock_bh(&p_hwfn->mcp_info->cmd_lock);
+ 
+@@ -522,6 +526,8 @@ _qed_mcp_cmd_and_union(struct qed_hwfn *p_hwfn,
+ 		return -EAGAIN;
+ 	}
+ 
++	spin_lock_bh(&p_hwfn->mcp_info->cmd_lock);
++
+ 	/* Send the mailbox command */
+ 	qed_mcp_reread_offsets(p_hwfn, p_ptt);
+ 	seq_num = ++p_hwfn->mcp_info->drv_mb_seq;
+@@ -548,14 +554,18 @@ _qed_mcp_cmd_and_union(struct qed_hwfn *p_hwfn,
+ 
+ 		spin_lock_bh(&p_hwfn->mcp_info->cmd_lock);
+ 
+-		if (p_cmd_elem->b_is_completed)
++		if (p_cmd_elem->b_is_completed) {
++			spin_unlock_bh(&p_hwfn->mcp_info->cmd_lock);
+ 			break;
++		}
+ 
+ 		rc = qed_mcp_update_pending_cmd(p_hwfn, p_ptt);
+-		if (!rc)
++		if (!rc) {
++			spin_unlock_bh(&p_hwfn->mcp_info->cmd_lock);
+ 			break;
+-		else if (rc != -EAGAIN)
++		} else if (rc != -EAGAIN) {
+ 			goto err;
++		}
+ 
+ 		spin_unlock_bh(&p_hwfn->mcp_info->cmd_lock);
+ 	} while (++cnt < max_retries);
+@@ -576,6 +586,7 @@ _qed_mcp_cmd_and_union(struct qed_hwfn *p_hwfn,
+ 		return -EAGAIN;
+ 	}
+ 
++	spin_lock_bh(&p_hwfn->mcp_info->cmd_lock);
+ 	qed_mcp_cmd_del_elem(p_hwfn, p_cmd_elem);
+ 	spin_unlock_bh(&p_hwfn->mcp_info->cmd_lock);
+ 
+diff --git a/drivers/net/usb/r8152.c b/drivers/net/usb/r8152.c
+index 726fb5561a0f..4764e4f54cef 100644
+--- a/drivers/net/usb/r8152.c
++++ b/drivers/net/usb/r8152.c
+@@ -3960,9 +3960,10 @@ static int rtl8152_close(struct net_device *netdev)
+ 		tp->rtl_ops.down(tp);
+ 
+ 		mutex_unlock(&tp->control);
++	}
+ 
++	if (!res)
+ 		usb_autopm_put_interface(tp->intf);
+-	}
+ 
+ 	free_all_mem(tp);
+ 
+diff --git a/drivers/spi/spi-mt65xx.c b/drivers/spi/spi-mt65xx.c
+index e2b171057b3b..690e8ddf5f6b 100644
+--- a/drivers/spi/spi-mt65xx.c
++++ b/drivers/spi/spi-mt65xx.c
+@@ -391,24 +391,15 @@ static int mtk_spi_fifo_transfer(struct spi_master *master,
+ 	mtk_spi_prepare_transfer(master, xfer);
+ 	mtk_spi_setup_packet(master);
+ 
+-	cnt = xfer->len / 4;
+-	if (xfer->tx_buf)
++	if (xfer->tx_buf) {
++		cnt = xfer->len / 4;
+ 		iowrite32_rep(mdata->base + SPI_TX_DATA_REG, xfer->tx_buf, cnt);
+-
+-	if (xfer->rx_buf)
+-		ioread32_rep(mdata->base + SPI_RX_DATA_REG, xfer->rx_buf, cnt);
+-
+-	remainder = xfer->len % 4;
+-	if (remainder > 0) {
+-		reg_val = 0;
+-		if (xfer->tx_buf) {
++		remainder = xfer->len % 4;
++		if (remainder > 0) {
++			reg_val = 0;
+ 			memcpy(&reg_val, xfer->tx_buf + (cnt * 4), remainder);
+ 			writel(reg_val, mdata->base + SPI_TX_DATA_REG);
+ 		}
+-		if (xfer->rx_buf) {
+-			reg_val = readl(mdata->base + SPI_RX_DATA_REG);
+-			memcpy(xfer->rx_buf + (cnt * 4), &reg_val, remainder);
+-		}
+ 	}
+ 
+ 	mtk_spi_enable_transfer(master);
+diff --git a/drivers/watchdog/iTCO_wdt.c b/drivers/watchdog/iTCO_wdt.c
+index 059c9eddb546..347f0389b089 100644
+--- a/drivers/watchdog/iTCO_wdt.c
++++ b/drivers/watchdog/iTCO_wdt.c
+@@ -75,8 +75,6 @@
+ #define TCOBASE(p)	((p)->tco_res->start)
+ /* SMI Control and Enable Register */
+ #define SMI_EN(p)	((p)->smi_res->start)
+-#define TCO_EN		(1 << 13)
+-#define GBL_SMI_EN	(1 << 0)
+ 
+ #define TCO_RLD(p)	(TCOBASE(p) + 0x00) /* TCO Timer Reload/Curr. Value */
+ #define TCOv1_TMR(p)	(TCOBASE(p) + 0x01) /* TCOv1 Timer Initial Value*/
+@@ -332,12 +330,8 @@ static int iTCO_wdt_set_timeout(struct watchdog_device *wd_dev, unsigned int t)
+ 
+ 	tmrval = seconds_to_ticks(p, t);
+ 
+-	/*
+-	 * If TCO SMIs are off, the timer counts down twice before rebooting.
+-	 * Otherwise, the BIOS generally reboots when the SMI triggers.
+-	 */
+-	if (p->smi_res &&
+-	    (SMI_EN(p) & (TCO_EN | GBL_SMI_EN)) != (TCO_EN | GBL_SMI_EN))
++	/* For TCO v1 the timer counts down twice before rebooting */
++	if (p->iTCO_version == 1)
+ 		tmrval /= 2;
+ 
+ 	/* from the specs: */
+@@ -499,7 +493,7 @@ static int iTCO_wdt_probe(struct platform_device *pdev)
+ 		 * Disables TCO logic generating an SMI#
+ 		 */
+ 		val32 = inl(SMI_EN(p));
+-		val32 &= ~TCO_EN;	/* Turn off SMI clearing watchdog */
++		val32 &= 0xffffdfff;	/* Turn off SMI clearing watchdog */
+ 		outl(val32, SMI_EN(p));
+ 	}
+ 
+diff --git a/fs/btrfs/compression.c b/fs/btrfs/compression.c
+index c71e534ca7ef..919c033b9e31 100644
+--- a/fs/btrfs/compression.c
++++ b/fs/btrfs/compression.c
+@@ -270,8 +270,7 @@ static void end_compressed_bio_write(struct bio *bio)
+ 					 cb->start,
+ 					 cb->start + cb->len - 1,
+ 					 NULL,
+-					 bio->bi_status ?
+-					 BLK_STS_OK : BLK_STS_NOTSUPP);
++					 !cb->errors);
+ 	cb->compressed_pages[0]->mapping = NULL;
+ 
+ 	end_compressed_writeback(inode, cb);
+diff --git a/fs/ceph/debugfs.c b/fs/ceph/debugfs.c
+index abdf98deeec4..e6b7d43b5077 100644
+--- a/fs/ceph/debugfs.c
++++ b/fs/ceph/debugfs.c
+@@ -251,7 +251,7 @@ int ceph_fs_debugfs_init(struct ceph_fs_client *fsc)
+ 		goto out;
+ 
+ 	snprintf(name, sizeof(name), "../../bdi/%s",
+-		 dev_name(fsc->sb->s_bdi->dev));
++		 bdi_dev_name(fsc->sb->s_bdi));
+ 	fsc->debugfs_bdi =
+ 		debugfs_create_symlink("bdi",
+ 				       fsc->client->debugfs_dir,
+diff --git a/include/linux/backing-dev-defs.h b/include/linux/backing-dev-defs.h
+index 07e02d6df5ad..65d47522413c 100644
+--- a/include/linux/backing-dev-defs.h
++++ b/include/linux/backing-dev-defs.h
+@@ -197,6 +197,7 @@ struct backing_dev_info {
+ 	wait_queue_head_t wb_waitq;
+ 
+ 	struct device *dev;
++	char dev_name[64];
+ 	struct device *owner;
+ 
+ 	struct timer_list laptop_mode_wb_timer;
+diff --git a/include/linux/backing-dev.h b/include/linux/backing-dev.h
+index 1ef4aca7b953..d28d57eefe9f 100644
+--- a/include/linux/backing-dev.h
++++ b/include/linux/backing-dev.h
+@@ -499,13 +499,6 @@ static inline int bdi_rw_congested(struct backing_dev_info *bdi)
+ 				  (1 << WB_async_congested));
+ }
+ 
+-extern const char *bdi_unknown_name;
+-
+-static inline const char *bdi_dev_name(struct backing_dev_info *bdi)
+-{
+-	if (!bdi || !bdi->dev)
+-		return bdi_unknown_name;
+-	return dev_name(bdi->dev);
+-}
++const char *bdi_dev_name(struct backing_dev_info *bdi);
+ 
+ #endif	/* _LINUX_BACKING_DEV_H */
+diff --git a/include/linux/cpuhotplug.h b/include/linux/cpuhotplug.h
+index 3d323c6c8526..b51da879d7be 100644
+--- a/include/linux/cpuhotplug.h
++++ b/include/linux/cpuhotplug.h
+@@ -59,6 +59,7 @@ enum cpuhp_state {
+ 	CPUHP_IOMMU_INTEL_DEAD,
+ 	CPUHP_LUSTRE_CFS_DEAD,
+ 	CPUHP_AP_ARM_CACHE_B15_RAC_DEAD,
++	CPUHP_PADATA_DEAD,
+ 	CPUHP_WORKQUEUE_PREP,
+ 	CPUHP_POWER_NUMA_PREPARE,
+ 	CPUHP_HRTIMERS_PREPARE,
+diff --git a/include/linux/mfd/rt5033-private.h b/include/linux/mfd/rt5033-private.h
+index 1b63fc2f42d1..52d53d134f72 100644
+--- a/include/linux/mfd/rt5033-private.h
++++ b/include/linux/mfd/rt5033-private.h
+@@ -203,13 +203,13 @@ enum rt5033_reg {
+ #define RT5033_REGULATOR_BUCK_VOLTAGE_MIN		1000000U
+ #define RT5033_REGULATOR_BUCK_VOLTAGE_MAX		3000000U
+ #define RT5033_REGULATOR_BUCK_VOLTAGE_STEP		100000U
+-#define RT5033_REGULATOR_BUCK_VOLTAGE_STEP_NUM		32
++#define RT5033_REGULATOR_BUCK_VOLTAGE_STEP_NUM		21
+ 
+ /* RT5033 regulator LDO output voltage uV */
+ #define RT5033_REGULATOR_LDO_VOLTAGE_MIN		1200000U
+ #define RT5033_REGULATOR_LDO_VOLTAGE_MAX		3000000U
+ #define RT5033_REGULATOR_LDO_VOLTAGE_STEP		100000U
+-#define RT5033_REGULATOR_LDO_VOLTAGE_STEP_NUM		32
++#define RT5033_REGULATOR_LDO_VOLTAGE_STEP_NUM		19
+ 
+ /* RT5033 regulator SAFE LDO output voltage uV */
+ #define RT5033_REGULATOR_SAFE_LDO_VOLTAGE		4900000U
+diff --git a/include/linux/padata.h b/include/linux/padata.h
+index d803397a28f7..8c9827cc6374 100644
+--- a/include/linux/padata.h
++++ b/include/linux/padata.h
+@@ -138,7 +138,8 @@ struct parallel_data {
+ /**
+  * struct padata_instance - The overall control structure.
+  *
+- * @cpu_notifier: cpu hotplug notifier.
++ * @cpu_online_node: Linkage for CPU online callback.
++ * @cpu_dead_node: Linkage for CPU offline callback.
+  * @wq: The workqueue in use.
+  * @pd: The internal control structure.
+  * @cpumask: User supplied cpumasks for parallel and serial works.
+@@ -150,7 +151,8 @@ struct parallel_data {
+  * @flags: padata flags.
+  */
+ struct padata_instance {
+-	struct hlist_node		 node;
++	struct hlist_node		cpu_online_node;
++	struct hlist_node		cpu_dead_node;
+ 	struct workqueue_struct		*wq;
+ 	struct parallel_data		*pd;
+ 	struct padata_cpumask		cpumask;
+diff --git a/include/trace/events/wbt.h b/include/trace/events/wbt.h
+index 37342a13c9cb..9996420d7ec4 100644
+--- a/include/trace/events/wbt.h
++++ b/include/trace/events/wbt.h
+@@ -33,7 +33,7 @@ TRACE_EVENT(wbt_stat,
+ 	),
+ 
+ 	TP_fast_assign(
+-		strlcpy(__entry->name, dev_name(bdi->dev),
++		strlcpy(__entry->name, bdi_dev_name(bdi),
+ 			ARRAY_SIZE(__entry->name));
+ 		__entry->rmean		= stat[0].mean;
+ 		__entry->rmin		= stat[0].min;
+@@ -68,7 +68,7 @@ TRACE_EVENT(wbt_lat,
+ 	),
+ 
+ 	TP_fast_assign(
+-		strlcpy(__entry->name, dev_name(bdi->dev),
++		strlcpy(__entry->name, bdi_dev_name(bdi),
+ 			ARRAY_SIZE(__entry->name));
+ 		__entry->lat = div_u64(lat, 1000);
+ 	),
+@@ -105,7 +105,7 @@ TRACE_EVENT(wbt_step,
+ 	),
+ 
+ 	TP_fast_assign(
+-		strlcpy(__entry->name, dev_name(bdi->dev),
++		strlcpy(__entry->name, bdi_dev_name(bdi),
+ 			ARRAY_SIZE(__entry->name));
+ 		__entry->msg	= msg;
+ 		__entry->step	= step;
+@@ -141,7 +141,7 @@ TRACE_EVENT(wbt_timer,
+ 	),
+ 
+ 	TP_fast_assign(
+-		strlcpy(__entry->name, dev_name(bdi->dev),
++		strlcpy(__entry->name, bdi_dev_name(bdi),
+ 			ARRAY_SIZE(__entry->name));
+ 		__entry->status		= status;
+ 		__entry->step		= step;
+diff --git a/kernel/padata.c b/kernel/padata.c
+index 93e4fb2d9f2e..7f2b6d369fd4 100644
+--- a/kernel/padata.c
++++ b/kernel/padata.c
+@@ -682,7 +682,7 @@ static int __padata_remove_cpu(struct padata_instance *pinst, int cpu)
+ {
+ 	struct parallel_data *pd = NULL;
+ 
+-	if (cpumask_test_cpu(cpu, cpu_online_mask)) {
++	if (!cpumask_test_cpu(cpu, cpu_online_mask)) {
+ 
+ 		if (!padata_validate_cpumask(pinst, pinst->cpumask.pcpu) ||
+ 		    !padata_validate_cpumask(pinst, pinst->cpumask.cbcpu))
+@@ -748,7 +748,7 @@ static int padata_cpu_online(unsigned int cpu, struct hlist_node *node)
+ 	struct padata_instance *pinst;
+ 	int ret;
+ 
+-	pinst = hlist_entry_safe(node, struct padata_instance, node);
++	pinst = hlist_entry_safe(node, struct padata_instance, cpu_online_node);
+ 	if (!pinst_has_cpu(pinst, cpu))
+ 		return 0;
+ 
+@@ -758,12 +758,12 @@ static int padata_cpu_online(unsigned int cpu, struct hlist_node *node)
+ 	return ret;
+ }
+ 
+-static int padata_cpu_prep_down(unsigned int cpu, struct hlist_node *node)
++static int padata_cpu_dead(unsigned int cpu, struct hlist_node *node)
+ {
+ 	struct padata_instance *pinst;
+ 	int ret;
+ 
+-	pinst = hlist_entry_safe(node, struct padata_instance, node);
++	pinst = hlist_entry_safe(node, struct padata_instance, cpu_dead_node);
+ 	if (!pinst_has_cpu(pinst, cpu))
+ 		return 0;
+ 
+@@ -779,7 +779,9 @@ static enum cpuhp_state hp_online;
+ static void __padata_free(struct padata_instance *pinst)
+ {
+ #ifdef CONFIG_HOTPLUG_CPU
+-	cpuhp_state_remove_instance_nocalls(hp_online, &pinst->node);
++	cpuhp_state_remove_instance_nocalls(CPUHP_PADATA_DEAD,
++					    &pinst->cpu_dead_node);
++	cpuhp_state_remove_instance_nocalls(hp_online, &pinst->cpu_online_node);
+ #endif
+ 
+ 	padata_stop(pinst);
+@@ -963,7 +965,10 @@ static struct padata_instance *padata_alloc(struct workqueue_struct *wq,
+ 	mutex_init(&pinst->lock);
+ 
+ #ifdef CONFIG_HOTPLUG_CPU
+-	cpuhp_state_add_instance_nocalls_cpuslocked(hp_online, &pinst->node);
++	cpuhp_state_add_instance_nocalls_cpuslocked(hp_online,
++						    &pinst->cpu_online_node);
++	cpuhp_state_add_instance_nocalls_cpuslocked(CPUHP_PADATA_DEAD,
++						    &pinst->cpu_dead_node);
+ #endif
+ 	return pinst;
+ 
+@@ -1010,17 +1015,24 @@ static __init int padata_driver_init(void)
+ 	int ret;
+ 
+ 	ret = cpuhp_setup_state_multi(CPUHP_AP_ONLINE_DYN, "padata:online",
+-				      padata_cpu_online,
+-				      padata_cpu_prep_down);
++				      padata_cpu_online, NULL);
+ 	if (ret < 0)
+ 		return ret;
+ 	hp_online = ret;
++
++	ret = cpuhp_setup_state_multi(CPUHP_PADATA_DEAD, "padata:dead",
++				      NULL, padata_cpu_dead);
++	if (ret < 0) {
++		cpuhp_remove_multi_state(hp_online);
++		return ret;
++	}
+ 	return 0;
+ }
+ module_init(padata_driver_init);
+ 
+ static __exit void padata_driver_exit(void)
+ {
++	cpuhp_remove_multi_state(CPUHP_PADATA_DEAD);
+ 	cpuhp_remove_multi_state(hp_online);
+ }
+ module_exit(padata_driver_exit);
+diff --git a/mm/backing-dev.c b/mm/backing-dev.c
+index 2152e85891d1..1d37c80d023a 100644
+--- a/mm/backing-dev.c
++++ b/mm/backing-dev.c
+@@ -19,7 +19,7 @@ struct backing_dev_info noop_backing_dev_info = {
+ EXPORT_SYMBOL_GPL(noop_backing_dev_info);
+ 
+ static struct class *bdi_class;
+-const char *bdi_unknown_name = "(unknown)";
++static const char *bdi_unknown_name = "(unknown)";
+ 
+ /*
+  * bdi_lock protects updates to bdi_list. bdi_list has RCU reader side
+@@ -880,7 +880,8 @@ int bdi_register_va(struct backing_dev_info *bdi, const char *fmt, va_list args)
+ 	if (bdi->dev)	/* The driver needs to use separate queues per device */
+ 		return 0;
+ 
+-	dev = device_create_vargs(bdi_class, NULL, MKDEV(0, 0), bdi, fmt, args);
++	vsnprintf(bdi->dev_name, sizeof(bdi->dev_name), fmt, args);
++	dev = device_create(bdi_class, NULL, MKDEV(0, 0), bdi, bdi->dev_name);
+ 	if (IS_ERR(dev))
+ 		return PTR_ERR(dev);
+ 
+@@ -976,6 +977,14 @@ void bdi_put(struct backing_dev_info *bdi)
+ }
+ EXPORT_SYMBOL(bdi_put);
+ 
++const char *bdi_dev_name(struct backing_dev_info *bdi)
++{
++	if (!bdi || !bdi->dev)
++		return bdi_unknown_name;
++	return bdi->dev_name;
++}
++EXPORT_SYMBOL_GPL(bdi_dev_name);
++
+ static wait_queue_head_t congestion_wqh[2] = {
+ 		__WAIT_QUEUE_HEAD_INITIALIZER(congestion_wqh[0]),
+ 		__WAIT_QUEUE_HEAD_INITIALIZER(congestion_wqh[1])
+diff --git a/net/bluetooth/hci_core.c b/net/bluetooth/hci_core.c
+index e9902bf0f137..219cdbb476fb 100644
+--- a/net/bluetooth/hci_core.c
++++ b/net/bluetooth/hci_core.c
+@@ -1609,6 +1609,14 @@ int hci_dev_do_close(struct hci_dev *hdev)
+ 
+ 	BT_DBG("%s %p", hdev->name, hdev);
+ 
++	if (!hci_dev_test_flag(hdev, HCI_UNREGISTER) &&
++	    !hci_dev_test_flag(hdev, HCI_USER_CHANNEL) &&
++	    test_bit(HCI_UP, &hdev->flags)) {
++		/* Execute vendor specific shutdown routine */
++		if (hdev->shutdown)
++			hdev->shutdown(hdev);
++	}
++
+ 	cancel_delayed_work(&hdev->power_off);
+ 
+ 	hci_request_cancel_all(hdev);
+@@ -1682,14 +1690,6 @@ int hci_dev_do_close(struct hci_dev *hdev)
+ 		clear_bit(HCI_INIT, &hdev->flags);
+ 	}
+ 
+-	if (!hci_dev_test_flag(hdev, HCI_UNREGISTER) &&
+-	    !hci_dev_test_flag(hdev, HCI_USER_CHANNEL) &&
+-	    test_bit(HCI_UP, &hdev->flags)) {
+-		/* Execute vendor specific shutdown routine */
+-		if (hdev->shutdown)
+-			hdev->shutdown(hdev);
+-	}
+-
+ 	/* flush cmd  work */
+ 	flush_work(&hdev->cmd_work);
+ 
+diff --git a/net/core/skbuff.c b/net/core/skbuff.c
+index ea9684bcc2e8..e1daab49b0eb 100644
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -2705,8 +2705,11 @@ skb_zerocopy_headlen(const struct sk_buff *from)
+ 
+ 	if (!from->head_frag ||
+ 	    skb_headlen(from) < L1_CACHE_BYTES ||
+-	    skb_shinfo(from)->nr_frags >= MAX_SKB_FRAGS)
++	    skb_shinfo(from)->nr_frags >= MAX_SKB_FRAGS) {
+ 		hlen = skb_headlen(from);
++		if (!hlen)
++			hlen = from->len;
++	}
+ 
+ 	if (skb_has_frag_list(from))
+ 		hlen = from->len;
+diff --git a/sound/soc/codecs/tlv320aic31xx.h b/sound/soc/codecs/tlv320aic31xx.h
+index 0b587585b38b..6071de5fca57 100644
+--- a/sound/soc/codecs/tlv320aic31xx.h
++++ b/sound/soc/codecs/tlv320aic31xx.h
+@@ -147,8 +147,8 @@ struct aic31xx_pdata {
+ #define AIC31XX_WORD_LEN_24BITS		0x02
+ #define AIC31XX_WORD_LEN_32BITS		0x03
+ #define AIC31XX_IFACE1_MASTER_MASK	GENMASK(3, 2)
+-#define AIC31XX_BCLK_MASTER		BIT(2)
+-#define AIC31XX_WCLK_MASTER		BIT(3)
++#define AIC31XX_BCLK_MASTER		BIT(3)
++#define AIC31XX_WCLK_MASTER		BIT(2)
+ 
+ /* AIC31XX_DATA_OFFSET */
+ #define AIC31XX_DATA_OFFSET_MASK	GENMASK(7, 0)
