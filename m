@@ -2,117 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 89E583E3966
-	for <lists+stable@lfdr.de>; Sun,  8 Aug 2021 09:22:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EECB3E3965
+	for <lists+stable@lfdr.de>; Sun,  8 Aug 2021 09:22:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231167AbhHHHXM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Aug 2021 03:23:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54766 "EHLO mail.kernel.org"
+        id S230294AbhHHHXK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Aug 2021 03:23:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54720 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230492AbhHHHXL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Aug 2021 03:23:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DC02860EE7;
-        Sun,  8 Aug 2021 07:22:51 +0000 (UTC)
+        id S229597AbhHHHXJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Aug 2021 03:23:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B04860EB5;
+        Sun,  8 Aug 2021 07:22:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628407372;
-        bh=XGYYRQow5YWAKiq7u48NhRiDXmC9gP8wUOFsh1QXQK4=;
-        h=From:To:Cc:Subject:Date:From;
-        b=EGhkw9UBo5PnbMyw6P8MmG9MNjAOoZ1vNdwMGihEHONPfC0MWAan2iLOrqaxKK4n8
-         pX4HrN8G1yCF2YKV3YWjRg5X1F7PWR4r0TD35jQAkg/tlabJS5oS/Hk90mzngOxCQF
-         T8wlq3jRDPphVCv3vIxkjNulQ8iPm/KoIEO84U4s=
+        s=korg; t=1628407370;
+        bh=XtDAjX3F6gbb8u7WB9jFRNSWKJRTjIzxZak8kv4FB5s=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=dE3EsjovAOYSo6ttY2YDRKfHPrZbhhuZxzp/Org21wPdHebP1jGZp0QRyf3wPPJYx
+         oTk52n5sKJITUBuGEpMHGjL27BLslCNpeOBKuzkdAdm9CBEVhJJ2OLN61/iv2jOu7o
+         znTj5LK4+PbHwoIk3TjDJ9ijqw6qm/2m9zY9OwXc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: [PATCH 4.4 00/11] 4.4.280-rc1 review
-Date:   Sun,  8 Aug 2021 09:22:35 +0200
-Message-Id: <20210808072217.322468704@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Darren Hart <darren@dvhart.com>,
+        Davidlohr Bueso <dave@stgolabs.net>,
+        Bhuvanesh_Surachari@mentor.com, Andy Lowe <Andy_Lowe@mentor.com>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
+        Joe Korty <joe.korty@concurrent-rt.com>
+Subject: [PATCH 4.4 01/11] futex: Rename free_pi_state() to put_pi_state()
+Date:   Sun,  8 Aug 2021 09:22:36 +0200
+Message-Id: <20210808072217.370033756@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-MIME-Version: 1.0
+In-Reply-To: <20210808072217.322468704@linuxfoundation.org>
+References: <20210808072217.322468704@linuxfoundation.org>
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.280-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.4.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.4.280-rc1
-X-KernelTest-Deadline: 2021-08-10T07:22+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.4.280 release.
-There are 11 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Thomas Gleixner <tglx@linutronix.de>
 
-Responses should be made by Tue, 10 Aug 2021 07:22:11 +0000.
-Anything received after that time might be too late.
+[ Upstream commit 29e9ee5d48c35d6cf8afe09bdf03f77125c9ac11 ]
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.280-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
-and the diffstat can be found below.
+free_pi_state() is confusing as it is in fact only freeing/caching the
+pi state when the last reference is gone. Rename it to put_pi_state()
+which reflects better what it is doing.
 
-thanks,
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Darren Hart <darren@dvhart.com>
+Cc: Davidlohr Bueso <dave@stgolabs.net>
+Cc: Bhuvanesh_Surachari@mentor.com
+Cc: Andy Lowe <Andy_Lowe@mentor.com>
+Link: http://lkml.kernel.org/r/20151219200607.259636467@linutronix.de
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Acked-by: Joe Korty <joe.korty@concurrent-rt.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ kernel/futex.c |   17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
-greg k-h
-
--------------
-Pseudo-Shortlog of commits:
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.4.280-rc1
-
-Anna-Maria Gleixner <anna-maria@linutronix.de>
-    rcu: Update documentation of rcu_read_unlock()
-
-Peter Zijlstra <peterz@infradead.org>
-    futex,rt_mutex: Fix rt_mutex_cleanup_proxy_lock()
-
-Thomas Gleixner <tglx@linutronix.de>
-    futex: Avoid freeing an active timer
-
-Mike Galbraith <efault@gmx.de>
-    futex: Handle transient "ownerless" rtmutex state correctly
-
-Thomas Gleixner <tglx@linutronix.de>
-    rtmutex: Make wait_lock irq safe
-
-Peter Zijlstra <peterz@infradead.org>
-    futex: Futex_unlock_pi() determinism
-
-Peter Zijlstra <peterz@infradead.org>
-    futex: Rework futex_lock_pi() to use rt_mutex_*_proxy_lock()
-
-Peter Zijlstra <peterz@infradead.org>
-    futex: Pull rt_mutex_futex_unlock() out from under hb->lock
-
-Peter Zijlstra <peterz@infradead.org>
-    futex,rt_mutex: Introduce rt_mutex_init_waiter()
-
-Peter Zijlstra <peterz@infradead.org>
-    futex: Cleanup refcounting
-
-Thomas Gleixner <tglx@linutronix.de>
-    futex: Rename free_pi_state() to put_pi_state()
-
-
--------------
-
-Diffstat:
-
- Makefile                        |   4 +-
- include/linux/rcupdate.h        |   4 +-
- kernel/futex.c                  | 245 ++++++++++++++++++++++++++--------------
- kernel/locking/rtmutex.c        | 185 ++++++++++++++++--------------
- kernel/locking/rtmutex_common.h |   2 +-
- 5 files changed, 264 insertions(+), 176 deletions(-)
+--- a/kernel/futex.c
++++ b/kernel/futex.c
+@@ -859,9 +859,12 @@ static void pi_state_update_owner(struct
+ }
+ 
+ /*
++ * Drops a reference to the pi_state object and frees or caches it
++ * when the last reference is gone.
++ *
+  * Must be called with the hb lock held.
+  */
+-static void free_pi_state(struct futex_pi_state *pi_state)
++static void put_pi_state(struct futex_pi_state *pi_state)
+ {
+ 	if (!pi_state)
+ 		return;
+@@ -2121,7 +2124,7 @@ retry_private:
+ 		case 0:
+ 			break;
+ 		case -EFAULT:
+-			free_pi_state(pi_state);
++			put_pi_state(pi_state);
+ 			pi_state = NULL;
+ 			double_unlock_hb(hb1, hb2);
+ 			hb_waiters_dec(hb2);
+@@ -2139,7 +2142,7 @@ retry_private:
+ 			 *   exit to complete.
+ 			 * - EAGAIN: The user space value changed.
+ 			 */
+-			free_pi_state(pi_state);
++			put_pi_state(pi_state);
+ 			pi_state = NULL;
+ 			double_unlock_hb(hb1, hb2);
+ 			hb_waiters_dec(hb2);
+@@ -2214,7 +2217,7 @@ retry_private:
+ 			} else if (ret) {
+ 				/* -EDEADLK */
+ 				this->pi_state = NULL;
+-				free_pi_state(pi_state);
++				put_pi_state(pi_state);
+ 				goto out_unlock;
+ 			}
+ 		}
+@@ -2223,7 +2226,7 @@ retry_private:
+ 	}
+ 
+ out_unlock:
+-	free_pi_state(pi_state);
++	put_pi_state(pi_state);
+ 	double_unlock_hb(hb1, hb2);
+ 	wake_up_q(&wake_q);
+ 	hb_waiters_dec(hb2);
+@@ -2376,7 +2379,7 @@ static void unqueue_me_pi(struct futex_q
+ 	__unqueue_futex(q);
+ 
+ 	BUG_ON(!q->pi_state);
+-	free_pi_state(q->pi_state);
++	put_pi_state(q->pi_state);
+ 	q->pi_state = NULL;
+ 
+ 	spin_unlock(q->lock_ptr);
+@@ -3210,7 +3213,7 @@ static int futex_wait_requeue_pi(u32 __u
+ 			 * Drop the reference to the pi state which
+ 			 * the requeue_pi() code acquired for us.
+ 			 */
+-			free_pi_state(q.pi_state);
++			put_pi_state(q.pi_state);
+ 			spin_unlock(q.lock_ptr);
+ 			/*
+ 			 * Adjust the return value. It's either -EFAULT or
 
 
