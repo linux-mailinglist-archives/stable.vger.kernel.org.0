@@ -2,85 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B7D7F3E3969
-	for <lists+stable@lfdr.de>; Sun,  8 Aug 2021 09:23:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96D263E3981
+	for <lists+stable@lfdr.de>; Sun,  8 Aug 2021 09:54:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231247AbhHHHXU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Aug 2021 03:23:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54944 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230492AbhHHHXT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Aug 2021 03:23:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 62A6160C40;
-        Sun,  8 Aug 2021 07:22:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628407379;
-        bh=uhLAo5FfyVe5NiACB2W/CyEoXjolokTW49NauGIkC0w=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uQ+6c+w8KrSmz/WDTHGYr/YENGI2CdfxWr+Ow+EMbqp/QfdYFuLnDze2wHox7yNAx
-         umnnxmvFcIvpzxT3i+Ov316Hg+kng6MiIX9iWv6M776hC0VNs087TrS7MB1k4wDoY5
-         vnzbV7lUEDIXucG7JUfqvWe8JcXFy2yntGvrjYnM=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Anna-Maria Gleixner <anna-maria@linutronix.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
-        bigeasy@linutronix.de, Zhen Lei <thunder.leizhen@huawei.com>,
-        Joe Korty <joe.korty@concurrent-rt.com>
-Subject: [PATCH 4.4 11/11] rcu: Update documentation of rcu_read_unlock()
-Date:   Sun,  8 Aug 2021 09:22:46 +0200
-Message-Id: <20210808072217.704630357@linuxfoundation.org>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210808072217.322468704@linuxfoundation.org>
-References: <20210808072217.322468704@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S230515AbhHHHnZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Aug 2021 03:43:25 -0400
+Received: from mail-lf1-f43.google.com ([209.85.167.43]:38661 "EHLO
+        mail-lf1-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230237AbhHHHnZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 8 Aug 2021 03:43:25 -0400
+Received: by mail-lf1-f43.google.com with SMTP id x27so4660015lfu.5;
+        Sun, 08 Aug 2021 00:43:05 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=xaUXR1M3JrHIdKjUj68yVCDcrvnHzz2hp1oLUNxXisE=;
+        b=hU3nzM/HnbR0jjsVtFxY2pNwVpSMCAAjASJQzvvJZ8VQQeQZMUGt8VuKLRPfswTFHN
+         jy7HbAMbyjUuibYMJVL/cKxLkWYKV1EDy6/KRyNFT41jtSMSjpVxDqDf47MdeWGklLKL
+         JssoKU4Viql7Ar7NaB09qGY6bliC4Q7Oj2Fde+yYN453A/ErU6wnLNQEQ3i4XdpPdjzM
+         PCFndtvkL+CP7dsKEakLT4d88bu92RptF9XiwVQEMlTnMHaFq4l2svPIvVR0MRydCnSV
+         5rxL/4wuNQ9nmw6Nkr75vuN8stofJNSG8JfzWaEBXvlk4Qz5fDdYAgNexcILNA1XMC7D
+         E77A==
+X-Gm-Message-State: AOAM532DIC0odMRUXdvrzcPuV1LuhSHUcTo1eCSUhpKoY/LsJdmsAoBU
+        Dc1YLLHUsfRxPc9qEsW1VD8NtbFOKUY/APAM
+X-Google-Smtp-Source: ABdhPJyeTvDkHfiGdvbVtaYGP13f9+eXjPw0AdUagtYcpdUXM+or0c1ZyInJHTL3QHsZ0YJkGzemAw==
+X-Received: by 2002:a05:6512:22c4:: with SMTP id g4mr13342499lfu.287.1628408584560;
+        Sun, 08 Aug 2021 00:43:04 -0700 (PDT)
+Received: from localhost.localdomain (broadband-188-32-236-56.ip.moscow.rt.ru. [188.32.236.56])
+        by smtp.googlemail.com with ESMTPSA id c19sm406282lfc.70.2021.08.08.00.43.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 08 Aug 2021 00:43:04 -0700 (PDT)
+From:   Denis Efremov <efremov@linux.com>
+To:     linux-block@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, regressions@lists.linux.dev,
+        Denis Efremov <efremov@linux.com>,
+        Mark Hounschell <markh@compro.net>,
+        Jiri Kosina <jkosina@suse.cz>,
+        Wim Osterholt <wim@djo.tudelft.nl>,
+        Kurt Garloff <kurt@garloff.de>, stable@vger.kernel.org
+Subject: [PATCH] Revert "floppy: reintroduce O_NDELAY fix"
+Date:   Sun,  8 Aug 2021 10:42:46 +0300
+Message-Id: <20210808074246.33449-1-efremov@linux.com>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <de10cb47-34d1-5a88-7751-225ca380f735@compro.net>
+References: <de10cb47-34d1-5a88-7751-225ca380f735@compro.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anna-Maria Gleixner <anna-maria@linutronix.de>
+The patch breaks userspace implementations (e.g. fdutils) and introduces
+regressions in behaviour. Previously, it was possible to O_NDELAY open a
+floppy device with no media inserted or with write protected media without
+an error. Some userspace tools use this particular behavior for probing.
 
-[ Upstream commit ec84b27f9b3b569f9235413d1945a2006b97b0aa ]
+It's not the first time when we revert this patch. Previous revert is in
+commit f2791e7eadf4 (Revert "floppy: refactor open() flags handling").
 
-Since commit b4abf91047cf ("rtmutex: Make wait_lock irq safe") the
-explanation in rcu_read_unlock() documentation about irq unsafe rtmutex
-wait_lock is no longer valid.
+This reverts commit 8a0c014cd20516ade9654fc13b51345ec58e7be8.
 
-Remove it to prevent kernel developers reading the documentation to rely on
-it.
-
-Suggested-by: Eric W. Biederman <ebiederm@xmission.com>
-Signed-off-by: Anna-Maria Gleixner <anna-maria@linutronix.de>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
-Acked-by: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: bigeasy@linutronix.de
-Link: https://lkml.kernel.org/r/20180525090507.22248-2-anna-maria@linutronix.de
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Acked-by: Joe Korty <joe.korty@concurrent-rt.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/linux-block/de10cb47-34d1-5a88-7751-225ca380f735@compro.net/
+Reported-by: Mark Hounschell <markh@compro.net>
+Cc: Jiri Kosina <jkosina@suse.cz>
+Cc: Wim Osterholt <wim@djo.tudelft.nl>
+Cc: Kurt Garloff <kurt@garloff.de>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Denis Efremov <efremov@linux.com>
 ---
- include/linux/rcupdate.h |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/block/floppy.c | 30 +++++++++++++++---------------
+ 1 file changed, 15 insertions(+), 15 deletions(-)
 
---- a/include/linux/rcupdate.h
-+++ b/include/linux/rcupdate.h
-@@ -880,9 +880,7 @@ static __always_inline void rcu_read_loc
-  * Unfortunately, this function acquires the scheduler's runqueue and
-  * priority-inheritance spinlocks.  This means that deadlock could result
-  * if the caller of rcu_read_unlock() already holds one of these locks or
-- * any lock that is ever acquired while holding them; or any lock which
-- * can be taken from interrupt context because rcu_boost()->rt_mutex_lock()
-- * does not disable irqs while taking ->wait_lock.
-+ * any lock that is ever acquired while holding them.
-  *
-  * That said, RCU readers are never priority boosted unless they were
-  * preempted.  Therefore, one way to avoid deadlock is to make sure
-
+diff --git a/drivers/block/floppy.c b/drivers/block/floppy.c
+index 87460e0e5c72..fef79ea52e3e 100644
+--- a/drivers/block/floppy.c
++++ b/drivers/block/floppy.c
+@@ -4029,23 +4029,23 @@ static int floppy_open(struct block_device *bdev, fmode_t mode)
+ 	if (fdc_state[FDC(drive)].rawcmd == 1)
+ 		fdc_state[FDC(drive)].rawcmd = 2;
+ 
+-	if (mode & (FMODE_READ|FMODE_WRITE)) {
+-		drive_state[drive].last_checked = 0;
+-		clear_bit(FD_OPEN_SHOULD_FAIL_BIT, &drive_state[drive].flags);
+-		if (bdev_check_media_change(bdev))
+-			floppy_revalidate(bdev->bd_disk);
+-		if (test_bit(FD_DISK_CHANGED_BIT, &drive_state[drive].flags))
+-			goto out;
+-		if (test_bit(FD_OPEN_SHOULD_FAIL_BIT, &drive_state[drive].flags))
++	if (!(mode & FMODE_NDELAY)) {
++		if (mode & (FMODE_READ|FMODE_WRITE)) {
++			drive_state[drive].last_checked = 0;
++			clear_bit(FD_OPEN_SHOULD_FAIL_BIT,
++				  &drive_state[drive].flags);
++			if (bdev_check_media_change(bdev))
++				floppy_revalidate(bdev->bd_disk);
++			if (test_bit(FD_DISK_CHANGED_BIT, &drive_state[drive].flags))
++				goto out;
++			if (test_bit(FD_OPEN_SHOULD_FAIL_BIT, &drive_state[drive].flags))
++				goto out;
++		}
++		res = -EROFS;
++		if ((mode & FMODE_WRITE) &&
++		    !test_bit(FD_DISK_WRITABLE_BIT, &drive_state[drive].flags))
+ 			goto out;
+ 	}
+-
+-	res = -EROFS;
+-
+-	if ((mode & FMODE_WRITE) &&
+-			!test_bit(FD_DISK_WRITABLE_BIT, &drive_state[drive].flags))
+-		goto out;
+-
+ 	mutex_unlock(&open_lock);
+ 	mutex_unlock(&floppy_mutex);
+ 	return 0;
+-- 
+2.31.1
 
