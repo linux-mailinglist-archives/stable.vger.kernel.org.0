@@ -2,103 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 113B93E4A64
-	for <lists+stable@lfdr.de>; Mon,  9 Aug 2021 18:58:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04E383E4AC2
+	for <lists+stable@lfdr.de>; Mon,  9 Aug 2021 19:24:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233403AbhHIQ66 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Aug 2021 12:58:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51332 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229877AbhHIQ65 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 Aug 2021 12:58:57 -0400
-Received: from mail-ua1-x931.google.com (mail-ua1-x931.google.com [IPv6:2607:f8b0:4864:20::931])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E024C0613D3
-        for <stable@vger.kernel.org>; Mon,  9 Aug 2021 09:58:36 -0700 (PDT)
-Received: by mail-ua1-x931.google.com with SMTP id a4so3852437uae.6
-        for <stable@vger.kernel.org>; Mon, 09 Aug 2021 09:58:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=c2sraGlp4Qavu1YnZf6eQp7El7E+d76ufqfmRz3CV7A=;
-        b=w6xtbOlY3toakXjzFP3KVysMgDlrgLmJ+PL+2hSRx5XvDkR3I3wdmezCTaLORb1fLh
-         R/hQM3t++s0s7ECBpEM/BwoVBLg8XqiRLyce/OMZT8dZu7Yxt7TQvnRTIn67CiebxgLB
-         KsG2qN2xNEs6YSf4CbJXmRwX6H7+QVBNBB9gEoAKTPsmDniQlHWH3mWJCEiT3sHxxPQr
-         O117eQPnG9auCKFU+HH09oOybDbe4qkOrqHvGbByKnmp4hBwTrlLtawxNnDBtfAEJ+R7
-         S5RBWzh8/Cp7fv7a2NxNlkMB8PPVTg6CFjsrM+IcPWsIkt70snHqnbN4t5gSsg96WZ3L
-         5e6Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=c2sraGlp4Qavu1YnZf6eQp7El7E+d76ufqfmRz3CV7A=;
-        b=bHPtDKAyTsLtvj15ArRjmZZzTY+K20aHbLxI7B+iif5ONcbK3DczuuUQlAKrC7b/pb
-         Y/+nSux7AmFGRwrPd9+ySRIx+m/jvIG7L1ZuqUh6qCOyfSvG/zd5AP3qzbIp83VsSXwG
-         4LTZU83EqbmGtgvRTbbRALJ30RrJyxpAKUGyii4hwQ5Ahb6HGXceJwnX0HP4ZC/mcvp0
-         CyqwD/Kh9BuqQggmIOwserM9H50DRxg9SNxoahXVVzAlxNeSuNFAoGxTA7I2GOhTfIo3
-         +rTvhkrO3gWWPDqxMZer4IQIOFqz0+O5Ck6q/2+crt3tEIvH/Xug4XSMNBVLnGhF7SRD
-         d+/w==
-X-Gm-Message-State: AOAM533EYglaFeIi/bLt6ODJwHu6j6C4qw3vouTJPlN82hKVTcUdTtcj
-        /icVLsNty94hMOkQAXHrIykQWkc76MSRPX7ld3SxeGFqH9KEKUHw
-X-Google-Smtp-Source: ABdhPJwzOhnidcU58phqRCnBK8eQZwSasU5BW++z3gK7zRdZp0LFP+0cDImQZmTiMYQFFrSbogoMO+RACILowP2eNN8=
-X-Received: by 2002:ab0:4e22:: with SMTP id g34mr16916470uah.17.1628528315685;
- Mon, 09 Aug 2021 09:58:35 -0700 (PDT)
+        id S233919AbhHIRYv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Aug 2021 13:24:51 -0400
+Received: from mo-csw1116.securemx.jp ([210.130.202.158]:35382 "EHLO
+        mo-csw.securemx.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233819AbhHIRYv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 Aug 2021 13:24:51 -0400
+Received: by mo-csw.securemx.jp (mx-mo-csw1116) id 179HONPs024807; Tue, 10 Aug 2021 02:24:23 +0900
+X-Iguazu-Qid: 2wHHa7GsNc511Z90d6
+X-Iguazu-QSIG: v=2; s=0; t=1628529863; q=2wHHa7GsNc511Z90d6; m=IO4iH5NlJ0VxWh408Hnd5ijvCzFGqeycigYbbDNXyyg=
+Received: from imx12-a.toshiba.co.jp (imx12-a.toshiba.co.jp [61.202.160.135])
+        by relay.securemx.jp (mx-mr1113) id 179HOMwt020075
+        (version=TLSv1.2 cipher=AES128-GCM-SHA256 bits=128 verify=NOT);
+        Tue, 10 Aug 2021 02:24:23 +0900
+Received: from enc02.toshiba.co.jp (enc02.toshiba.co.jp [61.202.160.51])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by imx12-a.toshiba.co.jp (Postfix) with ESMTPS id ABFBA1000D3;
+        Tue, 10 Aug 2021 02:24:22 +0900 (JST)
+Received: from hop101.toshiba.co.jp ([133.199.85.107])
+        by enc02.toshiba.co.jp  with ESMTP id 179HOMIK024596;
+        Tue, 10 Aug 2021 02:24:22 +0900
+Date:   Tue, 10 Aug 2021 02:24:21 +0900
+From:   Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+To:     sashal@kernel.org, stable@vger.kernel.org
+Cc:     gregkh@linuxfoundation.org
+Subject: [stable-rc/4.19.y] Build fails with commit 6642eb4eb918 ("ARM: imx:
+ add missing iounmap()")
+X-TSB-HOP: ON
+Message-ID: <20210809172421.wcrije6p7qyy55jj@toshiba.co.jp>
 MIME-Version: 1.0
-References: <CAPLW+4nyWAp99CTVy+wJ0rnbs9JpDvNaQaVityJi=sVPTkyDSA@mail.gmail.com>
- <YRDs8YYl1uEycsQl@kroah.com>
-In-Reply-To: <YRDs8YYl1uEycsQl@kroah.com>
-From:   Sam Protsenko <semen.protsenko@linaro.org>
-Date:   Mon, 9 Aug 2021 19:58:24 +0300
-Message-ID: <CAPLW+4kOfTMyfwzfBFdXYLqk-75rtp_ihFLsAYtb6h79LfRWjg@mail.gmail.com>
-Subject: Re: Add "usb: dwc3: Stop active transfers before halting the
- controller" to 5.4-stable
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, Wesley Cheng <wcheng@codeaurora.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/mixed; boundary="gi4teefrtfutjitb"
+Content-Disposition: inline
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 9 Aug 2021 at 11:53, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> On Fri, Aug 06, 2021 at 04:25:17PM +0300, Sam Protsenko wrote:
-> > Hi Greg,
-> >
-> > Suggest including next patch (available in linux-mainline) to
-> > 5.4-stable branch: commit ae7e86108b12 ("usb: dwc3: Stop active
-> > transfers before halting the controller"). It's also already present
-> > in 5.10 stable. Some fixes exist in 5.10-stable for that patch too.
->
-> Can you provide a list of the fixes that also need to be backported?  I
-> do not want to take one patch and not all of the relevant ones.
->
 
-Sure. Here is the whole list:
+--gi4teefrtfutjitb
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-[PATCH 01/04]
-usb: dwc3: Stop active transfers before halting the controller
-UPSTREAM: ae7e86108b12351028fa7e8796a59f9b2d9e1774
+Hi,
 
-[PATCH 02/04]
-usb: dwc3: gadget: Restart DWC3 gadget when enabling pullup
-UPSTREAM: a1383b3537a7bea1c213baa7878ccc4ecf4413b5
-5.10-stable: dd8363fbca508616811f8a94006b09c66c094107
+Build failed commit 6642eb4eb918 ("ARM: imx: add missing iounmap()") on
+stable-rc/linux-4.19.y.
 
-[PATCH 03/04]
-usb: dwc3: gadget: Prevent EP queuing while stopping transfers
-UPSTREAM: f09ddcfcb8c569675066337adac2ac205113471f
-5.10-stable: c7bb96a37dd2095fcd6c65a59689004e63e4b872
+````
+arch/arm/mach-imx/mmdc.c: In function 'imx_mmdc_probe':
+arch/arm/mach-imx/mmdc.c:568:2: error: 'err' undeclared (first use in this function)
+  err = imx_mmdc_perf_init(pdev, mmdc_base);
+  ^~~
+arch/arm/mach-imx/mmdc.c:568:2: note: each undeclared identifier is reported only once for each function it appears in
+arch/arm/mach-imx/mmdc.c:573:1: error: control reaches end of non-void function [-Werror=return-type]
+ }
+ ^
+cc1: some warnings being treated as errors
+make[1]: *** [scripts/Makefile.build:303: arch/arm/mach-imx/mmdc.o] Error 1
 
-[PATCH 04/04]
-usb: dwc3: gadget: Disable gadget IRQ during pullup disable
-UPSTREAM: 8212937305f84ef73ea81036dafb80c557583d4b
-5.10-stable: 9e0677c2e39052ac20efae4474bb20614d9a88c9
+````
 
-Just "git cherry-pick" from upstream kernel seems to work fine.
+It seems that err has not been declared.
+I attached a patch which revise this issue.
 
-Thanks!
+Best regards,
+  Nobuhiro
 
-> thanks,
->
-> greg k-h
+
+--gi4teefrtfutjitb
+Content-Type: text/x-diff; charset=us-ascii
+Content-Disposition: attachment;
+	filename="0001-ARM-imx-add-missing-iounmap.patch"
+
+From 1409564e80bd0b769528a21b47fc13cfcd6bbb20 Mon Sep 17 00:00:00 2001
+From: Yang Yingliang <yangyingliang@huawei.com>
+Date: Tue, 15 Jun 2021 20:52:38 +0800
+Subject: [PATCH] ARM: imx: add missing iounmap()
+
+[ Upstream commit f9613aa07f16d6042e74208d1b40a6104d72964a ]
+
+Commit e76bdfd7403a ("ARM: imx: Added perf functionality to mmdc driver")
+introduced imx_mmdc_remove(), the mmdc_base need be unmapped in it if
+config PERF_EVENTS is enabled.
+
+If imx_mmdc_perf_init() fails, the mmdc_base also need be unmapped.
+
+Fixes: e76bdfd7403a ("ARM: imx: Added perf functionality to mmdc driver")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Dong Aisheng <aisheng.dong@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+[iwamatsu: Add err variable]
+Signed-off-by: Nobuhiro Iwamatsu (CIP) <nobuhiro1.iwamatsu@toshiba.co.jp>
+---
+ arch/arm/mach-imx/mmdc.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm/mach-imx/mmdc.c b/arch/arm/mach-imx/mmdc.c
+index 04b3bf71de94ba..9c5aed9292246a 100644
+--- a/arch/arm/mach-imx/mmdc.c
++++ b/arch/arm/mach-imx/mmdc.c
+@@ -472,6 +472,7 @@ static int imx_mmdc_remove(struct platform_device *pdev)
+ 
+ 	cpuhp_state_remove_instance_nocalls(cpuhp_mmdc_state, &pmu_mmdc->node);
+ 	perf_pmu_unregister(&pmu_mmdc->pmu);
++	iounmap(pmu_mmdc->mmdc_base);
+ 	kfree(pmu_mmdc);
+ 	return 0;
+ }
+@@ -547,6 +548,7 @@ static int imx_mmdc_probe(struct platform_device *pdev)
+ 	struct device_node *np = pdev->dev.of_node;
+ 	void __iomem *mmdc_base, *reg;
+ 	u32 val;
++	int err;
+ 
+ 	mmdc_base = of_iomap(np, 0);
+ 	WARN_ON(!mmdc_base);
+@@ -564,7 +566,11 @@ static int imx_mmdc_probe(struct platform_device *pdev)
+ 	val &= ~(1 << BP_MMDC_MAPSR_PSD);
+ 	writel_relaxed(val, reg);
+ 
+-	return imx_mmdc_perf_init(pdev, mmdc_base);
++	err = imx_mmdc_perf_init(pdev, mmdc_base);
++	if (err)
++		iounmap(mmdc_base);
++
++	return err;
+ }
+ 
+ int imx_mmdc_get_ddr_type(void)
+-- 
+2.32.0
+
+
+--gi4teefrtfutjitb--
+
