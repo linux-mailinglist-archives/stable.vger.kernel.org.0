@@ -2,32 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F2B53E41BF
-	for <lists+stable@lfdr.de>; Mon,  9 Aug 2021 10:42:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DD0D3E41C7
+	for <lists+stable@lfdr.de>; Mon,  9 Aug 2021 10:48:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233940AbhHIImj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Aug 2021 04:42:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46708 "EHLO mail.kernel.org"
+        id S234049AbhHIIsp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Aug 2021 04:48:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233926AbhHIImi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Aug 2021 04:42:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4816E60462;
-        Mon,  9 Aug 2021 08:42:17 +0000 (UTC)
+        id S233940AbhHIIsn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Aug 2021 04:48:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E8D8A60EB9;
+        Mon,  9 Aug 2021 08:48:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628498537;
-        bh=Gz7xbkkgzuTiQ00Ymgi4DMyVg0tmsMddhROilvF3/zs=;
+        s=korg; t=1628498903;
+        bh=YnPoEhIrckZPNs66kGDJCoVIVRw0Sv4z3FkyLUqfCqw=;
         h=Subject:To:Cc:From:Date:From;
-        b=FxO6R1/bN0ci04McVORxrOwf271CJfSfJaQVw2qKrXiPrjs86h38UAFqvdwMxIYyH
-         EZyEjChfDjQf7SxTM6xRdp12OjZl94z3yXjPdQ30E6YWHL0dE/p5hC60RJL9cU5NVp
-         2GRa6X10tEGza4jKVwKswqK15WwK+vm2nlQ7mFyA=
-Subject: FAILED: patch "[PATCH] firmware: tee_bnxt: Release TEE shm, session, and context" failed to apply to 5.10-stable tree
-To:     apais@linux.microsoft.com, f.fainelli@gmail.com,
-        jens.wiklander@linaro.org, sumit.garg@linaro.org,
-        tyhicks@linux.microsoft.com
+        b=E5NHIOlmQuK8nYTE5ChIPArh5nJsG1qh7G8jaNp+vK1Pds5OSrkj5eVsjyHzOxzFG
+         /ByPVld8YtfKOXJfO8dq2BKAkmLOrRNMddh/FmhUHlHJVfGamF+/ylaBvQvOEf4+vu
+         0NcgJsiE6tg9rURfpt+uLEmgXy1s/FS/C+I0zl6Q=
+Subject: FAILED: patch "[PATCH] usb: dwc3: gadget: Use list_replace_init() before traversing" failed to apply to 4.19-stable tree
+To:     wcheng@codeaurora.org, balbi@kernel.org,
+        gregkh@linuxfoundation.org, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 09 Aug 2021 10:42:15 +0200
-Message-ID: <162849853529218@kroah.com>
+Date:   Mon, 09 Aug 2021 10:48:21 +0200
+Message-ID: <162849890116696@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -47,78 +46,116 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 914ab19e471d8fb535ed50dff108b0a615f3c2d8 Mon Sep 17 00:00:00 2001
-From: Allen Pais <apais@linux.microsoft.com>
-Date: Mon, 14 Jun 2021 17:33:17 -0500
-Subject: [PATCH] firmware: tee_bnxt: Release TEE shm, session, and context
- during kexec
+From d25d85061bd856d6be221626605319154f9b5043 Mon Sep 17 00:00:00 2001
+From: Wesley Cheng <wcheng@codeaurora.org>
+Date: Thu, 29 Jul 2021 00:33:14 -0700
+Subject: [PATCH] usb: dwc3: gadget: Use list_replace_init() before traversing
+ lists
 
-Implement a .shutdown hook that will be called during a kexec operation
-so that the TEE shared memory, session, and context that were set up
-during .probe can be properly freed/closed.
+The list_for_each_entry_safe() macro saves the current item (n) and
+the item after (n+1), so that n can be safely removed without
+corrupting the list.  However, when traversing the list and removing
+items using gadget giveback, the DWC3 lock is briefly released,
+allowing other routines to execute.  There is a situation where, while
+items are being removed from the cancelled_list using
+dwc3_gadget_ep_cleanup_cancelled_requests(), the pullup disable
+routine is running in parallel (due to UDC unbind).  As the cleanup
+routine removes n, and the pullup disable removes n+1, once the
+cleanup retakes the DWC3 lock, it references a request who was already
+removed/handled.  With list debug enabled, this leads to a panic.
+Ensure all instances of the macro are replaced where gadget giveback
+is used.
 
-Additionally, don't use dma-buf backed shared memory for the
-fw_shm_pool. dma-buf backed shared memory cannot be reliably freed and
-unregistered during a kexec operation even when tee_shm_free() is called
-on the shm from a .shutdown hook. The problem occurs because
-dma_buf_put() calls fput() which then uses task_work_add(), with the
-TWA_RESUME parameter, to queue tee_shm_release() to be called before the
-current task returns to user mode. However, the current task never
-returns to user mode before the kexec completes so the memory is never
-freed nor unregistered.
+Example call stack:
 
-Use tee_shm_alloc_kernel_buf() to avoid dma-buf backed shared memory
-allocation so that tee_shm_free() can directly call tee_shm_release().
-This will ensure that the shm can be freed and unregistered during a
-kexec operation.
+Thread#1:
+__dwc3_gadget_ep_set_halt() - CLEAR HALT
+  -> dwc3_gadget_ep_cleanup_cancelled_requests()
+    ->list_for_each_entry_safe()
+    ->dwc3_gadget_giveback(n)
+      ->dwc3_gadget_del_and_unmap_request()- n deleted[cancelled_list]
+      ->spin_unlock
+      ->Thread#2 executes
+      ...
+    ->dwc3_gadget_giveback(n+1)
+      ->Already removed!
 
-Fixes: 246880958ac9 ("firmware: broadcom: add OP-TEE based BNXT f/w manager")
-Cc: stable@vger.kernel.org
-Signed-off-by: Allen Pais <apais@linux.microsoft.com>
-Co-developed-by: Tyler Hicks <tyhicks@linux.microsoft.com>
-Signed-off-by: Tyler Hicks <tyhicks@linux.microsoft.com>
-Reviewed-by: Sumit Garg <sumit.garg@linaro.org>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
+Thread#2:
+dwc3_gadget_pullup()
+  ->waiting for dwc3 spin_lock
+  ...
+  ->Thread#1 released lock
+  ->dwc3_stop_active_transfers()
+    ->dwc3_remove_requests()
+      ->fetches n+1 item from cancelled_list (n removed by Thread#1)
+      ->dwc3_gadget_giveback()
+        ->dwc3_gadget_del_and_unmap_request()- n+1
+deleted[cancelled_list]
+        ->spin_unlock
 
-diff --git a/drivers/firmware/broadcom/tee_bnxt_fw.c b/drivers/firmware/broadcom/tee_bnxt_fw.c
-index ed10da5313e8..a5bf4c3f6dc7 100644
---- a/drivers/firmware/broadcom/tee_bnxt_fw.c
-+++ b/drivers/firmware/broadcom/tee_bnxt_fw.c
-@@ -212,10 +212,9 @@ static int tee_bnxt_fw_probe(struct device *dev)
+Fix this condition by utilizing list_replace_init(), and traversing
+through a local copy of the current elements in the endpoint lists.
+This will also set the parent list as empty, so if another thread is
+also looping through the list, it will be empty on the next iteration.
+
+Fixes: d4f1afe5e896 ("usb: dwc3: gadget: move requests to cancelled_list")
+Cc: stable <stable@vger.kernel.org>
+Acked-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Wesley Cheng <wcheng@codeaurora.org>
+Link: https://lore.kernel.org/r/1627543994-20327-1-git-send-email-wcheng@codeaurora.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index 45f2bc0807e8..a1b262669574 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -1741,9 +1741,13 @@ static void dwc3_gadget_ep_cleanup_cancelled_requests(struct dwc3_ep *dep)
+ {
+ 	struct dwc3_request		*req;
+ 	struct dwc3_request		*tmp;
++	struct list_head		local;
+ 	struct dwc3			*dwc = dep->dwc;
  
- 	pvt_data.dev = dev;
- 
--	fw_shm_pool = tee_shm_alloc(pvt_data.ctx, MAX_SHM_MEM_SZ,
--				    TEE_SHM_MAPPED | TEE_SHM_DMA_BUF);
-+	fw_shm_pool = tee_shm_alloc_kernel_buf(pvt_data.ctx, MAX_SHM_MEM_SZ);
- 	if (IS_ERR(fw_shm_pool)) {
--		dev_err(pvt_data.dev, "tee_shm_alloc failed\n");
-+		dev_err(pvt_data.dev, "tee_shm_alloc_kernel_buf failed\n");
- 		err = PTR_ERR(fw_shm_pool);
- 		goto out_sess;
+-	list_for_each_entry_safe(req, tmp, &dep->cancelled_list, list) {
++restart:
++	list_replace_init(&dep->cancelled_list, &local);
++
++	list_for_each_entry_safe(req, tmp, &local, list) {
+ 		dwc3_gadget_ep_skip_trbs(dep, req);
+ 		switch (req->status) {
+ 		case DWC3_REQUEST_STATUS_DISCONNECTED:
+@@ -1761,6 +1765,9 @@ static void dwc3_gadget_ep_cleanup_cancelled_requests(struct dwc3_ep *dep)
+ 			break;
+ 		}
  	}
-@@ -242,6 +241,14 @@ static int tee_bnxt_fw_remove(struct device *dev)
- 	return 0;
++
++	if (!list_empty(&dep->cancelled_list))
++		goto restart;
  }
  
-+static void tee_bnxt_fw_shutdown(struct device *dev)
-+{
-+	tee_shm_free(pvt_data.fw_shm_pool);
-+	tee_client_close_session(pvt_data.ctx, pvt_data.session_id);
-+	tee_client_close_context(pvt_data.ctx);
-+	pvt_data.ctx = NULL;
-+}
-+
- static const struct tee_client_device_id tee_bnxt_fw_id_table[] = {
- 	{UUID_INIT(0x6272636D, 0x2019, 0x0716,
- 		    0x42, 0x43, 0x4D, 0x5F, 0x53, 0x43, 0x48, 0x49)},
-@@ -257,6 +264,7 @@ static struct tee_client_driver tee_bnxt_fw_driver = {
- 		.bus		= &tee_bus_type,
- 		.probe		= tee_bnxt_fw_probe,
- 		.remove		= tee_bnxt_fw_remove,
-+		.shutdown	= tee_bnxt_fw_shutdown,
- 	},
- };
+ static int dwc3_gadget_ep_dequeue(struct usb_ep *ep,
+@@ -2958,8 +2965,12 @@ static void dwc3_gadget_ep_cleanup_completed_requests(struct dwc3_ep *dep,
+ {
+ 	struct dwc3_request	*req;
+ 	struct dwc3_request	*tmp;
++	struct list_head	local;
  
+-	list_for_each_entry_safe(req, tmp, &dep->started_list, list) {
++restart:
++	list_replace_init(&dep->started_list, &local);
++
++	list_for_each_entry_safe(req, tmp, &local, list) {
+ 		int ret;
+ 
+ 		ret = dwc3_gadget_ep_cleanup_completed_request(dep, event,
+@@ -2967,6 +2978,9 @@ static void dwc3_gadget_ep_cleanup_completed_requests(struct dwc3_ep *dep,
+ 		if (ret)
+ 			break;
+ 	}
++
++	if (!list_empty(&dep->started_list))
++		goto restart;
+ }
+ 
+ static bool dwc3_gadget_ep_should_continue(struct dwc3_ep *dep)
 
