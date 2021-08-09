@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 95EB03E4415
-	for <lists+stable@lfdr.de>; Mon,  9 Aug 2021 12:45:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 309D73E4416
+	for <lists+stable@lfdr.de>; Mon,  9 Aug 2021 12:45:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234478AbhHIKpx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Aug 2021 06:45:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35980 "EHLO mail.kernel.org"
+        id S234644AbhHIKqA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Aug 2021 06:46:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36008 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234600AbhHIKp3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Aug 2021 06:45:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A45061055;
-        Mon,  9 Aug 2021 10:45:07 +0000 (UTC)
+        id S234733AbhHIKpc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Aug 2021 06:45:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 79FB961075;
+        Mon,  9 Aug 2021 10:45:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628505907;
-        bh=BmlGLuaWsR9xvAGjRDS1BUzg1jGMlmqqS0hMQNWJ9II=;
+        s=korg; t=1628505909;
+        bh=r/i79O3FDBnK5ZQXmx1FZ2sdJ3WAAuTq1zRQnvpM2dE=;
         h=Subject:To:Cc:From:Date:From;
-        b=LSOLWDgsUZHasR5HEPMknBJoUos71Ky2zvr7GAHycUN2UKyvvr7JqXxNbRQvMPryv
-         T21vIHVj2M/uTsXDN1H6GSwe317ceD5VITHbxAhT1eCfYeRND8UVgZ9K+I0uEoMkGu
-         /IvD+AU6T98hQMTmTmqkfr9T5nM1EVmxl+6w4/q0=
-Subject: FAILED: patch "[PATCH] KVM: Do not leak memory for duplicate debugfs directories" failed to apply to 4.14-stable tree
+        b=1XUwC5PI76OrZbKnvc5Of34Elmx+KaVdtoFCjFpptpEtwDRwsYlyl93Yii8K4ZilO
+         8Fr09MrbH7ybMca/jFU4DYvDrxRtTsSl+SFWBjM/X1U5kgYM9tgYVPMIA2vN1R0dug
+         v/E6yeb6cGPMohoMo7rU5fR66lxQs5q7cyEnYkQ4=
+Subject: FAILED: patch "[PATCH] KVM: Do not leak memory for duplicate debugfs directories" failed to apply to 4.9-stable tree
 To:     pbonzini@redhat.com, aik@ozlabs.ru, gregkh@linuxfoundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 09 Aug 2021 12:44:57 +0200
-Message-ID: <1628505897233183@kroah.com>
+Date:   Mon, 09 Aug 2021 12:44:58 +0200
+Message-ID: <1628505898214252@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
