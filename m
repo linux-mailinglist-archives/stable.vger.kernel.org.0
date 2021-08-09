@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D23333E465B
-	for <lists+stable@lfdr.de>; Mon,  9 Aug 2021 15:18:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E869A3E4683
+	for <lists+stable@lfdr.de>; Mon,  9 Aug 2021 15:26:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235165AbhHINSx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Aug 2021 09:18:53 -0400
-Received: from smtpout2.vodafonemail.de ([145.253.239.133]:43054 "EHLO
+        id S235376AbhHIN05 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Aug 2021 09:26:57 -0400
+Received: from smtpout2.vodafonemail.de ([145.253.239.133]:35108 "EHLO
         smtpout2.vodafonemail.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235032AbhHINSx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 Aug 2021 09:18:53 -0400
-Received: from smtp.vodafone.de (smtpa06.fra-mediabeam.com [10.2.0.37])
-        by smtpout2.vodafonemail.de (Postfix) with ESMTP id 1D0941229EA;
-        Mon,  9 Aug 2021 15:18:30 +0200 (CEST)
+        with ESMTP id S235433AbhHIN05 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 Aug 2021 09:26:57 -0400
+Received: from smtp.vodafone.de (smtpa03.fra-mediabeam.com [10.2.0.34])
+        by smtpout2.vodafonemail.de (Postfix) with ESMTP id A1011123FCB;
+        Mon,  9 Aug 2021 15:25:03 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arcor.de;
-        s=vfde-smtpout-mb-15sep; t=1628515110;
-        bh=K6ZJO7ajV0EkMKeRt7SwrIYWm5fXqiNznX3/4B4/ooU=;
+        s=vfde-smtpout-mb-15sep; t=1628515503;
+        bh=2NB+EUqCgW4YQ7b1qE9Mx0gEHpES/j2KMsVdtSBbxs0=;
         h=Date:From:To:Cc:Subject;
-        b=gRqvPKny5C+WLT7q6EecAhY5c0CtNjR6G63Oq9l68I/fWeWUKtIvlhiseNxheqqp5
-         +EyynglnEcZXJeSn5NnLDEEW8gTrQUAheugi0H+wwMjYMLLZ4EWWGgvxhsTg5wKjZV
-         rCAzpnvikR0gawXDJSgjPsw+aKaOZ3aYSYRiU5+I=
+        b=ltllmgpV+UKTubY/7ukTq4PLhwoJ7J64ES5beFw4sgXyebZU8KtvSF9+hhIvWm+XO
+         qk9uXZSBaN9wOrY/hKq19OiqyxozmwIQWykCDt7ylH3cLQPOgOMenE1x1E8PKuIz2u
+         U/D2pGtUyARHyw5OqFRg37lujp3gAZVauwiPEzAs=
 Received: from arcor.de (p57a23d17.dip0.t-ipconnect.de [87.162.61.23])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
         (No client certificate requested)
-        by smtp.vodafone.de (Postfix) with ESMTPSA id 11CC1140179;
-        Mon,  9 Aug 2021 13:18:29 +0000 (UTC)
-Date:   Mon, 9 Aug 2021 15:18:14 +0200
+        by smtp.vodafone.de (Postfix) with ESMTPSA id 0EB01140281;
+        Mon,  9 Aug 2021 13:25:03 +0000 (UTC)
+Date:   Mon, 9 Aug 2021 15:24:49 +0200
 From:   Reinhard Speyerer <rspmn@arcor.de>
 To:     stable@vger.kernel.org
 Cc:     Aleksander Morgado <aleksander@aleksander.es>,
         =?iso-8859-1?Q?Bj=F8rn?= Mork <bjorn@mork.no>,
         Daniele Palmas <dnlplm@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14] qmi_wwan: add network device usage statistics for
+Subject: [PATCH 4.19] qmi_wwan: add network device usage statistics for
  qmimux devices
-Message-ID: <20210809131813.GA1009@arcor.de>
+Message-ID: <20210809132418.GA1061@arcor.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -46,7 +46,7 @@ X-purgate-Ad: Categorized by eleven eXpurgate (R) http://www.eleven.de
 X-purgate: This mail is considered clean (visit http://www.eleven.de for further information)
 X-purgate: clean
 X-purgate-size: 4789
-X-purgate-ID: 155817::1628515109-00003C24-9EC98D62/0/0
+X-purgate-ID: 155817::1628515503-00000B26-F126255D/0/0
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
@@ -54,7 +54,7 @@ X-Mailing-List: stable@vger.kernel.org
 Commit 44f82312fe91 ("qmi_wwan: add network device usage statistics
 for qmimux devices") of the "qmi_wwan: fix QMAP handling" series
 https://lore.kernel.org/netdev/cover.1560287477.git.rspmn@arcor.de
-was not part of the AUTOSEL 4.14 patches.
+was not part of the AUTOSEL 4.19 patches.
 
 This will introduce a regression for users of this longterm kernel when
 multiplexing gets enabled in the forthcoming ModemManager 1.18:
@@ -68,7 +68,7 @@ Signed-off-by: Reinhard Speyerer <rspmn@arcor.de>
  1 file changed, 71 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/net/usb/qmi_wwan.c b/drivers/net/usb/qmi_wwan.c
-index cd3865f70578..928219ab0912 100644
+index d08e1de26030..54b37a30df18 100644
 --- a/drivers/net/usb/qmi_wwan.c
 +++ b/drivers/net/usb/qmi_wwan.c
 @@ -22,6 +22,7 @@
