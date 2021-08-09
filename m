@@ -2,111 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 345683E439E
-	for <lists+stable@lfdr.de>; Mon,  9 Aug 2021 12:09:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 852D33E43DC
+	for <lists+stable@lfdr.de>; Mon,  9 Aug 2021 12:23:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234493AbhHIKJY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Aug 2021 06:09:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41976 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233772AbhHIKJX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 Aug 2021 06:09:23 -0400
-Received: from mail-ot1-x32d.google.com (mail-ot1-x32d.google.com [IPv6:2607:f8b0:4864:20::32d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B4A7C0613D3;
-        Mon,  9 Aug 2021 03:09:01 -0700 (PDT)
-Received: by mail-ot1-x32d.google.com with SMTP id r17-20020a0568302371b0290504f3f418fbso3092045oth.12;
-        Mon, 09 Aug 2021 03:09:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=qoHRXfLSkf+2u1HB47ZXYyLT4NgEVZM0x+hX2iAEM0A=;
-        b=V3dDLieTWYZK7LcO6IcE0dgZhbK3gmN5Dn1hrPuqmFwnYyqHT9HPXAtiAO+8x5LD2a
-         rhZFan2ys8KPoz3pcG6PhhHxRtlejRkeG0R0x2uecegwLq2xmVX9l0KZjed6bDsAZUxd
-         0/DQhTbNtPpx8727V8VsXa3kHezj/UkSMnGV2Raf2eckllnX43mB1ik0Nq9tv4qv/NBy
-         VP6xuaTr21q3i58BtB9Q73+tQBzWtAXfVKae5XLTxj2IIRewzJhnZsn2U4f3UDjZfu2p
-         x4rL4gmsFTWwAoaa3U7yN6eTINbme175X4Bh9iA+HsToZ4fiJksj0W/djk/5Cwt2Bmsg
-         Qufw==
+        id S234562AbhHIKXt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Aug 2021 06:23:49 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:55863 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234346AbhHIKXq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 Aug 2021 06:23:46 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1628504605;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=lBMgmsHqw0YdLKVpdWLFV60bEE3X7POBff7kY81z7+0=;
+        b=NhlXYLePc588orL/szPFEExZ9i7+Pshae1FCaohyK8yBodDc3nu5qbWGLUSefMte5AOn0H
+        58CHccqgoN1hmB39/7jJ7443v8n1PkJLH2L70S5NUv3rNhT01hJBG5yNa0AovJvUw1tptP
+        509QgW/zCjl0LQOCrAXFu0ozgBzmbBc=
+Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
+ [209.85.218.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-320-fsZpdtQPMnuluJbCZk3_JQ-1; Mon, 09 Aug 2021 06:23:24 -0400
+X-MC-Unique: fsZpdtQPMnuluJbCZk3_JQ-1
+Received: by mail-ej1-f70.google.com with SMTP id q19-20020a170906b293b029058a1e75c819so4332990ejz.16
+        for <stable@vger.kernel.org>; Mon, 09 Aug 2021 03:23:24 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=qoHRXfLSkf+2u1HB47ZXYyLT4NgEVZM0x+hX2iAEM0A=;
-        b=Mic+QDP2FxDYA5DzUr8vNYeekIeYCGqiWzJhbO4HU8cwN+405btU4nYi+lniOT/fFj
-         Z/6u5mALhSdZDz+iqLGCwTOv27YFSxWE3tuVGkRwAIM5BGdodMf29V+PAV8BKuPCfPFN
-         VBd17r/mJBM2MYe/u5VM2UCXsKNaBX2sFxmza+Lvr3bLZUi9/c70IESIOX/J6cwndi4S
-         NUKQgGW3VCUqK7gzJ09NhIBLUVmT/A54Xo+7BzEE+/c87QeMLvoCc3LxnGr9Jj0y6fwQ
-         3ZarXhRy8AxIam3lknzQgSn0GT5UejtWC7PHxFjmDejgSLVCjFJAcSfJ5hgTUNShKJ+n
-         C6+Q==
-X-Gm-Message-State: AOAM533/rwf9QTT+GivqitDWoOGLGCz/5WapT/DhV4kNmD4vhhfiNFVe
-        rMaKgvcc0m4VJESLje85ngtNyhTgaTYAB2Nni3d/98nTnlfdkA==
-X-Google-Smtp-Source: ABdhPJzSl9HGih+1oYlUMtTUINQffGyH3LHGqFRlSVEPYWjJF8/bhu9t47I5IwHuvLo6LextsjMFOBY/uHLsjyXWJ88=
-X-Received: by 2002:a05:6830:1459:: with SMTP id w25mr769993otp.370.1628503740799;
- Mon, 09 Aug 2021 03:09:00 -0700 (PDT)
+        h=x-gm-message-state:to:cc:references:from:subject:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=lBMgmsHqw0YdLKVpdWLFV60bEE3X7POBff7kY81z7+0=;
+        b=h1GELd4E8+zDzVEeZokStDI8kBIurBy/uopoJuSsyaJq3Nnaeah3WpI82Reabs02LN
+         Sm5YXIe1XXsCmrqWhTZ+8Td894AnzVmUNmlMOgL1lGRlRw+2BQlEB9KcmziGt/1J8Z2R
+         /+/9JiiZPY63/ZPvrXEhhBg0fJjKUPrayoOaoAp9EowEug4O0iZaY+hi1+1ci165WJUt
+         jGvbVrNsTO0qYjbiRWW1AM5+FO1qZC/kivkIKq6IZVClx/8Oi9WuREwe1jeNwvjusht5
+         8MKlpaVLGqUBAmjrqcAjnXjO0VTnR94LH6m3ZRJTzS/k9qa9SbQXOSz/iH3Fy1C2cE8q
+         jbhA==
+X-Gm-Message-State: AOAM5335kb2RitW+sg24vdji73rQ0/+ahAbk+DTfS0LLLAhXTpgaJa/b
+        qSF7RYbQqJBoy6R2Q9VkimTMxQNJaNDAX9jmFbsoB+r16AuTmxv1osxlImnBSYQQlhS1Wb4OD7P
+        h/S7RI12wDPNEKrbb
+X-Received: by 2002:aa7:c647:: with SMTP id z7mr28762253edr.52.1628504603585;
+        Mon, 09 Aug 2021 03:23:23 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxu4/FLaxiABAh3xlH1zEltzZAqe/JpBP91yZt7peMzpTB2Jakv6WmDhskp7f5QhwHz26t4Ug==
+X-Received: by 2002:aa7:c647:: with SMTP id z7mr28762236edr.52.1628504603409;
+        Mon, 09 Aug 2021 03:23:23 -0700 (PDT)
+Received: from ?IPv6:2001:b07:6468:f312:5e2c:eb9a:a8b6:fd3e? ([2001:b07:6468:f312:5e2c:eb9a:a8b6:fd3e])
+        by smtp.gmail.com with ESMTPSA id l9sm7953930edt.55.2021.08.09.03.23.22
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 09 Aug 2021 03:23:22 -0700 (PDT)
+To:     Joao Martins <joao.m.martins@oracle.com>,
+        Maxim Levitsky <mlevitsk@redhat.com>
+Cc:     stable@vger.kernel.org, David Matlack <dmatlack@google.com>,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+References: <20210805105423.412878-1-pbonzini@redhat.com>
+ <4b530fb6-81cc-be36-aa68-92ec01c65775@oracle.com>
+ <5f3c13be-f65d-1793-bd91-7491d3e149b0@redhat.com>
+ <bab67d1c-f9b7-0a91-2d4f-9881e3f47218@oracle.com>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH] selftests: KVM: avoid failures due to reserved
+ HyperTransport region
+Message-ID: <ac72b77c-f633-923b-8019-69347db706be@redhat.com>
+Date:   Mon, 9 Aug 2021 12:23:21 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-References: <CAM43=SM4KFE8C1ekwiw_kBYZKSwycnTYcbBXfw5OhUn4h=r9YA@mail.gmail.com>
- <31298797-f791-4ac5-cfda-c95d7c7958a4@linux-m68k.org> <CAM43=SNV4016i2ByssN9tvXDN6ZyQiYM218_NkrebyPA=p6Rcg@mail.gmail.com>
- <380dd57-4b60-ac9c-508c-826d8ec1b0aa@linux-m68k.org>
-In-Reply-To: <380dd57-4b60-ac9c-508c-826d8ec1b0aa@linux-m68k.org>
-From:   Mikael Pettersson <mikpelinux@gmail.com>
-Date:   Mon, 9 Aug 2021 12:08:49 +0200
-Message-ID: <CAM43=SPsQv-fS1cOF9NA+kKEQcFw9BjyNeDZtqkBiHVvgGwQfg@mail.gmail.com>
-Subject: Re: [BISECTED][REGRESSION] 5.10.56 longterm kernel breakage on m68k/aranym
-To:     Finn Thain <fthain@linux-m68k.org>
-Cc:     Linux Kernel list <linux-kernel@vger.kernel.org>,
-        linux-m68k@lists.linux-m68k.org, stable@vger.kernel.org,
-        Peter Xu <peterx@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <bab67d1c-f9b7-0a91-2d4f-9881e3f47218@oracle.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 9, 2021 at 3:59 AM Finn Thain <fthain@linux-m68k.org> wrote:
->
-> On Sun, 8 Aug 2021, Mikael Pettersson wrote:
->
-> > On Sun, Aug 8, 2021 at 1:20 AM Finn Thain <fthain@linux-m68k.org> wrote:
-> > >
-> > > On Sat, 7 Aug 2021, Mikael Pettersson wrote:
-> > >
-> > > > I updated the 5.10 longterm kernel on one of my m68k/aranym VMs from
-> > > > 5.10.47 to 5.10.56, and the new kernel failed to boot:
-> > > >
-> > > > ARAnyM 1.1.0
-> > > > Using config file: 'aranym1.headless.config'
-> > > > Could not open joystick 0
-> > > > ARAnyM RTC Timer: /dev/rtc: Permission denied
-> > > > ARAnyM LILO: Error loading ramdisk 'root.bin'
-> > > > Blitter tried to read byte from register ff8a00 at 0077ee
-> > > >
-> > > > At this point it kept running, but produced no output to the console,
-> > > > and would never get to the point of starting user-space. Attaching gdb
-> > > > to aranym showed nothing interesting, i.e. it seemed to be executing
-> > > > normally.
-> > > >
-> > > > A git bisect identified the following commit between 5.10.52 and
-> > > > 5.10.53 as the culprit:
-> > > > # first bad commit: [9e1cf2d1ed37c934c9935f2c0b2f8b15d9355654]
-> > > > mm/userfaultfd: fix uffd-wp special cases for fork()
-> > > >
-> > >
-> > > That commit appeared in mainline between v5.13 and v5.14-rc1. Is mainline
-> > > also affected? e.g. v5.14-rc4.
-> >
-> > 5.14-rc4 boots fine. I suspect the commit has some dependency that
-> > hasn't been backported to 5.10 stable.
-> >
->
-> On mainline, 9e1cf2d1ed3 is known as commit 8f34f1eac382 ("mm/userfaultfd:
-> fix uffd-wp special cases for fork()").
->
-> There are differences between the two commits that may be relevant. I
-> don't know.
->
-> If you checkout 8f34f1eac382 and if that works, it would indicate either
-> missing dependencies in -stable, or those differences are important.
->
-> OTOH, if 8f34f1eac382 fails in the same way as linux-5.10.y, it would
-> indicate that -stable is missing a fix that's present in v5.14-rc4.
+On 09/08/21 12:00, Joao Martins wrote:
+> [0]https://developer.amd.com/wp-content/resources/56323-PUB_0.78.pdf
+> 
+> 1286 Spurious #GP May Occur When Hypervisor Running on
+> Another Hypervisor
+> 
+> Description
+> 
+> The processor may incorrectly generate a #GP fault if a hypervisor running on a hypervisor
+> attempts to access the following secure memory areas:
+> 
+> • The reserved memory address region starting at FFFD_0000_0000h and extending up to
+> FFFF_FFFF_FFFFh.
+> • ASEG and TSEG memory regions for SMM (System Management Mode)
+> • MMIO APIC Space
 
-8f34f1eac382 boots fine.
+This errata took a few months to debug so we're quite familiar with it 
+:) but I only knew about the ASEG/TSEG/APIC cases.
+
+So this HyperTransport region is not related to this issue, but the 
+errata does point out that FFFD_0000_0000h and upwards is special in guests.
+
+The Xen folks also had to deal with it only a couple months ago 
+(https://yhbt.net/lore/all/1eb16baa-6b1b-3b18-c712-4459bd83e1aa@citrix.com/):
+
+   From "Open-Source Register Reference for AMD Family 17h Processors 
+(PUB)":
+   https://developer.amd.com/wp-content/resources/56255_3_03.PDF
+
+   "The processor defines a reserved memory address region starting at
+   FFFD_0000_0000h and extending up to FFFF_FFFF_FFFFh."
+
+   It's still doesn't say that it's at the top of physical address space
+   although I understand that's how it's now implemented. The official
+   document doesn't confirm it will move along with physical address space
+   extension.
+
+   [...]
+
+   1) On parts with <40 bits, its fully hidden from software
+   2) Before Fam17h, it was always 12G just below 1T, even if there was
+   more RAM above this location
+   3) On Fam17h and later, it is variable based on SME, and is either
+   just below 2^48 (no encryption) or 2^43 (encryption)
+
+> It's
+> interesting that fn8000_000A EDX[28] is part of the reserved bits from that CPUID leaf.
+
+It's only been defined after AMD deemed that the errata was not fixable 
+in current generation processors); it's X86_FEATURE_SVME_ADDR_CHK now.
+
+I'll update the patch based on the findings from the Xen team.
+
+Paolo
+
