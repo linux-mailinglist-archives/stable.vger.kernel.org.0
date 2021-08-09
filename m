@@ -2,70 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 18A413E444E
-	for <lists+stable@lfdr.de>; Mon,  9 Aug 2021 12:59:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3ACC73E44CE
+	for <lists+stable@lfdr.de>; Mon,  9 Aug 2021 13:26:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233952AbhHIK77 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Aug 2021 06:59:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34470 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233254AbhHIK77 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Aug 2021 06:59:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A79F060C3E;
-        Mon,  9 Aug 2021 10:59:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628506779;
-        bh=IV7WNfw0xGJP+oC24iUpdWysTHr82ErX2hhD3BRyng4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=tNg0bqUqw3I8rZxTYxvRB6wM0/bsxBdQ3JLA9fnd6J3neSzYV6ikcu3rd85OJRgU2
-         SzRsKa7A+ezKsLLHWo13iVv4R9grOrJz1FrzfE3PB4K2O6ZeD5nMt7hdHmaZG/IcXB
-         RdelB+JpeYlmbMfu+U3OJaMmzhN4h9DheiLFEGLE=
-Date:   Mon, 9 Aug 2021 12:59:36 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Chanho Park <chanho61.park@samsung.com>
-Cc:     Sasha Levin <sashal@kernel.org>, Will Deacon <will@kernel.org>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] arm64: vdso: Avoid ISB after reading from cntvct_el0
-Message-ID: <YREKmIjDO6EfDx3z@kroah.com>
-References: <CGME20210809104221epcas2p32224190e0e8fd461c28076f4f4451cef@epcas2p3.samsung.com>
- <20210809104450.114771-1-chanho61.park@samsung.com>
+        id S235214AbhHIL1J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Aug 2021 07:27:09 -0400
+Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:42769 "EHLO
+        wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S235195AbhHIL1H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 Aug 2021 07:27:07 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.west.internal (Postfix) with ESMTP id 4959332001BB;
+        Mon,  9 Aug 2021 07:26:46 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Mon, 09 Aug 2021 07:26:46 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm1; bh=tkZwoyoE1yWn1BXOHqiuJgEAkDb
+        CUcvfkY6uuwIgd+Q=; b=AkN3Khoy6f5unBGJUdZctqt64AuWOWnKz//LYMJSLtD
+        8MmJuCGq1KawAPsFKosQSd2BU6/7swPvrFxd+SMtze3Ivx31+mAz9UmGhl1ZeHnG
+        wsfXyle6bXMTwDPGfw0lk+QuzuVBWXSDZggNsi8TFs1sSaiVwt3T7bznL9Y8szwy
+        HacACvefh0k1KcKr3XsnqFF3bghD9DJtKwMGyvO/qSIXmA52cFo2/RnIKZ93VZMV
+        9UnLNxQd/NDeH9qif9v+B9DzMMSO63q8crf0tLP+CQPQGTx1oCZjH17fdIIAfySK
+        fPDZe8sq/aX+oVkFc1tDz1Nqt110+C4Kz111nOPDVWA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=tkZwoy
+        oE1yWn1BXOHqiuJgEAkDbCUcvfkY6uuwIgd+Q=; b=aAePLaCXeNMmYsRHBcN6AG
+        pJyfFJgfqMjKsegtns2l8/sRCqEHCWtsFYLiFk4zNEFMPTmAv1VdckVDtuhR/rqK
+        9yWENjYasxKmX4thhpTu4KAtJygBuOJl905bmMm9XlQFVtqd4zcnaxvM6eQFFZDG
+        Bw9OMz79nniBDukt2maplDgM3mi9UQZeBB6/MYnut97H40d5GIL2kowLps7WXV5U
+        hVuufaOx5Dc01OCDDp3SP4pZ6G1QV+0TINEQYTRYUMM5hasOOsICzHWvHCSq5CgW
+        Nrj0oGCLbHIox2nKPDqanpXgPsKFGKeAuTmZ+xArveuxf2gkWIn7SVVd/lcEXJdA
+        ==
+X-ME-Sender: <xms:9RARYQt6Q2PpoNfRaW5iNd_IGzxYsNagGPnAyk2pqoDjQ4OGNZvWyg>
+    <xme:9RARYdf0ejcOZKCwae_UDEZ_y6hnNrEzYdDuWtV5OuwL4z5bmvLaxsGA2jAIWV7a9
+    Pie126toRUr_w>
+X-ME-Received: <xmr:9RARYbzB5zav3-v_Wf2YJP0y88SOF4DiCH88zoL8HcriqwsiFNMs0BvToSj9PiKXPGjPcqVI_SNinNlM3FRhV5nVsCHhalOG>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrjeejgdegudcutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
+    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepveeuheejgf
+    ffgfeivddukedvkedtleelleeghfeljeeiueeggeevueduudekvdetnecuvehluhhsthgv
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:9RARYTPR737T0pSeM_ydQ2y7qPM6qs9OAdT2M1YGPU7eXsg44nw9mQ>
+    <xmx:9RARYQ-pV9Ml-XOvzcDCenQ9ADrM9crCzXc1Djxi3SunaNiaraiB0w>
+    <xmx:9RARYbUR8RoRAlB98UOYXzUIEVX2CWvxuTa-86DJE8JEIaOdNmRz5w>
+    <xmx:9RARYUZE5ygymPEu28YBVraXe_MgB9dZ2l7bIiX_a3Iohc_nJZUH-g>
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
+ 9 Aug 2021 07:26:45 -0400 (EDT)
+Date:   Mon, 9 Aug 2021 13:26:40 +0200
+From:   Greg KH <greg@kroah.com>
+To:     nelakurthi koteswararao <koteswararao18@gmail.com>
+Cc:     stable@vger.kernel.org, regressions@lists.linux.dev
+Subject: Re: Futex crash in Normal 4.9 Kernel
+Message-ID: <YREQ8H6AmD2P5nL0@kroah.com>
+References: <CAGJbQdfVXdjcDjwUae9QdWWu8MJM5EamN4S1pQCRZO2KwjeFaA@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210809104450.114771-1-chanho61.park@samsung.com>
+In-Reply-To: <CAGJbQdfVXdjcDjwUae9QdWWu8MJM5EamN4S1pQCRZO2KwjeFaA@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 09, 2021 at 07:44:50PM +0900, Chanho Park wrote:
-> From: Will Deacon <will@kernel.org>
+On Mon, Aug 09, 2021 at 04:44:13PM +0530, nelakurthi koteswararao wrote:
+> Dear Stable kernel Contributors
 > 
-> commit 77ec462536a13d4b428a1eead725c4818a49f0b1 upstream.
-> (The upstream patch was not marked as fixed but this can fix
-> Fixes: 28b1a824a4f4 ("arm64: vdso: Substitute gettimeofday() with C implementation")
-> sysbench memory comparison:
-> - Before: 3072.00 MB transferred (2601.11 MB/sec)
-> - After:  3072.00 MB transferred (3217.86 MB/sec)
-> )
-> 
-> We can avoid the expensive ISB instruction after reading the counter in
-> the vDSO gettime functions by creating a fake address hazard against a
-> dummy stack read, just like we do inside the kernel.
-> 
-> Fixes: 28b1a824a4f4 ("arm64: vdso: Substitute gettimeofday() with C implementation")
-> Signed-off-by: Will Deacon <will@kernel.org>
-> Reviewed-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
-> Link: https://lore.kernel.org/r/20210318170738.7756-5-will@kernel.org
-> Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-> CC: stable@vger.kernel.org
-> Signed-off-by: Chanho Park <chanho61.park@samsung.com>
-> ---
-> I found this regression while executing below sysbench benchmark command.
-> It showed lower score compared with internal 4.19 version. The
-> regression can be seen from 5.4/5.10 kernel version.
+> Observed Futex kernel crash while using navigation app in Broxton Device
+> flashed with Normal 4.9.x kernel.
+> Futex Crash details are given below.
+> {{
+> 1>[ 1383.591633] Time of kernel crash: (2021-02-16 12:04:19)
+> <1>[ 1383.597480] BUG: unable to handle kernel NULL pointer dereference at
+>           (null)
+> <1>[ 1383.606247] IP: [<ffffffffa211c271>] futex_wake+0xe1/0x180
+> <4>[ 1383.612386] PGD 130f62067
+> <4>[ 1383.615209] PUD 130f61067
+> <4>[ 1383.618230] PMD 0
+> <4>[ 1383.620275]
+> <4>[ 1383.621926] Oops: 0000 [#1] PREEMPT SMP
+> <4>[ 1383.626211] Modules linked in: bcmdhd(O) sxmio(C) rfkill_gpio
+> cfg80211 ehset dwc3_pci dwc3 ishtp_tty_client dabridge camera_status mei_me
+> anc_ipc igb_avb(O) mei xhci_pci xhci_hcd intel_ish_ipc intel_ishtp
+> snd_soc_bxt_ivi_ull trusty_timer trusty_wall trusty_log trusty_virtio
+> trusty_ipc dcsd_ts trusty_mem cyttsp6_i2c snd_soc_skl trusty
+> snd_soc_skl_ipc snd_soc_sst_ipc cyttsp6_device_access snd_soc_sst_dsp
+> snd_soc_sst_acpi virtio_ring snd_soc_sst_match snd_hda_ext_core
+> cyttsp6_debug snd_hda_core dcsd_display virtio cyttsp6 [last unloaded:
+> bcmdhd]
+> <4>[ 1383.680139] CPU: 2 PID: 7292 Comm: Thread-48 Tainted: G     U   C O
+>  4.9.232-quilt-2e5dc0ac-g33302ae #1
 
-Now queued up, thanks.
+4.9.232 is quite old, it was released over a year ago.  A large number
+of futexes fixes has gone in since then, can you please update to the
+latest 4.9.y release (4.9.279 as of today) and let us know if that
+solves the issue or not?
+
+thanks,
 
 greg k-h
