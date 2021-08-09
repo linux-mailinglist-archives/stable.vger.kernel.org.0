@@ -2,65 +2,185 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 97AB13E42F9
-	for <lists+stable@lfdr.de>; Mon,  9 Aug 2021 11:38:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3E8A3E431C
+	for <lists+stable@lfdr.de>; Mon,  9 Aug 2021 11:48:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234498AbhHIJix (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Aug 2021 05:38:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34864 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234468AbhHIJix (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 Aug 2021 05:38:53 -0400
-Received: from mail-qv1-xf42.google.com (mail-qv1-xf42.google.com [IPv6:2607:f8b0:4864:20::f42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C67FC0613CF
-        for <stable@vger.kernel.org>; Mon,  9 Aug 2021 02:38:32 -0700 (PDT)
-Received: by mail-qv1-xf42.google.com with SMTP id kl2so8581822qvb.11
-        for <stable@vger.kernel.org>; Mon, 09 Aug 2021 02:38:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=ww5trxx5PvOfXPCjUVH3KfvfIkFVvjaQEYOzkL4CIk0=;
-        b=PnvobugqWvxR+gH2Fs/W6TS+ihtbVWryhd/m0VOPfaVfTPLj29utrd0xAd3YJu8MWy
-         /KpjuiU7Ujfqm3qHexjouw0HY5tJkH6vnTey7HM/nYaiJyGMNw9BROiO8N4mLQIM0t90
-         pLckYsxgBYKZWSwrm3WPU6429AnSIgmecOUctFJcjJcboqS9uKfduCbe8ztiVVH1YlTZ
-         6rECBsmlzDpmIUFpMg8pJMWGYHwSErrRiqEVXEU6mKBR0TyxCwGtIUR/2tfVx5xT8OL0
-         Nl4VoWjOMETNk/IwFTOizGj5OYislJtQv2CXid/LbebzBi2OcbtSIUzc9MgItoX5m2+8
-         Y2Wg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=ww5trxx5PvOfXPCjUVH3KfvfIkFVvjaQEYOzkL4CIk0=;
-        b=KNIr+qdTJdVx/iV+1ozJ7qu5N6EPD8z5/9BMgJiehJSrtxDPxZ5S4N2N0MMF2h7xSI
-         j2dom/ESWVHuNLUotjRI7IsW913BFAyVR5vUnWPKZmSlwKQFBkHkDsi0fV0hujOCRyXg
-         5x6dJTX115CP2vPvJxpS8OZl7hE7i4AIbESP0OTgR3X8/2NVQQ8xvSTPuRBAn33eBofj
-         sA989I2xZ0UGZ571bd0NHYqBTy5ZP/nRYIuHiKnfgORKZzi3oemO3WpMz46V6AW0paet
-         4ZLum/79an0vmwy/0XsmPbdVrwL08WeV3z8MK4MoLuViwH2TkTcGlQ9KbFsUw+UeVZj4
-         IHgQ==
-X-Gm-Message-State: AOAM532bMFkqzfIckC6kDgUHtnjLOttDNzrDadYQn3fmJwgfY3LF4eSl
-        IepX8GyGdUDS3c+EEE0U1qBseaPm/8DaxfVyZuQ=
-X-Google-Smtp-Source: ABdhPJz0fWfaDYQceSykNw8B9ITAddiV830buwovJkn74z6xDj7yAVVs9e08Xjq3DF1Ztb0wK4roiAH2ELPD7ibnmCg=
-X-Received: by 2002:a0c:e44f:: with SMTP id d15mr11612902qvm.18.1628501911810;
- Mon, 09 Aug 2021 02:38:31 -0700 (PDT)
+        id S233212AbhHIJtR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Aug 2021 05:49:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48452 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233093AbhHIJtR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Aug 2021 05:49:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BAFDE60EC0;
+        Mon,  9 Aug 2021 09:48:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1628502537;
+        bh=yqIPiLJGQ6b/rMR72oc3Dwl91cs4/0oHxrolJBAPUus=;
+        h=Subject:To:Cc:From:Date:From;
+        b=PBIPbavxBW361p6KFn46EAgIepcet2FAWwu7nrFIc44Fs3vB3gAnCZv/1nx3jPvs9
+         k6D9etqq2zTQtuHQD+tyaX1DGPJgqvGTqIOKcb8gMv8XFxmKStOEgG3S3Km1efDq4Q
+         q2rzrpETGb96NJ5Wh8beLUgrozNLp0vxU67Le2dE=
+Subject: FAILED: patch "[PATCH] staging: rtl8712: error handling refactoring" failed to apply to 5.4-stable tree
+To:     paskripkin@gmail.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 09 Aug 2021 11:48:54 +0200
+Message-ID: <162850253410956@kroah.com>
 MIME-Version: 1.0
-Received: by 2002:a05:622a:188f:0:0:0:0 with HTTP; Mon, 9 Aug 2021 02:38:31
- -0700 (PDT)
-Reply-To: dianatranmalaysia@gmail.com
-From:   diana tran <dianatranmalaysia3@gmail.com>
-Date:   Mon, 9 Aug 2021 02:38:31 -0700
-Message-ID: <CAO-Ha-Y99RPxdfG6RgQMerD6JyMKtD9YVkneeg3_vfh55TPfLA@mail.gmail.com>
-Subject: Mrs Diana Tran
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
--- 
-Hello and good day.
 
-My name is Mrs Diana Tran,from Malaysia.I have something very
-important to share with you.I will give you more details after i hear
-from you.
-Thanks
-Mrs Diana.
+The patch below does not apply to the 5.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From e9e6aa51b2735d83a67d9fa0119cf11abef80d99 Mon Sep 17 00:00:00 2001
+From: Pavel Skripkin <paskripkin@gmail.com>
+Date: Wed, 21 Jul 2021 22:34:47 +0300
+Subject: [PATCH] staging: rtl8712: error handling refactoring
+
+There was strange error handling logic in case of fw load failure. For
+some reason fw loader callback was doing clean up stuff when fw is not
+available. I don't see any reason behind doing this. Since this driver
+doesn't have EEPROM firmware let's just disconnect it in case of fw load
+failure. Doing clean up stuff in 2 different place which can run
+concurently is not good idea and syzbot found 2 bugs related to this
+strange approach.
+
+So, in this pacth I deleted all clean up code from fw callback and made
+a call to device_release_driver() under device_lock(parent) in case of fw
+load failure. This approach is more generic and it defend driver from UAF
+bugs, since all clean up code is moved to one place.
+
+Fixes: e02a3b945816 ("staging: rtl8712: fix memory leak in rtl871x_load_fw_cb")
+Fixes: 8c213fa59199 ("staging: r8712u: Use asynchronous firmware loading")
+Cc: stable <stable@vger.kernel.org>
+Reported-and-tested-by: syzbot+5872a520e0ce0a7c7230@syzkaller.appspotmail.com
+Reported-and-tested-by: syzbot+cc699626e48a6ebaf295@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Link: https://lore.kernel.org/r/d49ecc56e97c4df181d7bd4d240b031f315eacc3.1626895918.git.paskripkin@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+diff --git a/drivers/staging/rtl8712/hal_init.c b/drivers/staging/rtl8712/hal_init.c
+index 22974277afa0..4eff3fdecdb8 100644
+--- a/drivers/staging/rtl8712/hal_init.c
++++ b/drivers/staging/rtl8712/hal_init.c
+@@ -29,21 +29,31 @@
+ #define FWBUFF_ALIGN_SZ 512
+ #define MAX_DUMP_FWSZ (48 * 1024)
+ 
++static void rtl871x_load_fw_fail(struct _adapter *adapter)
++{
++	struct usb_device *udev = adapter->dvobjpriv.pusbdev;
++	struct device *dev = &udev->dev;
++	struct device *parent = dev->parent;
++
++	complete(&adapter->rtl8712_fw_ready);
++
++	dev_err(&udev->dev, "r8712u: Firmware request failed\n");
++
++	if (parent)
++		device_lock(parent);
++
++	device_release_driver(dev);
++
++	if (parent)
++		device_unlock(parent);
++}
++
+ static void rtl871x_load_fw_cb(const struct firmware *firmware, void *context)
+ {
+ 	struct _adapter *adapter = context;
+ 
+ 	if (!firmware) {
+-		struct usb_device *udev = adapter->dvobjpriv.pusbdev;
+-		struct usb_interface *usb_intf = adapter->pusb_intf;
+-
+-		dev_err(&udev->dev, "r8712u: Firmware request failed\n");
+-		usb_put_dev(udev);
+-		usb_set_intfdata(usb_intf, NULL);
+-		r8712_free_drv_sw(adapter);
+-		adapter->dvobj_deinit(adapter);
+-		complete(&adapter->rtl8712_fw_ready);
+-		free_netdev(adapter->pnetdev);
++		rtl871x_load_fw_fail(adapter);
+ 		return;
+ 	}
+ 	adapter->fw = firmware;
+diff --git a/drivers/staging/rtl8712/usb_intf.c b/drivers/staging/rtl8712/usb_intf.c
+index 643f21eb1128..505ebeb643dc 100644
+--- a/drivers/staging/rtl8712/usb_intf.c
++++ b/drivers/staging/rtl8712/usb_intf.c
+@@ -591,36 +591,30 @@ static void r871xu_dev_remove(struct usb_interface *pusb_intf)
+ {
+ 	struct net_device *pnetdev = usb_get_intfdata(pusb_intf);
+ 	struct usb_device *udev = interface_to_usbdev(pusb_intf);
++	struct _adapter *padapter = netdev_priv(pnetdev);
++
++	/* never exit with a firmware callback pending */
++	wait_for_completion(&padapter->rtl8712_fw_ready);
++	usb_set_intfdata(pusb_intf, NULL);
++	release_firmware(padapter->fw);
++	if (drvpriv.drv_registered)
++		padapter->surprise_removed = true;
++	if (pnetdev->reg_state != NETREG_UNINITIALIZED)
++		unregister_netdev(pnetdev); /* will call netdev_close() */
++	r8712_flush_rwctrl_works(padapter);
++	r8712_flush_led_works(padapter);
++	udelay(1);
++	/* Stop driver mlme relation timer */
++	r8712_stop_drv_timers(padapter);
++	r871x_dev_unload(padapter);
++	r8712_free_drv_sw(padapter);
++	free_netdev(pnetdev);
++
++	/* decrease the reference count of the usb device structure
++	 * when disconnect
++	 */
++	usb_put_dev(udev);
+ 
+-	if (pnetdev) {
+-		struct _adapter *padapter = netdev_priv(pnetdev);
+-
+-		/* never exit with a firmware callback pending */
+-		wait_for_completion(&padapter->rtl8712_fw_ready);
+-		pnetdev = usb_get_intfdata(pusb_intf);
+-		usb_set_intfdata(pusb_intf, NULL);
+-		if (!pnetdev)
+-			goto firmware_load_fail;
+-		release_firmware(padapter->fw);
+-		if (drvpriv.drv_registered)
+-			padapter->surprise_removed = true;
+-		if (pnetdev->reg_state != NETREG_UNINITIALIZED)
+-			unregister_netdev(pnetdev); /* will call netdev_close() */
+-		r8712_flush_rwctrl_works(padapter);
+-		r8712_flush_led_works(padapter);
+-		udelay(1);
+-		/* Stop driver mlme relation timer */
+-		r8712_stop_drv_timers(padapter);
+-		r871x_dev_unload(padapter);
+-		r8712_free_drv_sw(padapter);
+-		free_netdev(pnetdev);
+-
+-		/* decrease the reference count of the usb device structure
+-		 * when disconnect
+-		 */
+-		usb_put_dev(udev);
+-	}
+-firmware_load_fail:
+ 	/* If we didn't unplug usb dongle and remove/insert module, driver
+ 	 * fails on sitesurvey for the first time when device is up.
+ 	 * Reset usb port for sitesurvey fail issue.
+
