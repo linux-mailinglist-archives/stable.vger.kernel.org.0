@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 162323E4257
-	for <lists+stable@lfdr.de>; Mon,  9 Aug 2021 11:18:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 703653E4258
+	for <lists+stable@lfdr.de>; Mon,  9 Aug 2021 11:18:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234237AbhHIJSr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Aug 2021 05:18:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35116 "EHLO mail.kernel.org"
+        id S234251AbhHIJSt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Aug 2021 05:18:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234186AbhHIJSr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Aug 2021 05:18:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 063AE6056C;
-        Mon,  9 Aug 2021 09:18:25 +0000 (UTC)
+        id S234186AbhHIJSs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Aug 2021 05:18:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 31C2D60041;
+        Mon,  9 Aug 2021 09:18:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628500706;
-        bh=h9Mq/o93dVwYGrBfPo6JN5QtzClkuf7AJENKalw1Nyg=;
+        s=korg; t=1628500708;
+        bh=Jw9zm4dgoPWhwPuwK9LaVLSCc3d1UDLs5B/tXMHIzU4=;
         h=Subject:To:Cc:From:Date:From;
-        b=tkhMMkfAyDkGXysvFq480oArFF384rown60wZFtW5ugBJpMfA+NrxCo4FDrneiDtw
-         uwDVHtrGgP/oa8k0Scr1MJIBWzl+zAbHFqqSXpwhLHCCR9/L3PTdgb6/+Oz3qrn6Wz
-         2suHPqAlNSiyLXQDeTqfLitXv3XfZhoLAJUyDLI8=
-Subject: FAILED: patch "[PATCH] tee: Correct inappropriate usage of TEE_SHM_DMA_BUF flag" failed to apply to 5.4-stable tree
+        b=hQMXj9zogd86kp4ReEFDX6syFtRoUjEmbDQY8wm4b2TkMsN48aHg0bvtdaHxM3XFK
+         d2Zsk+CM2JGFcU4sa6IspfATvzBjy1qMQ4B2r4kLE9u1g6Mbf54yfRoTZyjOrCSjdS
+         EkHKgDPzXdJ3khMtDpkAR1jwN3SFmwC61ZnVYw24=
+Subject: FAILED: patch "[PATCH] tee: Correct inappropriate usage of TEE_SHM_DMA_BUF flag" failed to apply to 4.14-stable tree
 To:     sumit.garg@linaro.org, jens.wiklander@linaro.org,
         tyhicks@linux.microsoft.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 09 Aug 2021 11:18:16 +0200
-Message-ID: <1628500696149218@kroah.com>
+Date:   Mon, 09 Aug 2021 11:18:17 +0200
+Message-ID: <1628500697203107@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
