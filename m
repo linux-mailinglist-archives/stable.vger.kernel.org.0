@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DD0D3E41C7
-	for <lists+stable@lfdr.de>; Mon,  9 Aug 2021 10:48:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A86C03E41C8
+	for <lists+stable@lfdr.de>; Mon,  9 Aug 2021 10:48:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234049AbhHIIsp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Aug 2021 04:48:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50978 "EHLO mail.kernel.org"
+        id S234048AbhHIIsx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Aug 2021 04:48:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233940AbhHIIsn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Aug 2021 04:48:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E8D8A60EB9;
-        Mon,  9 Aug 2021 08:48:22 +0000 (UTC)
+        id S233940AbhHIIsx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Aug 2021 04:48:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AE8B361004;
+        Mon,  9 Aug 2021 08:48:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628498903;
-        bh=YnPoEhIrckZPNs66kGDJCoVIVRw0Sv4z3FkyLUqfCqw=;
+        s=korg; t=1628498912;
+        bh=ZDQv33R31h0eN3xiFLmUvZVtqetjiky3FqvTVgANUL0=;
         h=Subject:To:Cc:From:Date:From;
-        b=E5NHIOlmQuK8nYTE5ChIPArh5nJsG1qh7G8jaNp+vK1Pds5OSrkj5eVsjyHzOxzFG
-         /ByPVld8YtfKOXJfO8dq2BKAkmLOrRNMddh/FmhUHlHJVfGamF+/ylaBvQvOEf4+vu
-         0NcgJsiE6tg9rURfpt+uLEmgXy1s/FS/C+I0zl6Q=
-Subject: FAILED: patch "[PATCH] usb: dwc3: gadget: Use list_replace_init() before traversing" failed to apply to 4.19-stable tree
+        b=gTespMi2b/BJhAmD3TN6BP6DZPWb9IO1aWPFZlsJ4S2Kvue0MrPICYbRSvSiqU7Zj
+         7D9j0hxm8cqSFrDf1IDTirFLYBtFLIPvmoxBSXdsqn+ktN71X8E2lvmHuOgXxapqFD
+         5T7IOuL6/3MolhNjJJUZh6jqLXGZud7+FIMb2Vjc=
+Subject: FAILED: patch "[PATCH] usb: dwc3: gadget: Use list_replace_init() before traversing" failed to apply to 5.10-stable tree
 To:     wcheng@codeaurora.org, balbi@kernel.org,
         gregkh@linuxfoundation.org, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 09 Aug 2021 10:48:21 +0200
-Message-ID: <162849890116696@kroah.com>
+Date:   Mon, 09 Aug 2021 10:48:22 +0200
+Message-ID: <1628498902192246@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
