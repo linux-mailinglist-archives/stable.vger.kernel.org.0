@@ -2,65 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 97A613E44FF
-	for <lists+stable@lfdr.de>; Mon,  9 Aug 2021 13:36:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC9513E456C
+	for <lists+stable@lfdr.de>; Mon,  9 Aug 2021 14:12:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235081AbhHILgo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Aug 2021 07:36:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33950 "EHLO
+        id S233496AbhHIMND (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Aug 2021 08:13:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42138 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234991AbhHILgo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 Aug 2021 07:36:44 -0400
-Received: from mail-pl1-x643.google.com (mail-pl1-x643.google.com [IPv6:2607:f8b0:4864:20::643])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35163C0613D3
-        for <stable@vger.kernel.org>; Mon,  9 Aug 2021 04:36:24 -0700 (PDT)
-Received: by mail-pl1-x643.google.com with SMTP id t3so16007427plg.9
-        for <stable@vger.kernel.org>; Mon, 09 Aug 2021 04:36:24 -0700 (PDT)
+        with ESMTP id S233193AbhHIMND (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 Aug 2021 08:13:03 -0400
+Received: from mail-qv1-xf2d.google.com (mail-qv1-xf2d.google.com [IPv6:2607:f8b0:4864:20::f2d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1003C0613D3
+        for <stable@vger.kernel.org>; Mon,  9 Aug 2021 05:12:42 -0700 (PDT)
+Received: by mail-qv1-xf2d.google.com with SMTP id dk2so8783109qvb.3
+        for <stable@vger.kernel.org>; Mon, 09 Aug 2021 05:12:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:from:date:message-id:subject:to;
-        bh=oQDGU99Jkcx5U789xYEe6bwymWrXT05qaDZqbVTOuYQ=;
-        b=lCb6JwGQ6rT+8p5AUHzjKLEAa5TgtobJNeI6gClTNs/MzwFSy0vaa/V9RmfNKfBZYO
-         ENdq64EqEipJ7s2rS1sSEaOOnB4fRkU7KozgS1puJVJRnZYYOrCitJza1DrVBasUYjwD
-         gEpbniF+i7TJN7IIMYXWFfEQNrUzTJjpbGWe2i3Pdr6aO+9a9oV7sHH0Z68c/KDxHZ88
-         Pykj/yANmkv5PPhHyLh0lqetJ/ghZSKeoekpRkHpLihBjrY2Ytt8uHemuWhquNLhmNxu
-         lJcVhT6zlDM4QHqL4pJ1SPgxAYCnnaHnYBu4p+GmdYnVN9b35dgpWAa0zlIbazc0jKn0
-         /VIg==
+        h=subject:from:to:references:cc:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=3O4sNg9lZ+RPsPEbPeTqhty2VenuMzMUdATYBIYMPSM=;
+        b=XNTaf9kZPJjnaMNbzGwJaEi5zLEKec8dJ6Nyjir56RVuRdFezKMBvTVDOFjgF2zm6L
+         JOwX+/DgvByL82JJPO5tOhJOhPvSuxuHc/hMfUHn4SlUKYf6Ql45AoBsxVURG5mkHVNE
+         nFzuRMNIAlEoJasCU+Xv8tXA3AS+1lTHhx2AP7U12cqnS+cPWkPz9rL5sss1g9P/bsVj
+         NIZMf732mkhnisX42mnQ/KcSBkIpNcnTH2361SELP8YjbEDGiUdwwoBsh25KU0C/77LG
+         677FTS1LWftKjrqK6IXHgU696Bmanbw2cDz52CMTX/09JR5kqqbQVOpKS1MGxrbvKCeF
+         4+1A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
-        bh=oQDGU99Jkcx5U789xYEe6bwymWrXT05qaDZqbVTOuYQ=;
-        b=TYdMteaj05ySLhMeBwKWrn9r6rLoUvjcTs+4izYVXpanKKbiZb6C0xafWZM2ZWep2H
-         8YQo4cOZllyDmLRygdCfWAyTmRElerK7uVEzC5C8TnZpKkwVK/+TtxJbKewpS4v1yzLy
-         eDHNxAw74GErtutGVvh6/hwPvMcDl44CljvT5Pr0HALCRyri0oOCQ8M4QjKCpNltExFo
-         L70YDMCTQSh7MNIS0qhdXsVNUFeucy/hLKoup08OY+phWVMGEv8PFM7whIGw+UUX1KYn
-         KgvQZylkhchvbrLVFY45RCY7DMR/r+nFeR39mXqN6x7Ezn51meMqDvTRm9qpuma7rPLZ
-         TxWQ==
-X-Gm-Message-State: AOAM532+SKsS94MY6MT+z95Ztm7XiyiGTZ7BvimbV5UjXXqF+fkkNFwY
-        CEEVYQUxdaacSAem83bWarYSLOBQOeRWCAY+lvE=
-X-Google-Smtp-Source: ABdhPJxXxu0uoLvvfKy5jJKK2wNJUkhiyWD5rNScsL0MCGjpFkXtJJEPuA/4uLd6nypjDXEFBVr8FNxvDQBfU8yxQWU=
-X-Received: by 2002:a63:ef02:: with SMTP id u2mr227909pgh.298.1628508983842;
- Mon, 09 Aug 2021 04:36:23 -0700 (PDT)
+        h=x-gm-message-state:subject:from:to:references:cc:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=3O4sNg9lZ+RPsPEbPeTqhty2VenuMzMUdATYBIYMPSM=;
+        b=ooL3OFu6ZSPWNHGYEeic4fRegCZPkQKnbFlJSROUA3whfByhQRqlv+gSDqPJPen/de
+         I2v9fTyEtsa28KPJIgJUnsi2wYk3n+/M1zjivNKYaTvtW5azw0ZeFxExnOe84P6T+bIE
+         jepu46WcS2ClRvCA36ZBgejZp6gM1ewljJ+Lp/HSFQJYK7Oq+rv+Q224FNR5687NXa47
+         hd7R8cGQ8X4UdYxyIu7br86GcNPDVk+ojeDhiPYzOgj85fZpo2Wx+o2nd7pIjgYKk/OU
+         fNPhtQbG7ofJNGnsiJmCGQJMdly/Xzw5Ff2NX3O6NSJyNjQeyPXe4OFrGb9CX/dOfRMq
+         ygIQ==
+X-Gm-Message-State: AOAM531uIF4vjyEKVWs/mdGanbFrdR10nIw8UolX9VeE7hzkGaqQ0gtO
+        7Nufz4DvgFxLmRifNVLvkCU=
+X-Google-Smtp-Source: ABdhPJxU0CCJPmso9N/zZleWZy/90uaT//VoYhnRpy03eIwFRX0gMFBpt3Vfj06jfQ8sTSJHtEZ/Tg==
+X-Received: by 2002:ad4:4442:: with SMTP id l2mr23211998qvt.2.1628511162107;
+        Mon, 09 Aug 2021 05:12:42 -0700 (PDT)
+Received: from mua.localhost ([2600:1700:e380:2c20::47])
+        by smtp.gmail.com with ESMTPSA id y2sm8957497qkd.38.2021.08.09.05.12.41
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 09 Aug 2021 05:12:41 -0700 (PDT)
+Subject: Re: Patch "Revert "ACPI: resources: Add checks for ACPI IRQ
+ override"" has been added to the 5.13-stable tree
+From:   PGNet Dev <pgnet.dev@gmail.com>
+To:     gregkh@linuxfoundation.org, hui.wang@canonical.com,
+        rafael.j.wysocki@intel.com
+References: <16277146132219@kroah.com>
+Cc:     stable@vger.kernel.org, regressions@lists.linux.dev
+Message-ID: <e9810931-b21c-195f-26cb-75b46aa9eb9a@gmail.com>
+Date:   Mon, 9 Aug 2021 08:15:11 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Firefox/78.0 Thunderbird/78.12.0
 MIME-Version: 1.0
-Received: by 2002:a05:6a20:3d04:b029:2a:d955:75cc with HTTP; Mon, 9 Aug 2021
- 04:36:23 -0700 (PDT)
-From:   Mrs Maham Mariame <hammariame1@gmail.com>
-Date:   Mon, 9 Aug 2021 13:36:23 +0200
-Message-ID: <CAKFQKBLR8HHCszDWV4qiVpDcVWPHQwnC_KUtQkJj0BP0abRyEw@mail.gmail.com>
-Subject: PLEASE ENDEAVOR TO USE IT FOR THE ORPHANAGE CHILDREN.
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <16277146132219@kroah.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-PLEASE ENDEAVOR TO USE IT FOR THE ORPHANAGE CHILDREN.
+On 7/31/21 2:56 AM, gregkh@linuxfoundation.org wrote:
+> 
+> This is a note to let you know that I've just added the patch titled
+> 
+>      Revert "ACPI: resources: Add checks for ACPI IRQ override"
+> 
+> to the 5.13-stable tree which can be found at:
+>      http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
+> 
+> The filename of the patch is:
+>       revert-acpi-resources-add-checks-for-acpi-irq-override.patch
+> and it can be found in the queue-5.13 subdirectory.
+> 
+> If you, or anyone else, feels it should not be added to the stable tree,
+> please let <stable@vger.kernel.org> know about it.
+> 
+> 
+>  From e0eef3690dc66b3ecc6e0f1267f332403eb22bea Mon Sep 17 00:00:00 2001
+> From: Hui Wang <hui.wang@canonical.com>
+> Date: Wed, 28 Jul 2021 23:19:58 +0800
+> Subject: Revert "ACPI: resources: Add checks for ACPI IRQ override"
+> 
+> From: Hui Wang <hui.wang@canonical.com>
+> 
+> commit e0eef3690dc66b3ecc6e0f1267f332403eb22bea upstream.
 
-Good day.
+Confirming that this^ revert resolves the reported non-boot regression
 
-My name is Mrs. Maham Mariame from  Australia.  I want to donate my
-inherited ($2.5 Million dollars, If you are interested in helping me
-carry out my last wish, please reply me at Email:
-mrsmahammar@protonmail.com  for more details.
-Best Regards.
-Mrs. Maham Mariame
+System does boot cleanly; but, then REboots @ 60 seconds.
+
+It's a known bug, with fix already in 5.13.9/stable:
+
+  Revert "watchdog: iTCO_wdt: Account for rebooting on second timeout"
+  https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/commit/?h=linux-5.13.y&id=02db470b866fd06d8951
+
+, causing TCO watchdog auto-reboot @ 60 secs.
+
+Although particularly nasty on servers with /boot on RAID, breaking arrays if watchdog boots before arrays correctly assembled, iiuc, it's UN-related
+
+With interim workaround
+
+  edit /etc/modprobe.d/blacklist.conf
+
++	blacklist iTCO_wdt
++	blacklist iTCO_vendor_support
+
+for this second issue in place, 5.13.8 boots & appears stable.
