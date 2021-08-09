@@ -2,91 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FB0B3E4594
-	for <lists+stable@lfdr.de>; Mon,  9 Aug 2021 14:27:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 083663E45CA
+	for <lists+stable@lfdr.de>; Mon,  9 Aug 2021 14:38:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233826AbhHIM1e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Aug 2021 08:27:34 -0400
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:35583 "EHLO
-        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233698AbhHIM1e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 Aug 2021 08:27:34 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 57E395C00DF;
-        Mon,  9 Aug 2021 08:27:13 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 09 Aug 2021 08:27:13 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=AdJj11WOeMxOsGS2VukRYuSdN7K
-        Cr738JS2MrX1t4AY=; b=O92RbYWvJ0NcMaHXf8NImaFUzVrVvFRqS6qxMbMH+Ag
-        rx3ykbdvnAOIfPhbfQVriQD+OJbqC/eK6MujScW6OaS8jLjAp+XAIBMkcHMeaVJp
-        xIimyBb6rOcpmPU+PRuZLaIeXU4OZZfIkJno9/acD1W3MmM9eSkbIpeKyHu5YDw5
-        ERN6zb/CBccfeOjeRSt74yrGujICz9HybnJPn+BmNQmbk12uNAw2rznQlhtnT7TH
-        fSbPFD8q52C76UxgmHlwBXXqU3w9XrgOYseoNSjvlLQkKIYt7/imB9L/uKOoOCVe
-        rcBhlebr6rTon9AeXEypanI07dgf4ArvVE34gAqbJYQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=AdJj11
-        WOeMxOsGS2VukRYuSdN7KCr738JS2MrX1t4AY=; b=U9itvKUmpzvSdzP2q9BB3w
-        y6nBCu2Aua5QosJ38I+CkO2xnaQTW08dXaFMNvL/cKvPB89EFi6OAht3WLxY5OV1
-        y+dmrc1f+1bnhuUNeZP1ehbJ9ZBG0gBVn1JcesxCF6PMvscCKoY9ZD8g562h2oT+
-        P4UEcHfxmZ3zh3X6lGGCiylD8CxlqE3qrkBdui2ft5O0bfI8aK50Zze1beWnQsPL
-        xAs+nRvF/1quZNWRfDqVnrx35R9KCS6UmCBT+DT7nSh/0w38RkdUXbXQg3707XmV
-        IvfTHSaJO74hHpvknqBfsJtTg4HHwj/5s+C+erOOwaKm8jzX4h7+L0snIjxffOWw
-        ==
-X-ME-Sender: <xms:IR8RYcLN3Qdejm-BLr2dpi2rsLml7tAYT177lDaQaQKCEZERo_X3ug>
-    <xme:IR8RYcIDG9M5ueYyRNB-Bhg7wNwM2TkOn5AYcDFL0ha5IgoNezmx9BIIvK26UGMFs
-    STTBBryUPVo3Q>
-X-ME-Received: <xmr:IR8RYcs9GdK_vomgewQ_dZmaKU8Vkec-mVwXnS__meCALKYVDtUDr3fNZGtnPn9-YlmZD_JeeEnaMAopmaOxSkPu6wCETPWW>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrjeejgdehfecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
-    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepveeuheejgf
-    ffgfeivddukedvkedtleelleeghfeljeeiueeggeevueduudekvdetnecuvehluhhsthgv
-    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:IR8RYZYdS2hek9V9gnPZLkw8zoL39vjwbugk_b0fdw1ETZYn45Jlag>
-    <xmx:IR8RYTYhHHspzrs_naBXYj2FgEUk5WDIpWnLyxxNFVj2ytCI1C7-Qg>
-    <xmx:IR8RYVBEf6MXdd_EO6pxnEG32PvmQvQGcFH_NB2jcFNPBPX03vKE_Q>
-    <xmx:IR8RYSUzdH3KK-K2LzkjXcU2jJfZ_p9HPIqPjFmc3ynwevMe--gwOQ>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 9 Aug 2021 08:27:12 -0400 (EDT)
-Date:   Mon, 9 Aug 2021 14:27:10 +0200
-From:   Greg KH <greg@kroah.com>
-To:     nelakurthi koteswararao <koteswararao18@gmail.com>
-Cc:     stable@vger.kernel.org, regressions@lists.linux.dev
-Subject: Re: Futex crash in Normal 4.9 Kernel
-Message-ID: <YREfHsGDx/Yows56@kroah.com>
-References: <CAGJbQdfVXdjcDjwUae9QdWWu8MJM5EamN4S1pQCRZO2KwjeFaA@mail.gmail.com>
- <YREQ8H6AmD2P5nL0@kroah.com>
- <CAGJbQde8vgDBknH7gevnRx5cxwjOvuNoU7jHDnj3fN+dJgt2uA@mail.gmail.com>
+        id S235444AbhHIMi4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Aug 2021 08:38:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47882 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235465AbhHIMiv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 Aug 2021 08:38:51 -0400
+Received: from mail-qv1-xf36.google.com (mail-qv1-xf36.google.com [IPv6:2607:f8b0:4864:20::f36])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1327C061798
+        for <stable@vger.kernel.org>; Mon,  9 Aug 2021 05:38:30 -0700 (PDT)
+Received: by mail-qv1-xf36.google.com with SMTP id e1so6473170qvs.13
+        for <stable@vger.kernel.org>; Mon, 09 Aug 2021 05:38:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:from:to:cc:references:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=+yO3K6qk9feyKDpYOnpP1GKKVS0QyGkKDMEe18ApotA=;
+        b=QhOxaclaO5C9XEqW3/dt2zQ54o0NRTBORYfzkU9PBJjr/UzmE2xsIM+58DA1fbhiay
+         AAf6KFL7D3w7DxMJb7giIVrQxx9er0yYXsMpBTH+fwbjUnrrcroQJ8DFWGmTaZ6MCkj0
+         wkpsk28h5ZeZLjITr6tGSNgdK7I15Bp/VYCzD17BWQePtaEgF3KTo5NiantjxdQ0NolO
+         3m1UFnssZgrhxTPaljP/kFtrCPGTnNOihVijXNtIAvoT9J/IjBHDjlmd/Dh2+oGEx0Po
+         hYbIjo2BQAF+HSf2nxMZcZOhZmXhuXq1C+lz7V/upW+ZsmLfokuHu+rC/6e9ytswB63W
+         Cj5A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:from:to:cc:references:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=+yO3K6qk9feyKDpYOnpP1GKKVS0QyGkKDMEe18ApotA=;
+        b=QE3F16QeX4o2xYUZ+GkWbHhB8I+FtoGRD+vLhrxEpuDteyqWR08PcEQgxMHoWnI8pb
+         x7DqkleGFRRyvupnwMoUv43Cyz7wvPdWEpZX7iVq9gLILiG9xNl27pvEwsIMaRoWqL8v
+         kxRAv3eqXwJZ0GHqfBiVv3cS7P1onfPLr4JJV/bK14rQgsjxvKewB8tExoO5kCmhSGrS
+         b4MgqiqGO56iMpxUluMzABoHRrrbtcRU+7cwS2FmMGzrrL8MR1u+x1EDIKm+c2muiNJU
+         4p5R7w0T+WryiP3DhHFlyya+M4QXJAscy5Z2cxxzz8UXRYYNJHJ3G+4Lzzb52svSgB5A
+         1tSQ==
+X-Gm-Message-State: AOAM530UMxXRRos3rsFnO/zOvNogGkwS4FC862LyjgW/QnOlQ8iCJRi+
+        3wJdWpwdRGiqoPD/CyvC3Xo=
+X-Google-Smtp-Source: ABdhPJycn7m4kUzagdayz9QBx/KLopvqrvEoCCjYQEVimz6yzoFCEMcXNI6pbJqj3OxvDihnxTHyfA==
+X-Received: by 2002:a05:6214:501d:: with SMTP id jo29mr11974612qvb.43.1628512710180;
+        Mon, 09 Aug 2021 05:38:30 -0700 (PDT)
+Received: from mua.localhost ([2600:1700:e380:2c20::47])
+        by smtp.gmail.com with ESMTPSA id f12sm6574242qtj.40.2021.08.09.05.38.29
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 09 Aug 2021 05:38:29 -0700 (PDT)
+Subject: Re: Patch "Revert "ACPI: resources: Add checks for ACPI IRQ
+ override"" has been added to the 5.13-stable tree
+From:   PGNet Dev <pgnet.dev@gmail.com>
+To:     gregkh@linuxfoundation.org
+Cc:     hui.wang@canonical.com, rafael.j.wysocki@intel.com,
+        stable@vger.kernel.org, regressions@lists.linux.dev
+References: <16277146132219@kroah.com>
+ <e9810931-b21c-195f-26cb-75b46aa9eb9a@gmail.com> <YREdlli29GUfvaUx@kroah.com>
+Message-ID: <a64b85a6-cc26-afc3-4d6a-85c7a366576b@gmail.com>
+Date:   Mon, 9 Aug 2021 08:41:01 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Firefox/78.0 Thunderbird/78.12.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAGJbQde8vgDBknH7gevnRx5cxwjOvuNoU7jHDnj3fN+dJgt2uA@mail.gmail.com>
+In-Reply-To: <YREdlli29GUfvaUx@kroah.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 09, 2021 at 05:52:17PM +0530, nelakurthi koteswararao wrote:
-> Dear Greg,
+On 8/9/21 8:20 AM, Greg KH wrote:
+> On Mon, Aug 09, 2021 at 08:15:11AM -0400, PGNet Dev wrote:
+>> On 7/31/21 2:56 AM, gregkh@linuxfoundation.org wrote:
+>>>
+>>> This is a note to let you know that I've just added the patch titled
+>>>
+>>>       Revert "ACPI: resources: Add checks for ACPI IRQ override"
+>>>
+>>> to the 5.13-stable tree which can be found at:
+>>>       http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
+>>>
+>>> The filename of the patch is:
+>>>        revert-acpi-resources-add-checks-for-acpi-irq-override.patch
+>>> and it can be found in the queue-5.13 subdirectory.
+>>>
+>>> If you, or anyone else, feels it should not be added to the stable tree,
+>>> please let <stable@vger.kernel.org> know about it.
+>>>
+>>>
+>>>   From e0eef3690dc66b3ecc6e0f1267f332403eb22bea Mon Sep 17 00:00:00 2001
+>>> From: Hui Wang <hui.wang@canonical.com>
+>>> Date: Wed, 28 Jul 2021 23:19:58 +0800
+>>> Subject: Revert "ACPI: resources: Add checks for ACPI IRQ override"
+>>>
+>>> From: Hui Wang <hui.wang@canonical.com>
+>>>
+>>> commit e0eef3690dc66b3ecc6e0f1267f332403eb22bea upstream.
+>>
+>> Confirming that this^ revert resolves the reported non-boot regression
+>>
+>> System does boot cleanly; but, then REboots @ 60 seconds.
+>>
+>> It's a known bug, with fix already in 5.13.9/stable:
+>>
+>>   Revert "watchdog: iTCO_wdt: Account for rebooting on second timeout"
+>>   https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/commit/?h=linux-5.13.y&id=02db470b866fd06d8951
+>>
+>> , causing TCO watchdog auto-reboot @ 60 secs.
+>>
+>> Although particularly nasty on servers with /boot on RAID, breaking arrays if watchdog boots before arrays correctly assembled, iiuc, it's UN-related
+>>
+>> With interim workaround
+>>
+>>   edit /etc/modprobe.d/blacklist.conf
+>>
+>> +	blacklist iTCO_wdt
+>> +	blacklist iTCO_vendor_support
+>>
+>> for this second issue in place, 5.13.8 boots & appears stable.
 > 
-> Thank you for your reply. I noticed most of the futex changes between
-> 4.9.233 to 4.9.279 is related to Priority Inheritance that comes in
-> to use in the Real time kernel. But I am using the 4.9.232 Normal Kernel.
+> I do not understand, am I missing something in the queue for the next
+> 5.13 release that needs to be applied?
 
-I do not know what a "4.9.232 Normal Kernel" is.
+no.
 
-> That's the reason I posted futex crash to the mailing list for input.
-> is the race between futex_wait() thread and futex_wake() threads leading to
-> NULL pointer crash? any input in that direction?
+just confirming this^ revert, landed in 5.13.8, _works_ to fix non-boot.
 
-Again, please try the latest 4.9.y kernel release, we do not support
-older releases for obvious reasons.
+system _does_ bump into 60-sec REboot.
+wasn't sure it's related to this^ or not ...
 
-thanks,
+the fix for this _next_ issue appears already in 5.13.9/stable (https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/commit/?h=linux-5.13.y&id=02db470b866fd06d8951)
+The module blacklist workaround works for 5.13.8.
 
-greg k-h
+i.e., as it stands, 5.13.8 is usable (here), iff the iTCO mod blacklist workaround is applied.
+5.13.9 is expected to resolved it.
+
