@@ -2,30 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 309D73E4416
-	for <lists+stable@lfdr.de>; Mon,  9 Aug 2021 12:45:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7890A3E443B
+	for <lists+stable@lfdr.de>; Mon,  9 Aug 2021 12:53:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234644AbhHIKqA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Aug 2021 06:46:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36008 "EHLO mail.kernel.org"
+        id S234353AbhHIKyJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Aug 2021 06:54:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234733AbhHIKpc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Aug 2021 06:45:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 79FB961075;
-        Mon,  9 Aug 2021 10:45:09 +0000 (UTC)
+        id S234389AbhHIKyJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Aug 2021 06:54:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E80736103B;
+        Mon,  9 Aug 2021 10:53:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628505909;
-        bh=r/i79O3FDBnK5ZQXmx1FZ2sdJ3WAAuTq1zRQnvpM2dE=;
+        s=korg; t=1628506429;
+        bh=fO79yYth00OAiDAqdnzQby98bCJ6sA1LXMCn6Wf413s=;
         h=Subject:To:Cc:From:Date:From;
-        b=1XUwC5PI76OrZbKnvc5Of34Elmx+KaVdtoFCjFpptpEtwDRwsYlyl93Yii8K4ZilO
-         8Fr09MrbH7ybMca/jFU4DYvDrxRtTsSl+SFWBjM/X1U5kgYM9tgYVPMIA2vN1R0dug
-         v/E6yeb6cGPMohoMo7rU5fR66lxQs5q7cyEnYkQ4=
-Subject: FAILED: patch "[PATCH] KVM: Do not leak memory for duplicate debugfs directories" failed to apply to 4.9-stable tree
-To:     pbonzini@redhat.com, aik@ozlabs.ru, gregkh@linuxfoundation.org
+        b=v8fvPVP76tnzT569BCAS6iQdYSAjipDGecAFZsZ8mGGzCKd6btqYWZ2TusiCCvCRr
+         Dk39GrqqMu3BK4nnRFuKde5L3/JHScNyAXN1R9l+Za6P5BktGUXPRTNIfHl1wIHPxc
+         Bu1nhrhM1R7VSXztcazSEPE6H8RvzLWfb6t0olJ8=
+Subject: FAILED: patch "[PATCH] KVM: SVM: Fix off-by-one indexing when nullifying last used" failed to apply to 4.19-stable tree
+To:     seanjc@google.com, brijesh.singh@amd.com, pbonzini@redhat.com,
+        thomas.lendacky@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 09 Aug 2021 12:44:58 +0200
-Message-ID: <1628505898214252@kroah.com>
+Date:   Mon, 09 Aug 2021 12:53:47 +0200
+Message-ID: <16285064275244@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -45,83 +46,46 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 85cd39af14f498f791d8aab3fbd64cd175787f1a Mon Sep 17 00:00:00 2001
-From: Paolo Bonzini <pbonzini@redhat.com>
-Date: Wed, 4 Aug 2021 05:28:52 -0400
-Subject: [PATCH] KVM: Do not leak memory for duplicate debugfs directories
+From 179c6c27bf487273652efc99acd3ba512a23c137 Mon Sep 17 00:00:00 2001
+From: Sean Christopherson <seanjc@google.com>
+Date: Tue, 3 Aug 2021 09:27:46 -0700
+Subject: [PATCH] KVM: SVM: Fix off-by-one indexing when nullifying last used
+ SEV VMCB
 
-KVM creates a debugfs directory for each VM in order to store statistics
-about the virtual machine.  The directory name is built from the process
-pid and a VM fd.  While generally unique, it is possible to keep a
-file descriptor alive in a way that causes duplicate directories, which
-manifests as these messages:
+Use the raw ASID, not ASID-1, when nullifying the last used VMCB when
+freeing an SEV ASID.  The consumer, pre_sev_run(), indexes the array by
+the raw ASID, thus KVM could get a false negative when checking for a
+different VMCB if KVM manages to reallocate the same ASID+VMCB combo for
+a new VM.
 
-  [  471.846235] debugfs: Directory '20245-4' with parent 'kvm' already present!
+Note, this cannot cause a functional issue _in the current code_, as
+pre_sev_run() also checks which pCPU last did VMRUN for the vCPU, and
+last_vmentry_cpu is initialized to -1 during vCPU creation, i.e. is
+guaranteed to mismatch on the first VMRUN.  However, prior to commit
+8a14fe4f0c54 ("kvm: x86: Move last_cpu into kvm_vcpu_arch as
+last_vmentry_cpu"), SVM tracked pCPU on its own and zero-initialized the
+last_cpu variable.  Thus it's theoretically possible that older versions
+of KVM could miss a TLB flush if the first VMRUN is on pCPU0 and the ASID
+and VMCB exactly match those of a prior VM.
 
-Even though this should not happen in practice, it is more or less
-expected in the case of KVM for testcases that call KVM_CREATE_VM and
-close the resulting file descriptor repeatedly and in parallel.
-
-When this happens, debugfs_create_dir() returns an error but
-kvm_create_vm_debugfs() goes on to allocate stat data structs which are
-later leaked.  The slow memory leak was spotted by syzkaller, where it
-caused OOM reports.
-
-Since the issue only affects debugfs, do a lookup before calling
-debugfs_create_dir, so that the message is downgraded and rate-limited.
-While at it, ensure kvm->debugfs_dentry is NULL rather than an error
-if it is not created.  This fixes kvm_destroy_vm_debugfs, which was not
-checking IS_ERR_OR_NULL correctly.
-
+Fixes: 70cd94e60c73 ("KVM: SVM: VMRUN should use associated ASID when SEV is enabled")
+Cc: Tom Lendacky <thomas.lendacky@amd.com>
+Cc: Brijesh Singh <brijesh.singh@amd.com>
 Cc: stable@vger.kernel.org
-Fixes: 536a6f88c49d ("KVM: Create debugfs dir and stat files for each VM")
-Reported-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Suggested-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index d20fba0fc290..b50dbe269f4b 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -892,6 +892,8 @@ static void kvm_destroy_vm_debugfs(struct kvm *kvm)
+diff --git a/arch/x86/kvm/svm/sev.c b/arch/x86/kvm/svm/sev.c
+index 6710d9ee2e4b..4d0aba185412 100644
+--- a/arch/x86/kvm/svm/sev.c
++++ b/arch/x86/kvm/svm/sev.c
+@@ -189,7 +189,7 @@ static void sev_asid_free(struct kvm_sev_info *sev)
  
- static int kvm_create_vm_debugfs(struct kvm *kvm, int fd)
- {
-+	static DEFINE_MUTEX(kvm_debugfs_lock);
-+	struct dentry *dent;
- 	char dir_name[ITOA_MAX_LEN * 2];
- 	struct kvm_stat_data *stat_data;
- 	const struct _kvm_stats_desc *pdesc;
-@@ -903,8 +905,20 @@ static int kvm_create_vm_debugfs(struct kvm *kvm, int fd)
- 		return 0;
- 
- 	snprintf(dir_name, sizeof(dir_name), "%d-%d", task_pid_nr(current), fd);
--	kvm->debugfs_dentry = debugfs_create_dir(dir_name, kvm_debugfs_dir);
-+	mutex_lock(&kvm_debugfs_lock);
-+	dent = debugfs_lookup(dir_name, kvm_debugfs_dir);
-+	if (dent) {
-+		pr_warn_ratelimited("KVM: debugfs: duplicate directory %s\n", dir_name);
-+		dput(dent);
-+		mutex_unlock(&kvm_debugfs_lock);
-+		return 0;
-+	}
-+	dent = debugfs_create_dir(dir_name, kvm_debugfs_dir);
-+	mutex_unlock(&kvm_debugfs_lock);
-+	if (IS_ERR(dent))
-+		return 0;
- 
-+	kvm->debugfs_dentry = dent;
- 	kvm->debugfs_stat_data = kcalloc(kvm_debugfs_num_entries,
- 					 sizeof(*kvm->debugfs_stat_data),
- 					 GFP_KERNEL_ACCOUNT);
-@@ -5201,7 +5215,7 @@ static void kvm_uevent_notify_change(unsigned int type, struct kvm *kvm)
+ 	for_each_possible_cpu(cpu) {
+ 		sd = per_cpu(svm_data, cpu);
+-		sd->sev_vmcbs[pos] = NULL;
++		sd->sev_vmcbs[sev->asid] = NULL;
  	}
- 	add_uevent_var(env, "PID=%d", kvm->userspace_pid);
  
--	if (!IS_ERR_OR_NULL(kvm->debugfs_dentry)) {
-+	if (kvm->debugfs_dentry) {
- 		char *tmp, *p = kmalloc(PATH_MAX, GFP_KERNEL_ACCOUNT);
- 
- 		if (p) {
+ 	mutex_unlock(&sev_bitmap_lock);
 
