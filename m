@@ -2,31 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2815F3E4408
-	for <lists+stable@lfdr.de>; Mon,  9 Aug 2021 12:42:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15FA63E440A
+	for <lists+stable@lfdr.de>; Mon,  9 Aug 2021 12:42:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234061AbhHIKmg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Aug 2021 06:42:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35224 "EHLO mail.kernel.org"
+        id S234603AbhHIKnN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Aug 2021 06:43:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35318 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234201AbhHIKmf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Aug 2021 06:42:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EAD5D60F9F;
-        Mon,  9 Aug 2021 10:42:14 +0000 (UTC)
+        id S234281AbhHIKnB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Aug 2021 06:43:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C286261040;
+        Mon,  9 Aug 2021 10:42:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628505735;
-        bh=cYFsKQk03W4vbmQ5qtntXCtYQwJWIEu1lFpvH7SxxZ4=;
+        s=korg; t=1628505761;
+        bh=Z3ol5nE5v68HP88xT+kF7tfSvvY5CxtZHwvZ8dKWFlQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=aCY36WCnKSvCF82YvIDHx5XJSWxZAYW9CE4cV2XehQgG9xFk8Kfi7EE1Fam6fPB+k
-         hHC1E5bYHMytbLU8jwcwoPbSMpf8l3TH/HvCpTN7ysPF4XbFFw5c/0/Ale4DXUD225
-         rPmbmRBTugHx+/+skpzn0OSc9jJaV5S61ayMlcr0=
-Subject: FAILED: patch "[PATCH] riscv: Get rid of CONFIG_PHYS_RAM_BASE in kernel physical" failed to apply to 5.13-stable tree
-To:     alex@ghiti.fr, jszhang@kernel.org, kernel@esmil.dk,
-        palmerdabbelt@google.com
+        b=hRj/szbgpCTa8PcFrD8S1G4X2O5goAld+QFfGKxam6iDdJuGRm6YrjfbtH2yYD2BK
+         o30YsaWLEZmms/Ew42iGnj5zYFms1f260CERm/rYe7rCcCWIZlkavDR/tEsA7Xa+BD
+         +iQTGpgXTxz/jwm/eBPIMEPBBOP/UNRXpXvtvj34=
+Subject: FAILED: patch "[PATCH] arm64: fix compat syscall return truncation" failed to apply to 5.4-stable tree
+To:     mark.rutland@arm.com, catalin.marinas@arm.com,
+        stable@vger.kernel.org, weiyuchen3@huawei.com, will@kernel.org,
+        zhe.he@windriver.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 09 Aug 2021 12:42:13 +0200
-Message-ID: <1628505733235131@kroah.com>
+Date:   Mon, 09 Aug 2021 12:42:39 +0200
+Message-ID: <1628505759100128@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +36,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.13-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -46,113 +47,184 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 6d7f91d914bc90a15ebc426440c26081337ceaa1 Mon Sep 17 00:00:00 2001
-From: Alexandre Ghiti <alex@ghiti.fr>
-Date: Wed, 21 Jul 2021 09:59:35 +0200
-Subject: [PATCH] riscv: Get rid of CONFIG_PHYS_RAM_BASE in kernel physical
- address conversion
+From e30e8d46cf605d216a799a28c77b8a41c328613a Mon Sep 17 00:00:00 2001
+From: Mark Rutland <mark.rutland@arm.com>
+Date: Mon, 2 Aug 2021 11:42:00 +0100
+Subject: [PATCH] arm64: fix compat syscall return truncation
 
-The usage of CONFIG_PHYS_RAM_BASE for all kernel types was a mistake:
-this value is implementation-specific and this breaks the genericity of
-the RISC-V kernel.
+Due to inconsistencies in the way we manipulate compat GPRs, we have a
+few issues today:
 
-Fix this by introducing a new variable phys_ram_base that holds this
-value at runtime and use it in the kernel physical address conversion
-macro. Since this value is used only for XIP kernels, evaluate it only if
-CONFIG_XIP_KERNEL is set which in addition optimizes this macro for
-standard kernels at compile-time.
+* For audit and tracing, where error codes are handled as a (native)
+  long, negative error codes are expected to be sign-extended to the
+  native 64-bits, or they may fail to be matched correctly. Thus a
+  syscall which fails with an error may erroneously be identified as
+  failing.
 
-Signed-off-by: Alexandre Ghiti <alex@ghiti.fr>
-Tested-by: Emil Renner Berthing <kernel@esmil.dk>
-Reviewed-by: Jisheng Zhang <jszhang@kernel.org>
-Fixes: 44c922572952 ("RISC-V: enable XIP")
-Cc: stable@vger.kernel.org
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+* For ptrace, *all* compat return values should be sign-extended for
+  consistency with 32-bit arm, but we currently only do this for
+  negative return codes.
 
-diff --git a/arch/riscv/include/asm/page.h b/arch/riscv/include/asm/page.h
-index cca8764aed83..b0ca5058e7ae 100644
---- a/arch/riscv/include/asm/page.h
-+++ b/arch/riscv/include/asm/page.h
-@@ -103,6 +103,7 @@ struct kernel_mapping {
- };
+* As we may transiently set the upper 32 bits of some compat GPRs while
+  in the kernel, these can be sampled by perf, which is somewhat
+  confusing. This means that where a syscall returns a pointer above 2G,
+  this will be sign-extended, but will not be mistaken for an error as
+  error codes are constrained to the inclusive range [-4096, -1] where
+  no user pointer can exist.
+
+To fix all of these, we must consistently use helpers to get/set the
+compat GPRs, ensuring that we never write the upper 32 bits of the
+return code, and always sign-extend when reading the return code.  This
+patch does so, with the following changes:
+
+* We re-organise syscall_get_return_value() to always sign-extend for
+  compat tasks, and reimplement syscall_get_error() atop. We update
+  syscall_trace_exit() to use syscall_get_return_value().
+
+* We consistently use syscall_set_return_value() to set the return
+  value, ensureing the upper 32 bits are never set unexpectedly.
+
+* As the core audit code currently uses regs_return_value() rather than
+  syscall_get_return_value(), we special-case this for
+  compat_user_mode(regs) such that this will do the right thing. Going
+  forward, we should try to move the core audit code over to
+  syscall_get_return_value().
+
+Cc: <stable@vger.kernel.org>
+Reported-by: He Zhe <zhe.he@windriver.com>
+Reported-by: weiyuchen <weiyuchen3@huawei.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Link: https://lore.kernel.org/r/20210802104200.21390-1-mark.rutland@arm.com
+Signed-off-by: Will Deacon <will@kernel.org>
+
+diff --git a/arch/arm64/include/asm/ptrace.h b/arch/arm64/include/asm/ptrace.h
+index e58bca832dff..41b332c054ab 100644
+--- a/arch/arm64/include/asm/ptrace.h
++++ b/arch/arm64/include/asm/ptrace.h
+@@ -320,7 +320,17 @@ static inline unsigned long kernel_stack_pointer(struct pt_regs *regs)
  
- extern struct kernel_mapping kernel_map;
-+extern phys_addr_t phys_ram_base;
- 
- #ifdef CONFIG_64BIT
- #define is_kernel_mapping(x)	\
-@@ -113,9 +114,9 @@ extern struct kernel_mapping kernel_map;
- #define linear_mapping_pa_to_va(x)	((void *)((unsigned long)(x) + kernel_map.va_pa_offset))
- #define kernel_mapping_pa_to_va(y)	({						\
- 	unsigned long _y = y;								\
--	(_y >= CONFIG_PHYS_RAM_BASE) ?							\
--		(void *)((unsigned long)(_y) + kernel_map.va_kernel_pa_offset + XIP_OFFSET) :	\
--		(void *)((unsigned long)(_y) + kernel_map.va_kernel_xip_pa_offset);		\
-+	(IS_ENABLED(CONFIG_XIP_KERNEL) && _y < phys_ram_base) ?					\
-+		(void *)((unsigned long)(_y) + kernel_map.va_kernel_xip_pa_offset) :		\
-+		(void *)((unsigned long)(_y) + kernel_map.va_kernel_pa_offset + XIP_OFFSET);	\
- 	})
- #define __pa_to_va_nodebug(x)		linear_mapping_pa_to_va(x)
- 
-diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
-index a14bf3910eec..88134cc288d9 100644
---- a/arch/riscv/mm/init.c
-+++ b/arch/riscv/mm/init.c
-@@ -36,6 +36,9 @@ EXPORT_SYMBOL(kernel_map);
- #define kernel_map	(*(struct kernel_mapping *)XIP_FIXUP(&kernel_map))
- #endif
- 
-+phys_addr_t phys_ram_base __ro_after_init;
-+EXPORT_SYMBOL(phys_ram_base);
+ static inline unsigned long regs_return_value(struct pt_regs *regs)
+ {
+-	return regs->regs[0];
++	unsigned long val = regs->regs[0];
 +
- #ifdef CONFIG_XIP_KERNEL
- extern char _xiprom[], _exiprom[];
- #endif
-@@ -160,7 +163,7 @@ static void __init setup_bootmem(void)
- 	phys_addr_t vmlinux_end = __pa_symbol(&_end);
- 	phys_addr_t vmlinux_start = __pa_symbol(&_start);
- 	phys_addr_t __maybe_unused max_mapped_addr;
--	phys_addr_t dram_end;
-+	phys_addr_t phys_ram_end;
++	/*
++	 * Audit currently uses regs_return_value() instead of
++	 * syscall_get_return_value(). Apply the same sign-extension here until
++	 * audit is updated to use syscall_get_return_value().
++	 */
++	if (compat_user_mode(regs))
++		val = sign_extend64(val, 31);
++
++	return val;
+ }
  
- #ifdef CONFIG_XIP_KERNEL
- 	vmlinux_start = __pa_symbol(&_sdata);
-@@ -181,9 +184,12 @@ static void __init setup_bootmem(void)
- #endif
- 	memblock_reserve(vmlinux_start, vmlinux_end - vmlinux_start);
+ static inline void regs_set_return_value(struct pt_regs *regs, unsigned long rc)
+diff --git a/arch/arm64/include/asm/syscall.h b/arch/arm64/include/asm/syscall.h
+index cfc0672013f6..03e20895453a 100644
+--- a/arch/arm64/include/asm/syscall.h
++++ b/arch/arm64/include/asm/syscall.h
+@@ -29,22 +29,23 @@ static inline void syscall_rollback(struct task_struct *task,
+ 	regs->regs[0] = regs->orig_x0;
+ }
  
--	dram_end = memblock_end_of_DRAM();
+-
+-static inline long syscall_get_error(struct task_struct *task,
+-				     struct pt_regs *regs)
++static inline long syscall_get_return_value(struct task_struct *task,
++					    struct pt_regs *regs)
+ {
+-	unsigned long error = regs->regs[0];
++	unsigned long val = regs->regs[0];
  
-+	phys_ram_end = memblock_end_of_DRAM();
- #ifndef CONFIG_64BIT
-+#ifndef CONFIG_XIP_KERNEL
-+	phys_ram_base = memblock_start_of_DRAM();
-+#endif
+ 	if (is_compat_thread(task_thread_info(task)))
+-		error = sign_extend64(error, 31);
++		val = sign_extend64(val, 31);
+ 
+-	return IS_ERR_VALUE(error) ? error : 0;
++	return val;
+ }
+ 
+-static inline long syscall_get_return_value(struct task_struct *task,
+-					    struct pt_regs *regs)
++static inline long syscall_get_error(struct task_struct *task,
++				     struct pt_regs *regs)
+ {
+-	return regs->regs[0];
++	unsigned long error = syscall_get_return_value(task, regs);
++
++	return IS_ERR_VALUE(error) ? error : 0;
+ }
+ 
+ static inline void syscall_set_return_value(struct task_struct *task,
+diff --git a/arch/arm64/kernel/ptrace.c b/arch/arm64/kernel/ptrace.c
+index 499b6b2f9757..b381a1ee9ea7 100644
+--- a/arch/arm64/kernel/ptrace.c
++++ b/arch/arm64/kernel/ptrace.c
+@@ -1862,7 +1862,7 @@ void syscall_trace_exit(struct pt_regs *regs)
+ 	audit_syscall_exit(regs);
+ 
+ 	if (flags & _TIF_SYSCALL_TRACEPOINT)
+-		trace_sys_exit(regs, regs_return_value(regs));
++		trace_sys_exit(regs, syscall_get_return_value(current, regs));
+ 
+ 	if (flags & (_TIF_SYSCALL_TRACE | _TIF_SINGLESTEP))
+ 		tracehook_report_syscall(regs, PTRACE_SYSCALL_EXIT);
+diff --git a/arch/arm64/kernel/signal.c b/arch/arm64/kernel/signal.c
+index f8192f4ae0b8..23036334f4dc 100644
+--- a/arch/arm64/kernel/signal.c
++++ b/arch/arm64/kernel/signal.c
+@@ -29,6 +29,7 @@
+ #include <asm/unistd.h>
+ #include <asm/fpsimd.h>
+ #include <asm/ptrace.h>
++#include <asm/syscall.h>
+ #include <asm/signal32.h>
+ #include <asm/traps.h>
+ #include <asm/vdso.h>
+@@ -890,7 +891,7 @@ static void do_signal(struct pt_regs *regs)
+ 		     retval == -ERESTART_RESTARTBLOCK ||
+ 		     (retval == -ERESTARTSYS &&
+ 		      !(ksig.ka.sa.sa_flags & SA_RESTART)))) {
+-			regs->regs[0] = -EINTR;
++			syscall_set_return_value(current, regs, -EINTR, 0);
+ 			regs->pc = continue_addr;
+ 		}
+ 
+diff --git a/arch/arm64/kernel/syscall.c b/arch/arm64/kernel/syscall.c
+index 263d6c1a525f..50a0f1a38e84 100644
+--- a/arch/arm64/kernel/syscall.c
++++ b/arch/arm64/kernel/syscall.c
+@@ -54,10 +54,7 @@ static void invoke_syscall(struct pt_regs *regs, unsigned int scno,
+ 		ret = do_ni_syscall(regs, scno);
+ 	}
+ 
+-	if (is_compat_task())
+-		ret = lower_32_bits(ret);
+-
+-	regs->regs[0] = ret;
++	syscall_set_return_value(current, regs, 0, ret);
+ 
  	/*
- 	 * memblock allocator is not aware of the fact that last 4K bytes of
- 	 * the addressable memory can not be mapped because of IS_ERR_VALUE
-@@ -194,12 +200,12 @@ static void __init setup_bootmem(void)
- 	 * be done in create_kernel_page_table.
- 	 */
- 	max_mapped_addr = __pa(~(ulong)0);
--	if (max_mapped_addr == (dram_end - 1))
-+	if (max_mapped_addr == (phys_ram_end - 1))
- 		memblock_set_current_limit(max_mapped_addr - 4096);
- #endif
+ 	 * Ultimately, this value will get limited by KSTACK_OFFSET_MAX(),
+@@ -115,7 +112,7 @@ static void el0_svc_common(struct pt_regs *regs, int scno, int sc_nr,
+ 		 * syscall. do_notify_resume() will send a signal to userspace
+ 		 * before the syscall is restarted.
+ 		 */
+-		regs->regs[0] = -ERESTARTNOINTR;
++		syscall_set_return_value(current, regs, -ERESTARTNOINTR, 0);
+ 		return;
+ 	}
  
--	min_low_pfn = PFN_UP(memblock_start_of_DRAM());
--	max_low_pfn = max_pfn = PFN_DOWN(dram_end);
-+	min_low_pfn = PFN_UP(phys_ram_base);
-+	max_low_pfn = max_pfn = PFN_DOWN(phys_ram_end);
- 
- 	dma32_phys_limit = min(4UL * SZ_1G, (unsigned long)PFN_PHYS(max_low_pfn));
- 	set_max_mapnr(max_low_pfn - ARCH_PFN_OFFSET);
-@@ -558,6 +564,7 @@ asmlinkage void __init setup_vm(uintptr_t dtb_pa)
- 	kernel_map.xiprom = (uintptr_t)CONFIG_XIP_PHYS_ADDR;
- 	kernel_map.xiprom_sz = (uintptr_t)(&_exiprom) - (uintptr_t)(&_xiprom);
- 
-+	phys_ram_base = CONFIG_PHYS_RAM_BASE;
- 	kernel_map.phys_addr = (uintptr_t)CONFIG_PHYS_RAM_BASE;
- 	kernel_map.size = (uintptr_t)(&_end) - (uintptr_t)(&_sdata);
- 
+@@ -136,7 +133,7 @@ static void el0_svc_common(struct pt_regs *regs, int scno, int sc_nr,
+ 		 * anyway.
+ 		 */
+ 		if (scno == NO_SYSCALL)
+-			regs->regs[0] = -ENOSYS;
++			syscall_set_return_value(current, regs, -ENOSYS, 0);
+ 		scno = syscall_trace_enter(regs);
+ 		if (scno == NO_SYSCALL)
+ 			goto trace_exit;
 
