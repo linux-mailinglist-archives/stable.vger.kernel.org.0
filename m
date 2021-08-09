@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E4C3E3E4240
-	for <lists+stable@lfdr.de>; Mon,  9 Aug 2021 11:14:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AF643E4241
+	for <lists+stable@lfdr.de>; Mon,  9 Aug 2021 11:15:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234147AbhHIJPM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Aug 2021 05:15:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33034 "EHLO mail.kernel.org"
+        id S234213AbhHIJPU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Aug 2021 05:15:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234085AbhHIJPM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Aug 2021 05:15:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C3F1F61075;
-        Mon,  9 Aug 2021 09:14:51 +0000 (UTC)
+        id S234157AbhHIJPU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Aug 2021 05:15:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D72BB6101D;
+        Mon,  9 Aug 2021 09:14:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628500492;
-        bh=yePwZfRKxRyX0KI0B3VioBRABjcGobsx498ZmznKGhs=;
+        s=korg; t=1628500500;
+        bh=Y5miPN2bAchfzTwSAbu2ABqZRNCaICsvHN7pSynHdWo=;
         h=Subject:To:Cc:From:Date:From;
-        b=H2e+QeQ3YR275oxQCD7W+BPjTg3M10RyRQwyrQZ//VS1sBJC3+VXDxF4SWGnyu18x
-         XxErCBjyeMQVDU9gXb7qJYzUbZxALsjmP5ykGkg2XC/BFCDCscsJfsI1s5qUhk7KHO
-         IntefvnDdXfOQROzywCvS4CDhE/NWNcQHMXmn41c=
-Subject: FAILED: patch "[PATCH] tracing: Reject string operand in the histogram expression" failed to apply to 4.19-stable tree
+        b=X5aAiXBNCXl+OStHWTFGfbH/uJSuJGheGLVs5mNQ1R4S3UyEeRtleKBGl3xhWPXdp
+         tgKz4hYzmfqSWPDzG71FA+tCFWLH0hlWTSpB2A/WgZ7N7hNjGM6ybKn66fyFuNien7
+         833dSK45C/Tt4X+j/Gk/DwaykleEYo2Mh3P7XQLg=
+Subject: FAILED: patch "[PATCH] tracing: Reject string operand in the histogram expression" failed to apply to 5.4-stable tree
 To:     mhiramat@kernel.org, rostedt@goodmis.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 09 Aug 2021 11:14:49 +0200
-Message-ID: <162850048982205@kroah.com>
+Date:   Mon, 09 Aug 2021 11:14:50 +0200
+Message-ID: <162850049016165@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
