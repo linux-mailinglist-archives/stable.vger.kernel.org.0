@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C38D3E81F1
+	by mail.lfdr.de (Postfix) with ESMTP id 9962B3E81F2
 	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:06:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235266AbhHJSEC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 14:04:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37910 "EHLO mail.kernel.org"
+        id S232825AbhHJSED (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 14:04:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33478 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235287AbhHJSCG (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S231851AbhHJSCG (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 10 Aug 2021 14:02:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6CB0C613D3;
-        Tue, 10 Aug 2021 17:47:32 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ABC8361401;
+        Tue, 10 Aug 2021 17:47:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617652;
-        bh=fYbPD6SIWsNFYHz6S+5gphmdOZh4iGMK8XZxOMbHG2k=;
+        s=korg; t=1628617655;
+        bh=zILbFbF7vvh0NgWjAhiAvYXcYKWEkYI+SFBkisgX2K0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X9a62Lm0FU3MBwcTDDrgGnJeIMeY4Ffw4JEakyhPjOu4JDm6WweS5aAyuwtnt+h5e
-         g16B9hXzvGH+7u8LQFNO1sllj6ejCoOCp3b854k36avSjNpCzApoaqFgKOEuwP2mAA
-         r/TgHnrzqFOSu5mri/rOwVnjtBTdecyXTKc1MRD0=
+        b=SlQ/ioJT6MNOWm+6FGfBfAtl7R68xVA8luB1CRIjhTAMsyb24x77bGHkwXAaQJHpl
+         Rp8Tbk58i6qpi1IlXeLLHnKJjUHtjvXq14/WxLUEYtdeN5dtQiTuYoa4ydJF4Au+He
+         tgtPzSWgUR5+bSFkqi2eKPt3o4F/G/kFso3/QVYQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Pawel Laszczak <pawell@cadence.com>,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
         Peter Chen <peter.chen@kernel.org>
-Subject: [PATCH 5.13 153/175] usb: cdnsp: Fix the IMAN_IE_SET and IMAN_IE_CLEAR macro
-Date:   Tue, 10 Aug 2021 19:31:01 +0200
-Message-Id: <20210810173006.019253407@linuxfoundation.org>
+Subject: [PATCH 5.13 154/175] usb: cdnsp: Fix incorrect supported maximum speed
+Date:   Tue, 10 Aug 2021 19:31:02 +0200
+Message-Id: <20210810173006.049967476@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
 References: <20210810173000.928681411@linuxfoundation.org>
@@ -40,38 +39,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Pawel Laszczak <pawell@cadence.com>
 
-commit 5df09c15bab98463203c83ecab88b9321466e626 upstream.
+commit aa82f94e869edd72f4fadb08c6ffca8927e4934e upstream.
 
-IMAN_IE is BIT(1), so these macro are respectively equivalent to BIT(1)
-and 0, whatever the value of 'p'.
+Driver had hardcoded in initialization maximum supported speed
+to USB_SPEED_SUPER_PLUS but it should consider the speed
+returned from usb_get_maximum_speed function.
 
-The purpose was to set and reset a single bit in 'p'.
-Fix these macros to do that correctly.
-
-Acked-by: Pawel Laszczak <pawell@cadence.com>
-Fixes: e93e58d27402 ("usb: cdnsp: Device side header file for CDNSP driver")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/d12bfcc9cbffb89e27b120668821b3c4f09b6755.1624390584.git.christophe.jaillet@wanadoo.fr
+Fixes: 3d82904559f4 ("usb: cdnsp: cdns3 Add main part of Cadence USBSSP DRD Driver")
+Signed-off-by: Pawel Laszczak <pawell@cadence.com>
+Link: https://lore.kernel.org/r/20210625102502.26336-1-pawell@gli-login.cadence.com
 Signed-off-by: Peter Chen <peter.chen@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/cdns3/cdnsp-gadget.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/cdns3/cdnsp-gadget.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/cdns3/cdnsp-gadget.h
-+++ b/drivers/usb/cdns3/cdnsp-gadget.h
-@@ -383,8 +383,8 @@ struct cdnsp_intr_reg {
- #define IMAN_IE			BIT(1)
- #define IMAN_IP			BIT(0)
- /* bits 2:31 need to be preserved */
--#define IMAN_IE_SET(p)		(((p) & IMAN_IE) | 0x2)
--#define IMAN_IE_CLEAR(p)	(((p) & IMAN_IE) & ~(0x2))
-+#define IMAN_IE_SET(p)		((p) | IMAN_IE)
-+#define IMAN_IE_CLEAR(p)	((p) & ~IMAN_IE)
+--- a/drivers/usb/cdns3/cdnsp-gadget.c
++++ b/drivers/usb/cdns3/cdnsp-gadget.c
+@@ -1881,7 +1881,7 @@ static int __cdnsp_gadget_init(struct cd
+ 	pdev->gadget.name = "cdnsp-gadget";
+ 	pdev->gadget.speed = USB_SPEED_UNKNOWN;
+ 	pdev->gadget.sg_supported = 1;
+-	pdev->gadget.max_speed = USB_SPEED_SUPER_PLUS;
++	pdev->gadget.max_speed = max_speed;
+ 	pdev->gadget.lpm_capable = 1;
  
- /* IMOD - Interrupter Moderation Register - irq_control bitmasks. */
- /*
+ 	pdev->setup_buf = kzalloc(CDNSP_EP0_SETUP_SIZE, GFP_KERNEL);
 
 
