@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA04D3E80BC
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:53:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A41E3E80C5
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:53:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236277AbhHJRvx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:51:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55284 "EHLO mail.kernel.org"
+        id S235097AbhHJRwY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:52:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234040AbhHJRuP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:50:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E74A61266;
-        Tue, 10 Aug 2021 17:42:28 +0000 (UTC)
+        id S237314AbhHJRuW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:50:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C41E661102;
+        Tue, 10 Aug 2021 17:42:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617349;
-        bh=FfXHP7cUmnlDTXqLMrTXsprmJ00OVsWAgbgMHCiyXAQ=;
+        s=korg; t=1628617360;
+        bh=t9agUHMW1JmVb1vHEqFze5voBLUIKw26fzmU3qQwKCY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u+Tpf2QkvjulQrkLHf40MMLU6sdWG2WUiXIEm0soWFKOl2rqnthKvF0MwcyucaxEA
-         muIFncHsEEQZSXnBvOU54m+BJfT3/1Po+8uAjue6eC482fR8kG3N0A6VpMrLKxf3MD
-         +tIaxybwlWIZ6IUsPsNmgvxz1KMCv3iZSGWwXSlY=
+        b=UxU94BHAVC7oJ/jFO2GFgqIKtdh1QoYKt8JmUckvlzy4MsZc+SYhzZqVuRbwpxD75
+         RHL39N+eA7x7yyx+fzyiBkJu5L+E3Js2ecaZnlpDQDjjkiCla8SBuvP3ZMWWAM6Pij
+         UiiL1h7qSal75GUqvu3KW5fZFGfFxlasdMM1EoD4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        folkert <folkert@vanheusden.com>
-Subject: [PATCH 5.13 002/175] ALSA: seq: Fix racy deletion of subscriber
-Date:   Tue, 10 Aug 2021 19:28:30 +0200
-Message-Id: <20210810173001.013554195@linuxfoundation.org>
+        stable@vger.kernel.org, Jarkko Nikula <jarkko.nikula@bitmer.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 003/175] bus: ti-sysc: Fix gpt12 system timer issue with reserved status
+Date:   Tue, 10 Aug 2021 19:28:31 +0200
+Message-Id: <20210810173001.053486118@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
 References: <20210810173000.928681411@linuxfoundation.org>
@@ -39,116 +40,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Tony Lindgren <tony@atomide.com>
 
-commit 97367c97226aab8b298ada954ce12659ee3ad2a4 upstream.
+[ Upstream commit 3ff340e24c9dd5cff9fc07d67914c5adf67f80d6 ]
 
-It turned out that the current implementation of the port subscription
-is racy.  The subscription contains two linked lists, and we have to
-add to or delete from both lists.  Since both connection and
-disconnection procedures perform the same order for those two lists
-(i.e. src list, then dest list), when a deletion happens during a
-connection procedure, the src list may be deleted before the dest list
-addition completes, and this may lead to a use-after-free or an Oops,
-even though the access to both lists are protected via mutex.
+Jarkko Nikula <jarkko.nikula@bitmer.com> reported that Beagleboard
+revision c2 stopped booting. Jarkko bisected the issue down to
+commit 6cfcd5563b4f ("clocksource/drivers/timer-ti-dm: Fix suspend
+and resume for am3 and am4").
 
-The simple workaround for this race is to change the access order for
-the disconnection, namely, dest list, then src list.  This assures
-that the connection has been established when disconnecting, and also
-the concurrent deletion can be avoided.
+Let's fix the issue by tagging system timers as reserved rather than
+ignoring them. And let's not probe any interconnect target module child
+devices for reserved modules.
 
-Reported-and-tested-by: folkert <folkert@vanheusden.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210801182754.GP890690@belle.intranet.vanheusden.com
-Link: https://lore.kernel.org/r/20210803114312.2536-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This allows PM runtime to keep track of clocks and clockdomains for
+the interconnect target module, and prevent the system timer from idling
+as we already have SYSC_QUIRK_NO_IDLE and SYSC_QUIRK_NO_IDLE_ON_INIT
+flags set for system timers.
+
+Fixes: 6cfcd5563b4f ("clocksource/drivers/timer-ti-dm: Fix suspend and resume for am3 and am4")
+Reported-by: Jarkko Nikula <jarkko.nikula@bitmer.com>
+Tested-by: Jarkko Nikula <jarkko.nikula@bitmer.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/seq/seq_ports.c |   39 +++++++++++++++++++++++++++------------
- 1 file changed, 27 insertions(+), 12 deletions(-)
+ drivers/bus/ti-sysc.c | 20 +++++++++++++-------
+ 1 file changed, 13 insertions(+), 7 deletions(-)
 
---- a/sound/core/seq/seq_ports.c
-+++ b/sound/core/seq/seq_ports.c
-@@ -514,10 +514,11 @@ static int check_and_subscribe_port(stru
- 	return err;
- }
+diff --git a/drivers/bus/ti-sysc.c b/drivers/bus/ti-sysc.c
+index 38cb116ed433..188cdb0a394e 100644
+--- a/drivers/bus/ti-sysc.c
++++ b/drivers/bus/ti-sysc.c
+@@ -100,6 +100,7 @@ static const char * const clock_names[SYSC_MAX_CLOCKS] = {
+  * @cookie: data used by legacy platform callbacks
+  * @name: name if available
+  * @revision: interconnect target module revision
++ * @reserved: target module is reserved and already in use
+  * @enabled: sysc runtime enabled status
+  * @needs_resume: runtime resume needed on resume from suspend
+  * @child_needs_resume: runtime resume needed for child on resume from suspend
+@@ -130,6 +131,7 @@ struct sysc {
+ 	struct ti_sysc_cookie cookie;
+ 	const char *name;
+ 	u32 revision;
++	unsigned int reserved:1;
+ 	unsigned int enabled:1;
+ 	unsigned int needs_resume:1;
+ 	unsigned int child_needs_resume:1;
+@@ -3093,8 +3095,8 @@ static int sysc_probe(struct platform_device *pdev)
+ 		return error;
  
--static void delete_and_unsubscribe_port(struct snd_seq_client *client,
--					struct snd_seq_client_port *port,
--					struct snd_seq_subscribers *subs,
--					bool is_src, bool ack)
-+/* called with grp->list_mutex held */
-+static void __delete_and_unsubscribe_port(struct snd_seq_client *client,
-+					  struct snd_seq_client_port *port,
-+					  struct snd_seq_subscribers *subs,
-+					  bool is_src, bool ack)
- {
- 	struct snd_seq_port_subs_info *grp;
- 	struct list_head *list;
-@@ -525,7 +526,6 @@ static void delete_and_unsubscribe_port(
+ 	error = sysc_check_active_timer(ddata);
+-	if (error)
+-		return error;
++	if (error == -EBUSY)
++		ddata->reserved = true;
  
- 	grp = is_src ? &port->c_src : &port->c_dest;
- 	list = is_src ? &subs->src_list : &subs->dest_list;
--	down_write(&grp->list_mutex);
- 	write_lock_irq(&grp->list_lock);
- 	empty = list_empty(list);
- 	if (!empty)
-@@ -535,6 +535,18 @@ static void delete_and_unsubscribe_port(
+ 	error = sysc_get_clocks(ddata);
+ 	if (error)
+@@ -3130,11 +3132,15 @@ static int sysc_probe(struct platform_device *pdev)
+ 	sysc_show_registers(ddata);
  
- 	if (!empty)
- 		unsubscribe_port(client, port, grp, &subs->info, ack);
-+}
+ 	ddata->dev->type = &sysc_device_type;
+-	error = of_platform_populate(ddata->dev->of_node, sysc_match_table,
+-				     pdata ? pdata->auxdata : NULL,
+-				     ddata->dev);
+-	if (error)
+-		goto err;
 +
-+static void delete_and_unsubscribe_port(struct snd_seq_client *client,
-+					struct snd_seq_client_port *port,
-+					struct snd_seq_subscribers *subs,
-+					bool is_src, bool ack)
-+{
-+	struct snd_seq_port_subs_info *grp;
-+
-+	grp = is_src ? &port->c_src : &port->c_dest;
-+	down_write(&grp->list_mutex);
-+	__delete_and_unsubscribe_port(client, port, subs, is_src, ack);
- 	up_write(&grp->list_mutex);
- }
++	if (!ddata->reserved) {
++		error = of_platform_populate(ddata->dev->of_node,
++					     sysc_match_table,
++					     pdata ? pdata->auxdata : NULL,
++					     ddata->dev);
++		if (error)
++			goto err;
++	}
  
-@@ -590,27 +602,30 @@ int snd_seq_port_disconnect(struct snd_s
- 			    struct snd_seq_client_port *dest_port,
- 			    struct snd_seq_port_subscribe *info)
- {
--	struct snd_seq_port_subs_info *src = &src_port->c_src;
-+	struct snd_seq_port_subs_info *dest = &dest_port->c_dest;
- 	struct snd_seq_subscribers *subs;
- 	int err = -ENOENT;
+ 	INIT_DELAYED_WORK(&ddata->idle_work, ti_sysc_idle);
  
--	down_write(&src->list_mutex);
-+	/* always start from deleting the dest port for avoiding concurrent
-+	 * deletions
-+	 */
-+	down_write(&dest->list_mutex);
- 	/* look for the connection */
--	list_for_each_entry(subs, &src->list_head, src_list) {
-+	list_for_each_entry(subs, &dest->list_head, dest_list) {
- 		if (match_subs_info(info, &subs->info)) {
--			atomic_dec(&subs->ref_count); /* mark as not ready */
-+			__delete_and_unsubscribe_port(dest_client, dest_port,
-+						      subs, false,
-+						      connector->number != dest_client->number);
- 			err = 0;
- 			break;
- 		}
- 	}
--	up_write(&src->list_mutex);
-+	up_write(&dest->list_mutex);
- 	if (err < 0)
- 		return err;
- 
- 	delete_and_unsubscribe_port(src_client, src_port, subs, true,
- 				    connector->number != src_client->number);
--	delete_and_unsubscribe_port(dest_client, dest_port, subs, false,
--				    connector->number != dest_client->number);
- 	kfree(subs);
- 	return 0;
- }
+-- 
+2.30.2
+
 
 
