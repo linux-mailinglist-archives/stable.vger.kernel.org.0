@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D25913E8023
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:47:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D44D53E7E57
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:32:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234195AbhHJRqV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:46:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38840 "EHLO mail.kernel.org"
+        id S231618AbhHJRcf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:32:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236183AbhHJRof (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:44:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D0F461101;
-        Tue, 10 Aug 2021 17:39:42 +0000 (UTC)
+        id S231522AbhHJRcc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:32:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 917B560F56;
+        Tue, 10 Aug 2021 17:32:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617182;
-        bh=A+ZmOuKwtpvP7/Z98qWtfl5PW+bujj7O8LS/Hqb3aoE=;
+        s=korg; t=1628616730;
+        bh=woKJPOPt/rh8d06DzkxMJZvZhND9Md2VJmpbfosLjbo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a8W8slFzXzlnBTS55laRl5zbmJfgBY8JmKHW56NkIzZs/XTqUlEG/9na5LDCjpxiq
-         N6nOspOhFNeqKNmK6sSdHzy9yqmk2dNuD82q7+kSoILlzSWJEQK90YTaGcWG/43DRN
-         9GESciNv4z7xwf3PfwsSMgEmuz1za3UyoUlLwEgI=
+        b=iX7nkVu70SlR3oARbiBWOCWGR2wrI9k1quEUpg5wcs0Ah9bjDVc7JN8ae14Nw0bML
+         F+sTmLkwAWg6N2AKxo2OvCfZG+WiieDosZtz9+WNq7+s7TpTX6sFdBl3WfyCwK6gTr
+         UfnunLJ8XMKHsUL8PdPZR1v3mcCx/x6d3WBGWqhk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tyler Hicks <tyhicks@linux.microsoft.com>,
-        Sumit Garg <sumit.garg@linaro.org>,
-        Jens Wiklander <jens.wiklander@linaro.org>
-Subject: [PATCH 5.10 082/135] tee: add tee_shm_alloc_kernel_buf()
+        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 22/54] USB: serial: option: add Telit FD980 composition 0x1056
 Date:   Tue, 10 Aug 2021 19:30:16 +0200
-Message-Id: <20210810172958.531581012@linuxfoundation.org>
+Message-Id: <20210810172944.904309734@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
-References: <20210810172955.660225700@linuxfoundation.org>
+In-Reply-To: <20210810172944.179901509@linuxfoundation.org>
+References: <20210810172944.179901509@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,60 +39,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Wiklander <jens.wiklander@linaro.org>
+From: Daniele Palmas <dnlplm@gmail.com>
 
-commit dc7019b7d0e188d4093b34bd0747ed0d668c63bf upstream.
+commit 5648c073c33d33a0a19d0cb1194a4eb88efe2b71 upstream.
 
-Adds a new function tee_shm_alloc_kernel_buf() to allocate shared memory
-from a kernel driver. This function can later be made more lightweight
-by unnecessary dma-buf export.
+Add the following Telit FD980 composition 0x1056:
 
+Cfg #1: mass storage
+Cfg #2: rndis, tty, adb, tty, tty, tty, tty
+
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+Link: https://lore.kernel.org/r/20210803194711.3036-1-dnlplm@gmail.com
 Cc: stable@vger.kernel.org
-Reviewed-by: Tyler Hicks <tyhicks@linux.microsoft.com>
-Reviewed-by: Sumit Garg <sumit.garg@linaro.org>
-Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tee/tee_shm.c   |   18 ++++++++++++++++++
- include/linux/tee_drv.h |    1 +
- 2 files changed, 19 insertions(+)
+ drivers/usb/serial/option.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/tee/tee_shm.c
-+++ b/drivers/tee/tee_shm.c
-@@ -193,6 +193,24 @@ err_dev_put:
- }
- EXPORT_SYMBOL_GPL(tee_shm_alloc);
- 
-+/**
-+ * tee_shm_alloc_kernel_buf() - Allocate shared memory for kernel buffer
-+ * @ctx:	Context that allocates the shared memory
-+ * @size:	Requested size of shared memory
-+ *
-+ * The returned memory registered in secure world and is suitable to be
-+ * passed as a memory buffer in parameter argument to
-+ * tee_client_invoke_func(). The memory allocated is later freed with a
-+ * call to tee_shm_free().
-+ *
-+ * @returns a pointer to 'struct tee_shm'
-+ */
-+struct tee_shm *tee_shm_alloc_kernel_buf(struct tee_context *ctx, size_t size)
-+{
-+	return tee_shm_alloc(ctx, size, TEE_SHM_MAPPED | TEE_SHM_DMA_BUF);
-+}
-+EXPORT_SYMBOL_GPL(tee_shm_alloc_kernel_buf);
-+
- struct tee_shm *tee_shm_register(struct tee_context *ctx, unsigned long addr,
- 				 size_t length, u32 flags)
- {
---- a/include/linux/tee_drv.h
-+++ b/include/linux/tee_drv.h
-@@ -332,6 +332,7 @@ void *tee_get_drvdata(struct tee_device
-  * @returns a pointer to 'struct tee_shm'
-  */
- struct tee_shm *tee_shm_alloc(struct tee_context *ctx, size_t size, u32 flags);
-+struct tee_shm *tee_shm_alloc_kernel_buf(struct tee_context *ctx, size_t size);
- 
- /**
-  * tee_shm_register() - Register shared memory buffer
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1203,6 +1203,8 @@ static const struct usb_device_id option
+ 	  .driver_info = NCTRL(2) | RSVD(3) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1055, 0xff),	/* Telit FN980 (PCIe) */
+ 	  .driver_info = NCTRL(0) | RSVD(1) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1056, 0xff),	/* Telit FD980 */
++	  .driver_info = NCTRL(2) | RSVD(3) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910),
+ 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(3) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910_DUAL_MODEM),
 
 
