@@ -2,63 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E53AB3E5B2A
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 15:22:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 022E13E5BF7
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 15:41:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241268AbhHJNWj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 09:22:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48080 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241280AbhHJNWh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Aug 2021 09:22:37 -0400
-Received: from mail-vs1-xe33.google.com (mail-vs1-xe33.google.com [IPv6:2607:f8b0:4864:20::e33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02A03C061799
-        for <stable@vger.kernel.org>; Tue, 10 Aug 2021 06:22:16 -0700 (PDT)
-Received: by mail-vs1-xe33.google.com with SMTP id h17so7571835vsu.0
-        for <stable@vger.kernel.org>; Tue, 10 Aug 2021 06:22:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:sender:from:date:message-id:subject:to;
-        bh=2tvLhkad0w+Mh63WhnFJkmRFgYsLXsJmUqGVjzUAFIo=;
-        b=J1UO03eOEZuQCAH1bWcfKEKq5BN5SPyduATu9zAtdU/RakoeJVptJM+gLsUtrEuonC
-         xdjUZ63bJi/qNQ5UDZHBQT/hmwjW1bdv9sPByvTJ8h/5L5XxMdVqy6Qo9WXsVmoqdiWQ
-         4Ftz7pewxY/KYf9xszWiqCYtsQFvCnK5UETJpndtJH0Uqw27XFp3UJ+uTNcza4QpjvGx
-         x9u8HXRO0yidD1GmT0+S3NKgMH35MGdW5mAtqxwerKT/2ehSyaHoRMhCCPfrjvO5Ca1w
-         yhKMTiwWuTIukqtW1PayeUqLVfPV0p+VQjbaWXU7mGfqRM/jI9IqwEdUk8GZdTJjxA8j
-         rWXw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
-         :to;
-        bh=2tvLhkad0w+Mh63WhnFJkmRFgYsLXsJmUqGVjzUAFIo=;
-        b=mfINHBPjLtTiARcteeL8LTYZ5WLFvCdyPODGnb/e6hBOnfjWdJdGhlP9+puIOR9aNX
-         DnqZtOtRXCcqNayvJrcZj7wsnbB3diKGaQG91IacbExYYHBNr4W3Jcrc0JpBrm57ZhBU
-         PKekoPR612uyuaYBCpn0ixMVXTvoIxHQRG8pEe9dGvUG3Yi4A2zkKoSmo1UgOa6sFkQ1
-         ZCKfF6wK/W41Dm3owIq7Wu6kTKrlp+3q4rdNNzX2WVMEpd7R8pKfO7pFfdPH9SJ2qYrL
-         VrLbnr5z1cdSq9aO7BLK9czgmoLkLYgD0Fc3eHDNpWL6U+JM0Dqa96RsT9+zPVlIOhS3
-         tYTw==
-X-Gm-Message-State: AOAM5329qyhbGYoak+GAYf1X1dObsL2mzvNysURodSCLWILWhF+H7h6O
-        wlFxLbLuaTj5KVagM73Ux1gAFytqHIAfX3iyyfc=
-X-Google-Smtp-Source: ABdhPJxGFR8diwPvQYpV37YYI8amPIHeE68wjx+g6TcpnlsWOg6QapJtOtZAzr+9JjnHmTmmodl/YrIjx7ZBaPCYCSM=
-X-Received: by 2002:a67:1c05:: with SMTP id c5mr21501896vsc.25.1628601735186;
- Tue, 10 Aug 2021 06:22:15 -0700 (PDT)
+        id S235257AbhHJNlp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 09:41:45 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:43462 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239750AbhHJNlo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Aug 2021 09:41:44 -0400
+Date:   Tue, 10 Aug 2021 13:41:19 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1628602880;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=MvqNAUK9CzyqMGlZRxuxmPHmqua1EIZDIwIvRqbZ9Bk=;
+        b=GgeEf5g5ykpI5MAk24OIMq4lJo2NMR3CT6BzKj+Ma4rhYN7whocYg/AA2zJVv/vqjU86df
+        ytwHTKnfXO8vDaZwQJJiGmlQIdvfWMwKWB4QPj41H62VRGue18kIUwX8Kxj1CXXc1mnMxM
+        cqVCVXBk+sOSgE98kwZFALXUtfcUXJe/gvtVvdtzgRPrAhnHn1VUtq3ba1uLXYPSJvEPfh
+        fr/M4ytPgwgYfh54wC43ai+GXsjqfG6qiwIM66wzLYq9UZIM+zAOX5/iZEqDxyCLMrV1aw
+        v1ai/NKF/wHMmykQ0TC6H9vVgJoaWCr4N9hbm5IwG3KWRra/7Jkn/xDE2Ew3gA==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1628602880;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=MvqNAUK9CzyqMGlZRxuxmPHmqua1EIZDIwIvRqbZ9Bk=;
+        b=LnsEQIXg9/53TLmragVDvux0mbaSzlQs9tg4WttdGZWQ1zic2s6UMeFdCoYGZHGM4oLrM/
+        k3NuyIRnzKl6qoBg==
+From:   "tip-bot2 for Ben Dai" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: irq/urgent] genirq/timings: Prevent potential array overflow in
+ __irq_timings_store()
+Cc:     Ben Dai <ben.dai@unisoc.com>, Thomas Gleixner <tglx@linutronix.de>,
+        stable@vger.kernel.org, x86@kernel.org,
+        linux-kernel@vger.kernel.org, maz@kernel.org
+In-Reply-To: <20210425150903.25456-1-ben.dai9703@gmail.com>
+References: <20210425150903.25456-1-ben.dai9703@gmail.com>
 MIME-Version: 1.0
-Sender: immeublesourou@gmail.com
-Received: by 2002:ab0:3903:0:0:0:0:0 with HTTP; Tue, 10 Aug 2021 06:22:14
- -0700 (PDT)
-From:   John Kumor <owo219901@gmail.com>
-Date:   Wed, 11 Aug 2021 01:22:14 +1200
-X-Google-Sender-Auth: GdaTxGfrES1uUqmP8dMlmdkbdyM
-Message-ID: <CAHdg_cQcGoZmM_yLB4+7UNSD_Lwo4ySucYJOuadLSmn4W2hi7g@mail.gmail.com>
-Subject: Urgent
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Message-ID: <162860287930.395.16257613336849312790.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-My dear,
-Greetings! I trust that all is well with you and your family. Did you
-receive my previous email?
-Regards
-John Kumor.
+The following commit has been merged into the irq/urgent branch of tip:
+
+Commit-ID:     b9cc7d8a4656a6e815852c27ab50365009cb69c1
+Gitweb:        https://git.kernel.org/tip/b9cc7d8a4656a6e815852c27ab50365009cb69c1
+Author:        Ben Dai <ben.dai@unisoc.com>
+AuthorDate:    Sun, 25 Apr 2021 23:09:03 +08:00
+Committer:     Thomas Gleixner <tglx@linutronix.de>
+CommitterDate: Tue, 10 Aug 2021 15:39:00 +02:00
+
+genirq/timings: Prevent potential array overflow in __irq_timings_store()
+
+When the interrupt interval is greater than 2 ^ PREDICTION_BUFFER_SIZE *
+PREDICTION_FACTOR us and less than 1s, the calculated index will be greater
+than the length of irqs->ema_time[]. Check the calculated index before
+using it to prevent array overflow.
+
+Fixes: 23aa3b9a6b7d ("genirq/timings: Encapsulate storing function")
+Signed-off-by: Ben Dai <ben.dai@unisoc.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210425150903.25456-1-ben.dai9703@gmail.com
+
+---
+ kernel/irq/timings.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/kernel/irq/timings.c b/kernel/irq/timings.c
+index d309d6f..4d2a702 100644
+--- a/kernel/irq/timings.c
++++ b/kernel/irq/timings.c
+@@ -453,6 +453,11 @@ static __always_inline void __irq_timings_store(int irq, struct irqt_stat *irqs,
+ 	 */
+ 	index = irq_timings_interval_index(interval);
+ 
++	if (index > PREDICTION_BUFFER_SIZE - 1) {
++		irqs->count = 0;
++		return;
++	}
++
+ 	/*
+ 	 * Store the index as an element of the pattern in another
+ 	 * circular array.
