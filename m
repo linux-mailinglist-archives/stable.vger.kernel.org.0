@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E1513E7EA4
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:34:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 573563E8008
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:45:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230440AbhHJReh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:34:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39322 "EHLO mail.kernel.org"
+        id S234110AbhHJRpn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:45:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232521AbhHJReJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:34:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6741F6109F;
-        Tue, 10 Aug 2021 17:33:44 +0000 (UTC)
+        id S235003AbhHJRoK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:44:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 771F761152;
+        Tue, 10 Aug 2021 17:39:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616825;
-        bh=Do6S9tWsL50rvbJAWA7Y25g1Mhue883Dv9sJ0GOnHvo=;
+        s=korg; t=1628617166;
+        bh=E/z/JvZfJMHCsozoepjfR5TwcFIaZZE+LoTO4kyoZxo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1TZRi1MEKrk44e6vGJ1AiUVPfc9tzqG+LZ0gjyj8+FSJXFasD1+wjCr4/FIDDJzqp
-         OwPOtjON+Vv/fLOLiNmM+pio4d0WPy7lXARSr0yrVskpECTsjOs7Tla0zpBKskMa4U
-         fl8Fd5j55Z4ORSjlVgmnNwcZMw/r+HYD1OOHC4gU=
+        b=AyxeoK0tQwDcav39W6fpYSJWNsrDiksm4pMo/z4BEAAmDcGfc3tOkJ/IEAP8s0je2
+         2l52+CpUO5e2IAmCkOCKfQYUywR7VPgzY43wf6Z1HbO7UmxKuinOdoj1ReyOXCbGkb
+         lhEOc63CnzlDlENfFojfsWNNtCkDJFgnOgXb+NjU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrien Precigout <dev@asdrip.fr>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.4 01/85] Revert "ACPICA: Fix memory leak caused by _CID repair function"
+        stable@vger.kernel.org, Fei Qin <fei.qin@corigine.com>,
+        Louis Peens <louis.peens@corigine.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 040/135] nfp: update ethtool reporting of pauseframe control
 Date:   Tue, 10 Aug 2021 19:29:34 +0200
-Message-Id: <20210810172948.243785270@linuxfoundation.org>
+Message-Id: <20210810172957.042063167@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
-References: <20210810172948.192298392@linuxfoundation.org>
+In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
+References: <20210810172955.660225700@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -41,36 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Fei Qin <fei.qin@corigine.com>
 
-commit 6511a8b5b7a65037340cd8ee91a377811effbc83 upstream.
+[ Upstream commit 9fdc5d85a8fe684cdf24dc31c6bc4a727decfe87 ]
 
-Revert commit c27bac0314131 ("ACPICA: Fix memory leak caused by _CID
-repair function") which is reported to cause a boot issue on Acer
-Swift 3 (SF314-51).
+Pauseframe control is set to symmetric mode by default on the NFP.
+Pause frames can not be configured through ethtool now, but ethtool can
+report the supported mode.
 
-Reported-by: Adrien Precigout <dev@asdrip.fr>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 265aeb511bd5 ("nfp: add support for .get_link_ksettings()")
+Signed-off-by: Fei Qin <fei.qin@corigine.com>
+Signed-off-by: Louis Peens <louis.peens@corigine.com>
+Signed-off-by: Simon Horman <simon.horman@corigine.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpica/nsrepair2.c |    7 -------
- 1 file changed, 7 deletions(-)
+ drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/acpi/acpica/nsrepair2.c
-+++ b/drivers/acpi/acpica/nsrepair2.c
-@@ -375,13 +375,6 @@ acpi_ns_repair_CID(struct acpi_evaluate_
+diff --git a/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c b/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c
+index 9c9ae33d84ce..c036a1d0f8de 100644
+--- a/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c
++++ b/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c
+@@ -286,6 +286,8 @@ nfp_net_get_link_ksettings(struct net_device *netdev,
  
- 			(*element_ptr)->common.reference_count =
- 			    original_ref_count;
--
--			/*
--			 * The original_element holds a reference from the package object
--			 * that represents _HID. Since a new element was created by _HID,
--			 * remove the reference from the _CID package.
--			 */
--			acpi_ut_remove_reference(original_element);
- 		}
- 
- 		element_ptr++;
+ 	/* Init to unknowns */
+ 	ethtool_link_ksettings_add_link_mode(cmd, supported, FIBRE);
++	ethtool_link_ksettings_add_link_mode(cmd, supported, Pause);
++	ethtool_link_ksettings_add_link_mode(cmd, advertising, Pause);
+ 	cmd->base.port = PORT_OTHER;
+ 	cmd->base.speed = SPEED_UNKNOWN;
+ 	cmd->base.duplex = DUPLEX_UNKNOWN;
+-- 
+2.30.2
+
 
 
