@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C5153E81ED
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:05:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C38D3E81F1
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:06:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238297AbhHJSD6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 14:03:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37776 "EHLO mail.kernel.org"
+        id S235266AbhHJSEC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 14:04:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234542AbhHJSB6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 14:01:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DD68A613A7;
-        Tue, 10 Aug 2021 17:47:27 +0000 (UTC)
+        id S235287AbhHJSCG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 14:02:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6CB0C613D3;
+        Tue, 10 Aug 2021 17:47:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617648;
-        bh=p+gzQ+WKbIpItmotzJJu2xF1GeLryVr5wMxaDXE+aKs=;
+        s=korg; t=1628617652;
+        bh=fYbPD6SIWsNFYHz6S+5gphmdOZh4iGMK8XZxOMbHG2k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1JbZLQzk5FWTP5aVMEb2umokuzfnTlcnS7J4kzqUqPu/krL+b13xpdVFe7bekolrt
-         OHsGYSrU5sVwYi2ZY91o7x2eO5wxqSE4jKdsB+t0KyVfKgh7C+IMmDfZxtc00ffOAW
-         fj9jWxHOraqT1/FPMlScNDivF5HUQQvonqgDBtWM=
+        b=X9a62Lm0FU3MBwcTDDrgGnJeIMeY4Ffw4JEakyhPjOu4JDm6WweS5aAyuwtnt+h5e
+         g16B9hXzvGH+7u8LQFNO1sllj6ejCoOCp3b854k36avSjNpCzApoaqFgKOEuwP2mAA
+         r/TgHnrzqFOSu5mri/rOwVnjtBTdecyXTKc1MRD0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Georgi Djakov <djakov@kernel.org>
-Subject: [PATCH 5.13 152/175] interconnect: Fix undersized devress_alloc allocation
-Date:   Tue, 10 Aug 2021 19:31:00 +0200
-Message-Id: <20210810173005.987525258@linuxfoundation.org>
+        stable@vger.kernel.org, Pawel Laszczak <pawell@cadence.com>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Peter Chen <peter.chen@kernel.org>
+Subject: [PATCH 5.13 153/175] usb: cdnsp: Fix the IMAN_IE_SET and IMAN_IE_CLEAR macro
+Date:   Tue, 10 Aug 2021 19:31:01 +0200
+Message-Id: <20210810173006.019253407@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
 References: <20210810173000.928681411@linuxfoundation.org>
@@ -39,33 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit 85b1ebfea2b0d8797266bcc6f04b6cc87e38290a upstream.
+commit 5df09c15bab98463203c83ecab88b9321466e626 upstream.
 
-The expression sizeof(**ptr) for the void **ptr is just 1 rather than
-the size of a pointer. Fix this by using sizeof(*ptr).
+IMAN_IE is BIT(1), so these macro are respectively equivalent to BIT(1)
+and 0, whatever the value of 'p'.
 
-Addresses-Coverity: ("Wrong sizeof argument")
-Fixes: e145d9a184f2 ("interconnect: Add devm_of_icc_get() as exported API for users")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Link: https://lore.kernel.org/r/20210730075408.19945-1-colin.king@canonical.com
-Signed-off-by: Georgi Djakov <djakov@kernel.org>
+The purpose was to set and reset a single bit in 'p'.
+Fix these macros to do that correctly.
+
+Acked-by: Pawel Laszczak <pawell@cadence.com>
+Fixes: e93e58d27402 ("usb: cdnsp: Device side header file for CDNSP driver")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/d12bfcc9cbffb89e27b120668821b3c4f09b6755.1624390584.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Peter Chen <peter.chen@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/interconnect/core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/cdns3/cdnsp-gadget.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/interconnect/core.c
-+++ b/drivers/interconnect/core.c
-@@ -403,7 +403,7 @@ struct icc_path *devm_of_icc_get(struct
- {
- 	struct icc_path **ptr, *path;
+--- a/drivers/usb/cdns3/cdnsp-gadget.h
++++ b/drivers/usb/cdns3/cdnsp-gadget.h
+@@ -383,8 +383,8 @@ struct cdnsp_intr_reg {
+ #define IMAN_IE			BIT(1)
+ #define IMAN_IP			BIT(0)
+ /* bits 2:31 need to be preserved */
+-#define IMAN_IE_SET(p)		(((p) & IMAN_IE) | 0x2)
+-#define IMAN_IE_CLEAR(p)	(((p) & IMAN_IE) & ~(0x2))
++#define IMAN_IE_SET(p)		((p) | IMAN_IE)
++#define IMAN_IE_CLEAR(p)	((p) & ~IMAN_IE)
  
--	ptr = devres_alloc(devm_icc_release, sizeof(**ptr), GFP_KERNEL);
-+	ptr = devres_alloc(devm_icc_release, sizeof(*ptr), GFP_KERNEL);
- 	if (!ptr)
- 		return ERR_PTR(-ENOMEM);
- 
+ /* IMOD - Interrupter Moderation Register - irq_control bitmasks. */
+ /*
 
 
