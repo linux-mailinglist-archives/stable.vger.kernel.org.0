@@ -2,31 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC4733E81DF
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:05:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D92133E81A0
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:01:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237837AbhHJSDb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 14:03:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60680 "EHLO mail.kernel.org"
+        id S237481AbhHJSAl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 14:00:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59580 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231324AbhHJSB3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 14:01:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 356C161186;
-        Tue, 10 Aug 2021 17:47:03 +0000 (UTC)
+        id S236497AbhHJR67 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:58:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9950F6113A;
+        Tue, 10 Aug 2021 17:46:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617623;
-        bh=7JPd5TI+quikPazaZthqblTvGHnfh1lhRrFWrqZR3Sg=;
+        s=korg; t=1628617567;
+        bh=rWzar62zifTqpmMCntjMbUBKnJw/jGeZW1B59B3H2EA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nsK5nypTEVpUjVcFWCsflLWJTrzatD3OsURW/OxIJxmHZ+RZOTM6XFG3WKv2xDr/d
-         hozY4LiOMk9nJAgPJ7YvMowMoEQjdLvXZTXN349Hcet5RkhIJFVb1JXaj83GVMdqkC
-         KywcS42mXYZm1gTLz9lS5bP36Z/8Ll+VLKWacV5s=
+        b=orx1cwCWLwy8QC+1oxKv2cEZns6e0BDG83OyO6Fk2ufdECfDo19FritI4RcsXFMmg
+         l4EEZzs6ck5F/AhenEqRBbRGBCqkZ3kZqbKWtyAMVTG2ePM58AhglV9HbvTaUJNwTz
+         htaWVleCl3HKcTMu1p3vCKrAQB07f0OAaWEB2jCY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Devaev <mdevaev@gmail.com>
-Subject: [PATCH 5.13 096/175] usb: gadget: f_hid: idle uses the highest byte for duration
-Date:   Tue, 10 Aug 2021 19:30:04 +0200
-Message-Id: <20210810173004.113286146@linuxfoundation.org>
+        stable@vger.kernel.org, Badhri Jagan Sridharan <badhri@google.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Kyle Tso <kyletso@google.com>
+Subject: [PATCH 5.13 098/175] usb: typec: tcpm: Keep other events when receiving FRS and Sourcing_vbus events
+Date:   Tue, 10 Aug 2021 19:30:06 +0200
+Message-Id: <20210810173004.184959769@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
 References: <20210810173000.928681411@linuxfoundation.org>
@@ -38,32 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Devaev <mdevaev@gmail.com>
+From: Kyle Tso <kyletso@google.com>
 
-commit fa20bada3f934e3b3e4af4c77e5b518cd5a282e5 upstream.
+commit 43ad944cd73f2360ec8ff31d29ea44830b3119af upstream.
 
-SET_IDLE value must be shifted 8 bits to the right to get duration.
-This confirmed by USBCV test.
+When receiving FRS and Sourcing_Vbus events from low-level drivers, keep
+other events which come a bit earlier so that they will not be ignored
+in the event handler.
 
-Fixes: afcff6dc690e ("usb: gadget: f_hid: added GET_IDLE and SET_IDLE handlers")
+Fixes: 8dc4bd073663 ("usb: typec: tcpm: Add support for Sink Fast Role SWAP(FRS)")
 Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Maxim Devaev <mdevaev@gmail.com>
-Link: https://lore.kernel.org/r/20210727185800.43796-1-mdevaev@gmail.com
+Cc: Badhri Jagan Sridharan <badhri@google.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Badhri Jagan Sridharan <badhri@google.com>
+Signed-off-by: Kyle Tso <kyletso@google.com>
+Link: https://lore.kernel.org/r/20210803091314.3051302-1-kyletso@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/function/f_hid.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/typec/tcpm/tcpm.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/gadget/function/f_hid.c
-+++ b/drivers/usb/gadget/function/f_hid.c
-@@ -573,7 +573,7 @@ static int hidg_setup(struct usb_functio
- 		  | HID_REQ_SET_IDLE):
- 		VDBG(cdev, "set_idle\n");
- 		length = 0;
--		hidg->idle = value;
-+		hidg->idle = value >> 8;
- 		goto respond;
- 		break;
- 
+--- a/drivers/usb/typec/tcpm/tcpm.c
++++ b/drivers/usb/typec/tcpm/tcpm.c
+@@ -5355,7 +5355,7 @@ EXPORT_SYMBOL_GPL(tcpm_pd_hard_reset);
+ void tcpm_sink_frs(struct tcpm_port *port)
+ {
+ 	spin_lock(&port->pd_event_lock);
+-	port->pd_events = TCPM_FRS_EVENT;
++	port->pd_events |= TCPM_FRS_EVENT;
+ 	spin_unlock(&port->pd_event_lock);
+ 	kthread_queue_work(port->wq, &port->event_work);
+ }
+@@ -5364,7 +5364,7 @@ EXPORT_SYMBOL_GPL(tcpm_sink_frs);
+ void tcpm_sourcing_vbus(struct tcpm_port *port)
+ {
+ 	spin_lock(&port->pd_event_lock);
+-	port->pd_events = TCPM_SOURCING_VBUS;
++	port->pd_events |= TCPM_SOURCING_VBUS;
+ 	spin_unlock(&port->pd_event_lock);
+ 	kthread_queue_work(port->wq, &port->event_work);
+ }
 
 
