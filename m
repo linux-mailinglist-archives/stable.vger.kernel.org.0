@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BDA73E7F1B
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:37:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D27B53E7E61
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:32:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231439AbhHJRhS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:37:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33340 "EHLO mail.kernel.org"
+        id S232020AbhHJRc4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:32:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233715AbhHJRfm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:35:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 87A6961101;
-        Tue, 10 Aug 2021 17:35:12 +0000 (UTC)
+        id S229774AbhHJRcm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:32:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6DA9B60F94;
+        Tue, 10 Aug 2021 17:32:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616913;
-        bh=KbIjo1CgdEAh2k2GBQcCXB+34k/yUSrGN+77x1fi/0o=;
+        s=korg; t=1628616739;
+        bh=d3zBzhSd99CWVBT9rN43GfypKWv50i8yK0avktkkfJ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aBYYqrjBtBC5iqNl3p6gXPr3bFjQYpb47XDELU8VQeipAoJ52DPogtCp3IN/1zJUR
-         uC1jkCY6zPqwGMhik25yOGEFQFB9oHE6tnLY8sfZ8ovhHANFW5UJMyeyLyW+ugvk7w
-         v9B6dhemgvttWzKEcafeEpmni+6PaIm1R9JIh4tA=
+        b=L51+VaNljCuGc/FpU6nDngNVVuZMMgSOQkhA5CZH0Jq+P0RxF6FJMyH4iju/GzntW
+         j1v/H48IoUm/lThoHvEjl9rOmZef8hpFZwcF4i+sIH5KFYAw3G+ad7nwg+5eodTMad
+         UcP9kagGk6BEfsAMUNOLg7nM6YJjMKrh7hTdcNIU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Devaev <mdevaev@gmail.com>,
-        Phil Elwell <phil@raspberrypi.com>
-Subject: [PATCH 5.4 46/85] usb: gadget: f_hid: fixed NULL pointer dereference
+        stable@vger.kernel.org, Luis Chamberlain <mcgrof@kernel.org>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Anirudh Rayabharam <mail@anirudhrb.com>
+Subject: [PATCH 4.19 25/54] firmware_loader: use -ETIMEDOUT instead of -EAGAIN in fw_load_sysfs_fallback
 Date:   Tue, 10 Aug 2021 19:30:19 +0200
-Message-Id: <20210810172949.793384993@linuxfoundation.org>
+Message-Id: <20210810172945.006060660@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
-References: <20210810172948.192298392@linuxfoundation.org>
+In-Reply-To: <20210810172944.179901509@linuxfoundation.org>
+References: <20210810172944.179901509@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,79 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phil Elwell <phil@raspberrypi.com>
+From: Anirudh Rayabharam <mail@anirudhrb.com>
 
-commit 2867652e4766360adf14dfda3832455e04964f2a upstream.
+commit 0d6434e10b5377a006f6dd995c8fc5e2d82acddc upstream.
 
-Disconnecting and reconnecting the USB cable can lead to crashes
-and a variety of kernel log spam.
+The only motivation for using -EAGAIN in commit 0542ad88fbdd81bb
+("firmware loader: Fix _request_firmware_load() return val for fw load
+abort") was to distinguish the error from -ENOMEM, and so there is no
+real reason in keeping it. -EAGAIN is typically used to tell the
+userspace to try something again and in this case re-using the sysfs
+loading interface cannot be retried when a timeout happens, so the
+return value is also bogus.
 
-The problem was found and reproduced on the Raspberry Pi [1]
-and the original fix was created in Raspberry's own fork [2].
+-ETIMEDOUT is received when the wait times out and returning that
+is much more telling of what the reason for the failure was. So, just
+propagate that instead of returning -EAGAIN.
 
-Link: https://github.com/raspberrypi/linux/issues/3870 [1]
-Link: https://github.com/raspberrypi/linux/commit/a6e47d5f4efbd2ea6a0b6565cd2f9b7bb217ded5 [2]
-Signed-off-by: Maxim Devaev <mdevaev@gmail.com>
-Signed-off-by: Phil Elwell <phil@raspberrypi.com>
+Suggested-by: Luis Chamberlain <mcgrof@kernel.org>
+Reviewed-by: Shuah Khan <skhan@linuxfoundation.org>
+Acked-by: Luis Chamberlain <mcgrof@kernel.org>
+Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210723155928.210019-1-mdevaev@gmail.com
+Link: https://lore.kernel.org/r/20210728085107.4141-2-mail@anirudhrb.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/function/f_hid.c |   26 ++++++++++++++++++++------
- 1 file changed, 20 insertions(+), 6 deletions(-)
+ drivers/base/firmware_loader/fallback.c |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/drivers/usb/gadget/function/f_hid.c
-+++ b/drivers/usb/gadget/function/f_hid.c
-@@ -345,6 +345,11 @@ static ssize_t f_hidg_write(struct file
+--- a/drivers/base/firmware_loader/fallback.c
++++ b/drivers/base/firmware_loader/fallback.c
+@@ -581,8 +581,6 @@ static int fw_load_sysfs_fallback(struct
+ 	if (fw_state_is_aborted(fw_priv)) {
+ 		if (retval == -ERESTARTSYS)
+ 			retval = -EINTR;
+-		else
+-			retval = -EAGAIN;
+ 	} else if (fw_priv->is_paged_buf && !fw_priv->data)
+ 		retval = -ENOMEM;
  
- 	spin_lock_irqsave(&hidg->write_spinlock, flags);
- 
-+	if (!hidg->req) {
-+		spin_unlock_irqrestore(&hidg->write_spinlock, flags);
-+		return -ESHUTDOWN;
-+	}
-+
- #define WRITE_COND (!hidg->write_pending)
- try_again:
- 	/* write queue */
-@@ -365,8 +370,14 @@ try_again:
- 	count  = min_t(unsigned, count, hidg->report_length);
- 
- 	spin_unlock_irqrestore(&hidg->write_spinlock, flags);
--	status = copy_from_user(req->buf, buffer, count);
- 
-+	if (!req) {
-+		ERROR(hidg->func.config->cdev, "hidg->req is NULL\n");
-+		status = -ESHUTDOWN;
-+		goto release_write_pending;
-+	}
-+
-+	status = copy_from_user(req->buf, buffer, count);
- 	if (status != 0) {
- 		ERROR(hidg->func.config->cdev,
- 			"copy_from_user error\n");
-@@ -394,14 +405,17 @@ try_again:
- 
- 	spin_unlock_irqrestore(&hidg->write_spinlock, flags);
- 
-+	if (!hidg->in_ep->enabled) {
-+		ERROR(hidg->func.config->cdev, "in_ep is disabled\n");
-+		status = -ESHUTDOWN;
-+		goto release_write_pending;
-+	}
-+
- 	status = usb_ep_queue(hidg->in_ep, req, GFP_ATOMIC);
--	if (status < 0) {
--		ERROR(hidg->func.config->cdev,
--			"usb_ep_queue error on int endpoint %zd\n", status);
-+	if (status < 0)
- 		goto release_write_pending;
--	} else {
-+	else
- 		status = count;
--	}
- 
- 	return status;
- release_write_pending:
 
 
