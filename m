@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F69D3E813F
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:57:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BDA23E7FD9
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:45:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236390AbhHJR46 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:56:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52288 "EHLO mail.kernel.org"
+        id S235687AbhHJRnl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:43:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237737AbhHJRyy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:54:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 52DBE6108C;
-        Tue, 10 Aug 2021 17:44:33 +0000 (UTC)
+        id S234913AbhHJRlm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:41:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DD37061212;
+        Tue, 10 Aug 2021 17:38:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617473;
-        bh=l8tU+aNvmiH3O6wifGTHLkYIXutAko7PDTr3+NYhIzc=;
+        s=korg; t=1628617108;
+        bh=mtHvomnz+GOQ0h9ygikC2fB+8jfm/bjDlMaEj3vsUxQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VHvcsE9rWTKFvW68eZ16EBIWZL+KhxU6kUZt6gDnLraShG9ndyX8M1Gbq8uI5JTKZ
-         OMAC3Ggr+bDpLTh8zaqdDqw1SBHUQ1Q0XAgrNXi4IzxC1NC7PJMsRUuHQN8k9LADM0
-         x8cICHEUyHA92ajPKDUt6IjNfrpAVorTwWxDi/Zc=
+        b=haagob9z+kTqrstREMyM1KAOfQ+tcw7yCBSN6GS/FRa3tSp+bQ3RkfraOA3BoLrDQ
+         TJfMpjXLK8yJlUIBkzPRAu+GUZ7i6nfgC14Nj07M/Y+iMMxBdbSv41gaOAsJWVX6Y0
+         qtckmbptYYVqNBD93jAkxkfZu2EJoUA5m3SckRvk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Willy Tarreau <w@1wt.eu>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.13 075/175] USB: serial: ch341: fix character loss at high transfer rates
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Pavel Skripkin <paskripkin@gmail.com>,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 049/135] net: vxge: fix use-after-free in vxge_device_unregister
 Date:   Tue, 10 Aug 2021 19:29:43 +0200
-Message-Id: <20210810173003.403776370@linuxfoundation.org>
+Message-Id: <20210810172957.355515739@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
-References: <20210810173000.928681411@linuxfoundation.org>
+In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
+References: <20210810172955.660225700@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,45 +42,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willy Tarreau <w@1wt.eu>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit 3c18e9baee0ef97510dcda78c82285f52626764b upstream.
+[ Upstream commit 942e560a3d3862dd5dee1411dbdd7097d29b8416 ]
 
-The chip supports high transfer rates, but with the small default buffers
-(64 bytes read), some entire blocks are regularly lost. This typically
-happens at 1.5 Mbps (which is the default speed on Rockchip devices) when
-used as a console to access U-Boot where the output of the "help" command
-misses many lines and where "printenv" mangles the environment.
+Smatch says:
+drivers/net/ethernet/neterion/vxge/vxge-main.c:3518 vxge_device_unregister() error: Using vdev after free_{netdev,candev}(dev);
+drivers/net/ethernet/neterion/vxge/vxge-main.c:3518 vxge_device_unregister() error: Using vdev after free_{netdev,candev}(dev);
+drivers/net/ethernet/neterion/vxge/vxge-main.c:3520 vxge_device_unregister() error: Using vdev after free_{netdev,candev}(dev);
+drivers/net/ethernet/neterion/vxge/vxge-main.c:3520 vxge_device_unregister() error: Using vdev after free_{netdev,candev}(dev);
 
-The FTDI driver doesn't suffer at all from this. One difference is that
-it uses 512 bytes rx buffers and 256 bytes tx buffers. Adopting these
-values completely resolved the issue, even the output of "dmesg" is
-reliable. I preferred to leave the Tx value unchanged as it is not
-involved in this issue, while a change could increase the risk of
-triggering the same issue with other devices having too small buffers.
+Since vdev pointer is netdev private data accessing it after free_netdev()
+call can cause use-after-free bug. Fix it by moving free_netdev() call at
+the end of the function
 
-I verified that it backports well (and works) at least to 5.4. It's of
-low importance enough to be dropped where it doesn't trivially apply
-anymore.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Willy Tarreau <w@1wt.eu>
-Link: https://lore.kernel.org/r/20210724152739.18726-1-w@1wt.eu
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 6cca200362b4 ("vxge: cleanup probe error paths")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Reviewed-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/ch341.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/neterion/vxge/vxge-main.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/serial/ch341.c
-+++ b/drivers/usb/serial/ch341.c
-@@ -851,6 +851,7 @@ static struct usb_serial_driver ch341_de
- 		.owner	= THIS_MODULE,
- 		.name	= "ch341-uart",
- 	},
-+	.bulk_in_size      = 512,
- 	.id_table          = id_table,
- 	.num_ports         = 1,
- 	.open              = ch341_open,
+diff --git a/drivers/net/ethernet/neterion/vxge/vxge-main.c b/drivers/net/ethernet/neterion/vxge/vxge-main.c
+index 87892bd992b1..56556373548c 100644
+--- a/drivers/net/ethernet/neterion/vxge/vxge-main.c
++++ b/drivers/net/ethernet/neterion/vxge/vxge-main.c
+@@ -3527,13 +3527,13 @@ static void vxge_device_unregister(struct __vxge_hw_device *hldev)
+ 
+ 	kfree(vdev->vpaths);
+ 
+-	/* we are safe to free it now */
+-	free_netdev(dev);
+-
+ 	vxge_debug_init(vdev->level_trace, "%s: ethernet device unregistered",
+ 			buf);
+ 	vxge_debug_entryexit(vdev->level_trace,	"%s: %s:%d  Exiting...", buf,
+ 			     __func__, __LINE__);
++
++	/* we are safe to free it now */
++	free_netdev(dev);
+ }
+ 
+ /*
+-- 
+2.30.2
+
 
 
