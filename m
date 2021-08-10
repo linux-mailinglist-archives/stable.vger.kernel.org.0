@@ -2,192 +2,190 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 794AE3E7D76
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 18:26:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4CB73E7E06
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:10:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230448AbhHJQ0d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 12:26:33 -0400
-Received: from linux.microsoft.com ([13.77.154.182]:52944 "EHLO
-        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230215AbhHJQ0d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Aug 2021 12:26:33 -0400
-Received: from sequoia (162-237-133-238.lightspeed.rcsntx.sbcglobal.net [162.237.133.238])
-        by linux.microsoft.com (Postfix) with ESMTPSA id 62A4320A3A3E;
-        Tue, 10 Aug 2021 09:26:10 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 62A4320A3A3E
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1628612770;
-        bh=PTraGGix2NfcwmlJdkT79ho0zcTT8CzBHrXz8LYkkAA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=rHRHLqI6U6CHPYnIq/wRo9h4ygHneXP1UgUJq9mWeOc5Wv8QB/aA4OSFpQvn5S59d
-         oy4mhRgjje1PHxo85shT5mWOkm21q08cgaMu/kDzXwIaVVykzUw18kZKN2M56V/co1
-         FU2CCW873DZZP8W0Wi0tB7asJ+q+M9X5Gp4TsTwo=
-Date:   Tue, 10 Aug 2021 11:26:08 -0500
-From:   Tyler Hicks <tyhicks@linux.microsoft.com>
-To:     gregkh@linuxfoundation.org
-Cc:     sumit.garg@linaro.org, jens.wiklander@linaro.org,
-        stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] tee: Correct inappropriate usage of
- TEE_SHM_DMA_BUF flag" failed to apply to 4.19-stable tree
-Message-ID: <20210810162608.GF5469@sequoia>
-References: <1628500697195159@kroah.com>
+        id S229679AbhHJRLE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:11:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45574 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229474AbhHJRLE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Aug 2021 13:11:04 -0400
+Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 113D0C0613C1
+        for <stable@vger.kernel.org>; Tue, 10 Aug 2021 10:10:42 -0700 (PDT)
+Received: by mail-pj1-x102b.google.com with SMTP id nt11so10866648pjb.2
+        for <stable@vger.kernel.org>; Tue, 10 Aug 2021 10:10:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=fvSavD1R9IGFaSY2WG908sXhsrHl7Ay98CmqzspOKxY=;
+        b=DJsJpUf6iPnsIvNkkfH69DrxzqaTWR3Fc8Hn6Opob/lRqzL1duVh6lLhU4+MD7jOi1
+         agy3A4w8wKceg4nXwU4zETnDSfYUvRJr1Jkk2NPhSmgXI37ANBDQc5HAUAqFOZZvC7kJ
+         yEHAxeN5HR9LlY/WbXq1TGoPenFr2P90W8dw1UfrZ/vYmih8XI8cEAZ3+jRfAmWJVqru
+         yXPN+Sl8+LRDxOr30B6qxKJA1NX/vwyEzijdLbVRsJ6rlhCY/Os1di3sS6FBpvU2nkzI
+         tn4DjSPoREd9lxVQkwOi7WXxWMUKlQtb8UHReCuXdPSVCxiKv1bsPHFD0dPWGeL1DKKO
+         RrjQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=fvSavD1R9IGFaSY2WG908sXhsrHl7Ay98CmqzspOKxY=;
+        b=l7tvqj7en8LyOXSVG9ck3rVRIOjnhLb4Rr/B1kmwLY55aaoNbJDlecygjLQ/ViDOaj
+         GGrpHGtgStT5TTC0mgE0mgUYINYigKoSB+jEy06N58DGBdpGPjCeOlUbRBhQBzlybExj
+         z8CYNJGRfaIt1Fn5BFuso0yuZ9KmN3XiHutXoquAtQ8hjUmf4/5UOkTR65VDZuElq/Ou
+         ABSZ35cB6jGQ0hYx/+FqT2kApMqQpRdBCnhxAieS3DwqQHYkqwhC7kGwfiYEn7JrrGbh
+         FrPe0t/O+vDyLjAxz4UjaOe2J6NpfQwHw5UPIhFDGIwUakITKAvOgSf8+UXJ0qg2u5dL
+         W93Q==
+X-Gm-Message-State: AOAM531O5PpcXuiybUQJ8aPmA5w2+8JkBl6Hwj9n4kuZDWPkRLjG4PXM
+        DULnjydJd5yvAz298WDuv1f4ymhfNpEHxUgc
+X-Google-Smtp-Source: ABdhPJwik4bKf/tjc6/ygFIjWh8M6qIzUiPwnxsgYUDVGAAA0jdUE7x+PuzFyx6mi8zkHSRI5imVTA==
+X-Received: by 2002:a17:90b:17c3:: with SMTP id me3mr5844413pjb.203.1628615441405;
+        Tue, 10 Aug 2021 10:10:41 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id u3sm21267750pfn.76.2021.08.10.10.10.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 10 Aug 2021 10:10:41 -0700 (PDT)
+Message-ID: <6112b311.1c69fb81.4f5ac.e760@mx.google.com>
+Date:   Tue, 10 Aug 2021 10:10:41 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1628500697195159@kroah.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/5.10
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.10.57-125-ge4a7485167f0
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/5.10 baseline: 154 runs,
+ 4 regressions (v5.10.57-125-ge4a7485167f0)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2021-08-09 11:18:17, gregkh@linuxfoundation.org wrote:
-> 
-> The patch below does not apply to the 4.19-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
+stable-rc/queue/5.10 baseline: 154 runs, 4 regressions (v5.10.57-125-ge4a74=
+85167f0)
 
-Hi Greg - This patch isn't needed for 4.19 nor 4.14. I'll send you a
-backport for 5.4 and 5.10 shortly.
+Regressions Summary
+-------------------
 
-Tyler
+platform          | arch  | lab           | compiler | defconfig          |=
+ regressions
+------------------+-------+---------------+----------+--------------------+=
+------------
+hip07-d05         | arm64 | lab-collabora | gcc-8    | defconfig          |=
+ 1          =
 
-> 
-> thanks,
-> 
-> greg k-h
-> 
-> ------------------ original commit in Linus's tree ------------------
-> 
-> From 376e4199e327a5cf29b8ec8fb0f64f3d8b429819 Mon Sep 17 00:00:00 2001
-> From: Sumit Garg <sumit.garg@linaro.org>
-> Date: Mon, 14 Jun 2021 17:33:15 -0500
-> Subject: [PATCH] tee: Correct inappropriate usage of TEE_SHM_DMA_BUF flag
-> 
-> Currently TEE_SHM_DMA_BUF flag has been inappropriately used to not
-> register shared memory allocated for private usage by underlying TEE
-> driver: OP-TEE in this case. So rather add a new flag as TEE_SHM_PRIV
-> that can be utilized by underlying TEE drivers for private allocation
-> and usage of shared memory.
-> 
-> With this corrected, allow tee_shm_alloc_kernel_buf() to allocate a
-> shared memory region without the backing of dma-buf.
-> 
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Sumit Garg <sumit.garg@linaro.org>
-> Co-developed-by: Tyler Hicks <tyhicks@linux.microsoft.com>
-> Signed-off-by: Tyler Hicks <tyhicks@linux.microsoft.com>
-> Reviewed-by: Jens Wiklander <jens.wiklander@linaro.org>
-> Reviewed-by: Sumit Garg <sumit.garg@linaro.org>
-> Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
-> 
-> diff --git a/drivers/tee/optee/call.c b/drivers/tee/optee/call.c
-> index 387e94768182..945f03da0223 100644
-> --- a/drivers/tee/optee/call.c
-> +++ b/drivers/tee/optee/call.c
-> @@ -184,7 +184,7 @@ static struct tee_shm *get_msg_arg(struct tee_context *ctx, size_t num_params,
->  	struct optee_msg_arg *ma;
->  
->  	shm = tee_shm_alloc(ctx, OPTEE_MSG_GET_ARG_SIZE(num_params),
-> -			    TEE_SHM_MAPPED);
-> +			    TEE_SHM_MAPPED | TEE_SHM_PRIV);
->  	if (IS_ERR(shm))
->  		return shm;
->  
-> diff --git a/drivers/tee/optee/core.c b/drivers/tee/optee/core.c
-> index 651d49b53d3b..5ce13b099d7d 100644
-> --- a/drivers/tee/optee/core.c
-> +++ b/drivers/tee/optee/core.c
-> @@ -278,7 +278,8 @@ static void optee_release(struct tee_context *ctx)
->  	if (!ctxdata)
->  		return;
->  
-> -	shm = tee_shm_alloc(ctx, sizeof(struct optee_msg_arg), TEE_SHM_MAPPED);
-> +	shm = tee_shm_alloc(ctx, sizeof(struct optee_msg_arg),
-> +			    TEE_SHM_MAPPED | TEE_SHM_PRIV);
->  	if (!IS_ERR(shm)) {
->  		arg = tee_shm_get_va(shm, 0);
->  		/*
-> diff --git a/drivers/tee/optee/rpc.c b/drivers/tee/optee/rpc.c
-> index 1849180b0278..efbaff7ad7e5 100644
-> --- a/drivers/tee/optee/rpc.c
-> +++ b/drivers/tee/optee/rpc.c
-> @@ -314,7 +314,7 @@ static void handle_rpc_func_cmd_shm_alloc(struct tee_context *ctx,
->  		shm = cmd_alloc_suppl(ctx, sz);
->  		break;
->  	case OPTEE_RPC_SHM_TYPE_KERNEL:
-> -		shm = tee_shm_alloc(ctx, sz, TEE_SHM_MAPPED);
-> +		shm = tee_shm_alloc(ctx, sz, TEE_SHM_MAPPED | TEE_SHM_PRIV);
->  		break;
->  	default:
->  		arg->ret = TEEC_ERROR_BAD_PARAMETERS;
-> @@ -502,7 +502,8 @@ void optee_handle_rpc(struct tee_context *ctx, struct optee_rpc_param *param,
->  
->  	switch (OPTEE_SMC_RETURN_GET_RPC_FUNC(param->a0)) {
->  	case OPTEE_SMC_RPC_FUNC_ALLOC:
-> -		shm = tee_shm_alloc(ctx, param->a1, TEE_SHM_MAPPED);
-> +		shm = tee_shm_alloc(ctx, param->a1,
-> +				    TEE_SHM_MAPPED | TEE_SHM_PRIV);
->  		if (!IS_ERR(shm) && !tee_shm_get_pa(shm, 0, &pa)) {
->  			reg_pair_from_64(&param->a1, &param->a2, pa);
->  			reg_pair_from_64(&param->a4, &param->a5,
-> diff --git a/drivers/tee/optee/shm_pool.c b/drivers/tee/optee/shm_pool.c
-> index da06ce9b9313..c41a9a501a6e 100644
-> --- a/drivers/tee/optee/shm_pool.c
-> +++ b/drivers/tee/optee/shm_pool.c
-> @@ -27,7 +27,11 @@ static int pool_op_alloc(struct tee_shm_pool_mgr *poolm,
->  	shm->paddr = page_to_phys(page);
->  	shm->size = PAGE_SIZE << order;
->  
-> -	if (shm->flags & TEE_SHM_DMA_BUF) {
-> +	/*
-> +	 * Shared memory private to the OP-TEE driver doesn't need
-> +	 * to be registered with OP-TEE.
-> +	 */
-> +	if (!(shm->flags & TEE_SHM_PRIV)) {
->  		unsigned int nr_pages = 1 << order, i;
->  		struct page **pages;
->  
-> @@ -60,7 +64,7 @@ static int pool_op_alloc(struct tee_shm_pool_mgr *poolm,
->  static void pool_op_free(struct tee_shm_pool_mgr *poolm,
->  			 struct tee_shm *shm)
->  {
-> -	if (shm->flags & TEE_SHM_DMA_BUF)
-> +	if (!(shm->flags & TEE_SHM_PRIV))
->  		optee_shm_unregister(shm->ctx, shm);
->  
->  	free_pages((unsigned long)shm->kaddr, get_order(shm->size));
-> diff --git a/drivers/tee/tee_shm.c b/drivers/tee/tee_shm.c
-> index c65e44707cd6..8a9384a64f3e 100644
-> --- a/drivers/tee/tee_shm.c
-> +++ b/drivers/tee/tee_shm.c
-> @@ -117,7 +117,7 @@ struct tee_shm *tee_shm_alloc(struct tee_context *ctx, size_t size, u32 flags)
->  		return ERR_PTR(-EINVAL);
->  	}
->  
-> -	if ((flags & ~(TEE_SHM_MAPPED | TEE_SHM_DMA_BUF))) {
-> +	if ((flags & ~(TEE_SHM_MAPPED | TEE_SHM_DMA_BUF | TEE_SHM_PRIV))) {
->  		dev_err(teedev->dev.parent, "invalid shm flags 0x%x", flags);
->  		return ERR_PTR(-EINVAL);
->  	}
-> @@ -207,7 +207,7 @@ EXPORT_SYMBOL_GPL(tee_shm_alloc);
->   */
->  struct tee_shm *tee_shm_alloc_kernel_buf(struct tee_context *ctx, size_t size)
->  {
-> -	return tee_shm_alloc(ctx, size, TEE_SHM_MAPPED | TEE_SHM_DMA_BUF);
-> +	return tee_shm_alloc(ctx, size, TEE_SHM_MAPPED);
->  }
->  EXPORT_SYMBOL_GPL(tee_shm_alloc_kernel_buf);
->  
-> diff --git a/include/linux/tee_drv.h b/include/linux/tee_drv.h
-> index 8990f7628387..3ebfea0781f1 100644
-> --- a/include/linux/tee_drv.h
-> +++ b/include/linux/tee_drv.h
-> @@ -27,6 +27,7 @@
->  #define TEE_SHM_USER_MAPPED	BIT(4)  /* Memory mapped in user space */
->  #define TEE_SHM_POOL		BIT(5)  /* Memory allocated from pool */
->  #define TEE_SHM_KERNEL_MAPPED	BIT(6)  /* Memory mapped in kernel space */
-> +#define TEE_SHM_PRIV		BIT(7)  /* Memory private to TEE driver */
->  
->  struct device;
->  struct tee_device;
-> 
+rk3288-veyron-jaq | arm   | lab-collabora | gcc-8    | multi_v7_defconfig |=
+ 3          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
+nel/v5.10.57-125-ge4a7485167f0/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.10
+  Describe: v5.10.57-125-ge4a7485167f0
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      e4a7485167f0bfffb3b49b00a9e3ab3b82254ff9 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform          | arch  | lab           | compiler | defconfig          |=
+ regressions
+------------------+-------+---------------+----------+--------------------+=
+------------
+hip07-d05         | arm64 | lab-collabora | gcc-8    | defconfig          |=
+ 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61127d5aa24d9837deb13665
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.57-=
+125-ge4a7485167f0/arm64/defconfig/gcc-8/lab-collabora/baseline-hip07-d05.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.57-=
+125-ge4a7485167f0/arm64/defconfig/gcc-8/lab-collabora/baseline-hip07-d05.ht=
+ml
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61127d5aa24d9837deb13=
+666
+        failing since 40 days (last pass: v5.10.46-100-gce5b41f85637, first=
+ fail: v5.10.46-100-g3b96099161c8b) =
+
+ =
+
+
+
+platform          | arch  | lab           | compiler | defconfig          |=
+ regressions
+------------------+-------+---------------+----------+--------------------+=
+------------
+rk3288-veyron-jaq | arm   | lab-collabora | gcc-8    | multi_v7_defconfig |=
+ 3          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61127ee36f8abe4be2b13675
+
+  Results:     67 PASS, 3 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.57-=
+125-ge4a7485167f0/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk328=
+8-veyron-jaq.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.57-=
+125-ge4a7485167f0/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk328=
+8-veyron-jaq.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-iodomain-grf-probed: https://kernelci.org/test=
+/case/id/61127ee36f8abe4be2b1368d
+        failing since 56 days (last pass: v5.10.43-44-g253317604975, first =
+fail: v5.10.43-130-g87b5f83f722c)
+
+    2021-08-10T13:27:55.584896  /lava-4341858/1/../bin/lava-test-case
+    2021-08-10T13:27:55.601658  <8>[   13.165338] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-iodomain-grf-probed RESULT=3Dfail>   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdio0-probed: https://kernelci.org/test/=
+case/id/61127ee36f8abe4be2b136a5
+        failing since 56 days (last pass: v5.10.43-44-g253317604975, first =
+fail: v5.10.43-130-g87b5f83f722c)
+
+    2021-08-10T13:27:54.177808  /lava-4341858/1/../bin/lava-test-case<8>[  =
+ 11.740184] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Ddwmmc_rockchip-sdio0-probe=
+d RESULT=3Dfail>
+    2021-08-10T13:27:54.178365  =
+
+    2021-08-10T13:27:54.178853  /lava-4341858/1/../bin/lava-test-case   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdmmc-probed: https://kernelci.org/test/=
+case/id/61127ee36f8abe4be2b136a6
+        failing since 56 days (last pass: v5.10.43-44-g253317604975, first =
+fail: v5.10.43-130-g87b5f83f722c)
+
+    2021-08-10T13:27:53.140155  /lava-4341858/1/../bin/lava-test-case
+    2021-08-10T13:27:53.145450  <8>[   10.720389] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Ddwmmc_rockchip-sdmmc-probed RESULT=3Dfail>   =
+
+ =20
