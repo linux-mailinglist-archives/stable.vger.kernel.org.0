@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 305BD3E7EE3
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:36:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13F3B3E7FF6
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:45:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233817AbhHJRfu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:35:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33340 "EHLO mail.kernel.org"
+        id S235179AbhHJRpC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:45:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233151AbhHJRew (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:34:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D7D32610A8;
-        Tue, 10 Aug 2021 17:34:29 +0000 (UTC)
+        id S234919AbhHJRns (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:43:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 37328610F7;
+        Tue, 10 Aug 2021 17:39:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616870;
-        bh=hUNZlVuOy/RNHlH250TGXEh9nB8tVl29TK3jqQjXNIM=;
+        s=korg; t=1628617155;
+        bh=aXMTZTT3kSUoVe5ZEbLDNMkbdOrpCxLP548lkwqAPrY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oNtGTFUKEQIxdu1BcRXRDj5lSFWJmjZ3P/Ez5PDVCMWMwavRa8jyNFy9or++wI6n4
-         MdD+ENwnEQJr3sbjeYVqK60AqCgIWp875c0UmHcw3GJAyGrfHfW45JJ1bFjLZbAxM7
-         Ljn9Ddc63qw4rt8lMbDqdbo0LrbGJj7Rmk6PzoFc=
+        b=ImxRJAouCQM5LPAZHqCDY1FuwB4qo2e3JA8WF/FD9KRPsteFroPuRX9E55stVVkAO
+         hjl/oEu7dSl4S8oif7zp8zdFQqSPW43fZHZW5bffBz/myaDaY4ruNQzCDqHKNGWqOi
+         Udri6h1559Li9bxIhFITLqfBYbbPlTNZQGLsBUYM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "H. Nikolaus Schaller" <hns@goldelico.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 29/85] mips: Fix non-POSIX regexp
+        stable@vger.kernel.org, Maxim Devaev <mdevaev@gmail.com>,
+        Phil Elwell <phil@raspberrypi.com>
+Subject: [PATCH 5.10 068/135] usb: gadget: f_hid: fixed NULL pointer dereference
 Date:   Tue, 10 Aug 2021 19:30:02 +0200
-Message-Id: <20210810172949.191453405@linuxfoundation.org>
+Message-Id: <20210810172958.022075158@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
-References: <20210810172948.192298392@linuxfoundation.org>
+In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
+References: <20210810172955.660225700@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,57 +39,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: H. Nikolaus Schaller <hns@goldelico.com>
+From: Phil Elwell <phil@raspberrypi.com>
 
-[ Upstream commit 28bbbb9875a35975904e46f9b06fa689d051b290 ]
+commit 2867652e4766360adf14dfda3832455e04964f2a upstream.
 
-When cross compiling a MIPS kernel on a BSD based HOSTCC leads
-to errors like
+Disconnecting and reconnecting the USB cable can lead to crashes
+and a variety of kernel log spam.
 
-  SYNC    include/config/auto.conf.cmd - due to: .config
-egrep: empty (sub)expression
-  UPD     include/config/kernel.release
-  HOSTCC  scripts/dtc/dtc.o - due to target missing
+The problem was found and reproduced on the Raspberry Pi [1]
+and the original fix was created in Raspberry's own fork [2].
 
-It turns out that egrep uses this egrep pattern:
-
-		(|MINOR_|PATCHLEVEL_)
-
-This is not valid syntax or gives undefined results according
-to POSIX 9.5.3 ERE Grammar
-
-	https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap09.html
-
-It seems to be silently accepted by the Linux egrep implementation
-while a BSD host complains.
-
-Such patterns can be replaced by a transformation like
-
-	"(|p1|p2)" -> "(p1|p2)?"
-
-Fixes: 48c35b2d245f ("[MIPS] There is no __GNUC_MAJOR__")
-Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://github.com/raspberrypi/linux/issues/3870 [1]
+Link: https://github.com/raspberrypi/linux/commit/a6e47d5f4efbd2ea6a0b6565cd2f9b7bb217ded5 [2]
+Signed-off-by: Maxim Devaev <mdevaev@gmail.com>
+Signed-off-by: Phil Elwell <phil@raspberrypi.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210723155928.210019-1-mdevaev@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/function/f_hid.c |   26 ++++++++++++++++++++------
+ 1 file changed, 20 insertions(+), 6 deletions(-)
 
-diff --git a/arch/mips/Makefile b/arch/mips/Makefile
-index 5403a91ce098..9ff2c70763a0 100644
---- a/arch/mips/Makefile
-+++ b/arch/mips/Makefile
-@@ -320,7 +320,7 @@ KBUILD_LDFLAGS		+= -m $(ld-emul)
+--- a/drivers/usb/gadget/function/f_hid.c
++++ b/drivers/usb/gadget/function/f_hid.c
+@@ -339,6 +339,11 @@ static ssize_t f_hidg_write(struct file
  
- ifdef CONFIG_MIPS
- CHECKFLAGS += $(shell $(CC) $(KBUILD_CFLAGS) -dM -E -x c /dev/null | \
--	egrep -vw '__GNUC_(|MINOR_|PATCHLEVEL_)_' | \
-+	egrep -vw '__GNUC_(MINOR_|PATCHLEVEL_)?_' | \
- 	sed -e "s/^\#define /-D'/" -e "s/ /'='/" -e "s/$$/'/" -e 's/\$$/&&/g')
- endif
+ 	spin_lock_irqsave(&hidg->write_spinlock, flags);
  
--- 
-2.30.2
-
++	if (!hidg->req) {
++		spin_unlock_irqrestore(&hidg->write_spinlock, flags);
++		return -ESHUTDOWN;
++	}
++
+ #define WRITE_COND (!hidg->write_pending)
+ try_again:
+ 	/* write queue */
+@@ -359,8 +364,14 @@ try_again:
+ 	count  = min_t(unsigned, count, hidg->report_length);
+ 
+ 	spin_unlock_irqrestore(&hidg->write_spinlock, flags);
+-	status = copy_from_user(req->buf, buffer, count);
+ 
++	if (!req) {
++		ERROR(hidg->func.config->cdev, "hidg->req is NULL\n");
++		status = -ESHUTDOWN;
++		goto release_write_pending;
++	}
++
++	status = copy_from_user(req->buf, buffer, count);
+ 	if (status != 0) {
+ 		ERROR(hidg->func.config->cdev,
+ 			"copy_from_user error\n");
+@@ -388,14 +399,17 @@ try_again:
+ 
+ 	spin_unlock_irqrestore(&hidg->write_spinlock, flags);
+ 
++	if (!hidg->in_ep->enabled) {
++		ERROR(hidg->func.config->cdev, "in_ep is disabled\n");
++		status = -ESHUTDOWN;
++		goto release_write_pending;
++	}
++
+ 	status = usb_ep_queue(hidg->in_ep, req, GFP_ATOMIC);
+-	if (status < 0) {
+-		ERROR(hidg->func.config->cdev,
+-			"usb_ep_queue error on int endpoint %zd\n", status);
++	if (status < 0)
+ 		goto release_write_pending;
+-	} else {
++	else
+ 		status = count;
+-	}
+ 
+ 	return status;
+ release_write_pending:
 
 
