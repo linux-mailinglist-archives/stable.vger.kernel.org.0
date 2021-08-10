@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A30D03E7FDF
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:45:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 679CE3E7EB7
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:34:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234902AbhHJRnr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:43:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60974 "EHLO mail.kernel.org"
+        id S233191AbhHJRe7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:34:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232903AbhHJRlb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:41:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E55DF6120C;
-        Tue, 10 Aug 2021 17:38:18 +0000 (UTC)
+        id S232905AbhHJRe2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:34:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 80F81610A0;
+        Tue, 10 Aug 2021 17:34:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617099;
-        bh=eruWmCDdOrFlPApK/VNzIClH3t/nzTHsZ2nO7fXXNck=;
+        s=korg; t=1628616846;
+        bh=Iu6W+aucb0aktf+z3AmbVFRr50+3uJ/lbQzb8BDpTVY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cUOYNbFEJ04nPrdNefx+fm2vor/rCLnGVtNIq2fdJz1PG9Vww1ch+6cltgOUN37Sv
-         9D8ODKeGqk1yUSehd3kj3AeHt9vKQp2zBPwsqxbds1V1/UkUBfa2Cn/dCcNyPAQO1/
-         IgmJO2KxmvIS6QY+cM3BVDLKcInHS9jYWXmYypGY=
+        b=eFtdTs/5jL8GsJTJp61mGGD3gF0qOQlhbCJGhorEeYemCGmSsCxJd64Ljn7m21PUo
+         qOYn7pkDm4xwaxRK/NxIFEelZh52f6BhQpsJIBgnjewZVTJyf+NFOSZoiNhpex9Xrq
+         YGOwasLN5ArnUYm2a99bfiL2zTQlOl7c2IURNjuk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "H. Nikolaus Schaller" <hns@goldelico.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
+        stable@vger.kernel.org,
+        Oleksandr Suvorov <oleksandr.suvorov@toradex.com>,
+        Fabio Estevam <festevam@gmail.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 045/135] mips: Fix non-POSIX regexp
-Date:   Tue, 10 Aug 2021 19:29:39 +0200
-Message-Id: <20210810172957.221170580@linuxfoundation.org>
+Subject: [PATCH 5.4 07/85] ARM: dts: colibri-imx6ull: limit SDIO clock to 25MHz
+Date:   Tue, 10 Aug 2021 19:29:40 +0200
+Message-Id: <20210810172948.452998426@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
-References: <20210810172955.660225700@linuxfoundation.org>
+In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
+References: <20210810172948.192298392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,55 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: H. Nikolaus Schaller <hns@goldelico.com>
+From: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
 
-[ Upstream commit 28bbbb9875a35975904e46f9b06fa689d051b290 ]
+[ Upstream commit 828db68f4ff1ab6982a36a56522b585160dc8c8e ]
 
-When cross compiling a MIPS kernel on a BSD based HOSTCC leads
-to errors like
+NXP and AzureWave don't recommend using SDIO bus mode 3.3V@50MHz due
+to noise affecting the wireless throughput. Colibri iMX6ULL uses only
+3.3V signaling for Wi-Fi module AW-CM276NF.
 
-  SYNC    include/config/auto.conf.cmd - due to: .config
-egrep: empty (sub)expression
-  UPD     include/config/kernel.release
-  HOSTCC  scripts/dtc/dtc.o - due to target missing
+Limit the SDIO Clock on Colibri iMX6ULL to 25MHz.
 
-It turns out that egrep uses this egrep pattern:
-
-		(|MINOR_|PATCHLEVEL_)
-
-This is not valid syntax or gives undefined results according
-to POSIX 9.5.3 ERE Grammar
-
-	https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap09.html
-
-It seems to be silently accepted by the Linux egrep implementation
-while a BSD host complains.
-
-Such patterns can be replaced by a transformation like
-
-	"(|p1|p2)" -> "(p1|p2)?"
-
-Fixes: 48c35b2d245f ("[MIPS] There is no __GNUC_MAJOR__")
-Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Fixes: c2e4987e0e02 ("ARM: dts: imx6ull: add Toradex Colibri iMX6ULL support")
+Signed-off-by: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/imx6ull-colibri-wifi.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/mips/Makefile b/arch/mips/Makefile
-index 686990fcc5f0..acab8018ab44 100644
---- a/arch/mips/Makefile
-+++ b/arch/mips/Makefile
-@@ -320,7 +320,7 @@ KBUILD_LDFLAGS		+= -m $(ld-emul)
- 
- ifdef CONFIG_MIPS
- CHECKFLAGS += $(shell $(CC) $(KBUILD_CFLAGS) -dM -E -x c /dev/null | \
--	egrep -vw '__GNUC_(|MINOR_|PATCHLEVEL_)_' | \
-+	egrep -vw '__GNUC_(MINOR_|PATCHLEVEL_)?_' | \
- 	sed -e "s/^\#define /-D'/" -e "s/ /'='/" -e "s/$$/'/" -e 's/\$$/&&/g')
- endif
- 
+diff --git a/arch/arm/boot/dts/imx6ull-colibri-wifi.dtsi b/arch/arm/boot/dts/imx6ull-colibri-wifi.dtsi
+index 038d8c90f6df..621396884c31 100644
+--- a/arch/arm/boot/dts/imx6ull-colibri-wifi.dtsi
++++ b/arch/arm/boot/dts/imx6ull-colibri-wifi.dtsi
+@@ -43,6 +43,7 @@
+ 	assigned-clock-rates = <0>, <198000000>;
+ 	cap-power-off-card;
+ 	keep-power-in-suspend;
++	max-frequency = <25000000>;
+ 	mmc-pwrseq = <&wifi_pwrseq>;
+ 	no-1-8-v;
+ 	non-removable;
 -- 
 2.30.2
 
