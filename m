@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE1343E7E68
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:32:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 635513E7F5C
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:41:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232174AbhHJRdH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:33:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33646 "EHLO mail.kernel.org"
+        id S232869AbhHJRkL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:40:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231851AbhHJRcv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:32:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 54FA260F56;
-        Tue, 10 Aug 2021 17:32:28 +0000 (UTC)
+        id S235115AbhHJRjV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:39:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CFEF561107;
+        Tue, 10 Aug 2021 17:36:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616748;
-        bh=KbIjo1CgdEAh2k2GBQcCXB+34k/yUSrGN+77x1fi/0o=;
+        s=korg; t=1628617016;
+        bh=CKykmzahHhMXt9m0NrdblO10om6+KNmQ7qwbpRTb4xQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QHKVEumfC9nuf6aIPzZ0B9AHLkTDlaWShFTIIQNRSf1ckobpyOB9tTF8mOQztfS4k
-         JjovqpN8Y/zshb23HexIYEviyCLXZL4MyZerIA3o21HYsm/y+Q60r7/ZR0i8Pwtnmm
-         yJr2DdEGjVYmxa0acUao2KpZgljfM49mMo51Huns=
+        b=BMTVOep//oSjerI2A7AzU84MztvhJjTUWDqF/ZIxQP4tc9AlzK0zGpCOZ9fnFThfm
+         B3TD2ULkVRPpQLbz0snqizMM7G4dMtua8ebvbOkgt7QD8u2uS8hOLo5jpvLlnds0cy
+         t0Toed6tqO9EMhwmYz1bD31tfcmB2KAG7pEb1y9M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Devaev <mdevaev@gmail.com>,
-        Phil Elwell <phil@raspberrypi.com>
-Subject: [PATCH 4.19 29/54] usb: gadget: f_hid: fixed NULL pointer dereference
+        stable@vger.kernel.org, Hui Su <suhui@zeku.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.4 50/85] scripts/tracing: fix the bug that cant parse raw_trace_func
 Date:   Tue, 10 Aug 2021 19:30:23 +0200
-Message-Id: <20210810172945.137030436@linuxfoundation.org>
+Message-Id: <20210810172949.929498718@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172944.179901509@linuxfoundation.org>
-References: <20210810172944.179901509@linuxfoundation.org>
+In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
+References: <20210810172948.192298392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,79 +39,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phil Elwell <phil@raspberrypi.com>
+From: Hui Su <suhui@zeku.com>
 
-commit 2867652e4766360adf14dfda3832455e04964f2a upstream.
+commit 1c0cec64a7cc545eb49f374a43e9f7190a14defa upstream.
 
-Disconnecting and reconnecting the USB cable can lead to crashes
-and a variety of kernel log spam.
+Since commit 77271ce4b2c0 ("tracing: Add irq, preempt-count and need resched info
+to default trace output"), the default trace output format has been changed to:
+          <idle>-0       [009] d.h. 22420.068695: _raw_spin_lock_irqsave <-hrtimer_interrupt
+          <idle>-0       [000] ..s. 22420.068695: _nohz_idle_balance <-run_rebalance_domains
+          <idle>-0       [011] d.h. 22420.068695: account_process_tick <-update_process_times
 
-The problem was found and reproduced on the Raspberry Pi [1]
-and the original fix was created in Raspberry's own fork [2].
+origin trace output format:(before v3.2.0)
+     # tracer: nop
+     #
+     #           TASK-PID    CPU#    TIMESTAMP  FUNCTION
+     #              | |       |          |         |
+          migration/0-6     [000]    50.025810: rcu_note_context_switch <-__schedule
+          migration/0-6     [000]    50.025812: trace_rcu_utilization <-rcu_note_context_switch
+          migration/0-6     [000]    50.025813: rcu_sched_qs <-rcu_note_context_switch
+          migration/0-6     [000]    50.025815: rcu_preempt_qs <-rcu_note_context_switch
+          migration/0-6     [000]    50.025817: trace_rcu_utilization <-rcu_note_context_switch
+          migration/0-6     [000]    50.025818: debug_lockdep_rcu_enabled <-__schedule
+          migration/0-6     [000]    50.025820: debug_lockdep_rcu_enabled <-__schedule
 
-Link: https://github.com/raspberrypi/linux/issues/3870 [1]
-Link: https://github.com/raspberrypi/linux/commit/a6e47d5f4efbd2ea6a0b6565cd2f9b7bb217ded5 [2]
-Signed-off-by: Maxim Devaev <mdevaev@gmail.com>
-Signed-off-by: Phil Elwell <phil@raspberrypi.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210723155928.210019-1-mdevaev@gmail.com
+The draw_functrace.py(introduced in v2.6.28) can't parse the new version format trace_func,
+So we need modify draw_functrace.py to adapt the new version trace output format.
+
+Link: https://lkml.kernel.org/r/20210611022107.608787-1-suhui@zeku.com
+
+Cc: stable@vger.kernel.org
+Fixes: 77271ce4b2c0 tracing: Add irq, preempt-count and need resched info to default trace output
+Signed-off-by: Hui Su <suhui@zeku.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/function/f_hid.c |   26 ++++++++++++++++++++------
- 1 file changed, 20 insertions(+), 6 deletions(-)
+ scripts/tracing/draw_functrace.py |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/gadget/function/f_hid.c
-+++ b/drivers/usb/gadget/function/f_hid.c
-@@ -345,6 +345,11 @@ static ssize_t f_hidg_write(struct file
+--- a/scripts/tracing/draw_functrace.py
++++ b/scripts/tracing/draw_functrace.py
+@@ -17,7 +17,7 @@ Usage:
+ 	$ cat /sys/kernel/debug/tracing/trace_pipe > ~/raw_trace_func
+ 	Wait some times but not too much, the script is a bit slow.
+ 	Break the pipe (Ctrl + Z)
+-	$ scripts/draw_functrace.py < raw_trace_func > draw_functrace
++	$ scripts/tracing/draw_functrace.py < ~/raw_trace_func > draw_functrace
+ 	Then you have your drawn trace in draw_functrace
+ """
  
- 	spin_lock_irqsave(&hidg->write_spinlock, flags);
+@@ -103,10 +103,10 @@ def parseLine(line):
+ 	line = line.strip()
+ 	if line.startswith("#"):
+ 		raise CommentLineException
+-	m = re.match("[^]]+?\\] +([0-9.]+): (\\w+) <-(\\w+)", line)
++	m = re.match("[^]]+?\\] +([a-z.]+) +([0-9.]+): (\\w+) <-(\\w+)", line)
+ 	if m is None:
+ 		raise BrokenLineException
+-	return (m.group(1), m.group(2), m.group(3))
++	return (m.group(2), m.group(3), m.group(4))
  
-+	if (!hidg->req) {
-+		spin_unlock_irqrestore(&hidg->write_spinlock, flags);
-+		return -ESHUTDOWN;
-+	}
-+
- #define WRITE_COND (!hidg->write_pending)
- try_again:
- 	/* write queue */
-@@ -365,8 +370,14 @@ try_again:
- 	count  = min_t(unsigned, count, hidg->report_length);
  
- 	spin_unlock_irqrestore(&hidg->write_spinlock, flags);
--	status = copy_from_user(req->buf, buffer, count);
- 
-+	if (!req) {
-+		ERROR(hidg->func.config->cdev, "hidg->req is NULL\n");
-+		status = -ESHUTDOWN;
-+		goto release_write_pending;
-+	}
-+
-+	status = copy_from_user(req->buf, buffer, count);
- 	if (status != 0) {
- 		ERROR(hidg->func.config->cdev,
- 			"copy_from_user error\n");
-@@ -394,14 +405,17 @@ try_again:
- 
- 	spin_unlock_irqrestore(&hidg->write_spinlock, flags);
- 
-+	if (!hidg->in_ep->enabled) {
-+		ERROR(hidg->func.config->cdev, "in_ep is disabled\n");
-+		status = -ESHUTDOWN;
-+		goto release_write_pending;
-+	}
-+
- 	status = usb_ep_queue(hidg->in_ep, req, GFP_ATOMIC);
--	if (status < 0) {
--		ERROR(hidg->func.config->cdev,
--			"usb_ep_queue error on int endpoint %zd\n", status);
-+	if (status < 0)
- 		goto release_write_pending;
--	} else {
-+	else
- 		status = count;
--	}
- 
- 	return status;
- release_write_pending:
+ def main():
 
 
