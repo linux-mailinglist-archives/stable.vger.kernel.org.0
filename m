@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 846DA3E8239
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:06:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A92623E820B
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:06:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235760AbhHJSGQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 14:06:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38806 "EHLO mail.kernel.org"
+        id S234353AbhHJSFd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 14:05:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33870 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236925AbhHJSCw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 14:02:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A6F3F61247;
-        Tue, 10 Aug 2021 17:47:39 +0000 (UTC)
+        id S234493AbhHJSDN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 14:03:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E611961241;
+        Tue, 10 Aug 2021 17:47:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617660;
-        bh=RppSVzZqd8zSzFsHTKg6i3gLtAu1TbuZZDHjEaEfkS8=;
+        s=korg; t=1628617662;
+        bh=pDdLwGfN7E6ybMm18yH4Jbx6PvgDlvXVc+EYZDqlKyI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r+rkSUZOGbt+I6AJQSAkn1clPW8aG8YoeQR/p/JM8TpjCrsXEGBFXFS/AoKvd23md
-         n4caMf662SWCZiagFsn9gXbM9ZwxLstnk5m//06ur9uu5b/X3NzCCDw6qQL20Rgsww
-         gMjilwmdJDi3z5Meh78RWidaMjI5BUoiSQaT5dRo=
+        b=w5xDtGYYmqflluVdGNHIB7+Ajc/IizUH/+d9XWZNwuH1RRmi0eVWsTFRfGZI7SmOP
+         Vu+JPRrhj/ZOHtli8OJq0A+UekXzSPI0Hod1nvDoIP0monjpmWMQtCKFpeTG9T/EWe
+         EbdVx3TZCxp51Z9+LDM6dVmudgFgdusFtfrX+8pE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Mike Tipton <mdtipton@codeaurora.org>,
         Georgi Djakov <djakov@kernel.org>
-Subject: [PATCH 5.13 156/175] interconnect: Zero initial BW after sync-state
-Date:   Tue, 10 Aug 2021 19:31:04 +0200
-Message-Id: <20210810173006.108102440@linuxfoundation.org>
+Subject: [PATCH 5.13 157/175] interconnect: Always call pre_aggregate before aggregate
+Date:   Tue, 10 Aug 2021 19:31:05 +0200
+Message-Id: <20210810173006.139418823@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
 References: <20210810173000.928681411@linuxfoundation.org>
@@ -41,31 +41,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mike Tipton <mdtipton@codeaurora.org>
 
-commit 456a9dace42ecfcec7ce6e17c18d1985d628dcd0 upstream.
+commit 73606ba9242f8e32023699b500b7922b4cf2993c upstream.
 
-The initial BW values may be used by providers to enforce floors. Zero
-these values after sync-state so that providers know when to stop
-enforcing them.
+The pre_aggregate callback isn't called in all cases before calling
+aggregate. Add the missing calls so providers can rely on consistent
+framework behavior.
 
-Fixes: b1d681d8d324 ("interconnect: Add sync state support")
+Fixes: d3703b3e255f ("interconnect: Aggregate before setting initial bandwidth")
 Signed-off-by: Mike Tipton <mdtipton@codeaurora.org>
-Link: https://lore.kernel.org/r/20210721175432.2119-2-mdtipton@codeaurora.org
+Link: https://lore.kernel.org/r/20210721175432.2119-3-mdtipton@codeaurora.org
 Signed-off-by: Georgi Djakov <djakov@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/interconnect/core.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/interconnect/core.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
 --- a/drivers/interconnect/core.c
 +++ b/drivers/interconnect/core.c
-@@ -1106,6 +1106,8 @@ void icc_sync_state(struct device *dev)
- 		dev_dbg(p->dev, "interconnect provider is in synced state\n");
- 		list_for_each_entry(n, &p->nodes, node_list) {
- 			if (n->init_avg || n->init_peak) {
-+				n->init_avg = 0;
-+				n->init_peak = 0;
- 				aggregate_requests(n);
- 				p->set(n, n);
- 			}
+@@ -973,9 +973,14 @@ void icc_node_add(struct icc_node *node,
+ 	}
+ 	node->avg_bw = node->init_avg;
+ 	node->peak_bw = node->init_peak;
++
++	if (provider->pre_aggregate)
++		provider->pre_aggregate(node);
++
+ 	if (provider->aggregate)
+ 		provider->aggregate(node, 0, node->init_avg, node->init_peak,
+ 				    &node->avg_bw, &node->peak_bw);
++
+ 	provider->set(node, node);
+ 	node->avg_bw = 0;
+ 	node->peak_bw = 0;
 
 
