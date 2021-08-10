@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 636E93E7E93
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:34:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0F053E7F3C
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:40:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229488AbhHJReU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:34:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37434 "EHLO mail.kernel.org"
+        id S233476AbhHJRjH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:39:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36686 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232747AbhHJRdr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:33:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AAB0760FC4;
-        Tue, 10 Aug 2021 17:33:24 +0000 (UTC)
+        id S233578AbhHJRg6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:36:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F11561103;
+        Tue, 10 Aug 2021 17:35:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616805;
-        bh=sRPFH21GUHaIfPsrdFoiMnFo8Ti4ntSLsfKaoA+wXGY=;
+        s=korg; t=1628616948;
+        bh=6UZ8UDbE+gtZ419+958w1Ct+az9EJtjv+tl1F1V8R0A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XI3HNTeu84Rtv1psOSIAr6oNFWkY85cJqnu8LPlYQrEZCF/RwRUgiYmx04SPsFNvz
-         L1QtKWOdr1jtzeeevB6z0Yw3AsQ2XSom/0pBnI+UEVF2rPY50deSSinquUBhAYmoHF
-         gGetNqWTCgSVSPHU6BHDqRG5fmVTi05GFUfTwHAQ=
+        b=xrvOO9Z7hHYfTXU9V38fQ8A4Xe85Mf6Bca5LyUvKEBoIBrWcl3Re+s37qISRh9eMG
+         lQ4wO1WEFpjqLNzBs/l27zdVBhKMUyvh3fVBXGB34SLZL3xz0GJbPPevMCEQ0XXj6l
+         ZCtLqEFajm/ZcyhBbR08Fgmk3HaEaZHwtntVVtCw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Dominik Brodowski <linux@dominikbrodowski.net>
-Subject: [PATCH 4.19 43/54] pcmcia: i82092: fix a null pointer dereference bug
+        stable@vger.kernel.org,
+        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <f4bug@amsat.org>,
+        "Maciej W. Rozycki" <macro@orcam.me.uk>
+Subject: [PATCH 5.4 64/85] MIPS: Malta: Do not byte-swap accesses to the CBUS UART
 Date:   Tue, 10 Aug 2021 19:30:37 +0200
-Message-Id: <20210810172945.607419062@linuxfoundation.org>
+Message-Id: <20210810172950.408706071@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172944.179901509@linuxfoundation.org>
-References: <20210810172944.179901509@linuxfoundation.org>
+In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
+References: <20210810172948.192298392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,32 +40,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Maciej W. Rozycki <macro@orcam.me.uk>
 
-commit e39cdacf2f664b09029e7c1eb354c91a20c367af upstream.
+commit 9a936d6c3d3d6c33ecbadf72dccdb567b5cd3c72 upstream.
 
-During the driver loading process, the 'dev' field was not assigned, but
-the 'dev' field was referenced in the subsequent 'i82092aa_set_mem_map'
-function.
+Correct big-endian accesses to the CBUS UART, a Malta on-board discrete
+TI16C550C part wired directly to the system controller's device bus, and
+do not use byte swapping with the 32-bit accesses to the device.
 
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-CC: <stable@vger.kernel.org>
-[linux@dominikbrodowski.net: shorten commit message, add Cc to stable]
-Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
+The CBUS is used for devices such as the boot flash memory needed early
+on in system bootstrap even before PCI has been initialised.  Therefore
+it uses the system controller's device bus, which follows the endianness
+set with the CPU, which means no byte-swapping is ever required for data
+accesses to CBUS, unlike with PCI.
+
+The CBUS UART uses the UPIO_MEM32 access method, that is the `readl' and
+`writel' MMIO accessors, which on the MIPS platform imply byte-swapping
+with PCI systems.  Consequently the wrong byte lane is accessed with the
+big-endian configuration and the UART is not correctly accessed.
+
+As it happens the UPIO_MEM32BE access method makes use of the `ioread32'
+and `iowrite32' MMIO accessors, which still use `readl' and `writel'
+respectively, however they byte-swap data passed, effectively cancelling
+swapping done with the accessors themselves and making it suitable for
+the CBUS UART.
+
+Make the CBUS UART switch between UPIO_MEM32 and UPIO_MEM32BE then,
+based on the endianness selected.  With this change in place the device
+is correctly recognised with big-endian Malta at boot, along with the
+Super I/O devices behind PCI:
+
+Serial: 8250/16550 driver, 5 ports, IRQ sharing enabled
+printk: console [ttyS0] disabled
+serial8250.0: ttyS0 at I/O 0x3f8 (irq = 4, base_baud = 115200) is a 16550A
+printk: console [ttyS0] enabled
+printk: bootconsole [uart8250] disabled
+serial8250.0: ttyS1 at I/O 0x2f8 (irq = 3, base_baud = 115200) is a 16550A
+serial8250.0: ttyS2 at MMIO 0x1f000900 (irq = 20, base_baud = 230400) is a 16550A
+
+Fixes: e7c4782f92fc ("[MIPS] Put an end to <asm/serial.h>'s long and annyoing existence")
+Cc: stable@vger.kernel.org # v2.6.23+
+Reviewed-by: Philippe Mathieu-Daudé <f4bug@amsat.org>
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Link: https://lore.kernel.org/r/alpine.DEB.2.21.2106260524430.37803@angie.orcam.me.uk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pcmcia/i82092.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/mips/mti-malta/malta-platform.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/pcmcia/i82092.c
-+++ b/drivers/pcmcia/i82092.c
-@@ -105,6 +105,7 @@ static int i82092aa_pci_probe(struct pci
- 	for (i = 0;i<socket_count;i++) {
- 		sockets[i].card_state = 1; /* 1 = present but empty */
- 		sockets[i].io_base = pci_resource_start(dev, 0);
-+		sockets[i].dev = dev;
- 		sockets[i].socket.features |= SS_CAP_PCCARD;
- 		sockets[i].socket.map_size = 0x1000;
- 		sockets[i].socket.irq_mask = 0;
+--- a/arch/mips/mti-malta/malta-platform.c
++++ b/arch/mips/mti-malta/malta-platform.c
+@@ -47,7 +47,8 @@ static struct plat_serial8250_port uart8
+ 		.mapbase	= 0x1f000900,	/* The CBUS UART */
+ 		.irq		= MIPS_CPU_IRQ_BASE + MIPSCPU_INT_MB2,
+ 		.uartclk	= 3686400,	/* Twice the usual clk! */
+-		.iotype		= UPIO_MEM32,
++		.iotype		= IS_ENABLED(CONFIG_CPU_BIG_ENDIAN) ?
++				  UPIO_MEM32BE : UPIO_MEM32,
+ 		.flags		= CBUS_UART_FLAGS,
+ 		.regshift	= 3,
+ 	},
 
 
