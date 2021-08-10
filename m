@@ -2,33 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 408833E81AC
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:02:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 210183E81AD
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:02:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237213AbhHJSBT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 14:01:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60118 "EHLO mail.kernel.org"
+        id S233821AbhHJSBU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 14:01:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60120 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238063AbhHJR7R (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:59:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 66A5561181;
-        Tue, 10 Aug 2021 17:46:13 +0000 (UTC)
+        id S238075AbhHJR7S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:59:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A294061052;
+        Tue, 10 Aug 2021 17:46:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617573;
-        bh=Gkv8usg/hRL6/6cAr9d4ZngDvOLRKk8GTGE5ck5X+dU=;
+        s=korg; t=1628617576;
+        bh=ZsicAsX+Fv+8jxm2benBeh1W3xj+m163yJCYck4zA4A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gAw7n7LH5tyQAx1YSdh7LnMNAl4mugCLa1SpP5Dz4QQR366WqYmyVv6u12e922g3l
-         2iVU3+j0kmMPnC+KBzXI3as7m3YmeDXYJDHdLdZB85ZkKxlpyEonvNYCTXVJmg3H9p
-         txVdKYWjobBVJqVdDXEUsqNs0QrwMIsT5KIwqVLc=
+        b=XriQ/rrqEJ9KjJa2B45qKdH/H2NgfH5PVJCAfvNTx/PR+itP1WHBY5pwRwogw4XDB
+         xzAdlGkTntjWLOKeYKSsqE75SOAL015VR98wwazqUp1DlTSNQR6pAIajM8TzyYDLwF
+         ryGau3a/YD0Ellfsrr/wjVaMmbn/aOVMHJIngcjo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        syzbot+5872a520e0ce0a7c7230@syzkaller.appspotmail.com,
-        syzbot+cc699626e48a6ebaf295@syzkaller.appspotmail.com
-Subject: [PATCH 5.13 118/175] staging: rtl8712: error handling refactoring
-Date:   Tue, 10 Aug 2021 19:30:26 +0200
-Message-Id: <20210810173004.836493220@linuxfoundation.org>
+        stable@vger.kernel.org, Filip Schauer <filip@mg6.at>
+Subject: [PATCH 5.13 119/175] drivers core: Fix oops when driver probe fails
+Date:   Tue, 10 Aug 2021 19:30:27 +0200
+Message-Id: <20210810173004.866022968@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
 References: <20210810173000.928681411@linuxfoundation.org>
@@ -40,139 +38,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Filip Schauer <filip@mg6.at>
 
-commit e9e6aa51b2735d83a67d9fa0119cf11abef80d99 upstream.
+commit 4d1014c1816c0395eca5d1d480f196a4c63119d0 upstream.
 
-There was strange error handling logic in case of fw load failure. For
-some reason fw loader callback was doing clean up stuff when fw is not
-available. I don't see any reason behind doing this. Since this driver
-doesn't have EEPROM firmware let's just disconnect it in case of fw load
-failure. Doing clean up stuff in 2 different place which can run
-concurently is not good idea and syzbot found 2 bugs related to this
-strange approach.
+dma_range_map is freed to early, which might cause an oops when
+a driver probe fails.
+ Call trace:
+  is_free_buddy_page+0xe4/0x1d4
+  __free_pages+0x2c/0x88
+  dma_free_contiguous+0x64/0x80
+  dma_direct_free+0x38/0xb4
+  dma_free_attrs+0x88/0xa0
+  dmam_release+0x28/0x34
+  release_nodes+0x78/0x8c
+  devres_release_all+0xa8/0x110
+  really_probe+0x118/0x2d0
+  __driver_probe_device+0xc8/0xe0
+  driver_probe_device+0x54/0xec
+  __driver_attach+0xe0/0xf0
+  bus_for_each_dev+0x7c/0xc8
+  driver_attach+0x30/0x3c
+  bus_add_driver+0x17c/0x1c4
+  driver_register+0xc0/0xf8
+  __platform_driver_register+0x34/0x40
+  ...
 
-So, in this pacth I deleted all clean up code from fw callback and made
-a call to device_release_driver() under device_lock(parent) in case of fw
-load failure. This approach is more generic and it defend driver from UAF
-bugs, since all clean up code is moved to one place.
+This issue is introduced by commit d0243bbd5dd3 ("drivers core:
+Free dma_range_map when driver probe failed"). It frees
+dma_range_map before the call to devres_release_all, which is too
+early. The solution is to free dma_range_map only after
+devres_release_all.
 
-Fixes: e02a3b945816 ("staging: rtl8712: fix memory leak in rtl871x_load_fw_cb")
-Fixes: 8c213fa59199 ("staging: r8712u: Use asynchronous firmware loading")
+Fixes: d0243bbd5dd3 ("drivers core: Free dma_range_map when driver probe failed")
 Cc: stable <stable@vger.kernel.org>
-Reported-and-tested-by: syzbot+5872a520e0ce0a7c7230@syzkaller.appspotmail.com
-Reported-and-tested-by: syzbot+cc699626e48a6ebaf295@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Link: https://lore.kernel.org/r/d49ecc56e97c4df181d7bd4d240b031f315eacc3.1626895918.git.paskripkin@gmail.com
+Signed-off-by: Filip Schauer <filip@mg6.at>
+Link: https://lore.kernel.org/r/20210727112311.GA7645@DESKTOP-E8BN1B0.localdomain
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/rtl8712/hal_init.c |   30 +++++++++++++++--------
- drivers/staging/rtl8712/usb_intf.c |   48 ++++++++++++++++---------------------
- 2 files changed, 41 insertions(+), 37 deletions(-)
+ drivers/base/dd.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/staging/rtl8712/hal_init.c
-+++ b/drivers/staging/rtl8712/hal_init.c
-@@ -29,21 +29,31 @@
- #define FWBUFF_ALIGN_SZ 512
- #define MAX_DUMP_FWSZ (48 * 1024)
- 
-+static void rtl871x_load_fw_fail(struct _adapter *adapter)
-+{
-+	struct usb_device *udev = adapter->dvobjpriv.pusbdev;
-+	struct device *dev = &udev->dev;
-+	struct device *parent = dev->parent;
-+
-+	complete(&adapter->rtl8712_fw_ready);
-+
-+	dev_err(&udev->dev, "r8712u: Firmware request failed\n");
-+
-+	if (parent)
-+		device_lock(parent);
-+
-+	device_release_driver(dev);
-+
-+	if (parent)
-+		device_unlock(parent);
-+}
-+
- static void rtl871x_load_fw_cb(const struct firmware *firmware, void *context)
- {
- 	struct _adapter *adapter = context;
- 
- 	if (!firmware) {
--		struct usb_device *udev = adapter->dvobjpriv.pusbdev;
--		struct usb_interface *usb_intf = adapter->pusb_intf;
--
--		dev_err(&udev->dev, "r8712u: Firmware request failed\n");
--		usb_put_dev(udev);
--		usb_set_intfdata(usb_intf, NULL);
--		r8712_free_drv_sw(adapter);
--		adapter->dvobj_deinit(adapter);
--		complete(&adapter->rtl8712_fw_ready);
--		free_netdev(adapter->pnetdev);
-+		rtl871x_load_fw_fail(adapter);
- 		return;
- 	}
- 	adapter->fw = firmware;
---- a/drivers/staging/rtl8712/usb_intf.c
-+++ b/drivers/staging/rtl8712/usb_intf.c
-@@ -594,36 +594,30 @@ static void r871xu_dev_remove(struct usb
- {
- 	struct net_device *pnetdev = usb_get_intfdata(pusb_intf);
- 	struct usb_device *udev = interface_to_usbdev(pusb_intf);
-+	struct _adapter *padapter = netdev_priv(pnetdev);
- 
--	if (pnetdev) {
--		struct _adapter *padapter = netdev_priv(pnetdev);
-+	/* never exit with a firmware callback pending */
-+	wait_for_completion(&padapter->rtl8712_fw_ready);
-+	usb_set_intfdata(pusb_intf, NULL);
-+	release_firmware(padapter->fw);
-+	if (drvpriv.drv_registered)
-+		padapter->surprise_removed = true;
-+	if (pnetdev->reg_state != NETREG_UNINITIALIZED)
-+		unregister_netdev(pnetdev); /* will call netdev_close() */
-+	r8712_flush_rwctrl_works(padapter);
-+	r8712_flush_led_works(padapter);
-+	udelay(1);
-+	/* Stop driver mlme relation timer */
-+	r8712_stop_drv_timers(padapter);
-+	r871x_dev_unload(padapter);
-+	r8712_free_drv_sw(padapter);
-+	free_netdev(pnetdev);
- 
--		/* never exit with a firmware callback pending */
--		wait_for_completion(&padapter->rtl8712_fw_ready);
--		pnetdev = usb_get_intfdata(pusb_intf);
--		usb_set_intfdata(pusb_intf, NULL);
--		if (!pnetdev)
--			goto firmware_load_fail;
--		release_firmware(padapter->fw);
--		if (drvpriv.drv_registered)
--			padapter->surprise_removed = true;
--		if (pnetdev->reg_state != NETREG_UNINITIALIZED)
--			unregister_netdev(pnetdev); /* will call netdev_close() */
--		r8712_flush_rwctrl_works(padapter);
--		r8712_flush_led_works(padapter);
--		udelay(1);
--		/* Stop driver mlme relation timer */
--		r8712_stop_drv_timers(padapter);
--		r871x_dev_unload(padapter);
--		r8712_free_drv_sw(padapter);
--		free_netdev(pnetdev);
-+	/* decrease the reference count of the usb device structure
-+	 * when disconnect
-+	 */
-+	usb_put_dev(udev);
- 
--		/* decrease the reference count of the usb device structure
--		 * when disconnect
--		 */
--		usb_put_dev(udev);
--	}
--firmware_load_fail:
- 	/* If we didn't unplug usb dongle and remove/insert module, driver
- 	 * fails on sitesurvey for the first time when device is up.
- 	 * Reset usb port for sitesurvey fail issue.
+--- a/drivers/base/dd.c
++++ b/drivers/base/dd.c
+@@ -634,8 +634,6 @@ dev_groups_failed:
+ 	else if (drv->remove)
+ 		drv->remove(dev);
+ probe_failed:
+-	kfree(dev->dma_range_map);
+-	dev->dma_range_map = NULL;
+ 	if (dev->bus)
+ 		blocking_notifier_call_chain(&dev->bus->p->bus_notifier,
+ 					     BUS_NOTIFY_DRIVER_NOT_BOUND, dev);
+@@ -643,6 +641,8 @@ pinctrl_bind_failed:
+ 	device_links_no_driver(dev);
+ 	devres_release_all(dev);
+ 	arch_teardown_dma_ops(dev);
++	kfree(dev->dma_range_map);
++	dev->dma_range_map = NULL;
+ 	driver_sysfs_remove(dev);
+ 	dev->driver = NULL;
+ 	dev_set_drvdata(dev, NULL);
 
 
