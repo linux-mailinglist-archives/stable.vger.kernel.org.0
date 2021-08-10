@@ -2,31 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B435B3E81EC
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:05:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C5153E81ED
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:05:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236325AbhHJSD6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S238297AbhHJSD6 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 10 Aug 2021 14:03:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33268 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:37776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235346AbhHJSB4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 14:01:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AB4636121E;
-        Tue, 10 Aug 2021 17:47:25 +0000 (UTC)
+        id S234542AbhHJSB6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 14:01:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DD68A613A7;
+        Tue, 10 Aug 2021 17:47:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617646;
-        bh=Jha8fhg1mL/utIyZdziZC4Sv7ThFgnNodpeJY1iJvf4=;
+        s=korg; t=1628617648;
+        bh=p+gzQ+WKbIpItmotzJJu2xF1GeLryVr5wMxaDXE+aKs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sI5UH2rF5W2MVwC/T3bBRC544z/6Mi3OxNI25QRYLzmPg3vd/hL48PI7/4WPSpBYb
-         zJ/js8nbQDQoVV1qUEsqzyXnsM/k3cexbiZWQC0ocZn7CprrnG+KmDorquY3F3V/H+
-         8cIk7tOj3/t3ejMGg/7RmEW9vmhV4anAtqI1VVEs=
+        b=1JbZLQzk5FWTP5aVMEb2umokuzfnTlcnS7J4kzqUqPu/krL+b13xpdVFe7bekolrt
+         OHsGYSrU5sVwYi2ZY91o7x2eO5wxqSE4jKdsB+t0KyVfKgh7C+IMmDfZxtc00ffOAW
+         fj9jWxHOraqT1/FPMlScNDivF5HUQQvonqgDBtWM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 5.13 151/175] soc: ixp4xx: fix printing resources
-Date:   Tue, 10 Aug 2021 19:30:59 +0200
-Message-Id: <20210810173005.950126854@linuxfoundation.org>
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Georgi Djakov <djakov@kernel.org>
+Subject: [PATCH 5.13 152/175] interconnect: Fix undersized devress_alloc allocation
+Date:   Tue, 10 Aug 2021 19:31:00 +0200
+Message-Id: <20210810173005.987525258@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
 References: <20210810173000.928681411@linuxfoundation.org>
@@ -38,57 +39,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Colin Ian King <colin.king@canonical.com>
 
-commit 8861452b2097bb0b5d0081a1c137fb3870b0a31f upstream.
+commit 85b1ebfea2b0d8797266bcc6f04b6cc87e38290a upstream.
 
-When compile-testing with 64-bit resource_size_t, gcc reports an invalid
-printk format string:
+The expression sizeof(**ptr) for the void **ptr is just 1 rather than
+the size of a pointer. Fix this by using sizeof(*ptr).
 
-In file included from include/linux/dma-mapping.h:7,
-                 from drivers/soc/ixp4xx/ixp4xx-npe.c:15:
-drivers/soc/ixp4xx/ixp4xx-npe.c: In function 'ixp4xx_npe_probe':
-drivers/soc/ixp4xx/ixp4xx-npe.c:694:18: error: format '%x' expects argument of type 'unsigned int', but argument 4 has type 'resource_size_t' {aka 'long long unsigned int'} [-Werror=format=]
-    dev_info(dev, "NPE%d at 0x%08x-0x%08x not available\n",
-
-Use the special %pR format string to print the resources.
-
-Fixes: 0b458d7b10f8 ("soc: ixp4xx: npe: Pass addresses as resources")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Addresses-Coverity: ("Wrong sizeof argument")
+Fixes: e145d9a184f2 ("interconnect: Add devm_of_icc_get() as exported API for users")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Link: https://lore.kernel.org/r/20210730075408.19945-1-colin.king@canonical.com
+Signed-off-by: Georgi Djakov <djakov@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/soc/ixp4xx/ixp4xx-npe.c |   11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ drivers/interconnect/core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/soc/ixp4xx/ixp4xx-npe.c
-+++ b/drivers/soc/ixp4xx/ixp4xx-npe.c
-@@ -690,8 +690,8 @@ static int ixp4xx_npe_probe(struct platf
+--- a/drivers/interconnect/core.c
++++ b/drivers/interconnect/core.c
+@@ -403,7 +403,7 @@ struct icc_path *devm_of_icc_get(struct
+ {
+ 	struct icc_path **ptr, *path;
  
- 		if (!(ixp4xx_read_feature_bits() &
- 		      (IXP4XX_FEATURE_RESET_NPEA << i))) {
--			dev_info(dev, "NPE%d at 0x%08x-0x%08x not available\n",
--				 i, res->start, res->end);
-+			dev_info(dev, "NPE%d at %pR not available\n",
-+				 i, res);
- 			continue; /* NPE already disabled or not present */
- 		}
- 		npe->regs = devm_ioremap_resource(dev, res);
-@@ -699,13 +699,12 @@ static int ixp4xx_npe_probe(struct platf
- 			return PTR_ERR(npe->regs);
- 
- 		if (npe_reset(npe)) {
--			dev_info(dev, "NPE%d at 0x%08x-0x%08x does not reset\n",
--				 i, res->start, res->end);
-+			dev_info(dev, "NPE%d at %pR does not reset\n",
-+				 i, res);
- 			continue;
- 		}
- 		npe->valid = 1;
--		dev_info(dev, "NPE%d at 0x%08x-0x%08x registered\n",
--			 i, res->start, res->end);
-+		dev_info(dev, "NPE%d at %pR registered\n", i, res);
- 		found++;
- 	}
+-	ptr = devres_alloc(devm_icc_release, sizeof(**ptr), GFP_KERNEL);
++	ptr = devres_alloc(devm_icc_release, sizeof(*ptr), GFP_KERNEL);
+ 	if (!ptr)
+ 		return ERR_PTR(-ENOMEM);
  
 
 
