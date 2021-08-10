@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46AB03E8112
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:56:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7329A3E812B
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:56:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235493AbhHJRzS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:55:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51490 "EHLO mail.kernel.org"
+        id S235858AbhHJR4K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:56:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236449AbhHJRw4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236472AbhHJRw4 (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 10 Aug 2021 13:52:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 52B6F61356;
-        Tue, 10 Aug 2021 17:43:41 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 81E8B61357;
+        Tue, 10 Aug 2021 17:43:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617421;
-        bh=aL/VQwDpDgwc8M6Z3IAq8wEXrwsD5+ryJJ/fgRSQzzk=;
+        s=korg; t=1628617424;
+        bh=KBSqMHbSKAqQUSppJrIVLZXDGu2CxvrOCdtlmfvdjCU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vh1EV1Pkx2KNLciXYAQeYL5E/bfNp703OUqmuqLYo0m/4qRzDCL88FXYNIMCqSxgB
-         SZNe/7VTDDqgdbzgSufSrGEfVVgVqiloDme+Rb/OD17lf1cZ7JSSlxIH/72yI8oGMB
-         ReREV97hjMs7bOZQtmISjjU/2N1q34hxK3zjgYcI=
+        b=b3wdO/nw7RF9+S3EEz3vSCbJiQix6nrD1kfSS7Q5irj9sPJqPLm4umTXB3FemZic2
+         KU+vXsAhyr96+HJH2olpqQRRZVg2v/D6NAs8MOAqpGgAhBUGKvSvm+XbBd/zQ/Qgsq
+         X5lpGhucw3XktVSfpAt95q8UkMJKG4BBJEsEEBsU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ying Xu <yinxu@redhat.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Jason Ekstrand <jason@jlekstrand.net>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 051/175] sctp: move the active_key update after sh_keys is added
-Date:   Tue, 10 Aug 2021 19:29:19 +0200
-Message-Id: <20210810173002.618322615@linuxfoundation.org>
+Subject: [PATCH 5.13 052/175] drm/i915: Call i915_globals_exit() if pci_register_device() fails
+Date:   Tue, 10 Aug 2021 19:29:20 +0200
+Message-Id: <20210810173002.649145753@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
 References: <20210810173000.928681411@linuxfoundation.org>
@@ -41,65 +41,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Jason Ekstrand <jason@jlekstrand.net>
 
-[ Upstream commit ae954bbc451d267f7d60d7b49db811d5a68ebd7b ]
+[ Upstream commit 1354d830cb8f9be966cc07fc61368af27ffb7c4a ]
 
-In commit 58acd1009226 ("sctp: update active_key for asoc when old key is
-being replaced"), sctp_auth_asoc_init_active_key() is called to update
-the active_key right after the old key is deleted and before the new key
-is added, and it caused that the active_key could be found with the key_id.
+In the unlikely event that pci_register_device() fails, we were tearing
+down our PMU setup but not globals.  This leaves a bunch of memory slabs
+lying around.
 
-In Ying Xu's testing, the BUG_ON in sctp_auth_asoc_init_active_key() was
-triggered:
-
-  [ ] kernel BUG at net/sctp/auth.c:416!
-  [ ] RIP: 0010:sctp_auth_asoc_init_active_key.part.8+0xe7/0xf0 [sctp]
-  [ ] Call Trace:
-  [ ]  sctp_auth_set_key+0x16d/0x1b0 [sctp]
-  [ ]  sctp_setsockopt.part.33+0x1ba9/0x2bd0 [sctp]
-  [ ]  __sys_setsockopt+0xd6/0x1d0
-  [ ]  __x64_sys_setsockopt+0x20/0x30
-  [ ]  do_syscall_64+0x5b/0x1a0
-
-So fix it by moving the active_key update after sh_keys is added.
-
-Fixes: 58acd1009226 ("sctp: update active_key for asoc when old key is being replaced")
-Reported-by: Ying Xu <yinxu@redhat.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Jason Ekstrand <jason@jlekstrand.net>
+Fixes: 32eb6bcfdda9 ("drm/i915: Make request allocation caches global")
+[danvet: Fix conflicts against removal of the globals_flush
+infrastructure.]
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210721152358.2893314-3-jason@jlekstrand.net
+(cherry picked from commit db484889d1ff0645e07e360d3e3ad306c0515821)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+[Fixed small conflict while cherry picking]
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/auth.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/i915/i915_globals.c | 2 +-
+ drivers/gpu/drm/i915/i915_pci.c     | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/sctp/auth.c b/net/sctp/auth.c
-index fe74c5f95630..db6b7373d16c 100644
---- a/net/sctp/auth.c
-+++ b/net/sctp/auth.c
-@@ -857,14 +857,18 @@ int sctp_auth_set_key(struct sctp_endpoint *ep,
- 	memcpy(key->data, &auth_key->sca_key[0], auth_key->sca_keylength);
- 	cur_key->key = key;
- 
--	if (replace) {
--		list_del_init(&shkey->key_list);
--		sctp_auth_shkey_release(shkey);
--		if (asoc && asoc->active_key_id == auth_key->sca_keynumber)
--			sctp_auth_asoc_init_active_key(asoc, GFP_KERNEL);
-+	if (!replace) {
-+		list_add(&cur_key->key_list, sh_keys);
-+		return 0;
- 	}
-+
-+	list_del_init(&shkey->key_list);
-+	sctp_auth_shkey_release(shkey);
- 	list_add(&cur_key->key_list, sh_keys);
- 
-+	if (asoc && asoc->active_key_id == auth_key->sca_keynumber)
-+		sctp_auth_asoc_init_active_key(asoc, GFP_KERNEL);
-+
- 	return 0;
+diff --git a/drivers/gpu/drm/i915/i915_globals.c b/drivers/gpu/drm/i915/i915_globals.c
+index 3aa213684293..e27739a50bee 100644
+--- a/drivers/gpu/drm/i915/i915_globals.c
++++ b/drivers/gpu/drm/i915/i915_globals.c
+@@ -149,7 +149,7 @@ static void __exit __i915_globals_flush(void)
+ 	atomic_dec(&active);
  }
+ 
+-void __exit i915_globals_exit(void)
++void i915_globals_exit(void)
+ {
+ 	GEM_BUG_ON(atomic_read(&active));
+ 
+diff --git a/drivers/gpu/drm/i915/i915_pci.c b/drivers/gpu/drm/i915/i915_pci.c
+index 480553746794..a6261a8103f4 100644
+--- a/drivers/gpu/drm/i915/i915_pci.c
++++ b/drivers/gpu/drm/i915/i915_pci.c
+@@ -1168,6 +1168,7 @@ static int __init i915_init(void)
+ 	err = pci_register_driver(&i915_pci_driver);
+ 	if (err) {
+ 		i915_pmu_exit();
++		i915_globals_exit();
+ 		return err;
+ 	}
  
 -- 
 2.30.2
