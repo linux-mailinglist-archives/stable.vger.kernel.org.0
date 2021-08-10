@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C2A23E81B5
+	by mail.lfdr.de (Postfix) with ESMTP id 8D7FE3E81B6
 	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:02:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236393AbhHJSBk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 14:01:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60846 "EHLO mail.kernel.org"
+        id S236456AbhHJSBl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 14:01:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238384AbhHJR7d (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S238389AbhHJR7d (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 10 Aug 2021 13:59:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AD2FE613A4;
-        Tue, 10 Aug 2021 17:46:24 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E7F25613BD;
+        Tue, 10 Aug 2021 17:46:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617585;
-        bh=BTEEXW6O5jYkijye2zWVLsXsrNnU0Sn38gQur0kljJI=;
+        s=korg; t=1628617587;
+        bh=mZeIxsdURR5OkVvnLv8FSnYIW8IK2nSTtUf4eC7nvAE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wWHwkDT2MsQYSOVsyKOuriNA5OPhqLS4z+ik3qtt4r+BqK75X8o7Z9eq0AdO2AuhT
-         9V/sRHb88olR7s0N/qdWsWEXxBB4OVtxes3Jpsj86a7klj3VR8HPNE4IZFGvRrERBS
-         X0RodUbOi5yZXPV+KyPNwE2bAGjZOV3jhtn/wgRY=
+        b=vzXabYtRIfcE2pm0Ww1hQbAc5UMKqDgUNsxPaXpFkLXpLnXWwirOm4fkOacfl6MK+
+         s7SycZXrZ067KcR/lYghf0JPoBn6h1aXz08XtkJ2kOPxCnXoRAlYKnvW0/VmNdb2/q
+         TIh4TGp9mrLS8a4P+LNzYGIFrAfcgusp617lubJE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christian Kellner <ckellner@redhat.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH 5.13 123/175] Revert "thunderbolt: Hide authorized attribute if router does not support PCIe tunnels"
-Date:   Tue, 10 Aug 2021 19:30:31 +0200
-Message-Id: <20210810173005.004696881@linuxfoundation.org>
+        stable@vger.kernel.org, Thierry Reding <treding@nvidia.com>,
+        Jon Hunter <jonathanh@nvidia.com>
+Subject: [PATCH 5.13 124/175] serial: tegra: Only print FIFO error message when an error occurs
+Date:   Tue, 10 Aug 2021 19:30:32 +0200
+Message-Id: <20210810173005.036632950@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
 References: <20210810173000.928681411@linuxfoundation.org>
@@ -39,59 +39,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Jon Hunter <jonathanh@nvidia.com>
 
-commit 8e3341257e3b5774ec8cd3ef1ba0c0d3fada322b upstream.
+commit cc9ca4d95846cbbece48d9cd385550f8fba6a3c1 upstream.
 
-This reverts commit 6f3badead6a078cf3c71f381f9d84ac922984a00.
+The Tegra serial driver always prints an error message when enabling the
+FIFO for devices that have support for checking the FIFO enable status.
+Fix this by displaying the error message, only when an error occurs.
 
-It turns out bolt depends on having authorized attribute visible under
-each device. Hiding it makes bolt crash as several people have reported
-on various bug trackers. For this reason revert the commit.
+Finally, update the error message to make it clear that enabling the
+FIFO failed and display the error code.
 
-Link: https://gitlab.freedesktop.org/bolt/bolt/-/issues/174
-Link: https://bugzilla.redhat.com/show_bug.cgi?id=1979765
-Link: https://bugs.archlinux.org/task/71569
-Cc: stable@vger.kernel.org
-Cc: Christian Kellner <ckellner@redhat.com>
-Fixes: 6f3badead6a0 ("thunderbolt: Hide authorized attribute if router does not support PCIe tunnels")
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Link: https://lore.kernel.org/r/20210727142501.27476-1-mika.westerberg@linux.intel.com
+Fixes: 222dcdff3405 ("serial: tegra: check for FIFO mode enabled status")
+Cc: <stable@vger.kernel.org>
+Acked-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
+Link: https://lore.kernel.org/r/20210630125643.264264-1-jonathanh@nvidia.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/thunderbolt/switch.c |   15 +--------------
- 1 file changed, 1 insertion(+), 14 deletions(-)
+ drivers/tty/serial/serial-tegra.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/thunderbolt/switch.c
-+++ b/drivers/thunderbolt/switch.c
-@@ -1740,18 +1740,6 @@ static struct attribute *switch_attrs[]
- 	NULL,
- };
+--- a/drivers/tty/serial/serial-tegra.c
++++ b/drivers/tty/serial/serial-tegra.c
+@@ -1045,9 +1045,11 @@ static int tegra_uart_hw_init(struct teg
  
--static bool has_port(const struct tb_switch *sw, enum tb_port_type type)
--{
--	const struct tb_port *port;
--
--	tb_switch_for_each_port(sw, port) {
--		if (!port->disabled && port->config.type == type)
--			return true;
--	}
--
--	return false;
--}
--
- static umode_t switch_attr_is_visible(struct kobject *kobj,
- 				      struct attribute *attr, int n)
- {
-@@ -1760,8 +1748,7 @@ static umode_t switch_attr_is_visible(st
- 
- 	if (attr == &dev_attr_authorized.attr) {
- 		if (sw->tb->security_level == TB_SECURITY_NOPCIE ||
--		    sw->tb->security_level == TB_SECURITY_DPONLY ||
--		    !has_port(sw, TB_TYPE_PCIE_UP))
-+		    sw->tb->security_level == TB_SECURITY_DPONLY)
- 			return 0;
- 	} else if (attr == &dev_attr_device.attr) {
- 		if (!sw->device)
+ 	if (tup->cdata->fifo_mode_enable_status) {
+ 		ret = tegra_uart_wait_fifo_mode_enabled(tup);
+-		dev_err(tup->uport.dev, "FIFO mode not enabled\n");
+-		if (ret < 0)
++		if (ret < 0) {
++			dev_err(tup->uport.dev,
++				"Failed to enable FIFO mode: %d\n", ret);
+ 			return ret;
++		}
+ 	} else {
+ 		/*
+ 		 * For all tegra devices (up to t210), there is a hardware
 
 
