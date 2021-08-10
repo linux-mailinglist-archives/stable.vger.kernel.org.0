@@ -2,33 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A4763E5E36
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 16:44:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9910F3E5E44
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 16:46:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241148AbhHJOoZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 10:44:25 -0400
-Received: from foss.arm.com ([217.140.110.172]:57110 "EHLO foss.arm.com"
+        id S241519AbhHJOqY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 10:46:24 -0400
+Received: from foss.arm.com ([217.140.110.172]:57154 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241391AbhHJOoZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 10:44:25 -0400
+        id S241713AbhHJOqY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 10:46:24 -0400
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id A7EBF1FB;
-        Tue, 10 Aug 2021 07:44:02 -0700 (PDT)
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 1290E1FB;
+        Tue, 10 Aug 2021 07:46:02 -0700 (PDT)
 Received: from lakrids.cambridge.arm.com (usa-sjc-imap-foss1.foss.arm.com [10.121.207.14])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 1CBDD3F70D;
-        Tue, 10 Aug 2021 07:44:02 -0700 (PDT)
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 7CA4C3F70D;
+        Tue, 10 Aug 2021 07:46:01 -0700 (PDT)
 From:   Mark Rutland <mark.rutland@arm.com>
 To:     stable@vger.kernel.org
 Cc:     will@kernel.org
-Subject: [PATCH 5.10.y] arm64: fix compat syscall return truncation
-Date:   Tue, 10 Aug 2021 15:43:55 +0100
-Message-Id: <20210810144355.33235-1-mark.rutland@arm.com>
+Subject: [PATCH 5.4.y] arm64: fix compat syscall return truncation
+Date:   Tue, 10 Aug 2021 15:45:53 +0100
+Message-Id: <20210810144553.33310-1-mark.rutland@arm.com>
 X-Mailer: git-send-email 2.11.0
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
-
-commit e30e8d46cf605d216a799a28c77b8a41c328613a upstream.
 
 Due to inconsistencies in the way we manipulate compat GPRs, we have a
 few issues today:
@@ -76,27 +74,27 @@ Cc: Will Deacon <will@kernel.org>
 Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
 Link: https://lore.kernel.org/r/20210802104200.21390-1-mark.rutland@arm.com
 Signed-off-by: Will Deacon <will@kernel.org>
-[Mark: trivial conflict resolution for v5.10.y]
+[Mark: trivial conflict resolution for v5.4.y]
 Signed-off-by: Mark Rutland <mark.rutland@arm.com>
 ---
  arch/arm64/include/asm/ptrace.h  | 12 +++++++++++-
  arch/arm64/include/asm/syscall.h | 19 ++++++++++---------
  arch/arm64/kernel/ptrace.c       |  2 +-
  arch/arm64/kernel/signal.c       |  3 ++-
- arch/arm64/kernel/syscall.c      |  9 +++------
- 5 files changed, 27 insertions(+), 18 deletions(-)
+ arch/arm64/kernel/syscall.c      |  7 ++-----
+ 5 files changed, 26 insertions(+), 17 deletions(-)
 
 This is a trivial backport, as the original didn't apply cleanly per:
 
-https://lore.kernel.org/r/16285057618718@kroah.com
+https://lore.kernel.org/r/1628505759100128@kroah.com
 
 Mark.
 
 diff --git a/arch/arm64/include/asm/ptrace.h b/arch/arm64/include/asm/ptrace.h
-index 28c85b87b8cd..d3106f5e121f 100644
+index bf57308fcd63..92b2575b0191 100644
 --- a/arch/arm64/include/asm/ptrace.h
 +++ b/arch/arm64/include/asm/ptrace.h
-@@ -316,7 +316,17 @@ static inline unsigned long kernel_stack_pointer(struct pt_regs *regs)
+@@ -299,7 +299,17 @@ static inline unsigned long kernel_stack_pointer(struct pt_regs *regs)
  
  static inline unsigned long regs_return_value(struct pt_regs *regs)
  {
@@ -153,10 +151,10 @@ index cfc0672013f6..03e20895453a 100644
  
  static inline void syscall_set_return_value(struct task_struct *task,
 diff --git a/arch/arm64/kernel/ptrace.c b/arch/arm64/kernel/ptrace.c
-index 66256603bd59..2817e39881fe 100644
+index 0cfd68577489..8a95a013dfd3 100644
 --- a/arch/arm64/kernel/ptrace.c
 +++ b/arch/arm64/kernel/ptrace.c
-@@ -1823,7 +1823,7 @@ void syscall_trace_exit(struct pt_regs *regs)
+@@ -1868,7 +1868,7 @@ void syscall_trace_exit(struct pt_regs *regs)
  	audit_syscall_exit(regs);
  
  	if (flags & _TIF_SYSCALL_TRACEPOINT)
@@ -166,7 +164,7 @@ index 66256603bd59..2817e39881fe 100644
  	if (flags & (_TIF_SYSCALL_TRACE | _TIF_SINGLESTEP))
  		tracehook_report_syscall(regs, PTRACE_SYSCALL_EXIT);
 diff --git a/arch/arm64/kernel/signal.c b/arch/arm64/kernel/signal.c
-index 50852992752b..e62005317ce2 100644
+index ddb757b2c3e5..f6d3278c1a4e 100644
 --- a/arch/arm64/kernel/signal.c
 +++ b/arch/arm64/kernel/signal.c
 @@ -29,6 +29,7 @@
@@ -177,7 +175,7 @@ index 50852992752b..e62005317ce2 100644
  #include <asm/signal32.h>
  #include <asm/traps.h>
  #include <asm/vdso.h>
-@@ -890,7 +891,7 @@ static void do_signal(struct pt_regs *regs)
+@@ -868,7 +869,7 @@ static void do_signal(struct pt_regs *regs)
  		     retval == -ERESTART_RESTARTBLOCK ||
  		     (retval == -ERESTARTSYS &&
  		      !(ksig.ka.sa.sa_flags & SA_RESTART)))) {
@@ -187,7 +185,7 @@ index 50852992752b..e62005317ce2 100644
  		}
  
 diff --git a/arch/arm64/kernel/syscall.c b/arch/arm64/kernel/syscall.c
-index 6fa8cfb8232a..befde0eaa5e7 100644
+index f2d2dbbbfca2..091c11521108 100644
 --- a/arch/arm64/kernel/syscall.c
 +++ b/arch/arm64/kernel/syscall.c
 @@ -50,10 +50,7 @@ static void invoke_syscall(struct pt_regs *regs, unsigned int scno,
@@ -202,18 +200,9 @@ index 6fa8cfb8232a..befde0eaa5e7 100644
  }
  
  static inline bool has_syscall_work(unsigned long flags)
-@@ -128,7 +125,7 @@ static void el0_svc_common(struct pt_regs *regs, int scno, int sc_nr,
- 		 * syscall. do_notify_resume() will send a signal to userspace
- 		 * before the syscall is restarted.
- 		 */
--		regs->regs[0] = -ERESTARTNOINTR;
-+		syscall_set_return_value(current, regs, -ERESTARTNOINTR, 0);
- 		return;
- 	}
- 
-@@ -149,7 +146,7 @@ static void el0_svc_common(struct pt_regs *regs, int scno, int sc_nr,
- 		 * anyway.
- 		 */
+@@ -108,7 +105,7 @@ static void el0_svc_common(struct pt_regs *regs, int scno, int sc_nr,
+ 	if (has_syscall_work(flags)) {
+ 		/* set default errno for user-issued syscall(-1) */
  		if (scno == NO_SYSCALL)
 -			regs->regs[0] = -ENOSYS;
 +			syscall_set_return_value(current, regs, -ENOSYS, 0);
