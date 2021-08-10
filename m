@@ -2,35 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF75E3E81C5
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:02:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00F493E8225
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:06:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237062AbhHJSCI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 14:02:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59496 "EHLO mail.kernel.org"
+        id S236671AbhHJSGE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 14:06:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38806 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234851AbhHJSAF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 14:00:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 862976139F;
-        Tue, 10 Aug 2021 17:46:47 +0000 (UTC)
+        id S238876AbhHJSEe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 14:04:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 50C8A6140F;
+        Tue, 10 Aug 2021 17:48:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617608;
-        bh=e550DMyvd6Ig4dLJ8EyHUKjkfg7Ghj7WJ4I0ornA3Es=;
+        s=korg; t=1628617704;
+        bh=/JrhBX0ziRnLbtewtunYKUMLWwn5i7XYGX4vXtnNh4I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fy0tWOrywneIJc6h/xP172oitjbdvj16S7DQq0HIJrFNWvkK/eZ15noP+mWpJvMBn
-         kZtgN9q2ATIKJIzQphZjAbu5NB4JdW4WP1H76WhB3JDlP6/ZauVD+Qs/VaBSotW6nG
-         aNA1cLnF/3lP7nngsKEaRH8+DYPEMDQMZaY7ICgs=
+        b=M5ch7chLlDG3B0iCzUte/46KodeLYfiV+cAZbel/ijeek5QbOyurztcxq5Kpr4F83
+         ndzjX5Q54Fsp48cm4YCkU9ZC2NUSAvWPv3Y0I3Q4rB0RGdT1kkQTFmxIIs1swCwO0C
+         iRr4Mso79qxAEnl8VXgcL4eF7alIOEaRb4WuVTvA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+aa7c2385d46c5eba0b89@syzkaller.appspotmail.com,
-        syzbot+abea4558531bae1ba9fe@syzkaller.appspotmail.com,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Subject: [PATCH 5.13 132/175] timers: Move clearing of base::timer_running under base:: Lock
-Date:   Tue, 10 Aug 2021 19:30:40 +0200
-Message-Id: <20210810173005.296442500@linuxfoundation.org>
+        stable@vger.kernel.org, Shuo Liu <shuo.a.liu@intel.com>,
+        Fei Li <fei1.li@intel.com>
+Subject: [PATCH 5.13 133/175] virt: acrn: Do hcall_destroy_vm() before resource release
+Date:   Tue, 10 Aug 2021 19:30:41 +0200
+Message-Id: <20210810173005.326442924@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
 References: <20210810173000.928681411@linuxfoundation.org>
@@ -42,84 +39,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Shuo Liu <shuo.a.liu@intel.com>
 
-commit bb7262b295472eb6858b5c49893954794027cd84 upstream.
+commit 4c4c1257b844ffe5d0933684e612f92c4b78e120 upstream.
 
-syzbot reported KCSAN data races vs. timer_base::timer_running being set to
-NULL without holding base::lock in expire_timers().
+The ACRN hypervisor has scenarios which could run a real-time guest VM.
+The real-time guest VM occupies dedicated CPU cores, be assigned with
+dedicated PCI devices. It can run without the Service VM after boot up.
+hcall_destroy_vm() returns failure when a real-time guest VM refuses.
+The clearing of flag ACRN_VM_FLAG_DESTROYED causes some kernel resource
+double-freed in a later acrn_vm_destroy().
 
-This looks innocent and most reads are clearly not problematic, but
-Frederic identified an issue which is:
+Do hcall_destroy_vm() before resource release to drop this chance to
+destroy the VM if hypercall fails.
 
- int data = 0;
-
- void timer_func(struct timer_list *t)
- {
-    data = 1;
- }
-
- CPU 0                                            CPU 1
- ------------------------------                   --------------------------
- base = lock_timer_base(timer, &flags);           raw_spin_unlock(&base->lock);
- if (base->running_timer != timer)                call_timer_fn(timer, fn, baseclk);
-   ret = detach_if_pending(timer, base, true);    base->running_timer = NULL;
- raw_spin_unlock_irqrestore(&base->lock, flags);  raw_spin_lock(&base->lock);
-
- x = data;
-
-If the timer has previously executed on CPU 1 and then CPU 0 can observe
-base->running_timer == NULL and returns, assuming the timer has completed,
-but it's not guaranteed on all architectures. The comment for
-del_timer_sync() makes that guarantee. Moving the assignment under
-base->lock prevents this.
-
-For non-RT kernel it's performance wise completely irrelevant whether the
-store happens before or after taking the lock. For an RT kernel moving the
-store under the lock requires an extra unlock/lock pair in the case that
-there is a waiter for the timer, but that's not the end of the world.
-
-Reported-by: syzbot+aa7c2385d46c5eba0b89@syzkaller.appspotmail.com
-Reported-by: syzbot+abea4558531bae1ba9fe@syzkaller.appspotmail.com
-Fixes: 030dcdd197d7 ("timers: Prepare support for PREEMPT_RT")
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Link: https://lore.kernel.org/r/87lfea7gw8.fsf@nanos.tec.linutronix.de
-Cc: stable@vger.kernel.org
+Fixes: 9c5137aedd11 ("virt: acrn: Introduce VM management interfaces")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Shuo Liu <shuo.a.liu@intel.com>
+Signed-off-by: Fei Li <fei1.li@intel.com>
+Link: https://lore.kernel.org/r/20210722062736.15050-1-fei1.li@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/time/timer.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/virt/acrn/vm.c |   16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
---- a/kernel/time/timer.c
-+++ b/kernel/time/timer.c
-@@ -1279,8 +1279,10 @@ static inline void timer_base_unlock_exp
- static void timer_sync_wait_running(struct timer_base *base)
- {
- 	if (atomic_read(&base->timer_waiters)) {
-+		raw_spin_unlock_irq(&base->lock);
- 		spin_unlock(&base->expiry_lock);
- 		spin_lock(&base->expiry_lock);
-+		raw_spin_lock_irq(&base->lock);
- 	}
- }
+--- a/drivers/virt/acrn/vm.c
++++ b/drivers/virt/acrn/vm.c
+@@ -64,6 +64,14 @@ int acrn_vm_destroy(struct acrn_vm *vm)
+ 	    test_and_set_bit(ACRN_VM_FLAG_DESTROYED, &vm->flags))
+ 		return 0;
  
-@@ -1471,14 +1473,14 @@ static void expire_timers(struct timer_b
- 		if (timer->flags & TIMER_IRQSAFE) {
- 			raw_spin_unlock(&base->lock);
- 			call_timer_fn(timer, fn, baseclk);
--			base->running_timer = NULL;
- 			raw_spin_lock(&base->lock);
-+			base->running_timer = NULL;
- 		} else {
- 			raw_spin_unlock_irq(&base->lock);
- 			call_timer_fn(timer, fn, baseclk);
-+			raw_spin_lock_irq(&base->lock);
- 			base->running_timer = NULL;
- 			timer_sync_wait_running(base);
--			raw_spin_lock_irq(&base->lock);
- 		}
++	ret = hcall_destroy_vm(vm->vmid);
++	if (ret < 0) {
++		dev_err(acrn_dev.this_device,
++			"Failed to destroy VM %u\n", vm->vmid);
++		clear_bit(ACRN_VM_FLAG_DESTROYED, &vm->flags);
++		return ret;
++	}
++
+ 	/* Remove from global VM list */
+ 	write_lock_bh(&acrn_vm_list_lock);
+ 	list_del_init(&vm->list);
+@@ -78,14 +86,6 @@ int acrn_vm_destroy(struct acrn_vm *vm)
+ 		vm->monitor_page = NULL;
  	}
- }
+ 
+-	ret = hcall_destroy_vm(vm->vmid);
+-	if (ret < 0) {
+-		dev_err(acrn_dev.this_device,
+-			"Failed to destroy VM %u\n", vm->vmid);
+-		clear_bit(ACRN_VM_FLAG_DESTROYED, &vm->flags);
+-		return ret;
+-	}
+-
+ 	acrn_vm_all_ram_unmap(vm);
+ 
+ 	dev_dbg(acrn_dev.this_device, "VM %u destroyed.\n", vm->vmid);
 
 
