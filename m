@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FDCD3E7EEE
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:36:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE4CD3E8034
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:47:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233964AbhHJRgJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:36:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43106 "EHLO mail.kernel.org"
+        id S234817AbhHJRrB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:47:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233218AbhHJRfD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:35:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A76660FC4;
-        Tue, 10 Aug 2021 17:34:40 +0000 (UTC)
+        id S233630AbhHJRpJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:45:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D1006112D;
+        Tue, 10 Aug 2021 17:39:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616881;
-        bh=padmp1EfJk5gEo26tVeSIiRYdf6NZwwoY/vBdgBuUMs=;
+        s=korg; t=1628617200;
+        bh=MGfQA6lcM9g8o8bScDfSMHw06mk8qD9asDGzQiw1DAU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mW95Q/lofdST/qLr1FeNB9owmzXjNH8huWB4Nf57PNWgqv7F/g8GJiyfDP2AJdQi5
-         kskAlphfCVfN0TtVFrYps2IyBPjfL8jXFuN49pFg+stMJrwqCXhiNEqW96TwlfoMNZ
-         MjQNYT9ODY7EW6Foqqn8kRjr22nI5y5wW75Rqs40=
+        b=YcZ84t61xfOhy957tDnZzwEcozVqToA6qYs5Kt00nRtyTchKqFLa6goheLMk/CREO
+         OPdoTDe7ubjzP+4Lk8JaksYaAMmC1IXpIWDvwgc1KD6yDkuVFsOFLA1AsHAjvoWNj9
+         gskRPBbUHcqjH/dIU0BjJWw3BqYnjXja7Hw7E908=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Pavel Skripkin <paskripkin@gmail.com>,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 33/85] net: vxge: fix use-after-free in vxge_device_unregister
+        stable@vger.kernel.org, Peter Chen <peter.chen@kernel.org>,
+        Dmitry Osipenko <digetx@gmail.com>
+Subject: [PATCH 5.10 072/135] usb: otg-fsm: Fix hrtimer list corruption
 Date:   Tue, 10 Aug 2021 19:30:06 +0200
-Message-Id: <20210810172949.315217211@linuxfoundation.org>
+Message-Id: <20210810172958.171730951@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
-References: <20210810172948.192298392@linuxfoundation.org>
+In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
+References: <20210810172955.660225700@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,53 +39,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-[ Upstream commit 942e560a3d3862dd5dee1411dbdd7097d29b8416 ]
+commit bf88fef0b6f1488abeca594d377991171c00e52a upstream.
 
-Smatch says:
-drivers/net/ethernet/neterion/vxge/vxge-main.c:3518 vxge_device_unregister() error: Using vdev after free_{netdev,candev}(dev);
-drivers/net/ethernet/neterion/vxge/vxge-main.c:3518 vxge_device_unregister() error: Using vdev after free_{netdev,candev}(dev);
-drivers/net/ethernet/neterion/vxge/vxge-main.c:3520 vxge_device_unregister() error: Using vdev after free_{netdev,candev}(dev);
-drivers/net/ethernet/neterion/vxge/vxge-main.c:3520 vxge_device_unregister() error: Using vdev after free_{netdev,candev}(dev);
+The HNP work can be re-scheduled while it's still in-fly. This results in
+re-initialization of the busy work, resetting the hrtimer's list node of
+the work and crashing kernel with null dereference within kernel/timer
+once work's timer is expired. It's very easy to trigger this problem by
+re-plugging USB cable quickly. Initialize HNP work only once to fix this
+trouble.
 
-Since vdev pointer is netdev private data accessing it after free_netdev()
-call can cause use-after-free bug. Fix it by moving free_netdev() call at
-the end of the function
+ Unable to handle kernel NULL pointer dereference at virtual address 00000126)
+ ...
+ PC is at __run_timers.part.0+0x150/0x228
+ LR is at __next_timer_interrupt+0x51/0x9c
+ ...
+ (__run_timers.part.0) from [<c0187a2b>] (run_timer_softirq+0x2f/0x50)
+ (run_timer_softirq) from [<c01013ad>] (__do_softirq+0xd5/0x2f0)
+ (__do_softirq) from [<c012589b>] (irq_exit+0xab/0xb8)
+ (irq_exit) from [<c0170341>] (handle_domain_irq+0x45/0x60)
+ (handle_domain_irq) from [<c04c4a43>] (gic_handle_irq+0x6b/0x7c)
+ (gic_handle_irq) from [<c0100b65>] (__irq_svc+0x65/0xac)
 
-Fixes: 6cca200362b4 ("vxge: cleanup probe error paths")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Reviewed-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Acked-by: Peter Chen <peter.chen@kernel.org>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Link: https://lore.kernel.org/r/20210717182134.30262-6-digetx@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/neterion/vxge/vxge-main.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/usb/common/usb-otg-fsm.c |    6 +++++-
+ include/linux/usb/otg-fsm.h      |    1 +
+ 2 files changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/neterion/vxge/vxge-main.c b/drivers/net/ethernet/neterion/vxge/vxge-main.c
-index 1d334f2e0a56..607e2ff272dc 100644
---- a/drivers/net/ethernet/neterion/vxge/vxge-main.c
-+++ b/drivers/net/ethernet/neterion/vxge/vxge-main.c
-@@ -3524,13 +3524,13 @@ static void vxge_device_unregister(struct __vxge_hw_device *hldev)
+--- a/drivers/usb/common/usb-otg-fsm.c
++++ b/drivers/usb/common/usb-otg-fsm.c
+@@ -193,7 +193,11 @@ static void otg_start_hnp_polling(struct
+ 	if (!fsm->host_req_flag)
+ 		return;
  
- 	kfree(vdev->vpaths);
- 
--	/* we are safe to free it now */
--	free_netdev(dev);
--
- 	vxge_debug_init(vdev->level_trace, "%s: ethernet device unregistered",
- 			buf);
- 	vxge_debug_entryexit(vdev->level_trace,	"%s: %s:%d  Exiting...", buf,
- 			     __func__, __LINE__);
+-	INIT_DELAYED_WORK(&fsm->hnp_polling_work, otg_hnp_polling_work);
++	if (!fsm->hnp_work_inited) {
++		INIT_DELAYED_WORK(&fsm->hnp_polling_work, otg_hnp_polling_work);
++		fsm->hnp_work_inited = true;
++	}
 +
-+	/* we are safe to free it now */
-+	free_netdev(dev);
+ 	schedule_delayed_work(&fsm->hnp_polling_work,
+ 					msecs_to_jiffies(T_HOST_REQ_POLL));
  }
+--- a/include/linux/usb/otg-fsm.h
++++ b/include/linux/usb/otg-fsm.h
+@@ -196,6 +196,7 @@ struct otg_fsm {
+ 	struct mutex lock;
+ 	u8 *host_req_flag;
+ 	struct delayed_work hnp_polling_work;
++	bool hnp_work_inited;
+ 	bool state_changed;
+ };
  
- /*
--- 
-2.30.2
-
 
 
