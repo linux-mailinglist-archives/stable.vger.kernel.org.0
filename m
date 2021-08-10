@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 389CE3E7F65
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:41:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2817D3E7E9B
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:34:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234284AbhHJRkS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:40:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42350 "EHLO mail.kernel.org"
+        id S232779AbhHJRe3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:34:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232803AbhHJRhJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:37:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9DFBE610FF;
-        Tue, 10 Aug 2021 17:35:52 +0000 (UTC)
+        id S232834AbhHJRdy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:33:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C50C60F41;
+        Tue, 10 Aug 2021 17:33:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616953;
-        bh=QQTIb+4RapVp0SpW9dcOiR+WqNzQ/FZ2B4HLxmEmcxI=;
+        s=korg; t=1628616811;
+        bh=i2zCazZeP+sT2YQiWWWFNaOJ/n/UKH3EC44jbWO8rzQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CndvvjMVbB76XMCAk2EGp8iBFNAt8jEiBWHxc8V+Lunprb7/4t12UuEma/Ps6SjCy
-         o4/u2cVDm5c/CrCo9KZq7TBS6Rm/tfgS/91mQ4Y55ITzCrnaILYGZUcFW5Y5244NcA
-         w1RFw2QxT2kj1u0HEDG8zFMbFC7pVRUNxPb03iRo=
+        b=BrbeVPaXApcDKnpGMqnMBvWcjRXbJw3jqsmT9IiOBn9sbVxO4muU7P5KUMiWNS8AT
+         WAcGw7a+20LksBQ6Gafi6zRoXDNE0QfWGX3vSzKsb5VUhVJSAMYs9Mo2y+dMloTqVx
+         fVKJu0gHv305dKEXG4xt8PlLOtURaehyQU9wYbzk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ralf Ramsauer <ralf.ramsauer@oth-regensburg.de>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Mario Kleiner <mario.kleiner.de@gmail.com>
-Subject: [PATCH 5.4 66/85] serial: 8250_pci: Avoid irq sharing for MSI(-X) interrupts.
-Date:   Tue, 10 Aug 2021 19:30:39 +0200
-Message-Id: <20210810172950.474054546@linuxfoundation.org>
+        stable@vger.kernel.org, Dongliang Mu <mudongliangabcd@gmail.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.19 46/54] spi: meson-spicc: fix memory leak in meson_spicc_remove
+Date:   Tue, 10 Aug 2021 19:30:40 +0200
+Message-Id: <20210810172945.712251303@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
-References: <20210810172948.192298392@linuxfoundation.org>
+In-Reply-To: <20210810172944.179901509@linuxfoundation.org>
+References: <20210810172944.179901509@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,96 +39,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Kleiner <mario.kleiner.de@gmail.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-commit 341abd693d10e5f337a51f140ae3e7a1ae0febf6 upstream.
+commit 8311ee2164c5cd1b63a601ea366f540eae89f10e upstream.
 
-This attempts to fix a bug found with a serial port card which uses
-an MCS9922 chip, one of the 4 models for which MSI-X interrupts are
-currently supported. I don't possess such a card, and i'm not
-experienced with the serial subsystem, so this patch is based on what
-i think i found as a likely reason for failure, based on walking the
-user who actually owns the card through some diagnostic.
+In meson_spicc_probe, the error handling code needs to clean up master
+by calling spi_master_put, but the remove function does not have this
+function call. This will lead to memory leak of spicc->master.
 
-The user who reported the problem finds the following in his dmesg
-output for the relevant ttyS4 and ttyS5:
-
-[    0.580425] serial 0000:02:00.0: enabling device (0000 -> 0003)
-[    0.601448] 0000:02:00.0: ttyS4 at I/O 0x3010 (irq = 125, base_baud = 115200) is a ST16650V2
-[    0.603089] serial 0000:02:00.1: enabling device (0000 -> 0003)
-[    0.624119] 0000:02:00.1: ttyS5 at I/O 0x3000 (irq = 126, base_baud = 115200) is a ST16650V2
-...
-[    6.323784] genirq: Flags mismatch irq 128. 00000080 (ttyS5) vs. 00000000 (xhci_hcd)
-[    6.324128] genirq: Flags mismatch irq 128. 00000080 (ttyS5) vs. 00000000 (xhci_hcd)
-...
-
-Output of setserial -a:
-
-/dev/ttyS4, Line 4, UART: 16650V2, Port: 0x3010, IRQ: 127
-	Baud_base: 115200, close_delay: 50, divisor: 0
-	closing_wait: 3000
-	Flags: spd_normal skip_test
-
-This suggests to me that the serial driver wants to register and share a
-MSI/MSI-X irq 128 with the xhci_hcd driver, whereas the xhci driver does
-not want to share the irq, as flags 0x00000080 (== IRQF_SHARED) from the
-serial port driver means to share the irq, and this mismatch ends in some
-failed irq init?
-
-With this setup, data reception works very unreliable, with dropped data,
-already at a transmission rate of only a 16 Bytes chunk every 1/120th of
-a second, ie. 1920 Bytes/sec, presumably due to rx fifo overflow due to
-mishandled or not used at all rx irq's?
-
-See full discussion thread with attempted diagnosis at:
-
-https://psychtoolbox.discourse.group/t/issues-with-iscan-serial-port-recording/3886
-
-Disabling the use of MSI interrupts for the serial port pci card did
-fix the reliability problems. The user executed the following sequence
-of commands to achieve this:
-
-echo 0000:02:00.0 | sudo tee /sys/bus/pci/drivers/serial/unbind
-echo 0000:02:00.1 | sudo tee /sys/bus/pci/drivers/serial/unbind
-
-echo 0 | sudo tee /sys/bus/pci/devices/0000:02:00.0/msi_bus
-echo 0 | sudo tee /sys/bus/pci/devices/0000:02:00.1/msi_bus
-
-echo 0000:02:00.0 | sudo tee /sys/bus/pci/drivers/serial/bind
-echo 0000:02:00.1 | sudo tee /sys/bus/pci/drivers/serial/bind
-
-This resulted in the following log output:
-
-[   82.179021] pci 0000:02:00.0: MSI/MSI-X disallowed for future drivers
-[   87.003031] pci 0000:02:00.1: MSI/MSI-X disallowed for future drivers
-[   98.537010] 0000:02:00.0: ttyS4 at I/O 0x3010 (irq = 17, base_baud = 115200) is a ST16650V2
-[  103.648124] 0000:02:00.1: ttyS5 at I/O 0x3000 (irq = 18, base_baud = 115200) is a ST16650V2
-
-This patch attempts to fix the problem by disabling irq sharing when
-using MSI irq's. Note that all i know for sure is that disabling MSI
-irq's fixed the problem for the user, so this patch could be wrong and
-is untested. Please review with caution, keeping this in mind.
-
-Fixes: 8428413b1d14 ("serial: 8250_pci: Implement MSI(-X) support")
-Cc: Ralf Ramsauer <ralf.ramsauer@oth-regensburg.de>
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Mario Kleiner <mario.kleiner.de@gmail.com>
-Link: https://lore.kernel.org/r/20210729043306.18528-1-mario.kleiner.de@gmail.com
+Reported-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Fixes: 454fa271bc4e("spi: Add Meson SPICC driver")
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Link: https://lore.kernel.org/r/20210720100116.1438974-1-mudongliangabcd@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/8250/8250_pci.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/spi/spi-meson-spicc.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/tty/serial/8250/8250_pci.c
-+++ b/drivers/tty/serial/8250/8250_pci.c
-@@ -3929,6 +3929,7 @@ pciserial_init_ports(struct pci_dev *dev
- 		if (pci_match_id(pci_use_msi, dev)) {
- 			dev_dbg(&dev->dev, "Using MSI(-X) interrupts\n");
- 			pci_set_master(dev);
-+			uart.port.flags &= ~UPF_SHARE_IRQ;
- 			rc = pci_alloc_irq_vectors(dev, 1, 1, PCI_IRQ_ALL_TYPES);
- 		} else {
- 			dev_dbg(&dev->dev, "Using legacy interrupts\n");
+--- a/drivers/spi/spi-meson-spicc.c
++++ b/drivers/spi/spi-meson-spicc.c
+@@ -599,6 +599,8 @@ static int meson_spicc_remove(struct pla
+ 
+ 	clk_disable_unprepare(spicc->core);
+ 
++	spi_master_put(spicc->master);
++
+ 	return 0;
+ }
+ 
 
 
