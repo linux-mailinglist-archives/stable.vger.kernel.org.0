@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 745213E7FCA
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:45:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BF143E8135
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:57:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231609AbhHJRnD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:43:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57640 "EHLO mail.kernel.org"
+        id S234761AbhHJR4j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:56:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232881AbhHJRlA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:41:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 35308610EA;
-        Tue, 10 Aug 2021 17:38:12 +0000 (UTC)
+        id S237409AbhHJRyf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:54:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B3B876135F;
+        Tue, 10 Aug 2021 17:44:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617092;
-        bh=rD6Poel9pca9lvW18eiuBdEplOZBB/Ju3qejo7tn06o=;
+        s=korg; t=1628617460;
+        bh=BzW9kdB/UJfQxAlwAdVRFHquQc/h6Mj94NDy4OuosIs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CFFMAarQLZ8p2CNkpvv1Y1Lhwbf6bmGyEu67QBtd72VHwBrMaMHjRSrqgopr2vpgW
-         cUmDOO939jZLIxgTcyetPgyOkWsaXrAHTBrCN6ht03wQNnISm7EEs+wBNyGcOjnwap
-         sB0H0yj6ixlo8LwizTZt1nUvUBfPYFfZgKlkr5oA=
+        b=tE9OXNAyuXi4eA4IzU3YngC+6Y+a9kjszymRtqlclMYz8JOqnZhy+QNvuINSyUV5O
+         gKG0CeLFSDed22+1TRFeogtjOIzOduwh/I6saeSxl9mHhKYOUMng23V/Ybqj1aVvt1
+         466OqXeBqk/ELVKZF2iaUWq4mnxJycKx9npp7/SU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, "H. Nikolaus Schaller" <hns@goldelico.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 034/135] net: dsa: sja1105: match FDB entries regardless of inner/outer VLAN tag
-Date:   Tue, 10 Aug 2021 19:29:28 +0200
-Message-Id: <20210810172956.831703871@linuxfoundation.org>
+Subject: [PATCH 5.13 061/175] x86/tools/relocs: Fix non-POSIX regexp
+Date:   Tue, 10 Aug 2021 19:29:29 +0200
+Message-Id: <20210810173002.955707371@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
-References: <20210810172955.660225700@linuxfoundation.org>
+In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
+References: <20210810173000.928681411@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,71 +40,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: H. Nikolaus Schaller <hns@goldelico.com>
 
-[ Upstream commit 47c2c0c2312118a478f738503781de1d1a6020d2 ]
+[ Upstream commit fa953adfad7cf9c7e30d9ea0e4ccfd38cfb5495d ]
 
-On SJA1105P/Q/R/S and SJA1110, the L2 Lookup Table entries contain a
-maskable "inner/outer tag" bit which means:
-- when set to 1: match single-outer and double tagged frames
-- when set to 0: match untagged and single-inner tagged frames
-- when masked off: match all frames regardless of the type of tag
+Trying to run a cross-compiled x86 relocs tool on a BSD based
+HOSTCC leads to errors like
 
-This driver does not make any meaningful distinction between inner tags
-(matches on TPID) and outer tags (matches on TPID2). In fact, all VLAN
-table entries are installed as SJA1110_VLAN_D_TAG, which means that they
-match on both inner and outer tags.
+  VOFFSET arch/x86/boot/compressed/../voffset.h - due to: vmlinux
+  CC      arch/x86/boot/compressed/misc.o - due to: arch/x86/boot/compressed/../voffset.h
+  OBJCOPY arch/x86/boot/compressed/vmlinux.bin - due to: vmlinux
+  RELOCS  arch/x86/boot/compressed/vmlinux.relocs - due to: vmlinux
+empty (sub)expressionarch/x86/boot/compressed/Makefile:118: recipe for target 'arch/x86/boot/compressed/vmlinux.relocs' failed
+make[3]: *** [arch/x86/boot/compressed/vmlinux.relocs] Error 1
 
-So it does not make sense that we install FDB entries with the IOTAG bit
-set to 1.
+It turns out that relocs.c uses patterns like
 
-In VLAN-unaware mode, we set both TPID and TPID2 to 0xdadb, so the
-switch will see frames as outer-tagged or double-tagged (never inner).
-So the FDB entries will match if IOTAG is set to 1.
+	"something(|_end)"
 
-In VLAN-aware mode, we set TPID to 0x8100 and TPID2 to 0x88a8. So the
-switch will see untagged and 802.1Q-tagged packets as inner-tagged, and
-802.1ad-tagged packets as outer-tagged. So untagged and 802.1Q-tagged
-packets will not match FDB entries if IOTAG is set to 1, but 802.1ad
-tagged packets will. Strange.
+This is not valid syntax or gives undefined results according
+to POSIX 9.5.3 ERE Grammar
 
-To fix this, simply mask off the IOTAG bit from FDB entries, and make
-them match regardless of whether the VLAN tag is inner or outer.
+	https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap09.html
 
-Fixes: 1da73821343c ("net: dsa: sja1105: Add FDB operations for P/Q/R/S series")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+It seems to be silently accepted by the Linux regexp() implementation
+while a BSD host complains.
+
+Such patterns can be replaced by a transformation like
+
+	"(|p1|p2)" -> "(p1|p2)?"
+
+Fixes: fd952815307f ("x86-32, relocs: Whitelist more symbols for ld bug workaround")
+Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/sja1105/sja1105_main.c | 4 ----
- 1 file changed, 4 deletions(-)
+ arch/x86/tools/relocs.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/dsa/sja1105/sja1105_main.c b/drivers/net/dsa/sja1105/sja1105_main.c
-index e65be1380803..855371fcbf85 100644
---- a/drivers/net/dsa/sja1105/sja1105_main.c
-+++ b/drivers/net/dsa/sja1105/sja1105_main.c
-@@ -1387,10 +1387,8 @@ int sja1105pqrs_fdb_add(struct dsa_switch *ds, int port,
- 	/* Search for an existing entry in the FDB table */
- 	l2_lookup.macaddr = ether_addr_to_u64(addr);
- 	l2_lookup.vlanid = vid;
--	l2_lookup.iotag = SJA1105_S_TAG;
- 	l2_lookup.mask_macaddr = GENMASK_ULL(ETH_ALEN * 8 - 1, 0);
- 	l2_lookup.mask_vlanid = VLAN_VID_MASK;
--	l2_lookup.mask_iotag = BIT(0);
- 	l2_lookup.destports = BIT(port);
- 
- 	rc = sja1105_dynamic_config_read(priv, BLK_IDX_L2_LOOKUP,
-@@ -1475,10 +1473,8 @@ int sja1105pqrs_fdb_del(struct dsa_switch *ds, int port,
- 
- 	l2_lookup.macaddr = ether_addr_to_u64(addr);
- 	l2_lookup.vlanid = vid;
--	l2_lookup.iotag = SJA1105_S_TAG;
- 	l2_lookup.mask_macaddr = GENMASK_ULL(ETH_ALEN * 8 - 1, 0);
- 	l2_lookup.mask_vlanid = VLAN_VID_MASK;
--	l2_lookup.mask_iotag = BIT(0);
- 	l2_lookup.destports = BIT(port);
- 
- 	rc = sja1105_dynamic_config_read(priv, BLK_IDX_L2_LOOKUP,
+diff --git a/arch/x86/tools/relocs.c b/arch/x86/tools/relocs.c
+index 04c5a44b9682..9ba700dc47de 100644
+--- a/arch/x86/tools/relocs.c
++++ b/arch/x86/tools/relocs.c
+@@ -57,12 +57,12 @@ static const char * const sym_regex_kernel[S_NSYMTYPES] = {
+ 	[S_REL] =
+ 	"^(__init_(begin|end)|"
+ 	"__x86_cpu_dev_(start|end)|"
+-	"(__parainstructions|__alt_instructions)(|_end)|"
+-	"(__iommu_table|__apicdrivers|__smp_locks)(|_end)|"
++	"(__parainstructions|__alt_instructions)(_end)?|"
++	"(__iommu_table|__apicdrivers|__smp_locks)(_end)?|"
+ 	"__(start|end)_pci_.*|"
+ 	"__(start|end)_builtin_fw|"
+-	"__(start|stop)___ksymtab(|_gpl)|"
+-	"__(start|stop)___kcrctab(|_gpl)|"
++	"__(start|stop)___ksymtab(_gpl)?|"
++	"__(start|stop)___kcrctab(_gpl)?|"
+ 	"__(start|stop)___param|"
+ 	"__(start|stop)___modver|"
+ 	"__(start|stop)___bug_table|"
 -- 
 2.30.2
 
