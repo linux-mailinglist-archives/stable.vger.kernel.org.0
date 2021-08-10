@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE4CD3E8034
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:47:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDCD03E7E84
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:33:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234817AbhHJRrB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:47:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41666 "EHLO mail.kernel.org"
+        id S232851AbhHJRd4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:33:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233630AbhHJRpJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:45:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D1006112D;
-        Tue, 10 Aug 2021 17:39:59 +0000 (UTC)
+        id S232140AbhHJRd3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:33:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D4F460F94;
+        Tue, 10 Aug 2021 17:33:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617200;
-        bh=MGfQA6lcM9g8o8bScDfSMHw06mk8qD9asDGzQiw1DAU=;
+        s=korg; t=1628616786;
+        bh=XQYItl7p0iEgrUN0BXM2I4nUgxhc0I0gpvMIV4v4RWg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YcZ84t61xfOhy957tDnZzwEcozVqToA6qYs5Kt00nRtyTchKqFLa6goheLMk/CREO
-         OPdoTDe7ubjzP+4Lk8JaksYaAMmC1IXpIWDvwgc1KD6yDkuVFsOFLA1AsHAjvoWNj9
-         gskRPBbUHcqjH/dIU0BjJWw3BqYnjXja7Hw7E908=
+        b=W2D+Hjiiy7xT4ie8krBshqh26Ilyv7NjYUhH7pIrwIgAqTpl+bnygmfaT2FWpvpiC
+         dlGaSnXTTPc0y541VKcyEfGKHzRyT+H471O00BNcMVpIx2Fk6QfxpPBp7tboY4wAsV
+         zFvIpy3rHxtpWQogWHzgx2zmQC7u1pfD8KHDz3TA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Chen <peter.chen@kernel.org>,
-        Dmitry Osipenko <digetx@gmail.com>
-Subject: [PATCH 5.10 072/135] usb: otg-fsm: Fix hrtimer list corruption
-Date:   Tue, 10 Aug 2021 19:30:06 +0200
-Message-Id: <20210810172958.171730951@linuxfoundation.org>
+        stable@vger.kernel.org, Vadim Fedorenko <vfedorenko@novek.ru>,
+        Antoine Tenart <atenart@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 13/54] net: ipv6: fix returned variable type in ip6_skb_dst_mtu
+Date:   Tue, 10 Aug 2021 19:30:07 +0200
+Message-Id: <20210810172944.624777424@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
-References: <20210810172955.660225700@linuxfoundation.org>
+In-Reply-To: <20210810172944.179901509@linuxfoundation.org>
+References: <20210810172944.179901509@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,64 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Antoine Tenart <atenart@kernel.org>
 
-commit bf88fef0b6f1488abeca594d377991171c00e52a upstream.
+[ Upstream commit 4039146777a91e1576da2bf38e0d8a1061a1ae47 ]
 
-The HNP work can be re-scheduled while it's still in-fly. This results in
-re-initialization of the busy work, resetting the hrtimer's list node of
-the work and crashing kernel with null dereference within kernel/timer
-once work's timer is expired. It's very easy to trigger this problem by
-re-plugging USB cable quickly. Initialize HNP work only once to fix this
-trouble.
+The patch fixing the returned value of ip6_skb_dst_mtu (int -> unsigned
+int) was rebased between its initial review and the version applied. In
+the meantime fade56410c22 was applied, which added a new variable (int)
+used as the returned value. This lead to a mismatch between the function
+prototype and the variable used as the return value.
 
- Unable to handle kernel NULL pointer dereference at virtual address 00000126)
- ...
- PC is at __run_timers.part.0+0x150/0x228
- LR is at __next_timer_interrupt+0x51/0x9c
- ...
- (__run_timers.part.0) from [<c0187a2b>] (run_timer_softirq+0x2f/0x50)
- (run_timer_softirq) from [<c01013ad>] (__do_softirq+0xd5/0x2f0)
- (__do_softirq) from [<c012589b>] (irq_exit+0xab/0xb8)
- (irq_exit) from [<c0170341>] (handle_domain_irq+0x45/0x60)
- (handle_domain_irq) from [<c04c4a43>] (gic_handle_irq+0x6b/0x7c)
- (gic_handle_irq) from [<c0100b65>] (__irq_svc+0x65/0xac)
-
-Cc: stable@vger.kernel.org
-Acked-by: Peter Chen <peter.chen@kernel.org>
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Link: https://lore.kernel.org/r/20210717182134.30262-6-digetx@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 40fc3054b458 ("net: ipv6: fix return value of ip6_skb_dst_mtu")
+Cc: Vadim Fedorenko <vfedorenko@novek.ru>
+Signed-off-by: Antoine Tenart <atenart@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/common/usb-otg-fsm.c |    6 +++++-
- include/linux/usb/otg-fsm.h      |    1 +
- 2 files changed, 6 insertions(+), 1 deletion(-)
+ include/net/ip6_route.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/common/usb-otg-fsm.c
-+++ b/drivers/usb/common/usb-otg-fsm.c
-@@ -193,7 +193,11 @@ static void otg_start_hnp_polling(struct
- 	if (!fsm->host_req_flag)
- 		return;
+diff --git a/include/net/ip6_route.h b/include/net/ip6_route.h
+index a8f5410ae0d4..f237573a2651 100644
+--- a/include/net/ip6_route.h
++++ b/include/net/ip6_route.h
+@@ -243,7 +243,7 @@ int ip6_fragment(struct net *net, struct sock *sk, struct sk_buff *skb,
  
--	INIT_DELAYED_WORK(&fsm->hnp_polling_work, otg_hnp_polling_work);
-+	if (!fsm->hnp_work_inited) {
-+		INIT_DELAYED_WORK(&fsm->hnp_polling_work, otg_hnp_polling_work);
-+		fsm->hnp_work_inited = true;
-+	}
-+
- 	schedule_delayed_work(&fsm->hnp_polling_work,
- 					msecs_to_jiffies(T_HOST_REQ_POLL));
- }
---- a/include/linux/usb/otg-fsm.h
-+++ b/include/linux/usb/otg-fsm.h
-@@ -196,6 +196,7 @@ struct otg_fsm {
- 	struct mutex lock;
- 	u8 *host_req_flag;
- 	struct delayed_work hnp_polling_work;
-+	bool hnp_work_inited;
- 	bool state_changed;
- };
+ static inline unsigned int ip6_skb_dst_mtu(struct sk_buff *skb)
+ {
+-	int mtu;
++	unsigned int mtu;
  
+ 	struct ipv6_pinfo *np = skb->sk && !dev_recursion_level() ?
+ 				inet6_sk(skb->sk) : NULL;
+-- 
+2.30.2
+
 
 
