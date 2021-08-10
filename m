@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CF1C3E7FCC
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:45:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FC3B3E7EB0
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:34:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231705AbhHJRnE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:43:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57682 "EHLO mail.kernel.org"
+        id S233165AbhHJRey (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:34:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232085AbhHJRlB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:41:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7677961058;
-        Tue, 10 Aug 2021 17:38:14 +0000 (UTC)
+        id S229799AbhHJReV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:34:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C8F4061019;
+        Tue, 10 Aug 2021 17:33:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617094;
-        bh=5rcsyPFByf0ZprwZ+NDG9Eu3dfyZrhlK0z8ayDrea2k=;
+        s=korg; t=1628616839;
+        bh=/qj3ROmv9sS7iWFoTfgK8dGOGy/KKWHecO55OPEVgds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q2rXwVAfXsxKtub4E73BqIk6o2rdhXD8V7l48/d3FNhDSpCO92lGcyA2WhFRT9JrJ
-         32bJDGppLfQ5/7hLwUHyVyDB1DIbfz9qdHJJBwOC/rouk4o53mknEqdov697ZYg4ch
-         8rJ7DNXXlogGoS2b+6cCG6wsOPAbbn5srVUacers=
+        b=UtIibfRzLb5NFofvAHUq1bY39gPhEKwxltQDRNCo5RF/Xdk3xOBz0gMuECVATSSFi
+         c0fHFds07d6JxLMWYLOhtEY9XFr32X+Z+ddvhoFfIW4wVamqLGfAgQxugrcwr4odW5
+         yKMD85JAK6dIVUr3ISHaVY2G75UiDASFXFMd2YCE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yunsheng Lin <linyunsheng@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Dong Aisheng <aisheng.dong@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 043/135] net: sched: fix lockdep_set_class() typo error for sch->seqlock
+Subject: [PATCH 5.4 04/85] ARM: imx: add missing iounmap()
 Date:   Tue, 10 Aug 2021 19:29:37 +0200
-Message-Id: <20210810172957.148233258@linuxfoundation.org>
+Message-Id: <20210810172948.350236728@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
-References: <20210810172955.660225700@linuxfoundation.org>
+In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
+References: <20210810172948.192298392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunsheng Lin <linyunsheng@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 06f5553e0f0c2182268179b93856187d9cb86dd5 ]
+[ Upstream commit f9613aa07f16d6042e74208d1b40a6104d72964a ]
 
-According to comment in qdisc_alloc(), sch->seqlock's lockdep
-class key should be set to qdisc_tx_busylock, due to possible
-type error, sch->busylock's lockdep class key is set to
-qdisc_tx_busylock, which is duplicated because sch->busylock's
-lockdep class key is already set in qdisc_alloc().
+Commit e76bdfd7403a ("ARM: imx: Added perf functionality to mmdc driver")
+introduced imx_mmdc_remove(), the mmdc_base need be unmapped in it if
+config PERF_EVENTS is enabled.
 
-So fix it by replacing sch->busylock with sch->seqlock.
+If imx_mmdc_perf_init() fails, the mmdc_base also need be unmapped.
 
-Fixes: 96009c7d500e ("sched: replace __QDISC_STATE_RUNNING bit with a spin lock")
-Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: e76bdfd7403a ("ARM: imx: Added perf functionality to mmdc driver")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Dong Aisheng <aisheng.dong@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_generic.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/mach-imx/mmdc.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/net/sched/sch_generic.c b/net/sched/sch_generic.c
-index 854d2b38db85..05aa2571a409 100644
---- a/net/sched/sch_generic.c
-+++ b/net/sched/sch_generic.c
-@@ -886,7 +886,7 @@ struct Qdisc *qdisc_alloc(struct netdev_queue *dev_queue,
+diff --git a/arch/arm/mach-imx/mmdc.c b/arch/arm/mach-imx/mmdc.c
+index 0dfd0ae7a63d..8e57691aafe2 100644
+--- a/arch/arm/mach-imx/mmdc.c
++++ b/arch/arm/mach-imx/mmdc.c
+@@ -462,6 +462,7 @@ static int imx_mmdc_remove(struct platform_device *pdev)
  
- 	/* seqlock has the same scope of busylock, for NOLOCK qdisc */
- 	spin_lock_init(&sch->seqlock);
--	lockdep_set_class(&sch->busylock,
-+	lockdep_set_class(&sch->seqlock,
- 			  dev->qdisc_tx_busylock ?: &qdisc_tx_busylock);
+ 	cpuhp_state_remove_instance_nocalls(cpuhp_mmdc_state, &pmu_mmdc->node);
+ 	perf_pmu_unregister(&pmu_mmdc->pmu);
++	iounmap(pmu_mmdc->mmdc_base);
+ 	kfree(pmu_mmdc);
+ 	return 0;
+ }
+@@ -567,7 +568,11 @@ static int imx_mmdc_probe(struct platform_device *pdev)
+ 	val &= ~(1 << BP_MMDC_MAPSR_PSD);
+ 	writel_relaxed(val, reg);
  
- 	seqcount_init(&sch->running);
+-	return imx_mmdc_perf_init(pdev, mmdc_base);
++	err = imx_mmdc_perf_init(pdev, mmdc_base);
++	if (err)
++		iounmap(mmdc_base);
++
++	return err;
+ }
+ 
+ int imx_mmdc_get_ddr_type(void)
 -- 
 2.30.2
 
