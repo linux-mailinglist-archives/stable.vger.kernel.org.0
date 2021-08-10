@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F395C3E8236
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:06:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2925F3E8243
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:06:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237339AbhHJSGM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 14:06:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39398 "EHLO mail.kernel.org"
+        id S237775AbhHJSGU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 14:06:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238999AbhHJSEk (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S239000AbhHJSEk (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 10 Aug 2021 14:04:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B406161411;
-        Tue, 10 Aug 2021 17:48:28 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E5CAB6154B;
+        Tue, 10 Aug 2021 17:48:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617709;
-        bh=btAsWNFwkIaXSn8TsKrBntDZORAVNEY1cv5+S42XIlA=;
+        s=korg; t=1628617711;
+        bh=q4kLnBUtg70BAak9qRJZeHe9ng5xHLv4QKUDSg6mxrc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XO2IFRF2dMewkyBMAD1jzwVL261jNrI/UT6noJd+4pH4x9WvbkFVI2kEQYgaXQCqM
-         lT6ffu0eHEnswM4oWjnjYYCCX+fd6S4LTpvYkym7MdGrTpEhTZaq7dF4lSzXD5TzGY
-         YGvA7gBfk2SzSPoqhis6oyOpFDUGADZxtSwOio0A=
+        b=wyJ8XewXkfSjy0fPnewUTeusXdufYTQM5XsOJZ5v02dsoyFYoNkXcy0FL68SYup82
+         AJW775Tooqdidtemi5Q6Hv9sDM3J03bJZT9EWpE0NNzNt4ew6tDfaIk50tXWkdJo3p
+         4I8wRNE81hQR4Nb8yAL51W13lDSydMCs/jkq0RoQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Letu Ren <fantasquex@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 171/175] net/qla3xxx: fix schedule while atomic in ql_wait_for_drvr_lock and ql_adapter_reset
-Date:   Tue, 10 Aug 2021 19:31:19 +0200
-Message-Id: <20210810173006.579743625@linuxfoundation.org>
+Subject: [PATCH 5.13 172/175] smb3: rc uninitialized in one fallocate path
+Date:   Tue, 10 Aug 2021 19:31:20 +0200
+Message-Id: <20210810173006.612305968@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
 References: <20210810173000.928681411@linuxfoundation.org>
@@ -40,55 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Letu Ren <fantasquex@gmail.com>
+From: Steve French <stfrench@microsoft.com>
 
-[ Upstream commit 92766c4628ea349c8ddab0cd7bd0488f36e5c4ce ]
+[ Upstream commit 5ad4df56cd2158965f73416d41fce37906724822 ]
 
-When calling the 'ql_wait_for_drvr_lock' and 'ql_adapter_reset', the driver
-has already acquired the spin lock, so the driver should not call 'ssleep'
-in atomic context.
+Clang detected a problem with rc possibly being unitialized
+(when length is zero) in a recently added fallocate code path.
 
-This bug can be fixed by using 'mdelay' instead of 'ssleep'.
-
-Reported-by: Letu Ren <fantasquex@gmail.com>
-Signed-off-by: Letu Ren <fantasquex@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: kernel test robot <lkp@intel.com>
+Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qla3xxx.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ fs/cifs/smb2ops.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qla3xxx.c b/drivers/net/ethernet/qlogic/qla3xxx.c
-index 2376b2729633..c00ad57575ea 100644
---- a/drivers/net/ethernet/qlogic/qla3xxx.c
-+++ b/drivers/net/ethernet/qlogic/qla3xxx.c
-@@ -154,7 +154,7 @@ static int ql_wait_for_drvr_lock(struct ql3_adapter *qdev)
- 				      "driver lock acquired\n");
- 			return 1;
- 		}
--		ssleep(1);
-+		mdelay(1000);
- 	} while (++i < 10);
+diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
+index 398c941e3897..f77156187a0a 100644
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -3613,7 +3613,8 @@ static int smb3_simple_fallocate_write_range(unsigned int xid,
+ 					     char *buf)
+ {
+ 	struct cifs_io_parms io_parms = {0};
+-	int rc, nbytes;
++	int nbytes;
++	int rc = 0;
+ 	struct kvec iov[2];
  
- 	netdev_err(qdev->ndev, "Timed out waiting for driver lock...\n");
-@@ -3274,7 +3274,7 @@ static int ql_adapter_reset(struct ql3_adapter *qdev)
- 		if ((value & ISP_CONTROL_SR) == 0)
- 			break;
- 
--		ssleep(1);
-+		mdelay(1000);
- 	} while ((--max_wait_time));
- 
- 	/*
-@@ -3310,7 +3310,7 @@ static int ql_adapter_reset(struct ql3_adapter *qdev)
- 						   ispControlStatus);
- 			if ((value & ISP_CONTROL_FSR) == 0)
- 				break;
--			ssleep(1);
-+			mdelay(1000);
- 		} while ((--max_wait_time));
- 	}
- 	if (max_wait_time == 0)
+ 	io_parms.netfid = cfile->fid.netfid;
 -- 
 2.30.2
 
