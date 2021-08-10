@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 94B253E7F62
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:41:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9F213E7E6E
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:33:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234265AbhHJRkR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:40:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42778 "EHLO mail.kernel.org"
+        id S231987AbhHJRdS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:33:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233720AbhHJRhN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:37:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A782C603E7;
-        Tue, 10 Aug 2021 17:36:01 +0000 (UTC)
+        id S231625AbhHJRc5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:32:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0784460F13;
+        Tue, 10 Aug 2021 17:32:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616962;
-        bh=OFEBgr4VXBm6Ho5C/vyJntXGXOedipYLtwXZl5inAB8=;
+        s=korg; t=1628616755;
+        bh=CKykmzahHhMXt9m0NrdblO10om6+KNmQ7qwbpRTb4xQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R2PN2RJoZyeZFwlME4Uk9us77wo3501JP3JMebbpkQcWAAqIh4fyEpNYIPC9KF/2c
-         EeQJDZ5ptZ2GPJW6ATOQZS3tzBoe/5RzyJvGLmXTZkC+ZgMGoTAnWICLlp9l8eOw5P
-         oJoEw+9UiOx+1m4M5Ug/sNJuJfW9IO0vC21sYxwo=
+        b=FTqECcEjYhj1pfKXyhwPMmqKYZKKwCqWgc5SqQ8V0/MvDfYJaaCXWi1t4khM9Nw9u
+         d1AANUcTCur1DZzIYAycIT9UElHHjrZjNpV4r3D6ttkX7N2dY5Epm24ExMyub9aB7M
+         BDepK08LZOummycco8VXvWWJod/FkEWHYIcixYTY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tyler Hicks <tyhicks@linux.microsoft.com>,
-        Jens Wiklander <jens.wiklander@linaro.org>,
-        Sumit Garg <sumit.garg@linaro.org>
-Subject: [PATCH 5.4 52/85] optee: Clear stale cache entries during initialization
-Date:   Tue, 10 Aug 2021 19:30:25 +0200
-Message-Id: <20210810172949.998606371@linuxfoundation.org>
+        stable@vger.kernel.org, Hui Su <suhui@zeku.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 4.19 32/54] scripts/tracing: fix the bug that cant parse raw_trace_func
+Date:   Tue, 10 Aug 2021 19:30:26 +0200
+Message-Id: <20210810172945.232697473@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
-References: <20210810172948.192298392@linuxfoundation.org>
+In-Reply-To: <20210810172944.179901509@linuxfoundation.org>
+References: <20210810172944.179901509@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,121 +39,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tyler Hicks <tyhicks@linux.microsoft.com>
+From: Hui Su <suhui@zeku.com>
 
-commit b5c10dd04b7418793517e3286cde5c04759a86de upstream.
+commit 1c0cec64a7cc545eb49f374a43e9f7190a14defa upstream.
 
-The shm cache could contain invalid addresses if
-optee_disable_shm_cache() was not called from the .shutdown hook of the
-previous kernel before a kexec. These addresses could be unmapped or
-they could point to mapped but unintended locations in memory.
+Since commit 77271ce4b2c0 ("tracing: Add irq, preempt-count and need resched info
+to default trace output"), the default trace output format has been changed to:
+          <idle>-0       [009] d.h. 22420.068695: _raw_spin_lock_irqsave <-hrtimer_interrupt
+          <idle>-0       [000] ..s. 22420.068695: _nohz_idle_balance <-run_rebalance_domains
+          <idle>-0       [011] d.h. 22420.068695: account_process_tick <-update_process_times
 
-Clear the shared memory cache, while being careful to not translate the
-addresses returned from OPTEE_SMC_DISABLE_SHM_CACHE, during driver
-initialization. Once all pre-cache shm objects are removed, proceed with
-enabling the cache so that we know that we can handle cached shm objects
-with confidence later in the .shutdown hook.
+origin trace output format:(before v3.2.0)
+     # tracer: nop
+     #
+     #           TASK-PID    CPU#    TIMESTAMP  FUNCTION
+     #              | |       |          |         |
+          migration/0-6     [000]    50.025810: rcu_note_context_switch <-__schedule
+          migration/0-6     [000]    50.025812: trace_rcu_utilization <-rcu_note_context_switch
+          migration/0-6     [000]    50.025813: rcu_sched_qs <-rcu_note_context_switch
+          migration/0-6     [000]    50.025815: rcu_preempt_qs <-rcu_note_context_switch
+          migration/0-6     [000]    50.025817: trace_rcu_utilization <-rcu_note_context_switch
+          migration/0-6     [000]    50.025818: debug_lockdep_rcu_enabled <-__schedule
+          migration/0-6     [000]    50.025820: debug_lockdep_rcu_enabled <-__schedule
+
+The draw_functrace.py(introduced in v2.6.28) can't parse the new version format trace_func,
+So we need modify draw_functrace.py to adapt the new version trace output format.
+
+Link: https://lkml.kernel.org/r/20210611022107.608787-1-suhui@zeku.com
 
 Cc: stable@vger.kernel.org
-Signed-off-by: Tyler Hicks <tyhicks@linux.microsoft.com>
-Reviewed-by: Jens Wiklander <jens.wiklander@linaro.org>
-Reviewed-by: Sumit Garg <sumit.garg@linaro.org>
-Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
+Fixes: 77271ce4b2c0 tracing: Add irq, preempt-count and need resched info to default trace output
+Signed-off-by: Hui Su <suhui@zeku.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tee/optee/call.c          |   36 +++++++++++++++++++++++++++++++++---
- drivers/tee/optee/core.c          |    9 +++++++++
- drivers/tee/optee/optee_private.h |    1 +
- 3 files changed, 43 insertions(+), 3 deletions(-)
+ scripts/tracing/draw_functrace.py |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/tee/optee/call.c
-+++ b/drivers/tee/optee/call.c
-@@ -407,11 +407,13 @@ void optee_enable_shm_cache(struct optee
- }
+--- a/scripts/tracing/draw_functrace.py
++++ b/scripts/tracing/draw_functrace.py
+@@ -17,7 +17,7 @@ Usage:
+ 	$ cat /sys/kernel/debug/tracing/trace_pipe > ~/raw_trace_func
+ 	Wait some times but not too much, the script is a bit slow.
+ 	Break the pipe (Ctrl + Z)
+-	$ scripts/draw_functrace.py < raw_trace_func > draw_functrace
++	$ scripts/tracing/draw_functrace.py < ~/raw_trace_func > draw_functrace
+ 	Then you have your drawn trace in draw_functrace
+ """
  
- /**
-- * optee_disable_shm_cache() - Disables caching of some shared memory allocation
-- *			      in OP-TEE
-+ * __optee_disable_shm_cache() - Disables caching of some shared memory
-+ *                               allocation in OP-TEE
-  * @optee:	main service struct
-+ * @is_mapped:	true if the cached shared memory addresses were mapped by this
-+ *		kernel, are safe to dereference, and should be freed
-  */
--void optee_disable_shm_cache(struct optee *optee)
-+static void __optee_disable_shm_cache(struct optee *optee, bool is_mapped)
- {
- 	struct optee_call_waiter w;
+@@ -103,10 +103,10 @@ def parseLine(line):
+ 	line = line.strip()
+ 	if line.startswith("#"):
+ 		raise CommentLineException
+-	m = re.match("[^]]+?\\] +([0-9.]+): (\\w+) <-(\\w+)", line)
++	m = re.match("[^]]+?\\] +([a-z.]+) +([0-9.]+): (\\w+) <-(\\w+)", line)
+ 	if m is None:
+ 		raise BrokenLineException
+-	return (m.group(1), m.group(2), m.group(3))
++	return (m.group(2), m.group(3), m.group(4))
  
-@@ -430,6 +432,13 @@ void optee_disable_shm_cache(struct opte
- 		if (res.result.status == OPTEE_SMC_RETURN_OK) {
- 			struct tee_shm *shm;
  
-+			/*
-+			 * Shared memory references that were not mapped by
-+			 * this kernel must be ignored to prevent a crash.
-+			 */
-+			if (!is_mapped)
-+				continue;
-+
- 			shm = reg_pair_to_ptr(res.result.shm_upper32,
- 					      res.result.shm_lower32);
- 			tee_shm_free(shm);
-@@ -440,6 +449,27 @@ void optee_disable_shm_cache(struct opte
- 	optee_cq_wait_final(&optee->call_queue, &w);
- }
- 
-+/**
-+ * optee_disable_shm_cache() - Disables caching of mapped shared memory
-+ *                             allocations in OP-TEE
-+ * @optee:	main service struct
-+ */
-+void optee_disable_shm_cache(struct optee *optee)
-+{
-+	return __optee_disable_shm_cache(optee, true);
-+}
-+
-+/**
-+ * optee_disable_unmapped_shm_cache() - Disables caching of shared memory
-+ *                                      allocations in OP-TEE which are not
-+ *                                      currently mapped
-+ * @optee:	main service struct
-+ */
-+void optee_disable_unmapped_shm_cache(struct optee *optee)
-+{
-+	return __optee_disable_shm_cache(optee, false);
-+}
-+
- #define PAGELIST_ENTRIES_PER_PAGE				\
- 	((OPTEE_MSG_NONCONTIG_PAGE_SIZE / sizeof(u64)) - 1)
- 
---- a/drivers/tee/optee/core.c
-+++ b/drivers/tee/optee/core.c
-@@ -628,6 +628,15 @@ static struct optee *optee_probe(struct
- 	optee->memremaped_shm = memremaped_shm;
- 	optee->pool = pool;
- 
-+	/*
-+	 * Ensure that there are no pre-existing shm objects before enabling
-+	 * the shm cache so that there's no chance of receiving an invalid
-+	 * address during shutdown. This could occur, for example, if we're
-+	 * kexec booting from an older kernel that did not properly cleanup the
-+	 * shm cache.
-+	 */
-+	optee_disable_unmapped_shm_cache(optee);
-+
- 	optee_enable_shm_cache(optee);
- 
- 	if (optee->sec_caps & OPTEE_SMC_SEC_CAP_DYNAMIC_SHM)
---- a/drivers/tee/optee/optee_private.h
-+++ b/drivers/tee/optee/optee_private.h
-@@ -152,6 +152,7 @@ int optee_cancel_req(struct tee_context
- 
- void optee_enable_shm_cache(struct optee *optee);
- void optee_disable_shm_cache(struct optee *optee);
-+void optee_disable_unmapped_shm_cache(struct optee *optee);
- 
- int optee_shm_register(struct tee_context *ctx, struct tee_shm *shm,
- 		       struct page **pages, size_t num_pages,
+ def main():
 
 
