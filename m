@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B029A3E7E65
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:32:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF0A63E802B
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:47:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231782AbhHJRdF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:33:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33418 "EHLO mail.kernel.org"
+        id S233317AbhHJRqi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:46:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231772AbhHJRcq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:32:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D9DC060EBD;
-        Tue, 10 Aug 2021 17:32:23 +0000 (UTC)
+        id S236440AbhHJRou (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:44:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6C11561052;
+        Tue, 10 Aug 2021 17:39:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616744;
-        bh=jdRtRFOT44MBT7XOicnJcn3zDg1urLt29Y5R6h4LwLQ=;
+        s=korg; t=1628617193;
+        bh=XkuHXJeEOLE1rHim8j/0K0cJkv4xXMTyjIm6eI6jOQY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AAsyyEVWgIY8WBFForLrhQeO6YybFO4pfxQlwY0Qf+eLtd9ocKE1X87OhPJ4yJV8C
-         axGpo1UsnfrZwQmmGgSitklFv8QuL2HJkdJrBdQN4jUwRXT7DubVRzkk9IVoQ9gRYt
-         qdUrTNePS3JHnPAhyfYnWZ7i2ZHLFiFPPAQe/vhQ=
+        b=zGsDqEjbslCrfvm2g6bhW4sz7ZSt5NoXi5wfPFv+cHwauQ9exS2VpWMkhbljQZXNV
+         uBAjHtM5T7bFq2bcFfap+6amK3yOVa/XUqSUo2ylAL99dw2xEEEWydMKMLYtok2Kf3
+         z7+wu27XYVruS8RorQ+0jqRC4u7mYsoXRaQXC/QY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Tsoy <alexander@tsoy.me>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 27/54] ALSA: usb-audio: Add registration quirk for JBL Quantum 600
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Xiangyang Zhang <xyz.sun.ok@gmail.com>
+Subject: [PATCH 5.10 087/135] staging: rtl8723bs: Fix a resource leak in sd_int_dpc
 Date:   Tue, 10 Aug 2021 19:30:21 +0200
-Message-Id: <20210810172945.068973375@linuxfoundation.org>
+Message-Id: <20210810172958.703790771@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172944.179901509@linuxfoundation.org>
-References: <20210810172944.179901509@linuxfoundation.org>
+In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
+References: <20210810172955.660225700@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,31 +39,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Tsoy <alexander@tsoy.me>
+From: Xiangyang Zhang <xyz.sun.ok@gmail.com>
 
-commit 4b0556b96e1fe7723629bd40e3813a30cd632faf upstream.
+commit 990e4ad3ddcb72216caeddd6e62c5f45a21e8121 upstream.
 
-Apparently JBL Quantum 600 has multiple hardware revisions. Apply
-registration quirk to another device id as well.
+The "c2h_evt" variable is not freed when function call
+"c2h_evt_read_88xx" failed
 
-Signed-off-by: Alexander Tsoy <alexander@tsoy.me>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210727093326.1153366-1-alexander@tsoy.me
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 554c0a3abf21 ("staging: Add rtl8723bs sdio wifi driver")
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Xiangyang Zhang <xyz.sun.ok@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210628152239.5475-1-xyz.sun.ok@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/quirks.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/staging/rtl8723bs/hal/sdio_ops.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -1555,6 +1555,7 @@ static const struct registration_quirk r
- 	REG_QUIRK_ENTRY(0x0951, 0x16ea, 2),	/* Kingston HyperX Cloud Flight S */
- 	REG_QUIRK_ENTRY(0x0ecb, 0x1f46, 2),	/* JBL Quantum 600 */
- 	REG_QUIRK_ENTRY(0x0ecb, 0x2039, 2),	/* JBL Quantum 400 */
-+	REG_QUIRK_ENTRY(0x0ecb, 0x203c, 2),	/* JBL Quantum 600 */
- 	REG_QUIRK_ENTRY(0x0ecb, 0x203e, 2),	/* JBL Quantum 800 */
- 	{ 0 }					/* terminator */
- };
+--- a/drivers/staging/rtl8723bs/hal/sdio_ops.c
++++ b/drivers/staging/rtl8723bs/hal/sdio_ops.c
+@@ -989,6 +989,8 @@ void sd_int_dpc(struct adapter *adapter)
+ 				} else {
+ 					rtw_c2h_wk_cmd(adapter, (u8 *)c2h_evt);
+ 				}
++			} else {
++				kfree(c2h_evt);
+ 			}
+ 		} else {
+ 			/* Error handling for malloc fail */
 
 
