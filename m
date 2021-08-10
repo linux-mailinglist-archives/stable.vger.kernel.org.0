@@ -2,35 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BEF083E819E
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:01:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC4733E81DF
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:05:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237406AbhHJSAi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 14:00:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49726 "EHLO mail.kernel.org"
+        id S237837AbhHJSDb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 14:03:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233429AbhHJRzT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:55:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DC7B1606A5;
-        Tue, 10 Aug 2021 17:44:46 +0000 (UTC)
+        id S231324AbhHJSB3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 14:01:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 356C161186;
+        Tue, 10 Aug 2021 17:47:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617487;
-        bh=7g0CTkYofwdUZ+1LCRdsKh3gf928e+M4a3SsSRynu/c=;
+        s=korg; t=1628617623;
+        bh=7JPd5TI+quikPazaZthqblTvGHnfh1lhRrFWrqZR3Sg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e7RPNVXL9akk9GUMWyRRIMFU6WnZPFhfzW6nAN6qsVGif1FytYEf9JDmFK6zsrfMI
-         LDEAQ5tUr4RP7xqvhcfLOGyHjLwuHyFBZ0/G1X4XoePxfg9qrKmhFY2vZDGEu5iMXK
-         Oxa+7X2OGri+7xXKLvWg6cVr+Rp22o7okGZBl7lQ=
+        b=nsK5nypTEVpUjVcFWCsflLWJTrzatD3OsURW/OxIJxmHZ+RZOTM6XFG3WKv2xDr/d
+         hozY4LiOMk9nJAgPJ7YvMowMoEQjdLvXZTXN349Hcet5RkhIJFVb1JXaj83GVMdqkC
+         KywcS42mXYZm1gTLz9lS5bP36Z/8Ll+VLKWacV5s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+de271708674e2093097b@syzkaller.appspotmail.com,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Anirudh Rayabharam <mail@anirudhrb.com>
-Subject: [PATCH 5.13 080/175] firmware_loader: fix use-after-free in firmware_fallback_sysfs
-Date:   Tue, 10 Aug 2021 19:29:48 +0200
-Message-Id: <20210810173003.576792872@linuxfoundation.org>
+        stable@vger.kernel.org, Maxim Devaev <mdevaev@gmail.com>
+Subject: [PATCH 5.13 096/175] usb: gadget: f_hid: idle uses the highest byte for duration
+Date:   Tue, 10 Aug 2021 19:30:04 +0200
+Message-Id: <20210810173004.113286146@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
 References: <20210810173000.928681411@linuxfoundation.org>
@@ -42,122 +38,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anirudh Rayabharam <mail@anirudhrb.com>
+From: Maxim Devaev <mdevaev@gmail.com>
 
-commit 75d95e2e39b27f733f21e6668af1c9893a97de5e upstream.
+commit fa20bada3f934e3b3e4af4c77e5b518cd5a282e5 upstream.
 
-This use-after-free happens when a fw_priv object has been freed but
-hasn't been removed from the pending list (pending_fw_head). The next
-time fw_load_sysfs_fallback tries to insert into the list, it ends up
-accessing the pending_list member of the previously freed fw_priv.
+SET_IDLE value must be shifted 8 bits to the right to get duration.
+This confirmed by USBCV test.
 
-The root cause here is that all code paths that abort the fw load
-don't delete it from the pending list. For example:
-
-        _request_firmware()
-          -> fw_abort_batch_reqs()
-              -> fw_state_aborted()
-
-To fix this, delete the fw_priv from the list in __fw_set_state() if
-the new state is DONE or ABORTED. This way, all aborts will remove
-the fw_priv from the list. Accordingly, remove calls to list_del_init
-that were being made before calling fw_state_(aborted|done).
-
-Also, in fw_load_sysfs_fallback, don't add the fw_priv to the pending
-list if it is already aborted. Instead, just jump out and return early.
-
-Fixes: bcfbd3523f3c ("firmware: fix a double abort case with fw_load_sysfs_fallback")
+Fixes: afcff6dc690e ("usb: gadget: f_hid: added GET_IDLE and SET_IDLE handlers")
 Cc: stable <stable@vger.kernel.org>
-Reported-by: syzbot+de271708674e2093097b@syzkaller.appspotmail.com
-Tested-by: syzbot+de271708674e2093097b@syzkaller.appspotmail.com
-Reviewed-by: Shuah Khan <skhan@linuxfoundation.org>
-Acked-by: Luis Chamberlain <mcgrof@kernel.org>
-Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
-Link: https://lore.kernel.org/r/20210728085107.4141-3-mail@anirudhrb.com
+Signed-off-by: Maxim Devaev <mdevaev@gmail.com>
+Link: https://lore.kernel.org/r/20210727185800.43796-1-mdevaev@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/base/firmware_loader/fallback.c |   12 ++++++++----
- drivers/base/firmware_loader/firmware.h |   10 +++++++++-
- drivers/base/firmware_loader/main.c     |    2 ++
- 3 files changed, 19 insertions(+), 5 deletions(-)
+ drivers/usb/gadget/function/f_hid.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/base/firmware_loader/fallback.c
-+++ b/drivers/base/firmware_loader/fallback.c
-@@ -89,12 +89,11 @@ static void __fw_load_abort(struct fw_pr
- {
- 	/*
- 	 * There is a small window in which user can write to 'loading'
--	 * between loading done and disappearance of 'loading'
-+	 * between loading done/aborted and disappearance of 'loading'
- 	 */
--	if (fw_sysfs_done(fw_priv))
-+	if (fw_state_is_aborted(fw_priv) || fw_sysfs_done(fw_priv))
- 		return;
+--- a/drivers/usb/gadget/function/f_hid.c
++++ b/drivers/usb/gadget/function/f_hid.c
+@@ -573,7 +573,7 @@ static int hidg_setup(struct usb_functio
+ 		  | HID_REQ_SET_IDLE):
+ 		VDBG(cdev, "set_idle\n");
+ 		length = 0;
+-		hidg->idle = value;
++		hidg->idle = value >> 8;
+ 		goto respond;
+ 		break;
  
--	list_del_init(&fw_priv->pending_list);
- 	fw_state_aborted(fw_priv);
- }
- 
-@@ -280,7 +279,6 @@ static ssize_t firmware_loading_store(st
- 			 * Same logic as fw_load_abort, only the DONE bit
- 			 * is ignored and we set ABORT only on failure.
- 			 */
--			list_del_init(&fw_priv->pending_list);
- 			if (rc) {
- 				fw_state_aborted(fw_priv);
- 				written = rc;
-@@ -513,6 +511,11 @@ static int fw_load_sysfs_fallback(struct
- 	}
- 
- 	mutex_lock(&fw_lock);
-+	if (fw_state_is_aborted(fw_priv)) {
-+		mutex_unlock(&fw_lock);
-+		retval = -EINTR;
-+		goto out;
-+	}
- 	list_add(&fw_priv->pending_list, &pending_fw_head);
- 	mutex_unlock(&fw_lock);
- 
-@@ -538,6 +541,7 @@ static int fw_load_sysfs_fallback(struct
- 	} else if (fw_priv->is_paged_buf && !fw_priv->data)
- 		retval = -ENOMEM;
- 
-+out:
- 	device_del(f_dev);
- err_put_dev:
- 	put_device(f_dev);
---- a/drivers/base/firmware_loader/firmware.h
-+++ b/drivers/base/firmware_loader/firmware.h
-@@ -117,8 +117,16 @@ static inline void __fw_state_set(struct
- 
- 	WRITE_ONCE(fw_st->status, status);
- 
--	if (status == FW_STATUS_DONE || status == FW_STATUS_ABORTED)
-+	if (status == FW_STATUS_DONE || status == FW_STATUS_ABORTED) {
-+#ifdef CONFIG_FW_LOADER_USER_HELPER
-+		/*
-+		 * Doing this here ensures that the fw_priv is deleted from
-+		 * the pending list in all abort/done paths.
-+		 */
-+		list_del_init(&fw_priv->pending_list);
-+#endif
- 		complete_all(&fw_st->completion);
-+	}
- }
- 
- static inline void fw_state_aborted(struct fw_priv *fw_priv)
---- a/drivers/base/firmware_loader/main.c
-+++ b/drivers/base/firmware_loader/main.c
-@@ -783,8 +783,10 @@ static void fw_abort_batch_reqs(struct f
- 		return;
- 
- 	fw_priv = fw->priv;
-+	mutex_lock(&fw_lock);
- 	if (!fw_state_is_aborted(fw_priv))
- 		fw_state_aborted(fw_priv);
-+	mutex_unlock(&fw_lock);
- }
- 
- /* called from request_firmware() and request_firmware_work_func() */
 
 
