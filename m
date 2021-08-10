@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0A663E7FF3
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:45:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BA6F3E7FFC
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:45:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235126AbhHJRpA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:45:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38840 "EHLO mail.kernel.org"
+        id S235356AbhHJRpQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:45:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233665AbhHJRnJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:43:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7193560EFF;
-        Tue, 10 Aug 2021 17:39:01 +0000 (UTC)
+        id S235860AbhHJRnx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:43:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B4E27610A7;
+        Tue, 10 Aug 2021 17:39:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617142;
-        bh=8T2v0KABr0EE4NnSDFDGDvowLI6RwHuQleLbm1JGzvA=;
+        s=korg; t=1628617160;
+        bh=ySdgxvltRO98Yof6wxQm2ulBxYe/gQDIxZkggTO7v6o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J5OGKTJjeTPK+X4gl83+PUrrxa20rPwsL1mmExnJxJ+55F96g6wrh4D+MCW/+ylPb
-         Q048zam1WhSZDRZKwGxlEDItBlKWrgfmbbIfIVjOOsnOOIFgAUxTOq/8muUQRQTply
-         OwH3fci/QfGHxU+wkeO/jC1fXNMhJKCSJ0t3Hsgk=
+        b=yC9n+4VzciA219pQxn2j4O5af1wdkFu2OJcph1ChPdh2hn4UAszGe8e/2oEbmZ6sq
+         Ox+6f6bJ3bZ08JkYI3dx/KOUlAmfa55Pm4F4XBmANRJHezoa7Pu3OcjvHWLZdo5g7x
+         TOu9YSjZ0xSxUNSmtueB4hOQVivtj/aRc+3A9MrY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wang Hai <wanghai38@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 036/135] net: natsemi: Fix missing pci_disable_device() in probe and remove
-Date:   Tue, 10 Aug 2021 19:29:30 +0200
-Message-Id: <20210810172956.903669691@linuxfoundation.org>
+Subject: [PATCH 5.10 037/135] gpio: tqmx86: really make IRQ optional
+Date:   Tue, 10 Aug 2021 19:29:31 +0200
+Message-Id: <20210810172956.938521606@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
 References: <20210810172955.660225700@linuxfoundation.org>
@@ -41,63 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
 
-[ Upstream commit 7fe74dfd41c428afb24e2e615470832fa997ff14 ]
+[ Upstream commit 9b87f43537acfa24b95c236beba0f45901356eb2 ]
 
-Replace pci_enable_device() with pcim_enable_device(),
-pci_disable_device() and pci_release_regions() will be
-called in release automatically.
+The tqmx86 MFD driver was passing IRQ 0 for "no IRQ" in the past. This
+causes warnings with newer kernels.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Prepare the gpio-tqmx86 driver for the fixed MFD driver by handling a
+missing IRQ properly.
+
+Fixes: b868db94a6a7 ("gpio: tqmx86: Add GPIO from for this IO controller")
+Signed-off-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/natsemi/natsemi.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ drivers/gpio/gpio-tqmx86.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/natsemi/natsemi.c b/drivers/net/ethernet/natsemi/natsemi.c
-index b81e1487945c..14a17ad730f0 100644
---- a/drivers/net/ethernet/natsemi/natsemi.c
-+++ b/drivers/net/ethernet/natsemi/natsemi.c
-@@ -819,7 +819,7 @@ static int natsemi_probe1(struct pci_dev *pdev, const struct pci_device_id *ent)
- 		printk(version);
- #endif
+diff --git a/drivers/gpio/gpio-tqmx86.c b/drivers/gpio/gpio-tqmx86.c
+index 5022e0ad0fae..0f5d17f343f1 100644
+--- a/drivers/gpio/gpio-tqmx86.c
++++ b/drivers/gpio/gpio-tqmx86.c
+@@ -238,8 +238,8 @@ static int tqmx86_gpio_probe(struct platform_device *pdev)
+ 	struct resource *res;
+ 	int ret, irq;
  
--	i = pci_enable_device(pdev);
-+	i = pcim_enable_device(pdev);
- 	if (i) return i;
+-	irq = platform_get_irq(pdev, 0);
+-	if (irq < 0)
++	irq = platform_get_irq_optional(pdev, 0);
++	if (irq < 0 && irq != -ENXIO)
+ 		return irq;
  
- 	/* natsemi has a non-standard PM control register
-@@ -852,7 +852,7 @@ static int natsemi_probe1(struct pci_dev *pdev, const struct pci_device_id *ent)
- 	ioaddr = ioremap(iostart, iosize);
- 	if (!ioaddr) {
- 		i = -ENOMEM;
--		goto err_ioremap;
-+		goto err_pci_request_regions;
- 	}
+ 	res = platform_get_resource(pdev, IORESOURCE_IO, 0);
+@@ -278,7 +278,7 @@ static int tqmx86_gpio_probe(struct platform_device *pdev)
  
- 	/* Work around the dropped serial bit. */
-@@ -974,9 +974,6 @@ static int natsemi_probe1(struct pci_dev *pdev, const struct pci_device_id *ent)
-  err_register_netdev:
- 	iounmap(ioaddr);
+ 	pm_runtime_enable(&pdev->dev);
  
-- err_ioremap:
--	pci_release_regions(pdev);
--
-  err_pci_request_regions:
- 	free_netdev(dev);
- 	return i;
-@@ -3241,7 +3238,6 @@ static void natsemi_remove1(struct pci_dev *pdev)
+-	if (irq) {
++	if (irq > 0) {
+ 		struct irq_chip *irq_chip = &gpio->irq_chip;
+ 		u8 irq_status;
  
- 	NATSEMI_REMOVE_FILE(pdev, dspcfg_workaround);
- 	unregister_netdev (dev);
--	pci_release_regions (pdev);
- 	iounmap(ioaddr);
- 	free_netdev (dev);
- }
 -- 
 2.30.2
 
