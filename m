@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 351733E810D
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:56:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3873B3E7F95
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:41:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234476AbhHJRzO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:55:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43682 "EHLO mail.kernel.org"
+        id S234643AbhHJRlG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:41:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236140AbhHJRws (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:52:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6BAEB60295;
-        Tue, 10 Aug 2021 17:43:32 +0000 (UTC)
+        id S235502AbhHJRjk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:39:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 30DAC610E9;
+        Tue, 10 Aug 2021 17:37:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617412;
-        bh=8T2v0KABr0EE4NnSDFDGDvowLI6RwHuQleLbm1JGzvA=;
+        s=korg; t=1628617047;
+        bh=kl/MC41rDUibgOXQxAs3lSt2yLtyFcKMleVJChWeWwk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AiSgiqtA6IPNYcWUz39eCszXupiXMz8qkkBsp1r4VOV+L40OMoGS04ndSMWu4b5lI
-         2ZB8dyeHq/Fig2Rkq0kpk+e5JymtiLNHmphTfLhR1bQ1ROhNytBUXiPgRk+Xdk9MHf
-         F3o9d+jVpbrEDgVgFx05Zs5+I+pCNrPRzyaV5Lys=
+        b=xGAljml0edt+IvWdN6x3bT5z2J5ZuwD1H5dK4xS+gOku/wE0uRe73rpz2/2QoDefn
+         Aax+YQgBmtNNvXZJv3lvOnJO6RNwnId+jenLTcBUyfuQCZtThxT/0rsAjWANAwYlt5
+         7h04wvRFYDPsB0P7YiPj0VLKTG7AvB+tmDoDD6KI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wang Hai <wanghai38@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 047/175] net: natsemi: Fix missing pci_disable_device() in probe and remove
+        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 021/135] dmaengine: stm32-dma: Fix PM usage counter imbalance in stm32 dma ops
 Date:   Tue, 10 Aug 2021 19:29:15 +0200
-Message-Id: <20210810173002.496902370@linuxfoundation.org>
+Message-Id: <20210810172956.389833662@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
-References: <20210810173000.928681411@linuxfoundation.org>
+In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
+References: <20210810172955.660225700@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,63 +39,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit 7fe74dfd41c428afb24e2e615470832fa997ff14 ]
+[ Upstream commit d54db74ad6e0dea8c253fb68c689b836657ab914 ]
 
-Replace pci_enable_device() with pcim_enable_device(),
-pci_disable_device() and pci_release_regions() will be
-called in release automatically.
+pm_runtime_get_sync will increment pm usage counter
+even it failed. Forgetting to putting operation will
+result in reference leak here. We fix it by replacing
+it with pm_runtime_resume_and_get to keep usage counter
+balanced.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 48bc73ba14bcd ("dmaengine: stm32-dma: Add PM Runtime support")
+Fixes: 05f8740a0e6fc ("dmaengine: stm32-dma: add suspend/resume power management support")
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Link: https://lore.kernel.org/r/20210607064640.121394-2-zhangqilong3@huawei.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/natsemi/natsemi.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ drivers/dma/stm32-dma.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/natsemi/natsemi.c b/drivers/net/ethernet/natsemi/natsemi.c
-index b81e1487945c..14a17ad730f0 100644
---- a/drivers/net/ethernet/natsemi/natsemi.c
-+++ b/drivers/net/ethernet/natsemi/natsemi.c
-@@ -819,7 +819,7 @@ static int natsemi_probe1(struct pci_dev *pdev, const struct pci_device_id *ent)
- 		printk(version);
- #endif
+diff --git a/drivers/dma/stm32-dma.c b/drivers/dma/stm32-dma.c
+index d0055d2f0b9a..1150aa90eab6 100644
+--- a/drivers/dma/stm32-dma.c
++++ b/drivers/dma/stm32-dma.c
+@@ -1187,7 +1187,7 @@ static int stm32_dma_alloc_chan_resources(struct dma_chan *c)
  
--	i = pci_enable_device(pdev);
-+	i = pcim_enable_device(pdev);
- 	if (i) return i;
+ 	chan->config_init = false;
  
- 	/* natsemi has a non-standard PM control register
-@@ -852,7 +852,7 @@ static int natsemi_probe1(struct pci_dev *pdev, const struct pci_device_id *ent)
- 	ioaddr = ioremap(iostart, iosize);
- 	if (!ioaddr) {
- 		i = -ENOMEM;
--		goto err_ioremap;
-+		goto err_pci_request_regions;
- 	}
+-	ret = pm_runtime_get_sync(dmadev->ddev.dev);
++	ret = pm_runtime_resume_and_get(dmadev->ddev.dev);
+ 	if (ret < 0)
+ 		return ret;
  
- 	/* Work around the dropped serial bit. */
-@@ -974,9 +974,6 @@ static int natsemi_probe1(struct pci_dev *pdev, const struct pci_device_id *ent)
-  err_register_netdev:
- 	iounmap(ioaddr);
+@@ -1455,7 +1455,7 @@ static int stm32_dma_suspend(struct device *dev)
+ 	struct stm32_dma_device *dmadev = dev_get_drvdata(dev);
+ 	int id, ret, scr;
  
-- err_ioremap:
--	pci_release_regions(pdev);
--
-  err_pci_request_regions:
- 	free_netdev(dev);
- 	return i;
-@@ -3241,7 +3238,6 @@ static void natsemi_remove1(struct pci_dev *pdev)
+-	ret = pm_runtime_get_sync(dev);
++	ret = pm_runtime_resume_and_get(dev);
+ 	if (ret < 0)
+ 		return ret;
  
- 	NATSEMI_REMOVE_FILE(pdev, dspcfg_workaround);
- 	unregister_netdev (dev);
--	pci_release_regions (pdev);
- 	iounmap(ioaddr);
- 	free_netdev (dev);
- }
 -- 
 2.30.2
 
