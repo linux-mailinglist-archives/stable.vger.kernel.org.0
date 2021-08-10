@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 395D43E7E90
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:34:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE7FD3E80A1
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:51:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232676AbhHJReP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:34:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36686 "EHLO mail.kernel.org"
+        id S234538AbhHJRvH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:51:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56806 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231381AbhHJRdi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:33:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 59564610CC;
-        Tue, 10 Aug 2021 17:33:15 +0000 (UTC)
+        id S236729AbhHJRtl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:49:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 18FDD60F41;
+        Tue, 10 Aug 2021 17:41:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616795;
-        bh=hVRjeIKeqGzKqDwszUGsi+lUR5UdWKTKaBB8H9mmTzY=;
+        s=korg; t=1628617310;
+        bh=UeWpIGpq0ks8S0l+zELOLMtiSddnd/l60JkQfAIeuHI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wuvibdVVIEEtZO7NEv6BYa7yqgHn68jnSs4Vd5u11cY0hS/G3QRiAMuDXOrqJNNWX
-         0Szat1paaBSMayovGluhBfc4AoPrAA+vybGw9jtaA2zVkX3Wolt007B9h/uDBACCB/
-         IPU3UQ3uEx16tfbM7r2NPA1lW+6325DJmOwWh5ls=
+        b=12Djr387BtsOFjY8xIXZ0Vby2mjpsj7nM5BcsGec1xv79f5qX77lhohNPgjEWP6ox
+         PWxoW2/gJdNezBygStfAbw98c2TAbu7W4QE/pUkr4zdPMbCbQ2ZQ8mDtxAcVb55i7+
+         KRiNN/ivNkrLP6q/QfYMhFlf/1G+VWJ5vCbKu1g4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+c31a48e6702ccb3d64c9@syzkaller.appspotmail.com,
-        Shreyansh Chouhan <chouhan.shreyansh630@gmail.com>,
-        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 51/54] reiserfs: check directory items on read from disk
+        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.10 111/135] KVM: Do not leak memory for duplicate debugfs directories
 Date:   Tue, 10 Aug 2021 19:30:45 +0200
-Message-Id: <20210810172945.892055610@linuxfoundation.org>
+Message-Id: <20210810172959.554171254@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172944.179901509@linuxfoundation.org>
-References: <20210810172944.179901509@linuxfoundation.org>
+In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
+References: <20210810172955.660225700@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,79 +39,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shreyansh Chouhan <chouhan.shreyansh630@gmail.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
 
-[ Upstream commit 13d257503c0930010ef9eed78b689cec417ab741 ]
+commit 85cd39af14f498f791d8aab3fbd64cd175787f1a upstream.
 
-While verifying the leaf item that we read from the disk, reiserfs
-doesn't check the directory items, this could cause a crash when we
-read a directory item from the disk that has an invalid deh_location.
+KVM creates a debugfs directory for each VM in order to store statistics
+about the virtual machine.  The directory name is built from the process
+pid and a VM fd.  While generally unique, it is possible to keep a
+file descriptor alive in a way that causes duplicate directories, which
+manifests as these messages:
 
-This patch adds a check to the directory items read from the disk that
-does a bounds check on deh_location for the directory entries. Any
-directory entry header with a directory entry offset greater than the
-item length is considered invalid.
+  [  471.846235] debugfs: Directory '20245-4' with parent 'kvm' already present!
 
-Link: https://lore.kernel.org/r/20210709152929.766363-1-chouhan.shreyansh630@gmail.com
-Reported-by: syzbot+c31a48e6702ccb3d64c9@syzkaller.appspotmail.com
-Signed-off-by: Shreyansh Chouhan <chouhan.shreyansh630@gmail.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Even though this should not happen in practice, it is more or less
+expected in the case of KVM for testcases that call KVM_CREATE_VM and
+close the resulting file descriptor repeatedly and in parallel.
+
+When this happens, debugfs_create_dir() returns an error but
+kvm_create_vm_debugfs() goes on to allocate stat data structs which are
+later leaked.  The slow memory leak was spotted by syzkaller, where it
+caused OOM reports.
+
+Since the issue only affects debugfs, do a lookup before calling
+debugfs_create_dir, so that the message is downgraded and rate-limited.
+While at it, ensure kvm->debugfs_dentry is NULL rather than an error
+if it is not created.  This fixes kvm_destroy_vm_debugfs, which was not
+checking IS_ERR_OR_NULL correctly.
+
+Cc: stable@vger.kernel.org
+Fixes: 536a6f88c49d ("KVM: Create debugfs dir and stat files for each VM")
+Reported-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+Suggested-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/reiserfs/stree.c | 31 ++++++++++++++++++++++++++-----
- 1 file changed, 26 insertions(+), 5 deletions(-)
+ virt/kvm/kvm_main.c |   18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
 
-diff --git a/fs/reiserfs/stree.c b/fs/reiserfs/stree.c
-index 5229038852ca..4ebad6781b0e 100644
---- a/fs/reiserfs/stree.c
-+++ b/fs/reiserfs/stree.c
-@@ -387,6 +387,24 @@ void pathrelse(struct treepath *search_path)
- 	search_path->path_length = ILLEGAL_PATH_ELEMENT_OFFSET;
- }
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -685,6 +685,8 @@ static void kvm_destroy_vm_debugfs(struc
  
-+static int has_valid_deh_location(struct buffer_head *bh, struct item_head *ih)
-+{
-+	struct reiserfs_de_head *deh;
-+	int i;
-+
-+	deh = B_I_DEH(bh, ih);
-+	for (i = 0; i < ih_entry_count(ih); i++) {
-+		if (deh_location(&deh[i]) > ih_item_len(ih)) {
-+			reiserfs_warning(NULL, "reiserfs-5094",
-+					 "directory entry location seems wrong %h",
-+					 &deh[i]);
-+			return 0;
-+		}
-+	}
-+
-+	return 1;
-+}
-+
- static int is_leaf(char *buf, int blocksize, struct buffer_head *bh)
+ static int kvm_create_vm_debugfs(struct kvm *kvm, int fd)
  {
- 	struct block_head *blkh;
-@@ -454,11 +472,14 @@ static int is_leaf(char *buf, int blocksize, struct buffer_head *bh)
- 					 "(second one): %h", ih);
- 			return 0;
- 		}
--		if (is_direntry_le_ih(ih) && (ih_item_len(ih) < (ih_entry_count(ih) * IH_SIZE))) {
--			reiserfs_warning(NULL, "reiserfs-5093",
--					 "item entry count seems wrong %h",
--					 ih);
--			return 0;
-+		if (is_direntry_le_ih(ih)) {
-+			if (ih_item_len(ih) < (ih_entry_count(ih) * IH_SIZE)) {
-+				reiserfs_warning(NULL, "reiserfs-5093",
-+						 "item entry count seems wrong %h",
-+						 ih);
-+				return 0;
-+			}
-+			return has_valid_deh_location(bh, ih);
- 		}
- 		prev_location = ih_location(ih);
++	static DEFINE_MUTEX(kvm_debugfs_lock);
++	struct dentry *dent;
+ 	char dir_name[ITOA_MAX_LEN * 2];
+ 	struct kvm_stat_data *stat_data;
+ 	struct kvm_stats_debugfs_item *p;
+@@ -693,8 +695,20 @@ static int kvm_create_vm_debugfs(struct
+ 		return 0;
+ 
+ 	snprintf(dir_name, sizeof(dir_name), "%d-%d", task_pid_nr(current), fd);
+-	kvm->debugfs_dentry = debugfs_create_dir(dir_name, kvm_debugfs_dir);
++	mutex_lock(&kvm_debugfs_lock);
++	dent = debugfs_lookup(dir_name, kvm_debugfs_dir);
++	if (dent) {
++		pr_warn_ratelimited("KVM: debugfs: duplicate directory %s\n", dir_name);
++		dput(dent);
++		mutex_unlock(&kvm_debugfs_lock);
++		return 0;
++	}
++	dent = debugfs_create_dir(dir_name, kvm_debugfs_dir);
++	mutex_unlock(&kvm_debugfs_lock);
++	if (IS_ERR(dent))
++		return 0;
+ 
++	kvm->debugfs_dentry = dent;
+ 	kvm->debugfs_stat_data = kcalloc(kvm_debugfs_num_entries,
+ 					 sizeof(*kvm->debugfs_stat_data),
+ 					 GFP_KERNEL_ACCOUNT);
+@@ -4698,7 +4712,7 @@ static void kvm_uevent_notify_change(uns
  	}
--- 
-2.30.2
-
+ 	add_uevent_var(env, "PID=%d", kvm->userspace_pid);
+ 
+-	if (!IS_ERR_OR_NULL(kvm->debugfs_dentry)) {
++	if (kvm->debugfs_dentry) {
+ 		char *tmp, *p = kmalloc(PATH_MAX, GFP_KERNEL_ACCOUNT);
+ 
+ 		if (p) {
 
 
