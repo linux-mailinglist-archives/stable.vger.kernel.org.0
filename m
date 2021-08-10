@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 70B6B3E7F82
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:41:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38C203E8107
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:56:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234526AbhHJRkn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:40:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59866 "EHLO mail.kernel.org"
+        id S237947AbhHJRzK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:55:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235393AbhHJRjd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:39:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E33461052;
-        Tue, 10 Aug 2021 17:37:18 +0000 (UTC)
+        id S235046AbhHJRwX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:52:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B1C8A610FF;
+        Tue, 10 Aug 2021 17:43:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617038;
-        bh=UAwRYL7AItP8ekZw+OqmT25AAyAFcsLrphfL+XTWv+A=;
+        s=korg; t=1628617406;
+        bh=kZKkjESAT9ijhAS102KTc+cGbq98smOeicUxj+0MBDc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LtpkBDSyRNtBy1zxkAJXgM4nclu4YxxVgy9oq1PGOpPkoxdXE596h+rYxh0lI/xm2
-         2JHixN95+eCC691gCXv3/W6Lc2de03qc/RCEJ/M7ItrFg4FjD5pScYTL6BpsQySGOw
-         rMFmSe/Bd6VbSEEGW6OVirVSxjiKL4CWMEXM8XJc=
+        b=ZkQ2EwadL05aGDK/XmSeP8rldVBxd53g51qCgwfBx81eVpSzm5XnQCceIyTtUSW8h
+         JSbkC2pDT0WWCXjs0Q6IaQRCyZSzCaBi37vCbVoVfjbSPMaRf7Tpo23jht0ByhIjun
+         CPo0/+vLZr77nRjFcPq0PLyEdyQDAvkZKoZN5LNk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "H. Nikolaus Schaller" <hns@goldelico.com>,
-        Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 018/135] omap5-board-common: remove not physically existing vdds_1v8_main fixed-regulator
+Subject: [PATCH 5.13 044/175] net: dsa: sja1105: be stateless with FDB entries on SJA1105P/Q/R/S/SJA1110 too
 Date:   Tue, 10 Aug 2021 19:29:12 +0200
-Message-Id: <20210810172956.290719424@linuxfoundation.org>
+Message-Id: <20210810173002.399378380@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
-References: <20210810172955.660225700@linuxfoundation.org>
+In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
+References: <20210810173000.928681411@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,77 +40,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: H. Nikolaus Schaller <hns@goldelico.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit c68ef4ad180e09805fa46965d15e1dfadf09ffa5 ]
+[ Upstream commit 589918df93226a1e5f104306c185b6dcf2bd8051 ]
 
-This device tree include file describes a fixed-regulator
-connecting smps7_reg output (1.8V) to some 1.8V rail and
-consumers (vdds_1v8_main).
+Similar but not quite the same with what was done in commit b11f0a4c0c81
+("net: dsa: sja1105: be stateless when installing FDB entries") for
+SJA1105E/T, it is desirable to drop the priv->vlan_aware check and
+simply go ahead and install FDB entries in the VLAN that was given by
+the bridge.
 
-This regulator does not physically exist.
+As opposed to SJA1105E/T, in SJA1105P/Q/R/S and SJA1110, the FDB is a
+maskable TCAM, and we are installing VLAN-unaware FDB entries with the
+VLAN ID masked off. However, such FDB entries might completely obscure
+VLAN-aware entries where the VLAN ID is included in the search mask,
+because the switch looks up the FDB from left to right and picks the
+first entry which results in a masked match. So it depends on whether
+the bridge installs first the VLAN-unaware or the VLAN-aware FDB entries.
 
-I assume it was introduced as a wrapper around smps7_reg
-to provide a speaking signal name "vdds_1v8_main" as label.
+Anyway, if we had a VLAN-unaware FDB entry towards one set of DESTPORTS
+and a VLAN-aware one towards other set of DESTPORTS, the result is that
+the packets in VLAN-aware mode will be forwarded towards the DESTPORTS
+specified by the VLAN-unaware entry.
 
-This fixed-regulator without real function was not an issue
-in driver code until
+To solve this, simply do not use the masked matching ability of the FDB
+for VLAN ID, and always match precisely on it. In VLAN-unaware mode, we
+configure the switch for shared VLAN learning, so the VLAN ID will be
+ignored anyway during lookup, so it is redundant to mask it off in the
+TCAM.
 
-  Commit 98e48cd9283d ("regulator: core: resolve supply for boot-on/always-on regulators")
+This patch conflicts with net-next commit 0fac6aa098ed ("net: dsa: sja1105:
+delete the best_effort_vlan_filtering mode") which changed this line:
+	if (priv->vlan_state != SJA1105_VLAN_UNAWARE) {
+into:
+	if (priv->vlan_aware) {
 
-introduced a new check for regulator initialization which
-makes Palmas regulator registration fail:
+When merging with net-next, the lines added by this patch should take
+precedence in the conflict resolution (i.e. the "if" condition should be
+deleted in both cases).
 
-[    5.407712] ldo1: supplied by vsys_cobra
-[    5.412748] ldo2: supplied by vsys_cobra
-[    5.417603] palmas-pmic 48070000.i2c:palmas@48:palmas_pmic: failed to register 48070000.i2c:palmas@48:palmas_pmic regulator
-
-The reason is that the supply-chain of regulators is too
-long and goes from ldo3 through the virtual vdds_1v8_main
-regulator and then back to smps7. This adds a cross-dependency
-of probing Palmas regulators and the fixed-regulator which
-leads to probe deferral by the new check and is no longer
-resolved.
-
-Since we do not control what device tree files including this
-one reference (either &vdds_1v8_main or &smps7_reg or both)
-we keep both labels for smps7 for compatibility.
-
-Fixes: 98e48cd9283d ("regulator: core: resolve supply for boot-on/always-on regulators")
-Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Fixes: 1da73821343c ("net: dsa: sja1105: Add FDB operations for P/Q/R/S series")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/omap5-board-common.dtsi | 9 +--------
- 1 file changed, 1 insertion(+), 8 deletions(-)
+ drivers/net/dsa/sja1105/sja1105_main.c | 18 ++++--------------
+ 1 file changed, 4 insertions(+), 14 deletions(-)
 
-diff --git a/arch/arm/boot/dts/omap5-board-common.dtsi b/arch/arm/boot/dts/omap5-board-common.dtsi
-index d8f13626cfd1..3a8f10231475 100644
---- a/arch/arm/boot/dts/omap5-board-common.dtsi
-+++ b/arch/arm/boot/dts/omap5-board-common.dtsi
-@@ -30,14 +30,6 @@
- 		regulator-max-microvolt = <5000000>;
- 	};
+diff --git a/drivers/net/dsa/sja1105/sja1105_main.c b/drivers/net/dsa/sja1105/sja1105_main.c
+index edc9462c6d4e..19d321ac6532 100644
+--- a/drivers/net/dsa/sja1105/sja1105_main.c
++++ b/drivers/net/dsa/sja1105/sja1105_main.c
+@@ -1437,13 +1437,8 @@ int sja1105pqrs_fdb_add(struct dsa_switch *ds, int port,
+ 	l2_lookup.vlanid = vid;
+ 	l2_lookup.iotag = SJA1105_S_TAG;
+ 	l2_lookup.mask_macaddr = GENMASK_ULL(ETH_ALEN * 8 - 1, 0);
+-	if (priv->vlan_state != SJA1105_VLAN_UNAWARE) {
+-		l2_lookup.mask_vlanid = VLAN_VID_MASK;
+-		l2_lookup.mask_iotag = BIT(0);
+-	} else {
+-		l2_lookup.mask_vlanid = 0;
+-		l2_lookup.mask_iotag = 0;
+-	}
++	l2_lookup.mask_vlanid = VLAN_VID_MASK;
++	l2_lookup.mask_iotag = BIT(0);
+ 	l2_lookup.destports = BIT(port);
  
--	vdds_1v8_main: fixedregulator-vdds_1v8_main {
--		compatible = "regulator-fixed";
--		regulator-name = "vdds_1v8_main";
--		vin-supply = <&smps7_reg>;
--		regulator-min-microvolt = <1800000>;
--		regulator-max-microvolt = <1800000>;
--	};
--
- 	vmmcsd_fixed: fixedregulator-mmcsd {
- 		compatible = "regulator-fixed";
- 		regulator-name = "vmmcsd_fixed";
-@@ -487,6 +479,7 @@
- 					regulator-boot-on;
- 				};
+ 	tmp = l2_lookup;
+@@ -1535,13 +1530,8 @@ int sja1105pqrs_fdb_del(struct dsa_switch *ds, int port,
+ 	l2_lookup.vlanid = vid;
+ 	l2_lookup.iotag = SJA1105_S_TAG;
+ 	l2_lookup.mask_macaddr = GENMASK_ULL(ETH_ALEN * 8 - 1, 0);
+-	if (priv->vlan_state != SJA1105_VLAN_UNAWARE) {
+-		l2_lookup.mask_vlanid = VLAN_VID_MASK;
+-		l2_lookup.mask_iotag = BIT(0);
+-	} else {
+-		l2_lookup.mask_vlanid = 0;
+-		l2_lookup.mask_iotag = 0;
+-	}
++	l2_lookup.mask_vlanid = VLAN_VID_MASK;
++	l2_lookup.mask_iotag = BIT(0);
+ 	l2_lookup.destports = BIT(port);
  
-+				vdds_1v8_main:
- 				smps7_reg: smps7 {
- 					/* VDDS_1v8_OMAP over VDDS_1v8_MAIN */
- 					regulator-name = "smps7";
+ 	rc = sja1105_dynamic_config_read(priv, BLK_IDX_L2_LOOKUP,
 -- 
 2.30.2
 
