@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E3CB3E811A
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:56:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61C183E7FAD
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:41:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234850AbhHJRzb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:55:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49440 "EHLO mail.kernel.org"
+        id S235174AbhHJRly (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:41:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236937AbhHJRxp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:53:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A956961213;
-        Tue, 10 Aug 2021 17:43:59 +0000 (UTC)
+        id S235767AbhHJRkH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:40:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F159B61209;
+        Tue, 10 Aug 2021 17:37:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617440;
-        bh=1memrWi5ponK9ta8UTKX7L4xQXR6+pAOy1mX/jPqdyQ=;
+        s=korg; t=1628617074;
+        bh=Y0IXc4yNrAKyoNR+5Jpta8AH98BmfVeDhSW7Cq7TnMI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y0CJEKwwzbuHFZ55wARCZA61c77+Wu6QkhscwumgI2nVZCDMZjIct/cHDBd1fkLHS
-         7TjVTprNJ89LJHRDJ4lCRpBu8+uHCmEmtkkDBOtERH8BlynMKZeZ2T3fav3bQcZVXh
-         2htuf3hC/9Oa3wCRaxlGTSFaIamaH4v08QNfa4dQ=
+        b=aY5DGM/hH/CQEL66dpsoDWwL38MFsGhruTeKVjL+4WyC7nZdCZAPDHoDmeDZSjRl/
+         Ph6WmA3RwWvXYZbq2v/lfdZ9JyM95CyaC7RZm3q5myW+CmWIuPjQD+AM6RzAt0yNUi
+         peNhkTxqWeOC8qhWE2wFA4sbyhvhj/tbiWaQFZ2I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yunsheng Lin <linyunsheng@huawei.com>,
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 058/175] net: sched: fix lockdep_set_class() typo error for sch->seqlock
+Subject: [PATCH 5.10 032/135] net: dsa: sja1105: invalidate dynamic FDB entries learned concurrently with statically added ones
 Date:   Tue, 10 Aug 2021 19:29:26 +0200
-Message-Id: <20210810173002.860663150@linuxfoundation.org>
+Message-Id: <20210810172956.759167355@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
-References: <20210810173000.928681411@linuxfoundation.org>
+In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
+References: <20210810172955.660225700@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +40,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunsheng Lin <linyunsheng@huawei.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit 06f5553e0f0c2182268179b93856187d9cb86dd5 ]
+[ Upstream commit 6c5fc159e0927531707895709eee1f8bfa04289f ]
 
-According to comment in qdisc_alloc(), sch->seqlock's lockdep
-class key should be set to qdisc_tx_busylock, due to possible
-type error, sch->busylock's lockdep class key is set to
-qdisc_tx_busylock, which is duplicated because sch->busylock's
-lockdep class key is already set in qdisc_alloc().
+The procedure to add a static FDB entry in sja1105 is concurrent with
+dynamic learning performed on all bridge ports and the CPU port.
 
-So fix it by replacing sch->busylock with sch->seqlock.
+The switch looks up the FDB from left to right, and also learns
+dynamically from left to right, so it is possible that between the
+moment when we pick up a free slot to install an FDB entry, another slot
+to the left of that one becomes free due to an address ageing out, and
+that other slot is then immediately used by the switch to learn
+dynamically the same address as we're trying to add statically.
 
-Fixes: 96009c7d500e ("sched: replace __QDISC_STATE_RUNNING bit with a spin lock")
-Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
+The result is that we succeeded to add our static FDB entry, but it is
+being shadowed by a dynamic FDB entry to its left, and the switch will
+behave as if our static FDB entry did not exist.
+
+We cannot really prevent this from happening unless we make the entire
+process to add a static FDB entry a huge critical section where address
+learning is temporarily disabled on _all_ ports, and then re-enabled
+according to the configuration done by sja1105_port_set_learning.
+However, that is kind of disruptive for the operation of the network.
+
+What we can do alternatively is to simply read back the FDB for dynamic
+entries located before our newly added static one, and delete them.
+This will guarantee that our static FDB entry is now operational. It
+will still not guarantee that there aren't dynamic FDB entries to the
+_right_ of that static FDB entry, but at least those entries will age
+out by themselves since they aren't hit, and won't bother anyone.
+
+Fixes: 291d1e72b756 ("net: dsa: sja1105: Add support for FDB and MDB management")
+Fixes: 1da73821343c ("net: dsa: sja1105: Add FDB operations for P/Q/R/S series")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_generic.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/dsa/sja1105/sja1105_main.c | 57 +++++++++++++++++++++++++-
+ 1 file changed, 55 insertions(+), 2 deletions(-)
 
-diff --git a/net/sched/sch_generic.c b/net/sched/sch_generic.c
-index fc8b56bcabf3..1ee96a5c5ee0 100644
---- a/net/sched/sch_generic.c
-+++ b/net/sched/sch_generic.c
-@@ -886,7 +886,7 @@ struct Qdisc *qdisc_alloc(struct netdev_queue *dev_queue,
+diff --git a/drivers/net/dsa/sja1105/sja1105_main.c b/drivers/net/dsa/sja1105/sja1105_main.c
+index 469d123772a6..52d8cc1a95fa 100644
+--- a/drivers/net/dsa/sja1105/sja1105_main.c
++++ b/drivers/net/dsa/sja1105/sja1105_main.c
+@@ -1260,10 +1260,11 @@ static int sja1105et_is_fdb_entry_in_bin(struct sja1105_private *priv, int bin,
+ int sja1105et_fdb_add(struct dsa_switch *ds, int port,
+ 		      const unsigned char *addr, u16 vid)
+ {
+-	struct sja1105_l2_lookup_entry l2_lookup = {0};
++	struct sja1105_l2_lookup_entry l2_lookup = {0}, tmp;
+ 	struct sja1105_private *priv = ds->priv;
+ 	struct device *dev = ds->dev;
+ 	int last_unused = -1;
++	int start, end, i;
+ 	int bin, way, rc;
  
- 	/* seqlock has the same scope of busylock, for NOLOCK qdisc */
- 	spin_lock_init(&sch->seqlock);
--	lockdep_set_class(&sch->busylock,
-+	lockdep_set_class(&sch->seqlock,
- 			  dev->qdisc_tx_busylock ?: &qdisc_tx_busylock);
+ 	bin = sja1105et_fdb_hash(priv, addr, vid);
+@@ -1315,6 +1316,29 @@ int sja1105et_fdb_add(struct dsa_switch *ds, int port,
+ 	if (rc < 0)
+ 		return rc;
  
- 	seqcount_init(&sch->running);
++	/* Invalidate a dynamically learned entry if that exists */
++	start = sja1105et_fdb_index(bin, 0);
++	end = sja1105et_fdb_index(bin, way);
++
++	for (i = start; i < end; i++) {
++		rc = sja1105_dynamic_config_read(priv, BLK_IDX_L2_LOOKUP,
++						 i, &tmp);
++		if (rc == -ENOENT)
++			continue;
++		if (rc)
++			return rc;
++
++		if (tmp.macaddr != ether_addr_to_u64(addr) || tmp.vlanid != vid)
++			continue;
++
++		rc = sja1105_dynamic_config_write(priv, BLK_IDX_L2_LOOKUP,
++						  i, NULL, false);
++		if (rc)
++			return rc;
++
++		break;
++	}
++
+ 	return sja1105_static_fdb_change(priv, port, &l2_lookup, true);
+ }
+ 
+@@ -1356,7 +1380,7 @@ int sja1105et_fdb_del(struct dsa_switch *ds, int port,
+ int sja1105pqrs_fdb_add(struct dsa_switch *ds, int port,
+ 			const unsigned char *addr, u16 vid)
+ {
+-	struct sja1105_l2_lookup_entry l2_lookup = {0};
++	struct sja1105_l2_lookup_entry l2_lookup = {0}, tmp;
+ 	struct sja1105_private *priv = ds->priv;
+ 	int rc, i;
+ 
+@@ -1414,6 +1438,35 @@ skip_finding_an_index:
+ 	if (rc < 0)
+ 		return rc;
+ 
++	/* The switch learns dynamic entries and looks up the FDB left to
++	 * right. It is possible that our addition was concurrent with the
++	 * dynamic learning of the same address, so now that the static entry
++	 * has been installed, we are certain that address learning for this
++	 * particular address has been turned off, so the dynamic entry either
++	 * is in the FDB at an index smaller than the static one, or isn't (it
++	 * can also be at a larger index, but in that case it is inactive
++	 * because the static FDB entry will match first, and the dynamic one
++	 * will eventually age out). Search for a dynamically learned address
++	 * prior to our static one and invalidate it.
++	 */
++	tmp = l2_lookup;
++
++	rc = sja1105_dynamic_config_read(priv, BLK_IDX_L2_LOOKUP,
++					 SJA1105_SEARCH, &tmp);
++	if (rc < 0) {
++		dev_err(ds->dev,
++			"port %d failed to read back entry for %pM vid %d: %pe\n",
++			port, addr, vid, ERR_PTR(rc));
++		return rc;
++	}
++
++	if (tmp.index < l2_lookup.index) {
++		rc = sja1105_dynamic_config_write(priv, BLK_IDX_L2_LOOKUP,
++						  tmp.index, NULL, false);
++		if (rc < 0)
++			return rc;
++	}
++
+ 	return sja1105_static_fdb_change(priv, port, &l2_lookup, true);
+ }
+ 
 -- 
 2.30.2
 
