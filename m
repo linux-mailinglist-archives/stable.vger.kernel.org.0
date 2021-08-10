@@ -2,186 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 878FB3E5E1F
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 16:40:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59BF53E5A59
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 14:48:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240276AbhHJOkY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 10:40:24 -0400
-Received: from 10.mo52.mail-out.ovh.net ([87.98.187.244]:49742 "EHLO
-        10.mo52.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241056AbhHJOkX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Aug 2021 10:40:23 -0400
-X-Greylist: delayed 7800 seconds by postgrey-1.27 at vger.kernel.org; Tue, 10 Aug 2021 10:40:23 EDT
-Received: from mxplan5.mail.ovh.net (unknown [10.109.138.188])
-        by mo52.mail-out.ovh.net (Postfix) with ESMTPS id 4F9CE28D983;
-        Tue, 10 Aug 2021 14:10:34 +0200 (CEST)
-Received: from kaod.org (37.59.142.96) by DAG4EX1.mxp5.local (172.16.2.31)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2308.14; Tue, 10 Aug
- 2021 14:10:33 +0200
-Authentication-Results: garm.ovh; auth=pass (GARM-96R001585fc535-c7b1-4071-ab7c-464b626dbf3e,
-                    8F36BE46FB8773C29BD4C9A30C998E4B5B7B2B54) smtp.auth=clg@kaod.org
-X-OVh-ClientIp: 90.89.73.13
-Subject: Re: [PATCH v2] powerpc/xive: Do not skip CPU-less nodes when creating
- the IPIs
-To:     <linuxppc-dev@lists.ozlabs.org>
-CC:     Michael Ellerman <mpe@ellerman.id.au>, <stable@vger.kernel.org>,
-        Geetika Moolchandani <Geetika.Moolchandani1@ibm.com>,
-        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
-        Laurent Vivier <lvivier@redhat.com>
-References: <20210807072057.184698-1-clg@kaod.org>
-From:   =?UTF-8?Q?C=c3=a9dric_Le_Goater?= <clg@kaod.org>
-Message-ID: <dbcf71dc-2e5e-a6bc-9b55-f4e2f023dfd5@kaod.org>
-Date:   Tue, 10 Aug 2021 14:10:33 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        id S238646AbhHJMtB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 08:49:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40040 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236583AbhHJMtB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Aug 2021 08:49:01 -0400
+Received: from mail-lj1-x235.google.com (mail-lj1-x235.google.com [IPv6:2a00:1450:4864:20::235])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 615E6C0613D3
+        for <stable@vger.kernel.org>; Tue, 10 Aug 2021 05:48:39 -0700 (PDT)
+Received: by mail-lj1-x235.google.com with SMTP id h11so13813478ljo.12
+        for <stable@vger.kernel.org>; Tue, 10 Aug 2021 05:48:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=vrcMLWtfOeCXSMGpjMYNY3zEn4WCrRn/aqSB39sMZio=;
+        b=eD3vQDsassz7bEN0mNbQhZAijheRKwqU+oK96s9ut4efsxy/pfcMMgLfN/39mBcNzA
+         CWcAVe/mxoYkiw5lw9HAubl20qZcNVos3RgWK1m2BARdzZAuLzG/CDkcJg/YoPg6pxSO
+         6pWektyrqQeFMs+3mYXfOkCXNiN4k44T+Av9Xfx5y9PLMvke9N7nIVdxG7ov3uqszD0G
+         s+pKlKviR2OdDnoh4hi918VXhjTAb4W2zC/pe4xpQmBAlIe5/uu0nqio9njHt6C5sx0A
+         nTPOCui2hn2g9N2pRraqtmMEHWvGpHUdOCSzjrh2QSS7U+ahTai2W/biKy52JtUBdbgL
+         rUTg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=vrcMLWtfOeCXSMGpjMYNY3zEn4WCrRn/aqSB39sMZio=;
+        b=e9ViE5zH37ebwZ1WukHur74Y98pNDOFTmLSc0brxZsRD4aphrb/97nuHccvW8xtHLO
+         dNCnHbMch6O5+azSFggLeXmb7gKGhR+pOR8q28diJRihg0ykZAoE6l+XUIna8gAtn6j3
+         Z6q8YwgkWKwpN5Qhwpi7xLYefGeFO1Y/Wgdc+/Eh7dRWa0H+l5adhF91wZY6FcZhg+ET
+         YPS3KgrgtZ11+zIuAPj7MMu/dn+hxAs8ytss0fAl+XIA7ut4VBd6wXhJZ/Defj4lRXYC
+         xiAMv8njbU187yQfSFUcHxvx0xSh1ID8RqRWK6Ztg3l2sxb1uHJOX7yJZ4dPgIY2MhC3
+         75JQ==
+X-Gm-Message-State: AOAM531qtHkwP+9iV4Ezuq9owyGTDT2sGj0PmbhV9/ExikubtkZe9Js6
+        WMnsC7GapLGQ9w6FeMMiTDNdXuComXhUz480cubCGQ==
+X-Google-Smtp-Source: ABdhPJyLep687DdIq4Uf7xmhfsYa46ZEV2mhNzCv+q7NsAgri4IdNPReJB6X5A+3utEOR+kjh7KGMkjlhyQd0vAmS5A=
+X-Received: by 2002:a2e:a231:: with SMTP id i17mr9037133ljm.467.1628599717797;
+ Tue, 10 Aug 2021 05:48:37 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20210807072057.184698-1-clg@kaod.org>
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-Originating-IP: [37.59.142.96]
-X-ClientProxiedBy: DAG3EX1.mxp5.local (172.16.2.21) To DAG4EX1.mxp5.local
- (172.16.2.31)
-X-Ovh-Tracer-GUID: 898aff2c-2d0f-455e-ae6c-791ba1f98149
-X-Ovh-Tracer-Id: 7834574503954189094
-X-VR-SPAMSTATE: OK
-X-VR-SPAMSCORE: -100
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedvtddrjeelgdehtdcutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfqggfjpdevjffgvefmvefgnecuuegrihhlohhuthemucehtddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpefuvfhfhffkffgfgggjtgfgihesthekredttdefjeenucfhrhhomhepveorughrihgtpgfnvggpifhorghtvghruceotghlgheskhgrohgurdhorhhgqeenucggtffrrghtthgvrhhnpeehuedtheeghfdvhedtueelteegvdefueektdefiefhffffieduuddtudfhgfevtdenucffohhmrghinhepghhithhhuhgsrdgtohhmnecukfhppedtrddtrddtrddtpdefjedrheelrddugedvrdelieenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhhouggvpehsmhhtphdqohhuthdphhgvlhhopehmgihplhgrnhehrdhmrghilhdrohhvhhdrnhgvthdpihhnvghtpedtrddtrddtrddtpdhmrghilhhfrhhomheptghlgheskhgrohgurdhorhhgpdhrtghpthhtoheplhhinhhugihpphgtqdguvghvsehlihhsthhsrdhoiihlrggsshdrohhrgh
+References: <20210725180830.250218-1-maz@kernel.org>
+In-Reply-To: <20210725180830.250218-1-maz@kernel.org>
+From:   Linus Walleij <linus.walleij@linaro.org>
+Date:   Tue, 10 Aug 2021 14:48:26 +0200
+Message-ID: <CACRpkdbAnvk2AyT=Gom=AHZacm7sDJONR=6EnHLZ+cEySqQ4KQ@mail.gmail.com>
+Subject: Re: [PATCH] pinctrl: stmfx: Fix hazardous u8[] to unsigned long cast
+To:     Marc Zyngier <maz@kernel.org>
+Cc:     Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Android Kernel Team <kernel-team@android.com>,
+        stable <stable@vger.kernel.org>,
+        Amelie Delaunay <amelie.delaunay@foss.st.com>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 8/7/21 9:20 AM, Cédric Le Goater wrote:
-> On PowerVM, CPU-less nodes can be populated with hot-plugged CPUs at
-> runtime. Today, the IPI is not created for such nodes, and hot-plugged
-> CPUs use a bogus IPI, which leads to soft lockups.
-> 
-> We can not directly allocate and request the IPI on demand because
-> bringup_up() is called under the IRQ sparse lock. The alternative is
-> to allocate the IPIs for all possible nodes at startup and to request
-> the mapping on demand when the first CPU of a node is brought up.
-> 
-> Fixes: 7dcc37b3eff9 ("powerpc/xive: Map one IPI interrupt per node")
-> Cc: stable@vger.kernel.org # v5.13
-> Reported-by: Geetika Moolchandani <Geetika.Moolchandani1@ibm.com>
-> Cc: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
-> Cc: Laurent Vivier <lvivier@redhat.com>
-> Signed-off-by: Cédric Le Goater <clg@kaod.org>
-> Message-Id: <20210629131542.743888-1-clg@kaod.org>
-> Signed-off-by: Cédric Le Goater <clg@kaod.org>
-> ---
->  arch/powerpc/sysdev/xive/common.c | 35 +++++++++++++++++++++----------
->  1 file changed, 24 insertions(+), 11 deletions(-)
+On Sun, Jul 25, 2021 at 8:08 PM Marc Zyngier <maz@kernel.org> wrote:
 
-I forgot to add that this version does break irqbalance anymore, since
-Linux is not mapping interrupts of CPU-less nodes.
+> Casting a small array of u8 to an unsigned long is *never* OK:
+>
+> - it does funny thing when the array size is less than that of a long,
+>   as it accesses random places in the stack
+> - it makes everything even more fun with a BE kernel
+>
+> Fix this by building the unsigned long used as a bitmap byte by byte,
+> in a way that works across endianess and has no undefined behaviours.
+>
+> An extra BUILD_BUG_ON() catches the unlikely case where the array
+> would be larger than a single unsigned long.
+>
+> Fixes: 1490d9f841b1 ("pinctrl: Add STMFX GPIO expander Pinctrl/GPIO driver")
+> Signed-off-by: Marc Zyngier <maz@kernel.org>
+> Cc: stable@vger.kernel.org
+> Cc: Amelie Delaunay <amelie.delaunay@foss.st.com>
+> Cc: Linus Walleij <linus.walleij@linaro.org>
+> Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>
+> Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
 
-Anyhow, irqbalance is now fixed : 
+Patch applied!
 
-  https://github.com/Irqbalance/irqbalance/commit/a7f81483a95a94d6a62ca7fb999a090e01c0de9b
-
-So v1 (plus irqbalance patch above) or v2 are safe to use. I do prefer 
-v2.
-
-Thanks to Laurent and Srikar for the extra tests,
-
-C.
-
-> diff --git a/arch/powerpc/sysdev/xive/common.c b/arch/powerpc/sysdev/xive/common.c
-> index dbdbbc2f1dc5..943fd30095af 100644
-> --- a/arch/powerpc/sysdev/xive/common.c
-> +++ b/arch/powerpc/sysdev/xive/common.c
-> @@ -67,6 +67,7 @@ static struct irq_domain *xive_irq_domain;
->  static struct xive_ipi_desc {
->  	unsigned int irq;
->  	char name[16];
-> +	atomic_t started;
->  } *xive_ipis;
->  
->  /*
-> @@ -1120,7 +1121,7 @@ static const struct irq_domain_ops xive_ipi_irq_domain_ops = {
->  	.alloc  = xive_ipi_irq_domain_alloc,
->  };
->  
-> -static int __init xive_request_ipi(void)
-> +static int __init xive_init_ipis(void)
->  {
->  	struct fwnode_handle *fwnode;
->  	struct irq_domain *ipi_domain;
-> @@ -1144,10 +1145,6 @@ static int __init xive_request_ipi(void)
->  		struct xive_ipi_desc *xid = &xive_ipis[node];
->  		struct xive_ipi_alloc_info info = { node };
->  
-> -		/* Skip nodes without CPUs */
-> -		if (cpumask_empty(cpumask_of_node(node)))
-> -			continue;
-> -
->  		/*
->  		 * Map one IPI interrupt per node for all cpus of that node.
->  		 * Since the HW interrupt number doesn't have any meaning,
-> @@ -1159,11 +1156,6 @@ static int __init xive_request_ipi(void)
->  		xid->irq = ret;
->  
->  		snprintf(xid->name, sizeof(xid->name), "IPI-%d", node);
-> -
-> -		ret = request_irq(xid->irq, xive_muxed_ipi_action,
-> -				  IRQF_PERCPU | IRQF_NO_THREAD, xid->name, NULL);
-> -
-> -		WARN(ret < 0, "Failed to request IPI %d: %d\n", xid->irq, ret);
->  	}
->  
->  	return ret;
-> @@ -1178,6 +1170,22 @@ static int __init xive_request_ipi(void)
->  	return ret;
->  }
->  
-> +static int __init xive_request_ipi(unsigned int cpu)
-> +{
-> +	struct xive_ipi_desc *xid = &xive_ipis[early_cpu_to_node(cpu)];
-> +	int ret;
-> +
-> +	if (atomic_inc_return(&xid->started) > 1)
-> +		return 0;
-> +
-> +	ret = request_irq(xid->irq, xive_muxed_ipi_action,
-> +			  IRQF_PERCPU | IRQF_NO_THREAD,
-> +			  xid->name, NULL);
-> +
-> +	WARN(ret < 0, "Failed to request IPI %d: %d\n", xid->irq, ret);
-> +	return ret;
-> +}
-> +
->  static int xive_setup_cpu_ipi(unsigned int cpu)
->  {
->  	unsigned int xive_ipi_irq = xive_ipi_cpu_to_irq(cpu);
-> @@ -1192,6 +1200,9 @@ static int xive_setup_cpu_ipi(unsigned int cpu)
->  	if (xc->hw_ipi != XIVE_BAD_IRQ)
->  		return 0;
->  
-> +	/* Register the IPI */
-> +	xive_request_ipi(cpu);
-> +
->  	/* Grab an IPI from the backend, this will populate xc->hw_ipi */
->  	if (xive_ops->get_ipi(cpu, xc))
->  		return -EIO;
-> @@ -1231,6 +1242,8 @@ static void xive_cleanup_cpu_ipi(unsigned int cpu, struct xive_cpu *xc)
->  	if (xc->hw_ipi == XIVE_BAD_IRQ)
->  		return;
->  
-> +	/* TODO: clear IPI mapping */
-> +
->  	/* Mask the IPI */
->  	xive_do_source_set_mask(&xc->ipi_data, true);
->  
-> @@ -1253,7 +1266,7 @@ void __init xive_smp_probe(void)
->  	smp_ops->cause_ipi = xive_cause_ipi;
->  
->  	/* Register the IPI */
-> -	xive_request_ipi();
-> +	xive_init_ipis();
->  
->  	/* Allocate and setup IPI for the boot CPU */
->  	xive_setup_cpu_ipi(smp_processor_id());
-> 
-
+Yours,
+Linus Walleij
