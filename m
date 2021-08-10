@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5099A3E7ED0
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:35:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2ED73E801F
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:47:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233035AbhHJRf1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:35:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42010 "EHLO mail.kernel.org"
+        id S234835AbhHJRqP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:46:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59194 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233022AbhHJRem (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:34:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C3AAB6101E;
-        Tue, 10 Aug 2021 17:34:18 +0000 (UTC)
+        id S232618AbhHJRnb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:43:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 14FD760EB7;
+        Tue, 10 Aug 2021 17:39:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616859;
-        bh=sd/DQSclqnWoKrgGmCyb1px2JmDXjqqUy17k5WsDmh8=;
+        s=korg; t=1628617144;
+        bh=jONBo0Dye2vO+mQRHk09XuYjk6mcQi/CyIfaqMfmsVM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dp6Ljh84RJt+oYA2k0TQ7W8cRtbDKibKyGzBdly6C8QvBrUYU7OtxKfFnfDL9ksnM
-         S4O/xEq+ZhwJWCB7S41BJvOTWRkzaRz2iKwWCagxnJtOWknelK/JJwlmGL6ZSKbEzw
-         9xJoofkU259NTi7LgQcBm96x6EBrtteRpbklrZ0Y=
+        b=uezCcaLuurhuzz3lPTCWMsF+48NAr/7SAqNS9O5Hx0jnQQPpCHbTJDY3ICxXzWOcE
+         jS6+eOVNeWPgK9TlP+WBF654vP9i7FrfzQlryR/Ry3pLwSeaUin+7C4EwjOA3G5Jd2
+         uLJKhlJDPsZtFCB0ym+1EY6Nj46JCfiOoW/qjoao=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wang Hai <wanghai38@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 24/85] net: natsemi: Fix missing pci_disable_device() in probe and remove
+        stable@vger.kernel.org, Alexander Tsoy <alexander@tsoy.me>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 063/135] ALSA: usb-audio: Add registration quirk for JBL Quantum 600
 Date:   Tue, 10 Aug 2021 19:29:57 +0200
-Message-Id: <20210810172949.012649660@linuxfoundation.org>
+Message-Id: <20210810172957.830929683@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
-References: <20210810172948.192298392@linuxfoundation.org>
+In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
+References: <20210810172955.660225700@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,65 +39,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Alexander Tsoy <alexander@tsoy.me>
 
-[ Upstream commit 7fe74dfd41c428afb24e2e615470832fa997ff14 ]
+commit 4b0556b96e1fe7723629bd40e3813a30cd632faf upstream.
 
-Replace pci_enable_device() with pcim_enable_device(),
-pci_disable_device() and pci_release_regions() will be
-called in release automatically.
+Apparently JBL Quantum 600 has multiple hardware revisions. Apply
+registration quirk to another device id as well.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Alexander Tsoy <alexander@tsoy.me>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210727093326.1153366-1-alexander@tsoy.me
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/natsemi/natsemi.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ sound/usb/quirks.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/natsemi/natsemi.c b/drivers/net/ethernet/natsemi/natsemi.c
-index 1a2634cbbb69..a653502c5d6f 100644
---- a/drivers/net/ethernet/natsemi/natsemi.c
-+++ b/drivers/net/ethernet/natsemi/natsemi.c
-@@ -819,7 +819,7 @@ static int natsemi_probe1(struct pci_dev *pdev, const struct pci_device_id *ent)
- 		printk(version);
- #endif
- 
--	i = pci_enable_device(pdev);
-+	i = pcim_enable_device(pdev);
- 	if (i) return i;
- 
- 	/* natsemi has a non-standard PM control register
-@@ -852,7 +852,7 @@ static int natsemi_probe1(struct pci_dev *pdev, const struct pci_device_id *ent)
- 	ioaddr = ioremap(iostart, iosize);
- 	if (!ioaddr) {
- 		i = -ENOMEM;
--		goto err_ioremap;
-+		goto err_pci_request_regions;
- 	}
- 
- 	/* Work around the dropped serial bit. */
-@@ -974,9 +974,6 @@ static int natsemi_probe1(struct pci_dev *pdev, const struct pci_device_id *ent)
-  err_register_netdev:
- 	iounmap(ioaddr);
- 
-- err_ioremap:
--	pci_release_regions(pdev);
--
-  err_pci_request_regions:
- 	free_netdev(dev);
- 	return i;
-@@ -3242,7 +3239,6 @@ static void natsemi_remove1(struct pci_dev *pdev)
- 
- 	NATSEMI_REMOVE_FILE(pdev, dspcfg_workaround);
- 	unregister_netdev (dev);
--	pci_release_regions (pdev);
- 	iounmap(ioaddr);
- 	free_netdev (dev);
- }
--- 
-2.30.2
-
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -1897,6 +1897,7 @@ static const struct registration_quirk r
+ 	REG_QUIRK_ENTRY(0x0951, 0x16ea, 2),	/* Kingston HyperX Cloud Flight S */
+ 	REG_QUIRK_ENTRY(0x0ecb, 0x1f46, 2),	/* JBL Quantum 600 */
+ 	REG_QUIRK_ENTRY(0x0ecb, 0x2039, 2),	/* JBL Quantum 400 */
++	REG_QUIRK_ENTRY(0x0ecb, 0x203c, 2),	/* JBL Quantum 600 */
+ 	REG_QUIRK_ENTRY(0x0ecb, 0x203e, 2),	/* JBL Quantum 800 */
+ 	{ 0 }					/* terminator */
+ };
 
 
