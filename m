@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6ACEF3E8182
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:01:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D25913E8023
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:47:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236703AbhHJSAI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 14:00:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58908 "EHLO mail.kernel.org"
+        id S234195AbhHJRqV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:46:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233561AbhHJR6f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:58:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C0303613A5;
-        Tue, 10 Aug 2021 17:45:48 +0000 (UTC)
+        id S236183AbhHJRof (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:44:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D0F461101;
+        Tue, 10 Aug 2021 17:39:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617549;
-        bh=qyHYpfO6S+3MYiwQ7LxkJNtfn/CQ6Me4JgV38nc+KkM=;
+        s=korg; t=1628617182;
+        bh=A+ZmOuKwtpvP7/Z98qWtfl5PW+bujj7O8LS/Hqb3aoE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J/oYtnbNDtc52biReV75Unkd49GWYCHdhCangH/Esb5+V49dkgY4W5w0/+U1EHuzb
-         nVaLmC/l3LHBYyvtR74catDnfVtbP3Qg9K7nizrodpF5IQOdaR1C3TM/Z6FaedObfe
-         BVvE3JQIwo7lACIMC7r2bv468alsMBi/sP1qRukI=
+        b=a8W8slFzXzlnBTS55laRl5zbmJfgBY8JmKHW56NkIzZs/XTqUlEG/9na5LDCjpxiq
+         N6nOspOhFNeqKNmK6sSdHzy9yqmk2dNuD82q7+kSoILlzSWJEQK90YTaGcWG/43DRN
+         9GESciNv4z7xwf3PfwsSMgEmuz1za3UyoUlLwEgI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        "Madhavan T. Venkataraman" <madvenka@linux.microsoft.com>,
-        Mark Brown <broonie@kernel.org>, Will Deacon <will@kernel.org>
-Subject: [PATCH 5.13 108/175] arm64: stacktrace: avoid tracing arch_stack_walk()
+        stable@vger.kernel.org, Tyler Hicks <tyhicks@linux.microsoft.com>,
+        Sumit Garg <sumit.garg@linaro.org>,
+        Jens Wiklander <jens.wiklander@linaro.org>
+Subject: [PATCH 5.10 082/135] tee: add tee_shm_alloc_kernel_buf()
 Date:   Tue, 10 Aug 2021 19:30:16 +0200
-Message-Id: <20210810173004.517693481@linuxfoundation.org>
+Message-Id: <20210810172958.531581012@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
-References: <20210810173000.928681411@linuxfoundation.org>
+In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
+References: <20210810172955.660225700@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,133 +40,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Jens Wiklander <jens.wiklander@linaro.org>
 
-commit 0c32706dac1b0a72713184246952ab0f54327c21 upstream.
+commit dc7019b7d0e188d4093b34bd0747ed0d668c63bf upstream.
 
-When the function_graph tracer is in use, arch_stack_walk() may unwind
-the stack incorrectly, erroneously reporting itself, missing the final
-entry which is being traced, and reporting all traced entries between
-these off-by-one from where they should be.
+Adds a new function tee_shm_alloc_kernel_buf() to allocate shared memory
+from a kernel driver. This function can later be made more lightweight
+by unnecessary dma-buf export.
 
-When ftrace hooks a function return, the original return address is
-saved to the fgraph ret_stack, and the return address  in the LR (or the
-function's frame record) is replaced with `return_to_handler`.
-
-When arm64's unwinder encounter frames returning to `return_to_handler`,
-it finds the associated original return address from the fgraph ret
-stack, assuming the most recent `ret_to_hander` entry on the stack
-corresponds to the most recent entry in the fgraph ret stack, and so on.
-
-When arch_stack_walk() is used to dump the current task's stack, it
-starts from the caller of arch_stack_walk(). However, arch_stack_walk()
-can be traced, and so may push an entry on to the fgraph ret stack,
-leaving the fgraph ret stack offset by one from the expected position.
-
-This can be seen when dumping the stack via /proc/self/stack, where
-enabling the graph tracer results in an unexpected
-`stack_trace_save_tsk` entry at the start of the trace, and `el0_svc`
-missing form the end of the trace.
-
-This patch fixes this by marking arch_stack_walk() as notrace, as we do
-for all other functions on the path to ftrace_graph_get_ret_stack().
-While a few helper functions are not marked notrace, their calls/returns
-are balanced, and will have no observable effect when examining the
-fgraph ret stack.
-
-It is possible for an exeption boundary to cause a similar offset if the
-return address of the interrupted context was in the LR. Fixing those
-cases will require some more substantial rework, and is left for
-subsequent patches.
-
-Before:
-
-| # cat /proc/self/stack
-| [<0>] proc_pid_stack+0xc4/0x140
-| [<0>] proc_single_show+0x6c/0x120
-| [<0>] seq_read_iter+0x240/0x4e0
-| [<0>] seq_read+0xe8/0x140
-| [<0>] vfs_read+0xb8/0x1e4
-| [<0>] ksys_read+0x74/0x100
-| [<0>] __arm64_sys_read+0x28/0x3c
-| [<0>] invoke_syscall+0x50/0x120
-| [<0>] el0_svc_common.constprop.0+0xc4/0xd4
-| [<0>] do_el0_svc+0x30/0x9c
-| [<0>] el0_svc+0x2c/0x54
-| [<0>] el0t_64_sync_handler+0x1a8/0x1b0
-| [<0>] el0t_64_sync+0x198/0x19c
-| # echo function_graph > /sys/kernel/tracing/current_tracer
-| # cat /proc/self/stack
-| [<0>] stack_trace_save_tsk+0xa4/0x110
-| [<0>] proc_pid_stack+0xc4/0x140
-| [<0>] proc_single_show+0x6c/0x120
-| [<0>] seq_read_iter+0x240/0x4e0
-| [<0>] seq_read+0xe8/0x140
-| [<0>] vfs_read+0xb8/0x1e4
-| [<0>] ksys_read+0x74/0x100
-| [<0>] __arm64_sys_read+0x28/0x3c
-| [<0>] invoke_syscall+0x50/0x120
-| [<0>] el0_svc_common.constprop.0+0xc4/0xd4
-| [<0>] do_el0_svc+0x30/0x9c
-| [<0>] el0t_64_sync_handler+0x1a8/0x1b0
-| [<0>] el0t_64_sync+0x198/0x19c
-
-After:
-
-| # cat /proc/self/stack
-| [<0>] proc_pid_stack+0xc4/0x140
-| [<0>] proc_single_show+0x6c/0x120
-| [<0>] seq_read_iter+0x240/0x4e0
-| [<0>] seq_read+0xe8/0x140
-| [<0>] vfs_read+0xb8/0x1e4
-| [<0>] ksys_read+0x74/0x100
-| [<0>] __arm64_sys_read+0x28/0x3c
-| [<0>] invoke_syscall+0x50/0x120
-| [<0>] el0_svc_common.constprop.0+0xc4/0xd4
-| [<0>] do_el0_svc+0x30/0x9c
-| [<0>] el0_svc+0x2c/0x54
-| [<0>] el0t_64_sync_handler+0x1a8/0x1b0
-| [<0>] el0t_64_sync+0x198/0x19c
-| # echo function_graph > /sys/kernel/tracing/current_tracer
-| # cat /proc/self/stack
-| [<0>] proc_pid_stack+0xc4/0x140
-| [<0>] proc_single_show+0x6c/0x120
-| [<0>] seq_read_iter+0x240/0x4e0
-| [<0>] seq_read+0xe8/0x140
-| [<0>] vfs_read+0xb8/0x1e4
-| [<0>] ksys_read+0x74/0x100
-| [<0>] __arm64_sys_read+0x28/0x3c
-| [<0>] invoke_syscall+0x50/0x120
-| [<0>] el0_svc_common.constprop.0+0xc4/0xd4
-| [<0>] do_el0_svc+0x30/0x9c
-| [<0>] el0_svc+0x2c/0x54
-| [<0>] el0t_64_sync_handler+0x1a8/0x1b0
-| [<0>] el0t_64_sync+0x198/0x19c
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Madhavan T. Venkataraman <madvenka@linux.microsoft.com>
-Cc: Mark Brown <broonie@kernel.org>
-Cc: Will Deacon <will@kernel.org>
-Reviwed-by: Mark Brown <broonie@kernel.org>
-Link: https://lore.kernel.org/r/20210802164845.45506-3-mark.rutland@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Cc: stable@vger.kernel.org
+Reviewed-by: Tyler Hicks <tyhicks@linux.microsoft.com>
+Reviewed-by: Sumit Garg <sumit.garg@linaro.org>
+Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/stacktrace.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tee/tee_shm.c   |   18 ++++++++++++++++++
+ include/linux/tee_drv.h |    1 +
+ 2 files changed, 19 insertions(+)
 
---- a/arch/arm64/kernel/stacktrace.c
-+++ b/arch/arm64/kernel/stacktrace.c
-@@ -220,7 +220,7 @@ void show_stack(struct task_struct *tsk,
+--- a/drivers/tee/tee_shm.c
++++ b/drivers/tee/tee_shm.c
+@@ -193,6 +193,24 @@ err_dev_put:
+ }
+ EXPORT_SYMBOL_GPL(tee_shm_alloc);
  
- #ifdef CONFIG_STACKTRACE
- 
--noinline void arch_stack_walk(stack_trace_consume_fn consume_entry,
-+noinline notrace void arch_stack_walk(stack_trace_consume_fn consume_entry,
- 			      void *cookie, struct task_struct *task,
- 			      struct pt_regs *regs)
++/**
++ * tee_shm_alloc_kernel_buf() - Allocate shared memory for kernel buffer
++ * @ctx:	Context that allocates the shared memory
++ * @size:	Requested size of shared memory
++ *
++ * The returned memory registered in secure world and is suitable to be
++ * passed as a memory buffer in parameter argument to
++ * tee_client_invoke_func(). The memory allocated is later freed with a
++ * call to tee_shm_free().
++ *
++ * @returns a pointer to 'struct tee_shm'
++ */
++struct tee_shm *tee_shm_alloc_kernel_buf(struct tee_context *ctx, size_t size)
++{
++	return tee_shm_alloc(ctx, size, TEE_SHM_MAPPED | TEE_SHM_DMA_BUF);
++}
++EXPORT_SYMBOL_GPL(tee_shm_alloc_kernel_buf);
++
+ struct tee_shm *tee_shm_register(struct tee_context *ctx, unsigned long addr,
+ 				 size_t length, u32 flags)
  {
+--- a/include/linux/tee_drv.h
++++ b/include/linux/tee_drv.h
+@@ -332,6 +332,7 @@ void *tee_get_drvdata(struct tee_device
+  * @returns a pointer to 'struct tee_shm'
+  */
+ struct tee_shm *tee_shm_alloc(struct tee_context *ctx, size_t size, u32 flags);
++struct tee_shm *tee_shm_alloc_kernel_buf(struct tee_context *ctx, size_t size);
+ 
+ /**
+  * tee_shm_register() - Register shared memory buffer
 
 
