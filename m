@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C6C23E8127
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:56:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A306A3E7FB3
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:42:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233718AbhHJR4D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:56:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50388 "EHLO mail.kernel.org"
+        id S235367AbhHJRmL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:42:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237016AbhHJRyO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:54:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 026CD60EB9;
-        Tue, 10 Aug 2021 17:44:12 +0000 (UTC)
+        id S232755AbhHJRkJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:40:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B840660F41;
+        Tue, 10 Aug 2021 17:38:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617453;
-        bh=p5SONKJAIgw2X3m/SsTV8vjDuo5sdHycnoXLKK+CB9k=;
+        s=korg; t=1628617081;
+        bh=/qj3ROmv9sS7iWFoTfgK8dGOGy/KKWHecO55OPEVgds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JsZV4zegGKlU09COaw5RZryY3YofcmKi9rydvmoTjtl4KXiCHX82qOdrMsxM5AERv
-         iFS4ubO+qhO2ak4K62MJw5nbpRqvUvJJPu+sJUscHGXFmGyL79qtEq8BMT0tm+dj2I
-         XvAM65ZhKXQExd2OyfGk5YoJujyMxnvlKex0/cdU=
+        b=INNhdtc01Udy7IUz+Yl0G+pOGg7VMjOB1IuRNWtz29HsF6sYCiOp4kb30FmU94KwE
+         WMhTvpoAIur6jLdW2FQf5P9WUw1jPriu3/QNp1cUMDn/CLmhLJKH6/NGeoUYPXcn37
+         2QYil1J0yf/fgxN+qhQaAmDUYRSMpWSz7TOe70fQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Dong Aisheng <aisheng.dong@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 032/175] spi: imx: mx51-ecspi: Fix low-speed CONFIGREG delay calculation
+Subject: [PATCH 5.10 006/135] ARM: imx: add missing iounmap()
 Date:   Tue, 10 Aug 2021 19:29:00 +0200
-Message-Id: <20210810173002.020003538@linuxfoundation.org>
+Message-Id: <20210810172955.889629130@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
-References: <20210810173000.928681411@linuxfoundation.org>
+In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
+References: <20210810172955.660225700@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,69 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 53ca18acbe645656132fb5a329833db711067e54 ]
+[ Upstream commit f9613aa07f16d6042e74208d1b40a6104d72964a ]
 
-The spi_imx->spi_bus_clk may be uninitialized and thus also zero in
-mx51_ecspi_prepare_message(), which would lead to division by zero
-in kernel. Since bitbang .setup_transfer callback which initializes
-the spi_imx->spi_bus_clk is called after bitbang prepare_message
-callback, iterate over all the transfers in spi_message, find the
-one with lowest bus frequency, and use that bus frequency for the
-delay calculation.
+Commit e76bdfd7403a ("ARM: imx: Added perf functionality to mmdc driver")
+introduced imx_mmdc_remove(), the mmdc_base need be unmapped in it if
+config PERF_EVENTS is enabled.
 
-Note that it is not possible to move this CONFIGREG delay back into
-the .setup_transfer callback, because that is invoked too late, after
-the GPIO chipselects were already configured.
+If imx_mmdc_perf_init() fails, the mmdc_base also need be unmapped.
 
-Fixes: 135cbd378eab ("spi: imx: mx51-ecspi: Reinstate low-speed CONFIGREG delay")
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Cc: Mark Brown <broonie@kernel.org>
-Link: https://lore.kernel.org/r/20210726100102.5188-1-marex@denx.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: e76bdfd7403a ("ARM: imx: Added perf functionality to mmdc driver")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Dong Aisheng <aisheng.dong@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-imx.c | 16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+ arch/arm/mach-imx/mmdc.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-imx.c b/drivers/spi/spi-imx.c
-index 4aee3db6d6df..2872993550bd 100644
---- a/drivers/spi/spi-imx.c
-+++ b/drivers/spi/spi-imx.c
-@@ -505,7 +505,9 @@ static int mx51_ecspi_prepare_message(struct spi_imx_data *spi_imx,
- 				      struct spi_message *msg)
- {
- 	struct spi_device *spi = msg->spi;
-+	struct spi_transfer *xfer;
- 	u32 ctrl = MX51_ECSPI_CTRL_ENABLE;
-+	u32 min_speed_hz = ~0U;
- 	u32 testreg, delay;
- 	u32 cfg = readl(spi_imx->base + MX51_ECSPI_CONFIG);
+diff --git a/arch/arm/mach-imx/mmdc.c b/arch/arm/mach-imx/mmdc.c
+index 0dfd0ae7a63d..8e57691aafe2 100644
+--- a/arch/arm/mach-imx/mmdc.c
++++ b/arch/arm/mach-imx/mmdc.c
+@@ -462,6 +462,7 @@ static int imx_mmdc_remove(struct platform_device *pdev)
  
-@@ -577,8 +579,20 @@ static int mx51_ecspi_prepare_message(struct spi_imx_data *spi_imx,
- 	 * be asserted before the SCLK polarity changes, which would disrupt
- 	 * the SPI communication as the device on the other end would consider
- 	 * the change of SCLK polarity as a clock tick already.
-+	 *
-+	 * Because spi_imx->spi_bus_clk is only set in bitbang prepare_message
-+	 * callback, iterate over all the transfers in spi_message, find the
-+	 * one with lowest bus frequency, and use that bus frequency for the
-+	 * delay calculation. In case all transfers have speed_hz == 0, then
-+	 * min_speed_hz is ~0 and the resulting delay is zero.
- 	 */
--	delay = (2 * 1000000) / spi_imx->spi_bus_clk;
-+	list_for_each_entry(xfer, &msg->transfers, transfer_list) {
-+		if (!xfer->speed_hz)
-+			continue;
-+		min_speed_hz = min(xfer->speed_hz, min_speed_hz);
-+	}
+ 	cpuhp_state_remove_instance_nocalls(cpuhp_mmdc_state, &pmu_mmdc->node);
+ 	perf_pmu_unregister(&pmu_mmdc->pmu);
++	iounmap(pmu_mmdc->mmdc_base);
+ 	kfree(pmu_mmdc);
+ 	return 0;
+ }
+@@ -567,7 +568,11 @@ static int imx_mmdc_probe(struct platform_device *pdev)
+ 	val &= ~(1 << BP_MMDC_MAPSR_PSD);
+ 	writel_relaxed(val, reg);
+ 
+-	return imx_mmdc_perf_init(pdev, mmdc_base);
++	err = imx_mmdc_perf_init(pdev, mmdc_base);
++	if (err)
++		iounmap(mmdc_base);
 +
-+	delay = (2 * 1000000) / min_speed_hz;
- 	if (likely(delay < 10))	/* SCLK is faster than 100 kHz */
- 		udelay(delay);
- 	else			/* SCLK is _very_ slow */
++	return err;
+ }
+ 
+ int imx_mmdc_get_ddr_type(void)
 -- 
 2.30.2
 
