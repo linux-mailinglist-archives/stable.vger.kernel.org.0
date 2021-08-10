@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C61B3E83A2
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 21:26:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 247EB3E83B6
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 21:29:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230295AbhHJT1R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 15:27:17 -0400
-Received: from linux.microsoft.com ([13.77.154.182]:51234 "EHLO
+        id S231152AbhHJTaC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 15:30:02 -0400
+Received: from linux.microsoft.com ([13.77.154.182]:51660 "EHLO
         linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229655AbhHJT1Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Aug 2021 15:27:16 -0400
+        with ESMTP id S231143AbhHJTaC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Aug 2021 15:30:02 -0400
 Received: from sequoia.work.tihix.com (162-237-133-238.lightspeed.rcsntx.sbcglobal.net [162.237.133.238])
-        by linux.microsoft.com (Postfix) with ESMTPSA id 1EE3A20A3A46;
-        Tue, 10 Aug 2021 12:26:54 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 1EE3A20A3A46
+        by linux.microsoft.com (Postfix) with ESMTPSA id 7D9A920B36ED;
+        Tue, 10 Aug 2021 12:29:39 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 7D9A920B36ED
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1628623614;
-        bh=vg5HhRFPfTQpwuShUU7Z1qAFjLw2f6ff2ksTs6+MGGs=;
+        s=default; t=1628623779;
+        bh=t+X0smPs3AFtyvWxHEFzTthW0BRGgtYhB3mOBUgZWxc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IltLnbkxRnJbe0kNBoRL01G6oN0NsGRznlnWaaFn9I/CgTeUHMsn7DRvro8sWT3Ua
-         feDyxBc76Je/UR+GaTaMncj2dDjWs8ckNNvkGuxArZHgwLVJ3RFezbEDGbrLphJyYQ
-         GByLnXN62e9zCmWpJYhECAXGLWJCM6Wkr56tAGIw=
+        b=bIR1FUnmMjSN9xnfVOE81MVqOWHmgQOsalSTcglpsJU5tY0CqLqoNiE8ohpI539W3
+         kuF1lR6ubbB7wqjWp6GGu09iNap7TSVlBgr6uzA6zRxg63SQ4RbVpUMpplk5a13dmT
+         3jvobQf5Vie6jXgz+tO/yH5nPmSz4n/KqH0rBPXQ=
 From:   Tyler Hicks <tyhicks@linux.microsoft.com>
 To:     gregkh@linuxfoundation.org
 Cc:     sumit.garg@linaro.org, jens.wiklander@linaro.org,
         stable@vger.kernel.org
 Subject: [PATCH] tee: Correct inappropriate usage of TEE_SHM_DMA_BUF flag
-Date:   Tue, 10 Aug 2021 14:26:11 -0500
-Message-Id: <20210810192611.1748082-1-tyhicks@linux.microsoft.com>
+Date:   Tue, 10 Aug 2021 14:29:26 -0500
+Message-Id: <20210810192926.1748190-1-tyhicks@linux.microsoft.com>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <1628500695126214@kroah.com>
-References: <1628500695126214@kroah.com>
+In-Reply-To: <1628500696149218@kroah.com>
+References: <1628500696149218@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -51,7 +51,7 @@ and usage of shared memory.
 With this corrected, allow tee_shm_alloc_kernel_buf() to allocate a
 shared memory region without the backing of dma-buf.
 
-Cc: stable@vger.kernel.org # 5.10.x
+Cc: stable@vger.kernel.org # 5.4.x
 Signed-off-by: Sumit Garg <sumit.garg@linaro.org>
 Co-developed-by: Tyler Hicks <tyhicks@linux.microsoft.com>
 Signed-off-by: Tyler Hicks <tyhicks@linux.microsoft.com>
@@ -60,9 +60,9 @@ Reviewed-by: Sumit Garg <sumit.garg@linaro.org>
 Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
 ---
 
-Hi Greg - Please include this backported patch in the 5.10-stable queue
+Hi Greg - Please include this backported patch in the 5.14-stable queue
 since the upstream commit couldn't be automatically backported. We've
-been using this backported version of the patch on top of 5.10.54 and it
+been using this backported version of the patch on top of 5.4.134 and it
 has received real world usage in production environments.
 
  drivers/tee/optee/call.c     | 2 +-
@@ -74,7 +74,7 @@ has received real world usage in production environments.
  6 files changed, 15 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/tee/optee/call.c b/drivers/tee/optee/call.c
-index 1231ce56e712..f8f1594bea43 100644
+index 4b5069f88d78..3a54455d9ddf 100644
 --- a/drivers/tee/optee/call.c
 +++ b/drivers/tee/optee/call.c
 @@ -181,7 +181,7 @@ static struct tee_shm *get_msg_arg(struct tee_context *ctx, size_t num_params,
@@ -87,10 +87,10 @@ index 1231ce56e712..f8f1594bea43 100644
  		return shm;
  
 diff --git a/drivers/tee/optee/core.c b/drivers/tee/optee/core.c
-index 7b17248f1527..823a81d8ff0e 100644
+index 432dd38921dd..4bb4c8f28cbd 100644
 --- a/drivers/tee/optee/core.c
 +++ b/drivers/tee/optee/core.c
-@@ -278,7 +278,8 @@ static void optee_release(struct tee_context *ctx)
+@@ -254,7 +254,8 @@ static void optee_release(struct tee_context *ctx)
  	if (!ctxdata)
  		return;
  
@@ -101,10 +101,10 @@ index 7b17248f1527..823a81d8ff0e 100644
  		arg = tee_shm_get_va(shm, 0);
  		/*
 diff --git a/drivers/tee/optee/rpc.c b/drivers/tee/optee/rpc.c
-index 6cbb3643c6c4..9dbdd783d6f2 100644
+index b4ade54d1f28..aecf62016e7b 100644
 --- a/drivers/tee/optee/rpc.c
 +++ b/drivers/tee/optee/rpc.c
-@@ -313,7 +313,7 @@ static void handle_rpc_func_cmd_shm_alloc(struct tee_context *ctx,
+@@ -220,7 +220,7 @@ static void handle_rpc_func_cmd_shm_alloc(struct tee_context *ctx,
  		shm = cmd_alloc_suppl(ctx, sz);
  		break;
  	case OPTEE_MSG_RPC_SHM_TYPE_KERNEL:
@@ -113,7 +113,7 @@ index 6cbb3643c6c4..9dbdd783d6f2 100644
  		break;
  	default:
  		arg->ret = TEEC_ERROR_BAD_PARAMETERS;
-@@ -501,7 +501,8 @@ void optee_handle_rpc(struct tee_context *ctx, struct optee_rpc_param *param,
+@@ -405,7 +405,8 @@ void optee_handle_rpc(struct tee_context *ctx, struct optee_rpc_param *param,
  
  	switch (OPTEE_SMC_RETURN_GET_RPC_FUNC(param->a0)) {
  	case OPTEE_SMC_RPC_FUNC_ALLOC:
@@ -150,10 +150,10 @@ index da06ce9b9313..c41a9a501a6e 100644
  
  	free_pages((unsigned long)shm->kaddr, get_order(shm->size));
 diff --git a/drivers/tee/tee_shm.c b/drivers/tee/tee_shm.c
-index c65e44707cd6..8a9384a64f3e 100644
+index 1b4b4a1ba91d..d6491e973fa4 100644
 --- a/drivers/tee/tee_shm.c
 +++ b/drivers/tee/tee_shm.c
-@@ -117,7 +117,7 @@ struct tee_shm *tee_shm_alloc(struct tee_context *ctx, size_t size, u32 flags)
+@@ -117,7 +117,7 @@ static struct tee_shm *__tee_shm_alloc(struct tee_context *ctx,
  		return ERR_PTR(-EINVAL);
  	}
  
@@ -162,7 +162,7 @@ index c65e44707cd6..8a9384a64f3e 100644
  		dev_err(teedev->dev.parent, "invalid shm flags 0x%x", flags);
  		return ERR_PTR(-EINVAL);
  	}
-@@ -207,7 +207,7 @@ EXPORT_SYMBOL_GPL(tee_shm_alloc);
+@@ -233,7 +233,7 @@ EXPORT_SYMBOL_GPL(tee_shm_priv_alloc);
   */
  struct tee_shm *tee_shm_alloc_kernel_buf(struct tee_context *ctx, size_t size)
  {
@@ -172,13 +172,13 @@ index c65e44707cd6..8a9384a64f3e 100644
  EXPORT_SYMBOL_GPL(tee_shm_alloc_kernel_buf);
  
 diff --git a/include/linux/tee_drv.h b/include/linux/tee_drv.h
-index 9b24cc3d3024..459e9a76d7e6 100644
+index 91677f2fa2e8..cd15c1b7fae0 100644
 --- a/include/linux/tee_drv.h
 +++ b/include/linux/tee_drv.h
-@@ -27,6 +27,7 @@
+@@ -26,6 +26,7 @@
+ #define TEE_SHM_REGISTER	BIT(3)  /* Memory registered in secure world */
  #define TEE_SHM_USER_MAPPED	BIT(4)  /* Memory mapped in user space */
  #define TEE_SHM_POOL		BIT(5)  /* Memory allocated from pool */
- #define TEE_SHM_KERNEL_MAPPED	BIT(6)  /* Memory mapped in kernel space */
 +#define TEE_SHM_PRIV		BIT(7)  /* Memory private to TEE driver */
  
  struct device;
