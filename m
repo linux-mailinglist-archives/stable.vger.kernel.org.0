@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B7B73E5D8B
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 16:21:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 609303E5D8C
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 16:21:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242881AbhHJOVt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 10:21:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54320 "EHLO mail.kernel.org"
+        id S241590AbhHJOVu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 10:21:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243328AbhHJOTl (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S243330AbhHJOTl (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 10 Aug 2021 10:19:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E7E86113B;
-        Tue, 10 Aug 2021 14:17:01 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B465B61163;
+        Tue, 10 Aug 2021 14:17:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1628605022;
-        bh=xTX0Uu3DuqU0Ec6l9TknjBpFi92NSdYwm9k61K3H05Q=;
+        s=k20201202; t=1628605023;
+        bh=kln+TdL2yLTp4Awig9Sffb7Fm7JG6GfX55GX2Gh1dxg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BfCIMcWKHHFGV9B0U3hofFWJlYi8WpPjh3jpJ1x/xgPVH1bwHzVh4wH3I0/AE6fWh
-         HHUuPdqNAHHgfTa30tOYHC8VijVvAlqXqus0Jjmir3mxQIW8AYwV+3YEmNZd3Vdmii
-         n4ZP/ngAQEI/je6X9KsDFbheoiF4SzsQWqTcuSzpIO043yhTp71yfkMdXJerh63E3h
-         mPAfe0ujrCItPYIpt5kqxawI3VFF4bNNWJRwZlFpXtE62pVYLo8wNmM51nLJuzuTf6
-         KZda3WHagtMrX5blkkaB7UNhqF4ruwiw7tGAYk89a+bgM6Dlt6mSwvQfUnOG9uQumv
-         oxc9t7V17JuwQ==
+        b=dFf+Ka8DhGH9SMiWJtJDwo2s+S+m1e2cu5zkLiitNzOwBELjFEL3cyUaDqvpJ/Qu+
+         B//P4bw3Aaqv7cTYO108a6Z34+NyaThx5zsyiCei3sC/ReFODLuOclEcRfgy+WWr7I
+         z0gprHp4tTqRGXBFWX/q9CgzSc+T0wLpcTIsHTwWvX6Cm+OEW2Bo15LZPp/NXe85G8
+         E5DCokKp223rW9jzpE6BER+F/53UIGveExB4aPzkrU2ONeov3ONhkO05Ib/V1ls37D
+         MA6e0NVr6GLBUiWylVoA0Akk7YDiFCb8HLVc94rwJ2u12FBMV+CVHtQNp50KYWfcIL
+         GfC5ZSvUUB9Dg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ye Bin <yebin10@huawei.com>, Bart Van Assche <bvanassche@acm.org>,
+Cc:     Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 5/8] scsi: scsi_dh_rdac: Avoid crash during rdac_bus_attach()
-Date:   Tue, 10 Aug 2021 10:16:52 -0400
-Message-Id: <20210810141655.3118498-5-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 6/8] scsi: core: Avoid printing an error if target_alloc() returns -ENXIO
+Date:   Tue, 10 Aug 2021 10:16:53 -0400
+Message-Id: <20210810141655.3118498-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210810141655.3118498-1-sashal@kernel.org>
 References: <20210810141655.3118498-1-sashal@kernel.org>
@@ -42,90 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
 
-[ Upstream commit bc546c0c9abb3bb2fb46866b3d1e6ade9695a5f6 ]
+[ Upstream commit 70edd2e6f652f67d854981fd67f9ad0f1deaea92 ]
 
-The following BUG_ON() was observed during RDAC scan:
+Avoid printing a 'target allocation failed' error if the driver
+target_alloc() callback function returns -ENXIO. This return value
+indicates that the corresponding H:C:T:L entry is empty.
 
-[595952.944297] kernel BUG at drivers/scsi/device_handler/scsi_dh_rdac.c:427!
-[595952.951143] Internal error: Oops - BUG: 0 [#1] SMP
-......
-[595953.251065] Call trace:
-[595953.259054]  check_ownership+0xb0/0x118
-[595953.269794]  rdac_bus_attach+0x1f0/0x4b0
-[595953.273787]  scsi_dh_handler_attach+0x3c/0xe8
-[595953.278211]  scsi_dh_add_device+0xc4/0xe8
-[595953.282291]  scsi_sysfs_add_sdev+0x8c/0x2a8
-[595953.286544]  scsi_probe_and_add_lun+0x9fc/0xd00
-[595953.291142]  __scsi_scan_target+0x598/0x630
-[595953.295395]  scsi_scan_target+0x120/0x130
-[595953.299481]  fc_user_scan+0x1a0/0x1c0 [scsi_transport_fc]
-[595953.304944]  store_scan+0xb0/0x108
-[595953.308420]  dev_attr_store+0x44/0x60
-[595953.312160]  sysfs_kf_write+0x58/0x80
-[595953.315893]  kernfs_fop_write+0xe8/0x1f0
-[595953.319888]  __vfs_write+0x60/0x190
-[595953.323448]  vfs_write+0xac/0x1c0
-[595953.326836]  ksys_write+0x74/0xf0
-[595953.330221]  __arm64_sys_write+0x24/0x30
+Removing this error reduces the scan time if the user issues SCAN_WILD_CARD
+scan operation through sysfs parameter on a host with a lot of empty
+H:C:T:L entries.
 
-Code is in check_ownership:
+Avoiding the printk on -ENXIO matches the behavior of the other callback
+functions during scanning.
 
-	list_for_each_entry_rcu(tmp, &h->ctlr->dh_list, node) {
-		/* h->sdev should always be valid */
-		BUG_ON(!tmp->sdev);
-		tmp->sdev->access_state = access_state;
-	}
-
-	rdac_bus_attach
-		initialize_controller
-			list_add_rcu(&h->node, &h->ctlr->dh_list);
-			h->sdev = sdev;
-
-	rdac_bus_detach
-		list_del_rcu(&h->node);
-		h->sdev = NULL;
-
-Fix the race between rdac_bus_attach() and rdac_bus_detach() where h->sdev
-is NULL when processing the RDAC attach.
-
-Link: https://lore.kernel.org/r/20210113063103.2698953-1-yebin10@huawei.com
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Ye Bin <yebin10@huawei.com>
+Link: https://lore.kernel.org/r/20210726115402.1936-1-sreekanth.reddy@broadcom.com
+Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/device_handler/scsi_dh_rdac.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/scsi/scsi_scan.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/device_handler/scsi_dh_rdac.c b/drivers/scsi/device_handler/scsi_dh_rdac.c
-index 06fbd0b0c68a..6ddb3e9f21ba 100644
---- a/drivers/scsi/device_handler/scsi_dh_rdac.c
-+++ b/drivers/scsi/device_handler/scsi_dh_rdac.c
-@@ -526,8 +526,8 @@ static int initialize_controller(struct scsi_device *sdev,
- 		if (!h->ctlr)
- 			err = SCSI_DH_RES_TEMP_UNAVAIL;
- 		else {
--			list_add_rcu(&h->node, &h->ctlr->dh_list);
- 			h->sdev = sdev;
-+			list_add_rcu(&h->node, &h->ctlr->dh_list);
- 		}
- 		spin_unlock(&list_lock);
- 	}
-@@ -852,11 +852,11 @@ static void rdac_bus_detach( struct scsi_device *sdev )
- 	spin_lock(&list_lock);
- 	if (h->ctlr) {
- 		list_del_rcu(&h->node);
--		h->sdev = NULL;
- 		kref_put(&h->ctlr->kref, release_controller);
- 	}
- 	spin_unlock(&list_lock);
- 	sdev->handler_data = NULL;
-+	synchronize_rcu();
- 	kfree(h);
- }
+diff --git a/drivers/scsi/scsi_scan.c b/drivers/scsi/scsi_scan.c
+index 397deb69c659..e51819e3a508 100644
+--- a/drivers/scsi/scsi_scan.c
++++ b/drivers/scsi/scsi_scan.c
+@@ -460,7 +460,8 @@ static struct scsi_target *scsi_alloc_target(struct device *parent,
+ 		error = shost->hostt->target_alloc(starget);
  
+ 		if(error) {
+-			dev_printk(KERN_ERR, dev, "target allocation failed, error %d\n", error);
++			if (error != -ENXIO)
++				dev_err(dev, "target allocation failed, error %d\n", error);
+ 			/* don't want scsi_target_reap to do the final
+ 			 * put because it will be under the host lock */
+ 			scsi_target_destroy(starget);
 -- 
 2.30.2
 
