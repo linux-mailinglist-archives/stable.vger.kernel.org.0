@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C60983E7F04
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:37:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18C423E8189
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:01:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233218AbhHJRgn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:36:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44922 "EHLO mail.kernel.org"
+        id S237088AbhHJSAP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 14:00:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231202AbhHJRf0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:35:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 93010610F7;
-        Tue, 10 Aug 2021 17:35:03 +0000 (UTC)
+        id S236861AbhHJRzs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:55:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1492D6101E;
+        Tue, 10 Aug 2021 17:44:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616904;
-        bh=/8qEP94GP047ql9b9/UYZEt16UIrJCJTHmLMrxxOQtM=;
+        s=korg; t=1628617489;
+        bh=U87jz2yLDcnwlfFLRwK6RNCPjxBmNIr2x/Ym20ZB4+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BsV6UnxJf+/LTbBTFuYCQ0oS6D9lA+NyClDAjRCdXv59Fjd9omd0GV7w/MKcC4vcx
-         tf706Lim1YnQbCCjHYgW8e/WwMmTLq0+A+npuWY4wgEbqpajhzsIQ7OtFDpG4+SiNe
-         FhWqxNR7u0GQqfnwUrbXVX4EACZfr31HEZmbALDs=
+        b=hpdBici9wKHC7aK6LzQAvZvq/fRvh5KmuQVR6ngcRgsjKj6jsIADV909tVrAaOd/o
+         EksA77uf0V3RAlw1/hp0pk19PZ9K7qbS4YBaJ7xbMn/KDVb/wd103q0bw179MeO6he
+         gXr6T4VTGP9HV1n26ojLuQksuAYakHwG9YoI59cU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 16/85] spi: imx: mx51-ecspi: Fix low-speed CONFIGREG delay calculation
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        "Pan, Xinhui" <Xinhui.Pan@amd.com>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org, linux-next@vger.kernel.org
+Subject: [PATCH 5.13 081/175] drm/amdgpu: fix checking pmops when PM_SLEEP is not enabled
 Date:   Tue, 10 Aug 2021 19:29:49 +0200
-Message-Id: <20210810172948.751157893@linuxfoundation.org>
+Message-Id: <20210810173003.613302353@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
-References: <20210810172948.192298392@linuxfoundation.org>
+In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
+References: <20210810173000.928681411@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,71 +42,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 53ca18acbe645656132fb5a329833db711067e54 ]
+commit 5706cb3c910cc8283f344bc37a889a8d523a2c6d upstream.
 
-The spi_imx->spi_bus_clk may be uninitialized and thus also zero in
-mx51_ecspi_prepare_message(), which would lead to division by zero
-in kernel. Since bitbang .setup_transfer callback which initializes
-the spi_imx->spi_bus_clk is called after bitbang prepare_message
-callback, iterate over all the transfers in spi_message, find the
-one with lowest bus frequency, and use that bus frequency for the
-delay calculation.
+'pm_suspend_target_state' is only available when CONFIG_PM_SLEEP
+is set/enabled. OTOH, when both SUSPEND and HIBERNATION are not set,
+PM_SLEEP is not set, so this variable cannot be used.
 
-Note that it is not possible to move this CONFIGREG delay back into
-the .setup_transfer callback, because that is invoked too late, after
-the GPIO chipselects were already configured.
+../drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c: In function ‘amdgpu_acpi_is_s0ix_active’:
+../drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c:1046:11: error: ‘pm_suspend_target_state’ undeclared (first use in this function); did you mean ‘__KSYM_pm_suspend_target_state’?
+    return pm_suspend_target_state == PM_SUSPEND_TO_IDLE;
+           ^~~~~~~~~~~~~~~~~~~~~~~
+           __KSYM_pm_suspend_target_state
 
-Fixes: 135cbd378eab ("spi: imx: mx51-ecspi: Reinstate low-speed CONFIGREG delay")
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Cc: Mark Brown <broonie@kernel.org>
-Link: https://lore.kernel.org/r/20210726100102.5188-1-marex@denx.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Also use shorter IS_ENABLED(CONFIG_foo) notation for checking the
+2 config symbols.
+
+Fixes: 91e273712ab8dd ("drm/amdgpu: Check pmops for desired suspend state")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Alex Deucher <alexander.deucher@amd.com>
+Cc: Christian König <christian.koenig@amd.com>
+Cc: "Pan, Xinhui" <Xinhui.Pan@amd.com>
+Cc: amd-gfx@lists.freedesktop.org
+Cc: dri-devel@lists.freedesktop.org
+Cc: linux-next@vger.kernel.org
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/spi/spi-imx.c | 16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-imx.c b/drivers/spi/spi-imx.c
-index 14cebcda0ccc..474d5a7fa95e 100644
---- a/drivers/spi/spi-imx.c
-+++ b/drivers/spi/spi-imx.c
-@@ -497,7 +497,9 @@ static int mx51_ecspi_prepare_message(struct spi_imx_data *spi_imx,
- 				      struct spi_message *msg)
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c
+@@ -904,7 +904,7 @@ void amdgpu_acpi_fini(struct amdgpu_devi
+  */
+ bool amdgpu_acpi_is_s0ix_supported(struct amdgpu_device *adev)
  {
- 	struct spi_device *spi = msg->spi;
-+	struct spi_transfer *xfer;
- 	u32 ctrl = MX51_ECSPI_CTRL_ENABLE;
-+	u32 min_speed_hz = ~0U;
- 	u32 testreg, delay;
- 	u32 cfg = readl(spi_imx->base + MX51_ECSPI_CONFIG);
- 
-@@ -569,8 +571,20 @@ static int mx51_ecspi_prepare_message(struct spi_imx_data *spi_imx,
- 	 * be asserted before the SCLK polarity changes, which would disrupt
- 	 * the SPI communication as the device on the other end would consider
- 	 * the change of SCLK polarity as a clock tick already.
-+	 *
-+	 * Because spi_imx->spi_bus_clk is only set in bitbang prepare_message
-+	 * callback, iterate over all the transfers in spi_message, find the
-+	 * one with lowest bus frequency, and use that bus frequency for the
-+	 * delay calculation. In case all transfers have speed_hz == 0, then
-+	 * min_speed_hz is ~0 and the resulting delay is zero.
- 	 */
--	delay = (2 * 1000000) / spi_imx->spi_bus_clk;
-+	list_for_each_entry(xfer, &msg->transfers, transfer_list) {
-+		if (!xfer->speed_hz)
-+			continue;
-+		min_speed_hz = min(xfer->speed_hz, min_speed_hz);
-+	}
-+
-+	delay = (2 * 1000000) / min_speed_hz;
- 	if (likely(delay < 10))	/* SCLK is faster than 100 kHz */
- 		udelay(delay);
- 	else			/* SCLK is _very_ slow */
--- 
-2.30.2
-
+-#if defined(CONFIG_AMD_PMC) || defined(CONFIG_AMD_PMC_MODULE)
++#if IS_ENABLED(CONFIG_AMD_PMC) && IS_ENABLED(CONFIG_PM_SLEEP)
+ 	if (acpi_gbl_FADT.flags & ACPI_FADT_LOW_POWER_S0) {
+ 		if (adev->flags & AMD_IS_APU)
+ 			return pm_suspend_target_state == PM_SUSPEND_TO_IDLE;
 
 
