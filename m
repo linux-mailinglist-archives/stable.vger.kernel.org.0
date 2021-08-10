@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC7AB3E7FDA
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:45:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DED973E813C
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:57:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235809AbhHJRnm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:43:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40876 "EHLO mail.kernel.org"
+        id S233289AbhHJR4w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:56:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234778AbhHJRlj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:41:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D5166120F;
-        Tue, 10 Aug 2021 17:38:25 +0000 (UTC)
+        id S237691AbhHJRyv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:54:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 162D360FC4;
+        Tue, 10 Aug 2021 17:44:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617106;
-        bh=h3W6hhQNLv3fu+R1/iMHBKXUZ+eMpz8K5au5yk05sFU=;
+        s=korg; t=1628617471;
+        bh=woKJPOPt/rh8d06DzkxMJZvZhND9Md2VJmpbfosLjbo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b6wiF0PLv7tJr53XRJwJZi7KpTm8tq5rT62cUgGVoqNm3JnsyFPiD7TifDat3j3a+
-         dZLkY62opxoP/sFU5rc05bM6mAua0bgK43oyE7tPuBc038q11jclzL6uT3DPaZus6c
-         ti6QJnCaINjbu1RCStjg2PeIjN6z4R9rMzNx8M6I=
+        b=JjLFwc8wYEAPpsDJ1PL6bvRaw8bEz+1S8NYcOqTyFboZtuFIoxoTQ+xg1YSBrBiJg
+         jcDOy8DX8LTOfqUYkUZ0Gro+PwcZM3z6Fuvjo0BhKBAu6bEmW6Owb5GKLpJx9rxN04
+         VvPwVQXdCBvmFqggLu2ClwVZAAe7ooS/xUf2ISJM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Pavel Skripkin <paskripkin@gmail.com>,
-        Joakim Zhang <qiangqing.zhang@nxp.com>,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 048/135] net: fec: fix use-after-free in fec_drv_remove
+        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.13 074/175] USB: serial: option: add Telit FD980 composition 0x1056
 Date:   Tue, 10 Aug 2021 19:29:42 +0200
-Message-Id: <20210810172957.323499161@linuxfoundation.org>
+Message-Id: <20210810173003.373971974@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
-References: <20210810172955.660225700@linuxfoundation.org>
+In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
+References: <20210810173000.928681411@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,50 +39,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Daniele Palmas <dnlplm@gmail.com>
 
-[ Upstream commit 44712965bf12ae1758cec4de53816ed4b914ca1a ]
+commit 5648c073c33d33a0a19d0cb1194a4eb88efe2b71 upstream.
 
-Smatch says:
-	drivers/net/ethernet/freescale/fec_main.c:3994 fec_drv_remove() error: Using fep after free_{netdev,candev}(ndev);
-	drivers/net/ethernet/freescale/fec_main.c:3995 fec_drv_remove() error: Using fep after free_{netdev,candev}(ndev);
+Add the following Telit FD980 composition 0x1056:
 
-Since fep pointer is netdev private data, accessing it after free_netdev()
-call can cause use-after-free bug. Fix it by moving free_netdev() call at
-the end of the function
+Cfg #1: mass storage
+Cfg #2: rndis, tty, adb, tty, tty, tty, tty
 
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Fixes: a31eda65ba21 ("net: fec: fix clock count mis-match")
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Reviewed-by: Joakim Zhang <qiangqing.zhang@nxp.com>
-Reviewed-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+Link: https://lore.kernel.org/r/20210803194711.3036-1-dnlplm@gmail.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/freescale/fec_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/serial/option.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/freescale/fec_main.c b/drivers/net/ethernet/freescale/fec_main.c
-index 2cb73e850a32..94eb838a0176 100644
---- a/drivers/net/ethernet/freescale/fec_main.c
-+++ b/drivers/net/ethernet/freescale/fec_main.c
-@@ -3822,13 +3822,13 @@ fec_drv_remove(struct platform_device *pdev)
- 	if (of_phy_is_fixed_link(np))
- 		of_phy_deregister_fixed_link(np);
- 	of_node_put(fep->phy_node);
--	free_netdev(ndev);
- 
- 	clk_disable_unprepare(fep->clk_ahb);
- 	clk_disable_unprepare(fep->clk_ipg);
- 	pm_runtime_put_noidle(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
- 
-+	free_netdev(ndev);
- 	return 0;
- }
- 
--- 
-2.30.2
-
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1203,6 +1203,8 @@ static const struct usb_device_id option
+ 	  .driver_info = NCTRL(2) | RSVD(3) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1055, 0xff),	/* Telit FN980 (PCIe) */
+ 	  .driver_info = NCTRL(0) | RSVD(1) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1056, 0xff),	/* Telit FD980 */
++	  .driver_info = NCTRL(2) | RSVD(3) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910),
+ 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(3) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910_DUAL_MODEM),
 
 
