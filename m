@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC4A73E81E8
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:05:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 017933E81E9
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:05:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236920AbhHJSDv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 14:03:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37564 "EHLO mail.kernel.org"
+        id S229774AbhHJSDy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 14:03:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34364 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237996AbhHJSBt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 14:01:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AFBA3613CE;
-        Tue, 10 Aug 2021 17:47:16 +0000 (UTC)
+        id S236426AbhHJSBu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 14:01:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 029E7613AC;
+        Tue, 10 Aug 2021 17:47:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617637;
-        bh=UVtXDmM+NkdpBbDZ4dLDyZuZij6eEh5uNTNwOnJFo8E=;
+        s=korg; t=1628617639;
+        bh=FtSMuK5Q9Khr2WcBADPBZ2Ua96i+5A0LYRmsTDlqJ+8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CA24f6WRorLplb+NRo15H8mHlBPInjN0kUWQ9b5cBlQhpneZuU09yZJVmDuvL0RVY
-         aDSTO7S2nqt9Kz5R4drNX1FZrE9NkvsPlSp1DOIGJk0etmY+pLabY0YSZC+wZ4ixm6
-         35s+zrKzFKz+UXG/5d9EwL9a6uBNut9tSaSQmOfs=
+        b=qhHwChvp1EcqB2JsVfUwdo45yQ9kvcTtPzpr+udZ/jyeMkvr5NMu6vg1juestDRpg
+         uirkOJe3BRWRhGIOoLgE1gf1Ev7R432G83/bslCWrhUjG/cgndv8Iocb6v6FnmP6RP
+         +UTUlvzu/g0V8gFz6C26WX2ZRYJa3hS/apuUGYHc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stas Sergeev <stsp2@yandex.ru>,
+        stable@vger.kernel.org, Tom Lendacky <thomas.lendacky@amd.com>,
+        Brijesh Singh <brijesh.singh@amd.com>,
         Sean Christopherson <seanjc@google.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.13 147/175] KVM: x86: accept userspace interrupt only if no event is injected
-Date:   Tue, 10 Aug 2021 19:30:55 +0200
-Message-Id: <20210810173005.806546441@linuxfoundation.org>
+Subject: [PATCH 5.13 148/175] KVM: SVM: Fix off-by-one indexing when nullifying last used SEV VMCB
+Date:   Tue, 10 Aug 2021 19:30:56 +0200
+Message-Id: <20210810173005.838432230@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
 References: <20210810173000.928681411@linuxfoundation.org>
@@ -40,57 +41,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit fa7a549d321a4189677b0cea86e58d9db7977f7b upstream.
+commit 179c6c27bf487273652efc99acd3ba512a23c137 upstream.
 
-Once an exception has been injected, any side effects related to
-the exception (such as setting CR2 or DR6) have been taked place.
-Therefore, once KVM sets the VM-entry interruption information
-field or the AMD EVENTINJ field, the next VM-entry must deliver that
-exception.
+Use the raw ASID, not ASID-1, when nullifying the last used VMCB when
+freeing an SEV ASID.  The consumer, pre_sev_run(), indexes the array by
+the raw ASID, thus KVM could get a false negative when checking for a
+different VMCB if KVM manages to reallocate the same ASID+VMCB combo for
+a new VM.
 
-Pending interrupts are processed after injected exceptions, so
-in theory it would not be a problem to use KVM_INTERRUPT when
-an injected exception is present.  However, DOSEMU is using
-run->ready_for_interrupt_injection to detect interrupt windows
-and then using KVM_SET_SREGS/KVM_SET_REGS to inject the
-interrupt manually.  For this to work, the interrupt window
-must be delayed after the completion of the previous event
-injection.
+Note, this cannot cause a functional issue _in the current code_, as
+pre_sev_run() also checks which pCPU last did VMRUN for the vCPU, and
+last_vmentry_cpu is initialized to -1 during vCPU creation, i.e. is
+guaranteed to mismatch on the first VMRUN.  However, prior to commit
+8a14fe4f0c54 ("kvm: x86: Move last_cpu into kvm_vcpu_arch as
+last_vmentry_cpu"), SVM tracked pCPU on its own and zero-initialized the
+last_cpu variable.  Thus it's theoretically possible that older versions
+of KVM could miss a TLB flush if the first VMRUN is on pCPU0 and the ASID
+and VMCB exactly match those of a prior VM.
 
+Fixes: 70cd94e60c73 ("KVM: SVM: VMRUN should use associated ASID when SEV is enabled")
+Cc: Tom Lendacky <thomas.lendacky@amd.com>
+Cc: Brijesh Singh <brijesh.singh@amd.com>
 Cc: stable@vger.kernel.org
-Reported-by: Stas Sergeev <stsp2@yandex.ru>
-Tested-by: Stas Sergeev <stsp2@yandex.ru>
-Fixes: 71cc849b7093 ("KVM: x86: Fix split-irqchip vs interrupt injection window request")
-Reviewed-by: Sean Christopherson <seanjc@google.com>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/x86.c |   13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ arch/x86/kvm/svm/sev.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -4252,8 +4252,17 @@ static int kvm_cpu_accept_dm_intr(struct
+--- a/arch/x86/kvm/svm/sev.c
++++ b/arch/x86/kvm/svm/sev.c
+@@ -188,7 +188,7 @@ static void sev_asid_free(struct kvm_sev
  
- static int kvm_vcpu_ready_for_interrupt_injection(struct kvm_vcpu *vcpu)
- {
--	return kvm_arch_interrupt_allowed(vcpu) &&
--		kvm_cpu_accept_dm_intr(vcpu);
-+	/*
-+	 * Do not cause an interrupt window exit if an exception
-+	 * is pending or an event needs reinjection; userspace
-+	 * might want to inject the interrupt manually using KVM_SET_REGS
-+	 * or KVM_SET_SREGS.  For that to work, we must be at an
-+	 * instruction boundary and with no events half-injected.
-+	 */
-+	return (kvm_arch_interrupt_allowed(vcpu) &&
-+		kvm_cpu_accept_dm_intr(vcpu) &&
-+		!kvm_event_needs_reinjection(vcpu) &&
-+		!vcpu->arch.exception.pending);
- }
+ 	for_each_possible_cpu(cpu) {
+ 		sd = per_cpu(svm_data, cpu);
+-		sd->sev_vmcbs[pos] = NULL;
++		sd->sev_vmcbs[sev->asid] = NULL;
+ 	}
  
- static int kvm_vcpu_ioctl_interrupt(struct kvm_vcpu *vcpu,
+ 	mutex_unlock(&sev_bitmap_lock);
 
 
