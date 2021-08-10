@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DEF83E7F46
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:41:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C3D53E80A0
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:51:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231450AbhHJRjp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:39:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41122 "EHLO mail.kernel.org"
+        id S235870AbhHJRvG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:51:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234559AbhHJRhe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:37:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E751B60EB9;
-        Tue, 10 Aug 2021 17:36:03 +0000 (UTC)
+        id S236730AbhHJRtl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:49:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D10236109F;
+        Tue, 10 Aug 2021 17:41:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616964;
-        bh=TYT5NeFwsBQ94lj/QQDt11nY09z/HFuhKLvdT1TQT+g=;
+        s=korg; t=1628617308;
+        bh=x4uvM95IeXEncChlZL70/Qu4B9ADzgaoq1ZvYxAOVu4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nSJ4nhPemrxz0jbQNXUvhRWndALgiYXPzmBeFSKQfhGZRGp/SREMS6WbHsabOY/bF
-         BTENGvvbdA0plCoPSVLRai8NlXp2zXapeHBzLTNVIlkAq2AKzs98+rmzBGkDU8/fBF
-         +UhpvQB9GzNdlpl0Jy58lmL9sPY+xM9UzBI3jX4I=
+        b=Q/vaOgeekKNgXku17gtfsYhhwoGBpSaQ4Twbl1Oe8pTjvdow51E2a5/MoecKrFdLX
+         q1Y7x71xg0YcNs09BRpyw3DjXBeIFuBD2k2wJlRu3OQeYr7N9lHI/+wz5ByC0lT0jN
+         b9bOUEkxA8MRdF0kSB7IBvIHCYqaYJhhPWJJuigY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Stas Sergeev <stsp2@yandex.ru>,
         Sean Christopherson <seanjc@google.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.4 70/85] KVM: x86: accept userspace interrupt only if no event is injected
-Date:   Tue, 10 Aug 2021 19:30:43 +0200
-Message-Id: <20210810172950.606721789@linuxfoundation.org>
+Subject: [PATCH 5.10 110/135] KVM: x86: accept userspace interrupt only if no event is injected
+Date:   Tue, 10 Aug 2021 19:30:44 +0200
+Message-Id: <20210810172959.514733856@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
-References: <20210810172948.192298392@linuxfoundation.org>
+In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
+References: <20210810172955.660225700@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -72,7 +72,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/arch/x86/kvm/x86.c
 +++ b/arch/x86/kvm/x86.c
-@@ -3638,8 +3638,17 @@ static int kvm_cpu_accept_dm_intr(struct
+@@ -4100,8 +4100,17 @@ static int kvm_cpu_accept_dm_intr(struct
  
  static int kvm_vcpu_ready_for_interrupt_injection(struct kvm_vcpu *vcpu)
  {
