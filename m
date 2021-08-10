@@ -2,36 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 61C183E7FAD
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:41:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8525A3E8118
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:56:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235174AbhHJRly (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:41:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59726 "EHLO mail.kernel.org"
+        id S233034AbhHJRz0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:55:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235767AbhHJRkH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:40:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F159B61209;
-        Tue, 10 Aug 2021 17:37:53 +0000 (UTC)
+        id S232667AbhHJRyC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:54:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BB04A6120A;
+        Tue, 10 Aug 2021 17:44:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617074;
-        bh=Y0IXc4yNrAKyoNR+5Jpta8AH98BmfVeDhSW7Cq7TnMI=;
+        s=korg; t=1628617442;
+        bh=1T/6Xo0twH7hiCGgekOpRE3hRSp1CaIe2VhKAXGYQsk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aY5DGM/hH/CQEL66dpsoDWwL38MFsGhruTeKVjL+4WyC7nZdCZAPDHoDmeDZSjRl/
-         Ph6WmA3RwWvXYZbq2v/lfdZ9JyM95CyaC7RZm3q5myW+CmWIuPjQD+AM6RzAt0yNUi
-         peNhkTxqWeOC8qhWE2wFA4sbyhvhj/tbiWaQFZ2I=
+        b=FWaxEIudwZLLtiKV71fvNYYXI42AEcpnXTb0C/kMmdWQiyh0OqdGP0biDC9xq4fKB
+         Mnoo0WNSn6Sk5JgWhsOaza7oUjxUfJPUKvcahqUap+oCVRGv/8ny3gN91KbcJUQ7Lj
+         N+2cs19XQq7fOInP+tEeGbfl0vGiaGYx0sPHm/6o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Jason Ekstrand <jason@jlekstrand.net>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        Dave Airlie <airlied@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 032/135] net: dsa: sja1105: invalidate dynamic FDB entries learned concurrently with statically added ones
-Date:   Tue, 10 Aug 2021 19:29:26 +0200
-Message-Id: <20210810172956.759167355@linuxfoundation.org>
+Subject: [PATCH 5.13 059/175] drm/i915: fix i915_globals_exit() section mismatch error
+Date:   Tue, 10 Aug 2021 19:29:27 +0200
+Message-Id: <20210810173002.892794186@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
-References: <20210810172955.660225700@linuxfoundation.org>
+In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
+References: <20210810173000.928681411@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,137 +46,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 6c5fc159e0927531707895709eee1f8bfa04289f ]
+[ Upstream commit a07296453bf2778952a09b6244a695bf7607babb ]
 
-The procedure to add a static FDB entry in sja1105 is concurrent with
-dynamic learning performed on all bridge ports and the CPU port.
+Fix modpost Section mismatch error in i915_globals_exit().
+Since both an __init function and an __exit function can call
+i915_globals_exit(), any function that i915_globals_exit() calls
+should not be marked as __init or __exit. I.e., it needs to be
+available for either of them.
 
-The switch looks up the FDB from left to right, and also learns
-dynamically from left to right, so it is possible that between the
-moment when we pick up a free slot to install an FDB entry, another slot
-to the left of that one becomes free due to an address ageing out, and
-that other slot is then immediately used by the switch to learn
-dynamically the same address as we're trying to add statically.
+WARNING: modpost: vmlinux.o(.text+0x8b796a): Section mismatch in reference from the function i915_globals_exit() to the function .exit.text:__i915_globals_flush()
+The function i915_globals_exit() references a function in an exit section.
+Often the function __i915_globals_flush() has valid usage outside the exit section
+and the fix is to remove the __exit annotation of __i915_globals_flush.
 
-The result is that we succeeded to add our static FDB entry, but it is
-being shadowed by a dynamic FDB entry to its left, and the switch will
-behave as if our static FDB entry did not exist.
+ERROR: modpost: Section mismatches detected.
+Set CONFIG_SECTION_MISMATCH_WARN_ONLY=y to allow them.
 
-We cannot really prevent this from happening unless we make the entire
-process to add a static FDB entry a huge critical section where address
-learning is temporarily disabled on _all_ ports, and then re-enabled
-according to the configuration done by sja1105_port_set_learning.
-However, that is kind of disruptive for the operation of the network.
-
-What we can do alternatively is to simply read back the FDB for dynamic
-entries located before our newly added static one, and delete them.
-This will guarantee that our static FDB entry is now operational. It
-will still not guarantee that there aren't dynamic FDB entries to the
-_right_ of that static FDB entry, but at least those entries will age
-out by themselves since they aren't hit, and won't bother anyone.
-
-Fixes: 291d1e72b756 ("net: dsa: sja1105: Add support for FDB and MDB management")
-Fixes: 1da73821343c ("net: dsa: sja1105: Add FDB operations for P/Q/R/S series")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 1354d830cb8f ("drm/i915: Call i915_globals_exit() if pci_register_device() fails")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Jason Ekstrand <jason@jlekstrand.net>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Cc: Jani Nikula <jani.nikula@linux.intel.com>
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Cc: intel-gfx@lists.freedesktop.org
+Cc: dri-devel@lists.freedesktop.org
+Signed-off-by: Dave Airlie <airlied@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210804204147.2070-1-rdunlap@infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/sja1105/sja1105_main.c | 57 +++++++++++++++++++++++++-
- 1 file changed, 55 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/i915/i915_globals.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/dsa/sja1105/sja1105_main.c b/drivers/net/dsa/sja1105/sja1105_main.c
-index 469d123772a6..52d8cc1a95fa 100644
---- a/drivers/net/dsa/sja1105/sja1105_main.c
-+++ b/drivers/net/dsa/sja1105/sja1105_main.c
-@@ -1260,10 +1260,11 @@ static int sja1105et_is_fdb_entry_in_bin(struct sja1105_private *priv, int bin,
- int sja1105et_fdb_add(struct dsa_switch *ds, int port,
- 		      const unsigned char *addr, u16 vid)
- {
--	struct sja1105_l2_lookup_entry l2_lookup = {0};
-+	struct sja1105_l2_lookup_entry l2_lookup = {0}, tmp;
- 	struct sja1105_private *priv = ds->priv;
- 	struct device *dev = ds->dev;
- 	int last_unused = -1;
-+	int start, end, i;
- 	int bin, way, rc;
- 
- 	bin = sja1105et_fdb_hash(priv, addr, vid);
-@@ -1315,6 +1316,29 @@ int sja1105et_fdb_add(struct dsa_switch *ds, int port,
- 	if (rc < 0)
- 		return rc;
- 
-+	/* Invalidate a dynamically learned entry if that exists */
-+	start = sja1105et_fdb_index(bin, 0);
-+	end = sja1105et_fdb_index(bin, way);
-+
-+	for (i = start; i < end; i++) {
-+		rc = sja1105_dynamic_config_read(priv, BLK_IDX_L2_LOOKUP,
-+						 i, &tmp);
-+		if (rc == -ENOENT)
-+			continue;
-+		if (rc)
-+			return rc;
-+
-+		if (tmp.macaddr != ether_addr_to_u64(addr) || tmp.vlanid != vid)
-+			continue;
-+
-+		rc = sja1105_dynamic_config_write(priv, BLK_IDX_L2_LOOKUP,
-+						  i, NULL, false);
-+		if (rc)
-+			return rc;
-+
-+		break;
-+	}
-+
- 	return sja1105_static_fdb_change(priv, port, &l2_lookup, true);
+diff --git a/drivers/gpu/drm/i915/i915_globals.c b/drivers/gpu/drm/i915/i915_globals.c
+index e27739a50bee..57d2943884ab 100644
+--- a/drivers/gpu/drm/i915/i915_globals.c
++++ b/drivers/gpu/drm/i915/i915_globals.c
+@@ -139,7 +139,7 @@ void i915_globals_unpark(void)
+ 	atomic_inc(&active);
  }
  
-@@ -1356,7 +1380,7 @@ int sja1105et_fdb_del(struct dsa_switch *ds, int port,
- int sja1105pqrs_fdb_add(struct dsa_switch *ds, int port,
- 			const unsigned char *addr, u16 vid)
+-static void __exit __i915_globals_flush(void)
++static void  __i915_globals_flush(void)
  {
--	struct sja1105_l2_lookup_entry l2_lookup = {0};
-+	struct sja1105_l2_lookup_entry l2_lookup = {0}, tmp;
- 	struct sja1105_private *priv = ds->priv;
- 	int rc, i;
- 
-@@ -1414,6 +1438,35 @@ skip_finding_an_index:
- 	if (rc < 0)
- 		return rc;
- 
-+	/* The switch learns dynamic entries and looks up the FDB left to
-+	 * right. It is possible that our addition was concurrent with the
-+	 * dynamic learning of the same address, so now that the static entry
-+	 * has been installed, we are certain that address learning for this
-+	 * particular address has been turned off, so the dynamic entry either
-+	 * is in the FDB at an index smaller than the static one, or isn't (it
-+	 * can also be at a larger index, but in that case it is inactive
-+	 * because the static FDB entry will match first, and the dynamic one
-+	 * will eventually age out). Search for a dynamically learned address
-+	 * prior to our static one and invalidate it.
-+	 */
-+	tmp = l2_lookup;
-+
-+	rc = sja1105_dynamic_config_read(priv, BLK_IDX_L2_LOOKUP,
-+					 SJA1105_SEARCH, &tmp);
-+	if (rc < 0) {
-+		dev_err(ds->dev,
-+			"port %d failed to read back entry for %pM vid %d: %pe\n",
-+			port, addr, vid, ERR_PTR(rc));
-+		return rc;
-+	}
-+
-+	if (tmp.index < l2_lookup.index) {
-+		rc = sja1105_dynamic_config_write(priv, BLK_IDX_L2_LOOKUP,
-+						  tmp.index, NULL, false);
-+		if (rc < 0)
-+			return rc;
-+	}
-+
- 	return sja1105_static_fdb_change(priv, port, &l2_lookup, true);
- }
+ 	atomic_inc(&active); /* skip shrinking */
  
 -- 
 2.30.2
