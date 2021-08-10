@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43DC53E80A6
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:51:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 235E33E7F61
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:41:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235880AbhHJRvL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:51:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58770 "EHLO mail.kernel.org"
+        id S233968AbhHJRkR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:40:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38896 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236918AbhHJRtw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:49:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0465861184;
-        Tue, 10 Aug 2021 17:41:58 +0000 (UTC)
+        id S234729AbhHJRhx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:37:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4DB6C61186;
+        Tue, 10 Aug 2021 17:36:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617319;
-        bh=p+gzQ+WKbIpItmotzJJu2xF1GeLryVr5wMxaDXE+aKs=;
+        s=korg; t=1628616977;
+        bh=TSSu0j/Y42OwHoJ9tyDjSyyjc/nHSELfyyCW/jHTfD0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r/jTwvO0ZjeAXR/Klz3ZEz3+lbV/MUUzR1juIyXu0vTnVgTWyARM9hVMwiFG07Gye
-         uUu+cWNbS51m0Z+3BUUjc3zbunOUJbtrnxeRfn2ikTZdelhSJlNpsrgVFbSr+M5RGD
-         FhU4H297EqKsfKv9WWRm3FDJarMlRFHJihB5AJaI=
+        b=n5R+L0qyuV9qmk3bVesa323DiyN3qCOYSLfbri6uh5ZYTb0XqTKzD9kZxInodzkaD
+         5c2BFr417KzpRQqvDwNjigihC/0ZUwvAIciTNC2KV6ZccqS2CY80K39SmE8WHupNQZ
+         1bTTfoRbMsiKsOmkjTD8FNZbjCAqfu5e/FymSsZs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Georgi Djakov <djakov@kernel.org>
-Subject: [PATCH 5.10 115/135] interconnect: Fix undersized devress_alloc allocation
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 5.4 76/85] soc: ixp4xx/qmgr: fix invalid __iomem access
 Date:   Tue, 10 Aug 2021 19:30:49 +0200
-Message-Id: <20210810172959.703172302@linuxfoundation.org>
+Message-Id: <20210810172950.803063610@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
-References: <20210810172955.660225700@linuxfoundation.org>
+In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
+References: <20210810172948.192298392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,33 +39,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 85b1ebfea2b0d8797266bcc6f04b6cc87e38290a upstream.
+commit a8eee86317f11e97990d755d4615c1c0db203d08 upstream.
 
-The expression sizeof(**ptr) for the void **ptr is just 1 rather than
-the size of a pointer. Fix this by using sizeof(*ptr).
+Sparse reports a compile time warning when dereferencing an
+__iomem pointer:
 
-Addresses-Coverity: ("Wrong sizeof argument")
-Fixes: e145d9a184f2 ("interconnect: Add devm_of_icc_get() as exported API for users")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Link: https://lore.kernel.org/r/20210730075408.19945-1-colin.king@canonical.com
-Signed-off-by: Georgi Djakov <djakov@kernel.org>
+drivers/soc/ixp4xx/ixp4xx-qmgr.c:149:37: warning: dereference of noderef expression
+drivers/soc/ixp4xx/ixp4xx-qmgr.c:153:40: warning: dereference of noderef expression
+drivers/soc/ixp4xx/ixp4xx-qmgr.c:154:40: warning: dereference of noderef expression
+drivers/soc/ixp4xx/ixp4xx-qmgr.c:174:38: warning: dereference of noderef expression
+drivers/soc/ixp4xx/ixp4xx-qmgr.c:174:44: warning: dereference of noderef expression
+
+Use __raw_readl() here for consistency with the rest of the file.
+This should really get converted to some proper accessor, as the
+__raw functions are not meant to be used in drivers, but the driver
+has used these since the start, so for the moment, let's only fix
+the warning.
+
+Reported-by: kernel test robot <lkp@intel.com>
+Fixes: d4c9e9fc9751 ("IXP42x: Add QMgr support for IXP425 rev. A0 processors.")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/interconnect/core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/soc/ixp4xx/ixp4xx-qmgr.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/drivers/interconnect/core.c
-+++ b/drivers/interconnect/core.c
-@@ -403,7 +403,7 @@ struct icc_path *devm_of_icc_get(struct
- {
- 	struct icc_path **ptr, *path;
+--- a/drivers/soc/ixp4xx/ixp4xx-qmgr.c
++++ b/drivers/soc/ixp4xx/ixp4xx-qmgr.c
+@@ -145,12 +145,12 @@ static irqreturn_t qmgr_irq1_a0(int irq,
+ 	/* ACK - it may clear any bits so don't rely on it */
+ 	__raw_writel(0xFFFFFFFF, &qmgr_regs->irqstat[0]);
  
--	ptr = devres_alloc(devm_icc_release, sizeof(**ptr), GFP_KERNEL);
-+	ptr = devres_alloc(devm_icc_release, sizeof(*ptr), GFP_KERNEL);
- 	if (!ptr)
- 		return ERR_PTR(-ENOMEM);
+-	en_bitmap = qmgr_regs->irqen[0];
++	en_bitmap = __raw_readl(&qmgr_regs->irqen[0]);
+ 	while (en_bitmap) {
+ 		i = __fls(en_bitmap); /* number of the last "low" queue */
+ 		en_bitmap &= ~BIT(i);
+-		src = qmgr_regs->irqsrc[i >> 3];
+-		stat = qmgr_regs->stat1[i >> 3];
++		src = __raw_readl(&qmgr_regs->irqsrc[i >> 3]);
++		stat = __raw_readl(&qmgr_regs->stat1[i >> 3]);
+ 		if (src & 4) /* the IRQ condition is inverted */
+ 			stat = ~stat;
+ 		if (stat & BIT(src & 3)) {
+@@ -170,7 +170,8 @@ static irqreturn_t qmgr_irq2_a0(int irq,
+ 	/* ACK - it may clear any bits so don't rely on it */
+ 	__raw_writel(0xFFFFFFFF, &qmgr_regs->irqstat[1]);
  
+-	req_bitmap = qmgr_regs->irqen[1] & qmgr_regs->statne_h;
++	req_bitmap = __raw_readl(&qmgr_regs->irqen[1]) &
++		     __raw_readl(&qmgr_regs->statne_h);
+ 	while (req_bitmap) {
+ 		i = __fls(req_bitmap); /* number of the last "high" queue */
+ 		req_bitmap &= ~BIT(i);
 
 
