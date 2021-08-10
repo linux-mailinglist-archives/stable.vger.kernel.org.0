@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2ADBF3E7EB4
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:34:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A30D03E7FDF
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:45:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232707AbhHJRe6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:34:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40914 "EHLO mail.kernel.org"
+        id S234902AbhHJRnr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:43:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232772AbhHJRe0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:34:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 45D1061076;
-        Tue, 10 Aug 2021 17:34:03 +0000 (UTC)
+        id S232903AbhHJRlb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:41:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E55DF6120C;
+        Tue, 10 Aug 2021 17:38:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616843;
-        bh=19XAj8CpkGRIQOjZXdON8Swuu6WXy9RgZW6TRI9rJrA=;
+        s=korg; t=1628617099;
+        bh=eruWmCDdOrFlPApK/VNzIClH3t/nzTHsZ2nO7fXXNck=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ctYzIa4Fm32B91XNZ8bJWu0RP+eilDmdP/hkYXZvGj+FF2iOZVDFauaRCrfcKgWTk
-         kHHJ4RvC2xydeyuVUi9uZ3Lk3h+fI4XPkVKDD7nPB4voKfIPrwlJt2WDqfn5LZ84mm
-         VmeqPoO7pJTQkoBcnzOlIpQ0Q8e2EjMHC2TDPluw=
+        b=cUOYNbFEJ04nPrdNefx+fm2vor/rCLnGVtNIq2fdJz1PG9Vww1ch+6cltgOUN37Sv
+         9D8ODKeGqk1yUSehd3kj3AeHt9vKQp2zBPwsqxbds1V1/UkUBfa2Cn/dCcNyPAQO1/
+         IgmJO2KxmvIS6QY+cM3BVDLKcInHS9jYWXmYypGY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Maxime Chevallier <maxime.chevallier@bootlin.com>,
-        =?UTF-8?q?Herv=C3=A9=20Codina?= <herve.codina@bootlin.com>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Shawn Guo <shawnguo@kernel.org>,
+        stable@vger.kernel.org, "H. Nikolaus Schaller" <hns@goldelico.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 06/85] ARM: dts: imx6qdl-sr-som: Increase the PHY reset duration to 10ms
+Subject: [PATCH 5.10 045/135] mips: Fix non-POSIX regexp
 Date:   Tue, 10 Aug 2021 19:29:39 +0200
-Message-Id: <20210810172948.420988038@linuxfoundation.org>
+Message-Id: <20210810172957.221170580@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
-References: <20210810172948.192298392@linuxfoundation.org>
+In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
+References: <20210810172955.660225700@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,52 +40,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Chevallier <maxime.chevallier@bootlin.com>
+From: H. Nikolaus Schaller <hns@goldelico.com>
 
-[ Upstream commit fd8e83884fdd7b5fc411f201a58d8d01890198a2 ]
+[ Upstream commit 28bbbb9875a35975904e46f9b06fa689d051b290 ]
 
-The AR803x PHY used on this modules seems to require the reset line to
-be asserted for around 10ms in order to avoid rare cases where the PHY
-gets stuck in an incoherent state that prevents it to function
-correctly.
+When cross compiling a MIPS kernel on a BSD based HOSTCC leads
+to errors like
 
-The previous value of 2ms was found to be problematic on some setups,
-causing intermittent issues where the PHY would be unresponsive
-every once in a while on some sytems, with a low occurrence (it typically
-took around 30 consecutive reboots to encounter the issue).
+  SYNC    include/config/auto.conf.cmd - due to: .config
+egrep: empty (sub)expression
+  UPD     include/config/kernel.release
+  HOSTCC  scripts/dtc/dtc.o - due to target missing
 
-Bumping the delay to the 10ms makes the issue dissapear, with more than
-2500 consecutive reboots performed without the issue showing-up.
+It turns out that egrep uses this egrep pattern:
 
-Fixes: 208d7baf8085 ("ARM: imx: initial SolidRun HummingBoard support")
-Signed-off-by: Maxime Chevallier <maxime.chevallier@bootlin.com>
-Tested-by: Hervé Codina <herve.codina@bootlin.com>
-Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+		(|MINOR_|PATCHLEVEL_)
+
+This is not valid syntax or gives undefined results according
+to POSIX 9.5.3 ERE Grammar
+
+	https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap09.html
+
+It seems to be silently accepted by the Linux egrep implementation
+while a BSD host complains.
+
+Such patterns can be replaced by a transformation like
+
+	"(|p1|p2)" -> "(p1|p2)?"
+
+Fixes: 48c35b2d245f ("[MIPS] There is no __GNUC_MAJOR__")
+Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx6qdl-sr-som.dtsi | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ arch/mips/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/imx6qdl-sr-som.dtsi b/arch/arm/boot/dts/imx6qdl-sr-som.dtsi
-index 6d7f6b9035bc..f2649241167e 100644
---- a/arch/arm/boot/dts/imx6qdl-sr-som.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-sr-som.dtsi
-@@ -54,7 +54,13 @@
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&pinctrl_microsom_enet_ar8035>;
- 	phy-mode = "rgmii-id";
--	phy-reset-duration = <2>;
-+
-+	/*
-+	 * The PHY seems to require a long-enough reset duration to avoid
-+	 * some rare issues where the PHY gets stuck in an inconsistent and
-+	 * non-functional state at boot-up. 10ms proved to be fine .
-+	 */
-+	phy-reset-duration = <10>;
- 	phy-reset-gpios = <&gpio4 15 GPIO_ACTIVE_LOW>;
- 	status = "okay";
- };
+diff --git a/arch/mips/Makefile b/arch/mips/Makefile
+index 686990fcc5f0..acab8018ab44 100644
+--- a/arch/mips/Makefile
++++ b/arch/mips/Makefile
+@@ -320,7 +320,7 @@ KBUILD_LDFLAGS		+= -m $(ld-emul)
+ 
+ ifdef CONFIG_MIPS
+ CHECKFLAGS += $(shell $(CC) $(KBUILD_CFLAGS) -dM -E -x c /dev/null | \
+-	egrep -vw '__GNUC_(|MINOR_|PATCHLEVEL_)_' | \
++	egrep -vw '__GNUC_(MINOR_|PATCHLEVEL_)?_' | \
+ 	sed -e "s/^\#define /-D'/" -e "s/ /'='/" -e "s/$$/'/" -e 's/\$$/&&/g')
+ endif
+ 
 -- 
 2.30.2
 
