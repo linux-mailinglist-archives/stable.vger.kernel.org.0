@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 787953E7E89
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:33:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72F083E8068
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:50:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230006AbhHJReC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:34:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33730 "EHLO mail.kernel.org"
+        id S232559AbhHJRsv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:48:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232553AbhHJRdb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:33:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 958BB61008;
-        Tue, 10 Aug 2021 17:33:08 +0000 (UTC)
+        id S236536AbhHJRqs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:46:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9065261250;
+        Tue, 10 Aug 2021 17:40:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616789;
-        bh=eLRgX+TjaqfiHx7QQMcIUj5KDJja7qFuzIG5aBlApqU=;
+        s=korg; t=1628617243;
+        bh=wYNRb5K+W5Sb+ruNgoPPWVVHC9OHvcJNXq68vjnx3aM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Knfjcc/+ceJaArXLLTJj4JOGsrJjeTLAX+ESWoFsiAlRJy3sanmZD2ZIKS2NS9SMH
-         78ynXWQQl1+cSxpNyy+cQKxr6IFDB4u6gXAQhxI42s60oVnRj7UUoEmtskYce3BFVW
-         c1AoXQzDkcFiawgL3lSK2W5MkD6vpboQy14cPu7Y=
+        b=EvXIcRKDCcDkHoyiBByEsd/br77q0Y9mHST/z8LMPH0yvS6BvJHe6MsMxgXhHPn58
+         yircaPOVBQkeF46AlZZTxZYdxF6bMy/ndXAeI6YgRHit9FPwIALm620EjWJI6ZEeaH
+         46DusGHi79e63GaOCZzmZXb3UOG/fvF+0aoi0y+g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "H. Nikolaus Schaller" <hns@goldelico.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 14/54] mips: Fix non-POSIX regexp
-Date:   Tue, 10 Aug 2021 19:30:08 +0200
-Message-Id: <20210810172944.654768328@linuxfoundation.org>
+        stable@vger.kernel.org, Tom Zanussi <zanussi@kernel.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.10 075/135] tracing / histogram: Give calculation hist_fields a size
+Date:   Tue, 10 Aug 2021 19:30:09 +0200
+Message-Id: <20210810172958.273678036@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172944.179901509@linuxfoundation.org>
-References: <20210810172944.179901509@linuxfoundation.org>
+In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
+References: <20210810172955.660225700@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,57 +43,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: H. Nikolaus Schaller <hns@goldelico.com>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-[ Upstream commit 28bbbb9875a35975904e46f9b06fa689d051b290 ]
+commit 2c05caa7ba8803209769b9e4fe02c38d77ae88d0 upstream.
 
-When cross compiling a MIPS kernel on a BSD based HOSTCC leads
-to errors like
+When working on my user space applications, I found a bug in the synthetic
+event code where the automated synthetic event field was not matching the
+event field calculation it was attached to. Looking deeper into it, it was
+because the calculation hist_field was not given a size.
 
-  SYNC    include/config/auto.conf.cmd - due to: .config
-egrep: empty (sub)expression
-  UPD     include/config/kernel.release
-  HOSTCC  scripts/dtc/dtc.o - due to target missing
+The synthetic event fields are matched to their hist_fields either by
+having the field have an identical string type, or if that does not match,
+then the size and signed values are used to match the fields.
 
-It turns out that egrep uses this egrep pattern:
+The problem arose when I tried to match a calculation where the fields
+were "unsigned int". My tool created a synthetic event of type "u32". But
+it failed to match. The string was:
 
-		(|MINOR_|PATCHLEVEL_)
+  diff=field1-field2:onmatch(event).trace(synth,$diff)
 
-This is not valid syntax or gives undefined results according
-to POSIX 9.5.3 ERE Grammar
+Adding debugging into the kernel, I found that the size of "diff" was 0.
+And since it was given "unsigned int" as a type, the histogram fallback
+code used size and signed. The signed matched, but the size of u32 (4) did
+not match zero, and the event failed to be created.
 
-	https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap09.html
+This can be worse if the field you want to match is not one of the
+acceptable fields for a synthetic event. As event fields can have any type
+that is supported in Linux, this can cause an issue. For example, if a
+type is an enum. Then there's no way to use that with any calculations.
 
-It seems to be silently accepted by the Linux egrep implementation
-while a BSD host complains.
+Have the calculation field simply take on the size of what it is
+calculating.
 
-Such patterns can be replaced by a transformation like
+Link: https://lkml.kernel.org/r/20210730171951.59c7743f@oasis.local.home
 
-	"(|p1|p2)" -> "(p1|p2)?"
-
-Fixes: 48c35b2d245f ("[MIPS] There is no __GNUC_MAJOR__")
-Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Tom Zanussi <zanussi@kernel.org>
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Fixes: 100719dcef447 ("tracing: Add simple expression support to hist triggers")
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/trace/trace_events_hist.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/mips/Makefile b/arch/mips/Makefile
-index 63e2ad43bd6a..8f4e169cde11 100644
---- a/arch/mips/Makefile
-+++ b/arch/mips/Makefile
-@@ -325,7 +325,7 @@ KBUILD_LDFLAGS		+= -m $(ld-emul)
+--- a/kernel/trace/trace_events_hist.c
++++ b/kernel/trace/trace_events_hist.c
+@@ -2271,6 +2271,10 @@ static struct hist_field *parse_expr(str
  
- ifdef CONFIG_MIPS
- CHECKFLAGS += $(shell $(CC) $(KBUILD_CFLAGS) -dM -E -x c /dev/null | \
--	egrep -vw '__GNUC_(|MINOR_|PATCHLEVEL_)_' | \
-+	egrep -vw '__GNUC_(MINOR_|PATCHLEVEL_)?_' | \
- 	sed -e "s/^\#define /-D'/" -e "s/ /'='/" -e "s/$$/'/" -e 's/\$$/&&/g')
- endif
- 
--- 
-2.30.2
-
+ 	expr->operands[0] = operand1;
+ 	expr->operands[1] = operand2;
++
++	/* The operand sizes should be the same, so just pick one */
++	expr->size = operand1->size;
++
+ 	expr->operator = field_op;
+ 	expr->name = expr_str(expr, 0);
+ 	expr->type = kstrdup(operand1->type, GFP_KERNEL);
 
 
