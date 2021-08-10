@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EB8E3E80B2
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:51:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2F7B3E80B1
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:51:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232185AbhHJRv2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:51:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53276 "EHLO mail.kernel.org"
+        id S235770AbhHJRv1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:51:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237173AbhHJRuH (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237174AbhHJRuH (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 10 Aug 2021 13:50:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5A48B6124A;
-        Tue, 10 Aug 2021 17:42:17 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 95DA261279;
+        Tue, 10 Aug 2021 17:42:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617337;
-        bh=ovw7sryc7RFY+mrCcUXN29YjIr19p+SaPik0bUhNu0E=;
+        s=korg; t=1628617340;
+        bh=ooCYp3uX7qKSY//qjg9LVIhwzJTv7v8qLxYCFlUW1A8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O3UQbTbaH8PaEQ+PgVbyNpu2XkISREKEvdpUT0qG+0a+dBVUEGvd5fuDh7SPGW4Y8
-         t5EXSrD1s/wTIrKbFb/4HGXvRYOE+oYMGx3GLvE+Mb8pY7lUck8U/DZTjbSSJ6QJEC
-         tl2V3bL7iwSocK6FAnqeuSKDVh6dKbGD+LUE9jTw=
+        b=fEsyR9SBg1ayvE92PKCff5qyx1Tt3XOE0POQvVhUO9snZBOtU+fBnkjIaiDmwz1aE
+         ZaJWx3gaNhNEarChfcfXi0rg+t7FLjX9VgBKbI+tFV+Gz0b49AtKgvl/cQzQcvwn5o
+         JjnGi72E8/e3PMkfRrsNSe6rW018shk8Bib1tvHM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
+        stable@vger.kernel.org,
+        Oleksandr Suvorov <oleksandr.suvorov@toradex.com>,
+        Fabio Estevam <festevam@gmail.com>,
         Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 015/175] arm64: dts: ls1028: sl28: fix networking for variant 2
-Date:   Tue, 10 Aug 2021 19:28:43 +0200
-Message-Id: <20210810173001.447499959@linuxfoundation.org>
+Subject: [PATCH 5.13 016/175] ARM: dts: colibri-imx6ull: limit SDIO clock to 25MHz
+Date:   Tue, 10 Aug 2021 19:28:44 +0200
+Message-Id: <20210810173001.479578216@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
 References: <20210810173000.928681411@linuxfoundation.org>
@@ -40,44 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Walle <michael@walle.cc>
+From: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
 
-[ Upstream commit 29f6a20c21b5bdc7eb623a712bbf7b99612ee746 ]
+[ Upstream commit 828db68f4ff1ab6982a36a56522b585160dc8c8e ]
 
-The PHY configuration for the variant 2 is still missing the flag for
-in-band signalling between PHY and MAC. Both sides - MAC and PHY - have
-to match the setting. For now, Linux only supports setting the MAC side
-and thus it has to match the setting the bootloader is configuring.
-Enable in-band signalling to make ethernet work.
+NXP and AzureWave don't recommend using SDIO bus mode 3.3V@50MHz due
+to noise affecting the wireless throughput. Colibri iMX6ULL uses only
+3.3V signaling for Wi-Fi module AW-CM276NF.
 
-Fixes: ab43f0307449 ("arm64: dts: ls1028a: sl28: add support for variant 2")
-Signed-off-by: Michael Walle <michael@walle.cc>
+Limit the SDIO Clock on Colibri iMX6ULL to 25MHz.
+
+Fixes: c2e4987e0e02 ("ARM: dts: imx6ull: add Toradex Colibri iMX6ULL support")
+Signed-off-by: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
 Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-sl28-var2.dts | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm/boot/dts/imx6ull-colibri-wifi.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-sl28-var2.dts b/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-sl28-var2.dts
-index dd764b720fb0..f6a79c8080d1 100644
---- a/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-sl28-var2.dts
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-sl28-var2.dts
-@@ -54,6 +54,7 @@
- 
- &mscc_felix_port0 {
- 	label = "swp0";
-+	managed = "in-band-status";
- 	phy-handle = <&phy0>;
- 	phy-mode = "sgmii";
- 	status = "okay";
-@@ -61,6 +62,7 @@
- 
- &mscc_felix_port1 {
- 	label = "swp1";
-+	managed = "in-band-status";
- 	phy-handle = <&phy1>;
- 	phy-mode = "sgmii";
- 	status = "okay";
+diff --git a/arch/arm/boot/dts/imx6ull-colibri-wifi.dtsi b/arch/arm/boot/dts/imx6ull-colibri-wifi.dtsi
+index a0545431b3dc..9f1e38282bee 100644
+--- a/arch/arm/boot/dts/imx6ull-colibri-wifi.dtsi
++++ b/arch/arm/boot/dts/imx6ull-colibri-wifi.dtsi
+@@ -43,6 +43,7 @@
+ 	assigned-clock-rates = <0>, <198000000>;
+ 	cap-power-off-card;
+ 	keep-power-in-suspend;
++	max-frequency = <25000000>;
+ 	mmc-pwrseq = <&wifi_pwrseq>;
+ 	no-1-8-v;
+ 	non-removable;
 -- 
 2.30.2
 
