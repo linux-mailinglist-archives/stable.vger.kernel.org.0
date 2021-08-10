@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 431983E81A6
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:01:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BEF083E819E
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:01:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231512AbhHJSA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 14:00:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53654 "EHLO mail.kernel.org"
+        id S237406AbhHJSAi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 14:00:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235258AbhHJRzO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:55:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5647961378;
-        Tue, 10 Aug 2021 17:44:42 +0000 (UTC)
+        id S233429AbhHJRzT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:55:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DC7B1606A5;
+        Tue, 10 Aug 2021 17:44:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617482;
-        bh=BtGVrxVu9r2tER2gpA+k54WqsWJjhE2da9bywTuqZY4=;
+        s=korg; t=1628617487;
+        bh=7g0CTkYofwdUZ+1LCRdsKh3gf928e+M4a3SsSRynu/c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eNu9jxR+k3w4E2EvOGIznfPI2PBWlwpXOq+teBW6Vu0Rsn2iHglbGVZWOHZ+02/am
-         2BgDxcIq2Sv4vm6+k5GiKaINUQbjsjUu5D2VVSQJLoFGvgQTRb56GtAMCCo04maLyl
-         dUkAXvzWrlxCjwlhLJJLGU7M16xZEJcPVtjQAWKE=
+        b=e7RPNVXL9akk9GUMWyRRIMFU6WnZPFhfzW6nAN6qsVGif1FytYEf9JDmFK6zsrfMI
+         LDEAQ5tUr4RP7xqvhcfLOGyHjLwuHyFBZ0/G1X4XoePxfg9qrKmhFY2vZDGEu5iMXK
+         Oxa+7X2OGri+7xXKLvWg6cVr+Rp22o7okGZBl7lQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luis Chamberlain <mcgrof@kernel.org>,
+        stable@vger.kernel.org,
+        syzbot+de271708674e2093097b@syzkaller.appspotmail.com,
         Shuah Khan <skhan@linuxfoundation.org>,
+        Luis Chamberlain <mcgrof@kernel.org>,
         Anirudh Rayabharam <mail@anirudhrb.com>
-Subject: [PATCH 5.13 079/175] firmware_loader: use -ETIMEDOUT instead of -EAGAIN in fw_load_sysfs_fallback
-Date:   Tue, 10 Aug 2021 19:29:47 +0200
-Message-Id: <20210810173003.539766215@linuxfoundation.org>
+Subject: [PATCH 5.13 080/175] firmware_loader: fix use-after-free in firmware_fallback_sysfs
+Date:   Tue, 10 Aug 2021 19:29:48 +0200
+Message-Id: <20210810173003.576792872@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
 References: <20210810173000.928681411@linuxfoundation.org>
@@ -42,41 +44,120 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Anirudh Rayabharam <mail@anirudhrb.com>
 
-commit 0d6434e10b5377a006f6dd995c8fc5e2d82acddc upstream.
+commit 75d95e2e39b27f733f21e6668af1c9893a97de5e upstream.
 
-The only motivation for using -EAGAIN in commit 0542ad88fbdd81bb
-("firmware loader: Fix _request_firmware_load() return val for fw load
-abort") was to distinguish the error from -ENOMEM, and so there is no
-real reason in keeping it. -EAGAIN is typically used to tell the
-userspace to try something again and in this case re-using the sysfs
-loading interface cannot be retried when a timeout happens, so the
-return value is also bogus.
+This use-after-free happens when a fw_priv object has been freed but
+hasn't been removed from the pending list (pending_fw_head). The next
+time fw_load_sysfs_fallback tries to insert into the list, it ends up
+accessing the pending_list member of the previously freed fw_priv.
 
--ETIMEDOUT is received when the wait times out and returning that
-is much more telling of what the reason for the failure was. So, just
-propagate that instead of returning -EAGAIN.
+The root cause here is that all code paths that abort the fw load
+don't delete it from the pending list. For example:
 
-Suggested-by: Luis Chamberlain <mcgrof@kernel.org>
+        _request_firmware()
+          -> fw_abort_batch_reqs()
+              -> fw_state_aborted()
+
+To fix this, delete the fw_priv from the list in __fw_set_state() if
+the new state is DONE or ABORTED. This way, all aborts will remove
+the fw_priv from the list. Accordingly, remove calls to list_del_init
+that were being made before calling fw_state_(aborted|done).
+
+Also, in fw_load_sysfs_fallback, don't add the fw_priv to the pending
+list if it is already aborted. Instead, just jump out and return early.
+
+Fixes: bcfbd3523f3c ("firmware: fix a double abort case with fw_load_sysfs_fallback")
+Cc: stable <stable@vger.kernel.org>
+Reported-by: syzbot+de271708674e2093097b@syzkaller.appspotmail.com
+Tested-by: syzbot+de271708674e2093097b@syzkaller.appspotmail.com
 Reviewed-by: Shuah Khan <skhan@linuxfoundation.org>
 Acked-by: Luis Chamberlain <mcgrof@kernel.org>
 Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210728085107.4141-2-mail@anirudhrb.com
+Link: https://lore.kernel.org/r/20210728085107.4141-3-mail@anirudhrb.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/base/firmware_loader/fallback.c |    2 --
- 1 file changed, 2 deletions(-)
+ drivers/base/firmware_loader/fallback.c |   12 ++++++++----
+ drivers/base/firmware_loader/firmware.h |   10 +++++++++-
+ drivers/base/firmware_loader/main.c     |    2 ++
+ 3 files changed, 19 insertions(+), 5 deletions(-)
 
 --- a/drivers/base/firmware_loader/fallback.c
 +++ b/drivers/base/firmware_loader/fallback.c
-@@ -535,8 +535,6 @@ static int fw_load_sysfs_fallback(struct
- 	if (fw_state_is_aborted(fw_priv)) {
- 		if (retval == -ERESTARTSYS)
- 			retval = -EINTR;
--		else
--			retval = -EAGAIN;
+@@ -89,12 +89,11 @@ static void __fw_load_abort(struct fw_pr
+ {
+ 	/*
+ 	 * There is a small window in which user can write to 'loading'
+-	 * between loading done and disappearance of 'loading'
++	 * between loading done/aborted and disappearance of 'loading'
+ 	 */
+-	if (fw_sysfs_done(fw_priv))
++	if (fw_state_is_aborted(fw_priv) || fw_sysfs_done(fw_priv))
+ 		return;
+ 
+-	list_del_init(&fw_priv->pending_list);
+ 	fw_state_aborted(fw_priv);
+ }
+ 
+@@ -280,7 +279,6 @@ static ssize_t firmware_loading_store(st
+ 			 * Same logic as fw_load_abort, only the DONE bit
+ 			 * is ignored and we set ABORT only on failure.
+ 			 */
+-			list_del_init(&fw_priv->pending_list);
+ 			if (rc) {
+ 				fw_state_aborted(fw_priv);
+ 				written = rc;
+@@ -513,6 +511,11 @@ static int fw_load_sysfs_fallback(struct
+ 	}
+ 
+ 	mutex_lock(&fw_lock);
++	if (fw_state_is_aborted(fw_priv)) {
++		mutex_unlock(&fw_lock);
++		retval = -EINTR;
++		goto out;
++	}
+ 	list_add(&fw_priv->pending_list, &pending_fw_head);
+ 	mutex_unlock(&fw_lock);
+ 
+@@ -538,6 +541,7 @@ static int fw_load_sysfs_fallback(struct
  	} else if (fw_priv->is_paged_buf && !fw_priv->data)
  		retval = -ENOMEM;
  
++out:
+ 	device_del(f_dev);
+ err_put_dev:
+ 	put_device(f_dev);
+--- a/drivers/base/firmware_loader/firmware.h
++++ b/drivers/base/firmware_loader/firmware.h
+@@ -117,8 +117,16 @@ static inline void __fw_state_set(struct
+ 
+ 	WRITE_ONCE(fw_st->status, status);
+ 
+-	if (status == FW_STATUS_DONE || status == FW_STATUS_ABORTED)
++	if (status == FW_STATUS_DONE || status == FW_STATUS_ABORTED) {
++#ifdef CONFIG_FW_LOADER_USER_HELPER
++		/*
++		 * Doing this here ensures that the fw_priv is deleted from
++		 * the pending list in all abort/done paths.
++		 */
++		list_del_init(&fw_priv->pending_list);
++#endif
+ 		complete_all(&fw_st->completion);
++	}
+ }
+ 
+ static inline void fw_state_aborted(struct fw_priv *fw_priv)
+--- a/drivers/base/firmware_loader/main.c
++++ b/drivers/base/firmware_loader/main.c
+@@ -783,8 +783,10 @@ static void fw_abort_batch_reqs(struct f
+ 		return;
+ 
+ 	fw_priv = fw->priv;
++	mutex_lock(&fw_lock);
+ 	if (!fw_state_is_aborted(fw_priv))
+ 		fw_state_aborted(fw_priv);
++	mutex_unlock(&fw_lock);
+ }
+ 
+ /* called from request_firmware() and request_firmware_work_func() */
 
 
