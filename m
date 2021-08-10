@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 433223E7EA6
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:34:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5E513E8141
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:57:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232558AbhHJRei (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:34:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39746 "EHLO mail.kernel.org"
+        id S233627AbhHJR5E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:57:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47786 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232568AbhHJReM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:34:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D12686101E;
-        Tue, 10 Aug 2021 17:33:49 +0000 (UTC)
+        id S237800AbhHJRy4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:54:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C4A2B61051;
+        Tue, 10 Aug 2021 17:44:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616830;
-        bh=LfJ98tku/+Xdhhxm5bi6EePlLmjB6Xhx5eVKb+R0OJI=;
+        s=korg; t=1628617478;
+        bh=QZCKsrutDYD/xHxMxm/pYSbdmmE2ELG/mHw1a7U2EO4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O5QARRXlHBUOt6A8X8dK+qGGM1AaIhZuQjeKkqy/8ButRkDg4hPLBDf7Ch3w9EFJ3
-         3MwDvnOJL1Lhtf/Dimw4v+cwIrwWkkpXS3S3SM4W8QBvn39HCqyFuiQ3upb9/ZnWpS
-         xRnTLkxmXAz8jI57JxDdxXI8K1kYzU6sPuCiJqUo=
+        b=ZSgVEohqHseCqLAA2dGKG4nFsz8Ab8SqVwZnTnesAjsSU76zx1K80W6aR/L54+/pw
+         OIuC6lpHCv6064gHfV6EzpMgmIwJj1u/vgkby7aihgjRic4V61R79avkb2nxlYLS9t
+         //BK5TV6P+rmmr/Oo3j4gyPqt9ZAUdMRVKMrwRpY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "chihhao.chen" <chihhao.chen@mediatek.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 11/85] ALSA: usb-audio: fix incorrect clock source setting
-Date:   Tue, 10 Aug 2021 19:29:44 +0200
-Message-Id: <20210810172948.586097186@linuxfoundation.org>
+        stable@vger.kernel.org, Chris <chris@cyber-anlage.de>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.13 077/175] USB: serial: pl2303: fix HX type detection
+Date:   Tue, 10 Aug 2021 19:29:45 +0200
+Message-Id: <20210810173003.476450744@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
-References: <20210810172948.192298392@linuxfoundation.org>
+In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
+References: <20210810173000.928681411@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,62 +39,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: chihhao.chen <chihhao.chen@mediatek.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 4511781f95da0a3b2bad34f3f5e3967e80cd2d18 ]
+commit 1e9faef4d26de33bd6b5018695996e7394119e5b upstream.
 
-The following scenario describes an echo test for
-Samsung USBC Headset (AKG) with VID/PID (0x04e8/0xa051).
+The device release number for HX-type devices is configurable in
+EEPROM/OTPROM and cannot be used reliably for type detection.
 
-We first start a capture stream(USB IN transfer) in 96Khz/24bit/1ch mode.
-In clock find source function, we get value 0x2 for clock selector
-and 0x1 for clock source.
+Assume all (non-H) devices with bcdUSB 1.1 and unknown bcdDevice to be
+of HX type while adding a bcdDevice check for HXD and TB (1.1 and 2.0,
+respectively).
 
-Kernel-4.14 behavior
-Since clock source is valid so clock selector was not set again.
-We pass through this function and start a playback stream(USB OUT transfer)
-in 48Khz/32bit/2ch mode. This time we get value 0x1 for clock selector
-and 0x1 for clock source. Finally clock id with this setting is 0x9.
-
-Kernel-5.10 behavior
-Clock selector was always set one more time even it is valid.
-When we start a playback stream, we will get 0x2 for clock selector
-and 0x1 for clock source. In this case clock id becomes 0xA.
-This is an incorrect clock source setting and results in severe noises.
-We see wrong data rate in USB IN transfer.
-(From 288 bytes/ms becomes 144 bytes/ms) It should keep in 288 bytes/ms.
-
-This earphone works fine on older kernel version load because
-this is a newly-added behavior.
-
-Fixes: d2e8f641257d ("ALSA: usb-audio: Explicitly set up the clock selector")
-Signed-off-by: chihhao.chen <chihhao.chen@mediatek.com>
-Link: https://lore.kernel.org/r/1627100621-19225-1-git-send-email-chihhao.chen@mediatek.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Chris <chris@cyber-anlage.de>
+Fixes: 8a7bf7510d1f ("USB: serial: pl2303: amend and tighten type detection")
+Cc: stable@vger.kernel.org	# 5.13
+Link: https://lore.kernel.org/r/20210730122156.718-1-johan@kernel.org
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/clock.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/usb/serial/pl2303.c |   41 +++++++++++++++++++++++++----------------
+ 1 file changed, 25 insertions(+), 16 deletions(-)
 
-diff --git a/sound/usb/clock.c b/sound/usb/clock.c
-index 6a51b9d20eeb..3d1c0ec11753 100644
---- a/sound/usb/clock.c
-+++ b/sound/usb/clock.c
-@@ -319,6 +319,12 @@ static int __uac_clock_find_source(struct snd_usb_audio *chip,
- 					      selector->baCSourceID[ret - 1],
- 					      visited, validate);
- 		if (ret > 0) {
+--- a/drivers/usb/serial/pl2303.c
++++ b/drivers/usb/serial/pl2303.c
+@@ -418,24 +418,33 @@ static int pl2303_detect_type(struct usb
+ 	bcdDevice = le16_to_cpu(desc->bcdDevice);
+ 	bcdUSB = le16_to_cpu(desc->bcdUSB);
+ 
+-	switch (bcdDevice) {
+-	case 0x100:
+-		/*
+-		 * Assume it's an HXN-type if the device doesn't support the old read
+-		 * request value.
+-		 */
+-		if (bcdUSB == 0x200 && !pl2303_supports_hx_status(serial))
+-			return TYPE_HXN;
++	switch (bcdUSB) {
++	case 0x110:
++		switch (bcdDevice) {
++		case 0x300:
++			return TYPE_HX;
++		case 0x400:
++			return TYPE_HXD;
++		default:
++			return TYPE_HX;
++		}
+ 		break;
+-	case 0x300:
+-		if (bcdUSB == 0x200)
++	case 0x200:
++		switch (bcdDevice) {
++		case 0x100:
 +			/*
-+			 * For Samsung USBC Headset (AKG), setting clock selector again
-+			 * will result in incorrect default clock setting problems
++			 * Assume it's an HXN-type if the device doesn't
++			 * support the old read request value.
 +			 */
-+			if (chip->usb_id == USB_ID(0x04e8, 0xa051))
-+				return ret;
- 			err = uac_clock_selector_set_val(chip, entity_id, cur);
- 			if (err < 0)
- 				return err;
--- 
-2.30.2
-
++			if (!pl2303_supports_hx_status(serial))
++				return TYPE_HXN;
++			break;
++		case 0x300:
+ 			return TYPE_TA;
+-
+-		return TYPE_HX;
+-	case 0x400:
+-		return TYPE_HXD;
+-	case 0x500:
+-		return TYPE_TB;
++		case 0x500:
++			return TYPE_TB;
++		}
++		break;
+ 	}
+ 
+ 	dev_err(&serial->interface->dev,
 
 
