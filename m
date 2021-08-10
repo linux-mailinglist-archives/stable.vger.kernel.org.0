@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FA693E7EF1
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:36:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB0AF3E806B
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:50:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231233AbhHJRgK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:36:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43594 "EHLO mail.kernel.org"
+        id S230366AbhHJRsy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:48:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232829AbhHJRfK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:35:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DD64F61058;
-        Tue, 10 Aug 2021 17:34:47 +0000 (UTC)
+        id S236221AbhHJRq6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:46:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CB18F61244;
+        Tue, 10 Aug 2021 17:40:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616888;
-        bh=kinxwyy1lSZvwwV5c6jMnGAkZYk2Yw5ZfMAVTmc32w0=;
+        s=korg; t=1628617245;
+        bh=yGcgg81hQyuFSu2gycDmdWaDhQk87dsk40QNIF5z+fw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HLI4xTQRlSl2XcD47VZLKn4ZY1UKnP3MY/XL6tMfOEgcK3bNgB72o5GY4CBXhywJC
-         cPun74BDEXQ/ug3eaXQ4oYSzHRreRLM9EaYGsaYO1TLEabD6qGsbxZwWWC5vDlxQjy
-         l/90BqYAT88QCPinBfeIwxJ3zcYpdMiANYxnda3k=
+        b=Bnrf95Qb1Xc19M5hN7csOvl549jdTUJviMve8xZQyqJFEaYF53AjOs887BzNMKziD
+         0CBIUCy5RvUwSysxwpP4hQdvsyUch43zzlu3ZcqoKOpH526AcpApMdozVYfKGi7I0Z
+         WPTjDm6c7kgXdSRaS2bb6g3g/oMBWVeYqbegJRsw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+e2eae5639e7203360018@syzkaller.appspotmail.com,
-        "Qiang.zhang" <qiang.zhang@windriver.com>,
-        Guido Kiener <guido.kiener@rohde-schwarz.com>
-Subject: [PATCH 5.4 36/85] USB: usbtmc: Fix RCU stall warning
-Date:   Tue, 10 Aug 2021 19:30:09 +0200
-Message-Id: <20210810172949.427395262@linuxfoundation.org>
+        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.10 076/135] tracing: Reject string operand in the histogram expression
+Date:   Tue, 10 Aug 2021 19:30:10 +0200
+Message-Id: <20210810172958.310402555@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
-References: <20210810172948.192298392@linuxfoundation.org>
+In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
+References: <20210810172955.660225700@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,73 +39,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiang.zhang <qiang.zhang@windriver.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-commit 30fad76ce4e98263edfa8f885c81d5426c1bf169 upstream.
+commit a9d10ca4986571bffc19778742d508cc8dd13e02 upstream.
 
-rcu: INFO: rcu_preempt self-detected stall on CPU
-rcu:    1-...!: (2 ticks this GP) idle=d92/1/0x4000000000000000
-        softirq=25390/25392 fqs=3
-        (t=12164 jiffies g=31645 q=43226)
-rcu: rcu_preempt kthread starved for 12162 jiffies! g31645 f0x0
-     RCU_GP_WAIT_FQS(5) ->state=0x0 ->cpu=0
-rcu:    Unless rcu_preempt kthread gets sufficient CPU time,
-        OOM is now expected behavior.
-rcu: RCU grace-period kthread stack dump:
-task:rcu_preempt     state:R  running task
-...........
-usbtmc 3-1:0.0: unknown status received: -71
-usbtmc 3-1:0.0: unknown status received: -71
-usbtmc 3-1:0.0: unknown status received: -71
-usbtmc 3-1:0.0: unknown status received: -71
-usbtmc 3-1:0.0: unknown status received: -71
-usbtmc 3-1:0.0: unknown status received: -71
-usbtmc 3-1:0.0: unknown status received: -71
-usbtmc 3-1:0.0: unknown status received: -71
-usbtmc 3-1:0.0: usb_submit_urb failed: -19
+Since the string type can not be the target of the addition / subtraction
+operation, it must be rejected. Without this fix, the string type silently
+converted to digits.
 
-The function usbtmc_interrupt() resubmits urbs when the error status
-of an urb is -EPROTO. In systems using the dummy_hcd usb controller
-this can result in endless interrupt loops when the usbtmc device is
-disconnected from the host system.
+Link: https://lkml.kernel.org/r/162742654278.290973.1523000673366456634.stgit@devnote2
 
-Since host controller drivers already try to recover from transmission
-errors, there is no need to resubmit the urb or try other solutions
-to repair the error situation.
-
-In case of errors the INT pipe just stops to wait for further packets.
-
-Fixes: dbf3e7f654c0 ("Implement an ioctl to support the USMTMC-USB488 READ_STATUS_BYTE operation")
 Cc: stable@vger.kernel.org
-Reported-by: syzbot+e2eae5639e7203360018@syzkaller.appspotmail.com
-Signed-off-by: Qiang.zhang <qiang.zhang@windriver.com>
-Acked-by: Guido Kiener <guido.kiener@rohde-schwarz.com>
-Link: https://lore.kernel.org/r/20210723004334.458930-1-qiang.zhang@windriver.com
+Fixes: 100719dcef447 ("tracing: Add simple expression support to hist triggers")
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/class/usbtmc.c |    9 +--------
- 1 file changed, 1 insertion(+), 8 deletions(-)
+ kernel/trace/trace_events_hist.c |   20 +++++++++++++++++++-
+ 1 file changed, 19 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/class/usbtmc.c
-+++ b/drivers/usb/class/usbtmc.c
-@@ -2285,17 +2285,10 @@ static void usbtmc_interrupt(struct urb
- 		dev_err(dev, "overflow with length %d, actual length is %d\n",
- 			data->iin_wMaxPacketSize, urb->actual_length);
- 		/* fall through */
--	case -ECONNRESET:
--	case -ENOENT:
--	case -ESHUTDOWN:
--	case -EILSEQ:
--	case -ETIME:
--	case -EPIPE:
-+	default:
- 		/* urb terminated, clean up */
- 		dev_dbg(dev, "urb terminated, status: %d\n", status);
- 		return;
--	default:
--		dev_err(dev, "unknown status received: %d\n", status);
+--- a/kernel/trace/trace_events_hist.c
++++ b/kernel/trace/trace_events_hist.c
+@@ -65,7 +65,8 @@
+ 	C(INVALID_SORT_MODIFIER,"Invalid sort modifier"),		\
+ 	C(EMPTY_SORT_FIELD,	"Empty sort field"),			\
+ 	C(TOO_MANY_SORT_FIELDS,	"Too many sort fields (Max = 2)"),	\
+-	C(INVALID_SORT_FIELD,	"Sort field must be a key or a val"),
++	C(INVALID_SORT_FIELD,	"Sort field must be a key or a val"),	\
++	C(INVALID_STR_OPERAND,	"String type can not be an operand in expression"),
+ 
+ #undef C
+ #define C(a, b)		HIST_ERR_##a
+@@ -2140,6 +2141,13 @@ static struct hist_field *parse_unary(st
+ 		ret = PTR_ERR(operand1);
+ 		goto free;
  	}
- exit:
- 	rv = usb_submit_urb(urb, GFP_ATOMIC);
++	if (operand1->flags & HIST_FIELD_FL_STRING) {
++		/* String type can not be the operand of unary operator. */
++		hist_err(file->tr, HIST_ERR_INVALID_STR_OPERAND, errpos(str));
++		destroy_hist_field(operand1, 0);
++		ret = -EINVAL;
++		goto free;
++	}
+ 
+ 	expr->flags |= operand1->flags &
+ 		(HIST_FIELD_FL_TIMESTAMP | HIST_FIELD_FL_TIMESTAMP_USECS);
+@@ -2241,6 +2249,11 @@ static struct hist_field *parse_expr(str
+ 		operand1 = NULL;
+ 		goto free;
+ 	}
++	if (operand1->flags & HIST_FIELD_FL_STRING) {
++		hist_err(file->tr, HIST_ERR_INVALID_STR_OPERAND, errpos(operand1_str));
++		ret = -EINVAL;
++		goto free;
++	}
+ 
+ 	/* rest of string could be another expression e.g. b+c in a+b+c */
+ 	operand_flags = 0;
+@@ -2250,6 +2263,11 @@ static struct hist_field *parse_expr(str
+ 		operand2 = NULL;
+ 		goto free;
+ 	}
++	if (operand2->flags & HIST_FIELD_FL_STRING) {
++		hist_err(file->tr, HIST_ERR_INVALID_STR_OPERAND, errpos(str));
++		ret = -EINVAL;
++		goto free;
++	}
+ 
+ 	ret = check_expr_operands(file->tr, operand1, operand2);
+ 	if (ret)
 
 
