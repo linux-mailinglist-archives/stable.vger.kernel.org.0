@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40D6C3E80DB
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:53:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28A493E7FC9
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:45:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236619AbhHJRxJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:53:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60930 "EHLO mail.kernel.org"
+        id S234621AbhHJRnC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:43:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235963AbhHJRvL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:51:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AEC8B61351;
-        Tue, 10 Aug 2021 17:43:00 +0000 (UTC)
+        id S234787AbhHJRky (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:40:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8929661102;
+        Tue, 10 Aug 2021 17:38:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617381;
-        bh=vWREjDAUBd+J8kl6nonl2vuQC8l+Y8Rc6HIwP/yVMbs=;
+        s=korg; t=1628617088;
+        bh=ovw7sryc7RFY+mrCcUXN29YjIr19p+SaPik0bUhNu0E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X4kpF3uAhFh+CEKnpOLf2Nzm9remOJEnHXlrw3QY3EZpyJgN8tKLFm5EBZ+thQ6oG
-         IPOs6/Egyw7WXmah4R575TJxMbw+sQJZ+TR6V1gSdCb9TvPq8HBOfZRrVnM3dEvY9s
-         lyYJ6ge3mRxLsjASSnR4oR/Hzmu/vp7D71kIiJ9U=
+        b=Ih049JWlV1e+22/BRKMfmU7UX1SZhr/Mp0d9eSza08x9iKcwhWUpp6ELagDjxDU0O
+         ZM+4D7UvH2e+hhB/4HHZ2wxrye0vFj8XgaFnSDdt0TYKlKkyli/78ahgRJzelS+VYe
+         2jvCd/81yav7vNyq+qE3bsTej+3qwDFhu9EhlI1Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Li Manyi <limanyi@uniontech.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 034/175] scsi: sr: Return correct event when media event code is 3
-Date:   Tue, 10 Aug 2021 19:29:02 +0200
-Message-Id: <20210810173002.082347297@linuxfoundation.org>
+Subject: [PATCH 5.10 009/135] arm64: dts: ls1028: sl28: fix networking for variant 2
+Date:   Tue, 10 Aug 2021 19:29:03 +0200
+Message-Id: <20210810172955.994694370@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
-References: <20210810173000.928681411@linuxfoundation.org>
+In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
+References: <20210810172955.660225700@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,44 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Manyi <limanyi@uniontech.com>
+From: Michael Walle <michael@walle.cc>
 
-[ Upstream commit 5c04243a56a7977185b00400e59ca7e108004faf ]
+[ Upstream commit 29f6a20c21b5bdc7eb623a712bbf7b99612ee746 ]
 
-Media event code 3 is defined in the MMC-6 spec as follows:
+The PHY configuration for the variant 2 is still missing the flag for
+in-band signalling between PHY and MAC. Both sides - MAC and PHY - have
+to match the setting. For now, Linux only supports setting the MAC side
+and thus it has to match the setting the bootloader is configuring.
+Enable in-band signalling to make ethernet work.
 
-  "MediaRemoval: The media has been removed from the specified slot, and
-   the Drive is unable to access the media without user intervention. This
-   applies to media changers only."
-
-This indicated that treating the condition as an EJECT_REQUEST was
-appropriate. However, doing so had the unfortunate side-effect of causing
-the drive tray to be physically ejected on resume. Instead treat the event
-as a MEDIA_CHANGE request.
-
-Fixes: 7dd753ca59d6 ("scsi: sr: Return appropriate error code when disk is ejected")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=213759
-Link: https://lore.kernel.org/r/20210726114913.6760-1-limanyi@uniontech.com
-Signed-off-by: Li Manyi <limanyi@uniontech.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: ab43f0307449 ("arm64: dts: ls1028a: sl28: add support for variant 2")
+Signed-off-by: Michael Walle <michael@walle.cc>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/sr.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-sl28-var2.dts | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/scsi/sr.c b/drivers/scsi/sr.c
-index 1a94c7b1de2d..261d3663cbb7 100644
---- a/drivers/scsi/sr.c
-+++ b/drivers/scsi/sr.c
-@@ -221,7 +221,7 @@ static unsigned int sr_get_events(struct scsi_device *sdev)
- 	else if (med->media_event_code == 2)
- 		return DISK_EVENT_MEDIA_CHANGE;
- 	else if (med->media_event_code == 3)
--		return DISK_EVENT_EJECT_REQUEST;
-+		return DISK_EVENT_MEDIA_CHANGE;
- 	return 0;
- }
+diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-sl28-var2.dts b/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-sl28-var2.dts
+index dd764b720fb0..f6a79c8080d1 100644
+--- a/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-sl28-var2.dts
++++ b/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-sl28-var2.dts
+@@ -54,6 +54,7 @@
  
+ &mscc_felix_port0 {
+ 	label = "swp0";
++	managed = "in-band-status";
+ 	phy-handle = <&phy0>;
+ 	phy-mode = "sgmii";
+ 	status = "okay";
+@@ -61,6 +62,7 @@
+ 
+ &mscc_felix_port1 {
+ 	label = "swp1";
++	managed = "in-band-status";
+ 	phy-handle = <&phy1>;
+ 	phy-mode = "sgmii";
+ 	status = "okay";
 -- 
 2.30.2
 
