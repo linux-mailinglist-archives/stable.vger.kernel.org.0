@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A88933E8009
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:45:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A65103E817E
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:01:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234732AbhHJRpp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:45:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36322 "EHLO mail.kernel.org"
+        id S234354AbhHJSAE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 14:00:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235974AbhHJRoU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:44:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ED0A161078;
-        Tue, 10 Aug 2021 17:39:30 +0000 (UTC)
+        id S234908AbhHJR57 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:57:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4EA1461391;
+        Tue, 10 Aug 2021 17:45:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617171;
-        bh=RxHK1u20b/F8+DvhuvxB1aZdwvVr2uSLvIftHo8/y8U=;
+        s=korg; t=1628617535;
+        bh=mtHvomnz+GOQ0h9ygikC2fB+8jfm/bjDlMaEj3vsUxQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qZLIe5/1YKmd6k5a0hGp+J0cvl2+ysaTm+Zc/yVwB6qshCMyCYbCqC4sVltItU/x/
-         AdoRTTDe/4BMQX/vne0m37v+VhV69jC4reRnOb+Y7QBzTZdio9KtZRb87z53g/jqHr
-         LqhwTkT8h3lYyCjueYkYV7XxExZosG/dRbZ9U/YE=
+        b=FuLvPSnIimWQ1QATxMeYfUlSfpfsLCaQz+K/mIolSnNFyVhZWEYJ6R32XGV/jEvNc
+         ADqUNQzCJBab3x/CRmySzfMTpo5k7DWB9Zf8CQQsJHdenYNU0TiT9hNdcQ3oEDywTY
+         7qCaH/G2cdLAp9pYTYR1oC7s3Wu/d7+nMc6mYsLc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Vladimir Oltean <olteanv@gmail.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Pavel Skripkin <paskripkin@gmail.com>,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 042/135] net: dsa: qca: ar9331: reorder MDIO write sequence
+Subject: [PATCH 5.13 068/175] net: vxge: fix use-after-free in vxge_device_unregister
 Date:   Tue, 10 Aug 2021 19:29:36 +0200
-Message-Id: <20210810172957.113381223@linuxfoundation.org>
+Message-Id: <20210810173003.176319173@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
-References: <20210810172955.660225700@linuxfoundation.org>
+In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
+References: <20210810173000.928681411@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,65 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleksij Rempel <o.rempel@pengutronix.de>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit d1a58c013a5837451e3213e7a426d350fa524ead ]
+[ Upstream commit 942e560a3d3862dd5dee1411dbdd7097d29b8416 ]
 
-In case of this switch we work with 32bit registers on top of 16bit
-bus. Some registers (for example access to forwarding database) have
-trigger bit on the first 16bit half of request and the result +
-configuration of request in the second half. Without this patch, we would
-trigger database operation and overwrite result in one run.
+Smatch says:
+drivers/net/ethernet/neterion/vxge/vxge-main.c:3518 vxge_device_unregister() error: Using vdev after free_{netdev,candev}(dev);
+drivers/net/ethernet/neterion/vxge/vxge-main.c:3518 vxge_device_unregister() error: Using vdev after free_{netdev,candev}(dev);
+drivers/net/ethernet/neterion/vxge/vxge-main.c:3520 vxge_device_unregister() error: Using vdev after free_{netdev,candev}(dev);
+drivers/net/ethernet/neterion/vxge/vxge-main.c:3520 vxge_device_unregister() error: Using vdev after free_{netdev,candev}(dev);
 
-To make it work properly, we should do the second part of transfer
-before the first one is done.
+Since vdev pointer is netdev private data accessing it after free_netdev()
+call can cause use-after-free bug. Fix it by moving free_netdev() call at
+the end of the function
 
-So far, this rule seems to work for all registers on this switch.
-
-Fixes: ec6698c272de ("net: dsa: add support for Atheros AR9331 built-in switch")
-Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
-Link: https://lore.kernel.org/r/20210803063746.3600-1-o.rempel@pengutronix.de
+Fixes: 6cca200362b4 ("vxge: cleanup probe error paths")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Reviewed-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/qca/ar9331.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/neterion/vxge/vxge-main.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/dsa/qca/ar9331.c b/drivers/net/dsa/qca/ar9331.c
-index 4d49c5f2b790..661745932a53 100644
---- a/drivers/net/dsa/qca/ar9331.c
-+++ b/drivers/net/dsa/qca/ar9331.c
-@@ -689,16 +689,24 @@ static int ar9331_mdio_write(void *ctx, u32 reg, u32 val)
- 		return 0;
- 	}
+diff --git a/drivers/net/ethernet/neterion/vxge/vxge-main.c b/drivers/net/ethernet/neterion/vxge/vxge-main.c
+index 87892bd992b1..56556373548c 100644
+--- a/drivers/net/ethernet/neterion/vxge/vxge-main.c
++++ b/drivers/net/ethernet/neterion/vxge/vxge-main.c
+@@ -3527,13 +3527,13 @@ static void vxge_device_unregister(struct __vxge_hw_device *hldev)
  
--	ret = __ar9331_mdio_write(sbus, AR9331_SW_MDIO_PHY_MODE_REG, reg, val);
-+	/* In case of this switch we work with 32bit registers on top of 16bit
-+	 * bus. Some registers (for example access to forwarding database) have
-+	 * trigger bit on the first 16bit half of request, the result and
-+	 * configuration of request in the second half.
-+	 * To make it work properly, we should do the second part of transfer
-+	 * before the first one is done.
-+	 */
-+	ret = __ar9331_mdio_write(sbus, AR9331_SW_MDIO_PHY_MODE_REG, reg + 2,
-+				  val >> 16);
- 	if (ret < 0)
- 		goto error;
+ 	kfree(vdev->vpaths);
  
--	ret = __ar9331_mdio_write(sbus, AR9331_SW_MDIO_PHY_MODE_REG, reg + 2,
--				  val >> 16);
-+	ret = __ar9331_mdio_write(sbus, AR9331_SW_MDIO_PHY_MODE_REG, reg, val);
- 	if (ret < 0)
- 		goto error;
- 
- 	return 0;
+-	/* we are safe to free it now */
+-	free_netdev(dev);
+-
+ 	vxge_debug_init(vdev->level_trace, "%s: ethernet device unregistered",
+ 			buf);
+ 	vxge_debug_entryexit(vdev->level_trace,	"%s: %s:%d  Exiting...", buf,
+ 			     __func__, __LINE__);
 +
- error:
- 	dev_err_ratelimited(&sbus->dev, "Bus error. Failed to write register.\n");
- 	return ret;
++	/* we are safe to free it now */
++	free_netdev(dev);
+ }
+ 
+ /*
 -- 
 2.30.2
 
