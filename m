@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C0483E809C
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:51:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84BD73E818E
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:01:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235624AbhHJRvA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:51:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55284 "EHLO mail.kernel.org"
+        id S231764AbhHJSAT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 14:00:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57256 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236528AbhHJRt0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:49:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D83B611C6;
-        Tue, 10 Aug 2021 17:41:43 +0000 (UTC)
+        id S238015AbhHJR57 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:57:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C899E6137B;
+        Tue, 10 Aug 2021 17:45:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617303;
-        bh=39IUHEWndYNT5AxJNyem4W9Ti1yoxGFQQqNsZK7wuy0=;
+        s=korg; t=1628617540;
+        bh=4N9F4XwHqssl3coRKsDZj6kfcnqot9nOZGW3exOX8oM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TKVcw6d1Zl9+wRI4z/W1d37XoLaMknCFCUSf4hg9l3gTVzc0fSTfXUJw54yFfgw1+
-         brIfLtxegn4UUvzQadv0Zj3e/VJZWrOA75yC7WjZSZ5IRa8XA/lJeam53QF0F1+F+E
-         eudypf8ODCF4uaQn0ZPW+Wt8N2aRIwDl/LKt03l4=
+        b=mnLs34KRWEwS2G6ayiHATtyN3KaU1/GlziPoFXz79R8Jjp1c7EVi1+9PvOvuQ+Nb0
+         WClevzCWVNLjai9kQceZ32GRLso5/ph+d9syPoYXxCB5GxGnlnUgEPeVVhmk1KDGTS
+         0VzDHDLrM6Uj9fKaK2N0wBk2QaKg9Pw6yj2Y3bYw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, He Zhe <zhe.he@windriver.com>,
-        weiyuchen <weiyuchen3@huawei.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>
-Subject: [PATCH 5.10 135/135] arm64: fix compat syscall return truncation
-Date:   Tue, 10 Aug 2021 19:31:09 +0200
-Message-Id: <20210810173000.392301176@linuxfoundation.org>
+        stable@vger.kernel.org, Joshua Kinard <kumba@gentoo.org>,
+        Huang Pei <huangpei@loongson.cn>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 060/175] MIPS: check return value of pgtable_pmd_page_ctor
+Date:   Tue, 10 Aug 2021 19:29:28 +0200
+Message-Id: <20210810173002.923389435@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
-References: <20210810172955.660225700@linuxfoundation.org>
+In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
+References: <20210810173000.928681411@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,185 +41,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Huang Pei <huangpei@loongson.cn>
 
-commit e30e8d46cf605d216a799a28c77b8a41c328613a upstream.
+[ Upstream commit 6aa32467299e9e12280a6aec9dbc21bf2db830b0 ]
 
-Due to inconsistencies in the way we manipulate compat GPRs, we have a
-few issues today:
++. According to Documentation/vm/split_page_table_lock, handle failure
+of pgtable_pmd_page_ctor
 
-* For audit and tracing, where error codes are handled as a (native)
-  long, negative error codes are expected to be sign-extended to the
-  native 64-bits, or they may fail to be matched correctly. Thus a
-  syscall which fails with an error may erroneously be identified as
-  failing.
++. Use GFP_KERNEL_ACCOUNT instead of GFP_KERNEL|__GFP_ACCOUNT
 
-* For ptrace, *all* compat return values should be sign-extended for
-  consistency with 32-bit arm, but we currently only do this for
-  negative return codes.
++. Adjust coding style
 
-* As we may transiently set the upper 32 bits of some compat GPRs while
-  in the kernel, these can be sampled by perf, which is somewhat
-  confusing. This means that where a syscall returns a pointer above 2G,
-  this will be sign-extended, but will not be mistaken for an error as
-  error codes are constrained to the inclusive range [-4096, -1] where
-  no user pointer can exist.
-
-To fix all of these, we must consistently use helpers to get/set the
-compat GPRs, ensuring that we never write the upper 32 bits of the
-return code, and always sign-extend when reading the return code.  This
-patch does so, with the following changes:
-
-* We re-organise syscall_get_return_value() to always sign-extend for
-  compat tasks, and reimplement syscall_get_error() atop. We update
-  syscall_trace_exit() to use syscall_get_return_value().
-
-* We consistently use syscall_set_return_value() to set the return
-  value, ensureing the upper 32 bits are never set unexpectedly.
-
-* As the core audit code currently uses regs_return_value() rather than
-  syscall_get_return_value(), we special-case this for
-  compat_user_mode(regs) such that this will do the right thing. Going
-  forward, we should try to move the core audit code over to
-  syscall_get_return_value().
-
-Cc: <stable@vger.kernel.org>
-Reported-by: He Zhe <zhe.he@windriver.com>
-Reported-by: weiyuchen <weiyuchen3@huawei.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Link: https://lore.kernel.org/r/20210802104200.21390-1-mark.rutland@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
-[Mark: trivial conflict resolution for v5.10.y]
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: ed914d48b6a1 ("MIPS: add PMD table accounting into MIPS')
+Reported-by: Joshua Kinard <kumba@gentoo.org>
+Signed-off-by: Huang Pei <huangpei@loongson.cn>
+Reviewed-by: Joshua Kinard <kumba@gentoo.org>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/ptrace.h  |   12 +++++++++++-
- arch/arm64/include/asm/syscall.h |   19 ++++++++++---------
- arch/arm64/kernel/ptrace.c       |    2 +-
- arch/arm64/kernel/signal.c       |    3 ++-
- arch/arm64/kernel/syscall.c      |    9 +++------
- 5 files changed, 27 insertions(+), 18 deletions(-)
+ arch/mips/include/asm/pgalloc.h | 17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
 
---- a/arch/arm64/include/asm/ptrace.h
-+++ b/arch/arm64/include/asm/ptrace.h
-@@ -316,7 +316,17 @@ static inline unsigned long kernel_stack
+diff --git a/arch/mips/include/asm/pgalloc.h b/arch/mips/include/asm/pgalloc.h
+index d0cf997b4ba8..139b4050259f 100644
+--- a/arch/mips/include/asm/pgalloc.h
++++ b/arch/mips/include/asm/pgalloc.h
+@@ -59,15 +59,20 @@ do {							\
  
- static inline unsigned long regs_return_value(struct pt_regs *regs)
+ static inline pmd_t *pmd_alloc_one(struct mm_struct *mm, unsigned long address)
  {
--	return regs->regs[0];
-+	unsigned long val = regs->regs[0];
+-	pmd_t *pmd = NULL;
++	pmd_t *pmd;
+ 	struct page *pg;
+ 
+-	pg = alloc_pages(GFP_KERNEL | __GFP_ACCOUNT, PMD_ORDER);
+-	if (pg) {
+-		pgtable_pmd_page_ctor(pg);
+-		pmd = (pmd_t *)page_address(pg);
+-		pmd_init((unsigned long)pmd, (unsigned long)invalid_pte_table);
++	pg = alloc_pages(GFP_KERNEL_ACCOUNT, PMD_ORDER);
++	if (!pg)
++		return NULL;
 +
-+	/*
-+	 * Audit currently uses regs_return_value() instead of
-+	 * syscall_get_return_value(). Apply the same sign-extension here until
-+	 * audit is updated to use syscall_get_return_value().
-+	 */
-+	if (compat_user_mode(regs))
-+		val = sign_extend64(val, 31);
-+
-+	return val;
- }
- 
- static inline void regs_set_return_value(struct pt_regs *regs, unsigned long rc)
---- a/arch/arm64/include/asm/syscall.h
-+++ b/arch/arm64/include/asm/syscall.h
-@@ -29,22 +29,23 @@ static inline void syscall_rollback(stru
- 	regs->regs[0] = regs->orig_x0;
- }
- 
--
--static inline long syscall_get_error(struct task_struct *task,
--				     struct pt_regs *regs)
-+static inline long syscall_get_return_value(struct task_struct *task,
-+					    struct pt_regs *regs)
- {
--	unsigned long error = regs->regs[0];
-+	unsigned long val = regs->regs[0];
- 
- 	if (is_compat_thread(task_thread_info(task)))
--		error = sign_extend64(error, 31);
-+		val = sign_extend64(val, 31);
- 
--	return IS_ERR_VALUE(error) ? error : 0;
-+	return val;
- }
- 
--static inline long syscall_get_return_value(struct task_struct *task,
--					    struct pt_regs *regs)
-+static inline long syscall_get_error(struct task_struct *task,
-+				     struct pt_regs *regs)
- {
--	return regs->regs[0];
-+	unsigned long error = syscall_get_return_value(task, regs);
-+
-+	return IS_ERR_VALUE(error) ? error : 0;
- }
- 
- static inline void syscall_set_return_value(struct task_struct *task,
---- a/arch/arm64/kernel/ptrace.c
-+++ b/arch/arm64/kernel/ptrace.c
-@@ -1823,7 +1823,7 @@ void syscall_trace_exit(struct pt_regs *
- 	audit_syscall_exit(regs);
- 
- 	if (flags & _TIF_SYSCALL_TRACEPOINT)
--		trace_sys_exit(regs, regs_return_value(regs));
-+		trace_sys_exit(regs, syscall_get_return_value(current, regs));
- 
- 	if (flags & (_TIF_SYSCALL_TRACE | _TIF_SINGLESTEP))
- 		tracehook_report_syscall(regs, PTRACE_SYSCALL_EXIT);
---- a/arch/arm64/kernel/signal.c
-+++ b/arch/arm64/kernel/signal.c
-@@ -29,6 +29,7 @@
- #include <asm/unistd.h>
- #include <asm/fpsimd.h>
- #include <asm/ptrace.h>
-+#include <asm/syscall.h>
- #include <asm/signal32.h>
- #include <asm/traps.h>
- #include <asm/vdso.h>
-@@ -890,7 +891,7 @@ static void do_signal(struct pt_regs *re
- 		     retval == -ERESTART_RESTARTBLOCK ||
- 		     (retval == -ERESTARTSYS &&
- 		      !(ksig.ka.sa.sa_flags & SA_RESTART)))) {
--			regs->regs[0] = -EINTR;
-+			syscall_set_return_value(current, regs, -EINTR, 0);
- 			regs->pc = continue_addr;
- 		}
- 
---- a/arch/arm64/kernel/syscall.c
-+++ b/arch/arm64/kernel/syscall.c
-@@ -50,10 +50,7 @@ static void invoke_syscall(struct pt_reg
- 		ret = do_ni_syscall(regs, scno);
++	if (!pgtable_pmd_page_ctor(pg)) {
++		__free_pages(pg, PMD_ORDER);
++		return NULL;
  	}
- 
--	if (is_compat_task())
--		ret = lower_32_bits(ret);
--
--	regs->regs[0] = ret;
-+	syscall_set_return_value(current, regs, 0, ret);
++
++	pmd = (pmd_t *)page_address(pg);
++	pmd_init((unsigned long)pmd, (unsigned long)invalid_pte_table);
+ 	return pmd;
  }
  
- static inline bool has_syscall_work(unsigned long flags)
-@@ -128,7 +125,7 @@ static void el0_svc_common(struct pt_reg
- 		 * syscall. do_notify_resume() will send a signal to userspace
- 		 * before the syscall is restarted.
- 		 */
--		regs->regs[0] = -ERESTARTNOINTR;
-+		syscall_set_return_value(current, regs, -ERESTARTNOINTR, 0);
- 		return;
- 	}
- 
-@@ -149,7 +146,7 @@ static void el0_svc_common(struct pt_reg
- 		 * anyway.
- 		 */
- 		if (scno == NO_SYSCALL)
--			regs->regs[0] = -ENOSYS;
-+			syscall_set_return_value(current, regs, -ENOSYS, 0);
- 		scno = syscall_trace_enter(regs);
- 		if (scno == NO_SYSCALL)
- 			goto trace_exit;
+-- 
+2.30.2
+
 
 
