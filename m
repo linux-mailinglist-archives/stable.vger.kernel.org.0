@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E26A3E806C
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:50:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0F7C3E7E4F
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:32:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234504AbhHJRsy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:48:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32800 "EHLO mail.kernel.org"
+        id S230173AbhHJRcZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:32:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236236AbhHJRq7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:46:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 55EFD61260;
-        Tue, 10 Aug 2021 17:40:49 +0000 (UTC)
+        id S231268AbhHJRcX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:32:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F3E160F94;
+        Tue, 10 Aug 2021 17:32:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617249;
-        bh=KqXDFD6igxKn7WUli2jPpng69mg8Ha6TY3DfR4qYJbk=;
+        s=korg; t=1628616721;
+        bh=3DjrTyv5nsPqasdF4+blUb8lfkFTf1bfNJVxdLYiGAo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CII7vpKhE6id+KGMiMgSUQXi14AhXDNgsaOwVksEd+vN08aZlXgRPvYaJaGJKzZJF
-         lJTiQGJWcZ3ppwTz0Q87F23xCdFxcS2+WIA110yUs1lmOcFKoDvHBNjTOliy6pUDrL
-         hZoYvqiP8+AgqsuDQ/BYDw4P6qGozdPfzsipHOSA=
+        b=j2NTd7KSI7y8tGSUhza437A+H/rrmrnscnmkNWz7fb9c1wV7nBeBBaGvzpIIPwuKW
+         w8hHnkpegWicP2v5cbQqKiN3WmoHru99KO0RdlpCFcpw8uNUA39sJqNFPTsxO5PFND
+         LCW880BQnO0VKeoLqAlZxBG+rjhPBCr6PJRKEmT0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Stefan Metzmacher <metze@samba.org>,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.10 078/135] tracepoint: static call: Compare data on transition from 2->1 callees
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Pavel Skripkin <paskripkin@gmail.com>,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 18/54] net: vxge: fix use-after-free in vxge_device_unregister
 Date:   Tue, 10 Aug 2021 19:30:12 +0200
-Message-Id: <20210810172958.382412734@linuxfoundation.org>
+Message-Id: <20210810172944.779403736@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
-References: <20210810172955.660225700@linuxfoundation.org>
+In-Reply-To: <20210810172944.179901509@linuxfoundation.org>
+References: <20210810172944.179901509@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +42,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit f7ec4121256393e1d03274acdca73eb18958f27e upstream.
+[ Upstream commit 942e560a3d3862dd5dee1411dbdd7097d29b8416 ]
 
-On transition from 2->1 callees, we should be comparing .data rather
-than .func, because the same callback can be registered twice with
-different data, and what we care about here is that the data of array
-element 0 is unchanged to skip rcu sync.
+Smatch says:
+drivers/net/ethernet/neterion/vxge/vxge-main.c:3518 vxge_device_unregister() error: Using vdev after free_{netdev,candev}(dev);
+drivers/net/ethernet/neterion/vxge/vxge-main.c:3518 vxge_device_unregister() error: Using vdev after free_{netdev,candev}(dev);
+drivers/net/ethernet/neterion/vxge/vxge-main.c:3520 vxge_device_unregister() error: Using vdev after free_{netdev,candev}(dev);
+drivers/net/ethernet/neterion/vxge/vxge-main.c:3520 vxge_device_unregister() error: Using vdev after free_{netdev,candev}(dev);
 
-Link: https://lkml.kernel.org/r/20210805132717.23813-2-mathieu.desnoyers@efficios.com
-Link: https://lore.kernel.org/io-uring/4ebea8f0-58c9-e571-fd30-0ce4f6f09c70@samba.org/
+Since vdev pointer is netdev private data accessing it after free_netdev()
+call can cause use-after-free bug. Fix it by moving free_netdev() call at
+the end of the function
 
-Cc: stable@vger.kernel.org
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: "Paul E. McKenney" <paulmck@kernel.org>
-Cc: Stefan Metzmacher <metze@samba.org>
-Fixes: 547305a64632 ("tracepoint: Fix out of sync data passing by static caller")
-Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 6cca200362b4 ("vxge: cleanup probe error paths")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Reviewed-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/tracepoint.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/neterion/vxge/vxge-main.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/kernel/tracepoint.c
-+++ b/kernel/tracepoint.c
-@@ -359,7 +359,7 @@ static int tracepoint_remove_func(struct
- 	} else {
- 		rcu_assign_pointer(tp->funcs, tp_funcs);
- 		tracepoint_update_call(tp, tp_funcs,
--				       tp_funcs[0].func != old[0].func);
-+				       tp_funcs[0].data != old[0].data);
- 	}
- 	release_probes(old);
- 	return 0;
+diff --git a/drivers/net/ethernet/neterion/vxge/vxge-main.c b/drivers/net/ethernet/neterion/vxge/vxge-main.c
+index 5ae3fa82909f..0766288e2f38 100644
+--- a/drivers/net/ethernet/neterion/vxge/vxge-main.c
++++ b/drivers/net/ethernet/neterion/vxge/vxge-main.c
+@@ -3529,13 +3529,13 @@ static void vxge_device_unregister(struct __vxge_hw_device *hldev)
+ 
+ 	kfree(vdev->vpaths);
+ 
+-	/* we are safe to free it now */
+-	free_netdev(dev);
+-
+ 	vxge_debug_init(vdev->level_trace, "%s: ethernet device unregistered",
+ 			buf);
+ 	vxge_debug_entryexit(vdev->level_trace,	"%s: %s:%d  Exiting...", buf,
+ 			     __func__, __LINE__);
++
++	/* we are safe to free it now */
++	free_netdev(dev);
+ }
+ 
+ /*
+-- 
+2.30.2
+
 
 
