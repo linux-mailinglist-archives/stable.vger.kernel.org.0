@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA5403E8136
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:57:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CDE63E80D4
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:53:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232020AbhHJR4k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:56:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55478 "EHLO mail.kernel.org"
+        id S236515AbhHJRw7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:52:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237415AbhHJRyf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:54:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D00461220;
-        Tue, 10 Aug 2021 17:44:17 +0000 (UTC)
+        id S235319AbhHJRu4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:50:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6BCD86127C;
+        Tue, 10 Aug 2021 17:42:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617458;
-        bh=QKRjStoIKL4RoqgWyVEI9Ygpvtxi08YtDeGdgzdTtGY=;
+        s=korg; t=1628617378;
+        bh=47z18lZHVJx6cN21SmFq96wIvNVv0oSuxjzDMUTqTGs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uRgJY0SOD9YRne6cWh3z77jFWvfan/Vcynb3HfhKfg4ut+7Ivhw9iftFQTrevd2eS
-         ytMdl7bhdTBCPFhYZWnlUCZ1uOs7yFDljaqM3lFfdnq/xWpbDV0O1q3J8eFyWnpcse
-         Ug/P31CxHvbcZmX5Xh4AjW0vTfkwSxBgQBeLcGJ8=
+        b=noYfsidRVHyl9fB+b3X9QVFTgPWs4OHrzxkRjcogYUd33wyxxbYmCV1NFVaCLJEM6
+         QnSYvjHEs0MDyiLJDx5UCQlHXRx0BhQCAYF466vL87QeaH8dZCRhRjNs5BtxObwrRN
+         blAZLkouZcnOmJKf+qgiBOnFChXrvel8pFqAHcxw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Dario Binacchi <dariobin@libero.it>,
-        Gabriel Fernandez <gabriel.fernandez@st.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 024/175] clk: stm32f4: fix post divisor setup for I2S/SAI PLLs
-Date:   Tue, 10 Aug 2021 19:28:52 +0200
-Message-Id: <20210810173001.749896861@linuxfoundation.org>
+Subject: [PATCH 5.13 025/175] ARM: dts: am437x-l4: fix typo in can@0 node
+Date:   Tue, 10 Aug 2021 19:28:53 +0200
+Message-Id: <20210810173001.780866798@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
 References: <20210810173000.928681411@linuxfoundation.org>
@@ -43,84 +42,31 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dario Binacchi <dariobin@libero.it>
 
-[ Upstream commit 24b5b1978cd5a80db58e2a19db2f9c36fe8d4f7a ]
+[ Upstream commit 0162a9964365fd26e34575e121b17d021204c481 ]
 
-Enabling the framebuffer leads to a system hang. Running, as a debug
-hack, the store_pan() function in drivers/video/fbdev/core/fbsysfs.c
-without taking the console_lock, allows to see the crash backtrace on
-the serial line.
+Replace clock-name with clock-names.
 
-~ # echo 0 0 > /sys/class/graphics/fb0/pan
-
-[    9.719414] Unhandled exception: IPSR = 00000005 LR = fffffff1
-[    9.726937] CPU: 0 PID: 49 Comm: sh Not tainted 5.13.0-rc5 #9
-[    9.733008] Hardware name: STM32 (Device Tree Support)
-[    9.738296] PC is at clk_gate_is_enabled+0x0/0x28
-[    9.743426] LR is at stm32f4_pll_div_set_rate+0xf/0x38
-[    9.748857] pc : [<0011e4be>]    lr : [<0011f9e3>]    psr: 0100000b
-[    9.755373] sp : 00bc7be0  ip : 00000000  fp : 001f3ac4
-[    9.760812] r10: 002610d0  r9 : 01efe920  r8 : 00540560
-[    9.766269] r7 : 02e7ddb0  r6 : 0173eed8  r5 : 00000000  r4 : 004027c0
-[    9.773081] r3 : 0011e4bf  r2 : 02e7ddb0  r1 : 0173eed8  r0 : 1d3267b8
-[    9.779911] xPSR: 0100000b
-[    9.782719] CPU: 0 PID: 49 Comm: sh Not tainted 5.13.0-rc5 #9
-[    9.788791] Hardware name: STM32 (Device Tree Support)
-[    9.794120] [<0000afa1>] (unwind_backtrace) from [<0000a33f>] (show_stack+0xb/0xc)
-[    9.802421] [<0000a33f>] (show_stack) from [<0000a8df>] (__invalid_entry+0x4b/0x4c)
-
-The `pll_num' field in the post_div_data configuration contained a wrong
-value which also referenced an uninitialized hardware clock when
-clk_register_pll_div() was called.
-
-Fixes: 517633ef630e ("clk: stm32f4: Add post divisor for I2S & SAI PLLs")
+Fixes: 2a4117df9b43 ("ARM: dts: Fix dcan driver probe failed on am437x platform")
 Signed-off-by: Dario Binacchi <dariobin@libero.it>
-Reviewed-by: Gabriel Fernandez <gabriel.fernandez@st.com>
-Link: https://lore.kernel.org/r/20210725160725.10788-1-dariobin@libero.it
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-stm32f4.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ arch/arm/boot/dts/am437x-l4.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clk/clk-stm32f4.c b/drivers/clk/clk-stm32f4.c
-index 18117ce5ff85..5c75e3d906c2 100644
---- a/drivers/clk/clk-stm32f4.c
-+++ b/drivers/clk/clk-stm32f4.c
-@@ -526,7 +526,7 @@ struct stm32f4_pll {
- 
- struct stm32f4_pll_post_div_data {
- 	int idx;
--	u8 pll_num;
-+	int pll_idx;
- 	const char *name;
- 	const char *parent;
- 	u8 flag;
-@@ -557,13 +557,13 @@ static const struct clk_div_table post_divr_table[] = {
- 
- #define MAX_POST_DIV 3
- static const struct stm32f4_pll_post_div_data  post_div_data[MAX_POST_DIV] = {
--	{ CLK_I2SQ_PDIV, PLL_I2S, "plli2s-q-div", "plli2s-q",
-+	{ CLK_I2SQ_PDIV, PLL_VCO_I2S, "plli2s-q-div", "plli2s-q",
- 		CLK_SET_RATE_PARENT, STM32F4_RCC_DCKCFGR, 0, 5, 0, NULL},
- 
--	{ CLK_SAIQ_PDIV, PLL_SAI, "pllsai-q-div", "pllsai-q",
-+	{ CLK_SAIQ_PDIV, PLL_VCO_SAI, "pllsai-q-div", "pllsai-q",
- 		CLK_SET_RATE_PARENT, STM32F4_RCC_DCKCFGR, 8, 5, 0, NULL },
- 
--	{ NO_IDX, PLL_SAI, "pllsai-r-div", "pllsai-r", CLK_SET_RATE_PARENT,
-+	{ NO_IDX, PLL_VCO_SAI, "pllsai-r-div", "pllsai-r", CLK_SET_RATE_PARENT,
- 		STM32F4_RCC_DCKCFGR, 16, 2, 0, post_divr_table },
- };
- 
-@@ -1774,7 +1774,7 @@ static void __init stm32f4_rcc_init(struct device_node *np)
- 				post_div->width,
- 				post_div->flag_div,
- 				post_div->div_table,
--				clks[post_div->pll_num],
-+				clks[post_div->pll_idx],
- 				&stm32f4_clk_lock);
- 
- 		if (post_div->idx != NO_IDX)
+diff --git a/arch/arm/boot/dts/am437x-l4.dtsi b/arch/arm/boot/dts/am437x-l4.dtsi
+index a6f19ae7d3e6..f73ecec1995a 100644
+--- a/arch/arm/boot/dts/am437x-l4.dtsi
++++ b/arch/arm/boot/dts/am437x-l4.dtsi
+@@ -1595,7 +1595,7 @@
+ 				compatible = "ti,am4372-d_can", "ti,am3352-d_can";
+ 				reg = <0x0 0x2000>;
+ 				clocks = <&dcan1_fck>;
+-				clock-name = "fck";
++				clock-names = "fck";
+ 				syscon-raminit = <&scm_conf 0x644 1>;
+ 				interrupts = <GIC_SPI 49 IRQ_TYPE_LEVEL_HIGH>;
+ 				status = "disabled";
 -- 
 2.30.2
 
