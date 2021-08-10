@@ -2,153 +2,217 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C940D3E594A
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 13:42:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE1C83E5951
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 13:45:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237022AbhHJLmZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 07:42:25 -0400
-Received: from mga18.intel.com ([134.134.136.126]:10270 "EHLO mga18.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238248AbhHJLmX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 07:42:23 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10070"; a="202054049"
-X-IronPort-AV: E=Sophos;i="5.84,310,1620716400"; 
-   d="scan'208";a="202054049"
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Aug 2021 04:42:01 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.84,310,1620716400"; 
-   d="scan'208";a="503093147"
-Received: from fmsmsx603.amr.corp.intel.com ([10.18.126.83])
-  by orsmga001.jf.intel.com with ESMTP; 10 Aug 2021 04:42:01 -0700
-Received: from fmsmsx612.amr.corp.intel.com (10.18.126.92) by
- fmsmsx603.amr.corp.intel.com (10.18.126.83) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2242.10; Tue, 10 Aug 2021 04:42:00 -0700
-Received: from bgsmsx604.gar.corp.intel.com (10.67.234.6) by
- fmsmsx612.amr.corp.intel.com (10.18.126.92) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2242.10; Tue, 10 Aug 2021 04:41:59 -0700
-Received: from bgsmsx604.gar.corp.intel.com ([10.67.234.6]) by
- BGSMSX604.gar.corp.intel.com ([10.67.234.6]) with mapi id 15.01.2242.010;
- Tue, 10 Aug 2021 17:11:57 +0530
-From:   "Shankar, Uma" <uma.shankar@intel.com>
-To:     "Nautiyal, Ankit K" <ankit.k.nautiyal@intel.com>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>
-CC:     "Zanoni, Paulo R" <paulo.r.zanoni@intel.com>,
-        "ville.syrjala@linux.intel.com" <ville.syrjala@linux.intel.com>,
-        "daniel.vetter@ffwll.ch" <daniel.vetter@ffwll.ch>,
-        "jani.nikula@linux.intel.com" <jani.nikula@linux.intel.com>,
-        "joonas.lahtinen@linux.intel.com" <joonas.lahtinen@linux.intel.com>,
-        "Vivi, Rodrigo" <rodrigo.vivi@intel.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH v2] drm/i915/display: Fix the 12 BPC bits for PIPE_MISC
- reg
-Thread-Topic: [PATCH v2] drm/i915/display: Fix the 12 BPC bits for PIPE_MISC
- reg
-Thread-Index: AQHXh6HO8iXi7QpLAkasFNuHwzlb3qtsptow
-Date:   Tue, 10 Aug 2021 11:41:57 +0000
-Message-ID: <8e03166cf37749329f5f92ca025c61c6@intel.com>
-References: <1627908997-32236-1-git-send-email-ankit.k.nautiyal@intel.com>
-In-Reply-To: <1627908997-32236-1-git-send-email-ankit.k.nautiyal@intel.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-dlp-product: dlpe-windows
-dlp-reaction: no-action
-dlp-version: 11.5.1.3
-x-originating-ip: [10.223.10.1]
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+        id S233709AbhHJLpq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 07:45:46 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:37562 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233534AbhHJLpp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Aug 2021 07:45:45 -0400
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 17ABY09B123658;
+        Tue, 10 Aug 2021 07:45:09 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : reply-to : references : mime-version : content-type
+ : content-transfer-encoding : in-reply-to; s=pp1;
+ bh=DrxOvVjXvx4Usb0oRpmvjcssmygkJTOd39m1oRTMqWA=;
+ b=jdULNt1L6s1kaRAqq/Pktez8U6DO+82GmMUI2ayh7Pe8fNdaEzmBf8aDQ4c8s+pOWD4c
+ KVKgNdKUxsoDeLKO3QyMTInJo8aTMkEabnTj+CZxXUeyaZdtdC4vVIXbrP3VXAIHnpEk
+ HDKzgUzqY/Sav0mxy5GRbPyVYCn/PmCykhmqtsRwV9IWUww6+A85Y8v5wjwA8xlxvbjP
+ QRYWLXe5SksMGbBbqFa/m+T5c+IE3L9DKteLWAllwHKEIOeEOq8SvA8H6bHId/opKQDY
+ +J+8Q6H5bIWICBS0CYs38SHcbJq99Ln0CrU1x8Pi8zSQT2x0oYhNRI2GfqEAq/X3m7Xi OQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3abq69b53u-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 10 Aug 2021 07:45:08 -0400
+Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 17ABYNHw127420;
+        Tue, 10 Aug 2021 07:45:08 -0400
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3abq69b530-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 10 Aug 2021 07:45:08 -0400
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 17ABhcCZ023174;
+        Tue, 10 Aug 2021 11:45:06 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma01fra.de.ibm.com with ESMTP id 3a9ht8nbhe-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 10 Aug 2021 11:45:05 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 17ABfsXw58065158
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 10 Aug 2021 11:41:54 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2C7EFA408E;
+        Tue, 10 Aug 2021 11:45:03 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5688DA4040;
+        Tue, 10 Aug 2021 11:45:01 +0000 (GMT)
+Received: from linux.vnet.ibm.com (unknown [9.126.150.29])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 10 Aug 2021 11:45:01 +0000 (GMT)
+Date:   Tue, 10 Aug 2021 17:15:00 +0530
+From:   Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+To:     C?dric Le Goater <clg@kaod.org>
+Cc:     linuxppc-dev@lists.ozlabs.org,
+        Michael Ellerman <mpe@ellerman.id.au>, stable@vger.kernel.org,
+        Geetika Moolchandani <Geetika.Moolchandani1@ibm.com>,
+        Laurent Vivier <lvivier@redhat.com>
+Subject: Re: [PATCH v2] powerpc/xive: Do not skip CPU-less nodes when
+ creating the IPIs
+Message-ID: <20210810114500.GA21942@linux.vnet.ibm.com>
+Reply-To: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+References: <20210807072057.184698-1-clg@kaod.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210807072057.184698-1-clg@kaod.org>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: fTe7YivEAUtEoM3gO7sMQIp-cilkYyyc
+X-Proofpoint-ORIG-GUID: A84w7q9yz5WAXuzKybwMJINUsSe7ANke
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-08-10_05:2021-08-10,2021-08-10 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 adultscore=0
+ bulkscore=0 priorityscore=1501 phishscore=0 mlxlogscore=999 clxscore=1011
+ malwarescore=0 lowpriorityscore=0 mlxscore=0 suspectscore=0 spamscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2107140000
+ definitions=main-2108100073
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogTmF1dGl5YWwsIEFua2l0
-IEsgPGFua2l0LmsubmF1dGl5YWxAaW50ZWwuY29tPg0KPiBTZW50OiBNb25kYXksIEF1Z3VzdCAy
-LCAyMDIxIDY6MjcgUE0NCj4gVG86IGludGVsLWdmeEBsaXN0cy5mcmVlZGVza3RvcC5vcmcNCj4g
-Q2M6IFNoYW5rYXIsIFVtYSA8dW1hLnNoYW5rYXJAaW50ZWwuY29tPjsgWmFub25pLCBQYXVsbyBS
-DQo+IDxwYXVsby5yLnphbm9uaUBpbnRlbC5jb20+OyB2aWxsZS5zeXJqYWxhQGxpbnV4LmludGVs
-LmNvbTsgZGFuaWVsLnZldHRlckBmZndsbC5jaDsNCj4gamFuaS5uaWt1bGFAbGludXguaW50ZWwu
-Y29tOyBqb29uYXMubGFodGluZW5AbGludXguaW50ZWwuY29tOyBWaXZpLCBSb2RyaWdvDQo+IDxy
-b2RyaWdvLnZpdmlAaW50ZWwuY29tPjsgc3RhYmxlQHZnZXIua2VybmVsLm9yZw0KPiBTdWJqZWN0
-OiBbUEFUQ0ggdjJdIGRybS9pOTE1L2Rpc3BsYXk6IEZpeCB0aGUgMTIgQlBDIGJpdHMgZm9yIFBJ
-UEVfTUlTQyByZWcNCj4gDQo+IEZyb206IEFua2l0IE5hdXRpeWFsIDxhbmtpdC5rLm5hdXRpeWFs
-QGludGVsLmNvbT4NCj4gDQo+IFRpbGwgRElTUExBWTEyIHRoZSBQSVBFX01JU0MgYml0cyA1LTcg
-YXJlIHVzZWQgdG8gc2V0IHRoZSBEaXRoZXJpbmcgQlBDLCB3aXRoIHZhbGlkDQo+IHZhbHVlcyBv
-ZiA2LCA4LCAxMCBCUEMsIHdpdGggRGl0aGVyaW5nIGJpdCBlbmFibGVkLg0KPiBBbHNvLCB0aGVz
-ZSBiaXRzIGFyZSB1c2VkIGluIGNhc2Ugb2YgSFcgcmVhZG91dCBmb3IgcGlwZV9icHAgaW4gY2Fz
-ZSBvZiBEU0kuDQo+IEZvciBBRExQKyB0aGVzZSBiaXRzIGFyZSB1c2VkIHRvIHNldCB0aGUgUE9S
-VCBPVVRQVVQgQlBDLCB3aXRoIHZhbGlkIHZhbHVlcyBvZjogNiwNCj4gOCwgMTAsIDEyIEJQQywg
-YW5kIG5lZWQgdG8gYmUgcHJvZ3JhbW1lZCB3aGV0aGVyIGRpdGhlcmluZyBpcyBlbmFibGVkIG9y
-IG5vdC4NCj4gDQo+IFRoaXMgcGF0Y2g6DQo+IC1jb3JyZWN0cyB0aGUgYml0cyA1LTcgZm9yIFBJ
-UEUgTUlTQyByZWdpc3RlciBmb3IgMTIgQlBDLg0KPiAtcmVuYW1lcyB0aGUgYml0cyBhbmQgbWFz
-ayB0byBoYXZlIGdlbmVyaWMgbmFtZXMgZm9yIHRoZXNlIGJpdHMgZm9yIGRpdGhlcmluZyBicGMN
-Cj4gYW5kIHBvcnQgb3V0cHV0IGJwYy4NCj4gDQo+IHYyOiBBZGRyZXNzZWQgdGhlIGNvbW1lbnRz
-IGFuZCBzdWdnZXN0aW9ucyBmcm9tIFVtYSBTaGFua2FyOg0KPiAtQWRkICdkaXNwbGF5JyBpbiBz
-dWJqZWN0DQo+IC1BZGQgRml4ZXMgdGFnIGluIHRoZSBjb21taXQgbWVzc2FnZS4NCj4gLVRha2Ug
-Y2FyZSBvZiBEU0kgY2FzZSB3aGljaCB1c2VzIHRoZSBiaXRzIGZvciBnZXR0aW5nIHBpcGVfYnBw
-Lg0KPiANCj4gRml4ZXM6IDc1NmY4NWNmZmVmMiAoImRybS9pOTE1L2JkdzogQnJvYWR3ZWxsIGhh
-cyBQSVBFTUlTQyIpDQo+IENjOiBQYXVsbyBaYW5vbmkgPHBhdWxvLnIuemFub25pQGludGVsLmNv
-bT4gKHYxKQ0KPiBDYzogVmlsbGUgU3lyasOkbMOkIDx2aWxsZS5zeXJqYWxhQGxpbnV4LmludGVs
-LmNvbT4NCj4gQ2M6IERhbmllbCBWZXR0ZXIgPGRhbmllbC52ZXR0ZXJAZmZ3bGwuY2g+DQo+IENj
-OiBKYW5pIE5pa3VsYSA8amFuaS5uaWt1bGFAbGludXguaW50ZWwuY29tPg0KPiBDYzogSm9vbmFz
-IExhaHRpbmVuIDxqb29uYXMubGFodGluZW5AbGludXguaW50ZWwuY29tPg0KPiBDYzogUm9kcmln
-byBWaXZpIDxyb2RyaWdvLnZpdmlAaW50ZWwuY29tPg0KPiBDYzogaW50ZWwtZ2Z4QGxpc3RzLmZy
-ZWVkZXNrdG9wLm9yZw0KPiBDYzogPHN0YWJsZUB2Z2VyLmtlcm5lbC5vcmc+ICMgdjMuMTMrDQo+
-IA0KPiBTaWduZWQtb2ZmLWJ5OiBBbmtpdCBOYXV0aXlhbCA8YW5raXQuay5uYXV0aXlhbEBpbnRl
-bC5jb20+DQo+IC0tLQ0KPiAgZHJpdmVycy9ncHUvZHJtL2k5MTUvZGlzcGxheS9pbnRlbF9kaXNw
-bGF5LmMgfCAxOCArKysrKysrKystLS0tLS0tLS0NCj4gIGRyaXZlcnMvZ3B1L2RybS9pOTE1L2k5
-MTVfcmVnLmggICAgICAgICAgICAgIHwgMTUgKysrKysrKysrKy0tLS0tDQo+ICAyIGZpbGVzIGNo
-YW5nZWQsIDE5IGluc2VydGlvbnMoKyksIDE0IGRlbGV0aW9ucygtKQ0KPiANCj4gZGlmZiAtLWdp
-dCBhL2RyaXZlcnMvZ3B1L2RybS9pOTE1L2Rpc3BsYXkvaW50ZWxfZGlzcGxheS5jDQo+IGIvZHJp
-dmVycy9ncHUvZHJtL2k5MTUvZGlzcGxheS9pbnRlbF9kaXNwbGF5LmMNCj4gaW5kZXggNjVkZGI2
-Yy4uOTc2NmIzNiAxMDA2NDQNCj4gLS0tIGEvZHJpdmVycy9ncHUvZHJtL2k5MTUvZGlzcGxheS9p
-bnRlbF9kaXNwbGF5LmMNCj4gKysrIGIvZHJpdmVycy9ncHUvZHJtL2k5MTUvZGlzcGxheS9pbnRl
-bF9kaXNwbGF5LmMNCj4gQEAgLTU3NjAsMTYgKzU3NjAsMTYgQEAgc3RhdGljIHZvaWQgYmR3X3Nl
-dF9waXBlbWlzYyhjb25zdCBzdHJ1Y3QNCj4gaW50ZWxfY3J0Y19zdGF0ZSAqY3J0Y19zdGF0ZSkN
-Cj4gDQo+ICAJc3dpdGNoIChjcnRjX3N0YXRlLT5waXBlX2JwcCkgew0KPiAgCWNhc2UgMTg6DQo+
-IC0JCXZhbCB8PSBQSVBFTUlTQ19ESVRIRVJfNl9CUEM7DQo+ICsJCXZhbCB8PSBQSVBFTUlTQ182
-X0JQQzsNCj4gIAkJYnJlYWs7DQo+ICAJY2FzZSAyNDoNCj4gLQkJdmFsIHw9IFBJUEVNSVNDX0RJ
-VEhFUl84X0JQQzsNCj4gKwkJdmFsIHw9IFBJUEVNSVNDXzhfQlBDOw0KPiAgCQlicmVhazsNCj4g
-IAljYXNlIDMwOg0KPiAtCQl2YWwgfD0gUElQRU1JU0NfRElUSEVSXzEwX0JQQzsNCj4gKwkJdmFs
-IHw9IFBJUEVNSVNDXzEwX0JQQzsNCj4gIAkJYnJlYWs7DQo+ICAJY2FzZSAzNjoNCj4gLQkJdmFs
-IHw9IFBJUEVNSVNDX0RJVEhFUl8xMl9CUEM7DQo+ICsJCXZhbCB8PSBQSVBFTUlTQ18xMl9CUEM7
-DQoNCklzbid0IHRoaXMgYml0IG5vdCBzdXBwb3J0ZWQgb24gcHJpb3IgdG8gR2VuMTMgcGxhdGZv
-cm1zLCBzbyBmcm9tIHRoYXQgcGVyc3BlY3RpdmUgaXQncyBhbg0KSW52YWxpZCBvcGVyYXRpb24u
-IENhbiB5b3UgY29uZmlybS4NCg0KPiAgCQlicmVhazsNCj4gIAlkZWZhdWx0Og0KPiAgCQlNSVNT
-SU5HX0NBU0UoY3J0Y19zdGF0ZS0+cGlwZV9icHApOw0KPiBAQCAtNTgyMiwxNCArNTgyMiwxNCBA
-QCBpbnQgYmR3X2dldF9waXBlbWlzY19icHAoc3RydWN0IGludGVsX2NydGMgKmNydGMpDQo+IA0K
-PiAgCXRtcCA9IGludGVsX2RlX3JlYWQoZGV2X3ByaXYsIFBJUEVNSVNDKGNydGMtPnBpcGUpKTsN
-Cj4gDQo+IC0Jc3dpdGNoICh0bXAgJiBQSVBFTUlTQ19ESVRIRVJfQlBDX01BU0spIHsNCj4gLQlj
-YXNlIFBJUEVNSVNDX0RJVEhFUl82X0JQQzoNCj4gKwlzd2l0Y2ggKHRtcCAmIFBJUEVNSVNDX0JQ
-Q19NQVNLKSB7DQo+ICsJY2FzZSBQSVBFTUlTQ182X0JQQzoNCj4gIAkJcmV0dXJuIDE4Ow0KPiAt
-CWNhc2UgUElQRU1JU0NfRElUSEVSXzhfQlBDOg0KPiArCWNhc2UgUElQRU1JU0NfOF9CUEM6DQo+
-ICAJCXJldHVybiAyNDsNCj4gLQljYXNlIFBJUEVNSVNDX0RJVEhFUl8xMF9CUEM6DQo+ICsJY2Fz
-ZSBQSVBFTUlTQ18xMF9CUEM6DQo+ICAJCXJldHVybiAzMDsNCj4gLQljYXNlIFBJUEVNSVNDX0RJ
-VEhFUl8xMl9CUEM6DQo+ICsJY2FzZSBQSVBFTUlTQ18xMl9CUEM6DQo+ICAJCXJldHVybiAzNjsN
-Cg0KU2FtZSBoZXJlLg0KDQo+ICAJZGVmYXVsdDoNCj4gIAkJTUlTU0lOR19DQVNFKHRtcCk7DQo+
-IGRpZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9kcm0vaTkxNS9pOTE1X3JlZy5oIGIvZHJpdmVycy9n
-cHUvZHJtL2k5MTUvaTkxNV9yZWcuaA0KPiBpbmRleCA5NDNmZTQ4Li5iYmZlNGY0IDEwMDY0NA0K
-PiAtLS0gYS9kcml2ZXJzL2dwdS9kcm0vaTkxNS9pOTE1X3JlZy5oDQo+ICsrKyBiL2RyaXZlcnMv
-Z3B1L2RybS9pOTE1L2k5MTVfcmVnLmgNCj4gQEAgLTYxNjYsMTEgKzYxNjYsMTYgQEAgZW51bSB7
-DQo+ICAjZGVmaW5lICAgUElQRU1JU0NfSERSX01PREVfUFJFQ0lTSU9OCSgxIDw8IDIzKSAvKiBp
-Y2wrICovDQo+ICAjZGVmaW5lICAgUElQRU1JU0NfT1VUUFVUX0NPTE9SU1BBQ0VfWVVWICAoMSA8
-PCAxMSkNCj4gICNkZWZpbmUgICBQSVBFTUlTQ19QSVhFTF9ST1VORElOR19UUlVOQwlSRUdfQklU
-KDgpIC8qIHRnbCsgKi8NCj4gLSNkZWZpbmUgICBQSVBFTUlTQ19ESVRIRVJfQlBDX01BU0sJKDcg
-PDwgNSkNCj4gLSNkZWZpbmUgICBQSVBFTUlTQ19ESVRIRVJfOF9CUEMJCSgwIDw8IDUpDQo+IC0j
-ZGVmaW5lICAgUElQRU1JU0NfRElUSEVSXzEwX0JQQwkoMSA8PCA1KQ0KPiAtI2RlZmluZSAgIFBJ
-UEVNSVNDX0RJVEhFUl82X0JQQwkJKDIgPDwgNSkNCj4gLSNkZWZpbmUgICBQSVBFTUlTQ19ESVRI
-RVJfMTJfQlBDCSgzIDw8IDUpDQo+ICsvKg0KPiArICogRm9yIERpc3BsYXkgPCAxMywgQml0cyA1
-LTcgb2YgUElQRSBNSVNDIHJlcHJlc2VudCBESVRIRVIgQlBDLg0KPiArICogQURMUCssIHRoZSBi
-aXRzIDUtNyByZXByZXNlbnQgUE9SVCBPVVRQVVQgQlBDIHdpdGggdmFsaWQgdmFsdWVzIG9mOg0K
-PiArICogNiwgOCwgMTAsIDEyIEJQQy4NCj4gKyAqLw0KPiArI2RlZmluZSAgIFBJUEVNSVNDX0JQ
-Q19NQVNLCQkoNyA8PCA1KQ0KPiArI2RlZmluZSAgIFBJUEVNSVNDXzhfQlBDCQkoMCA8PCA1KQ0K
-PiArI2RlZmluZSAgIFBJUEVNSVNDXzEwX0JQQwkJKDEgPDwgNSkNCj4gKyNkZWZpbmUgICBQSVBF
-TUlTQ182X0JQQwkJKDIgPDwgNSkNCj4gKyNkZWZpbmUgICBQSVBFTUlTQ18xMl9CUEMJCSg0IDw8
-IDUpIC8qIGFkbHArICovDQo+ICAjZGVmaW5lICAgUElQRU1JU0NfRElUSEVSX0VOQUJMRQkoMSA8
-PCA0KQ0KPiAgI2RlZmluZSAgIFBJUEVNSVNDX0RJVEhFUl9UWVBFX01BU0sJKDMgPDwgMikNCj4g
-ICNkZWZpbmUgICBQSVBFTUlTQ19ESVRIRVJfVFlQRV9TUAkoMCA8PCAyKQ0KPiAtLQ0KPiAyLjgu
-MQ0KDQo=
+* C?dric Le Goater <clg@kaod.org> [2021-08-07 09:20:57]:
+
+> On PowerVM, CPU-less nodes can be populated with hot-plugged CPUs at
+> runtime. Today, the IPI is not created for such nodes, and hot-plugged
+> CPUs use a bogus IPI, which leads to soft lockups.
+> 
+> We can not directly allocate and request the IPI on demand because
+> bringup_up() is called under the IRQ sparse lock. The alternative is
+> to allocate the IPIs for all possible nodes at startup and to request
+> the mapping on demand when the first CPU of a node is brought up.
+> 
+
+Thank you, this version too works for me.
+
+Tested-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+
+
+> Fixes: 7dcc37b3eff9 ("powerpc/xive: Map one IPI interrupt per node")
+> Cc: stable@vger.kernel.org # v5.13
+> Reported-by: Geetika Moolchandani <Geetika.Moolchandani1@ibm.com>
+> Cc: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+> Cc: Laurent Vivier <lvivier@redhat.com>
+> Signed-off-by: Cédric Le Goater <clg@kaod.org>
+> Message-Id: <20210629131542.743888-1-clg@kaod.org>
+> Signed-off-by: Cédric Le Goater <clg@kaod.org>
+> ---
+>  arch/powerpc/sysdev/xive/common.c | 35 +++++++++++++++++++++----------
+>  1 file changed, 24 insertions(+), 11 deletions(-)
+> 
+> diff --git a/arch/powerpc/sysdev/xive/common.c b/arch/powerpc/sysdev/xive/common.c
+> index dbdbbc2f1dc5..943fd30095af 100644
+> --- a/arch/powerpc/sysdev/xive/common.c
+> +++ b/arch/powerpc/sysdev/xive/common.c
+> @@ -67,6 +67,7 @@ static struct irq_domain *xive_irq_domain;
+>  static struct xive_ipi_desc {
+>  	unsigned int irq;
+>  	char name[16];
+> +	atomic_t started;
+>  } *xive_ipis;
+>  
+>  /*
+> @@ -1120,7 +1121,7 @@ static const struct irq_domain_ops xive_ipi_irq_domain_ops = {
+>  	.alloc  = xive_ipi_irq_domain_alloc,
+>  };
+>  
+> -static int __init xive_request_ipi(void)
+> +static int __init xive_init_ipis(void)
+>  {
+>  	struct fwnode_handle *fwnode;
+>  	struct irq_domain *ipi_domain;
+> @@ -1144,10 +1145,6 @@ static int __init xive_request_ipi(void)
+>  		struct xive_ipi_desc *xid = &xive_ipis[node];
+>  		struct xive_ipi_alloc_info info = { node };
+>  
+> -		/* Skip nodes without CPUs */
+> -		if (cpumask_empty(cpumask_of_node(node)))
+> -			continue;
+> -
+>  		/*
+>  		 * Map one IPI interrupt per node for all cpus of that node.
+>  		 * Since the HW interrupt number doesn't have any meaning,
+> @@ -1159,11 +1156,6 @@ static int __init xive_request_ipi(void)
+>  		xid->irq = ret;
+>  
+>  		snprintf(xid->name, sizeof(xid->name), "IPI-%d", node);
+> -
+> -		ret = request_irq(xid->irq, xive_muxed_ipi_action,
+> -				  IRQF_PERCPU | IRQF_NO_THREAD, xid->name, NULL);
+> -
+> -		WARN(ret < 0, "Failed to request IPI %d: %d\n", xid->irq, ret);
+>  	}
+>  
+>  	return ret;
+> @@ -1178,6 +1170,22 @@ static int __init xive_request_ipi(void)
+>  	return ret;
+>  }
+>  
+> +static int __init xive_request_ipi(unsigned int cpu)
+> +{
+> +	struct xive_ipi_desc *xid = &xive_ipis[early_cpu_to_node(cpu)];
+> +	int ret;
+> +
+> +	if (atomic_inc_return(&xid->started) > 1)
+> +		return 0;
+> +
+> +	ret = request_irq(xid->irq, xive_muxed_ipi_action,
+> +			  IRQF_PERCPU | IRQF_NO_THREAD,
+> +			  xid->name, NULL);
+> +
+> +	WARN(ret < 0, "Failed to request IPI %d: %d\n", xid->irq, ret);
+> +	return ret;
+> +}
+> +
+>  static int xive_setup_cpu_ipi(unsigned int cpu)
+>  {
+>  	unsigned int xive_ipi_irq = xive_ipi_cpu_to_irq(cpu);
+> @@ -1192,6 +1200,9 @@ static int xive_setup_cpu_ipi(unsigned int cpu)
+>  	if (xc->hw_ipi != XIVE_BAD_IRQ)
+>  		return 0;
+>  
+> +	/* Register the IPI */
+> +	xive_request_ipi(cpu);
+> +
+>  	/* Grab an IPI from the backend, this will populate xc->hw_ipi */
+>  	if (xive_ops->get_ipi(cpu, xc))
+>  		return -EIO;
+> @@ -1231,6 +1242,8 @@ static void xive_cleanup_cpu_ipi(unsigned int cpu, struct xive_cpu *xc)
+>  	if (xc->hw_ipi == XIVE_BAD_IRQ)
+>  		return;
+>  
+> +	/* TODO: clear IPI mapping */
+> +
+>  	/* Mask the IPI */
+>  	xive_do_source_set_mask(&xc->ipi_data, true);
+>  
+> @@ -1253,7 +1266,7 @@ void __init xive_smp_probe(void)
+>  	smp_ops->cause_ipi = xive_cause_ipi;
+>  
+>  	/* Register the IPI */
+> -	xive_request_ipi();
+> +	xive_init_ipis();
+>  
+>  	/* Allocate and setup IPI for the boot CPU */
+>  	xive_setup_cpu_ipi(smp_processor_id());
+> -- 
+> 2.31.1
+> 
+
+-- 
+Thanks and Regards
+Srikar Dronamraju
