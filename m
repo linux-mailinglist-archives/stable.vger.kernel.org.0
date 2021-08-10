@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1055A3E81D9
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:05:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84FCB3E81DB
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:05:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235320AbhHJSDO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 14:03:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33870 "EHLO mail.kernel.org"
+        id S235828AbhHJSDU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 14:03:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236342AbhHJSBN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 14:01:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 84241613A6;
-        Tue, 10 Aug 2021 17:46:56 +0000 (UTC)
+        id S237585AbhHJSBT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 14:01:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BBC62613B1;
+        Tue, 10 Aug 2021 17:46:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617617;
-        bh=KBmQ3bn4sgLwrPrWnfZSzIrd/x4pj4uOkNu0Gabd6FA=;
+        s=korg; t=1628617619;
+        bh=1oExI4xT1X0DgvO44tr3R7Kv855uBCclom3Awv+5h/8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T40XNhdkbu4BRX2CHLeHAfrprIYZHw/Zmu5J7wpyIseAZkHMYvFRq3tF2MOz2xc2X
-         21yZ/NfErfCCgdUb1V1aDaWzDEXAwErofu+mcWOAd1vwqWWsxOySkIM0SI1FislXGo
-         Gs2FY0qIJKDYGRZQnRk1Q39j00VmQAwNRPdwDzVU=
+        b=FRMB7DZcSg4fg37ZaVVr6vhNJb7staWz7lq2y9F+63q7XhB3o+CNOm67Wh1g3XQtr
+         Az1Hn061hcb2fOEt/o1P748tn28qQf7xkh8J5I5kfcPPxpgBDQOkJg2+UoztL+hZPK
+         yY++Lpx5Ha/1D0Hi3bjILBMOJKY6zK6g9BK31pKQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+        stable@vger.kernel.org, Kamal Agrawal <kamaagra@codeaurora.org>,
         "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.13 103/175] tracing: Reject string operand in the histogram expression
-Date:   Tue, 10 Aug 2021 19:30:11 +0200
-Message-Id: <20210810173004.353520047@linuxfoundation.org>
+Subject: [PATCH 5.13 104/175] tracing: Fix NULL pointer dereference in start_creating
+Date:   Tue, 10 Aug 2021 19:30:12 +0200
+Message-Id: <20210810173004.392950614@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
 References: <20210810173000.928681411@linuxfoundation.org>
@@ -39,74 +39,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Kamal Agrawal <kamaagra@codeaurora.org>
 
-commit a9d10ca4986571bffc19778742d508cc8dd13e02 upstream.
+commit ff41c28c4b54052942180d8b3f49e75f1445135a upstream.
 
-Since the string type can not be the target of the addition / subtraction
-operation, it must be rejected. Without this fix, the string type silently
-converted to digits.
+The event_trace_add_tracer() can fail. In this case, it leads to a crash
+in start_creating with below call stack. Handle the error scenario
+properly in trace_array_create_dir.
 
-Link: https://lkml.kernel.org/r/162742654278.290973.1523000673366456634.stgit@devnote2
+Call trace:
+down_write+0x7c/0x204
+start_creating.25017+0x6c/0x194
+tracefs_create_file+0xc4/0x2b4
+init_tracer_tracefs+0x5c/0x940
+trace_array_create_dir+0x58/0xb4
+trace_array_create+0x1bc/0x2b8
+trace_array_get_by_name+0xdc/0x18c
+
+Link: https://lkml.kernel.org/r/1627651386-21315-1-git-send-email-kamaagra@codeaurora.org
 
 Cc: stable@vger.kernel.org
-Fixes: 100719dcef447 ("tracing: Add simple expression support to hist triggers")
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Fixes: 4114fbfd02f1 ("tracing: Enable creating new instance early boot")
+Signed-off-by: Kamal Agrawal <kamaagra@codeaurora.org>
 Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace_events_hist.c |   20 +++++++++++++++++++-
- 1 file changed, 19 insertions(+), 1 deletion(-)
+ kernel/trace/trace.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/kernel/trace/trace_events_hist.c
-+++ b/kernel/trace/trace_events_hist.c
-@@ -65,7 +65,8 @@
- 	C(INVALID_SORT_MODIFIER,"Invalid sort modifier"),		\
- 	C(EMPTY_SORT_FIELD,	"Empty sort field"),			\
- 	C(TOO_MANY_SORT_FIELDS,	"Too many sort fields (Max = 2)"),	\
--	C(INVALID_SORT_FIELD,	"Sort field must be a key or a val"),
-+	C(INVALID_SORT_FIELD,	"Sort field must be a key or a val"),	\
-+	C(INVALID_STR_OPERAND,	"String type can not be an operand in expression"),
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -9006,8 +9006,10 @@ static int trace_array_create_dir(struct
+ 		return -EINVAL;
  
- #undef C
- #define C(a, b)		HIST_ERR_##a
-@@ -2156,6 +2157,13 @@ static struct hist_field *parse_unary(st
- 		ret = PTR_ERR(operand1);
- 		goto free;
- 	}
-+	if (operand1->flags & HIST_FIELD_FL_STRING) {
-+		/* String type can not be the operand of unary operator. */
-+		hist_err(file->tr, HIST_ERR_INVALID_STR_OPERAND, errpos(str));
-+		destroy_hist_field(operand1, 0);
-+		ret = -EINVAL;
-+		goto free;
+ 	ret = event_trace_add_tracer(tr->dir, tr);
+-	if (ret)
++	if (ret) {
+ 		tracefs_remove(tr->dir);
++		return ret;
 +	}
  
- 	expr->flags |= operand1->flags &
- 		(HIST_FIELD_FL_TIMESTAMP | HIST_FIELD_FL_TIMESTAMP_USECS);
-@@ -2257,6 +2265,11 @@ static struct hist_field *parse_expr(str
- 		operand1 = NULL;
- 		goto free;
- 	}
-+	if (operand1->flags & HIST_FIELD_FL_STRING) {
-+		hist_err(file->tr, HIST_ERR_INVALID_STR_OPERAND, errpos(operand1_str));
-+		ret = -EINVAL;
-+		goto free;
-+	}
- 
- 	/* rest of string could be another expression e.g. b+c in a+b+c */
- 	operand_flags = 0;
-@@ -2266,6 +2279,11 @@ static struct hist_field *parse_expr(str
- 		operand2 = NULL;
- 		goto free;
- 	}
-+	if (operand2->flags & HIST_FIELD_FL_STRING) {
-+		hist_err(file->tr, HIST_ERR_INVALID_STR_OPERAND, errpos(str));
-+		ret = -EINVAL;
-+		goto free;
-+	}
- 
- 	ret = check_expr_operands(file->tr, operand1, operand2);
- 	if (ret)
+ 	init_tracer_tracefs(tr, tr->dir);
+ 	__update_tracer_options(tr);
 
 
