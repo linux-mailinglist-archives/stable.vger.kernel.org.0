@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 971FF3E7FAB
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:41:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A1E53E811C
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:56:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235109AbhHJRlv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:41:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43990 "EHLO mail.kernel.org"
+        id S236074AbhHJRzd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:55:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235749AbhHJRkH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:40:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A60161206;
-        Tue, 10 Aug 2021 17:37:49 +0000 (UTC)
+        id S236922AbhHJRxn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:53:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7163F61361;
+        Tue, 10 Aug 2021 17:43:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617070;
-        bh=hCxvFIr5vaXMMEqdCrye02AzYOB4btFnjcgi13YO/VE=;
+        s=korg; t=1628617437;
+        bh=Go60ThmHXscegeuQYcMBmI7Z5VB9f+0G8+vWx9I0Tvg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NPE8B7UDQJft9iBDZK4lw96bjmQNDGakN5njUkQ8ClLB+u28ClPybo547zoxiACD/
-         cTKD0nJITWC0EWYEisB6jp9djTYCRDH8nNnz/TqqE9szLfTxA/bZrbD/hkFhucuG1D
-         fM8e7KW1fWryeqHZvVgSAj3i5rVk3a07qIALcJ6Q=
+        b=JjQnHOlTwEMp2dWVglaM0XX7QiXWXPq2p+QdEhqVObg5a508Cmr9jL4hlFLWh+nLU
+         nyO+RKfmFtzCch8+U9mDld473UK0wtuGO/TX9U657W3xifh3bmji6ecnTkrFPsDE0J
+         Jwe95FX25SaMrCHW7x4W/7kkPMLEh45fhXLtLrPw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Forster <aforster@cloudflare.com>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Palmer Dabbelt <palmerdabbelt@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 030/135] net, gro: Set inner transport header offset in tcp/udp GRO hook
-Date:   Tue, 10 Aug 2021 19:29:24 +0200
-Message-Id: <20210810172956.693269846@linuxfoundation.org>
+Subject: [PATCH 5.13 057/175] riscv: Disable STACKPROTECTOR_PER_TASK if GCC_PLUGIN_RANDSTRUCT is enabled
+Date:   Tue, 10 Aug 2021 19:29:25 +0200
+Message-Id: <20210810173002.819465277@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
-References: <20210810172955.660225700@linuxfoundation.org>
+In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
+References: <20210810173000.928681411@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,143 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Sitnicki <jakub@cloudflare.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit d51c5907e9809a803b276883d203f45849abd4d6 ]
+[ Upstream commit a18b14d8886614b3c7d290c4cfc33389822b0535 ]
 
-GSO expects inner transport header offset to be valid when
-skb->encapsulation flag is set. GSO uses this value to calculate the length
-of an individual segment of a GSO packet in skb_gso_transport_seglen().
+riscv uses the value of TSK_STACK_CANARY to set
+stack-protector-guard-offset. With GCC_PLUGIN_RANDSTRUCT enabled, that
+value is non-deterministic, and with riscv:allmodconfig often results
+in build errors such as
 
-However, tcp/udp gro_complete callbacks don't update the
-skb->inner_transport_header when processing an encapsulated TCP/UDP
-segment. As a result a GRO skb has ->inner_transport_header set to a value
-carried over from earlier skb processing.
+cc1: error: '8120' is not a valid offset in '-mstack-protector-guard-offset='
 
-This can have mild to tragic consequences. From miscalculating the GSO
-segment length to triggering a page fault [1], when trying to read TCP/UDP
-header at an address past the skb->data page.
+Enable STACKPROTECTOR_PER_TASK only if GCC_PLUGIN_RANDSTRUCT is disabled
+to fix the problem.
 
-The latter scenario leads to an oops report like so:
-
-  BUG: unable to handle page fault for address: ffff9fa7ec00d008
-  #PF: supervisor read access in kernel mode
-  #PF: error_code(0x0000) - not-present page
-  PGD 123f201067 P4D 123f201067 PUD 123f209067 PMD 0
-  Oops: 0000 [#1] SMP NOPTI
-  CPU: 44 PID: 0 Comm: swapper/44 Not tainted 5.4.53-cloudflare-2020.7.21 #1
-  Hardware name: HYVE EDGE-METAL-GEN10/HS-1811DLite1, BIOS V2.15 02/21/2020
-  RIP: 0010:skb_gso_transport_seglen+0x44/0xa0
-  Code: c0 41 83 e0 11 f6 87 81 00 00 00 20 74 30 0f b7 87 aa 00 00 00 0f [...]
-  RSP: 0018:ffffad8640bacbb8 EFLAGS: 00010202
-  RAX: 000000000000feda RBX: ffff9fcc8d31bc00 RCX: ffff9fa7ec00cffc
-  RDX: ffff9fa7ebffdec0 RSI: 000000000000feda RDI: 0000000000000122
-  RBP: 00000000000005c4 R08: 0000000000000001 R09: 0000000000000000
-  R10: ffff9fe588ae3800 R11: ffff9fe011fc92f0 R12: ffff9fcc8d31bc00
-  R13: ffff9fe0119d4300 R14: 00000000000005c4 R15: ffff9fba57d70900
-  FS:  0000000000000000(0000) GS:ffff9fe68df00000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: ffff9fa7ec00d008 CR3: 0000003e99b1c000 CR4: 0000000000340ee0
-  Call Trace:
-   <IRQ>
-   skb_gso_validate_network_len+0x11/0x70
-   __ip_finish_output+0x109/0x1c0
-   ip_sublist_rcv_finish+0x57/0x70
-   ip_sublist_rcv+0x2aa/0x2d0
-   ? ip_rcv_finish_core.constprop.0+0x390/0x390
-   ip_list_rcv+0x12b/0x14f
-   __netif_receive_skb_list_core+0x2a9/0x2d0
-   netif_receive_skb_list_internal+0x1b5/0x2e0
-   napi_complete_done+0x93/0x140
-   veth_poll+0xc0/0x19f [veth]
-   ? mlx5e_napi_poll+0x221/0x610 [mlx5_core]
-   net_rx_action+0x1f8/0x790
-   __do_softirq+0xe1/0x2bf
-   irq_exit+0x8e/0xc0
-   do_IRQ+0x58/0xe0
-   common_interrupt+0xf/0xf
-   </IRQ>
-
-The bug can be observed in a simple setup where we send IP/GRE/IP/TCP
-packets into a netns over a veth pair. Inside the netns, packets are
-forwarded to dummy device:
-
-  trafgen -> [veth A]--[veth B] -forward-> [dummy]
-
-For veth B to GRO aggregate packets on receive, it needs to have an XDP
-program attached (for example, a trivial XDP_PASS). Additionally, for UDP,
-we need to enable GSO_UDP_L4 feature on the device:
-
-  ip netns exec A ethtool -K AB rx-udp-gro-forwarding on
-
-The last component is an artificial delay to increase the chances of GRO
-batching happening:
-
-  ip netns exec A tc qdisc add dev AB root \
-     netem delay 200us slot 5ms 10ms packets 2 bytes 64k
-
-With such a setup in place, the bug can be observed by tracing the skb
-outer and inner offsets when GSO skb is transmitted from the dummy device:
-
-tcp:
-
-FUNC              DEV   SKB_LEN  NH  TH ENC INH ITH GSO_SIZE GSO_TYPE
-ip_finish_output  dumB     2830 270 290   1 294 254     1383 (tcpv4,gre,)
-                                                ^^^
-udp:
-
-FUNC              DEV   SKB_LEN  NH  TH ENC INH ITH GSO_SIZE GSO_TYPE
-ip_finish_output  dumB     2818 270 290   1 294 254     1383 (gre,udp_l4,)
-                                                ^^^
-
-Fix it by updating the inner transport header offset in tcp/udp
-gro_complete callbacks, similar to how {inet,ipv6}_gro_complete callbacks
-update the inner network header offset, when skb->encapsulation flag is
-set.
-
-[1] https://lore.kernel.org/netdev/CAKxSbF01cLpZem2GFaUaifh0S-5WYViZemTicAg7FCHOnh6kug@mail.gmail.com/
-
-Fixes: bf296b125b21 ("tcp: Add GRO support")
-Fixes: f993bc25e519 ("net: core: handle encapsulation offloads when computing segment lengths")
-Fixes: e20cf8d3f1f7 ("udp: implement GRO for plain UDP sockets.")
-Reported-by: Alex Forster <aforster@cloudflare.com>
-Signed-off-by: Jakub Sitnicki <jakub@cloudflare.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: fea2fed201ee5 ("riscv: Enable per-task stack canaries")
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_offload.c | 3 +++
- net/ipv4/udp_offload.c | 4 ++++
- 2 files changed, 7 insertions(+)
+ arch/riscv/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/ipv4/tcp_offload.c b/net/ipv4/tcp_offload.c
-index e09147ac9a99..fc61cd3fea65 100644
---- a/net/ipv4/tcp_offload.c
-+++ b/net/ipv4/tcp_offload.c
-@@ -298,6 +298,9 @@ int tcp_gro_complete(struct sk_buff *skb)
- 	if (th->cwr)
- 		skb_shinfo(skb)->gso_type |= SKB_GSO_TCP_ECN;
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index 18ec0f9bb8d5..3c3647ac33cb 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -489,6 +489,7 @@ config CC_HAVE_STACKPROTECTOR_TLS
  
-+	if (skb->encapsulation)
-+		skb->inner_transport_header = skb->transport_header;
-+
- 	return 0;
- }
- EXPORT_SYMBOL(tcp_gro_complete);
-diff --git a/net/ipv4/udp_offload.c b/net/ipv4/udp_offload.c
-index 6e2b02cf7841..f4b8e56068e0 100644
---- a/net/ipv4/udp_offload.c
-+++ b/net/ipv4/udp_offload.c
-@@ -615,6 +615,10 @@ static int udp_gro_complete_segment(struct sk_buff *skb)
+ config STACKPROTECTOR_PER_TASK
+ 	def_bool y
++	depends on !GCC_PLUGIN_RANDSTRUCT
+ 	depends on STACKPROTECTOR && CC_HAVE_STACKPROTECTOR_TLS
  
- 	skb_shinfo(skb)->gso_segs = NAPI_GRO_CB(skb)->count;
- 	skb_shinfo(skb)->gso_type |= SKB_GSO_UDP_L4;
-+
-+	if (skb->encapsulation)
-+		skb->inner_transport_header = skb->transport_header;
-+
- 	return 0;
- }
- 
+ config PHYS_RAM_BASE_FIXED
 -- 
 2.30.2
 
