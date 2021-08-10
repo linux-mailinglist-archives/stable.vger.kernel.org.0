@@ -2,74 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 01E323E53F1
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 08:54:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3EEC3E53F4
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 08:55:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232747AbhHJGyh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 02:54:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44568 "EHLO mail.kernel.org"
+        id S235109AbhHJG4E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 02:56:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231482AbhHJGyh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 02:54:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D4A761019;
-        Tue, 10 Aug 2021 06:54:14 +0000 (UTC)
+        id S231482AbhHJG4D (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 02:56:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1CC7660FC4;
+        Tue, 10 Aug 2021 06:55:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628578455;
-        bh=WSwF9Soxod+R7alLk1M9QZ5n1BJ7jILJ2EnisQdX4Eo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=pFLGkpfi/7fwcSizS0TAxFT6FjovJCW1hcPSuT0tE7RuBbosk8RCs9cxCxa4DR20J
-         2Nj3uZx3ggSLgHb7Q9cydTBTrHMhWVwy4Y6woYwy2MALarG0poz+LS1BmoplrQTv/l
-         l/A+rzRNMeXGErf6cRoEc3Gp1TGtrJuGCksWz8Vs=
-Date:   Tue, 10 Aug 2021 08:54:13 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Willy Tarreau <w@1wt.eu>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        "Alex Xu (Hello71)" <alex_y_xu@yahoo.ca>,
-        stable <stable@vger.kernel.org>
-Subject: Re: FAILED: patch "[PATCH] pipe: increase minimum default pipe size
- to 2 pages" failed to apply to 4.4-stable tree
-Message-ID: <YRIilQUgbcejSREr@kroah.com>
-References: <162850274511123@kroah.com>
- <CAHk-=wg9Ar-XBVQ860-TLA-eo8N=UYO8DQ5Ye0rBBuiwzv_N_A@mail.gmail.com>
- <YRFXe06Eih48qlD7@kroah.com>
- <CAHk-=wh5E7qqooGiqHJ3U2=PBFPs1UKuXMcoNi+3mQ4wZDha7g@mail.gmail.com>
- <CAHk-=whoV+SNzvOLSOOfM=Gj3m7A81Y4TYd2qtSO3soStiWxFQ@mail.gmail.com>
- <YRFomYOJvuJx8VTT@kroah.com>
- <20210809190406.GA23706@1wt.eu>
+        s=korg; t=1628578541;
+        bh=SeHYDimNQH4mQD9jBWtANp0yyLGtmvplf8V0qnfkm7c=;
+        h=Subject:To:From:Date:From;
+        b=gpZKRx1t7tQqOGqwVMzJGF+Jej34LVKqjeye2P9wER19MOO082Lq8qOTD+oBD7sKJ
+         liaeFRG1Tjr2F3hrvVl6mczePGYlef25Ho+psKRaeuemGM4BoKBisVBxjKs9+e/1jc
+         L84QIZe7RgKkhJeutZKW4c+U+jjTJUT4jrlmZ6so=
+Subject: patch "iio: adc: ti-ads7950: Ensure CS is deasserted after reading channels" added to staging-linus
+To:     u.kleine-koenig@pengutronix.de, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org, david@lechnology.com
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 10 Aug 2021 08:55:31 +0200
+Message-ID: <162857853155166@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210809190406.GA23706@1wt.eu>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 09, 2021 at 09:04:06PM +0200, Willy Tarreau wrote:
-> On Mon, Aug 09, 2021 at 07:40:41PM +0200, Greg Kroah-Hartman wrote:
-> > >  fs/pipe.c | 17 ++++++++++++++++-
-> > >  1 file changed, 16 insertions(+), 1 deletion(-)
-> > 
-> > This looks good to me, I'll queue it up in a bit as it's more
-> > descriptive than Alex's backport.
-> 
-> Greg, do you *really* want to backport it to 4.4 ? I mean, if nobody
-> faces this issue in 4.4 I can see more risks with the fix that without
-> for systems with low memory (or manually tuned memory usage).
 
-I always prefer to merge "known fixes" to the stable kernel trees as
-somehow once one person hits a bug, everyone hits it, no matter how long
-it was in hiding :)
+This is a note to let you know that I've just added the patch titled
 
-The additional memory usage here seems low to me, and we backported the
-needed accounting changes there a long time ago, and we know that 4.4.y
-is being used for build servers as well as other huge hosting providers.
-The "tiny" systems that might be on 4.4 are not really updating
-themselves to newer kernels from what I can tell.
+    iio: adc: ti-ads7950: Ensure CS is deasserted after reading channels
 
-So I would prefer to take this patch, but am always willing to revert it
-if someone reports problems with it, as it keeps us in sync with the
-other stable branches, and with upstream, as close as possible.
+to my staging git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
+in the staging-linus branch.
 
-thanks,
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-greg k-h
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From 9898cb24e454602beb6e17bacf9f97b26c85c955 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+Date: Fri, 9 Jul 2021 12:11:10 +0200
+Subject: iio: adc: ti-ads7950: Ensure CS is deasserted after reading channels
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The ADS7950 requires that CS is deasserted after each SPI word. Before
+commit e2540da86ef8 ("iio: adc: ti-ads7950: use SPI_CS_WORD to reduce
+CPU usage") the driver used a message with one spi transfer per channel
+where each but the last one had .cs_change set to enforce a CS toggle.
+This was wrongly translated into a message with a single transfer and
+.cs_change set which results in a CS toggle after each word but the
+last which corrupts the first adc conversion of all readouts after the
+first readout.
+
+Fixes: e2540da86ef8 ("iio: adc: ti-ads7950: use SPI_CS_WORD to reduce CPU usage")
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Reviewed-by: David Lechner <david@lechnology.com>
+Tested-by: David Lechner <david@lechnology.com>
+Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210709101110.1814294-1-u.kleine-koenig@pengutronix.de
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+---
+ drivers/iio/adc/ti-ads7950.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/drivers/iio/adc/ti-ads7950.c b/drivers/iio/adc/ti-ads7950.c
+index 2383eacada87..a2b83f0bd526 100644
+--- a/drivers/iio/adc/ti-ads7950.c
++++ b/drivers/iio/adc/ti-ads7950.c
+@@ -568,7 +568,6 @@ static int ti_ads7950_probe(struct spi_device *spi)
+ 	st->ring_xfer.tx_buf = &st->tx_buf[0];
+ 	st->ring_xfer.rx_buf = &st->rx_buf[0];
+ 	/* len will be set later */
+-	st->ring_xfer.cs_change = true;
+ 
+ 	spi_message_add_tail(&st->ring_xfer, &st->ring_msg);
+ 
+-- 
+2.32.0
+
+
