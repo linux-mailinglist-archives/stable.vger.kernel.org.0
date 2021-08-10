@@ -2,32 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 635513E7F5C
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:41:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD8473E7F72
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:41:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232869AbhHJRkL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:40:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43252 "EHLO mail.kernel.org"
+        id S234171AbhHJRka (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:40:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235115AbhHJRjV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:39:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CFEF561107;
-        Tue, 10 Aug 2021 17:36:55 +0000 (UTC)
+        id S234036AbhHJRgY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:36:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 31B1661102;
+        Tue, 10 Aug 2021 17:35:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617016;
-        bh=CKykmzahHhMXt9m0NrdblO10om6+KNmQ7qwbpRTb4xQ=;
+        s=korg; t=1628616937;
+        bh=b8ucVcPD2wtz7DtHz5kQaTr0FZT+ixBzfUtIHfKnbeo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BMTVOep//oSjerI2A7AzU84MztvhJjTUWDqF/ZIxQP4tc9AlzK0zGpCOZ9fnFThfm
-         B3TD2ULkVRPpQLbz0snqizMM7G4dMtua8ebvbOkgt7QD8u2uS8hOLo5jpvLlnds0cy
-         t0Toed6tqO9EMhwmYz1bD31tfcmB2KAG7pEb1y9M=
+        b=YOBQR/h+fGJyt5/F+2sIbmM9rvdhsoe4zYeuzzylJIHNTJQfNRu4H0VFN+UQMKruW
+         sLz8lEytvtvmfs1HjvTiOSoGlFm6jbdtLfgaErdu1cIEurma4xAV8JxWEKFQwzcfa0
+         0ji76p4TLYU3oB9hevk+JIAm29CEZeMJ2oLGIll4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hui Su <suhui@zeku.com>,
+        stable@vger.kernel.org, Tom Zanussi <zanussi@kernel.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
         "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.4 50/85] scripts/tracing: fix the bug that cant parse raw_trace_func
-Date:   Tue, 10 Aug 2021 19:30:23 +0200
-Message-Id: <20210810172949.929498718@linuxfoundation.org>
+Subject: [PATCH 5.4 51/85] tracing / histogram: Give calculation hist_fields a size
+Date:   Tue, 10 Aug 2021 19:30:24 +0200
+Message-Id: <20210810172949.960836411@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
 References: <20210810172948.192298392@linuxfoundation.org>
@@ -39,66 +43,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Su <suhui@zeku.com>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-commit 1c0cec64a7cc545eb49f374a43e9f7190a14defa upstream.
+commit 2c05caa7ba8803209769b9e4fe02c38d77ae88d0 upstream.
 
-Since commit 77271ce4b2c0 ("tracing: Add irq, preempt-count and need resched info
-to default trace output"), the default trace output format has been changed to:
-          <idle>-0       [009] d.h. 22420.068695: _raw_spin_lock_irqsave <-hrtimer_interrupt
-          <idle>-0       [000] ..s. 22420.068695: _nohz_idle_balance <-run_rebalance_domains
-          <idle>-0       [011] d.h. 22420.068695: account_process_tick <-update_process_times
+When working on my user space applications, I found a bug in the synthetic
+event code where the automated synthetic event field was not matching the
+event field calculation it was attached to. Looking deeper into it, it was
+because the calculation hist_field was not given a size.
 
-origin trace output format:(before v3.2.0)
-     # tracer: nop
-     #
-     #           TASK-PID    CPU#    TIMESTAMP  FUNCTION
-     #              | |       |          |         |
-          migration/0-6     [000]    50.025810: rcu_note_context_switch <-__schedule
-          migration/0-6     [000]    50.025812: trace_rcu_utilization <-rcu_note_context_switch
-          migration/0-6     [000]    50.025813: rcu_sched_qs <-rcu_note_context_switch
-          migration/0-6     [000]    50.025815: rcu_preempt_qs <-rcu_note_context_switch
-          migration/0-6     [000]    50.025817: trace_rcu_utilization <-rcu_note_context_switch
-          migration/0-6     [000]    50.025818: debug_lockdep_rcu_enabled <-__schedule
-          migration/0-6     [000]    50.025820: debug_lockdep_rcu_enabled <-__schedule
+The synthetic event fields are matched to their hist_fields either by
+having the field have an identical string type, or if that does not match,
+then the size and signed values are used to match the fields.
 
-The draw_functrace.py(introduced in v2.6.28) can't parse the new version format trace_func,
-So we need modify draw_functrace.py to adapt the new version trace output format.
+The problem arose when I tried to match a calculation where the fields
+were "unsigned int". My tool created a synthetic event of type "u32". But
+it failed to match. The string was:
 
-Link: https://lkml.kernel.org/r/20210611022107.608787-1-suhui@zeku.com
+  diff=field1-field2:onmatch(event).trace(synth,$diff)
 
+Adding debugging into the kernel, I found that the size of "diff" was 0.
+And since it was given "unsigned int" as a type, the histogram fallback
+code used size and signed. The signed matched, but the size of u32 (4) did
+not match zero, and the event failed to be created.
+
+This can be worse if the field you want to match is not one of the
+acceptable fields for a synthetic event. As event fields can have any type
+that is supported in Linux, this can cause an issue. For example, if a
+type is an enum. Then there's no way to use that with any calculations.
+
+Have the calculation field simply take on the size of what it is
+calculating.
+
+Link: https://lkml.kernel.org/r/20210730171951.59c7743f@oasis.local.home
+
+Cc: Tom Zanussi <zanussi@kernel.org>
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
 Cc: stable@vger.kernel.org
-Fixes: 77271ce4b2c0 tracing: Add irq, preempt-count and need resched info to default trace output
-Signed-off-by: Hui Su <suhui@zeku.com>
+Fixes: 100719dcef447 ("tracing: Add simple expression support to hist triggers")
 Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- scripts/tracing/draw_functrace.py |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ kernel/trace/trace_events_hist.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/scripts/tracing/draw_functrace.py
-+++ b/scripts/tracing/draw_functrace.py
-@@ -17,7 +17,7 @@ Usage:
- 	$ cat /sys/kernel/debug/tracing/trace_pipe > ~/raw_trace_func
- 	Wait some times but not too much, the script is a bit slow.
- 	Break the pipe (Ctrl + Z)
--	$ scripts/draw_functrace.py < raw_trace_func > draw_functrace
-+	$ scripts/tracing/draw_functrace.py < ~/raw_trace_func > draw_functrace
- 	Then you have your drawn trace in draw_functrace
- """
+--- a/kernel/trace/trace_events_hist.c
++++ b/kernel/trace/trace_events_hist.c
+@@ -3169,6 +3169,10 @@ static struct hist_field *parse_expr(str
  
-@@ -103,10 +103,10 @@ def parseLine(line):
- 	line = line.strip()
- 	if line.startswith("#"):
- 		raise CommentLineException
--	m = re.match("[^]]+?\\] +([0-9.]+): (\\w+) <-(\\w+)", line)
-+	m = re.match("[^]]+?\\] +([a-z.]+) +([0-9.]+): (\\w+) <-(\\w+)", line)
- 	if m is None:
- 		raise BrokenLineException
--	return (m.group(1), m.group(2), m.group(3))
-+	return (m.group(2), m.group(3), m.group(4))
- 
- 
- def main():
+ 	expr->operands[0] = operand1;
+ 	expr->operands[1] = operand2;
++
++	/* The operand sizes should be the same, so just pick one */
++	expr->size = operand1->size;
++
+ 	expr->operator = field_op;
+ 	expr->name = expr_str(expr, 0);
+ 	expr->type = kstrdup(operand1->type, GFP_KERNEL);
 
 
