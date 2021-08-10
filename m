@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 819F33E7FE5
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:45:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0A663E7FF3
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:45:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235871AbhHJRny (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:43:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41666 "EHLO mail.kernel.org"
+        id S235126AbhHJRpA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:45:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235073AbhHJRlv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:41:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D5A3961103;
-        Tue, 10 Aug 2021 17:38:36 +0000 (UTC)
+        id S233665AbhHJRnJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:43:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7193560EFF;
+        Tue, 10 Aug 2021 17:39:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617117;
-        bh=kKkK3wXtQo9mLqPEZ38S4Y1FLgCwRzc12w1kAC3agD0=;
+        s=korg; t=1628617142;
+        bh=8T2v0KABr0EE4NnSDFDGDvowLI6RwHuQleLbm1JGzvA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vofndGzrwgFG1Twoeg2Ht4OWHB0UcNIHtm7zquCHNifgxpVZ1gYadfrrFqD96mcoh
-         u4wSW9+3d48LvDAfpfzSK1m1N+a/euoEAPcUlkThgzggq1+/3IssWpUVMNuRmkuy9H
-         VRQOSkXqTK1O5lmZ/hBCjxKZZanO0b4PwnoOgBC4=
+        b=J5OGKTJjeTPK+X4gl83+PUrrxa20rPwsL1mmExnJxJ+55F96g6wrh4D+MCW/+ylPb
+         Q048zam1WhSZDRZKwGxlEDItBlKWrgfmbbIfIVjOOsnOOIFgAUxTOq/8muUQRQTply
+         OwH3fci/QfGHxU+wkeO/jC1fXNMhJKCSJ0t3Hsgk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steve Bennett <steveb@workware.net.au>,
-        Marek Vasut <marex@denx.de>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang Hai <wanghai38@huawei.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 035/135] net: phy: micrel: Fix detection of ksz87xx switch
-Date:   Tue, 10 Aug 2021 19:29:29 +0200
-Message-Id: <20210810172956.870080277@linuxfoundation.org>
+Subject: [PATCH 5.10 036/135] net: natsemi: Fix missing pci_disable_device() in probe and remove
+Date:   Tue, 10 Aug 2021 19:29:30 +0200
+Message-Id: <20210810172956.903669691@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
 References: <20210810172955.660225700@linuxfoundation.org>
@@ -41,82 +41,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve Bennett <steveb@workware.net.au>
+From: Wang Hai <wanghai38@huawei.com>
 
-[ Upstream commit a5e63c7d38d548b8dab6c6205e0b6af76899dbf5 ]
+[ Upstream commit 7fe74dfd41c428afb24e2e615470832fa997ff14 ]
 
-The logic for discerning between KSZ8051 and KSZ87XX PHYs is incorrect
-such that the that KSZ87XX switch is not identified correctly.
+Replace pci_enable_device() with pcim_enable_device(),
+pci_disable_device() and pci_release_regions() will be
+called in release automatically.
 
-ksz8051_ksz8795_match_phy_device() uses the parameter ksz_phy_id
-to discriminate whether it was called from ksz8051_match_phy_device()
-or from ksz8795_match_phy_device() but since PHY_ID_KSZ87XX is the
-same value as PHY_ID_KSZ8051, this doesn't work.
-
-Instead use a bool to discriminate the caller.
-
-Without this patch, the KSZ8795 switch port identifies as:
-
-ksz8795-switch spi3.1 ade1 (uninitialized): PHY [dsa-0.1:03] driver [Generic PHY]
-
-With the patch, it identifies correctly:
-
-ksz8795-switch spi3.1 ade1 (uninitialized): PHY [dsa-0.1:03] driver [Micrel KSZ87XX Switch]
-
-Fixes: 8b95599c55ed24b36cf4 ("net: phy: micrel: Discern KSZ8051 and KSZ8795 PHYs")
-Signed-off-by: Steve Bennett <steveb@workware.net.au>
-Reviewed-by: Marek Vasut <marex@denx.de>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/micrel.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/natsemi/natsemi.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/phy/micrel.c b/drivers/net/phy/micrel.c
-index 9b0bc8b74bc0..9a566c5b36a6 100644
---- a/drivers/net/phy/micrel.c
-+++ b/drivers/net/phy/micrel.c
-@@ -349,11 +349,11 @@ static int ksz8041_config_aneg(struct phy_device *phydev)
+diff --git a/drivers/net/ethernet/natsemi/natsemi.c b/drivers/net/ethernet/natsemi/natsemi.c
+index b81e1487945c..14a17ad730f0 100644
+--- a/drivers/net/ethernet/natsemi/natsemi.c
++++ b/drivers/net/ethernet/natsemi/natsemi.c
+@@ -819,7 +819,7 @@ static int natsemi_probe1(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 		printk(version);
+ #endif
+ 
+-	i = pci_enable_device(pdev);
++	i = pcim_enable_device(pdev);
+ 	if (i) return i;
+ 
+ 	/* natsemi has a non-standard PM control register
+@@ -852,7 +852,7 @@ static int natsemi_probe1(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	ioaddr = ioremap(iostart, iosize);
+ 	if (!ioaddr) {
+ 		i = -ENOMEM;
+-		goto err_ioremap;
++		goto err_pci_request_regions;
+ 	}
+ 
+ 	/* Work around the dropped serial bit. */
+@@ -974,9 +974,6 @@ static int natsemi_probe1(struct pci_dev *pdev, const struct pci_device_id *ent)
+  err_register_netdev:
+ 	iounmap(ioaddr);
+ 
+- err_ioremap:
+-	pci_release_regions(pdev);
+-
+  err_pci_request_regions:
+ 	free_netdev(dev);
+ 	return i;
+@@ -3241,7 +3238,6 @@ static void natsemi_remove1(struct pci_dev *pdev)
+ 
+ 	NATSEMI_REMOVE_FILE(pdev, dspcfg_workaround);
+ 	unregister_netdev (dev);
+-	pci_release_regions (pdev);
+ 	iounmap(ioaddr);
+ 	free_netdev (dev);
  }
- 
- static int ksz8051_ksz8795_match_phy_device(struct phy_device *phydev,
--					    const u32 ksz_phy_id)
-+					    const bool ksz_8051)
- {
- 	int ret;
- 
--	if ((phydev->phy_id & MICREL_PHY_ID_MASK) != ksz_phy_id)
-+	if ((phydev->phy_id & MICREL_PHY_ID_MASK) != PHY_ID_KSZ8051)
- 		return 0;
- 
- 	ret = phy_read(phydev, MII_BMSR);
-@@ -366,7 +366,7 @@ static int ksz8051_ksz8795_match_phy_device(struct phy_device *phydev,
- 	 * the switch does not.
- 	 */
- 	ret &= BMSR_ERCAP;
--	if (ksz_phy_id == PHY_ID_KSZ8051)
-+	if (ksz_8051)
- 		return ret;
- 	else
- 		return !ret;
-@@ -374,7 +374,7 @@ static int ksz8051_ksz8795_match_phy_device(struct phy_device *phydev,
- 
- static int ksz8051_match_phy_device(struct phy_device *phydev)
- {
--	return ksz8051_ksz8795_match_phy_device(phydev, PHY_ID_KSZ8051);
-+	return ksz8051_ksz8795_match_phy_device(phydev, true);
- }
- 
- static int ksz8081_config_init(struct phy_device *phydev)
-@@ -402,7 +402,7 @@ static int ksz8061_config_init(struct phy_device *phydev)
- 
- static int ksz8795_match_phy_device(struct phy_device *phydev)
- {
--	return ksz8051_ksz8795_match_phy_device(phydev, PHY_ID_KSZ87XX);
-+	return ksz8051_ksz8795_match_phy_device(phydev, false);
- }
- 
- static int ksz9021_load_values_from_of(struct phy_device *phydev,
 -- 
 2.30.2
 
