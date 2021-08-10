@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B59393E5D8E
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 16:21:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 053773E5D9A
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 16:22:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242976AbhHJOV4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 10:21:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54544 "EHLO mail.kernel.org"
+        id S242988AbhHJOWH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 10:22:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54576 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243430AbhHJOTv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 10:19:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 28AA86112E;
-        Tue, 10 Aug 2021 14:17:04 +0000 (UTC)
+        id S243484AbhHJOTx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 10:19:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D34E861107;
+        Tue, 10 Aug 2021 14:17:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1628605025;
-        bh=DoMuIADmnDj9EChJTE7OtZlZBw7FURpr+DUtx3a8aJY=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QQ/xDZ3zYG5BhH6Lq67uQlnmgJte0I/c7Z0Lmja21XvuxOYz/z/9Z9hHnjtznDO3x
-         YWNCZbvv201W/N8iCK9pZjhR7tc8C41m4Si4CFerdeGXOOS/0ooq0zjN0HgWRXEegK
-         pFqmM/PLJ1dq0TBBzGTYm4V56o+YAgbsjAeYtwwjOVpRKg96hoBJ1sOHA0SlkGSNA5
-         0Essk05l8S7DUTCewaBX5Wi//aaMiF0huhn8DYuOqbDfVxwE1icHPWb7McPul+7/Xc
-         /O60WPlgIPzWEirmm/qLry21e6dbNby6ycVW0t6Jm/Yu3UeLwOwQNydqger+q2TCRv
-         r733Muv+5k9/w==
+        s=k20201202; t=1628605029;
+        bh=bXXPPSl3UEzk1Aov3GYXRmLxrCKsx+1rwjgrEp9BZgc=;
+        h=From:To:Cc:Subject:Date:From;
+        b=BEoRu3TFkNb/uVtt6+M85DqcDYuDpTRZsdifLjTHZEa7ZPq7X7sWn1mONiEc3Cx2e
+         F88vtmnaX9JiAyIokTVOs/AFfDAgyFNem4kNNOkEf+z54LFt3sCaVCOrOX0BeJoJwb
+         jMJDgrIP0Qg9Vi/9oOaWrsOKZHIAYELRH5f1kbCzhj+oCm2g30y50lY/l2g3hUcCWX
+         WV07eMf6FNFQgtFTfHCx6qEIpPOsUqj45NJT+8h95uKbPz6mLM09r5aom+vKWbmdRH
+         xmg0VxxGYplMPCwnaT3gRPnrESoZo3VpzWSgpyBZMr1zu41rFtsL9eEj6fDrxJRmH0
+         3VWpwEIPEMIBw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sudeep Holla <sudeep.holla@arm.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 7/8] ARM: dts: nomadik: Fix up interrupt controller node names
-Date:   Tue, 10 Aug 2021 10:16:54 -0400
-Message-Id: <20210810141655.3118498-7-sashal@kernel.org>
+Cc:     Yu Kuai <yukuai3@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        dmaengine@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 1/6] dmaengine: usb-dmac: Fix PM reference leak in usb_dmac_probe()
+Date:   Tue, 10 Aug 2021 10:17:02 -0400
+Message-Id: <20210810141707.3118714-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210810141655.3118498-1-sashal@kernel.org>
-References: <20210810141655.3118498-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -43,52 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sudeep Holla <sudeep.holla@arm.com>
+From: Yu Kuai <yukuai3@huawei.com>
 
-[ Upstream commit 47091f473b364c98207c4def197a0ae386fc9af1 ]
+[ Upstream commit 1da569fa7ec8cb0591c74aa3050d4ea1397778b4 ]
 
-Once the new schema interrupt-controller/arm,vic.yaml is added, we get
-the below warnings:
+pm_runtime_get_sync will increment pm usage counter even it failed.
+Forgetting to putting operation will result in reference leak here.
+Fix it by moving the error_pm label above the pm_runtime_put() in
+the error path.
 
-	arch/arm/boot/dts/ste-nomadik-nhk15.dt.yaml:
-	intc@10140000: $nodename:0: 'intc@10140000' does not match
-	'^interrupt-controller(@[0-9a-f,]+)*$'
-
-Fix the node names for the interrupt controller to conform
-to the standard node name interrupt-controller@..
-
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20210617210825.3064367-2-sudeep.holla@arm.com
-Link: https://lore.kernel.org/r/20210626000103.830184-1-linus.walleij@linaro.org'
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Link: https://lore.kernel.org/r/20210706124521.1371901-1-yukuai3@huawei.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/ste-nomadik-stn8815.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/dma/sh/usb-dmac.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/ste-nomadik-stn8815.dtsi b/arch/arm/boot/dts/ste-nomadik-stn8815.dtsi
-index 1077ceebb2d6..87494773f409 100644
---- a/arch/arm/boot/dts/ste-nomadik-stn8815.dtsi
-+++ b/arch/arm/boot/dts/ste-nomadik-stn8815.dtsi
-@@ -755,14 +755,14 @@ clcd@10120000 {
- 			status = "disabled";
- 		};
+diff --git a/drivers/dma/sh/usb-dmac.c b/drivers/dma/sh/usb-dmac.c
+index cc8fc601ed47..416057d9f0b6 100644
+--- a/drivers/dma/sh/usb-dmac.c
++++ b/drivers/dma/sh/usb-dmac.c
+@@ -863,8 +863,8 @@ static int usb_dmac_probe(struct platform_device *pdev)
  
--		vica: intc@10140000 {
-+		vica: interrupt-controller@10140000 {
- 			compatible = "arm,versatile-vic";
- 			interrupt-controller;
- 			#interrupt-cells = <1>;
- 			reg = <0x10140000 0x20>;
- 		};
- 
--		vicb: intc@10140020 {
-+		vicb: interrupt-controller@10140020 {
- 			compatible = "arm,versatile-vic";
- 			interrupt-controller;
- 			#interrupt-cells = <1>;
+ error:
+ 	of_dma_controller_free(pdev->dev.of_node);
+-	pm_runtime_put(&pdev->dev);
+ error_pm:
++	pm_runtime_put(&pdev->dev);
+ 	pm_runtime_disable(&pdev->dev);
+ 	return ret;
+ }
 -- 
 2.30.2
 
