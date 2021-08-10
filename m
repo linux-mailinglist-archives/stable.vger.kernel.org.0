@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 246FA3E808C
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:50:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48B953E7F52
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:41:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234640AbhHJRuw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:50:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58770 "EHLO mail.kernel.org"
+        id S232582AbhHJRjv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:39:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235539AbhHJRs2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:48:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 06D9E610CB;
-        Tue, 10 Aug 2021 17:41:13 +0000 (UTC)
+        id S234988AbhHJRiw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:38:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B92EB610A7;
+        Tue, 10 Aug 2021 17:36:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617274;
-        bh=MAHoygpLlLfY3HIeSAJW9XpLd4F/lbg16/4FUEcB4XI=;
+        s=korg; t=1628617000;
+        bh=khM2PY7QX7MLxhDOYeIqaTNokyYz6VSgNNFi/PXrXU8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W0xbUtGPMO+AE3G4X0I2VWfM9cbq4QRP2C1/7aLlg3Pe+R9rg69zLyJ+BZjr2qVvj
-         wNuhkrbNrsw7p+YDsOZ/JsWoNzFGnSStPOz7VHI/oBgHMspPIDL8Cmb07D2KTBkmu0
-         fRbtqxoUUe2swGayuXqAJ4Ib0fNNiM9MW+VT9g2I=
+        b=hXy2qteP7IYPbFm4phSeLNrkUwn9uTJjB+XqA+mDs1Ib6QcXJ6xQkv4dJaVjUIbju
+         azRoWFj93sdAtE6eeDAWXM25Armu62ayqn0rIm7lGYwv3enCISLLXXNDr4qDrMWSYK
+         eyeDGNcl3WjgwXNcjGfTd04PJ1R3rYUfsX7jNVNE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Like Xu <likexu@tencent.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Liam Merwick <liam.merwick@oracle.com>,
-        Kim Phillips <kim.phillips@amd.com>
-Subject: [PATCH 5.10 123/135] perf/x86/amd: Dont touch the AMD64_EVENTSEL_HOSTONLY bit inside the guest
-Date:   Tue, 10 Aug 2021 19:30:57 +0200
-Message-Id: <20210810172959.982346545@linuxfoundation.org>
+        stable@vger.kernel.org, He Zhe <zhe.he@windriver.com>,
+        weiyuchen <weiyuchen3@huawei.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>
+Subject: [PATCH 5.4 85/85] arm64: fix compat syscall return truncation
+Date:   Tue, 10 Aug 2021 19:30:58 +0200
+Message-Id: <20210810172951.104232112@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
-References: <20210810172955.660225700@linuxfoundation.org>
+In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
+References: <20210810172948.192298392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,47 +42,176 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Like Xu <likexu@tencent.com>
+From: Mark Rutland <mark.rutland@arm.com>
 
-commit df51fe7ea1c1c2c3bfdb81279712fdd2e4ea6c27 upstream.
+commit e30e8d46cf605d216a799a28c77b8a41c328613a upstream.
 
-If we use "perf record" in an AMD Milan guest, dmesg reports a #GP
-warning from an unchecked MSR access error on MSR_F15H_PERF_CTLx:
+Due to inconsistencies in the way we manipulate compat GPRs, we have a
+few issues today:
 
-  [] unchecked MSR access error: WRMSR to 0xc0010200 (tried to write 0x0000020000110076) at rIP: 0xffffffff8106ddb4 (native_write_msr+0x4/0x20)
-  [] Call Trace:
-  []  amd_pmu_disable_event+0x22/0x90
-  []  x86_pmu_stop+0x4c/0xa0
-  []  x86_pmu_del+0x3a/0x140
+* For audit and tracing, where error codes are handled as a (native)
+  long, negative error codes are expected to be sign-extended to the
+  native 64-bits, or they may fail to be matched correctly. Thus a
+  syscall which fails with an error may erroneously be identified as
+  failing.
 
-The AMD64_EVENTSEL_HOSTONLY bit is defined and used on the host,
-while the guest perf driver should avoid such use.
+* For ptrace, *all* compat return values should be sign-extended for
+  consistency with 32-bit arm, but we currently only do this for
+  negative return codes.
 
-Fixes: 1018faa6cf23 ("perf/x86/kvm: Fix Host-Only/Guest-Only counting with SVM disabled")
-Signed-off-by: Like Xu <likexu@tencent.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Liam Merwick <liam.merwick@oracle.com>
-Tested-by: Kim Phillips <kim.phillips@amd.com>
-Tested-by: Liam Merwick <liam.merwick@oracle.com>
-Link: https://lkml.kernel.org/r/20210802070850.35295-1-likexu@tencent.com
+* As we may transiently set the upper 32 bits of some compat GPRs while
+  in the kernel, these can be sampled by perf, which is somewhat
+  confusing. This means that where a syscall returns a pointer above 2G,
+  this will be sign-extended, but will not be mistaken for an error as
+  error codes are constrained to the inclusive range [-4096, -1] where
+  no user pointer can exist.
+
+To fix all of these, we must consistently use helpers to get/set the
+compat GPRs, ensuring that we never write the upper 32 bits of the
+return code, and always sign-extend when reading the return code.  This
+patch does so, with the following changes:
+
+* We re-organise syscall_get_return_value() to always sign-extend for
+  compat tasks, and reimplement syscall_get_error() atop. We update
+  syscall_trace_exit() to use syscall_get_return_value().
+
+* We consistently use syscall_set_return_value() to set the return
+  value, ensureing the upper 32 bits are never set unexpectedly.
+
+* As the core audit code currently uses regs_return_value() rather than
+  syscall_get_return_value(), we special-case this for
+  compat_user_mode(regs) such that this will do the right thing. Going
+  forward, we should try to move the core audit code over to
+  syscall_get_return_value().
+
+Cc: <stable@vger.kernel.org>
+Reported-by: He Zhe <zhe.he@windriver.com>
+Reported-by: weiyuchen <weiyuchen3@huawei.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Link: https://lore.kernel.org/r/20210802104200.21390-1-mark.rutland@arm.com
+Signed-off-by: Will Deacon <will@kernel.org>
+[Mark: trivial conflict resolution for v5.4.y]
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/x86/events/perf_event.h |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/x86/events/perf_event.h
-+++ b/arch/x86/events/perf_event.h
-@@ -1009,9 +1009,10 @@ void x86_pmu_stop(struct perf_event *eve
+---
+ arch/arm64/include/asm/ptrace.h  |   12 +++++++++++-
+ arch/arm64/include/asm/syscall.h |   19 ++++++++++---------
+ arch/arm64/kernel/ptrace.c       |    2 +-
+ arch/arm64/kernel/signal.c       |    3 ++-
+ arch/arm64/kernel/syscall.c      |    7 ++-----
+ 5 files changed, 26 insertions(+), 17 deletions(-)
+
+--- a/arch/arm64/include/asm/ptrace.h
++++ b/arch/arm64/include/asm/ptrace.h
+@@ -299,7 +299,17 @@ static inline unsigned long kernel_stack
  
- static inline void x86_pmu_disable_event(struct perf_event *event)
+ static inline unsigned long regs_return_value(struct pt_regs *regs)
  {
-+	u64 disable_mask = __this_cpu_read(cpu_hw_events.perf_ctr_virt_mask);
- 	struct hw_perf_event *hwc = &event->hw;
+-	return regs->regs[0];
++	unsigned long val = regs->regs[0];
++
++	/*
++	 * Audit currently uses regs_return_value() instead of
++	 * syscall_get_return_value(). Apply the same sign-extension here until
++	 * audit is updated to use syscall_get_return_value().
++	 */
++	if (compat_user_mode(regs))
++		val = sign_extend64(val, 31);
++
++	return val;
+ }
  
--	wrmsrl(hwc->config_base, hwc->config);
-+	wrmsrl(hwc->config_base, hwc->config & ~disable_mask);
+ static inline void regs_set_return_value(struct pt_regs *regs, unsigned long rc)
+--- a/arch/arm64/include/asm/syscall.h
++++ b/arch/arm64/include/asm/syscall.h
+@@ -29,22 +29,23 @@ static inline void syscall_rollback(stru
+ 	regs->regs[0] = regs->orig_x0;
+ }
  
- 	if (is_counter_pair(hwc))
- 		wrmsrl(x86_pmu_config_addr(hwc->idx + 1), 0);
+-
+-static inline long syscall_get_error(struct task_struct *task,
+-				     struct pt_regs *regs)
++static inline long syscall_get_return_value(struct task_struct *task,
++					    struct pt_regs *regs)
+ {
+-	unsigned long error = regs->regs[0];
++	unsigned long val = regs->regs[0];
+ 
+ 	if (is_compat_thread(task_thread_info(task)))
+-		error = sign_extend64(error, 31);
++		val = sign_extend64(val, 31);
+ 
+-	return IS_ERR_VALUE(error) ? error : 0;
++	return val;
+ }
+ 
+-static inline long syscall_get_return_value(struct task_struct *task,
+-					    struct pt_regs *regs)
++static inline long syscall_get_error(struct task_struct *task,
++				     struct pt_regs *regs)
+ {
+-	return regs->regs[0];
++	unsigned long error = syscall_get_return_value(task, regs);
++
++	return IS_ERR_VALUE(error) ? error : 0;
+ }
+ 
+ static inline void syscall_set_return_value(struct task_struct *task,
+--- a/arch/arm64/kernel/ptrace.c
++++ b/arch/arm64/kernel/ptrace.c
+@@ -1868,7 +1868,7 @@ void syscall_trace_exit(struct pt_regs *
+ 	audit_syscall_exit(regs);
+ 
+ 	if (flags & _TIF_SYSCALL_TRACEPOINT)
+-		trace_sys_exit(regs, regs_return_value(regs));
++		trace_sys_exit(regs, syscall_get_return_value(current, regs));
+ 
+ 	if (flags & (_TIF_SYSCALL_TRACE | _TIF_SINGLESTEP))
+ 		tracehook_report_syscall(regs, PTRACE_SYSCALL_EXIT);
+--- a/arch/arm64/kernel/signal.c
++++ b/arch/arm64/kernel/signal.c
+@@ -29,6 +29,7 @@
+ #include <asm/unistd.h>
+ #include <asm/fpsimd.h>
+ #include <asm/ptrace.h>
++#include <asm/syscall.h>
+ #include <asm/signal32.h>
+ #include <asm/traps.h>
+ #include <asm/vdso.h>
+@@ -868,7 +869,7 @@ static void do_signal(struct pt_regs *re
+ 		     retval == -ERESTART_RESTARTBLOCK ||
+ 		     (retval == -ERESTARTSYS &&
+ 		      !(ksig.ka.sa.sa_flags & SA_RESTART)))) {
+-			regs->regs[0] = -EINTR;
++			syscall_set_return_value(current, regs, -EINTR, 0);
+ 			regs->pc = continue_addr;
+ 		}
+ 
+--- a/arch/arm64/kernel/syscall.c
++++ b/arch/arm64/kernel/syscall.c
+@@ -50,10 +50,7 @@ static void invoke_syscall(struct pt_reg
+ 		ret = do_ni_syscall(regs, scno);
+ 	}
+ 
+-	if (is_compat_task())
+-		ret = lower_32_bits(ret);
+-
+-	regs->regs[0] = ret;
++	syscall_set_return_value(current, regs, 0, ret);
+ }
+ 
+ static inline bool has_syscall_work(unsigned long flags)
+@@ -108,7 +105,7 @@ static void el0_svc_common(struct pt_reg
+ 	if (has_syscall_work(flags)) {
+ 		/* set default errno for user-issued syscall(-1) */
+ 		if (scno == NO_SYSCALL)
+-			regs->regs[0] = -ENOSYS;
++			syscall_set_return_value(current, regs, -ENOSYS, 0);
+ 		scno = syscall_trace_enter(regs);
+ 		if (scno == NO_SYSCALL)
+ 			goto trace_exit;
 
 
