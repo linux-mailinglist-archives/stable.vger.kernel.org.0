@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B929E3E8064
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:50:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D61D3E7EA0
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:34:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235012AbhHJRsn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:48:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58770 "EHLO mail.kernel.org"
+        id S232435AbhHJRef (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:34:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235703AbhHJRq2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:46:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 197226124D;
-        Tue, 10 Aug 2021 17:40:28 +0000 (UTC)
+        id S232186AbhHJReF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:34:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C4D4861008;
+        Tue, 10 Aug 2021 17:33:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617229;
-        bh=jef2gEx8Vc+ec0qkrg54qDt2b5Om48zuJyNo+RatI9k=;
+        s=korg; t=1628616823;
+        bh=kZHpL4mnKd89RiNQ6zs9WyFH1aDrGh+DESIMDi1T6eg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zX+WSNcBhOHTblsIZutd6fx6csvf3bvgUC6zanJFrW+LbB0CobO6JAC9/VlYc5Lb1
-         0f7SQntaS3OMXLJJDCeqgF/fng/b8vlxAuYyp3cgZVWNwxzUff3sqU2vAnSR785SMP
-         mOISx/6inf5rbq7JzviFFTJ6m6ZOHLXTwLELp6xc=
+        b=DQK46tWgJ7kEnkhAOEIrMx2wJi1JMxz+Kgmn+HMBUHrOCebjDst05HqSjtkVlNY5k
+         B0v+/cMEoGcrZtFZWoEXEtWETwfWXD3+vMDQJ7qFz3Gva3hlDjOmp8m5MLlG/LsEmy
+         7OONUC4fF246hl7QTDPJBEthbx7maGLQm4NeV1Xw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+aa7c2385d46c5eba0b89@syzkaller.appspotmail.com,
-        syzbot+abea4558531bae1ba9fe@syzkaller.appspotmail.com,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Subject: [PATCH 5.10 101/135] timers: Move clearing of base::timer_running under base:: Lock
+        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <f4bug@amsat.org>,
+        "Maciej W. Rozycki" <macro@orcam.me.uk>
+Subject: [PATCH 4.19 41/54] serial: 8250: Mask out floating 16/32-bit bus bits
 Date:   Tue, 10 Aug 2021 19:30:35 +0200
-Message-Id: <20210810172959.193183931@linuxfoundation.org>
+Message-Id: <20210810172945.543204209@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
-References: <20210810172955.660225700@linuxfoundation.org>
+In-Reply-To: <20210810172944.179901509@linuxfoundation.org>
+References: <20210810172944.179901509@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,84 +40,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Maciej W. Rozycki <macro@orcam.me.uk>
 
-commit bb7262b295472eb6858b5c49893954794027cd84 upstream.
+commit e5227c51090e165db4b48dcaa300605bfced7014 upstream.
 
-syzbot reported KCSAN data races vs. timer_base::timer_running being set to
-NULL without holding base::lock in expire_timers().
+Make sure only actual 8 bits of the IIR register are used in determining
+the port type in `autoconfig'.
 
-This looks innocent and most reads are clearly not problematic, but
-Frederic identified an issue which is:
+The `serial_in' port accessor returns the `unsigned int' type, meaning
+that with UPIO_AU, UPIO_MEM16, UPIO_MEM32, and UPIO_MEM32BE access types
+more than 8 bits of data are returned, of which the high order bits will
+often come from bus lines that are left floating in the data phase.  For
+example with the MIPS Malta board's CBUS UART, where the registers are
+aligned on 8-byte boundaries and which uses 32-bit accesses, data as
+follows is returned:
 
- int data = 0;
+YAMON> dump -32 0xbf000900 0x40
 
- void timer_func(struct timer_list *t)
- {
-    data = 1;
- }
+BF000900: 1F000942 1F000942 1F000900 1F000900  ...B...B........
+BF000910: 1F000901 1F000901 1F000900 1F000900  ................
+BF000920: 1F000900 1F000900 1F000960 1F000960  ...........`...`
+BF000930: 1F000900 1F000900 1F0009FF 1F0009FF  ................
 
- CPU 0                                            CPU 1
- ------------------------------                   --------------------------
- base = lock_timer_base(timer, &flags);           raw_spin_unlock(&base->lock);
- if (base->running_timer != timer)                call_timer_fn(timer, fn, baseclk);
-   ret = detach_if_pending(timer, base, true);    base->running_timer = NULL;
- raw_spin_unlock_irqrestore(&base->lock, flags);  raw_spin_lock(&base->lock);
+YAMON>
 
- x = data;
+Evidently high-order 24 bits return values previously driven in the
+address phase (the 3 highest order address bits used with the command
+above are masked out in the simple virtual address mapping used here and
+come out at zeros on the external bus), a common scenario with bus lines
+left floating, due to bus capacitance.
 
-If the timer has previously executed on CPU 1 and then CPU 0 can observe
-base->running_timer == NULL and returns, assuming the timer has completed,
-but it's not guaranteed on all architectures. The comment for
-del_timer_sync() makes that guarantee. Moving the assignment under
-base->lock prevents this.
+Consequently when the value of IIR, mapped at 0x1f000910, is retrieved
+in `autoconfig', it comes out at 0x1f0009c1 and when it is right-shifted
+by 6 and then assigned to 8-bit `scratch' variable, the value calculated
+is 0x27, not one of 0, 1, 2, 3 expected in port type determination.
 
-For non-RT kernel it's performance wise completely irrelevant whether the
-store happens before or after taking the lock. For an RT kernel moving the
-store under the lock requires an extra unlock/lock pair in the case that
-there is a waiter for the timer, but that's not the end of the world.
+Fix the issue then, by assigning the value returned from `serial_in' to
+`scratch' first, which masks out 24 high-order bits retrieved, and only
+then right-shift the resulting 8-bit data quantity, producing the value
+of 3 in this case, as expected.  Fix the same issue in `serial_dl_read'.
 
-Reported-by: syzbot+aa7c2385d46c5eba0b89@syzkaller.appspotmail.com
-Reported-by: syzbot+abea4558531bae1ba9fe@syzkaller.appspotmail.com
-Fixes: 030dcdd197d7 ("timers: Prepare support for PREEMPT_RT")
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Link: https://lore.kernel.org/r/87lfea7gw8.fsf@nanos.tec.linutronix.de
-Cc: stable@vger.kernel.org
+The problem first appeared with Linux 2.6.9-rc3 which predates our repo
+history, but the origin could be identified with the old MIPS/Linux repo
+also at: <git://git.kernel.org/pub/scm/linux/kernel/git/ralf/linux.git>
+as commit e0d2356c0777 ("Merge with Linux 2.6.9-rc3."), where code in
+`serial_in' was updated with this case:
+
++	case UPIO_MEM32:
++		return readl(up->port.membase + offset);
++
+
+which made it produce results outside the unsigned 8-bit range for the
+first time, though obviously it is system dependent what actual values
+appear in the high order bits retrieved and it may well have been zeros
+in the relevant positions with the system the change originally was
+intended for.  It is at that point that code in `autoconf' should have
+been updated accordingly, but clearly it was overlooked.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Cc: stable@vger.kernel.org # v2.6.12+
+Reviewed-by: Philippe Mathieu-Daudé <f4bug@amsat.org>
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Link: https://lore.kernel.org/r/alpine.DEB.2.21.2106260516220.37803@angie.orcam.me.uk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/time/timer.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/tty/serial/8250/8250_port.c |   12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
---- a/kernel/time/timer.c
-+++ b/kernel/time/timer.c
-@@ -1265,8 +1265,10 @@ static inline void timer_base_unlock_exp
- static void timer_sync_wait_running(struct timer_base *base)
+--- a/drivers/tty/serial/8250/8250_port.c
++++ b/drivers/tty/serial/8250/8250_port.c
+@@ -313,7 +313,11 @@ static const struct serial8250_config ua
+ /* Uart divisor latch read */
+ static int default_serial_dl_read(struct uart_8250_port *up)
  {
- 	if (atomic_read(&base->timer_waiters)) {
-+		raw_spin_unlock_irq(&base->lock);
- 		spin_unlock(&base->expiry_lock);
- 		spin_lock(&base->expiry_lock);
-+		raw_spin_lock_irq(&base->lock);
- 	}
+-	return serial_in(up, UART_DLL) | serial_in(up, UART_DLM) << 8;
++	/* Assign these in pieces to truncate any bits above 7.  */
++	unsigned char dll = serial_in(up, UART_DLL);
++	unsigned char dlm = serial_in(up, UART_DLM);
++
++	return dll | dlm << 8;
  }
  
-@@ -1450,14 +1452,14 @@ static void expire_timers(struct timer_b
- 		if (timer->flags & TIMER_IRQSAFE) {
- 			raw_spin_unlock(&base->lock);
- 			call_timer_fn(timer, fn, baseclk);
--			base->running_timer = NULL;
- 			raw_spin_lock(&base->lock);
-+			base->running_timer = NULL;
- 		} else {
- 			raw_spin_unlock_irq(&base->lock);
- 			call_timer_fn(timer, fn, baseclk);
-+			raw_spin_lock_irq(&base->lock);
- 			base->running_timer = NULL;
- 			timer_sync_wait_running(base);
--			raw_spin_lock_irq(&base->lock);
- 		}
- 	}
- }
+ /* Uart divisor latch write */
+@@ -1301,9 +1305,11 @@ static void autoconfig(struct uart_8250_
+ 	serial_out(up, UART_LCR, 0);
+ 
+ 	serial_out(up, UART_FCR, UART_FCR_ENABLE_FIFO);
+-	scratch = serial_in(up, UART_IIR) >> 6;
+ 
+-	switch (scratch) {
++	/* Assign this as it is to truncate any bits above 7.  */
++	scratch = serial_in(up, UART_IIR);
++
++	switch (scratch >> 6) {
+ 	case 0:
+ 		autoconfig_8250(up);
+ 		break;
 
 
