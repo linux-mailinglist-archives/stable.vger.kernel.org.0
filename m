@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7E5A3E817C
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:01:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91B773E818A
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:01:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231654AbhHJSAB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 14:00:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53654 "EHLO mail.kernel.org"
+        id S233318AbhHJSAQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 14:00:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236726AbhHJR5W (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237341AbhHJR5W (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 10 Aug 2021 13:57:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E4A06139D;
-        Tue, 10 Aug 2021 17:45:27 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 55F626138E;
+        Tue, 10 Aug 2021 17:45:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617528;
-        bh=W9XTF6OkJnuGwFbAjAdi2UgWQggT2Vvl8WCSX8YxYWY=;
+        s=korg; t=1628617530;
+        bh=EISYpVZZsw9b5qY0k+DQb5WvA7PJiMGE2ZKPBX6H0cQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uVrwRtPfBCbVq/Nr/uSu1xfVEQDSJds/iwM53Lu4LyfjTS1ob6NpHi85P5zwwq7mb
-         ljD34ENR7E9fpCibYPbKWkG4QmVaCe+k7iI8S0076u3bgAshR5VeyQmqEqUWCYGJhC
-         pzOJS5SSdoS99wParRl4GfEPsjUUAqx2wUwE50fg=
+        b=mCg8/vEiAXLwdjluqP6/hVsj6PloOQ0CDSY4C3jwgVHDzBTwJ9lXbHpGO12KDIOfV
+         AElmt0nkO2hkk0NUDPLfdx4aDgNZd1t4Ihjam1pfN8V0393ETQ8un8QetJqE7m7kcM
+         BFKD/BfroEjFOAw2vLzZlRMDxfXIJ4lKEisEFMuo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 065/175] net: ethernet: ti: am65-cpsw: fix crash in am65_cpsw_port_offload_fwd_mark_update()
-Date:   Tue, 10 Aug 2021 19:29:33 +0200
-Message-Id: <20210810173003.081740849@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+02c9f70f3afae308464a@syzkaller.appspotmail.com
+Subject: [PATCH 5.13 066/175] net: pegasus: fix uninit-value in get_interrupt_interval
+Date:   Tue, 10 Aug 2021 19:29:34 +0200
+Message-Id: <20210810173003.113185271@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
 References: <20210810173000.928681411@linuxfoundation.org>
@@ -41,54 +41,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Grygorii Strashko <grygorii.strashko@ti.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit ae03d189bae306e1e00aa631feee090ebda6cf63 ]
+[ Upstream commit af35fc37354cda3c9c8cc4961b1d24bdc9d27903 ]
 
-The am65_cpsw_port_offload_fwd_mark_update() causes NULL exception crash
-when there is at least one disabled port and any other port added to the
-bridge first time.
+Syzbot reported uninit value pegasus_probe(). The problem was in missing
+error handling.
 
-Unable to handle kernel NULL pointer dereference at virtual address 0000000000000858
-pc : am65_cpsw_port_offload_fwd_mark_update+0x54/0x68
-lr : am65_cpsw_netdevice_event+0x8c/0xf0
-Call trace:
-am65_cpsw_port_offload_fwd_mark_update+0x54/0x68
-notifier_call_chain+0x54/0x98
-raw_notifier_call_chain+0x14/0x20
-call_netdevice_notifiers_info+0x34/0x78
-__netdev_upper_dev_link+0x1c8/0x290
-netdev_master_upper_dev_link+0x1c/0x28
-br_add_if+0x3f0/0x6d0 [bridge]
+get_interrupt_interval() internally calls read_eprom_word() which can
+fail in some cases. For example: failed to receive usb control message.
+These cases should be handled to prevent uninit value bug, since
+read_eprom_word() will not initialize passed stack variable in case of
+internal failure.
 
-Fix it by adding proper check for port->ndev != NULL.
+Fail log:
 
-Fixes: 2934db9bcb30 ("net: ti: am65-cpsw-nuss: Add netdevice notifiers")
-Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+BUG: KMSAN: uninit-value in get_interrupt_interval drivers/net/usb/pegasus.c:746 [inline]
+BUG: KMSAN: uninit-value in pegasus_probe+0x10e7/0x4080 drivers/net/usb/pegasus.c:1152
+CPU: 1 PID: 825 Comm: kworker/1:1 Not tainted 5.12.0-rc6-syzkaller #0
+...
+Workqueue: usb_hub_wq hub_event
+Call Trace:
+ __dump_stack lib/dump_stack.c:79 [inline]
+ dump_stack+0x24c/0x2e0 lib/dump_stack.c:120
+ kmsan_report+0xfb/0x1e0 mm/kmsan/kmsan_report.c:118
+ __msan_warning+0x5c/0xa0 mm/kmsan/kmsan_instr.c:197
+ get_interrupt_interval drivers/net/usb/pegasus.c:746 [inline]
+ pegasus_probe+0x10e7/0x4080 drivers/net/usb/pegasus.c:1152
+....
+
+Local variable ----data.i@pegasus_probe created at:
+ get_interrupt_interval drivers/net/usb/pegasus.c:1151 [inline]
+ pegasus_probe+0xe57/0x4080 drivers/net/usb/pegasus.c:1152
+ get_interrupt_interval drivers/net/usb/pegasus.c:1151 [inline]
+ pegasus_probe+0xe57/0x4080 drivers/net/usb/pegasus.c:1152
+
+Reported-and-tested-by: syzbot+02c9f70f3afae308464a@syzkaller.appspotmail.com
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Link: https://lore.kernel.org/r/20210804143005.439-1-paskripkin@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ti/am65-cpsw-nuss.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/usb/pegasus.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/ti/am65-cpsw-nuss.c b/drivers/net/ethernet/ti/am65-cpsw-nuss.c
-index 718539cdd2f2..67a08cbba859 100644
---- a/drivers/net/ethernet/ti/am65-cpsw-nuss.c
-+++ b/drivers/net/ethernet/ti/am65-cpsw-nuss.c
-@@ -2060,8 +2060,12 @@ static void am65_cpsw_port_offload_fwd_mark_update(struct am65_cpsw_common *comm
- 
- 	for (i = 1; i <= common->port_num; i++) {
- 		struct am65_cpsw_port *port = am65_common_get_port(common, i);
--		struct am65_cpsw_ndev_priv *priv = am65_ndev_to_priv(port->ndev);
-+		struct am65_cpsw_ndev_priv *priv;
- 
-+		if (!port->ndev)
-+			continue;
-+
-+		priv = am65_ndev_to_priv(port->ndev);
- 		priv->offload_fwd_mark = set_val;
- 	}
+diff --git a/drivers/net/usb/pegasus.c b/drivers/net/usb/pegasus.c
+index 9a907182569c..bc2dbf86496b 100644
+--- a/drivers/net/usb/pegasus.c
++++ b/drivers/net/usb/pegasus.c
+@@ -735,12 +735,16 @@ static inline void disable_net_traffic(pegasus_t *pegasus)
+ 	set_registers(pegasus, EthCtrl0, sizeof(tmp), &tmp);
  }
+ 
+-static inline void get_interrupt_interval(pegasus_t *pegasus)
++static inline int get_interrupt_interval(pegasus_t *pegasus)
+ {
+ 	u16 data;
+ 	u8 interval;
++	int ret;
++
++	ret = read_eprom_word(pegasus, 4, &data);
++	if (ret < 0)
++		return ret;
+ 
+-	read_eprom_word(pegasus, 4, &data);
+ 	interval = data >> 8;
+ 	if (pegasus->usb->speed != USB_SPEED_HIGH) {
+ 		if (interval < 0x80) {
+@@ -755,6 +759,8 @@ static inline void get_interrupt_interval(pegasus_t *pegasus)
+ 		}
+ 	}
+ 	pegasus->intr_interval = interval;
++
++	return 0;
+ }
+ 
+ static void set_carrier(struct net_device *net)
+@@ -1149,7 +1155,9 @@ static int pegasus_probe(struct usb_interface *intf,
+ 				| NETIF_MSG_PROBE | NETIF_MSG_LINK);
+ 
+ 	pegasus->features = usb_dev_id[dev_index].private;
+-	get_interrupt_interval(pegasus);
++	res = get_interrupt_interval(pegasus);
++	if (res)
++		goto out2;
+ 	if (reset_mac(pegasus)) {
+ 		dev_err(&intf->dev, "can't reset MAC\n");
+ 		res = -EIO;
 -- 
 2.30.2
 
