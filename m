@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8084E3E802A
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:47:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 187243E7F1A
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:37:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236088AbhHJRqa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:46:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40876 "EHLO mail.kernel.org"
+        id S231822AbhHJRhR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:37:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236432AbhHJRou (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:44:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 30ECB60EBD;
-        Tue, 10 Aug 2021 17:39:51 +0000 (UTC)
+        id S233732AbhHJRfn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:35:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 00F12610A4;
+        Tue, 10 Aug 2021 17:35:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617191;
-        bh=SgdEzm93F5mtxhKSIBUxyhXnKpQX5fjHSsZuNqdxQkA=;
+        s=korg; t=1628616917;
+        bh=MGfQA6lcM9g8o8bScDfSMHw06mk8qD9asDGzQiw1DAU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T5Fceeb+6y/7ztCowCB2UO14rtnUpKm2YsTJDJQEouBY7Bmer4ZXGhGN39KSM3g4S
-         dKUiM0TyKDLGkGDYN2MwNYOtLLhN6kaRsdFVfaqzjMwnGCNAnbD4pACyabSDoO0Ws4
-         yhQyLlPFtBH8+xX/ug/KppiGzAfJs3yHV52Xp6es=
+        b=kl0lnzcsgORLhFpWDbZ5aoLcCDeWDHIVVIZR/7Ga9VwiLdmPz/iDm+jvDdBn6xKLz
+         Dt+B4M84OVkVYvkRHfop7mU2o13bxwkSQc8OWWWfjpQNMD3G7nV2sIrwaaBvdtF+Mp
+         HymWXna1yynym9IAdZsGI8p0pTSXJro8lqI/4TnA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tyler Hicks <tyhicks@linux.microsoft.com>,
-        Sumit Garg <sumit.garg@linaro.org>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Jens Wiklander <jens.wiklander@linaro.org>
-Subject: [PATCH 5.10 086/135] tpm_ftpm_tee: Free and unregister TEE shared memory during kexec
-Date:   Tue, 10 Aug 2021 19:30:20 +0200
-Message-Id: <20210810172958.668054234@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Chen <peter.chen@kernel.org>,
+        Dmitry Osipenko <digetx@gmail.com>
+Subject: [PATCH 5.4 48/85] usb: otg-fsm: Fix hrtimer list corruption
+Date:   Tue, 10 Aug 2021 19:30:21 +0200
+Message-Id: <20210810172949.863850275@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
-References: <20210810172955.660225700@linuxfoundation.org>
+In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
+References: <20210810172948.192298392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,53 +39,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tyler Hicks <tyhicks@linux.microsoft.com>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-commit dfb703ad2a8d366b829818a558337be779746575 upstream.
+commit bf88fef0b6f1488abeca594d377991171c00e52a upstream.
 
-dma-buf backed shared memory cannot be reliably freed and unregistered
-during a kexec operation even when tee_shm_free() is called on the shm
-from a .shutdown hook. The problem occurs because dma_buf_put() calls
-fput() which then uses task_work_add(), with the TWA_RESUME parameter,
-to queue tee_shm_release() to be called before the current task returns
-to user mode. However, the current task never returns to user mode
-before the kexec completes so the memory is never freed nor
-unregistered.
+The HNP work can be re-scheduled while it's still in-fly. This results in
+re-initialization of the busy work, resetting the hrtimer's list node of
+the work and crashing kernel with null dereference within kernel/timer
+once work's timer is expired. It's very easy to trigger this problem by
+re-plugging USB cable quickly. Initialize HNP work only once to fix this
+trouble.
 
-Use tee_shm_alloc_kernel_buf() to avoid dma-buf backed shared memory
-allocation so that tee_shm_free() can directly call tee_shm_release().
-This will ensure that the shm can be freed and unregistered during a
-kexec operation.
+ Unable to handle kernel NULL pointer dereference at virtual address 00000126)
+ ...
+ PC is at __run_timers.part.0+0x150/0x228
+ LR is at __next_timer_interrupt+0x51/0x9c
+ ...
+ (__run_timers.part.0) from [<c0187a2b>] (run_timer_softirq+0x2f/0x50)
+ (run_timer_softirq) from [<c01013ad>] (__do_softirq+0xd5/0x2f0)
+ (__do_softirq) from [<c012589b>] (irq_exit+0xab/0xb8)
+ (irq_exit) from [<c0170341>] (handle_domain_irq+0x45/0x60)
+ (handle_domain_irq) from [<c04c4a43>] (gic_handle_irq+0x6b/0x7c)
+ (gic_handle_irq) from [<c0100b65>] (__irq_svc+0x65/0xac)
 
-Fixes: 09e574831b27 ("tpm/tpm_ftpm_tee: A driver for firmware TPM running inside TEE")
-Fixes: 1760eb689ed6 ("tpm/tpm_ftpm_tee: add shutdown call back")
 Cc: stable@vger.kernel.org
-Signed-off-by: Tyler Hicks <tyhicks@linux.microsoft.com>
-Reviewed-by: Sumit Garg <sumit.garg@linaro.org>
-Acked-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
+Acked-by: Peter Chen <peter.chen@kernel.org>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Link: https://lore.kernel.org/r/20210717182134.30262-6-digetx@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/tpm/tpm_ftpm_tee.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/usb/common/usb-otg-fsm.c |    6 +++++-
+ include/linux/usb/otg-fsm.h      |    1 +
+ 2 files changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/char/tpm/tpm_ftpm_tee.c
-+++ b/drivers/char/tpm/tpm_ftpm_tee.c
-@@ -254,11 +254,11 @@ static int ftpm_tee_probe(struct device
- 	pvt_data->session = sess_arg.session;
+--- a/drivers/usb/common/usb-otg-fsm.c
++++ b/drivers/usb/common/usb-otg-fsm.c
+@@ -193,7 +193,11 @@ static void otg_start_hnp_polling(struct
+ 	if (!fsm->host_req_flag)
+ 		return;
  
- 	/* Allocate dynamic shared memory with fTPM TA */
--	pvt_data->shm = tee_shm_alloc(pvt_data->ctx,
--				      MAX_COMMAND_SIZE + MAX_RESPONSE_SIZE,
--				      TEE_SHM_MAPPED | TEE_SHM_DMA_BUF);
-+	pvt_data->shm = tee_shm_alloc_kernel_buf(pvt_data->ctx,
-+						 MAX_COMMAND_SIZE +
-+						 MAX_RESPONSE_SIZE);
- 	if (IS_ERR(pvt_data->shm)) {
--		dev_err(dev, "%s: tee_shm_alloc failed\n", __func__);
-+		dev_err(dev, "%s: tee_shm_alloc_kernel_buf failed\n", __func__);
- 		rc = -ENOMEM;
- 		goto out_shm_alloc;
- 	}
+-	INIT_DELAYED_WORK(&fsm->hnp_polling_work, otg_hnp_polling_work);
++	if (!fsm->hnp_work_inited) {
++		INIT_DELAYED_WORK(&fsm->hnp_polling_work, otg_hnp_polling_work);
++		fsm->hnp_work_inited = true;
++	}
++
+ 	schedule_delayed_work(&fsm->hnp_polling_work,
+ 					msecs_to_jiffies(T_HOST_REQ_POLL));
+ }
+--- a/include/linux/usb/otg-fsm.h
++++ b/include/linux/usb/otg-fsm.h
+@@ -196,6 +196,7 @@ struct otg_fsm {
+ 	struct mutex lock;
+ 	u8 *host_req_flag;
+ 	struct delayed_work hnp_polling_work;
++	bool hnp_work_inited;
+ 	bool state_changed;
+ };
+ 
 
 
