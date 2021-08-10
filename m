@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 447023E5CF0
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 16:16:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C392F3E5CF5
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 16:16:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242574AbhHJOQU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 10:16:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52964 "EHLO mail.kernel.org"
+        id S242489AbhHJOQW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 10:16:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242438AbhHJOP7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S242450AbhHJOP7 (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 10 Aug 2021 10:15:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9355D61008;
-        Tue, 10 Aug 2021 14:15:35 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F040F60F41;
+        Tue, 10 Aug 2021 14:15:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1628604936;
-        bh=2z1U4KI0QJU1RNa4Mg2/avK8MKmjpq+OPBD0fFEoDhs=;
+        s=k20201202; t=1628604937;
+        bh=B7Mc6+bu3nOA9xNACCyDGH25quCXPgXomeh32na7dbY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hvZjIVix7GbOiYkA9XYB7IAmbzwKXEXlieB6SihorkP3/952kWB/Fjh2hrXVE1yEf
-         56TcFSwdfGVXRYvIOSwItNpPR9U1geTx4ng82liqSg6j1tJGM2VxyxAKhOUWbf5o+O
-         aCjltSI94oMOQaZwSqx5eMWWpEmgvzO5ync45Zpgm8t7Xuxye2b6gPINcnisZl027i
-         R5np1n0LpbVCXtuhEPMl+nRhPUMvgTU6G5P/sEHC29sQynILp7ligHjKiXd6Glhofk
-         Kn1cVd29dn2kyoza1dnK+XU9o8BJJ+lh5QBRujCjZ0qDkRVpKYlV5Ly2LcnxjawdQQ
-         4klj4Eo5Av8tg==
+        b=iExtOShjto0dM1rWNczTFtib+JEejASTOY5JY+TQRg4nZd1pooQHY8phxPCFJq/zz
+         3OMrWRfEpXBbhy0yP7xtkXpPBWde4HlOODPJTpZ33wK3Er/7lxmGucMimAQfuTPoVk
+         cQg4daV7ITlJtwz/cOEBj+/okgQ9+E7CKVpkqakJf5mM9L1Oh2QKAhMkNAU4fWVuQV
+         TxIrUulTIONMHA3b2vMMtj/r3XMZNeWkv4kALfdtpofBEZAgLHMR/0xs91UO1DJlZN
+         SpRPEiIxhjC+ia2tIEawT6qJGfYgUm45iSB1F5Wjtx7g1RDNrpaFXjddL8oQFIXgDK
+         lpfi3/++bU1jg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qingqing Zhuo <qingqing.zhuo@amd.com>,
-        Hersen Wu <hersenxs.wu@amd.com>,
-        Aurabindo Pillai <aurabindo.pillai@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.13 23/24] drm/amd/display: workaround for hard hang on HPD on native DP
-Date:   Tue, 10 Aug 2021 10:15:04 -0400
-Message-Id: <20210810141505.3117318-23-sashal@kernel.org>
+Cc:     Vincent Fu <vincent.fu@samsung.com>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 24/24] kyber: make trace_block_rq call consistent with documentation
+Date:   Tue, 10 Aug 2021 10:15:05 -0400
+Message-Id: <20210810141505.3117318-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210810141505.3117318-1-sashal@kernel.org>
 References: <20210810141505.3117318-1-sashal@kernel.org>
@@ -45,47 +41,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qingqing Zhuo <qingqing.zhuo@amd.com>
+From: Vincent Fu <vincent.fu@samsung.com>
 
-[ Upstream commit c4152b297d56d3696ad0a9003169bc5b98ad7b72 ]
+[ Upstream commit fb7b9b0231ba8f77587c23f5257a4fdb6df1219e ]
 
-[Why]
-HPD disable and enable sequences are not mutually exclusive
-on Linux. For HPDs that spans over 1s (i.e. HPD low = 1s),
-part of the disable sequence (specifically, a request to SMU
-to lower refclk) could come right before the call to PHY
-enable, causing DMUB to access an unresponsive PHY
-and thus a hard hang on the system.
+The kyber ioscheduler calls trace_block_rq_insert() *after* the request
+is added to the queue but the documentation for trace_block_rq_insert()
+says that the call should be made *before* the request is added to the
+queue.  Move the tracepoint for the kyber ioscheduler so that it is
+consistent with the documentation.
 
-[How]
-Disable 48mhz refclk off on native DP.
-
-Reviewed-by: Hersen Wu <hersenxs.wu@amd.com>
-Acked-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
-Signed-off-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Vincent Fu <vincent.fu@samsung.com>
+Link: https://lore.kernel.org/r/20210804194913.10497-1-vincent.fu@samsung.com
+Reviewed by: Adam Manzanares <a.manzanares@samsung.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ block/kyber-iosched.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr.c b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr.c
-index 75ba86f951f8..7bbedb6b4a9e 100644
---- a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr.c
-+++ b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr.c
-@@ -66,9 +66,11 @@ int rn_get_active_display_cnt_wa(
- 	for (i = 0; i < context->stream_count; i++) {
- 		const struct dc_stream_state *stream = context->streams[i];
+diff --git a/block/kyber-iosched.c b/block/kyber-iosched.c
+index 81e3279ecd57..15a8be57203d 100644
+--- a/block/kyber-iosched.c
++++ b/block/kyber-iosched.c
+@@ -596,13 +596,13 @@ static void kyber_insert_requests(struct blk_mq_hw_ctx *hctx,
+ 		struct list_head *head = &kcq->rq_list[sched_domain];
  
-+		/* Extend the WA to DP for Linux*/
- 		if (stream->signal == SIGNAL_TYPE_HDMI_TYPE_A ||
- 				stream->signal == SIGNAL_TYPE_DVI_SINGLE_LINK ||
--				stream->signal == SIGNAL_TYPE_DVI_DUAL_LINK)
-+				stream->signal == SIGNAL_TYPE_DVI_DUAL_LINK ||
-+				stream->signal == SIGNAL_TYPE_DISPLAY_PORT)
- 			tmds_present = true;
+ 		spin_lock(&kcq->lock);
++		trace_block_rq_insert(rq);
+ 		if (at_head)
+ 			list_move(&rq->queuelist, head);
+ 		else
+ 			list_move_tail(&rq->queuelist, head);
+ 		sbitmap_set_bit(&khd->kcq_map[sched_domain],
+ 				rq->mq_ctx->index_hw[hctx->type]);
+-		trace_block_rq_insert(rq);
+ 		spin_unlock(&kcq->lock);
  	}
- 
+ }
 -- 
 2.30.2
 
