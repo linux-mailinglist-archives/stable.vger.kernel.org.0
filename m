@@ -2,35 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D6C303E7EF9
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:36:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E26A3E806C
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:50:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234053AbhHJRgY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:36:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44144 "EHLO mail.kernel.org"
+        id S234504AbhHJRsy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:48:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233394AbhHJRfR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:35:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8707A610FC;
-        Tue, 10 Aug 2021 17:34:54 +0000 (UTC)
+        id S236236AbhHJRq7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:46:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 55EFD61260;
+        Tue, 10 Aug 2021 17:40:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616895;
-        bh=W8NlvFR/LFRA+J81U64OIbg5JgaHepadmXcuitAwP1c=;
+        s=korg; t=1628617249;
+        bh=KqXDFD6igxKn7WUli2jPpng69mg8Ha6TY3DfR4qYJbk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=riKDwENFcc33BoPMpwjORvyoZXKxEiezb3qX/xgQ7UmGYmGxq/QbE4MspmGAHt81O
-         KkY1tmaRygTxla9L83HlKmb5rDZaGMTFafxbHRtrs1/Aec6mxxTiG3cn8iNo6RU/NH
-         wNQmRAmilrQSt8Guf9vI5sXJlP5zbHR0saNYv7eA=
+        b=CII7vpKhE6id+KGMiMgSUQXi14AhXDNgsaOwVksEd+vN08aZlXgRPvYaJaGJKzZJF
+         lJTiQGJWcZ3ppwTz0Q87F23xCdFxcS2+WIA110yUs1lmOcFKoDvHBNjTOliy6pUDrL
+         hZoYvqiP8+AgqsuDQ/BYDw4P6qGozdPfzsipHOSA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Bauer <mail@david-bauer.net>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.4 39/85] USB: serial: ftdi_sio: add device ID for Auto-M3 OP-COM v2
+        stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Stefan Metzmacher <metze@samba.org>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.10 078/135] tracepoint: static call: Compare data on transition from 2->1 callees
 Date:   Tue, 10 Aug 2021 19:30:12 +0200
-Message-Id: <20210810172949.541477647@linuxfoundation.org>
+Message-Id: <20210810172958.382412734@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
-References: <20210810172948.192298392@linuxfoundation.org>
+In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
+References: <20210810172955.660225700@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,43 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Bauer <mail@david-bauer.net>
+From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
 
-commit 8da0e55c7988ef9f08a708c38e5c75ecd8862cf8 upstream.
+commit f7ec4121256393e1d03274acdca73eb18958f27e upstream.
 
-The Auto-M3 OP-COM v2 is a OBD diagnostic device using a FTD232 for the
-USB connection.
+On transition from 2->1 callees, we should be comparing .data rather
+than .func, because the same callback can be registered twice with
+different data, and what we care about here is that the data of array
+element 0 is unchanged to skip rcu sync.
 
-Signed-off-by: David Bauer <mail@david-bauer.net>
+Link: https://lkml.kernel.org/r/20210805132717.23813-2-mathieu.desnoyers@efficios.com
+Link: https://lore.kernel.org/io-uring/4ebea8f0-58c9-e571-fd30-0ce4f6f09c70@samba.org/
+
 Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: "Paul E. McKenney" <paulmck@kernel.org>
+Cc: Stefan Metzmacher <metze@samba.org>
+Fixes: 547305a64632 ("tracepoint: Fix out of sync data passing by static caller")
+Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/ftdi_sio.c     |    1 +
- drivers/usb/serial/ftdi_sio_ids.h |    3 +++
- 2 files changed, 4 insertions(+)
+ kernel/tracepoint.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/serial/ftdi_sio.c
-+++ b/drivers/usb/serial/ftdi_sio.c
-@@ -219,6 +219,7 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(FTDI_VID, FTDI_MTXORB_6_PID) },
- 	{ USB_DEVICE(FTDI_VID, FTDI_R2000KU_TRUE_RNG) },
- 	{ USB_DEVICE(FTDI_VID, FTDI_VARDAAN_PID) },
-+	{ USB_DEVICE(FTDI_VID, FTDI_AUTO_M3_OP_COM_V2_PID) },
- 	{ USB_DEVICE(MTXORB_VID, MTXORB_FTDI_RANGE_0100_PID) },
- 	{ USB_DEVICE(MTXORB_VID, MTXORB_FTDI_RANGE_0101_PID) },
- 	{ USB_DEVICE(MTXORB_VID, MTXORB_FTDI_RANGE_0102_PID) },
---- a/drivers/usb/serial/ftdi_sio_ids.h
-+++ b/drivers/usb/serial/ftdi_sio_ids.h
-@@ -159,6 +159,9 @@
- /* Vardaan Enterprises Serial Interface VEUSB422R3 */
- #define FTDI_VARDAAN_PID	0xF070
- 
-+/* Auto-M3 Ltd. - OP-COM USB V2 - OBD interface Adapter */
-+#define FTDI_AUTO_M3_OP_COM_V2_PID	0x4f50
-+
- /*
-  * Xsens Technologies BV products (http://www.xsens.com).
-  */
+--- a/kernel/tracepoint.c
++++ b/kernel/tracepoint.c
+@@ -359,7 +359,7 @@ static int tracepoint_remove_func(struct
+ 	} else {
+ 		rcu_assign_pointer(tp->funcs, tp_funcs);
+ 		tracepoint_update_call(tp, tp_funcs,
+-				       tp_funcs[0].func != old[0].func);
++				       tp_funcs[0].data != old[0].data);
+ 	}
+ 	release_probes(old);
+ 	return 0;
 
 
