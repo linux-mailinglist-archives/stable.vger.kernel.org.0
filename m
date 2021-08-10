@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78BBF3E7F5E
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:41:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 034363E80EC
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:53:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233845AbhHJRkN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:40:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59726 "EHLO mail.kernel.org"
+        id S235842AbhHJRxq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:53:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235309AbhHJRja (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:39:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 43BA861158;
-        Tue, 10 Aug 2021 17:37:09 +0000 (UTC)
+        id S233167AbhHJRvx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:51:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D08E6120D;
+        Tue, 10 Aug 2021 17:43:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617029;
-        bh=cYh35sPKtNf/rjuk2SmiDsgZg/S0Q5uA9gnr0wKlDjk=;
+        s=korg; t=1628617395;
+        bh=BTdzPBETZe8MClYkQOqlVEr/imH6c1rvqaZ4U+TN4G0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w2lNFHlIb+WZfqJoJ5Gds2vfuE3zrWh+kZh0thzc/SE7Z6+V8hueJtliiLZ8VMM9T
-         WqH9O1RMwpTtCesm2H2aQiYfxPQecMMtR/rOnNv0nqpkIBIiNc2sPwu/C0We+jRojW
-         J+WyqVzx8mb1l58s1weUpcB3+xrP6hacs7cxnEvg=
+        b=XOophExoN3C7v5tWnvPmtnvT35jUq6YXHhI7/flIQ14ehsn78Dx7ohUsJ1uMTjmR7
+         3ip14uIzqx/BWwDjXTd+955Srfm8gmZqlOJnNfSvJkPUDsk43u+4dWo22oN+FacK24
+         d9KB20+Mr+EYHHhKUH6Ai2r5hin3ibIbrJHZYRV4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        stable@vger.kernel.org, Alex Forster <aforster@cloudflare.com>,
+        Jakub Sitnicki <jakub@cloudflare.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 014/135] arm64: dts: armada-3720-turris-mox: remove mrvl,i2c-fast-mode
+Subject: [PATCH 5.13 040/175] net, gro: Set inner transport header offset in tcp/udp GRO hook
 Date:   Tue, 10 Aug 2021 19:29:08 +0200
-Message-Id: <20210810172956.160656020@linuxfoundation.org>
+Message-Id: <20210810173002.273229362@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
-References: <20210810172955.660225700@linuxfoundation.org>
+In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
+References: <20210810173000.928681411@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,39 +41,143 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Jakub Sitnicki <jakub@cloudflare.com>
 
-[ Upstream commit ee7ab3f263f8131722cff3871b9618b1e7478f07 ]
+[ Upstream commit d51c5907e9809a803b276883d203f45849abd4d6 ]
 
-Some SFP modules are not detected when i2c-fast-mode is enabled even when
-clock-frequency is already set to 100000. The I2C bus violates the timing
-specifications when run in fast mode. So disable fast mode on Turris Mox.
+GSO expects inner transport header offset to be valid when
+skb->encapsulation flag is set. GSO uses this value to calculate the length
+of an individual segment of a GSO packet in skb_gso_transport_seglen().
 
-Same change was already applied for uDPU (also Armada 3720 board with SFP)
-in commit fe3ec631a77d ("arm64: dts: uDPU: remove i2c-fast-mode").
+However, tcp/udp gro_complete callbacks don't update the
+skb->inner_transport_header when processing an encapsulated TCP/UDP
+segment. As a result a GRO skb has ->inner_transport_header set to a value
+carried over from earlier skb processing.
 
-Fixes: 7109d817db2e ("arm64: dts: marvell: add DTS for Turris Mox")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Reviewed-by: Marek Behún <kabel@kernel.org>
-Acked-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+This can have mild to tragic consequences. From miscalculating the GSO
+segment length to triggering a page fault [1], when trying to read TCP/UDP
+header at an address past the skb->data page.
+
+The latter scenario leads to an oops report like so:
+
+  BUG: unable to handle page fault for address: ffff9fa7ec00d008
+  #PF: supervisor read access in kernel mode
+  #PF: error_code(0x0000) - not-present page
+  PGD 123f201067 P4D 123f201067 PUD 123f209067 PMD 0
+  Oops: 0000 [#1] SMP NOPTI
+  CPU: 44 PID: 0 Comm: swapper/44 Not tainted 5.4.53-cloudflare-2020.7.21 #1
+  Hardware name: HYVE EDGE-METAL-GEN10/HS-1811DLite1, BIOS V2.15 02/21/2020
+  RIP: 0010:skb_gso_transport_seglen+0x44/0xa0
+  Code: c0 41 83 e0 11 f6 87 81 00 00 00 20 74 30 0f b7 87 aa 00 00 00 0f [...]
+  RSP: 0018:ffffad8640bacbb8 EFLAGS: 00010202
+  RAX: 000000000000feda RBX: ffff9fcc8d31bc00 RCX: ffff9fa7ec00cffc
+  RDX: ffff9fa7ebffdec0 RSI: 000000000000feda RDI: 0000000000000122
+  RBP: 00000000000005c4 R08: 0000000000000001 R09: 0000000000000000
+  R10: ffff9fe588ae3800 R11: ffff9fe011fc92f0 R12: ffff9fcc8d31bc00
+  R13: ffff9fe0119d4300 R14: 00000000000005c4 R15: ffff9fba57d70900
+  FS:  0000000000000000(0000) GS:ffff9fe68df00000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: ffff9fa7ec00d008 CR3: 0000003e99b1c000 CR4: 0000000000340ee0
+  Call Trace:
+   <IRQ>
+   skb_gso_validate_network_len+0x11/0x70
+   __ip_finish_output+0x109/0x1c0
+   ip_sublist_rcv_finish+0x57/0x70
+   ip_sublist_rcv+0x2aa/0x2d0
+   ? ip_rcv_finish_core.constprop.0+0x390/0x390
+   ip_list_rcv+0x12b/0x14f
+   __netif_receive_skb_list_core+0x2a9/0x2d0
+   netif_receive_skb_list_internal+0x1b5/0x2e0
+   napi_complete_done+0x93/0x140
+   veth_poll+0xc0/0x19f [veth]
+   ? mlx5e_napi_poll+0x221/0x610 [mlx5_core]
+   net_rx_action+0x1f8/0x790
+   __do_softirq+0xe1/0x2bf
+   irq_exit+0x8e/0xc0
+   do_IRQ+0x58/0xe0
+   common_interrupt+0xf/0xf
+   </IRQ>
+
+The bug can be observed in a simple setup where we send IP/GRE/IP/TCP
+packets into a netns over a veth pair. Inside the netns, packets are
+forwarded to dummy device:
+
+  trafgen -> [veth A]--[veth B] -forward-> [dummy]
+
+For veth B to GRO aggregate packets on receive, it needs to have an XDP
+program attached (for example, a trivial XDP_PASS). Additionally, for UDP,
+we need to enable GSO_UDP_L4 feature on the device:
+
+  ip netns exec A ethtool -K AB rx-udp-gro-forwarding on
+
+The last component is an artificial delay to increase the chances of GRO
+batching happening:
+
+  ip netns exec A tc qdisc add dev AB root \
+     netem delay 200us slot 5ms 10ms packets 2 bytes 64k
+
+With such a setup in place, the bug can be observed by tracing the skb
+outer and inner offsets when GSO skb is transmitted from the dummy device:
+
+tcp:
+
+FUNC              DEV   SKB_LEN  NH  TH ENC INH ITH GSO_SIZE GSO_TYPE
+ip_finish_output  dumB     2830 270 290   1 294 254     1383 (tcpv4,gre,)
+                                                ^^^
+udp:
+
+FUNC              DEV   SKB_LEN  NH  TH ENC INH ITH GSO_SIZE GSO_TYPE
+ip_finish_output  dumB     2818 270 290   1 294 254     1383 (gre,udp_l4,)
+                                                ^^^
+
+Fix it by updating the inner transport header offset in tcp/udp
+gro_complete callbacks, similar to how {inet,ipv6}_gro_complete callbacks
+update the inner network header offset, when skb->encapsulation flag is
+set.
+
+[1] https://lore.kernel.org/netdev/CAKxSbF01cLpZem2GFaUaifh0S-5WYViZemTicAg7FCHOnh6kug@mail.gmail.com/
+
+Fixes: bf296b125b21 ("tcp: Add GRO support")
+Fixes: f993bc25e519 ("net: core: handle encapsulation offloads when computing segment lengths")
+Fixes: e20cf8d3f1f7 ("udp: implement GRO for plain UDP sockets.")
+Reported-by: Alex Forster <aforster@cloudflare.com>
+Signed-off-by: Jakub Sitnicki <jakub@cloudflare.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts | 1 +
- 1 file changed, 1 insertion(+)
+ net/ipv4/tcp_offload.c | 3 +++
+ net/ipv4/udp_offload.c | 4 ++++
+ 2 files changed, 7 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts b/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
-index 2d51c6f3915d..bbd34ae12a53 100644
---- a/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
-+++ b/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
-@@ -120,6 +120,7 @@
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&i2c1_pins>;
- 	clock-frequency = <100000>;
-+	/delete-property/ mrvl,i2c-fast-mode;
- 	status = "okay";
+diff --git a/net/ipv4/tcp_offload.c b/net/ipv4/tcp_offload.c
+index e09147ac9a99..fc61cd3fea65 100644
+--- a/net/ipv4/tcp_offload.c
++++ b/net/ipv4/tcp_offload.c
+@@ -298,6 +298,9 @@ int tcp_gro_complete(struct sk_buff *skb)
+ 	if (th->cwr)
+ 		skb_shinfo(skb)->gso_type |= SKB_GSO_TCP_ECN;
  
- 	rtc@6f {
++	if (skb->encapsulation)
++		skb->inner_transport_header = skb->transport_header;
++
+ 	return 0;
+ }
+ EXPORT_SYMBOL(tcp_gro_complete);
+diff --git a/net/ipv4/udp_offload.c b/net/ipv4/udp_offload.c
+index 9dde1e5fb449..1380a6b6f4ff 100644
+--- a/net/ipv4/udp_offload.c
++++ b/net/ipv4/udp_offload.c
+@@ -624,6 +624,10 @@ static int udp_gro_complete_segment(struct sk_buff *skb)
+ 
+ 	skb_shinfo(skb)->gso_segs = NAPI_GRO_CB(skb)->count;
+ 	skb_shinfo(skb)->gso_type |= SKB_GSO_UDP_L4;
++
++	if (skb->encapsulation)
++		skb->inner_transport_header = skb->transport_header;
++
+ 	return 0;
+ }
+ 
 -- 
 2.30.2
 
