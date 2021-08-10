@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DEC33E7FB5
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:42:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 122BD3E8134
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:57:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235417AbhHJRmN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:42:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59866 "EHLO mail.kernel.org"
+        id S234477AbhHJR4i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:56:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231786AbhHJRkN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:40:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 06A8761184;
-        Tue, 10 Aug 2021 17:38:02 +0000 (UTC)
+        id S237378AbhHJRyd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:54:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 46EEA60EFF;
+        Tue, 10 Aug 2021 17:44:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617083;
-        bh=Fag6D66siujgCk6NxA1m/fyPbXy77UlF9MvHbsDywGg=;
+        s=korg; t=1628617455;
+        bh=aC+Hxy9Qty4662lS3IL6kgFcrw0zACzDGOsjZ3zvdBM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rlzLYkmYdIy1e+HaOEeR8vZD9yMcsjDnP6OCHgzfQguZ40UiY4MdOdgRKIi7afOgg
-         Q25/Dql6bUES06n9Dpxe8klNvJxsDfAbgjEwjLs+wXjeuXE6kTZvuG4B/+D/x4Vnq3
-         s2YMMXkkpzzx3wBDO0WSnT3YqbnoJbEvezEgUUSk=
+        b=QT808uUjkrVYjcJI32GCeeAHq3yCkWtjQ11naXdtsBLVyPj39soWmga5hM3F+aED8
+         i1TjmkWWBCtVDbWXA9iCg6WY/Pz/DQPRq0Fk2yKplDAmuVLsDL/QETL+GV82j5e1ED
+         FX5vevL5V+Mig+UV/snBBbvgFKxNIX3KlUj6SOfk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Dong Aisheng <aisheng.dong@nxp.com>,
-        Shawn Guo <shawnguo@kernel.org>,
+        stable@vger.kernel.org, Edmund Dea <edmund.j.dea@intel.com>,
+        Anitha Chrisanthus <anitha.chrisanthus@intel.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 007/135] ARM: imx: add missing clk_disable_unprepare()
+Subject: [PATCH 5.13 033/175] drm/kmb: Enable LCD DMA for low TVDDCV
 Date:   Tue, 10 Aug 2021 19:29:01 +0200
-Message-Id: <20210810172955.919300067@linuxfoundation.org>
+Message-Id: <20210810173002.052339003@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
-References: <20210810172955.660225700@linuxfoundation.org>
+In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
+References: <20210810173000.928681411@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,73 +41,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Edmund Dea <edmund.j.dea@intel.com>
 
-[ Upstream commit f07ec85365807b3939f32d0094a6dd5ce065d1b9 ]
+[ Upstream commit 0aab5dce395636eddf4e5f33eba88390328a95b4 ]
 
-clock source is prepared and enabled by clk_prepare_enable()
-in probe function, but no disable or unprepare in remove and
-error path.
+There's an undocumented dependency between LCD layer enable bits [2-5]
+and the AXI pipelined read enable bit [28] in the LCD_CONTROL register.
+The proper order of operation is:
 
-Fixes: 9454a0caff6a ("ARM: imx: add mmdc ipg clock operation for mmdc")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Dong Aisheng <aisheng.dong@nxp.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+1) Clear AXI pipelined read enable bit
+2) Set LCD layers
+3) Set AXI pipelined read enable bit
+
+With this update, LCD can start DMA when TVDDCV is reduced down to 700mV.
+
+Fixes: 7f7b96a8a0a1 ("drm/kmb: Add support for KeemBay Display")
+Signed-off-by: Edmund Dea <edmund.j.dea@intel.com>
+Signed-off-by: Anitha Chrisanthus <anitha.chrisanthus@intel.com>
+Acked-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210728003126.1425028-1-anitha.chrisanthus@intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-imx/mmdc.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/kmb/kmb_drv.c   | 14 ++++++++++++++
+ drivers/gpu/drm/kmb/kmb_plane.c | 15 +++++++++++++--
+ 2 files changed, 27 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/mach-imx/mmdc.c b/arch/arm/mach-imx/mmdc.c
-index 8e57691aafe2..4a6f1359e1e9 100644
---- a/arch/arm/mach-imx/mmdc.c
-+++ b/arch/arm/mach-imx/mmdc.c
-@@ -103,6 +103,7 @@ struct mmdc_pmu {
- 	struct perf_event *mmdc_events[MMDC_NUM_COUNTERS];
- 	struct hlist_node node;
- 	struct fsl_mmdc_devtype_data *devtype_data;
-+	struct clk *mmdc_ipg_clk;
- };
+diff --git a/drivers/gpu/drm/kmb/kmb_drv.c b/drivers/gpu/drm/kmb/kmb_drv.c
+index 96ea1a2c11dd..c0b1c6f99249 100644
+--- a/drivers/gpu/drm/kmb/kmb_drv.c
++++ b/drivers/gpu/drm/kmb/kmb_drv.c
+@@ -203,6 +203,7 @@ static irqreturn_t handle_lcd_irq(struct drm_device *dev)
+ 	unsigned long status, val, val1;
+ 	int plane_id, dma0_state, dma1_state;
+ 	struct kmb_drm_private *kmb = to_kmb(dev);
++	u32 ctrl = 0;
  
- /*
-@@ -463,11 +464,13 @@ static int imx_mmdc_remove(struct platform_device *pdev)
- 	cpuhp_state_remove_instance_nocalls(cpuhp_mmdc_state, &pmu_mmdc->node);
- 	perf_pmu_unregister(&pmu_mmdc->pmu);
- 	iounmap(pmu_mmdc->mmdc_base);
-+	clk_disable_unprepare(pmu_mmdc->mmdc_ipg_clk);
- 	kfree(pmu_mmdc);
- 	return 0;
- }
+ 	status = kmb_read_lcd(kmb, LCD_INT_STATUS);
  
--static int imx_mmdc_perf_init(struct platform_device *pdev, void __iomem *mmdc_base)
-+static int imx_mmdc_perf_init(struct platform_device *pdev, void __iomem *mmdc_base,
-+			      struct clk *mmdc_ipg_clk)
- {
- 	struct mmdc_pmu *pmu_mmdc;
- 	char *name;
-@@ -495,6 +498,7 @@ static int imx_mmdc_perf_init(struct platform_device *pdev, void __iomem *mmdc_b
+@@ -227,6 +228,19 @@ static irqreturn_t handle_lcd_irq(struct drm_device *dev)
+ 				kmb_clr_bitmask_lcd(kmb, LCD_CONTROL,
+ 						    kmb->plane_status[plane_id].ctrl);
+ 
++				ctrl = kmb_read_lcd(kmb, LCD_CONTROL);
++				if (!(ctrl & (LCD_CTRL_VL1_ENABLE |
++				    LCD_CTRL_VL2_ENABLE |
++				    LCD_CTRL_GL1_ENABLE |
++				    LCD_CTRL_GL2_ENABLE))) {
++					/* If no LCD layers are using DMA,
++					 * then disable DMA pipelined AXI read
++					 * transactions.
++					 */
++					kmb_clr_bitmask_lcd(kmb, LCD_CONTROL,
++							    LCD_CTRL_PIPELINE_DMA);
++				}
++
+ 				kmb->plane_status[plane_id].disable = false;
+ 			}
+ 		}
+diff --git a/drivers/gpu/drm/kmb/kmb_plane.c b/drivers/gpu/drm/kmb/kmb_plane.c
+index d5b6195856d1..ecee6782612d 100644
+--- a/drivers/gpu/drm/kmb/kmb_plane.c
++++ b/drivers/gpu/drm/kmb/kmb_plane.c
+@@ -427,8 +427,14 @@ static void kmb_plane_atomic_update(struct drm_plane *plane,
+ 
+ 	kmb_set_bitmask_lcd(kmb, LCD_CONTROL, ctrl);
+ 
+-	/* FIXME no doc on how to set output format,these values are
+-	 * taken from the Myriadx tests
++	/* Enable pipeline AXI read transactions for the DMA
++	 * after setting graphics layers. This must be done
++	 * in a separate write cycle.
++	 */
++	kmb_set_bitmask_lcd(kmb, LCD_CONTROL, LCD_CTRL_PIPELINE_DMA);
++
++	/* FIXME no doc on how to set output format, these values are taken
++	 * from the Myriadx tests
+ 	 */
+ 	out_format |= LCD_OUTF_FORMAT_RGB888;
+ 
+@@ -526,6 +532,11 @@ struct kmb_plane *kmb_plane_init(struct drm_device *drm)
+ 		plane->id = i;
  	}
  
- 	mmdc_num = mmdc_pmu_init(pmu_mmdc, mmdc_base, &pdev->dev);
-+	pmu_mmdc->mmdc_ipg_clk = mmdc_ipg_clk;
- 	if (mmdc_num == 0)
- 		name = "mmdc";
- 	else
-@@ -568,9 +572,11 @@ static int imx_mmdc_probe(struct platform_device *pdev)
- 	val &= ~(1 << BP_MMDC_MAPSR_PSD);
- 	writel_relaxed(val, reg);
- 
--	err = imx_mmdc_perf_init(pdev, mmdc_base);
--	if (err)
-+	err = imx_mmdc_perf_init(pdev, mmdc_base, mmdc_ipg_clk);
-+	if (err) {
- 		iounmap(mmdc_base);
-+		clk_disable_unprepare(mmdc_ipg_clk);
-+	}
- 
- 	return err;
- }
++	/* Disable pipeline AXI read transactions for the DMA
++	 * prior to setting graphics layers
++	 */
++	kmb_clr_bitmask_lcd(kmb, LCD_CONTROL, LCD_CTRL_PIPELINE_DMA);
++
+ 	return primary;
+ cleanup:
+ 	drmm_kfree(drm, plane);
 -- 
 2.30.2
 
