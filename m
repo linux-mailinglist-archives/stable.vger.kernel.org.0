@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 446203E5CF6
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 16:16:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8668D3E5CFA
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 16:16:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242491AbhHJOQX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S242594AbhHJOQX (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 10 Aug 2021 10:16:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53390 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:53438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242483AbhHJOQH (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S242490AbhHJOQH (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 10 Aug 2021 10:16:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 566C561077;
-        Tue, 10 Aug 2021 14:15:42 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F063610A4;
+        Tue, 10 Aug 2021 14:15:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1628604943;
-        bh=jsXSwu3e2W5/Bbh8Ni7wMfk8kDl0v6oLmGXB/izskHc=;
+        s=k20201202; t=1628604944;
+        bh=iD9D/k5aNOEcdSZegmyuiigYvh4NINWH+mB9toJlgiI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sdhgbEUHY8tIM4QexD8b4xwl4rEYgaCOjowORp4+KwEyUxd9EQmjP02YJCSqyIcY0
-         kWFFFiNHKKeKxrmQeLd3IbRGnk2M/aJ+Smmu3g0sXIXyjOWpyzWSC+DSDQjhfaznfM
-         k4L6+J1MDs2ztjDGnMTeNmwx5gmo7YTeCS9c0wQUKsiQdTID20G1J6D+rAP3Owg0zV
-         rPJ/NonlQUCDG7GZyefspwQxef4Nrmyl+Uer2TUUz7VHOQQ9nw+eAX8JEMlCu25Zlu
-         DG1Jb9pru9fVPh5Wxm2HRiM/GoycLTwFxrI04Ca9Z309tt5rpyCHRAPxJh7TvOPTvM
-         v+Cwp8zTXOHIQ==
+        b=Oru6hWTAM+gaYYbgkmtvAxoDMB3brMgrKrQ3/qugXJsHEjQv/ta31Gy+m41ssQ5ad
+         lP1Ivfa+yvkFfqwHWQKs5TnBQ5PFWusQbH64Y51LS/0gD7nJ7sho5iGugf/61jJk+r
+         4toVIQcYZQIKU54YsNd2VFlCbnE6AU1qbtV3PCIrjLRLLCQcccnanIwiCbmbPyPl9r
+         J6iOlRnmawwwp0GJ+VLeJccRX7YsqSvNvtYMGmbjN6SB65H8cFEA48CA0hzdGUtV93
+         02nnMl3GG9hCRcoFe0G/V17GYCsQNZtLUxBCx41SnAALeopoy6KZNrkzwsId+/I8+R
+         u7R44kqdQh27w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 03/20] spi: spi-mux: Add module info needed for autoloading
-Date:   Tue, 10 Aug 2021 10:15:21 -0400
-Message-Id: <20210810141538.3117707-3-sashal@kernel.org>
+Cc:     Harshvardhan Jha <harshvardhan.jha@oracle.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 04/20] net: xfrm: Fix end of loop tests for list_for_each_entry
+Date:   Tue, 10 Aug 2021 10:15:22 -0400
+Message-Id: <20210810141538.3117707-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210810141538.3117707-1-sashal@kernel.org>
 References: <20210810141538.3117707-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,51 +42,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Harshvardhan Jha <harshvardhan.jha@oracle.com>
 
-[ Upstream commit 1d5ccab95f06675a269f4cb223a1e3f6d1ebef42 ]
+[ Upstream commit 480e93e12aa04d857f7cc2e6fcec181c0d690404 ]
 
-With the spi device table udev can autoload the spi-mux module in
-the presence of an spi-mux device.
+The list_for_each_entry() iterator, "pos" in this code, can never be
+NULL so the warning will never be printed.
 
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Link: https://lore.kernel.org/r/20210721095321.2165453-1-u.kleine-koenig@pengutronix.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Harshvardhan Jha <harshvardhan.jha@oracle.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-mux.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ net/xfrm/xfrm_ipcomp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-mux.c b/drivers/spi/spi-mux.c
-index 37dfc6e82804..9708b7827ff7 100644
---- a/drivers/spi/spi-mux.c
-+++ b/drivers/spi/spi-mux.c
-@@ -167,10 +167,17 @@ static int spi_mux_probe(struct spi_device *spi)
- 	return ret;
- }
+diff --git a/net/xfrm/xfrm_ipcomp.c b/net/xfrm/xfrm_ipcomp.c
+index 4d422447aadc..0814320472f1 100644
+--- a/net/xfrm/xfrm_ipcomp.c
++++ b/net/xfrm/xfrm_ipcomp.c
+@@ -250,7 +250,7 @@ static void ipcomp_free_tfms(struct crypto_comp * __percpu *tfms)
+ 			break;
+ 	}
  
-+static const struct spi_device_id spi_mux_id[] = {
-+	{ "spi-mux" },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(spi, spi_mux_id);
-+
- static const struct of_device_id spi_mux_of_match[] = {
- 	{ .compatible = "spi-mux" },
- 	{ }
- };
-+MODULE_DEVICE_TABLE(of, spi_mux_of_match);
+-	WARN_ON(!pos);
++	WARN_ON(list_entry_is_head(pos, &ipcomp_tfms_list, list));
  
- static struct spi_driver spi_mux_driver = {
- 	.probe  = spi_mux_probe,
-@@ -178,6 +185,7 @@ static struct spi_driver spi_mux_driver = {
- 		.name   = "spi-mux",
- 		.of_match_table = spi_mux_of_match,
- 	},
-+	.id_table = spi_mux_id,
- };
- 
- module_spi_driver(spi_mux_driver);
+ 	if (--pos->users)
+ 		return;
 -- 
 2.30.2
 
