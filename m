@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 939BC3E7EF6
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:36:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 684CB3E7E4B
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:32:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233878AbhHJRgT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:36:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38896 "EHLO mail.kernel.org"
+        id S231152AbhHJRcT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:32:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233362AbhHJRfM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:35:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E7D261051;
-        Tue, 10 Aug 2021 17:34:49 +0000 (UTC)
+        id S230301AbhHJRcS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:32:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1658960EE7;
+        Tue, 10 Aug 2021 17:31:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616890;
-        bh=woKJPOPt/rh8d06DzkxMJZvZhND9Md2VJmpbfosLjbo=;
+        s=korg; t=1628616716;
+        bh=KwI4/+UcX8eSloMdRdXEFzkZ+lE6cIU+gP6RivqvFA8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JHqJQzvCDtGFWkQ5fbdsykWIFoco28cHARhArKYjMfr5V0H4WyaPwq1h4Rql6K5C+
-         Vjbr4nC1c/A6DEg6aoV5YJder0lp008q1CNvhG3GYh/XEBmeuMeemukltxigoo8+jC
-         GckJq9qUGJIHaB83jgHg/2eAEBav7W7vmmB0LhBg=
+        b=FFfjg5QG93H9RwreYdSG92PQT6n55wq9o8iAnZvR6ZucN6X/ylUd4lDKKqs1+Iesz
+         mqP8rmZMm3nRYWPRSLIVn7YMm5ZImBILDXhhvKxG3R3ubVF0u4XrEsJr7IvaPmRB1F
+         S77S/8B5PMbAfbQNKrK65/LJWSgSWEci4bjp+eeE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.4 37/85] USB: serial: option: add Telit FD980 composition 0x1056
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+02c9f70f3afae308464a@syzkaller.appspotmail.com
+Subject: [PATCH 4.19 16/54] net: pegasus: fix uninit-value in get_interrupt_interval
 Date:   Tue, 10 Aug 2021 19:30:10 +0200
-Message-Id: <20210810172949.464391808@linuxfoundation.org>
+Message-Id: <20210810172944.717718772@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
-References: <20210810172948.192298392@linuxfoundation.org>
+In-Reply-To: <20210810172944.179901509@linuxfoundation.org>
+References: <20210810172944.179901509@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,34 +41,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniele Palmas <dnlplm@gmail.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit 5648c073c33d33a0a19d0cb1194a4eb88efe2b71 upstream.
+[ Upstream commit af35fc37354cda3c9c8cc4961b1d24bdc9d27903 ]
 
-Add the following Telit FD980 composition 0x1056:
+Syzbot reported uninit value pegasus_probe(). The problem was in missing
+error handling.
 
-Cfg #1: mass storage
-Cfg #2: rndis, tty, adb, tty, tty, tty, tty
+get_interrupt_interval() internally calls read_eprom_word() which can
+fail in some cases. For example: failed to receive usb control message.
+These cases should be handled to prevent uninit value bug, since
+read_eprom_word() will not initialize passed stack variable in case of
+internal failure.
 
-Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
-Link: https://lore.kernel.org/r/20210803194711.3036-1-dnlplm@gmail.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fail log:
+
+BUG: KMSAN: uninit-value in get_interrupt_interval drivers/net/usb/pegasus.c:746 [inline]
+BUG: KMSAN: uninit-value in pegasus_probe+0x10e7/0x4080 drivers/net/usb/pegasus.c:1152
+CPU: 1 PID: 825 Comm: kworker/1:1 Not tainted 5.12.0-rc6-syzkaller #0
+...
+Workqueue: usb_hub_wq hub_event
+Call Trace:
+ __dump_stack lib/dump_stack.c:79 [inline]
+ dump_stack+0x24c/0x2e0 lib/dump_stack.c:120
+ kmsan_report+0xfb/0x1e0 mm/kmsan/kmsan_report.c:118
+ __msan_warning+0x5c/0xa0 mm/kmsan/kmsan_instr.c:197
+ get_interrupt_interval drivers/net/usb/pegasus.c:746 [inline]
+ pegasus_probe+0x10e7/0x4080 drivers/net/usb/pegasus.c:1152
+....
+
+Local variable ----data.i@pegasus_probe created at:
+ get_interrupt_interval drivers/net/usb/pegasus.c:1151 [inline]
+ pegasus_probe+0xe57/0x4080 drivers/net/usb/pegasus.c:1152
+ get_interrupt_interval drivers/net/usb/pegasus.c:1151 [inline]
+ pegasus_probe+0xe57/0x4080 drivers/net/usb/pegasus.c:1152
+
+Reported-and-tested-by: syzbot+02c9f70f3afae308464a@syzkaller.appspotmail.com
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Link: https://lore.kernel.org/r/20210804143005.439-1-paskripkin@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/option.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/usb/pegasus.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -1203,6 +1203,8 @@ static const struct usb_device_id option
- 	  .driver_info = NCTRL(2) | RSVD(3) },
- 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1055, 0xff),	/* Telit FN980 (PCIe) */
- 	  .driver_info = NCTRL(0) | RSVD(1) },
-+	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1056, 0xff),	/* Telit FD980 */
-+	  .driver_info = NCTRL(2) | RSVD(3) },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910),
- 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(3) },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910_DUAL_MODEM),
+diff --git a/drivers/net/usb/pegasus.c b/drivers/net/usb/pegasus.c
+index b7a0df95d4b0..9f1777e56d7d 100644
+--- a/drivers/net/usb/pegasus.c
++++ b/drivers/net/usb/pegasus.c
+@@ -750,12 +750,16 @@ static inline void disable_net_traffic(pegasus_t *pegasus)
+ 	set_registers(pegasus, EthCtrl0, sizeof(tmp), &tmp);
+ }
+ 
+-static inline void get_interrupt_interval(pegasus_t *pegasus)
++static inline int get_interrupt_interval(pegasus_t *pegasus)
+ {
+ 	u16 data;
+ 	u8 interval;
++	int ret;
++
++	ret = read_eprom_word(pegasus, 4, &data);
++	if (ret < 0)
++		return ret;
+ 
+-	read_eprom_word(pegasus, 4, &data);
+ 	interval = data >> 8;
+ 	if (pegasus->usb->speed != USB_SPEED_HIGH) {
+ 		if (interval < 0x80) {
+@@ -770,6 +774,8 @@ static inline void get_interrupt_interval(pegasus_t *pegasus)
+ 		}
+ 	}
+ 	pegasus->intr_interval = interval;
++
++	return 0;
+ }
+ 
+ static void set_carrier(struct net_device *net)
+@@ -1188,7 +1194,9 @@ static int pegasus_probe(struct usb_interface *intf,
+ 				| NETIF_MSG_PROBE | NETIF_MSG_LINK);
+ 
+ 	pegasus->features = usb_dev_id[dev_index].private;
+-	get_interrupt_interval(pegasus);
++	res = get_interrupt_interval(pegasus);
++	if (res)
++		goto out2;
+ 	if (reset_mac(pegasus)) {
+ 		dev_err(&intf->dev, "can't reset MAC\n");
+ 		res = -EIO;
+-- 
+2.30.2
+
 
 
