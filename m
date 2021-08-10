@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 255F73E7E7A
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:33:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3CBC3E804E
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:47:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232227AbhHJRde (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:33:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34908 "EHLO mail.kernel.org"
+        id S232604AbhHJRr7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:47:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231654AbhHJRdP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:33:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DC74561052;
-        Tue, 10 Aug 2021 17:32:52 +0000 (UTC)
+        id S235730AbhHJRqD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:46:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D27561251;
+        Tue, 10 Aug 2021 17:40:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616773;
-        bh=lyoev9/9REs+fcjwzKE/QqJuYQ2KvIMBX6V/OxJCqRw=;
+        s=korg; t=1628617222;
+        bh=s0g1xmmZwpz0X/vZ9KJFPr4XM+vbvQa7yuAIxalVp1c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RvsK9VGkItDcjYFMSoFi42EgL7ac5/kT934n/bIaYMACYjZrf6ELdb7JPkx8dXwQ4
-         2wlKNN/bYVagOe7T/RLn31OAJ+OYDAyS/k1g778VTxpwQ7kRnKuRIQqDfISzcF7uwv
-         0AgJbwVjq/kKLxWxJFHYnSxgFKZp3PGlpTeNhnKg=
+        b=jo+Hz9igLqy9jYSDQUhHcIPPZMaai2VHVHQCRUYwTfFWxbtMH1h1pstrHT6xtJBzx
+         4AVGWLpecIZehYqgkGaJjp8IOSKdRSE7b2j47vJLQ1KifEbc+hlJkGN7spfWq3wTTP
+         mctD5Y1lP3WSdaOmK8Eeyz+V/LcZmZy5I2LYyt/k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Alex Xu (Hello71)" <alex_y_xu@yahoo.ca>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 39/54] pipe: increase minimum default pipe size to 2 pages
+        stable@vger.kernel.org,
+        Ralf Ramsauer <ralf.ramsauer@oth-regensburg.de>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Mario Kleiner <mario.kleiner.de@gmail.com>
+Subject: [PATCH 5.10 099/135] serial: 8250_pci: Avoid irq sharing for MSI(-X) interrupts.
 Date:   Tue, 10 Aug 2021 19:30:33 +0200
-Message-Id: <20210810172945.480065486@linuxfoundation.org>
+Message-Id: <20210810172959.123092016@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172944.179901509@linuxfoundation.org>
-References: <20210810172944.179901509@linuxfoundation.org>
+In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
+References: <20210810172955.660225700@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,75 +41,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Xu (Hello71) <alex_y_xu@yahoo.ca>
+From: Mario Kleiner <mario.kleiner.de@gmail.com>
 
-commit 46c4c9d1beb7f5b4cec4dd90e7728720583ee348 upstream.
+commit 341abd693d10e5f337a51f140ae3e7a1ae0febf6 upstream.
 
-This program always prints 4096 and hangs before the patch, and always
-prints 8192 and exits successfully after:
+This attempts to fix a bug found with a serial port card which uses
+an MCS9922 chip, one of the 4 models for which MSI-X interrupts are
+currently supported. I don't possess such a card, and i'm not
+experienced with the serial subsystem, so this patch is based on what
+i think i found as a likely reason for failure, based on walking the
+user who actually owns the card through some diagnostic.
 
-  int main()
-  {
-      int pipefd[2];
-      for (int i = 0; i < 1025; i++)
-          if (pipe(pipefd) == -1)
-              return 1;
-      size_t bufsz = fcntl(pipefd[1], F_GETPIPE_SZ);
-      printf("%zd\n", bufsz);
-      char *buf = calloc(bufsz, 1);
-      write(pipefd[1], buf, bufsz);
-      read(pipefd[0], buf, bufsz-1);
-      write(pipefd[1], buf, 1);
-  }
+The user who reported the problem finds the following in his dmesg
+output for the relevant ttyS4 and ttyS5:
 
-Note that you may need to increase your RLIMIT_NOFILE before running the
-program.
+[    0.580425] serial 0000:02:00.0: enabling device (0000 -> 0003)
+[    0.601448] 0000:02:00.0: ttyS4 at I/O 0x3010 (irq = 125, base_baud = 115200) is a ST16650V2
+[    0.603089] serial 0000:02:00.1: enabling device (0000 -> 0003)
+[    0.624119] 0000:02:00.1: ttyS5 at I/O 0x3000 (irq = 126, base_baud = 115200) is a ST16650V2
+...
+[    6.323784] genirq: Flags mismatch irq 128. 00000080 (ttyS5) vs. 00000000 (xhci_hcd)
+[    6.324128] genirq: Flags mismatch irq 128. 00000080 (ttyS5) vs. 00000000 (xhci_hcd)
+...
 
-Fixes: 759c01142a ("pipe: limit the per-user amount of pages allocated in pipes")
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/lkml/1628086770.5rn8p04n6j.none@localhost/
-Link: https://lore.kernel.org/lkml/1628127094.lxxn016tj7.none@localhost/
-Signed-off-by: Alex Xu (Hello71) <alex_y_xu@yahoo.ca>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Output of setserial -a:
+
+/dev/ttyS4, Line 4, UART: 16650V2, Port: 0x3010, IRQ: 127
+	Baud_base: 115200, close_delay: 50, divisor: 0
+	closing_wait: 3000
+	Flags: spd_normal skip_test
+
+This suggests to me that the serial driver wants to register and share a
+MSI/MSI-X irq 128 with the xhci_hcd driver, whereas the xhci driver does
+not want to share the irq, as flags 0x00000080 (== IRQF_SHARED) from the
+serial port driver means to share the irq, and this mismatch ends in some
+failed irq init?
+
+With this setup, data reception works very unreliable, with dropped data,
+already at a transmission rate of only a 16 Bytes chunk every 1/120th of
+a second, ie. 1920 Bytes/sec, presumably due to rx fifo overflow due to
+mishandled or not used at all rx irq's?
+
+See full discussion thread with attempted diagnosis at:
+
+https://psychtoolbox.discourse.group/t/issues-with-iscan-serial-port-recording/3886
+
+Disabling the use of MSI interrupts for the serial port pci card did
+fix the reliability problems. The user executed the following sequence
+of commands to achieve this:
+
+echo 0000:02:00.0 | sudo tee /sys/bus/pci/drivers/serial/unbind
+echo 0000:02:00.1 | sudo tee /sys/bus/pci/drivers/serial/unbind
+
+echo 0 | sudo tee /sys/bus/pci/devices/0000:02:00.0/msi_bus
+echo 0 | sudo tee /sys/bus/pci/devices/0000:02:00.1/msi_bus
+
+echo 0000:02:00.0 | sudo tee /sys/bus/pci/drivers/serial/bind
+echo 0000:02:00.1 | sudo tee /sys/bus/pci/drivers/serial/bind
+
+This resulted in the following log output:
+
+[   82.179021] pci 0000:02:00.0: MSI/MSI-X disallowed for future drivers
+[   87.003031] pci 0000:02:00.1: MSI/MSI-X disallowed for future drivers
+[   98.537010] 0000:02:00.0: ttyS4 at I/O 0x3010 (irq = 17, base_baud = 115200) is a ST16650V2
+[  103.648124] 0000:02:00.1: ttyS5 at I/O 0x3000 (irq = 18, base_baud = 115200) is a ST16650V2
+
+This patch attempts to fix the problem by disabling irq sharing when
+using MSI irq's. Note that all i know for sure is that disabling MSI
+irq's fixed the problem for the user, so this patch could be wrong and
+is untested. Please review with caution, keeping this in mind.
+
+Fixes: 8428413b1d14 ("serial: 8250_pci: Implement MSI(-X) support")
+Cc: Ralf Ramsauer <ralf.ramsauer@oth-regensburg.de>
+Cc: stable <stable@vger.kernel.org>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Mario Kleiner <mario.kleiner.de@gmail.com>
+Link: https://lore.kernel.org/r/20210729043306.18528-1-mario.kleiner.de@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/pipe.c |   19 +++++++++++++++++--
- 1 file changed, 17 insertions(+), 2 deletions(-)
+ drivers/tty/serial/8250/8250_pci.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/pipe.c
-+++ b/fs/pipe.c
-@@ -30,6 +30,21 @@
- #include "internal.h"
- 
- /*
-+ * New pipe buffers will be restricted to this size while the user is exceeding
-+ * their pipe buffer quota. The general pipe use case needs at least two
-+ * buffers: one for data yet to be read, and one for new data. If this is less
-+ * than two, then a write to a non-empty pipe may block even if the pipe is not
-+ * full. This can occur with GNU make jobserver or similar uses of pipes as
-+ * semaphores: multiple processes may be waiting to write tokens back to the
-+ * pipe before reading tokens: https://lore.kernel.org/lkml/1628086770.5rn8p04n6j.none@localhost/.
-+ *
-+ * Users can reduce their pipe buffers with F_SETPIPE_SZ below this at their
-+ * own risk, namely: pipe writes to non-full pipes may block until the pipe is
-+ * emptied.
-+ */
-+#define PIPE_MIN_DEF_BUFFERS 2
-+
-+/*
-  * The max size that a non-root user is allowed to grow the pipe. Can
-  * be set by root in /proc/sys/fs/pipe-max-size
-  */
-@@ -654,8 +669,8 @@ struct pipe_inode_info *alloc_pipe_info(
- 	user_bufs = account_pipe_buffers(user, 0, pipe_bufs);
- 
- 	if (too_many_pipe_buffers_soft(user_bufs) && is_unprivileged_user()) {
--		user_bufs = account_pipe_buffers(user, pipe_bufs, 1);
--		pipe_bufs = 1;
-+		user_bufs = account_pipe_buffers(user, pipe_bufs, PIPE_MIN_DEF_BUFFERS);
-+		pipe_bufs = PIPE_MIN_DEF_BUFFERS;
- 	}
- 
- 	if (too_many_pipe_buffers_hard(user_bufs) && is_unprivileged_user())
+--- a/drivers/tty/serial/8250/8250_pci.c
++++ b/drivers/tty/serial/8250/8250_pci.c
+@@ -3970,6 +3970,7 @@ pciserial_init_ports(struct pci_dev *dev
+ 		if (pci_match_id(pci_use_msi, dev)) {
+ 			dev_dbg(&dev->dev, "Using MSI(-X) interrupts\n");
+ 			pci_set_master(dev);
++			uart.port.flags &= ~UPF_SHARE_IRQ;
+ 			rc = pci_alloc_irq_vectors(dev, 1, 1, PCI_IRQ_ALL_TYPES);
+ 		} else {
+ 			dev_dbg(&dev->dev, "Using legacy interrupts\n");
 
 
