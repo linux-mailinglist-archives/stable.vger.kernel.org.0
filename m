@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 364BF3E7F73
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:41:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EFFE3E7E76
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:33:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234434AbhHJRkb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:40:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42778 "EHLO mail.kernel.org"
+        id S232604AbhHJRdc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:33:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33530 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235014AbhHJRjC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:39:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7FFEA6113D;
-        Tue, 10 Aug 2021 17:36:46 +0000 (UTC)
+        id S232161AbhHJRdG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:33:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EA72C60EBD;
+        Tue, 10 Aug 2021 17:32:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617007;
-        bh=uPJHPIMaAQHhqYTIRhSwl3OZrLSgpFsc9imL+CpRXl8=;
+        s=korg; t=1628616764;
+        bh=0oWdoNn44QZtzLfp5PWAsDx3Jinl+hraGHzZFa0gNr8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2a/SKFtFZFmCaio0j2dHZ/p4ldPwerb/Rq4BTjYjwaGTe4FbzOqWrl8o5aoogzIhW
-         LQpPnttSUy1HXVvkpe5Llrs31BNH5l5DQufHQZpbGtC2+OoERBDH9hM6jKIwU4m6tM
-         SnjMmtH9LQq5Ai/kdmhKzCCNftGIABhQjceDgc90=
+        b=hiSBmaOmi5EE6dqVGTgKU40RA4/jttHC+O7W1EfvPqpH4wxaN4uDmzMp6LMcmah5K
+         0XlLEZbkdvyANk90vQ9MRuKRxEGfLeYelpervJZRv686kQP8iqZAi109i0dNFtyY2F
+         NAQZ2JRlcyUTFy3ObjbKoHZ69qbJKWrVqkYVMHiI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Xiangyang Zhang <xyz.sun.ok@gmail.com>
-Subject: [PATCH 5.4 56/85] staging: rtl8723bs: Fix a resource leak in sd_int_dpc
+        stable@vger.kernel.org, Tyler Hicks <tyhicks@linux.microsoft.com>,
+        Jens Wiklander <jens.wiklander@linaro.org>,
+        Sumit Garg <sumit.garg@linaro.org>
+Subject: [PATCH 4.19 35/54] optee: Clear stale cache entries during initialization
 Date:   Tue, 10 Aug 2021 19:30:29 +0200
-Message-Id: <20210810172950.132127247@linuxfoundation.org>
+Message-Id: <20210810172945.336794400@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
-References: <20210810172948.192298392@linuxfoundation.org>
+In-Reply-To: <20210810172944.179901509@linuxfoundation.org>
+References: <20210810172944.179901509@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,33 +40,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiangyang Zhang <xyz.sun.ok@gmail.com>
+From: Tyler Hicks <tyhicks@linux.microsoft.com>
 
-commit 990e4ad3ddcb72216caeddd6e62c5f45a21e8121 upstream.
+commit b5c10dd04b7418793517e3286cde5c04759a86de upstream.
 
-The "c2h_evt" variable is not freed when function call
-"c2h_evt_read_88xx" failed
+The shm cache could contain invalid addresses if
+optee_disable_shm_cache() was not called from the .shutdown hook of the
+previous kernel before a kexec. These addresses could be unmapped or
+they could point to mapped but unintended locations in memory.
 
-Fixes: 554c0a3abf21 ("staging: Add rtl8723bs sdio wifi driver")
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Xiangyang Zhang <xyz.sun.ok@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210628152239.5475-1-xyz.sun.ok@gmail.com
+Clear the shared memory cache, while being careful to not translate the
+addresses returned from OPTEE_SMC_DISABLE_SHM_CACHE, during driver
+initialization. Once all pre-cache shm objects are removed, proceed with
+enabling the cache so that we know that we can handle cached shm objects
+with confidence later in the .shutdown hook.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Tyler Hicks <tyhicks@linux.microsoft.com>
+Reviewed-by: Jens Wiklander <jens.wiklander@linaro.org>
+Reviewed-by: Sumit Garg <sumit.garg@linaro.org>
+Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/rtl8723bs/hal/sdio_ops.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/tee/optee/call.c          |   36 +++++++++++++++++++++++++++++++++---
+ drivers/tee/optee/core.c          |    9 +++++++++
+ drivers/tee/optee/optee_private.h |    1 +
+ 3 files changed, 43 insertions(+), 3 deletions(-)
 
---- a/drivers/staging/rtl8723bs/hal/sdio_ops.c
-+++ b/drivers/staging/rtl8723bs/hal/sdio_ops.c
-@@ -1033,6 +1033,8 @@ void sd_int_dpc(struct adapter *adapter)
- 				} else {
- 					rtw_c2h_wk_cmd(adapter, (u8 *)c2h_evt);
- 				}
-+			} else {
-+				kfree(c2h_evt);
- 			}
- 		} else {
- 			/* Error handling for malloc fail */
+--- a/drivers/tee/optee/call.c
++++ b/drivers/tee/optee/call.c
+@@ -413,11 +413,13 @@ void optee_enable_shm_cache(struct optee
+ }
+ 
+ /**
+- * optee_disable_shm_cache() - Disables caching of some shared memory allocation
+- *			      in OP-TEE
++ * __optee_disable_shm_cache() - Disables caching of some shared memory
++ *                               allocation in OP-TEE
+  * @optee:	main service struct
++ * @is_mapped:	true if the cached shared memory addresses were mapped by this
++ *		kernel, are safe to dereference, and should be freed
+  */
+-void optee_disable_shm_cache(struct optee *optee)
++static void __optee_disable_shm_cache(struct optee *optee, bool is_mapped)
+ {
+ 	struct optee_call_waiter w;
+ 
+@@ -436,6 +438,13 @@ void optee_disable_shm_cache(struct opte
+ 		if (res.result.status == OPTEE_SMC_RETURN_OK) {
+ 			struct tee_shm *shm;
+ 
++			/*
++			 * Shared memory references that were not mapped by
++			 * this kernel must be ignored to prevent a crash.
++			 */
++			if (!is_mapped)
++				continue;
++
+ 			shm = reg_pair_to_ptr(res.result.shm_upper32,
+ 					      res.result.shm_lower32);
+ 			tee_shm_free(shm);
+@@ -446,6 +455,27 @@ void optee_disable_shm_cache(struct opte
+ 	optee_cq_wait_final(&optee->call_queue, &w);
+ }
+ 
++/**
++ * optee_disable_shm_cache() - Disables caching of mapped shared memory
++ *                             allocations in OP-TEE
++ * @optee:	main service struct
++ */
++void optee_disable_shm_cache(struct optee *optee)
++{
++	return __optee_disable_shm_cache(optee, true);
++}
++
++/**
++ * optee_disable_unmapped_shm_cache() - Disables caching of shared memory
++ *                                      allocations in OP-TEE which are not
++ *                                      currently mapped
++ * @optee:	main service struct
++ */
++void optee_disable_unmapped_shm_cache(struct optee *optee)
++{
++	return __optee_disable_shm_cache(optee, false);
++}
++
+ #define PAGELIST_ENTRIES_PER_PAGE				\
+ 	((OPTEE_MSG_NONCONTIG_PAGE_SIZE / sizeof(u64)) - 1)
+ 
+--- a/drivers/tee/optee/core.c
++++ b/drivers/tee/optee/core.c
+@@ -619,6 +619,15 @@ static struct optee *optee_probe(struct
+ 	optee->memremaped_shm = memremaped_shm;
+ 	optee->pool = pool;
+ 
++	/*
++	 * Ensure that there are no pre-existing shm objects before enabling
++	 * the shm cache so that there's no chance of receiving an invalid
++	 * address during shutdown. This could occur, for example, if we're
++	 * kexec booting from an older kernel that did not properly cleanup the
++	 * shm cache.
++	 */
++	optee_disable_unmapped_shm_cache(optee);
++
+ 	optee_enable_shm_cache(optee);
+ 
+ 	pr_info("initialized driver\n");
+--- a/drivers/tee/optee/optee_private.h
++++ b/drivers/tee/optee/optee_private.h
+@@ -160,6 +160,7 @@ int optee_cancel_req(struct tee_context
+ 
+ void optee_enable_shm_cache(struct optee *optee);
+ void optee_disable_shm_cache(struct optee *optee);
++void optee_disable_unmapped_shm_cache(struct optee *optee);
+ 
+ int optee_shm_register(struct tee_context *ctx, struct tee_shm *shm,
+ 		       struct page **pages, size_t num_pages,
 
 
