@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F00983E7F92
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:41:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F5023E811E
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:56:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234550AbhHJRlE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:41:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42350 "EHLO mail.kernel.org"
+        id S236154AbhHJRzt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:55:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235491AbhHJRjj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:39:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B818861167;
-        Tue, 10 Aug 2021 17:37:22 +0000 (UTC)
+        id S236991AbhHJRyM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:54:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A23A61355;
+        Tue, 10 Aug 2021 17:44:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617043;
-        bh=FfXHP7cUmnlDTXqLMrTXsprmJ00OVsWAgbgMHCiyXAQ=;
+        s=korg; t=1628617446;
+        bh=0NTkwnBfe2rGmx8ZNRuktMmSUZmfZGMdJ/Xpk63KK/E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rTK9j8ydY675gX7BB6/F52sDwSkev+q7YlE1yp8abUHzjUFi91SVXqddLElduhkgL
-         78eZiGWtNjt9UzjDU8QN3SYfwts2Se5SLfHyusbhKAr3xXJ4SuQjdkoXtXoSsZ2oN2
-         /akmPAYoRJmGx13MCpqwmw88Ts1V23fx6A9Ex/8I=
+        b=DvIRKOxkod1NvoU6GuES9wdi4VVIt9GXOPUKDrLKmTZpQAKj59MH2Q9XpsOLDq0BA
+         VBnE5pNNvOi2Gg711+B/Dx91hbBCfEJdysczxPCwpaWAkgTF/BVpg3ICPQzynDUQwI
+         DDbrw6uPvpzKkKlc4va7DO31ai8vKz4pKoD+BZYU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        folkert <folkert@vanheusden.com>
-Subject: [PATCH 5.10 002/135] ALSA: seq: Fix racy deletion of subscriber
-Date:   Tue, 10 Aug 2021 19:28:56 +0200
-Message-Id: <20210810172955.752010468@linuxfoundation.org>
+        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 029/175] dmaengine: stm32-dma: Fix PM usage counter imbalance in stm32 dma ops
+Date:   Tue, 10 Aug 2021 19:28:57 +0200
+Message-Id: <20210810173001.917671196@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
-References: <20210810172955.660225700@linuxfoundation.org>
+In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
+References: <20210810173000.928681411@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,116 +39,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-commit 97367c97226aab8b298ada954ce12659ee3ad2a4 upstream.
+[ Upstream commit d54db74ad6e0dea8c253fb68c689b836657ab914 ]
 
-It turned out that the current implementation of the port subscription
-is racy.  The subscription contains two linked lists, and we have to
-add to or delete from both lists.  Since both connection and
-disconnection procedures perform the same order for those two lists
-(i.e. src list, then dest list), when a deletion happens during a
-connection procedure, the src list may be deleted before the dest list
-addition completes, and this may lead to a use-after-free or an Oops,
-even though the access to both lists are protected via mutex.
+pm_runtime_get_sync will increment pm usage counter
+even it failed. Forgetting to putting operation will
+result in reference leak here. We fix it by replacing
+it with pm_runtime_resume_and_get to keep usage counter
+balanced.
 
-The simple workaround for this race is to change the access order for
-the disconnection, namely, dest list, then src list.  This assures
-that the connection has been established when disconnecting, and also
-the concurrent deletion can be avoided.
-
-Reported-and-tested-by: folkert <folkert@vanheusden.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210801182754.GP890690@belle.intranet.vanheusden.com
-Link: https://lore.kernel.org/r/20210803114312.2536-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 48bc73ba14bcd ("dmaengine: stm32-dma: Add PM Runtime support")
+Fixes: 05f8740a0e6fc ("dmaengine: stm32-dma: add suspend/resume power management support")
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Link: https://lore.kernel.org/r/20210607064640.121394-2-zhangqilong3@huawei.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/seq/seq_ports.c |   39 +++++++++++++++++++++++++++------------
- 1 file changed, 27 insertions(+), 12 deletions(-)
+ drivers/dma/stm32-dma.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/sound/core/seq/seq_ports.c
-+++ b/sound/core/seq/seq_ports.c
-@@ -514,10 +514,11 @@ static int check_and_subscribe_port(stru
- 	return err;
- }
+diff --git a/drivers/dma/stm32-dma.c b/drivers/dma/stm32-dma.c
+index f54ecb123a52..7dd1d3d0bf06 100644
+--- a/drivers/dma/stm32-dma.c
++++ b/drivers/dma/stm32-dma.c
+@@ -1200,7 +1200,7 @@ static int stm32_dma_alloc_chan_resources(struct dma_chan *c)
  
--static void delete_and_unsubscribe_port(struct snd_seq_client *client,
--					struct snd_seq_client_port *port,
--					struct snd_seq_subscribers *subs,
--					bool is_src, bool ack)
-+/* called with grp->list_mutex held */
-+static void __delete_and_unsubscribe_port(struct snd_seq_client *client,
-+					  struct snd_seq_client_port *port,
-+					  struct snd_seq_subscribers *subs,
-+					  bool is_src, bool ack)
- {
- 	struct snd_seq_port_subs_info *grp;
- 	struct list_head *list;
-@@ -525,7 +526,6 @@ static void delete_and_unsubscribe_port(
+ 	chan->config_init = false;
  
- 	grp = is_src ? &port->c_src : &port->c_dest;
- 	list = is_src ? &subs->src_list : &subs->dest_list;
--	down_write(&grp->list_mutex);
- 	write_lock_irq(&grp->list_lock);
- 	empty = list_empty(list);
- 	if (!empty)
-@@ -535,6 +535,18 @@ static void delete_and_unsubscribe_port(
+-	ret = pm_runtime_get_sync(dmadev->ddev.dev);
++	ret = pm_runtime_resume_and_get(dmadev->ddev.dev);
+ 	if (ret < 0)
+ 		return ret;
  
- 	if (!empty)
- 		unsubscribe_port(client, port, grp, &subs->info, ack);
-+}
-+
-+static void delete_and_unsubscribe_port(struct snd_seq_client *client,
-+					struct snd_seq_client_port *port,
-+					struct snd_seq_subscribers *subs,
-+					bool is_src, bool ack)
-+{
-+	struct snd_seq_port_subs_info *grp;
-+
-+	grp = is_src ? &port->c_src : &port->c_dest;
-+	down_write(&grp->list_mutex);
-+	__delete_and_unsubscribe_port(client, port, subs, is_src, ack);
- 	up_write(&grp->list_mutex);
- }
+@@ -1470,7 +1470,7 @@ static int stm32_dma_suspend(struct device *dev)
+ 	struct stm32_dma_device *dmadev = dev_get_drvdata(dev);
+ 	int id, ret, scr;
  
-@@ -590,27 +602,30 @@ int snd_seq_port_disconnect(struct snd_s
- 			    struct snd_seq_client_port *dest_port,
- 			    struct snd_seq_port_subscribe *info)
- {
--	struct snd_seq_port_subs_info *src = &src_port->c_src;
-+	struct snd_seq_port_subs_info *dest = &dest_port->c_dest;
- 	struct snd_seq_subscribers *subs;
- 	int err = -ENOENT;
+-	ret = pm_runtime_get_sync(dev);
++	ret = pm_runtime_resume_and_get(dev);
+ 	if (ret < 0)
+ 		return ret;
  
--	down_write(&src->list_mutex);
-+	/* always start from deleting the dest port for avoiding concurrent
-+	 * deletions
-+	 */
-+	down_write(&dest->list_mutex);
- 	/* look for the connection */
--	list_for_each_entry(subs, &src->list_head, src_list) {
-+	list_for_each_entry(subs, &dest->list_head, dest_list) {
- 		if (match_subs_info(info, &subs->info)) {
--			atomic_dec(&subs->ref_count); /* mark as not ready */
-+			__delete_and_unsubscribe_port(dest_client, dest_port,
-+						      subs, false,
-+						      connector->number != dest_client->number);
- 			err = 0;
- 			break;
- 		}
- 	}
--	up_write(&src->list_mutex);
-+	up_write(&dest->list_mutex);
- 	if (err < 0)
- 		return err;
- 
- 	delete_and_unsubscribe_port(src_client, src_port, subs, true,
- 				    connector->number != src_client->number);
--	delete_and_unsubscribe_port(dest_client, dest_port, subs, false,
--				    connector->number != dest_client->number);
- 	kfree(subs);
- 	return 0;
- }
+-- 
+2.30.2
+
 
 
