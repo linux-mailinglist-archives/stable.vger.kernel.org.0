@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E608A3E812C
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:56:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9E7E3E7F74
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:41:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232246AbhHJR4K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:56:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52288 "EHLO mail.kernel.org"
+        id S234442AbhHJRkc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:40:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236665AbhHJRxO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:53:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B0E2603E7;
-        Tue, 10 Aug 2021 17:43:48 +0000 (UTC)
+        id S235139AbhHJRjW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:39:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 14D2E61101;
+        Tue, 10 Aug 2021 17:36:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617429;
-        bh=j1a6Z+n+QRy7CFaUYhg8hxITUPRiaBKuXeJkfzOuPSo=;
+        s=korg; t=1628617018;
+        bh=Do6S9tWsL50rvbJAWA7Y25g1Mhue883Dv9sJ0GOnHvo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lOGVytGdKZnlKLeFVuwLVUAboKd+Vs3AQjeddAgaMDFP9zOvglr1FZeJqttXmfJ75
-         HOiOtObPMfUywvNv9Zc+pQyo8Y+hfsq4Oud1c+/c+aJk3TG90iXT7PdcbF3RH+D709
-         fPwq4/AIw9piwizjzFcx4lEobVSUzV6+Y2a5l9x4=
+        b=EUR3A/p0V2j/h9WyiynASq5uNIvq6hkLxWvrOdv15+735p7vzkyoemk5N/ZDmUQU3
+         JrBryIsLjyZl+vXTY0cdTzyBz898v1V6a70E3HIdR7nF76uVUh8onsXN3CER1bIi01
+         TVBqcLl600fFpuUBRBezJBnIQR/Dks82I52GL4o0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 027/175] dmaengine: uniphier-xdmac: Use readl_poll_timeout_atomic() in atomic state
+        stable@vger.kernel.org, Adrien Precigout <dev@asdrip.fr>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.10 001/135] Revert "ACPICA: Fix memory leak caused by _CID repair function"
 Date:   Tue, 10 Aug 2021 19:28:55 +0200
-Message-Id: <20210810173001.853221605@linuxfoundation.org>
+Message-Id: <20210810172955.711732308@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
-References: <20210810173000.928681411@linuxfoundation.org>
+In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
+References: <20210810172955.660225700@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -40,41 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-[ Upstream commit 55f24c27b6c1a840b62fe297616f1f9ea3576cb7 ]
+commit 6511a8b5b7a65037340cd8ee91a377811effbc83 upstream.
 
-The function uniphier_xdmac_chan_stop() is only called in atomic state.
-Should use readl_poll_timeout_atomic() there instead of
-readl_poll_timeout().
+Revert commit c27bac0314131 ("ACPICA: Fix memory leak caused by _CID
+repair function") which is reported to cause a boot issue on Acer
+Swift 3 (SF314-51).
 
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Fixes: 667b9251440b ("dmaengine: uniphier-xdmac: Add UniPhier external DMA controller driver")
-Signed-off-by: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
-Link: https://lore.kernel.org/r/1627364852-28432-1-git-send-email-hayashi.kunihiko@socionext.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Adrien Precigout <dev@asdrip.fr>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma/uniphier-xdmac.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/acpi/acpica/nsrepair2.c |    7 -------
+ 1 file changed, 7 deletions(-)
 
-diff --git a/drivers/dma/uniphier-xdmac.c b/drivers/dma/uniphier-xdmac.c
-index 16b19654873d..d6b8a202474f 100644
---- a/drivers/dma/uniphier-xdmac.c
-+++ b/drivers/dma/uniphier-xdmac.c
-@@ -209,8 +209,8 @@ static int uniphier_xdmac_chan_stop(struct uniphier_xdmac_chan *xc)
- 	writel(0, xc->reg_ch_base + XDMAC_TSS);
+--- a/drivers/acpi/acpica/nsrepair2.c
++++ b/drivers/acpi/acpica/nsrepair2.c
+@@ -375,13 +375,6 @@ acpi_ns_repair_CID(struct acpi_evaluate_
  
- 	/* wait until transfer is stopped */
--	return readl_poll_timeout(xc->reg_ch_base + XDMAC_STAT, val,
--				  !(val & XDMAC_STAT_TENF), 100, 1000);
-+	return readl_poll_timeout_atomic(xc->reg_ch_base + XDMAC_STAT, val,
-+					 !(val & XDMAC_STAT_TENF), 100, 1000);
- }
+ 			(*element_ptr)->common.reference_count =
+ 			    original_ref_count;
+-
+-			/*
+-			 * The original_element holds a reference from the package object
+-			 * that represents _HID. Since a new element was created by _HID,
+-			 * remove the reference from the _CID package.
+-			 */
+-			acpi_ut_remove_reference(original_element);
+ 		}
  
- /* xc->vc.lock must be held by caller */
--- 
-2.30.2
-
+ 		element_ptr++;
 
 
