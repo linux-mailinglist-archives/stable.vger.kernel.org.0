@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D4553E805E
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:50:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3713A3E8060
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:50:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233043AbhHJRse (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:48:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40876 "EHLO mail.kernel.org"
+        id S235742AbhHJRsf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:48:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236079AbhHJRqa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:46:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DC6C161221;
-        Tue, 10 Aug 2021 17:40:35 +0000 (UTC)
+        id S236122AbhHJRqf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:46:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 232F5610E9;
+        Tue, 10 Aug 2021 17:40:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617236;
-        bh=1dfqSY3yBFiUCNg7s/r20aPg8+xO56OobT7LNFiNBKc=;
+        s=korg; t=1628617238;
+        bh=bswYOrY3+n4a6Hq+ZLvqJTXJghVf156L11jaxz7vkMg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BnWS5VH0Sffz1WVg60kcfGN+vXTxB/vw4Vr6W9ki++ZpgaTIXaYD1/Jvi8ZY1xnJi
-         UXku0onF4yfUTsBP1wghCJ/nYfOtZWfF+3TEXeazGHimdgcotqdGHzGhyRehveIvP/
-         KhzrJdaR3PSMFQJE7RyXUMLtQay0XLyWrzlx3W1k=
+        b=ULR5Qjnv7/SlTsUDWNUp5rZq8YSrQMq59tUFfEqUs9D/eR/d8Nj4M+F4ILWhcFvhK
+         YAjd+5lKqxWmUv9sOEW8p5E2sx/yJ2B6DhqoGdovPQ+UQpB9OJYgdFepmlcV8mmwdd
+         jjtjf0jZz1Y4Hrfu9Ixlh0ob4tiNDemk/uN+XULc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Dominik Brodowski <linux@dominikbrodowski.net>
-Subject: [PATCH 5.10 104/135] pcmcia: i82092: fix a null pointer dereference bug
-Date:   Tue, 10 Aug 2021 19:30:38 +0200
-Message-Id: <20210810172959.299535590@linuxfoundation.org>
+        stable@vger.kernel.org, Xiu Jianfeng <xiujianfeng@huawei.com>,
+        Paul Moore <paul@paul-moore.com>
+Subject: [PATCH 5.10 105/135] selinux: correct the return value when loads initial sids
+Date:   Tue, 10 Aug 2021 19:30:39 +0200
+Message-Id: <20210810172959.333458172@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
 References: <20210810172955.660225700@linuxfoundation.org>
@@ -39,32 +39,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Xiu Jianfeng <xiujianfeng@huawei.com>
 
-commit e39cdacf2f664b09029e7c1eb354c91a20c367af upstream.
+commit 4c156084daa8ee70978e4b150b5eb5fc7b1f15be upstream.
 
-During the driver loading process, the 'dev' field was not assigned, but
-the 'dev' field was referenced in the subsequent 'i82092aa_set_mem_map'
-function.
+It should not return 0 when SID 0 is assigned to isids.
+This patch fixes it.
 
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-CC: <stable@vger.kernel.org>
-[linux@dominikbrodowski.net: shorten commit message, add Cc to stable]
-Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Cc: stable@vger.kernel.org
+Fixes: e3e0b582c321a ("selinux: remove unused initial SIDs and improve handling")
+Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
+[PM: remove changelog from description]
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pcmcia/i82092.c |    1 +
- 1 file changed, 1 insertion(+)
+ security/selinux/ss/policydb.c |   10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
---- a/drivers/pcmcia/i82092.c
-+++ b/drivers/pcmcia/i82092.c
-@@ -112,6 +112,7 @@ static int i82092aa_pci_probe(struct pci
- 	for (i = 0; i < socket_count; i++) {
- 		sockets[i].card_state = 1; /* 1 = present but empty */
- 		sockets[i].io_base = pci_resource_start(dev, 0);
-+		sockets[i].dev = dev;
- 		sockets[i].socket.features |= SS_CAP_PCCARD;
- 		sockets[i].socket.map_size = 0x1000;
- 		sockets[i].socket.irq_mask = 0;
+--- a/security/selinux/ss/policydb.c
++++ b/security/selinux/ss/policydb.c
+@@ -874,7 +874,7 @@ int policydb_load_isids(struct policydb
+ 	rc = sidtab_init(s);
+ 	if (rc) {
+ 		pr_err("SELinux:  out of memory on SID table init\n");
+-		goto out;
++		return rc;
+ 	}
+ 
+ 	head = p->ocontexts[OCON_ISID];
+@@ -885,7 +885,7 @@ int policydb_load_isids(struct policydb
+ 		if (sid == SECSID_NULL) {
+ 			pr_err("SELinux:  SID 0 was assigned a context.\n");
+ 			sidtab_destroy(s);
+-			goto out;
++			return -EINVAL;
+ 		}
+ 
+ 		/* Ignore initial SIDs unused by this kernel. */
+@@ -897,12 +897,10 @@ int policydb_load_isids(struct policydb
+ 			pr_err("SELinux:  unable to load initial SID %s.\n",
+ 			       name);
+ 			sidtab_destroy(s);
+-			goto out;
++			return rc;
+ 		}
+ 	}
+-	rc = 0;
+-out:
+-	return rc;
++	return 0;
+ }
+ 
+ int policydb_class_isvalid(struct policydb *p, unsigned int class)
 
 
