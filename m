@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C5413E5CE8
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 16:16:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AEDF3E5CEC
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 16:16:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242554AbhHJOQQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 10:16:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52758 "EHLO mail.kernel.org"
+        id S242414AbhHJOQS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 10:16:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52806 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242395AbhHJOPy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 10:15:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C3A5A60F94;
-        Tue, 10 Aug 2021 14:15:31 +0000 (UTC)
+        id S242426AbhHJOPz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 10:15:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 08A1F61051;
+        Tue, 10 Aug 2021 14:15:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1628604932;
-        bh=jC6uSCrgt69kXfrpA/d+Zpv7RChIWevKRH+aKooCZ/c=;
+        s=k20201202; t=1628604933;
+        bh=JIhXGOi/0shg5DD6Nef8G/3UhPiwd/3pMng9OkathV8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fXx6eHWArKZe5Jr5YlScKwnc+I9Lv35SxtAGwKc0cHz+0DHGQrZD605dRlFlTvVzb
-         Cy6Eo2WuZT5ubBxbcf8e8J9ZmkLTST7ZkFdosG0O03Hvpw634dBXtJa0vTdFDAMHeY
-         iPSr4ebaz5sPmoiDIkFj64Rh87VfHPzGnpR29JXlKKb9GpjJmV0rP95JoGkodAWRvW
-         KjBkhFNAHhIlkqAvsFQvh924qKLzTk+bQVfvVKVnB7cYin4PNJEen2DWgMA/DsE4iV
-         LjLQu0QYYAK+c28iy8stODayiTDKaw2oPhzmQkk/ekWkMH6ds1LqKkpuJQx3bz+q2f
-         MojgDOaTs+x1A==
+        b=NKKaZBCKGloQU+NGcq+X+5wOMeFrybPSv8zmKYJeazIj8T6o1XEPpQuF+nPGlge8E
+         voLTgICENcAciaf/2XRxT/uOhYNsydVDuYTXCgkqA4fY5QI3Wt52P7EsJJn4OruRm3
+         H7bRZNES+lkU4NnUtzyp0Fmzh51/nm2hKY2kvXjxU3XajxNp0fT6Nuhea7d9xOMDDk
+         db5ADFIXAV+Dodvdpe5zqoXabAeVZPsXzomcIZXtkKvOCpxZDQnwzD/zB/10tpW9XE
+         oZWciUfuIIbiM7I76fStF9ippob4R/gLpgH6EzSwgbRd7bVcLLX+Bnlhbbzc00yhqU
+         toqAEBySoA/HQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Vince Weaver <vincent.weaver@maine.edu>,
-        Like Xu <likexu@tencent.com>, Sasha Levin <sashal@kernel.org>,
-        linux-perf-users@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 20/24] perf/x86: Fix out of bound MSR access
-Date:   Tue, 10 Aug 2021 10:15:01 -0400
-Message-Id: <20210810141505.3117318-20-sashal@kernel.org>
+Cc:     Apurva Nandan <a-nandan@ti.com>, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 21/24] spi: cadence-quadspi: Fix check condition for DTR ops
+Date:   Tue, 10 Aug 2021 10:15:02 -0400
+Message-Id: <20210810141505.3117318-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210810141505.3117318-1-sashal@kernel.org>
 References: <20210810141505.3117318-1-sashal@kernel.org>
@@ -43,54 +41,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Apurva Nandan <a-nandan@ti.com>
 
-[ Upstream commit f4b4b45652578357031fbbef7f7a1b04f6fa2dc3 ]
+[ Upstream commit 0395be967b067d99494113d78470574e86a02ed4 ]
 
-On Wed, Jul 28, 2021 at 12:49:43PM -0400, Vince Weaver wrote:
-> [32694.087403] unchecked MSR access error: WRMSR to 0x318 (tried to write 0x0000000000000000) at rIP: 0xffffffff8106f854 (native_write_msr+0x4/0x20)
-> [32694.101374] Call Trace:
-> [32694.103974]  perf_clear_dirty_counters+0x86/0x100
+buswidth and dtr fields in spi_mem_op are only valid when the
+corresponding spi_mem_op phase has a non-zero length. For example,
+SPI NAND core doesn't set buswidth when using SPI_MEM_OP_NO_ADDR
+phase.
 
-The problem being that it doesn't filter out all fake counters, in
-specific the above (erroneously) tries to use FIXED_BTS. Limit the
-fixed counters indexes to the hardware supplied number.
+Fix the dtr checks in set_protocol() and suppports_mem_op() to
+ignore empty spi_mem_op phases, as checking for dtr field in
+empty phase will result in false negatives.
 
-Reported-by: Vince Weaver <vincent.weaver@maine.edu>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Tested-by: Vince Weaver <vincent.weaver@maine.edu>
-Tested-by: Like Xu <likexu@tencent.com>
-Link: https://lkml.kernel.org/r/YQJxka3dxgdIdebG@hirez.programming.kicks-ass.net
+Signed-off-by: Apurva Nandan <a-nandan@ti.com>
+Link: https://lore.kernel.org/r/20210716232504.182-3-a-nandan@ti.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/core.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/spi/spi-cadence-quadspi.c | 21 ++++++++++++++++++---
+ 1 file changed, 18 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/events/core.c b/arch/x86/events/core.c
-index 1eb45139fcc6..3092fbf9dbe4 100644
---- a/arch/x86/events/core.c
-+++ b/arch/x86/events/core.c
-@@ -2489,13 +2489,15 @@ void perf_clear_dirty_counters(void)
- 		return;
- 
- 	for_each_set_bit(i, cpuc->dirty, X86_PMC_IDX_MAX) {
--		/* Metrics and fake events don't have corresponding HW counters. */
--		if (is_metric_idx(i) || (i == INTEL_PMC_IDX_FIXED_VLBR))
--			continue;
--		else if (i >= INTEL_PMC_IDX_FIXED)
-+		if (i >= INTEL_PMC_IDX_FIXED) {
-+			/* Metrics and fake events don't have corresponding HW counters. */
-+			if ((i - INTEL_PMC_IDX_FIXED) >= hybrid(cpuc->pmu, num_counters_fixed))
-+				continue;
+diff --git a/drivers/spi/spi-cadence-quadspi.c b/drivers/spi/spi-cadence-quadspi.c
+index d62d69dd72b9..73d4f0a1558d 100644
+--- a/drivers/spi/spi-cadence-quadspi.c
++++ b/drivers/spi/spi-cadence-quadspi.c
+@@ -325,7 +325,15 @@ static int cqspi_set_protocol(struct cqspi_flash_pdata *f_pdata,
+ 	f_pdata->inst_width = CQSPI_INST_TYPE_SINGLE;
+ 	f_pdata->addr_width = CQSPI_INST_TYPE_SINGLE;
+ 	f_pdata->data_width = CQSPI_INST_TYPE_SINGLE;
+-	f_pdata->dtr = op->data.dtr && op->cmd.dtr && op->addr.dtr;
 +
- 			wrmsrl(MSR_ARCH_PERFMON_FIXED_CTR0 + (i - INTEL_PMC_IDX_FIXED), 0);
--		else
-+		} else {
- 			wrmsrl(x86_pmu_event_addr(i), 0);
-+		}
- 	}
++	/*
++	 * For an op to be DTR, cmd phase along with every other non-empty
++	 * phase should have dtr field set to 1. If an op phase has zero
++	 * nbytes, ignore its dtr field; otherwise, check its dtr field.
++	 */
++	f_pdata->dtr = op->cmd.dtr &&
++		       (!op->addr.nbytes || op->addr.dtr) &&
++		       (!op->data.nbytes || op->data.dtr);
  
- 	bitmap_zero(cpuc->dirty, X86_PMC_IDX_MAX);
+ 	switch (op->data.buswidth) {
+ 	case 0:
+@@ -1227,8 +1235,15 @@ static bool cqspi_supports_mem_op(struct spi_mem *mem,
+ {
+ 	bool all_true, all_false;
+ 
+-	all_true = op->cmd.dtr && op->addr.dtr && op->dummy.dtr &&
+-		   op->data.dtr;
++	/*
++	 * op->dummy.dtr is required for converting nbytes into ncycles.
++	 * Also, don't check the dtr field of the op phase having zero nbytes.
++	 */
++	all_true = op->cmd.dtr &&
++		   (!op->addr.nbytes || op->addr.dtr) &&
++		   (!op->dummy.nbytes || op->dummy.dtr) &&
++		   (!op->data.nbytes || op->data.dtr);
++
+ 	all_false = !op->cmd.dtr && !op->addr.dtr && !op->dummy.dtr &&
+ 		    !op->data.dtr;
+ 
 -- 
 2.30.2
 
