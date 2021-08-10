@@ -2,42 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8525A3E8118
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:56:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CC4A3E8011
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:47:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233034AbhHJRz0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:55:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49726 "EHLO mail.kernel.org"
+        id S235708AbhHJRqD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:46:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232667AbhHJRyC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:54:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BB04A6120A;
-        Tue, 10 Aug 2021 17:44:01 +0000 (UTC)
+        id S236135AbhHJRoc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:44:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4124361153;
+        Tue, 10 Aug 2021 17:39:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617442;
-        bh=1T/6Xo0twH7hiCGgekOpRE3hRSp1CaIe2VhKAXGYQsk=;
+        s=korg; t=1628617173;
+        bh=rDS+T/bSYJHtSBoCHfROASL+OmGu6kaC/U4rdsey30s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FWaxEIudwZLLtiKV71fvNYYXI42AEcpnXTb0C/kMmdWQiyh0OqdGP0biDC9xq4fKB
-         Mnoo0WNSn6Sk5JgWhsOaza7oUjxUfJPUKvcahqUap+oCVRGv/8ny3gN91KbcJUQ7Lj
-         N+2cs19XQq7fOInP+tEeGbfl0vGiaGYx0sPHm/6o=
+        b=hFFRThDy8/X9NhcGPc4qezXTxyua4F6bYg/C5JCXIfb0wzOvR1+/CqAKYDIp1MY/O
+         fDlyBDC+KEr+aPJtOYamt29/E05gbDB9t/k0UETKSdxo9lPhPo71n9gMUTfMN0Ylwm
+         sAfGOFx4C/r79InelGb4Y8XwnXhGO3gNLT2SJBvE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Jason Ekstrand <jason@jlekstrand.net>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-        Dave Airlie <airlied@redhat.com>,
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 059/175] drm/i915: fix i915_globals_exit() section mismatch error
+Subject: [PATCH 5.10 033/135] net: dsa: sja1105: be stateless with FDB entries on SJA1105P/Q/R/S/SJA1110 too
 Date:   Tue, 10 Aug 2021 19:29:27 +0200
-Message-Id: <20210810173002.892794186@linuxfoundation.org>
+Message-Id: <20210810172956.791232073@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
-References: <20210810173000.928681411@linuxfoundation.org>
+In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
+References: <20210810172955.660225700@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,53 +40,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit a07296453bf2778952a09b6244a695bf7607babb ]
+[ Upstream commit 589918df93226a1e5f104306c185b6dcf2bd8051 ]
 
-Fix modpost Section mismatch error in i915_globals_exit().
-Since both an __init function and an __exit function can call
-i915_globals_exit(), any function that i915_globals_exit() calls
-should not be marked as __init or __exit. I.e., it needs to be
-available for either of them.
+Similar but not quite the same with what was done in commit b11f0a4c0c81
+("net: dsa: sja1105: be stateless when installing FDB entries") for
+SJA1105E/T, it is desirable to drop the priv->vlan_aware check and
+simply go ahead and install FDB entries in the VLAN that was given by
+the bridge.
 
-WARNING: modpost: vmlinux.o(.text+0x8b796a): Section mismatch in reference from the function i915_globals_exit() to the function .exit.text:__i915_globals_flush()
-The function i915_globals_exit() references a function in an exit section.
-Often the function __i915_globals_flush() has valid usage outside the exit section
-and the fix is to remove the __exit annotation of __i915_globals_flush.
+As opposed to SJA1105E/T, in SJA1105P/Q/R/S and SJA1110, the FDB is a
+maskable TCAM, and we are installing VLAN-unaware FDB entries with the
+VLAN ID masked off. However, such FDB entries might completely obscure
+VLAN-aware entries where the VLAN ID is included in the search mask,
+because the switch looks up the FDB from left to right and picks the
+first entry which results in a masked match. So it depends on whether
+the bridge installs first the VLAN-unaware or the VLAN-aware FDB entries.
 
-ERROR: modpost: Section mismatches detected.
-Set CONFIG_SECTION_MISMATCH_WARN_ONLY=y to allow them.
+Anyway, if we had a VLAN-unaware FDB entry towards one set of DESTPORTS
+and a VLAN-aware one towards other set of DESTPORTS, the result is that
+the packets in VLAN-aware mode will be forwarded towards the DESTPORTS
+specified by the VLAN-unaware entry.
 
-Fixes: 1354d830cb8f ("drm/i915: Call i915_globals_exit() if pci_register_device() fails")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Jason Ekstrand <jason@jlekstrand.net>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Cc: Jani Nikula <jani.nikula@linux.intel.com>
-Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Cc: intel-gfx@lists.freedesktop.org
-Cc: dri-devel@lists.freedesktop.org
-Signed-off-by: Dave Airlie <airlied@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210804204147.2070-1-rdunlap@infradead.org
+To solve this, simply do not use the masked matching ability of the FDB
+for VLAN ID, and always match precisely on it. In VLAN-unaware mode, we
+configure the switch for shared VLAN learning, so the VLAN ID will be
+ignored anyway during lookup, so it is redundant to mask it off in the
+TCAM.
+
+This patch conflicts with net-next commit 0fac6aa098ed ("net: dsa: sja1105:
+delete the best_effort_vlan_filtering mode") which changed this line:
+	if (priv->vlan_state != SJA1105_VLAN_UNAWARE) {
+into:
+	if (priv->vlan_aware) {
+
+When merging with net-next, the lines added by this patch should take
+precedence in the conflict resolution (i.e. the "if" condition should be
+deleted in both cases).
+
+Fixes: 1da73821343c ("net: dsa: sja1105: Add FDB operations for P/Q/R/S series")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/i915_globals.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/dsa/sja1105/sja1105_main.c | 18 ++++--------------
+ 1 file changed, 4 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/i915_globals.c b/drivers/gpu/drm/i915/i915_globals.c
-index e27739a50bee..57d2943884ab 100644
---- a/drivers/gpu/drm/i915/i915_globals.c
-+++ b/drivers/gpu/drm/i915/i915_globals.c
-@@ -139,7 +139,7 @@ void i915_globals_unpark(void)
- 	atomic_inc(&active);
- }
+diff --git a/drivers/net/dsa/sja1105/sja1105_main.c b/drivers/net/dsa/sja1105/sja1105_main.c
+index 52d8cc1a95fa..e65be1380803 100644
+--- a/drivers/net/dsa/sja1105/sja1105_main.c
++++ b/drivers/net/dsa/sja1105/sja1105_main.c
+@@ -1389,13 +1389,8 @@ int sja1105pqrs_fdb_add(struct dsa_switch *ds, int port,
+ 	l2_lookup.vlanid = vid;
+ 	l2_lookup.iotag = SJA1105_S_TAG;
+ 	l2_lookup.mask_macaddr = GENMASK_ULL(ETH_ALEN * 8 - 1, 0);
+-	if (priv->vlan_state != SJA1105_VLAN_UNAWARE) {
+-		l2_lookup.mask_vlanid = VLAN_VID_MASK;
+-		l2_lookup.mask_iotag = BIT(0);
+-	} else {
+-		l2_lookup.mask_vlanid = 0;
+-		l2_lookup.mask_iotag = 0;
+-	}
++	l2_lookup.mask_vlanid = VLAN_VID_MASK;
++	l2_lookup.mask_iotag = BIT(0);
+ 	l2_lookup.destports = BIT(port);
  
--static void __exit __i915_globals_flush(void)
-+static void  __i915_globals_flush(void)
- {
- 	atomic_inc(&active); /* skip shrinking */
+ 	rc = sja1105_dynamic_config_read(priv, BLK_IDX_L2_LOOKUP,
+@@ -1482,13 +1477,8 @@ int sja1105pqrs_fdb_del(struct dsa_switch *ds, int port,
+ 	l2_lookup.vlanid = vid;
+ 	l2_lookup.iotag = SJA1105_S_TAG;
+ 	l2_lookup.mask_macaddr = GENMASK_ULL(ETH_ALEN * 8 - 1, 0);
+-	if (priv->vlan_state != SJA1105_VLAN_UNAWARE) {
+-		l2_lookup.mask_vlanid = VLAN_VID_MASK;
+-		l2_lookup.mask_iotag = BIT(0);
+-	} else {
+-		l2_lookup.mask_vlanid = 0;
+-		l2_lookup.mask_iotag = 0;
+-	}
++	l2_lookup.mask_vlanid = VLAN_VID_MASK;
++	l2_lookup.mask_iotag = BIT(0);
+ 	l2_lookup.destports = BIT(port);
  
+ 	rc = sja1105_dynamic_config_read(priv, BLK_IDX_L2_LOOKUP,
 -- 
 2.30.2
 
