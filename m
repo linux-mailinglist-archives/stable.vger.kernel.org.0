@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 161DC3E7E55
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:32:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ECC393E7F02
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:37:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231425AbhHJRcd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:32:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60780 "EHLO mail.kernel.org"
+        id S233410AbhHJRgm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:36:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231439AbhHJRca (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:32:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5BA0560F41;
-        Tue, 10 Aug 2021 17:32:07 +0000 (UTC)
+        id S233481AbhHJRfY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:35:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 50F9A6101E;
+        Tue, 10 Aug 2021 17:35:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616727;
-        bh=isb3SCjAY1tGFtMsV31n9sugHRbrUAmx4vGz5M6Sfa4=;
+        s=korg; t=1628616901;
+        bh=uVNMDWaLtWqN+dHepcfo3jD5DV7tUKQXw18nViLZdQk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TlFJbboPZmrIl5Y4eV+/8PxZbb6F3FcKr16JBh6OKBvw2HQdqVG2LY64EKi23MdQ/
-         T0M/DvG28jy/6Q3NsSUrc3Y8khiExMCKKdyVF9t4frO2pHhTIpP618PW/6yw3jEoiW
-         aHYf1NyJgXGdNA2NEfrNhzP5H2+Ilg5Sug6AKVuI=
+        b=qXDBMWPC/BjaVGEnopBXWBgyKA86Mvshe1J5bcf2otOsEnh2eqO8Q8vmw4wNR+t7x
+         VzlI5xbF+m7de8bn73oyBJ2l4p+yLWT1cH0CwEJedfOJj6VHqruViY3ihcH+HfNj/O
+         VLdC8wU1Ye3FXZS6RY3w/b7yy6jJ+RC08K5280AI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+e2eae5639e7203360018@syzkaller.appspotmail.com,
-        "Qiang.zhang" <qiang.zhang@windriver.com>,
-        Guido Kiener <guido.kiener@rohde-schwarz.com>
-Subject: [PATCH 4.19 21/54] USB: usbtmc: Fix RCU stall warning
+        stable@vger.kernel.org, Alexander Monakov <amonakov@ispras.ru>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 42/85] ALSA: hda/realtek: add mic quirk for Acer SF314-42
 Date:   Tue, 10 Aug 2021 19:30:15 +0200
-Message-Id: <20210810172944.874158591@linuxfoundation.org>
+Message-Id: <20210810172949.650720602@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172944.179901509@linuxfoundation.org>
-References: <20210810172944.179901509@linuxfoundation.org>
+In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
+References: <20210810172948.192298392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,73 +39,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiang.zhang <qiang.zhang@windriver.com>
+From: Alexander Monakov <amonakov@ispras.ru>
 
-commit 30fad76ce4e98263edfa8f885c81d5426c1bf169 upstream.
+commit 0d4867a185460397af56b9afe3e2243d3e610e37 upstream.
 
-rcu: INFO: rcu_preempt self-detected stall on CPU
-rcu:    1-...!: (2 ticks this GP) idle=d92/1/0x4000000000000000
-        softirq=25390/25392 fqs=3
-        (t=12164 jiffies g=31645 q=43226)
-rcu: rcu_preempt kthread starved for 12162 jiffies! g31645 f0x0
-     RCU_GP_WAIT_FQS(5) ->state=0x0 ->cpu=0
-rcu:    Unless rcu_preempt kthread gets sufficient CPU time,
-        OOM is now expected behavior.
-rcu: RCU grace-period kthread stack dump:
-task:rcu_preempt     state:R  running task
-...........
-usbtmc 3-1:0.0: unknown status received: -71
-usbtmc 3-1:0.0: unknown status received: -71
-usbtmc 3-1:0.0: unknown status received: -71
-usbtmc 3-1:0.0: unknown status received: -71
-usbtmc 3-1:0.0: unknown status received: -71
-usbtmc 3-1:0.0: unknown status received: -71
-usbtmc 3-1:0.0: unknown status received: -71
-usbtmc 3-1:0.0: unknown status received: -71
-usbtmc 3-1:0.0: usb_submit_urb failed: -19
+The Acer Swift SF314-42 laptop is using Realtek ALC255 codec. Add a
+quirk so microphone in a headset connected via the right-hand side jack
+is usable.
 
-The function usbtmc_interrupt() resubmits urbs when the error status
-of an urb is -EPROTO. In systems using the dummy_hcd usb controller
-this can result in endless interrupt loops when the usbtmc device is
-disconnected from the host system.
-
-Since host controller drivers already try to recover from transmission
-errors, there is no need to resubmit the urb or try other solutions
-to repair the error situation.
-
-In case of errors the INT pipe just stops to wait for further packets.
-
-Fixes: dbf3e7f654c0 ("Implement an ioctl to support the USMTMC-USB488 READ_STATUS_BYTE operation")
-Cc: stable@vger.kernel.org
-Reported-by: syzbot+e2eae5639e7203360018@syzkaller.appspotmail.com
-Signed-off-by: Qiang.zhang <qiang.zhang@windriver.com>
-Acked-by: Guido Kiener <guido.kiener@rohde-schwarz.com>
-Link: https://lore.kernel.org/r/20210723004334.458930-1-qiang.zhang@windriver.com
+Signed-off-by: Alexander Monakov <amonakov@ispras.ru>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210721170141.24807-1-amonakov@ispras.ru
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/class/usbtmc.c |    9 +--------
- 1 file changed, 1 insertion(+), 8 deletions(-)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/class/usbtmc.c
-+++ b/drivers/usb/class/usbtmc.c
-@@ -1537,17 +1537,10 @@ static void usbtmc_interrupt(struct urb
- 		dev_err(dev, "overflow with length %d, actual length is %d\n",
- 			data->iin_wMaxPacketSize, urb->actual_length);
- 		/* fall through */
--	case -ECONNRESET:
--	case -ENOENT:
--	case -ESHUTDOWN:
--	case -EILSEQ:
--	case -ETIME:
--	case -EPIPE:
-+	default:
- 		/* urb terminated, clean up */
- 		dev_dbg(dev, "urb terminated, status: %d\n", status);
- 		return;
--	default:
--		dev_err(dev, "unknown status received: %d\n", status);
- 	}
- exit:
- 	rv = usb_submit_urb(urb, GFP_ATOMIC);
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -7971,6 +7971,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1025, 0x1308, "Acer Aspire Z24-890", ALC286_FIXUP_ACER_AIO_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1025, 0x132a, "Acer TravelMate B114-21", ALC233_FIXUP_ACER_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1025, 0x1330, "Acer TravelMate X514-51T", ALC255_FIXUP_ACER_HEADSET_MIC),
++	SND_PCI_QUIRK(0x1025, 0x142b, "Acer Swift SF314-42", ALC255_FIXUP_ACER_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1025, 0x1430, "Acer TravelMate B311R-31", ALC256_FIXUP_ACER_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1028, 0x0470, "Dell M101z", ALC269_FIXUP_DELL_M101Z),
+ 	SND_PCI_QUIRK(0x1028, 0x054b, "Dell XPS one 2710", ALC275_FIXUP_DELL_XPS),
 
 
