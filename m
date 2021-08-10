@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D6563E7FF4
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:45:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 056C33E815D
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:01:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234750AbhHJRpA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:45:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41108 "EHLO mail.kernel.org"
+        id S236418AbhHJR65 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:58:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52288 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235802AbhHJRnl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:43:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 035D66113C;
-        Tue, 10 Aug 2021 17:39:12 +0000 (UTC)
+        id S236202AbhHJR4y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:56:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D5016137C;
+        Tue, 10 Aug 2021 17:45:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617153;
-        bh=psmonxU4fj2J0uGbPf98ubi8ntmCaxfFa3kfiOLMok4=;
+        s=korg; t=1628617519;
+        bh=XI4yZmb/YbLobD+9gCBu7ovxoYNC8S5xDSrcjK9bZJE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c5RpiRwKugBGksrCbKTJQmhY7wmYWkWn9aizn88Zw9QDiXZ2vlVJIZvhbwxMxjWck
-         QYiDq51rAAuqEIhCFhmrGdpc+RqfkUoznW0Ss6w6/yfQQC/04acY01i6Gp8JBmxoKm
-         OGp3/2R9ZyxMicKU/QCGdlFs7ZjmwCcbDwe1l9HU=
+        b=DO32IDNVb9vdbjxhjOvnJGkyk3qnQdkrHD9DBLPwSt8yJhe3a2cmKoHGSdM2Oq38W
+         lTktqABqpC2zi8OGaqAPy4GHiBb9QH4h4HYezybZtgw3pnUvJcGGs8jjKUNdpxi2xm
+         5PaVUW6ptPT7kZ3tVxM3ti1ZRD5Mrr8nhTswNqN0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
-        Maxim Devaev <mdevaev@gmail.com>
-Subject: [PATCH 5.10 067/135] usb: gadget: f_hid: added GET_IDLE and SET_IDLE handlers
+        stable@vger.kernel.org, Pawel Laszczak <pawell@cadence.com>,
+        Peter Chen <peter.chen@kernel.org>
+Subject: [PATCH 5.13 093/175] usb: cdnsp: Fixed issue with ZLP
 Date:   Tue, 10 Aug 2021 19:30:01 +0200
-Message-Id: <20210810172957.986283610@linuxfoundation.org>
+Message-Id: <20210810173004.019786072@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
-References: <20210810172955.660225700@linuxfoundation.org>
+In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
+References: <20210810173000.928681411@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,74 +39,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Devaev <mdevaev@gmail.com>
+From: Pawel Laszczak <pawell@cadence.com>
 
-commit afcff6dc690e24d636a41fd4bee6057e7c70eebd upstream.
+commit e913aada06830338633fb8524733b0ad3d38a7c1 upstream.
 
-The USB HID standard declares mandatory support for GET_IDLE and SET_IDLE
-requests for Boot Keyboard. Most hosts can handle their absence, but others
-like some old/strange UEFIs and BIOSes consider this a critical error
-and refuse to work with f_hid.
+The condition "if (need_zero_pkt && zero_len_trb)" was always false
+and it caused that TRB for ZLP was not prepared.
 
-This primitive implementation of saving and returning idle is sufficient
-to meet the requirements of the standard and these devices.
+Fix causes that after preparing last TRB in TD, the driver prepares
+additional TD with ZLP when a ZLP is required.
 
-Acked-by: Felipe Balbi <balbi@kernel.org>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Maxim Devaev <mdevaev@gmail.com>
-Link: https://lore.kernel.org/r/20210721180351.129450-1-mdevaev@gmail.com
+Cc: <stable@vger.kernel.org>
+Fixes: 3d82904559f4 ("usb: cdnsp: cdns3 Add main part of Cadence USBSSP DRD Driver")
+Signed-off-by: Pawel Laszczak <pawell@cadence.com>
+Link: https://lore.kernel.org/r/20210623072728.41275-1-pawell@gli-login.cadence.com
+Signed-off-by: Peter Chen <peter.chen@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/function/f_hid.c |   18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ drivers/usb/cdns3/cdnsp-ring.c |   18 ++++++++----------
+ 1 file changed, 8 insertions(+), 10 deletions(-)
 
---- a/drivers/usb/gadget/function/f_hid.c
-+++ b/drivers/usb/gadget/function/f_hid.c
-@@ -41,6 +41,7 @@ struct f_hidg {
- 	unsigned char			bInterfaceSubClass;
- 	unsigned char			bInterfaceProtocol;
- 	unsigned char			protocol;
-+	unsigned char			idle;
- 	unsigned short			report_desc_length;
- 	char				*report_desc;
- 	unsigned short			report_length;
-@@ -523,6 +524,14 @@ static int hidg_setup(struct usb_functio
- 		goto respond;
- 		break;
+--- a/drivers/usb/cdns3/cdnsp-ring.c
++++ b/drivers/usb/cdns3/cdnsp-ring.c
+@@ -1932,15 +1932,13 @@ int cdnsp_queue_bulk_tx(struct cdnsp_dev
+ 		}
  
-+	case ((USB_DIR_IN | USB_TYPE_CLASS | USB_RECIP_INTERFACE) << 8
-+		  | HID_REQ_GET_IDLE):
-+		VDBG(cdev, "get_idle\n");
-+		length = min_t(unsigned int, length, 1);
-+		((u8 *) req->buf)[0] = hidg->idle;
-+		goto respond;
-+		break;
+ 		if (enqd_len + trb_buff_len >= full_len) {
+-			if (need_zero_pkt && zero_len_trb) {
+-				zero_len_trb = true;
+-			} else {
+-				field &= ~TRB_CHAIN;
+-				field |= TRB_IOC;
+-				more_trbs_coming = false;
+-				need_zero_pkt = false;
+-				preq->td.last_trb = ring->enqueue;
+-			}
++			if (need_zero_pkt)
++				zero_len_trb = !zero_len_trb;
 +
- 	case ((USB_DIR_OUT | USB_TYPE_CLASS | USB_RECIP_INTERFACE) << 8
- 		  | HID_REQ_SET_REPORT):
- 		VDBG(cdev, "set_report | wLength=%d\n", ctrl->wLength);
-@@ -546,6 +555,14 @@ static int hidg_setup(struct usb_functio
- 		goto stall;
- 		break;
++			field &= ~TRB_CHAIN;
++			field |= TRB_IOC;
++			more_trbs_coming = false;
++			preq->td.last_trb = ring->enqueue;
+ 		}
  
-+	case ((USB_DIR_OUT | USB_TYPE_CLASS | USB_RECIP_INTERFACE) << 8
-+		  | HID_REQ_SET_IDLE):
-+		VDBG(cdev, "set_idle\n");
-+		length = 0;
-+		hidg->idle = value;
-+		goto respond;
-+		break;
-+
- 	case ((USB_DIR_IN | USB_TYPE_STANDARD | USB_RECIP_INTERFACE) << 8
- 		  | USB_REQ_GET_DESCRIPTOR):
- 		switch (value >> 8) {
-@@ -773,6 +790,7 @@ static int hidg_bind(struct usb_configur
- 	hidg_interface_desc.bInterfaceSubClass = hidg->bInterfaceSubClass;
- 	hidg_interface_desc.bInterfaceProtocol = hidg->bInterfaceProtocol;
- 	hidg->protocol = HID_REPORT_PROTOCOL;
-+	hidg->idle = 1;
- 	hidg_ss_in_ep_desc.wMaxPacketSize = cpu_to_le16(hidg->report_length);
- 	hidg_ss_in_comp_desc.wBytesPerInterval =
- 				cpu_to_le16(hidg->report_length);
+ 		/* Only set interrupt on short packet for OUT endpoints. */
+@@ -1955,7 +1953,7 @@ int cdnsp_queue_bulk_tx(struct cdnsp_dev
+ 		length_field = TRB_LEN(trb_buff_len) | TRB_TD_SIZE(remainder) |
+ 			TRB_INTR_TARGET(0);
+ 
+-		cdnsp_queue_trb(pdev, ring, more_trbs_coming | need_zero_pkt,
++		cdnsp_queue_trb(pdev, ring, more_trbs_coming | zero_len_trb,
+ 				lower_32_bits(send_addr),
+ 				upper_32_bits(send_addr),
+ 				length_field,
 
 
