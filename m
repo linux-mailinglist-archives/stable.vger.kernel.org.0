@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FA113E81B4
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:02:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 860283E81B1
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:02:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237794AbhHJSBg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 14:01:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57256 "EHLO mail.kernel.org"
+        id S236924AbhHJSBa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 14:01:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238330AbhHJR7b (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S238325AbhHJR7b (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 10 Aug 2021 13:59:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2236A61216;
-        Tue, 10 Aug 2021 17:46:19 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6775E613A0;
+        Tue, 10 Aug 2021 17:46:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617580;
-        bh=uPcjQrp6swORg8/VVddddlEJckmqraulU+nAAOGuH+k=;
+        s=korg; t=1628617582;
+        bh=53sF05AacKLItlnnqqTJfy5Iq6s+IEy+GRwi05QLrBM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BVpjI5xtC3DqI2LeSDwnSI4cLbhVwH3moOJvvQHjVXTPA27Zs5HES+E3qaUOY9uEO
-         UF3Sj3mEiyqXVn7bkRPi4zJs9ZoOc0H3mjXU0NqEZw8SDzMmVe5GaaMyyL0CKBDydb
-         yegezChWVjm8XUpmM9z+nW3dwSJxCVC1iBjh5XiI=
+        b=nddIqM7ABC66C/bbdcPRJX+1KvXr9abPENVzzv57Yw+AVat2S0y8BShqky+kGgSL5
+         GqTVPWBatkCqMYNWhLI2uCD5jPD6a8CSd7DtL612FzIPvTvQvIOwSbFnK3mDnpYz66
+         yYJxFvFIsyhvKnqCBc97mpKxHbaji+X1zuLZjLr0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Alex Xu (Hello71)" <alex_y_xu@yahoo.ca>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.13 121/175] pipe: increase minimum default pipe size to 2 pages
-Date:   Tue, 10 Aug 2021 19:30:29 +0200
-Message-Id: <20210810173004.928377396@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?=D0=91=D0=BB=D0=B0=D0=B3=D0=BE=D0=B4=D0=B0=D1=80=D0=B5=D0=BD=D0=BA=D0=BE=20=D0=90=D1=80=D1=82=D1=91=D0=BC?= 
+        <artem.blagodarenko@gmail.com>, Denis <denis@voxelsoft.com>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org
+Subject: [PATCH 5.13 122/175] ext4: fix potential htree corruption when growing large_dir directories
+Date:   Tue, 10 Aug 2021 19:30:30 +0200
+Message-Id: <20210810173004.960684112@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
 References: <20210810173000.928681411@linuxfoundation.org>
@@ -39,75 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Xu (Hello71) <alex_y_xu@yahoo.ca>
+From: Theodore Ts'o <tytso@mit.edu>
 
-commit 46c4c9d1beb7f5b4cec4dd90e7728720583ee348 upstream.
+commit 877ba3f729fd3d8ef0e29bc2a55e57cfa54b2e43 upstream.
 
-This program always prints 4096 and hangs before the patch, and always
-prints 8192 and exits successfully after:
+Commit b5776e7524af ("ext4: fix potential htree index checksum
+corruption) removed a required restart when multiple levels of index
+nodes need to be split.  Fix this to avoid directory htree corruptions
+when using the large_dir feature.
 
-  int main()
-  {
-      int pipefd[2];
-      for (int i = 0; i < 1025; i++)
-          if (pipe(pipefd) == -1)
-              return 1;
-      size_t bufsz = fcntl(pipefd[1], F_GETPIPE_SZ);
-      printf("%zd\n", bufsz);
-      char *buf = calloc(bufsz, 1);
-      write(pipefd[1], buf, bufsz);
-      read(pipefd[0], buf, bufsz-1);
-      write(pipefd[1], buf, 1);
-  }
-
-Note that you may need to increase your RLIMIT_NOFILE before running the
-program.
-
-Fixes: 759c01142a ("pipe: limit the per-user amount of pages allocated in pipes")
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/lkml/1628086770.5rn8p04n6j.none@localhost/
-Link: https://lore.kernel.org/lkml/1628127094.lxxn016tj7.none@localhost/
-Signed-off-by: Alex Xu (Hello71) <alex_y_xu@yahoo.ca>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: stable@kernel.org # v5.11
+Cc: Благодаренко Артём <artem.blagodarenko@gmail.com>
+Fixes: b5776e7524af ("ext4: fix potential htree index checksum corruption)
+Reported-by: Denis <denis@voxelsoft.com>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/pipe.c |   19 +++++++++++++++++--
- 1 file changed, 17 insertions(+), 2 deletions(-)
+ fs/ext4/namei.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/pipe.c
-+++ b/fs/pipe.c
-@@ -32,6 +32,21 @@
- #include "internal.h"
- 
- /*
-+ * New pipe buffers will be restricted to this size while the user is exceeding
-+ * their pipe buffer quota. The general pipe use case needs at least two
-+ * buffers: one for data yet to be read, and one for new data. If this is less
-+ * than two, then a write to a non-empty pipe may block even if the pipe is not
-+ * full. This can occur with GNU make jobserver or similar uses of pipes as
-+ * semaphores: multiple processes may be waiting to write tokens back to the
-+ * pipe before reading tokens: https://lore.kernel.org/lkml/1628086770.5rn8p04n6j.none@localhost/.
-+ *
-+ * Users can reduce their pipe buffers with F_SETPIPE_SZ below this at their
-+ * own risk, namely: pipe writes to non-full pipes may block until the pipe is
-+ * emptied.
-+ */
-+#define PIPE_MIN_DEF_BUFFERS 2
-+
-+/*
-  * The max size that a non-root user is allowed to grow the pipe. Can
-  * be set by root in /proc/sys/fs/pipe-max-size
-  */
-@@ -781,8 +796,8 @@ struct pipe_inode_info *alloc_pipe_info(
- 	user_bufs = account_pipe_buffers(user, 0, pipe_bufs);
- 
- 	if (too_many_pipe_buffers_soft(user_bufs) && pipe_is_unprivileged_user()) {
--		user_bufs = account_pipe_buffers(user, pipe_bufs, 1);
--		pipe_bufs = 1;
-+		user_bufs = account_pipe_buffers(user, pipe_bufs, PIPE_MIN_DEF_BUFFERS);
-+		pipe_bufs = PIPE_MIN_DEF_BUFFERS;
- 	}
- 
- 	if (too_many_pipe_buffers_hard(user_bufs) && pipe_is_unprivileged_user())
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -2517,7 +2517,7 @@ again:
+ 				goto journal_error;
+ 			err = ext4_handle_dirty_dx_node(handle, dir,
+ 							frame->bh);
+-			if (err)
++			if (restart || err)
+ 				goto journal_error;
+ 		} else {
+ 			struct dx_root *dxroot;
 
 
