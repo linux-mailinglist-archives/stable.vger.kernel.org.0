@@ -2,31 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 210183E81AD
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:02:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D3233E81B3
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:02:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233821AbhHJSBU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 14:01:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60120 "EHLO mail.kernel.org"
+        id S237155AbhHJSBb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 14:01:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238075AbhHJR7S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:59:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A294061052;
-        Tue, 10 Aug 2021 17:46:15 +0000 (UTC)
+        id S238329AbhHJR7b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:59:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D9D906113E;
+        Tue, 10 Aug 2021 17:46:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617576;
-        bh=ZsicAsX+Fv+8jxm2benBeh1W3xj+m163yJCYck4zA4A=;
+        s=korg; t=1628617578;
+        bh=HxAVSRoZV1qO5M8NvmA+iCnA5aa632UKR/8qoV0km0g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XriQ/rrqEJ9KjJa2B45qKdH/H2NgfH5PVJCAfvNTx/PR+itP1WHBY5pwRwogw4XDB
-         xzAdlGkTntjWLOKeYKSsqE75SOAL015VR98wwazqUp1DlTSNQR6pAIajM8TzyYDLwF
-         ryGau3a/YD0Ellfsrr/wjVaMmbn/aOVMHJIngcjo=
+        b=uLs03AOjqvHDDde9R7wzB2I4u10yGa02jNmoZl0KpJGYKiDJiaic4IMEsvZikpRxH
+         zFo8TRQMGUbtfaPIjbv4AZTqdOQm5Xmjt1+HVSWXjA9C9Qsi7akEXpCDek84IJu6AO
+         RESoNFWccSK2pD4becz4guljj7poDUdko7HsKVVY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filip Schauer <filip@mg6.at>
-Subject: [PATCH 5.13 119/175] drivers core: Fix oops when driver probe fails
-Date:   Tue, 10 Aug 2021 19:30:27 +0200
-Message-Id: <20210810173004.866022968@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+faf11bbadc5a372564da@syzkaller.appspotmail.com,
+        Eero Lehtinen <debiangamer2@gmail.com>,
+        Antti Palosaari <crope@iki.fi>,
+        Johan Hovold <johan@kernel.org>, Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.13 120/175] media: rtl28xxu: fix zero-length control request
+Date:   Tue, 10 Aug 2021 19:30:28 +0200
+Message-Id: <20210810173004.896255930@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
 References: <20210810173000.928681411@linuxfoundation.org>
@@ -38,66 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filip Schauer <filip@mg6.at>
+From: Johan Hovold <johan@kernel.org>
 
-commit 4d1014c1816c0395eca5d1d480f196a4c63119d0 upstream.
+commit 76f22c93b209c811bd489950f17f8839adb31901 upstream.
 
-dma_range_map is freed to early, which might cause an oops when
-a driver probe fails.
- Call trace:
-  is_free_buddy_page+0xe4/0x1d4
-  __free_pages+0x2c/0x88
-  dma_free_contiguous+0x64/0x80
-  dma_direct_free+0x38/0xb4
-  dma_free_attrs+0x88/0xa0
-  dmam_release+0x28/0x34
-  release_nodes+0x78/0x8c
-  devres_release_all+0xa8/0x110
-  really_probe+0x118/0x2d0
-  __driver_probe_device+0xc8/0xe0
-  driver_probe_device+0x54/0xec
-  __driver_attach+0xe0/0xf0
-  bus_for_each_dev+0x7c/0xc8
-  driver_attach+0x30/0x3c
-  bus_add_driver+0x17c/0x1c4
-  driver_register+0xc0/0xf8
-  __platform_driver_register+0x34/0x40
-  ...
+The direction of the pipe argument must match the request-type direction
+bit or control requests may fail depending on the host-controller-driver
+implementation.
 
-This issue is introduced by commit d0243bbd5dd3 ("drivers core:
-Free dma_range_map when driver probe failed"). It frees
-dma_range_map before the call to devres_release_all, which is too
-early. The solution is to free dma_range_map only after
-devres_release_all.
+Control transfers without a data stage are treated as OUT requests by
+the USB stack and should be using usb_sndctrlpipe(). Failing to do so
+will now trigger a warning.
 
-Fixes: d0243bbd5dd3 ("drivers core: Free dma_range_map when driver probe failed")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Filip Schauer <filip@mg6.at>
-Link: https://lore.kernel.org/r/20210727112311.GA7645@DESKTOP-E8BN1B0.localdomain
+The driver uses a zero-length i2c-read request for type detection so
+update the control-request code to use usb_sndctrlpipe() in this case.
+
+Note that actually trying to read the i2c register in question does not
+work as the register might not exist (e.g. depending on the demodulator)
+as reported by Eero Lehtinen <debiangamer2@gmail.com>.
+
+Reported-by: syzbot+faf11bbadc5a372564da@syzkaller.appspotmail.com
+Reported-by: Eero Lehtinen <debiangamer2@gmail.com>
+Tested-by: Eero Lehtinen <debiangamer2@gmail.com>
+Fixes: d0f232e823af ("[media] rtl28xxu: add heuristic to detect chip type")
+Cc: stable@vger.kernel.org      # 4.0
+Cc: Antti Palosaari <crope@iki.fi>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/base/dd.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/media/usb/dvb-usb-v2/rtl28xxu.c |   11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
---- a/drivers/base/dd.c
-+++ b/drivers/base/dd.c
-@@ -634,8 +634,6 @@ dev_groups_failed:
- 	else if (drv->remove)
- 		drv->remove(dev);
- probe_failed:
--	kfree(dev->dma_range_map);
--	dev->dma_range_map = NULL;
- 	if (dev->bus)
- 		blocking_notifier_call_chain(&dev->bus->p->bus_notifier,
- 					     BUS_NOTIFY_DRIVER_NOT_BOUND, dev);
-@@ -643,6 +641,8 @@ pinctrl_bind_failed:
- 	device_links_no_driver(dev);
- 	devres_release_all(dev);
- 	arch_teardown_dma_ops(dev);
-+	kfree(dev->dma_range_map);
-+	dev->dma_range_map = NULL;
- 	driver_sysfs_remove(dev);
- 	dev->driver = NULL;
- 	dev_set_drvdata(dev, NULL);
+--- a/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
++++ b/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
+@@ -37,7 +37,16 @@ static int rtl28xxu_ctrl_msg(struct dvb_
+ 	} else {
+ 		/* read */
+ 		requesttype = (USB_TYPE_VENDOR | USB_DIR_IN);
+-		pipe = usb_rcvctrlpipe(d->udev, 0);
++
++		/*
++		 * Zero-length transfers must use usb_sndctrlpipe() and
++		 * rtl28xxu_identify_state() uses a zero-length i2c read
++		 * command to determine the chip type.
++		 */
++		if (req->size)
++			pipe = usb_rcvctrlpipe(d->udev, 0);
++		else
++			pipe = usb_sndctrlpipe(d->udev, 0);
+ 	}
+ 
+ 	ret = usb_control_msg(d->udev, pipe, 0, requesttype, req->value,
 
 
