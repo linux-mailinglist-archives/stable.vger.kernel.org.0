@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 447633E7EA1
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:34:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2FE73E7F49
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:41:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231152AbhHJReg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:34:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38896 "EHLO mail.kernel.org"
+        id S232717AbhHJRjq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:39:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232376AbhHJReD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:34:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E5F161051;
-        Tue, 10 Aug 2021 17:33:40 +0000 (UTC)
+        id S233715AbhHJRhf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:37:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A92C60F11;
+        Tue, 10 Aug 2021 17:36:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616821;
-        bh=tPzkEkvjSFr0zA/73+SPlLNE/7l1MF7egMhoqkolLD4=;
+        s=korg; t=1628616966;
+        bh=Vp727FYbvVTJmQTjmUT3YYRd/B/lgEGQLoRJdbtCGGk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WjgOt0R6ugqB0FhKejTbGXgZQKceEW/CrpLgFy7fhUtVlKZ0eW1ss7tzyY/0SE4XZ
-         MxMVggUc0i4SM8MzHoRddSOVRaRQRIhsmGT3Ir3kzy9tvI3Ru3Xj0O7eAzn+giSmoM
-         Stdrxeb6BqOJ4gZYQEvijj/PBivqVRC5YMUuYwUI=
+        b=JFUKstZiFqimqK4zylHdQBG++Q8JtqEwtSTjomN46g/jTqODCCCYJ6hnSBZ7eSJYw
+         E1GmM43L6OU2FI/E3ChsObB2MyLwLlF4ze49aHvyGNDM6hr1NDPGLm1rjKUnykHfdx
+         ICBnVE8n5ya2IiwxZDI6WFZ3AL7JkoZZ+Qi7cTGQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
-        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 50/54] reiserfs: add check for root_inode in reiserfs_fill_super
+        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.4 71/85] KVM: Do not leak memory for duplicate debugfs directories
 Date:   Tue, 10 Aug 2021 19:30:44 +0200
-Message-Id: <20210810172945.853706935@linuxfoundation.org>
+Message-Id: <20210810172950.639666479@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172944.179901509@linuxfoundation.org>
-References: <20210810172944.179901509@linuxfoundation.org>
+In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
+References: <20210810172948.192298392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,98 +39,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
 
-[ Upstream commit 2acf15b94d5b8ea8392c4b6753a6ffac3135cd78 ]
+commit 85cd39af14f498f791d8aab3fbd64cd175787f1a upstream.
 
-Our syzcaller report a NULL pointer dereference:
+KVM creates a debugfs directory for each VM in order to store statistics
+about the virtual machine.  The directory name is built from the process
+pid and a VM fd.  While generally unique, it is possible to keep a
+file descriptor alive in a way that causes duplicate directories, which
+manifests as these messages:
 
-BUG: kernel NULL pointer dereference, address: 0000000000000000
-PGD 116e95067 P4D 116e95067 PUD 1080b5067 PMD 0
-Oops: 0010 [#1] SMP KASAN
-CPU: 7 PID: 592 Comm: a.out Not tainted 5.13.0-next-20210629-dirty #67
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ?-20190727_073836-buildvm-p4
-RIP: 0010:0x0
-Code: Unable to access opcode bytes at RIP 0xffffffffffffffd6.
-RSP: 0018:ffff888114e779b8 EFLAGS: 00010246
-RAX: 0000000000000000 RBX: 1ffff110229cef39 RCX: ffffffffaa67e1aa
-RDX: 0000000000000000 RSI: ffff88810a58ee00 RDI: ffff8881233180b0
-RBP: ffffffffac38e9c0 R08: ffffffffaa67e17e R09: 0000000000000001
-R10: ffffffffb91c5557 R11: fffffbfff7238aaa R12: ffff88810a58ee00
-R13: ffff888114e77aa0 R14: 0000000000000000 R15: ffff8881233180b0
-FS:  00007f946163c480(0000) GS:ffff88839f1c0000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: ffffffffffffffd6 CR3: 00000001099c1000 CR4: 00000000000006e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- __lookup_slow+0x116/0x2d0
- ? page_put_link+0x120/0x120
- ? __d_lookup+0xfc/0x320
- ? d_lookup+0x49/0x90
- lookup_one_len+0x13c/0x170
- ? __lookup_slow+0x2d0/0x2d0
- ? reiserfs_schedule_old_flush+0x31/0x130
- reiserfs_lookup_privroot+0x64/0x150
- reiserfs_fill_super+0x158c/0x1b90
- ? finish_unfinished+0xb10/0xb10
- ? bprintf+0xe0/0xe0
- ? __mutex_lock_slowpath+0x30/0x30
- ? __kasan_check_write+0x20/0x30
- ? up_write+0x51/0xb0
- ? set_blocksize+0x9f/0x1f0
- mount_bdev+0x27c/0x2d0
- ? finish_unfinished+0xb10/0xb10
- ? reiserfs_kill_sb+0x120/0x120
- get_super_block+0x19/0x30
- legacy_get_tree+0x76/0xf0
- vfs_get_tree+0x49/0x160
- ? capable+0x1d/0x30
- path_mount+0xacc/0x1380
- ? putname+0x97/0xd0
- ? finish_automount+0x450/0x450
- ? kmem_cache_free+0xf8/0x5a0
- ? putname+0x97/0xd0
- do_mount+0xe2/0x110
- ? path_mount+0x1380/0x1380
- ? copy_mount_options+0x69/0x140
- __x64_sys_mount+0xf0/0x190
- do_syscall_64+0x35/0x80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
+  [  471.846235] debugfs: Directory '20245-4' with parent 'kvm' already present!
 
-This is because 'root_inode' is initialized with wrong mode, and
-it's i_op is set to 'reiserfs_special_inode_operations'. Thus add
-check for 'root_inode' to fix the problem.
+Even though this should not happen in practice, it is more or less
+expected in the case of KVM for testcases that call KVM_CREATE_VM and
+close the resulting file descriptor repeatedly and in parallel.
 
-Link: https://lore.kernel.org/r/20210702040743.1918552-1-yukuai3@huawei.com
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+When this happens, debugfs_create_dir() returns an error but
+kvm_create_vm_debugfs() goes on to allocate stat data structs which are
+later leaked.  The slow memory leak was spotted by syzkaller, where it
+caused OOM reports.
+
+Since the issue only affects debugfs, do a lookup before calling
+debugfs_create_dir, so that the message is downgraded and rate-limited.
+While at it, ensure kvm->debugfs_dentry is NULL rather than an error
+if it is not created.  This fixes kvm_destroy_vm_debugfs, which was not
+checking IS_ERR_OR_NULL correctly.
+
+Cc: stable@vger.kernel.org
+Fixes: 536a6f88c49d ("KVM: Create debugfs dir and stat files for each VM")
+Reported-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+Suggested-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/reiserfs/super.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ virt/kvm/kvm_main.c |   18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
 
-diff --git a/fs/reiserfs/super.c b/fs/reiserfs/super.c
-index ec5716dd58c2..831a542c22c6 100644
---- a/fs/reiserfs/super.c
-+++ b/fs/reiserfs/super.c
-@@ -2085,6 +2085,14 @@ static int reiserfs_fill_super(struct super_block *s, void *data, int silent)
- 		unlock_new_inode(root_inode);
- 	}
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -635,6 +635,8 @@ static void kvm_destroy_vm_debugfs(struc
  
-+	if (!S_ISDIR(root_inode->i_mode) || !inode_get_bytes(root_inode) ||
-+	    !root_inode->i_size) {
-+		SWARN(silent, s, "", "corrupt root inode, run fsck");
-+		iput(root_inode);
-+		errval = -EUCLEAN;
-+		goto error;
+ static int kvm_create_vm_debugfs(struct kvm *kvm, int fd)
+ {
++	static DEFINE_MUTEX(kvm_debugfs_lock);
++	struct dentry *dent;
+ 	char dir_name[ITOA_MAX_LEN * 2];
+ 	struct kvm_stat_data *stat_data;
+ 	struct kvm_stats_debugfs_item *p;
+@@ -643,8 +645,20 @@ static int kvm_create_vm_debugfs(struct
+ 		return 0;
+ 
+ 	snprintf(dir_name, sizeof(dir_name), "%d-%d", task_pid_nr(current), fd);
+-	kvm->debugfs_dentry = debugfs_create_dir(dir_name, kvm_debugfs_dir);
++	mutex_lock(&kvm_debugfs_lock);
++	dent = debugfs_lookup(dir_name, kvm_debugfs_dir);
++	if (dent) {
++		pr_warn_ratelimited("KVM: debugfs: duplicate directory %s\n", dir_name);
++		dput(dent);
++		mutex_unlock(&kvm_debugfs_lock);
++		return 0;
 +	}
-+
- 	s->s_root = d_make_root(root_inode);
- 	if (!s->s_root)
- 		goto error;
--- 
-2.30.2
-
++	dent = debugfs_create_dir(dir_name, kvm_debugfs_dir);
++	mutex_unlock(&kvm_debugfs_lock);
++	if (IS_ERR(dent))
++		return 0;
+ 
++	kvm->debugfs_dentry = dent;
+ 	kvm->debugfs_stat_data = kcalloc(kvm_debugfs_num_entries,
+ 					 sizeof(*kvm->debugfs_stat_data),
+ 					 GFP_KERNEL_ACCOUNT);
+@@ -4367,7 +4381,7 @@ static void kvm_uevent_notify_change(uns
+ 	}
+ 	add_uevent_var(env, "PID=%d", kvm->userspace_pid);
+ 
+-	if (!IS_ERR_OR_NULL(kvm->debugfs_dentry)) {
++	if (kvm->debugfs_dentry) {
+ 		char *tmp, *p = kmalloc(PATH_MAX, GFP_KERNEL_ACCOUNT);
+ 
+ 		if (p) {
 
 
