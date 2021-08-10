@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D5453E7E5D
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:32:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AC233E7F16
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:37:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231674AbhHJRct (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:32:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32950 "EHLO mail.kernel.org"
+        id S234303AbhHJRhL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:37:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231521AbhHJRcg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:32:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F1C2060EE7;
-        Tue, 10 Aug 2021 17:32:13 +0000 (UTC)
+        id S233105AbhHJRfm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:35:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C8DD61107;
+        Tue, 10 Aug 2021 17:35:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616734;
-        bh=yZOt5VO0MiAmwfVp3htw5q0uyivcUqZ6nEL8gkf3chg=;
+        s=korg; t=1628616910;
+        bh=ERX0QMlh4p07jgq2Pb5VAZYDdbT8+gREyoer7GZBAsw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q2kdUJqxtOJRa/nk0K9VFylqBElc535u0GcYl4kzXH1/PMnLT42VlxWeNT05HTKkZ
-         Tt5pMK1Tz/j4AYZkaEIJfEF1iUWTKmaGagsAdOOUWBhJ6eMoD2tjhfh1rFnL9U1pOL
-         CDb9QeJbo6EPKQhKSdEv02l7rApmJ6k0Q6umQjdI=
+        b=y6l35nNVe20XEfhlMtm5EYK2A+oNrgv6iW6bSIrlw8uFf61OQq1OKXo0ZHJNbFyfM
+         W4l6kmyKEFkVI5HWrdSyPPvcfddBt6fZPw4WC/gWSk5QCeg+GQ4TJYmi+1eCKPYDyU
+         3/5fqmNqfTDXZcl8VleW1+mDjVxVSn3aDS8IJzs0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Bauer <mail@david-bauer.net>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 24/54] USB: serial: ftdi_sio: add device ID for Auto-M3 OP-COM v2
+        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
+        Maxim Devaev <mdevaev@gmail.com>
+Subject: [PATCH 5.4 45/85] usb: gadget: f_hid: added GET_IDLE and SET_IDLE handlers
 Date:   Tue, 10 Aug 2021 19:30:18 +0200
-Message-Id: <20210810172944.966316016@linuxfoundation.org>
+Message-Id: <20210810172949.761894531@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172944.179901509@linuxfoundation.org>
-References: <20210810172944.179901509@linuxfoundation.org>
+In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
+References: <20210810172948.192298392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,43 +39,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Bauer <mail@david-bauer.net>
+From: Maxim Devaev <mdevaev@gmail.com>
 
-commit 8da0e55c7988ef9f08a708c38e5c75ecd8862cf8 upstream.
+commit afcff6dc690e24d636a41fd4bee6057e7c70eebd upstream.
 
-The Auto-M3 OP-COM v2 is a OBD diagnostic device using a FTD232 for the
-USB connection.
+The USB HID standard declares mandatory support for GET_IDLE and SET_IDLE
+requests for Boot Keyboard. Most hosts can handle their absence, but others
+like some old/strange UEFIs and BIOSes consider this a critical error
+and refuse to work with f_hid.
 
-Signed-off-by: David Bauer <mail@david-bauer.net>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+This primitive implementation of saving and returning idle is sufficient
+to meet the requirements of the standard and these devices.
+
+Acked-by: Felipe Balbi <balbi@kernel.org>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Maxim Devaev <mdevaev@gmail.com>
+Link: https://lore.kernel.org/r/20210721180351.129450-1-mdevaev@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/ftdi_sio.c     |    1 +
- drivers/usb/serial/ftdi_sio_ids.h |    3 +++
- 2 files changed, 4 insertions(+)
+ drivers/usb/gadget/function/f_hid.c |   18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
---- a/drivers/usb/serial/ftdi_sio.c
-+++ b/drivers/usb/serial/ftdi_sio.c
-@@ -209,6 +209,7 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(FTDI_VID, FTDI_MTXORB_6_PID) },
- 	{ USB_DEVICE(FTDI_VID, FTDI_R2000KU_TRUE_RNG) },
- 	{ USB_DEVICE(FTDI_VID, FTDI_VARDAAN_PID) },
-+	{ USB_DEVICE(FTDI_VID, FTDI_AUTO_M3_OP_COM_V2_PID) },
- 	{ USB_DEVICE(MTXORB_VID, MTXORB_FTDI_RANGE_0100_PID) },
- 	{ USB_DEVICE(MTXORB_VID, MTXORB_FTDI_RANGE_0101_PID) },
- 	{ USB_DEVICE(MTXORB_VID, MTXORB_FTDI_RANGE_0102_PID) },
---- a/drivers/usb/serial/ftdi_sio_ids.h
-+++ b/drivers/usb/serial/ftdi_sio_ids.h
-@@ -159,6 +159,9 @@
- /* Vardaan Enterprises Serial Interface VEUSB422R3 */
- #define FTDI_VARDAAN_PID	0xF070
+--- a/drivers/usb/gadget/function/f_hid.c
++++ b/drivers/usb/gadget/function/f_hid.c
+@@ -41,6 +41,7 @@ struct f_hidg {
+ 	unsigned char			bInterfaceSubClass;
+ 	unsigned char			bInterfaceProtocol;
+ 	unsigned char			protocol;
++	unsigned char			idle;
+ 	unsigned short			report_desc_length;
+ 	char				*report_desc;
+ 	unsigned short			report_length;
+@@ -529,6 +530,14 @@ static int hidg_setup(struct usb_functio
+ 		goto respond;
+ 		break;
  
-+/* Auto-M3 Ltd. - OP-COM USB V2 - OBD interface Adapter */
-+#define FTDI_AUTO_M3_OP_COM_V2_PID	0x4f50
++	case ((USB_DIR_IN | USB_TYPE_CLASS | USB_RECIP_INTERFACE) << 8
++		  | HID_REQ_GET_IDLE):
++		VDBG(cdev, "get_idle\n");
++		length = min_t(unsigned int, length, 1);
++		((u8 *) req->buf)[0] = hidg->idle;
++		goto respond;
++		break;
 +
- /*
-  * Xsens Technologies BV products (http://www.xsens.com).
-  */
+ 	case ((USB_DIR_OUT | USB_TYPE_CLASS | USB_RECIP_INTERFACE) << 8
+ 		  | HID_REQ_SET_REPORT):
+ 		VDBG(cdev, "set_report | wLength=%d\n", ctrl->wLength);
+@@ -552,6 +561,14 @@ static int hidg_setup(struct usb_functio
+ 		goto stall;
+ 		break;
+ 
++	case ((USB_DIR_OUT | USB_TYPE_CLASS | USB_RECIP_INTERFACE) << 8
++		  | HID_REQ_SET_IDLE):
++		VDBG(cdev, "set_idle\n");
++		length = 0;
++		hidg->idle = value;
++		goto respond;
++		break;
++
+ 	case ((USB_DIR_IN | USB_TYPE_STANDARD | USB_RECIP_INTERFACE) << 8
+ 		  | USB_REQ_GET_DESCRIPTOR):
+ 		switch (value >> 8) {
+@@ -779,6 +796,7 @@ static int hidg_bind(struct usb_configur
+ 	hidg_interface_desc.bInterfaceSubClass = hidg->bInterfaceSubClass;
+ 	hidg_interface_desc.bInterfaceProtocol = hidg->bInterfaceProtocol;
+ 	hidg->protocol = HID_REPORT_PROTOCOL;
++	hidg->idle = 1;
+ 	hidg_ss_in_ep_desc.wMaxPacketSize = cpu_to_le16(hidg->report_length);
+ 	hidg_ss_in_comp_desc.wBytesPerInterval =
+ 				cpu_to_le16(hidg->report_length);
 
 
