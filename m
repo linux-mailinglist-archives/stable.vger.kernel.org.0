@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D5433E5CCB
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 16:15:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E7133E5CD0
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 16:15:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242325AbhHJOPs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 10:15:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52032 "EHLO mail.kernel.org"
+        id S242376AbhHJOPt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 10:15:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242349AbhHJOPp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 10:15:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7CA1760F02;
-        Tue, 10 Aug 2021 14:15:22 +0000 (UTC)
+        id S241836AbhHJOPr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 10:15:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0885260F94;
+        Tue, 10 Aug 2021 14:15:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1628604923;
-        bh=E9kaRJxVpf+8P2HM+fpUkNC7dS+kvhRtWM9VeXt2BJg=;
+        s=k20201202; t=1628604924;
+        bh=B4GCpMvv88fvF6tgPZyrI3HUgrOaaR9BMYX9n601PZc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D7hnq4KEi0DiJ7bD0NAa1wHbuvZS2HuP79BswnG2FuZ8aVJmurdDqCiTP6lcsxHDj
-         XPsW2xL6oxdJV7SKKDbFZ6HleyKQGaEGTwwYo5vVekzS6l4U31bvGIGh/QJXLBWTAu
-         qBTkogENnd3dlVv5tgewsnGQfmQxnZCjAzxcuS/ZXcRX/NByUdV1PD8uRyJ8BQ7Ei5
-         90SqdSBIQcAAPBfNxziGTSCgxikJD50Bg0muhpZRXpEsHvIgUXJLlO5D2yr/OSbERe
-         gkrzMGhY7E4G4ZICNu8MOzm71oD/LkJSYnIWslo9qa2JmmD0UNIBwsSfPat3n3LpHn
-         VFqw/4cLo8zyw==
+        b=OvXNJ6dpQGhBw+zaWUZf4NaF0E5zkDz4Ont4KLfRANJo5/EgNrNjnzXCNVcTT5fSA
+         66wKVtRRaZtPzV2vJRi9IcKBLnONvEx7VBuiEBRdpqEcrlf7mp1dJqmZvql5u74Qxp
+         Kbfqi3AHpVng+P66BkaGEZJ0QjgPBUQ2Zp5D7FxmUH+uR117HQZdNmSOydYhDI0oet
+         otHQ9kFq6+fycdmw6fiB7BsBfVVvlIR4KbDh0wgNq7VBSBqu2Z5ucgp+C49LY/JY+0
+         QYjNc77AAP+eSUgnySZVB0d1sOOQbTgFIegtNxWAqbOKY9TKY1eonDFzJatoGMKaha
+         jClXLQZUjO6GQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Prabhakar Kushwaha <pkushwaha@marvell.com>,
-        Alok Prasad <palok@marvell.com>,
-        Shai Malin <smalin@marvell.com>,
-        Ariel Elior <aelior@marvell.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 13/24] qede: fix crash in rmmod qede while automatic debug collection
-Date:   Tue, 10 Aug 2021 10:14:54 -0400
-Message-Id: <20210810141505.3117318-13-sashal@kernel.org>
+Cc:     Sudeep Holla <sudeep.holla@arm.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 14/24] ARM: dts: nomadik: Fix up interrupt controller node names
+Date:   Tue, 10 Aug 2021 10:14:55 -0400
+Message-Id: <20210810141505.3117318-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210810141505.3117318-1-sashal@kernel.org>
 References: <20210810141505.3117318-1-sashal@kernel.org>
@@ -45,66 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Prabhakar Kushwaha <pkushwaha@marvell.com>
+From: Sudeep Holla <sudeep.holla@arm.com>
 
-[ Upstream commit 1159e25c137422bdc48ee96e3fb014bd942092c6 ]
+[ Upstream commit 47091f473b364c98207c4def197a0ae386fc9af1 ]
 
-A crash has been observed if rmmod is done while automatic debug
-collection in progress. It is due to a race  condition between
-both of them.
+Once the new schema interrupt-controller/arm,vic.yaml is added, we get
+the below warnings:
 
-To fix stop the sp_task during unload to avoid running qede_sp_task
-even if they are schedule during removal process.
+	arch/arm/boot/dts/ste-nomadik-nhk15.dt.yaml:
+	intc@10140000: $nodename:0: 'intc@10140000' does not match
+	'^interrupt-controller(@[0-9a-f,]+)*$'
 
-Signed-off-by: Alok Prasad <palok@marvell.com>
-Signed-off-by: Shai Malin <smalin@marvell.com>
-Signed-off-by: Ariel Elior <aelior@marvell.com>
-Signed-off-by: Prabhakar Kushwaha <pkushwaha@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fix the node names for the interrupt controller to conform
+to the standard node name interrupt-controller@..
+
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20210617210825.3064367-2-sudeep.holla@arm.com
+Link: https://lore.kernel.org/r/20210626000103.830184-1-linus.walleij@linaro.org'
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qede/qede.h      | 1 +
- drivers/net/ethernet/qlogic/qede/qede_main.c | 8 ++++++++
- 2 files changed, 9 insertions(+)
+ arch/arm/boot/dts/ste-nomadik-stn8815.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qede/qede.h b/drivers/net/ethernet/qlogic/qede/qede.h
-index 2e62a2c4eb63..5630008f38b7 100644
---- a/drivers/net/ethernet/qlogic/qede/qede.h
-+++ b/drivers/net/ethernet/qlogic/qede/qede.h
-@@ -501,6 +501,7 @@ struct qede_fastpath {
- #define QEDE_SP_HW_ERR                  4
- #define QEDE_SP_ARFS_CONFIG             5
- #define QEDE_SP_AER			7
-+#define QEDE_SP_DISABLE			8
+diff --git a/arch/arm/boot/dts/ste-nomadik-stn8815.dtsi b/arch/arm/boot/dts/ste-nomadik-stn8815.dtsi
+index c9b906432341..1815361fe73c 100644
+--- a/arch/arm/boot/dts/ste-nomadik-stn8815.dtsi
++++ b/arch/arm/boot/dts/ste-nomadik-stn8815.dtsi
+@@ -755,14 +755,14 @@ clcd@10120000 {
+ 			status = "disabled";
+ 		};
  
- #ifdef CONFIG_RFS_ACCEL
- int qede_rx_flow_steer(struct net_device *dev, const struct sk_buff *skb,
-diff --git a/drivers/net/ethernet/qlogic/qede/qede_main.c b/drivers/net/ethernet/qlogic/qede/qede_main.c
-index 01ac1e93d27a..7c6064baeba2 100644
---- a/drivers/net/ethernet/qlogic/qede/qede_main.c
-+++ b/drivers/net/ethernet/qlogic/qede/qede_main.c
-@@ -1009,6 +1009,13 @@ static void qede_sp_task(struct work_struct *work)
- 	struct qede_dev *edev = container_of(work, struct qede_dev,
- 					     sp_task.work);
+-		vica: intc@10140000 {
++		vica: interrupt-controller@10140000 {
+ 			compatible = "arm,versatile-vic";
+ 			interrupt-controller;
+ 			#interrupt-cells = <1>;
+ 			reg = <0x10140000 0x20>;
+ 		};
  
-+	/* Disable execution of this deferred work once
-+	 * qede removal is in progress, this stop any future
-+	 * scheduling of sp_task.
-+	 */
-+	if (test_bit(QEDE_SP_DISABLE, &edev->sp_flags))
-+		return;
-+
- 	/* The locking scheme depends on the specific flag:
- 	 * In case of QEDE_SP_RECOVERY, acquiring the RTNL lock is required to
- 	 * ensure that ongoing flows are ended and new ones are not started.
-@@ -1300,6 +1307,7 @@ static void __qede_remove(struct pci_dev *pdev, enum qede_remove_mode mode)
- 	qede_rdma_dev_remove(edev, (mode == QEDE_REMOVE_RECOVERY));
- 
- 	if (mode != QEDE_REMOVE_RECOVERY) {
-+		set_bit(QEDE_SP_DISABLE, &edev->sp_flags);
- 		unregister_netdev(ndev);
- 
- 		cancel_delayed_work_sync(&edev->sp_task);
+-		vicb: intc@10140020 {
++		vicb: interrupt-controller@10140020 {
+ 			compatible = "arm,versatile-vic";
+ 			interrupt-controller;
+ 			#interrupt-cells = <1>;
 -- 
 2.30.2
 
