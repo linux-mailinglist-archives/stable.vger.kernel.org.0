@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB93B3E57EA
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 12:04:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 048AF3E57F8
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 12:06:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238752AbhHJKE2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 06:04:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58446 "EHLO
+        id S236537AbhHJKGJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 06:06:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239677AbhHJKEB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Aug 2021 06:04:01 -0400
+        with ESMTP id S239680AbhHJKEQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Aug 2021 06:04:16 -0400
 Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6429CC06179F;
-        Tue, 10 Aug 2021 03:03:39 -0700 (PDT)
-Received: by mail-pl1-x62a.google.com with SMTP id f3so9653448plg.3;
-        Tue, 10 Aug 2021 03:03:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D474CC0617A1;
+        Tue, 10 Aug 2021 03:03:49 -0700 (PDT)
+Received: by mail-pl1-x62a.google.com with SMTP id a20so20345100plm.0;
+        Tue, 10 Aug 2021 03:03:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=3JU96kQ8IMjxSi+e0LRvIglTv3Bdf6B0X88+jFY3sPY=;
-        b=OaMUVnX7ps570oEg1f7Q+UPknQYbtwK6/aX0IBm4jq0oDAPuBolvSkrTqrKNP1VNeq
-         e2MV6i7BDcLzeQYN1lC3O6rYfYtjldvwl0XJZf+2d8WAuhvTuClyZ1hry6Cnkk89AbP0
-         yRdtLTw4Pw7zvSs/qKcNQyhDW1/cUCB1j2rWg1UxILCs/4De+jvNyn0io9648TbYzGtI
-         Q4BiM0AkeO8vvp4+l06QlLmSAhkl132z3UbTOVvZTiH+ASDF9JgpUd7282MKDcSJGrMA
-         P+ULeXHMpjGHquoRFuha4m9gqsgMorvCSAr4IPkjMaQ4Rqs46QxSS1t8zcHiWmWHQDnR
-         TlSg==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=FZv8WUWA7XMtGcmHm3fe2kXxpsT1wGOMqKzhZnOXInc=;
+        b=n7riOfASCNRbDihiPbdaEZnz50Wl3IaUDhYTad8G/AQE8zyH1KA/OtdmD8JY6C4SR4
+         LU7eUzBaWI1HxZNMiqi98wM2P102T+3tJKdEZrDUVWgySL4URjuKQDeYXtP/Y+Pepo9Q
+         eJgtet9sjnlZtgaGMKzGksX0M6FKp3YbojSdJUxiBz+QEzDzk/G8U8fy/QzQEkX/mb34
+         CFKoiQKXqlRxYR8apIFoD4SlQiROYb3TH04zMUpwpYlW8JaWPjEp+tY7o5xBYvvdWaH9
+         q4Yfy/OSw3j6fQQvaap/HBH5F7S4W0q5WxGatKXU2Ok5zjWIKtMLZ1lpu89AcC4EOjRL
+         GnsQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=3JU96kQ8IMjxSi+e0LRvIglTv3Bdf6B0X88+jFY3sPY=;
-        b=jorBTf+jAhiPfvPSjZWyZxsw4RfLGe3m3IknywZUuc1vrrMSoJhXjHQ9a7TQKukpO9
-         8XBi3rvrZ9np/XDt1iqZoiP2bbClgKoPKEDGastAY577yGawmCfP2iO+DQobJkUNy+ET
-         HzTnQdSWvBelvE63MCRD/QyBxuEbz5+l5V5PGn7Q9goQe+uIlgzLcqHLz2e3mOkWia0/
-         72WsWDOMsukbkhxw72Lr8DpMkuHim87StYZhJD4/BD0vT4VLkQyfQHx1v2JRwDet76um
-         SnDnxA99AQ38g8nFnVjOhzP48I5tEOINCvHEx2AXpdESv2+93YgOCIFrg7gm+znEbmCr
-         Ft9w==
-X-Gm-Message-State: AOAM533Ap5ipHa+Jm6exSQCNO8wLQpMwTVX/CmUuUr88iIn3qvp4l/F4
-        P249ncMGKqSxORprisDDSws=
-X-Google-Smtp-Source: ABdhPJwl6UZtG2TMjQs7gCi533fPy0e/MinI36y+nb+VdFDzwyBgcFzoVPBQgvUpz7yljLeuHnwXgQ==
-X-Received: by 2002:a63:b59:: with SMTP id a25mr41468pgl.373.1628589818852;
-        Tue, 10 Aug 2021 03:03:38 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=FZv8WUWA7XMtGcmHm3fe2kXxpsT1wGOMqKzhZnOXInc=;
+        b=pgEG3Bqc0jWVoakaAVJDoZHr3K/xergJXhhu37OAyNMA5zm4w7apec7EVAJzN8jwi4
+         2eYUotOdhdbv6tsvb0BK2xmUjmKatwDprYb0goXI5hEJFf18imHe8LHgrE2+mkQHeGRE
+         oKip2X52USYTs7Hp3gKXUnX0qjiNY0nmcDi/u2pr0hPQwZzzA2r77CVN7DpJsZxp1UDu
+         VBaEUEhqzOcSOWNQbGUq5qNLanoYR96cb1AEz4JXoUvGktHFIf/TWQp3RAV9ZjaiCtQ1
+         MY5WyfZiTyosdz0zNRNhZYh3hUmrC+CEcqYIpd060SIhPUl3Zl31Q/l8W12P/dbqckNH
+         2I3g==
+X-Gm-Message-State: AOAM532XvV5pNYY4WzFIcfxU4DZ+JQh6oGH+ziZBwjG7ypugv7yCRp6W
+        fbsP0G2GJjDZUCK+ObgVJQo=
+X-Google-Smtp-Source: ABdhPJyjHnHQXvLxKdgfLBPWa/XZ3kWSmXNDvd0PaIDD2qxKYcCnx5it80eGot5J+T7kt2ff2O6qEw==
+X-Received: by 2002:a17:90a:5888:: with SMTP id j8mr4148681pji.17.1628589829361;
+        Tue, 10 Aug 2021 03:03:49 -0700 (PDT)
 Received: from localhost.localdomain ([154.16.166.217])
-        by smtp.gmail.com with ESMTPSA id e13sm22943413pfi.210.2021.08.10.03.03.35
+        by smtp.gmail.com with ESMTPSA id e13sm22943413pfi.210.2021.08.10.03.03.45
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 10 Aug 2021 03:03:38 -0700 (PDT)
+        Tue, 10 Aug 2021 03:03:48 -0700 (PDT)
 From:   Dongliang Mu <mudongliangabcd@gmail.com>
 To:     Samuel Iglesias Gonsalvez <siglesias@igalia.com>,
         Jens Taprogge <jens.taprogge@taprogge.org>,
@@ -54,32 +54,31 @@ To:     Samuel Iglesias Gonsalvez <siglesias@igalia.com>,
         Dongliang Mu <mudongliangabcd@gmail.com>,
         Aditya Srivastava <yashsri421@gmail.com>,
         Randy Dunlap <rdunlap@infradead.org>,
-        Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+        Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
+        Zhouyang Jia <jiazhouyang09@gmail.com>
 Cc:     stable@vger.kernel.org, industrypack-devel@lists.sourceforge.net,
         linux-kernel@vger.kernel.org
-Subject: [PATCH v4 1/2] ipack: tpci200: fix many double free issues in tpci200_pci_probe
-Date:   Tue, 10 Aug 2021 18:03:18 +0800
-Message-Id: <20210810100323.3938492-1-mudongliangabcd@gmail.com>
+Subject: [PATCH v4 2/2] ipack: tpci200: fix memory leak in the tpci200_register
+Date:   Tue, 10 Aug 2021 18:03:19 +0800
+Message-Id: <20210810100323.3938492-2-mudongliangabcd@gmail.com>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20210810100323.3938492-1-mudongliangabcd@gmail.com>
+References: <20210810100323.3938492-1-mudongliangabcd@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The function tpci200_register called by tpci200_install and
-tpci200_unregister called by tpci200_uninstall are in pair. However,
-tpci200_unregister has some cleanup operations not in the
-tpci200_register. So the error handling code of tpci200_pci_probe has
-many different double free issues.
+The error handling code in tpci200_register does not free interface_regs
+allocated by ioremap and the current version of error handling code is
+problematic.
 
-Fix this problem by moving those cleanup operations out of
-tpci200_unregister, into tpci200_pci_remove and reverting
-the previous commit 9272e5d0028d ("ipack/carriers/tpci200:
-Fix a double free in tpci200_pci_probe").
+Fix this by refactoring the error handling code and free interface_regs
+when necessary.
 
 Reported-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Fixes: 9272e5d0028d ("ipack/carriers/tpci200: Fix a double free in tpci200_pci_probe")
+Fixes: 43986798fd50 ("ipack: add error handling for ioremap_nocache")
 Cc: stable@vger.kernel.org
 Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
 ---
@@ -87,114 +86,85 @@ v1->v2: revise PATCH 2/3, 3/3, not depending on PATCH 1/3; move the
 location change of tpci_unregister into one separate patch;
 v2->v3: double check all pci_iounmap api invocations
 v3->v4: add a tag - Cc: stable@vger.kernel.org
- drivers/ipack/carriers/tpci200.c | 36 ++++++++++++++++----------------
- 1 file changed, 18 insertions(+), 18 deletions(-)
+ drivers/ipack/carriers/tpci200.c | 24 ++++++++++++++----------
+ 1 file changed, 14 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/ipack/carriers/tpci200.c b/drivers/ipack/carriers/tpci200.c
-index 3461b0a7dc62..92795a0230ca 100644
+index 92795a0230ca..cbfdadecb23b 100644
 --- a/drivers/ipack/carriers/tpci200.c
 +++ b/drivers/ipack/carriers/tpci200.c
-@@ -89,16 +89,13 @@ static void tpci200_unregister(struct tpci200_board *tpci200)
- 	free_irq(tpci200->info->pdev->irq, (void *) tpci200);
- 
- 	pci_iounmap(tpci200->info->pdev, tpci200->info->interface_regs);
--	pci_iounmap(tpci200->info->pdev, tpci200->info->cfg_regs);
- 
- 	pci_release_region(tpci200->info->pdev, TPCI200_IP_INTERFACE_BAR);
- 	pci_release_region(tpci200->info->pdev, TPCI200_IO_ID_INT_SPACES_BAR);
- 	pci_release_region(tpci200->info->pdev, TPCI200_MEM16_SPACE_BAR);
- 	pci_release_region(tpci200->info->pdev, TPCI200_MEM8_SPACE_BAR);
--	pci_release_region(tpci200->info->pdev, TPCI200_CFG_MEM_BAR);
- 
- 	pci_disable_device(tpci200->info->pdev);
--	pci_dev_put(tpci200->info->pdev);
- }
- 
- static void tpci200_enable_irq(struct tpci200_board *tpci200,
-@@ -527,7 +524,7 @@ static int tpci200_pci_probe(struct pci_dev *pdev,
- 	tpci200->info = kzalloc(sizeof(struct tpci200_infos), GFP_KERNEL);
- 	if (!tpci200->info) {
- 		ret = -ENOMEM;
--		goto out_err_info;
-+		goto err_tpci200;
+@@ -254,7 +254,7 @@ static int tpci200_register(struct tpci200_board *tpci200)
+ 			"(bn 0x%X, sn 0x%X) failed to allocate PCI resource for BAR 2 !",
+ 			tpci200->info->pdev->bus->number,
+ 			tpci200->info->pdev->devfn);
+-		goto out_disable_pci;
++		goto err_disable_device;
  	}
  
- 	pci_dev_get(pdev);
-@@ -538,7 +535,7 @@ static int tpci200_pci_probe(struct pci_dev *pdev,
- 	if (ret) {
- 		dev_err(&pdev->dev, "Failed to allocate PCI Configuration Memory");
- 		ret = -EBUSY;
--		goto out_err_pci_request;
-+		goto err_tpci200_info;
- 	}
- 	tpci200->info->cfg_regs = ioremap(
- 			pci_resource_start(pdev, TPCI200_CFG_MEM_BAR),
-@@ -546,7 +543,7 @@ static int tpci200_pci_probe(struct pci_dev *pdev,
- 	if (!tpci200->info->cfg_regs) {
- 		dev_err(&pdev->dev, "Failed to map PCI Configuration Memory");
- 		ret = -EFAULT;
--		goto out_err_ioremap;
-+		goto err_request_region;
+ 	/* Request IO ID INT space (Bar 3) */
+@@ -266,7 +266,7 @@ static int tpci200_register(struct tpci200_board *tpci200)
+ 			"(bn 0x%X, sn 0x%X) failed to allocate PCI resource for BAR 3 !",
+ 			tpci200->info->pdev->bus->number,
+ 			tpci200->info->pdev->devfn);
+-		goto out_release_ip_space;
++		goto err_ip_interface_bar;
  	}
  
- 	/* Disable byte swapping for 16 bit IP module access. This will ensure
-@@ -569,7 +566,7 @@ static int tpci200_pci_probe(struct pci_dev *pdev,
- 	if (ret) {
- 		dev_err(&pdev->dev, "error during tpci200 install\n");
- 		ret = -ENODEV;
--		goto out_err_install;
-+		goto err_cfg_regs;
+ 	/* Request MEM8 space (Bar 5) */
+@@ -277,7 +277,7 @@ static int tpci200_register(struct tpci200_board *tpci200)
+ 			"(bn 0x%X, sn 0x%X) failed to allocate PCI resource for BAR 5!",
+ 			tpci200->info->pdev->bus->number,
+ 			tpci200->info->pdev->devfn);
+-		goto out_release_ioid_int_space;
++		goto err_io_id_int_spaces_bar;
  	}
  
- 	/* Register the carrier in the industry pack bus driver */
-@@ -581,7 +578,7 @@ static int tpci200_pci_probe(struct pci_dev *pdev,
- 		dev_err(&pdev->dev,
- 			"error registering the carrier on ipack driver\n");
- 		ret = -EFAULT;
--		goto out_err_bus_register;
-+		goto err_tpci200_install;
+ 	/* Request MEM16 space (Bar 4) */
+@@ -288,7 +288,7 @@ static int tpci200_register(struct tpci200_board *tpci200)
+ 			"(bn 0x%X, sn 0x%X) failed to allocate PCI resource for BAR 4!",
+ 			tpci200->info->pdev->bus->number,
+ 			tpci200->info->pdev->devfn);
+-		goto out_release_mem8_space;
++		goto err_mem8_space_bar;
  	}
  
- 	/* save the bus number given by ipack to logging purpose */
-@@ -592,19 +589,16 @@ static int tpci200_pci_probe(struct pci_dev *pdev,
- 		tpci200_create_device(tpci200, i);
+ 	/* Map internal tpci200 driver user space */
+@@ -302,7 +302,7 @@ static int tpci200_register(struct tpci200_board *tpci200)
+ 			tpci200->info->pdev->bus->number,
+ 			tpci200->info->pdev->devfn);
+ 		res = -ENOMEM;
+-		goto out_release_mem8_space;
++		goto err_mem16_space_bar;
+ 	}
+ 
+ 	/* Initialize lock that protects interface_regs */
+@@ -341,18 +341,22 @@ static int tpci200_register(struct tpci200_board *tpci200)
+ 			"(bn 0x%X, sn 0x%X) unable to register IRQ !",
+ 			tpci200->info->pdev->bus->number,
+ 			tpci200->info->pdev->devfn);
+-		goto out_release_ioid_int_space;
++		goto err_interface_regs;
+ 	}
+ 
  	return 0;
  
--out_err_bus_register:
-+err_tpci200_install:
- 	tpci200_uninstall(tpci200);
--	/* tpci200->info->cfg_regs is unmapped in tpci200_uninstall */
--	tpci200->info->cfg_regs = NULL;
--out_err_install:
--	if (tpci200->info->cfg_regs)
--		iounmap(tpci200->info->cfg_regs);
--out_err_ioremap:
-+err_cfg_regs:
-+	pci_iounmap(tpci200->info->pdev, tpci200->info->cfg_regs);
-+err_request_region:
- 	pci_release_region(pdev, TPCI200_CFG_MEM_BAR);
--out_err_pci_request:
--	pci_dev_put(pdev);
-+err_tpci200_info:
- 	kfree(tpci200->info);
--out_err_info:
-+	pci_dev_put(pdev);
-+err_tpci200:
- 	kfree(tpci200);
- 	return ret;
- }
-@@ -614,6 +608,12 @@ static void __tpci200_pci_remove(struct tpci200_board *tpci200)
- 	ipack_bus_unregister(tpci200->info->ipack_bus);
- 	tpci200_uninstall(tpci200);
- 
-+	pci_iounmap(tpci200->info->pdev, tpci200->info->cfg_regs);
-+
-+	pci_release_region(tpci200->info->pdev, TPCI200_CFG_MEM_BAR);
-+
-+	pci_dev_put(tpci200->info->pdev);
-+
- 	kfree(tpci200->info);
- 	kfree(tpci200);
+-out_release_mem8_space:
++err_interface_regs:
++	pci_iounmap(tpci200->info->pdev, tpci200->info->interface_regs);
++err_mem16_space_bar:
++	pci_release_region(tpci200->info->pdev, TPCI200_MEM16_SPACE_BAR);
++err_mem8_space_bar:
+ 	pci_release_region(tpci200->info->pdev, TPCI200_MEM8_SPACE_BAR);
+-out_release_ioid_int_space:
++err_io_id_int_spaces_bar:
+ 	pci_release_region(tpci200->info->pdev, TPCI200_IO_ID_INT_SPACES_BAR);
+-out_release_ip_space:
++err_ip_interface_bar:
+ 	pci_release_region(tpci200->info->pdev, TPCI200_IP_INTERFACE_BAR);
+-out_disable_pci:
++err_disable_device:
+ 	pci_disable_device(tpci200->info->pdev);
+ 	return res;
  }
 -- 
 2.25.1
