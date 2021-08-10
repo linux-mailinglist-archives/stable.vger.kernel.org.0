@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 915293E7F58
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:41:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F6753E7E7B
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:33:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232970AbhHJRkI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:40:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59194 "EHLO mail.kernel.org"
+        id S232712AbhHJRdg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:33:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235076AbhHJRjT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:39:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F343660E09;
-        Tue, 10 Aug 2021 17:36:50 +0000 (UTC)
+        id S232245AbhHJRdL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:33:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B46E60E09;
+        Tue, 10 Aug 2021 17:32:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617011;
-        bh=HxAVSRoZV1qO5M8NvmA+iCnA5aa632UKR/8qoV0km0g=;
+        s=korg; t=1628616768;
+        bh=kLwRbf04wdPDTWhUR1wEgK8ZlS0EXM2rYWxeVLJtKIY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iTB2ThOcqjJQxJ+7mW21qfj1rZN1+oWHoXLMjbzWyjM/vkhaVu8yNQDKQf/9EDPrS
-         LTA7i0pIZqded4rHHeHi1zBeNlXpELJ/vpk9CLDbiSj4Js8x4fLothtao2PEil7cDA
-         UWRrqKQmOP7vAHIaTzUFTi4IVs5rUDJESDpIbSAs=
+        b=1tP3YyWks/QKsXoSBC2TLbLDJ1N5CXCbFGRbuTVowzNxZFGXKs7osRV+TQgfj6csD
+         lcYUrjEljA48l9aL/EjTkJvZyLgUloda2Q7P8NY2NLwzYNuZkqA4ho5u1pKiAvLP/o
+         PoNubiguUv0F4O9YRigMaAsq9Pg79iaptHtoEws0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+faf11bbadc5a372564da@syzkaller.appspotmail.com,
-        Eero Lehtinen <debiangamer2@gmail.com>,
-        Antti Palosaari <crope@iki.fi>,
-        Johan Hovold <johan@kernel.org>, Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.4 58/85] media: rtl28xxu: fix zero-length control request
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Xiangyang Zhang <xyz.sun.ok@gmail.com>
+Subject: [PATCH 4.19 37/54] staging: rtl8723bs: Fix a resource leak in sd_int_dpc
 Date:   Tue, 10 Aug 2021 19:30:31 +0200
-Message-Id: <20210810172950.193729673@linuxfoundation.org>
+Message-Id: <20210810172945.407789168@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
-References: <20210810172948.192298392@linuxfoundation.org>
+In-Reply-To: <20210810172944.179901509@linuxfoundation.org>
+References: <20210810172944.179901509@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,58 +39,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Xiangyang Zhang <xyz.sun.ok@gmail.com>
 
-commit 76f22c93b209c811bd489950f17f8839adb31901 upstream.
+commit 990e4ad3ddcb72216caeddd6e62c5f45a21e8121 upstream.
 
-The direction of the pipe argument must match the request-type direction
-bit or control requests may fail depending on the host-controller-driver
-implementation.
+The "c2h_evt" variable is not freed when function call
+"c2h_evt_read_88xx" failed
 
-Control transfers without a data stage are treated as OUT requests by
-the USB stack and should be using usb_sndctrlpipe(). Failing to do so
-will now trigger a warning.
-
-The driver uses a zero-length i2c-read request for type detection so
-update the control-request code to use usb_sndctrlpipe() in this case.
-
-Note that actually trying to read the i2c register in question does not
-work as the register might not exist (e.g. depending on the demodulator)
-as reported by Eero Lehtinen <debiangamer2@gmail.com>.
-
-Reported-by: syzbot+faf11bbadc5a372564da@syzkaller.appspotmail.com
-Reported-by: Eero Lehtinen <debiangamer2@gmail.com>
-Tested-by: Eero Lehtinen <debiangamer2@gmail.com>
-Fixes: d0f232e823af ("[media] rtl28xxu: add heuristic to detect chip type")
-Cc: stable@vger.kernel.org      # 4.0
-Cc: Antti Palosaari <crope@iki.fi>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: 554c0a3abf21 ("staging: Add rtl8723bs sdio wifi driver")
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Xiangyang Zhang <xyz.sun.ok@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210628152239.5475-1-xyz.sun.ok@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/usb/dvb-usb-v2/rtl28xxu.c |   11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/staging/rtl8723bs/hal/sdio_ops.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
-+++ b/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
-@@ -37,7 +37,16 @@ static int rtl28xxu_ctrl_msg(struct dvb_
- 	} else {
- 		/* read */
- 		requesttype = (USB_TYPE_VENDOR | USB_DIR_IN);
--		pipe = usb_rcvctrlpipe(d->udev, 0);
-+
-+		/*
-+		 * Zero-length transfers must use usb_sndctrlpipe() and
-+		 * rtl28xxu_identify_state() uses a zero-length i2c read
-+		 * command to determine the chip type.
-+		 */
-+		if (req->size)
-+			pipe = usb_rcvctrlpipe(d->udev, 0);
-+		else
-+			pipe = usb_sndctrlpipe(d->udev, 0);
- 	}
- 
- 	ret = usb_control_msg(d->udev, pipe, 0, requesttype, req->value,
+--- a/drivers/staging/rtl8723bs/hal/sdio_ops.c
++++ b/drivers/staging/rtl8723bs/hal/sdio_ops.c
+@@ -1077,6 +1077,8 @@ void sd_int_dpc(struct adapter *adapter)
+ 				} else {
+ 					rtw_c2h_wk_cmd(adapter, (u8 *)c2h_evt);
+ 				}
++			} else {
++				kfree(c2h_evt);
+ 			}
+ 		} else {
+ 			/* Error handling for malloc fail */
 
 
