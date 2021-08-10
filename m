@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3792E3E7E7D
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:33:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FE633E7F39
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:40:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231705AbhHJRdj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:33:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35042 "EHLO mail.kernel.org"
+        id S233289AbhHJRjF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:39:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232327AbhHJRdR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:33:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 25F1E60FC4;
-        Tue, 10 Aug 2021 17:32:55 +0000 (UTC)
+        id S234112AbhHJRg3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:36:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 815D461019;
+        Tue, 10 Aug 2021 17:35:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616775;
-        bh=uNj46yeC67x14SBlDSDwioGQohfjz0YFWOU/21UIun4=;
+        s=korg; t=1628616942;
+        bh=Jz8QiYSXreNbFwoLw5zrbC/bz82Q5zNd+nLKSS9EdOM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S8iFgbcNbxA4W5zhu3QBD2NgCUdwRybR4J2dioSxwuxdbV0ZPa6tXtO3qOYMXhQ1y
-         2Nnh3x0f4nHHMDl9A1aETvhNz0vjpTLNGgIBsQe11NHlME+VyCIQY7q2hKZn4oaMPk
-         IUnktQCLBCTHQvGwq7D0KH0sitJPG32rIGWLCDsY=
+        b=VsjCQk00k4H8WVyaoIblhf8k5QLJe6FmQMVFQbAWa1sJbvTtgS4KAsWfv49f26JAo
+         0vL5F0vvoo4DuRngecOoGrNg7ZAYQJdj3lh4YbybDYfAi1bbVLd3dpUTSHLDH7L7p9
+         hDj/R3TgfditL7Oze65vNEl1fntg+e7fBerthjcA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?=D0=91=D0=BB=D0=B0=D0=B3=D0=BE=D0=B4=D0=B0=D1=80=D0=B5=D0=BD=D0=BA=D0=BE=20=D0=90=D1=80=D1=82=D1=91=D0=BC?= 
-        <artem.blagodarenko@gmail.com>, Denis <denis@voxelsoft.com>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 4.19 40/54] ext4: fix potential htree corruption when growing large_dir directories
+        stable@vger.kernel.org, Thierry Reding <treding@nvidia.com>,
+        Jon Hunter <jonathanh@nvidia.com>
+Subject: [PATCH 5.4 61/85] serial: tegra: Only print FIFO error message when an error occurs
 Date:   Tue, 10 Aug 2021 19:30:34 +0200
-Message-Id: <20210810172945.509846502@linuxfoundation.org>
+Message-Id: <20210810172950.301372110@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172944.179901509@linuxfoundation.org>
-References: <20210810172944.179901509@linuxfoundation.org>
+In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
+References: <20210810172948.192298392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,35 +39,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Jon Hunter <jonathanh@nvidia.com>
 
-commit 877ba3f729fd3d8ef0e29bc2a55e57cfa54b2e43 upstream.
+commit cc9ca4d95846cbbece48d9cd385550f8fba6a3c1 upstream.
 
-Commit b5776e7524af ("ext4: fix potential htree index checksum
-corruption) removed a required restart when multiple levels of index
-nodes need to be split.  Fix this to avoid directory htree corruptions
-when using the large_dir feature.
+The Tegra serial driver always prints an error message when enabling the
+FIFO for devices that have support for checking the FIFO enable status.
+Fix this by displaying the error message, only when an error occurs.
 
-Cc: stable@kernel.org # v5.11
-Cc: Благодаренко Артём <artem.blagodarenko@gmail.com>
-Fixes: b5776e7524af ("ext4: fix potential htree index checksum corruption)
-Reported-by: Denis <denis@voxelsoft.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Finally, update the error message to make it clear that enabling the
+FIFO failed and display the error code.
+
+Fixes: 222dcdff3405 ("serial: tegra: check for FIFO mode enabled status")
+Cc: <stable@vger.kernel.org>
+Acked-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
+Link: https://lore.kernel.org/r/20210630125643.264264-1-jonathanh@nvidia.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/namei.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/serial-tegra.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -2317,7 +2317,7 @@ again:
- 				goto journal_error;
- 			err = ext4_handle_dirty_dx_node(handle, dir,
- 							frame->bh);
--			if (err)
-+			if (restart || err)
- 				goto journal_error;
- 		} else {
- 			struct dx_root *dxroot;
+--- a/drivers/tty/serial/serial-tegra.c
++++ b/drivers/tty/serial/serial-tegra.c
+@@ -1028,9 +1028,11 @@ static int tegra_uart_hw_init(struct teg
+ 
+ 	if (tup->cdata->fifo_mode_enable_status) {
+ 		ret = tegra_uart_wait_fifo_mode_enabled(tup);
+-		dev_err(tup->uport.dev, "FIFO mode not enabled\n");
+-		if (ret < 0)
++		if (ret < 0) {
++			dev_err(tup->uport.dev,
++				"Failed to enable FIFO mode: %d\n", ret);
+ 			return ret;
++		}
+ 	} else {
+ 		/*
+ 		 * For all tegra devices (up to t210), there is a hardware
 
 
