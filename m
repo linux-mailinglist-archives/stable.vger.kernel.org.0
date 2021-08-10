@@ -2,34 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CEF0F3E7E6A
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:32:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 732193E8035
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:47:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232196AbhHJRdI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:33:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33730 "EHLO mail.kernel.org"
+        id S235380AbhHJRrB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:47:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231883AbhHJRcx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:32:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8AED160E09;
-        Tue, 10 Aug 2021 17:32:30 +0000 (UTC)
+        id S235316AbhHJRpN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:45:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9380561154;
+        Tue, 10 Aug 2021 17:40:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616751;
-        bh=d/+valeJjRb3Dr0/1u1KGw7QRstu5u3fNpILih65bG8=;
+        s=korg; t=1628617205;
+        bh=HxAVSRoZV1qO5M8NvmA+iCnA5aa632UKR/8qoV0km0g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BeNVg/pSbJaDq3yjBRCyIY/tqPpEsW4XZO3eg/lB1Xm8gK9FBkATyLXVwARGkaS/n
-         njdqZlOidyhLnfKYBkA/wHdAROr6NrwbbizXYLpd0GIhMggepN/38QpfCILueyNpKv
-         1uOfWhoeaZoOwgZu4zlfJkWvnF5WhhYCzg0xh/h8=
+        b=PIZn0MDfcNuTswaPS7ysTBCI+0djO63sZJeWN5TFO/n+JdwPAzN7rvccknNZDD6ED
+         +GsaCCt9SBOIN8AotpqzYTP0nHNrYa9PtVnLmX9/bFtNQREFBtOiVrDTW6Th0rYhgS
+         UFvLweobcMmiqnNdT6fKOOTVGKzuoVuGZ9I0oYLU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Devaev <mdevaev@gmail.com>
-Subject: [PATCH 4.19 30/54] usb: gadget: f_hid: idle uses the highest byte for duration
-Date:   Tue, 10 Aug 2021 19:30:24 +0200
-Message-Id: <20210810172945.169040364@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+faf11bbadc5a372564da@syzkaller.appspotmail.com,
+        Eero Lehtinen <debiangamer2@gmail.com>,
+        Antti Palosaari <crope@iki.fi>,
+        Johan Hovold <johan@kernel.org>, Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.10 091/135] media: rtl28xxu: fix zero-length control request
+Date:   Tue, 10 Aug 2021 19:30:25 +0200
+Message-Id: <20210810172958.852319134@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172944.179901509@linuxfoundation.org>
-References: <20210810172944.179901509@linuxfoundation.org>
+In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
+References: <20210810172955.660225700@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,32 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Devaev <mdevaev@gmail.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit fa20bada3f934e3b3e4af4c77e5b518cd5a282e5 upstream.
+commit 76f22c93b209c811bd489950f17f8839adb31901 upstream.
 
-SET_IDLE value must be shifted 8 bits to the right to get duration.
-This confirmed by USBCV test.
+The direction of the pipe argument must match the request-type direction
+bit or control requests may fail depending on the host-controller-driver
+implementation.
 
-Fixes: afcff6dc690e ("usb: gadget: f_hid: added GET_IDLE and SET_IDLE handlers")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Maxim Devaev <mdevaev@gmail.com>
-Link: https://lore.kernel.org/r/20210727185800.43796-1-mdevaev@gmail.com
+Control transfers without a data stage are treated as OUT requests by
+the USB stack and should be using usb_sndctrlpipe(). Failing to do so
+will now trigger a warning.
+
+The driver uses a zero-length i2c-read request for type detection so
+update the control-request code to use usb_sndctrlpipe() in this case.
+
+Note that actually trying to read the i2c register in question does not
+work as the register might not exist (e.g. depending on the demodulator)
+as reported by Eero Lehtinen <debiangamer2@gmail.com>.
+
+Reported-by: syzbot+faf11bbadc5a372564da@syzkaller.appspotmail.com
+Reported-by: Eero Lehtinen <debiangamer2@gmail.com>
+Tested-by: Eero Lehtinen <debiangamer2@gmail.com>
+Fixes: d0f232e823af ("[media] rtl28xxu: add heuristic to detect chip type")
+Cc: stable@vger.kernel.org      # 4.0
+Cc: Antti Palosaari <crope@iki.fi>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/function/f_hid.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/usb/dvb-usb-v2/rtl28xxu.c |   11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/gadget/function/f_hid.c
-+++ b/drivers/usb/gadget/function/f_hid.c
-@@ -579,7 +579,7 @@ static int hidg_setup(struct usb_functio
- 		  | HID_REQ_SET_IDLE):
- 		VDBG(cdev, "set_idle\n");
- 		length = 0;
--		hidg->idle = value;
-+		hidg->idle = value >> 8;
- 		goto respond;
- 		break;
+--- a/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
++++ b/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
+@@ -37,7 +37,16 @@ static int rtl28xxu_ctrl_msg(struct dvb_
+ 	} else {
+ 		/* read */
+ 		requesttype = (USB_TYPE_VENDOR | USB_DIR_IN);
+-		pipe = usb_rcvctrlpipe(d->udev, 0);
++
++		/*
++		 * Zero-length transfers must use usb_sndctrlpipe() and
++		 * rtl28xxu_identify_state() uses a zero-length i2c read
++		 * command to determine the chip type.
++		 */
++		if (req->size)
++			pipe = usb_rcvctrlpipe(d->udev, 0);
++		else
++			pipe = usb_sndctrlpipe(d->udev, 0);
+ 	}
  
+ 	ret = usb_control_msg(d->udev, pipe, 0, requesttype, req->value,
 
 
