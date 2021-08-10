@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B48423E8154
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:01:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5099A3E7ED0
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:35:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234935AbhHJR6m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:58:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55582 "EHLO mail.kernel.org"
+        id S233035AbhHJRf1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:35:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233315AbhHJR4l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:56:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CE9E461372;
-        Tue, 10 Aug 2021 17:45:07 +0000 (UTC)
+        id S233022AbhHJRem (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:34:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C3AAB6101E;
+        Tue, 10 Aug 2021 17:34:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617508;
-        bh=Zp4VGG1dKfim0sPPTUerjeS0+20VMSVIPMlp0SbM0sI=;
+        s=korg; t=1628616859;
+        bh=sd/DQSclqnWoKrgGmCyb1px2JmDXjqqUy17k5WsDmh8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YPmCbeaoEmDFCrKjAZWMO2QaTjnN8K1ILdHMDHSxxtw+xUa1vOgyKPcD2VcrNjw0e
-         BPUyYmSf2xNbFmwJvrPtkRKKALr5kS8ptVU1eF+n4FZKxfuEPF4hQ9vIP5+05m0YOd
-         gEC632yBdUeEt/IpdeLRtccdG7e1PD7t4wOJSbpY=
+        b=Dp6Ljh84RJt+oYA2k0TQ7W8cRtbDKibKyGzBdly6C8QvBrUYU7OtxKfFnfDL9ksnM
+         S4O/xEq+ZhwJWCB7S41BJvOTWRkzaRz2iKwWCagxnJtOWknelK/JJwlmGL6ZSKbEzw
+         9xJoofkU259NTi7LgQcBm96x6EBrtteRpbklrZ0Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
-        Wesley Cheng <wcheng@codeaurora.org>
-Subject: [PATCH 5.13 089/175] usb: dwc3: gadget: Use list_replace_init() before traversing lists
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang Hai <wanghai38@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 24/85] net: natsemi: Fix missing pci_disable_device() in probe and remove
 Date:   Tue, 10 Aug 2021 19:29:57 +0200
-Message-Id: <20210810173003.873190933@linuxfoundation.org>
+Message-Id: <20210810172949.012649660@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
-References: <20210810173000.928681411@linuxfoundation.org>
+In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
+References: <20210810172948.192298392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,116 +41,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wesley Cheng <wcheng@codeaurora.org>
+From: Wang Hai <wanghai38@huawei.com>
 
-commit d25d85061bd856d6be221626605319154f9b5043 upstream.
+[ Upstream commit 7fe74dfd41c428afb24e2e615470832fa997ff14 ]
 
-The list_for_each_entry_safe() macro saves the current item (n) and
-the item after (n+1), so that n can be safely removed without
-corrupting the list.  However, when traversing the list and removing
-items using gadget giveback, the DWC3 lock is briefly released,
-allowing other routines to execute.  There is a situation where, while
-items are being removed from the cancelled_list using
-dwc3_gadget_ep_cleanup_cancelled_requests(), the pullup disable
-routine is running in parallel (due to UDC unbind).  As the cleanup
-routine removes n, and the pullup disable removes n+1, once the
-cleanup retakes the DWC3 lock, it references a request who was already
-removed/handled.  With list debug enabled, this leads to a panic.
-Ensure all instances of the macro are replaced where gadget giveback
-is used.
+Replace pci_enable_device() with pcim_enable_device(),
+pci_disable_device() and pci_release_regions() will be
+called in release automatically.
 
-Example call stack:
-
-Thread#1:
-__dwc3_gadget_ep_set_halt() - CLEAR HALT
-  -> dwc3_gadget_ep_cleanup_cancelled_requests()
-    ->list_for_each_entry_safe()
-    ->dwc3_gadget_giveback(n)
-      ->dwc3_gadget_del_and_unmap_request()- n deleted[cancelled_list]
-      ->spin_unlock
-      ->Thread#2 executes
-      ...
-    ->dwc3_gadget_giveback(n+1)
-      ->Already removed!
-
-Thread#2:
-dwc3_gadget_pullup()
-  ->waiting for dwc3 spin_lock
-  ...
-  ->Thread#1 released lock
-  ->dwc3_stop_active_transfers()
-    ->dwc3_remove_requests()
-      ->fetches n+1 item from cancelled_list (n removed by Thread#1)
-      ->dwc3_gadget_giveback()
-        ->dwc3_gadget_del_and_unmap_request()- n+1
-deleted[cancelled_list]
-        ->spin_unlock
-
-Fix this condition by utilizing list_replace_init(), and traversing
-through a local copy of the current elements in the endpoint lists.
-This will also set the parent list as empty, so if another thread is
-also looping through the list, it will be empty on the next iteration.
-
-Fixes: d4f1afe5e896 ("usb: dwc3: gadget: move requests to cancelled_list")
-Cc: stable <stable@vger.kernel.org>
-Acked-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Wesley Cheng <wcheng@codeaurora.org>
-Link: https://lore.kernel.org/r/1627543994-20327-1-git-send-email-wcheng@codeaurora.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/gadget.c |   18 ++++++++++++++++--
- 1 file changed, 16 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/natsemi/natsemi.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -1741,9 +1741,13 @@ static void dwc3_gadget_ep_cleanup_cance
- {
- 	struct dwc3_request		*req;
- 	struct dwc3_request		*tmp;
-+	struct list_head		local;
- 	struct dwc3			*dwc = dep->dwc;
+diff --git a/drivers/net/ethernet/natsemi/natsemi.c b/drivers/net/ethernet/natsemi/natsemi.c
+index 1a2634cbbb69..a653502c5d6f 100644
+--- a/drivers/net/ethernet/natsemi/natsemi.c
++++ b/drivers/net/ethernet/natsemi/natsemi.c
+@@ -819,7 +819,7 @@ static int natsemi_probe1(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 		printk(version);
+ #endif
  
--	list_for_each_entry_safe(req, tmp, &dep->cancelled_list, list) {
-+restart:
-+	list_replace_init(&dep->cancelled_list, &local);
-+
-+	list_for_each_entry_safe(req, tmp, &local, list) {
- 		dwc3_gadget_ep_skip_trbs(dep, req);
- 		switch (req->status) {
- 		case DWC3_REQUEST_STATUS_DISCONNECTED:
-@@ -1761,6 +1765,9 @@ static void dwc3_gadget_ep_cleanup_cance
- 			break;
- 		}
+-	i = pci_enable_device(pdev);
++	i = pcim_enable_device(pdev);
+ 	if (i) return i;
+ 
+ 	/* natsemi has a non-standard PM control register
+@@ -852,7 +852,7 @@ static int natsemi_probe1(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	ioaddr = ioremap(iostart, iosize);
+ 	if (!ioaddr) {
+ 		i = -ENOMEM;
+-		goto err_ioremap;
++		goto err_pci_request_regions;
  	}
-+
-+	if (!list_empty(&dep->cancelled_list))
-+		goto restart;
+ 
+ 	/* Work around the dropped serial bit. */
+@@ -974,9 +974,6 @@ static int natsemi_probe1(struct pci_dev *pdev, const struct pci_device_id *ent)
+  err_register_netdev:
+ 	iounmap(ioaddr);
+ 
+- err_ioremap:
+-	pci_release_regions(pdev);
+-
+  err_pci_request_regions:
+ 	free_netdev(dev);
+ 	return i;
+@@ -3242,7 +3239,6 @@ static void natsemi_remove1(struct pci_dev *pdev)
+ 
+ 	NATSEMI_REMOVE_FILE(pdev, dspcfg_workaround);
+ 	unregister_netdev (dev);
+-	pci_release_regions (pdev);
+ 	iounmap(ioaddr);
+ 	free_netdev (dev);
  }
- 
- static int dwc3_gadget_ep_dequeue(struct usb_ep *ep,
-@@ -2945,8 +2952,12 @@ static void dwc3_gadget_ep_cleanup_compl
- {
- 	struct dwc3_request	*req;
- 	struct dwc3_request	*tmp;
-+	struct list_head	local;
- 
--	list_for_each_entry_safe(req, tmp, &dep->started_list, list) {
-+restart:
-+	list_replace_init(&dep->started_list, &local);
-+
-+	list_for_each_entry_safe(req, tmp, &local, list) {
- 		int ret;
- 
- 		ret = dwc3_gadget_ep_cleanup_completed_request(dep, event,
-@@ -2954,6 +2965,9 @@ static void dwc3_gadget_ep_cleanup_compl
- 		if (ret)
- 			break;
- 	}
-+
-+	if (!list_empty(&dep->started_list))
-+		goto restart;
- }
- 
- static bool dwc3_gadget_ep_should_continue(struct dwc3_ep *dep)
+-- 
+2.30.2
+
 
 
