@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 79E5F3E8003
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:45:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7E5A3E817C
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:01:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232558AbhHJRpj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:45:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34420 "EHLO mail.kernel.org"
+        id S231654AbhHJSAB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 14:00:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234985AbhHJRoJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:44:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 362BD610FC;
-        Tue, 10 Aug 2021 17:39:24 +0000 (UTC)
+        id S236726AbhHJR5W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:57:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E4A06139D;
+        Tue, 10 Aug 2021 17:45:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617164;
-        bh=aL/VQwDpDgwc8M6Z3IAq8wEXrwsD5+ryJJ/fgRSQzzk=;
+        s=korg; t=1628617528;
+        bh=W9XTF6OkJnuGwFbAjAdi2UgWQggT2Vvl8WCSX8YxYWY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=viGM5xV4QjYjMVFE8+wgu/uhYpy2bqwRJ5R6B/sGN80FCtHBkcV7tnhciNiJyp4pi
-         Vhtt6TKLL/kXlL6Wj1rv9bd9ri7JwdpBuaLuzYnDwX763lgrenbQAD6akD0tLAe4AN
-         6BPA13xv18s4J4rPczPlG1EkKnegGeYZX+w7WF+4=
+        b=uVrwRtPfBCbVq/Nr/uSu1xfVEQDSJds/iwM53Lu4LyfjTS1ob6NpHi85P5zwwq7mb
+         ljD34ENR7E9fpCibYPbKWkG4QmVaCe+k7iI8S0076u3bgAshR5VeyQmqEqUWCYGJhC
+         pzOJS5SSdoS99wParRl4GfEPsjUUAqx2wUwE50fg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ying Xu <yinxu@redhat.com>,
-        Xin Long <lucien.xin@gmail.com>,
+        stable@vger.kernel.org,
+        Grygorii Strashko <grygorii.strashko@ti.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 039/135] sctp: move the active_key update after sh_keys is added
+Subject: [PATCH 5.13 065/175] net: ethernet: ti: am65-cpsw: fix crash in am65_cpsw_port_offload_fwd_mark_update()
 Date:   Tue, 10 Aug 2021 19:29:33 +0200
-Message-Id: <20210810172957.011233690@linuxfoundation.org>
+Message-Id: <20210810173003.081740849@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
-References: <20210810172955.660225700@linuxfoundation.org>
+In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
+References: <20210810173000.928681411@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,66 +41,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Grygorii Strashko <grygorii.strashko@ti.com>
 
-[ Upstream commit ae954bbc451d267f7d60d7b49db811d5a68ebd7b ]
+[ Upstream commit ae03d189bae306e1e00aa631feee090ebda6cf63 ]
 
-In commit 58acd1009226 ("sctp: update active_key for asoc when old key is
-being replaced"), sctp_auth_asoc_init_active_key() is called to update
-the active_key right after the old key is deleted and before the new key
-is added, and it caused that the active_key could be found with the key_id.
+The am65_cpsw_port_offload_fwd_mark_update() causes NULL exception crash
+when there is at least one disabled port and any other port added to the
+bridge first time.
 
-In Ying Xu's testing, the BUG_ON in sctp_auth_asoc_init_active_key() was
-triggered:
+Unable to handle kernel NULL pointer dereference at virtual address 0000000000000858
+pc : am65_cpsw_port_offload_fwd_mark_update+0x54/0x68
+lr : am65_cpsw_netdevice_event+0x8c/0xf0
+Call trace:
+am65_cpsw_port_offload_fwd_mark_update+0x54/0x68
+notifier_call_chain+0x54/0x98
+raw_notifier_call_chain+0x14/0x20
+call_netdevice_notifiers_info+0x34/0x78
+__netdev_upper_dev_link+0x1c8/0x290
+netdev_master_upper_dev_link+0x1c/0x28
+br_add_if+0x3f0/0x6d0 [bridge]
 
-  [ ] kernel BUG at net/sctp/auth.c:416!
-  [ ] RIP: 0010:sctp_auth_asoc_init_active_key.part.8+0xe7/0xf0 [sctp]
-  [ ] Call Trace:
-  [ ]  sctp_auth_set_key+0x16d/0x1b0 [sctp]
-  [ ]  sctp_setsockopt.part.33+0x1ba9/0x2bd0 [sctp]
-  [ ]  __sys_setsockopt+0xd6/0x1d0
-  [ ]  __x64_sys_setsockopt+0x20/0x30
-  [ ]  do_syscall_64+0x5b/0x1a0
+Fix it by adding proper check for port->ndev != NULL.
 
-So fix it by moving the active_key update after sh_keys is added.
-
-Fixes: 58acd1009226 ("sctp: update active_key for asoc when old key is being replaced")
-Reported-by: Ying Xu <yinxu@redhat.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Fixes: 2934db9bcb30 ("net: ti: am65-cpsw-nuss: Add netdevice notifiers")
+Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/auth.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/ti/am65-cpsw-nuss.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/net/sctp/auth.c b/net/sctp/auth.c
-index fe74c5f95630..db6b7373d16c 100644
---- a/net/sctp/auth.c
-+++ b/net/sctp/auth.c
-@@ -857,14 +857,18 @@ int sctp_auth_set_key(struct sctp_endpoint *ep,
- 	memcpy(key->data, &auth_key->sca_key[0], auth_key->sca_keylength);
- 	cur_key->key = key;
+diff --git a/drivers/net/ethernet/ti/am65-cpsw-nuss.c b/drivers/net/ethernet/ti/am65-cpsw-nuss.c
+index 718539cdd2f2..67a08cbba859 100644
+--- a/drivers/net/ethernet/ti/am65-cpsw-nuss.c
++++ b/drivers/net/ethernet/ti/am65-cpsw-nuss.c
+@@ -2060,8 +2060,12 @@ static void am65_cpsw_port_offload_fwd_mark_update(struct am65_cpsw_common *comm
  
--	if (replace) {
--		list_del_init(&shkey->key_list);
--		sctp_auth_shkey_release(shkey);
--		if (asoc && asoc->active_key_id == auth_key->sca_keynumber)
--			sctp_auth_asoc_init_active_key(asoc, GFP_KERNEL);
-+	if (!replace) {
-+		list_add(&cur_key->key_list, sh_keys);
-+		return 0;
+ 	for (i = 1; i <= common->port_num; i++) {
+ 		struct am65_cpsw_port *port = am65_common_get_port(common, i);
+-		struct am65_cpsw_ndev_priv *priv = am65_ndev_to_priv(port->ndev);
++		struct am65_cpsw_ndev_priv *priv;
+ 
++		if (!port->ndev)
++			continue;
++
++		priv = am65_ndev_to_priv(port->ndev);
+ 		priv->offload_fwd_mark = set_val;
  	}
-+
-+	list_del_init(&shkey->key_list);
-+	sctp_auth_shkey_release(shkey);
- 	list_add(&cur_key->key_list, sh_keys);
- 
-+	if (asoc && asoc->active_key_id == auth_key->sca_keynumber)
-+		sctp_auth_asoc_init_active_key(asoc, GFP_KERNEL);
-+
- 	return 0;
  }
- 
 -- 
 2.30.2
 
