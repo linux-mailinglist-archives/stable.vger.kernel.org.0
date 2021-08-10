@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43BE53E7E8B
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:33:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DF313E8020
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:47:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232496AbhHJReG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:34:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33850 "EHLO mail.kernel.org"
+        id S235167AbhHJRqQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:46:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232684AbhHJRdd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:33:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D5F5F60E09;
-        Tue, 10 Aug 2021 17:33:10 +0000 (UTC)
+        id S235770AbhHJRnf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:43:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 933C860FC4;
+        Tue, 10 Aug 2021 17:39:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616791;
-        bh=c5QJr91Cq9hegu54/BXqVv6t7dfayG9sHQMZGabEY/0=;
+        s=korg; t=1628617149;
+        bh=2Y3Qp3G5mENTpc2REOidP74dQvh1947DMC9bw/PxA+8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LNCOF/KBLlub4zupFQ7g4cPw4MtNDWVhWtIVE5eHarHMphtCWvZ/SFieqAbWJDNgA
-         39pdoWm+ckbkvVkNv2l0rJWqBuzMygvSPIqwTXJQTm1sH+ZAG1YNvloZfymAKmimMK
-         A5JzXWmFjtpJweKnhi9gL+qNkd8MfeLPgZMqRnLQ=
+        b=IUn+tZW7CxcMH5bGR8wQfqGbyTa2o2yVUS06DkuyY7WixTRMFmdCS6Qh/nyao91h/
+         T5gJo0oy8VqPCqZ7vYR0+s4FcgedQksNir61wBcV2z3Gbqo/LpLO/hNNm1994GNwYR
+         LKBuvVh6Ut7mIREAzYKWkCvHj05MlSSm4ihulT58=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "chihhao.chen" <chihhao.chen@mediatek.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 05/54] ALSA: usb-audio: fix incorrect clock source setting
+        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
+        Zhang Qilong <zhangqilong3@huawei.com>
+Subject: [PATCH 5.10 065/135] usb: gadget: remove leaked entry from udc driver list
 Date:   Tue, 10 Aug 2021 19:29:59 +0200
-Message-Id: <20210810172944.361060265@linuxfoundation.org>
+Message-Id: <20210810172957.908475868@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172944.179901509@linuxfoundation.org>
-References: <20210810172944.179901509@linuxfoundation.org>
+In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
+References: <20210810172955.660225700@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,62 +39,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: chihhao.chen <chihhao.chen@mediatek.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit 4511781f95da0a3b2bad34f3f5e3967e80cd2d18 ]
+commit fa4a8dcfd51b911f101ebc461dfe22230b74dd64 upstream.
 
-The following scenario describes an echo test for
-Samsung USBC Headset (AKG) with VID/PID (0x04e8/0xa051).
+The usb_add_gadget_udc will add a new gadget to the udc class
+driver list. Not calling usb_del_gadget_udc in error branch
+will result in residual gadget entry in the udc driver list.
+We fix it by calling usb_del_gadget_udc to clean it when error
+return.
 
-We first start a capture stream(USB IN transfer) in 96Khz/24bit/1ch mode.
-In clock find source function, we get value 0x2 for clock selector
-and 0x1 for clock source.
-
-Kernel-4.14 behavior
-Since clock source is valid so clock selector was not set again.
-We pass through this function and start a playback stream(USB OUT transfer)
-in 48Khz/32bit/2ch mode. This time we get value 0x1 for clock selector
-and 0x1 for clock source. Finally clock id with this setting is 0x9.
-
-Kernel-5.10 behavior
-Clock selector was always set one more time even it is valid.
-When we start a playback stream, we will get 0x2 for clock selector
-and 0x1 for clock source. In this case clock id becomes 0xA.
-This is an incorrect clock source setting and results in severe noises.
-We see wrong data rate in USB IN transfer.
-(From 288 bytes/ms becomes 144 bytes/ms) It should keep in 288 bytes/ms.
-
-This earphone works fine on older kernel version load because
-this is a newly-added behavior.
-
-Fixes: d2e8f641257d ("ALSA: usb-audio: Explicitly set up the clock selector")
-Signed-off-by: chihhao.chen <chihhao.chen@mediatek.com>
-Link: https://lore.kernel.org/r/1627100621-19225-1-git-send-email-chihhao.chen@mediatek.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 48ba02b2e2b1 ("usb: gadget: add udc driver for max3420")
+Acked-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Link: https://lore.kernel.org/r/20210727073142.84666-1-zhangqilong3@huawei.com
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/clock.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/usb/gadget/udc/max3420_udc.c |   14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/sound/usb/clock.c b/sound/usb/clock.c
-index 863ac42076e5..d1455fb2c6fc 100644
---- a/sound/usb/clock.c
-+++ b/sound/usb/clock.c
-@@ -296,6 +296,12 @@ static int __uac_clock_find_source(struct snd_usb_audio *chip,
- 					      selector->baCSourceID[ret - 1],
- 					      visited, validate);
- 		if (ret > 0) {
-+			/*
-+			 * For Samsung USBC Headset (AKG), setting clock selector again
-+			 * will result in incorrect default clock setting problems
-+			 */
-+			if (chip->usb_id == USB_ID(0x04e8, 0xa051))
-+				return ret;
- 			err = uac_clock_selector_set_val(chip, entity_id, cur);
- 			if (err < 0)
- 				return err;
--- 
-2.30.2
-
+--- a/drivers/usb/gadget/udc/max3420_udc.c
++++ b/drivers/usb/gadget/udc/max3420_udc.c
+@@ -1260,12 +1260,14 @@ static int max3420_probe(struct spi_devi
+ 	err = devm_request_irq(&spi->dev, irq, max3420_irq_handler, 0,
+ 			       "max3420", udc);
+ 	if (err < 0)
+-		return err;
++		goto del_gadget;
+ 
+ 	udc->thread_task = kthread_create(max3420_thread, udc,
+ 					  "max3420-thread");
+-	if (IS_ERR(udc->thread_task))
+-		return PTR_ERR(udc->thread_task);
++	if (IS_ERR(udc->thread_task)) {
++		err = PTR_ERR(udc->thread_task);
++		goto del_gadget;
++	}
+ 
+ 	irq = of_irq_get_byname(spi->dev.of_node, "vbus");
+ 	if (irq <= 0) { /* no vbus irq implies self-powered design */
+@@ -1285,10 +1287,14 @@ static int max3420_probe(struct spi_devi
+ 		err = devm_request_irq(&spi->dev, irq,
+ 				       max3420_vbus_handler, 0, "vbus", udc);
+ 		if (err < 0)
+-			return err;
++			goto del_gadget;
+ 	}
+ 
+ 	return 0;
++
++del_gadget:
++	usb_del_gadget_udc(&udc->gadget);
++	return err;
+ }
+ 
+ static int max3420_remove(struct spi_device *spi)
 
 
