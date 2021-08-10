@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 767AB3E820D
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:06:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD8343E820F
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:06:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235495AbhHJSFe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 14:05:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39398 "EHLO mail.kernel.org"
+        id S235579AbhHJSFf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 14:05:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236779AbhHJSDT (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236396AbhHJSDT (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 10 Aug 2021 14:03:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 220FF61251;
-        Tue, 10 Aug 2021 17:47:43 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5795A613D0;
+        Tue, 10 Aug 2021 17:47:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617664;
-        bh=Wxvvm94BJFdhmcnx0FizZHyBx0eUN7fIOrXYHStTKQc=;
+        s=korg; t=1628617666;
+        bh=FDWxW4OiFQUYwUrZcCCcVNylBIGPVM7fgBxvDxPhMSc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VhDuCt+VRDJrddPcE/9RqxToTLEQqoF/Dd5z6sua6KjAHdglO+bZC7HTZQZGLBSps
-         +oX5NBdkRCVk06d7KHcJTqfae5NQZ1DwjebyXj0iDZ3jvZArTbIZ3c1uo3TDHpM61L
-         ct7zPJ6mI2CF2hbtSBh3TJe48o7laNgQTMVlsHoE=
+        b=2IJgpR47tokK+HEPmllr7fHs1ScrSWYPD8SlQpdOgMIfal+jdzRPOYfEBhGDhtKny
+         BO+/c56SCkIA56hLtnBY52hQMhksMZCjOLQX8l71gY1e2oVYfPYc9UpibbjeLJTHF5
+         FpFKgoUABOuHTiDLyKUzpux39qqitE2LNorFJMNk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Mike Tipton <mdtipton@codeaurora.org>,
         Georgi Djakov <djakov@kernel.org>
-Subject: [PATCH 5.13 158/175] interconnect: qcom: icc-rpmh: Ensure floor BW is enforced for all nodes
-Date:   Tue, 10 Aug 2021 19:31:06 +0200
-Message-Id: <20210810173006.171793648@linuxfoundation.org>
+Subject: [PATCH 5.13 159/175] interconnect: qcom: icc-rpmh: Add BCMs to commit list in pre_aggregate
+Date:   Tue, 10 Aug 2021 19:31:07 +0200
+Message-Id: <20210810173006.202673615@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
 References: <20210810173000.928681411@linuxfoundation.org>
@@ -41,62 +41,68 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mike Tipton <mdtipton@codeaurora.org>
 
-commit ce5a595744126be4f1327e29e3c5ae9aac6b38d5 upstream.
+commit f84f5b6f72e68bbaeb850b58ac167e4a3a47532a upstream.
 
-We currently only enforce BW floors for a subset of nodes in a path.
-All BCMs that need updating are queued in the pre_aggregate/aggregate
-phase. The first set() commits all queued BCMs and subsequent set()
-calls short-circuit without committing anything. Since the floor BW
-isn't set in sum_avg/max_peak until set(), then some BCMs are committed
-before their associated nodes reflect the floor.
+We're only adding BCMs to the commit list in aggregate(), but there are
+cases where pre_aggregate() is called without subsequently calling
+aggregate(). In particular, in icc_sync_state() when a node with initial
+BW has zero requests. Since BCMs aren't added to the commit list in
+these cases, we don't actually send the zero BW request to HW. So the
+resources remain on unnecessarily.
 
-Set the floor as each node is being aggregated. This ensures that all
-all relevant floors are set before the BCMs are committed.
+Add BCMs to the commit list in pre_aggregate() instead, which is always
+called even when there are no requests.
 
-Fixes: 266cd33b5913 ("interconnect: qcom: Ensure that the floor bandwidth value is enforced")
+Fixes: 976daac4a1c5 ("interconnect: qcom: Consolidate interconnect RPMh support")
 Signed-off-by: Mike Tipton <mdtipton@codeaurora.org>
-Link: https://lore.kernel.org/r/20210721175432.2119-4-mdtipton@codeaurora.org
-[georgi: Removed unused variable]
+Link: https://lore.kernel.org/r/20210721175432.2119-5-mdtipton@codeaurora.org
 Signed-off-by: Georgi Djakov <djakov@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/interconnect/qcom/icc-rpmh.c |   12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
+ drivers/interconnect/qcom/icc-rpmh.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
 --- a/drivers/interconnect/qcom/icc-rpmh.c
 +++ b/drivers/interconnect/qcom/icc-rpmh.c
-@@ -57,6 +57,11 @@ int qcom_icc_aggregate(struct icc_node *
- 			qn->sum_avg[i] += avg_bw;
- 			qn->max_peak[i] = max_t(u32, qn->max_peak[i], peak_bw);
- 		}
-+
-+		if (node->init_avg || node->init_peak) {
-+			qn->sum_avg[i] = max_t(u64, qn->sum_avg[i], node->init_avg);
-+			qn->max_peak[i] = max_t(u64, qn->max_peak[i], node->init_peak);
-+		}
- 	}
- 
- 	*agg_avg += avg_bw;
-@@ -79,7 +84,6 @@ EXPORT_SYMBOL_GPL(qcom_icc_aggregate);
- int qcom_icc_set(struct icc_node *src, struct icc_node *dst)
+@@ -20,13 +20,18 @@ void qcom_icc_pre_aggregate(struct icc_n
  {
- 	struct qcom_icc_provider *qp;
--	struct qcom_icc_node *qn;
- 	struct icc_node *node;
+ 	size_t i;
+ 	struct qcom_icc_node *qn;
++	struct qcom_icc_provider *qp;
  
- 	if (!src)
-@@ -88,12 +92,6 @@ int qcom_icc_set(struct icc_node *src, s
- 		node = src;
+ 	qn = node->data;
++	qp = to_qcom_provider(node->provider);
  
- 	qp = to_qcom_provider(node->provider);
--	qn = node->data;
+ 	for (i = 0; i < QCOM_ICC_NUM_BUCKETS; i++) {
+ 		qn->sum_avg[i] = 0;
+ 		qn->max_peak[i] = 0;
+ 	}
++
++	for (i = 0; i < qn->num_bcms; i++)
++		qcom_icc_bcm_voter_add(qp->voter, qn->bcms[i]);
+ }
+ EXPORT_SYMBOL_GPL(qcom_icc_pre_aggregate);
+ 
+@@ -44,10 +49,8 @@ int qcom_icc_aggregate(struct icc_node *
+ {
+ 	size_t i;
+ 	struct qcom_icc_node *qn;
+-	struct qcom_icc_provider *qp;
+ 
+ 	qn = node->data;
+-	qp = to_qcom_provider(node->provider);
+ 
+ 	if (!tag)
+ 		tag = QCOM_ICC_TAG_ALWAYS;
+@@ -67,9 +70,6 @@ int qcom_icc_aggregate(struct icc_node *
+ 	*agg_avg += avg_bw;
+ 	*agg_peak = max_t(u32, *agg_peak, peak_bw);
+ 
+-	for (i = 0; i < qn->num_bcms; i++)
+-		qcom_icc_bcm_voter_add(qp->voter, qn->bcms[i]);
 -
--	qn->sum_avg[QCOM_ICC_BUCKET_AMC] = max_t(u64, qn->sum_avg[QCOM_ICC_BUCKET_AMC],
--						 node->avg_bw);
--	qn->max_peak[QCOM_ICC_BUCKET_AMC] = max_t(u64, qn->max_peak[QCOM_ICC_BUCKET_AMC],
--						  node->peak_bw);
- 
- 	qcom_icc_bcm_voter_commit(qp->voter);
- 
+ 	return 0;
+ }
+ EXPORT_SYMBOL_GPL(qcom_icc_aggregate);
 
 
