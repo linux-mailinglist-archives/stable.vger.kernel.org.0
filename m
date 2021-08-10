@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 235E33E7F61
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:41:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B3A33E8081
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:50:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233968AbhHJRkR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:40:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38896 "EHLO mail.kernel.org"
+        id S233165AbhHJRuo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:50:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234729AbhHJRhx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:37:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4DB6C61186;
-        Tue, 10 Aug 2021 17:36:17 +0000 (UTC)
+        id S234555AbhHJRrZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:47:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F8AA6023E;
+        Tue, 10 Aug 2021 17:40:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616977;
-        bh=TSSu0j/Y42OwHoJ9tyDjSyyjc/nHSELfyyCW/jHTfD0=;
+        s=korg; t=1628617258;
+        bh=HPpoJHqEyQFFQr1mBXEm3NQEDkewRfD81StpTolw5KU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n5R+L0qyuV9qmk3bVesa323DiyN3qCOYSLfbri6uh5ZYTb0XqTKzD9kZxInodzkaD
-         5c2BFr417KzpRQqvDwNjigihC/0ZUwvAIciTNC2KV6ZccqS2CY80K39SmE8WHupNQZ
-         1bTTfoRbMsiKsOmkjTD8FNZbjCAqfu5e/FymSsZs=
+        b=alcGB6UVtGXCEyxHhb3t4ckKj2FdSRfJh7CaIaqZmgTRup7GRRy64JCv4Sz3itnbE
+         OFhiemf9NzTZ13b9rHQP/eCLs1VF+un6imG5QA56OWh62Q6ZzNN7cubcfgwwepRSO4
+         DoaFdjz2z00jNMocLeIzJexM06uV0B/tjyb/Y1V4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 5.4 76/85] soc: ixp4xx/qmgr: fix invalid __iomem access
-Date:   Tue, 10 Aug 2021 19:30:49 +0200
-Message-Id: <20210810172950.803063610@linuxfoundation.org>
+        stable@vger.kernel.org, Dongliang Mu <mudongliangabcd@gmail.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.10 116/135] spi: meson-spicc: fix memory leak in meson_spicc_remove
+Date:   Tue, 10 Aug 2021 19:30:50 +0200
+Message-Id: <20210810172959.734172948@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
-References: <20210810172948.192298392@linuxfoundation.org>
+In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
+References: <20210810172955.660225700@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,60 +39,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-commit a8eee86317f11e97990d755d4615c1c0db203d08 upstream.
+commit 8311ee2164c5cd1b63a601ea366f540eae89f10e upstream.
 
-Sparse reports a compile time warning when dereferencing an
-__iomem pointer:
+In meson_spicc_probe, the error handling code needs to clean up master
+by calling spi_master_put, but the remove function does not have this
+function call. This will lead to memory leak of spicc->master.
 
-drivers/soc/ixp4xx/ixp4xx-qmgr.c:149:37: warning: dereference of noderef expression
-drivers/soc/ixp4xx/ixp4xx-qmgr.c:153:40: warning: dereference of noderef expression
-drivers/soc/ixp4xx/ixp4xx-qmgr.c:154:40: warning: dereference of noderef expression
-drivers/soc/ixp4xx/ixp4xx-qmgr.c:174:38: warning: dereference of noderef expression
-drivers/soc/ixp4xx/ixp4xx-qmgr.c:174:44: warning: dereference of noderef expression
-
-Use __raw_readl() here for consistency with the rest of the file.
-This should really get converted to some proper accessor, as the
-__raw functions are not meant to be used in drivers, but the driver
-has used these since the start, so for the moment, let's only fix
-the warning.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Fixes: d4c9e9fc9751 ("IXP42x: Add QMgr support for IXP425 rev. A0 processors.")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reported-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Fixes: 454fa271bc4e("spi: Add Meson SPICC driver")
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Link: https://lore.kernel.org/r/20210720100116.1438974-1-mudongliangabcd@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/soc/ixp4xx/ixp4xx-qmgr.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/spi/spi-meson-spicc.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/soc/ixp4xx/ixp4xx-qmgr.c
-+++ b/drivers/soc/ixp4xx/ixp4xx-qmgr.c
-@@ -145,12 +145,12 @@ static irqreturn_t qmgr_irq1_a0(int irq,
- 	/* ACK - it may clear any bits so don't rely on it */
- 	__raw_writel(0xFFFFFFFF, &qmgr_regs->irqstat[0]);
+--- a/drivers/spi/spi-meson-spicc.c
++++ b/drivers/spi/spi-meson-spicc.c
+@@ -785,6 +785,8 @@ static int meson_spicc_remove(struct pla
+ 	clk_disable_unprepare(spicc->core);
+ 	clk_disable_unprepare(spicc->pclk);
  
--	en_bitmap = qmgr_regs->irqen[0];
-+	en_bitmap = __raw_readl(&qmgr_regs->irqen[0]);
- 	while (en_bitmap) {
- 		i = __fls(en_bitmap); /* number of the last "low" queue */
- 		en_bitmap &= ~BIT(i);
--		src = qmgr_regs->irqsrc[i >> 3];
--		stat = qmgr_regs->stat1[i >> 3];
-+		src = __raw_readl(&qmgr_regs->irqsrc[i >> 3]);
-+		stat = __raw_readl(&qmgr_regs->stat1[i >> 3]);
- 		if (src & 4) /* the IRQ condition is inverted */
- 			stat = ~stat;
- 		if (stat & BIT(src & 3)) {
-@@ -170,7 +170,8 @@ static irqreturn_t qmgr_irq2_a0(int irq,
- 	/* ACK - it may clear any bits so don't rely on it */
- 	__raw_writel(0xFFFFFFFF, &qmgr_regs->irqstat[1]);
++	spi_master_put(spicc->master);
++
+ 	return 0;
+ }
  
--	req_bitmap = qmgr_regs->irqen[1] & qmgr_regs->statne_h;
-+	req_bitmap = __raw_readl(&qmgr_regs->irqen[1]) &
-+		     __raw_readl(&qmgr_regs->statne_h);
- 	while (req_bitmap) {
- 		i = __fls(req_bitmap); /* number of the last "high" queue */
- 		req_bitmap &= ~BIT(i);
 
 
