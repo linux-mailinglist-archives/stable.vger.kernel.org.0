@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 597543E80AC
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:51:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EFD973E80AF
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:51:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233218AbhHJRvV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:51:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60058 "EHLO mail.kernel.org"
+        id S232553AbhHJRv1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:51:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237114AbhHJRuE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:50:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D68F961246;
-        Tue, 10 Aug 2021 17:42:12 +0000 (UTC)
+        id S237170AbhHJRuG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:50:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 19E3561265;
+        Tue, 10 Aug 2021 17:42:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617333;
-        bh=XPIPr8HMYWDQSJ38I9bk1STF7YY6ywUD2T1o7vn+VuI=;
+        s=korg; t=1628617335;
+        bh=gOkdzqlXmzCC3lO9OQdUP0C4VRHjUc7I0Qzq2DdPVOY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yFfNbCTWL+GBd0W/SmFvK3PJJTuE3SedqGJa/iHFqasNWtlUjEUYgCsq3Fy4aj2F9
-         8sPHP7ZXX2+BRFA09klvz4ixmqa3mVgOOmxrOoJkXQ3KDMAi30As2tUuKO0ooQGkWz
-         zKy7wa9zK6hczr2TJCIqvTMa4DFxtC/uRhe8jmKk=
+        b=Wi9VkP9Dq6pOVFZ3P/fONtF60XOiK3/ZSuca+zYTRFt+QS6Q6nhfrffVq/7uqi4Y3
+         lRtn0NCd2obWdG16Hxrp9RjCsX5MFvGzeFGRrZUvABeWVSPmjhoUq9wsRYpbH4NSG2
+         qwIrOm13tdMRtY3tL5tl/oYr/18kwzIatqtw2ql4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Jiang <dave.jiang@intel.com>,
+        stable@vger.kernel.org,
+        Konstantin Ananyev <konstantin.ananyev@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>,
         Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 013/175] dmaengine: idxd: fix sequence for pci driver remove() and shutdown()
-Date:   Tue, 10 Aug 2021 19:28:41 +0200
-Message-Id: <20210810173001.383847801@linuxfoundation.org>
+Subject: [PATCH 5.13 014/175] dmaengine: idxd: fix submission race window
+Date:   Tue, 10 Aug 2021 19:28:42 +0200
+Message-Id: <20210810173001.414177213@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
 References: <20210810173000.928681411@linuxfoundation.org>
@@ -41,96 +43,242 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dave Jiang <dave.jiang@intel.com>
 
-[ Upstream commit 7eb25da161befbc9a80e94e1bd90d6c06aa645cf ]
+[ Upstream commit 6b4b87f2c31ac1af4f244990a7cbfb50d3f3e33f ]
 
-->shutdown() call should only be responsible for quiescing the device.
-Currently it is doing PCI device tear down. This causes issue when things
-like MMIO mapping is removed while idxd_unregister_devices() will trigger
-removal of idxd device sub-driver and still initiates MMIO writes to the
-device. Another issue is with the unregistering of idxd 'struct device',
-the memory context gets freed. So the teardown calls are accessing freed
-memory and can cause kernel oops. Move all the teardown bits that doesn't
-belong in shutdown to ->remove() call. Move unregistering of the idxd
-conf_dev 'struct device' to after doing all the teardown to free all
-the memory that's no longer needed.
+Konstantin observed that when descriptors are submitted, the descriptor is
+added to the pending list after the submission. This creates a race window
+with the slight possibility that the descriptor can complete before it
+gets added to the pending list and this window would cause the completion
+handler to miss processing the descriptor.
 
-Fixes: 47c16ac27d4c ("dmaengine: idxd: fix idxd conf_dev 'struct device' lifetime")
+To address the issue, the addition of the descriptor to the pending list
+must be done before it gets submitted to the hardware. However, submitting
+to swq with ENQCMDS instruction can cause a failure with the condition of
+either wq is full or wq is not "active".
+
+With the descriptor allocation being the gate to the wq capacity, it is not
+possible to hit a retry with ENQCMDS submission to the swq. The only
+possible failure can happen is when wq is no longer "active" due to hw
+error and therefore we are moving towards taking down the portal. Given
+this is a rare condition and there's no longer concern over I/O
+performance, the driver can walk the completion lists in order to retrieve
+and abort the descriptor.
+
+The error path will set the descriptor to aborted status. It will take the
+work list lock to prevent further processing of worklist. It will do a
+delete_all on the pending llist to retrieve all descriptors on the pending
+llist. The delete_all action does not require a lock. It will walk through
+the acquired llist to find the aborted descriptor while add all remaining
+descriptors to the work list since it holds the lock. If it does not find
+the aborted descriptor on the llist, it will walk through the work
+list. And if it still does not find the descriptor, then it means the
+interrupt handler has removed the desc from the llist but is pending on
+the work list lock and will process it once the error path releases the
+lock.
+
+Fixes: eb15e7154fbf ("dmaengine: idxd: add interrupt handle request and release support")
+Reported-by: Konstantin Ananyev <konstantin.ananyev@intel.com>
 Signed-off-by: Dave Jiang <dave.jiang@intel.com>
-Link: https://lore.kernel.org/r/162629983901.395844.17964803190905549615.stgit@djiang5-desk3.ch.intel.com
+Link: https://lore.kernel.org/r/162628855747.360485.10101925573082466530.stgit@djiang5-desk3.ch.intel.com
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/idxd/init.c  | 26 +++++++++++++++++---------
- drivers/dma/idxd/sysfs.c |  2 --
- 2 files changed, 17 insertions(+), 11 deletions(-)
+ drivers/dma/idxd/idxd.h   | 14 +++++++
+ drivers/dma/idxd/irq.c    | 27 +++++++++-----
+ drivers/dma/idxd/submit.c | 78 ++++++++++++++++++++++++++++++++++-----
+ 3 files changed, 101 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/dma/idxd/init.c b/drivers/dma/idxd/init.c
-index 4bc80eb6b9e7..32cca6a0e66a 100644
---- a/drivers/dma/idxd/init.c
-+++ b/drivers/dma/idxd/init.c
-@@ -759,32 +759,40 @@ static void idxd_shutdown(struct pci_dev *pdev)
- 	for (i = 0; i < msixcnt; i++) {
- 		irq_entry = &idxd->irq_entries[i];
- 		synchronize_irq(irq_entry->vector);
--		free_irq(irq_entry->vector, irq_entry);
- 		if (i == 0)
- 			continue;
- 		idxd_flush_pending_llist(irq_entry);
- 		idxd_flush_work_list(irq_entry);
- 	}
--
--	idxd_msix_perm_clear(idxd);
--	idxd_release_int_handles(idxd);
--	pci_free_irq_vectors(pdev);
--	pci_iounmap(pdev, idxd->reg_base);
--	pci_disable_device(pdev);
--	destroy_workqueue(idxd->wq);
-+	flush_workqueue(idxd->wq);
- }
+diff --git a/drivers/dma/idxd/idxd.h b/drivers/dma/idxd/idxd.h
+index 26482c7d4c3a..fc708be7ad9a 100644
+--- a/drivers/dma/idxd/idxd.h
++++ b/drivers/dma/idxd/idxd.h
+@@ -294,6 +294,14 @@ struct idxd_desc {
+ 	struct idxd_wq *wq;
+ };
  
- static void idxd_remove(struct pci_dev *pdev)
- {
- 	struct idxd_device *idxd = pci_get_drvdata(pdev);
-+	struct idxd_irq_entry *irq_entry;
-+	int msixcnt = pci_msix_vec_count(pdev);
-+	int i;
- 
- 	dev_dbg(&pdev->dev, "%s called\n", __func__);
- 	idxd_shutdown(pdev);
- 	if (device_pasid_enabled(idxd))
- 		idxd_disable_system_pasid(idxd);
- 	idxd_unregister_devices(idxd);
--	perfmon_pmu_remove(idxd);
++/*
++ * This is software defined error for the completion status. We overload the error code
++ * that will never appear in completion status and only SWERR register.
++ */
++enum idxd_completion_status {
++	IDXD_COMP_DESC_ABORT = 0xff,
++};
 +
-+	for (i = 0; i < msixcnt; i++) {
-+		irq_entry = &idxd->irq_entries[i];
-+		free_irq(irq_entry->vector, irq_entry);
-+	}
-+	idxd_msix_perm_clear(idxd);
-+	idxd_release_int_handles(idxd);
-+	pci_free_irq_vectors(pdev);
-+	pci_iounmap(pdev, idxd->reg_base);
- 	iommu_dev_disable_feature(&pdev->dev, IOMMU_DEV_FEAT_SVA);
-+	pci_disable_device(pdev);
-+	destroy_workqueue(idxd->wq);
-+	perfmon_pmu_remove(idxd);
-+	device_unregister(&idxd->conf_dev);
+ #define confdev_to_idxd(dev) container_of(dev, struct idxd_device, conf_dev)
+ #define confdev_to_wq(dev) container_of(dev, struct idxd_wq, conf_dev)
+ 
+@@ -482,4 +490,10 @@ static inline void perfmon_init(void) {}
+ static inline void perfmon_exit(void) {}
+ #endif
+ 
++static inline void complete_desc(struct idxd_desc *desc, enum idxd_complete_type reason)
++{
++	idxd_dma_complete_txd(desc, reason);
++	idxd_free_desc(desc->wq, desc);
++}
++
+ #endif
+diff --git a/drivers/dma/idxd/irq.c b/drivers/dma/idxd/irq.c
+index ae68e1e5487a..4e3a7198c0ca 100644
+--- a/drivers/dma/idxd/irq.c
++++ b/drivers/dma/idxd/irq.c
+@@ -245,12 +245,6 @@ static inline bool match_fault(struct idxd_desc *desc, u64 fault_addr)
+ 	return false;
  }
  
- static struct pci_driver idxd_pci_driver = {
-diff --git a/drivers/dma/idxd/sysfs.c b/drivers/dma/idxd/sysfs.c
-index 0460d58e3941..bb4df63906a7 100644
---- a/drivers/dma/idxd/sysfs.c
-+++ b/drivers/dma/idxd/sysfs.c
-@@ -1744,8 +1744,6 @@ void idxd_unregister_devices(struct idxd_device *idxd)
- 
- 		device_unregister(&group->conf_dev);
- 	}
+-static inline void complete_desc(struct idxd_desc *desc, enum idxd_complete_type reason)
+-{
+-	idxd_dma_complete_txd(desc, reason);
+-	idxd_free_desc(desc->wq, desc);
+-}
 -
--	device_unregister(&idxd->conf_dev);
+ static int irq_process_pending_llist(struct idxd_irq_entry *irq_entry,
+ 				     enum irq_work_type wtype,
+ 				     int *processed, u64 data)
+@@ -272,8 +266,16 @@ static int irq_process_pending_llist(struct idxd_irq_entry *irq_entry,
+ 		reason = IDXD_COMPLETE_DEV_FAIL;
+ 
+ 	llist_for_each_entry_safe(desc, t, head, llnode) {
+-		if (desc->completion->status) {
+-			if ((desc->completion->status & DSA_COMP_STATUS_MASK) != DSA_COMP_SUCCESS)
++		u8 status = desc->completion->status & DSA_COMP_STATUS_MASK;
++
++		if (status) {
++			if (unlikely(status == IDXD_COMP_DESC_ABORT)) {
++				complete_desc(desc, IDXD_COMPLETE_ABORT);
++				(*processed)++;
++				continue;
++			}
++
++			if (unlikely(status != DSA_COMP_SUCCESS))
+ 				match_fault(desc, data);
+ 			complete_desc(desc, reason);
+ 			(*processed)++;
+@@ -329,7 +331,14 @@ static int irq_process_work_list(struct idxd_irq_entry *irq_entry,
+ 	spin_unlock_irqrestore(&irq_entry->list_lock, flags);
+ 
+ 	list_for_each_entry(desc, &flist, list) {
+-		if ((desc->completion->status & DSA_COMP_STATUS_MASK) != DSA_COMP_SUCCESS)
++		u8 status = desc->completion->status & DSA_COMP_STATUS_MASK;
++
++		if (unlikely(status == IDXD_COMP_DESC_ABORT)) {
++			complete_desc(desc, IDXD_COMPLETE_ABORT);
++			continue;
++		}
++
++		if (unlikely(status != DSA_COMP_SUCCESS))
+ 			match_fault(desc, data);
+ 		complete_desc(desc, reason);
+ 	}
+diff --git a/drivers/dma/idxd/submit.c b/drivers/dma/idxd/submit.c
+index 21d7d09f73dd..36c9c1a89b7e 100644
+--- a/drivers/dma/idxd/submit.c
++++ b/drivers/dma/idxd/submit.c
+@@ -87,9 +87,64 @@ void idxd_free_desc(struct idxd_wq *wq, struct idxd_desc *desc)
+ 	sbitmap_queue_clear(&wq->sbq, desc->id, cpu);
  }
  
- int idxd_register_bus_type(void)
++static struct idxd_desc *list_abort_desc(struct idxd_wq *wq, struct idxd_irq_entry *ie,
++					 struct idxd_desc *desc)
++{
++	struct idxd_desc *d, *n;
++
++	lockdep_assert_held(&ie->list_lock);
++	list_for_each_entry_safe(d, n, &ie->work_list, list) {
++		if (d == desc) {
++			list_del(&d->list);
++			return d;
++		}
++	}
++
++	/*
++	 * At this point, the desc needs to be aborted is held by the completion
++	 * handler where it has taken it off the pending list but has not added to the
++	 * work list. It will be cleaned up by the interrupt handler when it sees the
++	 * IDXD_COMP_DESC_ABORT for completion status.
++	 */
++	return NULL;
++}
++
++static void llist_abort_desc(struct idxd_wq *wq, struct idxd_irq_entry *ie,
++			     struct idxd_desc *desc)
++{
++	struct idxd_desc *d, *t, *found = NULL;
++	struct llist_node *head;
++	unsigned long flags;
++
++	desc->completion->status = IDXD_COMP_DESC_ABORT;
++	/*
++	 * Grab the list lock so it will block the irq thread handler. This allows the
++	 * abort code to locate the descriptor need to be aborted.
++	 */
++	spin_lock_irqsave(&ie->list_lock, flags);
++	head = llist_del_all(&ie->pending_llist);
++	if (head) {
++		llist_for_each_entry_safe(d, t, head, llnode) {
++			if (d == desc) {
++				found = desc;
++				continue;
++			}
++			list_add_tail(&desc->list, &ie->work_list);
++		}
++	}
++
++	if (!found)
++		found = list_abort_desc(wq, ie, desc);
++	spin_unlock_irqrestore(&ie->list_lock, flags);
++
++	if (found)
++		complete_desc(found, IDXD_COMPLETE_ABORT);
++}
++
+ int idxd_submit_desc(struct idxd_wq *wq, struct idxd_desc *desc)
+ {
+ 	struct idxd_device *idxd = wq->idxd;
++	struct idxd_irq_entry *ie = NULL;
+ 	void __iomem *portal;
+ 	int rc;
+ 
+@@ -107,6 +162,16 @@ int idxd_submit_desc(struct idxd_wq *wq, struct idxd_desc *desc)
+ 	 * even on UP because the recipient is a device.
+ 	 */
+ 	wmb();
++
++	/*
++	 * Pending the descriptor to the lockless list for the irq_entry
++	 * that we designated the descriptor to.
++	 */
++	if (desc->hw->flags & IDXD_OP_FLAG_RCI) {
++		ie = &idxd->irq_entries[desc->vector];
++		llist_add(&desc->llnode, &ie->pending_llist);
++	}
++
+ 	if (wq_dedicated(wq)) {
+ 		iosubmit_cmds512(portal, desc->hw, 1);
+ 	} else {
+@@ -117,18 +182,13 @@ int idxd_submit_desc(struct idxd_wq *wq, struct idxd_desc *desc)
+ 		 * device is not accepting descriptor at all.
+ 		 */
+ 		rc = enqcmds(portal, desc->hw);
+-		if (rc < 0)
++		if (rc < 0) {
++			if (ie)
++				llist_abort_desc(wq, ie, desc);
+ 			return rc;
++		}
+ 	}
+ 
+ 	percpu_ref_put(&wq->wq_active);
+-
+-	/*
+-	 * Pending the descriptor to the lockless list for the irq_entry
+-	 * that we designated the descriptor to.
+-	 */
+-	if (desc->hw->flags & IDXD_OP_FLAG_RCI)
+-		llist_add(&desc->llnode, &idxd->irq_entries[desc->vector].pending_llist);
+-
+ 	return 0;
+ }
 -- 
 2.30.2
 
