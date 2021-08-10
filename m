@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE7FD3E80A1
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:51:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C74B73E7F5F
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:41:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234538AbhHJRvH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:51:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56806 "EHLO mail.kernel.org"
+        id S233885AbhHJRkO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:40:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236729AbhHJRtl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:49:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 18FDD60F41;
-        Tue, 10 Aug 2021 17:41:49 +0000 (UTC)
+        id S233916AbhHJRhi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:37:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 915CA60EFF;
+        Tue, 10 Aug 2021 17:36:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617310;
-        bh=UeWpIGpq0ks8S0l+zELOLMtiSddnd/l60JkQfAIeuHI=;
+        s=korg; t=1628616971;
+        bh=PwZClTvaiwbfWB9VTjdQlxGQx2dtLcP/B4wlpzXVslI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=12Djr387BtsOFjY8xIXZ0Vby2mjpsj7nM5BcsGec1xv79f5qX77lhohNPgjEWP6ox
-         PWxoW2/gJdNezBygStfAbw98c2TAbu7W4QE/pUkr4zdPMbCbQ2ZQ8mDtxAcVb55i7+
-         KRiNN/ivNkrLP6q/QfYMhFlf/1G+VWJ5vCbKu1g4=
+        b=Hn2KLwuf0SsUuh7MGad/u1ne5fHxM5jsZ8ZsIHO1vnqMI0KGhWfANvegtFiE0L10X
+         F0LpIyf9UmV48yruwQ+gdEFHVuPZ1g283KqKuiaWq4erNozBeTOVsbfUSI11WfqzfL
+         d7Ets0sJSPFi9kWirZmYh7lEtP+5hBRjMzvIQXvQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.10 111/135] KVM: Do not leak memory for duplicate debugfs directories
-Date:   Tue, 10 Aug 2021 19:30:45 +0200
-Message-Id: <20210810172959.554171254@linuxfoundation.org>
+        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Chanho Park <chanho61.park@samsung.com>
+Subject: [PATCH 5.4 73/85] arm64: vdso: Avoid ISB after reading from cntvct_el0
+Date:   Tue, 10 Aug 2021 19:30:46 +0200
+Message-Id: <20210810172950.703383266@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
-References: <20210810172955.660225700@linuxfoundation.org>
+In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
+References: <20210810172948.192298392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,85 +41,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Will Deacon <will@kernel.org>
 
-commit 85cd39af14f498f791d8aab3fbd64cd175787f1a upstream.
+commit 77ec462536a13d4b428a1eead725c4818a49f0b1 upstream.
 
-KVM creates a debugfs directory for each VM in order to store statistics
-about the virtual machine.  The directory name is built from the process
-pid and a VM fd.  While generally unique, it is possible to keep a
-file descriptor alive in a way that causes duplicate directories, which
-manifests as these messages:
+We can avoid the expensive ISB instruction after reading the counter in
+the vDSO gettime functions by creating a fake address hazard against a
+dummy stack read, just like we do inside the kernel.
 
-  [  471.846235] debugfs: Directory '20245-4' with parent 'kvm' already present!
-
-Even though this should not happen in practice, it is more or less
-expected in the case of KVM for testcases that call KVM_CREATE_VM and
-close the resulting file descriptor repeatedly and in parallel.
-
-When this happens, debugfs_create_dir() returns an error but
-kvm_create_vm_debugfs() goes on to allocate stat data structs which are
-later leaked.  The slow memory leak was spotted by syzkaller, where it
-caused OOM reports.
-
-Since the issue only affects debugfs, do a lookup before calling
-debugfs_create_dir, so that the message is downgraded and rate-limited.
-While at it, ensure kvm->debugfs_dentry is NULL rather than an error
-if it is not created.  This fixes kvm_destroy_vm_debugfs, which was not
-checking IS_ERR_OR_NULL correctly.
-
-Cc: stable@vger.kernel.org
-Fixes: 536a6f88c49d ("KVM: Create debugfs dir and stat files for each VM")
-Reported-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Suggested-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Will Deacon <will@kernel.org>
+Reviewed-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Link: https://lore.kernel.org/r/20210318170738.7756-5-will@kernel.org
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Chanho Park <chanho61.park@samsung.com>
 ---
- virt/kvm/kvm_main.c |   18 ++++++++++++++++--
- 1 file changed, 16 insertions(+), 2 deletions(-)
+ arch/arm64/include/asm/arch_timer.h        |   21 ---------------------
+ arch/arm64/include/asm/barrier.h           |   19 +++++++++++++++++++
+ arch/arm64/include/asm/vdso/gettimeofday.h |    6 +-----
+ 3 files changed, 20 insertions(+), 26 deletions(-)
 
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -685,6 +685,8 @@ static void kvm_destroy_vm_debugfs(struc
+--- a/arch/arm64/include/asm/arch_timer.h
++++ b/arch/arm64/include/asm/arch_timer.h
+@@ -165,25 +165,6 @@ static inline void arch_timer_set_cntkct
+ 	isb();
+ }
  
- static int kvm_create_vm_debugfs(struct kvm *kvm, int fd)
+-/*
+- * Ensure that reads of the counter are treated the same as memory reads
+- * for the purposes of ordering by subsequent memory barriers.
+- *
+- * This insanity brought to you by speculative system register reads,
+- * out-of-order memory accesses, sequence locks and Thomas Gleixner.
+- *
+- * http://lists.infradead.org/pipermail/linux-arm-kernel/2019-February/631195.html
+- */
+-#define arch_counter_enforce_ordering(val) do {				\
+-	u64 tmp, _val = (val);						\
+-									\
+-	asm volatile(							\
+-	"	eor	%0, %1, %1\n"					\
+-	"	add	%0, sp, %0\n"					\
+-	"	ldr	xzr, [%0]"					\
+-	: "=r" (tmp) : "r" (_val));					\
+-} while (0)
+-
+ static __always_inline u64 __arch_counter_get_cntpct_stable(void)
  {
-+	static DEFINE_MUTEX(kvm_debugfs_lock);
-+	struct dentry *dent;
- 	char dir_name[ITOA_MAX_LEN * 2];
- 	struct kvm_stat_data *stat_data;
- 	struct kvm_stats_debugfs_item *p;
-@@ -693,8 +695,20 @@ static int kvm_create_vm_debugfs(struct
- 		return 0;
+ 	u64 cnt;
+@@ -224,8 +205,6 @@ static __always_inline u64 __arch_counte
+ 	return cnt;
+ }
  
- 	snprintf(dir_name, sizeof(dir_name), "%d-%d", task_pid_nr(current), fd);
--	kvm->debugfs_dentry = debugfs_create_dir(dir_name, kvm_debugfs_dir);
-+	mutex_lock(&kvm_debugfs_lock);
-+	dent = debugfs_lookup(dir_name, kvm_debugfs_dir);
-+	if (dent) {
-+		pr_warn_ratelimited("KVM: debugfs: duplicate directory %s\n", dir_name);
-+		dput(dent);
-+		mutex_unlock(&kvm_debugfs_lock);
-+		return 0;
-+	}
-+	dent = debugfs_create_dir(dir_name, kvm_debugfs_dir);
-+	mutex_unlock(&kvm_debugfs_lock);
-+	if (IS_ERR(dent))
-+		return 0;
+-#undef arch_counter_enforce_ordering
+-
+ static inline int arch_timer_arch_init(void)
+ {
+ 	return 0;
+--- a/arch/arm64/include/asm/barrier.h
++++ b/arch/arm64/include/asm/barrier.h
+@@ -57,6 +57,25 @@ static inline unsigned long array_index_
+ 	return mask;
+ }
  
-+	kvm->debugfs_dentry = dent;
- 	kvm->debugfs_stat_data = kcalloc(kvm_debugfs_num_entries,
- 					 sizeof(*kvm->debugfs_stat_data),
- 					 GFP_KERNEL_ACCOUNT);
-@@ -4698,7 +4712,7 @@ static void kvm_uevent_notify_change(uns
- 	}
- 	add_uevent_var(env, "PID=%d", kvm->userspace_pid);
++/*
++ * Ensure that reads of the counter are treated the same as memory reads
++ * for the purposes of ordering by subsequent memory barriers.
++ *
++ * This insanity brought to you by speculative system register reads,
++ * out-of-order memory accesses, sequence locks and Thomas Gleixner.
++ *
++ * http://lists.infradead.org/pipermail/linux-arm-kernel/2019-February/631195.html
++ */
++#define arch_counter_enforce_ordering(val) do {				\
++	u64 tmp, _val = (val);						\
++									\
++	asm volatile(							\
++	"	eor	%0, %1, %1\n"					\
++	"	add	%0, sp, %0\n"					\
++	"	ldr	xzr, [%0]"					\
++	: "=r" (tmp) : "r" (_val));					\
++} while (0)
++
+ #define __smp_mb()	dmb(ish)
+ #define __smp_rmb()	dmb(ishld)
+ #define __smp_wmb()	dmb(ishst)
+--- a/arch/arm64/include/asm/vdso/gettimeofday.h
++++ b/arch/arm64/include/asm/vdso/gettimeofday.h
+@@ -85,11 +85,7 @@ static __always_inline u64 __arch_get_hw
+ 	 */
+ 	isb();
+ 	asm volatile("mrs %0, cntvct_el0" : "=r" (res) :: "memory");
+-	/*
+-	 * This isb() is required to prevent that the seq lock is
+-	 * speculated.#
+-	 */
+-	isb();
++	arch_counter_enforce_ordering(res);
  
--	if (!IS_ERR_OR_NULL(kvm->debugfs_dentry)) {
-+	if (kvm->debugfs_dentry) {
- 		char *tmp, *p = kmalloc(PATH_MAX, GFP_KERNEL_ACCOUNT);
- 
- 		if (p) {
+ 	return res;
+ }
 
 
