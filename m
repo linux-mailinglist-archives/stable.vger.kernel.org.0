@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C8B43E8181
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:01:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA4923E7E54
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:32:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235860AbhHJSAH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 14:00:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60846 "EHLO mail.kernel.org"
+        id S231557AbhHJRcc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:32:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60592 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238024AbhHJR6J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:58:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4BD9E6113D;
-        Tue, 10 Aug 2021 17:45:44 +0000 (UTC)
+        id S229760AbhHJRc1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:32:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 13D9060EE7;
+        Tue, 10 Aug 2021 17:32:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617544;
-        bh=SLFd9Ujub4V73GoWZDudsPtKy4fGdZw/vNaVHDuo+Fg=;
+        s=korg; t=1628616725;
+        bh=1MXz44Vcn+u5JsDU6ccx0yHCYH2R77gjABTz4hvJHR4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OEZaDUi5ltYvUr82fBDm+C/1HG1pOcURrDDpcldLP0ah26qvKFxmgBHSn1BeQ+qg/
-         py2t1Q4fKkTvY98IG9UGB7j1VBkxtEWsmmgKeX+RmKIY4R/LSv1Gk9g/R7g0wzgfat
-         T4hsOJFGr8LjwOkYzWY/j5ElI2mWeN4bfURmeHcI=
+        b=acqQzbXsubry0SebgtVNHokBX7alYSjQOC78541xv5cASCDJTk0+WMBsY//wffvry
+         yD+n5eB5nvq47NOUtCz/VQZo1U8j6G54n9brHwlLYVN5mO8XaV7SP7ocQsdaF0jDCw
+         icyVY+U1fiKqtxY3x71XZsK3ceD3cuPu1nIPhUEo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Stefan Metzmacher <metze@samba.org>,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.13 106/175] tracepoint: Fix static call function vs data state mismatch
+        stable@vger.kernel.org,
+        syzbot <syzbot+a5df189917e79d5e59c9@syzkaller.appspotmail.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 20/54] Bluetooth: defer cleanup of resources in hci_unregister_dev()
 Date:   Tue, 10 Aug 2021 19:30:14 +0200
-Message-Id: <20210810173004.454542049@linuxfoundation.org>
+Message-Id: <20210810172944.842148853@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
-References: <20210810173000.928681411@linuxfoundation.org>
+In-Reply-To: <20210810172944.179901509@linuxfoundation.org>
+References: <20210810172944.179901509@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,228 +43,244 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
 
-commit 231264d6927f6740af36855a622d0e240be9d94c upstream.
+[ Upstream commit e04480920d1eec9c061841399aa6f35b6f987d8b ]
 
-On a 1->0->1 callbacks transition, there is an issue with the new
-callback using the old callback's data.
+syzbot is hitting might_sleep() warning at hci_sock_dev_event() due to
+calling lock_sock() with rw spinlock held [1].
 
-Considering __DO_TRACE_CALL:
+It seems that history of this locking problem is a trial and error.
 
-        do {                                                            \
-                struct tracepoint_func *it_func_ptr;                    \
-                void *__data;                                           \
-                it_func_ptr =                                           \
-                        rcu_dereference_raw((&__tracepoint_##name)->funcs); \
-                if (it_func_ptr) {                                      \
-                        __data = (it_func_ptr)->data;                   \
+Commit b40df5743ee8 ("[PATCH] bluetooth: fix socket locking in
+hci_sock_dev_event()") in 2.6.21-rc4 changed bh_lock_sock() to
+lock_sock() as an attempt to fix lockdep warning.
 
-----> [ delayed here on one CPU (e.g. vcpu preempted by the host) ]
+Then, commit 4ce61d1c7a8e ("[BLUETOOTH]: Fix locking in
+hci_sock_dev_event().") in 2.6.22-rc2 changed lock_sock() to
+local_bh_disable() + bh_lock_sock_nested() as an attempt to fix the
+sleep in atomic context warning.
 
-                        static_call(tp_func_##name)(__data, args);      \
-                }                                                       \
-        } while (0)
+Then, commit 4b5dd696f81b ("Bluetooth: Remove local_bh_disable() from
+hci_sock.c") in 3.3-rc1 removed local_bh_disable().
 
-It has loaded the tp->funcs of the old callback, so it will try to use the old
-data. This can be fixed by adding a RCU sync anywhere in the 1->0->1
-transition chain.
+Then, commit e305509e678b ("Bluetooth: use correct lock to prevent UAF
+of hdev object") in 5.13-rc5 again changed bh_lock_sock_nested() to
+lock_sock() as an attempt to fix CVE-2021-3573.
 
-On a N->2->1 transition, we need an rcu-sync because you may have a
-sequence of 3->2->1 (or 1->2->1) where the element 0 data is unchanged
-between 2->1, but was changed from 3->2 (or from 1->2), which may be
-observed by the static call. This can be fixed by adding an
-unconditional RCU sync in transition 2->1.
+This difficulty comes from current implementation that
+hci_sock_dev_event(HCI_DEV_UNREG) is responsible for dropping all
+references from sockets because hci_unregister_dev() immediately
+reclaims resources as soon as returning from
+hci_sock_dev_event(HCI_DEV_UNREG).
 
-Note, this fixes a correctness issue at the cost of adding a tremendous
-performance regression to the disabling of tracepoints.
+But the history suggests that hci_sock_dev_event(HCI_DEV_UNREG) was not
+doing what it should do.
 
-Before this commit:
+Therefore, instead of trying to detach sockets from device, let's accept
+not detaching sockets from device at hci_sock_dev_event(HCI_DEV_UNREG),
+by moving actual cleanup of resources from hci_unregister_dev() to
+hci_cleanup_dev() which is called by bt_host_release() when all
+references to this unregistered device (which is a kobject) are gone.
 
-  # trace-cmd start -e all
-  # time trace-cmd start -p nop
+Since hci_sock_dev_event(HCI_DEV_UNREG) no longer resets
+hci_pi(sk)->hdev, we need to check whether this device was unregistered
+and return an error based on HCI_UNREGISTER flag.  There might be subtle
+behavioral difference in "monitor the hdev" functionality; please report
+if you found something went wrong due to this patch.
 
-  real	0m0.778s
-  user	0m0.000s
-  sys	0m0.061s
-
-After this commit:
-
-  # trace-cmd start -e all
-  # time trace-cmd start -p nop
-
-  real	0m10.593s
-  user	0m0.017s
-  sys	0m0.259s
-
-A follow up fix will introduce a more lightweight scheme based on RCU
-get_state and cond_sync, that will return the performance back to what it
-was. As both this change and the lightweight versions are complex on their
-own, for bisecting any issues that this may cause, they are kept as two
-separate changes.
-
-Link: https://lkml.kernel.org/r/20210805132717.23813-3-mathieu.desnoyers@efficios.com
-Link: https://lore.kernel.org/io-uring/4ebea8f0-58c9-e571-fd30-0ce4f6f09c70@samba.org/
-
-Cc: stable@vger.kernel.org
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: "Paul E. McKenney" <paulmck@kernel.org>
-Cc: Stefan Metzmacher <metze@samba.org>
-Fixes: d25e37d89dd2 ("tracepoint: Optimize using static_call()")
-Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://syzkaller.appspot.com/bug?extid=a5df189917e79d5e59c9 [1]
+Reported-by: syzbot <syzbot+a5df189917e79d5e59c9@syzkaller.appspotmail.com>
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Fixes: e305509e678b ("Bluetooth: use correct lock to prevent UAF of hdev object")
+Acked-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/tracepoint.c |  102 +++++++++++++++++++++++++++++++++++++++++-----------
- 1 file changed, 82 insertions(+), 20 deletions(-)
+ include/net/bluetooth/hci_core.h |  1 +
+ net/bluetooth/hci_core.c         | 16 +++++------
+ net/bluetooth/hci_sock.c         | 49 +++++++++++++++++++++-----------
+ net/bluetooth/hci_sysfs.c        |  3 ++
+ 4 files changed, 45 insertions(+), 24 deletions(-)
 
---- a/kernel/tracepoint.c
-+++ b/kernel/tracepoint.c
-@@ -15,6 +15,13 @@
- #include <linux/sched/task.h>
- #include <linux/static_key.h>
+diff --git a/include/net/bluetooth/hci_core.h b/include/net/bluetooth/hci_core.h
+index 6a61faf0cc79..75d892dc7796 100644
+--- a/include/net/bluetooth/hci_core.h
++++ b/include/net/bluetooth/hci_core.h
+@@ -1042,6 +1042,7 @@ struct hci_dev *hci_alloc_dev(void);
+ void hci_free_dev(struct hci_dev *hdev);
+ int hci_register_dev(struct hci_dev *hdev);
+ void hci_unregister_dev(struct hci_dev *hdev);
++void hci_cleanup_dev(struct hci_dev *hdev);
+ int hci_suspend_dev(struct hci_dev *hdev);
+ int hci_resume_dev(struct hci_dev *hdev);
+ int hci_reset_dev(struct hci_dev *hdev);
+diff --git a/net/bluetooth/hci_core.c b/net/bluetooth/hci_core.c
+index 219cdbb476fb..7a85f215da45 100644
+--- a/net/bluetooth/hci_core.c
++++ b/net/bluetooth/hci_core.c
+@@ -3261,14 +3261,10 @@ EXPORT_SYMBOL(hci_register_dev);
+ /* Unregister HCI device */
+ void hci_unregister_dev(struct hci_dev *hdev)
+ {
+-	int id;
+-
+ 	BT_DBG("%p name %s bus %d", hdev, hdev->name, hdev->bus);
  
-+enum tp_func_state {
-+	TP_FUNC_0,
-+	TP_FUNC_1,
-+	TP_FUNC_2,
-+	TP_FUNC_N,
-+};
-+
- extern tracepoint_ptr_t __start___tracepoints_ptrs[];
- extern tracepoint_ptr_t __stop___tracepoints_ptrs[];
+ 	hci_dev_set_flag(hdev, HCI_UNREGISTER);
  
-@@ -246,26 +253,29 @@ static void *func_remove(struct tracepoi
- 	return old;
- }
+-	id = hdev->id;
+-
+ 	write_lock(&hci_dev_list_lock);
+ 	list_del(&hdev->list);
+ 	write_unlock(&hci_dev_list_lock);
+@@ -3297,7 +3293,14 @@ void hci_unregister_dev(struct hci_dev *hdev)
+ 	}
  
--static void tracepoint_update_call(struct tracepoint *tp, struct tracepoint_func *tp_funcs, bool sync)
-+/*
-+ * Count the number of functions (enum tp_func_state) in a tp_funcs array.
-+ */
-+static enum tp_func_state nr_func_state(const struct tracepoint_func *tp_funcs)
+ 	device_del(&hdev->dev);
++	/* Actual cleanup is deferred until hci_cleanup_dev(). */
++	hci_dev_put(hdev);
++}
++EXPORT_SYMBOL(hci_unregister_dev);
+ 
++/* Cleanup HCI device */
++void hci_cleanup_dev(struct hci_dev *hdev)
 +{
-+	if (!tp_funcs)
-+		return TP_FUNC_0;
-+	if (!tp_funcs[1].func)
-+		return TP_FUNC_1;
-+	if (!tp_funcs[2].func)
-+		return TP_FUNC_2;
-+	return TP_FUNC_N;	/* 3 or more */
+ 	debugfs_remove_recursive(hdev->debugfs);
+ 	kfree_const(hdev->hw_info);
+ 	kfree_const(hdev->fw_info);
+@@ -3320,11 +3323,8 @@ void hci_unregister_dev(struct hci_dev *hdev)
+ 	hci_discovery_filter_clear(hdev);
+ 	hci_dev_unlock(hdev);
+ 
+-	hci_dev_put(hdev);
+-
+-	ida_simple_remove(&hci_index_ida, id);
++	ida_simple_remove(&hci_index_ida, hdev->id);
+ }
+-EXPORT_SYMBOL(hci_unregister_dev);
+ 
+ /* Suspend HCI device */
+ int hci_suspend_dev(struct hci_dev *hdev)
+diff --git a/net/bluetooth/hci_sock.c b/net/bluetooth/hci_sock.c
+index 06156de24c50..3ba0c6df73ce 100644
+--- a/net/bluetooth/hci_sock.c
++++ b/net/bluetooth/hci_sock.c
+@@ -59,6 +59,17 @@ struct hci_pinfo {
+ 	char              comm[TASK_COMM_LEN];
+ };
+ 
++static struct hci_dev *hci_hdev_from_sock(struct sock *sk)
++{
++	struct hci_dev *hdev = hci_pi(sk)->hdev;
++
++	if (!hdev)
++		return ERR_PTR(-EBADFD);
++	if (hci_dev_test_flag(hdev, HCI_UNREGISTER))
++		return ERR_PTR(-EPIPE);
++	return hdev;
 +}
 +
-+static void tracepoint_update_call(struct tracepoint *tp, struct tracepoint_func *tp_funcs)
+ void hci_sock_set_flag(struct sock *sk, int nr)
  {
- 	void *func = tp->iterator;
+ 	set_bit(nr, &hci_pi(sk)->flags);
+@@ -752,19 +763,13 @@ void hci_sock_dev_event(struct hci_dev *hdev, int event)
+ 	if (event == HCI_DEV_UNREG) {
+ 		struct sock *sk;
  
- 	/* Synthetic events do not have static call sites */
- 	if (!tp->static_call_key)
- 		return;
+-		/* Detach sockets from device */
++		/* Wake up sockets using this dead device */
+ 		read_lock(&hci_sk_list.lock);
+ 		sk_for_each(sk, &hci_sk_list.head) {
+-			lock_sock(sk);
+ 			if (hci_pi(sk)->hdev == hdev) {
+-				hci_pi(sk)->hdev = NULL;
+ 				sk->sk_err = EPIPE;
+-				sk->sk_state = BT_OPEN;
+ 				sk->sk_state_change(sk);
 -
--	if (!tp_funcs[1].func) {
-+	if (nr_func_state(tp_funcs) == TP_FUNC_1)
- 		func = tp_funcs[0].func;
--		/*
--		 * If going from the iterator back to a single caller,
--		 * we need to synchronize with __DO_TRACE to make sure
--		 * that the data passed to the callback is the one that
--		 * belongs to that callback.
--		 */
--		if (sync)
--			tracepoint_synchronize_unregister();
--	}
--
- 	__static_call_update(tp->static_call_key, tp->static_call_tramp, func);
- }
- 
-@@ -299,9 +309,31 @@ static int tracepoint_add_func(struct tr
- 	 * a pointer to it.  This array is referenced by __DO_TRACE from
- 	 * include/linux/tracepoint.h using rcu_dereference_sched().
- 	 */
--	tracepoint_update_call(tp, tp_funcs, false);
--	rcu_assign_pointer(tp->funcs, tp_funcs);
--	static_key_enable(&tp->key);
-+	switch (nr_func_state(tp_funcs)) {
-+	case TP_FUNC_1:		/* 0->1 */
-+		/* Set static call to first function */
-+		tracepoint_update_call(tp, tp_funcs);
-+		/* Both iterator and static call handle NULL tp->funcs */
-+		rcu_assign_pointer(tp->funcs, tp_funcs);
-+		static_key_enable(&tp->key);
-+		break;
-+	case TP_FUNC_2:		/* 1->2 */
-+		/* Set iterator static call */
-+		tracepoint_update_call(tp, tp_funcs);
-+		/*
-+		 * Iterator callback installed before updating tp->funcs.
-+		 * Requires ordering between RCU assign/dereference and
-+		 * static call update/call.
-+		 */
-+		rcu_assign_pointer(tp->funcs, tp_funcs);
-+		break;
-+	case TP_FUNC_N:		/* N->N+1 (N>1) */
-+		rcu_assign_pointer(tp->funcs, tp_funcs);
-+		break;
-+	default:
-+		WARN_ON_ONCE(1);
-+		break;
-+	}
- 
- 	release_probes(old);
- 	return 0;
-@@ -328,17 +360,47 @@ static int tracepoint_remove_func(struct
- 		/* Failed allocating new tp_funcs, replaced func with stub */
- 		return 0;
- 
--	if (!tp_funcs) {
-+	switch (nr_func_state(tp_funcs)) {
-+	case TP_FUNC_0:		/* 1->0 */
- 		/* Removed last function */
- 		if (tp->unregfunc && static_key_enabled(&tp->key))
- 			tp->unregfunc();
- 
- 		static_key_disable(&tp->key);
-+		/* Set iterator static call */
-+		tracepoint_update_call(tp, tp_funcs);
-+		/* Both iterator and static call handle NULL tp->funcs */
-+		rcu_assign_pointer(tp->funcs, NULL);
-+		/*
-+		 * Make sure new func never uses old data after a 1->0->1
-+		 * transition sequence.
-+		 * Considering that transition 0->1 is the common case
-+		 * and don't have rcu-sync, issue rcu-sync after
-+		 * transition 1->0 to break that sequence by waiting for
-+		 * readers to be quiescent.
-+		 */
-+		tracepoint_synchronize_unregister();
-+		break;
-+	case TP_FUNC_1:		/* 2->1 */
- 		rcu_assign_pointer(tp->funcs, tp_funcs);
--	} else {
-+		/*
-+		 * On 2->1 transition, RCU sync is needed before setting
-+		 * static call to first callback, because the observer
-+		 * may have loaded any prior tp->funcs after the last one
-+		 * associated with an rcu-sync.
-+		 */
-+		tracepoint_synchronize_unregister();
-+		/* Set static call to first function */
-+		tracepoint_update_call(tp, tp_funcs);
-+		break;
-+	case TP_FUNC_2:		/* N->N-1 (N>2) */
-+		fallthrough;
-+	case TP_FUNC_N:
- 		rcu_assign_pointer(tp->funcs, tp_funcs);
--		tracepoint_update_call(tp, tp_funcs,
--				       tp_funcs[0].data != old[0].data);
-+		break;
-+	default:
-+		WARN_ON_ONCE(1);
-+		break;
+-				hci_dev_put(hdev);
+ 			}
+-			release_sock(sk);
+ 		}
+ 		read_unlock(&hci_sk_list.lock);
  	}
- 	release_probes(old);
- 	return 0;
+@@ -923,10 +928,10 @@ static int hci_sock_blacklist_del(struct hci_dev *hdev, void __user *arg)
+ static int hci_sock_bound_ioctl(struct sock *sk, unsigned int cmd,
+ 				unsigned long arg)
+ {
+-	struct hci_dev *hdev = hci_pi(sk)->hdev;
++	struct hci_dev *hdev = hci_hdev_from_sock(sk);
+ 
+-	if (!hdev)
+-		return -EBADFD;
++	if (IS_ERR(hdev))
++		return PTR_ERR(hdev);
+ 
+ 	if (hci_dev_test_flag(hdev, HCI_USER_CHANNEL))
+ 		return -EBUSY;
+@@ -1080,6 +1085,18 @@ static int hci_sock_bind(struct socket *sock, struct sockaddr *addr,
+ 
+ 	lock_sock(sk);
+ 
++	/* Allow detaching from dead device and attaching to alive device, if
++	 * the caller wants to re-bind (instead of close) this socket in
++	 * response to hci_sock_dev_event(HCI_DEV_UNREG) notification.
++	 */
++	hdev = hci_pi(sk)->hdev;
++	if (hdev && hci_dev_test_flag(hdev, HCI_UNREGISTER)) {
++		hci_pi(sk)->hdev = NULL;
++		sk->sk_state = BT_OPEN;
++		hci_dev_put(hdev);
++	}
++	hdev = NULL;
++
+ 	if (sk->sk_state == BT_BOUND) {
+ 		err = -EALREADY;
+ 		goto done;
+@@ -1356,9 +1373,9 @@ static int hci_sock_getname(struct socket *sock, struct sockaddr *addr,
+ 
+ 	lock_sock(sk);
+ 
+-	hdev = hci_pi(sk)->hdev;
+-	if (!hdev) {
+-		err = -EBADFD;
++	hdev = hci_hdev_from_sock(sk);
++	if (IS_ERR(hdev)) {
++		err = PTR_ERR(hdev);
+ 		goto done;
+ 	}
+ 
+@@ -1718,9 +1735,9 @@ static int hci_sock_sendmsg(struct socket *sock, struct msghdr *msg,
+ 		goto done;
+ 	}
+ 
+-	hdev = hci_pi(sk)->hdev;
+-	if (!hdev) {
+-		err = -EBADFD;
++	hdev = hci_hdev_from_sock(sk);
++	if (IS_ERR(hdev)) {
++		err = PTR_ERR(hdev);
+ 		goto done;
+ 	}
+ 
+diff --git a/net/bluetooth/hci_sysfs.c b/net/bluetooth/hci_sysfs.c
+index 9874844a95a9..b69d88b88d2e 100644
+--- a/net/bluetooth/hci_sysfs.c
++++ b/net/bluetooth/hci_sysfs.c
+@@ -83,6 +83,9 @@ void hci_conn_del_sysfs(struct hci_conn *conn)
+ static void bt_host_release(struct device *dev)
+ {
+ 	struct hci_dev *hdev = to_hci_dev(dev);
++
++	if (hci_dev_test_flag(hdev, HCI_UNREGISTER))
++		hci_cleanup_dev(hdev);
+ 	kfree(hdev);
+ 	module_put(THIS_MODULE);
+ }
+-- 
+2.30.2
+
 
 
