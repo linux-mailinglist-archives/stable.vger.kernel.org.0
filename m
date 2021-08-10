@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C392F3E5CF5
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 16:16:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E9FC3E5CF3
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 16:16:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242489AbhHJOQW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 10:16:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53076 "EHLO mail.kernel.org"
+        id S242460AbhHJOQV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 10:16:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53248 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242450AbhHJOP7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 10:15:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F040F60F41;
-        Tue, 10 Aug 2021 14:15:36 +0000 (UTC)
+        id S242468AbhHJOQC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 10:16:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D0C6560F02;
+        Tue, 10 Aug 2021 14:15:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1628604937;
-        bh=B7Mc6+bu3nOA9xNACCyDGH25quCXPgXomeh32na7dbY=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iExtOShjto0dM1rWNczTFtib+JEejASTOY5JY+TQRg4nZd1pooQHY8phxPCFJq/zz
-         3OMrWRfEpXBbhy0yP7xtkXpPBWde4HlOODPJTpZ33wK3Er/7lxmGucMimAQfuTPoVk
-         cQg4daV7ITlJtwz/cOEBj+/okgQ9+E7CKVpkqakJf5mM9L1Oh2QKAhMkNAU4fWVuQV
-         TxIrUulTIONMHA3b2vMMtj/r3XMZNeWkv4kALfdtpofBEZAgLHMR/0xs91UO1DJlZN
-         SpRPEiIxhjC+ia2tIEawT6qJGfYgUm45iSB1F5Wjtx7g1RDNrpaFXjddL8oQFIXgDK
-         lpfi3/++bU1jg==
+        s=k20201202; t=1628604940;
+        bh=m6MWtSt77nDnHiKnoKPOb31isqXnEqjQVfdpnzdnvIc=;
+        h=From:To:Cc:Subject:Date:From;
+        b=W7mTvf7qtl7AeDBHKBPdCN3HFpRC1UNPgdvw/1YhiK7nZFkzFTDXrsYYKD+lB7KZs
+         NQOze7AWP+Zgd5gAbv5QBZ/PyNbR407KHwsXxztS3X2wAMRIZc7hcPJuwWS1Kke/GI
+         ZjpyTQx+vMsPWv3fSU0r19P8yhaBWm3M6WHSvg9JCSYSGRDkX2ZGN1la6HRPtIcZy/
+         wv8NzzHMIG5RC4nNHsg/Q7YffYPf5rUYjs0pY45gL+cnETD4DDhxsP36K9ysLraF9X
+         vGnTeIagXW/8tKneBRZHnj+bl1lsR8x4jdq0br59OP9qsAkJ1AozhgeeqqNOrA/l1V
+         9X1738vg6NpKA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vincent Fu <vincent.fu@samsung.com>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 24/24] kyber: make trace_block_rq call consistent with documentation
-Date:   Tue, 10 Aug 2021 10:15:05 -0400
-Message-Id: <20210810141505.3117318-24-sashal@kernel.org>
+Cc:     Adrian Larumbe <adrian.martinezlarumbe@imgtec.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.10 01/20] dmaengine: xilinx_dma: Fix read-after-free bug when terminating transfers
+Date:   Tue, 10 Aug 2021 10:15:19 -0400
+Message-Id: <20210810141538.3117707-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210810141505.3117318-1-sashal@kernel.org>
-References: <20210810141505.3117318-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -41,44 +40,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Fu <vincent.fu@samsung.com>
+From: Adrian Larumbe <adrian.martinezlarumbe@imgtec.com>
 
-[ Upstream commit fb7b9b0231ba8f77587c23f5257a4fdb6df1219e ]
+[ Upstream commit 7dd2dd4ff9f3abda601f22b9d01441a0869d20d7 ]
 
-The kyber ioscheduler calls trace_block_rq_insert() *after* the request
-is added to the queue but the documentation for trace_block_rq_insert()
-says that the call should be made *before* the request is added to the
-queue.  Move the tracepoint for the kyber ioscheduler so that it is
-consistent with the documentation.
+When user calls dmaengine_terminate_sync, the driver will clean up any
+remaining descriptors for all the pending or active transfers that had
+previously been submitted. However, this might happen whilst the tasklet is
+invoking the DMA callback for the last finished transfer, so by the time it
+returns and takes over the channel's spinlock, the list of completed
+descriptors it was traversing is no longer valid. This leads to a
+read-after-free situation.
 
-Signed-off-by: Vincent Fu <vincent.fu@samsung.com>
-Link: https://lore.kernel.org/r/20210804194913.10497-1-vincent.fu@samsung.com
-Reviewed by: Adam Manzanares <a.manzanares@samsung.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fix it by signalling whether a user-triggered termination has happened by
+means of a boolean variable.
+
+Signed-off-by: Adrian Larumbe <adrian.martinezlarumbe@imgtec.com>
+Link: https://lore.kernel.org/r/20210706234338.7696-3-adrian.martinezlarumbe@imgtec.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/kyber-iosched.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/dma/xilinx/xilinx_dma.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/block/kyber-iosched.c b/block/kyber-iosched.c
-index 81e3279ecd57..15a8be57203d 100644
---- a/block/kyber-iosched.c
-+++ b/block/kyber-iosched.c
-@@ -596,13 +596,13 @@ static void kyber_insert_requests(struct blk_mq_hw_ctx *hctx,
- 		struct list_head *head = &kcq->rq_list[sched_domain];
- 
- 		spin_lock(&kcq->lock);
-+		trace_block_rq_insert(rq);
- 		if (at_head)
- 			list_move(&rq->queuelist, head);
- 		else
- 			list_move_tail(&rq->queuelist, head);
- 		sbitmap_set_bit(&khd->kcq_map[sched_domain],
- 				rq->mq_ctx->index_hw[hctx->type]);
--		trace_block_rq_insert(rq);
- 		spin_unlock(&kcq->lock);
+diff --git a/drivers/dma/xilinx/xilinx_dma.c b/drivers/dma/xilinx/xilinx_dma.c
+index 79777550a6ff..9ffdbeec436b 100644
+--- a/drivers/dma/xilinx/xilinx_dma.c
++++ b/drivers/dma/xilinx/xilinx_dma.c
+@@ -394,6 +394,7 @@ struct xilinx_dma_tx_descriptor {
+  * @genlock: Support genlock mode
+  * @err: Channel has errors
+  * @idle: Check for channel idle
++ * @terminating: Check for channel being synchronized by user
+  * @tasklet: Cleanup work after irq
+  * @config: Device configuration info
+  * @flush_on_fsync: Flush on Frame sync
+@@ -431,6 +432,7 @@ struct xilinx_dma_chan {
+ 	bool genlock;
+ 	bool err;
+ 	bool idle;
++	bool terminating;
+ 	struct tasklet_struct tasklet;
+ 	struct xilinx_vdma_config config;
+ 	bool flush_on_fsync;
+@@ -1049,6 +1051,13 @@ static void xilinx_dma_chan_desc_cleanup(struct xilinx_dma_chan *chan)
+ 		/* Run any dependencies, then free the descriptor */
+ 		dma_run_dependencies(&desc->async_tx);
+ 		xilinx_dma_free_tx_descriptor(chan, desc);
++
++		/*
++		 * While we ran a callback the user called a terminate function,
++		 * which takes care of cleaning up any remaining descriptors
++		 */
++		if (chan->terminating)
++			break;
  	}
- }
+ 
+ 	spin_unlock_irqrestore(&chan->lock, flags);
+@@ -1965,6 +1974,8 @@ static dma_cookie_t xilinx_dma_tx_submit(struct dma_async_tx_descriptor *tx)
+ 	if (desc->cyclic)
+ 		chan->cyclic = true;
+ 
++	chan->terminating = false;
++
+ 	spin_unlock_irqrestore(&chan->lock, flags);
+ 
+ 	return cookie;
+@@ -2436,6 +2447,7 @@ static int xilinx_dma_terminate_all(struct dma_chan *dchan)
+ 
+ 	xilinx_dma_chan_reset(chan);
+ 	/* Remove and free all of the descriptors in the lists */
++	chan->terminating = true;
+ 	xilinx_dma_free_descriptors(chan);
+ 	chan->idle = true;
+ 
 -- 
 2.30.2
 
