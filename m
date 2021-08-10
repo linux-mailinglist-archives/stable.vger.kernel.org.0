@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B46013E802D
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:47:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CC323E7F21
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:37:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235635AbhHJRqr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:46:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41304 "EHLO mail.kernel.org"
+        id S233889AbhHJRhe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:37:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236487AbhHJRow (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:44:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A44DF61179;
-        Tue, 10 Aug 2021 17:39:55 +0000 (UTC)
+        id S233895AbhHJRf7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:35:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F41D61008;
+        Tue, 10 Aug 2021 17:35:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617196;
-        bh=3j6OXrGgf1G4CtlBsC9TKuCGsRnMjxBG0w4DxueHQhw=;
+        s=korg; t=1628616919;
+        bh=aHOct+bx6Cjbr8OP3I/zD54Bd2a8hWbeDkTTOfi7ePI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XHlyZgNz76iE9u2OaNRC9R+dUZopbYbecikxkOMBpriMs7v/hENOd29bThHpMHdjU
-         lOiOLqi09zULLnLCrCzi5EdBaYMS6qi1PtXZ4jWJS1gaRRIgLcf0shdP7JDgJJtTZ+
-         DHAyyKSSuW6KpFgmZVXKzAGdyluDRi+U0tnP7D+M=
+        b=QQGuDLvYsFPam2E+aFG4fEVx3qmNk5GBTzVP4fzmqsOtp2nRj05ts1SKN0SSdTGt/
+         6QcBzqzVjWxtqmQeuw9imTSxKCCdZxmWlNbP6RBC8eVfLr8GMvXAA3xKMwx/DFfun0
+         i584qkJ9cDi6D5CfROTAbkBs/oj21fSYRGng8g48=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>
-Subject: [PATCH 5.10 088/135] staging: rtl8712: get rid of flush_scheduled_work
+        stable@vger.kernel.org, Dong Aisheng <aisheng.dong@nxp.com>,
+        Brian Norris <briannorris@chromium.org>,
+        Stephen Boyd <sboyd@kernel.org>
+Subject: [PATCH 5.4 49/85] clk: fix leak on devm_clk_bulk_get_all() unwind
 Date:   Tue, 10 Aug 2021 19:30:22 +0200
-Message-Id: <20210810172958.748455585@linuxfoundation.org>
+Message-Id: <20210810172949.896287140@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
-References: <20210810172955.660225700@linuxfoundation.org>
+In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
+References: <20210810172948.192298392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,89 +40,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Brian Norris <briannorris@chromium.org>
 
-commit 9be550ee43919b070bcd77f9228bdbbbc073245b upstream.
+commit f828b0bcacef189edbd247e9f48864fc36bfbe33 upstream.
 
-This patch is preparation for following patch for error handling
-refactoring.
+clk_bulk_get_all() allocates an array of struct clk_bulk data for us
+(unlike clk_bulk_get()), so we need to free it. Let's use the
+clk_bulk_put_all() helper.
 
-flush_scheduled_work() takes (wq_completion)events lock and
-it can lead to deadlock when r871xu_dev_remove() is called from workqueue.
-To avoid deadlock sutiation we can change flush_scheduled_work() call to
-flush_work() call for all possibly scheduled works in this driver,
-since next patch adds device_release_driver() in case of fw load failure.
+kmemleak complains, on an RK3399 Gru/Kevin system:
 
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/6e028b4c457eeb7156c76c6ea3cdb3cb0207c7e1.1626895918.git.paskripkin@gmail.com
+unreferenced object 0xffffff80045def00 (size 128):
+  comm "swapper/0", pid 1, jiffies 4294667682 (age 86.394s)
+  hex dump (first 32 bytes):
+    44 32 60 fe fe ff ff ff 00 00 00 00 00 00 00 00  D2`.............
+    48 32 60 fe fe ff ff ff 00 00 00 00 00 00 00 00  H2`.............
+  backtrace:
+    [<00000000742860d6>] __kmalloc+0x22c/0x39c
+    [<00000000b0493f2c>] clk_bulk_get_all+0x64/0x188
+    [<00000000325f5900>] devm_clk_bulk_get_all+0x58/0xa8
+    [<00000000175b9bc5>] dwc3_probe+0x8ac/0xb5c
+    [<000000009169e2f9>] platform_drv_probe+0x9c/0xbc
+    [<000000005c51e2ee>] really_probe+0x13c/0x378
+    [<00000000c47b1f24>] driver_probe_device+0x84/0xc0
+    [<00000000f870fcfb>] __device_attach_driver+0x94/0xb0
+    [<000000004d1b92ae>] bus_for_each_drv+0x8c/0xd8
+    [<00000000481d60c3>] __device_attach+0xc4/0x150
+    [<00000000a163bd36>] device_initial_probe+0x1c/0x28
+    [<00000000accb6bad>] bus_probe_device+0x3c/0x9c
+    [<000000001a199f89>] device_add+0x218/0x3cc
+    [<000000001bd84952>] of_device_add+0x40/0x50
+    [<000000009c658c29>] of_platform_device_create_pdata+0xac/0x100
+    [<0000000021c69ba4>] of_platform_bus_create+0x190/0x224
+
+Fixes: f08c2e2865f6 ("clk: add managed version of clk_bulk_get_all")
+Cc: Dong Aisheng <aisheng.dong@nxp.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Link: https://lore.kernel.org/r/20210731025950.2238582-1-briannorris@chromium.org
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/rtl8712/rtl8712_led.c     |    8 ++++++++
- drivers/staging/rtl8712/rtl871x_led.h     |    1 +
- drivers/staging/rtl8712/rtl871x_pwrctrl.c |    8 ++++++++
- drivers/staging/rtl8712/rtl871x_pwrctrl.h |    1 +
- drivers/staging/rtl8712/usb_intf.c        |    3 ++-
- 5 files changed, 20 insertions(+), 1 deletion(-)
+ drivers/clk/clk-devres.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/staging/rtl8712/rtl8712_led.c
-+++ b/drivers/staging/rtl8712/rtl8712_led.c
-@@ -1820,3 +1820,11 @@ void LedControl871x(struct _adapter *pad
- 		break;
- 	}
+--- a/drivers/clk/clk-devres.c
++++ b/drivers/clk/clk-devres.c
+@@ -92,13 +92,20 @@ int __must_check devm_clk_bulk_get_optio
  }
-+
-+void r8712_flush_led_works(struct _adapter *padapter)
+ EXPORT_SYMBOL_GPL(devm_clk_bulk_get_optional);
+ 
++static void devm_clk_bulk_release_all(struct device *dev, void *res)
 +{
-+	struct led_priv *pledpriv = &padapter->ledpriv;
++	struct clk_bulk_devres *devres = res;
 +
-+	flush_work(&pledpriv->SwLed0.BlinkWorkItem);
-+	flush_work(&pledpriv->SwLed1.BlinkWorkItem);
++	clk_bulk_put_all(devres->num_clks, devres->clks);
 +}
---- a/drivers/staging/rtl8712/rtl871x_led.h
-+++ b/drivers/staging/rtl8712/rtl871x_led.h
-@@ -112,6 +112,7 @@ struct led_priv {
- void r8712_InitSwLeds(struct _adapter *padapter);
- void r8712_DeInitSwLeds(struct _adapter *padapter);
- void LedControl871x(struct _adapter *padapter, enum LED_CTL_MODE LedAction);
-+void r8712_flush_led_works(struct _adapter *padapter);
- 
- #endif
- 
---- a/drivers/staging/rtl8712/rtl871x_pwrctrl.c
-+++ b/drivers/staging/rtl8712/rtl871x_pwrctrl.c
-@@ -224,3 +224,11 @@ void r8712_unregister_cmd_alive(struct _
- 	}
- 	mutex_unlock(&pwrctrl->mutex_lock);
- }
 +
-+void r8712_flush_rwctrl_works(struct _adapter *padapter)
-+{
-+	struct pwrctrl_priv *pwrctrl = &padapter->pwrctrlpriv;
-+
-+	flush_work(&pwrctrl->SetPSModeWorkItem);
-+	flush_work(&pwrctrl->rpwm_workitem);
-+}
---- a/drivers/staging/rtl8712/rtl871x_pwrctrl.h
-+++ b/drivers/staging/rtl8712/rtl871x_pwrctrl.h
-@@ -111,5 +111,6 @@ void r8712_cpwm_int_hdl(struct _adapter
- void r8712_set_ps_mode(struct _adapter *padapter, uint ps_mode,
- 			uint smart_ps);
- void r8712_set_rpwm(struct _adapter *padapter, u8 val8);
-+void r8712_flush_rwctrl_works(struct _adapter *padapter);
+ int __must_check devm_clk_bulk_get_all(struct device *dev,
+ 				       struct clk_bulk_data **clks)
+ {
+ 	struct clk_bulk_devres *devres;
+ 	int ret;
  
- #endif  /* __RTL871X_PWRCTRL_H_ */
---- a/drivers/staging/rtl8712/usb_intf.c
-+++ b/drivers/staging/rtl8712/usb_intf.c
-@@ -609,7 +609,8 @@ static void r871xu_dev_remove(struct usb
- 			padapter->surprise_removed = true;
- 		if (pnetdev->reg_state != NETREG_UNINITIALIZED)
- 			unregister_netdev(pnetdev); /* will call netdev_close() */
--		flush_scheduled_work();
-+		r8712_flush_rwctrl_works(padapter);
-+		r8712_flush_led_works(padapter);
- 		udelay(1);
- 		/* Stop driver mlme relation timer */
- 		r8712_stop_drv_timers(padapter);
+-	devres = devres_alloc(devm_clk_bulk_release,
++	devres = devres_alloc(devm_clk_bulk_release_all,
+ 			      sizeof(*devres), GFP_KERNEL);
+ 	if (!devres)
+ 		return -ENOMEM;
 
 
