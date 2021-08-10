@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EBA223E7E97
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:34:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D4553E805E
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:50:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232731AbhHJReX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:34:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37570 "EHLO mail.kernel.org"
+        id S233043AbhHJRse (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:48:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232763AbhHJRdt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:33:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D9EB0610A0;
-        Tue, 10 Aug 2021 17:33:26 +0000 (UTC)
+        id S236079AbhHJRqa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:46:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DC6C161221;
+        Tue, 10 Aug 2021 17:40:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616807;
-        bh=eSCplMMCmiCFNQYwKjfzRjfCkcDnLonYxNHYlBDptFg=;
+        s=korg; t=1628617236;
+        bh=1dfqSY3yBFiUCNg7s/r20aPg8+xO56OobT7LNFiNBKc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oHEy9yNwMePnDsU3qLKM1bRVyDyjJ+D6jlqXsheQ4vF+gzwWw0eb2LPG6VEwCYbB5
-         wzCxzYFk5iOfumDb23hvUcofPXo3wLsemclJnpfcf8jIY4MeyEf7+HxBbNBQlSb0Y8
-         dctOFil67IiOrAUcUhuqrp3k2klhyo0dXM5SOvfw=
+        b=BnWS5VH0Sffz1WVg60kcfGN+vXTxB/vw4Vr6W9ki++ZpgaTIXaYD1/Jvi8ZY1xnJi
+         UXku0onF4yfUTsBP1wghCJ/nYfOtZWfF+3TEXeazGHimdgcotqdGHzGhyRehveIvP/
+         KhzrJdaR3PSMFQJE7RyXUMLtQay0XLyWrzlx3W1k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stas Sergeev <stsp2@yandex.ru>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.19 44/54] KVM: x86: accept userspace interrupt only if no event is injected
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Dominik Brodowski <linux@dominikbrodowski.net>
+Subject: [PATCH 5.10 104/135] pcmcia: i82092: fix a null pointer dereference bug
 Date:   Tue, 10 Aug 2021 19:30:38 +0200
-Message-Id: <20210810172945.648257457@linuxfoundation.org>
+Message-Id: <20210810172959.299535590@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172944.179901509@linuxfoundation.org>
-References: <20210810172944.179901509@linuxfoundation.org>
+In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
+References: <20210810172955.660225700@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,57 +39,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-commit fa7a549d321a4189677b0cea86e58d9db7977f7b upstream.
+commit e39cdacf2f664b09029e7c1eb354c91a20c367af upstream.
 
-Once an exception has been injected, any side effects related to
-the exception (such as setting CR2 or DR6) have been taked place.
-Therefore, once KVM sets the VM-entry interruption information
-field or the AMD EVENTINJ field, the next VM-entry must deliver that
-exception.
+During the driver loading process, the 'dev' field was not assigned, but
+the 'dev' field was referenced in the subsequent 'i82092aa_set_mem_map'
+function.
 
-Pending interrupts are processed after injected exceptions, so
-in theory it would not be a problem to use KVM_INTERRUPT when
-an injected exception is present.  However, DOSEMU is using
-run->ready_for_interrupt_injection to detect interrupt windows
-and then using KVM_SET_SREGS/KVM_SET_REGS to inject the
-interrupt manually.  For this to work, the interrupt window
-must be delayed after the completion of the previous event
-injection.
-
-Cc: stable@vger.kernel.org
-Reported-by: Stas Sergeev <stsp2@yandex.ru>
-Tested-by: Stas Sergeev <stsp2@yandex.ru>
-Fixes: 71cc849b7093 ("KVM: x86: Fix split-irqchip vs interrupt injection window request")
-Reviewed-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+CC: <stable@vger.kernel.org>
+[linux@dominikbrodowski.net: shorten commit message, add Cc to stable]
+Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/x86.c |   13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ drivers/pcmcia/i82092.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -3366,8 +3366,17 @@ static int kvm_cpu_accept_dm_intr(struct
- 
- static int kvm_vcpu_ready_for_interrupt_injection(struct kvm_vcpu *vcpu)
- {
--	return kvm_arch_interrupt_allowed(vcpu) &&
--		kvm_cpu_accept_dm_intr(vcpu);
-+	/*
-+	 * Do not cause an interrupt window exit if an exception
-+	 * is pending or an event needs reinjection; userspace
-+	 * might want to inject the interrupt manually using KVM_SET_REGS
-+	 * or KVM_SET_SREGS.  For that to work, we must be at an
-+	 * instruction boundary and with no events half-injected.
-+	 */
-+	return (kvm_arch_interrupt_allowed(vcpu) &&
-+		kvm_cpu_accept_dm_intr(vcpu) &&
-+		!kvm_event_needs_reinjection(vcpu) &&
-+		!vcpu->arch.exception.pending);
- }
- 
- static int kvm_vcpu_ioctl_interrupt(struct kvm_vcpu *vcpu,
+--- a/drivers/pcmcia/i82092.c
++++ b/drivers/pcmcia/i82092.c
+@@ -112,6 +112,7 @@ static int i82092aa_pci_probe(struct pci
+ 	for (i = 0; i < socket_count; i++) {
+ 		sockets[i].card_state = 1; /* 1 = present but empty */
+ 		sockets[i].io_base = pci_resource_start(dev, 0);
++		sockets[i].dev = dev;
+ 		sockets[i].socket.features |= SS_CAP_PCCARD;
+ 		sockets[i].socket.map_size = 0x1000;
+ 		sockets[i].socket.irq_mask = 0;
 
 
