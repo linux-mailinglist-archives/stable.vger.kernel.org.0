@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 754E13E5D95
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 16:21:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A16E3E5D97
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 16:21:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241248AbhHJOWE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 10:22:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54070 "EHLO mail.kernel.org"
+        id S242908AbhHJOWG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 10:22:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53248 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243252AbhHJOSn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 10:18:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 52EB861102;
-        Tue, 10 Aug 2021 14:16:56 +0000 (UTC)
+        id S243267AbhHJOSo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 10:18:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D1666115C;
+        Tue, 10 Aug 2021 14:16:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1628605017;
-        bh=GJQUHHC19H3AosXMyk0tjcmBoizngaJClrlOplJcQn4=;
-        h=From:To:Cc:Subject:Date:From;
-        b=rkzVZuPSFcW4o96BWlebV+/OZssIwIMOj6Rm25LZv9HUDdVZr7eIRb7yYzZq8RgRR
-         1Ao8uFbZC1SyFFfUGw5JN7G/OnshkzOa+IpPAYAixWpPVO1HC2TpRlvLKb5GX7KbWe
-         EWKCN7SnWAFa9ENNaY/JpVzkgNtde6GdDG1WzOAvAixN/ENkpQkxs/YNf9E5Bma4Bk
-         1fhVBqT7PRvEINNc21i+UXtpUwhhGr3ajytYHiJ4LJ8414U5vkRzYqP5OflsqrUY+t
-         ggacAVGPegTF2PbCEHf0HVOVlAasmWb2xmKEyfkwHeM74+rZn03UvkdwurLRXy6otE
-         hzqATha/uuh5A==
+        s=k20201202; t=1628605018;
+        bh=E20x5CMP7kwkHKrfbV2iPe9BJDP6pfJyxFJJgrbLu4g=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=JJSh6IHIczCypq7ML6TbcwckUcvpuY44W2w/7F7DWI47iZ/PULsu68YkFTl6+TEI3
+         ABHVZhOrs55VDpD8m9JM0zBENHxOkff0rcmepjOCE6Kr4t7ZRcGvQfNlJv70kA3FMw
+         zV5xEwalwTKEx0kP+DwFRvF7104qS5WX4YnfJgs0D182HYRU7v3AnT3TcNqO5qYK/Q
+         +5/HgQSf2ETWKlhCFgyhXEqxX1o8t2ET+L/F8GQxKRU4d0kYpn0JL3DJnLGIbcsce8
+         WYDQAFxSPys9JVbCzyhv5o32oFs+vAi2b6W3bSmIWZALSG/TKq62Tmhh/nv8ZlXPY9
+         1V+WiPUUm1Lnw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yu Kuai <yukuai3@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        dmaengine@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 1/8] dmaengine: usb-dmac: Fix PM reference leak in usb_dmac_probe()
-Date:   Tue, 10 Aug 2021 10:16:48 -0400
-Message-Id: <20210810141655.3118498-1-sashal@kernel.org>
+Cc:     Dave Gerlach <d-gerlach@ti.com>,
+        Kevin Hilman <khilman@baylibre.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Sasha Levin <sashal@kernel.org>, linux-omap@vger.kernel.org,
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 2/8] ARM: dts: am43x-epos-evm: Reduce i2c0 bus speed for tps65218
+Date:   Tue, 10 Aug 2021 10:16:49 -0400
+Message-Id: <20210810141655.3118498-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210810141655.3118498-1-sashal@kernel.org>
+References: <20210810141655.3118498-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -40,38 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Dave Gerlach <d-gerlach@ti.com>
 
-[ Upstream commit 1da569fa7ec8cb0591c74aa3050d4ea1397778b4 ]
+[ Upstream commit 20a6b3fd8e2e2c063b25fbf2ee74d86b898e5087 ]
 
-pm_runtime_get_sync will increment pm usage counter even it failed.
-Forgetting to putting operation will result in reference leak here.
-Fix it by moving the error_pm label above the pm_runtime_put() in
-the error path.
+Based on the latest timing specifications for the TPS65218 from the data
+sheet, http://www.ti.com/lit/ds/symlink/tps65218.pdf, document SLDS206
+from November 2014, we must change the i2c bus speed to better fit within
+the minimum high SCL time required for proper i2c transfer.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Link: https://lore.kernel.org/r/20210706124521.1371901-1-yukuai3@huawei.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+When running at 400khz, measurements show that SCL spends
+0.8125 uS/1.666 uS high/low which violates the requirement for minimum
+high period of SCL provided in datasheet Table 7.6 which is 1 uS.
+Switching to 100khz gives us 5 uS/5 uS high/low which both fall above
+the minimum given values for 100 khz, 4.0 uS/4.7 uS high/low.
+
+Without this patch occasionally a voltage set operation from the kernel
+will appear to have worked but the actual voltage reflected on the PMIC
+will not have updated, causing problems especially with cpufreq that may
+update to a higher OPP without actually raising the voltage on DCDC2,
+leading to a hang.
+
+Signed-off-by: Dave Gerlach <d-gerlach@ti.com>
+Signed-off-by: Kevin Hilman <khilman@baylibre.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/sh/usb-dmac.c | 2 +-
+ arch/arm/boot/dts/am43x-epos-evm.dts | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/dma/sh/usb-dmac.c b/drivers/dma/sh/usb-dmac.c
-index 6682b3eec2b6..ec15ded640f6 100644
---- a/drivers/dma/sh/usb-dmac.c
-+++ b/drivers/dma/sh/usb-dmac.c
-@@ -861,8 +861,8 @@ static int usb_dmac_probe(struct platform_device *pdev)
+diff --git a/arch/arm/boot/dts/am43x-epos-evm.dts b/arch/arm/boot/dts/am43x-epos-evm.dts
+index 21918807c9f6..f42a92391289 100644
+--- a/arch/arm/boot/dts/am43x-epos-evm.dts
++++ b/arch/arm/boot/dts/am43x-epos-evm.dts
+@@ -411,7 +411,7 @@ &i2c0 {
+ 	status = "okay";
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&i2c0_pins>;
+-	clock-frequency = <400000>;
++	clock-frequency = <100000>;
  
- error:
- 	of_dma_controller_free(pdev->dev.of_node);
--	pm_runtime_put(&pdev->dev);
- error_pm:
-+	pm_runtime_put(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
- 	return ret;
- }
+ 	tps65218: tps65218@24 {
+ 		reg = <0x24>;
 -- 
 2.30.2
 
