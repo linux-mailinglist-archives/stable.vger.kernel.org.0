@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D8893E7E73
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:33:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 305BD3E7EE3
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:36:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232508AbhHJRd0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:33:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34268 "EHLO mail.kernel.org"
+        id S233817AbhHJRfu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:35:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232134AbhHJRdE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:33:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A900C61076;
-        Tue, 10 Aug 2021 17:32:41 +0000 (UTC)
+        id S233151AbhHJRew (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:34:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D7D32610A8;
+        Tue, 10 Aug 2021 17:34:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616762;
-        bh=Cr5UIL6t6XUtm8+tHN3SpOQIyrfTb7C8IGymWK1WlvA=;
+        s=korg; t=1628616870;
+        bh=hUNZlVuOy/RNHlH250TGXEh9nB8tVl29TK3jqQjXNIM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IJOEi39o6qVvvs23xgswzMKgAm1D5nT4XEX+ynE5uDXSU478Ya6SDR+u8dT9dVWTd
-         lPndUWyYzqLie8Qbq7JmjgH5OEwTF9cdQt53WNxYiD1dOIbe/uKpKA2jHNQAGXLY6l
-         r5o3i6iKZ+Jtfd+qDWfVpaOyJpjs7vZRxs6I/vO8=
+        b=oNtGTFUKEQIxdu1BcRXRDj5lSFWJmjZ3P/Ez5PDVCMWMwavRa8jyNFy9or++wI6n4
+         MdD+ENwnEQJr3sbjeYVqK60AqCgIWp875c0UmHcw3GJAyGrfHfW45JJ1bFjLZbAxM7
+         Ljn9Ddc63qw4rt8lMbDqdbo0LrbGJj7Rmk6PzoFc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Li Manyi <limanyi@uniontech.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, "H. Nikolaus Schaller" <hns@goldelico.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 08/54] scsi: sr: Return correct event when media event code is 3
+Subject: [PATCH 5.4 29/85] mips: Fix non-POSIX regexp
 Date:   Tue, 10 Aug 2021 19:30:02 +0200
-Message-Id: <20210810172944.463604205@linuxfoundation.org>
+Message-Id: <20210810172949.191453405@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172944.179901509@linuxfoundation.org>
-References: <20210810172944.179901509@linuxfoundation.org>
+In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
+References: <20210810172948.192298392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,43 +40,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Manyi <limanyi@uniontech.com>
+From: H. Nikolaus Schaller <hns@goldelico.com>
 
-[ Upstream commit 5c04243a56a7977185b00400e59ca7e108004faf ]
+[ Upstream commit 28bbbb9875a35975904e46f9b06fa689d051b290 ]
 
-Media event code 3 is defined in the MMC-6 spec as follows:
+When cross compiling a MIPS kernel on a BSD based HOSTCC leads
+to errors like
 
-  "MediaRemoval: The media has been removed from the specified slot, and
-   the Drive is unable to access the media without user intervention. This
-   applies to media changers only."
+  SYNC    include/config/auto.conf.cmd - due to: .config
+egrep: empty (sub)expression
+  UPD     include/config/kernel.release
+  HOSTCC  scripts/dtc/dtc.o - due to target missing
 
-This indicated that treating the condition as an EJECT_REQUEST was
-appropriate. However, doing so had the unfortunate side-effect of causing
-the drive tray to be physically ejected on resume. Instead treat the event
-as a MEDIA_CHANGE request.
+It turns out that egrep uses this egrep pattern:
 
-Fixes: 7dd753ca59d6 ("scsi: sr: Return appropriate error code when disk is ejected")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=213759
-Link: https://lore.kernel.org/r/20210726114913.6760-1-limanyi@uniontech.com
-Signed-off-by: Li Manyi <limanyi@uniontech.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+		(|MINOR_|PATCHLEVEL_)
+
+This is not valid syntax or gives undefined results according
+to POSIX 9.5.3 ERE Grammar
+
+	https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap09.html
+
+It seems to be silently accepted by the Linux egrep implementation
+while a BSD host complains.
+
+Such patterns can be replaced by a transformation like
+
+	"(|p1|p2)" -> "(p1|p2)?"
+
+Fixes: 48c35b2d245f ("[MIPS] There is no __GNUC_MAJOR__")
+Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/sr.c | 2 +-
+ arch/mips/Makefile | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/sr.c b/drivers/scsi/sr.c
-index acf0c244141f..84dd776d36c3 100644
---- a/drivers/scsi/sr.c
-+++ b/drivers/scsi/sr.c
-@@ -217,7 +217,7 @@ static unsigned int sr_get_events(struct scsi_device *sdev)
- 	else if (med->media_event_code == 2)
- 		return DISK_EVENT_MEDIA_CHANGE;
- 	else if (med->media_event_code == 3)
--		return DISK_EVENT_EJECT_REQUEST;
-+		return DISK_EVENT_MEDIA_CHANGE;
- 	return 0;
- }
+diff --git a/arch/mips/Makefile b/arch/mips/Makefile
+index 5403a91ce098..9ff2c70763a0 100644
+--- a/arch/mips/Makefile
++++ b/arch/mips/Makefile
+@@ -320,7 +320,7 @@ KBUILD_LDFLAGS		+= -m $(ld-emul)
+ 
+ ifdef CONFIG_MIPS
+ CHECKFLAGS += $(shell $(CC) $(KBUILD_CFLAGS) -dM -E -x c /dev/null | \
+-	egrep -vw '__GNUC_(|MINOR_|PATCHLEVEL_)_' | \
++	egrep -vw '__GNUC_(MINOR_|PATCHLEVEL_)?_' | \
+ 	sed -e "s/^\#define /-D'/" -e "s/ /'='/" -e "s/$$/'/" -e 's/\$$/&&/g')
+ endif
  
 -- 
 2.30.2
