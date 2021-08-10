@@ -2,170 +2,153 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 048AF3E57F8
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 12:06:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C940D3E594A
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 13:42:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236537AbhHJKGJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 06:06:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58506 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239680AbhHJKEQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Aug 2021 06:04:16 -0400
-Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D474CC0617A1;
-        Tue, 10 Aug 2021 03:03:49 -0700 (PDT)
-Received: by mail-pl1-x62a.google.com with SMTP id a20so20345100plm.0;
-        Tue, 10 Aug 2021 03:03:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=FZv8WUWA7XMtGcmHm3fe2kXxpsT1wGOMqKzhZnOXInc=;
-        b=n7riOfASCNRbDihiPbdaEZnz50Wl3IaUDhYTad8G/AQE8zyH1KA/OtdmD8JY6C4SR4
-         LU7eUzBaWI1HxZNMiqi98wM2P102T+3tJKdEZrDUVWgySL4URjuKQDeYXtP/Y+Pepo9Q
-         eJgtet9sjnlZtgaGMKzGksX0M6FKp3YbojSdJUxiBz+QEzDzk/G8U8fy/QzQEkX/mb34
-         CFKoiQKXqlRxYR8apIFoD4SlQiROYb3TH04zMUpwpYlW8JaWPjEp+tY7o5xBYvvdWaH9
-         q4Yfy/OSw3j6fQQvaap/HBH5F7S4W0q5WxGatKXU2Ok5zjWIKtMLZ1lpu89AcC4EOjRL
-         GnsQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=FZv8WUWA7XMtGcmHm3fe2kXxpsT1wGOMqKzhZnOXInc=;
-        b=pgEG3Bqc0jWVoakaAVJDoZHr3K/xergJXhhu37OAyNMA5zm4w7apec7EVAJzN8jwi4
-         2eYUotOdhdbv6tsvb0BK2xmUjmKatwDprYb0goXI5hEJFf18imHe8LHgrE2+mkQHeGRE
-         oKip2X52USYTs7Hp3gKXUnX0qjiNY0nmcDi/u2pr0hPQwZzzA2r77CVN7DpJsZxp1UDu
-         VBaEUEhqzOcSOWNQbGUq5qNLanoYR96cb1AEz4JXoUvGktHFIf/TWQp3RAV9ZjaiCtQ1
-         MY5WyfZiTyosdz0zNRNhZYh3hUmrC+CEcqYIpd060SIhPUl3Zl31Q/l8W12P/dbqckNH
-         2I3g==
-X-Gm-Message-State: AOAM532XvV5pNYY4WzFIcfxU4DZ+JQh6oGH+ziZBwjG7ypugv7yCRp6W
-        fbsP0G2GJjDZUCK+ObgVJQo=
-X-Google-Smtp-Source: ABdhPJyjHnHQXvLxKdgfLBPWa/XZ3kWSmXNDvd0PaIDD2qxKYcCnx5it80eGot5J+T7kt2ff2O6qEw==
-X-Received: by 2002:a17:90a:5888:: with SMTP id j8mr4148681pji.17.1628589829361;
-        Tue, 10 Aug 2021 03:03:49 -0700 (PDT)
-Received: from localhost.localdomain ([154.16.166.217])
-        by smtp.gmail.com with ESMTPSA id e13sm22943413pfi.210.2021.08.10.03.03.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 10 Aug 2021 03:03:48 -0700 (PDT)
-From:   Dongliang Mu <mudongliangabcd@gmail.com>
-To:     Samuel Iglesias Gonsalvez <siglesias@igalia.com>,
-        Jens Taprogge <jens.taprogge@taprogge.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Dongliang Mu <mudongliangabcd@gmail.com>,
-        Aditya Srivastava <yashsri421@gmail.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
-        Zhouyang Jia <jiazhouyang09@gmail.com>
-Cc:     stable@vger.kernel.org, industrypack-devel@lists.sourceforge.net,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH v4 2/2] ipack: tpci200: fix memory leak in the tpci200_register
-Date:   Tue, 10 Aug 2021 18:03:19 +0800
-Message-Id: <20210810100323.3938492-2-mudongliangabcd@gmail.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20210810100323.3938492-1-mudongliangabcd@gmail.com>
-References: <20210810100323.3938492-1-mudongliangabcd@gmail.com>
+        id S237022AbhHJLmZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 07:42:25 -0400
+Received: from mga18.intel.com ([134.134.136.126]:10270 "EHLO mga18.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S238248AbhHJLmX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 07:42:23 -0400
+X-IronPort-AV: E=McAfee;i="6200,9189,10070"; a="202054049"
+X-IronPort-AV: E=Sophos;i="5.84,310,1620716400"; 
+   d="scan'208";a="202054049"
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Aug 2021 04:42:01 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.84,310,1620716400"; 
+   d="scan'208";a="503093147"
+Received: from fmsmsx603.amr.corp.intel.com ([10.18.126.83])
+  by orsmga001.jf.intel.com with ESMTP; 10 Aug 2021 04:42:01 -0700
+Received: from fmsmsx612.amr.corp.intel.com (10.18.126.92) by
+ fmsmsx603.amr.corp.intel.com (10.18.126.83) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2242.10; Tue, 10 Aug 2021 04:42:00 -0700
+Received: from bgsmsx604.gar.corp.intel.com (10.67.234.6) by
+ fmsmsx612.amr.corp.intel.com (10.18.126.92) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2242.10; Tue, 10 Aug 2021 04:41:59 -0700
+Received: from bgsmsx604.gar.corp.intel.com ([10.67.234.6]) by
+ BGSMSX604.gar.corp.intel.com ([10.67.234.6]) with mapi id 15.01.2242.010;
+ Tue, 10 Aug 2021 17:11:57 +0530
+From:   "Shankar, Uma" <uma.shankar@intel.com>
+To:     "Nautiyal, Ankit K" <ankit.k.nautiyal@intel.com>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>
+CC:     "Zanoni, Paulo R" <paulo.r.zanoni@intel.com>,
+        "ville.syrjala@linux.intel.com" <ville.syrjala@linux.intel.com>,
+        "daniel.vetter@ffwll.ch" <daniel.vetter@ffwll.ch>,
+        "jani.nikula@linux.intel.com" <jani.nikula@linux.intel.com>,
+        "joonas.lahtinen@linux.intel.com" <joonas.lahtinen@linux.intel.com>,
+        "Vivi, Rodrigo" <rodrigo.vivi@intel.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH v2] drm/i915/display: Fix the 12 BPC bits for PIPE_MISC
+ reg
+Thread-Topic: [PATCH v2] drm/i915/display: Fix the 12 BPC bits for PIPE_MISC
+ reg
+Thread-Index: AQHXh6HO8iXi7QpLAkasFNuHwzlb3qtsptow
+Date:   Tue, 10 Aug 2021 11:41:57 +0000
+Message-ID: <8e03166cf37749329f5f92ca025c61c6@intel.com>
+References: <1627908997-32236-1-git-send-email-ankit.k.nautiyal@intel.com>
+In-Reply-To: <1627908997-32236-1-git-send-email-ankit.k.nautiyal@intel.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+dlp-product: dlpe-windows
+dlp-reaction: no-action
+dlp-version: 11.5.1.3
+x-originating-ip: [10.223.10.1]
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The error handling code in tpci200_register does not free interface_regs
-allocated by ioremap and the current version of error handling code is
-problematic.
-
-Fix this by refactoring the error handling code and free interface_regs
-when necessary.
-
-Reported-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Fixes: 43986798fd50 ("ipack: add error handling for ioremap_nocache")
-Cc: stable@vger.kernel.org
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
----
-v1->v2: revise PATCH 2/3, 3/3, not depending on PATCH 1/3; move the
-location change of tpci_unregister into one separate patch;
-v2->v3: double check all pci_iounmap api invocations
-v3->v4: add a tag - Cc: stable@vger.kernel.org
- drivers/ipack/carriers/tpci200.c | 24 ++++++++++++++----------
- 1 file changed, 14 insertions(+), 10 deletions(-)
-
-diff --git a/drivers/ipack/carriers/tpci200.c b/drivers/ipack/carriers/tpci200.c
-index 92795a0230ca..cbfdadecb23b 100644
---- a/drivers/ipack/carriers/tpci200.c
-+++ b/drivers/ipack/carriers/tpci200.c
-@@ -254,7 +254,7 @@ static int tpci200_register(struct tpci200_board *tpci200)
- 			"(bn 0x%X, sn 0x%X) failed to allocate PCI resource for BAR 2 !",
- 			tpci200->info->pdev->bus->number,
- 			tpci200->info->pdev->devfn);
--		goto out_disable_pci;
-+		goto err_disable_device;
- 	}
- 
- 	/* Request IO ID INT space (Bar 3) */
-@@ -266,7 +266,7 @@ static int tpci200_register(struct tpci200_board *tpci200)
- 			"(bn 0x%X, sn 0x%X) failed to allocate PCI resource for BAR 3 !",
- 			tpci200->info->pdev->bus->number,
- 			tpci200->info->pdev->devfn);
--		goto out_release_ip_space;
-+		goto err_ip_interface_bar;
- 	}
- 
- 	/* Request MEM8 space (Bar 5) */
-@@ -277,7 +277,7 @@ static int tpci200_register(struct tpci200_board *tpci200)
- 			"(bn 0x%X, sn 0x%X) failed to allocate PCI resource for BAR 5!",
- 			tpci200->info->pdev->bus->number,
- 			tpci200->info->pdev->devfn);
--		goto out_release_ioid_int_space;
-+		goto err_io_id_int_spaces_bar;
- 	}
- 
- 	/* Request MEM16 space (Bar 4) */
-@@ -288,7 +288,7 @@ static int tpci200_register(struct tpci200_board *tpci200)
- 			"(bn 0x%X, sn 0x%X) failed to allocate PCI resource for BAR 4!",
- 			tpci200->info->pdev->bus->number,
- 			tpci200->info->pdev->devfn);
--		goto out_release_mem8_space;
-+		goto err_mem8_space_bar;
- 	}
- 
- 	/* Map internal tpci200 driver user space */
-@@ -302,7 +302,7 @@ static int tpci200_register(struct tpci200_board *tpci200)
- 			tpci200->info->pdev->bus->number,
- 			tpci200->info->pdev->devfn);
- 		res = -ENOMEM;
--		goto out_release_mem8_space;
-+		goto err_mem16_space_bar;
- 	}
- 
- 	/* Initialize lock that protects interface_regs */
-@@ -341,18 +341,22 @@ static int tpci200_register(struct tpci200_board *tpci200)
- 			"(bn 0x%X, sn 0x%X) unable to register IRQ !",
- 			tpci200->info->pdev->bus->number,
- 			tpci200->info->pdev->devfn);
--		goto out_release_ioid_int_space;
-+		goto err_interface_regs;
- 	}
- 
- 	return 0;
- 
--out_release_mem8_space:
-+err_interface_regs:
-+	pci_iounmap(tpci200->info->pdev, tpci200->info->interface_regs);
-+err_mem16_space_bar:
-+	pci_release_region(tpci200->info->pdev, TPCI200_MEM16_SPACE_BAR);
-+err_mem8_space_bar:
- 	pci_release_region(tpci200->info->pdev, TPCI200_MEM8_SPACE_BAR);
--out_release_ioid_int_space:
-+err_io_id_int_spaces_bar:
- 	pci_release_region(tpci200->info->pdev, TPCI200_IO_ID_INT_SPACES_BAR);
--out_release_ip_space:
-+err_ip_interface_bar:
- 	pci_release_region(tpci200->info->pdev, TPCI200_IP_INTERFACE_BAR);
--out_disable_pci:
-+err_disable_device:
- 	pci_disable_device(tpci200->info->pdev);
- 	return res;
- }
--- 
-2.25.1
-
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogTmF1dGl5YWwsIEFua2l0
+IEsgPGFua2l0LmsubmF1dGl5YWxAaW50ZWwuY29tPg0KPiBTZW50OiBNb25kYXksIEF1Z3VzdCAy
+LCAyMDIxIDY6MjcgUE0NCj4gVG86IGludGVsLWdmeEBsaXN0cy5mcmVlZGVza3RvcC5vcmcNCj4g
+Q2M6IFNoYW5rYXIsIFVtYSA8dW1hLnNoYW5rYXJAaW50ZWwuY29tPjsgWmFub25pLCBQYXVsbyBS
+DQo+IDxwYXVsby5yLnphbm9uaUBpbnRlbC5jb20+OyB2aWxsZS5zeXJqYWxhQGxpbnV4LmludGVs
+LmNvbTsgZGFuaWVsLnZldHRlckBmZndsbC5jaDsNCj4gamFuaS5uaWt1bGFAbGludXguaW50ZWwu
+Y29tOyBqb29uYXMubGFodGluZW5AbGludXguaW50ZWwuY29tOyBWaXZpLCBSb2RyaWdvDQo+IDxy
+b2RyaWdvLnZpdmlAaW50ZWwuY29tPjsgc3RhYmxlQHZnZXIua2VybmVsLm9yZw0KPiBTdWJqZWN0
+OiBbUEFUQ0ggdjJdIGRybS9pOTE1L2Rpc3BsYXk6IEZpeCB0aGUgMTIgQlBDIGJpdHMgZm9yIFBJ
+UEVfTUlTQyByZWcNCj4gDQo+IEZyb206IEFua2l0IE5hdXRpeWFsIDxhbmtpdC5rLm5hdXRpeWFs
+QGludGVsLmNvbT4NCj4gDQo+IFRpbGwgRElTUExBWTEyIHRoZSBQSVBFX01JU0MgYml0cyA1LTcg
+YXJlIHVzZWQgdG8gc2V0IHRoZSBEaXRoZXJpbmcgQlBDLCB3aXRoIHZhbGlkDQo+IHZhbHVlcyBv
+ZiA2LCA4LCAxMCBCUEMsIHdpdGggRGl0aGVyaW5nIGJpdCBlbmFibGVkLg0KPiBBbHNvLCB0aGVz
+ZSBiaXRzIGFyZSB1c2VkIGluIGNhc2Ugb2YgSFcgcmVhZG91dCBmb3IgcGlwZV9icHAgaW4gY2Fz
+ZSBvZiBEU0kuDQo+IEZvciBBRExQKyB0aGVzZSBiaXRzIGFyZSB1c2VkIHRvIHNldCB0aGUgUE9S
+VCBPVVRQVVQgQlBDLCB3aXRoIHZhbGlkIHZhbHVlcyBvZjogNiwNCj4gOCwgMTAsIDEyIEJQQywg
+YW5kIG5lZWQgdG8gYmUgcHJvZ3JhbW1lZCB3aGV0aGVyIGRpdGhlcmluZyBpcyBlbmFibGVkIG9y
+IG5vdC4NCj4gDQo+IFRoaXMgcGF0Y2g6DQo+IC1jb3JyZWN0cyB0aGUgYml0cyA1LTcgZm9yIFBJ
+UEUgTUlTQyByZWdpc3RlciBmb3IgMTIgQlBDLg0KPiAtcmVuYW1lcyB0aGUgYml0cyBhbmQgbWFz
+ayB0byBoYXZlIGdlbmVyaWMgbmFtZXMgZm9yIHRoZXNlIGJpdHMgZm9yIGRpdGhlcmluZyBicGMN
+Cj4gYW5kIHBvcnQgb3V0cHV0IGJwYy4NCj4gDQo+IHYyOiBBZGRyZXNzZWQgdGhlIGNvbW1lbnRz
+IGFuZCBzdWdnZXN0aW9ucyBmcm9tIFVtYSBTaGFua2FyOg0KPiAtQWRkICdkaXNwbGF5JyBpbiBz
+dWJqZWN0DQo+IC1BZGQgRml4ZXMgdGFnIGluIHRoZSBjb21taXQgbWVzc2FnZS4NCj4gLVRha2Ug
+Y2FyZSBvZiBEU0kgY2FzZSB3aGljaCB1c2VzIHRoZSBiaXRzIGZvciBnZXR0aW5nIHBpcGVfYnBw
+Lg0KPiANCj4gRml4ZXM6IDc1NmY4NWNmZmVmMiAoImRybS9pOTE1L2JkdzogQnJvYWR3ZWxsIGhh
+cyBQSVBFTUlTQyIpDQo+IENjOiBQYXVsbyBaYW5vbmkgPHBhdWxvLnIuemFub25pQGludGVsLmNv
+bT4gKHYxKQ0KPiBDYzogVmlsbGUgU3lyasOkbMOkIDx2aWxsZS5zeXJqYWxhQGxpbnV4LmludGVs
+LmNvbT4NCj4gQ2M6IERhbmllbCBWZXR0ZXIgPGRhbmllbC52ZXR0ZXJAZmZ3bGwuY2g+DQo+IENj
+OiBKYW5pIE5pa3VsYSA8amFuaS5uaWt1bGFAbGludXguaW50ZWwuY29tPg0KPiBDYzogSm9vbmFz
+IExhaHRpbmVuIDxqb29uYXMubGFodGluZW5AbGludXguaW50ZWwuY29tPg0KPiBDYzogUm9kcmln
+byBWaXZpIDxyb2RyaWdvLnZpdmlAaW50ZWwuY29tPg0KPiBDYzogaW50ZWwtZ2Z4QGxpc3RzLmZy
+ZWVkZXNrdG9wLm9yZw0KPiBDYzogPHN0YWJsZUB2Z2VyLmtlcm5lbC5vcmc+ICMgdjMuMTMrDQo+
+IA0KPiBTaWduZWQtb2ZmLWJ5OiBBbmtpdCBOYXV0aXlhbCA8YW5raXQuay5uYXV0aXlhbEBpbnRl
+bC5jb20+DQo+IC0tLQ0KPiAgZHJpdmVycy9ncHUvZHJtL2k5MTUvZGlzcGxheS9pbnRlbF9kaXNw
+bGF5LmMgfCAxOCArKysrKysrKystLS0tLS0tLS0NCj4gIGRyaXZlcnMvZ3B1L2RybS9pOTE1L2k5
+MTVfcmVnLmggICAgICAgICAgICAgIHwgMTUgKysrKysrKysrKy0tLS0tDQo+ICAyIGZpbGVzIGNo
+YW5nZWQsIDE5IGluc2VydGlvbnMoKyksIDE0IGRlbGV0aW9ucygtKQ0KPiANCj4gZGlmZiAtLWdp
+dCBhL2RyaXZlcnMvZ3B1L2RybS9pOTE1L2Rpc3BsYXkvaW50ZWxfZGlzcGxheS5jDQo+IGIvZHJp
+dmVycy9ncHUvZHJtL2k5MTUvZGlzcGxheS9pbnRlbF9kaXNwbGF5LmMNCj4gaW5kZXggNjVkZGI2
+Yy4uOTc2NmIzNiAxMDA2NDQNCj4gLS0tIGEvZHJpdmVycy9ncHUvZHJtL2k5MTUvZGlzcGxheS9p
+bnRlbF9kaXNwbGF5LmMNCj4gKysrIGIvZHJpdmVycy9ncHUvZHJtL2k5MTUvZGlzcGxheS9pbnRl
+bF9kaXNwbGF5LmMNCj4gQEAgLTU3NjAsMTYgKzU3NjAsMTYgQEAgc3RhdGljIHZvaWQgYmR3X3Nl
+dF9waXBlbWlzYyhjb25zdCBzdHJ1Y3QNCj4gaW50ZWxfY3J0Y19zdGF0ZSAqY3J0Y19zdGF0ZSkN
+Cj4gDQo+ICAJc3dpdGNoIChjcnRjX3N0YXRlLT5waXBlX2JwcCkgew0KPiAgCWNhc2UgMTg6DQo+
+IC0JCXZhbCB8PSBQSVBFTUlTQ19ESVRIRVJfNl9CUEM7DQo+ICsJCXZhbCB8PSBQSVBFTUlTQ182
+X0JQQzsNCj4gIAkJYnJlYWs7DQo+ICAJY2FzZSAyNDoNCj4gLQkJdmFsIHw9IFBJUEVNSVNDX0RJ
+VEhFUl84X0JQQzsNCj4gKwkJdmFsIHw9IFBJUEVNSVNDXzhfQlBDOw0KPiAgCQlicmVhazsNCj4g
+IAljYXNlIDMwOg0KPiAtCQl2YWwgfD0gUElQRU1JU0NfRElUSEVSXzEwX0JQQzsNCj4gKwkJdmFs
+IHw9IFBJUEVNSVNDXzEwX0JQQzsNCj4gIAkJYnJlYWs7DQo+ICAJY2FzZSAzNjoNCj4gLQkJdmFs
+IHw9IFBJUEVNSVNDX0RJVEhFUl8xMl9CUEM7DQo+ICsJCXZhbCB8PSBQSVBFTUlTQ18xMl9CUEM7
+DQoNCklzbid0IHRoaXMgYml0IG5vdCBzdXBwb3J0ZWQgb24gcHJpb3IgdG8gR2VuMTMgcGxhdGZv
+cm1zLCBzbyBmcm9tIHRoYXQgcGVyc3BlY3RpdmUgaXQncyBhbg0KSW52YWxpZCBvcGVyYXRpb24u
+IENhbiB5b3UgY29uZmlybS4NCg0KPiAgCQlicmVhazsNCj4gIAlkZWZhdWx0Og0KPiAgCQlNSVNT
+SU5HX0NBU0UoY3J0Y19zdGF0ZS0+cGlwZV9icHApOw0KPiBAQCAtNTgyMiwxNCArNTgyMiwxNCBA
+QCBpbnQgYmR3X2dldF9waXBlbWlzY19icHAoc3RydWN0IGludGVsX2NydGMgKmNydGMpDQo+IA0K
+PiAgCXRtcCA9IGludGVsX2RlX3JlYWQoZGV2X3ByaXYsIFBJUEVNSVNDKGNydGMtPnBpcGUpKTsN
+Cj4gDQo+IC0Jc3dpdGNoICh0bXAgJiBQSVBFTUlTQ19ESVRIRVJfQlBDX01BU0spIHsNCj4gLQlj
+YXNlIFBJUEVNSVNDX0RJVEhFUl82X0JQQzoNCj4gKwlzd2l0Y2ggKHRtcCAmIFBJUEVNSVNDX0JQ
+Q19NQVNLKSB7DQo+ICsJY2FzZSBQSVBFTUlTQ182X0JQQzoNCj4gIAkJcmV0dXJuIDE4Ow0KPiAt
+CWNhc2UgUElQRU1JU0NfRElUSEVSXzhfQlBDOg0KPiArCWNhc2UgUElQRU1JU0NfOF9CUEM6DQo+
+ICAJCXJldHVybiAyNDsNCj4gLQljYXNlIFBJUEVNSVNDX0RJVEhFUl8xMF9CUEM6DQo+ICsJY2Fz
+ZSBQSVBFTUlTQ18xMF9CUEM6DQo+ICAJCXJldHVybiAzMDsNCj4gLQljYXNlIFBJUEVNSVNDX0RJ
+VEhFUl8xMl9CUEM6DQo+ICsJY2FzZSBQSVBFTUlTQ18xMl9CUEM6DQo+ICAJCXJldHVybiAzNjsN
+Cg0KU2FtZSBoZXJlLg0KDQo+ICAJZGVmYXVsdDoNCj4gIAkJTUlTU0lOR19DQVNFKHRtcCk7DQo+
+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9kcm0vaTkxNS9pOTE1X3JlZy5oIGIvZHJpdmVycy9n
+cHUvZHJtL2k5MTUvaTkxNV9yZWcuaA0KPiBpbmRleCA5NDNmZTQ4Li5iYmZlNGY0IDEwMDY0NA0K
+PiAtLS0gYS9kcml2ZXJzL2dwdS9kcm0vaTkxNS9pOTE1X3JlZy5oDQo+ICsrKyBiL2RyaXZlcnMv
+Z3B1L2RybS9pOTE1L2k5MTVfcmVnLmgNCj4gQEAgLTYxNjYsMTEgKzYxNjYsMTYgQEAgZW51bSB7
+DQo+ICAjZGVmaW5lICAgUElQRU1JU0NfSERSX01PREVfUFJFQ0lTSU9OCSgxIDw8IDIzKSAvKiBp
+Y2wrICovDQo+ICAjZGVmaW5lICAgUElQRU1JU0NfT1VUUFVUX0NPTE9SU1BBQ0VfWVVWICAoMSA8
+PCAxMSkNCj4gICNkZWZpbmUgICBQSVBFTUlTQ19QSVhFTF9ST1VORElOR19UUlVOQwlSRUdfQklU
+KDgpIC8qIHRnbCsgKi8NCj4gLSNkZWZpbmUgICBQSVBFTUlTQ19ESVRIRVJfQlBDX01BU0sJKDcg
+PDwgNSkNCj4gLSNkZWZpbmUgICBQSVBFTUlTQ19ESVRIRVJfOF9CUEMJCSgwIDw8IDUpDQo+IC0j
+ZGVmaW5lICAgUElQRU1JU0NfRElUSEVSXzEwX0JQQwkoMSA8PCA1KQ0KPiAtI2RlZmluZSAgIFBJ
+UEVNSVNDX0RJVEhFUl82X0JQQwkJKDIgPDwgNSkNCj4gLSNkZWZpbmUgICBQSVBFTUlTQ19ESVRI
+RVJfMTJfQlBDCSgzIDw8IDUpDQo+ICsvKg0KPiArICogRm9yIERpc3BsYXkgPCAxMywgQml0cyA1
+LTcgb2YgUElQRSBNSVNDIHJlcHJlc2VudCBESVRIRVIgQlBDLg0KPiArICogQURMUCssIHRoZSBi
+aXRzIDUtNyByZXByZXNlbnQgUE9SVCBPVVRQVVQgQlBDIHdpdGggdmFsaWQgdmFsdWVzIG9mOg0K
+PiArICogNiwgOCwgMTAsIDEyIEJQQy4NCj4gKyAqLw0KPiArI2RlZmluZSAgIFBJUEVNSVNDX0JQ
+Q19NQVNLCQkoNyA8PCA1KQ0KPiArI2RlZmluZSAgIFBJUEVNSVNDXzhfQlBDCQkoMCA8PCA1KQ0K
+PiArI2RlZmluZSAgIFBJUEVNSVNDXzEwX0JQQwkJKDEgPDwgNSkNCj4gKyNkZWZpbmUgICBQSVBF
+TUlTQ182X0JQQwkJKDIgPDwgNSkNCj4gKyNkZWZpbmUgICBQSVBFTUlTQ18xMl9CUEMJCSg0IDw8
+IDUpIC8qIGFkbHArICovDQo+ICAjZGVmaW5lICAgUElQRU1JU0NfRElUSEVSX0VOQUJMRQkoMSA8
+PCA0KQ0KPiAgI2RlZmluZSAgIFBJUEVNSVNDX0RJVEhFUl9UWVBFX01BU0sJKDMgPDwgMikNCj4g
+ICNkZWZpbmUgICBQSVBFTUlTQ19ESVRIRVJfVFlQRV9TUAkoMCA8PCAyKQ0KPiAtLQ0KPiAyLjgu
+MQ0KDQo=
