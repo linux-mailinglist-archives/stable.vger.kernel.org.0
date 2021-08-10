@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F6753E7E7B
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:33:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15B443E804B
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:47:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232712AbhHJRdg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:33:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33850 "EHLO mail.kernel.org"
+        id S235452AbhHJRr5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:47:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232245AbhHJRdL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:33:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B46E60E09;
-        Tue, 10 Aug 2021 17:32:48 +0000 (UTC)
+        id S235704AbhHJRqD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:46:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3610161247;
+        Tue, 10 Aug 2021 17:40:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616768;
-        bh=kLwRbf04wdPDTWhUR1wEgK8ZlS0EXM2rYWxeVLJtKIY=;
+        s=korg; t=1628617220;
+        bh=ckeo+XSfRypBSHdnCzFP2tkKjgTwwxNzrwrjQIeZC8w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1tP3YyWks/QKsXoSBC2TLbLDJ1N5CXCbFGRbuTVowzNxZFGXKs7osRV+TQgfj6csD
-         lcYUrjEljA48l9aL/EjTkJvZyLgUloda2Q7P8NY2NLwzYNuZkqA4ho5u1pKiAvLP/o
-         PoNubiguUv0F4O9YRigMaAsq9Pg79iaptHtoEws0=
+        b=T2IE8j7hrGoRKGRKvBo/la2K22FmFNKUckStrGhpOmvsQtYm8e4u6rIFBxdQBvMtc
+         k0VaiwzSByfdGpwQAIq6gex8nBkCURDhyhR1+v4qQIdqJng8ppsISrzpSKOfazg/Ix
+         9e3gpvyxfZM101emkGOL4HkGbdSfPEnBtQFTWQ7o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Xiangyang Zhang <xyz.sun.ok@gmail.com>
-Subject: [PATCH 4.19 37/54] staging: rtl8723bs: Fix a resource leak in sd_int_dpc
-Date:   Tue, 10 Aug 2021 19:30:31 +0200
-Message-Id: <20210810172945.407789168@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 5.10 098/135] serial: 8250_pci: Enumerate Elkhart Lake UARTs via dedicated driver
+Date:   Tue, 10 Aug 2021 19:30:32 +0200
+Message-Id: <20210810172959.093363149@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172944.179901509@linuxfoundation.org>
-References: <20210810172944.179901509@linuxfoundation.org>
+In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
+References: <20210810172955.660225700@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,33 +39,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiangyang Zhang <xyz.sun.ok@gmail.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-commit 990e4ad3ddcb72216caeddd6e62c5f45a21e8121 upstream.
+commit 7f0909db761535aefafa77031062603a71557267 upstream.
 
-The "c2h_evt" variable is not freed when function call
-"c2h_evt_read_88xx" failed
+Elkhart Lake UARTs are PCI enumerated Synopsys DesignWare v4.0+ UART
+integrated with Intel iDMA 32-bit DMA controller. There is a specific
+driver to handle them, i.e. 8250_lpss. Hence, disable 8250_pci
+enumeration for these UARTs.
 
-Fixes: 554c0a3abf21 ("staging: Add rtl8723bs sdio wifi driver")
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Xiangyang Zhang <xyz.sun.ok@gmail.com>
+Fixes: 1b91d97c66ef ("serial: 8250_lpss: Add ->setup() for Elkhart Lake ports")
+Fixes: 4f912b898dc2 ("serial: 8250_lpss: Enable HS UART on Elkhart Lake")
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210628152239.5475-1-xyz.sun.ok@gmail.com
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20210713101739.36962-1-andriy.shevchenko@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/rtl8723bs/hal/sdio_ops.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/tty/serial/8250/8250_pci.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/staging/rtl8723bs/hal/sdio_ops.c
-+++ b/drivers/staging/rtl8723bs/hal/sdio_ops.c
-@@ -1077,6 +1077,8 @@ void sd_int_dpc(struct adapter *adapter)
- 				} else {
- 					rtw_c2h_wk_cmd(adapter, (u8 *)c2h_evt);
- 				}
-+			} else {
-+				kfree(c2h_evt);
- 			}
- 		} else {
- 			/* Error handling for malloc fail */
+--- a/drivers/tty/serial/8250/8250_pci.c
++++ b/drivers/tty/serial/8250/8250_pci.c
+@@ -3804,6 +3804,12 @@ static const struct pci_device_id blackl
+ 	{ PCI_VDEVICE(INTEL, 0x0f0c), },
+ 	{ PCI_VDEVICE(INTEL, 0x228a), },
+ 	{ PCI_VDEVICE(INTEL, 0x228c), },
++	{ PCI_VDEVICE(INTEL, 0x4b96), },
++	{ PCI_VDEVICE(INTEL, 0x4b97), },
++	{ PCI_VDEVICE(INTEL, 0x4b98), },
++	{ PCI_VDEVICE(INTEL, 0x4b99), },
++	{ PCI_VDEVICE(INTEL, 0x4b9a), },
++	{ PCI_VDEVICE(INTEL, 0x4b9b), },
+ 	{ PCI_VDEVICE(INTEL, 0x9ce3), },
+ 	{ PCI_VDEVICE(INTEL, 0x9ce4), },
+ 
 
 
