@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B3A33E8081
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:50:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03CA23E7F67
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:41:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233165AbhHJRuo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:50:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55284 "EHLO mail.kernel.org"
+        id S234327AbhHJRkU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:40:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43990 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234555AbhHJRrZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:47:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F8AA6023E;
-        Tue, 10 Aug 2021 17:40:58 +0000 (UTC)
+        id S234778AbhHJRiQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:38:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 88B646101E;
+        Tue, 10 Aug 2021 17:36:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617258;
-        bh=HPpoJHqEyQFFQr1mBXEm3NQEDkewRfD81StpTolw5KU=;
+        s=korg; t=1628616980;
+        bh=Fz3osT4DG4eGCCCkjBdddW7LB3h7cyjEm7iXc2Pi3d8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=alcGB6UVtGXCEyxHhb3t4ckKj2FdSRfJh7CaIaqZmgTRup7GRRy64JCv4Sz3itnbE
-         OFhiemf9NzTZ13b9rHQP/eCLs1VF+un6imG5QA56OWh62Q6ZzNN7cubcfgwwepRSO4
-         DoaFdjz2z00jNMocLeIzJexM06uV0B/tjyb/Y1V4=
+        b=LF0RcYCytwW5aPnwvnrR54J0bELSDmicvUGM9uzRhaqQJK0HO1Z+0j4SIFHeLkZAm
+         R25v22/yGIpl8JdvogXKXRn+E4pf+g96XihyMEs+TsWmxh+e2G2RY0ApC1jH6VOO0W
+         +TC7sj19j2Zk3LWHkaOIjMFdSNawciakvFE45Mzo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dongliang Mu <mudongliangabcd@gmail.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.10 116/135] spi: meson-spicc: fix memory leak in meson_spicc_remove
+        stable@vger.kernel.org, Like Xu <likexu@tencent.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Liam Merwick <liam.merwick@oracle.com>,
+        Kim Phillips <kim.phillips@amd.com>
+Subject: [PATCH 5.4 77/85] perf/x86/amd: Dont touch the AMD64_EVENTSEL_HOSTONLY bit inside the guest
 Date:   Tue, 10 Aug 2021 19:30:50 +0200
-Message-Id: <20210810172959.734172948@linuxfoundation.org>
+Message-Id: <20210810172950.834994078@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
-References: <20210810172955.660225700@linuxfoundation.org>
+In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
+References: <20210810172948.192298392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,34 +41,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Like Xu <likexu@tencent.com>
 
-commit 8311ee2164c5cd1b63a601ea366f540eae89f10e upstream.
+commit df51fe7ea1c1c2c3bfdb81279712fdd2e4ea6c27 upstream.
 
-In meson_spicc_probe, the error handling code needs to clean up master
-by calling spi_master_put, but the remove function does not have this
-function call. This will lead to memory leak of spicc->master.
+If we use "perf record" in an AMD Milan guest, dmesg reports a #GP
+warning from an unchecked MSR access error on MSR_F15H_PERF_CTLx:
 
-Reported-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Fixes: 454fa271bc4e("spi: Add Meson SPICC driver")
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Link: https://lore.kernel.org/r/20210720100116.1438974-1-mudongliangabcd@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+  [] unchecked MSR access error: WRMSR to 0xc0010200 (tried to write 0x0000020000110076) at rIP: 0xffffffff8106ddb4 (native_write_msr+0x4/0x20)
+  [] Call Trace:
+  []  amd_pmu_disable_event+0x22/0x90
+  []  x86_pmu_stop+0x4c/0xa0
+  []  x86_pmu_del+0x3a/0x140
+
+The AMD64_EVENTSEL_HOSTONLY bit is defined and used on the host,
+while the guest perf driver should avoid such use.
+
+Fixes: 1018faa6cf23 ("perf/x86/kvm: Fix Host-Only/Guest-Only counting with SVM disabled")
+Signed-off-by: Like Xu <likexu@tencent.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Liam Merwick <liam.merwick@oracle.com>
+Tested-by: Kim Phillips <kim.phillips@amd.com>
+Tested-by: Liam Merwick <liam.merwick@oracle.com>
+Link: https://lkml.kernel.org/r/20210802070850.35295-1-likexu@tencent.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/spi/spi-meson-spicc.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/x86/events/perf_event.h |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/spi/spi-meson-spicc.c
-+++ b/drivers/spi/spi-meson-spicc.c
-@@ -785,6 +785,8 @@ static int meson_spicc_remove(struct pla
- 	clk_disable_unprepare(spicc->core);
- 	clk_disable_unprepare(spicc->pclk);
+--- a/arch/x86/events/perf_event.h
++++ b/arch/x86/events/perf_event.h
+@@ -852,9 +852,10 @@ void x86_pmu_stop(struct perf_event *eve
  
-+	spi_master_put(spicc->master);
-+
- 	return 0;
+ static inline void x86_pmu_disable_event(struct perf_event *event)
+ {
++	u64 disable_mask = __this_cpu_read(cpu_hw_events.perf_ctr_virt_mask);
+ 	struct hw_perf_event *hwc = &event->hw;
+ 
+-	wrmsrl(hwc->config_base, hwc->config);
++	wrmsrl(hwc->config_base, hwc->config & ~disable_mask);
  }
  
+ void x86_pmu_enable_event(struct perf_event *event);
 
 
