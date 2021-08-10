@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9962B3E81F2
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:06:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6F603E8238
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:06:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232825AbhHJSED (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 14:04:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33478 "EHLO mail.kernel.org"
+        id S232618AbhHJSGQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 14:06:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231851AbhHJSCG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 14:02:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ABC8361401;
-        Tue, 10 Aug 2021 17:47:34 +0000 (UTC)
+        id S236894AbhHJSCk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 14:02:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 67C9B61222;
+        Tue, 10 Aug 2021 17:47:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617655;
-        bh=zILbFbF7vvh0NgWjAhiAvYXcYKWEkYI+SFBkisgX2K0=;
+        s=korg; t=1628617657;
+        bh=HPpoJHqEyQFFQr1mBXEm3NQEDkewRfD81StpTolw5KU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SlQ/ioJT6MNOWm+6FGfBfAtl7R68xVA8luB1CRIjhTAMsyb24x77bGHkwXAaQJHpl
-         Rp8Tbk58i6qpi1IlXeLLHnKJjUHtjvXq14/WxLUEYtdeN5dtQiTuYoa4ydJF4Au+He
-         tgtPzSWgUR5+bSFkqi2eKPt3o4F/G/kFso3/QVYQ=
+        b=IaJ0G1/MBPv66yu0/IJB7NrP3onv65r7K4nyBAXS1z7mODQL1W2qjR2NdZLJjV2pE
+         Gc3gWhWYQGwm1MB2wWPef7cn8PdsyyfQYkPeWI+IXaalGzgl3nr0DtutatD5wGNQUD
+         JB0MHaSCe2TE6VGUFLgCZS//D/HMeUOrLRuMLumw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pawel Laszczak <pawell@cadence.com>,
-        Peter Chen <peter.chen@kernel.org>
-Subject: [PATCH 5.13 154/175] usb: cdnsp: Fix incorrect supported maximum speed
-Date:   Tue, 10 Aug 2021 19:31:02 +0200
-Message-Id: <20210810173006.049967476@linuxfoundation.org>
+        stable@vger.kernel.org, Dongliang Mu <mudongliangabcd@gmail.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.13 155/175] spi: meson-spicc: fix memory leak in meson_spicc_remove
+Date:   Tue, 10 Aug 2021 19:31:03 +0200
+Message-Id: <20210810173006.078693410@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
 References: <20210810173000.928681411@linuxfoundation.org>
@@ -39,33 +39,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawel Laszczak <pawell@cadence.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-commit aa82f94e869edd72f4fadb08c6ffca8927e4934e upstream.
+commit 8311ee2164c5cd1b63a601ea366f540eae89f10e upstream.
 
-Driver had hardcoded in initialization maximum supported speed
-to USB_SPEED_SUPER_PLUS but it should consider the speed
-returned from usb_get_maximum_speed function.
+In meson_spicc_probe, the error handling code needs to clean up master
+by calling spi_master_put, but the remove function does not have this
+function call. This will lead to memory leak of spicc->master.
 
-Fixes: 3d82904559f4 ("usb: cdnsp: cdns3 Add main part of Cadence USBSSP DRD Driver")
-Signed-off-by: Pawel Laszczak <pawell@cadence.com>
-Link: https://lore.kernel.org/r/20210625102502.26336-1-pawell@gli-login.cadence.com
-Signed-off-by: Peter Chen <peter.chen@kernel.org>
+Reported-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Fixes: 454fa271bc4e("spi: Add Meson SPICC driver")
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Link: https://lore.kernel.org/r/20210720100116.1438974-1-mudongliangabcd@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/cdns3/cdnsp-gadget.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/spi/spi-meson-spicc.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/usb/cdns3/cdnsp-gadget.c
-+++ b/drivers/usb/cdns3/cdnsp-gadget.c
-@@ -1881,7 +1881,7 @@ static int __cdnsp_gadget_init(struct cd
- 	pdev->gadget.name = "cdnsp-gadget";
- 	pdev->gadget.speed = USB_SPEED_UNKNOWN;
- 	pdev->gadget.sg_supported = 1;
--	pdev->gadget.max_speed = USB_SPEED_SUPER_PLUS;
-+	pdev->gadget.max_speed = max_speed;
- 	pdev->gadget.lpm_capable = 1;
+--- a/drivers/spi/spi-meson-spicc.c
++++ b/drivers/spi/spi-meson-spicc.c
+@@ -785,6 +785,8 @@ static int meson_spicc_remove(struct pla
+ 	clk_disable_unprepare(spicc->core);
+ 	clk_disable_unprepare(spicc->pclk);
  
- 	pdev->setup_buf = kzalloc(CDNSP_EP0_SETUP_SIZE, GFP_KERNEL);
++	spi_master_put(spicc->master);
++
+ 	return 0;
+ }
+ 
 
 
