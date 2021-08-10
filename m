@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D92133E81A0
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:01:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 730953E81B9
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:02:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237481AbhHJSAl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 14:00:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59580 "EHLO mail.kernel.org"
+        id S234065AbhHJSBu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 14:01:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236497AbhHJR67 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:58:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9950F6113A;
-        Tue, 10 Aug 2021 17:46:06 +0000 (UTC)
+        id S238608AbhHJR7t (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:59:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7547E61179;
+        Tue, 10 Aug 2021 17:46:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617567;
-        bh=rWzar62zifTqpmMCntjMbUBKnJw/jGeZW1B59B3H2EA=;
+        s=korg; t=1628617591;
+        bh=MGfQA6lcM9g8o8bScDfSMHw06mk8qD9asDGzQiw1DAU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=orx1cwCWLwy8QC+1oxKv2cEZns6e0BDG83OyO6Fk2ufdECfDo19FritI4RcsXFMmg
-         l4EEZzs6ck5F/AhenEqRBbRGBCqkZ3kZqbKWtyAMVTG2ePM58AhglV9HbvTaUJNwTz
-         htaWVleCl3HKcTMu1p3vCKrAQB07f0OAaWEB2jCY=
+        b=JKJXq71rrERUEzlHscKDRLKoGOgah79e4j/8ca/TzGUeJ02UQkr6Fau2l+2/rKcly
+         rzmQE4n9paep98JSDWi0nYt70AgFmm0FCpWQ6WaUNg9YACiowtKxQsmhfRmerlG7EY
+         3t1lIZWA80O9wNx0/kyYMximwadYLN70bpiHQbJg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Badhri Jagan Sridharan <badhri@google.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Kyle Tso <kyletso@google.com>
-Subject: [PATCH 5.13 098/175] usb: typec: tcpm: Keep other events when receiving FRS and Sourcing_vbus events
-Date:   Tue, 10 Aug 2021 19:30:06 +0200
-Message-Id: <20210810173004.184959769@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Chen <peter.chen@kernel.org>,
+        Dmitry Osipenko <digetx@gmail.com>
+Subject: [PATCH 5.13 099/175] usb: otg-fsm: Fix hrtimer list corruption
+Date:   Tue, 10 Aug 2021 19:30:07 +0200
+Message-Id: <20210810173004.217360223@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
 References: <20210810173000.928681411@linuxfoundation.org>
@@ -40,45 +39,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kyle Tso <kyletso@google.com>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-commit 43ad944cd73f2360ec8ff31d29ea44830b3119af upstream.
+commit bf88fef0b6f1488abeca594d377991171c00e52a upstream.
 
-When receiving FRS and Sourcing_Vbus events from low-level drivers, keep
-other events which come a bit earlier so that they will not be ignored
-in the event handler.
+The HNP work can be re-scheduled while it's still in-fly. This results in
+re-initialization of the busy work, resetting the hrtimer's list node of
+the work and crashing kernel with null dereference within kernel/timer
+once work's timer is expired. It's very easy to trigger this problem by
+re-plugging USB cable quickly. Initialize HNP work only once to fix this
+trouble.
 
-Fixes: 8dc4bd073663 ("usb: typec: tcpm: Add support for Sink Fast Role SWAP(FRS)")
-Cc: stable <stable@vger.kernel.org>
-Cc: Badhri Jagan Sridharan <badhri@google.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Badhri Jagan Sridharan <badhri@google.com>
-Signed-off-by: Kyle Tso <kyletso@google.com>
-Link: https://lore.kernel.org/r/20210803091314.3051302-1-kyletso@google.com
+ Unable to handle kernel NULL pointer dereference at virtual address 00000126)
+ ...
+ PC is at __run_timers.part.0+0x150/0x228
+ LR is at __next_timer_interrupt+0x51/0x9c
+ ...
+ (__run_timers.part.0) from [<c0187a2b>] (run_timer_softirq+0x2f/0x50)
+ (run_timer_softirq) from [<c01013ad>] (__do_softirq+0xd5/0x2f0)
+ (__do_softirq) from [<c012589b>] (irq_exit+0xab/0xb8)
+ (irq_exit) from [<c0170341>] (handle_domain_irq+0x45/0x60)
+ (handle_domain_irq) from [<c04c4a43>] (gic_handle_irq+0x6b/0x7c)
+ (gic_handle_irq) from [<c0100b65>] (__irq_svc+0x65/0xac)
+
+Cc: stable@vger.kernel.org
+Acked-by: Peter Chen <peter.chen@kernel.org>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Link: https://lore.kernel.org/r/20210717182134.30262-6-digetx@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/typec/tcpm/tcpm.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/common/usb-otg-fsm.c |    6 +++++-
+ include/linux/usb/otg-fsm.h      |    1 +
+ 2 files changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/typec/tcpm/tcpm.c
-+++ b/drivers/usb/typec/tcpm/tcpm.c
-@@ -5355,7 +5355,7 @@ EXPORT_SYMBOL_GPL(tcpm_pd_hard_reset);
- void tcpm_sink_frs(struct tcpm_port *port)
- {
- 	spin_lock(&port->pd_event_lock);
--	port->pd_events = TCPM_FRS_EVENT;
-+	port->pd_events |= TCPM_FRS_EVENT;
- 	spin_unlock(&port->pd_event_lock);
- 	kthread_queue_work(port->wq, &port->event_work);
+--- a/drivers/usb/common/usb-otg-fsm.c
++++ b/drivers/usb/common/usb-otg-fsm.c
+@@ -193,7 +193,11 @@ static void otg_start_hnp_polling(struct
+ 	if (!fsm->host_req_flag)
+ 		return;
+ 
+-	INIT_DELAYED_WORK(&fsm->hnp_polling_work, otg_hnp_polling_work);
++	if (!fsm->hnp_work_inited) {
++		INIT_DELAYED_WORK(&fsm->hnp_polling_work, otg_hnp_polling_work);
++		fsm->hnp_work_inited = true;
++	}
++
+ 	schedule_delayed_work(&fsm->hnp_polling_work,
+ 					msecs_to_jiffies(T_HOST_REQ_POLL));
  }
-@@ -5364,7 +5364,7 @@ EXPORT_SYMBOL_GPL(tcpm_sink_frs);
- void tcpm_sourcing_vbus(struct tcpm_port *port)
- {
- 	spin_lock(&port->pd_event_lock);
--	port->pd_events = TCPM_SOURCING_VBUS;
-+	port->pd_events |= TCPM_SOURCING_VBUS;
- 	spin_unlock(&port->pd_event_lock);
- 	kthread_queue_work(port->wq, &port->event_work);
- }
+--- a/include/linux/usb/otg-fsm.h
++++ b/include/linux/usb/otg-fsm.h
+@@ -196,6 +196,7 @@ struct otg_fsm {
+ 	struct mutex lock;
+ 	u8 *host_req_flag;
+ 	struct delayed_work hnp_polling_work;
++	bool hnp_work_inited;
+ 	bool state_changed;
+ };
+ 
 
 
