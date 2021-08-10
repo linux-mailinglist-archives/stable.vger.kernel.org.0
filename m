@@ -2,30 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ABA113E53F7
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 08:55:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE9553E5420
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 09:12:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235929AbhHJG4P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 02:56:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44922 "EHLO mail.kernel.org"
+        id S229470AbhHJHNP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 03:13:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48554 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231482AbhHJG4P (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 02:56:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2752861019;
-        Tue, 10 Aug 2021 06:55:52 +0000 (UTC)
+        id S229484AbhHJHNN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 03:13:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E3F8E61019;
+        Tue, 10 Aug 2021 07:12:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628578553;
-        bh=Q4amZh3YZUeXG+fdiqjGHwa6vXzpyjHVLwfupqI4o4g=;
+        s=korg; t=1628579571;
+        bh=q+e3i6VpBLN+umZ0uz0dESlfVEp7TtgwyJhCDTFYm0Y=;
         h=Subject:To:From:Date:From;
-        b=qWW1RxA+/6WjCDEOwPqSsfH0TN0GEjJAezk6tmjnBWy9BeNWJ6n3JHa/ZdzCPdvJn
-         gZbkTUGZowtL8OsxV2ts94oqEwCnNXZJyBwe8OXUcEMPw9CmSpeBUoJEWSz0NDq52W
-         zyv3Yb10nK3LU9H0vuP8DA2b/nfJQTaG5IwWYi4I=
-Subject: patch "iio: adc: Fix incorrect exit of for-loop" added to staging-linus
-To:     colin.king@canonical.com, Jonathan.Cameron@huawei.com,
-        stable@vger.kernel.org
+        b=WOBazYe4cFBGLDoI6Q2BqDY6zLarBLUFecOkjYSatfWpfRkrT67+qj0CM7fuxQz/E
+         LYqi+g32686GHcaN1FmIlE49qW5W+3Fudi72vG1vb/6WD2jokgbqVGcwcaURkG1F5o
+         q1AsqrxpQnkbauN+cYDfvvioOA5FspHIwrL4OldM=
+Subject: patch "Revert "usb: dwc3: gadget: Use list_replace_init() before traversing" added to usb-linus
+To:     gregkh@linuxfoundation.org, Thinh.Nguyen@synopsys.com,
+        balbi@kernel.org, john.stultz@linaro.org, raychi@google.com,
+        stable@vger.kernel.org, wcheng@codeaurora.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 10 Aug 2021 08:55:34 +0200
-Message-ID: <162857853412770@kroah.com>
+Date:   Tue, 10 Aug 2021 09:12:48 +0200
+Message-ID: <16285795681899@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,11 +37,11 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: adc: Fix incorrect exit of for-loop
+    Revert "usb: dwc3: gadget: Use list_replace_init() before traversing
 
-to my staging git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
-in the staging-linus branch.
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
 
 The patch will show up in the next release of the linux-next tree
 (usually sometime within the next 24 hours during the week.)
@@ -51,42 +52,81 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 5afc1540f13804a31bb704b763308e17688369c5 Mon Sep 17 00:00:00 2001
-From: Colin Ian King <colin.king@canonical.com>
-Date: Fri, 30 Jul 2021 08:16:51 +0100
-Subject: iio: adc: Fix incorrect exit of for-loop
+From 664cc971fb259007e49cc8a3ac43b0787d89443f Mon Sep 17 00:00:00 2001
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Tue, 10 Aug 2021 09:10:15 +0200
+Subject: Revert "usb: dwc3: gadget: Use list_replace_init() before traversing
+ lists"
 
-Currently the for-loop that scans for the optimial adc_period iterates
-through all the possible adc_period levels because the exit logic in
-the loop is inverted. I believe the comparison should be swapped and
-the continue replaced with a break to exit the loop at the correct
-point.
+This reverts commit d25d85061bd856d6be221626605319154f9b5043 as it is
+reported to cause problems on many different types of boards.
 
-Addresses-Coverity: ("Continue has no effect")
-Fixes: e08e19c331fb ("iio:adc: add iio driver for Palmas (twl6035/7) gpadc")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Link: https://lore.kernel.org/r/20210730071651.17394-1-colin.king@canonical.com
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reported-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Reported-by: John Stultz <john.stultz@linaro.org>
+Cc: Ray Chi <raychi@google.com>
+Link: https://lore.kernel.org/r/CANcMJZCEVxVLyFgLwK98hqBEdc0_n4P0x_K6Gih8zNH3ouzbJQ@mail.gmail.com
+Fixes: d25d85061bd8 ("usb: dwc3: gadget: Use list_replace_init() before traversing lists")
+Cc: stable <stable@vger.kernel.org>
+Cc: Felipe Balbi <balbi@kernel.org>
+Cc: Wesley Cheng <wcheng@codeaurora.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/palmas_gpadc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/dwc3/gadget.c | 18 ++----------------
+ 1 file changed, 2 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/iio/adc/palmas_gpadc.c b/drivers/iio/adc/palmas_gpadc.c
-index 6ef09609be9f..f9c8385c72d3 100644
---- a/drivers/iio/adc/palmas_gpadc.c
-+++ b/drivers/iio/adc/palmas_gpadc.c
-@@ -664,8 +664,8 @@ static int palmas_adc_wakeup_configure(struct palmas_gpadc *adc)
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index b8d4b2d327b2..84fe57ef5a49 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -1741,13 +1741,9 @@ static void dwc3_gadget_ep_cleanup_cancelled_requests(struct dwc3_ep *dep)
+ {
+ 	struct dwc3_request		*req;
+ 	struct dwc3_request		*tmp;
+-	struct list_head		local;
+ 	struct dwc3			*dwc = dep->dwc;
  
- 	adc_period = adc->auto_conversion_period;
- 	for (i = 0; i < 16; ++i) {
--		if (((1000 * (1 << i)) / 32) < adc_period)
--			continue;
-+		if (((1000 * (1 << i)) / 32) >= adc_period)
-+			break;
+-restart:
+-	list_replace_init(&dep->cancelled_list, &local);
+-
+-	list_for_each_entry_safe(req, tmp, &local, list) {
++	list_for_each_entry_safe(req, tmp, &dep->cancelled_list, list) {
+ 		dwc3_gadget_ep_skip_trbs(dep, req);
+ 		switch (req->status) {
+ 		case DWC3_REQUEST_STATUS_DISCONNECTED:
+@@ -1765,9 +1761,6 @@ static void dwc3_gadget_ep_cleanup_cancelled_requests(struct dwc3_ep *dep)
+ 			break;
+ 		}
  	}
- 	if (i > 0)
- 		i--;
+-
+-	if (!list_empty(&dep->cancelled_list))
+-		goto restart;
+ }
+ 
+ static int dwc3_gadget_ep_dequeue(struct usb_ep *ep,
+@@ -2976,12 +2969,8 @@ static void dwc3_gadget_ep_cleanup_completed_requests(struct dwc3_ep *dep,
+ {
+ 	struct dwc3_request	*req;
+ 	struct dwc3_request	*tmp;
+-	struct list_head	local;
+ 
+-restart:
+-	list_replace_init(&dep->started_list, &local);
+-
+-	list_for_each_entry_safe(req, tmp, &local, list) {
++	list_for_each_entry_safe(req, tmp, &dep->started_list, list) {
+ 		int ret;
+ 
+ 		ret = dwc3_gadget_ep_cleanup_completed_request(dep, event,
+@@ -2989,9 +2978,6 @@ static void dwc3_gadget_ep_cleanup_completed_requests(struct dwc3_ep *dep,
+ 		if (ret)
+ 			break;
+ 	}
+-
+-	if (!list_empty(&dep->started_list))
+-		goto restart;
+ }
+ 
+ static bool dwc3_gadget_ep_should_continue(struct dwc3_ep *dep)
 -- 
 2.32.0
 
