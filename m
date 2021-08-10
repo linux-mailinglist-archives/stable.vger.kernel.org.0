@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7329A3E812B
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:56:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 747E13E7F9F
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:41:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235858AbhHJR4K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:56:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44064 "EHLO mail.kernel.org"
+        id S232421AbhHJRlf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:41:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236472AbhHJRw4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:52:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 81E8B61357;
-        Tue, 10 Aug 2021 17:43:43 +0000 (UTC)
+        id S233535AbhHJRju (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:39:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 67A50611C9;
+        Tue, 10 Aug 2021 17:37:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617424;
-        bh=KBSqMHbSKAqQUSppJrIVLZXDGu2CxvrOCdtlmfvdjCU=;
+        s=korg; t=1628617058;
+        bh=alSV5i+p+vCyqW+3jdy1LbDabKcch9gv5yPSuw4Ztbs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b3wdO/nw7RF9+S3EEz3vSCbJiQix6nrD1kfSS7Q5irj9sPJqPLm4umTXB3FemZic2
-         KU+vXsAhyr96+HJH2olpqQRRZVg2v/D6NAs8MOAqpGgAhBUGKvSvm+XbBd/zQ/Qgsq
-         X5lpGhucw3XktVSfpAt95q8UkMJKG4BBJEsEEBsU=
+        b=rT6+SyGpwpBEtea3xDbE1TZzYwNZCvrUgdAMvuJ/EdYAN83aIqB+Z4VkWJLsXJrE/
+         WPH5yQurzE6sFeQGhlFNah8Q4moIpTZy0dR30siByR3RDzmPkWDuFcwPRXwRM6y24q
+         wFeA5g8qgrPbh++UkmMjPCKVoHVdhCFY+WYHT/90=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Ekstrand <jason@jlekstrand.net>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Kieran Bingham <kieran.bingham@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 052/175] drm/i915: Call i915_globals_exit() if pci_register_device() fails
+Subject: [PATCH 5.10 026/135] media: videobuf2-core: dequeue if start_streaming fails
 Date:   Tue, 10 Aug 2021 19:29:20 +0200
-Message-Id: <20210810173002.649145753@linuxfoundation.org>
+Message-Id: <20210810172956.560676352@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
-References: <20210810173000.928681411@linuxfoundation.org>
+In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
+References: <20210810172955.660225700@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,55 +42,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Ekstrand <jason@jlekstrand.net>
+From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 
-[ Upstream commit 1354d830cb8f9be966cc07fc61368af27ffb7c4a ]
+[ Upstream commit c592b46907adbeb81243f7eb7a468c36692658b8 ]
 
-In the unlikely event that pci_register_device() fails, we were tearing
-down our PMU setup but not globals.  This leaves a bunch of memory slabs
-lying around.
+If a vb2_queue sets q->min_buffers_needed then when the number of
+queued buffers reaches q->min_buffers_needed, vb2_core_qbuf() will call
+the start_streaming() callback. If start_streaming() returns an error,
+then that error was just returned by vb2_core_qbuf(), but the buffer
+was still queued. However, userspace expects that if VIDIOC_QBUF fails,
+the buffer is returned dequeued.
 
-Signed-off-by: Jason Ekstrand <jason@jlekstrand.net>
-Fixes: 32eb6bcfdda9 ("drm/i915: Make request allocation caches global")
-[danvet: Fix conflicts against removal of the globals_flush
-infrastructure.]
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210721152358.2893314-3-jason@jlekstrand.net
-(cherry picked from commit db484889d1ff0645e07e360d3e3ad306c0515821)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-[Fixed small conflict while cherry picking]
+So if start_streaming() fails, then remove the buffer from the queue,
+thus avoiding this unwanted side-effect.
+
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Tested-by: Kieran Bingham <kieran.bingham@ideasonboard.com>
+Fixes: b3379c6201bb ("[media] vb2: only call start_streaming if sufficient buffers are queued")
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/i915_globals.c | 2 +-
- drivers/gpu/drm/i915/i915_pci.c     | 1 +
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ drivers/media/common/videobuf2/videobuf2-core.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/i915/i915_globals.c b/drivers/gpu/drm/i915/i915_globals.c
-index 3aa213684293..e27739a50bee 100644
---- a/drivers/gpu/drm/i915/i915_globals.c
-+++ b/drivers/gpu/drm/i915/i915_globals.c
-@@ -149,7 +149,7 @@ static void __exit __i915_globals_flush(void)
- 	atomic_dec(&active);
- }
- 
--void __exit i915_globals_exit(void)
-+void i915_globals_exit(void)
+diff --git a/drivers/media/common/videobuf2/videobuf2-core.c b/drivers/media/common/videobuf2/videobuf2-core.c
+index 89e38392509c..72350343a56a 100644
+--- a/drivers/media/common/videobuf2/videobuf2-core.c
++++ b/drivers/media/common/videobuf2/videobuf2-core.c
+@@ -1573,6 +1573,7 @@ int vb2_core_qbuf(struct vb2_queue *q, unsigned int index, void *pb,
+ 		  struct media_request *req)
  {
- 	GEM_BUG_ON(atomic_read(&active));
+ 	struct vb2_buffer *vb;
++	enum vb2_buffer_state orig_state;
+ 	int ret;
  
-diff --git a/drivers/gpu/drm/i915/i915_pci.c b/drivers/gpu/drm/i915/i915_pci.c
-index 480553746794..a6261a8103f4 100644
---- a/drivers/gpu/drm/i915/i915_pci.c
-+++ b/drivers/gpu/drm/i915/i915_pci.c
-@@ -1168,6 +1168,7 @@ static int __init i915_init(void)
- 	err = pci_register_driver(&i915_pci_driver);
- 	if (err) {
- 		i915_pmu_exit();
-+		i915_globals_exit();
- 		return err;
+ 	if (q->error) {
+@@ -1673,6 +1674,7 @@ int vb2_core_qbuf(struct vb2_queue *q, unsigned int index, void *pb,
+ 	 * Add to the queued buffers list, a buffer will stay on it until
+ 	 * dequeued in dqbuf.
+ 	 */
++	orig_state = vb->state;
+ 	list_add_tail(&vb->queued_entry, &q->queued_list);
+ 	q->queued_count++;
+ 	q->waiting_for_buffers = false;
+@@ -1703,8 +1705,17 @@ int vb2_core_qbuf(struct vb2_queue *q, unsigned int index, void *pb,
+ 	if (q->streaming && !q->start_streaming_called &&
+ 	    q->queued_count >= q->min_buffers_needed) {
+ 		ret = vb2_start_streaming(q);
+-		if (ret)
++		if (ret) {
++			/*
++			 * Since vb2_core_qbuf will return with an error,
++			 * we should return it to state DEQUEUED since
++			 * the error indicates that the buffer wasn't queued.
++			 */
++			list_del(&vb->queued_entry);
++			q->queued_count--;
++			vb->state = orig_state;
+ 			return ret;
++		}
  	}
  
+ 	dprintk(q, 2, "qbuf of buffer %d succeeded\n", vb->index);
 -- 
 2.30.2
 
