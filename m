@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F43A3E7EDA
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:35:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43BE53E7E8B
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:33:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233698AbhHJRfk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:35:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42218 "EHLO mail.kernel.org"
+        id S232496AbhHJReG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:34:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233075AbhHJRep (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:34:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C8B561008;
-        Tue, 10 Aug 2021 17:34:23 +0000 (UTC)
+        id S232684AbhHJRdd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:33:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D5F5F60E09;
+        Tue, 10 Aug 2021 17:33:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616863;
-        bh=+Ylqh2w+jUyPQBTknZLn+olVeTM7vnAxXtLfAuFIaNA=;
+        s=korg; t=1628616791;
+        bh=c5QJr91Cq9hegu54/BXqVv6t7dfayG9sHQMZGabEY/0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j6Oe90+IV4hLGvYhKyiftJnWhXChmKFbUvO5IExWhLILe45BBoLC8Dsxg8hU3Tur/
-         FTtu0CkcONHXwVq0oUxFHCa8LtVRuXV48xYn+pEqAoUfwlN2H8v1DhZhJmYXQ5IU2V
-         Ddy3r3yI1975iMw9V4VTm9+nilfj1dQPmOvcAX0A=
+        b=LNCOF/KBLlub4zupFQ7g4cPw4MtNDWVhWtIVE5eHarHMphtCWvZ/SFieqAbWJDNgA
+         39pdoWm+ckbkvVkNv2l0rJWqBuzMygvSPIqwTXJQTm1sH+ZAG1YNvloZfymAKmimMK
+         A5JzXWmFjtpJweKnhi9gL+qNkd8MfeLPgZMqRnLQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ying Xu <yinxu@redhat.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 26/85] sctp: move the active_key update after sh_keys is added
+        stable@vger.kernel.org, "chihhao.chen" <chihhao.chen@mediatek.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 05/54] ALSA: usb-audio: fix incorrect clock source setting
 Date:   Tue, 10 Aug 2021 19:29:59 +0200
-Message-Id: <20210810172949.082960814@linuxfoundation.org>
+Message-Id: <20210810172944.361060265@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
-References: <20210810172948.192298392@linuxfoundation.org>
+In-Reply-To: <20210810172944.179901509@linuxfoundation.org>
+References: <20210810172944.179901509@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,66 +39,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: chihhao.chen <chihhao.chen@mediatek.com>
 
-[ Upstream commit ae954bbc451d267f7d60d7b49db811d5a68ebd7b ]
+[ Upstream commit 4511781f95da0a3b2bad34f3f5e3967e80cd2d18 ]
 
-In commit 58acd1009226 ("sctp: update active_key for asoc when old key is
-being replaced"), sctp_auth_asoc_init_active_key() is called to update
-the active_key right after the old key is deleted and before the new key
-is added, and it caused that the active_key could be found with the key_id.
+The following scenario describes an echo test for
+Samsung USBC Headset (AKG) with VID/PID (0x04e8/0xa051).
 
-In Ying Xu's testing, the BUG_ON in sctp_auth_asoc_init_active_key() was
-triggered:
+We first start a capture stream(USB IN transfer) in 96Khz/24bit/1ch mode.
+In clock find source function, we get value 0x2 for clock selector
+and 0x1 for clock source.
 
-  [ ] kernel BUG at net/sctp/auth.c:416!
-  [ ] RIP: 0010:sctp_auth_asoc_init_active_key.part.8+0xe7/0xf0 [sctp]
-  [ ] Call Trace:
-  [ ]  sctp_auth_set_key+0x16d/0x1b0 [sctp]
-  [ ]  sctp_setsockopt.part.33+0x1ba9/0x2bd0 [sctp]
-  [ ]  __sys_setsockopt+0xd6/0x1d0
-  [ ]  __x64_sys_setsockopt+0x20/0x30
-  [ ]  do_syscall_64+0x5b/0x1a0
+Kernel-4.14 behavior
+Since clock source is valid so clock selector was not set again.
+We pass through this function and start a playback stream(USB OUT transfer)
+in 48Khz/32bit/2ch mode. This time we get value 0x1 for clock selector
+and 0x1 for clock source. Finally clock id with this setting is 0x9.
 
-So fix it by moving the active_key update after sh_keys is added.
+Kernel-5.10 behavior
+Clock selector was always set one more time even it is valid.
+When we start a playback stream, we will get 0x2 for clock selector
+and 0x1 for clock source. In this case clock id becomes 0xA.
+This is an incorrect clock source setting and results in severe noises.
+We see wrong data rate in USB IN transfer.
+(From 288 bytes/ms becomes 144 bytes/ms) It should keep in 288 bytes/ms.
 
-Fixes: 58acd1009226 ("sctp: update active_key for asoc when old key is being replaced")
-Reported-by: Ying Xu <yinxu@redhat.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This earphone works fine on older kernel version load because
+this is a newly-added behavior.
+
+Fixes: d2e8f641257d ("ALSA: usb-audio: Explicitly set up the clock selector")
+Signed-off-by: chihhao.chen <chihhao.chen@mediatek.com>
+Link: https://lore.kernel.org/r/1627100621-19225-1-git-send-email-chihhao.chen@mediatek.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/auth.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ sound/usb/clock.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/net/sctp/auth.c b/net/sctp/auth.c
-index 7eced1e523a5..3b2d0bd616dd 100644
---- a/net/sctp/auth.c
-+++ b/net/sctp/auth.c
-@@ -863,14 +863,18 @@ int sctp_auth_set_key(struct sctp_endpoint *ep,
- 	memcpy(key->data, &auth_key->sca_key[0], auth_key->sca_keylength);
- 	cur_key->key = key;
- 
--	if (replace) {
--		list_del_init(&shkey->key_list);
--		sctp_auth_shkey_release(shkey);
--		if (asoc && asoc->active_key_id == auth_key->sca_keynumber)
--			sctp_auth_asoc_init_active_key(asoc, GFP_KERNEL);
-+	if (!replace) {
-+		list_add(&cur_key->key_list, sh_keys);
-+		return 0;
- 	}
-+
-+	list_del_init(&shkey->key_list);
-+	sctp_auth_shkey_release(shkey);
- 	list_add(&cur_key->key_list, sh_keys);
- 
-+	if (asoc && asoc->active_key_id == auth_key->sca_keynumber)
-+		sctp_auth_asoc_init_active_key(asoc, GFP_KERNEL);
-+
- 	return 0;
- }
- 
+diff --git a/sound/usb/clock.c b/sound/usb/clock.c
+index 863ac42076e5..d1455fb2c6fc 100644
+--- a/sound/usb/clock.c
++++ b/sound/usb/clock.c
+@@ -296,6 +296,12 @@ static int __uac_clock_find_source(struct snd_usb_audio *chip,
+ 					      selector->baCSourceID[ret - 1],
+ 					      visited, validate);
+ 		if (ret > 0) {
++			/*
++			 * For Samsung USBC Headset (AKG), setting clock selector again
++			 * will result in incorrect default clock setting problems
++			 */
++			if (chip->usb_id == USB_ID(0x04e8, 0xa051))
++				return ret;
+ 			err = uac_clock_selector_set_val(chip, entity_id, cur);
+ 			if (err < 0)
+ 				return err;
 -- 
 2.30.2
 
