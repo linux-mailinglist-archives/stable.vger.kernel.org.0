@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 469CD3E8138
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:57:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2ADBF3E7EB4
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:34:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236999AbhHJR4q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:56:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55598 "EHLO mail.kernel.org"
+        id S232707AbhHJRe6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:34:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237491AbhHJRyk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:54:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4198E61362;
-        Tue, 10 Aug 2021 17:44:24 +0000 (UTC)
+        id S232772AbhHJRe0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:34:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 45D1061076;
+        Tue, 10 Aug 2021 17:34:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617464;
-        bh=mKNQYnYs2OEZJVlsQbQtp/ephxEcDsIXoY6LnBlS5Ns=;
+        s=korg; t=1628616843;
+        bh=19XAj8CpkGRIQOjZXdON8Swuu6WXy9RgZW6TRI9rJrA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R4OkjgyPrRaQJnWLlDOZEK/IDLxgr8f1uIF+tETg887TLCFeRbyn8oyNUXKlf6R/8
-         Z9tKLZBDGKFxCg/9bmshMsFmzUKeEzi8witTsLiVLEH/N+0GXQk2pV8166LvrIYapy
-         fgFl4YR+kPtELjWMEw5sBrA2lfQI1A9mHT+Q7/fg=
+        b=ctYzIa4Fm32B91XNZ8bJWu0RP+eilDmdP/hkYXZvGj+FF2iOZVDFauaRCrfcKgWTk
+         kHHJ4RvC2xydeyuVUi9uZ3Lk3h+fI4XPkVKDD7nPB4voKfIPrwlJt2WDqfn5LZ84mm
+         VmeqPoO7pJTQkoBcnzOlIpQ0Q8e2EjMHC2TDPluw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hao Xu <haoxu@linux.alibaba.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 071/175] io-wq: fix no lock protection of acct->nr_worker
+        stable@vger.kernel.org,
+        Maxime Chevallier <maxime.chevallier@bootlin.com>,
+        =?UTF-8?q?Herv=C3=A9=20Codina?= <herve.codina@bootlin.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 06/85] ARM: dts: imx6qdl-sr-som: Increase the PHY reset duration to 10ms
 Date:   Tue, 10 Aug 2021 19:29:39 +0200
-Message-Id: <20210810173003.279129470@linuxfoundation.org>
+Message-Id: <20210810172948.420988038@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
-References: <20210810173000.928681411@linuxfoundation.org>
+In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
+References: <20210810172948.192298392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,89 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hao Xu <haoxu@linux.alibaba.com>
+From: Maxime Chevallier <maxime.chevallier@bootlin.com>
 
-[ Upstream commit 3d4e4face9c1548752a2891e98b38b100feee336 ]
+[ Upstream commit fd8e83884fdd7b5fc411f201a58d8d01890198a2 ]
 
-There is an acct->nr_worker visit without lock protection. Think about
-the case: two callers call io_wqe_wake_worker(), one is the original
-context and the other one is an io-worker(by calling
-io_wqe_enqueue(wqe, linked)), on two cpus paralelly, this may cause
-nr_worker to be larger than max_worker.
-Let's fix it by adding lock for it, and let's do nr_workers++ before
-create_io_worker. There may be a edge cause that the first caller fails
-to create an io-worker, but the second caller doesn't know it and then
-quit creating io-worker as well:
+The AR803x PHY used on this modules seems to require the reset line to
+be asserted for around 10ms in order to avoid rare cases where the PHY
+gets stuck in an incoherent state that prevents it to function
+correctly.
 
-say nr_worker = max_worker - 1
-        cpu 0                        cpu 1
-   io_wqe_wake_worker()          io_wqe_wake_worker()
-      nr_worker < max_worker
-      nr_worker++
-      create_io_worker()         nr_worker == max_worker
-         failed                  return
-      return
+The previous value of 2ms was found to be problematic on some setups,
+causing intermittent issues where the PHY would be unresponsive
+every once in a while on some sytems, with a low occurrence (it typically
+took around 30 consecutive reboots to encounter the issue).
 
-But the chance of this case is very slim.
+Bumping the delay to the 10ms makes the issue dissapear, with more than
+2500 consecutive reboots performed without the issue showing-up.
 
-Fixes: 685fe7feedb9 ("io-wq: eliminate the need for a manager thread")
-Signed-off-by: Hao Xu <haoxu@linux.alibaba.com>
-[axboe: fix unconditional create_io_worker() call]
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 208d7baf8085 ("ARM: imx: initial SolidRun HummingBoard support")
+Signed-off-by: Maxime Chevallier <maxime.chevallier@bootlin.com>
+Tested-by: Hervé Codina <herve.codina@bootlin.com>
+Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io-wq.c | 23 +++++++++++++++++------
- 1 file changed, 17 insertions(+), 6 deletions(-)
+ arch/arm/boot/dts/imx6qdl-sr-som.dtsi | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/fs/io-wq.c b/fs/io-wq.c
-index 9efecdf025b9..e00ac0969470 100644
---- a/fs/io-wq.c
-+++ b/fs/io-wq.c
-@@ -248,10 +248,19 @@ static void io_wqe_wake_worker(struct io_wqe *wqe, struct io_wqe_acct *acct)
- 	ret = io_wqe_activate_free_worker(wqe);
- 	rcu_read_unlock();
- 
--	if (!ret && acct->nr_workers < acct->max_workers) {
--		atomic_inc(&acct->nr_running);
--		atomic_inc(&wqe->wq->worker_refs);
--		create_io_worker(wqe->wq, wqe, acct->index);
-+	if (!ret) {
-+		bool do_create = false;
+diff --git a/arch/arm/boot/dts/imx6qdl-sr-som.dtsi b/arch/arm/boot/dts/imx6qdl-sr-som.dtsi
+index 6d7f6b9035bc..f2649241167e 100644
+--- a/arch/arm/boot/dts/imx6qdl-sr-som.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-sr-som.dtsi
+@@ -54,7 +54,13 @@
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_microsom_enet_ar8035>;
+ 	phy-mode = "rgmii-id";
+-	phy-reset-duration = <2>;
 +
-+		raw_spin_lock_irq(&wqe->lock);
-+		if (acct->nr_workers < acct->max_workers) {
-+			atomic_inc(&acct->nr_running);
-+			atomic_inc(&wqe->wq->worker_refs);
-+			acct->nr_workers++;
-+			do_create = true;
-+		}
-+		raw_spin_unlock_irq(&wqe->lock);
-+		if (do_create)
-+			create_io_worker(wqe->wq, wqe, acct->index);
- 	}
- }
- 
-@@ -640,6 +649,9 @@ static void create_io_worker(struct io_wq *wq, struct io_wqe *wqe, int index)
- 		kfree(worker);
- fail:
- 		atomic_dec(&acct->nr_running);
-+		raw_spin_lock_irq(&wqe->lock);
-+		acct->nr_workers--;
-+		raw_spin_unlock_irq(&wqe->lock);
- 		io_worker_ref_put(wq);
- 		return;
- 	}
-@@ -655,9 +667,8 @@ fail:
- 	worker->flags |= IO_WORKER_F_FREE;
- 	if (index == IO_WQ_ACCT_BOUND)
- 		worker->flags |= IO_WORKER_F_BOUND;
--	if (!acct->nr_workers && (worker->flags & IO_WORKER_F_BOUND))
-+	if ((acct->nr_workers == 1) && (worker->flags & IO_WORKER_F_BOUND))
- 		worker->flags |= IO_WORKER_F_FIXED;
--	acct->nr_workers++;
- 	raw_spin_unlock_irq(&wqe->lock);
- 	wake_up_new_task(tsk);
- }
++	/*
++	 * The PHY seems to require a long-enough reset duration to avoid
++	 * some rare issues where the PHY gets stuck in an inconsistent and
++	 * non-functional state at boot-up. 10ms proved to be fine .
++	 */
++	phy-reset-duration = <10>;
+ 	phy-reset-gpios = <&gpio4 15 GPIO_ACTIVE_LOW>;
+ 	status = "okay";
+ };
 -- 
 2.30.2
 
