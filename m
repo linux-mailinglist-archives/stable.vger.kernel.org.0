@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CF733E8033
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:47:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CEF0F3E7E6A
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:32:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236238AbhHJRq7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:46:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53276 "EHLO mail.kernel.org"
+        id S232196AbhHJRdI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:33:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234811AbhHJRpL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:45:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5706461242;
-        Tue, 10 Aug 2021 17:40:02 +0000 (UTC)
+        id S231883AbhHJRcx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:32:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8AED160E09;
+        Tue, 10 Aug 2021 17:32:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617202;
-        bh=fKoEumaFyE1JrCXckW1t74vFD5tL6y967iFPZNEBLBA=;
+        s=korg; t=1628616751;
+        bh=d/+valeJjRb3Dr0/1u1KGw7QRstu5u3fNpILih65bG8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ldWQhvuZf8w3Pkfg4FeioCAptfcuzE44raZJfERsVpG2ue5gHcyuuy57LBGwma1Oc
-         wWoo+vK1euUIpXgnoNBlURaImZkwOR6VMpi0cRgNJjNWlwM7rnYPOgrcgZlo4lJVTP
-         Ohkgx9v7TdDmM4Zmnf3RNzB5317v3SCCAqLITbxI=
+        b=BeNVg/pSbJaDq3yjBRCyIY/tqPpEsW4XZO3eg/lB1Xm8gK9FBkATyLXVwARGkaS/n
+         njdqZlOidyhLnfKYBkA/wHdAROr6NrwbbizXYLpd0GIhMggepN/38QpfCILueyNpKv
+         1uOfWhoeaZoOwgZu4zlfJkWvnF5WhhYCzg0xh/h8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filip Schauer <filip@mg6.at>
-Subject: [PATCH 5.10 090/135] drivers core: Fix oops when driver probe fails
+        stable@vger.kernel.org, Maxim Devaev <mdevaev@gmail.com>
+Subject: [PATCH 4.19 30/54] usb: gadget: f_hid: idle uses the highest byte for duration
 Date:   Tue, 10 Aug 2021 19:30:24 +0200
-Message-Id: <20210810172958.822424579@linuxfoundation.org>
+Message-Id: <20210810172945.169040364@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
-References: <20210810172955.660225700@linuxfoundation.org>
+In-Reply-To: <20210810172944.179901509@linuxfoundation.org>
+References: <20210810172944.179901509@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,66 +38,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filip Schauer <filip@mg6.at>
+From: Maxim Devaev <mdevaev@gmail.com>
 
-commit 4d1014c1816c0395eca5d1d480f196a4c63119d0 upstream.
+commit fa20bada3f934e3b3e4af4c77e5b518cd5a282e5 upstream.
 
-dma_range_map is freed to early, which might cause an oops when
-a driver probe fails.
- Call trace:
-  is_free_buddy_page+0xe4/0x1d4
-  __free_pages+0x2c/0x88
-  dma_free_contiguous+0x64/0x80
-  dma_direct_free+0x38/0xb4
-  dma_free_attrs+0x88/0xa0
-  dmam_release+0x28/0x34
-  release_nodes+0x78/0x8c
-  devres_release_all+0xa8/0x110
-  really_probe+0x118/0x2d0
-  __driver_probe_device+0xc8/0xe0
-  driver_probe_device+0x54/0xec
-  __driver_attach+0xe0/0xf0
-  bus_for_each_dev+0x7c/0xc8
-  driver_attach+0x30/0x3c
-  bus_add_driver+0x17c/0x1c4
-  driver_register+0xc0/0xf8
-  __platform_driver_register+0x34/0x40
-  ...
+SET_IDLE value must be shifted 8 bits to the right to get duration.
+This confirmed by USBCV test.
 
-This issue is introduced by commit d0243bbd5dd3 ("drivers core:
-Free dma_range_map when driver probe failed"). It frees
-dma_range_map before the call to devres_release_all, which is too
-early. The solution is to free dma_range_map only after
-devres_release_all.
-
-Fixes: d0243bbd5dd3 ("drivers core: Free dma_range_map when driver probe failed")
+Fixes: afcff6dc690e ("usb: gadget: f_hid: added GET_IDLE and SET_IDLE handlers")
 Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Filip Schauer <filip@mg6.at>
-Link: https://lore.kernel.org/r/20210727112311.GA7645@DESKTOP-E8BN1B0.localdomain
+Signed-off-by: Maxim Devaev <mdevaev@gmail.com>
+Link: https://lore.kernel.org/r/20210727185800.43796-1-mdevaev@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/base/dd.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/gadget/function/f_hid.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/base/dd.c
-+++ b/drivers/base/dd.c
-@@ -617,8 +617,6 @@ dev_groups_failed:
- 	else if (drv->remove)
- 		drv->remove(dev);
- probe_failed:
--	kfree(dev->dma_range_map);
--	dev->dma_range_map = NULL;
- 	if (dev->bus)
- 		blocking_notifier_call_chain(&dev->bus->p->bus_notifier,
- 					     BUS_NOTIFY_DRIVER_NOT_BOUND, dev);
-@@ -626,6 +624,8 @@ pinctrl_bind_failed:
- 	device_links_no_driver(dev);
- 	devres_release_all(dev);
- 	arch_teardown_dma_ops(dev);
-+	kfree(dev->dma_range_map);
-+	dev->dma_range_map = NULL;
- 	driver_sysfs_remove(dev);
- 	dev->driver = NULL;
- 	dev_set_drvdata(dev, NULL);
+--- a/drivers/usb/gadget/function/f_hid.c
++++ b/drivers/usb/gadget/function/f_hid.c
+@@ -579,7 +579,7 @@ static int hidg_setup(struct usb_functio
+ 		  | HID_REQ_SET_IDLE):
+ 		VDBG(cdev, "set_idle\n");
+ 		length = 0;
+-		hidg->idle = value;
++		hidg->idle = value >> 8;
+ 		goto respond;
+ 		break;
+ 
 
 
