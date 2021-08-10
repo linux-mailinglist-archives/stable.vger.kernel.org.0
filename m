@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 72E293E8098
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:51:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EDF93E809E
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:51:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235420AbhHJRu7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:50:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54476 "EHLO mail.kernel.org"
+        id S235439AbhHJRvB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:51:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232854AbhHJRtH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:49:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D606861207;
-        Tue, 10 Aug 2021 17:41:38 +0000 (UTC)
+        id S236521AbhHJRt0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:49:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1CF1A61248;
+        Tue, 10 Aug 2021 17:41:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617299;
-        bh=QS1iM6ytuIb8alzj4lbpDhniECJ6zkis2ugGDqvVKJw=;
+        s=korg; t=1628617301;
+        bh=Q8D+xTf6pW+QKu0pELwnvTzgnHYLZci1mq3j4oWaUKs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JBq/RUgsK1NCon+mPT4ImQ76ybLOgt6AqbTyUJD95DzaOFqPH3wjf/II0dCrMhv8+
-         HIaM4sv02iBBiNjR0oqUFpx0zoKE7/CDTDK+x7dMUT0cIdvd4RV7nwCaxmgkWnMAJH
-         pq/gaErutWigQOKPIrM8BvvXIL4gYqX6rsncuqeM=
+        b=fLvTMHeyM3Jye6SDdHDbQELAc3TME3wdBllv7Oy2W/SlEeQUalZq/Vv+iujqpPQJF
+         mltdbmWIJn2NESiv25kWLgMvyCETHJMHKV+HMaCUb/kNEDa10k+HEXvW+fTYvWkI9V
+         m/4A0P+w+VevZr7nCnetXPzrpnPxEbTbBWlKL4iw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
-        Steve French <stfrench@microsoft.com>,
+        stable@vger.kernel.org, Roman Li <Roman.Li@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 133/135] smb3: rc uninitialized in one fallocate path
-Date:   Tue, 10 Aug 2021 19:31:07 +0200
-Message-Id: <20210810173000.327496586@linuxfoundation.org>
+Subject: [PATCH 5.10 134/135] drm/amdgpu/display: only enable aux backlight control for OLED panels
+Date:   Tue, 10 Aug 2021 19:31:08 +0200
+Message-Id: <20210810173000.362881367@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
 References: <20210810172955.660225700@linuxfoundation.org>
@@ -41,37 +40,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve French <stfrench@microsoft.com>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-[ Upstream commit 5ad4df56cd2158965f73416d41fce37906724822 ]
+[ Upstream commit f2ad3accefc63e72e9932e141c21875cc04beec8 ]
 
-Clang detected a problem with rc possibly being unitialized
-(when length is zero) in a recently added fallocate code path.
+We've gotten a number of reports about backlight control not
+working on panels which indicate that they use aux backlight
+control.  A recent patch:
 
-Reported-by: kernel test robot <lkp@intel.com>
-Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+commit 2d73eabe2984a435737498ab39bb1500a9ffe9a9
+Author: Camille Cho <Camille.Cho@amd.com>
+Date:   Thu Jul 8 18:28:37 2021 +0800
+
+    drm/amd/display: Only set default brightness for OLED
+
+    [Why]
+    We used to unconditionally set backlight path as AUX for panels capable
+    of backlight adjustment via DPCD in set default brightness.
+
+    [How]
+    This should be limited to OLED panel only since we control backlight via
+    PWM path for SDR mode in LCD HDR panel.
+
+    Reviewed-by: Krunoslav Kovac <krunoslav.kovac@amd.com>
+    Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+    Signed-off-by: Camille Cho <Camille.Cho@amd.com>
+    Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+
+Changes some other code to only use aux for backlight control on
+OLED panels.  The commit message seems to indicate that PWM should
+be used for SDR mode on HDR panels.  Do something similar for
+backlight control in general.  This may need to be revisited if and
+when HDR started to get used.
+
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1438
+Bug: https://bugzilla.kernel.org/show_bug.cgi?id=213715
+Reviewed-by: Roman Li <Roman.Li@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/smb2ops.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
-index 81e087723777..fdb1d660bd13 100644
---- a/fs/cifs/smb2ops.c
-+++ b/fs/cifs/smb2ops.c
-@@ -3466,7 +3466,8 @@ static int smb3_simple_fallocate_write_range(unsigned int xid,
- 					     char *buf)
- {
- 	struct cifs_io_parms io_parms = {0};
--	int rc, nbytes;
-+	int nbytes;
-+	int rc = 0;
- 	struct kvec iov[2];
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -2162,9 +2162,9 @@ static void update_connector_ext_caps(st
+ 	max_cll = conn_base->hdr_sink_metadata.hdmi_type1.max_cll;
+ 	min_cll = conn_base->hdr_sink_metadata.hdmi_type1.min_cll;
  
- 	io_parms.netfid = cfile->fid.netfid;
--- 
-2.30.2
-
+-	if (caps->ext_caps->bits.oled == 1 ||
++	if (caps->ext_caps->bits.oled == 1 /*||
+ 	    caps->ext_caps->bits.sdr_aux_backlight_control == 1 ||
+-	    caps->ext_caps->bits.hdr_aux_backlight_control == 1)
++	    caps->ext_caps->bits.hdr_aux_backlight_control == 1*/)
+ 		caps->aux_support = true;
+ 
+ 	if (amdgpu_backlight == 0)
 
 
