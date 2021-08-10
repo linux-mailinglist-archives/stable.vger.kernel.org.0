@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 52C603E7E99
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:34:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 389CE3E7F65
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:41:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232788AbhHJRe3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:34:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35348 "EHLO mail.kernel.org"
+        id S234284AbhHJRkS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:40:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232827AbhHJRdv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:33:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 17ECB61058;
-        Tue, 10 Aug 2021 17:33:28 +0000 (UTC)
+        id S232803AbhHJRhJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:37:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9DFBE610FF;
+        Tue, 10 Aug 2021 17:35:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616809;
-        bh=xvFd2K8Cj1moFOA5Q2nGdV2VZIP7mef1IQrDR9e6hDA=;
+        s=korg; t=1628616953;
+        bh=QQTIb+4RapVp0SpW9dcOiR+WqNzQ/FZ2B4HLxmEmcxI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J1noYsVO6DbRGrswtDB+TYGmxuCMCbjw5PIVLs+vfZet4GtzxTxswlCrKP1Iu1ni9
-         HlWg4nLBzf6sK077lEg1/35Y0WYsqtER+Zgd+2w87XW3tt+gPsaZRY27wwCM0c7cdS
-         wWIzAa9twz+ZiSV9CdhkgEF7HaczU4qEPUARlNU4=
+        b=CndvvjMVbB76XMCAk2EGp8iBFNAt8jEiBWHxc8V+Lunprb7/4t12UuEma/Ps6SjCy
+         o4/u2cVDm5c/CrCo9KZq7TBS6Rm/tfgS/91mQ4Y55ITzCrnaILYGZUcFW5Y5244NcA
+         w1RFw2QxT2kj1u0HEDG8zFMbFC7pVRUNxPb03iRo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Gardon <bgardon@google.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Jim Mattson <jmattson@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.19 45/54] KVM: x86/mmu: Fix per-cpu counter corruption on 32-bit builds
+        stable@vger.kernel.org,
+        Ralf Ramsauer <ralf.ramsauer@oth-regensburg.de>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Mario Kleiner <mario.kleiner.de@gmail.com>
+Subject: [PATCH 5.4 66/85] serial: 8250_pci: Avoid irq sharing for MSI(-X) interrupts.
 Date:   Tue, 10 Aug 2021 19:30:39 +0200
-Message-Id: <20210810172945.680686881@linuxfoundation.org>
+Message-Id: <20210810172950.474054546@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172944.179901509@linuxfoundation.org>
-References: <20210810172944.179901509@linuxfoundation.org>
+In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
+References: <20210810172948.192298392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,54 +41,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Mario Kleiner <mario.kleiner.de@gmail.com>
 
-commit d5aaad6f83420efb8357ac8e11c868708b22d0a9 upstream.
+commit 341abd693d10e5f337a51f140ae3e7a1ae0febf6 upstream.
 
-Take a signed 'long' instead of an 'unsigned long' for the number of
-pages to add/subtract to the total number of pages used by the MMU.  This
-fixes a zero-extension bug on 32-bit kernels that effectively corrupts
-the per-cpu counter used by the shrinker.
+This attempts to fix a bug found with a serial port card which uses
+an MCS9922 chip, one of the 4 models for which MSI-X interrupts are
+currently supported. I don't possess such a card, and i'm not
+experienced with the serial subsystem, so this patch is based on what
+i think i found as a likely reason for failure, based on walking the
+user who actually owns the card through some diagnostic.
 
-Per-cpu counters take a signed 64-bit value on both 32-bit and 64-bit
-kernels, whereas kvm_mod_used_mmu_pages() takes an unsigned long and thus
-an unsigned 32-bit value on 32-bit kernels.  As a result, the value used
-to adjust the per-cpu counter is zero-extended (unsigned -> signed), not
-sign-extended (signed -> signed), and so KVM's intended -1 gets morphed to
-4294967295 and effectively corrupts the counter.
+The user who reported the problem finds the following in his dmesg
+output for the relevant ttyS4 and ttyS5:
 
-This was found by a staggering amount of sheer dumb luck when running
-kvm-unit-tests on a 32-bit KVM build.  The shrinker just happened to kick
-in while running tests and do_shrink_slab() logged an error about trying
-to free a negative number of objects.  The truly lucky part is that the
-kernel just happened to be a slightly stale build, as the shrinker no
-longer yells about negative objects as of commit 18bb473e5031 ("mm:
-vmscan: shrink deferred objects proportional to priority").
+[    0.580425] serial 0000:02:00.0: enabling device (0000 -> 0003)
+[    0.601448] 0000:02:00.0: ttyS4 at I/O 0x3010 (irq = 125, base_baud = 115200) is a ST16650V2
+[    0.603089] serial 0000:02:00.1: enabling device (0000 -> 0003)
+[    0.624119] 0000:02:00.1: ttyS5 at I/O 0x3000 (irq = 126, base_baud = 115200) is a ST16650V2
+...
+[    6.323784] genirq: Flags mismatch irq 128. 00000080 (ttyS5) vs. 00000000 (xhci_hcd)
+[    6.324128] genirq: Flags mismatch irq 128. 00000080 (ttyS5) vs. 00000000 (xhci_hcd)
+...
 
- vmscan: shrink_slab: mmu_shrink_scan+0x0/0x210 [kvm] negative objects to delete nr=-858993460
+Output of setserial -a:
 
-Fixes: bc8a3d8925a8 ("kvm: mmu: Fix overflow on kvm mmu page limit calculation")
-Cc: stable@vger.kernel.org
-Cc: Ben Gardon <bgardon@google.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210804214609.1096003-1-seanjc@google.com>
-Reviewed-by: Jim Mattson <jmattson@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+/dev/ttyS4, Line 4, UART: 16650V2, Port: 0x3010, IRQ: 127
+	Baud_base: 115200, close_delay: 50, divisor: 0
+	closing_wait: 3000
+	Flags: spd_normal skip_test
+
+This suggests to me that the serial driver wants to register and share a
+MSI/MSI-X irq 128 with the xhci_hcd driver, whereas the xhci driver does
+not want to share the irq, as flags 0x00000080 (== IRQF_SHARED) from the
+serial port driver means to share the irq, and this mismatch ends in some
+failed irq init?
+
+With this setup, data reception works very unreliable, with dropped data,
+already at a transmission rate of only a 16 Bytes chunk every 1/120th of
+a second, ie. 1920 Bytes/sec, presumably due to rx fifo overflow due to
+mishandled or not used at all rx irq's?
+
+See full discussion thread with attempted diagnosis at:
+
+https://psychtoolbox.discourse.group/t/issues-with-iscan-serial-port-recording/3886
+
+Disabling the use of MSI interrupts for the serial port pci card did
+fix the reliability problems. The user executed the following sequence
+of commands to achieve this:
+
+echo 0000:02:00.0 | sudo tee /sys/bus/pci/drivers/serial/unbind
+echo 0000:02:00.1 | sudo tee /sys/bus/pci/drivers/serial/unbind
+
+echo 0 | sudo tee /sys/bus/pci/devices/0000:02:00.0/msi_bus
+echo 0 | sudo tee /sys/bus/pci/devices/0000:02:00.1/msi_bus
+
+echo 0000:02:00.0 | sudo tee /sys/bus/pci/drivers/serial/bind
+echo 0000:02:00.1 | sudo tee /sys/bus/pci/drivers/serial/bind
+
+This resulted in the following log output:
+
+[   82.179021] pci 0000:02:00.0: MSI/MSI-X disallowed for future drivers
+[   87.003031] pci 0000:02:00.1: MSI/MSI-X disallowed for future drivers
+[   98.537010] 0000:02:00.0: ttyS4 at I/O 0x3010 (irq = 17, base_baud = 115200) is a ST16650V2
+[  103.648124] 0000:02:00.1: ttyS5 at I/O 0x3000 (irq = 18, base_baud = 115200) is a ST16650V2
+
+This patch attempts to fix the problem by disabling irq sharing when
+using MSI irq's. Note that all i know for sure is that disabling MSI
+irq's fixed the problem for the user, so this patch could be wrong and
+is untested. Please review with caution, keeping this in mind.
+
+Fixes: 8428413b1d14 ("serial: 8250_pci: Implement MSI(-X) support")
+Cc: Ralf Ramsauer <ralf.ramsauer@oth-regensburg.de>
+Cc: stable <stable@vger.kernel.org>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Mario Kleiner <mario.kleiner.de@gmail.com>
+Link: https://lore.kernel.org/r/20210729043306.18528-1-mario.kleiner.de@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/mmu.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/8250/8250_pci.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/x86/kvm/mmu.c
-+++ b/arch/x86/kvm/mmu.c
-@@ -2042,7 +2042,7 @@ static int is_empty_shadow_page(u64 *spt
-  * aggregate version in order to make the slab shrinker
-  * faster
-  */
--static inline void kvm_mod_used_mmu_pages(struct kvm *kvm, unsigned long nr)
-+static inline void kvm_mod_used_mmu_pages(struct kvm *kvm, long nr)
- {
- 	kvm->arch.n_used_mmu_pages += nr;
- 	percpu_counter_add(&kvm_total_used_mmu_pages, nr);
+--- a/drivers/tty/serial/8250/8250_pci.c
++++ b/drivers/tty/serial/8250/8250_pci.c
+@@ -3929,6 +3929,7 @@ pciserial_init_ports(struct pci_dev *dev
+ 		if (pci_match_id(pci_use_msi, dev)) {
+ 			dev_dbg(&dev->dev, "Using MSI(-X) interrupts\n");
+ 			pci_set_master(dev);
++			uart.port.flags &= ~UPF_SHARE_IRQ;
+ 			rc = pci_alloc_irq_vectors(dev, 1, 1, PCI_IRQ_ALL_TYPES);
+ 		} else {
+ 			dev_dbg(&dev->dev, "Using legacy interrupts\n");
 
 
