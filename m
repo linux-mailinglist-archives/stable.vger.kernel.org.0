@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A41E3E80C5
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:53:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CAB93E80C8
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:53:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235097AbhHJRwY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:52:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43224 "EHLO mail.kernel.org"
+        id S235484AbhHJRw0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:52:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237314AbhHJRuW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:50:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C41E661102;
-        Tue, 10 Aug 2021 17:42:39 +0000 (UTC)
+        id S237340AbhHJRuX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:50:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 067BE61058;
+        Tue, 10 Aug 2021 17:42:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617360;
-        bh=t9agUHMW1JmVb1vHEqFze5voBLUIKw26fzmU3qQwKCY=;
+        s=korg; t=1628617362;
+        bh=Awv/0F3/5fFqQtKtj2ClRvr7rsF8aSa0STjV49rdfSk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UxU94BHAVC7oJ/jFO2GFgqIKtdh1QoYKt8JmUckvlzy4MsZc+SYhzZqVuRbwpxD75
-         RHL39N+eA7x7yyx+fzyiBkJu5L+E3Js2ecaZnlpDQDjjkiCla8SBuvP3ZMWWAM6Pij
-         UiiL1h7qSal75GUqvu3KW5fZFGfFxlasdMM1EoD4=
+        b=jL9jkjiDnj9lphmN3A+mP2U2TKdHxYAzOSt3bkmQME6IFDC033S3SPFNW03gL0cls
+         c1aAbP1uy3G/R6EEZqHEZrRvkn0Flc0LoL0Y+ngUEIb8oLpOBd/6f0kTZ2dbRYhMi8
+         QnKkN8UF3SE2cNhtrxdbFfvLi+wktsiPGA8F8ZMM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jarkko Nikula <jarkko.nikula@bitmer.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 003/175] bus: ti-sysc: Fix gpt12 system timer issue with reserved status
-Date:   Tue, 10 Aug 2021 19:28:31 +0200
-Message-Id: <20210810173001.053486118@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+fb347cf82c73a90efcca@syzkaller.appspotmail.com
+Subject: [PATCH 5.13 004/175] net: xfrm: fix memory leak in xfrm_user_rcv_msg
+Date:   Tue, 10 Aug 2021 19:28:32 +0200
+Message-Id: <20210810173001.091455606@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
 References: <20210810173000.928681411@linuxfoundation.org>
@@ -40,85 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 3ff340e24c9dd5cff9fc07d67914c5adf67f80d6 ]
+[ Upstream commit 7c1a80e80cde008f271bae630d28cf684351e807 ]
 
-Jarkko Nikula <jarkko.nikula@bitmer.com> reported that Beagleboard
-revision c2 stopped booting. Jarkko bisected the issue down to
-commit 6cfcd5563b4f ("clocksource/drivers/timer-ti-dm: Fix suspend
-and resume for am3 and am4").
+Syzbot reported memory leak in xfrm_user_rcv_msg(). The
+problem was is non-freed skb's frag_list.
 
-Let's fix the issue by tagging system timers as reserved rather than
-ignoring them. And let's not probe any interconnect target module child
-devices for reserved modules.
+In skb_release_all() skb_release_data() will be called only
+in case of skb->head != NULL, but netlink_skb_destructor()
+sets head to NULL. So, allocated frag_list skb should be
+freed manualy, since consume_skb() won't take care of it
 
-This allows PM runtime to keep track of clocks and clockdomains for
-the interconnect target module, and prevent the system timer from idling
-as we already have SYSC_QUIRK_NO_IDLE and SYSC_QUIRK_NO_IDLE_ON_INIT
-flags set for system timers.
-
-Fixes: 6cfcd5563b4f ("clocksource/drivers/timer-ti-dm: Fix suspend and resume for am3 and am4")
-Reported-by: Jarkko Nikula <jarkko.nikula@bitmer.com>
-Tested-by: Jarkko Nikula <jarkko.nikula@bitmer.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Fixes: 5106f4a8acff ("xfrm/compat: Add 32=>64-bit messages translator")
+Reported-and-tested-by: syzbot+fb347cf82c73a90efcca@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bus/ti-sysc.c | 20 +++++++++++++-------
- 1 file changed, 13 insertions(+), 7 deletions(-)
+ net/xfrm/xfrm_user.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/bus/ti-sysc.c b/drivers/bus/ti-sysc.c
-index 38cb116ed433..188cdb0a394e 100644
---- a/drivers/bus/ti-sysc.c
-+++ b/drivers/bus/ti-sysc.c
-@@ -100,6 +100,7 @@ static const char * const clock_names[SYSC_MAX_CLOCKS] = {
-  * @cookie: data used by legacy platform callbacks
-  * @name: name if available
-  * @revision: interconnect target module revision
-+ * @reserved: target module is reserved and already in use
-  * @enabled: sysc runtime enabled status
-  * @needs_resume: runtime resume needed on resume from suspend
-  * @child_needs_resume: runtime resume needed for child on resume from suspend
-@@ -130,6 +131,7 @@ struct sysc {
- 	struct ti_sysc_cookie cookie;
- 	const char *name;
- 	u32 revision;
-+	unsigned int reserved:1;
- 	unsigned int enabled:1;
- 	unsigned int needs_resume:1;
- 	unsigned int child_needs_resume:1;
-@@ -3093,8 +3095,8 @@ static int sysc_probe(struct platform_device *pdev)
- 		return error;
+diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
+index b47d613409b7..7aff641c717d 100644
+--- a/net/xfrm/xfrm_user.c
++++ b/net/xfrm/xfrm_user.c
+@@ -2811,6 +2811,16 @@ static int xfrm_user_rcv_msg(struct sk_buff *skb, struct nlmsghdr *nlh,
  
- 	error = sysc_check_active_timer(ddata);
--	if (error)
--		return error;
-+	if (error == -EBUSY)
-+		ddata->reserved = true;
+ 	err = link->doit(skb, nlh, attrs);
  
- 	error = sysc_get_clocks(ddata);
- 	if (error)
-@@ -3130,11 +3132,15 @@ static int sysc_probe(struct platform_device *pdev)
- 	sysc_show_registers(ddata);
- 
- 	ddata->dev->type = &sysc_device_type;
--	error = of_platform_populate(ddata->dev->of_node, sysc_match_table,
--				     pdata ? pdata->auxdata : NULL,
--				     ddata->dev);
--	if (error)
--		goto err;
-+
-+	if (!ddata->reserved) {
-+		error = of_platform_populate(ddata->dev->of_node,
-+					     sysc_match_table,
-+					     pdata ? pdata->auxdata : NULL,
-+					     ddata->dev);
-+		if (error)
-+			goto err;
++	/* We need to free skb allocated in xfrm_alloc_compat() before
++	 * returning from this function, because consume_skb() won't take
++	 * care of frag_list since netlink destructor sets
++	 * sbk->head to NULL. (see netlink_skb_destructor())
++	 */
++	if (skb_has_frag_list(skb)) {
++		kfree_skb(skb_shinfo(skb)->frag_list);
++		skb_shinfo(skb)->frag_list = NULL;
 +	}
- 
- 	INIT_DELAYED_WORK(&ddata->idle_work, ti_sysc_idle);
- 
++
+ err:
+ 	kvfree(nlh64);
+ 	return err;
 -- 
 2.30.2
 
