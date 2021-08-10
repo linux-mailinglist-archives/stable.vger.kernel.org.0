@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 13EF73E8072
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:50:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 971FA3E7E87
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:33:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232085AbhHJRtI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:49:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54476 "EHLO mail.kernel.org"
+        id S231731AbhHJRd7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:33:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234353AbhHJRrK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:47:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D555A61261;
-        Tue, 10 Aug 2021 17:40:53 +0000 (UTC)
+        id S232051AbhHJRdW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:33:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AC67A61058;
+        Tue, 10 Aug 2021 17:32:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617254;
-        bh=RDMc6f6+oHGp9OQZkfFNST22NUvsvoZ6295xLgFaI/8=;
+        s=korg; t=1628616780;
+        bh=Y+BfJmHVErPxx7QiD3yq3ZCp68mFYboU1/QT+CymW24=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pEvUqV3MRyZ1UO9UPQlGwFzwiyJJhNQe/lSpij02LLvt5BEc4cPwLePaMRcwwcHJw
-         hFHASQUrk2af8JMbN8GnFO3zG8iNQiql3TETBymuZJ21eRIuPVoF5VhU0OINWVHNV9
-         hxJebPnuTR2hAkzLaPuNxxTXfCFSqwSGJIjF4POM=
+        b=OMdrzG3mtxJUgM/PwgdmSp8nIkKNkORqFAUFRCuH4mafBWu8y690xyvxQMQOzD0Dq
+         vKSmlYY58csut52cn4vP8cZta4qg7flxRS8L2U6LtUOsfvwTfPiMXF2l0yTcWBitAL
+         4/c/Uv+Cj1aGCZsHsfcFSqdUUnxyuZNYosss1Bww=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Claudiu Beznea <claudiu.beznea@microchip.com>
-Subject: [PATCH 5.10 070/135] usb: host: ohci-at91: suspend/resume ports after/before OHCI accesses
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang Hai <wanghai38@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 10/54] net: natsemi: Fix missing pci_disable_device() in probe and remove
 Date:   Tue, 10 Aug 2021 19:30:04 +0200
-Message-Id: <20210810172958.101008340@linuxfoundation.org>
+Message-Id: <20210810172944.524834253@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
-References: <20210810172955.660225700@linuxfoundation.org>
+In-Reply-To: <20210810172944.179901509@linuxfoundation.org>
+References: <20210810172944.179901509@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,65 +41,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Beznea <claudiu.beznea@microchip.com>
+From: Wang Hai <wanghai38@huawei.com>
 
-commit 00de6a572f30ee93cad7e0704ec4232e5e72bda8 upstream.
+[ Upstream commit 7fe74dfd41c428afb24e2e615470832fa997ff14 ]
 
-On SAMA7G5 suspending ports will cut the access to OHCI registers and
-any subsequent access to them will lead to CPU being blocked trying to
-access that memory. Same thing happens on resume: if OHCI memory is
-accessed before resuming ports the CPU will block on that access. The
-OCHI memory is accessed on suspend/resume though
-ohci_suspend()/ohci_resume().
+Replace pci_enable_device() with pcim_enable_device(),
+pci_disable_device() and pci_release_regions() will be
+called in release automatically.
 
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210721132905.1970713-1-claudiu.beznea@microchip.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/ohci-at91.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/natsemi/natsemi.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
---- a/drivers/usb/host/ohci-at91.c
-+++ b/drivers/usb/host/ohci-at91.c
-@@ -606,8 +606,6 @@ ohci_hcd_at91_drv_suspend(struct device
- 	if (ohci_at91->wakeup)
- 		enable_irq_wake(hcd->irq);
+diff --git a/drivers/net/ethernet/natsemi/natsemi.c b/drivers/net/ethernet/natsemi/natsemi.c
+index b9a1a9f999ea..039d5dd98dfe 100644
+--- a/drivers/net/ethernet/natsemi/natsemi.c
++++ b/drivers/net/ethernet/natsemi/natsemi.c
+@@ -819,7 +819,7 @@ static int natsemi_probe1(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 		printk(version);
+ #endif
  
--	ohci_at91_port_suspend(ohci_at91->sfr_regmap, 1);
--
- 	ret = ohci_suspend(hcd, ohci_at91->wakeup);
- 	if (ret) {
- 		if (ohci_at91->wakeup)
-@@ -627,7 +625,10 @@ ohci_hcd_at91_drv_suspend(struct device
- 		/* flush the writes */
- 		(void) ohci_readl (ohci, &ohci->regs->control);
- 		msleep(1);
-+		ohci_at91_port_suspend(ohci_at91->sfr_regmap, 1);
- 		at91_stop_clock(ohci_at91);
-+	} else {
-+		ohci_at91_port_suspend(ohci_at91->sfr_regmap, 1);
+-	i = pci_enable_device(pdev);
++	i = pcim_enable_device(pdev);
+ 	if (i) return i;
+ 
+ 	/* natsemi has a non-standard PM control register
+@@ -852,7 +852,7 @@ static int natsemi_probe1(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	ioaddr = ioremap(iostart, iosize);
+ 	if (!ioaddr) {
+ 		i = -ENOMEM;
+-		goto err_ioremap;
++		goto err_pci_request_regions;
  	}
  
- 	return ret;
-@@ -639,6 +640,8 @@ ohci_hcd_at91_drv_resume(struct device *
- 	struct usb_hcd	*hcd = dev_get_drvdata(dev);
- 	struct ohci_at91_priv *ohci_at91 = hcd_to_ohci_at91_priv(hcd);
+ 	/* Work around the dropped serial bit. */
+@@ -974,9 +974,6 @@ static int natsemi_probe1(struct pci_dev *pdev, const struct pci_device_id *ent)
+  err_register_netdev:
+ 	iounmap(ioaddr);
  
-+	ohci_at91_port_suspend(ohci_at91->sfr_regmap, 0);
-+
- 	if (ohci_at91->wakeup)
- 		disable_irq_wake(hcd->irq);
- 	else
-@@ -646,8 +649,6 @@ ohci_hcd_at91_drv_resume(struct device *
- 
- 	ohci_resume(hcd, false);
- 
--	ohci_at91_port_suspend(ohci_at91->sfr_regmap, 0);
+- err_ioremap:
+-	pci_release_regions(pdev);
 -
- 	return 0;
- }
+  err_pci_request_regions:
+ 	free_netdev(dev);
+ 	return i;
+@@ -3242,7 +3239,6 @@ static void natsemi_remove1(struct pci_dev *pdev)
  
+ 	NATSEMI_REMOVE_FILE(pdev, dspcfg_workaround);
+ 	unregister_netdev (dev);
+-	pci_release_regions (pdev);
+ 	iounmap(ioaddr);
+ 	free_netdev (dev);
+ }
+-- 
+2.30.2
+
 
 
