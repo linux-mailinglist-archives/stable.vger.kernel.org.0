@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14CFB3E7E9D
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:34:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C5743E809F
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:51:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232983AbhHJRed (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:34:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38684 "EHLO mail.kernel.org"
+        id S235456AbhHJRvC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:51:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231893AbhHJReB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:34:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 562B1610CF;
-        Tue, 10 Aug 2021 17:33:38 +0000 (UTC)
+        id S236623AbhHJRtd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:49:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 994E66124B;
+        Tue, 10 Aug 2021 17:41:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616818;
-        bh=//W2AOkZKarKR/m0ISvGsAjaLCFLauuC4u1WBYKVT2Q=;
+        s=korg; t=1628617306;
+        bh=oB0hprW6J5hYBJxtKmiWG+da6M0HtAcv804jgpvC75U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P5JWlNWM5q/kyw/0Hwsm+WvMuFp1Z7cSssZER604cD1vOInLQ0dkfgHeKVb0cQR6e
-         X7QfGD49P2M9VVVsyZk1kHB41SNnV+2lWCBjmqUuQrqug0mCvrl2eqYqS9R2ZQbPqe
-         PJtzLR1UjfWMfKxRooocotGjkKKR91gBFTI7N7sw=
+        b=Pi0+njE8xnkPSAI5CFLYeKwZe94HhvdLMUP/d5LXog81M7AQWQFZHxwwxV/vX5Nhe
+         qVC7ivslcdGnKC9tAw0Bk02LRNbZYtuONPOCJsnHDcif0/+CsPK6lJx1/CVzWzJdiy
+         9w1xrPR1n4AXVNy4PUXDz+lZkoiDoN3Q7CZuI6dE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
-        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 49/54] libata: fix ata_pio_sector for CONFIG_HIGHMEM
+        stable@vger.kernel.org, Wei Shuyu <wsy@dogben.com>,
+        Guoqing Jiang <jiangguoqing@kylinos.cn>,
+        Song Liu <song@kernel.org>
+Subject: [PATCH 5.10 109/135] md/raid10: properly indicate failure when ending a failed write request
 Date:   Tue, 10 Aug 2021 19:30:43 +0200
-Message-Id: <20210810172945.820938473@linuxfoundation.org>
+Message-Id: <20210810172959.477804309@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172944.179901509@linuxfoundation.org>
-References: <20210810172944.179901509@linuxfoundation.org>
+In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
+References: <20210810172955.660225700@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,92 +40,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Wei Shuyu <wsy@dogben.com>
 
-[ Upstream commit ecef6a9effe49e8e2635c839020b9833b71e934c ]
+commit 5ba03936c05584b6f6f79be5ebe7e5036c1dd252 upstream.
 
-Data transfers are not required to be block aligned in memory, so they
-span two pages.  Fix this by splitting the call to >sff_data_xfer into
-two for that case.
+Similar to [1], this patch fixes the same bug in raid10. Also cleanup the
+comments.
 
-This has been broken since the initial libata import before the damn
-of git, but was uncovered by the legacy ide driver removal.
-
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20210709130237.3730959-1-hch@lst.de
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[1] commit 2417b9869b81 ("md/raid1: properly indicate failure when ending
+                         a failed write request")
+Cc: stable@vger.kernel.org
+Fixes: 7cee6d4e6035 ("md/raid10: end bio when the device faulty")
+Signed-off-by: Wei Shuyu <wsy@dogben.com>
+Acked-by: Guoqing Jiang <jiangguoqing@kylinos.cn>
+Signed-off-by: Song Liu <song@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/ata/libata-sff.c | 35 +++++++++++++++++++++++++++--------
- 1 file changed, 27 insertions(+), 8 deletions(-)
+ drivers/md/raid1.c  |    2 --
+ drivers/md/raid10.c |    4 ++--
+ 2 files changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/ata/libata-sff.c b/drivers/ata/libata-sff.c
-index 7484ffdabd54..ec62d26c32a9 100644
---- a/drivers/ata/libata-sff.c
-+++ b/drivers/ata/libata-sff.c
-@@ -657,6 +657,20 @@ unsigned int ata_sff_data_xfer32(struct ata_queued_cmd *qc, unsigned char *buf,
- }
- EXPORT_SYMBOL_GPL(ata_sff_data_xfer32);
- 
-+static void ata_pio_xfer(struct ata_queued_cmd *qc, struct page *page,
-+		unsigned int offset, size_t xfer_size)
-+{
-+	bool do_write = (qc->tf.flags & ATA_TFLAG_WRITE);
-+	unsigned char *buf;
-+
-+	buf = kmap_atomic(page);
-+	qc->ap->ops->sff_data_xfer(qc, buf + offset, xfer_size, do_write);
-+	kunmap_atomic(buf);
-+
-+	if (!do_write && !PageSlab(page))
-+		flush_dcache_page(page);
-+}
-+
- /**
-  *	ata_pio_sector - Transfer a sector of data.
-  *	@qc: Command on going
-@@ -668,11 +682,9 @@ EXPORT_SYMBOL_GPL(ata_sff_data_xfer32);
-  */
- static void ata_pio_sector(struct ata_queued_cmd *qc)
- {
--	int do_write = (qc->tf.flags & ATA_TFLAG_WRITE);
- 	struct ata_port *ap = qc->ap;
- 	struct page *page;
- 	unsigned int offset;
--	unsigned char *buf;
- 
- 	if (!qc->cursg) {
- 		qc->curbytes = qc->nbytes;
-@@ -690,13 +702,20 @@ static void ata_pio_sector(struct ata_queued_cmd *qc)
- 
- 	DPRINTK("data %s\n", qc->tf.flags & ATA_TFLAG_WRITE ? "write" : "read");
- 
--	/* do the actual data transfer */
--	buf = kmap_atomic(page);
--	ap->ops->sff_data_xfer(qc, buf + offset, qc->sect_size, do_write);
--	kunmap_atomic(buf);
-+	/*
-+	 * Split the transfer when it splits a page boundary.  Note that the
-+	 * split still has to be dword aligned like all ATA data transfers.
-+	 */
-+	WARN_ON_ONCE(offset % 4);
-+	if (offset + qc->sect_size > PAGE_SIZE) {
-+		unsigned int split_len = PAGE_SIZE - offset;
- 
--	if (!do_write && !PageSlab(page))
--		flush_dcache_page(page);
-+		ata_pio_xfer(qc, page, offset, split_len);
-+		ata_pio_xfer(qc, nth_page(page, 1), 0,
-+			     qc->sect_size - split_len);
-+	} else {
-+		ata_pio_xfer(qc, page, offset, qc->sect_size);
-+	}
- 
- 	qc->curbytes += qc->sect_size;
- 	qc->cursg_ofs += qc->sect_size;
--- 
-2.30.2
-
+--- a/drivers/md/raid1.c
++++ b/drivers/md/raid1.c
+@@ -472,8 +472,6 @@ static void raid1_end_write_request(stru
+ 		/*
+ 		 * When the device is faulty, it is not necessary to
+ 		 * handle write error.
+-		 * For failfast, this is the only remaining device,
+-		 * We need to retry the write without FailFast.
+ 		 */
+ 		if (!test_bit(Faulty, &rdev->flags))
+ 			set_bit(R1BIO_WriteError, &r1_bio->state);
+--- a/drivers/md/raid10.c
++++ b/drivers/md/raid10.c
+@@ -470,12 +470,12 @@ static void raid10_end_write_request(str
+ 			/*
+ 			 * When the device is faulty, it is not necessary to
+ 			 * handle write error.
+-			 * For failfast, this is the only remaining device,
+-			 * We need to retry the write without FailFast.
+ 			 */
+ 			if (!test_bit(Faulty, &rdev->flags))
+ 				set_bit(R10BIO_WriteError, &r10_bio->state);
+ 			else {
++				/* Fail the request */
++				set_bit(R10BIO_Degraded, &r10_bio->state);
+ 				r10_bio->devs[slot].bio = NULL;
+ 				to_put = bio;
+ 				dec_rdev = 1;
 
 
