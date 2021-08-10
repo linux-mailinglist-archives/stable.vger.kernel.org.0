@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 310E23E7FB2
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:42:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C6C23E8127
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:56:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235359AbhHJRmK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:42:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34420 "EHLO mail.kernel.org"
+        id S233718AbhHJR4D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:56:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233715AbhHJRkI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:40:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 772A261019;
-        Tue, 10 Aug 2021 17:37:58 +0000 (UTC)
+        id S237016AbhHJRyO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:54:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 026CD60EB9;
+        Tue, 10 Aug 2021 17:44:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617078;
-        bh=O8J9V4VnQHX0jq0+mNkaZg3S+QXVY27tkx3Bagbnzs0=;
+        s=korg; t=1628617453;
+        bh=p5SONKJAIgw2X3m/SsTV8vjDuo5sdHycnoXLKK+CB9k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jykcKNRMy7jCATapOteBldanMY8nUbHdr/gQN90jqBIyFTNl8Lv6JwGP9w0RbYSFx
-         efZTp4pciR7rYyReny1grLkX4Elx8xbp3Duh4B0gMFh/magLOEh6NPUEkRzeHGd4BO
-         u2B260KrLuG4WM0b0vFy8/YamkpGJkNHjWw4bmJ0=
+        b=JsZV4zegGKlU09COaw5RZryY3YofcmKi9rydvmoTjtl4KXiCHX82qOdrMsxM5AERv
+         iFS4ubO+qhO2ak4K62MJw5nbpRqvUvJJPu+sJUscHGXFmGyL79qtEq8BMT0tm+dj2I
+         XvAM65ZhKXQExd2OyfGk5YoJujyMxnvlKex0/cdU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Shawn Guo <shawnguo@kernel.org>,
+        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>, Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 005/135] arm64: dts: ls1028a: fix node name for the sysclk
-Date:   Tue, 10 Aug 2021 19:28:59 +0200
-Message-Id: <20210810172955.858626834@linuxfoundation.org>
+Subject: [PATCH 5.13 032/175] spi: imx: mx51-ecspi: Fix low-speed CONFIGREG delay calculation
+Date:   Tue, 10 Aug 2021 19:29:00 +0200
+Message-Id: <20210810173002.020003538@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
-References: <20210810172955.660225700@linuxfoundation.org>
+In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
+References: <20210810173000.928681411@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,55 +41,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit 7e71b85473f863a29eb1c69265ef025389b4091d ]
+[ Upstream commit 53ca18acbe645656132fb5a329833db711067e54 ]
 
-U-Boot attempts to fix up the "clock-frequency" property of the "/sysclk" node:
-https://elixir.bootlin.com/u-boot/v2021.04/source/arch/arm/cpu/armv8/fsl-layerscape/fdt.c#L512
+The spi_imx->spi_bus_clk may be uninitialized and thus also zero in
+mx51_ecspi_prepare_message(), which would lead to division by zero
+in kernel. Since bitbang .setup_transfer callback which initializes
+the spi_imx->spi_bus_clk is called after bitbang prepare_message
+callback, iterate over all the transfers in spi_message, find the
+one with lowest bus frequency, and use that bus frequency for the
+delay calculation.
 
-but fails to do so:
+Note that it is not possible to move this CONFIGREG delay back into
+the .setup_transfer callback, because that is invoked too late, after
+the GPIO chipselects were already configured.
 
-  ## Booting kernel from Legacy Image at a1000000 ...
-     Image Name:
-     Created:      2021-06-08  10:31:38 UTC
-     Image Type:   AArch64 Linux Kernel Image (gzip compressed)
-     Data Size:    15431370 Bytes = 14.7 MiB
-     Load Address: 80080000
-     Entry Point:  80080000
-     Verifying Checksum ... OK
-  ## Flattened Device Tree blob at a0000000
-     Booting using the fdt blob at 0xa0000000
-     Uncompressing Kernel Image
-     Loading Device Tree to 00000000fbb19000, end 00000000fbb22717 ... OK
-  Unable to update property /sysclk:clock-frequency, err=FDT_ERR_NOTFOUND
-
-  Starting kernel ...
-
-All Layerscape SoCs except LS1028A use "sysclk" as the node name, and
-not "clock-sysclk". So change the node name of LS1028A accordingly.
-
-Fixes: 8897f3255c9c ("arm64: dts: Add support for NXP LS1028A SoC")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Fixes: 135cbd378eab ("spi: imx: mx51-ecspi: Reinstate low-speed CONFIGREG delay")
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Cc: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20210726100102.5188-1-marex@denx.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/spi/spi-imx.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi
-index f3b58bb9b840..5f42904d53ab 100644
---- a/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi
-@@ -69,7 +69,7 @@
- 		};
- 	};
+diff --git a/drivers/spi/spi-imx.c b/drivers/spi/spi-imx.c
+index 4aee3db6d6df..2872993550bd 100644
+--- a/drivers/spi/spi-imx.c
++++ b/drivers/spi/spi-imx.c
+@@ -505,7 +505,9 @@ static int mx51_ecspi_prepare_message(struct spi_imx_data *spi_imx,
+ 				      struct spi_message *msg)
+ {
+ 	struct spi_device *spi = msg->spi;
++	struct spi_transfer *xfer;
+ 	u32 ctrl = MX51_ECSPI_CTRL_ENABLE;
++	u32 min_speed_hz = ~0U;
+ 	u32 testreg, delay;
+ 	u32 cfg = readl(spi_imx->base + MX51_ECSPI_CONFIG);
  
--	sysclk: clock-sysclk {
-+	sysclk: sysclk {
- 		compatible = "fixed-clock";
- 		#clock-cells = <0>;
- 		clock-frequency = <100000000>;
+@@ -577,8 +579,20 @@ static int mx51_ecspi_prepare_message(struct spi_imx_data *spi_imx,
+ 	 * be asserted before the SCLK polarity changes, which would disrupt
+ 	 * the SPI communication as the device on the other end would consider
+ 	 * the change of SCLK polarity as a clock tick already.
++	 *
++	 * Because spi_imx->spi_bus_clk is only set in bitbang prepare_message
++	 * callback, iterate over all the transfers in spi_message, find the
++	 * one with lowest bus frequency, and use that bus frequency for the
++	 * delay calculation. In case all transfers have speed_hz == 0, then
++	 * min_speed_hz is ~0 and the resulting delay is zero.
+ 	 */
+-	delay = (2 * 1000000) / spi_imx->spi_bus_clk;
++	list_for_each_entry(xfer, &msg->transfers, transfer_list) {
++		if (!xfer->speed_hz)
++			continue;
++		min_speed_hz = min(xfer->speed_hz, min_speed_hz);
++	}
++
++	delay = (2 * 1000000) / min_speed_hz;
+ 	if (likely(delay < 10))	/* SCLK is faster than 100 kHz */
+ 		udelay(delay);
+ 	else			/* SCLK is _very_ slow */
 -- 
 2.30.2
 
