@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E7DC43E8115
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:56:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA91A3E7FA8
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:41:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235969AbhHJRzT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:55:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47704 "EHLO mail.kernel.org"
+        id S234963AbhHJRlr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:41:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236676AbhHJRxR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:53:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C23506121F;
-        Tue, 10 Aug 2021 17:43:50 +0000 (UTC)
+        id S235687AbhHJRkE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:40:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E8C7611CC;
+        Tue, 10 Aug 2021 17:37:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617431;
-        bh=QNUm2+v7YL/hKqaW0mXedP/tyNxliYcFetdHeHA0zKU=;
+        s=korg; t=1628617065;
+        bh=3ihHMwQvn2DdlpJlq6E81HVnWvEcO0GnNoVmNItOAA8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jNObPrQLWWpY8SICtNa3ysiMPDposnWif00rqHqvQBI4nmkV4Z3SnJfeqeIzXdRXx
-         yrz96/qLcJq+n6jzbkeYHrLb9Hp92xBWSpjKmQlv5RNdGywwFfq4q4WSq+OVNjVQll
-         0pkYYcSxWyBZ0NwJTclssnrGMpxpjZygwj0NU9Dk=
+        b=v0y1Yci16Hvqn3ucI/bovA0+V2AivUPqtwK29hOeOAXvFqMLaLiAmiSIRr2LITLLZ
+         Y+LqP3aLda8ocB1f9Ro9MfG/Glv2ydXGP9+Q6sMq1tkb5AX9JkYt2fn0rmVBdxkBwY
+         4TqKbqh+G4OM4Uv/wfQGx9IwroOf04yVMGrkLy8c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vadim Fedorenko <vfedorenko@novek.ru>,
-        Antoine Tenart <atenart@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 054/175] net: ipv6: fix returned variable type in ip6_skb_dst_mtu
-Date:   Tue, 10 Aug 2021 19:29:22 +0200
-Message-Id: <20210810173002.720157941@linuxfoundation.org>
+        stable@vger.kernel.org, Juergen Borleis <jbe@pengutronix.de>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 029/135] dmaengine: imx-dma: configure the generic DMA type to make it work
+Date:   Tue, 10 Aug 2021 19:29:23 +0200
+Message-Id: <20210810172956.662322349@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
-References: <20210810173000.928681411@linuxfoundation.org>
+In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
+References: <20210810172955.660225700@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,38 +39,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Antoine Tenart <atenart@kernel.org>
+From: Juergen Borleis <jbe@pengutronix.de>
 
-[ Upstream commit 4039146777a91e1576da2bf38e0d8a1061a1ae47 ]
+[ Upstream commit 7199ddede9f0f2f68d41e6928e1c6c4bca9c39c0 ]
 
-The patch fixing the returned value of ip6_skb_dst_mtu (int -> unsigned
-int) was rebased between its initial review and the version applied. In
-the meantime fade56410c22 was applied, which added a new variable (int)
-used as the returned value. This lead to a mismatch between the function
-prototype and the variable used as the return value.
+Commit dea7a9fbb009 ("dmaengine: imx-dma: remove dma_slave_config
+direction usage") changes the method from a "configuration when called"
+to an "configuration when used". Due to this, only the cyclic DMA type
+gets configured correctly, while the generic DMA type is left
+non-configured.
 
-Fixes: 40fc3054b458 ("net: ipv6: fix return value of ip6_skb_dst_mtu")
-Cc: Vadim Fedorenko <vfedorenko@novek.ru>
-Signed-off-by: Antoine Tenart <atenart@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Without this additional call, the struct imxdma_channel::word_size member
+is stuck at DMA_SLAVE_BUSWIDTH_UNDEFINED and imxdma_prep_slave_sg() always
+returns NULL.
+
+Signed-off-by: Juergen Borleis <jbe@pengutronix.de>
+Fixes: dea7a9fbb009 ("dmaengine: imx-dma: remove dma_slave_config direction usage")
+Link: https://lore.kernel.org/r/20210729071821.9857-1-jbe@pengutronix.de
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/ip6_route.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/dma/imx-dma.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/include/net/ip6_route.h b/include/net/ip6_route.h
-index 625a38ccb5d9..0bf09a9bca4e 100644
---- a/include/net/ip6_route.h
-+++ b/include/net/ip6_route.h
-@@ -265,7 +265,7 @@ int ip6_fragment(struct net *net, struct sock *sk, struct sk_buff *skb,
+diff --git a/drivers/dma/imx-dma.c b/drivers/dma/imx-dma.c
+index 670db04b0757..52e361ed43e3 100644
+--- a/drivers/dma/imx-dma.c
++++ b/drivers/dma/imx-dma.c
+@@ -831,6 +831,8 @@ static struct dma_async_tx_descriptor *imxdma_prep_slave_sg(
+ 		dma_length += sg_dma_len(sg);
+ 	}
  
- static inline unsigned int ip6_skb_dst_mtu(struct sk_buff *skb)
- {
--	int mtu;
-+	unsigned int mtu;
- 
- 	struct ipv6_pinfo *np = skb->sk && !dev_recursion_level() ?
- 				inet6_sk(skb->sk) : NULL;
++	imxdma_config_write(chan, &imxdmac->config, direction);
++
+ 	switch (imxdmac->word_size) {
+ 	case DMA_SLAVE_BUSWIDTH_4_BYTES:
+ 		if (sg_dma_len(sgl) & 3 || sgl->dma_address & 3)
 -- 
 2.30.2
 
