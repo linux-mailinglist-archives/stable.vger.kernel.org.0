@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B7AC3E7FA1
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:41:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC26B3E7FA0
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:41:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233695AbhHJRlg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231812AbhHJRlg (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 10 Aug 2021 13:41:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60974 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:59194 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233479AbhHJRjt (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233469AbhHJRjt (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 10 Aug 2021 13:39:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F2AC861185;
-        Tue, 10 Aug 2021 17:37:33 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 34BCA611C6;
+        Tue, 10 Aug 2021 17:37:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617054;
-        bh=F5hw9f+wwEsdKWnp+ccOLt3/G5fELqQZjHbfTJzBbLQ=;
+        s=korg; t=1628617056;
+        bh=cxvJByPagMpfRpFA5lFwdQ7dBNJGS4nUR3J6IK7apTc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vsoUCTACPC3shYVmJnF2uz00dAzbFsJ2YPAOXwLU6DliemWZhgIHnx+pcUA7WFr7z
-         AFcOjfOaep+BSSDiecHifU8Gews3nw5MEoKyKsGKin5bv4V56KjfQS5RvalGgOnlcF
-         aEFRumCDNIxgQLnT0w9n8sYvAZBnwsQTpyxUvXZc=
+        b=cYsVRVBbGwlU6p9IH0IZdsikzY8AuHhs37Hr/iYUIi85tPGrb1VCDx5AsPjRH9NX7
+         ntNDW6Pb8XFMT0HlNB51HKBG8zAOmOWMjn/uMkh5hc8KpkvryKpElAvJQ5HMedqWFm
+         esjkWgcuMqdffNXtTAn1QOMnGdBo08xyQOtyB+ZY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Li Manyi <limanyi@uniontech.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 024/135] spi: imx: mx51-ecspi: Fix low-speed CONFIGREG delay calculation
-Date:   Tue, 10 Aug 2021 19:29:18 +0200
-Message-Id: <20210810172956.498614101@linuxfoundation.org>
+Subject: [PATCH 5.10 025/135] scsi: sr: Return correct event when media event code is 3
+Date:   Tue, 10 Aug 2021 19:29:19 +0200
+Message-Id: <20210810172956.529704096@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
 References: <20210810172955.660225700@linuxfoundation.org>
@@ -41,69 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Li Manyi <limanyi@uniontech.com>
 
-[ Upstream commit 53ca18acbe645656132fb5a329833db711067e54 ]
+[ Upstream commit 5c04243a56a7977185b00400e59ca7e108004faf ]
 
-The spi_imx->spi_bus_clk may be uninitialized and thus also zero in
-mx51_ecspi_prepare_message(), which would lead to division by zero
-in kernel. Since bitbang .setup_transfer callback which initializes
-the spi_imx->spi_bus_clk is called after bitbang prepare_message
-callback, iterate over all the transfers in spi_message, find the
-one with lowest bus frequency, and use that bus frequency for the
-delay calculation.
+Media event code 3 is defined in the MMC-6 spec as follows:
 
-Note that it is not possible to move this CONFIGREG delay back into
-the .setup_transfer callback, because that is invoked too late, after
-the GPIO chipselects were already configured.
+  "MediaRemoval: The media has been removed from the specified slot, and
+   the Drive is unable to access the media without user intervention. This
+   applies to media changers only."
 
-Fixes: 135cbd378eab ("spi: imx: mx51-ecspi: Reinstate low-speed CONFIGREG delay")
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Cc: Mark Brown <broonie@kernel.org>
-Link: https://lore.kernel.org/r/20210726100102.5188-1-marex@denx.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This indicated that treating the condition as an EJECT_REQUEST was
+appropriate. However, doing so had the unfortunate side-effect of causing
+the drive tray to be physically ejected on resume. Instead treat the event
+as a MEDIA_CHANGE request.
+
+Fixes: 7dd753ca59d6 ("scsi: sr: Return appropriate error code when disk is ejected")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=213759
+Link: https://lore.kernel.org/r/20210726114913.6760-1-limanyi@uniontech.com
+Signed-off-by: Li Manyi <limanyi@uniontech.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-imx.c | 16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+ drivers/scsi/sr.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-imx.c b/drivers/spi/spi-imx.c
-index 8c0a6ea941ad..0e3bc0b0a526 100644
---- a/drivers/spi/spi-imx.c
-+++ b/drivers/spi/spi-imx.c
-@@ -505,7 +505,9 @@ static int mx51_ecspi_prepare_message(struct spi_imx_data *spi_imx,
- 				      struct spi_message *msg)
- {
- 	struct spi_device *spi = msg->spi;
-+	struct spi_transfer *xfer;
- 	u32 ctrl = MX51_ECSPI_CTRL_ENABLE;
-+	u32 min_speed_hz = ~0U;
- 	u32 testreg, delay;
- 	u32 cfg = readl(spi_imx->base + MX51_ECSPI_CONFIG);
+diff --git a/drivers/scsi/sr.c b/drivers/scsi/sr.c
+index 726b7048a767..4cb4ab9c6137 100644
+--- a/drivers/scsi/sr.c
++++ b/drivers/scsi/sr.c
+@@ -221,7 +221,7 @@ static unsigned int sr_get_events(struct scsi_device *sdev)
+ 	else if (med->media_event_code == 2)
+ 		return DISK_EVENT_MEDIA_CHANGE;
+ 	else if (med->media_event_code == 3)
+-		return DISK_EVENT_EJECT_REQUEST;
++		return DISK_EVENT_MEDIA_CHANGE;
+ 	return 0;
+ }
  
-@@ -577,8 +579,20 @@ static int mx51_ecspi_prepare_message(struct spi_imx_data *spi_imx,
- 	 * be asserted before the SCLK polarity changes, which would disrupt
- 	 * the SPI communication as the device on the other end would consider
- 	 * the change of SCLK polarity as a clock tick already.
-+	 *
-+	 * Because spi_imx->spi_bus_clk is only set in bitbang prepare_message
-+	 * callback, iterate over all the transfers in spi_message, find the
-+	 * one with lowest bus frequency, and use that bus frequency for the
-+	 * delay calculation. In case all transfers have speed_hz == 0, then
-+	 * min_speed_hz is ~0 and the resulting delay is zero.
- 	 */
--	delay = (2 * 1000000) / spi_imx->spi_bus_clk;
-+	list_for_each_entry(xfer, &msg->transfers, transfer_list) {
-+		if (!xfer->speed_hz)
-+			continue;
-+		min_speed_hz = min(xfer->speed_hz, min_speed_hz);
-+	}
-+
-+	delay = (2 * 1000000) / min_speed_hz;
- 	if (likely(delay < 10))	/* SCLK is faster than 100 kHz */
- 		udelay(delay);
- 	else			/* SCLK is _very_ slow */
 -- 
 2.30.2
 
