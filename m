@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26F503E5D86
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 16:21:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22CAB3E5D87
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 16:21:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242795AbhHJOVs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 10:21:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53390 "EHLO mail.kernel.org"
+        id S241389AbhHJOVt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 10:21:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54222 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241238AbhHJOS5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S242566AbhHJOS5 (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 10 Aug 2021 10:18:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D72EF6113D;
-        Tue, 10 Aug 2021 14:16:58 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 10EAE61153;
+        Tue, 10 Aug 2021 14:16:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1628605019;
-        bh=Pz46gHkSQln6I3G5DEJdMbJZXyYmt8VVju6zaCEkHR8=;
+        s=k20201202; t=1628605020;
+        bh=oGeabWi9WM/jRq9Qk4TZ4TG8oYIuRbdR5vL5RuLGkIM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f4kXTILLNtuvJAI7Jc8JCKbCe9ptMi/0txYge8fxE+9W6GV+Yp8lIH06nO3QouuGG
-         ITk1DWLYVs5+LLWQgjEMJrCYLMLKCaSYuNnLxGOIlUZXpk/8iPU8O8ZnQBaj0weJKT
-         /JnYo2GNNXRdD64WeJAY/hSvjY44J6p0MjSrywaxpvrfxrG5qeJenCY4ALJfJiz3ND
-         DTH49Svag1uueq7vTup2ncVdHTdCTa74eWN4JJ7WQBLwOM/hSh4n+DmiK6hO6BQH8E
-         8rsxQjOXgTlg54t+c4T4dUzZKaMjdCd5BqWx4ugw7EywiipdwA7MFzOg6aduBKEA8+
-         N+JBg0tCULQTg==
+        b=iajRZYD9zRd9I2eUY1hpdjNpMGt0xzIdmdSupy4KMF2gXeXGCQFnvTUrblDl8M7K4
+         x0pue27L547ELLa3n5VeNtzVrFb8ztPXIBP6qUY8y21qd0KIFWTr9YteXpG9Vxc3r3
+         JFtMMS30nUGJjGF/2HDpokE0A69p2yRrDDG9R70MySl2l7QKKW9rseLDbVqS5ADjil
+         SbpHAxB0gJhiX+xLJhPsNHqG1a4eDTxkVm3Z99mS6r7/fl66ixBtzb1Qot/NngMLYf
+         75jCj27k4tpa/JlPeGN6J/fuzTKn1vP9NToCsi8zJK96kX1YtUxINzl4XajwP5Mthd
+         tkDM4Dmmj36GA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Ujfalusi <peter.ujfalusi@gmail.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        dmaengine@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 3/8] dmaengine: of-dma: router_xlate to return -EPROBE_DEFER if controller is not yet available
-Date:   Tue, 10 Aug 2021 10:16:50 -0400
-Message-Id: <20210810141655.3118498-3-sashal@kernel.org>
+Cc:     Harshvardhan Jha <harshvardhan.jha@oracle.com>,
+        Sumit Saxena <sumit.saxena@broadcom.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>,
+        megaraidlinux.pdl@broadcom.com, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 4/8] scsi: megaraid_mm: Fix end of loop tests for list_for_each_entry()
+Date:   Tue, 10 Aug 2021 10:16:51 -0400
+Message-Id: <20210810141655.3118498-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210810141655.3118498-1-sashal@kernel.org>
 References: <20210810141655.3118498-1-sashal@kernel.org>
@@ -42,60 +44,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Ujfalusi <peter.ujfalusi@gmail.com>
+From: Harshvardhan Jha <harshvardhan.jha@oracle.com>
 
-[ Upstream commit eda97cb095f2958bbad55684a6ca3e7d7af0176a ]
+[ Upstream commit 77541f78eadfe9fdb018a7b8b69f0f2af2cf4b82 ]
 
-If the router_xlate can not find the controller in the available DMA
-devices then it should return with -EPORBE_DEFER in a same way as the
-of_dma_request_slave_channel() does.
+The list_for_each_entry() iterator, "adapter" in this code, can never be
+NULL.  If we exit the loop without finding the correct adapter then
+"adapter" points invalid memory that is an offset from the list head.  This
+will eventually lead to memory corruption and presumably a kernel crash.
 
-The issue can be reproduced if the event router is registered before the
-DMA controller itself and a driver would request for a channel before the
-controller is registered.
-In of_dma_request_slave_channel():
-1. of_dma_find_controller() would find the dma_router
-2. ofdma->of_dma_xlate() would fail and returned NULL
-3. -ENODEV is returned as error code
-
-with this patch we would return in this case the correct -EPROBE_DEFER and
-the client can try to request the channel later.
-
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@gmail.com>
-Link: https://lore.kernel.org/r/20210717190021.21897-1-peter.ujfalusi@gmail.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Link: https://lore.kernel.org/r/20210708074642.23599-1-harshvardhan.jha@oracle.com
+Acked-by: Sumit Saxena <sumit.saxena@broadcom.com>
+Signed-off-by: Harshvardhan Jha <harshvardhan.jha@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/of-dma.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/scsi/megaraid/megaraid_mm.c | 21 +++++++++++++++------
+ 1 file changed, 15 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/dma/of-dma.c b/drivers/dma/of-dma.c
-index 757cf48c1c5e..441f37b41abd 100644
---- a/drivers/dma/of-dma.c
-+++ b/drivers/dma/of-dma.c
-@@ -68,8 +68,12 @@ static struct dma_chan *of_dma_router_xlate(struct of_phandle_args *dma_spec,
- 		return NULL;
+diff --git a/drivers/scsi/megaraid/megaraid_mm.c b/drivers/scsi/megaraid/megaraid_mm.c
+index 4cf9ed96414f..d61df49e4e1b 100644
+--- a/drivers/scsi/megaraid/megaraid_mm.c
++++ b/drivers/scsi/megaraid/megaraid_mm.c
+@@ -250,7 +250,7 @@ mraid_mm_get_adapter(mimd_t __user *umimd, int *rval)
+ 	mimd_t		mimd;
+ 	uint32_t	adapno;
+ 	int		iterator;
+-
++	bool		is_found;
  
- 	ofdma_target = of_dma_find_controller(&dma_spec_target);
--	if (!ofdma_target)
--		return NULL;
-+	if (!ofdma_target) {
-+		ofdma->dma_router->route_free(ofdma->dma_router->dev,
-+					      route_data);
-+		chan = ERR_PTR(-EPROBE_DEFER);
-+		goto err;
-+	}
+ 	if (copy_from_user(&mimd, umimd, sizeof(mimd_t))) {
+ 		*rval = -EFAULT;
+@@ -266,12 +266,16 @@ mraid_mm_get_adapter(mimd_t __user *umimd, int *rval)
  
- 	chan = ofdma_target->of_dma_xlate(&dma_spec_target, ofdma_target);
- 	if (IS_ERR_OR_NULL(chan)) {
-@@ -80,6 +84,7 @@ static struct dma_chan *of_dma_router_xlate(struct of_phandle_args *dma_spec,
- 		chan->route_data = route_data;
+ 	adapter = NULL;
+ 	iterator = 0;
++	is_found = false;
+ 
+ 	list_for_each_entry(adapter, &adapters_list_g, list) {
+-		if (iterator++ == adapno) break;
++		if (iterator++ == adapno) {
++			is_found = true;
++			break;
++		}
  	}
  
-+err:
+-	if (!adapter) {
++	if (!is_found) {
+ 		*rval = -ENODEV;
+ 		return NULL;
+ 	}
+@@ -739,6 +743,7 @@ ioctl_done(uioc_t *kioc)
+ 	uint32_t	adapno;
+ 	int		iterator;
+ 	mraid_mmadp_t*	adapter;
++	bool		is_found;
+ 
  	/*
- 	 * Need to put the node back since the ofdma->of_dma_route_allocate
- 	 * has taken it for generating the new, translated dma_spec
+ 	 * When the kioc returns from driver, make sure it still doesn't
+@@ -761,19 +766,23 @@ ioctl_done(uioc_t *kioc)
+ 		iterator	= 0;
+ 		adapter		= NULL;
+ 		adapno		= kioc->adapno;
++		is_found	= false;
+ 
+ 		con_log(CL_ANN, ( KERN_WARNING "megaraid cmm: completed "
+ 					"ioctl that was timedout before\n"));
+ 
+ 		list_for_each_entry(adapter, &adapters_list_g, list) {
+-			if (iterator++ == adapno) break;
++			if (iterator++ == adapno) {
++				is_found = true;
++				break;
++			}
+ 		}
+ 
+ 		kioc->timedout = 0;
+ 
+-		if (adapter) {
++		if (is_found)
+ 			mraid_mm_dealloc_kioc( adapter, kioc );
+-		}
++
+ 	}
+ 	else {
+ 		wake_up(&wait_q);
 -- 
 2.30.2
 
