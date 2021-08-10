@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B5DE3E7E83
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:33:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FDCD3E7EEE
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:36:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232846AbhHJRdz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:33:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33530 "EHLO mail.kernel.org"
+        id S233964AbhHJRgJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:36:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232521AbhHJRd0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:33:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E74D60F41;
-        Tue, 10 Aug 2021 17:33:04 +0000 (UTC)
+        id S233218AbhHJRfD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:35:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A76660FC4;
+        Tue, 10 Aug 2021 17:34:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616784;
-        bh=y12iQn0jQuAmtCkT58rXuIsWVDtZvJLbmgfh4RI+Cyo=;
+        s=korg; t=1628616881;
+        bh=padmp1EfJk5gEo26tVeSIiRYdf6NZwwoY/vBdgBuUMs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XMrvKZ71KNlNtnU7LcmKB8tn99rObhaBD8r24BU8kirUi44VrNSxiXssxAwLh1HLP
-         LnZvyAHe2mncbD44a14CT5bybv9LQPDeSYG0V4awiTQPiyX0ne9/tPktmyfK0JmMxu
-         mCdR6W66tzjWu+obUmBkIuYC3Xc23eom1jcCxYLI=
+        b=mW95Q/lofdST/qLr1FeNB9owmzXjNH8huWB4Nf57PNWgqv7F/g8GJiyfDP2AJdQi5
+         kskAlphfCVfN0TtVFrYps2IyBPjfL8jXFuN49pFg+stMJrwqCXhiNEqW96TwlfoMNZ
+         MjQNYT9ODY7EW6Foqqn8kRjr22nI5y5wW75Rqs40=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fei Qin <fei.qin@corigine.com>,
-        Louis Peens <louis.peens@corigine.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Pavel Skripkin <paskripkin@gmail.com>,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 12/54] nfp: update ethtool reporting of pauseframe control
+Subject: [PATCH 5.4 33/85] net: vxge: fix use-after-free in vxge_device_unregister
 Date:   Tue, 10 Aug 2021 19:30:06 +0200
-Message-Id: <20210810172944.592235490@linuxfoundation.org>
+Message-Id: <20210810172949.315217211@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172944.179901509@linuxfoundation.org>
-References: <20210810172944.179901509@linuxfoundation.org>
+In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
+References: <20210810172948.192298392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,37 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fei Qin <fei.qin@corigine.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 9fdc5d85a8fe684cdf24dc31c6bc4a727decfe87 ]
+[ Upstream commit 942e560a3d3862dd5dee1411dbdd7097d29b8416 ]
 
-Pauseframe control is set to symmetric mode by default on the NFP.
-Pause frames can not be configured through ethtool now, but ethtool can
-report the supported mode.
+Smatch says:
+drivers/net/ethernet/neterion/vxge/vxge-main.c:3518 vxge_device_unregister() error: Using vdev after free_{netdev,candev}(dev);
+drivers/net/ethernet/neterion/vxge/vxge-main.c:3518 vxge_device_unregister() error: Using vdev after free_{netdev,candev}(dev);
+drivers/net/ethernet/neterion/vxge/vxge-main.c:3520 vxge_device_unregister() error: Using vdev after free_{netdev,candev}(dev);
+drivers/net/ethernet/neterion/vxge/vxge-main.c:3520 vxge_device_unregister() error: Using vdev after free_{netdev,candev}(dev);
 
-Fixes: 265aeb511bd5 ("nfp: add support for .get_link_ksettings()")
-Signed-off-by: Fei Qin <fei.qin@corigine.com>
-Signed-off-by: Louis Peens <louis.peens@corigine.com>
-Signed-off-by: Simon Horman <simon.horman@corigine.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Since vdev pointer is netdev private data accessing it after free_netdev()
+call can cause use-after-free bug. Fix it by moving free_netdev() call at
+the end of the function
+
+Fixes: 6cca200362b4 ("vxge: cleanup probe error paths")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Reviewed-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/neterion/vxge/vxge-main.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c b/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c
-index 9043d2cadd5d..2e75d0af4a58 100644
---- a/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c
-+++ b/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c
-@@ -292,6 +292,8 @@ nfp_net_get_link_ksettings(struct net_device *netdev,
+diff --git a/drivers/net/ethernet/neterion/vxge/vxge-main.c b/drivers/net/ethernet/neterion/vxge/vxge-main.c
+index 1d334f2e0a56..607e2ff272dc 100644
+--- a/drivers/net/ethernet/neterion/vxge/vxge-main.c
++++ b/drivers/net/ethernet/neterion/vxge/vxge-main.c
+@@ -3524,13 +3524,13 @@ static void vxge_device_unregister(struct __vxge_hw_device *hldev)
  
- 	/* Init to unknowns */
- 	ethtool_link_ksettings_add_link_mode(cmd, supported, FIBRE);
-+	ethtool_link_ksettings_add_link_mode(cmd, supported, Pause);
-+	ethtool_link_ksettings_add_link_mode(cmd, advertising, Pause);
- 	cmd->base.port = PORT_OTHER;
- 	cmd->base.speed = SPEED_UNKNOWN;
- 	cmd->base.duplex = DUPLEX_UNKNOWN;
+ 	kfree(vdev->vpaths);
+ 
+-	/* we are safe to free it now */
+-	free_netdev(dev);
+-
+ 	vxge_debug_init(vdev->level_trace, "%s: ethernet device unregistered",
+ 			buf);
+ 	vxge_debug_entryexit(vdev->level_trace,	"%s: %s:%d  Exiting...", buf,
+ 			     __func__, __LINE__);
++
++	/* we are safe to free it now */
++	free_netdev(dev);
+ }
+ 
+ /*
 -- 
 2.30.2
 
