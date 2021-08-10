@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5655B3E81E4
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:05:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16DE43E81E7
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:05:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235258AbhHJSDf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 14:03:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60846 "EHLO mail.kernel.org"
+        id S236864AbhHJSDt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 14:03:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237156AbhHJSBe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 14:01:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E10D613A3;
-        Tue, 10 Aug 2021 17:47:12 +0000 (UTC)
+        id S237916AbhHJSBr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 14:01:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 70008613D2;
+        Tue, 10 Aug 2021 17:47:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617632;
-        bh=uI7adSp74S15+zQsLIx57ME6q8nqPuHrY0K4PGtLg4c=;
+        s=korg; t=1628617634;
+        bh=GOVfuNuIDMoXMoNl+ZsQIiIQH1nS0yC/yDA1rPy+Xfk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xf7W1WFy3bpIfCRmotyBQ1M+1gloeFHjUHGOCy+PR1OJ84dTP90XDKG2G58AcAkRn
-         yYe/KDRanMbM08R2UHpxo94NrIKoNpcqI0lblwvZ+jto89uRMA4Sq79MYJd9UrK6DE
-         3Gv71wE7uhhR0txg0uaIo22Hr3pNLJMx5XlYNbCs=
+        b=Q2IG2QNbt44URfT4WXJbWbdr3l2Jff77Ghr8Mntn+z5uwUUNfy8+z7iPP9quTq9Mw
+         l7Fy9+MhvSS4VhWnT/yRZXTwrHw6X+rhoWlvBBCyy2XsTrlIM+0yJwBwF5AxZf67WB
+         uQte2O1GlVpn6yMcSlJwBkEUSjooO68GQwNGm0R0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nadav Amit <nadav.amit@gmail.com>,
+        stable@vger.kernel.org, Stefan Haberland <sth@linux.ibm.com>,
+        Jan Hoeppner <hoeppner@linux.ibm.com>,
         Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.13 145/175] io-wq: fix race between worker exiting and activating free worker
-Date:   Tue, 10 Aug 2021 19:30:53 +0200
-Message-Id: <20210810173005.743233009@linuxfoundation.org>
+Subject: [PATCH 5.13 146/175] s390/dasd: fix use after free in dasd path handling
+Date:   Tue, 10 Aug 2021 19:30:54 +0200
+Message-Id: <20210810173005.775837563@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
 References: <20210810173000.928681411@linuxfoundation.org>
@@ -39,114 +40,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Stefan Haberland <sth@linux.ibm.com>
 
-commit 83d6c39310b6d11199179f6384c2b0a415389597 upstream.
+commit 952835edb4fdad49361d5330da918be8b765b787 upstream.
 
-Nadav correctly reports that we have a race between a worker exiting,
-and new work being queued. This can lead to work being queued behind
-an existing worker that could be sleeping on an event before it can
-run to completion, and hence introducing potential big latency gaps
-if we hit this race condition:
+When new configuration data is obtained after a path event it is stored
+in the per path array. The old data needs to be freed.
+The first valid configuration data is also referenced in the device
+private structure to identify the device.
+When the old per path configuration data was freed the device still
+pointed to the already freed data leading to a use after free.
 
-cpu0					cpu1
-----					----
-					io_wqe_worker()
-					schedule_timeout()
-					 // timed out
-io_wqe_enqueue()
-io_wqe_wake_worker()
-// work_flags & IO_WQ_WORK_CONCURRENT
-io_wqe_activate_free_worker()
-					 io_worker_exit()
+Fix by replacing also the device configuration data with the newly
+obtained one before the old data gets freed.
 
-Fix this by having the exiting worker go through the normal decrement
-of a running worker, which will spawn a new one if needed.
-
-The free worker activation is modified to only return success if we
-were able to find a sleeping worker - if not, we keep looking through
-the list. If we fail, we create a new worker as per usual.
-
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/io-uring/BFF746C0-FEDE-4646-A253-3021C57C26C9@gmail.com/
-Reported-by: Nadav Amit <nadav.amit@gmail.com>
-Tested-by: Nadav Amit <nadav.amit@gmail.com>
+Fixes: 460181217a24 ("s390/dasd: Store path configuration data during path handling")
+Cc: stable@vger.kernel.org # 5.11+
+Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
+Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
+Link: https://lore.kernel.org/r/20210804151800.4031761-2-sth@linux.ibm.com
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/io-wq.c |   38 +++++++++++++++++++-------------------
- 1 file changed, 19 insertions(+), 19 deletions(-)
+ drivers/s390/block/dasd_eckd.c |   13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
---- a/fs/io-wq.c
-+++ b/fs/io-wq.c
-@@ -131,6 +131,7 @@ struct io_cb_cancel_data {
- };
- 
- static void create_io_worker(struct io_wq *wq, struct io_wqe *wqe, int index);
-+static void io_wqe_dec_running(struct io_worker *worker);
- 
- static bool io_worker_get(struct io_worker *worker)
+--- a/drivers/s390/block/dasd_eckd.c
++++ b/drivers/s390/block/dasd_eckd.c
+@@ -1004,15 +1004,23 @@ static unsigned char dasd_eckd_path_acce
+ static void dasd_eckd_store_conf_data(struct dasd_device *device,
+ 				      struct dasd_conf_data *conf_data, int chp)
  {
-@@ -169,26 +170,21 @@ static void io_worker_exit(struct io_wor
- {
- 	struct io_wqe *wqe = worker->wqe;
- 	struct io_wqe_acct *acct = io_wqe_get_acct(worker);
--	unsigned flags;
++	struct dasd_eckd_private *private = device->private;
+ 	struct channel_path_desc_fmt0 *chp_desc;
+ 	struct subchannel_id sch_id;
++	void *cdp;
  
- 	if (refcount_dec_and_test(&worker->ref))
- 		complete(&worker->ref_done);
- 	wait_for_completion(&worker->ref_done);
+-	ccw_device_get_schid(device->cdev, &sch_id);
+ 	/*
+ 	 * path handling and read_conf allocate data
+ 	 * free it before replacing the pointer
++	 * also replace the old private->conf_data pointer
++	 * with the new one if this points to the same data
+ 	 */
+-	kfree(device->path[chp].conf_data);
++	cdp = device->path[chp].conf_data;
++	if (private->conf_data == cdp) {
++		private->conf_data = (void *)conf_data;
++		dasd_eckd_identify_conf_parts(private);
++	}
++	ccw_device_get_schid(device->cdev, &sch_id);
+ 	device->path[chp].conf_data = conf_data;
+ 	device->path[chp].cssid = sch_id.cssid;
+ 	device->path[chp].ssid = sch_id.ssid;
+@@ -1020,6 +1028,7 @@ static void dasd_eckd_store_conf_data(st
+ 	if (chp_desc)
+ 		device->path[chp].chpid = chp_desc->chpid;
+ 	kfree(chp_desc);
++	kfree(cdp);
+ }
  
--	preempt_disable();
--	current->flags &= ~PF_IO_WORKER;
--	flags = worker->flags;
--	worker->flags = 0;
--	if (flags & IO_WORKER_F_RUNNING)
--		atomic_dec(&acct->nr_running);
--	worker->flags = 0;
--	preempt_enable();
--
- 	raw_spin_lock_irq(&wqe->lock);
--	if (flags & IO_WORKER_F_FREE)
-+	if (worker->flags & IO_WORKER_F_FREE)
- 		hlist_nulls_del_rcu(&worker->nulls_node);
- 	list_del_rcu(&worker->all_list);
- 	acct->nr_workers--;
-+	preempt_disable();
-+	io_wqe_dec_running(worker);
-+	worker->flags = 0;
-+	current->flags &= ~PF_IO_WORKER;
-+	preempt_enable();
- 	raw_spin_unlock_irq(&wqe->lock);
- 
- 	kfree_rcu(worker, rcu);
-@@ -215,15 +211,19 @@ static bool io_wqe_activate_free_worker(
- 	struct hlist_nulls_node *n;
- 	struct io_worker *worker;
- 
--	n = rcu_dereference(hlist_nulls_first_rcu(&wqe->free_list));
--	if (is_a_nulls(n))
--		return false;
--
--	worker = hlist_nulls_entry(n, struct io_worker, nulls_node);
--	if (io_worker_get(worker)) {
--		wake_up_process(worker->task);
-+	/*
-+	 * Iterate free_list and see if we can find an idle worker to
-+	 * activate. If a given worker is on the free_list but in the process
-+	 * of exiting, keep trying.
-+	 */
-+	hlist_nulls_for_each_entry_rcu(worker, n, &wqe->free_list, nulls_node) {
-+		if (!io_worker_get(worker))
-+			continue;
-+		if (wake_up_process(worker->task)) {
-+			io_worker_release(worker);
-+			return true;
-+		}
- 		io_worker_release(worker);
--		return true;
- 	}
- 
- 	return false;
+ static void dasd_eckd_clear_conf_data(struct dasd_device *device)
 
 
