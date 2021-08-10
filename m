@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 730953E81B9
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:02:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 306D83E81C6
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:02:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234065AbhHJSBu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 14:01:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58908 "EHLO mail.kernel.org"
+        id S231678AbhHJSCJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 14:02:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33478 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238608AbhHJR7t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:59:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7547E61179;
-        Tue, 10 Aug 2021 17:46:31 +0000 (UTC)
+        id S235088AbhHJSAF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 14:00:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C39656139E;
+        Tue, 10 Aug 2021 17:46:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617591;
-        bh=MGfQA6lcM9g8o8bScDfSMHw06mk8qD9asDGzQiw1DAU=;
+        s=korg; t=1628617610;
+        bh=aHOct+bx6Cjbr8OP3I/zD54Bd2a8hWbeDkTTOfi7ePI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JKJXq71rrERUEzlHscKDRLKoGOgah79e4j/8ca/TzGUeJ02UQkr6Fau2l+2/rKcly
-         rzmQE4n9paep98JSDWi0nYt70AgFmm0FCpWQ6WaUNg9YACiowtKxQsmhfRmerlG7EY
-         3t1lIZWA80O9wNx0/kyYMximwadYLN70bpiHQbJg=
+        b=YjLjPQ41qTFRPgmq7QIT+MpJjsbDKq8pR6F+nkSnpD3Y9E7g1NSntMqkpWtE50zP2
+         LfaBQBrfLFHHtEnabuYmw0iY8nWMk2p8C1PcugVoGjkJge0A8QkbLMjkGrAbk1iu1y
+         oJpSwzu8wMcQF+EkYVopeffgkj89KoIk8+qiY7P8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Chen <peter.chen@kernel.org>,
-        Dmitry Osipenko <digetx@gmail.com>
-Subject: [PATCH 5.13 099/175] usb: otg-fsm: Fix hrtimer list corruption
-Date:   Tue, 10 Aug 2021 19:30:07 +0200
-Message-Id: <20210810173004.217360223@linuxfoundation.org>
+        stable@vger.kernel.org, Dong Aisheng <aisheng.dong@nxp.com>,
+        Brian Norris <briannorris@chromium.org>,
+        Stephen Boyd <sboyd@kernel.org>
+Subject: [PATCH 5.13 100/175] clk: fix leak on devm_clk_bulk_get_all() unwind
+Date:   Tue, 10 Aug 2021 19:30:08 +0200
+Message-Id: <20210810173004.254251560@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
 References: <20210810173000.928681411@linuxfoundation.org>
@@ -39,64 +40,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Brian Norris <briannorris@chromium.org>
 
-commit bf88fef0b6f1488abeca594d377991171c00e52a upstream.
+commit f828b0bcacef189edbd247e9f48864fc36bfbe33 upstream.
 
-The HNP work can be re-scheduled while it's still in-fly. This results in
-re-initialization of the busy work, resetting the hrtimer's list node of
-the work and crashing kernel with null dereference within kernel/timer
-once work's timer is expired. It's very easy to trigger this problem by
-re-plugging USB cable quickly. Initialize HNP work only once to fix this
-trouble.
+clk_bulk_get_all() allocates an array of struct clk_bulk data for us
+(unlike clk_bulk_get()), so we need to free it. Let's use the
+clk_bulk_put_all() helper.
 
- Unable to handle kernel NULL pointer dereference at virtual address 00000126)
- ...
- PC is at __run_timers.part.0+0x150/0x228
- LR is at __next_timer_interrupt+0x51/0x9c
- ...
- (__run_timers.part.0) from [<c0187a2b>] (run_timer_softirq+0x2f/0x50)
- (run_timer_softirq) from [<c01013ad>] (__do_softirq+0xd5/0x2f0)
- (__do_softirq) from [<c012589b>] (irq_exit+0xab/0xb8)
- (irq_exit) from [<c0170341>] (handle_domain_irq+0x45/0x60)
- (handle_domain_irq) from [<c04c4a43>] (gic_handle_irq+0x6b/0x7c)
- (gic_handle_irq) from [<c0100b65>] (__irq_svc+0x65/0xac)
+kmemleak complains, on an RK3399 Gru/Kevin system:
 
+unreferenced object 0xffffff80045def00 (size 128):
+  comm "swapper/0", pid 1, jiffies 4294667682 (age 86.394s)
+  hex dump (first 32 bytes):
+    44 32 60 fe fe ff ff ff 00 00 00 00 00 00 00 00  D2`.............
+    48 32 60 fe fe ff ff ff 00 00 00 00 00 00 00 00  H2`.............
+  backtrace:
+    [<00000000742860d6>] __kmalloc+0x22c/0x39c
+    [<00000000b0493f2c>] clk_bulk_get_all+0x64/0x188
+    [<00000000325f5900>] devm_clk_bulk_get_all+0x58/0xa8
+    [<00000000175b9bc5>] dwc3_probe+0x8ac/0xb5c
+    [<000000009169e2f9>] platform_drv_probe+0x9c/0xbc
+    [<000000005c51e2ee>] really_probe+0x13c/0x378
+    [<00000000c47b1f24>] driver_probe_device+0x84/0xc0
+    [<00000000f870fcfb>] __device_attach_driver+0x94/0xb0
+    [<000000004d1b92ae>] bus_for_each_drv+0x8c/0xd8
+    [<00000000481d60c3>] __device_attach+0xc4/0x150
+    [<00000000a163bd36>] device_initial_probe+0x1c/0x28
+    [<00000000accb6bad>] bus_probe_device+0x3c/0x9c
+    [<000000001a199f89>] device_add+0x218/0x3cc
+    [<000000001bd84952>] of_device_add+0x40/0x50
+    [<000000009c658c29>] of_platform_device_create_pdata+0xac/0x100
+    [<0000000021c69ba4>] of_platform_bus_create+0x190/0x224
+
+Fixes: f08c2e2865f6 ("clk: add managed version of clk_bulk_get_all")
+Cc: Dong Aisheng <aisheng.dong@nxp.com>
 Cc: stable@vger.kernel.org
-Acked-by: Peter Chen <peter.chen@kernel.org>
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Link: https://lore.kernel.org/r/20210717182134.30262-6-digetx@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Link: https://lore.kernel.org/r/20210731025950.2238582-1-briannorris@chromium.org
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/common/usb-otg-fsm.c |    6 +++++-
- include/linux/usb/otg-fsm.h      |    1 +
- 2 files changed, 6 insertions(+), 1 deletion(-)
+ drivers/clk/clk-devres.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/common/usb-otg-fsm.c
-+++ b/drivers/usb/common/usb-otg-fsm.c
-@@ -193,7 +193,11 @@ static void otg_start_hnp_polling(struct
- 	if (!fsm->host_req_flag)
- 		return;
- 
--	INIT_DELAYED_WORK(&fsm->hnp_polling_work, otg_hnp_polling_work);
-+	if (!fsm->hnp_work_inited) {
-+		INIT_DELAYED_WORK(&fsm->hnp_polling_work, otg_hnp_polling_work);
-+		fsm->hnp_work_inited = true;
-+	}
-+
- 	schedule_delayed_work(&fsm->hnp_polling_work,
- 					msecs_to_jiffies(T_HOST_REQ_POLL));
+--- a/drivers/clk/clk-devres.c
++++ b/drivers/clk/clk-devres.c
+@@ -92,13 +92,20 @@ int __must_check devm_clk_bulk_get_optio
  }
---- a/include/linux/usb/otg-fsm.h
-+++ b/include/linux/usb/otg-fsm.h
-@@ -196,6 +196,7 @@ struct otg_fsm {
- 	struct mutex lock;
- 	u8 *host_req_flag;
- 	struct delayed_work hnp_polling_work;
-+	bool hnp_work_inited;
- 	bool state_changed;
- };
+ EXPORT_SYMBOL_GPL(devm_clk_bulk_get_optional);
  
++static void devm_clk_bulk_release_all(struct device *dev, void *res)
++{
++	struct clk_bulk_devres *devres = res;
++
++	clk_bulk_put_all(devres->num_clks, devres->clks);
++}
++
+ int __must_check devm_clk_bulk_get_all(struct device *dev,
+ 				       struct clk_bulk_data **clks)
+ {
+ 	struct clk_bulk_devres *devres;
+ 	int ret;
+ 
+-	devres = devres_alloc(devm_clk_bulk_release,
++	devres = devres_alloc(devm_clk_bulk_release_all,
+ 			      sizeof(*devres), GFP_KERNEL);
+ 	if (!devres)
+ 		return -ENOMEM;
 
 
