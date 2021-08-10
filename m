@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 083833E5CDA
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 16:15:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F21D33E5CD8
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 16:15:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242439AbhHJOP7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 10:15:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52426 "EHLO mail.kernel.org"
+        id S242432AbhHJOP6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 10:15:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242372AbhHJOPu (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S242352AbhHJOPu (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 10 Aug 2021 10:15:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A6E360F41;
-        Tue, 10 Aug 2021 14:15:26 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D4AE361008;
+        Tue, 10 Aug 2021 14:15:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1628604927;
-        bh=T/67Tow/psOEgY9EDGLlWov3WbyBqHix91AGPcj2dNE=;
+        s=k20201202; t=1628604928;
+        bh=M4IO3RhlVin1iu3XzP+nfxLyRXRODIc+CtwQNbOT6i0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PH6xDufp55Gwp7EEkWCWVXQOVsSeRGDa24KTz82AUTLNDzFJQNRLDE2juG/2CJFCl
-         eWeX86xTDllsk/GZdLJFJVW2I5bfxRSU2DQBgHa+NwLkAZm4Cv+DNu0YBLcecTyosB
-         ca12Qj4P/fNbKWl02ahdThKlHSff/x4s+MzMR53PbZmIs94mo7L4EZmZbzNl8MYNkE
-         l+5dJjK03vCywq66kGy/o6UQvL7xtYifqmdjhLeaVHB0h2jzK2Y7u78UR2+HpwTc8b
-         gOXumnQupdR49t7A2pXDcF2e49mpa2/XmsCa5AOKEJIs0V7p5mPLiap8yOf4ID0OiP
-         flJ47wQoOVgoA==
+        b=u4lyCX84fWxdYVQo2IGhbXo7Vs6ydxEGRGPFnDzwTjcZJ8NX19UBCa8FDVk6VYfw1
+         Xdn7PtypcSS0f+FjsY9bbTDsUuSzaMkX4/3vyf+yAYOrK9xGSka025DHrlC5WcaLYo
+         QLqYeqC+3JXyNUVJfZhN6sdk+cxJbZm5UzW4Sw84rtxQi9KFNYEm7y88HC+NQHR26T
+         Uqk/dL0Lh9XRaVWEB8FOJA3Fl4tW04H+VAxkws0xZDg0PI0DsgS/QfAT3t2S+1M5rJ
+         9t4y5zBIBWnfBUpZUhumibUWt/CbFcR9n5MLg3wFE2Q3fDUg5R0BKu3UcNIsHrIaii
+         yFYCI2Ul/buDw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Adrien Precigout <dev@asdrip.fr>,
-        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org,
-        devel@acpica.org
-Subject: [PATCH AUTOSEL 5.13 16/24] Revert "ACPICA: Fix memory leak caused by _CID repair function"
-Date:   Tue, 10 Aug 2021 10:14:57 -0400
-Message-Id: <20210810141505.3117318-16-sashal@kernel.org>
+Cc:     Qiu Wenbo <qiuwenbo@kylinos.com.cn>,
+        Palmer Dabbelt <palmerdabbelt@google.com>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
+        linux-riscv@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.13 17/24] riscv: dts: fix memory size for the SiFive HiFive Unmatched
+Date:   Tue, 10 Aug 2021 10:14:58 -0400
+Message-Id: <20210810141505.3117318-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210810141505.3117318-1-sashal@kernel.org>
 References: <20210810141505.3117318-1-sashal@kernel.org>
@@ -43,39 +43,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+From: Qiu Wenbo <qiuwenbo@kylinos.com.cn>
 
-[ Upstream commit 6511a8b5b7a65037340cd8ee91a377811effbc83 ]
+[ Upstream commit d09560435cb712c9ec1e62b8a43a79b0af69fe77 ]
 
-Revert commit c27bac0314131 ("ACPICA: Fix memory leak caused by _CID
-repair function") which is reported to cause a boot issue on Acer
-Swift 3 (SF314-51).
+The production version of HiFive Unmatched have 16GB memory.
 
-Reported-by: Adrien Precigout <dev@asdrip.fr>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Qiu Wenbo <qiuwenbo@kylinos.com.cn>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpica/nsrepair2.c | 7 -------
- 1 file changed, 7 deletions(-)
+ arch/riscv/boot/dts/sifive/hifive-unmatched-a00.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/acpica/nsrepair2.c b/drivers/acpi/acpica/nsrepair2.c
-index 38e10ab976e6..14b71b41e845 100644
---- a/drivers/acpi/acpica/nsrepair2.c
-+++ b/drivers/acpi/acpica/nsrepair2.c
-@@ -379,13 +379,6 @@ acpi_ns_repair_CID(struct acpi_evaluate_info *info,
+diff --git a/arch/riscv/boot/dts/sifive/hifive-unmatched-a00.dts b/arch/riscv/boot/dts/sifive/hifive-unmatched-a00.dts
+index b1c3c596578f..2e4ea84f27e7 100644
+--- a/arch/riscv/boot/dts/sifive/hifive-unmatched-a00.dts
++++ b/arch/riscv/boot/dts/sifive/hifive-unmatched-a00.dts
+@@ -24,7 +24,7 @@ cpus {
  
- 			(*element_ptr)->common.reference_count =
- 			    original_ref_count;
--
--			/*
--			 * The original_element holds a reference from the package object
--			 * that represents _HID. Since a new element was created by _HID,
--			 * remove the reference from the _CID package.
--			 */
--			acpi_ut_remove_reference(original_element);
- 		}
+ 	memory@80000000 {
+ 		device_type = "memory";
+-		reg = <0x0 0x80000000 0x2 0x00000000>;
++		reg = <0x0 0x80000000 0x4 0x00000000>;
+ 	};
  
- 		element_ptr++;
+ 	soc {
 -- 
 2.30.2
 
