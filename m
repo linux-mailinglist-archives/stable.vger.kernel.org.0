@@ -2,39 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD8473E7F72
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:41:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CF733E8033
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:47:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234171AbhHJRka (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:40:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44144 "EHLO mail.kernel.org"
+        id S236238AbhHJRq7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:46:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234036AbhHJRgY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:36:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 31B1661102;
-        Tue, 10 Aug 2021 17:35:37 +0000 (UTC)
+        id S234811AbhHJRpL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:45:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5706461242;
+        Tue, 10 Aug 2021 17:40:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616937;
-        bh=b8ucVcPD2wtz7DtHz5kQaTr0FZT+ixBzfUtIHfKnbeo=;
+        s=korg; t=1628617202;
+        bh=fKoEumaFyE1JrCXckW1t74vFD5tL6y967iFPZNEBLBA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YOBQR/h+fGJyt5/F+2sIbmM9rvdhsoe4zYeuzzylJIHNTJQfNRu4H0VFN+UQMKruW
-         sLz8lEytvtvmfs1HjvTiOSoGlFm6jbdtLfgaErdu1cIEurma4xAV8JxWEKFQwzcfa0
-         0ji76p4TLYU3oB9hevk+JIAm29CEZeMJ2oLGIll4=
+        b=ldWQhvuZf8w3Pkfg4FeioCAptfcuzE44raZJfERsVpG2ue5gHcyuuy57LBGwma1Oc
+         wWoo+vK1euUIpXgnoNBlURaImZkwOR6VMpi0cRgNJjNWlwM7rnYPOgrcgZlo4lJVTP
+         Ohkgx9v7TdDmM4Zmnf3RNzB5317v3SCCAqLITbxI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Zanussi <zanussi@kernel.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.4 51/85] tracing / histogram: Give calculation hist_fields a size
+        stable@vger.kernel.org, Filip Schauer <filip@mg6.at>
+Subject: [PATCH 5.10 090/135] drivers core: Fix oops when driver probe fails
 Date:   Tue, 10 Aug 2021 19:30:24 +0200
-Message-Id: <20210810172949.960836411@linuxfoundation.org>
+Message-Id: <20210810172958.822424579@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
-References: <20210810172948.192298392@linuxfoundation.org>
+In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
+References: <20210810172955.660225700@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,65 +38,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Filip Schauer <filip@mg6.at>
 
-commit 2c05caa7ba8803209769b9e4fe02c38d77ae88d0 upstream.
+commit 4d1014c1816c0395eca5d1d480f196a4c63119d0 upstream.
 
-When working on my user space applications, I found a bug in the synthetic
-event code where the automated synthetic event field was not matching the
-event field calculation it was attached to. Looking deeper into it, it was
-because the calculation hist_field was not given a size.
+dma_range_map is freed to early, which might cause an oops when
+a driver probe fails.
+ Call trace:
+  is_free_buddy_page+0xe4/0x1d4
+  __free_pages+0x2c/0x88
+  dma_free_contiguous+0x64/0x80
+  dma_direct_free+0x38/0xb4
+  dma_free_attrs+0x88/0xa0
+  dmam_release+0x28/0x34
+  release_nodes+0x78/0x8c
+  devres_release_all+0xa8/0x110
+  really_probe+0x118/0x2d0
+  __driver_probe_device+0xc8/0xe0
+  driver_probe_device+0x54/0xec
+  __driver_attach+0xe0/0xf0
+  bus_for_each_dev+0x7c/0xc8
+  driver_attach+0x30/0x3c
+  bus_add_driver+0x17c/0x1c4
+  driver_register+0xc0/0xf8
+  __platform_driver_register+0x34/0x40
+  ...
 
-The synthetic event fields are matched to their hist_fields either by
-having the field have an identical string type, or if that does not match,
-then the size and signed values are used to match the fields.
+This issue is introduced by commit d0243bbd5dd3 ("drivers core:
+Free dma_range_map when driver probe failed"). It frees
+dma_range_map before the call to devres_release_all, which is too
+early. The solution is to free dma_range_map only after
+devres_release_all.
 
-The problem arose when I tried to match a calculation where the fields
-were "unsigned int". My tool created a synthetic event of type "u32". But
-it failed to match. The string was:
-
-  diff=field1-field2:onmatch(event).trace(synth,$diff)
-
-Adding debugging into the kernel, I found that the size of "diff" was 0.
-And since it was given "unsigned int" as a type, the histogram fallback
-code used size and signed. The signed matched, but the size of u32 (4) did
-not match zero, and the event failed to be created.
-
-This can be worse if the field you want to match is not one of the
-acceptable fields for a synthetic event. As event fields can have any type
-that is supported in Linux, this can cause an issue. For example, if a
-type is an enum. Then there's no way to use that with any calculations.
-
-Have the calculation field simply take on the size of what it is
-calculating.
-
-Link: https://lkml.kernel.org/r/20210730171951.59c7743f@oasis.local.home
-
-Cc: Tom Zanussi <zanussi@kernel.org>
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: stable@vger.kernel.org
-Fixes: 100719dcef447 ("tracing: Add simple expression support to hist triggers")
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Fixes: d0243bbd5dd3 ("drivers core: Free dma_range_map when driver probe failed")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Filip Schauer <filip@mg6.at>
+Link: https://lore.kernel.org/r/20210727112311.GA7645@DESKTOP-E8BN1B0.localdomain
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace_events_hist.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/base/dd.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/kernel/trace/trace_events_hist.c
-+++ b/kernel/trace/trace_events_hist.c
-@@ -3169,6 +3169,10 @@ static struct hist_field *parse_expr(str
- 
- 	expr->operands[0] = operand1;
- 	expr->operands[1] = operand2;
-+
-+	/* The operand sizes should be the same, so just pick one */
-+	expr->size = operand1->size;
-+
- 	expr->operator = field_op;
- 	expr->name = expr_str(expr, 0);
- 	expr->type = kstrdup(operand1->type, GFP_KERNEL);
+--- a/drivers/base/dd.c
++++ b/drivers/base/dd.c
+@@ -617,8 +617,6 @@ dev_groups_failed:
+ 	else if (drv->remove)
+ 		drv->remove(dev);
+ probe_failed:
+-	kfree(dev->dma_range_map);
+-	dev->dma_range_map = NULL;
+ 	if (dev->bus)
+ 		blocking_notifier_call_chain(&dev->bus->p->bus_notifier,
+ 					     BUS_NOTIFY_DRIVER_NOT_BOUND, dev);
+@@ -626,6 +624,8 @@ pinctrl_bind_failed:
+ 	device_links_no_driver(dev);
+ 	devres_release_all(dev);
+ 	arch_teardown_dma_ops(dev);
++	kfree(dev->dma_range_map);
++	dev->dma_range_map = NULL;
+ 	driver_sysfs_remove(dev);
+ 	dev->driver = NULL;
+ 	dev_set_drvdata(dev, NULL);
 
 
