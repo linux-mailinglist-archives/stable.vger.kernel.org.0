@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF9473E8013
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:47:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 161DC3E7E55
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:32:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235784AbhHJRqF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:46:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50910 "EHLO mail.kernel.org"
+        id S231425AbhHJRcd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:32:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236143AbhHJRoe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:44:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F2C7361107;
-        Tue, 10 Aug 2021 17:39:39 +0000 (UTC)
+        id S231439AbhHJRca (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:32:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5BA0560F41;
+        Tue, 10 Aug 2021 17:32:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617180;
-        bh=JVSScpanSeFQqbuAnha+TdGfOvIT9SbCcPxYKChZLqQ=;
+        s=korg; t=1628616727;
+        bh=isb3SCjAY1tGFtMsV31n9sugHRbrUAmx4vGz5M6Sfa4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ey/LIjOJXVombNooKDVPtraFoSKxFYAwEzAKavve5R5pdjWiFs3Z6tA4efO2+oNh/
-         ThV5arl2pPmIJFLtOSpgpUZytM2YZf046E6vZTvTn+aWGUtly1L+U+3NG6eav8Te1q
-         nVtpBy0m4NlOn/9YnhHO7ewkWhrIf/skrFx81ZV8=
+        b=TlFJbboPZmrIl5Y4eV+/8PxZbb6F3FcKr16JBh6OKBvw2HQdqVG2LY64EKi23MdQ/
+         T0M/DvG28jy/6Q3NsSUrc3Y8khiExMCKKdyVF9t4frO2pHhTIpP618PW/6yw3jEoiW
+         aHYf1NyJgXGdNA2NEfrNhzP5H2+Ilg5Sug6AKVuI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tyler Hicks <tyhicks@linux.microsoft.com>,
-        Jens Wiklander <jens.wiklander@linaro.org>,
-        Sumit Garg <sumit.garg@linaro.org>
-Subject: [PATCH 5.10 081/135] optee: Clear stale cache entries during initialization
+        stable@vger.kernel.org,
+        syzbot+e2eae5639e7203360018@syzkaller.appspotmail.com,
+        "Qiang.zhang" <qiang.zhang@windriver.com>,
+        Guido Kiener <guido.kiener@rohde-schwarz.com>
+Subject: [PATCH 4.19 21/54] USB: usbtmc: Fix RCU stall warning
 Date:   Tue, 10 Aug 2021 19:30:15 +0200
-Message-Id: <20210810172958.501039262@linuxfoundation.org>
+Message-Id: <20210810172944.874158591@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
-References: <20210810172955.660225700@linuxfoundation.org>
+In-Reply-To: <20210810172944.179901509@linuxfoundation.org>
+References: <20210810172944.179901509@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,121 +41,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tyler Hicks <tyhicks@linux.microsoft.com>
+From: Qiang.zhang <qiang.zhang@windriver.com>
 
-commit b5c10dd04b7418793517e3286cde5c04759a86de upstream.
+commit 30fad76ce4e98263edfa8f885c81d5426c1bf169 upstream.
 
-The shm cache could contain invalid addresses if
-optee_disable_shm_cache() was not called from the .shutdown hook of the
-previous kernel before a kexec. These addresses could be unmapped or
-they could point to mapped but unintended locations in memory.
+rcu: INFO: rcu_preempt self-detected stall on CPU
+rcu:    1-...!: (2 ticks this GP) idle=d92/1/0x4000000000000000
+        softirq=25390/25392 fqs=3
+        (t=12164 jiffies g=31645 q=43226)
+rcu: rcu_preempt kthread starved for 12162 jiffies! g31645 f0x0
+     RCU_GP_WAIT_FQS(5) ->state=0x0 ->cpu=0
+rcu:    Unless rcu_preempt kthread gets sufficient CPU time,
+        OOM is now expected behavior.
+rcu: RCU grace-period kthread stack dump:
+task:rcu_preempt     state:R  running task
+...........
+usbtmc 3-1:0.0: unknown status received: -71
+usbtmc 3-1:0.0: unknown status received: -71
+usbtmc 3-1:0.0: unknown status received: -71
+usbtmc 3-1:0.0: unknown status received: -71
+usbtmc 3-1:0.0: unknown status received: -71
+usbtmc 3-1:0.0: unknown status received: -71
+usbtmc 3-1:0.0: unknown status received: -71
+usbtmc 3-1:0.0: unknown status received: -71
+usbtmc 3-1:0.0: usb_submit_urb failed: -19
 
-Clear the shared memory cache, while being careful to not translate the
-addresses returned from OPTEE_SMC_DISABLE_SHM_CACHE, during driver
-initialization. Once all pre-cache shm objects are removed, proceed with
-enabling the cache so that we know that we can handle cached shm objects
-with confidence later in the .shutdown hook.
+The function usbtmc_interrupt() resubmits urbs when the error status
+of an urb is -EPROTO. In systems using the dummy_hcd usb controller
+this can result in endless interrupt loops when the usbtmc device is
+disconnected from the host system.
 
+Since host controller drivers already try to recover from transmission
+errors, there is no need to resubmit the urb or try other solutions
+to repair the error situation.
+
+In case of errors the INT pipe just stops to wait for further packets.
+
+Fixes: dbf3e7f654c0 ("Implement an ioctl to support the USMTMC-USB488 READ_STATUS_BYTE operation")
 Cc: stable@vger.kernel.org
-Signed-off-by: Tyler Hicks <tyhicks@linux.microsoft.com>
-Reviewed-by: Jens Wiklander <jens.wiklander@linaro.org>
-Reviewed-by: Sumit Garg <sumit.garg@linaro.org>
-Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
+Reported-by: syzbot+e2eae5639e7203360018@syzkaller.appspotmail.com
+Signed-off-by: Qiang.zhang <qiang.zhang@windriver.com>
+Acked-by: Guido Kiener <guido.kiener@rohde-schwarz.com>
+Link: https://lore.kernel.org/r/20210723004334.458930-1-qiang.zhang@windriver.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tee/optee/call.c          |   36 +++++++++++++++++++++++++++++++++---
- drivers/tee/optee/core.c          |    9 +++++++++
- drivers/tee/optee/optee_private.h |    1 +
- 3 files changed, 43 insertions(+), 3 deletions(-)
+ drivers/usb/class/usbtmc.c |    9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
 
---- a/drivers/tee/optee/call.c
-+++ b/drivers/tee/optee/call.c
-@@ -413,11 +413,13 @@ void optee_enable_shm_cache(struct optee
- }
- 
- /**
-- * optee_disable_shm_cache() - Disables caching of some shared memory allocation
-- *			      in OP-TEE
-+ * __optee_disable_shm_cache() - Disables caching of some shared memory
-+ *                               allocation in OP-TEE
-  * @optee:	main service struct
-+ * @is_mapped:	true if the cached shared memory addresses were mapped by this
-+ *		kernel, are safe to dereference, and should be freed
-  */
--void optee_disable_shm_cache(struct optee *optee)
-+static void __optee_disable_shm_cache(struct optee *optee, bool is_mapped)
- {
- 	struct optee_call_waiter w;
- 
-@@ -436,6 +438,13 @@ void optee_disable_shm_cache(struct opte
- 		if (res.result.status == OPTEE_SMC_RETURN_OK) {
- 			struct tee_shm *shm;
- 
-+			/*
-+			 * Shared memory references that were not mapped by
-+			 * this kernel must be ignored to prevent a crash.
-+			 */
-+			if (!is_mapped)
-+				continue;
-+
- 			shm = reg_pair_to_ptr(res.result.shm_upper32,
- 					      res.result.shm_lower32);
- 			tee_shm_free(shm);
-@@ -446,6 +455,27 @@ void optee_disable_shm_cache(struct opte
- 	optee_cq_wait_final(&optee->call_queue, &w);
- }
- 
-+/**
-+ * optee_disable_shm_cache() - Disables caching of mapped shared memory
-+ *                             allocations in OP-TEE
-+ * @optee:	main service struct
-+ */
-+void optee_disable_shm_cache(struct optee *optee)
-+{
-+	return __optee_disable_shm_cache(optee, true);
-+}
-+
-+/**
-+ * optee_disable_unmapped_shm_cache() - Disables caching of shared memory
-+ *                                      allocations in OP-TEE which are not
-+ *                                      currently mapped
-+ * @optee:	main service struct
-+ */
-+void optee_disable_unmapped_shm_cache(struct optee *optee)
-+{
-+	return __optee_disable_shm_cache(optee, false);
-+}
-+
- #define PAGELIST_ENTRIES_PER_PAGE				\
- 	((OPTEE_MSG_NONCONTIG_PAGE_SIZE / sizeof(u64)) - 1)
- 
---- a/drivers/tee/optee/core.c
-+++ b/drivers/tee/optee/core.c
-@@ -686,6 +686,15 @@ static int optee_probe(struct platform_d
- 	optee->memremaped_shm = memremaped_shm;
- 	optee->pool = pool;
- 
-+	/*
-+	 * Ensure that there are no pre-existing shm objects before enabling
-+	 * the shm cache so that there's no chance of receiving an invalid
-+	 * address during shutdown. This could occur, for example, if we're
-+	 * kexec booting from an older kernel that did not properly cleanup the
-+	 * shm cache.
-+	 */
-+	optee_disable_unmapped_shm_cache(optee);
-+
- 	optee_enable_shm_cache(optee);
- 
- 	if (optee->sec_caps & OPTEE_SMC_SEC_CAP_DYNAMIC_SHM)
---- a/drivers/tee/optee/optee_private.h
-+++ b/drivers/tee/optee/optee_private.h
-@@ -159,6 +159,7 @@ int optee_cancel_req(struct tee_context
- 
- void optee_enable_shm_cache(struct optee *optee);
- void optee_disable_shm_cache(struct optee *optee);
-+void optee_disable_unmapped_shm_cache(struct optee *optee);
- 
- int optee_shm_register(struct tee_context *ctx, struct tee_shm *shm,
- 		       struct page **pages, size_t num_pages,
+--- a/drivers/usb/class/usbtmc.c
++++ b/drivers/usb/class/usbtmc.c
+@@ -1537,17 +1537,10 @@ static void usbtmc_interrupt(struct urb
+ 		dev_err(dev, "overflow with length %d, actual length is %d\n",
+ 			data->iin_wMaxPacketSize, urb->actual_length);
+ 		/* fall through */
+-	case -ECONNRESET:
+-	case -ENOENT:
+-	case -ESHUTDOWN:
+-	case -EILSEQ:
+-	case -ETIME:
+-	case -EPIPE:
++	default:
+ 		/* urb terminated, clean up */
+ 		dev_dbg(dev, "urb terminated, status: %d\n", status);
+ 		return;
+-	default:
+-		dev_err(dev, "unknown status received: %d\n", status);
+ 	}
+ exit:
+ 	rv = usb_submit_urb(urb, GFP_ATOMIC);
 
 
