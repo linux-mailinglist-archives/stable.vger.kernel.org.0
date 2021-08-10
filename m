@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 187243E7F1A
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:37:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B029A3E7E65
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:32:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231822AbhHJRhR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:37:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42778 "EHLO mail.kernel.org"
+        id S231782AbhHJRdF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:33:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33418 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233732AbhHJRfn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:35:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 00F12610A4;
-        Tue, 10 Aug 2021 17:35:16 +0000 (UTC)
+        id S231772AbhHJRcq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:32:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D9DC060EBD;
+        Tue, 10 Aug 2021 17:32:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616917;
-        bh=MGfQA6lcM9g8o8bScDfSMHw06mk8qD9asDGzQiw1DAU=;
+        s=korg; t=1628616744;
+        bh=jdRtRFOT44MBT7XOicnJcn3zDg1urLt29Y5R6h4LwLQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kl0lnzcsgORLhFpWDbZ5aoLcCDeWDHIVVIZR/7Ga9VwiLdmPz/iDm+jvDdBn6xKLz
-         Dt+B4M84OVkVYvkRHfop7mU2o13bxwkSQc8OWWWfjpQNMD3G7nV2sIrwaaBvdtF+Mp
-         HymWXna1yynym9IAdZsGI8p0pTSXJro8lqI/4TnA=
+        b=AAsyyEVWgIY8WBFForLrhQeO6YybFO4pfxQlwY0Qf+eLtd9ocKE1X87OhPJ4yJV8C
+         axGpo1UsnfrZwQmmGgSitklFv8QuL2HJkdJrBdQN4jUwRXT7DubVRzkk9IVoQ9gRYt
+         qdUrTNePS3JHnPAhyfYnWZ7i2ZHLFiFPPAQe/vhQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Chen <peter.chen@kernel.org>,
-        Dmitry Osipenko <digetx@gmail.com>
-Subject: [PATCH 5.4 48/85] usb: otg-fsm: Fix hrtimer list corruption
+        stable@vger.kernel.org, Alexander Tsoy <alexander@tsoy.me>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 27/54] ALSA: usb-audio: Add registration quirk for JBL Quantum 600
 Date:   Tue, 10 Aug 2021 19:30:21 +0200
-Message-Id: <20210810172949.863850275@linuxfoundation.org>
+Message-Id: <20210810172945.068973375@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
-References: <20210810172948.192298392@linuxfoundation.org>
+In-Reply-To: <20210810172944.179901509@linuxfoundation.org>
+References: <20210810172944.179901509@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,64 +39,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Alexander Tsoy <alexander@tsoy.me>
 
-commit bf88fef0b6f1488abeca594d377991171c00e52a upstream.
+commit 4b0556b96e1fe7723629bd40e3813a30cd632faf upstream.
 
-The HNP work can be re-scheduled while it's still in-fly. This results in
-re-initialization of the busy work, resetting the hrtimer's list node of
-the work and crashing kernel with null dereference within kernel/timer
-once work's timer is expired. It's very easy to trigger this problem by
-re-plugging USB cable quickly. Initialize HNP work only once to fix this
-trouble.
+Apparently JBL Quantum 600 has multiple hardware revisions. Apply
+registration quirk to another device id as well.
 
- Unable to handle kernel NULL pointer dereference at virtual address 00000126)
- ...
- PC is at __run_timers.part.0+0x150/0x228
- LR is at __next_timer_interrupt+0x51/0x9c
- ...
- (__run_timers.part.0) from [<c0187a2b>] (run_timer_softirq+0x2f/0x50)
- (run_timer_softirq) from [<c01013ad>] (__do_softirq+0xd5/0x2f0)
- (__do_softirq) from [<c012589b>] (irq_exit+0xab/0xb8)
- (irq_exit) from [<c0170341>] (handle_domain_irq+0x45/0x60)
- (handle_domain_irq) from [<c04c4a43>] (gic_handle_irq+0x6b/0x7c)
- (gic_handle_irq) from [<c0100b65>] (__irq_svc+0x65/0xac)
-
-Cc: stable@vger.kernel.org
-Acked-by: Peter Chen <peter.chen@kernel.org>
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Link: https://lore.kernel.org/r/20210717182134.30262-6-digetx@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Alexander Tsoy <alexander@tsoy.me>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210727093326.1153366-1-alexander@tsoy.me
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/common/usb-otg-fsm.c |    6 +++++-
- include/linux/usb/otg-fsm.h      |    1 +
- 2 files changed, 6 insertions(+), 1 deletion(-)
+ sound/usb/quirks.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/common/usb-otg-fsm.c
-+++ b/drivers/usb/common/usb-otg-fsm.c
-@@ -193,7 +193,11 @@ static void otg_start_hnp_polling(struct
- 	if (!fsm->host_req_flag)
- 		return;
- 
--	INIT_DELAYED_WORK(&fsm->hnp_polling_work, otg_hnp_polling_work);
-+	if (!fsm->hnp_work_inited) {
-+		INIT_DELAYED_WORK(&fsm->hnp_polling_work, otg_hnp_polling_work);
-+		fsm->hnp_work_inited = true;
-+	}
-+
- 	schedule_delayed_work(&fsm->hnp_polling_work,
- 					msecs_to_jiffies(T_HOST_REQ_POLL));
- }
---- a/include/linux/usb/otg-fsm.h
-+++ b/include/linux/usb/otg-fsm.h
-@@ -196,6 +196,7 @@ struct otg_fsm {
- 	struct mutex lock;
- 	u8 *host_req_flag;
- 	struct delayed_work hnp_polling_work;
-+	bool hnp_work_inited;
- 	bool state_changed;
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -1555,6 +1555,7 @@ static const struct registration_quirk r
+ 	REG_QUIRK_ENTRY(0x0951, 0x16ea, 2),	/* Kingston HyperX Cloud Flight S */
+ 	REG_QUIRK_ENTRY(0x0ecb, 0x1f46, 2),	/* JBL Quantum 600 */
+ 	REG_QUIRK_ENTRY(0x0ecb, 0x2039, 2),	/* JBL Quantum 400 */
++	REG_QUIRK_ENTRY(0x0ecb, 0x203c, 2),	/* JBL Quantum 600 */
+ 	REG_QUIRK_ENTRY(0x0ecb, 0x203e, 2),	/* JBL Quantum 800 */
+ 	{ 0 }					/* terminator */
  };
- 
 
 
