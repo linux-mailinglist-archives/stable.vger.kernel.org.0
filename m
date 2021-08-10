@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C91673E7ECA
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:35:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC7AB3E7FDA
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:45:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232360AbhHJRfR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:35:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41468 "EHLO mail.kernel.org"
+        id S235809AbhHJRnm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:43:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232973AbhHJRec (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:34:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EF58B61058;
-        Tue, 10 Aug 2021 17:34:09 +0000 (UTC)
+        id S234778AbhHJRlj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:41:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D5166120F;
+        Tue, 10 Aug 2021 17:38:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616850;
-        bh=636JA/ho/gDE3EQsYbfH67TTiFPzGuZS/rIWlAEom2k=;
+        s=korg; t=1628617106;
+        bh=h3W6hhQNLv3fu+R1/iMHBKXUZ+eMpz8K5au5yk05sFU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hbgPKCdf5AUnE02WNxok1NQfIKbuzavDpq70GJ71MyRWMJry1JGpoZi1MnpT8E3oZ
-         0/I/0phljYnv0uuffrsflYlYCpb4kcjpYLWIIgggIqsKvKAztvFd0CfqSivVj/NqRd
-         UQZLiLL2dNd+8P+JRciYG9ez52s6xo0QOa8g2oH8=
+        b=b6wiF0PLv7tJr53XRJwJZi7KpTm8tq5rT62cUgGVoqNm3JnsyFPiD7TifDat3j3a+
+         dZLkY62opxoP/sFU5rc05bM6mAua0bgK43oyE7tPuBc038q11jclzL6uT3DPaZus6c
+         ti6QJnCaINjbu1RCStjg2PeIjN6z4R9rMzNx8M6I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Pavel Skripkin <paskripkin@gmail.com>,
+        Joakim Zhang <qiangqing.zhang@nxp.com>,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 09/85] ARM: dts: imx: Swap M53Menlo pinctrl_power_button/pinctrl_power_out pins
+Subject: [PATCH 5.10 048/135] net: fec: fix use-after-free in fec_drv_remove
 Date:   Tue, 10 Aug 2021 19:29:42 +0200
-Message-Id: <20210810172948.513429281@linuxfoundation.org>
+Message-Id: <20210810172957.323499161@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
-References: <20210810172948.192298392@linuxfoundation.org>
+In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
+References: <20210810172955.660225700@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,46 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 3d9e30a52047f2d464efdfd1d561ae1f707a0286 ]
+[ Upstream commit 44712965bf12ae1758cec4de53816ed4b914ca1a ]
 
-The pinctrl_power_button/pinctrl_power_out each define single GPIO
-pinmux, except it is exactly the other one than the matching gpio-keys
-and gpio-poweroff DT nodes use for that functionality. Swap the two
-GPIOs to correct this error.
+Smatch says:
+	drivers/net/ethernet/freescale/fec_main.c:3994 fec_drv_remove() error: Using fep after free_{netdev,candev}(ndev);
+	drivers/net/ethernet/freescale/fec_main.c:3995 fec_drv_remove() error: Using fep after free_{netdev,candev}(ndev);
 
-Fixes: 50d29fdb765d ("ARM: dts: imx53: Add power GPIOs on M53Menlo")
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Shawn Guo <shawnguo@kernel.org>
-Cc: Fabio Estevam <festevam@gmail.com>
-Cc: NXP Linux Team <linux-imx@nxp.com>
-Reviewed-by: Fabio Estevam <festevam@gmail.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Since fep pointer is netdev private data, accessing it after free_netdev()
+call can cause use-after-free bug. Fix it by moving free_netdev() call at
+the end of the function
+
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Fixes: a31eda65ba21 ("net: fec: fix clock count mis-match")
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Reviewed-by: Joakim Zhang <qiangqing.zhang@nxp.com>
+Reviewed-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx53-m53menlo.dts | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/freescale/fec_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/imx53-m53menlo.dts b/arch/arm/boot/dts/imx53-m53menlo.dts
-index 719ed5ca454a..64faf5b46d92 100644
---- a/arch/arm/boot/dts/imx53-m53menlo.dts
-+++ b/arch/arm/boot/dts/imx53-m53menlo.dts
-@@ -388,13 +388,13 @@
+diff --git a/drivers/net/ethernet/freescale/fec_main.c b/drivers/net/ethernet/freescale/fec_main.c
+index 2cb73e850a32..94eb838a0176 100644
+--- a/drivers/net/ethernet/freescale/fec_main.c
++++ b/drivers/net/ethernet/freescale/fec_main.c
+@@ -3822,13 +3822,13 @@ fec_drv_remove(struct platform_device *pdev)
+ 	if (of_phy_is_fixed_link(np))
+ 		of_phy_deregister_fixed_link(np);
+ 	of_node_put(fep->phy_node);
+-	free_netdev(ndev);
  
- 		pinctrl_power_button: powerbutgrp {
- 			fsl,pins = <
--				MX53_PAD_SD2_DATA2__GPIO1_13		0x1e4
-+				MX53_PAD_SD2_DATA0__GPIO1_15		0x1e4
- 			>;
- 		};
+ 	clk_disable_unprepare(fep->clk_ahb);
+ 	clk_disable_unprepare(fep->clk_ipg);
+ 	pm_runtime_put_noidle(&pdev->dev);
+ 	pm_runtime_disable(&pdev->dev);
  
- 		pinctrl_power_out: poweroutgrp {
- 			fsl,pins = <
--				MX53_PAD_SD2_DATA0__GPIO1_15		0x1e4
-+				MX53_PAD_SD2_DATA2__GPIO1_13		0x1e4
- 			>;
- 		};
++	free_netdev(ndev);
+ 	return 0;
+ }
  
 -- 
 2.30.2
