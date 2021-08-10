@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 537D23E7E6B
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:33:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94B253E7F62
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:41:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231680AbhHJRdN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:33:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33850 "EHLO mail.kernel.org"
+        id S234265AbhHJRkR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:40:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231921AbhHJRcz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:32:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C268A6108C;
-        Tue, 10 Aug 2021 17:32:32 +0000 (UTC)
+        id S233720AbhHJRhN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:37:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A782C603E7;
+        Tue, 10 Aug 2021 17:36:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616753;
-        bh=MGfQA6lcM9g8o8bScDfSMHw06mk8qD9asDGzQiw1DAU=;
+        s=korg; t=1628616962;
+        bh=OFEBgr4VXBm6Ho5C/vyJntXGXOedipYLtwXZl5inAB8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NPZn0Ofz+9Tna2TKpg9iW+uZVDU+PYM+tIfCZmf8wazzi1wKAl7OixJCoixNx3vze
-         lEaTUEMHPoSIdkfWQvfdwWFTMtkh5iLm916rhj8oZvOuXS2+ahDJFEYBPUH/nftX0q
-         cEIlDX5dXZTnPRAKW30CKZ5o40RwyRYVVwg0FqFs=
+        b=R2PN2RJoZyeZFwlME4Uk9us77wo3501JP3JMebbpkQcWAAqIh4fyEpNYIPC9KF/2c
+         EeQJDZ5ptZ2GPJW6ATOQZS3tzBoe/5RzyJvGLmXTZkC+ZgMGoTAnWICLlp9l8eOw5P
+         oJoEw+9UiOx+1m4M5Ug/sNJuJfW9IO0vC21sYxwo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Chen <peter.chen@kernel.org>,
-        Dmitry Osipenko <digetx@gmail.com>
-Subject: [PATCH 4.19 31/54] usb: otg-fsm: Fix hrtimer list corruption
+        stable@vger.kernel.org, Tyler Hicks <tyhicks@linux.microsoft.com>,
+        Jens Wiklander <jens.wiklander@linaro.org>,
+        Sumit Garg <sumit.garg@linaro.org>
+Subject: [PATCH 5.4 52/85] optee: Clear stale cache entries during initialization
 Date:   Tue, 10 Aug 2021 19:30:25 +0200
-Message-Id: <20210810172945.199593424@linuxfoundation.org>
+Message-Id: <20210810172949.998606371@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172944.179901509@linuxfoundation.org>
-References: <20210810172944.179901509@linuxfoundation.org>
+In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
+References: <20210810172948.192298392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,64 +40,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Tyler Hicks <tyhicks@linux.microsoft.com>
 
-commit bf88fef0b6f1488abeca594d377991171c00e52a upstream.
+commit b5c10dd04b7418793517e3286cde5c04759a86de upstream.
 
-The HNP work can be re-scheduled while it's still in-fly. This results in
-re-initialization of the busy work, resetting the hrtimer's list node of
-the work and crashing kernel with null dereference within kernel/timer
-once work's timer is expired. It's very easy to trigger this problem by
-re-plugging USB cable quickly. Initialize HNP work only once to fix this
-trouble.
+The shm cache could contain invalid addresses if
+optee_disable_shm_cache() was not called from the .shutdown hook of the
+previous kernel before a kexec. These addresses could be unmapped or
+they could point to mapped but unintended locations in memory.
 
- Unable to handle kernel NULL pointer dereference at virtual address 00000126)
- ...
- PC is at __run_timers.part.0+0x150/0x228
- LR is at __next_timer_interrupt+0x51/0x9c
- ...
- (__run_timers.part.0) from [<c0187a2b>] (run_timer_softirq+0x2f/0x50)
- (run_timer_softirq) from [<c01013ad>] (__do_softirq+0xd5/0x2f0)
- (__do_softirq) from [<c012589b>] (irq_exit+0xab/0xb8)
- (irq_exit) from [<c0170341>] (handle_domain_irq+0x45/0x60)
- (handle_domain_irq) from [<c04c4a43>] (gic_handle_irq+0x6b/0x7c)
- (gic_handle_irq) from [<c0100b65>] (__irq_svc+0x65/0xac)
+Clear the shared memory cache, while being careful to not translate the
+addresses returned from OPTEE_SMC_DISABLE_SHM_CACHE, during driver
+initialization. Once all pre-cache shm objects are removed, proceed with
+enabling the cache so that we know that we can handle cached shm objects
+with confidence later in the .shutdown hook.
 
 Cc: stable@vger.kernel.org
-Acked-by: Peter Chen <peter.chen@kernel.org>
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Link: https://lore.kernel.org/r/20210717182134.30262-6-digetx@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Tyler Hicks <tyhicks@linux.microsoft.com>
+Reviewed-by: Jens Wiklander <jens.wiklander@linaro.org>
+Reviewed-by: Sumit Garg <sumit.garg@linaro.org>
+Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/common/usb-otg-fsm.c |    6 +++++-
- include/linux/usb/otg-fsm.h      |    1 +
- 2 files changed, 6 insertions(+), 1 deletion(-)
+ drivers/tee/optee/call.c          |   36 +++++++++++++++++++++++++++++++++---
+ drivers/tee/optee/core.c          |    9 +++++++++
+ drivers/tee/optee/optee_private.h |    1 +
+ 3 files changed, 43 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/common/usb-otg-fsm.c
-+++ b/drivers/usb/common/usb-otg-fsm.c
-@@ -193,7 +193,11 @@ static void otg_start_hnp_polling(struct
- 	if (!fsm->host_req_flag)
- 		return;
- 
--	INIT_DELAYED_WORK(&fsm->hnp_polling_work, otg_hnp_polling_work);
-+	if (!fsm->hnp_work_inited) {
-+		INIT_DELAYED_WORK(&fsm->hnp_polling_work, otg_hnp_polling_work);
-+		fsm->hnp_work_inited = true;
-+	}
-+
- 	schedule_delayed_work(&fsm->hnp_polling_work,
- 					msecs_to_jiffies(T_HOST_REQ_POLL));
+--- a/drivers/tee/optee/call.c
++++ b/drivers/tee/optee/call.c
+@@ -407,11 +407,13 @@ void optee_enable_shm_cache(struct optee
  }
---- a/include/linux/usb/otg-fsm.h
-+++ b/include/linux/usb/otg-fsm.h
-@@ -196,6 +196,7 @@ struct otg_fsm {
- 	struct mutex lock;
- 	u8 *host_req_flag;
- 	struct delayed_work hnp_polling_work;
-+	bool hnp_work_inited;
- 	bool state_changed;
- };
  
+ /**
+- * optee_disable_shm_cache() - Disables caching of some shared memory allocation
+- *			      in OP-TEE
++ * __optee_disable_shm_cache() - Disables caching of some shared memory
++ *                               allocation in OP-TEE
+  * @optee:	main service struct
++ * @is_mapped:	true if the cached shared memory addresses were mapped by this
++ *		kernel, are safe to dereference, and should be freed
+  */
+-void optee_disable_shm_cache(struct optee *optee)
++static void __optee_disable_shm_cache(struct optee *optee, bool is_mapped)
+ {
+ 	struct optee_call_waiter w;
+ 
+@@ -430,6 +432,13 @@ void optee_disable_shm_cache(struct opte
+ 		if (res.result.status == OPTEE_SMC_RETURN_OK) {
+ 			struct tee_shm *shm;
+ 
++			/*
++			 * Shared memory references that were not mapped by
++			 * this kernel must be ignored to prevent a crash.
++			 */
++			if (!is_mapped)
++				continue;
++
+ 			shm = reg_pair_to_ptr(res.result.shm_upper32,
+ 					      res.result.shm_lower32);
+ 			tee_shm_free(shm);
+@@ -440,6 +449,27 @@ void optee_disable_shm_cache(struct opte
+ 	optee_cq_wait_final(&optee->call_queue, &w);
+ }
+ 
++/**
++ * optee_disable_shm_cache() - Disables caching of mapped shared memory
++ *                             allocations in OP-TEE
++ * @optee:	main service struct
++ */
++void optee_disable_shm_cache(struct optee *optee)
++{
++	return __optee_disable_shm_cache(optee, true);
++}
++
++/**
++ * optee_disable_unmapped_shm_cache() - Disables caching of shared memory
++ *                                      allocations in OP-TEE which are not
++ *                                      currently mapped
++ * @optee:	main service struct
++ */
++void optee_disable_unmapped_shm_cache(struct optee *optee)
++{
++	return __optee_disable_shm_cache(optee, false);
++}
++
+ #define PAGELIST_ENTRIES_PER_PAGE				\
+ 	((OPTEE_MSG_NONCONTIG_PAGE_SIZE / sizeof(u64)) - 1)
+ 
+--- a/drivers/tee/optee/core.c
++++ b/drivers/tee/optee/core.c
+@@ -628,6 +628,15 @@ static struct optee *optee_probe(struct
+ 	optee->memremaped_shm = memremaped_shm;
+ 	optee->pool = pool;
+ 
++	/*
++	 * Ensure that there are no pre-existing shm objects before enabling
++	 * the shm cache so that there's no chance of receiving an invalid
++	 * address during shutdown. This could occur, for example, if we're
++	 * kexec booting from an older kernel that did not properly cleanup the
++	 * shm cache.
++	 */
++	optee_disable_unmapped_shm_cache(optee);
++
+ 	optee_enable_shm_cache(optee);
+ 
+ 	if (optee->sec_caps & OPTEE_SMC_SEC_CAP_DYNAMIC_SHM)
+--- a/drivers/tee/optee/optee_private.h
++++ b/drivers/tee/optee/optee_private.h
+@@ -152,6 +152,7 @@ int optee_cancel_req(struct tee_context
+ 
+ void optee_enable_shm_cache(struct optee *optee);
+ void optee_disable_shm_cache(struct optee *optee);
++void optee_disable_unmapped_shm_cache(struct optee *optee);
+ 
+ int optee_shm_register(struct tee_context *ctx, struct tee_shm *shm,
+ 		       struct page **pages, size_t num_pages,
 
 
