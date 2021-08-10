@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A1513E7E5B
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:32:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83F393E7F0E
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:37:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231776AbhHJRcq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:32:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32854 "EHLO mail.kernel.org"
+        id S234208AbhHJRhF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:37:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42218 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231465AbhHJRce (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:32:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D727360F13;
-        Tue, 10 Aug 2021 17:32:11 +0000 (UTC)
+        id S233687AbhHJRfk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:35:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 10A396112D;
+        Tue, 10 Aug 2021 17:35:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616732;
-        bh=6aDcVA48kqfRMlXtJ3vMSq4cdUNQ0LF5woQJAJxunB4=;
+        s=korg; t=1628616908;
+        bh=g6u9MC6VB7YyB0JK8nbLe/q2Qem+gXZ8+qzTdGX5y/4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tp9htIiL7zIiQCYJUFTZ8NhJojbF4JHLvdqlrzfb4P90bBFdPFqaB6LXPW2RQGIQK
-         cNLnMDt9GMhZUcJTaq1IscIZ0DBa7htuIdu5fTqOi+PTEDonAnIYWq3HAaw5VkSYrF
-         7daL7fPaDHwWUbAFCOx3MQ+pp5eC4/2MiwWe4NhQ=
+        b=d3ytQYqkOIcP0WaiCFQ14wRXHleDSV+abv//XMMAh0mgRKl5fYnWG35h9wBHePlcv
+         K4/nRcSjR9cO2Ir4YCzvPz+shuXn5atntmk/nUxzwx6FC2lOnr7VthLVluanYIdZ1c
+         5DCnz1iW7CyKE5Zk/o/kb93zv8wQui+cQNt6Uz6M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Willy Tarreau <w@1wt.eu>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 23/54] USB: serial: ch341: fix character loss at high transfer rates
+        stable@vger.kernel.org, Pawel Laszczak <pawell@cadence.com>,
+        Peter Chen <peter.chen@kernel.org>
+Subject: [PATCH 5.4 44/85] usb: cdns3: Fixed incorrect gadget state
 Date:   Tue, 10 Aug 2021 19:30:17 +0200
-Message-Id: <20210810172944.935001202@linuxfoundation.org>
+Message-Id: <20210810172949.730043782@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172944.179901509@linuxfoundation.org>
-References: <20210810172944.179901509@linuxfoundation.org>
+In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
+References: <20210810172948.192298392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,45 +39,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willy Tarreau <w@1wt.eu>
+From: Pawel Laszczak <pawell@cadence.com>
 
-commit 3c18e9baee0ef97510dcda78c82285f52626764b upstream.
+commit aa35772f61752d4c636d46be51a4f7ca6c029ee6 upstream.
 
-The chip supports high transfer rates, but with the small default buffers
-(64 bytes read), some entire blocks are regularly lost. This typically
-happens at 1.5 Mbps (which is the default speed on Rockchip devices) when
-used as a console to access U-Boot where the output of the "help" command
-misses many lines and where "printenv" mangles the environment.
+For delayed status phase, the usb_gadget->state was set
+to USB_STATE_ADDRESS and it has never been updated to
+USB_STATE_CONFIGURED.
+Patch updates the gadget state to correct USB_STATE_CONFIGURED.
+As a result of this bug the controller was not able to enter to
+Test Mode while using MSC function.
 
-The FTDI driver doesn't suffer at all from this. One difference is that
-it uses 512 bytes rx buffers and 256 bytes tx buffers. Adopting these
-values completely resolved the issue, even the output of "dmesg" is
-reliable. I preferred to leave the Tx value unchanged as it is not
-involved in this issue, while a change could increase the risk of
-triggering the same issue with other devices having too small buffers.
-
-I verified that it backports well (and works) at least to 5.4. It's of
-low importance enough to be dropped where it doesn't trivially apply
-anymore.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Willy Tarreau <w@1wt.eu>
-Link: https://lore.kernel.org/r/20210724152739.18726-1-w@1wt.eu
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Cc: <stable@vger.kernel.org>
+Fixes: 7733f6c32e36 ("usb: cdns3: Add Cadence USB3 DRD Driver")
+Signed-off-by: Pawel Laszczak <pawell@cadence.com>
+Link: https://lore.kernel.org/r/20210623070247.46151-1-pawell@gli-login.cadence.com
+Signed-off-by: Peter Chen <peter.chen@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/ch341.c |    1 +
+ drivers/usb/cdns3/ep0.c |    1 +
  1 file changed, 1 insertion(+)
 
---- a/drivers/usb/serial/ch341.c
-+++ b/drivers/usb/serial/ch341.c
-@@ -625,6 +625,7 @@ static struct usb_serial_driver ch341_de
- 		.owner	= THIS_MODULE,
- 		.name	= "ch341-uart",
- 	},
-+	.bulk_in_size      = 512,
- 	.id_table          = id_table,
- 	.num_ports         = 1,
- 	.open              = ch341_open,
+--- a/drivers/usb/cdns3/ep0.c
++++ b/drivers/usb/cdns3/ep0.c
+@@ -736,6 +736,7 @@ static int cdns3_gadget_ep0_queue(struct
+ 		request->actual = 0;
+ 		priv_dev->status_completion_no_call = true;
+ 		priv_dev->pending_status_request = request;
++		usb_gadget_set_state(&priv_dev->gadget, USB_STATE_CONFIGURED);
+ 		spin_unlock_irqrestore(&priv_dev->lock, flags);
+ 
+ 		/*
 
 
