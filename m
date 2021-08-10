@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A6FE3E7EA8
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:34:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 346683E7FE4
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:45:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233060AbhHJRen (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:34:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36686 "EHLO mail.kernel.org"
+        id S234839AbhHJRny (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:43:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232628AbhHJReO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:34:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 195C060E09;
-        Tue, 10 Aug 2021 17:33:51 +0000 (UTC)
+        id S235072AbhHJRlv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:41:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C22860295;
+        Tue, 10 Aug 2021 17:38:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616832;
-        bh=QKRjStoIKL4RoqgWyVEI9Ygpvtxi08YtDeGdgzdTtGY=;
+        s=korg; t=1628617115;
+        bh=dBCMdyDo4CrkKhZDC0vQjDKfJr/RMbR8kWuAUrlsY9A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jH69V0Ov1Ji1CCvfTU/AeaijRL6gDfZKyNDTZa/yTbncN8uV3W0bxj6t2mI/SX20q
-         7wvKkCxA4wLqSi6DLHMU7VHsMyzNfuRzm2AlIH5YDhHQC/NMiSLLM61lyCJLFm+yVD
-         7ED90ws13aTDwL8fF17ZAWEokhFADH0Tk8dbtWgg=
+        b=2P6JyKJdUjEsVpS4YtqcWL0MIbUlH2FJuLUmSZ15gYlmSYCe9S0YtzHrlz3oWLd9l
+         ecDiJf1p1jVOGGE3WanOz3CH3gPI00u76nprJggeXqbjyRyEghag3gbq79niDZCn1V
+         dD+0SOb6Q+hlKpOnfVT0Ornz6QBjgRsVbZWAzwv4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dario Binacchi <dariobin@libero.it>,
-        Gabriel Fernandez <gabriel.fernandez@st.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 12/85] clk: stm32f4: fix post divisor setup for I2S/SAI PLLs
-Date:   Tue, 10 Aug 2021 19:29:45 +0200
-Message-Id: <20210810172948.623932925@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+e2eae5639e7203360018@syzkaller.appspotmail.com,
+        "Qiang.zhang" <qiang.zhang@windriver.com>,
+        Guido Kiener <guido.kiener@rohde-schwarz.com>
+Subject: [PATCH 5.10 052/135] USB: usbtmc: Fix RCU stall warning
+Date:   Tue, 10 Aug 2021 19:29:46 +0200
+Message-Id: <20210810172957.465986013@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
-References: <20210810172948.192298392@linuxfoundation.org>
+In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
+References: <20210810172955.660225700@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,88 +41,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dario Binacchi <dariobin@libero.it>
+From: Qiang.zhang <qiang.zhang@windriver.com>
 
-[ Upstream commit 24b5b1978cd5a80db58e2a19db2f9c36fe8d4f7a ]
+commit 30fad76ce4e98263edfa8f885c81d5426c1bf169 upstream.
 
-Enabling the framebuffer leads to a system hang. Running, as a debug
-hack, the store_pan() function in drivers/video/fbdev/core/fbsysfs.c
-without taking the console_lock, allows to see the crash backtrace on
-the serial line.
+rcu: INFO: rcu_preempt self-detected stall on CPU
+rcu:    1-...!: (2 ticks this GP) idle=d92/1/0x4000000000000000
+        softirq=25390/25392 fqs=3
+        (t=12164 jiffies g=31645 q=43226)
+rcu: rcu_preempt kthread starved for 12162 jiffies! g31645 f0x0
+     RCU_GP_WAIT_FQS(5) ->state=0x0 ->cpu=0
+rcu:    Unless rcu_preempt kthread gets sufficient CPU time,
+        OOM is now expected behavior.
+rcu: RCU grace-period kthread stack dump:
+task:rcu_preempt     state:R  running task
+...........
+usbtmc 3-1:0.0: unknown status received: -71
+usbtmc 3-1:0.0: unknown status received: -71
+usbtmc 3-1:0.0: unknown status received: -71
+usbtmc 3-1:0.0: unknown status received: -71
+usbtmc 3-1:0.0: unknown status received: -71
+usbtmc 3-1:0.0: unknown status received: -71
+usbtmc 3-1:0.0: unknown status received: -71
+usbtmc 3-1:0.0: unknown status received: -71
+usbtmc 3-1:0.0: usb_submit_urb failed: -19
 
-~ # echo 0 0 > /sys/class/graphics/fb0/pan
+The function usbtmc_interrupt() resubmits urbs when the error status
+of an urb is -EPROTO. In systems using the dummy_hcd usb controller
+this can result in endless interrupt loops when the usbtmc device is
+disconnected from the host system.
 
-[    9.719414] Unhandled exception: IPSR = 00000005 LR = fffffff1
-[    9.726937] CPU: 0 PID: 49 Comm: sh Not tainted 5.13.0-rc5 #9
-[    9.733008] Hardware name: STM32 (Device Tree Support)
-[    9.738296] PC is at clk_gate_is_enabled+0x0/0x28
-[    9.743426] LR is at stm32f4_pll_div_set_rate+0xf/0x38
-[    9.748857] pc : [<0011e4be>]    lr : [<0011f9e3>]    psr: 0100000b
-[    9.755373] sp : 00bc7be0  ip : 00000000  fp : 001f3ac4
-[    9.760812] r10: 002610d0  r9 : 01efe920  r8 : 00540560
-[    9.766269] r7 : 02e7ddb0  r6 : 0173eed8  r5 : 00000000  r4 : 004027c0
-[    9.773081] r3 : 0011e4bf  r2 : 02e7ddb0  r1 : 0173eed8  r0 : 1d3267b8
-[    9.779911] xPSR: 0100000b
-[    9.782719] CPU: 0 PID: 49 Comm: sh Not tainted 5.13.0-rc5 #9
-[    9.788791] Hardware name: STM32 (Device Tree Support)
-[    9.794120] [<0000afa1>] (unwind_backtrace) from [<0000a33f>] (show_stack+0xb/0xc)
-[    9.802421] [<0000a33f>] (show_stack) from [<0000a8df>] (__invalid_entry+0x4b/0x4c)
+Since host controller drivers already try to recover from transmission
+errors, there is no need to resubmit the urb or try other solutions
+to repair the error situation.
 
-The `pll_num' field in the post_div_data configuration contained a wrong
-value which also referenced an uninitialized hardware clock when
-clk_register_pll_div() was called.
+In case of errors the INT pipe just stops to wait for further packets.
 
-Fixes: 517633ef630e ("clk: stm32f4: Add post divisor for I2S & SAI PLLs")
-Signed-off-by: Dario Binacchi <dariobin@libero.it>
-Reviewed-by: Gabriel Fernandez <gabriel.fernandez@st.com>
-Link: https://lore.kernel.org/r/20210725160725.10788-1-dariobin@libero.it
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: dbf3e7f654c0 ("Implement an ioctl to support the USMTMC-USB488 READ_STATUS_BYTE operation")
+Cc: stable@vger.kernel.org
+Reported-by: syzbot+e2eae5639e7203360018@syzkaller.appspotmail.com
+Signed-off-by: Qiang.zhang <qiang.zhang@windriver.com>
+Acked-by: Guido Kiener <guido.kiener@rohde-schwarz.com>
+Link: https://lore.kernel.org/r/20210723004334.458930-1-qiang.zhang@windriver.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clk/clk-stm32f4.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/usb/class/usbtmc.c |    9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
 
-diff --git a/drivers/clk/clk-stm32f4.c b/drivers/clk/clk-stm32f4.c
-index 18117ce5ff85..5c75e3d906c2 100644
---- a/drivers/clk/clk-stm32f4.c
-+++ b/drivers/clk/clk-stm32f4.c
-@@ -526,7 +526,7 @@ struct stm32f4_pll {
- 
- struct stm32f4_pll_post_div_data {
- 	int idx;
--	u8 pll_num;
-+	int pll_idx;
- 	const char *name;
- 	const char *parent;
- 	u8 flag;
-@@ -557,13 +557,13 @@ static const struct clk_div_table post_divr_table[] = {
- 
- #define MAX_POST_DIV 3
- static const struct stm32f4_pll_post_div_data  post_div_data[MAX_POST_DIV] = {
--	{ CLK_I2SQ_PDIV, PLL_I2S, "plli2s-q-div", "plli2s-q",
-+	{ CLK_I2SQ_PDIV, PLL_VCO_I2S, "plli2s-q-div", "plli2s-q",
- 		CLK_SET_RATE_PARENT, STM32F4_RCC_DCKCFGR, 0, 5, 0, NULL},
- 
--	{ CLK_SAIQ_PDIV, PLL_SAI, "pllsai-q-div", "pllsai-q",
-+	{ CLK_SAIQ_PDIV, PLL_VCO_SAI, "pllsai-q-div", "pllsai-q",
- 		CLK_SET_RATE_PARENT, STM32F4_RCC_DCKCFGR, 8, 5, 0, NULL },
- 
--	{ NO_IDX, PLL_SAI, "pllsai-r-div", "pllsai-r", CLK_SET_RATE_PARENT,
-+	{ NO_IDX, PLL_VCO_SAI, "pllsai-r-div", "pllsai-r", CLK_SET_RATE_PARENT,
- 		STM32F4_RCC_DCKCFGR, 16, 2, 0, post_divr_table },
- };
- 
-@@ -1774,7 +1774,7 @@ static void __init stm32f4_rcc_init(struct device_node *np)
- 				post_div->width,
- 				post_div->flag_div,
- 				post_div->div_table,
--				clks[post_div->pll_num],
-+				clks[post_div->pll_idx],
- 				&stm32f4_clk_lock);
- 
- 		if (post_div->idx != NO_IDX)
--- 
-2.30.2
-
+--- a/drivers/usb/class/usbtmc.c
++++ b/drivers/usb/class/usbtmc.c
+@@ -2283,17 +2283,10 @@ static void usbtmc_interrupt(struct urb
+ 		dev_err(dev, "overflow with length %d, actual length is %d\n",
+ 			data->iin_wMaxPacketSize, urb->actual_length);
+ 		fallthrough;
+-	case -ECONNRESET:
+-	case -ENOENT:
+-	case -ESHUTDOWN:
+-	case -EILSEQ:
+-	case -ETIME:
+-	case -EPIPE:
++	default:
+ 		/* urb terminated, clean up */
+ 		dev_dbg(dev, "urb terminated, status: %d\n", status);
+ 		return;
+-	default:
+-		dev_err(dev, "unknown status received: %d\n", status);
+ 	}
+ exit:
+ 	rv = usb_submit_urb(urb, GFP_ATOMIC);
 
 
