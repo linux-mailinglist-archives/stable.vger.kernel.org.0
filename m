@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 376D03E80A4
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:51:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CC8B3E7EF2
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:36:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230442AbhHJRvI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:51:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43222 "EHLO mail.kernel.org"
+        id S231827AbhHJRgM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:36:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36868 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236735AbhHJRtl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:49:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 539BC61019;
-        Tue, 10 Aug 2021 17:41:52 +0000 (UTC)
+        id S232253AbhHJRdk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:33:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 07A4E61075;
+        Tue, 10 Aug 2021 17:33:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617312;
-        bh=5iZlw2dJ1neQluoJ1Sf1NcvcN7v3FJJOjNem6iIw+9g=;
+        s=korg; t=1628616798;
+        bh=SryW2t5Ze+b9tM3zx8bHTZ7bmm+Zqps8jt+VAt59OcU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SHlt4FhbYboXo7jcDUc2/+A8U2Nm8ccedEOIpCr0W91OCO+15WM/4ynil8KwBT7/f
-         CG4yrLSSzcHCwjViD4WF+h6q3aRT6rTra4e9MwQBwrwmXtN+MrEcHj8zeOvspFe0Pt
-         QgUc4pJcXm/RX4Qr8dJG/rLDn2Xm6OydwTCl50Q0=
+        b=td8SUrclf9GvviuIdw9pqZyjNuUbajJYK0JomuYhlp+vnM4BVfJ3XE6UNqOdBxeXe
+         aomIBwmU28JI85zReNCSDS5Ez58rwUApOKeahOTkLXEIlhrtBrnbHepw99g15VoktO
+         brH4drklsm3ddkztjZdKZz8FBcxxEZvkbhy2G0+Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Gardon <bgardon@google.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Jim Mattson <jmattson@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.10 112/135] KVM: x86/mmu: Fix per-cpu counter corruption on 32-bit builds
+        stable@vger.kernel.org, Prarit Bhargava <prarit@redhat.com>,
+        Richard Henderson <rth@twiddle.net>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        Matt Turner <mattst88@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 52/54] alpha: Send stop IPI to send to online CPUs
 Date:   Tue, 10 Aug 2021 19:30:46 +0200
-Message-Id: <20210810172959.593966797@linuxfoundation.org>
+Message-Id: <20210810172945.923147335@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
-References: <20210810172955.660225700@linuxfoundation.org>
+In-Reply-To: <20210810172944.179901509@linuxfoundation.org>
+References: <20210810172944.179901509@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,54 +42,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Prarit Bhargava <prarit@redhat.com>
 
-commit d5aaad6f83420efb8357ac8e11c868708b22d0a9 upstream.
+[ Upstream commit caace6ca4e06f09413fb8f8a63319594cfb7d47d ]
 
-Take a signed 'long' instead of an 'unsigned long' for the number of
-pages to add/subtract to the total number of pages used by the MMU.  This
-fixes a zero-extension bug on 32-bit kernels that effectively corrupts
-the per-cpu counter used by the shrinker.
+This issue was noticed while debugging a shutdown issue where some
+secondary CPUs are not being shutdown correctly.  A fix for that [1] requires
+that secondary cpus be offlined using the cpu_online_mask so that the
+stop operation is a no-op if CPU HOTPLUG is disabled.  I, like the author in
+[1] looked at the architectures and found that alpha is one of two
+architectures that executes smp_send_stop() on all possible CPUs.
 
-Per-cpu counters take a signed 64-bit value on both 32-bit and 64-bit
-kernels, whereas kvm_mod_used_mmu_pages() takes an unsigned long and thus
-an unsigned 32-bit value on 32-bit kernels.  As a result, the value used
-to adjust the per-cpu counter is zero-extended (unsigned -> signed), not
-sign-extended (signed -> signed), and so KVM's intended -1 gets morphed to
-4294967295 and effectively corrupts the counter.
+On alpha, smp_send_stop() sends an IPI to all possible CPUs but only needs
+to send them to online CPUs.
 
-This was found by a staggering amount of sheer dumb luck when running
-kvm-unit-tests on a 32-bit KVM build.  The shrinker just happened to kick
-in while running tests and do_shrink_slab() logged an error about trying
-to free a negative number of objects.  The truly lucky part is that the
-kernel just happened to be a slightly stale build, as the shrinker no
-longer yells about negative objects as of commit 18bb473e5031 ("mm:
-vmscan: shrink deferred objects proportional to priority").
+Send the stop IPI to only the online CPUs.
 
- vmscan: shrink_slab: mmu_shrink_scan+0x0/0x210 [kvm] negative objects to delete nr=-858993460
+[1] https://lkml.org/lkml/2020/1/10/250
 
-Fixes: bc8a3d8925a8 ("kvm: mmu: Fix overflow on kvm mmu page limit calculation")
-Cc: stable@vger.kernel.org
-Cc: Ben Gardon <bgardon@google.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210804214609.1096003-1-seanjc@google.com>
-Reviewed-by: Jim Mattson <jmattson@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Prarit Bhargava <prarit@redhat.com>
+Cc: Richard Henderson <rth@twiddle.net>
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Signed-off-by: Matt Turner <mattst88@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/mmu/mmu.c |    2 +-
+ arch/alpha/kernel/smp.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -1621,7 +1621,7 @@ static int is_empty_shadow_page(u64 *spt
-  * aggregate version in order to make the slab shrinker
-  * faster
-  */
--static inline void kvm_mod_used_mmu_pages(struct kvm *kvm, unsigned long nr)
-+static inline void kvm_mod_used_mmu_pages(struct kvm *kvm, long nr)
+diff --git a/arch/alpha/kernel/smp.c b/arch/alpha/kernel/smp.c
+index d0dccae53ba9..8a89b9adb4fe 100644
+--- a/arch/alpha/kernel/smp.c
++++ b/arch/alpha/kernel/smp.c
+@@ -585,7 +585,7 @@ void
+ smp_send_stop(void)
  {
- 	kvm->arch.n_used_mmu_pages += nr;
- 	percpu_counter_add(&kvm_total_used_mmu_pages, nr);
+ 	cpumask_t to_whom;
+-	cpumask_copy(&to_whom, cpu_possible_mask);
++	cpumask_copy(&to_whom, cpu_online_mask);
+ 	cpumask_clear_cpu(smp_processor_id(), &to_whom);
+ #ifdef DEBUG_IPI_MSG
+ 	if (hard_smp_processor_id() != boot_cpu_id)
+-- 
+2.30.2
+
 
 
