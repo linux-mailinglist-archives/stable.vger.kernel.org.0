@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B261E3E804A
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:47:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 915293E7F58
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:41:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231862AbhHJRr5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:47:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56806 "EHLO mail.kernel.org"
+        id S232970AbhHJRkI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:40:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59194 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235125AbhHJRqD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:46:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F13CA6124F;
-        Tue, 10 Aug 2021 17:40:17 +0000 (UTC)
+        id S235076AbhHJRjT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:39:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F343660E09;
+        Tue, 10 Aug 2021 17:36:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617218;
-        bh=6UZ8UDbE+gtZ419+958w1Ct+az9EJtjv+tl1F1V8R0A=;
+        s=korg; t=1628617011;
+        bh=HxAVSRoZV1qO5M8NvmA+iCnA5aa632UKR/8qoV0km0g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YcLUqEtM79AC0hLmbrjNCqKE8EhFBL5dST7+8vnK6bqZ8BH81764jIeElvyO+dOC+
-         X5t/MHOMiO5x2YlQK5CV+8FIngMDBGah36vA5IaOjJ+qUuD4bSP+0DZ7X/snjFdI1B
-         ZSEGnUS1DnbHPIA42yzQNehmRt0eK6cbGntoaLa8=
+        b=iTB2ThOcqjJQxJ+7mW21qfj1rZN1+oWHoXLMjbzWyjM/vkhaVu8yNQDKQf/9EDPrS
+         LTA7i0pIZqded4rHHeHi1zBeNlXpELJ/vpk9CLDbiSj4Js8x4fLothtao2PEil7cDA
+         UWRrqKQmOP7vAHIaTzUFTi4IVs5rUDJESDpIbSAs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <f4bug@amsat.org>,
-        "Maciej W. Rozycki" <macro@orcam.me.uk>
-Subject: [PATCH 5.10 097/135] MIPS: Malta: Do not byte-swap accesses to the CBUS UART
+        syzbot+faf11bbadc5a372564da@syzkaller.appspotmail.com,
+        Eero Lehtinen <debiangamer2@gmail.com>,
+        Antti Palosaari <crope@iki.fi>,
+        Johan Hovold <johan@kernel.org>, Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.4 58/85] media: rtl28xxu: fix zero-length control request
 Date:   Tue, 10 Aug 2021 19:30:31 +0200
-Message-Id: <20210810172959.062866669@linuxfoundation.org>
+Message-Id: <20210810172950.193729673@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
-References: <20210810172955.660225700@linuxfoundation.org>
+In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
+References: <20210810172948.192298392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,65 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej W. Rozycki <macro@orcam.me.uk>
+From: Johan Hovold <johan@kernel.org>
 
-commit 9a936d6c3d3d6c33ecbadf72dccdb567b5cd3c72 upstream.
+commit 76f22c93b209c811bd489950f17f8839adb31901 upstream.
 
-Correct big-endian accesses to the CBUS UART, a Malta on-board discrete
-TI16C550C part wired directly to the system controller's device bus, and
-do not use byte swapping with the 32-bit accesses to the device.
+The direction of the pipe argument must match the request-type direction
+bit or control requests may fail depending on the host-controller-driver
+implementation.
 
-The CBUS is used for devices such as the boot flash memory needed early
-on in system bootstrap even before PCI has been initialised.  Therefore
-it uses the system controller's device bus, which follows the endianness
-set with the CPU, which means no byte-swapping is ever required for data
-accesses to CBUS, unlike with PCI.
+Control transfers without a data stage are treated as OUT requests by
+the USB stack and should be using usb_sndctrlpipe(). Failing to do so
+will now trigger a warning.
 
-The CBUS UART uses the UPIO_MEM32 access method, that is the `readl' and
-`writel' MMIO accessors, which on the MIPS platform imply byte-swapping
-with PCI systems.  Consequently the wrong byte lane is accessed with the
-big-endian configuration and the UART is not correctly accessed.
+The driver uses a zero-length i2c-read request for type detection so
+update the control-request code to use usb_sndctrlpipe() in this case.
 
-As it happens the UPIO_MEM32BE access method makes use of the `ioread32'
-and `iowrite32' MMIO accessors, which still use `readl' and `writel'
-respectively, however they byte-swap data passed, effectively cancelling
-swapping done with the accessors themselves and making it suitable for
-the CBUS UART.
+Note that actually trying to read the i2c register in question does not
+work as the register might not exist (e.g. depending on the demodulator)
+as reported by Eero Lehtinen <debiangamer2@gmail.com>.
 
-Make the CBUS UART switch between UPIO_MEM32 and UPIO_MEM32BE then,
-based on the endianness selected.  With this change in place the device
-is correctly recognised with big-endian Malta at boot, along with the
-Super I/O devices behind PCI:
-
-Serial: 8250/16550 driver, 5 ports, IRQ sharing enabled
-printk: console [ttyS0] disabled
-serial8250.0: ttyS0 at I/O 0x3f8 (irq = 4, base_baud = 115200) is a 16550A
-printk: console [ttyS0] enabled
-printk: bootconsole [uart8250] disabled
-serial8250.0: ttyS1 at I/O 0x2f8 (irq = 3, base_baud = 115200) is a 16550A
-serial8250.0: ttyS2 at MMIO 0x1f000900 (irq = 20, base_baud = 230400) is a 16550A
-
-Fixes: e7c4782f92fc ("[MIPS] Put an end to <asm/serial.h>'s long and annyoing existence")
-Cc: stable@vger.kernel.org # v2.6.23+
-Reviewed-by: Philippe Mathieu-Daudé <f4bug@amsat.org>
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Link: https://lore.kernel.org/r/alpine.DEB.2.21.2106260524430.37803@angie.orcam.me.uk
+Reported-by: syzbot+faf11bbadc5a372564da@syzkaller.appspotmail.com
+Reported-by: Eero Lehtinen <debiangamer2@gmail.com>
+Tested-by: Eero Lehtinen <debiangamer2@gmail.com>
+Fixes: d0f232e823af ("[media] rtl28xxu: add heuristic to detect chip type")
+Cc: stable@vger.kernel.org      # 4.0
+Cc: Antti Palosaari <crope@iki.fi>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/mti-malta/malta-platform.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/media/usb/dvb-usb-v2/rtl28xxu.c |   11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
---- a/arch/mips/mti-malta/malta-platform.c
-+++ b/arch/mips/mti-malta/malta-platform.c
-@@ -47,7 +47,8 @@ static struct plat_serial8250_port uart8
- 		.mapbase	= 0x1f000900,	/* The CBUS UART */
- 		.irq		= MIPS_CPU_IRQ_BASE + MIPSCPU_INT_MB2,
- 		.uartclk	= 3686400,	/* Twice the usual clk! */
--		.iotype		= UPIO_MEM32,
-+		.iotype		= IS_ENABLED(CONFIG_CPU_BIG_ENDIAN) ?
-+				  UPIO_MEM32BE : UPIO_MEM32,
- 		.flags		= CBUS_UART_FLAGS,
- 		.regshift	= 3,
- 	},
+--- a/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
++++ b/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
+@@ -37,7 +37,16 @@ static int rtl28xxu_ctrl_msg(struct dvb_
+ 	} else {
+ 		/* read */
+ 		requesttype = (USB_TYPE_VENDOR | USB_DIR_IN);
+-		pipe = usb_rcvctrlpipe(d->udev, 0);
++
++		/*
++		 * Zero-length transfers must use usb_sndctrlpipe() and
++		 * rtl28xxu_identify_state() uses a zero-length i2c read
++		 * command to determine the chip type.
++		 */
++		if (req->size)
++			pipe = usb_rcvctrlpipe(d->udev, 0);
++		else
++			pipe = usb_sndctrlpipe(d->udev, 0);
+ 	}
+ 
+ 	ret = usb_control_msg(d->udev, pipe, 0, requesttype, req->value,
 
 
