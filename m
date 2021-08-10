@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 27A973E7ED9
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:35:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DED6C3E8162
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:01:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232827AbhHJRfh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:35:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36686 "EHLO mail.kernel.org"
+        id S233766AbhHJR67 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:58:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232627AbhHJRen (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:34:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0806360E09;
-        Tue, 10 Aug 2021 17:34:20 +0000 (UTC)
+        id S237163AbhHJR4q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:56:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F8F0610FC;
+        Tue, 10 Aug 2021 17:45:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616861;
-        bh=3BNFiNOT6+j5Db8rEmPdLJrMAp5oMaqX49wllEV+pIo=;
+        s=korg; t=1628617512;
+        bh=sJcqfH1Q4IrnK/z7vHlXFzLXPIrHRa2rRBS6dIPiPA4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iJP8tWq0E+vq4fD17l3RPnSLcR/SlqifOpICBd+lX50g/zg6gI9tGEJiPjbAHBk6D
-         /FpJDKspurqllztgY4/OdtBkjnih1wCr6b1Gy69m5hUImN44PwTLw1WI1K5yUp+glP
-         iLXHenOC5TCE5bQ1hSTplpfHnILbmLaeQgFalEoc=
+        b=mO94tx+Ou0B6cXNbF0lluSz4layUZKbGybdULBKViaEmjoeXo0k5/mdHpZxUI+2cl
+         5I6bJEHGVjE9YWRT/Jpl7sVirqWJHn6SBSagnjHcZgHwPOc5Uk3a78H17SbloMUIMx
+         WCCraXe6/NPQfyqaFY4gLc/L+0YeSUXj2VO3uD4U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 25/85] gpio: tqmx86: really make IRQ optional
+        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
+        Wesley Cheng <wcheng@codeaurora.org>
+Subject: [PATCH 5.13 090/175] usb: dwc3: gadget: Avoid runtime resume if disabling pullup
 Date:   Tue, 10 Aug 2021 19:29:58 +0200
-Message-Id: <20210810172949.049257220@linuxfoundation.org>
+Message-Id: <20210810173003.905650577@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
-References: <20210810172948.192298392@linuxfoundation.org>
+In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
+References: <20210810173000.928681411@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,52 +39,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+From: Wesley Cheng <wcheng@codeaurora.org>
 
-[ Upstream commit 9b87f43537acfa24b95c236beba0f45901356eb2 ]
+commit cb10f68ad8150f243964b19391711aaac5e8ff42 upstream.
 
-The tqmx86 MFD driver was passing IRQ 0 for "no IRQ" in the past. This
-causes warnings with newer kernels.
+If the device is already in the runtime suspended state, any call to
+the pullup routine will issue a runtime resume on the DWC3 core
+device.  If the USB gadget is disabling the pullup, then avoid having
+to issue a runtime resume, as DWC3 gadget has already been
+halted/stopped.
 
-Prepare the gpio-tqmx86 driver for the fixed MFD driver by handling a
-missing IRQ properly.
+This fixes an issue where the following condition occurs:
 
-Fixes: b868db94a6a7 ("gpio: tqmx86: Add GPIO from for this IO controller")
-Signed-off-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+usb_gadget_remove_driver()
+-->usb_gadget_disconnect()
+ -->dwc3_gadget_pullup(0)
+  -->pm_runtime_get_sync() -> ret = 0
+  -->pm_runtime_put() [async]
+-->usb_gadget_udc_stop()
+ -->dwc3_gadget_stop()
+  -->dwc->gadget_driver = NULL
+...
+
+dwc3_suspend_common()
+-->dwc3_gadget_suspend()
+ -->DWC3 halt/stop routine skipped, driver_data == NULL
+
+This leads to a situation where the DWC3 gadget is not properly
+stopped, as the runtime resume would have re-enabled EP0 and event
+interrupts, and since we avoided the DWC3 gadget suspend, these
+resources were never disabled.
+
+Fixes: 77adb8bdf422 ("usb: dwc3: gadget: Allow runtime suspend if UDC unbinded")
+Cc: stable <stable@vger.kernel.org>
+Acked-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Wesley Cheng <wcheng@codeaurora.org>
+Link: https://lore.kernel.org/r/1628058245-30692-1-git-send-email-wcheng@codeaurora.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpio/gpio-tqmx86.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/usb/dwc3/gadget.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/gpio/gpio-tqmx86.c b/drivers/gpio/gpio-tqmx86.c
-index a3109bcaa0ac..09ca493b3617 100644
---- a/drivers/gpio/gpio-tqmx86.c
-+++ b/drivers/gpio/gpio-tqmx86.c
-@@ -235,8 +235,8 @@ static int tqmx86_gpio_probe(struct platform_device *pdev)
- 	struct resource *res;
- 	int ret, irq;
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -2257,6 +2257,17 @@ static int dwc3_gadget_pullup(struct usb
+ 	}
  
--	irq = platform_get_irq(pdev, 0);
--	if (irq < 0)
-+	irq = platform_get_irq_optional(pdev, 0);
-+	if (irq < 0 && irq != -ENXIO)
- 		return irq;
- 
- 	res = platform_get_resource(pdev, IORESOURCE_IO, 0);
-@@ -275,7 +275,7 @@ static int tqmx86_gpio_probe(struct platform_device *pdev)
- 
- 	pm_runtime_enable(&pdev->dev);
- 
--	if (irq) {
-+	if (irq > 0) {
- 		struct irq_chip *irq_chip = &gpio->irq_chip;
- 		u8 irq_status;
- 
--- 
-2.30.2
-
+ 	/*
++	 * Avoid issuing a runtime resume if the device is already in the
++	 * suspended state during gadget disconnect.  DWC3 gadget was already
++	 * halted/stopped during runtime suspend.
++	 */
++	if (!is_on) {
++		pm_runtime_barrier(dwc->dev);
++		if (pm_runtime_suspended(dwc->dev))
++			return 0;
++	}
++
++	/*
+ 	 * Check the return value for successful resume, or error.  For a
+ 	 * successful resume, the DWC3 runtime PM resume routine will handle
+ 	 * the run stop sequence, so avoid duplicate operations here.
 
 
