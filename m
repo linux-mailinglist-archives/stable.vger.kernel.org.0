@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE0733E8157
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:01:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F43A3E7EDA
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:35:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235250AbhHJR6t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:58:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59202 "EHLO mail.kernel.org"
+        id S233698AbhHJRfk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:35:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42218 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237041AbhHJR4s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:56:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 963006137F;
-        Tue, 10 Aug 2021 17:45:14 +0000 (UTC)
+        id S233075AbhHJRep (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:34:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C8B561008;
+        Tue, 10 Aug 2021 17:34:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617515;
-        bh=2Y3Qp3G5mENTpc2REOidP74dQvh1947DMC9bw/PxA+8=;
+        s=korg; t=1628616863;
+        bh=+Ylqh2w+jUyPQBTknZLn+olVeTM7vnAxXtLfAuFIaNA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tybUmUyaB85XAo3unIMfRFJxZcfQhompnWqniOyViSVTbfRHM2xj71+W4ZcMJkYh1
-         il3koR5J0/Xw1bYi5zw0UdXXA7z2CVIEzbBfCrAKpx2Uz6vvayMZ8tBfn3+ymxlwF/
-         RImSZUkej/EShK4l426XUnvwpq0QrRdWrRcWzj2U=
+        b=j6Oe90+IV4hLGvYhKyiftJnWhXChmKFbUvO5IExWhLILe45BBoLC8Dsxg8hU3Tur/
+         FTtu0CkcONHXwVq0oUxFHCa8LtVRuXV48xYn+pEqAoUfwlN2H8v1DhZhJmYXQ5IU2V
+         Ddy3r3yI1975iMw9V4VTm9+nilfj1dQPmOvcAX0A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
-        Zhang Qilong <zhangqilong3@huawei.com>
-Subject: [PATCH 5.13 091/175] usb: gadget: remove leaked entry from udc driver list
+        stable@vger.kernel.org, Ying Xu <yinxu@redhat.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 26/85] sctp: move the active_key update after sh_keys is added
 Date:   Tue, 10 Aug 2021 19:29:59 +0200
-Message-Id: <20210810173003.945438751@linuxfoundation.org>
+Message-Id: <20210810172949.082960814@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
-References: <20210810173000.928681411@linuxfoundation.org>
+In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
+References: <20210810172948.192298392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,61 +41,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit fa4a8dcfd51b911f101ebc461dfe22230b74dd64 upstream.
+[ Upstream commit ae954bbc451d267f7d60d7b49db811d5a68ebd7b ]
 
-The usb_add_gadget_udc will add a new gadget to the udc class
-driver list. Not calling usb_del_gadget_udc in error branch
-will result in residual gadget entry in the udc driver list.
-We fix it by calling usb_del_gadget_udc to clean it when error
-return.
+In commit 58acd1009226 ("sctp: update active_key for asoc when old key is
+being replaced"), sctp_auth_asoc_init_active_key() is called to update
+the active_key right after the old key is deleted and before the new key
+is added, and it caused that the active_key could be found with the key_id.
 
-Fixes: 48ba02b2e2b1 ("usb: gadget: add udc driver for max3420")
-Acked-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Link: https://lore.kernel.org/r/20210727073142.84666-1-zhangqilong3@huawei.com
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In Ying Xu's testing, the BUG_ON in sctp_auth_asoc_init_active_key() was
+triggered:
+
+  [ ] kernel BUG at net/sctp/auth.c:416!
+  [ ] RIP: 0010:sctp_auth_asoc_init_active_key.part.8+0xe7/0xf0 [sctp]
+  [ ] Call Trace:
+  [ ]  sctp_auth_set_key+0x16d/0x1b0 [sctp]
+  [ ]  sctp_setsockopt.part.33+0x1ba9/0x2bd0 [sctp]
+  [ ]  __sys_setsockopt+0xd6/0x1d0
+  [ ]  __x64_sys_setsockopt+0x20/0x30
+  [ ]  do_syscall_64+0x5b/0x1a0
+
+So fix it by moving the active_key update after sh_keys is added.
+
+Fixes: 58acd1009226 ("sctp: update active_key for asoc when old key is being replaced")
+Reported-by: Ying Xu <yinxu@redhat.com>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/max3420_udc.c |   14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ net/sctp/auth.c | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
---- a/drivers/usb/gadget/udc/max3420_udc.c
-+++ b/drivers/usb/gadget/udc/max3420_udc.c
-@@ -1260,12 +1260,14 @@ static int max3420_probe(struct spi_devi
- 	err = devm_request_irq(&spi->dev, irq, max3420_irq_handler, 0,
- 			       "max3420", udc);
- 	if (err < 0)
--		return err;
-+		goto del_gadget;
+diff --git a/net/sctp/auth.c b/net/sctp/auth.c
+index 7eced1e523a5..3b2d0bd616dd 100644
+--- a/net/sctp/auth.c
++++ b/net/sctp/auth.c
+@@ -863,14 +863,18 @@ int sctp_auth_set_key(struct sctp_endpoint *ep,
+ 	memcpy(key->data, &auth_key->sca_key[0], auth_key->sca_keylength);
+ 	cur_key->key = key;
  
- 	udc->thread_task = kthread_create(max3420_thread, udc,
- 					  "max3420-thread");
--	if (IS_ERR(udc->thread_task))
--		return PTR_ERR(udc->thread_task);
-+	if (IS_ERR(udc->thread_task)) {
-+		err = PTR_ERR(udc->thread_task);
-+		goto del_gadget;
-+	}
- 
- 	irq = of_irq_get_byname(spi->dev.of_node, "vbus");
- 	if (irq <= 0) { /* no vbus irq implies self-powered design */
-@@ -1285,10 +1287,14 @@ static int max3420_probe(struct spi_devi
- 		err = devm_request_irq(&spi->dev, irq,
- 				       max3420_vbus_handler, 0, "vbus", udc);
- 		if (err < 0)
--			return err;
-+			goto del_gadget;
+-	if (replace) {
+-		list_del_init(&shkey->key_list);
+-		sctp_auth_shkey_release(shkey);
+-		if (asoc && asoc->active_key_id == auth_key->sca_keynumber)
+-			sctp_auth_asoc_init_active_key(asoc, GFP_KERNEL);
++	if (!replace) {
++		list_add(&cur_key->key_list, sh_keys);
++		return 0;
  	}
- 
- 	return 0;
 +
-+del_gadget:
-+	usb_del_gadget_udc(&udc->gadget);
-+	return err;
++	list_del_init(&shkey->key_list);
++	sctp_auth_shkey_release(shkey);
+ 	list_add(&cur_key->key_list, sh_keys);
+ 
++	if (asoc && asoc->active_key_id == auth_key->sca_keynumber)
++		sctp_auth_asoc_init_active_key(asoc, GFP_KERNEL);
++
+ 	return 0;
  }
  
- static int max3420_remove(struct spi_device *spi)
+-- 
+2.30.2
+
 
 
