@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 03CA23E7F67
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:41:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 869A33E7F66
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:41:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234327AbhHJRkU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:40:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43990 "EHLO mail.kernel.org"
+        id S234313AbhHJRkT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:40:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234778AbhHJRiQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:38:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 88B646101E;
-        Tue, 10 Aug 2021 17:36:19 +0000 (UTC)
+        id S234793AbhHJRiT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:38:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BE1806108C;
+        Tue, 10 Aug 2021 17:36:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616980;
-        bh=Fz3osT4DG4eGCCCkjBdddW7LB3h7cyjEm7iXc2Pi3d8=;
+        s=korg; t=1628616982;
+        bh=amhtCrGFvdrjbWgQ93G8dOT53+d74mqChd1YIJSqSWM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LF0RcYCytwW5aPnwvnrR54J0bELSDmicvUGM9uzRhaqQJK0HO1Z+0j4SIFHeLkZAm
-         R25v22/yGIpl8JdvogXKXRn+E4pf+g96XihyMEs+TsWmxh+e2G2RY0ApC1jH6VOO0W
-         +TC7sj19j2Zk3LWHkaOIjMFdSNawciakvFE45Mzo=
+        b=1CQGFraX2bbifg63tUUTl9Lc8LSPpuVXuNqWoQK6DpqMPRhNObG+GmEBMCrGT6fOk
+         vrzusWwQqPacmTNE/UBVkGOmoJ9xt86trbZN8hK2V+Kv93b/PzV4EJTzJxZOVNhUi2
+         e2vEd2f8+sBx+qIWIyUw9iOx4chELuWAMWeWg9ZY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Like Xu <likexu@tencent.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Liam Merwick <liam.merwick@oracle.com>,
-        Kim Phillips <kim.phillips@amd.com>
-Subject: [PATCH 5.4 77/85] perf/x86/amd: Dont touch the AMD64_EVENTSEL_HOSTONLY bit inside the guest
-Date:   Tue, 10 Aug 2021 19:30:50 +0200
-Message-Id: <20210810172950.834994078@linuxfoundation.org>
+        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 5.4 78/85] bpf, selftests: Adjust few selftest result_unpriv outcomes
+Date:   Tue, 10 Aug 2021 19:30:51 +0200
+Message-Id: <20210810172950.866385030@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
 References: <20210810172948.192298392@linuxfoundation.org>
@@ -41,47 +40,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Like Xu <likexu@tencent.com>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-commit df51fe7ea1c1c2c3bfdb81279712fdd2e4ea6c27 upstream.
+commit 1bad6fd52be4ce12d207e2820ceb0f29ab31fc53 upstream.
 
-If we use "perf record" in an AMD Milan guest, dmesg reports a #GP
-warning from an unchecked MSR access error on MSR_F15H_PERF_CTLx:
+Given we don't need to simulate the speculative domain for registers with
+immediates anymore since the verifier uses direct imm-based rewrites instead
+of having to mask, we can also lift a few cases that were previously rejected.
 
-  [] unchecked MSR access error: WRMSR to 0xc0010200 (tried to write 0x0000020000110076) at rIP: 0xffffffff8106ddb4 (native_write_msr+0x4/0x20)
-  [] Call Trace:
-  []  amd_pmu_disable_event+0x22/0x90
-  []  x86_pmu_stop+0x4c/0xa0
-  []  x86_pmu_del+0x3a/0x140
-
-The AMD64_EVENTSEL_HOSTONLY bit is defined and used on the host,
-while the guest perf driver should avoid such use.
-
-Fixes: 1018faa6cf23 ("perf/x86/kvm: Fix Host-Only/Guest-Only counting with SVM disabled")
-Signed-off-by: Like Xu <likexu@tencent.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Liam Merwick <liam.merwick@oracle.com>
-Tested-by: Kim Phillips <kim.phillips@amd.com>
-Tested-by: Liam Merwick <liam.merwick@oracle.com>
-Link: https://lkml.kernel.org/r/20210802070850.35295-1-likexu@tencent.com
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Alexei Starovoitov <ast@kernel.org>
+[OP: backport to 5.4, small context adjustment in stack_ptr.c]
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/x86/events/perf_event.h |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/x86/events/perf_event.h
-+++ b/arch/x86/events/perf_event.h
-@@ -852,9 +852,10 @@ void x86_pmu_stop(struct perf_event *eve
- 
- static inline void x86_pmu_disable_event(struct perf_event *event)
+---
+ tools/testing/selftests/bpf/verifier/stack_ptr.c       |    2 --
+ tools/testing/selftests/bpf/verifier/value_ptr_arith.c |    8 --------
+ 2 files changed, 10 deletions(-)
+
+--- a/tools/testing/selftests/bpf/verifier/stack_ptr.c
++++ b/tools/testing/selftests/bpf/verifier/stack_ptr.c
+@@ -291,8 +291,6 @@
+ 	BPF_LDX_MEM(BPF_B, BPF_REG_0, BPF_REG_1, 0),
+ 	BPF_EXIT_INSN(),
+ 	},
+-	.result_unpriv = REJECT,
+-	.errstr_unpriv = "invalid stack off=0 size=1",
+ 	.result = ACCEPT,
+ 	.retval = 42,
+ },
+--- a/tools/testing/selftests/bpf/verifier/value_ptr_arith.c
++++ b/tools/testing/selftests/bpf/verifier/value_ptr_arith.c
+@@ -301,8 +301,6 @@
+ 	},
+ 	.fixup_map_array_48b = { 3 },
+ 	.result = ACCEPT,
+-	.result_unpriv = REJECT,
+-	.errstr_unpriv = "R0 pointer arithmetic of map value goes out of range",
+ 	.retval = 1,
+ },
  {
-+	u64 disable_mask = __this_cpu_read(cpu_hw_events.perf_ctr_virt_mask);
- 	struct hw_perf_event *hwc = &event->hw;
- 
--	wrmsrl(hwc->config_base, hwc->config);
-+	wrmsrl(hwc->config_base, hwc->config & ~disable_mask);
- }
- 
- void x86_pmu_enable_event(struct perf_event *event);
+@@ -372,8 +370,6 @@
+ 	},
+ 	.fixup_map_array_48b = { 3 },
+ 	.result = ACCEPT,
+-	.result_unpriv = REJECT,
+-	.errstr_unpriv = "R0 pointer arithmetic of map value goes out of range",
+ 	.retval = 1,
+ },
+ {
+@@ -473,8 +469,6 @@
+ 	},
+ 	.fixup_map_array_48b = { 3 },
+ 	.result = ACCEPT,
+-	.result_unpriv = REJECT,
+-	.errstr_unpriv = "R0 pointer arithmetic of map value goes out of range",
+ 	.retval = 1,
+ },
+ {
+@@ -767,8 +761,6 @@
+ 	},
+ 	.fixup_map_array_48b = { 3 },
+ 	.result = ACCEPT,
+-	.result_unpriv = REJECT,
+-	.errstr_unpriv = "R0 pointer arithmetic of map value goes out of range",
+ 	.retval = 1,
+ },
+ {
 
 
