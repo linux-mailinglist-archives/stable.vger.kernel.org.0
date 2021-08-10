@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E52B73E81BA
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:02:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B4BB3E81BD
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:02:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236987AbhHJSBv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 14:01:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34364 "EHLO mail.kernel.org"
+        id S235857AbhHJSBx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 14:01:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238632AbhHJR7t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:59:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AA05D61163;
-        Tue, 10 Aug 2021 17:46:33 +0000 (UTC)
+        id S238669AbhHJR7v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:59:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DD4316112D;
+        Tue, 10 Aug 2021 17:46:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617594;
-        bh=wgnheUtTqVXkI+dOwvW0SDDy8BvYTcks6rBRxanHGTI=;
+        s=korg; t=1628617596;
+        bh=CStUyNp+qm5s8GGhGw22zcDDyNT/riOMp3pldqrNyxI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lrz5snba5a2CXKXjKr3u73g5FPB/BPbNNnDOn7TeHR9kWmC7BQntfsdZLRw9+sJ9d
-         TJMIOkXaOwao6nqkW58nXs+qlfZ8XF5oaipm10uzY+Sxwj4VMH9NBz0eeqxvxsv3QD
-         OJLse2bRAzePQS0G/5l4XWWMmpA4s7dKaDdynv5I=
+        b=XDBVUaZpYiBDlklMDJucjPyS34e+kIvBKy6Sj+PCqsuHLGPFD0PLg2HksVi69jP4g
+         Kl9INqefRtcvUQZDnJ/GIN9z361oAJakZtMXbbaQaLFEnrvBNgwBXaTIrCQfJbc3Za
+         Amh9B0esEfSGJbG6Wa/drvwa5LCwGAqB7hpA+t/Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <f4bug@amsat.org>,
-        "Maciej W. Rozycki" <macro@orcam.me.uk>
-Subject: [PATCH 5.13 126/175] serial: 8250: Mask out floating 16/32-bit bus bits
-Date:   Tue, 10 Aug 2021 19:30:34 +0200
-Message-Id: <20210810173005.104054267@linuxfoundation.org>
+        stable@vger.kernel.org, Joel Stanley <joel@jms.id.au>,
+        Andrew Jeffery <andrew@aj.id.au>,
+        kernel test robot <oliver.sang@intel.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.13 127/175] serial: 8250: fix handle_irq locking
+Date:   Tue, 10 Aug 2021 19:30:35 +0200
+Message-Id: <20210810173005.136988577@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
 References: <20210810173000.928681411@linuxfoundation.org>
@@ -40,101 +41,150 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej W. Rozycki <macro@orcam.me.uk>
+From: Johan Hovold <johan@kernel.org>
 
-commit e5227c51090e165db4b48dcaa300605bfced7014 upstream.
+commit 853a9ae29e978d37f5dfa72622a68c9ae3d7fa89 upstream.
 
-Make sure only actual 8 bits of the IIR register are used in determining
-the port type in `autoconfig'.
+The 8250 handle_irq callback is not just called from the interrupt
+handler but also from a timer callback when polling (e.g. for ports
+without an interrupt line). Consequently the callback must explicitly
+disable interrupts to avoid a potential deadlock with another interrupt
+in polled mode.
 
-The `serial_in' port accessor returns the `unsigned int' type, meaning
-that with UPIO_AU, UPIO_MEM16, UPIO_MEM32, and UPIO_MEM32BE access types
-more than 8 bits of data are returned, of which the high order bits will
-often come from bus lines that are left floating in the data phase.  For
-example with the MIPS Malta board's CBUS UART, where the registers are
-aligned on 8-byte boundaries and which uses 32-bit accesses, data as
-follows is returned:
+Add back an irqrestore-version of the sysrq port-unlock helper and use
+it in the 8250 callbacks that need it.
 
-YAMON> dump -32 0xbf000900 0x40
-
-BF000900: 1F000942 1F000942 1F000900 1F000900  ...B...B........
-BF000910: 1F000901 1F000901 1F000900 1F000900  ................
-BF000920: 1F000900 1F000900 1F000960 1F000960  ...........`...`
-BF000930: 1F000900 1F000900 1F0009FF 1F0009FF  ................
-
-YAMON>
-
-Evidently high-order 24 bits return values previously driven in the
-address phase (the 3 highest order address bits used with the command
-above are masked out in the simple virtual address mapping used here and
-come out at zeros on the external bus), a common scenario with bus lines
-left floating, due to bus capacitance.
-
-Consequently when the value of IIR, mapped at 0x1f000910, is retrieved
-in `autoconfig', it comes out at 0x1f0009c1 and when it is right-shifted
-by 6 and then assigned to 8-bit `scratch' variable, the value calculated
-is 0x27, not one of 0, 1, 2, 3 expected in port type determination.
-
-Fix the issue then, by assigning the value returned from `serial_in' to
-`scratch' first, which masks out 24 high-order bits retrieved, and only
-then right-shift the resulting 8-bit data quantity, producing the value
-of 3 in this case, as expected.  Fix the same issue in `serial_dl_read'.
-
-The problem first appeared with Linux 2.6.9-rc3 which predates our repo
-history, but the origin could be identified with the old MIPS/Linux repo
-also at: <git://git.kernel.org/pub/scm/linux/kernel/git/ralf/linux.git>
-as commit e0d2356c0777 ("Merge with Linux 2.6.9-rc3."), where code in
-`serial_in' was updated with this case:
-
-+	case UPIO_MEM32:
-+		return readl(up->port.membase + offset);
-+
-
-which made it produce results outside the unsigned 8-bit range for the
-first time, though obviously it is system dependent what actual values
-appear in the high order bits retrieved and it may well have been zeros
-in the relevant positions with the system the change originally was
-intended for.  It is at that point that code in `autoconf' should have
-been updated accordingly, but clearly it was overlooked.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: stable@vger.kernel.org # v2.6.12+
-Reviewed-by: Philippe Mathieu-Daudé <f4bug@amsat.org>
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Link: https://lore.kernel.org/r/alpine.DEB.2.21.2106260516220.37803@angie.orcam.me.uk
+Fixes: 75f4e830fa9c ("serial: do not restore interrupt state in sysrq helper")
+Cc: stable@vger.kernel.org	# 5.13
+Cc: Joel Stanley <joel@jms.id.au>
+Cc: Andrew Jeffery <andrew@aj.id.au>
+Reported-by: kernel test robot <oliver.sang@intel.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20210714080427.28164-1-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/8250/8250_port.c |   12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/tty/serial/8250/8250_aspeed_vuart.c |    5 +++--
+ drivers/tty/serial/8250/8250_fsl.c          |    5 +++--
+ drivers/tty/serial/8250/8250_port.c         |    5 +++--
+ include/linux/serial_core.h                 |   24 ++++++++++++++++++++++++
+ 4 files changed, 33 insertions(+), 6 deletions(-)
 
+--- a/drivers/tty/serial/8250/8250_aspeed_vuart.c
++++ b/drivers/tty/serial/8250/8250_aspeed_vuart.c
+@@ -320,6 +320,7 @@ static int aspeed_vuart_handle_irq(struc
+ {
+ 	struct uart_8250_port *up = up_to_u8250p(port);
+ 	unsigned int iir, lsr;
++	unsigned long flags;
+ 	int space, count;
+ 
+ 	iir = serial_port_in(port, UART_IIR);
+@@ -327,7 +328,7 @@ static int aspeed_vuart_handle_irq(struc
+ 	if (iir & UART_IIR_NO_INT)
+ 		return 0;
+ 
+-	spin_lock(&port->lock);
++	spin_lock_irqsave(&port->lock, flags);
+ 
+ 	lsr = serial_port_in(port, UART_LSR);
+ 
+@@ -363,7 +364,7 @@ static int aspeed_vuart_handle_irq(struc
+ 	if (lsr & UART_LSR_THRE)
+ 		serial8250_tx_chars(up);
+ 
+-	uart_unlock_and_check_sysrq(port);
++	uart_unlock_and_check_sysrq_irqrestore(port, flags);
+ 
+ 	return 1;
+ }
+--- a/drivers/tty/serial/8250/8250_fsl.c
++++ b/drivers/tty/serial/8250/8250_fsl.c
+@@ -30,10 +30,11 @@ struct fsl8250_data {
+ int fsl8250_handle_irq(struct uart_port *port)
+ {
+ 	unsigned char lsr, orig_lsr;
++	unsigned long flags;
+ 	unsigned int iir;
+ 	struct uart_8250_port *up = up_to_u8250p(port);
+ 
+-	spin_lock(&up->port.lock);
++	spin_lock_irqsave(&up->port.lock, flags);
+ 
+ 	iir = port->serial_in(port, UART_IIR);
+ 	if (iir & UART_IIR_NO_INT) {
+@@ -82,7 +83,7 @@ int fsl8250_handle_irq(struct uart_port
+ 
+ 	up->lsr_saved_flags = orig_lsr;
+ 
+-	uart_unlock_and_check_sysrq(&up->port);
++	uart_unlock_and_check_sysrq_irqrestore(&up->port, flags);
+ 
+ 	return 1;
+ }
 --- a/drivers/tty/serial/8250/8250_port.c
 +++ b/drivers/tty/serial/8250/8250_port.c
-@@ -311,7 +311,11 @@ static const struct serial8250_config ua
- /* Uart divisor latch read */
- static int default_serial_dl_read(struct uart_8250_port *up)
- {
--	return serial_in(up, UART_DLL) | serial_in(up, UART_DLM) << 8;
-+	/* Assign these in pieces to truncate any bits above 7.  */
-+	unsigned char dll = serial_in(up, UART_DLL);
-+	unsigned char dlm = serial_in(up, UART_DLM);
-+
-+	return dll | dlm << 8;
+@@ -1899,11 +1899,12 @@ int serial8250_handle_irq(struct uart_po
+ 	unsigned char status;
+ 	struct uart_8250_port *up = up_to_u8250p(port);
+ 	bool skip_rx = false;
++	unsigned long flags;
+ 
+ 	if (iir & UART_IIR_NO_INT)
+ 		return 0;
+ 
+-	spin_lock(&port->lock);
++	spin_lock_irqsave(&port->lock, flags);
+ 
+ 	status = serial_port_in(port, UART_LSR);
+ 
+@@ -1929,7 +1930,7 @@ int serial8250_handle_irq(struct uart_po
+ 		(up->ier & UART_IER_THRI))
+ 		serial8250_tx_chars(up);
+ 
+-	uart_unlock_and_check_sysrq(port);
++	uart_unlock_and_check_sysrq_irqrestore(port, flags);
+ 
+ 	return 1;
  }
- 
- /* Uart divisor latch write */
-@@ -1297,9 +1301,11 @@ static void autoconfig(struct uart_8250_
- 	serial_out(up, UART_LCR, 0);
- 
- 	serial_out(up, UART_FCR, UART_FCR_ENABLE_FIFO);
--	scratch = serial_in(up, UART_IIR) >> 6;
- 
--	switch (scratch) {
-+	/* Assign this as it is to truncate any bits above 7.  */
-+	scratch = serial_in(up, UART_IIR);
+--- a/include/linux/serial_core.h
++++ b/include/linux/serial_core.h
+@@ -517,6 +517,25 @@ static inline void uart_unlock_and_check
+ 	if (sysrq_ch)
+ 		handle_sysrq(sysrq_ch);
+ }
 +
-+	switch (scratch >> 6) {
- 	case 0:
- 		autoconfig_8250(up);
- 		break;
++static inline void uart_unlock_and_check_sysrq_irqrestore(struct uart_port *port,
++		unsigned long flags)
++{
++	int sysrq_ch;
++
++	if (!port->has_sysrq) {
++		spin_unlock_irqrestore(&port->lock, flags);
++		return;
++	}
++
++	sysrq_ch = port->sysrq_ch;
++	port->sysrq_ch = 0;
++
++	spin_unlock_irqrestore(&port->lock, flags);
++
++	if (sysrq_ch)
++		handle_sysrq(sysrq_ch);
++}
+ #else	/* CONFIG_MAGIC_SYSRQ_SERIAL */
+ static inline int uart_handle_sysrq_char(struct uart_port *port, unsigned int ch)
+ {
+@@ -530,6 +549,11 @@ static inline void uart_unlock_and_check
+ {
+ 	spin_unlock(&port->lock);
+ }
++static inline void uart_unlock_and_check_sysrq_irqrestore(struct uart_port *port,
++		unsigned long flags)
++{
++	spin_unlock_irqrestore(&port->lock, flags);
++}
+ #endif	/* CONFIG_MAGIC_SYSRQ_SERIAL */
+ 
+ /*
 
 
