@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 306D83E81C6
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:02:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46EEF3E81D0
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:05:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231678AbhHJSCJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 14:02:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33478 "EHLO mail.kernel.org"
+        id S234327AbhHJSCk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 14:02:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59580 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235088AbhHJSAF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 14:00:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C39656139E;
-        Tue, 10 Aug 2021 17:46:49 +0000 (UTC)
+        id S237455AbhHJSAk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 14:00:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0DBCA61164;
+        Tue, 10 Aug 2021 17:46:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617610;
-        bh=aHOct+bx6Cjbr8OP3I/zD54Bd2a8hWbeDkTTOfi7ePI=;
+        s=korg; t=1628617612;
+        bh=CKykmzahHhMXt9m0NrdblO10om6+KNmQ7qwbpRTb4xQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YjLjPQ41qTFRPgmq7QIT+MpJjsbDKq8pR6F+nkSnpD3Y9E7g1NSntMqkpWtE50zP2
-         LfaBQBrfLFHHtEnabuYmw0iY8nWMk2p8C1PcugVoGjkJge0A8QkbLMjkGrAbk1iu1y
-         oJpSwzu8wMcQF+EkYVopeffgkj89KoIk8+qiY7P8=
+        b=Vud8WtrTsAc2HJvZMIBg0dQbBtYleReDs2COvG94Sz/N7sQyQUGQUHQ+T98AVPZ6m
+         IyJ0prjnvQD33JZNy8gonSsZ/aBUFe+bD92p7r4bnWu20NiSGScvjhevPrP9o9sYCf
+         AcaV0VvAK3+qO0OXz+Ii2G6dkJUFGtmXVcYND56Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dong Aisheng <aisheng.dong@nxp.com>,
-        Brian Norris <briannorris@chromium.org>,
-        Stephen Boyd <sboyd@kernel.org>
-Subject: [PATCH 5.13 100/175] clk: fix leak on devm_clk_bulk_get_all() unwind
-Date:   Tue, 10 Aug 2021 19:30:08 +0200
-Message-Id: <20210810173004.254251560@linuxfoundation.org>
+        stable@vger.kernel.org, Hui Su <suhui@zeku.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.13 101/175] scripts/tracing: fix the bug that cant parse raw_trace_func
+Date:   Tue, 10 Aug 2021 19:30:09 +0200
+Message-Id: <20210810173004.290613343@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
 References: <20210810173000.928681411@linuxfoundation.org>
@@ -40,73 +39,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+From: Hui Su <suhui@zeku.com>
 
-commit f828b0bcacef189edbd247e9f48864fc36bfbe33 upstream.
+commit 1c0cec64a7cc545eb49f374a43e9f7190a14defa upstream.
 
-clk_bulk_get_all() allocates an array of struct clk_bulk data for us
-(unlike clk_bulk_get()), so we need to free it. Let's use the
-clk_bulk_put_all() helper.
+Since commit 77271ce4b2c0 ("tracing: Add irq, preempt-count and need resched info
+to default trace output"), the default trace output format has been changed to:
+          <idle>-0       [009] d.h. 22420.068695: _raw_spin_lock_irqsave <-hrtimer_interrupt
+          <idle>-0       [000] ..s. 22420.068695: _nohz_idle_balance <-run_rebalance_domains
+          <idle>-0       [011] d.h. 22420.068695: account_process_tick <-update_process_times
 
-kmemleak complains, on an RK3399 Gru/Kevin system:
+origin trace output format:(before v3.2.0)
+     # tracer: nop
+     #
+     #           TASK-PID    CPU#    TIMESTAMP  FUNCTION
+     #              | |       |          |         |
+          migration/0-6     [000]    50.025810: rcu_note_context_switch <-__schedule
+          migration/0-6     [000]    50.025812: trace_rcu_utilization <-rcu_note_context_switch
+          migration/0-6     [000]    50.025813: rcu_sched_qs <-rcu_note_context_switch
+          migration/0-6     [000]    50.025815: rcu_preempt_qs <-rcu_note_context_switch
+          migration/0-6     [000]    50.025817: trace_rcu_utilization <-rcu_note_context_switch
+          migration/0-6     [000]    50.025818: debug_lockdep_rcu_enabled <-__schedule
+          migration/0-6     [000]    50.025820: debug_lockdep_rcu_enabled <-__schedule
 
-unreferenced object 0xffffff80045def00 (size 128):
-  comm "swapper/0", pid 1, jiffies 4294667682 (age 86.394s)
-  hex dump (first 32 bytes):
-    44 32 60 fe fe ff ff ff 00 00 00 00 00 00 00 00  D2`.............
-    48 32 60 fe fe ff ff ff 00 00 00 00 00 00 00 00  H2`.............
-  backtrace:
-    [<00000000742860d6>] __kmalloc+0x22c/0x39c
-    [<00000000b0493f2c>] clk_bulk_get_all+0x64/0x188
-    [<00000000325f5900>] devm_clk_bulk_get_all+0x58/0xa8
-    [<00000000175b9bc5>] dwc3_probe+0x8ac/0xb5c
-    [<000000009169e2f9>] platform_drv_probe+0x9c/0xbc
-    [<000000005c51e2ee>] really_probe+0x13c/0x378
-    [<00000000c47b1f24>] driver_probe_device+0x84/0xc0
-    [<00000000f870fcfb>] __device_attach_driver+0x94/0xb0
-    [<000000004d1b92ae>] bus_for_each_drv+0x8c/0xd8
-    [<00000000481d60c3>] __device_attach+0xc4/0x150
-    [<00000000a163bd36>] device_initial_probe+0x1c/0x28
-    [<00000000accb6bad>] bus_probe_device+0x3c/0x9c
-    [<000000001a199f89>] device_add+0x218/0x3cc
-    [<000000001bd84952>] of_device_add+0x40/0x50
-    [<000000009c658c29>] of_platform_device_create_pdata+0xac/0x100
-    [<0000000021c69ba4>] of_platform_bus_create+0x190/0x224
+The draw_functrace.py(introduced in v2.6.28) can't parse the new version format trace_func,
+So we need modify draw_functrace.py to adapt the new version trace output format.
 
-Fixes: f08c2e2865f6 ("clk: add managed version of clk_bulk_get_all")
-Cc: Dong Aisheng <aisheng.dong@nxp.com>
+Link: https://lkml.kernel.org/r/20210611022107.608787-1-suhui@zeku.com
+
 Cc: stable@vger.kernel.org
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Link: https://lore.kernel.org/r/20210731025950.2238582-1-briannorris@chromium.org
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: 77271ce4b2c0 tracing: Add irq, preempt-count and need resched info to default trace output
+Signed-off-by: Hui Su <suhui@zeku.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clk/clk-devres.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ scripts/tracing/draw_functrace.py |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/clk/clk-devres.c
-+++ b/drivers/clk/clk-devres.c
-@@ -92,13 +92,20 @@ int __must_check devm_clk_bulk_get_optio
- }
- EXPORT_SYMBOL_GPL(devm_clk_bulk_get_optional);
+--- a/scripts/tracing/draw_functrace.py
++++ b/scripts/tracing/draw_functrace.py
+@@ -17,7 +17,7 @@ Usage:
+ 	$ cat /sys/kernel/debug/tracing/trace_pipe > ~/raw_trace_func
+ 	Wait some times but not too much, the script is a bit slow.
+ 	Break the pipe (Ctrl + Z)
+-	$ scripts/draw_functrace.py < raw_trace_func > draw_functrace
++	$ scripts/tracing/draw_functrace.py < ~/raw_trace_func > draw_functrace
+ 	Then you have your drawn trace in draw_functrace
+ """
  
-+static void devm_clk_bulk_release_all(struct device *dev, void *res)
-+{
-+	struct clk_bulk_devres *devres = res;
-+
-+	clk_bulk_put_all(devres->num_clks, devres->clks);
-+}
-+
- int __must_check devm_clk_bulk_get_all(struct device *dev,
- 				       struct clk_bulk_data **clks)
- {
- 	struct clk_bulk_devres *devres;
- 	int ret;
+@@ -103,10 +103,10 @@ def parseLine(line):
+ 	line = line.strip()
+ 	if line.startswith("#"):
+ 		raise CommentLineException
+-	m = re.match("[^]]+?\\] +([0-9.]+): (\\w+) <-(\\w+)", line)
++	m = re.match("[^]]+?\\] +([a-z.]+) +([0-9.]+): (\\w+) <-(\\w+)", line)
+ 	if m is None:
+ 		raise BrokenLineException
+-	return (m.group(1), m.group(2), m.group(3))
++	return (m.group(2), m.group(3), m.group(4))
  
--	devres = devres_alloc(devm_clk_bulk_release,
-+	devres = devres_alloc(devm_clk_bulk_release_all,
- 			      sizeof(*devres), GFP_KERNEL);
- 	if (!devres)
- 		return -ENOMEM;
+ 
+ def main():
 
 
