@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BDA23E7FD9
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:45:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79CAA3E8140
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:57:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235687AbhHJRnl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:43:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41108 "EHLO mail.kernel.org"
+        id S236399AbhHJR5C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:57:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234913AbhHJRlm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:41:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DD37061212;
-        Tue, 10 Aug 2021 17:38:27 +0000 (UTC)
+        id S237747AbhHJRyy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:54:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 86FD360F11;
+        Tue, 10 Aug 2021 17:44:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617108;
-        bh=mtHvomnz+GOQ0h9ygikC2fB+8jfm/bjDlMaEj3vsUxQ=;
+        s=korg; t=1628617476;
+        bh=W8NlvFR/LFRA+J81U64OIbg5JgaHepadmXcuitAwP1c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=haagob9z+kTqrstREMyM1KAOfQ+tcw7yCBSN6GS/FRa3tSp+bQ3RkfraOA3BoLrDQ
-         TJfMpjXLK8yJlUIBkzPRAu+GUZ7i6nfgC14Nj07M/Y+iMMxBdbSv41gaOAsJWVX6Y0
-         qtckmbptYYVqNBD93jAkxkfZu2EJoUA5m3SckRvk=
+        b=Y/aRkgFR5lzGP/L56OGs6KxHCFZcokvGZIWTKMXg9cf8SRJ0vzelJlXHK2yL6QRkj
+         TamVLpFnrbwQ6WcD9FP5k6RtZl6tudq7Wpod0zGpu87zR/nuBiRebFrhrY9qRed761
+         NJhgW7oaoBtp+L9Aej+D7aJGmm99ZthQiPpyc3AY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Pavel Skripkin <paskripkin@gmail.com>,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 049/135] net: vxge: fix use-after-free in vxge_device_unregister
-Date:   Tue, 10 Aug 2021 19:29:43 +0200
-Message-Id: <20210810172957.355515739@linuxfoundation.org>
+        stable@vger.kernel.org, David Bauer <mail@david-bauer.net>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.13 076/175] USB: serial: ftdi_sio: add device ID for Auto-M3 OP-COM v2
+Date:   Tue, 10 Aug 2021 19:29:44 +0200
+Message-Id: <20210810173003.437413674@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
-References: <20210810172955.660225700@linuxfoundation.org>
+In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
+References: <20210810173000.928681411@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,53 +39,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: David Bauer <mail@david-bauer.net>
 
-[ Upstream commit 942e560a3d3862dd5dee1411dbdd7097d29b8416 ]
+commit 8da0e55c7988ef9f08a708c38e5c75ecd8862cf8 upstream.
 
-Smatch says:
-drivers/net/ethernet/neterion/vxge/vxge-main.c:3518 vxge_device_unregister() error: Using vdev after free_{netdev,candev}(dev);
-drivers/net/ethernet/neterion/vxge/vxge-main.c:3518 vxge_device_unregister() error: Using vdev after free_{netdev,candev}(dev);
-drivers/net/ethernet/neterion/vxge/vxge-main.c:3520 vxge_device_unregister() error: Using vdev after free_{netdev,candev}(dev);
-drivers/net/ethernet/neterion/vxge/vxge-main.c:3520 vxge_device_unregister() error: Using vdev after free_{netdev,candev}(dev);
+The Auto-M3 OP-COM v2 is a OBD diagnostic device using a FTD232 for the
+USB connection.
 
-Since vdev pointer is netdev private data accessing it after free_netdev()
-call can cause use-after-free bug. Fix it by moving free_netdev() call at
-the end of the function
-
-Fixes: 6cca200362b4 ("vxge: cleanup probe error paths")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Reviewed-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: David Bauer <mail@david-bauer.net>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/neterion/vxge/vxge-main.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/usb/serial/ftdi_sio.c     |    1 +
+ drivers/usb/serial/ftdi_sio_ids.h |    3 +++
+ 2 files changed, 4 insertions(+)
 
-diff --git a/drivers/net/ethernet/neterion/vxge/vxge-main.c b/drivers/net/ethernet/neterion/vxge/vxge-main.c
-index 87892bd992b1..56556373548c 100644
---- a/drivers/net/ethernet/neterion/vxge/vxge-main.c
-+++ b/drivers/net/ethernet/neterion/vxge/vxge-main.c
-@@ -3527,13 +3527,13 @@ static void vxge_device_unregister(struct __vxge_hw_device *hldev)
+--- a/drivers/usb/serial/ftdi_sio.c
++++ b/drivers/usb/serial/ftdi_sio.c
+@@ -219,6 +219,7 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(FTDI_VID, FTDI_MTXORB_6_PID) },
+ 	{ USB_DEVICE(FTDI_VID, FTDI_R2000KU_TRUE_RNG) },
+ 	{ USB_DEVICE(FTDI_VID, FTDI_VARDAAN_PID) },
++	{ USB_DEVICE(FTDI_VID, FTDI_AUTO_M3_OP_COM_V2_PID) },
+ 	{ USB_DEVICE(MTXORB_VID, MTXORB_FTDI_RANGE_0100_PID) },
+ 	{ USB_DEVICE(MTXORB_VID, MTXORB_FTDI_RANGE_0101_PID) },
+ 	{ USB_DEVICE(MTXORB_VID, MTXORB_FTDI_RANGE_0102_PID) },
+--- a/drivers/usb/serial/ftdi_sio_ids.h
++++ b/drivers/usb/serial/ftdi_sio_ids.h
+@@ -159,6 +159,9 @@
+ /* Vardaan Enterprises Serial Interface VEUSB422R3 */
+ #define FTDI_VARDAAN_PID	0xF070
  
- 	kfree(vdev->vpaths);
- 
--	/* we are safe to free it now */
--	free_netdev(dev);
--
- 	vxge_debug_init(vdev->level_trace, "%s: ethernet device unregistered",
- 			buf);
- 	vxge_debug_entryexit(vdev->level_trace,	"%s: %s:%d  Exiting...", buf,
- 			     __func__, __LINE__);
++/* Auto-M3 Ltd. - OP-COM USB V2 - OBD interface Adapter */
++#define FTDI_AUTO_M3_OP_COM_V2_PID	0x4f50
 +
-+	/* we are safe to free it now */
-+	free_netdev(dev);
- }
- 
  /*
--- 
-2.30.2
-
+  * Xsens Technologies BV products (http://www.xsens.com).
+  */
 
 
