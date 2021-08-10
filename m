@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 604003E7F48
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:41:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 395D43E7E90
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:34:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232986AbhHJRjq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:39:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43106 "EHLO mail.kernel.org"
+        id S232676AbhHJReP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:34:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36686 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234575AbhHJRhf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:37:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5DE1960EB7;
-        Tue, 10 Aug 2021 17:36:08 +0000 (UTC)
+        id S231381AbhHJRdi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:33:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 59564610CC;
+        Tue, 10 Aug 2021 17:33:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616968;
-        bh=CE2HSJAhxe9F9zLSwY4mLcM/5mXdezj7JwQPOkyD4qo=;
+        s=korg; t=1628616795;
+        bh=hVRjeIKeqGzKqDwszUGsi+lUR5UdWKTKaBB8H9mmTzY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yFoiHVimpqo4DEdh7BHR/MmJZTkKdU5iqQKegMFspKG1UcQlzl64MJHcvAYeqrUIy
-         aII87EygSofWmdueEHstBshaWZhlKz0irx9rHFFwS3rlo6Y2AiwVM24SA4YjKYl0Df
-         SGVuX5RVLif8vh9lvMMmnbeyl6aE64oL+sPsPU/8=
+        b=wuvibdVVIEEtZO7NEv6BYa7yqgHn68jnSs4Vd5u11cY0hS/G3QRiAMuDXOrqJNNWX
+         0Szat1paaBSMayovGluhBfc4AoPrAA+vybGw9jtaA2zVkX3Wolt007B9h/uDBACCB/
+         IPU3UQ3uEx16tfbM7r2NPA1lW+6325DJmOwWh5ls=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Gardon <bgardon@google.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Jim Mattson <jmattson@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.4 72/85] KVM: x86/mmu: Fix per-cpu counter corruption on 32-bit builds
+        stable@vger.kernel.org,
+        syzbot+c31a48e6702ccb3d64c9@syzkaller.appspotmail.com,
+        Shreyansh Chouhan <chouhan.shreyansh630@gmail.com>,
+        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 51/54] reiserfs: check directory items on read from disk
 Date:   Tue, 10 Aug 2021 19:30:45 +0200
-Message-Id: <20210810172950.671212190@linuxfoundation.org>
+Message-Id: <20210810172945.892055610@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
-References: <20210810172948.192298392@linuxfoundation.org>
+In-Reply-To: <20210810172944.179901509@linuxfoundation.org>
+References: <20210810172944.179901509@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,54 +41,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Shreyansh Chouhan <chouhan.shreyansh630@gmail.com>
 
-commit d5aaad6f83420efb8357ac8e11c868708b22d0a9 upstream.
+[ Upstream commit 13d257503c0930010ef9eed78b689cec417ab741 ]
 
-Take a signed 'long' instead of an 'unsigned long' for the number of
-pages to add/subtract to the total number of pages used by the MMU.  This
-fixes a zero-extension bug on 32-bit kernels that effectively corrupts
-the per-cpu counter used by the shrinker.
+While verifying the leaf item that we read from the disk, reiserfs
+doesn't check the directory items, this could cause a crash when we
+read a directory item from the disk that has an invalid deh_location.
 
-Per-cpu counters take a signed 64-bit value on both 32-bit and 64-bit
-kernels, whereas kvm_mod_used_mmu_pages() takes an unsigned long and thus
-an unsigned 32-bit value on 32-bit kernels.  As a result, the value used
-to adjust the per-cpu counter is zero-extended (unsigned -> signed), not
-sign-extended (signed -> signed), and so KVM's intended -1 gets morphed to
-4294967295 and effectively corrupts the counter.
+This patch adds a check to the directory items read from the disk that
+does a bounds check on deh_location for the directory entries. Any
+directory entry header with a directory entry offset greater than the
+item length is considered invalid.
 
-This was found by a staggering amount of sheer dumb luck when running
-kvm-unit-tests on a 32-bit KVM build.  The shrinker just happened to kick
-in while running tests and do_shrink_slab() logged an error about trying
-to free a negative number of objects.  The truly lucky part is that the
-kernel just happened to be a slightly stale build, as the shrinker no
-longer yells about negative objects as of commit 18bb473e5031 ("mm:
-vmscan: shrink deferred objects proportional to priority").
-
- vmscan: shrink_slab: mmu_shrink_scan+0x0/0x210 [kvm] negative objects to delete nr=-858993460
-
-Fixes: bc8a3d8925a8 ("kvm: mmu: Fix overflow on kvm mmu page limit calculation")
-Cc: stable@vger.kernel.org
-Cc: Ben Gardon <bgardon@google.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210804214609.1096003-1-seanjc@google.com>
-Reviewed-by: Jim Mattson <jmattson@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20210709152929.766363-1-chouhan.shreyansh630@gmail.com
+Reported-by: syzbot+c31a48e6702ccb3d64c9@syzkaller.appspotmail.com
+Signed-off-by: Shreyansh Chouhan <chouhan.shreyansh630@gmail.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/mmu.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/reiserfs/stree.c | 31 ++++++++++++++++++++++++++-----
+ 1 file changed, 26 insertions(+), 5 deletions(-)
 
---- a/arch/x86/kvm/mmu.c
-+++ b/arch/x86/kvm/mmu.c
-@@ -2143,7 +2143,7 @@ static int is_empty_shadow_page(u64 *spt
-  * aggregate version in order to make the slab shrinker
-  * faster
-  */
--static inline void kvm_mod_used_mmu_pages(struct kvm *kvm, unsigned long nr)
-+static inline void kvm_mod_used_mmu_pages(struct kvm *kvm, long nr)
+diff --git a/fs/reiserfs/stree.c b/fs/reiserfs/stree.c
+index 5229038852ca..4ebad6781b0e 100644
+--- a/fs/reiserfs/stree.c
++++ b/fs/reiserfs/stree.c
+@@ -387,6 +387,24 @@ void pathrelse(struct treepath *search_path)
+ 	search_path->path_length = ILLEGAL_PATH_ELEMENT_OFFSET;
+ }
+ 
++static int has_valid_deh_location(struct buffer_head *bh, struct item_head *ih)
++{
++	struct reiserfs_de_head *deh;
++	int i;
++
++	deh = B_I_DEH(bh, ih);
++	for (i = 0; i < ih_entry_count(ih); i++) {
++		if (deh_location(&deh[i]) > ih_item_len(ih)) {
++			reiserfs_warning(NULL, "reiserfs-5094",
++					 "directory entry location seems wrong %h",
++					 &deh[i]);
++			return 0;
++		}
++	}
++
++	return 1;
++}
++
+ static int is_leaf(char *buf, int blocksize, struct buffer_head *bh)
  {
- 	kvm->arch.n_used_mmu_pages += nr;
- 	percpu_counter_add(&kvm_total_used_mmu_pages, nr);
+ 	struct block_head *blkh;
+@@ -454,11 +472,14 @@ static int is_leaf(char *buf, int blocksize, struct buffer_head *bh)
+ 					 "(second one): %h", ih);
+ 			return 0;
+ 		}
+-		if (is_direntry_le_ih(ih) && (ih_item_len(ih) < (ih_entry_count(ih) * IH_SIZE))) {
+-			reiserfs_warning(NULL, "reiserfs-5093",
+-					 "item entry count seems wrong %h",
+-					 ih);
+-			return 0;
++		if (is_direntry_le_ih(ih)) {
++			if (ih_item_len(ih) < (ih_entry_count(ih) * IH_SIZE)) {
++				reiserfs_warning(NULL, "reiserfs-5093",
++						 "item entry count seems wrong %h",
++						 ih);
++				return 0;
++			}
++			return has_valid_deh_location(bh, ih);
+ 		}
+ 		prev_location = ih_location(ih);
+ 	}
+-- 
+2.30.2
+
 
 
