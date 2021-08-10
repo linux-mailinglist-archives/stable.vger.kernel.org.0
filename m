@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F7313E7EA2
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:34:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D99D83E8080
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:50:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232473AbhHJReg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:34:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35812 "EHLO mail.kernel.org"
+        id S231576AbhHJRum (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:50:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232498AbhHJRd4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:33:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DB6C160F94;
-        Tue, 10 Aug 2021 17:33:33 +0000 (UTC)
+        id S233035AbhHJRrZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:47:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2772260243;
+        Tue, 10 Aug 2021 17:40:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616814;
-        bh=ihAvkDK7uaKrqIGBsVrJT2bcZ8CGQmp7iO0hrwSPxCs=;
+        s=korg; t=1628617256;
+        bh=EpQXItnnKfAiIbmbeGSU6rhyO++6V+o/V39Qx5+LndE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Asf5BRfO55dIBxJRSRxqo1SuML9UakDP+d3bzcd29lHofD32nRZf9dUB+yedSPysQ
-         3P11obWpmbZGXvi3XPbJLwk7DNjyTMhDHnUlO+hn8UphcdRE0Qh13YpYOwQAmk03I2
-         sxEwrcAwEBGDNrXuW2odQdAf8xaHXD0MVYjUOBH0=
+        b=XWHt/uSvGF+5jXhMMNyAVKudrtWXQrDC+TXOPX+7E9pDrjRax9hn5dxMQHAgTZM//
+         bUqpCVV7GCSxyj7AycmuoyJKqizk0gB9MFBkIc/UIWBTExo02NZbYJJGr7A1XvgDaA
+         36ZUslib+WI0f3OgJY9o+az0Eo4HWz3YT3O7jHDY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Like Xu <likexu@tencent.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Liam Merwick <liam.merwick@oracle.com>,
-        Kim Phillips <kim.phillips@amd.com>
-Subject: [PATCH 4.19 47/54] perf/x86/amd: Dont touch the AMD64_EVENTSEL_HOSTONLY bit inside the guest
+        stable@vger.kernel.org,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: [PATCH 5.10 107/135] Revert "gpio: mpc8xxx: change the gpio interrupt flags."
 Date:   Tue, 10 Aug 2021 19:30:41 +0200
-Message-Id: <20210810172945.744299691@linuxfoundation.org>
+Message-Id: <20210810172959.397392587@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172944.179901509@linuxfoundation.org>
-References: <20210810172944.179901509@linuxfoundation.org>
+In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
+References: <20210810172955.660225700@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,47 +40,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Like Xu <likexu@tencent.com>
+From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
 
-commit df51fe7ea1c1c2c3bfdb81279712fdd2e4ea6c27 upstream.
+commit ec7099fdea8025988710ee6fecfd4e4210c29ab5 upstream.
 
-If we use "perf record" in an AMD Milan guest, dmesg reports a #GP
-warning from an unchecked MSR access error on MSR_F15H_PERF_CTLx:
+This reverts commit 3d5bfbd9716318b1ca5c38488aa69f64d38a9aa5.
 
-  [] unchecked MSR access error: WRMSR to 0xc0010200 (tried to write 0x0000020000110076) at rIP: 0xffffffff8106ddb4 (native_write_msr+0x4/0x20)
-  [] Call Trace:
-  []  amd_pmu_disable_event+0x22/0x90
-  []  x86_pmu_stop+0x4c/0xa0
-  []  x86_pmu_del+0x3a/0x140
+When booting with threadirqs, it causes a splat
 
-The AMD64_EVENTSEL_HOSTONLY bit is defined and used on the host,
-while the guest perf driver should avoid such use.
+  WARNING: CPU: 0 PID: 29 at kernel/irq/handle.c:159 __handle_irq_event_percpu+0x1ec/0x27c
+  irq 66 handler irq_default_primary_handler+0x0/0x1c enabled interrupts
 
-Fixes: 1018faa6cf23 ("perf/x86/kvm: Fix Host-Only/Guest-Only counting with SVM disabled")
-Signed-off-by: Like Xu <likexu@tencent.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Liam Merwick <liam.merwick@oracle.com>
-Tested-by: Kim Phillips <kim.phillips@amd.com>
-Tested-by: Liam Merwick <liam.merwick@oracle.com>
-Link: https://lkml.kernel.org/r/20210802070850.35295-1-likexu@tencent.com
+That splat later went away with commit 81e2073c175b ("genirq: Disable
+interrupts for force threaded handlers"), which got backported to
+-stable. However, when running an -rt kernel, the splat still
+exists. Moreover, quoting Thomas Gleixner [1]
+
+  But 3d5bfbd97163 ("gpio: mpc8xxx: change the gpio interrupt flags.")
+  has nothing to do with that:
+
+      "Delete the interrupt IRQF_NO_THREAD flags in order to gpio interrupts
+       can be threaded to allow high-priority processes to preempt."
+
+  This changelog is blatantly wrong. In mainline forced irq threads
+  have always been invoked with softirqs disabled, which obviously
+  makes them non-preemptible.
+
+So the patch didn't even do what its commit log said.
+
+[1] https://lore.kernel.org/lkml/871r8zey88.ffs@nanos.tec.linutronix.de/
+
+Cc: stable@vger.kernel.org # v5.9+
+Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/events/perf_event.h |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpio/gpio-mpc8xxx.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/events/perf_event.h
-+++ b/arch/x86/events/perf_event.h
-@@ -799,9 +799,10 @@ void x86_pmu_stop(struct perf_event *eve
+--- a/drivers/gpio/gpio-mpc8xxx.c
++++ b/drivers/gpio/gpio-mpc8xxx.c
+@@ -396,7 +396,7 @@ static int mpc8xxx_probe(struct platform
  
- static inline void x86_pmu_disable_event(struct perf_event *event)
- {
-+	u64 disable_mask = __this_cpu_read(cpu_hw_events.perf_ctr_virt_mask);
- 	struct hw_perf_event *hwc = &event->hw;
- 
--	wrmsrl(hwc->config_base, hwc->config);
-+	wrmsrl(hwc->config_base, hwc->config & ~disable_mask);
- }
- 
- void x86_pmu_enable_event(struct perf_event *event);
+ 	ret = devm_request_irq(&pdev->dev, mpc8xxx_gc->irqn,
+ 			       mpc8xxx_gpio_irq_cascade,
+-			       IRQF_SHARED, "gpio-cascade",
++			       IRQF_NO_THREAD | IRQF_SHARED, "gpio-cascade",
+ 			       mpc8xxx_gc);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "%s: failed to devm_request_irq(%d), ret = %d\n",
 
 
