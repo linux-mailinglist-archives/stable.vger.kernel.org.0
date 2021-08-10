@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 87F353E7E40
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:31:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA82A3E7E42
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:31:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229967AbhHJRcG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:32:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59072 "EHLO mail.kernel.org"
+        id S229991AbhHJRcI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:32:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59256 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229456AbhHJRcF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:32:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C3B2A60E09;
-        Tue, 10 Aug 2021 17:31:42 +0000 (UTC)
+        id S229456AbhHJRcH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:32:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A4A760F13;
+        Tue, 10 Aug 2021 17:31:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616703;
-        bh=EFJhGl4j17dSbDx5yR+3T/oEosXLQSue43tuVXBDXrU=;
+        s=korg; t=1628616705;
+        bh=eyc+daRaoGR+dX9G7q1Dqo4xSTQ57yvVz7tjWeA+AxE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AfT2w5lPvxIuXNAyNjg8aqovWFGPL8iZsj93wjmGL/atJJ3IGeVaqzDkPeRwAXH26
-         8mlb/aarP1L0VdiH+ouNURXl3M8gAjnJfRe1tXlwVdcIj5clnWeD+k6x6luQ1Vx4JA
-         MRHBbzvTw5KvC7dhtBvA1RqXVXw4RLvjIbWz+2J4=
+        b=Vxbx+saTc1mBEinFpa5pYvMAeXqU1aQi7mqKLt3gCVGKhYWjq7D45Ae3larTmWy7e
+         H97y9aKYP8IjpBESQ/DVujdKjUMtvaLHeCmC59N0/AVCVV3ioaO8+rw6oqqFMecXoz
+         z9IG3keII3KXZ3UQSJm1n/RTEAok2QiAJrUdVHug=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        folkert <folkert@vanheusden.com>
-Subject: [PATCH 4.19 02/54] ALSA: seq: Fix racy deletion of subscriber
-Date:   Tue, 10 Aug 2021 19:29:56 +0200
-Message-Id: <20210810172944.259587337@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Dong Aisheng <aisheng.dong@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 03/54] ARM: imx: add missing iounmap()
+Date:   Tue, 10 Aug 2021 19:29:57 +0200
+Message-Id: <20210810172944.296515584@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210810172944.179901509@linuxfoundation.org>
 References: <20210810172944.179901509@linuxfoundation.org>
@@ -39,116 +42,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit 97367c97226aab8b298ada954ce12659ee3ad2a4 upstream.
+[ Upstream commit f9613aa07f16d6042e74208d1b40a6104d72964a ]
 
-It turned out that the current implementation of the port subscription
-is racy.  The subscription contains two linked lists, and we have to
-add to or delete from both lists.  Since both connection and
-disconnection procedures perform the same order for those two lists
-(i.e. src list, then dest list), when a deletion happens during a
-connection procedure, the src list may be deleted before the dest list
-addition completes, and this may lead to a use-after-free or an Oops,
-even though the access to both lists are protected via mutex.
+Commit e76bdfd7403a ("ARM: imx: Added perf functionality to mmdc driver")
+introduced imx_mmdc_remove(), the mmdc_base need be unmapped in it if
+config PERF_EVENTS is enabled.
 
-The simple workaround for this race is to change the access order for
-the disconnection, namely, dest list, then src list.  This assures
-that the connection has been established when disconnecting, and also
-the concurrent deletion can be avoided.
+If imx_mmdc_perf_init() fails, the mmdc_base also need be unmapped.
 
-Reported-and-tested-by: folkert <folkert@vanheusden.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210801182754.GP890690@belle.intranet.vanheusden.com
-Link: https://lore.kernel.org/r/20210803114312.2536-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: e76bdfd7403a ("ARM: imx: Added perf functionality to mmdc driver")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Dong Aisheng <aisheng.dong@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/seq/seq_ports.c |   39 +++++++++++++++++++++++++++------------
- 1 file changed, 27 insertions(+), 12 deletions(-)
+ arch/arm/mach-imx/mmdc.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/sound/core/seq/seq_ports.c
-+++ b/sound/core/seq/seq_ports.c
-@@ -532,10 +532,11 @@ static int check_and_subscribe_port(stru
- 	return err;
- }
+diff --git a/arch/arm/mach-imx/mmdc.c b/arch/arm/mach-imx/mmdc.c
+index 04b3bf71de94..1d340fda5e4f 100644
+--- a/arch/arm/mach-imx/mmdc.c
++++ b/arch/arm/mach-imx/mmdc.c
+@@ -472,6 +472,7 @@ static int imx_mmdc_remove(struct platform_device *pdev)
  
--static void delete_and_unsubscribe_port(struct snd_seq_client *client,
--					struct snd_seq_client_port *port,
--					struct snd_seq_subscribers *subs,
--					bool is_src, bool ack)
-+/* called with grp->list_mutex held */
-+static void __delete_and_unsubscribe_port(struct snd_seq_client *client,
-+					  struct snd_seq_client_port *port,
-+					  struct snd_seq_subscribers *subs,
-+					  bool is_src, bool ack)
- {
- 	struct snd_seq_port_subs_info *grp;
- 	struct list_head *list;
-@@ -543,7 +544,6 @@ static void delete_and_unsubscribe_port(
- 
- 	grp = is_src ? &port->c_src : &port->c_dest;
- 	list = is_src ? &subs->src_list : &subs->dest_list;
--	down_write(&grp->list_mutex);
- 	write_lock_irq(&grp->list_lock);
- 	empty = list_empty(list);
- 	if (!empty)
-@@ -553,6 +553,18 @@ static void delete_and_unsubscribe_port(
- 
- 	if (!empty)
- 		unsubscribe_port(client, port, grp, &subs->info, ack);
-+}
-+
-+static void delete_and_unsubscribe_port(struct snd_seq_client *client,
-+					struct snd_seq_client_port *port,
-+					struct snd_seq_subscribers *subs,
-+					bool is_src, bool ack)
-+{
-+	struct snd_seq_port_subs_info *grp;
-+
-+	grp = is_src ? &port->c_src : &port->c_dest;
-+	down_write(&grp->list_mutex);
-+	__delete_and_unsubscribe_port(client, port, subs, is_src, ack);
- 	up_write(&grp->list_mutex);
- }
- 
-@@ -608,27 +620,30 @@ int snd_seq_port_disconnect(struct snd_s
- 			    struct snd_seq_client_port *dest_port,
- 			    struct snd_seq_port_subscribe *info)
- {
--	struct snd_seq_port_subs_info *src = &src_port->c_src;
-+	struct snd_seq_port_subs_info *dest = &dest_port->c_dest;
- 	struct snd_seq_subscribers *subs;
- 	int err = -ENOENT;
- 
--	down_write(&src->list_mutex);
-+	/* always start from deleting the dest port for avoiding concurrent
-+	 * deletions
-+	 */
-+	down_write(&dest->list_mutex);
- 	/* look for the connection */
--	list_for_each_entry(subs, &src->list_head, src_list) {
-+	list_for_each_entry(subs, &dest->list_head, dest_list) {
- 		if (match_subs_info(info, &subs->info)) {
--			atomic_dec(&subs->ref_count); /* mark as not ready */
-+			__delete_and_unsubscribe_port(dest_client, dest_port,
-+						      subs, false,
-+						      connector->number != dest_client->number);
- 			err = 0;
- 			break;
- 		}
- 	}
--	up_write(&src->list_mutex);
-+	up_write(&dest->list_mutex);
- 	if (err < 0)
- 		return err;
- 
- 	delete_and_unsubscribe_port(src_client, src_port, subs, true,
- 				    connector->number != src_client->number);
--	delete_and_unsubscribe_port(dest_client, dest_port, subs, false,
--				    connector->number != dest_client->number);
- 	kfree(subs);
+ 	cpuhp_state_remove_instance_nocalls(cpuhp_mmdc_state, &pmu_mmdc->node);
+ 	perf_pmu_unregister(&pmu_mmdc->pmu);
++	iounmap(pmu_mmdc->mmdc_base);
+ 	kfree(pmu_mmdc);
  	return 0;
  }
+@@ -564,7 +565,11 @@ static int imx_mmdc_probe(struct platform_device *pdev)
+ 	val &= ~(1 << BP_MMDC_MAPSR_PSD);
+ 	writel_relaxed(val, reg);
+ 
+-	return imx_mmdc_perf_init(pdev, mmdc_base);
++	err = imx_mmdc_perf_init(pdev, mmdc_base);
++	if (err)
++		iounmap(mmdc_base);
++
++	return err;
+ }
+ 
+ int imx_mmdc_get_ddr_type(void)
+-- 
+2.30.2
+
 
 
