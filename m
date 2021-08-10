@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CC323E7F21
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:37:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F3693E802E
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:47:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233889AbhHJRhe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:37:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41122 "EHLO mail.kernel.org"
+        id S236539AbhHJRqs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:46:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233895AbhHJRf7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:35:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F41D61008;
-        Tue, 10 Aug 2021 17:35:19 +0000 (UTC)
+        id S236497AbhHJRox (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:44:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DED2D61158;
+        Tue, 10 Aug 2021 17:39:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616919;
-        bh=aHOct+bx6Cjbr8OP3I/zD54Bd2a8hWbeDkTTOfi7ePI=;
+        s=korg; t=1628617198;
+        bh=Gkv8usg/hRL6/6cAr9d4ZngDvOLRKk8GTGE5ck5X+dU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QQGuDLvYsFPam2E+aFG4fEVx3qmNk5GBTzVP4fzmqsOtp2nRj05ts1SKN0SSdTGt/
-         6QcBzqzVjWxtqmQeuw9imTSxKCCdZxmWlNbP6RBC8eVfLr8GMvXAA3xKMwx/DFfun0
-         i584qkJ9cDi6D5CfROTAbkBs/oj21fSYRGng8g48=
+        b=1oi5S2yAiCwgTGIXhPafgZOq6g9SAlL8DYrpiLJpjmn1HjaPm9kENOxHwkTqHTZ/S
+         LLo1fV/0yKu+QrX1Qw3g7NoQL/081JphnkQpQmgcLzdmkirhXnCSz5ydwqV2Udo620
+         ajxK7rFiFZ/IWxXccTUEF6fAMAn1J9LR5SldKuIs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dong Aisheng <aisheng.dong@nxp.com>,
-        Brian Norris <briannorris@chromium.org>,
-        Stephen Boyd <sboyd@kernel.org>
-Subject: [PATCH 5.4 49/85] clk: fix leak on devm_clk_bulk_get_all() unwind
-Date:   Tue, 10 Aug 2021 19:30:22 +0200
-Message-Id: <20210810172949.896287140@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        syzbot+5872a520e0ce0a7c7230@syzkaller.appspotmail.com,
+        syzbot+cc699626e48a6ebaf295@syzkaller.appspotmail.com
+Subject: [PATCH 5.10 089/135] staging: rtl8712: error handling refactoring
+Date:   Tue, 10 Aug 2021 19:30:23 +0200
+Message-Id: <20210810172958.783707656@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
-References: <20210810172948.192298392@linuxfoundation.org>
+In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
+References: <20210810172955.660225700@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,73 +40,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit f828b0bcacef189edbd247e9f48864fc36bfbe33 upstream.
+commit e9e6aa51b2735d83a67d9fa0119cf11abef80d99 upstream.
 
-clk_bulk_get_all() allocates an array of struct clk_bulk data for us
-(unlike clk_bulk_get()), so we need to free it. Let's use the
-clk_bulk_put_all() helper.
+There was strange error handling logic in case of fw load failure. For
+some reason fw loader callback was doing clean up stuff when fw is not
+available. I don't see any reason behind doing this. Since this driver
+doesn't have EEPROM firmware let's just disconnect it in case of fw load
+failure. Doing clean up stuff in 2 different place which can run
+concurently is not good idea and syzbot found 2 bugs related to this
+strange approach.
 
-kmemleak complains, on an RK3399 Gru/Kevin system:
+So, in this pacth I deleted all clean up code from fw callback and made
+a call to device_release_driver() under device_lock(parent) in case of fw
+load failure. This approach is more generic and it defend driver from UAF
+bugs, since all clean up code is moved to one place.
 
-unreferenced object 0xffffff80045def00 (size 128):
-  comm "swapper/0", pid 1, jiffies 4294667682 (age 86.394s)
-  hex dump (first 32 bytes):
-    44 32 60 fe fe ff ff ff 00 00 00 00 00 00 00 00  D2`.............
-    48 32 60 fe fe ff ff ff 00 00 00 00 00 00 00 00  H2`.............
-  backtrace:
-    [<00000000742860d6>] __kmalloc+0x22c/0x39c
-    [<00000000b0493f2c>] clk_bulk_get_all+0x64/0x188
-    [<00000000325f5900>] devm_clk_bulk_get_all+0x58/0xa8
-    [<00000000175b9bc5>] dwc3_probe+0x8ac/0xb5c
-    [<000000009169e2f9>] platform_drv_probe+0x9c/0xbc
-    [<000000005c51e2ee>] really_probe+0x13c/0x378
-    [<00000000c47b1f24>] driver_probe_device+0x84/0xc0
-    [<00000000f870fcfb>] __device_attach_driver+0x94/0xb0
-    [<000000004d1b92ae>] bus_for_each_drv+0x8c/0xd8
-    [<00000000481d60c3>] __device_attach+0xc4/0x150
-    [<00000000a163bd36>] device_initial_probe+0x1c/0x28
-    [<00000000accb6bad>] bus_probe_device+0x3c/0x9c
-    [<000000001a199f89>] device_add+0x218/0x3cc
-    [<000000001bd84952>] of_device_add+0x40/0x50
-    [<000000009c658c29>] of_platform_device_create_pdata+0xac/0x100
-    [<0000000021c69ba4>] of_platform_bus_create+0x190/0x224
-
-Fixes: f08c2e2865f6 ("clk: add managed version of clk_bulk_get_all")
-Cc: Dong Aisheng <aisheng.dong@nxp.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Link: https://lore.kernel.org/r/20210731025950.2238582-1-briannorris@chromium.org
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: e02a3b945816 ("staging: rtl8712: fix memory leak in rtl871x_load_fw_cb")
+Fixes: 8c213fa59199 ("staging: r8712u: Use asynchronous firmware loading")
+Cc: stable <stable@vger.kernel.org>
+Reported-and-tested-by: syzbot+5872a520e0ce0a7c7230@syzkaller.appspotmail.com
+Reported-and-tested-by: syzbot+cc699626e48a6ebaf295@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Link: https://lore.kernel.org/r/d49ecc56e97c4df181d7bd4d240b031f315eacc3.1626895918.git.paskripkin@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clk/clk-devres.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/staging/rtl8712/hal_init.c |   30 +++++++++++++++--------
+ drivers/staging/rtl8712/usb_intf.c |   48 ++++++++++++++++---------------------
+ 2 files changed, 41 insertions(+), 37 deletions(-)
 
---- a/drivers/clk/clk-devres.c
-+++ b/drivers/clk/clk-devres.c
-@@ -92,13 +92,20 @@ int __must_check devm_clk_bulk_get_optio
- }
- EXPORT_SYMBOL_GPL(devm_clk_bulk_get_optional);
+--- a/drivers/staging/rtl8712/hal_init.c
++++ b/drivers/staging/rtl8712/hal_init.c
+@@ -29,21 +29,31 @@
+ #define FWBUFF_ALIGN_SZ 512
+ #define MAX_DUMP_FWSZ (48 * 1024)
  
-+static void devm_clk_bulk_release_all(struct device *dev, void *res)
++static void rtl871x_load_fw_fail(struct _adapter *adapter)
 +{
-+	struct clk_bulk_devres *devres = res;
++	struct usb_device *udev = adapter->dvobjpriv.pusbdev;
++	struct device *dev = &udev->dev;
++	struct device *parent = dev->parent;
 +
-+	clk_bulk_put_all(devres->num_clks, devres->clks);
++	complete(&adapter->rtl8712_fw_ready);
++
++	dev_err(&udev->dev, "r8712u: Firmware request failed\n");
++
++	if (parent)
++		device_lock(parent);
++
++	device_release_driver(dev);
++
++	if (parent)
++		device_unlock(parent);
 +}
 +
- int __must_check devm_clk_bulk_get_all(struct device *dev,
- 				       struct clk_bulk_data **clks)
+ static void rtl871x_load_fw_cb(const struct firmware *firmware, void *context)
  {
- 	struct clk_bulk_devres *devres;
- 	int ret;
+ 	struct _adapter *adapter = context;
  
--	devres = devres_alloc(devm_clk_bulk_release,
-+	devres = devres_alloc(devm_clk_bulk_release_all,
- 			      sizeof(*devres), GFP_KERNEL);
- 	if (!devres)
- 		return -ENOMEM;
+ 	if (!firmware) {
+-		struct usb_device *udev = adapter->dvobjpriv.pusbdev;
+-		struct usb_interface *usb_intf = adapter->pusb_intf;
+-
+-		dev_err(&udev->dev, "r8712u: Firmware request failed\n");
+-		usb_put_dev(udev);
+-		usb_set_intfdata(usb_intf, NULL);
+-		r8712_free_drv_sw(adapter);
+-		adapter->dvobj_deinit(adapter);
+-		complete(&adapter->rtl8712_fw_ready);
+-		free_netdev(adapter->pnetdev);
++		rtl871x_load_fw_fail(adapter);
+ 		return;
+ 	}
+ 	adapter->fw = firmware;
+--- a/drivers/staging/rtl8712/usb_intf.c
++++ b/drivers/staging/rtl8712/usb_intf.c
+@@ -594,36 +594,30 @@ static void r871xu_dev_remove(struct usb
+ {
+ 	struct net_device *pnetdev = usb_get_intfdata(pusb_intf);
+ 	struct usb_device *udev = interface_to_usbdev(pusb_intf);
++	struct _adapter *padapter = netdev_priv(pnetdev);
+ 
+-	if (pnetdev) {
+-		struct _adapter *padapter = netdev_priv(pnetdev);
++	/* never exit with a firmware callback pending */
++	wait_for_completion(&padapter->rtl8712_fw_ready);
++	usb_set_intfdata(pusb_intf, NULL);
++	release_firmware(padapter->fw);
++	if (drvpriv.drv_registered)
++		padapter->surprise_removed = true;
++	if (pnetdev->reg_state != NETREG_UNINITIALIZED)
++		unregister_netdev(pnetdev); /* will call netdev_close() */
++	r8712_flush_rwctrl_works(padapter);
++	r8712_flush_led_works(padapter);
++	udelay(1);
++	/* Stop driver mlme relation timer */
++	r8712_stop_drv_timers(padapter);
++	r871x_dev_unload(padapter);
++	r8712_free_drv_sw(padapter);
++	free_netdev(pnetdev);
+ 
+-		/* never exit with a firmware callback pending */
+-		wait_for_completion(&padapter->rtl8712_fw_ready);
+-		pnetdev = usb_get_intfdata(pusb_intf);
+-		usb_set_intfdata(pusb_intf, NULL);
+-		if (!pnetdev)
+-			goto firmware_load_fail;
+-		release_firmware(padapter->fw);
+-		if (drvpriv.drv_registered)
+-			padapter->surprise_removed = true;
+-		if (pnetdev->reg_state != NETREG_UNINITIALIZED)
+-			unregister_netdev(pnetdev); /* will call netdev_close() */
+-		r8712_flush_rwctrl_works(padapter);
+-		r8712_flush_led_works(padapter);
+-		udelay(1);
+-		/* Stop driver mlme relation timer */
+-		r8712_stop_drv_timers(padapter);
+-		r871x_dev_unload(padapter);
+-		r8712_free_drv_sw(padapter);
+-		free_netdev(pnetdev);
++	/* decrease the reference count of the usb device structure
++	 * when disconnect
++	 */
++	usb_put_dev(udev);
+ 
+-		/* decrease the reference count of the usb device structure
+-		 * when disconnect
+-		 */
+-		usb_put_dev(udev);
+-	}
+-firmware_load_fail:
+ 	/* If we didn't unplug usb dongle and remove/insert module, driver
+ 	 * fails on sitesurvey for the first time when device is up.
+ 	 * Reset usb port for sitesurvey fail issue.
 
 
