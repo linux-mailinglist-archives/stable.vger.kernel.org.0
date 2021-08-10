@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D6633E7E53
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:32:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB1DC3E7EFE
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:36:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231241AbhHJRcb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:32:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60414 "EHLO mail.kernel.org"
+        id S233429AbhHJRgb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:36:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231378AbhHJRcZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:32:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C797D60EBD;
-        Tue, 10 Aug 2021 17:32:02 +0000 (UTC)
+        id S233424AbhHJRfV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:35:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 12E9E610A0;
+        Tue, 10 Aug 2021 17:34:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616723;
-        bh=PShQlVGMPaAenVHYXxAYxeX2uPj4ZEzFUew4cTnd/ZI=;
+        s=korg; t=1628616899;
+        bh=6ymvbabE/HvGsbg4DBodrxLMvzr8aNPkhKkpFjWnC98=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=snMiXVpxDJE7xg8Dx2bKeVpfNsiM+euIU6zsAbPL6vUsIw/utvTPtQKSWtak5LqVk
-         rZott3itUZVexCEzM8tW5fSvrh1FPyCQGUbpuzqCFVpGEa2xXL2pv3motxXW+jzUpg
-         V9c5Yt8S04Uk0HobGHHUKJ7hmEkJRESgkx+9bpDU=
+        b=nFDRYFj8j7vJ8n0RnHSZRjiI8ZPnU5TLnjef8iV8Gf79nf4bzunPyNuoU0FGSLY5l
+         /eS5Fwzymynl5+G7MXT9d6Cleeiee5MJnxg9CKRvdFl5AyAgK/t3NCXvFmD/3Hm+Oy
+         uxNgQwcQwRRt/hKMikN20zRF/E/yymBaF+He7Rqg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
-        Tejun Heo <tj@kernel.org>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 19/54] blk-iolatency: error out if blk_get_queue() failed in iolatency_set_limit()
-Date:   Tue, 10 Aug 2021 19:30:13 +0200
-Message-Id: <20210810172944.811282415@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+de271708674e2093097b@syzkaller.appspotmail.com,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Anirudh Rayabharam <mail@anirudhrb.com>
+Subject: [PATCH 5.4 41/85] firmware_loader: fix use-after-free in firmware_fallback_sysfs
+Date:   Tue, 10 Aug 2021 19:30:14 +0200
+Message-Id: <20210810172949.609281721@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172944.179901509@linuxfoundation.org>
-References: <20210810172944.179901509@linuxfoundation.org>
+In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
+References: <20210810172948.192298392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,46 +42,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Anirudh Rayabharam <mail@anirudhrb.com>
 
-[ Upstream commit 8d75d0eff6887bcac7225e12b9c75595e523d92d ]
+commit 75d95e2e39b27f733f21e6668af1c9893a97de5e upstream.
 
-If queue is dying while iolatency_set_limit() is in progress,
-blk_get_queue() won't increment the refcount of the queue. However,
-blk_put_queue() will still decrement the refcount later, which will
-cause the refcout to be unbalanced.
+This use-after-free happens when a fw_priv object has been freed but
+hasn't been removed from the pending list (pending_fw_head). The next
+time fw_load_sysfs_fallback tries to insert into the list, it ends up
+accessing the pending_list member of the previously freed fw_priv.
 
-Thus error out in such case to fix the problem.
+The root cause here is that all code paths that abort the fw load
+don't delete it from the pending list. For example:
 
-Fixes: 8c772a9bfc7c ("blk-iolatency: fix IO hang due to negative inflight counter")
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Acked-by: Tejun Heo <tj@kernel.org>
-Link: https://lore.kernel.org/r/20210805124645.543797-1-yukuai3@huawei.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+        _request_firmware()
+          -> fw_abort_batch_reqs()
+              -> fw_state_aborted()
+
+To fix this, delete the fw_priv from the list in __fw_set_state() if
+the new state is DONE or ABORTED. This way, all aborts will remove
+the fw_priv from the list. Accordingly, remove calls to list_del_init
+that were being made before calling fw_state_(aborted|done).
+
+Also, in fw_load_sysfs_fallback, don't add the fw_priv to the pending
+list if it is already aborted. Instead, just jump out and return early.
+
+Fixes: bcfbd3523f3c ("firmware: fix a double abort case with fw_load_sysfs_fallback")
+Cc: stable <stable@vger.kernel.org>
+Reported-by: syzbot+de271708674e2093097b@syzkaller.appspotmail.com
+Tested-by: syzbot+de271708674e2093097b@syzkaller.appspotmail.com
+Reviewed-by: Shuah Khan <skhan@linuxfoundation.org>
+Acked-by: Luis Chamberlain <mcgrof@kernel.org>
+Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
+Link: https://lore.kernel.org/r/20210728085107.4141-3-mail@anirudhrb.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/blk-iolatency.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/base/firmware_loader/fallback.c |   12 ++++++++----
+ drivers/base/firmware_loader/firmware.h |   10 +++++++++-
+ drivers/base/firmware_loader/main.c     |    2 ++
+ 3 files changed, 19 insertions(+), 5 deletions(-)
 
-diff --git a/block/blk-iolatency.c b/block/blk-iolatency.c
-index 0529e94a20f7..019cf002ecee 100644
---- a/block/blk-iolatency.c
-+++ b/block/blk-iolatency.c
-@@ -800,7 +800,11 @@ static ssize_t iolatency_set_limit(struct kernfs_open_file *of, char *buf,
+--- a/drivers/base/firmware_loader/fallback.c
++++ b/drivers/base/firmware_loader/fallback.c
+@@ -86,12 +86,11 @@ static void __fw_load_abort(struct fw_pr
+ {
+ 	/*
+ 	 * There is a small window in which user can write to 'loading'
+-	 * between loading done and disappearance of 'loading'
++	 * between loading done/aborted and disappearance of 'loading'
+ 	 */
+-	if (fw_sysfs_done(fw_priv))
++	if (fw_state_is_aborted(fw_priv) || fw_sysfs_done(fw_priv))
+ 		return;
  
- 	enable = iolatency_set_min_lat_nsec(blkg, lat_val);
- 	if (enable) {
--		WARN_ON_ONCE(!blk_get_queue(blkg->q));
-+		if (!blk_get_queue(blkg->q)) {
-+			ret = -ENODEV;
-+			goto out;
-+		}
-+
- 		blkg_get(blkg);
+-	list_del_init(&fw_priv->pending_list);
+ 	fw_state_aborted(fw_priv);
+ }
+ 
+@@ -277,7 +276,6 @@ static ssize_t firmware_loading_store(st
+ 			 * Same logic as fw_load_abort, only the DONE bit
+ 			 * is ignored and we set ABORT only on failure.
+ 			 */
+-			list_del_init(&fw_priv->pending_list);
+ 			if (rc) {
+ 				fw_state_aborted(fw_priv);
+ 				written = rc;
+@@ -512,6 +510,11 @@ static int fw_load_sysfs_fallback(struct
  	}
  
--- 
-2.30.2
-
+ 	mutex_lock(&fw_lock);
++	if (fw_state_is_aborted(fw_priv)) {
++		mutex_unlock(&fw_lock);
++		retval = -EINTR;
++		goto out;
++	}
+ 	list_add(&fw_priv->pending_list, &pending_fw_head);
+ 	mutex_unlock(&fw_lock);
+ 
+@@ -537,6 +540,7 @@ static int fw_load_sysfs_fallback(struct
+ 	} else if (fw_priv->is_paged_buf && !fw_priv->data)
+ 		retval = -ENOMEM;
+ 
++out:
+ 	device_del(f_dev);
+ err_put_dev:
+ 	put_device(f_dev);
+--- a/drivers/base/firmware_loader/firmware.h
++++ b/drivers/base/firmware_loader/firmware.h
+@@ -108,8 +108,16 @@ static inline void __fw_state_set(struct
+ 
+ 	WRITE_ONCE(fw_st->status, status);
+ 
+-	if (status == FW_STATUS_DONE || status == FW_STATUS_ABORTED)
++	if (status == FW_STATUS_DONE || status == FW_STATUS_ABORTED) {
++#ifdef CONFIG_FW_LOADER_USER_HELPER
++		/*
++		 * Doing this here ensures that the fw_priv is deleted from
++		 * the pending list in all abort/done paths.
++		 */
++		list_del_init(&fw_priv->pending_list);
++#endif
+ 		complete_all(&fw_st->completion);
++	}
+ }
+ 
+ static inline void fw_state_aborted(struct fw_priv *fw_priv)
+--- a/drivers/base/firmware_loader/main.c
++++ b/drivers/base/firmware_loader/main.c
+@@ -747,8 +747,10 @@ static void fw_abort_batch_reqs(struct f
+ 		return;
+ 
+ 	fw_priv = fw->priv;
++	mutex_lock(&fw_lock);
+ 	if (!fw_state_is_aborted(fw_priv))
+ 		fw_state_aborted(fw_priv);
++	mutex_unlock(&fw_lock);
+ }
+ 
+ /* called from request_firmware() and request_firmware_work_func() */
 
 
