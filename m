@@ -2,63 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D52843E5736
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 11:41:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A09FA3E574F
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 11:44:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235380AbhHJJlm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 05:41:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38264 "EHLO mail.kernel.org"
+        id S238115AbhHJJo2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 05:44:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233409AbhHJJlm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 05:41:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C07B61052;
-        Tue, 10 Aug 2021 09:41:20 +0000 (UTC)
+        id S238155AbhHJJo1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 05:44:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D28B8610A3;
+        Tue, 10 Aug 2021 09:44:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628588480;
-        bh=ifjWLtNNakbrvobAA7GQmhQorvj05jLq/kaLg7F4Rak=;
+        s=korg; t=1628588645;
+        bh=xNDvJ5YIPvPp7jetsYBXNcbZz7/GYxtHNQTLzKuC7nA=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=TRTDauqdbq6MZZKltb7fqrtq9SDphm1e+Wh4U2D6sitxoYNDfsQB+gjKogOm8RBgZ
-         ROJZiSb0Qi1QGiAFDi8Pen8v3OGsDkSGe9W6vJzgv+biBKFTOouVl6kE/ansDHD37z
-         1s8erBkfsNP2tyhut/DlMUD1YV8HvwWx52NQ6iFs=
-Date:   Tue, 10 Aug 2021 11:41:18 +0200
+        b=GTL1wYw9GIKEOPr/B1VaDlOuMNqfOfCO863rTmik7L+pVKFqXQ5tRa4+mxyBY9yMk
+         zPbrvWDgULEz7PXZnNPcONq38Ad5oqQwhlH8YBfNtb3W3dotRaLxKBwx1Q9b3mIon9
+         LH68D5vGuwDs7LlimvMQOGZ8TWBm9cp0RxV8zlwA=
+Date:   Tue, 10 Aug 2021 11:44:00 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Ovidiu Panait <ovidiu.panait@windriver.com>
+To:     Pavel Skripkin <paskripkin@gmail.com>
 Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH 5.4 1/1] bpf, selftests: Adjust few selftest
- result_unpriv outcomes
-Message-ID: <YRJJvol3o+VGWTXX@kroah.com>
-References: <20210804172001.3909228-1-ovidiu.panait@windriver.com>
- <20210804172001.3909228-2-ovidiu.panait@windriver.com>
- <cfaedc65-9659-1c78-7bef-bf051c577fc0@windriver.com>
+Subject: Re: FAILED: patch "[PATCH] staging: rtl8712: error handling
+ refactoring" failed to apply to 5.4-stable tree
+Message-ID: <YRJKYEFtqi8Ztm+J@kroah.com>
+References: <162850253410956@kroah.com>
+ <77187907-8eb3-8c19-5cd2-0e31a4bc6c71@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <cfaedc65-9659-1c78-7bef-bf051c577fc0@windriver.com>
+In-Reply-To: <77187907-8eb3-8c19-5cd2-0e31a4bc6c71@gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 10, 2021 at 11:53:06AM +0300, Ovidiu Panait wrote:
-> On 04.08.2021 20:20, Ovidiu Panait wrote:
-> > From: Daniel Borkmann <daniel@iogearbox.net>
+On Tue, Aug 10, 2021 at 12:10:33PM +0300, Pavel Skripkin wrote:
+> 
+> 
+> On 8/9/21 12:48 PM, gregkh@linuxfoundation.org wrote:
 > > 
-> > Given we don't need to simulate the speculative domain for registers with
-> > immediates anymore since the verifier uses direct imm-based rewrites instead
-> > of having to mask, we can also lift a few cases that were previously rejected.
+> > The patch below does not apply to the 5.4-stable tree.
+> > If someone wants it applied there, or to any other stable or longterm
+> > tree, then please email the backport, including the original git commit
+> > id to <stable@vger.kernel.org>.
 > > 
-> > Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-> > Acked-by: Alexei Starovoitov <ast@kernel.org>
-> > [OP: backport to 5.4, small context adjustment in stack_ptr.c]
-> > Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+> > thanks,
+> > 
+> > greg k-h
+> > 
 > 
-> Hi Greg,
+> Hi, Greg!
 > 
-> 
-> It seems that this patch was missed for the previous 5.4 release, could it
-> be included in the upcoming release?
+> Should I rewrote this patch to make it applicable to 5.4-stable? I believe,
+> that following patch "staging: rtl8712: get rid of flush_scheduled_work"
+> makes no sense without this one.
 
-Ick, sorry about that, I missed it, my fault.
+That makes sense, please provide a working backport if you think it
+should go to this tree.
 
-I'll go queue it up now, thanks.
+thanks,
 
 greg k-h
