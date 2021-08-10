@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B87D3E7FEC
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:45:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A51E73E7F23
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:37:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235906AbhHJRoL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:44:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42798 "EHLO mail.kernel.org"
+        id S234579AbhHJRhf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:37:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235332AbhHJRmK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:42:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BF81D61213;
-        Tue, 10 Aug 2021 17:38:45 +0000 (UTC)
+        id S232730AbhHJRgA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:36:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7EA0360EBD;
+        Tue, 10 Aug 2021 17:35:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617126;
-        bh=BtGVrxVu9r2tER2gpA+k54WqsWJjhE2da9bywTuqZY4=;
+        s=korg; t=1628616922;
+        bh=B1Huvc6SGYWvTrb/8b7wJgnUZg9jISGPpiuOqfjJgPE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mQxX2saRblpROcTAuDVpPm0eRfFqr7Xh5FHLUNHPhb5uINL/82q1Ar6I/uChyF1J8
-         kJeywUjaAghIvzfMT6EvHeZCufXTWfXSlnWSCwB8U4PxM7Ds3WulWYy4MoRZoX9Ah8
-         Vrr7ItsGkiLAOjDs6Mi1fQzd52bJjv5UCh/JWNkg=
+        b=2ke4vLxDPWq1+HqY+yWXZdUXk2LVYTY9xObNblFHKoeeJIHzNPydxqUpGDreERDMF
+         aaUxcwpokkf1AeO9tFLUQ43jmOgfeIXtavBVHR4WWUHvfPVYcvyz1e/0T89JbxXxto
+         +UiD92LV7cbrU7LFOHHg1OZ6b/t5S4/r6WqoVevg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luis Chamberlain <mcgrof@kernel.org>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Anirudh Rayabharam <mail@anirudhrb.com>
-Subject: [PATCH 5.10 056/135] firmware_loader: use -ETIMEDOUT instead of -EAGAIN in fw_load_sysfs_fallback
+        stable@vger.kernel.org, Li Manyi <limanyi@uniontech.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 17/85] scsi: sr: Return correct event when media event code is 3
 Date:   Tue, 10 Aug 2021 19:29:50 +0200
-Message-Id: <20210810172957.592508718@linuxfoundation.org>
+Message-Id: <20210810172948.782169058@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
-References: <20210810172955.660225700@linuxfoundation.org>
+In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
+References: <20210810172948.192298392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,43 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anirudh Rayabharam <mail@anirudhrb.com>
+From: Li Manyi <limanyi@uniontech.com>
 
-commit 0d6434e10b5377a006f6dd995c8fc5e2d82acddc upstream.
+[ Upstream commit 5c04243a56a7977185b00400e59ca7e108004faf ]
 
-The only motivation for using -EAGAIN in commit 0542ad88fbdd81bb
-("firmware loader: Fix _request_firmware_load() return val for fw load
-abort") was to distinguish the error from -ENOMEM, and so there is no
-real reason in keeping it. -EAGAIN is typically used to tell the
-userspace to try something again and in this case re-using the sysfs
-loading interface cannot be retried when a timeout happens, so the
-return value is also bogus.
+Media event code 3 is defined in the MMC-6 spec as follows:
 
--ETIMEDOUT is received when the wait times out and returning that
-is much more telling of what the reason for the failure was. So, just
-propagate that instead of returning -EAGAIN.
+  "MediaRemoval: The media has been removed from the specified slot, and
+   the Drive is unable to access the media without user intervention. This
+   applies to media changers only."
 
-Suggested-by: Luis Chamberlain <mcgrof@kernel.org>
-Reviewed-by: Shuah Khan <skhan@linuxfoundation.org>
-Acked-by: Luis Chamberlain <mcgrof@kernel.org>
-Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210728085107.4141-2-mail@anirudhrb.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This indicated that treating the condition as an EJECT_REQUEST was
+appropriate. However, doing so had the unfortunate side-effect of causing
+the drive tray to be physically ejected on resume. Instead treat the event
+as a MEDIA_CHANGE request.
+
+Fixes: 7dd753ca59d6 ("scsi: sr: Return appropriate error code when disk is ejected")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=213759
+Link: https://lore.kernel.org/r/20210726114913.6760-1-limanyi@uniontech.com
+Signed-off-by: Li Manyi <limanyi@uniontech.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/firmware_loader/fallback.c |    2 --
- 1 file changed, 2 deletions(-)
+ drivers/scsi/sr.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/base/firmware_loader/fallback.c
-+++ b/drivers/base/firmware_loader/fallback.c
-@@ -535,8 +535,6 @@ static int fw_load_sysfs_fallback(struct
- 	if (fw_state_is_aborted(fw_priv)) {
- 		if (retval == -ERESTARTSYS)
- 			retval = -EINTR;
--		else
--			retval = -EAGAIN;
- 	} else if (fw_priv->is_paged_buf && !fw_priv->data)
- 		retval = -ENOMEM;
+diff --git a/drivers/scsi/sr.c b/drivers/scsi/sr.c
+index 2332b245b182..279dea628620 100644
+--- a/drivers/scsi/sr.c
++++ b/drivers/scsi/sr.c
+@@ -219,7 +219,7 @@ static unsigned int sr_get_events(struct scsi_device *sdev)
+ 	else if (med->media_event_code == 2)
+ 		return DISK_EVENT_MEDIA_CHANGE;
+ 	else if (med->media_event_code == 3)
+-		return DISK_EVENT_EJECT_REQUEST;
++		return DISK_EVENT_MEDIA_CHANGE;
+ 	return 0;
+ }
  
+-- 
+2.30.2
+
 
 
