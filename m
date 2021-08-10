@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 313F73E80D1
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:53:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87B6D3E80CF
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:53:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236376AbhHJRwv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:52:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43682 "EHLO mail.kernel.org"
+        id S236360AbhHJRwu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:52:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233479AbhHJRuq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:50:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E67DA611C5;
-        Tue, 10 Aug 2021 17:42:46 +0000 (UTC)
+        id S234009AbhHJRur (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:50:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E7826128A;
+        Tue, 10 Aug 2021 17:42:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617367;
-        bh=xXL8ePronqgP4Q5UI0RrObOC2fXpJugQd8r/svqQrYA=;
+        s=korg; t=1628617369;
+        bh=pxdcajNLaLvmQ73OywZF1/YpJ+HyWkP/NPbM+75Dqjg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EcCQ7NB4EMK/ZrbtNTAx9gg5uQnSXUGz0OBxT9NJSjE28JubtH9aQxKra0UPg8/MC
-         EhkN3z3R4CHPe4bzHfGipGBR4RBIr1vo4aGmE7lxK4m99q1ZluqGpHw5ILb/g8RpOW
-         ZC4UanlHnJZtgHE03vq5C6efmEEJTxCxYqguYVXA=
+        b=xy4lIt9Oz4RfpXMWEWysv/Dh7qVB2rTXMYh+eiPN0oWGConxcJqjmR2xJFo3A9Wce
+         7pozOzyWLsgkmmm/mfXmMwo2B9oUIkFMD6M/XQ4GnzgZ2QIX119/Ppw9/Ej6AjRtzG
+         pvI3WCOCztPIB60qz1copZLjHE/l5pbg4SDMyT08=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Jiang <dave.jiang@intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 006/175] dmaengine: idxd: fix array index when int_handles are being used
-Date:   Tue, 10 Aug 2021 19:28:34 +0200
-Message-Id: <20210810173001.152548365@linuxfoundation.org>
+        stable@vger.kernel.org, Vinod Koul <vkoul@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Dave Jiang <dave.jiang@intel.com>
+Subject: [PATCH 5.13 007/175] dmaengine: idxd: fix setup sequence for MSIXPERM table
+Date:   Tue, 10 Aug 2021 19:28:35 +0200
+Message-Id: <20210810173001.183325233@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
 References: <20210810173000.928681411@linuxfoundation.org>
@@ -41,48 +42,50 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dave Jiang <dave.jiang@intel.com>
 
-[ Upstream commit da435aedb00a4ef61019ff11ae0c08ffb9b1fb18 ]
+[ Upstream commit d5c10e0fc8645342fe5c9796b00c84ab078cd713 ]
 
-The index to the irq vector should be local and has no relation to
-the assigned interrupt handle. Assign the MSIX interrupt index that is
-programmed for the descriptor. The interrupt handle only matters when it
-comes to hardware descriptor programming.
+The MSIX permission table should be programmed BEFORE request_irq()
+happens. This prevents any possibility of an interrupt happening before the
+MSIX perm table is setup, however slight.
 
-Fixes: eb15e7154fbf ("dmaengine: idxd: add interrupt handle request and release support")
-Signed-off-by: Dave Jiang <dave.jiang@intel.com>
-Link: https://lore.kernel.org/r/162456176939.1121476.3366256009925001897.stgit@djiang5-desk3.ch.intel.com
+Fixes: 6df0e6c57dfc ("dmaengine: idxd: clear MSIX permission entry on shutdown")
+Sign-off-by: Dave Jiang <dave.jiang@intel.com>
+Link: https://lore.kernel.org/r/162456741222.1138073.1298447364671237896.stgit@djiang5-desk3.ch.intel.com
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/idxd/submit.c | 15 ++-------------
- 1 file changed, 2 insertions(+), 13 deletions(-)
+ drivers/dma/idxd/init.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/dma/idxd/submit.c b/drivers/dma/idxd/submit.c
-index 19afb62abaff..e29887528077 100644
---- a/drivers/dma/idxd/submit.c
-+++ b/drivers/dma/idxd/submit.c
-@@ -128,19 +128,8 @@ int idxd_submit_desc(struct idxd_wq *wq, struct idxd_desc *desc)
- 	 * Pending the descriptor to the lockless list for the irq_entry
- 	 * that we designated the descriptor to.
- 	 */
--	if (desc->hw->flags & IDXD_OP_FLAG_RCI) {
--		int vec;
--
--		/*
--		 * If the driver is on host kernel, it would be the value
--		 * assigned to interrupt handle, which is index for MSIX
--		 * vector. If it's guest then can't use the int_handle since
--		 * that is the index to IMS for the entire device. The guest
--		 * device local index will be used.
--		 */
--		vec = !idxd->int_handles ? desc->hw->int_handle : desc->vector;
--		llist_add(&desc->llnode, &idxd->irq_entries[vec].pending_llist);
--	}
-+	if (desc->hw->flags & IDXD_OP_FLAG_RCI)
-+		llist_add(&desc->llnode, &idxd->irq_entries[desc->vector].pending_llist);
+diff --git a/drivers/dma/idxd/init.c b/drivers/dma/idxd/init.c
+index 442d55c11a5f..4bc80eb6b9e7 100644
+--- a/drivers/dma/idxd/init.c
++++ b/drivers/dma/idxd/init.c
+@@ -102,6 +102,8 @@ static int idxd_setup_interrupts(struct idxd_device *idxd)
+ 		spin_lock_init(&idxd->irq_entries[i].list_lock);
+ 	}
  
++	idxd_msix_perm_setup(idxd);
++
+ 	irq_entry = &idxd->irq_entries[0];
+ 	rc = request_threaded_irq(irq_entry->vector, NULL, idxd_misc_thread,
+ 				  0, "idxd-misc", irq_entry);
+@@ -148,7 +150,6 @@ static int idxd_setup_interrupts(struct idxd_device *idxd)
+ 	}
+ 
+ 	idxd_unmask_error_interrupts(idxd);
+-	idxd_msix_perm_setup(idxd);
  	return 0;
- }
+ 
+  err_wq_irqs:
+@@ -162,6 +163,7 @@ static int idxd_setup_interrupts(struct idxd_device *idxd)
+  err_misc_irq:
+ 	/* Disable error interrupt generation */
+ 	idxd_mask_error_interrupts(idxd);
++	idxd_msix_perm_clear(idxd);
+  err_irq_entries:
+ 	pci_free_irq_vectors(pdev);
+ 	dev_err(dev, "No usable interrupts\n");
 -- 
 2.30.2
 
