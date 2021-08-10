@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 91B773E818A
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:01:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E1513E7EA4
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:34:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233318AbhHJSAQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 14:00:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60118 "EHLO mail.kernel.org"
+        id S230440AbhHJReh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:34:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237341AbhHJR5W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:57:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 55F626138E;
-        Tue, 10 Aug 2021 17:45:30 +0000 (UTC)
+        id S232521AbhHJReJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:34:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6741F6109F;
+        Tue, 10 Aug 2021 17:33:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617530;
-        bh=EISYpVZZsw9b5qY0k+DQb5WvA7PJiMGE2ZKPBX6H0cQ=;
+        s=korg; t=1628616825;
+        bh=Do6S9tWsL50rvbJAWA7Y25g1Mhue883Dv9sJ0GOnHvo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mCg8/vEiAXLwdjluqP6/hVsj6PloOQ0CDSY4C3jwgVHDzBTwJ9lXbHpGO12KDIOfV
-         AElmt0nkO2hkk0NUDPLfdx4aDgNZd1t4Ihjam1pfN8V0393ETQ8un8QetJqE7m7kcM
-         BFKD/BfroEjFOAw2vLzZlRMDxfXIJ4lKEisEFMuo=
+        b=1TZRi1MEKrk44e6vGJ1AiUVPfc9tzqG+LZ0gjyj8+FSJXFasD1+wjCr4/FIDDJzqp
+         OwPOtjON+Vv/fLOLiNmM+pio4d0WPy7lXARSr0yrVskpECTsjOs7Tla0zpBKskMa4U
+         fl8Fd5j55Z4ORSjlVgmnNwcZMw/r+HYD1OOHC4gU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+02c9f70f3afae308464a@syzkaller.appspotmail.com
-Subject: [PATCH 5.13 066/175] net: pegasus: fix uninit-value in get_interrupt_interval
+        stable@vger.kernel.org, Adrien Precigout <dev@asdrip.fr>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.4 01/85] Revert "ACPICA: Fix memory leak caused by _CID repair function"
 Date:   Tue, 10 Aug 2021 19:29:34 +0200
-Message-Id: <20210810173003.113185271@linuxfoundation.org>
+Message-Id: <20210810172948.243785270@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
-References: <20210810173000.928681411@linuxfoundation.org>
+In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
+References: <20210810172948.192298392@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -41,96 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-[ Upstream commit af35fc37354cda3c9c8cc4961b1d24bdc9d27903 ]
+commit 6511a8b5b7a65037340cd8ee91a377811effbc83 upstream.
 
-Syzbot reported uninit value pegasus_probe(). The problem was in missing
-error handling.
+Revert commit c27bac0314131 ("ACPICA: Fix memory leak caused by _CID
+repair function") which is reported to cause a boot issue on Acer
+Swift 3 (SF314-51).
 
-get_interrupt_interval() internally calls read_eprom_word() which can
-fail in some cases. For example: failed to receive usb control message.
-These cases should be handled to prevent uninit value bug, since
-read_eprom_word() will not initialize passed stack variable in case of
-internal failure.
-
-Fail log:
-
-BUG: KMSAN: uninit-value in get_interrupt_interval drivers/net/usb/pegasus.c:746 [inline]
-BUG: KMSAN: uninit-value in pegasus_probe+0x10e7/0x4080 drivers/net/usb/pegasus.c:1152
-CPU: 1 PID: 825 Comm: kworker/1:1 Not tainted 5.12.0-rc6-syzkaller #0
-...
-Workqueue: usb_hub_wq hub_event
-Call Trace:
- __dump_stack lib/dump_stack.c:79 [inline]
- dump_stack+0x24c/0x2e0 lib/dump_stack.c:120
- kmsan_report+0xfb/0x1e0 mm/kmsan/kmsan_report.c:118
- __msan_warning+0x5c/0xa0 mm/kmsan/kmsan_instr.c:197
- get_interrupt_interval drivers/net/usb/pegasus.c:746 [inline]
- pegasus_probe+0x10e7/0x4080 drivers/net/usb/pegasus.c:1152
-....
-
-Local variable ----data.i@pegasus_probe created at:
- get_interrupt_interval drivers/net/usb/pegasus.c:1151 [inline]
- pegasus_probe+0xe57/0x4080 drivers/net/usb/pegasus.c:1152
- get_interrupt_interval drivers/net/usb/pegasus.c:1151 [inline]
- pegasus_probe+0xe57/0x4080 drivers/net/usb/pegasus.c:1152
-
-Reported-and-tested-by: syzbot+02c9f70f3afae308464a@syzkaller.appspotmail.com
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Link: https://lore.kernel.org/r/20210804143005.439-1-paskripkin@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Adrien Precigout <dev@asdrip.fr>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/pegasus.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/acpi/acpica/nsrepair2.c |    7 -------
+ 1 file changed, 7 deletions(-)
 
-diff --git a/drivers/net/usb/pegasus.c b/drivers/net/usb/pegasus.c
-index 9a907182569c..bc2dbf86496b 100644
---- a/drivers/net/usb/pegasus.c
-+++ b/drivers/net/usb/pegasus.c
-@@ -735,12 +735,16 @@ static inline void disable_net_traffic(pegasus_t *pegasus)
- 	set_registers(pegasus, EthCtrl0, sizeof(tmp), &tmp);
- }
+--- a/drivers/acpi/acpica/nsrepair2.c
++++ b/drivers/acpi/acpica/nsrepair2.c
+@@ -375,13 +375,6 @@ acpi_ns_repair_CID(struct acpi_evaluate_
  
--static inline void get_interrupt_interval(pegasus_t *pegasus)
-+static inline int get_interrupt_interval(pegasus_t *pegasus)
- {
- 	u16 data;
- 	u8 interval;
-+	int ret;
-+
-+	ret = read_eprom_word(pegasus, 4, &data);
-+	if (ret < 0)
-+		return ret;
- 
--	read_eprom_word(pegasus, 4, &data);
- 	interval = data >> 8;
- 	if (pegasus->usb->speed != USB_SPEED_HIGH) {
- 		if (interval < 0x80) {
-@@ -755,6 +759,8 @@ static inline void get_interrupt_interval(pegasus_t *pegasus)
+ 			(*element_ptr)->common.reference_count =
+ 			    original_ref_count;
+-
+-			/*
+-			 * The original_element holds a reference from the package object
+-			 * that represents _HID. Since a new element was created by _HID,
+-			 * remove the reference from the _CID package.
+-			 */
+-			acpi_ut_remove_reference(original_element);
  		}
- 	}
- 	pegasus->intr_interval = interval;
-+
-+	return 0;
- }
  
- static void set_carrier(struct net_device *net)
-@@ -1149,7 +1155,9 @@ static int pegasus_probe(struct usb_interface *intf,
- 				| NETIF_MSG_PROBE | NETIF_MSG_LINK);
- 
- 	pegasus->features = usb_dev_id[dev_index].private;
--	get_interrupt_interval(pegasus);
-+	res = get_interrupt_interval(pegasus);
-+	if (res)
-+		goto out2;
- 	if (reset_mac(pegasus)) {
- 		dev_err(&intf->dev, "can't reset MAC\n");
- 		res = -EIO;
--- 
-2.30.2
-
+ 		element_ptr++;
 
 
