@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 034363E80EC
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:53:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DF313E7F7D
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:41:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235842AbhHJRxq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:53:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49440 "EHLO mail.kernel.org"
+        id S234022AbhHJRkk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:40:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233167AbhHJRvx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:51:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D08E6120D;
-        Tue, 10 Aug 2021 17:43:14 +0000 (UTC)
+        id S235314AbhHJRja (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:39:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F0C161179;
+        Tue, 10 Aug 2021 17:37:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617395;
-        bh=BTdzPBETZe8MClYkQOqlVEr/imH6c1rvqaZ4U+TN4G0=;
+        s=korg; t=1628617032;
+        bh=aNRGPaP724cpo6NqpVLFNkGn2sxaCeJ4ehopKdxnC4k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XOophExoN3C7v5tWnvPmtnvT35jUq6YXHhI7/flIQ14ehsn78Dx7ohUsJ1uMTjmR7
-         3ip14uIzqx/BWwDjXTd+955Srfm8gmZqlOJnNfSvJkPUDsk43u+4dWo22oN+FacK24
-         d9KB20+Mr+EYHHhKUH6Ai2r5hin3ibIbrJHZYRV4=
+        b=IIrWeZq6ralrMGdfaYham9hKw2NJkUj+q5Fa4FMueCAZOV+dbPHdFq9LVB9E6evHo
+         5RtDlCwHotgS2BldUtxPTvpr8iOTyGDVg+8h4Tcrc9OD7d74C3cyY2i1hgAwNaCN4F
+         1dKWh4NfiDRh96dTvBqdjTI1qhN6aXRBy2elOAOI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Forster <aforster@cloudflare.com>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 040/175] net, gro: Set inner transport header offset in tcp/udp GRO hook
-Date:   Tue, 10 Aug 2021 19:29:08 +0200
-Message-Id: <20210810173002.273229362@linuxfoundation.org>
+        stable@vger.kernel.org, "chihhao.chen" <chihhao.chen@mediatek.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 015/135] ALSA: usb-audio: fix incorrect clock source setting
+Date:   Tue, 10 Aug 2021 19:29:09 +0200
+Message-Id: <20210810172956.198197742@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
-References: <20210810173000.928681411@linuxfoundation.org>
+In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
+References: <20210810172955.660225700@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,143 +39,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Sitnicki <jakub@cloudflare.com>
+From: chihhao.chen <chihhao.chen@mediatek.com>
 
-[ Upstream commit d51c5907e9809a803b276883d203f45849abd4d6 ]
+[ Upstream commit 4511781f95da0a3b2bad34f3f5e3967e80cd2d18 ]
 
-GSO expects inner transport header offset to be valid when
-skb->encapsulation flag is set. GSO uses this value to calculate the length
-of an individual segment of a GSO packet in skb_gso_transport_seglen().
+The following scenario describes an echo test for
+Samsung USBC Headset (AKG) with VID/PID (0x04e8/0xa051).
 
-However, tcp/udp gro_complete callbacks don't update the
-skb->inner_transport_header when processing an encapsulated TCP/UDP
-segment. As a result a GRO skb has ->inner_transport_header set to a value
-carried over from earlier skb processing.
+We first start a capture stream(USB IN transfer) in 96Khz/24bit/1ch mode.
+In clock find source function, we get value 0x2 for clock selector
+and 0x1 for clock source.
 
-This can have mild to tragic consequences. From miscalculating the GSO
-segment length to triggering a page fault [1], when trying to read TCP/UDP
-header at an address past the skb->data page.
+Kernel-4.14 behavior
+Since clock source is valid so clock selector was not set again.
+We pass through this function and start a playback stream(USB OUT transfer)
+in 48Khz/32bit/2ch mode. This time we get value 0x1 for clock selector
+and 0x1 for clock source. Finally clock id with this setting is 0x9.
 
-The latter scenario leads to an oops report like so:
+Kernel-5.10 behavior
+Clock selector was always set one more time even it is valid.
+When we start a playback stream, we will get 0x2 for clock selector
+and 0x1 for clock source. In this case clock id becomes 0xA.
+This is an incorrect clock source setting and results in severe noises.
+We see wrong data rate in USB IN transfer.
+(From 288 bytes/ms becomes 144 bytes/ms) It should keep in 288 bytes/ms.
 
-  BUG: unable to handle page fault for address: ffff9fa7ec00d008
-  #PF: supervisor read access in kernel mode
-  #PF: error_code(0x0000) - not-present page
-  PGD 123f201067 P4D 123f201067 PUD 123f209067 PMD 0
-  Oops: 0000 [#1] SMP NOPTI
-  CPU: 44 PID: 0 Comm: swapper/44 Not tainted 5.4.53-cloudflare-2020.7.21 #1
-  Hardware name: HYVE EDGE-METAL-GEN10/HS-1811DLite1, BIOS V2.15 02/21/2020
-  RIP: 0010:skb_gso_transport_seglen+0x44/0xa0
-  Code: c0 41 83 e0 11 f6 87 81 00 00 00 20 74 30 0f b7 87 aa 00 00 00 0f [...]
-  RSP: 0018:ffffad8640bacbb8 EFLAGS: 00010202
-  RAX: 000000000000feda RBX: ffff9fcc8d31bc00 RCX: ffff9fa7ec00cffc
-  RDX: ffff9fa7ebffdec0 RSI: 000000000000feda RDI: 0000000000000122
-  RBP: 00000000000005c4 R08: 0000000000000001 R09: 0000000000000000
-  R10: ffff9fe588ae3800 R11: ffff9fe011fc92f0 R12: ffff9fcc8d31bc00
-  R13: ffff9fe0119d4300 R14: 00000000000005c4 R15: ffff9fba57d70900
-  FS:  0000000000000000(0000) GS:ffff9fe68df00000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: ffff9fa7ec00d008 CR3: 0000003e99b1c000 CR4: 0000000000340ee0
-  Call Trace:
-   <IRQ>
-   skb_gso_validate_network_len+0x11/0x70
-   __ip_finish_output+0x109/0x1c0
-   ip_sublist_rcv_finish+0x57/0x70
-   ip_sublist_rcv+0x2aa/0x2d0
-   ? ip_rcv_finish_core.constprop.0+0x390/0x390
-   ip_list_rcv+0x12b/0x14f
-   __netif_receive_skb_list_core+0x2a9/0x2d0
-   netif_receive_skb_list_internal+0x1b5/0x2e0
-   napi_complete_done+0x93/0x140
-   veth_poll+0xc0/0x19f [veth]
-   ? mlx5e_napi_poll+0x221/0x610 [mlx5_core]
-   net_rx_action+0x1f8/0x790
-   __do_softirq+0xe1/0x2bf
-   irq_exit+0x8e/0xc0
-   do_IRQ+0x58/0xe0
-   common_interrupt+0xf/0xf
-   </IRQ>
+This earphone works fine on older kernel version load because
+this is a newly-added behavior.
 
-The bug can be observed in a simple setup where we send IP/GRE/IP/TCP
-packets into a netns over a veth pair. Inside the netns, packets are
-forwarded to dummy device:
-
-  trafgen -> [veth A]--[veth B] -forward-> [dummy]
-
-For veth B to GRO aggregate packets on receive, it needs to have an XDP
-program attached (for example, a trivial XDP_PASS). Additionally, for UDP,
-we need to enable GSO_UDP_L4 feature on the device:
-
-  ip netns exec A ethtool -K AB rx-udp-gro-forwarding on
-
-The last component is an artificial delay to increase the chances of GRO
-batching happening:
-
-  ip netns exec A tc qdisc add dev AB root \
-     netem delay 200us slot 5ms 10ms packets 2 bytes 64k
-
-With such a setup in place, the bug can be observed by tracing the skb
-outer and inner offsets when GSO skb is transmitted from the dummy device:
-
-tcp:
-
-FUNC              DEV   SKB_LEN  NH  TH ENC INH ITH GSO_SIZE GSO_TYPE
-ip_finish_output  dumB     2830 270 290   1 294 254     1383 (tcpv4,gre,)
-                                                ^^^
-udp:
-
-FUNC              DEV   SKB_LEN  NH  TH ENC INH ITH GSO_SIZE GSO_TYPE
-ip_finish_output  dumB     2818 270 290   1 294 254     1383 (gre,udp_l4,)
-                                                ^^^
-
-Fix it by updating the inner transport header offset in tcp/udp
-gro_complete callbacks, similar to how {inet,ipv6}_gro_complete callbacks
-update the inner network header offset, when skb->encapsulation flag is
-set.
-
-[1] https://lore.kernel.org/netdev/CAKxSbF01cLpZem2GFaUaifh0S-5WYViZemTicAg7FCHOnh6kug@mail.gmail.com/
-
-Fixes: bf296b125b21 ("tcp: Add GRO support")
-Fixes: f993bc25e519 ("net: core: handle encapsulation offloads when computing segment lengths")
-Fixes: e20cf8d3f1f7 ("udp: implement GRO for plain UDP sockets.")
-Reported-by: Alex Forster <aforster@cloudflare.com>
-Signed-off-by: Jakub Sitnicki <jakub@cloudflare.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: d2e8f641257d ("ALSA: usb-audio: Explicitly set up the clock selector")
+Signed-off-by: chihhao.chen <chihhao.chen@mediatek.com>
+Link: https://lore.kernel.org/r/1627100621-19225-1-git-send-email-chihhao.chen@mediatek.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_offload.c | 3 +++
- net/ipv4/udp_offload.c | 4 ++++
- 2 files changed, 7 insertions(+)
+ sound/usb/clock.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/net/ipv4/tcp_offload.c b/net/ipv4/tcp_offload.c
-index e09147ac9a99..fc61cd3fea65 100644
---- a/net/ipv4/tcp_offload.c
-+++ b/net/ipv4/tcp_offload.c
-@@ -298,6 +298,9 @@ int tcp_gro_complete(struct sk_buff *skb)
- 	if (th->cwr)
- 		skb_shinfo(skb)->gso_type |= SKB_GSO_TCP_ECN;
- 
-+	if (skb->encapsulation)
-+		skb->inner_transport_header = skb->transport_header;
-+
- 	return 0;
- }
- EXPORT_SYMBOL(tcp_gro_complete);
-diff --git a/net/ipv4/udp_offload.c b/net/ipv4/udp_offload.c
-index 9dde1e5fb449..1380a6b6f4ff 100644
---- a/net/ipv4/udp_offload.c
-+++ b/net/ipv4/udp_offload.c
-@@ -624,6 +624,10 @@ static int udp_gro_complete_segment(struct sk_buff *skb)
- 
- 	skb_shinfo(skb)->gso_segs = NAPI_GRO_CB(skb)->count;
- 	skb_shinfo(skb)->gso_type |= SKB_GSO_UDP_L4;
-+
-+	if (skb->encapsulation)
-+		skb->inner_transport_header = skb->transport_header;
-+
- 	return 0;
- }
- 
+diff --git a/sound/usb/clock.c b/sound/usb/clock.c
+index e3d97e5112fd..514d18a3e07a 100644
+--- a/sound/usb/clock.c
++++ b/sound/usb/clock.c
+@@ -319,6 +319,12 @@ static int __uac_clock_find_source(struct snd_usb_audio *chip,
+ 					      selector->baCSourceID[ret - 1],
+ 					      visited, validate);
+ 		if (ret > 0) {
++			/*
++			 * For Samsung USBC Headset (AKG), setting clock selector again
++			 * will result in incorrect default clock setting problems
++			 */
++			if (chip->usb_id == USB_ID(0x04e8, 0xa051))
++				return ret;
+ 			err = uac_clock_selector_set_val(chip, entity_id, cur);
+ 			if (err < 0)
+ 				return err;
 -- 
 2.30.2
 
