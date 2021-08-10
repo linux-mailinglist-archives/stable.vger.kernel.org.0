@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 62AD33E7E9E
+	by mail.lfdr.de (Postfix) with ESMTP id 14CFB3E7E9D
 	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:34:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232989AbhHJRed (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232983AbhHJRed (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 10 Aug 2021 13:34:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38384 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:38684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232486AbhHJRd7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:33:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E607610CB;
-        Tue, 10 Aug 2021 17:33:35 +0000 (UTC)
+        id S231893AbhHJReB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:34:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 562B1610CF;
+        Tue, 10 Aug 2021 17:33:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616816;
-        bh=kTL4LeyD2GBYpvWFwzSRY46yXARtbeB/NXrR0cRdSSQ=;
+        s=korg; t=1628616818;
+        bh=//W2AOkZKarKR/m0ISvGsAjaLCFLauuC4u1WBYKVT2Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O7PGfS7jnhEelGfmGqpCQE2mfsFQ3Lv0NyFNPr08BMi5euEaCTvtTeG3x0fhG47zb
-         IE5Z5qhQUDXuaI5PgU5l6R4aOVln+iAMnSPmSJ05z0uSDq/coUvtwQVCG2+H9JMGwI
-         6yZnSWYt6OPT8SyCmFpzuuNgdW9K9yXxhYpejRAo=
+        b=P5JWlNWM5q/kyw/0Hwsm+WvMuFp1Z7cSssZER604cD1vOInLQ0dkfgHeKVb0cQR6e
+         X7QfGD49P2M9VVVsyZk1kHB41SNnV+2lWCBjmqUuQrqug0mCvrl2eqYqS9R2ZQbPqe
+         PJtzLR1UjfWMfKxRooocotGjkKKR91gBFTI7N7sw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
-        Reinhard Speyerer <rspmn@arcor.de>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 48/54] qmi_wwan: add network device usage statistics for qmimux devices
-Date:   Tue, 10 Aug 2021 19:30:42 +0200
-Message-Id: <20210810172945.785406713@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 49/54] libata: fix ata_pio_sector for CONFIG_HIGHMEM
+Date:   Tue, 10 Aug 2021 19:30:43 +0200
+Message-Id: <20210810172945.820938473@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210810172944.179901509@linuxfoundation.org>
 References: <20210810172944.179901509@linuxfoundation.org>
@@ -40,151 +40,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Reinhard Speyerer <rspmn@arcor.de>
+From: Christoph Hellwig <hch@lst.de>
 
-commit 44f82312fe9113bab6642f4d0eab6b1b7902b6e1 upstream.
+[ Upstream commit ecef6a9effe49e8e2635c839020b9833b71e934c ]
 
-Add proper network device usage statistics for qmimux devices
-instead of reporting all-zero values for them.
+Data transfers are not required to be block aligned in memory, so they
+span two pages.  Fix this by splitting the call to >sff_data_xfer into
+two for that case.
 
-Fixes: c6adf77953bc ("net: usb: qmi_wwan: add qmap mux protocol support")
-Cc: Daniele Palmas <dnlplm@gmail.com>
-Signed-off-by: Reinhard Speyerer <rspmn@arcor.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This has been broken since the initial libata import before the damn
+of git, but was uncovered by the legacy ide driver removal.
+
+Reported-by: kernel test robot <oliver.sang@intel.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20210709130237.3730959-1-hch@lst.de
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/qmi_wwan.c |   76 ++++++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 71 insertions(+), 5 deletions(-)
+ drivers/ata/libata-sff.c | 35 +++++++++++++++++++++++++++--------
+ 1 file changed, 27 insertions(+), 8 deletions(-)
 
---- a/drivers/net/usb/qmi_wwan.c
-+++ b/drivers/net/usb/qmi_wwan.c
-@@ -22,6 +22,7 @@
- #include <linux/usb/cdc.h>
- #include <linux/usb/usbnet.h>
- #include <linux/usb/cdc-wdm.h>
-+#include <linux/u64_stats_sync.h>
+diff --git a/drivers/ata/libata-sff.c b/drivers/ata/libata-sff.c
+index 7484ffdabd54..ec62d26c32a9 100644
+--- a/drivers/ata/libata-sff.c
++++ b/drivers/ata/libata-sff.c
+@@ -657,6 +657,20 @@ unsigned int ata_sff_data_xfer32(struct ata_queued_cmd *qc, unsigned char *buf,
+ }
+ EXPORT_SYMBOL_GPL(ata_sff_data_xfer32);
  
- /* This driver supports wwan (3G/LTE/?) devices using a vendor
-  * specific management protocol called Qualcomm MSM Interface (QMI) -
-@@ -74,6 +75,7 @@ struct qmimux_hdr {
- struct qmimux_priv {
- 	struct net_device *real_dev;
- 	u8 mux_id;
-+	struct pcpu_sw_netstats __percpu *stats64;
- };
- 
- static int qmimux_open(struct net_device *dev)
-@@ -100,19 +102,65 @@ static netdev_tx_t qmimux_start_xmit(str
- 	struct qmimux_priv *priv = netdev_priv(dev);
- 	unsigned int len = skb->len;
- 	struct qmimux_hdr *hdr;
-+	netdev_tx_t ret;
- 
- 	hdr = skb_push(skb, sizeof(struct qmimux_hdr));
- 	hdr->pad = 0;
- 	hdr->mux_id = priv->mux_id;
- 	hdr->pkt_len = cpu_to_be16(len);
- 	skb->dev = priv->real_dev;
--	return dev_queue_xmit(skb);
-+	ret = dev_queue_xmit(skb);
++static void ata_pio_xfer(struct ata_queued_cmd *qc, struct page *page,
++		unsigned int offset, size_t xfer_size)
++{
++	bool do_write = (qc->tf.flags & ATA_TFLAG_WRITE);
++	unsigned char *buf;
 +
-+	if (likely(ret == NET_XMIT_SUCCESS || ret == NET_XMIT_CN)) {
-+		struct pcpu_sw_netstats *stats64 = this_cpu_ptr(priv->stats64);
++	buf = kmap_atomic(page);
++	qc->ap->ops->sff_data_xfer(qc, buf + offset, xfer_size, do_write);
++	kunmap_atomic(buf);
 +
-+		u64_stats_update_begin(&stats64->syncp);
-+		stats64->tx_packets++;
-+		stats64->tx_bytes += len;
-+		u64_stats_update_end(&stats64->syncp);
-+	} else {
-+		dev->stats.tx_dropped++;
-+	}
-+
-+	return ret;
++	if (!do_write && !PageSlab(page))
++		flush_dcache_page(page);
 +}
 +
-+static void qmimux_get_stats64(struct net_device *net,
-+			       struct rtnl_link_stats64 *stats)
-+{
-+	struct qmimux_priv *priv = netdev_priv(net);
-+	unsigned int start;
-+	int cpu;
-+
-+	netdev_stats_to_stats64(stats, &net->stats);
-+
-+	for_each_possible_cpu(cpu) {
-+		struct pcpu_sw_netstats *stats64;
-+		u64 rx_packets, rx_bytes;
-+		u64 tx_packets, tx_bytes;
-+
-+		stats64 = per_cpu_ptr(priv->stats64, cpu);
-+
-+		do {
-+			start = u64_stats_fetch_begin_irq(&stats64->syncp);
-+			rx_packets = stats64->rx_packets;
-+			rx_bytes = stats64->rx_bytes;
-+			tx_packets = stats64->tx_packets;
-+			tx_bytes = stats64->tx_bytes;
-+		} while (u64_stats_fetch_retry_irq(&stats64->syncp, start));
-+
-+		stats->rx_packets += rx_packets;
-+		stats->rx_bytes += rx_bytes;
-+		stats->tx_packets += tx_packets;
-+		stats->tx_bytes += tx_bytes;
+ /**
+  *	ata_pio_sector - Transfer a sector of data.
+  *	@qc: Command on going
+@@ -668,11 +682,9 @@ EXPORT_SYMBOL_GPL(ata_sff_data_xfer32);
+  */
+ static void ata_pio_sector(struct ata_queued_cmd *qc)
+ {
+-	int do_write = (qc->tf.flags & ATA_TFLAG_WRITE);
+ 	struct ata_port *ap = qc->ap;
+ 	struct page *page;
+ 	unsigned int offset;
+-	unsigned char *buf;
+ 
+ 	if (!qc->cursg) {
+ 		qc->curbytes = qc->nbytes;
+@@ -690,13 +702,20 @@ static void ata_pio_sector(struct ata_queued_cmd *qc)
+ 
+ 	DPRINTK("data %s\n", qc->tf.flags & ATA_TFLAG_WRITE ? "write" : "read");
+ 
+-	/* do the actual data transfer */
+-	buf = kmap_atomic(page);
+-	ap->ops->sff_data_xfer(qc, buf + offset, qc->sect_size, do_write);
+-	kunmap_atomic(buf);
++	/*
++	 * Split the transfer when it splits a page boundary.  Note that the
++	 * split still has to be dword aligned like all ATA data transfers.
++	 */
++	WARN_ON_ONCE(offset % 4);
++	if (offset + qc->sect_size > PAGE_SIZE) {
++		unsigned int split_len = PAGE_SIZE - offset;
+ 
+-	if (!do_write && !PageSlab(page))
+-		flush_dcache_page(page);
++		ata_pio_xfer(qc, page, offset, split_len);
++		ata_pio_xfer(qc, nth_page(page, 1), 0,
++			     qc->sect_size - split_len);
++	} else {
++		ata_pio_xfer(qc, page, offset, qc->sect_size);
 +	}
- }
  
- static const struct net_device_ops qmimux_netdev_ops = {
--	.ndo_open       = qmimux_open,
--	.ndo_stop       = qmimux_stop,
--	.ndo_start_xmit = qmimux_start_xmit,
-+	.ndo_open        = qmimux_open,
-+	.ndo_stop        = qmimux_stop,
-+	.ndo_start_xmit  = qmimux_start_xmit,
-+	.ndo_get_stats64 = qmimux_get_stats64,
- };
- 
- static void qmimux_setup(struct net_device *dev)
-@@ -197,8 +245,19 @@ static int qmimux_rx_fixup(struct usbnet
- 		}
- 
- 		skb_put_data(skbn, skb->data + offset + qmimux_hdr_sz, pkt_len);
--		if (netif_rx(skbn) != NET_RX_SUCCESS)
-+		if (netif_rx(skbn) != NET_RX_SUCCESS) {
-+			net->stats.rx_errors++;
- 			return 0;
-+		} else {
-+			struct pcpu_sw_netstats *stats64;
-+			struct qmimux_priv *priv = netdev_priv(net);
-+
-+			stats64 = this_cpu_ptr(priv->stats64);
-+			u64_stats_update_begin(&stats64->syncp);
-+			stats64->rx_packets++;
-+			stats64->rx_bytes += pkt_len;
-+			u64_stats_update_end(&stats64->syncp);
-+		}
- 
- skip:
- 		offset += len + qmimux_hdr_sz;
-@@ -222,6 +281,12 @@ static int qmimux_register_device(struct
- 	priv->mux_id = mux_id;
- 	priv->real_dev = real_dev;
- 
-+	priv->stats64 = netdev_alloc_pcpu_stats(struct pcpu_sw_netstats);
-+	if (!priv->stats64) {
-+		err = -ENOBUFS;
-+		goto out_free_newdev;
-+	}
-+
- 	err = register_netdevice(new_dev);
- 	if (err < 0)
- 		goto out_free_newdev;
-@@ -252,6 +317,7 @@ static void qmimux_unregister_device(str
- 	struct qmimux_priv *priv = netdev_priv(dev);
- 	struct net_device *real_dev = priv->real_dev;
- 
-+	free_percpu(priv->stats64);
- 	netdev_upper_dev_unlink(real_dev, dev);
- 	unregister_netdevice_queue(dev, head);
- 
+ 	qc->curbytes += qc->sect_size;
+ 	qc->cursg_ofs += qc->sect_size;
+-- 
+2.30.2
+
 
 
