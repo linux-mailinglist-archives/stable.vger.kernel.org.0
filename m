@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FC3B3E7EB0
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:34:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFD9F3E7FCF
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:45:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233165AbhHJRey (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:34:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40508 "EHLO mail.kernel.org"
+        id S232268AbhHJRnK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:43:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229799AbhHJReV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:34:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C8F4061019;
-        Tue, 10 Aug 2021 17:33:58 +0000 (UTC)
+        id S233975AbhHJRlH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:41:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B15DC611C5;
+        Tue, 10 Aug 2021 17:38:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616839;
-        bh=/qj3ROmv9sS7iWFoTfgK8dGOGy/KKWHecO55OPEVgds=;
+        s=korg; t=1628617097;
+        bh=4N9F4XwHqssl3coRKsDZj6kfcnqot9nOZGW3exOX8oM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UtIibfRzLb5NFofvAHUq1bY39gPhEKwxltQDRNCo5RF/Xdk3xOBz0gMuECVATSSFi
-         c0fHFds07d6JxLMWYLOhtEY9XFr32X+Z+ddvhoFfIW4wVamqLGfAgQxugrcwr4odW5
-         yKMD85JAK6dIVUr3ISHaVY2G75UiDASFXFMd2YCE=
+        b=gncX53wHrDKdb21vEsc9fAnAJ/pa4rTz80lbXnS/NLqgYxcuwRYLvMUsTkwr5QRAy
+         O0v0pNRJ/c147xzfzQrb+Hj6Gv+QKw7pymUJOPhBZJy+9vHOY7F953YbjtibAgzrD1
+         IgwDFJnxe1Ns+u/cO2Rc5HvfIcKd0fmLaovkaM7o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Dong Aisheng <aisheng.dong@nxp.com>,
-        Shawn Guo <shawnguo@kernel.org>,
+        stable@vger.kernel.org, Joshua Kinard <kumba@gentoo.org>,
+        Huang Pei <huangpei@loongson.cn>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 04/85] ARM: imx: add missing iounmap()
-Date:   Tue, 10 Aug 2021 19:29:37 +0200
-Message-Id: <20210810172948.350236728@linuxfoundation.org>
+Subject: [PATCH 5.10 044/135] MIPS: check return value of pgtable_pmd_page_ctor
+Date:   Tue, 10 Aug 2021 19:29:38 +0200
+Message-Id: <20210810172957.188573777@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
-References: <20210810172948.192298392@linuxfoundation.org>
+In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
+References: <20210810172955.660225700@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,51 +41,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Huang Pei <huangpei@loongson.cn>
 
-[ Upstream commit f9613aa07f16d6042e74208d1b40a6104d72964a ]
+[ Upstream commit 6aa32467299e9e12280a6aec9dbc21bf2db830b0 ]
 
-Commit e76bdfd7403a ("ARM: imx: Added perf functionality to mmdc driver")
-introduced imx_mmdc_remove(), the mmdc_base need be unmapped in it if
-config PERF_EVENTS is enabled.
++. According to Documentation/vm/split_page_table_lock, handle failure
+of pgtable_pmd_page_ctor
 
-If imx_mmdc_perf_init() fails, the mmdc_base also need be unmapped.
++. Use GFP_KERNEL_ACCOUNT instead of GFP_KERNEL|__GFP_ACCOUNT
 
-Fixes: e76bdfd7403a ("ARM: imx: Added perf functionality to mmdc driver")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Dong Aisheng <aisheng.dong@nxp.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
++. Adjust coding style
+
+Fixes: ed914d48b6a1 ("MIPS: add PMD table accounting into MIPS')
+Reported-by: Joshua Kinard <kumba@gentoo.org>
+Signed-off-by: Huang Pei <huangpei@loongson.cn>
+Reviewed-by: Joshua Kinard <kumba@gentoo.org>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-imx/mmdc.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ arch/mips/include/asm/pgalloc.h | 17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arm/mach-imx/mmdc.c b/arch/arm/mach-imx/mmdc.c
-index 0dfd0ae7a63d..8e57691aafe2 100644
---- a/arch/arm/mach-imx/mmdc.c
-+++ b/arch/arm/mach-imx/mmdc.c
-@@ -462,6 +462,7 @@ static int imx_mmdc_remove(struct platform_device *pdev)
+diff --git a/arch/mips/include/asm/pgalloc.h b/arch/mips/include/asm/pgalloc.h
+index d0cf997b4ba8..139b4050259f 100644
+--- a/arch/mips/include/asm/pgalloc.h
++++ b/arch/mips/include/asm/pgalloc.h
+@@ -59,15 +59,20 @@ do {							\
  
- 	cpuhp_state_remove_instance_nocalls(cpuhp_mmdc_state, &pmu_mmdc->node);
- 	perf_pmu_unregister(&pmu_mmdc->pmu);
-+	iounmap(pmu_mmdc->mmdc_base);
- 	kfree(pmu_mmdc);
- 	return 0;
- }
-@@ -567,7 +568,11 @@ static int imx_mmdc_probe(struct platform_device *pdev)
- 	val &= ~(1 << BP_MMDC_MAPSR_PSD);
- 	writel_relaxed(val, reg);
+ static inline pmd_t *pmd_alloc_one(struct mm_struct *mm, unsigned long address)
+ {
+-	pmd_t *pmd = NULL;
++	pmd_t *pmd;
+ 	struct page *pg;
  
--	return imx_mmdc_perf_init(pdev, mmdc_base);
-+	err = imx_mmdc_perf_init(pdev, mmdc_base);
-+	if (err)
-+		iounmap(mmdc_base);
+-	pg = alloc_pages(GFP_KERNEL | __GFP_ACCOUNT, PMD_ORDER);
+-	if (pg) {
+-		pgtable_pmd_page_ctor(pg);
+-		pmd = (pmd_t *)page_address(pg);
+-		pmd_init((unsigned long)pmd, (unsigned long)invalid_pte_table);
++	pg = alloc_pages(GFP_KERNEL_ACCOUNT, PMD_ORDER);
++	if (!pg)
++		return NULL;
 +
-+	return err;
++	if (!pgtable_pmd_page_ctor(pg)) {
++		__free_pages(pg, PMD_ORDER);
++		return NULL;
+ 	}
++
++	pmd = (pmd_t *)page_address(pg);
++	pmd_init((unsigned long)pmd, (unsigned long)invalid_pte_table);
+ 	return pmd;
  }
  
- int imx_mmdc_get_ddr_type(void)
 -- 
 2.30.2
 
