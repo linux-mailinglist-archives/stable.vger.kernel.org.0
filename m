@@ -2,32 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D82CC3E80BF
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:53:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F67B3E80CA
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:53:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236317AbhHJRwC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:52:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55516 "EHLO mail.kernel.org"
+        id S235798AbhHJRw1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:52:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43222 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237251AbhHJRuS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:50:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C1E5261288;
-        Tue, 10 Aug 2021 17:42:30 +0000 (UTC)
+        id S237312AbhHJRuW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:50:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 08FF26126A;
+        Tue, 10 Aug 2021 17:42:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617351;
-        bh=LWtX7Sg/VE+wTK3kLySBFzwV8dTYOhUf8dKH7tMismg=;
+        s=korg; t=1628617353;
+        bh=31txEqwTPGPHZrDBtM17rzjaqa5l+sdEscuwlIenaME=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vUqhuWUNa4JbRRpjjidAi6iprkUDJY0LGQWAzzgjnYe+JhmC3JTYLiCCseinIS3RK
-         fSsTQEGtScXINZXTc92qckQBres6ADihDyEOpC5g7BxB3B5kHE4LEOQeOkZg308F0G
-         GDJSfB/SX48sx1mOvfnLt7WCAie+OVSw8bi6mmTU=
+        b=VGdP+qOv1bjCmfl5Iq7AOSqdhbkxz/KWyqyCuWZiyVSKpSWHLFxEIGX3m2FKCHqS8
+         hig1StnmN+mUxfYjFyRnQ1nTF16544CbKXOKKkDZ0Rz7FcZ74KDZYDzZfXKWK2c5Na
+         oyCSGLxeamXmpJaTTQAfLo614+PhZYDpbxCP+BHw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ye Bin <yebin10@huawei.com>,
-        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 020/175] ext4: fix potential uninitialized access to retval in kmmpd
-Date:   Tue, 10 Aug 2021 19:28:48 +0200
-Message-Id: <20210810173001.612148440@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 021/175] arm64: dts: armada-3720-turris-mox: remove mrvl,i2c-fast-mode
+Date:   Tue, 10 Aug 2021 19:28:49 +0200
+Message-Id: <20210810173001.653424072@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
 References: <20210810173000.928681411@linuxfoundation.org>
@@ -39,35 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit b66541422824cf6cf20e9a35112e9cb5d82cdf62 ]
+[ Upstream commit ee7ab3f263f8131722cff3871b9618b1e7478f07 ]
 
-if (!ext4_has_feature_mmp(sb)) then retval can be unitialized before
-we jump to the wait_to_exit label.
+Some SFP modules are not detected when i2c-fast-mode is enabled even when
+clock-frequency is already set to 100000. The I2C bus violates the timing
+specifications when run in fast mode. So disable fast mode on Turris Mox.
 
-Fixes: 61bb4a1c417e ("ext4: fix possible UAF when remounting r/o a mmp-protected file system")
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Link: https://lore.kernel.org/r/20210713022728.2533770-1-yebin10@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Same change was already applied for uDPU (also Armada 3720 board with SFP)
+in commit fe3ec631a77d ("arm64: dts: uDPU: remove i2c-fast-mode").
+
+Fixes: 7109d817db2e ("arm64: dts: marvell: add DTS for Turris Mox")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Reviewed-by: Marek Behún <kabel@kernel.org>
+Acked-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/mmp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/ext4/mmp.c b/fs/ext4/mmp.c
-index bc364c119af6..cebea4270817 100644
---- a/fs/ext4/mmp.c
-+++ b/fs/ext4/mmp.c
-@@ -138,7 +138,7 @@ static int kmmpd(void *data)
- 	unsigned mmp_check_interval;
- 	unsigned long last_update_time;
- 	unsigned long diff;
--	int retval;
-+	int retval = 0;
+diff --git a/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts b/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
+index f2d7d6f071bc..a05b1ab2dd12 100644
+--- a/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
++++ b/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
+@@ -121,6 +121,7 @@
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&i2c1_pins>;
+ 	clock-frequency = <100000>;
++	/delete-property/ mrvl,i2c-fast-mode;
+ 	status = "okay";
  
- 	mmp_block = le64_to_cpu(es->s_mmp_block);
- 	mmp = (struct mmp_struct *)(bh->b_data);
+ 	rtc@6f {
 -- 
 2.30.2
 
