@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 733153E7F97
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:41:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB2993E812A
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:56:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233130AbhHJRlI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:41:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42778 "EHLO mail.kernel.org"
+        id S234655AbhHJR4J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:56:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235542AbhHJRjm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:39:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BAAEF61205;
-        Tue, 10 Aug 2021 17:37:31 +0000 (UTC)
+        id S236402AbhHJRwx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:52:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1368361211;
+        Tue, 10 Aug 2021 17:43:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617052;
-        bh=uNRiHPmOFngc/3txJLuzFgzffMJx3gU4J64hQMU7bh4=;
+        s=korg; t=1628617419;
+        bh=+cgL0SG5Fv4qNR5N9qoSaHhj2DG+7GYK5oXMGHUAJaU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bYsf23qA6FTuHDEwJJrYK0iRkBbzLVS0wufccyCkmywv2bTP4xUJ5c3Ms8Q26Qd26
-         XzDW4gqpt2n8HYV8TmnN2A5Popy4d3Hi7FL7SpE2Nueu1Yw8ToXs7Ywf/ZBA7OE1Y0
-         EoSXiyMd8R2YdyGQe/1cA2PAkp4KLD2I9w4Tx2zU=
+        b=wPPDqrDPtl7MI235wyP5IVloD1jExXY6UyQwUbwOqF0kEMV8VFlrlSgJZGfWEDtfx
+         kNwjU8EGfQAu+TCM4jNorqDSa8WTC7M4q27Kw/3UbpwznhrEOI6P8ySqxpCT66uKoT
+         xdpri1jTWBS3IOBTAk0r0tHJaBF3dQEkJb9rAwJY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        syzbot+9ba1174359adba5a5b7c@syzkaller.appspotmail.com,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Nikolay Aleksandrov <nikolay@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 023/135] spi: imx: mx51-ecspi: Reinstate low-speed CONFIGREG delay
-Date:   Tue, 10 Aug 2021 19:29:17 +0200
-Message-Id: <20210810172956.457357248@linuxfoundation.org>
+Subject: [PATCH 5.13 050/175] net: bridge: validate the NUD_PERMANENT bit when adding an extern_learn FDB entry
+Date:   Tue, 10 Aug 2021 19:29:18 +0200
+Message-Id: <20210810173002.589541501@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
-References: <20210810172955.660225700@linuxfoundation.org>
+In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
+References: <20210810173000.928681411@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,102 +43,188 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit 135cbd378eab336da15de9c84bbb22bf743b38a5 ]
+[ Upstream commit 0541a6293298fb52789de389dfb27ef54df81f73 ]
 
-Since 00b80ac935539 ("spi: imx: mx51-ecspi: Move some initialisation to
-prepare_message hook."), the MX51_ECSPI_CONFIG write no longer happens
-in prepare_transfer hook, but rather in prepare_message hook, however
-the MX51_ECSPI_CONFIG delay is still left in prepare_transfer hook and
-thus has no effect. This leads to low bus frequency operation problems
-described in 6fd8b8503a0dc ("spi: spi-imx: Fix out-of-order CS/SCLK
-operation at low speeds") again.
+Currently it is possible to add broken extern_learn FDB entries to the
+bridge in two ways:
 
-Move the MX51_ECSPI_CONFIG write delay into the prepare_message hook
-as well, thus reinstating the low bus frequency fix.
+1. Entries pointing towards the bridge device that are not local/permanent:
 
-Fixes: 00b80ac935539 ("spi: imx: mx51-ecspi: Move some initialisation to prepare_message hook.")
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Cc: Mark Brown <broonie@kernel.org>
-Link: https://lore.kernel.org/r/20210703022300.296114-1-marex@denx.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+ip link add br0 type bridge
+bridge fdb add 00:01:02:03:04:05 dev br0 self extern_learn static
+
+2. Entries pointing towards the bridge device or towards a port that
+are marked as local/permanent, however the bridge does not process the
+'permanent' bit in any way, therefore they are recorded as though they
+aren't permanent:
+
+ip link add br0 type bridge
+bridge fdb add 00:01:02:03:04:05 dev br0 self extern_learn permanent
+
+Since commit 52e4bec15546 ("net: bridge: switchdev: treat local FDBs the
+same as entries towards the bridge"), these incorrect FDB entries can
+even trigger NULL pointer dereferences inside the kernel.
+
+This is because that commit made the assumption that all FDB entries
+that are not local/permanent have a valid destination port. For context,
+local / permanent FDB entries either have fdb->dst == NULL, and these
+point towards the bridge device and are therefore local and not to be
+used for forwarding, or have fdb->dst == a net_bridge_port structure
+(but are to be treated in the same way, i.e. not for forwarding).
+
+That assumption _is_ correct as long as things are working correctly in
+the bridge driver, i.e. we cannot logically have fdb->dst == NULL under
+any circumstance for FDB entries that are not local. However, the
+extern_learn code path where FDB entries are managed by a user space
+controller show that it is possible for the bridge kernel driver to
+misinterpret the NUD flags of an entry transmitted by user space, and
+end up having fdb->dst == NULL while not being a local entry. This is
+invalid and should be rejected.
+
+Before, the two commands listed above both crashed the kernel in this
+check from br_switchdev_fdb_notify:
+
+	struct net_device *dev = info.is_local ? br->dev : dst->dev;
+
+info.is_local == false, dst == NULL.
+
+After this patch, the invalid entry added by the first command is
+rejected:
+
+ip link add br0 type bridge && bridge fdb add 00:01:02:03:04:05 dev br0 self extern_learn static; ip link del br0
+Error: bridge: FDB entry towards bridge must be permanent.
+
+and the valid entry added by the second command is properly treated as a
+local address and does not crash br_switchdev_fdb_notify anymore:
+
+ip link add br0 type bridge && bridge fdb add 00:01:02:03:04:05 dev br0 self extern_learn permanent; ip link del br0
+
+Fixes: eb100e0e24a2 ("net: bridge: allow to add externally learned entries from user-space")
+Reported-by: syzbot+9ba1174359adba5a5b7c@syzkaller.appspotmail.com
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+Link: https://lore.kernel.org/r/20210801231730.7493-1-vladimir.oltean@nxp.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-imx.c | 38 +++++++++++++++++++-------------------
- 1 file changed, 19 insertions(+), 19 deletions(-)
+ net/bridge/br.c         |  3 ++-
+ net/bridge/br_fdb.c     | 30 ++++++++++++++++++++++++------
+ net/bridge/br_private.h |  2 +-
+ 3 files changed, 27 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/spi/spi-imx.c b/drivers/spi/spi-imx.c
-index c8b750d8ac35..8c0a6ea941ad 100644
---- a/drivers/spi/spi-imx.c
-+++ b/drivers/spi/spi-imx.c
-@@ -506,7 +506,7 @@ static int mx51_ecspi_prepare_message(struct spi_imx_data *spi_imx,
+diff --git a/net/bridge/br.c b/net/bridge/br.c
+index ef743f94254d..bbab9984f24e 100644
+--- a/net/bridge/br.c
++++ b/net/bridge/br.c
+@@ -166,7 +166,8 @@ static int br_switchdev_event(struct notifier_block *unused,
+ 	case SWITCHDEV_FDB_ADD_TO_BRIDGE:
+ 		fdb_info = ptr;
+ 		err = br_fdb_external_learn_add(br, p, fdb_info->addr,
+-						fdb_info->vid, false);
++						fdb_info->vid,
++						fdb_info->is_local, false);
+ 		if (err) {
+ 			err = notifier_from_errno(err);
+ 			break;
+diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
+index 698b79747d32..87ce52bba649 100644
+--- a/net/bridge/br_fdb.c
++++ b/net/bridge/br_fdb.c
+@@ -1001,7 +1001,8 @@ static int fdb_add_entry(struct net_bridge *br, struct net_bridge_port *source,
+ 
+ static int __br_fdb_add(struct ndmsg *ndm, struct net_bridge *br,
+ 			struct net_bridge_port *p, const unsigned char *addr,
+-			u16 nlh_flags, u16 vid, struct nlattr *nfea_tb[])
++			u16 nlh_flags, u16 vid, struct nlattr *nfea_tb[],
++			struct netlink_ext_ack *extack)
  {
- 	struct spi_device *spi = msg->spi;
- 	u32 ctrl = MX51_ECSPI_CTRL_ENABLE;
--	u32 testreg;
-+	u32 testreg, delay;
- 	u32 cfg = readl(spi_imx->base + MX51_ECSPI_CONFIG);
+ 	int err = 0;
  
- 	/* set Master or Slave mode */
-@@ -567,6 +567,23 @@ static int mx51_ecspi_prepare_message(struct spi_imx_data *spi_imx,
- 
- 	writel(cfg, spi_imx->base + MX51_ECSPI_CONFIG);
- 
-+	/*
-+	 * Wait until the changes in the configuration register CONFIGREG
-+	 * propagate into the hardware. It takes exactly one tick of the
-+	 * SCLK clock, but we will wait two SCLK clock just to be sure. The
-+	 * effect of the delay it takes for the hardware to apply changes
-+	 * is noticable if the SCLK clock run very slow. In such a case, if
-+	 * the polarity of SCLK should be inverted, the GPIO ChipSelect might
-+	 * be asserted before the SCLK polarity changes, which would disrupt
-+	 * the SPI communication as the device on the other end would consider
-+	 * the change of SCLK polarity as a clock tick already.
-+	 */
-+	delay = (2 * 1000000) / spi_imx->spi_bus_clk;
-+	if (likely(delay < 10))	/* SCLK is faster than 100 kHz */
-+		udelay(delay);
-+	else			/* SCLK is _very_ slow */
-+		usleep_range(delay, delay + 10);
+@@ -1020,7 +1021,15 @@ static int __br_fdb_add(struct ndmsg *ndm, struct net_bridge *br,
+ 		rcu_read_unlock();
+ 		local_bh_enable();
+ 	} else if (ndm->ndm_flags & NTF_EXT_LEARNED) {
+-		err = br_fdb_external_learn_add(br, p, addr, vid, true);
++		if (!p && !(ndm->ndm_state & NUD_PERMANENT)) {
++			NL_SET_ERR_MSG_MOD(extack,
++					   "FDB entry towards bridge must be permanent");
++			return -EINVAL;
++		}
 +
- 	return 0;
++		err = br_fdb_external_learn_add(br, p, addr, vid,
++						ndm->ndm_state & NUD_PERMANENT,
++						true);
+ 	} else {
+ 		spin_lock_bh(&br->hash_lock);
+ 		err = fdb_add_entry(br, p, addr, ndm, nlh_flags, vid, nfea_tb);
+@@ -1092,9 +1101,11 @@ int br_fdb_add(struct ndmsg *ndm, struct nlattr *tb[],
+ 		}
+ 
+ 		/* VID was specified, so use it. */
+-		err = __br_fdb_add(ndm, br, p, addr, nlh_flags, vid, nfea_tb);
++		err = __br_fdb_add(ndm, br, p, addr, nlh_flags, vid, nfea_tb,
++				   extack);
+ 	} else {
+-		err = __br_fdb_add(ndm, br, p, addr, nlh_flags, 0, nfea_tb);
++		err = __br_fdb_add(ndm, br, p, addr, nlh_flags, 0, nfea_tb,
++				   extack);
+ 		if (err || !vg || !vg->num_vlans)
+ 			goto out;
+ 
+@@ -1106,7 +1117,7 @@ int br_fdb_add(struct ndmsg *ndm, struct nlattr *tb[],
+ 			if (!br_vlan_should_use(v))
+ 				continue;
+ 			err = __br_fdb_add(ndm, br, p, addr, nlh_flags, v->vid,
+-					   nfea_tb);
++					   nfea_tb, extack);
+ 			if (err)
+ 				goto out;
+ 		}
+@@ -1246,7 +1257,7 @@ void br_fdb_unsync_static(struct net_bridge *br, struct net_bridge_port *p)
  }
  
-@@ -574,7 +591,7 @@ static int mx51_ecspi_prepare_transfer(struct spi_imx_data *spi_imx,
- 				       struct spi_device *spi)
+ int br_fdb_external_learn_add(struct net_bridge *br, struct net_bridge_port *p,
+-			      const unsigned char *addr, u16 vid,
++			      const unsigned char *addr, u16 vid, bool is_local,
+ 			      bool swdev_notify)
  {
- 	u32 ctrl = readl(spi_imx->base + MX51_ECSPI_CTRL);
--	u32 clk, delay;
-+	u32 clk;
+ 	struct net_bridge_fdb_entry *fdb;
+@@ -1263,6 +1274,10 @@ int br_fdb_external_learn_add(struct net_bridge *br, struct net_bridge_port *p,
  
- 	/* Clear BL field and set the right value */
- 	ctrl &= ~MX51_ECSPI_CTRL_BL_MASK;
-@@ -596,23 +613,6 @@ static int mx51_ecspi_prepare_transfer(struct spi_imx_data *spi_imx,
+ 		if (swdev_notify)
+ 			flags |= BIT(BR_FDB_ADDED_BY_USER);
++
++		if (is_local)
++			flags |= BIT(BR_FDB_LOCAL);
++
+ 		fdb = fdb_create(br, p, addr, vid, flags);
+ 		if (!fdb) {
+ 			err = -ENOMEM;
+@@ -1289,6 +1304,9 @@ int br_fdb_external_learn_add(struct net_bridge *br, struct net_bridge_port *p,
+ 		if (swdev_notify)
+ 			set_bit(BR_FDB_ADDED_BY_USER, &fdb->flags);
  
- 	writel(ctrl, spi_imx->base + MX51_ECSPI_CTRL);
- 
--	/*
--	 * Wait until the changes in the configuration register CONFIGREG
--	 * propagate into the hardware. It takes exactly one tick of the
--	 * SCLK clock, but we will wait two SCLK clock just to be sure. The
--	 * effect of the delay it takes for the hardware to apply changes
--	 * is noticable if the SCLK clock run very slow. In such a case, if
--	 * the polarity of SCLK should be inverted, the GPIO ChipSelect might
--	 * be asserted before the SCLK polarity changes, which would disrupt
--	 * the SPI communication as the device on the other end would consider
--	 * the change of SCLK polarity as a clock tick already.
--	 */
--	delay = (2 * 1000000) / clk;
--	if (likely(delay < 10))	/* SCLK is faster than 100 kHz */
--		udelay(delay);
--	else			/* SCLK is _very_ slow */
--		usleep_range(delay, delay + 10);
--
- 	return 0;
- }
- 
++		if (is_local)
++			set_bit(BR_FDB_LOCAL, &fdb->flags);
++
+ 		if (modified)
+ 			fdb_notify(br, fdb, RTM_NEWNEIGH, swdev_notify);
+ 	}
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index e013d33f1c7c..4e3d26e0a2d1 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -707,7 +707,7 @@ int br_fdb_get(struct sk_buff *skb, struct nlattr *tb[], struct net_device *dev,
+ int br_fdb_sync_static(struct net_bridge *br, struct net_bridge_port *p);
+ void br_fdb_unsync_static(struct net_bridge *br, struct net_bridge_port *p);
+ int br_fdb_external_learn_add(struct net_bridge *br, struct net_bridge_port *p,
+-			      const unsigned char *addr, u16 vid,
++			      const unsigned char *addr, u16 vid, bool is_local,
+ 			      bool swdev_notify);
+ int br_fdb_external_learn_del(struct net_bridge *br, struct net_bridge_port *p,
+ 			      const unsigned char *addr, u16 vid,
 -- 
 2.30.2
 
