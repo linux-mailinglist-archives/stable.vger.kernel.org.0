@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B4493E819B
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:01:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B1D03E81A2
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:01:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237289AbhHJSA2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 14:00:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33478 "EHLO mail.kernel.org"
+        id S234485AbhHJSAv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 14:00:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236210AbhHJR6z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:58:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6065B61101;
-        Tue, 10 Aug 2021 17:46:04 +0000 (UTC)
+        id S236641AbhHJR7F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:59:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D9CB960EBD;
+        Tue, 10 Aug 2021 17:46:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617564;
-        bh=SgdEzm93F5mtxhKSIBUxyhXnKpQX5fjHSsZuNqdxQkA=;
+        s=korg; t=1628617569;
+        bh=BLHQqKb8ikCkPlotHQaxX5A93AmN8Zs6Ru6UC/fDNn4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SF2bliAzbTt65RP/CAeTnXe9CJ6PbAszohxgMPsVRj7TsX5qQlDFeXroNRUg7uzFv
-         F4U9dK8ogBUBDpdRysdRRipNhk23UYScU1wccvPI3UXseida1H0ybzaGxtGGKLw4hb
-         fMHjrLqBOnYgOVvlk8P3bTfk4Lc3vTpBRzVNQJTo=
+        b=QcqZcLrR3sSTkgRkg0Hll57IDCmHiX4KCR5q7Qor8p6hVugLltPG+xlKPelQyE3Ie
+         nhWRNWB+kzFN0tvJzvp6Qc8KifHxeTBN4yc6bnaidgI4exDg5k3E8lDDRlX6SYZq2j
+         kJidGbTBjLxhu2abBZTRqa39Q35oQFgYx8PkQepM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tyler Hicks <tyhicks@linux.microsoft.com>,
-        Sumit Garg <sumit.garg@linaro.org>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Jens Wiklander <jens.wiklander@linaro.org>
-Subject: [PATCH 5.13 115/175] tpm_ftpm_tee: Free and unregister TEE shared memory during kexec
-Date:   Tue, 10 Aug 2021 19:30:23 +0200
-Message-Id: <20210810173004.739657923@linuxfoundation.org>
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Xiangyang Zhang <xyz.sun.ok@gmail.com>
+Subject: [PATCH 5.13 116/175] staging: rtl8723bs: Fix a resource leak in sd_int_dpc
+Date:   Tue, 10 Aug 2021 19:30:24 +0200
+Message-Id: <20210810173004.773079929@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
 References: <20210810173000.928681411@linuxfoundation.org>
@@ -41,53 +39,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tyler Hicks <tyhicks@linux.microsoft.com>
+From: Xiangyang Zhang <xyz.sun.ok@gmail.com>
 
-commit dfb703ad2a8d366b829818a558337be779746575 upstream.
+commit 990e4ad3ddcb72216caeddd6e62c5f45a21e8121 upstream.
 
-dma-buf backed shared memory cannot be reliably freed and unregistered
-during a kexec operation even when tee_shm_free() is called on the shm
-from a .shutdown hook. The problem occurs because dma_buf_put() calls
-fput() which then uses task_work_add(), with the TWA_RESUME parameter,
-to queue tee_shm_release() to be called before the current task returns
-to user mode. However, the current task never returns to user mode
-before the kexec completes so the memory is never freed nor
-unregistered.
+The "c2h_evt" variable is not freed when function call
+"c2h_evt_read_88xx" failed
 
-Use tee_shm_alloc_kernel_buf() to avoid dma-buf backed shared memory
-allocation so that tee_shm_free() can directly call tee_shm_release().
-This will ensure that the shm can be freed and unregistered during a
-kexec operation.
-
-Fixes: 09e574831b27 ("tpm/tpm_ftpm_tee: A driver for firmware TPM running inside TEE")
-Fixes: 1760eb689ed6 ("tpm/tpm_ftpm_tee: add shutdown call back")
-Cc: stable@vger.kernel.org
-Signed-off-by: Tyler Hicks <tyhicks@linux.microsoft.com>
-Reviewed-by: Sumit Garg <sumit.garg@linaro.org>
-Acked-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
+Fixes: 554c0a3abf21 ("staging: Add rtl8723bs sdio wifi driver")
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Xiangyang Zhang <xyz.sun.ok@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210628152239.5475-1-xyz.sun.ok@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/tpm/tpm_ftpm_tee.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/staging/rtl8723bs/hal/sdio_ops.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/char/tpm/tpm_ftpm_tee.c
-+++ b/drivers/char/tpm/tpm_ftpm_tee.c
-@@ -254,11 +254,11 @@ static int ftpm_tee_probe(struct device
- 	pvt_data->session = sess_arg.session;
- 
- 	/* Allocate dynamic shared memory with fTPM TA */
--	pvt_data->shm = tee_shm_alloc(pvt_data->ctx,
--				      MAX_COMMAND_SIZE + MAX_RESPONSE_SIZE,
--				      TEE_SHM_MAPPED | TEE_SHM_DMA_BUF);
-+	pvt_data->shm = tee_shm_alloc_kernel_buf(pvt_data->ctx,
-+						 MAX_COMMAND_SIZE +
-+						 MAX_RESPONSE_SIZE);
- 	if (IS_ERR(pvt_data->shm)) {
--		dev_err(dev, "%s: tee_shm_alloc failed\n", __func__);
-+		dev_err(dev, "%s: tee_shm_alloc_kernel_buf failed\n", __func__);
- 		rc = -ENOMEM;
- 		goto out_shm_alloc;
- 	}
+--- a/drivers/staging/rtl8723bs/hal/sdio_ops.c
++++ b/drivers/staging/rtl8723bs/hal/sdio_ops.c
+@@ -921,6 +921,8 @@ void sd_int_dpc(struct adapter *adapter)
+ 				} else {
+ 					rtw_c2h_wk_cmd(adapter, (u8 *)c2h_evt);
+ 				}
++			} else {
++				kfree(c2h_evt);
+ 			}
+ 		} else {
+ 			/* Error handling for malloc fail */
 
 
