@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 62CB23E8012
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:47:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B3473E7E82
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:33:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235771AbhHJRqE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:46:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38076 "EHLO mail.kernel.org"
+        id S232824AbhHJRdv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:33:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34154 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236136AbhHJRoc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:44:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8140A610A0;
-        Tue, 10 Aug 2021 17:39:35 +0000 (UTC)
+        id S232126AbhHJRdY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:33:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E3AF860F13;
+        Tue, 10 Aug 2021 17:33:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617176;
-        bh=kZhnoqq0lOs/n/AkRcgA4EmH5PJ3/PgnMkbxD7CHxgs=;
+        s=korg; t=1628616782;
+        bh=nrCmIb4AruyukeULlliE3orbEI85qOJB3L9iiqPuQ4M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kGGu0jMPUZVDUoRKvMEWRXQXfSIdVjqhNoGXtDGBdpZKxeLFh18WXhb/YAS0uSGyg
-         qyzt+zyfqUmmAIYUVNwvBNAD+qpIx+uS56UY/zhTH1g+ocwnB8Y/JqOuow3Aqx/nBd
-         6s6Jt4fQogfvJIT3N7ev4RNkvmjz3JmIzm6aZL40=
+        b=sAlA0Gk/3MPjTPt96porWn7twO2hMuNXkOZuevPSbUuX3TmigAnKi5norqD2uAhRl
+         53LbSyOCA2qqFpp0Z5y7+EB7KBleUQdUmDTw+VPImvLxZvR2O0yJ3EvdFHPD12GiMt
+         WMcWVai31m4ewabgVbvl9u03cImLrbkM+2lX7j+Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Badhri Jagan Sridharan <badhri@google.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Kyle Tso <kyletso@google.com>
-Subject: [PATCH 5.10 071/135] usb: typec: tcpm: Keep other events when receiving FRS and Sourcing_vbus events
+        stable@vger.kernel.org, Ying Xu <yinxu@redhat.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 11/54] sctp: move the active_key update after sh_keys is added
 Date:   Tue, 10 Aug 2021 19:30:05 +0200
-Message-Id: <20210810172958.141122822@linuxfoundation.org>
+Message-Id: <20210810172944.557219837@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
-References: <20210810172955.660225700@linuxfoundation.org>
+In-Reply-To: <20210810172944.179901509@linuxfoundation.org>
+References: <20210810172944.179901509@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,45 +41,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kyle Tso <kyletso@google.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit 43ad944cd73f2360ec8ff31d29ea44830b3119af upstream.
+[ Upstream commit ae954bbc451d267f7d60d7b49db811d5a68ebd7b ]
 
-When receiving FRS and Sourcing_Vbus events from low-level drivers, keep
-other events which come a bit earlier so that they will not be ignored
-in the event handler.
+In commit 58acd1009226 ("sctp: update active_key for asoc when old key is
+being replaced"), sctp_auth_asoc_init_active_key() is called to update
+the active_key right after the old key is deleted and before the new key
+is added, and it caused that the active_key could be found with the key_id.
 
-Fixes: 8dc4bd073663 ("usb: typec: tcpm: Add support for Sink Fast Role SWAP(FRS)")
-Cc: stable <stable@vger.kernel.org>
-Cc: Badhri Jagan Sridharan <badhri@google.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Badhri Jagan Sridharan <badhri@google.com>
-Signed-off-by: Kyle Tso <kyletso@google.com>
-Link: https://lore.kernel.org/r/20210803091314.3051302-1-kyletso@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In Ying Xu's testing, the BUG_ON in sctp_auth_asoc_init_active_key() was
+triggered:
+
+  [ ] kernel BUG at net/sctp/auth.c:416!
+  [ ] RIP: 0010:sctp_auth_asoc_init_active_key.part.8+0xe7/0xf0 [sctp]
+  [ ] Call Trace:
+  [ ]  sctp_auth_set_key+0x16d/0x1b0 [sctp]
+  [ ]  sctp_setsockopt.part.33+0x1ba9/0x2bd0 [sctp]
+  [ ]  __sys_setsockopt+0xd6/0x1d0
+  [ ]  __x64_sys_setsockopt+0x20/0x30
+  [ ]  do_syscall_64+0x5b/0x1a0
+
+So fix it by moving the active_key update after sh_keys is added.
+
+Fixes: 58acd1009226 ("sctp: update active_key for asoc when old key is being replaced")
+Reported-by: Ying Xu <yinxu@redhat.com>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/typec/tcpm/tcpm.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/sctp/auth.c | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
---- a/drivers/usb/typec/tcpm/tcpm.c
-+++ b/drivers/usb/typec/tcpm/tcpm.c
-@@ -4314,7 +4314,7 @@ EXPORT_SYMBOL_GPL(tcpm_pd_hard_reset);
- void tcpm_sink_frs(struct tcpm_port *port)
- {
- 	spin_lock(&port->pd_event_lock);
--	port->pd_events = TCPM_FRS_EVENT;
-+	port->pd_events |= TCPM_FRS_EVENT;
- 	spin_unlock(&port->pd_event_lock);
- 	kthread_queue_work(port->wq, &port->event_work);
+diff --git a/net/sctp/auth.c b/net/sctp/auth.c
+index b2ca66c4a21d..9e0c98df20da 100644
+--- a/net/sctp/auth.c
++++ b/net/sctp/auth.c
+@@ -880,14 +880,18 @@ int sctp_auth_set_key(struct sctp_endpoint *ep,
+ 	memcpy(key->data, &auth_key->sca_key[0], auth_key->sca_keylength);
+ 	cur_key->key = key;
+ 
+-	if (replace) {
+-		list_del_init(&shkey->key_list);
+-		sctp_auth_shkey_release(shkey);
+-		if (asoc && asoc->active_key_id == auth_key->sca_keynumber)
+-			sctp_auth_asoc_init_active_key(asoc, GFP_KERNEL);
++	if (!replace) {
++		list_add(&cur_key->key_list, sh_keys);
++		return 0;
+ 	}
++
++	list_del_init(&shkey->key_list);
++	sctp_auth_shkey_release(shkey);
+ 	list_add(&cur_key->key_list, sh_keys);
+ 
++	if (asoc && asoc->active_key_id == auth_key->sca_keynumber)
++		sctp_auth_asoc_init_active_key(asoc, GFP_KERNEL);
++
+ 	return 0;
  }
-@@ -4323,7 +4323,7 @@ EXPORT_SYMBOL_GPL(tcpm_sink_frs);
- void tcpm_sourcing_vbus(struct tcpm_port *port)
- {
- 	spin_lock(&port->pd_event_lock);
--	port->pd_events = TCPM_SOURCING_VBUS;
-+	port->pd_events |= TCPM_SOURCING_VBUS;
- 	spin_unlock(&port->pd_event_lock);
- 	kthread_queue_work(port->wq, &port->event_work);
- }
+ 
+-- 
+2.30.2
+
 
 
