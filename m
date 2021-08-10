@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D61D3E7EA0
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:34:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C854C3E7F6C
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:41:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232435AbhHJRef (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:34:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39102 "EHLO mail.kernel.org"
+        id S234349AbhHJRkV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:40:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232186AbhHJReF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:34:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C4D4861008;
-        Tue, 10 Aug 2021 17:33:42 +0000 (UTC)
+        id S233409AbhHJRgl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:36:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B6D96610EA;
+        Tue, 10 Aug 2021 17:35:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616823;
-        bh=kZHpL4mnKd89RiNQ6zs9WyFH1aDrGh+DESIMDi1T6eg=;
+        s=korg; t=1628616944;
+        bh=xHgfxz9wQATRqOjex35VnVIrpDufuV1SvTgYhWBlqA4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DQK46tWgJ7kEnkhAOEIrMx2wJi1JMxz+Kgmn+HMBUHrOCebjDst05HqSjtkVlNY5k
-         B0v+/cMEoGcrZtFZWoEXEtWETwfWXD3+vMDQJ7qFz3Gva3hlDjOmp8m5MLlG/LsEmy
-         7OONUC4fF246hl7QTDPJBEthbx7maGLQm4NeV1Xw=
+        b=Ou/TInDv+Rx0W2yVHFgKrMjFuhDsWgh6gHjY0XPUG2EzTDEX6HLJtBhvOF0pjFH7e
+         ssFhe1DfQUWvq06oBYSaHQpVnypQj9Bq/ODnwzT7ylOh4I8sWMzWPDiO16UT1T08zq
+         2XCeDkXG28N5zMRvIDtZe2mfagmvNPZT2JzMmbAE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <f4bug@amsat.org>,
-        "Maciej W. Rozycki" <macro@orcam.me.uk>
-Subject: [PATCH 4.19 41/54] serial: 8250: Mask out floating 16/32-bit bus bits
+        stable@vger.kernel.org, Zhiyong Tao <zhiyong.tao@mediatek.com>
+Subject: [PATCH 5.4 62/85] serial: 8250_mtk: fix uart corruption issue when rx power off
 Date:   Tue, 10 Aug 2021 19:30:35 +0200
-Message-Id: <20210810172945.543204209@linuxfoundation.org>
+Message-Id: <20210810172950.339027962@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172944.179901509@linuxfoundation.org>
-References: <20210810172944.179901509@linuxfoundation.org>
+In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
+References: <20210810172948.192298392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,101 +38,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej W. Rozycki <macro@orcam.me.uk>
+From: Zhiyong Tao <zhiyong.tao@mediatek.com>
 
-commit e5227c51090e165db4b48dcaa300605bfced7014 upstream.
+commit 7c4a509d3815a260c423c0633bd73695250ac26d upstream.
 
-Make sure only actual 8 bits of the IIR register are used in determining
-the port type in `autoconfig'.
+Fix uart corruption issue when rx power off.
+Add spin lock in mtk8250_dma_rx_complete function in APDMA mode.
 
-The `serial_in' port accessor returns the `unsigned int' type, meaning
-that with UPIO_AU, UPIO_MEM16, UPIO_MEM32, and UPIO_MEM32BE access types
-more than 8 bits of data are returned, of which the high order bits will
-often come from bus lines that are left floating in the data phase.  For
-example with the MIPS Malta board's CBUS UART, where the registers are
-aligned on 8-byte boundaries and which uses 32-bit accesses, data as
-follows is returned:
+when uart is used as a communication port with external device(GPS).
+when external device(GPS) power off, the power of rx pin is also from
+1.8v to 0v. Even if there is not any data in rx. But uart rx pin can
+capture the data "0".
+If uart don't receive any data in specified cycle, uart will generates
+BI(Break interrupt) interrupt.
+If external device(GPS) power off, we found that BI interrupt appeared
+continuously and very frequently.
+When uart interrupt type is BI, uart IRQ handler(8250 framwork
+API:serial8250_handle_irq) will push data to tty buffer.
+mtk8250_dma_rx_complete is a task of mtk_uart_apdma_rx_handler.
+mtk8250_dma_rx_complete priority is lower than uart irq
+handler(serial8250_handle_irq).
+if we are in process of mtk8250_dma_rx_complete, uart appear BI
+interrupt:1)serial8250_handle_irq will priority execution.2)it may cause
+write tty buffer conflict in mtk8250_dma_rx_complete.
+So the spin lock protect the rx receive data process is not break.
 
-YAMON> dump -32 0xbf000900 0x40
-
-BF000900: 1F000942 1F000942 1F000900 1F000900  ...B...B........
-BF000910: 1F000901 1F000901 1F000900 1F000900  ................
-BF000920: 1F000900 1F000900 1F000960 1F000960  ...........`...`
-BF000930: 1F000900 1F000900 1F0009FF 1F0009FF  ................
-
-YAMON>
-
-Evidently high-order 24 bits return values previously driven in the
-address phase (the 3 highest order address bits used with the command
-above are masked out in the simple virtual address mapping used here and
-come out at zeros on the external bus), a common scenario with bus lines
-left floating, due to bus capacitance.
-
-Consequently when the value of IIR, mapped at 0x1f000910, is retrieved
-in `autoconfig', it comes out at 0x1f0009c1 and when it is right-shifted
-by 6 and then assigned to 8-bit `scratch' variable, the value calculated
-is 0x27, not one of 0, 1, 2, 3 expected in port type determination.
-
-Fix the issue then, by assigning the value returned from `serial_in' to
-`scratch' first, which masks out 24 high-order bits retrieved, and only
-then right-shift the resulting 8-bit data quantity, producing the value
-of 3 in this case, as expected.  Fix the same issue in `serial_dl_read'.
-
-The problem first appeared with Linux 2.6.9-rc3 which predates our repo
-history, but the origin could be identified with the old MIPS/Linux repo
-also at: <git://git.kernel.org/pub/scm/linux/kernel/git/ralf/linux.git>
-as commit e0d2356c0777 ("Merge with Linux 2.6.9-rc3."), where code in
-`serial_in' was updated with this case:
-
-+	case UPIO_MEM32:
-+		return readl(up->port.membase + offset);
-+
-
-which made it produce results outside the unsigned 8-bit range for the
-first time, though obviously it is system dependent what actual values
-appear in the high order bits retrieved and it may well have been zeros
-in the relevant positions with the system the change originally was
-intended for.  It is at that point that code in `autoconf' should have
-been updated accordingly, but clearly it was overlooked.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: stable@vger.kernel.org # v2.6.12+
-Reviewed-by: Philippe Mathieu-Daudé <f4bug@amsat.org>
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Link: https://lore.kernel.org/r/alpine.DEB.2.21.2106260516220.37803@angie.orcam.me.uk
+Signed-off-by: Zhiyong Tao <zhiyong.tao@mediatek.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210729084640.17613-2-zhiyong.tao@mediatek.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/8250/8250_port.c |   12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/tty/serial/8250/8250_mtk.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/tty/serial/8250/8250_port.c
-+++ b/drivers/tty/serial/8250/8250_port.c
-@@ -313,7 +313,11 @@ static const struct serial8250_config ua
- /* Uart divisor latch read */
- static int default_serial_dl_read(struct uart_8250_port *up)
- {
--	return serial_in(up, UART_DLL) | serial_in(up, UART_DLM) << 8;
-+	/* Assign these in pieces to truncate any bits above 7.  */
-+	unsigned char dll = serial_in(up, UART_DLL);
-+	unsigned char dlm = serial_in(up, UART_DLM);
+--- a/drivers/tty/serial/8250/8250_mtk.c
++++ b/drivers/tty/serial/8250/8250_mtk.c
+@@ -92,10 +92,13 @@ static void mtk8250_dma_rx_complete(void
+ 	struct dma_tx_state state;
+ 	int copied, total, cnt;
+ 	unsigned char *ptr;
++	unsigned long flags;
+ 
+ 	if (data->rx_status == DMA_RX_SHUTDOWN)
+ 		return;
+ 
++	spin_lock_irqsave(&up->port.lock, flags);
 +
-+	return dll | dlm << 8;
+ 	dmaengine_tx_status(dma->rxchan, dma->rx_cookie, &state);
+ 	total = dma->rx_size - state.residue;
+ 	cnt = total;
+@@ -119,6 +122,8 @@ static void mtk8250_dma_rx_complete(void
+ 	tty_flip_buffer_push(tty_port);
+ 
+ 	mtk8250_rx_dma(up);
++
++	spin_unlock_irqrestore(&up->port.lock, flags);
  }
  
- /* Uart divisor latch write */
-@@ -1301,9 +1305,11 @@ static void autoconfig(struct uart_8250_
- 	serial_out(up, UART_LCR, 0);
- 
- 	serial_out(up, UART_FCR, UART_FCR_ENABLE_FIFO);
--	scratch = serial_in(up, UART_IIR) >> 6;
- 
--	switch (scratch) {
-+	/* Assign this as it is to truncate any bits above 7.  */
-+	scratch = serial_in(up, UART_IIR);
-+
-+	switch (scratch >> 6) {
- 	case 0:
- 		autoconfig_8250(up);
- 		break;
+ static void mtk8250_rx_dma(struct uart_8250_port *up)
 
 
