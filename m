@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 65AD43E7F6F
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:41:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 752073E8087
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:50:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234398AbhHJRk0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:40:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36686 "EHLO mail.kernel.org"
+        id S234234AbhHJRus (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:50:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234869AbhHJRi3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:38:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D4E661152;
-        Tue, 10 Aug 2021 17:36:32 +0000 (UTC)
+        id S235310AbhHJRsC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:48:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C567B610A3;
+        Tue, 10 Aug 2021 17:41:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616993;
-        bh=MoZyFUn/L43HQ7SCPVtdqYj3nRTjcC/Hn3C0nmfTl4Q=;
+        s=korg; t=1628617272;
+        bh=TSSu0j/Y42OwHoJ9tyDjSyyjc/nHSELfyyCW/jHTfD0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mwrqwx6sXzNF6scHAT9KfiYSt8B+FDJB2J2wwyzelIrdzX5RpoZ97oS4LoRoI4kEG
-         6ly8t4+xM554kFPXthBeK/264sSicsHi1fOLD+jx9j/19JMbVfHCfpOd7AlFNU7ASj
-         SE6tYetqye8RdPLlpqmdsiSApbF+Z6JbOg5bj54Y=
+        b=glMeAsADqK8ep+4xhQbmiWwIX4zLOpoitWDbCNJ07fxRWSnuAK1bZAz06+eByWCe3
+         /jjt8bvbadQo+J1sbjYfXj3CIE2xxOjsr+dU7NptWaSEaEv6kEL7lT4rTx7F2jJXsT
+         7xpTW/pob1KSpCs0BqiGxd+y4wBFNLAKJifDKFdg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matteo Croce <mcroce@microsoft.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 82/85] virt_wifi: fix error on connect
-Date:   Tue, 10 Aug 2021 19:30:55 +0200
-Message-Id: <20210810172951.010212412@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 5.10 122/135] soc: ixp4xx/qmgr: fix invalid __iomem access
+Date:   Tue, 10 Aug 2021 19:30:56 +0200
+Message-Id: <20210810172959.943307814@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
-References: <20210810172948.192298392@linuxfoundation.org>
+In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
+References: <20210810172955.660225700@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,155 +39,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matteo Croce <mcroce@microsoft.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 17109e9783799be2a063b2bd861a508194b0a487 ]
+commit a8eee86317f11e97990d755d4615c1c0db203d08 upstream.
 
-When connecting without first doing a scan, the BSS list is empty
-and __cfg80211_connect_result() generates this warning:
+Sparse reports a compile time warning when dereferencing an
+__iomem pointer:
 
-$ iw dev wlan0 connect -w VirtWifi
-[   15.371989] ------------[ cut here ]------------
-[   15.372179] WARNING: CPU: 0 PID: 92 at net/wireless/sme.c:756 __cfg80211_connect_result+0x402/0x440
-[   15.372383] CPU: 0 PID: 92 Comm: kworker/u2:2 Not tainted 5.13.0-kvm #444
-[   15.372512] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.14.0-3.fc34 04/01/2014
-[   15.372597] Workqueue: cfg80211 cfg80211_event_work
-[   15.372756] RIP: 0010:__cfg80211_connect_result+0x402/0x440
-[   15.372818] Code: 48 2b 04 25 28 00 00 00 75 59 48 8b 3b 48 8b 76 10 48 8d 65 e0 5b 41 5c 41 5d 41 5e 5d 49 8d 65 f0 41 5d e9 d0 d4 fd ff 0f 0b <0f> 0b e9 f6 fd ff ff e8 f2 4a b4 ff e9 ec fd ff ff 0f 0b e9 19 fd
-[   15.372966] RSP: 0018:ffffc900005cbdc0 EFLAGS: 00010246
-[   15.373022] RAX: 0000000000000000 RBX: ffff8880028e2400 RCX: ffff8880028e2472
-[   15.373088] RDX: 0000000000000002 RSI: 00000000fffffe01 RDI: ffffffff815335ba
-[   15.373149] RBP: ffffc900005cbe00 R08: 0000000000000008 R09: ffff888002bdf8b8
-[   15.373209] R10: ffff88803ec208f0 R11: ffffffffffffe9ae R12: ffff88801d687d98
-[   15.373280] R13: ffff88801b5fe000 R14: ffffc900005cbdc0 R15: dead000000000100
-[   15.373330] FS:  0000000000000000(0000) GS:ffff88803ec00000(0000) knlGS:0000000000000000
-[   15.373382] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   15.373425] CR2: 000056421c468958 CR3: 000000001b458001 CR4: 0000000000170eb0
-[   15.373478] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[   15.373529] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[   15.373580] Call Trace:
-[   15.373611]  ? cfg80211_process_wdev_events+0x10e/0x170
-[   15.373743]  cfg80211_process_wdev_events+0x10e/0x170
-[   15.373783]  cfg80211_process_rdev_events+0x21/0x40
-[   15.373846]  cfg80211_event_work+0x20/0x30
-[   15.373892]  process_one_work+0x1e9/0x340
-[   15.373956]  worker_thread+0x4b/0x3f0
-[   15.374017]  ? process_one_work+0x340/0x340
-[   15.374053]  kthread+0x11f/0x140
-[   15.374089]  ? set_kthread_struct+0x30/0x30
-[   15.374153]  ret_from_fork+0x1f/0x30
-[   15.374187] ---[ end trace 321ef0cb7e9c0be1 ]---
-wlan0 (phy #0): connected to 00:00:00:00:00:00
+drivers/soc/ixp4xx/ixp4xx-qmgr.c:149:37: warning: dereference of noderef expression
+drivers/soc/ixp4xx/ixp4xx-qmgr.c:153:40: warning: dereference of noderef expression
+drivers/soc/ixp4xx/ixp4xx-qmgr.c:154:40: warning: dereference of noderef expression
+drivers/soc/ixp4xx/ixp4xx-qmgr.c:174:38: warning: dereference of noderef expression
+drivers/soc/ixp4xx/ixp4xx-qmgr.c:174:44: warning: dereference of noderef expression
 
-Add the fake bss just before the connect so that cfg80211_get_bss()
-finds the virtual network.
-As some code was duplicated, move it in a common function.
+Use __raw_readl() here for consistency with the rest of the file.
+This should really get converted to some proper accessor, as the
+__raw functions are not meant to be used in drivers, but the driver
+has used these since the start, so for the moment, let's only fix
+the warning.
 
-Signed-off-by: Matteo Croce <mcroce@microsoft.com>
-Link: https://lore.kernel.org/r/20210706154423.11065-1-mcroce@linux.microsoft.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Fixes: d4c9e9fc9751 ("IXP42x: Add QMgr support for IXP425 rev. A0 processors.")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/virt_wifi.c | 52 ++++++++++++++++++++------------
- 1 file changed, 32 insertions(+), 20 deletions(-)
+ drivers/soc/ixp4xx/ixp4xx-qmgr.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/wireless/virt_wifi.c b/drivers/net/wireless/virt_wifi.c
-index 9d04ca53229b..4e906910f110 100644
---- a/drivers/net/wireless/virt_wifi.c
-+++ b/drivers/net/wireless/virt_wifi.c
-@@ -136,6 +136,29 @@ static struct ieee80211_supported_band band_5ghz = {
- /* Assigned at module init. Guaranteed locally-administered and unicast. */
- static u8 fake_router_bssid[ETH_ALEN] __ro_after_init = {};
+--- a/drivers/soc/ixp4xx/ixp4xx-qmgr.c
++++ b/drivers/soc/ixp4xx/ixp4xx-qmgr.c
+@@ -145,12 +145,12 @@ static irqreturn_t qmgr_irq1_a0(int irq,
+ 	/* ACK - it may clear any bits so don't rely on it */
+ 	__raw_writel(0xFFFFFFFF, &qmgr_regs->irqstat[0]);
  
-+static void virt_wifi_inform_bss(struct wiphy *wiphy)
-+{
-+	u64 tsf = div_u64(ktime_get_boottime_ns(), 1000);
-+	struct cfg80211_bss *informed_bss;
-+	static const struct {
-+		u8 tag;
-+		u8 len;
-+		u8 ssid[8];
-+	} __packed ssid = {
-+		.tag = WLAN_EID_SSID,
-+		.len = 8,
-+		.ssid = "VirtWifi",
-+	};
-+
-+	informed_bss = cfg80211_inform_bss(wiphy, &channel_5ghz,
-+					   CFG80211_BSS_FTYPE_PRESP,
-+					   fake_router_bssid, tsf,
-+					   WLAN_CAPABILITY_ESS, 0,
-+					   (void *)&ssid, sizeof(ssid),
-+					   DBM_TO_MBM(-50), GFP_KERNEL);
-+	cfg80211_put_bss(wiphy, informed_bss);
-+}
-+
- /* Called with the rtnl lock held. */
- static int virt_wifi_scan(struct wiphy *wiphy,
- 			  struct cfg80211_scan_request *request)
-@@ -156,28 +179,13 @@ static int virt_wifi_scan(struct wiphy *wiphy,
- /* Acquires and releases the rdev BSS lock. */
- static void virt_wifi_scan_result(struct work_struct *work)
- {
--	struct {
--		u8 tag;
--		u8 len;
--		u8 ssid[8];
--	} __packed ssid = {
--		.tag = WLAN_EID_SSID, .len = 8, .ssid = "VirtWifi",
--	};
--	struct cfg80211_bss *informed_bss;
- 	struct virt_wifi_wiphy_priv *priv =
- 		container_of(work, struct virt_wifi_wiphy_priv,
- 			     scan_result.work);
- 	struct wiphy *wiphy = priv_to_wiphy(priv);
- 	struct cfg80211_scan_info scan_info = { .aborted = false };
--	u64 tsf = div_u64(ktime_get_boottime_ns(), 1000);
+-	en_bitmap = qmgr_regs->irqen[0];
++	en_bitmap = __raw_readl(&qmgr_regs->irqen[0]);
+ 	while (en_bitmap) {
+ 		i = __fls(en_bitmap); /* number of the last "low" queue */
+ 		en_bitmap &= ~BIT(i);
+-		src = qmgr_regs->irqsrc[i >> 3];
+-		stat = qmgr_regs->stat1[i >> 3];
++		src = __raw_readl(&qmgr_regs->irqsrc[i >> 3]);
++		stat = __raw_readl(&qmgr_regs->stat1[i >> 3]);
+ 		if (src & 4) /* the IRQ condition is inverted */
+ 			stat = ~stat;
+ 		if (stat & BIT(src & 3)) {
+@@ -170,7 +170,8 @@ static irqreturn_t qmgr_irq2_a0(int irq,
+ 	/* ACK - it may clear any bits so don't rely on it */
+ 	__raw_writel(0xFFFFFFFF, &qmgr_regs->irqstat[1]);
  
--	informed_bss = cfg80211_inform_bss(wiphy, &channel_5ghz,
--					   CFG80211_BSS_FTYPE_PRESP,
--					   fake_router_bssid, tsf,
--					   WLAN_CAPABILITY_ESS, 0,
--					   (void *)&ssid, sizeof(ssid),
--					   DBM_TO_MBM(-50), GFP_KERNEL);
--	cfg80211_put_bss(wiphy, informed_bss);
-+	virt_wifi_inform_bss(wiphy);
- 
- 	/* Schedules work which acquires and releases the rtnl lock. */
- 	cfg80211_scan_done(priv->scan_request, &scan_info);
-@@ -225,10 +233,12 @@ static int virt_wifi_connect(struct wiphy *wiphy, struct net_device *netdev,
- 	if (!could_schedule)
- 		return -EBUSY;
- 
--	if (sme->bssid)
-+	if (sme->bssid) {
- 		ether_addr_copy(priv->connect_requested_bss, sme->bssid);
--	else
-+	} else {
-+		virt_wifi_inform_bss(wiphy);
- 		eth_zero_addr(priv->connect_requested_bss);
-+	}
- 
- 	wiphy_debug(wiphy, "connect\n");
- 
-@@ -241,11 +251,13 @@ static void virt_wifi_connect_complete(struct work_struct *work)
- 	struct virt_wifi_netdev_priv *priv =
- 		container_of(work, struct virt_wifi_netdev_priv, connect.work);
- 	u8 *requested_bss = priv->connect_requested_bss;
--	bool has_addr = !is_zero_ether_addr(requested_bss);
- 	bool right_addr = ether_addr_equal(requested_bss, fake_router_bssid);
- 	u16 status = WLAN_STATUS_SUCCESS;
- 
--	if (!priv->is_up || (has_addr && !right_addr))
-+	if (is_zero_ether_addr(requested_bss))
-+		requested_bss = NULL;
-+
-+	if (!priv->is_up || (requested_bss && !right_addr))
- 		status = WLAN_STATUS_UNSPECIFIED_FAILURE;
- 	else
- 		priv->is_connected = true;
--- 
-2.30.2
-
+-	req_bitmap = qmgr_regs->irqen[1] & qmgr_regs->statne_h;
++	req_bitmap = __raw_readl(&qmgr_regs->irqen[1]) &
++		     __raw_readl(&qmgr_regs->statne_h);
+ 	while (req_bitmap) {
+ 		i = __fls(req_bitmap); /* number of the last "high" queue */
+ 		req_bitmap &= ~BIT(i);
 
 
