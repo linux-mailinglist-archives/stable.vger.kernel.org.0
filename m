@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AB483E81A4
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:01:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 619433E8191
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 20:01:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234090AbhHJSA5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 14:00:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49440 "EHLO mail.kernel.org"
+        id S232882AbhHJSAU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 14:00:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231580AbhHJRzP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:55:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A9216136F;
-        Tue, 10 Aug 2021 17:44:44 +0000 (UTC)
+        id S238007AbhHJR5y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:57:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 91F55613A8;
+        Tue, 10 Aug 2021 17:45:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617485;
-        bh=ZXl1HQ99wcxq9MZ+fNUgjpA1aL/kYLNgYNhqWnGTK0U=;
+        s=korg; t=1628617538;
+        bh=7lEfV6ZZF09w7WyNb63TX8EX8X7S/PNGnl8bPVwc9Zc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JxNclWpxlx37eCgZGq3oLvD8dZqxG/32QcwJZSpesckDRPN8FelkvJctTX6ooamo9
-         DiQj3s5AXmMJiUhHqhJ3FLic3X2yQIL6hFONxiMiiSVzrJTjAIkNiBc7khZ+KK0CAW
-         V6915FeQIBZIsUI2jWqlZDC2qU3YNz/ui49+2lGs=
+        b=XWK89LeJHCjiiAbnA5zQ00ULHfRl4zVVS5XIUrRI6Y5m1+c9Bmn7zk/Ypumbe8DWg
+         XV2+4u+68DhjASMdnwbfv2OmQwvTVTA3Qpgx4u78eTRMHzF3kjo9d98aiFbvp0GC8L
+         sJ3x281KPUnmwdI+r+/99DLahrT63J8ETu3gE+xM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "H. Nikolaus Schaller" <hns@goldelico.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
+        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
+        Tejun Heo <tj@kernel.org>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 062/175] mips: Fix non-POSIX regexp
-Date:   Tue, 10 Aug 2021 19:29:30 +0200
-Message-Id: <20210810173002.988419973@linuxfoundation.org>
+Subject: [PATCH 5.13 069/175] blk-iolatency: error out if blk_get_queue() failed in iolatency_set_limit()
+Date:   Tue, 10 Aug 2021 19:29:37 +0200
+Message-Id: <20210810173003.207491798@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
 References: <20210810173000.928681411@linuxfoundation.org>
@@ -40,54 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: H. Nikolaus Schaller <hns@goldelico.com>
+From: Yu Kuai <yukuai3@huawei.com>
 
-[ Upstream commit 28bbbb9875a35975904e46f9b06fa689d051b290 ]
+[ Upstream commit 8d75d0eff6887bcac7225e12b9c75595e523d92d ]
 
-When cross compiling a MIPS kernel on a BSD based HOSTCC leads
-to errors like
+If queue is dying while iolatency_set_limit() is in progress,
+blk_get_queue() won't increment the refcount of the queue. However,
+blk_put_queue() will still decrement the refcount later, which will
+cause the refcout to be unbalanced.
 
-  SYNC    include/config/auto.conf.cmd - due to: .config
-egrep: empty (sub)expression
-  UPD     include/config/kernel.release
-  HOSTCC  scripts/dtc/dtc.o - due to target missing
+Thus error out in such case to fix the problem.
 
-It turns out that egrep uses this egrep pattern:
-
-		(|MINOR_|PATCHLEVEL_)
-
-This is not valid syntax or gives undefined results according
-to POSIX 9.5.3 ERE Grammar
-
-	https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap09.html
-
-It seems to be silently accepted by the Linux egrep implementation
-while a BSD host complains.
-
-Such patterns can be replaced by a transformation like
-
-	"(|p1|p2)" -> "(p1|p2)?"
-
-Fixes: 48c35b2d245f ("[MIPS] There is no __GNUC_MAJOR__")
-Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Fixes: 8c772a9bfc7c ("blk-iolatency: fix IO hang due to negative inflight counter")
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Acked-by: Tejun Heo <tj@kernel.org>
+Link: https://lore.kernel.org/r/20210805124645.543797-1-yukuai3@huawei.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ block/blk-iolatency.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/arch/mips/Makefile b/arch/mips/Makefile
-index 258234c35a09..674f68d16a73 100644
---- a/arch/mips/Makefile
-+++ b/arch/mips/Makefile
-@@ -321,7 +321,7 @@ KBUILD_LDFLAGS		+= -m $(ld-emul)
+diff --git a/block/blk-iolatency.c b/block/blk-iolatency.c
+index 81be0096411d..d8b0d8bd132b 100644
+--- a/block/blk-iolatency.c
++++ b/block/blk-iolatency.c
+@@ -833,7 +833,11 @@ static ssize_t iolatency_set_limit(struct kernfs_open_file *of, char *buf,
  
- ifdef CONFIG_MIPS
- CHECKFLAGS += $(shell $(CC) $(KBUILD_CFLAGS) -dM -E -x c /dev/null | \
--	egrep -vw '__GNUC_(|MINOR_|PATCHLEVEL_)_' | \
-+	egrep -vw '__GNUC_(MINOR_|PATCHLEVEL_)?_' | \
- 	sed -e "s/^\#define /-D'/" -e "s/ /'='/" -e "s/$$/'/" -e 's/\$$/&&/g')
- endif
+ 	enable = iolatency_set_min_lat_nsec(blkg, lat_val);
+ 	if (enable) {
+-		WARN_ON_ONCE(!blk_get_queue(blkg->q));
++		if (!blk_get_queue(blkg->q)) {
++			ret = -ENODEV;
++			goto out;
++		}
++
+ 		blkg_get(blkg);
+ 	}
  
 -- 
 2.30.2
