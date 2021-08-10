@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C4EE3E812E
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:56:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9208F3E8116
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:56:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236295AbhHJR4L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:56:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47786 "EHLO mail.kernel.org"
+        id S236066AbhHJRzT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:55:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236717AbhHJRxT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:53:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D56761139;
-        Tue, 10 Aug 2021 17:43:52 +0000 (UTC)
+        id S236737AbhHJRxW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:53:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 401DC6135D;
+        Tue, 10 Aug 2021 17:43:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617433;
-        bh=f9UhnWwa5T73f8ihiV0RQ3Gmg/eZofmD7tSHlxpW6IQ=;
+        s=korg; t=1628617435;
+        bh=3Ggm+716gLtpYDSXl0NiCf7R5Lg1jHHIeN7PoqvitcQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j4JXLwBmoe6WVqULn04tixURFVCIu4TgUP0qwqgOJaSMWBaskXZcniNSfImXOGlwN
-         faVOaiTwNnEULA3ubAkLcp896ZWNDAj6QX1KNKb8X/WORtHFlam9opHaWXDzwL+qPZ
-         UUFCd7f5BWmhUGKDUPuYp0eqJXemP3ZuRhiVR7zM=
+        b=A3KRlmmAnfMs8maa57mncBlzaYmnRundVN/mpqgV3opGJmcwvxkd1AyZywdu04KpI
+         kIN5Xas56Sr7XxNWRxuxpUILLve70i4fErW2fyvGnDIVvKVdzK4RfW2jQ+APHFEkus
+         O7Q4/cWqWRhb1PTx0oYxw9FuMu8lzeHMkF7hPwpw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Yangyang Li <liyangyang20@huawei.com>,
-        Wenpeng Liang <liangwenpeng@huawei.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Vladimir Oltean <olteanv@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 055/175] RDMA/hns: Fix the double unlock problem of poll_sem
-Date:   Tue, 10 Aug 2021 19:29:23 +0200
-Message-Id: <20210810173002.754813887@linuxfoundation.org>
+Subject: [PATCH 5.13 056/175] net: dsa: qca: ar9331: reorder MDIO write sequence
+Date:   Tue, 10 Aug 2021 19:29:24 +0200
+Message-Id: <20210810173002.787653218@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
 References: <20210810173000.928681411@linuxfoundation.org>
@@ -43,89 +43,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yangyang Li <liyangyang20@huawei.com>
+From: Oleksij Rempel <o.rempel@pengutronix.de>
 
-[ Upstream commit 8b436a99cd708bd158231a0630ffa49b1d6175e4 ]
+[ Upstream commit d1a58c013a5837451e3213e7a426d350fa524ead ]
 
-If hns_roce_cmd_use_events() fails then it means that the poll_sem is not
-obtained, but the poll_sem is released in hns_roce_cmd_use_polling(), this
-will cause an unlock problem.
+In case of this switch we work with 32bit registers on top of 16bit
+bus. Some registers (for example access to forwarding database) have
+trigger bit on the first 16bit half of request and the result +
+configuration of request in the second half. Without this patch, we would
+trigger database operation and overwrite result in one run.
 
-This is the static checker warning:
-	drivers/infiniband/hw/hns/hns_roce_main.c:926 hns_roce_init()
-	error: double unlocked '&hr_dev->cmd.poll_sem' (orig line 879)
+To make it work properly, we should do the second part of transfer
+before the first one is done.
 
-Event mode and polling mode are mutually exclusive and resources are
-separated, so there is no need to process polling mode resources in event
-mode.
+So far, this rule seems to work for all registers on this switch.
 
-The initial mode of cmd is polling mode, so even if cmd fails to switch to
-event mode, it is not necessary to switch to polling mode.
-
-Fixes: a389d016c030 ("RDMA/hns: Enable all CMDQ context")
-Fixes: 3d50503b3b33 ("RDMA/hns: Optimize cmd init and mode selection for hip08")
-Link: https://lore.kernel.org/r/1627887374-20019-1-git-send-email-liangwenpeng@huawei.com
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Yangyang Li <liyangyang20@huawei.com>
-Signed-off-by: Wenpeng Liang <liangwenpeng@huawei.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: ec6698c272de ("net: dsa: add support for Atheros AR9331 built-in switch")
+Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
+Link: https://lore.kernel.org/r/20210803063746.3600-1-o.rempel@pengutronix.de
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_cmd.c  | 7 +++----
- drivers/infiniband/hw/hns/hns_roce_main.c | 4 +---
- 2 files changed, 4 insertions(+), 7 deletions(-)
+ drivers/net/dsa/qca/ar9331.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hns/hns_roce_cmd.c b/drivers/infiniband/hw/hns/hns_roce_cmd.c
-index 8f68cc3ff193..84f3f2b5f097 100644
---- a/drivers/infiniband/hw/hns/hns_roce_cmd.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_cmd.c
-@@ -213,8 +213,10 @@ int hns_roce_cmd_use_events(struct hns_roce_dev *hr_dev)
- 
- 	hr_cmd->context =
- 		kcalloc(hr_cmd->max_cmds, sizeof(*hr_cmd->context), GFP_KERNEL);
--	if (!hr_cmd->context)
-+	if (!hr_cmd->context) {
-+		hr_dev->cmd_mod = 0;
- 		return -ENOMEM;
-+	}
- 
- 	for (i = 0; i < hr_cmd->max_cmds; ++i) {
- 		hr_cmd->context[i].token = i;
-@@ -228,7 +230,6 @@ int hns_roce_cmd_use_events(struct hns_roce_dev *hr_dev)
- 	spin_lock_init(&hr_cmd->context_lock);
- 
- 	hr_cmd->use_events = 1;
--	down(&hr_cmd->poll_sem);
- 
- 	return 0;
- }
-@@ -239,8 +240,6 @@ void hns_roce_cmd_use_polling(struct hns_roce_dev *hr_dev)
- 
- 	kfree(hr_cmd->context);
- 	hr_cmd->use_events = 0;
--
--	up(&hr_cmd->poll_sem);
- }
- 
- struct hns_roce_cmd_mailbox *
-diff --git a/drivers/infiniband/hw/hns/hns_roce_main.c b/drivers/infiniband/hw/hns/hns_roce_main.c
-index 6c6e82b11d8b..33b84f219d0d 100644
---- a/drivers/infiniband/hw/hns/hns_roce_main.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_main.c
-@@ -897,11 +897,9 @@ int hns_roce_init(struct hns_roce_dev *hr_dev)
- 
- 	if (hr_dev->cmd_mod) {
- 		ret = hns_roce_cmd_use_events(hr_dev);
--		if (ret) {
-+		if (ret)
- 			dev_warn(dev,
- 				 "Cmd event  mode failed, set back to poll!\n");
--			hns_roce_cmd_use_polling(hr_dev);
--		}
+diff --git a/drivers/net/dsa/qca/ar9331.c b/drivers/net/dsa/qca/ar9331.c
+index ca2ad77b71f1..6686192e1883 100644
+--- a/drivers/net/dsa/qca/ar9331.c
++++ b/drivers/net/dsa/qca/ar9331.c
+@@ -837,16 +837,24 @@ static int ar9331_mdio_write(void *ctx, u32 reg, u32 val)
+ 		return 0;
  	}
  
- 	ret = hns_roce_init_hem(hr_dev);
+-	ret = __ar9331_mdio_write(sbus, AR9331_SW_MDIO_PHY_MODE_REG, reg, val);
++	/* In case of this switch we work with 32bit registers on top of 16bit
++	 * bus. Some registers (for example access to forwarding database) have
++	 * trigger bit on the first 16bit half of request, the result and
++	 * configuration of request in the second half.
++	 * To make it work properly, we should do the second part of transfer
++	 * before the first one is done.
++	 */
++	ret = __ar9331_mdio_write(sbus, AR9331_SW_MDIO_PHY_MODE_REG, reg + 2,
++				  val >> 16);
+ 	if (ret < 0)
+ 		goto error;
+ 
+-	ret = __ar9331_mdio_write(sbus, AR9331_SW_MDIO_PHY_MODE_REG, reg + 2,
+-				  val >> 16);
++	ret = __ar9331_mdio_write(sbus, AR9331_SW_MDIO_PHY_MODE_REG, reg, val);
+ 	if (ret < 0)
+ 		goto error;
+ 
+ 	return 0;
++
+ error:
+ 	dev_err_ratelimited(&sbus->dev, "Bus error. Failed to write register.\n");
+ 	return ret;
 -- 
 2.30.2
 
