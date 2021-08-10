@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FFFA3E8126
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:56:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 310E23E7FB2
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:42:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232457AbhHJR4C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:56:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50374 "EHLO mail.kernel.org"
+        id S235359AbhHJRmK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:42:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34420 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237001AbhHJRyN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:54:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B047A61215;
-        Tue, 10 Aug 2021 17:44:10 +0000 (UTC)
+        id S233715AbhHJRkI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:40:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 772A261019;
+        Tue, 10 Aug 2021 17:37:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617451;
-        bh=QNZuYBvVKHO3xsp7X8LPBqZy3Us8Fa3xz4GQl9AYTJM=;
+        s=korg; t=1628617078;
+        bh=O8J9V4VnQHX0jq0+mNkaZg3S+QXVY27tkx3Bagbnzs0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hIOksXkXFaIrB0S5sng3I0bVpdw+fDXsCTrS5+f3zHSr68R88IsS1xftEv8OEZtoy
-         Dk9wIhV5DDLysy6SU3YFpcSWCERPn/bihxcir2k8DdKbhyCKSs+VY22Sl/G/Rm77hE
-         sz7uqf4k0eRaHt4BBLCv3exCTlhbsmwbXRClJfTY=
+        b=jykcKNRMy7jCATapOteBldanMY8nUbHdr/gQN90jqBIyFTNl8Lv6JwGP9w0RbYSFx
+         efZTp4pciR7rYyReny1grLkX4Elx8xbp3Duh4B0gMFh/magLOEh6NPUEkRzeHGd4BO
+         u2B260KrLuG4WM0b0vFy8/YamkpGJkNHjWw4bmJ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 031/175] spi: imx: mx51-ecspi: Reinstate low-speed CONFIGREG delay
+Subject: [PATCH 5.10 005/135] arm64: dts: ls1028a: fix node name for the sysclk
 Date:   Tue, 10 Aug 2021 19:28:59 +0200
-Message-Id: <20210810173001.988258289@linuxfoundation.org>
+Message-Id: <20210810172955.858626834@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
-References: <20210810173000.928681411@linuxfoundation.org>
+In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
+References: <20210810172955.660225700@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,102 +40,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit 135cbd378eab336da15de9c84bbb22bf743b38a5 ]
+[ Upstream commit 7e71b85473f863a29eb1c69265ef025389b4091d ]
 
-Since 00b80ac935539 ("spi: imx: mx51-ecspi: Move some initialisation to
-prepare_message hook."), the MX51_ECSPI_CONFIG write no longer happens
-in prepare_transfer hook, but rather in prepare_message hook, however
-the MX51_ECSPI_CONFIG delay is still left in prepare_transfer hook and
-thus has no effect. This leads to low bus frequency operation problems
-described in 6fd8b8503a0dc ("spi: spi-imx: Fix out-of-order CS/SCLK
-operation at low speeds") again.
+U-Boot attempts to fix up the "clock-frequency" property of the "/sysclk" node:
+https://elixir.bootlin.com/u-boot/v2021.04/source/arch/arm/cpu/armv8/fsl-layerscape/fdt.c#L512
 
-Move the MX51_ECSPI_CONFIG write delay into the prepare_message hook
-as well, thus reinstating the low bus frequency fix.
+but fails to do so:
 
-Fixes: 00b80ac935539 ("spi: imx: mx51-ecspi: Move some initialisation to prepare_message hook.")
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Cc: Mark Brown <broonie@kernel.org>
-Link: https://lore.kernel.org/r/20210703022300.296114-1-marex@denx.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+  ## Booting kernel from Legacy Image at a1000000 ...
+     Image Name:
+     Created:      2021-06-08  10:31:38 UTC
+     Image Type:   AArch64 Linux Kernel Image (gzip compressed)
+     Data Size:    15431370 Bytes = 14.7 MiB
+     Load Address: 80080000
+     Entry Point:  80080000
+     Verifying Checksum ... OK
+  ## Flattened Device Tree blob at a0000000
+     Booting using the fdt blob at 0xa0000000
+     Uncompressing Kernel Image
+     Loading Device Tree to 00000000fbb19000, end 00000000fbb22717 ... OK
+  Unable to update property /sysclk:clock-frequency, err=FDT_ERR_NOTFOUND
+
+  Starting kernel ...
+
+All Layerscape SoCs except LS1028A use "sysclk" as the node name, and
+not "clock-sysclk". So change the node name of LS1028A accordingly.
+
+Fixes: 8897f3255c9c ("arm64: dts: Add support for NXP LS1028A SoC")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-imx.c | 38 +++++++++++++++++++-------------------
- 1 file changed, 19 insertions(+), 19 deletions(-)
+ arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-imx.c b/drivers/spi/spi-imx.c
-index 39dc02e366f4..4aee3db6d6df 100644
---- a/drivers/spi/spi-imx.c
-+++ b/drivers/spi/spi-imx.c
-@@ -506,7 +506,7 @@ static int mx51_ecspi_prepare_message(struct spi_imx_data *spi_imx,
- {
- 	struct spi_device *spi = msg->spi;
- 	u32 ctrl = MX51_ECSPI_CTRL_ENABLE;
--	u32 testreg;
-+	u32 testreg, delay;
- 	u32 cfg = readl(spi_imx->base + MX51_ECSPI_CONFIG);
+diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi
+index f3b58bb9b840..5f42904d53ab 100644
+--- a/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi
++++ b/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi
+@@ -69,7 +69,7 @@
+ 		};
+ 	};
  
- 	/* set Master or Slave mode */
-@@ -567,6 +567,23 @@ static int mx51_ecspi_prepare_message(struct spi_imx_data *spi_imx,
- 
- 	writel(cfg, spi_imx->base + MX51_ECSPI_CONFIG);
- 
-+	/*
-+	 * Wait until the changes in the configuration register CONFIGREG
-+	 * propagate into the hardware. It takes exactly one tick of the
-+	 * SCLK clock, but we will wait two SCLK clock just to be sure. The
-+	 * effect of the delay it takes for the hardware to apply changes
-+	 * is noticable if the SCLK clock run very slow. In such a case, if
-+	 * the polarity of SCLK should be inverted, the GPIO ChipSelect might
-+	 * be asserted before the SCLK polarity changes, which would disrupt
-+	 * the SPI communication as the device on the other end would consider
-+	 * the change of SCLK polarity as a clock tick already.
-+	 */
-+	delay = (2 * 1000000) / spi_imx->spi_bus_clk;
-+	if (likely(delay < 10))	/* SCLK is faster than 100 kHz */
-+		udelay(delay);
-+	else			/* SCLK is _very_ slow */
-+		usleep_range(delay, delay + 10);
-+
- 	return 0;
- }
- 
-@@ -574,7 +591,7 @@ static int mx51_ecspi_prepare_transfer(struct spi_imx_data *spi_imx,
- 				       struct spi_device *spi)
- {
- 	u32 ctrl = readl(spi_imx->base + MX51_ECSPI_CTRL);
--	u32 clk, delay;
-+	u32 clk;
- 
- 	/* Clear BL field and set the right value */
- 	ctrl &= ~MX51_ECSPI_CTRL_BL_MASK;
-@@ -596,23 +613,6 @@ static int mx51_ecspi_prepare_transfer(struct spi_imx_data *spi_imx,
- 
- 	writel(ctrl, spi_imx->base + MX51_ECSPI_CTRL);
- 
--	/*
--	 * Wait until the changes in the configuration register CONFIGREG
--	 * propagate into the hardware. It takes exactly one tick of the
--	 * SCLK clock, but we will wait two SCLK clock just to be sure. The
--	 * effect of the delay it takes for the hardware to apply changes
--	 * is noticable if the SCLK clock run very slow. In such a case, if
--	 * the polarity of SCLK should be inverted, the GPIO ChipSelect might
--	 * be asserted before the SCLK polarity changes, which would disrupt
--	 * the SPI communication as the device on the other end would consider
--	 * the change of SCLK polarity as a clock tick already.
--	 */
--	delay = (2 * 1000000) / clk;
--	if (likely(delay < 10))	/* SCLK is faster than 100 kHz */
--		udelay(delay);
--	else			/* SCLK is _very_ slow */
--		usleep_range(delay, delay + 10);
--
- 	return 0;
- }
- 
+-	sysclk: clock-sysclk {
++	sysclk: sysclk {
+ 		compatible = "fixed-clock";
+ 		#clock-cells = <0>;
+ 		clock-frequency = <100000000>;
 -- 
 2.30.2
 
