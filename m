@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22CAB3E5D87
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 16:21:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B7B73E5D8B
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 16:21:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241389AbhHJOVt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S242881AbhHJOVt (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 10 Aug 2021 10:21:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54222 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:54320 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242566AbhHJOS5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 10:18:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 10EAE61153;
-        Tue, 10 Aug 2021 14:16:59 +0000 (UTC)
+        id S243328AbhHJOTl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 10:19:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E7E86113B;
+        Tue, 10 Aug 2021 14:17:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1628605020;
-        bh=oGeabWi9WM/jRq9Qk4TZ4TG8oYIuRbdR5vL5RuLGkIM=;
+        s=k20201202; t=1628605022;
+        bh=xTX0Uu3DuqU0Ec6l9TknjBpFi92NSdYwm9k61K3H05Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iajRZYD9zRd9I2eUY1hpdjNpMGt0xzIdmdSupy4KMF2gXeXGCQFnvTUrblDl8M7K4
-         x0pue27L547ELLa3n5VeNtzVrFb8ztPXIBP6qUY8y21qd0KIFWTr9YteXpG9Vxc3r3
-         JFtMMS30nUGJjGF/2HDpokE0A69p2yRrDDG9R70MySl2l7QKKW9rseLDbVqS5ADjil
-         SbpHAxB0gJhiX+xLJhPsNHqG1a4eDTxkVm3Z99mS6r7/fl66ixBtzb1Qot/NngMLYf
-         75jCj27k4tpa/JlPeGN6J/fuzTKn1vP9NToCsi8zJK96kX1YtUxINzl4XajwP5Mthd
-         tkDM4Dmmj36GA==
+        b=BfCIMcWKHHFGV9B0U3hofFWJlYi8WpPjh3jpJ1x/xgPVH1bwHzVh4wH3I0/AE6fWh
+         HHUuPdqNAHHgfTa30tOYHC8VijVvAlqXqus0Jjmir3mxQIW8AYwV+3YEmNZd3Vdmii
+         n4ZP/ngAQEI/je6X9KsDFbheoiF4SzsQWqTcuSzpIO043yhTp71yfkMdXJerh63E3h
+         mPAfe0ujrCItPYIpt5kqxawI3VFF4bNNWJRwZlFpXtE62pVYLo8wNmM51nLJuzuTf6
+         KZda3WHagtMrX5blkkaB7UNhqF4ruwiw7tGAYk89a+bgM6Dlt6mSwvQfUnOG9uQumv
+         oxc9t7V17JuwQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Harshvardhan Jha <harshvardhan.jha@oracle.com>,
-        Sumit Saxena <sumit.saxena@broadcom.com>,
+Cc:     Ye Bin <yebin10@huawei.com>, Bart Van Assche <bvanassche@acm.org>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>,
-        megaraidlinux.pdl@broadcom.com, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 4/8] scsi: megaraid_mm: Fix end of loop tests for list_for_each_entry()
-Date:   Tue, 10 Aug 2021 10:16:51 -0400
-Message-Id: <20210810141655.3118498-4-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 5/8] scsi: scsi_dh_rdac: Avoid crash during rdac_bus_attach()
+Date:   Tue, 10 Aug 2021 10:16:52 -0400
+Message-Id: <20210810141655.3118498-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210810141655.3118498-1-sashal@kernel.org>
 References: <20210810141655.3118498-1-sashal@kernel.org>
@@ -44,91 +42,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harshvardhan Jha <harshvardhan.jha@oracle.com>
+From: Ye Bin <yebin10@huawei.com>
 
-[ Upstream commit 77541f78eadfe9fdb018a7b8b69f0f2af2cf4b82 ]
+[ Upstream commit bc546c0c9abb3bb2fb46866b3d1e6ade9695a5f6 ]
 
-The list_for_each_entry() iterator, "adapter" in this code, can never be
-NULL.  If we exit the loop without finding the correct adapter then
-"adapter" points invalid memory that is an offset from the list head.  This
-will eventually lead to memory corruption and presumably a kernel crash.
+The following BUG_ON() was observed during RDAC scan:
 
-Link: https://lore.kernel.org/r/20210708074642.23599-1-harshvardhan.jha@oracle.com
-Acked-by: Sumit Saxena <sumit.saxena@broadcom.com>
-Signed-off-by: Harshvardhan Jha <harshvardhan.jha@oracle.com>
+[595952.944297] kernel BUG at drivers/scsi/device_handler/scsi_dh_rdac.c:427!
+[595952.951143] Internal error: Oops - BUG: 0 [#1] SMP
+......
+[595953.251065] Call trace:
+[595953.259054]  check_ownership+0xb0/0x118
+[595953.269794]  rdac_bus_attach+0x1f0/0x4b0
+[595953.273787]  scsi_dh_handler_attach+0x3c/0xe8
+[595953.278211]  scsi_dh_add_device+0xc4/0xe8
+[595953.282291]  scsi_sysfs_add_sdev+0x8c/0x2a8
+[595953.286544]  scsi_probe_and_add_lun+0x9fc/0xd00
+[595953.291142]  __scsi_scan_target+0x598/0x630
+[595953.295395]  scsi_scan_target+0x120/0x130
+[595953.299481]  fc_user_scan+0x1a0/0x1c0 [scsi_transport_fc]
+[595953.304944]  store_scan+0xb0/0x108
+[595953.308420]  dev_attr_store+0x44/0x60
+[595953.312160]  sysfs_kf_write+0x58/0x80
+[595953.315893]  kernfs_fop_write+0xe8/0x1f0
+[595953.319888]  __vfs_write+0x60/0x190
+[595953.323448]  vfs_write+0xac/0x1c0
+[595953.326836]  ksys_write+0x74/0xf0
+[595953.330221]  __arm64_sys_write+0x24/0x30
+
+Code is in check_ownership:
+
+	list_for_each_entry_rcu(tmp, &h->ctlr->dh_list, node) {
+		/* h->sdev should always be valid */
+		BUG_ON(!tmp->sdev);
+		tmp->sdev->access_state = access_state;
+	}
+
+	rdac_bus_attach
+		initialize_controller
+			list_add_rcu(&h->node, &h->ctlr->dh_list);
+			h->sdev = sdev;
+
+	rdac_bus_detach
+		list_del_rcu(&h->node);
+		h->sdev = NULL;
+
+Fix the race between rdac_bus_attach() and rdac_bus_detach() where h->sdev
+is NULL when processing the RDAC attach.
+
+Link: https://lore.kernel.org/r/20210113063103.2698953-1-yebin10@huawei.com
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Ye Bin <yebin10@huawei.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/megaraid/megaraid_mm.c | 21 +++++++++++++++------
- 1 file changed, 15 insertions(+), 6 deletions(-)
+ drivers/scsi/device_handler/scsi_dh_rdac.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/megaraid/megaraid_mm.c b/drivers/scsi/megaraid/megaraid_mm.c
-index 4cf9ed96414f..d61df49e4e1b 100644
---- a/drivers/scsi/megaraid/megaraid_mm.c
-+++ b/drivers/scsi/megaraid/megaraid_mm.c
-@@ -250,7 +250,7 @@ mraid_mm_get_adapter(mimd_t __user *umimd, int *rval)
- 	mimd_t		mimd;
- 	uint32_t	adapno;
- 	int		iterator;
--
-+	bool		is_found;
- 
- 	if (copy_from_user(&mimd, umimd, sizeof(mimd_t))) {
- 		*rval = -EFAULT;
-@@ -266,12 +266,16 @@ mraid_mm_get_adapter(mimd_t __user *umimd, int *rval)
- 
- 	adapter = NULL;
- 	iterator = 0;
-+	is_found = false;
- 
- 	list_for_each_entry(adapter, &adapters_list_g, list) {
--		if (iterator++ == adapno) break;
-+		if (iterator++ == adapno) {
-+			is_found = true;
-+			break;
-+		}
- 	}
- 
--	if (!adapter) {
-+	if (!is_found) {
- 		*rval = -ENODEV;
- 		return NULL;
- 	}
-@@ -739,6 +743,7 @@ ioctl_done(uioc_t *kioc)
- 	uint32_t	adapno;
- 	int		iterator;
- 	mraid_mmadp_t*	adapter;
-+	bool		is_found;
- 
- 	/*
- 	 * When the kioc returns from driver, make sure it still doesn't
-@@ -761,19 +766,23 @@ ioctl_done(uioc_t *kioc)
- 		iterator	= 0;
- 		adapter		= NULL;
- 		adapno		= kioc->adapno;
-+		is_found	= false;
- 
- 		con_log(CL_ANN, ( KERN_WARNING "megaraid cmm: completed "
- 					"ioctl that was timedout before\n"));
- 
- 		list_for_each_entry(adapter, &adapters_list_g, list) {
--			if (iterator++ == adapno) break;
-+			if (iterator++ == adapno) {
-+				is_found = true;
-+				break;
-+			}
+diff --git a/drivers/scsi/device_handler/scsi_dh_rdac.c b/drivers/scsi/device_handler/scsi_dh_rdac.c
+index 06fbd0b0c68a..6ddb3e9f21ba 100644
+--- a/drivers/scsi/device_handler/scsi_dh_rdac.c
++++ b/drivers/scsi/device_handler/scsi_dh_rdac.c
+@@ -526,8 +526,8 @@ static int initialize_controller(struct scsi_device *sdev,
+ 		if (!h->ctlr)
+ 			err = SCSI_DH_RES_TEMP_UNAVAIL;
+ 		else {
+-			list_add_rcu(&h->node, &h->ctlr->dh_list);
+ 			h->sdev = sdev;
++			list_add_rcu(&h->node, &h->ctlr->dh_list);
  		}
- 
- 		kioc->timedout = 0;
- 
--		if (adapter) {
-+		if (is_found)
- 			mraid_mm_dealloc_kioc( adapter, kioc );
--		}
-+
+ 		spin_unlock(&list_lock);
  	}
- 	else {
- 		wake_up(&wait_q);
+@@ -852,11 +852,11 @@ static void rdac_bus_detach( struct scsi_device *sdev )
+ 	spin_lock(&list_lock);
+ 	if (h->ctlr) {
+ 		list_del_rcu(&h->node);
+-		h->sdev = NULL;
+ 		kref_put(&h->ctlr->kref, release_controller);
+ 	}
+ 	spin_unlock(&list_lock);
+ 	sdev->handler_data = NULL;
++	synchronize_rcu();
+ 	kfree(h);
+ }
+ 
 -- 
 2.30.2
 
