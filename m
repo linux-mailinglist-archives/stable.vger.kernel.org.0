@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 48B953E7F52
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:41:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC3C63E808B
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:50:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232582AbhHJRjv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:39:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42464 "EHLO mail.kernel.org"
+        id S234444AbhHJRuv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:50:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234988AbhHJRiw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:38:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B92EB610A7;
-        Tue, 10 Aug 2021 17:36:39 +0000 (UTC)
+        id S235579AbhHJRs2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:48:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3EEE260FDA;
+        Tue, 10 Aug 2021 17:41:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617000;
-        bh=khM2PY7QX7MLxhDOYeIqaTNokyYz6VSgNNFi/PXrXU8=;
+        s=korg; t=1628617276;
+        bh=Z6uk/MxNraqrCh3CIVGMJLGjfWG3EMTixpmu8Jl6KSo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hXy2qteP7IYPbFm4phSeLNrkUwn9uTJjB+XqA+mDs1Ib6QcXJ6xQkv4dJaVjUIbju
-         azRoWFj93sdAtE6eeDAWXM25Armu62ayqn0rIm7lGYwv3enCISLLXXNDr4qDrMWSYK
-         eyeDGNcl3WjgwXNcjGfTd04PJ1R3rYUfsX7jNVNE=
+        b=CWQZOCrAdrfYDf/wKesxdExB69hUhuhIeivku7OtSQJ0it3/Z7jPUCxK2dkKSowUE
+         4xmJ2l05KcU9x3lf9oobFy+8yoYkKFjYK0jZMhymMdGwHlYSqpz85HQvJ8h53rFK2t
+         RzNOYAmRlHgCjZDvjK6hwHvTLgywX+OQum1aQ3Rg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, He Zhe <zhe.he@windriver.com>,
-        weiyuchen <weiyuchen3@huawei.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>
-Subject: [PATCH 5.4 85/85] arm64: fix compat syscall return truncation
+        stable@vger.kernel.org, Mark Simmons <msimmons@redhat.com>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 5.10 124/135] sched/rt: Fix double enqueue caused by rt_effective_prio
 Date:   Tue, 10 Aug 2021 19:30:58 +0200
-Message-Id: <20210810172951.104232112@linuxfoundation.org>
+Message-Id: <20210810173000.019310392@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
-References: <20210810172948.192298392@linuxfoundation.org>
+In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
+References: <20210810172955.660225700@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,176 +40,243 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit e30e8d46cf605d216a799a28c77b8a41c328613a upstream.
+commit f558c2b834ec27e75d37b1c860c139e7b7c3a8e4 upstream.
 
-Due to inconsistencies in the way we manipulate compat GPRs, we have a
-few issues today:
+Double enqueues in rt runqueues (list) have been reported while running
+a simple test that spawns a number of threads doing a short sleep/run
+pattern while being concurrently setscheduled between rt and fair class.
 
-* For audit and tracing, where error codes are handled as a (native)
-  long, negative error codes are expected to be sign-extended to the
-  native 64-bits, or they may fail to be matched correctly. Thus a
-  syscall which fails with an error may erroneously be identified as
-  failing.
+  WARNING: CPU: 3 PID: 2825 at kernel/sched/rt.c:1294 enqueue_task_rt+0x355/0x360
+  CPU: 3 PID: 2825 Comm: setsched__13
+  RIP: 0010:enqueue_task_rt+0x355/0x360
+  Call Trace:
+   __sched_setscheduler+0x581/0x9d0
+   _sched_setscheduler+0x63/0xa0
+   do_sched_setscheduler+0xa0/0x150
+   __x64_sys_sched_setscheduler+0x1a/0x30
+   do_syscall_64+0x33/0x40
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-* For ptrace, *all* compat return values should be sign-extended for
-  consistency with 32-bit arm, but we currently only do this for
-  negative return codes.
+  list_add double add: new=ffff9867cb629b40, prev=ffff9867cb629b40,
+		       next=ffff98679fc67ca0.
+  kernel BUG at lib/list_debug.c:31!
+  invalid opcode: 0000 [#1] PREEMPT_RT SMP PTI
+  CPU: 3 PID: 2825 Comm: setsched__13
+  RIP: 0010:__list_add_valid+0x41/0x50
+  Call Trace:
+   enqueue_task_rt+0x291/0x360
+   __sched_setscheduler+0x581/0x9d0
+   _sched_setscheduler+0x63/0xa0
+   do_sched_setscheduler+0xa0/0x150
+   __x64_sys_sched_setscheduler+0x1a/0x30
+   do_syscall_64+0x33/0x40
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-* As we may transiently set the upper 32 bits of some compat GPRs while
-  in the kernel, these can be sampled by perf, which is somewhat
-  confusing. This means that where a syscall returns a pointer above 2G,
-  this will be sign-extended, but will not be mistaken for an error as
-  error codes are constrained to the inclusive range [-4096, -1] where
-  no user pointer can exist.
+__sched_setscheduler() uses rt_effective_prio() to handle proper queuing
+of priority boosted tasks that are setscheduled while being boosted.
+rt_effective_prio() is however called twice per each
+__sched_setscheduler() call: first directly by __sched_setscheduler()
+before dequeuing the task and then by __setscheduler() to actually do
+the priority change. If the priority of the pi_top_task is concurrently
+being changed however, it might happen that the two calls return
+different results. If, for example, the first call returned the same rt
+priority the task was running at and the second one a fair priority, the
+task won't be removed by the rt list (on_list still set) and then
+enqueued in the fair runqueue. When eventually setscheduled back to rt
+it will be seen as enqueued already and the WARNING/BUG be issued.
 
-To fix all of these, we must consistently use helpers to get/set the
-compat GPRs, ensuring that we never write the upper 32 bits of the
-return code, and always sign-extend when reading the return code.  This
-patch does so, with the following changes:
+Fix this by calling rt_effective_prio() only once and then reusing the
+return value. While at it refactor code as well for clarity. Concurrent
+priority inheritance handling is still safe and will eventually converge
+to a new state by following the inheritance chain(s).
 
-* We re-organise syscall_get_return_value() to always sign-extend for
-  compat tasks, and reimplement syscall_get_error() atop. We update
-  syscall_trace_exit() to use syscall_get_return_value().
-
-* We consistently use syscall_set_return_value() to set the return
-  value, ensureing the upper 32 bits are never set unexpectedly.
-
-* As the core audit code currently uses regs_return_value() rather than
-  syscall_get_return_value(), we special-case this for
-  compat_user_mode(regs) such that this will do the right thing. Going
-  forward, we should try to move the core audit code over to
-  syscall_get_return_value().
-
-Cc: <stable@vger.kernel.org>
-Reported-by: He Zhe <zhe.he@windriver.com>
-Reported-by: weiyuchen <weiyuchen3@huawei.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Link: https://lore.kernel.org/r/20210802104200.21390-1-mark.rutland@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
-[Mark: trivial conflict resolution for v5.4.y]
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Fixes: 0782e63bc6fe ("sched: Handle priority boosted tasks proper in setscheduler()")
+[squashed Peterz changes; added changelog]
+Reported-by: Mark Simmons <msimmons@redhat.com>
+Signed-off-by: Juri Lelli <juri.lelli@redhat.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20210803104501.38333-1-juri.lelli@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- arch/arm64/include/asm/ptrace.h  |   12 +++++++++++-
- arch/arm64/include/asm/syscall.h |   19 ++++++++++---------
- arch/arm64/kernel/ptrace.c       |    2 +-
- arch/arm64/kernel/signal.c       |    3 ++-
- arch/arm64/kernel/syscall.c      |    7 ++-----
- 5 files changed, 26 insertions(+), 17 deletions(-)
+ kernel/sched/core.c |   90 ++++++++++++++++++++--------------------------------
+ 1 file changed, 35 insertions(+), 55 deletions(-)
 
---- a/arch/arm64/include/asm/ptrace.h
-+++ b/arch/arm64/include/asm/ptrace.h
-@@ -299,7 +299,17 @@ static inline unsigned long kernel_stack
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -1598,12 +1598,18 @@ void deactivate_task(struct rq *rq, stru
+ 	dequeue_task(rq, p, flags);
+ }
  
- static inline unsigned long regs_return_value(struct pt_regs *regs)
+-/*
+- * __normal_prio - return the priority that is based on the static prio
+- */
+-static inline int __normal_prio(struct task_struct *p)
++static inline int __normal_prio(int policy, int rt_prio, int nice)
  {
--	return regs->regs[0];
-+	unsigned long val = regs->regs[0];
+-	return p->static_prio;
++	int prio;
 +
-+	/*
-+	 * Audit currently uses regs_return_value() instead of
-+	 * syscall_get_return_value(). Apply the same sign-extension here until
-+	 * audit is updated to use syscall_get_return_value().
-+	 */
-+	if (compat_user_mode(regs))
-+		val = sign_extend64(val, 31);
++	if (dl_policy(policy))
++		prio = MAX_DL_PRIO - 1;
++	else if (rt_policy(policy))
++		prio = MAX_RT_PRIO - 1 - rt_prio;
++	else
++		prio = NICE_TO_PRIO(nice);
 +
-+	return val;
++	return prio;
  }
  
- static inline void regs_set_return_value(struct pt_regs *regs, unsigned long rc)
---- a/arch/arm64/include/asm/syscall.h
-+++ b/arch/arm64/include/asm/syscall.h
-@@ -29,22 +29,23 @@ static inline void syscall_rollback(stru
- 	regs->regs[0] = regs->orig_x0;
- }
- 
+ /*
+@@ -1615,15 +1621,7 @@ static inline int __normal_prio(struct t
+  */
+ static inline int normal_prio(struct task_struct *p)
+ {
+-	int prio;
 -
--static inline long syscall_get_error(struct task_struct *task,
--				     struct pt_regs *regs)
-+static inline long syscall_get_return_value(struct task_struct *task,
-+					    struct pt_regs *regs)
- {
--	unsigned long error = regs->regs[0];
-+	unsigned long val = regs->regs[0];
- 
- 	if (is_compat_thread(task_thread_info(task)))
--		error = sign_extend64(error, 31);
-+		val = sign_extend64(val, 31);
- 
--	return IS_ERR_VALUE(error) ? error : 0;
-+	return val;
+-	if (task_has_dl_policy(p))
+-		prio = MAX_DL_PRIO-1;
+-	else if (task_has_rt_policy(p))
+-		prio = MAX_RT_PRIO-1 - p->rt_priority;
+-	else
+-		prio = __normal_prio(p);
+-	return prio;
++	return __normal_prio(p->policy, p->rt_priority, PRIO_TO_NICE(p->static_prio));
  }
  
--static inline long syscall_get_return_value(struct task_struct *task,
--					    struct pt_regs *regs)
-+static inline long syscall_get_error(struct task_struct *task,
-+				     struct pt_regs *regs)
- {
--	return regs->regs[0];
-+	unsigned long error = syscall_get_return_value(task, regs);
+ /*
+@@ -3248,7 +3246,7 @@ int sched_fork(unsigned long clone_flags
+ 		} else if (PRIO_TO_NICE(p->static_prio) < 0)
+ 			p->static_prio = NICE_TO_PRIO(0);
+ 
+-		p->prio = p->normal_prio = __normal_prio(p);
++		p->prio = p->normal_prio = p->static_prio;
+ 		set_load_weight(p, false);
+ 
+ 		/*
+@@ -4799,6 +4797,18 @@ int default_wake_function(wait_queue_ent
+ }
+ EXPORT_SYMBOL(default_wake_function);
+ 
++static void __setscheduler_prio(struct task_struct *p, int prio)
++{
++	if (dl_prio(prio))
++		p->sched_class = &dl_sched_class;
++	else if (rt_prio(prio))
++		p->sched_class = &rt_sched_class;
++	else
++		p->sched_class = &fair_sched_class;
 +
-+	return IS_ERR_VALUE(error) ? error : 0;
- }
++	p->prio = prio;
++}
++
+ #ifdef CONFIG_RT_MUTEXES
  
- static inline void syscall_set_return_value(struct task_struct *task,
---- a/arch/arm64/kernel/ptrace.c
-+++ b/arch/arm64/kernel/ptrace.c
-@@ -1868,7 +1868,7 @@ void syscall_trace_exit(struct pt_regs *
- 	audit_syscall_exit(regs);
- 
- 	if (flags & _TIF_SYSCALL_TRACEPOINT)
--		trace_sys_exit(regs, regs_return_value(regs));
-+		trace_sys_exit(regs, syscall_get_return_value(current, regs));
- 
- 	if (flags & (_TIF_SYSCALL_TRACE | _TIF_SINGLESTEP))
- 		tracehook_report_syscall(regs, PTRACE_SYSCALL_EXIT);
---- a/arch/arm64/kernel/signal.c
-+++ b/arch/arm64/kernel/signal.c
-@@ -29,6 +29,7 @@
- #include <asm/unistd.h>
- #include <asm/fpsimd.h>
- #include <asm/ptrace.h>
-+#include <asm/syscall.h>
- #include <asm/signal32.h>
- #include <asm/traps.h>
- #include <asm/vdso.h>
-@@ -868,7 +869,7 @@ static void do_signal(struct pt_regs *re
- 		     retval == -ERESTART_RESTARTBLOCK ||
- 		     (retval == -ERESTARTSYS &&
- 		      !(ksig.ka.sa.sa_flags & SA_RESTART)))) {
--			regs->regs[0] = -EINTR;
-+			syscall_set_return_value(current, regs, -EINTR, 0);
- 			regs->pc = continue_addr;
+ static inline int __rt_effective_prio(struct task_struct *pi_task, int prio)
+@@ -4914,22 +4924,19 @@ void rt_mutex_setprio(struct task_struct
+ 		} else {
+ 			p->dl.pi_se = &p->dl;
  		}
- 
---- a/arch/arm64/kernel/syscall.c
-+++ b/arch/arm64/kernel/syscall.c
-@@ -50,10 +50,7 @@ static void invoke_syscall(struct pt_reg
- 		ret = do_ni_syscall(regs, scno);
+-		p->sched_class = &dl_sched_class;
+ 	} else if (rt_prio(prio)) {
+ 		if (dl_prio(oldprio))
+ 			p->dl.pi_se = &p->dl;
+ 		if (oldprio < prio)
+ 			queue_flag |= ENQUEUE_HEAD;
+-		p->sched_class = &rt_sched_class;
+ 	} else {
+ 		if (dl_prio(oldprio))
+ 			p->dl.pi_se = &p->dl;
+ 		if (rt_prio(oldprio))
+ 			p->rt.timeout = 0;
+-		p->sched_class = &fair_sched_class;
  	}
  
--	if (is_compat_task())
--		ret = lower_32_bits(ret);
--
--	regs->regs[0] = ret;
-+	syscall_set_return_value(current, regs, 0, ret);
+-	p->prio = prio;
++	__setscheduler_prio(p, prio);
+ 
+ 	if (queued)
+ 		enqueue_task(rq, p, queue_flag);
+@@ -5162,35 +5169,6 @@ static void __setscheduler_params(struct
+ 	set_load_weight(p, true);
  }
  
- static inline bool has_syscall_work(unsigned long flags)
-@@ -108,7 +105,7 @@ static void el0_svc_common(struct pt_reg
- 	if (has_syscall_work(flags)) {
- 		/* set default errno for user-issued syscall(-1) */
- 		if (scno == NO_SYSCALL)
--			regs->regs[0] = -ENOSYS;
-+			syscall_set_return_value(current, regs, -ENOSYS, 0);
- 		scno = syscall_trace_enter(regs);
- 		if (scno == NO_SYSCALL)
- 			goto trace_exit;
+-/* Actually do priority change: must hold pi & rq lock. */
+-static void __setscheduler(struct rq *rq, struct task_struct *p,
+-			   const struct sched_attr *attr, bool keep_boost)
+-{
+-	/*
+-	 * If params can't change scheduling class changes aren't allowed
+-	 * either.
+-	 */
+-	if (attr->sched_flags & SCHED_FLAG_KEEP_PARAMS)
+-		return;
+-
+-	__setscheduler_params(p, attr);
+-
+-	/*
+-	 * Keep a potential priority boosting if called from
+-	 * sched_setscheduler().
+-	 */
+-	p->prio = normal_prio(p);
+-	if (keep_boost)
+-		p->prio = rt_effective_prio(p, p->prio);
+-
+-	if (dl_prio(p->prio))
+-		p->sched_class = &dl_sched_class;
+-	else if (rt_prio(p->prio))
+-		p->sched_class = &rt_sched_class;
+-	else
+-		p->sched_class = &fair_sched_class;
+-}
+-
+ /*
+  * Check the target process has a UID that matches the current process's:
+  */
+@@ -5211,10 +5189,8 @@ static int __sched_setscheduler(struct t
+ 				const struct sched_attr *attr,
+ 				bool user, bool pi)
+ {
+-	int newprio = dl_policy(attr->sched_policy) ? MAX_DL_PRIO - 1 :
+-		      MAX_RT_PRIO - 1 - attr->sched_priority;
+-	int retval, oldprio, oldpolicy = -1, queued, running;
+-	int new_effective_prio, policy = attr->sched_policy;
++	int oldpolicy = -1, policy = attr->sched_policy;
++	int retval, oldprio, newprio, queued, running;
+ 	const struct sched_class *prev_class;
+ 	struct rq_flags rf;
+ 	int reset_on_fork;
+@@ -5412,6 +5388,7 @@ change:
+ 	p->sched_reset_on_fork = reset_on_fork;
+ 	oldprio = p->prio;
+ 
++	newprio = __normal_prio(policy, attr->sched_priority, attr->sched_nice);
+ 	if (pi) {
+ 		/*
+ 		 * Take priority boosted tasks into account. If the new
+@@ -5420,8 +5397,8 @@ change:
+ 		 * the runqueue. This will be done when the task deboost
+ 		 * itself.
+ 		 */
+-		new_effective_prio = rt_effective_prio(p, newprio);
+-		if (new_effective_prio == oldprio)
++		newprio = rt_effective_prio(p, newprio);
++		if (newprio == oldprio)
+ 			queue_flags &= ~DEQUEUE_MOVE;
+ 	}
+ 
+@@ -5434,7 +5411,10 @@ change:
+ 
+ 	prev_class = p->sched_class;
+ 
+-	__setscheduler(rq, p, attr, pi);
++	if (!(attr->sched_flags & SCHED_FLAG_KEEP_PARAMS)) {
++		__setscheduler_params(p, attr);
++		__setscheduler_prio(p, newprio);
++	}
+ 	__setscheduler_uclamp(p, attr);
+ 
+ 	if (queued) {
 
 
