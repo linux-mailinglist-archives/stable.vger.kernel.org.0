@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C95CA3E7E77
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:33:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51AE83E8044
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:47:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232659AbhHJRdd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:33:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33730 "EHLO mail.kernel.org"
+        id S234328AbhHJRrm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:47:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232206AbhHJRdJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:33:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 35D2E60F56;
-        Tue, 10 Aug 2021 17:32:46 +0000 (UTC)
+        id S234715AbhHJRpp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:45:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B48726121E;
+        Tue, 10 Aug 2021 17:40:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616766;
-        bh=U9voHKdbdy7j3vhSy8C//XOKs1jcQG0JGPELGqh0ZNg=;
+        s=korg; t=1628617216;
+        bh=wgnheUtTqVXkI+dOwvW0SDDy8BvYTcks6rBRxanHGTI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qVMKrmgAbTD6YRkEzxd+MmMUXjksxyHd6ppYJUfQeH5pFLyEQp6H7K++BLyVy8/he
-         SMVKxQeSWno1M2Iy3mRcSNSWLrs8gRifkkJ2cX+xdZ3w5MvmVqxBRI2dsnmhM8GcUI
-         36P8Z5s1cUDal7/gt6zsoBCeAXNO+T82UUHfvYvw=
+        b=ewlr9gt03yH9Dbj3KVhlXnMUfBLqGAo0YK0FH7hw/rZmezD+9W50GTTamTC+VTzAw
+         9uic1QYEuHL6QPkCC7wdfMBI+akqsnzPBQNVuk5XB57KcLnyzGTZCHpK4VfRMJVsvM
+         AzKo+M0C8KSCHHln3+6sEv+NaDxF2nykIHIUFaME=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tyler Hicks <tyhicks@linux.microsoft.com>,
-        Sumit Garg <sumit.garg@linaro.org>,
-        Jens Wiklander <jens.wiklander@linaro.org>
-Subject: [PATCH 4.19 36/54] tee: add tee_shm_alloc_kernel_buf()
+        stable@vger.kernel.org,
+        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <f4bug@amsat.org>,
+        "Maciej W. Rozycki" <macro@orcam.me.uk>
+Subject: [PATCH 5.10 096/135] serial: 8250: Mask out floating 16/32-bit bus bits
 Date:   Tue, 10 Aug 2021 19:30:30 +0200
-Message-Id: <20210810172945.369365872@linuxfoundation.org>
+Message-Id: <20210810172959.023942278@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172944.179901509@linuxfoundation.org>
-References: <20210810172944.179901509@linuxfoundation.org>
+In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
+References: <20210810172955.660225700@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,60 +40,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Wiklander <jens.wiklander@linaro.org>
+From: Maciej W. Rozycki <macro@orcam.me.uk>
 
-commit dc7019b7d0e188d4093b34bd0747ed0d668c63bf upstream.
+commit e5227c51090e165db4b48dcaa300605bfced7014 upstream.
 
-Adds a new function tee_shm_alloc_kernel_buf() to allocate shared memory
-from a kernel driver. This function can later be made more lightweight
-by unnecessary dma-buf export.
+Make sure only actual 8 bits of the IIR register are used in determining
+the port type in `autoconfig'.
 
-Cc: stable@vger.kernel.org
-Reviewed-by: Tyler Hicks <tyhicks@linux.microsoft.com>
-Reviewed-by: Sumit Garg <sumit.garg@linaro.org>
-Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
+The `serial_in' port accessor returns the `unsigned int' type, meaning
+that with UPIO_AU, UPIO_MEM16, UPIO_MEM32, and UPIO_MEM32BE access types
+more than 8 bits of data are returned, of which the high order bits will
+often come from bus lines that are left floating in the data phase.  For
+example with the MIPS Malta board's CBUS UART, where the registers are
+aligned on 8-byte boundaries and which uses 32-bit accesses, data as
+follows is returned:
+
+YAMON> dump -32 0xbf000900 0x40
+
+BF000900: 1F000942 1F000942 1F000900 1F000900  ...B...B........
+BF000910: 1F000901 1F000901 1F000900 1F000900  ................
+BF000920: 1F000900 1F000900 1F000960 1F000960  ...........`...`
+BF000930: 1F000900 1F000900 1F0009FF 1F0009FF  ................
+
+YAMON>
+
+Evidently high-order 24 bits return values previously driven in the
+address phase (the 3 highest order address bits used with the command
+above are masked out in the simple virtual address mapping used here and
+come out at zeros on the external bus), a common scenario with bus lines
+left floating, due to bus capacitance.
+
+Consequently when the value of IIR, mapped at 0x1f000910, is retrieved
+in `autoconfig', it comes out at 0x1f0009c1 and when it is right-shifted
+by 6 and then assigned to 8-bit `scratch' variable, the value calculated
+is 0x27, not one of 0, 1, 2, 3 expected in port type determination.
+
+Fix the issue then, by assigning the value returned from `serial_in' to
+`scratch' first, which masks out 24 high-order bits retrieved, and only
+then right-shift the resulting 8-bit data quantity, producing the value
+of 3 in this case, as expected.  Fix the same issue in `serial_dl_read'.
+
+The problem first appeared with Linux 2.6.9-rc3 which predates our repo
+history, but the origin could be identified with the old MIPS/Linux repo
+also at: <git://git.kernel.org/pub/scm/linux/kernel/git/ralf/linux.git>
+as commit e0d2356c0777 ("Merge with Linux 2.6.9-rc3."), where code in
+`serial_in' was updated with this case:
+
++	case UPIO_MEM32:
++		return readl(up->port.membase + offset);
++
+
+which made it produce results outside the unsigned 8-bit range for the
+first time, though obviously it is system dependent what actual values
+appear in the high order bits retrieved and it may well have been zeros
+in the relevant positions with the system the change originally was
+intended for.  It is at that point that code in `autoconf' should have
+been updated accordingly, but clearly it was overlooked.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Cc: stable@vger.kernel.org # v2.6.12+
+Reviewed-by: Philippe Mathieu-Daudé <f4bug@amsat.org>
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Link: https://lore.kernel.org/r/alpine.DEB.2.21.2106260516220.37803@angie.orcam.me.uk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tee/tee_shm.c   |   18 ++++++++++++++++++
- include/linux/tee_drv.h |    1 +
- 2 files changed, 19 insertions(+)
+ drivers/tty/serial/8250/8250_port.c |   12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
---- a/drivers/tee/tee_shm.c
-+++ b/drivers/tee/tee_shm.c
-@@ -228,6 +228,24 @@ struct tee_shm *tee_shm_priv_alloc(struc
- }
- EXPORT_SYMBOL_GPL(tee_shm_priv_alloc);
- 
-+/**
-+ * tee_shm_alloc_kernel_buf() - Allocate shared memory for kernel buffer
-+ * @ctx:	Context that allocates the shared memory
-+ * @size:	Requested size of shared memory
-+ *
-+ * The returned memory registered in secure world and is suitable to be
-+ * passed as a memory buffer in parameter argument to
-+ * tee_client_invoke_func(). The memory allocated is later freed with a
-+ * call to tee_shm_free().
-+ *
-+ * @returns a pointer to 'struct tee_shm'
-+ */
-+struct tee_shm *tee_shm_alloc_kernel_buf(struct tee_context *ctx, size_t size)
-+{
-+	return tee_shm_alloc(ctx, size, TEE_SHM_MAPPED | TEE_SHM_DMA_BUF);
-+}
-+EXPORT_SYMBOL_GPL(tee_shm_alloc_kernel_buf);
-+
- struct tee_shm *tee_shm_register(struct tee_context *ctx, unsigned long addr,
- 				 size_t length, u32 flags)
+--- a/drivers/tty/serial/8250/8250_port.c
++++ b/drivers/tty/serial/8250/8250_port.c
+@@ -311,7 +311,11 @@ static const struct serial8250_config ua
+ /* Uart divisor latch read */
+ static int default_serial_dl_read(struct uart_8250_port *up)
  {
---- a/include/linux/tee_drv.h
-+++ b/include/linux/tee_drv.h
-@@ -317,6 +317,7 @@ void *tee_get_drvdata(struct tee_device
-  * @returns a pointer to 'struct tee_shm'
-  */
- struct tee_shm *tee_shm_alloc(struct tee_context *ctx, size_t size, u32 flags);
-+struct tee_shm *tee_shm_alloc_kernel_buf(struct tee_context *ctx, size_t size);
+-	return serial_in(up, UART_DLL) | serial_in(up, UART_DLM) << 8;
++	/* Assign these in pieces to truncate any bits above 7.  */
++	unsigned char dll = serial_in(up, UART_DLL);
++	unsigned char dlm = serial_in(up, UART_DLM);
++
++	return dll | dlm << 8;
+ }
  
- /**
-  * tee_shm_priv_alloc() - Allocate shared memory privately
+ /* Uart divisor latch write */
+@@ -1297,9 +1301,11 @@ static void autoconfig(struct uart_8250_
+ 	serial_out(up, UART_LCR, 0);
+ 
+ 	serial_out(up, UART_FCR, UART_FCR_ENABLE_FIFO);
+-	scratch = serial_in(up, UART_IIR) >> 6;
+ 
+-	switch (scratch) {
++	/* Assign this as it is to truncate any bits above 7.  */
++	scratch = serial_in(up, UART_IIR);
++
++	switch (scratch >> 6) {
+ 	case 0:
+ 		autoconfig_8250(up);
+ 		break;
 
 
