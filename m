@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EA4C3E80E2
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:53:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 782C03E7F79
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:41:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236747AbhHJRxX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:53:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47970 "EHLO mail.kernel.org"
+        id S232978AbhHJRkf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:40:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43990 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234366AbhHJRvV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:51:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A3AFE61352;
-        Tue, 10 Aug 2021 17:43:09 +0000 (UTC)
+        id S235271AbhHJRj3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:39:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CD2D46112D;
+        Tue, 10 Aug 2021 17:37:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617390;
-        bh=0xzp1PXu05XRA9kCtipz+UIeV45TPO7SkPCFIe1QH9I=;
+        s=korg; t=1628617025;
+        bh=uQZg2yJPU33qth7MbzF84g9s18ngRx81XDaZvVJN/Bw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SJHeN+mlpv/zEw2h68mIiSgVlYpiWGKC3sD8W7zKCbzdQHfSPirzicLshprFu4sEC
-         lOLf3Rh9+nL5bC8Ds6ZW8YJOqksx3B+fBPDbPi/PDHtNX0htvVK00a1uIjNPD9gPan
-         PTbEQOn9cJMZ9Fy0iYcRb25Zbhp6VmPvjOjEpImU=
+        b=WO9Zn5wA8Sm0uZjTZ+BrCpdsqR6+945lJzyZieqnxmIx8ywymFrMyKy4uXr98dL7+
+         uur9t0ur/t0gC+zRayMgbeFp7qne9adJ+y61fkYEWln8UqahZJ4vNQEJ3s0M93vZ2g
+         GU2j6RKK4qhX5gfo6yDQjp3HfFrJqv8Z6zDOABKY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
-        Patrice Chotard <patrice.chotard@foss.st.com>,
-        Patrick Delaunay <patrick.delaunay@foss.st.com>,
-        linux-stm32@st-md-mailman.stormreply.com,
+        Shawn Guo <shawnguo@kernel.org>,
+        Fabio Estevam <festevam@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 038/175] ARM: dts: stm32: Fix touchscreen IRQ line assignment on DHCOM
+Subject: [PATCH 5.10 012/135] ARM: dts: imx: Swap M53Menlo pinctrl_power_button/pinctrl_power_out pins
 Date:   Tue, 10 Aug 2021 19:29:06 +0200
-Message-Id: <20210810173002.209740494@linuxfoundation.org>
+Message-Id: <20210810172956.087950326@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
-References: <20210810173000.928681411@linuxfoundation.org>
+In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
+References: <20210810172955.660225700@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,98 +44,44 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit 15f68f027ebd961b99a1c420f96ff3838c5e4450 ]
+[ Upstream commit 3d9e30a52047f2d464efdfd1d561ae1f707a0286 ]
 
-While 7e5f3155dcbb4 ("ARM: dts: stm32: Fix LED5 on STM32MP1 DHCOM PDK2")
-fixed the LED0 assignment on the PDK2 board, the same commit did not
-update the touchscreen IRQ line assignment, which is the same GPIO line,
-shared between the LED0 output and touchscreen IRQ input. To make this
-more convoluted, the same EXTI input (not the same GPIO line) is shared
-between Button B which is Active-Low IRQ, and touchscreen IRQ which is
-Edge-Falling IRQ, which cannot be used at the same time. In case the LCD
-board with touchscreen is in use, which is the case here, LED0 must be
-disabled, Button B must be polled, so the touchscreen interrupt works as
-it should.
+The pinctrl_power_button/pinctrl_power_out each define single GPIO
+pinmux, except it is exactly the other one than the matching gpio-keys
+and gpio-poweroff DT nodes use for that functionality. Swap the two
+GPIOs to correct this error.
 
-Update the touchscreen IRQ line assignment, disable LED0 and use polled
-GPIO button driver for Button B, since the DT here describes baseboard
-with LCD board.
-
-Fixes: 7e5f3155dcbb4 ("ARM: dts: stm32: Fix LED5 on STM32MP1 DHCOM PDK2")
+Fixes: 50d29fdb765d ("ARM: dts: imx53: Add power GPIOs on M53Menlo")
 Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
-Cc: Patrice Chotard <patrice.chotard@foss.st.com>
-Cc: Patrick Delaunay <patrick.delaunay@foss.st.com>
-Cc: linux-stm32@st-md-mailman.stormreply.com
-To: linux-arm-kernel@lists.infradead.org
-Signed-off-by: Alexandre Torgue <alexandre.torgue@foss.st.com>
+Cc: Shawn Guo <shawnguo@kernel.org>
+Cc: Fabio Estevam <festevam@gmail.com>
+Cc: NXP Linux Team <linux-imx@nxp.com>
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/stm32mp15xx-dhcom-pdk2.dtsi | 24 +++++++++++--------
- 1 file changed, 14 insertions(+), 10 deletions(-)
+ arch/arm/boot/dts/imx53-m53menlo.dts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/stm32mp15xx-dhcom-pdk2.dtsi b/arch/arm/boot/dts/stm32mp15xx-dhcom-pdk2.dtsi
-index c5ea08fec535..6cf1c8b4c6e2 100644
---- a/arch/arm/boot/dts/stm32mp15xx-dhcom-pdk2.dtsi
-+++ b/arch/arm/boot/dts/stm32mp15xx-dhcom-pdk2.dtsi
-@@ -37,7 +37,7 @@
- 		poll-interval = <20>;
+diff --git a/arch/arm/boot/dts/imx53-m53menlo.dts b/arch/arm/boot/dts/imx53-m53menlo.dts
+index f98691ae4415..d3082b9774e4 100644
+--- a/arch/arm/boot/dts/imx53-m53menlo.dts
++++ b/arch/arm/boot/dts/imx53-m53menlo.dts
+@@ -388,13 +388,13 @@
  
- 		/*
--		 * The EXTi IRQ line 3 is shared with touchscreen and ethernet,
-+		 * The EXTi IRQ line 3 is shared with ethernet,
- 		 * so mark this as polled GPIO key.
- 		 */
- 		button-0 {
-@@ -46,6 +46,16 @@
- 			gpios = <&gpiof 3 GPIO_ACTIVE_LOW>;
+ 		pinctrl_power_button: powerbutgrp {
+ 			fsl,pins = <
+-				MX53_PAD_SD2_DATA2__GPIO1_13		0x1e4
++				MX53_PAD_SD2_DATA0__GPIO1_15		0x1e4
+ 			>;
  		};
  
-+		/*
-+		 * The EXTi IRQ line 6 is shared with touchscreen,
-+		 * so mark this as polled GPIO key.
-+		 */
-+		button-1 {
-+			label = "TA2-GPIO-B";
-+			linux,code = <KEY_B>;
-+			gpios = <&gpiod 6 GPIO_ACTIVE_LOW>;
-+		};
-+
- 		/*
- 		 * The EXTi IRQ line 0 is shared with PMIC,
- 		 * so mark this as polled GPIO key.
-@@ -60,13 +70,6 @@
- 	gpio-keys {
- 		compatible = "gpio-keys";
- 
--		button-1 {
--			label = "TA2-GPIO-B";
--			linux,code = <KEY_B>;
--			gpios = <&gpiod 6 GPIO_ACTIVE_LOW>;
--			wakeup-source;
--		};
--
- 		button-3 {
- 			label = "TA4-GPIO-D";
- 			linux,code = <KEY_D>;
-@@ -82,6 +85,7 @@
- 			label = "green:led5";
- 			gpios = <&gpioc 6 GPIO_ACTIVE_HIGH>;
- 			default-state = "off";
-+			status = "disabled";
+ 		pinctrl_power_out: poweroutgrp {
+ 			fsl,pins = <
+-				MX53_PAD_SD2_DATA0__GPIO1_15		0x1e4
++				MX53_PAD_SD2_DATA2__GPIO1_13		0x1e4
+ 			>;
  		};
- 
- 		led-1 {
-@@ -185,8 +189,8 @@
- 	touchscreen@38 {
- 		compatible = "edt,edt-ft5406";
- 		reg = <0x38>;
--		interrupt-parent = <&gpiog>;
--		interrupts = <2 IRQ_TYPE_EDGE_FALLING>; /* GPIO E */
-+		interrupt-parent = <&gpioc>;
-+		interrupts = <6 IRQ_TYPE_EDGE_FALLING>; /* GPIO E */
- 	};
- };
  
 -- 
 2.30.2
