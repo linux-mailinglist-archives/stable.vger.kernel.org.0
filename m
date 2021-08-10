@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3BB33E7F3E
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:40:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F7313E7EA2
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:34:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234103AbhHJRjJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:39:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33340 "EHLO mail.kernel.org"
+        id S232473AbhHJReg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:34:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234253AbhHJRhJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:37:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 279B3600CD;
-        Tue, 10 Aug 2021 17:35:57 +0000 (UTC)
+        id S232498AbhHJRd4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:33:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DB6C160F94;
+        Tue, 10 Aug 2021 17:33:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628616957;
-        bh=VvLopI406tbUvH/4CFjosrGCCdL/9TLszR3wnygfY/o=;
+        s=korg; t=1628616814;
+        bh=ihAvkDK7uaKrqIGBsVrJT2bcZ8CGQmp7iO0hrwSPxCs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RbJJ+FqzDlU83Ry0VVp7jPgdSbGIP462ATg8FMxYt9hHVfxDfzkhEYkY7CrUIUub+
-         qnWKu+IZsWtzN5SaF0kSECJrTMigFZPZ5jmskw+MDxF7nGVteaXPgdDgxvSZ76Od7q
-         1zRPD1qhCxcttj5DGB8HxYoNZRyJK+2HNzBUYOEc=
+        b=Asf5BRfO55dIBxJRSRxqo1SuML9UakDP+d3bzcd29lHofD32nRZf9dUB+yedSPysQ
+         3P11obWpmbZGXvi3XPbJLwk7DNjyTMhDHnUlO+hn8UphcdRE0Qh13YpYOwQAmk03I2
+         sxEwrcAwEBGDNrXuW2odQdAf8xaHXD0MVYjUOBH0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Dominik Brodowski <linux@dominikbrodowski.net>
-Subject: [PATCH 5.4 68/85] pcmcia: i82092: fix a null pointer dereference bug
+        stable@vger.kernel.org, Like Xu <likexu@tencent.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Liam Merwick <liam.merwick@oracle.com>,
+        Kim Phillips <kim.phillips@amd.com>
+Subject: [PATCH 4.19 47/54] perf/x86/amd: Dont touch the AMD64_EVENTSEL_HOSTONLY bit inside the guest
 Date:   Tue, 10 Aug 2021 19:30:41 +0200
-Message-Id: <20210810172950.545583509@linuxfoundation.org>
+Message-Id: <20210810172945.744299691@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210810172948.192298392@linuxfoundation.org>
-References: <20210810172948.192298392@linuxfoundation.org>
+In-Reply-To: <20210810172944.179901509@linuxfoundation.org>
+References: <20210810172944.179901509@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,32 +41,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Like Xu <likexu@tencent.com>
 
-commit e39cdacf2f664b09029e7c1eb354c91a20c367af upstream.
+commit df51fe7ea1c1c2c3bfdb81279712fdd2e4ea6c27 upstream.
 
-During the driver loading process, the 'dev' field was not assigned, but
-the 'dev' field was referenced in the subsequent 'i82092aa_set_mem_map'
-function.
+If we use "perf record" in an AMD Milan guest, dmesg reports a #GP
+warning from an unchecked MSR access error on MSR_F15H_PERF_CTLx:
 
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-CC: <stable@vger.kernel.org>
-[linux@dominikbrodowski.net: shorten commit message, add Cc to stable]
-Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
+  [] unchecked MSR access error: WRMSR to 0xc0010200 (tried to write 0x0000020000110076) at rIP: 0xffffffff8106ddb4 (native_write_msr+0x4/0x20)
+  [] Call Trace:
+  []  amd_pmu_disable_event+0x22/0x90
+  []  x86_pmu_stop+0x4c/0xa0
+  []  x86_pmu_del+0x3a/0x140
+
+The AMD64_EVENTSEL_HOSTONLY bit is defined and used on the host,
+while the guest perf driver should avoid such use.
+
+Fixes: 1018faa6cf23 ("perf/x86/kvm: Fix Host-Only/Guest-Only counting with SVM disabled")
+Signed-off-by: Like Xu <likexu@tencent.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Liam Merwick <liam.merwick@oracle.com>
+Tested-by: Kim Phillips <kim.phillips@amd.com>
+Tested-by: Liam Merwick <liam.merwick@oracle.com>
+Link: https://lkml.kernel.org/r/20210802070850.35295-1-likexu@tencent.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pcmcia/i82092.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/events/perf_event.h |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/pcmcia/i82092.c
-+++ b/drivers/pcmcia/i82092.c
-@@ -106,6 +106,7 @@ static int i82092aa_pci_probe(struct pci
- 	for (i = 0;i<socket_count;i++) {
- 		sockets[i].card_state = 1; /* 1 = present but empty */
- 		sockets[i].io_base = pci_resource_start(dev, 0);
-+		sockets[i].dev = dev;
- 		sockets[i].socket.features |= SS_CAP_PCCARD;
- 		sockets[i].socket.map_size = 0x1000;
- 		sockets[i].socket.irq_mask = 0;
+--- a/arch/x86/events/perf_event.h
++++ b/arch/x86/events/perf_event.h
+@@ -799,9 +799,10 @@ void x86_pmu_stop(struct perf_event *eve
+ 
+ static inline void x86_pmu_disable_event(struct perf_event *event)
+ {
++	u64 disable_mask = __this_cpu_read(cpu_hw_events.perf_ctr_virt_mask);
+ 	struct hw_perf_event *hwc = &event->hw;
+ 
+-	wrmsrl(hwc->config_base, hwc->config);
++	wrmsrl(hwc->config_base, hwc->config & ~disable_mask);
+ }
+ 
+ void x86_pmu_enable_event(struct perf_event *event);
 
 
