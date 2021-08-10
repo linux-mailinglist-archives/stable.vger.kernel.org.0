@@ -2,104 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 256933E5527
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 10:27:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D09FB3E5537
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 10:31:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238154AbhHJI2I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 04:28:08 -0400
-Received: from relay3-d.mail.gandi.net ([217.70.183.195]:52811 "EHLO
-        relay3-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237662AbhHJI2G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Aug 2021 04:28:06 -0400
-Received: (Authenticated sender: alex@ghiti.fr)
-        by relay3-d.mail.gandi.net (Postfix) with ESMTPSA id EC1B960005;
-        Tue, 10 Aug 2021 08:27:41 +0000 (UTC)
-Subject: Re: FAILED: patch "[PATCH] Revert "riscv: Remove
- CONFIG_PHYS_RAM_BASE_FIXED"" failed to apply to 5.13-stable tree
-To:     gregkh@linuxfoundation.org, jszhang@kernel.org, kernel@esmil.dk,
-        palmerdabbelt@google.com
-Cc:     stable@vger.kernel.org
-References: <16285057241800@kroah.com>
-From:   Alex Ghiti <alex@ghiti.fr>
-Message-ID: <950e0318-300b-5915-aace-be679f3ba2d0@ghiti.fr>
-Date:   Tue, 10 Aug 2021 10:27:41 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.12.0
+        id S238182AbhHJIbV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 04:31:21 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:41652 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233746AbhHJIbV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Aug 2021 04:31:21 -0400
+Date:   Tue, 10 Aug 2021 08:30:56 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1628584257;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
+        bh=R3+Z3k4bu+GGLrnbVnnpvaw14kwNMHvJNvXzsr4E370=;
+        b=lB02Bwl635FoaRbPQCTFEJcnasX6cewq9UY2SHKeLnX4rv1qoiQYg25X0aqiCUkvbH+Y26
+        v5I/ejkdMWfdFSmp3FdXHjGeg3WlJr6g+E0XvXxPrfAgX61iSWIF8kz5L4zkFjwiIWHrdd
+        uAXzte7MF/XYL3/uATLwkKZfLNGancqTdY11aLfwpfPJJQsaBW9oSeVbUaHUDvyfCitTFr
+        WXANnXG7gUrRXVEmux8AFwdIudYEGzcvntRHSBGiKRFhYFa5/Ru3EO2zeU+dZboHUOIPtX
+        4rY5ithqRZHP1Q3coOidmDaB2TCiN2Yb0v6kQROQVdVu4Pcq93qwSKBBkLdpzw==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1628584257;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
+        bh=R3+Z3k4bu+GGLrnbVnnpvaw14kwNMHvJNvXzsr4E370=;
+        b=ISUh3DWq+ottC6XRovQ6iO06OZELQivnDuu3XRScqEnc5JPPYMWttNpll+j4ExSxfpdvSF
+        FfW+dnHhog02pdCg==
+From:   "tip-bot2 for Ard Biesheuvel" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: efi/urgent] efi/libstub: arm64: Double check image alignment at entry
+Cc:     <stable@vger.kernel.org>, Ard Biesheuvel <ardb@kernel.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        x86@kernel.org, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-In-Reply-To: <16285057241800@kroah.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Language: fr
-Content-Transfer-Encoding: 8bit
+Message-ID: <162858425681.395.14788450101078215076.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+The following commit has been merged into the efi/urgent branch of tip:
 
-Le 9/08/2021 à 12:42, gregkh@linuxfoundation.org a écrit :
-> 
-> The patch below does not apply to the 5.13-stable tree.
+Commit-ID:     c32ac11da3f83bb42b986702a9b92f0a14ed4182
+Gitweb:        https://git.kernel.org/tip/c32ac11da3f83bb42b986702a9b92f0a14ed4182
+Author:        Ard Biesheuvel <ardb@kernel.org>
+AuthorDate:    Mon, 26 Jul 2021 16:31:44 +02:00
+Committer:     Ard Biesheuvel <ardb@kernel.org>
+CommitterDate: Tue, 03 Aug 2021 07:43:13 +02:00
 
-The same for this one too, it can't be applied to 5.13 since it fixes a 
-mistake introduced in 5.14-rc1.
+efi/libstub: arm64: Double check image alignment at entry
 
-Sorry again for the noise,
+On arm64, the stub only moves the kernel image around in memory if
+needed, which is typically only for KASLR, given that relocatable
+kernels (which is the default) can run from any 64k aligned address,
+which is also the minimum alignment communicated to EFI via the PE/COFF
+header.
 
-Thanks,
+Unfortunately, some loaders appear to ignore this header, and load the
+kernel at some arbitrary offset in memory. We can deal with this, but
+let's check for this condition anyway, so non-compliant code can be
+spotted and fixed.
 
-Alex
+Cc: <stable@vger.kernel.org> # v5.10+
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Tested-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+---
+ drivers/firmware/efi/libstub/arm64-stub.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
-> 
-> thanks,
-> 
-> greg k-h
-> 
-> ------------------ original commit in Linus's tree ------------------
-> 
->  From 867432bec1c6e7df21a361d7f12022a8c5f54022 Mon Sep 17 00:00:00 2001
-> From: Alexandre Ghiti <alex@ghiti.fr>
-> Date: Wed, 21 Jul 2021 09:59:36 +0200
-> Subject: [PATCH] Revert "riscv: Remove CONFIG_PHYS_RAM_BASE_FIXED"
-> 
-> This reverts commit 9b79878ced8f7ab85c57623f8b1f6882e484a316.
-> 
-> The removal of this config exposes CONFIG_PHYS_RAM_BASE for all kernel
-> types: this value being implementation-specific, this breaks the
-> genericity of the RISC-V kernel so revert it.
-> 
-> Signed-off-by: Alexandre Ghiti <alex@ghiti.fr>
-> Tested-by: Emil Renner Berthing <kernel@esmil.dk>
-> Reviewed-by: Jisheng Zhang <jszhang@kernel.org>
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
-> 
-> diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
-> index 31f9e92f1402..4f7b70ae7c31 100644
-> --- a/arch/riscv/Kconfig
-> +++ b/arch/riscv/Kconfig
-> @@ -495,8 +495,13 @@ config STACKPROTECTOR_PER_TASK
->   	depends on !GCC_PLUGIN_RANDSTRUCT
->   	depends on STACKPROTECTOR && CC_HAVE_STACKPROTECTOR_TLS
->   
-> +config PHYS_RAM_BASE_FIXED
-> +	bool "Explicitly specified physical RAM address"
-> +	default n
-> +
->   config PHYS_RAM_BASE
->   	hex "Platform Physical RAM address"
-> +	depends on PHYS_RAM_BASE_FIXED
->   	default "0x80000000"
->   	help
->   	  This is the physical address of RAM in the system. It has to be
-> @@ -509,6 +514,7 @@ config XIP_KERNEL
->   	# This prevents XIP from being enabled by all{yes,mod}config, which
->   	# fail to build since XIP doesn't support large kernels.
->   	depends on !COMPILE_TEST
-> +	select PHYS_RAM_BASE_FIXED
->   	help
->   	  Execute-In-Place allows the kernel to run from non-volatile storage
->   	  directly addressable by the CPU, such as NOR flash. This saves RAM
-> 
+diff --git a/drivers/firmware/efi/libstub/arm64-stub.c b/drivers/firmware/efi/libstub/arm64-stub.c
+index 010564f..2363fee 100644
+--- a/drivers/firmware/efi/libstub/arm64-stub.c
++++ b/drivers/firmware/efi/libstub/arm64-stub.c
+@@ -119,6 +119,10 @@ efi_status_t handle_kernel_image(unsigned long *image_addr,
+ 	if (image->image_base != _text)
+ 		efi_err("FIRMWARE BUG: efi_loaded_image_t::image_base has bogus value\n");
+ 
++	if (!IS_ALIGNED((u64)_text, EFI_KIMG_ALIGN))
++		efi_err("FIRMWARE BUG: kernel image not aligned on %ldk boundary\n",
++			EFI_KIMG_ALIGN >> 10);
++
+ 	kernel_size = _edata - _text;
+ 	kernel_memsize = kernel_size + (_end - _edata);
+ 	*reserve_size = kernel_memsize;
