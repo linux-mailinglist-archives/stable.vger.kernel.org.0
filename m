@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 08E573E80C9
-	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:53:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA5403E8136
+	for <lists+stable@lfdr.de>; Tue, 10 Aug 2021 19:57:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235638AbhHJRw0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Aug 2021 13:52:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56806 "EHLO mail.kernel.org"
+        id S232020AbhHJR4k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Aug 2021 13:56:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55478 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237315AbhHJRuW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Aug 2021 13:50:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C71161076;
-        Tue, 10 Aug 2021 17:42:37 +0000 (UTC)
+        id S237415AbhHJRyf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Aug 2021 13:54:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D00461220;
+        Tue, 10 Aug 2021 17:44:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628617358;
-        bh=VX9BCv/xjhp3lzPf4kDY4Ob7smi3OWrnyPp1j+Ehe5U=;
+        s=korg; t=1628617458;
+        bh=QKRjStoIKL4RoqgWyVEI9Ygpvtxi08YtDeGdgzdTtGY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dMPTKutpoyHzbQWbHLdtNyziNG65G6vUVC07QZLbe7XIrmOdeeS9oJHXs8asfZTK6
-         FXZbGPKRylMsp2kmMIFc+NgBSvXKem/bAFyLfXswjQHJKG7MNh6XBI2a8pnJ29jBFh
-         +OE5aqrtFoa9kDIhX1Y6Zob1WWZbWSDIhBU/JEds=
+        b=uRgJY0SOD9YRne6cWh3z77jFWvfan/Vcynb3HfhKfg4ut+7Ivhw9iftFQTrevd2eS
+         ytMdl7bhdTBCPFhYZWnlUCZ1uOs7yFDljaqM3lFfdnq/xWpbDV0O1q3J8eFyWnpcse
+         Ug/P31CxHvbcZmX5Xh4AjW0vTfkwSxBgQBeLcGJ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jisheng Zhang <jszhang@kernel.org>,
-        Atish Patra <atish.patra@wdc.com>,
-        Wende Tan <twd2.me@gmail.com>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
+        stable@vger.kernel.org, Dario Binacchi <dariobin@libero.it>,
+        Gabriel Fernandez <gabriel.fernandez@st.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 023/175] riscv: stacktrace: Fix NULL pointer dereference
-Date:   Tue, 10 Aug 2021 19:28:51 +0200
-Message-Id: <20210810173001.717955153@linuxfoundation.org>
+Subject: [PATCH 5.13 024/175] clk: stm32f4: fix post divisor setup for I2S/SAI PLLs
+Date:   Tue, 10 Aug 2021 19:28:52 +0200
+Message-Id: <20210810173001.749896861@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210810173000.928681411@linuxfoundation.org>
 References: <20210810173000.928681411@linuxfoundation.org>
@@ -42,81 +41,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jisheng Zhang <jszhang@kernel.org>
+From: Dario Binacchi <dariobin@libero.it>
 
-[ Upstream commit 78d9d8005e4556448f398d876f29d0ca7ab8e398 ]
+[ Upstream commit 24b5b1978cd5a80db58e2a19db2f9c36fe8d4f7a ]
 
-When CONFIG_FRAME_POINTER=y, calling dump_stack() can always trigger
-NULL pointer dereference panic similar as below:
+Enabling the framebuffer leads to a system hang. Running, as a debug
+hack, the store_pan() function in drivers/video/fbdev/core/fbsysfs.c
+without taking the console_lock, allows to see the crash backtrace on
+the serial line.
 
-[    0.396060] CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.13.0-rc5+ #47
-[    0.396692] Hardware name: riscv-virtio,qemu (DT)
-[    0.397176] Call Trace:
-[    0.398191] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000960
-[    0.399487] Oops [#1]
-[    0.399739] Modules linked in:
-[    0.400135] CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.13.0-rc5+ #47
-[    0.400570] Hardware name: riscv-virtio,qemu (DT)
-[    0.400926] epc : walk_stackframe+0xc4/0xdc
-[    0.401291]  ra : dump_backtrace+0x30/0x38
-[    0.401630] epc : ffffffff80004922 ra : ffffffff8000496a sp : ffffffe000f3bd00
-[    0.402115]  gp : ffffffff80cfdcb8 tp : ffffffe000f30000 t0 : ffffffff80d0b0cf
-[    0.402602]  t1 : ffffffff80d0b0c0 t2 : 0000000000000000 s0 : ffffffe000f3bd60
-[    0.403071]  s1 : ffffffff808bc2e8 a0 : 0000000000001000 a1 : 0000000000000000
-[    0.403448]  a2 : ffffffff803d7088 a3 : ffffffff808bc2e8 a4 : 6131725dbc24d400
-[    0.403820]  a5 : 0000000000001000 a6 : 0000000000000002 a7 : ffffffffffffffff
-[    0.404226]  s2 : 0000000000000000 s3 : 0000000000000000 s4 : 0000000000000000
-[    0.404634]  s5 : ffffffff803d7088 s6 : ffffffff808bc2e8 s7 : ffffffff80630650
-[    0.405085]  s8 : ffffffff80912a80 s9 : 0000000000000008 s10: ffffffff804000fc
-[    0.405388]  s11: 0000000000000000 t3 : 0000000000000043 t4 : ffffffffffffffff
-[    0.405616]  t5 : 000000000000003d t6 : ffffffe000f3baa8
-[    0.405793] status: 0000000000000100 badaddr: 0000000000000960 cause: 000000000000000d
-[    0.406135] [<ffffffff80004922>] walk_stackframe+0xc4/0xdc
-[    0.407032] [<ffffffff8000496a>] dump_backtrace+0x30/0x38
-[    0.407797] [<ffffffff803d7100>] show_stack+0x40/0x4c
-[    0.408234] [<ffffffff803d9e5c>] dump_stack+0x90/0xb6
-[    0.409019] [<ffffffff8040423e>] ptdump_init+0x20/0xc4
-[    0.409681] [<ffffffff800015b6>] do_one_initcall+0x4c/0x226
-[    0.410110] [<ffffffff80401094>] kernel_init_freeable+0x1f4/0x258
-[    0.410562] [<ffffffff803dba88>] kernel_init+0x22/0x148
-[    0.410959] [<ffffffff800029e2>] ret_from_exception+0x0/0x14
-[    0.412241] ---[ end trace b2ab92c901b96251 ]---
-[    0.413099] Kernel panic - not syncing: Attempted to kill init! exitcode=0x0000000b
+~ # echo 0 0 > /sys/class/graphics/fb0/pan
 
-The reason is the task is NULL when we finally call walk_stackframe()
-the NULL is passed from __dump_stack():
+[    9.719414] Unhandled exception: IPSR = 00000005 LR = fffffff1
+[    9.726937] CPU: 0 PID: 49 Comm: sh Not tainted 5.13.0-rc5 #9
+[    9.733008] Hardware name: STM32 (Device Tree Support)
+[    9.738296] PC is at clk_gate_is_enabled+0x0/0x28
+[    9.743426] LR is at stm32f4_pll_div_set_rate+0xf/0x38
+[    9.748857] pc : [<0011e4be>]    lr : [<0011f9e3>]    psr: 0100000b
+[    9.755373] sp : 00bc7be0  ip : 00000000  fp : 001f3ac4
+[    9.760812] r10: 002610d0  r9 : 01efe920  r8 : 00540560
+[    9.766269] r7 : 02e7ddb0  r6 : 0173eed8  r5 : 00000000  r4 : 004027c0
+[    9.773081] r3 : 0011e4bf  r2 : 02e7ddb0  r1 : 0173eed8  r0 : 1d3267b8
+[    9.779911] xPSR: 0100000b
+[    9.782719] CPU: 0 PID: 49 Comm: sh Not tainted 5.13.0-rc5 #9
+[    9.788791] Hardware name: STM32 (Device Tree Support)
+[    9.794120] [<0000afa1>] (unwind_backtrace) from [<0000a33f>] (show_stack+0xb/0xc)
+[    9.802421] [<0000a33f>] (show_stack) from [<0000a8df>] (__invalid_entry+0x4b/0x4c)
 
-|static void __dump_stack(void)
-|{
-|        dump_stack_print_info(KERN_DEFAULT);
-|        show_stack(NULL, NULL, KERN_DEFAULT);
-|}
+The `pll_num' field in the post_div_data configuration contained a wrong
+value which also referenced an uninitialized hardware clock when
+clk_register_pll_div() was called.
 
-Fix this issue by checking "task == NULL" case in walk_stackframe().
-
-Fixes: eac2f3059e02 ("riscv: stacktrace: fix the riscv stacktrace when CONFIG_FRAME_POINTER enabled")
-Signed-off-by: Jisheng Zhang <jszhang@kernel.org>
-Reviewed-by: Atish Patra <atish.patra@wdc.com>
-Tested-by: Wende Tan <twd2.me@gmail.com>
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Fixes: 517633ef630e ("clk: stm32f4: Add post divisor for I2S & SAI PLLs")
+Signed-off-by: Dario Binacchi <dariobin@libero.it>
+Reviewed-by: Gabriel Fernandez <gabriel.fernandez@st.com>
+Link: https://lore.kernel.org/r/20210725160725.10788-1-dariobin@libero.it
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/kernel/stacktrace.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/clk/clk-stm32f4.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/arch/riscv/kernel/stacktrace.c b/arch/riscv/kernel/stacktrace.c
-index bde85fc53357..7bc8af75933a 100644
---- a/arch/riscv/kernel/stacktrace.c
-+++ b/arch/riscv/kernel/stacktrace.c
-@@ -27,7 +27,7 @@ void notrace walk_stackframe(struct task_struct *task, struct pt_regs *regs,
- 		fp = frame_pointer(regs);
- 		sp = user_stack_pointer(regs);
- 		pc = instruction_pointer(regs);
--	} else if (task == current) {
-+	} else if (task == NULL || task == current) {
- 		fp = (unsigned long)__builtin_frame_address(1);
- 		sp = (unsigned long)__builtin_frame_address(0);
- 		pc = (unsigned long)__builtin_return_address(0);
+diff --git a/drivers/clk/clk-stm32f4.c b/drivers/clk/clk-stm32f4.c
+index 18117ce5ff85..5c75e3d906c2 100644
+--- a/drivers/clk/clk-stm32f4.c
++++ b/drivers/clk/clk-stm32f4.c
+@@ -526,7 +526,7 @@ struct stm32f4_pll {
+ 
+ struct stm32f4_pll_post_div_data {
+ 	int idx;
+-	u8 pll_num;
++	int pll_idx;
+ 	const char *name;
+ 	const char *parent;
+ 	u8 flag;
+@@ -557,13 +557,13 @@ static const struct clk_div_table post_divr_table[] = {
+ 
+ #define MAX_POST_DIV 3
+ static const struct stm32f4_pll_post_div_data  post_div_data[MAX_POST_DIV] = {
+-	{ CLK_I2SQ_PDIV, PLL_I2S, "plli2s-q-div", "plli2s-q",
++	{ CLK_I2SQ_PDIV, PLL_VCO_I2S, "plli2s-q-div", "plli2s-q",
+ 		CLK_SET_RATE_PARENT, STM32F4_RCC_DCKCFGR, 0, 5, 0, NULL},
+ 
+-	{ CLK_SAIQ_PDIV, PLL_SAI, "pllsai-q-div", "pllsai-q",
++	{ CLK_SAIQ_PDIV, PLL_VCO_SAI, "pllsai-q-div", "pllsai-q",
+ 		CLK_SET_RATE_PARENT, STM32F4_RCC_DCKCFGR, 8, 5, 0, NULL },
+ 
+-	{ NO_IDX, PLL_SAI, "pllsai-r-div", "pllsai-r", CLK_SET_RATE_PARENT,
++	{ NO_IDX, PLL_VCO_SAI, "pllsai-r-div", "pllsai-r", CLK_SET_RATE_PARENT,
+ 		STM32F4_RCC_DCKCFGR, 16, 2, 0, post_divr_table },
+ };
+ 
+@@ -1774,7 +1774,7 @@ static void __init stm32f4_rcc_init(struct device_node *np)
+ 				post_div->width,
+ 				post_div->flag_div,
+ 				post_div->div_table,
+-				clks[post_div->pll_num],
++				clks[post_div->pll_idx],
+ 				&stm32f4_clk_lock);
+ 
+ 		if (post_div->idx != NO_IDX)
 -- 
 2.30.2
 
