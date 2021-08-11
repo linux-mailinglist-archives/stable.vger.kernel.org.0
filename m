@@ -2,70 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 427913E9355
-	for <lists+stable@lfdr.de>; Wed, 11 Aug 2021 16:11:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 523183E9405
+	for <lists+stable@lfdr.de>; Wed, 11 Aug 2021 16:54:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232252AbhHKOMK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Aug 2021 10:12:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54324 "EHLO
+        id S232370AbhHKOye (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Aug 2021 10:54:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35952 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231902AbhHKOMK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Aug 2021 10:12:10 -0400
-Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCF1CC061765
-        for <stable@vger.kernel.org>; Wed, 11 Aug 2021 07:11:46 -0700 (PDT)
-Received: by mail-pj1-x1034.google.com with SMTP id lw7-20020a17090b1807b029017881cc80b7so9750880pjb.3
-        for <stable@vger.kernel.org>; Wed, 11 Aug 2021 07:11:46 -0700 (PDT)
+        with ESMTP id S232284AbhHKOye (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Aug 2021 10:54:34 -0400
+Received: from mail-pl1-x632.google.com (mail-pl1-x632.google.com [IPv6:2607:f8b0:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AD8BC061765
+        for <stable@vger.kernel.org>; Wed, 11 Aug 2021 07:54:10 -0700 (PDT)
+Received: by mail-pl1-x632.google.com with SMTP id f3so3052926plg.3
+        for <stable@vger.kernel.org>; Wed, 11 Aug 2021 07:54:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=tVbAHiuvvRs4HazGnac5ScJp0BoK2XoVNcND7f+nEY8=;
-        b=lR6Qs1bG7/+WFvKr8kxCYaSDslDnHtjhjk3GDilAt5YKlHjkLe3RDbKvGnyi6qcVYF
-         0RT10ZEE9MfwmnzE7bwpr2lno0mgxeomeb/CF5TpdF6s5X+Tq9x6mR9HACnC74/QGTb+
-         51U+avZdfKPEPFSwM7xHLtOC8q6nef61rbqVbh7A9ny38u30lJbkJE5KAkbFnFRa3lxo
-         K3sGBHEFAyptieXidzsocP6R9CnnE1PusyqsiZYTNy2ErwktVXHlZAEUH4DGt2BX7DHV
-         n4UzNSntz3G6z5o3Qh0+L8mn2o968Asdx2quUFjw0vF8gyciRDDFNAPcEaEBL8PTrDK4
-         LeDw==
+        bh=52VhOdpUPCkIGipSAKU8GX1LzW28RNip+D/ZtWMA0N0=;
+        b=VOsl2DyH1Qxse3Ku/zXgYsyshdSxwk1MD6S5aQ22yMU9mhl8bCm2HU+Ht03BvKOrc8
+         Wex83VmVDDPlujvG2kopX0VeIUhojE/btRabGphD8EASJObfUACjaFcmpLta8+QwR7m8
+         tpoM9GgcBVoAWJtRtntqASVofsk5vF8ffXR0wzWHQiRZnaXl/LoyafelAxABaEmen+wP
+         H3fFwODy7O5agolmAiPaaS5afvttUm78DWbpjdgDomMESEUf6EICuO3GDXoVLVNaarWX
+         2cZ9PWDEPtHQ4ICQidmwCtrYCwsb2OLd0Gp/kv0LP8mjQrWKqazhnbCYnDqNT+TFKBxQ
+         6Bjw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:reply-to:from:date:message-id
          :subject:to;
-        bh=tVbAHiuvvRs4HazGnac5ScJp0BoK2XoVNcND7f+nEY8=;
-        b=H0oiK5gxYCdM9MoFXYntF8NiXrmpHdBpsk90fVuu2tJICyq7/k/s4OYWtNEbB3HVTE
-         JegDvu6NKRPYRx3+v+FJ5IDlty/LgVBwgPhWMK/uUocw3lQh0BWYZZNOhOfd9foE1TGu
-         +hya+nTfeEQ5XqivsQtg/iLt2LU+UoBvh2OAyORMbsc9yDC1nwEaaIDBP6yoeJY7VmtW
-         rjWpH3bjXHvCHpDlP6ZKqhLRadcDnmVIxZGT48kEJ28ZTeQv0D6bvQ6k4PIMz+AWhBXf
-         /paJPuZVEMjuLmZiOtPQM33ODFyQYB4HKgSiIiTpBcDTKE4bpRMoauQ5Igq+epIOjRkl
-         zOkg==
-X-Gm-Message-State: AOAM531xkeLo0myRB8S649BKeVs5txuPzqSQcd0HpP+nI9ylWDkbgVSB
-        3O78D6s2W4S0wvVzNjZJKWxNt1RV2bP7xeJGZsQ=
-X-Google-Smtp-Source: ABdhPJyo43kjhT7SQivoFFOSWKej1DgnHTuAGnpRUqMRMoNh6+cKSM4zu5SM6YzgFWnMExbz5SAybxiXxI4LJrOWpc4=
-X-Received: by 2002:a17:90b:90e:: with SMTP id bo14mr25058615pjb.165.1628691106114;
- Wed, 11 Aug 2021 07:11:46 -0700 (PDT)
+        bh=52VhOdpUPCkIGipSAKU8GX1LzW28RNip+D/ZtWMA0N0=;
+        b=jGuW78mM3zl9rZE72TG60OgDX7KHD7BNQjuDYt+9AZKZZNT1AhwtdILQUfAeuRi8dC
+         2b9LcEt9byVAUHWp6qBcnvxfk+ZsKraZuEMpfm76f6OWLsWh9LEQJxk6d6TmGhI/+bV7
+         rW+eO9cWPJwm264HFpmb8EksabbXcgr/Pu2m+1gw8mmiwbRccWyJVjWwXla+cCRohQjr
+         y0HJIcsF2mmEzWrw03XvoS6qcgJELzQXdDVfPH/8S4261MBHjAsUZZ8i0MgTI14zSAvJ
+         oyl7eIxBHo0o5cWBfpSMJO5K2AimTjaotwl8z8MV6VkHwQv2NtZ3g+vCg33yOoKLAVdr
+         7sqw==
+X-Gm-Message-State: AOAM533RAckj765ailFdtzT6OewHfnR16FfaW63C7FUquPCtCeye8a21
+        fZHn78QOi6zbIokEc02d9tIjMz7qLC3kpbNBP30=
+X-Google-Smtp-Source: ABdhPJztB1BMkmIh2fz6ClwFn9HYEt6jD+kjh/kXbx58XZAgP8483AlQEhxz6qD9S4wxCz22OtPVeioN8Ej4W3lKjZM=
+X-Received: by 2002:a62:64ce:0:b029:3b8:90c:6eec with SMTP id
+ y197-20020a6264ce0000b02903b8090c6eecmr34456496pfb.9.1628693650128; Wed, 11
+ Aug 2021 07:54:10 -0700 (PDT)
 MIME-Version: 1.0
-Received: by 2002:a05:7300:c08:b029:26:4f0d:a0ef with HTTP; Wed, 11 Aug 2021
- 07:11:45 -0700 (PDT)
-Reply-To: sroomf70@gmail.com
-From:   "Mr. Pierre Eldaher" <pierre.eldaher57@gmail.com>
-Date:   Wed, 11 Aug 2021 07:11:45 -0700
-Message-ID: <CAGZKiwoOfe0FSQ2K1GNJ74qmJiOKYQKs6493Q4WDtuW0LakOBQ@mail.gmail.com>
-Subject: Greetings,
+Received: by 2002:a05:7300:4341:b029:32:728d:a7bf with HTTP; Wed, 11 Aug 2021
+ 07:54:09 -0700 (PDT)
+Reply-To: joel_baba@hotmail.com
+From:   Joel babam <joehbaba@gmail.com>
+Date:   Wed, 11 Aug 2021 14:54:09 +0000
+Message-ID: <CAFKzY_q4whObgvYLyB5z+xyW35KUAsDD+=dYHYi1p4xwJF4WSg@mail.gmail.com>
+Subject: God bless you.
 To:     undisclosed-recipients:;
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
--- 
-Greetings,
-From Mr. Pierre Herald, please a huge amount payment was made into
-your account. please do not hesitate to reply as soon as you receive
-this message. awaiting your urgent notice please.
+ I want to use this opportunity to solicit your co-operation in
+proposing an urgent transaction with mutual benefit that required
+maximum confidence that involve abandoned fund in bank here in
+Burkina-Faso, in an account that belongs to one of our foreign client
+who died along with his entire family.
 
-Thanks
-Mr. Pierre Eldaher,
-Foreign Remittance
+With the above explanation, i want to move this money from Burkina
+Faso to your country in your name, but note that this deal is between
+both of us and should not be related to any other person until the
+deal is over for security reasons.
 
-Best regards
-Prof. Dr Diane
-Head of Foreign Operation
+Please know it that you should not entertain any atom of fear, as all
+required arrangements have been made for the transfer and i will not
+fail to bring to your notice that this transaction is hitch free, so i
+want to know your stand in this proposal so that i can send the
+details of the business to you immediately.
+
+If you are interested, reply back to me as soon as possible and i will
+be awaiting for your immediate response as you receive this email.
+
+Yours Sincerely,
+
+Joel Baba.
