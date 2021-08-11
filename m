@@ -2,240 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB66D3E9665
-	for <lists+stable@lfdr.de>; Wed, 11 Aug 2021 19:00:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EE5F3E968D
+	for <lists+stable@lfdr.de>; Wed, 11 Aug 2021 19:08:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229879AbhHKRAz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Aug 2021 13:00:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36982 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229681AbhHKRAy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Aug 2021 13:00:54 -0400
-Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 011BAC061765
-        for <stable@vger.kernel.org>; Wed, 11 Aug 2021 10:00:31 -0700 (PDT)
-Received: by mail-ed1-x52e.google.com with SMTP id n12so4748020edx.8
-        for <stable@vger.kernel.org>; Wed, 11 Aug 2021 10:00:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=1lyCX4uoOl9TkSg5+9sCmiEFCTaxYNyI5pWwpGNyYL4=;
-        b=ZoH870kdqfn5xTB/o0o45+xfGDzwBVtPUKmIYP5/nqN5EfQygWuAamKLvD02jOrKz2
-         Jponfgm/8BPNq+3+hCOlxY/llaDl1F+uRsDlVCsrAvcRjHXQHpu1E+3yingcZOTOoTLb
-         rCs3HZfLDpPnT560Q0xH0/nb2KEAcj+nSY/c8l4YV/BMeJeYSZeGo/mHH9YBUI7KpkCN
-         kiAWLCbHSiQjv4A2Axsl/eA2I5GDeM5I/mOahiuzOnTShL5MfxN+ockc+cohlmQGOIVr
-         atVZ80YRq8vt+4NtrS80gS6Me+fSxjdOEPItxQv9fRT2GxvAacaZ/XvkYb+vg8PvK/fF
-         6FQg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=1lyCX4uoOl9TkSg5+9sCmiEFCTaxYNyI5pWwpGNyYL4=;
-        b=L5BgzNhJUBIBP1cN+mSvUQF6UHPVW/g0NCh8TSC5Mns/rycJ/VhjvLZKnRkK4gR5fn
-         c49mV6Ru0QmCxn/R2alVD2P5DMBgRv1X/hDB0a5BjwJCgnCgXotPTHBjv4HHDtSQLnfU
-         RZrAjFoteLquJC0rd6LNHF+TJhPtOVezaYOH2XcVeBlPxJ6/Y8X4BLQSsRB6rkqmCOwd
-         5SkTguI/fP6egrsFGeoPvhcH9uizN1gUo6lVbZP9DZdYk8ZAhc5oGNJXTHZOnT2uerEv
-         Wcll2fS5p6YfnXk1rhgPfKJJUxBNiLKkiWvQe/QgJo5N7elD4KlUmN4s0hwkzMlw3BBi
-         3B1g==
-X-Gm-Message-State: AOAM531xjjta8mlv9jlnxhbKOezkeMpaCWQwAL27c6UHB+bhznIVSBRx
-        QxZheNR0VDJvYG5Fk2rJb58mpXwYMxG7qw8N2E6Y3g==
-X-Google-Smtp-Source: ABdhPJyBsCDIe3i+LJ9SYJAFhB7iHMEvS/Hk+ZJppnfICoZ4n9Ki7t7WaLhvOBaBga4Hm+7JTXy9f8AHcVdhlXYePg0=
-X-Received: by 2002:a05:6402:2153:: with SMTP id bq19mr1857977edb.239.1628701228710;
- Wed, 11 Aug 2021 10:00:28 -0700 (PDT)
+        id S229613AbhHKRId (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Aug 2021 13:08:33 -0400
+Received: from ixit.cz ([94.230.151.217]:49082 "EHLO ixit.cz"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229535AbhHKRId (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Aug 2021 13:08:33 -0400
+Received: from newone.lan (ixit.cz [94.230.151.217])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by ixit.cz (Postfix) with ESMTPSA id E407824A25;
+        Wed, 11 Aug 2021 19:08:06 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ixit.cz; s=dkim;
+        t=1628701687;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=RTynIOCegowRvakGso+RzQODzzmcY92VKZvDOOfU8MY=;
+        b=23/BInf8vB5I5xiyTTIt4tNDQeVudHEhmPTbOtfJ8S6dzuPoDo3zUCL/zHU0ZWMT5Sl0cp
+        aj5AIxgQGDH9PHkcsN1cuWtRWCkTu157wVyAjECxw/M3F4fYpsAJoeLStCTj6Zyi3w6+rI
+        vW0WqDEX6WoeHs0zSn4xbtRfLQnGNTA=
+From:   David Heidelberg <david@ixit.cz>
+To:     Jonathan Marek <jonathan@marek.ca>,
+        robdclark <robdclark@chromium.org>
+Cc:     linux-arm-msm@vger.kernel.org, David Heidelberg <david@ixit.cz>,
+        stable@vger.kernel.org
+Subject: [PATCH] drm/msi/mdp4: populate priv->kms in mdp4_kms_init
+Date:   Wed, 11 Aug 2021 19:06:31 +0200
+Message-Id: <20210811170631.39296-1-david@ixit.cz>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-References: <20210810172955.660225700@linuxfoundation.org>
-In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Wed, 11 Aug 2021 22:30:17 +0530
-Message-ID: <CA+G9fYt6Uvh+YcnhiwRHLix8Like3gUMzhbi8WWvJa-Rmx=ifg@mail.gmail.com>
-Subject: Re: [PATCH 5.10 000/135] 5.10.58-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
-        linux-stable <stable@vger.kernel.org>,
-        Pavel Machek <pavel@denx.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 10 Aug 2021 at 23:08, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.10.58 release.
-> There are 135 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Thu, 12 Aug 2021 17:29:30 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.10.58-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.10.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+Without this fix boot throws NULL ptr exception at msm_dsi_manager_setup_encoder
+on devices like Nexus 7 2013 (MDP4 v4.4).
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Fixes: 03436e3ec69c ("drm/msm/dsi: Move setup_encoder to modeset_init")
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: David Heidelberg <david@ixit.cz>
+---
+ drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-## Build
-* kernel: 5.10.58-rc1
-* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
-rc.git
-* git branch: linux-5.10.y
-* git commit: 252d84386e003502ea789f777bda459363174184
-* git describe: v5.10.57-136-g252d84386e00
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v5.10=
-.57-136-g252d84386e00
+diff --git a/drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c b/drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c
+index 1f12bccee2b8..cdcaf470f148 100644
+--- a/drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c
++++ b/drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c
+@@ -399,6 +399,7 @@ struct msm_kms *mdp4_kms_init(struct drm_device *dev)
+ {
+ 	struct platform_device *pdev = to_platform_device(dev->dev);
+ 	struct mdp4_platform_config *config = mdp4_get_config(pdev);
++	struct msm_drm_private *priv = dev->dev_private;
+ 	struct mdp4_kms *mdp4_kms;
+ 	struct msm_kms *kms = NULL;
+ 	struct msm_gem_address_space *aspace;
+@@ -418,7 +419,8 @@ struct msm_kms *mdp4_kms_init(struct drm_device *dev)
+ 		goto fail;
+ 	}
+ 
+-	kms = &mdp4_kms->base.base;
++	priv->kms = &mdp4_kms->base.base;
++	kms = priv->kms;
+ 
+ 	mdp4_kms->dev = dev;
+ 
+-- 
+2.30.2
 
-## No regressions (compared to v5.10.57-126-gb04ed4b2e724)
-
-
-## No fixes (compared to v5.10.57-126-gb04ed4b2e724)
-
-## Test result summary
-total: 82063, pass: 67049, fail: 2170, skip: 11566, xfail: 1278
-
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 193 total, 193 passed, 0 failed
-* arm64: 27 total, 27 passed, 0 failed
-* dragonboard-410c: 1 total, 1 passed, 0 failed
-* hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 26 total, 26 passed, 0 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 45 total, 45 passed, 0 failed
-* parisc: 9 total, 9 passed, 0 failed
-* powerpc: 27 total, 27 passed, 0 failed
-* riscv: 21 total, 21 passed, 0 failed
-* s390: 18 total, 18 passed, 0 failed
-* sh: 18 total, 18 passed, 0 failed
-* sparc: 9 total, 9 passed, 0 failed
-* x15: 1 total, 1 passed, 0 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 27 total, 27 passed, 0 failed
-
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* install-android-platform-tools-r2600
-* kselftest-
-* kselftest-android
-* kselftest-bpf
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-lkdtm
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-vsyscall-mode-native-
-* kselftest-vsyscall-mode-none-
-* kselftest-x86
-* kselftest-zram
-* kunit
-* kvm-unit-tests
-* libgpiod
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* prep-tmp-disk
-* rcutorture
-* ssuite
-* v4l2-compliance
-
---
-Linaro LKFT
-https://lkft.linaro.org
