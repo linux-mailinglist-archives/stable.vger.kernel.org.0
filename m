@@ -2,179 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E2BB83E9270
-	for <lists+stable@lfdr.de>; Wed, 11 Aug 2021 15:19:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B95F3E92BF
+	for <lists+stable@lfdr.de>; Wed, 11 Aug 2021 15:34:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231186AbhHKNTn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Aug 2021 09:19:43 -0400
-Received: from mga09.intel.com ([134.134.136.24]:62083 "EHLO mga09.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231337AbhHKNTn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Aug 2021 09:19:43 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10072"; a="215108137"
-X-IronPort-AV: E=Sophos;i="5.84,313,1620716400"; 
-   d="scan'208";a="215108137"
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Aug 2021 06:19:17 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.84,313,1620716400"; 
-   d="scan'208";a="460733903"
-Received: from fmsmsx601.amr.corp.intel.com ([10.18.126.81])
-  by orsmga007.jf.intel.com with ESMTP; 11 Aug 2021 06:19:16 -0700
-Received: from bgsmsx601.gar.corp.intel.com (10.109.78.80) by
- fmsmsx601.amr.corp.intel.com (10.18.126.81) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2242.10; Wed, 11 Aug 2021 06:19:16 -0700
-Received: from bgsmsx604.gar.corp.intel.com (10.67.234.6) by
- BGSMSX601.gar.corp.intel.com (10.109.78.80) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2242.10; Wed, 11 Aug 2021 18:49:13 +0530
-Received: from bgsmsx604.gar.corp.intel.com ([10.67.234.6]) by
- BGSMSX604.gar.corp.intel.com ([10.67.234.6]) with mapi id 15.01.2242.010;
- Wed, 11 Aug 2021 18:49:13 +0530
-From:   "Shankar, Uma" <uma.shankar@intel.com>
-To:     "Shankar, Uma" <uma.shankar@intel.com>,
-        "Nautiyal, Ankit K" <ankit.k.nautiyal@intel.com>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>
-CC:     "Zanoni, Paulo R" <paulo.r.zanoni@intel.com>,
-        "ville.syrjala@linux.intel.com" <ville.syrjala@linux.intel.com>,
-        "daniel.vetter@ffwll.ch" <daniel.vetter@ffwll.ch>,
-        "jani.nikula@linux.intel.com" <jani.nikula@linux.intel.com>,
-        "joonas.lahtinen@linux.intel.com" <joonas.lahtinen@linux.intel.com>,
-        "Vivi, Rodrigo" <rodrigo.vivi@intel.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH v3] drm/i915/display: Fix the 12 BPC bits for PIPE_MISC
- reg
-Thread-Topic: [PATCH v3] drm/i915/display: Fix the 12 BPC bits for PIPE_MISC
- reg
-Thread-Index: AQHXjnIyI+1YFG65zEGkfm22GiMk36tt0bFggAB4DIA=
-Date:   Wed, 11 Aug 2021 13:19:13 +0000
-Message-ID: <9e2f31ed038d4b0eb91c69c1263a1adf@intel.com>
-References: <20210811051857.109723-1-ankit.k.nautiyal@intel.com>
- <5c242bb097b24866a5ec6d4630bf6195@intel.com>
-In-Reply-To: <5c242bb097b24866a5ec6d4630bf6195@intel.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-dlp-product: dlpe-windows
-dlp-reaction: no-action
-dlp-version: 11.5.1.3
-x-originating-ip: [10.22.254.132]
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+        id S231186AbhHKNey (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Aug 2021 09:34:54 -0400
+Received: from linux.microsoft.com ([13.77.154.182]:37796 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231176AbhHKNey (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Aug 2021 09:34:54 -0400
+Received: from sequoia (162-237-133-238.lightspeed.rcsntx.sbcglobal.net [162.237.133.238])
+        by linux.microsoft.com (Postfix) with ESMTPSA id C9C0720B36E8;
+        Wed, 11 Aug 2021 06:34:29 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com C9C0720B36E8
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1628688870;
+        bh=iJ8ub44l6VK5NjTbHxNb2jEQpC8aI8b5NdIRxFyGFkU=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=BG30X4OIWWd5u0SY3cdFhu/9wSK3owQChOAptr/0exvCtCMUU6VloO0gHK6mpXqqb
+         /g9gnyv7798xU/TkiW+Jqu2d4K0a+OAqxUc2AoGsr76GbvI252D4czK5KyH29i9wyl
+         5bAYKEifcOPoTaCWHrfauo8LE8XbD4Ygfc0Q7sQY=
+Date:   Wed, 11 Aug 2021 08:34:27 -0500
+From:   Tyler Hicks <tyhicks@linux.microsoft.com>
+To:     Pavel Machek <pavel@denx.de>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Sumit Garg <sumit.garg@linaro.org>,
+        Jens Wiklander <jens.wiklander@linaro.org>
+Subject: Re: [PATCH 4.19 36/54] tee: add tee_shm_alloc_kernel_buf()
+Message-ID: <20210811133427.GG5469@sequoia>
+References: <20210810172944.179901509@linuxfoundation.org>
+ <20210810172945.369365872@linuxfoundation.org>
+ <20210811072434.GB10829@duo.ucw.cz>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210811072434.GB10829@duo.ucw.cz>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogSW50ZWwtZ2Z4IDxpbnRl
-bC1nZngtYm91bmNlc0BsaXN0cy5mcmVlZGVza3RvcC5vcmc+IE9uIEJlaGFsZiBPZiBTaGFua2Fy
-LA0KPiBVbWENCj4gU2VudDogV2VkbmVzZGF5LCBBdWd1c3QgMTEsIDIwMjEgMTE6MzkgQU0NCj4g
-VG86IE5hdXRpeWFsLCBBbmtpdCBLIDxhbmtpdC5rLm5hdXRpeWFsQGludGVsLmNvbT47IGludGVs
-LWdmeEBsaXN0cy5mcmVlZGVza3RvcC5vcmcNCj4gQ2M6IFphbm9uaSwgUGF1bG8gUiA8cGF1bG8u
-ci56YW5vbmlAaW50ZWwuY29tPjsgdmlsbGUuc3lyamFsYUBsaW51eC5pbnRlbC5jb207DQo+IGRh
-bmllbC52ZXR0ZXJAZmZ3bGwuY2g7IGphbmkubmlrdWxhQGxpbnV4LmludGVsLmNvbTsNCj4gam9v
-bmFzLmxhaHRpbmVuQGxpbnV4LmludGVsLmNvbTsgVml2aSwgUm9kcmlnbyA8cm9kcmlnby52aXZp
-QGludGVsLmNvbT47DQo+IHN0YWJsZUB2Z2VyLmtlcm5lbC5vcmcNCj4gU3ViamVjdDogUmU6IFtJ
-bnRlbC1nZnhdIFtQQVRDSCB2M10gZHJtL2k5MTUvZGlzcGxheTogRml4IHRoZSAxMiBCUEMgYml0
-cyBmb3INCj4gUElQRV9NSVNDIHJlZw0KPiANCg0KQ2hhbmdlIHB1c2hlZCB0byBkcm0taW50ZWwt
-bmV4dC4gVGhhbmtzIGZvciB0aGUgcGF0Y2guDQoNClJlZ2FyZHMsDQpVbWEgU2hhbmthcg0KPiAN
-Cj4gPiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiA+IEZyb206IE5hdXRpeWFsLCBBbmtp
-dCBLIDxhbmtpdC5rLm5hdXRpeWFsQGludGVsLmNvbT4NCj4gPiBTZW50OiBXZWRuZXNkYXksIEF1
-Z3VzdCAxMSwgMjAyMSAxMDo0OSBBTQ0KPiA+IFRvOiBpbnRlbC1nZnhAbGlzdHMuZnJlZWRlc2t0
-b3Aub3JnDQo+ID4gQ2M6IFNoYW5rYXIsIFVtYSA8dW1hLnNoYW5rYXJAaW50ZWwuY29tPjsgWmFu
-b25pLCBQYXVsbyBSDQo+ID4gPHBhdWxvLnIuemFub25pQGludGVsLmNvbT47IHZpbGxlLnN5cmph
-bGFAbGludXguaW50ZWwuY29tOw0KPiA+IGRhbmllbC52ZXR0ZXJAZmZ3bGwuY2g7IGphbmkubmlr
-dWxhQGxpbnV4LmludGVsLmNvbTsNCj4gPiBqb29uYXMubGFodGluZW5AbGludXguaW50ZWwuY29t
-OyBWaXZpLCBSb2RyaWdvDQo+ID4gPHJvZHJpZ28udml2aUBpbnRlbC5jb20+OyBzdGFibGVAdmdl
-ci5rZXJuZWwub3JnOyBOYXV0aXlhbCwgQW5raXQgSw0KPiA+IDxhbmtpdC5rLm5hdXRpeWFsQGlu
-dGVsLmNvbT4NCj4gPiBTdWJqZWN0OiBbUEFUQ0ggdjNdIGRybS9pOTE1L2Rpc3BsYXk6IEZpeCB0
-aGUgMTIgQlBDIGJpdHMgZm9yDQo+ID4gUElQRV9NSVNDIHJlZw0KPiA+DQo+ID4gVGlsbCBESVNQ
-TEFZMTIgdGhlIFBJUEVfTUlTQyBiaXRzIDUtNyBhcmUgdXNlZCB0byBzZXQgdGhlIERpdGhlcmlu
-Zw0KPiA+IEJQQywgd2l0aCB2YWxpZCB2YWx1ZXMgb2YgNiwgOCwgMTAgQlBDLg0KPiA+IEZvciBB
-RExQKyB0aGVzZSBiaXRzIGFyZSB1c2VkIHRvIHNldCB0aGUgUE9SVCBPVVRQVVQgQlBDLCB3aXRo
-IHZhbGlkDQo+ID4gdmFsdWVzIG9mOiA2LCA4LCAxMCwgMTIgQlBDLCBhbmQgbmVlZCB0byBiZSBw
-cm9ncmFtbWVkIHdoZXRoZXIgZGl0aGVyaW5nIGlzDQo+IGVuYWJsZWQgb3Igbm90Lg0KPiA+DQo+
-ID4gVGhpcyBwYXRjaDoNCj4gPiAtY29ycmVjdHMgdGhlIGJpdHMgNS03IGZvciBQSVBFIE1JU0Mg
-cmVnaXN0ZXIgZm9yIDEyIEJQQy4NCj4gPiAtcmVuYW1lcyB0aGUgYml0cyBhbmQgbWFzayB0byBo
-YXZlIGdlbmVyaWMgbmFtZXMgZm9yIHRoZXNlIGJpdHMgZm9yDQo+ID4gZGl0aGVyaW5nIGJwYyBh
-bmQgcG9ydCBvdXRwdXQgYnBjLg0KPiA+DQo+ID4gdjM6IEFkZGVkIGEgbm90ZSBmb3IgTUlQSSBE
-U0kgd2hpY2ggdXNlcyB0aGUgUElQRV9NSVNDIGZvciByZWFkb3V0IGZvciBwaXBlX2JwcC4NCj4g
-PiAoVW1hIFNoYW5rYXIpDQo+ID4NCj4gPiB2MjogQWRkZWQgJ2Rpc3BsYXknIHRvIHRoZSBzdWJq
-ZWN0IGFuZCBmaXhlcyB0YWcuIChVbWEgU2hhbmthcikNCj4gPg0KPiANCj4gTG9va3MgR29vZCB0
-byBtZS4NCj4gUmV2aWV3ZWQtYnk6IFVtYSBTaGFua2FyIDx1bWEuc2hhbmthckBpbnRlbC5jb20+
-DQo+IA0KPiA+IEZpeGVzOiA3NTZmODVjZmZlZjIgKCJkcm0vaTkxNS9iZHc6IEJyb2Fkd2VsbCBo
-YXMgUElQRU1JU0MiKQ0KPiA+IENjOiBQYXVsbyBaYW5vbmkgPHBhdWxvLnIuemFub25pQGludGVs
-LmNvbT4gKHYxKQ0KPiA+IENjOiBWaWxsZSBTeXJqw6Rsw6QgPHZpbGxlLnN5cmphbGFAbGludXgu
-aW50ZWwuY29tPg0KPiA+IENjOiBEYW5pZWwgVmV0dGVyIDxkYW5pZWwudmV0dGVyQGZmd2xsLmNo
-Pg0KPiA+IENjOiBKYW5pIE5pa3VsYSA8amFuaS5uaWt1bGFAbGludXguaW50ZWwuY29tPg0KPiA+
-IENjOiBKb29uYXMgTGFodGluZW4gPGpvb25hcy5sYWh0aW5lbkBsaW51eC5pbnRlbC5jb20+DQo+
-ID4gQ2M6IFJvZHJpZ28gVml2aSA8cm9kcmlnby52aXZpQGludGVsLmNvbT4NCj4gPiBDYzogaW50
-ZWwtZ2Z4QGxpc3RzLmZyZWVkZXNrdG9wLm9yZw0KPiA+IENjOiA8c3RhYmxlQHZnZXIua2VybmVs
-Lm9yZz4gIyB2My4xMysNCj4gPg0KPiA+IFNpZ25lZC1vZmYtYnk6IEFua2l0IE5hdXRpeWFsIDxh
-bmtpdC5rLm5hdXRpeWFsQGludGVsLmNvbT4NCj4gPiAtLS0NCj4gPiAgZHJpdmVycy9ncHUvZHJt
-L2k5MTUvZGlzcGxheS9pbnRlbF9kaXNwbGF5LmMgfCAzNCArKysrKysrKysrKysrKy0tLS0tLQ0K
-PiA+ICBkcml2ZXJzL2dwdS9kcm0vaTkxNS9pOTE1X3JlZy5oICAgICAgICAgICAgICB8IDE2ICsr
-KysrKy0tLQ0KPiA+ICAyIGZpbGVzIGNoYW5nZWQsIDM1IGluc2VydGlvbnMoKyksIDE1IGRlbGV0
-aW9ucygtKQ0KPiA+DQo+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvZ3B1L2RybS9pOTE1L2Rpc3Bs
-YXkvaW50ZWxfZGlzcGxheS5jDQo+ID4gYi9kcml2ZXJzL2dwdS9kcm0vaTkxNS9kaXNwbGF5L2lu
-dGVsX2Rpc3BsYXkuYw0KPiA+IGluZGV4IGIyNWM1OTZmNmY3ZS4uYTI1N2U1ZGMzODFjIDEwMDY0
-NA0KPiA+IC0tLSBhL2RyaXZlcnMvZ3B1L2RybS9pOTE1L2Rpc3BsYXkvaW50ZWxfZGlzcGxheS5j
-DQo+ID4gKysrIGIvZHJpdmVycy9ncHUvZHJtL2k5MTUvZGlzcGxheS9pbnRlbF9kaXNwbGF5LmMN
-Cj4gPiBAQCAtNTgzOCwxNiArNTgzOCwxOCBAQCBzdGF0aWMgdm9pZCBiZHdfc2V0X3BpcGVtaXNj
-KGNvbnN0IHN0cnVjdA0KPiA+IGludGVsX2NydGNfc3RhdGUgKmNydGNfc3RhdGUpDQo+ID4NCj4g
-PiAgCXN3aXRjaCAoY3J0Y19zdGF0ZS0+cGlwZV9icHApIHsNCj4gPiAgCWNhc2UgMTg6DQo+ID4g
-LQkJdmFsIHw9IFBJUEVNSVNDX0RJVEhFUl82X0JQQzsNCj4gPiArCQl2YWwgfD0gUElQRU1JU0Nf
-Nl9CUEM7DQo+ID4gIAkJYnJlYWs7DQo+ID4gIAljYXNlIDI0Og0KPiA+IC0JCXZhbCB8PSBQSVBF
-TUlTQ19ESVRIRVJfOF9CUEM7DQo+ID4gKwkJdmFsIHw9IFBJUEVNSVNDXzhfQlBDOw0KPiA+ICAJ
-CWJyZWFrOw0KPiA+ICAJY2FzZSAzMDoNCj4gPiAtCQl2YWwgfD0gUElQRU1JU0NfRElUSEVSXzEw
-X0JQQzsNCj4gPiArCQl2YWwgfD0gUElQRU1JU0NfMTBfQlBDOw0KPiA+ICAJCWJyZWFrOw0KPiA+
-ICAJY2FzZSAzNjoNCj4gPiAtCQl2YWwgfD0gUElQRU1JU0NfRElUSEVSXzEyX0JQQzsNCj4gPiAr
-CQkvKiBQb3J0IG91dHB1dCAxMkJQQyBkZWZpbmVkIGZvciBBRExQKyAqLw0KPiA+ICsJCWlmIChE
-SVNQTEFZX1ZFUihkZXZfcHJpdikgPiAxMikNCj4gPiArCQkJdmFsIHw9IFBJUEVNSVNDXzEyX0JQ
-Q19BRExQOw0KPiA+ICAJCWJyZWFrOw0KPiA+ICAJZGVmYXVsdDoNCj4gPiAgCQlNSVNTSU5HX0NB
-U0UoY3J0Y19zdGF0ZS0+cGlwZV9icHApOw0KPiA+IEBAIC01OTAwLDE1ICs1OTAyLDI3IEBAIGlu
-dCBiZHdfZ2V0X3BpcGVtaXNjX2JwcChzdHJ1Y3QgaW50ZWxfY3J0Yw0KPiA+ICpjcnRjKQ0KPiA+
-DQo+ID4gIAl0bXAgPSBpbnRlbF9kZV9yZWFkKGRldl9wcml2LCBQSVBFTUlTQyhjcnRjLT5waXBl
-KSk7DQo+ID4NCj4gPiAtCXN3aXRjaCAodG1wICYgUElQRU1JU0NfRElUSEVSX0JQQ19NQVNLKSB7
-DQo+ID4gLQljYXNlIFBJUEVNSVNDX0RJVEhFUl82X0JQQzoNCj4gPiArCXN3aXRjaCAodG1wICYg
-UElQRU1JU0NfQlBDX01BU0spIHsNCj4gPiArCWNhc2UgUElQRU1JU0NfNl9CUEM6DQo+ID4gIAkJ
-cmV0dXJuIDE4Ow0KPiA+IC0JY2FzZSBQSVBFTUlTQ19ESVRIRVJfOF9CUEM6DQo+ID4gKwljYXNl
-IFBJUEVNSVNDXzhfQlBDOg0KPiA+ICAJCXJldHVybiAyNDsNCj4gPiAtCWNhc2UgUElQRU1JU0Nf
-RElUSEVSXzEwX0JQQzoNCj4gPiArCWNhc2UgUElQRU1JU0NfMTBfQlBDOg0KPiA+ICAJCXJldHVy
-biAzMDsNCj4gPiAtCWNhc2UgUElQRU1JU0NfRElUSEVSXzEyX0JQQzoNCj4gPiAtCQlyZXR1cm4g
-MzY7DQo+ID4gKwkvKg0KPiA+ICsJICogUE9SVCBPVVRQVVQgMTIgQlBDIGRlZmluZWQgZm9yIEFE
-TFArLg0KPiA+ICsJICoNCj4gPiArCSAqIFRPRE86DQo+ID4gKwkgKiBGb3IgcHJldmlvdXMgcGxh
-dGZvcm1zIHdpdGggRFNJIGludGVyZmFjZSwgYml0cyA1OjcNCj4gPiArCSAqIGFyZSB1c2VkIGZv
-ciBzdG9yaW5nIHBpcGVfYnBwIGlycmVzcGVjdGl2ZSBvZiBkaXRoZXJpbmcuDQo+ID4gKwkgKiBT
-aW5jZSB0aGUgdmFsdWUgb2YgMTIgQlBDIGlzIG5vdCBkZWZpbmVkIGZvciB0aGVzZSBiaXRzDQo+
-ID4gKwkgKiBvbiBvbGRlciBwbGF0Zm9ybXMsIG5lZWQgdG8gZmluZCBhIHdvcmthcm91bmQgZm9y
-IDEyIEJQQw0KPiA+ICsJICogTUlQSSBEU0kgSFcgcmVhZG91dC4NCj4gPiArCSAqLw0KPiA+ICsJ
-Y2FzZSBQSVBFTUlTQ18xMl9CUENfQURMUDoNCj4gPiArCQlpZiAoRElTUExBWV9WRVIoZGV2X3By
-aXYpID4gMTIpDQo+ID4gKwkJCXJldHVybiAzNjsNCj4gPiArCQlmYWxsdGhyb3VnaDsNCj4gPiAg
-CWRlZmF1bHQ6DQo+ID4gIAkJTUlTU0lOR19DQVNFKHRtcCk7DQo+ID4gIAkJcmV0dXJuIDA7DQo+
-ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvZ3B1L2RybS9pOTE1L2k5MTVfcmVnLmgNCj4gPiBiL2Ry
-aXZlcnMvZ3B1L2RybS9pOTE1L2k5MTVfcmVnLmggaW5kZXggMTY3ZWFhODc1MDFiLi42NjQ5NzBm
-MmJjNjINCj4gPiAxMDA2NDQNCj4gPiAtLS0gYS9kcml2ZXJzL2dwdS9kcm0vaTkxNS9pOTE1X3Jl
-Zy5oDQo+ID4gKysrIGIvZHJpdmVycy9ncHUvZHJtL2k5MTUvaTkxNV9yZWcuaA0KPiA+IEBAIC02
-MjAzLDExICs2MjAzLDE3IEBAIGVudW0gew0KPiA+ICAjZGVmaW5lICAgUElQRU1JU0NfSERSX01P
-REVfUFJFQ0lTSU9OCSgxIDw8IDIzKSAvKiBpY2wrICovDQo+ID4gICNkZWZpbmUgICBQSVBFTUlT
-Q19PVVRQVVRfQ09MT1JTUEFDRV9ZVVYgICgxIDw8IDExKQ0KPiA+ICAjZGVmaW5lICAgUElQRU1J
-U0NfUElYRUxfUk9VTkRJTkdfVFJVTkMJUkVHX0JJVCg4KSAvKiB0Z2wrICovDQo+ID4gLSNkZWZp
-bmUgICBQSVBFTUlTQ19ESVRIRVJfQlBDX01BU0sJKDcgPDwgNSkNCj4gPiAtI2RlZmluZSAgIFBJ
-UEVNSVNDX0RJVEhFUl84X0JQQwkJKDAgPDwgNSkNCj4gPiAtI2RlZmluZSAgIFBJUEVNSVNDX0RJ
-VEhFUl8xMF9CUEMJKDEgPDwgNSkNCj4gPiAtI2RlZmluZSAgIFBJUEVNSVNDX0RJVEhFUl82X0JQ
-QwkJKDIgPDwgNSkNCj4gPiAtI2RlZmluZSAgIFBJUEVNSVNDX0RJVEhFUl8xMl9CUEMJKDMgPDwg
-NSkNCj4gPiArLyoNCj4gPiArICogRm9yIERpc3BsYXkgPCAxMywgQml0cyA1LTcgb2YgUElQRSBN
-SVNDIHJlcHJlc2VudCBESVRIRVIgQlBDIHdpdGgNCj4gPiArICogdmFsaWQgdmFsdWVzIG9mOiA2
-LCA4LCAxMCBCUEMuDQo+ID4gKyAqIEFETFArLCB0aGUgYml0cyA1LTcgcmVwcmVzZW50IFBPUlQg
-T1VUUFVUIEJQQyB3aXRoIHZhbGlkIHZhbHVlcyBvZjoNCj4gPiArICogNiwgOCwgMTAsIDEyIEJQ
-Qy4NCj4gPiArICovDQo+ID4gKyNkZWZpbmUgICBQSVBFTUlTQ19CUENfTUFTSwkJKDcgPDwgNSkN
-Cj4gPiArI2RlZmluZSAgIFBJUEVNSVNDXzhfQlBDCQkoMCA8PCA1KQ0KPiA+ICsjZGVmaW5lICAg
-UElQRU1JU0NfMTBfQlBDCQkoMSA8PCA1KQ0KPiA+ICsjZGVmaW5lICAgUElQRU1JU0NfNl9CUEMJ
-CSgyIDw8IDUpDQo+ID4gKyNkZWZpbmUgICBQSVBFTUlTQ18xMl9CUENfQURMUAkJKDQgPDwgNSkg
-LyogYWRscCsgKi8NCj4gPiAgI2RlZmluZSAgIFBJUEVNSVNDX0RJVEhFUl9FTkFCTEUJKDEgPDwg
-NCkNCj4gPiAgI2RlZmluZSAgIFBJUEVNSVNDX0RJVEhFUl9UWVBFX01BU0sJKDMgPDwgMikNCj4g
-PiAgI2RlZmluZSAgIFBJUEVNSVNDX0RJVEhFUl9UWVBFX1NQCSgwIDw8IDIpDQo+ID4gLS0NCj4g
-PiAyLjI1LjENCg0K
+On 2021-08-11 09:24:34, Pavel Machek wrote:
+> Hi!
+> 
+> > commit dc7019b7d0e188d4093b34bd0747ed0d668c63bf upstream.
+> > 
+> > Adds a new function tee_shm_alloc_kernel_buf() to allocate shared memory
+> > from a kernel driver. This function can later be made more lightweight
+> > by unnecessary dma-buf export.
+> 
+> 5.10 contains follow-up patches actually using the export, but 4.19
+> does not. I believe it should be dropped from 4.19.
+
+That's correct. Those follow-up patches that made use of this function
+were only needed back to 5.4.
+
+Tyler
+
+> 
+> Best regards,
+> 								Pavel
+> -- 
+> DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+> HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+
+
