@@ -2,236 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 096A73E899D
-	for <lists+stable@lfdr.de>; Wed, 11 Aug 2021 07:16:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B5493E89C1
+	for <lists+stable@lfdr.de>; Wed, 11 Aug 2021 07:31:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234112AbhHKFQz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Aug 2021 01:16:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40826 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233813AbhHKFQz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Aug 2021 01:16:55 -0400
-Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 133ACC061765
-        for <stable@vger.kernel.org>; Tue, 10 Aug 2021 22:15:57 -0700 (PDT)
-Received: by mail-pl1-x62a.google.com with SMTP id k2so1122081plk.13
-        for <stable@vger.kernel.org>; Tue, 10 Aug 2021 22:15:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=OkvkyGB0lcDKwUU5v25nv/Zvf7JkNMByZm3VYOaQxUA=;
-        b=er0XxDMRpfkOSUr7t20PtRvxiSwdMPQVFiw0O3AbSTirPJkpGu/3965XiXlgOQaFP2
-         xp8ffDYvpE0hbCJmaAcXqGqZOM1h6eyG9/NMmT8G9BU0vo+8J0PmA98LkTFJUZZnQbgz
-         cx0qaAjaDI10y5cLyABpchd2o9QAF6xlqHYFZ3DzMrFnrXLiuF6T1hLg5fIw9QcbsESU
-         3K8/kfiq97qlWO1VUUg8MNgXsG/dKKmE6djs9vZHKMmuCDg3wL8oyHaJ23WUHm319ZQu
-         +Wps32pajw5vpGnBpBPH2f0SHzEzW1shpscZLpqqWljH3kxW7A+qcO9kqiLoSyzdJza/
-         yYGA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=OkvkyGB0lcDKwUU5v25nv/Zvf7JkNMByZm3VYOaQxUA=;
-        b=juVIiIz+1RcqCvI6GxfaHthw/vaKkw1rRupDaGpe3CdbTQTRGXz8LLn3RAy8lGDcF8
-         BGzh+kE92dLGmkcMBAmNhlxYx2asNAqIHVUAB9UHz4D9qU9oz+si+UrWIR91ofFs33gg
-         WlBz3IOnGeSov3C9dGFmKaXfYN/zSQDm0ZGOSC6MwR+a1OdKJ8gM6ObZv3B7AaWT1NEx
-         dJXccypk23M0Pj4HWWVZtsw14BC4amFvkC6bbOon08bnZT/r3RalMrfpSAuiyC5YECVM
-         zqY3b/I/0oJI1x7ivovn4tknT2zvYrOs519O/AQ/z2btXaCh5vD8ESH4W/9ykkm+7NZS
-         ybZA==
-X-Gm-Message-State: AOAM530ttlQEoKbXvRkp95/eBBQUcPE8qpIzH9Y6Kfa3b1VghBoePJeu
-        Fuh2PS2xVo/j3RBVXfOLoDrmMHH6f9PO011F
-X-Google-Smtp-Source: ABdhPJyLEC8ywy8SgO6qusq/CHEvM60FlBJ2F49EQReuaCLXREdfdSc1xP6M0vha9b7Gi1mTXmXQzQ==
-X-Received: by 2002:a17:90b:4ad1:: with SMTP id mh17mr35256881pjb.164.1628658956477;
-        Tue, 10 Aug 2021 22:15:56 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id p30sm13800054pfh.116.2021.08.10.22.15.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 10 Aug 2021 22:15:56 -0700 (PDT)
-Message-ID: <61135d0c.1c69fb81.2fed1.6bc5@mx.google.com>
-Date:   Tue, 10 Aug 2021 22:15:56 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S234285AbhHKFcQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Aug 2021 01:32:16 -0400
+Received: from mga01.intel.com ([192.55.52.88]:39178 "EHLO mga01.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229730AbhHKFcP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Aug 2021 01:32:15 -0400
+X-IronPort-AV: E=McAfee;i="6200,9189,10072"; a="237076903"
+X-IronPort-AV: E=Sophos;i="5.84,311,1620716400"; 
+   d="scan'208";a="237076903"
+Received: from fmsmga007.fm.intel.com ([10.253.24.52])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Aug 2021 22:31:52 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.84,311,1620716400"; 
+   d="scan'208";a="445693420"
+Received: from linux-z370-aorus-gaming-5.iind.intel.com ([10.227.88.188])
+  by fmsmga007.fm.intel.com with ESMTP; 10 Aug 2021 22:31:48 -0700
+From:   Ankit Nautiyal <ankit.k.nautiyal@intel.com>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     uma.shankar@intel.com, paulo.r.zanoni@intel.com,
+        ville.syrjala@linux.intel.com, daniel.vetter@ffwll.ch,
+        jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com,
+        rodrigo.vivi@intel.com, stable@vger.kernel.org,
+        Ankit Nautiyal <ankit.k.nautiyal@intel.com>
+Subject: [PATCH v3] drm/i915/display: Fix the 12 BPC bits for PIPE_MISC reg
+Date:   Wed, 11 Aug 2021 10:48:57 +0530
+Message-Id: <20210811051857.109723-1-ankit.k.nautiyal@intel.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.9.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.9.279-27-gb2ca234bf356
-X-Kernelci-Report-Type: test
-Subject: stable-rc/linux-4.9.y baseline: 103 runs,
- 4 regressions (v4.9.279-27-gb2ca234bf356)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y baseline: 103 runs, 4 regressions (v4.9.279-27-gb2ca2=
-34bf356)
+Till DISPLAY12 the PIPE_MISC bits 5-7 are used to set the
+Dithering BPC, with valid values of 6, 8, 10 BPC.
+For ADLP+ these bits are used to set the PORT OUTPUT BPC, with valid
+values of: 6, 8, 10, 12 BPC, and need to be programmed whether
+dithering is enabled or not.
 
-Regressions Summary
--------------------
+This patch:
+-corrects the bits 5-7 for PIPE MISC register for 12 BPC.
+-renames the bits and mask to have generic names for these bits for
+dithering bpc and port output bpc.
 
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
-ig | 1          =
+v3: Added a note for MIPI DSI which uses the PIPE_MISC for readout
+for pipe_bpp. (Uma Shankar)
 
-qemu_arm-versatilepb | arm   | lab-broonie   | gcc-8    | versatile_defconf=
-ig | 1          =
+v2: Added 'display' to the subject and fixes tag. (Uma Shankar)
 
-qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
-ig | 1          =
+Fixes: 756f85cffef2 ("drm/i915/bdw: Broadwell has PIPEMISC")
+Cc: Paulo Zanoni <paulo.r.zanoni@intel.com> (v1)
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Jani Nikula <jani.nikula@linux.intel.com>
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Cc: intel-gfx@lists.freedesktop.org
+Cc: <stable@vger.kernel.org> # v3.13+
 
-r8a7795-salvator-x   | arm64 | lab-baylibre  | gcc-8    | defconfig        =
-   | 1          =
+Signed-off-by: Ankit Nautiyal <ankit.k.nautiyal@intel.com>
+---
+ drivers/gpu/drm/i915/display/intel_display.c | 34 ++++++++++++++------
+ drivers/gpu/drm/i915/i915_reg.h              | 16 ++++++---
+ 2 files changed, 35 insertions(+), 15 deletions(-)
 
+diff --git a/drivers/gpu/drm/i915/display/intel_display.c b/drivers/gpu/drm/i915/display/intel_display.c
+index b25c596f6f7e..a257e5dc381c 100644
+--- a/drivers/gpu/drm/i915/display/intel_display.c
++++ b/drivers/gpu/drm/i915/display/intel_display.c
+@@ -5838,16 +5838,18 @@ static void bdw_set_pipemisc(const struct intel_crtc_state *crtc_state)
+ 
+ 	switch (crtc_state->pipe_bpp) {
+ 	case 18:
+-		val |= PIPEMISC_DITHER_6_BPC;
++		val |= PIPEMISC_6_BPC;
+ 		break;
+ 	case 24:
+-		val |= PIPEMISC_DITHER_8_BPC;
++		val |= PIPEMISC_8_BPC;
+ 		break;
+ 	case 30:
+-		val |= PIPEMISC_DITHER_10_BPC;
++		val |= PIPEMISC_10_BPC;
+ 		break;
+ 	case 36:
+-		val |= PIPEMISC_DITHER_12_BPC;
++		/* Port output 12BPC defined for ADLP+ */
++		if (DISPLAY_VER(dev_priv) > 12)
++			val |= PIPEMISC_12_BPC_ADLP;
+ 		break;
+ 	default:
+ 		MISSING_CASE(crtc_state->pipe_bpp);
+@@ -5900,15 +5902,27 @@ int bdw_get_pipemisc_bpp(struct intel_crtc *crtc)
+ 
+ 	tmp = intel_de_read(dev_priv, PIPEMISC(crtc->pipe));
+ 
+-	switch (tmp & PIPEMISC_DITHER_BPC_MASK) {
+-	case PIPEMISC_DITHER_6_BPC:
++	switch (tmp & PIPEMISC_BPC_MASK) {
++	case PIPEMISC_6_BPC:
+ 		return 18;
+-	case PIPEMISC_DITHER_8_BPC:
++	case PIPEMISC_8_BPC:
+ 		return 24;
+-	case PIPEMISC_DITHER_10_BPC:
++	case PIPEMISC_10_BPC:
+ 		return 30;
+-	case PIPEMISC_DITHER_12_BPC:
+-		return 36;
++	/*
++	 * PORT OUTPUT 12 BPC defined for ADLP+.
++	 *
++	 * TODO:
++	 * For previous platforms with DSI interface, bits 5:7
++	 * are used for storing pipe_bpp irrespective of dithering.
++	 * Since the value of 12 BPC is not defined for these bits
++	 * on older platforms, need to find a workaround for 12 BPC
++	 * MIPI DSI HW readout.
++	 */
++	case PIPEMISC_12_BPC_ADLP:
++		if (DISPLAY_VER(dev_priv) > 12)
++			return 36;
++		fallthrough;
+ 	default:
+ 		MISSING_CASE(tmp);
+ 		return 0;
+diff --git a/drivers/gpu/drm/i915/i915_reg.h b/drivers/gpu/drm/i915/i915_reg.h
+index 167eaa87501b..664970f2bc62 100644
+--- a/drivers/gpu/drm/i915/i915_reg.h
++++ b/drivers/gpu/drm/i915/i915_reg.h
+@@ -6203,11 +6203,17 @@ enum {
+ #define   PIPEMISC_HDR_MODE_PRECISION	(1 << 23) /* icl+ */
+ #define   PIPEMISC_OUTPUT_COLORSPACE_YUV  (1 << 11)
+ #define   PIPEMISC_PIXEL_ROUNDING_TRUNC	REG_BIT(8) /* tgl+ */
+-#define   PIPEMISC_DITHER_BPC_MASK	(7 << 5)
+-#define   PIPEMISC_DITHER_8_BPC		(0 << 5)
+-#define   PIPEMISC_DITHER_10_BPC	(1 << 5)
+-#define   PIPEMISC_DITHER_6_BPC		(2 << 5)
+-#define   PIPEMISC_DITHER_12_BPC	(3 << 5)
++/*
++ * For Display < 13, Bits 5-7 of PIPE MISC represent DITHER BPC with
++ * valid values of: 6, 8, 10 BPC.
++ * ADLP+, the bits 5-7 represent PORT OUTPUT BPC with valid values of:
++ * 6, 8, 10, 12 BPC.
++ */
++#define   PIPEMISC_BPC_MASK		(7 << 5)
++#define   PIPEMISC_8_BPC		(0 << 5)
++#define   PIPEMISC_10_BPC		(1 << 5)
++#define   PIPEMISC_6_BPC		(2 << 5)
++#define   PIPEMISC_12_BPC_ADLP		(4 << 5) /* adlp+ */
+ #define   PIPEMISC_DITHER_ENABLE	(1 << 4)
+ #define   PIPEMISC_DITHER_TYPE_MASK	(3 << 2)
+ #define   PIPEMISC_DITHER_TYPE_SP	(0 << 2)
+-- 
+2.25.1
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.9.y/kern=
-el/v4.9.279-27-gb2ca234bf356/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.9.y
-  Describe: v4.9.279-27-gb2ca234bf356
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      b2ca234bf356f99610158f5b5c9b0df65738e9f8 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61132823808705d6deb13783
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.279=
--27-gb2ca234bf356/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
-arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.279=
--27-gb2ca234bf356/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
-arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61132823808705d6deb13=
-784
-        failing since 269 days (last pass: v4.9.243-17-g9c24315b745a0, firs=
-t fail: v4.9.243-26-g7b603f689c1c) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-broonie   | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61132826808705d6deb13790
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.279=
--27-gb2ca234bf356/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
-rm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.279=
--27-gb2ca234bf356/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
-rm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61132826808705d6deb13=
-791
-        failing since 269 days (last pass: v4.9.243-17-g9c24315b745a0, firs=
-t fail: v4.9.243-26-g7b603f689c1c) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/611327c3f565138e93b13680
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.279=
--27-gb2ca234bf356/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
-_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.279=
--27-gb2ca234bf356/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
-_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/611327c3f565138e93b13=
-681
-        failing since 269 days (last pass: v4.9.243-17-g9c24315b745a0, firs=
-t fail: v4.9.243-26-g7b603f689c1c) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-r8a7795-salvator-x   | arm64 | lab-baylibre  | gcc-8    | defconfig        =
-   | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/611329785616b8b351b13661
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.279=
--27-gb2ca234bf356/arm64/defconfig/gcc-8/lab-baylibre/baseline-r8a7795-salva=
-tor-x.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.279=
--27-gb2ca234bf356/arm64/defconfig/gcc-8/lab-baylibre/baseline-r8a7795-salva=
-tor-x.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/611329785616b8b351b13=
-662
-        failing since 265 days (last pass: v4.9.243-17-g9c24315b745a0, firs=
-t fail: v4.9.243-79-gd3e70b39d31a) =
-
- =20
