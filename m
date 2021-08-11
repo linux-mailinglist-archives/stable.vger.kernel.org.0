@@ -2,99 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF0743E9225
-	for <lists+stable@lfdr.de>; Wed, 11 Aug 2021 15:03:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A000B3E9236
+	for <lists+stable@lfdr.de>; Wed, 11 Aug 2021 15:06:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230471AbhHKNEI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Aug 2021 09:04:08 -0400
-Received: from mga04.intel.com ([192.55.52.120]:45151 "EHLO mga04.intel.com"
+        id S230204AbhHKNHU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Aug 2021 09:07:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229621AbhHKNEI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Aug 2021 09:04:08 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10072"; a="213264116"
-X-IronPort-AV: E=Sophos;i="5.84,313,1620716400"; 
-   d="scan'208";a="213264116"
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Aug 2021 06:03:44 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.84,313,1620716400"; 
-   d="scan'208";a="516728801"
-Received: from linux.intel.com ([10.54.29.200])
-  by FMSMGA003.fm.intel.com with ESMTP; 11 Aug 2021 06:03:43 -0700
-Received: from [10.209.20.238] (kliang2-MOBL.ccr.corp.intel.com [10.209.20.238])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by linux.intel.com (Postfix) with ESMTPS id 656EF58093E;
-        Wed, 11 Aug 2021 06:03:42 -0700 (PDT)
-Subject: Re: [RESEND PATCH] perf/x86/intel/uncore: Support extra IMC channel
- on Ice Lake server
-To:     peterz@infradead.org, mingo@redhat.com, acme@kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     gregkh@linuxfoundation.org, eranian@google.com,
-        namhyung@kernel.org, ak@linux.intel.com, stable@vger.kernel.org
-References: <1626699297-32793-1-git-send-email-kan.liang@linux.intel.com>
- <1626699297-32793-2-git-send-email-kan.liang@linux.intel.com>
-From:   "Liang, Kan" <kan.liang@linux.intel.com>
-Message-ID: <85fec916-d0c6-0e8c-55d8-8b16e99c6843@linux.intel.com>
-Date:   Wed, 11 Aug 2021 09:03:41 -0400
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.12.0
+        id S230030AbhHKNHU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Aug 2021 09:07:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B7F560D07;
+        Wed, 11 Aug 2021 13:06:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1628687216;
+        bh=qcTlRMTdng/DbA+1wbB5n4EdMMJWgDMlUQ9bV3LywUU=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=pD8ogjIbgcl+s78ScsxVFt6sFVlPZqalp8R+XFdW0kWFDBcfgY6S/ZlxkieoDVV4o
+         wvIRSd8GxyOxlhtvDsi2/gvKNPYswwlw4kM6T9ejIkb7GXOr1qyHyc9V4wPxve6iK6
+         xVagAwh3GRd537LMzD93Y9JfkD9SjNBHgD+O++2o=
+Date:   Wed, 11 Aug 2021 15:06:53 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Pavel Machek <pavel@denx.de>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        jason@jlekstrand.net, Jonathan Gray <jsg@jsg.id.au>
+Subject: Re: [PATCH 5.10 125/135] drm/i915: avoid uninitialised var in
+ eb_parse()
+Message-ID: <YRPLbV+Dq2xTnv2e@kroah.com>
+References: <20210810172955.660225700@linuxfoundation.org>
+ <20210810173000.050147269@linuxfoundation.org>
+ <20210811072843.GC10829@duo.ucw.cz>
+ <YROARN2fMPzhFMNg@kroah.com>
+ <20210811122702.GA8045@duo.ucw.cz>
 MIME-Version: 1.0
-In-Reply-To: <1626699297-32793-2-git-send-email-kan.liang@linux.intel.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210811122702.GA8045@duo.ucw.cz>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Peter,
+On Wed, Aug 11, 2021 at 02:27:02PM +0200, Pavel Machek wrote:
+> On Wed 2021-08-11 09:46:12, Greg Kroah-Hartman wrote:
+> > On Wed, Aug 11, 2021 at 09:28:43AM +0200, Pavel Machek wrote:
+> > > Hi!
+> > > 
+> > > > From: Jonathan Gray <jsg@jsg.id.au>
+> > > > 
+> > > > The backport of c9d9fdbc108af8915d3f497bbdf3898bf8f321b8 to 5.10 in
+> > > > 6976f3cf34a1a8b791c048bbaa411ebfe48666b1 removed more than it should
+> > > > have leading to 'batch' being used uninitialised.  The 5.13 backport and
+> > > > the mainline commit did not remove the portion this patch adds back.
+> > > 
+> > > This patch has no upstream equivalent, right?
+> > > 
+> > > Which is okay -- it explains it in plain english, but it shows that
+> > > scripts should not simply search for anything that looks like SHA and
+> > > treat it as upsteam commit it.
+> > 
+> > Sounds like you have a broken script if you do it that way.
+> 
+> That is what you told me to do!
+> 
+> https://lore.kernel.org/stable/YQEvUay+1Rzp04SO@kroah.com/
 
-Could you please pick up the fix?
-Please let me know if you have any comments/concerns.
+Yes, which is fine for matching sha1 values.
 
-Thanks,
-Kan
+> I would happily adapt my script, but there's no
+> good/documented/working way to determine upstream commit given -stable
+> commit.
+> 
+> If we could agree on
+> 
+> Commit: (SHA)
+> 
+> in the beggining of body, that would be great.
+> 
+> Upstream: (SHA)
+> 
+> in sign-off area would be even better.
 
-On 7/19/2021 8:54 AM, kan.liang@linux.intel.com wrote:
-> From: Kan Liang <kan.liang@linux.intel.com>
-> 
-> There are three channels on a Ice Lake server, but only two channels
-> will ever be active. Current perf only enables two channels.
-> 
-> Support the extra IMC channel, which may be activated on some Ice Lake
-> machines. For a non-activated channel, the SW can still access it. The
-> write will be ignored by the HW. 0 is always returned for the reading.
-> 
-> Fixes: 2b3b76b5ec67 ("perf/x86/intel/uncore: Add Ice Lake server uncore support")
-> Reviewed-by: Andi Kleen <ak@linux.intel.com>
-> Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
-> Cc: stable@vger.kernel.org
-> ---
-> 
->   arch/x86/events/intel/uncore_snbep.c | 4 ++--
->   1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/arch/x86/events/intel/uncore_snbep.c b/arch/x86/events/intel/uncore_snbep.c
-> index 9a178a9..72a4181 100644
-> --- a/arch/x86/events/intel/uncore_snbep.c
-> +++ b/arch/x86/events/intel/uncore_snbep.c
-> @@ -452,7 +452,7 @@
->   #define ICX_M3UPI_PCI_PMON_BOX_CTL		0xa0
->   
->   /* ICX IMC */
-> -#define ICX_NUMBER_IMC_CHN			2
-> +#define ICX_NUMBER_IMC_CHN			3
->   #define ICX_IMC_MEM_STRIDE			0x4
->   
->   /* SPR */
-> @@ -5458,7 +5458,7 @@ static struct intel_uncore_ops icx_uncore_mmio_ops = {
->   static struct intel_uncore_type icx_uncore_imc = {
->   	.name		= "imc",
->   	.num_counters   = 4,
-> -	.num_boxes	= 8,
-> +	.num_boxes	= 12,
->   	.perf_ctr_bits	= 48,
->   	.fixed_ctr_bits	= 48,
->   	.fixed_ctr	= SNR_IMC_MMIO_PMON_FIXED_CTR,
-> 
+What exactly are you trying to do when you find a sha1?  For some reason
+my scripts work just fine with a semi-free-form way that we currently
+have been doing this for the past 17+ years.  What are you attempting to
+do that requires such a fixed format?
+
+thanks,
+
+greg k-h
