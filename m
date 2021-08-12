@@ -2,78 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 473BA3E9EDC
-	for <lists+stable@lfdr.de>; Thu, 12 Aug 2021 08:51:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B118D3EA082
+	for <lists+stable@lfdr.de>; Thu, 12 Aug 2021 10:24:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232611AbhHLGvY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Aug 2021 02:51:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55076 "EHLO
+        id S234184AbhHLIZD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Aug 2021 04:25:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232459AbhHLGvY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Aug 2021 02:51:24 -0400
-Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5FCFC061765;
-        Wed, 11 Aug 2021 23:50:59 -0700 (PDT)
-Received: by mail-pj1-x102f.google.com with SMTP id oa17so7827999pjb.1;
-        Wed, 11 Aug 2021 23:50:59 -0700 (PDT)
+        with ESMTP id S230040AbhHLIZD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Aug 2021 04:25:03 -0400
+Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A5D0C061765
+        for <stable@vger.kernel.org>; Thu, 12 Aug 2021 01:24:38 -0700 (PDT)
+Received: by mail-ej1-x62b.google.com with SMTP id u3so9977125ejz.1
+        for <stable@vger.kernel.org>; Thu, 12 Aug 2021 01:24:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=2LuKa5ZvLNNIZbNDJsXQL3xIdp2yQbpsWGoZqtzxgLE=;
-        b=Xh5q71b7mkunOXGbpX7kWpjz5IuoadAdHMYALuGlMpaFzGQ86LKt74nmjW6lJ0oowS
-         I8CW8Amhy5kHRZ+ihao/h8hl7AiTIticDYO2iPFHnH0HBtrsHBuFLFiAGqY5xp8zRT7z
-         6fgP3wHwcxyVP/edgdQP7AT+NXlDPHHKj6/9THkZsGzsJRTHqoMXOizCWgdgUlLfXwYA
-         4+95lHi/k/V30MJvo8vaoYAMQo7qUcqztJG023b8iCTePckF6/zeZU25pzcDxFqHqCc0
-         hXEzRYEsrgrGjHqGfdPQ2zoX7+0Bq8kHIFqOZqAN5+0jjcR/UaIRUTnQluSWp24AwydD
-         GJrQ==
+        d=konsulko.com; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=0E/vbwx7PnVTaW/i9W1bqAmgVUxQr9vmSffqRRom5h4=;
+        b=YvQptj8iwTiInbVdLjaaVHuPtyEgdWVuDMTPSl7EL4ULf7svk8NAsRSoyDNEuDo0yQ
+         kJUw9O6jzigriZzrrsKqrocXLiPJVTYoxPVfI6/ahPWcg54jojukzBqHvdI7d//rJGEI
+         UQS/xQS6yU2H0Izss+vjW8uu8uANCtJ1RnH2s=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=2LuKa5ZvLNNIZbNDJsXQL3xIdp2yQbpsWGoZqtzxgLE=;
-        b=qbE4TY6uEKR9oOUE80EmqFmTkxlbmDCAcXhfcAYxi3UgbUTCfxIssvrgD4rpG2cP4P
-         cC2SVOqgSWYzMTk1PHgKEQ66I11U5jSMtB5PIAYSjibdRLlYkyaP7ORAthPh+pGlJHiJ
-         UU4jnOQMzxlVEHHTpCia064TrFzlydOSDHjnaagTgc9vvyvanqRnKzjcQzJdsyeZYQu6
-         BN3XiuCdx/xE1cRJfIke4YFISbdQpxh/KJkkdT6hEojFSlKFOsIugnNx2wXYMfSSu7rg
-         BPLT9f5zMJ+ZXDdzvP090bha7itjay+a2/E0Ra6hyFMXo0y2KwNDUMHUgL0Yj7V65k+v
-         bkPA==
-X-Gm-Message-State: AOAM530UOvwwBwCBc6GQIQorIxOblmplvZFGDO1dYfS8YLHiR9wo2qDU
-        isM8Eflq0r69ceO+zAkaUaA=
-X-Google-Smtp-Source: ABdhPJxhZt3qKZ/ZXQepFxFpvGli5qIzl7wLBEz3lgEGORKMEvzJ6Rztv5uztP+np+TRbH5JNXxsFw==
-X-Received: by 2002:a17:90a:d3cc:: with SMTP id d12mr2770507pjw.151.1628751059147;
-        Wed, 11 Aug 2021 23:50:59 -0700 (PDT)
-Received: from localhost ([49.207.137.16])
-        by smtp.gmail.com with ESMTPSA id n23sm1997418pgv.76.2021.08.11.23.50.58
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=0E/vbwx7PnVTaW/i9W1bqAmgVUxQr9vmSffqRRom5h4=;
+        b=o/PW6xvKEMWho0OSfh/NHWQDV0vUrHE9nQK8iuUMv1jxK6HmEWRm/DNFe5Q64x/kSg
+         oFnsHXCiNPHbZaU3UAb8jmpODpIbnBYUUvNgif2NDclcF2S33tgH3OZPw3nJIRgFHiGG
+         RdJ4K2QmFmi2SZMPDvISaiByTAaOPsnpVbwtyTGNJTwREoV9KMaoeG5cMpMyBteuyoiB
+         p0ygAvQ0VlOoY1+FdRarP2KpZt2Rxx8YTnLm+e9gamSZ63rL2/AX1cfkXgIUOEV18sKQ
+         osHKK0KNNfQMXxT2hyvlauMiY/RvLa45exQrqrAJjeiNIvYcBT25AypL8Odak7bRDZUZ
+         gpkw==
+X-Gm-Message-State: AOAM532o+Be8/NXFT/MGIibfFc3/SOXkcFMxa1khIg7bIn5uwuJyRsIq
+        ZJg1XkVDR/7uK8oEXGRzb/RqBA==
+X-Google-Smtp-Source: ABdhPJwYqBxHMVhEkSUleMSRb0fugm6fyfTgh++akaCC7gnKWpZdesPZjDN8zrZpliyfPmpuPRhvsw==
+X-Received: by 2002:a17:906:5909:: with SMTP id h9mr2469624ejq.329.1628756676958;
+        Thu, 12 Aug 2021 01:24:36 -0700 (PDT)
+Received: from taos.k.g (lan.nucleusys.com. [92.247.61.126])
+        by smtp.gmail.com with ESMTPSA id v24sm783165edt.41.2021.08.12.01.24.36
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Aug 2021 23:50:58 -0700 (PDT)
-Date:   Thu, 12 Aug 2021 12:20:56 +0530
-From:   Aakash Hemadri <aakashhemadri123@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: Re: [PATCH 5.10 000/135] 5.10.58-rc1 review
-Message-ID: <20210812065056.niviykfmwc3yk23p@xps.yggdrasil>
-References: <20210810172955.660225700@linuxfoundation.org>
+        Thu, 12 Aug 2021 01:24:36 -0700 (PDT)
+From:   Petko Manolov <petko.manolov@konsulko.com>
+To:     netdev@vger.kernel.org
+Cc:     paskripkin@gmail.com, stable@vger.kernel.org, davem@davemloft.net,
+        Petko Manolov <petko.manolov@konsulko.com>
+Subject: [PATCH] net: usb: pegasus: ignore the return value from set_registers();
+Date:   Thu, 12 Aug 2021 11:23:51 +0300
+Message-Id: <20210812082351.37966-1-petko.manolov@konsulko.com>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210810172955.660225700@linuxfoundation.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 21/08/10 07:28PM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.58 release.
-> There are 135 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu, 12 Aug 2021 17:29:30 +0000.
-> Anything received after that time might be too late.
+The return value need to be either ignored or acted upon, otherwise 'deadstore'
+clang check would yell at us.  I think it's better to just ignore what this
+particular call of set_registers() returns.  The adapter defaults are sane and
+it would be operational even if the register write fail.
 
-Compiled, booted and tested with no regressions
+Signed-off-by: Petko Manolov <petko.manolov@konsulko.com>
+---
+ drivers/net/usb/pegasus.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Tested-by: Aakash Hemadri <aakashhemadri123@gmail.com>
+diff --git a/drivers/net/usb/pegasus.c b/drivers/net/usb/pegasus.c
+index 652e9fcf0b77..49cfc720d78f 100644
+--- a/drivers/net/usb/pegasus.c
++++ b/drivers/net/usb/pegasus.c
+@@ -433,7 +433,7 @@ static int enable_net_traffic(struct net_device *dev, struct usb_device *usb)
+ 	data[2] = loopback ? 0x09 : 0x01;
+ 
+ 	memcpy(pegasus->eth_regs, data, sizeof(data));
+-	ret = set_registers(pegasus, EthCtrl0, 3, data);
++	set_registers(pegasus, EthCtrl0, 3, data);
+ 
+ 	if (usb_dev_id[pegasus->dev_index].vendor == VENDOR_LINKSYS ||
+ 	    usb_dev_id[pegasus->dev_index].vendor == VENDOR_LINKSYS2 ||
+-- 
+2.30.2
+
