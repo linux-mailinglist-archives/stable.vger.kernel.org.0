@@ -2,100 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DE573E9CEE
-	for <lists+stable@lfdr.de>; Thu, 12 Aug 2021 05:33:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 120813E9EBB
+	for <lists+stable@lfdr.de>; Thu, 12 Aug 2021 08:45:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233627AbhHLDeN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Aug 2021 23:34:13 -0400
-Received: from mailgw02.mediatek.com ([210.61.82.184]:36016 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S230373AbhHLDeM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Aug 2021 23:34:12 -0400
-X-UUID: c62a52dab10e4453a81c2bbbc96b1a8c-20210812
-X-UUID: c62a52dab10e4453a81c2bbbc96b1a8c-20210812
-Received: from mtkmbs10n1.mediatek.inc [(172.21.101.34)] by mailgw02.mediatek.com
-        (envelope-from <chunfeng.yun@mediatek.com>)
-        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
-        with ESMTP id 767130957; Thu, 12 Aug 2021 11:33:45 +0800
-Received: from mtkcas07.mediatek.inc (172.21.101.84) by
- mtkmbs02n2.mediatek.inc (172.21.101.101) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Thu, 12 Aug 2021 11:33:43 +0800
-Received: from localhost.localdomain (10.17.3.153) by mtkcas07.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Thu, 12 Aug 2021 11:33:42 +0800
-From:   Chunfeng Yun <chunfeng.yun@mediatek.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Felipe Balbi <balbi@kernel.org>
-CC:     Pawel Laszczak <pawell@cadence.com>,
-        Al Cooper <alcooperx@gmail.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Chunfeng Yun <chunfeng.yun@mediatek.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Rikard Falkeborn <rikard.falkeborn@gmail.com>,
-        <linux-usb@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <bcm-kernel-feedback-list@broadcom.com>,
-        <linux-tegra@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>,
-        Eddie Hung <eddie.hung@mediatek.com>,
-        stable <stable@vger.kernel.org>
-Subject: [PATCH 2/6] usb: mtu3: fix the wrong HS mult value
-Date:   Thu, 12 Aug 2021 11:32:58 +0800
-Message-ID: <1628739182-30089-2-git-send-email-chunfeng.yun@mediatek.com>
-X-Mailer: git-send-email 1.8.1.1.dirty
-In-Reply-To: <1628739182-30089-1-git-send-email-chunfeng.yun@mediatek.com>
-References: <1628739182-30089-1-git-send-email-chunfeng.yun@mediatek.com>
+        id S234568AbhHLGpb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Aug 2021 02:45:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53410 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231253AbhHLGpb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 12 Aug 2021 02:45:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D8A860720;
+        Thu, 12 Aug 2021 06:45:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1628750706;
+        bh=qXGXdFChZAEV5IlCS4mrynkv9cBlsMkD8wmmIQ52G/U=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=r1/nxotI59kvICpm1yqtty4L+cUsGJyhifnHQqDQBsejFZ3S2XdIyL3dqpbHkrOnG
+         QQYOnhGig0zHBEMCt9qCGny9nkYvVuiGsV18BwfRylowPz4a8nrxNX3YJyN7b6wH4l
+         /RkecF6Y+CuKuyYz8okZG6jshKwdPFV1D3fr/sJo=
+Date:   Thu, 12 Aug 2021 08:45:04 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Georgi Djakov <djakov@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Mike Tipton <mdtipton@codeaurora.org>
+Subject: Re: [PATCH 5.13 159/175] interconnect: qcom: icc-rpmh: Add BCMs to
+ commit list in pre_aggregate
+Message-ID: <YRTDcP5Mrf3omdzj@kroah.com>
+References: <20210810173000.928681411@linuxfoundation.org>
+ <20210810173006.202673615@linuxfoundation.org>
+ <b52559cd-7f4a-70af-8878-a9e513a66bcd@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-MTK:  N
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <b52559cd-7f4a-70af-8878-a9e513a66bcd@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Use usb_endpoint_maxp() and usb_endpoint_maxp_mult() seperately
-to get maxpacket and mult.
-Meanwhile fix the bug that should use @mult but not @burst
-to save mult value.
+On Wed, Aug 11, 2021 at 06:50:12PM +0300, Georgi Djakov wrote:
+> On 10.08.21 20:31, Greg Kroah-Hartman wrote:
+> > From: Mike Tipton <mdtipton@codeaurora.org>
+> > 
+> > commit f84f5b6f72e68bbaeb850b58ac167e4a3a47532a upstream.
+> > 
+> > We're only adding BCMs to the commit list in aggregate(), but there are
+> > cases where pre_aggregate() is called without subsequently calling
+> > aggregate(). In particular, in icc_sync_state() when a node with initial
+> > BW has zero requests. Since BCMs aren't added to the commit list in
+> > these cases, we don't actually send the zero BW request to HW. So the
+> > resources remain on unnecessarily.
+> > 
+> > Add BCMs to the commit list in pre_aggregate() instead, which is always
+> > called even when there are no requests.
+> > 
+> > Fixes: 976daac4a1c5 ("interconnect: qcom: Consolidate interconnect RPMh support")
+> > Signed-off-by: Mike Tipton <mdtipton@codeaurora.org>
+> > Link: https://lore.kernel.org/r/20210721175432.2119-5-mdtipton@codeaurora.org
+> > Signed-off-by: Georgi Djakov <djakov@kernel.org>
+> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> 
+> Hello Greg,
+> 
+> Please drop this patch, as people are reporting issues on some
+> platforms. So please do not apply it to any stable trees yet
+> (5.10 and 5.13). I will send a revert (or other fix) to you soon.
 
-Fixes: 4d79e042ed8b ("usb: mtu3: add support for usb3.1 IP")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
----
- drivers/usb/mtu3/mtu3_gadget.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+Now dropped from both queues, thanks.
 
-diff --git a/drivers/usb/mtu3/mtu3_gadget.c b/drivers/usb/mtu3/mtu3_gadget.c
-index 5e21ba05ebf0..a399fd84c71f 100644
---- a/drivers/usb/mtu3/mtu3_gadget.c
-+++ b/drivers/usb/mtu3/mtu3_gadget.c
-@@ -64,14 +64,12 @@ static int mtu3_ep_enable(struct mtu3_ep *mep)
- 	u32 interval = 0;
- 	u32 mult = 0;
- 	u32 burst = 0;
--	int max_packet;
- 	int ret;
- 
- 	desc = mep->desc;
- 	comp_desc = mep->comp_desc;
- 	mep->type = usb_endpoint_type(desc);
--	max_packet = usb_endpoint_maxp(desc);
--	mep->maxp = max_packet & GENMASK(10, 0);
-+	mep->maxp = usb_endpoint_maxp(desc);
- 
- 	switch (mtu->g.speed) {
- 	case USB_SPEED_SUPER:
-@@ -92,7 +90,7 @@ static int mtu3_ep_enable(struct mtu3_ep *mep)
- 				usb_endpoint_xfer_int(desc)) {
- 			interval = desc->bInterval;
- 			interval = clamp_val(interval, 1, 16) - 1;
--			burst = (max_packet & GENMASK(12, 11)) >> 11;
-+			mult = usb_endpoint_maxp_mult(desc) - 1;
- 		}
- 		break;
- 	default:
--- 
-2.25.1
-
+greg k-h
