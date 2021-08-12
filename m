@@ -2,153 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 802203E9C93
-	for <lists+stable@lfdr.de>; Thu, 12 Aug 2021 04:28:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 016AD3E9CCE
+	for <lists+stable@lfdr.de>; Thu, 12 Aug 2021 05:17:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233886AbhHLC3R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Aug 2021 22:29:17 -0400
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:55115 "EHLO
-        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233685AbhHLC3L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Aug 2021 22:29:11 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailout.nyi.internal (Postfix) with ESMTP id 1A4005C0101;
-        Wed, 11 Aug 2021 22:28:47 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Wed, 11 Aug 2021 22:28:47 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sakamocchi.jp;
-         h=from:to:cc:subject:date:message-id:mime-version
-        :content-transfer-encoding; s=fm2; bh=/oWlzCQSGq1c0EM5NJGe2/7uMs
-        6/P30U6TsCK2RrOT0=; b=8admbe+QIFtWxWpaNxgysmaWAtRhpGhuLhDMPDdvdz
-        ZoPX38FwgSFQxRYynVKr/dw5Ve09rq59vRI/KTZgRIvtUHfkPvA0lgX4NiB+nmRt
-        ZyMh11qjIzoyqv/Xyc2QmbL2xxDbFSS3G1TSUx4I0YfMM68hjL20xN1mkzT0hQbD
-        oVfN7SfQjDCodbAxlF+mGnIwQzJZfehVOZIMBGNTiBXDuiH6I0Fvcq4ABPXYR+mL
-        4nfLyDP05OQjNbMoRTqjHdyRrCLs6dKflR81lKAufDcD5zkhT/NRqb0iFs9mQXap
-        imOQmaIly81MxjyyGbr3dHzRuP3ttHdScWgAxcpAdWUg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:date:from
-        :message-id:mime-version:subject:to:x-me-proxy:x-me-proxy
-        :x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=/oWlzCQSGq1c0EM5N
-        JGe2/7uMs6/P30U6TsCK2RrOT0=; b=s7yIU+dfwiNZn95xUUJov9P6Qsxcsh6L4
-        v727GG7DeKXjuk+XXSb6auXNI0AUUf2wrbvASC3Tzk5TefwUPA1tvndHNoyFWKXV
-        61XVdFRKfFyFQD6avx5HbdNrxR+1svn17A+Dw4JyT0gjY4dCfgFJ3ISHk1QQxCdp
-        qMxap8KTPX2Rv/O8jLjA96m/Z68yzd4W1PB8RAw8PwW+XUvfx1K7JkyWr+u0t2LI
-        BKI6NNaj7fDun4gR8j3428Zoe2WXPrt9ylV0okJc0nc0dF31mVpE43PKEkQbVK/D
-        XcPxwfp2JOwpo4eklESX0myuSzdsuhOSUaZHnkvaJgr5YPaSkImrA==
-X-ME-Sender: <xms:XYcUYUBRW8huNa7zhVu2VXJQWO988qtmsOVetq7wCIgMZR3THjGE4w>
-    <xme:XYcUYWg01wgA99yMRd3-fgzCrMvb668RRsmJ14X04H_Yur5YX9bKHHWE9F1htuekH
-    0sSEhtfHQTERVRCILY>
-X-ME-Received: <xmr:XYcUYXkY95MTZk2w0WH6-Bj2hL35bt4Wlx-rNsJqjyHOypq6Eq_mguKZNLp5c-j-j8trBOy0cNfkpJst3-UD_-I1KcJuBEVqt9wrPjvnrjn1_A_Ng4UU>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrkedvgdehjecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffoggfgsedtkeertdertd
-    dtnecuhfhrohhmpefvrghkrghshhhiucfurghkrghmohhtohcuoehoqdhtrghkrghshhhi
-    sehsrghkrghmohgttghhihdrjhhpqeenucggtffrrghtthgvrhhnpedujeetlefhtddtke
-    fgtdeuieelhffgteejjeehkeegveduvdevgeeiheeuueekjeenucevlhhushhtvghrufhi
-    iigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehoqdhtrghkrghshhhisehsrghkrg
-    hmohgttghhihdrjhhp
-X-ME-Proxy: <xmx:XYcUYayNocILWVENkQ-4nriUPDMuoZ27H4MiifXaUPD6rtxCwzxmvg>
-    <xmx:XYcUYZSe5QIkXX1oOvFfXqC19aYzl-JRzt2mtqD8t3kVSqzzgkJVuw>
-    <xmx:XYcUYVYZlJH_O74lsf2SyFeClwl02KMncPdPdIOaeDaTXpHmviXN6g>
-    <xmx:X4cUYUdqRpG1rLgLmP5DNKtRQ2-lf_NSeMFVGPcjNo5L5bsjoH5c6A>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
- 11 Aug 2021 22:28:44 -0400 (EDT)
-From:   Takashi Sakamoto <o-takashi@sakamocchi.jp>
-To:     tiwai@suse.de
-Cc:     clemens@ladisch.de, alsa-devel@alsa-project.org,
+        id S233731AbhHLDR3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Aug 2021 23:17:29 -0400
+Received: from gate2.alliedtelesis.co.nz ([202.36.163.20]:54514 "EHLO
+        gate2.alliedtelesis.co.nz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233711AbhHLDR2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Aug 2021 23:17:28 -0400
+Received: from svr-chch-seg1.atlnz.lc (mmarshal3.atlnz.lc [10.32.18.43])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (Client did not present a certificate)
+        by gate2.alliedtelesis.co.nz (Postfix) with ESMTPS id AE520806B6;
+        Thu, 12 Aug 2021 15:17:02 +1200 (NZST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alliedtelesis.co.nz;
+        s=mail181024; t=1628738222;
+        bh=NeX3WmTZdfb7EA9aTn39dTlE4e9PDnx0Q0e5xdmq7Jo=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References;
+        b=K1YA4CbxjZB4ftGwrHh2lGK4ZK5Sj0SSAUdKlBDOwZSFPzoG3bu2NPvZEXRK9aCtJ
+         9En8b/dUDQJfewlCxM7Uq1opTmPPqVZCPL1/sy7Yz3yiSAblRiBB3gEnoq6cCnKu37
+         VtIq1Ki6Hy6ynDXTsX0GlABBPhByl3KGGu04miy14rVt2Una7OzvQLMN1K8nmAr+1+
+         jqYG2oOrc2pxr5WcIHbAjT2SqF24UlK7jaR+1AekkFh30SIdfpfvyySCYIk3piv0pB
+         0vw4tZNVyKBrMJEFyFr4wVpnKmDLKTrQRDhqKzsZqZRtDKOmjgMqQVYUT+SytVSeZf
+         YW3bVzXnEIbaw==
+Received: from pat.atlnz.lc (Not Verified[10.32.16.33]) by svr-chch-seg1.atlnz.lc with Trustwave SEG (v8,2,6,11305)
+        id <B611492ae0001>; Thu, 12 Aug 2021 15:17:02 +1200
+Received: from pauld-dl.ws.atlnz.lc (pauld-dl.ws.atlnz.lc [10.33.23.37])
+        by pat.atlnz.lc (Postfix) with ESMTP id 63BAC13EEA2;
+        Thu, 12 Aug 2021 15:17:02 +1200 (NZST)
+Received: by pauld-dl.ws.atlnz.lc (Postfix, from userid 1684)
+        id 581641E01E6; Thu, 12 Aug 2021 15:17:02 +1200 (NZST)
+From:   Paul Davey <paul.davey@alliedtelesis.co.nz>
+To:     Manivannan Sadhasivam <mani@kernel.org>
+Cc:     Hemant Kumar <hemantk@codeaurora.org>,
+        Bhaumik Bhatt <bbhatt@codeaurora.org>,
+        linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Paul Davey <paul.davey@alliedtelesis.co.nz>,
         stable@vger.kernel.org
-Subject: [PATCH] ALSA: oxfw: fix functioal regression for silence in Apogee Duet FireWire
-Date:   Thu, 12 Aug 2021 11:28:39 +0900
-Message-Id: <20210812022839.42043-1-o-takashi@sakamocchi.jp>
-X-Mailer: git-send-email 2.30.2
+Subject: [PATCH v4 1/2] bus: mhi: Fix pm_state conversion to string
+Date:   Thu, 12 Aug 2021 15:16:59 +1200
+Message-Id: <20210812031700.23397-2-paul.davey@alliedtelesis.co.nz>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20210812031700.23397-1-paul.davey@alliedtelesis.co.nz>
+References: <20210812031700.23397-1-paul.davey@alliedtelesis.co.nz>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-SEG-SpamProfiler-Analysis: v=2.3 cv=aqTM9hRV c=1 sm=1 tr=0 a=KLBiSEs5mFS1a/PbTCJxuA==:117 a=MhDmnRu9jo8A:10 a=VwQbUJbxAAAA:8 a=LpQP-O61AAAA:8 a=xDYxNL215i3Ysd8OqoQA:9 a=AjGcO6oz07-iQ99wixmX:22 a=pioyyrs4ZptJ924tMmac:22
+X-SEG-SpamProfiler-Score: 0
+x-atlnz-ls: pat
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-OXFW 971 has no function to use the value in syt field of received
-isochronous packet for playback timing generation. In kernel prepatch for
-v5.14, ALSA OXFW driver got change to send NO_INFO value in the field
-instead of actual timing value. The change brings Apogee Duet FireWire to
-generate no playback sound, while output meter moves.
+On big endian architectures the mhi debugfs files which report pm state
+give "Invalid State" for all states.  This is caused by using
+find_last_bit which takes an unsigned long* while the state is passed in
+as an enum mhi_pm_state which will be of int size.
 
-As long as I investigate, _any_ value in the syt field takes the device to
-generate sound. It's reasonable to think that the device just ignores data
-blocks in packet with NO_INFO value in its syt field for audio data
-processing.
+Fix by using __fls to pass the value of state instead of find_last_bit.
 
-This commit adds a new flag for the quirk to fix regression.
-
-Fixes: 029ffc429440 ("ALSA: oxfw: perform sequence replay for media clock recovery")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Fixes: a6e2e3522f29 ("bus: mhi: core: Add support for PM state transition=
+s")
+Cc: stable@vger.kernel.org
+Reviewed-by: Manivannan Sadhasivam <mani@kernel.org>
+Reviewed-by: Hemant Kumar <hemantk@codeaurora.org>
+Signed-off-by: Paul Davey <paul.davey@alliedtelesis.co.nz>
 ---
- sound/firewire/oxfw/oxfw-stream.c | 9 ++++++++-
- sound/firewire/oxfw/oxfw.c        | 6 ++++--
- sound/firewire/oxfw/oxfw.h        | 5 +++++
- 3 files changed, 17 insertions(+), 3 deletions(-)
+ drivers/bus/mhi/core/init.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/sound/firewire/oxfw/oxfw-stream.c b/sound/firewire/oxfw/oxfw-stream.c
-index 0ef242fdd3bc..fff18b5d4e05 100644
---- a/sound/firewire/oxfw/oxfw-stream.c
-+++ b/sound/firewire/oxfw/oxfw-stream.c
-@@ -153,7 +153,7 @@ static int init_stream(struct snd_oxfw *oxfw, struct amdtp_stream *stream)
- 	struct cmp_connection *conn;
- 	enum cmp_direction c_dir;
- 	enum amdtp_stream_direction s_dir;
--	unsigned int flags = CIP_UNAWARE_SYT;
-+	unsigned int flags = 0;
- 	int err;
- 
- 	if (!(oxfw->quirks & SND_OXFW_QUIRK_BLOCKING_TRANSMISSION))
-@@ -161,6 +161,13 @@ static int init_stream(struct snd_oxfw *oxfw, struct amdtp_stream *stream)
- 	else
- 		flags |= CIP_BLOCKING;
- 
-+	// OXFW 970/971 has no function to generate playback timing according to the sequence
-+	// of value in syt field, thus the packet should include NO_INFO value in the field.
-+	// However, some models just ignore data blocks in packet with NO_INFO for audio data
-+	// processing.
-+	if (!(oxfw->quirks & SND_OXFW_QUIRK_IGNORE_NO_INFO_PACKET))
-+		flags |= CIP_UNAWARE_SYT;
+diff --git a/drivers/bus/mhi/core/init.c b/drivers/bus/mhi/core/init.c
+index 5aaca6d0f52b..0d588b60929e 100644
+--- a/drivers/bus/mhi/core/init.c
++++ b/drivers/bus/mhi/core/init.c
+@@ -79,9 +79,12 @@ static const char * const mhi_pm_state_str[] =3D {
+=20
+ const char *to_mhi_pm_state_str(enum mhi_pm_state state)
+ {
+-	int index =3D find_last_bit((unsigned long *)&state, 32);
++	int index;
+=20
+-	if (index >=3D ARRAY_SIZE(mhi_pm_state_str))
++	if (state)
++		index =3D __fls(state);
 +
- 	if (stream == &oxfw->tx_stream) {
- 		conn = &oxfw->out_conn;
- 		c_dir = CMP_OUTPUT;
-diff --git a/sound/firewire/oxfw/oxfw.c b/sound/firewire/oxfw/oxfw.c
-index 84971d78d152..cb5b5e3a481b 100644
---- a/sound/firewire/oxfw/oxfw.c
-+++ b/sound/firewire/oxfw/oxfw.c
-@@ -159,8 +159,10 @@ static int detect_quirks(struct snd_oxfw *oxfw, const struct ieee1394_device_id
- 		return snd_oxfw_scs1x_add(oxfw);
- 	}
- 
--	if (entry->vendor_id == OUI_APOGEE && entry->model_id == MODEL_DUET_FW)
--		oxfw->quirks |= SND_OXFW_QUIRK_BLOCKING_TRANSMISSION;
-+	if (entry->vendor_id == OUI_APOGEE && entry->model_id == MODEL_DUET_FW) {
-+		oxfw->quirks |= SND_OXFW_QUIRK_BLOCKING_TRANSMISSION |
-+				SND_OXFW_QUIRK_IGNORE_NO_INFO_PACKET;
-+	}
- 
- 	/*
- 	 * TASCAM FireOne has physical control and requires a pair of additional
-diff --git a/sound/firewire/oxfw/oxfw.h b/sound/firewire/oxfw/oxfw.h
-index ee47abcb0c90..c13034f6c2ca 100644
---- a/sound/firewire/oxfw/oxfw.h
-+++ b/sound/firewire/oxfw/oxfw.h
-@@ -42,6 +42,11 @@ enum snd_oxfw_quirk {
- 	SND_OXFW_QUIRK_BLOCKING_TRANSMISSION = 0x04,
- 	// Stanton SCS1.d and SCS1.m support unique transaction.
- 	SND_OXFW_QUIRK_SCS_TRANSACTION = 0x08,
-+	// Apogee Duet FireWire ignores data blocks in packet with NO_INFO for audio data
-+	// processing, while output level meter moves. Any value in syt field of packet takes
-+	// the device to process audio data even if the value is invalid in a point of
-+	// IEC 61883-1/6.
-+	SND_OXFW_QUIRK_IGNORE_NO_INFO_PACKET = 0x10,
- };
- 
- /* This is an arbitrary number for convinience. */
--- 
-2.30.2
++	if (!state || index >=3D ARRAY_SIZE(mhi_pm_state_str))
+ 		return "Invalid State";
+=20
+ 	return mhi_pm_state_str[index];
+--=20
+2.32.0
 
