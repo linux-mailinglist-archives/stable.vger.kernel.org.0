@@ -2,125 +2,284 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EB603EA957
-	for <lists+stable@lfdr.de>; Thu, 12 Aug 2021 19:19:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D6243EA99F
+	for <lists+stable@lfdr.de>; Thu, 12 Aug 2021 19:42:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232307AbhHLRTj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Aug 2021 13:19:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59842 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235486AbhHLRTi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Aug 2021 13:19:38 -0400
-Received: from mail-vs1-xe35.google.com (mail-vs1-xe35.google.com [IPv6:2607:f8b0:4864:20::e35])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B6F8C061756
-        for <stable@vger.kernel.org>; Thu, 12 Aug 2021 10:19:13 -0700 (PDT)
-Received: by mail-vs1-xe35.google.com with SMTP id k24so4331020vsg.9
-        for <stable@vger.kernel.org>; Thu, 12 Aug 2021 10:19:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=d/1htVpI9h7AxpYebFdcodubuyizTFeSVjOTXvhUwC8=;
-        b=Gz3BENy7STbpiDxu/sR+xuHckoXiQJhV7XKfVyFK9RIun1cNt/Op2694IgETg1YnOD
-         hzB7kohPyVGGt9O/SRPVLWJL59ahCUkEDLtQfo0T8VufgxDldNNdk0jiXY3RENQ6NVro
-         bfNKJPv8d2FqibbU7gYrpYNBE7hT2PPA2cazS4A9vO34FT9csRx1yEVMPhOJJzFbBey6
-         QYM1Swia08Q/abppl6ojaktUgjbv5k/FtdW+8UZELp9mD4f6sErX+QWJBcyhmav7hVy8
-         ggpfXU29CufOOl1Z6FEB51mzYXrEqn9nHsdl7eRwAWYVrX40G5bGPkeTGc7d0gW05YAT
-         ss/w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=d/1htVpI9h7AxpYebFdcodubuyizTFeSVjOTXvhUwC8=;
-        b=dzAiSbu867BmP6qWlM8LoTacn1WCmOcluU0bHfsuNZMn5ZwshWu96MR2uM7rfIpanw
-         jGUGR7rlTtYzc8IsFUjN8ZNnZg2/yTFEKZczShpTEBfUp7L6o+JGXWerCmw4AnVG/9Mh
-         Phrg7DdY+UZgjup1/2EB0ZVLDsyC4v0mRaCpawlWIR+XnUbN0InDsKORq4cIqFALn0lY
-         KPxJVJczqoE1W4NWxZ5Vz+kkWkvU6ewR3NJkYwptqMLvgsH5i6OhzqPZ9vT4iCcskC+1
-         k40D2rVicR4Mu+JFqslmMYycu34bSUxfCPnR8MielDTeqetuZf7zbHstNYFi5yIRgrwf
-         CQUw==
-X-Gm-Message-State: AOAM531FqLvP260fEUy/KnYLrSfuOG/J0lJA3FN18fNncKgUx3UaEsyv
-        6PMxGvBpjC6TWCc2bYdI5/p3ty5D0Rw5k0k1uSPNiJscnPYgwUi9
-X-Google-Smtp-Source: ABdhPJwXl1yd9LjVVqxrwgaP/ALxgzEpdjdTPZzW5jZ+B/9nOPa961Wk2+IP4oROPBBB/9+6BUPZkrrKjxBCRI7ww58=
-X-Received: by 2002:a05:6102:942:: with SMTP id a2mr4228310vsi.30.1628788752260;
- Thu, 12 Aug 2021 10:19:12 -0700 (PDT)
+        id S236396AbhHLRmY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Aug 2021 13:42:24 -0400
+Received: from mx0a-0064b401.pphosted.com ([205.220.166.238]:45400 "EHLO
+        mx0a-0064b401.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S236065AbhHLRmX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Aug 2021 13:42:23 -0400
+Received: from pps.filterd (m0250810.ppops.net [127.0.0.1])
+        by mx0a-0064b401.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 17CErLG1030867;
+        Thu, 12 Aug 2021 10:41:56 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=windriver.com; h=from : to : cc :
+ subject : date : message-id : content-transfer-encoding : content-type :
+ mime-version; s=PPS06212021;
+ bh=hf3+lvzUfc/HxY2LoWPCGSNp1yzzNk+drTfsgabFduQ=;
+ b=E2BAz1fj+bb5ofzTMekDFYWy1pN5B45Gx4AeEa6QZovb2ki6IaqWzHw//Zr+OIxkM//N
+ 9dheTCBCdjDCMxj6JS7xVCqE4xvSRTha+JONIQnxSFzuRxP6bSKjcUL1z8MDg3dyVBw7
+ mn36c70msv2L+LDHEMQv+Vpmu6dfubBFiUfmeayqjqBG62/uwBO/qJxaGgwAYxxIsSVi
+ SZjmWxlaBeEadZTWQPelqCNCvuAIVmga8YngQK1PrISw2y4VqWG+660Zs5gkTscDdZin
+ ekoIG2knFgNMAu07igQ19uF/pWDjT8Lqe9FKg78vezjzc1v30Ocl3hUT0f6r0disivBF 3w== 
+Received: from nam10-bn7-obe.outbound.protection.outlook.com (mail-bn7nam10lp2104.outbound.protection.outlook.com [104.47.70.104])
+        by mx0a-0064b401.pphosted.com with ESMTP id 3acucv0hta-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 12 Aug 2021 10:41:56 -0700
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=iJVp/Ra0kA+j/Tz/PZtY7W3Osp7zKD5de5+v2WXpCPe/eJoZ1TpengfRNzKa74qPYzHSD/VT4UHGdIfRa8i+8blFNk6sCn1fxuiTFMPSZE/8cug1sGTviV7DwbUMfd22P752NQ5rOrLo7vEqi2CDIWzQFqWVUhZLnbg43QMZCPYtZzOt1HNf6zceHDzs2EHyVAhluXGowTwKjMqAYXSV9Y9dssxe/p6q+/792bJTsk6lYiyWVzlSrc5uw+VAZOx8L1R4M7x+MqhQK3rDhYkuc5n6MRFbVopWlTMUZrerhpSTqm+ZNv75LzDngW+x+PBDHUbUO6/x1NsAc1DTE4pOmA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=hf3+lvzUfc/HxY2LoWPCGSNp1yzzNk+drTfsgabFduQ=;
+ b=T13n6Hhurl45+gJqG93yV0SfqdBeKbZ7wY8L9/Klw5PPsGuvonF02uIZjQQvTC6PT1t742Lv/TRr2HO/hVD/ljA22MSKf0hGlFPRVYs3JaMFlHxWuzN/c4SjGO6uCtD3wthoCOsOJKCCyxXxTVtXKd/up7XtKwBEs9TtX1hmL1ucprPV06Uno7RKUiC3oeiQ2NjXFtUWgblxQJc20asDtkuMwCl6CMZ7o3z9Zs3ORV8on/cX3W2PZ8MP8E7bRAA0A6eZqCAlAf+OmKqK/Jlot6sV/k5vCx4A2OAzUvmHbvYJ1wUHCnIF+9iazh20jGyZZN/Fc5BPVYdtK5r54t0lZw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=windriver.com; dmarc=pass action=none
+ header.from=windriver.com; dkim=pass header.d=windriver.com; arc=none
+Authentication-Results: vger.kernel.org; dkim=none (message not signed)
+ header.d=none;vger.kernel.org; dmarc=none action=none
+ header.from=windriver.com;
+Received: from DM4PR11MB5327.namprd11.prod.outlook.com (2603:10b6:5:392::22)
+ by DM5PR1101MB2204.namprd11.prod.outlook.com (2603:10b6:4:58::21) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4415.16; Thu, 12 Aug
+ 2021 17:41:54 +0000
+Received: from DM4PR11MB5327.namprd11.prod.outlook.com
+ ([fe80::ccb:2bce:6896:a0c3]) by DM4PR11MB5327.namprd11.prod.outlook.com
+ ([fe80::ccb:2bce:6896:a0c3%9]) with mapi id 15.20.4415.018; Thu, 12 Aug 2021
+ 17:41:54 +0000
+From:   Ovidiu Panait <ovidiu.panait@windriver.com>
+To:     stable@vger.kernel.org
+Cc:     pbonzini@redhat.com
+Subject: [PATCH] KVM: X86: MMU: Use the correct inherited permissions to get shadow page
+Date:   Thu, 12 Aug 2021 20:41:40 +0300
+Message-Id: <20210812174140.2370680-1-ovidiu.panait@windriver.com>
+X-Mailer: git-send-email 2.25.1
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: VI1PR08CA0096.eurprd08.prod.outlook.com
+ (2603:10a6:800:d3::22) To DM4PR11MB5327.namprd11.prod.outlook.com
+ (2603:10b6:5:392::22)
 MIME-Version: 1.0
-References: <CAPLW+4nyWAp99CTVy+wJ0rnbs9JpDvNaQaVityJi=sVPTkyDSA@mail.gmail.com>
- <YRDs8YYl1uEycsQl@kroah.com> <CAPLW+4kOfTMyfwzfBFdXYLqk-75rtp_ihFLsAYtb6h79LfRWjg@mail.gmail.com>
- <YRIqUe9KBd2+6pAd@kroah.com> <YRKSuxwJk6N05Iv6@kroah.com> <YRKUDDmz3ylrUBmd@kroah.com>
- <CAPLW+4=BngUFjt76PmWU5H-US6SL4bZ0WTFsBeeGZjnirLYh9Q@mail.gmail.com>
-In-Reply-To: <CAPLW+4=BngUFjt76PmWU5H-US6SL4bZ0WTFsBeeGZjnirLYh9Q@mail.gmail.com>
-From:   Sam Protsenko <semen.protsenko@linaro.org>
-Date:   Thu, 12 Aug 2021 20:19:00 +0300
-Message-ID: <CAPLW+4kiOHkj-b2b_TAJm8YoHbQYEyOV3VKEpziv4CY=CjeX+A@mail.gmail.com>
-Subject: Re: Add "usb: dwc3: Stop active transfers before halting the
- controller" to 5.4-stable
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, Wesley Cheng <wcheng@codeaurora.org>
-Content-Type: text/plain; charset="UTF-8"
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from otp-linux03.wrs.com (46.97.150.20) by VI1PR08CA0096.eurprd08.prod.outlook.com (2603:10a6:800:d3::22) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4415.14 via Frontend Transport; Thu, 12 Aug 2021 17:41:53 +0000
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: bbf54f39-a0fc-4439-dd3e-08d95db87972
+X-MS-TrafficTypeDiagnostic: DM5PR1101MB2204:
+X-Microsoft-Antispam-PRVS: <DM5PR1101MB22044FF2F179CC3BED611062FEF99@DM5PR1101MB2204.namprd11.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:2803;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 0lw33iiD7qxoZYsnBGZG6AlUaf81nzURxzSfisVAhyS9wrhVHh9iQGR/frsyl5RJu4+q/VXB+gPOFymuJ4NYvAW2Zr2+g2sfWzzLan5XUhIicFsJaJfInylsClD5SvMqinUVr44YdbNKlSMn+dIz9LZhFdSSpANP3CCyI7aAJhU3qPM0DPOHYhcmpYlXrJkVI9NbBej2Q8UCFBS7nd2s5WTAT6DMsQfdI8oCBpa9V+loAY+Yqjsry5Jlc3k2gsv75cfQ61hPExLVWgxsl+YBw6bKBqBtMBAaCIL3cuyC1bd2B18tP+88JOBC+owRvs7EM4GVnxEzpcA4NwY6tOewzV9uO3W/POOX6FgzyGHckvD/uSj8XJwFZnxnUoWGIwZs/m6+A26yI4jUX34QLz/S/9pudxcPAJnCjlHO2XlvEnScAYovwVSdU/1UjdrvHvXMTLiOnvgGyeC7EwBwUO93sjFMVhpnDhT1JHicwDAzEMWw4+hgR7X5s/uA0XYh3yG1PpOz/k8oKMpVQlqSQcykfKPflMh+MMUjNOHUzCTgqVjJg8OrCpPjiWBS+OvbnDGrgAp8uGDDo/GtRQQnQPJCyW0peb66h/7B9nhNT0JzSZsXMwGcW9XvBHyRgl+/kUywcAJzBJTCxFlHdOjqZPqP9mpXtW31eTos7gB2JOcfSdZSI1Li6FxeZiBlkZe4m0tZexrLyL7WnTAUgVZ5o0BQrWYFv7DHmIkkLoq+fGQh61pCBIUPaTKBCRgn9k2gSSwRGRSxl7ugGaHruS+6cZ5x5Gml0M5MNAb99PS/iPzrordQyAUshOyXH7NpPClLIbdvHybuG5Sm8NPmxjHdLnhHfg==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM4PR11MB5327.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(136003)(366004)(376002)(346002)(396003)(39840400004)(6512007)(1076003)(6666004)(8936002)(2906002)(66946007)(6506007)(86362001)(478600001)(186003)(6486002)(26005)(66476007)(66556008)(316002)(956004)(2616005)(38100700002)(52116002)(966005)(36756003)(8676002)(5660300002)(6916009)(83380400001)(38350700002)(44832011)(4326008);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?aQKFUaG5/pAnOYL8UkimQOsgMAYRwbPJHXVliIBLOxvNw0u0D4RFTl1kxGgZ?=
+ =?us-ascii?Q?o5+J9fAetOSWHhUTQq8gZWrl5RJeFEj13h+XZiw+3tlN6a/4QWgZFKfdUPvs?=
+ =?us-ascii?Q?Ca1HLPTR18sWhDZjZJ1hP3fSzf76kKK6J/cWWTgU2bzmMLeCtsTwibS9taLW?=
+ =?us-ascii?Q?ILmKAIuzAaZwjNvVzU/KE9SNxixwqjcIYOkpz6f0vRRwNERyTpqHgO08yIJe?=
+ =?us-ascii?Q?jWS45BAvrekIlaIQeWF3Ccno5ESOsd/iQtp9ls3rnIJcWAgMJ0p65gj1u5GK?=
+ =?us-ascii?Q?tiqmmNG/0wVTg/tOv+FMx6kx8AoW55V0+IELcTjp6Z/q8G4XPWozLFy34rE7?=
+ =?us-ascii?Q?2J2mHA35nLI7b4f4xiWatOTgSu52Xcq9R1r2w41bzfxlPkpMbu7bsTq2CdEl?=
+ =?us-ascii?Q?+Ga7ruG+U5z95xSLiCo+nr8QpZ9gMxuiFjs4a9TDbwGLWAlzxJQRn3/Q3ZVQ?=
+ =?us-ascii?Q?8w2xIWhX1nuL3GswN4+kMzcsy2MjDT2hw3Oi2SG4BwEMRpbJvlzwb3NYuek2?=
+ =?us-ascii?Q?jgf/u5GpjRXCNU+ISIQ+MyoL7U6W2mBYGqlGwwATQyizhBhnFbctAV5Pt3hF?=
+ =?us-ascii?Q?M3xUnQ6qHWWXiTxA1wtoROc+tpcF0fQTppxM/6jDKs4ODMzfw7DtDZCg6z5j?=
+ =?us-ascii?Q?hOBJePYQzBxERxKO5etKG0SL0V5siRhHHAKeqLbLl2pZf/72R0xH6oHV5rRO?=
+ =?us-ascii?Q?vYGdG+VHVMTL4uOnElsn3IvL01xosn38AOCYQrE0e/sa51eHgX++wCwl1PCy?=
+ =?us-ascii?Q?WG1OKLloHO3wBq86wVuMRNCuLYCbWBZZ9io7wcpE0MsouMa0DCTuGAf4ju2i?=
+ =?us-ascii?Q?9qggYmQgM+rlMhwEUZDt10I4zzjCPji+spdbXqs39qwXgOprD07K11XSkh6+?=
+ =?us-ascii?Q?xLU02k29P/TNg1pTAM/m5fe+v9gun+9QiFYehxe51+WU9Y9lsjOc0EOVkxbH?=
+ =?us-ascii?Q?LFT3I2voBJEW84XiYMO6lu4cS7PeqmxRSDVtR0RwuXAtbIpFNZLC4M6+Yf7u?=
+ =?us-ascii?Q?lS2lex6QRlXY2jhAyNanIH0FUSZ4OVLy2Oa1mCekbZz/1369g45MdEH2Mslv?=
+ =?us-ascii?Q?MF8UXF3S2PLdlxGHQKCUCaGQV7PAAA9LS+vHmxxJ/9jppOa4H0lIpnlNWgkp?=
+ =?us-ascii?Q?VHZZcYE4Kmi9IgDh3WWIKtMxuWmwdbldZHNA4sbGw+z1KVD6rBoVKP64y/yA?=
+ =?us-ascii?Q?9CK8MUMP9484921HLQjviBnhaM+IBrexbS4TZBYugW0TK9gBEPl5WbOuvt5L?=
+ =?us-ascii?Q?O/si7fQJRtfLWyVTvzxirqi1BgrdD+B2odnfn2AmnKp16kgVj2E/UuGEiYFn?=
+ =?us-ascii?Q?ZoJUGVKqeDcKWxNarP46ra8w?=
+X-OriginatorOrg: windriver.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: bbf54f39-a0fc-4439-dd3e-08d95db87972
+X-MS-Exchange-CrossTenant-AuthSource: DM4PR11MB5327.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Aug 2021 17:41:54.3707
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 8ddb2873-a1ad-4a18-ae4e-4644631433be
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: tWwqpFgsS9wFXI7W1pW34/F29aZGut3tivZufofDNuKtKbpo9asnx8pIQy9H8/LIqIVGMkSLY1it+YBkxlILEt1P1kkdriiezUhWVB6Avdc=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM5PR1101MB2204
+X-Proofpoint-GUID: K7K7uPaFVh7Ik46cgn2cTbMEFpIjn5pP
+X-Proofpoint-ORIG-GUID: K7K7uPaFVh7Ik46cgn2cTbMEFpIjn5pP
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
+ definitions=2021-08-12_05,2021-08-12_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 suspectscore=0
+ priorityscore=1501 impostorscore=0 adultscore=0 bulkscore=0 clxscore=1015
+ spamscore=0 mlxlogscore=999 malwarescore=0 lowpriorityscore=0 phishscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2107140000
+ definitions=main-2108120115
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 10 Aug 2021 at 20:55, Sam Protsenko <semen.protsenko@linaro.org> wrote:
->
-> On Tue, 10 Aug 2021 at 17:58, Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > On Tue, Aug 10, 2021 at 04:52:43PM +0200, Greg Kroah-Hartman wrote:
-> > > On Tue, Aug 10, 2021 at 09:27:13AM +0200, Greg Kroah-Hartman wrote:
-> > > > On Mon, Aug 09, 2021 at 07:58:24PM +0300, Sam Protsenko wrote:
-> > > > > On Mon, 9 Aug 2021 at 11:53, Greg Kroah-Hartman
-> > > > > <gregkh@linuxfoundation.org> wrote:
-> > > > > >
-> > > > > > On Fri, Aug 06, 2021 at 04:25:17PM +0300, Sam Protsenko wrote:
-> > > > > > > Hi Greg,
-> > > > > > >
-> > > > > > > Suggest including next patch (available in linux-mainline) to
-> > > > > > > 5.4-stable branch: commit ae7e86108b12 ("usb: dwc3: Stop active
-> > > > > > > transfers before halting the controller"). It's also already present
-> > > > > > > in 5.10 stable. Some fixes exist in 5.10-stable for that patch too.
-> > > > > >
-> > > > > > Can you provide a list of the fixes that also need to be backported?  I
-> > > > > > do not want to take one patch and not all of the relevant ones.
-> > > > > >
-> > > > >
-> > > > > Sure. Here is the whole list:
-> > > > >
-> > > > > [PATCH 01/04]
-> > > > > usb: dwc3: Stop active transfers before halting the controller
-> > > > > UPSTREAM: ae7e86108b12351028fa7e8796a59f9b2d9e1774
-> > > > >
-> > > > > [PATCH 02/04]
-> > > > > usb: dwc3: gadget: Restart DWC3 gadget when enabling pullup
-> > > > > UPSTREAM: a1383b3537a7bea1c213baa7878ccc4ecf4413b5
-> > > > > 5.10-stable: dd8363fbca508616811f8a94006b09c66c094107
-> > > > >
-> > > > > [PATCH 03/04]
-> > > > > usb: dwc3: gadget: Prevent EP queuing while stopping transfers
-> > > > > UPSTREAM: f09ddcfcb8c569675066337adac2ac205113471f
-> > > > > 5.10-stable: c7bb96a37dd2095fcd6c65a59689004e63e4b872
-> > > >
-> > > > This patch did not apply cleanly :(
-> > > >
-> > > > Can you send a working set of backported patches so that I know to get
-> > > > this all fixed up correctly?
-> > >
-> > > Ok, I think I got this myself...
-> >
-> > Ick, no, the 4th patch had problems.  I need a backported series,
-> > thanks!
-> >
->
-> Sure, will do shortly. As I remember, kdiff3 resolved those conflicts
-> automagically for me (correctly).
->
+From: Lai Jiangshan <laijs@linux.alibaba.com>
 
-Hi Greg,
+commit b1bd5cba3306691c771d558e94baa73e8b0b96b7 upstream.
 
-Just sent those in a patch series: "[PATCH 5.4 0/7] usb: dwc3: Fix DRD
-role switch". Found more fixes and dependencies, now it seems to be
-complete, and applies nicely.
+When computing the access permissions of a shadow page, use the effective
+permissions of the walk up to that point, i.e. the logic AND of its parents'
+permissions.  Two guest PxE entries that point at the same table gfn need to
+be shadowed with different shadow pages if their parents' permissions are
+different.  KVM currently uses the effective permissions of the last
+non-leaf entry for all non-leaf entries.  Because all non-leaf SPTEs have
+full ("uwx") permissions, and the effective permissions are recorded only
+in role.access and merged into the leaves, this can lead to incorrect
+reuse of a shadow page and eventually to a missing guest protection page
+fault.
 
-Thanks!
+For example, here is a shared pagetable:
 
-> > greg k-h
+   pgd[]   pud[]        pmd[]            virtual address pointers
+                     /->pmd1(u--)->pte1(uw-)->page1 <- ptr1 (u--)
+        /->pud1(uw-)--->pmd2(uw-)->pte2(uw-)->page2 <- ptr2 (uw-)
+   pgd-|           (shared pmd[] as above)
+        \->pud2(u--)--->pmd1(u--)->pte1(uw-)->page1 <- ptr3 (u--)
+                     \->pmd2(uw-)->pte2(uw-)->page2 <- ptr4 (u--)
+
+  pud1 and pud2 point to the same pmd table, so:
+  - ptr1 and ptr3 points to the same page.
+  - ptr2 and ptr4 points to the same page.
+
+(pud1 and pud2 here are pud entries, while pmd1 and pmd2 here are pmd entries)
+
+- First, the guest reads from ptr1 first and KVM prepares a shadow
+  page table with role.access=u--, from ptr1's pud1 and ptr1's pmd1.
+  "u--" comes from the effective permissions of pgd, pud1 and
+  pmd1, which are stored in pt->access.  "u--" is used also to get
+  the pagetable for pud1, instead of "uw-".
+
+- Then the guest writes to ptr2 and KVM reuses pud1 which is present.
+  The hypervisor set up a shadow page for ptr2 with pt->access is "uw-"
+  even though the pud1 pmd (because of the incorrect argument to
+  kvm_mmu_get_page in the previous step) has role.access="u--".
+
+- Then the guest reads from ptr3.  The hypervisor reuses pud1's
+  shadow pmd for pud2, because both use "u--" for their permissions.
+  Thus, the shadow pmd already includes entries for both pmd1 and pmd2.
+
+- At last, the guest writes to ptr4.  This causes no vmexit or pagefault,
+  because pud1's shadow page structures included an "uw-" page even though
+  its role.access was "u--".
+
+Any kind of shared pagetable might have the similar problem when in
+virtual machine without TDP enabled if the permissions are different
+from different ancestors.
+
+In order to fix the problem, we change pt->access to be an array, and
+any access in it will not include permissions ANDed from child ptes.
+
+The test code is: https://lore.kernel.org/kvm/20210603050537.19605-1-jiangshanlai@gmail.com/
+Remember to test it with TDP disabled.
+
+The problem had existed long before the commit 41074d07c78b ("KVM: MMU:
+Fix inherited permissions for emulated guest pte updates"), and it
+is hard to find which is the culprit.  So there is no fixes tag here.
+
+Signed-off-by: Lai Jiangshan <laijs@linux.alibaba.com>
+Message-Id: <20210603052455.21023-1-jiangshanlai@gmail.com>
+Cc: stable@vger.kernel.org
+Fixes: cea0f0e7ea54 ("[PATCH] KVM: MMU: Shadow page table caching")
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+[OP: - apply arch/x86/kvm/mmu/* changes to arch/x86/kvm
+     - apply documentation changes to Documentation/virtual/kvm/mmu.txt
+     - adjusted context in arch/x86/kvm/paging_tmpl.h]
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+---
+Note: The backport was validated by running the kvm-unit-tests testcase [1]
+mentioned in the commit message (the testcase fails without the patch and
+passes with the patch applied).
+
+[1] https://gitlab.com/kvm-unit-tests/kvm-unit-tests/-/commit/47fd6bc54674fb1d8a29c55305042689e8692522
+
+ Documentation/virtual/kvm/mmu.txt |  4 ++--
+ arch/x86/kvm/paging_tmpl.h        | 14 +++++++++-----
+ 2 files changed, 11 insertions(+), 7 deletions(-)
+
+diff --git a/Documentation/virtual/kvm/mmu.txt b/Documentation/virtual/kvm/mmu.txt
+index e507a9e0421e..851a8abcadce 100644
+--- a/Documentation/virtual/kvm/mmu.txt
++++ b/Documentation/virtual/kvm/mmu.txt
+@@ -152,8 +152,8 @@ Shadow pages contain the following information:
+     shadow pages) so role.quadrant takes values in the range 0..3.  Each
+     quadrant maps 1GB virtual address space.
+   role.access:
+-    Inherited guest access permissions in the form uwx.  Note execute
+-    permission is positive, not negative.
++    Inherited guest access permissions from the parent ptes in the form uwx.
++    Note execute permission is positive, not negative.
+   role.invalid:
+     The page is invalid and should not be used.  It is a root page that is
+     currently pinned (by a cpu hardware register pointing to it); once it is
+diff --git a/arch/x86/kvm/paging_tmpl.h b/arch/x86/kvm/paging_tmpl.h
+index 8220190b0605..9e15818de973 100644
+--- a/arch/x86/kvm/paging_tmpl.h
++++ b/arch/x86/kvm/paging_tmpl.h
+@@ -93,8 +93,8 @@ struct guest_walker {
+ 	gpa_t pte_gpa[PT_MAX_FULL_LEVELS];
+ 	pt_element_t __user *ptep_user[PT_MAX_FULL_LEVELS];
+ 	bool pte_writable[PT_MAX_FULL_LEVELS];
+-	unsigned pt_access;
+-	unsigned pte_access;
++	unsigned int pt_access[PT_MAX_FULL_LEVELS];
++	unsigned int pte_access;
+ 	gfn_t gfn;
+ 	struct x86_exception fault;
+ };
+@@ -388,13 +388,15 @@ static int FNAME(walk_addr_generic)(struct guest_walker *walker,
+ 		}
+ 
+ 		walker->ptes[walker->level - 1] = pte;
++
++		/* Convert to ACC_*_MASK flags for struct guest_walker.  */
++		walker->pt_access[walker->level - 1] = FNAME(gpte_access)(pt_access ^ walk_nx_mask);
+ 	} while (!is_last_gpte(mmu, walker->level, pte));
+ 
+ 	pte_pkey = FNAME(gpte_pkeys)(vcpu, pte);
+ 	accessed_dirty = have_ad ? pte_access & PT_GUEST_ACCESSED_MASK : 0;
+ 
+ 	/* Convert to ACC_*_MASK flags for struct guest_walker.  */
+-	walker->pt_access = FNAME(gpte_access)(pt_access ^ walk_nx_mask);
+ 	walker->pte_access = FNAME(gpte_access)(pte_access ^ walk_nx_mask);
+ 	errcode = permission_fault(vcpu, mmu, walker->pte_access, pte_pkey, access);
+ 	if (unlikely(errcode))
+@@ -433,7 +435,8 @@ static int FNAME(walk_addr_generic)(struct guest_walker *walker,
+ 	}
+ 
+ 	pgprintk("%s: pte %llx pte_access %x pt_access %x\n",
+-		 __func__, (u64)pte, walker->pte_access, walker->pt_access);
++		 __func__, (u64)pte, walker->pte_access,
++		 walker->pt_access[walker->level - 1]);
+ 	return 1;
+ 
+ error:
+@@ -602,7 +605,7 @@ static int FNAME(fetch)(struct kvm_vcpu *vcpu, gpa_t addr,
+ {
+ 	struct kvm_mmu_page *sp = NULL;
+ 	struct kvm_shadow_walk_iterator it;
+-	unsigned direct_access, access = gw->pt_access;
++	unsigned int direct_access, access;
+ 	int top_level, ret;
+ 	gfn_t gfn, base_gfn;
+ 
+@@ -634,6 +637,7 @@ static int FNAME(fetch)(struct kvm_vcpu *vcpu, gpa_t addr,
+ 		sp = NULL;
+ 		if (!is_shadow_present_pte(*it.sptep)) {
+ 			table_gfn = gw->table_gfn[it.level - 2];
++			access = gw->pt_access[it.level - 2];
+ 			sp = kvm_mmu_get_page(vcpu, table_gfn, addr, it.level-1,
+ 					      false, access);
+ 		}
+-- 
+2.25.1
+
