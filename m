@@ -2,57 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C7DAD3EA948
-	for <lists+stable@lfdr.de>; Thu, 12 Aug 2021 19:17:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 650283EA94A
+	for <lists+stable@lfdr.de>; Thu, 12 Aug 2021 19:17:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235249AbhHLRR1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S235368AbhHLRR1 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 12 Aug 2021 13:17:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59280 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59288 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235375AbhHLRRZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Aug 2021 13:17:25 -0400
-Received: from mail-lj1-x230.google.com (mail-lj1-x230.google.com [IPv6:2a00:1450:4864:20::230])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40DE0C061756
-        for <stable@vger.kernel.org>; Thu, 12 Aug 2021 10:17:00 -0700 (PDT)
-Received: by mail-lj1-x230.google.com with SMTP id n7so11682994ljq.0
-        for <stable@vger.kernel.org>; Thu, 12 Aug 2021 10:17:00 -0700 (PDT)
+        with ESMTP id S235044AbhHLRR1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Aug 2021 13:17:27 -0400
+Received: from mail-lf1-x12f.google.com (mail-lf1-x12f.google.com [IPv6:2a00:1450:4864:20::12f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C54D9C061756
+        for <stable@vger.kernel.org>; Thu, 12 Aug 2021 10:17:01 -0700 (PDT)
+Received: by mail-lf1-x12f.google.com with SMTP id x27so14769658lfu.5
+        for <stable@vger.kernel.org>; Thu, 12 Aug 2021 10:17:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=b0JgbTAX05rhKAcAoEa4I+TuhbaN7/BKvLWyPaT2ewA=;
-        b=tXxWh2R7Q04fvFaOX4Mi1p4yAIlSeLynJyvVgFTdgLI0nGusTh7Ex4px8x/dAwFBYP
-         z6UvrIPr7fZ+SBmZEJrUerxYOX2YRDiPJAKqCtvzTv2aPaq4YKgv3hsp+4EpjW3U0/PC
-         arl+Vn8vKrzx3SomkcD/mvO3z0qVrdaZNvIJak2r8UR+V8/POU+hikhHY8zuIi40jlTJ
-         MdP+w4a02g9VUf0Ga9QIZkdCdVC1R/+zZ417WCoHELYIEh0QPEcF+sjr7EJnJpbVTo0a
-         UPyuO7QIKH4Wy77hnM0P1TRrsvRXQ7OW/K3qrKeymyu/wU936uylC4lSTTTVQpDicF7I
-         c1fg==
+        bh=IbNOLHfCLiIPyAUw3tbdS+8Xfnl4agrw5winPTLu2cs=;
+        b=TOYfxVH1CWHfVY4ong0sHEBwcxiHyickPUv9tutBwc3EnXOhxb/MdE0lTFVU82HMSX
+         h+ueBFLK7/xDmFccTt+jZ10MydouQAdgsVX3YYbbTCnhYEr5K+joEaXLtiH84n//28UY
+         SGMaVRUkhuk7dM7F+FuS7QbJj1VHwuSjG55FCNub8MKZcjGSQtBDWe91awep9PsBJ7fH
+         megoXp/mfuo/s+pt2WGewia49AwmdGESGc//6QDcS0szQ3QYbiCNi3P57oA0AcYdPj4o
+         Mvj2BoGizhbUmh849p475Xa5R5WWSNYDp0LUiuYnHJBqa1nlTf1zSt9FpPz53cq5NTRY
+         bAQw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=b0JgbTAX05rhKAcAoEa4I+TuhbaN7/BKvLWyPaT2ewA=;
-        b=X8+ShRP7lUkV4+fSGn9bfS+EewU+JV7n55DoxXziE17NWoPHNnQzjCdydDj//1L+t+
-         5MWOI43TBinHpr6X9PfhnA05eoueKjgSGKRTT6wcBrOl0dwZrIp+ODoUrIh7dDdqtZsY
-         eXLSfRhSxqyI4BhMBCf5OD3sxS99KmtT0TUFCR2QzvNGeuz29Ca+KofE8E+4iWj4VtQ7
-         gL06Nz7k0h1KvQJ0f1yHloziXL4Q3V4LOtQddxjMgS09iItrn5UWl7ABjbx5PuNX3ZgN
-         FfftCfKwWKzLM1npkw9+/YliCOTKk+YBN8lthneoz98PpqKvc/2S+9ip6O/zmxhTvrUB
-         96aw==
-X-Gm-Message-State: AOAM533GWgU/3oubN8pN610wjyIrmPMTzSBPTTdXru6oFPHNlp+EbOUz
-        dBDhHq16DO2sATY+EyCiP/Oosg==
-X-Google-Smtp-Source: ABdhPJy981rThXcNhnLlCfos6IqgvpAqidzLp3UggM4WNMQPWTc6xxMI9VbORa2y89Id6l1xgr7nrg==
-X-Received: by 2002:a05:651c:981:: with SMTP id b1mr2885652ljq.281.1628788618611;
-        Thu, 12 Aug 2021 10:16:58 -0700 (PDT)
+        bh=IbNOLHfCLiIPyAUw3tbdS+8Xfnl4agrw5winPTLu2cs=;
+        b=NmJKPZXv1Jw7YE6wEWvJvvGjgtYgUZoMdCRh/6ohd1uiudsm9BHVBOEbpITUklBdjq
+         geaxBKg4iqgg+O5Hj0baTFSsn7OKeCg3pZ11tSv5plrQML8jFa14JVFMK7wacQB4XNeE
+         /jtoYc6ObeZ+wZYqnguGoy55hlF0rLsVID179sTImOsKL+EbBgrGH3y0fz0xtq+yg6Sz
+         AeDSlEvhPZxsILezhC2j2TAO53H/AumFabykgm2EQ/+vsz+reEFgmxrfKShk+xoJH3qO
+         1uXP1ZmjLuz+YVJeHkPWHHlhvGWFE5iZxGTkVGGaRAqm5jdnH5hVJpsYcHCT14iZhRSq
+         cvgg==
+X-Gm-Message-State: AOAM533hvyxp6xjrUeuqz56XfXssutptyIqSoEHocRib4PzlxnScciKU
+        FT0lUfvaPFzJgG7lFuFA76S80w==
+X-Google-Smtp-Source: ABdhPJytDF/dTfnYLNWsG2gyii3vyh4UfyGE8i6utKLgiR9PNJjAMeJXfJ5AYOFD3dG+QkGdFC/2ww==
+X-Received: by 2002:ac2:490b:: with SMTP id n11mr3269420lfi.656.1628788620151;
+        Thu, 12 Aug 2021 10:17:00 -0700 (PDT)
 Received: from localhost ([31.134.121.151])
-        by smtp.gmail.com with ESMTPSA id k44sm277730lfv.288.2021.08.12.10.16.57
+        by smtp.gmail.com with ESMTPSA id i22sm317969lfv.125.2021.08.12.10.16.59
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 12 Aug 2021 10:16:58 -0700 (PDT)
+        Thu, 12 Aug 2021 10:16:59 -0700 (PDT)
 From:   Sam Protsenko <semen.protsenko@linaro.org>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     stable@vger.kernel.org, Wesley Cheng <wcheng@codeaurora.org>
-Subject: [PATCH 5.4 3/7] usb: dwc3: gadget: Restart DWC3 gadget when enabling pullup
-Date:   Thu, 12 Aug 2021 20:16:48 +0300
-Message-Id: <20210812171652.23803-4-semen.protsenko@linaro.org>
+Subject: [PATCH 5.4 4/7] usb: dwc3: gadget: Prevent EP queuing while stopping transfers
+Date:   Thu, 12 Aug 2021 20:16:49 +0300
+Message-Id: <20210812171652.23803-5-semen.protsenko@linaro.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210812171652.23803-1-semen.protsenko@linaro.org>
 References: <20210812171652.23803-1-semen.protsenko@linaro.org>
@@ -64,70 +64,93 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Wesley Cheng <wcheng@codeaurora.org>
 
-[ Upstream commit a1383b3537a7bea1c213baa7878ccc4ecf4413b5 ]
+[ Upstream commit f09ddcfcb8c569675066337adac2ac205113471f ]
 
-usb_gadget_deactivate/usb_gadget_activate does not execute the UDC start
-operation, which may leave EP0 disabled and event IRQs disabled when
-re-activating the function. Move the enabling/disabling of USB EP0 and
-device event IRQs to be performed in the pullup routine.
+In the situations where the DWC3 gadget stops active transfers, once
+calling the dwc3_gadget_giveback(), there is a chance where a function
+driver can queue a new USB request in between the time where the dwc3
+lock has been released and re-aquired.  This occurs after we've already
+issued an ENDXFER command.  When the stop active transfers continues
+to remove USB requests from all dep lists, the newly added request will
+also be removed, while controller still has an active TRB for it.
+This can lead to the controller accessing an unmapped memory address.
+
+Fix this by ensuring parameters to prevent EP queuing are set before
+calling the stop active transfers API.
 
 Fixes: ae7e86108b12 ("usb: dwc3: Stop active transfers before halting the controller")
-Tested-by: Michael Tretter <m.tretter@pengutronix.de>
-Cc: stable <stable@vger.kernel.org>
-Reported-by: Michael Tretter <m.tretter@pengutronix.de>
 Signed-off-by: Wesley Cheng <wcheng@codeaurora.org>
-Link: https://lore.kernel.org/r/1609282837-21666-1-git-send-email-wcheng@codeaurora.org
+Link: https://lore.kernel.org/r/1615507142-23097-1-git-send-email-wcheng@codeaurora.org
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/gadget.c | 14 +++-----------
- 1 file changed, 3 insertions(+), 11 deletions(-)
+ drivers/usb/dwc3/gadget.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index bc655d637b86..e242174321d1 100644
+index e242174321d1..8702035d08f1 100644
 --- a/drivers/usb/dwc3/gadget.c
 +++ b/drivers/usb/dwc3/gadget.c
-@@ -1993,6 +1993,7 @@ static int dwc3_gadget_run_stop(struct dwc3 *dwc, int is_on, int suspend)
+@@ -746,8 +746,6 @@ static int __dwc3_gadget_ep_disable(struct dwc3_ep *dep)
  
- static void dwc3_gadget_disable_irq(struct dwc3 *dwc);
- static void __dwc3_gadget_stop(struct dwc3 *dwc);
-+static int __dwc3_gadget_start(struct dwc3 *dwc);
+ 	trace_dwc3_gadget_ep_disable(dep);
  
- static int dwc3_gadget_pullup(struct usb_gadget *g, int is_on)
+-	dwc3_remove_requests(dwc, dep);
+-
+ 	/* make sure HW endpoint isn't stalled */
+ 	if (dep->flags & DWC3_EP_STALL)
+ 		__dwc3_gadget_ep_set_halt(dep, 0, false);
+@@ -766,6 +764,8 @@ static int __dwc3_gadget_ep_disable(struct dwc3_ep *dep)
+ 		dep->endpoint.desc = NULL;
+ 	}
+ 
++	dwc3_remove_requests(dwc, dep);
++
+ 	return 0;
+ }
+ 
+@@ -1511,7 +1511,7 @@ static int __dwc3_gadget_ep_queue(struct dwc3_ep *dep, struct dwc3_request *req)
  {
-@@ -2067,6 +2068,8 @@ static int dwc3_gadget_pullup(struct usb_gadget *g, int is_on)
+ 	struct dwc3		*dwc = dep->dwc;
+ 
+-	if (!dep->endpoint.desc || !dwc->pullups_connected) {
++	if (!dep->endpoint.desc || !dwc->pullups_connected || !dwc->connected) {
+ 		dev_err(dwc->dev, "%s: can't queue to disabled endpoint\n",
+ 				dep->name);
+ 		return -ESHUTDOWN;
+@@ -2043,6 +2043,7 @@ static int dwc3_gadget_pullup(struct usb_gadget *g, int is_on)
+ 	if (!is_on) {
+ 		u32 count;
+ 
++		dwc->connected = false;
+ 		/*
+ 		 * In the Synopsis DesignWare Cores USB3 Databook Rev. 3.30a
+ 		 * Section 4.1.8 Table 4-7, it states that for a device-initiated
+@@ -2067,7 +2068,6 @@ static int dwc3_gadget_pullup(struct usb_gadget *g, int is_on)
+ 			dwc->ev_buf->lpos = (dwc->ev_buf->lpos + count) %
  						dwc->ev_buf->length;
  		}
- 		dwc->connected = false;
-+	} else {
-+		__dwc3_gadget_start(dwc);
+-		dwc->connected = false;
+ 	} else {
+ 		__dwc3_gadget_start(dwc);
  	}
+@@ -3057,8 +3057,6 @@ static void dwc3_gadget_reset_interrupt(struct dwc3 *dwc)
+ {
+ 	u32			reg;
  
- 	ret = dwc3_gadget_run_stop(dwc, is_on, false);
-@@ -2244,10 +2247,6 @@ static int dwc3_gadget_start(struct usb_gadget *g,
- 	}
+-	dwc->connected = true;
+-
+ 	/*
+ 	 * Ideally, dwc3_reset_gadget() would trigger the function
+ 	 * drivers to stop any active transfers through ep disable.
+@@ -3107,6 +3105,7 @@ static void dwc3_gadget_reset_interrupt(struct dwc3 *dwc)
+ 	 * transfers."
+ 	 */
+ 	dwc3_stop_active_transfers(dwc);
++	dwc->connected = true;
  
- 	dwc->gadget_driver	= driver;
--
--	if (pm_runtime_active(dwc->dev))
--		__dwc3_gadget_start(dwc);
--
- 	spin_unlock_irqrestore(&dwc->lock, flags);
- 
- 	return 0;
-@@ -2273,13 +2272,6 @@ static int dwc3_gadget_stop(struct usb_gadget *g)
- 	unsigned long		flags;
- 
- 	spin_lock_irqsave(&dwc->lock, flags);
--
--	if (pm_runtime_suspended(dwc->dev))
--		goto out;
--
--	__dwc3_gadget_stop(dwc);
--
--out:
- 	dwc->gadget_driver	= NULL;
- 	spin_unlock_irqrestore(&dwc->lock, flags);
- 
+ 	reg = dwc3_readl(dwc->regs, DWC3_DCTL);
+ 	reg &= ~DWC3_DCTL_TSTCTRL_MASK;
 -- 
 2.30.2
 
