@@ -2,129 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E4DC3EA94D
-	for <lists+stable@lfdr.de>; Thu, 12 Aug 2021 19:17:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EB603EA957
+	for <lists+stable@lfdr.de>; Thu, 12 Aug 2021 19:19:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235327AbhHLRRc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Aug 2021 13:17:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59322 "EHLO
+        id S232307AbhHLRTj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Aug 2021 13:19:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235044AbhHLRRb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Aug 2021 13:17:31 -0400
-Received: from mail-lf1-x12b.google.com (mail-lf1-x12b.google.com [IPv6:2a00:1450:4864:20::12b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55787C061756
-        for <stable@vger.kernel.org>; Thu, 12 Aug 2021 10:17:06 -0700 (PDT)
-Received: by mail-lf1-x12b.google.com with SMTP id t9so14793267lfc.6
-        for <stable@vger.kernel.org>; Thu, 12 Aug 2021 10:17:06 -0700 (PDT)
+        with ESMTP id S235486AbhHLRTi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Aug 2021 13:19:38 -0400
+Received: from mail-vs1-xe35.google.com (mail-vs1-xe35.google.com [IPv6:2607:f8b0:4864:20::e35])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B6F8C061756
+        for <stable@vger.kernel.org>; Thu, 12 Aug 2021 10:19:13 -0700 (PDT)
+Received: by mail-vs1-xe35.google.com with SMTP id k24so4331020vsg.9
+        for <stable@vger.kernel.org>; Thu, 12 Aug 2021 10:19:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=LjrU9k0cXOS1w5BQXAwU+RejY/N5vivrkzc/UFmCECk=;
-        b=vXvZTM5pSgzHzFrb56dPXE5fgDfw8i5/bcwGF/ZwWb4JEClBcZAe2v9pLNMa3hRCVN
-         Aaod/ovXAexrExrElPgAWlAAHUglUkkwFAUmR5qsrSucybv+8p6z/DJOUEeS7vQSoreB
-         EvM+gPAg0GftW98ZOrhHaTVwJNeQhomw76bJCCmSUYsl9RkvkCU5B2pI2GdmOENLLkAM
-         G6MrHR5yKbDjLOgU9rTsp+oRlNTj7/CW/yruhlXBcp6BsPtRX3jLtYx1VrmWlAt237o1
-         TgCnadyKwuuwwcFGYflx+QJfocS/6MpB4DBOa0CT9JePBypms9TnkHVBaw9edXp/2peS
-         Wacg==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=d/1htVpI9h7AxpYebFdcodubuyizTFeSVjOTXvhUwC8=;
+        b=Gz3BENy7STbpiDxu/sR+xuHckoXiQJhV7XKfVyFK9RIun1cNt/Op2694IgETg1YnOD
+         hzB7kohPyVGGt9O/SRPVLWJL59ahCUkEDLtQfo0T8VufgxDldNNdk0jiXY3RENQ6NVro
+         bfNKJPv8d2FqibbU7gYrpYNBE7hT2PPA2cazS4A9vO34FT9csRx1yEVMPhOJJzFbBey6
+         QYM1Swia08Q/abppl6ojaktUgjbv5k/FtdW+8UZELp9mD4f6sErX+QWJBcyhmav7hVy8
+         ggpfXU29CufOOl1Z6FEB51mzYXrEqn9nHsdl7eRwAWYVrX40G5bGPkeTGc7d0gW05YAT
+         ss/w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=LjrU9k0cXOS1w5BQXAwU+RejY/N5vivrkzc/UFmCECk=;
-        b=YFu9yi5eFfTepabfdP77mv+7/9XyCUUGaPnPPIlUx8lnGrm3v3jyHtJwbybvlNvj/V
-         rX4OXxI724LQe+yN9WE2N5lKcYm4u4bHjfUVToSQdfnLghPnDWdapDCSNlpZgKoDsxu+
-         Cdl6B9jSnvNW5ajxf62cg2w/kI19223/8Vcu4DVGyGTqFGoM7DWAYdgeQkOVyID5DwaF
-         gYI9Dm9Qgu12P5cx5QYne2s7bJKCCA0cZF5fEYGpuSk4NKqe0L9bkTyxPaTANGqERuHA
-         cVR0KN3oQ/dIdtyLpljFoPYk6TAcO2FcZpVG1ubih7vJ8h6UabIJZ2zquYKGCKmVLTGn
-         PKEg==
-X-Gm-Message-State: AOAM5312jUiEIBRVemjoINHzrD0bujLF3gdIs+oUflrCEXjadn8PBCgO
-        4sYgdZigjrRXbakkM6l0zvHBUg==
-X-Google-Smtp-Source: ABdhPJyMtYHx4D1I39ZJCDL//pHiZzZ6JADJadgN9IU/sUBRquKxgvrEldHa5ZMH7FWGJSsj1MBIpw==
-X-Received: by 2002:ac2:4852:: with SMTP id 18mr862714lfy.214.1628788624697;
-        Thu, 12 Aug 2021 10:17:04 -0700 (PDT)
-Received: from localhost ([31.134.121.151])
-        by smtp.gmail.com with ESMTPSA id u10sm316738lft.252.2021.08.12.10.17.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 12 Aug 2021 10:17:04 -0700 (PDT)
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=d/1htVpI9h7AxpYebFdcodubuyizTFeSVjOTXvhUwC8=;
+        b=dzAiSbu867BmP6qWlM8LoTacn1WCmOcluU0bHfsuNZMn5ZwshWu96MR2uM7rfIpanw
+         jGUGR7rlTtYzc8IsFUjN8ZNnZg2/yTFEKZczShpTEBfUp7L6o+JGXWerCmw4AnVG/9Mh
+         Phrg7DdY+UZgjup1/2EB0ZVLDsyC4v0mRaCpawlWIR+XnUbN0InDsKORq4cIqFALn0lY
+         KPxJVJczqoE1W4NWxZ5Vz+kkWkvU6ewR3NJkYwptqMLvgsH5i6OhzqPZ9vT4iCcskC+1
+         k40D2rVicR4Mu+JFqslmMYycu34bSUxfCPnR8MielDTeqetuZf7zbHstNYFi5yIRgrwf
+         CQUw==
+X-Gm-Message-State: AOAM531FqLvP260fEUy/KnYLrSfuOG/J0lJA3FN18fNncKgUx3UaEsyv
+        6PMxGvBpjC6TWCc2bYdI5/p3ty5D0Rw5k0k1uSPNiJscnPYgwUi9
+X-Google-Smtp-Source: ABdhPJwXl1yd9LjVVqxrwgaP/ALxgzEpdjdTPZzW5jZ+B/9nOPa961Wk2+IP4oROPBBB/9+6BUPZkrrKjxBCRI7ww58=
+X-Received: by 2002:a05:6102:942:: with SMTP id a2mr4228310vsi.30.1628788752260;
+ Thu, 12 Aug 2021 10:19:12 -0700 (PDT)
+MIME-Version: 1.0
+References: <CAPLW+4nyWAp99CTVy+wJ0rnbs9JpDvNaQaVityJi=sVPTkyDSA@mail.gmail.com>
+ <YRDs8YYl1uEycsQl@kroah.com> <CAPLW+4kOfTMyfwzfBFdXYLqk-75rtp_ihFLsAYtb6h79LfRWjg@mail.gmail.com>
+ <YRIqUe9KBd2+6pAd@kroah.com> <YRKSuxwJk6N05Iv6@kroah.com> <YRKUDDmz3ylrUBmd@kroah.com>
+ <CAPLW+4=BngUFjt76PmWU5H-US6SL4bZ0WTFsBeeGZjnirLYh9Q@mail.gmail.com>
+In-Reply-To: <CAPLW+4=BngUFjt76PmWU5H-US6SL4bZ0WTFsBeeGZjnirLYh9Q@mail.gmail.com>
 From:   Sam Protsenko <semen.protsenko@linaro.org>
+Date:   Thu, 12 Aug 2021 20:19:00 +0300
+Message-ID: <CAPLW+4kiOHkj-b2b_TAJm8YoHbQYEyOV3VKEpziv4CY=CjeX+A@mail.gmail.com>
+Subject: Re: Add "usb: dwc3: Stop active transfers before halting the
+ controller" to 5.4-stable
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     stable@vger.kernel.org, Wesley Cheng <wcheng@codeaurora.org>
-Subject: [PATCH 5.4 7/7] usb: dwc3: gadget: Avoid runtime resume if disabling pullup
-Date:   Thu, 12 Aug 2021 20:16:52 +0300
-Message-Id: <20210812171652.23803-8-semen.protsenko@linaro.org>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210812171652.23803-1-semen.protsenko@linaro.org>
-References: <20210812171652.23803-1-semen.protsenko@linaro.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wesley Cheng <wcheng@codeaurora.org>
+On Tue, 10 Aug 2021 at 20:55, Sam Protsenko <semen.protsenko@linaro.org> wrote:
+>
+> On Tue, 10 Aug 2021 at 17:58, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > On Tue, Aug 10, 2021 at 04:52:43PM +0200, Greg Kroah-Hartman wrote:
+> > > On Tue, Aug 10, 2021 at 09:27:13AM +0200, Greg Kroah-Hartman wrote:
+> > > > On Mon, Aug 09, 2021 at 07:58:24PM +0300, Sam Protsenko wrote:
+> > > > > On Mon, 9 Aug 2021 at 11:53, Greg Kroah-Hartman
+> > > > > <gregkh@linuxfoundation.org> wrote:
+> > > > > >
+> > > > > > On Fri, Aug 06, 2021 at 04:25:17PM +0300, Sam Protsenko wrote:
+> > > > > > > Hi Greg,
+> > > > > > >
+> > > > > > > Suggest including next patch (available in linux-mainline) to
+> > > > > > > 5.4-stable branch: commit ae7e86108b12 ("usb: dwc3: Stop active
+> > > > > > > transfers before halting the controller"). It's also already present
+> > > > > > > in 5.10 stable. Some fixes exist in 5.10-stable for that patch too.
+> > > > > >
+> > > > > > Can you provide a list of the fixes that also need to be backported?  I
+> > > > > > do not want to take one patch and not all of the relevant ones.
+> > > > > >
+> > > > >
+> > > > > Sure. Here is the whole list:
+> > > > >
+> > > > > [PATCH 01/04]
+> > > > > usb: dwc3: Stop active transfers before halting the controller
+> > > > > UPSTREAM: ae7e86108b12351028fa7e8796a59f9b2d9e1774
+> > > > >
+> > > > > [PATCH 02/04]
+> > > > > usb: dwc3: gadget: Restart DWC3 gadget when enabling pullup
+> > > > > UPSTREAM: a1383b3537a7bea1c213baa7878ccc4ecf4413b5
+> > > > > 5.10-stable: dd8363fbca508616811f8a94006b09c66c094107
+> > > > >
+> > > > > [PATCH 03/04]
+> > > > > usb: dwc3: gadget: Prevent EP queuing while stopping transfers
+> > > > > UPSTREAM: f09ddcfcb8c569675066337adac2ac205113471f
+> > > > > 5.10-stable: c7bb96a37dd2095fcd6c65a59689004e63e4b872
+> > > >
+> > > > This patch did not apply cleanly :(
+> > > >
+> > > > Can you send a working set of backported patches so that I know to get
+> > > > this all fixed up correctly?
+> > >
+> > > Ok, I think I got this myself...
+> >
+> > Ick, no, the 4th patch had problems.  I need a backported series,
+> > thanks!
+> >
+>
+> Sure, will do shortly. As I remember, kdiff3 resolved those conflicts
+> automagically for me (correctly).
+>
 
-[ Upstream commit cb10f68ad8150f243964b19391711aaac5e8ff42 ]
+Hi Greg,
 
-If the device is already in the runtime suspended state, any call to
-the pullup routine will issue a runtime resume on the DWC3 core
-device.  If the USB gadget is disabling the pullup, then avoid having
-to issue a runtime resume, as DWC3 gadget has already been
-halted/stopped.
+Just sent those in a patch series: "[PATCH 5.4 0/7] usb: dwc3: Fix DRD
+role switch". Found more fixes and dependencies, now it seems to be
+complete, and applies nicely.
 
-This fixes an issue where the following condition occurs:
+Thanks!
 
-usb_gadget_remove_driver()
--->usb_gadget_disconnect()
- -->dwc3_gadget_pullup(0)
-  -->pm_runtime_get_sync() -> ret = 0
-  -->pm_runtime_put() [async]
--->usb_gadget_udc_stop()
- -->dwc3_gadget_stop()
-  -->dwc->gadget_driver = NULL
-...
-
-dwc3_suspend_common()
--->dwc3_gadget_suspend()
- -->DWC3 halt/stop routine skipped, driver_data == NULL
-
-This leads to a situation where the DWC3 gadget is not properly
-stopped, as the runtime resume would have re-enabled EP0 and event
-interrupts, and since we avoided the DWC3 gadget suspend, these
-resources were never disabled.
-
-Fixes: 77adb8bdf422 ("usb: dwc3: gadget: Allow runtime suspend if UDC unbinded")
-Cc: stable <stable@vger.kernel.org>
-Acked-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Wesley Cheng <wcheng@codeaurora.org>
-Link: https://lore.kernel.org/r/1628058245-30692-1-git-send-email-wcheng@codeaurora.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/dwc3/gadget.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
-
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index 78a4b9e438b7..8a3752fcf7b4 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -2018,6 +2018,17 @@ static int dwc3_gadget_pullup(struct usb_gadget *g, int is_on)
- 		}
- 	}
- 
-+	/*
-+	 * Avoid issuing a runtime resume if the device is already in the
-+	 * suspended state during gadget disconnect.  DWC3 gadget was already
-+	 * halted/stopped during runtime suspend.
-+	 */
-+	if (!is_on) {
-+		pm_runtime_barrier(dwc->dev);
-+		if (pm_runtime_suspended(dwc->dev))
-+			return 0;
-+	}
-+
- 	/*
- 	 * Check the return value for successful resume, or error.  For a
- 	 * successful resume, the DWC3 runtime PM resume routine will handle
--- 
-2.30.2
-
+> > greg k-h
