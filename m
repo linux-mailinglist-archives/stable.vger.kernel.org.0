@@ -2,88 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 554D03EA586
-	for <lists+stable@lfdr.de>; Thu, 12 Aug 2021 15:22:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E74E3EA837
+	for <lists+stable@lfdr.de>; Thu, 12 Aug 2021 18:05:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237268AbhHLNW5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Aug 2021 09:22:57 -0400
-Received: from mail-lf1-f49.google.com ([209.85.167.49]:43717 "EHLO
-        mail-lf1-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237248AbhHLNWR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Aug 2021 09:22:17 -0400
-Received: by mail-lf1-f49.google.com with SMTP id w1so13239009lfq.10;
-        Thu, 12 Aug 2021 06:21:47 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=0Vn0uzgRzdNDH04gbbOlRqCsW1lwpK0pywcYhQCTW2s=;
-        b=X7gGVTkATcwhyr/6QtJseGD5yreJDlcR4qk2BVSiFkEYTmxRtT06IuqkF8OQk3Ru8p
-         JdNla7NhDSgt0QTr/Q7fwKSEIYGixrbTOrrQ+mrz7myTLQukos/mCG6bE5ctesO7PvH8
-         TRtv1M2y9jeqZoi+LucETKS/kfrsWkgMWwz4JPoclI6ux4HRvY8czqubpZct5Feyu+Rq
-         iSQNkq4RnRCOfL8Ie1dgWLBBA34+Y67pMxKNl26TODh4q1rZhm04zwbKfnQ9u+JlXbSm
-         iVRSTY18dH5xzN+WNmphMG7lLki1qcf4lxJ5kSTrInydj5DfnPnylE5uC9HN5tKZFKQP
-         VehA==
-X-Gm-Message-State: AOAM531ZDzTbm3E9j2nOrgBiaCJRFsNFrjpwLaA9QpmuNfMGq12rv+2B
-        sTKjGCkuT0d4KqRdhsA0zzo=
-X-Google-Smtp-Source: ABdhPJwPSo9EoWN+TXBFBRD8W6263Ns4ijsMHjGg4JNeX8Y1aKFAx3XQ1p9kfW/dHwSwzuAmiKbKxA==
-X-Received: by 2002:ac2:5e7a:: with SMTP id a26mr2171842lfr.312.1628774506571;
-        Thu, 12 Aug 2021 06:21:46 -0700 (PDT)
-Received: from workstation.lan ([95.155.85.46])
-        by smtp.gmail.com with ESMTPSA id q26sm263306lfb.75.2021.08.12.06.21.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 12 Aug 2021 06:21:45 -0700 (PDT)
-From:   =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>
-To:     Bjorn Helgaas <bhelgaas@google.com>
-Cc:     Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: [PATCH] PCI/sysfs: Use correct variable for the legacy_mem sysfs object
-Date:   Thu, 12 Aug 2021 13:21:44 +0000
-Message-Id: <20210812132144.791268-1-kw@linux.com>
-X-Mailer: git-send-email 2.32.0
+        id S229531AbhHLQFl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Aug 2021 12:05:41 -0400
+Received: from mga01.intel.com ([192.55.52.88]:55449 "EHLO mga01.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229661AbhHLQFk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 12 Aug 2021 12:05:40 -0400
+X-IronPort-AV: E=McAfee;i="6200,9189,10074"; a="237418746"
+X-IronPort-AV: E=Sophos;i="5.84,316,1620716400"; 
+   d="scan'208";a="237418746"
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Aug 2021 09:01:24 -0700
+X-IronPort-AV: E=Sophos;i="5.84,316,1620716400"; 
+   d="scan'208";a="517506148"
+Received: from ideak-desk.fi.intel.com ([10.237.68.141])
+  by fmsmga003-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Aug 2021 09:01:21 -0700
+Date:   Thu, 12 Aug 2021 19:01:18 +0300
+From:   Imre Deak <imre.deak@intel.com>
+To:     Swati Sharma <swati2.sharma@intel.com>
+Cc:     intel-gfx@lists.freedesktop.org,
+        Ankit Nautiyal <ankit.k.nautiyal@intel.com>,
+        Uma Shankar <uma.shankar@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Ville Syrj_l_ <ville.syrjala@linux.intel.com>,
+        Manasi Navare <manasi.d.navare@intel.com>,
+        Jos_ Roberto de Souza <jose.souza@intel.com>,
+        Sean Paul <seanpaul@chromium.org>, stable@vger.kernel.org
+Subject: Re: [v3][PATCH] drm/i915/display: Drop redundant debug print
+Message-ID: <20210812160118.GH2600583@ideak-desk.fi.intel.com>
+References: <20210812131107.5531-1-swati2.sharma@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210812131107.5531-1-swati2.sharma@intel.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Two legacy PCI sysfs objects "legacy_io" and "legacy_mem" were updated
-to use an unified address space in the commit 636b21b50152 ("PCI: Revoke
-mappings like devmem").  This allows for revocations to be managed from
-a single place when drivers want to take over and mmap() a /dev/mem
-range.
+On Thu, Aug 12, 2021 at 06:41:07PM +0530, Swati Sharma wrote:
+> drm_dp_dpcd_read/write already has debug error message.
+> Drop redundant error messages which gives false
+> status even if correct value is read in drm_dp_dpcd_read().
+> 
+> v2: -Added fixes tag (Ankit)
+> v3: -Fixed build error (CI)
+> 
+> Fixes: 9488a030ac91 ("drm/i915: Add support for enabling link status and recovery")
+> Cc: Swati Sharma <swati2.sharma@intel.com>
+> Cc: Ankit Nautiyal <ankit.k.nautiyal@intel.com>
+> Cc: Uma Shankar <uma.shankar@intel.com> (v2)
+> Cc: Jani Nikula <jani.nikula@intel.com>
+> Cc: "Ville Syrj_l_" <ville.syrjala@linux.intel.com>
+> Cc: Imre Deak <imre.deak@intel.com>
+> Cc: Manasi Navare <manasi.d.navare@intel.com>
+> Cc: Uma Shankar <uma.shankar@intel.com>
+> Cc: "Jos_ Roberto de Souza" <jose.souza@intel.com>
+> Cc: Sean Paul <seanpaul@chromium.org>
+> Cc: <stable@vger.kernel.org> # v5.12+
+> 
+> Link: https://patchwork.freedesktop.org/patch/msgid/20201218103723.30844-12-ankit.k.nautiyal@intel.com
+> 
+> Signed-off-by: Swati Sharma <swati2.sharma@intel.com>
+> ---
+>  drivers/gpu/drm/i915/display/intel_dp.c | 9 ++-------
+>  1 file changed, 2 insertions(+), 7 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/i915/display/intel_dp.c b/drivers/gpu/drm/i915/display/intel_dp.c
+> index c386ef8eb200..2526c9c8c690 100644
+> --- a/drivers/gpu/drm/i915/display/intel_dp.c
+> +++ b/drivers/gpu/drm/i915/display/intel_dp.c
+> @@ -3864,23 +3864,18 @@ static void intel_dp_check_device_service_irq(struct intel_dp *intel_dp)
+>  
+>  static void intel_dp_check_link_service_irq(struct intel_dp *intel_dp)
+>  {
+> -	struct drm_i915_private *i915 = dp_to_i915(intel_dp);
+>  	u8 val;
+>  
+>  	if (intel_dp->dpcd[DP_DPCD_REV] < 0x11)
+>  		return;
+>  
+>  	if (drm_dp_dpcd_readb(&intel_dp->aux,
+> -			      DP_LINK_SERVICE_IRQ_VECTOR_ESI0, &val) != 1 || !val) {
+> -		drm_dbg_kms(&i915->drm, "Error in reading link service irq vector\n");
 
-Following the update, both of the sysfs objects should leverage the
-iomem_get_mapping() function to get an appropriate address range, but
-only the "legacy_io" has been correctly updated - the second attribute
-seems to be using a wrong variable to pass the iomem_get_mapping()
-function to.
+The only problem seems to be that for !val the debug print is incorrect,
+so maybe just have a separate check for that after this one for the read()
+and return w/o the debug message?
 
-Thus, correct the variable name used so that the "legacy_mem" sysfs
-object would also correctly call the iomem_get_mapping() function.
+Is it really a stable material, since the change wouldn't have any
+effect for regular users?
 
-Fixes: 636b21b50152 ("PCI: Revoke mappings like devmem")
-Signed-off-by: Krzysztof Wilczyński <kw@linux.com>
----
- drivers/pci/pci-sysfs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/pci/pci-sysfs.c b/drivers/pci/pci-sysfs.c
-index 5d63df7c1820..7bbf2673c7f2 100644
---- a/drivers/pci/pci-sysfs.c
-+++ b/drivers/pci/pci-sysfs.c
-@@ -978,7 +978,7 @@ void pci_create_legacy_files(struct pci_bus *b)
- 	b->legacy_mem->size = 1024*1024;
- 	b->legacy_mem->attr.mode = 0600;
- 	b->legacy_mem->mmap = pci_mmap_legacy_mem;
--	b->legacy_io->mapping = iomem_get_mapping();
-+	b->legacy_mem->mapping = iomem_get_mapping();
- 	pci_adjust_legacy_attr(b, pci_mmap_mem);
- 	error = device_create_bin_file(&b->dev, b->legacy_mem);
- 	if (error)
--- 
-2.32.0
-
+> +			      DP_LINK_SERVICE_IRQ_VECTOR_ESI0, &val) != 1 || !val)
+>  		return;
+> -	}
+>  
+>  	if (drm_dp_dpcd_writeb(&intel_dp->aux,
+> -			       DP_LINK_SERVICE_IRQ_VECTOR_ESI0, val) != 1) {
+> -		drm_dbg_kms(&i915->drm, "Error in writing link service irq vector\n");
+> +			       DP_LINK_SERVICE_IRQ_VECTOR_ESI0, val) != 1)
+>  		return;
+> -	}
+>  
+>  	if (val & HDMI_LINK_STATUS_CHANGED)
+>  		intel_dp_handle_hdmi_link_status_change(intel_dp);
+> -- 
+> 2.25.1
+> 
