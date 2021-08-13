@@ -2,81 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CE9B3EB3AD
-	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 11:57:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A7823EB3B0
+	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 11:57:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240035AbhHMJ4i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Aug 2021 05:56:38 -0400
-Received: from mx0a-00069f02.pphosted.com ([205.220.165.32]:47914 "EHLO
-        mx0a-00069f02.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S240048AbhHMJ4d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 Aug 2021 05:56:33 -0400
-Received: from pps.filterd (m0246629.ppops.net [127.0.0.1])
-        by mx0b-00069f02.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 17D9qvSn013389;
-        Fri, 13 Aug 2021 09:56:03 GMT
+        id S240071AbhHMJ4k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Aug 2021 05:56:40 -0400
+Received: from mx0b-00069f02.pphosted.com ([205.220.177.32]:28180 "EHLO
+        mx0b-00069f02.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S240057AbhHMJ4g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 Aug 2021 05:56:36 -0400
+Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
+        by mx0b-00069f02.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 17D9pTSZ007743;
+        Fri, 13 Aug 2021 09:56:07 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
  subject : date : message-id : in-reply-to : references :
  content-transfer-encoding : content-type : mime-version;
- s=corp-2021-07-09; bh=x3URvEkKIYiBz3gxpAnXPAPHuNQ1Jc19r1NI5vnA5PU=;
- b=p1nt7pnpVscepSplfcmIjOjyrB/DbjCKnk8AxnO+XtcoqEJ+8HieYFJtcltOpyg0eCMq
- ib0snP1wvw9FM4Lm+rF5pF8mxGvZUZLiCyorU7oihtPeHRJZ6Fbf9Q5RjZp/qCHbLloN
- uAseusBrOpUYGG1ySv11dOTyaD3RCcfnizqhMTi9r2WSLRGeBfBjpuM/ppNtoh/um8FJ
- Xw6nF1AniIRIDjIkadP2Fd21abQcO+XgLXNXpIIBBAsuVLODHu6FqKFy9ETKNuJ41bmt
- D3P8w6mPbN/QxGczXvH/mos3UYj010ZZdRC37K83j5y1z7u8GNZYyt1CtYjurs+5jlVw sQ== 
+ s=corp-2021-07-09; bh=iZJEsTK164dm/ahHm0ra7kaWWUn61uol8Ldgp9wwJcA=;
+ b=iIr+GaVX7rei4v1Id52DVBTf5dQt920a0ptA8JRVBZzBWPlhTllK8wqoXeEj29DJQELN
+ ShQLl6SRK6qwmxK9GtCrBLG4iA8nVn383KRlsVLaIDL8LCWUsPb52CwvochG5Dd1ev6X
+ ijnLPRWhmyFEw1X+hu1Hds60/uY90CL/Kcl2rJ1JNYEnDUQKg3M2sjtCPhfdzQGdv8Pr
+ Mufisw7uwgORCQpb51eWg+Zak8/qocjt1+s742Uq2h4jJ8ptuZG+DEYDMNgjGStcMEkD
+ KJ0TfuZqOG6iS+Yg8zkEF7hL9zK9V83sx2FlINcStjfZ4XJPIzST3ZMq20KDXfea1m+X 3g== 
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
  subject : date : message-id : in-reply-to : references :
  content-transfer-encoding : content-type : mime-version;
- s=corp-2020-01-29; bh=x3URvEkKIYiBz3gxpAnXPAPHuNQ1Jc19r1NI5vnA5PU=;
- b=ip3fGsXspqzCIde013MGZ/IB5MgNRCnTZ06qNQnTqwwyRIe3TPVSH5rEBJcvOP1gHm6V
- u2h5JGpBvKHRlp4mPFL9V+yIB9BBXQkHu3/Tvas45XMi3ESvqwRj5P5UMzdxhRpidaq5
- O9HaUhTNQPz8lmBhiYfCSDeYZxaW9wHge5E4+jIva/WyqWdMJWG2WEJrD5o4xS/mcd1w
- fG0JBBlKZu+wYWnTnI6UoIykYh+eJ3tSbU2Ew/3rg3LEbYKD0wuTR7y1A9JwX6w/M1Tf
- dL623JjUs+MvL2WpK30+f+NxXqC5h4wt4j4VBj2h5fscbwJe7BVYUHzzrO0tA7aX7YIp tQ== 
-Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
-        by mx0b-00069f02.pphosted.com with ESMTP id 3acw9p30sq-1
+ s=corp-2020-01-29; bh=iZJEsTK164dm/ahHm0ra7kaWWUn61uol8Ldgp9wwJcA=;
+ b=xVvXREODRDk9fxJPslcS0sBGj0kenDRmAA/9bW2ohynTODmJAn8xBQkTdgFNGAPkB16S
+ rG1BJ+AaE4XO4IQtdQiP50FoW/iXHuf/OttuSuGbZAHruo1wD3fWkTpNbGnkSF0X7Pm0
+ rK8DjtP/uZwfsjKHljM8/hY3P0m70oSVUTyNrKyKx2AXX0z5kIqm1S3n4VDr2qc02ele
+ TH9MZrlV6777xViUATQiQeNyGKkFSowE6UZ+PeZE/A+XBkNYiQKIbkgUU9sB6i8ZVAoH
+ EJD1bFIuqd9pSwO74QK1zMUucrTYNYTXWKFmHtXyosZmgxKm+nUbOKFj1dkNKs/a9GP7 NQ== 
+Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
+        by mx0b-00069f02.pphosted.com with ESMTP id 3aceudvyr4-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 13 Aug 2021 09:56:03 +0000
-Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
-        by aserp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 17D9og6Q033353;
-        Fri, 13 Aug 2021 09:56:02 GMT
-Received: from nam10-bn7-obe.outbound.protection.outlook.com (mail-bn7nam10lp2103.outbound.protection.outlook.com [104.47.70.103])
-        by aserp3030.oracle.com with ESMTP id 3abx40ew7m-1
+        Fri, 13 Aug 2021 09:56:06 +0000
+Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
+        by aserp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 17D9oZCl035884;
+        Fri, 13 Aug 2021 09:56:06 GMT
+Received: from nam10-mw2-obe.outbound.protection.outlook.com (mail-mw2nam10lp2109.outbound.protection.outlook.com [104.47.55.109])
+        by aserp3020.oracle.com with ESMTP id 3accrdrqxu-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 13 Aug 2021 09:56:02 +0000
+        Fri, 13 Aug 2021 09:56:05 +0000
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=ihcLdVGsUrGe1G1gf619UyXiswzxEHnq67B5NfAIlRL3vrmsaa6IcUDXtbfsFvTXDYl1GkgPY9z95mn+A4ZABpIgY5RTwjPbrdYfZ4S9bcCmV1HdUIYxvV/Tw55y2NuZlQImzHP7IvLdbQF1GiplhSqReOYNT6ZM8gyNpycUtUfUauhpU98UD7tvLrv3lq5H7GBx9fNlKAEeWQQXJpz5ru6q3IyV2dHMDStlfww5iQxzQ98lSLWYE3WJPo4HqKdl9s9FqxinxnhXkFFgUl5MDGu4NmL/fTvsBQ8RTJzhbFaQnVDXtYTx2Q5PMQg0WAG/llksAnbRp3ihziRMGyG11g==
+ b=R5uLd5V+f2ClhYFY2mMYSzQB8R91wXZfpmPVL9WX5xib2Zz9xfKds3xwzU6hhrhXWW6tnG+nlO7VllJSF8OoJ6nkruTZAam7E+LaB3dVPzY3k2K7vqA+rv4L1Q4aSnZyN3P19lzybiSdndyHzUxbcc5Dvx57dVCfFN2PP0Vja5S2g5AcrX7BHFSRq/aZcDDqtGYkO0CXi7Z0WBnRWtPxL08HMNj3s0uf0l82RTyfy/iLrJ+Yu9FdnAswnOKfPsysuH5SE+tCYigoUTJPjw8F8hAc6/fjJc80h1I/Mb3x+sDZHvzanR76QuTvtlG4Ruu9CvJ2BtDCU+WpHpJZebXODg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=x3URvEkKIYiBz3gxpAnXPAPHuNQ1Jc19r1NI5vnA5PU=;
- b=ENQ0J0x/hoUGpU6tLSpQIckttXmGFthi7fbjZF5Xikk7XsRdb4U7jykXNPulxfBxYBPilRZx3v+16gQBAMVK2EH9YkMeMy4VbKEIYTL7yHxjD7TGc7uGICS5eowl2veADDhavnvHYflH5gqgzlDqcXzFW8QxmXl3jaCo2vi7VwuhdMS8J2TUiQvbyqXz7fY4Sc0Spfv8MER5HwFrkBkP306YWNWrRKRrkBwy5lXNGA9A8tPhL3gzYzArn7Ttn0TgqLQmsM4pSEZMAPYQMETb/OWsJNXExaySRvlKStjveHgOxdf1oVnLre3TYgCts+CMtzreoacGckLjZ1cStnW2/w==
+ bh=iZJEsTK164dm/ahHm0ra7kaWWUn61uol8Ldgp9wwJcA=;
+ b=A06vzzisuanrgd1e2Vql0LRZoKhLii4bCda+XUJlz5jn8MtMiyCnc7jtow7KitEyLLzYKugPL3nhlVagyYDxifMmLJE6sdzMKGIx+J2crygKSS1ivlYpKPLII3dSaWQTnTkYarlFI5vfQ0VKneknTMphDjZKZ4JM0sui/mNdtU1/I3eE2eOCXD9QzUuVv3mH58pApD6tA+mPhvGQXJUX10VkIPSq7AZo/wEheBjN46PKIKy9cxvU9Mhs+Mh12iYHiOmX/elHwhxU+wDCDlt56bBxgnB7dpABhhuteZkyWpWvUKOGGN98dmQY44uQIIzaJYo9sNyKkIcPma1UR+lYeg==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
  dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=x3URvEkKIYiBz3gxpAnXPAPHuNQ1Jc19r1NI5vnA5PU=;
- b=uLdsbfRsIRgA9FEC3xGnQ07iqjvF4gjTvADNgObspTYDV+jKcSButCTWChCmQsUtdLKgxKTl/mKvy+tXPbXl7217oRVGkVnpt/XhTjv/9UCNMPXOPPxzgLl6b5E3wC2AEANwNAzV8BX+C8boyWs2tNfN0C3/BBTiHTx9gqTuQ3s=
+ bh=iZJEsTK164dm/ahHm0ra7kaWWUn61uol8Ldgp9wwJcA=;
+ b=HkMj3BYF4eEJKFLpfHw3oeFli613vamt47ddAJ7n4glDxOm80fq6rINUemarX/3qDI5MskeorX/B5MVW4Aq26nF9zVS5CR+u4ndguU7x9MKk6iYzfr+7+dw2TkPfggBuG0ngg/vwmM9PCbIFiBF7vIBNyCobpmlrkb3coAI1jm0=
 Authentication-Results: vger.kernel.org; dkim=none (message not signed)
  header.d=none;vger.kernel.org; dmarc=none action=none header.from=oracle.com;
 Received: from MN2PR10MB4128.namprd10.prod.outlook.com (2603:10b6:208:1d2::24)
- by BLAPR10MB4852.namprd10.prod.outlook.com (2603:10b6:208:30f::23) with
+ by BL0PR10MB2963.namprd10.prod.outlook.com (2603:10b6:208:78::20) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4415.19; Fri, 13 Aug
- 2021 09:56:00 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4415.13; Fri, 13 Aug
+ 2021 09:56:03 +0000
 Received: from MN2PR10MB4128.namprd10.prod.outlook.com
  ([fe80::b813:4805:31e:d36a]) by MN2PR10MB4128.namprd10.prod.outlook.com
  ([fe80::b813:4805:31e:d36a%5]) with mapi id 15.20.4415.019; Fri, 13 Aug 2021
- 09:56:00 +0000
+ 09:56:03 +0000
 From:   Anand Jain <anand.jain@oracle.com>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     linux-btrfs@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
         David Sterba <dsterba@suse.com>,
         Anand Jain <anand.jain@oracle.com>
-Subject: [PATCH 5/7] btrfs: transaction: Cleanup unused TRANS_STATE_BLOCKED
-Date:   Fri, 13 Aug 2021 17:55:28 +0800
-Message-Id: <7c24989ec90962679cdcf9f6f2ba6fd39fc569ee.1628845854.git.anand.jain@oracle.com>
+Subject: [PATCH 6/7] btrfs: qgroup: remove ASYNC_COMMIT mechanism in favor of reserve retry-after-EDQUOT
+Date:   Fri, 13 Aug 2021 17:55:29 +0800
+Message-Id: <f06f7e9af9501ac1b737c1152ad509b00913c6e1.1628845854.git.anand.jain@oracle.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <cover.1628845854.git.anand.jain@oracle.com>
 References: <cover.1628845854.git.anand.jain@oracle.com>
@@ -87,172 +88,236 @@ X-ClientProxiedBy: SG2PR03CA0124.apcprd03.prod.outlook.com
  (2603:10b6:208:1d2::24)
 MIME-Version: 1.0
 X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from localhost.localdomain (39.109.186.25) by SG2PR03CA0124.apcprd03.prod.outlook.com (2603:1096:4:91::28) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4436.9 via Frontend Transport; Fri, 13 Aug 2021 09:55:58 +0000
+Received: from localhost.localdomain (39.109.186.25) by SG2PR03CA0124.apcprd03.prod.outlook.com (2603:1096:4:91::28) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4436.9 via Frontend Transport; Fri, 13 Aug 2021 09:56:01 +0000
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: af53117a-f41b-4d5e-3a41-08d95e408e12
-X-MS-TrafficTypeDiagnostic: BLAPR10MB4852:
+X-MS-Office365-Filtering-Correlation-Id: 1f1594a3-9b48-432e-71fe-08d95e408fe6
+X-MS-TrafficTypeDiagnostic: BL0PR10MB2963:
 X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <BLAPR10MB4852DEBFA8831FEB0EAFC724E5FA9@BLAPR10MB4852.namprd10.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:1417;
+X-Microsoft-Antispam-PRVS: <BL0PR10MB29630607DA3DE3EABA96BE57E5FA9@BL0PR10MB2963.namprd10.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:2803;
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: gMNLb713qsu3smFwWri40uyjPqT/PWtJKhBPl6x0n0wJxLptSjHF2nD0nBtpmHiIGeSsukrKNA6Zv8Zo1ERX0pZ9jx7uSk42lYVoZg33vi7qcHyLvV08o4k6VGQfz7zAQeFXhfv/41+DEiMisXRJhkfmoO2dBuSrRzq3QL6A21hUhiHxMoZvlH2Ch+whueWTxARgkWqCBoLX3c7govaiwp3tzVFWc0I0HQRN7hhQEdIgKw3UnJFqRunC8zHvgM4jifhcrYz4Aa2IhEWFbwfu4eZNgD7pl5e+74tT10b4wRrbxSClsGWElsl0jGJXLzomHNd+9oHO2YB6xTjf1+LGwvjLvZAM1HbBsy9P/DdGa3pGCM/mfO3k8cwvOZyWJ5bCUOKvbFfUtV8roZAa0O2p+JNeA3roKYbkXb7yhfVaPZMMbf2BoAkseioJi2ekStYuz8x7xLiDKbOqK1i8m7z2y4/Yd7u/7/lV63PQC53Rf/3K3RScxt+FJYRQVOBn2R1GVTLZUIKP9p5pO+Q0HKXD9727iw5Xb1mNxRHVFN8p38JOspoSlDuAUPLqbkx5gsUydittW6jz+tmCXFgZ2ReD3Vdj/S3FL3Mlx0rfcsWpWJaNP1Jlc9byU5fxCSOpw/0IN6/R8kyk6lzd03kn5JB/LHbdhH8fHmvGldk+j36hD26FnxU5tWEn8bWiwphWiNccKg/eBzil1PecISSZbDkIKQ==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR10MB4128.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(136003)(396003)(39860400002)(366004)(376002)(346002)(107886003)(8936002)(8676002)(2906002)(478600001)(316002)(83380400001)(54906003)(44832011)(4326008)(956004)(2616005)(86362001)(186003)(66946007)(26005)(66476007)(6666004)(6486002)(6512007)(52116002)(66556008)(36756003)(5660300002)(38350700002)(38100700002)(6506007);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: 2puExxuZtBa58/PXecO/DKY7UrUFh7UBS08rVEKSrGhymWLhcNavQ+7jrwO04H+fIXldyn+NZxYpZ4gTK9W8GzMXvXcJztjdTdaXlUzEQEKPtGONNdG6UBvGQcI4wCrLydr/QFi41z6GBuAppqRB4WjoavgqD6Wts7oEcAvKMJKXFRQiuykkoKI4pyMLhSS4fmXvrGgGcCGDQTzwMkn4ogiKUwpD/+yZeMcP+SHu+NxJMmoRbk5YGV/6FQ7EV7OhPzM777YswMbSyefAP+pZOG4pqJKyAMu7lf59aeuka7Rqp4bEbYn4R/8ak63CpFUwjvQ7iZn3eHJhYDTqqySd5JQHPZWdiFWW7UvIy9XtA5lOrThQFjJgj2WYgC2Yczc5DmaNAr1z/MthbBZqQ0ehM6YXJ5RLEvQGawKK1jf5VNSCz/rqMTfNrZQqeFHZugbvsBQ5nW8lq5gHtph0cn+cYxzjggJgInCnw6xaqL3CALcbzDF7cjrCAdxQlWTlyE89AiPh1AkeFXYTuXxIapS38FzMBwK0WJR7mHsg/UfDGNt+wpPHTN8a1ul2ri1QFzeqLHL/OpgvvAyg8rz+P0bt/Km/VXgL2Xb9W/fy/5hFaCYpZVXPxJSrUl5RL/pDEVBOILPMHYa7OT+aVljbSoksy8j7wj3uPo5Pm2g9UunQy69Y66E/MWHqUFiczGcIpSihFDmD0PuEAaiUpZh457oh1g==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR10MB4128.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(136003)(396003)(39860400002)(376002)(366004)(346002)(6506007)(478600001)(52116002)(83380400001)(86362001)(2616005)(54906003)(5660300002)(956004)(316002)(107886003)(44832011)(2906002)(4326008)(38100700002)(38350700002)(6512007)(26005)(36756003)(66476007)(8936002)(66556008)(66946007)(8676002)(186003)(6486002)(6666004);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?d44ccb0fT+30WGrhisYOWL1YcmoXbKGyarqmc5Izpldf4af+XTk/ZHaSKrjo?=
- =?us-ascii?Q?8EVa0bhRgdWR9ccxuMzK6OJLcJK0jc6YI8kd6oNPVpBzpZQCnKORhp2kgoPo?=
- =?us-ascii?Q?U4v+E1WBlAGKPX+bOB4Kntl1XPJZpgMuuGG+pfkBcvQO9pTAxY63/SzbJZCR?=
- =?us-ascii?Q?TpT2H4WHLQNgznRupX2aNWIdBDYMl8XZQUiCY1A1xYYyf/+Lg5AOxVdWrVQW?=
- =?us-ascii?Q?IXwLunTds4qClbJPR7d+JzJ/T9kUL3hVLZxnIucQl5vfTfqzaDUmbsQfQFfU?=
- =?us-ascii?Q?ojgLXCCWtbTJ3AkXtDIGdycp+jkEVa1Q4PKar++JGY4nrD7OgBLNMIS4qfts?=
- =?us-ascii?Q?FyWD0uXhbnfaQhv/Vt9G22B+Ogs0ZkNgnIUKbilqouN9+QZFQYPZPylAPrHB?=
- =?us-ascii?Q?KTpNAJgYNIB00RiNNNTNLbaufu6XGFtQKYB9Haqko9DLxfWU/EASIXbBJSCd?=
- =?us-ascii?Q?8AcXXW4Tvbk/iN9yBKICIENe08Q+RJ2V2J9v/bqwn5NMGSnvAtyhOuIGsauU?=
- =?us-ascii?Q?SQeG0hFuW8VXH+f6psL6YT7IPQ4upEHTuzLOLSu5hDocNOErsQSRCeb4hxzF?=
- =?us-ascii?Q?/Slj+Y9lG+DKLVIRqndALxvh4PN0BUSQ63zYWG0toc/XcYoUpyTJQQFl+6sd?=
- =?us-ascii?Q?fERWxMtcJY3N3kyyhHggHkowd+8zKG7FqpNuDnn375fN6qQOAczXpcRjYrXr?=
- =?us-ascii?Q?nL5NbRcXRtWjWhQphUzzvnviNl5p1OZT6T+N01WJxYvgUEfwL5pt7+2p70MB?=
- =?us-ascii?Q?RFrPAQTJP9haB0TUvxcAdXLxF20Fh1Xl7Rp/v3MGiVKrXAOdz7+5b5IhvEyG?=
- =?us-ascii?Q?2VDu7dK7h6/uxnVp55USyWLy57kBhONBy4FO55UhWnwtD7VC/YqUTPIUC8bb?=
- =?us-ascii?Q?VNKBaMmrIvd0zhWtBOYZf7VQLDo6FaJZiKya/SsyFq1KtHbnidL+TVBTEcD2?=
- =?us-ascii?Q?tsCqvL1zx1rK/jsnek8QDxUm/YhRDOIQ5qdANYSt91Qa2oDkjq022C0rqV6Q?=
- =?us-ascii?Q?yaxYW49a26RK7MnBw4UXOXPG3/u+xckqcIjVkraZc8g/BybbtZZm/Lw26pyn?=
- =?us-ascii?Q?eDfzOdlpYC/eSXLbfcF8oexxiELe/msg09j/Qd9RUbh4W5aU6V/4zOHw0mp9?=
- =?us-ascii?Q?dX4wtLIMqkGlZKg3yMK/9HhwIhIc1GTFlfhTKSTxwQ1vcBPL7g0nXubykdQ3?=
- =?us-ascii?Q?dQur58w3gk2CO9EThJ3qugn9ojsk3RG3J6PzZuGYalNxAgAcutE7nIZNxFKo?=
- =?us-ascii?Q?HqRMmAMwUADGjhkE0uJ61DZhK11ip5V69HuQv0WeS5ysxsKExCUVdRR5bihl?=
- =?us-ascii?Q?J9ILayOQOzvUVY1XzazqRxNJ?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?alROwZBvv6g6ub9/u1C726JAokImuGlVFBCUINYlcbkGGanFQq82TETJLE7a?=
+ =?us-ascii?Q?gCXsIoOKiRU1F4OXmqBO6IZvbwbxt5EUQE0BgkClKeB610Xi25EAbH9T5Tv8?=
+ =?us-ascii?Q?ChVi8kXTW/nkhP1OgoIWKeYDBc4cGhylwYzcjyTuXRjOSgmAcSTmLt1dMNNO?=
+ =?us-ascii?Q?WU9uVoQW4qEiXymZiu4bVvtFfH0RrS0igEWX4HLEmeaFQE7xmVNhxSS80bP8?=
+ =?us-ascii?Q?yjnvqpyPlGAM2HITQKePRiPEkxBak8G7wd+9rykF/v9bdRLI1N/Sa3QXp4AR?=
+ =?us-ascii?Q?AnCTmbWC1wOdl+WzZ25yhCLBpE8kYMIqbAqa3ybRknYL08dT+Tf7ezVht9Jg?=
+ =?us-ascii?Q?WT+qIJpCgKUBOvUu6rj1dWbmTttHEDj+wAYOE4tIHtDX2c0gk+n/NWUiB87a?=
+ =?us-ascii?Q?DcZS1y3V08XFrXfbsEkiLSGxnnJpozrn1BQr1q5JQRXk2TmQ9zs6lRoYyNys?=
+ =?us-ascii?Q?m1wTjuGRRCAqM4O3gzCJl8dBLx1cgFs6tanTQMZ0DfcQ1KylGeMt9mQ4ozLJ?=
+ =?us-ascii?Q?U2DzlcjIrP2w98JdW5Bgr2+CimhYKDzQFUinfOvTRGJ1xnhBCla3xXdMXwuz?=
+ =?us-ascii?Q?fpoMDd44A29Hssbbg5X9V2JQHFiE6DzVv6N3hHPj4urefJbEG4So07sjbFGx?=
+ =?us-ascii?Q?kXY8hjZWD0rTwe5GLF1VRy/pO9aUrmxM5HhNm7Kyy174C3vSrX/4sy4yCYQZ?=
+ =?us-ascii?Q?lkHLi9MNOQTKgSFW/3wu8uotFfIp7Hl373a1jRxCd659UBLI8HaJX6bijyPz?=
+ =?us-ascii?Q?RTJfkcc7DKB+BVA+JUChpMDH1dZ35EezYr9Xr5aurpNJg2rbi2W62NoTgLpk?=
+ =?us-ascii?Q?Uj6HkXa4nqNPn1UXHA697HoyPD2h+3qGurst9doTz9xntundLyM/zyNtCSPM?=
+ =?us-ascii?Q?HzKUhOXIL1+bH6/Nawk7ebea+TNLXI5w7qx0axWNUCoBHHNXpNf3vfK1FXkQ?=
+ =?us-ascii?Q?+ZYu3yB9lKd871gQlkyHQl/AHPEzmE2qAM/ksHKboq7yFLX6sLPhuQ5KRxHT?=
+ =?us-ascii?Q?QuhEcOY5xpE18yE0W+AGTpX8HkE87E01el81oUC1NLXP99iT4pcKs4XgCOgQ?=
+ =?us-ascii?Q?tmL2wKrXQTSurOijC2mjXXb+7E2ffD5PJOOZR1HthJ6Fb4LhGsOsLdoW1IdB?=
+ =?us-ascii?Q?LBA+mshN7EjDsGRCTlPoABF71O7DEArGTRsVFuCwyy4isE03foj+EpOGOvPf?=
+ =?us-ascii?Q?B6sx5uLBSdHhc9/wjaWGgwb2MZHv8nMAyAFhr8hdycJ47MTGiLUOTakhGPfk?=
+ =?us-ascii?Q?mSdcazlwe8ThKrY0qCrp773ZtxLWYt3//8Bl0wwt1EzLwIKCHTpe+jNW8N3Z?=
+ =?us-ascii?Q?zNl1MYWlvHRUbHiLfclFXmtB?=
 X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: af53117a-f41b-4d5e-3a41-08d95e408e12
+X-MS-Exchange-CrossTenant-Network-Message-Id: 1f1594a3-9b48-432e-71fe-08d95e408fe6
 X-MS-Exchange-CrossTenant-AuthSource: MN2PR10MB4128.namprd10.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 Aug 2021 09:56:00.6980
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 Aug 2021 09:56:03.6002
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: ukPMEY9MQ3Fx4szDIr/Zz2Hv2Sjj+2k+QmFejASmNkcm3xHROJ5XfeH4lzbhTd+nG5EhUJE/WPtYMi3tjdmCKg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BLAPR10MB4852
+X-MS-Exchange-CrossTenant-UserPrincipalName: mpkCbaPHhIsgFMdkaU/+wbQ6zZqcR5285GPRv8pztGSY8M5kTCq4sc38hS1IlONNS6gr+r+KjBAFvyCnMjNYHg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL0PR10MB2963
 X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=10074 signatures=668682
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 mlxscore=0 bulkscore=0
- spamscore=0 phishscore=0 mlxlogscore=999 suspectscore=0 malwarescore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2107140000
- definitions=main-2108130059
-X-Proofpoint-GUID: 5YIKCEnEV-1xFpS1yCH3xedH0RJJGFSb
-X-Proofpoint-ORIG-GUID: 5YIKCEnEV-1xFpS1yCH3xedH0RJJGFSb
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 mlxlogscore=999
+ malwarescore=0 adultscore=0 spamscore=0 bulkscore=0 mlxscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2107140000 definitions=main-2108130059
+X-Proofpoint-ORIG-GUID: nEKoCQmY65XzXXIvs0bzJGxOzDuwrIll
+X-Proofpoint-GUID: nEKoCQmY65XzXXIvs0bzJGxOzDuwrIll
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 From: Qu Wenruo <wqu@suse.com>
 
-commit 3296bf562443a8ca35aaad959a76a49e9b412760 upstream
+commit adca4d945c8dca28a85df45c5b117e6dac2e77f1 upstream
 
-The state was introduced in commit 4a9d8bdee368 ("Btrfs: make the state
-of the transaction more readable"), then in commit 302167c50b32
-("btrfs: don't end the transaction for delayed refs in throttle") the
-state is completely removed.
+commit a514d63882c3 ("btrfs: qgroup: Commit transaction in advance to
+reduce early EDQUOT") tries to reduce the early EDQUOT problems by
+checking the qgroup free against threshold and tries to wake up commit
+kthread to free some space.
 
-So we can just clean up the state since it's only compared but never
-set.
+The problem of that mechanism is, it can only free qgroup per-trans
+metadata space, can't do anything to data, nor prealloc qgroup space.
 
+Now since we have the ability to flush qgroup space, and implemented
+retry-after-EDQUOT behavior, such mechanism can be completely replaced.
+
+So this patch will cleanup such mechanism in favor of
+retry-after-EDQUOT.
+
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
 Signed-off-by: Qu Wenruo <wqu@suse.com>
 Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Anand Jain <anand.jain@oracle.com>
 ---
- fs/btrfs/disk-io.c     |  2 +-
- fs/btrfs/transaction.c | 15 +++------------
- fs/btrfs/transaction.h |  1 -
- 3 files changed, 4 insertions(+), 14 deletions(-)
+ fs/btrfs/ctree.h       |  5 -----
+ fs/btrfs/disk-io.c     |  1 -
+ fs/btrfs/qgroup.c      | 43 ++----------------------------------------
+ fs/btrfs/transaction.c |  1 -
+ fs/btrfs/transaction.h | 14 --------------
+ 5 files changed, 2 insertions(+), 62 deletions(-)
 
+diff --git a/fs/btrfs/ctree.h b/fs/btrfs/ctree.h
+index 5448dc62e915..1dd36965cd08 100644
+--- a/fs/btrfs/ctree.h
++++ b/fs/btrfs/ctree.h
+@@ -504,11 +504,6 @@ enum {
+ 	 * (device replace, resize, device add/delete, balance)
+ 	 */
+ 	BTRFS_FS_EXCL_OP,
+-	/*
+-	 * To info transaction_kthread we need an immediate commit so it
+-	 * doesn't need to wait for commit_interval
+-	 */
+-	BTRFS_FS_NEED_ASYNC_COMMIT,
+ 	/*
+ 	 * Indicate that balance has been set up from the ioctl and is in the
+ 	 * main phase. The fs_info::balance_ctl is initialized.
 diff --git a/fs/btrfs/disk-io.c b/fs/btrfs/disk-io.c
-index e3bcab38a166..6d6e7b0e3676 100644
+index 6d6e7b0e3676..9373b4805da2 100644
 --- a/fs/btrfs/disk-io.c
 +++ b/fs/btrfs/disk-io.c
-@@ -1748,7 +1748,7 @@ static int transaction_kthread(void *arg)
- 		}
+@@ -1749,7 +1749,6 @@ static int transaction_kthread(void *arg)
  
  		now = ktime_get_seconds();
--		if (cur->state < TRANS_STATE_BLOCKED &&
-+		if (cur->state < TRANS_STATE_COMMIT_START &&
- 		    !test_bit(BTRFS_FS_NEED_ASYNC_COMMIT, &fs_info->flags) &&
+ 		if (cur->state < TRANS_STATE_COMMIT_START &&
+-		    !test_bit(BTRFS_FS_NEED_ASYNC_COMMIT, &fs_info->flags) &&
  		    (now < cur->start_time ||
  		     now - cur->start_time < fs_info->commit_interval)) {
-diff --git a/fs/btrfs/transaction.c b/fs/btrfs/transaction.c
-index aca6c467d776..c314f26d1f15 100644
---- a/fs/btrfs/transaction.c
-+++ b/fs/btrfs/transaction.c
-@@ -27,7 +27,6 @@
+ 			spin_unlock(&fs_info->trans_lock);
+diff --git a/fs/btrfs/qgroup.c b/fs/btrfs/qgroup.c
+index b312ac645e08..4720e477c482 100644
+--- a/fs/btrfs/qgroup.c
++++ b/fs/btrfs/qgroup.c
+@@ -11,7 +11,6 @@
+ #include <linux/slab.h>
+ #include <linux/workqueue.h>
+ #include <linux/btrfs.h>
+-#include <linux/sizes.h>
  
- static const unsigned int btrfs_blocked_trans_types[TRANS_STATE_MAX] = {
- 	[TRANS_STATE_RUNNING]		= 0U,
--	[TRANS_STATE_BLOCKED]		=  __TRANS_START,
- 	[TRANS_STATE_COMMIT_START]	= (__TRANS_START | __TRANS_ATTACH),
- 	[TRANS_STATE_COMMIT_DOING]	= (__TRANS_START |
- 					   __TRANS_ATTACH |
-@@ -388,7 +387,7 @@ int btrfs_record_root_in_trans(struct btrfs_trans_handle *trans,
- 
- static inline int is_transaction_blocked(struct btrfs_transaction *trans)
- {
--	return (trans->state >= TRANS_STATE_BLOCKED &&
-+	return (trans->state >= TRANS_STATE_COMMIT_START &&
- 		trans->state < TRANS_STATE_UNBLOCKED &&
- 		!TRANS_ABORTED(trans));
+ #include "ctree.h"
+ #include "transaction.h"
+@@ -2840,20 +2839,8 @@ int btrfs_qgroup_inherit(struct btrfs_trans_handle *trans, u64 srcid,
+ 	return ret;
  }
-@@ -580,7 +579,7 @@ start_transaction(struct btrfs_root *root, unsigned int num_items,
- 	INIT_LIST_HEAD(&h->new_bgs);
  
- 	smp_mb();
--	if (cur_trans->state >= TRANS_STATE_BLOCKED &&
-+	if (cur_trans->state >= TRANS_STATE_COMMIT_START &&
- 	    may_wait_transaction(fs_info, type)) {
- 		current->journal_info = h;
- 		btrfs_commit_transaction(h);
-@@ -797,7 +796,7 @@ int btrfs_should_end_transaction(struct btrfs_trans_handle *trans)
- 	struct btrfs_transaction *cur_trans = trans->transaction;
- 
- 	smp_mb();
--	if (cur_trans->state >= TRANS_STATE_BLOCKED ||
-+	if (cur_trans->state >= TRANS_STATE_COMMIT_START ||
- 	    cur_trans->delayed_refs.flushing)
- 		return 1;
- 
-@@ -830,7 +829,6 @@ static int __btrfs_end_transaction(struct btrfs_trans_handle *trans,
+-/*
+- * Two limits to commit transaction in advance.
+- *
+- * For RATIO, it will be 1/RATIO of the remaining limit as threshold.
+- * For SIZE, it will be in byte unit as threshold.
+- */
+-#define QGROUP_FREE_RATIO		32
+-#define QGROUP_FREE_SIZE		SZ_32M
+-static bool qgroup_check_limits(struct btrfs_fs_info *fs_info,
+-				const struct btrfs_qgroup *qg, u64 num_bytes)
++static bool qgroup_check_limits(const struct btrfs_qgroup *qg, u64 num_bytes)
  {
- 	struct btrfs_fs_info *info = trans->fs_info;
- 	struct btrfs_transaction *cur_trans = trans->transaction;
--	int lock = (trans->type != TRANS_JOIN_NOLOCK);
- 	int err = 0;
+-	u64 free;
+-	u64 threshold;
+-
+ 	if ((qg->lim_flags & BTRFS_QGROUP_LIMIT_MAX_RFER) &&
+ 	    qgroup_rsv_total(qg) + (s64)qg->rfer + num_bytes > qg->max_rfer)
+ 		return false;
+@@ -2862,32 +2849,6 @@ static bool qgroup_check_limits(struct btrfs_fs_info *fs_info,
+ 	    qgroup_rsv_total(qg) + (s64)qg->excl + num_bytes > qg->max_excl)
+ 		return false;
  
- 	if (refcount_read(&trans->use_count) > 1) {
-@@ -846,13 +844,6 @@ static int __btrfs_end_transaction(struct btrfs_trans_handle *trans,
- 
- 	btrfs_trans_release_chunk_metadata(trans);
- 
--	if (lock && READ_ONCE(cur_trans->state) == TRANS_STATE_BLOCKED) {
--		if (throttle)
--			return btrfs_commit_transaction(trans);
--		else
--			wake_up_process(info->transaction_kthread);
+-	/*
+-	 * Even if we passed the check, it's better to check if reservation
+-	 * for meta_pertrans is pushing us near limit.
+-	 * If there is too much pertrans reservation or it's near the limit,
+-	 * let's try commit transaction to free some, using transaction_kthread
+-	 */
+-	if ((qg->lim_flags & (BTRFS_QGROUP_LIMIT_MAX_RFER |
+-			      BTRFS_QGROUP_LIMIT_MAX_EXCL))) {
+-		if (qg->lim_flags & BTRFS_QGROUP_LIMIT_MAX_EXCL) {
+-			free = qg->max_excl - qgroup_rsv_total(qg) - qg->excl;
+-			threshold = min_t(u64, qg->max_excl / QGROUP_FREE_RATIO,
+-					  QGROUP_FREE_SIZE);
+-		} else {
+-			free = qg->max_rfer - qgroup_rsv_total(qg) - qg->rfer;
+-			threshold = min_t(u64, qg->max_rfer / QGROUP_FREE_RATIO,
+-					  QGROUP_FREE_SIZE);
+-		}
+-
+-		/*
+-		 * Use transaction_kthread to commit transaction, so we no
+-		 * longer need to bother nested transaction nor lock context.
+-		 */
+-		if (free < threshold)
+-			btrfs_commit_transaction_locksafe(fs_info);
 -	}
 -
- 	if (trans->type & __TRANS_FREEZABLE)
- 		sb_end_intwrite(info->sb);
+ 	return true;
+ }
  
+@@ -2937,7 +2898,7 @@ static int qgroup_reserve(struct btrfs_root *root, u64 num_bytes, bool enforce,
+ 
+ 		qg = unode_aux_to_qgroup(unode);
+ 
+-		if (enforce && !qgroup_check_limits(fs_info, qg, num_bytes)) {
++		if (enforce && !qgroup_check_limits(qg, num_bytes)) {
+ 			ret = -EDQUOT;
+ 			goto out;
+ 		}
+diff --git a/fs/btrfs/transaction.c b/fs/btrfs/transaction.c
+index c314f26d1f15..948b11748fe6 100644
+--- a/fs/btrfs/transaction.c
++++ b/fs/btrfs/transaction.c
+@@ -2295,7 +2295,6 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans)
+ 	 */
+ 	cur_trans->state = TRANS_STATE_COMPLETED;
+ 	wake_up(&cur_trans->commit_wait);
+-	clear_bit(BTRFS_FS_NEED_ASYNC_COMMIT, &fs_info->flags);
+ 
+ 	spin_lock(&fs_info->trans_lock);
+ 	list_del_init(&cur_trans->list);
 diff --git a/fs/btrfs/transaction.h b/fs/btrfs/transaction.h
-index 7291a2a93075..761cc65a7264 100644
+index 761cc65a7264..d8a7d460e436 100644
 --- a/fs/btrfs/transaction.h
 +++ b/fs/btrfs/transaction.h
-@@ -13,7 +13,6 @@
- 
- enum btrfs_trans_state {
- 	TRANS_STATE_RUNNING,
--	TRANS_STATE_BLOCKED,
- 	TRANS_STATE_COMMIT_START,
- 	TRANS_STATE_COMMIT_DOING,
- 	TRANS_STATE_UNBLOCKED,
+@@ -207,20 +207,6 @@ int btrfs_clean_one_deleted_snapshot(struct btrfs_root *root);
+ int btrfs_commit_transaction(struct btrfs_trans_handle *trans);
+ int btrfs_commit_transaction_async(struct btrfs_trans_handle *trans,
+ 				   int wait_for_unblock);
+-
+-/*
+- * Try to commit transaction asynchronously, so this is safe to call
+- * even holding a spinlock.
+- *
+- * It's done by informing transaction_kthread to commit transaction without
+- * waiting for commit interval.
+- */
+-static inline void btrfs_commit_transaction_locksafe(
+-		struct btrfs_fs_info *fs_info)
+-{
+-	set_bit(BTRFS_FS_NEED_ASYNC_COMMIT, &fs_info->flags);
+-	wake_up_process(fs_info->transaction_kthread);
+-}
+ int btrfs_end_transaction_throttle(struct btrfs_trans_handle *trans);
+ int btrfs_should_end_transaction(struct btrfs_trans_handle *trans);
+ void btrfs_throttle(struct btrfs_fs_info *fs_info);
 -- 
 2.31.1
 
