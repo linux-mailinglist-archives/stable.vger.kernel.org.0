@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2289A3EB81A
-	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:25:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 480183EB872
+	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:25:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241759AbhHMPLM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Aug 2021 11:11:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54086 "EHLO mail.kernel.org"
+        id S242294AbhHMPNu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Aug 2021 11:13:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241738AbhHMPKi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Aug 2021 11:10:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7982F61131;
-        Fri, 13 Aug 2021 15:10:11 +0000 (UTC)
+        id S242149AbhHMPMr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Aug 2021 11:12:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 42857610A5;
+        Fri, 13 Aug 2021 15:12:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628867412;
-        bh=0HwXxBgV4lUjdQgqjR5GL8H3n+p5DveIEMlAlZRdATc=;
+        s=korg; t=1628867534;
+        bh=P2k17feSTQQYBbk5vVLe6NN75gbOI/RTlDA7riYaT1E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QEIk69dxinuChl+hmmZ4NPv/I7VH8lLpOYfhJScJ4lSwRRI4NWYlhrZV6WUWXlreV
-         WI5bsyx7jh3kBC33VMNgdBcZaWMc9CJWXyMQW30llihaupALILQX1ZB4+3EuSVjUk4
-         dtnCDp1a9e6Yia+EAGkahoyaaoYYqiWIpCe9Sn2Q=
+        b=w6hMVFr/1KdXVmQD1r43v3mqDmoxDIwqhH9x97Dr6K4z7X0ZABMoZEtkKRUVNBQse
+         d6tqPNgx3NzQYnloDzb4lSJ7xjtQih2IxpgIvJsKfZjHQeGJZIGBO+ekTY7iqJeNQM
+         PSzlTNWfxQOXNp6yLu3eVvDBMIrS2MfAci3FTOP8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Letu Ren <fantasquex@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 26/30] net/qla3xxx: fix schedule while atomic in ql_wait_for_drvr_lock and ql_adapter_reset
+        stable@vger.kernel.org,
+        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <f4bug@amsat.org>,
+        "Maciej W. Rozycki" <macro@orcam.me.uk>
+Subject: [PATCH 4.14 28/42] serial: 8250: Mask out floating 16/32-bit bus bits
 Date:   Fri, 13 Aug 2021 17:06:54 +0200
-Message-Id: <20210813150523.293477392@linuxfoundation.org>
+Message-Id: <20210813150526.047111238@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210813150522.445553924@linuxfoundation.org>
-References: <20210813150522.445553924@linuxfoundation.org>
+In-Reply-To: <20210813150525.098817398@linuxfoundation.org>
+References: <20210813150525.098817398@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,52 +40,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Letu Ren <fantasquex@gmail.com>
+From: Maciej W. Rozycki <macro@orcam.me.uk>
 
-[ Upstream commit 92766c4628ea349c8ddab0cd7bd0488f36e5c4ce ]
+commit e5227c51090e165db4b48dcaa300605bfced7014 upstream.
 
-When calling the 'ql_wait_for_drvr_lock' and 'ql_adapter_reset', the driver
-has already acquired the spin lock, so the driver should not call 'ssleep'
-in atomic context.
+Make sure only actual 8 bits of the IIR register are used in determining
+the port type in `autoconfig'.
 
-This bug can be fixed by using 'mdelay' instead of 'ssleep'.
+The `serial_in' port accessor returns the `unsigned int' type, meaning
+that with UPIO_AU, UPIO_MEM16, UPIO_MEM32, and UPIO_MEM32BE access types
+more than 8 bits of data are returned, of which the high order bits will
+often come from bus lines that are left floating in the data phase.  For
+example with the MIPS Malta board's CBUS UART, where the registers are
+aligned on 8-byte boundaries and which uses 32-bit accesses, data as
+follows is returned:
 
-Reported-by: Letu Ren <fantasquex@gmail.com>
-Signed-off-by: Letu Ren <fantasquex@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+YAMON> dump -32 0xbf000900 0x40
+
+BF000900: 1F000942 1F000942 1F000900 1F000900  ...B...B........
+BF000910: 1F000901 1F000901 1F000900 1F000900  ................
+BF000920: 1F000900 1F000900 1F000960 1F000960  ...........`...`
+BF000930: 1F000900 1F000900 1F0009FF 1F0009FF  ................
+
+YAMON>
+
+Evidently high-order 24 bits return values previously driven in the
+address phase (the 3 highest order address bits used with the command
+above are masked out in the simple virtual address mapping used here and
+come out at zeros on the external bus), a common scenario with bus lines
+left floating, due to bus capacitance.
+
+Consequently when the value of IIR, mapped at 0x1f000910, is retrieved
+in `autoconfig', it comes out at 0x1f0009c1 and when it is right-shifted
+by 6 and then assigned to 8-bit `scratch' variable, the value calculated
+is 0x27, not one of 0, 1, 2, 3 expected in port type determination.
+
+Fix the issue then, by assigning the value returned from `serial_in' to
+`scratch' first, which masks out 24 high-order bits retrieved, and only
+then right-shift the resulting 8-bit data quantity, producing the value
+of 3 in this case, as expected.  Fix the same issue in `serial_dl_read'.
+
+The problem first appeared with Linux 2.6.9-rc3 which predates our repo
+history, but the origin could be identified with the old MIPS/Linux repo
+also at: <git://git.kernel.org/pub/scm/linux/kernel/git/ralf/linux.git>
+as commit e0d2356c0777 ("Merge with Linux 2.6.9-rc3."), where code in
+`serial_in' was updated with this case:
+
++	case UPIO_MEM32:
++		return readl(up->port.membase + offset);
++
+
+which made it produce results outside the unsigned 8-bit range for the
+first time, though obviously it is system dependent what actual values
+appear in the high order bits retrieved and it may well have been zeros
+in the relevant positions with the system the change originally was
+intended for.  It is at that point that code in `autoconf' should have
+been updated accordingly, but clearly it was overlooked.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Cc: stable@vger.kernel.org # v2.6.12+
+Reviewed-by: Philippe Mathieu-Daudé <f4bug@amsat.org>
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Link: https://lore.kernel.org/r/alpine.DEB.2.21.2106260516220.37803@angie.orcam.me.uk
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/qlogic/qla3xxx.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/tty/serial/8250/8250_port.c |   12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
---- a/drivers/net/ethernet/qlogic/qla3xxx.c
-+++ b/drivers/net/ethernet/qlogic/qla3xxx.c
-@@ -155,7 +155,7 @@ static int ql_wait_for_drvr_lock(struct
- 				      "driver lock acquired\n");
- 			return 1;
- 		}
--		ssleep(1);
-+		mdelay(1000);
- 	} while (++i < 10);
+--- a/drivers/tty/serial/8250/8250_port.c
++++ b/drivers/tty/serial/8250/8250_port.c
+@@ -314,7 +314,11 @@ static const struct serial8250_config ua
+ /* Uart divisor latch read */
+ static int default_serial_dl_read(struct uart_8250_port *up)
+ {
+-	return serial_in(up, UART_DLL) | serial_in(up, UART_DLM) << 8;
++	/* Assign these in pieces to truncate any bits above 7.  */
++	unsigned char dll = serial_in(up, UART_DLL);
++	unsigned char dlm = serial_in(up, UART_DLM);
++
++	return dll | dlm << 8;
+ }
  
- 	netdev_err(qdev->ndev, "Timed out waiting for driver lock...\n");
-@@ -3287,7 +3287,7 @@ static int ql_adapter_reset(struct ql3_a
- 		if ((value & ISP_CONTROL_SR) == 0)
- 			break;
+ /* Uart divisor latch write */
+@@ -1302,9 +1306,11 @@ static void autoconfig(struct uart_8250_
+ 	serial_out(up, UART_LCR, 0);
  
--		ssleep(1);
-+		mdelay(1000);
- 	} while ((--max_wait_time));
+ 	serial_out(up, UART_FCR, UART_FCR_ENABLE_FIFO);
+-	scratch = serial_in(up, UART_IIR) >> 6;
  
- 	/*
-@@ -3323,7 +3323,7 @@ static int ql_adapter_reset(struct ql3_a
- 						   ispControlStatus);
- 			if ((value & ISP_CONTROL_FSR) == 0)
- 				break;
--			ssleep(1);
-+			mdelay(1000);
- 		} while ((--max_wait_time));
- 	}
- 	if (max_wait_time == 0)
+-	switch (scratch) {
++	/* Assign this as it is to truncate any bits above 7.  */
++	scratch = serial_in(up, UART_IIR);
++
++	switch (scratch >> 6) {
+ 	case 0:
+ 		autoconfig_8250(up);
+ 		break;
 
 
