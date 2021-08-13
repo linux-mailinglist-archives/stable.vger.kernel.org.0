@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23D203EB8D8
-	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:26:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2701C3EB8E2
+	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:26:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241497AbhHMPR1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Aug 2021 11:17:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57846 "EHLO mail.kernel.org"
+        id S242515AbhHMPSD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Aug 2021 11:18:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242501AbhHMPP1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Aug 2021 11:15:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C87DE610FE;
-        Fri, 13 Aug 2021 15:14:49 +0000 (UTC)
+        id S242751AbhHMPQC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Aug 2021 11:16:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5CA2461152;
+        Fri, 13 Aug 2021 15:14:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628867690;
-        bh=MSJKibiECxprk3H5xW2S1Jc936IZjXLjPnQToKFO7iw=;
+        s=korg; t=1628867692;
+        bh=W2Cbu42CZR1HVxw2ndsoeOYkX0plsn+4XbQGMzQpWVQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VLRpc5Z74+XjFKtDBlvOVIgZ0kRDGSFNcDQz6gK7xGcLUT0RnEq9B8jG4PBe8UlG6
-         wZmluC6BYROcBIgnqwXSh47tMz1fM0tH/ko1MrK3ZMxkupm6O8JMN8Sltr1c0paMZl
-         DUcRNlMzRXrgjybGllos0W4ww+USzRBLt5+ebN0U=
+        b=QOk58/19ffHG4KAux6Bp7YP3eFvgSM8HBfNITpOtevhD49ktHi+8fkw5iPt4cPFTe
+         fZ20wfjxwdZ/xN7Dm3iWWFrqaSQLGtC8NkayZQvMqNjCVy2B+vnAJrjFJsyYhS0KWy
+         jXKPWlknnKZYpu9rgdX90tgd4nVNraUvuEhoHjNg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
         Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 5.10 11/19] vboxsf: Honor excl flag to the dir-inode create op
-Date:   Fri, 13 Aug 2021 17:07:28 +0200
-Message-Id: <20210813150522.996113881@linuxfoundation.org>
+Subject: [PATCH 5.10 12/19] vboxsf: Make vboxsf_dir_create() return the handle for the created file
+Date:   Fri, 13 Aug 2021 17:07:29 +0200
+Message-Id: <20210813150523.032839314@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210813150522.623322501@linuxfoundation.org>
 References: <20210813150522.623322501@linuxfoundation.org>
@@ -41,26 +41,19 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hans de Goede <hdegoede@redhat.com>
 
-commit cc3ddee97cff034cea4d095de4a484c92a219bf5 upstream
+commit ab0c29687bc7a890d1a86ac376b0b0fd78b2d9b6 upstream
 
-Honor the excl flag to the dir-inode create op, instead of behaving
-as if it is always set.
-
-Note the old behavior still worked most of the time since a non-exclusive
-open only calls the create op, if there is a race and the file is created
-between the dentry lookup and the calling of the create call.
-
-While at it change the type of the is_dir parameter to the
-vboxsf_dir_create() helper from an int to a bool, to be consistent with
-the use of bool for the excl parameter.
+Make vboxsf_dir_create() optionally return the vboxsf-handle for
+the created file. This is a preparation patch for adding atomic_open
+support.
 
 Fixes: 0fd169576648 ("fs: Add VirtualBox guest shared folder (vboxsf) support")
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/vboxsf/dir.c |   16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ fs/vboxsf/dir.c |   18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
 
 --- a/fs/vboxsf/dir.c
 +++ b/fs/vboxsf/dir.c
@@ -68,41 +61,47 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  }
  
  static int vboxsf_dir_create(struct inode *parent, struct dentry *dentry,
--			     umode_t mode, int is_dir)
-+			     umode_t mode, bool is_dir, bool excl)
+-			     umode_t mode, bool is_dir, bool excl)
++			     umode_t mode, bool is_dir, bool excl, u64 *handle_ret)
  {
  	struct vboxsf_inode *sf_parent_i = VBOXSF_I(parent);
  	struct vboxsf_sbi *sbi = VBOXSF_SBI(parent->i_sb);
-@@ -261,10 +261,12 @@ static int vboxsf_dir_create(struct inod
- 	int err;
+@@ -278,28 +278,32 @@ static int vboxsf_dir_create(struct inod
+ 	if (params.result != SHFL_FILE_CREATED)
+ 		return -EPERM;
  
- 	params.handle = SHFL_HANDLE_NIL;
--	params.create_flags = SHFL_CF_ACT_CREATE_IF_NEW |
--			      SHFL_CF_ACT_FAIL_IF_EXISTS |
--			      SHFL_CF_ACCESS_READWRITE |
--			      (is_dir ? SHFL_CF_DIRECTORY : 0);
-+	params.create_flags = SHFL_CF_ACT_CREATE_IF_NEW | SHFL_CF_ACCESS_READWRITE;
-+	if (is_dir)
-+		params.create_flags |= SHFL_CF_DIRECTORY;
-+	if (excl)
-+		params.create_flags |= SHFL_CF_ACT_FAIL_IF_EXISTS;
+-	vboxsf_close(sbi->root, params.handle);
+-
+ 	err = vboxsf_dir_instantiate(parent, dentry, &params.info);
+ 	if (err)
+-		return err;
++		goto out;
+ 
+ 	/* parent directory access/change time changed */
+ 	sf_parent_i->force_restat = 1;
+ 
+-	return 0;
++out:
++	if (err == 0 && handle_ret)
++		*handle_ret = params.handle;
++	else
++		vboxsf_close(sbi->root, params.handle);
 +
- 	params.info.attr.mode = (mode & 0777) |
- 				(is_dir ? SHFL_TYPE_DIRECTORY : SHFL_TYPE_FILE);
- 	params.info.attr.additional = SHFLFSOBJATTRADD_NOTHING;
-@@ -291,13 +293,13 @@ static int vboxsf_dir_create(struct inod
++	return err;
+ }
+ 
  static int vboxsf_dir_mkfile(struct inode *parent, struct dentry *dentry,
  			     umode_t mode, bool excl)
  {
--	return vboxsf_dir_create(parent, dentry, mode, 0);
-+	return vboxsf_dir_create(parent, dentry, mode, false, excl);
+-	return vboxsf_dir_create(parent, dentry, mode, false, excl);
++	return vboxsf_dir_create(parent, dentry, mode, false, excl, NULL);
  }
  
  static int vboxsf_dir_mkdir(struct inode *parent, struct dentry *dentry,
  			    umode_t mode)
  {
--	return vboxsf_dir_create(parent, dentry, mode, 1);
-+	return vboxsf_dir_create(parent, dentry, mode, true, true);
+-	return vboxsf_dir_create(parent, dentry, mode, true, true);
++	return vboxsf_dir_create(parent, dentry, mode, true, true, NULL);
  }
  
  static int vboxsf_dir_unlink(struct inode *parent, struct dentry *dentry)
