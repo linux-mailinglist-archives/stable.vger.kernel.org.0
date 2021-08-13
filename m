@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B50A53EB873
-	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:25:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2289A3EB81A
+	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:25:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241332AbhHMPNu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Aug 2021 11:13:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54020 "EHLO mail.kernel.org"
+        id S241759AbhHMPLM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Aug 2021 11:11:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242145AbhHMPMr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Aug 2021 11:12:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 959AF61139;
-        Fri, 13 Aug 2021 15:12:11 +0000 (UTC)
+        id S241738AbhHMPKi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Aug 2021 11:10:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7982F61131;
+        Fri, 13 Aug 2021 15:10:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628867532;
-        bh=qPFHhT+bhav1QagXPNWWqzbAbY4pF8XDa3NMGhkSNXY=;
+        s=korg; t=1628867412;
+        bh=0HwXxBgV4lUjdQgqjR5GL8H3n+p5DveIEMlAlZRdATc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xpgf8vMskl+ffcu1Jx2NGp6wD616O8MNFBWjlDCMO+hmogSc3fuYh2H3k5R0IABET
-         fpa47kpNHTXoE/waib5p9F9aeE8EYwlJ2WFwhEx0BHbbYwkMLsJGFEZVrxAS/8i8yp
-         p2hpe6kDwFds4P70McxR6t7GUkiKc2rVXRHj9QTc=
+        b=QEIk69dxinuChl+hmmZ4NPv/I7VH8lLpOYfhJScJ4lSwRRI4NWYlhrZV6WUWXlreV
+         WI5bsyx7jh3kBC33VMNgdBcZaWMc9CJWXyMQW30llihaupALILQX1ZB4+3EuSVjUk4
+         dtnCDp1a9e6Yia+EAGkahoyaaoYYqiWIpCe9Sn2Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?=D0=91=D0=BB=D0=B0=D0=B3=D0=BE=D0=B4=D0=B0=D1=80=D0=B5=D0=BD=D0=BA=D0=BE=20=D0=90=D1=80=D1=82=D1=91=D0=BC?= 
-        <artem.blagodarenko@gmail.com>, Denis <denis@voxelsoft.com>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 4.14 27/42] ext4: fix potential htree corruption when growing large_dir directories
-Date:   Fri, 13 Aug 2021 17:06:53 +0200
-Message-Id: <20210813150526.015219688@linuxfoundation.org>
+        stable@vger.kernel.org, Letu Ren <fantasquex@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 26/30] net/qla3xxx: fix schedule while atomic in ql_wait_for_drvr_lock and ql_adapter_reset
+Date:   Fri, 13 Aug 2021 17:06:54 +0200
+Message-Id: <20210813150523.293477392@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210813150525.098817398@linuxfoundation.org>
-References: <20210813150525.098817398@linuxfoundation.org>
+In-Reply-To: <20210813150522.445553924@linuxfoundation.org>
+References: <20210813150522.445553924@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,35 +40,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Letu Ren <fantasquex@gmail.com>
 
-commit 877ba3f729fd3d8ef0e29bc2a55e57cfa54b2e43 upstream.
+[ Upstream commit 92766c4628ea349c8ddab0cd7bd0488f36e5c4ce ]
 
-Commit b5776e7524af ("ext4: fix potential htree index checksum
-corruption) removed a required restart when multiple levels of index
-nodes need to be split.  Fix this to avoid directory htree corruptions
-when using the large_dir feature.
+When calling the 'ql_wait_for_drvr_lock' and 'ql_adapter_reset', the driver
+has already acquired the spin lock, so the driver should not call 'ssleep'
+in atomic context.
 
-Cc: stable@kernel.org # v5.11
-Cc: Благодаренко Артём <artem.blagodarenko@gmail.com>
-Fixes: b5776e7524af ("ext4: fix potential htree index checksum corruption)
-Reported-by: Denis <denis@voxelsoft.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This bug can be fixed by using 'mdelay' instead of 'ssleep'.
+
+Reported-by: Letu Ren <fantasquex@gmail.com>
+Signed-off-by: Letu Ren <fantasquex@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/namei.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/qlogic/qla3xxx.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -2295,7 +2295,7 @@ again:
- 				goto journal_error;
- 			err = ext4_handle_dirty_dx_node(handle, dir,
- 							frame->bh);
--			if (err)
-+			if (restart || err)
- 				goto journal_error;
- 		} else {
- 			struct dx_root *dxroot;
+--- a/drivers/net/ethernet/qlogic/qla3xxx.c
++++ b/drivers/net/ethernet/qlogic/qla3xxx.c
+@@ -155,7 +155,7 @@ static int ql_wait_for_drvr_lock(struct
+ 				      "driver lock acquired\n");
+ 			return 1;
+ 		}
+-		ssleep(1);
++		mdelay(1000);
+ 	} while (++i < 10);
+ 
+ 	netdev_err(qdev->ndev, "Timed out waiting for driver lock...\n");
+@@ -3287,7 +3287,7 @@ static int ql_adapter_reset(struct ql3_a
+ 		if ((value & ISP_CONTROL_SR) == 0)
+ 			break;
+ 
+-		ssleep(1);
++		mdelay(1000);
+ 	} while ((--max_wait_time));
+ 
+ 	/*
+@@ -3323,7 +3323,7 @@ static int ql_adapter_reset(struct ql3_a
+ 						   ispControlStatus);
+ 			if ((value & ISP_CONTROL_FSR) == 0)
+ 				break;
+-			ssleep(1);
++			mdelay(1000);
+ 		} while ((--max_wait_time));
+ 	}
+ 	if (max_wait_time == 0)
 
 
