@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EEEA43EB8C5
-	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:26:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D1DC3EB8A4
+	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:26:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241852AbhHMPQM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Aug 2021 11:16:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59108 "EHLO mail.kernel.org"
+        id S241262AbhHMPO5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Aug 2021 11:14:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57320 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242703AbhHMPOl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Aug 2021 11:14:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 78A6E610F7;
-        Fri, 13 Aug 2021 15:14:14 +0000 (UTC)
+        id S242346AbhHMPOH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Aug 2021 11:14:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4AF79610CC;
+        Fri, 13 Aug 2021 15:13:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628867655;
-        bh=E7wxtjAb81PF0LND7bzdoKazKry0KsHM2b7YkjrrFg8=;
+        s=korg; t=1628867612;
+        bh=Q9o77BbtVoUm7yQcY/7r3FvoICo0D4P1pW3bc1t/ywY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WeXMXEg6qJiSPQxPU0ivTV2A9/08YxVvjPT63Hg4LygMNBDcUtKg/8YK3lYu/Bwy+
-         Zv++NsxJaYLfBcXvPY5ridZBRRWlsuROerHOpW++P6ysSYdiK+Q35MgBoMr7GQLWwu
-         vrFZ2Xnce8wgLXjkga9DQFWfL/y9gi7yuC4KvPuc=
+        b=vFEbU/tuZVphRtHq5sx1d/77kKqfXfNmCveq3WbDS3LZwY6B5cuSeraTafLR4Md7Q
+         GtTK7mrhpxc4hR7qHoMlSxHjxacA0/gPCyvKWZ1/8vHZw+AwvmLu3DHDgxjvblj/4q
+         R2d2XLO9mj7j7uteYvkHIsKQYW7CQUoMht7+BaV0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Allen Pais <apais@linux.microsoft.com>,
-        Tyler Hicks <tyhicks@linux.microsoft.com>,
-        Sumit Garg <sumit.garg@linaro.org>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Jens Wiklander <jens.wiklander@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 03/19] firmware: tee_bnxt: Release TEE shm, session, and context during kexec
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>,
+        Anand Jain <anand.jain@oracle.com>
+Subject: [PATCH 5.4 22/27] btrfs: qgroup: remove ASYNC_COMMIT mechanism in favor of reserve retry-after-EDQUOT
 Date:   Fri, 13 Aug 2021 17:07:20 +0200
-Message-Id: <20210813150522.739650240@linuxfoundation.org>
+Message-Id: <20210813150524.106630482@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210813150522.623322501@linuxfoundation.org>
-References: <20210813150522.623322501@linuxfoundation.org>
+In-Reply-To: <20210813150523.364549385@linuxfoundation.org>
+References: <20210813150523.364549385@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,79 +40,168 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Allen Pais <apais@linux.microsoft.com>
+From: Qu Wenruo <wqu@suse.com>
 
-[ Upstream commit 914ab19e471d8fb535ed50dff108b0a615f3c2d8 ]
+commit adca4d945c8dca28a85df45c5b117e6dac2e77f1 upstream
 
-Implement a .shutdown hook that will be called during a kexec operation
-so that the TEE shared memory, session, and context that were set up
-during .probe can be properly freed/closed.
+commit a514d63882c3 ("btrfs: qgroup: Commit transaction in advance to
+reduce early EDQUOT") tries to reduce the early EDQUOT problems by
+checking the qgroup free against threshold and tries to wake up commit
+kthread to free some space.
 
-Additionally, don't use dma-buf backed shared memory for the
-fw_shm_pool. dma-buf backed shared memory cannot be reliably freed and
-unregistered during a kexec operation even when tee_shm_free() is called
-on the shm from a .shutdown hook. The problem occurs because
-dma_buf_put() calls fput() which then uses task_work_add(), with the
-TWA_RESUME parameter, to queue tee_shm_release() to be called before the
-current task returns to user mode. However, the current task never
-returns to user mode before the kexec completes so the memory is never
-freed nor unregistered.
+The problem of that mechanism is, it can only free qgroup per-trans
+metadata space, can't do anything to data, nor prealloc qgroup space.
 
-Use tee_shm_alloc_kernel_buf() to avoid dma-buf backed shared memory
-allocation so that tee_shm_free() can directly call tee_shm_release().
-This will ensure that the shm can be freed and unregistered during a
-kexec operation.
+Now since we have the ability to flush qgroup space, and implemented
+retry-after-EDQUOT behavior, such mechanism can be completely replaced.
 
-Fixes: 246880958ac9 ("firmware: broadcom: add OP-TEE based BNXT f/w manager")
-Cc: stable@vger.kernel.org
-Signed-off-by: Allen Pais <apais@linux.microsoft.com>
-Co-developed-by: Tyler Hicks <tyhicks@linux.microsoft.com>
-Signed-off-by: Tyler Hicks <tyhicks@linux.microsoft.com>
-Reviewed-by: Sumit Garg <sumit.garg@linaro.org>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+So this patch will cleanup such mechanism in favor of
+retry-after-EDQUOT.
+
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Anand Jain <anand.jain@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/broadcom/tee_bnxt_fw.c |   14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ fs/btrfs/ctree.h       |    5 -----
+ fs/btrfs/disk-io.c     |    1 -
+ fs/btrfs/qgroup.c      |   43 ++-----------------------------------------
+ fs/btrfs/transaction.c |    1 -
+ fs/btrfs/transaction.h |   14 --------------
+ 5 files changed, 2 insertions(+), 62 deletions(-)
 
---- a/drivers/firmware/broadcom/tee_bnxt_fw.c
-+++ b/drivers/firmware/broadcom/tee_bnxt_fw.c
-@@ -212,10 +212,9 @@ static int tee_bnxt_fw_probe(struct devi
+--- a/fs/btrfs/ctree.h
++++ b/fs/btrfs/ctree.h
+@@ -505,11 +505,6 @@ enum {
+ 	 */
+ 	BTRFS_FS_EXCL_OP,
+ 	/*
+-	 * To info transaction_kthread we need an immediate commit so it
+-	 * doesn't need to wait for commit_interval
+-	 */
+-	BTRFS_FS_NEED_ASYNC_COMMIT,
+-	/*
+ 	 * Indicate that balance has been set up from the ioctl and is in the
+ 	 * main phase. The fs_info::balance_ctl is initialized.
+ 	 * Set and cleared while holding fs_info::balance_mutex.
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -1749,7 +1749,6 @@ static int transaction_kthread(void *arg
  
- 	pvt_data.dev = dev;
+ 		now = ktime_get_seconds();
+ 		if (cur->state < TRANS_STATE_COMMIT_START &&
+-		    !test_bit(BTRFS_FS_NEED_ASYNC_COMMIT, &fs_info->flags) &&
+ 		    (now < cur->start_time ||
+ 		     now - cur->start_time < fs_info->commit_interval)) {
+ 			spin_unlock(&fs_info->trans_lock);
+--- a/fs/btrfs/qgroup.c
++++ b/fs/btrfs/qgroup.c
+@@ -11,7 +11,6 @@
+ #include <linux/slab.h>
+ #include <linux/workqueue.h>
+ #include <linux/btrfs.h>
+-#include <linux/sizes.h>
  
--	fw_shm_pool = tee_shm_alloc(pvt_data.ctx, MAX_SHM_MEM_SZ,
--				    TEE_SHM_MAPPED | TEE_SHM_DMA_BUF);
-+	fw_shm_pool = tee_shm_alloc_kernel_buf(pvt_data.ctx, MAX_SHM_MEM_SZ);
- 	if (IS_ERR(fw_shm_pool)) {
--		dev_err(pvt_data.dev, "tee_shm_alloc failed\n");
-+		dev_err(pvt_data.dev, "tee_shm_alloc_kernel_buf failed\n");
- 		err = PTR_ERR(fw_shm_pool);
- 		goto out_sess;
- 	}
-@@ -242,6 +241,14 @@ static int tee_bnxt_fw_remove(struct dev
- 	return 0;
+ #include "ctree.h"
+ #include "transaction.h"
+@@ -2840,20 +2839,8 @@ out:
+ 	return ret;
  }
  
-+static void tee_bnxt_fw_shutdown(struct device *dev)
-+{
-+	tee_shm_free(pvt_data.fw_shm_pool);
-+	tee_client_close_session(pvt_data.ctx, pvt_data.session_id);
-+	tee_client_close_context(pvt_data.ctx);
-+	pvt_data.ctx = NULL;
-+}
-+
- static const struct tee_client_device_id tee_bnxt_fw_id_table[] = {
- 	{UUID_INIT(0x6272636D, 0x2019, 0x0716,
- 		    0x42, 0x43, 0x4D, 0x5F, 0x53, 0x43, 0x48, 0x49)},
-@@ -257,6 +264,7 @@ static struct tee_client_driver tee_bnxt
- 		.bus		= &tee_bus_type,
- 		.probe		= tee_bnxt_fw_probe,
- 		.remove		= tee_bnxt_fw_remove,
-+		.shutdown	= tee_bnxt_fw_shutdown,
- 	},
- };
+-/*
+- * Two limits to commit transaction in advance.
+- *
+- * For RATIO, it will be 1/RATIO of the remaining limit as threshold.
+- * For SIZE, it will be in byte unit as threshold.
+- */
+-#define QGROUP_FREE_RATIO		32
+-#define QGROUP_FREE_SIZE		SZ_32M
+-static bool qgroup_check_limits(struct btrfs_fs_info *fs_info,
+-				const struct btrfs_qgroup *qg, u64 num_bytes)
++static bool qgroup_check_limits(const struct btrfs_qgroup *qg, u64 num_bytes)
+ {
+-	u64 free;
+-	u64 threshold;
+-
+ 	if ((qg->lim_flags & BTRFS_QGROUP_LIMIT_MAX_RFER) &&
+ 	    qgroup_rsv_total(qg) + (s64)qg->rfer + num_bytes > qg->max_rfer)
+ 		return false;
+@@ -2862,32 +2849,6 @@ static bool qgroup_check_limits(struct b
+ 	    qgroup_rsv_total(qg) + (s64)qg->excl + num_bytes > qg->max_excl)
+ 		return false;
  
+-	/*
+-	 * Even if we passed the check, it's better to check if reservation
+-	 * for meta_pertrans is pushing us near limit.
+-	 * If there is too much pertrans reservation or it's near the limit,
+-	 * let's try commit transaction to free some, using transaction_kthread
+-	 */
+-	if ((qg->lim_flags & (BTRFS_QGROUP_LIMIT_MAX_RFER |
+-			      BTRFS_QGROUP_LIMIT_MAX_EXCL))) {
+-		if (qg->lim_flags & BTRFS_QGROUP_LIMIT_MAX_EXCL) {
+-			free = qg->max_excl - qgroup_rsv_total(qg) - qg->excl;
+-			threshold = min_t(u64, qg->max_excl / QGROUP_FREE_RATIO,
+-					  QGROUP_FREE_SIZE);
+-		} else {
+-			free = qg->max_rfer - qgroup_rsv_total(qg) - qg->rfer;
+-			threshold = min_t(u64, qg->max_rfer / QGROUP_FREE_RATIO,
+-					  QGROUP_FREE_SIZE);
+-		}
+-
+-		/*
+-		 * Use transaction_kthread to commit transaction, so we no
+-		 * longer need to bother nested transaction nor lock context.
+-		 */
+-		if (free < threshold)
+-			btrfs_commit_transaction_locksafe(fs_info);
+-	}
+-
+ 	return true;
+ }
+ 
+@@ -2937,7 +2898,7 @@ static int qgroup_reserve(struct btrfs_r
+ 
+ 		qg = unode_aux_to_qgroup(unode);
+ 
+-		if (enforce && !qgroup_check_limits(fs_info, qg, num_bytes)) {
++		if (enforce && !qgroup_check_limits(qg, num_bytes)) {
+ 			ret = -EDQUOT;
+ 			goto out;
+ 		}
+--- a/fs/btrfs/transaction.c
++++ b/fs/btrfs/transaction.c
+@@ -2297,7 +2297,6 @@ int btrfs_commit_transaction(struct btrf
+ 	 */
+ 	cur_trans->state = TRANS_STATE_COMPLETED;
+ 	wake_up(&cur_trans->commit_wait);
+-	clear_bit(BTRFS_FS_NEED_ASYNC_COMMIT, &fs_info->flags);
+ 
+ 	spin_lock(&fs_info->trans_lock);
+ 	list_del_init(&cur_trans->list);
+--- a/fs/btrfs/transaction.h
++++ b/fs/btrfs/transaction.h
+@@ -207,20 +207,6 @@ int btrfs_clean_one_deleted_snapshot(str
+ int btrfs_commit_transaction(struct btrfs_trans_handle *trans);
+ int btrfs_commit_transaction_async(struct btrfs_trans_handle *trans,
+ 				   int wait_for_unblock);
+-
+-/*
+- * Try to commit transaction asynchronously, so this is safe to call
+- * even holding a spinlock.
+- *
+- * It's done by informing transaction_kthread to commit transaction without
+- * waiting for commit interval.
+- */
+-static inline void btrfs_commit_transaction_locksafe(
+-		struct btrfs_fs_info *fs_info)
+-{
+-	set_bit(BTRFS_FS_NEED_ASYNC_COMMIT, &fs_info->flags);
+-	wake_up_process(fs_info->transaction_kthread);
+-}
+ int btrfs_end_transaction_throttle(struct btrfs_trans_handle *trans);
+ int btrfs_should_end_transaction(struct btrfs_trans_handle *trans);
+ void btrfs_throttle(struct btrfs_fs_info *fs_info);
 
 
