@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 396023EB7F2
-	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:24:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 110DD3EB854
+	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:25:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241502AbhHMPKK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Aug 2021 11:10:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52954 "EHLO mail.kernel.org"
+        id S241881AbhHMPM7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Aug 2021 11:12:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241505AbhHMPJ4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Aug 2021 11:09:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 31A62610F7;
-        Fri, 13 Aug 2021 15:09:28 +0000 (UTC)
+        id S241806AbhHMPLn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Aug 2021 11:11:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E8F99610FE;
+        Fri, 13 Aug 2021 15:11:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628867369;
-        bh=i4TTYNWsN50jOCsFBt6qSWhYDFVD5pufKMKlu/WKUls=;
+        s=korg; t=1628867476;
+        bh=30KxOoloYmk5zGptQQfwJlpzpjCtuvoyUMdhH9lZjGY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YeJn2U+CcaV2wsXWGjB9pl86Dw8LIqj0E/Jl/uA9kgur0vrxFG9ambt6dbruev03s
-         +ZDyaKg1tD+fXTZqeGxYORBXXEVKiltz990K8Lw/dHqqi09a6UXUXyM/NrSK2ssSk+
-         Unn3qGLZkzqkQqzoHwOgd4svQenDPdrHDsn9TYj4=
+        b=16OLWzmKS1kHlI3+Iw1b5R+pKtNl2EVoda17Wie8FFHesvhsh9CqvCcAM5IWO9nJe
+         FEHVK44F04sMAI+HUHC1dfikCNNKzMBDDJGyMmMzGBYXVinza4vOUmkIrZbzyNCLMo
+         BHjW62eX2sxO7ym065Tqn+NOvyX95184/E8jJf6k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Alex Xu (Hello71)" <alex_y_xu@yahoo.ca>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 18/30] pipe: increase minimum default pipe size to 2 pages
+        stable@vger.kernel.org, Maxim Devaev <mdevaev@gmail.com>,
+        Phil Elwell <phil@raspberrypi.com>
+Subject: [PATCH 4.14 20/42] usb: gadget: f_hid: fixed NULL pointer dereference
 Date:   Fri, 13 Aug 2021 17:06:46 +0200
-Message-Id: <20210813150523.030183074@linuxfoundation.org>
+Message-Id: <20210813150525.780787054@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210813150522.445553924@linuxfoundation.org>
-References: <20210813150522.445553924@linuxfoundation.org>
+In-Reply-To: <20210813150525.098817398@linuxfoundation.org>
+References: <20210813150525.098817398@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,75 +39,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Xu (Hello71) <alex_y_xu@yahoo.ca>
+From: Phil Elwell <phil@raspberrypi.com>
 
-commit 46c4c9d1beb7f5b4cec4dd90e7728720583ee348 upstream.
+commit 2867652e4766360adf14dfda3832455e04964f2a upstream.
 
-This program always prints 4096 and hangs before the patch, and always
-prints 8192 and exits successfully after:
+Disconnecting and reconnecting the USB cable can lead to crashes
+and a variety of kernel log spam.
 
-  int main()
-  {
-      int pipefd[2];
-      for (int i = 0; i < 1025; i++)
-          if (pipe(pipefd) == -1)
-              return 1;
-      size_t bufsz = fcntl(pipefd[1], F_GETPIPE_SZ);
-      printf("%zd\n", bufsz);
-      char *buf = calloc(bufsz, 1);
-      write(pipefd[1], buf, bufsz);
-      read(pipefd[0], buf, bufsz-1);
-      write(pipefd[1], buf, 1);
-  }
+The problem was found and reproduced on the Raspberry Pi [1]
+and the original fix was created in Raspberry's own fork [2].
 
-Note that you may need to increase your RLIMIT_NOFILE before running the
-program.
-
-Fixes: 759c01142a ("pipe: limit the per-user amount of pages allocated in pipes")
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/lkml/1628086770.5rn8p04n6j.none@localhost/
-Link: https://lore.kernel.org/lkml/1628127094.lxxn016tj7.none@localhost/
-Signed-off-by: Alex Xu (Hello71) <alex_y_xu@yahoo.ca>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://github.com/raspberrypi/linux/issues/3870 [1]
+Link: https://github.com/raspberrypi/linux/commit/a6e47d5f4efbd2ea6a0b6565cd2f9b7bb217ded5 [2]
+Signed-off-by: Maxim Devaev <mdevaev@gmail.com>
+Signed-off-by: Phil Elwell <phil@raspberrypi.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210723155928.210019-1-mdevaev@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/pipe.c |   19 +++++++++++++++++--
- 1 file changed, 17 insertions(+), 2 deletions(-)
+ drivers/usb/gadget/function/f_hid.c |   26 ++++++++++++++++++++------
+ 1 file changed, 20 insertions(+), 6 deletions(-)
 
---- a/fs/pipe.c
-+++ b/fs/pipe.c
-@@ -29,6 +29,21 @@
- #include "internal.h"
+--- a/drivers/usb/gadget/function/f_hid.c
++++ b/drivers/usb/gadget/function/f_hid.c
+@@ -349,6 +349,11 @@ static ssize_t f_hidg_write(struct file
  
- /*
-+ * New pipe buffers will be restricted to this size while the user is exceeding
-+ * their pipe buffer quota. The general pipe use case needs at least two
-+ * buffers: one for data yet to be read, and one for new data. If this is less
-+ * than two, then a write to a non-empty pipe may block even if the pipe is not
-+ * full. This can occur with GNU make jobserver or similar uses of pipes as
-+ * semaphores: multiple processes may be waiting to write tokens back to the
-+ * pipe before reading tokens: https://lore.kernel.org/lkml/1628086770.5rn8p04n6j.none@localhost/.
-+ *
-+ * Users can reduce their pipe buffers with F_SETPIPE_SZ below this at their
-+ * own risk, namely: pipe writes to non-full pipes may block until the pipe is
-+ * emptied.
-+ */
-+#define PIPE_MIN_DEF_BUFFERS 2
+ 	spin_lock_irqsave(&hidg->write_spinlock, flags);
+ 
++	if (!hidg->req) {
++		spin_unlock_irqrestore(&hidg->write_spinlock, flags);
++		return -ESHUTDOWN;
++	}
 +
-+/*
-  * The max size that a non-root user is allowed to grow the pipe. Can
-  * be set by root in /proc/sys/fs/pipe-max-size
-  */
-@@ -653,8 +668,8 @@ struct pipe_inode_info *alloc_pipe_info(
- 	user_bufs = account_pipe_buffers(user, 0, pipe_bufs);
+ #define WRITE_COND (!hidg->write_pending)
+ try_again:
+ 	/* write queue */
+@@ -369,8 +374,14 @@ try_again:
+ 	count  = min_t(unsigned, count, hidg->report_length);
  
- 	if (too_many_pipe_buffers_soft(user_bufs) && is_unprivileged_user()) {
--		user_bufs = account_pipe_buffers(user, pipe_bufs, 1);
--		pipe_bufs = 1;
-+		user_bufs = account_pipe_buffers(user, pipe_bufs, PIPE_MIN_DEF_BUFFERS);
-+		pipe_bufs = PIPE_MIN_DEF_BUFFERS;
- 	}
+ 	spin_unlock_irqrestore(&hidg->write_spinlock, flags);
+-	status = copy_from_user(req->buf, buffer, count);
  
- 	if (too_many_pipe_buffers_hard(user_bufs) && is_unprivileged_user())
++	if (!req) {
++		ERROR(hidg->func.config->cdev, "hidg->req is NULL\n");
++		status = -ESHUTDOWN;
++		goto release_write_pending;
++	}
++
++	status = copy_from_user(req->buf, buffer, count);
+ 	if (status != 0) {
+ 		ERROR(hidg->func.config->cdev,
+ 			"copy_from_user error\n");
+@@ -398,14 +409,17 @@ try_again:
+ 
+ 	spin_unlock_irqrestore(&hidg->write_spinlock, flags);
+ 
++	if (!hidg->in_ep->enabled) {
++		ERROR(hidg->func.config->cdev, "in_ep is disabled\n");
++		status = -ESHUTDOWN;
++		goto release_write_pending;
++	}
++
+ 	status = usb_ep_queue(hidg->in_ep, req, GFP_ATOMIC);
+-	if (status < 0) {
+-		ERROR(hidg->func.config->cdev,
+-			"usb_ep_queue error on int endpoint %zd\n", status);
++	if (status < 0)
+ 		goto release_write_pending;
+-	} else {
++	else
+ 		status = count;
+-	}
+ 
+ 	return status;
+ release_write_pending:
 
 
