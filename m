@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F1453EB840
-	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:25:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B5523EB809
+	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:25:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241265AbhHMPMP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Aug 2021 11:12:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55292 "EHLO mail.kernel.org"
+        id S241123AbhHMPKn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Aug 2021 11:10:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53688 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241098AbhHMPL3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Aug 2021 11:11:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E6D660E9B;
-        Fri, 13 Aug 2021 15:11:02 +0000 (UTC)
+        id S241522AbhHMPKU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Aug 2021 11:10:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4E26F6112F;
+        Fri, 13 Aug 2021 15:09:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628867462;
-        bh=B9xhWPdX0M6M79odqt8H1U03a/8ABDTVm5YQ83pN8OI=;
+        s=korg; t=1628867393;
+        bh=KIz3KZERk00/VUrFyp6E9O2ygsPMZz2rCEzrJMPj+oI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MEnqymwD6iOFVHah1gc4UXij7lIInNVZbD8It8+ov5BNd0153X9eU0+A1rtuiv34J
-         dwpeGXaBVFwJu40GDl6umGRMjE8kLQb5hTwbROuBFYTMO4t/2e1wz7V4OiwRMsKw4z
-         HwPJf0LB7M6Ap1DaoSA1J2M71HYOAvYYKFRIo/Ng=
+        b=Pyh+e2l5Fopbvpxp192ZebumuXYZloUeN/dKEEPkLGLF16VLp0RjB8kqNyZgAlWn+
+         yS1VXAOfkvBX975YONIJJOQaGDzlf7OGhzmAbXidmRLx5SLOISC0x27tQ7WtFqS+SP
+         iYP/lvOP1X4zfG4dibivzCTyNDnyEq3+rrOsCNwY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Kieran Bingham <kieran.bingham@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, "H. Nikolaus Schaller" <hns@goldelico.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 06/42] media: videobuf2-core: dequeue if start_streaming fails
-Date:   Fri, 13 Aug 2021 17:06:32 +0200
-Message-Id: <20210813150525.322171768@linuxfoundation.org>
+Subject: [PATCH 4.9 05/30] mips: Fix non-POSIX regexp
+Date:   Fri, 13 Aug 2021 17:06:33 +0200
+Message-Id: <20210813150522.615538452@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210813150525.098817398@linuxfoundation.org>
-References: <20210813150525.098817398@linuxfoundation.org>
+In-Reply-To: <20210813150522.445553924@linuxfoundation.org>
+References: <20210813150522.445553924@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,69 +40,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: H. Nikolaus Schaller <hns@goldelico.com>
 
-[ Upstream commit c592b46907adbeb81243f7eb7a468c36692658b8 ]
+[ Upstream commit 28bbbb9875a35975904e46f9b06fa689d051b290 ]
 
-If a vb2_queue sets q->min_buffers_needed then when the number of
-queued buffers reaches q->min_buffers_needed, vb2_core_qbuf() will call
-the start_streaming() callback. If start_streaming() returns an error,
-then that error was just returned by vb2_core_qbuf(), but the buffer
-was still queued. However, userspace expects that if VIDIOC_QBUF fails,
-the buffer is returned dequeued.
+When cross compiling a MIPS kernel on a BSD based HOSTCC leads
+to errors like
 
-So if start_streaming() fails, then remove the buffer from the queue,
-thus avoiding this unwanted side-effect.
+  SYNC    include/config/auto.conf.cmd - due to: .config
+egrep: empty (sub)expression
+  UPD     include/config/kernel.release
+  HOSTCC  scripts/dtc/dtc.o - due to target missing
 
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Tested-by: Kieran Bingham <kieran.bingham@ideasonboard.com>
-Fixes: b3379c6201bb ("[media] vb2: only call start_streaming if sufficient buffers are queued")
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+It turns out that egrep uses this egrep pattern:
+
+		(|MINOR_|PATCHLEVEL_)
+
+This is not valid syntax or gives undefined results according
+to POSIX 9.5.3 ERE Grammar
+
+	https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap09.html
+
+It seems to be silently accepted by the Linux egrep implementation
+while a BSD host complains.
+
+Such patterns can be replaced by a transformation like
+
+	"(|p1|p2)" -> "(p1|p2)?"
+
+Fixes: 48c35b2d245f ("[MIPS] There is no __GNUC_MAJOR__")
+Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/v4l2-core/videobuf2-core.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ arch/mips/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/v4l2-core/videobuf2-core.c b/drivers/media/v4l2-core/videobuf2-core.c
-index f1725da2a90d..5cd496e5010c 100644
---- a/drivers/media/v4l2-core/videobuf2-core.c
-+++ b/drivers/media/v4l2-core/videobuf2-core.c
-@@ -1371,6 +1371,7 @@ static int vb2_start_streaming(struct vb2_queue *q)
- int vb2_core_qbuf(struct vb2_queue *q, unsigned int index, void *pb)
- {
- 	struct vb2_buffer *vb;
-+	enum vb2_buffer_state orig_state;
- 	int ret;
+diff --git a/arch/mips/Makefile b/arch/mips/Makefile
+index 25f3bfef9b39..af4eff7d22ec 100644
+--- a/arch/mips/Makefile
++++ b/arch/mips/Makefile
+@@ -286,7 +286,7 @@ LDFLAGS			+= -m $(ld-emul)
  
- 	if (q->error) {
-@@ -1400,6 +1401,7 @@ int vb2_core_qbuf(struct vb2_queue *q, unsigned int index, void *pb)
- 	 * Add to the queued buffers list, a buffer will stay on it until
- 	 * dequeued in dqbuf.
- 	 */
-+	orig_state = vb->state;
- 	list_add_tail(&vb->queued_entry, &q->queued_list);
- 	q->queued_count++;
- 	q->waiting_for_buffers = false;
-@@ -1430,8 +1432,17 @@ int vb2_core_qbuf(struct vb2_queue *q, unsigned int index, void *pb)
- 	if (q->streaming && !q->start_streaming_called &&
- 	    q->queued_count >= q->min_buffers_needed) {
- 		ret = vb2_start_streaming(q);
--		if (ret)
-+		if (ret) {
-+			/*
-+			 * Since vb2_core_qbuf will return with an error,
-+			 * we should return it to state DEQUEUED since
-+			 * the error indicates that the buffer wasn't queued.
-+			 */
-+			list_del(&vb->queued_entry);
-+			q->queued_count--;
-+			vb->state = orig_state;
- 			return ret;
-+		}
- 	}
- 
- 	dprintk(2, "qbuf of buffer %d succeeded\n", vb->index);
+ ifdef CONFIG_MIPS
+ CHECKFLAGS += $(shell $(CC) $(KBUILD_CFLAGS) -dM -E -x c /dev/null | \
+-	egrep -vw '__GNUC_(|MINOR_|PATCHLEVEL_)_' | \
++	egrep -vw '__GNUC_(MINOR_|PATCHLEVEL_)?_' | \
+ 	sed -e "s/^\#define /-D'/" -e "s/ /'='/" -e "s/$$/'/" -e 's/\$$/&&/g')
+ ifdef CONFIG_64BIT
+ CHECKFLAGS		+= -m64
 -- 
 2.30.2
 
