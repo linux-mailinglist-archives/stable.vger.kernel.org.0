@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93E083EB8A2
-	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:26:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C93613EB8AF
+	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:26:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242067AbhHMPO4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Aug 2021 11:14:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56080 "EHLO mail.kernel.org"
+        id S242309AbhHMPPY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Aug 2021 11:15:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56586 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242325AbhHMPOD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Aug 2021 11:14:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 56EF2610A5;
-        Fri, 13 Aug 2021 15:13:24 +0000 (UTC)
+        id S242460AbhHMPOR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Aug 2021 11:14:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E1ACB610FC;
+        Fri, 13 Aug 2021 15:13:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628867604;
-        bh=RyysMVoE6PxklGnuCO9Q39ccz6uQH4s4oWLWtrU/07w=;
+        s=korg; t=1628867626;
+        bh=nDQm6gTdxU73JFUOTL+gs+qq/Xera47GLIY0IKrIDEk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fS3NjlBJsCQPmtLSSvGH3uB5Z0IC6ZQJvzA4cvNAQmBnbyMnv3BLQZYr1b/mcZjkz
-         lBhz9xFoep75hJZUakSNEISQ35nUmrzTByAaG0ZonG2rkiywqO6yBXwHvdPUoS3fNp
-         ewY4s5UTwGhK695sbErOHi4zLKqIkzDWzt967Z1o=
+        b=wOTuZarjiRJtevqacGIq4alT+qjANw3ZIVMSWfBCj8m8SSL6c/L9UqFlwSSjMrsxd
+         ynU0eo0cQmn/uBnvlMAzni4gNHrspJYpPB8ClwSwOhGQ8jJA9lvA79Zi77tAUN1Fhh
+         nj1ICttuwNHYG2uXtRkMEmHY6qqPj5Jp1W1xr9Z8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sumit Garg <sumit.garg@linaro.org>,
-        Tyler Hicks <tyhicks@linux.microsoft.com>,
-        Jens Wiklander <jens.wiklander@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 02/27] tee: Correct inappropriate usage of TEE_SHM_DMA_BUF flag
-Date:   Fri, 13 Aug 2021 17:07:00 +0200
-Message-Id: <20210813150523.441614681@linuxfoundation.org>
+        stable@vger.kernel.org, Alexandre Courbot <gnurou@gmail.com>,
+        Ezequiel Garcia <ezequiel@collabora.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Lecopzer Chen <lecopzer.chen@mediatek.com>
+Subject: [PATCH 5.4 03/27] media: v4l2-mem2mem: always consider OUTPUT queue during poll
+Date:   Fri, 13 Aug 2021 17:07:01 +0200
+Message-Id: <20210813150523.479037958@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210813150523.364549385@linuxfoundation.org>
 References: <20210813150523.364549385@linuxfoundation.org>
@@ -41,148 +42,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sumit Garg <sumit.garg@linaro.org>
+From: Alexandre Courbot <gnurou@gmail.com>
 
-[ Upstream commit 376e4199e327a5cf29b8ec8fb0f64f3d8b429819 ]
+commit 566463afdbc43c7744c5a1b89250fc808df03833 upstream.
 
-Currently TEE_SHM_DMA_BUF flag has been inappropriately used to not
-register shared memory allocated for private usage by underlying TEE
-driver: OP-TEE in this case. So rather add a new flag as TEE_SHM_PRIV
-that can be utilized by underlying TEE drivers for private allocation
-and usage of shared memory.
+If poll() is called on a m2m device with the EPOLLOUT event after the
+last buffer of the CAPTURE queue is dequeued, any buffer available on
+OUTPUT queue will never be signaled because v4l2_m2m_poll_for_data()
+starts by checking whether dst_q->last_buffer_dequeued is set and
+returns EPOLLIN in this case, without looking at the state of the OUTPUT
+queue.
 
-With this corrected, allow tee_shm_alloc_kernel_buf() to allocate a
-shared memory region without the backing of dma-buf.
+Fix this by not early returning so we keep checking the state of the
+OUTPUT queue afterwards.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Sumit Garg <sumit.garg@linaro.org>
-Co-developed-by: Tyler Hicks <tyhicks@linux.microsoft.com>
-Signed-off-by: Tyler Hicks <tyhicks@linux.microsoft.com>
-Reviewed-by: Jens Wiklander <jens.wiklander@linaro.org>
-Reviewed-by: Sumit Garg <sumit.garg@linaro.org>
-Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Alexandre Courbot <gnurou@gmail.com>
+Reviewed-by: Ezequiel Garcia <ezequiel@collabora.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Cc: Lecopzer Chen <lecopzer.chen@mediatek.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tee/optee/call.c     | 2 +-
- drivers/tee/optee/core.c     | 3 ++-
- drivers/tee/optee/rpc.c      | 5 +++--
- drivers/tee/optee/shm_pool.c | 8 ++++++--
- drivers/tee/tee_shm.c        | 4 ++--
- include/linux/tee_drv.h      | 1 +
- 6 files changed, 15 insertions(+), 8 deletions(-)
+ drivers/media/v4l2-core/v4l2-mem2mem.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/tee/optee/call.c b/drivers/tee/optee/call.c
-index 4b5069f88d78..3a54455d9ddf 100644
---- a/drivers/tee/optee/call.c
-+++ b/drivers/tee/optee/call.c
-@@ -181,7 +181,7 @@ static struct tee_shm *get_msg_arg(struct tee_context *ctx, size_t num_params,
- 	struct optee_msg_arg *ma;
- 
- 	shm = tee_shm_alloc(ctx, OPTEE_MSG_GET_ARG_SIZE(num_params),
--			    TEE_SHM_MAPPED);
-+			    TEE_SHM_MAPPED | TEE_SHM_PRIV);
- 	if (IS_ERR(shm))
- 		return shm;
- 
-diff --git a/drivers/tee/optee/core.c b/drivers/tee/optee/core.c
-index 432dd38921dd..4bb4c8f28cbd 100644
---- a/drivers/tee/optee/core.c
-+++ b/drivers/tee/optee/core.c
-@@ -254,7 +254,8 @@ static void optee_release(struct tee_context *ctx)
- 	if (!ctxdata)
- 		return;
- 
--	shm = tee_shm_alloc(ctx, sizeof(struct optee_msg_arg), TEE_SHM_MAPPED);
-+	shm = tee_shm_alloc(ctx, sizeof(struct optee_msg_arg),
-+			    TEE_SHM_MAPPED | TEE_SHM_PRIV);
- 	if (!IS_ERR(shm)) {
- 		arg = tee_shm_get_va(shm, 0);
- 		/*
-diff --git a/drivers/tee/optee/rpc.c b/drivers/tee/optee/rpc.c
-index b4ade54d1f28..aecf62016e7b 100644
---- a/drivers/tee/optee/rpc.c
-+++ b/drivers/tee/optee/rpc.c
-@@ -220,7 +220,7 @@ static void handle_rpc_func_cmd_shm_alloc(struct tee_context *ctx,
- 		shm = cmd_alloc_suppl(ctx, sz);
- 		break;
- 	case OPTEE_MSG_RPC_SHM_TYPE_KERNEL:
--		shm = tee_shm_alloc(ctx, sz, TEE_SHM_MAPPED);
-+		shm = tee_shm_alloc(ctx, sz, TEE_SHM_MAPPED | TEE_SHM_PRIV);
- 		break;
- 	default:
- 		arg->ret = TEEC_ERROR_BAD_PARAMETERS;
-@@ -405,7 +405,8 @@ void optee_handle_rpc(struct tee_context *ctx, struct optee_rpc_param *param,
- 
- 	switch (OPTEE_SMC_RETURN_GET_RPC_FUNC(param->a0)) {
- 	case OPTEE_SMC_RPC_FUNC_ALLOC:
--		shm = tee_shm_alloc(ctx, param->a1, TEE_SHM_MAPPED);
-+		shm = tee_shm_alloc(ctx, param->a1,
-+				    TEE_SHM_MAPPED | TEE_SHM_PRIV);
- 		if (!IS_ERR(shm) && !tee_shm_get_pa(shm, 0, &pa)) {
- 			reg_pair_from_64(&param->a1, &param->a2, pa);
- 			reg_pair_from_64(&param->a4, &param->a5,
-diff --git a/drivers/tee/optee/shm_pool.c b/drivers/tee/optee/shm_pool.c
-index da06ce9b9313..c41a9a501a6e 100644
---- a/drivers/tee/optee/shm_pool.c
-+++ b/drivers/tee/optee/shm_pool.c
-@@ -27,7 +27,11 @@ static int pool_op_alloc(struct tee_shm_pool_mgr *poolm,
- 	shm->paddr = page_to_phys(page);
- 	shm->size = PAGE_SIZE << order;
- 
--	if (shm->flags & TEE_SHM_DMA_BUF) {
-+	/*
-+	 * Shared memory private to the OP-TEE driver doesn't need
-+	 * to be registered with OP-TEE.
-+	 */
-+	if (!(shm->flags & TEE_SHM_PRIV)) {
- 		unsigned int nr_pages = 1 << order, i;
- 		struct page **pages;
- 
-@@ -60,7 +64,7 @@ err:
- static void pool_op_free(struct tee_shm_pool_mgr *poolm,
- 			 struct tee_shm *shm)
- {
--	if (shm->flags & TEE_SHM_DMA_BUF)
-+	if (!(shm->flags & TEE_SHM_PRIV))
- 		optee_shm_unregister(shm->ctx, shm);
- 
- 	free_pages((unsigned long)shm->kaddr, get_order(shm->size));
-diff --git a/drivers/tee/tee_shm.c b/drivers/tee/tee_shm.c
-index 1b4b4a1ba91d..d6491e973fa4 100644
---- a/drivers/tee/tee_shm.c
-+++ b/drivers/tee/tee_shm.c
-@@ -117,7 +117,7 @@ static struct tee_shm *__tee_shm_alloc(struct tee_context *ctx,
- 		return ERR_PTR(-EINVAL);
+--- a/drivers/media/v4l2-core/v4l2-mem2mem.c
++++ b/drivers/media/v4l2-core/v4l2-mem2mem.c
+@@ -635,10 +635,8 @@ static __poll_t v4l2_m2m_poll_for_data(s
+ 		 * If the last buffer was dequeued from the capture queue,
+ 		 * return immediately. DQBUF will return -EPIPE.
+ 		 */
+-		if (dst_q->last_buffer_dequeued) {
+-			spin_unlock_irqrestore(&dst_q->done_lock, flags);
+-			return EPOLLIN | EPOLLRDNORM;
+-		}
++		if (dst_q->last_buffer_dequeued)
++			rc |= EPOLLIN | EPOLLRDNORM;
  	}
+ 	spin_unlock_irqrestore(&dst_q->done_lock, flags);
  
--	if ((flags & ~(TEE_SHM_MAPPED | TEE_SHM_DMA_BUF))) {
-+	if ((flags & ~(TEE_SHM_MAPPED | TEE_SHM_DMA_BUF | TEE_SHM_PRIV))) {
- 		dev_err(teedev->dev.parent, "invalid shm flags 0x%x", flags);
- 		return ERR_PTR(-EINVAL);
- 	}
-@@ -233,7 +233,7 @@ EXPORT_SYMBOL_GPL(tee_shm_priv_alloc);
-  */
- struct tee_shm *tee_shm_alloc_kernel_buf(struct tee_context *ctx, size_t size)
- {
--	return tee_shm_alloc(ctx, size, TEE_SHM_MAPPED | TEE_SHM_DMA_BUF);
-+	return tee_shm_alloc(ctx, size, TEE_SHM_MAPPED);
- }
- EXPORT_SYMBOL_GPL(tee_shm_alloc_kernel_buf);
- 
-diff --git a/include/linux/tee_drv.h b/include/linux/tee_drv.h
-index 91677f2fa2e8..cd15c1b7fae0 100644
---- a/include/linux/tee_drv.h
-+++ b/include/linux/tee_drv.h
-@@ -26,6 +26,7 @@
- #define TEE_SHM_REGISTER	BIT(3)  /* Memory registered in secure world */
- #define TEE_SHM_USER_MAPPED	BIT(4)  /* Memory mapped in user space */
- #define TEE_SHM_POOL		BIT(5)  /* Memory allocated from pool */
-+#define TEE_SHM_PRIV		BIT(7)  /* Memory private to TEE driver */
- 
- struct device;
- struct tee_device;
--- 
-2.30.2
-
 
 
