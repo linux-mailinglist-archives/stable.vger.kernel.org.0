@@ -2,155 +2,252 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0422D3EB766
-	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:08:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B123E3EB847
+	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:25:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240949AbhHMPIZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Aug 2021 11:08:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50550 "EHLO mail.kernel.org"
+        id S242083AbhHMPMg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Aug 2021 11:12:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240849AbhHMPIZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Aug 2021 11:08:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 142236109D;
-        Fri, 13 Aug 2021 15:07:57 +0000 (UTC)
+        id S241821AbhHMPLm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Aug 2021 11:11:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C362610FC;
+        Fri, 13 Aug 2021 15:11:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628867278;
-        bh=EFJhGl4j17dSbDx5yR+3T/oEosXLQSue43tuVXBDXrU=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZzX+YHOpAn954VQxLeF/QoBFseG9VF2oyIKKFr7COGW+tyZlCxDSQBJg1Tl0GzM6E
-         dQMzHDNFtLHDvnZfQtDdkltnd5QHZ07DjuEqSuZ70QL3afAzCp7L4uHIHWGOusYZxr
-         NyXQz5JWVG/4adSXUrGdQov6O3xV6NLpOuvngE6Q=
+        s=korg; t=1628867473;
+        bh=bTagKZbyBioy5Khiriez8vXGOTqWZRljn1SXL1Liw38=;
+        h=From:To:Cc:Subject:Date:From;
+        b=wiojFZqIPdtBy6nng9OrZtA6BZcS8oy1yxLsoqjBbLRsXm04Mb7hxS0KRNSJW2yvr
+         0qo+eULbEiUnAVsg0QOx7+KJGelycCUT26M52Gc4Viaoh3zvEOQi7PXTwD/hgUYVr2
+         Ck/MaZCK/UQW9nyzQDquglFVvWPkfxH3SDpC4T7w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        folkert <folkert@vanheusden.com>
-Subject: [PATCH 4.4 01/25] ALSA: seq: Fix racy deletion of subscriber
-Date:   Fri, 13 Aug 2021 17:06:25 +0200
-Message-Id: <20210813150520.766956803@linuxfoundation.org>
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 4.14 00/42] 4.14.244-rc1 review
+Date:   Fri, 13 Aug 2021 17:06:26 +0200
+Message-Id: <20210813150525.098817398@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210813150520.718161915@linuxfoundation.org>
-References: <20210813150520.718161915@linuxfoundation.org>
+MIME-Version: 1.0
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-MIME-Version: 1.0
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.244-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.14.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.14.244-rc1
+X-KernelTest-Deadline: 2021-08-15T15:05+00:00
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+This is the start of the stable review cycle for the 4.14.244 release.
+There are 42 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit 97367c97226aab8b298ada954ce12659ee3ad2a4 upstream.
+Responses should be made by Sun, 15 Aug 2021 15:05:12 +0000.
+Anything received after that time might be too late.
 
-It turned out that the current implementation of the port subscription
-is racy.  The subscription contains two linked lists, and we have to
-add to or delete from both lists.  Since both connection and
-disconnection procedures perform the same order for those two lists
-(i.e. src list, then dest list), when a deletion happens during a
-connection procedure, the src list may be deleted before the dest list
-addition completes, and this may lead to a use-after-free or an Oops,
-even though the access to both lists are protected via mutex.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.244-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
+and the diffstat can be found below.
 
-The simple workaround for this race is to change the access order for
-the disconnection, namely, dest list, then src list.  This assures
-that the connection has been established when disconnecting, and also
-the concurrent deletion can be avoided.
+thanks,
 
-Reported-and-tested-by: folkert <folkert@vanheusden.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210801182754.GP890690@belle.intranet.vanheusden.com
-Link: https://lore.kernel.org/r/20210803114312.2536-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- sound/core/seq/seq_ports.c |   39 +++++++++++++++++++++++++++------------
- 1 file changed, 27 insertions(+), 12 deletions(-)
+greg k-h
 
---- a/sound/core/seq/seq_ports.c
-+++ b/sound/core/seq/seq_ports.c
-@@ -532,10 +532,11 @@ static int check_and_subscribe_port(stru
- 	return err;
- }
- 
--static void delete_and_unsubscribe_port(struct snd_seq_client *client,
--					struct snd_seq_client_port *port,
--					struct snd_seq_subscribers *subs,
--					bool is_src, bool ack)
-+/* called with grp->list_mutex held */
-+static void __delete_and_unsubscribe_port(struct snd_seq_client *client,
-+					  struct snd_seq_client_port *port,
-+					  struct snd_seq_subscribers *subs,
-+					  bool is_src, bool ack)
- {
- 	struct snd_seq_port_subs_info *grp;
- 	struct list_head *list;
-@@ -543,7 +544,6 @@ static void delete_and_unsubscribe_port(
- 
- 	grp = is_src ? &port->c_src : &port->c_dest;
- 	list = is_src ? &subs->src_list : &subs->dest_list;
--	down_write(&grp->list_mutex);
- 	write_lock_irq(&grp->list_lock);
- 	empty = list_empty(list);
- 	if (!empty)
-@@ -553,6 +553,18 @@ static void delete_and_unsubscribe_port(
- 
- 	if (!empty)
- 		unsubscribe_port(client, port, grp, &subs->info, ack);
-+}
-+
-+static void delete_and_unsubscribe_port(struct snd_seq_client *client,
-+					struct snd_seq_client_port *port,
-+					struct snd_seq_subscribers *subs,
-+					bool is_src, bool ack)
-+{
-+	struct snd_seq_port_subs_info *grp;
-+
-+	grp = is_src ? &port->c_src : &port->c_dest;
-+	down_write(&grp->list_mutex);
-+	__delete_and_unsubscribe_port(client, port, subs, is_src, ack);
- 	up_write(&grp->list_mutex);
- }
- 
-@@ -608,27 +620,30 @@ int snd_seq_port_disconnect(struct snd_s
- 			    struct snd_seq_client_port *dest_port,
- 			    struct snd_seq_port_subscribe *info)
- {
--	struct snd_seq_port_subs_info *src = &src_port->c_src;
-+	struct snd_seq_port_subs_info *dest = &dest_port->c_dest;
- 	struct snd_seq_subscribers *subs;
- 	int err = -ENOENT;
- 
--	down_write(&src->list_mutex);
-+	/* always start from deleting the dest port for avoiding concurrent
-+	 * deletions
-+	 */
-+	down_write(&dest->list_mutex);
- 	/* look for the connection */
--	list_for_each_entry(subs, &src->list_head, src_list) {
-+	list_for_each_entry(subs, &dest->list_head, dest_list) {
- 		if (match_subs_info(info, &subs->info)) {
--			atomic_dec(&subs->ref_count); /* mark as not ready */
-+			__delete_and_unsubscribe_port(dest_client, dest_port,
-+						      subs, false,
-+						      connector->number != dest_client->number);
- 			err = 0;
- 			break;
- 		}
- 	}
--	up_write(&src->list_mutex);
-+	up_write(&dest->list_mutex);
- 	if (err < 0)
- 		return err;
- 
- 	delete_and_unsubscribe_port(src_client, src_port, subs, true,
- 				    connector->number != src_client->number);
--	delete_and_unsubscribe_port(dest_client, dest_port, subs, false,
--				    connector->number != dest_client->number);
- 	kfree(subs);
- 	return 0;
- }
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.14.244-rc1
+
+YueHaibing <yuehaibing@huawei.com>
+    net: xilinx_emaclite: Do not print real IOMEM pointer
+
+Miklos Szeredi <mszeredi@redhat.com>
+    ovl: prevent private clone if bind mount is not allowed
+
+Pali Rohár <pali@kernel.org>
+    ppp: Fix generating ppp unit id when ifname is not specified
+
+Longfang Liu <liulongfang@huawei.com>
+    USB:ehci:fix Kunpeng920 ehci hardware problem
+
+Letu Ren <fantasquex@gmail.com>
+    net/qla3xxx: fix schedule while atomic in ql_wait_for_drvr_lock and ql_adapter_reset
+
+Prarit Bhargava <prarit@redhat.com>
+    alpha: Send stop IPI to send to online CPUs
+
+Shreyansh Chouhan <chouhan.shreyansh630@gmail.com>
+    reiserfs: check directory items on read from disk
+
+Yu Kuai <yukuai3@huawei.com>
+    reiserfs: add check for root_inode in reiserfs_fill_super
+
+Christoph Hellwig <hch@lst.de>
+    libata: fix ata_pio_sector for CONFIG_HIGHMEM
+
+Reinhard Speyerer <rspmn@arcor.de>
+    qmi_wwan: add network device usage statistics for qmimux devices
+
+Like Xu <likexu@tencent.com>
+    perf/x86/amd: Don't touch the AMD64_EVENTSEL_HOSTONLY bit inside the guest
+
+Dongliang Mu <mudongliangabcd@gmail.com>
+    spi: meson-spicc: fix memory leak in meson_spicc_remove
+
+Zheyu Ma <zheyuma97@gmail.com>
+    pcmcia: i82092: fix a null pointer dereference bug
+
+Maciej W. Rozycki <macro@orcam.me.uk>
+    MIPS: Malta: Do not byte-swap accesses to the CBUS UART
+
+Maciej W. Rozycki <macro@orcam.me.uk>
+    serial: 8250: Mask out floating 16/32-bit bus bits
+
+Theodore Ts'o <tytso@mit.edu>
+    ext4: fix potential htree corruption when growing large_dir directories
+
+Alex Xu (Hello71) <alex_y_xu@yahoo.ca>
+    pipe: increase minimum default pipe size to 2 pages
+
+Johan Hovold <johan@kernel.org>
+    media: rtl28xxu: fix zero-length control request
+
+Xiangyang Zhang <xyz.sun.ok@gmail.com>
+    staging: rtl8723bs: Fix a resource leak in sd_int_dpc
+
+Hui Su <suhui@zeku.com>
+    scripts/tracing: fix the bug that can't parse raw_trace_func
+
+Dmitry Osipenko <digetx@gmail.com>
+    usb: otg-fsm: Fix hrtimer list corruption
+
+Maxim Devaev <mdevaev@gmail.com>
+    usb: gadget: f_hid: idle uses the highest byte for duration
+
+Phil Elwell <phil@raspberrypi.com>
+    usb: gadget: f_hid: fixed NULL pointer dereference
+
+Maxim Devaev <mdevaev@gmail.com>
+    usb: gadget: f_hid: added GET_IDLE and SET_IDLE handlers
+
+David Bauer <mail@david-bauer.net>
+    USB: serial: ftdi_sio: add device ID for Auto-M3 OP-COM v2
+
+Willy Tarreau <w@1wt.eu>
+    USB: serial: ch341: fix character loss at high transfer rates
+
+Daniele Palmas <dnlplm@gmail.com>
+    USB: serial: option: add Telit FD980 composition 0x1056
+
+Qiang.zhang <qiang.zhang@windriver.com>
+    USB: usbtmc: Fix RCU stall warning
+
+Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+    Bluetooth: defer cleanup of resources in hci_unregister_dev()
+
+Pavel Skripkin <paskripkin@gmail.com>
+    net: vxge: fix use-after-free in vxge_device_unregister
+
+Pavel Skripkin <paskripkin@gmail.com>
+    net: fec: fix use-after-free in fec_drv_remove
+
+Pavel Skripkin <paskripkin@gmail.com>
+    net: pegasus: fix uninit-value in get_interrupt_interval
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    bnx2x: fix an error code in bnx2x_nic_load()
+
+H. Nikolaus Schaller <hns@goldelico.com>
+    mips: Fix non-POSIX regexp
+
+Fei Qin <fei.qin@corigine.com>
+    nfp: update ethtool reporting of pauseframe control
+
+Wang Hai <wanghai38@huawei.com>
+    net: natsemi: Fix missing pci_disable_device() in probe and remove
+
+Hans Verkuil <hverkuil-cisco@xs4all.nl>
+    media: videobuf2-core: dequeue if start_streaming fails
+
+Li Manyi <limanyi@uniontech.com>
+    scsi: sr: Return correct event when media event code is 3
+
+H. Nikolaus Schaller <hns@goldelico.com>
+    omap5-board-common: remove not physically existing vdds_1v8_main fixed-regulator
+
+Dario Binacchi <dariobin@libero.it>
+    clk: stm32f4: fix post divisor setup for I2S/SAI PLLs
+
+Takashi Iwai <tiwai@suse.de>
+    ALSA: seq: Fix racy deletion of subscriber
+
+Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+    Revert "ACPICA: Fix memory leak caused by _CID repair function"
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                           |  4 +-
+ arch/alpha/kernel/smp.c                            |  2 +-
+ arch/arm/boot/dts/omap5-board-common.dtsi          |  9 +--
+ arch/mips/Makefile                                 |  2 +-
+ arch/mips/mti-malta/malta-platform.c               |  3 +-
+ arch/x86/events/perf_event.h                       |  3 +-
+ drivers/acpi/acpica/nsrepair2.c                    |  7 --
+ drivers/ata/libata-sff.c                           | 35 +++++++---
+ drivers/clk/clk-stm32f4.c                          | 10 +--
+ drivers/media/usb/dvb-usb-v2/rtl28xxu.c            | 11 +++-
+ drivers/media/v4l2-core/videobuf2-core.c           | 13 +++-
+ drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c    |  3 +-
+ drivers/net/ethernet/freescale/fec_main.c          |  2 +-
+ drivers/net/ethernet/natsemi/natsemi.c             |  8 +--
+ drivers/net/ethernet/neterion/vxge/vxge-main.c     |  6 +-
+ .../net/ethernet/netronome/nfp/nfp_net_ethtool.c   |  2 +
+ drivers/net/ethernet/qlogic/qla3xxx.c              |  6 +-
+ drivers/net/ethernet/xilinx/xilinx_emaclite.c      |  5 +-
+ drivers/net/ppp/ppp_generic.c                      | 19 ++++--
+ drivers/net/usb/pegasus.c                          | 14 +++-
+ drivers/net/usb/qmi_wwan.c                         | 76 ++++++++++++++++++++--
+ drivers/pcmcia/i82092.c                            |  1 +
+ drivers/scsi/sr.c                                  |  2 +-
+ drivers/spi/spi-meson-spicc.c                      |  2 +
+ drivers/staging/rtl8723bs/hal/sdio_ops.c           |  2 +
+ drivers/tty/serial/8250/8250_port.c                | 12 +++-
+ drivers/usb/class/usbtmc.c                         |  8 +--
+ drivers/usb/common/usb-otg-fsm.c                   |  6 +-
+ drivers/usb/gadget/function/f_hid.c                | 44 +++++++++++--
+ drivers/usb/host/ehci-pci.c                        |  3 +
+ drivers/usb/serial/ch341.c                         |  1 +
+ drivers/usb/serial/ftdi_sio.c                      |  1 +
+ drivers/usb/serial/ftdi_sio_ids.h                  |  3 +
+ drivers/usb/serial/option.c                        |  2 +
+ fs/ext4/namei.c                                    |  2 +-
+ fs/namespace.c                                     | 42 ++++++++----
+ fs/pipe.c                                          | 19 +++++-
+ fs/reiserfs/stree.c                                | 31 +++++++--
+ fs/reiserfs/super.c                                |  8 +++
+ include/linux/usb/otg-fsm.h                        |  1 +
+ include/net/bluetooth/hci_core.h                   |  1 +
+ net/bluetooth/hci_core.c                           | 16 ++---
+ net/bluetooth/hci_sock.c                           | 49 +++++++++-----
+ net/bluetooth/hci_sysfs.c                          |  3 +
+ scripts/tracing/draw_functrace.py                  |  6 +-
+ sound/core/seq/seq_ports.c                         | 39 +++++++----
+ 46 files changed, 400 insertions(+), 144 deletions(-)
 
 
