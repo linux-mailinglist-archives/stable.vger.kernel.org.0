@@ -2,234 +2,165 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 227633EB89C
-	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:26:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16BED3EB8CF
+	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:26:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241946AbhHMPOv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Aug 2021 11:14:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54986 "EHLO mail.kernel.org"
+        id S241821AbhHMPQW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Aug 2021 11:16:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59248 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241380AbhHMPN6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Aug 2021 11:13:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B9B1461153;
-        Fri, 13 Aug 2021 15:13:21 +0000 (UTC)
+        id S241915AbhHMPOr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Aug 2021 11:14:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E1F536112E;
+        Fri, 13 Aug 2021 15:14:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628867602;
-        bh=oN4t9KHoIysBwjmc+ZF5f7ORML5e+3rH53RD+H6R2d8=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=repzAXxFcFyefbVXCEX8gnYDFJiie2zAfg+8stdiYSDYcX9CkZx5EeVXEF/tPdKQ9
-         gVMhk7CY7ry7ZDwBqD0Sn+O9+FSgKDTLw0Srea8dauL64Br16AwuIsQz08WvoVo3b5
-         tTQqp3jXnvTKUZwkrDsqS82/7fr/5nPOLwVF3l28=
+        s=korg; t=1628867660;
+        bh=xZihEZsLc4INQ12kabEFEMJKBu4OArueTDSDf4TvJJg=;
+        h=From:To:Cc:Subject:Date:From;
+        b=MD8unSo6UQQm4qjqWFBTFVddSVN9u60yzDM6rbJTk+i6PaFuwSM+kaY+0bkB+boB7
+         n7L7tLbwl84Sg9XUGHZOLiswJZXyC3oxUuw5GL9Bye4xZUPS6lnS4pyy+V38MdfnL2
+         9tOXMdVXHcgpw4P8SrPOT8Wu+o7lM3U+3Dmzcc4U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>,
-        Anand Jain <anand.jain@oracle.com>
-Subject: [PATCH 5.4 19/27] btrfs: qgroup: allow to unreserve range without releasing other ranges
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 5.10 00/19] 5.10.59-rc1 review
 Date:   Fri, 13 Aug 2021 17:07:17 +0200
-Message-Id: <20210813150523.997531716@linuxfoundation.org>
+Message-Id: <20210813150522.623322501@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210813150523.364549385@linuxfoundation.org>
-References: <20210813150523.364549385@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.59-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.10.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.10.59-rc1
+X-KernelTest-Deadline: 2021-08-15T15:05+00:00
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+This is the start of the stable review cycle for the 5.10.59 release.
+There are 19 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit 263da812e87bac4098a4778efaa32c54275641db upstream
+Responses should be made by Sun, 15 Aug 2021 15:05:12 +0000.
+Anything received after that time might be too late.
 
-[PROBLEM]
-Before this patch, when btrfs_qgroup_reserve_data() fails, we free all
-reserved space of the changeset.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.59-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+and the diffstat can be found below.
 
-For example:
-	ret = btrfs_qgroup_reserve_data(inode, changeset, 0, SZ_1M);
-	ret = btrfs_qgroup_reserve_data(inode, changeset, SZ_1M, SZ_1M);
-	ret = btrfs_qgroup_reserve_data(inode, changeset, SZ_2M, SZ_1M);
+thanks,
 
-If the last btrfs_qgroup_reserve_data() failed, it will release the
-entire [0, 3M) range.
+greg k-h
 
-This behavior is kind of OK for now, as when we hit -EDQUOT, we normally
-go error handling and need to release all reserved ranges anyway.
+-------------
+Pseudo-Shortlog of commits:
 
-But this also means the following call is not possible:
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.10.59-rc1
 
-	ret = btrfs_qgroup_reserve_data();
-	if (ret == -EDQUOT) {
-		/* Do something to free some qgroup space */
-		ret = btrfs_qgroup_reserve_data();
-	}
+YueHaibing <yuehaibing@huawei.com>
+    net: xilinx_emaclite: Do not print real IOMEM pointer
 
-As if the first btrfs_qgroup_reserve_data() fails, it will free all
-reserved qgroup space.
+Miklos Szeredi <mszeredi@redhat.com>
+    ovl: prevent private clone if bind mount is not allowed
 
-[CAUSE]
-This is because we release all reserved ranges when
-btrfs_qgroup_reserve_data() fails.
+Pali Rohár <pali@kernel.org>
+    ppp: Fix generating ppp unit id when ifname is not specified
 
-[FIX]
-This patch will implement a new function, qgroup_unreserve_range(), to
-iterate through the ulist nodes, to find any nodes in the failure range,
-and remove the EXTENT_QGROUP_RESERVED bits from the io_tree, and
-decrease the extent_changeset::bytes_changed, so that we can revert to
-previous state.
+Luke D Jones <luke@ljones.dev>
+    ALSA: hda: Add quirk for ASUS Flow x13
 
-This allows later patches to retry btrfs_qgroup_reserve_data() if EDQUOT
-happens.
+Jeremy Szu <jeremy.szu@canonical.com>
+    ALSA: hda/realtek: fix mute/micmute LEDs for HP ProBook 650 G8 Notebook PC
 
-Suggested-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Anand Jain <anand.jain@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- fs/btrfs/qgroup.c |   92 +++++++++++++++++++++++++++++++++++++++++++++---------
- 1 file changed, 77 insertions(+), 15 deletions(-)
+Takashi Iwai <tiwai@suse.de>
+    ALSA: pcm: Fix mmap breakage without explicit buffer setup
 
---- a/fs/btrfs/qgroup.c
-+++ b/fs/btrfs/qgroup.c
-@@ -3411,6 +3411,73 @@ btrfs_qgroup_rescan_resume(struct btrfs_
- 	}
- }
- 
-+#define rbtree_iterate_from_safe(node, next, start)				\
-+       for (node = start; node && ({ next = rb_next(node); 1;}); node = next)
-+
-+static int qgroup_unreserve_range(struct btrfs_inode *inode,
-+				  struct extent_changeset *reserved, u64 start,
-+				  u64 len)
-+{
-+	struct rb_node *node;
-+	struct rb_node *next;
-+	struct ulist_node *entry = NULL;
-+	int ret = 0;
-+
-+	node = reserved->range_changed.root.rb_node;
-+	while (node) {
-+		entry = rb_entry(node, struct ulist_node, rb_node);
-+		if (entry->val < start)
-+			node = node->rb_right;
-+		else if (entry)
-+			node = node->rb_left;
-+		else
-+			break;
-+	}
-+
-+	/* Empty changeset */
-+	if (!entry)
-+		return 0;
-+
-+	if (entry->val > start && rb_prev(&entry->rb_node))
-+		entry = rb_entry(rb_prev(&entry->rb_node), struct ulist_node,
-+				 rb_node);
-+
-+	rbtree_iterate_from_safe(node, next, &entry->rb_node) {
-+		u64 entry_start;
-+		u64 entry_end;
-+		u64 entry_len;
-+		int clear_ret;
-+
-+		entry = rb_entry(node, struct ulist_node, rb_node);
-+		entry_start = entry->val;
-+		entry_end = entry->aux;
-+		entry_len = entry_end - entry_start + 1;
-+
-+		if (entry_start >= start + len)
-+			break;
-+		if (entry_start + entry_len <= start)
-+			continue;
-+		/*
-+		 * Now the entry is in [start, start + len), revert the
-+		 * EXTENT_QGROUP_RESERVED bit.
-+		 */
-+		clear_ret = clear_extent_bits(&inode->io_tree, entry_start,
-+					      entry_end, EXTENT_QGROUP_RESERVED);
-+		if (!ret && clear_ret < 0)
-+			ret = clear_ret;
-+
-+		ulist_del(&reserved->range_changed, entry->val, entry->aux);
-+		if (likely(reserved->bytes_changed >= entry_len)) {
-+			reserved->bytes_changed -= entry_len;
-+		} else {
-+			WARN_ON(1);
-+			reserved->bytes_changed = 0;
-+		}
-+	}
-+
-+	return ret;
-+}
-+
- /*
-  * Reserve qgroup space for range [start, start + len).
-  *
-@@ -3421,18 +3488,14 @@ btrfs_qgroup_rescan_resume(struct btrfs_
-  * Return <0 for error (including -EQUOT)
-  *
-  * NOTE: this function may sleep for memory allocation.
-- *       if btrfs_qgroup_reserve_data() is called multiple times with
-- *       same @reserved, caller must ensure when error happens it's OK
-- *       to free *ALL* reserved space.
-  */
- int btrfs_qgroup_reserve_data(struct btrfs_inode *inode,
- 			struct extent_changeset **reserved_ret, u64 start,
- 			u64 len)
- {
- 	struct btrfs_root *root = inode->root;
--	struct ulist_node *unode;
--	struct ulist_iterator uiter;
- 	struct extent_changeset *reserved;
-+	bool new_reserved = false;
- 	u64 orig_reserved;
- 	u64 to_reserve;
- 	int ret;
-@@ -3445,6 +3508,7 @@ int btrfs_qgroup_reserve_data(struct btr
- 	if (WARN_ON(!reserved_ret))
- 		return -EINVAL;
- 	if (!*reserved_ret) {
-+		new_reserved = true;
- 		*reserved_ret = extent_changeset_alloc();
- 		if (!*reserved_ret)
- 			return -ENOMEM;
-@@ -3460,7 +3524,7 @@ int btrfs_qgroup_reserve_data(struct btr
- 	trace_btrfs_qgroup_reserve_data(&inode->vfs_inode, start, len,
- 					to_reserve, QGROUP_RESERVE);
- 	if (ret < 0)
--		goto cleanup;
-+		goto out;
- 	ret = qgroup_reserve(root, to_reserve, true, BTRFS_QGROUP_RSV_DATA);
- 	if (ret < 0)
- 		goto cleanup;
-@@ -3468,15 +3532,13 @@ int btrfs_qgroup_reserve_data(struct btr
- 	return ret;
- 
- cleanup:
--	/* cleanup *ALL* already reserved ranges */
--	ULIST_ITER_INIT(&uiter);
--	while ((unode = ulist_next(&reserved->range_changed, &uiter)))
--		clear_extent_bit(&inode->io_tree, unode->val,
--				 unode->aux, EXTENT_QGROUP_RESERVED, 0, 0, NULL);
--	/* Also free data bytes of already reserved one */
--	btrfs_qgroup_free_refroot(root->fs_info, root->root_key.objectid,
--				  orig_reserved, BTRFS_QGROUP_RSV_DATA);
--	extent_changeset_release(reserved);
-+	qgroup_unreserve_range(inode, reserved, start, len);
-+out:
-+	if (new_reserved) {
-+		extent_changeset_release(reserved);
-+		kfree(reserved);
-+		*reserved_ret = NULL;
-+	}
- 	return ret;
- }
- 
+Longfang Liu <liulongfang@huawei.com>
+    USB:ehci:fix Kunpeng920 ehci hardware problem
+
+Hans de Goede <hdegoede@redhat.com>
+    vboxsf: Make vboxsf_dir_create() return the handle for the created file
+
+Hans de Goede <hdegoede@redhat.com>
+    vboxsf: Honor excl flag to the dir-inode create op
+
+Adam Ford <aford173@gmail.com>
+    arm64: dts: renesas: beacon: Fix USB ref clock references
+
+Adam Ford <aford173@gmail.com>
+    arm64: dts: renesas: beacon: Fix USB extal reference
+
+Adam Ford <aford173@gmail.com>
+    arm64: dts: renesas: rzg2: Add usb2_clksel to RZ/G2 M/N/H
+
+Mike Rapoport <rppt@kernel.org>
+    mm: make zone_to_nid() and zone_set_nid() available for DISCONTIGMEM
+
+Reinette Chatre <reinette.chatre@intel.com>
+    Revert "selftests/resctrl: Use resctrl/info for feature detection"
+
+Daniel Borkmann <daniel@iogearbox.net>
+    bpf: Add lockdown check for probe_write_user helper
+
+Daniel Borkmann <daniel@iogearbox.net>
+    bpf: Add _kernel suffix to internal lockdown_bpf_read
+
+Allen Pais <apais@linux.microsoft.com>
+    firmware: tee_bnxt: Release TEE shm, session, and context during kexec
+
+Sumit Garg <sumit.garg@linaro.org>
+    tee: Correct inappropriate usage of TEE_SHM_DMA_BUF flag
+
+Sean Christopherson <seanjc@google.com>
+    KVM: SVM: Fix off-by-one indexing when nullifying last used SEV VMCB
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                           |  4 +-
+ .../boot/dts/renesas/beacon-renesom-baseboard.dtsi |  4 +-
+ .../arm64/boot/dts/renesas/beacon-renesom-som.dtsi |  6 ++-
+ arch/arm64/boot/dts/renesas/r8a774a1.dtsi          | 15 +++++++
+ arch/arm64/boot/dts/renesas/r8a774b1.dtsi          | 15 +++++++
+ arch/arm64/boot/dts/renesas/r8a774e1.dtsi          | 15 +++++++
+ arch/x86/kvm/svm/sev.c                             |  2 +-
+ drivers/firmware/broadcom/tee_bnxt_fw.c            | 14 ++++--
+ drivers/net/ethernet/xilinx/xilinx_emaclite.c      |  5 +--
+ drivers/net/ppp/ppp_generic.c                      | 19 ++++++--
+ drivers/tee/optee/call.c                           |  2 +-
+ drivers/tee/optee/core.c                           |  3 +-
+ drivers/tee/optee/rpc.c                            |  5 ++-
+ drivers/tee/optee/shm_pool.c                       |  8 +++-
+ drivers/tee/tee_shm.c                              |  4 +-
+ drivers/usb/host/ehci-pci.c                        |  3 ++
+ fs/namespace.c                                     | 42 +++++++++++------
+ fs/vboxsf/dir.c                                    | 28 +++++++-----
+ include/linux/mmzone.h                             |  4 +-
+ include/linux/security.h                           |  3 +-
+ include/linux/tee_drv.h                            |  1 +
+ kernel/bpf/helpers.c                               |  4 +-
+ kernel/trace/bpf_trace.c                           | 13 +++---
+ security/security.c                                |  3 +-
+ sound/core/pcm_native.c                            |  5 ++-
+ sound/pci/hda/patch_realtek.c                      |  2 +
+ tools/testing/selftests/resctrl/resctrl.h          |  6 +--
+ tools/testing/selftests/resctrl/resctrlfs.c        | 52 +++++-----------------
+ 28 files changed, 178 insertions(+), 109 deletions(-)
 
 
