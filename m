@@ -2,71 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 91A053EB27D
-	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 10:19:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E212E3EB289
+	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 10:22:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239802AbhHMITz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Aug 2021 04:19:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52360 "EHLO mail.kernel.org"
+        id S231582AbhHMIXO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Aug 2021 04:23:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239581AbhHMITy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Aug 2021 04:19:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BA2496109E;
-        Fri, 13 Aug 2021 08:19:27 +0000 (UTC)
+        id S229605AbhHMIXN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Aug 2021 04:23:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CBD786109E;
+        Fri, 13 Aug 2021 08:22:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628842768;
-        bh=TvHtyw8XEy9+YFEwQhnp3Gp3MU8ta3O84sqfiw6+pVA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=r9tsJHgwosbiQUXlLm6uruskIhT2IR34LMjt9Y5how8AAw0cl/bAMfnaqObd9Cwwc
-         VG/Gl9XnUy0VhybKDjAO9nTetD+Jlk5lzfxODahAKC6eyi2noG0hPJnX6UIpSwsrJ/
-         uaM+WQS1n7pNzSxKvc1WDkLVeAw1wXTGBDntqryE=
-Date:   Fri, 13 Aug 2021 10:19:25 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Bjorn Helgaas <helgaas@kernel.org>
-Cc:     Krzysztof =?utf-8?Q?Wilczy=C5=84ski?= <kw@linux.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org,
+        s=korg; t=1628842967;
+        bh=0V21C9/p+PP4D/k+FuLbH8XuCviDuZZLusYvSRnMSqc=;
+        h=Subject:To:From:Date:From;
+        b=y87EL6FymKWMmbX5uT4dUNEcgcuFVLlx8IZPuKjiGnMqhrv/vNreKoSL+JYwURiGT
+         wkoDKCdhSQ1U+0tYW6X6Md8JUw2eGm3+uCWwfm18ZwGO7I7BZv1t4NcZpOrPAB3wPU
+         MEreatlNz7hDrtiLo7mGxx7/8tzceDAMnerUWJfU=
+Subject: patch "slimbus: messaging: start transaction ids from 1 instead of zero" added to char-misc-linus
+To:     srinivas.kandagatla@linaro.org, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
-Subject: Re: [PATCH] PCI/sysfs: Use correct variable for the legacy_mem sysfs
- object
-Message-ID: <YRYrDQ3yuvtLtoKr@kroah.com>
-References: <20210812161710.GA2479934@bjorn-Precision-5520>
- <20210812171450.GA2485383@bjorn-Precision-5520>
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 13 Aug 2021 10:22:44 +0200
+Message-ID: <1628842964135249@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210812171450.GA2485383@bjorn-Precision-5520>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Aug 12, 2021 at 12:14:50PM -0500, Bjorn Helgaas wrote:
-> On Thu, Aug 12, 2021 at 11:17:12AM -0500, Bjorn Helgaas wrote:
-> > [+to Greg, please update sysfs_defferred_iomem_get_mapping-5.15]
-> 
-> Actually, Greg, totally up to you, but if nobody else is depending on
-> the sysfs_defferred_iomem_get_mapping-5.15 branch, another possibility
-> would be for you to drop that branch and for me to merge the two
-> patches on it + Krzysztof's fix below + (hopefully) Krzysztof's PCI
-> static attribute work.
 
-I can not "drop" the branch as it is already merged into my
-driver-core-next branch that I can not rebase.  I could revert it, but
-is that really needed?
+This is a note to let you know that I've just added the patch titled
 
-> That would make my v5.15 pull request easier because I simple-mindedly
-> base all my branches on -rc1 while your branch is based on -rc3.  But
-> again, up to you.  I put those two patches on a local branch:
-> 
->   94b34bc04c25 ("sysfs: Rename struct bin_attribute member to f_mapping")
->   97e9dada53f1 ("sysfs: Invoke iomem_get_mapping() from the sysfs open callback")
-> 
-> in case that seems better to you.
+    slimbus: messaging: start transaction ids from 1 instead of zero
 
-I do not see what I can do with that here as it's already in my tree :(
+to my char-misc git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
+in the char-misc-linus branch.
 
-confused,
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-greg k-h
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From 9659281ce78de0f15a4aa124da8f7450b1399c09 Mon Sep 17 00:00:00 2001
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Date: Mon, 9 Aug 2021 09:24:25 +0100
+Subject: slimbus: messaging: start transaction ids from 1 instead of zero
+
+As tid is unsigned its hard to figure out if the tid is valid or
+invalid. So Start the transaction ids from 1 instead of zero
+so that we could differentiate between a valid tid and invalid tids
+
+This is useful in cases where controller would add a tid for controller
+specific transfers.
+
+Fixes: d3062a210930 ("slimbus: messaging: add slim_alloc/free_txn_tid()")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20210809082428.11236-2-srinivas.kandagatla@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/slimbus/messaging.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/slimbus/messaging.c b/drivers/slimbus/messaging.c
+index f2b5d347d227..6097ddc43a35 100644
+--- a/drivers/slimbus/messaging.c
++++ b/drivers/slimbus/messaging.c
+@@ -66,7 +66,7 @@ int slim_alloc_txn_tid(struct slim_controller *ctrl, struct slim_msg_txn *txn)
+ 	int ret = 0;
+ 
+ 	spin_lock_irqsave(&ctrl->txn_lock, flags);
+-	ret = idr_alloc_cyclic(&ctrl->tid_idr, txn, 0,
++	ret = idr_alloc_cyclic(&ctrl->tid_idr, txn, 1,
+ 				SLIM_MAX_TIDS, GFP_ATOMIC);
+ 	if (ret < 0) {
+ 		spin_unlock_irqrestore(&ctrl->txn_lock, flags);
+-- 
+2.32.0
+
+
