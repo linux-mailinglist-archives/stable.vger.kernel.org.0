@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BDD703EB7D4
-	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:24:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D6953EB811
+	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:25:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241352AbhHMPJb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Aug 2021 11:09:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52218 "EHLO mail.kernel.org"
+        id S241676AbhHMPKx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Aug 2021 11:10:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241310AbhHMPJ1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Aug 2021 11:09:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1FAD2610F7;
-        Fri, 13 Aug 2021 15:08:59 +0000 (UTC)
+        id S241680AbhHMPK2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Aug 2021 11:10:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3093A610CC;
+        Fri, 13 Aug 2021 15:10:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628867340;
-        bh=BNVOFxvX0il4kbfEQONAmDN2s6eBOy/0xvJaczXebEk=;
+        s=korg; t=1628867401;
+        bh=xnJVZJG8PZGq3xEdTLOJw2KvvZESvI8y51hBAJZ4+N8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JnWQQx2q6/B9z4CaJ2dQ43AqoYdyaArNSEFQfEk5tQvQszQkp4AY3RqZ2911xJrPy
-         sfGWVg9cxNKo6g5rh6FZQ25DRdBHvI4++IDW4bnxEjOhmbQZhk15HQAzlfC6mEousk
-         58zvBJwSqCwwjCLsMj9MWXGceg8UUxcaas4tjf1g=
+        b=WHR615a3rCrAmexaWugu9/2ks1lpcflxi0f+vh9QNOOIY8Om+AewE09X57eVJfjc7
+         D46XmDPJneSerluGjgKFWI8F1KPCbRh2DIIDfCWcFQ5wLcJMrRmCcQnic/DkfYbLOz
+         QNc04LHqXyAS6KxltD5l77jVP4sc76SdnUOZXwhc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Bauer <mail@david-bauer.net>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.4 12/25] USB: serial: ftdi_sio: add device ID for Auto-M3 OP-COM v2
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Pavel Skripkin <paskripkin@gmail.com>,
+        Joakim Zhang <qiangqing.zhang@nxp.com>,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 08/30] net: fec: fix use-after-free in fec_drv_remove
 Date:   Fri, 13 Aug 2021 17:06:36 +0200
-Message-Id: <20210813150521.116716323@linuxfoundation.org>
+Message-Id: <20210813150522.713376126@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210813150520.718161915@linuxfoundation.org>
-References: <20210813150520.718161915@linuxfoundation.org>
+In-Reply-To: <20210813150522.445553924@linuxfoundation.org>
+References: <20210813150522.445553924@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,43 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Bauer <mail@david-bauer.net>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit 8da0e55c7988ef9f08a708c38e5c75ecd8862cf8 upstream.
+[ Upstream commit 44712965bf12ae1758cec4de53816ed4b914ca1a ]
 
-The Auto-M3 OP-COM v2 is a OBD diagnostic device using a FTD232 for the
-USB connection.
+Smatch says:
+	drivers/net/ethernet/freescale/fec_main.c:3994 fec_drv_remove() error: Using fep after free_{netdev,candev}(ndev);
+	drivers/net/ethernet/freescale/fec_main.c:3995 fec_drv_remove() error: Using fep after free_{netdev,candev}(ndev);
 
-Signed-off-by: David Bauer <mail@david-bauer.net>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Since fep pointer is netdev private data, accessing it after free_netdev()
+call can cause use-after-free bug. Fix it by moving free_netdev() call at
+the end of the function
+
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Fixes: a31eda65ba21 ("net: fec: fix clock count mis-match")
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Reviewed-by: Joakim Zhang <qiangqing.zhang@nxp.com>
+Reviewed-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/ftdi_sio.c     |    1 +
- drivers/usb/serial/ftdi_sio_ids.h |    3 +++
- 2 files changed, 4 insertions(+)
+ drivers/net/ethernet/freescale/fec_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/serial/ftdi_sio.c
-+++ b/drivers/usb/serial/ftdi_sio.c
-@@ -214,6 +214,7 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(FTDI_VID, FTDI_MTXORB_6_PID) },
- 	{ USB_DEVICE(FTDI_VID, FTDI_R2000KU_TRUE_RNG) },
- 	{ USB_DEVICE(FTDI_VID, FTDI_VARDAAN_PID) },
-+	{ USB_DEVICE(FTDI_VID, FTDI_AUTO_M3_OP_COM_V2_PID) },
- 	{ USB_DEVICE(MTXORB_VID, MTXORB_FTDI_RANGE_0100_PID) },
- 	{ USB_DEVICE(MTXORB_VID, MTXORB_FTDI_RANGE_0101_PID) },
- 	{ USB_DEVICE(MTXORB_VID, MTXORB_FTDI_RANGE_0102_PID) },
---- a/drivers/usb/serial/ftdi_sio_ids.h
-+++ b/drivers/usb/serial/ftdi_sio_ids.h
-@@ -158,6 +158,9 @@
- /* Vardaan Enterprises Serial Interface VEUSB422R3 */
- #define FTDI_VARDAAN_PID	0xF070
+diff --git a/drivers/net/ethernet/freescale/fec_main.c b/drivers/net/ethernet/freescale/fec_main.c
+index 9b3ea0406e0d..5fc40f025d21 100644
+--- a/drivers/net/ethernet/freescale/fec_main.c
++++ b/drivers/net/ethernet/freescale/fec_main.c
+@@ -3546,13 +3546,13 @@ fec_drv_remove(struct platform_device *pdev)
+ 	if (of_phy_is_fixed_link(np))
+ 		of_phy_deregister_fixed_link(np);
+ 	of_node_put(fep->phy_node);
+-	free_netdev(ndev);
  
-+/* Auto-M3 Ltd. - OP-COM USB V2 - OBD interface Adapter */
-+#define FTDI_AUTO_M3_OP_COM_V2_PID	0x4f50
-+
- /*
-  * Xsens Technologies BV products (http://www.xsens.com).
-  */
+ 	clk_disable_unprepare(fep->clk_ahb);
+ 	clk_disable_unprepare(fep->clk_ipg);
+ 	pm_runtime_put_noidle(&pdev->dev);
+ 	pm_runtime_disable(&pdev->dev);
+ 
++	free_netdev(ndev);
+ 	return 0;
+ }
+ 
+-- 
+2.30.2
+
 
 
