@@ -2,137 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 48E9F3EB8F2
-	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:26:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B92E3EB914
+	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:26:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242687AbhHMPS2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Aug 2021 11:18:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56306 "EHLO mail.kernel.org"
+        id S242021AbhHMPVm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Aug 2021 11:21:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242173AbhHMPQX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Aug 2021 11:16:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E07156113D;
-        Fri, 13 Aug 2021 15:15:21 +0000 (UTC)
+        id S242528AbhHMPSN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Aug 2021 11:18:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 320F1604D7;
+        Fri, 13 Aug 2021 15:17:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628867722;
-        bh=1UJO02fPq10678BivAjFpFCN4XN3zlfkalL/7djvY4w=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mDq92XfzCIkVXwDL80BAL/ZFlwVxXK2bnOXNIDlKFRgczi8WkEAs+eixwWiwJcYaB
-         mpRQC37yY6pI4j9IUP8K/3iDOZPvKfafSJz4R8rdEEqFAqVs428sm8volZND9LRjav
-         a+NaobLvluaAetk2nR7fNovhFY6SyW63e8HQm6Dw=
+        s=korg; t=1628867866;
+        bh=7IvGPmbqt6MeOuUj/O12dGFXesS8HBm8zaWzZDYSZSU=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=szT/Ohsjn9/mPLA0w8HRUPcr13w/4QxpFOK0SLkKliYX/HXKfUpfV25WshO9bsjWq
+         bug2cJTKZjzXohR20iZfvKgzJWMKGyDTRp55ivfUuhBYxChjrWMztb/NyKzNXvTXRf
+         86CbOG9kIEGGAx50fTdBgXAW+etmkNHnZJWUvb98=
+Date:   Fri, 13 Aug 2021 17:09:37 +0200
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alois Wohlschlager <alois1@gmx-topmail.de>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 5.13 8/8] ovl: prevent private clone if bind mount is not allowed
-Date:   Fri, 13 Aug 2021 17:07:45 +0200
-Message-Id: <20210813150520.354569563@linuxfoundation.org>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210813150520.090373732@linuxfoundation.org>
-References: <20210813150520.090373732@linuxfoundation.org>
-User-Agent: quilt/0.66
+To:     Bjorn Helgaas <helgaas@kernel.org>
+Cc:     Krzysztof =?utf-8?Q?Wilczy=C5=84ski?= <kw@linux.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] PCI/sysfs: Use correct variable for the legacy_mem sysfs
+ object
+Message-ID: <YRaLMWh3zsVQqNr1@kroah.com>
+References: <YRYrDQ3yuvtLtoKr@kroah.com>
+ <20210813142901.GA2574831@bjorn-Precision-5520>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210813142901.GA2574831@bjorn-Precision-5520>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miklos Szeredi <mszeredi@redhat.com>
+On Fri, Aug 13, 2021 at 09:29:01AM -0500, Bjorn Helgaas wrote:
+> On Fri, Aug 13, 2021 at 10:19:25AM +0200, Greg Kroah-Hartman wrote:
+> > On Thu, Aug 12, 2021 at 12:14:50PM -0500, Bjorn Helgaas wrote:
+> > > On Thu, Aug 12, 2021 at 11:17:12AM -0500, Bjorn Helgaas wrote:
+> > > > [+to Greg, please update sysfs_defferred_iomem_get_mapping-5.15]
+> > > 
+> > > Actually, Greg, totally up to you, but if nobody else is depending on
+> > > the sysfs_defferred_iomem_get_mapping-5.15 branch, another possibility
+> > > would be for you to drop that branch and for me to merge the two
+> > > patches on it + Krzysztof's fix below + (hopefully) Krzysztof's PCI
+> > > static attribute work.
+> > 
+> > I can not "drop" the branch as it is already merged into my
+> > driver-core-next branch that I can not rebase.  I could revert it, but
+> > is that really needed?
+> 
+> Nope, I don't think a revert is warranted.  I'll take care of getting
+> Krzysztof's fix into v5.15.
 
-commit 427215d85e8d1476da1a86b8d67aceb485eb3631 upstream.
+Thanks, I'll handle the merge issues after that happens in my tree.
 
-Add the following checks from __do_loopback() to clone_private_mount() as
-well:
-
- - verify that the mount is in the current namespace
-
- - verify that there are no locked children
-
-Reported-by: Alois Wohlschlager <alois1@gmx-topmail.de>
-Fixes: c771d683a62e ("vfs: introduce clone_private_mount()")
-Cc: <stable@vger.kernel.org> # v3.18
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- fs/namespace.c |   42 ++++++++++++++++++++++++++++--------------
- 1 file changed, 28 insertions(+), 14 deletions(-)
-
---- a/fs/namespace.c
-+++ b/fs/namespace.c
-@@ -1938,6 +1938,20 @@ void drop_collected_mounts(struct vfsmou
- 	namespace_unlock();
- }
- 
-+static bool has_locked_children(struct mount *mnt, struct dentry *dentry)
-+{
-+	struct mount *child;
-+
-+	list_for_each_entry(child, &mnt->mnt_mounts, mnt_child) {
-+		if (!is_subdir(child->mnt_mountpoint, dentry))
-+			continue;
-+
-+		if (child->mnt.mnt_flags & MNT_LOCKED)
-+			return true;
-+	}
-+	return false;
-+}
-+
- /**
-  * clone_private_mount - create a private clone of a path
-  * @path: path to clone
-@@ -1953,10 +1967,19 @@ struct vfsmount *clone_private_mount(con
- 	struct mount *old_mnt = real_mount(path->mnt);
- 	struct mount *new_mnt;
- 
-+	down_read(&namespace_sem);
- 	if (IS_MNT_UNBINDABLE(old_mnt))
--		return ERR_PTR(-EINVAL);
-+		goto invalid;
-+
-+	if (!check_mnt(old_mnt))
-+		goto invalid;
-+
-+	if (has_locked_children(old_mnt, path->dentry))
-+		goto invalid;
- 
- 	new_mnt = clone_mnt(old_mnt, path->dentry, CL_PRIVATE);
-+	up_read(&namespace_sem);
-+
- 	if (IS_ERR(new_mnt))
- 		return ERR_CAST(new_mnt);
- 
-@@ -1964,6 +1987,10 @@ struct vfsmount *clone_private_mount(con
- 	new_mnt->mnt_ns = MNT_NS_INTERNAL;
- 
- 	return &new_mnt->mnt;
-+
-+invalid:
-+	up_read(&namespace_sem);
-+	return ERR_PTR(-EINVAL);
- }
- EXPORT_SYMBOL_GPL(clone_private_mount);
- 
-@@ -2315,19 +2342,6 @@ static int do_change_type(struct path *p
- 	return err;
- }
- 
--static bool has_locked_children(struct mount *mnt, struct dentry *dentry)
--{
--	struct mount *child;
--	list_for_each_entry(child, &mnt->mnt_mounts, mnt_child) {
--		if (!is_subdir(child->mnt_mountpoint, dentry))
--			continue;
--
--		if (child->mnt.mnt_flags & MNT_LOCKED)
--			return true;
--	}
--	return false;
--}
--
- static struct mount *__do_loopback(struct path *old_path, int recurse)
- {
- 	struct mount *mnt = ERR_PTR(-EINVAL), *old = real_mount(old_path->mnt);
-
-
+greg k-h
