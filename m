@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E75863EB851
-	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:25:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C8743EB81C
+	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:25:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241311AbhHMPM6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Aug 2021 11:12:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54020 "EHLO mail.kernel.org"
+        id S241176AbhHMPLN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Aug 2021 11:11:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241833AbhHMPLp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Aug 2021 11:11:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 744E1610EA;
-        Fri, 13 Aug 2021 15:11:18 +0000 (UTC)
+        id S241764AbhHMPKl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Aug 2021 11:10:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 265ED6109D;
+        Fri, 13 Aug 2021 15:10:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628867479;
-        bh=6UZ8UDbE+gtZ419+958w1Ct+az9EJtjv+tl1F1V8R0A=;
+        s=korg; t=1628867414;
+        bh=hB1ZqywZVYuDQf7z/EFxyNDz5gV77JsuSqEQx0lqY5I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z/SFyogUi9aC/lp1gu/nQX4joI+mjmkObrDY8Q2RcN8BBhu/MZ7M8FGB4JV+m6ONj
-         Pek484ncG4lz9oUPc3wFubYqESV8UaApD68h6VhQ6QI9O/r59owst1ME1wEK0/5SPK
-         +fVz9EimXYs+4CHdAxc6rAinjhwfOM+i/nppghJw=
+        b=GO53xJypFUkS00toQNgSngTNsyICV8ghsl60uUlb8OZd6lJ6lk9devU9ArjnWAW61
+         HNcvQUd8qah2VJQuTOXC7ZB52yS2GyC4rsNkjmwNekVBIuUmtzcYSpXgsxg0A/mAAX
+         d28arTyxo4Ehwp4BS03IbH/4WF07pZWdJI335D6U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <f4bug@amsat.org>,
-        "Maciej W. Rozycki" <macro@orcam.me.uk>
-Subject: [PATCH 4.14 29/42] MIPS: Malta: Do not byte-swap accesses to the CBUS UART
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Longfang Liu <liulongfang@huawei.com>
+Subject: [PATCH 4.9 27/30] USB:ehci:fix Kunpeng920 ehci hardware problem
 Date:   Fri, 13 Aug 2021 17:06:55 +0200
-Message-Id: <20210813150526.087745029@linuxfoundation.org>
+Message-Id: <20210813150523.324553598@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210813150525.098817398@linuxfoundation.org>
-References: <20210813150525.098817398@linuxfoundation.org>
+In-Reply-To: <20210813150522.445553924@linuxfoundation.org>
+References: <20210813150522.445553924@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,65 +39,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej W. Rozycki <macro@orcam.me.uk>
+From: Longfang Liu <liulongfang@huawei.com>
 
-commit 9a936d6c3d3d6c33ecbadf72dccdb567b5cd3c72 upstream.
+commit 26b75952ca0b8b4b3050adb9582c8e2f44d49687 upstream.
 
-Correct big-endian accesses to the CBUS UART, a Malta on-board discrete
-TI16C550C part wired directly to the system controller's device bus, and
-do not use byte swapping with the 32-bit accesses to the device.
+Kunpeng920's EHCI controller does not have SBRN register.
+Reading the SBRN register when the controller driver is
+initialized will get 0.
 
-The CBUS is used for devices such as the boot flash memory needed early
-on in system bootstrap even before PCI has been initialised.  Therefore
-it uses the system controller's device bus, which follows the endianness
-set with the CPU, which means no byte-swapping is ever required for data
-accesses to CBUS, unlike with PCI.
+When rebooting the EHCI driver, ehci_shutdown() will be called.
+if the sbrn flag is 0, ehci_shutdown() will return directly.
+The sbrn flag being 0 will cause the EHCI interrupt signal to
+not be turned off after reboot. this interrupt that is not closed
+will cause an exception to the device sharing the interrupt.
 
-The CBUS UART uses the UPIO_MEM32 access method, that is the `readl' and
-`writel' MMIO accessors, which on the MIPS platform imply byte-swapping
-with PCI systems.  Consequently the wrong byte lane is accessed with the
-big-endian configuration and the UART is not correctly accessed.
+Therefore, the EHCI controller of Kunpeng920 needs to skip
+the read operation of the SBRN register.
 
-As it happens the UPIO_MEM32BE access method makes use of the `ioread32'
-and `iowrite32' MMIO accessors, which still use `readl' and `writel'
-respectively, however they byte-swap data passed, effectively cancelling
-swapping done with the accessors themselves and making it suitable for
-the CBUS UART.
-
-Make the CBUS UART switch between UPIO_MEM32 and UPIO_MEM32BE then,
-based on the endianness selected.  With this change in place the device
-is correctly recognised with big-endian Malta at boot, along with the
-Super I/O devices behind PCI:
-
-Serial: 8250/16550 driver, 5 ports, IRQ sharing enabled
-printk: console [ttyS0] disabled
-serial8250.0: ttyS0 at I/O 0x3f8 (irq = 4, base_baud = 115200) is a 16550A
-printk: console [ttyS0] enabled
-printk: bootconsole [uart8250] disabled
-serial8250.0: ttyS1 at I/O 0x2f8 (irq = 3, base_baud = 115200) is a 16550A
-serial8250.0: ttyS2 at MMIO 0x1f000900 (irq = 20, base_baud = 230400) is a 16550A
-
-Fixes: e7c4782f92fc ("[MIPS] Put an end to <asm/serial.h>'s long and annyoing existence")
-Cc: stable@vger.kernel.org # v2.6.23+
-Reviewed-by: Philippe Mathieu-Daudé <f4bug@amsat.org>
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Link: https://lore.kernel.org/r/alpine.DEB.2.21.2106260524430.37803@angie.orcam.me.uk
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Longfang Liu <liulongfang@huawei.com>
+Link: https://lore.kernel.org/r/1617958081-17999-1-git-send-email-liulongfang@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/mti-malta/malta-platform.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/host/ehci-pci.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/arch/mips/mti-malta/malta-platform.c
-+++ b/arch/mips/mti-malta/malta-platform.c
-@@ -47,7 +47,8 @@ static struct plat_serial8250_port uart8
- 		.mapbase	= 0x1f000900,	/* The CBUS UART */
- 		.irq		= MIPS_CPU_IRQ_BASE + MIPSCPU_INT_MB2,
- 		.uartclk	= 3686400,	/* Twice the usual clk! */
--		.iotype		= UPIO_MEM32,
-+		.iotype		= IS_ENABLED(CONFIG_CPU_BIG_ENDIAN) ?
-+				  UPIO_MEM32BE : UPIO_MEM32,
- 		.flags		= CBUS_UART_FLAGS,
- 		.regshift	= 3,
- 	},
+--- a/drivers/usb/host/ehci-pci.c
++++ b/drivers/usb/host/ehci-pci.c
+@@ -312,6 +312,9 @@ static int ehci_pci_setup(struct usb_hcd
+ 	if (pdev->vendor == PCI_VENDOR_ID_STMICRO
+ 	    && pdev->device == PCI_DEVICE_ID_STMICRO_USB_HOST)
+ 		;	/* ConneXT has no sbrn register */
++	else if (pdev->vendor == PCI_VENDOR_ID_HUAWEI
++			 && pdev->device == 0xa239)
++		;	/* HUAWEI Kunpeng920 USB EHCI has no sbrn register */
+ 	else
+ 		pci_read_config_byte(pdev, 0x60, &ehci->sbrn);
+ 
 
 
