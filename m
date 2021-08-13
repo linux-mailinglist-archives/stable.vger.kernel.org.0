@@ -2,124 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EA443EB895
-	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:26:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D72D3EB8BC
+	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:26:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241669AbhHMPOm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Aug 2021 11:14:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56586 "EHLO mail.kernel.org"
+        id S242760AbhHMPQD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Aug 2021 11:16:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241764AbhHMPNU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Aug 2021 11:13:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A66FA610EA;
-        Fri, 13 Aug 2021 15:12:52 +0000 (UTC)
+        id S242645AbhHMPOd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Aug 2021 11:14:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BF825610FF;
+        Fri, 13 Aug 2021 15:14:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628867573;
-        bh=jc3D3ISIm4zf6pUe0gjOoGa/I+ad7JKjF8jb11HloX4=;
-        h=From:To:Cc:Subject:Date:From;
-        b=mdansC365Fi+39Lwcp/v5BVFRZvfi6NrCvsmgtG+oZs6Wcj9yIhKXLIiSq0Lx5PYL
-         RC1kwtfkzCdr1Hd4mIQiLdNM3CXkQvR+A9b9X7jXLF6nxmhUV/YbZ6R70PTReHfTqV
-         Rs4nx5ollCFRDz1zaWTGBxCHHldIxFepqU24YdGo=
+        s=korg; t=1628867642;
+        bh=1wJ0zb7O8wyMT9RiAhV7Tt8m5ChXhbRXWIJiwTth6Rk=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=yqGCK1TVMOZuFxWa/RC/WUT+6u8ZL2KYe1t+LdD9j+pJdI5o4m8wWqSs1Tz9X4j9F
+         ojyZGNpr1MNlHuARZ8XYWgLBa+xefqwH7EqPKRHCrYtBOK7kyKc1TPbtAdeVST+WLy
+         QjLza4PScpUsC13N4M4jzg9R+y9Rq8rdwyo68ULg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: [PATCH 4.19 00/11] 4.19.204-rc1 review
+        stable@vger.kernel.org,
+        "stable@vger.kernel.org, Wesley Cheng" <wcheng@codeaurora.org>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Wesley Cheng <wcheng@codeaurora.org>
+Subject: [PATCH 5.4 09/27] usb: dwc3: gadget: Clear DEP flags after stop transfers in ep disable
 Date:   Fri, 13 Aug 2021 17:07:07 +0200
-Message-Id: <20210813150520.072304554@linuxfoundation.org>
+Message-Id: <20210813150523.674268668@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-MIME-Version: 1.0
+In-Reply-To: <20210813150523.364549385@linuxfoundation.org>
+References: <20210813150523.364549385@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.204-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.19.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.19.204-rc1
-X-KernelTest-Deadline: 2021-08-15T15:05+00:00
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.19.204 release.
-There are 11 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Wesley Cheng <wcheng@codeaurora.org>
 
-Responses should be made by Sun, 15 Aug 2021 15:05:12 +0000.
-Anything received after that time might be too late.
+[ Upstream commit 5aef629704ad4d983ecf5c8a25840f16e45b6d59 ]
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.204-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-and the diffstat can be found below.
+Ensure that dep->flags are cleared until after stop active transfers
+is completed.  Otherwise, the ENDXFER command will not be executed
+during ep disable.
 
-thanks,
+Fixes: f09ddcfcb8c5 ("usb: dwc3: gadget: Prevent EP queuing while stopping transfers")
+Cc: stable <stable@vger.kernel.org>
+Reported-and-tested-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Signed-off-by: Wesley Cheng <wcheng@codeaurora.org>
+Link: https://lore.kernel.org/r/1616610664-16495-1-git-send-email-wcheng@codeaurora.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/dwc3/gadget.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-greg k-h
-
--------------
-Pseudo-Shortlog of commits:
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.19.204-rc1
-
-YueHaibing <yuehaibing@huawei.com>
-    net: xilinx_emaclite: Do not print real IOMEM pointer
-
-Miklos Szeredi <mszeredi@redhat.com>
-    ovl: prevent private clone if bind mount is not allowed
-
-Pali Rohár <pali@kernel.org>
-    ppp: Fix generating ppp unit id when ifname is not specified
-
-Longfang Liu <liulongfang@huawei.com>
-    USB:ehci:fix Kunpeng920 ehci hardware problem
-
-Lai Jiangshan <laijs@linux.alibaba.com>
-    KVM: X86: MMU: Use the correct inherited permissions to get shadow page
-
-Daniel Borkmann <daniel@iogearbox.net>
-    bpf, selftests: Adjust few selftest outcomes wrt unreachable code
-
-Daniel Borkmann <daniel@iogearbox.net>
-    bpf: Fix leakage under speculation on mispredicted branches
-
-Daniel Borkmann <daniel@iogearbox.net>
-    bpf: Do not mark insn as seen under speculative path verification
-
-Daniel Borkmann <daniel@iogearbox.net>
-    bpf: Inherit expanded/patched seen count from old aux data
-
-Masami Hiramatsu <mhiramat@kernel.org>
-    tracing: Reject string operand in the histogram expression
-
-Sean Christopherson <seanjc@google.com>
-    KVM: SVM: Fix off-by-one indexing when nullifying last used SEV VMCB
-
-
--------------
-
-Diffstat:
-
- Documentation/virtual/kvm/mmu.txt             |  4 +-
- Makefile                                      |  4 +-
- arch/x86/kvm/paging_tmpl.h                    | 14 ++++--
- arch/x86/kvm/svm.c                            |  2 +-
- drivers/net/ethernet/xilinx/xilinx_emaclite.c |  5 +-
- drivers/net/ppp/ppp_generic.c                 | 19 ++++++--
- drivers/usb/host/ehci-pci.c                   |  3 ++
- fs/namespace.c                                | 42 +++++++++++------
- kernel/bpf/verifier.c                         | 68 +++++++++++++++++++++++----
- kernel/trace/trace_events_hist.c              | 14 ++++++
- tools/testing/selftests/bpf/test_verifier.c   |  2 +
- 11 files changed, 138 insertions(+), 39 deletions(-)
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -754,10 +754,6 @@ static int __dwc3_gadget_ep_disable(stru
+ 	reg &= ~DWC3_DALEPENA_EP(dep->number);
+ 	dwc3_writel(dwc->regs, DWC3_DALEPENA, reg);
+ 
+-	dep->stream_capable = false;
+-	dep->type = 0;
+-	dep->flags = 0;
+-
+ 	/* Clear out the ep descriptors for non-ep0 */
+ 	if (dep->number > 1) {
+ 		dep->endpoint.comp_desc = NULL;
+@@ -766,6 +762,10 @@ static int __dwc3_gadget_ep_disable(stru
+ 
+ 	dwc3_remove_requests(dwc, dep);
+ 
++	dep->stream_capable = false;
++	dep->type = 0;
++	dep->flags = 0;
++
+ 	return 0;
+ }
+ 
 
 
