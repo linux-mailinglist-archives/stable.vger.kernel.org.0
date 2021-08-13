@@ -2,79 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 48FF43EB2EF
-	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 10:51:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BA393EB313
+	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 11:02:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239749AbhHMIvg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Aug 2021 04:51:36 -0400
-Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:42539 "EHLO
-        wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S239486AbhHMIvg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 Aug 2021 04:51:36 -0400
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailout.west.internal (Postfix) with ESMTP id 576FF320028E;
-        Fri, 13 Aug 2021 04:51:09 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute5.internal (MEProxy); Fri, 13 Aug 2021 04:51:09 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=p/+saRqqetlifXcfm9JvNc6N4cM
-        ukwRN6U3FKPo9b2U=; b=INhD6XiYdIc5P6ciIagvlrYrtPuUBb8z+CN7NrgCGvU
-        139mAJQJ+v4EBHgmkuOUuaYQjKLvz8rbiGnoIhwYP1hIXTBHO7DLm+s04h9FxroY
-        KTwGvpxhrGYV2MymSMxuO0sfAx+b/8uNPgq9K358b83Fko8qZP85ADQlfWNxPyg4
-        ZO8fkNu+KYXzllsBYgZe8/2g+W+o5gVoLANjkYMwuRky/cky1Yc4GakoMi3/nj9U
-        lvnfl3zxVeEa4cdsE+SP845QmpQLb2aceHIgZHCxUupEhNQ/v8xvMj2bLXa1+9Ms
-        Qu2YDdl2NjqNqA2uVguYDvkjHZoHewJ/zuUz6wyHyNw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=p/+saR
-        qqetlifXcfm9JvNc6N4cMukwRN6U3FKPo9b2U=; b=Y7eRvW866bCqsmA5opWeIt
-        h5XDMnl/B8PuZt3loPrEv57tLBeoX3dNs/ntGfKoJA/iy/QWehABa8GYSQnbFyRJ
-        1YYzHB9VcHA3SOWxX9/0I4XVWQsbxnwmOOupG/Q12nHyMB5IuCsRCPxCQ+g6kFV4
-        1mA0Qywzv3o+z89jOMlhfkYRmjPJJif6LqWu/EWdSvJyBUFU0et38IKPB+YZqhvx
-        33mdlHqyDifid/RyvfohtiMN7GqOPTKPRPCDM40g4nAEJmvghdsKwLVikYnvMBgc
-        sJWVaeOB2nyczPgxBfjTyW41RoKyakB7yJj4paLBzknhgE5JM9u0GgRkQH4Kkxtg
-        ==
-X-ME-Sender: <xms:fDIWYYqHl1Iwg4iRvdiAiCnkrtltqMcqICGs63XZdDHQ05WE3ZIk-Q>
-    <xme:fDIWYerNeDU4F6yeVPKeWqPLu6nigF6bv-HhWZJCAPq5lLjVlZ6X8kjtUX_iu8n_U
-    g0v95-gDk1m5A>
-X-ME-Received: <xmr:fDIWYdNAiATmXuwUREC4tZMRVW-gnlDI2ToorqeKn_aKNADABBVtBtSMVSHx4gamEQlF-EaFvFCAYqLLOGTPt0U5m2JVi1Vp>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrkeehgddtjecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
-    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepveeuheejgf
-    ffgfeivddukedvkedtleelleeghfeljeeiueeggeevueduudekvdetnecuvehluhhsthgv
-    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:fDIWYf6XqFlfA4SySjPAFGZTucGUQTRihhn94qlIRv5yB3UB0UoQZQ>
-    <xmx:fDIWYX6vwkOOKiRNdn2m3LoWgSoibHGz7RAZv5N6jkCTPpntnJiyOw>
-    <xmx:fDIWYfiInlAsomwvwSx9egcjV-CWyoJDmbBlPK58WGV0YC-egQNZvQ>
-    <xmx:fDIWYUvjff2Ell4gaFSPtdWlVa7yjkFnfeUjAH0SAtafIFbBu2_aLQ>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
- 13 Aug 2021 04:51:07 -0400 (EDT)
-Date:   Fri, 13 Aug 2021 10:51:03 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Ovidiu Panait <ovidiu.panait@windriver.com>
-Cc:     stable@vger.kernel.org, pbonzini@redhat.com,
-        laijs@linux.alibaba.com
-Subject: Re: [PATCH 5.4 0/1] KVM: backport fix for CVE-2021-38198
-Message-ID: <YRYyd1KM1PMRXc8g@kroah.com>
-References: <20210811154629.2104425-1-ovidiu.panait@windriver.com>
+        id S239872AbhHMJCm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Aug 2021 05:02:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58804 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S239704AbhHMJCl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Aug 2021 05:02:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C43E6024A;
+        Fri, 13 Aug 2021 09:02:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1628845335;
+        bh=0dGuW6J2+6AL1hyHdffBucegBJdW5Wzjuhgjm3LCh8k=;
+        h=Subject:To:Cc:From:Date:From;
+        b=nbC1bRuYEQYlZyVy26W6EQSVbEUEhoSHvjB3I92qMgX00O9Pud5GxcXxBjTly9DPk
+         mGDnK+k+dBwcaTjGU6ASKJSqZ723g46SCMVlH29bmNv0ChLfCPsBvNo3yi3GMHIHsM
+         GZ754mqkYQ8cnw/X1wTp56kGJ+zDjxy9gppKHYlI=
+Subject: FAILED: patch "[PATCH] ovl: prevent private clone if bind mount is not allowed" failed to apply to 4.9-stable tree
+To:     mszeredi@redhat.com, alois1@gmx-topmail.de, stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 13 Aug 2021 11:02:05 +0200
+Message-ID: <1628845325236177@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210811154629.2104425-1-ovidiu.panait@windriver.com>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Aug 11, 2021 at 06:46:28PM +0300, Ovidiu Panait wrote:
-> The backport was validated by running the kvm-unit-tests testcase [1] mentioned
-> in the commit message.
-> 
 
-Now queued up, thanks.
+The patch below does not apply to the 4.9-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 427215d85e8d1476da1a86b8d67aceb485eb3631 Mon Sep 17 00:00:00 2001
+From: Miklos Szeredi <mszeredi@redhat.com>
+Date: Mon, 9 Aug 2021 10:19:47 +0200
+Subject: [PATCH] ovl: prevent private clone if bind mount is not allowed
+
+Add the following checks from __do_loopback() to clone_private_mount() as
+well:
+
+ - verify that the mount is in the current namespace
+
+ - verify that there are no locked children
+
+Reported-by: Alois Wohlschlager <alois1@gmx-topmail.de>
+Fixes: c771d683a62e ("vfs: introduce clone_private_mount()")
+Cc: <stable@vger.kernel.org> # v3.18
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+
+diff --git a/fs/namespace.c b/fs/namespace.c
+index ab4174a3c802..f79d9471cb76 100644
+--- a/fs/namespace.c
++++ b/fs/namespace.c
+@@ -1938,6 +1938,20 @@ void drop_collected_mounts(struct vfsmount *mnt)
+ 	namespace_unlock();
+ }
+ 
++static bool has_locked_children(struct mount *mnt, struct dentry *dentry)
++{
++	struct mount *child;
++
++	list_for_each_entry(child, &mnt->mnt_mounts, mnt_child) {
++		if (!is_subdir(child->mnt_mountpoint, dentry))
++			continue;
++
++		if (child->mnt.mnt_flags & MNT_LOCKED)
++			return true;
++	}
++	return false;
++}
++
+ /**
+  * clone_private_mount - create a private clone of a path
+  * @path: path to clone
+@@ -1953,10 +1967,19 @@ struct vfsmount *clone_private_mount(const struct path *path)
+ 	struct mount *old_mnt = real_mount(path->mnt);
+ 	struct mount *new_mnt;
+ 
++	down_read(&namespace_sem);
+ 	if (IS_MNT_UNBINDABLE(old_mnt))
+-		return ERR_PTR(-EINVAL);
++		goto invalid;
++
++	if (!check_mnt(old_mnt))
++		goto invalid;
++
++	if (has_locked_children(old_mnt, path->dentry))
++		goto invalid;
+ 
+ 	new_mnt = clone_mnt(old_mnt, path->dentry, CL_PRIVATE);
++	up_read(&namespace_sem);
++
+ 	if (IS_ERR(new_mnt))
+ 		return ERR_CAST(new_mnt);
+ 
+@@ -1964,6 +1987,10 @@ struct vfsmount *clone_private_mount(const struct path *path)
+ 	new_mnt->mnt_ns = MNT_NS_INTERNAL;
+ 
+ 	return &new_mnt->mnt;
++
++invalid:
++	up_read(&namespace_sem);
++	return ERR_PTR(-EINVAL);
+ }
+ EXPORT_SYMBOL_GPL(clone_private_mount);
+ 
+@@ -2315,19 +2342,6 @@ static int do_change_type(struct path *path, int ms_flags)
+ 	return err;
+ }
+ 
+-static bool has_locked_children(struct mount *mnt, struct dentry *dentry)
+-{
+-	struct mount *child;
+-	list_for_each_entry(child, &mnt->mnt_mounts, mnt_child) {
+-		if (!is_subdir(child->mnt_mountpoint, dentry))
+-			continue;
+-
+-		if (child->mnt.mnt_flags & MNT_LOCKED)
+-			return true;
+-	}
+-	return false;
+-}
+-
+ static struct mount *__do_loopback(struct path *old_path, int recurse)
+ {
+ 	struct mount *mnt = ERR_PTR(-EINVAL), *old = real_mount(old_path->mnt);
+
