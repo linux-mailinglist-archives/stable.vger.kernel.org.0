@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 035203EB825
-	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:25:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C48B63EB871
+	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:25:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241354AbhHMPLj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Aug 2021 11:11:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53778 "EHLO mail.kernel.org"
+        id S242122AbhHMPNt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Aug 2021 11:13:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241805AbhHMPKv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Aug 2021 11:10:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F33061103;
-        Fri, 13 Aug 2021 15:10:23 +0000 (UTC)
+        id S242144AbhHMPMr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Aug 2021 11:12:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D9357610FC;
+        Fri, 13 Aug 2021 15:12:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628867424;
-        bh=2wtNd8DLtIwTEgErKq3pVhARqyZ3RE7JTqyuOrqoI7w=;
+        s=korg; t=1628867529;
+        bh=lyoev9/9REs+fcjwzKE/QqJuYQ2KvIMBX6V/OxJCqRw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V7UZPxPMavHCLEwy4+laoA8gAweWlYdfCu07hpFQ44JEJUnuqeBo5L4lJHXfFnrI/
-         FfQ0Xg6Q2S1UEgwPNH2BlsxwOl8WzM3lwLlOf1Gm/0Nh9pBbx9vkOeqeJo6Ut5Q5b5
-         4nl/s3WL/0u7SoCyV25CnntU6jCHHqfZlDD/3juA=
+        b=mmN9A+TzTkBDsrEkWnBlS9WOSPkgZw3qJBLZbrQRsQKSbtNhZyzd8CplebvjOuZkA
+         oOEyoYENY5xaGyx4QRkftEmAtSoLpLzPSp1FO1h4JZmfu5OOAkxUMk37feu++61rcL
+         LctkB3YQHWXnpOrleFLqZvf3jbk4hX/BGf77XdvU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+c31a48e6702ccb3d64c9@syzkaller.appspotmail.com,
-        Shreyansh Chouhan <chouhan.shreyansh630@gmail.com>,
-        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 24/30] reiserfs: check directory items on read from disk
+        stable@vger.kernel.org, "Alex Xu (Hello71)" <alex_y_xu@yahoo.ca>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 26/42] pipe: increase minimum default pipe size to 2 pages
 Date:   Fri, 13 Aug 2021 17:06:52 +0200
-Message-Id: <20210813150523.223823137@linuxfoundation.org>
+Message-Id: <20210813150525.983063790@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210813150522.445553924@linuxfoundation.org>
-References: <20210813150522.445553924@linuxfoundation.org>
+In-Reply-To: <20210813150525.098817398@linuxfoundation.org>
+References: <20210813150525.098817398@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,79 +39,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shreyansh Chouhan <chouhan.shreyansh630@gmail.com>
+From: Alex Xu (Hello71) <alex_y_xu@yahoo.ca>
 
-[ Upstream commit 13d257503c0930010ef9eed78b689cec417ab741 ]
+commit 46c4c9d1beb7f5b4cec4dd90e7728720583ee348 upstream.
 
-While verifying the leaf item that we read from the disk, reiserfs
-doesn't check the directory items, this could cause a crash when we
-read a directory item from the disk that has an invalid deh_location.
+This program always prints 4096 and hangs before the patch, and always
+prints 8192 and exits successfully after:
 
-This patch adds a check to the directory items read from the disk that
-does a bounds check on deh_location for the directory entries. Any
-directory entry header with a directory entry offset greater than the
-item length is considered invalid.
+  int main()
+  {
+      int pipefd[2];
+      for (int i = 0; i < 1025; i++)
+          if (pipe(pipefd) == -1)
+              return 1;
+      size_t bufsz = fcntl(pipefd[1], F_GETPIPE_SZ);
+      printf("%zd\n", bufsz);
+      char *buf = calloc(bufsz, 1);
+      write(pipefd[1], buf, bufsz);
+      read(pipefd[0], buf, bufsz-1);
+      write(pipefd[1], buf, 1);
+  }
 
-Link: https://lore.kernel.org/r/20210709152929.766363-1-chouhan.shreyansh630@gmail.com
-Reported-by: syzbot+c31a48e6702ccb3d64c9@syzkaller.appspotmail.com
-Signed-off-by: Shreyansh Chouhan <chouhan.shreyansh630@gmail.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Note that you may need to increase your RLIMIT_NOFILE before running the
+program.
+
+Fixes: 759c01142a ("pipe: limit the per-user amount of pages allocated in pipes")
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/lkml/1628086770.5rn8p04n6j.none@localhost/
+Link: https://lore.kernel.org/lkml/1628127094.lxxn016tj7.none@localhost/
+Signed-off-by: Alex Xu (Hello71) <alex_y_xu@yahoo.ca>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/reiserfs/stree.c | 31 ++++++++++++++++++++++++++-----
- 1 file changed, 26 insertions(+), 5 deletions(-)
+ fs/pipe.c |   19 +++++++++++++++++--
+ 1 file changed, 17 insertions(+), 2 deletions(-)
 
-diff --git a/fs/reiserfs/stree.c b/fs/reiserfs/stree.c
-index 25b2aed9af0b..f2f7055303ca 100644
---- a/fs/reiserfs/stree.c
-+++ b/fs/reiserfs/stree.c
-@@ -386,6 +386,24 @@ void pathrelse(struct treepath *search_path)
- 	search_path->path_length = ILLEGAL_PATH_ELEMENT_OFFSET;
- }
+--- a/fs/pipe.c
++++ b/fs/pipe.c
+@@ -30,6 +30,21 @@
+ #include "internal.h"
  
-+static int has_valid_deh_location(struct buffer_head *bh, struct item_head *ih)
-+{
-+	struct reiserfs_de_head *deh;
-+	int i;
+ /*
++ * New pipe buffers will be restricted to this size while the user is exceeding
++ * their pipe buffer quota. The general pipe use case needs at least two
++ * buffers: one for data yet to be read, and one for new data. If this is less
++ * than two, then a write to a non-empty pipe may block even if the pipe is not
++ * full. This can occur with GNU make jobserver or similar uses of pipes as
++ * semaphores: multiple processes may be waiting to write tokens back to the
++ * pipe before reading tokens: https://lore.kernel.org/lkml/1628086770.5rn8p04n6j.none@localhost/.
++ *
++ * Users can reduce their pipe buffers with F_SETPIPE_SZ below this at their
++ * own risk, namely: pipe writes to non-full pipes may block until the pipe is
++ * emptied.
++ */
++#define PIPE_MIN_DEF_BUFFERS 2
 +
-+	deh = B_I_DEH(bh, ih);
-+	for (i = 0; i < ih_entry_count(ih); i++) {
-+		if (deh_location(&deh[i]) > ih_item_len(ih)) {
-+			reiserfs_warning(NULL, "reiserfs-5094",
-+					 "directory entry location seems wrong %h",
-+					 &deh[i]);
-+			return 0;
-+		}
-+	}
-+
-+	return 1;
-+}
-+
- static int is_leaf(char *buf, int blocksize, struct buffer_head *bh)
- {
- 	struct block_head *blkh;
-@@ -453,11 +471,14 @@ static int is_leaf(char *buf, int blocksize, struct buffer_head *bh)
- 					 "(second one): %h", ih);
- 			return 0;
- 		}
--		if (is_direntry_le_ih(ih) && (ih_item_len(ih) < (ih_entry_count(ih) * IH_SIZE))) {
--			reiserfs_warning(NULL, "reiserfs-5093",
--					 "item entry count seems wrong %h",
--					 ih);
--			return 0;
-+		if (is_direntry_le_ih(ih)) {
-+			if (ih_item_len(ih) < (ih_entry_count(ih) * IH_SIZE)) {
-+				reiserfs_warning(NULL, "reiserfs-5093",
-+						 "item entry count seems wrong %h",
-+						 ih);
-+				return 0;
-+			}
-+			return has_valid_deh_location(bh, ih);
- 		}
- 		prev_location = ih_location(ih);
++/*
+  * The max size that a non-root user is allowed to grow the pipe. Can
+  * be set by root in /proc/sys/fs/pipe-max-size
+  */
+@@ -654,8 +669,8 @@ struct pipe_inode_info *alloc_pipe_info(
+ 	user_bufs = account_pipe_buffers(user, 0, pipe_bufs);
+ 
+ 	if (too_many_pipe_buffers_soft(user_bufs) && is_unprivileged_user()) {
+-		user_bufs = account_pipe_buffers(user, pipe_bufs, 1);
+-		pipe_bufs = 1;
++		user_bufs = account_pipe_buffers(user, pipe_bufs, PIPE_MIN_DEF_BUFFERS);
++		pipe_bufs = PIPE_MIN_DEF_BUFFERS;
  	}
--- 
-2.30.2
-
+ 
+ 	if (too_many_pipe_buffers_hard(user_bufs) && is_unprivileged_user())
 
 
