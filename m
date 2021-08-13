@@ -2,117 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 297FA3EB293
-	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 10:26:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB17E3EB2B5
+	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 10:37:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233580AbhHMI0R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Aug 2021 04:26:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38370 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229605AbhHMI0Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 Aug 2021 04:26:16 -0400
-Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 906C5C061756
-        for <stable@vger.kernel.org>; Fri, 13 Aug 2021 01:25:50 -0700 (PDT)
-Received: by mail-pj1-x102b.google.com with SMTP id j1so14211868pjv.3
-        for <stable@vger.kernel.org>; Fri, 13 Aug 2021 01:25:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=nZCZSfSNo8hbpXR52cSD/wGTJqu0gSiywWE7Nd27Ci8=;
-        b=LXj9VbO0d2eMlq58PqiZJ8qLAN3z36z89GW9Ag5Ls0TEvafRCUS33rB8tfoFq3GetF
-         icYVF6FV9i27nLj48X15uuCvKsfs2NVkiZ8H7WUHbr2FLOPzCFMky1yVOh/GtfyEf2U1
-         frY/i5m6ZHVEBSMKeN+LX2ulXLW/d70forOnEZqHRWf+UiVw9dsLdfZSgL7yqEqXosKj
-         GAm2wQeQdw8igH7cCsVu+rJf9E+ZEYfNq96yDpGXfVkRT2ICVPi3/QkjSJZBdVqsAlAw
-         yTrlmPy2XGFvnAczbIxQSQSBRXG2mtcYjDY3Q3C58kKA70RqPjV9wTwq+IOzFBjzRdJh
-         1hWQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=nZCZSfSNo8hbpXR52cSD/wGTJqu0gSiywWE7Nd27Ci8=;
-        b=GavQ2gFvIEAV/S3+rDNkLnjQiBbmXsXI3mmc9a+6VCAQtKjBbgtFI6EaSbcAKVggor
-         SUd9WH7bf1sCUCkxJ/4C/VomjjTXwwHYQ23vXtKEmk0EmyacaCyWT6B8sG8lRHB+RJWy
-         YsDKw+60OEadexack9JGN9xIQwOGKIDO1UcCQTu4C39ePz2/e/DY+MMML4N4LRpjTsFx
-         YZpgPj5CEVNwtgWSoqAA1DrhR8AfnLzGlG3MMCdNeWbNAgaf0dbp34Ys6Mp5p/8Uq3VE
-         amzzcMwMV7vAUKpyV0iu4heH50r+JESng6Pt+zBIQjmza80n3F/ToRGmgGqEfZkJktsp
-         dpWA==
-X-Gm-Message-State: AOAM530p+rZYz1t43Ylm8H6DNb96iSSe2V8HYUBNziv5xrNa/3Sac8v5
-        6866LyleIaymBb2fYrwmo7yxEKREfYk7Z9Dt
-X-Google-Smtp-Source: ABdhPJzu8crxajzSJG+OJt3oY9vMVZ7zhNtQTwtdIis3KreqEboww9D1zPOFADq0jTGHS393h7hxFg==
-X-Received: by 2002:a63:515:: with SMTP id 21mr1389626pgf.70.1628843149948;
-        Fri, 13 Aug 2021 01:25:49 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id ms19sm1117910pjb.53.2021.08.13.01.25.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 13 Aug 2021 01:25:49 -0700 (PDT)
-Message-ID: <61162c8d.1c69fb81.2e9e2.294b@mx.google.com>
-Date:   Fri, 13 Aug 2021 01:25:49 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S239235AbhHMIh6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Aug 2021 04:37:58 -0400
+Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:59737 "EHLO
+        wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S239196AbhHMIh5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 Aug 2021 04:37:57 -0400
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
+        by mailout.west.internal (Postfix) with ESMTP id B2133320091F;
+        Fri, 13 Aug 2021 04:37:30 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute2.internal (MEProxy); Fri, 13 Aug 2021 04:37:31 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm1; bh=JMaEU/ORw/600wLh1FpgOn1R9xx
+        gHjAbfX8/Za0rJJQ=; b=C4OkcyAhymcy2iTF39wRmSKCdN75ZXZ+ywSCEZRRwdI
+        51f7gL9lB7CjRMG55COWVwm+xbdtDxMDggpGMnQZl8CBox4o59iW5XtUHjE6ZrZt
+        MpzKB3Qi7C/qjIm+vWZiU8nrHTIBUrTTLl/KHkcMXk3fvoHaFcmPwc1jGcPf8mAM
+        6rGOAjaq6otoIWa62Yi8fItLRdB7MfX0yaG53kkPku1q9w5dbB8HWlczRzbO1biT
+        iIECS2sYlbFF8CeWkKQT7IS2svro6y6pG1JKQMqCeSVvqpiPLxY5qCTC4fBY46Rm
+        jseM+b9nTv82jTOinBQI7P6XgS8TqA4gzSdzE5oQUEA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=JMaEU/
+        ORw/600wLh1FpgOn1R9xxgHjAbfX8/Za0rJJQ=; b=mOkE9NPjUS5glxpdCPWqYH
+        uJNx1kAokn2b0MnHamJEhkpgh3Wo7OKhw3aAXR3VhTj/msUNjqo2WuxA53JGIzG+
+        EzpkpIZhehCBNrv/DxFSE91qu8j3GFxNw53kWP7JmSo0LaLjMlrtpWBRgccIZlow
+        nxonJwb9DSOuzu1x+7nulHRaPqysm3DyTeGsr18UU3yMlrpP7fMew1EPTgSy05to
+        wLQfLEPsYqoC2Ct5CueRWQ5kF95w/tr+l/uJAl/q0LRoPnfe3DCb+QbuHunEhnRt
+        ERaImRUcX6AFJdnZpuRq1nU6ynCWxdwMu4p4Amj8ODGYVp7rfy4mYtJzBiXmnIvA
+        ==
+X-ME-Sender: <xms:SS8WYUIIWzcmhLAmE_8UATad-2xkGlZpulhBw36IRX1BogS_5lp3vw>
+    <xme:SS8WYULs-3sfCwGuxLcTjngJ5NmY7L3vniUrmgp8yj80vSNsSXv02LFFuDub4Z57x
+    d1EBtyspWvvtw>
+X-ME-Received: <xmr:SS8WYUs8vyDRtZ0ZBVepTISXAaifYR_zBGhN8NjbT3TT4Ai8KsGWVUupQB-gGsOaUIp8ywFpnlQ2SClH9J_UxAigNRA96zyS>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrkeehgddthecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
+    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepueelledthe
+    ekleethfeludduvdfhffeuvdffudevgeehkeegieffveehgeeftefgnecuffhomhgrihhn
+    pehkvghrnhgvlhdrohhrghenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
+    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:SS8WYRZ6n6WB_1fT9FApBIypDqnZx0BNiz2koEMQBOy7wxjZM9fuIQ>
+    <xmx:SS8WYbaDIqkst2KhzaoXGHX-leMnvQPKu_qKd_V8KhPboi6kqfoZQA>
+    <xmx:SS8WYdA0tsa4uqlubA6YGFafC-L8A6o3si6CPsBDQjywJxSXM8-z_w>
+    <xmx:Si8WYaXpARazNQ3yZ5jLeOLwdy6nTWSJhZmEKyqhu9aap3sj3NYiPg>
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
+ 13 Aug 2021 04:37:29 -0400 (EDT)
+Date:   Fri, 13 Aug 2021 10:37:27 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Masami Hiramatsu <mhiramat@kernel.org>
+Cc:     stable@vger.kernel.org, rostedt@goodmis.org
+Subject: Re: [PATCH 4.19.y] tracing: Reject string operand in the histogram
+ expression
+Message-ID: <YRYvR9VVL3W64KVW@kroah.com>
+References: <162850048982205@kroah.com>
+ <162866758593.360697.15659863374890557625.stgit@devnote2>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-5.13.y
-X-Kernelci-Tree: stable
-X-Kernelci-Kernel: v5.13.10
-X-Kernelci-Report-Type: test
-Subject: stable/linux-5.13.y baseline: 186 runs, 1 regressions (v5.13.10)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <162866758593.360697.15659863374890557625.stgit@devnote2>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.13.y baseline: 186 runs, 1 regressions (v5.13.10)
+On Wed, Aug 11, 2021 at 04:39:46PM +0900, Masami Hiramatsu wrote:
+> commit a9d10ca4986571bffc19778742d508cc8dd13e02 upstream
+> 
+> Since the string type can not be the target of the addition / subtraction
+> operation, it must be rejected. Without this fix, the string type silently
+> converted to digits.
+> 
+> Link: https://lkml.kernel.org/r/162742654278.290973.1523000673366456634.stgit@devnote2
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: 100719dcef447 ("tracing: Add simple expression support to hist triggers")
+> Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+> Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+> ---
+>  - Since there is no hist_err() APIs in 4.19, this just check the flag
+>    and return an error without any error messages.
+> ---
+>  kernel/trace/trace_events_hist.c |   14 ++++++++++++++
+>  1 file changed, 14 insertions(+)
 
-Regressions Summary
--------------------
+Both backports applied, thanks.
 
-platform   | arch  | lab     | compiler | defconfig | regressions
------------+-------+---------+----------+-----------+------------
-imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable/branch/linux-5.13.y/kernel=
-/v5.13.10/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-5.13.y
-  Describe: v5.13.10
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      a37da2be8e6c85c438a1528f9c971e1811086db3 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform   | arch  | lab     | compiler | defconfig | regressions
------------+-------+---------+----------+-----------+------------
-imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6115fb7d12107fa067b136c2
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.13.y/v5.13.10/a=
-rm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.13.y/v5.13.10/a=
-rm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6115fb7d12107fa067b13=
-6c3
-        new failure (last pass: v5.13.9) =
-
- =20
+greg k-h
