@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3CF13EB8DE
-	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:26:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F5B73EB8D0
+	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:26:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242206AbhHMPRj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Aug 2021 11:17:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59370 "EHLO mail.kernel.org"
+        id S241697AbhHMPQY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Aug 2021 11:16:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241947AbhHMPOw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Aug 2021 11:14:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6066C61131;
-        Fri, 13 Aug 2021 15:14:25 +0000 (UTC)
+        id S242243AbhHMPO5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Aug 2021 11:14:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1AFBE610CC;
+        Fri, 13 Aug 2021 15:14:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628867665;
-        bh=BH6VN3SXvchnuvcXOv0hzTu59ChvnHM0d1pKKEXEdPo=;
+        s=korg; t=1628867668;
+        bh=4DiFT8liPiCqhBlXuppZfhZfOPKn+4433ROB6NP60QA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VfibYLk4i5LuZQYF/JfZy+OmndTEDH4UAPCcJ6VTHoWdmXx+T5FZFgZ0EGSfIzK+1
-         4zHdI3CYoolO9OMBCC0aAn1TX2CdyzpB9ydaTikJRxJOYQgNgUk+6XdB5jEZ9JWhlV
-         vorh748CvtmfwZ56bS3gLqhBGtOv3riPTOwOIyPk=
+        b=XJLh+QOpjsBqrjjninb4TKcmSIfXkA2bgChIl2806F4A5EFWFnF/sEK3vLEX/eNs/
+         /wxmmgiis9Et4FzfpMdegZQFQLDGU0gzavrAaiLUy8qS08k6YSdxY9zlrznRANSoqK
+         q42o1ov4yVPcYF88D1HSylvW5F9/QVaOllifRATk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeremy Szu <jeremy.szu@canonical.com>,
+        stable@vger.kernel.org, Luke D Jones <luke@ljones.dev>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 15/19] ALSA: hda/realtek: fix mute/micmute LEDs for HP ProBook 650 G8 Notebook PC
-Date:   Fri, 13 Aug 2021 17:07:32 +0200
-Message-Id: <20210813150523.123196676@linuxfoundation.org>
+Subject: [PATCH 5.10 16/19] ALSA: hda: Add quirk for ASUS Flow x13
+Date:   Fri, 13 Aug 2021 17:07:33 +0200
+Message-Id: <20210813150523.151810091@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210813150522.623322501@linuxfoundation.org>
 References: <20210813150522.623322501@linuxfoundation.org>
@@ -39,17 +39,16 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Szu <jeremy.szu@canonical.com>
+From: Luke D Jones <luke@ljones.dev>
 
-commit d07149aba2ef423eae94a9cc2a6365d0cdf6fd51 upstream.
+commit 739d0959fbed23838a96c48fbce01dd2f6fb2c5f upstream.
 
-The HP ProBook 650 G8 Notebook PC is using ALC236 codec which is
-using 0x02 to control mute LED and 0x01 to control micmute LED.
-Therefore, add a quirk to make it works.
+The ASUS GV301QH sound appears to work well with the quirk for
+ALC294_FIXUP_ASUS_DUAL_SPK.
 
-Signed-off-by: Jeremy Szu <jeremy.szu@canonical.com>
+Signed-off-by: Luke D Jones <luke@ljones.dev>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210810100846.65844-1-jeremy.szu@canonical.com
+Link: https://lore.kernel.org/r/20210807025805.27321-1-luke@ljones.dev
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
@@ -58,13 +57,13 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/sound/pci/hda/patch_realtek.c
 +++ b/sound/pci/hda/patch_realtek.c
-@@ -8357,6 +8357,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x103c, 0x87f4, "HP", ALC287_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x87f5, "HP", ALC287_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x87f7, "HP Spectre x360 14", ALC245_FIXUP_HP_X360_AMP),
-+	SND_PCI_QUIRK(0x103c, 0x8805, "HP ProBook 650 G8 Notebook PC", ALC236_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x880d, "HP EliteBook 830 G8 Notebook PC", ALC285_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x8846, "HP EliteBook 850 G8 Notebook PC", ALC285_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x8847, "HP EliteBook x360 830 G8 Notebook PC", ALC285_FIXUP_HP_GPIO_LED),
+@@ -8390,6 +8390,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1043, 0x16e3, "ASUS UX50", ALC269_FIXUP_STEREO_DMIC),
+ 	SND_PCI_QUIRK(0x1043, 0x1740, "ASUS UX430UA", ALC295_FIXUP_ASUS_DACS),
+ 	SND_PCI_QUIRK(0x1043, 0x17d1, "ASUS UX431FL", ALC294_FIXUP_ASUS_DUAL_SPK),
++	SND_PCI_QUIRK(0x1043, 0x1662, "ASUS GV301QH", ALC294_FIXUP_ASUS_DUAL_SPK),
+ 	SND_PCI_QUIRK(0x1043, 0x1881, "ASUS Zephyrus S/M", ALC294_FIXUP_ASUS_GX502_PINS),
+ 	SND_PCI_QUIRK(0x1043, 0x18b1, "Asus MJ401TA", ALC256_FIXUP_ASUS_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1043, 0x18f1, "Asus FX505DT", ALC256_FIXUP_ASUS_HEADSET_MIC),
 
 
