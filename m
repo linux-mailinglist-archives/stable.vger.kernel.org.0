@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 686C53EB846
-	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:25:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A3DD3EB7CE
+	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:24:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241136AbhHMPM3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Aug 2021 11:12:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55412 "EHLO mail.kernel.org"
+        id S241412AbhHMPJ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Aug 2021 11:09:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241918AbhHMPLh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Aug 2021 11:11:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D78E610FD;
-        Fri, 13 Aug 2021 15:11:10 +0000 (UTC)
+        id S241223AbhHMPJY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Aug 2021 11:09:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 614466109D;
+        Fri, 13 Aug 2021 15:08:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628867470;
-        bh=ORpdpY55H4eRLplQcbfP74jOCV/qnL+FhHax9YO6J70=;
+        s=korg; t=1628867337;
+        bh=I4m2kPY9UgdBTkTiWJFQgRp5uiCVjYQUXB2EydW5tUA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R2tWbdRTVbYrHuK2vTcm0WOfDvpT9xxM0zcTea1TGYyt+5FnmLfdXHNaZLQpBD4Tm
-         cNr3K/DzpTGVZrC/FuwMq49igCKK9VJiHEAxhY9es4VZJ22gGUvmrC6Xj2OU5nm0Uq
-         1sl3ah0q7pP/E33bHhHDBmEhfCcd/asOR02TnLRI=
+        b=k/JBh0Q2u9gCqKm25rD7ecukdhO5Agz8fowGYOpHCZEahuySFVa3Pwa8GutdLkbwZ
+         l/4+oe6leNGkgQtRGgmYxpwJwvNMMUVTDdDOWFS2CKCgfcert5NLG9GqPm2u3FapDc
+         ClFH24uZFs+dVYQRI1SVcoLeMfMus3hcFGBKb6Do=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "H. Nikolaus Schaller" <hns@goldelico.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 09/42] mips: Fix non-POSIX regexp
+        stable@vger.kernel.org, Willy Tarreau <w@1wt.eu>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.4 11/25] USB: serial: ch341: fix character loss at high transfer rates
 Date:   Fri, 13 Aug 2021 17:06:35 +0200
-Message-Id: <20210813150525.417079264@linuxfoundation.org>
+Message-Id: <20210813150521.087346803@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210813150525.098817398@linuxfoundation.org>
-References: <20210813150525.098817398@linuxfoundation.org>
+In-Reply-To: <20210813150520.718161915@linuxfoundation.org>
+References: <20210813150520.718161915@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,57 +39,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: H. Nikolaus Schaller <hns@goldelico.com>
+From: Willy Tarreau <w@1wt.eu>
 
-[ Upstream commit 28bbbb9875a35975904e46f9b06fa689d051b290 ]
+commit 3c18e9baee0ef97510dcda78c82285f52626764b upstream.
 
-When cross compiling a MIPS kernel on a BSD based HOSTCC leads
-to errors like
+The chip supports high transfer rates, but with the small default buffers
+(64 bytes read), some entire blocks are regularly lost. This typically
+happens at 1.5 Mbps (which is the default speed on Rockchip devices) when
+used as a console to access U-Boot where the output of the "help" command
+misses many lines and where "printenv" mangles the environment.
 
-  SYNC    include/config/auto.conf.cmd - due to: .config
-egrep: empty (sub)expression
-  UPD     include/config/kernel.release
-  HOSTCC  scripts/dtc/dtc.o - due to target missing
+The FTDI driver doesn't suffer at all from this. One difference is that
+it uses 512 bytes rx buffers and 256 bytes tx buffers. Adopting these
+values completely resolved the issue, even the output of "dmesg" is
+reliable. I preferred to leave the Tx value unchanged as it is not
+involved in this issue, while a change could increase the risk of
+triggering the same issue with other devices having too small buffers.
 
-It turns out that egrep uses this egrep pattern:
+I verified that it backports well (and works) at least to 5.4. It's of
+low importance enough to be dropped where it doesn't trivially apply
+anymore.
 
-		(|MINOR_|PATCHLEVEL_)
-
-This is not valid syntax or gives undefined results according
-to POSIX 9.5.3 ERE Grammar
-
-	https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap09.html
-
-It seems to be silently accepted by the Linux egrep implementation
-while a BSD host complains.
-
-Such patterns can be replaced by a transformation like
-
-	"(|p1|p2)" -> "(p1|p2)?"
-
-Fixes: 48c35b2d245f ("[MIPS] There is no __GNUC_MAJOR__")
-Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Willy Tarreau <w@1wt.eu>
+Link: https://lore.kernel.org/r/20210724152739.18726-1-w@1wt.eu
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/serial/ch341.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/mips/Makefile b/arch/mips/Makefile
-index a4a06d173858..1190e6f75d4b 100644
---- a/arch/mips/Makefile
-+++ b/arch/mips/Makefile
-@@ -314,7 +314,7 @@ LDFLAGS			+= -m $(ld-emul)
- 
- ifdef CONFIG_MIPS
- CHECKFLAGS += $(shell $(CC) $(KBUILD_CFLAGS) -dM -E -x c /dev/null | \
--	egrep -vw '__GNUC_(|MINOR_|PATCHLEVEL_)_' | \
-+	egrep -vw '__GNUC_(MINOR_|PATCHLEVEL_)?_' | \
- 	sed -e "s/^\#define /-D'/" -e "s/ /'='/" -e "s/$$/'/" -e 's/\$$/&&/g')
- ifdef CONFIG_64BIT
- CHECKFLAGS		+= -m64
--- 
-2.30.2
-
+--- a/drivers/usb/serial/ch341.c
++++ b/drivers/usb/serial/ch341.c
+@@ -585,6 +585,7 @@ static struct usb_serial_driver ch341_de
+ 		.owner	= THIS_MODULE,
+ 		.name	= "ch341-uart",
+ 	},
++	.bulk_in_size      = 512,
+ 	.id_table          = id_table,
+ 	.num_ports         = 1,
+ 	.open              = ch341_open,
 
 
