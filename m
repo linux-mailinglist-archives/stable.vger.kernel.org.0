@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C93613EB8AF
-	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:26:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C3C23EB852
+	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:25:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242309AbhHMPPY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Aug 2021 11:15:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56586 "EHLO mail.kernel.org"
+        id S241268AbhHMPM6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Aug 2021 11:12:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242460AbhHMPOR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Aug 2021 11:14:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E1ACB610FC;
-        Fri, 13 Aug 2021 15:13:45 +0000 (UTC)
+        id S241976AbhHMPMC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Aug 2021 11:12:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B7B6A61107;
+        Fri, 13 Aug 2021 15:11:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628867626;
-        bh=nDQm6gTdxU73JFUOTL+gs+qq/Xera47GLIY0IKrIDEk=;
+        s=korg; t=1628867495;
+        bh=w9EG26imUNA8lsJ7Q8EJHBjsuow/cnTIoZCrH0M+3cU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wOTuZarjiRJtevqacGIq4alT+qjANw3ZIVMSWfBCj8m8SSL6c/L9UqFlwSSjMrsxd
-         ynU0eo0cQmn/uBnvlMAzni4gNHrspJYpPB8ClwSwOhGQ8jJA9lvA79Zi77tAUN1Fhh
-         nj1ICttuwNHYG2uXtRkMEmHY6qqPj5Jp1W1xr9Z8=
+        b=bFHMX81Mi6fp9SgDzKEc9AcTGgsU/MMq5haAXOdyLptmOfLxxB/ZXofq26+wUGc13
+         58BopNA8UxT/mmBvGQHEcPg4Kp8AmWrtTj3au682PZnJ/17q6ELZma7In1xNjp6OIo
+         wjPvXzUEI0Qqa41WHuBSnprASkbq+gfXTYZIC4w0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexandre Courbot <gnurou@gmail.com>,
-        Ezequiel Garcia <ezequiel@collabora.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Lecopzer Chen <lecopzer.chen@mediatek.com>
-Subject: [PATCH 5.4 03/27] media: v4l2-mem2mem: always consider OUTPUT queue during poll
+        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
+        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 35/42] reiserfs: add check for root_inode in reiserfs_fill_super
 Date:   Fri, 13 Aug 2021 17:07:01 +0200
-Message-Id: <20210813150523.479037958@linuxfoundation.org>
+Message-Id: <20210813150526.271265301@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210813150523.364549385@linuxfoundation.org>
-References: <20210813150523.364549385@linuxfoundation.org>
+In-Reply-To: <20210813150525.098817398@linuxfoundation.org>
+References: <20210813150525.098817398@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,44 +39,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandre Courbot <gnurou@gmail.com>
+From: Yu Kuai <yukuai3@huawei.com>
 
-commit 566463afdbc43c7744c5a1b89250fc808df03833 upstream.
+[ Upstream commit 2acf15b94d5b8ea8392c4b6753a6ffac3135cd78 ]
 
-If poll() is called on a m2m device with the EPOLLOUT event after the
-last buffer of the CAPTURE queue is dequeued, any buffer available on
-OUTPUT queue will never be signaled because v4l2_m2m_poll_for_data()
-starts by checking whether dst_q->last_buffer_dequeued is set and
-returns EPOLLIN in this case, without looking at the state of the OUTPUT
-queue.
+Our syzcaller report a NULL pointer dereference:
 
-Fix this by not early returning so we keep checking the state of the
-OUTPUT queue afterwards.
+BUG: kernel NULL pointer dereference, address: 0000000000000000
+PGD 116e95067 P4D 116e95067 PUD 1080b5067 PMD 0
+Oops: 0010 [#1] SMP KASAN
+CPU: 7 PID: 592 Comm: a.out Not tainted 5.13.0-next-20210629-dirty #67
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ?-20190727_073836-buildvm-p4
+RIP: 0010:0x0
+Code: Unable to access opcode bytes at RIP 0xffffffffffffffd6.
+RSP: 0018:ffff888114e779b8 EFLAGS: 00010246
+RAX: 0000000000000000 RBX: 1ffff110229cef39 RCX: ffffffffaa67e1aa
+RDX: 0000000000000000 RSI: ffff88810a58ee00 RDI: ffff8881233180b0
+RBP: ffffffffac38e9c0 R08: ffffffffaa67e17e R09: 0000000000000001
+R10: ffffffffb91c5557 R11: fffffbfff7238aaa R12: ffff88810a58ee00
+R13: ffff888114e77aa0 R14: 0000000000000000 R15: ffff8881233180b0
+FS:  00007f946163c480(0000) GS:ffff88839f1c0000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: ffffffffffffffd6 CR3: 00000001099c1000 CR4: 00000000000006e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ __lookup_slow+0x116/0x2d0
+ ? page_put_link+0x120/0x120
+ ? __d_lookup+0xfc/0x320
+ ? d_lookup+0x49/0x90
+ lookup_one_len+0x13c/0x170
+ ? __lookup_slow+0x2d0/0x2d0
+ ? reiserfs_schedule_old_flush+0x31/0x130
+ reiserfs_lookup_privroot+0x64/0x150
+ reiserfs_fill_super+0x158c/0x1b90
+ ? finish_unfinished+0xb10/0xb10
+ ? bprintf+0xe0/0xe0
+ ? __mutex_lock_slowpath+0x30/0x30
+ ? __kasan_check_write+0x20/0x30
+ ? up_write+0x51/0xb0
+ ? set_blocksize+0x9f/0x1f0
+ mount_bdev+0x27c/0x2d0
+ ? finish_unfinished+0xb10/0xb10
+ ? reiserfs_kill_sb+0x120/0x120
+ get_super_block+0x19/0x30
+ legacy_get_tree+0x76/0xf0
+ vfs_get_tree+0x49/0x160
+ ? capable+0x1d/0x30
+ path_mount+0xacc/0x1380
+ ? putname+0x97/0xd0
+ ? finish_automount+0x450/0x450
+ ? kmem_cache_free+0xf8/0x5a0
+ ? putname+0x97/0xd0
+ do_mount+0xe2/0x110
+ ? path_mount+0x1380/0x1380
+ ? copy_mount_options+0x69/0x140
+ __x64_sys_mount+0xf0/0x190
+ do_syscall_64+0x35/0x80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Signed-off-by: Alexandre Courbot <gnurou@gmail.com>
-Reviewed-by: Ezequiel Garcia <ezequiel@collabora.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Cc: Lecopzer Chen <lecopzer.chen@mediatek.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This is because 'root_inode' is initialized with wrong mode, and
+it's i_op is set to 'reiserfs_special_inode_operations'. Thus add
+check for 'root_inode' to fix the problem.
+
+Link: https://lore.kernel.org/r/20210702040743.1918552-1-yukuai3@huawei.com
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/v4l2-core/v4l2-mem2mem.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ fs/reiserfs/super.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/media/v4l2-core/v4l2-mem2mem.c
-+++ b/drivers/media/v4l2-core/v4l2-mem2mem.c
-@@ -635,10 +635,8 @@ static __poll_t v4l2_m2m_poll_for_data(s
- 		 * If the last buffer was dequeued from the capture queue,
- 		 * return immediately. DQBUF will return -EPIPE.
- 		 */
--		if (dst_q->last_buffer_dequeued) {
--			spin_unlock_irqrestore(&dst_q->done_lock, flags);
--			return EPOLLIN | EPOLLRDNORM;
--		}
-+		if (dst_q->last_buffer_dequeued)
-+			rc |= EPOLLIN | EPOLLRDNORM;
+diff --git a/fs/reiserfs/super.c b/fs/reiserfs/super.c
+index fbae5f4eea09..7dfdc503e601 100644
+--- a/fs/reiserfs/super.c
++++ b/fs/reiserfs/super.c
+@@ -2085,6 +2085,14 @@ static int reiserfs_fill_super(struct super_block *s, void *data, int silent)
+ 		unlock_new_inode(root_inode);
  	}
- 	spin_unlock_irqrestore(&dst_q->done_lock, flags);
  
++	if (!S_ISDIR(root_inode->i_mode) || !inode_get_bytes(root_inode) ||
++	    !root_inode->i_size) {
++		SWARN(silent, s, "", "corrupt root inode, run fsck");
++		iput(root_inode);
++		errval = -EUCLEAN;
++		goto error;
++	}
++
+ 	s->s_root = d_make_root(root_inode);
+ 	if (!s->s_root)
+ 		goto error;
+-- 
+2.30.2
+
 
 
