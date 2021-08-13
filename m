@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE75B3EB87F
-	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:25:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BCA653EB898
+	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:26:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242332AbhHMPOF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Aug 2021 11:14:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57162 "EHLO mail.kernel.org"
+        id S241940AbhHMPOs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Aug 2021 11:14:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241951AbhHMPNB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Aug 2021 11:13:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A8C966112D;
-        Fri, 13 Aug 2021 15:12:33 +0000 (UTC)
+        id S242184AbhHMPNa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Aug 2021 11:13:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3607461151;
+        Fri, 13 Aug 2021 15:13:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628867554;
-        bh=r/It5R4/yhQY6rvDBmpY0DcKcwXQ2ZWlt5AclDMwB+w=;
+        s=korg; t=1628867583;
+        bh=TD7XoXUuL9V5rBJKXgYcKcm1lfChMGxTE2W9vQXTyGM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T8Uid0oLC0ezrRrlNdzllD1geSCeTQbNFgVvjHrTFnuAkhM+xIoXXwes5ECfM3jUr
-         pptTCv91BX0rgbNuIC3J+y0nfM+WhkN4uHotrnrEf7RbU/g7PnC3fxn+NyuAa5IcVk
-         Uh0EM8+j/vVWw6gWVtqpEnQyZmxty24FLVt2YEeA=
+        b=FuJM7/Y0OgMz8i4WSQjNcT5ZkILBslquh5iyuYvvQojZPdOa8WgdDJ4Ces3enRTt+
+         x6nhTUSCAhWc0Ee7g9jZCkf0oP61jeSKD41DhpuvxLCNvO8jy+rqN9hmi4MBM3zPkf
+         /2SJvkIvsxO0XPfokF3ltDOnlrI/6EWV+NJv99BA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        bpf@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Benedict Schlueter <benedict.schlueter@rub.de>,
-        Piotr Krysiuk <piotras@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
+        stable@vger.kernel.org, Lai Jiangshan <laijs@linux.alibaba.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 4.19 03/11] bpf: Inherit expanded/patched seen count from old aux data
+Subject: [PATCH 5.4 12/27] KVM: X86: MMU: Use the correct inherited permissions to get shadow page
 Date:   Fri, 13 Aug 2021 17:07:10 +0200
-Message-Id: <20210813150520.181696817@linuxfoundation.org>
+Message-Id: <20210813150523.765921441@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210813150520.072304554@linuxfoundation.org>
-References: <20210813150520.072304554@linuxfoundation.org>
+In-Reply-To: <20210813150523.364549385@linuxfoundation.org>
+References: <20210813150523.364549385@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,56 +40,153 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: Lai Jiangshan <laijs@linux.alibaba.com>
 
-commit d203b0fd863a2261e5d00b97f3d060c4c2a6db71 upstream.
+commit b1bd5cba3306691c771d558e94baa73e8b0b96b7 upstream.
 
-Instead of relying on current env->pass_cnt, use the seen count from the
-old aux data in adjust_insn_aux_data(), and expand it to the new range of
-patched instructions. This change is valid given we always expand 1:n
-with n>=1, so what applies to the old/original instruction needs to apply
-for the replacement as well.
+When computing the access permissions of a shadow page, use the effective
+permissions of the walk up to that point, i.e. the logic AND of its parents'
+permissions.  Two guest PxE entries that point at the same table gfn need to
+be shadowed with different shadow pages if their parents' permissions are
+different.  KVM currently uses the effective permissions of the last
+non-leaf entry for all non-leaf entries.  Because all non-leaf SPTEs have
+full ("uwx") permissions, and the effective permissions are recorded only
+in role.access and merged into the leaves, this can lead to incorrect
+reuse of a shadow page and eventually to a missing guest protection page
+fault.
 
-Not relying on env->pass_cnt is a prerequisite for a later change where we
-want to avoid marking an instruction seen when verified under speculative
-execution path.
+For example, here is a shared pagetable:
 
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: John Fastabend <john.fastabend@gmail.com>
-Reviewed-by: Benedict Schlueter <benedict.schlueter@rub.de>
-Reviewed-by: Piotr Krysiuk <piotras@gmail.com>
-Acked-by: Alexei Starovoitov <ast@kernel.org>
-[OP: - declare old_data as bool instead of u32 (struct bpf_insn_aux_data.seen
-     is bool in 5.4)
-     - adjusted context for 4.19]
+   pgd[]   pud[]        pmd[]            virtual address pointers
+                     /->pmd1(u--)->pte1(uw-)->page1 <- ptr1 (u--)
+        /->pud1(uw-)--->pmd2(uw-)->pte2(uw-)->page2 <- ptr2 (uw-)
+   pgd-|           (shared pmd[] as above)
+        \->pud2(u--)--->pmd1(u--)->pte1(uw-)->page1 <- ptr3 (u--)
+                     \->pmd2(uw-)->pte2(uw-)->page2 <- ptr4 (u--)
+
+  pud1 and pud2 point to the same pmd table, so:
+  - ptr1 and ptr3 points to the same page.
+  - ptr2 and ptr4 points to the same page.
+
+(pud1 and pud2 here are pud entries, while pmd1 and pmd2 here are pmd entries)
+
+- First, the guest reads from ptr1 first and KVM prepares a shadow
+  page table with role.access=u--, from ptr1's pud1 and ptr1's pmd1.
+  "u--" comes from the effective permissions of pgd, pud1 and
+  pmd1, which are stored in pt->access.  "u--" is used also to get
+  the pagetable for pud1, instead of "uw-".
+
+- Then the guest writes to ptr2 and KVM reuses pud1 which is present.
+  The hypervisor set up a shadow page for ptr2 with pt->access is "uw-"
+  even though the pud1 pmd (because of the incorrect argument to
+  kvm_mmu_get_page in the previous step) has role.access="u--".
+
+- Then the guest reads from ptr3.  The hypervisor reuses pud1's
+  shadow pmd for pud2, because both use "u--" for their permissions.
+  Thus, the shadow pmd already includes entries for both pmd1 and pmd2.
+
+- At last, the guest writes to ptr4.  This causes no vmexit or pagefault,
+  because pud1's shadow page structures included an "uw-" page even though
+  its role.access was "u--".
+
+Any kind of shared pagetable might have the similar problem when in
+virtual machine without TDP enabled if the permissions are different
+from different ancestors.
+
+In order to fix the problem, we change pt->access to be an array, and
+any access in it will not include permissions ANDed from child ptes.
+
+The test code is: https://lore.kernel.org/kvm/20210603050537.19605-1-jiangshanlai@gmail.com/
+Remember to test it with TDP disabled.
+
+The problem had existed long before the commit 41074d07c78b ("KVM: MMU:
+Fix inherited permissions for emulated guest pte updates"), and it
+is hard to find which is the culprit.  So there is no fixes tag here.
+
+Signed-off-by: Lai Jiangshan <laijs@linux.alibaba.com>
+Message-Id: <20210603052455.21023-1-jiangshanlai@gmail.com>
+Cc: stable@vger.kernel.org
+Fixes: cea0f0e7ea54 ("[PATCH] KVM: MMU: Shadow page table caching")
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+[OP: - apply arch/x86/kvm/mmu/* changes to arch/x86/kvm
+     - apply documentation changes to Documentation/virt/kvm/mmu.txt
+     - adjusted context in arch/x86/kvm/paging_tmpl.h]
 Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/bpf/verifier.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ Documentation/virt/kvm/mmu.txt |    4 ++--
+ arch/x86/kvm/paging_tmpl.h     |   14 +++++++++-----
+ 2 files changed, 11 insertions(+), 7 deletions(-)
 
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -5690,6 +5690,7 @@ static int adjust_insn_aux_data(struct b
- 				u32 off, u32 cnt)
- {
- 	struct bpf_insn_aux_data *new_data, *old_data = env->insn_aux_data;
-+	bool old_seen = old_data[off].seen;
- 	int i;
+--- a/Documentation/virt/kvm/mmu.txt
++++ b/Documentation/virt/kvm/mmu.txt
+@@ -152,8 +152,8 @@ Shadow pages contain the following infor
+     shadow pages) so role.quadrant takes values in the range 0..3.  Each
+     quadrant maps 1GB virtual address space.
+   role.access:
+-    Inherited guest access permissions in the form uwx.  Note execute
+-    permission is positive, not negative.
++    Inherited guest access permissions from the parent ptes in the form uwx.
++    Note execute permission is positive, not negative.
+   role.invalid:
+     The page is invalid and should not be used.  It is a root page that is
+     currently pinned (by a cpu hardware register pointing to it); once it is
+--- a/arch/x86/kvm/paging_tmpl.h
++++ b/arch/x86/kvm/paging_tmpl.h
+@@ -90,8 +90,8 @@ struct guest_walker {
+ 	gpa_t pte_gpa[PT_MAX_FULL_LEVELS];
+ 	pt_element_t __user *ptep_user[PT_MAX_FULL_LEVELS];
+ 	bool pte_writable[PT_MAX_FULL_LEVELS];
+-	unsigned pt_access;
+-	unsigned pte_access;
++	unsigned int pt_access[PT_MAX_FULL_LEVELS];
++	unsigned int pte_access;
+ 	gfn_t gfn;
+ 	struct x86_exception fault;
+ };
+@@ -406,13 +406,15 @@ retry_walk:
+ 		}
  
- 	if (cnt == 1)
-@@ -5701,8 +5702,10 @@ static int adjust_insn_aux_data(struct b
- 	memcpy(new_data, old_data, sizeof(struct bpf_insn_aux_data) * off);
- 	memcpy(new_data + off + cnt - 1, old_data + off,
- 	       sizeof(struct bpf_insn_aux_data) * (prog_len - off - cnt + 1));
--	for (i = off; i < off + cnt - 1; i++)
--		new_data[i].seen = true;
-+	for (i = off; i < off + cnt - 1; i++) {
-+		/* Expand insni[off]'s seen count to the patched range. */
-+		new_data[i].seen = old_seen;
-+	}
- 	env->insn_aux_data = new_data;
- 	vfree(old_data);
- 	return 0;
+ 		walker->ptes[walker->level - 1] = pte;
++
++		/* Convert to ACC_*_MASK flags for struct guest_walker.  */
++		walker->pt_access[walker->level - 1] = FNAME(gpte_access)(pt_access ^ walk_nx_mask);
+ 	} while (!is_last_gpte(mmu, walker->level, pte));
+ 
+ 	pte_pkey = FNAME(gpte_pkeys)(vcpu, pte);
+ 	accessed_dirty = have_ad ? pte_access & PT_GUEST_ACCESSED_MASK : 0;
+ 
+ 	/* Convert to ACC_*_MASK flags for struct guest_walker.  */
+-	walker->pt_access = FNAME(gpte_access)(pt_access ^ walk_nx_mask);
+ 	walker->pte_access = FNAME(gpte_access)(pte_access ^ walk_nx_mask);
+ 	errcode = permission_fault(vcpu, mmu, walker->pte_access, pte_pkey, access);
+ 	if (unlikely(errcode))
+@@ -451,7 +453,8 @@ retry_walk:
+ 	}
+ 
+ 	pgprintk("%s: pte %llx pte_access %x pt_access %x\n",
+-		 __func__, (u64)pte, walker->pte_access, walker->pt_access);
++		 __func__, (u64)pte, walker->pte_access,
++		 walker->pt_access[walker->level - 1]);
+ 	return 1;
+ 
+ error:
+@@ -620,7 +623,7 @@ static int FNAME(fetch)(struct kvm_vcpu
+ {
+ 	struct kvm_mmu_page *sp = NULL;
+ 	struct kvm_shadow_walk_iterator it;
+-	unsigned direct_access, access = gw->pt_access;
++	unsigned int direct_access, access;
+ 	int top_level, ret;
+ 	gfn_t gfn, base_gfn;
+ 
+@@ -652,6 +655,7 @@ static int FNAME(fetch)(struct kvm_vcpu
+ 		sp = NULL;
+ 		if (!is_shadow_present_pte(*it.sptep)) {
+ 			table_gfn = gw->table_gfn[it.level - 2];
++			access = gw->pt_access[it.level - 2];
+ 			sp = kvm_mmu_get_page(vcpu, table_gfn, addr, it.level-1,
+ 					      false, access);
+ 		}
 
 
