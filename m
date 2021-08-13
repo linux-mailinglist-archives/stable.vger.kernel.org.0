@@ -2,101 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 56F1A3EB1E2
-	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 09:47:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91A053EB27D
+	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 10:19:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238974AbhHMHrb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Aug 2021 03:47:31 -0400
-Received: from mga11.intel.com ([192.55.52.93]:57429 "EHLO mga11.intel.com"
+        id S239802AbhHMITz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Aug 2021 04:19:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239523AbhHMHrQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Aug 2021 03:47:16 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10074"; a="212407152"
-X-IronPort-AV: E=Sophos;i="5.84,318,1620716400"; 
-   d="scan'208";a="212407152"
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Aug 2021 00:46:50 -0700
-X-IronPort-AV: E=Sophos;i="5.84,318,1620716400"; 
-   d="scan'208";a="517943170"
-Received: from cgearing-mobl.ger.corp.intel.com (HELO localhost) ([10.251.209.226])
-  by fmsmga003-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Aug 2021 00:46:45 -0700
-From:   Jani Nikula <jani.nikula@intel.com>
-To:     Swati Sharma <swati2.sharma@intel.com>,
-        intel-gfx@lists.freedesktop.org
-Cc:     Swati Sharma <swati2.sharma@intel.com>,
-        Ankit Nautiyal <ankit.k.nautiyal@intel.com>,
-        Uma Shankar <uma.shankar@intel.com>,
-        Ville Syrj_l_ <ville.syrjala@linux.intel.com>,
-        Imre Deak <imre.deak@intel.com>,
-        Manasi Navare <manasi.d.navare@intel.com>,
-        Jos_ Roberto de Souza <jose.souza@intel.com>,
-        Sean Paul <seanpaul@chromium.org>, stable@vger.kernel.org
-Subject: Re: [PATCH] drm/i915/display: Drop redundant debug print
-In-Reply-To: <20210812125845.27787-1-swati2.sharma@intel.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-References: <20210812125845.27787-1-swati2.sharma@intel.com>
-Date:   Fri, 13 Aug 2021 10:46:42 +0300
-Message-ID: <871r6xn5wd.fsf@intel.com>
+        id S239581AbhHMITy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Aug 2021 04:19:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BA2496109E;
+        Fri, 13 Aug 2021 08:19:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1628842768;
+        bh=TvHtyw8XEy9+YFEwQhnp3Gp3MU8ta3O84sqfiw6+pVA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=r9tsJHgwosbiQUXlLm6uruskIhT2IR34LMjt9Y5how8AAw0cl/bAMfnaqObd9Cwwc
+         VG/Gl9XnUy0VhybKDjAO9nTetD+Jlk5lzfxODahAKC6eyi2noG0hPJnX6UIpSwsrJ/
+         uaM+WQS1n7pNzSxKvc1WDkLVeAw1wXTGBDntqryE=
+Date:   Fri, 13 Aug 2021 10:19:25 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Bjorn Helgaas <helgaas@kernel.org>
+Cc:     Krzysztof =?utf-8?Q?Wilczy=C5=84ski?= <kw@linux.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] PCI/sysfs: Use correct variable for the legacy_mem sysfs
+ object
+Message-ID: <YRYrDQ3yuvtLtoKr@kroah.com>
+References: <20210812161710.GA2479934@bjorn-Precision-5520>
+ <20210812171450.GA2485383@bjorn-Precision-5520>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210812171450.GA2485383@bjorn-Precision-5520>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 12 Aug 2021, Swati Sharma <swati2.sharma@intel.com> wrote:
-> drm_dp_dpcd_read/write already has debug error message.
-> Drop redundant error messages which gives false
-> status even if correct value is read in drm_dp_dpcd_read().
+On Thu, Aug 12, 2021 at 12:14:50PM -0500, Bjorn Helgaas wrote:
+> On Thu, Aug 12, 2021 at 11:17:12AM -0500, Bjorn Helgaas wrote:
+> > [+to Greg, please update sysfs_defferred_iomem_get_mapping-5.15]
+> 
+> Actually, Greg, totally up to you, but if nobody else is depending on
+> the sysfs_defferred_iomem_get_mapping-5.15 branch, another possibility
+> would be for you to drop that branch and for me to merge the two
+> patches on it + Krzysztof's fix below + (hopefully) Krzysztof's PCI
+> static attribute work.
 
-I guess the only problem is it gets harder to associate the preceding
-low level error messages with intel_dp_check_link_service_irq(). *shrug*
+I can not "drop" the branch as it is already merged into my
+driver-core-next branch that I can not rebase.  I could revert it, but
+is that really needed?
 
-Reviewed-by: Jani Nikula <jani.nikula@intel.com>
+> That would make my v5.15 pull request easier because I simple-mindedly
+> base all my branches on -rc1 while your branch is based on -rc3.  But
+> again, up to you.  I put those two patches on a local branch:
+> 
+>   94b34bc04c25 ("sysfs: Rename struct bin_attribute member to f_mapping")
+>   97e9dada53f1 ("sysfs: Invoke iomem_get_mapping() from the sysfs open callback")
+> 
+> in case that seems better to you.
 
+I do not see what I can do with that here as it's already in my tree :(
 
->
-> Fixes: 9488a030ac91 ("drm/i915: Add support for enabling link status and recovery")
-> Cc: Swati Sharma <swati2.sharma@intel.com>
-> Cc: Ankit Nautiyal <ankit.k.nautiyal@intel.com>
-> Cc: Uma Shankar <uma.shankar@intel.com> (v2)
-> Cc: Jani Nikula <jani.nikula@intel.com>
-> Cc: "Ville Syrj_l_" <ville.syrjala@linux.intel.com>
-> Cc: Imre Deak <imre.deak@intel.com>
-> Cc: Manasi Navare <manasi.d.navare@intel.com>
-> Cc: Uma Shankar <uma.shankar@intel.com>
-> Cc: "Jos_ Roberto de Souza" <jose.souza@intel.com>
-> Cc: Sean Paul <seanpaul@chromium.org>
-> Cc: <stable@vger.kernel.org> # v5.12+
->
-> Link: https://patchwork.freedesktop.org/patch/msgid/20201218103723.30844-12-ankit.k.nautiyal@intel.com
-> Signed-off-by: Swati Sharma <swati2.sharma@intel.com>
-> ---
->  drivers/gpu/drm/i915/display/intel_dp.c | 8 ++------
->  1 file changed, 2 insertions(+), 6 deletions(-)
->
-> diff --git a/drivers/gpu/drm/i915/display/intel_dp.c b/drivers/gpu/drm/i915/display/intel_dp.c
-> index c386ef8eb200..5c84f51ad41d 100644
-> --- a/drivers/gpu/drm/i915/display/intel_dp.c
-> +++ b/drivers/gpu/drm/i915/display/intel_dp.c
-> @@ -3871,16 +3871,12 @@ static void intel_dp_check_link_service_irq(struct intel_dp *intel_dp)
->  		return;
->  
->  	if (drm_dp_dpcd_readb(&intel_dp->aux,
-> -			      DP_LINK_SERVICE_IRQ_VECTOR_ESI0, &val) != 1 || !val) {
-> -		drm_dbg_kms(&i915->drm, "Error in reading link service irq vector\n");
-> +			      DP_LINK_SERVICE_IRQ_VECTOR_ESI0, &val) != 1 || !val)
->  		return;
-> -	}
->  
->  	if (drm_dp_dpcd_writeb(&intel_dp->aux,
-> -			       DP_LINK_SERVICE_IRQ_VECTOR_ESI0, val) != 1) {
-> -		drm_dbg_kms(&i915->drm, "Error in writing link service irq vector\n");
-> +			       DP_LINK_SERVICE_IRQ_VECTOR_ESI0, val) != 1)
->  		return;
-> -	}
->  
->  	if (val & HDMI_LINK_STATUS_CHANGED)
->  		intel_dp_handle_hdmi_link_status_change(intel_dp);
+confused,
 
--- 
-Jani Nikula, Intel Open Source Graphics Center
+greg k-h
