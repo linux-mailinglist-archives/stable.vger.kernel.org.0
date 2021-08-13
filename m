@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 21FBA3EB844
-	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:25:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 104593EB7CD
+	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:24:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241896AbhHMPMT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Aug 2021 11:12:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55356 "EHLO mail.kernel.org"
+        id S241353AbhHMPJ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Aug 2021 11:09:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241785AbhHMPLf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Aug 2021 11:11:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A25CF610A5;
-        Fri, 13 Aug 2021 15:11:07 +0000 (UTC)
+        id S241383AbhHMPJW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Aug 2021 11:09:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DBE546109E;
+        Fri, 13 Aug 2021 15:08:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628867468;
-        bh=k5kHytCZaighHyAX4UhcRC3wV1LiL2cSHQfzb+8w9AY=;
+        s=korg; t=1628867335;
+        bh=F1kuFZrix86BV8DfaqEMT8nWdgM8JZ4M1liILQr2ZSE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iyqCgkFCnCdqOT9DQO1td/yRiRupgH7vLlqMWVCaANcoXo8eB3EtNKUF0GX8tzxzJ
-         WQSkWcip0FiXtJU6lrOO24oUJCEz8YsARF2CFnpYcrxvitW+UgdFveWn5pMdk74Mhl
-         mkxnL37FiN7A1muNsmOInrJ04KMYI/QexDekn7nU=
+        b=Oppz9gshe7yNI4lGQUaBlwmNZlrYqwW7nqJS+3MTKiRQpu4DLmE02PRu7uqktjkWh
+         DfS76iq+YrJFuCnXulFwVoZN4s+IbEGBLb+idGzi3ndSUD48pGbgnWxjta3GJgfACb
+         iowCwVRhfzNrTMlg6Hb7AWHp2xadoRNNNW3qwKDg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fei Qin <fei.qin@corigine.com>,
-        Louis Peens <louis.peens@corigine.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 08/42] nfp: update ethtool reporting of pauseframe control
+        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.4 10/25] USB: serial: option: add Telit FD980 composition 0x1056
 Date:   Fri, 13 Aug 2021 17:06:34 +0200
-Message-Id: <20210813150525.386066517@linuxfoundation.org>
+Message-Id: <20210813150521.056926222@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210813150525.098817398@linuxfoundation.org>
-References: <20210813150525.098817398@linuxfoundation.org>
+In-Reply-To: <20210813150520.718161915@linuxfoundation.org>
+References: <20210813150520.718161915@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,39 +39,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fei Qin <fei.qin@corigine.com>
+From: Daniele Palmas <dnlplm@gmail.com>
 
-[ Upstream commit 9fdc5d85a8fe684cdf24dc31c6bc4a727decfe87 ]
+commit 5648c073c33d33a0a19d0cb1194a4eb88efe2b71 upstream.
 
-Pauseframe control is set to symmetric mode by default on the NFP.
-Pause frames can not be configured through ethtool now, but ethtool can
-report the supported mode.
+Add the following Telit FD980 composition 0x1056:
 
-Fixes: 265aeb511bd5 ("nfp: add support for .get_link_ksettings()")
-Signed-off-by: Fei Qin <fei.qin@corigine.com>
-Signed-off-by: Louis Peens <louis.peens@corigine.com>
-Signed-off-by: Simon Horman <simon.horman@corigine.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cfg #1: mass storage
+Cfg #2: rndis, tty, adb, tty, tty, tty, tty
+
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+Link: https://lore.kernel.org/r/20210803194711.3036-1-dnlplm@gmail.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c | 2 ++
+ drivers/usb/serial/option.c |    2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c b/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c
-index 8e623d8fa78e..681919f8cbd7 100644
---- a/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c
-+++ b/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c
-@@ -271,6 +271,8 @@ nfp_net_get_link_ksettings(struct net_device *netdev,
- 
- 	/* Init to unknowns */
- 	ethtool_link_ksettings_add_link_mode(cmd, supported, FIBRE);
-+	ethtool_link_ksettings_add_link_mode(cmd, supported, Pause);
-+	ethtool_link_ksettings_add_link_mode(cmd, advertising, Pause);
- 	cmd->base.port = PORT_OTHER;
- 	cmd->base.speed = SPEED_UNKNOWN;
- 	cmd->base.duplex = DUPLEX_UNKNOWN;
--- 
-2.30.2
-
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1185,6 +1185,8 @@ static const struct usb_device_id option
+ 	  .driver_info = NCTRL(2) | RSVD(3) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1055, 0xff),	/* Telit FN980 (PCIe) */
+ 	  .driver_info = NCTRL(0) | RSVD(1) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1056, 0xff),	/* Telit FD980 */
++	  .driver_info = NCTRL(2) | RSVD(3) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910),
+ 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(3) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910_DUAL_MODEM),
 
 
