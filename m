@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 325F03EB7BA
-	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:24:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A4EE3EB7F6
+	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:24:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241184AbhHMPIy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Aug 2021 11:08:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51292 "EHLO mail.kernel.org"
+        id S241600AbhHMPKN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Aug 2021 11:10:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241190AbhHMPIu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Aug 2021 11:08:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8AC2461103;
-        Fri, 13 Aug 2021 15:08:23 +0000 (UTC)
+        id S241448AbhHMPJv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Aug 2021 11:09:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A4C8D6109D;
+        Fri, 13 Aug 2021 15:09:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628867304;
-        bh=Fra+xviE6GKyepm+SKDA3lXdcyo451/6M8Jg6WcLpuI=;
+        s=korg; t=1628867364;
+        bh=CKykmzahHhMXt9m0NrdblO10om6+KNmQ7qwbpRTb4xQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eJm6wohKllJSwGcuLPQ11T60XH5sqKnQ3rjFDd8L+bvJyFyeljzO9FByMmOUqA1s5
-         LCEWtsaw1oFQOVG0riRzku1kdEBBwHkpebQ5APDW8nZMIKd4weX3d/ESf5Ls9SaP5q
-         1fhMqwDuaQ6Oguq0ki13Q2tpt1lNpEr+CIIXI8Cc=
+        b=EESViDB+XJCDFNul8LOMiJdrvOOdCs7uM7Jrwkcb0axz2TqGFbh1TLzoM8Gxucb5Z
+         nFfIaGk65t+8VPlRdcp0maUXuD7bFKOPSFNGxxx9PfdlJByrgfsP7KHMXHZq7TPLxL
+         kuPQJw9u+IvmIA8MD95pwF7b6p13d3KQyEY3hUN0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+c31a48e6702ccb3d64c9@syzkaller.appspotmail.com,
-        Shreyansh Chouhan <chouhan.shreyansh630@gmail.com>,
-        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 19/25] reiserfs: check directory items on read from disk
-Date:   Fri, 13 Aug 2021 17:06:43 +0200
-Message-Id: <20210813150521.340772188@linuxfoundation.org>
+        stable@vger.kernel.org, Hui Su <suhui@zeku.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 4.9 16/30] scripts/tracing: fix the bug that cant parse raw_trace_func
+Date:   Fri, 13 Aug 2021 17:06:44 +0200
+Message-Id: <20210813150522.957183526@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210813150520.718161915@linuxfoundation.org>
-References: <20210813150520.718161915@linuxfoundation.org>
+In-Reply-To: <20210813150522.445553924@linuxfoundation.org>
+References: <20210813150522.445553924@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,79 +39,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shreyansh Chouhan <chouhan.shreyansh630@gmail.com>
+From: Hui Su <suhui@zeku.com>
 
-[ Upstream commit 13d257503c0930010ef9eed78b689cec417ab741 ]
+commit 1c0cec64a7cc545eb49f374a43e9f7190a14defa upstream.
 
-While verifying the leaf item that we read from the disk, reiserfs
-doesn't check the directory items, this could cause a crash when we
-read a directory item from the disk that has an invalid deh_location.
+Since commit 77271ce4b2c0 ("tracing: Add irq, preempt-count and need resched info
+to default trace output"), the default trace output format has been changed to:
+          <idle>-0       [009] d.h. 22420.068695: _raw_spin_lock_irqsave <-hrtimer_interrupt
+          <idle>-0       [000] ..s. 22420.068695: _nohz_idle_balance <-run_rebalance_domains
+          <idle>-0       [011] d.h. 22420.068695: account_process_tick <-update_process_times
 
-This patch adds a check to the directory items read from the disk that
-does a bounds check on deh_location for the directory entries. Any
-directory entry header with a directory entry offset greater than the
-item length is considered invalid.
+origin trace output format:(before v3.2.0)
+     # tracer: nop
+     #
+     #           TASK-PID    CPU#    TIMESTAMP  FUNCTION
+     #              | |       |          |         |
+          migration/0-6     [000]    50.025810: rcu_note_context_switch <-__schedule
+          migration/0-6     [000]    50.025812: trace_rcu_utilization <-rcu_note_context_switch
+          migration/0-6     [000]    50.025813: rcu_sched_qs <-rcu_note_context_switch
+          migration/0-6     [000]    50.025815: rcu_preempt_qs <-rcu_note_context_switch
+          migration/0-6     [000]    50.025817: trace_rcu_utilization <-rcu_note_context_switch
+          migration/0-6     [000]    50.025818: debug_lockdep_rcu_enabled <-__schedule
+          migration/0-6     [000]    50.025820: debug_lockdep_rcu_enabled <-__schedule
 
-Link: https://lore.kernel.org/r/20210709152929.766363-1-chouhan.shreyansh630@gmail.com
-Reported-by: syzbot+c31a48e6702ccb3d64c9@syzkaller.appspotmail.com
-Signed-off-by: Shreyansh Chouhan <chouhan.shreyansh630@gmail.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The draw_functrace.py(introduced in v2.6.28) can't parse the new version format trace_func,
+So we need modify draw_functrace.py to adapt the new version trace output format.
+
+Link: https://lkml.kernel.org/r/20210611022107.608787-1-suhui@zeku.com
+
+Cc: stable@vger.kernel.org
+Fixes: 77271ce4b2c0 tracing: Add irq, preempt-count and need resched info to default trace output
+Signed-off-by: Hui Su <suhui@zeku.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/reiserfs/stree.c | 31 ++++++++++++++++++++++++++-----
- 1 file changed, 26 insertions(+), 5 deletions(-)
+ scripts/tracing/draw_functrace.py |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/fs/reiserfs/stree.c b/fs/reiserfs/stree.c
-index 33b78ee9fb9e..13322c39e6cc 100644
---- a/fs/reiserfs/stree.c
-+++ b/fs/reiserfs/stree.c
-@@ -386,6 +386,24 @@ void pathrelse(struct treepath *search_path)
- 	search_path->path_length = ILLEGAL_PATH_ELEMENT_OFFSET;
- }
+--- a/scripts/tracing/draw_functrace.py
++++ b/scripts/tracing/draw_functrace.py
+@@ -17,7 +17,7 @@ Usage:
+ 	$ cat /sys/kernel/debug/tracing/trace_pipe > ~/raw_trace_func
+ 	Wait some times but not too much, the script is a bit slow.
+ 	Break the pipe (Ctrl + Z)
+-	$ scripts/draw_functrace.py < raw_trace_func > draw_functrace
++	$ scripts/tracing/draw_functrace.py < ~/raw_trace_func > draw_functrace
+ 	Then you have your drawn trace in draw_functrace
+ """
  
-+static int has_valid_deh_location(struct buffer_head *bh, struct item_head *ih)
-+{
-+	struct reiserfs_de_head *deh;
-+	int i;
-+
-+	deh = B_I_DEH(bh, ih);
-+	for (i = 0; i < ih_entry_count(ih); i++) {
-+		if (deh_location(&deh[i]) > ih_item_len(ih)) {
-+			reiserfs_warning(NULL, "reiserfs-5094",
-+					 "directory entry location seems wrong %h",
-+					 &deh[i]);
-+			return 0;
-+		}
-+	}
-+
-+	return 1;
-+}
-+
- static int is_leaf(char *buf, int blocksize, struct buffer_head *bh)
- {
- 	struct block_head *blkh;
-@@ -453,11 +471,14 @@ static int is_leaf(char *buf, int blocksize, struct buffer_head *bh)
- 					 "(second one): %h", ih);
- 			return 0;
- 		}
--		if (is_direntry_le_ih(ih) && (ih_item_len(ih) < (ih_entry_count(ih) * IH_SIZE))) {
--			reiserfs_warning(NULL, "reiserfs-5093",
--					 "item entry count seems wrong %h",
--					 ih);
--			return 0;
-+		if (is_direntry_le_ih(ih)) {
-+			if (ih_item_len(ih) < (ih_entry_count(ih) * IH_SIZE)) {
-+				reiserfs_warning(NULL, "reiserfs-5093",
-+						 "item entry count seems wrong %h",
-+						 ih);
-+				return 0;
-+			}
-+			return has_valid_deh_location(bh, ih);
- 		}
- 		prev_location = ih_location(ih);
- 	}
--- 
-2.30.2
-
+@@ -103,10 +103,10 @@ def parseLine(line):
+ 	line = line.strip()
+ 	if line.startswith("#"):
+ 		raise CommentLineException
+-	m = re.match("[^]]+?\\] +([0-9.]+): (\\w+) <-(\\w+)", line)
++	m = re.match("[^]]+?\\] +([a-z.]+) +([0-9.]+): (\\w+) <-(\\w+)", line)
+ 	if m is None:
+ 		raise BrokenLineException
+-	return (m.group(1), m.group(2), m.group(3))
++	return (m.group(2), m.group(3), m.group(4))
+ 
+ 
+ def main():
 
 
