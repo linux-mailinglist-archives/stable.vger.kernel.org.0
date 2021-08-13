@@ -2,100 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE13D3EB040
-	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 08:34:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF5063EB156
+	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 09:24:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238966AbhHMGcb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Aug 2021 02:32:31 -0400
-Received: from mailgw02.mediatek.com ([210.61.82.184]:45984 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S238952AbhHMGca (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 Aug 2021 02:32:30 -0400
-X-UUID: 2192eec2ea19415c9a4af21c2eba88eb-20210813
-X-UUID: 2192eec2ea19415c9a4af21c2eba88eb-20210813
-Received: from mtkcas10.mediatek.inc [(172.21.101.39)] by mailgw02.mediatek.com
-        (envelope-from <chunfeng.yun@mediatek.com>)
-        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 1263130413; Fri, 13 Aug 2021 14:31:59 +0800
-Received: from mtkcas07.mediatek.inc (172.21.101.84) by
- mtkmbs02n1.mediatek.inc (172.21.101.77) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Fri, 13 Aug 2021 14:31:57 +0800
-Received: from localhost.localdomain (10.17.3.153) by mtkcas07.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Fri, 13 Aug 2021 14:31:56 +0800
-From:   Chunfeng Yun <chunfeng.yun@mediatek.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Felipe Balbi <balbi@kernel.org>
-CC:     Pawel Laszczak <pawell@cadence.com>,
-        Al Cooper <alcooperx@gmail.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Chunfeng Yun <chunfeng.yun@mediatek.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Rikard Falkeborn <rikard.falkeborn@gmail.com>,
-        <linux-usb@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <bcm-kernel-feedback-list@broadcom.com>,
-        <linux-tegra@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>,
-        Eddie Hung <eddie.hung@mediatek.com>,
-        Sergei Shtylyov <sergei.shtylyov@gmail.com>,
-        <stable@vger.kernel.org>
-Subject: [PATCH v3 5/7] usb: gadget: tegra-xudc: fix the wrong mult value for HS isoc or intr
-Date:   Fri, 13 Aug 2021 14:30:51 +0800
-Message-ID: <1628836253-7432-5-git-send-email-chunfeng.yun@mediatek.com>
-X-Mailer: git-send-email 1.8.1.1.dirty
-In-Reply-To: <1628836253-7432-1-git-send-email-chunfeng.yun@mediatek.com>
-References: <1628836253-7432-1-git-send-email-chunfeng.yun@mediatek.com>
+        id S238787AbhHMHYT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Aug 2021 03:24:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51926 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230194AbhHMHYS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 Aug 2021 03:24:18 -0400
+Received: from mail-ot1-x32b.google.com (mail-ot1-x32b.google.com [IPv6:2607:f8b0:4864:20::32b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29CC4C061756
+        for <stable@vger.kernel.org>; Fri, 13 Aug 2021 00:23:52 -0700 (PDT)
+Received: by mail-ot1-x32b.google.com with SMTP id h63-20020a9d14450000b02904ce97efee36so11063332oth.7
+        for <stable@vger.kernel.org>; Fri, 13 Aug 2021 00:23:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ffwll.ch; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=znhRbv8NcYlT3eDS8D533ikh6xA5L2FrHFf4HCQZwu0=;
+        b=DpU+hRvBA0VVkiow2d5h3EE47XKuwk74YlpbxQyIZVwF+VEMimQEDqofGMqvYpDAYe
+         TJZMn7rpvGmWKZWD/Kq/t72yrMspD5Vs+X9uS+/IKhCJjJZttF43GR5V/qyYS0IqcziV
+         hRAXFWuge0kSkQmmgBpJAtg+sPH1jWoIeZ6lU=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=znhRbv8NcYlT3eDS8D533ikh6xA5L2FrHFf4HCQZwu0=;
+        b=sXwnDZHbOAyd73Ow5hMKYH8GiCw/dlc02IGlBcdV3CjBLXjCkiZMsllryXHgh1+rv9
+         JsCEyZjnOmfqnUvTpjlfemQUxprN4APlD0ozMXqXUY6RmLcQC8tJlTObFMtiGXytp90P
+         LKoD3k7qYjECfXSogfEdADJj9exIqCUMFPSL1Pv7LZ6R+mE2EzvXGky4y5xT60y89iBQ
+         BIxevoBdgI2Snp4/tl1hrfYJrLhKnoV1BO/HHQ38uFzd4BKcGRB9gIC2jTKt1N3TLvzv
+         mBadEufT8wEWOMH/yclODFm5sr/ZDmYIvodOaAiTUQN+nfkMDW1JPOl0DdLNH/tDBnom
+         ndpA==
+X-Gm-Message-State: AOAM532GfIcPP3axyxsC4myXgkXYJc+XxSFmamEtXwJ/JltAjHppWdsS
+        hIpv6BplYZ8zP0x1XV+EayHHJkwynmGFwJ62dVKArQ==
+X-Google-Smtp-Source: ABdhPJzIFT7P25yEp7plaLNd9TIZv8MpEnp8fQf4Gdho9oyN4CpBRcyoBdjk1iTMJASDIFHFMEc/zYSMqZZ7p0/F4wA=
+X-Received: by 2002:a9d:6b85:: with SMTP id b5mr1007957otq.303.1628839430499;
+ Fri, 13 Aug 2021 00:23:50 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain
-X-MTK:  N
+References: <20210812132144.791268-1-kw@linux.com> <20210812161710.GA2479934@bjorn-Precision-5520>
+In-Reply-To: <20210812161710.GA2479934@bjorn-Precision-5520>
+From:   Daniel Vetter <daniel.vetter@ffwll.ch>
+Date:   Fri, 13 Aug 2021 09:23:39 +0200
+Message-ID: <CAKMK7uFzQphtMmYVyc4=cONQFQDaPpRFAXpCiL1KcDVHN=AVjA@mail.gmail.com>
+Subject: Re: [PATCH] PCI/sysfs: Use correct variable for the legacy_mem sysfs object
+To:     Bjorn Helgaas <helgaas@kernel.org>
+Cc:     =?UTF-8?Q?Krzysztof_Wilczy=C5=84ski?= <kw@linux.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Linux PCI <linux-pci@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-usb_endpoint_maxp() only returns the bit[10:0] of wMaxPacketSize
-of endpoint descriptor, not includes bit[12:11] anymore, so use
-usb_endpoint_maxp_mult() instead.
-Meanwhile no need AND 0x7ff when get maxp, remove it.
+On Thu, Aug 12, 2021 at 6:17 PM Bjorn Helgaas <helgaas@kernel.org> wrote:
+>
+> [+to Greg, please update sysfs_defferred_iomem_get_mapping-5.15]
+>
+> On Thu, Aug 12, 2021 at 01:21:44PM +0000, Krzysztof Wilczy=C5=84ski wrote=
+:
+> > Two legacy PCI sysfs objects "legacy_io" and "legacy_mem" were updated
+> > to use an unified address space in the commit 636b21b50152 ("PCI: Revok=
+e
+> > mappings like devmem").  This allows for revocations to be managed from
+> > a single place when drivers want to take over and mmap() a /dev/mem
+> > range.
+> >
+> > Following the update, both of the sysfs objects should leverage the
+> > iomem_get_mapping() function to get an appropriate address range, but
+> > only the "legacy_io" has been correctly updated - the second attribute
+> > seems to be using a wrong variable to pass the iomem_get_mapping()
+> > function to.
+> >
+> > Thus, correct the variable name used so that the "legacy_mem" sysfs
+> > object would also correctly call the iomem_get_mapping() function.
+> >
+> > Fixes: 636b21b50152 ("PCI: Revoke mappings like devmem")
+> > Signed-off-by: Krzysztof Wilczy=C5=84ski <kw@linux.com>
+>
+> Acked-by: Bjorn Helgaas <bhelgaas@google.com>
+>
+> Ouch.  This needs to be applied to any -stable trees that contain
+> 636b21b50152, which was merged in v5.12.
 
-Fixes: 49db427232fe ("usb: gadget: Add UDC driver for tegra XUSB device mode controller")
-Cc: stable@vger.kernel.org
-Acked-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
----
-v3: fix invalid email format for stable
-v2:
-  add fixes, cc;
-  add acked-by felipe;
----
- drivers/usb/gadget/udc/tegra-xudc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Ouch indeed. Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 
-diff --git a/drivers/usb/gadget/udc/tegra-xudc.c b/drivers/usb/gadget/udc/tegra-xudc.c
-index a54d1cef17db..40a7417e7ae4 100644
---- a/drivers/usb/gadget/udc/tegra-xudc.c
-+++ b/drivers/usb/gadget/udc/tegra-xudc.c
-@@ -1610,7 +1610,7 @@ static void tegra_xudc_ep_context_setup(struct tegra_xudc_ep *ep)
- 	u16 maxpacket, maxburst = 0, esit = 0;
- 	u32 val;
- 
--	maxpacket = usb_endpoint_maxp(desc) & 0x7ff;
-+	maxpacket = usb_endpoint_maxp(desc);
- 	if (xudc->gadget.speed == USB_SPEED_SUPER) {
- 		if (!usb_endpoint_xfer_control(desc))
- 			maxburst = comp_desc->bMaxBurst;
-@@ -1621,7 +1621,7 @@ static void tegra_xudc_ep_context_setup(struct tegra_xudc_ep *ep)
- 		   (usb_endpoint_xfer_int(desc) ||
- 		    usb_endpoint_xfer_isoc(desc))) {
- 		if (xudc->gadget.speed == USB_SPEED_HIGH) {
--			maxburst = (usb_endpoint_maxp(desc) >> 11) & 0x3;
-+			maxburst = usb_endpoint_maxp_mult(desc) - 1;
- 			if (maxburst == 0x3) {
- 				dev_warn(xudc->dev,
- 					 "invalid endpoint maxburst\n");
--- 
-2.18.0
+>
+> It *also* needs to be applied with the obvious updates to Greg's
+> sysfs_defferred_iomem_get_mapping-5.15 branch because it was changed
+> by f06aff924f97 ("sysfs: Rename struct bin_attribute member to
+> f_mapping") [1]
+>
+> [1] https://git.kernel.org/cgit/linux/kernel/git/gregkh/driver-core.git/c=
+ommit/?id=3Df06aff924f97
+>
+> > ---
+> >  drivers/pci/pci-sysfs.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> >
+> > diff --git a/drivers/pci/pci-sysfs.c b/drivers/pci/pci-sysfs.c
+> > index 5d63df7c1820..7bbf2673c7f2 100644
+> > --- a/drivers/pci/pci-sysfs.c
+> > +++ b/drivers/pci/pci-sysfs.c
+> > @@ -978,7 +978,7 @@ void pci_create_legacy_files(struct pci_bus *b)
+> >       b->legacy_mem->size =3D 1024*1024;
+> >       b->legacy_mem->attr.mode =3D 0600;
+> >       b->legacy_mem->mmap =3D pci_mmap_legacy_mem;
+> > -     b->legacy_io->mapping =3D iomem_get_mapping();
+> > +     b->legacy_mem->mapping =3D iomem_get_mapping();
+> >       pci_adjust_legacy_attr(b, pci_mmap_mem);
+> >       error =3D device_create_bin_file(&b->dev, b->legacy_mem);
+> >       if (error)
+> > --
+> > 2.32.0
+> >
 
+
+
+--=20
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
