@@ -2,134 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD38D3EB861
-	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:25:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EA443EB895
+	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:26:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241646AbhHMPNS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Aug 2021 11:13:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55356 "EHLO mail.kernel.org"
+        id S241669AbhHMPOm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Aug 2021 11:14:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56586 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241473AbhHMPMU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Aug 2021 11:12:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4FBA160F51;
-        Fri, 13 Aug 2021 15:11:53 +0000 (UTC)
+        id S241764AbhHMPNU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Aug 2021 11:13:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A66FA610EA;
+        Fri, 13 Aug 2021 15:12:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628867513;
-        bh=Kveju8CISokDzeXz4ZZEe3Fjd+4oWmvoYeQWeaYj+/o=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xiqi4bMKdxpLPps+0Xs6OsNEjo9PEtSHCubZiqWWSTwMPhyXo2CFYhtqBQQZEnDwB
-         RbLfusqRBDFIH5cIpxXEHaq//tn5Cgxmi9ysI5kjm3btRpL0NvA/SLLBXc+/quddme
-         WbnYCFOLleu2plDe3Zww210E/RWPUZ7LpZnr8WL4=
+        s=korg; t=1628867573;
+        bh=jc3D3ISIm4zf6pUe0gjOoGa/I+ad7JKjF8jb11HloX4=;
+        h=From:To:Cc:Subject:Date:From;
+        b=mdansC365Fi+39Lwcp/v5BVFRZvfi6NrCvsmgtG+oZs6Wcj9yIhKXLIiSq0Lx5PYL
+         RC1kwtfkzCdr1Hd4mIQiLdNM3CXkQvR+A9b9X7jXLF6nxmhUV/YbZ6R70PTReHfTqV
+         Rs4nx5ollCFRDz1zaWTGBxCHHldIxFepqU24YdGo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alois Wohlschlager <alois1@gmx-topmail.de>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 4.14 41/42] ovl: prevent private clone if bind mount is not allowed
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 4.19 00/11] 4.19.204-rc1 review
 Date:   Fri, 13 Aug 2021 17:07:07 +0200
-Message-Id: <20210813150526.468074729@linuxfoundation.org>
+Message-Id: <20210813150520.072304554@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210813150525.098817398@linuxfoundation.org>
-References: <20210813150525.098817398@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.204-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.19.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.19.204-rc1
+X-KernelTest-Deadline: 2021-08-15T15:05+00:00
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miklos Szeredi <mszeredi@redhat.com>
+This is the start of the stable review cycle for the 4.19.204 release.
+There are 11 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit 427215d85e8d1476da1a86b8d67aceb485eb3631 upstream.
+Responses should be made by Sun, 15 Aug 2021 15:05:12 +0000.
+Anything received after that time might be too late.
 
-Add the following checks from __do_loopback() to clone_private_mount() as
-well:
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.204-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+and the diffstat can be found below.
 
- - verify that the mount is in the current namespace
+thanks,
 
- - verify that there are no locked children
+greg k-h
 
-Reported-by: Alois Wohlschlager <alois1@gmx-topmail.de>
-Fixes: c771d683a62e ("vfs: introduce clone_private_mount()")
-Cc: <stable@vger.kernel.org> # v3.18
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- fs/namespace.c |   42 ++++++++++++++++++++++++++++--------------
- 1 file changed, 28 insertions(+), 14 deletions(-)
+-------------
+Pseudo-Shortlog of commits:
 
---- a/fs/namespace.c
-+++ b/fs/namespace.c
-@@ -1879,6 +1879,20 @@ void drop_collected_mounts(struct vfsmou
- 	namespace_unlock();
- }
- 
-+static bool has_locked_children(struct mount *mnt, struct dentry *dentry)
-+{
-+	struct mount *child;
-+
-+	list_for_each_entry(child, &mnt->mnt_mounts, mnt_child) {
-+		if (!is_subdir(child->mnt_mountpoint, dentry))
-+			continue;
-+
-+		if (child->mnt.mnt_flags & MNT_LOCKED)
-+			return true;
-+	}
-+	return false;
-+}
-+
- /**
-  * clone_private_mount - create a private clone of a path
-  *
-@@ -1893,14 +1907,27 @@ struct vfsmount *clone_private_mount(con
- 	struct mount *old_mnt = real_mount(path->mnt);
- 	struct mount *new_mnt;
- 
-+	down_read(&namespace_sem);
- 	if (IS_MNT_UNBINDABLE(old_mnt))
--		return ERR_PTR(-EINVAL);
-+		goto invalid;
-+
-+	if (!check_mnt(old_mnt))
-+		goto invalid;
-+
-+	if (has_locked_children(old_mnt, path->dentry))
-+		goto invalid;
- 
- 	new_mnt = clone_mnt(old_mnt, path->dentry, CL_PRIVATE);
-+	up_read(&namespace_sem);
-+
- 	if (IS_ERR(new_mnt))
- 		return ERR_CAST(new_mnt);
- 
- 	return &new_mnt->mnt;
-+
-+invalid:
-+	up_read(&namespace_sem);
-+	return ERR_PTR(-EINVAL);
- }
- EXPORT_SYMBOL_GPL(clone_private_mount);
- 
-@@ -2216,19 +2243,6 @@ static int do_change_type(struct path *p
- 	return err;
- }
- 
--static bool has_locked_children(struct mount *mnt, struct dentry *dentry)
--{
--	struct mount *child;
--	list_for_each_entry(child, &mnt->mnt_mounts, mnt_child) {
--		if (!is_subdir(child->mnt_mountpoint, dentry))
--			continue;
--
--		if (child->mnt.mnt_flags & MNT_LOCKED)
--			return true;
--	}
--	return false;
--}
--
- /*
-  * do loopback mount.
-  */
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.19.204-rc1
+
+YueHaibing <yuehaibing@huawei.com>
+    net: xilinx_emaclite: Do not print real IOMEM pointer
+
+Miklos Szeredi <mszeredi@redhat.com>
+    ovl: prevent private clone if bind mount is not allowed
+
+Pali Rohár <pali@kernel.org>
+    ppp: Fix generating ppp unit id when ifname is not specified
+
+Longfang Liu <liulongfang@huawei.com>
+    USB:ehci:fix Kunpeng920 ehci hardware problem
+
+Lai Jiangshan <laijs@linux.alibaba.com>
+    KVM: X86: MMU: Use the correct inherited permissions to get shadow page
+
+Daniel Borkmann <daniel@iogearbox.net>
+    bpf, selftests: Adjust few selftest outcomes wrt unreachable code
+
+Daniel Borkmann <daniel@iogearbox.net>
+    bpf: Fix leakage under speculation on mispredicted branches
+
+Daniel Borkmann <daniel@iogearbox.net>
+    bpf: Do not mark insn as seen under speculative path verification
+
+Daniel Borkmann <daniel@iogearbox.net>
+    bpf: Inherit expanded/patched seen count from old aux data
+
+Masami Hiramatsu <mhiramat@kernel.org>
+    tracing: Reject string operand in the histogram expression
+
+Sean Christopherson <seanjc@google.com>
+    KVM: SVM: Fix off-by-one indexing when nullifying last used SEV VMCB
+
+
+-------------
+
+Diffstat:
+
+ Documentation/virtual/kvm/mmu.txt             |  4 +-
+ Makefile                                      |  4 +-
+ arch/x86/kvm/paging_tmpl.h                    | 14 ++++--
+ arch/x86/kvm/svm.c                            |  2 +-
+ drivers/net/ethernet/xilinx/xilinx_emaclite.c |  5 +-
+ drivers/net/ppp/ppp_generic.c                 | 19 ++++++--
+ drivers/usb/host/ehci-pci.c                   |  3 ++
+ fs/namespace.c                                | 42 +++++++++++------
+ kernel/bpf/verifier.c                         | 68 +++++++++++++++++++++++----
+ kernel/trace/trace_events_hist.c              | 14 ++++++
+ tools/testing/selftests/bpf/test_verifier.c   |  2 +
+ 11 files changed, 138 insertions(+), 39 deletions(-)
 
 
