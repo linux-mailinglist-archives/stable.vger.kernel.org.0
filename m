@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA9903EB7E9
-	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:24:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2899B3EB834
+	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:25:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241542AbhHMPKA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Aug 2021 11:10:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52766 "EHLO mail.kernel.org"
+        id S241322AbhHMPLz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Aug 2021 11:11:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241485AbhHMPJs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Aug 2021 11:09:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3221B610CC;
-        Fri, 13 Aug 2021 15:09:21 +0000 (UTC)
+        id S241873AbhHMPLN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Aug 2021 11:11:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1BF0A61152;
+        Fri, 13 Aug 2021 15:10:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628867361;
-        bh=1KKhpcXXkCv8ioX0rHIK3uKgunrD9lCqIQ/QV/SfGQc=;
+        s=korg; t=1628867446;
+        bh=TbqOqCLDRxG7GLW6I1Zd/LALN0hPlwLrEnRJkTqsTcI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ovCLdUtnFvnlGkp1NErPfhWkutQKGG15shHVb+D2XmIQkDKfriJrwnIWekHczll4b
-         DhuFs6wdh2xbO6mRCK1Q4xgQJlXM3DL+QQLtz4NQr+6dYiN5jN8dt+dUP0ZaNOxbV/
-         8V8Nw226GkdviAQ1RAyWuAlhibc08SenAaMG1A70=
+        b=GTw8Qg8fJztjLZM1VNK4YC6B5m1B1vEb4+Ak32YtguQDySmlX6USUG7VDdn22Kj4v
+         N0bHmwwHKajmUTB/WBv7TYDghL46ucsmA3m7DRdlBzy0ga4bks1TnExI7/6oeT0ry+
+         BCfmyTCyJyW/MNcWTpW14DmATo6KZHOJpbpkUNN0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Chen <peter.chen@kernel.org>,
-        Dmitry Osipenko <digetx@gmail.com>
-Subject: [PATCH 4.9 15/30] usb: otg-fsm: Fix hrtimer list corruption
+        stable@vger.kernel.org, Willy Tarreau <w@1wt.eu>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.14 17/42] USB: serial: ch341: fix character loss at high transfer rates
 Date:   Fri, 13 Aug 2021 17:06:43 +0200
-Message-Id: <20210813150522.924661961@linuxfoundation.org>
+Message-Id: <20210813150525.679853855@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210813150522.445553924@linuxfoundation.org>
-References: <20210813150522.445553924@linuxfoundation.org>
+In-Reply-To: <20210813150525.098817398@linuxfoundation.org>
+References: <20210813150525.098817398@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,64 +39,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Willy Tarreau <w@1wt.eu>
 
-commit bf88fef0b6f1488abeca594d377991171c00e52a upstream.
+commit 3c18e9baee0ef97510dcda78c82285f52626764b upstream.
 
-The HNP work can be re-scheduled while it's still in-fly. This results in
-re-initialization of the busy work, resetting the hrtimer's list node of
-the work and crashing kernel with null dereference within kernel/timer
-once work's timer is expired. It's very easy to trigger this problem by
-re-plugging USB cable quickly. Initialize HNP work only once to fix this
-trouble.
+The chip supports high transfer rates, but with the small default buffers
+(64 bytes read), some entire blocks are regularly lost. This typically
+happens at 1.5 Mbps (which is the default speed on Rockchip devices) when
+used as a console to access U-Boot where the output of the "help" command
+misses many lines and where "printenv" mangles the environment.
 
- Unable to handle kernel NULL pointer dereference at virtual address 00000126)
- ...
- PC is at __run_timers.part.0+0x150/0x228
- LR is at __next_timer_interrupt+0x51/0x9c
- ...
- (__run_timers.part.0) from [<c0187a2b>] (run_timer_softirq+0x2f/0x50)
- (run_timer_softirq) from [<c01013ad>] (__do_softirq+0xd5/0x2f0)
- (__do_softirq) from [<c012589b>] (irq_exit+0xab/0xb8)
- (irq_exit) from [<c0170341>] (handle_domain_irq+0x45/0x60)
- (handle_domain_irq) from [<c04c4a43>] (gic_handle_irq+0x6b/0x7c)
- (gic_handle_irq) from [<c0100b65>] (__irq_svc+0x65/0xac)
+The FTDI driver doesn't suffer at all from this. One difference is that
+it uses 512 bytes rx buffers and 256 bytes tx buffers. Adopting these
+values completely resolved the issue, even the output of "dmesg" is
+reliable. I preferred to leave the Tx value unchanged as it is not
+involved in this issue, while a change could increase the risk of
+triggering the same issue with other devices having too small buffers.
+
+I verified that it backports well (and works) at least to 5.4. It's of
+low importance enough to be dropped where it doesn't trivially apply
+anymore.
 
 Cc: stable@vger.kernel.org
-Acked-by: Peter Chen <peter.chen@kernel.org>
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Link: https://lore.kernel.org/r/20210717182134.30262-6-digetx@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Willy Tarreau <w@1wt.eu>
+Link: https://lore.kernel.org/r/20210724152739.18726-1-w@1wt.eu
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/common/usb-otg-fsm.c |    6 +++++-
- include/linux/usb/otg-fsm.h      |    1 +
- 2 files changed, 6 insertions(+), 1 deletion(-)
+ drivers/usb/serial/ch341.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/common/usb-otg-fsm.c
-+++ b/drivers/usb/common/usb-otg-fsm.c
-@@ -199,7 +199,11 @@ static void otg_start_hnp_polling(struct
- 	if (!fsm->host_req_flag)
- 		return;
- 
--	INIT_DELAYED_WORK(&fsm->hnp_polling_work, otg_hnp_polling_work);
-+	if (!fsm->hnp_work_inited) {
-+		INIT_DELAYED_WORK(&fsm->hnp_polling_work, otg_hnp_polling_work);
-+		fsm->hnp_work_inited = true;
-+	}
-+
- 	schedule_delayed_work(&fsm->hnp_polling_work,
- 					msecs_to_jiffies(T_HOST_REQ_POLL));
- }
---- a/include/linux/usb/otg-fsm.h
-+++ b/include/linux/usb/otg-fsm.h
-@@ -210,6 +210,7 @@ struct otg_fsm {
- 	struct mutex lock;
- 	u8 *host_req_flag;
- 	struct delayed_work hnp_polling_work;
-+	bool hnp_work_inited;
- 	bool state_changed;
- };
- 
+--- a/drivers/usb/serial/ch341.c
++++ b/drivers/usb/serial/ch341.c
+@@ -628,6 +628,7 @@ static struct usb_serial_driver ch341_de
+ 		.owner	= THIS_MODULE,
+ 		.name	= "ch341-uart",
+ 	},
++	.bulk_in_size      = 512,
+ 	.id_table          = id_table,
+ 	.num_ports         = 1,
+ 	.open              = ch341_open,
 
 
