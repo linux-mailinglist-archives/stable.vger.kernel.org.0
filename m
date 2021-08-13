@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CADF53EB802
-	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:25:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C6343EB866
+	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:25:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241698AbhHMPKb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Aug 2021 11:10:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53428 "EHLO mail.kernel.org"
+        id S241725AbhHMPNZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Aug 2021 11:13:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241592AbhHMPKM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Aug 2021 11:10:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 464A7610F7;
-        Fri, 13 Aug 2021 15:09:45 +0000 (UTC)
+        id S242080AbhHMPMe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Aug 2021 11:12:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9148F6112F;
+        Fri, 13 Aug 2021 15:12:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628867385;
-        bh=bKqrxxAZGEMecussvSD3pEir8sHp7toRotHyMrBTYEQ=;
+        s=korg; t=1628867527;
+        bh=ZxBTzNRCYWOy37PUIjrXP8rUkmJzh/1RLYGp7oVvQGg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xp5d4mR/43/18tPIeIjIAY6kIfCum2MsiMMiobgakSr9aJevU+o/PrgzRbBDNb4Hv
-         zRjl4PsSfWIZuzw+lGxEh7apW18O24UirveAi0fnrdHlFtfKYSGDuDM7LIpESaSNin
-         ZCqWC3GOse/QNOLKCWsdkeuC2O1dfSORxA/poIt4=
+        b=RW4HBmKZJsisWzaOVUjg9rDmNOeAuQ6TVviwiG1FGHqyYof649/OcddkI0MHqWZNL
+         xnBQC2cWdyK6XWOGK3HDYxxgILrY4EQo9zp7kB+kcgvt+evj10Gf+phJPJgrb4eySv
+         YgbY3Icjg+kCZXBKisC28k7PcjtyQa/+j9vIM4qQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
-        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 23/30] reiserfs: add check for root_inode in reiserfs_fill_super
+        stable@vger.kernel.org,
+        syzbot+faf11bbadc5a372564da@syzkaller.appspotmail.com,
+        Eero Lehtinen <debiangamer2@gmail.com>,
+        Antti Palosaari <crope@iki.fi>,
+        Johan Hovold <johan@kernel.org>, Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 4.14 25/42] media: rtl28xxu: fix zero-length control request
 Date:   Fri, 13 Aug 2021 17:06:51 +0200
-Message-Id: <20210813150523.187227844@linuxfoundation.org>
+Message-Id: <20210813150525.951338888@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210813150522.445553924@linuxfoundation.org>
-References: <20210813150522.445553924@linuxfoundation.org>
+In-Reply-To: <20210813150525.098817398@linuxfoundation.org>
+References: <20210813150525.098817398@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,98 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 2acf15b94d5b8ea8392c4b6753a6ffac3135cd78 ]
+commit 76f22c93b209c811bd489950f17f8839adb31901 upstream.
 
-Our syzcaller report a NULL pointer dereference:
+The direction of the pipe argument must match the request-type direction
+bit or control requests may fail depending on the host-controller-driver
+implementation.
 
-BUG: kernel NULL pointer dereference, address: 0000000000000000
-PGD 116e95067 P4D 116e95067 PUD 1080b5067 PMD 0
-Oops: 0010 [#1] SMP KASAN
-CPU: 7 PID: 592 Comm: a.out Not tainted 5.13.0-next-20210629-dirty #67
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ?-20190727_073836-buildvm-p4
-RIP: 0010:0x0
-Code: Unable to access opcode bytes at RIP 0xffffffffffffffd6.
-RSP: 0018:ffff888114e779b8 EFLAGS: 00010246
-RAX: 0000000000000000 RBX: 1ffff110229cef39 RCX: ffffffffaa67e1aa
-RDX: 0000000000000000 RSI: ffff88810a58ee00 RDI: ffff8881233180b0
-RBP: ffffffffac38e9c0 R08: ffffffffaa67e17e R09: 0000000000000001
-R10: ffffffffb91c5557 R11: fffffbfff7238aaa R12: ffff88810a58ee00
-R13: ffff888114e77aa0 R14: 0000000000000000 R15: ffff8881233180b0
-FS:  00007f946163c480(0000) GS:ffff88839f1c0000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: ffffffffffffffd6 CR3: 00000001099c1000 CR4: 00000000000006e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- __lookup_slow+0x116/0x2d0
- ? page_put_link+0x120/0x120
- ? __d_lookup+0xfc/0x320
- ? d_lookup+0x49/0x90
- lookup_one_len+0x13c/0x170
- ? __lookup_slow+0x2d0/0x2d0
- ? reiserfs_schedule_old_flush+0x31/0x130
- reiserfs_lookup_privroot+0x64/0x150
- reiserfs_fill_super+0x158c/0x1b90
- ? finish_unfinished+0xb10/0xb10
- ? bprintf+0xe0/0xe0
- ? __mutex_lock_slowpath+0x30/0x30
- ? __kasan_check_write+0x20/0x30
- ? up_write+0x51/0xb0
- ? set_blocksize+0x9f/0x1f0
- mount_bdev+0x27c/0x2d0
- ? finish_unfinished+0xb10/0xb10
- ? reiserfs_kill_sb+0x120/0x120
- get_super_block+0x19/0x30
- legacy_get_tree+0x76/0xf0
- vfs_get_tree+0x49/0x160
- ? capable+0x1d/0x30
- path_mount+0xacc/0x1380
- ? putname+0x97/0xd0
- ? finish_automount+0x450/0x450
- ? kmem_cache_free+0xf8/0x5a0
- ? putname+0x97/0xd0
- do_mount+0xe2/0x110
- ? path_mount+0x1380/0x1380
- ? copy_mount_options+0x69/0x140
- __x64_sys_mount+0xf0/0x190
- do_syscall_64+0x35/0x80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
+Control transfers without a data stage are treated as OUT requests by
+the USB stack and should be using usb_sndctrlpipe(). Failing to do so
+will now trigger a warning.
 
-This is because 'root_inode' is initialized with wrong mode, and
-it's i_op is set to 'reiserfs_special_inode_operations'. Thus add
-check for 'root_inode' to fix the problem.
+The driver uses a zero-length i2c-read request for type detection so
+update the control-request code to use usb_sndctrlpipe() in this case.
 
-Link: https://lore.kernel.org/r/20210702040743.1918552-1-yukuai3@huawei.com
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Note that actually trying to read the i2c register in question does not
+work as the register might not exist (e.g. depending on the demodulator)
+as reported by Eero Lehtinen <debiangamer2@gmail.com>.
+
+Reported-by: syzbot+faf11bbadc5a372564da@syzkaller.appspotmail.com
+Reported-by: Eero Lehtinen <debiangamer2@gmail.com>
+Tested-by: Eero Lehtinen <debiangamer2@gmail.com>
+Fixes: d0f232e823af ("[media] rtl28xxu: add heuristic to detect chip type")
+Cc: stable@vger.kernel.org      # 4.0
+Cc: Antti Palosaari <crope@iki.fi>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/reiserfs/super.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/media/usb/dvb-usb-v2/rtl28xxu.c |   11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/fs/reiserfs/super.c b/fs/reiserfs/super.c
-index c533d8715a6c..0d324c07762a 100644
---- a/fs/reiserfs/super.c
-+++ b/fs/reiserfs/super.c
-@@ -2059,6 +2059,14 @@ static int reiserfs_fill_super(struct super_block *s, void *data, int silent)
- 		unlock_new_inode(root_inode);
+--- a/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
++++ b/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
+@@ -50,7 +50,16 @@ static int rtl28xxu_ctrl_msg(struct dvb_
+ 	} else {
+ 		/* read */
+ 		requesttype = (USB_TYPE_VENDOR | USB_DIR_IN);
+-		pipe = usb_rcvctrlpipe(d->udev, 0);
++
++		/*
++		 * Zero-length transfers must use usb_sndctrlpipe() and
++		 * rtl28xxu_identify_state() uses a zero-length i2c read
++		 * command to determine the chip type.
++		 */
++		if (req->size)
++			pipe = usb_rcvctrlpipe(d->udev, 0);
++		else
++			pipe = usb_sndctrlpipe(d->udev, 0);
  	}
  
-+	if (!S_ISDIR(root_inode->i_mode) || !inode_get_bytes(root_inode) ||
-+	    !root_inode->i_size) {
-+		SWARN(silent, s, "", "corrupt root inode, run fsck");
-+		iput(root_inode);
-+		errval = -EUCLEAN;
-+		goto error;
-+	}
-+
- 	s->s_root = d_make_root(root_inode);
- 	if (!s->s_root)
- 		goto error;
--- 
-2.30.2
-
+ 	ret = usb_control_msg(d->udev, pipe, 0, requesttype, req->value,
 
 
