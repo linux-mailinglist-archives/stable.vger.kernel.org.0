@@ -2,96 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 629D33EBEAE
-	for <lists+stable@lfdr.de>; Sat, 14 Aug 2021 01:24:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCA8C3EBEB2
+	for <lists+stable@lfdr.de>; Sat, 14 Aug 2021 01:24:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235640AbhHMXZI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Aug 2021 19:25:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33666 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235330AbhHMXZI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Aug 2021 19:25:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 79A3E60230;
-        Fri, 13 Aug 2021 23:24:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1628897080;
-        bh=VNBCMbuXdLAiF1wcrCYDIMMMtxoYtb8j99FAxFhqMQc=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=YKD3pasHdkXskbpxrooVBA++dVkrO08X/WTciCt+/ztWye3aYNTqzUUOSj/nhCjZU
-         6uKznyZ0iSkB/mhRMU5wLuEIHLrGi/CdKNMKX5NEE6QwWzlLl2j14+8YRUMn+1ME+7
-         wAXsa+sYE+yBXjYXQCmWoh33Mador0oeQuQmOYcg9+zrARrJld5RUxse5TK8nzpxv6
-         6D7LIg2aHNdjrD+v5pC+ulg3WTtwNepHTB6v9JKh+el3UMkMTDc/S7Eqa9uu3+JzUT
-         2erRfQq+Sr9NjyL8cLJbe4ZcPdcUYLsgvj/7Ag7D648E5nMQzCuf47c3hD2KDy5baY
-         cpynXsZOQhR/A==
-Date:   Fri, 13 Aug 2021 16:24:39 -0700
-From:   Jakub Kicinski <kuba@kernel.org>
-To:     Petko Manolov <petko.manolov@konsulko.com>
-Cc:     netdev@vger.kernel.org, paskripkin@gmail.com,
-        stable@vger.kernel.org, davem@davemloft.net
-Subject: Re: [PATCH] net: usb: pegasus: ignore the return value from
- set_registers();
-Message-ID: <20210813162439.1779bf63@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-In-Reply-To: <20210812082351.37966-1-petko.manolov@konsulko.com>
-References: <20210812082351.37966-1-petko.manolov@konsulko.com>
+        id S235718AbhHMXZO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Aug 2021 19:25:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46888 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235330AbhHMXZO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 Aug 2021 19:25:14 -0400
+Received: from mail-io1-xd36.google.com (mail-io1-xd36.google.com [IPv6:2607:f8b0:4864:20::d36])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98A61C061756
+        for <stable@vger.kernel.org>; Fri, 13 Aug 2021 16:24:46 -0700 (PDT)
+Received: by mail-io1-xd36.google.com with SMTP id f11so15396852ioj.3
+        for <stable@vger.kernel.org>; Fri, 13 Aug 2021 16:24:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxfoundation.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=yytFgI0IZthMjzs+JY5sOeovIHvMBvuPkg8gp5t+Ji0=;
+        b=fK/MrkyJ4HyMgdQr/d0OBXNw1Q38ovtLlVdZ/O5yG5auqxOLpH0vccFGeOSS8+Omkt
+         UPdnmxw9dIVGIFHnBUDDGtwVVnhSA32znj8C/R2qSaX0Rm1EhRXrX1bUM41O8yyKR8mB
+         sg9KufZBF5T4f9A9BGGNF1NpBKCg8fB09QDMA=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=yytFgI0IZthMjzs+JY5sOeovIHvMBvuPkg8gp5t+Ji0=;
+        b=rpZySnZaGWfr5YjLZ17pq3itrDOJroLR4EGtQbzu6wksSrUjXl7r1PSlqPCLVWiWlu
+         u6vRHWYFuVBnHpF+T68/7rfhiEf2iX7sP3KvbImSUIWIoJLRW3zklKsMHcUeYy7vhCZI
+         Ft5h19VFZXpV0CSuMKQ0xyvA9ZtmtUbeu1cjGiDYbeFTevYmLPc/Wy7UtSRFPaM5C0pO
+         Pp7sQz5esvqUQ9g8wDND3ID7b5Rx0bWkm4AzsEfAXbT/HoRoA9aExXVFxNaYFr05YWld
+         yPvoEFmKf4UxIgpde6RNIl+v6DBFs367yTCFxQy5Ghvi4EtgqzCt/vdnjxViAprDeeU+
+         jb6g==
+X-Gm-Message-State: AOAM531GxMQC20CXlR3aqpgqzm/8ehxNOJmxQXNU5fcPRFKgBINmW5cv
+        Nzs4MOFYq1JymLxtc84S9o94FA==
+X-Google-Smtp-Source: ABdhPJwX7JIAJzgS9SzyKpCVWzzwuFZF779Xd4X64mJNbKKQm0GCR5+P3vs4xSF8XqRieR1ZHDRH9Q==
+X-Received: by 2002:a6b:8d8a:: with SMTP id p132mr3755314iod.81.1628897086117;
+        Fri, 13 Aug 2021 16:24:46 -0700 (PDT)
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
+        by smtp.gmail.com with ESMTPSA id m5sm1593920ila.10.2021.08.13.16.24.45
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 13 Aug 2021 16:24:45 -0700 (PDT)
+Subject: Re: [PATCH 5.4 00/27] 5.4.141-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org,
+        Shuah Khan <skhan@linuxfoundation.org>
+References: <20210813150523.364549385@linuxfoundation.org>
+From:   Shuah Khan <skhan@linuxfoundation.org>
+Message-ID: <b433590c-4783-f75f-3a1e-94924cea6b16@linuxfoundation.org>
+Date:   Fri, 13 Aug 2021 17:24:44 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20210813150523.364549385@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 12 Aug 2021 11:23:51 +0300 Petko Manolov wrote:
-> The return value need to be either ignored or acted upon, otherwise 'deadstore'
-> clang check would yell at us.  I think it's better to just ignore what this
-> particular call of set_registers() returns.  The adapter defaults are sane and
-> it would be operational even if the register write fail.
+On 8/13/21 9:06 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.141 release.
+> There are 27 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> Signed-off-by: Petko Manolov <petko.manolov@konsulko.com>
-> ---
->  drivers/net/usb/pegasus.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> Responses should be made by Sun, 15 Aug 2021 15:05:12 +0000.
+> Anything received after that time might be too late.
 > 
-> diff --git a/drivers/net/usb/pegasus.c b/drivers/net/usb/pegasus.c
-> index 652e9fcf0b77..49cfc720d78f 100644
-> --- a/drivers/net/usb/pegasus.c
-> +++ b/drivers/net/usb/pegasus.c
-> @@ -433,7 +433,7 @@ static int enable_net_traffic(struct net_device *dev, struct usb_device *usb)
->  	data[2] = loopback ? 0x09 : 0x01;
->  
->  	memcpy(pegasus->eth_regs, data, sizeof(data));
-> -	ret = set_registers(pegasus, EthCtrl0, 3, data);
-> +	set_registers(pegasus, EthCtrl0, 3, data);
->  
->  	if (usb_dev_id[pegasus->dev_index].vendor == VENDOR_LINKSYS ||
->  	    usb_dev_id[pegasus->dev_index].vendor == VENDOR_LINKSYS2 ||
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.141-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
+>
 
-This one is not added by the recent changes as I initially thought, 
-the driver has always checked this return value. The recent changes 
-did this:
+Compiled and booted on my test system. No dmesg regressions.
 
-        ret = set_registers(pegasus, EthCtrl0, 3, data);
- 
-        if (usb_dev_id[pegasus->dev_index].vendor == VENDOR_LINKSYS ||
-            usb_dev_id[pegasus->dev_index].vendor == VENDOR_LINKSYS2 ||
-            usb_dev_id[pegasus->dev_index].vendor == VENDOR_DLINK) {
-                u16 auxmode;
--               read_mii_word(pegasus, 0, 0x1b, &auxmode);
-+               ret = read_mii_word(pegasus, 0, 0x1b, &auxmode);
-+               if (ret < 0)
-+                       goto fail;
-                auxmode |= 4;
-                write_mii_word(pegasus, 0, 0x1b, &auxmode);
-        }
- 
-+       return 0;
-+fail:
-+       netif_dbg(pegasus, drv, pegasus->net, "%s failed\n", __func__);
-        return ret;
-}
+Tested-by: Shuah Khan <skhan@linuxfoundation.org>
 
-now the return value of set_registeres() is ignored. 
-
-Seems like  a better fix would be to bring back the error checking, 
-why not?
-
-Please remember to add a fixes tag.
+thanks,
+-- Shuah
