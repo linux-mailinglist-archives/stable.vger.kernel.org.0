@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A92BC3EB7FF
-	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:25:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C4AE3EB7F0
+	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:24:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241682AbhHMPK2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Aug 2021 11:10:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53144 "EHLO mail.kernel.org"
+        id S241569AbhHMPKG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Aug 2021 11:10:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241562AbhHMPKE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Aug 2021 11:10:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 51F0C61106;
-        Fri, 13 Aug 2021 15:09:37 +0000 (UTC)
+        id S241265AbhHMPJG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Aug 2021 11:09:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9776F610CC;
+        Fri, 13 Aug 2021 15:08:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628867377;
-        bh=lw1W+e583AmWiGbJnihoWDafUqNBgEjBWHvYnHdpkMM=;
+        s=korg; t=1628867319;
+        bh=w5zqdW8xJdld/3wfcVHUnKPd/OFMFb+zUUZal303Fg4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jxnXVNDL6bfL42/fEU62UXRntLl707aoj9v5V0qnDO89xAUEDDA/jXuek2Gi21R8n
-         bqKwEt9TTxnN2iFNEqy9WUfXtDWBsSSQB+yjBc5aoxLwx1utINFCtPi6iKIPENJ+WM
-         Dx28IMd3zpFSqnWV+1Y33h/lVaPt9ViRBkPP6Gc4=
+        b=0sZbL0tJ9UCS9eGBXkZPRSWFK6KL1FWLKnQB2bnmxFgTU/RHJ6jQ2jjzgJ9dBze1q
+         YA7ee2M9qNj+YLetWx3WFfvlodfLGlI3wMOQdjFc1YIOVDFBNbfuvjh0jVURA6tyHM
+         v9tY6285qEbYO4GV+c5VQH2xb6lEceklT+JmE+zQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <f4bug@amsat.org>,
-        "Maciej W. Rozycki" <macro@orcam.me.uk>
-Subject: [PATCH 4.9 20/30] MIPS: Malta: Do not byte-swap accesses to the CBUS UART
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        "Pavel Machek (CIP)" <pavel@denx.de>
+Subject: [PATCH 4.4 24/25] net: xilinx_emaclite: Do not print real IOMEM pointer
 Date:   Fri, 13 Aug 2021 17:06:48 +0200
-Message-Id: <20210813150523.090468872@linuxfoundation.org>
+Message-Id: <20210813150521.500915384@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210813150522.445553924@linuxfoundation.org>
-References: <20210813150522.445553924@linuxfoundation.org>
+In-Reply-To: <20210813150520.718161915@linuxfoundation.org>
+References: <20210813150520.718161915@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,65 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej W. Rozycki <macro@orcam.me.uk>
+From: YueHaibing <yuehaibing@huawei.com>
 
-commit 9a936d6c3d3d6c33ecbadf72dccdb567b5cd3c72 upstream.
+commit d0d62baa7f505bd4c59cd169692ff07ec49dde37 upstream.
 
-Correct big-endian accesses to the CBUS UART, a Malta on-board discrete
-TI16C550C part wired directly to the system controller's device bus, and
-do not use byte swapping with the 32-bit accesses to the device.
+Printing kernel pointers is discouraged because they might leak kernel
+memory layout.  This fixes smatch warning:
 
-The CBUS is used for devices such as the boot flash memory needed early
-on in system bootstrap even before PCI has been initialised.  Therefore
-it uses the system controller's device bus, which follows the endianness
-set with the CPU, which means no byte-swapping is ever required for data
-accesses to CBUS, unlike with PCI.
+drivers/net/ethernet/xilinx/xilinx_emaclite.c:1191 xemaclite_of_probe() warn:
+ argument 4 to %08lX specifier is cast from pointer
 
-The CBUS UART uses the UPIO_MEM32 access method, that is the `readl' and
-`writel' MMIO accessors, which on the MIPS platform imply byte-swapping
-with PCI systems.  Consequently the wrong byte lane is accessed with the
-big-endian configuration and the UART is not correctly accessed.
-
-As it happens the UPIO_MEM32BE access method makes use of the `ioread32'
-and `iowrite32' MMIO accessors, which still use `readl' and `writel'
-respectively, however they byte-swap data passed, effectively cancelling
-swapping done with the accessors themselves and making it suitable for
-the CBUS UART.
-
-Make the CBUS UART switch between UPIO_MEM32 and UPIO_MEM32BE then,
-based on the endianness selected.  With this change in place the device
-is correctly recognised with big-endian Malta at boot, along with the
-Super I/O devices behind PCI:
-
-Serial: 8250/16550 driver, 5 ports, IRQ sharing enabled
-printk: console [ttyS0] disabled
-serial8250.0: ttyS0 at I/O 0x3f8 (irq = 4, base_baud = 115200) is a 16550A
-printk: console [ttyS0] enabled
-printk: bootconsole [uart8250] disabled
-serial8250.0: ttyS1 at I/O 0x2f8 (irq = 3, base_baud = 115200) is a 16550A
-serial8250.0: ttyS2 at MMIO 0x1f000900 (irq = 20, base_baud = 230400) is a 16550A
-
-Fixes: e7c4782f92fc ("[MIPS] Put an end to <asm/serial.h>'s long and annyoing existence")
-Cc: stable@vger.kernel.org # v2.6.23+
-Reviewed-by: Philippe Mathieu-Daudé <f4bug@amsat.org>
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Link: https://lore.kernel.org/r/alpine.DEB.2.21.2106260524430.37803@angie.orcam.me.uk
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Pavel Machek (CIP) <pavel@denx.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/mti-malta/malta-platform.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/xilinx/xilinx_emaclite.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/arch/mips/mti-malta/malta-platform.c
-+++ b/arch/mips/mti-malta/malta-platform.c
-@@ -48,7 +48,8 @@ static struct plat_serial8250_port uart8
- 		.mapbase	= 0x1f000900,	/* The CBUS UART */
- 		.irq		= MIPS_CPU_IRQ_BASE + MIPSCPU_INT_MB2,
- 		.uartclk	= 3686400,	/* Twice the usual clk! */
--		.iotype		= UPIO_MEM32,
-+		.iotype		= IS_ENABLED(CONFIG_CPU_BIG_ENDIAN) ?
-+				  UPIO_MEM32BE : UPIO_MEM32,
- 		.flags		= CBUS_UART_FLAGS,
- 		.regshift	= 3,
- 	},
+--- a/drivers/net/ethernet/xilinx/xilinx_emaclite.c
++++ b/drivers/net/ethernet/xilinx/xilinx_emaclite.c
+@@ -1180,9 +1180,8 @@ static int xemaclite_of_probe(struct pla
+ 	}
+ 
+ 	dev_info(dev,
+-		 "Xilinx EmacLite at 0x%08X mapped to 0x%08X, irq=%d\n",
+-		 (unsigned int __force)ndev->mem_start,
+-		 (unsigned int __force)lp->base_addr, ndev->irq);
++		 "Xilinx EmacLite at 0x%08X mapped to 0x%p, irq=%d\n",
++		 (unsigned int __force)ndev->mem_start, lp->base_addr, ndev->irq);
+ 	return 0;
+ 
+ error:
 
 
