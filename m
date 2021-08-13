@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA8253EB768
-	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:08:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B9E13EB827
+	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:25:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241111AbhHMPI2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Aug 2021 11:08:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50622 "EHLO mail.kernel.org"
+        id S241256AbhHMPLn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Aug 2021 11:11:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240849AbhHMPI1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Aug 2021 11:08:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A1146109E;
-        Fri, 13 Aug 2021 15:08:00 +0000 (UTC)
+        id S241154AbhHMPKx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Aug 2021 11:10:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C3F2610CC;
+        Fri, 13 Aug 2021 15:10:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628867280;
-        bh=6d4WDMWNBnJwOwavCtmPcCkokhn0FPHaf2m3JUVq3Vk=;
+        s=korg; t=1628867426;
+        bh=Bl7y6ROz+05kOEXoTQ+ExpZSHGOR0lZZTTArOuW9SP0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UQ8Vg1upu/UBmDkthRViatEKIcZo1Yfwh6jf6qS7SprdEG606icS4t2IA3Hor5HkE
-         xJGgo8FEZu0crCjYQT+KxaWpPIW8WmkEy47VPtN8dvt/jt0ADJtlvw+TWfoewvazJz
-         EhfwDT58neGNukupr8+qvcwsEnKVvgA5HkDD9yL8=
+        b=A70nl1vsAUllCYH3p5uzbCfd8DJfJ3fPtOzEz/LIKmh8MGaW0erf0LBilwBfAMZjH
+         QW7Eod7kyox7yoRlyRNYXoTa0JzUZ6wFNnnSnFbx5pGuxTpQ5UWXFaPVw7Sfnt1AW3
+         nNeGw2BP+yCU+TMYapl64gHHGurl6lP2rVK8NeTg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Li Manyi <limanyi@uniontech.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 02/25] scsi: sr: Return correct event when media event code is 3
-Date:   Fri, 13 Aug 2021 17:06:26 +0200
-Message-Id: <20210813150520.804520009@linuxfoundation.org>
+        stable@vger.kernel.org, Adrien Precigout <dev@asdrip.fr>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 4.14 01/42] Revert "ACPICA: Fix memory leak caused by _CID repair function"
+Date:   Fri, 13 Aug 2021 17:06:27 +0200
+Message-Id: <20210813150525.148259640@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210813150520.718161915@linuxfoundation.org>
-References: <20210813150520.718161915@linuxfoundation.org>
+In-Reply-To: <20210813150525.098817398@linuxfoundation.org>
+References: <20210813150525.098817398@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -40,46 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Manyi <limanyi@uniontech.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-[ Upstream commit 5c04243a56a7977185b00400e59ca7e108004faf ]
+commit 6511a8b5b7a65037340cd8ee91a377811effbc83 upstream.
 
-Media event code 3 is defined in the MMC-6 spec as follows:
+Revert commit c27bac0314131 ("ACPICA: Fix memory leak caused by _CID
+repair function") which is reported to cause a boot issue on Acer
+Swift 3 (SF314-51).
 
-  "MediaRemoval: The media has been removed from the specified slot, and
-   the Drive is unable to access the media without user intervention. This
-   applies to media changers only."
-
-This indicated that treating the condition as an EJECT_REQUEST was
-appropriate. However, doing so had the unfortunate side-effect of causing
-the drive tray to be physically ejected on resume. Instead treat the event
-as a MEDIA_CHANGE request.
-
-Fixes: 7dd753ca59d6 ("scsi: sr: Return appropriate error code when disk is ejected")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=213759
-Link: https://lore.kernel.org/r/20210726114913.6760-1-limanyi@uniontech.com
-Signed-off-by: Li Manyi <limanyi@uniontech.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Adrien Precigout <dev@asdrip.fr>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/sr.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/acpi/acpica/nsrepair2.c |    7 -------
+ 1 file changed, 7 deletions(-)
 
-diff --git a/drivers/scsi/sr.c b/drivers/scsi/sr.c
-index 6e31cedf0b6c..df019b78d9f7 100644
---- a/drivers/scsi/sr.c
-+++ b/drivers/scsi/sr.c
-@@ -217,7 +217,7 @@ static unsigned int sr_get_events(struct scsi_device *sdev)
- 	else if (med->media_event_code == 2)
- 		return DISK_EVENT_MEDIA_CHANGE;
- 	else if (med->media_event_code == 3)
--		return DISK_EVENT_EJECT_REQUEST;
-+		return DISK_EVENT_MEDIA_CHANGE;
- 	return 0;
- }
+--- a/drivers/acpi/acpica/nsrepair2.c
++++ b/drivers/acpi/acpica/nsrepair2.c
+@@ -409,13 +409,6 @@ acpi_ns_repair_CID(struct acpi_evaluate_
  
--- 
-2.30.2
-
+ 			(*element_ptr)->common.reference_count =
+ 			    original_ref_count;
+-
+-			/*
+-			 * The original_element holds a reference from the package object
+-			 * that represents _HID. Since a new element was created by _HID,
+-			 * remove the reference from the _CID package.
+-			 */
+-			acpi_ut_remove_reference(original_element);
+ 		}
+ 
+ 		element_ptr++;
 
 
