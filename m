@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 480183EB872
-	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:25:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E75863EB851
+	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:25:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242294AbhHMPNu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Aug 2021 11:13:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55722 "EHLO mail.kernel.org"
+        id S241311AbhHMPM6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Aug 2021 11:12:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242149AbhHMPMr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Aug 2021 11:12:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 42857610A5;
-        Fri, 13 Aug 2021 15:12:14 +0000 (UTC)
+        id S241833AbhHMPLp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Aug 2021 11:11:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 744E1610EA;
+        Fri, 13 Aug 2021 15:11:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628867534;
-        bh=P2k17feSTQQYBbk5vVLe6NN75gbOI/RTlDA7riYaT1E=;
+        s=korg; t=1628867479;
+        bh=6UZ8UDbE+gtZ419+958w1Ct+az9EJtjv+tl1F1V8R0A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w6hMVFr/1KdXVmQD1r43v3mqDmoxDIwqhH9x97Dr6K4z7X0ZABMoZEtkKRUVNBQse
-         d6tqPNgx3NzQYnloDzb4lSJ7xjtQih2IxpgIvJsKfZjHQeGJZIGBO+ekTY7iqJeNQM
-         PSzlTNWfxQOXNp6yLu3eVvDBMIrS2MfAci3FTOP8=
+        b=z/SFyogUi9aC/lp1gu/nQX4joI+mjmkObrDY8Q2RcN8BBhu/MZ7M8FGB4JV+m6ONj
+         Pek484ncG4lz9oUPc3wFubYqESV8UaApD68h6VhQ6QI9O/r59owst1ME1wEK0/5SPK
+         +fVz9EimXYs+4CHdAxc6rAinjhwfOM+i/nppghJw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <f4bug@amsat.org>,
         "Maciej W. Rozycki" <macro@orcam.me.uk>
-Subject: [PATCH 4.14 28/42] serial: 8250: Mask out floating 16/32-bit bus bits
-Date:   Fri, 13 Aug 2021 17:06:54 +0200
-Message-Id: <20210813150526.047111238@linuxfoundation.org>
+Subject: [PATCH 4.14 29/42] MIPS: Malta: Do not byte-swap accesses to the CBUS UART
+Date:   Fri, 13 Aug 2021 17:06:55 +0200
+Message-Id: <20210813150526.087745029@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210813150525.098817398@linuxfoundation.org>
 References: <20210813150525.098817398@linuxfoundation.org>
@@ -42,99 +42,63 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Maciej W. Rozycki <macro@orcam.me.uk>
 
-commit e5227c51090e165db4b48dcaa300605bfced7014 upstream.
+commit 9a936d6c3d3d6c33ecbadf72dccdb567b5cd3c72 upstream.
 
-Make sure only actual 8 bits of the IIR register are used in determining
-the port type in `autoconfig'.
+Correct big-endian accesses to the CBUS UART, a Malta on-board discrete
+TI16C550C part wired directly to the system controller's device bus, and
+do not use byte swapping with the 32-bit accesses to the device.
 
-The `serial_in' port accessor returns the `unsigned int' type, meaning
-that with UPIO_AU, UPIO_MEM16, UPIO_MEM32, and UPIO_MEM32BE access types
-more than 8 bits of data are returned, of which the high order bits will
-often come from bus lines that are left floating in the data phase.  For
-example with the MIPS Malta board's CBUS UART, where the registers are
-aligned on 8-byte boundaries and which uses 32-bit accesses, data as
-follows is returned:
+The CBUS is used for devices such as the boot flash memory needed early
+on in system bootstrap even before PCI has been initialised.  Therefore
+it uses the system controller's device bus, which follows the endianness
+set with the CPU, which means no byte-swapping is ever required for data
+accesses to CBUS, unlike with PCI.
 
-YAMON> dump -32 0xbf000900 0x40
+The CBUS UART uses the UPIO_MEM32 access method, that is the `readl' and
+`writel' MMIO accessors, which on the MIPS platform imply byte-swapping
+with PCI systems.  Consequently the wrong byte lane is accessed with the
+big-endian configuration and the UART is not correctly accessed.
 
-BF000900: 1F000942 1F000942 1F000900 1F000900  ...B...B........
-BF000910: 1F000901 1F000901 1F000900 1F000900  ................
-BF000920: 1F000900 1F000900 1F000960 1F000960  ...........`...`
-BF000930: 1F000900 1F000900 1F0009FF 1F0009FF  ................
+As it happens the UPIO_MEM32BE access method makes use of the `ioread32'
+and `iowrite32' MMIO accessors, which still use `readl' and `writel'
+respectively, however they byte-swap data passed, effectively cancelling
+swapping done with the accessors themselves and making it suitable for
+the CBUS UART.
 
-YAMON>
+Make the CBUS UART switch between UPIO_MEM32 and UPIO_MEM32BE then,
+based on the endianness selected.  With this change in place the device
+is correctly recognised with big-endian Malta at boot, along with the
+Super I/O devices behind PCI:
 
-Evidently high-order 24 bits return values previously driven in the
-address phase (the 3 highest order address bits used with the command
-above are masked out in the simple virtual address mapping used here and
-come out at zeros on the external bus), a common scenario with bus lines
-left floating, due to bus capacitance.
+Serial: 8250/16550 driver, 5 ports, IRQ sharing enabled
+printk: console [ttyS0] disabled
+serial8250.0: ttyS0 at I/O 0x3f8 (irq = 4, base_baud = 115200) is a 16550A
+printk: console [ttyS0] enabled
+printk: bootconsole [uart8250] disabled
+serial8250.0: ttyS1 at I/O 0x2f8 (irq = 3, base_baud = 115200) is a 16550A
+serial8250.0: ttyS2 at MMIO 0x1f000900 (irq = 20, base_baud = 230400) is a 16550A
 
-Consequently when the value of IIR, mapped at 0x1f000910, is retrieved
-in `autoconfig', it comes out at 0x1f0009c1 and when it is right-shifted
-by 6 and then assigned to 8-bit `scratch' variable, the value calculated
-is 0x27, not one of 0, 1, 2, 3 expected in port type determination.
-
-Fix the issue then, by assigning the value returned from `serial_in' to
-`scratch' first, which masks out 24 high-order bits retrieved, and only
-then right-shift the resulting 8-bit data quantity, producing the value
-of 3 in this case, as expected.  Fix the same issue in `serial_dl_read'.
-
-The problem first appeared with Linux 2.6.9-rc3 which predates our repo
-history, but the origin could be identified with the old MIPS/Linux repo
-also at: <git://git.kernel.org/pub/scm/linux/kernel/git/ralf/linux.git>
-as commit e0d2356c0777 ("Merge with Linux 2.6.9-rc3."), where code in
-`serial_in' was updated with this case:
-
-+	case UPIO_MEM32:
-+		return readl(up->port.membase + offset);
-+
-
-which made it produce results outside the unsigned 8-bit range for the
-first time, though obviously it is system dependent what actual values
-appear in the high order bits retrieved and it may well have been zeros
-in the relevant positions with the system the change originally was
-intended for.  It is at that point that code in `autoconf' should have
-been updated accordingly, but clearly it was overlooked.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: stable@vger.kernel.org # v2.6.12+
+Fixes: e7c4782f92fc ("[MIPS] Put an end to <asm/serial.h>'s long and annyoing existence")
+Cc: stable@vger.kernel.org # v2.6.23+
 Reviewed-by: Philippe Mathieu-Daudé <f4bug@amsat.org>
 Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Link: https://lore.kernel.org/r/alpine.DEB.2.21.2106260516220.37803@angie.orcam.me.uk
+Link: https://lore.kernel.org/r/alpine.DEB.2.21.2106260524430.37803@angie.orcam.me.uk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/8250/8250_port.c |   12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ arch/mips/mti-malta/malta-platform.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/tty/serial/8250/8250_port.c
-+++ b/drivers/tty/serial/8250/8250_port.c
-@@ -314,7 +314,11 @@ static const struct serial8250_config ua
- /* Uart divisor latch read */
- static int default_serial_dl_read(struct uart_8250_port *up)
- {
--	return serial_in(up, UART_DLL) | serial_in(up, UART_DLM) << 8;
-+	/* Assign these in pieces to truncate any bits above 7.  */
-+	unsigned char dll = serial_in(up, UART_DLL);
-+	unsigned char dlm = serial_in(up, UART_DLM);
-+
-+	return dll | dlm << 8;
- }
- 
- /* Uart divisor latch write */
-@@ -1302,9 +1306,11 @@ static void autoconfig(struct uart_8250_
- 	serial_out(up, UART_LCR, 0);
- 
- 	serial_out(up, UART_FCR, UART_FCR_ENABLE_FIFO);
--	scratch = serial_in(up, UART_IIR) >> 6;
- 
--	switch (scratch) {
-+	/* Assign this as it is to truncate any bits above 7.  */
-+	scratch = serial_in(up, UART_IIR);
-+
-+	switch (scratch >> 6) {
- 	case 0:
- 		autoconfig_8250(up);
- 		break;
+--- a/arch/mips/mti-malta/malta-platform.c
++++ b/arch/mips/mti-malta/malta-platform.c
+@@ -47,7 +47,8 @@ static struct plat_serial8250_port uart8
+ 		.mapbase	= 0x1f000900,	/* The CBUS UART */
+ 		.irq		= MIPS_CPU_IRQ_BASE + MIPSCPU_INT_MB2,
+ 		.uartclk	= 3686400,	/* Twice the usual clk! */
+-		.iotype		= UPIO_MEM32,
++		.iotype		= IS_ENABLED(CONFIG_CPU_BIG_ENDIAN) ?
++				  UPIO_MEM32BE : UPIO_MEM32,
+ 		.flags		= CBUS_UART_FLAGS,
+ 		.regshift	= 3,
+ 	},
 
 
