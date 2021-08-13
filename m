@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7B2D3EB896
-	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:26:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B09E13EB87A
+	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:25:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241835AbhHMPOp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Aug 2021 11:14:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57754 "EHLO mail.kernel.org"
+        id S241694AbhHMPOB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Aug 2021 11:14:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242059AbhHMPNZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Aug 2021 11:13:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DB66960F51;
-        Fri, 13 Aug 2021 15:12:57 +0000 (UTC)
+        id S242173AbhHMPMw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Aug 2021 11:12:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 18C2E610CC;
+        Fri, 13 Aug 2021 15:12:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628867578;
-        bh=a3vDXSCCIlpHRHwFA5jZwKxG6ZSprg6N7/40bTR/5Lw=;
+        s=korg; t=1628867542;
+        bh=zMa8bObyEZWsbHkAYGCl6zsMqOH6UdPbTXH632oq0xA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FuRTzxfHWylV6ycdaUOdy4Hr+TQp4nc3q3bygxxEPxMynijyeMK/wSOR4X5fUPeu4
-         mWFeyIy2hUncWsf7RCsXSIoDAlfGoHSzf6Etp/IujrTLe2jkixOZhe9dL4Yh9OheSY
-         a/+yEJmDtzK+Gs1hykNrq/aB68AOMgasDGwtJm4k=
+        b=NoX3MkWDVyHKjss6iKfDFkPd0fWCUDvFfdfjmQWsfCF1Qxb17TDI5Wu0JxZ9NJ77U
+         F32YeQTDzU/PJc3qZu7C+t4j0Pl7Qd0xxlD4op9D54RczzRXj7D7GMPdeX3BouRYS8
+         EAQ5TnMtlLvN72D6L8bTD//dIdgtKcUMSsmm3Bjc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "stable@vger.kernel.org, Wesley Cheng" <wcheng@codeaurora.org>,
-        Wesley Cheng <wcheng@codeaurora.org>
-Subject: [PATCH 5.4 10/27] usb: dwc3: gadget: Disable gadget IRQ during pullup disable
+        stable@vger.kernel.org, Tom Lendacky <thomas.lendacky@amd.com>,
+        Brijesh Singh <brijesh.singh@amd.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 01/11] KVM: SVM: Fix off-by-one indexing when nullifying last used SEV VMCB
 Date:   Fri, 13 Aug 2021 17:07:08 +0200
-Message-Id: <20210813150523.706201928@linuxfoundation.org>
+Message-Id: <20210813150520.119905151@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210813150523.364549385@linuxfoundation.org>
-References: <20210813150523.364549385@linuxfoundation.org>
+In-Reply-To: <20210813150520.072304554@linuxfoundation.org>
+References: <20210813150520.072304554@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -40,57 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wesley Cheng <wcheng@codeaurora.org>
+From: Sean Christopherson <seanjc@google.com>
 
-[ Upstream commit 8212937305f84ef73ea81036dafb80c557583d4b ]
+[ Upstream commit 179c6c27bf487273652efc99acd3ba512a23c137 ]
 
-Current sequence utilizes dwc3_gadget_disable_irq() alongside
-synchronize_irq() to ensure that no further DWC3 events are generated.
-However, the dwc3_gadget_disable_irq() API only disables device
-specific events.  Endpoint events can still be generated.  Briefly
-disable the interrupt line, so that the cleanup code can run to
-prevent device and endpoint events. (i.e. __dwc3_gadget_stop() and
-dwc3_stop_active_transfers() respectively)
+Use the raw ASID, not ASID-1, when nullifying the last used VMCB when
+freeing an SEV ASID.  The consumer, pre_sev_run(), indexes the array by
+the raw ASID, thus KVM could get a false negative when checking for a
+different VMCB if KVM manages to reallocate the same ASID+VMCB combo for
+a new VM.
 
-Without doing so, it can lead to both the interrupt handler and the
-pullup disable routine both writing to the GEVNTCOUNT register, which
-will cause an incorrect count being read from future interrupts.
+Note, this cannot cause a functional issue _in the current code_, as
+pre_sev_run() also checks which pCPU last did VMRUN for the vCPU, and
+last_vmentry_cpu is initialized to -1 during vCPU creation, i.e. is
+guaranteed to mismatch on the first VMRUN.  However, prior to commit
+8a14fe4f0c54 ("kvm: x86: Move last_cpu into kvm_vcpu_arch as
+last_vmentry_cpu"), SVM tracked pCPU on its own and zero-initialized the
+last_cpu variable.  Thus it's theoretically possible that older versions
+of KVM could miss a TLB flush if the first VMRUN is on pCPU0 and the ASID
+and VMCB exactly match those of a prior VM.
 
-Fixes: ae7e86108b12 ("usb: dwc3: Stop active transfers before halting the controller")
-Signed-off-by: Wesley Cheng <wcheng@codeaurora.org>
-Link: https://lore.kernel.org/r/1621571037-1424-1-git-send-email-wcheng@codeaurora.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 70cd94e60c73 ("KVM: SVM: VMRUN should use associated ASID when SEV is enabled")
+Cc: Tom Lendacky <thomas.lendacky@amd.com>
+Cc: Brijesh Singh <brijesh.singh@amd.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/gadget.c |   11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ arch/x86/kvm/svm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -2030,13 +2030,10 @@ static int dwc3_gadget_pullup(struct usb
+diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
+index bd463d684237..72d729f34437 100644
+--- a/arch/x86/kvm/svm.c
++++ b/arch/x86/kvm/svm.c
+@@ -1780,7 +1780,7 @@ static void __sev_asid_free(int asid)
+ 
+ 	for_each_possible_cpu(cpu) {
+ 		sd = per_cpu(svm_data, cpu);
+-		sd->sev_vmcbs[pos] = NULL;
++		sd->sev_vmcbs[asid] = NULL;
  	}
+ }
  
- 	/*
--	 * Synchronize any pending event handling before executing the controller
--	 * halt routine.
-+	 * Synchronize and disable any further event handling while controller
-+	 * is being enabled/disabled.
- 	 */
--	if (!is_on) {
--		dwc3_gadget_disable_irq(dwc);
--		synchronize_irq(dwc->irq_gadget);
--	}
-+	disable_irq(dwc->irq_gadget);
- 
- 	spin_lock_irqsave(&dwc->lock, flags);
- 
-@@ -2074,6 +2071,8 @@ static int dwc3_gadget_pullup(struct usb
- 
- 	ret = dwc3_gadget_run_stop(dwc, is_on, false);
- 	spin_unlock_irqrestore(&dwc->lock, flags);
-+	enable_irq(dwc->irq_gadget);
-+
- 	pm_runtime_put(dwc->dev);
- 
- 	return ret;
+-- 
+2.30.2
+
 
 
