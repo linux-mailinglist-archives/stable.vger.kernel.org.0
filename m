@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 45F273EB894
-	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:26:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A23A33EB89D
+	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:26:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242706AbhHMPOm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Aug 2021 11:14:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55356 "EHLO mail.kernel.org"
+        id S241890AbhHMPOw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Aug 2021 11:14:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241779AbhHMPNR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Aug 2021 11:13:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C93260E9B;
-        Fri, 13 Aug 2021 15:12:49 +0000 (UTC)
+        id S242306AbhHMPN6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Aug 2021 11:13:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 38CA1610CF;
+        Fri, 13 Aug 2021 15:13:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628867570;
-        bh=iB7/2Bnh4HriCnWOa6F6mVAhXTtUh82kAFsJ2sU2ee4=;
+        s=korg; t=1628867599;
+        bh=VBGyfnUg6DGOxMfJcdM3Weayrc0snt2lcM+yQmYYt/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qB3KrAf94e7HaDrOjAwm7ZegDAOJAhOuLXtpZjGbpBhblbW7LWQvcfc+qKOCWe3S4
-         oKONvK5gKBBAg8amsPN17X6B6eTjo1ffbwcId1liZvKAxE17mDMTRYGgIWj2nCd1ur
-         bf0AQM5gTx33L3JgpVMcQu4wTKcZqO+pKpAscug0=
+        b=nBi2ivddyQ22gObxyqn+sMmCxb5npdzHanwx3aqy5MegwlLxcOQ7zw2od2TNI681y
+         MU2DPGCHymJIWO3uYC9NRzCwAyAT3sRmHuZLUPsZJCyhRiDrU4nVxafbDEApLe3Ejx
+         TfTy+5keL/oaZARGSc+5TRYxVytKGeOF8wEVSJvk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 09/11] ppp: Fix generating ppp unit id when ifname is not specified
+        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
+        David Sterba <dsterba@suse.com>,
+        Anand Jain <anand.jain@oracle.com>
+Subject: [PATCH 5.4 18/27] btrfs: make btrfs_qgroup_reserve_data take btrfs_inode
 Date:   Fri, 13 Aug 2021 17:07:16 +0200
-Message-Id: <20210813150520.369066620@linuxfoundation.org>
+Message-Id: <20210813150523.965889074@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210813150520.072304554@linuxfoundation.org>
-References: <20210813150520.072304554@linuxfoundation.org>
+In-Reply-To: <20210813150523.364549385@linuxfoundation.org>
+References: <20210813150523.364549385@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,106 +40,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Nikolay Borisov <nborisov@suse.com>
 
-commit 3125f26c514826077f2a4490b75e9b1c7a644c42 upstream.
+commit 7661a3e033ab782366e0e1f4b6aad0df3555fcbd upstream
 
-When registering new ppp interface via PPPIOCNEWUNIT ioctl then kernel has
-to choose interface name as this ioctl API does not support specifying it.
+There's only a single use of vfs_inode in a tracepoint so let's take
+btrfs_inode directly.
 
-Kernel in this case register new interface with name "ppp<id>" where <id>
-is the ppp unit id, which can be obtained via PPPIOCGUNIT ioctl. This
-applies also in the case when registering new ppp interface via rtnl
-without supplying IFLA_IFNAME.
-
-PPPIOCNEWUNIT ioctl allows to specify own ppp unit id which will kernel
-assign to ppp interface, in case this ppp id is not already used by other
-ppp interface.
-
-In case user does not specify ppp unit id then kernel choose the first free
-ppp unit id. This applies also for case when creating ppp interface via
-rtnl method as it does not provide a way for specifying own ppp unit id.
-
-If some network interface (does not have to be ppp) has name "ppp<id>"
-with this first free ppp id then PPPIOCNEWUNIT ioctl or rtnl call fails.
-
-And registering new ppp interface is not possible anymore, until interface
-which holds conflicting name is renamed. Or when using rtnl method with
-custom interface name in IFLA_IFNAME.
-
-As list of allocated / used ppp unit ids is not possible to retrieve from
-kernel to userspace, userspace has no idea what happens nor which interface
-is doing this conflict.
-
-So change the algorithm how ppp unit id is generated. And choose the first
-number which is not neither used as ppp unit id nor in some network
-interface with pattern "ppp<id>".
-
-This issue can be simply reproduced by following pppd call when there is no
-ppp interface registered and also no interface with name pattern "ppp<id>":
-
-    pppd ifname ppp1 +ipv6 noip noauth nolock local nodetach pty "pppd +ipv6 noip noauth nolock local nodetach notty"
-
-Or by creating the one ppp interface (which gets assigned ppp unit id 0),
-renaming it to "ppp1" and then trying to create a new ppp interface (which
-will always fails as next free ppp unit id is 1, but network interface with
-name "ppp1" exists).
-
-This patch fixes above described issue by generating new and new ppp unit
-id until some non-conflicting id with network interfaces is generated.
-
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Nikolay Borisov <nborisov@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Anand Jain <anand.jain@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ppp/ppp_generic.c |   19 +++++++++++++++----
- 1 file changed, 15 insertions(+), 4 deletions(-)
+ fs/btrfs/delalloc-space.c |    2 +-
+ fs/btrfs/file.c           |    7 ++++---
+ fs/btrfs/qgroup.c         |   10 +++++-----
+ fs/btrfs/qgroup.h         |    2 +-
+ 4 files changed, 11 insertions(+), 10 deletions(-)
 
---- a/drivers/net/ppp/ppp_generic.c
-+++ b/drivers/net/ppp/ppp_generic.c
-@@ -287,7 +287,7 @@ static struct channel *ppp_find_channel(
- static int ppp_connect_channel(struct channel *pch, int unit);
- static int ppp_disconnect_channel(struct channel *pch);
- static void ppp_destroy_channel(struct channel *pch);
--static int unit_get(struct idr *p, void *ptr);
-+static int unit_get(struct idr *p, void *ptr, int min);
- static int unit_set(struct idr *p, void *ptr, int n);
- static void unit_put(struct idr *p, int n);
- static void *unit_find(struct idr *p, int n);
-@@ -963,9 +963,20 @@ static int ppp_unit_register(struct ppp
- 	mutex_lock(&pn->all_ppp_mutex);
+--- a/fs/btrfs/delalloc-space.c
++++ b/fs/btrfs/delalloc-space.c
+@@ -151,7 +151,7 @@ int btrfs_check_data_free_space(struct i
+ 		return ret;
  
- 	if (unit < 0) {
--		ret = unit_get(&pn->units_idr, ppp);
-+		ret = unit_get(&pn->units_idr, ppp, 0);
- 		if (ret < 0)
- 			goto err;
-+		if (!ifname_is_set) {
-+			while (1) {
-+				snprintf(ppp->dev->name, IFNAMSIZ, "ppp%i", ret);
-+				if (!__dev_get_by_name(ppp->ppp_net, ppp->dev->name))
-+					break;
-+				unit_put(&pn->units_idr, ret);
-+				ret = unit_get(&pn->units_idr, ppp, ret + 1);
-+				if (ret < 0)
-+					goto err;
-+			}
-+		}
- 	} else {
- 		/* Caller asked for a specific unit number. Fail with -EEXIST
- 		 * if unavailable. For backward compatibility, return -EEXIST
-@@ -3252,9 +3263,9 @@ static int unit_set(struct idr *p, void
- }
- 
- /* get new free unit number and associate pointer with it */
--static int unit_get(struct idr *p, void *ptr)
-+static int unit_get(struct idr *p, void *ptr, int min)
+ 	/* Use new btrfs_qgroup_reserve_data to reserve precious data space. */
+-	ret = btrfs_qgroup_reserve_data(inode, reserved, start, len);
++	ret = btrfs_qgroup_reserve_data(BTRFS_I(inode), reserved, start, len);
+ 	if (ret < 0)
+ 		btrfs_free_reserved_data_space_noquota(inode, start, len);
+ 	else
+--- a/fs/btrfs/file.c
++++ b/fs/btrfs/file.c
+@@ -3149,7 +3149,7 @@ reserve_space:
+ 						  &cached_state);
+ 		if (ret)
+ 			goto out;
+-		ret = btrfs_qgroup_reserve_data(inode, &data_reserved,
++		ret = btrfs_qgroup_reserve_data(BTRFS_I(inode), &data_reserved,
+ 						alloc_start, bytes_to_reserve);
+ 		if (ret) {
+ 			unlock_extent_cached(&BTRFS_I(inode)->io_tree, lockstart,
+@@ -3322,8 +3322,9 @@ static long btrfs_fallocate(struct file
+ 				free_extent_map(em);
+ 				break;
+ 			}
+-			ret = btrfs_qgroup_reserve_data(inode, &data_reserved,
+-					cur_offset, last_byte - cur_offset);
++			ret = btrfs_qgroup_reserve_data(BTRFS_I(inode),
++					&data_reserved, cur_offset,
++					last_byte - cur_offset);
+ 			if (ret < 0) {
+ 				cur_offset = last_byte;
+ 				free_extent_map(em);
+--- a/fs/btrfs/qgroup.c
++++ b/fs/btrfs/qgroup.c
+@@ -3425,11 +3425,11 @@ btrfs_qgroup_rescan_resume(struct btrfs_
+  *       same @reserved, caller must ensure when error happens it's OK
+  *       to free *ALL* reserved space.
+  */
+-int btrfs_qgroup_reserve_data(struct inode *inode,
++int btrfs_qgroup_reserve_data(struct btrfs_inode *inode,
+ 			struct extent_changeset **reserved_ret, u64 start,
+ 			u64 len)
  {
--	return idr_alloc(p, ptr, 0, 0, GFP_KERNEL);
-+	return idr_alloc(p, ptr, min, 0, GFP_KERNEL);
- }
+-	struct btrfs_root *root = BTRFS_I(inode)->root;
++	struct btrfs_root *root = inode->root;
+ 	struct ulist_node *unode;
+ 	struct ulist_iterator uiter;
+ 	struct extent_changeset *reserved;
+@@ -3452,12 +3452,12 @@ int btrfs_qgroup_reserve_data(struct ino
+ 	reserved = *reserved_ret;
+ 	/* Record already reserved space */
+ 	orig_reserved = reserved->bytes_changed;
+-	ret = set_record_extent_bits(&BTRFS_I(inode)->io_tree, start,
++	ret = set_record_extent_bits(&inode->io_tree, start,
+ 			start + len -1, EXTENT_QGROUP_RESERVED, reserved);
  
- /* put unit number back to a pool */
+ 	/* Newly reserved space */
+ 	to_reserve = reserved->bytes_changed - orig_reserved;
+-	trace_btrfs_qgroup_reserve_data(inode, start, len,
++	trace_btrfs_qgroup_reserve_data(&inode->vfs_inode, start, len,
+ 					to_reserve, QGROUP_RESERVE);
+ 	if (ret < 0)
+ 		goto cleanup;
+@@ -3471,7 +3471,7 @@ cleanup:
+ 	/* cleanup *ALL* already reserved ranges */
+ 	ULIST_ITER_INIT(&uiter);
+ 	while ((unode = ulist_next(&reserved->range_changed, &uiter)))
+-		clear_extent_bit(&BTRFS_I(inode)->io_tree, unode->val,
++		clear_extent_bit(&inode->io_tree, unode->val,
+ 				 unode->aux, EXTENT_QGROUP_RESERVED, 0, 0, NULL);
+ 	/* Also free data bytes of already reserved one */
+ 	btrfs_qgroup_free_refroot(root->fs_info, root->root_key.objectid,
+--- a/fs/btrfs/qgroup.h
++++ b/fs/btrfs/qgroup.h
+@@ -344,7 +344,7 @@ int btrfs_verify_qgroup_counts(struct bt
+ #endif
+ 
+ /* New io_tree based accurate qgroup reserve API */
+-int btrfs_qgroup_reserve_data(struct inode *inode,
++int btrfs_qgroup_reserve_data(struct btrfs_inode *inode,
+ 			struct extent_changeset **reserved, u64 start, u64 len);
+ int btrfs_qgroup_release_data(struct inode *inode, u64 start, u64 len);
+ int btrfs_qgroup_free_data(struct inode *inode,
 
 
