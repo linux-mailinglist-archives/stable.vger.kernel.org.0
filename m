@@ -2,107 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F23253EB28C
-	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 10:23:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 297FA3EB293
+	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 10:26:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229605AbhHMIX1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Aug 2021 04:23:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52938 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233580AbhHMIX0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Aug 2021 04:23:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DD78F6109E;
-        Fri, 13 Aug 2021 08:22:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628842980;
-        bh=23/r5YpruXkLeBRsCQ00Vz+w7r4hqy1Wo6mU1tidvD0=;
-        h=Subject:To:From:Date:From;
-        b=sG+I/Ke0DdbDiCTe5+HqED7XT+/MJEO1RJGKvN+lwnNkE5ZLZSyE+CLKfqwaACSqJ
-         hjiCb7di62+T7fJ43AugbmXkxCtBYG2BsyHwvCK6Wf+9ApNCz28i9CfeFPesyRUw2v
-         WvO0TmniCvkqvaliLLetMyqYsapLUsPmb5+24MZ4=
-Subject: patch "slimbus: ngd: reset dma setup during runtime pm" added to char-misc-linus
-To:     srinivas.kandagatla@linaro.org, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 13 Aug 2021 10:22:46 +0200
-Message-ID: <162884296619538@kroah.com>
+        id S233580AbhHMI0R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Aug 2021 04:26:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38370 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229605AbhHMI0Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 Aug 2021 04:26:16 -0400
+Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 906C5C061756
+        for <stable@vger.kernel.org>; Fri, 13 Aug 2021 01:25:50 -0700 (PDT)
+Received: by mail-pj1-x102b.google.com with SMTP id j1so14211868pjv.3
+        for <stable@vger.kernel.org>; Fri, 13 Aug 2021 01:25:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=nZCZSfSNo8hbpXR52cSD/wGTJqu0gSiywWE7Nd27Ci8=;
+        b=LXj9VbO0d2eMlq58PqiZJ8qLAN3z36z89GW9Ag5Ls0TEvafRCUS33rB8tfoFq3GetF
+         icYVF6FV9i27nLj48X15uuCvKsfs2NVkiZ8H7WUHbr2FLOPzCFMky1yVOh/GtfyEf2U1
+         frY/i5m6ZHVEBSMKeN+LX2ulXLW/d70forOnEZqHRWf+UiVw9dsLdfZSgL7yqEqXosKj
+         GAm2wQeQdw8igH7cCsVu+rJf9E+ZEYfNq96yDpGXfVkRT2ICVPi3/QkjSJZBdVqsAlAw
+         yTrlmPy2XGFvnAczbIxQSQSBRXG2mtcYjDY3Q3C58kKA70RqPjV9wTwq+IOzFBjzRdJh
+         1hWQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=nZCZSfSNo8hbpXR52cSD/wGTJqu0gSiywWE7Nd27Ci8=;
+        b=GavQ2gFvIEAV/S3+rDNkLnjQiBbmXsXI3mmc9a+6VCAQtKjBbgtFI6EaSbcAKVggor
+         SUd9WH7bf1sCUCkxJ/4C/VomjjTXwwHYQ23vXtKEmk0EmyacaCyWT6B8sG8lRHB+RJWy
+         YsDKw+60OEadexack9JGN9xIQwOGKIDO1UcCQTu4C39ePz2/e/DY+MMML4N4LRpjTsFx
+         YZpgPj5CEVNwtgWSoqAA1DrhR8AfnLzGlG3MMCdNeWbNAgaf0dbp34Ys6Mp5p/8Uq3VE
+         amzzcMwMV7vAUKpyV0iu4heH50r+JESng6Pt+zBIQjmza80n3F/ToRGmgGqEfZkJktsp
+         dpWA==
+X-Gm-Message-State: AOAM530p+rZYz1t43Ylm8H6DNb96iSSe2V8HYUBNziv5xrNa/3Sac8v5
+        6866LyleIaymBb2fYrwmo7yxEKREfYk7Z9Dt
+X-Google-Smtp-Source: ABdhPJzu8crxajzSJG+OJt3oY9vMVZ7zhNtQTwtdIis3KreqEboww9D1zPOFADq0jTGHS393h7hxFg==
+X-Received: by 2002:a63:515:: with SMTP id 21mr1389626pgf.70.1628843149948;
+        Fri, 13 Aug 2021 01:25:49 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id ms19sm1117910pjb.53.2021.08.13.01.25.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 13 Aug 2021 01:25:49 -0700 (PDT)
+Message-ID: <61162c8d.1c69fb81.2e9e2.294b@mx.google.com>
+Date:   Fri, 13 Aug 2021 01:25:49 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-5.13.y
+X-Kernelci-Tree: stable
+X-Kernelci-Kernel: v5.13.10
+X-Kernelci-Report-Type: test
+Subject: stable/linux-5.13.y baseline: 186 runs, 1 regressions (v5.13.10)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable/linux-5.13.y baseline: 186 runs, 1 regressions (v5.13.10)
 
-This is a note to let you know that I've just added the patch titled
+Regressions Summary
+-------------------
 
-    slimbus: ngd: reset dma setup during runtime pm
-
-to my char-misc git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
-in the char-misc-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
+platform   | arch  | lab     | compiler | defconfig | regressions
+-----------+-------+---------+----------+-----------+------------
+imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
 
 
-From d77772538f00b7265deace6e77e555ee18365ad0 Mon Sep 17 00:00:00 2001
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Date: Mon, 9 Aug 2021 09:24:28 +0100
-Subject: slimbus: ngd: reset dma setup during runtime pm
+  Details:  https://kernelci.org/test/job/stable/branch/linux-5.13.y/kernel=
+/v5.13.10/plan/baseline/
 
-During suspend/resume NGD remote instance is power cycled along
-with remotely controlled bam dma engine.
-So Reset the dma configuration during this suspend resume path
-so that we are not dealing with any stale dma setup.
-
-Without this transactions timeout after first suspend resume path.
-
-Fixes: 917809e2280b ("slimbus: ngd: Add qcom SLIMBus NGD driver")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20210809082428.11236-5-srinivas.kandagatla@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/slimbus/qcom-ngd-ctrl.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/slimbus/qcom-ngd-ctrl.c b/drivers/slimbus/qcom-ngd-ctrl.c
-index f3ee8e036372..7040293c2ee8 100644
---- a/drivers/slimbus/qcom-ngd-ctrl.c
-+++ b/drivers/slimbus/qcom-ngd-ctrl.c
-@@ -1080,7 +1080,8 @@ static void qcom_slim_ngd_setup(struct qcom_slim_ngd_ctrl *ctrl)
- {
- 	u32 cfg = readl_relaxed(ctrl->ngd->base);
- 
--	if (ctrl->state == QCOM_SLIM_NGD_CTRL_DOWN)
-+	if (ctrl->state == QCOM_SLIM_NGD_CTRL_DOWN ||
-+		ctrl->state == QCOM_SLIM_NGD_CTRL_ASLEEP)
- 		qcom_slim_ngd_init_dma(ctrl);
- 
- 	/* By default enable message queues */
-@@ -1131,6 +1132,7 @@ static int qcom_slim_ngd_power_up(struct qcom_slim_ngd_ctrl *ctrl)
- 			dev_info(ctrl->dev, "Subsys restart: ADSP active framer\n");
- 			return 0;
- 		}
-+		qcom_slim_ngd_setup(ctrl);
- 		return 0;
- 	}
- 
-@@ -1618,6 +1620,7 @@ static int __maybe_unused qcom_slim_ngd_runtime_suspend(struct device *dev)
- 	struct qcom_slim_ngd_ctrl *ctrl = dev_get_drvdata(dev);
- 	int ret = 0;
- 
-+	qcom_slim_ngd_exit_dma(ctrl);
- 	if (!ctrl->qmi.handle)
- 		return 0;
- 
--- 
-2.32.0
+  Test:     baseline
+  Tree:     stable
+  Branch:   linux-5.13.y
+  Describe: v5.13.10
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able.git
+  SHA:      a37da2be8e6c85c438a1528f9c971e1811086db3 =
 
 
+
+Test Regressions
+---------------- =
+
+
+
+platform   | arch  | lab     | compiler | defconfig | regressions
+-----------+-------+---------+----------+-----------+------------
+imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6115fb7d12107fa067b136c2
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable/linux-5.13.y/v5.13.10/a=
+rm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-5.13.y/v5.13.10/a=
+rm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6115fb7d12107fa067b13=
+6c3
+        new failure (last pass: v5.13.9) =
+
+ =20
