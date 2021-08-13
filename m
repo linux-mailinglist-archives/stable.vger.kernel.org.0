@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 973E13EB7E1
-	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:24:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44C523EB82C
+	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:25:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241461AbhHMPJu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Aug 2021 11:09:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52526 "EHLO mail.kernel.org"
+        id S241189AbhHMPLr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Aug 2021 11:11:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54656 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241460AbhHMPJk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Aug 2021 11:09:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B4A36109E;
-        Fri, 13 Aug 2021 15:09:10 +0000 (UTC)
+        id S241710AbhHMPLD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Aug 2021 11:11:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C9F96109E;
+        Fri, 13 Aug 2021 15:10:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628867350;
-        bh=tGR48sy/nWyzyXc6gP1xfVKA3lw8Tq33wA+l0eAc+aQ=;
+        s=korg; t=1628867436;
+        bh=BMkrYUd1x4/CkZQGRYspxSUXCQBLme0dkLHHzGJd4lg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VuGjO9LmEoLPifzpsrWylAMwApAqNuaF0rx6xQVtHOqE1kcpU+o4pEEdmwJUOlBbT
-         NqVPPepFD1xcHWAwdNwGk+pCB5M5g2w50Bh0Rzj8gnIInquInshlDB21N1dK1qH7c/
-         m3CAtFQz4cJKMtZ/iXFbHkhJkD2X0XAGlMuk80j0=
+        b=yQi65YMlYCIy0eDZyNVk9VF1nF5IQ4VvpgrDC2UJIHw3dtMY5zKEfQ428xRXfdq0d
+         z5yzWk7Sr9+Q8Rny4Wuz7WeUMRwrFkwVGSlzTF8pkq3v1noX7CxBSi23lMDwCYJwOl
+         3riQxvdNn37KPr8rg5/Y9dECh6qru5r6zY/1USMM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+e2eae5639e7203360018@syzkaller.appspotmail.com,
-        "Qiang.zhang" <qiang.zhang@windriver.com>,
-        Guido Kiener <guido.kiener@rohde-schwarz.com>
-Subject: [PATCH 4.9 11/30] USB: usbtmc: Fix RCU stall warning
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Pavel Skripkin <paskripkin@gmail.com>,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 13/42] net: vxge: fix use-after-free in vxge_device_unregister
 Date:   Fri, 13 Aug 2021 17:06:39 +0200
-Message-Id: <20210813150522.804670741@linuxfoundation.org>
+Message-Id: <20210813150525.548292376@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210813150522.445553924@linuxfoundation.org>
-References: <20210813150522.445553924@linuxfoundation.org>
+In-Reply-To: <20210813150525.098817398@linuxfoundation.org>
+References: <20210813150525.098817398@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,72 +42,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiang.zhang <qiang.zhang@windriver.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit 30fad76ce4e98263edfa8f885c81d5426c1bf169 upstream.
+[ Upstream commit 942e560a3d3862dd5dee1411dbdd7097d29b8416 ]
 
-rcu: INFO: rcu_preempt self-detected stall on CPU
-rcu:    1-...!: (2 ticks this GP) idle=d92/1/0x4000000000000000
-        softirq=25390/25392 fqs=3
-        (t=12164 jiffies g=31645 q=43226)
-rcu: rcu_preempt kthread starved for 12162 jiffies! g31645 f0x0
-     RCU_GP_WAIT_FQS(5) ->state=0x0 ->cpu=0
-rcu:    Unless rcu_preempt kthread gets sufficient CPU time,
-        OOM is now expected behavior.
-rcu: RCU grace-period kthread stack dump:
-task:rcu_preempt     state:R  running task
-...........
-usbtmc 3-1:0.0: unknown status received: -71
-usbtmc 3-1:0.0: unknown status received: -71
-usbtmc 3-1:0.0: unknown status received: -71
-usbtmc 3-1:0.0: unknown status received: -71
-usbtmc 3-1:0.0: unknown status received: -71
-usbtmc 3-1:0.0: unknown status received: -71
-usbtmc 3-1:0.0: unknown status received: -71
-usbtmc 3-1:0.0: unknown status received: -71
-usbtmc 3-1:0.0: usb_submit_urb failed: -19
+Smatch says:
+drivers/net/ethernet/neterion/vxge/vxge-main.c:3518 vxge_device_unregister() error: Using vdev after free_{netdev,candev}(dev);
+drivers/net/ethernet/neterion/vxge/vxge-main.c:3518 vxge_device_unregister() error: Using vdev after free_{netdev,candev}(dev);
+drivers/net/ethernet/neterion/vxge/vxge-main.c:3520 vxge_device_unregister() error: Using vdev after free_{netdev,candev}(dev);
+drivers/net/ethernet/neterion/vxge/vxge-main.c:3520 vxge_device_unregister() error: Using vdev after free_{netdev,candev}(dev);
 
-The function usbtmc_interrupt() resubmits urbs when the error status
-of an urb is -EPROTO. In systems using the dummy_hcd usb controller
-this can result in endless interrupt loops when the usbtmc device is
-disconnected from the host system.
+Since vdev pointer is netdev private data accessing it after free_netdev()
+call can cause use-after-free bug. Fix it by moving free_netdev() call at
+the end of the function
 
-Since host controller drivers already try to recover from transmission
-errors, there is no need to resubmit the urb or try other solutions
-to repair the error situation.
-
-In case of errors the INT pipe just stops to wait for further packets.
-
-Fixes: dbf3e7f654c0 ("Implement an ioctl to support the USMTMC-USB488 READ_STATUS_BYTE operation")
-Cc: stable@vger.kernel.org
-Reported-by: syzbot+e2eae5639e7203360018@syzkaller.appspotmail.com
-Signed-off-by: Qiang.zhang <qiang.zhang@windriver.com>
-Acked-by: Guido Kiener <guido.kiener@rohde-schwarz.com>
-Link: https://lore.kernel.org/r/20210723004334.458930-1-qiang.zhang@windriver.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 6cca200362b4 ("vxge: cleanup probe error paths")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Reviewed-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/class/usbtmc.c |    8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
+ drivers/net/ethernet/neterion/vxge/vxge-main.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/class/usbtmc.c
-+++ b/drivers/usb/class/usbtmc.c
-@@ -1342,16 +1342,10 @@ static void usbtmc_interrupt(struct urb
- 	case -EOVERFLOW:
- 		dev_err(dev, "overflow with length %d, actual length is %d\n",
- 			data->iin_wMaxPacketSize, urb->actual_length);
--	case -ECONNRESET:
--	case -ENOENT:
--	case -ESHUTDOWN:
--	case -EILSEQ:
--	case -ETIME:
-+	default:
- 		/* urb terminated, clean up */
- 		dev_dbg(dev, "urb terminated, status: %d\n", status);
- 		return;
--	default:
--		dev_err(dev, "unknown status received: %d\n", status);
- 	}
- exit:
- 	rv = usb_submit_urb(urb, GFP_ATOMIC);
+diff --git a/drivers/net/ethernet/neterion/vxge/vxge-main.c b/drivers/net/ethernet/neterion/vxge/vxge-main.c
+index 50ea69d88480..e69e76bb2c77 100644
+--- a/drivers/net/ethernet/neterion/vxge/vxge-main.c
++++ b/drivers/net/ethernet/neterion/vxge/vxge-main.c
+@@ -3537,13 +3537,13 @@ static void vxge_device_unregister(struct __vxge_hw_device *hldev)
+ 
+ 	kfree(vdev->vpaths);
+ 
+-	/* we are safe to free it now */
+-	free_netdev(dev);
+-
+ 	vxge_debug_init(vdev->level_trace, "%s: ethernet device unregistered",
+ 			buf);
+ 	vxge_debug_entryexit(vdev->level_trace,	"%s: %s:%d  Exiting...", buf,
+ 			     __func__, __LINE__);
++
++	/* we are safe to free it now */
++	free_netdev(dev);
+ }
+ 
+ /*
+-- 
+2.30.2
+
 
 
