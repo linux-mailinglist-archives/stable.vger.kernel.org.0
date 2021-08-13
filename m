@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D89BC3EB828
-	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:25:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A00063EB82A
+	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:25:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241832AbhHMPLo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Aug 2021 11:11:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53968 "EHLO mail.kernel.org"
+        id S241693AbhHMPLq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Aug 2021 11:11:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241845AbhHMPKz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Aug 2021 11:10:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 811E661107;
-        Fri, 13 Aug 2021 15:10:28 +0000 (UTC)
+        id S241712AbhHMPK6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Aug 2021 11:10:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 58A626113B;
+        Fri, 13 Aug 2021 15:10:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628867429;
-        bh=/cM930ODIGBc+l9n2RzxcsB76fg20U/lhHh9sgRFGXU=;
+        s=korg; t=1628867431;
+        bh=YR0X7P5rPSdiyvL8r9FdeCj/5iLxqGgzw8fCEvqO/xE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wgHkPHgjEBm/hU8hxbWGyLiONM5ncMtgSHGZDIK/NQG+GvXsByHwZ9KetaVINT8IX
-         9tw4aSsIDqrSW+qKDqwK+4jAVi8ktXRLDATGzSx2FEpFB2cw+m7li3LRlmsvWh4y8k
-         AMQk2D3FBkExnG1druDe4PS9A/bPSPlivkF+YmNA=
+        b=W4TSIwU+IJthExYsuDGqpY5C1nWhX7CwWvQZRmu0yk+PZIwptcWgbLbmo3JaJlkUI
+         zAqREZZJoUxaclhhcuKqhH4fV3hDs8+fmGmF23GAdQyv3FSX58GaM1A/X9VM3YsvvY
+         taQyOnQ9oFtZw62sqKTmEwpCqzmKbf8hbiONE7Rc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 10/42] bnx2x: fix an error code in bnx2x_nic_load()
-Date:   Fri, 13 Aug 2021 17:06:36 +0200
-Message-Id: <20210813150525.455268596@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+02c9f70f3afae308464a@syzkaller.appspotmail.com
+Subject: [PATCH 4.14 11/42] net: pegasus: fix uninit-value in get_interrupt_interval
+Date:   Fri, 13 Aug 2021 17:06:37 +0200
+Message-Id: <20210813150525.486992786@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210813150525.098817398@linuxfoundation.org>
 References: <20210813150525.098817398@linuxfoundation.org>
@@ -40,35 +41,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit fb653827c758725b149b5c924a5eb50ab4812750 ]
+[ Upstream commit af35fc37354cda3c9c8cc4961b1d24bdc9d27903 ]
 
-Set the error code if bnx2x_alloc_fw_stats_mem() fails.  The current
-code returns success.
+Syzbot reported uninit value pegasus_probe(). The problem was in missing
+error handling.
 
-Fixes: ad5afc89365e ("bnx2x: Separate VF and PF logic")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+get_interrupt_interval() internally calls read_eprom_word() which can
+fail in some cases. For example: failed to receive usb control message.
+These cases should be handled to prevent uninit value bug, since
+read_eprom_word() will not initialize passed stack variable in case of
+internal failure.
+
+Fail log:
+
+BUG: KMSAN: uninit-value in get_interrupt_interval drivers/net/usb/pegasus.c:746 [inline]
+BUG: KMSAN: uninit-value in pegasus_probe+0x10e7/0x4080 drivers/net/usb/pegasus.c:1152
+CPU: 1 PID: 825 Comm: kworker/1:1 Not tainted 5.12.0-rc6-syzkaller #0
+...
+Workqueue: usb_hub_wq hub_event
+Call Trace:
+ __dump_stack lib/dump_stack.c:79 [inline]
+ dump_stack+0x24c/0x2e0 lib/dump_stack.c:120
+ kmsan_report+0xfb/0x1e0 mm/kmsan/kmsan_report.c:118
+ __msan_warning+0x5c/0xa0 mm/kmsan/kmsan_instr.c:197
+ get_interrupt_interval drivers/net/usb/pegasus.c:746 [inline]
+ pegasus_probe+0x10e7/0x4080 drivers/net/usb/pegasus.c:1152
+....
+
+Local variable ----data.i@pegasus_probe created at:
+ get_interrupt_interval drivers/net/usb/pegasus.c:1151 [inline]
+ pegasus_probe+0xe57/0x4080 drivers/net/usb/pegasus.c:1152
+ get_interrupt_interval drivers/net/usb/pegasus.c:1151 [inline]
+ pegasus_probe+0xe57/0x4080 drivers/net/usb/pegasus.c:1152
+
+Reported-and-tested-by: syzbot+02c9f70f3afae308464a@syzkaller.appspotmail.com
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Link: https://lore.kernel.org/r/20210804143005.439-1-paskripkin@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/usb/pegasus.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c
-index faa45491ae4d..8c111def8185 100644
---- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c
-+++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c
-@@ -2667,7 +2667,8 @@ int bnx2x_nic_load(struct bnx2x *bp, int load_mode)
+diff --git a/drivers/net/usb/pegasus.c b/drivers/net/usb/pegasus.c
+index 5435c34dfcc7..d18a283a0ccf 100644
+--- a/drivers/net/usb/pegasus.c
++++ b/drivers/net/usb/pegasus.c
+@@ -750,12 +750,16 @@ static inline void disable_net_traffic(pegasus_t *pegasus)
+ 	set_registers(pegasus, EthCtrl0, sizeof(tmp), &tmp);
+ }
+ 
+-static inline void get_interrupt_interval(pegasus_t *pegasus)
++static inline int get_interrupt_interval(pegasus_t *pegasus)
+ {
+ 	u16 data;
+ 	u8 interval;
++	int ret;
++
++	ret = read_eprom_word(pegasus, 4, &data);
++	if (ret < 0)
++		return ret;
+ 
+-	read_eprom_word(pegasus, 4, &data);
+ 	interval = data >> 8;
+ 	if (pegasus->usb->speed != USB_SPEED_HIGH) {
+ 		if (interval < 0x80) {
+@@ -770,6 +774,8 @@ static inline void get_interrupt_interval(pegasus_t *pegasus)
+ 		}
  	}
+ 	pegasus->intr_interval = interval;
++
++	return 0;
+ }
  
- 	/* Allocated memory for FW statistics  */
--	if (bnx2x_alloc_fw_stats_mem(bp))
-+	rc = bnx2x_alloc_fw_stats_mem(bp);
-+	if (rc)
- 		LOAD_ERROR_EXIT(bp, load_error0);
+ static void set_carrier(struct net_device *net)
+@@ -1188,7 +1194,9 @@ static int pegasus_probe(struct usb_interface *intf,
+ 				| NETIF_MSG_PROBE | NETIF_MSG_LINK);
  
- 	/* request pf to initialize status blocks */
+ 	pegasus->features = usb_dev_id[dev_index].private;
+-	get_interrupt_interval(pegasus);
++	res = get_interrupt_interval(pegasus);
++	if (res)
++		goto out2;
+ 	if (reset_mac(pegasus)) {
+ 		dev_err(&intf->dev, "can't reset MAC\n");
+ 		res = -EIO;
 -- 
 2.30.2
 
