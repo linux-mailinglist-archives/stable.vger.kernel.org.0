@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A4EE3EB7F6
-	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:24:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EADA33EB836
+	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:25:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241600AbhHMPKN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Aug 2021 11:10:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52526 "EHLO mail.kernel.org"
+        id S241537AbhHMPL5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Aug 2021 11:11:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54938 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241448AbhHMPJv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Aug 2021 11:09:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A4C8D6109D;
-        Fri, 13 Aug 2021 15:09:23 +0000 (UTC)
+        id S241524AbhHMPLQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Aug 2021 11:11:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EF3F76109D;
+        Fri, 13 Aug 2021 15:10:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628867364;
-        bh=CKykmzahHhMXt9m0NrdblO10om6+KNmQ7qwbpRTb4xQ=;
+        s=korg; t=1628867449;
+        bh=ZDoPvLBsDay2z1KW2vLo7Ok0Z+87zv8Vn02pbBTJTZI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EESViDB+XJCDFNul8LOMiJdrvOOdCs7uM7Jrwkcb0axz2TqGFbh1TLzoM8Gxucb5Z
-         nFfIaGk65t+8VPlRdcp0maUXuD7bFKOPSFNGxxx9PfdlJByrgfsP7KHMXHZq7TPLxL
-         kuPQJw9u+IvmIA8MD95pwF7b6p13d3KQyEY3hUN0=
+        b=QSiEom5o/vl/1G09jTtfEII/UxJGC8w7poWX1GmC0rnE4WEECJYo2n7asP5w1ojYg
+         jKAGXSm+gkfK48HcmToRvK0AiiWw5ME+mpQZ+ns4C3CjS0xprJQOEJKKPrc5HJ1jIi
+         OnE3ZWdiRzAyuSx/6M+bwI7AI7ZhqKIHsXqYQyu0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hui Su <suhui@zeku.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.9 16/30] scripts/tracing: fix the bug that cant parse raw_trace_func
+        stable@vger.kernel.org, David Bauer <mail@david-bauer.net>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.14 18/42] USB: serial: ftdi_sio: add device ID for Auto-M3 OP-COM v2
 Date:   Fri, 13 Aug 2021 17:06:44 +0200
-Message-Id: <20210813150522.957183526@linuxfoundation.org>
+Message-Id: <20210813150525.716309790@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210813150522.445553924@linuxfoundation.org>
-References: <20210813150522.445553924@linuxfoundation.org>
+In-Reply-To: <20210813150525.098817398@linuxfoundation.org>
+References: <20210813150525.098817398@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,66 +39,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Su <suhui@zeku.com>
+From: David Bauer <mail@david-bauer.net>
 
-commit 1c0cec64a7cc545eb49f374a43e9f7190a14defa upstream.
+commit 8da0e55c7988ef9f08a708c38e5c75ecd8862cf8 upstream.
 
-Since commit 77271ce4b2c0 ("tracing: Add irq, preempt-count and need resched info
-to default trace output"), the default trace output format has been changed to:
-          <idle>-0       [009] d.h. 22420.068695: _raw_spin_lock_irqsave <-hrtimer_interrupt
-          <idle>-0       [000] ..s. 22420.068695: _nohz_idle_balance <-run_rebalance_domains
-          <idle>-0       [011] d.h. 22420.068695: account_process_tick <-update_process_times
+The Auto-M3 OP-COM v2 is a OBD diagnostic device using a FTD232 for the
+USB connection.
 
-origin trace output format:(before v3.2.0)
-     # tracer: nop
-     #
-     #           TASK-PID    CPU#    TIMESTAMP  FUNCTION
-     #              | |       |          |         |
-          migration/0-6     [000]    50.025810: rcu_note_context_switch <-__schedule
-          migration/0-6     [000]    50.025812: trace_rcu_utilization <-rcu_note_context_switch
-          migration/0-6     [000]    50.025813: rcu_sched_qs <-rcu_note_context_switch
-          migration/0-6     [000]    50.025815: rcu_preempt_qs <-rcu_note_context_switch
-          migration/0-6     [000]    50.025817: trace_rcu_utilization <-rcu_note_context_switch
-          migration/0-6     [000]    50.025818: debug_lockdep_rcu_enabled <-__schedule
-          migration/0-6     [000]    50.025820: debug_lockdep_rcu_enabled <-__schedule
-
-The draw_functrace.py(introduced in v2.6.28) can't parse the new version format trace_func,
-So we need modify draw_functrace.py to adapt the new version trace output format.
-
-Link: https://lkml.kernel.org/r/20210611022107.608787-1-suhui@zeku.com
-
+Signed-off-by: David Bauer <mail@david-bauer.net>
 Cc: stable@vger.kernel.org
-Fixes: 77271ce4b2c0 tracing: Add irq, preempt-count and need resched info to default trace output
-Signed-off-by: Hui Su <suhui@zeku.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- scripts/tracing/draw_functrace.py |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/usb/serial/ftdi_sio.c     |    1 +
+ drivers/usb/serial/ftdi_sio_ids.h |    3 +++
+ 2 files changed, 4 insertions(+)
 
---- a/scripts/tracing/draw_functrace.py
-+++ b/scripts/tracing/draw_functrace.py
-@@ -17,7 +17,7 @@ Usage:
- 	$ cat /sys/kernel/debug/tracing/trace_pipe > ~/raw_trace_func
- 	Wait some times but not too much, the script is a bit slow.
- 	Break the pipe (Ctrl + Z)
--	$ scripts/draw_functrace.py < raw_trace_func > draw_functrace
-+	$ scripts/tracing/draw_functrace.py < ~/raw_trace_func > draw_functrace
- 	Then you have your drawn trace in draw_functrace
- """
+--- a/drivers/usb/serial/ftdi_sio.c
++++ b/drivers/usb/serial/ftdi_sio.c
+@@ -214,6 +214,7 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(FTDI_VID, FTDI_MTXORB_6_PID) },
+ 	{ USB_DEVICE(FTDI_VID, FTDI_R2000KU_TRUE_RNG) },
+ 	{ USB_DEVICE(FTDI_VID, FTDI_VARDAAN_PID) },
++	{ USB_DEVICE(FTDI_VID, FTDI_AUTO_M3_OP_COM_V2_PID) },
+ 	{ USB_DEVICE(MTXORB_VID, MTXORB_FTDI_RANGE_0100_PID) },
+ 	{ USB_DEVICE(MTXORB_VID, MTXORB_FTDI_RANGE_0101_PID) },
+ 	{ USB_DEVICE(MTXORB_VID, MTXORB_FTDI_RANGE_0102_PID) },
+--- a/drivers/usb/serial/ftdi_sio_ids.h
++++ b/drivers/usb/serial/ftdi_sio_ids.h
+@@ -159,6 +159,9 @@
+ /* Vardaan Enterprises Serial Interface VEUSB422R3 */
+ #define FTDI_VARDAAN_PID	0xF070
  
-@@ -103,10 +103,10 @@ def parseLine(line):
- 	line = line.strip()
- 	if line.startswith("#"):
- 		raise CommentLineException
--	m = re.match("[^]]+?\\] +([0-9.]+): (\\w+) <-(\\w+)", line)
-+	m = re.match("[^]]+?\\] +([a-z.]+) +([0-9.]+): (\\w+) <-(\\w+)", line)
- 	if m is None:
- 		raise BrokenLineException
--	return (m.group(1), m.group(2), m.group(3))
-+	return (m.group(2), m.group(3), m.group(4))
- 
- 
- def main():
++/* Auto-M3 Ltd. - OP-COM USB V2 - OBD interface Adapter */
++#define FTDI_AUTO_M3_OP_COM_V2_PID	0x4f50
++
+ /*
+  * Xsens Technologies BV products (http://www.xsens.com).
+  */
 
 
