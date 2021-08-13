@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C6343EB866
-	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:25:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 035203EB825
+	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:25:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241725AbhHMPNZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Aug 2021 11:13:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55440 "EHLO mail.kernel.org"
+        id S241354AbhHMPLj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Aug 2021 11:11:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242080AbhHMPMe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Aug 2021 11:12:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9148F6112F;
-        Fri, 13 Aug 2021 15:12:06 +0000 (UTC)
+        id S241805AbhHMPKv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Aug 2021 11:10:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F33061103;
+        Fri, 13 Aug 2021 15:10:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628867527;
-        bh=ZxBTzNRCYWOy37PUIjrXP8rUkmJzh/1RLYGp7oVvQGg=;
+        s=korg; t=1628867424;
+        bh=2wtNd8DLtIwTEgErKq3pVhARqyZ3RE7JTqyuOrqoI7w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RW4HBmKZJsisWzaOVUjg9rDmNOeAuQ6TVviwiG1FGHqyYof649/OcddkI0MHqWZNL
-         xnBQC2cWdyK6XWOGK3HDYxxgILrY4EQo9zp7kB+kcgvt+evj10Gf+phJPJgrb4eySv
-         YgbY3Icjg+kCZXBKisC28k7PcjtyQa/+j9vIM4qQ=
+        b=V7UZPxPMavHCLEwy4+laoA8gAweWlYdfCu07hpFQ44JEJUnuqeBo5L4lJHXfFnrI/
+         FfQ0Xg6Q2S1UEgwPNH2BlsxwOl8WzM3lwLlOf1Gm/0Nh9pBbx9vkOeqeJo6Ut5Q5b5
+         4nl/s3WL/0u7SoCyV25CnntU6jCHHqfZlDD/3juA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+faf11bbadc5a372564da@syzkaller.appspotmail.com,
-        Eero Lehtinen <debiangamer2@gmail.com>,
-        Antti Palosaari <crope@iki.fi>,
-        Johan Hovold <johan@kernel.org>, Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 4.14 25/42] media: rtl28xxu: fix zero-length control request
-Date:   Fri, 13 Aug 2021 17:06:51 +0200
-Message-Id: <20210813150525.951338888@linuxfoundation.org>
+        syzbot+c31a48e6702ccb3d64c9@syzkaller.appspotmail.com,
+        Shreyansh Chouhan <chouhan.shreyansh630@gmail.com>,
+        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 24/30] reiserfs: check directory items on read from disk
+Date:   Fri, 13 Aug 2021 17:06:52 +0200
+Message-Id: <20210813150523.223823137@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210813150525.098817398@linuxfoundation.org>
-References: <20210813150525.098817398@linuxfoundation.org>
+In-Reply-To: <20210813150522.445553924@linuxfoundation.org>
+References: <20210813150522.445553924@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,58 +41,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Shreyansh Chouhan <chouhan.shreyansh630@gmail.com>
 
-commit 76f22c93b209c811bd489950f17f8839adb31901 upstream.
+[ Upstream commit 13d257503c0930010ef9eed78b689cec417ab741 ]
 
-The direction of the pipe argument must match the request-type direction
-bit or control requests may fail depending on the host-controller-driver
-implementation.
+While verifying the leaf item that we read from the disk, reiserfs
+doesn't check the directory items, this could cause a crash when we
+read a directory item from the disk that has an invalid deh_location.
 
-Control transfers without a data stage are treated as OUT requests by
-the USB stack and should be using usb_sndctrlpipe(). Failing to do so
-will now trigger a warning.
+This patch adds a check to the directory items read from the disk that
+does a bounds check on deh_location for the directory entries. Any
+directory entry header with a directory entry offset greater than the
+item length is considered invalid.
 
-The driver uses a zero-length i2c-read request for type detection so
-update the control-request code to use usb_sndctrlpipe() in this case.
-
-Note that actually trying to read the i2c register in question does not
-work as the register might not exist (e.g. depending on the demodulator)
-as reported by Eero Lehtinen <debiangamer2@gmail.com>.
-
-Reported-by: syzbot+faf11bbadc5a372564da@syzkaller.appspotmail.com
-Reported-by: Eero Lehtinen <debiangamer2@gmail.com>
-Tested-by: Eero Lehtinen <debiangamer2@gmail.com>
-Fixes: d0f232e823af ("[media] rtl28xxu: add heuristic to detect chip type")
-Cc: stable@vger.kernel.org      # 4.0
-Cc: Antti Palosaari <crope@iki.fi>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20210709152929.766363-1-chouhan.shreyansh630@gmail.com
+Reported-by: syzbot+c31a48e6702ccb3d64c9@syzkaller.appspotmail.com
+Signed-off-by: Shreyansh Chouhan <chouhan.shreyansh630@gmail.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/dvb-usb-v2/rtl28xxu.c |   11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ fs/reiserfs/stree.c | 31 ++++++++++++++++++++++++++-----
+ 1 file changed, 26 insertions(+), 5 deletions(-)
 
---- a/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
-+++ b/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
-@@ -50,7 +50,16 @@ static int rtl28xxu_ctrl_msg(struct dvb_
- 	} else {
- 		/* read */
- 		requesttype = (USB_TYPE_VENDOR | USB_DIR_IN);
--		pipe = usb_rcvctrlpipe(d->udev, 0);
-+
-+		/*
-+		 * Zero-length transfers must use usb_sndctrlpipe() and
-+		 * rtl28xxu_identify_state() uses a zero-length i2c read
-+		 * command to determine the chip type.
-+		 */
-+		if (req->size)
-+			pipe = usb_rcvctrlpipe(d->udev, 0);
-+		else
-+			pipe = usb_sndctrlpipe(d->udev, 0);
- 	}
+diff --git a/fs/reiserfs/stree.c b/fs/reiserfs/stree.c
+index 25b2aed9af0b..f2f7055303ca 100644
+--- a/fs/reiserfs/stree.c
++++ b/fs/reiserfs/stree.c
+@@ -386,6 +386,24 @@ void pathrelse(struct treepath *search_path)
+ 	search_path->path_length = ILLEGAL_PATH_ELEMENT_OFFSET;
+ }
  
- 	ret = usb_control_msg(d->udev, pipe, 0, requesttype, req->value,
++static int has_valid_deh_location(struct buffer_head *bh, struct item_head *ih)
++{
++	struct reiserfs_de_head *deh;
++	int i;
++
++	deh = B_I_DEH(bh, ih);
++	for (i = 0; i < ih_entry_count(ih); i++) {
++		if (deh_location(&deh[i]) > ih_item_len(ih)) {
++			reiserfs_warning(NULL, "reiserfs-5094",
++					 "directory entry location seems wrong %h",
++					 &deh[i]);
++			return 0;
++		}
++	}
++
++	return 1;
++}
++
+ static int is_leaf(char *buf, int blocksize, struct buffer_head *bh)
+ {
+ 	struct block_head *blkh;
+@@ -453,11 +471,14 @@ static int is_leaf(char *buf, int blocksize, struct buffer_head *bh)
+ 					 "(second one): %h", ih);
+ 			return 0;
+ 		}
+-		if (is_direntry_le_ih(ih) && (ih_item_len(ih) < (ih_entry_count(ih) * IH_SIZE))) {
+-			reiserfs_warning(NULL, "reiserfs-5093",
+-					 "item entry count seems wrong %h",
+-					 ih);
+-			return 0;
++		if (is_direntry_le_ih(ih)) {
++			if (ih_item_len(ih) < (ih_entry_count(ih) * IH_SIZE)) {
++				reiserfs_warning(NULL, "reiserfs-5093",
++						 "item entry count seems wrong %h",
++						 ih);
++				return 0;
++			}
++			return has_valid_deh_location(bh, ih);
+ 		}
+ 		prev_location = ih_location(ih);
+ 	}
+-- 
+2.30.2
+
 
 
