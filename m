@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A3B83EB84D
-	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:25:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FDE43EB897
+	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:26:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242178AbhHMPMx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Aug 2021 11:12:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55900 "EHLO mail.kernel.org"
+        id S241574AbhHMPOs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Aug 2021 11:14:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241947AbhHMPL5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Aug 2021 11:11:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F5C66112D;
-        Fri, 13 Aug 2021 15:11:29 +0000 (UTC)
+        id S241351AbhHMPNW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Aug 2021 11:13:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 52C4B610E9;
+        Fri, 13 Aug 2021 15:12:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628867489;
-        bh=kTL4LeyD2GBYpvWFwzSRY46yXARtbeB/NXrR0cRdSSQ=;
+        s=korg; t=1628867575;
+        bh=bCVf/I3vQd9FKff3RYqvsuY2zZ+zcr4YuAQUGsmtPwY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j6iqpQ86R1kuK5mPhtzUqd0orR63FYjWlGMq7mkmV7eDMrR/r2D7zOKynAMsOP/cE
-         Sqrn+8Tj6hChIsmNx3Sutit7MjOfWcNEvMmvPhAvQF2B2HnQ2jVXtaqfhkzhZ2V+MB
-         IoBR+VwnA4LJeQW7yxSYaNhDqWUMjDXrU95eX8i8=
+        b=O9LxkoLygBIm9fSY07e0xX0+fZ42pqj/mCBHm3nBS37rIYlYxGB5C+r7fJv1BBvJM
+         I/seU+Rll4PTICyc0JnEZgNORJjwcNZcTTB+RrtY0oVW+a+zb03Q9hrv8MQM3MGvC1
+         8ZrCjMaEzNQRJ/VvTnkMjr0rQ6WAq0SpAq/7bf7A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
-        Reinhard Speyerer <rspmn@arcor.de>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 33/42] qmi_wwan: add network device usage statistics for qmimux devices
+        stable@vger.kernel.org, Tom Lendacky <thomas.lendacky@amd.com>,
+        Brijesh Singh <brijesh.singh@amd.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 01/27] KVM: SVM: Fix off-by-one indexing when nullifying last used SEV VMCB
 Date:   Fri, 13 Aug 2021 17:06:59 +0200
-Message-Id: <20210813150526.209584115@linuxfoundation.org>
+Message-Id: <20210813150523.409936529@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210813150525.098817398@linuxfoundation.org>
-References: <20210813150525.098817398@linuxfoundation.org>
+In-Reply-To: <20210813150523.364549385@linuxfoundation.org>
+References: <20210813150523.364549385@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -40,151 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Reinhard Speyerer <rspmn@arcor.de>
+From: Sean Christopherson <seanjc@google.com>
 
-commit 44f82312fe9113bab6642f4d0eab6b1b7902b6e1 upstream.
+[ Upstream commit 179c6c27bf487273652efc99acd3ba512a23c137 ]
 
-Add proper network device usage statistics for qmimux devices
-instead of reporting all-zero values for them.
+Use the raw ASID, not ASID-1, when nullifying the last used VMCB when
+freeing an SEV ASID.  The consumer, pre_sev_run(), indexes the array by
+the raw ASID, thus KVM could get a false negative when checking for a
+different VMCB if KVM manages to reallocate the same ASID+VMCB combo for
+a new VM.
 
-Fixes: c6adf77953bc ("net: usb: qmi_wwan: add qmap mux protocol support")
-Cc: Daniele Palmas <dnlplm@gmail.com>
-Signed-off-by: Reinhard Speyerer <rspmn@arcor.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Note, this cannot cause a functional issue _in the current code_, as
+pre_sev_run() also checks which pCPU last did VMRUN for the vCPU, and
+last_vmentry_cpu is initialized to -1 during vCPU creation, i.e. is
+guaranteed to mismatch on the first VMRUN.  However, prior to commit
+8a14fe4f0c54 ("kvm: x86: Move last_cpu into kvm_vcpu_arch as
+last_vmentry_cpu"), SVM tracked pCPU on its own and zero-initialized the
+last_cpu variable.  Thus it's theoretically possible that older versions
+of KVM could miss a TLB flush if the first VMRUN is on pCPU0 and the ASID
+and VMCB exactly match those of a prior VM.
+
+Fixes: 70cd94e60c73 ("KVM: SVM: VMRUN should use associated ASID when SEV is enabled")
+Cc: Tom Lendacky <thomas.lendacky@amd.com>
+Cc: Brijesh Singh <brijesh.singh@amd.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/qmi_wwan.c |   76 ++++++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 71 insertions(+), 5 deletions(-)
+ arch/x86/kvm/svm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/usb/qmi_wwan.c
-+++ b/drivers/net/usb/qmi_wwan.c
-@@ -22,6 +22,7 @@
- #include <linux/usb/cdc.h>
- #include <linux/usb/usbnet.h>
- #include <linux/usb/cdc-wdm.h>
-+#include <linux/u64_stats_sync.h>
+diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
+index 7341d22ed04f..2a958dcc80f2 100644
+--- a/arch/x86/kvm/svm.c
++++ b/arch/x86/kvm/svm.c
+@@ -1783,7 +1783,7 @@ static void __sev_asid_free(int asid)
  
- /* This driver supports wwan (3G/LTE/?) devices using a vendor
-  * specific management protocol called Qualcomm MSM Interface (QMI) -
-@@ -74,6 +75,7 @@ struct qmimux_hdr {
- struct qmimux_priv {
- 	struct net_device *real_dev;
- 	u8 mux_id;
-+	struct pcpu_sw_netstats __percpu *stats64;
- };
- 
- static int qmimux_open(struct net_device *dev)
-@@ -100,19 +102,65 @@ static netdev_tx_t qmimux_start_xmit(str
- 	struct qmimux_priv *priv = netdev_priv(dev);
- 	unsigned int len = skb->len;
- 	struct qmimux_hdr *hdr;
-+	netdev_tx_t ret;
- 
- 	hdr = skb_push(skb, sizeof(struct qmimux_hdr));
- 	hdr->pad = 0;
- 	hdr->mux_id = priv->mux_id;
- 	hdr->pkt_len = cpu_to_be16(len);
- 	skb->dev = priv->real_dev;
--	return dev_queue_xmit(skb);
-+	ret = dev_queue_xmit(skb);
-+
-+	if (likely(ret == NET_XMIT_SUCCESS || ret == NET_XMIT_CN)) {
-+		struct pcpu_sw_netstats *stats64 = this_cpu_ptr(priv->stats64);
-+
-+		u64_stats_update_begin(&stats64->syncp);
-+		stats64->tx_packets++;
-+		stats64->tx_bytes += len;
-+		u64_stats_update_end(&stats64->syncp);
-+	} else {
-+		dev->stats.tx_dropped++;
-+	}
-+
-+	return ret;
-+}
-+
-+static void qmimux_get_stats64(struct net_device *net,
-+			       struct rtnl_link_stats64 *stats)
-+{
-+	struct qmimux_priv *priv = netdev_priv(net);
-+	unsigned int start;
-+	int cpu;
-+
-+	netdev_stats_to_stats64(stats, &net->stats);
-+
-+	for_each_possible_cpu(cpu) {
-+		struct pcpu_sw_netstats *stats64;
-+		u64 rx_packets, rx_bytes;
-+		u64 tx_packets, tx_bytes;
-+
-+		stats64 = per_cpu_ptr(priv->stats64, cpu);
-+
-+		do {
-+			start = u64_stats_fetch_begin_irq(&stats64->syncp);
-+			rx_packets = stats64->rx_packets;
-+			rx_bytes = stats64->rx_bytes;
-+			tx_packets = stats64->tx_packets;
-+			tx_bytes = stats64->tx_bytes;
-+		} while (u64_stats_fetch_retry_irq(&stats64->syncp, start));
-+
-+		stats->rx_packets += rx_packets;
-+		stats->rx_bytes += rx_bytes;
-+		stats->tx_packets += tx_packets;
-+		stats->tx_bytes += tx_bytes;
-+	}
+ 	for_each_possible_cpu(cpu) {
+ 		sd = per_cpu(svm_data, cpu);
+-		sd->sev_vmcbs[pos] = NULL;
++		sd->sev_vmcbs[asid] = NULL;
+ 	}
  }
  
- static const struct net_device_ops qmimux_netdev_ops = {
--	.ndo_open       = qmimux_open,
--	.ndo_stop       = qmimux_stop,
--	.ndo_start_xmit = qmimux_start_xmit,
-+	.ndo_open        = qmimux_open,
-+	.ndo_stop        = qmimux_stop,
-+	.ndo_start_xmit  = qmimux_start_xmit,
-+	.ndo_get_stats64 = qmimux_get_stats64,
- };
- 
- static void qmimux_setup(struct net_device *dev)
-@@ -197,8 +245,19 @@ static int qmimux_rx_fixup(struct usbnet
- 		}
- 
- 		skb_put_data(skbn, skb->data + offset + qmimux_hdr_sz, pkt_len);
--		if (netif_rx(skbn) != NET_RX_SUCCESS)
-+		if (netif_rx(skbn) != NET_RX_SUCCESS) {
-+			net->stats.rx_errors++;
- 			return 0;
-+		} else {
-+			struct pcpu_sw_netstats *stats64;
-+			struct qmimux_priv *priv = netdev_priv(net);
-+
-+			stats64 = this_cpu_ptr(priv->stats64);
-+			u64_stats_update_begin(&stats64->syncp);
-+			stats64->rx_packets++;
-+			stats64->rx_bytes += pkt_len;
-+			u64_stats_update_end(&stats64->syncp);
-+		}
- 
- skip:
- 		offset += len + qmimux_hdr_sz;
-@@ -222,6 +281,12 @@ static int qmimux_register_device(struct
- 	priv->mux_id = mux_id;
- 	priv->real_dev = real_dev;
- 
-+	priv->stats64 = netdev_alloc_pcpu_stats(struct pcpu_sw_netstats);
-+	if (!priv->stats64) {
-+		err = -ENOBUFS;
-+		goto out_free_newdev;
-+	}
-+
- 	err = register_netdevice(new_dev);
- 	if (err < 0)
- 		goto out_free_newdev;
-@@ -252,6 +317,7 @@ static void qmimux_unregister_device(str
- 	struct qmimux_priv *priv = netdev_priv(dev);
- 	struct net_device *real_dev = priv->real_dev;
- 
-+	free_percpu(priv->stats64);
- 	netdev_upper_dev_unlink(real_dev, dev);
- 	unregister_netdevice_queue(dev, head);
- 
+-- 
+2.30.2
+
 
 
