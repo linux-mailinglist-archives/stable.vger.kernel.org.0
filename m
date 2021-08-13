@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B78AA3EB83B
-	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:25:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F40FE3EB7DD
+	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:24:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242002AbhHMPMG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Aug 2021 11:12:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55076 "EHLO mail.kernel.org"
+        id S241365AbhHMPJp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Aug 2021 11:09:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52218 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241896AbhHMPLV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Aug 2021 11:11:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6178661131;
-        Fri, 13 Aug 2021 15:10:54 +0000 (UTC)
+        id S241223AbhHMPJc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Aug 2021 11:09:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6DF52610CC;
+        Fri, 13 Aug 2021 15:09:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628867455;
-        bh=OUT8IBVYzFLo1u/ZoZlXDGZW5QqOWsk/UYvQIJyuG/M=;
+        s=korg; t=1628867345;
+        bh=EFJhGl4j17dSbDx5yR+3T/oEosXLQSue43tuVXBDXrU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kTtupMyDJfMlxwJWCFmA3mHRAxjAqaL5FOqS+bFKHvDTTP6u4hOWKmW4zWRN6dqme
-         wGb83oZ7lxvj/g7WZAPS2CUvmYldXS1+D6er4sj30Ls1nFFasJM0AEhmQXfkTDQ+lp
-         CvyydpEjuUxicvyi48Ie6q5zQVKWFZ20NPyzCCvk=
+        b=l+zdLs41LWZ/TNwadC7dgp0yevp5sKrZkkYVYdU+EeNteyiKAaSxB8wdU1vpZe2l/
+         7H71crrQOP/Unr36TCXofp+pv5GzBwPZS514DD7I+JroTHUeEXsr3J1wq7gPWUSt9j
+         sNPudGpOkb4CYfFzRHFqycUD5vR9wbYBQd+WkXd8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dario Binacchi <dariobin@libero.it>,
-        Gabriel Fernandez <gabriel.fernandez@st.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 03/42] clk: stm32f4: fix post divisor setup for I2S/SAI PLLs
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        folkert <folkert@vanheusden.com>
+Subject: [PATCH 4.9 01/30] ALSA: seq: Fix racy deletion of subscriber
 Date:   Fri, 13 Aug 2021 17:06:29 +0200
-Message-Id: <20210813150525.220372685@linuxfoundation.org>
+Message-Id: <20210813150522.497007732@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210813150525.098817398@linuxfoundation.org>
-References: <20210813150525.098817398@linuxfoundation.org>
+In-Reply-To: <20210813150522.445553924@linuxfoundation.org>
+References: <20210813150522.445553924@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -41,88 +41,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dario Binacchi <dariobin@libero.it>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 24b5b1978cd5a80db58e2a19db2f9c36fe8d4f7a ]
+commit 97367c97226aab8b298ada954ce12659ee3ad2a4 upstream.
 
-Enabling the framebuffer leads to a system hang. Running, as a debug
-hack, the store_pan() function in drivers/video/fbdev/core/fbsysfs.c
-without taking the console_lock, allows to see the crash backtrace on
-the serial line.
+It turned out that the current implementation of the port subscription
+is racy.  The subscription contains two linked lists, and we have to
+add to or delete from both lists.  Since both connection and
+disconnection procedures perform the same order for those two lists
+(i.e. src list, then dest list), when a deletion happens during a
+connection procedure, the src list may be deleted before the dest list
+addition completes, and this may lead to a use-after-free or an Oops,
+even though the access to both lists are protected via mutex.
 
-~ # echo 0 0 > /sys/class/graphics/fb0/pan
+The simple workaround for this race is to change the access order for
+the disconnection, namely, dest list, then src list.  This assures
+that the connection has been established when disconnecting, and also
+the concurrent deletion can be avoided.
 
-[    9.719414] Unhandled exception: IPSR = 00000005 LR = fffffff1
-[    9.726937] CPU: 0 PID: 49 Comm: sh Not tainted 5.13.0-rc5 #9
-[    9.733008] Hardware name: STM32 (Device Tree Support)
-[    9.738296] PC is at clk_gate_is_enabled+0x0/0x28
-[    9.743426] LR is at stm32f4_pll_div_set_rate+0xf/0x38
-[    9.748857] pc : [<0011e4be>]    lr : [<0011f9e3>]    psr: 0100000b
-[    9.755373] sp : 00bc7be0  ip : 00000000  fp : 001f3ac4
-[    9.760812] r10: 002610d0  r9 : 01efe920  r8 : 00540560
-[    9.766269] r7 : 02e7ddb0  r6 : 0173eed8  r5 : 00000000  r4 : 004027c0
-[    9.773081] r3 : 0011e4bf  r2 : 02e7ddb0  r1 : 0173eed8  r0 : 1d3267b8
-[    9.779911] xPSR: 0100000b
-[    9.782719] CPU: 0 PID: 49 Comm: sh Not tainted 5.13.0-rc5 #9
-[    9.788791] Hardware name: STM32 (Device Tree Support)
-[    9.794120] [<0000afa1>] (unwind_backtrace) from [<0000a33f>] (show_stack+0xb/0xc)
-[    9.802421] [<0000a33f>] (show_stack) from [<0000a8df>] (__invalid_entry+0x4b/0x4c)
-
-The `pll_num' field in the post_div_data configuration contained a wrong
-value which also referenced an uninitialized hardware clock when
-clk_register_pll_div() was called.
-
-Fixes: 517633ef630e ("clk: stm32f4: Add post divisor for I2S & SAI PLLs")
-Signed-off-by: Dario Binacchi <dariobin@libero.it>
-Reviewed-by: Gabriel Fernandez <gabriel.fernandez@st.com>
-Link: https://lore.kernel.org/r/20210725160725.10788-1-dariobin@libero.it
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-and-tested-by: folkert <folkert@vanheusden.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210801182754.GP890690@belle.intranet.vanheusden.com
+Link: https://lore.kernel.org/r/20210803114312.2536-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clk/clk-stm32f4.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ sound/core/seq/seq_ports.c |   39 +++++++++++++++++++++++++++------------
+ 1 file changed, 27 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/clk/clk-stm32f4.c b/drivers/clk/clk-stm32f4.c
-index 96c6b6bc8f0e..46bc5f5d7134 100644
---- a/drivers/clk/clk-stm32f4.c
-+++ b/drivers/clk/clk-stm32f4.c
-@@ -453,7 +453,7 @@ struct stm32f4_pll {
+--- a/sound/core/seq/seq_ports.c
++++ b/sound/core/seq/seq_ports.c
+@@ -532,10 +532,11 @@ static int check_and_subscribe_port(stru
+ 	return err;
+ }
  
- struct stm32f4_pll_post_div_data {
- 	int idx;
--	u8 pll_num;
-+	int pll_idx;
- 	const char *name;
- 	const char *parent;
- 	u8 flag;
-@@ -484,13 +484,13 @@ static const struct clk_div_table post_divr_table[] = {
+-static void delete_and_unsubscribe_port(struct snd_seq_client *client,
+-					struct snd_seq_client_port *port,
+-					struct snd_seq_subscribers *subs,
+-					bool is_src, bool ack)
++/* called with grp->list_mutex held */
++static void __delete_and_unsubscribe_port(struct snd_seq_client *client,
++					  struct snd_seq_client_port *port,
++					  struct snd_seq_subscribers *subs,
++					  bool is_src, bool ack)
+ {
+ 	struct snd_seq_port_subs_info *grp;
+ 	struct list_head *list;
+@@ -543,7 +544,6 @@ static void delete_and_unsubscribe_port(
  
- #define MAX_POST_DIV 3
- static const struct stm32f4_pll_post_div_data  post_div_data[MAX_POST_DIV] = {
--	{ CLK_I2SQ_PDIV, PLL_I2S, "plli2s-q-div", "plli2s-q",
-+	{ CLK_I2SQ_PDIV, PLL_VCO_I2S, "plli2s-q-div", "plli2s-q",
- 		CLK_SET_RATE_PARENT, STM32F4_RCC_DCKCFGR, 0, 5, 0, NULL},
+ 	grp = is_src ? &port->c_src : &port->c_dest;
+ 	list = is_src ? &subs->src_list : &subs->dest_list;
+-	down_write(&grp->list_mutex);
+ 	write_lock_irq(&grp->list_lock);
+ 	empty = list_empty(list);
+ 	if (!empty)
+@@ -553,6 +553,18 @@ static void delete_and_unsubscribe_port(
  
--	{ CLK_SAIQ_PDIV, PLL_SAI, "pllsai-q-div", "pllsai-q",
-+	{ CLK_SAIQ_PDIV, PLL_VCO_SAI, "pllsai-q-div", "pllsai-q",
- 		CLK_SET_RATE_PARENT, STM32F4_RCC_DCKCFGR, 8, 5, 0, NULL },
+ 	if (!empty)
+ 		unsubscribe_port(client, port, grp, &subs->info, ack);
++}
++
++static void delete_and_unsubscribe_port(struct snd_seq_client *client,
++					struct snd_seq_client_port *port,
++					struct snd_seq_subscribers *subs,
++					bool is_src, bool ack)
++{
++	struct snd_seq_port_subs_info *grp;
++
++	grp = is_src ? &port->c_src : &port->c_dest;
++	down_write(&grp->list_mutex);
++	__delete_and_unsubscribe_port(client, port, subs, is_src, ack);
+ 	up_write(&grp->list_mutex);
+ }
  
--	{ NO_IDX, PLL_SAI, "pllsai-r-div", "pllsai-r", CLK_SET_RATE_PARENT,
-+	{ NO_IDX, PLL_VCO_SAI, "pllsai-r-div", "pllsai-r", CLK_SET_RATE_PARENT,
- 		STM32F4_RCC_DCKCFGR, 16, 2, 0, post_divr_table },
- };
+@@ -608,27 +620,30 @@ int snd_seq_port_disconnect(struct snd_s
+ 			    struct snd_seq_client_port *dest_port,
+ 			    struct snd_seq_port_subscribe *info)
+ {
+-	struct snd_seq_port_subs_info *src = &src_port->c_src;
++	struct snd_seq_port_subs_info *dest = &dest_port->c_dest;
+ 	struct snd_seq_subscribers *subs;
+ 	int err = -ENOENT;
  
-@@ -1489,7 +1489,7 @@ static void __init stm32f4_rcc_init(struct device_node *np)
- 				post_div->width,
- 				post_div->flag_div,
- 				post_div->div_table,
--				clks[post_div->pll_num],
-+				clks[post_div->pll_idx],
- 				&stm32f4_clk_lock);
+-	down_write(&src->list_mutex);
++	/* always start from deleting the dest port for avoiding concurrent
++	 * deletions
++	 */
++	down_write(&dest->list_mutex);
+ 	/* look for the connection */
+-	list_for_each_entry(subs, &src->list_head, src_list) {
++	list_for_each_entry(subs, &dest->list_head, dest_list) {
+ 		if (match_subs_info(info, &subs->info)) {
+-			atomic_dec(&subs->ref_count); /* mark as not ready */
++			__delete_and_unsubscribe_port(dest_client, dest_port,
++						      subs, false,
++						      connector->number != dest_client->number);
+ 			err = 0;
+ 			break;
+ 		}
+ 	}
+-	up_write(&src->list_mutex);
++	up_write(&dest->list_mutex);
+ 	if (err < 0)
+ 		return err;
  
- 		if (post_div->idx != NO_IDX)
--- 
-2.30.2
-
+ 	delete_and_unsubscribe_port(src_client, src_port, subs, true,
+ 				    connector->number != src_client->number);
+-	delete_and_unsubscribe_port(dest_client, dest_port, subs, false,
+-				    connector->number != dest_client->number);
+ 	kfree(subs);
+ 	return 0;
+ }
 
 
