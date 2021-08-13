@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E9943EB87C
-	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:25:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 434C33EB8C6
+	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:26:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242329AbhHMPOD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Aug 2021 11:14:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56080 "EHLO mail.kernel.org"
+        id S241252AbhHMPQN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Aug 2021 11:16:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57786 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241552AbhHMPM6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Aug 2021 11:12:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B396C6109D;
-        Fri, 13 Aug 2021 15:12:29 +0000 (UTC)
+        id S242057AbhHMPN1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Aug 2021 11:13:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 88807610FD;
+        Fri, 13 Aug 2021 15:13:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628867550;
-        bh=Od52IXyvexugMwGfpdEaOiKHyUAvu2kaZiXPFGgZKIA=;
+        s=korg; t=1628867581;
+        bh=0wmAJK9LQ9huGzhhOYIUOTbOUqZtAupZVriyIAhyde8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zd/q27fgANW/okYHqz0sjurhqdqpYkhAAHC73iMUwOQsbbOOMiEUoSvhgUG508Ftl
-         J0GmDhTKix7dSZ+QAP2vy3heLlvJlJLg+XhybewphXIbkh/tuGwLDXmWYRxn0j5Hjf
-         SNekIev4wgur+LOmlOWEVEBEvt54rmC6U77aZEvU=
+        b=tVpFW8IV54nQkxipurYOKY1Xpfa6z+ye65w6LtreRRvK32bao+bJdWHu9TRUJiV2d
+         asLjh+nP5yK1GRKlLd8XS19wHhyBpgYuHpaaHSPhkH4T13hYWMzAQEP6bAEo9GEds8
+         pTKMMnFBwrNO2tvh3OTGyRE0SwGuowrWyB8tz2uc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.19 02/11] tracing: Reject string operand in the histogram expression
+        stable@vger.kernel.org,
+        "stable@vger.kernel.org, Wesley Cheng" <wcheng@codeaurora.org>,
+        Felipe Balbi <balbi@kernel.org>,
+        Wesley Cheng <wcheng@codeaurora.org>
+Subject: [PATCH 5.4 11/27] usb: dwc3: gadget: Avoid runtime resume if disabling pullup
 Date:   Fri, 13 Aug 2021 17:07:09 +0200
-Message-Id: <20210813150520.153341889@linuxfoundation.org>
+Message-Id: <20210813150523.735953975@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210813150520.072304554@linuxfoundation.org>
-References: <20210813150520.072304554@linuxfoundation.org>
+In-Reply-To: <20210813150523.364549385@linuxfoundation.org>
+References: <20210813150523.364549385@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,61 +41,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Wesley Cheng <wcheng@codeaurora.org>
 
-commit a9d10ca4986571bffc19778742d508cc8dd13e02 upstream.
+[ Upstream commit cb10f68ad8150f243964b19391711aaac5e8ff42 ]
 
-Since the string type can not be the target of the addition / subtraction
-operation, it must be rejected. Without this fix, the string type silently
-converted to digits.
+If the device is already in the runtime suspended state, any call to
+the pullup routine will issue a runtime resume on the DWC3 core
+device.  If the USB gadget is disabling the pullup, then avoid having
+to issue a runtime resume, as DWC3 gadget has already been
+halted/stopped.
 
-Link: https://lkml.kernel.org/r/162742654278.290973.1523000673366456634.stgit@devnote2
+This fixes an issue where the following condition occurs:
 
-Cc: stable@vger.kernel.org
-Fixes: 100719dcef447 ("tracing: Add simple expression support to hist triggers")
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+usb_gadget_remove_driver()
+-->usb_gadget_disconnect()
+ -->dwc3_gadget_pullup(0)
+  -->pm_runtime_get_sync() -> ret = 0
+  -->pm_runtime_put() [async]
+-->usb_gadget_udc_stop()
+ -->dwc3_gadget_stop()
+  -->dwc->gadget_driver = NULL
+...
+
+dwc3_suspend_common()
+-->dwc3_gadget_suspend()
+ -->DWC3 halt/stop routine skipped, driver_data == NULL
+
+This leads to a situation where the DWC3 gadget is not properly
+stopped, as the runtime resume would have re-enabled EP0 and event
+interrupts, and since we avoided the DWC3 gadget suspend, these
+resources were never disabled.
+
+Fixes: 77adb8bdf422 ("usb: dwc3: gadget: Allow runtime suspend if UDC unbinded")
+Cc: stable <stable@vger.kernel.org>
+Acked-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Wesley Cheng <wcheng@codeaurora.org>
+Link: https://lore.kernel.org/r/1628058245-30692-1-git-send-email-wcheng@codeaurora.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace_events_hist.c |   14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/usb/dwc3/gadget.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/kernel/trace/trace_events_hist.c
-+++ b/kernel/trace/trace_events_hist.c
-@@ -2790,6 +2790,12 @@ static struct hist_field *parse_unary(st
- 		ret = PTR_ERR(operand1);
- 		goto free;
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -2019,6 +2019,17 @@ static int dwc3_gadget_pullup(struct usb
  	}
-+	if (operand1->flags & HIST_FIELD_FL_STRING) {
-+		/* String type can not be the operand of unary operator. */
-+		destroy_hist_field(operand1, 0);
-+		ret = -EINVAL;
-+		goto free;
-+	}
  
- 	expr->flags |= operand1->flags &
- 		(HIST_FIELD_FL_TIMESTAMP | HIST_FIELD_FL_TIMESTAMP_USECS);
-@@ -2890,6 +2896,10 @@ static struct hist_field *parse_expr(str
- 		operand1 = NULL;
- 		goto free;
- 	}
-+	if (operand1->flags & HIST_FIELD_FL_STRING) {
-+		ret = -EINVAL;
-+		goto free;
+ 	/*
++	 * Avoid issuing a runtime resume if the device is already in the
++	 * suspended state during gadget disconnect.  DWC3 gadget was already
++	 * halted/stopped during runtime suspend.
++	 */
++	if (!is_on) {
++		pm_runtime_barrier(dwc->dev);
++		if (pm_runtime_suspended(dwc->dev))
++			return 0;
 +	}
- 
- 	/* rest of string could be another expression e.g. b+c in a+b+c */
- 	operand_flags = 0;
-@@ -2899,6 +2909,10 @@ static struct hist_field *parse_expr(str
- 		operand2 = NULL;
- 		goto free;
- 	}
-+	if (operand2->flags & HIST_FIELD_FL_STRING) {
-+		ret = -EINVAL;
-+		goto free;
-+	}
- 
- 	ret = check_expr_operands(operand1, operand2);
- 	if (ret)
++
++	/*
+ 	 * Check the return value for successful resume, or error.  For a
+ 	 * successful resume, the DWC3 runtime PM resume routine will handle
+ 	 * the run stop sequence, so avoid duplicate operations here.
 
 
