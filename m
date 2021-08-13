@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1174A3EB84C
+	by mail.lfdr.de (Postfix) with ESMTP id 5A3B83EB84D
 	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:25:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242175AbhHMPMx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S242178AbhHMPMx (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 13 Aug 2021 11:12:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55830 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:55900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241746AbhHMPLy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Aug 2021 11:11:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B0EA61106;
-        Fri, 13 Aug 2021 15:11:26 +0000 (UTC)
+        id S241947AbhHMPL5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Aug 2021 11:11:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F5C66112D;
+        Fri, 13 Aug 2021 15:11:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628867487;
-        bh=AcwOAKtaaZ1PKJZVNCY9Xyp10LHNLHA3w8N76VEGJJ4=;
+        s=korg; t=1628867489;
+        bh=kTL4LeyD2GBYpvWFwzSRY46yXARtbeB/NXrR0cRdSSQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FWVt39NbfSISOG4pcCM8hWFucZa3o1uYAr1kMUQkLB4NaCleef8n48GAK8hdXuaRx
-         ePq5//AUjHRDXqFG2+oJm2AaZCKlXN6G/pKU5PEBFi9YLRGsTw77SpwiE/o5TBDa+d
-         SX5bm6ijpb1mY3yilXMlYvOd7Clv1wtdwQks411E=
+        b=j6iqpQ86R1kuK5mPhtzUqd0orR63FYjWlGMq7mkmV7eDMrR/r2D7zOKynAMsOP/cE
+         Sqrn+8Tj6hChIsmNx3Sutit7MjOfWcNEvMmvPhAvQF2B2HnQ2jVXtaqfhkzhZ2V+MB
+         IoBR+VwnA4LJeQW7yxSYaNhDqWUMjDXrU95eX8i8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Like Xu <likexu@tencent.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Liam Merwick <liam.merwick@oracle.com>,
-        Kim Phillips <kim.phillips@amd.com>
-Subject: [PATCH 4.14 32/42] perf/x86/amd: Dont touch the AMD64_EVENTSEL_HOSTONLY bit inside the guest
-Date:   Fri, 13 Aug 2021 17:06:58 +0200
-Message-Id: <20210813150526.179743749@linuxfoundation.org>
+        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
+        Reinhard Speyerer <rspmn@arcor.de>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 33/42] qmi_wwan: add network device usage statistics for qmimux devices
+Date:   Fri, 13 Aug 2021 17:06:59 +0200
+Message-Id: <20210813150526.209584115@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210813150525.098817398@linuxfoundation.org>
 References: <20210813150525.098817398@linuxfoundation.org>
@@ -41,47 +40,151 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Like Xu <likexu@tencent.com>
+From: Reinhard Speyerer <rspmn@arcor.de>
 
-commit df51fe7ea1c1c2c3bfdb81279712fdd2e4ea6c27 upstream.
+commit 44f82312fe9113bab6642f4d0eab6b1b7902b6e1 upstream.
 
-If we use "perf record" in an AMD Milan guest, dmesg reports a #GP
-warning from an unchecked MSR access error on MSR_F15H_PERF_CTLx:
+Add proper network device usage statistics for qmimux devices
+instead of reporting all-zero values for them.
 
-  [] unchecked MSR access error: WRMSR to 0xc0010200 (tried to write 0x0000020000110076) at rIP: 0xffffffff8106ddb4 (native_write_msr+0x4/0x20)
-  [] Call Trace:
-  []  amd_pmu_disable_event+0x22/0x90
-  []  x86_pmu_stop+0x4c/0xa0
-  []  x86_pmu_del+0x3a/0x140
-
-The AMD64_EVENTSEL_HOSTONLY bit is defined and used on the host,
-while the guest perf driver should avoid such use.
-
-Fixes: 1018faa6cf23 ("perf/x86/kvm: Fix Host-Only/Guest-Only counting with SVM disabled")
-Signed-off-by: Like Xu <likexu@tencent.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Liam Merwick <liam.merwick@oracle.com>
-Tested-by: Kim Phillips <kim.phillips@amd.com>
-Tested-by: Liam Merwick <liam.merwick@oracle.com>
-Link: https://lkml.kernel.org/r/20210802070850.35295-1-likexu@tencent.com
+Fixes: c6adf77953bc ("net: usb: qmi_wwan: add qmap mux protocol support")
+Cc: Daniele Palmas <dnlplm@gmail.com>
+Signed-off-by: Reinhard Speyerer <rspmn@arcor.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/events/perf_event.h |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/usb/qmi_wwan.c |   76 ++++++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 71 insertions(+), 5 deletions(-)
 
---- a/arch/x86/events/perf_event.h
-+++ b/arch/x86/events/perf_event.h
-@@ -792,9 +792,10 @@ void x86_pmu_stop(struct perf_event *eve
+--- a/drivers/net/usb/qmi_wwan.c
++++ b/drivers/net/usb/qmi_wwan.c
+@@ -22,6 +22,7 @@
+ #include <linux/usb/cdc.h>
+ #include <linux/usb/usbnet.h>
+ #include <linux/usb/cdc-wdm.h>
++#include <linux/u64_stats_sync.h>
  
- static inline void x86_pmu_disable_event(struct perf_event *event)
- {
-+	u64 disable_mask = __this_cpu_read(cpu_hw_events.perf_ctr_virt_mask);
- 	struct hw_perf_event *hwc = &event->hw;
+ /* This driver supports wwan (3G/LTE/?) devices using a vendor
+  * specific management protocol called Qualcomm MSM Interface (QMI) -
+@@ -74,6 +75,7 @@ struct qmimux_hdr {
+ struct qmimux_priv {
+ 	struct net_device *real_dev;
+ 	u8 mux_id;
++	struct pcpu_sw_netstats __percpu *stats64;
+ };
  
--	wrmsrl(hwc->config_base, hwc->config);
-+	wrmsrl(hwc->config_base, hwc->config & ~disable_mask);
+ static int qmimux_open(struct net_device *dev)
+@@ -100,19 +102,65 @@ static netdev_tx_t qmimux_start_xmit(str
+ 	struct qmimux_priv *priv = netdev_priv(dev);
+ 	unsigned int len = skb->len;
+ 	struct qmimux_hdr *hdr;
++	netdev_tx_t ret;
+ 
+ 	hdr = skb_push(skb, sizeof(struct qmimux_hdr));
+ 	hdr->pad = 0;
+ 	hdr->mux_id = priv->mux_id;
+ 	hdr->pkt_len = cpu_to_be16(len);
+ 	skb->dev = priv->real_dev;
+-	return dev_queue_xmit(skb);
++	ret = dev_queue_xmit(skb);
++
++	if (likely(ret == NET_XMIT_SUCCESS || ret == NET_XMIT_CN)) {
++		struct pcpu_sw_netstats *stats64 = this_cpu_ptr(priv->stats64);
++
++		u64_stats_update_begin(&stats64->syncp);
++		stats64->tx_packets++;
++		stats64->tx_bytes += len;
++		u64_stats_update_end(&stats64->syncp);
++	} else {
++		dev->stats.tx_dropped++;
++	}
++
++	return ret;
++}
++
++static void qmimux_get_stats64(struct net_device *net,
++			       struct rtnl_link_stats64 *stats)
++{
++	struct qmimux_priv *priv = netdev_priv(net);
++	unsigned int start;
++	int cpu;
++
++	netdev_stats_to_stats64(stats, &net->stats);
++
++	for_each_possible_cpu(cpu) {
++		struct pcpu_sw_netstats *stats64;
++		u64 rx_packets, rx_bytes;
++		u64 tx_packets, tx_bytes;
++
++		stats64 = per_cpu_ptr(priv->stats64, cpu);
++
++		do {
++			start = u64_stats_fetch_begin_irq(&stats64->syncp);
++			rx_packets = stats64->rx_packets;
++			rx_bytes = stats64->rx_bytes;
++			tx_packets = stats64->tx_packets;
++			tx_bytes = stats64->tx_bytes;
++		} while (u64_stats_fetch_retry_irq(&stats64->syncp, start));
++
++		stats->rx_packets += rx_packets;
++		stats->rx_bytes += rx_bytes;
++		stats->tx_packets += tx_packets;
++		stats->tx_bytes += tx_bytes;
++	}
  }
  
- void x86_pmu_enable_event(struct perf_event *event);
+ static const struct net_device_ops qmimux_netdev_ops = {
+-	.ndo_open       = qmimux_open,
+-	.ndo_stop       = qmimux_stop,
+-	.ndo_start_xmit = qmimux_start_xmit,
++	.ndo_open        = qmimux_open,
++	.ndo_stop        = qmimux_stop,
++	.ndo_start_xmit  = qmimux_start_xmit,
++	.ndo_get_stats64 = qmimux_get_stats64,
+ };
+ 
+ static void qmimux_setup(struct net_device *dev)
+@@ -197,8 +245,19 @@ static int qmimux_rx_fixup(struct usbnet
+ 		}
+ 
+ 		skb_put_data(skbn, skb->data + offset + qmimux_hdr_sz, pkt_len);
+-		if (netif_rx(skbn) != NET_RX_SUCCESS)
++		if (netif_rx(skbn) != NET_RX_SUCCESS) {
++			net->stats.rx_errors++;
+ 			return 0;
++		} else {
++			struct pcpu_sw_netstats *stats64;
++			struct qmimux_priv *priv = netdev_priv(net);
++
++			stats64 = this_cpu_ptr(priv->stats64);
++			u64_stats_update_begin(&stats64->syncp);
++			stats64->rx_packets++;
++			stats64->rx_bytes += pkt_len;
++			u64_stats_update_end(&stats64->syncp);
++		}
+ 
+ skip:
+ 		offset += len + qmimux_hdr_sz;
+@@ -222,6 +281,12 @@ static int qmimux_register_device(struct
+ 	priv->mux_id = mux_id;
+ 	priv->real_dev = real_dev;
+ 
++	priv->stats64 = netdev_alloc_pcpu_stats(struct pcpu_sw_netstats);
++	if (!priv->stats64) {
++		err = -ENOBUFS;
++		goto out_free_newdev;
++	}
++
+ 	err = register_netdevice(new_dev);
+ 	if (err < 0)
+ 		goto out_free_newdev;
+@@ -252,6 +317,7 @@ static void qmimux_unregister_device(str
+ 	struct qmimux_priv *priv = netdev_priv(dev);
+ 	struct net_device *real_dev = priv->real_dev;
+ 
++	free_percpu(priv->stats64);
+ 	netdev_upper_dev_unlink(real_dev, dev);
+ 	unregister_netdevice_queue(dev, head);
+ 
 
 
