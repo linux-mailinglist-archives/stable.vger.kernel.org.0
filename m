@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 48E763EB7E7
-	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:24:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43EEA3EB832
+	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:25:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241526AbhHMPJ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Aug 2021 11:09:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52218 "EHLO mail.kernel.org"
+        id S241932AbhHMPLw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Aug 2021 11:11:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241480AbhHMPJp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Aug 2021 11:09:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8758061106;
-        Fri, 13 Aug 2021 15:09:18 +0000 (UTC)
+        id S241740AbhHMPLK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Aug 2021 11:11:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B7BCD61151;
+        Fri, 13 Aug 2021 15:10:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628867359;
-        bh=BNVOFxvX0il4kbfEQONAmDN2s6eBOy/0xvJaczXebEk=;
+        s=korg; t=1628867444;
+        bh=zB0RXeS5YUJu8nzfU5POoJUkV7FzZnicIUJ/4k/aB0E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A6UVlQ8c1YTHQQKoY+1WawmMeyFIXAUpBXUbqmleK4Kf+POQ3HwHUXmzg9LhvDwMR
-         gFGoeADwp3zvZerCZAZBBVIW9h8gEecEOazi0jRfzTR/EOY9CK6Wwvbgth1KHiIMB2
-         /hOgOcuNyKtAhgOLMAZIcfxGfDDzo26Q6eBVAdz4=
+        b=gRyhn/64SsJPTlaajqX6b+7j8qGeOxi0PTu2Khyt1BIrRDKhljAQorj3TfqjViEOg
+         rHJnlrM62muvF4BT4UQR8h10EJwSfN1vuVkDsiJGmZtjD6q67M4WZKysZElf7iX1me
+         paCrn3MezHne0dmUwtEqcaK5BMkO6FW7j3WjHU+0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Bauer <mail@david-bauer.net>,
+        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
         Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 14/30] USB: serial: ftdi_sio: add device ID for Auto-M3 OP-COM v2
+Subject: [PATCH 4.14 16/42] USB: serial: option: add Telit FD980 composition 0x1056
 Date:   Fri, 13 Aug 2021 17:06:42 +0200
-Message-Id: <20210813150522.895786347@linuxfoundation.org>
+Message-Id: <20210813150525.649094437@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210813150522.445553924@linuxfoundation.org>
-References: <20210813150522.445553924@linuxfoundation.org>
+In-Reply-To: <20210813150525.098817398@linuxfoundation.org>
+References: <20210813150525.098817398@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,43 +39,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Bauer <mail@david-bauer.net>
+From: Daniele Palmas <dnlplm@gmail.com>
 
-commit 8da0e55c7988ef9f08a708c38e5c75ecd8862cf8 upstream.
+commit 5648c073c33d33a0a19d0cb1194a4eb88efe2b71 upstream.
 
-The Auto-M3 OP-COM v2 is a OBD diagnostic device using a FTD232 for the
-USB connection.
+Add the following Telit FD980 composition 0x1056:
 
-Signed-off-by: David Bauer <mail@david-bauer.net>
+Cfg #1: mass storage
+Cfg #2: rndis, tty, adb, tty, tty, tty, tty
+
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+Link: https://lore.kernel.org/r/20210803194711.3036-1-dnlplm@gmail.com
 Cc: stable@vger.kernel.org
 Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/ftdi_sio.c     |    1 +
- drivers/usb/serial/ftdi_sio_ids.h |    3 +++
- 2 files changed, 4 insertions(+)
+ drivers/usb/serial/option.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/usb/serial/ftdi_sio.c
-+++ b/drivers/usb/serial/ftdi_sio.c
-@@ -214,6 +214,7 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(FTDI_VID, FTDI_MTXORB_6_PID) },
- 	{ USB_DEVICE(FTDI_VID, FTDI_R2000KU_TRUE_RNG) },
- 	{ USB_DEVICE(FTDI_VID, FTDI_VARDAAN_PID) },
-+	{ USB_DEVICE(FTDI_VID, FTDI_AUTO_M3_OP_COM_V2_PID) },
- 	{ USB_DEVICE(MTXORB_VID, MTXORB_FTDI_RANGE_0100_PID) },
- 	{ USB_DEVICE(MTXORB_VID, MTXORB_FTDI_RANGE_0101_PID) },
- 	{ USB_DEVICE(MTXORB_VID, MTXORB_FTDI_RANGE_0102_PID) },
---- a/drivers/usb/serial/ftdi_sio_ids.h
-+++ b/drivers/usb/serial/ftdi_sio_ids.h
-@@ -158,6 +158,9 @@
- /* Vardaan Enterprises Serial Interface VEUSB422R3 */
- #define FTDI_VARDAAN_PID	0xF070
- 
-+/* Auto-M3 Ltd. - OP-COM USB V2 - OBD interface Adapter */
-+#define FTDI_AUTO_M3_OP_COM_V2_PID	0x4f50
-+
- /*
-  * Xsens Technologies BV products (http://www.xsens.com).
-  */
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1206,6 +1206,8 @@ static const struct usb_device_id option
+ 	  .driver_info = NCTRL(2) | RSVD(3) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1055, 0xff),	/* Telit FN980 (PCIe) */
+ 	  .driver_info = NCTRL(0) | RSVD(1) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1056, 0xff),	/* Telit FD980 */
++	  .driver_info = NCTRL(2) | RSVD(3) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910),
+ 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(3) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910_DUAL_MODEM),
 
 
