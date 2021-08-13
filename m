@@ -2,41 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B09E13EB87A
-	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:25:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E9943EB87C
+	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:25:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241694AbhHMPOB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Aug 2021 11:14:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55830 "EHLO mail.kernel.org"
+        id S242329AbhHMPOD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Aug 2021 11:14:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242173AbhHMPMw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Aug 2021 11:12:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 18C2E610CC;
-        Fri, 13 Aug 2021 15:12:21 +0000 (UTC)
+        id S241552AbhHMPM6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Aug 2021 11:12:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B396C6109D;
+        Fri, 13 Aug 2021 15:12:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628867542;
-        bh=zMa8bObyEZWsbHkAYGCl6zsMqOH6UdPbTXH632oq0xA=;
+        s=korg; t=1628867550;
+        bh=Od52IXyvexugMwGfpdEaOiKHyUAvu2kaZiXPFGgZKIA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NoX3MkWDVyHKjss6iKfDFkPd0fWCUDvFfdfjmQWsfCF1Qxb17TDI5Wu0JxZ9NJ77U
-         F32YeQTDzU/PJc3qZu7C+t4j0Pl7Qd0xxlD4op9D54RczzRXj7D7GMPdeX3BouRYS8
-         EAQ5TnMtlLvN72D6L8bTD//dIdgtKcUMSsmm3Bjc=
+        b=zd/q27fgANW/okYHqz0sjurhqdqpYkhAAHC73iMUwOQsbbOOMiEUoSvhgUG508Ftl
+         J0GmDhTKix7dSZ+QAP2vy3heLlvJlJLg+XhybewphXIbkh/tuGwLDXmWYRxn0j5Hjf
+         SNekIev4wgur+LOmlOWEVEBEvt54rmC6U77aZEvU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Lendacky <thomas.lendacky@amd.com>,
-        Brijesh Singh <brijesh.singh@amd.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 01/11] KVM: SVM: Fix off-by-one indexing when nullifying last used SEV VMCB
-Date:   Fri, 13 Aug 2021 17:07:08 +0200
-Message-Id: <20210813150520.119905151@linuxfoundation.org>
+        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 4.19 02/11] tracing: Reject string operand in the histogram expression
+Date:   Fri, 13 Aug 2021 17:07:09 +0200
+Message-Id: <20210813150520.153341889@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210813150520.072304554@linuxfoundation.org>
 References: <20210813150520.072304554@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -44,52 +39,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-[ Upstream commit 179c6c27bf487273652efc99acd3ba512a23c137 ]
+commit a9d10ca4986571bffc19778742d508cc8dd13e02 upstream.
 
-Use the raw ASID, not ASID-1, when nullifying the last used VMCB when
-freeing an SEV ASID.  The consumer, pre_sev_run(), indexes the array by
-the raw ASID, thus KVM could get a false negative when checking for a
-different VMCB if KVM manages to reallocate the same ASID+VMCB combo for
-a new VM.
+Since the string type can not be the target of the addition / subtraction
+operation, it must be rejected. Without this fix, the string type silently
+converted to digits.
 
-Note, this cannot cause a functional issue _in the current code_, as
-pre_sev_run() also checks which pCPU last did VMRUN for the vCPU, and
-last_vmentry_cpu is initialized to -1 during vCPU creation, i.e. is
-guaranteed to mismatch on the first VMRUN.  However, prior to commit
-8a14fe4f0c54 ("kvm: x86: Move last_cpu into kvm_vcpu_arch as
-last_vmentry_cpu"), SVM tracked pCPU on its own and zero-initialized the
-last_cpu variable.  Thus it's theoretically possible that older versions
-of KVM could miss a TLB flush if the first VMRUN is on pCPU0 and the ASID
-and VMCB exactly match those of a prior VM.
+Link: https://lkml.kernel.org/r/162742654278.290973.1523000673366456634.stgit@devnote2
 
-Fixes: 70cd94e60c73 ("KVM: SVM: VMRUN should use associated ASID when SEV is enabled")
-Cc: Tom Lendacky <thomas.lendacky@amd.com>
-Cc: Brijesh Singh <brijesh.singh@amd.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 100719dcef447 ("tracing: Add simple expression support to hist triggers")
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/svm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/trace/trace_events_hist.c |   14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
-index bd463d684237..72d729f34437 100644
---- a/arch/x86/kvm/svm.c
-+++ b/arch/x86/kvm/svm.c
-@@ -1780,7 +1780,7 @@ static void __sev_asid_free(int asid)
- 
- 	for_each_possible_cpu(cpu) {
- 		sd = per_cpu(svm_data, cpu);
--		sd->sev_vmcbs[pos] = NULL;
-+		sd->sev_vmcbs[asid] = NULL;
+--- a/kernel/trace/trace_events_hist.c
++++ b/kernel/trace/trace_events_hist.c
+@@ -2790,6 +2790,12 @@ static struct hist_field *parse_unary(st
+ 		ret = PTR_ERR(operand1);
+ 		goto free;
  	}
- }
++	if (operand1->flags & HIST_FIELD_FL_STRING) {
++		/* String type can not be the operand of unary operator. */
++		destroy_hist_field(operand1, 0);
++		ret = -EINVAL;
++		goto free;
++	}
  
--- 
-2.30.2
-
+ 	expr->flags |= operand1->flags &
+ 		(HIST_FIELD_FL_TIMESTAMP | HIST_FIELD_FL_TIMESTAMP_USECS);
+@@ -2890,6 +2896,10 @@ static struct hist_field *parse_expr(str
+ 		operand1 = NULL;
+ 		goto free;
+ 	}
++	if (operand1->flags & HIST_FIELD_FL_STRING) {
++		ret = -EINVAL;
++		goto free;
++	}
+ 
+ 	/* rest of string could be another expression e.g. b+c in a+b+c */
+ 	operand_flags = 0;
+@@ -2899,6 +2909,10 @@ static struct hist_field *parse_expr(str
+ 		operand2 = NULL;
+ 		goto free;
+ 	}
++	if (operand2->flags & HIST_FIELD_FL_STRING) {
++		ret = -EINVAL;
++		goto free;
++	}
+ 
+ 	ret = check_expr_operands(operand1, operand2);
+ 	if (ret)
 
 
