@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 44C523EB82C
-	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:25:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF9F03EB7E2
+	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:24:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241189AbhHMPLr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Aug 2021 11:11:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54656 "EHLO mail.kernel.org"
+        id S241471AbhHMPJv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Aug 2021 11:09:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52562 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241710AbhHMPLD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Aug 2021 11:11:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C9F96109E;
-        Fri, 13 Aug 2021 15:10:36 +0000 (UTC)
+        id S241472AbhHMPJk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Aug 2021 11:09:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E169C61102;
+        Fri, 13 Aug 2021 15:09:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628867436;
-        bh=BMkrYUd1x4/CkZQGRYspxSUXCQBLme0dkLHHzGJd4lg=;
+        s=korg; t=1628867353;
+        bh=F1kuFZrix86BV8DfaqEMT8nWdgM8JZ4M1liILQr2ZSE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yQi65YMlYCIy0eDZyNVk9VF1nF5IQ4VvpgrDC2UJIHw3dtMY5zKEfQ428xRXfdq0d
-         z5yzWk7Sr9+Q8Rny4Wuz7WeUMRwrFkwVGSlzTF8pkq3v1noX7CxBSi23lMDwCYJwOl
-         3riQxvdNn37KPr8rg5/Y9dECh6qru5r6zY/1USMM=
+        b=PKN5PUUDkpVX2mTKSlnlX/RG4zaNsc8q1te7y2zGpRZrGhr4o0cyml5pn9FgsQ2A9
+         ek1V787/RvHqxzeO+o+o5EKNC9GRFrWKiRoZcv3IMyyzx+pnw3ZCkpiCZWIvRxs4BJ
+         +8lYSWL5Wo26rrZXKd3jFGC0/Hdl1zT1OdlxI5ts=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Pavel Skripkin <paskripkin@gmail.com>,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 13/42] net: vxge: fix use-after-free in vxge_device_unregister
-Date:   Fri, 13 Aug 2021 17:06:39 +0200
-Message-Id: <20210813150525.548292376@linuxfoundation.org>
+        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.9 12/30] USB: serial: option: add Telit FD980 composition 0x1056
+Date:   Fri, 13 Aug 2021 17:06:40 +0200
+Message-Id: <20210813150522.834466197@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210813150525.098817398@linuxfoundation.org>
-References: <20210813150525.098817398@linuxfoundation.org>
+In-Reply-To: <20210813150522.445553924@linuxfoundation.org>
+References: <20210813150522.445553924@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,53 +39,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Daniele Palmas <dnlplm@gmail.com>
 
-[ Upstream commit 942e560a3d3862dd5dee1411dbdd7097d29b8416 ]
+commit 5648c073c33d33a0a19d0cb1194a4eb88efe2b71 upstream.
 
-Smatch says:
-drivers/net/ethernet/neterion/vxge/vxge-main.c:3518 vxge_device_unregister() error: Using vdev after free_{netdev,candev}(dev);
-drivers/net/ethernet/neterion/vxge/vxge-main.c:3518 vxge_device_unregister() error: Using vdev after free_{netdev,candev}(dev);
-drivers/net/ethernet/neterion/vxge/vxge-main.c:3520 vxge_device_unregister() error: Using vdev after free_{netdev,candev}(dev);
-drivers/net/ethernet/neterion/vxge/vxge-main.c:3520 vxge_device_unregister() error: Using vdev after free_{netdev,candev}(dev);
+Add the following Telit FD980 composition 0x1056:
 
-Since vdev pointer is netdev private data accessing it after free_netdev()
-call can cause use-after-free bug. Fix it by moving free_netdev() call at
-the end of the function
+Cfg #1: mass storage
+Cfg #2: rndis, tty, adb, tty, tty, tty, tty
 
-Fixes: 6cca200362b4 ("vxge: cleanup probe error paths")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Reviewed-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+Link: https://lore.kernel.org/r/20210803194711.3036-1-dnlplm@gmail.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/neterion/vxge/vxge-main.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/usb/serial/option.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/neterion/vxge/vxge-main.c b/drivers/net/ethernet/neterion/vxge/vxge-main.c
-index 50ea69d88480..e69e76bb2c77 100644
---- a/drivers/net/ethernet/neterion/vxge/vxge-main.c
-+++ b/drivers/net/ethernet/neterion/vxge/vxge-main.c
-@@ -3537,13 +3537,13 @@ static void vxge_device_unregister(struct __vxge_hw_device *hldev)
- 
- 	kfree(vdev->vpaths);
- 
--	/* we are safe to free it now */
--	free_netdev(dev);
--
- 	vxge_debug_init(vdev->level_trace, "%s: ethernet device unregistered",
- 			buf);
- 	vxge_debug_entryexit(vdev->level_trace,	"%s: %s:%d  Exiting...", buf,
- 			     __func__, __LINE__);
-+
-+	/* we are safe to free it now */
-+	free_netdev(dev);
- }
- 
- /*
--- 
-2.30.2
-
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1185,6 +1185,8 @@ static const struct usb_device_id option
+ 	  .driver_info = NCTRL(2) | RSVD(3) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1055, 0xff),	/* Telit FN980 (PCIe) */
+ 	  .driver_info = NCTRL(0) | RSVD(1) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1056, 0xff),	/* Telit FD980 */
++	  .driver_info = NCTRL(2) | RSVD(3) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910),
+ 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(3) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910_DUAL_MODEM),
 
 
