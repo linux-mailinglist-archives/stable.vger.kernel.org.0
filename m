@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C27D3EB820
-	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:25:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA1F43EB849
+	for <lists+stable@lfdr.de>; Fri, 13 Aug 2021 17:25:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241191AbhHMPLZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Aug 2021 11:11:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53688 "EHLO mail.kernel.org"
+        id S242166AbhHMPMv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Aug 2021 11:12:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241629AbhHMPKo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Aug 2021 11:10:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E1639610A5;
-        Fri, 13 Aug 2021 15:10:16 +0000 (UTC)
+        id S241848AbhHMPLu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Aug 2021 11:11:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D1966109E;
+        Fri, 13 Aug 2021 15:11:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1628867417;
-        bh=KYHJ93X0G7lvt/kCAoebzmmecjnuoK7JYIS4klWZ4Rc=;
+        s=korg; t=1628867484;
+        bh=i2zCazZeP+sT2YQiWWWFNaOJ/n/UKH3EC44jbWO8rzQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mY03BMepxkxH4xWKjtgwLf2k6quDHc18W3mgI6frSklUldnBSBwX5G0VE9++C+6PO
-         nXEnT5wO2VBiA8RXsaPlsORNLXbuI63UPxf30l2w+z6CtKMUG2rhrHyG1i9Q5HkWVs
-         ztm2nQ3Ch6fJLAu5TuvLQhhYzyLj9+u8KSUezJTE=
+        b=aGb8o3d80qqgsZmnMgi2N3/rC6mEmu9me0G1iM3yJu0FicloHYix1AIG21KlKXlGA
+         B4ul1j0AQOquO44lPTxsvHXgjakSNx1xmgH0UvXVazCNuXSn4IDBnq880UeoxyoW1W
+         JA0i4LA//waxEp1LVshQD3ag16rUN2ah8wiOv1/4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 28/30] ppp: Fix generating ppp unit id when ifname is not specified
-Date:   Fri, 13 Aug 2021 17:06:56 +0200
-Message-Id: <20210813150523.356054031@linuxfoundation.org>
+        stable@vger.kernel.org, Dongliang Mu <mudongliangabcd@gmail.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.14 31/42] spi: meson-spicc: fix memory leak in meson_spicc_remove
+Date:   Fri, 13 Aug 2021 17:06:57 +0200
+Message-Id: <20210813150526.149061469@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210813150522.445553924@linuxfoundation.org>
-References: <20210813150522.445553924@linuxfoundation.org>
+In-Reply-To: <20210813150525.098817398@linuxfoundation.org>
+References: <20210813150525.098817398@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,106 +39,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-commit 3125f26c514826077f2a4490b75e9b1c7a644c42 upstream.
+commit 8311ee2164c5cd1b63a601ea366f540eae89f10e upstream.
 
-When registering new ppp interface via PPPIOCNEWUNIT ioctl then kernel has
-to choose interface name as this ioctl API does not support specifying it.
+In meson_spicc_probe, the error handling code needs to clean up master
+by calling spi_master_put, but the remove function does not have this
+function call. This will lead to memory leak of spicc->master.
 
-Kernel in this case register new interface with name "ppp<id>" where <id>
-is the ppp unit id, which can be obtained via PPPIOCGUNIT ioctl. This
-applies also in the case when registering new ppp interface via rtnl
-without supplying IFLA_IFNAME.
-
-PPPIOCNEWUNIT ioctl allows to specify own ppp unit id which will kernel
-assign to ppp interface, in case this ppp id is not already used by other
-ppp interface.
-
-In case user does not specify ppp unit id then kernel choose the first free
-ppp unit id. This applies also for case when creating ppp interface via
-rtnl method as it does not provide a way for specifying own ppp unit id.
-
-If some network interface (does not have to be ppp) has name "ppp<id>"
-with this first free ppp id then PPPIOCNEWUNIT ioctl or rtnl call fails.
-
-And registering new ppp interface is not possible anymore, until interface
-which holds conflicting name is renamed. Or when using rtnl method with
-custom interface name in IFLA_IFNAME.
-
-As list of allocated / used ppp unit ids is not possible to retrieve from
-kernel to userspace, userspace has no idea what happens nor which interface
-is doing this conflict.
-
-So change the algorithm how ppp unit id is generated. And choose the first
-number which is not neither used as ppp unit id nor in some network
-interface with pattern "ppp<id>".
-
-This issue can be simply reproduced by following pppd call when there is no
-ppp interface registered and also no interface with name pattern "ppp<id>":
-
-    pppd ifname ppp1 +ipv6 noip noauth nolock local nodetach pty "pppd +ipv6 noip noauth nolock local nodetach notty"
-
-Or by creating the one ppp interface (which gets assigned ppp unit id 0),
-renaming it to "ppp1" and then trying to create a new ppp interface (which
-will always fails as next free ppp unit id is 1, but network interface with
-name "ppp1" exists).
-
-This patch fixes above described issue by generating new and new ppp unit
-id until some non-conflicting id with network interfaces is generated.
-
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Fixes: 454fa271bc4e("spi: Add Meson SPICC driver")
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Link: https://lore.kernel.org/r/20210720100116.1438974-1-mudongliangabcd@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ppp/ppp_generic.c |   19 +++++++++++++++----
- 1 file changed, 15 insertions(+), 4 deletions(-)
+ drivers/spi/spi-meson-spicc.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/net/ppp/ppp_generic.c
-+++ b/drivers/net/ppp/ppp_generic.c
-@@ -285,7 +285,7 @@ static struct channel *ppp_find_channel(
- static int ppp_connect_channel(struct channel *pch, int unit);
- static int ppp_disconnect_channel(struct channel *pch);
- static void ppp_destroy_channel(struct channel *pch);
--static int unit_get(struct idr *p, void *ptr);
-+static int unit_get(struct idr *p, void *ptr, int min);
- static int unit_set(struct idr *p, void *ptr, int n);
- static void unit_put(struct idr *p, int n);
- static void *unit_find(struct idr *p, int n);
-@@ -976,9 +976,20 @@ static int ppp_unit_register(struct ppp
- 	mutex_lock(&pn->all_ppp_mutex);
+--- a/drivers/spi/spi-meson-spicc.c
++++ b/drivers/spi/spi-meson-spicc.c
+@@ -599,6 +599,8 @@ static int meson_spicc_remove(struct pla
  
- 	if (unit < 0) {
--		ret = unit_get(&pn->units_idr, ppp);
-+		ret = unit_get(&pn->units_idr, ppp, 0);
- 		if (ret < 0)
- 			goto err;
-+		if (!ifname_is_set) {
-+			while (1) {
-+				snprintf(ppp->dev->name, IFNAMSIZ, "ppp%i", ret);
-+				if (!__dev_get_by_name(ppp->ppp_net, ppp->dev->name))
-+					break;
-+				unit_put(&pn->units_idr, ret);
-+				ret = unit_get(&pn->units_idr, ppp, ret + 1);
-+				if (ret < 0)
-+					goto err;
-+			}
-+		}
- 	} else {
- 		/* Caller asked for a specific unit number. Fail with -EEXIST
- 		 * if unavailable. For backward compatibility, return -EEXIST
-@@ -3265,9 +3276,9 @@ static int unit_set(struct idr *p, void
+ 	clk_disable_unprepare(spicc->core);
+ 
++	spi_master_put(spicc->master);
++
+ 	return 0;
  }
  
- /* get new free unit number and associate pointer with it */
--static int unit_get(struct idr *p, void *ptr)
-+static int unit_get(struct idr *p, void *ptr, int min)
- {
--	return idr_alloc(p, ptr, 0, 0, GFP_KERNEL);
-+	return idr_alloc(p, ptr, min, 0, GFP_KERNEL);
- }
- 
- /* put unit number back to a pool */
 
 
