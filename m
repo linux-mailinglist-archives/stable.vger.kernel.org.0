@@ -2,86 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 06CFF3EC53D
-	for <lists+stable@lfdr.de>; Sat, 14 Aug 2021 22:58:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 584C73EC611
+	for <lists+stable@lfdr.de>; Sun, 15 Aug 2021 01:57:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233665AbhHNU7Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 14 Aug 2021 16:59:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49758 "EHLO
+        id S233910AbhHNX5x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 14 Aug 2021 19:57:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233542AbhHNU7G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 14 Aug 2021 16:59:06 -0400
-Received: from mail-io1-xd41.google.com (mail-io1-xd41.google.com [IPv6:2607:f8b0:4864:20::d41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEEF5C0617AE
-        for <stable@vger.kernel.org>; Sat, 14 Aug 2021 13:58:36 -0700 (PDT)
-Received: by mail-io1-xd41.google.com with SMTP id q16so15601207ioj.0
-        for <stable@vger.kernel.org>; Sat, 14 Aug 2021 13:58:36 -0700 (PDT)
+        with ESMTP id S233549AbhHNX5x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 14 Aug 2021 19:57:53 -0400
+Received: from mail-lf1-x12e.google.com (mail-lf1-x12e.google.com [IPv6:2a00:1450:4864:20::12e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7264C0613CF
+        for <stable@vger.kernel.org>; Sat, 14 Aug 2021 16:57:23 -0700 (PDT)
+Received: by mail-lf1-x12e.google.com with SMTP id g13so27024075lfj.12
+        for <stable@vger.kernel.org>; Sat, 14 Aug 2021 16:57:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:sender:from:date:message-id:subject:to;
-        bh=Qdp0SHs3xmfRjgLIyqNwEa9EGz3sQom2u8TOqtBT/Zc=;
-        b=fNaXM/buWyAxno2iq+4pNfg4IOHWWazKStUnACTFA55Ofa67BJhkK3V0Ms8wnATJan
-         rSxXMnWw7Xu/89bi2Ourr3eCseFexgr9z/Jj5Rw2/KaGA4fXmPdeJW1u8tkvnkWGREuq
-         e1eE7QmpnZEvZ86yZgUqXBB6EzjSegAZwThKodM3YogpZ66JUeSK6fRdR5EWVhLVUgcO
-         T1Up5JR/TaGLc7IYMDL9JmxVUHV1KrYYnSfVQiZBKSm95+Latf8xgQvuDRx/0QNtuDsA
-         Nu33umpCuRI+2I04L1sTr1RGUu6tUvpJjPz7Keum5ZUQ2G9SkgBRuEy54iTzWBV7gBUz
-         IHFQ==
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=AdCTBaA9Glsngsdr3pyqLLw8trkmQt1Ycmzpqp2rJpw=;
+        b=e/lW3SLNmsYpcYIc6GcDc7pvq+Q6mq7u2fMlYfmvNMnyuJXZ2xHzVqUHrw56mZ5FDG
+         TkUFNCiD67GNgfiGQpjVVWhq7BLlwbPkjF0/xwk7Wyq874cWU4wF1o9vleD3BLxeEwr8
+         b9hb0JZsZQzLyBGtuWgkcX267qIYr6X6O4DE/vkBxAXLvtGikHBngeWp+8xJ7OeHOSyt
+         dXfBLnWqaaToDTNWFa6CPgtEsW9owDENSwByRvfi+fMNA1txKtZ6/r4nSJLH1GaY5bDa
+         CP4+T08/TWZE3ZngvkKIKt4cw73QEC28dAcUJOjGV3ShintdAgOW039XyIFtNd8gLfct
+         7H6w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
-         :to;
-        bh=Qdp0SHs3xmfRjgLIyqNwEa9EGz3sQom2u8TOqtBT/Zc=;
-        b=MLK8UWEDX3ruBdKZBAkots17jlvVz1CkDt+p4qhbV3byDSDMZn30kzrk/F3TE3PgX/
-         8dUWYYwnKiDp6eIEEAaWFKWsiWSKVaunb8ttrWK6UsfmbCSU5mZ4aN4vBTefIFr1aHEI
-         TW1QOJhUmpVlCTtWSd5nT2fbP2NkRsKYWtSKEbrB4utbOBAQz7ycQ3gHlehXfbnWd1Ar
-         QNMLsW9a1w14OUADc1kIgZA4f/50tFdRt18h0DG1hTwZr5N5WqcX15bg2CmK0IClJN33
-         bYb7kjkOl5mGt8EmvVdII+q67+0G61ugfzKNRAFoEPte2KDZjFzM6DYvuDbDKCLGcSM+
-         w1Pw==
-X-Gm-Message-State: AOAM531Kv5gHr/F0NUqQLmxv0DqnJ3/3hmtrY6t1JkNju/VbZmsw8Iae
-        IpPvAcAA9qSHwk9h9dx9wh7Mx+ALWs8FpBAVKdQ=
-X-Google-Smtp-Source: ABdhPJyJ0i0IuU4my+0WBZ4jrMePBPMOxupszlAjpL78GqfuLJQdodqR6a5wYyaVsUy2QiSZc5fzIu3i6RY7mJaK4+4=
-X-Received: by 2002:a05:6638:1928:: with SMTP id p40mr8345234jal.93.1628974716407;
- Sat, 14 Aug 2021 13:58:36 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=AdCTBaA9Glsngsdr3pyqLLw8trkmQt1Ycmzpqp2rJpw=;
+        b=Ho41GiS+LZzFtrIflR57ql3OV3styc3m3w0JoeU9uYabqSFHRKOT/Ax/uzaEnWm7t4
+         I8ZuNraIMeBDWa7kfPJU6UaSPboUTuMopPgTqRp3vaBk8T53ugG4q4PTh+sAnU179m0H
+         e1ORmaav4EV98MhXMjprDi+Kb8VWVny9EpMG56yqo4vNi+ad9MZTPXtce8ssbxhYOq2o
+         RSfbrAuhas8RplziVHO9nouRHBRHvjfnNzwzG9oc73Q5Y5i6sHVJ7cSVxmEEmGea5V7R
+         gG79Osj3gm1x5hrzouqO2w0omUMfwga5/hpEjd9EN56Gp5GCI4xcxXPV34zy0wF5Ewvs
+         MT/g==
+X-Gm-Message-State: AOAM531UDjj8NTm8t+EUSSRtdKQ+C9Wr+rb++pa6ghidAP6Ud2DOojTc
+        dRVOz5m77vidqccDPqJdk4Ic6A==
+X-Google-Smtp-Source: ABdhPJzRYfv9UC4yMQI18Os6alKkBllw2NKdWdS6zHwQqviF6jL9LueVoa7ThERx4a6dz17oo6KTZg==
+X-Received: by 2002:a05:6512:3c9d:: with SMTP id h29mr6561804lfv.600.1628985442064;
+        Sat, 14 Aug 2021 16:57:22 -0700 (PDT)
+Received: from localhost.localdomain (c-fdcc225c.014-348-6c756e10.bbcust.telenor.se. [92.34.204.253])
+        by smtp.gmail.com with ESMTPSA id 13sm441727ljf.110.2021.08.14.16.57.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 14 Aug 2021 16:57:21 -0700 (PDT)
+From:   Linus Walleij <linus.walleij@linaro.org>
+To:     Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>
+Cc:     linux-clk@vger.kernel.org,
+        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
+        Chris Packham <chris.packham@alliedtelesis.co.nz>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+Subject: [PATCH] clk: kirkwood: Fix a clocking boot regression
+Date:   Sun, 15 Aug 2021 01:55:14 +0200
+Message-Id: <20210814235514.403426-1-linus.walleij@linaro.org>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-Sender: quaidsaeed1@gmail.com
-Received: by 2002:a05:6638:295:0:0:0:0 with HTTP; Sat, 14 Aug 2021 13:58:35
- -0700 (PDT)
-From:   "Mrs.Nicole  Marois" <nicole1563marois@gmail.com>
-Date:   Sat, 14 Aug 2021 20:58:35 +0000
-X-Google-Sender-Auth: BPf6FWlcpaYXojF9d9rraBHgTuA
-Message-ID: <CANPkrTNE7Y8N9R1tw+mTv8gKm2WhUavQigqevQK+0QPvB3bn+Q@mail.gmail.com>
-Subject: Hello Dear,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello Dear,
+Since a few kernel releases the Pogoplug 4 has crashed like this
+during boot:
 
-Please do not feel disturbed for contacting you, based on the critical
-condition I find mine self though, it's not financial problem, but my
-health you might have know that cancer is not what to talk home about,
-I am married to Mr.Duclos Marois who worked with Tunisia embassy in
-Burkina Faso for nine years before he died in the year 2012.We were
-married for eleven years without a child. He died after a brief
-illness that lasted for five days.
+Unable to handle kernel NULL pointer dereference at virtual address 00000002
+(...)
+[<c04116ec>] (strlen) from [<c00ead80>] (kstrdup+0x1c/0x4c)
+[<c00ead80>] (kstrdup) from [<c04591d8>] (__clk_register+0x44/0x37c)
+[<c04591d8>] (__clk_register) from [<c04595ec>] (clk_hw_register+0x20/0x44)
+[<c04595ec>] (clk_hw_register) from [<c045bfa8>] (__clk_hw_register_mux+0x198/0x1e4)
+[<c045bfa8>] (__clk_hw_register_mux) from [<c045c050>] (clk_register_mux_table+0x5c/0x6c)
+[<c045c050>] (clk_register_mux_table) from [<c0acf3e0>] (kirkwood_clk_muxing_setup.constprop.0+0x13c/0x1ac)
+[<c0acf3e0>] (kirkwood_clk_muxing_setup.constprop.0) from [<c0aceae0>] (of_clk_init+0x12c/0x214)
+[<c0aceae0>] (of_clk_init) from [<c0ab576c>] (time_init+0x20/0x2c)
+[<c0ab576c>] (time_init) from [<c0ab3d18>] (start_kernel+0x3dc/0x56c)
+[<c0ab3d18>] (start_kernel) from [<00000000>] (0x0)
+Code: e3130020 1afffffb e12fff1e c08a1078 (e5d03000)
 
-Since his death I decided not to remarry, When my late husband was
-alive he deposited the sum of US$ 9.2m (Nine million two hundred
-thousand dollars) in a bank in Burkina Faso, Presently this money is
-still in bank. And My Doctor told me that I don't have much time to
-live because of the cancer problem, Having known my condition I
-decided to hand you over this fond to take care of the less-privileged
-people, you will utilize this money the way I am going to instruct
-herein. I want you to take 30 Percent of the total money for your
-personal use While 70% of the money will go to charity" people and
-helping the orphanage.
+This is because the "powersave" mux clock 0 was provided in an unterminated
+array, which is required by the loop in the driver:
 
-I don't want my husband's efforts to be used by the Government. I grew
-up as an Orphan and I don't have anybody as my family member,
+        /* Count, allocate, and register clock muxes */
+        for (n = 0; desc[n].name;)
+                n++;
 
-Regards,
+Here n will go out of bounds and then call clk_register_mux() on random
+memory contents after the mux clock.
 
-Mrs.Nicole Marois.
-written from Hospital.
+Fix this by terminating the array with a blank entry.
+
+Fixes: 105299381d87 ("cpufreq: kirkwood: use the powersave multiplexer")
+Cc: stable@vger.kernel.org
+Cc: Andrew Lunn <andrew@lunn.ch>
+Cc: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Cc: Gregory CLEMENT <gregory.clement@bootlin.com>
+Cc: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+---
+ drivers/clk/mvebu/kirkwood.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/clk/mvebu/kirkwood.c b/drivers/clk/mvebu/kirkwood.c
+index 47680237d0be..43b31af3a2ce 100644
+--- a/drivers/clk/mvebu/kirkwood.c
++++ b/drivers/clk/mvebu/kirkwood.c
+@@ -265,6 +265,7 @@ static const char *powersave_parents[] = {
+ static const struct clk_muxing_soc_desc kirkwood_mux_desc[] __initconst = {
+ 	{ "powersave", powersave_parents, ARRAY_SIZE(powersave_parents),
+ 		11, 1, 0 },
++	{ },
+ };
+ 
+ static struct clk *clk_muxing_get_src(
+-- 
+2.31.1
+
