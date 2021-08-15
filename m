@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A59BF3EC91C
-	for <lists+stable@lfdr.de>; Sun, 15 Aug 2021 14:42:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8AEC3EC91F
+	for <lists+stable@lfdr.de>; Sun, 15 Aug 2021 14:44:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237977AbhHOMnO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Aug 2021 08:43:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44286 "EHLO mail.kernel.org"
+        id S237569AbhHOMoh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Aug 2021 08:44:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229603AbhHOMnO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 15 Aug 2021 08:43:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F13461152;
-        Sun, 15 Aug 2021 12:42:43 +0000 (UTC)
+        id S235540AbhHOMoh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 15 Aug 2021 08:44:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D30E61154;
+        Sun, 15 Aug 2021 12:44:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629031364;
-        bh=VhC22Lo5oK9DOxy2TczGxObSpbuaLoj/Oow+q8ieS2M=;
+        s=korg; t=1629031447;
+        bh=HQ+z8cuCQGbOMUHgTIZw7DuvsjAOKVprfawEOtowlXQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=YRRcM+v6FezW8F+r9SWoGKEQLehFTM0NSbuI6qBXzZPVCSKmPkBChSO+/RSzthaBp
-         O6zGDEg7GYEoir3hU+zcv0EorewHBH8xv4DNc7NroIQWR1Ynr+fUs3P5yeG0M45ZqC
-         1zTMNvHeSQYgwqYSCa6jF+LkS6uyRM17EBflNras=
-Subject: FAILED: patch "[PATCH] drm/i915/display: Fix the 12 BPC bits for PIPE_MISC reg" failed to apply to 4.9-stable tree
-To:     ankit.k.nautiyal@intel.com, daniel.vetter@ffwll.ch,
-        jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com,
-        paulo.r.zanoni@intel.com, rodrigo.vivi@intel.com,
-        stable@vger.kernel.org, uma.shankar@intel.com,
-        ville.syrjala@linux.intel.com
+        b=PGhb635FDMz1FAWU23wxNwI01+AUmQWR2avJMa0su4oPvddZynmvoLeFj0g7+sEUM
+         qbTHlDdirekRsHSQ4ywTbhVpzt4Y47RYAQezZmFslfJLV8OJ6Va9ogL4q1iaxvgxiV
+         +XZ45CAv3qnxm0kk+Ylhndk5OCNPTTwIIl5w4I70=
+Subject: FAILED: patch "[PATCH] drm/amd/pm: bug fix for the runtime pm BACO" failed to apply to 5.10-stable tree
+To:     kenneth.feng@amd.com, Jack.Gui@amd.com, alexander.deucher@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 15 Aug 2021 14:42:37 +0200
-Message-ID: <162903135725360@kroah.com>
+Date:   Sun, 15 Aug 2021 14:44:05 +0200
+Message-ID: <162903144524353@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -49,133 +45,32 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From abd9d66a055722393d33685214c08386694871d7 Mon Sep 17 00:00:00 2001
-From: Ankit Nautiyal <ankit.k.nautiyal@intel.com>
-Date: Wed, 11 Aug 2021 10:48:57 +0530
-Subject: [PATCH] drm/i915/display: Fix the 12 BPC bits for PIPE_MISC reg
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From 3042f80c6cb9340354dc56ecb06473be57adc432 Mon Sep 17 00:00:00 2001
+From: Kenneth Feng <kenneth.feng@amd.com>
+Date: Fri, 6 Aug 2021 10:28:04 +0800
+Subject: [PATCH] drm/amd/pm: bug fix for the runtime pm BACO
 
-Till DISPLAY12 the PIPE_MISC bits 5-7 are used to set the
-Dithering BPC, with valid values of 6, 8, 10 BPC.
-For ADLP+ these bits are used to set the PORT OUTPUT BPC, with valid
-values of: 6, 8, 10, 12 BPC, and need to be programmed whether
-dithering is enabled or not.
+In some systems only MACO is supported. This is to fix the problem
+that runtime pm is enabled but BACO is not supported. MACO will be
+handled seperately.
 
-This patch:
--corrects the bits 5-7 for PIPE MISC register for 12 BPC.
--renames the bits and mask to have generic names for these bits for
-dithering bpc and port output bpc.
+Signed-off-by: Kenneth Feng <kenneth.feng@amd.com>
+Reviewed-by: Jack Gui <Jack.Gui@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 
-v3: Added a note for MIPI DSI which uses the PIPE_MISC for readout
-for pipe_bpp. (Uma Shankar)
-
-v2: Added 'display' to the subject and fixes tag. (Uma Shankar)
-
-Fixes: 756f85cffef2 ("drm/i915/bdw: Broadwell has PIPEMISC")
-Cc: Paulo Zanoni <paulo.r.zanoni@intel.com> (v1)
-Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Jani Nikula <jani.nikula@linux.intel.com>
-Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Cc: intel-gfx@lists.freedesktop.org
-Cc: <stable@vger.kernel.org> # v3.13+
-
-Signed-off-by: Ankit Nautiyal <ankit.k.nautiyal@intel.com>
-Reviewed-by: Uma Shankar <uma.shankar@intel.com>
-Signed-off-by: Uma Shankar <uma.shankar@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210811051857.109723-1-ankit.k.nautiyal@intel.com
-(cherry picked from commit 70418a68713c13da3f36c388087d0220b456a430)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-
-diff --git a/drivers/gpu/drm/i915/display/intel_display.c b/drivers/gpu/drm/i915/display/intel_display.c
-index 2d5d21740c25..0a8a2395c8ac 100644
---- a/drivers/gpu/drm/i915/display/intel_display.c
-+++ b/drivers/gpu/drm/i915/display/intel_display.c
-@@ -5746,16 +5746,18 @@ static void bdw_set_pipemisc(const struct intel_crtc_state *crtc_state)
+diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c
+index c751f717a0da..d92dd2c7448e 100644
+--- a/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c
++++ b/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c
+@@ -353,8 +353,7 @@ static void sienna_cichlid_check_bxco_support(struct smu_context *smu)
+ 	struct amdgpu_device *adev = smu->adev;
+ 	uint32_t val;
  
- 	switch (crtc_state->pipe_bpp) {
- 	case 18:
--		val |= PIPEMISC_DITHER_6_BPC;
-+		val |= PIPEMISC_6_BPC;
- 		break;
- 	case 24:
--		val |= PIPEMISC_DITHER_8_BPC;
-+		val |= PIPEMISC_8_BPC;
- 		break;
- 	case 30:
--		val |= PIPEMISC_DITHER_10_BPC;
-+		val |= PIPEMISC_10_BPC;
- 		break;
- 	case 36:
--		val |= PIPEMISC_DITHER_12_BPC;
-+		/* Port output 12BPC defined for ADLP+ */
-+		if (DISPLAY_VER(dev_priv) > 12)
-+			val |= PIPEMISC_12_BPC_ADLP;
- 		break;
- 	default:
- 		MISSING_CASE(crtc_state->pipe_bpp);
-@@ -5808,15 +5810,27 @@ int bdw_get_pipemisc_bpp(struct intel_crtc *crtc)
- 
- 	tmp = intel_de_read(dev_priv, PIPEMISC(crtc->pipe));
- 
--	switch (tmp & PIPEMISC_DITHER_BPC_MASK) {
--	case PIPEMISC_DITHER_6_BPC:
-+	switch (tmp & PIPEMISC_BPC_MASK) {
-+	case PIPEMISC_6_BPC:
- 		return 18;
--	case PIPEMISC_DITHER_8_BPC:
-+	case PIPEMISC_8_BPC:
- 		return 24;
--	case PIPEMISC_DITHER_10_BPC:
-+	case PIPEMISC_10_BPC:
- 		return 30;
--	case PIPEMISC_DITHER_12_BPC:
--		return 36;
-+	/*
-+	 * PORT OUTPUT 12 BPC defined for ADLP+.
-+	 *
-+	 * TODO:
-+	 * For previous platforms with DSI interface, bits 5:7
-+	 * are used for storing pipe_bpp irrespective of dithering.
-+	 * Since the value of 12 BPC is not defined for these bits
-+	 * on older platforms, need to find a workaround for 12 BPC
-+	 * MIPI DSI HW readout.
-+	 */
-+	case PIPEMISC_12_BPC_ADLP:
-+		if (DISPLAY_VER(dev_priv) > 12)
-+			return 36;
-+		fallthrough;
- 	default:
- 		MISSING_CASE(tmp);
- 		return 0;
-diff --git a/drivers/gpu/drm/i915/i915_reg.h b/drivers/gpu/drm/i915/i915_reg.h
-index 41186c1f771e..476bb3b9ad11 100644
---- a/drivers/gpu/drm/i915/i915_reg.h
-+++ b/drivers/gpu/drm/i915/i915_reg.h
-@@ -6163,11 +6163,17 @@ enum {
- #define   PIPEMISC_HDR_MODE_PRECISION	(1 << 23) /* icl+ */
- #define   PIPEMISC_OUTPUT_COLORSPACE_YUV  (1 << 11)
- #define   PIPEMISC_PIXEL_ROUNDING_TRUNC	REG_BIT(8) /* tgl+ */
--#define   PIPEMISC_DITHER_BPC_MASK	(7 << 5)
--#define   PIPEMISC_DITHER_8_BPC		(0 << 5)
--#define   PIPEMISC_DITHER_10_BPC	(1 << 5)
--#define   PIPEMISC_DITHER_6_BPC		(2 << 5)
--#define   PIPEMISC_DITHER_12_BPC	(3 << 5)
-+/*
-+ * For Display < 13, Bits 5-7 of PIPE MISC represent DITHER BPC with
-+ * valid values of: 6, 8, 10 BPC.
-+ * ADLP+, the bits 5-7 represent PORT OUTPUT BPC with valid values of:
-+ * 6, 8, 10, 12 BPC.
-+ */
-+#define   PIPEMISC_BPC_MASK		(7 << 5)
-+#define   PIPEMISC_8_BPC		(0 << 5)
-+#define   PIPEMISC_10_BPC		(1 << 5)
-+#define   PIPEMISC_6_BPC		(2 << 5)
-+#define   PIPEMISC_12_BPC_ADLP		(4 << 5) /* adlp+ */
- #define   PIPEMISC_DITHER_ENABLE	(1 << 4)
- #define   PIPEMISC_DITHER_TYPE_MASK	(3 << 2)
- #define   PIPEMISC_DITHER_TYPE_SP	(0 << 2)
+-	if (powerplay_table->platform_caps & SMU_11_0_7_PP_PLATFORM_CAP_BACO ||
+-	    powerplay_table->platform_caps & SMU_11_0_7_PP_PLATFORM_CAP_MACO) {
++	if (powerplay_table->platform_caps & SMU_11_0_7_PP_PLATFORM_CAP_BACO) {
+ 		val = RREG32_SOC15(NBIO, 0, mmRCC_BIF_STRAP0);
+ 		smu_baco->platform_support =
+ 			(val & RCC_BIF_STRAP0__STRAP_PX_CAPABLE_MASK) ? true :
 
