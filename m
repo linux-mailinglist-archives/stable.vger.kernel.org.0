@@ -2,172 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 626DE3EC964
-	for <lists+stable@lfdr.de>; Sun, 15 Aug 2021 15:50:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89BAA3EC970
+	for <lists+stable@lfdr.de>; Sun, 15 Aug 2021 15:57:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233252AbhHONvU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Aug 2021 09:51:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34456 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231881AbhHONvT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 15 Aug 2021 09:51:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C27A60EB5;
-        Sun, 15 Aug 2021 13:50:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629035449;
-        bh=H/c7EzkdVLKtQIiUkbVhOkcryCB79SOj6w4PKhpUXcg=;
-        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
-        b=L78uxsleke8jIPJ1ik/I6yenpRmSpAMuQhkseJki2T2tuTY7RDcLPMBBDnWq+wrM+
-         kopuL3wYxwU1ZScfC/6FRf6BY2lH+jS16ggr5gcnFRyYQULV/bB6XkzJS65+z9/eSv
-         p1e7INkpQU1x96IRA1DtdigemnOWly0muERWKrMSC9+NBbVx+BVxHyNO8p28YS6Cv8
-         6KvYRiIGnGiV0kzJ7rA+Ge5/1h0uvkDAuvHmDaTCIbxcH/UvXAC5cSiaf1uAK6fnmk
-         M8LwQFSYjszRwCCZQC8HVV5zMwNgFUYMbB8SC16q+PXr7tK8KYSUaElaXCaG1UATHN
-         L6kBSEug3cibQ==
-Message-ID: <97e1f7dfb46c148144eca610c7b4cc50de948fcf.camel@kernel.org>
-Subject: Re: FAILED: patch "[PATCH] ceph: take snap_empty_lock atomically
- with snaprealm refcount" failed to apply to 5.13-stable tree
-From:   Jeff Layton <jlayton@kernel.org>
-To:     gregkh@linuxfoundation.org, idryomov@gmail.com, lhenriques@suse.de,
-        mnelson@redhat.com
-Cc:     stable@vger.kernel.org
-Date:   Sun, 15 Aug 2021 09:50:48 -0400
-In-Reply-To: <162903121195232@kroah.com>
-References: <162903121195232@kroah.com>
-Content-Type: text/plain; charset="ISO-8859-15"
-User-Agent: Evolution 3.40.3 (3.40.3-1.fc34) 
+        id S234407AbhHON56 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Aug 2021 09:57:58 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:31469 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231881AbhHON55 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 15 Aug 2021 09:57:57 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1629035847;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=z+FVfSl1vem65U43CNnC7At1r0k8wQFh2G3xl/DpsqI=;
+        b=DMxqqPp+OeKlEEeRN+WHTNlSMBAy0VZih9t4o+s1ziyVZn+IHPKjvON5W0nDh3XrJ+OoYZ
+        YbWml0SUNIFZFUWJsPvp7/GHo7MWr4jxN4EYYDDTQ7mFcLAH7978QOWzcnKJX5Lc9H0KmK
+        X3rx6575tvU8ESAYZA0AN2YGtPPbdXY=
+Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
+ [209.85.208.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-360-Gl4WouwGN4eqpd-JS_MrsA-1; Sun, 15 Aug 2021 09:57:26 -0400
+X-MC-Unique: Gl4WouwGN4eqpd-JS_MrsA-1
+Received: by mail-ed1-f71.google.com with SMTP id x24-20020aa7dad8000000b003bed477317eso1271377eds.18
+        for <stable@vger.kernel.org>; Sun, 15 Aug 2021 06:57:25 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=z+FVfSl1vem65U43CNnC7At1r0k8wQFh2G3xl/DpsqI=;
+        b=jA/r9RDc3ruUrfJ6O3ZGNVPruLYKHN0gGyLOqoKDSRgDsH3T6/dbEqKbwc2dlkAwQB
+         uO1pHK/dHaXaZj6o/KXmG+vB9t8oDOw7Afr+7ZfvYw2yvSJ9wtkc7kMte5OgKNv+6tDK
+         rW9814hJtKciiOlg/PGspMy9vxwI/35cFlw+iTpv3bUPD1yGE5DGxZHeoMCKp7/15kH9
+         L+y3u2KNpwX9aTTQcYVWk6st0LCfWVo3LbZpGccxorQHwsWqLTeiMvtdQIctCniv46cO
+         JSZlbj3NT5jDKUgfm8qR96dVmbAOh5sCilwknh4hlVC/s+hpF7Nb/QLJzsAbZvURoAFh
+         9iMg==
+X-Gm-Message-State: AOAM530uBkcMdJ+Aq+P7mijXPl3x9jxo+8ZE+dpzrz1pd4tkzvIv+8Uo
+        Un+fEKWxw07k+PZpj+7RcRNnR1Ne4JDXlaSMGzL4krscPHap25Cud7SsHmh+Ir9el9pewX79HGv
+        u2tJag3DLxuX/kytM
+X-Received: by 2002:a05:6402:1a45:: with SMTP id bf5mr14393017edb.169.1629035845007;
+        Sun, 15 Aug 2021 06:57:25 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxLX3Yr9Fwj+3Wtl5Zf6O/XficUHUKs2h7TQ6NiRxBlG99y8ta+Fc76Qclsr6Kn8X5xkcetpQ==
+X-Received: by 2002:a05:6402:1a45:: with SMTP id bf5mr14393012edb.169.1629035844887;
+        Sun, 15 Aug 2021 06:57:24 -0700 (PDT)
+Received: from x1.localdomain (2001-1c00-0c1e-bf00-1054-9d19-e0f0-8214.cable.dynamic.v6.ziggo.nl. [2001:1c00:c1e:bf00:1054:9d19:e0f0:8214])
+        by smtp.gmail.com with ESMTPSA id h10sm3478652edb.74.2021.08.15.06.57.24
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 15 Aug 2021 06:57:24 -0700 (PDT)
+Subject: Re: [PATCH 5.10 12/19] vboxsf: Make vboxsf_dir_create() return the
+ handle for the created file
+To:     Pavel Machek <pavel@ucw.cz>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+References: <20210813150522.623322501@linuxfoundation.org>
+ <20210813150523.032839314@linuxfoundation.org>
+ <20210813193158.GA21328@duo.ucw.cz>
+From:   Hans de Goede <hdegoede@redhat.com>
+Message-ID: <26feedff-0fb4-01db-c809-81c932336b47@redhat.com>
+Date:   Sun, 15 Aug 2021 15:57:24 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
+In-Reply-To: <20210813193158.GA21328@duo.ucw.cz>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, 2021-08-15 at 14:40 +0200, gregkh@linuxfoundation.org wrote:
-> The patch below does not apply to the 5.13-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
-> 
-> thanks,
-> 
-> greg k-h
-> 
-> ------------------ original commit in Linus's tree ------------------
-> 
-> From 8434ffe71c874b9c4e184b88d25de98c2bf5fe3f Mon Sep 17 00:00:00 2001
-> From: Jeff Layton <jlayton@kernel.org>
-> Date: Tue, 3 Aug 2021 12:47:34 -0400
-> Subject: [PATCH] ceph: take snap_empty_lock atomically with snaprealm refcount
->  change
-> 
-> There is a race in ceph_put_snap_realm. The change to the nref and the
-> spinlock acquisition are not done atomically, so you could decrement
-> nref, and before you take the spinlock, the nref is incremented again.
-> At that point, you end up putting it on the empty list when it
-> shouldn't be there. Eventually __cleanup_empty_realms runs and frees
-> it when it's still in-use.
-> 
-> Fix this by protecting the 1->0 transition with atomic_dec_and_lock,
-> and just drop the spinlock if we can get the rwsem.
-> 
-> Because these objects can also undergo a 0->1 refcount transition, we
-> must protect that change as well with the spinlock. Increment locklessly
-> unless the value is at 0, in which case we take the spinlock, increment
-> and then take it off the empty list if it did the 0->1 transition.
-> 
-> With these changes, I'm removing the dout() messages from these
-> functions, as well as in __put_snap_realm. They've always been racy, and
-> it's better to not print values that may be misleading.
-> 
-> Cc: stable@vger.kernel.org
-> URL: https://tracker.ceph.com/issues/46419
-> Reported-by: Mark Nelson <mnelson@redhat.com>
-> Signed-off-by: Jeff Layton <jlayton@kernel.org>
-> Reviewed-by: Luis Henriques <lhenriques@suse.de>
-> Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
-> 
-> diff --git a/fs/ceph/snap.c b/fs/ceph/snap.c
-> index 4ac0606dcbd4..4c6bd1042c94 100644
-> --- a/fs/ceph/snap.c
-> +++ b/fs/ceph/snap.c
-> @@ -67,19 +67,19 @@ void ceph_get_snap_realm(struct ceph_mds_client *mdsc,
->  {
->  	lockdep_assert_held(&mdsc->snap_rwsem);
->  
-> -	dout("get_realm %p %d -> %d\n", realm,
-> -	     atomic_read(&realm->nref), atomic_read(&realm->nref)+1);
->  	/*
-> -	 * since we _only_ increment realm refs or empty the empty
-> -	 * list with snap_rwsem held, adjusting the empty list here is
-> -	 * safe.  we do need to protect against concurrent empty list
-> -	 * additions, however.
-> +	 * The 0->1 and 1->0 transitions must take the snap_empty_lock
-> +	 * atomically with the refcount change. Go ahead and bump the
-> +	 * nref here, unless it's 0, in which case we take the spinlock
-> +	 * and then do the increment and remove it from the list.
->  	 */
-> -	if (atomic_inc_return(&realm->nref) == 1) {
-> -		spin_lock(&mdsc->snap_empty_lock);
-> +	if (atomic_inc_not_zero(&realm->nref))
-> +		return;
-> +
-> +	spin_lock(&mdsc->snap_empty_lock);
-> +	if (atomic_inc_return(&realm->nref) == 1)
->  		list_del_init(&realm->empty_item);
-> -		spin_unlock(&mdsc->snap_empty_lock);
-> -	}
-> +	spin_unlock(&mdsc->snap_empty_lock);
->  }
->  
->  static void __insert_snap_realm(struct rb_root *root,
-> @@ -208,28 +208,28 @@ static void __put_snap_realm(struct ceph_mds_client *mdsc,
->  {
->  	lockdep_assert_held_write(&mdsc->snap_rwsem);
->  
-> -	dout("__put_snap_realm %llx %p %d -> %d\n", realm->ino, realm,
-> -	     atomic_read(&realm->nref), atomic_read(&realm->nref)-1);
-> +	/*
-> +	 * We do not require the snap_empty_lock here, as any caller that
-> +	 * increments the value must hold the snap_rwsem.
-> +	 */
->  	if (atomic_dec_and_test(&realm->nref))
->  		__destroy_snap_realm(mdsc, realm);
->  }
->  
->  /*
-> - * caller needn't hold any locks
-> + * See comments in ceph_get_snap_realm. Caller needn't hold any locks.
->   */
->  void ceph_put_snap_realm(struct ceph_mds_client *mdsc,
->  			 struct ceph_snap_realm *realm)
->  {
-> -	dout("put_snap_realm %llx %p %d -> %d\n", realm->ino, realm,
-> -	     atomic_read(&realm->nref), atomic_read(&realm->nref)-1);
-> -	if (!atomic_dec_and_test(&realm->nref))
-> +	if (!atomic_dec_and_lock(&realm->nref, &mdsc->snap_empty_lock))
->  		return;
->  
->  	if (down_write_trylock(&mdsc->snap_rwsem)) {
-> +		spin_unlock(&mdsc->snap_empty_lock);
->  		__destroy_snap_realm(mdsc, realm);
->  		up_write(&mdsc->snap_rwsem);
->  	} else {
-> -		spin_lock(&mdsc->snap_empty_lock);
->  		list_add(&realm->empty_item, &mdsc->snap_empty);
->  		spin_unlock(&mdsc->snap_empty_lock);
->  	}
-> 
+Hi,
 
-Ahh, I forgot to account for some new lockdep annotation when I marked
-these for stable. I think what we should probably do here is cherry-pick
-these as prerequisites before applying:
+On 8/13/21 9:31 PM, Pavel Machek wrote:
+> Hi!
+> 
+>> commit ab0c29687bc7a890d1a86ac376b0b0fd78b2d9b6 upstream
+>>
+>> Make vboxsf_dir_create() optionally return the vboxsf-handle for
+>> the created file. This is a preparation patch for adding atomic_open
+>> support.
+> 
+> Follow up commits using this functionality are in 5.13 but not in
+> 5.10, so I believe we don't need this in 5.10, either?
+> 
+> (Plus someone familiar with the code should check if we need "vboxsf:
+> Honor excl flag to the dir-inode create op" in 5.10; it may have same
+> problem).
 
-    a6862e6708c1 ceph: add some lockdep assertions around snaprealm handling
-    df2c0cb7f8e8 ceph: clean up locking annotation for ceph_get_snap_realm and __lookup_snap_realm
+Actually those follow up commits fix an actual bug, so I was expecting
+the person who did the backport to also submit the rest of the set.
 
-The first one should fix up the merge conflict, and the second will fix
-up a couple of bogus lockdep warnings that pop up from a6862e6708c1.
+FWIW having these patches in but not the cannot hurt.
 
-Greg, does that sound OK? 
--- 
-Jeff Layton <jlayton@kernel.org>
+Hopefully the rest applies cleanly, I don't know.
+
+To be clear I'm talking about also adding the following to patches
+to 5.10.y:
+
+02f840f90764 ("vboxsf: Add vboxsf_[create|release]_sf_handle() helpers")
+52dfd86aa568 ("vboxsf: Add support for the atomic_open directory-inode op")
+
+I have no idea of these will apply cleanly.
+
+Regards,
+
+Hans
+
 
