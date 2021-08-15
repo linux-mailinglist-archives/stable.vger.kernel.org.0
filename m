@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BFB933EC922
-	for <lists+stable@lfdr.de>; Sun, 15 Aug 2021 14:44:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDDE93EC92F
+	for <lists+stable@lfdr.de>; Sun, 15 Aug 2021 14:56:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237877AbhHOMo7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Aug 2021 08:44:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47560 "EHLO mail.kernel.org"
+        id S238579AbhHOM45 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Aug 2021 08:56:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231809AbhHOMo7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 15 Aug 2021 08:44:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E400261152;
-        Sun, 15 Aug 2021 12:44:28 +0000 (UTC)
+        id S238575AbhHOM4z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 15 Aug 2021 08:56:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 72BD661042;
+        Sun, 15 Aug 2021 12:56:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629031469;
-        bh=m9U9ry9gAQRNAS8vfp50Tc0rbFTbTdxfpDu4MFP+++U=;
+        s=korg; t=1629032185;
+        bh=hwIjiQEL73ZOpD+x0G7fumbReaTMBk2hJLcsfqqBDNY=;
         h=Subject:To:Cc:From:Date:From;
-        b=Z+tUHwAOvMFlW5wyoAI79pfL2DgMMO7Uzr+EBtZRdh3QQpJOv6JMZFG40BUJ+qBH2
-         9nA9BVj4q+QhB44t925wrCD3yvZqf5gW/G4CeuaGrUvlATXgiHX6jjru6TUGBZNfQQ
-         Hi++yDOy5KhjjMXLx7kXC1g/o6Zl4fKEhXje1MkM=
-Subject: FAILED: patch "[PATCH] drm/amdgpu: set RAS EEPROM address from VBIOS" failed to apply to 5.13-stable tree
-To:     john.clements@amd.com, Hawking.Zhang@amd.com,
-        alexander.deucher@amd.com
+        b=AxYA9U4blV2UeGbUSbwWPjRV+F+xp58cOCmOvSA8h+MaPQrJE3ZeDAUGT6Pnlg7wg
+         Q3d40AQ6noLEbLHHxism0X36nxrksq3BQzjLV90ifSqhhPJa05tH4fwp86ydiNZwMe
+         Qs7R4qC/KT3RXRWA7yAmNxeutKL/JW0HkUrEGFYs=
+Subject: FAILED: patch "[PATCH] drm/i915/display: Fix the 12 BPC bits for PIPE_MISC reg" failed to apply to 5.10-stable tree
+To:     ankit.k.nautiyal@intel.com, daniel.vetter@ffwll.ch,
+        jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com,
+        paulo.r.zanoni@intel.com, rodrigo.vivi@intel.com,
+        stable@vger.kernel.org, uma.shankar@intel.com,
+        ville.syrjala@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 15 Aug 2021 14:44:19 +0200
-Message-ID: <162903145913072@kroah.com>
+Date:   Sun, 15 Aug 2021 14:55:26 +0200
+Message-ID: <16290321266259@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.13-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -46,117 +49,133 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 39932ef75897bfcb8ba1120e7b09d615d74762fd Mon Sep 17 00:00:00 2001
-From: John Clements <john.clements@amd.com>
-Date: Wed, 4 Aug 2021 17:11:40 +0800
-Subject: [PATCH] drm/amdgpu: set RAS EEPROM address from VBIOS
+From abd9d66a055722393d33685214c08386694871d7 Mon Sep 17 00:00:00 2001
+From: Ankit Nautiyal <ankit.k.nautiyal@intel.com>
+Date: Wed, 11 Aug 2021 10:48:57 +0530
+Subject: [PATCH] drm/i915/display: Fix the 12 BPC bits for PIPE_MISC reg
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-update to latest atombios fw table
+Till DISPLAY12 the PIPE_MISC bits 5-7 are used to set the
+Dithering BPC, with valid values of 6, 8, 10 BPC.
+For ADLP+ these bits are used to set the PORT OUTPUT BPC, with valid
+values of: 6, 8, 10, 12 BPC, and need to be programmed whether
+dithering is enabled or not.
 
-[Backport to 5.14 - Alex]
+This patch:
+-corrects the bits 5-7 for PIPE MISC register for 12 BPC.
+-renames the bits and mask to have generic names for these bits for
+dithering bpc and port output bpc.
 
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1670
-Signed-off-by: John Clements <john.clements@amd.com>
-Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>.
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+v3: Added a note for MIPI DSI which uses the PIPE_MISC for readout
+for pipe_bpp. (Uma Shankar)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_atomfirmware.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_atomfirmware.c
-index 3b5d13189073..8f53837d4d3e 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_atomfirmware.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_atomfirmware.c
-@@ -468,6 +468,46 @@ bool amdgpu_atomfirmware_dynamic_boot_config_supported(struct amdgpu_device *ade
- 	return (fw_cap & ATOM_FIRMWARE_CAP_DYNAMIC_BOOT_CFG_ENABLE) ? true : false;
- }
+v2: Added 'display' to the subject and fixes tag. (Uma Shankar)
+
+Fixes: 756f85cffef2 ("drm/i915/bdw: Broadwell has PIPEMISC")
+Cc: Paulo Zanoni <paulo.r.zanoni@intel.com> (v1)
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Jani Nikula <jani.nikula@linux.intel.com>
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Cc: intel-gfx@lists.freedesktop.org
+Cc: <stable@vger.kernel.org> # v3.13+
+
+Signed-off-by: Ankit Nautiyal <ankit.k.nautiyal@intel.com>
+Reviewed-by: Uma Shankar <uma.shankar@intel.com>
+Signed-off-by: Uma Shankar <uma.shankar@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210811051857.109723-1-ankit.k.nautiyal@intel.com
+(cherry picked from commit 70418a68713c13da3f36c388087d0220b456a430)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+
+diff --git a/drivers/gpu/drm/i915/display/intel_display.c b/drivers/gpu/drm/i915/display/intel_display.c
+index 2d5d21740c25..0a8a2395c8ac 100644
+--- a/drivers/gpu/drm/i915/display/intel_display.c
++++ b/drivers/gpu/drm/i915/display/intel_display.c
+@@ -5746,16 +5746,18 @@ static void bdw_set_pipemisc(const struct intel_crtc_state *crtc_state)
  
+ 	switch (crtc_state->pipe_bpp) {
+ 	case 18:
+-		val |= PIPEMISC_DITHER_6_BPC;
++		val |= PIPEMISC_6_BPC;
+ 		break;
+ 	case 24:
+-		val |= PIPEMISC_DITHER_8_BPC;
++		val |= PIPEMISC_8_BPC;
+ 		break;
+ 	case 30:
+-		val |= PIPEMISC_DITHER_10_BPC;
++		val |= PIPEMISC_10_BPC;
+ 		break;
+ 	case 36:
+-		val |= PIPEMISC_DITHER_12_BPC;
++		/* Port output 12BPC defined for ADLP+ */
++		if (DISPLAY_VER(dev_priv) > 12)
++			val |= PIPEMISC_12_BPC_ADLP;
+ 		break;
+ 	default:
+ 		MISSING_CASE(crtc_state->pipe_bpp);
+@@ -5808,15 +5810,27 @@ int bdw_get_pipemisc_bpp(struct intel_crtc *crtc)
+ 
+ 	tmp = intel_de_read(dev_priv, PIPEMISC(crtc->pipe));
+ 
+-	switch (tmp & PIPEMISC_DITHER_BPC_MASK) {
+-	case PIPEMISC_DITHER_6_BPC:
++	switch (tmp & PIPEMISC_BPC_MASK) {
++	case PIPEMISC_6_BPC:
+ 		return 18;
+-	case PIPEMISC_DITHER_8_BPC:
++	case PIPEMISC_8_BPC:
+ 		return 24;
+-	case PIPEMISC_DITHER_10_BPC:
++	case PIPEMISC_10_BPC:
+ 		return 30;
+-	case PIPEMISC_DITHER_12_BPC:
+-		return 36;
++	/*
++	 * PORT OUTPUT 12 BPC defined for ADLP+.
++	 *
++	 * TODO:
++	 * For previous platforms with DSI interface, bits 5:7
++	 * are used for storing pipe_bpp irrespective of dithering.
++	 * Since the value of 12 BPC is not defined for these bits
++	 * on older platforms, need to find a workaround for 12 BPC
++	 * MIPI DSI HW readout.
++	 */
++	case PIPEMISC_12_BPC_ADLP:
++		if (DISPLAY_VER(dev_priv) > 12)
++			return 36;
++		fallthrough;
+ 	default:
+ 		MISSING_CASE(tmp);
+ 		return 0;
+diff --git a/drivers/gpu/drm/i915/i915_reg.h b/drivers/gpu/drm/i915/i915_reg.h
+index 41186c1f771e..476bb3b9ad11 100644
+--- a/drivers/gpu/drm/i915/i915_reg.h
++++ b/drivers/gpu/drm/i915/i915_reg.h
+@@ -6163,11 +6163,17 @@ enum {
+ #define   PIPEMISC_HDR_MODE_PRECISION	(1 << 23) /* icl+ */
+ #define   PIPEMISC_OUTPUT_COLORSPACE_YUV  (1 << 11)
+ #define   PIPEMISC_PIXEL_ROUNDING_TRUNC	REG_BIT(8) /* tgl+ */
+-#define   PIPEMISC_DITHER_BPC_MASK	(7 << 5)
+-#define   PIPEMISC_DITHER_8_BPC		(0 << 5)
+-#define   PIPEMISC_DITHER_10_BPC	(1 << 5)
+-#define   PIPEMISC_DITHER_6_BPC		(2 << 5)
+-#define   PIPEMISC_DITHER_12_BPC	(3 << 5)
 +/*
-+ * Helper function to query RAS EEPROM address
-+ *
-+ * @adev: amdgpu_device pointer
-+ *
-+ * Return true if vbios supports ras rom address reporting
++ * For Display < 13, Bits 5-7 of PIPE MISC represent DITHER BPC with
++ * valid values of: 6, 8, 10 BPC.
++ * ADLP+, the bits 5-7 represent PORT OUTPUT BPC with valid values of:
++ * 6, 8, 10, 12 BPC.
 + */
-+bool amdgpu_atomfirmware_ras_rom_addr(struct amdgpu_device *adev, uint8_t* i2c_address)
-+{
-+	struct amdgpu_mode_info *mode_info = &adev->mode_info;
-+	int index;
-+	u16 data_offset, size;
-+	union firmware_info *firmware_info;
-+	u8 frev, crev;
-+
-+	if (i2c_address == NULL)
-+		return false;
-+
-+	*i2c_address = 0;
-+
-+	index = get_index_into_master_table(atom_master_list_of_data_tables_v2_1,
-+			firmwareinfo);
-+
-+	if (amdgpu_atom_parse_data_header(adev->mode_info.atom_context,
-+				index, &size, &frev, &crev, &data_offset)) {
-+		/* support firmware_info 3.4 + */
-+		if ((frev == 3 && crev >=4) || (frev > 3)) {
-+			firmware_info = (union firmware_info *)
-+				(mode_info->atom_context->bios + data_offset);
-+			*i2c_address = firmware_info->v34.ras_rom_i2c_slave_addr;
-+		}
-+	}
-+
-+	if (*i2c_address != 0)
-+		return true;
-+
-+	return false;
-+}
-+
-+
- union smu_info {
- 	struct atom_smu_info_v3_1 v31;
- };
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_atomfirmware.h b/drivers/gpu/drm/amd/amdgpu/amdgpu_atomfirmware.h
-index 1bbbb195015d..751248b253de 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_atomfirmware.h
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_atomfirmware.h
-@@ -36,6 +36,7 @@ int amdgpu_atomfirmware_get_clock_info(struct amdgpu_device *adev);
- int amdgpu_atomfirmware_get_gfx_info(struct amdgpu_device *adev);
- bool amdgpu_atomfirmware_mem_ecc_supported(struct amdgpu_device *adev);
- bool amdgpu_atomfirmware_sram_ecc_supported(struct amdgpu_device *adev);
-+bool amdgpu_atomfirmware_ras_rom_addr(struct amdgpu_device *adev, uint8_t* i2c_address);
- bool amdgpu_atomfirmware_mem_training_supported(struct amdgpu_device *adev);
- bool amdgpu_atomfirmware_dynamic_boot_config_supported(struct amdgpu_device *adev);
- int amdgpu_atomfirmware_get_fw_reserved_fb_size(struct amdgpu_device *adev);
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ras_eeprom.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ras_eeprom.c
-index f40c871da0c6..38222de921d1 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ras_eeprom.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ras_eeprom.c
-@@ -26,6 +26,7 @@
- #include "amdgpu_ras.h"
- #include <linux/bits.h>
- #include "atom.h"
-+#include "amdgpu_atomfirmware.h"
- 
- #define EEPROM_I2C_TARGET_ADDR_VEGA20		0xA0
- #define EEPROM_I2C_TARGET_ADDR_ARCTURUS		0xA8
-@@ -96,6 +97,9 @@ static bool __get_eeprom_i2c_addr(struct amdgpu_device *adev,
- 	if (!i2c_addr)
- 		return false;
- 
-+	if (amdgpu_atomfirmware_ras_rom_addr(adev, (uint8_t*)i2c_addr))
-+		return true;
-+
- 	switch (adev->asic_type) {
- 	case CHIP_VEGA20:
- 		*i2c_addr = EEPROM_I2C_TARGET_ADDR_VEGA20;
-diff --git a/drivers/gpu/drm/amd/include/atomfirmware.h b/drivers/gpu/drm/amd/include/atomfirmware.h
-index 3811e58dd857..44955458fe38 100644
---- a/drivers/gpu/drm/amd/include/atomfirmware.h
-+++ b/drivers/gpu/drm/amd/include/atomfirmware.h
-@@ -590,7 +590,7 @@ struct atom_firmware_info_v3_4 {
- 	uint8_t  board_i2c_feature_id;            // enum of atom_board_i2c_feature_id_def
- 	uint8_t  board_i2c_feature_gpio_id;       // i2c id find in gpio_lut data table gpio_id
- 	uint8_t  board_i2c_feature_slave_addr;
--	uint8_t  reserved3;
-+	uint8_t  ras_rom_i2c_slave_addr;
- 	uint16_t bootup_mvddq_mv;
- 	uint16_t bootup_mvpp_mv;
- 	uint32_t zfbstartaddrin16mb;
++#define   PIPEMISC_BPC_MASK		(7 << 5)
++#define   PIPEMISC_8_BPC		(0 << 5)
++#define   PIPEMISC_10_BPC		(1 << 5)
++#define   PIPEMISC_6_BPC		(2 << 5)
++#define   PIPEMISC_12_BPC_ADLP		(4 << 5) /* adlp+ */
+ #define   PIPEMISC_DITHER_ENABLE	(1 << 4)
+ #define   PIPEMISC_DITHER_TYPE_MASK	(3 << 2)
+ #define   PIPEMISC_DITHER_TYPE_SP	(0 << 2)
 
