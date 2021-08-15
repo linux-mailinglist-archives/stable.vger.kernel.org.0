@@ -2,1036 +2,219 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9731C3EC8C0
-	for <lists+stable@lfdr.de>; Sun, 15 Aug 2021 13:40:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 167A63EC8C1
+	for <lists+stable@lfdr.de>; Sun, 15 Aug 2021 13:40:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237968AbhHOLkw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S238047AbhHOLkw (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 15 Aug 2021 07:40:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33594 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:33728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237844AbhHOLkr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 15 Aug 2021 07:40:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 802E7610C9;
-        Sun, 15 Aug 2021 11:40:16 +0000 (UTC)
+        id S237877AbhHOLkt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 15 Aug 2021 07:40:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 54CF96103A;
+        Sun, 15 Aug 2021 11:40:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629027617;
-        bh=llo0WaIc+a+DIIxpEo6jy3mau9+SwlxOqT5ZPTYEDXk=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FAsGHUe0nVNJr84UBMOxZwL5HPxeqs5q3xX1NFEg57BqQdCYzOjrbUW45m4yAORY+
-         psQSLzd/ANbFElrC5unHNVUAkWprp/j5767+EJmYkHG/5dMt3IBOkmbmCaDbT4PjrC
-         xYMaWu705+ZDZ/EfyLcUs02zRb86fKF1R+H3DlL8=
+        s=korg; t=1629027619;
+        bh=oKs32rhY5KrrBDmm+KEr2QK6RvWmxWgEBSRXZvHu30M=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Qw7E+jF1pIIuAn1L/X5a+TJm6jpsJz1gyAbl0aL3u5ja3eGwi1OiYF8y09aTSiUVr
+         QHDuhbGFJbwU3IsJ2v2NwQGabrACF3lvy5rO+aE5jyFHLaAh90KAg+Rs0y/xestGaY
+         1QdBJ49eLGJgef4mRmS72Ymp7MzRB9cfaIkPXh1E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Linux 4.9.280
-Date:   Sun, 15 Aug 2021 13:40:08 +0200
-Message-Id: <16290276087576@kroah.com>
+Subject: Linux 4.14.244
+Date:   Sun, 15 Aug 2021 13:40:13 +0200
+Message-Id: <16290276146511@kroah.com>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <1629027608144244@kroah.com>
-References: <1629027608144244@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index b88bc8d14ca3..7cd5634469b1 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,6 +1,6 @@
- VERSION = 4
- PATCHLEVEL = 9
--SUBLEVEL = 279
-+SUBLEVEL = 280
- EXTRAVERSION =
- NAME = Roaring Lionus
- 
-diff --git a/arch/alpha/kernel/smp.c b/arch/alpha/kernel/smp.c
-index 46bf263c3153..d2477a502ce7 100644
---- a/arch/alpha/kernel/smp.c
-+++ b/arch/alpha/kernel/smp.c
-@@ -584,7 +584,7 @@ void
- smp_send_stop(void)
- {
- 	cpumask_t to_whom;
--	cpumask_copy(&to_whom, cpu_possible_mask);
-+	cpumask_copy(&to_whom, cpu_online_mask);
- 	cpumask_clear_cpu(smp_processor_id(), &to_whom);
- #ifdef DEBUG_IPI_MSG
- 	if (hard_smp_processor_id() != boot_cpu_id)
-diff --git a/arch/mips/Makefile b/arch/mips/Makefile
-index 25f3bfef9b39..af4eff7d22ec 100644
---- a/arch/mips/Makefile
-+++ b/arch/mips/Makefile
-@@ -286,7 +286,7 @@ LDFLAGS			+= -m $(ld-emul)
- 
- ifdef CONFIG_MIPS
- CHECKFLAGS += $(shell $(CC) $(KBUILD_CFLAGS) -dM -E -x c /dev/null | \
--	egrep -vw '__GNUC_(|MINOR_|PATCHLEVEL_)_' | \
-+	egrep -vw '__GNUC_(MINOR_|PATCHLEVEL_)?_' | \
- 	sed -e "s/^\#define /-D'/" -e "s/ /'='/" -e "s/$$/'/" -e 's/\$$/&&/g')
- ifdef CONFIG_64BIT
- CHECKFLAGS		+= -m64
-diff --git a/arch/mips/mti-malta/malta-platform.c b/arch/mips/mti-malta/malta-platform.c
-index 516e1233d771..0e51db7ac172 100644
---- a/arch/mips/mti-malta/malta-platform.c
-+++ b/arch/mips/mti-malta/malta-platform.c
-@@ -48,7 +48,8 @@ static struct plat_serial8250_port uart8250_data[] = {
- 		.mapbase	= 0x1f000900,	/* The CBUS UART */
- 		.irq		= MIPS_CPU_IRQ_BASE + MIPSCPU_INT_MB2,
- 		.uartclk	= 3686400,	/* Twice the usual clk! */
--		.iotype		= UPIO_MEM32,
-+		.iotype		= IS_ENABLED(CONFIG_CPU_BIG_ENDIAN) ?
-+				  UPIO_MEM32BE : UPIO_MEM32,
- 		.flags		= CBUS_UART_FLAGS,
- 		.regshift	= 3,
- 	},
-diff --git a/arch/x86/events/perf_event.h b/arch/x86/events/perf_event.h
-index c42c9d50c8ee..8095c7169e8a 100644
---- a/arch/x86/events/perf_event.h
-+++ b/arch/x86/events/perf_event.h
-@@ -771,9 +771,10 @@ void x86_pmu_stop(struct perf_event *event, int flags);
- 
- static inline void x86_pmu_disable_event(struct perf_event *event)
- {
-+	u64 disable_mask = __this_cpu_read(cpu_hw_events.perf_ctr_virt_mask);
- 	struct hw_perf_event *hwc = &event->hw;
- 
--	wrmsrl(hwc->config_base, hwc->config);
-+	wrmsrl(hwc->config_base, hwc->config & ~disable_mask);
- }
- 
- void x86_pmu_enable_event(struct perf_event *event);
-diff --git a/drivers/media/usb/dvb-usb-v2/rtl28xxu.c b/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
-index c583c638e468..328a447ce972 100644
---- a/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
-+++ b/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
-@@ -50,7 +50,16 @@ static int rtl28xxu_ctrl_msg(struct dvb_usb_device *d, struct rtl28xxu_req *req)
- 	} else {
- 		/* read */
- 		requesttype = (USB_TYPE_VENDOR | USB_DIR_IN);
--		pipe = usb_rcvctrlpipe(d->udev, 0);
-+
-+		/*
-+		 * Zero-length transfers must use usb_sndctrlpipe() and
-+		 * rtl28xxu_identify_state() uses a zero-length i2c read
-+		 * command to determine the chip type.
-+		 */
-+		if (req->size)
-+			pipe = usb_rcvctrlpipe(d->udev, 0);
-+		else
-+			pipe = usb_sndctrlpipe(d->udev, 0);
- 	}
- 
- 	ret = usb_control_msg(d->udev, pipe, 0, requesttype, req->value,
-diff --git a/drivers/media/v4l2-core/videobuf2-core.c b/drivers/media/v4l2-core/videobuf2-core.c
-index b1a4d4e2341b..3ac9f7260e72 100644
---- a/drivers/media/v4l2-core/videobuf2-core.c
-+++ b/drivers/media/v4l2-core/videobuf2-core.c
-@@ -1370,6 +1370,7 @@ static int vb2_start_streaming(struct vb2_queue *q)
- int vb2_core_qbuf(struct vb2_queue *q, unsigned int index, void *pb)
- {
- 	struct vb2_buffer *vb;
-+	enum vb2_buffer_state orig_state;
- 	int ret;
- 
- 	if (q->error) {
-@@ -1399,6 +1400,7 @@ int vb2_core_qbuf(struct vb2_queue *q, unsigned int index, void *pb)
- 	 * Add to the queued buffers list, a buffer will stay on it until
- 	 * dequeued in dqbuf.
- 	 */
-+	orig_state = vb->state;
- 	list_add_tail(&vb->queued_entry, &q->queued_list);
- 	q->queued_count++;
- 	q->waiting_for_buffers = false;
-@@ -1429,8 +1431,17 @@ int vb2_core_qbuf(struct vb2_queue *q, unsigned int index, void *pb)
- 	if (q->streaming && !q->start_streaming_called &&
- 	    q->queued_count >= q->min_buffers_needed) {
- 		ret = vb2_start_streaming(q);
--		if (ret)
-+		if (ret) {
-+			/*
-+			 * Since vb2_core_qbuf will return with an error,
-+			 * we should return it to state DEQUEUED since
-+			 * the error indicates that the buffer wasn't queued.
-+			 */
-+			list_del(&vb->queued_entry);
-+			q->queued_count--;
-+			vb->state = orig_state;
- 			return ret;
-+		}
- 	}
- 
- 	dprintk(1, "qbuf of buffer %d succeeded\n", vb->index);
-diff --git a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c
-index 46a7dcf2ff4a..9d7f491931ce 100644
---- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c
-+++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c
-@@ -2672,7 +2672,8 @@ int bnx2x_nic_load(struct bnx2x *bp, int load_mode)
- 	}
- 
- 	/* Allocated memory for FW statistics  */
--	if (bnx2x_alloc_fw_stats_mem(bp))
-+	rc = bnx2x_alloc_fw_stats_mem(bp);
-+	if (rc)
- 		LOAD_ERROR_EXIT(bp, load_error0);
- 
- 	/* request pf to initialize status blocks */
-diff --git a/drivers/net/ethernet/freescale/fec_main.c b/drivers/net/ethernet/freescale/fec_main.c
-index 9b3ea0406e0d..5fc40f025d21 100644
---- a/drivers/net/ethernet/freescale/fec_main.c
-+++ b/drivers/net/ethernet/freescale/fec_main.c
-@@ -3546,13 +3546,13 @@ fec_drv_remove(struct platform_device *pdev)
- 	if (of_phy_is_fixed_link(np))
- 		of_phy_deregister_fixed_link(np);
- 	of_node_put(fep->phy_node);
--	free_netdev(ndev);
- 
- 	clk_disable_unprepare(fep->clk_ahb);
- 	clk_disable_unprepare(fep->clk_ipg);
- 	pm_runtime_put_noidle(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
- 
-+	free_netdev(ndev);
- 	return 0;
- }
- 
-diff --git a/drivers/net/ethernet/natsemi/natsemi.c b/drivers/net/ethernet/natsemi/natsemi.c
-index ed89029ff75b..c0e128e17321 100644
---- a/drivers/net/ethernet/natsemi/natsemi.c
-+++ b/drivers/net/ethernet/natsemi/natsemi.c
-@@ -817,7 +817,7 @@ static int natsemi_probe1(struct pci_dev *pdev, const struct pci_device_id *ent)
- 		printk(version);
- #endif
- 
--	i = pci_enable_device(pdev);
-+	i = pcim_enable_device(pdev);
- 	if (i) return i;
- 
- 	/* natsemi has a non-standard PM control register
-@@ -850,7 +850,7 @@ static int natsemi_probe1(struct pci_dev *pdev, const struct pci_device_id *ent)
- 	ioaddr = ioremap(iostart, iosize);
- 	if (!ioaddr) {
- 		i = -ENOMEM;
--		goto err_ioremap;
-+		goto err_pci_request_regions;
- 	}
- 
- 	/* Work around the dropped serial bit. */
-@@ -968,9 +968,6 @@ static int natsemi_probe1(struct pci_dev *pdev, const struct pci_device_id *ent)
-  err_register_netdev:
- 	iounmap(ioaddr);
- 
-- err_ioremap:
--	pci_release_regions(pdev);
--
-  err_pci_request_regions:
- 	free_netdev(dev);
- 	return i;
-@@ -3228,7 +3225,6 @@ static void natsemi_remove1(struct pci_dev *pdev)
- 
- 	NATSEMI_REMOVE_FILE(pdev, dspcfg_workaround);
- 	unregister_netdev (dev);
--	pci_release_regions (pdev);
- 	iounmap(ioaddr);
- 	free_netdev (dev);
- }
-diff --git a/drivers/net/ethernet/neterion/vxge/vxge-main.c b/drivers/net/ethernet/neterion/vxge/vxge-main.c
-index e0993eba5df3..c6950e580883 100644
---- a/drivers/net/ethernet/neterion/vxge/vxge-main.c
-+++ b/drivers/net/ethernet/neterion/vxge/vxge-main.c
-@@ -3539,13 +3539,13 @@ static void vxge_device_unregister(struct __vxge_hw_device *hldev)
- 
- 	kfree(vdev->vpaths);
- 
--	/* we are safe to free it now */
--	free_netdev(dev);
--
- 	vxge_debug_init(vdev->level_trace, "%s: ethernet device unregistered",
- 			buf);
- 	vxge_debug_entryexit(vdev->level_trace,	"%s: %s:%d  Exiting...", buf,
- 			     __func__, __LINE__);
-+
-+	/* we are safe to free it now */
-+	free_netdev(dev);
- }
- 
- /*
-diff --git a/drivers/net/ethernet/qlogic/qla3xxx.c b/drivers/net/ethernet/qlogic/qla3xxx.c
-index 192950a112c9..cb9d43c871c4 100644
---- a/drivers/net/ethernet/qlogic/qla3xxx.c
-+++ b/drivers/net/ethernet/qlogic/qla3xxx.c
-@@ -155,7 +155,7 @@ static int ql_wait_for_drvr_lock(struct ql3_adapter *qdev)
- 				      "driver lock acquired\n");
- 			return 1;
- 		}
--		ssleep(1);
-+		mdelay(1000);
- 	} while (++i < 10);
- 
- 	netdev_err(qdev->ndev, "Timed out waiting for driver lock...\n");
-@@ -3287,7 +3287,7 @@ static int ql_adapter_reset(struct ql3_adapter *qdev)
- 		if ((value & ISP_CONTROL_SR) == 0)
- 			break;
- 
--		ssleep(1);
-+		mdelay(1000);
- 	} while ((--max_wait_time));
- 
- 	/*
-@@ -3323,7 +3323,7 @@ static int ql_adapter_reset(struct ql3_adapter *qdev)
- 						   ispControlStatus);
- 			if ((value & ISP_CONTROL_FSR) == 0)
- 				break;
--			ssleep(1);
-+			mdelay(1000);
- 		} while ((--max_wait_time));
- 	}
- 	if (max_wait_time == 0)
-diff --git a/drivers/net/ethernet/xilinx/xilinx_emaclite.c b/drivers/net/ethernet/xilinx/xilinx_emaclite.c
-index 034b36442ee7..df3b3384984c 100644
---- a/drivers/net/ethernet/xilinx/xilinx_emaclite.c
-+++ b/drivers/net/ethernet/xilinx/xilinx_emaclite.c
-@@ -1179,9 +1179,8 @@ static int xemaclite_of_probe(struct platform_device *ofdev)
- 	}
- 
- 	dev_info(dev,
--		 "Xilinx EmacLite at 0x%08X mapped to 0x%08X, irq=%d\n",
--		 (unsigned int __force)ndev->mem_start,
--		 (unsigned int __force)lp->base_addr, ndev->irq);
-+		 "Xilinx EmacLite at 0x%08X mapped to 0x%p, irq=%d\n",
-+		 (unsigned int __force)ndev->mem_start, lp->base_addr, ndev->irq);
- 	return 0;
- 
- error:
-diff --git a/drivers/net/ppp/ppp_generic.c b/drivers/net/ppp/ppp_generic.c
-index 801bab5968d0..5ba472691546 100644
---- a/drivers/net/ppp/ppp_generic.c
-+++ b/drivers/net/ppp/ppp_generic.c
-@@ -285,7 +285,7 @@ static struct channel *ppp_find_channel(struct ppp_net *pn, int unit);
- static int ppp_connect_channel(struct channel *pch, int unit);
- static int ppp_disconnect_channel(struct channel *pch);
- static void ppp_destroy_channel(struct channel *pch);
--static int unit_get(struct idr *p, void *ptr);
-+static int unit_get(struct idr *p, void *ptr, int min);
- static int unit_set(struct idr *p, void *ptr, int n);
- static void unit_put(struct idr *p, int n);
- static void *unit_find(struct idr *p, int n);
-@@ -976,9 +976,20 @@ static int ppp_unit_register(struct ppp *ppp, int unit, bool ifname_is_set)
- 	mutex_lock(&pn->all_ppp_mutex);
- 
- 	if (unit < 0) {
--		ret = unit_get(&pn->units_idr, ppp);
-+		ret = unit_get(&pn->units_idr, ppp, 0);
- 		if (ret < 0)
- 			goto err;
-+		if (!ifname_is_set) {
-+			while (1) {
-+				snprintf(ppp->dev->name, IFNAMSIZ, "ppp%i", ret);
-+				if (!__dev_get_by_name(ppp->ppp_net, ppp->dev->name))
-+					break;
-+				unit_put(&pn->units_idr, ret);
-+				ret = unit_get(&pn->units_idr, ppp, ret + 1);
-+				if (ret < 0)
-+					goto err;
-+			}
-+		}
- 	} else {
- 		/* Caller asked for a specific unit number. Fail with -EEXIST
- 		 * if unavailable. For backward compatibility, return -EEXIST
-@@ -3265,9 +3276,9 @@ static int unit_set(struct idr *p, void *ptr, int n)
- }
- 
- /* get new free unit number and associate pointer with it */
--static int unit_get(struct idr *p, void *ptr)
-+static int unit_get(struct idr *p, void *ptr, int min)
- {
--	return idr_alloc(p, ptr, 0, 0, GFP_KERNEL);
-+	return idr_alloc(p, ptr, min, 0, GFP_KERNEL);
- }
- 
- /* put unit number back to a pool */
-diff --git a/drivers/net/usb/pegasus.c b/drivers/net/usb/pegasus.c
-index 5fe9f1273fe2..6cfc6faf9747 100644
---- a/drivers/net/usb/pegasus.c
-+++ b/drivers/net/usb/pegasus.c
-@@ -755,12 +755,16 @@ static inline void disable_net_traffic(pegasus_t *pegasus)
- 	set_registers(pegasus, EthCtrl0, sizeof(tmp), &tmp);
- }
- 
--static inline void get_interrupt_interval(pegasus_t *pegasus)
-+static inline int get_interrupt_interval(pegasus_t *pegasus)
- {
- 	u16 data;
- 	u8 interval;
-+	int ret;
-+
-+	ret = read_eprom_word(pegasus, 4, &data);
-+	if (ret < 0)
-+		return ret;
- 
--	read_eprom_word(pegasus, 4, &data);
- 	interval = data >> 8;
- 	if (pegasus->usb->speed != USB_SPEED_HIGH) {
- 		if (interval < 0x80) {
-@@ -775,6 +779,8 @@ static inline void get_interrupt_interval(pegasus_t *pegasus)
- 		}
- 	}
- 	pegasus->intr_interval = interval;
-+
-+	return 0;
- }
- 
- static void set_carrier(struct net_device *net)
-@@ -1191,7 +1197,9 @@ static int pegasus_probe(struct usb_interface *intf,
- 				| NETIF_MSG_PROBE | NETIF_MSG_LINK);
- 
- 	pegasus->features = usb_dev_id[dev_index].private;
--	get_interrupt_interval(pegasus);
-+	res = get_interrupt_interval(pegasus);
-+	if (res)
-+		goto out2;
- 	if (reset_mac(pegasus)) {
- 		dev_err(&intf->dev, "can't reset MAC\n");
- 		res = -EIO;
-diff --git a/drivers/pcmcia/i82092.c b/drivers/pcmcia/i82092.c
-index aae7e6df99cd..ba13e3c3d6b8 100644
---- a/drivers/pcmcia/i82092.c
-+++ b/drivers/pcmcia/i82092.c
-@@ -105,6 +105,7 @@ static int i82092aa_pci_probe(struct pci_dev *dev, const struct pci_device_id *i
- 	for (i = 0;i<socket_count;i++) {
- 		sockets[i].card_state = 1; /* 1 = present but empty */
- 		sockets[i].io_base = pci_resource_start(dev, 0);
-+		sockets[i].dev = dev;
- 		sockets[i].socket.features |= SS_CAP_PCCARD;
- 		sockets[i].socket.map_size = 0x1000;
- 		sockets[i].socket.irq_mask = 0;
-diff --git a/drivers/scsi/sr.c b/drivers/scsi/sr.c
-index 5e51a39a0c27..9b63e46edffc 100644
---- a/drivers/scsi/sr.c
-+++ b/drivers/scsi/sr.c
-@@ -217,7 +217,7 @@ static unsigned int sr_get_events(struct scsi_device *sdev)
- 	else if (med->media_event_code == 2)
- 		return DISK_EVENT_MEDIA_CHANGE;
- 	else if (med->media_event_code == 3)
--		return DISK_EVENT_EJECT_REQUEST;
-+		return DISK_EVENT_MEDIA_CHANGE;
- 	return 0;
- }
- 
-diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
-index 827a641ac336..611bc0556571 100644
---- a/drivers/tty/serial/8250/8250_port.c
-+++ b/drivers/tty/serial/8250/8250_port.c
-@@ -277,7 +277,11 @@ static const struct serial8250_config uart_config[] = {
- /* Uart divisor latch read */
- static int default_serial_dl_read(struct uart_8250_port *up)
- {
--	return serial_in(up, UART_DLL) | serial_in(up, UART_DLM) << 8;
-+	/* Assign these in pieces to truncate any bits above 7.  */
-+	unsigned char dll = serial_in(up, UART_DLL);
-+	unsigned char dlm = serial_in(up, UART_DLM);
-+
-+	return dll | dlm << 8;
- }
- 
- /* Uart divisor latch write */
-@@ -1262,9 +1266,11 @@ static void autoconfig(struct uart_8250_port *up)
- 	serial_out(up, UART_LCR, 0);
- 
- 	serial_out(up, UART_FCR, UART_FCR_ENABLE_FIFO);
--	scratch = serial_in(up, UART_IIR) >> 6;
- 
--	switch (scratch) {
-+	/* Assign this as it is to truncate any bits above 7.  */
-+	scratch = serial_in(up, UART_IIR);
-+
-+	switch (scratch >> 6) {
- 	case 0:
- 		autoconfig_8250(up);
- 		break;
-diff --git a/drivers/usb/class/usbtmc.c b/drivers/usb/class/usbtmc.c
-index a391b50fb32f..c310c6d4d150 100644
---- a/drivers/usb/class/usbtmc.c
-+++ b/drivers/usb/class/usbtmc.c
-@@ -1342,16 +1342,10 @@ static void usbtmc_interrupt(struct urb *urb)
- 	case -EOVERFLOW:
- 		dev_err(dev, "overflow with length %d, actual length is %d\n",
- 			data->iin_wMaxPacketSize, urb->actual_length);
--	case -ECONNRESET:
--	case -ENOENT:
--	case -ESHUTDOWN:
--	case -EILSEQ:
--	case -ETIME:
-+	default:
- 		/* urb terminated, clean up */
- 		dev_dbg(dev, "urb terminated, status: %d\n", status);
- 		return;
--	default:
--		dev_err(dev, "unknown status received: %d\n", status);
- 	}
- exit:
- 	rv = usb_submit_urb(urb, GFP_ATOMIC);
-diff --git a/drivers/usb/common/usb-otg-fsm.c b/drivers/usb/common/usb-otg-fsm.c
-index 2f537bbdda09..362cca983e6e 100644
---- a/drivers/usb/common/usb-otg-fsm.c
-+++ b/drivers/usb/common/usb-otg-fsm.c
-@@ -199,7 +199,11 @@ static void otg_start_hnp_polling(struct otg_fsm *fsm)
- 	if (!fsm->host_req_flag)
- 		return;
- 
--	INIT_DELAYED_WORK(&fsm->hnp_polling_work, otg_hnp_polling_work);
-+	if (!fsm->hnp_work_inited) {
-+		INIT_DELAYED_WORK(&fsm->hnp_polling_work, otg_hnp_polling_work);
-+		fsm->hnp_work_inited = true;
-+	}
-+
- 	schedule_delayed_work(&fsm->hnp_polling_work,
- 					msecs_to_jiffies(T_HOST_REQ_POLL));
- }
-diff --git a/drivers/usb/host/ehci-pci.c b/drivers/usb/host/ehci-pci.c
-index 08b3f8c80601..a31015a95fd6 100644
---- a/drivers/usb/host/ehci-pci.c
-+++ b/drivers/usb/host/ehci-pci.c
-@@ -312,6 +312,9 @@ static int ehci_pci_setup(struct usb_hcd *hcd)
- 	if (pdev->vendor == PCI_VENDOR_ID_STMICRO
- 	    && pdev->device == PCI_DEVICE_ID_STMICRO_USB_HOST)
- 		;	/* ConneXT has no sbrn register */
-+	else if (pdev->vendor == PCI_VENDOR_ID_HUAWEI
-+			 && pdev->device == 0xa239)
-+		;	/* HUAWEI Kunpeng920 USB EHCI has no sbrn register */
- 	else
- 		pci_read_config_byte(pdev, 0x60, &ehci->sbrn);
- 
-diff --git a/drivers/usb/serial/ch341.c b/drivers/usb/serial/ch341.c
-index c6ff79360302..2e92c6fef683 100644
---- a/drivers/usb/serial/ch341.c
-+++ b/drivers/usb/serial/ch341.c
-@@ -585,6 +585,7 @@ static struct usb_serial_driver ch341_device = {
- 		.owner	= THIS_MODULE,
- 		.name	= "ch341-uart",
- 	},
-+	.bulk_in_size      = 512,
- 	.id_table          = id_table,
- 	.num_ports         = 1,
- 	.open              = ch341_open,
-diff --git a/drivers/usb/serial/ftdi_sio.c b/drivers/usb/serial/ftdi_sio.c
-index 8f4bd9fa8244..fe6b32c2ff1c 100644
---- a/drivers/usb/serial/ftdi_sio.c
-+++ b/drivers/usb/serial/ftdi_sio.c
-@@ -214,6 +214,7 @@ static const struct usb_device_id id_table_combined[] = {
- 	{ USB_DEVICE(FTDI_VID, FTDI_MTXORB_6_PID) },
- 	{ USB_DEVICE(FTDI_VID, FTDI_R2000KU_TRUE_RNG) },
- 	{ USB_DEVICE(FTDI_VID, FTDI_VARDAAN_PID) },
-+	{ USB_DEVICE(FTDI_VID, FTDI_AUTO_M3_OP_COM_V2_PID) },
- 	{ USB_DEVICE(MTXORB_VID, MTXORB_FTDI_RANGE_0100_PID) },
- 	{ USB_DEVICE(MTXORB_VID, MTXORB_FTDI_RANGE_0101_PID) },
- 	{ USB_DEVICE(MTXORB_VID, MTXORB_FTDI_RANGE_0102_PID) },
-diff --git a/drivers/usb/serial/ftdi_sio_ids.h b/drivers/usb/serial/ftdi_sio_ids.h
-index 54ded2bc9eb6..3b7cea8df446 100644
---- a/drivers/usb/serial/ftdi_sio_ids.h
-+++ b/drivers/usb/serial/ftdi_sio_ids.h
-@@ -158,6 +158,9 @@
- /* Vardaan Enterprises Serial Interface VEUSB422R3 */
- #define FTDI_VARDAAN_PID	0xF070
- 
-+/* Auto-M3 Ltd. - OP-COM USB V2 - OBD interface Adapter */
-+#define FTDI_AUTO_M3_OP_COM_V2_PID	0x4f50
-+
- /*
-  * Xsens Technologies BV products (http://www.xsens.com).
-  */
-diff --git a/drivers/usb/serial/option.c b/drivers/usb/serial/option.c
-index b9017e85cc1a..b3336a7c09e0 100644
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -1185,6 +1185,8 @@ static const struct usb_device_id option_ids[] = {
- 	  .driver_info = NCTRL(2) | RSVD(3) },
- 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1055, 0xff),	/* Telit FN980 (PCIe) */
- 	  .driver_info = NCTRL(0) | RSVD(1) },
-+	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1056, 0xff),	/* Telit FD980 */
-+	  .driver_info = NCTRL(2) | RSVD(3) },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910),
- 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(3) },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910_DUAL_MODEM),
-diff --git a/fs/namespace.c b/fs/namespace.c
-index 3b20c7ff8cc3..9f2390c89b63 100644
---- a/fs/namespace.c
-+++ b/fs/namespace.c
-@@ -1853,6 +1853,20 @@ void drop_collected_mounts(struct vfsmount *mnt)
- 	namespace_unlock();
- }
- 
-+static bool has_locked_children(struct mount *mnt, struct dentry *dentry)
-+{
-+	struct mount *child;
-+
-+	list_for_each_entry(child, &mnt->mnt_mounts, mnt_child) {
-+		if (!is_subdir(child->mnt_mountpoint, dentry))
-+			continue;
-+
-+		if (child->mnt.mnt_flags & MNT_LOCKED)
-+			return true;
-+	}
-+	return false;
-+}
-+
- /**
-  * clone_private_mount - create a private clone of a path
-  *
-@@ -1867,16 +1881,27 @@ struct vfsmount *clone_private_mount(struct path *path)
- 	struct mount *old_mnt = real_mount(path->mnt);
- 	struct mount *new_mnt;
- 
-+	down_read(&namespace_sem);
- 	if (IS_MNT_UNBINDABLE(old_mnt))
--		return ERR_PTR(-EINVAL);
-+		goto invalid;
-+
-+	if (!check_mnt(old_mnt))
-+		goto invalid;
-+
-+	if (has_locked_children(old_mnt, path->dentry))
-+		goto invalid;
- 
--	down_read(&namespace_sem);
- 	new_mnt = clone_mnt(old_mnt, path->dentry, CL_PRIVATE);
- 	up_read(&namespace_sem);
-+
- 	if (IS_ERR(new_mnt))
- 		return ERR_CAST(new_mnt);
- 
- 	return &new_mnt->mnt;
-+
-+invalid:
-+	up_read(&namespace_sem);
-+	return ERR_PTR(-EINVAL);
- }
- EXPORT_SYMBOL_GPL(clone_private_mount);
- 
-@@ -2192,19 +2217,6 @@ static int do_change_type(struct path *path, int flag)
- 	return err;
- }
- 
--static bool has_locked_children(struct mount *mnt, struct dentry *dentry)
--{
--	struct mount *child;
--	list_for_each_entry(child, &mnt->mnt_mounts, mnt_child) {
--		if (!is_subdir(child->mnt_mountpoint, dentry))
--			continue;
--
--		if (child->mnt.mnt_flags & MNT_LOCKED)
--			return true;
--	}
--	return false;
--}
--
- /*
-  * do loopback mount.
-  */
-diff --git a/fs/pipe.c b/fs/pipe.c
-index 347c6dc888c8..6375e625a263 100644
---- a/fs/pipe.c
-+++ b/fs/pipe.c
-@@ -28,6 +28,21 @@
- 
- #include "internal.h"
- 
-+/*
-+ * New pipe buffers will be restricted to this size while the user is exceeding
-+ * their pipe buffer quota. The general pipe use case needs at least two
-+ * buffers: one for data yet to be read, and one for new data. If this is less
-+ * than two, then a write to a non-empty pipe may block even if the pipe is not
-+ * full. This can occur with GNU make jobserver or similar uses of pipes as
-+ * semaphores: multiple processes may be waiting to write tokens back to the
-+ * pipe before reading tokens: https://lore.kernel.org/lkml/1628086770.5rn8p04n6j.none@localhost/.
-+ *
-+ * Users can reduce their pipe buffers with F_SETPIPE_SZ below this at their
-+ * own risk, namely: pipe writes to non-full pipes may block until the pipe is
-+ * emptied.
-+ */
-+#define PIPE_MIN_DEF_BUFFERS 2
-+
- /*
-  * The max size that a non-root user is allowed to grow the pipe. Can
-  * be set by root in /proc/sys/fs/pipe-max-size
-@@ -653,8 +668,8 @@ struct pipe_inode_info *alloc_pipe_info(void)
- 	user_bufs = account_pipe_buffers(user, 0, pipe_bufs);
- 
- 	if (too_many_pipe_buffers_soft(user_bufs) && is_unprivileged_user()) {
--		user_bufs = account_pipe_buffers(user, pipe_bufs, 1);
--		pipe_bufs = 1;
-+		user_bufs = account_pipe_buffers(user, pipe_bufs, PIPE_MIN_DEF_BUFFERS);
-+		pipe_bufs = PIPE_MIN_DEF_BUFFERS;
- 	}
- 
- 	if (too_many_pipe_buffers_hard(user_bufs) && is_unprivileged_user())
-diff --git a/fs/reiserfs/stree.c b/fs/reiserfs/stree.c
-index 25b2aed9af0b..f2f7055303ca 100644
---- a/fs/reiserfs/stree.c
-+++ b/fs/reiserfs/stree.c
-@@ -386,6 +386,24 @@ void pathrelse(struct treepath *search_path)
- 	search_path->path_length = ILLEGAL_PATH_ELEMENT_OFFSET;
- }
- 
-+static int has_valid_deh_location(struct buffer_head *bh, struct item_head *ih)
-+{
-+	struct reiserfs_de_head *deh;
-+	int i;
-+
-+	deh = B_I_DEH(bh, ih);
-+	for (i = 0; i < ih_entry_count(ih); i++) {
-+		if (deh_location(&deh[i]) > ih_item_len(ih)) {
-+			reiserfs_warning(NULL, "reiserfs-5094",
-+					 "directory entry location seems wrong %h",
-+					 &deh[i]);
-+			return 0;
-+		}
-+	}
-+
-+	return 1;
-+}
-+
- static int is_leaf(char *buf, int blocksize, struct buffer_head *bh)
- {
- 	struct block_head *blkh;
-@@ -453,11 +471,14 @@ static int is_leaf(char *buf, int blocksize, struct buffer_head *bh)
- 					 "(second one): %h", ih);
- 			return 0;
- 		}
--		if (is_direntry_le_ih(ih) && (ih_item_len(ih) < (ih_entry_count(ih) * IH_SIZE))) {
--			reiserfs_warning(NULL, "reiserfs-5093",
--					 "item entry count seems wrong %h",
--					 ih);
--			return 0;
-+		if (is_direntry_le_ih(ih)) {
-+			if (ih_item_len(ih) < (ih_entry_count(ih) * IH_SIZE)) {
-+				reiserfs_warning(NULL, "reiserfs-5093",
-+						 "item entry count seems wrong %h",
-+						 ih);
-+				return 0;
-+			}
-+			return has_valid_deh_location(bh, ih);
- 		}
- 		prev_location = ih_location(ih);
- 	}
-diff --git a/fs/reiserfs/super.c b/fs/reiserfs/super.c
-index c533d8715a6c..0d324c07762a 100644
---- a/fs/reiserfs/super.c
-+++ b/fs/reiserfs/super.c
-@@ -2059,6 +2059,14 @@ static int reiserfs_fill_super(struct super_block *s, void *data, int silent)
- 		unlock_new_inode(root_inode);
- 	}
- 
-+	if (!S_ISDIR(root_inode->i_mode) || !inode_get_bytes(root_inode) ||
-+	    !root_inode->i_size) {
-+		SWARN(silent, s, "", "corrupt root inode, run fsck");
-+		iput(root_inode);
-+		errval = -EUCLEAN;
-+		goto error;
-+	}
-+
- 	s->s_root = d_make_root(root_inode);
- 	if (!s->s_root)
- 		goto error;
-diff --git a/include/linux/usb/otg-fsm.h b/include/linux/usb/otg-fsm.h
-index 7a0350535cb1..603b298dc747 100644
---- a/include/linux/usb/otg-fsm.h
-+++ b/include/linux/usb/otg-fsm.h
-@@ -210,6 +210,7 @@ struct otg_fsm {
- 	struct mutex lock;
- 	u8 *host_req_flag;
- 	struct delayed_work hnp_polling_work;
-+	bool hnp_work_inited;
- 	bool state_changed;
- };
- 
-diff --git a/include/net/bluetooth/hci_core.h b/include/net/bluetooth/hci_core.h
-index 33db6c6d3fba..819796fb9d46 100644
---- a/include/net/bluetooth/hci_core.h
-+++ b/include/net/bluetooth/hci_core.h
-@@ -1028,6 +1028,7 @@ struct hci_dev *hci_alloc_dev(void);
- void hci_free_dev(struct hci_dev *hdev);
- int hci_register_dev(struct hci_dev *hdev);
- void hci_unregister_dev(struct hci_dev *hdev);
-+void hci_cleanup_dev(struct hci_dev *hdev);
- int hci_suspend_dev(struct hci_dev *hdev);
- int hci_resume_dev(struct hci_dev *hdev);
- int hci_reset_dev(struct hci_dev *hdev);
-diff --git a/net/bluetooth/hci_core.c b/net/bluetooth/hci_core.c
-index 839c534bdcdb..8517da7f282e 100644
---- a/net/bluetooth/hci_core.c
-+++ b/net/bluetooth/hci_core.c
-@@ -3146,14 +3146,10 @@ EXPORT_SYMBOL(hci_register_dev);
- /* Unregister HCI device */
- void hci_unregister_dev(struct hci_dev *hdev)
- {
--	int id;
--
- 	BT_DBG("%p name %s bus %d", hdev, hdev->name, hdev->bus);
- 
- 	hci_dev_set_flag(hdev, HCI_UNREGISTER);
- 
--	id = hdev->id;
--
- 	write_lock(&hci_dev_list_lock);
- 	list_del(&hdev->list);
- 	write_unlock(&hci_dev_list_lock);
-@@ -3182,7 +3178,14 @@ void hci_unregister_dev(struct hci_dev *hdev)
- 	}
- 
- 	device_del(&hdev->dev);
-+	/* Actual cleanup is deferred until hci_cleanup_dev(). */
-+	hci_dev_put(hdev);
-+}
-+EXPORT_SYMBOL(hci_unregister_dev);
- 
-+/* Cleanup HCI device */
-+void hci_cleanup_dev(struct hci_dev *hdev)
-+{
- 	debugfs_remove_recursive(hdev->debugfs);
- 	kfree_const(hdev->hw_info);
- 	kfree_const(hdev->fw_info);
-@@ -3204,11 +3207,8 @@ void hci_unregister_dev(struct hci_dev *hdev)
- 	hci_discovery_filter_clear(hdev);
- 	hci_dev_unlock(hdev);
- 
--	hci_dev_put(hdev);
--
--	ida_simple_remove(&hci_index_ida, id);
-+	ida_simple_remove(&hci_index_ida, hdev->id);
- }
--EXPORT_SYMBOL(hci_unregister_dev);
- 
- /* Suspend HCI device */
- int hci_suspend_dev(struct hci_dev *hdev)
-diff --git a/net/bluetooth/hci_sock.c b/net/bluetooth/hci_sock.c
-index 35f5585188de..d30163eb1643 100644
---- a/net/bluetooth/hci_sock.c
-+++ b/net/bluetooth/hci_sock.c
-@@ -59,6 +59,17 @@ struct hci_pinfo {
- 	char              comm[TASK_COMM_LEN];
- };
- 
-+static struct hci_dev *hci_hdev_from_sock(struct sock *sk)
-+{
-+	struct hci_dev *hdev = hci_pi(sk)->hdev;
-+
-+	if (!hdev)
-+		return ERR_PTR(-EBADFD);
-+	if (hci_dev_test_flag(hdev, HCI_UNREGISTER))
-+		return ERR_PTR(-EPIPE);
-+	return hdev;
-+}
-+
- void hci_sock_set_flag(struct sock *sk, int nr)
- {
- 	set_bit(nr, &hci_pi(sk)->flags);
-@@ -747,19 +758,13 @@ void hci_sock_dev_event(struct hci_dev *hdev, int event)
- 	if (event == HCI_DEV_UNREG) {
- 		struct sock *sk;
- 
--		/* Detach sockets from device */
-+		/* Wake up sockets using this dead device */
- 		read_lock(&hci_sk_list.lock);
- 		sk_for_each(sk, &hci_sk_list.head) {
--			lock_sock(sk);
- 			if (hci_pi(sk)->hdev == hdev) {
--				hci_pi(sk)->hdev = NULL;
- 				sk->sk_err = EPIPE;
--				sk->sk_state = BT_OPEN;
- 				sk->sk_state_change(sk);
--
--				hci_dev_put(hdev);
- 			}
--			release_sock(sk);
- 		}
- 		read_unlock(&hci_sk_list.lock);
- 	}
-@@ -918,10 +923,10 @@ static int hci_sock_blacklist_del(struct hci_dev *hdev, void __user *arg)
- static int hci_sock_bound_ioctl(struct sock *sk, unsigned int cmd,
- 				unsigned long arg)
- {
--	struct hci_dev *hdev = hci_pi(sk)->hdev;
-+	struct hci_dev *hdev = hci_hdev_from_sock(sk);
- 
--	if (!hdev)
--		return -EBADFD;
-+	if (IS_ERR(hdev))
-+		return PTR_ERR(hdev);
- 
- 	if (hci_dev_test_flag(hdev, HCI_USER_CHANNEL))
- 		return -EBUSY;
-@@ -1075,6 +1080,18 @@ static int hci_sock_bind(struct socket *sock, struct sockaddr *addr,
- 
- 	lock_sock(sk);
- 
-+	/* Allow detaching from dead device and attaching to alive device, if
-+	 * the caller wants to re-bind (instead of close) this socket in
-+	 * response to hci_sock_dev_event(HCI_DEV_UNREG) notification.
-+	 */
-+	hdev = hci_pi(sk)->hdev;
-+	if (hdev && hci_dev_test_flag(hdev, HCI_UNREGISTER)) {
-+		hci_pi(sk)->hdev = NULL;
-+		sk->sk_state = BT_OPEN;
-+		hci_dev_put(hdev);
-+	}
-+	hdev = NULL;
-+
- 	if (sk->sk_state == BT_BOUND) {
- 		err = -EALREADY;
- 		goto done;
-@@ -1351,9 +1368,9 @@ static int hci_sock_getname(struct socket *sock, struct sockaddr *addr,
- 
- 	lock_sock(sk);
- 
--	hdev = hci_pi(sk)->hdev;
--	if (!hdev) {
--		err = -EBADFD;
-+	hdev = hci_hdev_from_sock(sk);
-+	if (IS_ERR(hdev)) {
-+		err = PTR_ERR(hdev);
- 		goto done;
- 	}
- 
-@@ -1713,9 +1730,9 @@ static int hci_sock_sendmsg(struct socket *sock, struct msghdr *msg,
- 		goto done;
- 	}
- 
--	hdev = hci_pi(sk)->hdev;
--	if (!hdev) {
--		err = -EBADFD;
-+	hdev = hci_hdev_from_sock(sk);
-+	if (IS_ERR(hdev)) {
-+		err = PTR_ERR(hdev);
- 		goto done;
- 	}
- 
-diff --git a/net/bluetooth/hci_sysfs.c b/net/bluetooth/hci_sysfs.c
-index ca7a35ebaefb..cb7d06bb0243 100644
---- a/net/bluetooth/hci_sysfs.c
-+++ b/net/bluetooth/hci_sysfs.c
-@@ -82,6 +82,9 @@ void hci_conn_del_sysfs(struct hci_conn *conn)
- static void bt_host_release(struct device *dev)
- {
- 	struct hci_dev *hdev = to_hci_dev(dev);
-+
-+	if (hci_dev_test_flag(hdev, HCI_UNREGISTER))
-+		hci_cleanup_dev(hdev);
- 	kfree(hdev);
- 	module_put(THIS_MODULE);
- }
-diff --git a/scripts/tracing/draw_functrace.py b/scripts/tracing/draw_functrace.py
-index 30f117dfab43..68ecb455b492 100755
---- a/scripts/tracing/draw_functrace.py
-+++ b/scripts/tracing/draw_functrace.py
-@@ -17,7 +17,7 @@ Usage:
- 	$ cat /sys/kernel/debug/tracing/trace_pipe > ~/raw_trace_func
- 	Wait some times but not too much, the script is a bit slow.
- 	Break the pipe (Ctrl + Z)
--	$ scripts/draw_functrace.py < raw_trace_func > draw_functrace
-+	$ scripts/tracing/draw_functrace.py < ~/raw_trace_func > draw_functrace
- 	Then you have your drawn trace in draw_functrace
- """
- 
-@@ -103,10 +103,10 @@ def parseLine(line):
- 	line = line.strip()
- 	if line.startswith("#"):
- 		raise CommentLineException
--	m = re.match("[^]]+?\\] +([0-9.]+): (\\w+) <-(\\w+)", line)
-+	m = re.match("[^]]+?\\] +([a-z.]+) +([0-9.]+): (\\w+) <-(\\w+)", line)
- 	if m is None:
- 		raise BrokenLineException
--	return (m.group(1), m.group(2), m.group(3))
-+	return (m.group(2), m.group(3), m.group(4))
- 
- 
- def main():
-diff --git a/sound/core/seq/seq_ports.c b/sound/core/seq/seq_ports.c
-index 9cfe4fcee9a5..27433f141cee 100644
---- a/sound/core/seq/seq_ports.c
-+++ b/sound/core/seq/seq_ports.c
-@@ -532,10 +532,11 @@ static int check_and_subscribe_port(struct snd_seq_client *client,
- 	return err;
- }
- 
--static void delete_and_unsubscribe_port(struct snd_seq_client *client,
--					struct snd_seq_client_port *port,
--					struct snd_seq_subscribers *subs,
--					bool is_src, bool ack)
-+/* called with grp->list_mutex held */
-+static void __delete_and_unsubscribe_port(struct snd_seq_client *client,
-+					  struct snd_seq_client_port *port,
-+					  struct snd_seq_subscribers *subs,
-+					  bool is_src, bool ack)
- {
- 	struct snd_seq_port_subs_info *grp;
- 	struct list_head *list;
-@@ -543,7 +544,6 @@ static void delete_and_unsubscribe_port(struct snd_seq_client *client,
- 
- 	grp = is_src ? &port->c_src : &port->c_dest;
- 	list = is_src ? &subs->src_list : &subs->dest_list;
--	down_write(&grp->list_mutex);
- 	write_lock_irq(&grp->list_lock);
- 	empty = list_empty(list);
- 	if (!empty)
-@@ -553,6 +553,18 @@ static void delete_and_unsubscribe_port(struct snd_seq_client *client,
- 
- 	if (!empty)
- 		unsubscribe_port(client, port, grp, &subs->info, ack);
-+}
-+
-+static void delete_and_unsubscribe_port(struct snd_seq_client *client,
-+					struct snd_seq_client_port *port,
-+					struct snd_seq_subscribers *subs,
-+					bool is_src, bool ack)
-+{
-+	struct snd_seq_port_subs_info *grp;
-+
-+	grp = is_src ? &port->c_src : &port->c_dest;
-+	down_write(&grp->list_mutex);
-+	__delete_and_unsubscribe_port(client, port, subs, is_src, ack);
- 	up_write(&grp->list_mutex);
- }
- 
-@@ -608,27 +620,30 @@ int snd_seq_port_disconnect(struct snd_seq_client *connector,
- 			    struct snd_seq_client_port *dest_port,
- 			    struct snd_seq_port_subscribe *info)
- {
--	struct snd_seq_port_subs_info *src = &src_port->c_src;
-+	struct snd_seq_port_subs_info *dest = &dest_port->c_dest;
- 	struct snd_seq_subscribers *subs;
- 	int err = -ENOENT;
- 
--	down_write(&src->list_mutex);
-+	/* always start from deleting the dest port for avoiding concurrent
-+	 * deletions
-+	 */
-+	down_write(&dest->list_mutex);
- 	/* look for the connection */
--	list_for_each_entry(subs, &src->list_head, src_list) {
-+	list_for_each_entry(subs, &dest->list_head, dest_list) {
- 		if (match_subs_info(info, &subs->info)) {
--			atomic_dec(&subs->ref_count); /* mark as not ready */
-+			__delete_and_unsubscribe_port(dest_client, dest_port,
-+						      subs, false,
-+						      connector->number != dest_client->number);
- 			err = 0;
- 			break;
- 		}
- 	}
--	up_write(&src->list_mutex);
-+	up_write(&dest->list_mutex);
- 	if (err < 0)
- 		return err;
- 
- 	delete_and_unsubscribe_port(src_client, src_port, subs, true,
- 				    connector->number != src_client->number);
--	delete_and_unsubscribe_port(dest_client, dest_port, subs, false,
--				    connector->number != dest_client->number);
- 	kfree(subs);
- 	return 0;
- }
+I'm announcing the release of the 4.14.244 kernel.
+
+All users of the 4.14 kernel series must upgrade.
+
+The updated 4.14.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.14.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Makefile                                             |    2 
+ arch/alpha/kernel/smp.c                              |    2 
+ arch/arm/boot/dts/omap5-board-common.dtsi            |    9 --
+ arch/mips/Makefile                                   |    2 
+ arch/mips/mti-malta/malta-platform.c                 |    3 
+ arch/x86/events/perf_event.h                         |    3 
+ drivers/acpi/acpica/nsrepair2.c                      |    7 -
+ drivers/ata/libata-sff.c                             |   35 ++++++--
+ drivers/clk/clk-stm32f4.c                            |   10 +-
+ drivers/media/usb/dvb-usb-v2/rtl28xxu.c              |   11 ++
+ drivers/media/v4l2-core/videobuf2-core.c             |   13 +++
+ drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c      |    3 
+ drivers/net/ethernet/freescale/fec_main.c            |    2 
+ drivers/net/ethernet/natsemi/natsemi.c               |    8 --
+ drivers/net/ethernet/neterion/vxge/vxge-main.c       |    6 -
+ drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c |    2 
+ drivers/net/ethernet/qlogic/qla3xxx.c                |    6 -
+ drivers/net/ethernet/xilinx/xilinx_emaclite.c        |    5 -
+ drivers/net/ppp/ppp_generic.c                        |   19 +++-
+ drivers/net/usb/pegasus.c                            |   14 ++-
+ drivers/net/usb/qmi_wwan.c                           |   76 +++++++++++++++++--
+ drivers/pcmcia/i82092.c                              |    1 
+ drivers/scsi/sr.c                                    |    2 
+ drivers/spi/spi-meson-spicc.c                        |    2 
+ drivers/staging/rtl8723bs/hal/sdio_ops.c             |    2 
+ drivers/tty/serial/8250/8250_port.c                  |   12 ++-
+ drivers/usb/class/usbtmc.c                           |    8 --
+ drivers/usb/common/usb-otg-fsm.c                     |    6 +
+ drivers/usb/gadget/function/f_hid.c                  |   44 +++++++++--
+ drivers/usb/host/ehci-pci.c                          |    3 
+ drivers/usb/serial/ch341.c                           |    1 
+ drivers/usb/serial/ftdi_sio.c                        |    1 
+ drivers/usb/serial/ftdi_sio_ids.h                    |    3 
+ drivers/usb/serial/option.c                          |    2 
+ fs/ext4/namei.c                                      |    2 
+ fs/namespace.c                                       |   42 +++++++---
+ fs/pipe.c                                            |   19 ++++
+ fs/reiserfs/stree.c                                  |   31 ++++++-
+ fs/reiserfs/super.c                                  |    8 ++
+ include/linux/usb/otg-fsm.h                          |    1 
+ include/net/bluetooth/hci_core.h                     |    1 
+ net/bluetooth/hci_core.c                             |   16 ++--
+ net/bluetooth/hci_sock.c                             |   49 ++++++++----
+ net/bluetooth/hci_sysfs.c                            |    3 
+ scripts/tracing/draw_functrace.py                    |    6 -
+ sound/core/seq/seq_ports.c                           |   39 ++++++---
+ 46 files changed, 399 insertions(+), 143 deletions(-)
+
+Alex Xu (Hello71) (1):
+      pipe: increase minimum default pipe size to 2 pages
+
+Christoph Hellwig (1):
+      libata: fix ata_pio_sector for CONFIG_HIGHMEM
+
+Dan Carpenter (1):
+      bnx2x: fix an error code in bnx2x_nic_load()
+
+Daniele Palmas (1):
+      USB: serial: option: add Telit FD980 composition 0x1056
+
+Dario Binacchi (1):
+      clk: stm32f4: fix post divisor setup for I2S/SAI PLLs
+
+David Bauer (1):
+      USB: serial: ftdi_sio: add device ID for Auto-M3 OP-COM v2
+
+Dmitry Osipenko (1):
+      usb: otg-fsm: Fix hrtimer list corruption
+
+Dongliang Mu (1):
+      spi: meson-spicc: fix memory leak in meson_spicc_remove
+
+Fei Qin (1):
+      nfp: update ethtool reporting of pauseframe control
+
+Greg Kroah-Hartman (1):
+      Linux 4.14.244
+
+H. Nikolaus Schaller (2):
+      omap5-board-common: remove not physically existing vdds_1v8_main fixed-regulator
+      mips: Fix non-POSIX regexp
+
+Hans Verkuil (1):
+      media: videobuf2-core: dequeue if start_streaming fails
+
+Hui Su (1):
+      scripts/tracing: fix the bug that can't parse raw_trace_func
+
+Johan Hovold (1):
+      media: rtl28xxu: fix zero-length control request
+
+Letu Ren (1):
+      net/qla3xxx: fix schedule while atomic in ql_wait_for_drvr_lock and ql_adapter_reset
+
+Li Manyi (1):
+      scsi: sr: Return correct event when media event code is 3
+
+Like Xu (1):
+      perf/x86/amd: Don't touch the AMD64_EVENTSEL_HOSTONLY bit inside the guest
+
+Longfang Liu (1):
+      USB:ehci:fix Kunpeng920 ehci hardware problem
+
+Maciej W. Rozycki (2):
+      serial: 8250: Mask out floating 16/32-bit bus bits
+      MIPS: Malta: Do not byte-swap accesses to the CBUS UART
+
+Maxim Devaev (2):
+      usb: gadget: f_hid: added GET_IDLE and SET_IDLE handlers
+      usb: gadget: f_hid: idle uses the highest byte for duration
+
+Miklos Szeredi (1):
+      ovl: prevent private clone if bind mount is not allowed
+
+Pali Rohár (1):
+      ppp: Fix generating ppp unit id when ifname is not specified
+
+Pavel Skripkin (3):
+      net: pegasus: fix uninit-value in get_interrupt_interval
+      net: fec: fix use-after-free in fec_drv_remove
+      net: vxge: fix use-after-free in vxge_device_unregister
+
+Phil Elwell (1):
+      usb: gadget: f_hid: fixed NULL pointer dereference
+
+Prarit Bhargava (1):
+      alpha: Send stop IPI to send to online CPUs
+
+Qiang.zhang (1):
+      USB: usbtmc: Fix RCU stall warning
+
+Rafael J. Wysocki (1):
+      Revert "ACPICA: Fix memory leak caused by _CID repair function"
+
+Reinhard Speyerer (1):
+      qmi_wwan: add network device usage statistics for qmimux devices
+
+Shreyansh Chouhan (1):
+      reiserfs: check directory items on read from disk
+
+Takashi Iwai (1):
+      ALSA: seq: Fix racy deletion of subscriber
+
+Tetsuo Handa (1):
+      Bluetooth: defer cleanup of resources in hci_unregister_dev()
+
+Theodore Ts'o (1):
+      ext4: fix potential htree corruption when growing large_dir directories
+
+Wang Hai (1):
+      net: natsemi: Fix missing pci_disable_device() in probe and remove
+
+Willy Tarreau (1):
+      USB: serial: ch341: fix character loss at high transfer rates
+
+Xiangyang Zhang (1):
+      staging: rtl8723bs: Fix a resource leak in sd_int_dpc
+
+Yu Kuai (1):
+      reiserfs: add check for root_inode in reiserfs_fill_super
+
+YueHaibing (1):
+      net: xilinx_emaclite: Do not print real IOMEM pointer
+
+Zheyu Ma (1):
+      pcmcia: i82092: fix a null pointer dereference bug
+
