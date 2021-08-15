@@ -2,331 +2,199 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F254B3ECBAF
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 00:32:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B6D3D3ECBB4
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 00:54:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230077AbhHOWcn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Aug 2021 18:32:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45682 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229582AbhHOWcn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 15 Aug 2021 18:32:43 -0400
-Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C281EC061764
-        for <stable@vger.kernel.org>; Sun, 15 Aug 2021 15:32:12 -0700 (PDT)
-Received: by mail-pj1-x102a.google.com with SMTP id fa24-20020a17090af0d8b0290178bfa69d97so24543608pjb.0
-        for <stable@vger.kernel.org>; Sun, 15 Aug 2021 15:32:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=fbpYRcgPpJkntidnZgUPOqq95xnAsyIjea5TB1CnzpE=;
-        b=P+SVz0p/vtmt9W8/M64M6WvnIuABtZPL9e+BGOd3V6Qgkt8tuaA1Sa79h6/hXiic5E
-         Vo+RjHiUWqj1Kmc8HL9FDUTipyWtljC7mT00QYoD5Hckw33nTuWVTOWC0t2E+BMR/j9+
-         cTXvmvwR5DByzw+QWYOwurhfAIl6iBcjjF5RZ3RqPeDoNEj14WUBUblqUPAjnNbzMzjy
-         fOCC8Ny2LPWWNHLsGCGzNziv6gtXpdgW9c1wQ69Qnt56z2pFDZU8YE6v+e3yykp9EvLa
-         h+yKXu9KwurFxSd+qQbcG5MOjZLRXDc7Cu3BbWbeKc3c5pfCTFynWlYM+jtva6BYAO5W
-         AvTQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=fbpYRcgPpJkntidnZgUPOqq95xnAsyIjea5TB1CnzpE=;
-        b=Ih6qTOYAPemsHsraSaqW/QAqB7ek55l0+pZBQz+rASgaxtzdL5oZttkS+a6vTZlvDL
-         +ufX+dWHc0vlqMOlG3nBJ9wYmd+ikStmBy4LwRZSwki/0ZDCMwVtoJGXuNEpZK59amcY
-         mo5kO98j6pQyRcJo2Rj2dBAWQdrVujsteGo0PYqIQLIjxgbDW+KxzYYAevb2OtUFmNhB
-         K5eIB/3TilWhqg+PKHpF8B9RxOSyN1vtkLjDnqcXPcGCisP33wUQA3lz8TcojHfn0VyA
-         2YyF6wlB4mxQY9PYBlQdVh5D+VIEWovSyteiaWUrCAALw2dYPAwDdgalYeQSLg5aM8jZ
-         ua7w==
-X-Gm-Message-State: AOAM532lctvac77bTLIPo1/wivCuCzNK/M2n+PQlizsC9Al9c57MXFuK
-        S5PYDDLuEaYBSTS5BqPaFm1EWikuXxDdHMFG
-X-Google-Smtp-Source: ABdhPJxauDT9OelfiexCCzTByv/TX/BWmgCZKtswDAUi2zYd26jEuST7kWVVopKwJx3/BDodnDsTJA==
-X-Received: by 2002:a17:90a:2f44:: with SMTP id s62mr13603124pjd.222.1629066731911;
-        Sun, 15 Aug 2021 15:32:11 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id t40sm2723858pfg.6.2021.08.15.15.32.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 15 Aug 2021 15:32:11 -0700 (PDT)
-Message-ID: <611995eb.1c69fb81.efd8f.80a1@mx.google.com>
-Date:   Sun, 15 Aug 2021 15:32:11 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S230124AbhHOWzP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Aug 2021 18:55:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48784 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229814AbhHOWzP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 15 Aug 2021 18:55:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DC7B060EB5;
+        Sun, 15 Aug 2021 22:54:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1629068084;
+        bh=bg7sHPn3XavG4VHjw1wDZ4Saf6f5mojVM5bMo81MVGs=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Qkpk1r5lqodV+9wUpnu1RXibKieJ/uvtUg+2V62LO6isxWonMDzxJSYOpQ1d2/WP0
+         zkHSjxeERyY0VBNn3yK4FvkX1hvOwab8g75UuxcQxpUr5ALuE1oZfn3jmKSal3MDAK
+         wfCgioPKR9wrDHDVRGdM0wHBERJuxoKoI0xh3ZaMNk2Xq2KK2bxiBNES8ifInZarb0
+         HbiFijUv5FKhQu/G6xrl8Vzk4xOOGgW2MjnmCXPu0zYhAGMDSb3XG3Yu/teQR1+x1A
+         ZQxkVqp0bKSdssy0tleBIwgit33Tcuo1eVBtoAmePErv4ABr7/WTdGcHV7HfnlLgSr
+         vK/uGVTAjugoA==
+Date:   Sun, 15 Aug 2021 15:54:39 -0700
+From:   Nathan Chancellor <nathan@kernel.org>
+To:     gregkh@linuxfoundation.org
+Cc:     elver@google.com, keescook@chromium.org, maskray@google.com,
+        ndesaulniers@google.com, stable-commits@vger.kernel.org,
+        stable@vger.kernel.org, sashal@kernel.org
+Subject: Re: Patch "vmlinux.lds.h: Handle clang's module.{c,d}tor sections"
+ has been added to the 5.13-stable tree
+Message-ID: <YRmbLz1ZivIMKgc5@archlinux-ax161>
+References: <16290320662366@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.10
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.10.57-221-g59fda4eb754b
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/5.10 baseline: 189 runs,
- 8 regressions (v5.10.57-221-g59fda4eb754b)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: multipart/mixed; boundary="ExCZztx91pGMwpEA"
+Content-Disposition: inline
+In-Reply-To: <16290320662366@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 baseline: 189 runs, 8 regressions (v5.10.57-221-g59fda=
-4eb754b)
 
-Regressions Summary
--------------------
-
-platform                | arch  | lab           | compiler | defconfig     =
-     | regressions
-------------------------+-------+---------------+----------+---------------=
------+------------
-fsl-ls1043a-rdb         | arm64 | lab-nxp       | gcc-8    | defconfig     =
-     | 1          =
-
-hip07-d05               | arm64 | lab-collabora | gcc-8    | defconfig     =
-     | 1          =
-
-imx7d-sdb               | arm   | lab-nxp       | gcc-8    | multi_v7_defco=
-nfig | 1          =
-
-imx8mp-evk              | arm64 | lab-nxp       | gcc-8    | defconfig     =
-     | 1          =
-
-rk3288-veyron-jaq       | arm   | lab-collabora | gcc-8    | multi_v7_defco=
-nfig | 3          =
-
-sun50i-a64-bananapi-m64 | arm64 | lab-clabbe    | gcc-8    | defconfig     =
-     | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
-nel/v5.10.57-221-g59fda4eb754b/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.10
-  Describe: v5.10.57-221-g59fda4eb754b
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      59fda4eb754b6407d95bc84156ed50d3fc3143f3 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                | arch  | lab           | compiler | defconfig     =
-     | regressions
-------------------------+-------+---------------+----------+---------------=
------+------------
-fsl-ls1043a-rdb         | arm64 | lab-nxp       | gcc-8    | defconfig     =
-     | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6119671e1a5316bfd7b1366c
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.57-=
-221-g59fda4eb754b/arm64/defconfig/gcc-8/lab-nxp/baseline-fsl-ls1043a-rdb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.57-=
-221-g59fda4eb754b/arm64/defconfig/gcc-8/lab-nxp/baseline-fsl-ls1043a-rdb.ht=
-ml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6119671e1a5316bfd7b13=
-66d
-        new failure (last pass: v5.10.57-154-g5f0bac13c2e0) =
-
- =
-
-
-
-platform                | arch  | lab           | compiler | defconfig     =
-     | regressions
-------------------------+-------+---------------+----------+---------------=
------+------------
-hip07-d05               | arm64 | lab-collabora | gcc-8    | defconfig     =
-     | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6119660f7d9e5afce1b13662
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.57-=
-221-g59fda4eb754b/arm64/defconfig/gcc-8/lab-collabora/baseline-hip07-d05.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.57-=
-221-g59fda4eb754b/arm64/defconfig/gcc-8/lab-collabora/baseline-hip07-d05.ht=
-ml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6119660f7d9e5afce1b13=
-663
-        failing since 45 days (last pass: v5.10.46-100-gce5b41f85637, first=
- fail: v5.10.46-100-g3b96099161c8b) =
-
- =
-
-
-
-platform                | arch  | lab           | compiler | defconfig     =
-     | regressions
-------------------------+-------+---------------+----------+---------------=
------+------------
-imx7d-sdb               | arm   | lab-nxp       | gcc-8    | multi_v7_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61196489a8b7d7e557b136e6
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.57-=
-221-g59fda4eb754b/arm/multi_v7_defconfig/gcc-8/lab-nxp/baseline-imx7d-sdb.t=
-xt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.57-=
-221-g59fda4eb754b/arm/multi_v7_defconfig/gcc-8/lab-nxp/baseline-imx7d-sdb.h=
-tml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61196489a8b7d7e557b13=
-6e7
-        new failure (last pass: v5.10.57-154-g5f0bac13c2e0) =
-
- =
-
-
-
-platform                | arch  | lab           | compiler | defconfig     =
-     | regressions
-------------------------+-------+---------------+----------+---------------=
------+------------
-imx8mp-evk              | arm64 | lab-nxp       | gcc-8    | defconfig     =
-     | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/611966911f00d4f855b13665
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.57-=
-221-g59fda4eb754b/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.57-=
-221-g59fda4eb754b/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/611966911f00d4f855b13=
-666
-        failing since 5 days (last pass: v5.10.57-49-g039efb5682ed, first f=
-ail: v5.10.57-125-gb8eec9975ba1) =
-
- =
-
-
-
-platform                | arch  | lab           | compiler | defconfig     =
-     | regressions
-------------------------+-------+---------------+----------+---------------=
------+------------
-rk3288-veyron-jaq       | arm   | lab-collabora | gcc-8    | multi_v7_defco=
-nfig | 3          =
-
-
-  Details:     https://kernelci.org/test/plan/id/611964af288ac02f29b13661
-
-  Results:     67 PASS, 3 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.57-=
-221-g59fda4eb754b/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk328=
-8-veyron-jaq.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.57-=
-221-g59fda4eb754b/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk328=
-8-veyron-jaq.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-iodomain-grf-probed: https://kernelci.org/test=
-/case/id/611964af288ac02f29b13679
-        failing since 61 days (last pass: v5.10.43-44-g253317604975, first =
-fail: v5.10.43-130-g87b5f83f722c)
-
-    2021-08-15T19:01:59.678951  /lava-4368110/1/../bin/lava-test-case<8>[  =
- 13.917281] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Drockchip-iodomain-grf-prob=
-ed RESULT=3Dfail>
-    2021-08-15T19:01:59.679512  =
-
-    2021-08-15T19:01:59.679931  /lava-4368110/1/../bin/lava-test-case   =
-
-
-  * baseline.bootrr.dwmmc_rockchip-sdio0-probed: https://kernelci.org/test/=
-case/id/611964af288ac02f29b13691
-        failing since 61 days (last pass: v5.10.43-44-g253317604975, first =
-fail: v5.10.43-130-g87b5f83f722c)
-
-    2021-08-15T19:01:58.255611  /lava-4368110/1/../bin/lava-test-case<8>[  =
- 12.493786] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Ddwmmc_rockchip-sdio0-probe=
-d RESULT=3Dfail>
-    2021-08-15T19:01:58.256065  =
-
-    2021-08-15T19:01:58.256379  /lava-4368110/1/../bin/lava-test-case   =
-
-
-  * baseline.bootrr.dwmmc_rockchip-sdmmc-probed: https://kernelci.org/test/=
-case/id/611964af288ac02f29b136a8
-        failing since 61 days (last pass: v5.10.43-44-g253317604975, first =
-fail: v5.10.43-130-g87b5f83f722c)
-
-    2021-08-15T19:01:57.219695  /lava-4368110/1/../bin/lava-test-case
-    2021-08-15T19:01:57.224928  <8>[   11.474430] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Ddwmmc_rockchip-sdmmc-probed RESULT=3Dfail>   =
-
- =
-
-
-
-platform                | arch  | lab           | compiler | defconfig     =
-     | regressions
-------------------------+-------+---------------+----------+---------------=
------+------------
-sun50i-a64-bananapi-m64 | arm64 | lab-clabbe    | gcc-8    | defconfig     =
-     | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/611965f22db62939e4b1367c
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.57-=
-221-g59fda4eb754b/arm64/defconfig/gcc-8/lab-clabbe/baseline-sun50i-a64-bana=
-napi-m64.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.57-=
-221-g59fda4eb754b/arm64/defconfig/gcc-8/lab-clabbe/baseline-sun50i-a64-bana=
-napi-m64.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/611965f22db62939e4b13=
-67d
-        new failure (last pass: v5.10.57-154-g5f0bac13c2e0) =
-
- =20
+--ExCZztx91pGMwpEA
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+Hi Greg,
+
+On Sun, Aug 15, 2021 at 02:54:26PM +0200, gregkh@linuxfoundation.org wrote:
+> 
+> This is a note to let you know that I've just added the patch titled
+> 
+>     vmlinux.lds.h: Handle clang's module.{c,d}tor sections
+> 
+> to the 5.13-stable tree which can be found at:
+>     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
+> 
+> The filename of the patch is:
+>      vmlinux.lds.h-handle-clang-s-module.-c-d-tor-sections.patch
+> and it can be found in the queue-5.13 subdirectory.
+
+Attached are backports for 4.4 to 5.10. I am not sure if anyone is
+actually using KASAN with clang on 4.4 (ChromeOS maybe?) but it does not
+hurt to have it just in case.
+
+I did not get any emails that the patch failed to apply on the older
+versions, I assume this is because I did just a "Cc: stable@vger.kernel.org"
+without any version or fixes tag. Is there any "official" way to notate
+that I want a particular patch applied to all supported kernel versions
+aside from adding "# v4.4+" to the Cc tag so that I can provide manual
+backports for those versions?
+
+Cheers,
+Nathan
+
+--ExCZztx91pGMwpEA
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="4.4-4.14-848378812e401.patch"
+
+From fd073a15e9941b70d0db84d28d539cf3535e1b59 Mon Sep 17 00:00:00 2001
+From: Nathan Chancellor <nathan@kernel.org>
+Date: Fri, 30 Jul 2021 19:31:08 -0700
+Subject: [PATCH 4.4 to 4.14] vmlinux.lds.h: Handle clang's module.{c,d}tor
+ sections
+
+commit 848378812e40152abe9b9baf58ce2004f76fb988 upstream.
+
+A recent change in LLVM causes module_{c,d}tor sections to appear when
+CONFIG_K{A,C}SAN are enabled, which results in orphan section warnings
+because these are not handled anywhere:
+
+ld.lld: warning: arch/x86/pci/built-in.a(legacy.o):(.text.asan.module_ctor) is being placed in '.text.asan.module_ctor'
+ld.lld: warning: arch/x86/pci/built-in.a(legacy.o):(.text.asan.module_dtor) is being placed in '.text.asan.module_dtor'
+ld.lld: warning: arch/x86/pci/built-in.a(legacy.o):(.text.tsan.module_ctor) is being placed in '.text.tsan.module_ctor'
+
+Fangrui explains: "the function asan.module_ctor has the SHF_GNU_RETAIN
+flag, so it is in a separate section even with -fno-function-sections
+(default)".
+
+Place them in the TEXT_TEXT section so that these technologies continue
+to work with the newer compiler versions. All of the KASAN and KCSAN
+KUnit tests continue to pass after this change.
+
+Cc: stable@vger.kernel.org
+Link: https://github.com/ClangBuiltLinux/linux/issues/1432
+Link: https://github.com/llvm/llvm-project/commit/7b789562244ee941b7bf2cefeb3fc08a59a01865
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Fangrui Song <maskray@google.com>
+Acked-by: Marco Elver <elver@google.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20210731023107.1932981-1-nathan@kernel.org
+[nc: Fix conflicts due to lack of cf68fffb66d60 and 266ff2a8f51f0]
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+---
+ include/asm-generic/vmlinux.lds.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
+index c9790b2cdf34..45fe7295051f 100644
+--- a/include/asm-generic/vmlinux.lds.h
++++ b/include/asm-generic/vmlinux.lds.h
+@@ -465,6 +465,7 @@
+ 		*(.text.unknown .text.unknown.*)			\
+ 		*(.text..refcount)					\
+ 		*(.ref.text)						\
++		*(.text.asan.* .text.tsan.*)				\
+ 	MEM_KEEP(init.text)						\
+ 	MEM_KEEP(exit.text)						\
+ 
+
+base-commit: 162b95d01320370b80cb2d5724cea4ae538ac740
+-- 
+2.33.0.rc2
+
+
+--ExCZztx91pGMwpEA
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="4.19-5.10-848378812e401.patch"
+
+From 07154ab1ed7ce98f9418421152753e1bc8029829 Mon Sep 17 00:00:00 2001
+From: Nathan Chancellor <nathan@kernel.org>
+Date: Fri, 30 Jul 2021 19:31:08 -0700
+Subject: [PATCH 4.19 to 5.10] vmlinux.lds.h: Handle clang's module.{c,d}tor
+ sections
+
+commit 848378812e40152abe9b9baf58ce2004f76fb988 upstream.
+
+A recent change in LLVM causes module_{c,d}tor sections to appear when
+CONFIG_K{A,C}SAN are enabled, which results in orphan section warnings
+because these are not handled anywhere:
+
+ld.lld: warning: arch/x86/pci/built-in.a(legacy.o):(.text.asan.module_ctor) is being placed in '.text.asan.module_ctor'
+ld.lld: warning: arch/x86/pci/built-in.a(legacy.o):(.text.asan.module_dtor) is being placed in '.text.asan.module_dtor'
+ld.lld: warning: arch/x86/pci/built-in.a(legacy.o):(.text.tsan.module_ctor) is being placed in '.text.tsan.module_ctor'
+
+Fangrui explains: "the function asan.module_ctor has the SHF_GNU_RETAIN
+flag, so it is in a separate section even with -fno-function-sections
+(default)".
+
+Place them in the TEXT_TEXT section so that these technologies continue
+to work with the newer compiler versions. All of the KASAN and KCSAN
+KUnit tests continue to pass after this change.
+
+Cc: stable@vger.kernel.org
+Link: https://github.com/ClangBuiltLinux/linux/issues/1432
+Link: https://github.com/llvm/llvm-project/commit/7b789562244ee941b7bf2cefeb3fc08a59a01865
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Fangrui Song <maskray@google.com>
+Acked-by: Marco Elver <elver@google.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20210731023107.1932981-1-nathan@kernel.org
+[nc: Resolve conflict due to lack of cf68fffb66d60]
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+---
+ include/asm-generic/vmlinux.lds.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
+index 18468b46c450..a774361f28d4 100644
+--- a/include/asm-generic/vmlinux.lds.h
++++ b/include/asm-generic/vmlinux.lds.h
+@@ -599,6 +599,7 @@
+ 		NOINSTR_TEXT						\
+ 		*(.text..refcount)					\
+ 		*(.ref.text)						\
++		*(.text.asan.* .text.tsan.*)				\
+ 	MEM_KEEP(init.text*)						\
+ 	MEM_KEEP(exit.text*)						\
+ 
+
+base-commit: 5805e5eec901e830c7741d4916270d0b9cfd6743
+-- 
+2.33.0.rc2
+
+
+--ExCZztx91pGMwpEA--
