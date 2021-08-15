@@ -2,63 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 526333EC8D1
-	for <lists+stable@lfdr.de>; Sun, 15 Aug 2021 13:42:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CCE63EC8D3
+	for <lists+stable@lfdr.de>; Sun, 15 Aug 2021 13:43:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237639AbhHOLnD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Aug 2021 07:43:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40276 "EHLO mail.kernel.org"
+        id S232076AbhHOLoC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Aug 2021 07:44:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229677AbhHOLnC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 15 Aug 2021 07:43:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7722C60F11;
-        Sun, 15 Aug 2021 11:42:32 +0000 (UTC)
+        id S229597AbhHOLoB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 15 Aug 2021 07:44:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 90C5261038;
+        Sun, 15 Aug 2021 11:43:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629027753;
-        bh=MOhBmeozH5SlefXLm+Rklc27VBOOJ6ubDwoO9svYyyA=;
+        s=korg; t=1629027812;
+        bh=hEhPaJjW7ieAIe+T1TNBdywiuYr7OTXX5D713RIxwo4=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=EJVYjgHbAhzzXzl3NNv6vopa1gxXjmz1jKyM9PTFXjP+HSkLcywqMI0xy1pvfupc3
-         2rTnh6JcW1zuPq6iDJMZyadhWxSECO0w3Y2jE3x8FkR6K+MtABRgJL2Er7zmyE0P2G
-         TrzZXfYSSYTegOY3uWIaCwOCVif/FkOZEN2bynJw=
-Date:   Sun, 15 Aug 2021 13:42:30 +0200
+        b=j8a9l5wBdZq/mgbbziPVIzyGFU2mmN+Cl9zFT0VzHjdNpdpMvlxHBfY+dl3CdhqG9
+         CtNjy/jK36ejlIPvb8hEoYvG9SkvKr62xJuaN/UMCFJ3NHrSxJes7XD4zx92N1v8n1
+         qzJI7xg6AFiCVlJSTd0DiwvkIzWuN/A2rgJgFo6c=
+Date:   Sun, 15 Aug 2021 13:43:24 +0200
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Daniel Borkmann <daniel@iogearbox.net>
-Cc:     Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>
-Subject: Re: [PATCH 5.10 04/19] bpf: Add _kernel suffix to internal
- lockdown_bpf_read
-Message-ID: <YRj9pl459cFK+2kJ@kroah.com>
+To:     Pavel Machek <pavel@ucw.cz>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: Re: [PATCH 5.10 12/19] vboxsf: Make vboxsf_dir_create() return the
+ handle for the created file
+Message-ID: <YRj93JpbfFgAjVyu@kroah.com>
 References: <20210813150522.623322501@linuxfoundation.org>
- <20210813150522.774143311@linuxfoundation.org>
- <20210813195523.GA4577@duo.ucw.cz>
- <f42f4fbb-3777-6e5b-0daf-6fdb2cc707b8@iogearbox.net>
+ <20210813150523.032839314@linuxfoundation.org>
+ <20210813193158.GA21328@duo.ucw.cz>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <f42f4fbb-3777-6e5b-0daf-6fdb2cc707b8@iogearbox.net>
+In-Reply-To: <20210813193158.GA21328@duo.ucw.cz>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Aug 13, 2021 at 11:57:58PM +0200, Daniel Borkmann wrote:
-> Hi Pavel,
+On Fri, Aug 13, 2021 at 09:31:58PM +0200, Pavel Machek wrote:
+> Hi!
 > 
-> On 8/13/21 9:55 PM, Pavel Machek wrote:
-> > > From: Daniel Borkmann <daniel@iogearbox.net>
-> > > 
-> > > commit 71330842ff93ae67a066c1fa68d75672527312fa upstream.
-> > > 
-> > > Rename LOCKDOWN_BPF_READ into LOCKDOWN_BPF_READ_KERNEL so we have naming
-> > > more consistent with a LOCKDOWN_BPF_WRITE_USER option that we are
-> > > adding.
+> > commit ab0c29687bc7a890d1a86ac376b0b0fd78b2d9b6 upstream
 > > 
-> > As far as I can tell, next bpf patch does not depend on this one and
-> > we don't need it in 5.10. (Likely same situation with 5.13).
+> > Make vboxsf_dir_create() optionally return the vboxsf-handle for
+> > the created file. This is a preparation patch for adding atomic_open
+> > support.
 > 
-> Yeah, it's nice to have for consistency given also small as well, but
-> also fully okay to drop it as there shouldn't be any conflict.
-> 
+> Follow up commits using this functionality are in 5.13 but not in
+> 5.10, so I believe we don't need this in 5.10, either?
 
-Ok, now dropped, thanks.
+It was asked to be backported, so I'll leave it in for now, thanks.
 
 greg k-h
