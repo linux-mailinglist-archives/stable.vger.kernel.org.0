@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C47B3EC904
-	for <lists+stable@lfdr.de>; Sun, 15 Aug 2021 14:33:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6762D3EC905
+	for <lists+stable@lfdr.de>; Sun, 15 Aug 2021 14:33:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237933AbhHOMeM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Aug 2021 08:34:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36628 "EHLO mail.kernel.org"
+        id S238228AbhHOMe0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Aug 2021 08:34:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237894AbhHOMeM (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Sun, 15 Aug 2021 08:34:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B246461038;
-        Sun, 15 Aug 2021 12:33:41 +0000 (UTC)
+        id S237968AbhHOMeQ (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Sun, 15 Aug 2021 08:34:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6885F61103;
+        Sun, 15 Aug 2021 12:33:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629030822;
-        bh=yvcVieUZv4w5vM2Y9hZwDyxI0FbJr3rVSFRQpXL5qhg=;
+        s=korg; t=1629030826;
+        bh=GVNTVld8hQIvMat3msGyLOb6PTcEfLp5us/1n5X2S7c=;
         h=Subject:To:Cc:From:Date:From;
-        b=L4qz0+cKMbV+j7cxEFXlORkBJXBfzGjQRtci1FbKre7WTxxhaT4CATG0qw3AY2Zi0
-         5bYBkeNx5/Lm4h17sDNCneawrYHFQVYEszZ+qQemxEP2gZCU2GsQEpfGcUbwAiiohi
-         7nJnuagwW5HTypLObkIsovT0mHdhnqX3893k6ocA=
-Subject: FAILED: patch "[PATCH] iio: humidity: hdc100x: Add margin to the conversion time" failed to apply to 4.4-stable tree
+        b=qk4WXYDnU2kowo0m+JosPnGkmqRPGGIL+fyQuXvEmxQoKXOBOnb/T44Wp/kFVM5CS
+         BQ8A5BNp9EDwlMEY7oZzCqEElqQSuX4mqw5d6R7Q1KIaNJLEeArdSE3ovYojaiQzHp
+         M7EWGmpun8oP0BN7FPVdrJ50bnMRCxiiJVUOuZBY=
+Subject: FAILED: patch "[PATCH] iio: humidity: hdc100x: Add margin to the conversion time" failed to apply to 4.9-stable tree
 To:     chris.lesiak@licor.com, Jonathan.Cameron@huawei.com,
         Stable@vger.kernel.org, matt.ranostay@konsulko.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sun, 15 Aug 2021 14:33:36 +0200
-Message-ID: <162903081651105@kroah.com>
+Message-ID: <162903081617430@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
