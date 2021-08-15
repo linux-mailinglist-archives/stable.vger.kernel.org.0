@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C8AEC3EC91F
-	for <lists+stable@lfdr.de>; Sun, 15 Aug 2021 14:44:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EC7E3EC920
+	for <lists+stable@lfdr.de>; Sun, 15 Aug 2021 14:44:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237569AbhHOMoh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Aug 2021 08:44:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46980 "EHLO mail.kernel.org"
+        id S235540AbhHOMop (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Aug 2021 08:44:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47198 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235540AbhHOMoh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 15 Aug 2021 08:44:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D30E61154;
-        Sun, 15 Aug 2021 12:44:07 +0000 (UTC)
+        id S231809AbhHOMop (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 15 Aug 2021 08:44:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4309C61152;
+        Sun, 15 Aug 2021 12:44:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629031447;
-        bh=HQ+z8cuCQGbOMUHgTIZw7DuvsjAOKVprfawEOtowlXQ=;
+        s=korg; t=1629031455;
+        bh=tJ03xcUW3S13cxKZtKLQoLzKPo3h++z7i2dulcH2FHg=;
         h=Subject:To:Cc:From:Date:From;
-        b=PGhb635FDMz1FAWU23wxNwI01+AUmQWR2avJMa0su4oPvddZynmvoLeFj0g7+sEUM
-         qbTHlDdirekRsHSQ4ywTbhVpzt4Y47RYAQezZmFslfJLV8OJ6Va9ogL4q1iaxvgxiV
-         +XZ45CAv3qnxm0kk+Ylhndk5OCNPTTwIIl5w4I70=
-Subject: FAILED: patch "[PATCH] drm/amd/pm: bug fix for the runtime pm BACO" failed to apply to 5.10-stable tree
+        b=oi9kl7Wv4IyFLz4nyEwZAkk1Bu0o86zE7IBxDXr7OUXWAzbC8OjYRJmz8Xr57hhtn
+         bYZn15QBAGhc12QYWMIFcJbBr1dCmrRUkPOhxLBWvx7kkt1qPv8ngaP+lgbV3Qp1FA
+         gU9InNX9hZhQABjtF9jpzHm+Tq3WkJ9yz43jn23E=
+Subject: FAILED: patch "[PATCH] drm/amd/pm: bug fix for the runtime pm BACO" failed to apply to 5.13-stable tree
 To:     kenneth.feng@amd.com, Jack.Gui@amd.com, alexander.deucher@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sun, 15 Aug 2021 14:44:05 +0200
-Message-ID: <162903144524353@kroah.com>
+Message-ID: <1629031445111199@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.13-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
