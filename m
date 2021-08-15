@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A9403EC911
-	for <lists+stable@lfdr.de>; Sun, 15 Aug 2021 14:40:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47BC93EC910
+	for <lists+stable@lfdr.de>; Sun, 15 Aug 2021 14:40:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231809AbhHOMkv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Aug 2021 08:40:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42472 "EHLO mail.kernel.org"
+        id S231318AbhHOMkm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Aug 2021 08:40:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229603AbhHOMkv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 15 Aug 2021 08:40:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DEE0B61107;
-        Sun, 15 Aug 2021 12:40:20 +0000 (UTC)
+        id S229603AbhHOMkm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 15 Aug 2021 08:40:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AC4D66112D;
+        Sun, 15 Aug 2021 12:40:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629031221;
-        bh=+7Nf08PQEd/KoTEjf7HN4Q+iPvvjpuE8hsZ0Gtm0Mp8=;
+        s=korg; t=1629031212;
+        bh=M8eBdYMSYkbDEwK+D2IdeFGGGxEpynB7akTZlPlrMyc=;
         h=Subject:To:Cc:From:Date:From;
-        b=O7jVK2Udvi70vt4AMnF7bpAarFGcxYOtKaOjTkOnVE8QW35Dn6cQllkEHfqvaXwnN
-         yrJbf7w8Bmu3CXiFG8LqBtNXtl2YArdDxydzLs8IyNvdwQX0HgCWTQ4R7gafrMwJAQ
-         g8HdMa3PS0l4C0pAzQJzai1wrmpz83Cd0JvLggUY=
-Subject: FAILED: patch "[PATCH] ceph: take snap_empty_lock atomically with snaprealm refcount" failed to apply to 5.4-stable tree
+        b=sFRdWRQxgAJWytxcGxoAt5a3S08wJhC3FRVoJIfRKXPT8ZNE5plLnN/uRPuLNnHSL
+         m9WfgzcBg7b4oTmSM9CBE0BY197tI6K93Pkha8mGJP82D+UTHvjDL7u6vleSL7Ya3+
+         4dCwMFhCTwpcCmJhusmRWI3HoLJB4W7vNlg8F86g=
+Subject: FAILED: patch "[PATCH] ceph: take snap_empty_lock atomically with snaprealm refcount" failed to apply to 5.10-stable tree
 To:     jlayton@kernel.org, idryomov@gmail.com, lhenriques@suse.de,
         mnelson@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sun, 15 Aug 2021 14:40:10 +0200
-Message-ID: <16290312108242@kroah.com>
+Message-ID: <162903121071131@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
