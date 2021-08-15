@@ -2,145 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BBD5B3EC831
-	for <lists+stable@lfdr.de>; Sun, 15 Aug 2021 10:54:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E4B03EC84F
+	for <lists+stable@lfdr.de>; Sun, 15 Aug 2021 11:20:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231295AbhHOIz2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Aug 2021 04:55:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36722 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231194AbhHOIz2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 15 Aug 2021 04:55:28 -0400
-Received: from mail-ej1-x62f.google.com (mail-ej1-x62f.google.com [IPv6:2a00:1450:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47011C061764
-        for <stable@vger.kernel.org>; Sun, 15 Aug 2021 01:54:58 -0700 (PDT)
-Received: by mail-ej1-x62f.google.com with SMTP id w5so26275645ejq.2
-        for <stable@vger.kernel.org>; Sun, 15 Aug 2021 01:54:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=konsulko.com; s=google;
-        h=date:from:to:cc:subject:message-id:mail-followup-to:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=W6ZMorVzkKpkv9QWuIbPmieQrmTuzqC3n4aLplOaHQc=;
-        b=N1bTt8l3NISMpLN4mSHo036NFAp3Ani7WSQ86MDOBlovXUfR/E4VvDmynnvSx7Xrs+
-         JT7NsqjB57U0siAUqc4+zs7qH3LMe9nYmVFQ+9ge+2ApdC+eWU7JvxPNZR19EqFD20gS
-         yVDLNHXbDv5YqE+HKCD25lgcw4KDaQH2yaiws=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id
-         :mail-followup-to:references:mime-version:content-disposition
-         :in-reply-to;
-        bh=W6ZMorVzkKpkv9QWuIbPmieQrmTuzqC3n4aLplOaHQc=;
-        b=qf0zUjxT4FCj+EZyimXAiM6y6vfxc6Bo3TsXQXOs9E94n+jNj0Uj8vxY3T43EMNBNU
-         47ung3g1ZgZ4hsn5VJ8NcNEw0IevGcnq3YcsPSI5XXw5xrP4+9XevCnltojBU+2ARDmd
-         Bi1NbIHUWloh8imGQX7t8WTPk6x2FQ22mQLk1Zqvh6xzBGm7wSLI3vLDnz6ZaLh48S8M
-         5wXgOQUOltF44UmPX4CPw3OdABUaxqd6HuAD0WXKajDatTs5rypR5VKVepdE8Tk2Uo9Y
-         GXD0sGLoMT1wHuPwYYem0FAgnfkhNrdtgyiNaWl4SRVOfwLgOngZ48IBlfMCh47YeXkG
-         /Qkg==
-X-Gm-Message-State: AOAM532WIvGmF1gCk11txzIB0bec2DIQupaFWSAZs/hvDGgdGr6ksMaP
-        2bbMBN/507uzrT8SS8sLExZf7w==
-X-Google-Smtp-Source: ABdhPJwE87RFxxVjteM+wj1f2BuIvddB2aeIPNnFUi2TwlW02yJmBDQr+gVMF0Q1agqQh1y4ClrJ4A==
-X-Received: by 2002:a17:907:3d91:: with SMTP id he17mr10800808ejc.355.1629017696710;
-        Sun, 15 Aug 2021 01:54:56 -0700 (PDT)
-Received: from carbon (78-83-68-78.spectrumnet.bg. [78.83.68.78])
-        by smtp.gmail.com with ESMTPSA id cz17sm3199002edb.36.2021.08.15.01.54.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 15 Aug 2021 01:54:56 -0700 (PDT)
-Date:   Sun, 15 Aug 2021 11:54:55 +0300
-From:   Petko Manolov <petko.manolov@konsulko.com>
-To:     Jakub Kicinski <kuba@kernel.org>
-Cc:     netdev@vger.kernel.org, paskripkin@gmail.com,
-        stable@vger.kernel.org, davem@davemloft.net
-Subject: Re: [PATCH] net: usb: pegasus: ignore the return value from
- set_registers();
-Message-ID: <YRjWXzYrQsGZiISc@carbon>
-Mail-Followup-To: Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
-        paskripkin@gmail.com, stable@vger.kernel.org, davem@davemloft.net
-References: <20210812082351.37966-1-petko.manolov@konsulko.com>
- <20210813162439.1779bf63@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210813162439.1779bf63@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+        id S237255AbhHOJUv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Aug 2021 05:20:51 -0400
+Received: from smtp-out1.suse.de ([195.135.220.28]:46540 "EHLO
+        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237305AbhHOJUu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 15 Aug 2021 05:20:50 -0400
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out1.suse.de (Postfix) with ESMTP id A149621F81;
+        Sun, 15 Aug 2021 09:20:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1629019216; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=VWHJXr8LZmGJbQ83bnEQO4WAj6GdUgXOoLBUutZq494=;
+        b=UXeFQoDZ0eUlbLqQdilOhBhPmqjUK7KLZAJgY6iLOci4SDBwIR67285SpbzgmPrDlrVLd4
+        WOErA8yBn1fH34GjNftoLzuDzpEmziwxRpY9Jpk+R2ay/SDORS94Y4jvcWecB8RHi0o8vi
+        /CM5bB31MRWFunB4zmG90BPp2g+OUKI=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1629019216;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=VWHJXr8LZmGJbQ83bnEQO4WAj6GdUgXOoLBUutZq494=;
+        b=0N5XH1G+96cLf5aihvmJW9SBJiyS//afbMb7gn4X+yPt0W9g8aN4tvGJnWZewKZ2xMalR8
+        K6rem/5tpKlPbBCA==
+Received: from alsa1.suse.de (alsa1.suse.de [10.160.4.42])
+        by relay2.suse.de (Postfix) with ESMTP id 7932DA3B83;
+        Sun, 15 Aug 2021 09:20:16 +0000 (UTC)
+Date:   Sun, 15 Aug 2021 11:20:16 +0200
+Message-ID: <s5hy293gj3j.wl-tiwai@suse.de>
+From:   Takashi Iwai <tiwai@suse.de>
+To:     =?UTF-8?B?6JeN5oy655GL?= <lantw44@gmail.com>
+Cc:     alsa-devel@alsa-project.org, harshapriya.n@intel.com,
+        kai.vehmanen@intel.com, linux-kernel@vger.kernel.org,
+        mcatanzaro@redhat.com, perex@perex.cz, stable@vger.kernel.org,
+        tiwai@suse.com
+Subject: Re: [REGRESSION] "ALSA: HDA: Early Forbid of runtime PM" broke my laptop's internal audio
+In-Reply-To: <ac2232f142efcd67fe6ac38897f704f7176bd200.camel@gmail.com>
+References: <s5h7dnvlgg8.wl-tiwai@suse.de>
+        <ac2232f142efcd67fe6ac38897f704f7176bd200.camel@gmail.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI/1.14.6 (Maruoka)
+ FLIM/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL/10.8 Emacs/25.3
+ (x86_64-suse-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI 1.14.6 - "Maruoka")
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 21-08-13 16:24:39, Jakub Kicinski wrote:
-> On Thu, 12 Aug 2021 11:23:51 +0300 Petko Manolov wrote:
-> > The return value need to be either ignored or acted upon, otherwise 'deadstore'
-> > clang check would yell at us.  I think it's better to just ignore what this
-> > particular call of set_registers() returns.  The adapter defaults are sane and
-> > it would be operational even if the register write fail.
-> > 
-> > Signed-off-by: Petko Manolov <petko.manolov@konsulko.com>
-> > ---
-> >  drivers/net/usb/pegasus.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > 
-> > diff --git a/drivers/net/usb/pegasus.c b/drivers/net/usb/pegasus.c
-> > index 652e9fcf0b77..49cfc720d78f 100644
-> > --- a/drivers/net/usb/pegasus.c
-> > +++ b/drivers/net/usb/pegasus.c
-> > @@ -433,7 +433,7 @@ static int enable_net_traffic(struct net_device *dev, struct usb_device *usb)
-> >  	data[2] = loopback ? 0x09 : 0x01;
-> >  
-> >  	memcpy(pegasus->eth_regs, data, sizeof(data));
-> > -	ret = set_registers(pegasus, EthCtrl0, 3, data);
-> > +	set_registers(pegasus, EthCtrl0, 3, data);
-> >  
-> >  	if (usb_dev_id[pegasus->dev_index].vendor == VENDOR_LINKSYS ||
-> >  	    usb_dev_id[pegasus->dev_index].vendor == VENDOR_LINKSYS2 ||
+On Sat, 14 Aug 2021 16:02:36 +0200,
+藍挺瑋 wrote:
 > 
-> This one is not added by the recent changes as I initially thought, 
-> the driver has always checked this return value. The recent changes 
-> did this:
+> I am not sure if I should join this old thread, but it seems that I saw the same
+> issue on my ASUS B23E laptop. It couldn't produce any sound after upgrading to
+> Linux 5.10, and 'git bisect' shows it was broken by the same commit
+> a0645daf16101bb9a6d87598c17e9a8b7bd60ea7.
 > 
->         ret = set_registers(pegasus, EthCtrl0, 3, data);
->  
->         if (usb_dev_id[pegasus->dev_index].vendor == VENDOR_LINKSYS ||
->             usb_dev_id[pegasus->dev_index].vendor == VENDOR_LINKSYS2 ||
->             usb_dev_id[pegasus->dev_index].vendor == VENDOR_DLINK) {
->                 u16 auxmode;
-> -               read_mii_word(pegasus, 0, 0x1b, &auxmode);
-> +               ret = read_mii_word(pegasus, 0, 0x1b, &auxmode);
-> +               if (ret < 0)
-> +                       goto fail;
->                 auxmode |= 4;
->                 write_mii_word(pegasus, 0, 0x1b, &auxmode);
->         }
->  
-> +       return 0;
-> +fail:
-> +       netif_dbg(pegasus, drv, pegasus->net, "%s failed\n", __func__);
->         return ret;
-> }
+> I have tested the latest master branch (v5.14-rc4-322-gcceb634774ef) last week.
+> It still had no sound. If I reverted the broken commit, sound worked.
+
 > 
-> now the return value of set_registeres() is ignored. 
+> alsa-info from the broken kernel:
+> https://gist.github.com/lantw44/0660e059c488e3ff3d841bb03b371866
 > 
-> Seems like  a better fix would be to bring back the error checking, 
-> why not?
+> alsa-info from the working kernel:
+> https://gist.github.com/lantw44/9367f425e4f5ba98cf12343cb90f3301
 
-Mostly because for this particular adapter checking the read failure makes much
-more sense than write failure.
-
-Checking the return value of set_register(s) is often usless because device's
-default register values are sane enough to get a working ethernet adapter even
-without much prodding.  There are exceptions, though, one of them being
-set_ethernet_addr().
-
-You could read the discussing in the netdev ML, but the essence of it is that
-set_ethernet_addr() should not give up if set_register(s) fail.  Instead, the
-driver should assign a valid, even if random, MAC address.
-
-It is much the same situation with enable_net_traffic() - it should continue
-regardless.  There are two options to resolve this: a) remove the error check
-altogether; b) do the check and print a debug message.  I prefer a), but i am
-also not strongly opposed to b).  Comments?
-
-> Please remember to add a fixes tag.
-
-Will do.
+Thanks for the report.  A quick workaround be a patch like below.
+Could you verify whether it fixes the problem?
 
 
-cheers,
-Petko
+Takashi
+
+--- a/sound/pci/hda/patch_via.c
++++ b/sound/pci/hda/patch_via.c
+@@ -1041,6 +1041,7 @@ static const struct hda_fixup via_fixups[] = {
+ };
+ 
+ static const struct snd_pci_quirk vt2002p_fixups[] = {
++	SND_PCI_QUIRK(0x1043, 0x13f7, "Asus B23E", VIA_FIXUP_POWER_SAVE),
+ 	SND_PCI_QUIRK(0x1043, 0x1487, "Asus G75", VIA_FIXUP_ASUS_G75),
+ 	SND_PCI_QUIRK(0x1043, 0x8532, "Asus X202E", VIA_FIXUP_INTMIC_BOOST),
+ 	SND_PCI_QUIRK_VENDOR(0x1558, "Clevo", VIA_FIXUP_POWER_SAVE),
