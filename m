@@ -2,30 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F19643EC908
-	for <lists+stable@lfdr.de>; Sun, 15 Aug 2021 14:37:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A9403EC911
+	for <lists+stable@lfdr.de>; Sun, 15 Aug 2021 14:40:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231318AbhHOMha (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Aug 2021 08:37:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39590 "EHLO mail.kernel.org"
+        id S231809AbhHOMkv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Aug 2021 08:40:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229603AbhHOMha (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 15 Aug 2021 08:37:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EDA9761103;
-        Sun, 15 Aug 2021 12:36:59 +0000 (UTC)
+        id S229603AbhHOMkv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 15 Aug 2021 08:40:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DEE0B61107;
+        Sun, 15 Aug 2021 12:40:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629031020;
-        bh=MC7pG3NEFgo08yHCdGFUtEqfLIavmxg5Mt3gsmZwF+k=;
+        s=korg; t=1629031221;
+        bh=+7Nf08PQEd/KoTEjf7HN4Q+iPvvjpuE8hsZ0Gtm0Mp8=;
         h=Subject:To:Cc:From:Date:From;
-        b=J8gbSrAewv3jiPBLyyz8+oOrlF6VY8A6KElC9x/YamLxVbrQY4JjiCHunRh+0fD5Y
-         CXgjoZsCLlfWBwaBa/XXg3kmGUCs8wyaqOETAJ5yCNKz9+47FgnSjpdIrI37aNUhkF
-         qhlDY8srgQoMpoH1TnUhXpphjrXU9v5ABobYu1z0=
-Subject: FAILED: patch "[PATCH] scsi: lpfc: Move initialization of phba->poll_list earlier to" failed to apply to 5.4-stable tree
-To:     emilne@redhat.com, jsmart2021@gmail.com, martin.petersen@oracle.com
+        b=O7jVK2Udvi70vt4AMnF7bpAarFGcxYOtKaOjTkOnVE8QW35Dn6cQllkEHfqvaXwnN
+         yrJbf7w8Bmu3CXiFG8LqBtNXtl2YArdDxydzLs8IyNvdwQX0HgCWTQ4R7gafrMwJAQ
+         g8HdMa3PS0l4C0pAzQJzai1wrmpz83Cd0JvLggUY=
+Subject: FAILED: patch "[PATCH] ceph: take snap_empty_lock atomically with snaprealm refcount" failed to apply to 5.4-stable tree
+To:     jlayton@kernel.org, idryomov@gmail.com, lhenriques@suse.de,
+        mnelson@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 15 Aug 2021 14:36:57 +0200
-Message-ID: <162903101716872@kroah.com>
+Date:   Sun, 15 Aug 2021 14:40:10 +0200
+Message-ID: <16290312108242@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -45,84 +46,106 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 9977d880f7a3c233db9165a75a3a14defc2a4aee Mon Sep 17 00:00:00 2001
-From: "Ewan D. Milne" <emilne@redhat.com>
-Date: Mon, 9 Aug 2021 11:09:47 -0400
-Subject: [PATCH] scsi: lpfc: Move initialization of phba->poll_list earlier to
- avoid crash
+From 8434ffe71c874b9c4e184b88d25de98c2bf5fe3f Mon Sep 17 00:00:00 2001
+From: Jeff Layton <jlayton@kernel.org>
+Date: Tue, 3 Aug 2021 12:47:34 -0400
+Subject: [PATCH] ceph: take snap_empty_lock atomically with snaprealm refcount
+ change
 
-The phba->poll_list is traversed in case of an error in
-lpfc_sli4_hba_setup(), so it must be initialized earlier in case the error
-path is taken.
+There is a race in ceph_put_snap_realm. The change to the nref and the
+spinlock acquisition are not done atomically, so you could decrement
+nref, and before you take the spinlock, the nref is incremented again.
+At that point, you end up putting it on the empty list when it
+shouldn't be there. Eventually __cleanup_empty_realms runs and frees
+it when it's still in-use.
 
-[  490.030738] lpfc 0000:65:00.0: 0:1413 Failed to init iocb list.
-[  490.036661] BUG: unable to handle kernel NULL pointer dereference at 0000000000000000
-[  490.044485] PGD 0 P4D 0
-[  490.047027] Oops: 0000 [#1] SMP PTI
-[  490.050518] CPU: 0 PID: 7 Comm: kworker/0:1 Kdump: loaded Tainted: G          I      --------- -  - 4.18.
-[  490.060511] Hardware name: Dell Inc. PowerEdge R440/0WKGTH, BIOS 1.4.8 05/22/2018
-[  490.067994] Workqueue: events work_for_cpu_fn
-[  490.072371] RIP: 0010:lpfc_sli4_cleanup_poll_list+0x20/0xb0 [lpfc]
-[  490.078546] Code: cf e9 04 f7 fe ff 0f 1f 40 00 0f 1f 44 00 00 41 57 49 89 ff 41 56 41 55 41 54 4d 8d a79
-[  490.097291] RSP: 0018:ffffbd1a463dbcc8 EFLAGS: 00010246
-[  490.102518] RAX: 0000000000008200 RBX: ffff945cdb8c0000 RCX: 0000000000000000
-[  490.109649] RDX: 0000000000018200 RSI: ffff9468d0e16818 RDI: 0000000000000000
-[  490.116783] RBP: ffff945cdb8c1740 R08: 00000000000015c5 R09: 0000000000000042
-[  490.123915] R10: 0000000000000000 R11: ffffbd1a463dbab0 R12: ffff945cdb8c25c0
-[  490.131049] R13: 00000000fffffff4 R14: 0000000000001800 R15: ffff945cdb8c0000
-[  490.138182] FS:  0000000000000000(0000) GS:ffff9468d0e00000(0000) knlGS:0000000000000000
-[  490.146267] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  490.152013] CR2: 0000000000000000 CR3: 000000042ca10002 CR4: 00000000007706f0
-[  490.159146] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[  490.166277] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[  490.173409] PKRU: 55555554
-[  490.176123] Call Trace:
-[  490.178598]  lpfc_sli4_queue_destroy+0x7f/0x3c0 [lpfc]
-[  490.183745]  lpfc_sli4_hba_setup+0x1bc7/0x23e0 [lpfc]
-[  490.188797]  ? kernfs_activate+0x63/0x80
-[  490.192721]  ? kernfs_add_one+0xe7/0x130
-[  490.196647]  ? __kernfs_create_file+0x80/0xb0
-[  490.201020]  ? lpfc_pci_probe_one_s4.isra.48+0x46f/0x9e0 [lpfc]
-[  490.206944]  lpfc_pci_probe_one_s4.isra.48+0x46f/0x9e0 [lpfc]
-[  490.212697]  lpfc_pci_probe_one+0x179/0xb70 [lpfc]
-[  490.217492]  local_pci_probe+0x41/0x90
-[  490.221246]  work_for_cpu_fn+0x16/0x20
-[  490.224994]  process_one_work+0x1a7/0x360
-[  490.229009]  ? create_worker+0x1a0/0x1a0
-[  490.232933]  worker_thread+0x1cf/0x390
-[  490.236687]  ? create_worker+0x1a0/0x1a0
-[  490.240612]  kthread+0x116/0x130
-[  490.243846]  ? kthread_flush_work_fn+0x10/0x10
-[  490.248293]  ret_from_fork+0x35/0x40
-[  490.251869] Modules linked in: lpfc(+) xt_CHECKSUM ipt_MASQUERADE xt_conntrack ipt_REJECT nf_reject_ipv4i
-[  490.332609] CR2: 0000000000000000
+Fix this by protecting the 1->0 transition with atomic_dec_and_lock,
+and just drop the spinlock if we can get the rwsem.
 
-Link: https://lore.kernel.org/r/20210809150947.18104-1-emilne@redhat.com
-Fixes: 93a4d6f40198 ("scsi: lpfc: Add registration for CPU Offline/Online events")
+Because these objects can also undergo a 0->1 refcount transition, we
+must protect that change as well with the spinlock. Increment locklessly
+unless the value is at 0, in which case we take the spinlock, increment
+and then take it off the empty list if it did the 0->1 transition.
+
+With these changes, I'm removing the dout() messages from these
+functions, as well as in __put_snap_realm. They've always been racy, and
+it's better to not print values that may be misleading.
+
 Cc: stable@vger.kernel.org
-Reviewed-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Ewan D. Milne <emilne@redhat.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+URL: https://tracker.ceph.com/issues/46419
+Reported-by: Mark Nelson <mnelson@redhat.com>
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Reviewed-by: Luis Henriques <lhenriques@suse.de>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 
-diff --git a/drivers/scsi/lpfc/lpfc_init.c b/drivers/scsi/lpfc/lpfc_init.c
-index 5983e05b648f..e29523a1b530 100644
---- a/drivers/scsi/lpfc/lpfc_init.c
-+++ b/drivers/scsi/lpfc/lpfc_init.c
-@@ -13193,6 +13193,8 @@ lpfc_pci_probe_one_s4(struct pci_dev *pdev, const struct pci_device_id *pid)
- 	if (!phba)
- 		return -ENOMEM;
+diff --git a/fs/ceph/snap.c b/fs/ceph/snap.c
+index 4ac0606dcbd4..4c6bd1042c94 100644
+--- a/fs/ceph/snap.c
++++ b/fs/ceph/snap.c
+@@ -67,19 +67,19 @@ void ceph_get_snap_realm(struct ceph_mds_client *mdsc,
+ {
+ 	lockdep_assert_held(&mdsc->snap_rwsem);
  
-+	INIT_LIST_HEAD(&phba->poll_list);
+-	dout("get_realm %p %d -> %d\n", realm,
+-	     atomic_read(&realm->nref), atomic_read(&realm->nref)+1);
+ 	/*
+-	 * since we _only_ increment realm refs or empty the empty
+-	 * list with snap_rwsem held, adjusting the empty list here is
+-	 * safe.  we do need to protect against concurrent empty list
+-	 * additions, however.
++	 * The 0->1 and 1->0 transitions must take the snap_empty_lock
++	 * atomically with the refcount change. Go ahead and bump the
++	 * nref here, unless it's 0, in which case we take the spinlock
++	 * and then do the increment and remove it from the list.
+ 	 */
+-	if (atomic_inc_return(&realm->nref) == 1) {
+-		spin_lock(&mdsc->snap_empty_lock);
++	if (atomic_inc_not_zero(&realm->nref))
++		return;
 +
- 	/* Perform generic PCI device enabling operation */
- 	error = lpfc_enable_pci_dev(phba);
- 	if (error)
-@@ -13327,7 +13329,6 @@ lpfc_pci_probe_one_s4(struct pci_dev *pdev, const struct pci_device_id *pid)
- 	/* Enable RAS FW log support */
- 	lpfc_sli4_ras_setup(phba);
++	spin_lock(&mdsc->snap_empty_lock);
++	if (atomic_inc_return(&realm->nref) == 1)
+ 		list_del_init(&realm->empty_item);
+-		spin_unlock(&mdsc->snap_empty_lock);
+-	}
++	spin_unlock(&mdsc->snap_empty_lock);
+ }
  
--	INIT_LIST_HEAD(&phba->poll_list);
- 	timer_setup(&phba->cpuhp_poll_timer, lpfc_sli4_poll_hbtimer, 0);
- 	cpuhp_state_add_instance_nocalls(lpfc_cpuhp_state, &phba->cpuhp);
+ static void __insert_snap_realm(struct rb_root *root,
+@@ -208,28 +208,28 @@ static void __put_snap_realm(struct ceph_mds_client *mdsc,
+ {
+ 	lockdep_assert_held_write(&mdsc->snap_rwsem);
  
+-	dout("__put_snap_realm %llx %p %d -> %d\n", realm->ino, realm,
+-	     atomic_read(&realm->nref), atomic_read(&realm->nref)-1);
++	/*
++	 * We do not require the snap_empty_lock here, as any caller that
++	 * increments the value must hold the snap_rwsem.
++	 */
+ 	if (atomic_dec_and_test(&realm->nref))
+ 		__destroy_snap_realm(mdsc, realm);
+ }
+ 
+ /*
+- * caller needn't hold any locks
++ * See comments in ceph_get_snap_realm. Caller needn't hold any locks.
+  */
+ void ceph_put_snap_realm(struct ceph_mds_client *mdsc,
+ 			 struct ceph_snap_realm *realm)
+ {
+-	dout("put_snap_realm %llx %p %d -> %d\n", realm->ino, realm,
+-	     atomic_read(&realm->nref), atomic_read(&realm->nref)-1);
+-	if (!atomic_dec_and_test(&realm->nref))
++	if (!atomic_dec_and_lock(&realm->nref, &mdsc->snap_empty_lock))
+ 		return;
+ 
+ 	if (down_write_trylock(&mdsc->snap_rwsem)) {
++		spin_unlock(&mdsc->snap_empty_lock);
+ 		__destroy_snap_realm(mdsc, realm);
+ 		up_write(&mdsc->snap_rwsem);
+ 	} else {
+-		spin_lock(&mdsc->snap_empty_lock);
+ 		list_add(&realm->empty_item, &mdsc->snap_empty);
+ 		spin_unlock(&mdsc->snap_empty_lock);
+ 	}
 
