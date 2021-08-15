@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 033E63ECA76
-	for <lists+stable@lfdr.de>; Sun, 15 Aug 2021 19:40:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED1B03ECA87
+	for <lists+stable@lfdr.de>; Sun, 15 Aug 2021 20:17:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229502AbhHORlC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Aug 2021 13:41:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38688 "EHLO
+        id S229650AbhHOSRu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Aug 2021 14:17:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46566 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229456AbhHORlC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 15 Aug 2021 13:41:02 -0400
-Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB7F4C061764
-        for <stable@vger.kernel.org>; Sun, 15 Aug 2021 10:40:31 -0700 (PDT)
-Received: by mail-pj1-x1036.google.com with SMTP id nt11so23023176pjb.2
-        for <stable@vger.kernel.org>; Sun, 15 Aug 2021 10:40:31 -0700 (PDT)
+        with ESMTP id S229502AbhHOSRu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 15 Aug 2021 14:17:50 -0400
+Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDBE5C061764
+        for <stable@vger.kernel.org>; Sun, 15 Aug 2021 11:17:19 -0700 (PDT)
+Received: by mail-pj1-x1030.google.com with SMTP id om1-20020a17090b3a8100b0017941c44ce4so10556432pjb.3
+        for <stable@vger.kernel.org>; Sun, 15 Aug 2021 11:17:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20150623.gappssmtp.com; s=20150623;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=5ihUjrrXfMMrudnmI41Efj88uqhqmEkkTc3cJZ72esc=;
-        b=jj4akuPXXluKq3Lj5yorMwchai80s/Nqd/PuK5FjLYf1yJQvjkD/kDHfhtMlpBc+AG
-         Zu4nzaGXoRXqLTCT4h7Y+xj2dvjURbs8dKiFNV74YS9W/IvGbyzeMrieyigu5M3iHoGj
-         lN7O9+8U7bqrN2SlcfEaWKyGxAHYdKdluS4VJapQvtDWmYa4xeYRamwy3js3MdaWczhC
-         NYatT8qS+XuxvbSvpNkPavDb6HL4tiMzSoVpGENNhy1+1C3g5hNKpRAXRo9mtLVrKLf8
-         X7Kkj//kw2iJB6LpDmsnUUU13V/RymaDydOu/cTZCpftZn0UH9+p3MidKBsW3TZgW8pu
-         QNbw==
+        bh=8uJKhd/WrRmyh6sjsxv+q3RsbPA3xhanMutMK5+/Eek=;
+        b=H0O8O/ZsS3YssWUk9Ss7vjVk3bP1HblBjhg+5xroroKVVnbGJcC+43YngOs3x7VR9G
+         caz9wKyWWDyGEkHB7xR/QqTI6ApNj9YnboMZJ60Lz4ySODumq46dZ+Eg0C1k839sUw0x
+         CMQovnKmvkDO26sc5lc9xC6Sxc1RT3X7pzbjORlGSqCoklSaRGRZxKm5NB5GNWe6m5A8
+         ulOYJh2LtbdJ5PHd0Yoei6VoXvf55Rfepbsr29dwVU4mUnCFNAp0ciZIUoTzuNpNlVlF
+         RFUpY+Ylyz53x3+ROJXpk0JF4Qtyc2lf5qk8n72Q6hBpiQawQv7FFylcEU3/6Tt5MwM/
+         Ek2A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=5ihUjrrXfMMrudnmI41Efj88uqhqmEkkTc3cJZ72esc=;
-        b=t+PF8++jiN2eoEGuh/LH3M8qCf82OSzFw55s5HAxAGNJ5fAeODZg8C3BJFCb9t+cgO
-         yxEi6iTcag9IfznxJq3zv4ygTMO6/4GNrc4rQ3TY95iO20I0c2Nhjs89Bjnfi0PPTJKm
-         8ajRt7j8EYdet4HekwGho5ljvt76KZt17JXHu8cHR0pdTRIP2pQdH6hj4ICT63+Ho8a/
-         TfUmJuMo/NYQ755aOswFI7JC40/dSv16yn7slgICXKNo253lImjqK8ClS+ZiYc1zfsId
-         yBQp5IbQR8Fu30u5Jj3qrfButX5USZgA+cS8ySgaxriCsYmYUzROx/eNQoH9oNWjYjhJ
-         z5JQ==
-X-Gm-Message-State: AOAM532LdXURq14q9mH/JENICwyX1DGt95knqBKCxC2YQ32ymA9rITIb
-        FXwgIdHLjJwpuee88V1x7+VAvoJnkW5eaAxU
-X-Google-Smtp-Source: ABdhPJxxCb7XGoPtzEKY7Mp+uQcTRU5koOjoHLy5K31SZJ5St5RlOYRIFT1d0BJP9eRoVRqs4KehkA==
-X-Received: by 2002:a63:e446:: with SMTP id i6mr12349212pgk.288.1629049230602;
-        Sun, 15 Aug 2021 10:40:30 -0700 (PDT)
+        bh=8uJKhd/WrRmyh6sjsxv+q3RsbPA3xhanMutMK5+/Eek=;
+        b=mItl+UgO1xFZf4BbHLX8mZr5S3Um3zTcCNlnfC2xI49hUg+22oANv785NALiPleQY3
+         jYFl32slZ/655Rd5so17B96JjKUfT6NNGbYnrE9a08k45FuloPrsGekE5urBcxD8w/6x
+         OFnMKJKlAc7dbCwakWEDkBg/7TBZA6sgOoRm1GJLXVyg+HGoJPjCs8vpn27/mtLlrn47
+         6JD5MvJ/scFmk+3AwPbt2AAk/8megRS3mwk6oEcMevdSZZ/ZvwjtrqLb1h8dSGumX1hA
+         dbXwfQjRAOYrKNPkdVyAPtZaCBoHPI/UFDKOfsLqjCg/PIbgmMYOXwDsteqDvST2duBm
+         cfuQ==
+X-Gm-Message-State: AOAM531RrOXZFqw3clxs7Xs/BW6M2mGTw/tInID65f6dONeNiVoqVjYu
+        ofQdAFMq2RAoJPnYnIPRIFAHlfYCkgb/1KyV
+X-Google-Smtp-Source: ABdhPJykQB1wH3Rvye2kziVCB+pJcpAK53jCiaJW3S/zfxfiETFce1fwYi8ueCwqPq4a/EAAoLIdfA==
+X-Received: by 2002:a17:90b:3e8a:: with SMTP id rj10mr13301842pjb.171.1629051438780;
+        Sun, 15 Aug 2021 11:17:18 -0700 (PDT)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id 129sm8973413pfg.50.2021.08.15.10.40.29
+        by smtp.gmail.com with ESMTPSA id d7sm9118965pgu.78.2021.08.15.11.17.18
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 15 Aug 2021 10:40:30 -0700 (PDT)
-Message-ID: <6119518e.1c69fb81.e6851.74b2@mx.google.com>
-Date:   Sun, 15 Aug 2021 10:40:30 -0700 (PDT)
+        Sun, 15 Aug 2021 11:17:18 -0700 (PDT)
+Message-ID: <61195a2e.1c69fb81.f2037.8acf@mx.google.com>
+Date:   Sun, 15 Aug 2021 11:17:18 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-5.4.y
-X-Kernelci-Tree: stable
-X-Kernelci-Kernel: v5.4.141
+X-Kernelci-Branch: queue/5.4
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.4.139-154-g347fcf584ef8
 X-Kernelci-Report-Type: build
-Subject: stable/linux-5.4.y build: 184 builds: 0 failed, 184 passed,
- 91 warnings (v5.4.141)
+Subject: stable-rc/queue/5.4 build: 182 builds: 0 failed, 182 passed,
+ 89 warnings (v5.4.139-154-g347fcf584ef8)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -65,18 +65,18 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.4.y build: 184 builds: 0 failed, 184 passed, 91 warnings (v5=
-.4.141)
+stable-rc/queue/5.4 build: 182 builds: 0 failed, 182 passed, 89 warnings (v=
+5.4.139-154-g347fcf584ef8)
 
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-5.4.y/ke=
-rnel/v5.4.141/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F5.4=
+/kernel/v5.4.139-154-g347fcf584ef8/
 
-Tree: stable
-Branch: linux-5.4.y
-Git Describe: v5.4.141
-Git Commit: b704883aa8dc4d1d232d3a3cdc438a64889fcc6e
+Tree: stable-rc
+Branch: queue/5.4
+Git Describe: v5.4.139-154-g347fcf584ef8
+Git Commit: 347fcf584ef86a455c14b196567cd16c1763aca0
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
+e-rc.git
 Built: 7 unique architectures
 
 Warnings Detected:
@@ -136,9 +136,7 @@ arm:
     mxs_defconfig (gcc-8): 1 warning
     neponset_defconfig (gcc-8): 1 warning
     nhk8815_defconfig (gcc-8): 1 warning
-    omap1_defconfig (gcc-8): 1 warning
     omap2plus_defconfig (gcc-8): 1 warning
-    orion5x_defconfig (gcc-8): 1 warning
     oxnas_v6_defconfig (gcc-8): 1 warning
     palmz72_defconfig (gcc-8): 1 warning
     pcm027_defconfig (gcc-8): 1 warning
@@ -156,13 +154,12 @@ arm:
     sunxi_defconfig (gcc-8): 1 warning
     tango4_defconfig (gcc-8): 1 warning
     tegra_defconfig (gcc-8): 1 warning
-    trizeps4_defconfig (gcc-8): 1 warning
+    trizeps4_defconfig (gcc-8): 2 warnings
     u300_defconfig (gcc-8): 1 warning
     u8500_defconfig (gcc-8): 1 warning
     versatile_defconfig (gcc-8): 1 warning
     vexpress_defconfig (gcc-8): 1 warning
     viper_defconfig (gcc-8): 1 warning
-    xcep_defconfig (gcc-8): 1 warning
     zeus_defconfig (gcc-8): 1 warning
 
 i386:
@@ -177,7 +174,7 @@ x86_64:
 
 Warnings summary:
 
-    59   WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+    57   WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
     22   <stdin>:1511:2: warning: #warning syscall clone3 not implemented [=
 -Wcpp]
     5    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_=
@@ -217,13 +214,13 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
+allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
+allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -495,8 +492,8 @@ e55_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
 
 ---------------------------------------------------------------------------=
 -----
-ebsa110_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
+efm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -985,14 +982,6 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
-omap1_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
-
----------------------------------------------------------------------------=
------
 omap2plus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
 tion mismatches
 
@@ -1003,14 +992,6 @@ Warnings:
 -----
 omega2p_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
-
----------------------------------------------------------------------------=
------
-orion5x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
 
 ---------------------------------------------------------------------------=
 -----
@@ -1115,6 +1096,11 @@ tion mismatches
 -----
 rb532_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
+
+---------------------------------------------------------------------------=
+-----
+rbtx49xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1276,11 +1262,6 @@ smatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
 tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mism=
 atches
 
@@ -1289,10 +1270,16 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
-trizeps4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
+tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+trizeps4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
+tion mismatches
 
 Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
     WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
 
 ---------------------------------------------------------------------------=
@@ -1380,14 +1367,6 @@ ction mismatches
 -----
 x86_64_defconfig+x86-chromebook (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0=
  warnings, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-xcep_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
-mismatches
-
-Warnings:
-    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
 
 ---------------------------------------------------------------------------=
 -----
