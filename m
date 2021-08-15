@@ -2,199 +2,514 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B6D3D3ECBB4
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 00:54:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28A6B3ECBBC
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 01:08:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230124AbhHOWzP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Aug 2021 18:55:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48784 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229814AbhHOWzP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 15 Aug 2021 18:55:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DC7B060EB5;
-        Sun, 15 Aug 2021 22:54:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629068084;
-        bh=bg7sHPn3XavG4VHjw1wDZ4Saf6f5mojVM5bMo81MVGs=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Qkpk1r5lqodV+9wUpnu1RXibKieJ/uvtUg+2V62LO6isxWonMDzxJSYOpQ1d2/WP0
-         zkHSjxeERyY0VBNn3yK4FvkX1hvOwab8g75UuxcQxpUr5ALuE1oZfn3jmKSal3MDAK
-         wfCgioPKR9wrDHDVRGdM0wHBERJuxoKoI0xh3ZaMNk2Xq2KK2bxiBNES8ifInZarb0
-         HbiFijUv5FKhQu/G6xrl8Vzk4xOOGgW2MjnmCXPu0zYhAGMDSb3XG3Yu/teQR1+x1A
-         ZQxkVqp0bKSdssy0tleBIwgit33Tcuo1eVBtoAmePErv4ABr7/WTdGcHV7HfnlLgSr
-         vK/uGVTAjugoA==
-Date:   Sun, 15 Aug 2021 15:54:39 -0700
-From:   Nathan Chancellor <nathan@kernel.org>
-To:     gregkh@linuxfoundation.org
-Cc:     elver@google.com, keescook@chromium.org, maskray@google.com,
-        ndesaulniers@google.com, stable-commits@vger.kernel.org,
-        stable@vger.kernel.org, sashal@kernel.org
-Subject: Re: Patch "vmlinux.lds.h: Handle clang's module.{c,d}tor sections"
- has been added to the 5.13-stable tree
-Message-ID: <YRmbLz1ZivIMKgc5@archlinux-ax161>
-References: <16290320662366@kroah.com>
+        id S231351AbhHOXIr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Aug 2021 19:08:47 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:41988 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229814AbhHOXIq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 15 Aug 2021 19:08:46 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1629068895;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=6IYwu/gLB+gO/uiburiToDnFV+JU5TeYQMIqtQqbXHE=;
+        b=NGcclTfAlzt/evy6EM0vUHQsVDNzBjFDXN+sN5wxzcv7wrGc2CXL+aMWwN729xBUxsxKon
+        7eDwN01zBaOfIgRnNdqsb3yftHGBi5hPr+5OIFmQr3Wp/iJ/iQ9cF1DDVEInb7WhYyfILj
+        knKBC2b1HAZOj6owbV7bPZp/FiuTpnU=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-527-QJ_HDcPcOQi81T0aGu8YXA-1; Sun, 15 Aug 2021 19:08:13 -0400
+X-MC-Unique: QJ_HDcPcOQi81T0aGu8YXA-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 06879180FCBB
+        for <stable@vger.kernel.org>; Sun, 15 Aug 2021 23:08:13 +0000 (UTC)
+Received: from [172.64.5.48] (unknown [10.30.34.134])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 353D35D9DC;
+        Sun, 15 Aug 2021 23:07:58 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="ExCZztx91pGMwpEA"
-Content-Disposition: inline
-In-Reply-To: <16290320662366@kroah.com>
+From:   CKI Project <cki-project@redhat.com>
+To:     skt-results-master@redhat.com,
+        Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.13.10 (stable-queue,
+ 8094730e)
+Date:   Sun, 15 Aug 2021 23:07:56 -0000
+CC:     Memory Management <mm-qe@redhat.com>, Li Wang <liwang@redhat.com>,
+        Fendy Tjahjadi <ftjahjad@redhat.com>,
+        Jeff Bastian <jbastian@redhat.com>,
+        Yi Zhang <yizhan@redhat.com>
+Message-ID: <cki.F072986A2B.L3MZH1C086@redhat.com>
+X-Gitlab-Pipeline-ID: 353454668
+X-Gitlab-Url: https://gitlab.com
+X-Gitlab-Path: =?utf-8?q?/redhat/red-hat-ci-tools/kernel/cki-internal-pipeli?=
+ =?utf-8?q?nes/cki-trusted-contributors/pipelines/353454668?=
+X-DataWarehouse-Checkout-IID: 17775
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---ExCZztx91pGMwpEA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Hello,
 
-Hi Greg,
+We ran automated tests on a recent commit from this kernel tree:
 
-On Sun, Aug 15, 2021 at 02:54:26PM +0200, gregkh@linuxfoundation.org wrote:
-> 
-> This is a note to let you know that I've just added the patch titled
-> 
->     vmlinux.lds.h: Handle clang's module.{c,d}tor sections
-> 
-> to the 5.13-stable tree which can be found at:
->     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
-> 
-> The filename of the patch is:
->      vmlinux.lds.h-handle-clang-s-module.-c-d-tor-sections.patch
-> and it can be found in the queue-5.13 subdirectory.
+       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/li=
+nux-stable-rc.git
+            Commit: 8094730e2032 - ovl: prevent private clone if bind mount i=
+s not allowed
 
-Attached are backports for 4.4 to 5.10. I am not sure if anyone is
-actually using KASAN with clang on 4.4 (ChromeOS maybe?) but it does not
-hurt to have it just in case.
+The results of these automated tests are provided below.
 
-I did not get any emails that the patch failed to apply on the older
-versions, I assume this is because I did just a "Cc: stable@vger.kernel.org"
-without any version or fixes tag. Is there any "official" way to notate
-that I want a particular patch applied to all supported kernel versions
-aside from adding "# v4.4+" to the Cc tag so that I can provide manual
-backports for those versions?
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
 
-Cheers,
-Nathan
+All kernel binaries, config files, and logs are available for download here:
 
---ExCZztx91pGMwpEA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="4.4-4.14-848378812e401.patch"
+  https://arr-cki-prod-datawarehouse-public.s3.amazonaws.com/index.html?prefi=
+x=3Ddatawarehouse-public/2021/08/15/353454668
 
-From fd073a15e9941b70d0db84d28d539cf3535e1b59 Mon Sep 17 00:00:00 2001
-From: Nathan Chancellor <nathan@kernel.org>
-Date: Fri, 30 Jul 2021 19:31:08 -0700
-Subject: [PATCH 4.4 to 4.14] vmlinux.lds.h: Handle clang's module.{c,d}tor
- sections
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
 
-commit 848378812e40152abe9b9baf58ce2004f76fb988 upstream.
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
 
-A recent change in LLVM causes module_{c,d}tor sections to appear when
-CONFIG_K{A,C}SAN are enabled, which results in orphan section warnings
-because these are not handled anywhere:
+Compile testing
+---------------
 
-ld.lld: warning: arch/x86/pci/built-in.a(legacy.o):(.text.asan.module_ctor) is being placed in '.text.asan.module_ctor'
-ld.lld: warning: arch/x86/pci/built-in.a(legacy.o):(.text.asan.module_dtor) is being placed in '.text.asan.module_dtor'
-ld.lld: warning: arch/x86/pci/built-in.a(legacy.o):(.text.tsan.module_ctor) is being placed in '.text.tsan.module_ctor'
+We compiled the kernel for 4 architectures:
 
-Fangrui explains: "the function asan.module_ctor has the SHF_GNU_RETAIN
-flag, so it is in a separate section even with -fno-function-sections
-(default)".
+    aarch64:
+      make options: make -j24 INSTALL_MOD_STRIP=3D1 targz-pkg
 
-Place them in the TEXT_TEXT section so that these technologies continue
-to work with the newer compiler versions. All of the KASAN and KCSAN
-KUnit tests continue to pass after this change.
+    ppc64le:
+      make options: make -j24 INSTALL_MOD_STRIP=3D1 targz-pkg
 
-Cc: stable@vger.kernel.org
-Link: https://github.com/ClangBuiltLinux/linux/issues/1432
-Link: https://github.com/llvm/llvm-project/commit/7b789562244ee941b7bf2cefeb3fc08a59a01865
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Fangrui Song <maskray@google.com>
-Acked-by: Marco Elver <elver@google.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20210731023107.1932981-1-nathan@kernel.org
-[nc: Fix conflicts due to lack of cf68fffb66d60 and 266ff2a8f51f0]
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
----
- include/asm-generic/vmlinux.lds.h | 1 +
- 1 file changed, 1 insertion(+)
+    s390x:
+      make options: make -j24 INSTALL_MOD_STRIP=3D1 targz-pkg
 
-diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
-index c9790b2cdf34..45fe7295051f 100644
---- a/include/asm-generic/vmlinux.lds.h
-+++ b/include/asm-generic/vmlinux.lds.h
-@@ -465,6 +465,7 @@
- 		*(.text.unknown .text.unknown.*)			\
- 		*(.text..refcount)					\
- 		*(.ref.text)						\
-+		*(.text.asan.* .text.tsan.*)				\
- 	MEM_KEEP(init.text)						\
- 	MEM_KEEP(exit.text)						\
- 
-
-base-commit: 162b95d01320370b80cb2d5724cea4ae538ac740
--- 
-2.33.0.rc2
+    x86_64:
+      make options: make -j24 INSTALL_MOD_STRIP=3D1 targz-pkg
 
 
---ExCZztx91pGMwpEA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="4.19-5.10-848378812e401.patch"
 
-From 07154ab1ed7ce98f9418421152753e1bc8029829 Mon Sep 17 00:00:00 2001
-From: Nathan Chancellor <nathan@kernel.org>
-Date: Fri, 30 Jul 2021 19:31:08 -0700
-Subject: [PATCH 4.19 to 5.10] vmlinux.lds.h: Handle clang's module.{c,d}tor
- sections
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
 
-commit 848378812e40152abe9b9baf58ce2004f76fb988 upstream.
+  aarch64:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Reboot test
+       =E2=9C=85 xfstests - ext4
+       =E2=9C=85 xfstests - xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 storage: software RAID testing
+       =E2=9C=85 Storage: swraid mdadm raid_module test
+       =F0=9F=9A=A7 =E2=9D=8C Podman system integration test - as root
+       =F0=9F=9A=A7 =E2=9D=8C Podman system integration test - as user
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
+       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+       =F0=9F=9A=A7 =E2=9C=85 Storage block - filesystem fio test
+       =F0=9F=9A=A7 =E2=9C=85 Storage block - queue scheduler test
+       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
+       =F0=9F=9A=A7 =F0=9F=92=A5 stress: stress-ng
 
-A recent change in LLVM causes module_{c,d}tor sections to appear when
-CONFIG_K{A,C}SAN are enabled, which results in orphan section warnings
-because these are not handled anywhere:
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Reboot test
+       =E2=9C=85 ACPI table test
+       =E2=9C=85 ACPI enabled test
+       =E2=9C=85 LTP
+       =E2=9C=85 CIFS Connectathon
+       =E2=9C=85 POSIX pjd-fstest suites
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 jvm - jcstress tests
+       =E2=9C=85 Memory: fork_mem
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking: igmp conformance test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking cki netfilter test
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - transport
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =E2=9C=85 pciutils: update pci ids test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 storage: SCSI VPD
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 xarray-idr-radixtree-test
+       =F0=9F=9A=A7 =E2=9C=85 i2c: i2cdetect sanity
+       =F0=9F=9A=A7 =E2=9C=85 NFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 Firmware test suite
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
+       =F0=9F=9A=A7 =E2=9C=85 lvm cache test
+       =F0=9F=9A=A7 =E2=9C=85 lvm snapper test
 
-ld.lld: warning: arch/x86/pci/built-in.a(legacy.o):(.text.asan.module_ctor) is being placed in '.text.asan.module_ctor'
-ld.lld: warning: arch/x86/pci/built-in.a(legacy.o):(.text.asan.module_dtor) is being placed in '.text.asan.module_dtor'
-ld.lld: warning: arch/x86/pci/built-in.a(legacy.o):(.text.tsan.module_ctor) is being placed in '.text.tsan.module_ctor'
+  ppc64le:
+    Host 1:
 
-Fangrui explains: "the function asan.module_ctor has the SHF_GNU_RETAIN
-flag, so it is in a separate section even with -fno-function-sections
-(default)".
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
+marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
 
-Place them in the TEXT_TEXT section so that these technologies continue
-to work with the newer compiler versions. All of the KASAN and KCSAN
-KUnit tests continue to pass after this change.
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Boot test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Reboot test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 CIFS Connectathon
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 POSIX pjd-fstest suites
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Loopdev Sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 jvm - jcstress tests
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory: fork_mem
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: memfd_create
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 AMTU (Abstract Machine Test Utility)
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking bridge: sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Ethernet drivers sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking socket: fuzz
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route: pmtu
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func - local
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func - forward
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking TCP: keepalive test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking UDP: socket
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking cki netfilter test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: geneve basic test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: gre basic
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 L2TP basic test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: vxlan basic
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking ipsec: basic netns - tunnel
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Libkcapi AF_ALG test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 pciutils: update pci ids test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA PCM loopback test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA Control (mixer) Userspace Element test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 xarray-idr-radixtree-test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 NFS Connectathon
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 audit: audit testsuite test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 lvm cache test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 lvm snapper test
 
-Cc: stable@vger.kernel.org
-Link: https://github.com/ClangBuiltLinux/linux/issues/1432
-Link: https://github.com/llvm/llvm-project/commit/7b789562244ee941b7bf2cefeb3fc08a59a01865
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Fangrui Song <maskray@google.com>
-Acked-by: Marco Elver <elver@google.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20210731023107.1932981-1-nathan@kernel.org
-[nc: Resolve conflict due to lack of cf68fffb66d60]
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
----
- include/asm-generic/vmlinux.lds.h | 1 +
- 1 file changed, 1 insertion(+)
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Reboot test
+       =E2=9C=85 xfstests - ext4
+       =E2=9C=85 xfstests - xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 storage: software RAID testing
+       =E2=9C=85 Storage: swraid mdadm raid_module test
+       =F0=9F=9A=A7 =E2=9C=85 Podman system integration test - as root
+       =F0=9F=9A=A7 =E2=9C=85 Podman system integration test - as user
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
+       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+       =F0=9F=9A=A7 =E2=9C=85 Storage block - filesystem fio test
+       =F0=9F=9A=A7 =E2=9C=85 Storage block - queue scheduler test
+       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
+       =F0=9F=9A=A7 =E2=9C=85 Storage: lvm device-mapper test - upstream
 
-diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
-index 18468b46c450..a774361f28d4 100644
---- a/include/asm-generic/vmlinux.lds.h
-+++ b/include/asm-generic/vmlinux.lds.h
-@@ -599,6 +599,7 @@
- 		NOINSTR_TEXT						\
- 		*(.text..refcount)					\
- 		*(.ref.text)						\
-+		*(.text.asan.* .text.tsan.*)				\
- 	MEM_KEEP(init.text*)						\
- 	MEM_KEEP(exit.text*)						\
- 
+    Host 3:
 
-base-commit: 5805e5eec901e830c7741d4916270d0b9cfd6743
--- 
-2.33.0.rc2
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
+marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
 
+       =E2=9C=85 Boot test
+       =E2=9C=85 Reboot test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 CIFS Connectathon
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 POSIX pjd-fstest suites
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Loopdev Sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 jvm - jcstress tests
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory: fork_mem
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: memfd_create
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 AMTU (Abstract Machine Test Utility)
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking bridge: sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Ethernet drivers sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking socket: fuzz
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route: pmtu
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func - local
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func - forward
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking TCP: keepalive test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking UDP: socket
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking cki netfilter test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: geneve basic test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: gre basic
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 L2TP basic test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: vxlan basic
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking ipsec: basic netns - tunnel
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Libkcapi AF_ALG test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 pciutils: update pci ids test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA PCM loopback test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA Control (mixer) Userspace Element test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 xarray-idr-radixtree-test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 NFS Connectathon
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 audit: audit testsuite test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 lvm cache test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 lvm snapper test
 
---ExCZztx91pGMwpEA--
+    Host 4:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
+marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Boot test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Reboot test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 CIFS Connectathon
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 POSIX pjd-fstest suites
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Loopdev Sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 jvm - jcstress tests
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory: fork_mem
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: memfd_create
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 AMTU (Abstract Machine Test Utility)
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking bridge: sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Ethernet drivers sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking socket: fuzz
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route: pmtu
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func - local
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func - forward
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking TCP: keepalive test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking UDP: socket
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking cki netfilter test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: geneve basic test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: gre basic
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 L2TP basic test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: vxlan basic
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking ipsec: basic netns - tunnel
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Libkcapi AF_ALG test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 pciutils: update pci ids test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA PCM loopback test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA Control (mixer) Userspace Element test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 xarray-idr-radixtree-test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 NFS Connectathon
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 audit: audit testsuite test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 lvm cache test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 lvm snapper test
+
+  s390x:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Reboot test
+       =E2=9C=85 LTP
+       =E2=9C=85 CIFS Connectathon
+       =E2=9C=85 POSIX pjd-fstest suites
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 jvm - jcstress tests
+       =E2=9C=85 Memory: fork_mem
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking cki netfilter test
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - transport
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9D=8C xarray-idr-radixtree-test
+       =F0=9F=9A=A7 =E2=9C=85 NFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
+       =F0=9F=9A=A7 =E2=9C=85 lvm cache test
+       =F0=9F=9A=A7 =E2=9C=85 lvm snapper test
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Reboot test
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 Storage: swraid mdadm raid_module test
+       =F0=9F=9A=A7 =E2=9C=85 Podman system integration test - as root
+       =F0=9F=9A=A7 =E2=9C=85 Podman system integration test - as user
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
+       =F0=9F=9A=A7 =E2=9C=85 stress: stress-ng
+
+  x86_64:
+    Host 1:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
+marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Boot test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Reboot test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ACPI table test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 CIFS Connectathon
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 POSIX pjd-fstest suites
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Loopdev Sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 jvm - jcstress tests
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory: fork_mem
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: memfd_create
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 AMTU (Abstract Machine Test Utility)
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking bridge: sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Ethernet drivers sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking socket: fuzz
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking: igmp conformance test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route: pmtu
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func - local
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func - forward
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking TCP: keepalive test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking UDP: socket
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking cki netfilter test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: geneve basic test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: gre basic
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 L2TP basic test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: vxlan basic
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking ipsec: basic netns - transport
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking ipsec: basic netns - tunnel
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Libkcapi AF_ALG test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 pciutils: sanity smoke test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 pciutils: update pci ids test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA PCM loopback test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA Control (mixer) Userspace Element test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: SCSI VPD
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 xarray-idr-radixtree-test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 i2c: i2cdetect sanity
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 NFS Connectathon
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Firmware test suite
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 audit: audit testsuite test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 lvm cache test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 lvm snapper test
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Reboot test
+       =E2=9C=85 xfstests - ext4
+       =E2=9C=85 xfstests - xfs
+       =E2=9C=85 xfstests - nfsv4.2
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 storage: software RAID testing
+       =E2=9C=85 Storage: swraid mdadm raid_module test
+       =F0=9F=9A=A7 =E2=9D=8C Podman system integration test - as root
+       =F0=9F=9A=A7 =E2=9C=85 Podman system integration test - as user
+       =F0=9F=9A=A7 =E2=9C=85 CPU: Idle Test
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - cifsv3.11
+       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+       =F0=9F=9A=A7 =E2=9C=85 Storage block - filesystem fio test
+       =F0=9F=9A=A7 =E2=9C=85 Storage block - queue scheduler test
+       =F0=9F=9A=A7 =E2=9D=8C Storage nvme - tcp
+       =F0=9F=9A=A7 =E2=9C=85 Storage: lvm device-mapper test - upstream
+       =F0=9F=9A=A7 =E2=9C=85 stress: stress-ng
+
+    Host 3:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Reboot test
+       =E2=9C=85 ACPI table test
+       =E2=9C=85 LTP
+       =E2=9C=85 CIFS Connectathon
+       =E2=9C=85 POSIX pjd-fstest suites
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 jvm - jcstress tests
+       =E2=9C=85 Memory: fork_mem
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking: igmp conformance test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking cki netfilter test
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - transport
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =E2=9C=85 pciutils: sanity smoke test
+       =E2=9C=85 pciutils: update pci ids test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 storage: SCSI VPD
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 xarray-idr-radixtree-test
+       =F0=9F=9A=A7 =E2=9C=85 i2c: i2cdetect sanity
+       =F0=9F=9A=A7 =E2=9C=85 NFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 Firmware test suite
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
+       =F0=9F=9A=A7 =E2=9C=85 lvm cache test
+       =F0=9F=9A=A7 =E2=9C=85 lvm snapper test
+
+  Test sources: https://gitlab.com/cki-project/kernel-tests
+    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to e=
+xisting tests!
+
+Aborted tests
+-------------
+Tests that didn't complete running successfully are marked with =E2=9A=A1=E2=
+=9A=A1=E2=9A=A1.
+If this was caused by an infrastructure issue, we try to mark that
+explicitly in the report.
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with =F0=9F=9A=A7. Suc=
+h tests are
+executed but their results are not taken into account. Tests are waived when
+their results are not reliable enough, e.g. when they're just introduced or a=
+re
+being fixed.
+
+Testing timeout
+---------------
+We aim to provide a report within reasonable timeframe. Tests that haven't
+finished running yet are marked with =E2=8F=B1.
+
