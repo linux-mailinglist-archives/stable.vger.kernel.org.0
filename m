@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C185E3EC921
-	for <lists+stable@lfdr.de>; Sun, 15 Aug 2021 14:44:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFB933EC922
+	for <lists+stable@lfdr.de>; Sun, 15 Aug 2021 14:44:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237917AbhHOMou (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Aug 2021 08:44:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47350 "EHLO mail.kernel.org"
+        id S237877AbhHOMo7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Aug 2021 08:44:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231809AbhHOMou (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 15 Aug 2021 08:44:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 45E0561152;
-        Sun, 15 Aug 2021 12:44:20 +0000 (UTC)
+        id S231809AbhHOMo7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 15 Aug 2021 08:44:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E400261152;
+        Sun, 15 Aug 2021 12:44:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629031460;
-        bh=I4Wsup8QkUe47ERoVMU9bQbjZzQqrC1lG3lBO9Q0muI=;
+        s=korg; t=1629031469;
+        bh=m9U9ry9gAQRNAS8vfp50Tc0rbFTbTdxfpDu4MFP+++U=;
         h=Subject:To:Cc:From:Date:From;
-        b=lrwxYVAiN4FKGy+o/GuyTB32nJYF7SexHA5OnT6Ft3+790NkOmp5BM6MHO0K00/7j
-         iyAYr/4rgA3ey6PpT8o7NMFGcksUWgYY+Esp2DZW6Gn0tZY5TS0Ny7GKzZSr8ZxAHD
-         HDcZo7oBDGWTKiD3r5rjkf7+Tdmwsi8FlSTvVLAA=
-Subject: FAILED: patch "[PATCH] drm/amdgpu: set RAS EEPROM address from VBIOS" failed to apply to 5.10-stable tree
+        b=Z+tUHwAOvMFlW5wyoAI79pfL2DgMMO7Uzr+EBtZRdh3QQpJOv6JMZFG40BUJ+qBH2
+         9nA9BVj4q+QhB44t925wrCD3yvZqf5gW/G4CeuaGrUvlATXgiHX6jjru6TUGBZNfQQ
+         Hi++yDOy5KhjjMXLx7kXC1g/o6Zl4fKEhXje1MkM=
+Subject: FAILED: patch "[PATCH] drm/amdgpu: set RAS EEPROM address from VBIOS" failed to apply to 5.13-stable tree
 To:     john.clements@amd.com, Hawking.Zhang@amd.com,
         alexander.deucher@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 15 Aug 2021 14:44:18 +0200
-Message-ID: <1629031458105209@kroah.com>
+Date:   Sun, 15 Aug 2021 14:44:19 +0200
+Message-ID: <162903145913072@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.13-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
