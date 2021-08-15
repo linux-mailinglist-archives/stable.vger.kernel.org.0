@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A980F3EC915
-	for <lists+stable@lfdr.de>; Sun, 15 Aug 2021 14:41:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F2AA3EC917
+	for <lists+stable@lfdr.de>; Sun, 15 Aug 2021 14:41:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237917AbhHOMlk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Aug 2021 08:41:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42992 "EHLO mail.kernel.org"
+        id S237933AbhHOMln (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Aug 2021 08:41:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229603AbhHOMlh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 15 Aug 2021 08:41:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DA9CB61131;
-        Sun, 15 Aug 2021 12:41:06 +0000 (UTC)
+        id S229603AbhHOMlm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 15 Aug 2021 08:41:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 662FB61151;
+        Sun, 15 Aug 2021 12:41:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629031267;
-        bh=45PFoYZbJ600tiNKut8IV4ay6CL0WdKfC7vG/JuzABs=;
+        s=korg; t=1629031272;
+        bh=pELilbs1DvgOM0/ybe0wPW14MVvjkpF9WiSmcNKVaWI=;
         h=Subject:To:Cc:From:Date:From;
-        b=qL40I9uyU7mH7I5v4AIIdw249ozcq2eDMSpW3WMihyNyhSZgLY981mf/Lh0WYVvI7
-         1Z3PCArsDwMRbL6qNd01KrxFlum2mqY6dXQCicYb4zXvFParQTo8RuFv/OfMpycMLq
-         SDOF9omiiVp54HHJIl/dHcDeI1ZhFujEXadSntYk=
-Subject: FAILED: patch "[PATCH] libnvdimm/region: Fix label activation vs errors" failed to apply to 4.14-stable tree
+        b=K0OxQBP2KArQ3LYRxq0q1ZtWNd12Fc1A9e89fJq/ugk/onri1gkDrUAvJLQzyK7uG
+         sBn2xDP7lI0KqiNTMyypjgoGp8jGaFXbTkx9vjel2capNzdhVrW5lYMD4PREe3VUDn
+         FEfc6F5JMP/dtxWav9w71t5tUOx9q/04NdkwrpDU=
+Subject: FAILED: patch "[PATCH] libnvdimm/region: Fix label activation vs errors" failed to apply to 4.19-stable tree
 To:     dan.j.williams@intel.com, jmoyer@redhat.com,
         krzysztof.kensicki@intel.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 15 Aug 2021 14:40:57 +0200
-Message-ID: <162903125772249@kroah.com>
+Date:   Sun, 15 Aug 2021 14:40:58 +0200
+Message-ID: <162903125830149@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
