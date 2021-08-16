@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E5173ED4E8
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:06:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37FF63ED56B
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:12:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235798AbhHPNG1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:06:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57542 "EHLO mail.kernel.org"
+        id S239420AbhHPNLV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:11:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237152AbhHPNFn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:05:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DC21263281;
-        Mon, 16 Aug 2021 13:05:11 +0000 (UTC)
+        id S239170AbhHPNJh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:09:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 097E56108D;
+        Mon, 16 Aug 2021 13:08:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119112;
-        bh=50qp5bqEcGG9URWnDAqgtGC2ROLaKJgXnPPFlSuya3c=;
+        s=korg; t=1629119327;
+        bh=d8K1g8euixQO0zdiYI5zlY+HLMjMQ92TzsN0jgBvP/M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mxMmAZNkgGzIIhH41Hrz6tjaF5/NzR3fnLCW3frb1YEbhhPaxqXW3g7MjY/xtxGHy
-         3XmEpyMeMsf1F5P55ufy2GMdICySebMwTe2E+yXRUCLZBJQVhbLS2Kr2mb4zI4td4b
-         kTl5TZeVP9ZII7jlNNWaXVJe5Ur8Oel4FjKg9WHg=
+        b=0gOokPB65de8azDhh/rDrlnYlHgeVwMLM/O3S7VV8IC8zUNvoZ/FOIzj1sLcIYzpy
+         PVuP11X7IUwfprwpkSw4ayPAdxrlELxTS9UZrq1QCHupFNBKshSMNQNVAD3NlBgPxY
+         3bZcHhAsCuTWcCcXAnmKLkdu1fU/+U7O5HWZvIHM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeff Layton <jlayton@kernel.org>,
-        Ilya Dryomov <idryomov@gmail.com>
-Subject: [PATCH 5.4 58/62] ceph: add some lockdep assertions around snaprealm handling
-Date:   Mon, 16 Aug 2021 15:02:30 +0200
-Message-Id: <20210816125430.201893289@linuxfoundation.org>
+        stable@vger.kernel.org, Kevin Tian <kevin.tian@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Marc Zyngier <maz@kernel.org>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 5.10 81/96] PCI/MSI: Enforce that MSI-X table entry is masked for update
+Date:   Mon, 16 Aug 2021 15:02:31 +0200
+Message-Id: <20210816125437.685649267@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125428.198692661@linuxfoundation.org>
-References: <20210816125428.198692661@linuxfoundation.org>
+In-Reply-To: <20210816125434.948010115@linuxfoundation.org>
+References: <20210816125434.948010115@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,93 +41,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Layton <jlayton@kernel.org>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit a6862e6708c15995bc10614b2ef34ca35b4b9078 upstream.
+commit da181dc974ad667579baece33c2c8d2d1e4558d5 upstream.
 
-Turn some comments into lockdep asserts.
+The specification (PCIe r5.0, sec 6.1.4.5) states:
 
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Reviewed-by: Ilya Dryomov <idryomov@gmail.com>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+    For MSI-X, a function is permitted to cache Address and Data values
+    from unmasked MSI-X Table entries. However, anytime software unmasks a
+    currently masked MSI-X Table entry either by clearing its Mask bit or
+    by clearing the Function Mask bit, the function must update any Address
+    or Data values that it cached from that entry. If software changes the
+    Address or Data value of an entry while the entry is unmasked, the
+    result is undefined.
+
+The Linux kernel's MSI-X support never enforced that the entry is masked
+before the entry is modified hence the Fixes tag refers to a commit in:
+      git://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git
+
+Enforce the entry to be masked across the update.
+
+There is no point in enforcing this to be handled at all possible call
+sites as this is just pointless code duplication and the common update
+function is the obvious place to enforce this.
+
+Fixes: f036d4ea5fa7 ("[PATCH] ia32 Message Signalled Interrupt support")
+Reported-by: Kevin Tian <kevin.tian@intel.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Marc Zyngier <maz@kernel.org>
+Reviewed-by: Marc Zyngier <maz@kernel.org>
+Acked-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210729222542.462096385@linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ceph/snap.c |   16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ drivers/pci/msi.c |   15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
---- a/fs/ceph/snap.c
-+++ b/fs/ceph/snap.c
-@@ -65,6 +65,8 @@
- void ceph_get_snap_realm(struct ceph_mds_client *mdsc,
- 			 struct ceph_snap_realm *realm)
- {
-+	lockdep_assert_held_write(&mdsc->snap_rwsem);
-+
- 	dout("get_realm %p %d -> %d\n", realm,
- 	     atomic_read(&realm->nref), atomic_read(&realm->nref)+1);
- 	/*
-@@ -113,6 +115,8 @@ static struct ceph_snap_realm *ceph_crea
- {
- 	struct ceph_snap_realm *realm;
+--- a/drivers/pci/msi.c
++++ b/drivers/pci/msi.c
+@@ -317,13 +317,28 @@ void __pci_write_msi_msg(struct msi_desc
+ 		/* Don't touch the hardware now */
+ 	} else if (entry->msi_attrib.is_msix) {
+ 		void __iomem *base = pci_msix_desc_addr(entry);
++		bool unmasked = !(entry->masked & PCI_MSIX_ENTRY_CTRL_MASKBIT);
  
-+	lockdep_assert_held_write(&mdsc->snap_rwsem);
-+
- 	realm = kzalloc(sizeof(*realm), GFP_NOFS);
- 	if (!realm)
- 		return ERR_PTR(-ENOMEM);
-@@ -143,6 +147,8 @@ static struct ceph_snap_realm *__lookup_
- 	struct rb_node *n = mdsc->snap_realms.rb_node;
- 	struct ceph_snap_realm *r;
+ 		if (!base)
+ 			goto skip;
  
-+	lockdep_assert_held_write(&mdsc->snap_rwsem);
++		/*
++		 * The specification mandates that the entry is masked
++		 * when the message is modified:
++		 *
++		 * "If software changes the Address or Data value of an
++		 * entry while the entry is unmasked, the result is
++		 * undefined."
++		 */
++		if (unmasked)
++			__pci_msix_desc_mask_irq(entry, PCI_MSIX_ENTRY_CTRL_MASKBIT);
 +
- 	while (n) {
- 		r = rb_entry(n, struct ceph_snap_realm, node);
- 		if (ino < r->ino)
-@@ -176,6 +182,8 @@ static void __put_snap_realm(struct ceph
- static void __destroy_snap_realm(struct ceph_mds_client *mdsc,
- 				 struct ceph_snap_realm *realm)
- {
-+	lockdep_assert_held_write(&mdsc->snap_rwsem);
+ 		writel(msg->address_lo, base + PCI_MSIX_ENTRY_LOWER_ADDR);
+ 		writel(msg->address_hi, base + PCI_MSIX_ENTRY_UPPER_ADDR);
+ 		writel(msg->data, base + PCI_MSIX_ENTRY_DATA);
 +
- 	dout("__destroy_snap_realm %p %llx\n", realm, realm->ino);
- 
- 	rb_erase(&realm->node, &mdsc->snap_realms);
-@@ -198,6 +206,8 @@ static void __destroy_snap_realm(struct
- static void __put_snap_realm(struct ceph_mds_client *mdsc,
- 			     struct ceph_snap_realm *realm)
- {
-+	lockdep_assert_held_write(&mdsc->snap_rwsem);
-+
- 	dout("__put_snap_realm %llx %p %d -> %d\n", realm->ino, realm,
- 	     atomic_read(&realm->nref), atomic_read(&realm->nref)-1);
- 	if (atomic_dec_and_test(&realm->nref))
-@@ -236,6 +246,8 @@ static void __cleanup_empty_realms(struc
- {
- 	struct ceph_snap_realm *realm;
- 
-+	lockdep_assert_held_write(&mdsc->snap_rwsem);
-+
- 	spin_lock(&mdsc->snap_empty_lock);
- 	while (!list_empty(&mdsc->snap_empty)) {
- 		realm = list_first_entry(&mdsc->snap_empty,
-@@ -269,6 +281,8 @@ static int adjust_snap_realm_parent(stru
- {
- 	struct ceph_snap_realm *parent;
- 
-+	lockdep_assert_held_write(&mdsc->snap_rwsem);
-+
- 	if (realm->parent_ino == parentino)
- 		return 0;
- 
-@@ -686,6 +700,8 @@ int ceph_update_snap_trace(struct ceph_m
- 	int err = -ENOMEM;
- 	LIST_HEAD(dirty_realms);
- 
-+	lockdep_assert_held_write(&mdsc->snap_rwsem);
-+
- 	dout("update_snap_trace deletion=%d\n", deletion);
- more:
- 	ceph_decode_need(&p, e, sizeof(*ri), bad);
++		if (unmasked)
++			__pci_msix_desc_mask_irq(entry, 0);
+ 	} else {
+ 		int pos = dev->msi_cap;
+ 		u16 msgctl;
 
 
