@@ -2,26 +2,26 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 90A153ECF0F
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 09:13:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C54963ECF0D
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 09:13:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234161AbhHPHN1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 03:13:27 -0400
-Received: from szxga02-in.huawei.com ([45.249.212.188]:8419 "EHLO
-        szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234090AbhHPHNX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Aug 2021 03:13:23 -0400
-Received: from dggemv711-chm.china.huawei.com (unknown [172.30.72.54])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4Gp4yV0rKdz881L;
-        Mon, 16 Aug 2021 15:08:50 +0800 (CST)
+        id S234124AbhHPHNY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 03:13:24 -0400
+Received: from szxga03-in.huawei.com ([45.249.212.189]:13324 "EHLO
+        szxga03-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234031AbhHPHNW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Aug 2021 03:13:22 -0400
+Received: from dggemv704-chm.china.huawei.com (unknown [172.30.72.54])
+        by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4Gp52z6xdZz86X8;
+        Mon, 16 Aug 2021 15:12:43 +0800 (CST)
 Received: from dggema756-chm.china.huawei.com (10.1.198.198) by
- dggemv711-chm.china.huawei.com (10.1.198.66) with Microsoft SMTP Server
+ dggemv704-chm.china.huawei.com (10.3.19.47) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
- 15.1.2176.2; Mon, 16 Aug 2021 15:12:48 +0800
+ 15.1.2176.2; Mon, 16 Aug 2021 15:12:49 +0800
 Received: from localhost.localdomain (10.175.112.125) by
  dggema756-chm.china.huawei.com (10.1.198.198) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2176.2; Mon, 16 Aug 2021 15:12:47 +0800
+ 15.1.2176.2; Mon, 16 Aug 2021 15:12:48 +0800
 From:   Chen Huang <chenhuang5@huawei.com>
 To:     Roman Gushchin <guro@fb.com>,
         Muchun Song <songmuchun@bytedance.com>,
@@ -34,9 +34,9 @@ CC:     <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>,
         "Xiongchun Duan" <duanxiongchun@bytedance.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10.y 06/11] mm: memcontrol: directly access page->memcg_data in mm/page_alloc.c
-Date:   Mon, 16 Aug 2021 07:21:42 +0000
-Message-ID: <20210816072147.3481782-7-chenhuang5@huawei.com>
+Subject: [PATCH 5.10.y 07/11] mm: memcontrol: change ug->dummy_page only if memcg changed
+Date:   Mon, 16 Aug 2021 07:21:43 +0000
+Message-ID: <20210816072147.3481782-8-chenhuang5@huawei.com>
 X-Mailer: git-send-email 2.18.0.huawei.25
 In-Reply-To: <20210816072147.3481782-1-chenhuang5@huawei.com>
 References: <20210816072147.3481782-1-chenhuang5@huawei.com>
@@ -52,14 +52,11 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Muchun Song <songmuchun@bytedance.com>
 
-page_memcg() is not suitable for use by page_expected_state() and
-page_bad_reason().  Because it can BUG_ON() for the slab pages when
-CONFIG_DEBUG_VM is enabled.  As neither lru, nor kmem, nor slab page
-should have anything left in there by the time the page is freed, what
-we care about is whether the value of page->memcg_data is 0.  So just
-directly access page->memcg_data here.
+Just like assignment to ug->memcg, we only need to update ug->dummy_page
+if memcg changed.  So move it to there.  This is a very small
+optimization.
 
-Link: https://lkml.kernel.org/r/20210319163821.20704-4-songmuchun@bytedance.com
+Link: https://lkml.kernel.org/r/20210319163821.20704-5-songmuchun@bytedance.com
 Signed-off-by: Muchun Song <songmuchun@bytedance.com>
 Acked-by: Johannes Weiner <hannes@cmpxchg.org>
 Reviewed-by: Shakeel Butt <shakeelb@google.com>
@@ -71,31 +68,29 @@ Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Chen Huang <chenhuang5@huawei.com>
 ---
- mm/page_alloc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ mm/memcontrol.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 8ec194271b91..12deac86a7ac 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -1094,7 +1094,7 @@ static inline bool page_expected_state(struct page *page,
- 	if (unlikely((unsigned long)page->mapping |
- 			page_ref_count(page) |
- #ifdef CONFIG_MEMCG
--			(unsigned long)page_memcg(page) |
-+			page->memcg_data |
- #endif
- 			(page->flags & check_flags)))
- 		return false;
-@@ -1119,7 +1119,7 @@ static const char *page_bad_reason(struct page *page, unsigned long flags)
- 			bad_reason = "PAGE_FLAGS_CHECK_AT_FREE flag(s) set";
- 	}
- #ifdef CONFIG_MEMCG
--	if (unlikely(page_memcg(page)))
-+	if (unlikely(page->memcg_data))
- 		bad_reason = "page still charged to cgroup";
- #endif
- 	return bad_reason;
+diff --git a/mm/memcontrol.c b/mm/memcontrol.c
+index d45c2c97d9b8..73418413958c 100644
+--- a/mm/memcontrol.c
++++ b/mm/memcontrol.c
+@@ -6907,6 +6907,7 @@ static void uncharge_page(struct page *page, struct uncharge_gather *ug)
+ 			uncharge_gather_clear(ug);
+ 		}
+ 		ug->memcg = page_memcg(page);
++		ug->dummy_page = page;
+ 
+ 		/* pairs with css_put in uncharge_batch */
+ 		css_get(&ug->memcg->css);
+@@ -6920,7 +6921,6 @@ static void uncharge_page(struct page *page, struct uncharge_gather *ug)
+ 	else
+ 		ug->pgpgout++;
+ 
+-	ug->dummy_page = page;
+ 	page->memcg_data = 0;
+ 	css_put(&ug->memcg->css);
+ }
 -- 
 2.18.0.huawei.25
 
