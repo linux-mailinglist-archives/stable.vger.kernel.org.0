@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E21433ED678
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:22:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B36383ED4EC
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:06:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238851AbhHPNVo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:21:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43052 "EHLO mail.kernel.org"
+        id S237184AbhHPNGa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:06:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240565AbhHPNTx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:19:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 345C6632AC;
-        Mon, 16 Aug 2021 13:14:50 +0000 (UTC)
+        id S237506AbhHPNFu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:05:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A6D3E61A7A;
+        Mon, 16 Aug 2021 13:05:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119690;
-        bh=WAmHT34yVQgJu40/TxA72+kx/9DEUQpSPnp/Uxlnc7s=;
+        s=korg; t=1629119119;
+        bh=kdZvqmK6QD4ED6Og6Z2OcHcyFNykabGchmRnIqvtSnA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QcQ3B4T/9hx+rpnxV2C/0LzyP6Fap9QPBgSF0NSwhGAjy4WGSuAptArXndnO3qhKe
-         9muY/KW4CD350Dm45KkXjyXylVhzEAambwfiy4N43JtvBxCF2lGmJjg72PGbu4nWbc
-         1tNZFp0E1nonzhCl8iPgTU1vCbucpEFQdoXcoe1M=
+        b=KiJiQyVOrnZOntspAvrsStqUM8RX+v8dZzbXAduKjSHzls0fD2bcU1ApeCwOIkEPM
+         gLLFzyg8BtWNgYddz+/75SCdyN6U7xJVl30btQmZmiwi1sgjvJ+qn8PM4pYLC/RpwR
+         JhCYdYta6TIapiYZL90TrywP8D/ZAVbnywGdYd1E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.13 123/151] x86/ioapic: Force affinity setup before startup
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Fangrui Song <maskray@google.com>,
+        Marco Elver <elver@google.com>,
+        Kees Cook <keescook@chromium.org>
+Subject: [PATCH 5.4 61/62] vmlinux.lds.h: Handle clangs module.{c,d}tor sections
 Date:   Mon, 16 Aug 2021 15:02:33 +0200
-Message-Id: <20210816125448.116549586@linuxfoundation.org>
+Message-Id: <20210816125430.316622916@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
-References: <20210816125444.082226187@linuxfoundation.org>
+In-Reply-To: <20210816125428.198692661@linuxfoundation.org>
+References: <20210816125428.198692661@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,50 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Nathan Chancellor <nathan@kernel.org>
 
-commit 0c0e37dc11671384e53ba6ede53a4d91162a2cc5 upstream.
+commit 848378812e40152abe9b9baf58ce2004f76fb988 upstream.
 
-The IO/APIC cannot handle interrupt affinity changes safely after startup
-other than from an interrupt handler. The startup sequence in the generic
-interrupt code violates that assumption.
+A recent change in LLVM causes module_{c,d}tor sections to appear when
+CONFIG_K{A,C}SAN are enabled, which results in orphan section warnings
+because these are not handled anywhere:
 
-Mark the irq chip with the new IRQCHIP_AFFINITY_PRE_STARTUP flag so that
-the default interrupt setting happens before the interrupt is started up
-for the first time.
+ld.lld: warning: arch/x86/pci/built-in.a(legacy.o):(.text.asan.module_ctor) is being placed in '.text.asan.module_ctor'
+ld.lld: warning: arch/x86/pci/built-in.a(legacy.o):(.text.asan.module_dtor) is being placed in '.text.asan.module_dtor'
+ld.lld: warning: arch/x86/pci/built-in.a(legacy.o):(.text.tsan.module_ctor) is being placed in '.text.tsan.module_ctor'
 
-Fixes: 18404756765c ("genirq: Expose default irq affinity mask (take 3)")
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Marc Zyngier <maz@kernel.org>
-Reviewed-by: Marc Zyngier <maz@kernel.org>
+Fangrui explains: "the function asan.module_ctor has the SHF_GNU_RETAIN
+flag, so it is in a separate section even with -fno-function-sections
+(default)".
+
+Place them in the TEXT_TEXT section so that these technologies continue
+to work with the newer compiler versions. All of the KASAN and KCSAN
+KUnit tests continue to pass after this change.
+
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210729222542.832143400@linutronix.de
+Link: https://github.com/ClangBuiltLinux/linux/issues/1432
+Link: https://github.com/llvm/llvm-project/commit/7b789562244ee941b7bf2cefeb3fc08a59a01865
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Fangrui Song <maskray@google.com>
+Acked-by: Marco Elver <elver@google.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20210731023107.1932981-1-nathan@kernel.org
+[nc: Resolve conflict due to lack of cf68fffb66d60]
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/apic/io_apic.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ include/asm-generic/vmlinux.lds.h |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/x86/kernel/apic/io_apic.c
-+++ b/arch/x86/kernel/apic/io_apic.c
-@@ -1986,7 +1986,8 @@ static struct irq_chip ioapic_chip __rea
- 	.irq_set_affinity	= ioapic_set_affinity,
- 	.irq_retrigger		= irq_chip_retrigger_hierarchy,
- 	.irq_get_irqchip_state	= ioapic_irq_get_chip_state,
--	.flags			= IRQCHIP_SKIP_SET_WAKE,
-+	.flags			= IRQCHIP_SKIP_SET_WAKE |
-+				  IRQCHIP_AFFINITY_PRE_STARTUP,
- };
+--- a/include/asm-generic/vmlinux.lds.h
++++ b/include/asm-generic/vmlinux.lds.h
+@@ -536,6 +536,7 @@
+ 		NOINSTR_TEXT						\
+ 		*(.text..refcount)					\
+ 		*(.ref.text)						\
++		*(.text.asan.* .text.tsan.*)				\
+ 	MEM_KEEP(init.text*)						\
+ 	MEM_KEEP(exit.text*)						\
  
- static struct irq_chip ioapic_ir_chip __read_mostly = {
-@@ -1999,7 +2000,8 @@ static struct irq_chip ioapic_ir_chip __
- 	.irq_set_affinity	= ioapic_set_affinity,
- 	.irq_retrigger		= irq_chip_retrigger_hierarchy,
- 	.irq_get_irqchip_state	= ioapic_irq_get_chip_state,
--	.flags			= IRQCHIP_SKIP_SET_WAKE,
-+	.flags			= IRQCHIP_SKIP_SET_WAKE |
-+				  IRQCHIP_AFFINITY_PRE_STARTUP,
- };
- 
- static inline void init_IO_APIC_traps(void)
 
 
