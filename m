@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E95F83ED681
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:22:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1A4B3ED54E
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:12:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239150AbhHPNVt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:21:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43334 "EHLO mail.kernel.org"
+        id S236923AbhHPNKp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:10:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59346 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240647AbhHPNT7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:19:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 656D5632C8;
-        Mon, 16 Aug 2021 13:15:06 +0000 (UTC)
+        id S236619AbhHPNJI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:09:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1136D610A1;
+        Mon, 16 Aug 2021 13:07:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119706;
-        bh=RYrcGiuN1XgqYILElz1dObV+4Wp7klA+3ZnmfUl+RQg=;
+        s=korg; t=1629119271;
+        bh=JjQF0/IFbP28eS/8fY6KNZ8hBKAnwDM0QDsaYI1RRZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ffpZ4KYQ/Njzf49ZMJqt+PJ9R+0B3gIlP/FRjviZGocyfDHi/TxaEzX5mhQ+NHSSa
-         mCKlKcNNPI5TC/13jFI680NUPUlDc1pCHLnjBR6jagVUhNmCUkCFP11awooaXZjRGS
-         HDHKBF1Dmufhib9+4d0L6jzLtcLRWSL/cD/1sazc=
+        b=dV8pu6d2+ijr7BNKGW9CaL6sEoE1axSLnVBddpjyEdDrrsfoRN44jyOFnujha2qSV
+         g/EGu0//NuqoUE/qFKGtLa+4C0GbpBbpfXNZ3RZ0Lb1fB+etj410bTrYJ3IXK1cdRS
+         4Gd3+EpAldVplDxlDgAJIWP5vmJ9bHagJXYG63RE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takeshi Misawa <jeliantsurux@gmail.com>,
-        Alexander Aring <aahringo@redhat.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+1f68113fa907bf0695a8@syzkaller.appspotmail.com
-Subject: [PATCH 5.13 098/151] net: Fix memory leak in ieee802154_raw_deliver
+        stable@vger.kernel.org,
+        syzbot+9ba1174359adba5a5b7c@syzkaller.appspotmail.com,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Nikolay Aleksandrov <nikolay@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 58/96] net: bridge: validate the NUD_PERMANENT bit when adding an extern_learn FDB entry
 Date:   Mon, 16 Aug 2021 15:02:08 +0200
-Message-Id: <20210816125447.304727706@linuxfoundation.org>
+Message-Id: <20210816125436.889975962@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
-References: <20210816125444.082226187@linuxfoundation.org>
+In-Reply-To: <20210816125434.948010115@linuxfoundation.org>
+References: <20210816125434.948010115@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,85 +43,188 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takeshi Misawa <jeliantsurux@gmail.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit 1090340f7ee53e824fd4eef66a4855d548110c5b ]
+[ Upstream commit 0541a6293298fb52789de389dfb27ef54df81f73 ]
 
-If IEEE-802.15.4-RAW is closed before receive skb, skb is leaked.
-Fix this, by freeing sk_receive_queue in sk->sk_destruct().
+Currently it is possible to add broken extern_learn FDB entries to the
+bridge in two ways:
 
-syzbot report:
-BUG: memory leak
-unreferenced object 0xffff88810f644600 (size 232):
-  comm "softirq", pid 0, jiffies 4294967032 (age 81.270s)
-  hex dump (first 32 bytes):
-    10 7d 4b 12 81 88 ff ff 10 7d 4b 12 81 88 ff ff  .}K......}K.....
-    00 00 00 00 00 00 00 00 40 7c 4b 12 81 88 ff ff  ........@|K.....
-  backtrace:
-    [<ffffffff83651d4a>] skb_clone+0xaa/0x2b0 net/core/skbuff.c:1496
-    [<ffffffff83fe1b80>] ieee802154_raw_deliver net/ieee802154/socket.c:369 [inline]
-    [<ffffffff83fe1b80>] ieee802154_rcv+0x100/0x340 net/ieee802154/socket.c:1070
-    [<ffffffff8367cc7a>] __netif_receive_skb_one_core+0x6a/0xa0 net/core/dev.c:5384
-    [<ffffffff8367cd07>] __netif_receive_skb+0x27/0xa0 net/core/dev.c:5498
-    [<ffffffff8367cdd9>] netif_receive_skb_internal net/core/dev.c:5603 [inline]
-    [<ffffffff8367cdd9>] netif_receive_skb+0x59/0x260 net/core/dev.c:5662
-    [<ffffffff83fe6302>] ieee802154_deliver_skb net/mac802154/rx.c:29 [inline]
-    [<ffffffff83fe6302>] ieee802154_subif_frame net/mac802154/rx.c:102 [inline]
-    [<ffffffff83fe6302>] __ieee802154_rx_handle_packet net/mac802154/rx.c:212 [inline]
-    [<ffffffff83fe6302>] ieee802154_rx+0x612/0x620 net/mac802154/rx.c:284
-    [<ffffffff83fe59a6>] ieee802154_tasklet_handler+0x86/0xa0 net/mac802154/main.c:35
-    [<ffffffff81232aab>] tasklet_action_common.constprop.0+0x5b/0x100 kernel/softirq.c:557
-    [<ffffffff846000bf>] __do_softirq+0xbf/0x2ab kernel/softirq.c:345
-    [<ffffffff81232f4c>] do_softirq kernel/softirq.c:248 [inline]
-    [<ffffffff81232f4c>] do_softirq+0x5c/0x80 kernel/softirq.c:235
-    [<ffffffff81232fc1>] __local_bh_enable_ip+0x51/0x60 kernel/softirq.c:198
-    [<ffffffff8367a9a4>] local_bh_enable include/linux/bottom_half.h:32 [inline]
-    [<ffffffff8367a9a4>] rcu_read_unlock_bh include/linux/rcupdate.h:745 [inline]
-    [<ffffffff8367a9a4>] __dev_queue_xmit+0x7f4/0xf60 net/core/dev.c:4221
-    [<ffffffff83fe2db4>] raw_sendmsg+0x1f4/0x2b0 net/ieee802154/socket.c:295
-    [<ffffffff8363af16>] sock_sendmsg_nosec net/socket.c:654 [inline]
-    [<ffffffff8363af16>] sock_sendmsg+0x56/0x80 net/socket.c:674
-    [<ffffffff8363deec>] __sys_sendto+0x15c/0x200 net/socket.c:1977
-    [<ffffffff8363dfb6>] __do_sys_sendto net/socket.c:1989 [inline]
-    [<ffffffff8363dfb6>] __se_sys_sendto net/socket.c:1985 [inline]
-    [<ffffffff8363dfb6>] __x64_sys_sendto+0x26/0x30 net/socket.c:1985
+1. Entries pointing towards the bridge device that are not local/permanent:
 
-Fixes: 9ec767160357 ("net: add IEEE 802.15.4 socket family implementation")
-Reported-and-tested-by: syzbot+1f68113fa907bf0695a8@syzkaller.appspotmail.com
-Signed-off-by: Takeshi Misawa <jeliantsurux@gmail.com>
-Acked-by: Alexander Aring <aahringo@redhat.com>
-Link: https://lore.kernel.org/r/20210805075414.GA15796@DESKTOP
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+ip link add br0 type bridge
+bridge fdb add 00:01:02:03:04:05 dev br0 self extern_learn static
+
+2. Entries pointing towards the bridge device or towards a port that
+are marked as local/permanent, however the bridge does not process the
+'permanent' bit in any way, therefore they are recorded as though they
+aren't permanent:
+
+ip link add br0 type bridge
+bridge fdb add 00:01:02:03:04:05 dev br0 self extern_learn permanent
+
+Since commit 52e4bec15546 ("net: bridge: switchdev: treat local FDBs the
+same as entries towards the bridge"), these incorrect FDB entries can
+even trigger NULL pointer dereferences inside the kernel.
+
+This is because that commit made the assumption that all FDB entries
+that are not local/permanent have a valid destination port. For context,
+local / permanent FDB entries either have fdb->dst == NULL, and these
+point towards the bridge device and are therefore local and not to be
+used for forwarding, or have fdb->dst == a net_bridge_port structure
+(but are to be treated in the same way, i.e. not for forwarding).
+
+That assumption _is_ correct as long as things are working correctly in
+the bridge driver, i.e. we cannot logically have fdb->dst == NULL under
+any circumstance for FDB entries that are not local. However, the
+extern_learn code path where FDB entries are managed by a user space
+controller show that it is possible for the bridge kernel driver to
+misinterpret the NUD flags of an entry transmitted by user space, and
+end up having fdb->dst == NULL while not being a local entry. This is
+invalid and should be rejected.
+
+Before, the two commands listed above both crashed the kernel in this
+check from br_switchdev_fdb_notify:
+
+	struct net_device *dev = info.is_local ? br->dev : dst->dev;
+
+info.is_local == false, dst == NULL.
+
+After this patch, the invalid entry added by the first command is
+rejected:
+
+ip link add br0 type bridge && bridge fdb add 00:01:02:03:04:05 dev br0 self extern_learn static; ip link del br0
+Error: bridge: FDB entry towards bridge must be permanent.
+
+and the valid entry added by the second command is properly treated as a
+local address and does not crash br_switchdev_fdb_notify anymore:
+
+ip link add br0 type bridge && bridge fdb add 00:01:02:03:04:05 dev br0 self extern_learn permanent; ip link del br0
+
+Fixes: eb100e0e24a2 ("net: bridge: allow to add externally learned entries from user-space")
+Reported-by: syzbot+9ba1174359adba5a5b7c@syzkaller.appspotmail.com
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+Link: https://lore.kernel.org/r/20210801231730.7493-1-vladimir.oltean@nxp.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ieee802154/socket.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ net/bridge/br.c         |  3 ++-
+ net/bridge/br_fdb.c     | 30 ++++++++++++++++++++++++------
+ net/bridge/br_private.h |  2 +-
+ 3 files changed, 27 insertions(+), 8 deletions(-)
 
-diff --git a/net/ieee802154/socket.c b/net/ieee802154/socket.c
-index a45a0401adc5..c25f7617770c 100644
---- a/net/ieee802154/socket.c
-+++ b/net/ieee802154/socket.c
-@@ -984,6 +984,11 @@ static const struct proto_ops ieee802154_dgram_ops = {
- 	.sendpage	   = sock_no_sendpage,
- };
+diff --git a/net/bridge/br.c b/net/bridge/br.c
+index 1b169f8e7491..a416b01ee773 100644
+--- a/net/bridge/br.c
++++ b/net/bridge/br.c
+@@ -166,7 +166,8 @@ static int br_switchdev_event(struct notifier_block *unused,
+ 	case SWITCHDEV_FDB_ADD_TO_BRIDGE:
+ 		fdb_info = ptr;
+ 		err = br_fdb_external_learn_add(br, p, fdb_info->addr,
+-						fdb_info->vid, false);
++						fdb_info->vid,
++						fdb_info->is_local, false);
+ 		if (err) {
+ 			err = notifier_from_errno(err);
+ 			break;
+diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
+index 32ac8343b0ba..a729786e0f03 100644
+--- a/net/bridge/br_fdb.c
++++ b/net/bridge/br_fdb.c
+@@ -950,7 +950,8 @@ static int fdb_add_entry(struct net_bridge *br, struct net_bridge_port *source,
  
-+static void ieee802154_sock_destruct(struct sock *sk)
-+{
-+	skb_queue_purge(&sk->sk_receive_queue);
-+}
+ static int __br_fdb_add(struct ndmsg *ndm, struct net_bridge *br,
+ 			struct net_bridge_port *p, const unsigned char *addr,
+-			u16 nlh_flags, u16 vid, struct nlattr *nfea_tb[])
++			u16 nlh_flags, u16 vid, struct nlattr *nfea_tb[],
++			struct netlink_ext_ack *extack)
+ {
+ 	int err = 0;
+ 
+@@ -969,7 +970,15 @@ static int __br_fdb_add(struct ndmsg *ndm, struct net_bridge *br,
+ 		rcu_read_unlock();
+ 		local_bh_enable();
+ 	} else if (ndm->ndm_flags & NTF_EXT_LEARNED) {
+-		err = br_fdb_external_learn_add(br, p, addr, vid, true);
++		if (!p && !(ndm->ndm_state & NUD_PERMANENT)) {
++			NL_SET_ERR_MSG_MOD(extack,
++					   "FDB entry towards bridge must be permanent");
++			return -EINVAL;
++		}
 +
- /* Create a socket. Initialise the socket, blank the addresses
-  * set the state.
-  */
-@@ -1024,7 +1029,7 @@ static int ieee802154_create(struct net *net, struct socket *sock,
- 	sock->ops = ops;
++		err = br_fdb_external_learn_add(br, p, addr, vid,
++						ndm->ndm_state & NUD_PERMANENT,
++						true);
+ 	} else {
+ 		spin_lock_bh(&br->hash_lock);
+ 		err = fdb_add_entry(br, p, addr, ndm, nlh_flags, vid, nfea_tb);
+@@ -1041,9 +1050,11 @@ int br_fdb_add(struct ndmsg *ndm, struct nlattr *tb[],
+ 		}
  
- 	sock_init_data(sock, sk);
--	/* FIXME: sk->sk_destruct */
-+	sk->sk_destruct = ieee802154_sock_destruct;
- 	sk->sk_family = PF_IEEE802154;
+ 		/* VID was specified, so use it. */
+-		err = __br_fdb_add(ndm, br, p, addr, nlh_flags, vid, nfea_tb);
++		err = __br_fdb_add(ndm, br, p, addr, nlh_flags, vid, nfea_tb,
++				   extack);
+ 	} else {
+-		err = __br_fdb_add(ndm, br, p, addr, nlh_flags, 0, nfea_tb);
++		err = __br_fdb_add(ndm, br, p, addr, nlh_flags, 0, nfea_tb,
++				   extack);
+ 		if (err || !vg || !vg->num_vlans)
+ 			goto out;
  
- 	/* Checksums on by default */
+@@ -1055,7 +1066,7 @@ int br_fdb_add(struct ndmsg *ndm, struct nlattr *tb[],
+ 			if (!br_vlan_should_use(v))
+ 				continue;
+ 			err = __br_fdb_add(ndm, br, p, addr, nlh_flags, v->vid,
+-					   nfea_tb);
++					   nfea_tb, extack);
+ 			if (err)
+ 				goto out;
+ 		}
+@@ -1195,7 +1206,7 @@ void br_fdb_unsync_static(struct net_bridge *br, struct net_bridge_port *p)
+ }
+ 
+ int br_fdb_external_learn_add(struct net_bridge *br, struct net_bridge_port *p,
+-			      const unsigned char *addr, u16 vid,
++			      const unsigned char *addr, u16 vid, bool is_local,
+ 			      bool swdev_notify)
+ {
+ 	struct net_bridge_fdb_entry *fdb;
+@@ -1212,6 +1223,10 @@ int br_fdb_external_learn_add(struct net_bridge *br, struct net_bridge_port *p,
+ 
+ 		if (swdev_notify)
+ 			flags |= BIT(BR_FDB_ADDED_BY_USER);
++
++		if (is_local)
++			flags |= BIT(BR_FDB_LOCAL);
++
+ 		fdb = fdb_create(br, p, addr, vid, flags);
+ 		if (!fdb) {
+ 			err = -ENOMEM;
+@@ -1238,6 +1253,9 @@ int br_fdb_external_learn_add(struct net_bridge *br, struct net_bridge_port *p,
+ 		if (swdev_notify)
+ 			set_bit(BR_FDB_ADDED_BY_USER, &fdb->flags);
+ 
++		if (is_local)
++			set_bit(BR_FDB_LOCAL, &fdb->flags);
++
+ 		if (modified)
+ 			fdb_notify(br, fdb, RTM_NEWNEIGH, swdev_notify);
+ 	}
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index 5e5726048a1a..26f311b2cc11 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -708,7 +708,7 @@ int br_fdb_get(struct sk_buff *skb, struct nlattr *tb[], struct net_device *dev,
+ int br_fdb_sync_static(struct net_bridge *br, struct net_bridge_port *p);
+ void br_fdb_unsync_static(struct net_bridge *br, struct net_bridge_port *p);
+ int br_fdb_external_learn_add(struct net_bridge *br, struct net_bridge_port *p,
+-			      const unsigned char *addr, u16 vid,
++			      const unsigned char *addr, u16 vid, bool is_local,
+ 			      bool swdev_notify);
+ int br_fdb_external_learn_del(struct net_bridge *br, struct net_bridge_port *p,
+ 			      const unsigned char *addr, u16 vid,
 -- 
 2.30.2
 
