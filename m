@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 16DDC3ED4BF
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:04:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C85E3ED688
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:23:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236987AbhHPNFQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:05:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55744 "EHLO mail.kernel.org"
+        id S236452AbhHPNWA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:22:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236691AbhHPNEj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:04:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A12DD63290;
-        Mon, 16 Aug 2021 13:04:07 +0000 (UTC)
+        id S240657AbhHPNT7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:19:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 49DD6632CB;
+        Mon, 16 Aug 2021 13:15:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119048;
-        bh=AA9zUKYgDRroZsU4JqG8GeVdzSqJnW093S3jupmgRZE=;
+        s=korg; t=1629119719;
+        bh=nHOtjRE3feirLNVFm2EMkxIy+GMyVrNJvihoM1rAXhs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UW3VcGiUoe3g9cze8aIpIdd37efdCCB5b22y8i/1T+nh5qrc5Mfmo07o1r/aj6GLp
-         mgH7+fLPyqlAkzdyJNKwpbtXU2BtQWdBz1YxjEuXC06tlKsCc/jibi4AQ2bR7iEfjv
-         2L52vQTPKRj5xGiAaGlIqYFRQ860GsUkghS6Enbg=
+        b=zK2Trfl+3WBoQOLxpYKQDIbgaoKqMdtpmwoU+TqolC5+SZxFehEOx0SmwhjKEfDT2
+         wPvsXYJUwQZ3I458btxyE20qlIpFEo+HXZZdtxF7PSsDb1mvEuBE1KB2ARZ0WHHSUK
+         0SFJowMNZ4yY0e3qbyOurup902G15o19OiV/3Ems=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        stable@vger.kernel.org, Ben Hutchings <ben.hutchings@mind.be>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 31/62] net: dsa: lan9303: fix broken backpressure in .port_fdb_dump
+Subject: [PATCH 5.13 093/151] net: dsa: microchip: ksz8795: Reject unsupported VLAN configuration
 Date:   Mon, 16 Aug 2021 15:02:03 +0200
-Message-Id: <20210816125429.260082764@linuxfoundation.org>
+Message-Id: <20210816125447.146694379@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125428.198692661@linuxfoundation.org>
-References: <20210816125428.198692661@linuxfoundation.org>
+In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
+References: <20210816125444.082226187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,136 +40,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Ben Hutchings <ben.hutchings@mind.be>
 
-[ Upstream commit ada2fee185d8145afb89056558bb59545b9dbdd0 ]
+[ Upstream commit 8f4f58f88fe0d9bd591f21f53de7dbd42baeb3fa ]
 
-rtnl_fdb_dump() has logic to split a dump of PF_BRIDGE neighbors into
-multiple netlink skbs if the buffer provided by user space is too small
-(one buffer will typically handle a few hundred FDB entries).
+The switches supported by ksz8795 only have a per-port flag for Tag
+Removal.  This means it is not possible to support both tagged and
+untagged VLANs on the same port.  Reject attempts to add a VLAN that
+requires the flag to be changed, unless there are no VLANs currently
+configured.
 
-When the current buffer becomes full, nlmsg_put() in
-dsa_slave_port_fdb_do_dump() returns -EMSGSIZE and DSA saves the index
-of the last dumped FDB entry, returns to rtnl_fdb_dump() up to that
-point, and then the dump resumes on the same port with a new skb, and
-FDB entries up to the saved index are simply skipped.
+VID 0 is excluded from this check since it is untagged regardless of
+the state of the flag.
 
-Since dsa_slave_port_fdb_do_dump() is pointed to by the "cb" passed to
-drivers, then drivers must check for the -EMSGSIZE error code returned
-by it. Otherwise, when a netlink skb becomes full, DSA will no longer
-save newly dumped FDB entries to it, but the driver will continue
-dumping. So FDB entries will be missing from the dump.
+On the CPU port we could support tagged and untagged VLANs at the same
+time.  This will be enabled by a later patch.
 
-Fix the broken backpressure by propagating the "cb" return code and
-allow rtnl_fdb_dump() to restart the FDB dump with a new skb.
-
-Fixes: ab335349b852 ("net: dsa: lan9303: Add port_fast_age and port_fdb_dump methods")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Fixes: e66f840c08a2 ("net: dsa: ksz: Add Microchip KSZ8795 DSA driver")
+Signed-off-by: Ben Hutchings <ben.hutchings@mind.be>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/lan9303-core.c | 34 +++++++++++++++++++---------------
- 1 file changed, 19 insertions(+), 15 deletions(-)
+ drivers/net/dsa/microchip/ksz8795.c    | 27 +++++++++++++++++++++++++-
+ drivers/net/dsa/microchip/ksz_common.h |  1 +
+ 2 files changed, 27 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/dsa/lan9303-core.c b/drivers/net/dsa/lan9303-core.c
-index bbec86b9418e..19d1f1c51f97 100644
---- a/drivers/net/dsa/lan9303-core.c
-+++ b/drivers/net/dsa/lan9303-core.c
-@@ -557,12 +557,12 @@ static int lan9303_alr_make_entry_raw(struct lan9303 *chip, u32 dat0, u32 dat1)
- 	return 0;
- }
- 
--typedef void alr_loop_cb_t(struct lan9303 *chip, u32 dat0, u32 dat1,
--			   int portmap, void *ctx);
-+typedef int alr_loop_cb_t(struct lan9303 *chip, u32 dat0, u32 dat1,
-+			  int portmap, void *ctx);
- 
--static void lan9303_alr_loop(struct lan9303 *chip, alr_loop_cb_t *cb, void *ctx)
-+static int lan9303_alr_loop(struct lan9303 *chip, alr_loop_cb_t *cb, void *ctx)
+diff --git a/drivers/net/dsa/microchip/ksz8795.c b/drivers/net/dsa/microchip/ksz8795.c
+index bc9ca2b0e091..c20fb6edd420 100644
+--- a/drivers/net/dsa/microchip/ksz8795.c
++++ b/drivers/net/dsa/microchip/ksz8795.c
+@@ -1099,13 +1099,38 @@ static int ksz8_port_vlan_add(struct dsa_switch *ds, int port,
  {
--	int i;
-+	int ret = 0, i;
+ 	bool untagged = vlan->flags & BRIDGE_VLAN_INFO_UNTAGGED;
+ 	struct ksz_device *dev = ds->priv;
++	struct ksz_port *p = &dev->ports[port];
+ 	u16 data, new_pvid = 0;
+ 	u8 fid, member, valid;
  
- 	mutex_lock(&chip->alr_mutex);
- 	lan9303_write_switch_reg(chip, LAN9303_SWE_ALR_CMD,
-@@ -582,13 +582,17 @@ static void lan9303_alr_loop(struct lan9303 *chip, alr_loop_cb_t *cb, void *ctx)
- 						LAN9303_ALR_DAT1_PORT_BITOFFS;
- 		portmap = alrport_2_portmap[alrport];
+ 	if (ksz_is_ksz88x3(dev))
+ 		return -ENOTSUPP;
  
--		cb(chip, dat0, dat1, portmap, ctx);
-+		ret = cb(chip, dat0, dat1, portmap, ctx);
-+		if (ret)
-+			break;
- 
- 		lan9303_write_switch_reg(chip, LAN9303_SWE_ALR_CMD,
- 					 LAN9303_ALR_CMD_GET_NEXT);
- 		lan9303_write_switch_reg(chip, LAN9303_SWE_ALR_CMD, 0);
- 	}
- 	mutex_unlock(&chip->alr_mutex);
+-	ksz_port_cfg(dev, port, P_TAG_CTRL, PORT_REMOVE_TAG, untagged);
++	/* If a VLAN is added with untagged flag different from the
++	 * port's Remove Tag flag, we need to change the latter.
++	 * Ignore VID 0, which is always untagged.
++	 */
++	if (untagged != p->remove_tag && vlan->vid != 0) {
++		unsigned int vid;
 +
-+	return ret;
- }
- 
- static void alr_reg_to_mac(u32 dat0, u32 dat1, u8 mac[6])
-@@ -606,18 +610,20 @@ struct del_port_learned_ctx {
- };
- 
- /* Clear learned (non-static) entry on given port */
--static void alr_loop_cb_del_port_learned(struct lan9303 *chip, u32 dat0,
--					 u32 dat1, int portmap, void *ctx)
-+static int alr_loop_cb_del_port_learned(struct lan9303 *chip, u32 dat0,
-+					u32 dat1, int portmap, void *ctx)
- {
- 	struct del_port_learned_ctx *del_ctx = ctx;
- 	int port = del_ctx->port;
- 
- 	if (((BIT(port) & portmap) == 0) || (dat1 & LAN9303_ALR_DAT1_STATIC))
--		return;
-+		return 0;
- 
- 	/* learned entries has only one port, we can just delete */
- 	dat1 &= ~LAN9303_ALR_DAT1_VALID; /* delete entry */
- 	lan9303_alr_make_entry_raw(chip, dat0, dat1);
++		/* Reject attempts to add a VLAN that requires the
++		 * Remove Tag flag to be changed, unless there are no
++		 * other VLANs currently configured.
++		 */
++		for (vid = 1; vid < dev->num_vlans; ++vid) {
++			/* Skip the VID we are going to add or reconfigure */
++			if (vid == vlan->vid)
++				continue;
 +
-+	return 0;
- }
++			ksz8_from_vlan(dev, dev->vlan_cache[vid].table[0],
++				       &fid, &member, &valid);
++			if (valid && (member & BIT(port)))
++				return -EINVAL;
++		}
++
++		ksz_port_cfg(dev, port, P_TAG_CTRL, PORT_REMOVE_TAG, untagged);
++		p->remove_tag = untagged;
++	}
  
- struct port_fdb_dump_ctx {
-@@ -626,19 +632,19 @@ struct port_fdb_dump_ctx {
- 	dsa_fdb_dump_cb_t *cb;
- };
+ 	ksz8_r_vlan_table(dev, vlan->vid, &data);
+ 	ksz8_from_vlan(dev, data, &fid, &member, &valid);
+diff --git a/drivers/net/dsa/microchip/ksz_common.h b/drivers/net/dsa/microchip/ksz_common.h
+index 6afbb41ad39e..1597c63988b4 100644
+--- a/drivers/net/dsa/microchip/ksz_common.h
++++ b/drivers/net/dsa/microchip/ksz_common.h
+@@ -27,6 +27,7 @@ struct ksz_port_mib {
+ struct ksz_port {
+ 	u16 member;
+ 	u16 vid_member;
++	bool remove_tag;		/* Remove Tag flag set, for ksz8795 only */
+ 	int stp_state;
+ 	struct phy_device phydev;
  
--static void alr_loop_cb_fdb_port_dump(struct lan9303 *chip, u32 dat0,
--				      u32 dat1, int portmap, void *ctx)
-+static int alr_loop_cb_fdb_port_dump(struct lan9303 *chip, u32 dat0,
-+				     u32 dat1, int portmap, void *ctx)
- {
- 	struct port_fdb_dump_ctx *dump_ctx = ctx;
- 	u8 mac[ETH_ALEN];
- 	bool is_static;
- 
- 	if ((BIT(dump_ctx->port) & portmap) == 0)
--		return;
-+		return 0;
- 
- 	alr_reg_to_mac(dat0, dat1, mac);
- 	is_static = !!(dat1 & LAN9303_ALR_DAT1_STATIC);
--	dump_ctx->cb(mac, 0, is_static, dump_ctx->data);
-+	return dump_ctx->cb(mac, 0, is_static, dump_ctx->data);
- }
- 
- /* Set a static ALR entry. Delete entry if port_map is zero */
-@@ -1210,9 +1216,7 @@ static int lan9303_port_fdb_dump(struct dsa_switch *ds, int port,
- 	};
- 
- 	dev_dbg(chip->dev, "%s(%d)\n", __func__, port);
--	lan9303_alr_loop(chip, alr_loop_cb_fdb_port_dump, &dump_ctx);
--
--	return 0;
-+	return lan9303_alr_loop(chip, alr_loop_cb_fdb_port_dump, &dump_ctx);
- }
- 
- static int lan9303_port_mdb_prepare(struct dsa_switch *ds, int port,
 -- 
 2.30.2
 
