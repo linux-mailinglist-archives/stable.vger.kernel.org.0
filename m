@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 249A83ED578
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:12:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 088033ED6AA
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:23:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237361AbhHPNLf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:11:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56748 "EHLO mail.kernel.org"
+        id S237251AbhHPNWy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:22:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239369AbhHPNJs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:09:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F1D30604DC;
-        Mon, 16 Aug 2021 13:09:16 +0000 (UTC)
+        id S238936AbhHPNUh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:20:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3CBBD63292;
+        Mon, 16 Aug 2021 13:16:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119357;
-        bh=HX5koyYyCuv6TCBFtrplBHqJeTio/gwjjvN61rafX2M=;
+        s=korg; t=1629119762;
+        bh=0qeMRMTj109+MfWCOVSBV2M0B1pQmue50PE2amcYyYE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eyXq+glEojoS+l+vv5/2nsDA9GVlqr+icVOc0ucMSXJk9LpyUAkPlFpskmvsIihZT
-         u/hOvpfU4cpst3u9to/jEhExm7U57eGRdmXvoS04K8vR1a84fA0VCOSAm4nns28a9Z
-         b04r5Pmqjj4gfJFQumlqOn0fSxsJe4g3s3ylXE04=
+        b=bF4SaXNzzOHMS0mQ5PVMo5XkjvZypSt2Rb9DopIm6FWQHJrTCF5BkAWMnRqLg/BlK
+         vyCS2eDub6KjU73pSK+kkarHjVKK1yvTJ+w9eerRvieYKHn77AJW4S52U2aEnC+hfu
+         uWI01zUlbTPz0gy4B41Mjy5C9+6pWWrDYa30R0ew=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 5.10 91/96] vboxsf: Add vboxsf_[create|release]_sf_handle() helpers
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Marc Zyngier <maz@kernel.org>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 5.13 131/151] PCI/MSI: Enforce MSI[X] entry updates to be visible
 Date:   Mon, 16 Aug 2021 15:02:41 +0200
-Message-Id: <20210816125438.021003554@linuxfoundation.org>
+Message-Id: <20210816125448.372561119@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125434.948010115@linuxfoundation.org>
-References: <20210816125434.948010115@linuxfoundation.org>
+In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
+References: <20210816125444.082226187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,156 +40,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit 02f840f90764f22f5c898901849bdbf0cee752ba upstream.
+commit b9255a7cb51754e8d2645b65dd31805e282b4f3e upstream.
 
-Factor out the code to create / release a struct vboxsf_handle into
-2 new helper functions.
+Nothing enforces the posted writes to be visible when the function
+returns. Flush them even if the flush might be redundant when the entry is
+masked already as the unmask will flush as well. This is either setup or a
+rare affinity change event so the extra flush is not the end of the world.
 
-This is a preparation patch for adding atomic_open support.
+While this is more a theoretical issue especially the logic in the X86
+specific msi_set_affinity() function relies on the assumption that the
+update has reached the hardware when the function returns.
 
-Fixes: 0fd169576648 ("fs: Add VirtualBox guest shared folder (vboxsf) support")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Again, as this never has been enforced the Fixes tag refers to a commit in:
+   git://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git
+
+Fixes: f036d4ea5fa7 ("[PATCH] ia32 Message Signalled Interrupt support")
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Marc Zyngier <maz@kernel.org>
+Reviewed-by: Marc Zyngier <maz@kernel.org>
+Acked-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210729222542.515188147@linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/vboxsf/file.c   |   71 ++++++++++++++++++++++++++++++++---------------------
- fs/vboxsf/vfsmod.h |    7 +++++
- 2 files changed, 51 insertions(+), 27 deletions(-)
+ drivers/pci/msi.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/fs/vboxsf/file.c
-+++ b/fs/vboxsf/file.c
-@@ -20,17 +20,39 @@ struct vboxsf_handle {
- 	struct list_head head;
- };
+--- a/drivers/pci/msi.c
++++ b/drivers/pci/msi.c
+@@ -311,6 +311,9 @@ void __pci_write_msi_msg(struct msi_desc
  
--static int vboxsf_file_open(struct inode *inode, struct file *file)
-+struct vboxsf_handle *vboxsf_create_sf_handle(struct inode *inode,
-+					      u64 handle, u32 access_flags)
- {
- 	struct vboxsf_inode *sf_i = VBOXSF_I(inode);
--	struct shfl_createparms params = {};
- 	struct vboxsf_handle *sf_handle;
--	u32 access_flags = 0;
--	int err;
- 
- 	sf_handle = kmalloc(sizeof(*sf_handle), GFP_KERNEL);
- 	if (!sf_handle)
--		return -ENOMEM;
-+		return ERR_PTR(-ENOMEM);
+ 		if (unmasked)
+ 			__pci_msix_desc_mask_irq(entry, 0);
 +
-+	/* the host may have given us different attr then requested */
-+	sf_i->force_restat = 1;
-+
-+	/* init our handle struct and add it to the inode's handles list */
-+	sf_handle->handle = handle;
-+	sf_handle->root = VBOXSF_SBI(inode->i_sb)->root;
-+	sf_handle->access_flags = access_flags;
-+	kref_init(&sf_handle->refcount);
-+
-+	mutex_lock(&sf_i->handle_list_mutex);
-+	list_add(&sf_handle->head, &sf_i->handle_list);
-+	mutex_unlock(&sf_i->handle_list_mutex);
-+
-+	return sf_handle;
-+}
-+
-+static int vboxsf_file_open(struct inode *inode, struct file *file)
-+{
-+	struct vboxsf_sbi *sbi = VBOXSF_SBI(inode->i_sb);
-+	struct shfl_createparms params = {};
-+	struct vboxsf_handle *sf_handle;
-+	u32 access_flags = 0;
-+	int err;
++		/* Ensure that the writes are visible in the device */
++		readl(base + PCI_MSIX_ENTRY_DATA);
+ 	} else {
+ 		int pos = dev->msi_cap;
+ 		u16 msgctl;
+@@ -331,6 +334,8 @@ void __pci_write_msi_msg(struct msi_desc
+ 			pci_write_config_word(dev, pos + PCI_MSI_DATA_32,
+ 					      msg->data);
+ 		}
++		/* Ensure that the writes are visible in the device */
++		pci_read_config_word(dev, pos + PCI_MSI_FLAGS, &msgctl);
+ 	}
  
- 	/*
- 	 * We check the value of params.handle afterwards to find out if
-@@ -83,23 +105,14 @@ static int vboxsf_file_open(struct inode
- 	err = vboxsf_create_at_dentry(file_dentry(file), &params);
- 	if (err == 0 && params.handle == SHFL_HANDLE_NIL)
- 		err = (params.result == SHFL_FILE_EXISTS) ? -EEXIST : -ENOENT;
--	if (err) {
--		kfree(sf_handle);
-+	if (err)
- 		return err;
--	}
- 
--	/* the host may have given us different attr then requested */
--	sf_i->force_restat = 1;
--
--	/* init our handle struct and add it to the inode's handles list */
--	sf_handle->handle = params.handle;
--	sf_handle->root = VBOXSF_SBI(inode->i_sb)->root;
--	sf_handle->access_flags = access_flags;
--	kref_init(&sf_handle->refcount);
--
--	mutex_lock(&sf_i->handle_list_mutex);
--	list_add(&sf_handle->head, &sf_i->handle_list);
--	mutex_unlock(&sf_i->handle_list_mutex);
-+	sf_handle = vboxsf_create_sf_handle(inode, params.handle, access_flags);
-+	if (IS_ERR(sf_handle)) {
-+		vboxsf_close(sbi->root, params.handle);
-+		return PTR_ERR(sf_handle);
-+	}
- 
- 	file->private_data = sf_handle;
- 	return 0;
-@@ -114,22 +127,26 @@ static void vboxsf_handle_release(struct
- 	kfree(sf_handle);
- }
- 
--static int vboxsf_file_release(struct inode *inode, struct file *file)
-+void vboxsf_release_sf_handle(struct inode *inode, struct vboxsf_handle *sf_handle)
- {
- 	struct vboxsf_inode *sf_i = VBOXSF_I(inode);
--	struct vboxsf_handle *sf_handle = file->private_data;
- 
-+	mutex_lock(&sf_i->handle_list_mutex);
-+	list_del(&sf_handle->head);
-+	mutex_unlock(&sf_i->handle_list_mutex);
-+
-+	kref_put(&sf_handle->refcount, vboxsf_handle_release);
-+}
-+
-+static int vboxsf_file_release(struct inode *inode, struct file *file)
-+{
- 	/*
- 	 * When a file is closed on our (the guest) side, we want any subsequent
- 	 * accesses done on the host side to see all changes done from our side.
- 	 */
- 	filemap_write_and_wait(inode->i_mapping);
- 
--	mutex_lock(&sf_i->handle_list_mutex);
--	list_del(&sf_handle->head);
--	mutex_unlock(&sf_i->handle_list_mutex);
--
--	kref_put(&sf_handle->refcount, vboxsf_handle_release);
-+	vboxsf_release_sf_handle(inode, file->private_data);
- 	return 0;
- }
- 
---- a/fs/vboxsf/vfsmod.h
-+++ b/fs/vboxsf/vfsmod.h
-@@ -18,6 +18,8 @@
- #define VBOXSF_SBI(sb)	((struct vboxsf_sbi *)(sb)->s_fs_info)
- #define VBOXSF_I(i)	container_of(i, struct vboxsf_inode, vfs_inode)
- 
-+struct vboxsf_handle;
-+
- struct vboxsf_options {
- 	unsigned long ttl;
- 	kuid_t uid;
-@@ -80,6 +82,11 @@ extern const struct file_operations vbox
- extern const struct address_space_operations vboxsf_reg_aops;
- extern const struct dentry_operations vboxsf_dentry_ops;
- 
-+/* from file.c */
-+struct vboxsf_handle *vboxsf_create_sf_handle(struct inode *inode,
-+					      u64 handle, u32 access_flags);
-+void vboxsf_release_sf_handle(struct inode *inode, struct vboxsf_handle *sf_handle);
-+
- /* from utils.c */
- struct inode *vboxsf_new_inode(struct super_block *sb);
- void vboxsf_init_inode(struct vboxsf_sbi *sbi, struct inode *inode,
+ skip:
 
 
