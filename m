@@ -2,34 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 788253ED5EC
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:17:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E401A3ED604
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:17:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237045AbhHPNPu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:15:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37394 "EHLO mail.kernel.org"
+        id S239813AbhHPNQZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:16:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239952AbhHPNOo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:14:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B9869632AC;
-        Mon, 16 Aug 2021 13:11:42 +0000 (UTC)
+        id S240257AbhHPNPC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:15:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 06EB5632D0;
+        Mon, 16 Aug 2021 13:12:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119503;
-        bh=mn8qF1+hNmGB+hK/Hz415eCdwLyVGmncg+S3lnX6ewo=;
+        s=korg; t=1629119521;
+        bh=ZZE+JhIRF95IGfF6gSywIH6p3aLm9Qh8DaaV98Yq+zk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eOa1V3WZ+ez79E3+PbrXKnsYxpsB0DG59LUgmSijYbG+slTF2oS05uF4IQep0f79Z
-         fao3aIkxEeRXYvaN8Gm+botgoULLzBTtIP1L7eAbjQXdHRkv+xS+m9XBPNBrOkwtOT
-         Z22Fz7O+yNC7BFORXlQhodBKFsL6LA6rtBmt8l/M=
+        b=bSPlyrIKSSWausNqY5t3ciXpDkWZEP63CPAJWqtsHEaES1IgVDlP7bFvhzvyq/hz8
+         uke5nIDX6rp6whwwamuIIWGVnQLJtTbVEdElBBnydiloryMgyy445CAbT2ez03hp0+
+         fuMsOMEIEamcLGexRa8YshKsS3IegjsLJ41NPmKo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ben Hutchings <ben.hutchings@essensium.com>,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.13 024/151] net: ethernet: ti: cpsw: fix min eth packet size for non-switch use-cases
-Date:   Mon, 16 Aug 2021 15:00:54 +0200
-Message-Id: <20210816125444.864401858@linuxfoundation.org>
+        stable@vger.kernel.org, Vineet Gupta <vgupta@synopsys.com>
+Subject: [PATCH 5.13 025/151] ARC: fp: set FPU_STATUS.FWE to enable FPU_STATUS update on context switch
+Date:   Mon, 16 Aug 2021 15:00:55 +0200
+Message-Id: <20210816125444.904803352@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
 References: <20210816125444.082226187@linuxfoundation.org>
@@ -41,104 +38,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Grygorii Strashko <grygorii.strashko@ti.com>
+From: Vineet Gupta <vgupta@synopsys.com>
 
-commit acc68b8d2a1196c4db806947606f162dbeed2274 upstream.
+commit 3a715e80400f452b247caa55344f4f60250ffbcf upstream.
 
-The CPSW switchdev driver inherited fix from commit 9421c9015047 ("net:
-ethernet: ti: cpsw: fix min eth packet size") which changes min TX packet
-size to 64bytes (VLAN_ETH_ZLEN, excluding ETH_FCS). It was done to fix HW
-packed drop issue when packets are sent from Host to the port with PVID and
-un-tagging enabled. Unfortunately this breaks some other non-switch
-specific use-cases, like:
-- [1] CPSW port as DSA CPU port with DSA-tag applied at the end of the
-packet
-- [2] Some industrial protocols, which expects min TX packet size 60Bytes
-(excluding FCS).
+FPU_STATUS register contains FP exception flags bits which are updated
+by core as side-effect of FP instructions but can also be manually
+wiggled such as by glibc C99 functions fe{raise,clear,test}except() etc.
+To effect the update, the programming model requires OR'ing FWE
+bit (31). This bit is write-only and RAZ, meaning it is effectively
+auto-cleared after write and thus needs to be set everytime: which
+is how glibc implements this.
 
-Fix it by configuring min TX packet size depending on driver mode
- - 60Bytes (ETH_ZLEN) for multi mac (dual-mac) mode
- - 64Bytes (VLAN_ETH_ZLEN) for switch mode
-and update it during driver mode change and annotate with
-READ_ONCE()/WRITE_ONCE() as it can be read by napi while writing.
+However there's another usecase of FPU_STATUS update, at the time of
+Linux task switch when incoming task value needs to be programmed into
+the register. This was added as part of f45ba2bd6da0dc ("ARCv2:
+fpu: preserve userspace fpu state") which missed OR'ing FWE bit,
+meaning the new value is effectively not being written at all.
+This patch remedies that.
 
-[1] https://lore.kernel.org/netdev/20210531124051.GA15218@cephalopod/
-[2] https://e2e.ti.com/support/arm/sitara_arm/f/791/t/701669
+Interestingly, this snafu was not caught in interm glibc testing as the
+race window which relies on a specific exception bit to be set/clear is
+really small specially when it nvolves context switch.
+Fortunately this was caught by glibc's math/test-fenv-tls test which
+repeatedly set/clear exception flags in a big loop, concurrently in main
+program and also in a thread.
 
-Cc: stable@vger.kernel.org
-Fixes: ed3525eda4c4 ("net: ethernet: ti: introduce cpsw switchdev based driver part 1 - dual-emac")
-Reported-by: Ben Hutchings <ben.hutchings@essensium.com>
-Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: https://github.com/foss-for-synopsys-dwc-arc-processors/linux/issues/54
+Fixes: f45ba2bd6da0dc ("ARCv2: fpu: preserve userspace fpu state")
+Cc: stable@vger.kernel.org	#5.6+
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/ti/cpsw_new.c  |    7 +++++--
- drivers/net/ethernet/ti/cpsw_priv.h |    4 +++-
- 2 files changed, 8 insertions(+), 3 deletions(-)
+ arch/arc/kernel/fpu.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/drivers/net/ethernet/ti/cpsw_new.c
-+++ b/drivers/net/ethernet/ti/cpsw_new.c
-@@ -920,7 +920,7 @@ static netdev_tx_t cpsw_ndo_start_xmit(s
- 	struct cpdma_chan *txch;
- 	int ret, q_idx;
+--- a/arch/arc/kernel/fpu.c
++++ b/arch/arc/kernel/fpu.c
+@@ -57,23 +57,26 @@ void fpu_save_restore(struct task_struct
  
--	if (skb_padto(skb, CPSW_MIN_PACKET_SIZE)) {
-+	if (skb_put_padto(skb, READ_ONCE(priv->tx_packet_min))) {
- 		cpsw_err(priv, tx_err, "packet pad failed\n");
- 		ndev->stats.tx_dropped++;
- 		return NET_XMIT_DROP;
-@@ -1100,7 +1100,7 @@ static int cpsw_ndo_xdp_xmit(struct net_
+ void fpu_init_task(struct pt_regs *regs)
+ {
++	const unsigned int fwe = 0x80000000;
++
+ 	/* default rounding mode */
+ 	write_aux_reg(ARC_REG_FPU_CTRL, 0x100);
  
- 	for (i = 0; i < n; i++) {
- 		xdpf = frames[i];
--		if (xdpf->len < CPSW_MIN_PACKET_SIZE)
-+		if (xdpf->len < READ_ONCE(priv->tx_packet_min))
- 			break;
+-	/* set "Write enable" to allow explicit write to exception flags */
+-	write_aux_reg(ARC_REG_FPU_STATUS, 0x80000000);
++	/* Initialize to zero: setting requires FWE be set */
++	write_aux_reg(ARC_REG_FPU_STATUS, fwe);
+ }
  
- 		if (cpsw_xdp_tx_frame(priv, xdpf, NULL, priv->emac_port))
-@@ -1389,6 +1389,7 @@ static int cpsw_create_ports(struct cpsw
- 		priv->dev  = dev;
- 		priv->msg_enable = netif_msg_init(debug_level, CPSW_DEBUG);
- 		priv->emac_port = i + 1;
-+		priv->tx_packet_min = CPSW_MIN_PACKET_SIZE;
+ void fpu_save_restore(struct task_struct *prev, struct task_struct *next)
+ {
+ 	struct arc_fpu *save = &prev->thread.fpu;
+ 	struct arc_fpu *restore = &next->thread.fpu;
++	const unsigned int fwe = 0x80000000;
  
- 		if (is_valid_ether_addr(slave_data->mac_addr)) {
- 			ether_addr_copy(priv->mac_addr, slave_data->mac_addr);
-@@ -1686,6 +1687,7 @@ static int cpsw_dl_switch_mode_set(struc
+ 	save->ctrl = read_aux_reg(ARC_REG_FPU_CTRL);
+ 	save->status = read_aux_reg(ARC_REG_FPU_STATUS);
  
- 			priv = netdev_priv(sl_ndev);
- 			slave->port_vlan = vlan;
-+			WRITE_ONCE(priv->tx_packet_min, CPSW_MIN_PACKET_SIZE_VLAN);
- 			if (netif_running(sl_ndev))
- 				cpsw_port_add_switch_def_ale_entries(priv,
- 								     slave);
-@@ -1714,6 +1716,7 @@ static int cpsw_dl_switch_mode_set(struc
+ 	write_aux_reg(ARC_REG_FPU_CTRL, restore->ctrl);
+-	write_aux_reg(ARC_REG_FPU_STATUS, restore->status);
++	write_aux_reg(ARC_REG_FPU_STATUS, (fwe | restore->status));
+ }
  
- 			priv = netdev_priv(slave->ndev);
- 			slave->port_vlan = slave->data->dual_emac_res_vlan;
-+			WRITE_ONCE(priv->tx_packet_min, CPSW_MIN_PACKET_SIZE);
- 			cpsw_port_add_dual_emac_def_ale_entries(priv, slave);
- 		}
- 
---- a/drivers/net/ethernet/ti/cpsw_priv.h
-+++ b/drivers/net/ethernet/ti/cpsw_priv.h
-@@ -89,7 +89,8 @@ do {								\
- 
- #define CPSW_POLL_WEIGHT	64
- #define CPSW_RX_VLAN_ENCAP_HDR_SIZE		4
--#define CPSW_MIN_PACKET_SIZE	(VLAN_ETH_ZLEN)
-+#define CPSW_MIN_PACKET_SIZE_VLAN	(VLAN_ETH_ZLEN)
-+#define CPSW_MIN_PACKET_SIZE	(ETH_ZLEN)
- #define CPSW_MAX_PACKET_SIZE	(VLAN_ETH_FRAME_LEN +\
- 				 ETH_FCS_LEN +\
- 				 CPSW_RX_VLAN_ENCAP_HDR_SIZE)
-@@ -380,6 +381,7 @@ struct cpsw_priv {
- 	u32 emac_port;
- 	struct cpsw_common *cpsw;
- 	int offload_fwd_mark;
-+	u32 tx_packet_min;
- };
- 
- #define ndev_to_cpsw(ndev) (((struct cpsw_priv *)netdev_priv(ndev))->cpsw)
+ #endif
 
 
