@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 320923ED669
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:22:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10C0F3ED558
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:12:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236882AbhHPNU6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:20:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43050 "EHLO mail.kernel.org"
+        id S237833AbhHPNLA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:11:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238323AbhHPNSb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:18:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CB316632F4;
-        Mon, 16 Aug 2021 13:13:59 +0000 (UTC)
+        id S237759AbhHPNJN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:09:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F654632A5;
+        Mon, 16 Aug 2021 13:08:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119640;
-        bh=8bGJjCOK9oNDWp11wwW3PeetT7VyQgYIuGeG96ipbQI=;
+        s=korg; t=1629119291;
+        bh=hEGVrijLqJ6b8Yl5vnBau7sWPHvX2Us/a3b79a1xs0Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=osAtszU7DdZSQ1Ij0QbBX6L+5msfgfCz1uZ5XRI9FJViNw2C/YsdTcN/MriTaINw2
-         98qwW74r8DCgAs0GfoEVGp428eAE4ZMvqlsJkpS9THT5xE88Jr9lnICKwBRDsFTj5v
-         hWEJ+2dYl48d5N0/aNw6J7lfvYVXEY70JoAxweuQ=
+        b=ywLNpGGznuN51qv/72deyye816otDhvbbqTEb0h9YGKBbnr1kOBJSx/aB3YjwRjmO
+         NYJoMzEBczl/WhzxgVDnZx+lLsJm8eHyz7f7T8jqdmTK+i/AQhhQuIcIe89gAu78et
+         0hi7U1PfZf7S6qTix+Z6Rtvp3cybTRWtfAytFtSI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>,
-        Nikolay Aleksandrov <nikolay@nvidia.com>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Maximilian Heyne <mheyne@amazon.de>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 105/151] net: bridge: fix flags interpretation for extern learn fdb entries
+Subject: [PATCH 5.10 65/96] xen/events: Fix race in set_evtchn_to_irq
 Date:   Mon, 16 Aug 2021 15:02:15 +0200
-Message-Id: <20210816125447.532925808@linuxfoundation.org>
+Message-Id: <20210816125437.118665745@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
-References: <20210816125444.082226187@linuxfoundation.org>
+In-Reply-To: <20210816125434.948010115@linuxfoundation.org>
+References: <20210816125434.948010115@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,128 +40,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikolay Aleksandrov <nikolay@nvidia.com>
+From: Maximilian Heyne <mheyne@amazon.de>
 
-[ Upstream commit 45a687879b31caae4032abd1c2402e289d2b8083 ]
+[ Upstream commit 88ca2521bd5b4e8b83743c01a2d4cb09325b51e9 ]
 
-Ignore fdb flags when adding port extern learn entries and always set
-BR_FDB_LOCAL flag when adding bridge extern learn entries. This is
-closest to the behaviour we had before and avoids breaking any use cases
-which were allowed.
+There is a TOCTOU issue in set_evtchn_to_irq. Rows in the evtchn_to_irq
+mapping are lazily allocated in this function. The check whether the row
+is already present and the row initialization is not synchronized. Two
+threads can at the same time allocate a new row for evtchn_to_irq and
+add the irq mapping to the their newly allocated row. One thread will
+overwrite what the other has set for evtchn_to_irq[row] and therefore
+the irq mapping is lost. This will trigger a BUG_ON later in
+bind_evtchn_to_cpu:
 
-This patch fixes iproute2 calls which assume NUD_PERMANENT and were
-allowed before, example:
-$ bridge fdb add 00:11:22:33:44:55 dev swp1 extern_learn
+  INFO: pci 0000:1a:15.4: [1d0f:8061] type 00 class 0x010802
+  INFO: nvme 0000:1a:12.1: enabling device (0000 -> 0002)
+  INFO: nvme nvme77: 1/0/0 default/read/poll queues
+  CRIT: kernel BUG at drivers/xen/events/events_base.c:427!
+  WARN: invalid opcode: 0000 [#1] SMP NOPTI
+  WARN: Workqueue: nvme-reset-wq nvme_reset_work [nvme]
+  WARN: RIP: e030:bind_evtchn_to_cpu+0xc2/0xd0
+  WARN: Call Trace:
+  WARN:  set_affinity_irq+0x121/0x150
+  WARN:  irq_do_set_affinity+0x37/0xe0
+  WARN:  irq_setup_affinity+0xf6/0x170
+  WARN:  irq_startup+0x64/0xe0
+  WARN:  __setup_irq+0x69e/0x740
+  WARN:  ? request_threaded_irq+0xad/0x160
+  WARN:  request_threaded_irq+0xf5/0x160
+  WARN:  ? nvme_timeout+0x2f0/0x2f0 [nvme]
+  WARN:  pci_request_irq+0xa9/0xf0
+  WARN:  ? pci_alloc_irq_vectors_affinity+0xbb/0x130
+  WARN:  queue_request_irq+0x4c/0x70 [nvme]
+  WARN:  nvme_reset_work+0x82d/0x1550 [nvme]
+  WARN:  ? check_preempt_wakeup+0x14f/0x230
+  WARN:  ? check_preempt_curr+0x29/0x80
+  WARN:  ? nvme_irq_check+0x30/0x30 [nvme]
+  WARN:  process_one_work+0x18e/0x3c0
+  WARN:  worker_thread+0x30/0x3a0
+  WARN:  ? process_one_work+0x3c0/0x3c0
+  WARN:  kthread+0x113/0x130
+  WARN:  ? kthread_park+0x90/0x90
+  WARN:  ret_from_fork+0x3a/0x50
 
-Extern learn entries are allowed to roam, but do not expire, so static
-or dynamic flags make no sense for them.
+This patch sets evtchn_to_irq rows via a cmpxchg operation so that they
+will be set only once. The row is now cleared before writing it to
+evtchn_to_irq in order to not create a race once the row is visible for
+other threads.
 
-Also add a comment for future reference.
+While at it, do not require the page to be zeroed, because it will be
+overwritten with -1's in clear_evtchn_to_irq_row anyway.
 
-Fixes: eb100e0e24a2 ("net: bridge: allow to add externally learned entries from user-space")
-Fixes: 0541a6293298 ("net: bridge: validate the NUD_PERMANENT bit when adding an extern_learn FDB entry")
-Reviewed-by: Ido Schimmel <idosch@nvidia.com>
-Tested-by: Ido Schimmel <idosch@nvidia.com>
-Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
-Reviewed-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Link: https://lore.kernel.org/r/20210810110010.43859-1-razor@blackwall.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Maximilian Heyne <mheyne@amazon.de>
+Fixes: d0b075ffeede ("xen/events: Refactor evtchn_to_irq array to be dynamically allocated")
+Link: https://lore.kernel.org/r/20210812130930.127134-1-mheyne@amazon.de
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/uapi/linux/neighbour.h |  7 +++++--
- net/bridge/br.c                |  3 +--
- net/bridge/br_fdb.c            | 11 ++++-------
- net/bridge/br_private.h        |  2 +-
- 4 files changed, 11 insertions(+), 12 deletions(-)
+ drivers/xen/events/events_base.c | 20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
 
-diff --git a/include/uapi/linux/neighbour.h b/include/uapi/linux/neighbour.h
-index dc8b72201f6c..00a60695fa53 100644
---- a/include/uapi/linux/neighbour.h
-+++ b/include/uapi/linux/neighbour.h
-@@ -66,8 +66,11 @@ enum {
- #define NUD_NONE	0x00
+diff --git a/drivers/xen/events/events_base.c b/drivers/xen/events/events_base.c
+index af0f6ad32522..fba78daee449 100644
+--- a/drivers/xen/events/events_base.c
++++ b/drivers/xen/events/events_base.c
+@@ -192,12 +192,12 @@ static void disable_dynirq(struct irq_data *data);
  
- /* NUD_NOARP & NUD_PERMANENT are pseudostates, they never change
--   and make no address resolution or NUD.
--   NUD_PERMANENT also cannot be deleted by garbage collectors.
-+ * and make no address resolution or NUD.
-+ * NUD_PERMANENT also cannot be deleted by garbage collectors.
-+ * When NTF_EXT_LEARNED is set for a bridge fdb entry the different cache entry
-+ * states don't make sense and thus are ignored. Such entries don't age and
-+ * can roam.
-  */
+ static DEFINE_PER_CPU(unsigned int, irq_epoch);
  
- struct nda_cacheinfo {
-diff --git a/net/bridge/br.c b/net/bridge/br.c
-index bbab9984f24e..ef743f94254d 100644
---- a/net/bridge/br.c
-+++ b/net/bridge/br.c
-@@ -166,8 +166,7 @@ static int br_switchdev_event(struct notifier_block *unused,
- 	case SWITCHDEV_FDB_ADD_TO_BRIDGE:
- 		fdb_info = ptr;
- 		err = br_fdb_external_learn_add(br, p, fdb_info->addr,
--						fdb_info->vid,
--						fdb_info->is_local, false);
-+						fdb_info->vid, false);
- 		if (err) {
- 			err = notifier_from_errno(err);
- 			break;
-diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-index 87ce52bba649..3451c888ff79 100644
---- a/net/bridge/br_fdb.c
-+++ b/net/bridge/br_fdb.c
-@@ -1026,10 +1026,7 @@ static int __br_fdb_add(struct ndmsg *ndm, struct net_bridge *br,
- 					   "FDB entry towards bridge must be permanent");
- 			return -EINVAL;
- 		}
--
--		err = br_fdb_external_learn_add(br, p, addr, vid,
--						ndm->ndm_state & NUD_PERMANENT,
--						true);
-+		err = br_fdb_external_learn_add(br, p, addr, vid, true);
- 	} else {
- 		spin_lock_bh(&br->hash_lock);
- 		err = fdb_add_entry(br, p, addr, ndm, nlh_flags, vid, nfea_tb);
-@@ -1257,7 +1254,7 @@ void br_fdb_unsync_static(struct net_bridge *br, struct net_bridge_port *p)
+-static void clear_evtchn_to_irq_row(unsigned row)
++static void clear_evtchn_to_irq_row(int *evtchn_row)
+ {
+ 	unsigned col;
+ 
+ 	for (col = 0; col < EVTCHN_PER_ROW; col++)
+-		WRITE_ONCE(evtchn_to_irq[row][col], -1);
++		WRITE_ONCE(evtchn_row[col], -1);
  }
  
- int br_fdb_external_learn_add(struct net_bridge *br, struct net_bridge_port *p,
--			      const unsigned char *addr, u16 vid, bool is_local,
-+			      const unsigned char *addr, u16 vid,
- 			      bool swdev_notify)
+ static void clear_evtchn_to_irq_all(void)
+@@ -207,7 +207,7 @@ static void clear_evtchn_to_irq_all(void)
+ 	for (row = 0; row < EVTCHN_ROW(xen_evtchn_max_channels()); row++) {
+ 		if (evtchn_to_irq[row] == NULL)
+ 			continue;
+-		clear_evtchn_to_irq_row(row);
++		clear_evtchn_to_irq_row(evtchn_to_irq[row]);
+ 	}
+ }
+ 
+@@ -215,6 +215,7 @@ static int set_evtchn_to_irq(evtchn_port_t evtchn, unsigned int irq)
  {
- 	struct net_bridge_fdb_entry *fdb;
-@@ -1275,7 +1272,7 @@ int br_fdb_external_learn_add(struct net_bridge *br, struct net_bridge_port *p,
- 		if (swdev_notify)
- 			flags |= BIT(BR_FDB_ADDED_BY_USER);
+ 	unsigned row;
+ 	unsigned col;
++	int *evtchn_row;
  
--		if (is_local)
-+		if (!p)
- 			flags |= BIT(BR_FDB_LOCAL);
+ 	if (evtchn >= xen_evtchn_max_channels())
+ 		return -EINVAL;
+@@ -227,11 +228,18 @@ static int set_evtchn_to_irq(evtchn_port_t evtchn, unsigned int irq)
+ 		if (irq == -1)
+ 			return 0;
  
- 		fdb = fdb_create(br, p, addr, vid, flags);
-@@ -1304,7 +1301,7 @@ int br_fdb_external_learn_add(struct net_bridge *br, struct net_bridge_port *p,
- 		if (swdev_notify)
- 			set_bit(BR_FDB_ADDED_BY_USER, &fdb->flags);
+-		evtchn_to_irq[row] = (int *)get_zeroed_page(GFP_KERNEL);
+-		if (evtchn_to_irq[row] == NULL)
++		evtchn_row = (int *) __get_free_pages(GFP_KERNEL, 0);
++		if (evtchn_row == NULL)
+ 			return -ENOMEM;
  
--		if (is_local)
-+		if (!p)
- 			set_bit(BR_FDB_LOCAL, &fdb->flags);
+-		clear_evtchn_to_irq_row(row);
++		clear_evtchn_to_irq_row(evtchn_row);
++
++		/*
++		 * We've prepared an empty row for the mapping. If a different
++		 * thread was faster inserting it, we can drop ours.
++		 */
++		if (cmpxchg(&evtchn_to_irq[row], NULL, evtchn_row) != NULL)
++			free_page((unsigned long) evtchn_row);
+ 	}
  
- 		if (modified)
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 4e3d26e0a2d1..e013d33f1c7c 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -707,7 +707,7 @@ int br_fdb_get(struct sk_buff *skb, struct nlattr *tb[], struct net_device *dev,
- int br_fdb_sync_static(struct net_bridge *br, struct net_bridge_port *p);
- void br_fdb_unsync_static(struct net_bridge *br, struct net_bridge_port *p);
- int br_fdb_external_learn_add(struct net_bridge *br, struct net_bridge_port *p,
--			      const unsigned char *addr, u16 vid, bool is_local,
-+			      const unsigned char *addr, u16 vid,
- 			      bool swdev_notify);
- int br_fdb_external_learn_del(struct net_bridge *br, struct net_bridge_port *p,
- 			      const unsigned char *addr, u16 vid,
+ 	WRITE_ONCE(evtchn_to_irq[row][col], irq);
 -- 
 2.30.2
 
