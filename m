@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26CEB3ED4D6
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:06:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D72AE3ED55F
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:12:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237420AbhHPNFm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:05:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56938 "EHLO mail.kernel.org"
+        id S239319AbhHPNLI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:11:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237174AbhHPNF1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:05:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 739626329B;
-        Mon, 16 Aug 2021 13:04:55 +0000 (UTC)
+        id S239130AbhHPNJY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:09:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E30C4632C4;
+        Mon, 16 Aug 2021 13:08:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119095;
-        bh=6zSvsDSTJ26MVMt/8H4m15QHldIOF1KKdSQLbZ/QB5c=;
+        s=korg; t=1629119307;
+        bh=m0iqdlsWjo5Q7Z4aJCKScaCUYWVuX9+dsYOZIsr3f1s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ymQezi85KtZaONTP3aUrxxlrrA4PHbxylWKZYQxwrl/r2CKYZmufpztUozTB4snmt
-         EAsV81HveebBC3FEF7uexD3zhhHDx+bDVrpNRdDEmvUIHHHZQ2cVStkKGatuXUBBqS
-         euyDz0b8cmt50jlWKstPwB9Z+Bh1Ait7xrvmaFDk=
+        b=Y1oLYrisYSTfAXTVVxbLEOgpMsFk3dlEnkZjVNupi6GaB9oiqj+k3+HT4lHFHYtLS
+         gtEseZG9FvpqFKgbJbKnjqbXLOyvS8DZHQMVnONItaUV4S3/WYndGHu/8zUq54WeUn
+         icWBw9WzZH2YbrBQKWOtpXMlHerp6//STcvrQATk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Richard Fitzgerald <rf@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Ben Hutchings <ben.hutchings@mind.be>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 17/62] ASoC: cs42l42: Fix LRCLK frame start edge
+Subject: [PATCH 5.10 39/96] net: phy: micrel: Fix link detection on ksz87xx switch"
 Date:   Mon, 16 Aug 2021 15:01:49 +0200
-Message-Id: <20210816125428.777365983@linuxfoundation.org>
+Message-Id: <20210816125436.257284626@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125428.198692661@linuxfoundation.org>
-References: <20210816125428.198692661@linuxfoundation.org>
+In-Reply-To: <20210816125434.948010115@linuxfoundation.org>
+References: <20210816125434.948010115@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,65 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Fitzgerald <rf@opensource.cirrus.com>
+From: Ben Hutchings <ben.hutchings@mind.be>
 
-[ Upstream commit 0c2f2ad4f16a58879463d0979a54293f8f296d6f ]
+[ Upstream commit 2383cb9497d113360137a2be308b390faa80632d ]
 
-An I2S frame starts on the falling edge of LRCLK so ASP_STP must
-be 0.
+Commit a5e63c7d38d5 "net: phy: micrel: Fix detection of ksz87xx
+switch" broke link detection on the external ports of the KSZ8795.
 
-At the same time, move other format settings in the same register
-from cs42l42_pll_config() to cs42l42_set_dai_fmt() where you'd
-expect to find them, and merge into a single write.
+The previously unused phy_driver structure for these devices specifies
+config_aneg and read_status functions that appear to be designed for a
+fixed link and do not work with the embedded PHYs in the KSZ8795.
 
-Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
-Fixes: 2c394ca79604 ("ASoC: Add support for CS42L42 codec")
-Link: https://lore.kernel.org/r/20210805161111.10410-2-rf@opensource.cirrus.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Delete the use of these functions in favour of the generic PHY
+implementations which were used previously.
+
+Fixes: a5e63c7d38d5 ("net: phy: micrel: Fix detection of ksz87xx switch")
+Signed-off-by: Ben Hutchings <ben.hutchings@mind.be>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/cs42l42.c | 21 ++++++++++++---------
- 1 file changed, 12 insertions(+), 9 deletions(-)
+ drivers/net/phy/micrel.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/sound/soc/codecs/cs42l42.c b/sound/soc/codecs/cs42l42.c
-index eb37f88f8233..6825e874785f 100644
---- a/sound/soc/codecs/cs42l42.c
-+++ b/sound/soc/codecs/cs42l42.c
-@@ -658,15 +658,6 @@ static int cs42l42_pll_config(struct snd_soc_component *component)
- 					CS42L42_FSYNC_PULSE_WIDTH_MASK,
- 					CS42L42_FRAC1_VAL(fsync - 1) <<
- 					CS42L42_FSYNC_PULSE_WIDTH_SHIFT);
--			snd_soc_component_update_bits(component,
--					CS42L42_ASP_FRM_CFG,
--					CS42L42_ASP_5050_MASK,
--					CS42L42_ASP_5050_MASK);
--			/* Set the frame delay to 1.0 SCLK clocks */
--			snd_soc_component_update_bits(component, CS42L42_ASP_FRM_CFG,
--					CS42L42_ASP_FSD_MASK,
--					CS42L42_ASP_FSD_1_0 <<
--					CS42L42_ASP_FSD_SHIFT);
- 			/* Set the sample rates (96k or lower) */
- 			snd_soc_component_update_bits(component, CS42L42_FS_RATE_EN,
- 					CS42L42_FS_EN_MASK,
-@@ -762,6 +753,18 @@ static int cs42l42_set_dai_fmt(struct snd_soc_dai *codec_dai, unsigned int fmt)
- 	/* interface format */
- 	switch (fmt & SND_SOC_DAIFMT_FORMAT_MASK) {
- 	case SND_SOC_DAIFMT_I2S:
-+		/*
-+		 * 5050 mode, frame starts on falling edge of LRCLK,
-+		 * frame delayed by 1.0 SCLKs
-+		 */
-+		snd_soc_component_update_bits(component,
-+					      CS42L42_ASP_FRM_CFG,
-+					      CS42L42_ASP_STP_MASK |
-+					      CS42L42_ASP_5050_MASK |
-+					      CS42L42_ASP_FSD_MASK,
-+					      CS42L42_ASP_5050_MASK |
-+					      (CS42L42_ASP_FSD_1_0 <<
-+						CS42L42_ASP_FSD_SHIFT));
- 		break;
- 	default:
- 		return -EINVAL;
+diff --git a/drivers/net/phy/micrel.c b/drivers/net/phy/micrel.c
+index 9a566c5b36a6..69b20a466c61 100644
+--- a/drivers/net/phy/micrel.c
++++ b/drivers/net/phy/micrel.c
+@@ -1374,8 +1374,6 @@ static struct phy_driver ksphy_driver[] = {
+ 	.name		= "Micrel KSZ87XX Switch",
+ 	/* PHY_BASIC_FEATURES */
+ 	.config_init	= kszphy_config_init,
+-	.config_aneg	= ksz8873mll_config_aneg,
+-	.read_status	= ksz8873mll_read_status,
+ 	.match_phy_device = ksz8795_match_phy_device,
+ 	.suspend	= genphy_suspend,
+ 	.resume		= genphy_resume,
 -- 
 2.30.2
 
