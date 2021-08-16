@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D35AE3ED514
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:08:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC8D43ED60A
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:17:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237005AbhHPNHs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:07:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59258 "EHLO mail.kernel.org"
+        id S239901AbhHPNQd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:16:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37184 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237512AbhHPNGi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:06:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E8DF260F36;
-        Mon, 16 Aug 2021 13:06:05 +0000 (UTC)
+        id S240276AbhHPNPD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:15:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ECE31632D1;
+        Mon, 16 Aug 2021 13:12:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119166;
-        bh=3RId6V6zYYDi/pccIHEi8K4ryD1TjyY/slvsIX9t4is=;
+        s=korg; t=1629119539;
+        bh=cWAgumuHDQdJbe6jjGEOiETEi0Es/ioEfexmXAzT58I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tU4TvGGLgYAQkM+gTjn9mfJgwAKr+7hRuXZnaj1D5m5/sMMnSGnt1qwcyI5dkhem7
-         TnbDXMe0PMgtpw8N781ByH9N7KPEYW8PDlQL+TSrmx1CsUTrUtdd4uPKqTJnbJOB0S
-         ICTL9/kHgoIX5fiJOQgT6/3Jdy6G6bL+txsrqh0w=
+        b=rfdCu7Xj9a31WWVTOYms2siENBC0FC6zEiLcVQiDHQhhjF19iQPwk/0OuMIu25L5+
+         YOgCm4IjWdHTecgHBlKw0p3+ldDjjbgjfARIAGKKzMBHUv3HK+CRzm0oYoPKcYcNiw
+         81IZkin2WaW2lITwk8cMC1vgcyEgxcdZz3Rsqsw4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kensicki <krzysztof.kensicki@intel.com>,
-        Jeff Moyer <jmoyer@redhat.com>,
-        Dan Williams <dan.j.williams@intel.com>
-Subject: [PATCH 5.10 18/96] libnvdimm/region: Fix label activation vs errors
+        stable@vger.kernel.org, Sven Auhagen <sven.auhagen@voleatech.de>,
+        Matteo Croce <mcroce@microsoft.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 058/151] net: mvvp2: fix short frame size on s390
 Date:   Mon, 16 Aug 2021 15:01:28 +0200
-Message-Id: <20210816125435.526211139@linuxfoundation.org>
+Message-Id: <20210816125445.979349376@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125434.948010115@linuxfoundation.org>
-References: <20210816125434.948010115@linuxfoundation.org>
+In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
+References: <20210816125444.082226187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,76 +42,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Williams <dan.j.williams@intel.com>
+From: John Hubbard <jhubbard@nvidia.com>
 
-commit d9cee9f85b22fab88d2b76d2e92b18e3d0e6aa8c upstream.
+[ Upstream commit 704e624f7b3e8a4fc1ce43fb564746d1d07b20c0 ]
 
-There are a few scenarios where init_active_labels() can return without
-registering deactivate_labels() to run when the region is disabled. In
-particular label error injection creates scenarios where a DIMM is
-disabled, but labels on other DIMMs in the region become activated.
+On s390, the following build warning occurs:
 
-Arrange for init_active_labels() to always register deactivate_labels().
+drivers/net/ethernet/marvell/mvpp2/mvpp2.h:844:2: warning: overflow in
+conversion from 'long unsigned int' to 'int' changes value from
+'18446744073709551584' to '-32' [-Woverflow]
+844 |  ((total_size) - MVPP2_SKB_HEADROOM - MVPP2_SKB_SHINFO_SIZE)
 
-Reported-by: Krzysztof Kensicki <krzysztof.kensicki@intel.com>
-Cc: <stable@vger.kernel.org>
-Fixes: bf9bccc14c05 ("libnvdimm: pmem label sets and namespace instantiation.")
-Reviewed-by: Jeff Moyer <jmoyer@redhat.com>
-Link: https://lore.kernel.org/r/162766356450.3223041.1183118139023841447.stgit@dwillia2-desk3.amr.corp.intel.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This happens because MVPP2_SKB_SHINFO_SIZE, which is 320 bytes (which is
+already 64-byte aligned) on some architectures, actually gets ALIGN'd up
+to 512 bytes in the s390 case.
+
+So then, when this is invoked:
+
+    MVPP2_RX_MAX_PKT_SIZE(MVPP2_BM_SHORT_FRAME_SIZE)
+
+...that turns into:
+
+     704 - 224 - 512 == -32
+
+...which is not a good frame size to end up with! The warning above is a
+bit lucky: it notices a signed/unsigned bad behavior here, which leads
+to the real problem of a frame that is too short for its contents.
+
+Increase MVPP2_BM_SHORT_FRAME_SIZE by 32 (from 704 to 736), which is
+just exactly big enough. (The other values can't readily be changed
+without causing a lot of other problems.)
+
+Fixes: 07dd0a7aae7f ("mvpp2: add basic XDP support")
+Cc: Sven Auhagen <sven.auhagen@voleatech.de>
+Cc: Matteo Croce <mcroce@microsoft.com>
+Cc: David S. Miller <davem@davemloft.net>
+Signed-off-by: John Hubbard <jhubbard@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvdimm/namespace_devs.c |   17 +++++++++++------
- 1 file changed, 11 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/marvell/mvpp2/mvpp2.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/nvdimm/namespace_devs.c
-+++ b/drivers/nvdimm/namespace_devs.c
-@@ -2527,7 +2527,7 @@ static void deactivate_labels(void *regi
+diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2.h b/drivers/net/ethernet/marvell/mvpp2/mvpp2.h
+index 4a61c90003b5..722209a14f53 100644
+--- a/drivers/net/ethernet/marvell/mvpp2/mvpp2.h
++++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2.h
+@@ -938,7 +938,7 @@ enum mvpp22_ptp_packet_format {
+ #define MVPP2_BM_COOKIE_POOL_OFFS	8
+ #define MVPP2_BM_COOKIE_CPU_OFFS	24
  
- static int init_active_labels(struct nd_region *nd_region)
- {
--	int i;
-+	int i, rc = 0;
- 
- 	for (i = 0; i < nd_region->ndr_mappings; i++) {
- 		struct nd_mapping *nd_mapping = &nd_region->mapping[i];
-@@ -2546,13 +2546,14 @@ static int init_active_labels(struct nd_
- 			else if (test_bit(NDD_LABELING, &nvdimm->flags))
- 				/* fail, labels needed to disambiguate dpa */;
- 			else
--				return 0;
-+				continue;
- 
- 			dev_err(&nd_region->dev, "%s: is %s, failing probe\n",
- 					dev_name(&nd_mapping->nvdimm->dev),
- 					test_bit(NDD_LOCKED, &nvdimm->flags)
- 					? "locked" : "disabled");
--			return -ENXIO;
-+			rc = -ENXIO;
-+			goto out;
- 		}
- 		nd_mapping->ndd = ndd;
- 		atomic_inc(&nvdimm->busy);
-@@ -2586,13 +2587,17 @@ static int init_active_labels(struct nd_
- 			break;
- 	}
- 
--	if (i < nd_region->ndr_mappings) {
-+	if (i < nd_region->ndr_mappings)
-+		rc = -ENOMEM;
-+
-+out:
-+	if (rc) {
- 		deactivate_labels(nd_region);
--		return -ENOMEM;
-+		return rc;
- 	}
- 
- 	return devm_add_action_or_reset(&nd_region->dev, deactivate_labels,
--			nd_region);
-+					nd_region);
- }
- 
- int nd_region_register_namespaces(struct nd_region *nd_region, int *err)
+-#define MVPP2_BM_SHORT_FRAME_SIZE	704	/* frame size 128 */
++#define MVPP2_BM_SHORT_FRAME_SIZE	736	/* frame size 128 */
+ #define MVPP2_BM_LONG_FRAME_SIZE	2240	/* frame size 1664 */
+ #define MVPP2_BM_JUMBO_FRAME_SIZE	10432	/* frame size 9856 */
+ /* BM short pool packet size
+-- 
+2.30.2
+
 
 
