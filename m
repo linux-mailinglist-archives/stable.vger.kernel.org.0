@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 16F3F3ED62D
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:17:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26CEB3ED4D6
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:06:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236345AbhHPNSW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:18:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39006 "EHLO mail.kernel.org"
+        id S237420AbhHPNFm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:05:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56938 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239688AbhHPNQJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:16:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4EDF9632DE;
-        Mon, 16 Aug 2021 13:12:55 +0000 (UTC)
+        id S237174AbhHPNF1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:05:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 739626329B;
+        Mon, 16 Aug 2021 13:04:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119575;
-        bh=Wc2BVso07DLh/87F9IUZdCUnJHImYyIaShQUXQwsb9I=;
+        s=korg; t=1629119095;
+        bh=6zSvsDSTJ26MVMt/8H4m15QHldIOF1KKdSQLbZ/QB5c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GalRB0NEy7vz0KlNMcmpf/jfBxRyeLrMRahuYXkKlt3YnCkLpUYizHlaEdPRJU6qf
-         BJsh4UVq7fiT6fw3gZ27LEk8QlW+aTG1YbDheR7qBGza3cYDHxe0N7IfzpqmEMxAmA
-         lQFMI/2+j9NLYHZEcCWa8KAZIVtQtkFfZLokuSRs=
+        b=ymQezi85KtZaONTP3aUrxxlrrA4PHbxylWKZYQxwrl/r2CKYZmufpztUozTB4snmt
+         EAsV81HveebBC3FEF7uexD3zhhHDx+bDVrpNRdDEmvUIHHHZQ2cVStkKGatuXUBBqS
+         euyDz0b8cmt50jlWKstPwB9Z+Bh1Ait7xrvmaFDk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hao Xu <haoxu@linux.alibaba.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 079/151] io-wq: fix IO_WORKER_F_FIXED issue in create_io_worker()
+        stable@vger.kernel.org,
+        Richard Fitzgerald <rf@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 17/62] ASoC: cs42l42: Fix LRCLK frame start edge
 Date:   Mon, 16 Aug 2021 15:01:49 +0200
-Message-Id: <20210816125446.680361459@linuxfoundation.org>
+Message-Id: <20210816125428.777365983@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
-References: <20210816125444.082226187@linuxfoundation.org>
+In-Reply-To: <20210816125428.198692661@linuxfoundation.org>
+References: <20210816125428.198692661@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,117 +41,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hao Xu <haoxu@linux.alibaba.com>
+From: Richard Fitzgerald <rf@opensource.cirrus.com>
 
-[ Upstream commit 47cae0c71f7a126903f930191e6e9f103674aca1 ]
+[ Upstream commit 0c2f2ad4f16a58879463d0979a54293f8f296d6f ]
 
-There may be cases like:
-        A                                 B
-spin_lock(wqe->lock)
-nr_workers is 0
-nr_workers++
-spin_unlock(wqe->lock)
-                                     spin_lock(wqe->lock)
-                                     nr_wokers is 1
-                                     nr_workers++
-                                     spin_unlock(wqe->lock)
-create_io_worker()
-  acct->worker is 1
-                                     create_io_worker()
-                                       acct->worker is 1
+An I2S frame starts on the falling edge of LRCLK so ASP_STP must
+be 0.
 
-There should be one worker marked IO_WORKER_F_FIXED, but no one is.
-Fix this by introduce a new agrument for create_io_worker() to indicate
-if it is the first worker.
+At the same time, move other format settings in the same register
+from cs42l42_pll_config() to cs42l42_set_dai_fmt() where you'd
+expect to find them, and merge into a single write.
 
-Fixes: 3d4e4face9c1 ("io-wq: fix no lock protection of acct->nr_worker")
-Signed-off-by: Hao Xu <haoxu@linux.alibaba.com>
-Link: https://lore.kernel.org/r/20210808135434.68667-3-haoxu@linux.alibaba.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
+Fixes: 2c394ca79604 ("ASoC: Add support for CS42L42 codec")
+Link: https://lore.kernel.org/r/20210805161111.10410-2-rf@opensource.cirrus.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io-wq.c | 18 +++++++++++-------
- 1 file changed, 11 insertions(+), 7 deletions(-)
+ sound/soc/codecs/cs42l42.c | 21 ++++++++++++---------
+ 1 file changed, 12 insertions(+), 9 deletions(-)
 
-diff --git a/fs/io-wq.c b/fs/io-wq.c
-index 2c8a9a394884..91b0d1fb90eb 100644
---- a/fs/io-wq.c
-+++ b/fs/io-wq.c
-@@ -130,7 +130,7 @@ struct io_cb_cancel_data {
- 	bool cancel_all;
- };
- 
--static void create_io_worker(struct io_wq *wq, struct io_wqe *wqe, int index);
-+static void create_io_worker(struct io_wq *wq, struct io_wqe *wqe, int index, bool first);
- static void io_wqe_dec_running(struct io_worker *worker);
- 
- static bool io_worker_get(struct io_worker *worker)
-@@ -249,18 +249,20 @@ static void io_wqe_wake_worker(struct io_wqe *wqe, struct io_wqe_acct *acct)
- 	rcu_read_unlock();
- 
- 	if (!ret) {
--		bool do_create = false;
-+		bool do_create = false, first = false;
- 
- 		raw_spin_lock_irq(&wqe->lock);
- 		if (acct->nr_workers < acct->max_workers) {
- 			atomic_inc(&acct->nr_running);
- 			atomic_inc(&wqe->wq->worker_refs);
-+			if (!acct->nr_workers)
-+				first = true;
- 			acct->nr_workers++;
- 			do_create = true;
- 		}
- 		raw_spin_unlock_irq(&wqe->lock);
- 		if (do_create)
--			create_io_worker(wqe->wq, wqe, acct->index);
-+			create_io_worker(wqe->wq, wqe, acct->index, first);
- 	}
- }
- 
-@@ -283,7 +285,7 @@ static void create_worker_cb(struct callback_head *cb)
- 	struct io_wq *wq;
- 	struct io_wqe *wqe;
- 	struct io_wqe_acct *acct;
--	bool do_create = false;
-+	bool do_create = false, first = false;
- 
- 	cwd = container_of(cb, struct create_worker_data, work);
- 	wqe = cwd->wqe;
-@@ -291,12 +293,14 @@ static void create_worker_cb(struct callback_head *cb)
- 	acct = &wqe->acct[cwd->index];
- 	raw_spin_lock_irq(&wqe->lock);
- 	if (acct->nr_workers < acct->max_workers) {
-+		if (!acct->nr_workers)
-+			first = true;
- 		acct->nr_workers++;
- 		do_create = true;
- 	}
- 	raw_spin_unlock_irq(&wqe->lock);
- 	if (do_create) {
--		create_io_worker(wq, cwd->wqe, cwd->index);
-+		create_io_worker(wq, wqe, cwd->index, first);
- 	} else {
- 		atomic_dec(&acct->nr_running);
- 		io_worker_ref_put(wq);
-@@ -642,7 +646,7 @@ void io_wq_worker_sleeping(struct task_struct *tsk)
- 	raw_spin_unlock_irq(&worker->wqe->lock);
- }
- 
--static void create_io_worker(struct io_wq *wq, struct io_wqe *wqe, int index)
-+static void create_io_worker(struct io_wq *wq, struct io_wqe *wqe, int index, bool first)
- {
- 	struct io_wqe_acct *acct = &wqe->acct[index];
- 	struct io_worker *worker;
-@@ -683,7 +687,7 @@ fail:
- 	worker->flags |= IO_WORKER_F_FREE;
- 	if (index == IO_WQ_ACCT_BOUND)
- 		worker->flags |= IO_WORKER_F_BOUND;
--	if ((acct->nr_workers == 1) && (worker->flags & IO_WORKER_F_BOUND))
-+	if (first && (worker->flags & IO_WORKER_F_BOUND))
- 		worker->flags |= IO_WORKER_F_FIXED;
- 	raw_spin_unlock_irq(&wqe->lock);
- 	wake_up_new_task(tsk);
+diff --git a/sound/soc/codecs/cs42l42.c b/sound/soc/codecs/cs42l42.c
+index eb37f88f8233..6825e874785f 100644
+--- a/sound/soc/codecs/cs42l42.c
++++ b/sound/soc/codecs/cs42l42.c
+@@ -658,15 +658,6 @@ static int cs42l42_pll_config(struct snd_soc_component *component)
+ 					CS42L42_FSYNC_PULSE_WIDTH_MASK,
+ 					CS42L42_FRAC1_VAL(fsync - 1) <<
+ 					CS42L42_FSYNC_PULSE_WIDTH_SHIFT);
+-			snd_soc_component_update_bits(component,
+-					CS42L42_ASP_FRM_CFG,
+-					CS42L42_ASP_5050_MASK,
+-					CS42L42_ASP_5050_MASK);
+-			/* Set the frame delay to 1.0 SCLK clocks */
+-			snd_soc_component_update_bits(component, CS42L42_ASP_FRM_CFG,
+-					CS42L42_ASP_FSD_MASK,
+-					CS42L42_ASP_FSD_1_0 <<
+-					CS42L42_ASP_FSD_SHIFT);
+ 			/* Set the sample rates (96k or lower) */
+ 			snd_soc_component_update_bits(component, CS42L42_FS_RATE_EN,
+ 					CS42L42_FS_EN_MASK,
+@@ -762,6 +753,18 @@ static int cs42l42_set_dai_fmt(struct snd_soc_dai *codec_dai, unsigned int fmt)
+ 	/* interface format */
+ 	switch (fmt & SND_SOC_DAIFMT_FORMAT_MASK) {
+ 	case SND_SOC_DAIFMT_I2S:
++		/*
++		 * 5050 mode, frame starts on falling edge of LRCLK,
++		 * frame delayed by 1.0 SCLKs
++		 */
++		snd_soc_component_update_bits(component,
++					      CS42L42_ASP_FRM_CFG,
++					      CS42L42_ASP_STP_MASK |
++					      CS42L42_ASP_5050_MASK |
++					      CS42L42_ASP_FSD_MASK,
++					      CS42L42_ASP_5050_MASK |
++					      (CS42L42_ASP_FSD_1_0 <<
++						CS42L42_ASP_FSD_SHIFT));
+ 		break;
+ 	default:
+ 		return -EINVAL;
 -- 
 2.30.2
 
