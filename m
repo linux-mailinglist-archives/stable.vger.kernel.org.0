@@ -2,112 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E04F83ED3B3
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 14:10:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56DEC3ED3BC
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 14:13:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232167AbhHPMKq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 08:10:46 -0400
-Received: from mga02.intel.com ([134.134.136.20]:2366 "EHLO mga02.intel.com"
+        id S232167AbhHPMNr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 08:13:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229836AbhHPMKp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 08:10:45 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10077"; a="203047890"
-X-IronPort-AV: E=Sophos;i="5.84,324,1620716400"; 
-   d="scan'208";a="203047890"
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Aug 2021 05:10:10 -0700
-X-IronPort-AV: E=Sophos;i="5.84,324,1620716400"; 
-   d="scan'208";a="519629221"
-Received: from ifridman-mobl.ger.corp.intel.com (HELO localhost) ([10.251.210.77])
-  by fmsmga003-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Aug 2021 05:10:05 -0700
-From:   Jani Nikula <jani.nikula@intel.com>
-To:     "Sharma\, Swati2" <swati2.sharma@intel.com>,
-        intel-gfx@lists.freedesktop.org
-Cc:     Ankit Nautiyal <ankit.k.nautiyal@intel.com>,
-        Uma Shankar <uma.shankar@intel.com>,
-        Ville Syrj_l_ <ville.syrjala@linux.intel.com>,
-        Imre Deak <imre.deak@intel.com>,
-        Manasi Navare <manasi.d.navare@intel.com>,
-        Jos_ Roberto de Souza <jose.souza@intel.com>,
-        Sean Paul <seanpaul@chromium.org>, stable@vger.kernel.org
-Subject: Re: [PATCH] drm/i915/display: Drop redundant debug print
-In-Reply-To: <04e2728f-a5e3-a8ee-9fdc-9affe753b59e@intel.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-References: <20210812125845.27787-1-swati2.sharma@intel.com> <871r6xn5wd.fsf@intel.com> <04e2728f-a5e3-a8ee-9fdc-9affe753b59e@intel.com>
-Date:   Mon, 16 Aug 2021 15:10:02 +0300
-Message-ID: <87wnolio9x.fsf@intel.com>
+        id S229836AbhHPMNr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 08:13:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 61FBE63244;
+        Mon, 16 Aug 2021 12:13:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1629115996;
+        bh=xLr1MQBRp4EcgsTLuunK8g+W81YjEDkjzDT6lyb353g=;
+        h=Subject:To:Cc:From:Date:From;
+        b=Eot6kT6bz6Ahea/s78VL1AvYGEp9RLjQRLA5jM080/FhDYBgc8Br41smLwtWTNFml
+         FzbwoF02w2OKPlx9Bo3XybwJ9VzA/Ieoj2Ht4NRe+ZvF0yOEqW+GyF5S5auaMjm+vq
+         MRg0otS5BrdHNv9WKWUDJENPiBbSABvgmEEjOKFk=
+Subject: FAILED: patch "[PATCH] io_uring: Use WRITE_ONCE() when writing to sq_flags" failed to apply to 5.10-stable tree
+To:     namit@vmware.com, asml.silence@gmail.com, axboe@kernel.dk
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 16 Aug 2021 14:13:05 +0200
+Message-ID: <162911598542192@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 16 Aug 2021, "Sharma, Swati2" <swati2.sharma@intel.com> wrote:
-> On 13-Aug-21 1:16 PM, Jani Nikula wrote:
->> On Thu, 12 Aug 2021, Swati Sharma <swati2.sharma@intel.com> wrote:
->>> drm_dp_dpcd_read/write already has debug error message.
->>> Drop redundant error messages which gives false
->>> status even if correct value is read in drm_dp_dpcd_read().
->> 
->> I guess the only problem is it gets harder to associate the preceding
->> low level error messages with intel_dp_check_link_service_irq(). *shrug*
->> 
->> Reviewed-by: Jani Nikula <jani.nikula@intel.com>
->> 
->> 
-> Thanks Jani for the review. Can you please merge?
 
-There was another version with open review?
+The patch below does not apply to the 5.10-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-BR,
-Jani.
+thanks,
 
+greg k-h
 
->
->>>
->>> Fixes: 9488a030ac91 ("drm/i915: Add support for enabling link status and recovery")
->>> Cc: Swati Sharma <swati2.sharma@intel.com>
->>> Cc: Ankit Nautiyal <ankit.k.nautiyal@intel.com>
->>> Cc: Uma Shankar <uma.shankar@intel.com> (v2)
->>> Cc: Jani Nikula <jani.nikula@intel.com>
->>> Cc: "Ville Syrj_l_" <ville.syrjala@linux.intel.com>
->>> Cc: Imre Deak <imre.deak@intel.com>
->>> Cc: Manasi Navare <manasi.d.navare@intel.com>
->>> Cc: Uma Shankar <uma.shankar@intel.com>
->>> Cc: "Jos_ Roberto de Souza" <jose.souza@intel.com>
->>> Cc: Sean Paul <seanpaul@chromium.org>
->>> Cc: <stable@vger.kernel.org> # v5.12+
->>>
->>> Link: https://patchwork.freedesktop.org/patch/msgid/20201218103723.30844-12-ankit.k.nautiyal@intel.com
->>> Signed-off-by: Swati Sharma <swati2.sharma@intel.com>
->>> ---
->>>   drivers/gpu/drm/i915/display/intel_dp.c | 8 ++------
->>>   1 file changed, 2 insertions(+), 6 deletions(-)
->>>
->>> diff --git a/drivers/gpu/drm/i915/display/intel_dp.c b/drivers/gpu/drm/i915/display/intel_dp.c
->>> index c386ef8eb200..5c84f51ad41d 100644
->>> --- a/drivers/gpu/drm/i915/display/intel_dp.c
->>> +++ b/drivers/gpu/drm/i915/display/intel_dp.c
->>> @@ -3871,16 +3871,12 @@ static void intel_dp_check_link_service_irq(struct intel_dp *intel_dp)
->>>   		return;
->>>   
->>>   	if (drm_dp_dpcd_readb(&intel_dp->aux,
->>> -			      DP_LINK_SERVICE_IRQ_VECTOR_ESI0, &val) != 1 || !val) {
->>> -		drm_dbg_kms(&i915->drm, "Error in reading link service irq vector\n");
->>> +			      DP_LINK_SERVICE_IRQ_VECTOR_ESI0, &val) != 1 || !val)
->>>   		return;
->>> -	}
->>>   
->>>   	if (drm_dp_dpcd_writeb(&intel_dp->aux,
->>> -			       DP_LINK_SERVICE_IRQ_VECTOR_ESI0, val) != 1) {
->>> -		drm_dbg_kms(&i915->drm, "Error in writing link service irq vector\n");
->>> +			       DP_LINK_SERVICE_IRQ_VECTOR_ESI0, val) != 1)
->>>   		return;
->>> -	}
->>>   
->>>   	if (val & HDMI_LINK_STATUS_CHANGED)
->>>   		intel_dp_handle_hdmi_link_status_change(intel_dp);
->> 
+------------------ original commit in Linus's tree ------------------
 
--- 
-Jani Nikula, Intel Open Source Graphics Center
+From 20c0b380f971e7d48f5d978bc27d827f7eabb21a Mon Sep 17 00:00:00 2001
+From: Nadav Amit <namit@vmware.com>
+Date: Sat, 7 Aug 2021 17:13:42 -0700
+Subject: [PATCH] io_uring: Use WRITE_ONCE() when writing to sq_flags
+
+The compiler should be forbidden from any strange optimization for async
+writes to user visible data-structures. Without proper protection, the
+compiler can cause write-tearing or invent writes that would confuse the
+userspace.
+
+However, there are writes to sq_flags which are not protected by
+WRITE_ONCE(). Use WRITE_ONCE() for these writes.
+
+This is purely a theoretical issue. Presumably, any compiler is very
+unlikely to do such optimizations.
+
+Fixes: 75b28affdd6a ("io_uring: allocate the two rings together")
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Nadav Amit <namit@vmware.com>
+Link: https://lore.kernel.org/r/20210808001342.964634-3-namit@vmware.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 1093df3977b8..ca064486cb41 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -1500,7 +1500,8 @@ static bool __io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force)
+ 	all_flushed = list_empty(&ctx->cq_overflow_list);
+ 	if (all_flushed) {
+ 		clear_bit(0, &ctx->check_cq_overflow);
+-		ctx->rings->sq_flags &= ~IORING_SQ_CQ_OVERFLOW;
++		WRITE_ONCE(ctx->rings->sq_flags,
++			   ctx->rings->sq_flags & ~IORING_SQ_CQ_OVERFLOW);
+ 	}
+ 
+ 	if (posted)
+@@ -1579,7 +1580,9 @@ static bool io_cqring_event_overflow(struct io_ring_ctx *ctx, u64 user_data,
+ 	}
+ 	if (list_empty(&ctx->cq_overflow_list)) {
+ 		set_bit(0, &ctx->check_cq_overflow);
+-		ctx->rings->sq_flags |= IORING_SQ_CQ_OVERFLOW;
++		WRITE_ONCE(ctx->rings->sq_flags,
++			   ctx->rings->sq_flags | IORING_SQ_CQ_OVERFLOW);
++
+ 	}
+ 	ocqe->cqe.user_data = user_data;
+ 	ocqe->cqe.res = res;
+@@ -6804,14 +6807,16 @@ static inline void io_ring_set_wakeup_flag(struct io_ring_ctx *ctx)
+ {
+ 	/* Tell userspace we may need a wakeup call */
+ 	spin_lock_irq(&ctx->completion_lock);
+-	ctx->rings->sq_flags |= IORING_SQ_NEED_WAKEUP;
++	WRITE_ONCE(ctx->rings->sq_flags,
++		   ctx->rings->sq_flags | IORING_SQ_NEED_WAKEUP);
+ 	spin_unlock_irq(&ctx->completion_lock);
+ }
+ 
+ static inline void io_ring_clear_wakeup_flag(struct io_ring_ctx *ctx)
+ {
+ 	spin_lock_irq(&ctx->completion_lock);
+-	ctx->rings->sq_flags &= ~IORING_SQ_NEED_WAKEUP;
++	WRITE_ONCE(ctx->rings->sq_flags,
++		   ctx->rings->sq_flags & ~IORING_SQ_NEED_WAKEUP);
+ 	spin_unlock_irq(&ctx->completion_lock);
+ }
+ 
+
