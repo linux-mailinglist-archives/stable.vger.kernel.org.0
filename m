@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 625283ED682
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:23:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CC423ED554
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:12:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239339AbhHPNVu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:21:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43332 "EHLO mail.kernel.org"
+        id S239037AbhHPNKu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:10:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240648AbhHPNT7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:19:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D25C61BFE;
-        Mon, 16 Aug 2021 13:15:08 +0000 (UTC)
+        id S237047AbhHPNJL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:09:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C28D0632BF;
+        Mon, 16 Aug 2021 13:07:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119709;
-        bh=J9hWoK0lsOGd+mpI9n2uhtEnBSESi06ddCmT/+f9Ask=;
+        s=korg; t=1629119274;
+        bh=mGTHCyArj6iYkifHDKGMhMHY6UIOB5mqtNIVHge2nMY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lM0wf9d6TvaHjf0uinl97sxEV6BQVz0GRq6ErK2w4jGdSNXcfRnEbvxL4Q6uGoc9z
-         bHezJmj6sY44sTpdhz2n16+Co647ppAOGr1LcMc5DnyYrlI9HcNJLRTW3gZ3yEdFf+
-         DBdfYIVm3Q1FPMUC71a2LIpu0ji2HR5xtrv3EWD4=
+        b=nEVy1BuhREpnilseCyg+hj/pTmC8qBHDhttJxwQuf0PkZx8o9aC5w/GGa1iWllwlU
+         iGqLSzzoqOj3rXnNBhUm4I4j8jNmnLOZ9rEaFhwjNyU28F1AA/nTLcGEpfPpQfmC8T
+         pzk1trioxFql7qR/1cdBB+jg16E2yqEjDeAOLIJs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>,
+        Nikolay Aleksandrov <nikolay@nvidia.com>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 099/151] net: igmp: fix data-race in igmp_ifc_timer_expire()
+Subject: [PATCH 5.10 59/96] net: bridge: fix flags interpretation for extern learn fdb entries
 Date:   Mon, 16 Aug 2021 15:02:09 +0200
-Message-Id: <20210816125447.341253885@linuxfoundation.org>
+Message-Id: <20210816125436.920736695@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
-References: <20210816125444.082226187@linuxfoundation.org>
+In-Reply-To: <20210816125434.948010115@linuxfoundation.org>
+References: <20210816125434.948010115@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,153 +42,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Nikolay Aleksandrov <nikolay@nvidia.com>
 
-[ Upstream commit 4a2b285e7e103d4d6c6ed3e5052a0ff74a5d7f15 ]
+[ Upstream commit 45a687879b31caae4032abd1c2402e289d2b8083 ]
 
-Fix the data-race reported by syzbot [1]
-Issue here is that igmp_ifc_timer_expire() can update in_dev->mr_ifc_count
-while another change just occured from another context.
+Ignore fdb flags when adding port extern learn entries and always set
+BR_FDB_LOCAL flag when adding bridge extern learn entries. This is
+closest to the behaviour we had before and avoids breaking any use cases
+which were allowed.
 
-in_dev->mr_ifc_count is only 8bit wide, so the race had little
-consequences.
+This patch fixes iproute2 calls which assume NUD_PERMANENT and were
+allowed before, example:
+$ bridge fdb add 00:11:22:33:44:55 dev swp1 extern_learn
 
-[1]
-BUG: KCSAN: data-race in igmp_ifc_event / igmp_ifc_timer_expire
+Extern learn entries are allowed to roam, but do not expire, so static
+or dynamic flags make no sense for them.
 
-write to 0xffff8881051e3062 of 1 bytes by task 12547 on cpu 0:
- igmp_ifc_event+0x1d5/0x290 net/ipv4/igmp.c:821
- igmp_group_added+0x462/0x490 net/ipv4/igmp.c:1356
- ____ip_mc_inc_group+0x3ff/0x500 net/ipv4/igmp.c:1461
- __ip_mc_join_group+0x24d/0x2c0 net/ipv4/igmp.c:2199
- ip_mc_join_group_ssm+0x20/0x30 net/ipv4/igmp.c:2218
- do_ip_setsockopt net/ipv4/ip_sockglue.c:1285 [inline]
- ip_setsockopt+0x1827/0x2a80 net/ipv4/ip_sockglue.c:1423
- tcp_setsockopt+0x8c/0xa0 net/ipv4/tcp.c:3657
- sock_common_setsockopt+0x5d/0x70 net/core/sock.c:3362
- __sys_setsockopt+0x18f/0x200 net/socket.c:2159
- __do_sys_setsockopt net/socket.c:2170 [inline]
- __se_sys_setsockopt net/socket.c:2167 [inline]
- __x64_sys_setsockopt+0x62/0x70 net/socket.c:2167
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0x90 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
+Also add a comment for future reference.
 
-read to 0xffff8881051e3062 of 1 bytes by interrupt on cpu 1:
- igmp_ifc_timer_expire+0x706/0xa30 net/ipv4/igmp.c:808
- call_timer_fn+0x2e/0x1d0 kernel/time/timer.c:1419
- expire_timers+0x135/0x250 kernel/time/timer.c:1464
- __run_timers+0x358/0x420 kernel/time/timer.c:1732
- run_timer_softirq+0x19/0x30 kernel/time/timer.c:1745
- __do_softirq+0x12c/0x26e kernel/softirq.c:558
- invoke_softirq kernel/softirq.c:432 [inline]
- __irq_exit_rcu+0x9a/0xb0 kernel/softirq.c:636
- sysvec_apic_timer_interrupt+0x69/0x80 arch/x86/kernel/apic/apic.c:1100
- asm_sysvec_apic_timer_interrupt+0x12/0x20 arch/x86/include/asm/idtentry.h:638
- console_unlock+0x8e8/0xb30 kernel/printk/printk.c:2646
- vprintk_emit+0x125/0x3d0 kernel/printk/printk.c:2174
- vprintk_default+0x22/0x30 kernel/printk/printk.c:2185
- vprintk+0x15a/0x170 kernel/printk/printk_safe.c:392
- printk+0x62/0x87 kernel/printk/printk.c:2216
- selinux_netlink_send+0x399/0x400 security/selinux/hooks.c:6041
- security_netlink_send+0x42/0x90 security/security.c:2070
- netlink_sendmsg+0x59e/0x7c0 net/netlink/af_netlink.c:1919
- sock_sendmsg_nosec net/socket.c:703 [inline]
- sock_sendmsg net/socket.c:723 [inline]
- ____sys_sendmsg+0x360/0x4d0 net/socket.c:2392
- ___sys_sendmsg net/socket.c:2446 [inline]
- __sys_sendmsg+0x1ed/0x270 net/socket.c:2475
- __do_sys_sendmsg net/socket.c:2484 [inline]
- __se_sys_sendmsg net/socket.c:2482 [inline]
- __x64_sys_sendmsg+0x42/0x50 net/socket.c:2482
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0x90 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-value changed: 0x01 -> 0x02
-
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 1 PID: 12539 Comm: syz-executor.1 Not tainted 5.14.0-rc4-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: eb100e0e24a2 ("net: bridge: allow to add externally learned entries from user-space")
+Fixes: 0541a6293298 ("net: bridge: validate the NUD_PERMANENT bit when adding an extern_learn FDB entry")
+Reviewed-by: Ido Schimmel <idosch@nvidia.com>
+Tested-by: Ido Schimmel <idosch@nvidia.com>
+Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+Reviewed-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Link: https://lore.kernel.org/r/20210810110010.43859-1-razor@blackwall.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/igmp.c | 21 ++++++++++++++-------
- 1 file changed, 14 insertions(+), 7 deletions(-)
+ include/uapi/linux/neighbour.h |  7 +++++--
+ net/bridge/br.c                |  3 +--
+ net/bridge/br_fdb.c            | 11 ++++-------
+ net/bridge/br_private.h        |  2 +-
+ 4 files changed, 11 insertions(+), 12 deletions(-)
 
-diff --git a/net/ipv4/igmp.c b/net/ipv4/igmp.c
-index 6b3c558a4f23..a51360087b19 100644
---- a/net/ipv4/igmp.c
-+++ b/net/ipv4/igmp.c
-@@ -803,10 +803,17 @@ static void igmp_gq_timer_expire(struct timer_list *t)
- static void igmp_ifc_timer_expire(struct timer_list *t)
- {
- 	struct in_device *in_dev = from_timer(in_dev, t, mr_ifc_timer);
-+	u8 mr_ifc_count;
+diff --git a/include/uapi/linux/neighbour.h b/include/uapi/linux/neighbour.h
+index dc8b72201f6c..00a60695fa53 100644
+--- a/include/uapi/linux/neighbour.h
++++ b/include/uapi/linux/neighbour.h
+@@ -66,8 +66,11 @@ enum {
+ #define NUD_NONE	0x00
  
- 	igmpv3_send_cr(in_dev);
--	if (in_dev->mr_ifc_count) {
--		in_dev->mr_ifc_count--;
-+restart:
-+	mr_ifc_count = READ_ONCE(in_dev->mr_ifc_count);
-+
-+	if (mr_ifc_count) {
-+		if (cmpxchg(&in_dev->mr_ifc_count,
-+			    mr_ifc_count,
-+			    mr_ifc_count - 1) != mr_ifc_count)
-+			goto restart;
- 		igmp_ifc_start_timer(in_dev,
- 				     unsolicited_report_interval(in_dev));
- 	}
-@@ -818,7 +825,7 @@ static void igmp_ifc_event(struct in_device *in_dev)
- 	struct net *net = dev_net(in_dev->dev);
- 	if (IGMP_V1_SEEN(in_dev) || IGMP_V2_SEEN(in_dev))
- 		return;
--	in_dev->mr_ifc_count = in_dev->mr_qrv ?: net->ipv4.sysctl_igmp_qrv;
-+	WRITE_ONCE(in_dev->mr_ifc_count, in_dev->mr_qrv ?: net->ipv4.sysctl_igmp_qrv);
- 	igmp_ifc_start_timer(in_dev, 1);
+ /* NUD_NOARP & NUD_PERMANENT are pseudostates, they never change
+-   and make no address resolution or NUD.
+-   NUD_PERMANENT also cannot be deleted by garbage collectors.
++ * and make no address resolution or NUD.
++ * NUD_PERMANENT also cannot be deleted by garbage collectors.
++ * When NTF_EXT_LEARNED is set for a bridge fdb entry the different cache entry
++ * states don't make sense and thus are ignored. Such entries don't age and
++ * can roam.
+  */
+ 
+ struct nda_cacheinfo {
+diff --git a/net/bridge/br.c b/net/bridge/br.c
+index a416b01ee773..1b169f8e7491 100644
+--- a/net/bridge/br.c
++++ b/net/bridge/br.c
+@@ -166,8 +166,7 @@ static int br_switchdev_event(struct notifier_block *unused,
+ 	case SWITCHDEV_FDB_ADD_TO_BRIDGE:
+ 		fdb_info = ptr;
+ 		err = br_fdb_external_learn_add(br, p, fdb_info->addr,
+-						fdb_info->vid,
+-						fdb_info->is_local, false);
++						fdb_info->vid, false);
+ 		if (err) {
+ 			err = notifier_from_errno(err);
+ 			break;
+diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
+index a729786e0f03..8a6470a21702 100644
+--- a/net/bridge/br_fdb.c
++++ b/net/bridge/br_fdb.c
+@@ -975,10 +975,7 @@ static int __br_fdb_add(struct ndmsg *ndm, struct net_bridge *br,
+ 					   "FDB entry towards bridge must be permanent");
+ 			return -EINVAL;
+ 		}
+-
+-		err = br_fdb_external_learn_add(br, p, addr, vid,
+-						ndm->ndm_state & NUD_PERMANENT,
+-						true);
++		err = br_fdb_external_learn_add(br, p, addr, vid, true);
+ 	} else {
+ 		spin_lock_bh(&br->hash_lock);
+ 		err = fdb_add_entry(br, p, addr, ndm, nlh_flags, vid, nfea_tb);
+@@ -1206,7 +1203,7 @@ void br_fdb_unsync_static(struct net_bridge *br, struct net_bridge_port *p)
  }
  
-@@ -957,7 +964,7 @@ static bool igmp_heard_query(struct in_device *in_dev, struct sk_buff *skb,
- 				in_dev->mr_qri;
- 		}
- 		/* cancel the interface change timer */
--		in_dev->mr_ifc_count = 0;
-+		WRITE_ONCE(in_dev->mr_ifc_count, 0);
- 		if (del_timer(&in_dev->mr_ifc_timer))
- 			__in_dev_put(in_dev);
- 		/* clear deleted report items */
-@@ -1724,7 +1731,7 @@ void ip_mc_down(struct in_device *in_dev)
- 		igmp_group_dropped(pmc);
+ int br_fdb_external_learn_add(struct net_bridge *br, struct net_bridge_port *p,
+-			      const unsigned char *addr, u16 vid, bool is_local,
++			      const unsigned char *addr, u16 vid,
+ 			      bool swdev_notify)
+ {
+ 	struct net_bridge_fdb_entry *fdb;
+@@ -1224,7 +1221,7 @@ int br_fdb_external_learn_add(struct net_bridge *br, struct net_bridge_port *p,
+ 		if (swdev_notify)
+ 			flags |= BIT(BR_FDB_ADDED_BY_USER);
  
- #ifdef CONFIG_IP_MULTICAST
--	in_dev->mr_ifc_count = 0;
-+	WRITE_ONCE(in_dev->mr_ifc_count, 0);
- 	if (del_timer(&in_dev->mr_ifc_timer))
- 		__in_dev_put(in_dev);
- 	in_dev->mr_gq_running = 0;
-@@ -1941,7 +1948,7 @@ static int ip_mc_del_src(struct in_device *in_dev, __be32 *pmca, int sfmode,
- 		pmc->sfmode = MCAST_INCLUDE;
- #ifdef CONFIG_IP_MULTICAST
- 		pmc->crcount = in_dev->mr_qrv ?: net->ipv4.sysctl_igmp_qrv;
--		in_dev->mr_ifc_count = pmc->crcount;
-+		WRITE_ONCE(in_dev->mr_ifc_count, pmc->crcount);
- 		for (psf = pmc->sources; psf; psf = psf->sf_next)
- 			psf->sf_crcount = 0;
- 		igmp_ifc_event(pmc->interface);
-@@ -2120,7 +2127,7 @@ static int ip_mc_add_src(struct in_device *in_dev, __be32 *pmca, int sfmode,
- 		/* else no filters; keep old mode for reports */
+-		if (is_local)
++		if (!p)
+ 			flags |= BIT(BR_FDB_LOCAL);
  
- 		pmc->crcount = in_dev->mr_qrv ?: net->ipv4.sysctl_igmp_qrv;
--		in_dev->mr_ifc_count = pmc->crcount;
-+		WRITE_ONCE(in_dev->mr_ifc_count, pmc->crcount);
- 		for (psf = pmc->sources; psf; psf = psf->sf_next)
- 			psf->sf_crcount = 0;
- 		igmp_ifc_event(in_dev);
+ 		fdb = fdb_create(br, p, addr, vid, flags);
+@@ -1253,7 +1250,7 @@ int br_fdb_external_learn_add(struct net_bridge *br, struct net_bridge_port *p,
+ 		if (swdev_notify)
+ 			set_bit(BR_FDB_ADDED_BY_USER, &fdb->flags);
+ 
+-		if (is_local)
++		if (!p)
+ 			set_bit(BR_FDB_LOCAL, &fdb->flags);
+ 
+ 		if (modified)
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index 26f311b2cc11..5e5726048a1a 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -708,7 +708,7 @@ int br_fdb_get(struct sk_buff *skb, struct nlattr *tb[], struct net_device *dev,
+ int br_fdb_sync_static(struct net_bridge *br, struct net_bridge_port *p);
+ void br_fdb_unsync_static(struct net_bridge *br, struct net_bridge_port *p);
+ int br_fdb_external_learn_add(struct net_bridge *br, struct net_bridge_port *p,
+-			      const unsigned char *addr, u16 vid, bool is_local,
++			      const unsigned char *addr, u16 vid,
+ 			      bool swdev_notify);
+ int br_fdb_external_learn_del(struct net_bridge *br, struct net_bridge_port *p,
+ 			      const unsigned char *addr, u16 vid,
 -- 
 2.30.2
 
