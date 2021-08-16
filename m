@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE6BB3ED511
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:08:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8DF63ED5EF
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:17:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237441AbhHPNHr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:07:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57808 "EHLO mail.kernel.org"
+        id S238108AbhHPNP6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:15:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237080AbhHPNGa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:06:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DC23660E78;
-        Mon, 16 Aug 2021 13:05:58 +0000 (UTC)
+        id S239968AbhHPNOp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:14:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1444E632AB;
+        Mon, 16 Aug 2021 13:11:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119159;
-        bh=ZZE+JhIRF95IGfF6gSywIH6p3aLm9Qh8DaaV98Yq+zk=;
+        s=korg; t=1629119516;
+        bh=CdN5vWIf/57OW2mquHSpvYXwm3lumVMSuVZymXbkSTs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kq07E2ZU/ya4eem1tDqUVMlVEvS8Gxg0NEXTQDgUEuX/n7X1CIOfrLV2F1HMIKWpt
-         PvkPUSHU5G0Un91by+Fi8wISrsORAzEKiz/WIXjpC+MneLnXhHBWJq4tvkESDR6Yg9
-         zAumO4ZIiS1zwMEKMunTJXbQ9cgvCqlyyNNheGBU=
+        b=j2zbSaBtotGQV+fid72aYZxfqm9ANE1E8Tq0KjkeMTnkYcg4/LC1D3NF6QHf+Nuxy
+         sEZ5qNEpK01xXUOrioKZTFhJR7ORZww31ZvGclWyuAZYvsJcaZq2adm4KOaSt+Q2lG
+         nt/l9qQ/2sKNoxNQzFRACHrCFyQVWneabqf5IKVY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vineet Gupta <vgupta@synopsys.com>
-Subject: [PATCH 5.10 15/96] ARC: fp: set FPU_STATUS.FWE to enable FPU_STATUS update on context switch
+        stable@vger.kernel.org,
+        Richard Fitzgerald <rf@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 055/151] ASoC: cs42l42: Fix LRCLK frame start edge
 Date:   Mon, 16 Aug 2021 15:01:25 +0200
-Message-Id: <20210816125435.432870223@linuxfoundation.org>
+Message-Id: <20210816125445.880305161@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125434.948010115@linuxfoundation.org>
-References: <20210816125434.948010115@linuxfoundation.org>
+In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
+References: <20210816125444.082226187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,72 +41,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vineet Gupta <vgupta@synopsys.com>
+From: Richard Fitzgerald <rf@opensource.cirrus.com>
 
-commit 3a715e80400f452b247caa55344f4f60250ffbcf upstream.
+[ Upstream commit 0c2f2ad4f16a58879463d0979a54293f8f296d6f ]
 
-FPU_STATUS register contains FP exception flags bits which are updated
-by core as side-effect of FP instructions but can also be manually
-wiggled such as by glibc C99 functions fe{raise,clear,test}except() etc.
-To effect the update, the programming model requires OR'ing FWE
-bit (31). This bit is write-only and RAZ, meaning it is effectively
-auto-cleared after write and thus needs to be set everytime: which
-is how glibc implements this.
+An I2S frame starts on the falling edge of LRCLK so ASP_STP must
+be 0.
 
-However there's another usecase of FPU_STATUS update, at the time of
-Linux task switch when incoming task value needs to be programmed into
-the register. This was added as part of f45ba2bd6da0dc ("ARCv2:
-fpu: preserve userspace fpu state") which missed OR'ing FWE bit,
-meaning the new value is effectively not being written at all.
-This patch remedies that.
+At the same time, move other format settings in the same register
+from cs42l42_pll_config() to cs42l42_set_dai_fmt() where you'd
+expect to find them, and merge into a single write.
 
-Interestingly, this snafu was not caught in interm glibc testing as the
-race window which relies on a specific exception bit to be set/clear is
-really small specially when it nvolves context switch.
-Fortunately this was caught by glibc's math/test-fenv-tls test which
-repeatedly set/clear exception flags in a big loop, concurrently in main
-program and also in a thread.
-
-Fixes: https://github.com/foss-for-synopsys-dwc-arc-processors/linux/issues/54
-Fixes: f45ba2bd6da0dc ("ARCv2: fpu: preserve userspace fpu state")
-Cc: stable@vger.kernel.org	#5.6+
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
+Fixes: 2c394ca79604 ("ASoC: Add support for CS42L42 codec")
+Link: https://lore.kernel.org/r/20210805161111.10410-2-rf@opensource.cirrus.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arc/kernel/fpu.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ sound/soc/codecs/cs42l42.c | 21 ++++++++++++---------
+ 1 file changed, 12 insertions(+), 9 deletions(-)
 
---- a/arch/arc/kernel/fpu.c
-+++ b/arch/arc/kernel/fpu.c
-@@ -57,23 +57,26 @@ void fpu_save_restore(struct task_struct
- 
- void fpu_init_task(struct pt_regs *regs)
- {
-+	const unsigned int fwe = 0x80000000;
-+
- 	/* default rounding mode */
- 	write_aux_reg(ARC_REG_FPU_CTRL, 0x100);
- 
--	/* set "Write enable" to allow explicit write to exception flags */
--	write_aux_reg(ARC_REG_FPU_STATUS, 0x80000000);
-+	/* Initialize to zero: setting requires FWE be set */
-+	write_aux_reg(ARC_REG_FPU_STATUS, fwe);
- }
- 
- void fpu_save_restore(struct task_struct *prev, struct task_struct *next)
- {
- 	struct arc_fpu *save = &prev->thread.fpu;
- 	struct arc_fpu *restore = &next->thread.fpu;
-+	const unsigned int fwe = 0x80000000;
- 
- 	save->ctrl = read_aux_reg(ARC_REG_FPU_CTRL);
- 	save->status = read_aux_reg(ARC_REG_FPU_STATUS);
- 
- 	write_aux_reg(ARC_REG_FPU_CTRL, restore->ctrl);
--	write_aux_reg(ARC_REG_FPU_STATUS, restore->status);
-+	write_aux_reg(ARC_REG_FPU_STATUS, (fwe | restore->status));
- }
- 
- #endif
+diff --git a/sound/soc/codecs/cs42l42.c b/sound/soc/codecs/cs42l42.c
+index 7b102a05a1b6..0c8cdfe78d96 100644
+--- a/sound/soc/codecs/cs42l42.c
++++ b/sound/soc/codecs/cs42l42.c
+@@ -657,15 +657,6 @@ static int cs42l42_pll_config(struct snd_soc_component *component)
+ 					CS42L42_FSYNC_PULSE_WIDTH_MASK,
+ 					CS42L42_FRAC1_VAL(fsync - 1) <<
+ 					CS42L42_FSYNC_PULSE_WIDTH_SHIFT);
+-			snd_soc_component_update_bits(component,
+-					CS42L42_ASP_FRM_CFG,
+-					CS42L42_ASP_5050_MASK,
+-					CS42L42_ASP_5050_MASK);
+-			/* Set the frame delay to 1.0 SCLK clocks */
+-			snd_soc_component_update_bits(component, CS42L42_ASP_FRM_CFG,
+-					CS42L42_ASP_FSD_MASK,
+-					CS42L42_ASP_FSD_1_0 <<
+-					CS42L42_ASP_FSD_SHIFT);
+ 			/* Set the sample rates (96k or lower) */
+ 			snd_soc_component_update_bits(component, CS42L42_FS_RATE_EN,
+ 					CS42L42_FS_EN_MASK,
+@@ -765,6 +756,18 @@ static int cs42l42_set_dai_fmt(struct snd_soc_dai *codec_dai, unsigned int fmt)
+ 	/* interface format */
+ 	switch (fmt & SND_SOC_DAIFMT_FORMAT_MASK) {
+ 	case SND_SOC_DAIFMT_I2S:
++		/*
++		 * 5050 mode, frame starts on falling edge of LRCLK,
++		 * frame delayed by 1.0 SCLKs
++		 */
++		snd_soc_component_update_bits(component,
++					      CS42L42_ASP_FRM_CFG,
++					      CS42L42_ASP_STP_MASK |
++					      CS42L42_ASP_5050_MASK |
++					      CS42L42_ASP_FSD_MASK,
++					      CS42L42_ASP_5050_MASK |
++					      (CS42L42_ASP_FSD_1_0 <<
++						CS42L42_ASP_FSD_SHIFT));
+ 		break;
+ 	default:
+ 		return -EINVAL;
+-- 
+2.30.2
+
 
 
