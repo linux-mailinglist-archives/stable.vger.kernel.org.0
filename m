@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E68413ED485
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:03:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CBB73ED655
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:22:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236079AbhHPNDr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:03:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54366 "EHLO mail.kernel.org"
+        id S237648AbhHPNUc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:20:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236195AbhHPNDq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:03:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D069963281;
-        Mon, 16 Aug 2021 13:03:14 +0000 (UTC)
+        id S240392AbhHPNQp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:16:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 454F4632F5;
+        Mon, 16 Aug 2021 13:13:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629118995;
-        bh=bOcGsjysQbfM+aC4Sx1r46JXtSNmKrel3uL0oWqTdyc=;
+        s=korg; t=1629119619;
+        bh=AFSoulhYUMNVBK6Gyldb72HJbX4q6DqARrNVCvnHzeo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ko97RzEMyANpmBqG6Emgg9yVaBC4aiGohO2Xj+mHN3lPum2BMB1M7P5Gi4v2DHE/U
-         QEQIye6y/l0//VS/TbkjY7V29Cc31uZloEBwOQxbzLPrGNAdRzclezkp2114R+0g7T
-         7UtBt9teo8abHX1c4SxdP0avbGh8VX3haTLGi5nI=
+        b=wwt8LDpn8i0zvaYSvPh3mjGtLa0uKN8mOmQev0DphN0W6hUTSFwGLUZNJ85twM050
+         MX51eo7BLvKArAu4s4GYqVikhoPc/+QNArF6X69lXoDs5j0U2cH981ekKYQ1crg3YL
+         C0zYd1D4Fy2LueCJz/BVOROnu47oZxxwk81MSNH8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        David Lechner <david@lechnology.com>, Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.4 01/62] iio: adc: ti-ads7950: Ensure CS is deasserted after reading channels
+        stable@vger.kernel.org, Daniel Xu <dxu@dxuuu.xyz>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 063/151] libbpf: Do not close un-owned FD 0 on errors
 Date:   Mon, 16 Aug 2021 15:01:33 +0200
-Message-Id: <20210816125428.246615152@linuxfoundation.org>
+Message-Id: <20210816125446.143295347@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125428.198692661@linuxfoundation.org>
-References: <20210816125428.198692661@linuxfoundation.org>
+In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
+References: <20210816125444.082226187@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -44,40 +41,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Daniel Xu <dxu@dxuuu.xyz>
 
-commit 9898cb24e454602beb6e17bacf9f97b26c85c955 upstream.
+[ Upstream commit c34c338a40e4f3b6f80889cd17fd9281784d1c32 ]
 
-The ADS7950 requires that CS is deasserted after each SPI word. Before
-commit e2540da86ef8 ("iio: adc: ti-ads7950: use SPI_CS_WORD to reduce
-CPU usage") the driver used a message with one spi transfer per channel
-where each but the last one had .cs_change set to enforce a CS toggle.
-This was wrongly translated into a message with a single transfer and
-.cs_change set which results in a CS toggle after each word but the
-last which corrupts the first adc conversion of all readouts after the
-first readout.
+Before this patch, btf_new() was liable to close an arbitrary FD 0 if
+BTF parsing failed. This was because:
 
-Fixes: e2540da86ef8 ("iio: adc: ti-ads7950: use SPI_CS_WORD to reduce CPU usage")
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Reviewed-by: David Lechner <david@lechnology.com>
-Tested-by: David Lechner <david@lechnology.com>
-Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210709101110.1814294-1-u.kleine-koenig@pengutronix.de
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+* btf->fd was initialized to 0 through the calloc()
+* btf__free() (in the `done` label) closed any FDs >= 0
+* btf->fd is left at 0 if parsing fails
+
+This issue was discovered on a system using libbpf v0.3 (without
+BTF_KIND_FLOAT support) but with a kernel that had BTF_KIND_FLOAT types
+in BTF. Thus, parsing fails.
+
+While this patch technically doesn't fix any issues b/c upstream libbpf
+has BTF_KIND_FLOAT support, it'll help prevent issues in the future if
+more BTF types are added. It also allow the fix to be backported to
+older libbpf's.
+
+Fixes: 3289959b97ca ("libbpf: Support BTF loading and raw data output in both endianness")
+Signed-off-by: Daniel Xu <dxu@dxuuu.xyz>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Yonghong Song <yhs@fb.com>
+Link: https://lore.kernel.org/bpf/5969bb991adedb03c6ae93e051fd2a00d293cf25.1627513670.git.dxu@dxuuu.xyz
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/ti-ads7950.c |    1 -
- 1 file changed, 1 deletion(-)
+ tools/lib/bpf/btf.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/iio/adc/ti-ads7950.c
-+++ b/drivers/iio/adc/ti-ads7950.c
-@@ -569,7 +569,6 @@ static int ti_ads7950_probe(struct spi_d
- 	st->ring_xfer.tx_buf = &st->tx_buf[0];
- 	st->ring_xfer.rx_buf = &st->rx_buf[0];
- 	/* len will be set later */
--	st->ring_xfer.cs_change = true;
+diff --git a/tools/lib/bpf/btf.c b/tools/lib/bpf/btf.c
+index d57e13a13798..1d9e5b35524c 100644
+--- a/tools/lib/bpf/btf.c
++++ b/tools/lib/bpf/btf.c
+@@ -805,6 +805,7 @@ static struct btf *btf_new(const void *data, __u32 size, struct btf *base_btf)
+ 	btf->nr_types = 0;
+ 	btf->start_id = 1;
+ 	btf->start_str_off = 0;
++	btf->fd = -1;
  
- 	spi_message_add_tail(&st->ring_xfer, &st->ring_msg);
+ 	if (base_btf) {
+ 		btf->base_btf = base_btf;
+@@ -833,8 +834,6 @@ static struct btf *btf_new(const void *data, __u32 size, struct btf *base_btf)
+ 	if (err)
+ 		goto done;
  
+-	btf->fd = -1;
+-
+ done:
+ 	if (err) {
+ 		btf__free(btf);
+-- 
+2.30.2
+
 
 
