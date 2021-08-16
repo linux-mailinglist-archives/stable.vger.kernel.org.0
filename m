@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E190A3ED651
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:22:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFB193ED4D9
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:06:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236730AbhHPNU3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:20:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37188 "EHLO mail.kernel.org"
+        id S237088AbhHPNFr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:05:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239667AbhHPNQS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:16:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F0F76632E6;
-        Mon, 16 Aug 2021 13:12:57 +0000 (UTC)
+        id S237247AbhHPNFc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:05:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 35DD161A7A;
+        Mon, 16 Aug 2021 13:05:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119578;
-        bh=rQn+nlfPnhfgJ3O9LUqPWSl0kSekpU8G/CqbUvYPlh8=;
+        s=korg; t=1629119100;
+        bh=rkCkvNfDX/iWRL2ASSFRxRPruVr2sa+2Ga63hXnutJA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OLJZl575AfjltiCiCEgm1RJeuGsWQxlPo/j0iH0Z/dtRL02aK8Z13syE35zkmE+ru
-         cVo4IykMh0gcLXsTSvj5O3n9w8EPTwyjL/10rWxja4P6I5+y6UXJKVrTJhrcUgdX5Y
-         9GockbdNJ0U/ybzoceLOk6ZPcZjOwgdvhSFJqC2U=
+        b=mjyazb00WP53BVRLV0F+vd4jTzWPH+fA2kDa1tZs/2NSYhKHs9SpnygQnddNfEODC
+         M/RmIlAMyfuRKn2poGQMQOEsT7C02sAV8dZr5XGHuEhOp07q9z3Mj20/Ap4ge/o7kT
+         ChEXu/KuL4a8wrhzPyAijPe80SiyAuBH7ljh5IFs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
-        Parav Pandit <parav@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        stable@vger.kernel.org, Florian Eckert <fe@dev.tdt.de>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 080/151] net/mlx5: Dont skip subfunction cleanup in case of error in module init
-Date:   Mon, 16 Aug 2021 15:01:50 +0200
-Message-Id: <20210816125446.711687447@linuxfoundation.org>
+Subject: [PATCH 5.4 19/62] platform/x86: pcengines-apuv2: revert wiring up simswitch GPIO as LED
+Date:   Mon, 16 Aug 2021 15:01:51 +0200
+Message-Id: <20210816125428.847575906@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
-References: <20210816125444.082226187@linuxfoundation.org>
+In-Reply-To: <20210816125428.198692661@linuxfoundation.org>
+References: <20210816125428.198692661@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,75 +40,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@nvidia.com>
+From: Florian Eckert <fe@dev.tdt.de>
 
-[ Upstream commit c633e799641cf13960bd83189b4d5b1b2adb0d4e ]
+[ Upstream commit f560cd502190a9fd0ca8db0a15c5cca7d9091d2c ]
 
-Clean SF resources if mlx5 eth failed to initialize.
+This reverts commit 5037d4ddda31c2dbbb018109655f61054b1756dc.
 
-Fixes: 1958fc2f0712 ("net/mlx5: SF, Add auxiliary device driver")
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Reviewed-by: Parav Pandit <parav@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Explanation why this does not work:
+This change connects the simswap to the LED subsystem of the kernel.
+>From my point of view, it's nonsense. If we do it this way, then this
+can be switched relatively easily via the LED subsystem (trigger:
+none/default-on) and that is dangerous! If this is used, it would be
+unfavorable, since there is also another trigger (trigger:
+heartbeat/netdev).
+
+Therefore, this simswap GPIO should remain in the GPIO
+subsystem and be switched via it and not be connected to the LED
+subsystem. To avoid the problems mentioned above. The LED subsystem is
+not made for this and it is not a good compromise, but rather dangerous.
+
+Signed-off-by: Florian Eckert <fe@dev.tdt.de>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/main.c      | 12 ++++--------
- drivers/net/ethernet/mellanox/mlx5/core/mlx5_core.h |  5 +++++
- 2 files changed, 9 insertions(+), 8 deletions(-)
+ drivers/platform/x86/pcengines-apuv2.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/main.c b/drivers/net/ethernet/mellanox/mlx5/core/main.c
-index 0d0f63a27aba..8c6d7f70e783 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/main.c
-@@ -1781,16 +1781,14 @@ static int __init init(void)
- 	if (err)
- 		goto err_sf;
+diff --git a/drivers/platform/x86/pcengines-apuv2.c b/drivers/platform/x86/pcengines-apuv2.c
+index c32daf087640..cb95b4ede824 100644
+--- a/drivers/platform/x86/pcengines-apuv2.c
++++ b/drivers/platform/x86/pcengines-apuv2.c
+@@ -78,7 +78,6 @@ static const struct gpio_led apu2_leds[] = {
+ 	{ .name = "apu:green:1" },
+ 	{ .name = "apu:green:2" },
+ 	{ .name = "apu:green:3" },
+-	{ .name = "apu:simswap" },
+ };
  
--#ifdef CONFIG_MLX5_CORE_EN
- 	err = mlx5e_init();
--	if (err) {
--		pci_unregister_driver(&mlx5_core_driver);
--		goto err_debug;
--	}
--#endif
-+	if (err)
-+		goto err_en;
+ static const struct gpio_led_platform_data apu2_leds_pdata = {
+@@ -95,8 +94,6 @@ static struct gpiod_lookup_table gpios_led_table = {
+ 				NULL, 1, GPIO_ACTIVE_LOW),
+ 		GPIO_LOOKUP_IDX(AMD_FCH_GPIO_DRIVER_NAME, APU2_GPIO_LINE_LED3,
+ 				NULL, 2, GPIO_ACTIVE_LOW),
+-		GPIO_LOOKUP_IDX(AMD_FCH_GPIO_DRIVER_NAME, APU2_GPIO_LINE_SIMSWAP,
+-				NULL, 3, GPIO_ACTIVE_LOW),
+ 	}
+ };
  
- 	return 0;
- 
-+err_en:
-+	mlx5_sf_driver_unregister();
- err_sf:
- 	pci_unregister_driver(&mlx5_core_driver);
- err_debug:
-@@ -1800,9 +1798,7 @@ err_debug:
- 
- static void __exit cleanup(void)
- {
--#ifdef CONFIG_MLX5_CORE_EN
- 	mlx5e_cleanup();
--#endif
- 	mlx5_sf_driver_unregister();
- 	pci_unregister_driver(&mlx5_core_driver);
- 	mlx5_unregister_debugfs();
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/mlx5_core.h b/drivers/net/ethernet/mellanox/mlx5/core/mlx5_core.h
-index a22b706eebd3..1824eb0b0e9a 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/mlx5_core.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/mlx5_core.h
-@@ -223,8 +223,13 @@ int mlx5_firmware_flash(struct mlx5_core_dev *dev, const struct firmware *fw,
- int mlx5_fw_version_query(struct mlx5_core_dev *dev,
- 			  u32 *running_ver, u32 *stored_ver);
- 
-+#ifdef CONFIG_MLX5_CORE_EN
- int mlx5e_init(void);
- void mlx5e_cleanup(void);
-+#else
-+static inline int mlx5e_init(void){ return 0; }
-+static inline void mlx5e_cleanup(void){}
-+#endif
- 
- static inline bool mlx5_sriov_is_enabled(struct mlx5_core_dev *dev)
- {
 -- 
 2.30.2
 
