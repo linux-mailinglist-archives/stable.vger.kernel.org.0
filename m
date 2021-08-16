@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DAF53ED5DC
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:17:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FD133ED5F2
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:17:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237691AbhHPNPb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:15:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37454 "EHLO mail.kernel.org"
+        id S239441AbhHPNQB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:16:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237488AbhHPNNS (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235983AbhHPNNS (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 16 Aug 2021 09:13:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D4F55604DC;
-        Mon, 16 Aug 2021 13:11:01 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 80E476323B;
+        Mon, 16 Aug 2021 13:11:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119462;
-        bh=t5M0W33Z9fidm4K+RfV5V0u9R2V/XBTaDp/9IQYqB9s=;
+        s=korg; t=1629119465;
+        bh=oJ7XroUmaeyk2pnFIMUaT5tYZfRW52OfWphECmDiB7g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cFt0fcfSmcPHjMVMnpJxIQl4lQV8k7lyH3cfb4rhI6WufetXUQtjzvBGdYpnR8NFd
-         mM0OjF9xrEkAyqJTqCw7PI7wN9hUJeh5Y5F7yWs/xpAao4FcrAuSjWL4ha4pJ9OzoD
-         CmHJJf5A+UwDnXVr0zyuAo4TBSM2lAq0FPQ1Gfvo=
+        b=l4Y8cVeSeoUGF7c77O1NwxWCdwGKTp4azFMaIOciDNiEw8VOXcyF76tp6Ehxc6CPi
+         36d4V6dCjVybUjG+H0+AF+OCnFAd0yMA2gOPfGqa4ydoADdgBSqTa4Sr0zdoWkka8M
+         Dj/ZUeP2bSqULmSYi51McS9ba1W7SN6NyEXkp+MM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Solomon Chiu <solomon.chiu@amd.com>,
+        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.13 036/151] drm/amdgpu: Add preferred mode in modeset when freesync video modes enabled.
-Date:   Mon, 16 Aug 2021 15:01:06 +0200
-Message-Id: <20210816125445.276522814@linuxfoundation.org>
+Subject: [PATCH 5.13 037/151] drm/amdgpu: dont enable baco on boco platforms in runpm
+Date:   Mon, 16 Aug 2021 15:01:07 +0200
+Message-Id: <20210816125445.308150399@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
 References: <20210816125444.082226187@linuxfoundation.org>
@@ -39,43 +39,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Solomon Chiu <solomon.chiu@amd.com>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-commit 46dd2965bdd1c5a4f6499c73ff32e636fa8f9769 upstream.
+commit 202ead5a3c589b0594a75cb99f080174f6851fed upstream.
 
-[Why]
-With kernel module parameter "freesync_video" is enabled, if the mode
-is changed to preferred mode(the mode with highest rate), then Freesync
-fails because the preferred mode is treated as one of freesync video
-mode, and then be configurated as freesync video mode(fixed refresh
-rate).
+If the platform uses BOCO, don't use BACO in runtime suspend.
+We could end up executing the BACO path if the platform supports
+both.
 
-[How]
-Skip freesync fixed rate configurating when modeset to preferred mode.
-
-Signed-off-by: Solomon Chiu <solomon.chiu@amd.com>
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1669
+Reviewed-by: Evan Quan <evan.quan@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -9410,7 +9410,12 @@ static int dm_update_crtc_state(struct a
- 		} else if (amdgpu_freesync_vid_mode && aconnector &&
- 			   is_freesync_video_mode(&new_crtc_state->mode,
- 						  aconnector)) {
--			set_freesync_fixed_config(dm_new_crtc_state);
-+			struct drm_display_mode *high_mode;
-+
-+			high_mode = get_highest_refresh_rate_mode(aconnector, false);
-+			if (!drm_mode_equal(&new_crtc_state->mode, high_mode)) {
-+				set_freesync_fixed_config(dm_new_crtc_state);
-+			}
- 		}
- 
- 		ret = dm_atomic_get_state(state, &dm_state);
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+@@ -1537,6 +1537,8 @@ static int amdgpu_pmops_runtime_suspend(
+ 		pci_ignore_hotplug(pdev);
+ 		pci_set_power_state(pdev, PCI_D3cold);
+ 		drm_dev->switch_power_state = DRM_SWITCH_POWER_DYNAMIC_OFF;
++	} else if (amdgpu_device_supports_boco(drm_dev)) {
++		/* nothing to do */
+ 	} else if (amdgpu_device_supports_baco(drm_dev)) {
+ 		amdgpu_device_baco_enter(drm_dev);
+ 	}
 
 
