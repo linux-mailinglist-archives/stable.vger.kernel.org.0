@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 236A63ED5F7
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:17:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C68A3ED5FE
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:17:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239696AbhHPNQJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:16:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37184 "EHLO mail.kernel.org"
+        id S239713AbhHPNQS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:16:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238046AbhHPNM7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:12:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 684D8632A8;
-        Mon, 16 Aug 2021 13:10:28 +0000 (UTC)
+        id S237283AbhHPNND (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:13:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 14429632AA;
+        Mon, 16 Aug 2021 13:10:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119428;
-        bh=Zs91IUOg8YGIl26LLlpmQ/LtLCLzJsR+KmZ4cVyeSLg=;
+        s=korg; t=1629119431;
+        bh=PmLQkYivfrmVLCyY2Lp0dOcMm/pXXRkmz8Q/TzXpCeM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jJ+vS6jyCN6bnw4W4Bg+fLkOOMBD2FKyy24ph0TDTAPK6VqCxBsC0p7i1oyozxqhN
-         8IO2xT7wt5ikbiDu5tAKAvAKjy2tt9/yVyWhA4lA8oG8Yythby7ylc0Hlwj7JcNfFa
-         eiBHEMKmep7YisXzTUdHQkihLjIB0bnEKP+CHvE0=
+        b=qDYd4uZAwJCPoP5EYMa2KoSHahWUh1cH7cP5MqnNMBwkfoqfWpN0FQU/rxK48LhvF
+         Wu/9d8e/u5x2TMs4I4qAYTFbEhxojfRpzw6BydN/qbVn6EETwum9KSLX0c8FO7L0dO
+         FwTdqW7fd05xf9ZFX2JvJDQh9s4nCa6q37fa2op8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hannu Hartikainen <hannu@hrtk.in>,
-        =?UTF-8?q?Antti=20Ker=C3=A4nen?= <detegr@rbx.email>,
-        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+        stable@vger.kernel.org, Chris Lesiak <chris.lesiak@licor.com>,
+        Matt Ranostay <matt.ranostay@konsulko.com>,
         Stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.13 004/151] iio: adis: set GPIO reset pin direction
-Date:   Mon, 16 Aug 2021 15:00:34 +0200
-Message-Id: <20210816125444.229462613@linuxfoundation.org>
+Subject: [PATCH 5.13 005/151] iio: humidity: hdc100x: Add margin to the conversion time
+Date:   Mon, 16 Aug 2021 15:00:35 +0200
+Message-Id: <20210816125444.259297225@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
 References: <20210816125444.082226187@linuxfoundation.org>
@@ -42,41 +41,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Antti Keränen <detegr@rbx.email>
+From: Chris Lesiak <chris.lesiak@licor.com>
 
-commit 7e77ef8b8d600cf8448a2bbd32f682c28884551f upstream.
+commit 84edec86f449adea9ee0b4912a79ab8d9d65abb7 upstream.
 
-Set reset pin direction to output as the reset pin needs to be an active
-low output pin.
+The datasheets have the following note for the conversion time
+specification: "This parameter is specified by design and/or
+characterization and it is not tested in production."
 
-Co-developed-by: Hannu Hartikainen <hannu@hrtk.in>
-Signed-off-by: Hannu Hartikainen <hannu@hrtk.in>
-Signed-off-by: Antti Keränen <detegr@rbx.email>
-Reviewed-by: Nuno Sá <nuno.sa@analog.com>
-Fixes: ecb010d44108 ("iio: imu: adis: Refactor adis_initial_startup")
-Link: https://lore.kernel.org/r/20210708095425.13295-1-detegr@rbx.email
+Parts have been seen that require more time to do 14-bit conversions for
+the relative humidity channel.  The result is ENXIO due to the address
+phase of a transfer not getting an ACK.
+
+Delay an additional 1 ms per conversion to allow for additional margin.
+
+Fixes: 4839367d99e3 ("iio: humidity: add HDC100x support")
+Signed-off-by: Chris Lesiak <chris.lesiak@licor.com>
+Acked-by: Matt Ranostay <matt.ranostay@konsulko.com>
+Link: https://lore.kernel.org/r/20210614141820.2034827-1-chris.lesiak@licor.com
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/imu/adis.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/iio/humidity/hdc100x.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/iio/imu/adis.c
-+++ b/drivers/iio/imu/adis.c
-@@ -415,12 +415,11 @@ int __adis_initial_startup(struct adis *
+--- a/drivers/iio/humidity/hdc100x.c
++++ b/drivers/iio/humidity/hdc100x.c
+@@ -25,6 +25,8 @@
+ #include <linux/iio/trigger_consumer.h>
+ #include <linux/iio/triggered_buffer.h>
+ 
++#include <linux/time.h>
++
+ #define HDC100X_REG_TEMP			0x00
+ #define HDC100X_REG_HUMIDITY			0x01
+ 
+@@ -166,7 +168,7 @@ static int hdc100x_get_measurement(struc
+ 				   struct iio_chan_spec const *chan)
+ {
+ 	struct i2c_client *client = data->client;
+-	int delay = data->adc_int_us[chan->address];
++	int delay = data->adc_int_us[chan->address] + 1*USEC_PER_MSEC;
+ 	int ret;
+ 	__be16 val;
+ 
+@@ -316,7 +318,7 @@ static irqreturn_t hdc100x_trigger_handl
+ 	struct iio_dev *indio_dev = pf->indio_dev;
+ 	struct hdc100x_data *data = iio_priv(indio_dev);
+ 	struct i2c_client *client = data->client;
+-	int delay = data->adc_int_us[0] + data->adc_int_us[1];
++	int delay = data->adc_int_us[0] + data->adc_int_us[1] + 2*USEC_PER_MSEC;
  	int ret;
  
- 	/* check if the device has rst pin low */
--	gpio = devm_gpiod_get_optional(&adis->spi->dev, "reset", GPIOD_ASIS);
-+	gpio = devm_gpiod_get_optional(&adis->spi->dev, "reset", GPIOD_OUT_HIGH);
- 	if (IS_ERR(gpio))
- 		return PTR_ERR(gpio);
- 
- 	if (gpio) {
--		gpiod_set_value_cansleep(gpio, 1);
- 		msleep(10);
- 		/* bring device out of reset */
- 		gpiod_set_value_cansleep(gpio, 0);
+ 	/* dual read starts at temp register */
 
 
