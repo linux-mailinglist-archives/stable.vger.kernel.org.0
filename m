@@ -2,151 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0196E3ED6B8
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:23:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 328263ED7CA
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:43:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238104AbhHPNXu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:23:50 -0400
-Received: from szxga02-in.huawei.com ([45.249.212.188]:8427 "EHLO
-        szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239015AbhHPNVr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Aug 2021 09:21:47 -0400
-Received: from dggemv703-chm.china.huawei.com (unknown [172.30.72.55])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4GpF7W6nfBz87Wk;
-        Mon, 16 Aug 2021 21:17:11 +0800 (CST)
-Received: from dggema756-chm.china.huawei.com (10.1.198.198) by
- dggemv703-chm.china.huawei.com (10.3.19.46) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
- 15.1.2176.2; Mon, 16 Aug 2021 21:21:13 +0800
-Received: from [10.174.177.134] (10.174.177.134) by
- dggema756-chm.china.huawei.com (10.1.198.198) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2176.2; Mon, 16 Aug 2021 21:21:12 +0800
-Subject: Re: [PATCH 5.10.y 01/11] mm: memcontrol: Use helpers to read page's
- memcg data
+        id S238305AbhHPNmx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:42:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53170 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236748AbhHPNmt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Aug 2021 09:42:49 -0400
+Received: from mail-ej1-x636.google.com (mail-ej1-x636.google.com [IPv6:2a00:1450:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E337C05333E
+        for <stable@vger.kernel.org>; Mon, 16 Aug 2021 06:29:03 -0700 (PDT)
+Received: by mail-ej1-x636.google.com with SMTP id gr13so2677252ejb.6
+        for <stable@vger.kernel.org>; Mon, 16 Aug 2021 06:29:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=essensium.com; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to
+         :user-agent;
+        bh=RC1V5xe/NRcvL4rUhNzUeKyyDFkKgwzUwCe/4teWMGI=;
+        b=UqDMf56DTErsNFxMUSv48/ZXirgYN6JFk7mqaQjhhyNiD6Kv2Pp38zEkgPQb+wrVNr
+         VzL1GSUBzzEr1b/yD0hqWwZootrtBxqNg4uLIWTgQbT+8TOANLofanxJtdrOXsH6y61w
+         sg33ZAtuHzMLkwohBnBimz6S7NZQH6+thGSOEZvKALXigounTZWtB6knVGmjFTmZMbl3
+         Ro7ez8rMvYBtWZ8ydczcOnqJkEofMd7c7RiEWsbwQBYpnaMa0per6kG44UW8UNQe0CY0
+         dsRCTB2KE0Oi5thFrKW6y2ZPmGp7fLLAFJaaEwj7n4QowcCS+ETRIv1aNXuYBmCg+6Vw
+         oyCg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to:user-agent;
+        bh=RC1V5xe/NRcvL4rUhNzUeKyyDFkKgwzUwCe/4teWMGI=;
+        b=pifTVyLQJeOmKj5Hz3s9yXSHq0n+OdLw4Fdu55A2iTPry0vUeHomhOBMYe1mtw42kO
+         KxQAne5rtT20PPXFmDiSSbqNmOXVh7Oa8iTJrVCZFDjQbyKagaJxiPVJ3z1xnmqdV8Sa
+         ySYMnFnKEc1k+KkaFRr4OrbrpQTVVlV1AHZ0tH8x05uHwcOWp+uYJOCQbj3CGRaf058k
+         wQmqzLe8yC5nVWUZod7EMwKRGLQ4phYAQegN82u9dE/S/wNKCyN8dCGBLdsb2AXjqbyU
+         UWgqCI6dklrloKuxctXdAHIs5PyUGzUDZEEMGMPJuYPLd0mj1MAkt9gQa2wXpOqyc5gh
+         qIOw==
+X-Gm-Message-State: AOAM533Pa0Ez2Wuhg2qWdsa9ZeBkWIxCIqIzezkjQYojUgVgkfHKZDfw
+        VvzbjcWmu0focS9OQnEA62Oa/sRLCcCJuQ==
+X-Google-Smtp-Source: ABdhPJzg5Q2yGNtiVPCgYVb9rgz3YWoNA8AxWNsfge0oT4NkacCAAQa/VzZBv0pDYscUroc9QvNbQg==
+X-Received: by 2002:a17:907:7896:: with SMTP id ku22mr16781228ejc.166.1629120540739;
+        Mon, 16 Aug 2021 06:29:00 -0700 (PDT)
+Received: from cephalopod (168.7-181-91.adsl-dyn.isp.belgacom.be. [91.181.7.168])
+        by smtp.gmail.com with ESMTPSA id g10sm3689219ejj.44.2021.08.16.06.29.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 16 Aug 2021 06:29:00 -0700 (PDT)
+Date:   Mon, 16 Aug 2021 15:28:58 +0200
+From:   Ben Hutchings <ben.hutchings@essensium.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     Roman Gushchin <guro@fb.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        "Wang Hai" <wanghai38@huawei.com>, <linux-kernel@vger.kernel.org>,
-        <linux-mm@kvack.org>, <stable@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Alexei Starovoitov <ast@kernel.org>
-References: <20210816072147.3481782-1-chenhuang5@huawei.com>
- <20210816072147.3481782-2-chenhuang5@huawei.com> <YRojDsTAjSnw0jIh@kroah.com>
-From:   Chen Huang <chenhuang5@huawei.com>
-Message-ID: <a4c545a8-fff0-38bb-4749-3483c9334daa@huawei.com>
-Date:   Mon, 16 Aug 2021 21:21:11 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.10 52/96] net: dsa: microchip: ksz8795: Fix VLAN
+ filtering
+Message-ID: <20210816132858.GC18930@cephalopod>
+References: <20210816125434.948010115@linuxfoundation.org>
+ <20210816125436.688497376@linuxfoundation.org>
 MIME-Version: 1.0
-In-Reply-To: <YRojDsTAjSnw0jIh@kroah.com>
-Content-Type: text/plain; charset="gbk"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.174.177.134]
-X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
- dggema756-chm.china.huawei.com (10.1.198.198)
-X-CFilter-Loop: Reflected
+In-Reply-To: <20210816125436.688497376@linuxfoundation.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Aug 16, 2021 at 03:02:02PM +0200, Greg Kroah-Hartman wrote:
+> From: Ben Hutchings <ben.hutchings@mind.be>
+> 
+> [ Upstream commit 164844135a3f215d3018ee9d6875336beb942413 ]
 
+This will probably work on its own, but it was tested as part of a
+series of changes to VLAN handling in the driver.  Since I initially
+developed and tested that on top of 5.10-stable, I would prefer to
+send you the complete series to apply together.
 
-ÔÚ 2021/8/16 16:34, Greg Kroah-Hartman Ð´µÀ:
-> On Mon, Aug 16, 2021 at 07:21:37AM +0000, Chen Huang wrote:
->> From: Roman Gushchin <guro@fb.com>
+Ben.
+
+> Currently ksz8_port_vlan_filtering() sets or clears the VLAN Enable
+> hardware flag.  That controls discarding of packets with a VID that
+> has not been enabled for any port on the switch.
 > 
-> What is the git commit id of this patch in Linus's tree?
+> Since it is a global flag, set the dsa_switch::vlan_filtering_is_global
+> flag so that the DSA core understands this can't be controlled per
+> port.
 > 
->>
->> Patch series "mm: allow mapping accounted kernel pages to userspace", v6.
->>
->> Currently a non-slab kernel page which has been charged to a memory cgroup
->> can't be mapped to userspace.  The underlying reason is simple: PageKmemcg
->> flag is defined as a page type (like buddy, offline, etc), so it takes a
->> bit from a page->mapped counter.  Pages with a type set can't be mapped to
->> userspace.
->>
->> But in general the kmemcg flag has nothing to do with mapping to
->> userspace.  It only means that the page has been accounted by the page
->> allocator, so it has to be properly uncharged on release.
->>
->> Some bpf maps are mapping the vmalloc-based memory to userspace, and their
->> memory can't be accounted because of this implementation detail.
->>
->> This patchset removes this limitation by moving the PageKmemcg flag into
->> one of the free bits of the page->mem_cgroup pointer.  Also it formalizes
->> accesses to the page->mem_cgroup and page->obj_cgroups using new helpers,
->> adds several checks and removes a couple of obsolete functions.  As the
->> result the code became more robust with fewer open-coded bit tricks.
->>
->> This patch (of 4):
->>
->> Currently there are many open-coded reads of the page->mem_cgroup pointer,
->> as well as a couple of read helpers, which are barely used.
->>
->> It creates an obstacle on a way to reuse some bits of the pointer for
->> storing additional bits of information.  In fact, we already do this for
->> slab pages, where the last bit indicates that a pointer has an attached
->> vector of objcg pointers instead of a regular memcg pointer.
->>
->> This commits uses 2 existing helpers and introduces a new helper to
->> converts all read sides to calls of these helpers:
->>   struct mem_cgroup *page_memcg(struct page *page);
->>   struct mem_cgroup *page_memcg_rcu(struct page *page);
->>   struct mem_cgroup *page_memcg_check(struct page *page);
->>
->> page_memcg_check() is intended to be used in cases when the page can be a
->> slab page and have a memcg pointer pointing at objcg vector.  It does
->> check the lowest bit, and if set, returns NULL.  page_memcg() contains a
->> VM_BUG_ON_PAGE() check for the page not being a slab page.
->>
->> To make sure nobody uses a direct access, struct page's
->> mem_cgroup/obj_cgroups is converted to unsigned long memcg_data.
->>
->> Signed-off-by: Roman Gushchin <guro@fb.com>
->> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
->> Signed-off-by: Alexei Starovoitov <ast@kernel.org>
->> Reviewed-by: Shakeel Butt <shakeelb@google.com>
->> Acked-by: Johannes Weiner <hannes@cmpxchg.org>
->> Acked-by: Michal Hocko <mhocko@suse.com>
->> Link: https://lkml.kernel.org/r/20201027001657.3398190-1-guro@fb.com
->> Link: https://lkml.kernel.org/r/20201027001657.3398190-2-guro@fb.com
->> Link: https://lore.kernel.org/bpf/20201201215900.3569844-2-guro@fb.com
->>
->> Conflicts:
->> 	mm/memcontrol.c
+> When VLAN filtering is enabled, the switch should also discard packets
+> with a VID that's not enabled on the ingress port.  Set or clear each
+> external port's VLAN Ingress Filter flag in ksz8_port_vlan_filtering()
+> to make that happen.
 > 
-> The "Conflicts:" lines should be removed.
+> Fixes: e66f840c08a2 ("net: dsa: ksz: Add Microchip KSZ8795 DSA driver")
+> Signed-off-by: Ben Hutchings <ben.hutchings@mind.be>
+> Signed-off-by: David S. Miller <davem@davemloft.net>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  drivers/net/dsa/microchip/ksz8795.c | 11 +++++++++++
+>  1 file changed, 11 insertions(+)
 > 
-> Please fix up the patch series and resubmit.  But note, this seems
-> really intrusive, are you sure these are all needed?
+> diff --git a/drivers/net/dsa/microchip/ksz8795.c b/drivers/net/dsa/microchip/ksz8795.c
+> index 1e101ab56cea..108a14db1f1a 100644
+> --- a/drivers/net/dsa/microchip/ksz8795.c
+> +++ b/drivers/net/dsa/microchip/ksz8795.c
+> @@ -790,8 +790,14 @@ static int ksz8795_port_vlan_filtering(struct dsa_switch *ds, int port,
+>  	if (switchdev_trans_ph_prepare(trans))
+>  		return 0;
+>  
+> +	/* Discard packets with VID not enabled on the switch */
+>  	ksz_cfg(dev, S_MIRROR_CTRL, SW_VLAN_ENABLE, flag);
+>  
+> +	/* Discard packets with VID not enabled on the ingress port */
+> +	for (port = 0; port < dev->phy_port_cnt; ++port)
+> +		ksz_port_cfg(dev, port, REG_PORT_CTRL_2, PORT_INGRESS_FILTER,
+> +			     flag);
+> +
+>  	return 0;
+>  }
+>  
+> @@ -1266,6 +1272,11 @@ static int ksz8795_switch_init(struct ksz_device *dev)
+>  	/* set the real number of ports */
+>  	dev->ds->num_ports = dev->port_cnt + 1;
+>  
+> +	/* VLAN filtering is partly controlled by the global VLAN
+> +	 * Enable flag
+> +	 */
+> +	dev->ds->vlan_filtering_is_global = true;
+> +
+>  	return 0;
+>  }
+>  
+> -- 
+> 2.30.2
+> 
+> 
 > 
 
-OK£¬I will resend the patchset.
-Roman Gushchin's patchset formalize accesses to the page->mem_cgroup and
-page->obj_cgroups. But for LRU pages and most other raw memcg, they may
-pin to a memcg cgroup pointer, which should always point to an object cgroup
-pointer. That's the problem I met. And Muchun Song's patchset fix this.
-So I think these are all needed.
-
-> What UIO driver are you using that is showing problems like this?
-> 
-
-The UIO driver is my own driver, and it's creation likes this:
-First, we register a device
-	pdev = platform_device_register_simple("uio_driver,0, NULL, 0);
-and use uio_info to describe the UIO driver, the page is alloced and used
-for uio_vma_fault
-	info->mem[0].addr = (phys_addr_t) kzalloc(PAGE_SIZE, GFP_ATOMIC);
-then we register the UIO driver.
-	uio_register_device(&pdev->dev, info)
-
-Thanks!
-
-> thanks,
-> 
-> greg k-h
-> 
-> .
-> 
+-- 
+Ben Hutchings · Senior Embedded Software Engineer, Essensium-Mind · mind.be
