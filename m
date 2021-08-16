@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 629343ED4D8
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:06:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E190A3ED651
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:22:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237190AbhHPNFo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:05:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56648 "EHLO mail.kernel.org"
+        id S236730AbhHPNU3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:20:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236858AbhHPNF3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:05:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A55626328D;
-        Mon, 16 Aug 2021 13:04:57 +0000 (UTC)
+        id S239667AbhHPNQS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:16:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F0F76632E6;
+        Mon, 16 Aug 2021 13:12:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119098;
-        bh=GFyqWBzn9aFcD0wSwTvT2g9sH70VjmRR/IjWPw4a98o=;
+        s=korg; t=1629119578;
+        bh=rQn+nlfPnhfgJ3O9LUqPWSl0kSekpU8G/CqbUvYPlh8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xSjm6rVnEcAQCFJ+990m+Ll809DWL1QuFhsn7rOxjRb83IPZcOBFnkfhrThNjSSM7
-         4gOtvDMRzcRosnaB7KGa7fxCd/9B5r17coMZlEJRFQ9n0xRyJJTXrEy4Cl6eAur3DX
-         iuft71Mi9dBtBSlg6rpuD6z1fPW+8CEHz2s2xeKI=
+        b=OLJZl575AfjltiCiCEgm1RJeuGsWQxlPo/j0iH0Z/dtRL02aK8Z13syE35zkmE+ru
+         cVo4IykMh0gcLXsTSvj5O3n9w8EPTwyjL/10rWxja4P6I5+y6UXJKVrTJhrcUgdX5Y
+         9GockbdNJ0U/ybzoceLOk6ZPcZjOwgdvhSFJqC2U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, DENG Qingfang <dqfext@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
+        Parav Pandit <parav@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 18/62] net: dsa: mt7530: add the missing RxUnicast MIB counter
+Subject: [PATCH 5.13 080/151] net/mlx5: Dont skip subfunction cleanup in case of error in module init
 Date:   Mon, 16 Aug 2021 15:01:50 +0200
-Message-Id: <20210816125428.807445872@linuxfoundation.org>
+Message-Id: <20210816125446.711687447@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125428.198692661@linuxfoundation.org>
-References: <20210816125428.198692661@linuxfoundation.org>
+In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
+References: <20210816125444.082226187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,32 +41,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: DENG Qingfang <dqfext@gmail.com>
+From: Leon Romanovsky <leonro@nvidia.com>
 
-[ Upstream commit aff51c5da3208bd164381e1488998667269c6cf4 ]
+[ Upstream commit c633e799641cf13960bd83189b4d5b1b2adb0d4e ]
 
-Add the missing RxUnicast counter.
+Clean SF resources if mlx5 eth failed to initialize.
 
-Fixes: b8f126a8d543 ("net-next: dsa: add dsa support for Mediatek MT7530 switch")
-Signed-off-by: DENG Qingfang <dqfext@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 1958fc2f0712 ("net/mlx5: SF, Add auxiliary device driver")
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Reviewed-by: Parav Pandit <parav@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/mt7530.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/mellanox/mlx5/core/main.c      | 12 ++++--------
+ drivers/net/ethernet/mellanox/mlx5/core/mlx5_core.h |  5 +++++
+ 2 files changed, 9 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/dsa/mt7530.c b/drivers/net/dsa/mt7530.c
-index 071e5015bf91..e1a3c33fdad9 100644
---- a/drivers/net/dsa/mt7530.c
-+++ b/drivers/net/dsa/mt7530.c
-@@ -45,6 +45,7 @@ static const struct mt7530_mib_desc mt7530_mib[] = {
- 	MIB_DESC(2, 0x48, "TxBytes"),
- 	MIB_DESC(1, 0x60, "RxDrop"),
- 	MIB_DESC(1, 0x64, "RxFiltering"),
-+	MIB_DESC(1, 0x68, "RxUnicast"),
- 	MIB_DESC(1, 0x6c, "RxMulticast"),
- 	MIB_DESC(1, 0x70, "RxBroadcast"),
- 	MIB_DESC(1, 0x74, "RxAlignErr"),
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/main.c b/drivers/net/ethernet/mellanox/mlx5/core/main.c
+index 0d0f63a27aba..8c6d7f70e783 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/main.c
+@@ -1781,16 +1781,14 @@ static int __init init(void)
+ 	if (err)
+ 		goto err_sf;
+ 
+-#ifdef CONFIG_MLX5_CORE_EN
+ 	err = mlx5e_init();
+-	if (err) {
+-		pci_unregister_driver(&mlx5_core_driver);
+-		goto err_debug;
+-	}
+-#endif
++	if (err)
++		goto err_en;
+ 
+ 	return 0;
+ 
++err_en:
++	mlx5_sf_driver_unregister();
+ err_sf:
+ 	pci_unregister_driver(&mlx5_core_driver);
+ err_debug:
+@@ -1800,9 +1798,7 @@ err_debug:
+ 
+ static void __exit cleanup(void)
+ {
+-#ifdef CONFIG_MLX5_CORE_EN
+ 	mlx5e_cleanup();
+-#endif
+ 	mlx5_sf_driver_unregister();
+ 	pci_unregister_driver(&mlx5_core_driver);
+ 	mlx5_unregister_debugfs();
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/mlx5_core.h b/drivers/net/ethernet/mellanox/mlx5/core/mlx5_core.h
+index a22b706eebd3..1824eb0b0e9a 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/mlx5_core.h
++++ b/drivers/net/ethernet/mellanox/mlx5/core/mlx5_core.h
+@@ -223,8 +223,13 @@ int mlx5_firmware_flash(struct mlx5_core_dev *dev, const struct firmware *fw,
+ int mlx5_fw_version_query(struct mlx5_core_dev *dev,
+ 			  u32 *running_ver, u32 *stored_ver);
+ 
++#ifdef CONFIG_MLX5_CORE_EN
+ int mlx5e_init(void);
+ void mlx5e_cleanup(void);
++#else
++static inline int mlx5e_init(void){ return 0; }
++static inline void mlx5e_cleanup(void){}
++#endif
+ 
+ static inline bool mlx5_sriov_is_enabled(struct mlx5_core_dev *dev)
+ {
 -- 
 2.30.2
 
