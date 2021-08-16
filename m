@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 375773ED49D
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:04:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B44A43ED53A
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:09:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236652AbhHPNE1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:04:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55340 "EHLO mail.kernel.org"
+        id S237022AbhHPNKY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:10:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235536AbhHPNEX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:04:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2177C63292;
-        Mon, 16 Aug 2021 13:03:50 +0000 (UTC)
+        id S237376AbhHPNIl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:08:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DBB12632AC;
+        Mon, 16 Aug 2021 13:07:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119031;
-        bh=LPMaJ9ZVY7+KRz2c2ftd5MfC1UvkplOauhOCq0lMLAU=;
+        s=korg; t=1629119240;
+        bh=qGu3CLCmhtrCGx81GWXSHiehqdKRJDpU76xkkAtqJL4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HytsVUT17K9G+RXco+dqb+Mt6dLKtztODN8j5/A6DKyK9jr/IJmSzb4QVRYykV142
-         rYdqaV+1DeyncNVnpbJimgY8nOXhOJ1ePVCmbcvucK+lb8D25D2tUBB+KB1vVIPSul
-         KUwGmgElmktaMYH4U3Thk4Gl7SLeuZRP91c7k1z8=
+        b=zfq1PvG9liQv0ZKCblBEHeqOa6LkGY6Hsk1uJ7Lhg2bhDTcLJCpgEPNooVwV5/6FQ
+         O2m7kWCUuAi/NLkby3hwtXziGdWCJFxrBsHuXDdBIzjLl2Ed2q/BrEETQWZisdzeVl
+         nJTkVFZ2uzGv+JBx5Ricj7axy+WxFvxEij3LiEAA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Md Fahad Iqbal Polash <md.fahad.iqbal.polash@intel.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 24/62] iavf: Set RSS LUT and key in reset handle path
-Date:   Mon, 16 Aug 2021 15:01:56 +0200
-Message-Id: <20210816125429.019844544@linuxfoundation.org>
+Subject: [PATCH 5.10 47/96] bareudp: Fix invalid read beyond skbs linear data
+Date:   Mon, 16 Aug 2021 15:01:57 +0200
+Message-Id: <20210816125436.524906425@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125428.198692661@linuxfoundation.org>
-References: <20210816125428.198692661@linuxfoundation.org>
+In-Reply-To: <20210816125434.948010115@linuxfoundation.org>
+References: <20210816125434.948010115@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,54 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Md Fahad Iqbal Polash <md.fahad.iqbal.polash@intel.com>
+From: Guillaume Nault <gnault@redhat.com>
 
-[ Upstream commit a7550f8b1c9712894f9e98d6caf5f49451ebd058 ]
+[ Upstream commit 143a8526ab5fd4f8a0c4fe2a9cb28c181dc5a95f ]
 
-iavf driver should set RSS LUT and key unconditionally in reset
-path. Currently, the driver does not do that. This patch fixes
-this issue.
+Data beyond the UDP header might not be part of the skb's linear data.
+Use skb_copy_bits() instead of direct access to skb->data+X, so that
+we read the correct bytes even on a fragmented skb.
 
-Fixes: 2c86ac3c7079 ("i40evf: create a generic config RSS function")
-Signed-off-by: Md Fahad Iqbal Polash <md.fahad.iqbal.polash@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: 4b5f67232d95 ("net: Special handling for IP & MPLS.")
+Signed-off-by: Guillaume Nault <gnault@redhat.com>
+Link: https://lore.kernel.org/r/7741c46545c6ef02e70c80a9b32814b22d9616b3.1628264975.git.gnault@redhat.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/iavf/iavf_main.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/net/bareudp.c | 16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
-index cda9b9a8392a..dc902e371c2c 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_main.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
-@@ -1499,11 +1499,6 @@ static int iavf_reinit_interrupt_scheme(struct iavf_adapter *adapter)
- 	set_bit(__IAVF_VSI_DOWN, adapter->vsi.state);
+diff --git a/drivers/net/bareudp.c b/drivers/net/bareudp.c
+index 59c1724bcd0e..39b128205f25 100644
+--- a/drivers/net/bareudp.c
++++ b/drivers/net/bareudp.c
+@@ -71,12 +71,18 @@ static int bareudp_udp_encap_recv(struct sock *sk, struct sk_buff *skb)
+ 		family = AF_INET6;
  
- 	iavf_map_rings_to_vectors(adapter);
--
--	if (RSS_AQ(adapter))
--		adapter->aq_required |= IAVF_FLAG_AQ_CONFIGURE_RSS;
--	else
--		err = iavf_init_rss(adapter);
- err:
- 	return err;
- }
-@@ -2179,6 +2174,14 @@ continue_reset:
- 			goto reset_err;
- 	}
+ 	if (bareudp->ethertype == htons(ETH_P_IP)) {
+-		struct iphdr *iphdr;
++		__u8 ipversion;
  
-+	if (RSS_AQ(adapter)) {
-+		adapter->aq_required |= IAVF_FLAG_AQ_CONFIGURE_RSS;
-+	} else {
-+		err = iavf_init_rss(adapter);
-+		if (err)
-+			goto reset_err;
-+	}
+-		iphdr = (struct iphdr *)(skb->data + BAREUDP_BASE_HLEN);
+-		if (iphdr->version == 4) {
+-			proto = bareudp->ethertype;
+-		} else if (bareudp->multi_proto_mode && (iphdr->version == 6)) {
++		if (skb_copy_bits(skb, BAREUDP_BASE_HLEN, &ipversion,
++				  sizeof(ipversion))) {
++			bareudp->dev->stats.rx_dropped++;
++			goto drop;
++		}
++		ipversion >>= 4;
 +
- 	adapter->aq_required |= IAVF_FLAG_AQ_GET_CONFIG;
- 	adapter->aq_required |= IAVF_FLAG_AQ_MAP_VECTORS;
- 
++		if (ipversion == 4) {
++			proto = htons(ETH_P_IP);
++		} else if (ipversion == 6 && bareudp->multi_proto_mode) {
+ 			proto = htons(ETH_P_IPV6);
+ 		} else {
+ 			bareudp->dev->stats.rx_dropped++;
 -- 
 2.30.2
 
