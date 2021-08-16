@@ -2,32 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF1713ED5FC
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:17:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B7B33ED596
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:12:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239707AbhHPNQS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:16:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39184 "EHLO mail.kernel.org"
+        id S236276AbhHPNMW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:12:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35886 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237535AbhHPNNE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:13:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5DA39632A9;
-        Mon, 16 Aug 2021 13:10:41 +0000 (UTC)
+        id S236696AbhHPNK1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:10:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6053563299;
+        Mon, 16 Aug 2021 13:09:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119441;
-        bh=0wFex56x9zGW4ILxq/9Ivh/TBBYX0BFnfMEZ164d5Ag=;
+        s=korg; t=1629119395;
+        bh=9xYWXLy5eqswbbVVDGKdKmia3sEo3pev6hYkG3bAWP0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aPPswjb/fu+K/v/dv5Z98GEZXLv/y7S6KqJYOQpHvHsi+Cr1df+heuExXhwjbt32p
-         ohuZWxU40oT+u62XnUpfcqg84xrd5IVBIS34lyC3BA1GFjvmGDCxBC9a480O6X4odA
-         4xD+uAtaCJZfVNXUnWUP4cbDQfIBDaU11RmWsn68=
+        b=ZqJ+gDKgqEW8awM+4iYOsDDE6ODYekVY2+vdGnkm54Ov8K2Jbbw2zdUK8IxsC9irD
+         YPiNCzvSs/YNLic+BBTrugw7PYTbkcgrqW41CFzsUzqrGlXSC0jnkiJzV4a4ejZc+h
+         lCxUVudM2EHUsP0MxceaKGJoY2CPF1gCMnzp6Gi4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.13 009/151] ASoC: uniphier: Fix reference to PCM buffer address
-Date:   Mon, 16 Aug 2021 15:00:39 +0200
-Message-Id: <20210816125444.389877606@linuxfoundation.org>
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.13 010/151] ASoC: tlv320aic31xx: Fix jack detection after suspend
+Date:   Mon, 16 Aug 2021 15:00:40 +0200
+Message-Id: <20210816125444.419150843@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
 References: <20210816125444.082226187@linuxfoundation.org>
@@ -39,38 +38,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Mark Brown <broonie@kernel.org>
 
-commit 827f3164aaa579eee6fd50c6654861d54f282a11 upstream.
+commit 2c39ca6885a2ec03e5c9e7c12a4da2aa8926605a upstream.
 
-Along with the transition to the managed PCM buffers, the driver now
-accepts the dynamically allocated buffer, while it still kept the
-reference to the old preallocated buffer address.  This patch corrects
-to the right reference via runtime->dma_addr.
+The tlv320aic31xx driver relies on regcache_sync() to restore the register
+contents after going to _BIAS_OFF, for example during system suspend. This
+does not work for the jack detection configuration since that is configured
+via the same register that status is read back from so the register is
+volatile and not cached. This can also cause issues during init if the jack
+detection ends up getting set up before the CODEC is initially brought out
+of _BIAS_OFF, we will reset the CODEC and resync the cache as part of that
+process.
 
-(Although this might have been already buggy before the cleanup with
-the managed buffer, let's put Fixes tag to point that; it's a corner
-case, after all.)
+Fix this by explicitly reapplying the jack detection configuration after
+resyncing the register cache during power on.
 
-Fixes: d55894bc2763 ("ASoC: uniphier: Use managed buffer allocation")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Link: https://lore.kernel.org/r/20210728112353.6675-5-tiwai@suse.de
+This issue was found by an engineer working off-list on a product
+kernel, I just wrote up the upstream fix.
+
 Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20210723180200.25105-1-broonie@kernel.org
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/uniphier/aio-dma.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/codecs/tlv320aic31xx.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/sound/soc/uniphier/aio-dma.c
-+++ b/sound/soc/uniphier/aio-dma.c
-@@ -198,7 +198,7 @@ static int uniphier_aiodma_mmap(struct s
- 	vma->vm_page_prot = pgprot_writecombine(vma->vm_page_prot);
+--- a/sound/soc/codecs/tlv320aic31xx.c
++++ b/sound/soc/codecs/tlv320aic31xx.c
+@@ -35,6 +35,9 @@
  
- 	return remap_pfn_range(vma, vma->vm_start,
--			       substream->dma_buffer.addr >> PAGE_SHIFT,
-+			       substream->runtime->dma_addr >> PAGE_SHIFT,
- 			       vma->vm_end - vma->vm_start, vma->vm_page_prot);
+ #include "tlv320aic31xx.h"
+ 
++static int aic31xx_set_jack(struct snd_soc_component *component,
++                            struct snd_soc_jack *jack, void *data);
++
+ static const struct reg_default aic31xx_reg_defaults[] = {
+ 	{ AIC31XX_CLKMUX, 0x00 },
+ 	{ AIC31XX_PLLPR, 0x11 },
+@@ -1256,6 +1259,13 @@ static int aic31xx_power_on(struct snd_s
+ 		return ret;
+ 	}
+ 
++	/*
++	 * The jack detection configuration is in the same register
++	 * that is used to report jack detect status so is volatile
++	 * and not covered by the cache sync, restore it separately.
++	 */
++	aic31xx_set_jack(component, aic31xx->jack, NULL);
++
+ 	return 0;
  }
  
 
