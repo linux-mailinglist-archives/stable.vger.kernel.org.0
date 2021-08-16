@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EDBCA3ED65C
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:22:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A16623ED587
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:12:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238814AbhHPNUh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:20:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39370 "EHLO mail.kernel.org"
+        id S229719AbhHPNMJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:12:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58784 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240055AbhHPNQp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:16:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E8ED2632E7;
-        Mon, 16 Aug 2021 13:13:26 +0000 (UTC)
+        id S238853AbhHPNIo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:08:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7392D6108D;
+        Mon, 16 Aug 2021 13:07:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119607;
-        bh=KDHOti7KrE2lyjecTFr4RqcNn/A3z/oq+gSj8QKMI9o=;
+        s=korg; t=1629119247;
+        bh=DmvCyg3+GaFmW/1KXTkP3Udlm3T9LTw6aydB4yoyp6w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yBWrqMod2+HJGRXiQOEoChrSN5r8FRc7TbaH4jArp2hBPXZBXeTeJW/tv/D1ijOgn
-         z15PEOgBMI38UlhFvw2qrCRjnb9KvoT6ML7ZddAYhMqDBD0M7dPMFAQZenfYrrJlgu
-         S/Z8CvFRI9QmYnROVEvO80rUDiIADXGr7ZI6PwFQ=
+        b=D4kVMszyyd8Y7ooHxQeUks2VnNEYPf+uDbntLoI13NhbgjYoMcH80HDM/KFPAq7wc
+         o3yD6jx3UkYwxWUR9wc1swV2909Gde2IBtmLeeNkLpDQ15qXlbT2FKblzDUIMrUNER
+         4X/xBEfS5QE75o6l2VDHNJfsEIS8V/G6qAkYEwIo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yonghong Song <yhs@fb.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andrii@kernel.org>,
+        stable@vger.kernel.org,
+        Mathias Steiger <mathias.steiger@googlemail.com>,
+        Christian Hewitt <christianshewitt@gmail.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Philip Milev <milev.philip@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 090/151] bpf: Fix potentially incorrect results with bpf_get_local_storage()
+Subject: [PATCH 5.10 50/96] drm/meson: fix colour distortion from HDR set during vendor u-boot
 Date:   Mon, 16 Aug 2021 15:02:00 +0200
-Message-Id: <20210816125447.043730549@linuxfoundation.org>
+Message-Id: <20210816125436.626424316@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
-References: <20210816125444.082226187@linuxfoundation.org>
+In-Reply-To: <20210816125434.948010115@linuxfoundation.org>
+References: <20210816125434.948010115@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,130 +43,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yonghong Song <yhs@fb.com>
+From: Christian Hewitt <christianshewitt@gmail.com>
 
-[ Upstream commit a2baf4e8bb0f306fbed7b5e6197c02896a638ab5 ]
+[ Upstream commit bf33677a3c394bb8fddd48d3bbc97adf0262e045 ]
 
-Commit b910eaaaa4b8 ("bpf: Fix NULL pointer dereference in bpf_get_local_storage()
-helper") fixed a bug for bpf_get_local_storage() helper so different tasks
-won't mess up with each other's percpu local storage.
+Add support for the OSD1 HDR registers so meson DRM can handle the HDR
+properties set by Amlogic u-boot on G12A and newer devices which result
+in blue/green/pink colour distortion to display output.
 
-The percpu data contains 8 slots so it can hold up to 8 contexts (same or
-different tasks), for 8 different program runs, at the same time. This in
-general is sufficient. But our internal testing showed the following warning
-multiple times:
+This takes the original patch submissions from Mathias [0] and [1] with
+corrections for formatting and the missing description and attribution
+needed for merge.
 
-  [...]
-  warning: WARNING: CPU: 13 PID: 41661 at include/linux/bpf-cgroup.h:193
-     __cgroup_bpf_run_filter_sock_ops+0x13e/0x180
-  RIP: 0010:__cgroup_bpf_run_filter_sock_ops+0x13e/0x180
-  <IRQ>
-   tcp_call_bpf.constprop.99+0x93/0xc0
-   tcp_conn_request+0x41e/0xa50
-   ? tcp_rcv_state_process+0x203/0xe00
-   tcp_rcv_state_process+0x203/0xe00
-   ? sk_filter_trim_cap+0xbc/0x210
-   ? tcp_v6_inbound_md5_hash.constprop.41+0x44/0x160
-   tcp_v6_do_rcv+0x181/0x3e0
-   tcp_v6_rcv+0xc65/0xcb0
-   ip6_protocol_deliver_rcu+0xbd/0x450
-   ip6_input_finish+0x11/0x20
-   ip6_input+0xb5/0xc0
-   ip6_sublist_rcv_finish+0x37/0x50
-   ip6_sublist_rcv+0x1dc/0x270
-   ipv6_list_rcv+0x113/0x140
-   __netif_receive_skb_list_core+0x1a0/0x210
-   netif_receive_skb_list_internal+0x186/0x2a0
-   gro_normal_list.part.170+0x19/0x40
-   napi_complete_done+0x65/0x150
-   mlx5e_napi_poll+0x1ae/0x680
-   __napi_poll+0x25/0x120
-   net_rx_action+0x11e/0x280
-   __do_softirq+0xbb/0x271
-   irq_exit_rcu+0x97/0xa0
-   common_interrupt+0x7f/0xa0
-   </IRQ>
-   asm_common_interrupt+0x1e/0x40
-  RIP: 0010:bpf_prog_1835a9241238291a_tw_egress+0x5/0xbac
-   ? __cgroup_bpf_run_filter_skb+0x378/0x4e0
-   ? do_softirq+0x34/0x70
-   ? ip6_finish_output2+0x266/0x590
-   ? ip6_finish_output+0x66/0xa0
-   ? ip6_output+0x6c/0x130
-   ? ip6_xmit+0x279/0x550
-   ? ip6_dst_check+0x61/0xd0
-  [...]
+[0] https://lore.kernel.org/linux-amlogic/59dfd7e6-fc91-3d61-04c4-94e078a3188c@baylibre.com/T/
+[1] https://lore.kernel.org/linux-amlogic/CAOKfEHBx_fboUqkENEMd-OC-NSrf46nto+vDLgvgttzPe99kXg@mail.gmail.com/T/#u
 
-Using drgn [0] to dump the percpu buffer contents showed that on this CPU
-slot 0 is still available, but slots 1-7 are occupied and those tasks in
-slots 1-7 mostly don't exist any more. So we might have issues in
-bpf_cgroup_storage_unset().
-
-Further debugging confirmed that there is a bug in bpf_cgroup_storage_unset().
-Currently, it tries to unset "current" slot with searching from the start.
-So the following sequence is possible:
-
-  1. A task is running and claims slot 0
-  2. Running BPF program is done, and it checked slot 0 has the "task"
-     and ready to reset it to NULL (not yet).
-  3. An interrupt happens, another BPF program runs and it claims slot 1
-     with the *same* task.
-  4. The unset() in interrupt context releases slot 0 since it matches "task".
-  5. Interrupt is done, the task in process context reset slot 0.
-
-At the end, slot 1 is not reset and the same process can continue to occupy
-slots 2-7 and finally, when the above step 1-5 is repeated again, step 3 BPF
-program won't be able to claim an empty slot and a warning will be issued.
-
-To fix the issue, for unset() function, we should traverse from the last slot
-to the first. This way, the above issue can be avoided.
-
-The same reverse traversal should also be done in bpf_get_local_storage() helper
-itself. Otherwise, incorrect local storage may be returned to BPF program.
-
-  [0] https://github.com/osandov/drgn
-
-Fixes: b910eaaaa4b8 ("bpf: Fix NULL pointer dereference in bpf_get_local_storage() helper")
-Signed-off-by: Yonghong Song <yhs@fb.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20210810010413.1976277-1-yhs@fb.com
+Fixes: 728883948b0d ("drm/meson: Add G12A Support for VIU setup")
+Suggested-by: Mathias Steiger <mathias.steiger@googlemail.com>
+Signed-off-by: Christian Hewitt <christianshewitt@gmail.com>
+Tested-by: Neil Armstrong <narmstrong@baylibre.com>
+Tested-by: Philip Milev <milev.philip@gmail.com>
+[narmsrong: adding missing space on second tested-by tag]
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210806094005.7136-1-christianshewitt@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/bpf-cgroup.h | 4 ++--
- kernel/bpf/helpers.c       | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/meson/meson_registers.h | 5 +++++
+ drivers/gpu/drm/meson/meson_viu.c       | 7 ++++++-
+ 2 files changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/bpf-cgroup.h b/include/linux/bpf-cgroup.h
-index 8b77d08d4b47..6c9b10d82c80 100644
---- a/include/linux/bpf-cgroup.h
-+++ b/include/linux/bpf-cgroup.h
-@@ -201,8 +201,8 @@ static inline void bpf_cgroup_storage_unset(void)
- {
- 	int i;
+diff --git a/drivers/gpu/drm/meson/meson_registers.h b/drivers/gpu/drm/meson/meson_registers.h
+index 446e7961da48..0f3cafab8860 100644
+--- a/drivers/gpu/drm/meson/meson_registers.h
++++ b/drivers/gpu/drm/meson/meson_registers.h
+@@ -634,6 +634,11 @@
+ #define VPP_WRAP_OSD3_MATRIX_PRE_OFFSET2 0x3dbc
+ #define VPP_WRAP_OSD3_MATRIX_EN_CTRL 0x3dbd
  
--	for (i = 0; i < BPF_CGROUP_STORAGE_NEST_MAX; i++) {
--		if (unlikely(this_cpu_read(bpf_cgroup_storage_info[i].task) != current))
-+	for (i = BPF_CGROUP_STORAGE_NEST_MAX - 1; i >= 0; i--) {
-+		if (likely(this_cpu_read(bpf_cgroup_storage_info[i].task) != current))
- 			continue;
++/* osd1 HDR */
++#define OSD1_HDR2_CTRL 0x38a0
++#define OSD1_HDR2_CTRL_VDIN0_HDR2_TOP_EN       BIT(13)
++#define OSD1_HDR2_CTRL_REG_ONLY_MAT            BIT(16)
++
+ /* osd2 scaler */
+ #define OSD2_VSC_PHASE_STEP 0x3d00
+ #define OSD2_VSC_INI_PHASE 0x3d01
+diff --git a/drivers/gpu/drm/meson/meson_viu.c b/drivers/gpu/drm/meson/meson_viu.c
+index aede0c67a57f..259f3e6bec90 100644
+--- a/drivers/gpu/drm/meson/meson_viu.c
++++ b/drivers/gpu/drm/meson/meson_viu.c
+@@ -425,9 +425,14 @@ void meson_viu_init(struct meson_drm *priv)
+ 	if (meson_vpu_is_compatible(priv, VPU_COMPATIBLE_GXM) ||
+ 	    meson_vpu_is_compatible(priv, VPU_COMPATIBLE_GXL))
+ 		meson_viu_load_matrix(priv);
+-	else if (meson_vpu_is_compatible(priv, VPU_COMPATIBLE_G12A))
++	else if (meson_vpu_is_compatible(priv, VPU_COMPATIBLE_G12A)) {
+ 		meson_viu_set_g12a_osd1_matrix(priv, RGB709_to_YUV709l_coeff,
+ 					       true);
++		/* fix green/pink color distortion from vendor u-boot */
++		writel_bits_relaxed(OSD1_HDR2_CTRL_REG_ONLY_MAT |
++				OSD1_HDR2_CTRL_VDIN0_HDR2_TOP_EN, 0,
++				priv->io_base + _REG(OSD1_HDR2_CTRL));
++	}
  
- 		this_cpu_write(bpf_cgroup_storage_info[i].task, NULL);
-diff --git a/kernel/bpf/helpers.c b/kernel/bpf/helpers.c
-index a2f1f15ce432..728f1a0fb442 100644
---- a/kernel/bpf/helpers.c
-+++ b/kernel/bpf/helpers.c
-@@ -397,8 +397,8 @@ BPF_CALL_2(bpf_get_local_storage, struct bpf_map *, map, u64, flags)
- 	void *ptr;
- 	int i;
- 
--	for (i = 0; i < BPF_CGROUP_STORAGE_NEST_MAX; i++) {
--		if (unlikely(this_cpu_read(bpf_cgroup_storage_info[i].task) != current))
-+	for (i = BPF_CGROUP_STORAGE_NEST_MAX - 1; i >= 0; i--) {
-+		if (likely(this_cpu_read(bpf_cgroup_storage_info[i].task) != current))
- 			continue;
- 
- 		storage = this_cpu_read(bpf_cgroup_storage_info[i].storage[stype]);
+ 	/* Initialize OSD1 fifo control register */
+ 	reg = VIU_OSD_DDR_PRIORITY_URGENT |
 -- 
 2.30.2
 
