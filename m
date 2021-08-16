@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA8C33ED5F1
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:17:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C125C3ED5ED
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:17:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238414AbhHPNQA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:16:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37454 "EHLO mail.kernel.org"
+        id S237911AbhHPNPx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:15:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239963AbhHPNOp (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S239969AbhHPNOp (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 16 Aug 2021 09:14:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CC9BF632D4;
-        Mon, 16 Aug 2021 13:11:50 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8BDBD632CC;
+        Mon, 16 Aug 2021 13:11:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119511;
-        bh=5sLJJu2I7O7Ou7FtypBU6QNJXnkhzh8fi6Q16SWCa1A=;
+        s=korg; t=1629119514;
+        bh=fE2XE13Gzy7eJJdVCFmq7ovZLqb8RtdPA54zFeVTKAU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pNaX2OJISEEQ3fkefLLafQbXoXZ20eW8EJy9pNs0DIUGfTg72qtdlL3tfPcQFHTw9
-         oP7HNoImVh9p1eMPRXcJARsBsY/PvtP/DMfU2i8zwiSpndXCjhbgKumn8Al/obiYhW
-         U2k+3VjCN0R1jHY4pZLpiAWhSyO7APEBMSLV8RQw=
+        b=BJ4IC/HKkZddvyinYX0jRDchO5l45V8jSbBs40VVgGpghAfBLEaqjm54yAUG5c9JG
+         NFebmAJOSMBJt/137yqgekKrIK87rhy/CBsLuYCPwn/o5kaTsoV8k4oysVydV+dBdA
+         f+fGsma5xwAoXjlIG8yHW7Qe8uxbLshg32Auhxdc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Riccardo Mori <patacca@autistici.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Lovesh <lovesh.bond@gmail.com>
-Subject: [PATCH 5.13 053/151] pinctrl: tigerlake: Fix GPIO mapping for newer version of software
-Date:   Mon, 16 Aug 2021 15:01:23 +0200
-Message-Id: <20210816125445.818990343@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Richard Fitzgerald <rf@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 054/151] ASoC: cs42l42: PLL must be running when changing MCLK_SRC_SEL
+Date:   Mon, 16 Aug 2021 15:01:24 +0200
+Message-Id: <20210816125445.849328391@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
 References: <20210816125444.082226187@linuxfoundation.org>
@@ -43,81 +41,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Richard Fitzgerald <rf@opensource.cirrus.com>
 
-[ Upstream commit 2f658f7a3953f6d70bab90e117aff8d0ad44e200 ]
+[ Upstream commit f1040e86f83b0f7d5f45724500a6a441731ff4b7 ]
 
-The software mapping for GPIO, which initially comes from Microsoft,
-is subject to change by respective Windows and firmware developers.
-Due to the above the driver had been written and published way ahead
-of the schedule, and thus the numbering schema used in it is outdated.
+Both SCLK and PLL clocks must be running to drive the glitch-free mux
+behind MCLK_SRC_SEL and complete the switchover.
 
-Fix the numbering schema in accordance with the real products on market.
+This patch moves the writing of MCLK_SRC_SEL to when the PLL is started
+and stopped, so that it only transitions while the PLL is running.
+The unconditional write MCLK_SRC_SEL=0 in cs42l42_mute_stream() is safe
+because if the PLL is not running MCLK_SRC_SEL is already 0.
 
-Fixes: 653d96455e1e ("pinctrl: tigerlake: Add support for Tiger Lake-H")
-Reported-and-tested-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Reported-by: Riccardo Mori <patacca@autistici.org>
-Reported-and-tested-by: Lovesh <lovesh.bond@gmail.com>
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=213463
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=213579
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=213857
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
+Fixes: 43fc357199f9 ("ASoC: cs42l42: Set clock source for both ways of stream")
+Link: https://lore.kernel.org/r/20210805161111.10410-1-rf@opensource.cirrus.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/intel/pinctrl-tigerlake.c | 26 +++++++++++------------
- 1 file changed, 13 insertions(+), 13 deletions(-)
+ sound/soc/codecs/cs42l42.c | 25 ++++++++++++++++++-------
+ sound/soc/codecs/cs42l42.h |  1 +
+ 2 files changed, 19 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/pinctrl/intel/pinctrl-tigerlake.c b/drivers/pinctrl/intel/pinctrl-tigerlake.c
-index 75b6d66955bf..3ddaeffc0415 100644
---- a/drivers/pinctrl/intel/pinctrl-tigerlake.c
-+++ b/drivers/pinctrl/intel/pinctrl-tigerlake.c
-@@ -701,32 +701,32 @@ static const struct pinctrl_pin_desc tglh_pins[] = {
+diff --git a/sound/soc/codecs/cs42l42.c b/sound/soc/codecs/cs42l42.c
+index 22d8c8d03308..7b102a05a1b6 100644
+--- a/sound/soc/codecs/cs42l42.c
++++ b/sound/soc/codecs/cs42l42.c
+@@ -609,6 +609,8 @@ static int cs42l42_pll_config(struct snd_soc_component *component)
  
- static const struct intel_padgroup tglh_community0_gpps[] = {
- 	TGL_GPP(0, 0, 24, 0),				/* GPP_A */
--	TGL_GPP(1, 25, 44, 128),			/* GPP_R */
--	TGL_GPP(2, 45, 70, 32),				/* GPP_B */
--	TGL_GPP(3, 71, 78, INTEL_GPIO_BASE_NOMAP),	/* vGPIO_0 */
-+	TGL_GPP(1, 25, 44, 32),				/* GPP_R */
-+	TGL_GPP(2, 45, 70, 64),				/* GPP_B */
-+	TGL_GPP(3, 71, 78, 96),				/* vGPIO_0 */
- };
+ 	for (i = 0; i < ARRAY_SIZE(pll_ratio_table); i++) {
+ 		if (pll_ratio_table[i].sclk == clk) {
++			cs42l42->pll_config = i;
++
+ 			/* Configure the internal sample rate */
+ 			snd_soc_component_update_bits(component, CS42L42_MCLK_CTL,
+ 					CS42L42_INTERNAL_FS_MASK,
+@@ -617,14 +619,9 @@ static int cs42l42_pll_config(struct snd_soc_component *component)
+ 					(pll_ratio_table[i].mclk_int !=
+ 					24000000)) <<
+ 					CS42L42_INTERNAL_FS_SHIFT);
+-			/* Set the MCLK src (PLL or SCLK) and the divide
+-			 * ratio
+-			 */
++
+ 			snd_soc_component_update_bits(component, CS42L42_MCLK_SRC_SEL,
+-					CS42L42_MCLK_SRC_SEL_MASK |
+ 					CS42L42_MCLKDIV_MASK,
+-					(pll_ratio_table[i].mclk_src_sel
+-					<< CS42L42_MCLK_SRC_SEL_SHIFT) |
+ 					(pll_ratio_table[i].mclk_div <<
+ 					CS42L42_MCLKDIV_SHIFT));
+ 			/* Set up the LRCLK */
+@@ -882,13 +879,21 @@ static int cs42l42_mute_stream(struct snd_soc_dai *dai, int mute, int stream)
+ 			 */
+ 			regmap_multi_reg_write(cs42l42->regmap, cs42l42_to_osc_seq,
+ 					       ARRAY_SIZE(cs42l42_to_osc_seq));
++
++			/* Must disconnect PLL before stopping it */
++			snd_soc_component_update_bits(component,
++						      CS42L42_MCLK_SRC_SEL,
++						      CS42L42_MCLK_SRC_SEL_MASK,
++						      0);
++			usleep_range(100, 200);
++
+ 			snd_soc_component_update_bits(component, CS42L42_PLL_CTL1,
+ 						      CS42L42_PLL_START_MASK, 0);
+ 		}
+ 	} else {
+ 		if (!cs42l42->stream_use) {
+ 			/* SCLK must be running before codec unmute */
+-			if ((cs42l42->bclk < 11289600) && (cs42l42->sclk < 11289600)) {
++			if (pll_ratio_table[cs42l42->pll_config].mclk_src_sel) {
+ 				snd_soc_component_update_bits(component, CS42L42_PLL_CTL1,
+ 							      CS42L42_PLL_START_MASK, 1);
  
- static const struct intel_padgroup tglh_community1_gpps[] = {
--	TGL_GPP(0, 79, 104, 96),			/* GPP_D */
--	TGL_GPP(1, 105, 128, 64),			/* GPP_C */
--	TGL_GPP(2, 129, 136, 160),			/* GPP_S */
--	TGL_GPP(3, 137, 153, 192),			/* GPP_G */
--	TGL_GPP(4, 154, 180, 224),			/* vGPIO */
-+	TGL_GPP(0, 79, 104, 128),			/* GPP_D */
-+	TGL_GPP(1, 105, 128, 160),			/* GPP_C */
-+	TGL_GPP(2, 129, 136, 192),			/* GPP_S */
-+	TGL_GPP(3, 137, 153, 224),			/* GPP_G */
-+	TGL_GPP(4, 154, 180, 256),			/* vGPIO */
- };
+@@ -909,6 +914,12 @@ static int cs42l42_mute_stream(struct snd_soc_dai *dai, int mute, int stream)
+ 							       CS42L42_PLL_LOCK_TIMEOUT_US);
+ 				if (ret < 0)
+ 					dev_warn(component->dev, "PLL failed to lock: %d\n", ret);
++
++				/* PLL must be running to drive glitchless switch logic */
++				snd_soc_component_update_bits(component,
++							      CS42L42_MCLK_SRC_SEL,
++							      CS42L42_MCLK_SRC_SEL_MASK,
++							      CS42L42_MCLK_SRC_SEL_MASK);
+ 			}
  
- static const struct intel_padgroup tglh_community3_gpps[] = {
--	TGL_GPP(0, 181, 193, 256),			/* GPP_E */
--	TGL_GPP(1, 194, 217, 288),			/* GPP_F */
-+	TGL_GPP(0, 181, 193, 288),			/* GPP_E */
-+	TGL_GPP(1, 194, 217, 320),			/* GPP_F */
- };
- 
- static const struct intel_padgroup tglh_community4_gpps[] = {
--	TGL_GPP(0, 218, 241, 320),			/* GPP_H */
-+	TGL_GPP(0, 218, 241, 352),			/* GPP_H */
- 	TGL_GPP(1, 242, 251, 384),			/* GPP_J */
--	TGL_GPP(2, 252, 266, 352),			/* GPP_K */
-+	TGL_GPP(2, 252, 266, 416),			/* GPP_K */
- };
- 
- static const struct intel_padgroup tglh_community5_gpps[] = {
--	TGL_GPP(0, 267, 281, 416),			/* GPP_I */
-+	TGL_GPP(0, 267, 281, 448),			/* GPP_I */
- 	TGL_GPP(1, 282, 290, INTEL_GPIO_BASE_NOMAP),	/* JTAG */
- };
- 
+ 			/* Mark SCLK as present, turn off internal oscillator */
+diff --git a/sound/soc/codecs/cs42l42.h b/sound/soc/codecs/cs42l42.h
+index 5384105afe50..38fd91a168ae 100644
+--- a/sound/soc/codecs/cs42l42.h
++++ b/sound/soc/codecs/cs42l42.h
+@@ -775,6 +775,7 @@ struct  cs42l42_private {
+ 	struct gpio_desc *reset_gpio;
+ 	struct completion pdn_done;
+ 	struct snd_soc_jack jack;
++	int pll_config;
+ 	int bclk;
+ 	u32 sclk;
+ 	u32 srate;
 -- 
 2.30.2
 
