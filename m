@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 041523ED684
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:23:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F4933ED696
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:23:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238797AbhHPNVw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:21:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43352 "EHLO mail.kernel.org"
+        id S239377AbhHPNWZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:22:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240682AbhHPNUC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:20:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DE422632CF;
-        Mon, 16 Aug 2021 13:15:23 +0000 (UTC)
+        id S240922AbhHPNUY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:20:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 581A763307;
+        Mon, 16 Aug 2021 13:15:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119724;
-        bh=PUxughzb1omkrIgHFWiJiaRECvWdnLUoFaMWyzy0txM=;
+        s=korg; t=1629119726;
+        bh=cmouDnjztEyz9OYzaUb+gAvvGR/ElZXxMDAvkLgME+c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hd2zonBW5aSbqm6Ha2nnVh0keEI9wlyptjcHph23ReYdzbsqLiC/ZC14lb1tr4bfY
-         aTbV/yORfx/kHgcnBaH/R40BRnDAOAUN0Gj37EPl62yKsxYXaabCtMRrMA4LaKzN75
-         s54j2uLYW3ft+o7sWuAq4o3SMGTWe1hlaLSRqAfQ=
+        b=vrVPC9xrZs8kRXA/B95ihncVS+uYtNgtgVzJv2q2+CJeN29wX/WQj1KSCW7Ylqdfw
+         FOvSw5+4v7cXmN89Dtoc8A7A8GPprP3KJBihYArlCxkbNQnv1U+jBRLzcwhThKKsqe
+         xfYk4YeZFyGcccCgwGlSeYrdYFDHaY+GRRxJiPwc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Finn Thain <fthain@linux-m68k.org>,
+        stable@vger.kernel.org,
         Christophe Leroy <christophe.leroy@csgroup.eu>,
         Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.13 138/151] powerpc/32s: Fix napping restore in data storage interrupt (DSI)
-Date:   Mon, 16 Aug 2021 15:02:48 +0200
-Message-Id: <20210816125448.610247853@linuxfoundation.org>
+Subject: [PATCH 5.13 139/151] powerpc/smp: Fix OOPS in topology_init()
+Date:   Mon, 16 Aug 2021 15:02:49 +0200
+Message-Id: <20210816125448.641034465@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
 References: <20210816125444.082226187@linuxfoundation.org>
@@ -42,35 +42,61 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-commit 62376365048878f770d8b7d11b89b8b3e18018f1 upstream.
+commit 8241461536f21bbe51308a6916d1c9fb2e6b75a7 upstream.
 
-When a DSI (Data Storage Interrupt) is taken while in NAP mode,
-r11 doesn't survive the call to power_save_ppc32_restore().
+Running an SMP kernel on an UP platform not prepared for it,
+I encountered the following OOPS:
 
-So use r1 instead of r11 as they both contain the virtual stack
-pointer at that point.
+	BUG: Kernel NULL pointer dereference on read at 0x00000034
+	Faulting instruction address: 0xc0a04110
+	Oops: Kernel access of bad area, sig: 11 [#1]
+	BE PAGE_SIZE=4K SMP NR_CPUS=2 CMPCPRO
+	Modules linked in:
+	CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.13.0-pmac-00001-g230fedfaad21 #5234
+	NIP:  c0a04110 LR: c0a040d8 CTR: c0a04084
+	REGS: e100dda0 TRAP: 0300   Not tainted  (5.13.0-pmac-00001-g230fedfaad21)
+	MSR:  00009032 <EE,ME,IR,DR,RI>  CR: 84000284  XER: 00000000
+	DAR: 00000034 DSISR: 20000000
+	GPR00: c0006bd4 e100de60 c1033320 00000000 00000000 c0942274 00000000 00000000
+	GPR08: 00000000 00000000 00000001 00000063 00000007 00000000 c0006f30 00000000
+	GPR16: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000005
+	GPR24: c0c67d74 c0c67f1c c0c60000 c0c67d70 c0c0c558 1efdf000 c0c00020 00000000
+	NIP [c0a04110] topology_init+0x8c/0x138
+	LR [c0a040d8] topology_init+0x54/0x138
+	Call Trace:
+	[e100de60] [80808080] 0x80808080 (unreliable)
+	[e100de90] [c0006bd4] do_one_initcall+0x48/0x1bc
+	[e100def0] [c0a0150c] kernel_init_freeable+0x1c8/0x278
+	[e100df20] [c0006f44] kernel_init+0x14/0x10c
+	[e100df30] [c00190fc] ret_from_kernel_thread+0x14/0x1c
+	Instruction dump:
+	7c692e70 7d290194 7c035040 7c7f1b78 5529103a 546706fe 5468103a 39400001
+	7c641b78 40800054 80c690b4 7fb9402e <81060034> 7fbeea14 2c080000 7fa3eb78
+	---[ end trace b246ffbc6bbbb6fb ]---
 
-Fixes: 4c0104a83fc3 ("powerpc/32: Dismantle EXC_XFER_STD/LITE/TEMPLATE")
-Cc: stable@vger.kernel.org # v5.13+
-Reported-by: Finn Thain <fthain@linux-m68k.org>
+Fix it by checking smp_ops before using it, as already done in
+several other places in the arch/powerpc/kernel/smp.c
+
+Fixes: 39f87561454d ("powerpc/smp: Move ppc_md.cpu_die() to smp_ops.cpu_offline_self()")
+Cc: stable@vger.kernel.org
 Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/731694e0885271f6ee9ffc179eb4bcee78313682.1628003562.git.christophe.leroy@csgroup.eu
+Link: https://lore.kernel.org/r/75287841cbb8740edd44880fe60be66d489160d9.1628097995.git.christophe.leroy@csgroup.eu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kernel/head_book3s_32.S |    2 +-
+ arch/powerpc/kernel/sysfs.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/powerpc/kernel/head_book3s_32.S
-+++ b/arch/powerpc/kernel/head_book3s_32.S
-@@ -300,7 +300,7 @@ ALT_MMU_FTR_SECTION_END_IFSET(MMU_FTR_HP
- 	EXCEPTION_PROLOG_1
- 	EXCEPTION_PROLOG_2 INTERRUPT_DATA_STORAGE DataAccess handle_dar_dsisr=1
- 	prepare_transfer_to_handler
--	lwz	r5, _DSISR(r11)
-+	lwz	r5, _DSISR(r1)
- 	andis.	r0, r5, DSISR_DABRMATCH@h
- 	bne-	1f
- 	bl	do_page_fault
+--- a/arch/powerpc/kernel/sysfs.c
++++ b/arch/powerpc/kernel/sysfs.c
+@@ -1167,7 +1167,7 @@ static int __init topology_init(void)
+ 		 * CPU.  For instance, the boot cpu might never be valid
+ 		 * for hotplugging.
+ 		 */
+-		if (smp_ops->cpu_offline_self)
++		if (smp_ops && smp_ops->cpu_offline_self)
+ 			c->hotpluggable = 1;
+ #endif
+ 
 
 
