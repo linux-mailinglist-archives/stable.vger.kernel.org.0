@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C156A3ED4D2
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:06:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDE413ED505
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:08:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237048AbhHPNFh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:05:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56810 "EHLO mail.kernel.org"
+        id S236915AbhHPNH0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:07:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237064AbhHPNFW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:05:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DCF2C632A6;
-        Mon, 16 Aug 2021 13:04:50 +0000 (UTC)
+        id S237308AbhHPNGP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:06:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F19C632A8;
+        Mon, 16 Aug 2021 13:05:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119091;
-        bh=Q6i3T57RX6TV9PUrnLivdr2WkPChCIv41a7zXyC6zxI=;
+        s=korg; t=1629119142;
+        bh=UDGrsDOzRgCA/grhzvmXw437X+dpszg1H4mzPRnPOHM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J1SGLO4RAW8w7/62oC6wfi6uJQwYROlZYHCPDBY2I/vlhlIUEtHWkBZy5K4QrTvYU
-         znsG6NCnrw5In366RIY4bkwmEJYQ6mw6d+9xYdz8hEmL1460i1EZQ5nxP/jdMpxHjr
-         JGUXMBxlxfacXmfIJtX60ME1sPbpuKx6NgGuqxx8=
+        b=ZT4bUw3Hf39+3O7fstQKI2hV8yuiye0bxRrb5TgORyw61nk52aS5+0f+FrPYIm5PL
+         02oXZyPsCu8Hyjl2mHlU0xuDnW/oOKdmRYi61oAqSq1OaGLl9nSHC+EscTokMcMIN7
+         3mrAKDbvT2YErpIs+y+oUr8sf6T5SSZYWvlelYiA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bixuan Cui <cuibixuan@huawei.com>,
+        stable@vger.kernel.org, Ben Dai <ben.dai@unisoc.com>,
         Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 5.4 47/62] genirq/msi: Ensure deactivation on teardown
-Date:   Mon, 16 Aug 2021 15:02:19 +0200
-Message-Id: <20210816125429.820363920@linuxfoundation.org>
+Subject: [PATCH 5.4 48/62] genirq/timings: Prevent potential array overflow in __irq_timings_store()
+Date:   Mon, 16 Aug 2021 15:02:20 +0200
+Message-Id: <20210816125429.857450393@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210816125428.198692661@linuxfoundation.org>
 References: <20210816125428.198692661@linuxfoundation.org>
@@ -39,60 +39,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bixuan Cui <cuibixuan@huawei.com>
+From: Ben Dai <ben.dai@unisoc.com>
 
-commit dbbc93576e03fbe24b365fab0e901eb442237a8a upstream.
+commit b9cc7d8a4656a6e815852c27ab50365009cb69c1 upstream.
 
-msi_domain_alloc_irqs() invokes irq_domain_activate_irq(), but
-msi_domain_free_irqs() does not enforce deactivation before tearing down
-the interrupts.
+When the interrupt interval is greater than 2 ^ PREDICTION_BUFFER_SIZE *
+PREDICTION_FACTOR us and less than 1s, the calculated index will be greater
+than the length of irqs->ema_time[]. Check the calculated index before
+using it to prevent array overflow.
 
-This happens when PCI/MSI interrupts are set up and never used before being
-torn down again, e.g. in error handling pathes. The only place which cleans
-that up is the error handling path in msi_domain_alloc_irqs().
-
-Move the cleanup from msi_domain_alloc_irqs() into msi_domain_free_irqs()
-to cure that.
-
-Fixes: f3b0946d629c ("genirq/msi: Make sure PCI MSIs are activated early")
-Signed-off-by: Bixuan Cui <cuibixuan@huawei.com>
+Fixes: 23aa3b9a6b7d ("genirq/timings: Encapsulate storing function")
+Signed-off-by: Ben Dai <ben.dai@unisoc.com>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210518033117.78104-1-cuibixuan@huawei.com
+Link: https://lore.kernel.org/r/20210425150903.25456-1-ben.dai9703@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/irq/msi.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ kernel/irq/timings.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/kernel/irq/msi.c
-+++ b/kernel/irq/msi.c
-@@ -477,11 +477,6 @@ skip_activate:
- 	return 0;
+--- a/kernel/irq/timings.c
++++ b/kernel/irq/timings.c
+@@ -453,6 +453,11 @@ static __always_inline void __irq_timing
+ 	 */
+ 	index = irq_timings_interval_index(interval);
  
- cleanup:
--	for_each_msi_vector(desc, i, dev) {
--		irq_data = irq_domain_get_irq_data(domain, i);
--		if (irqd_is_activated(irq_data))
--			irq_domain_deactivate_irq(irq_data);
--	}
- 	msi_domain_free_irqs(domain, dev);
- 	return ret;
- }
-@@ -494,7 +489,15 @@ cleanup:
-  */
- void msi_domain_free_irqs(struct irq_domain *domain, struct device *dev)
- {
-+	struct irq_data *irq_data;
- 	struct msi_desc *desc;
-+	int i;
-+
-+	for_each_msi_vector(desc, i, dev) {
-+		irq_data = irq_domain_get_irq_data(domain, i);
-+		if (irqd_is_activated(irq_data))
-+			irq_domain_deactivate_irq(irq_data);
++	if (index > PREDICTION_BUFFER_SIZE - 1) {
++		irqs->count = 0;
++		return;
 +	}
- 
- 	for_each_msi_entry(desc, dev) {
- 		/*
++
+ 	/*
+ 	 * Store the index as an element of the pattern in another
+ 	 * circular array.
 
 
