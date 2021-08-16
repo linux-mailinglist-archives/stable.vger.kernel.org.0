@@ -2,61 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BF973EDDE6
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 21:30:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 782CE3EDDEA
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 21:31:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229699AbhHPTbF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 15:31:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38242 "EHLO mail.kernel.org"
+        id S230118AbhHPTcD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 15:32:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229587AbhHPTbE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 15:31:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 79E5860E76;
-        Mon, 16 Aug 2021 19:30:32 +0000 (UTC)
+        id S229587AbhHPTcD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 15:32:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D2C6060F41;
+        Mon, 16 Aug 2021 19:31:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629142233;
-        bh=DxEqcZW45zJUiMURvvvNQVHFj6LuwzgYwo1VSNLXGhY=;
+        s=korg; t=1629142291;
+        bh=9VaxF6jVusxISKrl+DoxFH9PV6Q/wbOarU5+TUjcbCg=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Hvtr5MIkxxgr5073QkCcZFdDYqpdP/RHj8iXn8/QKtmkDC7594BkCEmCWN+hbf3DD
-         h7/UH4Uv0mcnoYFaJFoCJqly8+OaS+kse4KYpsZ5W7nfQwJXR70SumjdSxfUxvcGXo
-         h/zdWaPcJKkeQA7YAI1m4Jzl+HOapR0D+hK+xwKQ=
-Date:   Mon, 16 Aug 2021 21:30:30 +0200
+        b=UxyWzKJuCStklyEI4oOGdmfYjlFW7VqOInRhPrY9SZv+PRNewhH8mhVZDA02SWUUo
+         ygXcrXlQ/cCuPkaIhDDi6C9SUca6omB2spOHJB9NkVeGFBKSuU/WzpITTJT2Z3lrr7
+         ebmwo5WdyPVtHBIck3fMcV3RA7vD3wxyEC488fIU=
+Date:   Mon, 16 Aug 2021 21:31:28 +0200
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     David Chen <david.chen@nutanix.com>
-Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
-        "neeraju@codeaurora.org" <neeraju@codeaurora.org>
-Subject: Re: Request for backport fd6bc19d7676 to 4.14 and 4.19 branch
-Message-ID: <YRq81jcZIH5+/ZpB@kroah.com>
-References: <CO1PR02MB8489A10983A22C72447EEB5C94FD9@CO1PR02MB8489.namprd02.prod.outlook.com>
+To:     Georgi Djakov <djakov@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Mike Tipton <mdtipton@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.13 046/151] interconnect: qcom: icc-rpmh: Add BCMs to
+ commit list in pre_aggregate
+Message-ID: <YRq9EHuOsgqAUFdo@kroah.com>
+References: <20210816125444.082226187@linuxfoundation.org>
+ <20210816125445.588155407@linuxfoundation.org>
+ <56b19dc0-b5b0-accb-956d-1a817444ca04@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CO1PR02MB8489A10983A22C72447EEB5C94FD9@CO1PR02MB8489.namprd02.prod.outlook.com>
+In-Reply-To: <56b19dc0-b5b0-accb-956d-1a817444ca04@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 16, 2021 at 07:19:34PM +0000, David Chen wrote:
-> Hi Greg,
+On Mon, Aug 16, 2021 at 08:17:52PM +0300, Georgi Djakov wrote:
+> On 16.08.21 16:01, Greg Kroah-Hartman wrote:
+> > From: Mike Tipton <mdtipton@codeaurora.org>
+> > 
+> > [ Upstream commit f84f5b6f72e68bbaeb850b58ac167e4a3a47532a ]
+> > 
+> > We're only adding BCMs to the commit list in aggregate(), but there are
+> > cases where pre_aggregate() is called without subsequently calling
+> > aggregate(). In particular, in icc_sync_state() when a node with initial
+> > BW has zero requests. Since BCMs aren't added to the commit list in
+> > these cases, we don't actually send the zero BW request to HW. So the
+> > resources remain on unnecessarily.
+> > 
+> > Add BCMs to the commit list in pre_aggregate() instead, which is always
+> > called even when there are no requests.
+> > 
+> > Fixes: 976daac4a1c5 ("interconnect: qcom: Consolidate interconnect RPMh support")
+> > Signed-off-by: Mike Tipton <mdtipton@codeaurora.org>
+> > Link: https://lore.kernel.org/r/20210721175432.2119-5-mdtipton@codeaurora.org
+> > Signed-off-by: Georgi Djakov <djakov@kernel.org>
+> > Signed-off-by: Sasha Levin <sashal@kernel.org>
 > 
-> We recently hit a hung task timeout issue in synchronize_rcu_expedited on 4.14 branch.
-> The issue seems to be identical to the one described in `fd6bc19d7676 rcu: Fix missed wakeup of exp_wq waiters`
-> Can we backport it to 4.14 and 4.19 branch?
-> The patch doesn't apply cleanly, but it should be trivial to resolve, just do this
+> Hello Greg and Sasha,
 > 
-> -		wake_up_all(&rnp->exp_wq[rcu_seq_ctr(rsp->expedited_sequence) & 0x3]);
-> +		wake_up_all(&rnp->exp_wq[rcu_seq_ctr(s) & 0x3]);
-> 
-> I don't know if we should do it for 4.9, because the handling of sequence number is a bit different.
+> Please drop this patch from both 5.10 and 5.13 stable queues. It's
+> causing issues on some platforms and we are reverting in. Revert is
+> in linux-next already.
 
-Please provide a working backport, me hand-editing patches does not
-scale, and this way you get the proper credit for backporting it (after
-testing it).
-
-You have tested, this, right?
-
-thanks,
+Now dropped, thanks.
 
 greg k-h
