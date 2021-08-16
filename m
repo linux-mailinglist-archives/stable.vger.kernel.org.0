@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B4613ED617
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:17:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFCE23ED63B
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:22:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240404AbhHPNQr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:16:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39406 "EHLO mail.kernel.org"
+        id S238955AbhHPNSk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:18:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43166 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238297AbhHPNPN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:15:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 606DC6113D;
-        Mon, 16 Aug 2021 13:12:47 +0000 (UTC)
+        id S239049AbhHPNQg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:16:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B982F632E4;
+        Mon, 16 Aug 2021 13:13:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119567;
-        bh=JhelQhtwuCqkEfrHns4q/vxEWd0Pk6rq+iGNKUCEvkc=;
+        s=korg; t=1629119597;
+        bh=TaSE+unLzgLg7f1u4cmFONmjh7OpAykzrDopjli2hNs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x+w6cuMeekUUz/7Z7Rd/KGVSHTabPCM+zOL/+mUuAInx5L2cGNrNBcSdv/z8qihiV
-         K1rVTkwj1YYxinVkkG+TXhaCOR4vMZ+oeYCF1n4tg227652IsGcpGqIi0e8W3c6C0I
-         8fctcgLJZgbfviR5qr5qVr3O6mNtwLdQKzYOZa/M=
+        b=ReZ24PqjfU0offX+gMvXNOldo1cvK2/cNmsXV3Qmd1GAcHNQFjnYfDIxkfSOUFL76
+         BIStRzmRlYw+wS5Oaz8daxU62VfVh2Cw1yCVZFZY7o5a57wTXs94JiEjGWKjWtwuK0
+         xYLBwQ5YR94dldcIcPqeiaEGLKUg63eqz9vR9wWM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, Ammy Yi <ammy.yi@intel.com>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Andi Kleen <ak@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 059/151] platform/x86: pcengines-apuv2: Add missing terminating entries to gpio-lookup tables
-Date:   Mon, 16 Aug 2021 15:01:29 +0200
-Message-Id: <20210816125446.008986140@linuxfoundation.org>
+Subject: [PATCH 5.13 060/151] perf/x86/intel: Apply mid ACK for small core
+Date:   Mon, 16 Aug 2021 15:01:30 +0200
+Message-Id: <20210816125446.041122020@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
 References: <20210816125444.082226187@linuxfoundation.org>
@@ -39,47 +42,173 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Kan Liang <kan.liang@linux.intel.com>
 
-[ Upstream commit 9d7b132e62e41b7d49bf157aeaf9147c27492e0f ]
+[ Upstream commit acade6379930dfa7987f4bd9b26d1a701cc1b542 ]
 
-The gpiod_lookup_table.table passed to gpiod_add_lookup_table() must
-be terminated with an empty entry, add this.
+A warning as below may be occasionally triggered in an ADL machine when
+these conditions occur:
 
-Note we have likely been getting away with this not being present because
-the GPIO lookup code first matches on the dev_id, causing most lookups to
-skip checking the table and the lookups which do check the table will
-find a matching entry before reaching the end. With that said, terminating
-these tables properly still is obviously the correct thing to do.
+ - Two perf record commands run one by one. Both record a PEBS event.
+ - Both runs on small cores.
+ - They have different adaptive PEBS configuration (PEBS_DATA_CFG).
 
-Fixes: f8eb0235f659 ("x86: pcengines apuv2 gpio/leds/keys platform driver")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20210806115515.12184-1-hdegoede@redhat.com
+  [ ] WARNING: CPU: 4 PID: 9874 at arch/x86/events/intel/ds.c:1743 setup_pebs_adaptive_sample_data+0x55e/0x5b0
+  [ ] RIP: 0010:setup_pebs_adaptive_sample_data+0x55e/0x5b0
+  [ ] Call Trace:
+  [ ]  <NMI>
+  [ ]  intel_pmu_drain_pebs_icl+0x48b/0x810
+  [ ]  perf_event_nmi_handler+0x41/0x80
+  [ ]  </NMI>
+  [ ]  __perf_event_task_sched_in+0x2c2/0x3a0
+
+Different from the big core, the small core requires the ACK right
+before re-enabling counters in the NMI handler, otherwise a stale PEBS
+record may be dumped into the later NMI handler, which trigger the
+warning.
+
+Add a new mid_ack flag to track the case. Add all PMI handler bits in
+the struct x86_hybrid_pmu to track the bits for different types of
+PMUs.  Apply mid ACK for the small cores on an Alder Lake machine.
+
+The existing hybrid() macro has a compile error when taking address of
+a bit-field variable. Add a new macro hybrid_bit() to get the
+bit-field value of a given PMU.
+
+Fixes: f83d2f91d259 ("perf/x86/intel: Add Alder Lake Hybrid support")
+Reported-by: Ammy Yi <ammy.yi@intel.com>
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Andi Kleen <ak@linux.intel.com>
+Tested-by: Ammy Yi <ammy.yi@intel.com>
+Link: https://lkml.kernel.org/r/1627997128-57891-1-git-send-email-kan.liang@linux.intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/pcengines-apuv2.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/x86/events/intel/core.c | 23 +++++++++++++++--------
+ arch/x86/events/perf_event.h | 15 +++++++++++++++
+ 2 files changed, 30 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/platform/x86/pcengines-apuv2.c b/drivers/platform/x86/pcengines-apuv2.c
-index c37349f97bb8..d063d91db9bc 100644
---- a/drivers/platform/x86/pcengines-apuv2.c
-+++ b/drivers/platform/x86/pcengines-apuv2.c
-@@ -94,6 +94,7 @@ static struct gpiod_lookup_table gpios_led_table = {
- 				NULL, 1, GPIO_ACTIVE_LOW),
- 		GPIO_LOOKUP_IDX(AMD_FCH_GPIO_DRIVER_NAME, APU2_GPIO_LINE_LED3,
- 				NULL, 2, GPIO_ACTIVE_LOW),
-+		{} /* Terminating entry */
- 	}
+diff --git a/arch/x86/events/intel/core.c b/arch/x86/events/intel/core.c
+index d76be3bba11e..511d1f9a9bf8 100644
+--- a/arch/x86/events/intel/core.c
++++ b/arch/x86/events/intel/core.c
+@@ -2904,24 +2904,28 @@ static int handle_pmi_common(struct pt_regs *regs, u64 status)
+  */
+ static int intel_pmu_handle_irq(struct pt_regs *regs)
+ {
+-	struct cpu_hw_events *cpuc;
++	struct cpu_hw_events *cpuc = this_cpu_ptr(&cpu_hw_events);
++	bool late_ack = hybrid_bit(cpuc->pmu, late_ack);
++	bool mid_ack = hybrid_bit(cpuc->pmu, mid_ack);
+ 	int loops;
+ 	u64 status;
+ 	int handled;
+ 	int pmu_enabled;
+ 
+-	cpuc = this_cpu_ptr(&cpu_hw_events);
+-
+ 	/*
+ 	 * Save the PMU state.
+ 	 * It needs to be restored when leaving the handler.
+ 	 */
+ 	pmu_enabled = cpuc->enabled;
+ 	/*
+-	 * No known reason to not always do late ACK,
+-	 * but just in case do it opt-in.
++	 * In general, the early ACK is only applied for old platforms.
++	 * For the big core starts from Haswell, the late ACK should be
++	 * applied.
++	 * For the small core after Tremont, we have to do the ACK right
++	 * before re-enabling counters, which is in the middle of the
++	 * NMI handler.
+ 	 */
+-	if (!x86_pmu.late_ack)
++	if (!late_ack && !mid_ack)
+ 		apic_write(APIC_LVTPC, APIC_DM_NMI);
+ 	intel_bts_disable_local();
+ 	cpuc->enabled = 0;
+@@ -2958,6 +2962,8 @@ again:
+ 		goto again;
+ 
+ done:
++	if (mid_ack)
++		apic_write(APIC_LVTPC, APIC_DM_NMI);
+ 	/* Only restore PMU state when it's active. See x86_pmu_disable(). */
+ 	cpuc->enabled = pmu_enabled;
+ 	if (pmu_enabled)
+@@ -2969,7 +2975,7 @@ done:
+ 	 * have been reset. This avoids spurious NMIs on
+ 	 * Haswell CPUs.
+ 	 */
+-	if (x86_pmu.late_ack)
++	if (late_ack)
+ 		apic_write(APIC_LVTPC, APIC_DM_NMI);
+ 	return handled;
+ }
+@@ -6123,7 +6129,6 @@ __init int intel_pmu_init(void)
+ 		static_branch_enable(&perf_is_hybrid);
+ 		x86_pmu.num_hybrid_pmus = X86_HYBRID_NUM_PMUS;
+ 
+-		x86_pmu.late_ack = true;
+ 		x86_pmu.pebs_aliases = NULL;
+ 		x86_pmu.pebs_prec_dist = true;
+ 		x86_pmu.pebs_block = true;
+@@ -6161,6 +6166,7 @@ __init int intel_pmu_init(void)
+ 		pmu = &x86_pmu.hybrid_pmu[X86_HYBRID_PMU_CORE_IDX];
+ 		pmu->name = "cpu_core";
+ 		pmu->cpu_type = hybrid_big;
++		pmu->late_ack = true;
+ 		if (cpu_feature_enabled(X86_FEATURE_HYBRID_CPU)) {
+ 			pmu->num_counters = x86_pmu.num_counters + 2;
+ 			pmu->num_counters_fixed = x86_pmu.num_counters_fixed + 1;
+@@ -6186,6 +6192,7 @@ __init int intel_pmu_init(void)
+ 		pmu = &x86_pmu.hybrid_pmu[X86_HYBRID_PMU_ATOM_IDX];
+ 		pmu->name = "cpu_atom";
+ 		pmu->cpu_type = hybrid_small;
++		pmu->mid_ack = true;
+ 		pmu->num_counters = x86_pmu.num_counters;
+ 		pmu->num_counters_fixed = x86_pmu.num_counters_fixed;
+ 		pmu->max_pebs_events = x86_pmu.max_pebs_events;
+diff --git a/arch/x86/events/perf_event.h b/arch/x86/events/perf_event.h
+index 2938c902ffbe..e3ac05c97b5e 100644
+--- a/arch/x86/events/perf_event.h
++++ b/arch/x86/events/perf_event.h
+@@ -656,6 +656,10 @@ struct x86_hybrid_pmu {
+ 	struct event_constraint		*event_constraints;
+ 	struct event_constraint		*pebs_constraints;
+ 	struct extra_reg		*extra_regs;
++
++	unsigned int			late_ack	:1,
++					mid_ack		:1,
++					enabled_ack	:1;
  };
  
-@@ -123,6 +124,7 @@ static struct gpiod_lookup_table gpios_key_table = {
- 	.table = {
- 		GPIO_LOOKUP_IDX(AMD_FCH_GPIO_DRIVER_NAME, APU2_GPIO_LINE_MODESW,
- 				NULL, 0, GPIO_ACTIVE_LOW),
-+		{} /* Terminating entry */
- 	}
- };
+ static __always_inline struct x86_hybrid_pmu *hybrid_pmu(struct pmu *pmu)
+@@ -686,6 +690,16 @@ extern struct static_key_false perf_is_hybrid;
+ 	__Fp;						\
+ }))
  
++#define hybrid_bit(_pmu, _field)			\
++({							\
++	bool __Fp = x86_pmu._field;			\
++							\
++	if (is_hybrid() && (_pmu))			\
++		__Fp = hybrid_pmu(_pmu)->_field;	\
++							\
++	__Fp;						\
++})
++
+ enum hybrid_pmu_type {
+ 	hybrid_big		= 0x40,
+ 	hybrid_small		= 0x20,
+@@ -755,6 +769,7 @@ struct x86_pmu {
+ 
+ 	/* PMI handler bits */
+ 	unsigned int	late_ack		:1,
++			mid_ack			:1,
+ 			enabled_ack		:1;
+ 	/*
+ 	 * sysfs attrs
 -- 
 2.30.2
 
