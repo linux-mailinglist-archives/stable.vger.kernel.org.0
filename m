@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DC893ED57C
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:12:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 345E23ED6A5
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:23:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238122AbhHPNLj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:11:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58932 "EHLO mail.kernel.org"
+        id S240269AbhHPNWr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:22:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44620 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239562AbhHPNJ4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:09:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A461F604DC;
-        Mon, 16 Aug 2021 13:09:24 +0000 (UTC)
+        id S239143AbhHPNUi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:20:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B7976632D7;
+        Mon, 16 Aug 2021 13:16:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119365;
-        bh=SiPgRGHbGQySDNfy3OJn4o1z2BoGp7oudsaI9vqwVuA=;
+        s=korg; t=1629119773;
+        bh=CQPa6/KH6PbEg7Z197VJoGm5du56w/Mr37A6Ie7iXgo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k0GCCW9t1JW81lWUB8//bRldhQw/hLp/idfLkacYhEU0sryQHtwiG+J6K4Gd8Pod2
-         FeGxZf4qv3lYp5MuzVOvPKHRF2BD2JukqNwqsi+5NqBM5zwqMVt64bWf6daV9NcMAs
-         EdasAU4eju0/5JxDmHCPR4gQ+cXvlart4tgKTH4U=
+        b=UaFE2HSBj8bxaEOx76orybdHBMNgzqQSzhtWPC8GxoCvQu4S0ZlwSzVKzjZPGw1IL
+         B8z9RLA+yVddEwJp9umyvACzOCWHekYqICHg/tR5QQyJtJvZO4js9yxE6wB2S+zdPc
+         U/M6UnwQMNPpBGYNxU4sdY3JqqyxE7WupCf77P5Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeff Layton <jlayton@kernel.org>,
-        Ilya Dryomov <idryomov@gmail.com>
-Subject: [PATCH 5.10 94/96] ceph: clean up locking annotation for ceph_get_snap_realm and __lookup_snap_realm
-Date:   Mon, 16 Aug 2021 15:02:44 +0200
-Message-Id: <20210816125438.114351211@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.13 135/151] PCI/MSI: Protect msi_desc::masked for multi-MSI
+Date:   Mon, 16 Aug 2021 15:02:45 +0200
+Message-Id: <20210816125448.502424429@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125434.948010115@linuxfoundation.org>
-References: <20210816125434.948010115@linuxfoundation.org>
+In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
+References: <20210816125444.082226187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,61 +39,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Layton <jlayton@kernel.org>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit df2c0cb7f8e8c83e495260ad86df8c5da947f2a7 upstream.
+commit 77e89afc25f30abd56e76a809ee2884d7c1b63ce upstream.
 
-They both say that the snap_rwsem must be held for write, but I don't
-see any real reason for it, and it's not currently always called that
-way.
+Multi-MSI uses a single MSI descriptor and there is a single mask register
+when the device supports per vector masking. To avoid reading back the mask
+register the value is cached in the MSI descriptor and updates are done by
+clearing and setting bits in the cache and writing it to the device.
 
-The lookup is just walking the rbtree, so holding it for read should be
-fine there. The "get" is bumping the refcount and (possibly) removing
-it from the empty list. I see no need to hold the snap_rwsem for write
-for that.
+But nothing protects msi_desc::masked and the mask register from being
+modified concurrently on two different CPUs for two different Linux
+interrupts which belong to the same multi-MSI descriptor.
 
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Reviewed-by: Ilya Dryomov <idryomov@gmail.com>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Add a lock to struct device and protect any operation on the mask and the
+mask register with it.
+
+This makes the update of msi_desc::masked unconditional, but there is no
+place which requires a modification of the hardware register without
+updating the masked cache.
+
+msi_mask_irq() is now an empty wrapper which will be cleaned up in follow
+up changes.
+
+The problem goes way back to the initial support of multi-MSI, but picking
+the commit which introduced the mask cache is a valid cut off point
+(2.6.30).
+
+Fixes: f2440d9acbe8 ("PCI MSI: Refactor interrupt masking code")
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Marc Zyngier <maz@kernel.org>
+Reviewed-by: Marc Zyngier <maz@kernel.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210729222542.726833414@linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ceph/snap.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/base/core.c    |    1 +
+ drivers/pci/msi.c      |   19 ++++++++++---------
+ include/linux/device.h |    1 +
+ include/linux/msi.h    |    2 +-
+ 4 files changed, 13 insertions(+), 10 deletions(-)
 
---- a/fs/ceph/snap.c
-+++ b/fs/ceph/snap.c
-@@ -60,12 +60,12 @@
- /*
-  * increase ref count for the realm
-  *
-- * caller must hold snap_rwsem for write.
-+ * caller must hold snap_rwsem.
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -2809,6 +2809,7 @@ void device_initialize(struct device *de
+ 	device_pm_init(dev);
+ 	set_dev_node(dev, -1);
+ #ifdef CONFIG_GENERIC_MSI_IRQ
++	raw_spin_lock_init(&dev->msi_lock);
+ 	INIT_LIST_HEAD(&dev->msi_list);
+ #endif
+ 	INIT_LIST_HEAD(&dev->links.consumers);
+--- a/drivers/pci/msi.c
++++ b/drivers/pci/msi.c
+@@ -143,24 +143,25 @@ static inline __attribute_const__ u32 ms
+  * reliably as devices without an INTx disable bit will then generate a
+  * level IRQ which will never be cleared.
   */
- void ceph_get_snap_realm(struct ceph_mds_client *mdsc,
- 			 struct ceph_snap_realm *realm)
+-u32 __pci_msi_desc_mask_irq(struct msi_desc *desc, u32 mask, u32 flag)
++void __pci_msi_desc_mask_irq(struct msi_desc *desc, u32 mask, u32 flag)
  {
--	lockdep_assert_held_write(&mdsc->snap_rwsem);
-+	lockdep_assert_held(&mdsc->snap_rwsem);
+-	u32 mask_bits = desc->masked;
++	raw_spinlock_t *lock = &desc->dev->msi_lock;
++	unsigned long flags;
  
- 	dout("get_realm %p %d -> %d\n", realm,
- 	     atomic_read(&realm->nref), atomic_read(&realm->nref)+1);
-@@ -139,7 +139,7 @@ static struct ceph_snap_realm *ceph_crea
- /*
-  * lookup the realm rooted at @ino.
-  *
-- * caller must hold snap_rwsem for write.
-+ * caller must hold snap_rwsem.
-  */
- static struct ceph_snap_realm *__lookup_snap_realm(struct ceph_mds_client *mdsc,
- 						   u64 ino)
-@@ -147,7 +147,7 @@ static struct ceph_snap_realm *__lookup_
- 	struct rb_node *n = mdsc->snap_realms.rb_node;
- 	struct ceph_snap_realm *r;
+ 	if (pci_msi_ignore_mask || !desc->msi_attrib.maskbit)
+-		return 0;
++		return;
  
--	lockdep_assert_held_write(&mdsc->snap_rwsem);
-+	lockdep_assert_held(&mdsc->snap_rwsem);
+-	mask_bits &= ~mask;
+-	mask_bits |= flag;
++	raw_spin_lock_irqsave(lock, flags);
++	desc->masked &= ~mask;
++	desc->masked |= flag;
+ 	pci_write_config_dword(msi_desc_to_pci_dev(desc), desc->mask_pos,
+-			       mask_bits);
+-
+-	return mask_bits;
++			       desc->masked);
++	raw_spin_unlock_irqrestore(lock, flags);
+ }
  
- 	while (n) {
- 		r = rb_entry(n, struct ceph_snap_realm, node);
+ static void msi_mask_irq(struct msi_desc *desc, u32 mask, u32 flag)
+ {
+-	desc->masked = __pci_msi_desc_mask_irq(desc, mask, flag);
++	__pci_msi_desc_mask_irq(desc, mask, flag);
+ }
+ 
+ static void __iomem *pci_msix_desc_addr(struct msi_desc *desc)
+--- a/include/linux/device.h
++++ b/include/linux/device.h
+@@ -496,6 +496,7 @@ struct device {
+ 	struct dev_pin_info	*pins;
+ #endif
+ #ifdef CONFIG_GENERIC_MSI_IRQ
++	raw_spinlock_t		msi_lock;
+ 	struct list_head	msi_list;
+ #endif
+ #ifdef CONFIG_DMA_OPS
+--- a/include/linux/msi.h
++++ b/include/linux/msi.h
+@@ -233,7 +233,7 @@ void __pci_read_msi_msg(struct msi_desc
+ void __pci_write_msi_msg(struct msi_desc *entry, struct msi_msg *msg);
+ 
+ u32 __pci_msix_desc_mask_irq(struct msi_desc *desc, u32 flag);
+-u32 __pci_msi_desc_mask_irq(struct msi_desc *desc, u32 mask, u32 flag);
++void __pci_msi_desc_mask_irq(struct msi_desc *desc, u32 mask, u32 flag);
+ void pci_msi_mask_irq(struct irq_data *data);
+ void pci_msi_unmask_irq(struct irq_data *data);
+ 
 
 
