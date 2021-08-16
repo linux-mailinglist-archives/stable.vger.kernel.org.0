@@ -2,90 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 867C03EDFE9
-	for <lists+stable@lfdr.de>; Tue, 17 Aug 2021 00:25:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6B013EDFFF
+	for <lists+stable@lfdr.de>; Tue, 17 Aug 2021 00:38:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232191AbhHPWZj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 18:25:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34358 "EHLO
+        id S232473AbhHPWib (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 18:38:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232067AbhHPWZi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Aug 2021 18:25:38 -0400
-Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFD04C061764;
-        Mon, 16 Aug 2021 15:25:06 -0700 (PDT)
-Received: by mail-pl1-x630.google.com with SMTP id n12so21664507plf.4;
-        Mon, 16 Aug 2021 15:25:06 -0700 (PDT)
+        with ESMTP id S232448AbhHPWib (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Aug 2021 18:38:31 -0400
+Received: from mail-lj1-x230.google.com (mail-lj1-x230.google.com [IPv6:2a00:1450:4864:20::230])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4177C0613C1
+        for <stable@vger.kernel.org>; Mon, 16 Aug 2021 15:37:58 -0700 (PDT)
+Received: by mail-lj1-x230.google.com with SMTP id h17so29611437ljh.13
+        for <stable@vger.kernel.org>; Mon, 16 Aug 2021 15:37:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=2RqMzcD4UvwGiyZx79RUBWTeM+cyC6B7TUrlBteeegw=;
-        b=BuKRfAITTzvbgx2v6yV/j0wfE38BmqoVuXryxRQ0asMPHjikvlvup+mXzJZBs8N6/I
-         /GZGZ6n6l65jVkz8mblmBibLT+Q51Sw2dzkDhM8BDncGkiWuulUroauvSeTgiEyGFvMC
-         1fk7cIlhZ16aEudxxOCYnq87oHMvowS33vuyTyBV5ItlQRewAvCcpju4PAowAyQEx/+f
-         J/Ca++fRYNvCNLi8wM4bS7rFCQP9Uiy3W7kZEd0rCSanXiyiYMMq/wdPz0azfU8fTuCN
-         BHImN6nAUne3FYvlaYhDmuSfzd/y6vlRdDkVF9DrzjBM1SOS6IBW7Le15D69+OG1Sqr4
-         lfzQ==
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=39HL+1BSTEP9McF8N5wJpHZqTmDxGof61S5w7T18t2c=;
+        b=PIs+rFO4pY8Mv2zPiP7V6q/9YBvqlbSQNI7cVts9VvV0Hz3CkLMBnig1HrU7GnFYCE
+         O0Q4VRNvYIVl119B7gJPknlTEUx+o0PWLDRPKeaE+JF0RKf6O01d+ztmYDR3LJ/5BZLK
+         7aYlfzKganWO6Zz/nbb5QGdMwAmcFJ7YNW/EFtn8uVSguA0SKqkNu7u1yTFx760GaryM
+         pJugUZKI8rd1dAmUwiCsf1Wm7L2TAcWTw/LSngxpoeua5nKPQoWX0dspsKulFQ0ntlCj
+         QRhfsrxl6bi0Yqc0tXysl1ZoKWnjIEYeZMQHApP5C6ATdIyZ1qR+GBZy/BCrs8N5He8N
+         H69w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=2RqMzcD4UvwGiyZx79RUBWTeM+cyC6B7TUrlBteeegw=;
-        b=CGnDamTJa+jtLR5+KOiSuW/HYwnVYY0/obUkDcj2vx57GcAEKPZgLV/ILZ1oOuVvSk
-         FGQpv7GIOYLEmnFpqfaKG3y6KoHkAWiRk71/ExOWT0b4a7rqxFFKy8nFc3sYgeZ9YXwI
-         tPIoaeaVqfXRu3liN8dZDV5csTnaqMjtSnrgBvyTwUFikW80eypD/yr/HFK7uGadn8GJ
-         6zvz4+8Aa5zR0TWyLs18fk2CdWStKZHhFQU74QnWZC1ano+jIMzsZFK4eCcT1pKVKuh2
-         ELSMARVq+fkO6qCspUfUED3EtfIG5oH6rBLWZzmfe9t5YVb0E+MD82jmotO6srX2O833
-         CISQ==
-X-Gm-Message-State: AOAM533SVFVgHFgJuGFJw8Y2GvoHnT9yFPcPK/cbxYq6iBuqn4ElE2Dd
-        bH8mxpg+ZUkB0y0HTWGXZJh0H4GTu4DBpiaY1R4=
-X-Google-Smtp-Source: ABdhPJwjn6+ZqwunRb349Qwtid5aLjnGUIseYXeT34LE4XOgyXImdTgtqph6YtY3/Fdwk/wOWjCldg==
-X-Received: by 2002:a17:903:22cd:b0:12d:8876:eea7 with SMTP id y13-20020a17090322cd00b0012d8876eea7mr177366plg.75.1629152699390;
-        Mon, 16 Aug 2021 15:24:59 -0700 (PDT)
-Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [71.19.144.195])
-        by smtp.gmail.com with ESMTPSA id d13sm165790pfn.136.2021.08.16.15.24.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 Aug 2021 15:24:58 -0700 (PDT)
-Message-ID: <611ae5ba.1c69fb81.62816.1120@mx.google.com>
-Date:   Mon, 16 Aug 2021 15:24:58 -0700 (PDT)
-X-Google-Original-Date: Mon, 16 Aug 2021 22:24:52 GMT
-From:   Fox Chen <foxhlchen@gmail.com>
-In-Reply-To: <20210816171414.653076979@linuxfoundation.org>
-Subject: RE: [PATCH 5.13 000/153] 5.13.12-rc2 review
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org,
-        Fox Chen <foxhlchen@gmail.com>
-Content-Transfer-Encoding: 7bit
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=39HL+1BSTEP9McF8N5wJpHZqTmDxGof61S5w7T18t2c=;
+        b=ijneOZrJL/vOtTA8Vq2C4W7txMzy5U1XILSqaz88Q0xTs+nVtvmY+Jo8M5Rxi+eB4v
+         stp9dPfyndt+5D+or/8Pujtf9wwAC5bYpWGtZFU/VQOcCP3hPFYD5cJfjQsn0r9K4BBn
+         JZE8kg6N0mxlfg/qIrHx/9lIRmP0G8cnZa7aU0B0EiOQYgKSZHqDZFxRJEePVRrrDEQL
+         zPxf3TvNjyESmjHcmC0a1iTg9aGR7+eRA8e1rgXtctpl4DkL8xYCwy5lWiZZ9hD6gkPu
+         JfZpnhsj3XmIhjlJk1Nknv0W52C2iE7Mjk9JZu5iQigL5uTr8OxTz2f6V5rP5SXZXP78
+         NQhg==
+X-Gm-Message-State: AOAM532YcEDXK7o1pxSb6UJwHoeEjNaB7ErLJ3Usb/TU6ZswBsBWQpMj
+        +b9H+18MkpQ3UaTNpKcn4ZHtuDK8WMNWKljXlCXBJg==
+X-Google-Smtp-Source: ABdhPJxzmodtRFtigSTsXW3Hjcueq6Q1d1XD/3P7zoYrskkwNMcxgNm5kFyqkanm5Fu3lKOWWYYYiaLrR2KTWatt1+Q=
+X-Received: by 2002:a05:651c:1507:: with SMTP id e7mr426852ljf.368.1629153476979;
+ Mon, 16 Aug 2021 15:37:56 -0700 (PDT)
+MIME-Version: 1.0
+References: <20210720144115.1525257-1-linus.walleij@linaro.org> <2f449f6e-bca0-3c70-4255-26619e957d44@foss.st.com>
+In-Reply-To: <2f449f6e-bca0-3c70-4255-26619e957d44@foss.st.com>
+From:   Linus Walleij <linus.walleij@linaro.org>
+Date:   Tue, 17 Aug 2021 00:37:46 +0200
+Message-ID: <CACRpkdY2GnqNYqPPctqa_t5ax1SDo7nEc3a1jSncF8N-V-Da-g@mail.gmail.com>
+Subject: Re: [PATCH v3] mmc: core: Add a card quirk for non-hw busy detection
+To:     Yann Gautier <yann.gautier@foss.st.com>
+Cc:     linux-mmc <linux-mmc@vger.kernel.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        stable <stable@vger.kernel.org>, phone-devel@vger.kernel.org,
+        Ludovic Barre <ludovic.barre@st.com>,
+        Stephan Gerhold <stephan@gerhold.net>,
+        Stefan Hansson <newbyte@disroot.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 16 Aug 2021 19:15:09 +0200, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-> This is the start of the stable review cycle for the 5.13.12 release.
-> There are 153 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 18 Aug 2021 17:13:42 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.13.12-rc2.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.13.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+On Mon, Aug 16, 2021 at 4:03 PM Yann Gautier <yann.gautier@foss.st.com> wrote:
 
-5.13.12-rc2 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
-                
-Tested-by: Fox Chen <foxhlchen@gmail.com>
+> I was just testing your patch on top of mmc/next.
+> Whereas mmc/next is fine, with your patch I fail to pass MMC test 5
+> (Multi-block write).
+> I've got this error on STM32MP157C-EV1 board:
+> [  108.956218] mmc0: Starting tests of card mmc0:aaaa...
+> [  108.959862] mmc0: Test case 5. Multi-block write...
+> [  108.995615] mmc0: Warning: Host did not wait for busy state to end.
+> [  109.000483] mmc0: Result: ERROR (-110)
+> Then nothing more happens.
+>
+> The test was done on an SD-card Sandisk Extreme Pro SDXC UHS-I mark 3,
+> in DDR50 mode.
+>
+> I'll try to add more traces to see what happens.
 
+What I think happens is:
+- You are using the MMCI driver (correct?)
+- My patch augments the driver to not use busydetect until we have
+  determined that the card can do it (after reading extcsd etc)
+- Before this patch, the MMCI would unconditionally use HW
+  busy detect on any card.
+
+Either we have managed to wire the MMCI driver so that it doesn't
+work without HW busy detect anymore, you can easily test this
+by doing this:
+
+diff --git a/drivers/mmc/host/mmci.c b/drivers/mmc/host/mmci.c
+index 3765e2f4ad98..3a35f65491c8 100644
+--- a/drivers/mmc/host/mmci.c
++++ b/drivers/mmc/host/mmci.c
+@@ -270,10 +270,10 @@ static struct variant_data variant_stm32_sdmmc = {
+        .datactrl_any_blocksz   = true,
+        .datactrl_mask_sdio     = MCI_DPSM_ST_SDIOEN,
+        .stm32_idmabsize_mask   = GENMASK(12, 5),
+-       .busy_timeout           = true,
+-       .busy_detect            = true,
+-       .busy_detect_flag       = MCI_STM32_BUSYD0,
+-       .busy_detect_mask       = MCI_STM32_BUSYD0ENDMASK,
++       //.busy_timeout         = true,
++       //.busy_detect          = true,
++       //.busy_detect_flag     = MCI_STM32_BUSYD0,
++       //.busy_detect_mask     = MCI_STM32_BUSYD0ENDMASK,
+        .init                   = sdmmc_variant_init,
+ };
+
+@@ -297,10 +297,10 @@ static struct variant_data variant_stm32_sdmmcv2 = {
+        .datactrl_mask_sdio     = MCI_DPSM_ST_SDIOEN,
+        .stm32_idmabsize_mask   = GENMASK(16, 5),
+        .dma_lli                = true,
+-       .busy_timeout           = true,
+-       .busy_detect            = true,
+-       .busy_detect_flag       = MCI_STM32_BUSYD0,
+-       .busy_detect_mask       = MCI_STM32_BUSYD0ENDMASK,
++       //.busy_timeout         = true,
++       //.busy_detect          = true,
++       //.busy_detect_flag     = MCI_STM32_BUSYD0,
++       //.busy_detect_mask     = MCI_STM32_BUSYD0ENDMASK,
+        .init                   = sdmmc_variant_init,
+
+Or else there is a card that cannot work without busy detect which
+I find unlikely.
+
+Yours,
+Linus Walleij
