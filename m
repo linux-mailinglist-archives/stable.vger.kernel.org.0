@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0498D3ED690
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:23:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38D5B3ED556
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:12:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239638AbhHPNWD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:22:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43048 "EHLO mail.kernel.org"
+        id S239132AbhHPNKy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:10:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238512AbhHPNSb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:18:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E05F610A0;
-        Mon, 16 Aug 2021 13:14:01 +0000 (UTC)
+        id S237818AbhHPNJN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:09:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E190A6115A;
+        Mon, 16 Aug 2021 13:08:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119642;
-        bh=KcrremzPIrsNU5zPT84/VRCv7okUhMQ+Ngy0faL42/8=;
+        s=korg; t=1629119294;
+        bh=k0E4IpDlHZyHchq2thmJAO7kY8pZrnFMSqqJPmaNis8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y/iCDGbfKqRRAQiPHoheb1S8kNIZJJ2iZJYjM48gl+H67rbhosncSYNzbEymyXHOT
-         pRq7oni/ork90j9ft8Gg0gTk95PCs1/ilde++r4Tv4FaLH2bB2elk8ez+fAr4bIXkO
-         7rZxPsEfPmbn8kIhQtnAkAIbDp27z8uZv2Uife3U=
+        b=AXTW0dduDAjOr0LZCLelFETx3oCis96U9fAyrfJAb9zfm0VJwxigNeg9wakGVqPY6
+         X7d2Y95kVntmHjBMS5IJjjnmrt04ZPebPSnNBOm7ZOB+aQEhAZkdPqte7nr2iUp21A
+         K5EMpFwTKbquZAcfaNPtdK6M9h/bEiW+uN/4idoo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Nikolay Aleksandrov <nikolay@nvidia.com>,
+        stable@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>,
+        "Longpeng(Mike)" <longpeng2@huawei.com>,
+        Stefano Garzarella <sgarzare@redhat.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 106/151] net: bridge: fix memleak in br_add_if()
+Subject: [PATCH 5.10 66/96] vsock/virtio: avoid potential deadlock when vsock device remove
 Date:   Mon, 16 Aug 2021 15:02:16 +0200
-Message-Id: <20210816125447.563229776@linuxfoundation.org>
+Message-Id: <20210816125437.158517633@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
-References: <20210816125444.082226187@linuxfoundation.org>
+In-Reply-To: <20210816125434.948010115@linuxfoundation.org>
+References: <20210816125434.948010115@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,73 +42,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Longpeng(Mike) <longpeng2@huawei.com>
 
-[ Upstream commit 519133debcc19f5c834e7e28480b60bdc234fe02 ]
+[ Upstream commit 49b0b6ffe20c5344f4173f3436298782a08da4f2 ]
 
-I got a memleak report:
+There's a potential deadlock case when remove the vsock device or
+process the RESET event:
 
-BUG: memory leak
-unreferenced object 0x607ee521a658 (size 240):
-comm "syz-executor.0", pid 955, jiffies 4294780569 (age 16.449s)
-hex dump (first 32 bytes, cpu 1):
-00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
-00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
-backtrace:
-[<00000000d830ea5a>] br_multicast_add_port+0x1c2/0x300 net/bridge/br_multicast.c:1693
-[<00000000274d9a71>] new_nbp net/bridge/br_if.c:435 [inline]
-[<00000000274d9a71>] br_add_if+0x670/0x1740 net/bridge/br_if.c:611
-[<0000000012ce888e>] do_set_master net/core/rtnetlink.c:2513 [inline]
-[<0000000012ce888e>] do_set_master+0x1aa/0x210 net/core/rtnetlink.c:2487
-[<0000000099d1cafc>] __rtnl_newlink+0x1095/0x13e0 net/core/rtnetlink.c:3457
-[<00000000a01facc0>] rtnl_newlink+0x64/0xa0 net/core/rtnetlink.c:3488
-[<00000000acc9186c>] rtnetlink_rcv_msg+0x369/0xa10 net/core/rtnetlink.c:5550
-[<00000000d4aabb9c>] netlink_rcv_skb+0x134/0x3d0 net/netlink/af_netlink.c:2504
-[<00000000bc2e12a3>] netlink_unicast_kernel net/netlink/af_netlink.c:1314 [inline]
-[<00000000bc2e12a3>] netlink_unicast+0x4a0/0x6a0 net/netlink/af_netlink.c:1340
-[<00000000e4dc2d0e>] netlink_sendmsg+0x789/0xc70 net/netlink/af_netlink.c:1929
-[<000000000d22c8b3>] sock_sendmsg_nosec net/socket.c:654 [inline]
-[<000000000d22c8b3>] sock_sendmsg+0x139/0x170 net/socket.c:674
-[<00000000e281417a>] ____sys_sendmsg+0x658/0x7d0 net/socket.c:2350
-[<00000000237aa2ab>] ___sys_sendmsg+0xf8/0x170 net/socket.c:2404
-[<000000004f2dc381>] __sys_sendmsg+0xd3/0x190 net/socket.c:2433
-[<0000000005feca6c>] do_syscall_64+0x37/0x90 arch/x86/entry/common.c:47
-[<000000007304477d>] entry_SYSCALL_64_after_hwframe+0x44/0xae
+  vsock_for_each_connected_socket:
+      spin_lock_bh(&vsock_table_lock) ----------- (1)
+      ...
+          virtio_vsock_reset_sock:
+              lock_sock(sk) --------------------- (2)
+      ...
+      spin_unlock_bh(&vsock_table_lock)
 
-On error path of br_add_if(), p->mcast_stats allocated in
-new_nbp() need be freed, or it will be leaked.
+lock_sock() may do initiative schedule when the 'sk' is owned by
+other thread at the same time, we would receivce a warning message
+that "scheduling while atomic".
 
-Fixes: 1080ab95e3c7 ("net: bridge: add support for IGMP/MLD stats and export them via netlink")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
-Link: https://lore.kernel.org/r/20210809132023.978546-1-yangyingliang@huawei.com
+Even worse, if the next task (selected by the scheduler) try to
+release a 'sk', it need to request vsock_table_lock and the deadlock
+occur, cause the system into softlockup state.
+  Call trace:
+   queued_spin_lock_slowpath
+   vsock_remove_bound
+   vsock_remove_sock
+   virtio_transport_release
+   __vsock_release
+   vsock_release
+   __sock_release
+   sock_close
+   __fput
+   ____fput
+
+So we should not require sk_lock in this case, just like the behavior
+in vhost_vsock or vmci.
+
+Fixes: 0ea9e1d3a9e3 ("VSOCK: Introduce virtio_transport.ko")
+Cc: Stefan Hajnoczi <stefanha@redhat.com>
+Signed-off-by: Longpeng(Mike) <longpeng2@huawei.com>
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Link: https://lore.kernel.org/r/20210812053056.1699-1-longpeng2@huawei.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bridge/br_if.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/vmw_vsock/virtio_transport.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
-index 6e4a32354a13..14cd6ef96111 100644
---- a/net/bridge/br_if.c
-+++ b/net/bridge/br_if.c
-@@ -616,6 +616,7 @@ int br_add_if(struct net_bridge *br, struct net_device *dev,
+diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+index 2700a63ab095..3a056f8affd1 100644
+--- a/net/vmw_vsock/virtio_transport.c
++++ b/net/vmw_vsock/virtio_transport.c
+@@ -356,11 +356,14 @@ static void virtio_vsock_event_fill(struct virtio_vsock *vsock)
  
- 	err = dev_set_allmulti(dev, 1);
- 	if (err) {
-+		br_multicast_del_port(p);
- 		kfree(p);	/* kobject not yet init'd, manually free */
- 		goto err1;
- 	}
-@@ -729,6 +730,7 @@ err4:
- err3:
- 	sysfs_remove_link(br->ifobj, p->dev->name);
- err2:
-+	br_multicast_del_port(p);
- 	kobject_put(&p->kobj);
- 	dev_set_allmulti(dev, -1);
- err1:
+ static void virtio_vsock_reset_sock(struct sock *sk)
+ {
+-	lock_sock(sk);
++	/* vmci_transport.c doesn't take sk_lock here either.  At least we're
++	 * under vsock_table_lock so the sock cannot disappear while we're
++	 * executing.
++	 */
++
+ 	sk->sk_state = TCP_CLOSE;
+ 	sk->sk_err = ECONNRESET;
+ 	sk->sk_error_report(sk);
+-	release_sock(sk);
+ }
+ 
+ static void virtio_vsock_update_guest_cid(struct virtio_vsock *vsock)
 -- 
 2.30.2
 
