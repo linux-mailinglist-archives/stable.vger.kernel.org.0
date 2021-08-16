@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC1B83ED692
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:23:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79F9F3ED656
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:22:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239323AbhHPNWK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:22:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39180 "EHLO mail.kernel.org"
+        id S238301AbhHPNUf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:20:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238894AbhHPNQg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:16:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B71F8632ED;
-        Mon, 16 Aug 2021 13:13:21 +0000 (UTC)
+        id S240388AbhHPNQp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:16:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 63583632EF;
+        Mon, 16 Aug 2021 13:13:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119602;
-        bh=DmvCyg3+GaFmW/1KXTkP3Udlm3T9LTw6aydB4yoyp6w=;
+        s=korg; t=1629119604;
+        bh=an0t3BZUULDzdfiwNObU/fSO9ebQNPCwThTsWk57IEE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lQtTxxI8RQjIfinTh2UeQ/Zh26C7CdUNmoExL7XNxuBG79sbFFXrtM9nPiS6dmid4
-         LBWnke7QXKiIqiOnGe628VHQ73Ewz4U9sXeOvkKXtXJE2SdZqgSmsM4pabhTFTtMCA
-         2vzmEZcYHhe/Fv3njES3B8m0pNx/j7HxEsD3I5Ew=
+        b=QM79jUUDPVIhtDpGSEhyDdCs33Yz+P3eT3ydQa7KIIpReLK/Kn3UUGUa30FmwYckB
+         6e0yVbG+rwhW8JIb29imG9bMIAbGdAkrTeKW3htOgsrO17eBeOKh0iNLEPhXfFNIhs
+         T9UFLsoNa/a5659Fnbax7iSOYyogbM9WvgjSibzk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathias Steiger <mathias.steiger@googlemail.com>,
-        Christian Hewitt <christianshewitt@gmail.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Philip Milev <milev.philip@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 088/151] drm/meson: fix colour distortion from HDR set during vendor u-boot
-Date:   Mon, 16 Aug 2021 15:01:58 +0200
-Message-Id: <20210816125446.981911556@linuxfoundation.org>
+        stable@vger.kernel.org, Miklos Szeredi <mszeredi@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+579885d1a9a833336209@syzkaller.appspotmail.com
+Subject: [PATCH 5.13 089/151] ovl: fix deadlock in splice write
+Date:   Mon, 16 Aug 2021 15:01:59 +0200
+Message-Id: <20210816125447.013365592@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
 References: <20210816125444.082226187@linuxfoundation.org>
@@ -43,71 +40,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Hewitt <christianshewitt@gmail.com>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-[ Upstream commit bf33677a3c394bb8fddd48d3bbc97adf0262e045 ]
+[ Upstream commit 9b91b6b019fda817eb52f728eb9c79b3579760bc ]
 
-Add support for the OSD1 HDR registers so meson DRM can handle the HDR
-properties set by Amlogic u-boot on G12A and newer devices which result
-in blue/green/pink colour distortion to display output.
+There's possibility of an ABBA deadlock in case of a splice write to an
+overlayfs file and a concurrent splice write to a corresponding real file.
 
-This takes the original patch submissions from Mathias [0] and [1] with
-corrections for formatting and the missing description and attribution
-needed for merge.
+The call chain for splice to an overlay file:
 
-[0] https://lore.kernel.org/linux-amlogic/59dfd7e6-fc91-3d61-04c4-94e078a3188c@baylibre.com/T/
-[1] https://lore.kernel.org/linux-amlogic/CAOKfEHBx_fboUqkENEMd-OC-NSrf46nto+vDLgvgttzPe99kXg@mail.gmail.com/T/#u
+ -> do_splice                     [takes sb_writers on overlay file]
+   -> do_splice_from
+     -> iter_file_splice_write    [takes pipe->mutex]
+       -> vfs_iter_write
+         ...
+         -> ovl_write_iter        [takes sb_writers on real file]
 
-Fixes: 728883948b0d ("drm/meson: Add G12A Support for VIU setup")
-Suggested-by: Mathias Steiger <mathias.steiger@googlemail.com>
-Signed-off-by: Christian Hewitt <christianshewitt@gmail.com>
-Tested-by: Neil Armstrong <narmstrong@baylibre.com>
-Tested-by: Philip Milev <milev.philip@gmail.com>
-[narmsrong: adding missing space on second tested-by tag]
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210806094005.7136-1-christianshewitt@gmail.com
+And the call chain for splice to a real file:
+
+ -> do_splice                     [takes sb_writers on real file]
+   -> do_splice_from
+     -> iter_file_splice_write    [takes pipe->mutex]
+
+Syzbot successfully bisected this to commit 82a763e61e2b ("ovl: simplify
+file splice").
+
+Fix by reverting the write part of the above commit and by adding missing
+bits from ovl_write_iter() into ovl_splice_write().
+
+Fixes: 82a763e61e2b ("ovl: simplify file splice")
+Reported-and-tested-by: syzbot+579885d1a9a833336209@syzkaller.appspotmail.com
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/meson/meson_registers.h | 5 +++++
- drivers/gpu/drm/meson/meson_viu.c       | 7 ++++++-
- 2 files changed, 11 insertions(+), 1 deletion(-)
+ fs/overlayfs/file.c | 47 ++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 46 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/meson/meson_registers.h b/drivers/gpu/drm/meson/meson_registers.h
-index 446e7961da48..0f3cafab8860 100644
---- a/drivers/gpu/drm/meson/meson_registers.h
-+++ b/drivers/gpu/drm/meson/meson_registers.h
-@@ -634,6 +634,11 @@
- #define VPP_WRAP_OSD3_MATRIX_PRE_OFFSET2 0x3dbc
- #define VPP_WRAP_OSD3_MATRIX_EN_CTRL 0x3dbd
+diff --git a/fs/overlayfs/file.c b/fs/overlayfs/file.c
+index 4d53d3b7e5fe..d081faa55e83 100644
+--- a/fs/overlayfs/file.c
++++ b/fs/overlayfs/file.c
+@@ -392,6 +392,51 @@ out_unlock:
+ 	return ret;
+ }
  
-+/* osd1 HDR */
-+#define OSD1_HDR2_CTRL 0x38a0
-+#define OSD1_HDR2_CTRL_VDIN0_HDR2_TOP_EN       BIT(13)
-+#define OSD1_HDR2_CTRL_REG_ONLY_MAT            BIT(16)
++/*
++ * Calling iter_file_splice_write() directly from overlay's f_op may deadlock
++ * due to lock order inversion between pipe->mutex in iter_file_splice_write()
++ * and file_start_write(real.file) in ovl_write_iter().
++ *
++ * So do everything ovl_write_iter() does and call iter_file_splice_write() on
++ * the real file.
++ */
++static ssize_t ovl_splice_write(struct pipe_inode_info *pipe, struct file *out,
++				loff_t *ppos, size_t len, unsigned int flags)
++{
++	struct fd real;
++	const struct cred *old_cred;
++	struct inode *inode = file_inode(out);
++	struct inode *realinode = ovl_inode_real(inode);
++	ssize_t ret;
 +
- /* osd2 scaler */
- #define OSD2_VSC_PHASE_STEP 0x3d00
- #define OSD2_VSC_INI_PHASE 0x3d01
-diff --git a/drivers/gpu/drm/meson/meson_viu.c b/drivers/gpu/drm/meson/meson_viu.c
-index aede0c67a57f..259f3e6bec90 100644
---- a/drivers/gpu/drm/meson/meson_viu.c
-+++ b/drivers/gpu/drm/meson/meson_viu.c
-@@ -425,9 +425,14 @@ void meson_viu_init(struct meson_drm *priv)
- 	if (meson_vpu_is_compatible(priv, VPU_COMPATIBLE_GXM) ||
- 	    meson_vpu_is_compatible(priv, VPU_COMPATIBLE_GXL))
- 		meson_viu_load_matrix(priv);
--	else if (meson_vpu_is_compatible(priv, VPU_COMPATIBLE_G12A))
-+	else if (meson_vpu_is_compatible(priv, VPU_COMPATIBLE_G12A)) {
- 		meson_viu_set_g12a_osd1_matrix(priv, RGB709_to_YUV709l_coeff,
- 					       true);
-+		/* fix green/pink color distortion from vendor u-boot */
-+		writel_bits_relaxed(OSD1_HDR2_CTRL_REG_ONLY_MAT |
-+				OSD1_HDR2_CTRL_VDIN0_HDR2_TOP_EN, 0,
-+				priv->io_base + _REG(OSD1_HDR2_CTRL));
-+	}
++	inode_lock(inode);
++	/* Update mode */
++	ovl_copyattr(realinode, inode);
++	ret = file_remove_privs(out);
++	if (ret)
++		goto out_unlock;
++
++	ret = ovl_real_fdget(out, &real);
++	if (ret)
++		goto out_unlock;
++
++	old_cred = ovl_override_creds(inode->i_sb);
++	file_start_write(real.file);
++
++	ret = iter_file_splice_write(pipe, real.file, ppos, len, flags);
++
++	file_end_write(real.file);
++	/* Update size */
++	ovl_copyattr(realinode, inode);
++	revert_creds(old_cred);
++	fdput(real);
++
++out_unlock:
++	inode_unlock(inode);
++
++	return ret;
++}
++
+ static int ovl_fsync(struct file *file, loff_t start, loff_t end, int datasync)
+ {
+ 	struct fd real;
+@@ -603,7 +648,7 @@ const struct file_operations ovl_file_operations = {
+ 	.fadvise	= ovl_fadvise,
+ 	.flush		= ovl_flush,
+ 	.splice_read    = generic_file_splice_read,
+-	.splice_write   = iter_file_splice_write,
++	.splice_write   = ovl_splice_write,
  
- 	/* Initialize OSD1 fifo control register */
- 	reg = VIU_OSD_DDR_PRIORITY_URGENT |
+ 	.copy_file_range	= ovl_copy_file_range,
+ 	.remap_file_range	= ovl_remap_file_range,
 -- 
 2.30.2
 
