@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B86AD3ED01D
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 10:17:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71CED3ED01E
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 10:17:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234615AbhHPIRj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 04:17:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44008 "EHLO mail.kernel.org"
+        id S234386AbhHPIRl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 04:17:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234386AbhHPIRi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 04:17:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 095B961B03;
-        Mon, 16 Aug 2021 08:17:06 +0000 (UTC)
+        id S234637AbhHPIRl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 04:17:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AC29661AFD;
+        Mon, 16 Aug 2021 08:17:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629101827;
-        bh=rJ0UjGWc370obpoH2+eq9UmA6eeIVsjYo9E/Dv9b3Zc=;
+        s=korg; t=1629101830;
+        bh=x8T79viDhUeP2yLlNqvHLNy1iMacOTm2RTEOSIe3Yig=;
         h=Subject:To:Cc:From:Date:From;
-        b=Sne/eHYyFLsn7IggRJP4jkckyL7nPHPcul9xgdEQYM125elYXusyCi4EvRikC0l0L
-         eNKcWAI8QpWCZDyUlwzeUjbro1QUDoqQgW3MBPuntT7qgeyGDOjz8WZpRiWEKQ6olD
-         /mD5Ekw5gk8S6I7tonE0BqjtLhcX0UROCzhoEUks=
-Subject: FAILED: patch "[PATCH] PCI/MSI: Enforce MSI[X] entry updates to be visible" failed to apply to 4.14-stable tree
+        b=uHXtjxDxe+lz1k4H2hR92KLrcoRVhSTMttvu+ynlbWb3lzgJL5RW3s2pQUt8aAaiv
+         nRIdlrrirvtcJSJYNwb82Nr60zJT+Jyi1a6OzH8ako1EvLne6e9d5RY7rOqQSljsl+
+         NTkkcDhPoNDcEXpqQTaWihBofQu5mMVCdcNs8ROc=
+Subject: FAILED: patch "[PATCH] PCI/MSI: Enforce MSI[X] entry updates to be visible" failed to apply to 4.19-stable tree
 To:     tglx@linutronix.de, bhelgaas@google.com, maz@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 16 Aug 2021 10:16:55 +0200
-Message-ID: <162910181523398@kroah.com>
+Date:   Mon, 16 Aug 2021 10:16:56 +0200
+Message-ID: <1629101816182197@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
