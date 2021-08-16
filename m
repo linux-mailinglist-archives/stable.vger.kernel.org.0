@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0EF33ED502
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:08:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BEBD33ED673
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:22:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237322AbhHPNHW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:07:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56748 "EHLO mail.kernel.org"
+        id S239928AbhHPNVf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:21:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237803AbhHPNGO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:06:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 397F0632AA;
-        Mon, 16 Aug 2021 13:05:37 +0000 (UTC)
+        id S240524AbhHPNTv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:19:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 50BDB63290;
+        Mon, 16 Aug 2021 13:14:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119137;
-        bh=xOVhp/NDLSf2S7OS/VumBtohqodqe5ncxW6D0p/M8B8=;
+        s=korg; t=1629119677;
+        bh=qLFlv7I69T97sSu/cbRIhtEgmm0nYbUUlLESY7XafTs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h4HDywF4LI1ca3ThXeOcAWbrCM3Pa5ilXOLb/J6GVhI6Xqp9Oz1Bfb1crdpDNojtM
-         t/fut9AMoF+5xDoIdlW7BXGu3NZb93FjHcCCbfs0IZVQ2uhPbmIu3Bzh67TLDtxfA2
-         Jzogpkd+aT/Lgi2tbVLG04AjtPhAgcrg1+UNjN1M=
+        b=G+Sp+reEuNgsY5jOyqoM75qfcbOIVwMWqUDfL/Xb6dmTo/F1PXBk5qX2auUjV1Wl6
+         AEQQ9VUEG7YeTDeyINP1duoFZUOe36g2G4pShOTaT2tLp4/8oEzJ59kCBRtmXjL4wR
+         KAK3VY7C7SMlg4QvSeQe4S21jg1q6ELkW/KfkNB0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.4 56/62] PCI/MSI: Protect msi_desc::masked for multi-MSI
-Date:   Mon, 16 Aug 2021 15:02:28 +0200
-Message-Id: <20210816125430.129726785@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Dhananjay Phadke <dphadke@linux.microsoft.com>,
+        Ray Jui <ray.jui@broadcom.com>,
+        Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 119/151] i2c: iproc: fix race between client unreg and tasklet
+Date:   Mon, 16 Aug 2021 15:02:29 +0200
+Message-Id: <20210816125447.982810912@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125428.198692661@linuxfoundation.org>
-References: <20210816125428.198692661@linuxfoundation.org>
+In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
+References: <20210816125444.082226187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,114 +42,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Dhananjay Phadke <dphadke@linux.microsoft.com>
 
-commit 77e89afc25f30abd56e76a809ee2884d7c1b63ce upstream.
+[ Upstream commit bba676cc0b6122a74fa2e246f38a6b05c6f95b36 ]
 
-Multi-MSI uses a single MSI descriptor and there is a single mask register
-when the device supports per vector masking. To avoid reading back the mask
-register the value is cached in the MSI descriptor and updates are done by
-clearing and setting bits in the cache and writing it to the device.
+Similar NULL deref was originally fixed by graceful teardown sequence -
 
-But nothing protects msi_desc::masked and the mask register from being
-modified concurrently on two different CPUs for two different Linux
-interrupts which belong to the same multi-MSI descriptor.
+https://lore.kernel.org/linux-i2c/1597106560-79693-1-git-send-email-dphadke@linux.microsoft.com
 
-Add a lock to struct device and protect any operation on the mask and the
-mask register with it.
+After this, a tasklet was added to take care of FIFO full condition for large i2c
+transaction.
 
-This makes the update of msi_desc::masked unconditional, but there is no
-place which requires a modification of the hardware register without
-updating the masked cache.
+https://lore.kernel.org/linux-arm-kernel/20201102035433.6774-1-rayagonda.kokatanur@broadcom.com/
 
-msi_mask_irq() is now an empty wrapper which will be cleaned up in follow
-up changes.
+This introduced regression, a new race condition between tasklet enabling
+interrupts and client unreg teardown sequence.
 
-The problem goes way back to the initial support of multi-MSI, but picking
-the commit which introduced the mask cache is a valid cut off point
-(2.6.30).
+Kill tasklet before unreg_slave() masks bits in IE_OFFSET.
+Updated teardown sequence -
+(1) disable_irq()
+(2) Kill tasklet
+(3) Mask event enable bits in control reg
+(4) Erase slave address (avoid further writes to rx fifo)
+(5) Flush tx and rx FIFOs
+(6) Clear pending event (interrupt) bits in status reg
+(7) Set client pointer to NULL
+(8) enable_irq()
 
-Fixes: f2440d9acbe8 ("PCI MSI: Refactor interrupt masking code")
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Marc Zyngier <maz@kernel.org>
-Reviewed-by: Marc Zyngier <maz@kernel.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210729222542.726833414@linutronix.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+ --
+
+ Unable to handle kernel read from unreadable memory at virtual address 0000000000000320
+ Mem abort info:
+   ESR = 0x96000004
+   EC = 0x25: DABT (current EL), IL = 32 bits
+   SET = 0, FnV = 0
+   EA = 0, S1PTW = 0
+ Data abort info:
+   ISV = 0, ISS = 0x00000004
+   CM = 0, WnR = 0
+ user pgtable: 4k pages, 48-bit VAs, pgdp=000000009212a000
+ [0000000000000320] pgd=0000000000000000, p4d=0000000000000000
+ Internal error: Oops: 96000004 [#1] SMP
+ CPU: 0 PID: 0 Comm: swapper/0 Tainted: G           O
+ Hardware name: Overlake (DT)
+ pstate: 40400085 (nZcv daIf +PAN -UAO -TCO BTYPE=--)
+ pc : bcm_iproc_i2c_slave_isr+0x2b8/0x8e4
+ lr : bcm_iproc_i2c_slave_isr+0x1c8/0x8e4
+ sp : ffff800010003e70
+ x29: ffff800010003e80 x28: ffffda017acdc000
+ x27: ffffda017b0ae000 x26: ffff800010004000
+ x25: ffff800010000000 x24: ffffda017af4a168
+ x23: 0000000000000073 x22: 0000000000000000
+ x21: 0000000001400000 x20: 0000000001000000
+ x19: ffff06f09583f880 x18: 00000000fa83b2da
+ x17: 000000000000b67e x16: 0000000002edb2f3
+ x15: 00000000000002c7 x14: 00000000000002c7
+ x13: 0000000000000006 x12: 0000000000000033
+ x11: 0000000000000000 x10: 0000000001000000
+ x9 : 0000000003289312 x8 : 0000000003289311
+ x7 : 02d0cd03a303adbc x6 : 02d18e7f0a4dfc6c
+ x5 : 02edb2f33f76ea68 x4 : 00000000fa83b2da
+ x3 : ffffda017af43cd0 x2 : ffff800010003e74
+ x1 : 0000000001400000 x0 : 0000000000000000
+ Call trace:
+  bcm_iproc_i2c_slave_isr+0x2b8/0x8e4
+  bcm_iproc_i2c_isr+0x178/0x290
+  __handle_irq_event_percpu+0xd0/0x200
+  handle_irq_event+0x60/0x1a0
+  handle_fasteoi_irq+0x130/0x220
+  __handle_domain_irq+0x8c/0xcc
+  gic_handle_irq+0xc0/0x120
+  el1_irq+0xcc/0x180
+  finish_task_switch+0x100/0x1d8
+  __schedule+0x61c/0x7a0
+  schedule_idle+0x28/0x44
+  do_idle+0x254/0x28c
+  cpu_startup_entry+0x28/0x2c
+  rest_init+0xc4/0xd0
+  arch_call_rest_init+0x14/0x1c
+  start_kernel+0x33c/0x3b8
+ Code: f9423260 910013e2 11000509 b9047a69 (f9419009)
+ ---[ end trace 4781455b2a7bec15 ]---
+
+Fixes: 4d658451c9d6 ("i2c: iproc: handle rx fifo full interrupt")
+
+Signed-off-by: Dhananjay Phadke <dphadke@linux.microsoft.com>
+Acked-by: Ray Jui <ray.jui@broadcom.com>
+Acked-by: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/core.c    |    1 +
- drivers/pci/msi.c      |   19 ++++++++++---------
- include/linux/device.h |    1 +
- include/linux/msi.h    |    2 +-
- 4 files changed, 13 insertions(+), 10 deletions(-)
+ drivers/i2c/busses/i2c-bcm-iproc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/base/core.c
-+++ b/drivers/base/core.c
-@@ -1722,6 +1722,7 @@ void device_initialize(struct device *de
- 	device_pm_init(dev);
- 	set_dev_node(dev, -1);
- #ifdef CONFIG_GENERIC_MSI_IRQ
-+	raw_spin_lock_init(&dev->msi_lock);
- 	INIT_LIST_HEAD(&dev->msi_list);
- #endif
- 	INIT_LIST_HEAD(&dev->links.consumers);
---- a/drivers/pci/msi.c
-+++ b/drivers/pci/msi.c
-@@ -170,24 +170,25 @@ static inline __attribute_const__ u32 ms
-  * reliably as devices without an INTx disable bit will then generate a
-  * level IRQ which will never be cleared.
-  */
--u32 __pci_msi_desc_mask_irq(struct msi_desc *desc, u32 mask, u32 flag)
-+void __pci_msi_desc_mask_irq(struct msi_desc *desc, u32 mask, u32 flag)
- {
--	u32 mask_bits = desc->masked;
-+	raw_spinlock_t *lock = &desc->dev->msi_lock;
-+	unsigned long flags;
+diff --git a/drivers/i2c/busses/i2c-bcm-iproc.c b/drivers/i2c/busses/i2c-bcm-iproc.c
+index cceaf69279a9..6304d1dd2dd6 100644
+--- a/drivers/i2c/busses/i2c-bcm-iproc.c
++++ b/drivers/i2c/busses/i2c-bcm-iproc.c
+@@ -1224,14 +1224,14 @@ static int bcm_iproc_i2c_unreg_slave(struct i2c_client *slave)
  
- 	if (pci_msi_ignore_mask || !desc->msi_attrib.maskbit)
--		return 0;
-+		return;
+ 	disable_irq(iproc_i2c->irq);
  
--	mask_bits &= ~mask;
--	mask_bits |= flag;
-+	raw_spin_lock_irqsave(lock, flags);
-+	desc->masked &= ~mask;
-+	desc->masked |= flag;
- 	pci_write_config_dword(msi_desc_to_pci_dev(desc), desc->mask_pos,
--			       mask_bits);
++	tasklet_kill(&iproc_i2c->slave_rx_tasklet);
++
+ 	/* disable all slave interrupts */
+ 	tmp = iproc_i2c_rd_reg(iproc_i2c, IE_OFFSET);
+ 	tmp &= ~(IE_S_ALL_INTERRUPT_MASK <<
+ 			IE_S_ALL_INTERRUPT_SHIFT);
+ 	iproc_i2c_wr_reg(iproc_i2c, IE_OFFSET, tmp);
+ 
+-	tasklet_kill(&iproc_i2c->slave_rx_tasklet);
 -
--	return mask_bits;
-+			       desc->masked);
-+	raw_spin_unlock_irqrestore(lock, flags);
- }
- 
- static void msi_mask_irq(struct msi_desc *desc, u32 mask, u32 flag)
- {
--	desc->masked = __pci_msi_desc_mask_irq(desc, mask, flag);
-+	__pci_msi_desc_mask_irq(desc, mask, flag);
- }
- 
- static void __iomem *pci_msix_desc_addr(struct msi_desc *desc)
---- a/include/linux/device.h
-+++ b/include/linux/device.h
-@@ -1260,6 +1260,7 @@ struct device {
- 	struct dev_pin_info	*pins;
- #endif
- #ifdef CONFIG_GENERIC_MSI_IRQ
-+	raw_spinlock_t		msi_lock;
- 	struct list_head	msi_list;
- #endif
- 
---- a/include/linux/msi.h
-+++ b/include/linux/msi.h
-@@ -194,7 +194,7 @@ void __pci_read_msi_msg(struct msi_desc
- void __pci_write_msi_msg(struct msi_desc *entry, struct msi_msg *msg);
- 
- u32 __pci_msix_desc_mask_irq(struct msi_desc *desc, u32 flag);
--u32 __pci_msi_desc_mask_irq(struct msi_desc *desc, u32 mask, u32 flag);
-+void __pci_msi_desc_mask_irq(struct msi_desc *desc, u32 mask, u32 flag);
- void pci_msi_mask_irq(struct irq_data *data);
- void pci_msi_unmask_irq(struct irq_data *data);
- 
+ 	/* Erase the slave address programmed */
+ 	tmp = iproc_i2c_rd_reg(iproc_i2c, S_CFG_SMBUS_ADDR_OFFSET);
+ 	tmp &= ~BIT(S_CFG_EN_NIC_SMB_ADDR3_SHIFT);
+-- 
+2.30.2
+
 
 
