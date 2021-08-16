@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 75ED33ED672
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:22:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0EF33ED502
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:08:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239864AbhHPNVY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:21:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44230 "EHLO mail.kernel.org"
+        id S237322AbhHPNHW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:07:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240523AbhHPNTv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:19:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 155CD632A2;
-        Mon, 16 Aug 2021 13:14:34 +0000 (UTC)
+        id S237803AbhHPNGO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:06:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 397F0632AA;
+        Mon, 16 Aug 2021 13:05:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119675;
-        bh=ieStwfpHrQKIz95Ll2LH1uShmhGTMyeSIW683BIpQvQ=;
+        s=korg; t=1629119137;
+        bh=xOVhp/NDLSf2S7OS/VumBtohqodqe5ncxW6D0p/M8B8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZAfX6BbwOrUY2PTrsO0Cw+a6p7zGljyhVNg79mrjk7iGZTF+L3iYtNXg1yHyKBUJ4
-         hbORejEV/sJWowJttKCYkBsDodN/RKAYA64aIDi6ND6f+iyAVjeq0Htdd/idc/CtOT
-         hsuQgeR7pfOOSPlpHLge1fKnfA0SrkITwK35b5dg=
+        b=h4HDywF4LI1ca3ThXeOcAWbrCM3Pa5ilXOLb/J6GVhI6Xqp9Oz1Bfb1crdpDNojtM
+         t/fut9AMoF+5xDoIdlW7BXGu3NZb93FjHcCCbfs0IZVQ2uhPbmIu3Bzh67TLDtxfA2
+         Jzogpkd+aT/Lgi2tbVLG04AjtPhAgcrg1+UNjN1M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pu Lehui <pulehui@huawei.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 118/151] powerpc/kprobes: Fix kprobe Oops happens in booke
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.4 56/62] PCI/MSI: Protect msi_desc::masked for multi-MSI
 Date:   Mon, 16 Aug 2021 15:02:28 +0200
-Message-Id: <20210816125447.953054810@linuxfoundation.org>
+Message-Id: <20210816125430.129726785@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
-References: <20210816125444.082226187@linuxfoundation.org>
+In-Reply-To: <20210816125428.198692661@linuxfoundation.org>
+References: <20210816125428.198692661@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,82 +39,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pu Lehui <pulehui@huawei.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit 43e8f76006592cb1573a959aa287c45421066f9c ]
+commit 77e89afc25f30abd56e76a809ee2884d7c1b63ce upstream.
 
-When using kprobe on powerpc booke series processor, Oops happens
-as show bellow:
+Multi-MSI uses a single MSI descriptor and there is a single mask register
+when the device supports per vector masking. To avoid reading back the mask
+register the value is cached in the MSI descriptor and updates are done by
+clearing and setting bits in the cache and writing it to the device.
 
-/ # echo "p:myprobe do_nanosleep" > /sys/kernel/debug/tracing/kprobe_events
-/ # echo 1 > /sys/kernel/debug/tracing/events/kprobes/myprobe/enable
-/ # sleep 1
-[   50.076730] Oops: Exception in kernel mode, sig: 5 [#1]
-[   50.077017] BE PAGE_SIZE=4K SMP NR_CPUS=24 QEMU e500
-[   50.077221] Modules linked in:
-[   50.077462] CPU: 0 PID: 77 Comm: sleep Not tainted 5.14.0-rc4-00022-g251a1524293d #21
-[   50.077887] NIP:  c0b9c4e0 LR: c00ebecc CTR: 00000000
-[   50.078067] REGS: c3883de0 TRAP: 0700   Not tainted (5.14.0-rc4-00022-g251a1524293d)
-[   50.078349] MSR:  00029000 <CE,EE,ME>  CR: 24000228  XER: 20000000
-[   50.078675]
-[   50.078675] GPR00: c00ebdf0 c3883e90 c313e300 c3883ea0 00000001 00000000 c3883ecc 00000001
-[   50.078675] GPR08: c100598c c00ea250 00000004 00000000 24000222 102490c2 bff4180c 101e60d4
-[   50.078675] GPR16: 00000000 102454ac 00000040 10240000 10241100 102410f8 10240000 00500000
-[   50.078675] GPR24: 00000002 00000000 c3883ea0 00000001 00000000 0000c350 3b9b8d50 00000000
-[   50.080151] NIP [c0b9c4e0] do_nanosleep+0x0/0x190
-[   50.080352] LR [c00ebecc] hrtimer_nanosleep+0x14c/0x1e0
-[   50.080638] Call Trace:
-[   50.080801] [c3883e90] [c00ebdf0] hrtimer_nanosleep+0x70/0x1e0 (unreliable)
-[   50.081110] [c3883f00] [c00ec004] sys_nanosleep_time32+0xa4/0x110
-[   50.081336] [c3883f40] [c001509c] ret_from_syscall+0x0/0x28
-[   50.081541] --- interrupt: c00 at 0x100a4d08
-[   50.081749] NIP:  100a4d08 LR: 101b5234 CTR: 00000003
-[   50.081931] REGS: c3883f50 TRAP: 0c00   Not tainted (5.14.0-rc4-00022-g251a1524293d)
-[   50.082183] MSR:  0002f902 <CE,EE,PR,FP,ME>  CR: 24000222  XER: 00000000
-[   50.082457]
-[   50.082457] GPR00: 000000a2 bf980040 1024b4d0 bf980084 bf980084 64000000 00555345 fefefeff
-[   50.082457] GPR08: 7f7f7f7f 101e0000 00000069 00000003 28000422 102490c2 bff4180c 101e60d4
-[   50.082457] GPR16: 00000000 102454ac 00000040 10240000 10241100 102410f8 10240000 00500000
-[   50.082457] GPR24: 00000002 bf9803f4 10240000 00000000 00000000 100039e0 00000000 102444e8
-[   50.083789] NIP [100a4d08] 0x100a4d08
-[   50.083917] LR [101b5234] 0x101b5234
-[   50.084042] --- interrupt: c00
-[   50.084238] Instruction dump:
-[   50.084483] 4bfffc40 60000000 60000000 60000000 9421fff0 39400402 914200c0 38210010
-[   50.084841] 4bfffc20 00000000 00000000 00000000 <7fe00008> 7c0802a6 7c892378 93c10048
-[   50.085487] ---[ end trace f6fffe98e2fa8f3e ]---
-[   50.085678]
-Trace/breakpoint trap
+But nothing protects msi_desc::masked and the mask register from being
+modified concurrently on two different CPUs for two different Linux
+interrupts which belong to the same multi-MSI descriptor.
 
-There is no real mode for booke arch and the MMU translation is
-always on. The corresponding MSR_IS/MSR_DS bit in booke is used
-to switch the address space, but not for real mode judgment.
+Add a lock to struct device and protect any operation on the mask and the
+mask register with it.
 
-Fixes: 21f8b2fa3ca5 ("powerpc/kprobes: Ignore traps that happened in real mode")
-Signed-off-by: Pu Lehui <pulehui@huawei.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210809023658.218915-1-pulehui@huawei.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This makes the update of msi_desc::masked unconditional, but there is no
+place which requires a modification of the hardware register without
+updating the masked cache.
+
+msi_mask_irq() is now an empty wrapper which will be cleaned up in follow
+up changes.
+
+The problem goes way back to the initial support of multi-MSI, but picking
+the commit which introduced the mask cache is a valid cut off point
+(2.6.30).
+
+Fixes: f2440d9acbe8 ("PCI MSI: Refactor interrupt masking code")
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Marc Zyngier <maz@kernel.org>
+Reviewed-by: Marc Zyngier <maz@kernel.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210729222542.726833414@linutronix.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kernel/kprobes.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/base/core.c    |    1 +
+ drivers/pci/msi.c      |   19 ++++++++++---------
+ include/linux/device.h |    1 +
+ include/linux/msi.h    |    2 +-
+ 4 files changed, 13 insertions(+), 10 deletions(-)
 
-diff --git a/arch/powerpc/kernel/kprobes.c b/arch/powerpc/kernel/kprobes.c
-index e8c2a6373157..00fafc8b249e 100644
---- a/arch/powerpc/kernel/kprobes.c
-+++ b/arch/powerpc/kernel/kprobes.c
-@@ -276,7 +276,8 @@ int kprobe_handler(struct pt_regs *regs)
- 	if (user_mode(regs))
- 		return 0;
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -1722,6 +1722,7 @@ void device_initialize(struct device *de
+ 	device_pm_init(dev);
+ 	set_dev_node(dev, -1);
+ #ifdef CONFIG_GENERIC_MSI_IRQ
++	raw_spin_lock_init(&dev->msi_lock);
+ 	INIT_LIST_HEAD(&dev->msi_list);
+ #endif
+ 	INIT_LIST_HEAD(&dev->links.consumers);
+--- a/drivers/pci/msi.c
++++ b/drivers/pci/msi.c
+@@ -170,24 +170,25 @@ static inline __attribute_const__ u32 ms
+  * reliably as devices without an INTx disable bit will then generate a
+  * level IRQ which will never be cleared.
+  */
+-u32 __pci_msi_desc_mask_irq(struct msi_desc *desc, u32 mask, u32 flag)
++void __pci_msi_desc_mask_irq(struct msi_desc *desc, u32 mask, u32 flag)
+ {
+-	u32 mask_bits = desc->masked;
++	raw_spinlock_t *lock = &desc->dev->msi_lock;
++	unsigned long flags;
  
--	if (!(regs->msr & MSR_IR) || !(regs->msr & MSR_DR))
-+	if (!IS_ENABLED(CONFIG_BOOKE) &&
-+	    (!(regs->msr & MSR_IR) || !(regs->msr & MSR_DR)))
- 		return 0;
+ 	if (pci_msi_ignore_mask || !desc->msi_attrib.maskbit)
+-		return 0;
++		return;
  
- 	/*
--- 
-2.30.2
-
+-	mask_bits &= ~mask;
+-	mask_bits |= flag;
++	raw_spin_lock_irqsave(lock, flags);
++	desc->masked &= ~mask;
++	desc->masked |= flag;
+ 	pci_write_config_dword(msi_desc_to_pci_dev(desc), desc->mask_pos,
+-			       mask_bits);
+-
+-	return mask_bits;
++			       desc->masked);
++	raw_spin_unlock_irqrestore(lock, flags);
+ }
+ 
+ static void msi_mask_irq(struct msi_desc *desc, u32 mask, u32 flag)
+ {
+-	desc->masked = __pci_msi_desc_mask_irq(desc, mask, flag);
++	__pci_msi_desc_mask_irq(desc, mask, flag);
+ }
+ 
+ static void __iomem *pci_msix_desc_addr(struct msi_desc *desc)
+--- a/include/linux/device.h
++++ b/include/linux/device.h
+@@ -1260,6 +1260,7 @@ struct device {
+ 	struct dev_pin_info	*pins;
+ #endif
+ #ifdef CONFIG_GENERIC_MSI_IRQ
++	raw_spinlock_t		msi_lock;
+ 	struct list_head	msi_list;
+ #endif
+ 
+--- a/include/linux/msi.h
++++ b/include/linux/msi.h
+@@ -194,7 +194,7 @@ void __pci_read_msi_msg(struct msi_desc
+ void __pci_write_msi_msg(struct msi_desc *entry, struct msi_msg *msg);
+ 
+ u32 __pci_msix_desc_mask_irq(struct msi_desc *desc, u32 flag);
+-u32 __pci_msi_desc_mask_irq(struct msi_desc *desc, u32 mask, u32 flag);
++void __pci_msi_desc_mask_irq(struct msi_desc *desc, u32 mask, u32 flag);
+ void pci_msi_mask_irq(struct irq_data *data);
+ void pci_msi_unmask_irq(struct irq_data *data);
+ 
 
 
