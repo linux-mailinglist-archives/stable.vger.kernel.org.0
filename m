@@ -2,73 +2,200 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 468703EDC34
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 19:17:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E4C753EDC56
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 19:23:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230351AbhHPRS2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 13:18:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35608 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229761AbhHPRS2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 13:18:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6BD2D6054E;
-        Mon, 16 Aug 2021 17:17:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629134276;
-        bh=IBjQ2hhW6a6ZbDmFSNRMf689ze6D1w9iG/hdqVz0zw0=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=uahEmHkI86CByX/PbR+s4wRzyLPZOA+WtfdbH/wL9aSwRB/KwyPTRWnbB/Ee7j1Ap
-         rxpEwLiF7rkeB1TqErTXEyKaOOpPVeiJy+C38BIOmPqKQfw9Sb9c2zP+eHXYYApRIZ
-         EkUXeG+Lq44gPRkM5K0HVGKHuSNjHXA85e73oxzfopVFEZM1mnWj1JGCHOwAGIiU6M
-         08JvjPMg+eJ2BgrOUeyDDHBnaIIBQ0ax2AZH33m8U3E6s0qSGCNb5qjr1BkFGcL9cL
-         /khAISWphgOj7qGoZ2Mq0xQ7BlJghyBkrnhmpBCZ6IBPlV5Xb07jKu+FQtZFhTePvs
-         XtmjzNqbOGEPg==
-Subject: Re: [PATCH 5.13 046/151] interconnect: qcom: icc-rpmh: Add BCMs to
- commit list in pre_aggregate
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, Mike Tipton <mdtipton@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-References: <20210816125444.082226187@linuxfoundation.org>
- <20210816125445.588155407@linuxfoundation.org>
-From:   Georgi Djakov <djakov@kernel.org>
-Message-ID: <56b19dc0-b5b0-accb-956d-1a817444ca04@kernel.org>
-Date:   Mon, 16 Aug 2021 20:17:52 +0300
+        id S231356AbhHPRXi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 13:23:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49316 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229699AbhHPRXi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Aug 2021 13:23:38 -0400
+Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70E25C061764
+        for <stable@vger.kernel.org>; Mon, 16 Aug 2021 10:23:06 -0700 (PDT)
+Received: by mail-pl1-x629.google.com with SMTP id a5so21473735plh.5
+        for <stable@vger.kernel.org>; Mon, 16 Aug 2021 10:23:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=JbkoYVj2iCvy1DJfI1TLQI1cdazUuA0pNhcMhk9L/YA=;
+        b=UKKioYpmJgkww71ZPFO5NiwN69APnS0t0FX/r5hgcsEgUipdaXIgIv6ikzvbs+1x9q
+         hnLCDlikaFMS2dJkdkxQy9Zvk/rvF8wnBMehvRwGiaKtLkllt/Q+SsG2VrMvbB8Qd/Vh
+         oQBtwZzAF2XJ1tl/li+ilOVy+OlM/ev6cCDey/qQAmpkCtExPwfg+SlODgury+QMO6jn
+         rMrsfV72kh9DnWj4aNNNfvKt8oDGubNUMoVkkSnHlIlxJUSX1/nDrL0uXhM8NytEVifx
+         UQ4ZcpA1gC0B+HDavXC+f/pNtsVQGjPOdxjjr/r+K0dSfyuHJJp2qb53Eieige4+oTV2
+         mr7g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=JbkoYVj2iCvy1DJfI1TLQI1cdazUuA0pNhcMhk9L/YA=;
+        b=Ybo/XQHUFCc43hp1O5lklaghfNTy76em5LeArhevSSp0bCm1G45U3Ujq13eeAvzyUN
+         HHzT/zmBNjI/MnFb5JVEZIibG65Fy0yA1aUe3lfn+kliRvG9i41x3b5V4PoyBzjSed/9
+         T/Apl6QbdkVlzh4Fl1Ed1Cu1QT0jDNOFfBDPBle62SkiG8LUeIPArNC6fd4RWKi+a5JM
+         EwLR+kPC+DoACpLNrh/DkFgyv/AQMMWomGOZ8vlk1WBaCZEb4xYRa5FcyIB/u9zTgWcA
+         e9NVFlILrNKkjbAZXgwP3SdsafsnreeCKY/3+8/dbgWDvpa/8yUzWZOHrgo3ecYJl68J
+         8QPg==
+X-Gm-Message-State: AOAM533U5B+gCfFA2vAAfIINZgEACzLWbx7F1ghiSDvxsjhjJ6vy0GKK
+        B4+8eAI32Sobnj5PLJC1KW9GdovdAaEaUSpp
+X-Google-Smtp-Source: ABdhPJwhsL3U9qrxr0k357lbdKz17qv4oimQuGIA0GCYi6Atx80L9ILcX/reMcr/4djgGSFlt4rWmA==
+X-Received: by 2002:a17:90a:9511:: with SMTP id t17mr204139pjo.194.1629134585805;
+        Mon, 16 Aug 2021 10:23:05 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id c9sm14813290pgq.58.2021.08.16.10.23.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 16 Aug 2021 10:23:05 -0700 (PDT)
+Message-ID: <611a9ef9.1c69fb81.e49a3.7a4f@mx.google.com>
+Date:   Mon, 16 Aug 2021 10:23:05 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <20210816125445.588155407@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/5.4
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.4.141-62-g5e64ed094a87
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/5.4 baseline: 175 runs,
+ 5 regressions (v5.4.141-62-g5e64ed094a87)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 16.08.21 16:01, Greg Kroah-Hartman wrote:
-> From: Mike Tipton <mdtipton@codeaurora.org>
-> 
-> [ Upstream commit f84f5b6f72e68bbaeb850b58ac167e4a3a47532a ]
-> 
-> We're only adding BCMs to the commit list in aggregate(), but there are
-> cases where pre_aggregate() is called without subsequently calling
-> aggregate(). In particular, in icc_sync_state() when a node with initial
-> BW has zero requests. Since BCMs aren't added to the commit list in
-> these cases, we don't actually send the zero BW request to HW. So the
-> resources remain on unnecessarily.
-> 
-> Add BCMs to the commit list in pre_aggregate() instead, which is always
-> called even when there are no requests.
-> 
-> Fixes: 976daac4a1c5 ("interconnect: qcom: Consolidate interconnect RPMh support")
-> Signed-off-by: Mike Tipton <mdtipton@codeaurora.org>
-> Link: https://lore.kernel.org/r/20210721175432.2119-5-mdtipton@codeaurora.org
-> Signed-off-by: Georgi Djakov <djakov@kernel.org>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
+stable-rc/queue/5.4 baseline: 175 runs, 5 regressions (v5.4.141-62-g5e64ed0=
+94a87)
 
-Hello Greg and Sasha,
+Regressions Summary
+-------------------
 
-Please drop this patch from both 5.10 and 5.13 stable queues. It's
-causing issues on some platforms and we are reverting in. Revert is
-in linux-next already.
+platform            | arch | lab           | compiler | defconfig          =
+| regressions
+--------------------+------+---------------+----------+--------------------=
++------------
+rk3288-veyron-jaq   | arm  | lab-collabora | gcc-8    | multi_v7_defconfig =
+| 4          =
 
-Thanks,
-Georgi
+sun8i-a33-olinuxino | arm  | lab-clabbe    | gcc-8    | multi_v7_defconfig =
+| 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
+el/v5.4.141-62-g5e64ed094a87/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.4
+  Describe: v5.4.141-62-g5e64ed094a87
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      5e64ed094a8712f2fedf9d4b08e24071e753db96 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform            | arch | lab           | compiler | defconfig          =
+| regressions
+--------------------+------+---------------+----------+--------------------=
++------------
+rk3288-veyron-jaq   | arm  | lab-collabora | gcc-8    | multi_v7_defconfig =
+| 4          =
+
+
+  Details:     https://kernelci.org/test/plan/id/611a6db4d8e4bec3f5b1369b
+
+  Results:     66 PASS, 4 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.141-6=
+2-g5e64ed094a87/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288-=
+veyron-jaq.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.141-6=
+2-g5e64ed094a87/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288-=
+veyron-jaq.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-iodomain-grf-probed: https://kernelci.org/test=
+/case/id/611a6db4d8e4bec3f5b136b3
+        failing since 62 days (last pass: v5.4.125-37-g7cda316475cf, first =
+fail: v5.4.125-84-g411d62eda127)
+
+    2021-08-16T13:52:28.169558  /lava-4370627/1/../bin/lava-test-case<8>[  =
+ 16.026395] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Drockchip-iodomain-grf-prob=
+ed RESULT=3Dfail>
+    2021-08-16T13:52:28.169857  =
+
+    2021-08-16T13:52:28.170042  /lava-4370627/1/../bin/lava-test-case   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdio0-probed: https://kernelci.org/test/=
+case/id/611a6db4d8e4bec3f5b136cb
+        failing since 62 days (last pass: v5.4.125-37-g7cda316475cf, first =
+fail: v5.4.125-84-g411d62eda127)
+
+    2021-08-16T13:52:26.727782  /lava-4370627/1/../bin/lava-test-case
+    2021-08-16T13:52:26.732833  <8>[   14.601372] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Ddwmmc_rockchip-sdio0-probed RESULT=3Dfail>   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdmmc-probed: https://kernelci.org/test/=
+case/id/611a6db4d8e4bec3f5b136cc
+        failing since 62 days (last pass: v5.4.125-37-g7cda316475cf, first =
+fail: v5.4.125-84-g411d62eda127)
+
+    2021-08-16T13:52:25.708764  /lava-4370627/1/../bin/lava-test-case
+    2021-08-16T13:52:25.714115  <8>[   13.581903] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Ddwmmc_rockchip-sdmmc-probed RESULT=3Dfail>   =
+
+
+  * baseline.bootrr.cros-ec-keyb-probed: https://kernelci.org/test/case/id/=
+611a6db4d8e4bec3f5b136dc
+        new failure (last pass: v5.4.141-61-g6fb21a963637)
+
+    2021-08-16T13:52:24.413918  /lava-4370627/1/../bin/lava-test-case<8>[  =
+ 12.286023] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Dcros-ec-keyb-probed RESULT=
+=3Dfail>
+    2021-08-16T13:52:24.414424     =
+
+ =
+
+
+
+platform            | arch | lab           | compiler | defconfig          =
+| regressions
+--------------------+------+---------------+----------+--------------------=
++------------
+sun8i-a33-olinuxino | arm  | lab-clabbe    | gcc-8    | multi_v7_defconfig =
+| 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/611a6ed3c4d57bd341b13662
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.141-6=
+2-g5e64ed094a87/arm/multi_v7_defconfig/gcc-8/lab-clabbe/baseline-sun8i-a33-=
+olinuxino.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.141-6=
+2-g5e64ed094a87/arm/multi_v7_defconfig/gcc-8/lab-clabbe/baseline-sun8i-a33-=
+olinuxino.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/611a6ed3c4d57bd341b13=
+663
+        new failure (last pass: v5.4.141-61-g6fb21a963637) =
+
+ =20
