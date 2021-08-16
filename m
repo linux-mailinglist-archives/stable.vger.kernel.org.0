@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F00033ED55D
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:12:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DF503ED4D4
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:06:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239300AbhHPNLH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:11:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57542 "EHLO mail.kernel.org"
+        id S237347AbhHPNFk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:05:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239114AbhHPNJV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:09:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3FC09632A9;
-        Mon, 16 Aug 2021 13:08:24 +0000 (UTC)
+        id S237077AbhHPNFZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:05:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2FE1763281;
+        Mon, 16 Aug 2021 13:04:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119304;
-        bh=9uXPaplTXBHdcRitmLTJTeryo6YY7RTVvvCLMgHqiT4=;
+        s=korg; t=1629119093;
+        bh=JlbrnMK1LfgAzKTLBbW2P8jqd6nyM5HSEyW+C5cm+Js=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bHeZhL3+kvZE07uDCGoDS91xB2NFvX2BCxxChyXHd5wxelkLZhk0mtT8qJ0HmRGZK
-         uIC/MY1QqTej5evgX6I423HrKsIGKFHf4GSGM2wI7C2RdXM6OeX3hlMKjy36I8489u
-         d1arqxUm5YWDrbu14vnM7JaD6+cxP8grl0fwfBzQ=
+        b=YA2/d3rRrhhYAHGgb6QOlXsPeudGk0y6QDTfB9xXB0Xd2qq2aWk4PocJWGC6+hGIs
+         2nzQI7/2nQ2G7PMCC48B66OpfHAYum2qCyB6FadusWAvI3ojej38yRNj79eHlE33Qf
+         z9CSAtup31nBMBGoEIvclfOedxFrsPh8A6V6Udd4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tatsuhiko Yasumatsu <th.yasumatsu@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org, Yajun Deng <yajun.deng@linux.dev>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 38/96] bpf: Fix integer overflow involving bucket_size
+Subject: [PATCH 5.4 16/62] netfilter: nf_conntrack_bridge: Fix memory leak when error
 Date:   Mon, 16 Aug 2021 15:01:48 +0200
-Message-Id: <20210816125436.227402994@linuxfoundation.org>
+Message-Id: <20210816125428.746782809@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125434.948010115@linuxfoundation.org>
-References: <20210816125434.948010115@linuxfoundation.org>
+In-Reply-To: <20210816125428.198692661@linuxfoundation.org>
+References: <20210816125428.198692661@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,85 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tatsuhiko Yasumatsu <th.yasumatsu@gmail.com>
+From: Yajun Deng <yajun.deng@linux.dev>
 
-[ Upstream commit c4eb1f403243fc7bbb7de644db8587c03de36da6 ]
+[ Upstream commit 38ea9def5b62f9193f6bad96c5d108e2830ecbde ]
 
-In __htab_map_lookup_and_delete_batch(), hash buckets are iterated
-over to count the number of elements in each bucket (bucket_size).
-If bucket_size is large enough, the multiplication to calculate
-kvmalloc() size could overflow, resulting in out-of-bounds write
-as reported by KASAN:
+It should be added kfree_skb_list() when err is not equal to zero
+in nf_br_ip_fragment().
 
-  [...]
-  [  104.986052] BUG: KASAN: vmalloc-out-of-bounds in __htab_map_lookup_and_delete_batch+0x5ce/0xb60
-  [  104.986489] Write of size 4194224 at addr ffffc9010503be70 by task crash/112
-  [  104.986889]
-  [  104.987193] CPU: 0 PID: 112 Comm: crash Not tainted 5.14.0-rc4 #13
-  [  104.987552] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
-  [  104.988104] Call Trace:
-  [  104.988410]  dump_stack_lvl+0x34/0x44
-  [  104.988706]  print_address_description.constprop.0+0x21/0x140
-  [  104.988991]  ? __htab_map_lookup_and_delete_batch+0x5ce/0xb60
-  [  104.989327]  ? __htab_map_lookup_and_delete_batch+0x5ce/0xb60
-  [  104.989622]  kasan_report.cold+0x7f/0x11b
-  [  104.989881]  ? __htab_map_lookup_and_delete_batch+0x5ce/0xb60
-  [  104.990239]  kasan_check_range+0x17c/0x1e0
-  [  104.990467]  memcpy+0x39/0x60
-  [  104.990670]  __htab_map_lookup_and_delete_batch+0x5ce/0xb60
-  [  104.990982]  ? __wake_up_common+0x4d/0x230
-  [  104.991256]  ? htab_of_map_free+0x130/0x130
-  [  104.991541]  bpf_map_do_batch+0x1fb/0x220
-  [...]
+v2: keep this aligned with IPv6.
+v3: modify iter.frag_list to iter.frag.
 
-In hashtable, if the elements' keys have the same jhash() value, the
-elements will be put into the same bucket. By putting a lot of elements
-into a single bucket, the value of bucket_size can be increased to
-trigger the integer overflow.
-
-Triggering the overflow is possible for both callers with CAP_SYS_ADMIN
-and callers without CAP_SYS_ADMIN.
-
-It will be trivial for a caller with CAP_SYS_ADMIN to intentionally
-reach this overflow by enabling BPF_F_ZERO_SEED. As this flag will set
-the random seed passed to jhash() to 0, it will be easy for the caller
-to prepare keys which will be hashed into the same value, and thus put
-all the elements into the same bucket.
-
-If the caller does not have CAP_SYS_ADMIN, BPF_F_ZERO_SEED cannot be
-used. However, it will be still technically possible to trigger the
-overflow, by guessing the random seed value passed to jhash() (32bit)
-and repeating the attempt to trigger the overflow. In this case,
-the probability to trigger the overflow will be low and will take
-a very long time.
-
-Fix the integer overflow by calling kvmalloc_array() instead of
-kvmalloc() to allocate memory.
-
-Fixes: 057996380a42 ("bpf: Add batch ops to all htab bpf map")
-Signed-off-by: Tatsuhiko Yasumatsu <th.yasumatsu@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20210806150419.109658-1-th.yasumatsu@gmail.com
+Fixes: 3c171f496ef5 ("netfilter: bridge: add connection tracking system")
+Signed-off-by: Yajun Deng <yajun.deng@linux.dev>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/hashtab.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/bridge/netfilter/nf_conntrack_bridge.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/kernel/bpf/hashtab.c b/kernel/bpf/hashtab.c
-index 1fccba6e88c4..6c444e815406 100644
---- a/kernel/bpf/hashtab.c
-+++ b/kernel/bpf/hashtab.c
-@@ -1425,8 +1425,8 @@ alloc:
- 	/* We cannot do copy_from_user or copy_to_user inside
- 	 * the rcu_read_lock. Allocate enough space here.
- 	 */
--	keys = kvmalloc(key_size * bucket_size, GFP_USER | __GFP_NOWARN);
--	values = kvmalloc(value_size * bucket_size, GFP_USER | __GFP_NOWARN);
-+	keys = kvmalloc_array(key_size, bucket_size, GFP_USER | __GFP_NOWARN);
-+	values = kvmalloc_array(value_size, bucket_size, GFP_USER | __GFP_NOWARN);
- 	if (!keys || !values) {
- 		ret = -ENOMEM;
- 		goto after_loop;
+diff --git a/net/bridge/netfilter/nf_conntrack_bridge.c b/net/bridge/netfilter/nf_conntrack_bridge.c
+index 8d033a75a766..fdbed3158555 100644
+--- a/net/bridge/netfilter/nf_conntrack_bridge.c
++++ b/net/bridge/netfilter/nf_conntrack_bridge.c
+@@ -88,6 +88,12 @@ static int nf_br_ip_fragment(struct net *net, struct sock *sk,
+ 
+ 			skb = ip_fraglist_next(&iter);
+ 		}
++
++		if (!err)
++			return 0;
++
++		kfree_skb_list(iter.frag);
++
+ 		return err;
+ 	}
+ slow_path:
 -- 
 2.30.2
 
