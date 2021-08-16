@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 49A113ED6A1
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:23:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD4FD3ED6AD
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:23:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239223AbhHPNWd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:22:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44514 "EHLO mail.kernel.org"
+        id S236833AbhHPNW6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:22:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240962AbhHPNU0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:20:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E505463305;
-        Mon, 16 Aug 2021 13:15:54 +0000 (UTC)
+        id S238752AbhHPNUg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:20:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 79303600D4;
+        Mon, 16 Aug 2021 13:15:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119755;
-        bh=SiPgRGHbGQySDNfy3OJn4o1z2BoGp7oudsaI9vqwVuA=;
+        s=korg; t=1629119758;
+        bh=EEr00xQjhRt4abvlxPqMIxXmKFUHYRW4cSkD8hI5gok=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DwzKRXGK6+rV+kqWOoeU0wuMlpUmB+HlM8fM15RqFWmEI1/RGM+5RedlfUPrech3x
-         6V1wlt0sTgcWLi20pEz2kDv2l2Mlyz0b3JR1GhGkN+s+5mXuc+2ozowMxAZnOzoap0
-         tdE7Z8VCr/KuvyefiaZV1asLeBEpr/aXKhd2Qi+0=
+        b=lhA0mxnqrQZh1NrtEsyMHlOZZqhhiIrmGFTyC6ITi+0a4BbnLsdtgYqVLHx6p08ew
+         SHI2iUAkFKWP/JMiPMkFiIIrPsvKA8lojwfSttK4lkp7KhXDyHW+EddjyncxcUylKc
+         yB3mBzeEX1irOs/flEss0ctUi6N/lPLJKVHmdqyk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeff Layton <jlayton@kernel.org>,
+        stable@vger.kernel.org, Mark Nelson <mnelson@redhat.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Luis Henriques <lhenriques@suse.de>,
         Ilya Dryomov <idryomov@gmail.com>
-Subject: [PATCH 5.13 149/151] ceph: clean up locking annotation for ceph_get_snap_realm and __lookup_snap_realm
-Date:   Mon, 16 Aug 2021 15:02:59 +0200
-Message-Id: <20210816125448.990001213@linuxfoundation.org>
+Subject: [PATCH 5.13 150/151] ceph: take snap_empty_lock atomically with snaprealm refcount change
+Date:   Mon, 16 Aug 2021 15:03:00 +0200
+Message-Id: <20210816125449.027025247@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
 References: <20210816125444.082226187@linuxfoundation.org>
@@ -41,59 +43,105 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jeff Layton <jlayton@kernel.org>
 
-commit df2c0cb7f8e8c83e495260ad86df8c5da947f2a7 upstream.
+commit 8434ffe71c874b9c4e184b88d25de98c2bf5fe3f upstream.
 
-They both say that the snap_rwsem must be held for write, but I don't
-see any real reason for it, and it's not currently always called that
-way.
+There is a race in ceph_put_snap_realm. The change to the nref and the
+spinlock acquisition are not done atomically, so you could decrement
+nref, and before you take the spinlock, the nref is incremented again.
+At that point, you end up putting it on the empty list when it
+shouldn't be there. Eventually __cleanup_empty_realms runs and frees
+it when it's still in-use.
 
-The lookup is just walking the rbtree, so holding it for read should be
-fine there. The "get" is bumping the refcount and (possibly) removing
-it from the empty list. I see no need to hold the snap_rwsem for write
-for that.
+Fix this by protecting the 1->0 transition with atomic_dec_and_lock,
+and just drop the spinlock if we can get the rwsem.
 
+Because these objects can also undergo a 0->1 refcount transition, we
+must protect that change as well with the spinlock. Increment locklessly
+unless the value is at 0, in which case we take the spinlock, increment
+and then take it off the empty list if it did the 0->1 transition.
+
+With these changes, I'm removing the dout() messages from these
+functions, as well as in __put_snap_realm. They've always been racy, and
+it's better to not print values that may be misleading.
+
+Cc: stable@vger.kernel.org
+URL: https://tracker.ceph.com/issues/46419
+Reported-by: Mark Nelson <mnelson@redhat.com>
 Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Reviewed-by: Ilya Dryomov <idryomov@gmail.com>
+Reviewed-by: Luis Henriques <lhenriques@suse.de>
 Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ceph/snap.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ fs/ceph/snap.c |   34 +++++++++++++++++-----------------
+ 1 file changed, 17 insertions(+), 17 deletions(-)
 
 --- a/fs/ceph/snap.c
 +++ b/fs/ceph/snap.c
-@@ -60,12 +60,12 @@
+@@ -67,19 +67,19 @@ void ceph_get_snap_realm(struct ceph_mds
+ {
+ 	lockdep_assert_held(&mdsc->snap_rwsem);
+ 
+-	dout("get_realm %p %d -> %d\n", realm,
+-	     atomic_read(&realm->nref), atomic_read(&realm->nref)+1);
+ 	/*
+-	 * since we _only_ increment realm refs or empty the empty
+-	 * list with snap_rwsem held, adjusting the empty list here is
+-	 * safe.  we do need to protect against concurrent empty list
+-	 * additions, however.
++	 * The 0->1 and 1->0 transitions must take the snap_empty_lock
++	 * atomically with the refcount change. Go ahead and bump the
++	 * nref here, unless it's 0, in which case we take the spinlock
++	 * and then do the increment and remove it from the list.
+ 	 */
+-	if (atomic_inc_return(&realm->nref) == 1) {
+-		spin_lock(&mdsc->snap_empty_lock);
++	if (atomic_inc_not_zero(&realm->nref))
++		return;
++
++	spin_lock(&mdsc->snap_empty_lock);
++	if (atomic_inc_return(&realm->nref) == 1)
+ 		list_del_init(&realm->empty_item);
+-		spin_unlock(&mdsc->snap_empty_lock);
+-	}
++	spin_unlock(&mdsc->snap_empty_lock);
+ }
+ 
+ static void __insert_snap_realm(struct rb_root *root,
+@@ -208,28 +208,28 @@ static void __put_snap_realm(struct ceph
+ {
+ 	lockdep_assert_held_write(&mdsc->snap_rwsem);
+ 
+-	dout("__put_snap_realm %llx %p %d -> %d\n", realm->ino, realm,
+-	     atomic_read(&realm->nref), atomic_read(&realm->nref)-1);
++	/*
++	 * We do not require the snap_empty_lock here, as any caller that
++	 * increments the value must hold the snap_rwsem.
++	 */
+ 	if (atomic_dec_and_test(&realm->nref))
+ 		__destroy_snap_realm(mdsc, realm);
+ }
+ 
  /*
-  * increase ref count for the realm
-  *
-- * caller must hold snap_rwsem for write.
-+ * caller must hold snap_rwsem.
+- * caller needn't hold any locks
++ * See comments in ceph_get_snap_realm. Caller needn't hold any locks.
   */
- void ceph_get_snap_realm(struct ceph_mds_client *mdsc,
+ void ceph_put_snap_realm(struct ceph_mds_client *mdsc,
  			 struct ceph_snap_realm *realm)
  {
--	lockdep_assert_held_write(&mdsc->snap_rwsem);
-+	lockdep_assert_held(&mdsc->snap_rwsem);
+-	dout("put_snap_realm %llx %p %d -> %d\n", realm->ino, realm,
+-	     atomic_read(&realm->nref), atomic_read(&realm->nref)-1);
+-	if (!atomic_dec_and_test(&realm->nref))
++	if (!atomic_dec_and_lock(&realm->nref, &mdsc->snap_empty_lock))
+ 		return;
  
- 	dout("get_realm %p %d -> %d\n", realm,
- 	     atomic_read(&realm->nref), atomic_read(&realm->nref)+1);
-@@ -139,7 +139,7 @@ static struct ceph_snap_realm *ceph_crea
- /*
-  * lookup the realm rooted at @ino.
-  *
-- * caller must hold snap_rwsem for write.
-+ * caller must hold snap_rwsem.
-  */
- static struct ceph_snap_realm *__lookup_snap_realm(struct ceph_mds_client *mdsc,
- 						   u64 ino)
-@@ -147,7 +147,7 @@ static struct ceph_snap_realm *__lookup_
- 	struct rb_node *n = mdsc->snap_realms.rb_node;
- 	struct ceph_snap_realm *r;
- 
--	lockdep_assert_held_write(&mdsc->snap_rwsem);
-+	lockdep_assert_held(&mdsc->snap_rwsem);
- 
- 	while (n) {
- 		r = rb_entry(n, struct ceph_snap_realm, node);
+ 	if (down_write_trylock(&mdsc->snap_rwsem)) {
++		spin_unlock(&mdsc->snap_empty_lock);
+ 		__destroy_snap_realm(mdsc, realm);
+ 		up_write(&mdsc->snap_rwsem);
+ 	} else {
+-		spin_lock(&mdsc->snap_empty_lock);
+ 		list_add(&realm->empty_item, &mdsc->snap_empty);
+ 		spin_unlock(&mdsc->snap_empty_lock);
+ 	}
 
 
