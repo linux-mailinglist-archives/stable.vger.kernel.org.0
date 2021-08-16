@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EB073ED66A
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:22:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CC433ED4D0
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:06:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237972AbhHPNVK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:21:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44438 "EHLO mail.kernel.org"
+        id S237315AbhHPNFf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:05:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230344AbhHPNSc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:18:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B7EF1611C4;
-        Mon, 16 Aug 2021 13:14:04 +0000 (UTC)
+        id S237051AbhHPNFR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:05:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D09DC63292;
+        Mon, 16 Aug 2021 13:04:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119645;
-        bh=4YvZByB9nPGrmEp4OvMsfBVOnrJYSppjoNbvz70+u/Y=;
+        s=korg; t=1629119086;
+        bh=UgpK8n+Bs1hrpBUfC/Epr5hubMuQw91glt/Q5BYDriQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bEZUFtc9kMQ7rnxOIPx60kfiWTxYJIo2GifhCKPs4VKtnjaYhCZ8ttAxZ6IKykNpe
-         1gVad14Yn/RsKeAMuRlT0UGyzpdlsdCl5PzAyAjQRopWvPIaveGzgN59G1CrzypqNW
-         JCIeGPNLi3n77h7Ze7Tve4pKplPFnIVNPvAIx3Nc=
+        b=xRR3wolgEuQLEq9f0wORzdITjmbzSHfGd7xpJ5uM6o1x9O9gadU2V3x3EYcpo4Wda
+         a/5qjpl6Mdxi5kn3hTshCcS+93bD/27FZssJ9kig2m0uBjNv+9qRSgTDq5G0vhXl8h
+         m5DuHfTjl296Z4pZMimbtpmHwZ/GJGdqU7BzI1LU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Willy Tarreau <w@1wt.eu>, Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 107/151] net: linkwatch: fix failure to restore device state across suspend/resume
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.4 45/62] x86/ioapic: Force affinity setup before startup
 Date:   Mon, 16 Aug 2021 15:02:17 +0200
-Message-Id: <20210816125447.595958650@linuxfoundation.org>
+Message-Id: <20210816125429.743377911@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
-References: <20210816125444.082226187@linuxfoundation.org>
+In-Reply-To: <20210816125428.198692661@linuxfoundation.org>
+References: <20210816125428.198692661@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,92 +39,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willy Tarreau <w@1wt.eu>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit 6922110d152e56d7569616b45a1f02876cf3eb9f ]
+commit 0c0e37dc11671384e53ba6ede53a4d91162a2cc5 upstream.
 
-After migrating my laptop from 4.19-LTS to 5.4-LTS a while ago I noticed
-that my Ethernet port to which a bond and a VLAN interface are attached
-appeared to remain up after resuming from suspend with the cable unplugged
-(and that problem still persists with 5.10-LTS).
+The IO/APIC cannot handle interrupt affinity changes safely after startup
+other than from an interrupt handler. The startup sequence in the generic
+interrupt code violates that assumption.
 
-It happens that the following happens:
+Mark the irq chip with the new IRQCHIP_AFFINITY_PRE_STARTUP flag so that
+the default interrupt setting happens before the interrupt is started up
+for the first time.
 
-  - the network driver (e1000e here) prepares to suspend, calls e1000e_down()
-    which calls netif_carrier_off() to signal that the link is going down.
-  - netif_carrier_off() adds a link_watch event to the list of events for
-    this device
-  - the device is completely stopped.
-  - the machine suspends
-  - the cable is unplugged and the machine brought to another location
-  - the machine is resumed
-  - the queued linkwatch events are processed for the device
-  - the device doesn't yet have the __LINK_STATE_PRESENT bit and its events
-    are silently dropped
-  - the device is resumed with its link down
-  - the upper VLAN and bond interfaces are never notified that the link had
-    been turned down and remain up
-  - the only way to provoke a change is to physically connect the machine
-    to a port and possibly unplug it.
-
-The state after resume looks like this:
-  $ ip -br li | egrep 'bond|eth'
-  bond0            UP             e8:6a:64:64:64:64 <BROADCAST,MULTICAST,MASTER,UP,LOWER_UP>
-  eth0             DOWN           e8:6a:64:64:64:64 <NO-CARRIER,BROADCAST,MULTICAST,SLAVE,UP>
-  eth0.2@eth0      UP             e8:6a:64:64:64:64 <BROADCAST,MULTICAST,SLAVE,UP,LOWER_UP>
-
-Placing an explicit call to netdev_state_change() either in the suspend
-or the resume code in the NIC driver worked around this but the solution
-is not satisfying.
-
-The issue in fact really is in link_watch that loses events while it
-ought not to. It happens that the test for the device being present was
-added by commit 124eee3f6955 ("net: linkwatch: add check for netdevice
-being present to linkwatch_do_dev") in 4.20 to avoid an access to
-devices that are not present.
-
-Instead of dropping events, this patch proceeds slightly differently by
-postponing their handling so that they happen after the device is fully
-resumed.
-
-Fixes: 124eee3f6955 ("net: linkwatch: add check for netdevice being present to linkwatch_do_dev")
-Link: https://lists.openwall.net/netdev/2018/03/15/62
-Cc: Heiner Kallweit <hkallweit1@gmail.com>
-Cc: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Willy Tarreau <w@1wt.eu>
-Link: https://lore.kernel.org/r/20210809160628.22623-1-w@1wt.eu
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 18404756765c ("genirq: Expose default irq affinity mask (take 3)")
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Marc Zyngier <maz@kernel.org>
+Reviewed-by: Marc Zyngier <maz@kernel.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210729222542.832143400@linutronix.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/link_watch.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/x86/kernel/apic/io_apic.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/net/core/link_watch.c b/net/core/link_watch.c
-index 75431ca9300f..1a455847da54 100644
---- a/net/core/link_watch.c
-+++ b/net/core/link_watch.c
-@@ -158,7 +158,7 @@ static void linkwatch_do_dev(struct net_device *dev)
- 	clear_bit(__LINK_STATE_LINKWATCH_PENDING, &dev->state);
+--- a/arch/x86/kernel/apic/io_apic.c
++++ b/arch/x86/kernel/apic/io_apic.c
+@@ -1961,7 +1961,8 @@ static struct irq_chip ioapic_chip __rea
+ 	.irq_set_affinity	= ioapic_set_affinity,
+ 	.irq_retrigger		= irq_chip_retrigger_hierarchy,
+ 	.irq_get_irqchip_state	= ioapic_irq_get_chip_state,
+-	.flags			= IRQCHIP_SKIP_SET_WAKE,
++	.flags			= IRQCHIP_SKIP_SET_WAKE |
++				  IRQCHIP_AFFINITY_PRE_STARTUP,
+ };
  
- 	rfc2863_policy(dev);
--	if (dev->flags & IFF_UP && netif_device_present(dev)) {
-+	if (dev->flags & IFF_UP) {
- 		if (netif_carrier_ok(dev))
- 			dev_activate(dev);
- 		else
-@@ -204,7 +204,8 @@ static void __linkwatch_run_queue(int urgent_only)
- 		dev = list_first_entry(&wrk, struct net_device, link_watch_list);
- 		list_del_init(&dev->link_watch_list);
+ static struct irq_chip ioapic_ir_chip __read_mostly = {
+@@ -1974,7 +1975,8 @@ static struct irq_chip ioapic_ir_chip __
+ 	.irq_set_affinity	= ioapic_set_affinity,
+ 	.irq_retrigger		= irq_chip_retrigger_hierarchy,
+ 	.irq_get_irqchip_state	= ioapic_irq_get_chip_state,
+-	.flags			= IRQCHIP_SKIP_SET_WAKE,
++	.flags			= IRQCHIP_SKIP_SET_WAKE |
++				  IRQCHIP_AFFINITY_PRE_STARTUP,
+ };
  
--		if (urgent_only && !linkwatch_urgent_event(dev)) {
-+		if (!netif_device_present(dev) ||
-+		    (urgent_only && !linkwatch_urgent_event(dev))) {
- 			list_add_tail(&dev->link_watch_list, &lweventlist);
- 			continue;
- 		}
--- 
-2.30.2
-
+ static inline void init_IO_APIC_traps(void)
 
 
