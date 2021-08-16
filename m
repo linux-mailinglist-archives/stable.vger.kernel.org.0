@@ -2,91 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E2F13ECF87
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 09:40:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1823D3ECFC1
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 09:54:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234056AbhHPHlB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 03:41:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45238 "EHLO mail.kernel.org"
+        id S234503AbhHPHyc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 03:54:32 -0400
+Received: from helcar.hmeau.com ([216.24.177.18]:53106 "EHLO deadmen.hmeau.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231499AbhHPHlA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 03:41:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 656B061AAA;
-        Mon, 16 Aug 2021 07:40:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629099629;
-        bh=0iBbJpTQ0FFTf2vN01NUELXphKpJOVgNZ6/ITjKzFC8=;
-        h=Subject:To:Cc:From:Date:From;
-        b=KpZtbBYNAbutVbdd69Xmgdk3pldBXcid9qWz/DtysR83TNOColhzzZwKakHSTsedp
-         ijqbrdTDnCItNT6H38Z2tcfFzGkZ078QFS44LgTbSiz8RpLrKKcWiuwGwlKiwObtk7
-         rR9M9mnocKpbJ2OFOEvDHYojmWvYlUUBuLFkYZYg=
-Subject: FAILED: patch "[PATCH] x86/ioapic: Force affinity setup before startup" failed to apply to 4.14-stable tree
-To:     tglx@linutronix.de, maz@kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 16 Aug 2021 09:40:17 +0200
-Message-ID: <162909961761142@kroah.com>
+        id S234414AbhHPHyc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 03:54:32 -0400
+Received: from gondobar.mordor.me.apana.org.au ([192.168.128.4] helo=gondobar)
+        by deadmen.hmeau.com with esmtp (Exim 4.92 #5 (Debian))
+        id 1mFXRO-000705-Gm; Mon, 16 Aug 2021 15:53:50 +0800
+Received: from herbert by gondobar with local (Exim 4.92)
+        (envelope-from <herbert@gondor.apana.org.au>)
+        id 1mFXRK-0002qN-SR; Mon, 16 Aug 2021 15:53:46 +0800
+Date:   Mon, 16 Aug 2021 15:53:46 +0800
+From:   Herbert Xu <herbert@gondor.apana.org.au>
+To:     Dongliang Mu <mudongliangabcd@gmail.com>
+Cc:     Steffen Klassert <steffen.klassert@secunet.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        syzbot+b9cfd1cc5d57ee0a09ab@syzkaller.appspotmail.com,
+        stable@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] net: xfrm: fix bug in ipcomp_free_scratches
+Message-ID: <20210816075346.GA10906@gondor.apana.org.au>
+References: <20210816073832.199701-1-mudongliangabcd@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210816073832.199701-1-mudongliangabcd@gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Aug 16, 2021 at 03:38:29PM +0800, Dongliang Mu wrote:
+>
+> -	for_each_possible_cpu(i)
+> -		vfree(*per_cpu_ptr(scratches, i));
+> +	for_each_possible_cpu(i) {
+> +		void *scratch = *per_cpu_ptr(scratches, i);
+> +		if (!scratch)
+> +			vfree(scratch);
+> +	}
 
-The patch below does not apply to the 4.14-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+This patch is unnecessary.  Please check the implementation of
+vfree, it already checks for NULL pointers just like most of our
+free primitives.
 
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 0c0e37dc11671384e53ba6ede53a4d91162a2cc5 Mon Sep 17 00:00:00 2001
-From: Thomas Gleixner <tglx@linutronix.de>
-Date: Thu, 29 Jul 2021 23:51:49 +0200
-Subject: [PATCH] x86/ioapic: Force affinity setup before startup
-
-The IO/APIC cannot handle interrupt affinity changes safely after startup
-other than from an interrupt handler. The startup sequence in the generic
-interrupt code violates that assumption.
-
-Mark the irq chip with the new IRQCHIP_AFFINITY_PRE_STARTUP flag so that
-the default interrupt setting happens before the interrupt is started up
-for the first time.
-
-Fixes: 18404756765c ("genirq: Expose default irq affinity mask (take 3)")
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Marc Zyngier <maz@kernel.org>
-Reviewed-by: Marc Zyngier <maz@kernel.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210729222542.832143400@linutronix.de
-
-diff --git a/arch/x86/kernel/apic/io_apic.c b/arch/x86/kernel/apic/io_apic.c
-index d5c691a3208b..39224e035e47 100644
---- a/arch/x86/kernel/apic/io_apic.c
-+++ b/arch/x86/kernel/apic/io_apic.c
-@@ -1986,7 +1986,8 @@ static struct irq_chip ioapic_chip __read_mostly = {
- 	.irq_set_affinity	= ioapic_set_affinity,
- 	.irq_retrigger		= irq_chip_retrigger_hierarchy,
- 	.irq_get_irqchip_state	= ioapic_irq_get_chip_state,
--	.flags			= IRQCHIP_SKIP_SET_WAKE,
-+	.flags			= IRQCHIP_SKIP_SET_WAKE |
-+				  IRQCHIP_AFFINITY_PRE_STARTUP,
- };
- 
- static struct irq_chip ioapic_ir_chip __read_mostly = {
-@@ -1999,7 +2000,8 @@ static struct irq_chip ioapic_ir_chip __read_mostly = {
- 	.irq_set_affinity	= ioapic_set_affinity,
- 	.irq_retrigger		= irq_chip_retrigger_hierarchy,
- 	.irq_get_irqchip_state	= ioapic_irq_get_chip_state,
--	.flags			= IRQCHIP_SKIP_SET_WAKE,
-+	.flags			= IRQCHIP_SKIP_SET_WAKE |
-+				  IRQCHIP_AFFINITY_PRE_STARTUP,
- };
- 
- static inline void init_IO_APIC_traps(void)
-
+Cheers,
+-- 
+Email: Herbert Xu <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
