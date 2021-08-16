@@ -2,151 +2,150 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C35A3ED78C
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:36:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D6203ED7D4
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:44:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239757AbhHPNgw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:36:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56754 "EHLO mail.kernel.org"
+        id S231232AbhHPNpK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:45:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60152 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239681AbhHPNf4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:35:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F70D60E90;
-        Mon, 16 Aug 2021 13:35:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629120925;
-        bh=V2djZ0s5eeYtPknbm6mCjf0Kvlgls1rw9uu907bgUCs=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=fGJUSESwqddkOhbxJBKFSBoQkKCT63dyH7dKHeiKg2jInhttWHaz787y2iKM/ZITx
-         eyfEHk59i49OYPoU5+TuSPZlQBYcZXK/HlzRjhQuWECbXIOHEhqZ/DGtVpdSU75GQy
-         PrfpV+r9wqXD1kG6v0Dz90X4heFDYvKfjrM6JVnQ=
-Date:   Mon, 16 Aug 2021 15:35:22 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Chen Huang <chenhuang5@huawei.com>
-Cc:     Roman Gushchin <guro@fb.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Wang Hai <wanghai38@huawei.com>, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, stable@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: Re: [PATCH 5.10.y 01/11] mm: memcontrol: Use helpers to read page's
- memcg data
-Message-ID: <YRppmvYOftjAAl/R@kroah.com>
-References: <20210816072147.3481782-1-chenhuang5@huawei.com>
- <20210816072147.3481782-2-chenhuang5@huawei.com>
- <YRojDsTAjSnw0jIh@kroah.com>
- <a4c545a8-fff0-38bb-4749-3483c9334daa@huawei.com>
+        id S230478AbhHPNpI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:45:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CCBE863282;
+        Mon, 16 Aug 2021 13:44:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1629121476;
+        bh=DBLx5Qi1xn3W3lUbGH5/MbJacCST668Js48ekUZyKkU=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=aqz+j91WbqNXs+0TWqTn3VZHdph25VwNBZoh+3SAHxIOzR7iLrYyVQ2Lbx7BBZ4hC
+         Gm/UIsvsK7vpnYgIpVH8vBAZofRdta8a5EXVLM1Eqg9Pl3y9dviRqSWYuIrI3oVwCh
+         paj9AsP06bG+YT0eGbmx/CaMiDi6l3npoR86c8p1l3b+gaSDZ3S+B3+o5v3XVCAnl4
+         /SOvbtnn+SWz6HbsT0Ex1qyiNmvu41eK0UtuVWtYKZEtJ5Y98CJqOdldomgxrU7dt+
+         vVWbKSWqKfpOHlZ6qWdyr0ePsbRZc+8Bzby9TG24/OPWbNJPW8fVHvU7/BSSR1WMch
+         IgQnzkFB2NXKA==
+Received: by pali.im (Postfix)
+        id CA4992B76; Mon, 16 Aug 2021 15:44:33 +0200 (CEST)
+From:   =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
+To:     stable@vger.kernel.org
+Cc:     Johannes Berg <johannes@sipsolutions.net>,
+        Sasha Levin <sashal@kernel.org>, Luca Coelho <luca@coelho.fi>,
+        linux-wireless@vger.kernel.org
+Subject: [PATCH] mac80211: drop data frames without key on encrypted links
+Date:   Mon, 16 Aug 2021 15:44:24 +0200
+Message-Id: <20210816134424.28191-1-pali@kernel.org>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200327150342.252AF20748@mail.kernel.org>
+References: <20200327150342.252AF20748@mail.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <a4c545a8-fff0-38bb-4749-3483c9334daa@huawei.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 16, 2021 at 09:21:11PM +0800, Chen Huang wrote:
-> 
-> 
-> 在 2021/8/16 16:34, Greg Kroah-Hartman 写道:
-> > On Mon, Aug 16, 2021 at 07:21:37AM +0000, Chen Huang wrote:
-> >> From: Roman Gushchin <guro@fb.com>
-> > 
-> > What is the git commit id of this patch in Linus's tree?
-> > 
-> >>
-> >> Patch series "mm: allow mapping accounted kernel pages to userspace", v6.
-> >>
-> >> Currently a non-slab kernel page which has been charged to a memory cgroup
-> >> can't be mapped to userspace.  The underlying reason is simple: PageKmemcg
-> >> flag is defined as a page type (like buddy, offline, etc), so it takes a
-> >> bit from a page->mapped counter.  Pages with a type set can't be mapped to
-> >> userspace.
-> >>
-> >> But in general the kmemcg flag has nothing to do with mapping to
-> >> userspace.  It only means that the page has been accounted by the page
-> >> allocator, so it has to be properly uncharged on release.
-> >>
-> >> Some bpf maps are mapping the vmalloc-based memory to userspace, and their
-> >> memory can't be accounted because of this implementation detail.
-> >>
-> >> This patchset removes this limitation by moving the PageKmemcg flag into
-> >> one of the free bits of the page->mem_cgroup pointer.  Also it formalizes
-> >> accesses to the page->mem_cgroup and page->obj_cgroups using new helpers,
-> >> adds several checks and removes a couple of obsolete functions.  As the
-> >> result the code became more robust with fewer open-coded bit tricks.
-> >>
-> >> This patch (of 4):
-> >>
-> >> Currently there are many open-coded reads of the page->mem_cgroup pointer,
-> >> as well as a couple of read helpers, which are barely used.
-> >>
-> >> It creates an obstacle on a way to reuse some bits of the pointer for
-> >> storing additional bits of information.  In fact, we already do this for
-> >> slab pages, where the last bit indicates that a pointer has an attached
-> >> vector of objcg pointers instead of a regular memcg pointer.
-> >>
-> >> This commits uses 2 existing helpers and introduces a new helper to
-> >> converts all read sides to calls of these helpers:
-> >>   struct mem_cgroup *page_memcg(struct page *page);
-> >>   struct mem_cgroup *page_memcg_rcu(struct page *page);
-> >>   struct mem_cgroup *page_memcg_check(struct page *page);
-> >>
-> >> page_memcg_check() is intended to be used in cases when the page can be a
-> >> slab page and have a memcg pointer pointing at objcg vector.  It does
-> >> check the lowest bit, and if set, returns NULL.  page_memcg() contains a
-> >> VM_BUG_ON_PAGE() check for the page not being a slab page.
-> >>
-> >> To make sure nobody uses a direct access, struct page's
-> >> mem_cgroup/obj_cgroups is converted to unsigned long memcg_data.
-> >>
-> >> Signed-off-by: Roman Gushchin <guro@fb.com>
-> >> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-> >> Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-> >> Reviewed-by: Shakeel Butt <shakeelb@google.com>
-> >> Acked-by: Johannes Weiner <hannes@cmpxchg.org>
-> >> Acked-by: Michal Hocko <mhocko@suse.com>
-> >> Link: https://lkml.kernel.org/r/20201027001657.3398190-1-guro@fb.com
-> >> Link: https://lkml.kernel.org/r/20201027001657.3398190-2-guro@fb.com
-> >> Link: https://lore.kernel.org/bpf/20201201215900.3569844-2-guro@fb.com
-> >>
-> >> Conflicts:
-> >> 	mm/memcontrol.c
-> > 
-> > The "Conflicts:" lines should be removed.
-> > 
-> > Please fix up the patch series and resubmit.  But note, this seems
-> > really intrusive, are you sure these are all needed?
-> > 
-> 
-> OK，I will resend the patchset.
-> Roman Gushchin's patchset formalize accesses to the page->mem_cgroup and
-> page->obj_cgroups. But for LRU pages and most other raw memcg, they may
-> pin to a memcg cgroup pointer, which should always point to an object cgroup
-> pointer. That's the problem I met. And Muchun Song's patchset fix this.
-> So I think these are all needed.
+From: Johannes Berg <johannes.berg@intel.com>
 
-What in-tree driver causes this to happen and under what workload?
+commit a0761a301746ec2d92d7fcb82af69c0a6a4339aa upstream.
 
-> > What UIO driver are you using that is showing problems like this?
-> > 
-> 
-> The UIO driver is my own driver, and it's creation likes this:
-> First, we register a device
-> 	pdev = platform_device_register_simple("uio_driver,0, NULL, 0);
-> and use uio_info to describe the UIO driver, the page is alloced and used
-> for uio_vma_fault
-> 	info->mem[0].addr = (phys_addr_t) kzalloc(PAGE_SIZE, GFP_ATOMIC);
+If we know that we have an encrypted link (based on having had
+a key configured for TX in the past) then drop all data frames
+in the key selection handler if there's no key anymore.
 
-That is not a physical address, and is not what the uio api is for at
-all.  Please do not abuse it that way.
+This fixes an issue with mac80211 internal TXQs - there we can
+buffer frames for an encrypted link, but then if the key is no
+longer there when they're dequeued, the frames are sent without
+encryption. This happens if a station is disconnected while the
+frames are still on the TXQ.
 
-> then we register the UIO driver.
-> 	uio_register_device(&pdev->dev, info)
+Detecting that a link should be encrypted based on a first key
+having been configured for TX is fine as there are no use cases
+for a connection going from with encryption to no encryption.
+With extended key IDs, however, there is a case of having a key
+configured for only decryption, so we can't just trigger this
+behaviour on a key being configured.
 
-So no in-tree drivers are having problems with the existing code, only
-fake ones?
+Cc: stable@vger.kernel.org
+Reported-by: Jouni Malinen <j@w1.fi>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20200326150855.6865c7f28a14.I9fb1d911b064262d33e33dfba730cdeef83926ca@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+[pali: Backported to 4.19 and older versions]
+Signed-off-by: Pali Rohár <pali@kernel.org>
+---
+ net/mac80211/debugfs_sta.c |  1 +
+ net/mac80211/key.c         |  1 +
+ net/mac80211/sta_info.h    |  1 +
+ net/mac80211/tx.c          | 12 +++++++++---
+ 4 files changed, 12 insertions(+), 3 deletions(-)
 
-thanks,
+diff --git a/net/mac80211/debugfs_sta.c b/net/mac80211/debugfs_sta.c
+index 4105081dc1df..6f390c2e4c8e 100644
+--- a/net/mac80211/debugfs_sta.c
++++ b/net/mac80211/debugfs_sta.c
+@@ -80,6 +80,7 @@ static const char * const sta_flag_names[] = {
+ 	FLAG(MPSP_OWNER),
+ 	FLAG(MPSP_RECIPIENT),
+ 	FLAG(PS_DELIVER),
++	FLAG(USES_ENCRYPTION),
+ #undef FLAG
+ };
+ 
+diff --git a/net/mac80211/key.c b/net/mac80211/key.c
+index 6775d6cb7d3d..7fc55177db84 100644
+--- a/net/mac80211/key.c
++++ b/net/mac80211/key.c
+@@ -341,6 +341,7 @@ static void ieee80211_key_replace(struct ieee80211_sub_if_data *sdata,
+ 	if (sta) {
+ 		if (pairwise) {
+ 			rcu_assign_pointer(sta->ptk[idx], new);
++			set_sta_flag(sta, WLAN_STA_USES_ENCRYPTION);
+ 			sta->ptk_idx = idx;
+ 			ieee80211_check_fast_xmit(sta);
+ 		} else {
+diff --git a/net/mac80211/sta_info.h b/net/mac80211/sta_info.h
+index c33bc5fc0f2d..75d982ff7f3d 100644
+--- a/net/mac80211/sta_info.h
++++ b/net/mac80211/sta_info.h
+@@ -102,6 +102,7 @@ enum ieee80211_sta_info_flags {
+ 	WLAN_STA_MPSP_OWNER,
+ 	WLAN_STA_MPSP_RECIPIENT,
+ 	WLAN_STA_PS_DELIVER,
++	WLAN_STA_USES_ENCRYPTION,
+ 
+ 	NUM_WLAN_STA_FLAGS,
+ };
+diff --git a/net/mac80211/tx.c b/net/mac80211/tx.c
+index 98d048630ad2..3530d1a5fc98 100644
+--- a/net/mac80211/tx.c
++++ b/net/mac80211/tx.c
+@@ -593,10 +593,13 @@ ieee80211_tx_h_select_key(struct ieee80211_tx_data *tx)
+ 	struct ieee80211_tx_info *info = IEEE80211_SKB_CB(tx->skb);
+ 	struct ieee80211_hdr *hdr = (struct ieee80211_hdr *)tx->skb->data;
+ 
+-	if (unlikely(info->flags & IEEE80211_TX_INTFL_DONT_ENCRYPT))
++	if (unlikely(info->flags & IEEE80211_TX_INTFL_DONT_ENCRYPT)) {
+ 		tx->key = NULL;
+-	else if (tx->sta &&
+-		 (key = rcu_dereference(tx->sta->ptk[tx->sta->ptk_idx])))
++		return TX_CONTINUE;
++	}
++
++	if (tx->sta &&
++	    (key = rcu_dereference(tx->sta->ptk[tx->sta->ptk_idx])))
+ 		tx->key = key;
+ 	else if (ieee80211_is_group_privacy_action(tx->skb) &&
+ 		(key = rcu_dereference(tx->sdata->default_multicast_key)))
+@@ -657,6 +660,9 @@ ieee80211_tx_h_select_key(struct ieee80211_tx_data *tx)
+ 		if (!skip_hw && tx->key &&
+ 		    tx->key->flags & KEY_FLAG_UPLOADED_TO_HARDWARE)
+ 			info->control.hw_key = &tx->key->conf;
++	} else if (!ieee80211_is_mgmt(hdr->frame_control) && tx->sta &&
++		   test_sta_flag(tx->sta, WLAN_STA_USES_ENCRYPTION)) {
++		return TX_DROP;
+ 	}
+ 
+ 	return TX_CONTINUE;
+-- 
+2.20.1
 
-greg k-h
