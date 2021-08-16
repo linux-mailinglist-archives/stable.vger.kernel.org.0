@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CFB193ED4D9
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:06:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AB3E3ED652
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:22:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237088AbhHPNFr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:05:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57134 "EHLO mail.kernel.org"
+        id S236918AbhHPNU3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:20:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237247AbhHPNFc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:05:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 35DD161A7A;
-        Mon, 16 Aug 2021 13:05:00 +0000 (UTC)
+        id S239725AbhHPNQT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:16:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B6F62632BF;
+        Mon, 16 Aug 2021 13:13:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119100;
-        bh=rkCkvNfDX/iWRL2ASSFRxRPruVr2sa+2Ga63hXnutJA=;
+        s=korg; t=1629119581;
+        bh=EtGOxfWR9WDS1nktOBui5hOvwsID7jjx4ySm703hkJY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mjyazb00WP53BVRLV0F+vd4jTzWPH+fA2kDa1tZs/2NSYhKHs9SpnygQnddNfEODC
-         M/RmIlAMyfuRKn2poGQMQOEsT7C02sAV8dZr5XGHuEhOp07q9z3Mj20/Ap4ge/o7kT
-         ChEXu/KuL4a8wrhzPyAijPe80SiyAuBH7ljh5IFs=
+        b=v51x2a/ZEhrBWsVBSSCQhuk+d9YQ760w0KcdVdBytdMSLK7hjpmnLblmqKo1DI0e+
+         9pU31NQwqDUiXI8r+xmi8u5JPhddtRtdSoYZKCyKKCd3f1QdUDEf7B9l4yutKzMXWL
+         o3FGBxE+G9YYEncO/Xm4OzfUOChNsW2jPRjo7Wt8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Eckert <fe@dev.tdt.de>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        stable@vger.kernel.org, Alex Vesker <valex@nvidia.com>,
+        Yevgeny Kliteynik <kliteyn@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 19/62] platform/x86: pcengines-apuv2: revert wiring up simswitch GPIO as LED
+Subject: [PATCH 5.13 081/151] net/mlx5: DR, Add fail on error check on decap
 Date:   Mon, 16 Aug 2021 15:01:51 +0200
-Message-Id: <20210816125428.847575906@linuxfoundation.org>
+Message-Id: <20210816125446.749007639@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125428.198692661@linuxfoundation.org>
-References: <20210816125428.198692661@linuxfoundation.org>
+In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
+References: <20210816125444.082226187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,53 +41,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Eckert <fe@dev.tdt.de>
+From: Alex Vesker <valex@nvidia.com>
 
-[ Upstream commit f560cd502190a9fd0ca8db0a15c5cca7d9091d2c ]
+[ Upstream commit d3875924dae632d5edd908d285fffc5f07c835a3 ]
 
-This reverts commit 5037d4ddda31c2dbbb018109655f61054b1756dc.
+While processing encapsulated packet on RX, one of the fields that is
+checked is the inner packet length. If the length as specified in the header
+doesn't match the actual inner packet length, the packet is invalid
+and should be dropped. However, such packet caused the NIC to hang.
 
-Explanation why this does not work:
-This change connects the simswap to the LED subsystem of the kernel.
->From my point of view, it's nonsense. If we do it this way, then this
-can be switched relatively easily via the LED subsystem (trigger:
-none/default-on) and that is dangerous! If this is used, it would be
-unfavorable, since there is also another trigger (trigger:
-heartbeat/netdev).
+This patch turns on a 'fail_on_error' HW bit which allows HW to drop
+such an invalid packet while processing RX packet and trying to decap it.
 
-Therefore, this simswap GPIO should remain in the GPIO
-subsystem and be switched via it and not be connected to the LED
-subsystem. To avoid the problems mentioned above. The LED subsystem is
-not made for this and it is not a good compromise, but rather dangerous.
-
-Signed-off-by: Florian Eckert <fe@dev.tdt.de>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Fixes: ad17dc8cf910 ("net/mlx5: DR, Move STEv0 action apply logic")
+Signed-off-by: Alex Vesker <valex@nvidia.com>
+Signed-off-by: Yevgeny Kliteynik <kliteyn@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/pcengines-apuv2.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/steering/dr_ste_v0.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/platform/x86/pcengines-apuv2.c b/drivers/platform/x86/pcengines-apuv2.c
-index c32daf087640..cb95b4ede824 100644
---- a/drivers/platform/x86/pcengines-apuv2.c
-+++ b/drivers/platform/x86/pcengines-apuv2.c
-@@ -78,7 +78,6 @@ static const struct gpio_led apu2_leds[] = {
- 	{ .name = "apu:green:1" },
- 	{ .name = "apu:green:2" },
- 	{ .name = "apu:green:3" },
--	{ .name = "apu:simswap" },
- };
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_ste_v0.c b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_ste_v0.c
+index 0757a4e8540e..42446e92aa38 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_ste_v0.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_ste_v0.c
+@@ -352,6 +352,7 @@ static void dr_ste_v0_set_rx_decap(u8 *hw_ste_p)
+ {
+ 	MLX5_SET(ste_rx_steering_mult, hw_ste_p, tunneling_action,
+ 		 DR_STE_TUNL_ACTION_DECAP);
++	MLX5_SET(ste_rx_steering_mult, hw_ste_p, fail_on_error, 1);
+ }
  
- static const struct gpio_led_platform_data apu2_leds_pdata = {
-@@ -95,8 +94,6 @@ static struct gpiod_lookup_table gpios_led_table = {
- 				NULL, 1, GPIO_ACTIVE_LOW),
- 		GPIO_LOOKUP_IDX(AMD_FCH_GPIO_DRIVER_NAME, APU2_GPIO_LINE_LED3,
- 				NULL, 2, GPIO_ACTIVE_LOW),
--		GPIO_LOOKUP_IDX(AMD_FCH_GPIO_DRIVER_NAME, APU2_GPIO_LINE_SIMSWAP,
--				NULL, 3, GPIO_ACTIVE_LOW),
- 	}
- };
+ static void dr_ste_v0_set_rx_pop_vlan(u8 *hw_ste_p)
+@@ -365,6 +366,7 @@ static void dr_ste_v0_set_rx_decap_l3(u8 *hw_ste_p, bool vlan)
+ 	MLX5_SET(ste_rx_steering_mult, hw_ste_p, tunneling_action,
+ 		 DR_STE_TUNL_ACTION_L3_DECAP);
+ 	MLX5_SET(ste_modify_packet, hw_ste_p, action_description, vlan ? 1 : 0);
++	MLX5_SET(ste_rx_steering_mult, hw_ste_p, fail_on_error, 1);
+ }
  
+ static void dr_ste_v0_set_rewrite_actions(u8 *hw_ste_p, u16 num_of_actions,
 -- 
 2.30.2
 
