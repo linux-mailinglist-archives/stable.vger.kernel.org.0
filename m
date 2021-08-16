@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D38D13ED4C7
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:06:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A80AC3ED559
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:12:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237201AbhHPNF2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:05:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56502 "EHLO mail.kernel.org"
+        id S239185AbhHPNLB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:11:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237070AbhHPNFL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:05:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C507A6328D;
-        Mon, 16 Aug 2021 13:04:38 +0000 (UTC)
+        id S237753AbhHPNJN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:09:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C5351611C4;
+        Mon, 16 Aug 2021 13:08:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119079;
-        bh=a01H8wLm6Zu59H6wvkNY1oCYyOmh6w5yAlyUoKjNJkg=;
+        s=korg; t=1629119289;
+        bh=lwfX8Md2dZJjbkY6BExex4nDIHeYu+M4o5Glse0VRec=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OFzfDV5fu9mU6Hqlq8FGJ9b8+iNpzPMyTTnDLP7srIlum+zVYeLVtp2W8oVxz8n28
-         Sk73kYOrFVAsTAk0YkT9f422Y19JXSwIRV+1wHe0IhPXZXY1LF+fA3VCraGGroqLIB
-         aTfNo245U53Qyu/04+5GFAe1oMbcDUP/cGNcylmE=
+        b=gtcy/lwELqra0F5eQMT344acLPTACQnjh+h2SxLO0LANWjJWcpeORgA4GRqXYZXPZ
+         VQ3ToYnQte2PbbgydUmxR5EMWSYWybaboO0D+Aj+v1w+oFtqh1tlG+X4ajj7+Ji9Bh
+         4e0jl8vuKn/J7WK5JUr9r29MH3hjEfEU+CP3LbuQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
+        stable@vger.kernel.org,
+        Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>,
+        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
+        Matt Roper <matthew.d.roper@intel.com>,
+        =?UTF-8?q?Jos=C3=A9=20Roberto=20de=20Souza?= <jose.souza@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 42/62] x86/tools: Fix objdump version check again
+Subject: [PATCH 5.10 64/96] drm/i915: Only access SFC_DONE when media domain is not fused off
 Date:   Mon, 16 Aug 2021 15:02:14 +0200
-Message-Id: <20210816125429.637274234@linuxfoundation.org>
+Message-Id: <20210816125437.087500106@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125428.198692661@linuxfoundation.org>
-References: <20210816125428.198692661@linuxfoundation.org>
+In-Reply-To: <20210816125434.948010115@linuxfoundation.org>
+References: <20210816125434.948010115@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,40 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Matt Roper <matthew.d.roper@intel.com>
 
-[ Upstream commit 839ad22f755132838f406751439363c07272ad87 ]
+[ Upstream commit 24d032e2359e3abc926b3d423f49a7c33e0b7836 ]
 
-Skip (omit) any version string info that is parenthesized.
+The SFC_DONE register lives within the corresponding VD0/VD2/VD4/VD6
+forcewake domain and is not accessible if the vdbox in that domain is
+fused off and the forcewake is not initialized.
 
-Warning: objdump version 15) is older than 2.19
-Warning: Skipping posttest.
+This mistake went unnoticed because until recently we were using the
+wrong register offset for the SFC_DONE register; once the register
+offset was corrected, we started hitting errors like
 
-where 'objdump -v' says:
-GNU objdump (GNU Binutils; SUSE Linux Enterprise 15) 2.35.1.20201123-7.18
+  <4> [544.989065] i915 0000:cc:00.0: Uninitialized forcewake domain(s) 0x80 accessed at 0x1ce000
 
-Fixes: 8bee738bb1979 ("x86: Fix objdump version check in chkobjdump.awk for different formats.")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
-Link: https://lore.kernel.org/r/20210731000146.2720-1-rdunlap@infradead.org
+on parts with fused-off vdbox engines.
+
+Fixes: e50dbdbfd9fb ("drm/i915/tgl: Add SFC instdone to error state")
+Fixes: 9c9c6d0ab08a ("drm/i915: Correct SFC_DONE register offset")
+Cc: Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>
+Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Signed-off-by: Matt Roper <matthew.d.roper@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210806174130.1058960-1-matthew.d.roper@intel.com
+Reviewed-by: José Roberto de Souza <jose.souza@intel.com>
+(cherry picked from commit c5589bb5dccb0c5cb74910da93663f489589f3ce)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+[Changed Fixes tag to match the cherry-picked 82929a2140eb]
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/tools/chkobjdump.awk | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/i915/i915_gpu_error.c | 19 ++++++++++++++++++-
+ 1 file changed, 18 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/tools/chkobjdump.awk b/arch/x86/tools/chkobjdump.awk
-index fd1ab80be0de..a4cf678cf5c8 100644
---- a/arch/x86/tools/chkobjdump.awk
-+++ b/arch/x86/tools/chkobjdump.awk
-@@ -10,6 +10,7 @@ BEGIN {
+diff --git a/drivers/gpu/drm/i915/i915_gpu_error.c b/drivers/gpu/drm/i915/i915_gpu_error.c
+index cf6e47adfde6..9ce8f043ad7f 100644
+--- a/drivers/gpu/drm/i915/i915_gpu_error.c
++++ b/drivers/gpu/drm/i915/i915_gpu_error.c
+@@ -727,9 +727,18 @@ static void err_print_gt(struct drm_i915_error_state_buf *m,
+ 	if (INTEL_GEN(m->i915) >= 12) {
+ 		int i;
  
- /^GNU objdump/ {
- 	verstr = ""
-+	gsub(/\(.*\)/, "");
- 	for (i = 3; i <= NF; i++)
- 		if (match($(i), "^[0-9]")) {
- 			verstr = $(i);
+-		for (i = 0; i < GEN12_SFC_DONE_MAX; i++)
++		for (i = 0; i < GEN12_SFC_DONE_MAX; i++) {
++			/*
++			 * SFC_DONE resides in the VD forcewake domain, so it
++			 * only exists if the corresponding VCS engine is
++			 * present.
++			 */
++			if (!HAS_ENGINE(gt->_gt, _VCS(i * 2)))
++				continue;
++
+ 			err_printf(m, "  SFC_DONE[%d]: 0x%08x\n", i,
+ 				   gt->sfc_done[i]);
++		}
+ 
+ 		err_printf(m, "  GAM_DONE: 0x%08x\n", gt->gam_done);
+ 	}
+@@ -1594,6 +1603,14 @@ static void gt_record_regs(struct intel_gt_coredump *gt)
+ 
+ 	if (INTEL_GEN(i915) >= 12) {
+ 		for (i = 0; i < GEN12_SFC_DONE_MAX; i++) {
++			/*
++			 * SFC_DONE resides in the VD forcewake domain, so it
++			 * only exists if the corresponding VCS engine is
++			 * present.
++			 */
++			if (!HAS_ENGINE(gt->_gt, _VCS(i * 2)))
++				continue;
++
+ 			gt->sfc_done[i] =
+ 				intel_uncore_read(uncore, GEN12_SFC_DONE(i));
+ 		}
 -- 
 2.30.2
 
