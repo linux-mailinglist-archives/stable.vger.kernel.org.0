@@ -2,114 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA3483ED3BD
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 14:13:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB4D33ED3C5
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 14:17:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232991AbhHPMNu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 08:13:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38552 "EHLO mail.kernel.org"
+        id S233204AbhHPMSZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 08:18:25 -0400
+Received: from mga01.intel.com ([192.55.52.88]:55811 "EHLO mga01.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229836AbhHPMNt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 08:13:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 279BD63249;
-        Mon, 16 Aug 2021 12:13:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629115998;
-        bh=JBDnvM2Rb9CHm3ibfwVd2+ODwVyPRvpIG0C7yfp2zYI=;
-        h=Subject:To:Cc:From:Date:From;
-        b=lu9KTTp3DmNeySneLzO1rN6D34Pv8gRYESCb9HbTRZ9hDKPHaIKcp5cMcrtvulVBB
-         pNPwBZDV/pqvTAiR7k1xXMswPXJf5zQzvy6U663W7YegufRD/X3P0FrtlyAUPhI25s
-         KcUqB0ak+2BjC9+1E7RfYfwfsLjV1stHVNvtIhTA=
-Subject: FAILED: patch "[PATCH] io_uring: Use WRITE_ONCE() when writing to sq_flags" failed to apply to 5.13-stable tree
-To:     namit@vmware.com, asml.silence@gmail.com, axboe@kernel.dk
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 16 Aug 2021 14:13:06 +0200
-Message-ID: <162911598652205@kroah.com>
+        id S229836AbhHPMSZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 08:18:25 -0400
+X-IronPort-AV: E=McAfee;i="6200,9189,10077"; a="237911496"
+X-IronPort-AV: E=Sophos;i="5.84,324,1620716400"; 
+   d="scan'208";a="237911496"
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Aug 2021 05:17:54 -0700
+X-IronPort-AV: E=Sophos;i="5.84,324,1620716400"; 
+   d="scan'208";a="679076926"
+Received: from swatish2-mobl1.gar.corp.intel.com (HELO [10.215.193.217]) ([10.215.193.217])
+  by fmsmga005-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Aug 2021 05:17:51 -0700
+Subject: Re: [PATCH] drm/i915/display: Drop redundant debug print
+To:     Jani Nikula <jani.nikula@intel.com>,
+        intel-gfx@lists.freedesktop.org
+Cc:     Ankit Nautiyal <ankit.k.nautiyal@intel.com>,
+        Uma Shankar <uma.shankar@intel.com>,
+        Ville Syrj_l_ <ville.syrjala@linux.intel.com>,
+        Imre Deak <imre.deak@intel.com>,
+        Manasi Navare <manasi.d.navare@intel.com>,
+        Jos_ Roberto de Souza <jose.souza@intel.com>,
+        Sean Paul <seanpaul@chromium.org>, stable@vger.kernel.org
+References: <20210812125845.27787-1-swati2.sharma@intel.com>
+ <871r6xn5wd.fsf@intel.com> <04e2728f-a5e3-a8ee-9fdc-9affe753b59e@intel.com>
+ <87wnolio9x.fsf@intel.com>
+From:   "Sharma, Swati2" <swati2.sharma@intel.com>
+Organization: Intel
+Message-ID: <27387edf-5b67-e361-325e-0a9600a28da2@intel.com>
+Date:   Mon, 16 Aug 2021 17:47:48 +0530
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Firefox/78.0 Thunderbird/78.13.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <87wnolio9x.fsf@intel.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.13-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
 
-thanks,
+On 16-Aug-21 5:40 PM, Jani Nikula wrote:
+> On Mon, 16 Aug 2021, "Sharma, Swati2" <swati2.sharma@intel.com> wrote:
+>> On 13-Aug-21 1:16 PM, Jani Nikula wrote:
+>>> On Thu, 12 Aug 2021, Swati Sharma <swati2.sharma@intel.com> wrote:
+>>>> drm_dp_dpcd_read/write already has debug error message.
+>>>> Drop redundant error messages which gives false
+>>>> status even if correct value is read in drm_dp_dpcd_read().
+>>>
+>>> I guess the only problem is it gets harder to associate the preceding
+>>> low level error messages with intel_dp_check_link_service_irq(). *shrug*
+>>>
+>>> Reviewed-by: Jani Nikula <jani.nikula@intel.com>
+>>>
+>>>
+>> Thanks Jani for the review. Can you please merge?
+> 
+> There was another version with open review?
 
-greg k-h
+Yes. https://patchwork.freedesktop.org/series/93025/#rev3
+Should I add debug prints how Imre suggested in other IRQ func
+to make it generic or should it be dropped from here too?
+Quoting imre
+"Yes, that's why I suggested to return for the '0 value read' case 
+without any message printed, but still keep the message for the case 
+when the drm_dp_dpcd_readb() fails."
+"Ok, it's good to keep them in sync at least, so I'm ok with removing 
+the debug messages from here too."
 
------------------- original commit in Linus's tree ------------------
+Please let me know what is the better approach.
+> 
+> BR,
+> Jani.
+> 
+> 
+>>
+>>>>
+>>>> Fixes: 9488a030ac91 ("drm/i915: Add support for enabling link status and recovery")
+>>>> Cc: Swati Sharma <swati2.sharma@intel.com>
+>>>> Cc: Ankit Nautiyal <ankit.k.nautiyal@intel.com>
+>>>> Cc: Uma Shankar <uma.shankar@intel.com> (v2)
+>>>> Cc: Jani Nikula <jani.nikula@intel.com>
+>>>> Cc: "Ville Syrj_l_" <ville.syrjala@linux.intel.com>
+>>>> Cc: Imre Deak <imre.deak@intel.com>
+>>>> Cc: Manasi Navare <manasi.d.navare@intel.com>
+>>>> Cc: Uma Shankar <uma.shankar@intel.com>
+>>>> Cc: "Jos_ Roberto de Souza" <jose.souza@intel.com>
+>>>> Cc: Sean Paul <seanpaul@chromium.org>
+>>>> Cc: <stable@vger.kernel.org> # v5.12+
+>>>>
+>>>> Link: https://patchwork.freedesktop.org/patch/msgid/20201218103723.30844-12-ankit.k.nautiyal@intel.com
+>>>> Signed-off-by: Swati Sharma <swati2.sharma@intel.com>
+>>>> ---
+>>>>    drivers/gpu/drm/i915/display/intel_dp.c | 8 ++------
+>>>>    1 file changed, 2 insertions(+), 6 deletions(-)
+>>>>
+>>>> diff --git a/drivers/gpu/drm/i915/display/intel_dp.c b/drivers/gpu/drm/i915/display/intel_dp.c
+>>>> index c386ef8eb200..5c84f51ad41d 100644
+>>>> --- a/drivers/gpu/drm/i915/display/intel_dp.c
+>>>> +++ b/drivers/gpu/drm/i915/display/intel_dp.c
+>>>> @@ -3871,16 +3871,12 @@ static void intel_dp_check_link_service_irq(struct intel_dp *intel_dp)
+>>>>    		return;
+>>>>    
+>>>>    	if (drm_dp_dpcd_readb(&intel_dp->aux,
+>>>> -			      DP_LINK_SERVICE_IRQ_VECTOR_ESI0, &val) != 1 || !val) {
+>>>> -		drm_dbg_kms(&i915->drm, "Error in reading link service irq vector\n");
+>>>> +			      DP_LINK_SERVICE_IRQ_VECTOR_ESI0, &val) != 1 || !val)
+>>>>    		return;
+>>>> -	}
+>>>>    
+>>>>    	if (drm_dp_dpcd_writeb(&intel_dp->aux,
+>>>> -			       DP_LINK_SERVICE_IRQ_VECTOR_ESI0, val) != 1) {
+>>>> -		drm_dbg_kms(&i915->drm, "Error in writing link service irq vector\n");
+>>>> +			       DP_LINK_SERVICE_IRQ_VECTOR_ESI0, val) != 1)
+>>>>    		return;
+>>>> -	}
+>>>>    
+>>>>    	if (val & HDMI_LINK_STATUS_CHANGED)
+>>>>    		intel_dp_handle_hdmi_link_status_change(intel_dp);
+>>>
+> 
 
-From 20c0b380f971e7d48f5d978bc27d827f7eabb21a Mon Sep 17 00:00:00 2001
-From: Nadav Amit <namit@vmware.com>
-Date: Sat, 7 Aug 2021 17:13:42 -0700
-Subject: [PATCH] io_uring: Use WRITE_ONCE() when writing to sq_flags
-
-The compiler should be forbidden from any strange optimization for async
-writes to user visible data-structures. Without proper protection, the
-compiler can cause write-tearing or invent writes that would confuse the
-userspace.
-
-However, there are writes to sq_flags which are not protected by
-WRITE_ONCE(). Use WRITE_ONCE() for these writes.
-
-This is purely a theoretical issue. Presumably, any compiler is very
-unlikely to do such optimizations.
-
-Fixes: 75b28affdd6a ("io_uring: allocate the two rings together")
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Nadav Amit <namit@vmware.com>
-Link: https://lore.kernel.org/r/20210808001342.964634-3-namit@vmware.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 1093df3977b8..ca064486cb41 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -1500,7 +1500,8 @@ static bool __io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force)
- 	all_flushed = list_empty(&ctx->cq_overflow_list);
- 	if (all_flushed) {
- 		clear_bit(0, &ctx->check_cq_overflow);
--		ctx->rings->sq_flags &= ~IORING_SQ_CQ_OVERFLOW;
-+		WRITE_ONCE(ctx->rings->sq_flags,
-+			   ctx->rings->sq_flags & ~IORING_SQ_CQ_OVERFLOW);
- 	}
- 
- 	if (posted)
-@@ -1579,7 +1580,9 @@ static bool io_cqring_event_overflow(struct io_ring_ctx *ctx, u64 user_data,
- 	}
- 	if (list_empty(&ctx->cq_overflow_list)) {
- 		set_bit(0, &ctx->check_cq_overflow);
--		ctx->rings->sq_flags |= IORING_SQ_CQ_OVERFLOW;
-+		WRITE_ONCE(ctx->rings->sq_flags,
-+			   ctx->rings->sq_flags | IORING_SQ_CQ_OVERFLOW);
-+
- 	}
- 	ocqe->cqe.user_data = user_data;
- 	ocqe->cqe.res = res;
-@@ -6804,14 +6807,16 @@ static inline void io_ring_set_wakeup_flag(struct io_ring_ctx *ctx)
- {
- 	/* Tell userspace we may need a wakeup call */
- 	spin_lock_irq(&ctx->completion_lock);
--	ctx->rings->sq_flags |= IORING_SQ_NEED_WAKEUP;
-+	WRITE_ONCE(ctx->rings->sq_flags,
-+		   ctx->rings->sq_flags | IORING_SQ_NEED_WAKEUP);
- 	spin_unlock_irq(&ctx->completion_lock);
- }
- 
- static inline void io_ring_clear_wakeup_flag(struct io_ring_ctx *ctx)
- {
- 	spin_lock_irq(&ctx->completion_lock);
--	ctx->rings->sq_flags &= ~IORING_SQ_NEED_WAKEUP;
-+	WRITE_ONCE(ctx->rings->sq_flags,
-+		   ctx->rings->sq_flags & ~IORING_SQ_NEED_WAKEUP);
- 	spin_unlock_irq(&ctx->completion_lock);
- }
- 
-
+-- 
+~Swati Sharma
