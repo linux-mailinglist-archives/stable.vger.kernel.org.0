@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 799E83ED661
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:22:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC0513ED60F
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:17:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239559AbhHPNUp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:20:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44232 "EHLO mail.kernel.org"
+        id S239903AbhHPNQg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:16:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239547AbhHPNSK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:18:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B994A632FB;
-        Mon, 16 Aug 2021 13:13:46 +0000 (UTC)
+        id S240285AbhHPNPD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:15:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 80F5A632D7;
+        Mon, 16 Aug 2021 13:12:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119627;
-        bh=Dm+aNn63QCAnr2wkV9m/3Tsbb1xg6VbzYAlW3soAbj4=;
+        s=korg; t=1629119542;
+        bh=GhC2CBBb7EFek9zTKaPoS0L6SLfurb1hT2mpe2FoohM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PshPbHzRiZd2EoKZq6CtfcngbcFHCP3dTOIQxLxV3v48tih56tAEV+dhCam5N2wHs
-         zQbwoCxqF+rGGRiWfFtpqMZKLhJ37L4ydMK0SyiPXMy/J3K58c9ilhqDtFV4S3R2af
-         cdShADIxctpLCMZFErQbGKT+93TC/UtNxNvgge+8=
+        b=HcR6QU5ivUEMT2SlHMJ02MUrTKC1u4tsYxtH82RPVCDkrDJt/yWjdtvVBVwILnypj
+         V0eG+Sa3EScMM7A7r4rCJLcMla/lJ4ZIUo+GMgzN63VleZQo3ZPVzkRaIajH8GusI2
+         Wnp8kKeMBQRDmC4B5HNQDLgnC1kmfaqtGMog7uqo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Hutchings <ben.hutchings@mind.be>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 066/151] net: phy: micrel: Fix link detection on ksz87xx switch"
-Date:   Mon, 16 Aug 2021 15:01:36 +0200
-Message-Id: <20210816125446.242521453@linuxfoundation.org>
+Subject: [PATCH 5.13 067/151] ppp: Fix generating ifname when empty IFLA_IFNAME is specified
+Date:   Mon, 16 Aug 2021 15:01:37 +0200
+Message-Id: <20210816125446.272259344@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
 References: <20210816125444.082226187@linuxfoundation.org>
@@ -40,41 +41,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Hutchings <ben.hutchings@mind.be>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit 2383cb9497d113360137a2be308b390faa80632d ]
+[ Upstream commit 2459dcb96bcba94c08d6861f8a050185ff301672 ]
 
-Commit a5e63c7d38d5 "net: phy: micrel: Fix detection of ksz87xx
-switch" broke link detection on the external ports of the KSZ8795.
+IFLA_IFNAME is nul-term string which means that IFLA_IFNAME buffer can be
+larger than length of string which contains.
 
-The previously unused phy_driver structure for these devices specifies
-config_aneg and read_status functions that appear to be designed for a
-fixed link and do not work with the embedded PHYs in the KSZ8795.
+Function __rtnl_newlink() generates new own ifname if either IFLA_IFNAME
+was not specified at all or userspace passed empty nul-term string.
 
-Delete the use of these functions in favour of the generic PHY
-implementations which were used previously.
+It is expected that if userspace does not specify ifname for new ppp netdev
+then kernel generates one in format "ppp<id>" where id matches to the ppp
+unit id which can be later obtained by PPPIOCGUNIT ioctl.
 
-Fixes: a5e63c7d38d5 ("net: phy: micrel: Fix detection of ksz87xx switch")
-Signed-off-by: Ben Hutchings <ben.hutchings@mind.be>
+And it works in this way if IFLA_IFNAME is not specified at all. But it
+does not work when IFLA_IFNAME is specified with empty string.
+
+So fix this logic also for empty IFLA_IFNAME in ppp_nl_newlink() function
+and correctly generates ifname based on ppp unit identifier if userspace
+did not provided preferred ifname.
+
+Without this patch when IFLA_IFNAME was specified with empty string then
+kernel created a new ppp interface in format "ppp<id>" but id did not
+match ppp unit id returned by PPPIOCGUNIT ioctl. In this case id was some
+number generated by __rtnl_newlink() function.
+
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Fixes: bb8082f69138 ("ppp: build ifname using unit identifier for rtnl based devices")
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/micrel.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/net/ppp/ppp_generic.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/phy/micrel.c b/drivers/net/phy/micrel.c
-index 7afd9edaf249..22ca29cc9ad7 100644
---- a/drivers/net/phy/micrel.c
-+++ b/drivers/net/phy/micrel.c
-@@ -1406,8 +1406,6 @@ static struct phy_driver ksphy_driver[] = {
- 	.name		= "Micrel KSZ87XX Switch",
- 	/* PHY_BASIC_FEATURES */
- 	.config_init	= kszphy_config_init,
--	.config_aneg	= ksz8873mll_config_aneg,
--	.read_status	= ksz8873mll_read_status,
- 	.match_phy_device = ksz8795_match_phy_device,
- 	.suspend	= genphy_suspend,
- 	.resume		= genphy_resume,
+diff --git a/drivers/net/ppp/ppp_generic.c b/drivers/net/ppp/ppp_generic.c
+index b9dd47bd597f..7a099c37527f 100644
+--- a/drivers/net/ppp/ppp_generic.c
++++ b/drivers/net/ppp/ppp_generic.c
+@@ -1317,7 +1317,7 @@ static int ppp_nl_newlink(struct net *src_net, struct net_device *dev,
+ 	 * the PPP unit identifer as suffix (i.e. ppp<unit_id>). This allows
+ 	 * userspace to infer the device name using to the PPPIOCGUNIT ioctl.
+ 	 */
+-	if (!tb[IFLA_IFNAME])
++	if (!tb[IFLA_IFNAME] || !nla_len(tb[IFLA_IFNAME]) || !*(char *)nla_data(tb[IFLA_IFNAME]))
+ 		conf.ifname_is_set = false;
+ 
+ 	err = ppp_dev_configure(src_net, dev, &conf);
 -- 
 2.30.2
 
