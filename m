@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F8703ED013
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 10:15:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 111F13ED014
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 10:15:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234635AbhHPIPu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 04:15:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42124 "EHLO mail.kernel.org"
+        id S234662AbhHPIPx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 04:15:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42196 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234525AbhHPIPu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 04:15:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AA1BD61B00;
-        Mon, 16 Aug 2021 08:15:18 +0000 (UTC)
+        id S234525AbhHPIPw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 04:15:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E7B261AFB;
+        Mon, 16 Aug 2021 08:15:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629101719;
-        bh=q5EZlaq4ZG7MUKR5uW8wA4PQXRDKobmeC3PBRUJtNOg=;
+        s=korg; t=1629101721;
+        bh=3ic8+kZeuku3Se6T3jugyqPlML6h42K+Ef04JwpyKj0=;
         h=Subject:To:Cc:From:Date:From;
-        b=psHVl10Urvnn7Hv0F/nGTCTJca94zBqlvtCBB4WcG3J3evpbBjYb08GaDqVnNDHfi
-         agcKEiTxWgnV92ZcB01Djv9aZDut6mTign91TZvUiiaJPF/AY/0wBon4XvynuRoOn8
-         IKmebnqAlKAeY9nlTajVEEnjv8XNlpURB2DIFpNQ=
-Subject: FAILED: patch "[PATCH] PCI/MSI: Mask all unused MSI-X entries" failed to apply to 4.9-stable tree
+        b=kgMxu6YPL6gvL36vFJKlxIykNn7F8iFfHiVTmVNhEFd3KkfeNYYVgSp7BCs9i9RhW
+         wudgI760J12HOW2AGuOGgVYUxIae+Ih8IKJE1m3GWsiT+ILhk4QY62vOLIrWjEvWr0
+         SxNLypujNgMLUl4GjUK88rq6B9CEDsi/F7OdtfiA=
+Subject: FAILED: patch "[PATCH] PCI/MSI: Mask all unused MSI-X entries" failed to apply to 4.14-stable tree
 To:     tglx@linutronix.de, bhelgaas@google.com, maz@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 16 Aug 2021 10:15:14 +0200
-Message-ID: <1629101714122191@kroah.com>
+Date:   Mon, 16 Aug 2021 10:15:15 +0200
+Message-ID: <16291017154199@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
