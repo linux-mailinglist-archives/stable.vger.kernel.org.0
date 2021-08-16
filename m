@@ -2,100 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C21D3ED325
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 13:36:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 519903ED341
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 13:42:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236189AbhHPLhG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 07:37:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52550 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236131AbhHPLhG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Aug 2021 07:37:06 -0400
-Received: from mail-ej1-x62e.google.com (mail-ej1-x62e.google.com [IPv6:2a00:1450:4864:20::62e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E243C061764;
-        Mon, 16 Aug 2021 04:36:34 -0700 (PDT)
-Received: by mail-ej1-x62e.google.com with SMTP id d11so31160330eja.8;
-        Mon, 16 Aug 2021 04:36:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=VzNlum+DSRQasFc6iJsqTAHfGRqIbtECs/5GE9/2M24=;
-        b=D9FZU7bCfxstwmg1IwQvB+ltXSZM37ASypF9qRxJd5tPLZ0TXCHD0LPEdbQAnxNYiP
-         6LxBXw+oTeAfMCSdBsBRsk59ZjuxCYONNDnLGFynbBwxB7nHzHqQzS70pck0osw6Capu
-         V0op9grEOW3v4dVdEjUunlgmUguhkRVOgHh18a5kHLSt0/4o4zWbX7AkZnUzeB/JP4F1
-         cpSZUukjN/BLQTjEDwEgP4Ayx8G4dRHVx3oTaR8gKCRhCuq2ILPLuGGwxgpL5sfjVIkk
-         +2mO60nTluhIuUbh3/w/7K6QyWwnJKQ1j/5YGUKfdkZwXkf4uBiIbunZKOhZsg8+DWM0
-         rVyw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=VzNlum+DSRQasFc6iJsqTAHfGRqIbtECs/5GE9/2M24=;
-        b=gjEeBUK4jmHmjuW+ecQqtaEDEs+2gNNVD8hdC5UYYlfba/2/m4BJEmcnOZDe2sxwdT
-         73MytLh9cX/Ko4uk+lXnOPGYdNZrEB/g6a+0K7up58jA8XHqKor8gpcpNqzJ127eIoHh
-         uaxvF10r0u/OF5Cr1auDJJ0MB6GPrLRCSqZIVh1ziukWR92hoZHfQMuhkyAh/B8YREvs
-         y5OnqKlyLcQnRGmZzGKy3CoADlLTDkKysl6jza/4tg+HZVediaYahwuSPL9Hi8uU4lC+
-         FtM9wDd4E6WlFsEAVcXELIG9eiyvLxvIdTV2Xy/OyQoCQHNFp6FCsmqDQxg08gxQnn6R
-         Y72A==
-X-Gm-Message-State: AOAM530ch19K0Typ0fmnfqmd8G7nTxqLvxd1m+5DCbGcAgCPcMpylBct
-        x+a0BEg/2hZPpNsXhKukR6hbmfkrlsyOLrUe6Qzv6oQ0+2tG4rS3
-X-Google-Smtp-Source: ABdhPJycUVUTWsimWAN1jnk4SNTHhC0Ilmg56FLbekv1lC0i8ZX/z7lqzStoBV7RLX1VYjqF33milOiInanqSKNa+xo=
-X-Received: by 2002:a17:906:8310:: with SMTP id j16mr14322832ejx.135.1629113793086;
- Mon, 16 Aug 2021 04:36:33 -0700 (PDT)
+        id S235874AbhHPLnK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 07:43:10 -0400
+Received: from mga17.intel.com ([192.55.52.151]:18542 "EHLO mga17.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S236236AbhHPLnJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 07:43:09 -0400
+X-IronPort-AV: E=McAfee;i="6200,9189,10077"; a="196110467"
+X-IronPort-AV: E=Sophos;i="5.84,324,1620716400"; 
+   d="scan'208";a="196110467"
+Received: from orsmga007.jf.intel.com ([10.7.209.58])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Aug 2021 04:42:38 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.84,324,1620716400"; 
+   d="scan'208";a="462026804"
+Received: from allen-box.sh.intel.com ([10.239.159.118])
+  by orsmga007.jf.intel.com with ESMTP; 16 Aug 2021 04:42:35 -0700
+From:   Lu Baolu <baolu.lu@linux.intel.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Joerg Roedel <joro@8bytes.org>, stable@vger.kernel.org,
+        Saeed Mirzamohammadi <saeed.mirzamohammadi@oracle.com>,
+        Ashok Raj <ashok.raj@intel.com>,
+        Camille Lu <camille.lu@hpe.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>
+Subject: [PATCH 1/1] iommu/vt-d: Fix agaw for a supported 48 bit guest address width
+Date:   Mon, 16 Aug 2021 19:39:32 +0800
+Message-Id: <20210816113932.1210581-1-baolu.lu@linux.intel.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-References: <20210816073832.199701-1-mudongliangabcd@gmail.com> <20210816075346.GA10906@gondor.apana.org.au>
-In-Reply-To: <20210816075346.GA10906@gondor.apana.org.au>
-From:   Dongliang Mu <mudongliangabcd@gmail.com>
-Date:   Mon, 16 Aug 2021 19:36:07 +0800
-Message-ID: <CAD-N9QWwmRuPOKZ2BX8ACde4K2GNFUsAWzcciKVG9BwLPcM2-A@mail.gmail.com>
-Subject: Re: [PATCH] net: xfrm: fix bug in ipcomp_free_scratches
-To:     Herbert Xu <herbert@gondor.apana.org.au>
-Cc:     Steffen Klassert <steffen.klassert@secunet.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        syzbot+b9cfd1cc5d57ee0a09ab@syzkaller.appspotmail.com,
-        stable@vger.kernel.org,
-        "open list:NETWORKING [GENERAL]" <netdev@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 16, 2021 at 3:53 PM Herbert Xu <herbert@gondor.apana.org.au> wrote:
->
-> On Mon, Aug 16, 2021 at 03:38:29PM +0800, Dongliang Mu wrote:
-> >
-> > -     for_each_possible_cpu(i)
-> > -             vfree(*per_cpu_ptr(scratches, i));
-> > +     for_each_possible_cpu(i) {
-> > +             void *scratch = *per_cpu_ptr(scratches, i);
-> > +             if (!scratch)
-> > +                     vfree(scratch);
-> > +     }
->
-> This patch is unnecessary.  Please check the implementation of
-> vfree, it already checks for NULL pointers just like most of our
-> free primitives.
+From: Saeed Mirzamohammadi <saeed.mirzamohammadi@oracle.com>
 
-Hi Herbert,
+[ Upstream commit 327d5b2fee91c404a3956c324193892cf2cc9528 ]
 
-since there is no reproducer in the syzbot, I guess the problem might be:
+The IOMMU driver calculates the guest addressability for a DMA request
+based on the value of the mgaw reported from the IOMMU. However, this
+is a fused value and as mentioned in the spec, the guest width
+should be calculated based on the minimum of supported adjusted guest
+address width (SAGAW) and MGAW.
 
-if vmalloc_node in the ipcomp_alloc_scratches returns a NULL pointer,
-it directly returns NULL without updating the per_cpu_ptr(scratches,
-i).
+This is from specification:
+"Guest addressability for a given DMA request is limited to the
+minimum of the value reported through this field and the adjusted
+guest address width of the corresponding page-table structure.
+(Adjusted guest address widths supported by hardware are reported
+through the SAGAW field)."
 
-Therefore, in the ipcomp_free_scratches, vfree will take an invalid
-and outdated per_cpu_ptr as its argument, leading to the bug - BUG:
-unable to handle kernel paging request in ipcomp_free_scratches.
+This causes domain initialization to fail and following
+errors appear for EHCI PCI driver:
 
-Any idea?
+[    2.486393] ehci-pci 0000:01:00.4: EHCI Host Controller
+[    2.486624] ehci-pci 0000:01:00.4: new USB bus registered, assigned bus
+number 1
+[    2.489127] ehci-pci 0000:01:00.4: DMAR: Allocating domain failed
+[    2.489350] ehci-pci 0000:01:00.4: DMAR: 32bit DMA uses non-identity
+mapping
+[    2.489359] ehci-pci 0000:01:00.4: can't setup: -12
+[    2.489531] ehci-pci 0000:01:00.4: USB bus 1 deregistered
+[    2.490023] ehci-pci 0000:01:00.4: init 0000:01:00.4 fail, -12
+[    2.490358] ehci-pci: probe of 0000:01:00.4 failed with error -12
 
->
-> Cheers,
-> --
-> Email: Herbert Xu <herbert@gondor.apana.org.au>
-> Home Page: http://gondor.apana.org.au/~herbert/
-> PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+This issue happens when the value of the sagaw corresponds to a
+48-bit agaw. This fix updates the calculation of the agaw based on
+the minimum of IOMMU's sagaw value and MGAW.
+
+This issue happens on the code path of getting a private domain for a
+device. A private domain was needed when the domain of an iommu group
+couldn't meet the requirement of a device. The IOMMU core has been
+evolved to eliminate the need for private domain, hence this code path
+has alreay been removed from the upstream since commit 327d5b2fee91c
+("iommu/vt-d: Allow 32bit devices to uses DMA domain"). Instead of back
+porting all patches that are required for removing the private domain,
+this simply fixes it in the affected stable kernel between v4.16 and v5.7.
+
+[baolu: The orignal patch could be found here
+ https://lore.kernel.org/linux-iommu/20210412202736.70765-1-saeed.mirzamohammadi@oracle.com/.
+ I added commit message according to Greg's comments at
+ https://lore.kernel.org/linux-iommu/YHZ%2FT9x7Xjf1r6fI@kroah.com/.]
+
+Cc: Joerg Roedel <joro@8bytes.org>
+Cc: Ashok Raj <ashok.raj@intel.com>
+Cc: stable@vger.kernel.org #v4.16+
+Signed-off-by: Saeed Mirzamohammadi <saeed.mirzamohammadi@oracle.com>
+Tested-by: Camille Lu <camille.lu@hpe.com>
+Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+---
+ drivers/iommu/intel-iommu.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
+index 953d86ca6d2b..a2a03df97704 100644
+--- a/drivers/iommu/intel-iommu.c
++++ b/drivers/iommu/intel-iommu.c
+@@ -1853,7 +1853,7 @@ static inline int guestwidth_to_adjustwidth(int gaw)
+ static int domain_init(struct dmar_domain *domain, struct intel_iommu *iommu,
+ 		       int guest_width)
+ {
+-	int adjust_width, agaw;
++	int adjust_width, agaw, cap_width;
+ 	unsigned long sagaw;
+ 	int err;
+ 
+@@ -1867,8 +1867,9 @@ static int domain_init(struct dmar_domain *domain, struct intel_iommu *iommu,
+ 	domain_reserve_special_ranges(domain);
+ 
+ 	/* calculate AGAW */
+-	if (guest_width > cap_mgaw(iommu->cap))
+-		guest_width = cap_mgaw(iommu->cap);
++	cap_width = min_t(int, cap_mgaw(iommu->cap), agaw_to_width(iommu->agaw));
++	if (guest_width > cap_width)
++		guest_width = cap_width;
+ 	domain->gaw = guest_width;
+ 	adjust_width = guestwidth_to_adjustwidth(guest_width);
+ 	agaw = width_to_agaw(adjust_width);
+-- 
+2.25.1
+
