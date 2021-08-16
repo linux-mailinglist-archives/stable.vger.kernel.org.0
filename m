@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 31ADB3ED88C
+	by mail.lfdr.de (Postfix) with ESMTP id 7DBC53ED88D
 	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 16:03:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236670AbhHPODh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 10:03:37 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:59308 "EHLO
+        id S236446AbhHPODi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 10:03:38 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:37608 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231308AbhHPODU (ORCPT
+        by vger.kernel.org with ESMTP id S229880AbhHPODU (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 16 Aug 2021 10:03:20 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
         s=mimecast20190719; t=1629122568;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding;
-        bh=TSOZBB/TDEaNpRJQBTy8N/e/HtpbbKTdZtReQY2ithg=;
-        b=TX9elzti3b/ZQgj8DPwHN36mMxQBpkieYWf9V+VOI8kZqtmammwt0anU19HpcXXi9cZi6B
-        kkDleWoM4s90X7KYm8fFciMK7YxTLcYBYtTt4LRn1lXL9ZEhFtUKwqQWadZoBoEL1Wfed3
-        wK/flc/XVUel5Xy8H/uQspZzc2WuTKA=
+        bh=W0UeGbAy2o6lV9kmLNnb/cV+5YrfIcgJb8Ddk815S4I=;
+        b=RilzFLNkzLXsIzjiGb60kvvTivvn3kfZmqoVFOlRoVjWjiXRUIByUw6Sq75VuKde0XXfHN
+        imUC1/z8ODUATxH9sMGcLUXUDrSLe4dGKcBntLl9CG/jGVVI+tNOsdZMZ8eBzJnxCzNNUu
+        dTUf25vhGFlyyjznuL0AryHozKn0SVo=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-198-YRpzyLvePLK4HOFJytRujQ-1; Mon, 16 Aug 2021 10:02:44 -0400
-X-MC-Unique: YRpzyLvePLK4HOFJytRujQ-1
+ us-mta-392-3Y2yI340OW-3wb_5Cg-GGA-1; Mon, 16 Aug 2021 10:02:45 -0400
+X-MC-Unique: 3Y2yI340OW-3wb_5Cg-GGA-1
 Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 447A5C7400;
-        Mon, 16 Aug 2021 14:02:43 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id F14F2100F768;
+        Mon, 16 Aug 2021 14:02:44 +0000 (UTC)
 Received: from avogadro.lan (unknown [10.39.192.155])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 089CF1803D;
-        Mon, 16 Aug 2021 14:02:41 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id A360C5C23A;
+        Mon, 16 Aug 2021 14:02:43 +0000 (UTC)
 From:   Paolo Bonzini <pbonzini@redhat.com>
 To:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org
 Cc:     stable@vger.kernel.org, Maxim Levitsky <mlevitsk@redhat.com>
-Subject: [PATCH 4.14.y] KVM: nSVM: avoid picking up unsupported bits from L2 in int_ctl (CVE-2021-3653)
-Date:   Mon, 16 Aug 2021 16:02:29 +0200
-Message-Id: <20210816140240.11399-1-pbonzini@redhat.com>
+Subject: [PATCH 4.19.y] KVM: nSVM: avoid picking up unsupported bits from L2 in int_ctl (CVE-2021-3653)
+Date:   Mon, 16 Aug 2021 16:02:30 +0200
+Message-Id: <20210816140240.11399-2-pbonzini@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
@@ -69,10 +69,10 @@ Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
  2 files changed, 10 insertions(+), 7 deletions(-)
 
 diff --git a/arch/x86/include/asm/svm.h b/arch/x86/include/asm/svm.h
-index 78dd9df88157..2a9e81e93aac 100644
+index 93b462e48067..b6dedf6c835c 100644
 --- a/arch/x86/include/asm/svm.h
 +++ b/arch/x86/include/asm/svm.h
-@@ -117,6 +117,8 @@ struct __attribute__ ((__packed__)) vmcb_control_area {
+@@ -118,6 +118,8 @@ struct __attribute__ ((__packed__)) vmcb_control_area {
  #define V_IGN_TPR_SHIFT 20
  #define V_IGN_TPR_MASK (1 << V_IGN_TPR_SHIFT)
  
@@ -82,10 +82,10 @@ index 78dd9df88157..2a9e81e93aac 100644
  #define V_INTR_MASKING_MASK (1 << V_INTR_MASKING_SHIFT)
  
 diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
-index 3571253b8690..0dfd0af61a29 100644
+index bd463d684237..5ddf63896d01 100644
 --- a/arch/x86/kvm/svm.c
 +++ b/arch/x86/kvm/svm.c
-@@ -1208,12 +1208,7 @@ static __init int svm_hardware_setup(void)
+@@ -1394,12 +1394,7 @@ static __init int svm_hardware_setup(void)
  		}
  	}
  
@@ -99,7 +99,7 @@ index 3571253b8690..0dfd0af61a29 100644
  
  	return 0;
  
-@@ -3161,7 +3161,13 @@ static bool nested_svm_vmrun(struct vcpu_svm *svm)
+@@ -3590,7 +3590,13 @@ static void enter_svm_guest_mode(struct vcpu_svm *svm, u64 vmcb_gpa,
  	svm->nested.intercept            = nested_vmcb->control.intercept;
  
  	svm_flush_tlb(&svm->vcpu, true);
