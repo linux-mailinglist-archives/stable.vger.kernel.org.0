@@ -2,33 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F4933ED696
+	by mail.lfdr.de (Postfix) with ESMTP id 45A843ED695
 	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:23:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239377AbhHPNWZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:22:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44230 "EHLO mail.kernel.org"
+        id S239410AbhHPNWY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:22:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240922AbhHPNUY (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S240926AbhHPNUY (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 16 Aug 2021 09:20:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 581A763307;
-        Mon, 16 Aug 2021 13:15:26 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BA615632D4;
+        Mon, 16 Aug 2021 13:15:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119726;
-        bh=cmouDnjztEyz9OYzaUb+gAvvGR/ElZXxMDAvkLgME+c=;
+        s=korg; t=1629119729;
+        bh=rhRNTqah8YTVHZgRxQq5DW2nG/PJfiHbEL/DrhcF9Bo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vrVPC9xrZs8kRXA/B95ihncVS+uYtNgtgVzJv2q2+CJeN29wX/WQj1KSCW7Ylqdfw
-         FOvSw5+4v7cXmN89Dtoc8A7A8GPprP3KJBihYArlCxkbNQnv1U+jBRLzcwhThKKsqe
-         xfYk4YeZFyGcccCgwGlSeYrdYFDHaY+GRRxJiPwc=
+        b=y+Dv2DbktugMf8T9D/Tbdl83Q1TCYxv3bIcDnlTAeHKBe7IZBHqxMYuBGNRH7yfKz
+         yFGq8nl0ul3DlU3Lxg239NYZgLVgYgocS0y8TKd3s7gnbHSlGgm3U0WFOrpGuBQ746
+         dH/wLJasHfT6rcLOxxQm+4L+hFVyUcx3DZ313pkc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Geetika Moolchandani <Geetika.Moolchandani1@ibm.com>,
+        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
+        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
+        Laurent Vivier <lvivier@redhat.com>,
         Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.13 139/151] powerpc/smp: Fix OOPS in topology_init()
-Date:   Mon, 16 Aug 2021 15:02:49 +0200
-Message-Id: <20210816125448.641034465@linuxfoundation.org>
+Subject: [PATCH 5.13 140/151] powerpc/xive: Do not skip CPU-less nodes when creating the IPIs
+Date:   Mon, 16 Aug 2021 15:02:50 +0200
+Message-Id: <20210816125448.681174462@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
 References: <20210816125444.082226187@linuxfoundation.org>
@@ -40,63 +43,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Cédric Le Goater <clg@kaod.org>
 
-commit 8241461536f21bbe51308a6916d1c9fb2e6b75a7 upstream.
+commit cbc06f051c524dcfe52ef0d1f30647828e226d30 upstream.
 
-Running an SMP kernel on an UP platform not prepared for it,
-I encountered the following OOPS:
+On PowerVM, CPU-less nodes can be populated with hot-plugged CPUs at
+runtime. Today, the IPI is not created for such nodes, and hot-plugged
+CPUs use a bogus IPI, which leads to soft lockups.
 
-	BUG: Kernel NULL pointer dereference on read at 0x00000034
-	Faulting instruction address: 0xc0a04110
-	Oops: Kernel access of bad area, sig: 11 [#1]
-	BE PAGE_SIZE=4K SMP NR_CPUS=2 CMPCPRO
-	Modules linked in:
-	CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.13.0-pmac-00001-g230fedfaad21 #5234
-	NIP:  c0a04110 LR: c0a040d8 CTR: c0a04084
-	REGS: e100dda0 TRAP: 0300   Not tainted  (5.13.0-pmac-00001-g230fedfaad21)
-	MSR:  00009032 <EE,ME,IR,DR,RI>  CR: 84000284  XER: 00000000
-	DAR: 00000034 DSISR: 20000000
-	GPR00: c0006bd4 e100de60 c1033320 00000000 00000000 c0942274 00000000 00000000
-	GPR08: 00000000 00000000 00000001 00000063 00000007 00000000 c0006f30 00000000
-	GPR16: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000005
-	GPR24: c0c67d74 c0c67f1c c0c60000 c0c67d70 c0c0c558 1efdf000 c0c00020 00000000
-	NIP [c0a04110] topology_init+0x8c/0x138
-	LR [c0a040d8] topology_init+0x54/0x138
-	Call Trace:
-	[e100de60] [80808080] 0x80808080 (unreliable)
-	[e100de90] [c0006bd4] do_one_initcall+0x48/0x1bc
-	[e100def0] [c0a0150c] kernel_init_freeable+0x1c8/0x278
-	[e100df20] [c0006f44] kernel_init+0x14/0x10c
-	[e100df30] [c00190fc] ret_from_kernel_thread+0x14/0x1c
-	Instruction dump:
-	7c692e70 7d290194 7c035040 7c7f1b78 5529103a 546706fe 5468103a 39400001
-	7c641b78 40800054 80c690b4 7fb9402e <81060034> 7fbeea14 2c080000 7fa3eb78
-	---[ end trace b246ffbc6bbbb6fb ]---
+We can not directly allocate and request the IPI on demand because
+bringup_up() is called under the IRQ sparse lock. The alternative is
+to allocate the IPIs for all possible nodes at startup and to request
+the mapping on demand when the first CPU of a node is brought up.
 
-Fix it by checking smp_ops before using it, as already done in
-several other places in the arch/powerpc/kernel/smp.c
-
-Fixes: 39f87561454d ("powerpc/smp: Move ppc_md.cpu_die() to smp_ops.cpu_offline_self()")
-Cc: stable@vger.kernel.org
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Fixes: 7dcc37b3eff9 ("powerpc/xive: Map one IPI interrupt per node")
+Cc: stable@vger.kernel.org # v5.13
+Reported-by: Geetika Moolchandani <Geetika.Moolchandani1@ibm.com>
+Signed-off-by: Cédric Le Goater <clg@kaod.org>
+Tested-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Tested-by: Laurent Vivier <lvivier@redhat.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/75287841cbb8740edd44880fe60be66d489160d9.1628097995.git.christophe.leroy@csgroup.eu
+Link: https://lore.kernel.org/r/20210807072057.184698-1-clg@kaod.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kernel/sysfs.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/sysdev/xive/common.c |   35 ++++++++++++++++++++++++-----------
+ 1 file changed, 24 insertions(+), 11 deletions(-)
 
---- a/arch/powerpc/kernel/sysfs.c
-+++ b/arch/powerpc/kernel/sysfs.c
-@@ -1167,7 +1167,7 @@ static int __init topology_init(void)
- 		 * CPU.  For instance, the boot cpu might never be valid
- 		 * for hotplugging.
- 		 */
--		if (smp_ops->cpu_offline_self)
-+		if (smp_ops && smp_ops->cpu_offline_self)
- 			c->hotpluggable = 1;
- #endif
+--- a/arch/powerpc/sysdev/xive/common.c
++++ b/arch/powerpc/sysdev/xive/common.c
+@@ -67,6 +67,7 @@ static struct irq_domain *xive_irq_domai
+ static struct xive_ipi_desc {
+ 	unsigned int irq;
+ 	char name[16];
++	atomic_t started;
+ } *xive_ipis;
  
+ /*
+@@ -1120,7 +1121,7 @@ static const struct irq_domain_ops xive_
+ 	.alloc  = xive_ipi_irq_domain_alloc,
+ };
+ 
+-static int __init xive_request_ipi(void)
++static int __init xive_init_ipis(void)
+ {
+ 	struct fwnode_handle *fwnode;
+ 	struct irq_domain *ipi_domain;
+@@ -1144,10 +1145,6 @@ static int __init xive_request_ipi(void)
+ 		struct xive_ipi_desc *xid = &xive_ipis[node];
+ 		struct xive_ipi_alloc_info info = { node };
+ 
+-		/* Skip nodes without CPUs */
+-		if (cpumask_empty(cpumask_of_node(node)))
+-			continue;
+-
+ 		/*
+ 		 * Map one IPI interrupt per node for all cpus of that node.
+ 		 * Since the HW interrupt number doesn't have any meaning,
+@@ -1159,11 +1156,6 @@ static int __init xive_request_ipi(void)
+ 		xid->irq = ret;
+ 
+ 		snprintf(xid->name, sizeof(xid->name), "IPI-%d", node);
+-
+-		ret = request_irq(xid->irq, xive_muxed_ipi_action,
+-				  IRQF_PERCPU | IRQF_NO_THREAD, xid->name, NULL);
+-
+-		WARN(ret < 0, "Failed to request IPI %d: %d\n", xid->irq, ret);
+ 	}
+ 
+ 	return ret;
+@@ -1178,6 +1170,22 @@ out:
+ 	return ret;
+ }
+ 
++static int __init xive_request_ipi(unsigned int cpu)
++{
++	struct xive_ipi_desc *xid = &xive_ipis[early_cpu_to_node(cpu)];
++	int ret;
++
++	if (atomic_inc_return(&xid->started) > 1)
++		return 0;
++
++	ret = request_irq(xid->irq, xive_muxed_ipi_action,
++			  IRQF_PERCPU | IRQF_NO_THREAD,
++			  xid->name, NULL);
++
++	WARN(ret < 0, "Failed to request IPI %d: %d\n", xid->irq, ret);
++	return ret;
++}
++
+ static int xive_setup_cpu_ipi(unsigned int cpu)
+ {
+ 	unsigned int xive_ipi_irq = xive_ipi_cpu_to_irq(cpu);
+@@ -1192,6 +1200,9 @@ static int xive_setup_cpu_ipi(unsigned i
+ 	if (xc->hw_ipi != XIVE_BAD_IRQ)
+ 		return 0;
+ 
++	/* Register the IPI */
++	xive_request_ipi(cpu);
++
+ 	/* Grab an IPI from the backend, this will populate xc->hw_ipi */
+ 	if (xive_ops->get_ipi(cpu, xc))
+ 		return -EIO;
+@@ -1231,6 +1242,8 @@ static void xive_cleanup_cpu_ipi(unsigne
+ 	if (xc->hw_ipi == XIVE_BAD_IRQ)
+ 		return;
+ 
++	/* TODO: clear IPI mapping */
++
+ 	/* Mask the IPI */
+ 	xive_do_source_set_mask(&xc->ipi_data, true);
+ 
+@@ -1253,7 +1266,7 @@ void __init xive_smp_probe(void)
+ 	smp_ops->cause_ipi = xive_cause_ipi;
+ 
+ 	/* Register the IPI */
+-	xive_request_ipi();
++	xive_init_ipis();
+ 
+ 	/* Allocate and setup IPI for the boot CPU */
+ 	xive_setup_cpu_ipi(smp_processor_id());
 
 
