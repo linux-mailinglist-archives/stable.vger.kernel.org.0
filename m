@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B1573ED54F
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:12:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 328673ED4BD
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:04:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237539AbhHPNKp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:10:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58258 "EHLO mail.kernel.org"
+        id S230091AbhHPNFO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:05:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237199AbhHPNJL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:09:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E3F2661163;
-        Mon, 16 Aug 2021 13:08:03 +0000 (UTC)
+        id S236927AbhHPNFD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:05:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9478F63290;
+        Mon, 16 Aug 2021 13:04:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119284;
-        bh=Rxqm1YAwNPqM3lUQa+7ZC894ANw1ofrWEJYCyh8AmFo=;
+        s=korg; t=1629119072;
+        bh=5wZ6rwtvq3DuYxsbG8bxgohiG7P9IpTzLPLxnfj57So=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NFsAp3Od8qe8Gnwnlds8MHDYHtsUPPmVwoZZv/NSb2j1RaWpAz6+iTfyyirJWQJej
-         vNZKUMMZBGQsb/0sQ5gp4n9ztN5I3h/CiUywL6y2+XUPPBy2rU6weWzO3NF9qygYRU
-         yqvrKgkLKpWk8C1EuCVsMyvEMzaaOacHetNRE7E4=
+        b=tKLSI8tEql6n//IJ03XdKNr0o2mQ9+cp+EPDL+/PabUPf8Is0fhi++FYfhbqTdZ2e
+         jaFKkrakF3D6ek+T52DzpttvySVct+HgRUDuYBJVDaTQ0o392yjwA+u1O4dWuhigX2
+         fhYbLq4ljW0rCYjS+sIrJnkS4x07HBwCR9+6ctFs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Neal Cardwell <ncardwell@google.com>,
-        Yuchung Cheng <ycheng@google.com>, Kevin Yang <yyd@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 62/96] tcp_bbr: fix u32 wrap bug in round logic if bbr_init() called after 2B packets
+        stable@vger.kernel.org, Jiang Yadong <jiangyadong@bytedance.com>,
+        Xie Yongji <xieyongji@bytedance.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 40/62] nbd: Aovid double completion of a request
 Date:   Mon, 16 Aug 2021 15:02:12 +0200
-Message-Id: <20210816125437.015681798@linuxfoundation.org>
+Message-Id: <20210816125429.568841964@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125434.948010115@linuxfoundation.org>
-References: <20210816125434.948010115@linuxfoundation.org>
+In-Reply-To: <20210816125428.198692661@linuxfoundation.org>
+References: <20210816125428.198692661@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,64 +41,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neal Cardwell <ncardwell@google.com>
+From: Xie Yongji <xieyongji@bytedance.com>
 
-[ Upstream commit 6de035fec045f8ae5ee5f3a02373a18b939e91fb ]
+[ Upstream commit cddce01160582a5f52ada3da9626c052d852ec42 ]
 
-Currently if BBR congestion control is initialized after more than 2B
-packets have been delivered, depending on the phase of the
-tp->delivered counter the tracking of BBR round trips can get stuck.
+There is a race between iterating over requests in
+nbd_clear_que() and completing requests in recv_work(),
+which can lead to double completion of a request.
 
-The bug arises because if tp->delivered is between 2^31 and 2^32 at
-the time the BBR congestion control module is initialized, then the
-initialization of bbr->next_rtt_delivered to 0 will cause the logic to
-believe that the end of the round trip is still billions of packets in
-the future. More specifically, the following check will fail
-repeatedly:
+To fix it, flush the recv worker before iterating over
+the requests and don't abort the completed request
+while iterating.
 
-  !before(rs->prior_delivered, bbr->next_rtt_delivered)
-
-and thus the connection will take up to 2B packets delivered before
-that check will pass and the connection will set:
-
-  bbr->round_start = 1;
-
-This could cause many mechanisms in BBR to fail to trigger, for
-example bbr_check_full_bw_reached() would likely never exit STARTUP.
-
-This bug is 5 years old and has not been observed, and as a practical
-matter this would likely rarely trigger, since it would require
-transferring at least 2B packets, or likely more than 3 terabytes of
-data, before switching congestion control algorithms to BBR.
-
-This patch is a stable candidate for kernels as far back as v4.9,
-when tcp_bbr.c was added.
-
-Fixes: 0f8782ea1497 ("tcp_bbr: add BBR congestion control")
-Signed-off-by: Neal Cardwell <ncardwell@google.com>
-Reviewed-by: Yuchung Cheng <ycheng@google.com>
-Reviewed-by: Kevin Yang <yyd@google.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20210811024056.235161-1-ncardwell@google.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 96d97e17828f ("nbd: clear_sock on netlink disconnect")
+Reported-by: Jiang Yadong <jiangyadong@bytedance.com>
+Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Link: https://lore.kernel.org/r/20210813151330.96-1-xieyongji@bytedance.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_bbr.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/block/nbd.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/net/ipv4/tcp_bbr.c b/net/ipv4/tcp_bbr.c
-index 6ea3dc2e4219..6274462b86b4 100644
---- a/net/ipv4/tcp_bbr.c
-+++ b/net/ipv4/tcp_bbr.c
-@@ -1041,7 +1041,7 @@ static void bbr_init(struct sock *sk)
- 	bbr->prior_cwnd = 0;
- 	tp->snd_ssthresh = TCP_INFINITE_SSTHRESH;
- 	bbr->rtt_cnt = 0;
--	bbr->next_rtt_delivered = 0;
-+	bbr->next_rtt_delivered = tp->delivered;
- 	bbr->prev_ca_state = TCP_CA_Open;
- 	bbr->packet_conservation = 0;
+diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
+index 839364371f9a..25e81b1a59a5 100644
+--- a/drivers/block/nbd.c
++++ b/drivers/block/nbd.c
+@@ -797,6 +797,10 @@ static bool nbd_clear_req(struct request *req, void *data, bool reserved)
+ {
+ 	struct nbd_cmd *cmd = blk_mq_rq_to_pdu(req);
  
++	/* don't abort one completed request */
++	if (blk_mq_request_completed(req))
++		return true;
++
+ 	mutex_lock(&cmd->lock);
+ 	cmd->status = BLK_STS_IOERR;
+ 	mutex_unlock(&cmd->lock);
+@@ -2009,15 +2013,19 @@ static void nbd_disconnect_and_put(struct nbd_device *nbd)
+ {
+ 	mutex_lock(&nbd->config_lock);
+ 	nbd_disconnect(nbd);
+-	nbd_clear_sock(nbd);
+-	mutex_unlock(&nbd->config_lock);
++	sock_shutdown(nbd);
+ 	/*
+ 	 * Make sure recv thread has finished, so it does not drop the last
+ 	 * config ref and try to destroy the workqueue from inside the work
+-	 * queue.
++	 * queue. And this also ensure that we can safely call nbd_clear_que()
++	 * to cancel the inflight I/Os.
+ 	 */
+ 	if (nbd->recv_workq)
+ 		flush_workqueue(nbd->recv_workq);
++	nbd_clear_que(nbd);
++	nbd->task_setup = NULL;
++	mutex_unlock(&nbd->config_lock);
++
+ 	if (test_and_clear_bit(NBD_RT_HAS_CONFIG_REF,
+ 			       &nbd->config->runtime_flags))
+ 		nbd_config_put(nbd);
 -- 
 2.30.2
 
