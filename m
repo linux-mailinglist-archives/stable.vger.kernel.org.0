@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 19B963ED687
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:23:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D88D23ED555
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:12:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239367AbhHPNV5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:21:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44618 "EHLO mail.kernel.org"
+        id S239088AbhHPNKw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:10:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58330 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240656AbhHPNT7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:19:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 77941632CD;
-        Mon, 16 Aug 2021 13:15:16 +0000 (UTC)
+        id S237429AbhHPNJM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:09:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 54464610E8;
+        Mon, 16 Aug 2021 13:08:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119717;
-        bh=u3aC0WlkHwHUxv5QOQjX/DflPSIcjW/7B8GDa3abAqQ=;
+        s=korg; t=1629119286;
+        bh=ZvYpSPnb/sjZPhLX8TXBfRVqa37SIfIGq7PHbMXwfHQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y61BdJKfPQ1S5RlvTZ61CXiA6LblxUxSn5YcO2DrnesJk3Iq4Evyfis6JzHTx8hN1
-         KHhdbdjnIm5OvwkApyw1mGkaGU9Egbbj0AtMp6YtXUpm5RE5fbfREM2bDq+KfcArNw
-         4EBFTLAph8NfHoeuB79YyaQzCWuIfU4hjyzCGY7I=
+        b=oGiCwvQCsMaoJ9dUhvQ0Et/0yT46s13OE4jFpS4E5xbUXBx9v7c31Mdvg8WYmm1xT
+         8pj+Y5owzVPSNk5OehaodvZYa3OY3opn055924bFojPbt7XD+0kUcExvOWEyRgWtX6
+         k0GGh6t08YlkHlBao36Jis826WIV+6kpXpZsnOes=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 102/151] net: dsa: lantiq: fix broken backpressure in .port_fdb_dump
-Date:   Mon, 16 Aug 2021 15:02:12 +0200
-Message-Id: <20210816125447.442562570@linuxfoundation.org>
+Subject: [PATCH 5.10 63/96] net: igmp: increase size of mr_ifc_count
+Date:   Mon, 16 Aug 2021 15:02:13 +0200
+Message-Id: <20210816125437.048044635@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
-References: <20210816125444.082226187@linuxfoundation.org>
+In-Reply-To: <20210816125434.948010115@linuxfoundation.org>
+References: <20210816125434.948010115@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,63 +41,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 871a73a1c8f55da0a3db234e9dd816ea4fd546f2 ]
+[ Upstream commit b69dd5b3780a7298bd893816a09da751bc0636f7 ]
 
-rtnl_fdb_dump() has logic to split a dump of PF_BRIDGE neighbors into
-multiple netlink skbs if the buffer provided by user space is too small
-(one buffer will typically handle a few hundred FDB entries).
+Some arches support cmpxchg() on 4-byte and 8-byte only.
+Increase mr_ifc_count width to 32bit to fix this problem.
 
-When the current buffer becomes full, nlmsg_put() in
-dsa_slave_port_fdb_do_dump() returns -EMSGSIZE and DSA saves the index
-of the last dumped FDB entry, returns to rtnl_fdb_dump() up to that
-point, and then the dump resumes on the same port with a new skb, and
-FDB entries up to the saved index are simply skipped.
-
-Since dsa_slave_port_fdb_do_dump() is pointed to by the "cb" passed to
-drivers, then drivers must check for the -EMSGSIZE error code returned
-by it. Otherwise, when a netlink skb becomes full, DSA will no longer
-save newly dumped FDB entries to it, but the driver will continue
-dumping. So FDB entries will be missing from the dump.
-
-Fix the broken backpressure by propagating the "cb" return code and
-allow rtnl_fdb_dump() to restart the FDB dump with a new skb.
-
-Fixes: 58c59ef9e930 ("net: dsa: lantiq: Add Forwarding Database access")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 4a2b285e7e10 ("net: igmp: fix data-race in igmp_ifc_timer_expire()")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20210811195715.3684218-1-eric.dumazet@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/lantiq_gswip.c | 14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ include/linux/inetdevice.h | 2 +-
+ net/ipv4/igmp.c            | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/dsa/lantiq_gswip.c b/drivers/net/dsa/lantiq_gswip.c
-index 314ae78bbdd6..e78026ef6d8c 100644
---- a/drivers/net/dsa/lantiq_gswip.c
-+++ b/drivers/net/dsa/lantiq_gswip.c
-@@ -1404,11 +1404,17 @@ static int gswip_port_fdb_dump(struct dsa_switch *ds, int port,
- 		addr[1] = mac_bridge.key[2] & 0xff;
- 		addr[0] = (mac_bridge.key[2] >> 8) & 0xff;
- 		if (mac_bridge.val[1] & GSWIP_TABLE_MAC_BRIDGE_STATIC) {
--			if (mac_bridge.val[0] & BIT(port))
--				cb(addr, 0, true, data);
-+			if (mac_bridge.val[0] & BIT(port)) {
-+				err = cb(addr, 0, true, data);
-+				if (err)
-+					return err;
-+			}
- 		} else {
--			if (((mac_bridge.val[0] & GENMASK(7, 4)) >> 4) == port)
--				cb(addr, 0, false, data);
-+			if (((mac_bridge.val[0] & GENMASK(7, 4)) >> 4) == port) {
-+				err = cb(addr, 0, false, data);
-+				if (err)
-+					return err;
-+			}
- 		}
- 	}
- 	return 0;
+diff --git a/include/linux/inetdevice.h b/include/linux/inetdevice.h
+index 3515ca64e638..b68fca08be27 100644
+--- a/include/linux/inetdevice.h
++++ b/include/linux/inetdevice.h
+@@ -41,7 +41,7 @@ struct in_device {
+ 	unsigned long		mr_qri;		/* Query Response Interval */
+ 	unsigned char		mr_qrv;		/* Query Robustness Variable */
+ 	unsigned char		mr_gq_running;
+-	unsigned char		mr_ifc_count;
++	u32			mr_ifc_count;
+ 	struct timer_list	mr_gq_timer;	/* general query timer */
+ 	struct timer_list	mr_ifc_timer;	/* interface change timer */
+ 
+diff --git a/net/ipv4/igmp.c b/net/ipv4/igmp.c
+index a51360087b19..00576bae183d 100644
+--- a/net/ipv4/igmp.c
++++ b/net/ipv4/igmp.c
+@@ -803,7 +803,7 @@ static void igmp_gq_timer_expire(struct timer_list *t)
+ static void igmp_ifc_timer_expire(struct timer_list *t)
+ {
+ 	struct in_device *in_dev = from_timer(in_dev, t, mr_ifc_timer);
+-	u8 mr_ifc_count;
++	u32 mr_ifc_count;
+ 
+ 	igmpv3_send_cr(in_dev);
+ restart:
 -- 
 2.30.2
 
