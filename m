@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B78C23ECF83
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 09:40:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 341643ECF82
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 09:39:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234234AbhHPHkb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 03:40:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45014 "EHLO mail.kernel.org"
+        id S234391AbhHPHkW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 03:40:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234222AbhHPHkb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 03:40:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B59361AAB;
-        Mon, 16 Aug 2021 07:39:59 +0000 (UTC)
+        id S234386AbhHPHkW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 03:40:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 20C6061AAB;
+        Mon, 16 Aug 2021 07:39:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629099600;
-        bh=s/aA3Ay5sVOvcCemUQp6P33EMNswnhBebMMF/WtRsrU=;
+        s=korg; t=1629099591;
+        bh=CWyFoRYaKEStGyGQGB7++d1Z6LnchIziBfBaB2DqmUg=;
         h=Subject:To:Cc:From:Date:From;
-        b=lo/2+tvZPr6KberZgXR6eOrr5fzH/adaUDMagmosTUFJfwfp6WUQlLFv4SUKhax5Z
-         yyQoF+PafW75LrPEMgLPJ4PEj0FgIGbj23HZ3hjltGNjvSdf8PSgWu0FUtZloF/GHQ
-         q1qE64jaREZfvah67nwUUg5UfEtcAU0rblkZMsAE=
-Subject: FAILED: patch "[PATCH] x86/msi: Force affinity setup before startup" failed to apply to 4.9-stable tree
+        b=woxeuIR4cT88c9U+pXEVy6GFAwxUgfpryqRc+wp73iOULwg+GU1J6mHs7dFRsLlH0
+         xYDBKLPsHm49oxJap/etto0WH47/vCPNeZt3pCqVo3NOgDfn3yiqnlplvwYV/XUOJd
+         yTOaydskgYrAhwTNj9Y6bfE48anmX5fzhy8tGqhk=
+Subject: FAILED: patch "[PATCH] x86/msi: Force affinity setup before startup" failed to apply to 4.4-stable tree
 To:     tglx@linutronix.de, maz@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 16 Aug 2021 09:39:49 +0200
-Message-ID: <162909958920068@kroah.com>
+Message-ID: <162909958959197@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
