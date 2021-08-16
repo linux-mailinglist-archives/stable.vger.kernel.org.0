@@ -2,84 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DBCB3EDA15
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 17:43:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC7AB3EDA4A
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 17:56:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236242AbhHPPoJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 11:44:09 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:24779 "EHLO
+        id S234374AbhHPP5M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 11:57:12 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:34235 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233194AbhHPPoE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Aug 2021 11:44:04 -0400
+        by vger.kernel.org with ESMTP id S236242AbhHPP5L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Aug 2021 11:57:11 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1629128612;
+        s=mimecast20190719; t=1629129399;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=gEcIT3BrsKV6yWl8vLCYfg0HOzxnN0El9ObtH3hmHKg=;
-        b=QSLTJbp2key45oRJ4Tz/KTwUCbdYtOU4IrSKrO04xULDFcv7GJNPjBBqjNVLlsEkImwAh2
-        jDk5YXkbrHxmELE41m3mbeVPU2pTNK7CDLdrLzCTYSoloTNREo4HQWmhAnuSyEr3elHbOL
-        fVoGD4EFHc4omTt+yeycaJcgmdFqaFk=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-388-WBErmc-XMKKfaBlmlnQKGg-1; Mon, 16 Aug 2021 11:43:31 -0400
-X-MC-Unique: WBErmc-XMKKfaBlmlnQKGg-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 0EA9D1008065;
-        Mon, 16 Aug 2021 15:43:30 +0000 (UTC)
-Received: from virtlab701.virt.lab.eng.bos.redhat.com (virtlab701.virt.lab.eng.bos.redhat.com [10.19.152.228])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 61AF7100EBB0;
-        Mon, 16 Aug 2021 15:43:29 +0000 (UTC)
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=PZpQLZMB7RJdGulqivRZelq1MarObE9Ch/tXNewyPHo=;
+        b=Jcs7G+tp7Va5M7RXYiP26mVq6XkQH2+t0qBPdVdSR0MS1hCWR4L/xoPTdIFAhZ2R4jFF+r
+        icAebz9lZsOoHKPD8qNbcYCIhzaplNHrKkpohR3W/lMHRhr+hjuFLG8FRebnpaRjMKOrnq
+        nHpezwHa4Arlgu8ULFa1UTBExLZeG6I=
+Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
+ [209.85.208.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-448-xuRKFTm4PzKlyC9uVe9aIA-1; Mon, 16 Aug 2021 11:56:38 -0400
+X-MC-Unique: xuRKFTm4PzKlyC9uVe9aIA-1
+Received: by mail-ed1-f70.google.com with SMTP id l18-20020a0564021252b02903be7bdd65ccso9140995edw.12
+        for <stable@vger.kernel.org>; Mon, 16 Aug 2021 08:56:38 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=PZpQLZMB7RJdGulqivRZelq1MarObE9Ch/tXNewyPHo=;
+        b=A5rkGnTeJGpV+urzTCly2lTgwb0X2/tgqLJRIkhnKdfsR5r7l8P7DH9lfb7ZheZN/x
+         OVgSXEiHTVSLNINwNt0TqNOeNqwPzjM8z92M+zch0rpsx6W42+JKZHnAfx47Tlh3lrKH
+         X3Jvv2+d6UwaEL4YDJaz2Uy1U/es3tn/Owvz/9PdqDa/YtwWqFSxX8mu5d7gmK9mLV8b
+         ZQeL/u1AEGLSJySlkdkISkwRdLio7HupCYTP8HQDIuJYw/5VR93iQ9aqcrIjxNPqJc5D
+         Q5BoOPbeZXp8Y48J5qpYWa65VyoFpwzYUHJhVg6cvDvoJS98D76Bl980l4J11rAuXNTT
+         IWmw==
+X-Gm-Message-State: AOAM532qCn5VmTaeAm2kPbFJalMeDazQD0/z18f1ePijwHIHKUad+i50
+        Nnv6uHDGPwWOG6nJEEF6S1ieL9H9ZoDgrPF1/aO9gXGnKvkTzDwouFKPk/DeRDyfBcEsNungEKO
+        XdEwk9KHhqB0fwOsFI009zAQFU7JxRVSUIzwi3bgOvO/IDi+NsD9CoDUKxNo9c+qiBBEU
+X-Received: by 2002:aa7:c894:: with SMTP id p20mr21016345eds.42.1629129397266;
+        Mon, 16 Aug 2021 08:56:37 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJz0zVXLSgao02pT8Fnch/EOLmPpvxZgNu0lTTzYEYe6LDXa/xwx5yX+prRxBm3ZPVFWwFWf4g==
+X-Received: by 2002:aa7:c894:: with SMTP id p20mr21016321eds.42.1629129397047;
+        Mon, 16 Aug 2021 08:56:37 -0700 (PDT)
+Received: from ?IPv6:2001:b07:6468:f312:63a7:c72e:ea0e:6045? ([2001:b07:6468:f312:63a7:c72e:ea0e:6045])
+        by smtp.gmail.com with ESMTPSA id i11sm5047064edu.97.2021.08.16.08.56.36
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 16 Aug 2021 08:56:36 -0700 (PDT)
+Subject: Re: [PATCH 5.12.y] KVM: nSVM: avoid picking up unsupported bits from
+ L2 in int_ctl (CVE-2021-3653)
+To:     Maxim Levitsky <mlevitsk@redhat.com>,
+        Greg KH <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        stable@vger.kernel.org
+References: <20210816140240.11399-6-pbonzini@redhat.com>
+ <YRp1bUv85GWsFsuO@kroah.com>
+ <97448bb5-1f58-07f9-1110-96c7ffefd4b2@redhat.com>
+ <YRqAM3gTAscfmr60@kroah.com>
+ <74cf96a9030dc0e996b1814bbf907299e377053e.camel@redhat.com>
 From:   Paolo Bonzini <pbonzini@redhat.com>
-To:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc:     stable@vger.kernel.org, Maxim Levitsky <mlevitsk@redhat.com>
-Subject: [PATCH 5.13.y] KVM: nSVM: always intercept VMLOAD/VMSAVE when nested (CVE-2021-3656)
-Date:   Mon, 16 Aug 2021 11:43:28 -0400
-Message-Id: <20210816154328.3845839-2-pbonzini@redhat.com>
+Message-ID: <ad855723-fe97-6916-8d96-013021e19fc7@redhat.com>
+Date:   Mon, 16 Aug 2021 17:56:35 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+In-Reply-To: <74cf96a9030dc0e996b1814bbf907299e377053e.camel@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Levitsky <mlevitsk@redhat.com>
+On 16/08/21 17:37, Maxim Levitsky wrote:
+> 5.13 will more likely to work with the upstream version.
+> I'll check it soon.
 
-[ upstream commit c7dfa4009965a9b2d7b329ee970eb8da0d32f0bc ]
+There are a couple context differences so I've already tested it and 
+sent it out.
 
-If L1 disables VMLOAD/VMSAVE intercepts, and doesn't enable
-Virtual VMLOAD/VMSAVE (currently not supported for the nested hypervisor),
-then VMLOAD/VMSAVE must operate on the L1 physical memory, which is only
-possible by making L0 intercept these instructions.
-
-Failure to do so allowed the nested guest to run VMLOAD/VMSAVE unintercepted,
-and thus read/write portions of the host physical memory.
-
-Fixes: 89c8a4984fc9 ("KVM: SVM: Enable Virtual VMLOAD VMSAVE feature")
-
-Suggested-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
----
- arch/x86/kvm/svm/nested.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/arch/x86/kvm/svm/nested.c b/arch/x86/kvm/svm/nested.c
-index 7f3b55561ae8..61f418644235 100644
---- a/arch/x86/kvm/svm/nested.c
-+++ b/arch/x86/kvm/svm/nested.c
-@@ -149,6 +149,9 @@ void recalc_intercepts(struct vcpu_svm *svm)
- 
- 	for (i = 0; i < MAX_INTERCEPT; i++)
- 		c->intercepts[i] |= g->intercepts[i];
-+
-+	vmcb_set_intercept(c, INTERCEPT_VMLOAD);
-+	vmcb_set_intercept(c, INTERCEPT_VMSAVE);
- }
- 
- static void copy_vmcb_control_area(struct vmcb_control_area *dst,
--- 
-2.27.0
+Paolo
 
