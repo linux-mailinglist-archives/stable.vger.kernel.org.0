@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00B573ED607
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:17:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E0113ED60C
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:17:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239137AbhHPNQ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:16:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37188 "EHLO mail.kernel.org"
+        id S237309AbhHPNQf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:16:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240272AbhHPNPD (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S240277AbhHPNPD (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 16 Aug 2021 09:15:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DD69C632DA;
-        Mon, 16 Aug 2021 13:12:05 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 67447632DC;
+        Mon, 16 Aug 2021 13:12:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119526;
-        bh=l/uEGIH7iZ8RlWhtRjXA0lwS6dV08yXnDyH8fTWbG1Q=;
+        s=korg; t=1629119528;
+        bh=qgDWIwZb8QP5dz6TuZUfkfjVg0xnYx9m25+qSSJBEQI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a1825WcnfM0UAXjMIb0FCzlc9psvVA1mo1RnpDnMBcVZ+NiPGWttkQgZzmmU9hGEo
-         9RV9U70Gtf07Kwt3B9Rq3AEXVu0TllMpb1u8av6nO1Zhd9V0O402s01Y8N9C1RmqUl
-         QObptUxAkasSVh/TFJFrPeu40/2+aDzXdnlVxXEw=
+        b=0aCWuwv5gE7tCCvawQqKRae5/qULzLVBs/KtmoLlcBnk/ZyofXqgJWNM8hmAqHhHU
+         4siRsIfyp+zsuBVG1MmHrcMLGZGKrJL6mAMst0waoj2SFvqORmbGqnIFSYP5NTEb0+
+         w/2+c5218sUgFph+VXd+jRNUwJte9a5RVX8+405k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Damien Le Moal <damien.lemoal@wdc.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5.13 027/151] pinctrl: k210: Fix k210_fpioa_probe()
-Date:   Mon, 16 Aug 2021 15:00:57 +0200
-Message-Id: <20210816125444.973135954@linuxfoundation.org>
+        stable@vger.kernel.org, Jacek Zloch <jacek.zloch@intel.com>,
+        Lukasz Sobieraj <lukasz.sobieraj@intel.com>,
+        "Lee, Chun-Yi" <jlee@suse.com>,
+        Krzysztof Rusocki <krzysztof.rusocki@intel.com>,
+        Damian Bassa <damian.bassa@intel.com>,
+        Jeff Moyer <jmoyer@redhat.com>,
+        Dan Williams <dan.j.williams@intel.com>
+Subject: [PATCH 5.13 028/151] ACPI: NFIT: Fix support for virtual SPA ranges
+Date:   Mon, 16 Aug 2021 15:00:58 +0200
+Message-Id: <20210816125445.003580090@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
 References: <20210816125444.082226187@linuxfoundation.org>
@@ -41,71 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@wdc.com>
+From: Dan Williams <dan.j.williams@intel.com>
 
-commit 31697ef7f3f45293bba3da87bcc710953e97fc3e upstream.
+commit b93dfa6bda4d4e88e5386490f2b277a26958f9d3 upstream.
 
-In k210_fpioa_probe(), add missing calls to clk_disable_unprepare() in
-case of error after cenabling the clk and pclk clocks. Also add missing
-error handling when enabling pclk.
+Fix the NFIT parsing code to treat a 0 index in a SPA Range Structure as
+a special case and not match Region Mapping Structures that use 0 to
+indicate that they are not mapped. Without this fix some platform BIOS
+descriptions of "virtual disk" ranges do not result in the pmem driver
+attaching to the range.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Fixes: d4c34d09ab03 ("pinctrl: Add RISC-V Canaan Kendryte K210 FPIOA driver")
+Details:
+In addition to typical persistent memory ranges, the ACPI NFIT may also
+convey "virtual" ranges. These ranges are indicated by a UUID in the SPA
+Range Structure of UUID_VOLATILE_VIRTUAL_DISK, UUID_VOLATILE_VIRTUAL_CD,
+UUID_PERSISTENT_VIRTUAL_DISK, or UUID_PERSISTENT_VIRTUAL_CD. The
+critical difference between virtual ranges and UUID_PERSISTENT_MEMORY,
+is that virtual do not support associations with Region Mapping
+Structures.  For this reason the "index" value of virtual SPA Range
+Structures is allowed to be 0. If a platform BIOS decides to represent
+NVDIMMs with disconnected "Region Mapping Structures" (range-index ==
+0), the kernel may falsely associate them with standalone ranges where
+the "SPA Range Structure Index" is also zero. When this happens the
+driver may falsely require labels where "virtual disks" are expected to
+be label-less. I.e. "label-less" is where the namespace-range ==
+region-range and the pmem driver attaches with no user action to create
+a namespace.
+
+Cc: Jacek Zloch <jacek.zloch@intel.com>
+Cc: Lukasz Sobieraj <lukasz.sobieraj@intel.com>
+Cc: "Lee, Chun-Yi" <jlee@suse.com>
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
-Link: https://lore.kernel.org/r/20210806004311.52859-1-damien.lemoal@wdc.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: c2f32acdf848 ("acpi, nfit: treat virtual ramdisk SPA as pmem region")
+Reported-by: Krzysztof Rusocki <krzysztof.rusocki@intel.com>
+Reported-by: Damian Bassa <damian.bassa@intel.com>
+Reviewed-by: Jeff Moyer <jmoyer@redhat.com>
+Link: https://lore.kernel.org/r/162870796589.2521182.1240403310175570220.stgit@dwillia2-desk3.amr.corp.intel.com
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pinctrl/pinctrl-k210.c |   26 ++++++++++++++++++++------
- 1 file changed, 20 insertions(+), 6 deletions(-)
+ drivers/acpi/nfit/core.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/pinctrl/pinctrl-k210.c
-+++ b/drivers/pinctrl/pinctrl-k210.c
-@@ -950,23 +950,37 @@ static int k210_fpioa_probe(struct platf
- 		return ret;
+--- a/drivers/acpi/nfit/core.c
++++ b/drivers/acpi/nfit/core.c
+@@ -3021,6 +3021,9 @@ static int acpi_nfit_register_region(str
+ 		struct acpi_nfit_memory_map *memdev = nfit_memdev->memdev;
+ 		struct nd_mapping_desc *mapping;
  
- 	pdata->pclk = devm_clk_get_optional(dev, "pclk");
--	if (!IS_ERR(pdata->pclk))
--		clk_prepare_enable(pdata->pclk);
-+	if (!IS_ERR(pdata->pclk)) {
-+		ret = clk_prepare_enable(pdata->pclk);
-+		if (ret)
-+			goto disable_clk;
-+	}
- 
- 	pdata->sysctl_map =
- 		syscon_regmap_lookup_by_phandle_args(np,
- 						"canaan,k210-sysctl-power",
- 						1, &pdata->power_offset);
--	if (IS_ERR(pdata->sysctl_map))
--		return PTR_ERR(pdata->sysctl_map);
-+	if (IS_ERR(pdata->sysctl_map)) {
-+		ret = PTR_ERR(pdata->sysctl_map);
-+		goto disable_pclk;
-+	}
- 
- 	k210_fpioa_init_ties(pdata);
- 
- 	pdata->pctl = pinctrl_register(&k210_pinctrl_desc, dev, (void *)pdata);
--	if (IS_ERR(pdata->pctl))
--		return PTR_ERR(pdata->pctl);
-+	if (IS_ERR(pdata->pctl)) {
-+		ret = PTR_ERR(pdata->pctl);
-+		goto disable_pclk;
-+	}
- 
- 	return 0;
-+
-+disable_pclk:
-+	clk_disable_unprepare(pdata->pclk);
-+disable_clk:
-+	clk_disable_unprepare(pdata->clk);
-+
-+	return ret;
- }
- 
- static const struct of_device_id k210_fpioa_dt_ids[] = {
++		/* range index 0 == unmapped in SPA or invalid-SPA */
++		if (memdev->range_index == 0 || spa->range_index == 0)
++			continue;
+ 		if (memdev->range_index != spa->range_index)
+ 			continue;
+ 		if (count >= ND_MAX_MAPPINGS) {
 
 
