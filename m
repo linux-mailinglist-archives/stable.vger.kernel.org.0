@@ -2,113 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B8303ED7F8
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:54:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31ADB3ED88C
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 16:03:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230177AbhHPNyu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:54:50 -0400
-Received: from wnew4-smtp.messagingengine.com ([64.147.123.18]:50369 "EHLO
-        wnew4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230071AbhHPNys (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Aug 2021 09:54:48 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailnew.west.internal (Postfix) with ESMTP id 0D4BB2B01258;
-        Mon, 16 Aug 2021 09:54:14 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 16 Aug 2021 09:54:15 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:content-transfer-encoding:in-reply-to; s=fm1; bh=9
-        4uyQ/Y3UGrErl2d7WvNOsT3dUU8l/TaaASeFSuZ4wQ=; b=NEttHJfIQq8CeT46E
-        LjAMXnaiIs7D72771ZpXr7rNg6VUZjBIenPKwshF2OA2Zzed002Ljbt9IexsRFKd
-        Y/IvLURs5A2iWlX7NjCZsMqpMR/96sxF00WQxAdvMJK9LQdCUDUAMAu16ndQscxf
-        3Yt/1OCkruhLDh5N7HI3kOoopDku+ebk2RgpPiSd2qLMx32QfLbGEeOK8Wu6Jk6G
-        qdXqp2SeR4LinYi7Eb0jMaEhST+UmadU9RKM2WXEn/ptAMgmBpBObtJDlrZx+gYF
-        V7aAl4TPtzFDYiCmsF7av2RI0y+cXmC3oEdcsR5uTPhbI643spBWfSKjh1IoK/U/
-        nu7bQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:in-reply-to:message-id:mime-version:references
-        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm3; bh=94uyQ/Y3UGrErl2d7WvNOsT3dUU8l/TaaASeFSuZ4
-        wQ=; b=JmZYa7HUS2u05avuWAnQ9DIWW3iCEQKD2rjsd+4WrBP7UuIrnQAGGoXwF
-        zTH8ZnGDxTYMYaXU5Hbw5wv1o5T41nlZ/lakIwQf7obkCvxgegFdW6fHotD2eX6w
-        LO4gCRtZpvzYHHgZJ2YAjKDF9cB1PaGPrRHNdMMlHCdHrY0pAS21YU+mvjwOP3eo
-        VmNhwfD3a9C5qRDN2KXkkhV53OqASF82f5ByneFM//ljOjDZBy08HSnJm/w95xIe
-        4+ImYdXT0zaqH5DMjcxPoO+mUdizA3Wjv75RbImA7zxO6DnaB3lTBAC8+gOpYzXh
-        73O5E6Cgtk/jzrDlUE7EWHvomj4/A==
-X-ME-Sender: <xms:BW4aYbghGjNE4_J5ffeLTFIn24NX9SkjrQdZKB8qzX29rFXepZOKIg>
-    <xme:BW4aYYDHASr-FTNf2oEyFH_4zK9L_p1SNhxQ1FBZ9p4369ahIFJp7bCIQpjhxl08o
-    pyc8ayLDHGctw>
-X-ME-Received: <xmr:BW4aYbFJX13NPf3G2kX1t32fJw7cqYWiJYqkP9sRfJCrfO7PgzJ_jowst_jRc6xfnmP2VGIQPk-38orpBZ1zAxOC9tYw4hhn>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrledugdejtdcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggugfgjsehtkeertddttddunecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpedvfffgue
-    eiuefhheevheetgfehvdefgeekfeevueejfeeftdetudetiefhheffvdenucffohhmrghi
-    nhepkhgvrhhnvghlrdhorhhgnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
-    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:BW4aYYTS1g-ZYn49QssyLIQqfEwT9q1p8odn_teWUZR32Q_bp6x6Qw>
-    <xmx:BW4aYYz-jYUMlhGI3XXk9CGj4zay8cIuBWyrMg_R_AXbCvWV0Yd8WQ>
-    <xmx:BW4aYe7FHQJfGd92O1wkgeL6MSH2AuvdbkTT-FV9jNuGjWDxT-9BWg>
-    <xmx:Bm4aYdpL4WxU3vHiCA-dI0p33F_DNt1GIKkTy6cN45zM0_1OrtJX4OQcaf4>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 16 Aug 2021 09:54:13 -0400 (EDT)
-Date:   Mon, 16 Aug 2021 15:54:03 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Pali =?iso-8859-1?Q?Roh=E1r?= <pali@kernel.org>
-Cc:     stable@vger.kernel.org, Johannes Berg <johannes@sipsolutions.net>,
-        Sasha Levin <sashal@kernel.org>, Luca Coelho <luca@coelho.fi>,
-        linux-wireless@vger.kernel.org
-Subject: Re: [PATCH] mac80211: drop data frames without key on encrypted links
-Message-ID: <YRpt+5BI0WlTQ5dP@kroah.com>
-References: <20200327150342.252AF20748@mail.kernel.org>
- <20210816134424.28191-1-pali@kernel.org>
+        id S236670AbhHPODh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 10:03:37 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:59308 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231308AbhHPODU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Aug 2021 10:03:20 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1629122568;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=TSOZBB/TDEaNpRJQBTy8N/e/HtpbbKTdZtReQY2ithg=;
+        b=TX9elzti3b/ZQgj8DPwHN36mMxQBpkieYWf9V+VOI8kZqtmammwt0anU19HpcXXi9cZi6B
+        kkDleWoM4s90X7KYm8fFciMK7YxTLcYBYtTt4LRn1lXL9ZEhFtUKwqQWadZoBoEL1Wfed3
+        wK/flc/XVUel5Xy8H/uQspZzc2WuTKA=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-198-YRpzyLvePLK4HOFJytRujQ-1; Mon, 16 Aug 2021 10:02:44 -0400
+X-MC-Unique: YRpzyLvePLK4HOFJytRujQ-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 447A5C7400;
+        Mon, 16 Aug 2021 14:02:43 +0000 (UTC)
+Received: from avogadro.lan (unknown [10.39.192.155])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 089CF1803D;
+        Mon, 16 Aug 2021 14:02:41 +0000 (UTC)
+From:   Paolo Bonzini <pbonzini@redhat.com>
+To:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc:     stable@vger.kernel.org, Maxim Levitsky <mlevitsk@redhat.com>
+Subject: [PATCH 4.14.y] KVM: nSVM: avoid picking up unsupported bits from L2 in int_ctl (CVE-2021-3653)
+Date:   Mon, 16 Aug 2021 16:02:29 +0200
+Message-Id: <20210816140240.11399-1-pbonzini@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20210816134424.28191-1-pali@kernel.org>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 16, 2021 at 03:44:24PM +0200, Pali Rohár wrote:
-> From: Johannes Berg <johannes.berg@intel.com>
-> 
-> commit a0761a301746ec2d92d7fcb82af69c0a6a4339aa upstream.
-> 
-> If we know that we have an encrypted link (based on having had
-> a key configured for TX in the past) then drop all data frames
-> in the key selection handler if there's no key anymore.
-> 
-> This fixes an issue with mac80211 internal TXQs - there we can
-> buffer frames for an encrypted link, but then if the key is no
-> longer there when they're dequeued, the frames are sent without
-> encryption. This happens if a station is disconnected while the
-> frames are still on the TXQ.
-> 
-> Detecting that a link should be encrypted based on a first key
-> having been configured for TX is fine as there are no use cases
-> for a connection going from with encryption to no encryption.
-> With extended key IDs, however, there is a case of having a key
-> configured for only decryption, so we can't just trigger this
-> behaviour on a key being configured.
-> 
-> Cc: stable@vger.kernel.org
-> Reported-by: Jouni Malinen <j@w1.fi>
-> Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-> Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-> Link: https://lore.kernel.org/r/iwlwifi.20200326150855.6865c7f28a14.I9fb1d911b064262d33e33dfba730cdeef83926ca@changeid
-> Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-> [pali: Backported to 4.19 and older versions]
-> Signed-off-by: Pali Rohár <pali@kernel.org>
+From: Maxim Levitsky <mlevitsk@redhat.com>
 
-Now queued up, thanks!
+[ upstream commit 0f923e07124df069ba68d8bb12324398f4b6b709 ]
 
-Did not apply to 4.4.y, don't know if you want it there or not...
+* Invert the mask of bits that we pick from L2 in
+  nested_vmcb02_prepare_control
 
-thanks,
+* Invert and explicitly use VIRQ related bits bitmask in svm_clear_vintr
 
-greg k-h
+This fixes a security issue that allowed a malicious L1 to run L2 with
+AVIC enabled, which allowed the L2 to exploit the uninitialized and enabled
+AVIC to read/write the host physical memory at some offsets.
+
+Fixes: 3d6368ef580a ("KVM: SVM: Add VMRUN handler")
+Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+---
+	The above upstream SHA1 is still on its way to Linus
+
+ arch/x86/include/asm/svm.h |    2 ++
+ arch/x86/kvm/svm.c         |   15 ++++++++-------
+ 2 files changed, 10 insertions(+), 7 deletions(-)
+
+diff --git a/arch/x86/include/asm/svm.h b/arch/x86/include/asm/svm.h
+index 78dd9df88157..2a9e81e93aac 100644
+--- a/arch/x86/include/asm/svm.h
++++ b/arch/x86/include/asm/svm.h
+@@ -117,6 +117,8 @@ struct __attribute__ ((__packed__)) vmcb_control_area {
+ #define V_IGN_TPR_SHIFT 20
+ #define V_IGN_TPR_MASK (1 << V_IGN_TPR_SHIFT)
+ 
++#define V_IRQ_INJECTION_BITS_MASK (V_IRQ_MASK | V_INTR_PRIO_MASK | V_IGN_TPR_MASK)
++
+ #define V_INTR_MASKING_SHIFT 24
+ #define V_INTR_MASKING_MASK (1 << V_INTR_MASKING_SHIFT)
+ 
+diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
+index 3571253b8690..0dfd0af61a29 100644
+--- a/arch/x86/kvm/svm.c
++++ b/arch/x86/kvm/svm.c
+@@ -1208,12 +1208,7 @@ static __init int svm_hardware_setup(void)
+ 		}
+ 	}
+ 
+-	if (vgif) {
+-		if (!boot_cpu_has(X86_FEATURE_VGIF))
+-			vgif = false;
+-		else
+-			pr_info("Virtual GIF supported\n");
+-	}
++	vgif = false; /* Disabled for CVE-2021-3653 */
+ 
+ 	return 0;
+ 
+@@ -3161,7 +3161,13 @@ static bool nested_svm_vmrun(struct vcpu_svm *svm)
+ 	svm->nested.intercept            = nested_vmcb->control.intercept;
+ 
+ 	svm_flush_tlb(&svm->vcpu, true);
+-	svm->vmcb->control.int_ctl = nested_vmcb->control.int_ctl | V_INTR_MASKING_MASK;
++
++	svm->vmcb->control.int_ctl &=
++			V_INTR_MASKING_MASK | V_GIF_ENABLE_MASK | V_GIF_MASK;
++
++	svm->vmcb->control.int_ctl |= nested_vmcb->control.int_ctl &
++			(V_TPR_MASK | V_IRQ_INJECTION_BITS_MASK);
++
+ 	if (nested_vmcb->control.int_ctl & V_INTR_MASKING_MASK)
+ 		svm->vcpu.arch.hflags |= HF_VINTR_MASK;
+ 	else
+-- 
+2.26.3
+
