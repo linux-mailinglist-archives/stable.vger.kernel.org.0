@@ -2,101 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B87F3ED925
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 16:47:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CC6B3ED973
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 17:05:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230078AbhHPOrg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 10:47:36 -0400
-Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:55023 "EHLO
-        wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229586AbhHPOrd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Aug 2021 10:47:33 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailout.west.internal (Postfix) with ESMTP id 03B1B3200956;
-        Mon, 16 Aug 2021 10:46:57 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Mon, 16 Aug 2021 10:46:58 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=gngd3q55EZGSZShx/0MxyaGo89J
-        meeFQa5pogUBe51Q=; b=sBT3Wtti2e4yh9J/SvPUEj2iHJP2xD6ScrhDXtRmwK/
-        tXqIFrFRv0rwf13mjZsgmkxS9SgIld/FQWBBiXG1tMDC81OIFdNUd2tW+3kKYr9y
-        S2U4sdJgRvL/TSxgccwfZlImc6Yj0rquMXmN4+rxLLVMSrT1PLQTaf15aVTLx+vI
-        X1IdS4oXqFJCH/ShWJc0JabzT1cpiOZnqF1BG8Fq2EpVhSSJOOmkObDmGV+yUEuw
-        h7XeaBHz3Fj+5WgZKODFHCdFTBZfn/hYrlba7DL3HOq9xRIAmBVXMZCkLkr6eC1q
-        NzTlj21g5d4mkfjlvKuBmi70fmTMZyn0t5gpaDI3rTg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=gngd3q
-        55EZGSZShx/0MxyaGo89JmeeFQa5pogUBe51Q=; b=umenRCFM5dI0JnNRZ14i/R
-        qZ+7A+VC7ceZbev9AgYgMwsh4n2YcQyCywVNyprzx9fqP33rtEYUQQ9pbes5gQMF
-        zmgassAnNsvlY5IziWmUsCgMeVpU0epOmM6U6xhFm9nOgMKk9Tve4kYeiD+q7BVr
-        BwYBf4DvF/9K1/j2y95QxxRVtWnJPXhayaeqNQE7uiApudHrBo5oIGQm1O4pF3Z6
-        Orxkxgyz3z6Ptt8TKmcnNc7oX7VDVB9h2adMDdpht8KenuLFZpmV5XSU1jO24vRb
-        U1uCmGs3DDV88tVeMco7Vb7eHduYIY+8qJ9QzVhq7F8R8YufRscsdB0RlV8x48TQ
-        ==
-X-ME-Sender: <xms:YXoaYZfgsPpTBRlNgi02JYqSb2pJe-tJL8HteFDLQ5Loo9QxywEUZQ>
-    <xme:YXoaYXNmQexK8dR_yewaw-75Bn28iRXx_0YGHWI_qkZK1rF_dznxqsGe9PKshY-9_
-    Ty3zxzWKnPsIQ>
-X-ME-Received: <xmr:YXoaYShJSH3r6SC7GVYG2mzLWhRv1L0dqbF88l6Ki55uI2cc4N3jyJ0QkYw402dWGf24z_xHInKh60ifmDbR0EA-ODqXX04J>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrledugdektdcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
-    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepveeuheejgf
-    ffgfeivddukedvkedtleelleeghfeljeeiueeggeevueduudekvdetnecuvehluhhsthgv
-    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:YXoaYS-CRK9CbeIhnan93MaGpa6wwTrmS2EfA0xLT3gTTxIxtusLpg>
-    <xmx:YXoaYVtsuS48VWCVwLKPFfcoSLbXXc-wbPLnUIqkvpuyY_3IDPIq0g>
-    <xmx:YXoaYRGBF8uKQFCKW1dDbA0nHoTyEkEXYViRK7GFkD1yoCJfeKC_Mg>
-    <xmx:YXoaYbDLu72TugndILg6E8P7iNi6Y3WHi9LaWUJqgr01wfacD_Ww7Q>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 16 Aug 2021 10:46:57 -0400 (EDT)
-Date:   Mon, 16 Aug 2021 16:46:55 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Paolo Bonzini <pbonzini@redhat.com>
+        id S232417AbhHPPFf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 11:05:35 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:52556 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229586AbhHPPFe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Aug 2021 11:05:34 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1629126302;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=ABrWgRhABY2HK4NysZy+JCnEPDW3vpIo9/TFVUA3ibc=;
+        b=NcEPebUTVUULCKGM8rGS339+rn+a0MtdC7YRKdGbaNWOYQQ+/8IRygD8QlgYxfVX6Aym1H
+        68OGeo+J1zXCxckQr179VG4U1v2bv99nulVYZrvze/KXlPz3roSzu7+rZRcWpsgbmUsi8G
+        dZR53KyciLuJb4PgE9ue2OFU9IXBBpg=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-494-qLSZb1-dNCSljLL4UVw5Mg-1; Mon, 16 Aug 2021 11:05:01 -0400
+X-MC-Unique: qLSZb1-dNCSljLL4UVw5Mg-1
+Received: by mail-wm1-f72.google.com with SMTP id c2-20020a7bc8420000b0290238db573ab7so7918159wml.5
+        for <stable@vger.kernel.org>; Mon, 16 Aug 2021 08:05:00 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=ABrWgRhABY2HK4NysZy+JCnEPDW3vpIo9/TFVUA3ibc=;
+        b=bnJo0JWh9LKVx0J86ZDLBo3viPe7oX9QmFAAgosozkuCB7CZti/wQSJvFTuUDpO9bZ
+         jTnudAi0fQGY2r2RLluEcPdR5fUFraBSRSxbCXwdegsga1FXuhlXQBZk8o9Euxmid9VP
+         P5Az3IRXpvHqOzE1WIs+BFm0C6kZitRUvC1nYo+3DmxjB2dSIJzfEzfr0i64t3M5ISsq
+         EkM/MsfvRwsbrwSa+NHDV6HFYvGyCHV1b+3M9Qx1VCFFtzky/20T1XrWYz7avhbMLkmk
+         Ngd34oIR3lsW2IHWS5cLWozfVWR+Il4hSoalhQUhLcYxFpSFpQ+P0r03U8P0QH3+mfBQ
+         seHA==
+X-Gm-Message-State: AOAM531t/N3dcPH2oBEpJKkqxXLV+h58QVNd0eZDk47/1sD06e2yKi9S
+        8WEOETBF20vOdWrvA8WDybRIDwTC9mnoszMClDRt9RcPoEgeZJITjEwBvrUa40GUNO0GY4HZnRd
+        fgX0h84XhN2ya+wKY
+X-Received: by 2002:a1c:7dd0:: with SMTP id y199mr15424186wmc.23.1629126299867;
+        Mon, 16 Aug 2021 08:04:59 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJx09VPZkGLXWDG+tXpHYc3YeJl3pSZSqRdKI6EYU61EuoygC/wIwMn44PmYT5H+5icPrjj/xw==
+X-Received: by 2002:a1c:7dd0:: with SMTP id y199mr15424176wmc.23.1629126299653;
+        Mon, 16 Aug 2021 08:04:59 -0700 (PDT)
+Received: from ?IPv6:2001:b07:6468:f312:63a7:c72e:ea0e:6045? ([2001:b07:6468:f312:63a7:c72e:ea0e:6045])
+        by smtp.gmail.com with ESMTPSA id w29sm12856049wra.88.2021.08.16.08.04.58
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 16 Aug 2021 08:04:59 -0700 (PDT)
+Subject: Re: [PATCH 5.12.y] KVM: nSVM: avoid picking up unsupported bits from
+ L2 in int_ctl (CVE-2021-3653)
+To:     Greg KH <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
         stable@vger.kernel.org, Maxim Levitsky <mlevitsk@redhat.com>
-Subject: Re: [PATCH 4.14.y] KVM: nSVM: always intercept VMLOAD/VMSAVE when
- nested (CVE-2021-3656)
-Message-ID: <YRp6X3sV50Q94+2/@kroah.com>
-References: <20210816140240.11399-8-pbonzini@redhat.com>
+References: <20210816140240.11399-6-pbonzini@redhat.com>
+ <YRp1bUv85GWsFsuO@kroah.com>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+Message-ID: <97448bb5-1f58-07f9-1110-96c7ffefd4b2@redhat.com>
+Date:   Mon, 16 Aug 2021 17:04:58 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210816140240.11399-8-pbonzini@redhat.com>
+In-Reply-To: <YRp1bUv85GWsFsuO@kroah.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 16, 2021 at 04:02:36PM +0200, Paolo Bonzini wrote:
-> From: Maxim Levitsky <mlevitsk@redhat.com>
+On 16/08/21 16:25, Greg KH wrote:
+>> [ upstream commit 0f923e07124df069ba68d8bb12324398f4b6b709 ]
 > 
-> [ upstream commit c7dfa4009965a9b2d7b329ee970eb8da0d32f0bc ]
-> 
-> If L1 disables VMLOAD/VMSAVE intercepts, and doesn't enable
-> Virtual VMLOAD/VMSAVE (currently not supported for the nested hypervisor),
-> then VMLOAD/VMSAVE must operate on the L1 physical memory, which is only
-> possible by making L0 intercept these instructions.
-> 
-> Failure to do so allowed the nested guest to run VMLOAD/VMSAVE unintercepted,
-> and thus read/write portions of the host physical memory.
-> 
-> Fixes: 89c8a4984fc9 ("KVM: SVM: Enable Virtual VMLOAD VMSAVE feature")
-> 
-> Suggested-by: Paolo Bonzini <pbonzini@redhat.com>
-> Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
-> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-> ---
-> 	The above upstream SHA1 is still on its way to Linus
+> And 5.12.y is long end-of-life, take a look at the front page of
+> kernel.org for the active kernels.
 
-Ah, missed this down here, I read top-to-bottom and stopped at the
-second line :)
+Ok, sorry I didn't notice that... it wasn't end of life when the issue 
+was discovered. O:)
 
-Anyway, will wait for Linus to pick these up first.
+(Damn, the one time that we prepare all the backports in advance, we end 
+up doing too many of them!)
 
-thanks,
+Paolo
 
-greg k-h
