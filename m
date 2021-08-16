@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 45A843ED695
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:23:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D4303ED698
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:23:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239410AbhHPNWY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:22:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44232 "EHLO mail.kernel.org"
+        id S239655AbhHPNW0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:22:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44274 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240926AbhHPNUY (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S240941AbhHPNUY (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 16 Aug 2021 09:20:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BA615632D4;
-        Mon, 16 Aug 2021 13:15:28 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2BF0D632FA;
+        Mon, 16 Aug 2021 13:15:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119729;
-        bh=rhRNTqah8YTVHZgRxQq5DW2nG/PJfiHbEL/DrhcF9Bo=;
+        s=korg; t=1629119731;
+        bh=RNatMPhs7s2pzyC0PKy3nfDcNEQz54JnC3nFJPeN/Mk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y+Dv2DbktugMf8T9D/Tbdl83Q1TCYxv3bIcDnlTAeHKBe7IZBHqxMYuBGNRH7yfKz
-         yFGq8nl0ul3DlU3Lxg239NYZgLVgYgocS0y8TKd3s7gnbHSlGgm3U0WFOrpGuBQ746
-         dH/wLJasHfT6rcLOxxQm+4L+hFVyUcx3DZ313pkc=
+        b=qFNi5f6YX9XXsTHVvgsvFpvGywTIfwZZIZgZpmGBTgSc3WHNIWy43XBAS7iSrR2YJ
+         MEl7b79CEOIgffBaSmFekYUJgNQjV+igxXu7Z86ZjpSiK6LfsUHA/szUMeSkagt+Nu
+         S5qTyLv4bMwA7MlX1Ho0CgCr6n/Cl/NgEUmAnFj0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geetika Moolchandani <Geetika.Moolchandani1@ibm.com>,
-        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
-        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
-        Laurent Vivier <lvivier@redhat.com>,
+        stable@vger.kernel.org, Radu Rendec <radu.rendec@gmail.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
         Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.13 140/151] powerpc/xive: Do not skip CPU-less nodes when creating the IPIs
-Date:   Mon, 16 Aug 2021 15:02:50 +0200
-Message-Id: <20210816125448.681174462@linuxfoundation.org>
+Subject: [PATCH 5.13 141/151] powerpc/32: Fix critical and debug interrupts on BOOKE
+Date:   Mon, 16 Aug 2021 15:02:51 +0200
+Message-Id: <20210816125448.710936914@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
 References: <20210816125444.082226187@linuxfoundation.org>
@@ -43,124 +40,161 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cédric Le Goater <clg@kaod.org>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-commit cbc06f051c524dcfe52ef0d1f30647828e226d30 upstream.
+commit b5cfc9cd7b0426e94ffd9e9ed79d1b00ace7780a upstream.
 
-On PowerVM, CPU-less nodes can be populated with hot-plugged CPUs at
-runtime. Today, the IPI is not created for such nodes, and hot-plugged
-CPUs use a bogus IPI, which leads to soft lockups.
+32 bits BOOKE have special interrupts for debug and other
+critical events.
 
-We can not directly allocate and request the IPI on demand because
-bringup_up() is called under the IRQ sparse lock. The alternative is
-to allocate the IPIs for all possible nodes at startup and to request
-the mapping on demand when the first CPU of a node is brought up.
+When handling those interrupts, dedicated registers are saved
+in the stack frame in addition to the standard registers, leading
+to a shift of the pt_regs struct.
 
-Fixes: 7dcc37b3eff9 ("powerpc/xive: Map one IPI interrupt per node")
-Cc: stable@vger.kernel.org # v5.13
-Reported-by: Geetika Moolchandani <Geetika.Moolchandani1@ibm.com>
-Signed-off-by: Cédric Le Goater <clg@kaod.org>
-Tested-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
-Tested-by: Laurent Vivier <lvivier@redhat.com>
+Since commit db297c3b07af ("powerpc/32: Don't save thread.regs on
+interrupt entry"), the pt_regs struct is expected to be at the
+same place all the time.
+
+Instead of handling a special struct in addition to pt_regs, just
+add those special registers to struct pt_regs.
+
+Fixes: db297c3b07af ("powerpc/32: Don't save thread.regs on interrupt entry")
+Cc: stable@vger.kernel.org
+Reported-by: Radu Rendec <radu.rendec@gmail.com>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210807072057.184698-1-clg@kaod.org
+Link: https://lore.kernel.org/r/028d5483b4851b01ea4334d0751e7f260419092b.1625637264.git.christophe.leroy@csgroup.eu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/sysdev/xive/common.c |   35 ++++++++++++++++++++++++-----------
- 1 file changed, 24 insertions(+), 11 deletions(-)
+ arch/powerpc/include/asm/ptrace.h |   16 ++++++++++++++++
+ arch/powerpc/kernel/asm-offsets.c |   31 ++++++++++++++-----------------
+ arch/powerpc/kernel/head_booke.h  |   27 +++------------------------
+ 3 files changed, 33 insertions(+), 41 deletions(-)
 
---- a/arch/powerpc/sysdev/xive/common.c
-+++ b/arch/powerpc/sysdev/xive/common.c
-@@ -67,6 +67,7 @@ static struct irq_domain *xive_irq_domai
- static struct xive_ipi_desc {
- 	unsigned int irq;
- 	char name[16];
-+	atomic_t started;
- } *xive_ipis;
+--- a/arch/powerpc/include/asm/ptrace.h
++++ b/arch/powerpc/include/asm/ptrace.h
+@@ -68,6 +68,22 @@ struct pt_regs
+ 		};
+ 		unsigned long __pad[4];	/* Maintain 16 byte interrupt stack alignment */
+ 	};
++#if defined(CONFIG_PPC32) && defined(CONFIG_BOOKE)
++	struct { /* Must be a multiple of 16 bytes */
++		unsigned long mas0;
++		unsigned long mas1;
++		unsigned long mas2;
++		unsigned long mas3;
++		unsigned long mas6;
++		unsigned long mas7;
++		unsigned long srr0;
++		unsigned long srr1;
++		unsigned long csrr0;
++		unsigned long csrr1;
++		unsigned long dsrr0;
++		unsigned long dsrr1;
++	};
++#endif
+ };
+ #endif
+ 
+--- a/arch/powerpc/kernel/asm-offsets.c
++++ b/arch/powerpc/kernel/asm-offsets.c
+@@ -348,24 +348,21 @@ int main(void)
+ #endif
+ 
+ 
+-#if defined(CONFIG_PPC32)
+-#if defined(CONFIG_BOOKE) || defined(CONFIG_40x)
+-	DEFINE(EXC_LVL_SIZE, STACK_EXC_LVL_FRAME_SIZE);
+-	DEFINE(MAS0, STACK_INT_FRAME_SIZE+offsetof(struct exception_regs, mas0));
++#if defined(CONFIG_PPC32) && defined(CONFIG_BOOKE)
++	STACK_PT_REGS_OFFSET(MAS0, mas0);
+ 	/* we overload MMUCR for 44x on MAS0 since they are mutually exclusive */
+-	DEFINE(MMUCR, STACK_INT_FRAME_SIZE+offsetof(struct exception_regs, mas0));
+-	DEFINE(MAS1, STACK_INT_FRAME_SIZE+offsetof(struct exception_regs, mas1));
+-	DEFINE(MAS2, STACK_INT_FRAME_SIZE+offsetof(struct exception_regs, mas2));
+-	DEFINE(MAS3, STACK_INT_FRAME_SIZE+offsetof(struct exception_regs, mas3));
+-	DEFINE(MAS6, STACK_INT_FRAME_SIZE+offsetof(struct exception_regs, mas6));
+-	DEFINE(MAS7, STACK_INT_FRAME_SIZE+offsetof(struct exception_regs, mas7));
+-	DEFINE(_SRR0, STACK_INT_FRAME_SIZE+offsetof(struct exception_regs, srr0));
+-	DEFINE(_SRR1, STACK_INT_FRAME_SIZE+offsetof(struct exception_regs, srr1));
+-	DEFINE(_CSRR0, STACK_INT_FRAME_SIZE+offsetof(struct exception_regs, csrr0));
+-	DEFINE(_CSRR1, STACK_INT_FRAME_SIZE+offsetof(struct exception_regs, csrr1));
+-	DEFINE(_DSRR0, STACK_INT_FRAME_SIZE+offsetof(struct exception_regs, dsrr0));
+-	DEFINE(_DSRR1, STACK_INT_FRAME_SIZE+offsetof(struct exception_regs, dsrr1));
+-#endif
++	STACK_PT_REGS_OFFSET(MMUCR, mas0);
++	STACK_PT_REGS_OFFSET(MAS1, mas1);
++	STACK_PT_REGS_OFFSET(MAS2, mas2);
++	STACK_PT_REGS_OFFSET(MAS3, mas3);
++	STACK_PT_REGS_OFFSET(MAS6, mas6);
++	STACK_PT_REGS_OFFSET(MAS7, mas7);
++	STACK_PT_REGS_OFFSET(_SRR0, srr0);
++	STACK_PT_REGS_OFFSET(_SRR1, srr1);
++	STACK_PT_REGS_OFFSET(_CSRR0, csrr0);
++	STACK_PT_REGS_OFFSET(_CSRR1, csrr1);
++	STACK_PT_REGS_OFFSET(_DSRR0, dsrr0);
++	STACK_PT_REGS_OFFSET(_DSRR1, dsrr1);
+ #endif
+ 
+ #ifndef CONFIG_PPC64
+--- a/arch/powerpc/kernel/head_booke.h
++++ b/arch/powerpc/kernel/head_booke.h
+@@ -185,20 +185,18 @@ ALT_FTR_SECTION_END_IFSET(CPU_FTR_EMB_HV
+ /* only on e500mc */
+ #define DBG_STACK_BASE		dbgirq_ctx
+ 
+-#define EXC_LVL_FRAME_OVERHEAD	(THREAD_SIZE - INT_FRAME_SIZE - EXC_LVL_SIZE)
+-
+ #ifdef CONFIG_SMP
+ #define BOOKE_LOAD_EXC_LEVEL_STACK(level)		\
+ 	mfspr	r8,SPRN_PIR;				\
+ 	slwi	r8,r8,2;				\
+ 	addis	r8,r8,level##_STACK_BASE@ha;		\
+ 	lwz	r8,level##_STACK_BASE@l(r8);		\
+-	addi	r8,r8,EXC_LVL_FRAME_OVERHEAD;
++	addi	r8,r8,THREAD_SIZE - INT_FRAME_SIZE;
+ #else
+ #define BOOKE_LOAD_EXC_LEVEL_STACK(level)		\
+ 	lis	r8,level##_STACK_BASE@ha;		\
+ 	lwz	r8,level##_STACK_BASE@l(r8);		\
+-	addi	r8,r8,EXC_LVL_FRAME_OVERHEAD;
++	addi	r8,r8,THREAD_SIZE - INT_FRAME_SIZE;
+ #endif
  
  /*
-@@ -1120,7 +1121,7 @@ static const struct irq_domain_ops xive_
- 	.alloc  = xive_ipi_irq_domain_alloc,
- };
+@@ -225,7 +223,7 @@ ALT_FTR_SECTION_END_IFSET(CPU_FTR_EMB_HV
+ 	mtmsr	r11;							\
+ 	mfspr	r11,SPRN_SPRG_THREAD;	/* if from user, start at top of   */\
+ 	lwz	r11, TASK_STACK - THREAD(r11); /* this thread's kernel stack */\
+-	addi	r11,r11,EXC_LVL_FRAME_OVERHEAD;	/* allocate stack frame    */\
++	addi	r11,r11,THREAD_SIZE - INT_FRAME_SIZE;	/* allocate stack frame    */\
+ 	beq	1f;							     \
+ 	/* COMING FROM USER MODE */					     \
+ 	stw	r9,_CCR(r11);		/* save CR			   */\
+@@ -533,24 +531,5 @@ label:
+ 	bl	kernel_fp_unavailable_exception;			      \
+ 	b	interrupt_return
  
--static int __init xive_request_ipi(void)
-+static int __init xive_init_ipis(void)
- {
- 	struct fwnode_handle *fwnode;
- 	struct irq_domain *ipi_domain;
-@@ -1144,10 +1145,6 @@ static int __init xive_request_ipi(void)
- 		struct xive_ipi_desc *xid = &xive_ipis[node];
- 		struct xive_ipi_alloc_info info = { node };
- 
--		/* Skip nodes without CPUs */
--		if (cpumask_empty(cpumask_of_node(node)))
--			continue;
+-#else /* __ASSEMBLY__ */
+-struct exception_regs {
+-	unsigned long mas0;
+-	unsigned long mas1;
+-	unsigned long mas2;
+-	unsigned long mas3;
+-	unsigned long mas6;
+-	unsigned long mas7;
+-	unsigned long srr0;
+-	unsigned long srr1;
+-	unsigned long csrr0;
+-	unsigned long csrr1;
+-	unsigned long dsrr0;
+-	unsigned long dsrr1;
+-};
 -
- 		/*
- 		 * Map one IPI interrupt per node for all cpus of that node.
- 		 * Since the HW interrupt number doesn't have any meaning,
-@@ -1159,11 +1156,6 @@ static int __init xive_request_ipi(void)
- 		xid->irq = ret;
- 
- 		snprintf(xid->name, sizeof(xid->name), "IPI-%d", node);
+-/* ensure this structure is always sized to a multiple of the stack alignment */
+-#define STACK_EXC_LVL_FRAME_SIZE	ALIGN(sizeof (struct exception_regs), 16)
 -
--		ret = request_irq(xid->irq, xive_muxed_ipi_action,
--				  IRQF_PERCPU | IRQF_NO_THREAD, xid->name, NULL);
--
--		WARN(ret < 0, "Failed to request IPI %d: %d\n", xid->irq, ret);
- 	}
- 
- 	return ret;
-@@ -1178,6 +1170,22 @@ out:
- 	return ret;
- }
- 
-+static int __init xive_request_ipi(unsigned int cpu)
-+{
-+	struct xive_ipi_desc *xid = &xive_ipis[early_cpu_to_node(cpu)];
-+	int ret;
-+
-+	if (atomic_inc_return(&xid->started) > 1)
-+		return 0;
-+
-+	ret = request_irq(xid->irq, xive_muxed_ipi_action,
-+			  IRQF_PERCPU | IRQF_NO_THREAD,
-+			  xid->name, NULL);
-+
-+	WARN(ret < 0, "Failed to request IPI %d: %d\n", xid->irq, ret);
-+	return ret;
-+}
-+
- static int xive_setup_cpu_ipi(unsigned int cpu)
- {
- 	unsigned int xive_ipi_irq = xive_ipi_cpu_to_irq(cpu);
-@@ -1192,6 +1200,9 @@ static int xive_setup_cpu_ipi(unsigned i
- 	if (xc->hw_ipi != XIVE_BAD_IRQ)
- 		return 0;
- 
-+	/* Register the IPI */
-+	xive_request_ipi(cpu);
-+
- 	/* Grab an IPI from the backend, this will populate xc->hw_ipi */
- 	if (xive_ops->get_ipi(cpu, xc))
- 		return -EIO;
-@@ -1231,6 +1242,8 @@ static void xive_cleanup_cpu_ipi(unsigne
- 	if (xc->hw_ipi == XIVE_BAD_IRQ)
- 		return;
- 
-+	/* TODO: clear IPI mapping */
-+
- 	/* Mask the IPI */
- 	xive_do_source_set_mask(&xc->ipi_data, true);
- 
-@@ -1253,7 +1266,7 @@ void __init xive_smp_probe(void)
- 	smp_ops->cause_ipi = xive_cause_ipi;
- 
- 	/* Register the IPI */
--	xive_request_ipi();
-+	xive_init_ipis();
- 
- 	/* Allocate and setup IPI for the boot CPU */
- 	xive_setup_cpu_ipi(smp_processor_id());
+ #endif /* __ASSEMBLY__ */
+ #endif /* __HEAD_BOOKE_H__ */
 
 
