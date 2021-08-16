@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C85E3ED688
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:23:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8A8E3ED548
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:11:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236452AbhHPNWA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:22:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44616 "EHLO mail.kernel.org"
+        id S238504AbhHPNKl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:10:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240657AbhHPNT7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:19:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 49DD6632CB;
-        Mon, 16 Aug 2021 13:15:19 +0000 (UTC)
+        id S237158AbhHPNJE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:09:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D7EB4632C2;
+        Mon, 16 Aug 2021 13:07:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119719;
-        bh=nHOtjRE3feirLNVFm2EMkxIy+GMyVrNJvihoM1rAXhs=;
+        s=korg; t=1629119258;
+        bh=RYrcGiuN1XgqYILElz1dObV+4Wp7klA+3ZnmfUl+RQg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zK2Trfl+3WBoQOLxpYKQDIbgaoKqMdtpmwoU+TqolC5+SZxFehEOx0SmwhjKEfDT2
-         wPvsXYJUwQZ3I458btxyE20qlIpFEo+HXZZdtxF7PSsDb1mvEuBE1KB2ARZ0WHHSUK
-         0SFJowMNZ4yY0e3qbyOurup902G15o19OiV/3Ems=
+        b=gpxkc0awNCdg9RyC/xtoOv6wUJTkurKMfuwPrlQCxsvhO8AH/ncCMF/5yJCP693UV
+         XdXpvtoLV82IX7hPZVYuqauBXiMP7FLBVdVDZeoRHMiC8hV9rhu7etf6Sji+p8Iusq
+         jY+m7hMTco9y7gVe1HOvY2jOWssYJnHJAWrVPnl4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Hutchings <ben.hutchings@mind.be>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 093/151] net: dsa: microchip: ksz8795: Reject unsupported VLAN configuration
+        stable@vger.kernel.org, Takeshi Misawa <jeliantsurux@gmail.com>,
+        Alexander Aring <aahringo@redhat.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+1f68113fa907bf0695a8@syzkaller.appspotmail.com
+Subject: [PATCH 5.10 53/96] net: Fix memory leak in ieee802154_raw_deliver
 Date:   Mon, 16 Aug 2021 15:02:03 +0200
-Message-Id: <20210816125447.146694379@linuxfoundation.org>
+Message-Id: <20210816125436.726238302@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
-References: <20210816125444.082226187@linuxfoundation.org>
+In-Reply-To: <20210816125434.948010115@linuxfoundation.org>
+References: <20210816125434.948010115@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,87 +42,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Hutchings <ben.hutchings@mind.be>
+From: Takeshi Misawa <jeliantsurux@gmail.com>
 
-[ Upstream commit 8f4f58f88fe0d9bd591f21f53de7dbd42baeb3fa ]
+[ Upstream commit 1090340f7ee53e824fd4eef66a4855d548110c5b ]
 
-The switches supported by ksz8795 only have a per-port flag for Tag
-Removal.  This means it is not possible to support both tagged and
-untagged VLANs on the same port.  Reject attempts to add a VLAN that
-requires the flag to be changed, unless there are no VLANs currently
-configured.
+If IEEE-802.15.4-RAW is closed before receive skb, skb is leaked.
+Fix this, by freeing sk_receive_queue in sk->sk_destruct().
 
-VID 0 is excluded from this check since it is untagged regardless of
-the state of the flag.
+syzbot report:
+BUG: memory leak
+unreferenced object 0xffff88810f644600 (size 232):
+  comm "softirq", pid 0, jiffies 4294967032 (age 81.270s)
+  hex dump (first 32 bytes):
+    10 7d 4b 12 81 88 ff ff 10 7d 4b 12 81 88 ff ff  .}K......}K.....
+    00 00 00 00 00 00 00 00 40 7c 4b 12 81 88 ff ff  ........@|K.....
+  backtrace:
+    [<ffffffff83651d4a>] skb_clone+0xaa/0x2b0 net/core/skbuff.c:1496
+    [<ffffffff83fe1b80>] ieee802154_raw_deliver net/ieee802154/socket.c:369 [inline]
+    [<ffffffff83fe1b80>] ieee802154_rcv+0x100/0x340 net/ieee802154/socket.c:1070
+    [<ffffffff8367cc7a>] __netif_receive_skb_one_core+0x6a/0xa0 net/core/dev.c:5384
+    [<ffffffff8367cd07>] __netif_receive_skb+0x27/0xa0 net/core/dev.c:5498
+    [<ffffffff8367cdd9>] netif_receive_skb_internal net/core/dev.c:5603 [inline]
+    [<ffffffff8367cdd9>] netif_receive_skb+0x59/0x260 net/core/dev.c:5662
+    [<ffffffff83fe6302>] ieee802154_deliver_skb net/mac802154/rx.c:29 [inline]
+    [<ffffffff83fe6302>] ieee802154_subif_frame net/mac802154/rx.c:102 [inline]
+    [<ffffffff83fe6302>] __ieee802154_rx_handle_packet net/mac802154/rx.c:212 [inline]
+    [<ffffffff83fe6302>] ieee802154_rx+0x612/0x620 net/mac802154/rx.c:284
+    [<ffffffff83fe59a6>] ieee802154_tasklet_handler+0x86/0xa0 net/mac802154/main.c:35
+    [<ffffffff81232aab>] tasklet_action_common.constprop.0+0x5b/0x100 kernel/softirq.c:557
+    [<ffffffff846000bf>] __do_softirq+0xbf/0x2ab kernel/softirq.c:345
+    [<ffffffff81232f4c>] do_softirq kernel/softirq.c:248 [inline]
+    [<ffffffff81232f4c>] do_softirq+0x5c/0x80 kernel/softirq.c:235
+    [<ffffffff81232fc1>] __local_bh_enable_ip+0x51/0x60 kernel/softirq.c:198
+    [<ffffffff8367a9a4>] local_bh_enable include/linux/bottom_half.h:32 [inline]
+    [<ffffffff8367a9a4>] rcu_read_unlock_bh include/linux/rcupdate.h:745 [inline]
+    [<ffffffff8367a9a4>] __dev_queue_xmit+0x7f4/0xf60 net/core/dev.c:4221
+    [<ffffffff83fe2db4>] raw_sendmsg+0x1f4/0x2b0 net/ieee802154/socket.c:295
+    [<ffffffff8363af16>] sock_sendmsg_nosec net/socket.c:654 [inline]
+    [<ffffffff8363af16>] sock_sendmsg+0x56/0x80 net/socket.c:674
+    [<ffffffff8363deec>] __sys_sendto+0x15c/0x200 net/socket.c:1977
+    [<ffffffff8363dfb6>] __do_sys_sendto net/socket.c:1989 [inline]
+    [<ffffffff8363dfb6>] __se_sys_sendto net/socket.c:1985 [inline]
+    [<ffffffff8363dfb6>] __x64_sys_sendto+0x26/0x30 net/socket.c:1985
 
-On the CPU port we could support tagged and untagged VLANs at the same
-time.  This will be enabled by a later patch.
-
-Fixes: e66f840c08a2 ("net: dsa: ksz: Add Microchip KSZ8795 DSA driver")
-Signed-off-by: Ben Hutchings <ben.hutchings@mind.be>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 9ec767160357 ("net: add IEEE 802.15.4 socket family implementation")
+Reported-and-tested-by: syzbot+1f68113fa907bf0695a8@syzkaller.appspotmail.com
+Signed-off-by: Takeshi Misawa <jeliantsurux@gmail.com>
+Acked-by: Alexander Aring <aahringo@redhat.com>
+Link: https://lore.kernel.org/r/20210805075414.GA15796@DESKTOP
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/microchip/ksz8795.c    | 27 +++++++++++++++++++++++++-
- drivers/net/dsa/microchip/ksz_common.h |  1 +
- 2 files changed, 27 insertions(+), 1 deletion(-)
+ net/ieee802154/socket.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/dsa/microchip/ksz8795.c b/drivers/net/dsa/microchip/ksz8795.c
-index bc9ca2b0e091..c20fb6edd420 100644
---- a/drivers/net/dsa/microchip/ksz8795.c
-+++ b/drivers/net/dsa/microchip/ksz8795.c
-@@ -1099,13 +1099,38 @@ static int ksz8_port_vlan_add(struct dsa_switch *ds, int port,
- {
- 	bool untagged = vlan->flags & BRIDGE_VLAN_INFO_UNTAGGED;
- 	struct ksz_device *dev = ds->priv;
-+	struct ksz_port *p = &dev->ports[port];
- 	u16 data, new_pvid = 0;
- 	u8 fid, member, valid;
+diff --git a/net/ieee802154/socket.c b/net/ieee802154/socket.c
+index a45a0401adc5..c25f7617770c 100644
+--- a/net/ieee802154/socket.c
++++ b/net/ieee802154/socket.c
+@@ -984,6 +984,11 @@ static const struct proto_ops ieee802154_dgram_ops = {
+ 	.sendpage	   = sock_no_sendpage,
+ };
  
- 	if (ksz_is_ksz88x3(dev))
- 		return -ENOTSUPP;
- 
--	ksz_port_cfg(dev, port, P_TAG_CTRL, PORT_REMOVE_TAG, untagged);
-+	/* If a VLAN is added with untagged flag different from the
-+	 * port's Remove Tag flag, we need to change the latter.
-+	 * Ignore VID 0, which is always untagged.
-+	 */
-+	if (untagged != p->remove_tag && vlan->vid != 0) {
-+		unsigned int vid;
++static void ieee802154_sock_destruct(struct sock *sk)
++{
++	skb_queue_purge(&sk->sk_receive_queue);
++}
 +
-+		/* Reject attempts to add a VLAN that requires the
-+		 * Remove Tag flag to be changed, unless there are no
-+		 * other VLANs currently configured.
-+		 */
-+		for (vid = 1; vid < dev->num_vlans; ++vid) {
-+			/* Skip the VID we are going to add or reconfigure */
-+			if (vid == vlan->vid)
-+				continue;
-+
-+			ksz8_from_vlan(dev, dev->vlan_cache[vid].table[0],
-+				       &fid, &member, &valid);
-+			if (valid && (member & BIT(port)))
-+				return -EINVAL;
-+		}
-+
-+		ksz_port_cfg(dev, port, P_TAG_CTRL, PORT_REMOVE_TAG, untagged);
-+		p->remove_tag = untagged;
-+	}
+ /* Create a socket. Initialise the socket, blank the addresses
+  * set the state.
+  */
+@@ -1024,7 +1029,7 @@ static int ieee802154_create(struct net *net, struct socket *sock,
+ 	sock->ops = ops;
  
- 	ksz8_r_vlan_table(dev, vlan->vid, &data);
- 	ksz8_from_vlan(dev, data, &fid, &member, &valid);
-diff --git a/drivers/net/dsa/microchip/ksz_common.h b/drivers/net/dsa/microchip/ksz_common.h
-index 6afbb41ad39e..1597c63988b4 100644
---- a/drivers/net/dsa/microchip/ksz_common.h
-+++ b/drivers/net/dsa/microchip/ksz_common.h
-@@ -27,6 +27,7 @@ struct ksz_port_mib {
- struct ksz_port {
- 	u16 member;
- 	u16 vid_member;
-+	bool remove_tag;		/* Remove Tag flag set, for ksz8795 only */
- 	int stp_state;
- 	struct phy_device phydev;
+ 	sock_init_data(sock, sk);
+-	/* FIXME: sk->sk_destruct */
++	sk->sk_destruct = ieee802154_sock_destruct;
+ 	sk->sk_family = PF_IEEE802154;
  
+ 	/* Checksums on by default */
 -- 
 2.30.2
 
