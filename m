@@ -2,102 +2,329 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4682A3EDC22
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 19:14:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31E5A3EDC27
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 19:14:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229761AbhHPRPB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 13:15:01 -0400
-Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:43095 "EHLO
-        wout3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229699AbhHPRPB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Aug 2021 13:15:01 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.west.internal (Postfix) with ESMTP id B238D32009DE;
-        Mon, 16 Aug 2021 13:14:28 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 16 Aug 2021 13:14:29 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=/HTlGkabB/BIP39T99zfZW3JtPz
-        6MwBmR5jcO/la8Ag=; b=uZA9QiFsFlFRmD9lNbwTiKaOQICBhx+g2a/gwCHLx/K
-        RCXfYAIcWeQGoN+fUS2SWtrt5Bfq+1cV99622LtqSsfcCoR/WJCIslJSbfNG+LJU
-        tpqE+cATfiZuVXMgNb1gQxUnSRJ4Ju2AAt9Q3XX+h60/IUJZdNE1NLIvxvg64dcO
-        GVvET4rSm92crSNz1jxM9b1sexj+LK2or6uKblQNgJTz8U0Um4cxf/WTaCjx0zb1
-        cXQLZHgYEKv1o4CmdAZ2RXH41nGJQYmP4SjaoZ+VdyuVuJI9jO8LtG0ayoLSzGXd
-        LO6/loHuxwg+r0U5QDWApDwFsP688QTWctBe7auVt/Q==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=/HTlGk
-        abB/BIP39T99zfZW3JtPz6MwBmR5jcO/la8Ag=; b=swfP3RJ6I9pcCRB/hhAV8e
-        JEeyxE0Cs6NPCvvFZhui8MIgr5e3hBnGOxhNwJxLoMjJyolEbFwWyH+2LBvV/igB
-        JQ1sKqm/cG5+zIZ8cxPW1Joe1kjWrWd1+Phrr6QhUjKv5GRekTgGUvL4kbArc4ur
-        a8IJTQbIPJC4AqR5FvSwtcmQ2zB8aau/V9lmGvmYZxnZESWpzjna3aG5Ys2ccI/t
-        zzHbFK7hJjRqEJmpOA6dS8a+EhAzPGDys71ajPJRNcBaT5Eroa3TTCMDOPcyTA2W
-        IEjVeDyKeVowONgkJp8SDZR0RTjSh0iZiGdrxbjMKYFcj1BHpSW5XRV+kq/L7wSQ
-        ==
-X-ME-Sender: <xms:9JwaYaNY3EeGzpXZSJl4GkoQ3YzKpt8TC9xJihkxpfCIAjO6VmnFEg>
-    <xme:9JwaYY9LrughdHE3DRLjO84DORNXnJUe1rp7kL7aUmT8chwx2mHvzWlXbkXX8AUAr
-    wGSFEm3dJEp0Q>
-X-ME-Received: <xmr:9JwaYRT-TEuMw7UQxfCyMYATVrKpSnefaZlwvqwWHCDEyRbwd4hDgzMUX3ahPHrRM5IQrXioVOeyENKtd6PHF0m6FvhVIdp->
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrledugdduuddtucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
-    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucevlhhushht
-    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
-    drtghomh
-X-ME-Proxy: <xmx:9JwaYauSYROPea-Djp_AYTc6hi_69pbad0Z876r715FzKkY58FkCfg>
-    <xmx:9JwaYSfZOKbZ8FGSXDT3beeP8e-ftoA3JoKfiNj7q2ufQdpJWAfqGw>
-    <xmx:9JwaYe0bKFwM88miRyUsuc9QQTYYQ7jXQxadf4tuK22Hg21wIh-IPQ>
-    <xmx:9JwaYZyTR5Fn_vSKM5qrJLTejpOENhu8drGiotrfRLo0-saA8MJc7A>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 16 Aug 2021 13:14:27 -0400 (EDT)
-Date:   Mon, 16 Aug 2021 19:14:20 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Paolo Bonzini <pbonzini@redhat.com>
-Cc:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        stable@vger.kernel.org, Maxim Levitsky <mlevitsk@redhat.com>
-Subject: Re: [PATCH 5.4.y] KVM: nSVM: always intercept VMLOAD/VMSAVE when
- nested (CVE-2021-3656)
-Message-ID: <YRqc7IUh6CLa2TkU@kroah.com>
-References: <20210816140240.11399-12-pbonzini@redhat.com>
+        id S231434AbhHPRPQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 13:15:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33684 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231312AbhHPRPQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 13:15:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CE8BC60F35;
+        Mon, 16 Aug 2021 17:14:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1629134084;
+        bh=a/bZj2EjjF/FjM64A75+r+DlXXlQYPoHkK9uJtP1tu0=;
+        h=From:To:Cc:Subject:Date:From;
+        b=e6aVSSB1psKTe/wO6MA70pLk8o4+ZrhWXwjEqh32G6df8vO2ktn1aCWh9aLLXnl3K
+         NIAmTWytAIWsotyQe9Uwgx9W/PBS0UrEH0HpZaAgt+9yJ4MLzCXtvcJXjcHiYZM6lX
+         veEegqo4qVb8jUtQYt+5do1/e/Q7bBfsN8IcXRRE=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 5.4 00/64] 5.4.142-rc2 review
+Date:   Mon, 16 Aug 2021 19:14:41 +0200
+Message-Id: <20210816171405.410986560@linuxfoundation.org>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210816140240.11399-12-pbonzini@redhat.com>
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.142-rc2.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.4.142-rc2
+X-KernelTest-Deadline: 2021-08-18T17:14+00:00
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 16, 2021 at 04:02:40PM +0200, Paolo Bonzini wrote:
-> From: Maxim Levitsky <mlevitsk@redhat.com>
-> 
-> [ upstream commit c7dfa4009965a9b2d7b329ee970eb8da0d32f0bc ]
-> 
-> If L1 disables VMLOAD/VMSAVE intercepts, and doesn't enable
-> Virtual VMLOAD/VMSAVE (currently not supported for the nested hypervisor),
-> then VMLOAD/VMSAVE must operate on the L1 physical memory, which is only
-> possible by making L0 intercept these instructions.
-> 
-> Failure to do so allowed the nested guest to run VMLOAD/VMSAVE unintercepted,
-> and thus read/write portions of the host physical memory.
-> 
-> Fixes: 89c8a4984fc9 ("KVM: SVM: Enable Virtual VMLOAD VMSAVE feature")
-> 
-> Suggested-by: Paolo Bonzini <pbonzini@redhat.com>
-> Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
-> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-> ---
-> 	The above upstream SHA1 is still on its way to Linus
-> 
->  arch/x86/kvm/svm.c | 3 +++
->  1 file changed, 3 insertions(+)
+This is the start of the stable review cycle for the 5.4.142 release.
+There are 64 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-5.4, 5.10, and 5.13 versions now queued up and I'll do a new -rc release
-with them in it.  I'll get to the others after dinner...
+Responses should be made by Wed, 18 Aug 2021 17:13:49 +0000.
+Anything received after that time might be too late.
+
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.142-rc2.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+and the diffstat can be found below.
 
 thanks,
 
 greg k-h
+
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.4.142-rc2
+
+Maxim Levitsky <mlevitsk@redhat.com>
+    KVM: nSVM: always intercept VMLOAD/VMSAVE when nested (CVE-2021-3656)
+
+Maxim Levitsky <mlevitsk@redhat.com>
+    KVM: nSVM: avoid picking up unsupported bits from L2 in int_ctl (CVE-2021-3653)
+
+Saeed Mirzamohammadi <saeed.mirzamohammadi@oracle.com>
+    iommu/vt-d: Fix agaw for a supported 48 bit guest address width
+
+Nathan Chancellor <nathan@kernel.org>
+    vmlinux.lds.h: Handle clang's module.{c,d}tor sections
+
+Jeff Layton <jlayton@kernel.org>
+    ceph: take snap_empty_lock atomically with snaprealm refcount change
+
+Jeff Layton <jlayton@kernel.org>
+    ceph: clean up locking annotation for ceph_get_snap_realm and __lookup_snap_realm
+
+Jeff Layton <jlayton@kernel.org>
+    ceph: add some lockdep assertions around snaprealm handling
+
+Sean Christopherson <seanjc@google.com>
+    KVM: VMX: Use current VMCS to query WAITPKG support for MSR emulation
+
+Thomas Gleixner <tglx@linutronix.de>
+    PCI/MSI: Protect msi_desc::masked for multi-MSI
+
+Thomas Gleixner <tglx@linutronix.de>
+    PCI/MSI: Use msi_mask_irq() in pci_msi_shutdown()
+
+Thomas Gleixner <tglx@linutronix.de>
+    PCI/MSI: Correct misleading comments
+
+Thomas Gleixner <tglx@linutronix.de>
+    PCI/MSI: Do not set invalid bits in MSI mask
+
+Thomas Gleixner <tglx@linutronix.de>
+    PCI/MSI: Enforce MSI[X] entry updates to be visible
+
+Thomas Gleixner <tglx@linutronix.de>
+    PCI/MSI: Enforce that MSI-X table entry is masked for update
+
+Thomas Gleixner <tglx@linutronix.de>
+    PCI/MSI: Mask all unused MSI-X entries
+
+Thomas Gleixner <tglx@linutronix.de>
+    PCI/MSI: Enable and mask MSI-X early
+
+Ben Dai <ben.dai@unisoc.com>
+    genirq/timings: Prevent potential array overflow in __irq_timings_store()
+
+Bixuan Cui <cuibixuan@huawei.com>
+    genirq/msi: Ensure deactivation on teardown
+
+Babu Moger <Babu.Moger@amd.com>
+    x86/resctrl: Fix default monitoring groups reporting
+
+Thomas Gleixner <tglx@linutronix.de>
+    x86/ioapic: Force affinity setup before startup
+
+Thomas Gleixner <tglx@linutronix.de>
+    x86/msi: Force affinity setup before startup
+
+Thomas Gleixner <tglx@linutronix.de>
+    genirq: Provide IRQCHIP_AFFINITY_PRE_STARTUP
+
+Randy Dunlap <rdunlap@infradead.org>
+    x86/tools: Fix objdump version check again
+
+Pu Lehui <pulehui@huawei.com>
+    powerpc/kprobes: Fix kprobe Oops happens in booke
+
+Xie Yongji <xieyongji@bytedance.com>
+    nbd: Aovid double completion of a request
+
+Longpeng(Mike) <longpeng2@huawei.com>
+    vsock/virtio: avoid potential deadlock when vsock device remove
+
+Maximilian Heyne <mheyne@amazon.de>
+    xen/events: Fix race in set_evtchn_to_irq
+
+Eric Dumazet <edumazet@google.com>
+    net: igmp: increase size of mr_ifc_count
+
+Neal Cardwell <ncardwell@google.com>
+    tcp_bbr: fix u32 wrap bug in round logic if bbr_init() called after 2B packets
+
+Willy Tarreau <w@1wt.eu>
+    net: linkwatch: fix failure to restore device state across suspend/resume
+
+Yang Yingliang <yangyingliang@huawei.com>
+    net: bridge: fix memleak in br_add_if()
+
+Vladimir Oltean <vladimir.oltean@nxp.com>
+    net: dsa: sja1105: fix broken backpressure in .port_fdb_dump
+
+Vladimir Oltean <vladimir.oltean@nxp.com>
+    net: dsa: lantiq: fix broken backpressure in .port_fdb_dump
+
+Vladimir Oltean <vladimir.oltean@nxp.com>
+    net: dsa: lan9303: fix broken backpressure in .port_fdb_dump
+
+Eric Dumazet <edumazet@google.com>
+    net: igmp: fix data-race in igmp_ifc_timer_expire()
+
+Takeshi Misawa <jeliantsurux@gmail.com>
+    net: Fix memory leak in ieee802154_raw_deliver
+
+Ben Hutchings <ben.hutchings@mind.be>
+    net: dsa: microchip: Fix ksz_read64()
+
+Christian Hewitt <christianshewitt@gmail.com>
+    drm/meson: fix colour distortion from HDR set during vendor u-boot
+
+Aya Levin <ayal@nvidia.com>
+    net/mlx5: Fix return value from tracer initialization
+
+Roi Dayan <roid@nvidia.com>
+    psample: Add a fwd declaration for skbuff
+
+Md Fahad Iqbal Polash <md.fahad.iqbal.polash@intel.com>
+    iavf: Set RSS LUT and key in reset handle path
+
+Hangbin Liu <liuhangbin@gmail.com>
+    net: sched: act_mirred: Reset ct info when mirror/redirect skb
+
+Pali Rohár <pali@kernel.org>
+    ppp: Fix generating ifname when empty IFLA_IFNAME is specified
+
+Ben Hutchings <ben.hutchings@mind.be>
+    net: phy: micrel: Fix link detection on ksz87xx switch"
+
+Hans de Goede <hdegoede@redhat.com>
+    platform/x86: pcengines-apuv2: Add missing terminating entries to gpio-lookup tables
+
+Florian Eckert <fe@dev.tdt.de>
+    platform/x86: pcengines-apuv2: revert wiring up simswitch GPIO as LED
+
+DENG Qingfang <dqfext@gmail.com>
+    net: dsa: mt7530: add the missing RxUnicast MIB counter
+
+Richard Fitzgerald <rf@opensource.cirrus.com>
+    ASoC: cs42l42: Fix LRCLK frame start edge
+
+Yajun Deng <yajun.deng@linux.dev>
+    netfilter: nf_conntrack_bridge: Fix memory leak when error
+
+Richard Fitzgerald <rf@opensource.cirrus.com>
+    ASoC: cs42l42: Remove duplicate control for WNF filter frequency
+
+Richard Fitzgerald <rf@opensource.cirrus.com>
+    ASoC: cs42l42: Fix inversion of ADC Notch Switch control
+
+Richard Fitzgerald <rf@opensource.cirrus.com>
+    ASoC: cs42l42: Don't allow SND_SOC_DAIFMT_LEFT_J
+
+Richard Fitzgerald <rf@opensource.cirrus.com>
+    ASoC: cs42l42: Correct definition of ADC Volume control
+
+Dongliang Mu <mudongliangabcd@gmail.com>
+    ieee802154: hwsim: fix GPF in hwsim_new_edge_nl
+
+Dongliang Mu <mudongliangabcd@gmail.com>
+    ieee802154: hwsim: fix GPF in hwsim_set_edge_lqi
+
+Dan Williams <dan.j.williams@intel.com>
+    libnvdimm/region: Fix label activation vs errors
+
+Dan Williams <dan.j.williams@intel.com>
+    ACPI: NFIT: Fix support for virtual SPA ranges
+
+Luis Henriques <lhenriques@suse.de>
+    ceph: reduce contention in ceph_check_delayed_caps()
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    i2c: dev: zero out array used for i2c reads from userspace
+
+Takashi Iwai <tiwai@suse.de>
+    ASoC: intel: atom: Fix reference to PCM buffer address
+
+Takashi Iwai <tiwai@suse.de>
+    ASoC: xilinx: Fix reference to PCM buffer address
+
+Colin Ian King <colin.king@canonical.com>
+    iio: adc: Fix incorrect exit of for-loop
+
+Chris Lesiak <chris.lesiak@licor.com>
+    iio: humidity: hdc100x: Add margin to the conversion time
+
+Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+    iio: adc: ti-ads7950: Ensure CS is deasserted after reading channels
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                           |   4 +-
+ arch/powerpc/kernel/kprobes.c                      |   3 +-
+ arch/x86/include/asm/svm.h                         |   2 +
+ arch/x86/kernel/apic/io_apic.c                     |   6 +-
+ arch/x86/kernel/apic/msi.c                         |  13 ++-
+ arch/x86/kernel/cpu/resctrl/monitor.c              |  27 +++--
+ arch/x86/kvm/svm.c                                 |  18 +--
+ arch/x86/kvm/vmx/vmx.h                             |   2 +-
+ arch/x86/tools/chkobjdump.awk                      |   1 +
+ drivers/acpi/nfit/core.c                           |   3 +
+ drivers/base/core.c                                |   1 +
+ drivers/block/nbd.c                                |  14 ++-
+ drivers/gpu/drm/meson/meson_registers.h            |   5 +
+ drivers/gpu/drm/meson/meson_viu.c                  |   7 +-
+ drivers/i2c/i2c-dev.c                              |   5 +-
+ drivers/iio/adc/palmas_gpadc.c                     |   4 +-
+ drivers/iio/adc/ti-ads7950.c                       |   1 -
+ drivers/iio/humidity/hdc100x.c                     |   6 +-
+ drivers/iommu/intel-iommu.c                        |   7 +-
+ drivers/net/dsa/lan9303-core.c                     |  34 +++---
+ drivers/net/dsa/lantiq_gswip.c                     |  14 ++-
+ drivers/net/dsa/microchip/ksz_common.h             |   8 +-
+ drivers/net/dsa/mt7530.c                           |   1 +
+ drivers/net/dsa/sja1105/sja1105_main.c             |   4 +-
+ drivers/net/ethernet/intel/iavf/iavf_main.c        |  13 ++-
+ .../ethernet/mellanox/mlx5/core/diag/fw_tracer.c   |  11 +-
+ drivers/net/ieee802154/mac802154_hwsim.c           |   6 +-
+ drivers/net/phy/micrel.c                           |   2 -
+ drivers/net/ppp/ppp_generic.c                      |   2 +-
+ drivers/nvdimm/namespace_devs.c                    |  17 ++-
+ drivers/pci/msi.c                                  | 125 +++++++++++++--------
+ drivers/platform/x86/pcengines-apuv2.c             |   5 +-
+ drivers/xen/events/events_base.c                   |  20 +++-
+ fs/ceph/caps.c                                     |  17 ++-
+ fs/ceph/mds_client.c                               |  25 +++--
+ fs/ceph/snap.c                                     |  54 +++++----
+ fs/ceph/super.h                                    |   2 +-
+ include/asm-generic/vmlinux.lds.h                  |   1 +
+ include/linux/device.h                             |   1 +
+ include/linux/inetdevice.h                         |   2 +-
+ include/linux/irq.h                                |   2 +
+ include/linux/msi.h                                |   2 +-
+ include/net/psample.h                              |   2 +
+ kernel/irq/chip.c                                  |   5 +-
+ kernel/irq/msi.c                                   |  13 ++-
+ kernel/irq/timings.c                               |   5 +
+ net/bridge/br_if.c                                 |   2 +
+ net/bridge/netfilter/nf_conntrack_bridge.c         |   6 +
+ net/core/link_watch.c                              |   5 +-
+ net/ieee802154/socket.c                            |   7 +-
+ net/ipv4/igmp.c                                    |  21 ++--
+ net/ipv4/tcp_bbr.c                                 |   2 +-
+ net/sched/act_mirred.c                             |   3 +
+ net/vmw_vsock/virtio_transport.c                   |   7 +-
+ sound/soc/codecs/cs42l42.c                         |  39 +++----
+ sound/soc/intel/atom/sst-mfld-platform-pcm.c       |   3 +-
+ sound/soc/xilinx/xlnx_formatter_pcm.c              |   4 +-
+ 57 files changed, 395 insertions(+), 226 deletions(-)
+
+
