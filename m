@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40DC63ED5D5
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:17:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DF763ED5DE
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:17:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239198AbhHPNP2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:15:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37180 "EHLO mail.kernel.org"
+        id S239123AbhHPNPe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:15:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237520AbhHPNNE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:13:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A19E632C0;
-        Mon, 16 Aug 2021 13:10:46 +0000 (UTC)
+        id S239604AbhHPNOc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:14:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C3FB0632A2;
+        Mon, 16 Aug 2021 13:11:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119447;
-        bh=tJRxt6R0nDizbvrBIJUeMhQ+idTbHvZENKG3Jn2g5G4=;
+        s=korg; t=1629119475;
+        bh=xWHx/EOAscR3etXZqIA2GxRKfnPuBGdPN7geStoKCLc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KziZRwrFW3eEOtKjOYJnrBBJg9MMe0eEMprehROo7B7OFNSEkXJGWxEFBeExEdXFa
-         slEiBraYFoIUBpJTw39xbgbKZUOe27jCJLFcQg5+84n1o1xWpjNTCHnKo3ICEgLew8
-         D6bi1WA6eufzfwgiv/i34633uh2WTtxXmnT6yYdI=
+        b=X7+mau9lEKijKYs0/K7P3DO7xclOfRO/IHdz/fVNLIPxCaZMCfrABitOMh34TiClk
+         RqnGty4AWIf62AyNI06xEvUWvYDQCpHWQMSnnJd5qa3abaHXCdgQQYLUM4KR9Pi//w
+         dr+TDMLzzFJqS4cchUqVnlQkFyUHY1mP8A1U+M+w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hsuan-Chi Kuo <hsuanchikuo@gmail.com>,
-        Wiktor Garbacz <wiktorg@google.com>,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 5.13 022/151] seccomp: Fix setting loaded filter count during TSYNC
-Date:   Mon, 16 Aug 2021 15:00:52 +0200
-Message-Id: <20210816125444.801772013@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Perrot <thomas.perrot@bootlin.com>,
+        Loic Poulain <loic.poulain@linaro.org>,
+        Sergey Ryazanov <ryazanov.s.a@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.13 023/151] net: wwan: mhi_wwan_ctrl: Fix possible deadlock
+Date:   Mon, 16 Aug 2021 15:00:53 +0200
+Message-Id: <20210816125444.832318357@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
 References: <20210816125444.082226187@linuxfoundation.org>
@@ -40,37 +41,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hsuan-Chi Kuo <hsuanchikuo@gmail.com>
+From: Loic Poulain <loic.poulain@linaro.org>
 
-commit b4d8a58f8dcfcc890f296696cadb76e77be44b5f upstream.
+commit 34737e1320db6d51f0d140d5c684b9eb32f0da76 upstream.
 
-The desired behavior is to set the caller's filter count to thread's.
-This value is reported via /proc, so this fixes the inaccurate count
-exposed to userspace; it is not used for reference counting, etc.
+Lockdep detected possible interrupt unsafe locking scenario:
 
-Signed-off-by: Hsuan-Chi Kuo <hsuanchikuo@gmail.com>
-Link: https://lore.kernel.org/r/20210304233708.420597-1-hsuanchikuo@gmail.com
-Co-developed-by: Wiktor Garbacz <wiktorg@google.com>
-Signed-off-by: Wiktor Garbacz <wiktorg@google.com>
-Link: https://lore.kernel.org/lkml/20210810125158.329849-1-wiktorg@google.com
-Signed-off-by: Kees Cook <keescook@chromium.org>
+        CPU0                    CPU1
+        ----                    ----
+   lock(&mhiwwan->rx_lock);
+                               local_irq_disable();
+                               lock(&mhi_cntrl->pm_lock);
+                               lock(&mhiwwan->rx_lock);
+   <Interrupt>
+     lock(&mhi_cntrl->pm_lock);
+
+  *** DEADLOCK ***
+
+To prevent this we need to disable the soft-interrupts when taking
+the rx_lock.
+
 Cc: stable@vger.kernel.org
-Fixes: c818c03b661c ("seccomp: Report number of loaded filters in /proc/$pid/status")
+Fixes: fa588eba632d ("net: Add Qcom WWAN control driver")
+Reported-by: Thomas Perrot <thomas.perrot@bootlin.com>
+Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
+Reviewed-by: Sergey Ryazanov <ryazanov.s.a@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/seccomp.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wwan/mhi_wwan_ctrl.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/kernel/seccomp.c
-+++ b/kernel/seccomp.c
-@@ -602,7 +602,7 @@ static inline void seccomp_sync_threads(
- 		smp_store_release(&thread->seccomp.filter,
- 				  caller->seccomp.filter);
- 		atomic_set(&thread->seccomp.filter_count,
--			   atomic_read(&thread->seccomp.filter_count));
-+			   atomic_read(&caller->seccomp.filter_count));
+--- a/drivers/net/wwan/mhi_wwan_ctrl.c
++++ b/drivers/net/wwan/mhi_wwan_ctrl.c
+@@ -41,14 +41,14 @@ struct mhi_wwan_dev {
+ /* Increment RX budget and schedule RX refill if necessary */
+ static void mhi_wwan_rx_budget_inc(struct mhi_wwan_dev *mhiwwan)
+ {
+-	spin_lock(&mhiwwan->rx_lock);
++	spin_lock_bh(&mhiwwan->rx_lock);
  
- 		/*
- 		 * Don't let an unprivileged task work around
+ 	mhiwwan->rx_budget++;
+ 
+ 	if (test_bit(MHI_WWAN_RX_REFILL, &mhiwwan->flags))
+ 		schedule_work(&mhiwwan->rx_refill);
+ 
+-	spin_unlock(&mhiwwan->rx_lock);
++	spin_unlock_bh(&mhiwwan->rx_lock);
+ }
+ 
+ /* Decrement RX budget if non-zero and return true on success */
+@@ -56,7 +56,7 @@ static bool mhi_wwan_rx_budget_dec(struc
+ {
+ 	bool ret = false;
+ 
+-	spin_lock(&mhiwwan->rx_lock);
++	spin_lock_bh(&mhiwwan->rx_lock);
+ 
+ 	if (mhiwwan->rx_budget) {
+ 		mhiwwan->rx_budget--;
+@@ -64,7 +64,7 @@ static bool mhi_wwan_rx_budget_dec(struc
+ 			ret = true;
+ 	}
+ 
+-	spin_unlock(&mhiwwan->rx_lock);
++	spin_unlock_bh(&mhiwwan->rx_lock);
+ 
+ 	return ret;
+ }
+@@ -130,9 +130,9 @@ static void mhi_wwan_ctrl_stop(struct ww
+ {
+ 	struct mhi_wwan_dev *mhiwwan = wwan_port_get_drvdata(port);
+ 
+-	spin_lock(&mhiwwan->rx_lock);
++	spin_lock_bh(&mhiwwan->rx_lock);
+ 	clear_bit(MHI_WWAN_RX_REFILL, &mhiwwan->flags);
+-	spin_unlock(&mhiwwan->rx_lock);
++	spin_unlock_bh(&mhiwwan->rx_lock);
+ 
+ 	cancel_work_sync(&mhiwwan->rx_refill);
+ 
 
 
