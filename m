@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C91E43ED6A7
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:23:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB5283ED57A
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:12:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239751AbhHPNWr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:22:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44618 "EHLO mail.kernel.org"
+        id S237525AbhHPNLi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:11:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239097AbhHPNUi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:20:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BA90C632BE;
-        Mon, 16 Aug 2021 13:16:04 +0000 (UTC)
+        id S239488AbhHPNJy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:09:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 08FEF610A0;
+        Mon, 16 Aug 2021 13:09:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119765;
-        bh=Db5bJ88XKCt3Vl0kYy7zWPPbF0tbBPULQy1BHkHTAgA=;
+        s=korg; t=1629119362;
+        bh=50qp5bqEcGG9URWnDAqgtGC2ROLaKJgXnPPFlSuya3c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RCGY/UOzlDh8YiCeFRbQiKa3BRih0RNgl1IJehVk37pyZ8I4Vm1FNi1Yl92xkTJ9Y
-         GdewNdDnuB1lWVbZkGIIH5VAVCjV8TvR50U3dsf9RemsobV9zMlOtuyCNHpPDSZDZZ
-         OOWrdclIqb9tB5wRKMV+UpsUc38FiJox/EWMiX6I=
+        b=2vCoaU+HFXQ4nQQ2W/GENClRiLMG6zHHjXvI+GIAFbSWo6LpyMY4swUO6ZYHsvvLt
+         OK37vgznI3q77PaMgHGo+zcN2WdKmpFgdnxQfwLtBXj/1XYiNtL51X121kIYSZP5/L
+         nVZbewoqZNqTtc8e/roHtomQDBUSvFDdghlNz4hM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.13 132/151] PCI/MSI: Do not set invalid bits in MSI mask
-Date:   Mon, 16 Aug 2021 15:02:42 +0200
-Message-Id: <20210816125448.403081564@linuxfoundation.org>
+        stable@vger.kernel.org, Jeff Layton <jlayton@kernel.org>,
+        Ilya Dryomov <idryomov@gmail.com>
+Subject: [PATCH 5.10 93/96] ceph: add some lockdep assertions around snaprealm handling
+Date:   Mon, 16 Aug 2021 15:02:43 +0200
+Message-Id: <20210816125438.082025803@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
-References: <20210816125444.082226187@linuxfoundation.org>
+In-Reply-To: <20210816125434.948010115@linuxfoundation.org>
+References: <20210816125434.948010115@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,64 +39,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Jeff Layton <jlayton@kernel.org>
 
-commit 361fd37397f77578735907341579397d5bed0a2d upstream.
+commit a6862e6708c15995bc10614b2ef34ca35b4b9078 upstream.
 
-msi_mask_irq() takes a mask and a flags argument. The mask argument is used
-to mask out bits from the cached mask and the flags argument to set bits.
+Turn some comments into lockdep asserts.
 
-Some places invoke it with a flags argument which sets bits which are not
-used by the device, i.e. when the device supports up to 8 vectors a full
-unmask in some places sets the mask to 0xFFFFFF00. While devices probably
-do not care, it's still bad practice.
-
-Fixes: 7ba1930db02f ("PCI MSI: Unmask MSI if setup failed")
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Marc Zyngier <maz@kernel.org>
-Reviewed-by: Marc Zyngier <maz@kernel.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210729222542.568173099@linutronix.de
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Reviewed-by: Ilya Dryomov <idryomov@gmail.com>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/msi.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ fs/ceph/snap.c |   16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
---- a/drivers/pci/msi.c
-+++ b/drivers/pci/msi.c
-@@ -656,21 +656,21 @@ static int msi_capability_init(struct pc
- 	/* Configure MSI capability structure */
- 	ret = pci_msi_setup_msi_irqs(dev, nvec, PCI_CAP_ID_MSI);
- 	if (ret) {
--		msi_mask_irq(entry, mask, ~mask);
-+		msi_mask_irq(entry, mask, 0);
- 		free_msi_irqs(dev);
- 		return ret;
- 	}
+--- a/fs/ceph/snap.c
++++ b/fs/ceph/snap.c
+@@ -65,6 +65,8 @@
+ void ceph_get_snap_realm(struct ceph_mds_client *mdsc,
+ 			 struct ceph_snap_realm *realm)
+ {
++	lockdep_assert_held_write(&mdsc->snap_rwsem);
++
+ 	dout("get_realm %p %d -> %d\n", realm,
+ 	     atomic_read(&realm->nref), atomic_read(&realm->nref)+1);
+ 	/*
+@@ -113,6 +115,8 @@ static struct ceph_snap_realm *ceph_crea
+ {
+ 	struct ceph_snap_realm *realm;
  
- 	ret = msi_verify_entries(dev);
- 	if (ret) {
--		msi_mask_irq(entry, mask, ~mask);
-+		msi_mask_irq(entry, mask, 0);
- 		free_msi_irqs(dev);
- 		return ret;
- 	}
++	lockdep_assert_held_write(&mdsc->snap_rwsem);
++
+ 	realm = kzalloc(sizeof(*realm), GFP_NOFS);
+ 	if (!realm)
+ 		return ERR_PTR(-ENOMEM);
+@@ -143,6 +147,8 @@ static struct ceph_snap_realm *__lookup_
+ 	struct rb_node *n = mdsc->snap_realms.rb_node;
+ 	struct ceph_snap_realm *r;
  
- 	ret = populate_msi_sysfs(dev);
- 	if (ret) {
--		msi_mask_irq(entry, mask, ~mask);
-+		msi_mask_irq(entry, mask, 0);
- 		free_msi_irqs(dev);
- 		return ret;
- 	}
-@@ -962,7 +962,7 @@ static void pci_msi_shutdown(struct pci_
- 	/* Return the device with MSI unmasked as initial states */
- 	mask = msi_mask(desc->msi_attrib.multi_cap);
- 	/* Keep cached state to be restored */
--	__pci_msi_desc_mask_irq(desc, mask, ~mask);
-+	__pci_msi_desc_mask_irq(desc, mask, 0);
++	lockdep_assert_held_write(&mdsc->snap_rwsem);
++
+ 	while (n) {
+ 		r = rb_entry(n, struct ceph_snap_realm, node);
+ 		if (ino < r->ino)
+@@ -176,6 +182,8 @@ static void __put_snap_realm(struct ceph
+ static void __destroy_snap_realm(struct ceph_mds_client *mdsc,
+ 				 struct ceph_snap_realm *realm)
+ {
++	lockdep_assert_held_write(&mdsc->snap_rwsem);
++
+ 	dout("__destroy_snap_realm %p %llx\n", realm, realm->ino);
  
- 	/* Restore dev->irq to its default pin-assertion IRQ */
- 	dev->irq = desc->msi_attrib.default_irq;
+ 	rb_erase(&realm->node, &mdsc->snap_realms);
+@@ -198,6 +206,8 @@ static void __destroy_snap_realm(struct
+ static void __put_snap_realm(struct ceph_mds_client *mdsc,
+ 			     struct ceph_snap_realm *realm)
+ {
++	lockdep_assert_held_write(&mdsc->snap_rwsem);
++
+ 	dout("__put_snap_realm %llx %p %d -> %d\n", realm->ino, realm,
+ 	     atomic_read(&realm->nref), atomic_read(&realm->nref)-1);
+ 	if (atomic_dec_and_test(&realm->nref))
+@@ -236,6 +246,8 @@ static void __cleanup_empty_realms(struc
+ {
+ 	struct ceph_snap_realm *realm;
+ 
++	lockdep_assert_held_write(&mdsc->snap_rwsem);
++
+ 	spin_lock(&mdsc->snap_empty_lock);
+ 	while (!list_empty(&mdsc->snap_empty)) {
+ 		realm = list_first_entry(&mdsc->snap_empty,
+@@ -269,6 +281,8 @@ static int adjust_snap_realm_parent(stru
+ {
+ 	struct ceph_snap_realm *parent;
+ 
++	lockdep_assert_held_write(&mdsc->snap_rwsem);
++
+ 	if (realm->parent_ino == parentino)
+ 		return 0;
+ 
+@@ -686,6 +700,8 @@ int ceph_update_snap_trace(struct ceph_m
+ 	int err = -ENOMEM;
+ 	LIST_HEAD(dirty_realms);
+ 
++	lockdep_assert_held_write(&mdsc->snap_rwsem);
++
+ 	dout("update_snap_trace deletion=%d\n", deletion);
+ more:
+ 	ceph_decode_need(&p, e, sizeof(*ri), bad);
 
 
