@@ -2,116 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 80E083ECF7B
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 09:38:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B78C23ECF83
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 09:40:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234060AbhHPHjX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 03:39:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53942 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233725AbhHPHjX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Aug 2021 03:39:23 -0400
-Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A78B6C061764;
-        Mon, 16 Aug 2021 00:38:52 -0700 (PDT)
-Received: by mail-pj1-x1032.google.com with SMTP id qe12-20020a17090b4f8c00b00179321cbae7so15437913pjb.2;
-        Mon, 16 Aug 2021 00:38:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=5nKbIRM80jV50m92RFRSNDgACnLFClA1DW4sLx6kBRY=;
-        b=MGiNtS7Yf/l/FB54ENHAXQNv6hiBiELUV2ALDtXMRQVPZi2GlYrSqCdkVxP5GDZj3u
-         r6gAtLUl9Y7cCzeST+Et5c+9blLHXLdAXMZhquI2hq/yb3tT/Ea0yRZu2xSysTvcecEb
-         yKpEim7HUb+swlOspF8c35l/SFG+hxOOPcIDJlbRsu4MPloDdRbcDnPcKQSikasbMnZp
-         52mT5dIxWvDhZ1mtftfVe9uqzoG9+rtrHunhQl+f4cUxBkg4AMmGFfyHlgNYmTiwN3P3
-         XzOy0aA4NyCSWDC13JXfJ2RMz/BATxpwXiZ+LwD3JHEgGav7jstyNGI5DqWWdqiavF1l
-         z6Mg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=5nKbIRM80jV50m92RFRSNDgACnLFClA1DW4sLx6kBRY=;
-        b=WhCGGRZHT8ASQXDO/eNKQyC1YryNZoFvtL77F5kwFrDy+qGebc0omaIoJDaTZaaUwe
-         v0RJIEC/vgwhyHecvxwkQZ4OZoWtuAm2Tc/jWGNqdtKdQmH4OMP6hnSqZ7RInvitO4N5
-         dRX0iZTn+9+QwLUTvf1276HWxUoyf9JBhSDbZoXv7V3HT3d2R8ZDqHmCWRbkNSU9tosK
-         dX8lBO/RgsD+toQD6tMQyqpjmjL/0zk7vaIoamskHLcYkxVYVgwVk8TEmlNImIdwmke0
-         cWj5sJLI51NA8DNs7Vqo8SD1PqOSCP9Iuct1+lcgwbKbXvLkCOzdI0fC1nXRDUN/wMAf
-         9ypQ==
-X-Gm-Message-State: AOAM533g2/uX1ObkSCFqu4hJMfxb1tJWX4kgrqVKeaxhMEBXDZ2U/hHO
-        Mntd3vO1ZU5xrKMq/1DQkQw=
-X-Google-Smtp-Source: ABdhPJw2drNKus8ikTVpUtgbYMvkiOj9krczzz/xNEM/uZcrMauxUXOtvqsXuH4X//A221tkhcpBUA==
-X-Received: by 2002:a62:32c7:0:b029:3cd:fba0:3218 with SMTP id y190-20020a6232c70000b02903cdfba03218mr15157508pfy.52.1629099531983;
-        Mon, 16 Aug 2021 00:38:51 -0700 (PDT)
-Received: from localhost.localdomain ([154.16.166.205])
-        by smtp.gmail.com with ESMTPSA id j21sm10087309pfn.75.2021.08.16.00.38.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 Aug 2021 00:38:51 -0700 (PDT)
-From:   Dongliang Mu <mudongliangabcd@gmail.com>
-To:     Steffen Klassert <steffen.klassert@secunet.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>
-Cc:     Dongliang Mu <mudongliangabcd@gmail.com>,
-        syzbot+b9cfd1cc5d57ee0a09ab@syzkaller.appspotmail.com,
-        stable@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] net: xfrm: fix bug in ipcomp_free_scratches
-Date:   Mon, 16 Aug 2021 15:38:29 +0800
-Message-Id: <20210816073832.199701-1-mudongliangabcd@gmail.com>
-X-Mailer: git-send-email 2.25.1
+        id S234234AbhHPHkb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 03:40:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45014 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S234222AbhHPHkb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 03:40:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B59361AAB;
+        Mon, 16 Aug 2021 07:39:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1629099600;
+        bh=s/aA3Ay5sVOvcCemUQp6P33EMNswnhBebMMF/WtRsrU=;
+        h=Subject:To:Cc:From:Date:From;
+        b=lo/2+tvZPr6KberZgXR6eOrr5fzH/adaUDMagmosTUFJfwfp6WUQlLFv4SUKhax5Z
+         yyQoF+PafW75LrPEMgLPJ4PEj0FgIGbj23HZ3hjltGNjvSdf8PSgWu0FUtZloF/GHQ
+         q1qE64jaREZfvah67nwUUg5UfEtcAU0rblkZMsAE=
+Subject: FAILED: patch "[PATCH] x86/msi: Force affinity setup before startup" failed to apply to 4.9-stable tree
+To:     tglx@linutronix.de, maz@kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 16 Aug 2021 09:39:49 +0200
+Message-ID: <162909958920068@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In ipcomp_alloc_scratches, if the vmalloc fails, there leaves a NULL
-pointer. However, ipcomp_free_scratches does not check the per_pcu_ptr
-pointer when invoking vfree.
 
-Fix this by adding a sanity check before vfree.
+The patch below does not apply to the 4.9-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Call Trace:
- ipcomp_free_scratches+0xbc/0x160 net/xfrm/xfrm_ipcomp.c:203
- ipcomp_free_data net/xfrm/xfrm_ipcomp.c:312 [inline]
- ipcomp_init_state+0x77c/0xa40 net/xfrm/xfrm_ipcomp.c:364
- ipcomp6_init_state+0xc2/0x700 net/ipv6/ipcomp6.c:154
- __xfrm_init_state+0x995/0x15c0 net/xfrm/xfrm_state.c:2648
- xfrm_init_state+0x1a/0x70 net/xfrm/xfrm_state.c:2675
- pfkey_msg2xfrm_state net/key/af_key.c:1287 [inline]
- pfkey_add+0x1a64/0x2cd0 net/key/af_key.c:1504
- pfkey_process+0x685/0x7e0 net/key/af_key.c:2837
- pfkey_sendmsg+0x43a/0x820 net/key/af_key.c:3676
- sock_sendmsg_nosec net/socket.c:703 [inline]
- sock_sendmsg+0xcf/0x120 net/socket.c:723
+thanks,
 
-Reported-by: syzbot+b9cfd1cc5d57ee0a09ab@syzkaller.appspotmail.com
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From ff363f480e5997051dd1de949121ffda3b753741 Mon Sep 17 00:00:00 2001
+From: Thomas Gleixner <tglx@linutronix.de>
+Date: Thu, 29 Jul 2021 23:51:50 +0200
+Subject: [PATCH] x86/msi: Force affinity setup before startup
+
+The X86 MSI mechanism cannot handle interrupt affinity changes safely after
+startup other than from an interrupt handler, unless interrupt remapping is
+enabled. The startup sequence in the generic interrupt code violates that
+assumption.
+
+Mark the irq chips with the new IRQCHIP_AFFINITY_PRE_STARTUP flag so that
+the default interrupt setting happens before the interrupt is started up
+for the first time.
+
+While the interrupt remapping MSI chip does not require this, there is no
+point in treating it differently as this might spare an interrupt to a CPU
+which is not in the default affinity mask.
+
+For the non-remapping case go to the direct write path when the interrupt
+is not yet started similar to the not yet activated case.
+
+Fixes: 18404756765c ("genirq: Expose default irq affinity mask (take 3)")
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Marc Zyngier <maz@kernel.org>
+Reviewed-by: Marc Zyngier <maz@kernel.org>
 Cc: stable@vger.kernel.org
-Fixes: 6fccab671f2f ("ipsec: ipcomp - Merge IPComp impl")
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
----
- net/xfrm/xfrm_ipcomp.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+Link: https://lore.kernel.org/r/20210729222542.886722080@linutronix.de
 
-diff --git a/net/xfrm/xfrm_ipcomp.c b/net/xfrm/xfrm_ipcomp.c
-index cb40ff0ff28d..9588ac05ab27 100644
---- a/net/xfrm/xfrm_ipcomp.c
-+++ b/net/xfrm/xfrm_ipcomp.c
-@@ -199,8 +199,11 @@ static void ipcomp_free_scratches(void)
- 	if (!scratches)
- 		return;
+diff --git a/arch/x86/kernel/apic/msi.c b/arch/x86/kernel/apic/msi.c
+index 44ebe25e7703..dbacb9ec8843 100644
+--- a/arch/x86/kernel/apic/msi.c
++++ b/arch/x86/kernel/apic/msi.c
+@@ -58,11 +58,13 @@ msi_set_affinity(struct irq_data *irqd, const struct cpumask *mask, bool force)
+ 	 *   The quirk bit is not set in this case.
+ 	 * - The new vector is the same as the old vector
+ 	 * - The old vector is MANAGED_IRQ_SHUTDOWN_VECTOR (interrupt starts up)
++	 * - The interrupt is not yet started up
+ 	 * - The new destination CPU is the same as the old destination CPU
+ 	 */
+ 	if (!irqd_msi_nomask_quirk(irqd) ||
+ 	    cfg->vector == old_cfg.vector ||
+ 	    old_cfg.vector == MANAGED_IRQ_SHUTDOWN_VECTOR ||
++	    !irqd_is_started(irqd) ||
+ 	    cfg->dest_apicid == old_cfg.dest_apicid) {
+ 		irq_msi_update_msg(irqd, cfg);
+ 		return ret;
+@@ -150,7 +152,8 @@ static struct irq_chip pci_msi_controller = {
+ 	.irq_ack		= irq_chip_ack_parent,
+ 	.irq_retrigger		= irq_chip_retrigger_hierarchy,
+ 	.irq_set_affinity	= msi_set_affinity,
+-	.flags			= IRQCHIP_SKIP_SET_WAKE,
++	.flags			= IRQCHIP_SKIP_SET_WAKE |
++				  IRQCHIP_AFFINITY_PRE_STARTUP,
+ };
  
--	for_each_possible_cpu(i)
--		vfree(*per_cpu_ptr(scratches, i));
-+	for_each_possible_cpu(i) {
-+		void *scratch = *per_cpu_ptr(scratches, i);
-+		if (!scratch)
-+			vfree(scratch);
-+	}
+ int pci_msi_prepare(struct irq_domain *domain, struct device *dev, int nvec,
+@@ -219,7 +222,8 @@ static struct irq_chip pci_msi_ir_controller = {
+ 	.irq_mask		= pci_msi_mask_irq,
+ 	.irq_ack		= irq_chip_ack_parent,
+ 	.irq_retrigger		= irq_chip_retrigger_hierarchy,
+-	.flags			= IRQCHIP_SKIP_SET_WAKE,
++	.flags			= IRQCHIP_SKIP_SET_WAKE |
++				  IRQCHIP_AFFINITY_PRE_STARTUP,
+ };
  
- 	free_percpu(scratches);
- }
--- 
-2.25.1
+ static struct msi_domain_info pci_msi_ir_domain_info = {
+@@ -273,7 +277,8 @@ static struct irq_chip dmar_msi_controller = {
+ 	.irq_retrigger		= irq_chip_retrigger_hierarchy,
+ 	.irq_compose_msi_msg	= dmar_msi_compose_msg,
+ 	.irq_write_msi_msg	= dmar_msi_write_msg,
+-	.flags			= IRQCHIP_SKIP_SET_WAKE,
++	.flags			= IRQCHIP_SKIP_SET_WAKE |
++				  IRQCHIP_AFFINITY_PRE_STARTUP,
+ };
+ 
+ static int dmar_msi_init(struct irq_domain *domain,
+diff --git a/arch/x86/kernel/hpet.c b/arch/x86/kernel/hpet.c
+index 08651a4e6aa0..42fc41dd0e1f 100644
+--- a/arch/x86/kernel/hpet.c
++++ b/arch/x86/kernel/hpet.c
+@@ -508,7 +508,7 @@ static struct irq_chip hpet_msi_controller __ro_after_init = {
+ 	.irq_set_affinity = msi_domain_set_affinity,
+ 	.irq_retrigger = irq_chip_retrigger_hierarchy,
+ 	.irq_write_msi_msg = hpet_msi_write_msg,
+-	.flags = IRQCHIP_SKIP_SET_WAKE,
++	.flags = IRQCHIP_SKIP_SET_WAKE | IRQCHIP_AFFINITY_PRE_STARTUP,
+ };
+ 
+ static int hpet_msi_init(struct irq_domain *domain,
 
