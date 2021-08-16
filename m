@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E6BED3ED60D
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:17:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CEBEB3ED608
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:17:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238430AbhHPNQf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:16:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39184 "EHLO mail.kernel.org"
+        id S239843AbhHPNQ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:16:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240280AbhHPNPD (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S240279AbhHPNPD (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 16 Aug 2021 09:15:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F0D9D632E2;
-        Mon, 16 Aug 2021 13:12:10 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 99C3A632DF;
+        Mon, 16 Aug 2021 13:12:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119531;
-        bh=3RId6V6zYYDi/pccIHEi8K4ryD1TjyY/slvsIX9t4is=;
+        s=korg; t=1629119534;
+        bh=+2RxgNRlY6jVBAJgrIlgXsu/laS8PTv92YYKfMLbDVI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rh8dpDAjV7tXeOUZTGEzLmxNxJPEj0T0hvzruuAvAR9x8xez/M55Pm5T1gNYZ9kXY
-         wywBcUtgYo6bqt+RXCCS7uyuWivTW5OXORLV9G60RlKQ+v3Z6yd067vEcxoV/IoQYi
-         npdKhOxNe512T/gCDf+5xRYn1bkbIE6ct1cu6X+I=
+        b=eT9VwGZJ+T+sdq5UEywFJB1Xs/BkxUh5KvNPe2XKXOQmeD6P+hitKZ6VGgXnouojb
+         PdZbx4p+CsWgLZSKuOo6nsK9k8KJ/DAk/IDDvLUZAzoyCGjpPaVVP+ZKclhfGtTB+S
+         i2H7GSEDkIz0wQY+iKfDH986NGduiEGk84Z9Fvrs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kensicki <krzysztof.kensicki@intel.com>,
-        Jeff Moyer <jmoyer@redhat.com>,
-        Dan Williams <dan.j.williams@intel.com>
-Subject: [PATCH 5.13 029/151] libnvdimm/region: Fix label activation vs errors
-Date:   Mon, 16 Aug 2021 15:00:59 +0200
-Message-Id: <20210816125445.036282214@linuxfoundation.org>
+        stable@vger.kernel.org, Changbin Du <changbin.du@gmail.com>,
+        Palmer Dabbelt <palmerdabbelt@google.com>
+Subject: [PATCH 5.13 030/151] riscv: kexec: do not add -mno-relax flag if compiler doesnt support it
+Date:   Mon, 16 Aug 2021 15:01:00 +0200
+Message-Id: <20210816125445.069530835@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
 References: <20210816125444.082226187@linuxfoundation.org>
@@ -41,76 +39,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Williams <dan.j.williams@intel.com>
+From: Changbin Du <changbin.du@gmail.com>
 
-commit d9cee9f85b22fab88d2b76d2e92b18e3d0e6aa8c upstream.
+commit 030d6dbf0c2e5fdf23ad29557f0c87a882993e26 upstream.
 
-There are a few scenarios where init_active_labels() can return without
-registering deactivate_labels() to run when the region is disabled. In
-particular label error injection creates scenarios where a DIMM is
-disabled, but labels on other DIMMs in the region become activated.
+The RISC-V special option '-mno-relax' which to disable linker relaxations
+is supported by GCC8+. For GCC7 and lower versions do not support this
+option.
 
-Arrange for init_active_labels() to always register deactivate_labels().
-
-Reported-by: Krzysztof Kensicki <krzysztof.kensicki@intel.com>
-Cc: <stable@vger.kernel.org>
-Fixes: bf9bccc14c05 ("libnvdimm: pmem label sets and namespace instantiation.")
-Reviewed-by: Jeff Moyer <jmoyer@redhat.com>
-Link: https://lore.kernel.org/r/162766356450.3223041.1183118139023841447.stgit@dwillia2-desk3.amr.corp.intel.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Fixes: fba8a8674f68 ("RISC-V: Add kexec support")
+Signed-off-by: Changbin Du <changbin.du@gmail.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvdimm/namespace_devs.c |   17 +++++++++++------
- 1 file changed, 11 insertions(+), 6 deletions(-)
+ arch/riscv/kernel/Makefile |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/nvdimm/namespace_devs.c
-+++ b/drivers/nvdimm/namespace_devs.c
-@@ -2527,7 +2527,7 @@ static void deactivate_labels(void *regi
+--- a/arch/riscv/kernel/Makefile
++++ b/arch/riscv/kernel/Makefile
+@@ -11,7 +11,7 @@ endif
+ CFLAGS_syscall_table.o	+= $(call cc-option,-Wno-override-init,)
  
- static int init_active_labels(struct nd_region *nd_region)
- {
--	int i;
-+	int i, rc = 0;
+ ifdef CONFIG_KEXEC
+-AFLAGS_kexec_relocate.o := -mcmodel=medany -mno-relax
++AFLAGS_kexec_relocate.o := -mcmodel=medany $(call cc-option,-mno-relax)
+ endif
  
- 	for (i = 0; i < nd_region->ndr_mappings; i++) {
- 		struct nd_mapping *nd_mapping = &nd_region->mapping[i];
-@@ -2546,13 +2546,14 @@ static int init_active_labels(struct nd_
- 			else if (test_bit(NDD_LABELING, &nvdimm->flags))
- 				/* fail, labels needed to disambiguate dpa */;
- 			else
--				return 0;
-+				continue;
- 
- 			dev_err(&nd_region->dev, "%s: is %s, failing probe\n",
- 					dev_name(&nd_mapping->nvdimm->dev),
- 					test_bit(NDD_LOCKED, &nvdimm->flags)
- 					? "locked" : "disabled");
--			return -ENXIO;
-+			rc = -ENXIO;
-+			goto out;
- 		}
- 		nd_mapping->ndd = ndd;
- 		atomic_inc(&nvdimm->busy);
-@@ -2586,13 +2587,17 @@ static int init_active_labels(struct nd_
- 			break;
- 	}
- 
--	if (i < nd_region->ndr_mappings) {
-+	if (i < nd_region->ndr_mappings)
-+		rc = -ENOMEM;
-+
-+out:
-+	if (rc) {
- 		deactivate_labels(nd_region);
--		return -ENOMEM;
-+		return rc;
- 	}
- 
- 	return devm_add_action_or_reset(&nd_region->dev, deactivate_labels,
--			nd_region);
-+					nd_region);
- }
- 
- int nd_region_register_namespaces(struct nd_region *nd_region, int *err)
+ extra-y += head.o
 
 
