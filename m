@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C4063ED4A6
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:04:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDBCA3ED65C
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:22:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236745AbhHPNEr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:04:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55618 "EHLO mail.kernel.org"
+        id S238814AbhHPNUh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:20:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236748AbhHPNEc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:04:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 67EC863281;
-        Mon, 16 Aug 2021 13:04:00 +0000 (UTC)
+        id S240055AbhHPNQp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:16:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E8ED2632E7;
+        Mon, 16 Aug 2021 13:13:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119040;
-        bh=ti3LNWh8f+5qoGukg1w/tur9VGd4gKcNnRpZSGqdBV0=;
+        s=korg; t=1629119607;
+        bh=KDHOti7KrE2lyjecTFr4RqcNn/A3z/oq+gSj8QKMI9o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ggubcPJBh1gmEF7WlCLmwBuvI4uL6CTn30Sqo4Xb5ZG7xcGuLg8Ufd3R4iq174Y0U
-         YWnLxivFFjuZy4eujyzf/LtxsZOfU9U7CJk0qVIDuQKq5MiP3krGZ609SJInOiDZsz
-         kfihb7V8rjZipjtEpAv695aXH0tIVVaDpRInC+N0=
+        b=yBWrqMod2+HJGRXiQOEoChrSN5r8FRc7TbaH4jArp2hBPXZBXeTeJW/tv/D1ijOgn
+         z15PEOgBMI38UlhFvw2qrCRjnb9KvoT6ML7ZddAYhMqDBD0M7dPMFAQZenfYrrJlgu
+         S/Z8CvFRI9QmYnROVEvO80rUDiIADXGr7ZI6PwFQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Hutchings <ben.hutchings@mind.be>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Yonghong Song <yhs@fb.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 28/62] net: dsa: microchip: Fix ksz_read64()
+Subject: [PATCH 5.13 090/151] bpf: Fix potentially incorrect results with bpf_get_local_storage()
 Date:   Mon, 16 Aug 2021 15:02:00 +0200
-Message-Id: <20210816125429.160046101@linuxfoundation.org>
+Message-Id: <20210816125447.043730549@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125428.198692661@linuxfoundation.org>
-References: <20210816125428.198692661@linuxfoundation.org>
+In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
+References: <20210816125444.082226187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +41,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Hutchings <ben.hutchings@mind.be>
+From: Yonghong Song <yhs@fb.com>
 
-[ Upstream commit c34f674c8875235725c3ef86147a627f165d23b4 ]
+[ Upstream commit a2baf4e8bb0f306fbed7b5e6197c02896a638ab5 ]
 
-ksz_read64() currently does some dubious byte-swapping on the two
-halves of a 64-bit register, and then only returns the high bits.
-Replace this with a straightforward expression.
+Commit b910eaaaa4b8 ("bpf: Fix NULL pointer dereference in bpf_get_local_storage()
+helper") fixed a bug for bpf_get_local_storage() helper so different tasks
+won't mess up with each other's percpu local storage.
 
-Fixes: e66f840c08a2 ("net: dsa: ksz: Add Microchip KSZ8795 DSA driver")
-Signed-off-by: Ben Hutchings <ben.hutchings@mind.be>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The percpu data contains 8 slots so it can hold up to 8 contexts (same or
+different tasks), for 8 different program runs, at the same time. This in
+general is sufficient. But our internal testing showed the following warning
+multiple times:
+
+  [...]
+  warning: WARNING: CPU: 13 PID: 41661 at include/linux/bpf-cgroup.h:193
+     __cgroup_bpf_run_filter_sock_ops+0x13e/0x180
+  RIP: 0010:__cgroup_bpf_run_filter_sock_ops+0x13e/0x180
+  <IRQ>
+   tcp_call_bpf.constprop.99+0x93/0xc0
+   tcp_conn_request+0x41e/0xa50
+   ? tcp_rcv_state_process+0x203/0xe00
+   tcp_rcv_state_process+0x203/0xe00
+   ? sk_filter_trim_cap+0xbc/0x210
+   ? tcp_v6_inbound_md5_hash.constprop.41+0x44/0x160
+   tcp_v6_do_rcv+0x181/0x3e0
+   tcp_v6_rcv+0xc65/0xcb0
+   ip6_protocol_deliver_rcu+0xbd/0x450
+   ip6_input_finish+0x11/0x20
+   ip6_input+0xb5/0xc0
+   ip6_sublist_rcv_finish+0x37/0x50
+   ip6_sublist_rcv+0x1dc/0x270
+   ipv6_list_rcv+0x113/0x140
+   __netif_receive_skb_list_core+0x1a0/0x210
+   netif_receive_skb_list_internal+0x186/0x2a0
+   gro_normal_list.part.170+0x19/0x40
+   napi_complete_done+0x65/0x150
+   mlx5e_napi_poll+0x1ae/0x680
+   __napi_poll+0x25/0x120
+   net_rx_action+0x11e/0x280
+   __do_softirq+0xbb/0x271
+   irq_exit_rcu+0x97/0xa0
+   common_interrupt+0x7f/0xa0
+   </IRQ>
+   asm_common_interrupt+0x1e/0x40
+  RIP: 0010:bpf_prog_1835a9241238291a_tw_egress+0x5/0xbac
+   ? __cgroup_bpf_run_filter_skb+0x378/0x4e0
+   ? do_softirq+0x34/0x70
+   ? ip6_finish_output2+0x266/0x590
+   ? ip6_finish_output+0x66/0xa0
+   ? ip6_output+0x6c/0x130
+   ? ip6_xmit+0x279/0x550
+   ? ip6_dst_check+0x61/0xd0
+  [...]
+
+Using drgn [0] to dump the percpu buffer contents showed that on this CPU
+slot 0 is still available, but slots 1-7 are occupied and those tasks in
+slots 1-7 mostly don't exist any more. So we might have issues in
+bpf_cgroup_storage_unset().
+
+Further debugging confirmed that there is a bug in bpf_cgroup_storage_unset().
+Currently, it tries to unset "current" slot with searching from the start.
+So the following sequence is possible:
+
+  1. A task is running and claims slot 0
+  2. Running BPF program is done, and it checked slot 0 has the "task"
+     and ready to reset it to NULL (not yet).
+  3. An interrupt happens, another BPF program runs and it claims slot 1
+     with the *same* task.
+  4. The unset() in interrupt context releases slot 0 since it matches "task".
+  5. Interrupt is done, the task in process context reset slot 0.
+
+At the end, slot 1 is not reset and the same process can continue to occupy
+slots 2-7 and finally, when the above step 1-5 is repeated again, step 3 BPF
+program won't be able to claim an empty slot and a warning will be issued.
+
+To fix the issue, for unset() function, we should traverse from the last slot
+to the first. This way, the above issue can be avoided.
+
+The same reverse traversal should also be done in bpf_get_local_storage() helper
+itself. Otherwise, incorrect local storage may be returned to BPF program.
+
+  [0] https://github.com/osandov/drgn
+
+Fixes: b910eaaaa4b8 ("bpf: Fix NULL pointer dereference in bpf_get_local_storage() helper")
+Signed-off-by: Yonghong Song <yhs@fb.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/20210810010413.1976277-1-yhs@fb.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/microchip/ksz_common.h | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ include/linux/bpf-cgroup.h | 4 ++--
+ kernel/bpf/helpers.c       | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/dsa/microchip/ksz_common.h b/drivers/net/dsa/microchip/ksz_common.h
-index 061142b183cb..d6013410dc88 100644
---- a/drivers/net/dsa/microchip/ksz_common.h
-+++ b/drivers/net/dsa/microchip/ksz_common.h
-@@ -215,12 +215,8 @@ static inline int ksz_read64(struct ksz_device *dev, u32 reg, u64 *val)
- 	int ret;
+diff --git a/include/linux/bpf-cgroup.h b/include/linux/bpf-cgroup.h
+index 8b77d08d4b47..6c9b10d82c80 100644
+--- a/include/linux/bpf-cgroup.h
++++ b/include/linux/bpf-cgroup.h
+@@ -201,8 +201,8 @@ static inline void bpf_cgroup_storage_unset(void)
+ {
+ 	int i;
  
- 	ret = regmap_bulk_read(dev->regmap[2], reg, value, 2);
--	if (!ret) {
--		/* Ick! ToDo: Add 64bit R/W to regmap on 32bit systems */
--		value[0] = swab32(value[0]);
--		value[1] = swab32(value[1]);
--		*val = swab64((u64)*value);
--	}
-+	if (!ret)
-+		*val = (u64)value[0] << 32 | value[1];
+-	for (i = 0; i < BPF_CGROUP_STORAGE_NEST_MAX; i++) {
+-		if (unlikely(this_cpu_read(bpf_cgroup_storage_info[i].task) != current))
++	for (i = BPF_CGROUP_STORAGE_NEST_MAX - 1; i >= 0; i--) {
++		if (likely(this_cpu_read(bpf_cgroup_storage_info[i].task) != current))
+ 			continue;
  
- 	return ret;
- }
+ 		this_cpu_write(bpf_cgroup_storage_info[i].task, NULL);
+diff --git a/kernel/bpf/helpers.c b/kernel/bpf/helpers.c
+index a2f1f15ce432..728f1a0fb442 100644
+--- a/kernel/bpf/helpers.c
++++ b/kernel/bpf/helpers.c
+@@ -397,8 +397,8 @@ BPF_CALL_2(bpf_get_local_storage, struct bpf_map *, map, u64, flags)
+ 	void *ptr;
+ 	int i;
+ 
+-	for (i = 0; i < BPF_CGROUP_STORAGE_NEST_MAX; i++) {
+-		if (unlikely(this_cpu_read(bpf_cgroup_storage_info[i].task) != current))
++	for (i = BPF_CGROUP_STORAGE_NEST_MAX - 1; i >= 0; i--) {
++		if (likely(this_cpu_read(bpf_cgroup_storage_info[i].task) != current))
+ 			continue;
+ 
+ 		storage = this_cpu_read(bpf_cgroup_storage_info[i].storage[stype]);
 -- 
 2.30.2
 
