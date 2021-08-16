@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A1DE63ED55C
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:12:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CB273ED4BA
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:04:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239256AbhHPNLE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:11:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58784 "EHLO mail.kernel.org"
+        id S233824AbhHPNFM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:05:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239057AbhHPNJS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:09:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 23B7A632A6;
-        Mon, 16 Aug 2021 13:08:18 +0000 (UTC)
+        id S230493AbhHPNEm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:04:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E813C6329B;
+        Mon, 16 Aug 2021 13:04:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119299;
-        bh=JhelQhtwuCqkEfrHns4q/vxEWd0Pk6rq+iGNKUCEvkc=;
+        s=korg; t=1629119050;
+        bh=2RDGw+17aNRNKD3+r6dIer4eSrmnY/Ax8xoQfyxg9yo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AuB12JF0n063JRywNUGoKWm2zY4hrM1nKOD/Nkk+lLtwyPTaadRBAQmAaewdnvzQd
-         sjXZG8K8WB2zG2RK3Qgnb43mO0XFJQWxaPj4hPmKbCUuijREsLgyyLoPlSiGwOebO6
-         A60kkk/jvy+fia8bgdaKVgEnJdRgAgoRoZntYmqY=
+        b=ITRcaEiL/boYE8FY0K6dcY1MfZgqtKTRCkYFfPU0cH4nrj4dyjlCuuyvNFv+QWsAs
+         7MkQ63opzdq3iV0mW16DlPgun4GbBnOytryOfO3ignHN+CVjNagiYW/RVWyaTxutAk
+         GnkhJB87dBNDQ8tDw0NX+KgErYdyU7piSZ5RiCTM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org,
+        Richard Fitzgerald <rf@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 36/96] platform/x86: pcengines-apuv2: Add missing terminating entries to gpio-lookup tables
+Subject: [PATCH 5.4 14/62] ASoC: cs42l42: Fix inversion of ADC Notch Switch control
 Date:   Mon, 16 Aug 2021 15:01:46 +0200
-Message-Id: <20210816125436.154482517@linuxfoundation.org>
+Message-Id: <20210816125428.675989543@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125434.948010115@linuxfoundation.org>
-References: <20210816125434.948010115@linuxfoundation.org>
+In-Reply-To: <20210816125428.198692661@linuxfoundation.org>
+References: <20210816125428.198692661@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,47 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Richard Fitzgerald <rf@opensource.cirrus.com>
 
-[ Upstream commit 9d7b132e62e41b7d49bf157aeaf9147c27492e0f ]
+[ Upstream commit 30615bd21b4cc3c3bb5ae8bd70e2a915cc5f75c7 ]
 
-The gpiod_lookup_table.table passed to gpiod_add_lookup_table() must
-be terminated with an empty entry, add this.
+The underlying register field has inverted sense (0 = enabled) so
+the control definition must be marked as inverted.
 
-Note we have likely been getting away with this not being present because
-the GPIO lookup code first matches on the dev_id, causing most lookups to
-skip checking the table and the lookups which do check the table will
-find a matching entry before reaching the end. With that said, terminating
-these tables properly still is obviously the correct thing to do.
-
-Fixes: f8eb0235f659 ("x86: pcengines apuv2 gpio/leds/keys platform driver")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20210806115515.12184-1-hdegoede@redhat.com
+Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
+Fixes: 2c394ca79604 ("ASoC: Add support for CS42L42 codec")
+Link: https://lore.kernel.org/r/20210803160834.9005-1-rf@opensource.cirrus.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/pcengines-apuv2.c | 2 ++
- 1 file changed, 2 insertions(+)
+ sound/soc/codecs/cs42l42.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/platform/x86/pcengines-apuv2.c b/drivers/platform/x86/pcengines-apuv2.c
-index c37349f97bb8..d063d91db9bc 100644
---- a/drivers/platform/x86/pcengines-apuv2.c
-+++ b/drivers/platform/x86/pcengines-apuv2.c
-@@ -94,6 +94,7 @@ static struct gpiod_lookup_table gpios_led_table = {
- 				NULL, 1, GPIO_ACTIVE_LOW),
- 		GPIO_LOOKUP_IDX(AMD_FCH_GPIO_DRIVER_NAME, APU2_GPIO_LINE_LED3,
- 				NULL, 2, GPIO_ACTIVE_LOW),
-+		{} /* Terminating entry */
- 	}
- };
- 
-@@ -123,6 +124,7 @@ static struct gpiod_lookup_table gpios_key_table = {
- 	.table = {
- 		GPIO_LOOKUP_IDX(AMD_FCH_GPIO_DRIVER_NAME, APU2_GPIO_LINE_MODESW,
- 				NULL, 0, GPIO_ACTIVE_LOW),
-+		{} /* Terminating entry */
- 	}
- };
- 
+diff --git a/sound/soc/codecs/cs42l42.c b/sound/soc/codecs/cs42l42.c
+index 978f5df1ff79..032ec4bd060b 100644
+--- a/sound/soc/codecs/cs42l42.c
++++ b/sound/soc/codecs/cs42l42.c
+@@ -435,7 +435,7 @@ static SOC_ENUM_SINGLE_DECL(cs42l42_wnf05_freq_enum, CS42L42_ADC_WNF_HPF_CTL,
+ static const struct snd_kcontrol_new cs42l42_snd_controls[] = {
+ 	/* ADC Volume and Filter Controls */
+ 	SOC_SINGLE("ADC Notch Switch", CS42L42_ADC_CTL,
+-				CS42L42_ADC_NOTCH_DIS_SHIFT, true, false),
++				CS42L42_ADC_NOTCH_DIS_SHIFT, true, true),
+ 	SOC_SINGLE("ADC Weak Force Switch", CS42L42_ADC_CTL,
+ 				CS42L42_ADC_FORCE_WEAK_VCM_SHIFT, true, false),
+ 	SOC_SINGLE("ADC Invert Switch", CS42L42_ADC_CTL,
 -- 
 2.30.2
 
