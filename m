@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CC433ED4D0
+	by mail.lfdr.de (Postfix) with ESMTP id 554423ED4D1
 	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:06:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237315AbhHPNFf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:05:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56684 "EHLO mail.kernel.org"
+        id S236829AbhHPNFg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:05:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237051AbhHPNFR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:05:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D09DC63292;
-        Mon, 16 Aug 2021 13:04:45 +0000 (UTC)
+        id S230236AbhHPNFU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:05:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 407EE63295;
+        Mon, 16 Aug 2021 13:04:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119086;
-        bh=UgpK8n+Bs1hrpBUfC/Epr5hubMuQw91glt/Q5BYDriQ=;
+        s=korg; t=1629119088;
+        bh=gYvZPHl1S3Azo3e2R5H74EyjrpW5T+1DAIPB8RAvSlY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xRR3wolgEuQLEq9f0wORzdITjmbzSHfGd7xpJ5uM6o1x9O9gadU2V3x3EYcpo4Wda
-         a/5qjpl6Mdxi5kn3hTshCcS+93bD/27FZssJ9kig2m0uBjNv+9qRSgTDq5G0vhXl8h
-         m5DuHfTjl296Z4pZMimbtpmHwZ/GJGdqU7BzI1LU=
+        b=oPEs4ZX7g57jj+7XpSspmkmfGJ5LFcF88/Lqm48S4M+28XDIwtmWiNFDI4ziXCyn4
+         MgGV3zdeT6HHZJd2gUdHC1Vd23/SgiChrGlk7absss1ef6htdgzJR2Ml03WdB1fbbX
+         D2szGUGw1FLJV8JW9itsXQI24fHPYG9HMuo8lj5w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.4 45/62] x86/ioapic: Force affinity setup before startup
-Date:   Mon, 16 Aug 2021 15:02:17 +0200
-Message-Id: <20210816125429.743377911@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pawe=C5=82=20Szulik?= <pawel.szulik@intel.com>,
+        Babu Moger <Babu.Moger@amd.com>, Borislav Petkov <bp@suse.de>,
+        Reinette Chatre <reinette.chatre@intel.com>
+Subject: [PATCH 5.4 46/62] x86/resctrl: Fix default monitoring groups reporting
+Date:   Mon, 16 Aug 2021 15:02:18 +0200
+Message-Id: <20210816125429.781698173@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210816125428.198692661@linuxfoundation.org>
 References: <20210816125428.198692661@linuxfoundation.org>
@@ -39,50 +41,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Babu Moger <Babu.Moger@amd.com>
 
-commit 0c0e37dc11671384e53ba6ede53a4d91162a2cc5 upstream.
+commit 064855a69003c24bd6b473b367d364e418c57625 upstream.
 
-The IO/APIC cannot handle interrupt affinity changes safely after startup
-other than from an interrupt handler. The startup sequence in the generic
-interrupt code violates that assumption.
+Creating a new sub monitoring group in the root /sys/fs/resctrl leads to
+getting the "Unavailable" value for mbm_total_bytes and mbm_local_bytes
+on the entire filesystem.
 
-Mark the irq chip with the new IRQCHIP_AFFINITY_PRE_STARTUP flag so that
-the default interrupt setting happens before the interrupt is started up
-for the first time.
+Steps to reproduce:
 
-Fixes: 18404756765c ("genirq: Expose default irq affinity mask (take 3)")
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Marc Zyngier <maz@kernel.org>
-Reviewed-by: Marc Zyngier <maz@kernel.org>
+  1. mount -t resctrl resctrl /sys/fs/resctrl/
+
+  2. cd /sys/fs/resctrl/
+
+  3. cat mon_data/mon_L3_00/mbm_total_bytes
+     23189832
+
+  4. Create sub monitor group:
+  mkdir mon_groups/test1
+
+  5. cat mon_data/mon_L3_00/mbm_total_bytes
+     Unavailable
+
+When a new monitoring group is created, a new RMID is assigned to the
+new group. But the RMID is not active yet. When the events are read on
+the new RMID, it is expected to report the status as "Unavailable".
+
+When the user reads the events on the default monitoring group with
+multiple subgroups, the events on all subgroups are consolidated
+together. Currently, if any of the RMID reads report as "Unavailable",
+then everything will be reported as "Unavailable".
+
+Fix the issue by discarding the "Unavailable" reads and reporting all
+the successful RMID reads. This is not a problem on Intel systems as
+Intel reports 0 on Inactive RMIDs.
+
+Fixes: d89b7379015f ("x86/intel_rdt/cqm: Add mon_data")
+Reported-by: Paweł Szulik <pawel.szulik@intel.com>
+Signed-off-by: Babu Moger <Babu.Moger@amd.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Reinette Chatre <reinette.chatre@intel.com>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210729222542.832143400@linutronix.de
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=213311
+Link: https://lkml.kernel.org/r/162793309296.9224.15871659871696482080.stgit@bmoger-ubuntu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/apic/io_apic.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/x86/kernel/cpu/resctrl/monitor.c |   27 +++++++++++++--------------
+ 1 file changed, 13 insertions(+), 14 deletions(-)
 
---- a/arch/x86/kernel/apic/io_apic.c
-+++ b/arch/x86/kernel/apic/io_apic.c
-@@ -1961,7 +1961,8 @@ static struct irq_chip ioapic_chip __rea
- 	.irq_set_affinity	= ioapic_set_affinity,
- 	.irq_retrigger		= irq_chip_retrigger_hierarchy,
- 	.irq_get_irqchip_state	= ioapic_irq_get_chip_state,
--	.flags			= IRQCHIP_SKIP_SET_WAKE,
-+	.flags			= IRQCHIP_SKIP_SET_WAKE |
-+				  IRQCHIP_AFFINITY_PRE_STARTUP,
- };
+--- a/arch/x86/kernel/cpu/resctrl/monitor.c
++++ b/arch/x86/kernel/cpu/resctrl/monitor.c
+@@ -223,15 +223,14 @@ static u64 mbm_overflow_count(u64 prev_m
+ 	return chunks >>= shift;
+ }
  
- static struct irq_chip ioapic_ir_chip __read_mostly = {
-@@ -1974,7 +1975,8 @@ static struct irq_chip ioapic_ir_chip __
- 	.irq_set_affinity	= ioapic_set_affinity,
- 	.irq_retrigger		= irq_chip_retrigger_hierarchy,
- 	.irq_get_irqchip_state	= ioapic_irq_get_chip_state,
--	.flags			= IRQCHIP_SKIP_SET_WAKE,
-+	.flags			= IRQCHIP_SKIP_SET_WAKE |
-+				  IRQCHIP_AFFINITY_PRE_STARTUP,
- };
+-static int __mon_event_count(u32 rmid, struct rmid_read *rr)
++static u64 __mon_event_count(u32 rmid, struct rmid_read *rr)
+ {
+ 	struct mbm_state *m;
+ 	u64 chunks, tval;
  
- static inline void init_IO_APIC_traps(void)
+ 	tval = __rmid_read(rmid, rr->evtid);
+ 	if (tval & (RMID_VAL_ERROR | RMID_VAL_UNAVAIL)) {
+-		rr->val = tval;
+-		return -EINVAL;
++		return tval;
+ 	}
+ 	switch (rr->evtid) {
+ 	case QOS_L3_OCCUP_EVENT_ID:
+@@ -243,12 +242,6 @@ static int __mon_event_count(u32 rmid, s
+ 	case QOS_L3_MBM_LOCAL_EVENT_ID:
+ 		m = &rr->d->mbm_local[rmid];
+ 		break;
+-	default:
+-		/*
+-		 * Code would never reach here because
+-		 * an invalid event id would fail the __rmid_read.
+-		 */
+-		return -EINVAL;
+ 	}
+ 
+ 	if (rr->first) {
+@@ -298,23 +291,29 @@ void mon_event_count(void *info)
+ 	struct rdtgroup *rdtgrp, *entry;
+ 	struct rmid_read *rr = info;
+ 	struct list_head *head;
++	u64 ret_val;
+ 
+ 	rdtgrp = rr->rgrp;
+ 
+-	if (__mon_event_count(rdtgrp->mon.rmid, rr))
+-		return;
++	ret_val = __mon_event_count(rdtgrp->mon.rmid, rr);
+ 
+ 	/*
+-	 * For Ctrl groups read data from child monitor groups.
++	 * For Ctrl groups read data from child monitor groups and
++	 * add them together. Count events which are read successfully.
++	 * Discard the rmid_read's reporting errors.
+ 	 */
+ 	head = &rdtgrp->mon.crdtgrp_list;
+ 
+ 	if (rdtgrp->type == RDTCTRL_GROUP) {
+ 		list_for_each_entry(entry, head, mon.crdtgrp_list) {
+-			if (__mon_event_count(entry->mon.rmid, rr))
+-				return;
++			if (__mon_event_count(entry->mon.rmid, rr) == 0)
++				ret_val = 0;
+ 		}
+ 	}
++
++	/* Report error if none of rmid_reads are successful */
++	if (ret_val)
++		rr->val = ret_val;
+ }
+ 
+ /*
 
 
