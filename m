@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 990213ED5B1
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:16:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EADCE3ED5CE
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:16:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237619AbhHPNNS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:13:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37454 "EHLO mail.kernel.org"
+        id S238345AbhHPNPV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:15:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239073AbhHPNLi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:11:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 78A756115A;
-        Mon, 16 Aug 2021 13:10:18 +0000 (UTC)
+        id S237648AbhHPNM4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:12:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A09D610A0;
+        Mon, 16 Aug 2021 13:10:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119419;
-        bh=3k+UUubSjurMudvGsguk6lM9uMs8Ax/hcYc0WJ+QNcY=;
+        s=korg; t=1629119424;
+        bh=HCVBo34rZ/yPtcPcx4BgRiYBIYx0qGks7m6OosID9CA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zRR8w98FLgYMtVxOLcIvSqodWG5vOmOrLwgkKOIT1gZnLBNthqVAWk6D0y5vKFRC1
-         z/di5/YOD+13jmGQSf8vySMQlglWSLmz1K79BPcaP2fcpFev+WwLGdp04rM4O0KGiL
-         9RyHyu2hth8X9RHRJ4CNZrhIrfBSETH3fPyw0mvY=
+        b=o2RmOzrj7qkvaQ71enUPburYXmMEVDlWaARSCbsvjePo5fIcoMGOW8/p4+ZMRqgLP
+         tMXlbIfAMAxo/JrYw5hOiDec8iwOQFMTMS1hhS5rzsI/BLecAzPmt9URX8pU1ZkAiZ
+         WhgTt+RKi2H+I8Gvez5gb4pzegsXgBvUoC8yOI8w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.13 019/151] io_uring: fix ctx-exit io_rsrc_put_work() deadlock
-Date:   Mon, 16 Aug 2021 15:00:49 +0200
-Message-Id: <20210816125444.709763001@linuxfoundation.org>
+        stable@vger.kernel.org, James Smart <jsmart2021@gmail.com>,
+        "Ewan D. Milne" <emilne@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.13 020/151] scsi: lpfc: Move initialization of phba->poll_list earlier to avoid crash
+Date:   Mon, 16 Aug 2021 15:00:50 +0200
+Message-Id: <20210816125444.739768241@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
 References: <20210816125444.082226187@linuxfoundation.org>
@@ -39,61 +40,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Ewan D. Milne <emilne@redhat.com>
 
-commit 43597aac1f87230cb565ab354d331682f13d3c7a upstream.
+commit 9977d880f7a3c233db9165a75a3a14defc2a4aee upstream.
 
-__io_rsrc_put_work() might need ->uring_lock, so nobody should wait for
-rsrc nodes holding the mutex. However, that's exactly what
-io_ring_ctx_free() does with io_wait_rsrc_data().
+The phba->poll_list is traversed in case of an error in
+lpfc_sli4_hba_setup(), so it must be initialized earlier in case the error
+path is taken.
 
-Split it into rsrc wait + dealloc, and move the first one out of the
-lock.
+[  490.030738] lpfc 0000:65:00.0: 0:1413 Failed to init iocb list.
+[  490.036661] BUG: unable to handle kernel NULL pointer dereference at 0000000000000000
+[  490.044485] PGD 0 P4D 0
+[  490.047027] Oops: 0000 [#1] SMP PTI
+[  490.050518] CPU: 0 PID: 7 Comm: kworker/0:1 Kdump: loaded Tainted: G          I      --------- -  - 4.18.
+[  490.060511] Hardware name: Dell Inc. PowerEdge R440/0WKGTH, BIOS 1.4.8 05/22/2018
+[  490.067994] Workqueue: events work_for_cpu_fn
+[  490.072371] RIP: 0010:lpfc_sli4_cleanup_poll_list+0x20/0xb0 [lpfc]
+[  490.078546] Code: cf e9 04 f7 fe ff 0f 1f 40 00 0f 1f 44 00 00 41 57 49 89 ff 41 56 41 55 41 54 4d 8d a79
+[  490.097291] RSP: 0018:ffffbd1a463dbcc8 EFLAGS: 00010246
+[  490.102518] RAX: 0000000000008200 RBX: ffff945cdb8c0000 RCX: 0000000000000000
+[  490.109649] RDX: 0000000000018200 RSI: ffff9468d0e16818 RDI: 0000000000000000
+[  490.116783] RBP: ffff945cdb8c1740 R08: 00000000000015c5 R09: 0000000000000042
+[  490.123915] R10: 0000000000000000 R11: ffffbd1a463dbab0 R12: ffff945cdb8c25c0
+[  490.131049] R13: 00000000fffffff4 R14: 0000000000001800 R15: ffff945cdb8c0000
+[  490.138182] FS:  0000000000000000(0000) GS:ffff9468d0e00000(0000) knlGS:0000000000000000
+[  490.146267] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  490.152013] CR2: 0000000000000000 CR3: 000000042ca10002 CR4: 00000000007706f0
+[  490.159146] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  490.166277] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[  490.173409] PKRU: 55555554
+[  490.176123] Call Trace:
+[  490.178598]  lpfc_sli4_queue_destroy+0x7f/0x3c0 [lpfc]
+[  490.183745]  lpfc_sli4_hba_setup+0x1bc7/0x23e0 [lpfc]
+[  490.188797]  ? kernfs_activate+0x63/0x80
+[  490.192721]  ? kernfs_add_one+0xe7/0x130
+[  490.196647]  ? __kernfs_create_file+0x80/0xb0
+[  490.201020]  ? lpfc_pci_probe_one_s4.isra.48+0x46f/0x9e0 [lpfc]
+[  490.206944]  lpfc_pci_probe_one_s4.isra.48+0x46f/0x9e0 [lpfc]
+[  490.212697]  lpfc_pci_probe_one+0x179/0xb70 [lpfc]
+[  490.217492]  local_pci_probe+0x41/0x90
+[  490.221246]  work_for_cpu_fn+0x16/0x20
+[  490.224994]  process_one_work+0x1a7/0x360
+[  490.229009]  ? create_worker+0x1a0/0x1a0
+[  490.232933]  worker_thread+0x1cf/0x390
+[  490.236687]  ? create_worker+0x1a0/0x1a0
+[  490.240612]  kthread+0x116/0x130
+[  490.243846]  ? kthread_flush_work_fn+0x10/0x10
+[  490.248293]  ret_from_fork+0x35/0x40
+[  490.251869] Modules linked in: lpfc(+) xt_CHECKSUM ipt_MASQUERADE xt_conntrack ipt_REJECT nf_reject_ipv4i
+[  490.332609] CR2: 0000000000000000
 
+Link: https://lore.kernel.org/r/20210809150947.18104-1-emilne@redhat.com
+Fixes: 93a4d6f40198 ("scsi: lpfc: Add registration for CPU Offline/Online events")
 Cc: stable@vger.kernel.org
-Fixes: b60c8dce33895 ("io_uring: preparation for rsrc tagging")
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Link: https://lore.kernel.org/r/0130c5c2693468173ec1afab714e0885d2c9c363.1628559783.git.asml.silence@gmail.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Reviewed-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Ewan D. Milne <emilne@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/io_uring.c |   15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+ drivers/scsi/lpfc/lpfc_init.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -8614,13 +8614,10 @@ static void io_req_caches_free(struct io
- 	mutex_unlock(&ctx->uring_lock);
- }
+--- a/drivers/scsi/lpfc/lpfc_init.c
++++ b/drivers/scsi/lpfc/lpfc_init.c
+@@ -13091,6 +13091,8 @@ lpfc_pci_probe_one_s4(struct pci_dev *pd
+ 	if (!phba)
+ 		return -ENOMEM;
  
--static bool io_wait_rsrc_data(struct io_rsrc_data *data)
-+static void io_wait_rsrc_data(struct io_rsrc_data *data)
- {
--	if (!data)
--		return false;
--	if (!atomic_dec_and_test(&data->refs))
-+	if (data && !atomic_dec_and_test(&data->refs))
- 		wait_for_completion(&data->done);
--	return true;
- }
- 
- static void io_ring_ctx_free(struct io_ring_ctx *ctx)
-@@ -8632,10 +8629,14 @@ static void io_ring_ctx_free(struct io_r
- 		ctx->mm_account = NULL;
- 	}
- 
-+	/* __io_rsrc_put_work() may need uring_lock to progress, wait w/o it */
-+	io_wait_rsrc_data(ctx->buf_data);
-+	io_wait_rsrc_data(ctx->file_data);
++	INIT_LIST_HEAD(&phba->poll_list);
 +
- 	mutex_lock(&ctx->uring_lock);
--	if (io_wait_rsrc_data(ctx->buf_data))
-+	if (ctx->buf_data)
- 		__io_sqe_buffers_unregister(ctx);
--	if (io_wait_rsrc_data(ctx->file_data))
-+	if (ctx->file_data)
- 		__io_sqe_files_unregister(ctx);
- 	if (ctx->rings)
- 		__io_cqring_overflow_flush(ctx, true);
+ 	/* Perform generic PCI device enabling operation */
+ 	error = lpfc_enable_pci_dev(phba);
+ 	if (error)
+@@ -13225,7 +13227,6 @@ lpfc_pci_probe_one_s4(struct pci_dev *pd
+ 	/* Enable RAS FW log support */
+ 	lpfc_sli4_ras_setup(phba);
+ 
+-	INIT_LIST_HEAD(&phba->poll_list);
+ 	timer_setup(&phba->cpuhp_poll_timer, lpfc_sli4_poll_hbtimer, 0);
+ 	cpuhp_state_add_instance_nocalls(lpfc_cpuhp_state, &phba->cpuhp);
+ 
 
 
