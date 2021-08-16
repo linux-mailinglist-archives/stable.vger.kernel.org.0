@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D72633ED58A
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:12:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33B2C3ED498
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:03:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239449AbhHPNMM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:12:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58258 "EHLO mail.kernel.org"
+        id S236506AbhHPNET (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:04:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237599AbhHPNI3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:08:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 142D863292;
-        Mon, 16 Aug 2021 13:07:11 +0000 (UTC)
+        id S236481AbhHPNES (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:04:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F22F06328D;
+        Mon, 16 Aug 2021 13:03:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119232;
-        bh=9+9XOk85IsP739cIze54vro3URXnfgTsykq4TG5YyJs=;
+        s=korg; t=1629119026;
+        bh=kv2qUuOEJHNBJrj6nY3o14OS+tREcb49lLedzR8XbjE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0nqmwCRthBbNS4xLqUv3++YieXGxejxjwvsYVoTFocRiY9RLsrZaoD+TFmIu68+/l
-         ftQmU/g4uM9WuW19xkoGSIzOhVaX92VL0hU8PVoZN8KiuiN2itF/QxTF4mpEXWYIGw
-         oSzpkTyRr6qHHYqLFr85ZdbxPamJ9hUpETMgnBnk=
+        b=t0Xltc9vOl1/V5SC8xoKeiYxd99SYPHexGa/CTYxd0sn80V8GUCyY3BoP2n4b6SeU
+         PlfCBnWKxEIsaZWWncgSap02dzZtioM4Idlzkg6UbAy5akAs817/VGXOzG0slTwkfB
+         c7Bt+ZNVT+dT6unOfGKLt6/0Hemrz9GsSHz4Jj8o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brett Creeley <brett.creeley@intel.com>,
-        Liang Li <liali@redhat.com>,
-        Gurucharan G <gurucharanx.g@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 44/96] ice: dont remove netdev->dev_addr from uc sync list
+Subject: [PATCH 5.4 22/62] ppp: Fix generating ifname when empty IFLA_IFNAME is specified
 Date:   Mon, 16 Aug 2021 15:01:54 +0200
-Message-Id: <20210816125436.430407177@linuxfoundation.org>
+Message-Id: <20210816125428.941628436@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125434.948010115@linuxfoundation.org>
-References: <20210816125434.948010115@linuxfoundation.org>
+In-Reply-To: <20210816125428.198692661@linuxfoundation.org>
+References: <20210816125428.198692661@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,130 +41,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brett Creeley <brett.creeley@intel.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit 3ba7f53f8bf1fb862e36c7f74434ac3aceb60158 ]
+[ Upstream commit 2459dcb96bcba94c08d6861f8a050185ff301672 ]
 
-In some circumstances, such as with bridging, it's possible that the
-stack will add the device's own MAC address to its unicast address list.
+IFLA_IFNAME is nul-term string which means that IFLA_IFNAME buffer can be
+larger than length of string which contains.
 
-If, later, the stack deletes this address, the driver will receive a
-request to remove this address.
+Function __rtnl_newlink() generates new own ifname if either IFLA_IFNAME
+was not specified at all or userspace passed empty nul-term string.
 
-The driver stores its current MAC address as part of the VSI MAC filter
-list instead of separately. So, this causes a problem when the device's
-MAC address is deleted unexpectedly, which results in traffic failure in
-some cases.
+It is expected that if userspace does not specify ifname for new ppp netdev
+then kernel generates one in format "ppp<id>" where id matches to the ppp
+unit id which can be later obtained by PPPIOCGUNIT ioctl.
 
-The following configuration steps will reproduce the previously
-mentioned problem:
+And it works in this way if IFLA_IFNAME is not specified at all. But it
+does not work when IFLA_IFNAME is specified with empty string.
 
-> ip link set eth0 up
-> ip link add dev br0 type bridge
-> ip link set br0 up
-> ip addr flush dev eth0
-> ip link set eth0 master br0
-> echo 1 > /sys/class/net/br0/bridge/vlan_filtering
-> modprobe -r veth
-> modprobe -r bridge
-> ip addr add 192.168.1.100/24 dev eth0
+So fix this logic also for empty IFLA_IFNAME in ppp_nl_newlink() function
+and correctly generates ifname based on ppp unit identifier if userspace
+did not provided preferred ifname.
 
-The following ping command fails due to the netdev->dev_addr being
-deleted when removing the bridge module.
-> ping <link partner>
+Without this patch when IFLA_IFNAME was specified with empty string then
+kernel created a new ppp interface in format "ppp<id>" but id did not
+match ppp unit id returned by PPPIOCGUNIT ioctl. In this case id was some
+number generated by __rtnl_newlink() function.
 
-Fix this by making sure to not delete the netdev->dev_addr during MAC
-address sync. After fixing this issue it was noticed that the
-netdev_warn() in .set_mac was overly verbose, so make it at
-netdev_dbg().
-
-Also, there is a possibility of a race condition between .set_mac and
-.set_rx_mode. Fix this by calling netif_addr_lock_bh() and
-netif_addr_unlock_bh() on the device's netdev when the netdev->dev_addr
-is going to be updated in .set_mac.
-
-Fixes: e94d44786693 ("ice: Implement filter sync, NDO operations and bump version")
-Signed-off-by: Brett Creeley <brett.creeley@intel.com>
-Tested-by: Liang Li <liali@redhat.com>
-Tested-by: Gurucharan G <gurucharanx.g@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Fixes: bb8082f69138 ("ppp: build ifname using unit identifier for rtnl based devices")
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_main.c | 23 +++++++++++++++--------
- 1 file changed, 15 insertions(+), 8 deletions(-)
+ drivers/net/ppp/ppp_generic.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
-index 6421e9fd69a2..a46780570cd9 100644
---- a/drivers/net/ethernet/intel/ice/ice_main.c
-+++ b/drivers/net/ethernet/intel/ice/ice_main.c
-@@ -189,6 +189,14 @@ static int ice_add_mac_to_unsync_list(struct net_device *netdev, const u8 *addr)
- 	struct ice_netdev_priv *np = netdev_priv(netdev);
- 	struct ice_vsi *vsi = np->vsi;
+diff --git a/drivers/net/ppp/ppp_generic.c b/drivers/net/ppp/ppp_generic.c
+index b7e2b4a0f3c6..c6c41a7836c9 100644
+--- a/drivers/net/ppp/ppp_generic.c
++++ b/drivers/net/ppp/ppp_generic.c
+@@ -1121,7 +1121,7 @@ static int ppp_nl_newlink(struct net *src_net, struct net_device *dev,
+ 	 * the PPP unit identifer as suffix (i.e. ppp<unit_id>). This allows
+ 	 * userspace to infer the device name using to the PPPIOCGUNIT ioctl.
+ 	 */
+-	if (!tb[IFLA_IFNAME])
++	if (!tb[IFLA_IFNAME] || !nla_len(tb[IFLA_IFNAME]) || !*(char *)nla_data(tb[IFLA_IFNAME]))
+ 		conf.ifname_is_set = false;
  
-+	/* Under some circumstances, we might receive a request to delete our
-+	 * own device address from our uc list. Because we store the device
-+	 * address in the VSI's MAC filter list, we need to ignore such
-+	 * requests and not delete our device address from this list.
-+	 */
-+	if (ether_addr_equal(addr, netdev->dev_addr))
-+		return 0;
-+
- 	if (ice_fltr_add_mac_to_list(vsi, &vsi->tmp_unsync_list, addr,
- 				     ICE_FWD_TO_VSI))
- 		return -EINVAL;
-@@ -4881,7 +4889,7 @@ static int ice_set_mac_address(struct net_device *netdev, void *pi)
- 		return -EADDRNOTAVAIL;
- 
- 	if (ether_addr_equal(netdev->dev_addr, mac)) {
--		netdev_warn(netdev, "already using mac %pM\n", mac);
-+		netdev_dbg(netdev, "already using mac %pM\n", mac);
- 		return 0;
- 	}
- 
-@@ -4892,6 +4900,7 @@ static int ice_set_mac_address(struct net_device *netdev, void *pi)
- 		return -EBUSY;
- 	}
- 
-+	netif_addr_lock_bh(netdev);
- 	/* Clean up old MAC filter. Not an error if old filter doesn't exist */
- 	status = ice_fltr_remove_mac(vsi, netdev->dev_addr, ICE_FWD_TO_VSI);
- 	if (status && status != ICE_ERR_DOES_NOT_EXIST) {
-@@ -4901,30 +4910,28 @@ static int ice_set_mac_address(struct net_device *netdev, void *pi)
- 
- 	/* Add filter for new MAC. If filter exists, return success */
- 	status = ice_fltr_add_mac(vsi, mac, ICE_FWD_TO_VSI);
--	if (status == ICE_ERR_ALREADY_EXISTS) {
-+	if (status == ICE_ERR_ALREADY_EXISTS)
- 		/* Although this MAC filter is already present in hardware it's
- 		 * possible in some cases (e.g. bonding) that dev_addr was
- 		 * modified outside of the driver and needs to be restored back
- 		 * to this value.
- 		 */
--		memcpy(netdev->dev_addr, mac, netdev->addr_len);
- 		netdev_dbg(netdev, "filter for MAC %pM already exists\n", mac);
--		return 0;
--	}
--
--	/* error if the new filter addition failed */
--	if (status)
-+	else if (status)
-+		/* error if the new filter addition failed */
- 		err = -EADDRNOTAVAIL;
- 
- err_update_filters:
- 	if (err) {
- 		netdev_err(netdev, "can't set MAC %pM. filter update failed\n",
- 			   mac);
-+		netif_addr_unlock_bh(netdev);
- 		return err;
- 	}
- 
- 	/* change the netdev's MAC address */
- 	memcpy(netdev->dev_addr, mac, netdev->addr_len);
-+	netif_addr_unlock_bh(netdev);
- 	netdev_dbg(vsi->netdev, "updated MAC address to %pM\n",
- 		   netdev->dev_addr);
- 
+ 	err = ppp_dev_configure(src_net, dev, &conf);
 -- 
 2.30.2
 
