@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A37893ECFE2
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 10:03:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5737C3ECFE8
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 10:05:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234495AbhHPIEH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 04:04:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36124 "EHLO mail.kernel.org"
+        id S234571AbhHPIFo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 04:05:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234550AbhHPIEH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 04:04:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C0DC61AF0;
-        Mon, 16 Aug 2021 08:03:35 +0000 (UTC)
+        id S234635AbhHPIFe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 04:05:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E9B261ABB;
+        Mon, 16 Aug 2021 08:04:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629101016;
-        bh=ud1H37Am48YBuYkx1IHCmOIImRSsp7ZAiKRYtgx19jw=;
+        s=korg; t=1629101079;
+        bh=y3LlT3CgBush2CFVX+KIxqHMsemZV7b8gppnntEVGoI=;
         h=Subject:To:Cc:From:Date:From;
-        b=HeelTSnHuz6xHrMmT6TEUS6Bt41ZmOQw2zPaoQVxAMAKHlyOxVner2ZDbUNI4v/vy
-         YS89wnHoO4gd/uYYk6esIT6JcvlfMxMMZ0BCAlGXMu7dxmr1AxmEmAYW5Ti0iKKTKV
-         SvVtJTFSM/1N8taV86AEh9XRpu0xl08Tsb+X8mYs=
-Subject: FAILED: patch "[PATCH] genirq: Provide IRQCHIP_AFFINITY_PRE_STARTUP" failed to apply to 4.14-stable tree
-To:     tglx@linutronix.de, maz@kernel.org
+        b=P5qOCg8Q81gtq0uEp+HuZNV+PO9uFvhErPQh+hxvgS6eyODVqcL/QuwIhssa0ibWg
+         cBHEsfaYg4x2foAQqtdulg7yzNUDvx1OSj51vnze7vAntpUKcL/TWOw9IaMQDly/cX
+         LOfW1pktqwRcHb5TL28it0qB2wqnt7a0qEM616Qs=
+Subject: FAILED: patch "[PATCH] genirq/msi: Ensure deactivation on teardown" failed to apply to 4.9-stable tree
+To:     cuibixuan@huawei.com, tglx@linutronix.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 16 Aug 2021 10:03:33 +0200
-Message-ID: <16291010132168@kroah.com>
+Date:   Mon, 16 Aug 2021 10:04:28 +0200
+Message-ID: <1629101068121161@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -45,62 +45,58 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 826da771291fc25a428e871f9e7fb465e390f852 Mon Sep 17 00:00:00 2001
-From: Thomas Gleixner <tglx@linutronix.de>
-Date: Thu, 29 Jul 2021 23:51:48 +0200
-Subject: [PATCH] genirq: Provide IRQCHIP_AFFINITY_PRE_STARTUP
+From dbbc93576e03fbe24b365fab0e901eb442237a8a Mon Sep 17 00:00:00 2001
+From: Bixuan Cui <cuibixuan@huawei.com>
+Date: Tue, 18 May 2021 11:31:17 +0800
+Subject: [PATCH] genirq/msi: Ensure deactivation on teardown
 
-X86 IO/APIC and MSI interrupts (when used without interrupts remapping)
-require that the affinity setup on startup is done before the interrupt is
-enabled for the first time as the non-remapped operation mode cannot safely
-migrate enabled interrupts from arbitrary contexts. Provide a new irq chip
-flag which allows affected hardware to request this.
+msi_domain_alloc_irqs() invokes irq_domain_activate_irq(), but
+msi_domain_free_irqs() does not enforce deactivation before tearing down
+the interrupts.
 
-This has to be opt-in because there have been reports in the past that some
-interrupt chips cannot handle affinity setting before startup.
+This happens when PCI/MSI interrupts are set up and never used before being
+torn down again, e.g. in error handling pathes. The only place which cleans
+that up is the error handling path in msi_domain_alloc_irqs().
 
-Fixes: 18404756765c ("genirq: Expose default irq affinity mask (take 3)")
+Move the cleanup from msi_domain_alloc_irqs() into msi_domain_free_irqs()
+to cure that.
+
+Fixes: f3b0946d629c ("genirq/msi: Make sure PCI MSIs are activated early")
+Signed-off-by: Bixuan Cui <cuibixuan@huawei.com>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Marc Zyngier <maz@kernel.org>
-Reviewed-by: Marc Zyngier <maz@kernel.org>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210729222542.779791738@linutronix.de
+Link: https://lore.kernel.org/r/20210518033117.78104-1-cuibixuan@huawei.com
 
-diff --git a/include/linux/irq.h b/include/linux/irq.h
-index 8e9a9ae471a6..c8293c817646 100644
---- a/include/linux/irq.h
-+++ b/include/linux/irq.h
-@@ -569,6 +569,7 @@ struct irq_chip {
-  * IRQCHIP_SUPPORTS_NMI:              Chip can deliver NMIs, only for root irqchips
-  * IRQCHIP_ENABLE_WAKEUP_ON_SUSPEND:  Invokes __enable_irq()/__disable_irq() for wake irqs
-  *                                    in the suspend path if they are in disabled state
-+ * IRQCHIP_AFFINITY_PRE_STARTUP:      Default affinity update before startup
-  */
- enum {
- 	IRQCHIP_SET_TYPE_MASKED			= (1 <<  0),
-@@ -581,6 +582,7 @@ enum {
- 	IRQCHIP_SUPPORTS_LEVEL_MSI		= (1 <<  7),
- 	IRQCHIP_SUPPORTS_NMI			= (1 <<  8),
- 	IRQCHIP_ENABLE_WAKEUP_ON_SUSPEND	= (1 <<  9),
-+	IRQCHIP_AFFINITY_PRE_STARTUP		= (1 << 10),
- };
+diff --git a/kernel/irq/msi.c b/kernel/irq/msi.c
+index c41965e348b5..85df3ca03efe 100644
+--- a/kernel/irq/msi.c
++++ b/kernel/irq/msi.c
+@@ -476,11 +476,6 @@ int __msi_domain_alloc_irqs(struct irq_domain *domain, struct device *dev,
+ 	return 0;
  
- #include <linux/irqdesc.h>
-diff --git a/kernel/irq/chip.c b/kernel/irq/chip.c
-index 7f04c7d8296e..a98bcfc4be7b 100644
---- a/kernel/irq/chip.c
-+++ b/kernel/irq/chip.c
-@@ -265,8 +265,11 @@ int irq_startup(struct irq_desc *desc, bool resend, bool force)
- 	} else {
- 		switch (__irq_startup_managed(desc, aff, force)) {
- 		case IRQ_STARTUP_NORMAL:
-+			if (d->chip->flags & IRQCHIP_AFFINITY_PRE_STARTUP)
-+				irq_setup_affinity(desc);
- 			ret = __irq_startup(desc);
--			irq_setup_affinity(desc);
-+			if (!(d->chip->flags & IRQCHIP_AFFINITY_PRE_STARTUP))
-+				irq_setup_affinity(desc);
- 			break;
- 		case IRQ_STARTUP_MANAGED:
- 			irq_do_set_affinity(d, aff, false);
+ cleanup:
+-	for_each_msi_vector(desc, i, dev) {
+-		irq_data = irq_domain_get_irq_data(domain, i);
+-		if (irqd_is_activated(irq_data))
+-			irq_domain_deactivate_irq(irq_data);
+-	}
+ 	msi_domain_free_irqs(domain, dev);
+ 	return ret;
+ }
+@@ -505,7 +500,15 @@ int msi_domain_alloc_irqs(struct irq_domain *domain, struct device *dev,
+ 
+ void __msi_domain_free_irqs(struct irq_domain *domain, struct device *dev)
+ {
++	struct irq_data *irq_data;
+ 	struct msi_desc *desc;
++	int i;
++
++	for_each_msi_vector(desc, i, dev) {
++		irq_data = irq_domain_get_irq_data(domain, i);
++		if (irqd_is_activated(irq_data))
++			irq_domain_deactivate_irq(irq_data);
++	}
+ 
+ 	for_each_msi_entry(desc, dev) {
+ 		/*
 
