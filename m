@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C67C93ED492
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:03:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B5393ED493
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:03:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236497AbhHPNEN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:04:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54910 "EHLO mail.kernel.org"
+        id S236527AbhHPNEO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:04:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236557AbhHPNEI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:04:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 62B916328A;
-        Mon, 16 Aug 2021 13:03:36 +0000 (UTC)
+        id S236568AbhHPNEK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:04:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A9EDB63295;
+        Mon, 16 Aug 2021 13:03:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119016;
-        bh=/nQp8iYoniMA77qcBgTckHohxDotf/6i5kyqC142z+g=;
+        s=korg; t=1629119019;
+        bh=I49YPbMKDoKq8G9aSuB7Z3EgiiE2uFXm7U1J2f8vXOE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lxQ3T3Ixdk7RospcfpCFb+DEnBLJvM97Il8FJVnkePy6kFew9fc87heu2xdRoqXUd
-         43ofOFnzEOujxf7EZM2KZ8wluBplQkDEByGZKYyJS7uXFKLvRBCCO8eS4ygnaV059w
-         nGZoyyEgrs3Z5bZ9EG32dfJRQ5KT7VNfYIWU7NTc=
+        b=1PUQ7uDGPr2SefNwr2zO9Z+jnp/u9cnErsL/6CBKVrT/lbH3pVsP0PzS0l0tND7l3
+         xYGY4519nU9TVFDxMD7QRD8fC+IDwz5tHlARjzBJD5FQWwOVcS4kKcOVANHYA+yY/2
+         94nIPkqjLQEA8ZngT1DdHQ7qOAK8hxrJJMdyzlnQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jacek Zloch <jacek.zloch@intel.com>,
-        Lukasz Sobieraj <lukasz.sobieraj@intel.com>,
-        "Lee, Chun-Yi" <jlee@suse.com>,
-        Krzysztof Rusocki <krzysztof.rusocki@intel.com>,
-        Damian Bassa <damian.bassa@intel.com>,
+        stable@vger.kernel.org,
+        Krzysztof Kensicki <krzysztof.kensicki@intel.com>,
         Jeff Moyer <jmoyer@redhat.com>,
         Dan Williams <dan.j.williams@intel.com>
-Subject: [PATCH 5.4 08/62] ACPI: NFIT: Fix support for virtual SPA ranges
-Date:   Mon, 16 Aug 2021 15:01:40 +0200
-Message-Id: <20210816125428.485111830@linuxfoundation.org>
+Subject: [PATCH 5.4 09/62] libnvdimm/region: Fix label activation vs errors
+Date:   Mon, 16 Aug 2021 15:01:41 +0200
+Message-Id: <20210816125428.516531926@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210816125428.198692661@linuxfoundation.org>
 References: <20210816125428.198692661@linuxfoundation.org>
@@ -46,57 +43,74 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dan Williams <dan.j.williams@intel.com>
 
-commit b93dfa6bda4d4e88e5386490f2b277a26958f9d3 upstream.
+commit d9cee9f85b22fab88d2b76d2e92b18e3d0e6aa8c upstream.
 
-Fix the NFIT parsing code to treat a 0 index in a SPA Range Structure as
-a special case and not match Region Mapping Structures that use 0 to
-indicate that they are not mapped. Without this fix some platform BIOS
-descriptions of "virtual disk" ranges do not result in the pmem driver
-attaching to the range.
+There are a few scenarios where init_active_labels() can return without
+registering deactivate_labels() to run when the region is disabled. In
+particular label error injection creates scenarios where a DIMM is
+disabled, but labels on other DIMMs in the region become activated.
 
-Details:
-In addition to typical persistent memory ranges, the ACPI NFIT may also
-convey "virtual" ranges. These ranges are indicated by a UUID in the SPA
-Range Structure of UUID_VOLATILE_VIRTUAL_DISK, UUID_VOLATILE_VIRTUAL_CD,
-UUID_PERSISTENT_VIRTUAL_DISK, or UUID_PERSISTENT_VIRTUAL_CD. The
-critical difference between virtual ranges and UUID_PERSISTENT_MEMORY,
-is that virtual do not support associations with Region Mapping
-Structures.  For this reason the "index" value of virtual SPA Range
-Structures is allowed to be 0. If a platform BIOS decides to represent
-NVDIMMs with disconnected "Region Mapping Structures" (range-index ==
-0), the kernel may falsely associate them with standalone ranges where
-the "SPA Range Structure Index" is also zero. When this happens the
-driver may falsely require labels where "virtual disks" are expected to
-be label-less. I.e. "label-less" is where the namespace-range ==
-region-range and the pmem driver attaches with no user action to create
-a namespace.
+Arrange for init_active_labels() to always register deactivate_labels().
 
-Cc: Jacek Zloch <jacek.zloch@intel.com>
-Cc: Lukasz Sobieraj <lukasz.sobieraj@intel.com>
-Cc: "Lee, Chun-Yi" <jlee@suse.com>
+Reported-by: Krzysztof Kensicki <krzysztof.kensicki@intel.com>
 Cc: <stable@vger.kernel.org>
-Fixes: c2f32acdf848 ("acpi, nfit: treat virtual ramdisk SPA as pmem region")
-Reported-by: Krzysztof Rusocki <krzysztof.rusocki@intel.com>
-Reported-by: Damian Bassa <damian.bassa@intel.com>
+Fixes: bf9bccc14c05 ("libnvdimm: pmem label sets and namespace instantiation.")
 Reviewed-by: Jeff Moyer <jmoyer@redhat.com>
-Link: https://lore.kernel.org/r/162870796589.2521182.1240403310175570220.stgit@dwillia2-desk3.amr.corp.intel.com
+Link: https://lore.kernel.org/r/162766356450.3223041.1183118139023841447.stgit@dwillia2-desk3.amr.corp.intel.com
 Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/nfit/core.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/nvdimm/namespace_devs.c |   17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
 
---- a/drivers/acpi/nfit/core.c
-+++ b/drivers/acpi/nfit/core.c
-@@ -2973,6 +2973,9 @@ static int acpi_nfit_register_region(str
- 		struct acpi_nfit_memory_map *memdev = nfit_memdev->memdev;
- 		struct nd_mapping_desc *mapping;
+--- a/drivers/nvdimm/namespace_devs.c
++++ b/drivers/nvdimm/namespace_devs.c
+@@ -2486,7 +2486,7 @@ static void deactivate_labels(void *regi
  
-+		/* range index 0 == unmapped in SPA or invalid-SPA */
-+		if (memdev->range_index == 0 || spa->range_index == 0)
-+			continue;
- 		if (memdev->range_index != spa->range_index)
- 			continue;
- 		if (count >= ND_MAX_MAPPINGS) {
+ static int init_active_labels(struct nd_region *nd_region)
+ {
+-	int i;
++	int i, rc = 0;
+ 
+ 	for (i = 0; i < nd_region->ndr_mappings; i++) {
+ 		struct nd_mapping *nd_mapping = &nd_region->mapping[i];
+@@ -2505,13 +2505,14 @@ static int init_active_labels(struct nd_
+ 			else if (test_bit(NDD_ALIASING, &nvdimm->flags))
+ 				/* fail, labels needed to disambiguate dpa */;
+ 			else
+-				return 0;
++				continue;
+ 
+ 			dev_err(&nd_region->dev, "%s: is %s, failing probe\n",
+ 					dev_name(&nd_mapping->nvdimm->dev),
+ 					test_bit(NDD_LOCKED, &nvdimm->flags)
+ 					? "locked" : "disabled");
+-			return -ENXIO;
++			rc = -ENXIO;
++			goto out;
+ 		}
+ 		nd_mapping->ndd = ndd;
+ 		atomic_inc(&nvdimm->busy);
+@@ -2545,13 +2546,17 @@ static int init_active_labels(struct nd_
+ 			break;
+ 	}
+ 
+-	if (i < nd_region->ndr_mappings) {
++	if (i < nd_region->ndr_mappings)
++		rc = -ENOMEM;
++
++out:
++	if (rc) {
+ 		deactivate_labels(nd_region);
+-		return -ENOMEM;
++		return rc;
+ 	}
+ 
+ 	return devm_add_action_or_reset(&nd_region->dev, deactivate_labels,
+-			nd_region);
++					nd_region);
+ }
+ 
+ int nd_region_register_namespaces(struct nd_region *nd_region, int *err)
 
 
