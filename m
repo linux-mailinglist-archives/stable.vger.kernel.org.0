@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 541013ED4F6
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:06:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B3BBC3ED584
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:12:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237616AbhHPNGw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:06:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58138 "EHLO mail.kernel.org"
+        id S239251AbhHPNL5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:11:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237623AbhHPNF7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:05:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 05E21632A6;
-        Mon, 16 Aug 2021 13:05:27 +0000 (UTC)
+        id S239813AbhHPNKN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:10:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9B7C960E78;
+        Mon, 16 Aug 2021 13:09:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119128;
-        bh=T58+ZDJpuIz0/xl5FMUPFATYbXSotiuG2+KTjl149x8=;
+        s=korg; t=1629119382;
+        bh=lVK89EfKS4FBTCltGJeWadPZq0O2pYztR1zPh5y2oWw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hevun3DEflO+v9xhyy8xP+LMFBaEHDt147whmZGoX/KakGfe+kfMOhm/DPNKVSyJg
-         RYdwBpZJW0zfa+ukNSFqr0j3sY5kZechYnAVV5LWwLCwkg3j9i4Zb6d6KoCGejmYlz
-         3zpTozZZFrAezc+4/bwnSbLGV/Vfb5HokvjYWJgM=
+        b=O3IgG3OvRTldEc6ai321iLzF53cN/Lxz5Hs+gb9xJCojKs6J1AGbq3EH2Clbmi17S
+         sLktnhI+oZfX0GZBA0c2rXIkLy0z2b9IG0HTSMq9rxwz5yx9Cy39VC5p6tEnfXiPeM
+         CgEGbJcvLV9LWF89+tMPt9eLL7TWhGz0AJbpQ/vQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Marc Zyngier <maz@kernel.org>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 5.4 52/62] PCI/MSI: Enforce MSI[X] entry updates to be visible
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.10 74/96] x86/msi: Force affinity setup before startup
 Date:   Mon, 16 Aug 2021 15:02:24 +0200
-Message-Id: <20210816125430.005879743@linuxfoundation.org>
+Message-Id: <20210816125437.434503534@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125428.198692661@linuxfoundation.org>
-References: <20210816125428.198692661@linuxfoundation.org>
+In-Reply-To: <20210816125434.948010115@linuxfoundation.org>
+References: <20210816125434.948010115@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,52 +41,89 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Thomas Gleixner <tglx@linutronix.de>
 
-commit b9255a7cb51754e8d2645b65dd31805e282b4f3e upstream.
+commit ff363f480e5997051dd1de949121ffda3b753741 upstream.
 
-Nothing enforces the posted writes to be visible when the function
-returns. Flush them even if the flush might be redundant when the entry is
-masked already as the unmask will flush as well. This is either setup or a
-rare affinity change event so the extra flush is not the end of the world.
+The X86 MSI mechanism cannot handle interrupt affinity changes safely after
+startup other than from an interrupt handler, unless interrupt remapping is
+enabled. The startup sequence in the generic interrupt code violates that
+assumption.
 
-While this is more a theoretical issue especially the logic in the X86
-specific msi_set_affinity() function relies on the assumption that the
-update has reached the hardware when the function returns.
+Mark the irq chips with the new IRQCHIP_AFFINITY_PRE_STARTUP flag so that
+the default interrupt setting happens before the interrupt is started up
+for the first time.
 
-Again, as this never has been enforced the Fixes tag refers to a commit in:
-   git://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git
+While the interrupt remapping MSI chip does not require this, there is no
+point in treating it differently as this might spare an interrupt to a CPU
+which is not in the default affinity mask.
 
-Fixes: f036d4ea5fa7 ("[PATCH] ia32 Message Signalled Interrupt support")
+For the non-remapping case go to the direct write path when the interrupt
+is not yet started similar to the not yet activated case.
+
+Fixes: 18404756765c ("genirq: Expose default irq affinity mask (take 3)")
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Tested-by: Marc Zyngier <maz@kernel.org>
 Reviewed-by: Marc Zyngier <maz@kernel.org>
-Acked-by: Bjorn Helgaas <bhelgaas@google.com>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210729222542.515188147@linutronix.de
+Link: https://lore.kernel.org/r/20210729222542.886722080@linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/msi.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ arch/x86/kernel/apic/msi.c |   13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
---- a/drivers/pci/msi.c
-+++ b/drivers/pci/msi.c
-@@ -338,6 +338,9 @@ void __pci_write_msi_msg(struct msi_desc
+--- a/arch/x86/kernel/apic/msi.c
++++ b/arch/x86/kernel/apic/msi.c
+@@ -86,11 +86,13 @@ msi_set_affinity(struct irq_data *irqd,
+ 	 *   The quirk bit is not set in this case.
+ 	 * - The new vector is the same as the old vector
+ 	 * - The old vector is MANAGED_IRQ_SHUTDOWN_VECTOR (interrupt starts up)
++	 * - The interrupt is not yet started up
+ 	 * - The new destination CPU is the same as the old destination CPU
+ 	 */
+ 	if (!irqd_msi_nomask_quirk(irqd) ||
+ 	    cfg->vector == old_cfg.vector ||
+ 	    old_cfg.vector == MANAGED_IRQ_SHUTDOWN_VECTOR ||
++	    !irqd_is_started(irqd) ||
+ 	    cfg->dest_apicid == old_cfg.dest_apicid) {
+ 		irq_msi_update_msg(irqd, cfg);
+ 		return ret;
+@@ -178,7 +180,8 @@ static struct irq_chip pci_msi_controlle
+ 	.irq_ack		= irq_chip_ack_parent,
+ 	.irq_retrigger		= irq_chip_retrigger_hierarchy,
+ 	.irq_set_affinity	= msi_set_affinity,
+-	.flags			= IRQCHIP_SKIP_SET_WAKE,
++	.flags			= IRQCHIP_SKIP_SET_WAKE |
++				  IRQCHIP_AFFINITY_PRE_STARTUP,
+ };
  
- 		if (unmasked)
- 			__pci_msix_desc_mask_irq(entry, 0);
-+
-+		/* Ensure that the writes are visible in the device */
-+		readl(base + PCI_MSIX_ENTRY_DATA);
- 	} else {
- 		int pos = dev->msi_cap;
- 		u16 msgctl;
-@@ -358,6 +361,8 @@ void __pci_write_msi_msg(struct msi_desc
- 			pci_write_config_word(dev, pos + PCI_MSI_DATA_32,
- 					      msg->data);
- 		}
-+		/* Ensure that the writes are visible in the device */
-+		pci_read_config_word(dev, pos + PCI_MSI_FLAGS, &msgctl);
- 	}
+ int pci_msi_prepare(struct irq_domain *domain, struct device *dev, int nvec,
+@@ -247,7 +250,8 @@ static struct irq_chip pci_msi_ir_contro
+ 	.irq_mask		= pci_msi_mask_irq,
+ 	.irq_ack		= irq_chip_ack_parent,
+ 	.irq_retrigger		= irq_chip_retrigger_hierarchy,
+-	.flags			= IRQCHIP_SKIP_SET_WAKE,
++	.flags			= IRQCHIP_SKIP_SET_WAKE |
++				  IRQCHIP_AFFINITY_PRE_STARTUP,
+ };
  
- skip:
+ static struct msi_domain_info pci_msi_ir_domain_info = {
+@@ -289,7 +293,8 @@ static struct irq_chip dmar_msi_controll
+ 	.irq_set_affinity	= msi_domain_set_affinity,
+ 	.irq_retrigger		= irq_chip_retrigger_hierarchy,
+ 	.irq_write_msi_msg	= dmar_msi_write_msg,
+-	.flags			= IRQCHIP_SKIP_SET_WAKE,
++	.flags			= IRQCHIP_SKIP_SET_WAKE |
++				  IRQCHIP_AFFINITY_PRE_STARTUP,
+ };
+ 
+ static int dmar_msi_init(struct irq_domain *domain,
+@@ -381,7 +386,7 @@ static struct irq_chip hpet_msi_controll
+ 	.irq_set_affinity = msi_domain_set_affinity,
+ 	.irq_retrigger = irq_chip_retrigger_hierarchy,
+ 	.irq_write_msi_msg = hpet_msi_write_msg,
+-	.flags = IRQCHIP_SKIP_SET_WAKE,
++	.flags = IRQCHIP_SKIP_SET_WAKE | IRQCHIP_AFFINITY_PRE_STARTUP,
+ };
+ 
+ static int hpet_msi_init(struct irq_domain *domain,
 
 
