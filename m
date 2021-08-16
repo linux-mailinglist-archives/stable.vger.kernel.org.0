@@ -2,125 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 76FA93ECF12
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 09:13:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80E083ECF7B
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 09:38:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234023AbhHPHNa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 03:13:30 -0400
-Received: from szxga01-in.huawei.com ([45.249.212.187]:8023 "EHLO
-        szxga01-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234166AbhHPHN2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Aug 2021 03:13:28 -0400
-Received: from dggemv703-chm.china.huawei.com (unknown [172.30.72.53])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4Gp52m5XqkzYq71;
-        Mon, 16 Aug 2021 15:12:32 +0800 (CST)
-Received: from dggema756-chm.china.huawei.com (10.1.198.198) by
- dggemv703-chm.china.huawei.com (10.3.19.46) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
- 15.1.2176.2; Mon, 16 Aug 2021 15:12:51 +0800
-Received: from localhost.localdomain (10.175.112.125) by
- dggema756-chm.china.huawei.com (10.1.198.198) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2176.2; Mon, 16 Aug 2021 15:12:51 +0800
-From:   Chen Huang <chenhuang5@huawei.com>
-To:     Roman Gushchin <guro@fb.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        "Wang Hai" <wanghai38@huawei.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>,
-        <stable@vger.kernel.org>, Chen Huang <chenhuang5@huawei.com>,
-        "Christoph Lameter" <cl@linux.com>,
-        Pekka Enberg <penberg@kernel.org>,
-        David Rientjes <rientjes@google.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10.y 11/11] mm/memcg: fix NULL pointer dereference in memcg_slab_free_hook()
-Date:   Mon, 16 Aug 2021 07:21:47 +0000
-Message-ID: <20210816072147.3481782-12-chenhuang5@huawei.com>
-X-Mailer: git-send-email 2.18.0.huawei.25
-In-Reply-To: <20210816072147.3481782-1-chenhuang5@huawei.com>
-References: <20210816072147.3481782-1-chenhuang5@huawei.com>
+        id S234060AbhHPHjX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 03:39:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53942 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233725AbhHPHjX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Aug 2021 03:39:23 -0400
+Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A78B6C061764;
+        Mon, 16 Aug 2021 00:38:52 -0700 (PDT)
+Received: by mail-pj1-x1032.google.com with SMTP id qe12-20020a17090b4f8c00b00179321cbae7so15437913pjb.2;
+        Mon, 16 Aug 2021 00:38:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=5nKbIRM80jV50m92RFRSNDgACnLFClA1DW4sLx6kBRY=;
+        b=MGiNtS7Yf/l/FB54ENHAXQNv6hiBiELUV2ALDtXMRQVPZi2GlYrSqCdkVxP5GDZj3u
+         r6gAtLUl9Y7cCzeST+Et5c+9blLHXLdAXMZhquI2hq/yb3tT/Ea0yRZu2xSysTvcecEb
+         yKpEim7HUb+swlOspF8c35l/SFG+hxOOPcIDJlbRsu4MPloDdRbcDnPcKQSikasbMnZp
+         52mT5dIxWvDhZ1mtftfVe9uqzoG9+rtrHunhQl+f4cUxBkg4AMmGFfyHlgNYmTiwN3P3
+         XzOy0aA4NyCSWDC13JXfJ2RMz/BATxpwXiZ+LwD3JHEgGav7jstyNGI5DqWWdqiavF1l
+         z6Mg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=5nKbIRM80jV50m92RFRSNDgACnLFClA1DW4sLx6kBRY=;
+        b=WhCGGRZHT8ASQXDO/eNKQyC1YryNZoFvtL77F5kwFrDy+qGebc0omaIoJDaTZaaUwe
+         v0RJIEC/vgwhyHecvxwkQZ4OZoWtuAm2Tc/jWGNqdtKdQmH4OMP6hnSqZ7RInvitO4N5
+         dRX0iZTn+9+QwLUTvf1276HWxUoyf9JBhSDbZoXv7V3HT3d2R8ZDqHmCWRbkNSU9tosK
+         dX8lBO/RgsD+toQD6tMQyqpjmjL/0zk7vaIoamskHLcYkxVYVgwVk8TEmlNImIdwmke0
+         cWj5sJLI51NA8DNs7Vqo8SD1PqOSCP9Iuct1+lcgwbKbXvLkCOzdI0fC1nXRDUN/wMAf
+         9ypQ==
+X-Gm-Message-State: AOAM533g2/uX1ObkSCFqu4hJMfxb1tJWX4kgrqVKeaxhMEBXDZ2U/hHO
+        Mntd3vO1ZU5xrKMq/1DQkQw=
+X-Google-Smtp-Source: ABdhPJw2drNKus8ikTVpUtgbYMvkiOj9krczzz/xNEM/uZcrMauxUXOtvqsXuH4X//A221tkhcpBUA==
+X-Received: by 2002:a62:32c7:0:b029:3cd:fba0:3218 with SMTP id y190-20020a6232c70000b02903cdfba03218mr15157508pfy.52.1629099531983;
+        Mon, 16 Aug 2021 00:38:51 -0700 (PDT)
+Received: from localhost.localdomain ([154.16.166.205])
+        by smtp.gmail.com with ESMTPSA id j21sm10087309pfn.75.2021.08.16.00.38.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 16 Aug 2021 00:38:51 -0700 (PDT)
+From:   Dongliang Mu <mudongliangabcd@gmail.com>
+To:     Steffen Klassert <steffen.klassert@secunet.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>
+Cc:     Dongliang Mu <mudongliangabcd@gmail.com>,
+        syzbot+b9cfd1cc5d57ee0a09ab@syzkaller.appspotmail.com,
+        stable@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH] net: xfrm: fix bug in ipcomp_free_scratches
+Date:   Mon, 16 Aug 2021 15:38:29 +0800
+Message-Id: <20210816073832.199701-1-mudongliangabcd@gmail.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.175.112.125]
-X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
- dggema756-chm.china.huawei.com (10.1.198.198)
-X-CFilter-Loop: Reflected
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+In ipcomp_alloc_scratches, if the vmalloc fails, there leaves a NULL
+pointer. However, ipcomp_free_scratches does not check the per_pcu_ptr
+pointer when invoking vfree.
 
-When I use kfree_rcu() to free a large memory allocated by kmalloc_node(),
-the following dump occurs.
+Fix this by adding a sanity check before vfree.
 
-  BUG: kernel NULL pointer dereference, address: 0000000000000020
-  [...]
-  Oops: 0000 [#1] SMP
-  [...]
-  Workqueue: events kfree_rcu_work
-  RIP: 0010:__obj_to_index include/linux/slub_def.h:182 [inline]
-  RIP: 0010:obj_to_index include/linux/slub_def.h:191 [inline]
-  RIP: 0010:memcg_slab_free_hook+0x120/0x260 mm/slab.h:363
-  [...]
-  Call Trace:
-    kmem_cache_free_bulk+0x58/0x630 mm/slub.c:3293
-    kfree_bulk include/linux/slab.h:413 [inline]
-    kfree_rcu_work+0x1ab/0x200 kernel/rcu/tree.c:3300
-    process_one_work+0x207/0x530 kernel/workqueue.c:2276
-    worker_thread+0x320/0x610 kernel/workqueue.c:2422
-    kthread+0x13d/0x160 kernel/kthread.c:313
-    ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:294
+Call Trace:
+ ipcomp_free_scratches+0xbc/0x160 net/xfrm/xfrm_ipcomp.c:203
+ ipcomp_free_data net/xfrm/xfrm_ipcomp.c:312 [inline]
+ ipcomp_init_state+0x77c/0xa40 net/xfrm/xfrm_ipcomp.c:364
+ ipcomp6_init_state+0xc2/0x700 net/ipv6/ipcomp6.c:154
+ __xfrm_init_state+0x995/0x15c0 net/xfrm/xfrm_state.c:2648
+ xfrm_init_state+0x1a/0x70 net/xfrm/xfrm_state.c:2675
+ pfkey_msg2xfrm_state net/key/af_key.c:1287 [inline]
+ pfkey_add+0x1a64/0x2cd0 net/key/af_key.c:1504
+ pfkey_process+0x685/0x7e0 net/key/af_key.c:2837
+ pfkey_sendmsg+0x43a/0x820 net/key/af_key.c:3676
+ sock_sendmsg_nosec net/socket.c:703 [inline]
+ sock_sendmsg+0xcf/0x120 net/socket.c:723
 
-When kmalloc_node() a large memory, page is allocated, not slab, so when
-freeing memory via kfree_rcu(), this large memory should not be used by
-memcg_slab_free_hook(), because memcg_slab_free_hook() is is used for
-slab.
-
-Using page_objcgs_check() instead of page_objcgs() in
-memcg_slab_free_hook() to fix this bug.
-
-Link: https://lkml.kernel.org/r/20210728145655.274476-1-wanghai38@huawei.com
-Fixes: 270c6a71460e ("mm: memcontrol/slab: Use helpers to access slab page's memcg_data")
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Roman Gushchin <guro@fb.com>
-Reviewed-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Reviewed-by: Muchun Song <songmuchun@bytedance.com>
-Cc: Christoph Lameter <cl@linux.com>
-Cc: Pekka Enberg <penberg@kernel.org>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Chen Huang <chenhuang5@huawei.com>
+Reported-by: syzbot+b9cfd1cc5d57ee0a09ab@syzkaller.appspotmail.com
+Cc: stable@vger.kernel.org
+Fixes: 6fccab671f2f ("ipsec: ipcomp - Merge IPComp impl")
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
 ---
- mm/slab.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/xfrm/xfrm_ipcomp.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/mm/slab.h b/mm/slab.h
-index 571757eb4a8f..9759992c720c 100644
---- a/mm/slab.h
-+++ b/mm/slab.h
-@@ -349,7 +349,7 @@ static inline void memcg_slab_free_hook(struct kmem_cache *s_orig,
- 			continue;
+diff --git a/net/xfrm/xfrm_ipcomp.c b/net/xfrm/xfrm_ipcomp.c
+index cb40ff0ff28d..9588ac05ab27 100644
+--- a/net/xfrm/xfrm_ipcomp.c
++++ b/net/xfrm/xfrm_ipcomp.c
+@@ -199,8 +199,11 @@ static void ipcomp_free_scratches(void)
+ 	if (!scratches)
+ 		return;
  
- 		page = virt_to_head_page(p[i]);
--		objcgs = page_objcgs(page);
-+		objcgs = page_objcgs_check(page);
- 		if (!objcgs)
- 			continue;
+-	for_each_possible_cpu(i)
+-		vfree(*per_cpu_ptr(scratches, i));
++	for_each_possible_cpu(i) {
++		void *scratch = *per_cpu_ptr(scratches, i);
++		if (!scratch)
++			vfree(scratch);
++	}
  
+ 	free_percpu(scratches);
+ }
 -- 
-2.18.0.huawei.25
+2.25.1
 
