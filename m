@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9635A3ED686
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:23:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C1813ED4B7
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:04:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236737AbhHPNVz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:21:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44620 "EHLO mail.kernel.org"
+        id S237114AbhHPNFH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:05:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240651AbhHPNT7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:19:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7EECF632C5;
-        Mon, 16 Aug 2021 13:15:11 +0000 (UTC)
+        id S237031AbhHPNFA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:05:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A98336328D;
+        Mon, 16 Aug 2021 13:04:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119712;
-        bh=kAnqGYLajYNlCcsfuaLy8ZmPfiFFgbhWALTVdS3LdKU=;
+        s=korg; t=1629119067;
+        bh=1CUZJrgD6k/OyBSmYiz/e0aWdIN+opBOcNiej2FGiKA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bz7uYvkyXNUeX5E8h9MsXMmAB158FlRBDE8cNPaov8jhAgTv6Zs2CifXcylJkOc4n
-         xKW+DJ7wMRHyjmSwG+PClR0/xbeGT8tBjU0oyEJ7ttOvUoTGWOFPz+bmBH4ADyT8Fz
-         ftBkrFG54tqXosa2cQWnJneujPfus6nLJq8lk274=
+        b=iOdVgDnUubtxbTums0rTBpZmhN+T9qAP0HCaF3GdrQDKpUfgZPIex3zsr06oYw3XL
+         BcqYyIcFJZqV5+o9PeXyHVFINXH/wJ2ZO9ZTDlmhm173I97xJp66xK3k+Uwy7V7X7p
+         5IvzYUML76sf35XdmcCyrQXcVuaRSd494L6S0OXk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Kurt Kanzenbach <kurt@linutronix.de>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Maximilian Heyne <mheyne@amazon.de>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 100/151] net: dsa: hellcreek: fix broken backpressure in .port_fdb_dump
+Subject: [PATCH 5.4 38/62] xen/events: Fix race in set_evtchn_to_irq
 Date:   Mon, 16 Aug 2021 15:02:10 +0200
-Message-Id: <20210816125447.372901010@linuxfoundation.org>
+Message-Id: <20210816125429.496943388@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
-References: <20210816125444.082226187@linuxfoundation.org>
+In-Reply-To: <20210816125428.198692661@linuxfoundation.org>
+References: <20210816125428.198692661@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,67 +40,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Maximilian Heyne <mheyne@amazon.de>
 
-[ Upstream commit cd391280bf4693ceddca8f19042cff42f98c1a89 ]
+[ Upstream commit 88ca2521bd5b4e8b83743c01a2d4cb09325b51e9 ]
 
-rtnl_fdb_dump() has logic to split a dump of PF_BRIDGE neighbors into
-multiple netlink skbs if the buffer provided by user space is too small
-(one buffer will typically handle a few hundred FDB entries).
+There is a TOCTOU issue in set_evtchn_to_irq. Rows in the evtchn_to_irq
+mapping are lazily allocated in this function. The check whether the row
+is already present and the row initialization is not synchronized. Two
+threads can at the same time allocate a new row for evtchn_to_irq and
+add the irq mapping to the their newly allocated row. One thread will
+overwrite what the other has set for evtchn_to_irq[row] and therefore
+the irq mapping is lost. This will trigger a BUG_ON later in
+bind_evtchn_to_cpu:
 
-When the current buffer becomes full, nlmsg_put() in
-dsa_slave_port_fdb_do_dump() returns -EMSGSIZE and DSA saves the index
-of the last dumped FDB entry, returns to rtnl_fdb_dump() up to that
-point, and then the dump resumes on the same port with a new skb, and
-FDB entries up to the saved index are simply skipped.
+  INFO: pci 0000:1a:15.4: [1d0f:8061] type 00 class 0x010802
+  INFO: nvme 0000:1a:12.1: enabling device (0000 -> 0002)
+  INFO: nvme nvme77: 1/0/0 default/read/poll queues
+  CRIT: kernel BUG at drivers/xen/events/events_base.c:427!
+  WARN: invalid opcode: 0000 [#1] SMP NOPTI
+  WARN: Workqueue: nvme-reset-wq nvme_reset_work [nvme]
+  WARN: RIP: e030:bind_evtchn_to_cpu+0xc2/0xd0
+  WARN: Call Trace:
+  WARN:  set_affinity_irq+0x121/0x150
+  WARN:  irq_do_set_affinity+0x37/0xe0
+  WARN:  irq_setup_affinity+0xf6/0x170
+  WARN:  irq_startup+0x64/0xe0
+  WARN:  __setup_irq+0x69e/0x740
+  WARN:  ? request_threaded_irq+0xad/0x160
+  WARN:  request_threaded_irq+0xf5/0x160
+  WARN:  ? nvme_timeout+0x2f0/0x2f0 [nvme]
+  WARN:  pci_request_irq+0xa9/0xf0
+  WARN:  ? pci_alloc_irq_vectors_affinity+0xbb/0x130
+  WARN:  queue_request_irq+0x4c/0x70 [nvme]
+  WARN:  nvme_reset_work+0x82d/0x1550 [nvme]
+  WARN:  ? check_preempt_wakeup+0x14f/0x230
+  WARN:  ? check_preempt_curr+0x29/0x80
+  WARN:  ? nvme_irq_check+0x30/0x30 [nvme]
+  WARN:  process_one_work+0x18e/0x3c0
+  WARN:  worker_thread+0x30/0x3a0
+  WARN:  ? process_one_work+0x3c0/0x3c0
+  WARN:  kthread+0x113/0x130
+  WARN:  ? kthread_park+0x90/0x90
+  WARN:  ret_from_fork+0x3a/0x50
 
-Since dsa_slave_port_fdb_do_dump() is pointed to by the "cb" passed to
-drivers, then drivers must check for the -EMSGSIZE error code returned
-by it. Otherwise, when a netlink skb becomes full, DSA will no longer
-save newly dumped FDB entries to it, but the driver will continue
-dumping. So FDB entries will be missing from the dump.
+This patch sets evtchn_to_irq rows via a cmpxchg operation so that they
+will be set only once. The row is now cleared before writing it to
+evtchn_to_irq in order to not create a race once the row is visible for
+other threads.
 
-Fix the broken backpressure by propagating the "cb" return code and
-allow rtnl_fdb_dump() to restart the FDB dump with a new skb.
+While at it, do not require the page to be zeroed, because it will be
+overwritten with -1's in clear_evtchn_to_irq_row anyway.
 
-Fixes: e4b27ebc780f ("net: dsa: Add DSA driver for Hirschmann Hellcreek switches")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Acked-by: Kurt Kanzenbach <kurt@linutronix.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Maximilian Heyne <mheyne@amazon.de>
+Fixes: d0b075ffeede ("xen/events: Refactor evtchn_to_irq array to be dynamically allocated")
+Link: https://lore.kernel.org/r/20210812130930.127134-1-mheyne@amazon.de
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/hirschmann/hellcreek.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/xen/events/events_base.c | 20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/dsa/hirschmann/hellcreek.c b/drivers/net/dsa/hirschmann/hellcreek.c
-index 4d78219da253..50109218baad 100644
---- a/drivers/net/dsa/hirschmann/hellcreek.c
-+++ b/drivers/net/dsa/hirschmann/hellcreek.c
-@@ -912,6 +912,7 @@ static int hellcreek_fdb_dump(struct dsa_switch *ds, int port,
+diff --git a/drivers/xen/events/events_base.c b/drivers/xen/events/events_base.c
+index de825df4abf6..87cfadd70d0d 100644
+--- a/drivers/xen/events/events_base.c
++++ b/drivers/xen/events/events_base.c
+@@ -134,12 +134,12 @@ static void disable_dynirq(struct irq_data *data);
+ 
+ static DEFINE_PER_CPU(unsigned int, irq_epoch);
+ 
+-static void clear_evtchn_to_irq_row(unsigned row)
++static void clear_evtchn_to_irq_row(int *evtchn_row)
  {
- 	struct hellcreek *hellcreek = ds->priv;
- 	u16 entries;
-+	int ret = 0;
- 	size_t i;
+ 	unsigned col;
  
- 	mutex_lock(&hellcreek->reg_lock);
-@@ -944,12 +945,14 @@ static int hellcreek_fdb_dump(struct dsa_switch *ds, int port,
- 		if (!(entry.portmask & BIT(port)))
- 			continue;
- 
--		cb(entry.mac, 0, entry.is_static, data);
-+		ret = cb(entry.mac, 0, entry.is_static, data);
-+		if (ret)
-+			break;
- 	}
- 
- 	mutex_unlock(&hellcreek->reg_lock);
- 
--	return 0;
-+	return ret;
+ 	for (col = 0; col < EVTCHN_PER_ROW; col++)
+-		WRITE_ONCE(evtchn_to_irq[row][col], -1);
++		WRITE_ONCE(evtchn_row[col], -1);
  }
  
- static int hellcreek_vlan_filtering(struct dsa_switch *ds, int port,
+ static void clear_evtchn_to_irq_all(void)
+@@ -149,7 +149,7 @@ static void clear_evtchn_to_irq_all(void)
+ 	for (row = 0; row < EVTCHN_ROW(xen_evtchn_max_channels()); row++) {
+ 		if (evtchn_to_irq[row] == NULL)
+ 			continue;
+-		clear_evtchn_to_irq_row(row);
++		clear_evtchn_to_irq_row(evtchn_to_irq[row]);
+ 	}
+ }
+ 
+@@ -157,6 +157,7 @@ static int set_evtchn_to_irq(unsigned evtchn, unsigned irq)
+ {
+ 	unsigned row;
+ 	unsigned col;
++	int *evtchn_row;
+ 
+ 	if (evtchn >= xen_evtchn_max_channels())
+ 		return -EINVAL;
+@@ -169,11 +170,18 @@ static int set_evtchn_to_irq(unsigned evtchn, unsigned irq)
+ 		if (irq == -1)
+ 			return 0;
+ 
+-		evtchn_to_irq[row] = (int *)get_zeroed_page(GFP_KERNEL);
+-		if (evtchn_to_irq[row] == NULL)
++		evtchn_row = (int *) __get_free_pages(GFP_KERNEL, 0);
++		if (evtchn_row == NULL)
+ 			return -ENOMEM;
+ 
+-		clear_evtchn_to_irq_row(row);
++		clear_evtchn_to_irq_row(evtchn_row);
++
++		/*
++		 * We've prepared an empty row for the mapping. If a different
++		 * thread was faster inserting it, we can drop ours.
++		 */
++		if (cmpxchg(&evtchn_to_irq[row], NULL, evtchn_row) != NULL)
++			free_page((unsigned long) evtchn_row);
+ 	}
+ 
+ 	WRITE_ONCE(evtchn_to_irq[row][col], irq);
 -- 
 2.30.2
 
