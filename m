@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 03AD53ED603
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:17:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E061F3ED592
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:12:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239571AbhHPNQY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:16:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37186 "EHLO mail.kernel.org"
+        id S238485AbhHPNMT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:12:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239777AbhHPNOh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:14:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E409B632C2;
-        Mon, 16 Aug 2021 13:11:34 +0000 (UTC)
+        id S236967AbhHPNHr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:07:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B88BE632A8;
+        Mon, 16 Aug 2021 13:06:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119495;
-        bh=vzf6VxPSQuSCdFHx85d/bzenVI6YU+/X7QK7TR/+tfg=;
+        s=korg; t=1629119217;
+        bh=BhIA9zJ/exLmau+ZqDDNyypST8RT8hSrTga1VebG2Fo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cKhUrv/wo88xDHRMynQu02CC6+GhppLhHyvXeEhCw9YeLSt5qY2NFb7HCdZ8K6njJ
-         80RR2S2O1eHoJMFcDkSP9xFszrXRRC6DvuyOtuekF9NXRwycIh0NVt//0wx4lDeAI0
-         3NUCiD8VeryDKBRodfaoBd7oC+g5l0qEwU/t5enA=
+        b=mYXgp5EKrJTzZU5lm4z1MFLjykdEFTHt2wLsRuyTSEEpMZBoUbJaChEUkJx0Suo8g
+         xwys0kl1f9MaiDxoDPP19yBv6c2zPyi81abrg/hVjkX2vVVEx64mze7YFQoN93eHXU
+         nO4rl3q+VJ80ONoVw2t1Dhd17gDjlVDCjFsWV2IA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        stable@vger.kernel.org,
+        Cezary Rojewski <cezary.rojewski@intel.com>,
         Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Rander Wang <rander.wang@intel.com>,
-        Bard Liao <bard.liao@intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 048/151] ASoC: SOF: Intel: Kconfig: fix SoundWire dependencies
-Date:   Mon, 16 Aug 2021 15:01:18 +0200
-Message-Id: <20210816125445.655236121@linuxfoundation.org>
+        Takashi Iwai <tiwai@suse.de>, Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.10 09/96] ASoC: intel: atom: Fix reference to PCM buffer address
+Date:   Mon, 16 Aug 2021 15:01:19 +0200
+Message-Id: <20210816125435.239774557@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
-References: <20210816125444.082226187@linuxfoundation.org>
+In-Reply-To: <20210816125434.948010115@linuxfoundation.org>
+References: <20210816125434.948010115@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,56 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 6b994c554ebc4c065427f510db333081cbd7228d ]
+commit 2e6b836312a477d647a7920b56810a5a25f6c856 upstream.
 
-The previous Kconfig cleanup added simplifications but also introduced
-a new one by moving a boolean to a tristate. This leads to randconfig
-problems.
+PCM buffers might be allocated dynamically when the buffer
+preallocation failed or a larger buffer is requested, and it's not
+guaranteed that substream->dma_buffer points to the actually used
+buffer.  The address should be retrieved from runtime->dma_addr,
+instead of substream->dma_buffer (and shouldn't use virt_to_phys).
 
-This patch moves the select operations in the SOUNDWIRE_LINK_BASELINE
-option. The INTEL_SOUNDWIRE config remains a tristate for backwards
-compatibility with older configurations but is essentially an on/off
-switch.
+Also, remove the line overriding runtime->dma_area superfluously,
+which was already set up at the PCM buffer allocation.
 
-Fixes: cf5807f5f814f ('ASoC: SOF: Intel: SoundWire: simplify Kconfig')
-Reported-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Rander Wang <rander.wang@intel.com>
-Reviewed-by: Bard Liao <bard.liao@intel.com>
-Tested-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20210802151628.15291-1-pierre-louis.bossart@linux.intel.com
+Cc: Cezary Rojewski <cezary.rojewski@intel.com>
+Cc: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/20210728112353.6675-3-tiwai@suse.de
 Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/sof/intel/Kconfig | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/soc/intel/atom/sst-mfld-platform-pcm.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/sound/soc/sof/intel/Kconfig b/sound/soc/sof/intel/Kconfig
-index 4bce89b5ea40..4447f515e8b1 100644
---- a/sound/soc/sof/intel/Kconfig
-+++ b/sound/soc/sof/intel/Kconfig
-@@ -278,6 +278,8 @@ config SND_SOC_SOF_HDA
+--- a/sound/soc/intel/atom/sst-mfld-platform-pcm.c
++++ b/sound/soc/intel/atom/sst-mfld-platform-pcm.c
+@@ -127,7 +127,7 @@ static void sst_fill_alloc_params(struct
+ 	snd_pcm_uframes_t period_size;
+ 	ssize_t periodbytes;
+ 	ssize_t buffer_bytes = snd_pcm_lib_buffer_bytes(substream);
+-	u32 buffer_addr = virt_to_phys(substream->dma_buffer.area);
++	u32 buffer_addr = substream->runtime->dma_addr;
  
- config SND_SOC_SOF_INTEL_SOUNDWIRE_LINK_BASELINE
- 	tristate
-+	select SOUNDWIRE_INTEL if SND_SOC_SOF_INTEL_SOUNDWIRE
-+	select SND_INTEL_SOUNDWIRE_ACPI if SND_SOC_SOF_INTEL_SOUNDWIRE
- 
- config SND_SOC_SOF_INTEL_SOUNDWIRE
- 	tristate "SOF support for SoundWire"
-@@ -285,8 +287,6 @@ config SND_SOC_SOF_INTEL_SOUNDWIRE
- 	depends on SND_SOC_SOF_INTEL_SOUNDWIRE_LINK_BASELINE
- 	depends on ACPI && SOUNDWIRE
- 	depends on !(SOUNDWIRE=m && SND_SOC_SOF_INTEL_SOUNDWIRE_LINK_BASELINE=y)
--	select SOUNDWIRE_INTEL
--	select SND_INTEL_SOUNDWIRE_ACPI
- 	help
- 	  This adds support for SoundWire with Sound Open Firmware
- 	  for Intel(R) platforms.
--- 
-2.30.2
-
+ 	channels = substream->runtime->channels;
+ 	period_size = substream->runtime->period_size;
+@@ -233,7 +233,6 @@ static int sst_platform_alloc_stream(str
+ 	/* set codec params and inform SST driver the same */
+ 	sst_fill_pcm_params(substream, &param);
+ 	sst_fill_alloc_params(substream, &alloc_params);
+-	substream->runtime->dma_area = substream->dma_buffer.area;
+ 	str_params.sparams = param;
+ 	str_params.aparams = alloc_params;
+ 	str_params.codec = SST_CODEC_TYPE_PCM;
 
 
