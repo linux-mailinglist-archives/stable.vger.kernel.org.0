@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F88F3ED4B9
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:04:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D5193ED551
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:12:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237060AbhHPNFJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:05:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55964 "EHLO mail.kernel.org"
+        id S237621AbhHPNKr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:10:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236797AbhHPNFB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:05:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E35663295;
-        Mon, 16 Aug 2021 13:04:28 +0000 (UTC)
+        id S237150AbhHPNJL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:09:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5047D6113D;
+        Mon, 16 Aug 2021 13:08:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119069;
-        bh=Ylhu4rnYGeqvoXyN8ECgDL4cvu8egDPnWzaiBBFNVm4=;
+        s=korg; t=1629119281;
+        bh=4YvZByB9nPGrmEp4OvMsfBVOnrJYSppjoNbvz70+u/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BVGtrmw9deznPhHvydTzW9cZg/6e+UFarx9Xj7bbWvq/cJbHUpBbYanX1rl8fBAqD
-         CW0Xfuq5zO05Mv4tI4haVPrVZ6ireL5T+taEIrDGMlv0Z+w7fQjYCVwPadAuDRcmxT
-         diT6PmfyZ0cYUkCW4t6FQzGPcBeSqbW4V8J0rr9E=
+        b=dOvnPqZ9gIWy90m9B3WrRbv06iAnqxD9LMirrTOsrAd82tOXzbPdfq6I8iz6wfXnM
+         uZ+LTv3K2Vwf2B3SHDiAlQPEDpYm8bSVASI6IsFLqO0Gx1TrNMrZVHAMSCZpokViIs
+         GzzDw6tu2gSFby7okuzK2ZMPTPwHaLgHdTfcwKkk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>,
-        "Longpeng(Mike)" <longpeng2@huawei.com>,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Willy Tarreau <w@1wt.eu>, Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 39/62] vsock/virtio: avoid potential deadlock when vsock device remove
+Subject: [PATCH 5.10 61/96] net: linkwatch: fix failure to restore device state across suspend/resume
 Date:   Mon, 16 Aug 2021 15:02:11 +0200
-Message-Id: <20210816125429.533832643@linuxfoundation.org>
+Message-Id: <20210816125436.982294079@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125428.198692661@linuxfoundation.org>
-References: <20210816125428.198692661@linuxfoundation.org>
+In-Reply-To: <20210816125434.948010115@linuxfoundation.org>
+References: <20210816125434.948010115@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,75 +42,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Longpeng(Mike) <longpeng2@huawei.com>
+From: Willy Tarreau <w@1wt.eu>
 
-[ Upstream commit 49b0b6ffe20c5344f4173f3436298782a08da4f2 ]
+[ Upstream commit 6922110d152e56d7569616b45a1f02876cf3eb9f ]
 
-There's a potential deadlock case when remove the vsock device or
-process the RESET event:
+After migrating my laptop from 4.19-LTS to 5.4-LTS a while ago I noticed
+that my Ethernet port to which a bond and a VLAN interface are attached
+appeared to remain up after resuming from suspend with the cable unplugged
+(and that problem still persists with 5.10-LTS).
 
-  vsock_for_each_connected_socket:
-      spin_lock_bh(&vsock_table_lock) ----------- (1)
-      ...
-          virtio_vsock_reset_sock:
-              lock_sock(sk) --------------------- (2)
-      ...
-      spin_unlock_bh(&vsock_table_lock)
+It happens that the following happens:
 
-lock_sock() may do initiative schedule when the 'sk' is owned by
-other thread at the same time, we would receivce a warning message
-that "scheduling while atomic".
+  - the network driver (e1000e here) prepares to suspend, calls e1000e_down()
+    which calls netif_carrier_off() to signal that the link is going down.
+  - netif_carrier_off() adds a link_watch event to the list of events for
+    this device
+  - the device is completely stopped.
+  - the machine suspends
+  - the cable is unplugged and the machine brought to another location
+  - the machine is resumed
+  - the queued linkwatch events are processed for the device
+  - the device doesn't yet have the __LINK_STATE_PRESENT bit and its events
+    are silently dropped
+  - the device is resumed with its link down
+  - the upper VLAN and bond interfaces are never notified that the link had
+    been turned down and remain up
+  - the only way to provoke a change is to physically connect the machine
+    to a port and possibly unplug it.
 
-Even worse, if the next task (selected by the scheduler) try to
-release a 'sk', it need to request vsock_table_lock and the deadlock
-occur, cause the system into softlockup state.
-  Call trace:
-   queued_spin_lock_slowpath
-   vsock_remove_bound
-   vsock_remove_sock
-   virtio_transport_release
-   __vsock_release
-   vsock_release
-   __sock_release
-   sock_close
-   __fput
-   ____fput
+The state after resume looks like this:
+  $ ip -br li | egrep 'bond|eth'
+  bond0            UP             e8:6a:64:64:64:64 <BROADCAST,MULTICAST,MASTER,UP,LOWER_UP>
+  eth0             DOWN           e8:6a:64:64:64:64 <NO-CARRIER,BROADCAST,MULTICAST,SLAVE,UP>
+  eth0.2@eth0      UP             e8:6a:64:64:64:64 <BROADCAST,MULTICAST,SLAVE,UP,LOWER_UP>
 
-So we should not require sk_lock in this case, just like the behavior
-in vhost_vsock or vmci.
+Placing an explicit call to netdev_state_change() either in the suspend
+or the resume code in the NIC driver worked around this but the solution
+is not satisfying.
 
-Fixes: 0ea9e1d3a9e3 ("VSOCK: Introduce virtio_transport.ko")
-Cc: Stefan Hajnoczi <stefanha@redhat.com>
-Signed-off-by: Longpeng(Mike) <longpeng2@huawei.com>
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-Link: https://lore.kernel.org/r/20210812053056.1699-1-longpeng2@huawei.com
+The issue in fact really is in link_watch that loses events while it
+ought not to. It happens that the test for the device being present was
+added by commit 124eee3f6955 ("net: linkwatch: add check for netdevice
+being present to linkwatch_do_dev") in 4.20 to avoid an access to
+devices that are not present.
+
+Instead of dropping events, this patch proceeds slightly differently by
+postponing their handling so that they happen after the device is fully
+resumed.
+
+Fixes: 124eee3f6955 ("net: linkwatch: add check for netdevice being present to linkwatch_do_dev")
+Link: https://lists.openwall.net/netdev/2018/03/15/62
+Cc: Heiner Kallweit <hkallweit1@gmail.com>
+Cc: Geert Uytterhoeven <geert+renesas@glider.be>
+Cc: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Willy Tarreau <w@1wt.eu>
+Link: https://lore.kernel.org/r/20210809160628.22623-1-w@1wt.eu
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/vmw_vsock/virtio_transport.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ net/core/link_watch.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
-index 5905f0cddc89..7973f98ebd91 100644
---- a/net/vmw_vsock/virtio_transport.c
-+++ b/net/vmw_vsock/virtio_transport.c
-@@ -373,11 +373,14 @@ static void virtio_vsock_event_fill(struct virtio_vsock *vsock)
+diff --git a/net/core/link_watch.c b/net/core/link_watch.c
+index 75431ca9300f..1a455847da54 100644
+--- a/net/core/link_watch.c
++++ b/net/core/link_watch.c
+@@ -158,7 +158,7 @@ static void linkwatch_do_dev(struct net_device *dev)
+ 	clear_bit(__LINK_STATE_LINKWATCH_PENDING, &dev->state);
  
- static void virtio_vsock_reset_sock(struct sock *sk)
- {
--	lock_sock(sk);
-+	/* vmci_transport.c doesn't take sk_lock here either.  At least we're
-+	 * under vsock_table_lock so the sock cannot disappear while we're
-+	 * executing.
-+	 */
-+
- 	sk->sk_state = TCP_CLOSE;
- 	sk->sk_err = ECONNRESET;
- 	sk->sk_error_report(sk);
--	release_sock(sk);
- }
+ 	rfc2863_policy(dev);
+-	if (dev->flags & IFF_UP && netif_device_present(dev)) {
++	if (dev->flags & IFF_UP) {
+ 		if (netif_carrier_ok(dev))
+ 			dev_activate(dev);
+ 		else
+@@ -204,7 +204,8 @@ static void __linkwatch_run_queue(int urgent_only)
+ 		dev = list_first_entry(&wrk, struct net_device, link_watch_list);
+ 		list_del_init(&dev->link_watch_list);
  
- static void virtio_vsock_update_guest_cid(struct virtio_vsock *vsock)
+-		if (urgent_only && !linkwatch_urgent_event(dev)) {
++		if (!netif_device_present(dev) ||
++		    (urgent_only && !linkwatch_urgent_event(dev))) {
+ 			list_add_tail(&dev->link_watch_list, &lweventlist);
+ 			continue;
+ 		}
 -- 
 2.30.2
 
