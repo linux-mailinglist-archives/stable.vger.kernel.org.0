@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 03E803ED528
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:08:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 046873ED48B
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:03:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238929AbhHPNIt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:08:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56748 "EHLO mail.kernel.org"
+        id S236260AbhHPND7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:03:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237742AbhHPNHW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:07:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4DD5B632A5;
-        Mon, 16 Aug 2021 13:06:25 +0000 (UTC)
+        id S236274AbhHPND6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:03:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EB5516328D;
+        Mon, 16 Aug 2021 13:03:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119185;
-        bh=7cyY23NNu3/A4EFhZXE/dxhJTacxsgqF8fkEduRPlXI=;
+        s=korg; t=1629119007;
+        bh=s8UZNAVKq2h9lRIJTWu/3bP95HcZ0EvFMx7xN0dWfAk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=veqI1NdsituVleawOgdFZqzEeW8tP2z/GQkUprL/a5qQlOsT+kQbjIqKE9WYfhwyI
-         HMIFK7uDQE+Nf7f+SArmqQE4klmbHNfNC7cbhHTOREXgAlvoKF2WN1ky81gfDcmJlx
-         QIvPF1fxBuE9DfSeEDE8IoUyLoPK2dPz6x5Sv2oA=
+        b=MZOFGpT0VyEwG1ab3QDLN0KhnWHbDyq5dvwkxMrj1Bx0F3d2Hk6q4lx3OcmmEmEU+
+         aPC5RGl1aMwnEfzvSoFy2e+CdctRIqGvowKQrVCUAbtVWOjtNNOfo/wtxCz9xqm9DR
+         iPLi8wir8r0OQxB5gdE9C0Qg6TJ5cdL4eqYmE32A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Richard Fitzgerald <rf@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 25/96] ASoC: cs42l42: Correct definition of ADC Volume control
-Date:   Mon, 16 Aug 2021 15:01:35 +0200
-Message-Id: <20210816125435.779893638@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.4 04/62] ASoC: xilinx: Fix reference to PCM buffer address
+Date:   Mon, 16 Aug 2021 15:01:36 +0200
+Message-Id: <20210816125428.352813127@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125434.948010115@linuxfoundation.org>
-References: <20210816125434.948010115@linuxfoundation.org>
+In-Reply-To: <20210816125428.198692661@linuxfoundation.org>
+References: <20210816125428.198692661@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,49 +39,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Fitzgerald <rf@opensource.cirrus.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit ee86f680ff4c9b406d49d4e22ddf10805b8a2137 ]
+commit 42bc62c9f1d3d4880bdc27acb5ab4784209bb0b0 upstream.
 
-The ADC volume is a signed 8-bit number with range -97 to +12,
-with -97 being mute. Use a SOC_SINGLE_S8_TLV() to define this
-and fix the DECLARE_TLV_DB_SCALE() to have the correct start and
-mute flag.
+PCM buffers might be allocated dynamically when the buffer
+preallocation failed or a larger buffer is requested, and it's not
+guaranteed that substream->dma_buffer points to the actually used
+buffer.  The driver needs to refer to substream->runtime->dma_addr
+instead for the buffer address.
 
-Fixes: 2c394ca79604 ("ASoC: Add support for CS42L42 codec")
-Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20210729170929.6589-1-rf@opensource.cirrus.com
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/20210728112353.6675-4-tiwai@suse.de
 Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/cs42l42.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ sound/soc/xilinx/xlnx_formatter_pcm.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/codecs/cs42l42.c b/sound/soc/codecs/cs42l42.c
-index 7c6b10bc0b8c..64e8831e7b8a 100644
---- a/sound/soc/codecs/cs42l42.c
-+++ b/sound/soc/codecs/cs42l42.c
-@@ -403,7 +403,7 @@ static const struct regmap_config cs42l42_regmap = {
- 	.use_single_write = true,
- };
+--- a/sound/soc/xilinx/xlnx_formatter_pcm.c
++++ b/sound/soc/xilinx/xlnx_formatter_pcm.c
+@@ -461,8 +461,8 @@ static int xlnx_formatter_pcm_hw_params(
  
--static DECLARE_TLV_DB_SCALE(adc_tlv, -9600, 100, false);
-+static DECLARE_TLV_DB_SCALE(adc_tlv, -9700, 100, true);
- static DECLARE_TLV_DB_SCALE(mixer_tlv, -6300, 100, true);
+ 	stream_data->buffer_size = size;
  
- static const char * const cs42l42_hpf_freq_text[] = {
-@@ -442,8 +442,7 @@ static const struct snd_kcontrol_new cs42l42_snd_controls[] = {
- 				CS42L42_ADC_INV_SHIFT, true, false),
- 	SOC_SINGLE("ADC Boost Switch", CS42L42_ADC_CTL,
- 				CS42L42_ADC_DIG_BOOST_SHIFT, true, false),
--	SOC_SINGLE_SX_TLV("ADC Volume", CS42L42_ADC_VOLUME,
--				CS42L42_ADC_VOL_SHIFT, 0xA0, 0x6C, adc_tlv),
-+	SOC_SINGLE_S8_TLV("ADC Volume", CS42L42_ADC_VOLUME, -97, 12, adc_tlv),
- 	SOC_SINGLE("ADC WNF Switch", CS42L42_ADC_WNF_HPF_CTL,
- 				CS42L42_ADC_WNF_EN_SHIFT, true, false),
- 	SOC_SINGLE("ADC HPF Switch", CS42L42_ADC_WNF_HPF_CTL,
--- 
-2.30.2
-
+-	low = lower_32_bits(substream->dma_buffer.addr);
+-	high = upper_32_bits(substream->dma_buffer.addr);
++	low = lower_32_bits(runtime->dma_addr);
++	high = upper_32_bits(runtime->dma_addr);
+ 	writel(low, stream_data->mmio + XLNX_AUD_BUFF_ADDR_LSB);
+ 	writel(high, stream_data->mmio + XLNX_AUD_BUFF_ADDR_MSB);
+ 
 
 
