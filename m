@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 992063ED677
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:22:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 472B33ED4EB
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:06:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237520AbhHPNVo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:21:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44416 "EHLO mail.kernel.org"
+        id S237170AbhHPNG3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:06:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240547AbhHPNTx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:19:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 21208632A7;
-        Mon, 16 Aug 2021 13:14:44 +0000 (UTC)
+        id S237242AbhHPNFs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:05:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B3F5632A5;
+        Mon, 16 Aug 2021 13:05:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119685;
-        bh=uGLOyo7wHkxz6pejIDwgVgpBw/s0jqcR2PLVWvLYvRg=;
+        s=korg; t=1629119116;
+        bh=EEr00xQjhRt4abvlxPqMIxXmKFUHYRW4cSkD8hI5gok=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B8LKccqAB66qV9icz3WBOhWhS4xdP0wEqspJ5Sj6s7dvrNn+jOHPiTzmEXKBNyJRe
-         mr9nQCaMkRmbHXXrPR3az4F08CZwtrOGHuSB2/wvrpZX3j+mtfmCd6p0JyFZiK+9ew
-         6cx4Vx+Cr1q/X5XcRI6T8efyYGjKKviv/4WNVSr8=
+        b=W0MbVPOZtOC7HAfxClEf/QglMkvkgqXUQj1xz//YC7mNQGjOrEpdziEJI2Ulhha2e
+         qXaT8t2+QqQ2zTgFo13Sg291AgkEiSo4feS5jhQBF1G46zNrzXO7ntL9pv2M4yIuGC
+         8gsqeDeZg4yq0Ge4PYt/t92/6QjGcHSFG7NnrJLE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.13 122/151] x86/msi: Force affinity setup before startup
+        stable@vger.kernel.org, Mark Nelson <mnelson@redhat.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Luis Henriques <lhenriques@suse.de>,
+        Ilya Dryomov <idryomov@gmail.com>
+Subject: [PATCH 5.4 60/62] ceph: take snap_empty_lock atomically with snaprealm refcount change
 Date:   Mon, 16 Aug 2021 15:02:32 +0200
-Message-Id: <20210816125448.084932001@linuxfoundation.org>
+Message-Id: <20210816125430.278005517@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
-References: <20210816125444.082226187@linuxfoundation.org>
+In-Reply-To: <20210816125428.198692661@linuxfoundation.org>
+References: <20210816125428.198692661@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,94 +41,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Jeff Layton <jlayton@kernel.org>
 
-commit ff363f480e5997051dd1de949121ffda3b753741 upstream.
+commit 8434ffe71c874b9c4e184b88d25de98c2bf5fe3f upstream.
 
-The X86 MSI mechanism cannot handle interrupt affinity changes safely after
-startup other than from an interrupt handler, unless interrupt remapping is
-enabled. The startup sequence in the generic interrupt code violates that
-assumption.
+There is a race in ceph_put_snap_realm. The change to the nref and the
+spinlock acquisition are not done atomically, so you could decrement
+nref, and before you take the spinlock, the nref is incremented again.
+At that point, you end up putting it on the empty list when it
+shouldn't be there. Eventually __cleanup_empty_realms runs and frees
+it when it's still in-use.
 
-Mark the irq chips with the new IRQCHIP_AFFINITY_PRE_STARTUP flag so that
-the default interrupt setting happens before the interrupt is started up
-for the first time.
+Fix this by protecting the 1->0 transition with atomic_dec_and_lock,
+and just drop the spinlock if we can get the rwsem.
 
-While the interrupt remapping MSI chip does not require this, there is no
-point in treating it differently as this might spare an interrupt to a CPU
-which is not in the default affinity mask.
+Because these objects can also undergo a 0->1 refcount transition, we
+must protect that change as well with the spinlock. Increment locklessly
+unless the value is at 0, in which case we take the spinlock, increment
+and then take it off the empty list if it did the 0->1 transition.
 
-For the non-remapping case go to the direct write path when the interrupt
-is not yet started similar to the not yet activated case.
+With these changes, I'm removing the dout() messages from these
+functions, as well as in __put_snap_realm. They've always been racy, and
+it's better to not print values that may be misleading.
 
-Fixes: 18404756765c ("genirq: Expose default irq affinity mask (take 3)")
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Marc Zyngier <maz@kernel.org>
-Reviewed-by: Marc Zyngier <maz@kernel.org>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210729222542.886722080@linutronix.de
+URL: https://tracker.ceph.com/issues/46419
+Reported-by: Mark Nelson <mnelson@redhat.com>
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Reviewed-by: Luis Henriques <lhenriques@suse.de>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/apic/msi.c |   11 ++++++++---
- arch/x86/kernel/hpet.c     |    2 +-
- 2 files changed, 9 insertions(+), 4 deletions(-)
+ fs/ceph/snap.c |   34 +++++++++++++++++-----------------
+ 1 file changed, 17 insertions(+), 17 deletions(-)
 
---- a/arch/x86/kernel/apic/msi.c
-+++ b/arch/x86/kernel/apic/msi.c
-@@ -58,11 +58,13 @@ msi_set_affinity(struct irq_data *irqd,
- 	 *   The quirk bit is not set in this case.
- 	 * - The new vector is the same as the old vector
- 	 * - The old vector is MANAGED_IRQ_SHUTDOWN_VECTOR (interrupt starts up)
-+	 * - The interrupt is not yet started up
- 	 * - The new destination CPU is the same as the old destination CPU
+--- a/fs/ceph/snap.c
++++ b/fs/ceph/snap.c
+@@ -67,19 +67,19 @@ void ceph_get_snap_realm(struct ceph_mds
+ {
+ 	lockdep_assert_held(&mdsc->snap_rwsem);
+ 
+-	dout("get_realm %p %d -> %d\n", realm,
+-	     atomic_read(&realm->nref), atomic_read(&realm->nref)+1);
+ 	/*
+-	 * since we _only_ increment realm refs or empty the empty
+-	 * list with snap_rwsem held, adjusting the empty list here is
+-	 * safe.  we do need to protect against concurrent empty list
+-	 * additions, however.
++	 * The 0->1 and 1->0 transitions must take the snap_empty_lock
++	 * atomically with the refcount change. Go ahead and bump the
++	 * nref here, unless it's 0, in which case we take the spinlock
++	 * and then do the increment and remove it from the list.
  	 */
- 	if (!irqd_msi_nomask_quirk(irqd) ||
- 	    cfg->vector == old_cfg.vector ||
- 	    old_cfg.vector == MANAGED_IRQ_SHUTDOWN_VECTOR ||
-+	    !irqd_is_started(irqd) ||
- 	    cfg->dest_apicid == old_cfg.dest_apicid) {
- 		irq_msi_update_msg(irqd, cfg);
- 		return ret;
-@@ -150,7 +152,8 @@ static struct irq_chip pci_msi_controlle
- 	.irq_ack		= irq_chip_ack_parent,
- 	.irq_retrigger		= irq_chip_retrigger_hierarchy,
- 	.irq_set_affinity	= msi_set_affinity,
--	.flags			= IRQCHIP_SKIP_SET_WAKE,
-+	.flags			= IRQCHIP_SKIP_SET_WAKE |
-+				  IRQCHIP_AFFINITY_PRE_STARTUP,
- };
+-	if (atomic_inc_return(&realm->nref) == 1) {
+-		spin_lock(&mdsc->snap_empty_lock);
++	if (atomic_inc_not_zero(&realm->nref))
++		return;
++
++	spin_lock(&mdsc->snap_empty_lock);
++	if (atomic_inc_return(&realm->nref) == 1)
+ 		list_del_init(&realm->empty_item);
+-		spin_unlock(&mdsc->snap_empty_lock);
+-	}
++	spin_unlock(&mdsc->snap_empty_lock);
+ }
  
- int pci_msi_prepare(struct irq_domain *domain, struct device *dev, int nvec,
-@@ -219,7 +222,8 @@ static struct irq_chip pci_msi_ir_contro
- 	.irq_mask		= pci_msi_mask_irq,
- 	.irq_ack		= irq_chip_ack_parent,
- 	.irq_retrigger		= irq_chip_retrigger_hierarchy,
--	.flags			= IRQCHIP_SKIP_SET_WAKE,
-+	.flags			= IRQCHIP_SKIP_SET_WAKE |
-+				  IRQCHIP_AFFINITY_PRE_STARTUP,
- };
+ static void __insert_snap_realm(struct rb_root *root,
+@@ -208,28 +208,28 @@ static void __put_snap_realm(struct ceph
+ {
+ 	lockdep_assert_held_write(&mdsc->snap_rwsem);
  
- static struct msi_domain_info pci_msi_ir_domain_info = {
-@@ -273,7 +277,8 @@ static struct irq_chip dmar_msi_controll
- 	.irq_retrigger		= irq_chip_retrigger_hierarchy,
- 	.irq_compose_msi_msg	= dmar_msi_compose_msg,
- 	.irq_write_msi_msg	= dmar_msi_write_msg,
--	.flags			= IRQCHIP_SKIP_SET_WAKE,
-+	.flags			= IRQCHIP_SKIP_SET_WAKE |
-+				  IRQCHIP_AFFINITY_PRE_STARTUP,
- };
+-	dout("__put_snap_realm %llx %p %d -> %d\n", realm->ino, realm,
+-	     atomic_read(&realm->nref), atomic_read(&realm->nref)-1);
++	/*
++	 * We do not require the snap_empty_lock here, as any caller that
++	 * increments the value must hold the snap_rwsem.
++	 */
+ 	if (atomic_dec_and_test(&realm->nref))
+ 		__destroy_snap_realm(mdsc, realm);
+ }
  
- static int dmar_msi_init(struct irq_domain *domain,
---- a/arch/x86/kernel/hpet.c
-+++ b/arch/x86/kernel/hpet.c
-@@ -508,7 +508,7 @@ static struct irq_chip hpet_msi_controll
- 	.irq_set_affinity = msi_domain_set_affinity,
- 	.irq_retrigger = irq_chip_retrigger_hierarchy,
- 	.irq_write_msi_msg = hpet_msi_write_msg,
--	.flags = IRQCHIP_SKIP_SET_WAKE,
-+	.flags = IRQCHIP_SKIP_SET_WAKE | IRQCHIP_AFFINITY_PRE_STARTUP,
- };
+ /*
+- * caller needn't hold any locks
++ * See comments in ceph_get_snap_realm. Caller needn't hold any locks.
+  */
+ void ceph_put_snap_realm(struct ceph_mds_client *mdsc,
+ 			 struct ceph_snap_realm *realm)
+ {
+-	dout("put_snap_realm %llx %p %d -> %d\n", realm->ino, realm,
+-	     atomic_read(&realm->nref), atomic_read(&realm->nref)-1);
+-	if (!atomic_dec_and_test(&realm->nref))
++	if (!atomic_dec_and_lock(&realm->nref, &mdsc->snap_empty_lock))
+ 		return;
  
- static int hpet_msi_init(struct irq_domain *domain,
+ 	if (down_write_trylock(&mdsc->snap_rwsem)) {
++		spin_unlock(&mdsc->snap_empty_lock);
+ 		__destroy_snap_realm(mdsc, realm);
+ 		up_write(&mdsc->snap_rwsem);
+ 	} else {
+-		spin_lock(&mdsc->snap_empty_lock);
+ 		list_add(&realm->empty_item, &mdsc->snap_empty);
+ 		spin_unlock(&mdsc->snap_empty_lock);
+ 	}
 
 
