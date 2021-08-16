@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 234E73ED016
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 10:16:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 200B93ED017
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 10:16:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234456AbhHPIRC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 04:17:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43396 "EHLO mail.kernel.org"
+        id S234525AbhHPIRL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 04:17:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234386AbhHPIRC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 04:17:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 74A3061AFD;
-        Mon, 16 Aug 2021 08:16:30 +0000 (UTC)
+        id S234386AbhHPIRK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 04:17:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3BF1A61A83;
+        Mon, 16 Aug 2021 08:16:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629101791;
-        bh=IYhmVMRz7R08GAF9X9qTz6GAfYeZCcEIbt+IhX9XHkQ=;
+        s=korg; t=1629101799;
+        bh=9TZ1g7HJhJQ7GYBCu1c2UVfY5fL4TJKaKHLwypPHz9s=;
         h=Subject:To:Cc:From:Date:From;
-        b=QSfzFX4rXEXcUGb7PEzpvIZTO45OTu+xjSQBYkZ0gYAqxFfMuwRI93tm+vSZBmRY9
-         rysPsBuM2PwI0VEvrYgkEvplsb96yN2Zj0LcH2uNWlfXVQWy9rJVExJnpqk+M1qh0N
-         nca5zCuT7XXqzDi8yYvLwTmHqqOVP4ZMkJiav/oE=
-Subject: FAILED: patch "[PATCH] PCI/MSI: Enforce that MSI-X table entry is masked for update" failed to apply to 4.4-stable tree
+        b=YzuyASbLG9RSXQ+Mxy1glTN/EaXf3HosTBbzNn9GokovLlbXAie5tpekDVAZWkIe7
+         PBQsB17rfinMFPYV6q6lqHH1Bloqhl7JmLCWLBuq9jhal68fMwVFZ0n+LFXghnKy5h
+         qJoewPcl+UXZ7Q+u3CsAQHUhrlWUbgpJLGHZm0IU=
+Subject: FAILED: patch "[PATCH] PCI/MSI: Enforce that MSI-X table entry is masked for update" failed to apply to 4.9-stable tree
 To:     tglx@linutronix.de, bhelgaas@google.com, kevin.tian@intel.com,
         maz@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 16 Aug 2021 10:16:28 +0200
-Message-ID: <162910178819854@kroah.com>
+Date:   Mon, 16 Aug 2021 10:16:29 +0200
+Message-ID: <1629101789237129@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
