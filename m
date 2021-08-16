@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 521713ED5FB
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:17:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C39403ED600
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:17:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237592AbhHPNQR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:16:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39186 "EHLO mail.kernel.org"
+        id S239721AbhHPNQT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:16:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237550AbhHPNNE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:13:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0CE0B632BD;
-        Mon, 16 Aug 2021 13:10:48 +0000 (UTC)
+        id S237201AbhHPNNR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:13:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B00F7632C3;
+        Mon, 16 Aug 2021 13:10:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119449;
-        bh=RhT6lIZQj7cP7GzN6vcapHIZwDhnXX/XNXOft6q2p6E=;
+        s=korg; t=1629119452;
+        bh=7f9NjizwJMB1J72+Q0FTN6bcRclm6hj8r3EYq3EQ5yw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TQrMG7v0xk2sh4BQ4q5PUAZeL+I+Q0SkIO/odCRLNTu4WjkJR09xCXWo5YdmK4XcU
-         62/I5mX1NUXGCAIfB59sOVDrkugrv35yX6jWhIZ01dNDT/uoJ/QPSTah+mBEI5KtWU
-         Y69a49smY5hM3Oi7ZRLpCbhfvo+jczZHIpEFjHAU=
+        b=kl0nMEBeoOvfgmV9ocApLtpSh9iHGZLQBo2NhkcP2XYd7vXC7mactm4Sj4RTrKisE
+         MdVi9DkcUFPHw7CCxgDkQ59ZoBfkbzpT9N40CaMoYmIbMPslOTTSIUpuFy/Pz9P3FE
+         c+IQCXJNv3oSdy8+ux+zJWK6D0zN++NNx6ea75Us=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Fangrui Song <maskray@google.com>,
-        Marco Elver <elver@google.com>,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 5.13 031/151] vmlinux.lds.h: Handle clangs module.{c,d}tor sections
-Date:   Mon, 16 Aug 2021 15:01:01 +0200
-Message-Id: <20210816125445.099650753@linuxfoundation.org>
+        stable@vger.kernel.org, "Xu, Terrence" <terrence.xu@intel.com>,
+        "Bloomfield, Jon" <jon.bloomfield@intel.com>,
+        "Ekstrand, Jason" <jason.ekstrand@intel.com>,
+        Colin Xu <colin.xu@intel.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>
+Subject: [PATCH 5.13 032/151] drm/i915/gvt: Fix cached atomics setting for Windows VM
+Date:   Mon, 16 Aug 2021 15:01:02 +0200
+Message-Id: <20210816125445.135437560@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
 References: <20210816125444.082226187@linuxfoundation.org>
@@ -42,49 +42,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Zhenyu Wang <zhenyuw@linux.intel.com>
 
-commit 848378812e40152abe9b9baf58ce2004f76fb988 upstream.
+commit 699aa57b35672c3b2f230e2b7e5d0ab8c2bde80a upstream.
 
-A recent change in LLVM causes module_{c,d}tor sections to appear when
-CONFIG_K{A,C}SAN are enabled, which results in orphan section warnings
-because these are not handled anywhere:
+We've seen recent regression with host and windows VM running
+simultaneously that cause gpu hang or even crash. Finally bisect to
+commit 58586680ffad ("drm/i915: Disable atomics in L3 for gen9"),
+which seems cached atomics behavior difference caused regression
+issue.
 
-ld.lld: warning: arch/x86/pci/built-in.a(legacy.o):(.text.asan.module_ctor) is being placed in '.text.asan.module_ctor'
-ld.lld: warning: arch/x86/pci/built-in.a(legacy.o):(.text.asan.module_dtor) is being placed in '.text.asan.module_dtor'
-ld.lld: warning: arch/x86/pci/built-in.a(legacy.o):(.text.tsan.module_ctor) is being placed in '.text.tsan.module_ctor'
+This tries to add new scratch register handler and add those in mmio
+save/restore list for context switch. No gpu hang produced with this one.
 
-Fangrui explains: "the function asan.module_ctor has the SHF_GNU_RETAIN
-flag, so it is in a separate section even with -fno-function-sections
-(default)".
-
-Place them in the TEXT_TEXT section so that these technologies continue
-to work with the newer compiler versions. All of the KASAN and KCSAN
-KUnit tests continue to pass after this change.
-
-Cc: stable@vger.kernel.org
-Link: https://github.com/ClangBuiltLinux/linux/issues/1432
-Link: https://github.com/llvm/llvm-project/commit/7b789562244ee941b7bf2cefeb3fc08a59a01865
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Fangrui Song <maskray@google.com>
-Acked-by: Marco Elver <elver@google.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20210731023107.1932981-1-nathan@kernel.org
+Cc: stable@vger.kernel.org # 5.12+
+Cc: "Xu, Terrence" <terrence.xu@intel.com>
+Cc: "Bloomfield, Jon" <jon.bloomfield@intel.com>
+Cc: "Ekstrand, Jason" <jason.ekstrand@intel.com>
+Reviewed-by: Colin Xu <colin.xu@intel.com>
+Fixes: 58586680ffad ("drm/i915: Disable atomics in L3 for gen9")
+Signed-off-by: Zhenyu Wang <zhenyuw@linux.intel.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/20210806044056.648016-1-zhenyuw@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/asm-generic/vmlinux.lds.h |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/i915/gvt/handlers.c     |    1 +
+ drivers/gpu/drm/i915/gvt/mmio_context.c |    2 ++
+ 2 files changed, 3 insertions(+)
 
---- a/include/asm-generic/vmlinux.lds.h
-+++ b/include/asm-generic/vmlinux.lds.h
-@@ -586,6 +586,7 @@
- 		NOINSTR_TEXT						\
- 		*(.text..refcount)					\
- 		*(.ref.text)						\
-+		*(.text.asan.* .text.tsan.*)				\
- 		TEXT_CFI_JT						\
- 	MEM_KEEP(init.text*)						\
- 	MEM_KEEP(exit.text*)						\
+--- a/drivers/gpu/drm/i915/gvt/handlers.c
++++ b/drivers/gpu/drm/i915/gvt/handlers.c
+@@ -3149,6 +3149,7 @@ static int init_bdw_mmio_info(struct int
+ 	MMIO_DFH(_MMIO(0xb100), D_BDW, F_CMD_ACCESS, NULL, NULL);
+ 	MMIO_DFH(_MMIO(0xb10c), D_BDW, F_CMD_ACCESS, NULL, NULL);
+ 	MMIO_D(_MMIO(0xb110), D_BDW);
++	MMIO_D(GEN9_SCRATCH_LNCF1, D_BDW_PLUS);
+ 
+ 	MMIO_F(_MMIO(0x24d0), 48, F_CMD_ACCESS | F_CMD_WRITE_PATCH, 0, 0,
+ 		D_BDW_PLUS, NULL, force_nonpriv_write);
+--- a/drivers/gpu/drm/i915/gvt/mmio_context.c
++++ b/drivers/gpu/drm/i915/gvt/mmio_context.c
+@@ -105,6 +105,8 @@ static struct engine_mmio gen9_engine_mm
+ 	{RCS0, COMMON_SLICE_CHICKEN2, 0xffff, true}, /* 0x7014 */
+ 	{RCS0, GEN9_CS_DEBUG_MODE1, 0xffff, false}, /* 0x20ec */
+ 	{RCS0, GEN8_L3SQCREG4, 0, false}, /* 0xb118 */
++	{RCS0, GEN9_SCRATCH1, 0, false}, /* 0xb11c */
++	{RCS0, GEN9_SCRATCH_LNCF1, 0, false}, /* 0xb008 */
+ 	{RCS0, GEN7_HALF_SLICE_CHICKEN1, 0xffff, true}, /* 0xe100 */
+ 	{RCS0, HALF_SLICE_CHICKEN2, 0xffff, true}, /* 0xe180 */
+ 	{RCS0, HALF_SLICE_CHICKEN3, 0xffff, true}, /* 0xe184 */
 
 
