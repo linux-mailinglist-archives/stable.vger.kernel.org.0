@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 266CB3ED5E8
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:17:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B75ED3ED50A
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:08:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239474AbhHPNPm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:15:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37396 "EHLO mail.kernel.org"
+        id S237911AbhHPNHk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:07:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56938 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239944AbhHPNOn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:14:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 27D1E632A7;
-        Mon, 16 Aug 2021 13:11:39 +0000 (UTC)
+        id S235983AbhHPNGX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:06:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BF2D563290;
+        Mon, 16 Aug 2021 13:05:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119500;
-        bh=ZZh3SqU3xXEuTh/C6ZLb0SlqeaE/5iH53tHUGy7FjKw=;
+        s=korg; t=1629119147;
+        bh=KiUG4rsHow+0PFikHCyH1/xyjo/m+2DX3my7nks4ITg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y8Ds40b9U1wWwRoEJzOavFBcDlLmDIu4hGub0U2pmCU/NYWknZJ9xlkBRcEQeEXSW
-         vGb9cgPpk1/QRPE+sYIxvGNvZIVgomtW40TFyd0V9INWNslt8f75nTSju2Fy2Zqacu
-         CSWykjTuoIJCq1q/3fF5kkZFv7FQ7JYZN/8cfmFI=
+        b=PRPvQpTj/EUgDLU7V3OF3PHo9fQ16qFEr89O3t3GgYkkHA5WHPYPsjVn2xZxJYw+b
+         oq0fsGHaRq7APS153TF69c5CdCR4gLibEM116QUcMhMHLIaY/ZJs1sXIchYga0aesK
+         8SHvGNj+xsb8AU0onysm90/4BVwGo3VnKNLLkqTc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Richard Fitzgerald <rf@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 050/151] ASoC: cs42l42: Fix inversion of ADC Notch Switch control
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Wolfram Sang <wsa@kernel.org>
+Subject: [PATCH 5.10 10/96] i2c: dev: zero out array used for i2c reads from userspace
 Date:   Mon, 16 Aug 2021 15:01:20 +0200
-Message-Id: <20210816125445.722854420@linuxfoundation.org>
+Message-Id: <20210816125435.270185143@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
-References: <20210816125444.082226187@linuxfoundation.org>
+In-Reply-To: <20210816125434.948010115@linuxfoundation.org>
+References: <20210816125434.948010115@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,37 +39,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Fitzgerald <rf@opensource.cirrus.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit 30615bd21b4cc3c3bb5ae8bd70e2a915cc5f75c7 ]
+commit 86ff25ed6cd8240d18df58930bd8848b19fce308 upstream.
 
-The underlying register field has inverted sense (0 = enabled) so
-the control definition must be marked as inverted.
+If an i2c driver happens to not provide the full amount of data that a
+user asks for, it is possible that some uninitialized data could be sent
+to userspace.  While all in-kernel drivers look to be safe, just be sure
+by initializing the buffer to zero before it is passed to the i2c driver
+so that any future drivers will not have this issue.
 
-Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
-Fixes: 2c394ca79604 ("ASoC: Add support for CS42L42 codec")
-Link: https://lore.kernel.org/r/20210803160834.9005-1-rf@opensource.cirrus.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Also properly copy the amount of data recvieved to the userspace buffer,
+as pointed out by Dan Carpenter.
+
+Reported-by: Eric Dumazet <edumazet@google.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/cs42l42.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/i2c-dev.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/codecs/cs42l42.c b/sound/soc/codecs/cs42l42.c
-index fe73a5c70bdd..c7fb33a89224 100644
---- a/sound/soc/codecs/cs42l42.c
-+++ b/sound/soc/codecs/cs42l42.c
-@@ -436,7 +436,7 @@ static SOC_ENUM_SINGLE_DECL(cs42l42_wnf05_freq_enum, CS42L42_ADC_WNF_HPF_CTL,
- static const struct snd_kcontrol_new cs42l42_snd_controls[] = {
- 	/* ADC Volume and Filter Controls */
- 	SOC_SINGLE("ADC Notch Switch", CS42L42_ADC_CTL,
--				CS42L42_ADC_NOTCH_DIS_SHIFT, true, false),
-+				CS42L42_ADC_NOTCH_DIS_SHIFT, true, true),
- 	SOC_SINGLE("ADC Weak Force Switch", CS42L42_ADC_CTL,
- 				CS42L42_ADC_FORCE_WEAK_VCM_SHIFT, true, false),
- 	SOC_SINGLE("ADC Invert Switch", CS42L42_ADC_CTL,
--- 
-2.30.2
-
+--- a/drivers/i2c/i2c-dev.c
++++ b/drivers/i2c/i2c-dev.c
+@@ -141,7 +141,7 @@ static ssize_t i2cdev_read(struct file *
+ 	if (count > 8192)
+ 		count = 8192;
+ 
+-	tmp = kmalloc(count, GFP_KERNEL);
++	tmp = kzalloc(count, GFP_KERNEL);
+ 	if (tmp == NULL)
+ 		return -ENOMEM;
+ 
+@@ -150,7 +150,8 @@ static ssize_t i2cdev_read(struct file *
+ 
+ 	ret = i2c_master_recv(client, tmp, count);
+ 	if (ret >= 0)
+-		ret = copy_to_user(buf, tmp, count) ? -EFAULT : ret;
++		if (copy_to_user(buf, tmp, ret))
++			ret = -EFAULT;
+ 	kfree(tmp);
+ 	return ret;
+ }
 
 
