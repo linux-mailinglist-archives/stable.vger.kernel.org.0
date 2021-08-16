@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C31923ECF85
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 09:40:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E2F13ECF87
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 09:40:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234208AbhHPHku (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 03:40:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45140 "EHLO mail.kernel.org"
+        id S234056AbhHPHlB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 03:41:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45238 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234197AbhHPHkt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 03:40:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F43961AAB;
-        Mon, 16 Aug 2021 07:40:17 +0000 (UTC)
+        id S231499AbhHPHlA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 03:41:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 656B061AAA;
+        Mon, 16 Aug 2021 07:40:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629099618;
-        bh=pVYwlXCoKZbE7wNjj9jpZoDhWbZNTyOHodnnBc9cgzQ=;
+        s=korg; t=1629099629;
+        bh=0iBbJpTQ0FFTf2vN01NUELXphKpJOVgNZ6/ITjKzFC8=;
         h=Subject:To:Cc:From:Date:From;
-        b=C04MxGS6aXO3AqJNo1jpEGsC+gmU8+dPxcRmo1vQy7hh9ZY9/cc11EoDRqBVmqWdk
-         ycj80Duf8Kod96ir89EX8sUndjcL1e2xHUbF7gMhmAgK+hc5advTLF2LxAG4veJR4o
-         Z+H1HZS5xShBrWttdjbug11pzANPeFUuWi9pCr4E=
-Subject: FAILED: patch "[PATCH] x86/ioapic: Force affinity setup before startup" failed to apply to 4.4-stable tree
+        b=KpZtbBYNAbutVbdd69Xmgdk3pldBXcid9qWz/DtysR83TNOColhzzZwKakHSTsedp
+         ijqbrdTDnCItNT6H38Z2tcfFzGkZ078QFS44LgTbSiz8RpLrKKcWiuwGwlKiwObtk7
+         rR9M9mnocKpbJ2OFOEvDHYojmWvYlUUBuLFkYZYg=
+Subject: FAILED: patch "[PATCH] x86/ioapic: Force affinity setup before startup" failed to apply to 4.14-stable tree
 To:     tglx@linutronix.de, maz@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 16 Aug 2021 09:40:16 +0200
-Message-ID: <162909961618135@kroah.com>
+Date:   Mon, 16 Aug 2021 09:40:17 +0200
+Message-ID: <162909961761142@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
