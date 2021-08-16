@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 797C63ED59E
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:12:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3243F3ED612
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:17:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239755AbhHPNM3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:12:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57542 "EHLO mail.kernel.org"
+        id S238785AbhHPNQj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:16:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238490AbhHPNHl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:07:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C0A7A632B7;
-        Mon, 16 Aug 2021 13:06:40 +0000 (UTC)
+        id S240302AbhHPNPG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:15:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C15161163;
+        Mon, 16 Aug 2021 13:12:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119201;
-        bh=zXjqu6Iu+1ODKeUqf+Fe+F8c12rTj85RP4jfPMsDMhw=;
+        s=korg; t=1629119549;
+        bh=S7mRn5lDKfRNIieZ7v5eL/gMsRJ8ZKDKU0rkd5AqwT0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ENljFsN5Er5bxTjb3Jtjvl9AE4ubzfhYh9OehnNuAzbGBJAT5cs/wpYA4kkT3NyvS
-         7fI86rMdqP2Otl++bUwMHaglJoVs+RkCJZdVngKKe5V4ymOWbfOB01vZ9QvjdjWf30
-         s69HQo7PX/8OtfYkqWO81CwfdK0w3mX+XQnXQzX4=
+        b=GCK4y5jkfzUXE3y5rDiecw3pXPJFaI2BqHjgALwRA0MMj3bfrfn/BdO4HERZZqfNt
+         z0qsxumP9X0Q2mBnOAZ9jNMgiiKKWfFxtuo5eWjraqGtym1SRd1bq3U0//zQmKIoZb
+         sj78TOdqoUQFseEtkLDlB0mXGD15ymzaeo+DTuio=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Richard Fitzgerald <rf@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Guvenc Gulce <guvenc@linux.ibm.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 30/96] ASoC: cs42l42: Remove duplicate control for WNF filter frequency
+Subject: [PATCH 5.13 070/151] net/smc: Correct smc link connection counter in case of smc client
 Date:   Mon, 16 Aug 2021 15:01:40 +0200
-Message-Id: <20210816125435.955875612@linuxfoundation.org>
+Message-Id: <20210816125446.389226705@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125434.948010115@linuxfoundation.org>
-References: <20210816125434.948010115@linuxfoundation.org>
+In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
+References: <20210816125444.082226187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,61 +41,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Fitzgerald <rf@opensource.cirrus.com>
+From: Guvenc Gulce <guvenc@linux.ibm.com>
 
-[ Upstream commit 8b353bbeae20e2214c9d9d88bcb2fda4ba145d83 ]
+[ Upstream commit 64513d269e8971aabb7e787955a1b320e3031306 ]
 
-The driver was defining two ALSA controls that both change the same
-register field for the wind noise filter corner frequency. The filter
-response has two corners, at different frequencies, and the duplicate
-controls most likely were an attempt to be able to set the value using
-either of the frequencies.
+SMC clients may be assigned to a different link after the initial
+connection between two peers was established. In such a case,
+the connection counter was not correctly set.
 
-However, having two controls changing the same field can be problematic
-and it is unnecessary. Both frequencies are related to each other so
-setting one implies exactly what the other would be.
+Update the connection counter correctly when a smc client connection
+is assigned to a different smc link.
 
-Removing a control affects user-side code, but there is currently no
-known use of the removed control so it would be best to remove it now
-before it becomes a problem.
-
-Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
-Fixes: 2c394ca79604 ("ASoC: Add support for CS42L42 codec")
-Link: https://lore.kernel.org/r/20210803160834.9005-2-rf@opensource.cirrus.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 07d51580ff65 ("net/smc: Add connection counters for links")
+Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
+Tested-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/cs42l42.c | 10 ----------
- 1 file changed, 10 deletions(-)
+ net/smc/af_smc.c   | 2 +-
+ net/smc/smc_core.c | 4 ++--
+ net/smc/smc_core.h | 2 ++
+ 3 files changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/codecs/cs42l42.c b/sound/soc/codecs/cs42l42.c
-index 298354d4ab8d..ab6f89032ea0 100644
---- a/sound/soc/codecs/cs42l42.c
-+++ b/sound/soc/codecs/cs42l42.c
-@@ -423,15 +423,6 @@ static SOC_ENUM_SINGLE_DECL(cs42l42_wnf3_freq_enum, CS42L42_ADC_WNF_HPF_CTL,
- 			    CS42L42_ADC_WNF_CF_SHIFT,
- 			    cs42l42_wnf3_freq_text);
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 5eff7cccceff..66fbdc63f965 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -757,7 +757,7 @@ static int smc_connect_rdma(struct smc_sock *smc,
+ 			reason_code = SMC_CLC_DECL_NOSRVLINK;
+ 			goto connect_abort;
+ 		}
+-		smc->conn.lnk = link;
++		smc_switch_link_and_count(&smc->conn, link);
+ 	}
  
--static const char * const cs42l42_wnf05_freq_text[] = {
--	"280Hz", "315Hz", "350Hz", "385Hz",
--	"420Hz", "455Hz", "490Hz", "525Hz"
--};
--
--static SOC_ENUM_SINGLE_DECL(cs42l42_wnf05_freq_enum, CS42L42_ADC_WNF_HPF_CTL,
--			    CS42L42_ADC_WNF_CF_SHIFT,
--			    cs42l42_wnf05_freq_text);
--
- static const struct snd_kcontrol_new cs42l42_snd_controls[] = {
- 	/* ADC Volume and Filter Controls */
- 	SOC_SINGLE("ADC Notch Switch", CS42L42_ADC_CTL,
-@@ -449,7 +440,6 @@ static const struct snd_kcontrol_new cs42l42_snd_controls[] = {
- 				CS42L42_ADC_HPF_EN_SHIFT, true, false),
- 	SOC_ENUM("HPF Corner Freq", cs42l42_hpf_freq_enum),
- 	SOC_ENUM("WNF 3dB Freq", cs42l42_wnf3_freq_enum),
--	SOC_ENUM("WNF 05dB Freq", cs42l42_wnf05_freq_enum),
+ 	/* create send buffer and rmb */
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index 0df85a12651e..39b24f98eac5 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -916,8 +916,8 @@ static int smc_switch_cursor(struct smc_sock *smc, struct smc_cdc_tx_pend *pend,
+ 	return rc;
+ }
  
- 	/* DAC Volume and Filter Controls */
- 	SOC_SINGLE("DACA Invert Switch", CS42L42_DAC_CTL1,
+-static void smc_switch_link_and_count(struct smc_connection *conn,
+-				      struct smc_link *to_lnk)
++void smc_switch_link_and_count(struct smc_connection *conn,
++			       struct smc_link *to_lnk)
+ {
+ 	atomic_dec(&conn->lnk->conn_cnt);
+ 	conn->lnk = to_lnk;
+diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+index 64d86298e4df..c043ecdca5c4 100644
+--- a/net/smc/smc_core.h
++++ b/net/smc/smc_core.h
+@@ -446,6 +446,8 @@ void smc_core_exit(void);
+ int smcr_link_init(struct smc_link_group *lgr, struct smc_link *lnk,
+ 		   u8 link_idx, struct smc_init_info *ini);
+ void smcr_link_clear(struct smc_link *lnk, bool log);
++void smc_switch_link_and_count(struct smc_connection *conn,
++			       struct smc_link *to_lnk);
+ int smcr_buf_map_lgr(struct smc_link *lnk);
+ int smcr_buf_reg_lgr(struct smc_link *lnk);
+ void smcr_lgr_set_type(struct smc_link_group *lgr, enum smc_lgr_type new_type);
 -- 
 2.30.2
 
