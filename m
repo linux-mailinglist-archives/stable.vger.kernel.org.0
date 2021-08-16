@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D5193ED551
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:12:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C32C13ED68A
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:23:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237621AbhHPNKr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:10:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58216 "EHLO mail.kernel.org"
+        id S237351AbhHPNWA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:22:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237150AbhHPNJL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:09:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5047D6113D;
-        Mon, 16 Aug 2021 13:08:01 +0000 (UTC)
+        id S240650AbhHPNT7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:19:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2AEDE632CA;
+        Mon, 16 Aug 2021 13:15:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119281;
-        bh=4YvZByB9nPGrmEp4OvMsfBVOnrJYSppjoNbvz70+u/Y=;
+        s=korg; t=1629119714;
+        bh=YCZHwI0/diN40H/AxPUf6DZzVWXvXZ8q8WGueXWd+qg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dOvnPqZ9gIWy90m9B3WrRbv06iAnqxD9LMirrTOsrAd82tOXzbPdfq6I8iz6wfXnM
-         uZ+LTv3K2Vwf2B3SHDiAlQPEDpYm8bSVASI6IsFLqO0Gx1TrNMrZVHAMSCZpokViIs
-         GzzDw6tu2gSFby7okuzK2ZMPTPwHaLgHdTfcwKkk=
+        b=k7WaNV7LGlO/2LmMssOFMzRxYbs6KCVpIN6nl22BlgjQ0p/vazu702geFBwDPGRtW
+         E1o/GDHu23/W0vNjxFCvXGzYCFD0z99sRowFqAmOJ5Bqy9lvxmfuRBr0y3Iry7SIHU
+         V0KgmZAM1e9DSpnSAleJcuwjMcbdtYxsTo1he0B8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Willy Tarreau <w@1wt.eu>, Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 61/96] net: linkwatch: fix failure to restore device state across suspend/resume
+Subject: [PATCH 5.13 101/151] net: dsa: lan9303: fix broken backpressure in .port_fdb_dump
 Date:   Mon, 16 Aug 2021 15:02:11 +0200
-Message-Id: <20210816125436.982294079@linuxfoundation.org>
+Message-Id: <20210816125447.403845072@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125434.948010115@linuxfoundation.org>
-References: <20210816125434.948010115@linuxfoundation.org>
+In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
+References: <20210816125444.082226187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,90 +40,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willy Tarreau <w@1wt.eu>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit 6922110d152e56d7569616b45a1f02876cf3eb9f ]
+[ Upstream commit ada2fee185d8145afb89056558bb59545b9dbdd0 ]
 
-After migrating my laptop from 4.19-LTS to 5.4-LTS a while ago I noticed
-that my Ethernet port to which a bond and a VLAN interface are attached
-appeared to remain up after resuming from suspend with the cable unplugged
-(and that problem still persists with 5.10-LTS).
+rtnl_fdb_dump() has logic to split a dump of PF_BRIDGE neighbors into
+multiple netlink skbs if the buffer provided by user space is too small
+(one buffer will typically handle a few hundred FDB entries).
 
-It happens that the following happens:
+When the current buffer becomes full, nlmsg_put() in
+dsa_slave_port_fdb_do_dump() returns -EMSGSIZE and DSA saves the index
+of the last dumped FDB entry, returns to rtnl_fdb_dump() up to that
+point, and then the dump resumes on the same port with a new skb, and
+FDB entries up to the saved index are simply skipped.
 
-  - the network driver (e1000e here) prepares to suspend, calls e1000e_down()
-    which calls netif_carrier_off() to signal that the link is going down.
-  - netif_carrier_off() adds a link_watch event to the list of events for
-    this device
-  - the device is completely stopped.
-  - the machine suspends
-  - the cable is unplugged and the machine brought to another location
-  - the machine is resumed
-  - the queued linkwatch events are processed for the device
-  - the device doesn't yet have the __LINK_STATE_PRESENT bit and its events
-    are silently dropped
-  - the device is resumed with its link down
-  - the upper VLAN and bond interfaces are never notified that the link had
-    been turned down and remain up
-  - the only way to provoke a change is to physically connect the machine
-    to a port and possibly unplug it.
+Since dsa_slave_port_fdb_do_dump() is pointed to by the "cb" passed to
+drivers, then drivers must check for the -EMSGSIZE error code returned
+by it. Otherwise, when a netlink skb becomes full, DSA will no longer
+save newly dumped FDB entries to it, but the driver will continue
+dumping. So FDB entries will be missing from the dump.
 
-The state after resume looks like this:
-  $ ip -br li | egrep 'bond|eth'
-  bond0            UP             e8:6a:64:64:64:64 <BROADCAST,MULTICAST,MASTER,UP,LOWER_UP>
-  eth0             DOWN           e8:6a:64:64:64:64 <NO-CARRIER,BROADCAST,MULTICAST,SLAVE,UP>
-  eth0.2@eth0      UP             e8:6a:64:64:64:64 <BROADCAST,MULTICAST,SLAVE,UP,LOWER_UP>
+Fix the broken backpressure by propagating the "cb" return code and
+allow rtnl_fdb_dump() to restart the FDB dump with a new skb.
 
-Placing an explicit call to netdev_state_change() either in the suspend
-or the resume code in the NIC driver worked around this but the solution
-is not satisfying.
-
-The issue in fact really is in link_watch that loses events while it
-ought not to. It happens that the test for the device being present was
-added by commit 124eee3f6955 ("net: linkwatch: add check for netdevice
-being present to linkwatch_do_dev") in 4.20 to avoid an access to
-devices that are not present.
-
-Instead of dropping events, this patch proceeds slightly differently by
-postponing their handling so that they happen after the device is fully
-resumed.
-
-Fixes: 124eee3f6955 ("net: linkwatch: add check for netdevice being present to linkwatch_do_dev")
-Link: https://lists.openwall.net/netdev/2018/03/15/62
-Cc: Heiner Kallweit <hkallweit1@gmail.com>
-Cc: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Willy Tarreau <w@1wt.eu>
-Link: https://lore.kernel.org/r/20210809160628.22623-1-w@1wt.eu
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: ab335349b852 ("net: dsa: lan9303: Add port_fast_age and port_fdb_dump methods")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/link_watch.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/dsa/lan9303-core.c | 34 +++++++++++++++++++---------------
+ 1 file changed, 19 insertions(+), 15 deletions(-)
 
-diff --git a/net/core/link_watch.c b/net/core/link_watch.c
-index 75431ca9300f..1a455847da54 100644
---- a/net/core/link_watch.c
-+++ b/net/core/link_watch.c
-@@ -158,7 +158,7 @@ static void linkwatch_do_dev(struct net_device *dev)
- 	clear_bit(__LINK_STATE_LINKWATCH_PENDING, &dev->state);
+diff --git a/drivers/net/dsa/lan9303-core.c b/drivers/net/dsa/lan9303-core.c
+index 344374025426..d7ce281570b5 100644
+--- a/drivers/net/dsa/lan9303-core.c
++++ b/drivers/net/dsa/lan9303-core.c
+@@ -557,12 +557,12 @@ static int lan9303_alr_make_entry_raw(struct lan9303 *chip, u32 dat0, u32 dat1)
+ 	return 0;
+ }
  
- 	rfc2863_policy(dev);
--	if (dev->flags & IFF_UP && netif_device_present(dev)) {
-+	if (dev->flags & IFF_UP) {
- 		if (netif_carrier_ok(dev))
- 			dev_activate(dev);
- 		else
-@@ -204,7 +204,8 @@ static void __linkwatch_run_queue(int urgent_only)
- 		dev = list_first_entry(&wrk, struct net_device, link_watch_list);
- 		list_del_init(&dev->link_watch_list);
+-typedef void alr_loop_cb_t(struct lan9303 *chip, u32 dat0, u32 dat1,
+-			   int portmap, void *ctx);
++typedef int alr_loop_cb_t(struct lan9303 *chip, u32 dat0, u32 dat1,
++			  int portmap, void *ctx);
  
--		if (urgent_only && !linkwatch_urgent_event(dev)) {
-+		if (!netif_device_present(dev) ||
-+		    (urgent_only && !linkwatch_urgent_event(dev))) {
- 			list_add_tail(&dev->link_watch_list, &lweventlist);
- 			continue;
- 		}
+-static void lan9303_alr_loop(struct lan9303 *chip, alr_loop_cb_t *cb, void *ctx)
++static int lan9303_alr_loop(struct lan9303 *chip, alr_loop_cb_t *cb, void *ctx)
+ {
+-	int i;
++	int ret = 0, i;
+ 
+ 	mutex_lock(&chip->alr_mutex);
+ 	lan9303_write_switch_reg(chip, LAN9303_SWE_ALR_CMD,
+@@ -582,13 +582,17 @@ static void lan9303_alr_loop(struct lan9303 *chip, alr_loop_cb_t *cb, void *ctx)
+ 						LAN9303_ALR_DAT1_PORT_BITOFFS;
+ 		portmap = alrport_2_portmap[alrport];
+ 
+-		cb(chip, dat0, dat1, portmap, ctx);
++		ret = cb(chip, dat0, dat1, portmap, ctx);
++		if (ret)
++			break;
+ 
+ 		lan9303_write_switch_reg(chip, LAN9303_SWE_ALR_CMD,
+ 					 LAN9303_ALR_CMD_GET_NEXT);
+ 		lan9303_write_switch_reg(chip, LAN9303_SWE_ALR_CMD, 0);
+ 	}
+ 	mutex_unlock(&chip->alr_mutex);
++
++	return ret;
+ }
+ 
+ static void alr_reg_to_mac(u32 dat0, u32 dat1, u8 mac[6])
+@@ -606,18 +610,20 @@ struct del_port_learned_ctx {
+ };
+ 
+ /* Clear learned (non-static) entry on given port */
+-static void alr_loop_cb_del_port_learned(struct lan9303 *chip, u32 dat0,
+-					 u32 dat1, int portmap, void *ctx)
++static int alr_loop_cb_del_port_learned(struct lan9303 *chip, u32 dat0,
++					u32 dat1, int portmap, void *ctx)
+ {
+ 	struct del_port_learned_ctx *del_ctx = ctx;
+ 	int port = del_ctx->port;
+ 
+ 	if (((BIT(port) & portmap) == 0) || (dat1 & LAN9303_ALR_DAT1_STATIC))
+-		return;
++		return 0;
+ 
+ 	/* learned entries has only one port, we can just delete */
+ 	dat1 &= ~LAN9303_ALR_DAT1_VALID; /* delete entry */
+ 	lan9303_alr_make_entry_raw(chip, dat0, dat1);
++
++	return 0;
+ }
+ 
+ struct port_fdb_dump_ctx {
+@@ -626,19 +632,19 @@ struct port_fdb_dump_ctx {
+ 	dsa_fdb_dump_cb_t *cb;
+ };
+ 
+-static void alr_loop_cb_fdb_port_dump(struct lan9303 *chip, u32 dat0,
+-				      u32 dat1, int portmap, void *ctx)
++static int alr_loop_cb_fdb_port_dump(struct lan9303 *chip, u32 dat0,
++				     u32 dat1, int portmap, void *ctx)
+ {
+ 	struct port_fdb_dump_ctx *dump_ctx = ctx;
+ 	u8 mac[ETH_ALEN];
+ 	bool is_static;
+ 
+ 	if ((BIT(dump_ctx->port) & portmap) == 0)
+-		return;
++		return 0;
+ 
+ 	alr_reg_to_mac(dat0, dat1, mac);
+ 	is_static = !!(dat1 & LAN9303_ALR_DAT1_STATIC);
+-	dump_ctx->cb(mac, 0, is_static, dump_ctx->data);
++	return dump_ctx->cb(mac, 0, is_static, dump_ctx->data);
+ }
+ 
+ /* Set a static ALR entry. Delete entry if port_map is zero */
+@@ -1210,9 +1216,7 @@ static int lan9303_port_fdb_dump(struct dsa_switch *ds, int port,
+ 	};
+ 
+ 	dev_dbg(chip->dev, "%s(%d)\n", __func__, port);
+-	lan9303_alr_loop(chip, alr_loop_cb_fdb_port_dump, &dump_ctx);
+-
+-	return 0;
++	return lan9303_alr_loop(chip, alr_loop_cb_fdb_port_dump, &dump_ctx);
+ }
+ 
+ static int lan9303_port_mdb_prepare(struct dsa_switch *ds, int port,
 -- 
 2.30.2
 
