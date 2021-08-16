@@ -2,77 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 936A53ED09C
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 10:52:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F32C43ED0C8
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 11:02:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235112AbhHPIwx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 04:52:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40864 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235163AbhHPIwv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 04:52:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 34E4261B2F;
-        Mon, 16 Aug 2021 08:52:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629103939;
-        bh=z3BRIOSt6pK3YKZwv1BQzM+dzo+AS1wIEgqgh9ZMz/w=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=M0APRPngBR4gUT6eyfhN4+TfW0WwXwmmWgLbLscbtihW6DchE+pIRhIlkGIQpIrZ4
-         V4+MddNOF17nrSMT8IfvB9G7A74VPafqfKSWClEv5uJdI9CelFSC/FNnarxlXRnRwM
-         uzzx4UL0niV29va91b2t9jXHbotwpVsypa9y6WJk=
-Date:   Mon, 16 Aug 2021 10:52:17 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Nathan Chancellor <nathan@kernel.org>
-Cc:     elver@google.com, keescook@chromium.org, maskray@google.com,
-        ndesaulniers@google.com, stable-commits@vger.kernel.org,
-        stable@vger.kernel.org, sashal@kernel.org
-Subject: Re: Patch "vmlinux.lds.h: Handle clang's module.{c,d}tor sections"
- has been added to the 5.13-stable tree
-Message-ID: <YRonQXMxJWfuFXVZ@kroah.com>
-References: <16290320662366@kroah.com>
- <YRmbLz1ZivIMKgc5@archlinux-ax161>
+        id S234721AbhHPJDI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 05:03:08 -0400
+Received: from sp3.canonet.ne.jp ([210.134.165.90]:59529 "EHLO
+        sp3.canonet.ne.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234701AbhHPJDI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Aug 2021 05:03:08 -0400
+X-Greylist: delayed 613 seconds by postgrey-1.27 at vger.kernel.org; Mon, 16 Aug 2021 05:03:07 EDT
+Received: from csp3.canonet.ne.jp (unknown [172.21.160.43])
+        by sp3.canonet.ne.jp (Postfix) with ESMTP id 4C4251E02FE;
+        Mon, 16 Aug 2021 17:52:21 +0900 (JST)
+Received: from echeck3.canonet.ne.jp ([172.21.160.33])
+        by csp3 with ESMTP
+        id FYM1m7lL2k9ggFYM1mt9ad; Mon, 16 Aug 2021 17:52:21 +0900
+X-CNT-CMCheck-Reason: "undefined", "v=2.4 cv=V+LDbcri c=1 sm=1 tr=0
+ ts=611a2745 cx=g_jp:t_eml p=ZnjvJ2o0vuMA:10 p=SFu0CbZerTkA:10
+ p=AC_cuOPAYuEmcczJ76E1:22 a=xyT3al3xnjtl1zci1KSAEw==:117
+ a=xbyLVnzfAZw6kvha8NeemA==:17 a=PlGk70OYzacA:10 a=kj9zAlcOel0A:10
+ a=MhDmnRu9jo8A:10 a=x7bEGLp0ZPQA:10 a=pGLkceISAAAA:8 a=5CXmzdsn4sgk7Y2k11cA:9
+ a=CjuIK1q_8ugA:10 a=5jg5q7m1qKcA:10 a=YDHR7YFnOI4A:10
+ a=MHPxKemQ74fEXD4P6krg:22"
+X-CNT-CMCheck-Score: 96.00
+Received: from echeck3.canonet.ne.jp (localhost [127.0.0.1])
+        by esets.canonet.ne.jp (Postfix) with ESMTP id E8F0D1C024D;
+        Mon, 16 Aug 2021 17:52:20 +0900 (JST)
+X-Virus-Scanner: This message was checked by ESET Mail Security
+        for Linux/BSD. For more information on ESET Mail Security,
+        please, visit our website: http://www.eset.com/.
+Received: from smtp3.canonet.ne.jp (smtp3.canonet.ne.jp [172.21.160.23])
+        by echeck3.canonet.ne.jp (Postfix) with ESMTP id DF1E31C0249;
+        Mon, 16 Aug 2021 17:52:20 +0900 (JST)
+Received: from iiyama-hosyo.co.jp (webmail.canonet.ne.jp [210.134.164.250])
+        by smtp3.canonet.ne.jp (Postfix) with ESMTPA id 614EB15F966;
+        Mon, 16 Aug 2021 17:52:19 +0900 (JST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YRmbLz1ZivIMKgc5@archlinux-ax161>
+Message-ID: <20210816085219.00005762.0929@iiyama-hosyo.co.jp>
+Date:   Mon, 16 Aug 2021 17:52:19 +0900
+From:   "Shaimaa Gaber" <bun_freemeado_taka0151@iiyama-hosyo.co.jp>
+To:     <shaimaagabera@gmail.com>
+Reply-To: <shaimaagabera@gmail.com>
+Subject: Attention from madam Shaimaa
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MAILER: Active! mail
+X-EsetResult: clean, %VIRUSNAME%
+X-ESET-AS: R=OK;S=0;OP=CALC;TIME=1629103941;VERSION=7900;MC=4282586946;TRN=0;CRV=0;IPC=210.134.164.250;SP=4;SIPS=1;PI=5;F=0
+X-I-ESET-AS: RN=0;RNP=
+X-ESET-Antispam: OK
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Aug 15, 2021 at 03:54:39PM -0700, Nathan Chancellor wrote:
-> Hi Greg,
-> 
-> On Sun, Aug 15, 2021 at 02:54:26PM +0200, gregkh@linuxfoundation.org wrote:
-> > 
-> > This is a note to let you know that I've just added the patch titled
-> > 
-> >     vmlinux.lds.h: Handle clang's module.{c,d}tor sections
-> > 
-> > to the 5.13-stable tree which can be found at:
-> >     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
-> > 
-> > The filename of the patch is:
-> >      vmlinux.lds.h-handle-clang-s-module.-c-d-tor-sections.patch
-> > and it can be found in the queue-5.13 subdirectory.
-> 
-> Attached are backports for 4.4 to 5.10. I am not sure if anyone is
-> actually using KASAN with clang on 4.4 (ChromeOS maybe?) but it does not
-> hurt to have it just in case.
-> 
-> I did not get any emails that the patch failed to apply on the older
-> versions, I assume this is because I did just a "Cc: stable@vger.kernel.org"
-> without any version or fixes tag. Is there any "official" way to notate
-> that I want a particular patch applied to all supported kernel versions
-> aside from adding "# v4.4+" to the Cc tag so that I can provide manual
-> backports for those versions?
 
-That comment is exactly how you should ask for that, otherwise I do a
-"best effort" type of backport and just stop when it does not apply.
+How are you?
+I have a business cooperation for you and I hope you don't mind
+because I am a woman, I want to work with you as partner to invest at
+your place.
+Kindly send me your mobile telephone number on my personal email
+below, so that we can discuss in details.
 
-Or you can provide a "Fixes:" tag, which will show me exactly how far
-back to apply patches, and that usually works better as it will catch
-commits that get backported to older kernels.
+Best regards,
 
-thanks,
+Shaimaa Gaber
+Dubai, United Arab Emirates
+Email: shaimaagabera@gmail.com
 
-greg k-h
+
