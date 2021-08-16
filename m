@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F03E3ED89D
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 16:03:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E66503ED89C
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 16:03:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236494AbhHPOEI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 10:04:08 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:23660 "EHLO
+        id S231604AbhHPOEG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 10:04:06 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:59379 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S237438AbhHPODl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Aug 2021 10:03:41 -0400
+        by vger.kernel.org with ESMTP id S237308AbhHPODi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Aug 2021 10:03:38 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1629122590;
+        s=mimecast20190719; t=1629122586;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding;
-        bh=wqEhvwu2pAb00bVlZaU9JuLBjS7temg2JRYw9eqMdF4=;
-        b=h3EMJaeLlRuHnSjM11XkCFe6mgAEb9/6jlmC9oU0JM4J9luxpTKb5eE24RobSmbGx8aD6/
-        905eoW3ETqcItFjqocxbT2Xtc2fgrMszQY04FCb7fro5HuzKSS+DDFhaH2Pm4WXxt7VQfd
-        nwKfRhPZEejt8wCF/3ly1RXOTdOxQpk=
+        bh=Q3vvbfy31qMUFQX0qq5kyha7ZiZuQZKEoz5ccXNMSVM=;
+        b=aT///NBruxvjMvBfL5+KvMVo9s53grpINJ8sOS2W6975vzHq/0LgTXVmrF5lFofdIs/rQT
+        sFIlXLRb6RYhxKpG9/rVuW3tMI/GWdEpXxuf+w4GX+m9/Zlr6f0sRhiwTWs6Y3mrXyIB4/
+        1PkCu2SeE/0cLNa9jAyt1jbeaoDlBaM=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-262-VeQbyUkqPNOAxocURXxhKQ-1; Mon, 16 Aug 2021 10:03:03 -0400
-X-MC-Unique: VeQbyUkqPNOAxocURXxhKQ-1
+ us-mta-161-4Gnwm2rwNJ2_unX-gBhXvw-1; Mon, 16 Aug 2021 10:03:02 -0400
+X-MC-Unique: 4Gnwm2rwNJ2_unX-gBhXvw-1
 Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id D57121008060;
-        Mon, 16 Aug 2021 14:02:59 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 7C12680A1BC;
+        Mon, 16 Aug 2021 14:03:01 +0000 (UTC)
 Received: from avogadro.lan (unknown [10.39.192.155])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 7E7855FC25;
-        Mon, 16 Aug 2021 14:02:58 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 3F7B76788F;
+        Mon, 16 Aug 2021 14:03:00 +0000 (UTC)
 From:   Paolo Bonzini <pbonzini@redhat.com>
 To:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org
 Cc:     stable@vger.kernel.org, Maxim Levitsky <mlevitsk@redhat.com>
-Subject: [PATCH 5.12.y] KVM: nSVM: always intercept VMLOAD/VMSAVE when nested (CVE-2021-3656)
-Date:   Mon, 16 Aug 2021 16:02:39 +0200
-Message-Id: <20210816140240.11399-11-pbonzini@redhat.com>
+Subject: [PATCH 5.4.y] KVM: nSVM: always intercept VMLOAD/VMSAVE when nested (CVE-2021-3656)
+Date:   Mon, 16 Aug 2021 16:02:40 +0200
+Message-Id: <20210816140240.11399-12-pbonzini@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
@@ -65,23 +65,23 @@ Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 ---
 	The above upstream SHA1 is still on its way to Linus
 
- arch/x86/kvm/svm/nested.c | 3 +++
+ arch/x86/kvm/svm.c | 3 +++
  1 file changed, 3 insertions(+)
 
-diff --git a/arch/x86/kvm/svm/nested.c b/arch/x86/kvm/svm/nested.c
-index 4b8635d2296a..8d96c28deadb 100644
---- a/arch/x86/kvm/svm/nested.c
-+++ b/arch/x86/kvm/svm/nested.c
-@@ -147,6 +147,9 @@ void recalc_intercepts(struct vcpu_svm *svm)
- 
- 	for (i = 0; i < MAX_INTERCEPT; i++)
- 		c->intercepts[i] |= g->intercepts[i];
+diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
+index 515d0b03bf03..387c1dafee2a 100644
+--- a/arch/x86/kvm/svm.c
++++ b/arch/x86/kvm/svm.c
+@@ -516,6 +516,9 @@ static void recalc_intercepts(struct vcpu_svm *svm)
+ 	c->intercept_dr = h->intercept_dr | g->intercept_dr;
+ 	c->intercept_exceptions = h->intercept_exceptions | g->intercept_exceptions;
+ 	c->intercept = h->intercept | g->intercept;
 +
-+	vmcb_set_intercept(c, INTERCEPT_VMLOAD);
-+	vmcb_set_intercept(c, INTERCEPT_VMSAVE);
++	c->intercept |= (1ULL << INTERCEPT_VMLOAD);
++	c->intercept |= (1ULL << INTERCEPT_VMSAVE);
  }
  
- static void copy_vmcb_control_area(struct vmcb_control_area *dst,
+ static inline struct vmcb *get_host_vmcb(struct vcpu_svm *svm)
 -- 
 2.26.3
 
