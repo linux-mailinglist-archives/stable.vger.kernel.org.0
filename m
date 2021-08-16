@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DF763ED5DE
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:17:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 788253ED5EC
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:17:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239123AbhHPNPe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:15:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39006 "EHLO mail.kernel.org"
+        id S237045AbhHPNPu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:15:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239604AbhHPNOc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:14:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C3FB0632A2;
-        Mon, 16 Aug 2021 13:11:14 +0000 (UTC)
+        id S239952AbhHPNOo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:14:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B9869632AC;
+        Mon, 16 Aug 2021 13:11:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119475;
-        bh=xWHx/EOAscR3etXZqIA2GxRKfnPuBGdPN7geStoKCLc=;
+        s=korg; t=1629119503;
+        bh=mn8qF1+hNmGB+hK/Hz415eCdwLyVGmncg+S3lnX6ewo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X7+mau9lEKijKYs0/K7P3DO7xclOfRO/IHdz/fVNLIPxCaZMCfrABitOMh34TiClk
-         RqnGty4AWIf62AyNI06xEvUWvYDQCpHWQMSnnJd5qa3abaHXCdgQQYLUM4KR9Pi//w
-         dr+TDMLzzFJqS4cchUqVnlQkFyUHY1mP8A1U+M+w=
+        b=eOa1V3WZ+ez79E3+PbrXKnsYxpsB0DG59LUgmSijYbG+slTF2oS05uF4IQep0f79Z
+         fao3aIkxEeRXYvaN8Gm+botgoULLzBTtIP1L7eAbjQXdHRkv+xS+m9XBPNBrOkwtOT
+         Z22Fz7O+yNC7BFORXlQhodBKFsL6LA6rtBmt8l/M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Perrot <thomas.perrot@bootlin.com>,
-        Loic Poulain <loic.poulain@linaro.org>,
-        Sergey Ryazanov <ryazanov.s.a@gmail.com>,
+        stable@vger.kernel.org,
+        Ben Hutchings <ben.hutchings@essensium.com>,
+        Grygorii Strashko <grygorii.strashko@ti.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.13 023/151] net: wwan: mhi_wwan_ctrl: Fix possible deadlock
-Date:   Mon, 16 Aug 2021 15:00:53 +0200
-Message-Id: <20210816125444.832318357@linuxfoundation.org>
+Subject: [PATCH 5.13 024/151] net: ethernet: ti: cpsw: fix min eth packet size for non-switch use-cases
+Date:   Mon, 16 Aug 2021 15:00:54 +0200
+Message-Id: <20210816125444.864401858@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
 References: <20210816125444.082226187@linuxfoundation.org>
@@ -41,85 +41,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Loic Poulain <loic.poulain@linaro.org>
+From: Grygorii Strashko <grygorii.strashko@ti.com>
 
-commit 34737e1320db6d51f0d140d5c684b9eb32f0da76 upstream.
+commit acc68b8d2a1196c4db806947606f162dbeed2274 upstream.
 
-Lockdep detected possible interrupt unsafe locking scenario:
+The CPSW switchdev driver inherited fix from commit 9421c9015047 ("net:
+ethernet: ti: cpsw: fix min eth packet size") which changes min TX packet
+size to 64bytes (VLAN_ETH_ZLEN, excluding ETH_FCS). It was done to fix HW
+packed drop issue when packets are sent from Host to the port with PVID and
+un-tagging enabled. Unfortunately this breaks some other non-switch
+specific use-cases, like:
+- [1] CPSW port as DSA CPU port with DSA-tag applied at the end of the
+packet
+- [2] Some industrial protocols, which expects min TX packet size 60Bytes
+(excluding FCS).
 
-        CPU0                    CPU1
-        ----                    ----
-   lock(&mhiwwan->rx_lock);
-                               local_irq_disable();
-                               lock(&mhi_cntrl->pm_lock);
-                               lock(&mhiwwan->rx_lock);
-   <Interrupt>
-     lock(&mhi_cntrl->pm_lock);
+Fix it by configuring min TX packet size depending on driver mode
+ - 60Bytes (ETH_ZLEN) for multi mac (dual-mac) mode
+ - 64Bytes (VLAN_ETH_ZLEN) for switch mode
+and update it during driver mode change and annotate with
+READ_ONCE()/WRITE_ONCE() as it can be read by napi while writing.
 
-  *** DEADLOCK ***
-
-To prevent this we need to disable the soft-interrupts when taking
-the rx_lock.
+[1] https://lore.kernel.org/netdev/20210531124051.GA15218@cephalopod/
+[2] https://e2e.ti.com/support/arm/sitara_arm/f/791/t/701669
 
 Cc: stable@vger.kernel.org
-Fixes: fa588eba632d ("net: Add Qcom WWAN control driver")
-Reported-by: Thomas Perrot <thomas.perrot@bootlin.com>
-Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
-Reviewed-by: Sergey Ryazanov <ryazanov.s.a@gmail.com>
+Fixes: ed3525eda4c4 ("net: ethernet: ti: introduce cpsw switchdev based driver part 1 - dual-emac")
+Reported-by: Ben Hutchings <ben.hutchings@essensium.com>
+Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wwan/mhi_wwan_ctrl.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/ti/cpsw_new.c  |    7 +++++--
+ drivers/net/ethernet/ti/cpsw_priv.h |    4 +++-
+ 2 files changed, 8 insertions(+), 3 deletions(-)
 
---- a/drivers/net/wwan/mhi_wwan_ctrl.c
-+++ b/drivers/net/wwan/mhi_wwan_ctrl.c
-@@ -41,14 +41,14 @@ struct mhi_wwan_dev {
- /* Increment RX budget and schedule RX refill if necessary */
- static void mhi_wwan_rx_budget_inc(struct mhi_wwan_dev *mhiwwan)
- {
--	spin_lock(&mhiwwan->rx_lock);
-+	spin_lock_bh(&mhiwwan->rx_lock);
+--- a/drivers/net/ethernet/ti/cpsw_new.c
++++ b/drivers/net/ethernet/ti/cpsw_new.c
+@@ -920,7 +920,7 @@ static netdev_tx_t cpsw_ndo_start_xmit(s
+ 	struct cpdma_chan *txch;
+ 	int ret, q_idx;
  
- 	mhiwwan->rx_budget++;
+-	if (skb_padto(skb, CPSW_MIN_PACKET_SIZE)) {
++	if (skb_put_padto(skb, READ_ONCE(priv->tx_packet_min))) {
+ 		cpsw_err(priv, tx_err, "packet pad failed\n");
+ 		ndev->stats.tx_dropped++;
+ 		return NET_XMIT_DROP;
+@@ -1100,7 +1100,7 @@ static int cpsw_ndo_xdp_xmit(struct net_
  
- 	if (test_bit(MHI_WWAN_RX_REFILL, &mhiwwan->flags))
- 		schedule_work(&mhiwwan->rx_refill);
+ 	for (i = 0; i < n; i++) {
+ 		xdpf = frames[i];
+-		if (xdpf->len < CPSW_MIN_PACKET_SIZE)
++		if (xdpf->len < READ_ONCE(priv->tx_packet_min))
+ 			break;
  
--	spin_unlock(&mhiwwan->rx_lock);
-+	spin_unlock_bh(&mhiwwan->rx_lock);
- }
+ 		if (cpsw_xdp_tx_frame(priv, xdpf, NULL, priv->emac_port))
+@@ -1389,6 +1389,7 @@ static int cpsw_create_ports(struct cpsw
+ 		priv->dev  = dev;
+ 		priv->msg_enable = netif_msg_init(debug_level, CPSW_DEBUG);
+ 		priv->emac_port = i + 1;
++		priv->tx_packet_min = CPSW_MIN_PACKET_SIZE;
  
- /* Decrement RX budget if non-zero and return true on success */
-@@ -56,7 +56,7 @@ static bool mhi_wwan_rx_budget_dec(struc
- {
- 	bool ret = false;
+ 		if (is_valid_ether_addr(slave_data->mac_addr)) {
+ 			ether_addr_copy(priv->mac_addr, slave_data->mac_addr);
+@@ -1686,6 +1687,7 @@ static int cpsw_dl_switch_mode_set(struc
  
--	spin_lock(&mhiwwan->rx_lock);
-+	spin_lock_bh(&mhiwwan->rx_lock);
+ 			priv = netdev_priv(sl_ndev);
+ 			slave->port_vlan = vlan;
++			WRITE_ONCE(priv->tx_packet_min, CPSW_MIN_PACKET_SIZE_VLAN);
+ 			if (netif_running(sl_ndev))
+ 				cpsw_port_add_switch_def_ale_entries(priv,
+ 								     slave);
+@@ -1714,6 +1716,7 @@ static int cpsw_dl_switch_mode_set(struc
  
- 	if (mhiwwan->rx_budget) {
- 		mhiwwan->rx_budget--;
-@@ -64,7 +64,7 @@ static bool mhi_wwan_rx_budget_dec(struc
- 			ret = true;
- 	}
+ 			priv = netdev_priv(slave->ndev);
+ 			slave->port_vlan = slave->data->dual_emac_res_vlan;
++			WRITE_ONCE(priv->tx_packet_min, CPSW_MIN_PACKET_SIZE);
+ 			cpsw_port_add_dual_emac_def_ale_entries(priv, slave);
+ 		}
  
--	spin_unlock(&mhiwwan->rx_lock);
-+	spin_unlock_bh(&mhiwwan->rx_lock);
+--- a/drivers/net/ethernet/ti/cpsw_priv.h
++++ b/drivers/net/ethernet/ti/cpsw_priv.h
+@@ -89,7 +89,8 @@ do {								\
  
- 	return ret;
- }
-@@ -130,9 +130,9 @@ static void mhi_wwan_ctrl_stop(struct ww
- {
- 	struct mhi_wwan_dev *mhiwwan = wwan_port_get_drvdata(port);
+ #define CPSW_POLL_WEIGHT	64
+ #define CPSW_RX_VLAN_ENCAP_HDR_SIZE		4
+-#define CPSW_MIN_PACKET_SIZE	(VLAN_ETH_ZLEN)
++#define CPSW_MIN_PACKET_SIZE_VLAN	(VLAN_ETH_ZLEN)
++#define CPSW_MIN_PACKET_SIZE	(ETH_ZLEN)
+ #define CPSW_MAX_PACKET_SIZE	(VLAN_ETH_FRAME_LEN +\
+ 				 ETH_FCS_LEN +\
+ 				 CPSW_RX_VLAN_ENCAP_HDR_SIZE)
+@@ -380,6 +381,7 @@ struct cpsw_priv {
+ 	u32 emac_port;
+ 	struct cpsw_common *cpsw;
+ 	int offload_fwd_mark;
++	u32 tx_packet_min;
+ };
  
--	spin_lock(&mhiwwan->rx_lock);
-+	spin_lock_bh(&mhiwwan->rx_lock);
- 	clear_bit(MHI_WWAN_RX_REFILL, &mhiwwan->flags);
--	spin_unlock(&mhiwwan->rx_lock);
-+	spin_unlock_bh(&mhiwwan->rx_lock);
- 
- 	cancel_work_sync(&mhiwwan->rx_refill);
- 
+ #define ndev_to_cpsw(ndev) (((struct cpsw_priv *)netdev_priv(ndev))->cpsw)
 
 
