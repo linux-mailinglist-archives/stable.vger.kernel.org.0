@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D88D23ED555
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:12:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E4AA3ED666
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:22:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239088AbhHPNKw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:10:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58330 "EHLO mail.kernel.org"
+        id S238633AbhHPNU5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:20:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44416 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237429AbhHPNJM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:09:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 54464610E8;
-        Mon, 16 Aug 2021 13:08:06 +0000 (UTC)
+        id S237904AbhHPNS3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:18:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F05E632FF;
+        Mon, 16 Aug 2021 13:13:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119286;
-        bh=ZvYpSPnb/sjZPhLX8TXBfRVqa37SIfIGq7PHbMXwfHQ=;
+        s=korg; t=1629119635;
+        bh=EsJcyuB2jOm7rySq7hOVmzO5ygDEUclTB5GC5IWEHcM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oGiCwvQCsMaoJ9dUhvQ0Et/0yT46s13OE4jFpS4E5xbUXBx9v7c31Mdvg8WYmm1xT
-         8pj+Y5owzVPSNk5OehaodvZYa3OY3opn055924bFojPbt7XD+0kUcExvOWEyRgWtX6
-         k0GGh6t08YlkHlBao36Jis826WIV+6kpXpZsnOes=
+        b=d1VNC0eh1xqD7dl1jrfpbWwCJH+LVpkc9qVOGb44buWPvHhHdy/qcs9q0bjCbPebh
+         TFpAaZIrdsXjXAIwYwTIEo7qugn09yeUOrwCj9EzjCp6/Rw/rvzfcZ7895jxbPVAEh
+         s3JXQNWETF24z8nWRZXNSyyWM4+tlITciN/U7MYM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 63/96] net: igmp: increase size of mr_ifc_count
+Subject: [PATCH 5.13 103/151] net: dsa: sja1105: fix broken backpressure in .port_fdb_dump
 Date:   Mon, 16 Aug 2021 15:02:13 +0200
-Message-Id: <20210816125437.048044635@linuxfoundation.org>
+Message-Id: <20210816125447.472233474@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125434.948010115@linuxfoundation.org>
-References: <20210816125434.948010115@linuxfoundation.org>
+In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
+References: <20210816125444.082226187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,50 +40,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit b69dd5b3780a7298bd893816a09da751bc0636f7 ]
+[ Upstream commit 21b52fed928e96d2f75d2f6aa9eac7a4b0b55d22 ]
 
-Some arches support cmpxchg() on 4-byte and 8-byte only.
-Increase mr_ifc_count width to 32bit to fix this problem.
+rtnl_fdb_dump() has logic to split a dump of PF_BRIDGE neighbors into
+multiple netlink skbs if the buffer provided by user space is too small
+(one buffer will typically handle a few hundred FDB entries).
 
-Fixes: 4a2b285e7e10 ("net: igmp: fix data-race in igmp_ifc_timer_expire()")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20210811195715.3684218-1-eric.dumazet@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+When the current buffer becomes full, nlmsg_put() in
+dsa_slave_port_fdb_do_dump() returns -EMSGSIZE and DSA saves the index
+of the last dumped FDB entry, returns to rtnl_fdb_dump() up to that
+point, and then the dump resumes on the same port with a new skb, and
+FDB entries up to the saved index are simply skipped.
+
+Since dsa_slave_port_fdb_do_dump() is pointed to by the "cb" passed to
+drivers, then drivers must check for the -EMSGSIZE error code returned
+by it. Otherwise, when a netlink skb becomes full, DSA will no longer
+save newly dumped FDB entries to it, but the driver will continue
+dumping. So FDB entries will be missing from the dump.
+
+Fix the broken backpressure by propagating the "cb" return code and
+allow rtnl_fdb_dump() to restart the FDB dump with a new skb.
+
+Fixes: 291d1e72b756 ("net: dsa: sja1105: Add support for FDB and MDB management")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/inetdevice.h | 2 +-
- net/ipv4/igmp.c            | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/dsa/sja1105/sja1105_main.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/inetdevice.h b/include/linux/inetdevice.h
-index 3515ca64e638..b68fca08be27 100644
---- a/include/linux/inetdevice.h
-+++ b/include/linux/inetdevice.h
-@@ -41,7 +41,7 @@ struct in_device {
- 	unsigned long		mr_qri;		/* Query Response Interval */
- 	unsigned char		mr_qrv;		/* Query Robustness Variable */
- 	unsigned char		mr_gq_running;
--	unsigned char		mr_ifc_count;
-+	u32			mr_ifc_count;
- 	struct timer_list	mr_gq_timer;	/* general query timer */
- 	struct timer_list	mr_ifc_timer;	/* interface change timer */
- 
-diff --git a/net/ipv4/igmp.c b/net/ipv4/igmp.c
-index a51360087b19..00576bae183d 100644
---- a/net/ipv4/igmp.c
-+++ b/net/ipv4/igmp.c
-@@ -803,7 +803,7 @@ static void igmp_gq_timer_expire(struct timer_list *t)
- static void igmp_ifc_timer_expire(struct timer_list *t)
- {
- 	struct in_device *in_dev = from_timer(in_dev, t, mr_ifc_timer);
--	u8 mr_ifc_count;
-+	u32 mr_ifc_count;
- 
- 	igmpv3_send_cr(in_dev);
- restart:
+diff --git a/drivers/net/dsa/sja1105/sja1105_main.c b/drivers/net/dsa/sja1105/sja1105_main.c
+index 4b05a2424623..0aaf599119cd 100644
+--- a/drivers/net/dsa/sja1105/sja1105_main.c
++++ b/drivers/net/dsa/sja1105/sja1105_main.c
+@@ -1625,7 +1625,9 @@ static int sja1105_fdb_dump(struct dsa_switch *ds, int port,
+ 		/* We need to hide the dsa_8021q VLANs from the user. */
+ 		if (priv->vlan_state == SJA1105_VLAN_UNAWARE)
+ 			l2_lookup.vlanid = 0;
+-		cb(macaddr, l2_lookup.vlanid, l2_lookup.lockeds, data);
++		rc = cb(macaddr, l2_lookup.vlanid, l2_lookup.lockeds, data);
++		if (rc)
++			return rc;
+ 	}
+ 	return 0;
+ }
 -- 
 2.30.2
 
