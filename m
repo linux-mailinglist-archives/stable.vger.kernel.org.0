@@ -2,59 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 304433EDAE6
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 18:27:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 139433EDBD9
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 18:57:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229697AbhHPQ17 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 12:27:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46112 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229600AbhHPQ17 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 12:27:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B54D560EFE;
-        Mon, 16 Aug 2021 16:27:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629131247;
-        bh=1tOBKC+BcqO+IMMQrhJvbD/6/7Y5GdWstRFZfvynHec=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=sRMxGLxmMlbPDo9m3q0yMIZpa1bvfp2Pn8COvTEG3MNdOX0upUQW787vDiqHqbrTs
-         sR3ui5HCxWXy46yLtcXa/r85eRuAWymqbIvEDY+Lgh0oHHNLvtPfSLr5pAIutEfRmM
-         XNQEq2s1LHW+6qlkED59hj38HMckieK7Fj5WTmfU=
-Date:   Mon, 16 Aug 2021 18:27:24 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Ben Hutchings <ben.hutchings@essensium.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.10 52/96] net: dsa: microchip: ksz8795: Fix VLAN
- filtering
-Message-ID: <YRqR7NFWJmhFR9/d@kroah.com>
-References: <20210816125434.948010115@linuxfoundation.org>
- <20210816125436.688497376@linuxfoundation.org>
- <20210816132858.GC18930@cephalopod>
+        id S229795AbhHPQ5k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 12:57:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43244 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231320AbhHPQ5j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Aug 2021 12:57:39 -0400
+Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6D03C0613C1;
+        Mon, 16 Aug 2021 09:57:07 -0700 (PDT)
+Received: by mail-pj1-x1030.google.com with SMTP id cp15-20020a17090afb8fb029017891959dcbso33460478pjb.2;
+        Mon, 16 Aug 2021 09:57:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=message-id:subject:from:to:cc:date:in-reply-to:references
+         :user-agent:mime-version:content-transfer-encoding;
+        bh=hZVwvco17xJQW8JuzB/Vd+7RglaFyjm9hY3oZ9ogtbc=;
+        b=B+ISxVf2tKmzTbG77fe9qHZXwf+NyiwzderZmBtHiDhCGlgO42KJGkNqnVLxKcWLvw
+         93A9djoJSZCEOAP9QQxDfMNkdRWJ3D3GB2n0GJhtYF8izRHHQaDEvHu0azF8E9kI9JAQ
+         qHcpWnq6TjGKat4q52u0iP5Y8w9tMxMAsMTcyqv71R4g00H22hM969Am1ROJGTSTS2lG
+         KnxFH5u35ofCHlZhm1du09C/CfmYzyoT88Jw0t5rF+AQIkRCx81FrTHM/17NM70oV3xR
+         me/zhydDoJ85nlQfQH9h+l2XTYnyRdLYJY2AKWF1ws+FF+ckDywR0uiSeO+FbBTht7uj
+         I3SQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
+         :references:user-agent:mime-version:content-transfer-encoding;
+        bh=hZVwvco17xJQW8JuzB/Vd+7RglaFyjm9hY3oZ9ogtbc=;
+        b=rXSfq+NORi0VGNlDFVhHjq5JW4Q69tHZih+xaQqcW8JagpCcZZM7O8Cwrph4il0szi
+         9450J7vjfWzt5D5mawDuChUy9c8ViYOYMZsX0ec0kVujQIkyFizMyTauluzda4DwBxKb
+         OO38ln0blehqEkoO3qjF+ZoRuRqI5Co32+Og44mgik3ZtCCpyt6+cvAjVAoeRZEYoLxZ
+         xWE9PYN2NKGHVoHAO0X1G/cVOAD3IZkfx9TKLpz1XVF6sxT1ygbk12YLP9xYNY071J9F
+         CO4ocKc/JWJ1VNvJ5BHKDoHB1kPpDvOkNnZIsURAibUbXzpDXpX4Nk5rj1c0Z7Z/HeTS
+         O+Xg==
+X-Gm-Message-State: AOAM530teJPstlY6rounurOh15WIrg49OuHsu2XPcGEuuUpOaMWGi0tZ
+        6xKdx5k9s/0IRvHXRx/MFfs=
+X-Google-Smtp-Source: ABdhPJy7arED7cIXm+rQ0s1P6Aq+JwCyVr8obt7+l7wa44V3KJxVuB/gYExwyyHGR71G/txvvWKa/A==
+X-Received: by 2002:a65:4001:: with SMTP id f1mr10594018pgp.209.1629133027322;
+        Mon, 16 Aug 2021 09:57:07 -0700 (PDT)
+Received: from [192.168.1.92] ([106.104.151.171])
+        by smtp.gmail.com with ESMTPSA id z16sm13290338pgu.21.2021.08.16.09.57.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 16 Aug 2021 09:57:06 -0700 (PDT)
+Message-ID: <54f729b54ffa6226a97c9eac897d5f08f6636e31.camel@gmail.com>
+Subject: Re: [REGRESSION] "ALSA: HDA: Early Forbid of runtime PM" broke my
+ laptop's internal audio
+From:   =?Big5?Q?=C2=C5=AE=BC=DE=B3?= <lantw44@gmail.com>
+To:     Takashi Iwai <tiwai@suse.de>
+Cc:     alsa-devel@alsa-project.org, harshapriya.n@intel.com,
+        kai.vehmanen@intel.com, linux-kernel@vger.kernel.org,
+        mcatanzaro@redhat.com, perex@perex.cz, stable@vger.kernel.org,
+        tiwai@suse.com
+Date:   Tue, 17 Aug 2021 00:57:03 +0800
+In-Reply-To: <s5hy293gj3j.wl-tiwai@suse.de>
+References: <s5h7dnvlgg8.wl-tiwai@suse.de>
+         <ac2232f142efcd67fe6ac38897f704f7176bd200.camel@gmail.com>
+         <s5hy293gj3j.wl-tiwai@suse.de>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.41.2 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210816132858.GC18930@cephalopod>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 16, 2021 at 03:28:58PM +0200, Ben Hutchings wrote:
-> On Mon, Aug 16, 2021 at 03:02:02PM +0200, Greg Kroah-Hartman wrote:
-> > From: Ben Hutchings <ben.hutchings@mind.be>
+於 星期日，2021-08-15 於 11:20 +0200，Takashi Iwai 提到：
+> On Sat, 14 Aug 2021 16:02:36 +0200,
+> 藍挺瑋 wrote:
 > > 
-> > [ Upstream commit 164844135a3f215d3018ee9d6875336beb942413 ]
+> > I am not sure if I should join this old thread, but it seems that I saw the
+> > same
+> > issue on my ASUS B23E laptop. It couldn't produce any sound after upgrading
+> > to
+> > Linux 5.10, and 'git bisect' shows it was broken by the same commit
+> > a0645daf16101bb9a6d87598c17e9a8b7bd60ea7.
+> > 
+> > I have tested the latest master branch (v5.14-rc4-322-gcceb634774ef) last
+> > week.
+> > It still had no sound. If I reverted the broken commit, sound worked.
 > 
-> This will probably work on its own, but it was tested as part of a
-> series of changes to VLAN handling in the driver.  Since I initially
-> developed and tested that on top of 5.10-stable, I would prefer to
-> send you the complete series to apply together.
+> > 
+> > alsa-info from the broken kernel:
+> > https://gist.github.com/lantw44/0660e059c488e3ff3d841bb03b371866
+> > 
+> > alsa-info from the working kernel:
+> > https://gist.github.com/lantw44/9367f425e4f5ba98cf12343cb90f3301
+> 
+> Thanks for the report.  A quick workaround be a patch like below.
+> Could you verify whether it fixes the problem?
 
-What is the "complete series"?  We have 7 patches for this driver in
-this round of kernel rc reviews.  What specific git ids are you
-referring to?
+Yes, it fixes the problem.
 
-thanks,
+> 
+> 
+> Takashi
+> 
+> --- a/sound/pci/hda/patch_via.c
+> +++ b/sound/pci/hda/patch_via.c
+> @@ -1041,6 +1041,7 @@ static const struct hda_fixup via_fixups[] = {
+>  };
+>  
+>  static const struct snd_pci_quirk vt2002p_fixups[] = {
+> +       SND_PCI_QUIRK(0x1043, 0x13f7, "Asus B23E", VIA_FIXUP_POWER_SAVE),
+>         SND_PCI_QUIRK(0x1043, 0x1487, "Asus G75", VIA_FIXUP_ASUS_G75),
+>         SND_PCI_QUIRK(0x1043, 0x8532, "Asus X202E", VIA_FIXUP_INTMIC_BOOST),
+>         SND_PCI_QUIRK_VENDOR(0x1558, "Clevo", VIA_FIXUP_POWER_SAVE),
 
-greg k-h
