@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 647813ED4B2
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:04:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E95F83ED681
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:22:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236953AbhHPNFD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:05:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56124 "EHLO mail.kernel.org"
+        id S239150AbhHPNVt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:21:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236991AbhHPNEx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:04:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B2489632AA;
-        Mon, 16 Aug 2021 13:04:21 +0000 (UTC)
+        id S240647AbhHPNT7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:19:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 656D5632C8;
+        Mon, 16 Aug 2021 13:15:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119062;
-        bh=Rxqm1YAwNPqM3lUQa+7ZC894ANw1ofrWEJYCyh8AmFo=;
+        s=korg; t=1629119706;
+        bh=RYrcGiuN1XgqYILElz1dObV+4Wp7klA+3ZnmfUl+RQg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iEKBYSjxtZmq8YZzBfZ3uOgBa5AMEU7j56zs8ug9fyTJpipvIca9aBqBEwkswkCrn
-         LoYgYnKwgRSwFrmzq921wDZ2/3mxDymmmsM6LSi/GRGzP2k//Mp+r4Gl1TD8m+EJHu
-         GOsrILnmtq+iGKm5JnPLlb/WJkFNBCyChlClEWXk=
+        b=ffpZ4KYQ/Njzf49ZMJqt+PJ9R+0B3gIlP/FRjviZGocyfDHi/TxaEzX5mhQ+NHSSa
+         mCKlKcNNPI5TC/13jFI680NUPUlDc1pCHLnjBR6jagVUhNmCUkCFP11awooaXZjRGS
+         HDHKBF1Dmufhib9+4d0L6jzLtcLRWSL/cD/1sazc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Neal Cardwell <ncardwell@google.com>,
-        Yuchung Cheng <ycheng@google.com>, Kevin Yang <yyd@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 36/62] tcp_bbr: fix u32 wrap bug in round logic if bbr_init() called after 2B packets
+        stable@vger.kernel.org, Takeshi Misawa <jeliantsurux@gmail.com>,
+        Alexander Aring <aahringo@redhat.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+1f68113fa907bf0695a8@syzkaller.appspotmail.com
+Subject: [PATCH 5.13 098/151] net: Fix memory leak in ieee802154_raw_deliver
 Date:   Mon, 16 Aug 2021 15:02:08 +0200
-Message-Id: <20210816125429.427530518@linuxfoundation.org>
+Message-Id: <20210816125447.304727706@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125428.198692661@linuxfoundation.org>
-References: <20210816125428.198692661@linuxfoundation.org>
+In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
+References: <20210816125444.082226187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,64 +42,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neal Cardwell <ncardwell@google.com>
+From: Takeshi Misawa <jeliantsurux@gmail.com>
 
-[ Upstream commit 6de035fec045f8ae5ee5f3a02373a18b939e91fb ]
+[ Upstream commit 1090340f7ee53e824fd4eef66a4855d548110c5b ]
 
-Currently if BBR congestion control is initialized after more than 2B
-packets have been delivered, depending on the phase of the
-tp->delivered counter the tracking of BBR round trips can get stuck.
+If IEEE-802.15.4-RAW is closed before receive skb, skb is leaked.
+Fix this, by freeing sk_receive_queue in sk->sk_destruct().
 
-The bug arises because if tp->delivered is between 2^31 and 2^32 at
-the time the BBR congestion control module is initialized, then the
-initialization of bbr->next_rtt_delivered to 0 will cause the logic to
-believe that the end of the round trip is still billions of packets in
-the future. More specifically, the following check will fail
-repeatedly:
+syzbot report:
+BUG: memory leak
+unreferenced object 0xffff88810f644600 (size 232):
+  comm "softirq", pid 0, jiffies 4294967032 (age 81.270s)
+  hex dump (first 32 bytes):
+    10 7d 4b 12 81 88 ff ff 10 7d 4b 12 81 88 ff ff  .}K......}K.....
+    00 00 00 00 00 00 00 00 40 7c 4b 12 81 88 ff ff  ........@|K.....
+  backtrace:
+    [<ffffffff83651d4a>] skb_clone+0xaa/0x2b0 net/core/skbuff.c:1496
+    [<ffffffff83fe1b80>] ieee802154_raw_deliver net/ieee802154/socket.c:369 [inline]
+    [<ffffffff83fe1b80>] ieee802154_rcv+0x100/0x340 net/ieee802154/socket.c:1070
+    [<ffffffff8367cc7a>] __netif_receive_skb_one_core+0x6a/0xa0 net/core/dev.c:5384
+    [<ffffffff8367cd07>] __netif_receive_skb+0x27/0xa0 net/core/dev.c:5498
+    [<ffffffff8367cdd9>] netif_receive_skb_internal net/core/dev.c:5603 [inline]
+    [<ffffffff8367cdd9>] netif_receive_skb+0x59/0x260 net/core/dev.c:5662
+    [<ffffffff83fe6302>] ieee802154_deliver_skb net/mac802154/rx.c:29 [inline]
+    [<ffffffff83fe6302>] ieee802154_subif_frame net/mac802154/rx.c:102 [inline]
+    [<ffffffff83fe6302>] __ieee802154_rx_handle_packet net/mac802154/rx.c:212 [inline]
+    [<ffffffff83fe6302>] ieee802154_rx+0x612/0x620 net/mac802154/rx.c:284
+    [<ffffffff83fe59a6>] ieee802154_tasklet_handler+0x86/0xa0 net/mac802154/main.c:35
+    [<ffffffff81232aab>] tasklet_action_common.constprop.0+0x5b/0x100 kernel/softirq.c:557
+    [<ffffffff846000bf>] __do_softirq+0xbf/0x2ab kernel/softirq.c:345
+    [<ffffffff81232f4c>] do_softirq kernel/softirq.c:248 [inline]
+    [<ffffffff81232f4c>] do_softirq+0x5c/0x80 kernel/softirq.c:235
+    [<ffffffff81232fc1>] __local_bh_enable_ip+0x51/0x60 kernel/softirq.c:198
+    [<ffffffff8367a9a4>] local_bh_enable include/linux/bottom_half.h:32 [inline]
+    [<ffffffff8367a9a4>] rcu_read_unlock_bh include/linux/rcupdate.h:745 [inline]
+    [<ffffffff8367a9a4>] __dev_queue_xmit+0x7f4/0xf60 net/core/dev.c:4221
+    [<ffffffff83fe2db4>] raw_sendmsg+0x1f4/0x2b0 net/ieee802154/socket.c:295
+    [<ffffffff8363af16>] sock_sendmsg_nosec net/socket.c:654 [inline]
+    [<ffffffff8363af16>] sock_sendmsg+0x56/0x80 net/socket.c:674
+    [<ffffffff8363deec>] __sys_sendto+0x15c/0x200 net/socket.c:1977
+    [<ffffffff8363dfb6>] __do_sys_sendto net/socket.c:1989 [inline]
+    [<ffffffff8363dfb6>] __se_sys_sendto net/socket.c:1985 [inline]
+    [<ffffffff8363dfb6>] __x64_sys_sendto+0x26/0x30 net/socket.c:1985
 
-  !before(rs->prior_delivered, bbr->next_rtt_delivered)
-
-and thus the connection will take up to 2B packets delivered before
-that check will pass and the connection will set:
-
-  bbr->round_start = 1;
-
-This could cause many mechanisms in BBR to fail to trigger, for
-example bbr_check_full_bw_reached() would likely never exit STARTUP.
-
-This bug is 5 years old and has not been observed, and as a practical
-matter this would likely rarely trigger, since it would require
-transferring at least 2B packets, or likely more than 3 terabytes of
-data, before switching congestion control algorithms to BBR.
-
-This patch is a stable candidate for kernels as far back as v4.9,
-when tcp_bbr.c was added.
-
-Fixes: 0f8782ea1497 ("tcp_bbr: add BBR congestion control")
-Signed-off-by: Neal Cardwell <ncardwell@google.com>
-Reviewed-by: Yuchung Cheng <ycheng@google.com>
-Reviewed-by: Kevin Yang <yyd@google.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20210811024056.235161-1-ncardwell@google.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 9ec767160357 ("net: add IEEE 802.15.4 socket family implementation")
+Reported-and-tested-by: syzbot+1f68113fa907bf0695a8@syzkaller.appspotmail.com
+Signed-off-by: Takeshi Misawa <jeliantsurux@gmail.com>
+Acked-by: Alexander Aring <aahringo@redhat.com>
+Link: https://lore.kernel.org/r/20210805075414.GA15796@DESKTOP
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_bbr.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ieee802154/socket.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/net/ipv4/tcp_bbr.c b/net/ipv4/tcp_bbr.c
-index 6ea3dc2e4219..6274462b86b4 100644
---- a/net/ipv4/tcp_bbr.c
-+++ b/net/ipv4/tcp_bbr.c
-@@ -1041,7 +1041,7 @@ static void bbr_init(struct sock *sk)
- 	bbr->prior_cwnd = 0;
- 	tp->snd_ssthresh = TCP_INFINITE_SSTHRESH;
- 	bbr->rtt_cnt = 0;
--	bbr->next_rtt_delivered = 0;
-+	bbr->next_rtt_delivered = tp->delivered;
- 	bbr->prev_ca_state = TCP_CA_Open;
- 	bbr->packet_conservation = 0;
+diff --git a/net/ieee802154/socket.c b/net/ieee802154/socket.c
+index a45a0401adc5..c25f7617770c 100644
+--- a/net/ieee802154/socket.c
++++ b/net/ieee802154/socket.c
+@@ -984,6 +984,11 @@ static const struct proto_ops ieee802154_dgram_ops = {
+ 	.sendpage	   = sock_no_sendpage,
+ };
  
++static void ieee802154_sock_destruct(struct sock *sk)
++{
++	skb_queue_purge(&sk->sk_receive_queue);
++}
++
+ /* Create a socket. Initialise the socket, blank the addresses
+  * set the state.
+  */
+@@ -1024,7 +1029,7 @@ static int ieee802154_create(struct net *net, struct socket *sock,
+ 	sock->ops = ops;
+ 
+ 	sock_init_data(sock, sk);
+-	/* FIXME: sk->sk_destruct */
++	sk->sk_destruct = ieee802154_sock_destruct;
+ 	sk->sk_family = PF_IEEE802154;
+ 
+ 	/* Checksums on by default */
 -- 
 2.30.2
 
