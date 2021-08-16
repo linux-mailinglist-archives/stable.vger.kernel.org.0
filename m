@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B25DB3ED670
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:22:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18AFD3ED68B
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:23:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239272AbhHPNVV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:21:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44618 "EHLO mail.kernel.org"
+        id S236669AbhHPNWB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:22:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239213AbhHPNSs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:18:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 10A16632A9;
-        Mon, 16 Aug 2021 13:14:24 +0000 (UTC)
+        id S239145AbhHPNSq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:18:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A73226323B;
+        Mon, 16 Aug 2021 13:14:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119665;
-        bh=9I19CVjzRFMAqjf5ap1zDjUFU8VQHXVP1hc56kXyw5A=;
+        s=korg; t=1629119668;
+        bh=91cMfIzDPzFLBPH9m4BAoqY/R69kSyAYdxpOmr0aVr4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=siFNa4YVnRYH7DuMJTCDhhAlTqxrMX1Yb0konNqwM8y3I4/lAc5nWxkWKHskAxI6g
-         Mu+aPa1G9kVf3UAFCwGdmisSIUShKqd+R8vXbW2ZnVBqvjUB2Y0Z3FDsdqLNKuVWO1
-         3CJzqrk/ZgFTMf6GFLqDxKskN9yMYLtXrEX2Yfx4=
+        b=Wf58Mwn6j+cG6p0KS42clVIwhxeknJ85ZHBg/SqA5FIoDvStI3pZoUA0S8QVjoJM8
+         KM7Lm3AiwpmFmEOdrEddBclLBrae6UyRz8skdkizBkR8UGhiVaYcoJSJg7evgIipfp
+         c5YXj7Nl1OL41udbjz5seBU9f2K5dZEN2qlctDvQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 114/151] arm64: efi: kaslr: Fix occasional random alloc (and boot) failure
-Date:   Mon, 16 Aug 2021 15:02:24 +0200
-Message-Id: <20210816125447.810959705@linuxfoundation.org>
+        stable@vger.kernel.org, Quentin Perret <qperret@google.com>,
+        David Brazdil <dbrazdil@google.com>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 115/151] KVM: arm64: Fix off-by-one in range_is_memory
+Date:   Mon, 16 Aug 2021 15:02:25 +0200
+Message-Id: <20210816125447.850735164@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
 References: <20210816125444.082226187@linuxfoundation.org>
@@ -41,48 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+From: David Brazdil <dbrazdil@google.com>
 
-[ Upstream commit 4152433c397697acc4b02c4a10d17d5859c2730d ]
+[ Upstream commit facee1be7689f8cf573b9ffee6a5c28ee193615e ]
 
-The EFI stub random allocator used for kaslr on arm64 has a subtle
-bug. In function get_entry_num_slots() which counts the number of
-possible allocation "slots" for the image in a given chunk of free
-EFI memory, "last_slot" can become negative if the chunk is smaller
-than the requested allocation size.
+Hyp checks whether an address range only covers RAM by checking the
+start/endpoints against a list of memblock_region structs. However,
+the endpoint here is exclusive but internally is treated as inclusive.
+Fix the off-by-one error that caused valid address ranges to be
+rejected.
 
-The test "if (first_slot > last_slot)" doesn't catch it because
-both first_slot and last_slot are unsigned.
-
-I chose not to make them signed to avoid problems if this is ever
-used on architectures where there are meaningful addresses with the
-top bit set. Instead, fix it with an additional test against the
-allocation size.
-
-This can cause a boot failure in addition to a loss of randomisation
-due to another bug in the arm64 stub fixed separately.
-
-Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Fixes: 2ddbfc81eac8 ("efi: stub: add implementation of efi_random_alloc()")
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Cc: Quentin Perret <qperret@google.com>
+Fixes: 90134ac9cabb6 ("KVM: arm64: Protect the .hyp sections from the host")
+Signed-off-by: David Brazdil <dbrazdil@google.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20210728153232.1018911-2-dbrazdil@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/efi/libstub/randomalloc.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm64/kvm/hyp/nvhe/mem_protect.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/firmware/efi/libstub/randomalloc.c b/drivers/firmware/efi/libstub/randomalloc.c
-index a408df474d83..724155b9e10d 100644
---- a/drivers/firmware/efi/libstub/randomalloc.c
-+++ b/drivers/firmware/efi/libstub/randomalloc.c
-@@ -30,6 +30,8 @@ static unsigned long get_entry_num_slots(efi_memory_desc_t *md,
+diff --git a/arch/arm64/kvm/hyp/nvhe/mem_protect.c b/arch/arm64/kvm/hyp/nvhe/mem_protect.c
+index 4b60c0056c04..fa1b77fe629d 100644
+--- a/arch/arm64/kvm/hyp/nvhe/mem_protect.c
++++ b/arch/arm64/kvm/hyp/nvhe/mem_protect.c
+@@ -190,7 +190,7 @@ static bool range_is_memory(u64 start, u64 end)
+ {
+ 	struct kvm_mem_range r1, r2;
  
- 	region_end = min(md->phys_addr + md->num_pages * EFI_PAGE_SIZE - 1,
- 			 (u64)ULONG_MAX);
-+	if (region_end < size)
-+		return 0;
- 
- 	first_slot = round_up(md->phys_addr, align);
- 	last_slot = round_down(region_end - size + 1, align);
+-	if (!find_mem_range(start, &r1) || !find_mem_range(end, &r2))
++	if (!find_mem_range(start, &r1) || !find_mem_range(end - 1, &r2))
+ 		return false;
+ 	if (r1.start != r2.start)
+ 		return false;
 -- 
 2.30.2
 
