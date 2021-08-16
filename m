@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BEBD33ED673
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:22:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AFC03ED567
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:12:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239928AbhHPNVf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:21:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44232 "EHLO mail.kernel.org"
+        id S237357AbhHPNLP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:11:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59346 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240524AbhHPNTv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:19:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 50BDB63290;
-        Mon, 16 Aug 2021 13:14:37 +0000 (UTC)
+        id S239165AbhHPNJh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:09:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1623E60E78;
+        Mon, 16 Aug 2021 13:08:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119677;
-        bh=qLFlv7I69T97sSu/cbRIhtEgmm0nYbUUlLESY7XafTs=;
+        s=korg; t=1629119322;
+        bh=l1J3cUOpunTQ8o17C2aFrfjoXBOzj2SuOrbj0vRcA7g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G+Sp+reEuNgsY5jOyqoM75qfcbOIVwMWqUDfL/Xb6dmTo/F1PXBk5qX2auUjV1Wl6
-         AEQQ9VUEG7YeTDeyINP1duoFZUOe36g2G4pShOTaT2tLp4/8oEzJ59kCBRtmXjL4wR
-         KAK3VY7C7SMlg4QvSeQe4S21jg1q6ELkW/KfkNB0=
+        b=KyFx4SIKcMHDlT2layOUai3UmvA6N02qFlOAWBOo7Ja9Gqauz7inL2hwF4s703Zwb
+         1/ACbj+HSdDvMrzr6Pj4dQZRRbWVTin/8adWXglDWF11UgYshvFZUczJSvp9zVo+Bv
+         7hZsC54G7yqJvh4CimE2/R8NgH/ojhpchO6wBoxE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dhananjay Phadke <dphadke@linux.microsoft.com>,
-        Ray Jui <ray.jui@broadcom.com>,
-        Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 119/151] i2c: iproc: fix race between client unreg and tasklet
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Marc Zyngier <maz@kernel.org>, Ashok Raj <ashok.raj@intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 5.10 79/96] PCI/MSI: Enable and mask MSI-X early
 Date:   Mon, 16 Aug 2021 15:02:29 +0200
-Message-Id: <20210816125447.982810912@linuxfoundation.org>
+Message-Id: <20210816125437.619336857@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
-References: <20210816125444.082226187@linuxfoundation.org>
+In-Reply-To: <20210816125434.948010115@linuxfoundation.org>
+References: <20210816125434.948010115@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,122 +40,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dhananjay Phadke <dphadke@linux.microsoft.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit bba676cc0b6122a74fa2e246f38a6b05c6f95b36 ]
+commit 438553958ba19296663c6d6583d208dfb6792830 upstream.
 
-Similar NULL deref was originally fixed by graceful teardown sequence -
+The ordering of MSI-X enable in hardware is dysfunctional:
 
-https://lore.kernel.org/linux-i2c/1597106560-79693-1-git-send-email-dphadke@linux.microsoft.com
+ 1) MSI-X is disabled in the control register
+ 2) Various setup functions
+ 3) pci_msi_setup_msi_irqs() is invoked which ends up accessing
+    the MSI-X table entries
+ 4) MSI-X is enabled and masked in the control register with the
+    comment that enabling is required for some hardware to access
+    the MSI-X table
 
-After this, a tasklet was added to take care of FIFO full condition for large i2c
-transaction.
+Step #4 obviously contradicts #3. The history of this is an issue with the
+NIU hardware. When #4 was introduced the table access actually happened in
+msix_program_entries() which was invoked after enabling and masking MSI-X.
 
-https://lore.kernel.org/linux-arm-kernel/20201102035433.6774-1-rayagonda.kokatanur@broadcom.com/
+This was changed in commit d71d6432e105 ("PCI/MSI: Kill redundant call of
+irq_set_msi_desc() for MSI-X interrupts") which removed the table write
+from msix_program_entries().
 
-This introduced regression, a new race condition between tasklet enabling
-interrupts and client unreg teardown sequence.
+Interestingly enough nobody noticed and either NIU still works or it did
+not get any testing with a kernel 3.19 or later.
 
-Kill tasklet before unreg_slave() masks bits in IE_OFFSET.
-Updated teardown sequence -
-(1) disable_irq()
-(2) Kill tasklet
-(3) Mask event enable bits in control reg
-(4) Erase slave address (avoid further writes to rx fifo)
-(5) Flush tx and rx FIFOs
-(6) Clear pending event (interrupt) bits in status reg
-(7) Set client pointer to NULL
-(8) enable_irq()
+Nevertheless this is inconsistent and there is no reason why MSI-X can't be
+enabled and masked in the control register early on, i.e. move step #4
+above to step #1. This preserves the NIU workaround and has no side effects
+on other hardware.
 
- --
-
- Unable to handle kernel read from unreadable memory at virtual address 0000000000000320
- Mem abort info:
-   ESR = 0x96000004
-   EC = 0x25: DABT (current EL), IL = 32 bits
-   SET = 0, FnV = 0
-   EA = 0, S1PTW = 0
- Data abort info:
-   ISV = 0, ISS = 0x00000004
-   CM = 0, WnR = 0
- user pgtable: 4k pages, 48-bit VAs, pgdp=000000009212a000
- [0000000000000320] pgd=0000000000000000, p4d=0000000000000000
- Internal error: Oops: 96000004 [#1] SMP
- CPU: 0 PID: 0 Comm: swapper/0 Tainted: G           O
- Hardware name: Overlake (DT)
- pstate: 40400085 (nZcv daIf +PAN -UAO -TCO BTYPE=--)
- pc : bcm_iproc_i2c_slave_isr+0x2b8/0x8e4
- lr : bcm_iproc_i2c_slave_isr+0x1c8/0x8e4
- sp : ffff800010003e70
- x29: ffff800010003e80 x28: ffffda017acdc000
- x27: ffffda017b0ae000 x26: ffff800010004000
- x25: ffff800010000000 x24: ffffda017af4a168
- x23: 0000000000000073 x22: 0000000000000000
- x21: 0000000001400000 x20: 0000000001000000
- x19: ffff06f09583f880 x18: 00000000fa83b2da
- x17: 000000000000b67e x16: 0000000002edb2f3
- x15: 00000000000002c7 x14: 00000000000002c7
- x13: 0000000000000006 x12: 0000000000000033
- x11: 0000000000000000 x10: 0000000001000000
- x9 : 0000000003289312 x8 : 0000000003289311
- x7 : 02d0cd03a303adbc x6 : 02d18e7f0a4dfc6c
- x5 : 02edb2f33f76ea68 x4 : 00000000fa83b2da
- x3 : ffffda017af43cd0 x2 : ffff800010003e74
- x1 : 0000000001400000 x0 : 0000000000000000
- Call trace:
-  bcm_iproc_i2c_slave_isr+0x2b8/0x8e4
-  bcm_iproc_i2c_isr+0x178/0x290
-  __handle_irq_event_percpu+0xd0/0x200
-  handle_irq_event+0x60/0x1a0
-  handle_fasteoi_irq+0x130/0x220
-  __handle_domain_irq+0x8c/0xcc
-  gic_handle_irq+0xc0/0x120
-  el1_irq+0xcc/0x180
-  finish_task_switch+0x100/0x1d8
-  __schedule+0x61c/0x7a0
-  schedule_idle+0x28/0x44
-  do_idle+0x254/0x28c
-  cpu_startup_entry+0x28/0x2c
-  rest_init+0xc4/0xd0
-  arch_call_rest_init+0x14/0x1c
-  start_kernel+0x33c/0x3b8
- Code: f9423260 910013e2 11000509 b9047a69 (f9419009)
- ---[ end trace 4781455b2a7bec15 ]---
-
-Fixes: 4d658451c9d6 ("i2c: iproc: handle rx fifo full interrupt")
-
-Signed-off-by: Dhananjay Phadke <dphadke@linux.microsoft.com>
-Acked-by: Ray Jui <ray.jui@broadcom.com>
-Acked-by: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: d71d6432e105 ("PCI/MSI: Kill redundant call of irq_set_msi_desc() for MSI-X interrupts")
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Marc Zyngier <maz@kernel.org>
+Reviewed-by: Ashok Raj <ashok.raj@intel.com>
+Reviewed-by: Marc Zyngier <maz@kernel.org>
+Acked-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210729222542.344136412@linutronix.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i2c/busses/i2c-bcm-iproc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/pci/msi.c |   28 +++++++++++++++-------------
+ 1 file changed, 15 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-bcm-iproc.c b/drivers/i2c/busses/i2c-bcm-iproc.c
-index cceaf69279a9..6304d1dd2dd6 100644
---- a/drivers/i2c/busses/i2c-bcm-iproc.c
-+++ b/drivers/i2c/busses/i2c-bcm-iproc.c
-@@ -1224,14 +1224,14 @@ static int bcm_iproc_i2c_unreg_slave(struct i2c_client *slave)
+--- a/drivers/pci/msi.c
++++ b/drivers/pci/msi.c
+@@ -779,18 +779,25 @@ static int msix_capability_init(struct p
+ 	u16 control;
+ 	void __iomem *base;
  
- 	disable_irq(iproc_i2c->irq);
+-	/* Ensure MSI-X is disabled while it is set up */
+-	pci_msix_clear_and_set_ctrl(dev, PCI_MSIX_FLAGS_ENABLE, 0);
++	/*
++	 * Some devices require MSI-X to be enabled before the MSI-X
++	 * registers can be accessed.  Mask all the vectors to prevent
++	 * interrupts coming in before they're fully set up.
++	 */
++	pci_msix_clear_and_set_ctrl(dev, 0, PCI_MSIX_FLAGS_MASKALL |
++				    PCI_MSIX_FLAGS_ENABLE);
  
-+	tasklet_kill(&iproc_i2c->slave_rx_tasklet);
-+
- 	/* disable all slave interrupts */
- 	tmp = iproc_i2c_rd_reg(iproc_i2c, IE_OFFSET);
- 	tmp &= ~(IE_S_ALL_INTERRUPT_MASK <<
- 			IE_S_ALL_INTERRUPT_SHIFT);
- 	iproc_i2c_wr_reg(iproc_i2c, IE_OFFSET, tmp);
+ 	pci_read_config_word(dev, dev->msix_cap + PCI_MSIX_FLAGS, &control);
+ 	/* Request & Map MSI-X table region */
+ 	base = msix_map_region(dev, msix_table_size(control));
+-	if (!base)
+-		return -ENOMEM;
++	if (!base) {
++		ret = -ENOMEM;
++		goto out_disable;
++	}
  
--	tasklet_kill(&iproc_i2c->slave_rx_tasklet);
+ 	ret = msix_setup_entries(dev, base, entries, nvec, affd);
+ 	if (ret)
+-		return ret;
++		goto out_disable;
+ 
+ 	ret = pci_msi_setup_msi_irqs(dev, nvec, PCI_CAP_ID_MSIX);
+ 	if (ret)
+@@ -801,14 +808,6 @@ static int msix_capability_init(struct p
+ 	if (ret)
+ 		goto out_free;
+ 
+-	/*
+-	 * Some devices require MSI-X to be enabled before we can touch the
+-	 * MSI-X registers.  We need to mask all the vectors to prevent
+-	 * interrupts coming in before they're fully set up.
+-	 */
+-	pci_msix_clear_and_set_ctrl(dev, 0,
+-				PCI_MSIX_FLAGS_MASKALL | PCI_MSIX_FLAGS_ENABLE);
 -
- 	/* Erase the slave address programmed */
- 	tmp = iproc_i2c_rd_reg(iproc_i2c, S_CFG_SMBUS_ADDR_OFFSET);
- 	tmp &= ~BIT(S_CFG_EN_NIC_SMB_ADDR3_SHIFT);
--- 
-2.30.2
-
+ 	msix_program_entries(dev, entries);
+ 
+ 	ret = populate_msi_sysfs(dev);
+@@ -843,6 +842,9 @@ out_avail:
+ out_free:
+ 	free_msi_irqs(dev);
+ 
++out_disable:
++	pci_msix_clear_and_set_ctrl(dev, PCI_MSIX_FLAGS_ENABLE, 0);
++
+ 	return ret;
+ }
+ 
 
 
