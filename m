@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DFCE23ED63B
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:22:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 096953ED51F
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:08:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238955AbhHPNSk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:18:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43166 "EHLO mail.kernel.org"
+        id S236310AbhHPNI1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:08:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239049AbhHPNQg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:16:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B982F632E4;
-        Mon, 16 Aug 2021 13:13:16 +0000 (UTC)
+        id S238041AbhHPNGp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:06:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 48B8E6112D;
+        Mon, 16 Aug 2021 13:06:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119597;
-        bh=TaSE+unLzgLg7f1u4cmFONmjh7OpAykzrDopjli2hNs=;
+        s=korg; t=1629119173;
+        bh=adiZesy6WcG6WdRlyvMG0yEPhdANWFS/u6xM5d+GoMg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ReZ24PqjfU0offX+gMvXNOldo1cvK2/cNmsXV3Qmd1GAcHNQFjnYfDIxkfSOUFL76
-         BIStRzmRlYw+wS5Oaz8daxU62VfVh2Cw1yCVZFZY7o5a57wTXs94JiEjGWKjWtwuK0
-         xYLBwQ5YR94dldcIcPqeiaEGLKUg63eqz9vR9wWM=
+        b=XwWz/E3iqYl7KUK38yQADy/X/DP4fCCiS4FbMZwCkoVlBCok45wIqKLuVxNQAxlFd
+         DO6ap5dki5jDJhFr9zT7pkn0cXk91Z9sfJQ6iAp1x9V6XGKSm2l97bgBqe77VysQS2
+         /UAxKOzv8cobvLmMiFReJ1zuMJMycLj8NuzMiv9w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ammy Yi <ammy.yi@intel.com>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Andi Kleen <ak@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 060/151] perf/x86/intel: Apply mid ACK for small core
+        stable@vger.kernel.org,
+        Aurabindo Jayamohanan Pillai <Aurabindo.Pillai@amd.com>,
+        Anson Jacob <Anson.Jacob@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.10 20/96] drm/amd/display: use GFP_ATOMIC in amdgpu_dm_irq_schedule_work
 Date:   Mon, 16 Aug 2021 15:01:30 +0200
-Message-Id: <20210816125446.041122020@linuxfoundation.org>
+Message-Id: <20210816125435.594492931@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
-References: <20210816125444.082226187@linuxfoundation.org>
+In-Reply-To: <20210816125434.948010115@linuxfoundation.org>
+References: <20210816125434.948010115@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,175 +42,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kan Liang <kan.liang@linux.intel.com>
+From: Anson Jacob <Anson.Jacob@amd.com>
 
-[ Upstream commit acade6379930dfa7987f4bd9b26d1a701cc1b542 ]
+commit 0cde63a8fc4d9f9f580c297211fd05f91c0fd66d upstream.
 
-A warning as below may be occasionally triggered in an ADL machine when
-these conditions occur:
+Replace GFP_KERNEL with GFP_ATOMIC as amdgpu_dm_irq_schedule_work
+can't sleep.
 
- - Two perf record commands run one by one. Both record a PEBS event.
- - Both runs on small cores.
- - They have different adaptive PEBS configuration (PEBS_DATA_CFG).
+BUG: sleeping function called from invalid context at include/linux/sched/mm.h:196
+in_atomic(): 1, irqs_disabled(): 1, non_block: 0, pid: 253, name: kworker/6:1H
+CPU: 6 PID: 253 Comm: kworker/6:1H Tainted: G        W  OE     5.11.0-promotion_2021_06_07-18_36_28_prelim_revert_retrain #8
+Hardware name: System manufacturer System Product Name/PRIME X570-PRO, BIOS 3405 02/01/2021
+Workqueue: events_highpri dm_irq_work_func [amdgpu]
+Call Trace:
+ <IRQ>
+ dump_stack+0x5e/0x74
+ ___might_sleep.cold+0x87/0x98
+ __might_sleep+0x4b/0x80
+ kmem_cache_alloc_trace+0x390/0x4f0
+ amdgpu_dm_irq_handler+0x171/0x230 [amdgpu]
+ amdgpu_irq_dispatch+0xc0/0x1e0 [amdgpu]
+ amdgpu_ih_process+0x81/0x100 [amdgpu]
+ amdgpu_irq_handler+0x26/0xa0 [amdgpu]
+ __handle_irq_event_percpu+0x49/0x190
+ ? __hrtimer_get_next_event+0x4d/0x80
+ handle_irq_event_percpu+0x33/0x80
+ handle_irq_event+0x33/0x60
+ handle_edge_irq+0x82/0x190
+ asm_call_irq_on_stack+0x12/0x20
+ </IRQ>
+ common_interrupt+0xbb/0x140
+ asm_common_interrupt+0x1e/0x40
+RIP: 0010:amdgpu_device_rreg.part.0+0x44/0xf0 [amdgpu]
+Code: 53 48 89 fb 4c 3b af c8 08 00 00 73 6d 83 e2 02 75 0d f6 87 40 62 01 00 10 0f 85 83 00 00 00 4c 03 ab d0 08 00 00 45 8b 6d 00 <8b> 05 3e b6 52 00 85 c0 7e 62 48 8b 43 08 0f b7 70 3e 65 8b 05 e3
+RSP: 0018:ffffae7740fff9e8 EFLAGS: 00000286
+RAX: ffffffffc05ee610 RBX: ffff8aaf8f620000 RCX: 0000000000000006
+RDX: 0000000000000000 RSI: 0000000000005430 RDI: ffff8aaf8f620000
+RBP: ffffae7740fffa08 R08: 0000000000000001 R09: 000000000000000a
+R10: 0000000000000001 R11: 0000000000000001 R12: 0000000000005430
+R13: 0000000071000000 R14: 0000000000000001 R15: 0000000000005430
+ ? amdgpu_cgs_write_register+0x20/0x20 [amdgpu]
+ amdgpu_device_rreg+0x17/0x20 [amdgpu]
+ amdgpu_cgs_read_register+0x14/0x20 [amdgpu]
+ dm_read_reg_func+0x38/0xb0 [amdgpu]
+ generic_reg_wait+0x80/0x160 [amdgpu]
+ dce_aux_transfer_raw+0x324/0x7c0 [amdgpu]
+ dc_link_aux_transfer_raw+0x43/0x50 [amdgpu]
+ dm_dp_aux_transfer+0x87/0x110 [amdgpu]
+ drm_dp_dpcd_access+0x72/0x110 [drm_kms_helper]
+ drm_dp_dpcd_read+0xb7/0xf0 [drm_kms_helper]
+ drm_dp_get_one_sb_msg+0x349/0x480 [drm_kms_helper]
+ drm_dp_mst_hpd_irq+0xc5/0xe40 [drm_kms_helper]
+ ? drm_dp_mst_hpd_irq+0xc5/0xe40 [drm_kms_helper]
+ dm_handle_hpd_rx_irq+0x184/0x1a0 [amdgpu]
+ ? dm_handle_hpd_rx_irq+0x184/0x1a0 [amdgpu]
+ handle_hpd_rx_irq+0x195/0x240 [amdgpu]
+ ? __switch_to_asm+0x42/0x70
+ ? __switch_to+0x131/0x450
+ dm_irq_work_func+0x19/0x20 [amdgpu]
+ process_one_work+0x209/0x400
+ worker_thread+0x4d/0x3e0
+ ? cancel_delayed_work+0xa0/0xa0
+ kthread+0x124/0x160
+ ? kthread_park+0x90/0x90
+ ret_from_fork+0x22/0x30
 
-  [ ] WARNING: CPU: 4 PID: 9874 at arch/x86/events/intel/ds.c:1743 setup_pebs_adaptive_sample_data+0x55e/0x5b0
-  [ ] RIP: 0010:setup_pebs_adaptive_sample_data+0x55e/0x5b0
-  [ ] Call Trace:
-  [ ]  <NMI>
-  [ ]  intel_pmu_drain_pebs_icl+0x48b/0x810
-  [ ]  perf_event_nmi_handler+0x41/0x80
-  [ ]  </NMI>
-  [ ]  __perf_event_task_sched_in+0x2c2/0x3a0
-
-Different from the big core, the small core requires the ACK right
-before re-enabling counters in the NMI handler, otherwise a stale PEBS
-record may be dumped into the later NMI handler, which trigger the
-warning.
-
-Add a new mid_ack flag to track the case. Add all PMI handler bits in
-the struct x86_hybrid_pmu to track the bits for different types of
-PMUs.  Apply mid ACK for the small cores on an Alder Lake machine.
-
-The existing hybrid() macro has a compile error when taking address of
-a bit-field variable. Add a new macro hybrid_bit() to get the
-bit-field value of a given PMU.
-
-Fixes: f83d2f91d259 ("perf/x86/intel: Add Alder Lake Hybrid support")
-Reported-by: Ammy Yi <ammy.yi@intel.com>
-Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Andi Kleen <ak@linux.intel.com>
-Tested-by: Ammy Yi <ammy.yi@intel.com>
-Link: https://lkml.kernel.org/r/1627997128-57891-1-git-send-email-kan.liang@linux.intel.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reviewed-by: Aurabindo Jayamohanan Pillai <Aurabindo.Pillai@amd.com>
+Acked-by: Anson Jacob <Anson.Jacob@amd.com>
+Signed-off-by: Anson Jacob <Anson.Jacob@amd.com>
+Cc: stable@vger.kernel.org
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/events/intel/core.c | 23 +++++++++++++++--------
- arch/x86/events/perf_event.h | 15 +++++++++++++++
- 2 files changed, 30 insertions(+), 8 deletions(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_irq.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/events/intel/core.c b/arch/x86/events/intel/core.c
-index d76be3bba11e..511d1f9a9bf8 100644
---- a/arch/x86/events/intel/core.c
-+++ b/arch/x86/events/intel/core.c
-@@ -2904,24 +2904,28 @@ static int handle_pmi_common(struct pt_regs *regs, u64 status)
-  */
- static int intel_pmu_handle_irq(struct pt_regs *regs)
- {
--	struct cpu_hw_events *cpuc;
-+	struct cpu_hw_events *cpuc = this_cpu_ptr(&cpu_hw_events);
-+	bool late_ack = hybrid_bit(cpuc->pmu, late_ack);
-+	bool mid_ack = hybrid_bit(cpuc->pmu, mid_ack);
- 	int loops;
- 	u64 status;
- 	int handled;
- 	int pmu_enabled;
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_irq.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_irq.c
+@@ -531,7 +531,7 @@ static void amdgpu_dm_irq_schedule_work(
+ 		handler_data = container_of(handler_list->next, struct amdgpu_dm_irq_handler_data, list);
  
--	cpuc = this_cpu_ptr(&cpu_hw_events);
--
- 	/*
- 	 * Save the PMU state.
- 	 * It needs to be restored when leaving the handler.
- 	 */
- 	pmu_enabled = cpuc->enabled;
- 	/*
--	 * No known reason to not always do late ACK,
--	 * but just in case do it opt-in.
-+	 * In general, the early ACK is only applied for old platforms.
-+	 * For the big core starts from Haswell, the late ACK should be
-+	 * applied.
-+	 * For the small core after Tremont, we have to do the ACK right
-+	 * before re-enabling counters, which is in the middle of the
-+	 * NMI handler.
- 	 */
--	if (!x86_pmu.late_ack)
-+	if (!late_ack && !mid_ack)
- 		apic_write(APIC_LVTPC, APIC_DM_NMI);
- 	intel_bts_disable_local();
- 	cpuc->enabled = 0;
-@@ -2958,6 +2962,8 @@ again:
- 		goto again;
- 
- done:
-+	if (mid_ack)
-+		apic_write(APIC_LVTPC, APIC_DM_NMI);
- 	/* Only restore PMU state when it's active. See x86_pmu_disable(). */
- 	cpuc->enabled = pmu_enabled;
- 	if (pmu_enabled)
-@@ -2969,7 +2975,7 @@ done:
- 	 * have been reset. This avoids spurious NMIs on
- 	 * Haswell CPUs.
- 	 */
--	if (x86_pmu.late_ack)
-+	if (late_ack)
- 		apic_write(APIC_LVTPC, APIC_DM_NMI);
- 	return handled;
- }
-@@ -6123,7 +6129,6 @@ __init int intel_pmu_init(void)
- 		static_branch_enable(&perf_is_hybrid);
- 		x86_pmu.num_hybrid_pmus = X86_HYBRID_NUM_PMUS;
- 
--		x86_pmu.late_ack = true;
- 		x86_pmu.pebs_aliases = NULL;
- 		x86_pmu.pebs_prec_dist = true;
- 		x86_pmu.pebs_block = true;
-@@ -6161,6 +6166,7 @@ __init int intel_pmu_init(void)
- 		pmu = &x86_pmu.hybrid_pmu[X86_HYBRID_PMU_CORE_IDX];
- 		pmu->name = "cpu_core";
- 		pmu->cpu_type = hybrid_big;
-+		pmu->late_ack = true;
- 		if (cpu_feature_enabled(X86_FEATURE_HYBRID_CPU)) {
- 			pmu->num_counters = x86_pmu.num_counters + 2;
- 			pmu->num_counters_fixed = x86_pmu.num_counters_fixed + 1;
-@@ -6186,6 +6192,7 @@ __init int intel_pmu_init(void)
- 		pmu = &x86_pmu.hybrid_pmu[X86_HYBRID_PMU_ATOM_IDX];
- 		pmu->name = "cpu_atom";
- 		pmu->cpu_type = hybrid_small;
-+		pmu->mid_ack = true;
- 		pmu->num_counters = x86_pmu.num_counters;
- 		pmu->num_counters_fixed = x86_pmu.num_counters_fixed;
- 		pmu->max_pebs_events = x86_pmu.max_pebs_events;
-diff --git a/arch/x86/events/perf_event.h b/arch/x86/events/perf_event.h
-index 2938c902ffbe..e3ac05c97b5e 100644
---- a/arch/x86/events/perf_event.h
-+++ b/arch/x86/events/perf_event.h
-@@ -656,6 +656,10 @@ struct x86_hybrid_pmu {
- 	struct event_constraint		*event_constraints;
- 	struct event_constraint		*pebs_constraints;
- 	struct extra_reg		*extra_regs;
-+
-+	unsigned int			late_ack	:1,
-+					mid_ack		:1,
-+					enabled_ack	:1;
- };
- 
- static __always_inline struct x86_hybrid_pmu *hybrid_pmu(struct pmu *pmu)
-@@ -686,6 +690,16 @@ extern struct static_key_false perf_is_hybrid;
- 	__Fp;						\
- }))
- 
-+#define hybrid_bit(_pmu, _field)			\
-+({							\
-+	bool __Fp = x86_pmu._field;			\
-+							\
-+	if (is_hybrid() && (_pmu))			\
-+		__Fp = hybrid_pmu(_pmu)->_field;	\
-+							\
-+	__Fp;						\
-+})
-+
- enum hybrid_pmu_type {
- 	hybrid_big		= 0x40,
- 	hybrid_small		= 0x20,
-@@ -755,6 +769,7 @@ struct x86_pmu {
- 
- 	/* PMI handler bits */
- 	unsigned int	late_ack		:1,
-+			mid_ack			:1,
- 			enabled_ack		:1;
- 	/*
- 	 * sysfs attrs
--- 
-2.30.2
-
+ 		/*allocate a new amdgpu_dm_irq_handler_data*/
+-		handler_data_add = kzalloc(sizeof(*handler_data), GFP_KERNEL);
++		handler_data_add = kzalloc(sizeof(*handler_data), GFP_ATOMIC);
+ 		if (!handler_data_add) {
+ 			DRM_ERROR("DM_IRQ: failed to allocate irq handler!\n");
+ 			return;
 
 
