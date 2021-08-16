@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E762E3ED66B
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:22:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C156A3ED4D2
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:06:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239658AbhHPNVQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:21:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44512 "EHLO mail.kernel.org"
+        id S237048AbhHPNFh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:05:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238843AbhHPNSh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:18:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DFD206328D;
-        Mon, 16 Aug 2021 13:14:09 +0000 (UTC)
+        id S237064AbhHPNFW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:05:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DCF2C632A6;
+        Mon, 16 Aug 2021 13:04:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119650;
-        bh=2xzFKCDfLWtKqrfHLp3jDztFPRpVAr/a1L+LRiToml8=;
+        s=korg; t=1629119091;
+        bh=Q6i3T57RX6TV9PUrnLivdr2WkPChCIv41a7zXyC6zxI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XtogxBYtq9Qij2vB5xfpyRfQKr0PHl2cKM98Vd8EtRU4mHt1tK8iJrx7fozE6uVnq
-         c3h+qzBkF9d5zNmxZQZ7krpOIr4rhvCPb2uNwNiki8zqRjTbIecRHhpGTYqGM8TMj8
-         4DSSvo7mF9f0/XbzxsmDONvhdzR2I2hoVVu2obm0=
+        b=J1SGLO4RAW8w7/62oC6wfi6uJQwYROlZYHCPDBY2I/vlhlIUEtHWkBZy5K4QrTvYU
+         znsG6NCnrw5In366RIY4bkwmEJYQ6mw6d+9xYdz8hEmL1460i1EZQ5nxP/jdMpxHjr
+         JGUXMBxlxfacXmfIJtX60ME1sPbpuKx6NgGuqxx8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 109/151] net: igmp: increase size of mr_ifc_count
+        stable@vger.kernel.org, Bixuan Cui <cuibixuan@huawei.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.4 47/62] genirq/msi: Ensure deactivation on teardown
 Date:   Mon, 16 Aug 2021 15:02:19 +0200
-Message-Id: <20210816125447.655979371@linuxfoundation.org>
+Message-Id: <20210816125429.820363920@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
-References: <20210816125444.082226187@linuxfoundation.org>
+In-Reply-To: <20210816125428.198692661@linuxfoundation.org>
+References: <20210816125428.198692661@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,52 +39,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Bixuan Cui <cuibixuan@huawei.com>
 
-[ Upstream commit b69dd5b3780a7298bd893816a09da751bc0636f7 ]
+commit dbbc93576e03fbe24b365fab0e901eb442237a8a upstream.
 
-Some arches support cmpxchg() on 4-byte and 8-byte only.
-Increase mr_ifc_count width to 32bit to fix this problem.
+msi_domain_alloc_irqs() invokes irq_domain_activate_irq(), but
+msi_domain_free_irqs() does not enforce deactivation before tearing down
+the interrupts.
 
-Fixes: 4a2b285e7e10 ("net: igmp: fix data-race in igmp_ifc_timer_expire()")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20210811195715.3684218-1-eric.dumazet@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This happens when PCI/MSI interrupts are set up and never used before being
+torn down again, e.g. in error handling pathes. The only place which cleans
+that up is the error handling path in msi_domain_alloc_irqs().
+
+Move the cleanup from msi_domain_alloc_irqs() into msi_domain_free_irqs()
+to cure that.
+
+Fixes: f3b0946d629c ("genirq/msi: Make sure PCI MSIs are activated early")
+Signed-off-by: Bixuan Cui <cuibixuan@huawei.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210518033117.78104-1-cuibixuan@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/inetdevice.h | 2 +-
- net/ipv4/igmp.c            | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ kernel/irq/msi.c |   13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/include/linux/inetdevice.h b/include/linux/inetdevice.h
-index 53aa0343bf69..aaf4f1b4c277 100644
---- a/include/linux/inetdevice.h
-+++ b/include/linux/inetdevice.h
-@@ -41,7 +41,7 @@ struct in_device {
- 	unsigned long		mr_qri;		/* Query Response Interval */
- 	unsigned char		mr_qrv;		/* Query Robustness Variable */
- 	unsigned char		mr_gq_running;
--	unsigned char		mr_ifc_count;
-+	u32			mr_ifc_count;
- 	struct timer_list	mr_gq_timer;	/* general query timer */
- 	struct timer_list	mr_ifc_timer;	/* interface change timer */
+--- a/kernel/irq/msi.c
++++ b/kernel/irq/msi.c
+@@ -477,11 +477,6 @@ skip_activate:
+ 	return 0;
  
-diff --git a/net/ipv4/igmp.c b/net/ipv4/igmp.c
-index a51360087b19..00576bae183d 100644
---- a/net/ipv4/igmp.c
-+++ b/net/ipv4/igmp.c
-@@ -803,7 +803,7 @@ static void igmp_gq_timer_expire(struct timer_list *t)
- static void igmp_ifc_timer_expire(struct timer_list *t)
+ cleanup:
+-	for_each_msi_vector(desc, i, dev) {
+-		irq_data = irq_domain_get_irq_data(domain, i);
+-		if (irqd_is_activated(irq_data))
+-			irq_domain_deactivate_irq(irq_data);
+-	}
+ 	msi_domain_free_irqs(domain, dev);
+ 	return ret;
+ }
+@@ -494,7 +489,15 @@ cleanup:
+  */
+ void msi_domain_free_irqs(struct irq_domain *domain, struct device *dev)
  {
- 	struct in_device *in_dev = from_timer(in_dev, t, mr_ifc_timer);
--	u8 mr_ifc_count;
-+	u32 mr_ifc_count;
++	struct irq_data *irq_data;
+ 	struct msi_desc *desc;
++	int i;
++
++	for_each_msi_vector(desc, i, dev) {
++		irq_data = irq_domain_get_irq_data(domain, i);
++		if (irqd_is_activated(irq_data))
++			irq_domain_deactivate_irq(irq_data);
++	}
  
- 	igmpv3_send_cr(in_dev);
- restart:
--- 
-2.30.2
-
+ 	for_each_msi_entry(desc, dev) {
+ 		/*
 
 
