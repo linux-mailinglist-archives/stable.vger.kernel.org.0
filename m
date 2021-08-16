@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5737C3ECFE8
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 10:05:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4476A3ECFE6
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 10:05:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234571AbhHPIFo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 04:05:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36266 "EHLO mail.kernel.org"
+        id S234634AbhHPIFn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 04:05:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36244 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234635AbhHPIFe (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234619AbhHPIFe (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 16 Aug 2021 04:05:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E9B261ABB;
-        Mon, 16 Aug 2021 08:04:38 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2EF2361AEF;
+        Mon, 16 Aug 2021 08:04:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629101079;
-        bh=y3LlT3CgBush2CFVX+KIxqHMsemZV7b8gppnntEVGoI=;
+        s=korg; t=1629101070;
+        bh=vJ0s310t5SOA2KarEyw8RqNxqxeNc4nm9IKZLimt4ZQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=P5qOCg8Q81gtq0uEp+HuZNV+PO9uFvhErPQh+hxvgS6eyODVqcL/QuwIhssa0ibWg
-         cBHEsfaYg4x2foAQqtdulg7yzNUDvx1OSj51vnze7vAntpUKcL/TWOw9IaMQDly/cX
-         LOfW1pktqwRcHb5TL28it0qB2wqnt7a0qEM616Qs=
-Subject: FAILED: patch "[PATCH] genirq/msi: Ensure deactivation on teardown" failed to apply to 4.9-stable tree
+        b=b+9i7+IA0rB55nRN1y7WpmFU7EV0/sGUc4d6pmpgQs5pQRoEkSNGjFKvcYPy6Sspd
+         inpNhC/B8psMhLn6zM/a9DTLMEIP4UssTk0lOJaqCHvp89kcmn4pWSxhXx2ZLM5tn9
+         ZHZJt9LzCvqjcmQz2SXtttc5EwJMIUsNQ6/eSo5w=
+Subject: FAILED: patch "[PATCH] genirq/msi: Ensure deactivation on teardown" failed to apply to 4.4-stable tree
 To:     cuibixuan@huawei.com, tglx@linutronix.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 16 Aug 2021 10:04:28 +0200
-Message-ID: <1629101068121161@kroah.com>
+Message-ID: <1629101068175190@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
