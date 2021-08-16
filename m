@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6340D3ECFE0
+	by mail.lfdr.de (Postfix) with ESMTP id DAAAE3ECFE1
 	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 10:03:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234241AbhHPIED (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 04:04:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36058 "EHLO mail.kernel.org"
+        id S234476AbhHPIEE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 04:04:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234476AbhHPIEB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 04:04:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 631C261AF0;
-        Mon, 16 Aug 2021 08:03:29 +0000 (UTC)
+        id S234495AbhHPIED (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 04:04:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 445C161AF8;
+        Mon, 16 Aug 2021 08:03:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629101010;
-        bh=Erk6MHd6A73ArJusIkTipdwu8INNX/0Sx7enC/d2O2Q=;
+        s=korg; t=1629101012;
+        bh=uQgebRSznMuibr2k6VHiBIVlCWRuXhvUKMoWEarpC+Y=;
         h=Subject:To:Cc:From:Date:From;
-        b=AX6/o1lrEFno5P26J3F/iJ6YT1A27PjwiprqIIBq9rDQQmmsFzllxUC9UC67mhMHD
-         trlO4YYwMLIgdkMy0pnjyVs7YhurO61XJCke4NMK5tJTPBScAs0zcj2eCeCJoa8kLp
-         kAld7uL+xqG3qDfjpD5ce5BZgdREKHg4IxA3Wc9Y=
-Subject: FAILED: patch "[PATCH] genirq: Provide IRQCHIP_AFFINITY_PRE_STARTUP" failed to apply to 4.4-stable tree
+        b=JPkT4tTXAoQLG3AJj5K1NvExxrRYDUdQFx0mExheu9/sC9Sb7+JMclRr2aorIiFKW
+         BFDsO6Gu9W5qJ58SWfr/tfCkamSUv0xcGLyEjb+EPA/WRlZ98/EG3IF6ByKzkmjKSt
+         J7qthobAYaGttOoD2l/4q6kbf22ROw8hPmpfVo3o=
+Subject: FAILED: patch "[PATCH] genirq: Provide IRQCHIP_AFFINITY_PRE_STARTUP" failed to apply to 4.9-stable tree
 To:     tglx@linutronix.de, maz@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 16 Aug 2021 10:03:27 +0200
-Message-ID: <162910100740244@kroah.com>
+Date:   Mon, 16 Aug 2021 10:03:30 +0200
+Message-ID: <1629101010183174@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
