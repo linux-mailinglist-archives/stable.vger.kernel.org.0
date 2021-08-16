@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 328673ED4BD
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:04:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 19B963ED687
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:23:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230091AbhHPNFO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:05:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56124 "EHLO mail.kernel.org"
+        id S239367AbhHPNV5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:21:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236927AbhHPNFD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:05:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9478F63290;
-        Mon, 16 Aug 2021 13:04:31 +0000 (UTC)
+        id S240656AbhHPNT7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:19:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 77941632CD;
+        Mon, 16 Aug 2021 13:15:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119072;
-        bh=5wZ6rwtvq3DuYxsbG8bxgohiG7P9IpTzLPLxnfj57So=;
+        s=korg; t=1629119717;
+        bh=u3aC0WlkHwHUxv5QOQjX/DflPSIcjW/7B8GDa3abAqQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tKLSI8tEql6n//IJ03XdKNr0o2mQ9+cp+EPDL+/PabUPf8Is0fhi++FYfhbqTdZ2e
-         jaFKkrakF3D6ek+T52DzpttvySVct+HgRUDuYBJVDaTQ0o392yjwA+u1O4dWuhigX2
-         fhYbLq4ljW0rCYjS+sIrJnkS4x07HBwCR9+6ctFs=
+        b=y61BdJKfPQ1S5RlvTZ61CXiA6LblxUxSn5YcO2DrnesJk3Iq4Evyfis6JzHTx8hN1
+         KHhdbdjnIm5OvwkApyw1mGkaGU9Egbbj0AtMp6YtXUpm5RE5fbfREM2bDq+KfcArNw
+         4EBFTLAph8NfHoeuB79YyaQzCWuIfU4hjyzCGY7I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiang Yadong <jiangyadong@bytedance.com>,
-        Xie Yongji <xieyongji@bytedance.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 40/62] nbd: Aovid double completion of a request
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 102/151] net: dsa: lantiq: fix broken backpressure in .port_fdb_dump
 Date:   Mon, 16 Aug 2021 15:02:12 +0200
-Message-Id: <20210816125429.568841964@linuxfoundation.org>
+Message-Id: <20210816125447.442562570@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125428.198692661@linuxfoundation.org>
-References: <20210816125428.198692661@linuxfoundation.org>
+In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
+References: <20210816125444.082226187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,67 +40,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie Yongji <xieyongji@bytedance.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit cddce01160582a5f52ada3da9626c052d852ec42 ]
+[ Upstream commit 871a73a1c8f55da0a3db234e9dd816ea4fd546f2 ]
 
-There is a race between iterating over requests in
-nbd_clear_que() and completing requests in recv_work(),
-which can lead to double completion of a request.
+rtnl_fdb_dump() has logic to split a dump of PF_BRIDGE neighbors into
+multiple netlink skbs if the buffer provided by user space is too small
+(one buffer will typically handle a few hundred FDB entries).
 
-To fix it, flush the recv worker before iterating over
-the requests and don't abort the completed request
-while iterating.
+When the current buffer becomes full, nlmsg_put() in
+dsa_slave_port_fdb_do_dump() returns -EMSGSIZE and DSA saves the index
+of the last dumped FDB entry, returns to rtnl_fdb_dump() up to that
+point, and then the dump resumes on the same port with a new skb, and
+FDB entries up to the saved index are simply skipped.
 
-Fixes: 96d97e17828f ("nbd: clear_sock on netlink disconnect")
-Reported-by: Jiang Yadong <jiangyadong@bytedance.com>
-Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Link: https://lore.kernel.org/r/20210813151330.96-1-xieyongji@bytedance.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Since dsa_slave_port_fdb_do_dump() is pointed to by the "cb" passed to
+drivers, then drivers must check for the -EMSGSIZE error code returned
+by it. Otherwise, when a netlink skb becomes full, DSA will no longer
+save newly dumped FDB entries to it, but the driver will continue
+dumping. So FDB entries will be missing from the dump.
+
+Fix the broken backpressure by propagating the "cb" return code and
+allow rtnl_fdb_dump() to restart the FDB dump with a new skb.
+
+Fixes: 58c59ef9e930 ("net: dsa: lantiq: Add Forwarding Database access")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/nbd.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/net/dsa/lantiq_gswip.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-index 839364371f9a..25e81b1a59a5 100644
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -797,6 +797,10 @@ static bool nbd_clear_req(struct request *req, void *data, bool reserved)
- {
- 	struct nbd_cmd *cmd = blk_mq_rq_to_pdu(req);
- 
-+	/* don't abort one completed request */
-+	if (blk_mq_request_completed(req))
-+		return true;
-+
- 	mutex_lock(&cmd->lock);
- 	cmd->status = BLK_STS_IOERR;
- 	mutex_unlock(&cmd->lock);
-@@ -2009,15 +2013,19 @@ static void nbd_disconnect_and_put(struct nbd_device *nbd)
- {
- 	mutex_lock(&nbd->config_lock);
- 	nbd_disconnect(nbd);
--	nbd_clear_sock(nbd);
--	mutex_unlock(&nbd->config_lock);
-+	sock_shutdown(nbd);
- 	/*
- 	 * Make sure recv thread has finished, so it does not drop the last
- 	 * config ref and try to destroy the workqueue from inside the work
--	 * queue.
-+	 * queue. And this also ensure that we can safely call nbd_clear_que()
-+	 * to cancel the inflight I/Os.
- 	 */
- 	if (nbd->recv_workq)
- 		flush_workqueue(nbd->recv_workq);
-+	nbd_clear_que(nbd);
-+	nbd->task_setup = NULL;
-+	mutex_unlock(&nbd->config_lock);
-+
- 	if (test_and_clear_bit(NBD_RT_HAS_CONFIG_REF,
- 			       &nbd->config->runtime_flags))
- 		nbd_config_put(nbd);
+diff --git a/drivers/net/dsa/lantiq_gswip.c b/drivers/net/dsa/lantiq_gswip.c
+index 314ae78bbdd6..e78026ef6d8c 100644
+--- a/drivers/net/dsa/lantiq_gswip.c
++++ b/drivers/net/dsa/lantiq_gswip.c
+@@ -1404,11 +1404,17 @@ static int gswip_port_fdb_dump(struct dsa_switch *ds, int port,
+ 		addr[1] = mac_bridge.key[2] & 0xff;
+ 		addr[0] = (mac_bridge.key[2] >> 8) & 0xff;
+ 		if (mac_bridge.val[1] & GSWIP_TABLE_MAC_BRIDGE_STATIC) {
+-			if (mac_bridge.val[0] & BIT(port))
+-				cb(addr, 0, true, data);
++			if (mac_bridge.val[0] & BIT(port)) {
++				err = cb(addr, 0, true, data);
++				if (err)
++					return err;
++			}
+ 		} else {
+-			if (((mac_bridge.val[0] & GENMASK(7, 4)) >> 4) == port)
+-				cb(addr, 0, false, data);
++			if (((mac_bridge.val[0] & GENMASK(7, 4)) >> 4) == port) {
++				err = cb(addr, 0, false, data);
++				if (err)
++					return err;
++			}
+ 		}
+ 	}
+ 	return 0;
 -- 
 2.30.2
 
