@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BDAC3ED654
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:22:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E11E83ED4A1
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:04:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237260AbhHPNUb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:20:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39186 "EHLO mail.kernel.org"
+        id S236637AbhHPNEa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:04:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55478 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238912AbhHPNQg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:16:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D0AB632E3;
-        Mon, 16 Aug 2021 13:13:18 +0000 (UTC)
+        id S231395AbhHPNE1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:04:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B474B6328A;
+        Mon, 16 Aug 2021 13:03:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119599;
-        bh=cx7F+aV8WqTN9/nWnRmi7JEc3b+OwcRuJ3a2gTllHIU=;
+        s=korg; t=1629119036;
+        bh=ne+Wtu4hJc2IMFSic/LraoYeyWkhVZd4VoE3DVZFSig=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W+Te0aV6/vNR93lZSRg+1joYt8UX2Y6cWalyxcLgx8h/7SeWzM3leSuONLtbLczN5
-         CpE5+eYYs3bR0IeLvILZgbmHeH7QkOx8cDWq2Cb+d9e74MyRPCrB4z78WG8QxXuFTN
-         yBqZ+lE4qdtLK4Kfr19rnI6bnH6ksOHpwmdbjLDU=
+        b=f2ZfgvLvqhqGxZJuSXmNJvMF4LntcRw7pu+t7SNKVit0orvRk0Zo6CED+5ZY9Kv6m
+         vRvjT/gJ2bv3DKWR/6+/panPB0dH3RHp8CjjGSl4dlsvxZe013Y7j0EMrPnsTeSqwW
+         zyCPfBWgVFqm5EzbC0amo963PjC9QyozgfnpOU4o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -28,12 +28,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Tariq Toukan <tariqt@nvidia.com>,
         Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 087/151] net/mlx5: Fix return value from tracer initialization
-Date:   Mon, 16 Aug 2021 15:01:57 +0200
-Message-Id: <20210816125446.949370489@linuxfoundation.org>
+Subject: [PATCH 5.4 26/62] net/mlx5: Fix return value from tracer initialization
+Date:   Mon, 16 Aug 2021 15:01:58 +0200
+Message-Id: <20210816125429.087053624@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
-References: <20210816125444.082226187@linuxfoundation.org>
+In-Reply-To: <20210816125428.198692661@linuxfoundation.org>
+References: <20210816125428.198692661@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,10 +60,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 9 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c b/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
-index 01a1d02dcf15..3f8a98093f8c 100644
+index eb2e57ff08a6..dc36b0db3722 100644
 --- a/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
 +++ b/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
-@@ -1019,12 +1019,19 @@ int mlx5_fw_tracer_init(struct mlx5_fw_tracer *tracer)
+@@ -1017,12 +1017,19 @@ int mlx5_fw_tracer_init(struct mlx5_fw_tracer *tracer)
  	MLX5_NB_INIT(&tracer->nb, fw_tracer_event, DEVICE_TRACER);
  	mlx5_eq_notifier_register(dev, &tracer->nb);
  
