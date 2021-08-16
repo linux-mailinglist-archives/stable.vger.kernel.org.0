@@ -2,93 +2,151 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1ABAF3ED6FF
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:28:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0196E3ED6B8
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:23:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229880AbhHPNZv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:25:51 -0400
-Received: from mga05.intel.com ([192.55.52.43]:21784 "EHLO mga05.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240039AbhHPNXW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:23:22 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10077"; a="301441757"
-X-IronPort-AV: E=Sophos;i="5.84,326,1620716400"; 
-   d="scan'208";a="301441757"
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Aug 2021 06:15:23 -0700
-X-IronPort-AV: E=Sophos;i="5.84,326,1620716400"; 
-   d="scan'208";a="530522645"
-Received: from gaoboxix-mobl1.ccr.corp.intel.com (HELO [10.254.215.86]) ([10.254.215.86])
-  by fmsmga002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Aug 2021 06:15:21 -0700
-Cc:     baolu.lu@linux.intel.com, Joerg Roedel <joro@8bytes.org>,
-        stable@vger.kernel.org,
-        Saeed Mirzamohammadi <saeed.mirzamohammadi@oracle.com>,
-        Ashok Raj <ashok.raj@intel.com>,
-        Camille Lu <camille.lu@hpe.com>
+        id S238104AbhHPNXu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:23:50 -0400
+Received: from szxga02-in.huawei.com ([45.249.212.188]:8427 "EHLO
+        szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239015AbhHPNVr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Aug 2021 09:21:47 -0400
+Received: from dggemv703-chm.china.huawei.com (unknown [172.30.72.55])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4GpF7W6nfBz87Wk;
+        Mon, 16 Aug 2021 21:17:11 +0800 (CST)
+Received: from dggema756-chm.china.huawei.com (10.1.198.198) by
+ dggemv703-chm.china.huawei.com (10.3.19.46) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
+ 15.1.2176.2; Mon, 16 Aug 2021 21:21:13 +0800
+Received: from [10.174.177.134] (10.174.177.134) by
+ dggema756-chm.china.huawei.com (10.1.198.198) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
+ 15.1.2176.2; Mon, 16 Aug 2021 21:21:12 +0800
+Subject: Re: [PATCH 5.10.y 01/11] mm: memcontrol: Use helpers to read page's
+ memcg data
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-References: <20210816113932.1210581-1-baolu.lu@linux.intel.com>
- <YRpQcOQzOVnGn0Lg@kroah.com>
- <76945715-9a4c-2f94-b458-b6ab53d40a1c@linux.intel.com>
- <YRpcIKvXY3LzXaqt@kroah.com>
-From:   Lu Baolu <baolu.lu@linux.intel.com>
-Subject: Re: [PATCH 1/1] iommu/vt-d: Fix agaw for a supported 48 bit guest
- address width
-Message-ID: <4f7ecd17-0b24-51b9-ea0e-5da90a5e2510@linux.intel.com>
-Date:   Mon, 16 Aug 2021 21:15:19 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.13.0
+CC:     Roman Gushchin <guro@fb.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        "Wang Hai" <wanghai38@huawei.com>, <linux-kernel@vger.kernel.org>,
+        <linux-mm@kvack.org>, <stable@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Alexei Starovoitov <ast@kernel.org>
+References: <20210816072147.3481782-1-chenhuang5@huawei.com>
+ <20210816072147.3481782-2-chenhuang5@huawei.com> <YRojDsTAjSnw0jIh@kroah.com>
+From:   Chen Huang <chenhuang5@huawei.com>
+Message-ID: <a4c545a8-fff0-38bb-4749-3483c9334daa@huawei.com>
+Date:   Mon, 16 Aug 2021 21:21:11 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-In-Reply-To: <YRpcIKvXY3LzXaqt@kroah.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+In-Reply-To: <YRojDsTAjSnw0jIh@kroah.com>
+Content-Type: text/plain; charset="gbk"
 Content-Transfer-Encoding: 8bit
+X-Originating-IP: [10.174.177.134]
+X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
+ dggema756-chm.china.huawei.com (10.1.198.198)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2021/8/16 20:37, Greg Kroah-Hartman wrote:
-> On Mon, Aug 16, 2021 at 08:20:31PM +0800, Lu Baolu wrote:
->> Hi Greg,
->>
->> On 2021/8/16 19:48, Greg Kroah-Hartman wrote:
->>> On Mon, Aug 16, 2021 at 07:39:32PM +0800, Lu Baolu wrote:
->>>> From: Saeed Mirzamohammadi <saeed.mirzamohammadi@oracle.com>
->>>>
->>>> [ Upstream commit 327d5b2fee91c404a3956c324193892cf2cc9528 ]
->>>
->>> Also, this really does not look like this commit at all :(
->>>
->>
->> This is not a back port. It's a fix for some stable kernels. Sorry for
->> the confusion.
->>
->> The error happens in a helper function that has been deprecated in the
->> upstream kernel by above commit. I added below explanation in the commit
->> message:
->>
->> "
->> This issue happens on the code path of getting a private domain for a
->> device. A private domain was needed when the domain of an iommu group
->> couldn't meet the requirement of a device. The IOMMU core has been
->> evolved to eliminate the need for private domain, hence this code path
->> has already been removed from the upstream since commit 327d5b2fee91c
->> ("iommu/vt-d: Allow 32bit devices to uses DMA domain"). Instead of back
->> porting all patches that are required for removing the private domain,
->> this simply fixes it in the affected stable kernel between v4.16 and v5.7.
->> "
->>
->> I'm sorry if this is not the right way to do this.
+
+
+ÔÚ 2021/8/16 16:34, Greg Kroah-Hartman Ð´µÀ:
+> On Mon, Aug 16, 2021 at 07:21:37AM +0000, Chen Huang wrote:
+>> From: Roman Gushchin <guro@fb.com>
 > 
-> Ah, sorry, I totally missed that.  This is fine, now queued up for
-> 4.19.y and 5.4.y.
-
-Thank you! Greg.
-
-Best regards,
-baolu
-
+> What is the git commit id of this patch in Linus's tree?
 > 
+>>
+>> Patch series "mm: allow mapping accounted kernel pages to userspace", v6.
+>>
+>> Currently a non-slab kernel page which has been charged to a memory cgroup
+>> can't be mapped to userspace.  The underlying reason is simple: PageKmemcg
+>> flag is defined as a page type (like buddy, offline, etc), so it takes a
+>> bit from a page->mapped counter.  Pages with a type set can't be mapped to
+>> userspace.
+>>
+>> But in general the kmemcg flag has nothing to do with mapping to
+>> userspace.  It only means that the page has been accounted by the page
+>> allocator, so it has to be properly uncharged on release.
+>>
+>> Some bpf maps are mapping the vmalloc-based memory to userspace, and their
+>> memory can't be accounted because of this implementation detail.
+>>
+>> This patchset removes this limitation by moving the PageKmemcg flag into
+>> one of the free bits of the page->mem_cgroup pointer.  Also it formalizes
+>> accesses to the page->mem_cgroup and page->obj_cgroups using new helpers,
+>> adds several checks and removes a couple of obsolete functions.  As the
+>> result the code became more robust with fewer open-coded bit tricks.
+>>
+>> This patch (of 4):
+>>
+>> Currently there are many open-coded reads of the page->mem_cgroup pointer,
+>> as well as a couple of read helpers, which are barely used.
+>>
+>> It creates an obstacle on a way to reuse some bits of the pointer for
+>> storing additional bits of information.  In fact, we already do this for
+>> slab pages, where the last bit indicates that a pointer has an attached
+>> vector of objcg pointers instead of a regular memcg pointer.
+>>
+>> This commits uses 2 existing helpers and introduces a new helper to
+>> converts all read sides to calls of these helpers:
+>>   struct mem_cgroup *page_memcg(struct page *page);
+>>   struct mem_cgroup *page_memcg_rcu(struct page *page);
+>>   struct mem_cgroup *page_memcg_check(struct page *page);
+>>
+>> page_memcg_check() is intended to be used in cases when the page can be a
+>> slab page and have a memcg pointer pointing at objcg vector.  It does
+>> check the lowest bit, and if set, returns NULL.  page_memcg() contains a
+>> VM_BUG_ON_PAGE() check for the page not being a slab page.
+>>
+>> To make sure nobody uses a direct access, struct page's
+>> mem_cgroup/obj_cgroups is converted to unsigned long memcg_data.
+>>
+>> Signed-off-by: Roman Gushchin <guro@fb.com>
+>> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+>> Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+>> Reviewed-by: Shakeel Butt <shakeelb@google.com>
+>> Acked-by: Johannes Weiner <hannes@cmpxchg.org>
+>> Acked-by: Michal Hocko <mhocko@suse.com>
+>> Link: https://lkml.kernel.org/r/20201027001657.3398190-1-guro@fb.com
+>> Link: https://lkml.kernel.org/r/20201027001657.3398190-2-guro@fb.com
+>> Link: https://lore.kernel.org/bpf/20201201215900.3569844-2-guro@fb.com
+>>
+>> Conflicts:
+>> 	mm/memcontrol.c
+> 
+> The "Conflicts:" lines should be removed.
+> 
+> Please fix up the patch series and resubmit.  But note, this seems
+> really intrusive, are you sure these are all needed?
+> 
+
+OK£¬I will resend the patchset.
+Roman Gushchin's patchset formalize accesses to the page->mem_cgroup and
+page->obj_cgroups. But for LRU pages and most other raw memcg, they may
+pin to a memcg cgroup pointer, which should always point to an object cgroup
+pointer. That's the problem I met. And Muchun Song's patchset fix this.
+So I think these are all needed.
+
+> What UIO driver are you using that is showing problems like this?
+> 
+
+The UIO driver is my own driver, and it's creation likes this:
+First, we register a device
+	pdev = platform_device_register_simple("uio_driver,0, NULL, 0);
+and use uio_info to describe the UIO driver, the page is alloced and used
+for uio_vma_fault
+	info->mem[0].addr = (phys_addr_t) kzalloc(PAGE_SIZE, GFP_ATOMIC);
+then we register the UIO driver.
+	uio_register_device(&pdev->dev, info)
+
+Thanks!
+
 > thanks,
 > 
 > greg k-h
+> 
+> .
 > 
