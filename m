@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BC3A3ED572
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:12:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E762E3ED66B
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:22:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239561AbhHPNL2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:11:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56462 "EHLO mail.kernel.org"
+        id S239658AbhHPNVQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:21:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44512 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239196AbhHPNJj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:09:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C15CA610A0;
-        Mon, 16 Aug 2021 13:09:03 +0000 (UTC)
+        id S238843AbhHPNSh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:18:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DFD206328D;
+        Mon, 16 Aug 2021 13:14:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119344;
-        bh=VFON9shimxrFJ1AC6LrHN9ae06WTIKEndI5RHPtWl3k=;
+        s=korg; t=1629119650;
+        bh=2xzFKCDfLWtKqrfHLp3jDztFPRpVAr/a1L+LRiToml8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zdUusNIcSsM+roMlOsYR8R9bDiuj1VQgjzu4mNG9PXPlzq7hcuL7nqqpilQ/Rtebw
-         m2VHg/ASFvbMsR08PVRInyIldqzP3cfla24lS2yq/BqBo73RP9CSyY0NDSp9/fV855
-         YxYW6+UcGYr7YR3VisI0xqobbhse7C+wUPVc30FM=
+        b=XtogxBYtq9Qij2vB5xfpyRfQKr0PHl2cKM98Vd8EtRU4mHt1tK8iJrx7fozE6uVnq
+         c3h+qzBkF9d5zNmxZQZ7krpOIr4rhvCPb2uNwNiki8zqRjTbIecRHhpGTYqGM8TMj8
+         4DSSvo7mF9f0/XbzxsmDONvhdzR2I2hoVVu2obm0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 69/96] efi/libstub: arm64: Force Image reallocation if BSS was not reserved
+Subject: [PATCH 5.13 109/151] net: igmp: increase size of mr_ifc_count
 Date:   Mon, 16 Aug 2021 15:02:19 +0200
-Message-Id: <20210816125437.267104668@linuxfoundation.org>
+Message-Id: <20210816125447.655979371@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125434.948010115@linuxfoundation.org>
-References: <20210816125434.948010115@linuxfoundation.org>
+In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
+References: <20210816125444.082226187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,99 +41,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 5b94046efb4706b3429c9c8e7377bd8d1621d588 ]
+[ Upstream commit b69dd5b3780a7298bd893816a09da751bc0636f7 ]
 
-Distro versions of GRUB replace the usual LoadImage/StartImage calls
-used to load the kernel image with some local code that fails to honor
-the allocation requirements described in the PE/COFF header, as it
-does not account for the image's BSS section at all: it fails to
-allocate space for it, and fails to zero initialize it.
+Some arches support cmpxchg() on 4-byte and 8-byte only.
+Increase mr_ifc_count width to 32bit to fix this problem.
 
-Since the EFI stub itself is allocated in the .init segment, which is
-in the middle of the image, its BSS section is not impacted by this,
-and the main consequence of this omission is that the BSS section may
-overlap with memory regions that are already used by the firmware.
-
-So let's warn about this condition, and force image reallocation to
-occur in this case, which works around the problem.
-
-Fixes: 82046702e288 ("efi/libstub/arm64: Replace 'preferred' offset with alignment check")
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Tested-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Fixes: 4a2b285e7e10 ("net: igmp: fix data-race in igmp_ifc_timer_expire()")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20210811195715.3684218-1-eric.dumazet@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/efi/libstub/arm64-stub.c | 49 ++++++++++++++++++++++-
- 1 file changed, 48 insertions(+), 1 deletion(-)
+ include/linux/inetdevice.h | 2 +-
+ net/ipv4/igmp.c            | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/firmware/efi/libstub/arm64-stub.c b/drivers/firmware/efi/libstub/arm64-stub.c
-index 22ece1ad68a8..3dc54b9db054 100644
---- a/drivers/firmware/efi/libstub/arm64-stub.c
-+++ b/drivers/firmware/efi/libstub/arm64-stub.c
-@@ -34,6 +34,51 @@ efi_status_t check_platform_features(void)
- 	return EFI_SUCCESS;
- }
+diff --git a/include/linux/inetdevice.h b/include/linux/inetdevice.h
+index 53aa0343bf69..aaf4f1b4c277 100644
+--- a/include/linux/inetdevice.h
++++ b/include/linux/inetdevice.h
+@@ -41,7 +41,7 @@ struct in_device {
+ 	unsigned long		mr_qri;		/* Query Response Interval */
+ 	unsigned char		mr_qrv;		/* Query Robustness Variable */
+ 	unsigned char		mr_gq_running;
+-	unsigned char		mr_ifc_count;
++	u32			mr_ifc_count;
+ 	struct timer_list	mr_gq_timer;	/* general query timer */
+ 	struct timer_list	mr_ifc_timer;	/* interface change timer */
  
-+/*
-+ * Distro versions of GRUB may ignore the BSS allocation entirely (i.e., fail
-+ * to provide space, and fail to zero it). Check for this condition by double
-+ * checking that the first and the last byte of the image are covered by the
-+ * same EFI memory map entry.
-+ */
-+static bool check_image_region(u64 base, u64 size)
-+{
-+	unsigned long map_size, desc_size, buff_size;
-+	efi_memory_desc_t *memory_map;
-+	struct efi_boot_memmap map;
-+	efi_status_t status;
-+	bool ret = false;
-+	int map_offset;
-+
-+	map.map =	&memory_map;
-+	map.map_size =	&map_size;
-+	map.desc_size =	&desc_size;
-+	map.desc_ver =	NULL;
-+	map.key_ptr =	NULL;
-+	map.buff_size =	&buff_size;
-+
-+	status = efi_get_memory_map(&map);
-+	if (status != EFI_SUCCESS)
-+		return false;
-+
-+	for (map_offset = 0; map_offset < map_size; map_offset += desc_size) {
-+		efi_memory_desc_t *md = (void *)memory_map + map_offset;
-+		u64 end = md->phys_addr + md->num_pages * EFI_PAGE_SIZE;
-+
-+		/*
-+		 * Find the region that covers base, and return whether
-+		 * it covers base+size bytes.
-+		 */
-+		if (base >= md->phys_addr && base < end) {
-+			ret = (base + size) <= end;
-+			break;
-+		}
-+	}
-+
-+	efi_bs_call(free_pool, memory_map);
-+
-+	return ret;
-+}
-+
- /*
-  * Although relocatable kernels can fix up the misalignment with respect to
-  * MIN_KIMG_ALIGN, the resulting virtual text addresses are subtly out of
-@@ -92,7 +137,9 @@ efi_status_t handle_kernel_image(unsigned long *image_addr,
- 	}
+diff --git a/net/ipv4/igmp.c b/net/ipv4/igmp.c
+index a51360087b19..00576bae183d 100644
+--- a/net/ipv4/igmp.c
++++ b/net/ipv4/igmp.c
+@@ -803,7 +803,7 @@ static void igmp_gq_timer_expire(struct timer_list *t)
+ static void igmp_ifc_timer_expire(struct timer_list *t)
+ {
+ 	struct in_device *in_dev = from_timer(in_dev, t, mr_ifc_timer);
+-	u8 mr_ifc_count;
++	u32 mr_ifc_count;
  
- 	if (status != EFI_SUCCESS) {
--		if (IS_ALIGNED((u64)_text, min_kimg_align())) {
-+		if (!check_image_region((u64)_text, kernel_memsize)) {
-+			efi_err("FIRMWARE BUG: Image BSS overlaps adjacent EFI memory region\n");
-+		} else if (IS_ALIGNED((u64)_text, min_kimg_align())) {
- 			/*
- 			 * Just execute from wherever we were loaded by the
- 			 * UEFI PE/COFF loader if the alignment is suitable.
+ 	igmpv3_send_cr(in_dev);
+ restart:
 -- 
 2.30.2
 
