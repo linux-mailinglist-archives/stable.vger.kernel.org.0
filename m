@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83C933ED5E4
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:17:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 324283ED506
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:08:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237124AbhHPNPh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:15:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39084 "EHLO mail.kernel.org"
+        id S237126AbhHPNHh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:07:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58554 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239751AbhHPNOh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:14:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C483632A4;
-        Mon, 16 Aug 2021 13:11:17 +0000 (UTC)
+        id S237145AbhHPNGQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:06:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4BF1F63292;
+        Mon, 16 Aug 2021 13:05:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119477;
-        bh=rmNWyLLtszdwkcJs8/9MbZkMo4bPvmMeaFZUfCOLKxM=;
+        s=korg; t=1629119144;
+        bh=0GJHKCgtQFCa5wy20nwIEnS5gRWm1ntnOwSJe8/LrRU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QHi84POyy1Y8mE02F0/ARD8YvNSuhHmD+X0Jd+TSCeRhktuTsZMg2CKM3eLmal+FI
-         1qDiOi09knSEFD/+co8+THpAxwVOehf4rV2I/H9HYKmT+BI+Q+MdyZamn7Lgwhsz4A
-         2ozCJJuylHyJDHdDyd1KJrR7bpzbXrjO/yHSlr28=
+        b=YdppYaHSD/VzrGiI5qslZ1I/5j7wI0T60sWNAFg3/rg08uvnZ4UXYgrRqmaVFvbyE
+         CJgxMmvwX0BJAn+dQpl+ks5AdDplXfFPkMa6NmwHjEM+Mo3jOduCYhJFnjKiTgdYQq
+         7IrMbxErAAGaSs5Rf2CKS3TNxD3H4hEsewFMR7mc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "jason-jh.lin" <jason-jh.lin@mediatek.com>,
-        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 041/151] drm/mediatek: Fix cursor plane no update
+        stable@vger.kernel.org,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        David Lechner <david@lechnology.com>, Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.10 01/96] iio: adc: ti-ads7950: Ensure CS is deasserted after reading channels
 Date:   Mon, 16 Aug 2021 15:01:11 +0200
-Message-Id: <20210816125445.430473827@linuxfoundation.org>
+Message-Id: <20210816125434.995485081@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
-References: <20210816125444.082226187@linuxfoundation.org>
+In-Reply-To: <20210816125434.948010115@linuxfoundation.org>
+References: <20210816125434.948010115@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -41,145 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: jason-jh.lin <jason-jh.lin@mediatek.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit 1a64a7aff8da352c9419de3d5c34343682916411 ]
+commit 9898cb24e454602beb6e17bacf9f97b26c85c955 upstream.
 
-The cursor plane should use the current plane state in atomic_async_update
-because it would not be the new plane state in the global atomic state
-since _swap_state happened when those hook are run.
+The ADS7950 requires that CS is deasserted after each SPI word. Before
+commit e2540da86ef8 ("iio: adc: ti-ads7950: use SPI_CS_WORD to reduce
+CPU usage") the driver used a message with one spi transfer per channel
+where each but the last one had .cs_change set to enforce a CS toggle.
+This was wrongly translated into a message with a single transfer and
+.cs_change set which results in a CS toggle after each word but the
+last which corrupts the first adc conversion of all readouts after the
+first readout.
 
-Fix cursor plane issue by below modification:
-1. Remove plane_helper_funcs->atomic_update(plane, state) in
-   mtk_drm_crtc_async_update.
-2. Add mtk_drm_update_new_state in to mtk_plane_atomic_async_update to
-   update the cursor plane by current plane state hook and update
-   others plane by the new_state.
-
-Fixes: 37418bf14c13 ("drm: Use state helper instead of the plane state pointer")
-Signed-off-by: jason-jh.lin <jason-jh.lin@mediatek.com>
-Tested-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Signed-off-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: e2540da86ef8 ("iio: adc: ti-ads7950: use SPI_CS_WORD to reduce CPU usage")
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Reviewed-by: David Lechner <david@lechnology.com>
+Tested-by: David Lechner <david@lechnology.com>
+Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210709101110.1814294-1-u.kleine-koenig@pengutronix.de
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/mediatek/mtk_drm_crtc.c  |  3 --
- drivers/gpu/drm/mediatek/mtk_drm_plane.c | 60 ++++++++++++++----------
- 2 files changed, 34 insertions(+), 29 deletions(-)
+ drivers/iio/adc/ti-ads7950.c |    1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/mediatek/mtk_drm_crtc.c b/drivers/gpu/drm/mediatek/mtk_drm_crtc.c
-index 474efb844249..735efe79f075 100644
---- a/drivers/gpu/drm/mediatek/mtk_drm_crtc.c
-+++ b/drivers/gpu/drm/mediatek/mtk_drm_crtc.c
-@@ -532,13 +532,10 @@ void mtk_drm_crtc_async_update(struct drm_crtc *crtc, struct drm_plane *plane,
- 			       struct drm_atomic_state *state)
- {
- 	struct mtk_drm_crtc *mtk_crtc = to_mtk_crtc(crtc);
--	const struct drm_plane_helper_funcs *plane_helper_funcs =
--			plane->helper_private;
+--- a/drivers/iio/adc/ti-ads7950.c
++++ b/drivers/iio/adc/ti-ads7950.c
+@@ -568,7 +568,6 @@ static int ti_ads7950_probe(struct spi_d
+ 	st->ring_xfer.tx_buf = &st->tx_buf[0];
+ 	st->ring_xfer.rx_buf = &st->rx_buf[0];
+ 	/* len will be set later */
+-	st->ring_xfer.cs_change = true;
  
- 	if (!mtk_crtc->enabled)
- 		return;
+ 	spi_message_add_tail(&st->ring_xfer, &st->ring_msg);
  
--	plane_helper_funcs->atomic_update(plane, state);
- 	mtk_drm_crtc_update_config(mtk_crtc, false);
- }
- 
-diff --git a/drivers/gpu/drm/mediatek/mtk_drm_plane.c b/drivers/gpu/drm/mediatek/mtk_drm_plane.c
-index b5582dcf564c..e6dcb34d3052 100644
---- a/drivers/gpu/drm/mediatek/mtk_drm_plane.c
-+++ b/drivers/gpu/drm/mediatek/mtk_drm_plane.c
-@@ -110,6 +110,35 @@ static int mtk_plane_atomic_async_check(struct drm_plane *plane,
- 						   true, true);
- }
- 
-+static void mtk_plane_update_new_state(struct drm_plane_state *new_state,
-+				       struct mtk_plane_state *mtk_plane_state)
-+{
-+	struct drm_framebuffer *fb = new_state->fb;
-+	struct drm_gem_object *gem;
-+	struct mtk_drm_gem_obj *mtk_gem;
-+	unsigned int pitch, format;
-+	dma_addr_t addr;
-+
-+	gem = fb->obj[0];
-+	mtk_gem = to_mtk_gem_obj(gem);
-+	addr = mtk_gem->dma_addr;
-+	pitch = fb->pitches[0];
-+	format = fb->format->format;
-+
-+	addr += (new_state->src.x1 >> 16) * fb->format->cpp[0];
-+	addr += (new_state->src.y1 >> 16) * pitch;
-+
-+	mtk_plane_state->pending.enable = true;
-+	mtk_plane_state->pending.pitch = pitch;
-+	mtk_plane_state->pending.format = format;
-+	mtk_plane_state->pending.addr = addr;
-+	mtk_plane_state->pending.x = new_state->dst.x1;
-+	mtk_plane_state->pending.y = new_state->dst.y1;
-+	mtk_plane_state->pending.width = drm_rect_width(&new_state->dst);
-+	mtk_plane_state->pending.height = drm_rect_height(&new_state->dst);
-+	mtk_plane_state->pending.rotation = new_state->rotation;
-+}
-+
- static void mtk_plane_atomic_async_update(struct drm_plane *plane,
- 					  struct drm_atomic_state *state)
- {
-@@ -126,8 +155,10 @@ static void mtk_plane_atomic_async_update(struct drm_plane *plane,
- 	plane->state->src_h = new_state->src_h;
- 	plane->state->src_w = new_state->src_w;
- 	swap(plane->state->fb, new_state->fb);
--	new_plane_state->pending.async_dirty = true;
- 
-+	mtk_plane_update_new_state(new_state, new_plane_state);
-+	wmb(); /* Make sure the above parameters are set before update */
-+	new_plane_state->pending.async_dirty = true;
- 	mtk_drm_crtc_async_update(new_state->crtc, plane, state);
- }
- 
-@@ -189,14 +220,8 @@ static void mtk_plane_atomic_update(struct drm_plane *plane,
- 	struct drm_plane_state *new_state = drm_atomic_get_new_plane_state(state,
- 									   plane);
- 	struct mtk_plane_state *mtk_plane_state = to_mtk_plane_state(new_state);
--	struct drm_crtc *crtc = new_state->crtc;
--	struct drm_framebuffer *fb = new_state->fb;
--	struct drm_gem_object *gem;
--	struct mtk_drm_gem_obj *mtk_gem;
--	unsigned int pitch, format;
--	dma_addr_t addr;
- 
--	if (!crtc || WARN_ON(!fb))
-+	if (!new_state->crtc || WARN_ON(!new_state->fb))
- 		return;
- 
- 	if (!new_state->visible) {
-@@ -204,24 +229,7 @@ static void mtk_plane_atomic_update(struct drm_plane *plane,
- 		return;
- 	}
- 
--	gem = fb->obj[0];
--	mtk_gem = to_mtk_gem_obj(gem);
--	addr = mtk_gem->dma_addr;
--	pitch = fb->pitches[0];
--	format = fb->format->format;
--
--	addr += (new_state->src.x1 >> 16) * fb->format->cpp[0];
--	addr += (new_state->src.y1 >> 16) * pitch;
--
--	mtk_plane_state->pending.enable = true;
--	mtk_plane_state->pending.pitch = pitch;
--	mtk_plane_state->pending.format = format;
--	mtk_plane_state->pending.addr = addr;
--	mtk_plane_state->pending.x = new_state->dst.x1;
--	mtk_plane_state->pending.y = new_state->dst.y1;
--	mtk_plane_state->pending.width = drm_rect_width(&new_state->dst);
--	mtk_plane_state->pending.height = drm_rect_height(&new_state->dst);
--	mtk_plane_state->pending.rotation = new_state->rotation;
-+	mtk_plane_update_new_state(new_state, mtk_plane_state);
- 	wmb(); /* Make sure the above parameters are set before update */
- 	mtk_plane_state->pending.dirty = true;
- }
--- 
-2.30.2
-
 
 
