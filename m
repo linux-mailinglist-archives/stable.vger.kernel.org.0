@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 30FFC3ED571
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:12:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33E133ED6FC
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:28:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239556AbhHPNL1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:11:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56748 "EHLO mail.kernel.org"
+        id S240847AbhHPNZr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:25:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239199AbhHPNJj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:09:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5741E610A1;
-        Mon, 16 Aug 2021 13:09:06 +0000 (UTC)
+        id S238517AbhHPNWY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:22:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6AB606112D;
+        Mon, 16 Aug 2021 13:16:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119346;
-        bh=cmouDnjztEyz9OYzaUb+gAvvGR/ElZXxMDAvkLgME+c=;
+        s=korg; t=1629119780;
+        bh=XYnS9FVRwiZHlKEe5jiMBmIjwE4+ihZ5BR/I5e3vvrQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lpVirunSCZQs6SKvIo3tzCa2jZ4eNw7JW8t6vW7U33W7UAIZ61e5x1t05Z1tjqhxM
-         /cBoHrJloaWQHOU9DNZsXZOvPSmerInlAFrk2zLS9d19s66uJlmuL3EmBWTvO6plZ2
-         0K4d/QU1mJBsKwquRBmCiTDI/Hiy9jSM+qu9pGho=
+        b=vej6fkCySQ92WRMGDag/k9py4wEuel38EuQXFo85XGnLOvuUbzSY9u/Y7A5tVChZr
+         L2FsPcdurUZ/KCaPg+IH6YwSXA0so8H7AaqAJBg8Me03Sw6jcCDa7ch57LXqKjNdJ7
+         yqvK/mwXEJscqIZQpX/kekatZ1TaKhyh7bm3a4Ow=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.10 87/96] powerpc/smp: Fix OOPS in topology_init()
-Date:   Mon, 16 Aug 2021 15:02:37 +0200
-Message-Id: <20210816125437.889387283@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Marc Zyngier <maz@kernel.org>, Ashok Raj <ashok.raj@intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 5.13 128/151] PCI/MSI: Enable and mask MSI-X early
+Date:   Mon, 16 Aug 2021 15:02:38 +0200
+Message-Id: <20210816125448.270900717@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125434.948010115@linuxfoundation.org>
-References: <20210816125434.948010115@linuxfoundation.org>
+In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
+References: <20210816125444.082226187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,63 +40,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit 8241461536f21bbe51308a6916d1c9fb2e6b75a7 upstream.
+commit 438553958ba19296663c6d6583d208dfb6792830 upstream.
 
-Running an SMP kernel on an UP platform not prepared for it,
-I encountered the following OOPS:
+The ordering of MSI-X enable in hardware is dysfunctional:
 
-	BUG: Kernel NULL pointer dereference on read at 0x00000034
-	Faulting instruction address: 0xc0a04110
-	Oops: Kernel access of bad area, sig: 11 [#1]
-	BE PAGE_SIZE=4K SMP NR_CPUS=2 CMPCPRO
-	Modules linked in:
-	CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.13.0-pmac-00001-g230fedfaad21 #5234
-	NIP:  c0a04110 LR: c0a040d8 CTR: c0a04084
-	REGS: e100dda0 TRAP: 0300   Not tainted  (5.13.0-pmac-00001-g230fedfaad21)
-	MSR:  00009032 <EE,ME,IR,DR,RI>  CR: 84000284  XER: 00000000
-	DAR: 00000034 DSISR: 20000000
-	GPR00: c0006bd4 e100de60 c1033320 00000000 00000000 c0942274 00000000 00000000
-	GPR08: 00000000 00000000 00000001 00000063 00000007 00000000 c0006f30 00000000
-	GPR16: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000005
-	GPR24: c0c67d74 c0c67f1c c0c60000 c0c67d70 c0c0c558 1efdf000 c0c00020 00000000
-	NIP [c0a04110] topology_init+0x8c/0x138
-	LR [c0a040d8] topology_init+0x54/0x138
-	Call Trace:
-	[e100de60] [80808080] 0x80808080 (unreliable)
-	[e100de90] [c0006bd4] do_one_initcall+0x48/0x1bc
-	[e100def0] [c0a0150c] kernel_init_freeable+0x1c8/0x278
-	[e100df20] [c0006f44] kernel_init+0x14/0x10c
-	[e100df30] [c00190fc] ret_from_kernel_thread+0x14/0x1c
-	Instruction dump:
-	7c692e70 7d290194 7c035040 7c7f1b78 5529103a 546706fe 5468103a 39400001
-	7c641b78 40800054 80c690b4 7fb9402e <81060034> 7fbeea14 2c080000 7fa3eb78
-	---[ end trace b246ffbc6bbbb6fb ]---
+ 1) MSI-X is disabled in the control register
+ 2) Various setup functions
+ 3) pci_msi_setup_msi_irqs() is invoked which ends up accessing
+    the MSI-X table entries
+ 4) MSI-X is enabled and masked in the control register with the
+    comment that enabling is required for some hardware to access
+    the MSI-X table
 
-Fix it by checking smp_ops before using it, as already done in
-several other places in the arch/powerpc/kernel/smp.c
+Step #4 obviously contradicts #3. The history of this is an issue with the
+NIU hardware. When #4 was introduced the table access actually happened in
+msix_program_entries() which was invoked after enabling and masking MSI-X.
 
-Fixes: 39f87561454d ("powerpc/smp: Move ppc_md.cpu_die() to smp_ops.cpu_offline_self()")
+This was changed in commit d71d6432e105 ("PCI/MSI: Kill redundant call of
+irq_set_msi_desc() for MSI-X interrupts") which removed the table write
+from msix_program_entries().
+
+Interestingly enough nobody noticed and either NIU still works or it did
+not get any testing with a kernel 3.19 or later.
+
+Nevertheless this is inconsistent and there is no reason why MSI-X can't be
+enabled and masked in the control register early on, i.e. move step #4
+above to step #1. This preserves the NIU workaround and has no side effects
+on other hardware.
+
+Fixes: d71d6432e105 ("PCI/MSI: Kill redundant call of irq_set_msi_desc() for MSI-X interrupts")
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Marc Zyngier <maz@kernel.org>
+Reviewed-by: Ashok Raj <ashok.raj@intel.com>
+Reviewed-by: Marc Zyngier <maz@kernel.org>
+Acked-by: Bjorn Helgaas <bhelgaas@google.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/75287841cbb8740edd44880fe60be66d489160d9.1628097995.git.christophe.leroy@csgroup.eu
+Link: https://lore.kernel.org/r/20210729222542.344136412@linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kernel/sysfs.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/msi.c |   28 +++++++++++++++-------------
+ 1 file changed, 15 insertions(+), 13 deletions(-)
 
---- a/arch/powerpc/kernel/sysfs.c
-+++ b/arch/powerpc/kernel/sysfs.c
-@@ -1167,7 +1167,7 @@ static int __init topology_init(void)
- 		 * CPU.  For instance, the boot cpu might never be valid
- 		 * for hotplugging.
- 		 */
--		if (smp_ops->cpu_offline_self)
-+		if (smp_ops && smp_ops->cpu_offline_self)
- 			c->hotpluggable = 1;
- #endif
+--- a/drivers/pci/msi.c
++++ b/drivers/pci/msi.c
+@@ -772,18 +772,25 @@ static int msix_capability_init(struct p
+ 	u16 control;
+ 	void __iomem *base;
+ 
+-	/* Ensure MSI-X is disabled while it is set up */
+-	pci_msix_clear_and_set_ctrl(dev, PCI_MSIX_FLAGS_ENABLE, 0);
++	/*
++	 * Some devices require MSI-X to be enabled before the MSI-X
++	 * registers can be accessed.  Mask all the vectors to prevent
++	 * interrupts coming in before they're fully set up.
++	 */
++	pci_msix_clear_and_set_ctrl(dev, 0, PCI_MSIX_FLAGS_MASKALL |
++				    PCI_MSIX_FLAGS_ENABLE);
+ 
+ 	pci_read_config_word(dev, dev->msix_cap + PCI_MSIX_FLAGS, &control);
+ 	/* Request & Map MSI-X table region */
+ 	base = msix_map_region(dev, msix_table_size(control));
+-	if (!base)
+-		return -ENOMEM;
++	if (!base) {
++		ret = -ENOMEM;
++		goto out_disable;
++	}
+ 
+ 	ret = msix_setup_entries(dev, base, entries, nvec, affd);
+ 	if (ret)
+-		return ret;
++		goto out_disable;
+ 
+ 	ret = pci_msi_setup_msi_irqs(dev, nvec, PCI_CAP_ID_MSIX);
+ 	if (ret)
+@@ -794,14 +801,6 @@ static int msix_capability_init(struct p
+ 	if (ret)
+ 		goto out_free;
+ 
+-	/*
+-	 * Some devices require MSI-X to be enabled before we can touch the
+-	 * MSI-X registers.  We need to mask all the vectors to prevent
+-	 * interrupts coming in before they're fully set up.
+-	 */
+-	pci_msix_clear_and_set_ctrl(dev, 0,
+-				PCI_MSIX_FLAGS_MASKALL | PCI_MSIX_FLAGS_ENABLE);
+-
+ 	msix_program_entries(dev, entries);
+ 
+ 	ret = populate_msi_sysfs(dev);
+@@ -836,6 +835,9 @@ out_avail:
+ out_free:
+ 	free_msi_irqs(dev);
+ 
++out_disable:
++	pci_msix_clear_and_set_ctrl(dev, PCI_MSIX_FLAGS_ENABLE, 0);
++
+ 	return ret;
+ }
  
 
 
