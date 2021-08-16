@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB4ED3ED660
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:22:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E59B33ED522
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:08:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238162AbhHPNUj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:20:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39410 "EHLO mail.kernel.org"
+        id S238082AbhHPNIg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:08:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240064AbhHPNQp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:16:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 90669632EA;
-        Mon, 16 Aug 2021 13:13:36 +0000 (UTC)
+        id S238291AbhHPNHJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:07:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DE2A661163;
+        Mon, 16 Aug 2021 13:06:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119617;
-        bh=OzHKg4XQQx2eDs/B6xuKl4iDNgcJ+RPtAHzgsKZuWQQ=;
+        s=korg; t=1629119178;
+        bh=CjxRstOT86DHj0jAUAew6h3Fd0nL+Oslkfjg9BMCzcM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uq1iMFAINx9nWhwFqqYF2dzQsxj/1hE9hGr3+RcdLFxlhoGfnqjgkvTeXyoMsJvn7
-         RO7elg7140Kt2MGRYEOUR5w+3SoByLdTN6vfZw5Z3jjKGDJGihwtidFj5ZfO77Ubnf
-         Q44BxDgOGfr4VXoupj7uT5GKO0bpTAjCKuViEwEU=
+        b=tSPJMencOrjqVfbpjbPkHFOZ82/rzL0pM8ZIoWkJmx0MiR8bTQ5eylFE3FdL1CxSQ
+         v6M7LP+jwF6mfLQ3tP1NdPeLgIFcO0CoIHI0b5JCjhOdcBOR3ubRLptvbdYqbkL7lT
+         q3V4mM7AXPcpb7dwBwdav+SlkBUaBzTJKnDGhIsE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Robin=20G=C3=B6gge?= <r.goegge@gmail.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Quentin Monnet <quentin@isovalent.com>,
+        stable@vger.kernel.org, Dongliang Mu <mudongliangabcd@gmail.com>,
+        Alexander Aring <aahringo@redhat.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 062/151] libbpf: Fix probe for BPF_PROG_TYPE_CGROUP_SOCKOPT
+Subject: [PATCH 5.10 22/96] ieee802154: hwsim: fix GPF in hwsim_set_edge_lqi
 Date:   Mon, 16 Aug 2021 15:01:32 +0200
-Message-Id: <20210816125446.103028913@linuxfoundation.org>
+Message-Id: <20210816125435.666090402@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
-References: <20210816125444.082226187@linuxfoundation.org>
+In-Reply-To: <20210816125434.948010115@linuxfoundation.org>
+References: <20210816125434.948010115@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,47 +41,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Gögge <r.goegge@googlemail.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-[ Upstream commit 78d14bda861dd2729f15bb438fe355b48514bfe0 ]
+[ Upstream commit e9faf53c5a5d01f6f2a09ae28ec63a3bbd6f64fd ]
 
-This patch fixes the probe for BPF_PROG_TYPE_CGROUP_SOCKOPT,
-so the probe reports accurate results when used by e.g.
-bpftool.
+Both MAC802154_HWSIM_ATTR_RADIO_ID and MAC802154_HWSIM_ATTR_RADIO_EDGE,
+MAC802154_HWSIM_EDGE_ATTR_ENDPOINT_ID and MAC802154_HWSIM_EDGE_ATTR_LQI
+must be present to fix GPF.
 
-Fixes: 4cdbfb59c44a ("libbpf: support sockopt hooks")
-Signed-off-by: Robin Gögge <r.goegge@gmail.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: Quentin Monnet <quentin@isovalent.com>
-Link: https://lore.kernel.org/bpf/20210728225825.2357586-1-r.goegge@gmail.com
+Fixes: f25da51fdc38 ("ieee802154: hwsim: add replacement for fakelb")
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Acked-by: Alexander Aring <aahringo@redhat.com>
+Link: https://lore.kernel.org/r/20210705131321.217111-1-mudongliangabcd@gmail.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/libbpf_probes.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/ieee802154/mac802154_hwsim.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/tools/lib/bpf/libbpf_probes.c b/tools/lib/bpf/libbpf_probes.c
-index ecaae2927ab8..cd8c703dde71 100644
---- a/tools/lib/bpf/libbpf_probes.c
-+++ b/tools/lib/bpf/libbpf_probes.c
-@@ -75,6 +75,9 @@ probe_load(enum bpf_prog_type prog_type, const struct bpf_insn *insns,
- 	case BPF_PROG_TYPE_CGROUP_SOCK_ADDR:
- 		xattr.expected_attach_type = BPF_CGROUP_INET4_CONNECT;
- 		break;
-+	case BPF_PROG_TYPE_CGROUP_SOCKOPT:
-+		xattr.expected_attach_type = BPF_CGROUP_GETSOCKOPT;
-+		break;
- 	case BPF_PROG_TYPE_SK_LOOKUP:
- 		xattr.expected_attach_type = BPF_SK_LOOKUP;
- 		break;
-@@ -104,7 +107,6 @@ probe_load(enum bpf_prog_type prog_type, const struct bpf_insn *insns,
- 	case BPF_PROG_TYPE_SK_REUSEPORT:
- 	case BPF_PROG_TYPE_FLOW_DISSECTOR:
- 	case BPF_PROG_TYPE_CGROUP_SYSCTL:
--	case BPF_PROG_TYPE_CGROUP_SOCKOPT:
- 	case BPF_PROG_TYPE_TRACING:
- 	case BPF_PROG_TYPE_STRUCT_OPS:
- 	case BPF_PROG_TYPE_EXT:
+diff --git a/drivers/net/ieee802154/mac802154_hwsim.c b/drivers/net/ieee802154/mac802154_hwsim.c
+index 626e1ce817fc..43f389540bba 100644
+--- a/drivers/net/ieee802154/mac802154_hwsim.c
++++ b/drivers/net/ieee802154/mac802154_hwsim.c
+@@ -528,14 +528,14 @@ static int hwsim_set_edge_lqi(struct sk_buff *msg, struct genl_info *info)
+ 	u32 v0, v1;
+ 	u8 lqi;
+ 
+-	if (!info->attrs[MAC802154_HWSIM_ATTR_RADIO_ID] &&
++	if (!info->attrs[MAC802154_HWSIM_ATTR_RADIO_ID] ||
+ 	    !info->attrs[MAC802154_HWSIM_ATTR_RADIO_EDGE])
+ 		return -EINVAL;
+ 
+ 	if (nla_parse_nested_deprecated(edge_attrs, MAC802154_HWSIM_EDGE_ATTR_MAX, info->attrs[MAC802154_HWSIM_ATTR_RADIO_EDGE], hwsim_edge_policy, NULL))
+ 		return -EINVAL;
+ 
+-	if (!edge_attrs[MAC802154_HWSIM_EDGE_ATTR_ENDPOINT_ID] &&
++	if (!edge_attrs[MAC802154_HWSIM_EDGE_ATTR_ENDPOINT_ID] ||
+ 	    !edge_attrs[MAC802154_HWSIM_EDGE_ATTR_LQI])
+ 		return -EINVAL;
+ 
 -- 
 2.30.2
 
