@@ -2,31 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E401A3ED604
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:17:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C93FA3ED606
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:17:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239813AbhHPNQZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:16:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37182 "EHLO mail.kernel.org"
+        id S237600AbhHPNQ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:16:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240257AbhHPNPC (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S240265AbhHPNPC (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 16 Aug 2021 09:15:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 06EB5632D0;
-        Mon, 16 Aug 2021 13:12:00 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F3B6632D3;
+        Mon, 16 Aug 2021 13:12:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119521;
-        bh=ZZE+JhIRF95IGfF6gSywIH6p3aLm9Qh8DaaV98Yq+zk=;
+        s=korg; t=1629119523;
+        bh=AJblI/ufu8uvveqdpY5Za/fxyHnYoVelrZXwBbYcsOU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bSPlyrIKSSWausNqY5t3ciXpDkWZEP63CPAJWqtsHEaES1IgVDlP7bFvhzvyq/hz8
-         uke5nIDX6rp6whwwamuIIWGVnQLJtTbVEdElBBnydiloryMgyy445CAbT2ez03hp0+
-         fuMsOMEIEamcLGexRa8YshKsS3IegjsLJ41NPmKo=
+        b=XVLL/Pn/zunUopHh2l3CsVJ6+AFVzfPQrxImF42nhMF4H8Xgdfu5GBeGGWNyy8IMY
+         AWgePEapym0/ntPkRYN7BIc6pKGecq9n6GUqq0sfnBlvfPg3BrgitfwBwaW3swEp49
+         mx4rYdAUKbscIrI00MjMMX5QX0GEhKitvsrUuAPg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vineet Gupta <vgupta@synopsys.com>
-Subject: [PATCH 5.13 025/151] ARC: fp: set FPU_STATUS.FWE to enable FPU_STATUS update on context switch
-Date:   Mon, 16 Aug 2021 15:00:55 +0200
-Message-Id: <20210816125444.904803352@linuxfoundation.org>
+        stable@vger.kernel.org, Luis Henriques <lhenriques@suse.de>,
+        Jeff Layton <jlayton@kernel.org>,
+        Ilya Dryomov <idryomov@gmail.com>
+Subject: [PATCH 5.13 026/151] ceph: reduce contention in ceph_check_delayed_caps()
+Date:   Mon, 16 Aug 2021 15:00:56 +0200
+Message-Id: <20210816125444.943169134@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
 References: <20210816125444.082226187@linuxfoundation.org>
@@ -38,72 +40,154 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vineet Gupta <vgupta@synopsys.com>
+From: Luis Henriques <lhenriques@suse.de>
 
-commit 3a715e80400f452b247caa55344f4f60250ffbcf upstream.
+commit bf2ba432213fade50dd39f2e348085b758c0726e upstream.
 
-FPU_STATUS register contains FP exception flags bits which are updated
-by core as side-effect of FP instructions but can also be manually
-wiggled such as by glibc C99 functions fe{raise,clear,test}except() etc.
-To effect the update, the programming model requires OR'ing FWE
-bit (31). This bit is write-only and RAZ, meaning it is effectively
-auto-cleared after write and thus needs to be set everytime: which
-is how glibc implements this.
+Function ceph_check_delayed_caps() is called from the mdsc->delayed_work
+workqueue and it can be kept looping for quite some time if caps keep
+being added back to the mdsc->cap_delay_list.  This may result in the
+watchdog tainting the kernel with the softlockup flag.
 
-However there's another usecase of FPU_STATUS update, at the time of
-Linux task switch when incoming task value needs to be programmed into
-the register. This was added as part of f45ba2bd6da0dc ("ARCv2:
-fpu: preserve userspace fpu state") which missed OR'ing FWE bit,
-meaning the new value is effectively not being written at all.
-This patch remedies that.
+This patch breaks this loop if the caps have been recently (i.e. during
+the loop execution).  Any new caps added to the list will be handled in
+the next run.
 
-Interestingly, this snafu was not caught in interm glibc testing as the
-race window which relies on a specific exception bit to be set/clear is
-really small specially when it nvolves context switch.
-Fortunately this was caught by glibc's math/test-fenv-tls test which
-repeatedly set/clear exception flags in a big loop, concurrently in main
-program and also in a thread.
+Also, allow schedule_delayed() callers to explicitly set the delay value
+instead of defaulting to 5s, so we can ensure that it runs soon
+afterward if it looks like there is more work.
 
-Fixes: https://github.com/foss-for-synopsys-dwc-arc-processors/linux/issues/54
-Fixes: f45ba2bd6da0dc ("ARCv2: fpu: preserve userspace fpu state")
-Cc: stable@vger.kernel.org	#5.6+
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+Cc: stable@vger.kernel.org
+URL: https://tracker.ceph.com/issues/46284
+Signed-off-by: Luis Henriques <lhenriques@suse.de>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arc/kernel/fpu.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ fs/ceph/caps.c       |   17 ++++++++++++++++-
+ fs/ceph/mds_client.c |   25 ++++++++++++++++---------
+ fs/ceph/super.h      |    2 +-
+ 3 files changed, 33 insertions(+), 11 deletions(-)
 
---- a/arch/arc/kernel/fpu.c
-+++ b/arch/arc/kernel/fpu.c
-@@ -57,23 +57,26 @@ void fpu_save_restore(struct task_struct
+--- a/fs/ceph/caps.c
++++ b/fs/ceph/caps.c
+@@ -4224,11 +4224,19 @@ bad:
  
- void fpu_init_task(struct pt_regs *regs)
+ /*
+  * Delayed work handler to process end of delayed cap release LRU list.
++ *
++ * If new caps are added to the list while processing it, these won't get
++ * processed in this run.  In this case, the ci->i_hold_caps_max will be
++ * returned so that the work can be scheduled accordingly.
+  */
+-void ceph_check_delayed_caps(struct ceph_mds_client *mdsc)
++unsigned long ceph_check_delayed_caps(struct ceph_mds_client *mdsc)
  {
-+	const unsigned int fwe = 0x80000000;
+ 	struct inode *inode;
+ 	struct ceph_inode_info *ci;
++	struct ceph_mount_options *opt = mdsc->fsc->mount_options;
++	unsigned long delay_max = opt->caps_wanted_delay_max * HZ;
++	unsigned long loop_start = jiffies;
++	unsigned long delay = 0;
+ 
+ 	dout("check_delayed_caps\n");
+ 	spin_lock(&mdsc->cap_delay_lock);
+@@ -4236,6 +4244,11 @@ void ceph_check_delayed_caps(struct ceph
+ 		ci = list_first_entry(&mdsc->cap_delay_list,
+ 				      struct ceph_inode_info,
+ 				      i_cap_delay_list);
++		if (time_before(loop_start, ci->i_hold_caps_max - delay_max)) {
++			dout("%s caps added recently.  Exiting loop", __func__);
++			delay = ci->i_hold_caps_max;
++			break;
++		}
+ 		if ((ci->i_ceph_flags & CEPH_I_FLUSH) == 0 &&
+ 		    time_before(jiffies, ci->i_hold_caps_max))
+ 			break;
+@@ -4252,6 +4265,8 @@ void ceph_check_delayed_caps(struct ceph
+ 		}
+ 	}
+ 	spin_unlock(&mdsc->cap_delay_lock);
 +
- 	/* default rounding mode */
- 	write_aux_reg(ARC_REG_FPU_CTRL, 0x100);
- 
--	/* set "Write enable" to allow explicit write to exception flags */
--	write_aux_reg(ARC_REG_FPU_STATUS, 0x80000000);
-+	/* Initialize to zero: setting requires FWE be set */
-+	write_aux_reg(ARC_REG_FPU_STATUS, fwe);
++	return delay;
  }
  
- void fpu_save_restore(struct task_struct *prev, struct task_struct *next)
+ /*
+--- a/fs/ceph/mds_client.c
++++ b/fs/ceph/mds_client.c
+@@ -4502,22 +4502,29 @@ void inc_session_sequence(struct ceph_md
+ }
+ 
+ /*
+- * delayed work -- periodically trim expired leases, renew caps with mds
++ * delayed work -- periodically trim expired leases, renew caps with mds.  If
++ * the @delay parameter is set to 0 or if it's more than 5 secs, the default
++ * workqueue delay value of 5 secs will be used.
+  */
+-static void schedule_delayed(struct ceph_mds_client *mdsc)
++static void schedule_delayed(struct ceph_mds_client *mdsc, unsigned long delay)
  {
- 	struct arc_fpu *save = &prev->thread.fpu;
- 	struct arc_fpu *restore = &next->thread.fpu;
-+	const unsigned int fwe = 0x80000000;
- 
- 	save->ctrl = read_aux_reg(ARC_REG_FPU_CTRL);
- 	save->status = read_aux_reg(ARC_REG_FPU_STATUS);
- 
- 	write_aux_reg(ARC_REG_FPU_CTRL, restore->ctrl);
--	write_aux_reg(ARC_REG_FPU_STATUS, restore->status);
-+	write_aux_reg(ARC_REG_FPU_STATUS, (fwe | restore->status));
+-	int delay = 5;
+-	unsigned hz = round_jiffies_relative(HZ * delay);
+-	schedule_delayed_work(&mdsc->delayed_work, hz);
++	unsigned long max_delay = HZ * 5;
++
++	/* 5 secs default delay */
++	if (!delay || (delay > max_delay))
++		delay = max_delay;
++	schedule_delayed_work(&mdsc->delayed_work,
++			      round_jiffies_relative(delay));
  }
  
- #endif
+ static void delayed_work(struct work_struct *work)
+ {
+-	int i;
+ 	struct ceph_mds_client *mdsc =
+ 		container_of(work, struct ceph_mds_client, delayed_work.work);
++	unsigned long delay;
+ 	int renew_interval;
+ 	int renew_caps;
++	int i;
+ 
+ 	dout("mdsc delayed_work\n");
+ 
+@@ -4557,7 +4564,7 @@ static void delayed_work(struct work_str
+ 	}
+ 	mutex_unlock(&mdsc->mutex);
+ 
+-	ceph_check_delayed_caps(mdsc);
++	delay = ceph_check_delayed_caps(mdsc);
+ 
+ 	ceph_queue_cap_reclaim_work(mdsc);
+ 
+@@ -4565,7 +4572,7 @@ static void delayed_work(struct work_str
+ 
+ 	maybe_recover_session(mdsc);
+ 
+-	schedule_delayed(mdsc);
++	schedule_delayed(mdsc, delay);
+ }
+ 
+ int ceph_mdsc_init(struct ceph_fs_client *fsc)
+@@ -5042,7 +5049,7 @@ void ceph_mdsc_handle_mdsmap(struct ceph
+ 			  mdsc->mdsmap->m_epoch);
+ 
+ 	mutex_unlock(&mdsc->mutex);
+-	schedule_delayed(mdsc);
++	schedule_delayed(mdsc, 0);
+ 	return;
+ 
+ bad_unlock:
+--- a/fs/ceph/super.h
++++ b/fs/ceph/super.h
+@@ -1170,7 +1170,7 @@ extern void ceph_flush_snaps(struct ceph
+ extern bool __ceph_should_report_size(struct ceph_inode_info *ci);
+ extern void ceph_check_caps(struct ceph_inode_info *ci, int flags,
+ 			    struct ceph_mds_session *session);
+-extern void ceph_check_delayed_caps(struct ceph_mds_client *mdsc);
++extern unsigned long ceph_check_delayed_caps(struct ceph_mds_client *mdsc);
+ extern void ceph_flush_dirty_caps(struct ceph_mds_client *mdsc);
+ extern int  ceph_drop_caps_for_unlink(struct inode *inode);
+ extern int ceph_encode_inode_release(void **p, struct inode *inode,
 
 
