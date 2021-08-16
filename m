@@ -2,108 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A847F3ED037
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 10:27:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C8C33ED05F
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 10:34:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234793AbhHPI22 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 04:28:28 -0400
-Received: from smtp-relay-canonical-1.canonical.com ([185.125.188.121]:37188
-        "EHLO smtp-relay-canonical-1.canonical.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234837AbhHPI21 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Aug 2021 04:28:27 -0400
-Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com [209.85.208.69])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by smtp-relay-canonical-1.canonical.com (Postfix) with ESMTPS id 1E3EE412B5
-        for <stable@vger.kernel.org>; Mon, 16 Aug 2021 08:27:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-        s=20210705; t=1629102476;
-        bh=lxDKaysG/aHQwlTNKh0Nbuao0YTQ8x2bzMWqPvbdZ6o=;
-        h=From:To:Cc:Subject:Date:Message-Id:MIME-Version;
-        b=jeZc+nZAlau1V5fVk6nvKy98NudglkKsgkKEqDAxJFS30LWS42A81kN3AsL6Bg4sw
-         SbbeVKF72KBRt/9hMSR/s74v/JDX1WM/PIsME/wGHvimfHEQNd1+0kClyY3ffaWpix
-         ZckyZ4xQvc1U86y1qFL4J4Ib2h9ykf8jbJni9iGO23wcK/h4P+kO5fXLilriBWWEIo
-         Gmq9bMH8hctFER7R/osvTIJCr6uz3YM1JFORHCSvHSkHZ4CeTyqiUXyKI3/b46Xn8Y
-         EgreidCC2cA5dI7+g8USMvBCQ3HBh9f81n2N/zATax15qJwFpt/SQIinv4UL47w78N
-         Vj5+JD2z2WbpQ==
-Received: by mail-ed1-f69.google.com with SMTP id m16-20020a056402511000b003bead176527so5905991edd.10
-        for <stable@vger.kernel.org>; Mon, 16 Aug 2021 01:27:56 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=lxDKaysG/aHQwlTNKh0Nbuao0YTQ8x2bzMWqPvbdZ6o=;
-        b=Sh5sJAtK8K1D6zhDFnelrqqap1usmx+B5/wNOBHWVSJ8kojKMWyny7+8qSByYiLh0k
-         boDh8hgN11k5lLTQwCmpTyqZtFfg4w0U26ayFK6Ha8V/KapbmoiwReWdQ+eCYk+AsuBe
-         WMr0AJMbUxJDXn6Hi4aFFhQk89TtQF+koNkdDxCl9DjDLf5qYvGKwicCRimdHkw4EQ2w
-         Ty5OrELoBvQI1x5d7GlRZRExakM+MggkXs5XLYDNfvedzSXpC2iMgb9hm9u+xeDRuTSR
-         YX5YAgF0isyMFgwYCA6G0tVP4KHmA1y8Z3sglOugWxwdfMaBVA0cm+C1Jgk3Ywjy6CGH
-         JwgA==
-X-Gm-Message-State: AOAM5310DVII0dAT6u8s6EDBxh26sndhOcgSjoZ9rzTcDH0DQIzieAaj
-        Rn0MIhgrT8LaqteHiHvrg9wp3dmgjDcwDuTJCdHHmKEHH3ZeGvheV3oWURd0OolE+YTSOYLoea0
-        DL/XrDrLXsYsPZXvX6RjHgJ54GNa2RSMf2w==
-X-Received: by 2002:a17:906:fb91:: with SMTP id lr17mr15003419ejb.110.1629102475754;
-        Mon, 16 Aug 2021 01:27:55 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJz+BOVdere6Fu0M0Ic4QLSp/IuflMOckAgBI2uLtSkJ1OUJq6KxP3xK5gCoc2lA1BHWOYxnbQ==
-X-Received: by 2002:a17:906:fb91:: with SMTP id lr17mr15003404ejb.110.1629102475630;
-        Mon, 16 Aug 2021 01:27:55 -0700 (PDT)
-Received: from localhost.localdomain ([86.32.42.198])
-        by smtp.gmail.com with ESMTPSA id ay20sm4469605edb.91.2021.08.16.01.27.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 Aug 2021 01:27:55 -0700 (PDT)
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-To:     Sebastian Reichel <sre@kernel.org>,
-        Rob Herring <robh+dt@kernel.org>, linux-pm@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        stable@vger.kernel.org
-Subject: [PATCH 1/3] power: supply: max17042: handle fails of reading status register
-Date:   Mon, 16 Aug 2021 10:27:14 +0200
-Message-Id: <20210816082716.21193-1-krzysztof.kozlowski@canonical.com>
-X-Mailer: git-send-email 2.30.2
+        id S231861AbhHPIe5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 04:34:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55398 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S234025AbhHPIe4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 04:34:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DFA1F61B23;
+        Mon, 16 Aug 2021 08:34:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1629102865;
+        bh=3YEutj3bDMCaJ4+ve9fprNnWP2Ew89/JAaSv3hfe95A=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=pw2xK9Dgx6nK8n8BF8fUTZK6n/HfSrKYjtArjqeA6jiMcM1XmISfaJe+sV2cPW4Aj
+         Z1hGfv9QBfjRhHkYKqIUfbCitWjEXn+FDsq4UWy4E81FGSJFhPWhK5f0VMbBz/bSSD
+         2jsv6OjeLMvstIWSHrdpefBMJc7veH1wPFQv1++E=
+Date:   Mon, 16 Aug 2021 10:34:22 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Chen Huang <chenhuang5@huawei.com>
+Cc:     Roman Gushchin <guro@fb.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Wang Hai <wanghai38@huawei.com>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, stable@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: Re: [PATCH 5.10.y 01/11] mm: memcontrol: Use helpers to read page's
+ memcg data
+Message-ID: <YRojDsTAjSnw0jIh@kroah.com>
+References: <20210816072147.3481782-1-chenhuang5@huawei.com>
+ <20210816072147.3481782-2-chenhuang5@huawei.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210816072147.3481782-2-chenhuang5@huawei.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Reading status register can fail in the interrupt handler.  In such
-case, the regmap_read() will not store anything useful under passed
-'val' variable and random stack value will be used to determine type of
-interrupt.
+On Mon, Aug 16, 2021 at 07:21:37AM +0000, Chen Huang wrote:
+> From: Roman Gushchin <guro@fb.com>
 
-Handle the regmap_read() failure to avoid handling interrupt type and
-triggering changed power supply event based on random stack value.
+What is the git commit id of this patch in Linus's tree?
 
-Fixes: 39e7213edc4f ("max17042_battery: Support regmap to access device's registers")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
----
- drivers/power/supply/max17042_battery.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+> 
+> Patch series "mm: allow mapping accounted kernel pages to userspace", v6.
+> 
+> Currently a non-slab kernel page which has been charged to a memory cgroup
+> can't be mapped to userspace.  The underlying reason is simple: PageKmemcg
+> flag is defined as a page type (like buddy, offline, etc), so it takes a
+> bit from a page->mapped counter.  Pages with a type set can't be mapped to
+> userspace.
+> 
+> But in general the kmemcg flag has nothing to do with mapping to
+> userspace.  It only means that the page has been accounted by the page
+> allocator, so it has to be properly uncharged on release.
+> 
+> Some bpf maps are mapping the vmalloc-based memory to userspace, and their
+> memory can't be accounted because of this implementation detail.
+> 
+> This patchset removes this limitation by moving the PageKmemcg flag into
+> one of the free bits of the page->mem_cgroup pointer.  Also it formalizes
+> accesses to the page->mem_cgroup and page->obj_cgroups using new helpers,
+> adds several checks and removes a couple of obsolete functions.  As the
+> result the code became more robust with fewer open-coded bit tricks.
+> 
+> This patch (of 4):
+> 
+> Currently there are many open-coded reads of the page->mem_cgroup pointer,
+> as well as a couple of read helpers, which are barely used.
+> 
+> It creates an obstacle on a way to reuse some bits of the pointer for
+> storing additional bits of information.  In fact, we already do this for
+> slab pages, where the last bit indicates that a pointer has an attached
+> vector of objcg pointers instead of a regular memcg pointer.
+> 
+> This commits uses 2 existing helpers and introduces a new helper to
+> converts all read sides to calls of these helpers:
+>   struct mem_cgroup *page_memcg(struct page *page);
+>   struct mem_cgroup *page_memcg_rcu(struct page *page);
+>   struct mem_cgroup *page_memcg_check(struct page *page);
+> 
+> page_memcg_check() is intended to be used in cases when the page can be a
+> slab page and have a memcg pointer pointing at objcg vector.  It does
+> check the lowest bit, and if set, returns NULL.  page_memcg() contains a
+> VM_BUG_ON_PAGE() check for the page not being a slab page.
+> 
+> To make sure nobody uses a direct access, struct page's
+> mem_cgroup/obj_cgroups is converted to unsigned long memcg_data.
+> 
+> Signed-off-by: Roman Gushchin <guro@fb.com>
+> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+> Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+> Reviewed-by: Shakeel Butt <shakeelb@google.com>
+> Acked-by: Johannes Weiner <hannes@cmpxchg.org>
+> Acked-by: Michal Hocko <mhocko@suse.com>
+> Link: https://lkml.kernel.org/r/20201027001657.3398190-1-guro@fb.com
+> Link: https://lkml.kernel.org/r/20201027001657.3398190-2-guro@fb.com
+> Link: https://lore.kernel.org/bpf/20201201215900.3569844-2-guro@fb.com
+> 
+> Conflicts:
+> 	mm/memcontrol.c
 
-diff --git a/drivers/power/supply/max17042_battery.c b/drivers/power/supply/max17042_battery.c
-index ce2041b30a06..858ae97600d4 100644
---- a/drivers/power/supply/max17042_battery.c
-+++ b/drivers/power/supply/max17042_battery.c
-@@ -869,8 +869,12 @@ static irqreturn_t max17042_thread_handler(int id, void *dev)
- {
- 	struct max17042_chip *chip = dev;
- 	u32 val;
-+	int ret;
-+
-+	ret = regmap_read(chip->regmap, MAX17042_STATUS, &val);
-+	if (ret)
-+		return IRQ_HANDLED;
- 
--	regmap_read(chip->regmap, MAX17042_STATUS, &val);
- 	if ((val & STATUS_INTR_SOCMIN_BIT) ||
- 		(val & STATUS_INTR_SOCMAX_BIT)) {
- 		dev_info(&chip->client->dev, "SOC threshold INTR\n");
--- 
-2.30.2
+The "Conflicts:" lines should be removed.
 
+Please fix up the patch series and resubmit.  But note, this seems
+really intrusive, are you sure these are all needed?
+
+What UIO driver are you using that is showing problems like this?
+
+thanks,
+
+greg k-h
