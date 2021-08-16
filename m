@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 11C5F3ED62F
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:17:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F00033ED55D
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:12:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236883AbhHPNSX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:18:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37182 "EHLO mail.kernel.org"
+        id S239300AbhHPNLH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:11:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239294AbhHPNQJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:16:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D31166115A;
-        Mon, 16 Aug 2021 13:12:52 +0000 (UTC)
+        id S239114AbhHPNJV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:09:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3FC09632A9;
+        Mon, 16 Aug 2021 13:08:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119573;
-        bh=8RfsVLE/13D9ne70jDeXISXvLMSX+mhrYS90ZcUzqfk=;
+        s=korg; t=1629119304;
+        bh=9uXPaplTXBHdcRitmLTJTeryo6YY7RTVvvCLMgHqiT4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y8DH9OdzhpFqPG6vPeRTHJtSJu1BhTLW4krrRNDb+7KJWi7yW1HyKE3jvwS+5tLNH
-         k/voW2eIrBaAJACt9PMpsBCcXJgxmt0llRxRsGqNL0sDfwMDHzSLAZNHoDAVIng+WC
-         PRjd20u6XdEO9gPGWEGWYpvyVRtj8T6SBCLB0qkY=
+        b=bHeZhL3+kvZE07uDCGoDS91xB2NFvX2BCxxChyXHd5wxelkLZhk0mtT8qJ0HmRGZK
+         uIC/MY1QqTej5evgX6I423HrKsIGKFHf4GSGM2wI7C2RdXM6OeX3hlMKjy36I8489u
+         d1arqxUm5YWDrbu14vnM7JaD6+cxP8grl0fwfBzQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hao Xu <haoxu@linux.alibaba.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 078/151] io-wq: fix bug of creating io-wokers unconditionally
+        stable@vger.kernel.org,
+        Tatsuhiko Yasumatsu <th.yasumatsu@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 38/96] bpf: Fix integer overflow involving bucket_size
 Date:   Mon, 16 Aug 2021 15:01:48 +0200
-Message-Id: <20210816125446.649235369@linuxfoundation.org>
+Message-Id: <20210816125436.227402994@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
-References: <20210816125444.082226187@linuxfoundation.org>
+In-Reply-To: <20210816125434.948010115@linuxfoundation.org>
+References: <20210816125434.948010115@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,56 +41,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hao Xu <haoxu@linux.alibaba.com>
+From: Tatsuhiko Yasumatsu <th.yasumatsu@gmail.com>
 
-[ Upstream commit 49e7f0c789add1330b111af0b7caeb0e87df063e ]
+[ Upstream commit c4eb1f403243fc7bbb7de644db8587c03de36da6 ]
 
-The former patch to add check between nr_workers and max_workers has a
-bug, which will cause unconditionally creating io-workers. That's
-because the result of the check doesn't affect the call of
-create_io_worker(), fix it by bringing in a boolean value for it.
+In __htab_map_lookup_and_delete_batch(), hash buckets are iterated
+over to count the number of elements in each bucket (bucket_size).
+If bucket_size is large enough, the multiplication to calculate
+kvmalloc() size could overflow, resulting in out-of-bounds write
+as reported by KASAN:
 
-Fixes: 21698274da5b ("io-wq: fix lack of acct->nr_workers < acct->max_workers judgement")
-Signed-off-by: Hao Xu <haoxu@linux.alibaba.com>
-Link: https://lore.kernel.org/r/20210808135434.68667-2-haoxu@linux.alibaba.com
-[axboe: drop hunk that isn't strictly needed]
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+  [...]
+  [  104.986052] BUG: KASAN: vmalloc-out-of-bounds in __htab_map_lookup_and_delete_batch+0x5ce/0xb60
+  [  104.986489] Write of size 4194224 at addr ffffc9010503be70 by task crash/112
+  [  104.986889]
+  [  104.987193] CPU: 0 PID: 112 Comm: crash Not tainted 5.14.0-rc4 #13
+  [  104.987552] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
+  [  104.988104] Call Trace:
+  [  104.988410]  dump_stack_lvl+0x34/0x44
+  [  104.988706]  print_address_description.constprop.0+0x21/0x140
+  [  104.988991]  ? __htab_map_lookup_and_delete_batch+0x5ce/0xb60
+  [  104.989327]  ? __htab_map_lookup_and_delete_batch+0x5ce/0xb60
+  [  104.989622]  kasan_report.cold+0x7f/0x11b
+  [  104.989881]  ? __htab_map_lookup_and_delete_batch+0x5ce/0xb60
+  [  104.990239]  kasan_check_range+0x17c/0x1e0
+  [  104.990467]  memcpy+0x39/0x60
+  [  104.990670]  __htab_map_lookup_and_delete_batch+0x5ce/0xb60
+  [  104.990982]  ? __wake_up_common+0x4d/0x230
+  [  104.991256]  ? htab_of_map_free+0x130/0x130
+  [  104.991541]  bpf_map_do_batch+0x1fb/0x220
+  [...]
+
+In hashtable, if the elements' keys have the same jhash() value, the
+elements will be put into the same bucket. By putting a lot of elements
+into a single bucket, the value of bucket_size can be increased to
+trigger the integer overflow.
+
+Triggering the overflow is possible for both callers with CAP_SYS_ADMIN
+and callers without CAP_SYS_ADMIN.
+
+It will be trivial for a caller with CAP_SYS_ADMIN to intentionally
+reach this overflow by enabling BPF_F_ZERO_SEED. As this flag will set
+the random seed passed to jhash() to 0, it will be easy for the caller
+to prepare keys which will be hashed into the same value, and thus put
+all the elements into the same bucket.
+
+If the caller does not have CAP_SYS_ADMIN, BPF_F_ZERO_SEED cannot be
+used. However, it will be still technically possible to trigger the
+overflow, by guessing the random seed value passed to jhash() (32bit)
+and repeating the attempt to trigger the overflow. In this case,
+the probability to trigger the overflow will be low and will take
+a very long time.
+
+Fix the integer overflow by calling kvmalloc_array() instead of
+kvmalloc() to allocate memory.
+
+Fixes: 057996380a42 ("bpf: Add batch ops to all htab bpf map")
+Signed-off-by: Tatsuhiko Yasumatsu <th.yasumatsu@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20210806150419.109658-1-th.yasumatsu@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io-wq.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ kernel/bpf/hashtab.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/io-wq.c b/fs/io-wq.c
-index 77026d42cb79..2c8a9a394884 100644
---- a/fs/io-wq.c
-+++ b/fs/io-wq.c
-@@ -283,16 +283,24 @@ static void create_worker_cb(struct callback_head *cb)
- 	struct io_wq *wq;
- 	struct io_wqe *wqe;
- 	struct io_wqe_acct *acct;
-+	bool do_create = false;
- 
- 	cwd = container_of(cb, struct create_worker_data, work);
- 	wqe = cwd->wqe;
- 	wq = wqe->wq;
- 	acct = &wqe->acct[cwd->index];
- 	raw_spin_lock_irq(&wqe->lock);
--	if (acct->nr_workers < acct->max_workers)
-+	if (acct->nr_workers < acct->max_workers) {
- 		acct->nr_workers++;
-+		do_create = true;
-+	}
- 	raw_spin_unlock_irq(&wqe->lock);
--	create_io_worker(wq, cwd->wqe, cwd->index);
-+	if (do_create) {
-+		create_io_worker(wq, cwd->wqe, cwd->index);
-+	} else {
-+		atomic_dec(&acct->nr_running);
-+		io_worker_ref_put(wq);
-+	}
- 	kfree(cwd);
- }
- 
+diff --git a/kernel/bpf/hashtab.c b/kernel/bpf/hashtab.c
+index 1fccba6e88c4..6c444e815406 100644
+--- a/kernel/bpf/hashtab.c
++++ b/kernel/bpf/hashtab.c
+@@ -1425,8 +1425,8 @@ alloc:
+ 	/* We cannot do copy_from_user or copy_to_user inside
+ 	 * the rcu_read_lock. Allocate enough space here.
+ 	 */
+-	keys = kvmalloc(key_size * bucket_size, GFP_USER | __GFP_NOWARN);
+-	values = kvmalloc(value_size * bucket_size, GFP_USER | __GFP_NOWARN);
++	keys = kvmalloc_array(key_size, bucket_size, GFP_USER | __GFP_NOWARN);
++	values = kvmalloc_array(value_size, bucket_size, GFP_USER | __GFP_NOWARN);
+ 	if (!keys || !values) {
+ 		ret = -ENOMEM;
+ 		goto after_loop;
 -- 
 2.30.2
 
