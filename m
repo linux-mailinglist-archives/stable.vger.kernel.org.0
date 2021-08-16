@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D9E83ED679
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:22:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 805723ED4B0
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:04:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240020AbhHPNVp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:21:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43050 "EHLO mail.kernel.org"
+        id S236920AbhHPNFC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:05:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240566AbhHPNTx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:19:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B87CB632AE;
-        Mon, 16 Aug 2021 13:14:47 +0000 (UTC)
+        id S230242AbhHPNEt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:04:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2BF6E632A1;
+        Mon, 16 Aug 2021 13:04:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119688;
-        bh=X7VHotr/bJrTUcEe9GqHBUXNv2zRVTyyICQnBuZmeRI=;
+        s=korg; t=1629119057;
+        bh=jvwsDQ8asPbFhARXFeEzhgpRNJxdREiOl340F3rduXQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zn95xL8NI1/x6xPKr5HBgBIgiDgM/0I3gOVzBjNOaCLNOJA5U7UMbvlxX9bg47TL0
-         F5y/m8J8zzSrBAVGluX0NEyJKXHRoU5t831P3B4WHc4C+OVh5+syn2ZL/vJ/k/ffk8
-         /xtwgL32ap4HEWhbltTxbp2lhSozmOWS6oxqpBlQ=
+        b=e7kq9qXQMK0IIEWgfIuO7rnjzKHuDzvpbnz9cYNCuCMeiYDOXGcqPTWI3zFhMugbc
+         dzxrBBhLplD+qN3Tlob5o325MFnh7PJX6XHcZjwG1hV/t3+4O3FYt+vfbnzZNfcYTS
+         LlV6oGyhdzy0rLRbt31vZlHlQUM9T3Ts7HBaFm/Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Hutchings <ben.hutchings@mind.be>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Nikolay Aleksandrov <nikolay@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 096/151] net: dsa: microchip: ksz8795: Fix VLAN filtering
+Subject: [PATCH 5.4 34/62] net: bridge: fix memleak in br_add_if()
 Date:   Mon, 16 Aug 2021 15:02:06 +0200
-Message-Id: <20210816125447.236089526@linuxfoundation.org>
+Message-Id: <20210816125429.362901792@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
-References: <20210816125444.082226187@linuxfoundation.org>
+In-Reply-To: <20210816125428.198692661@linuxfoundation.org>
+References: <20210816125428.198692661@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,62 +42,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Hutchings <ben.hutchings@mind.be>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 164844135a3f215d3018ee9d6875336beb942413 ]
+[ Upstream commit 519133debcc19f5c834e7e28480b60bdc234fe02 ]
 
-Currently ksz8_port_vlan_filtering() sets or clears the VLAN Enable
-hardware flag.  That controls discarding of packets with a VID that
-has not been enabled for any port on the switch.
+I got a memleak report:
 
-Since it is a global flag, set the dsa_switch::vlan_filtering_is_global
-flag so that the DSA core understands this can't be controlled per
-port.
+BUG: memory leak
+unreferenced object 0x607ee521a658 (size 240):
+comm "syz-executor.0", pid 955, jiffies 4294780569 (age 16.449s)
+hex dump (first 32 bytes, cpu 1):
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+backtrace:
+[<00000000d830ea5a>] br_multicast_add_port+0x1c2/0x300 net/bridge/br_multicast.c:1693
+[<00000000274d9a71>] new_nbp net/bridge/br_if.c:435 [inline]
+[<00000000274d9a71>] br_add_if+0x670/0x1740 net/bridge/br_if.c:611
+[<0000000012ce888e>] do_set_master net/core/rtnetlink.c:2513 [inline]
+[<0000000012ce888e>] do_set_master+0x1aa/0x210 net/core/rtnetlink.c:2487
+[<0000000099d1cafc>] __rtnl_newlink+0x1095/0x13e0 net/core/rtnetlink.c:3457
+[<00000000a01facc0>] rtnl_newlink+0x64/0xa0 net/core/rtnetlink.c:3488
+[<00000000acc9186c>] rtnetlink_rcv_msg+0x369/0xa10 net/core/rtnetlink.c:5550
+[<00000000d4aabb9c>] netlink_rcv_skb+0x134/0x3d0 net/netlink/af_netlink.c:2504
+[<00000000bc2e12a3>] netlink_unicast_kernel net/netlink/af_netlink.c:1314 [inline]
+[<00000000bc2e12a3>] netlink_unicast+0x4a0/0x6a0 net/netlink/af_netlink.c:1340
+[<00000000e4dc2d0e>] netlink_sendmsg+0x789/0xc70 net/netlink/af_netlink.c:1929
+[<000000000d22c8b3>] sock_sendmsg_nosec net/socket.c:654 [inline]
+[<000000000d22c8b3>] sock_sendmsg+0x139/0x170 net/socket.c:674
+[<00000000e281417a>] ____sys_sendmsg+0x658/0x7d0 net/socket.c:2350
+[<00000000237aa2ab>] ___sys_sendmsg+0xf8/0x170 net/socket.c:2404
+[<000000004f2dc381>] __sys_sendmsg+0xd3/0x190 net/socket.c:2433
+[<0000000005feca6c>] do_syscall_64+0x37/0x90 arch/x86/entry/common.c:47
+[<000000007304477d>] entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-When VLAN filtering is enabled, the switch should also discard packets
-with a VID that's not enabled on the ingress port.  Set or clear each
-external port's VLAN Ingress Filter flag in ksz8_port_vlan_filtering()
-to make that happen.
+On error path of br_add_if(), p->mcast_stats allocated in
+new_nbp() need be freed, or it will be leaked.
 
-Fixes: e66f840c08a2 ("net: dsa: ksz: Add Microchip KSZ8795 DSA driver")
-Signed-off-by: Ben Hutchings <ben.hutchings@mind.be>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 1080ab95e3c7 ("net: bridge: add support for IGMP/MLD stats and export them via netlink")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+Link: https://lore.kernel.org/r/20210809132023.978546-1-yangyingliang@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/microchip/ksz8795.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ net/bridge/br_if.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/dsa/microchip/ksz8795.c b/drivers/net/dsa/microchip/ksz8795.c
-index 4bd735c5183c..8e2a8103d590 100644
---- a/drivers/net/dsa/microchip/ksz8795.c
-+++ b/drivers/net/dsa/microchip/ksz8795.c
-@@ -1078,8 +1078,14 @@ static int ksz8_port_vlan_filtering(struct dsa_switch *ds, int port, bool flag,
- 	if (ksz_is_ksz88x3(dev))
- 		return -ENOTSUPP;
+diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
+index bec20dbf6f60..e2a999890d05 100644
+--- a/net/bridge/br_if.c
++++ b/net/bridge/br_if.c
+@@ -599,6 +599,7 @@ int br_add_if(struct net_bridge *br, struct net_device *dev,
  
-+	/* Discard packets with VID not enabled on the switch */
- 	ksz_cfg(dev, S_MIRROR_CTRL, SW_VLAN_ENABLE, flag);
- 
-+	/* Discard packets with VID not enabled on the ingress port */
-+	for (port = 0; port < dev->phy_port_cnt; ++port)
-+		ksz_port_cfg(dev, port, REG_PORT_CTRL_2, PORT_INGRESS_FILTER,
-+			     flag);
-+
- 	return 0;
- }
- 
-@@ -1662,6 +1668,11 @@ static int ksz8_switch_init(struct ksz_device *dev)
- 	 */
- 	dev->ds->untag_bridge_pvid = true;
- 
-+	/* VLAN filtering is partly controlled by the global VLAN
-+	 * Enable flag
-+	 */
-+	dev->ds->vlan_filtering_is_global = true;
-+
- 	return 0;
- }
- 
+ 	err = dev_set_allmulti(dev, 1);
+ 	if (err) {
++		br_multicast_del_port(p);
+ 		kfree(p);	/* kobject not yet init'd, manually free */
+ 		goto err1;
+ 	}
+@@ -712,6 +713,7 @@ err4:
+ err3:
+ 	sysfs_remove_link(br->ifobj, p->dev->name);
+ err2:
++	br_multicast_del_port(p);
+ 	kobject_put(&p->kobj);
+ 	dev_set_allmulti(dev, -1);
+ err1:
 -- 
 2.30.2
 
