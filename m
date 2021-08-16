@@ -2,34 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD4FD3ED6AD
+	by mail.lfdr.de (Postfix) with ESMTP id 4D8353ED6AC
 	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:23:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236833AbhHPNW6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:22:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43334 "EHLO mail.kernel.org"
+        id S239452AbhHPNW5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:22:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238752AbhHPNUg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:20:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 79303600D4;
-        Mon, 16 Aug 2021 13:15:57 +0000 (UTC)
+        id S238884AbhHPNUh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:20:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B6D6563282;
+        Mon, 16 Aug 2021 13:15:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119758;
-        bh=EEr00xQjhRt4abvlxPqMIxXmKFUHYRW4cSkD8hI5gok=;
+        s=korg; t=1629119760;
+        bh=1l0+J2M7qEDy6UA/jxg3EyhCu+XI+CCG7b6WtlfBZ0o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lhA0mxnqrQZh1NrtEsyMHlOZZqhhiIrmGFTyC6ITi+0a4BbnLsdtgYqVLHx6p08ew
-         SHI2iUAkFKWP/JMiPMkFiIIrPsvKA8lojwfSttK4lkp7KhXDyHW+EddjyncxcUylKc
-         yB3mBzeEX1irOs/flEss0ctUi6N/lPLJKVHmdqyk=
+        b=oejhmLiCmlQ5ZsW1uEznwECJLJhd0lhqUIlfcxJJUmEi7h4YfDwPqXNCFfj7qgYIE
+         nldQAO3HmGJhoLCvmBOiOANcW3rYOfNH4tWvV7D0i2iXbOfvT0cL54zMPTtM0krV9T
+         hVyF9x/HMbOYLcVaRq0fq07Z4x3WdNilACpPTIkg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Nelson <mnelson@redhat.com>,
-        Jeff Layton <jlayton@kernel.org>,
-        Luis Henriques <lhenriques@suse.de>,
-        Ilya Dryomov <idryomov@gmail.com>
-Subject: [PATCH 5.13 150/151] ceph: take snap_empty_lock atomically with snaprealm refcount change
-Date:   Mon, 16 Aug 2021 15:03:00 +0200
-Message-Id: <20210816125449.027025247@linuxfoundation.org>
+        stable@vger.kernel.org, Kuan-Ying Lee <Kuan-Ying.Lee@mediatek.com>,
+        Marco Elver <elver@google.com>,
+        Andrey Konovalov <andreyknvl@gmail.com>,
+        Alexander Potapenko <glider@google.com>,
+        Andrey Ryabinin <ryabinin.a.a@gmail.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Chinwen Chang <chinwen.chang@mediatek.com>,
+        Nicholas Tang <nicholas.tang@mediatek.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.13 151/151] kasan, slub: reset tag when printing address
+Date:   Mon, 16 Aug 2021 15:03:01 +0200
+Message-Id: <20210816125449.058559553@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
 References: <20210816125444.082226187@linuxfoundation.org>
@@ -41,107 +47,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Layton <jlayton@kernel.org>
+From: Kuan-Ying Lee <Kuan-Ying.Lee@mediatek.com>
 
-commit 8434ffe71c874b9c4e184b88d25de98c2bf5fe3f upstream.
+commit 340caf178ddc2efb0294afaf54c715f7928c258e upstream.
 
-There is a race in ceph_put_snap_realm. The change to the nref and the
-spinlock acquisition are not done atomically, so you could decrement
-nref, and before you take the spinlock, the nref is incremented again.
-At that point, you end up putting it on the empty list when it
-shouldn't be there. Eventually __cleanup_empty_realms runs and frees
-it when it's still in-use.
+The address still includes the tags when it is printed.  With hardware
+tag-based kasan enabled, we will get a false positive KASAN issue when
+we access metadata.
 
-Fix this by protecting the 1->0 transition with atomic_dec_and_lock,
-and just drop the spinlock if we can get the rwsem.
+Reset the tag before we access the metadata.
 
-Because these objects can also undergo a 0->1 refcount transition, we
-must protect that change as well with the spinlock. Increment locklessly
-unless the value is at 0, in which case we take the spinlock, increment
-and then take it off the empty list if it did the 0->1 transition.
-
-With these changes, I'm removing the dout() messages from these
-functions, as well as in __put_snap_realm. They've always been racy, and
-it's better to not print values that may be misleading.
-
-Cc: stable@vger.kernel.org
-URL: https://tracker.ceph.com/issues/46419
-Reported-by: Mark Nelson <mnelson@redhat.com>
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Reviewed-by: Luis Henriques <lhenriques@suse.de>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Link: https://lkml.kernel.org/r/20210804090957.12393-3-Kuan-Ying.Lee@mediatek.com
+Fixes: aa1ef4d7b3f6 ("kasan, mm: reset tags when accessing metadata")
+Signed-off-by: Kuan-Ying Lee <Kuan-Ying.Lee@mediatek.com>
+Reviewed-by: Marco Elver <elver@google.com>
+Reviewed-by: Andrey Konovalov <andreyknvl@gmail.com>
+Cc: Alexander Potapenko <glider@google.com>
+Cc: Andrey Ryabinin <ryabinin.a.a@gmail.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Chinwen Chang <chinwen.chang@mediatek.com>
+Cc: Nicholas Tang <nicholas.tang@mediatek.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ceph/snap.c |   34 +++++++++++++++++-----------------
- 1 file changed, 17 insertions(+), 17 deletions(-)
+ mm/slub.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/ceph/snap.c
-+++ b/fs/ceph/snap.c
-@@ -67,19 +67,19 @@ void ceph_get_snap_realm(struct ceph_mds
+--- a/mm/slub.c
++++ b/mm/slub.c
+@@ -551,8 +551,8 @@ static void print_section(char *level, c
+ 			  unsigned int length)
  {
- 	lockdep_assert_held(&mdsc->snap_rwsem);
- 
--	dout("get_realm %p %d -> %d\n", realm,
--	     atomic_read(&realm->nref), atomic_read(&realm->nref)+1);
- 	/*
--	 * since we _only_ increment realm refs or empty the empty
--	 * list with snap_rwsem held, adjusting the empty list here is
--	 * safe.  we do need to protect against concurrent empty list
--	 * additions, however.
-+	 * The 0->1 and 1->0 transitions must take the snap_empty_lock
-+	 * atomically with the refcount change. Go ahead and bump the
-+	 * nref here, unless it's 0, in which case we take the spinlock
-+	 * and then do the increment and remove it from the list.
- 	 */
--	if (atomic_inc_return(&realm->nref) == 1) {
--		spin_lock(&mdsc->snap_empty_lock);
-+	if (atomic_inc_not_zero(&realm->nref))
-+		return;
-+
-+	spin_lock(&mdsc->snap_empty_lock);
-+	if (atomic_inc_return(&realm->nref) == 1)
- 		list_del_init(&realm->empty_item);
--		spin_unlock(&mdsc->snap_empty_lock);
--	}
-+	spin_unlock(&mdsc->snap_empty_lock);
+ 	metadata_access_enable();
+-	print_hex_dump(level, kasan_reset_tag(text), DUMP_PREFIX_ADDRESS,
+-			16, 1, addr, length, 1);
++	print_hex_dump(level, text, DUMP_PREFIX_ADDRESS,
++			16, 1, kasan_reset_tag((void *)addr), length, 1);
+ 	metadata_access_disable();
  }
  
- static void __insert_snap_realm(struct rb_root *root,
-@@ -208,28 +208,28 @@ static void __put_snap_realm(struct ceph
- {
- 	lockdep_assert_held_write(&mdsc->snap_rwsem);
- 
--	dout("__put_snap_realm %llx %p %d -> %d\n", realm->ino, realm,
--	     atomic_read(&realm->nref), atomic_read(&realm->nref)-1);
-+	/*
-+	 * We do not require the snap_empty_lock here, as any caller that
-+	 * increments the value must hold the snap_rwsem.
-+	 */
- 	if (atomic_dec_and_test(&realm->nref))
- 		__destroy_snap_realm(mdsc, realm);
- }
- 
- /*
-- * caller needn't hold any locks
-+ * See comments in ceph_get_snap_realm. Caller needn't hold any locks.
-  */
- void ceph_put_snap_realm(struct ceph_mds_client *mdsc,
- 			 struct ceph_snap_realm *realm)
- {
--	dout("put_snap_realm %llx %p %d -> %d\n", realm->ino, realm,
--	     atomic_read(&realm->nref), atomic_read(&realm->nref)-1);
--	if (!atomic_dec_and_test(&realm->nref))
-+	if (!atomic_dec_and_lock(&realm->nref, &mdsc->snap_empty_lock))
- 		return;
- 
- 	if (down_write_trylock(&mdsc->snap_rwsem)) {
-+		spin_unlock(&mdsc->snap_empty_lock);
- 		__destroy_snap_realm(mdsc, realm);
- 		up_write(&mdsc->snap_rwsem);
- 	} else {
--		spin_lock(&mdsc->snap_empty_lock);
- 		list_add(&realm->empty_item, &mdsc->snap_empty);
- 		spin_unlock(&mdsc->snap_empty_lock);
- 	}
 
 
