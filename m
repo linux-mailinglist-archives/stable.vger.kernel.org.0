@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B75ED3ED50A
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:08:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 93C1C3ED516
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:08:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237911AbhHPNHk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:07:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56938 "EHLO mail.kernel.org"
+        id S238622AbhHPNHw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:07:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58784 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235983AbhHPNGX (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236662AbhHPNGX (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 16 Aug 2021 09:06:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BF2D563290;
-        Mon, 16 Aug 2021 13:05:46 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 174A7632AC;
+        Mon, 16 Aug 2021 13:05:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119147;
-        bh=KiUG4rsHow+0PFikHCyH1/xyjo/m+2DX3my7nks4ITg=;
+        s=korg; t=1629119149;
+        bh=OcXO0d4MRH9vsWPgaXYVS4qDnDbZwnw68dOqLET0s0c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PRPvQpTj/EUgDLU7V3OF3PHo9fQ16qFEr89O3t3GgYkkHA5WHPYPsjVn2xZxJYw+b
-         oq0fsGHaRq7APS153TF69c5CdCR4gLibEM116QUcMhMHLIaY/ZJs1sXIchYga0aesK
-         8SHvGNj+xsb8AU0onysm90/4BVwGo3VnKNLLkqTc=
+        b=D8hpdxfgOqhlmu7OfVEvCZfnB8kymtjnb0yAgO+bqDxY2Par/cndA4YH9ADSUQRtY
+         N/RhH4S1YNXzAS1SUSg1EReVbI4aqMitbmjtwdA7GVGSjOmZ9lWopMHGFNHFsfd0sQ
+         bal4tMScgY0GhQs0nwMlbW8vG5JbB6sl8mdZ50K8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Wolfram Sang <wsa@kernel.org>
-Subject: [PATCH 5.10 10/96] i2c: dev: zero out array used for i2c reads from userspace
-Date:   Mon, 16 Aug 2021 15:01:20 +0200
-Message-Id: <20210816125435.270185143@linuxfoundation.org>
+        stable@vger.kernel.org, Shyam Prasad N <sprasad@microsoft.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.10 11/96] cifs: create sd context must be a multiple of 8
+Date:   Mon, 16 Aug 2021 15:01:21 +0200
+Message-Id: <20210816125435.302916836@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210816125434.948010115@linuxfoundation.org>
 References: <20210816125434.948010115@linuxfoundation.org>
@@ -39,48 +39,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Shyam Prasad N <sprasad@microsoft.com>
 
-commit 86ff25ed6cd8240d18df58930bd8848b19fce308 upstream.
+commit 7d3fc01796fc895e5fcce45c994c5a8db8120a8d upstream.
 
-If an i2c driver happens to not provide the full amount of data that a
-user asks for, it is possible that some uninitialized data could be sent
-to userspace.  While all in-kernel drivers look to be safe, just be sure
-by initializing the buffer to zero before it is passed to the i2c driver
-so that any future drivers will not have this issue.
+We used to follow the rule earlier that the create SD context
+always be a multiple of 8. However, with the change:
+cifs: refactor create_sd_buf() and and avoid corrupting the buffer
+...we recompute the length, and we failed that rule.
+Fixing that with this change.
 
-Also properly copy the amount of data recvieved to the userspace buffer,
-as pointed out by Dan Carpenter.
-
-Reported-by: Eric Dumazet <edumazet@google.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Cc: <stable@vger.kernel.org> # v5.10+
+Signed-off-by: Shyam Prasad N <sprasad@microsoft.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i2c/i2c-dev.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ fs/cifs/smb2pdu.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/i2c/i2c-dev.c
-+++ b/drivers/i2c/i2c-dev.c
-@@ -141,7 +141,7 @@ static ssize_t i2cdev_read(struct file *
- 	if (count > 8192)
- 		count = 8192;
+--- a/fs/cifs/smb2pdu.c
++++ b/fs/cifs/smb2pdu.c
+@@ -2367,7 +2367,7 @@ create_sd_buf(umode_t mode, bool set_own
+ 	memcpy(aclptr, &acl, sizeof(struct cifs_acl));
  
--	tmp = kmalloc(count, GFP_KERNEL);
-+	tmp = kzalloc(count, GFP_KERNEL);
- 	if (tmp == NULL)
- 		return -ENOMEM;
+ 	buf->ccontext.DataLength = cpu_to_le32(ptr - (__u8 *)&buf->sd);
+-	*len = ptr - (__u8 *)buf;
++	*len = roundup(ptr - (__u8 *)buf, 8);
  
-@@ -150,7 +150,8 @@ static ssize_t i2cdev_read(struct file *
- 
- 	ret = i2c_master_recv(client, tmp, count);
- 	if (ret >= 0)
--		ret = copy_to_user(buf, tmp, count) ? -EFAULT : ret;
-+		if (copy_to_user(buf, tmp, ret))
-+			ret = -EFAULT;
- 	kfree(tmp);
- 	return ret;
+ 	return buf;
  }
 
 
