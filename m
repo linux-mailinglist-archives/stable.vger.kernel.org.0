@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BAF43ED541
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:11:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F002F3ED4A3
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:04:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237424AbhHPNK0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:10:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58554 "EHLO mail.kernel.org"
+        id S236806AbhHPNEi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:04:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238792AbhHPNIo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:08:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D779B63299;
-        Mon, 16 Aug 2021 13:07:24 +0000 (UTC)
+        id S236677AbhHPNEa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:04:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F08063290;
+        Mon, 16 Aug 2021 13:03:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119245;
-        bh=s7Ee4MrbFQZTjT5icNFmydpfi9yWtX1151LOkJJukrA=;
+        s=korg; t=1629119038;
+        bh=tntYlxg3LbkKcbp0pGn8VwblpEz3ASOaJgP42fvyb4I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wraq7XTXCBE7PctkDETdZcsUv+iQ1C92ks2DNTCgxkDDNoq3hY2FKGsz6IWoprmxc
-         qvUh1k57AGiO7H7hlGPTcvatjlmx+ZdvyXi1Wu9s18z3mDbS2xUun9UJJ9IScbOTPx
-         czHatwi+M+EAYdMtZMd6FhY2gfMsXuEabubro50I=
+        b=eyjCeceJysUNji41toR+tEYNjbhywYnEP8STqrvl2WdvOaRBfx/CxusRkr5mjb3a8
+         cfSAVwE04Zcot4FsHc9ttf08mkozmreLagRW6ZTC925AbkjjwlhYVjhVtTqRGkzXTm
+         ar9lFJgCcPdPH3fEHwXu/EM/EdakyeUJZreRM1Hg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aya Levin <ayal@nvidia.com>,
-        Moshe Shemesh <moshe@nvidia.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        stable@vger.kernel.org,
+        Mathias Steiger <mathias.steiger@googlemail.com>,
+        Christian Hewitt <christianshewitt@gmail.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Philip Milev <milev.philip@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 49/96] net/mlx5: Fix return value from tracer initialization
+Subject: [PATCH 5.4 27/62] drm/meson: fix colour distortion from HDR set during vendor u-boot
 Date:   Mon, 16 Aug 2021 15:01:59 +0200
-Message-Id: <20210816125436.588162993@linuxfoundation.org>
+Message-Id: <20210816125429.121951998@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125434.948010115@linuxfoundation.org>
-References: <20210816125434.948010115@linuxfoundation.org>
+In-Reply-To: <20210816125428.198692661@linuxfoundation.org>
+References: <20210816125428.198692661@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,49 +43,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aya Levin <ayal@nvidia.com>
+From: Christian Hewitt <christianshewitt@gmail.com>
 
-[ Upstream commit bd37c2888ccaa5ceb9895718f6909b247cc372e0 ]
+[ Upstream commit bf33677a3c394bb8fddd48d3bbc97adf0262e045 ]
 
-Check return value of mlx5_fw_tracer_start(), set error path and fix
-return value of mlx5_fw_tracer_init() accordingly.
+Add support for the OSD1 HDR registers so meson DRM can handle the HDR
+properties set by Amlogic u-boot on G12A and newer devices which result
+in blue/green/pink colour distortion to display output.
 
-Fixes: c71ad41ccb0c ("net/mlx5: FW tracer, events handling")
-Signed-off-by: Aya Levin <ayal@nvidia.com>
-Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
-Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+This takes the original patch submissions from Mathias [0] and [1] with
+corrections for formatting and the missing description and attribution
+needed for merge.
+
+[0] https://lore.kernel.org/linux-amlogic/59dfd7e6-fc91-3d61-04c4-94e078a3188c@baylibre.com/T/
+[1] https://lore.kernel.org/linux-amlogic/CAOKfEHBx_fboUqkENEMd-OC-NSrf46nto+vDLgvgttzPe99kXg@mail.gmail.com/T/#u
+
+Fixes: 728883948b0d ("drm/meson: Add G12A Support for VIU setup")
+Suggested-by: Mathias Steiger <mathias.steiger@googlemail.com>
+Signed-off-by: Christian Hewitt <christianshewitt@gmail.com>
+Tested-by: Neil Armstrong <narmstrong@baylibre.com>
+Tested-by: Philip Milev <milev.philip@gmail.com>
+[narmsrong: adding missing space on second tested-by tag]
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210806094005.7136-1-christianshewitt@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c  | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/meson/meson_registers.h | 5 +++++
+ drivers/gpu/drm/meson/meson_viu.c       | 7 ++++++-
+ 2 files changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c b/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
-index 2eb022ad7fd0..3dfcb20e97c6 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
-@@ -1019,12 +1019,19 @@ int mlx5_fw_tracer_init(struct mlx5_fw_tracer *tracer)
- 	MLX5_NB_INIT(&tracer->nb, fw_tracer_event, DEVICE_TRACER);
- 	mlx5_eq_notifier_register(dev, &tracer->nb);
+diff --git a/drivers/gpu/drm/meson/meson_registers.h b/drivers/gpu/drm/meson/meson_registers.h
+index 05fce48ceee0..f7da816a5562 100644
+--- a/drivers/gpu/drm/meson/meson_registers.h
++++ b/drivers/gpu/drm/meson/meson_registers.h
+@@ -590,6 +590,11 @@
+ #define VPP_WRAP_OSD3_MATRIX_PRE_OFFSET2 0x3dbc
+ #define VPP_WRAP_OSD3_MATRIX_EN_CTRL 0x3dbd
  
--	mlx5_fw_tracer_start(tracer);
--
-+	err = mlx5_fw_tracer_start(tracer);
-+	if (err) {
-+		mlx5_core_warn(dev, "FWTracer: Failed to start tracer %d\n", err);
-+		goto err_notifier_unregister;
++/* osd1 HDR */
++#define OSD1_HDR2_CTRL 0x38a0
++#define OSD1_HDR2_CTRL_VDIN0_HDR2_TOP_EN       BIT(13)
++#define OSD1_HDR2_CTRL_REG_ONLY_MAT            BIT(16)
++
+ /* osd2 scaler */
+ #define OSD2_VSC_PHASE_STEP 0x3d00
+ #define OSD2_VSC_INI_PHASE 0x3d01
+diff --git a/drivers/gpu/drm/meson/meson_viu.c b/drivers/gpu/drm/meson/meson_viu.c
+index 68cf2c2eca5f..33698814c022 100644
+--- a/drivers/gpu/drm/meson/meson_viu.c
++++ b/drivers/gpu/drm/meson/meson_viu.c
+@@ -356,9 +356,14 @@ void meson_viu_init(struct meson_drm *priv)
+ 	if (meson_vpu_is_compatible(priv, VPU_COMPATIBLE_GXM) ||
+ 	    meson_vpu_is_compatible(priv, VPU_COMPATIBLE_GXL))
+ 		meson_viu_load_matrix(priv);
+-	else if (meson_vpu_is_compatible(priv, VPU_COMPATIBLE_G12A))
++	else if (meson_vpu_is_compatible(priv, VPU_COMPATIBLE_G12A)) {
+ 		meson_viu_set_g12a_osd1_matrix(priv, RGB709_to_YUV709l_coeff,
+ 					       true);
++		/* fix green/pink color distortion from vendor u-boot */
++		writel_bits_relaxed(OSD1_HDR2_CTRL_REG_ONLY_MAT |
++				OSD1_HDR2_CTRL_VDIN0_HDR2_TOP_EN, 0,
++				priv->io_base + _REG(OSD1_HDR2_CTRL));
 +	}
- 	return 0;
  
-+err_notifier_unregister:
-+	mlx5_eq_notifier_unregister(dev, &tracer->nb);
-+	mlx5_core_destroy_mkey(dev, &tracer->buff.mkey);
- err_dealloc_pd:
- 	mlx5_core_dealloc_pd(dev, tracer->buff.pdn);
-+	cancel_work_sync(&tracer->read_fw_strings_work);
- 	return err;
- }
- 
+ 	/* Initialize OSD1 fifo control register */
+ 	reg = VIU_OSD_DDR_PRIORITY_URGENT |
 -- 
 2.30.2
 
