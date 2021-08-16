@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B3BBC3ED584
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:12:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B25DB3ED670
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:22:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239251AbhHPNL5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:11:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35328 "EHLO mail.kernel.org"
+        id S239272AbhHPNVV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:21:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239813AbhHPNKN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:10:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9B7C960E78;
-        Mon, 16 Aug 2021 13:09:41 +0000 (UTC)
+        id S239213AbhHPNSs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:18:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 10A16632A9;
+        Mon, 16 Aug 2021 13:14:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119382;
-        bh=lVK89EfKS4FBTCltGJeWadPZq0O2pYztR1zPh5y2oWw=;
+        s=korg; t=1629119665;
+        bh=9I19CVjzRFMAqjf5ap1zDjUFU8VQHXVP1hc56kXyw5A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O3IgG3OvRTldEc6ai321iLzF53cN/Lxz5Hs+gb9xJCojKs6J1AGbq3EH2Clbmi17S
-         sLktnhI+oZfX0GZBA0c2rXIkLy0z2b9IG0HTSMq9rxwz5yx9Cy39VC5p6tEnfXiPeM
-         CgEGbJcvLV9LWF89+tMPt9eLL7TWhGz0AJbpQ/vQ=
+        b=siFNa4YVnRYH7DuMJTCDhhAlTqxrMX1Yb0konNqwM8y3I4/lAc5nWxkWKHskAxI6g
+         Mu+aPa1G9kVf3UAFCwGdmisSIUShKqd+R8vXbW2ZnVBqvjUB2Y0Z3FDsdqLNKuVWO1
+         3CJzqrk/ZgFTMf6GFLqDxKskN9yMYLtXrEX2Yfx4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.10 74/96] x86/msi: Force affinity setup before startup
+        stable@vger.kernel.org,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 114/151] arm64: efi: kaslr: Fix occasional random alloc (and boot) failure
 Date:   Mon, 16 Aug 2021 15:02:24 +0200
-Message-Id: <20210816125437.434503534@linuxfoundation.org>
+Message-Id: <20210816125447.810959705@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125434.948010115@linuxfoundation.org>
-References: <20210816125434.948010115@linuxfoundation.org>
+In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
+References: <20210816125444.082226187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,91 +41,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 
-commit ff363f480e5997051dd1de949121ffda3b753741 upstream.
+[ Upstream commit 4152433c397697acc4b02c4a10d17d5859c2730d ]
 
-The X86 MSI mechanism cannot handle interrupt affinity changes safely after
-startup other than from an interrupt handler, unless interrupt remapping is
-enabled. The startup sequence in the generic interrupt code violates that
-assumption.
+The EFI stub random allocator used for kaslr on arm64 has a subtle
+bug. In function get_entry_num_slots() which counts the number of
+possible allocation "slots" for the image in a given chunk of free
+EFI memory, "last_slot" can become negative if the chunk is smaller
+than the requested allocation size.
 
-Mark the irq chips with the new IRQCHIP_AFFINITY_PRE_STARTUP flag so that
-the default interrupt setting happens before the interrupt is started up
-for the first time.
+The test "if (first_slot > last_slot)" doesn't catch it because
+both first_slot and last_slot are unsigned.
 
-While the interrupt remapping MSI chip does not require this, there is no
-point in treating it differently as this might spare an interrupt to a CPU
-which is not in the default affinity mask.
+I chose not to make them signed to avoid problems if this is ever
+used on architectures where there are meaningful addresses with the
+top bit set. Instead, fix it with an additional test against the
+allocation size.
 
-For the non-remapping case go to the direct write path when the interrupt
-is not yet started similar to the not yet activated case.
+This can cause a boot failure in addition to a loss of randomisation
+due to another bug in the arm64 stub fixed separately.
 
-Fixes: 18404756765c ("genirq: Expose default irq affinity mask (take 3)")
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Marc Zyngier <maz@kernel.org>
-Reviewed-by: Marc Zyngier <maz@kernel.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210729222542.886722080@linutronix.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Fixes: 2ddbfc81eac8 ("efi: stub: add implementation of efi_random_alloc()")
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/apic/msi.c |   13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/firmware/efi/libstub/randomalloc.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/x86/kernel/apic/msi.c
-+++ b/arch/x86/kernel/apic/msi.c
-@@ -86,11 +86,13 @@ msi_set_affinity(struct irq_data *irqd,
- 	 *   The quirk bit is not set in this case.
- 	 * - The new vector is the same as the old vector
- 	 * - The old vector is MANAGED_IRQ_SHUTDOWN_VECTOR (interrupt starts up)
-+	 * - The interrupt is not yet started up
- 	 * - The new destination CPU is the same as the old destination CPU
- 	 */
- 	if (!irqd_msi_nomask_quirk(irqd) ||
- 	    cfg->vector == old_cfg.vector ||
- 	    old_cfg.vector == MANAGED_IRQ_SHUTDOWN_VECTOR ||
-+	    !irqd_is_started(irqd) ||
- 	    cfg->dest_apicid == old_cfg.dest_apicid) {
- 		irq_msi_update_msg(irqd, cfg);
- 		return ret;
-@@ -178,7 +180,8 @@ static struct irq_chip pci_msi_controlle
- 	.irq_ack		= irq_chip_ack_parent,
- 	.irq_retrigger		= irq_chip_retrigger_hierarchy,
- 	.irq_set_affinity	= msi_set_affinity,
--	.flags			= IRQCHIP_SKIP_SET_WAKE,
-+	.flags			= IRQCHIP_SKIP_SET_WAKE |
-+				  IRQCHIP_AFFINITY_PRE_STARTUP,
- };
+diff --git a/drivers/firmware/efi/libstub/randomalloc.c b/drivers/firmware/efi/libstub/randomalloc.c
+index a408df474d83..724155b9e10d 100644
+--- a/drivers/firmware/efi/libstub/randomalloc.c
++++ b/drivers/firmware/efi/libstub/randomalloc.c
+@@ -30,6 +30,8 @@ static unsigned long get_entry_num_slots(efi_memory_desc_t *md,
  
- int pci_msi_prepare(struct irq_domain *domain, struct device *dev, int nvec,
-@@ -247,7 +250,8 @@ static struct irq_chip pci_msi_ir_contro
- 	.irq_mask		= pci_msi_mask_irq,
- 	.irq_ack		= irq_chip_ack_parent,
- 	.irq_retrigger		= irq_chip_retrigger_hierarchy,
--	.flags			= IRQCHIP_SKIP_SET_WAKE,
-+	.flags			= IRQCHIP_SKIP_SET_WAKE |
-+				  IRQCHIP_AFFINITY_PRE_STARTUP,
- };
+ 	region_end = min(md->phys_addr + md->num_pages * EFI_PAGE_SIZE - 1,
+ 			 (u64)ULONG_MAX);
++	if (region_end < size)
++		return 0;
  
- static struct msi_domain_info pci_msi_ir_domain_info = {
-@@ -289,7 +293,8 @@ static struct irq_chip dmar_msi_controll
- 	.irq_set_affinity	= msi_domain_set_affinity,
- 	.irq_retrigger		= irq_chip_retrigger_hierarchy,
- 	.irq_write_msi_msg	= dmar_msi_write_msg,
--	.flags			= IRQCHIP_SKIP_SET_WAKE,
-+	.flags			= IRQCHIP_SKIP_SET_WAKE |
-+				  IRQCHIP_AFFINITY_PRE_STARTUP,
- };
- 
- static int dmar_msi_init(struct irq_domain *domain,
-@@ -381,7 +386,7 @@ static struct irq_chip hpet_msi_controll
- 	.irq_set_affinity = msi_domain_set_affinity,
- 	.irq_retrigger = irq_chip_retrigger_hierarchy,
- 	.irq_write_msi_msg = hpet_msi_write_msg,
--	.flags = IRQCHIP_SKIP_SET_WAKE,
-+	.flags = IRQCHIP_SKIP_SET_WAKE | IRQCHIP_AFFINITY_PRE_STARTUP,
- };
- 
- static int hpet_msi_init(struct irq_domain *domain,
+ 	first_slot = round_up(md->phys_addr, align);
+ 	last_slot = round_down(region_end - size + 1, align);
+-- 
+2.30.2
+
 
 
