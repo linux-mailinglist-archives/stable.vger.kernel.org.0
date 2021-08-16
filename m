@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D3343ED588
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:12:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D8FA3ED639
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:22:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237204AbhHPNMK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:12:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58496 "EHLO mail.kernel.org"
+        id S238697AbhHPNSe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:18:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39184 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237215AbhHPNIl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:08:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 55C4B632C0;
-        Mon, 16 Aug 2021 13:07:17 +0000 (UTC)
+        id S239887AbhHPNQd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:16:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2CECE632EC;
+        Mon, 16 Aug 2021 13:13:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119237;
-        bh=+8+I/aHfhTxU6u0ECwrMbi1S1XkESYbRawlupUyyV7Y=;
+        s=korg; t=1629119594;
+        bh=YTyWk8IbKK13DtxrhWm3tpx7ue2lNfPrMekA43DvUUY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v4HyfbKL+vhcbVQmcdKFEJJqvfBWWMsS8LwceQpBW82U5rpy+zkABal2XKM+i5yHX
-         +Ukzd2OXUyLjt0WXKK1Q6GFSMcDWB/LdQ989zKo5NrH3zu7cBL9xV/FoueSH9Mdnf1
-         KsgDrS7hcP5aOibblkFj7AQQ5WKWyRVvQRBz4U9M=
+        b=odYH9V+qU0sjsE5JKF+6UKPbN2V9S5GDzKBych7qHyJj7HxUmPnBd9hUJVbyLGMsU
+         LwjLLVNqFuiorpg/VPdojVnJ3NMCLmfGWFykjgUPR4Gj8ylz0CkbnfpwhIVUnVVCH5
+         eR1dcrDQm3DI6QpUuySBucTQmLSnaLvw782xJC+I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roi Dayan <roid@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Shay Drory <shayd@nvidia.com>,
+        Tariq Toukan <tariqt@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 46/96] psample: Add a fwd declaration for skbuff
+Subject: [PATCH 5.13 086/151] net/mlx5: Synchronize correct IRQ when destroying CQ
 Date:   Mon, 16 Aug 2021 15:01:56 +0200
-Message-Id: <20210816125436.494334290@linuxfoundation.org>
+Message-Id: <20210816125446.910598911@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125434.948010115@linuxfoundation.org>
-References: <20210816125434.948010115@linuxfoundation.org>
+In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
+References: <20210816125444.082226187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +41,305 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roi Dayan <roid@nvidia.com>
+From: Shay Drory <shayd@nvidia.com>
 
-[ Upstream commit beb7f2de5728b0bd2140a652fa51f6ad85d159f7 ]
+[ Upstream commit 563476ae0c5e48a028cbfa38fa9d2fc0418eb88f ]
 
-Without this there is a warning if source files include psample.h
-before skbuff.h or doesn't include it at all.
+The CQ destroy is performed based on the IRQ number that is stored in
+cq->irqn. That number wasn't set explicitly during CQ creation and as
+expected some of the API users of mlx5_core_create_cq() forgot to update
+it.
 
-Fixes: 6ae0a6286171 ("net: Introduce psample, a new genetlink channel for packet sampling")
-Signed-off-by: Roi Dayan <roid@nvidia.com>
-Link: https://lore.kernel.org/r/20210808065242.1522535-1-roid@nvidia.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+This caused to wrong synchronization call of the wrong IRQ with a number
+0 instead of the real one.
+
+As a fix, set the IRQ number directly in the mlx5_core_create_cq() and
+update all users accordingly.
+
+Fixes: 1a86b377aa21 ("vdpa/mlx5: Add VDPA driver for supported mlx5 devices")
+Fixes: ef1659ade359 ("IB/mlx5: Add DEVX support for CQ events")
+Signed-off-by: Shay Drory <shayd@nvidia.com>
+Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/psample.h | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/infiniband/hw/mlx5/cq.c               |  4 +---
+ drivers/infiniband/hw/mlx5/devx.c             |  3 +--
+ drivers/net/ethernet/mellanox/mlx5/core/cq.c  |  1 +
+ .../net/ethernet/mellanox/mlx5/core/en_main.c | 13 ++----------
+ drivers/net/ethernet/mellanox/mlx5/core/eq.c  | 20 +++++++++++++++----
+ .../ethernet/mellanox/mlx5/core/fpga/conn.c   |  4 +---
+ .../net/ethernet/mellanox/mlx5/core/lib/eq.h  |  2 ++
+ .../mellanox/mlx5/core/steering/dr_send.c     |  4 +---
+ drivers/vdpa/mlx5/net/mlx5_vnet.c             |  3 +--
+ include/linux/mlx5/driver.h                   |  3 +--
+ 10 files changed, 27 insertions(+), 30 deletions(-)
 
-diff --git a/include/net/psample.h b/include/net/psample.h
-index 68ae16bb0a4a..20a17551f790 100644
---- a/include/net/psample.h
-+++ b/include/net/psample.h
-@@ -18,6 +18,8 @@ struct psample_group *psample_group_get(struct net *net, u32 group_num);
- void psample_group_take(struct psample_group *group);
- void psample_group_put(struct psample_group *group);
+diff --git a/drivers/infiniband/hw/mlx5/cq.c b/drivers/infiniband/hw/mlx5/cq.c
+index 9ce01f729673..e14a14b634a5 100644
+--- a/drivers/infiniband/hw/mlx5/cq.c
++++ b/drivers/infiniband/hw/mlx5/cq.c
+@@ -941,7 +941,6 @@ int mlx5_ib_create_cq(struct ib_cq *ibcq, const struct ib_cq_init_attr *attr,
+ 	u32 *cqb = NULL;
+ 	void *cqc;
+ 	int cqe_size;
+-	unsigned int irqn;
+ 	int eqn;
+ 	int err;
  
-+struct sk_buff;
+@@ -980,7 +979,7 @@ int mlx5_ib_create_cq(struct ib_cq *ibcq, const struct ib_cq_init_attr *attr,
+ 		INIT_WORK(&cq->notify_work, notify_soft_wc_handler);
+ 	}
+ 
+-	err = mlx5_vector2eqn(dev->mdev, vector, &eqn, &irqn);
++	err = mlx5_vector2eqn(dev->mdev, vector, &eqn);
+ 	if (err)
+ 		goto err_cqb;
+ 
+@@ -1003,7 +1002,6 @@ int mlx5_ib_create_cq(struct ib_cq *ibcq, const struct ib_cq_init_attr *attr,
+ 		goto err_cqb;
+ 
+ 	mlx5_ib_dbg(dev, "cqn 0x%x\n", cq->mcq.cqn);
+-	cq->mcq.irqn = irqn;
+ 	if (udata)
+ 		cq->mcq.tasklet_ctx.comp = mlx5_ib_cq_comp;
+ 	else
+diff --git a/drivers/infiniband/hw/mlx5/devx.c b/drivers/infiniband/hw/mlx5/devx.c
+index eb9b0a2707f8..c869b2a91a28 100644
+--- a/drivers/infiniband/hw/mlx5/devx.c
++++ b/drivers/infiniband/hw/mlx5/devx.c
+@@ -975,7 +975,6 @@ static int UVERBS_HANDLER(MLX5_IB_METHOD_DEVX_QUERY_EQN)(
+ 	struct mlx5_ib_dev *dev;
+ 	int user_vector;
+ 	int dev_eqn;
+-	unsigned int irqn;
+ 	int err;
+ 
+ 	if (uverbs_copy_from(&user_vector, attrs,
+@@ -987,7 +986,7 @@ static int UVERBS_HANDLER(MLX5_IB_METHOD_DEVX_QUERY_EQN)(
+ 		return PTR_ERR(c);
+ 	dev = to_mdev(c->ibucontext.device);
+ 
+-	err = mlx5_vector2eqn(dev->mdev, user_vector, &dev_eqn, &irqn);
++	err = mlx5_vector2eqn(dev->mdev, user_vector, &dev_eqn);
+ 	if (err < 0)
+ 		return err;
+ 
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/cq.c b/drivers/net/ethernet/mellanox/mlx5/core/cq.c
+index df3e4938ecdd..360e093874d4 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/cq.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/cq.c
+@@ -134,6 +134,7 @@ int mlx5_core_create_cq(struct mlx5_core_dev *dev, struct mlx5_core_cq *cq,
+ 			      cq->cqn);
+ 
+ 	cq->uar = dev->priv.uar;
++	cq->irqn = eq->core.irqn;
+ 
+ 	return 0;
+ 
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+index 3221a6a2f221..779a4abead01 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+@@ -1531,15 +1531,9 @@ static int mlx5e_alloc_cq_common(struct mlx5e_priv *priv,
+ {
+ 	struct mlx5_core_dev *mdev = priv->mdev;
+ 	struct mlx5_core_cq *mcq = &cq->mcq;
+-	int eqn_not_used;
+-	unsigned int irqn;
+ 	int err;
+ 	u32 i;
+ 
+-	err = mlx5_vector2eqn(mdev, param->eq_ix, &eqn_not_used, &irqn);
+-	if (err)
+-		return err;
+-
+ 	err = mlx5_cqwq_create(mdev, &param->wq, param->cqc, &cq->wq,
+ 			       &cq->wq_ctrl);
+ 	if (err)
+@@ -1553,7 +1547,6 @@ static int mlx5e_alloc_cq_common(struct mlx5e_priv *priv,
+ 	mcq->vector     = param->eq_ix;
+ 	mcq->comp       = mlx5e_completion_event;
+ 	mcq->event      = mlx5e_cq_error_event;
+-	mcq->irqn       = irqn;
+ 
+ 	for (i = 0; i < mlx5_cqwq_get_size(&cq->wq); i++) {
+ 		struct mlx5_cqe64 *cqe = mlx5_cqwq_get_wqe(&cq->wq, i);
+@@ -1601,11 +1594,10 @@ static int mlx5e_create_cq(struct mlx5e_cq *cq, struct mlx5e_cq_param *param)
+ 	void *in;
+ 	void *cqc;
+ 	int inlen;
+-	unsigned int irqn_not_used;
+ 	int eqn;
+ 	int err;
+ 
+-	err = mlx5_vector2eqn(mdev, param->eq_ix, &eqn, &irqn_not_used);
++	err = mlx5_vector2eqn(mdev, param->eq_ix, &eqn);
+ 	if (err)
+ 		return err;
+ 
+@@ -1979,9 +1971,8 @@ static int mlx5e_open_channel(struct mlx5e_priv *priv, int ix,
+ 	struct mlx5e_channel *c;
+ 	unsigned int irq;
+ 	int err;
+-	int eqn;
+ 
+-	err = mlx5_vector2eqn(priv->mdev, ix, &eqn, &irq);
++	err = mlx5_vector2irqn(priv->mdev, ix, &irq);
+ 	if (err)
+ 		return err;
+ 
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eq.c b/drivers/net/ethernet/mellanox/mlx5/core/eq.c
+index 940333410267..0879551161d2 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/eq.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/eq.c
+@@ -871,8 +871,8 @@ clean:
+ 	return err;
+ }
+ 
+-int mlx5_vector2eqn(struct mlx5_core_dev *dev, int vector, int *eqn,
+-		    unsigned int *irqn)
++static int vector2eqnirqn(struct mlx5_core_dev *dev, int vector, int *eqn,
++			  unsigned int *irqn)
+ {
+ 	struct mlx5_eq_table *table = dev->priv.eq_table;
+ 	struct mlx5_eq_comp *eq, *n;
+@@ -881,8 +881,10 @@ int mlx5_vector2eqn(struct mlx5_core_dev *dev, int vector, int *eqn,
+ 
+ 	list_for_each_entry_safe(eq, n, &table->comp_eqs_list, list) {
+ 		if (i++ == vector) {
+-			*eqn = eq->core.eqn;
+-			*irqn = eq->core.irqn;
++			if (irqn)
++				*irqn = eq->core.irqn;
++			if (eqn)
++				*eqn = eq->core.eqn;
+ 			err = 0;
+ 			break;
+ 		}
+@@ -890,8 +892,18 @@ int mlx5_vector2eqn(struct mlx5_core_dev *dev, int vector, int *eqn,
+ 
+ 	return err;
+ }
 +
- #if IS_ENABLED(CONFIG_PSAMPLE)
++int mlx5_vector2eqn(struct mlx5_core_dev *dev, int vector, int *eqn)
++{
++	return vector2eqnirqn(dev, vector, eqn, NULL);
++}
+ EXPORT_SYMBOL(mlx5_vector2eqn);
  
- void psample_sample_packet(struct psample_group *group, struct sk_buff *skb,
++int mlx5_vector2irqn(struct mlx5_core_dev *dev, int vector, unsigned int *irqn)
++{
++	return vector2eqnirqn(dev, vector, NULL, irqn);
++}
++
+ unsigned int mlx5_comp_vectors_count(struct mlx5_core_dev *dev)
+ {
+ 	return dev->priv.eq_table->num_comp_eqs;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/fpga/conn.c b/drivers/net/ethernet/mellanox/mlx5/core/fpga/conn.c
+index bd66ab2af5b5..d5da4ab65766 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/fpga/conn.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/fpga/conn.c
+@@ -417,7 +417,6 @@ static int mlx5_fpga_conn_create_cq(struct mlx5_fpga_conn *conn, int cq_size)
+ 	struct mlx5_wq_param wqp;
+ 	struct mlx5_cqe64 *cqe;
+ 	int inlen, err, eqn;
+-	unsigned int irqn;
+ 	void *cqc, *in;
+ 	__be64 *pas;
+ 	u32 i;
+@@ -446,7 +445,7 @@ static int mlx5_fpga_conn_create_cq(struct mlx5_fpga_conn *conn, int cq_size)
+ 		goto err_cqwq;
+ 	}
+ 
+-	err = mlx5_vector2eqn(mdev, smp_processor_id(), &eqn, &irqn);
++	err = mlx5_vector2eqn(mdev, smp_processor_id(), &eqn);
+ 	if (err) {
+ 		kvfree(in);
+ 		goto err_cqwq;
+@@ -476,7 +475,6 @@ static int mlx5_fpga_conn_create_cq(struct mlx5_fpga_conn *conn, int cq_size)
+ 	*conn->cq.mcq.arm_db    = 0;
+ 	conn->cq.mcq.vector     = 0;
+ 	conn->cq.mcq.comp       = mlx5_fpga_conn_cq_complete;
+-	conn->cq.mcq.irqn       = irqn;
+ 	conn->cq.mcq.uar        = fdev->conn_res.uar;
+ 	tasklet_setup(&conn->cq.tasklet, mlx5_fpga_conn_cq_tasklet);
+ 
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/lib/eq.h b/drivers/net/ethernet/mellanox/mlx5/core/lib/eq.h
+index f607a3858ef5..bd3ed8660483 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/lib/eq.h
++++ b/drivers/net/ethernet/mellanox/mlx5/core/lib/eq.h
+@@ -103,4 +103,6 @@ void mlx5_core_eq_free_irqs(struct mlx5_core_dev *dev);
+ struct cpu_rmap *mlx5_eq_table_get_rmap(struct mlx5_core_dev *dev);
+ #endif
+ 
++int mlx5_vector2irqn(struct mlx5_core_dev *dev, int vector, unsigned int *irqn);
++
+ #endif
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_send.c b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_send.c
+index 12cf323a5943..9df0e73d1c35 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_send.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_send.c
+@@ -749,7 +749,6 @@ static struct mlx5dr_cq *dr_create_cq(struct mlx5_core_dev *mdev,
+ 	struct mlx5_cqe64 *cqe;
+ 	struct mlx5dr_cq *cq;
+ 	int inlen, err, eqn;
+-	unsigned int irqn;
+ 	void *cqc, *in;
+ 	__be64 *pas;
+ 	int vector;
+@@ -782,7 +781,7 @@ static struct mlx5dr_cq *dr_create_cq(struct mlx5_core_dev *mdev,
+ 		goto err_cqwq;
+ 
+ 	vector = raw_smp_processor_id() % mlx5_comp_vectors_count(mdev);
+-	err = mlx5_vector2eqn(mdev, vector, &eqn, &irqn);
++	err = mlx5_vector2eqn(mdev, vector, &eqn);
+ 	if (err) {
+ 		kvfree(in);
+ 		goto err_cqwq;
+@@ -818,7 +817,6 @@ static struct mlx5dr_cq *dr_create_cq(struct mlx5_core_dev *mdev,
+ 	*cq->mcq.arm_db = cpu_to_be32(2 << 28);
+ 
+ 	cq->mcq.vector = 0;
+-	cq->mcq.irqn = irqn;
+ 	cq->mcq.uar = uar;
+ 
+ 	return cq;
+diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+index 32dd5ed712cb..f3495386698a 100644
+--- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
++++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+@@ -526,7 +526,6 @@ static int cq_create(struct mlx5_vdpa_net *ndev, u16 idx, u32 num_ent)
+ 	void __iomem *uar_page = ndev->mvdev.res.uar->map;
+ 	u32 out[MLX5_ST_SZ_DW(create_cq_out)];
+ 	struct mlx5_vdpa_cq *vcq = &mvq->cq;
+-	unsigned int irqn;
+ 	__be64 *pas;
+ 	int inlen;
+ 	void *cqc;
+@@ -566,7 +565,7 @@ static int cq_create(struct mlx5_vdpa_net *ndev, u16 idx, u32 num_ent)
+ 	/* Use vector 0 by default. Consider adding code to choose least used
+ 	 * vector.
+ 	 */
+-	err = mlx5_vector2eqn(mdev, 0, &eqn, &irqn);
++	err = mlx5_vector2eqn(mdev, 0, &eqn);
+ 	if (err)
+ 		goto err_vec;
+ 
+diff --git a/include/linux/mlx5/driver.h b/include/linux/mlx5/driver.h
+index f8902bcd91e2..58236808fdf4 100644
+--- a/include/linux/mlx5/driver.h
++++ b/include/linux/mlx5/driver.h
+@@ -1042,8 +1042,7 @@ void mlx5_unregister_debugfs(void);
+ void mlx5_fill_page_array(struct mlx5_frag_buf *buf, __be64 *pas);
+ void mlx5_fill_page_frag_array_perm(struct mlx5_frag_buf *buf, __be64 *pas, u8 perm);
+ void mlx5_fill_page_frag_array(struct mlx5_frag_buf *frag_buf, __be64 *pas);
+-int mlx5_vector2eqn(struct mlx5_core_dev *dev, int vector, int *eqn,
+-		    unsigned int *irqn);
++int mlx5_vector2eqn(struct mlx5_core_dev *dev, int vector, int *eqn);
+ int mlx5_core_attach_mcg(struct mlx5_core_dev *dev, union ib_gid *mgid, u32 qpn);
+ int mlx5_core_detach_mcg(struct mlx5_core_dev *dev, union ib_gid *mgid, u32 qpn);
+ 
 -- 
 2.30.2
 
