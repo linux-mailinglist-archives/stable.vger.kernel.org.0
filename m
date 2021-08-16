@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C74463ED594
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:12:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9B053ED5AC
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:12:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236332AbhHPNMV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:12:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35962 "EHLO mail.kernel.org"
+        id S237367AbhHPNNF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:13:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237580AbhHPNKa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:10:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F81760E78;
-        Mon, 16 Aug 2021 13:09:57 +0000 (UTC)
+        id S239498AbhHPNLZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:11:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 57A0360F46;
+        Mon, 16 Aug 2021 13:10:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119398;
-        bh=Syyxvf7D+RvcJyfS+6XzQCELASBKS4J068rcCopCPJk=;
+        s=korg; t=1629119400;
+        bh=BhIA9zJ/exLmau+ZqDDNyypST8RT8hSrTga1VebG2Fo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SNL/ThDuStcvaugpzY12Ds5PgAL5Jx/SjqZRoZ3IyUZ3vBR2WuLdtvVk1KnIaeWeL
-         8Sh+YHnKGrJp35WO/WhtYd36do6+OkoBarTAmIZqruEAJQ4k602fepo5cuKku80Tvj
-         8q5FXyzvm04oB+aOIY9FbBdBJWZtd+W3lcFEHDZA=
+        b=x/6v9Mq7yxZDS49F6y8LPU4B0wU3dw6YZ0PTQO2C/VdknJfQ48IRkBSwp+hL8rKEv
+         HKJTKYZwh69s8AwVPVctj2hofKZfXv6jsycFXcUXQM63yDmVxTpDPVSkis1yBKyYOn
+         5qbD4wymbhOjDcv7D0yKPtFcpcXpCDHetQWWJUoM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        stable@vger.kernel.org,
+        Cezary Rojewski <cezary.rojewski@intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
         Takashi Iwai <tiwai@suse.de>, Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.13 011/151] ASoC: kirkwood: Fix reference to PCM buffer address
-Date:   Mon, 16 Aug 2021 15:00:41 +0200
-Message-Id: <20210816125444.449051054@linuxfoundation.org>
+Subject: [PATCH 5.13 012/151] ASoC: intel: atom: Fix reference to PCM buffer address
+Date:   Mon, 16 Aug 2021 15:00:42 +0200
+Message-Id: <20210816125444.479616259@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
 References: <20210816125444.082226187@linuxfoundation.org>
@@ -41,89 +43,46 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Takashi Iwai <tiwai@suse.de>
 
-commit bb6a40fc5a830cae45ddd5cd6cfa151b008522ed upstream.
+commit 2e6b836312a477d647a7920b56810a5a25f6c856 upstream.
 
-The transition to the managed PCM buffers allowed the dynamically
-buffer allocation, while the driver code still assumes the fixed
-preallocation buffer and sets up the DMA stuff at the open call.
-This needs to be moved to hw_params after the buffer allocation and
-setup.  Also, the reference to the buffer address has to be corrected
-to runtime->dma_addr.
+PCM buffers might be allocated dynamically when the buffer
+preallocation failed or a larger buffer is requested, and it's not
+guaranteed that substream->dma_buffer points to the actually used
+buffer.  The address should be retrieved from runtime->dma_addr,
+instead of substream->dma_buffer (and shouldn't use virt_to_phys).
 
-Fixes: b3c0ae75f5d3 ("ASoC: kirkwood: Use managed DMA buffer allocation")
-Cc: Lars-Peter Clausen <lars@metafoo.de>
+Also, remove the line overriding runtime->dma_area superfluously,
+which was already set up at the PCM buffer allocation.
+
+Cc: Cezary Rojewski <cezary.rojewski@intel.com>
+Cc: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Link: https://lore.kernel.org/r/20210728112353.6675-6-tiwai@suse.de
+Link: https://lore.kernel.org/r/20210728112353.6675-3-tiwai@suse.de
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/kirkwood/kirkwood-dma.c |   26 ++++++++++++++++++--------
- 1 file changed, 18 insertions(+), 8 deletions(-)
+ sound/soc/intel/atom/sst-mfld-platform-pcm.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/sound/soc/kirkwood/kirkwood-dma.c
-+++ b/sound/soc/kirkwood/kirkwood-dma.c
-@@ -104,8 +104,6 @@ static int kirkwood_dma_open(struct snd_
- 	int err;
- 	struct snd_pcm_runtime *runtime = substream->runtime;
- 	struct kirkwood_dma_data *priv = kirkwood_priv(substream);
--	const struct mbus_dram_target_info *dram;
--	unsigned long addr;
+--- a/sound/soc/intel/atom/sst-mfld-platform-pcm.c
++++ b/sound/soc/intel/atom/sst-mfld-platform-pcm.c
+@@ -127,7 +127,7 @@ static void sst_fill_alloc_params(struct
+ 	snd_pcm_uframes_t period_size;
+ 	ssize_t periodbytes;
+ 	ssize_t buffer_bytes = snd_pcm_lib_buffer_bytes(substream);
+-	u32 buffer_addr = virt_to_phys(substream->dma_buffer.area);
++	u32 buffer_addr = substream->runtime->dma_addr;
  
- 	snd_soc_set_runtime_hwparams(substream, &kirkwood_dma_snd_hw);
- 
-@@ -142,20 +140,14 @@ static int kirkwood_dma_open(struct snd_
- 		writel((unsigned int)-1, priv->io + KIRKWOOD_ERR_MASK);
- 	}
- 
--	dram = mv_mbus_dram_info();
--	addr = substream->dma_buffer.addr;
- 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK) {
- 		if (priv->substream_play)
- 			return -EBUSY;
- 		priv->substream_play = substream;
--		kirkwood_dma_conf_mbus_windows(priv->io,
--			KIRKWOOD_PLAYBACK_WIN, addr, dram);
- 	} else {
- 		if (priv->substream_rec)
- 			return -EBUSY;
- 		priv->substream_rec = substream;
--		kirkwood_dma_conf_mbus_windows(priv->io,
--			KIRKWOOD_RECORD_WIN, addr, dram);
- 	}
- 
- 	return 0;
-@@ -182,6 +174,23 @@ static int kirkwood_dma_close(struct snd
- 	return 0;
- }
- 
-+static int kirkwood_dma_hw_params(struct snd_soc_component *component,
-+				  struct snd_pcm_substream *substream,
-+				  struct snd_pcm_hw_params *params)
-+{
-+	struct kirkwood_dma_data *priv = kirkwood_priv(substream);
-+	const struct mbus_dram_target_info *dram = mv_mbus_dram_info();
-+	unsigned long addr = substream->runtime->dma_addr;
-+
-+	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
-+		kirkwood_dma_conf_mbus_windows(priv->io,
-+			KIRKWOOD_PLAYBACK_WIN, addr, dram);
-+	else
-+		kirkwood_dma_conf_mbus_windows(priv->io,
-+			KIRKWOOD_RECORD_WIN, addr, dram);
-+	return 0;
-+}
-+
- static int kirkwood_dma_prepare(struct snd_soc_component *component,
- 				struct snd_pcm_substream *substream)
- {
-@@ -246,6 +255,7 @@ const struct snd_soc_component_driver ki
- 	.name		= DRV_NAME,
- 	.open		= kirkwood_dma_open,
- 	.close		= kirkwood_dma_close,
-+	.hw_params	= kirkwood_dma_hw_params,
- 	.prepare	= kirkwood_dma_prepare,
- 	.pointer	= kirkwood_dma_pointer,
- 	.pcm_construct	= kirkwood_dma_new,
+ 	channels = substream->runtime->channels;
+ 	period_size = substream->runtime->period_size;
+@@ -233,7 +233,6 @@ static int sst_platform_alloc_stream(str
+ 	/* set codec params and inform SST driver the same */
+ 	sst_fill_pcm_params(substream, &param);
+ 	sst_fill_alloc_params(substream, &alloc_params);
+-	substream->runtime->dma_area = substream->dma_buffer.area;
+ 	str_params.sparams = param;
+ 	str_params.aparams = alloc_params;
+ 	str_params.codec = SST_CODEC_TYPE_PCM;
 
 
