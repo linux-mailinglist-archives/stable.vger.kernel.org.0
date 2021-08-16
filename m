@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26B503ED503
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:08:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A90DA3ED56A
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:12:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238402AbhHPNHX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:07:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58496 "EHLO mail.kernel.org"
+        id S239405AbhHPNLR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:11:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237804AbhHPNGO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:06:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E6F16329F;
-        Mon, 16 Aug 2021 13:05:39 +0000 (UTC)
+        id S239171AbhHPNJh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:09:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8EB14604DC;
+        Mon, 16 Aug 2021 13:08:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119140;
-        bh=5TifbunCYFyx2z0K43HewLhkrJ7j4g7XbA3xMNVjvmo=;
+        s=korg; t=1629119325;
+        bh=ZIM4WeSf3+3e5ZvGeL5gQGEK2JLwfUgyyagH/iCYyWw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VhOp/Wzy3Q/yzfMmsWBskT2MmdyDCKYYD20SLF1/Th644FqZh7tD4NXHyvgQgfWsZ
-         kkRMlwaCoTKBuPRyO73gUoHlWvSxNINt3HWvnDhLgbmnEaWzAXlaWkufY1FWgUflhW
-         +iCWmrlrYbwq2YLuQjKw0wI3+nfHMKkTTGx46c8Q=
+        b=mjnyEYC4BI+eTna27JBqO7Q+FfgQ/NRAHM38UMMruFRXV2Si2fC35vaNngDhaBYDP
+         gKBFbPndkrfbWL67k6IK3vBbqsL2kL8bVMQ8COggNzt3PCrHvOtxJ+k55r2I5+6Rmb
+         RIefNlGaTqHJAZol74BrjRAqqMqB6x+CKsnaD+ts=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.4 57/62] KVM: VMX: Use current VMCS to query WAITPKG support for MSR emulation
-Date:   Mon, 16 Aug 2021 15:02:29 +0200
-Message-Id: <20210816125430.166030115@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Marc Zyngier <maz@kernel.org>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 5.10 80/96] PCI/MSI: Mask all unused MSI-X entries
+Date:   Mon, 16 Aug 2021 15:02:30 +0200
+Message-Id: <20210816125437.656185732@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125428.198692661@linuxfoundation.org>
-References: <20210816125428.198692661@linuxfoundation.org>
+In-Reply-To: <20210816125434.948010115@linuxfoundation.org>
+References: <20210816125434.948010115@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,41 +40,181 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit 7b9cae027ba3aaac295ae23a62f47876ed97da73 upstream.
+commit 7d5ec3d3612396dc6d4b76366d20ab9fc06f399f upstream.
 
-Use the secondary_exec_controls_get() accessor in vmx_has_waitpkg() to
-effectively get the controls for the current VMCS, as opposed to using
-vmx->secondary_exec_controls, which is the cached value of KVM's desired
-controls for vmcs01 and truly not reflective of any particular VMCS.
+When MSI-X is enabled the ordering of calls is:
 
-While the waitpkg control is not dynamic, i.e. vmcs01 will always hold
-the same waitpkg configuration as vmx->secondary_exec_controls, the same
-does not hold true for vmcs02 if the L1 VMM hides the feature from L2.
-If L1 hides the feature _and_ does not intercept MSR_IA32_UMWAIT_CONTROL,
-L2 could incorrectly read/write L1's virtual MSR instead of taking a #GP.
+  msix_map_region();
+  msix_setup_entries();
+  pci_msi_setup_msi_irqs();
+  msix_program_entries();
 
-Fixes: 6e3ba4abcea5 ("KVM: vmx: Emulate MSR IA32_UMWAIT_CONTROL")
+This has a few interesting issues:
+
+ 1) msix_setup_entries() allocates the MSI descriptors and initializes them
+    except for the msi_desc:masked member which is left zero initialized.
+
+ 2) pci_msi_setup_msi_irqs() allocates the interrupt descriptors and sets
+    up the MSI interrupts which ends up in pci_write_msi_msg() unless the
+    interrupt chip provides its own irq_write_msi_msg() function.
+
+ 3) msix_program_entries() does not do what the name suggests. It solely
+    updates the entries array (if not NULL) and initializes the masked
+    member for each MSI descriptor by reading the hardware state and then
+    masks the entry.
+
+Obviously this has some issues:
+
+ 1) The uninitialized masked member of msi_desc prevents the enforcement
+    of masking the entry in pci_write_msi_msg() depending on the cached
+    masked bit. Aside of that half initialized data is a NONO in general
+
+ 2) msix_program_entries() only ensures that the actually allocated entries
+    are masked. This is wrong as experimentation with crash testing and
+    crash kernel kexec has shown.
+
+    This limited testing unearthed that when the production kernel had more
+    entries in use and unmasked when it crashed and the crash kernel
+    allocated a smaller amount of entries, then a full scan of all entries
+    found unmasked entries which were in use in the production kernel.
+
+    This is obviously a device or emulation issue as the device reset
+    should mask all MSI-X table entries, but obviously that's just part
+    of the paper specification.
+
+Cure this by:
+
+ 1) Masking all table entries in hardware
+ 2) Initializing msi_desc::masked in msix_setup_entries()
+ 3) Removing the mask dance in msix_program_entries()
+ 4) Renaming msix_program_entries() to msix_update_entries() to
+    reflect the purpose of that function.
+
+As the masking of unused entries has never been done the Fixes tag refers
+to a commit in:
+   git://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git
+
+Fixes: f036d4ea5fa7 ("[PATCH] ia32 Message Signalled Interrupt support")
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Marc Zyngier <maz@kernel.org>
+Reviewed-by: Marc Zyngier <maz@kernel.org>
+Acked-by: Bjorn Helgaas <bhelgaas@google.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210810171952.2758100-2-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Link: https://lore.kernel.org/r/20210729222542.403833459@linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/vmx/vmx.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/msi.c |   45 +++++++++++++++++++++++++++------------------
+ 1 file changed, 27 insertions(+), 18 deletions(-)
 
---- a/arch/x86/kvm/vmx/vmx.h
-+++ b/arch/x86/kvm/vmx/vmx.h
-@@ -512,7 +512,7 @@ static inline void decache_tsc_multiplie
- 
- static inline bool vmx_has_waitpkg(struct vcpu_vmx *vmx)
+--- a/drivers/pci/msi.c
++++ b/drivers/pci/msi.c
+@@ -698,6 +698,7 @@ static int msix_setup_entries(struct pci
  {
--	return vmx->secondary_exec_control &
-+	return secondary_exec_controls_get(vmx) &
- 		SECONDARY_EXEC_ENABLE_USR_WAIT_PAUSE;
+ 	struct irq_affinity_desc *curmsk, *masks = NULL;
+ 	struct msi_desc *entry;
++	void __iomem *addr;
+ 	int ret, i;
+ 	int vec_count = pci_msix_vec_count(dev);
+ 
+@@ -718,6 +719,7 @@ static int msix_setup_entries(struct pci
+ 
+ 		entry->msi_attrib.is_msix	= 1;
+ 		entry->msi_attrib.is_64		= 1;
++
+ 		if (entries)
+ 			entry->msi_attrib.entry_nr = entries[i].entry;
+ 		else
+@@ -729,6 +731,10 @@ static int msix_setup_entries(struct pci
+ 		entry->msi_attrib.default_irq	= dev->irq;
+ 		entry->mask_base		= base;
+ 
++		addr = pci_msix_desc_addr(entry);
++		if (addr)
++			entry->masked = readl(addr + PCI_MSIX_ENTRY_VECTOR_CTRL);
++
+ 		list_add_tail(&entry->list, dev_to_msi_list(&dev->dev));
+ 		if (masks)
+ 			curmsk++;
+@@ -739,26 +745,25 @@ out:
+ 	return ret;
  }
  
+-static void msix_program_entries(struct pci_dev *dev,
+-				 struct msix_entry *entries)
++static void msix_update_entries(struct pci_dev *dev, struct msix_entry *entries)
+ {
+ 	struct msi_desc *entry;
+-	int i = 0;
+-	void __iomem *desc_addr;
+ 
+ 	for_each_pci_msi_entry(entry, dev) {
+-		if (entries)
+-			entries[i++].vector = entry->irq;
++		if (entries) {
++			entries->vector = entry->irq;
++			entries++;
++		}
++	}
++}
+ 
+-		desc_addr = pci_msix_desc_addr(entry);
+-		if (desc_addr)
+-			entry->masked = readl(desc_addr +
+-					      PCI_MSIX_ENTRY_VECTOR_CTRL);
+-		else
+-			entry->masked = 0;
++static void msix_mask_all(void __iomem *base, int tsize)
++{
++	u32 ctrl = PCI_MSIX_ENTRY_CTRL_MASKBIT;
++	int i;
+ 
+-		msix_mask_irq(entry, 1);
+-	}
++	for (i = 0; i < tsize; i++, base += PCI_MSIX_ENTRY_SIZE)
++		writel(ctrl, base + PCI_MSIX_ENTRY_VECTOR_CTRL);
+ }
+ 
+ /**
+@@ -775,9 +780,9 @@ static void msix_program_entries(struct
+ static int msix_capability_init(struct pci_dev *dev, struct msix_entry *entries,
+ 				int nvec, struct irq_affinity *affd)
+ {
+-	int ret;
+-	u16 control;
+ 	void __iomem *base;
++	int ret, tsize;
++	u16 control;
+ 
+ 	/*
+ 	 * Some devices require MSI-X to be enabled before the MSI-X
+@@ -789,12 +794,16 @@ static int msix_capability_init(struct p
+ 
+ 	pci_read_config_word(dev, dev->msix_cap + PCI_MSIX_FLAGS, &control);
+ 	/* Request & Map MSI-X table region */
+-	base = msix_map_region(dev, msix_table_size(control));
++	tsize = msix_table_size(control);
++	base = msix_map_region(dev, tsize);
+ 	if (!base) {
+ 		ret = -ENOMEM;
+ 		goto out_disable;
+ 	}
+ 
++	/* Ensure that all table entries are masked. */
++	msix_mask_all(base, tsize);
++
+ 	ret = msix_setup_entries(dev, base, entries, nvec, affd);
+ 	if (ret)
+ 		goto out_disable;
+@@ -808,7 +817,7 @@ static int msix_capability_init(struct p
+ 	if (ret)
+ 		goto out_free;
+ 
+-	msix_program_entries(dev, entries);
++	msix_update_entries(dev, entries);
+ 
+ 	ret = populate_msi_sysfs(dev);
+ 	if (ret)
 
 
