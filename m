@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 10C0F3ED558
-	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:12:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0498D3ED690
+	for <lists+stable@lfdr.de>; Mon, 16 Aug 2021 15:23:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237833AbhHPNLA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 09:11:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56462 "EHLO mail.kernel.org"
+        id S239638AbhHPNWD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 09:22:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237759AbhHPNJN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:09:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F654632A5;
-        Mon, 16 Aug 2021 13:08:11 +0000 (UTC)
+        id S238512AbhHPNSb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 09:18:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E05F610A0;
+        Mon, 16 Aug 2021 13:14:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629119291;
-        bh=hEGVrijLqJ6b8Yl5vnBau7sWPHvX2Us/a3b79a1xs0Q=;
+        s=korg; t=1629119642;
+        bh=KcrremzPIrsNU5zPT84/VRCv7okUhMQ+Ngy0faL42/8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ywLNpGGznuN51qv/72deyye816otDhvbbqTEb0h9YGKBbnr1kOBJSx/aB3YjwRjmO
-         NYJoMzEBczl/WhzxgVDnZx+lLsJm8eHyz7f7T8jqdmTK+i/AQhhQuIcIe89gAu78et
-         0hi7U1PfZf7S6qTix+Z6Rtvp3cybTRWtfAytFtSI=
+        b=y/iCDGbfKqRRAQiPHoheb1S8kNIZJJ2iZJYjM48gl+H67rbhosncSYNzbEymyXHOT
+         pRq7oni/ork90j9ft8Gg0gTk95PCs1/ilde++r4Tv4FaLH2bB2elk8ez+fAr4bIXkO
+         7rZxPsEfPmbn8kIhQtnAkAIbDp27z8uZv2Uife3U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maximilian Heyne <mheyne@amazon.de>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Nikolay Aleksandrov <nikolay@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 65/96] xen/events: Fix race in set_evtchn_to_irq
-Date:   Mon, 16 Aug 2021 15:02:15 +0200
-Message-Id: <20210816125437.118665745@linuxfoundation.org>
+Subject: [PATCH 5.13 106/151] net: bridge: fix memleak in br_add_if()
+Date:   Mon, 16 Aug 2021 15:02:16 +0200
+Message-Id: <20210816125447.563229776@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210816125434.948010115@linuxfoundation.org>
-References: <20210816125434.948010115@linuxfoundation.org>
+In-Reply-To: <20210816125444.082226187@linuxfoundation.org>
+References: <20210816125444.082226187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,125 +42,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maximilian Heyne <mheyne@amazon.de>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 88ca2521bd5b4e8b83743c01a2d4cb09325b51e9 ]
+[ Upstream commit 519133debcc19f5c834e7e28480b60bdc234fe02 ]
 
-There is a TOCTOU issue in set_evtchn_to_irq. Rows in the evtchn_to_irq
-mapping are lazily allocated in this function. The check whether the row
-is already present and the row initialization is not synchronized. Two
-threads can at the same time allocate a new row for evtchn_to_irq and
-add the irq mapping to the their newly allocated row. One thread will
-overwrite what the other has set for evtchn_to_irq[row] and therefore
-the irq mapping is lost. This will trigger a BUG_ON later in
-bind_evtchn_to_cpu:
+I got a memleak report:
 
-  INFO: pci 0000:1a:15.4: [1d0f:8061] type 00 class 0x010802
-  INFO: nvme 0000:1a:12.1: enabling device (0000 -> 0002)
-  INFO: nvme nvme77: 1/0/0 default/read/poll queues
-  CRIT: kernel BUG at drivers/xen/events/events_base.c:427!
-  WARN: invalid opcode: 0000 [#1] SMP NOPTI
-  WARN: Workqueue: nvme-reset-wq nvme_reset_work [nvme]
-  WARN: RIP: e030:bind_evtchn_to_cpu+0xc2/0xd0
-  WARN: Call Trace:
-  WARN:  set_affinity_irq+0x121/0x150
-  WARN:  irq_do_set_affinity+0x37/0xe0
-  WARN:  irq_setup_affinity+0xf6/0x170
-  WARN:  irq_startup+0x64/0xe0
-  WARN:  __setup_irq+0x69e/0x740
-  WARN:  ? request_threaded_irq+0xad/0x160
-  WARN:  request_threaded_irq+0xf5/0x160
-  WARN:  ? nvme_timeout+0x2f0/0x2f0 [nvme]
-  WARN:  pci_request_irq+0xa9/0xf0
-  WARN:  ? pci_alloc_irq_vectors_affinity+0xbb/0x130
-  WARN:  queue_request_irq+0x4c/0x70 [nvme]
-  WARN:  nvme_reset_work+0x82d/0x1550 [nvme]
-  WARN:  ? check_preempt_wakeup+0x14f/0x230
-  WARN:  ? check_preempt_curr+0x29/0x80
-  WARN:  ? nvme_irq_check+0x30/0x30 [nvme]
-  WARN:  process_one_work+0x18e/0x3c0
-  WARN:  worker_thread+0x30/0x3a0
-  WARN:  ? process_one_work+0x3c0/0x3c0
-  WARN:  kthread+0x113/0x130
-  WARN:  ? kthread_park+0x90/0x90
-  WARN:  ret_from_fork+0x3a/0x50
+BUG: memory leak
+unreferenced object 0x607ee521a658 (size 240):
+comm "syz-executor.0", pid 955, jiffies 4294780569 (age 16.449s)
+hex dump (first 32 bytes, cpu 1):
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+backtrace:
+[<00000000d830ea5a>] br_multicast_add_port+0x1c2/0x300 net/bridge/br_multicast.c:1693
+[<00000000274d9a71>] new_nbp net/bridge/br_if.c:435 [inline]
+[<00000000274d9a71>] br_add_if+0x670/0x1740 net/bridge/br_if.c:611
+[<0000000012ce888e>] do_set_master net/core/rtnetlink.c:2513 [inline]
+[<0000000012ce888e>] do_set_master+0x1aa/0x210 net/core/rtnetlink.c:2487
+[<0000000099d1cafc>] __rtnl_newlink+0x1095/0x13e0 net/core/rtnetlink.c:3457
+[<00000000a01facc0>] rtnl_newlink+0x64/0xa0 net/core/rtnetlink.c:3488
+[<00000000acc9186c>] rtnetlink_rcv_msg+0x369/0xa10 net/core/rtnetlink.c:5550
+[<00000000d4aabb9c>] netlink_rcv_skb+0x134/0x3d0 net/netlink/af_netlink.c:2504
+[<00000000bc2e12a3>] netlink_unicast_kernel net/netlink/af_netlink.c:1314 [inline]
+[<00000000bc2e12a3>] netlink_unicast+0x4a0/0x6a0 net/netlink/af_netlink.c:1340
+[<00000000e4dc2d0e>] netlink_sendmsg+0x789/0xc70 net/netlink/af_netlink.c:1929
+[<000000000d22c8b3>] sock_sendmsg_nosec net/socket.c:654 [inline]
+[<000000000d22c8b3>] sock_sendmsg+0x139/0x170 net/socket.c:674
+[<00000000e281417a>] ____sys_sendmsg+0x658/0x7d0 net/socket.c:2350
+[<00000000237aa2ab>] ___sys_sendmsg+0xf8/0x170 net/socket.c:2404
+[<000000004f2dc381>] __sys_sendmsg+0xd3/0x190 net/socket.c:2433
+[<0000000005feca6c>] do_syscall_64+0x37/0x90 arch/x86/entry/common.c:47
+[<000000007304477d>] entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-This patch sets evtchn_to_irq rows via a cmpxchg operation so that they
-will be set only once. The row is now cleared before writing it to
-evtchn_to_irq in order to not create a race once the row is visible for
-other threads.
+On error path of br_add_if(), p->mcast_stats allocated in
+new_nbp() need be freed, or it will be leaked.
 
-While at it, do not require the page to be zeroed, because it will be
-overwritten with -1's in clear_evtchn_to_irq_row anyway.
-
-Signed-off-by: Maximilian Heyne <mheyne@amazon.de>
-Fixes: d0b075ffeede ("xen/events: Refactor evtchn_to_irq array to be dynamically allocated")
-Link: https://lore.kernel.org/r/20210812130930.127134-1-mheyne@amazon.de
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Fixes: 1080ab95e3c7 ("net: bridge: add support for IGMP/MLD stats and export them via netlink")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+Link: https://lore.kernel.org/r/20210809132023.978546-1-yangyingliang@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/events/events_base.c | 20 ++++++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
+ net/bridge/br_if.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/xen/events/events_base.c b/drivers/xen/events/events_base.c
-index af0f6ad32522..fba78daee449 100644
---- a/drivers/xen/events/events_base.c
-+++ b/drivers/xen/events/events_base.c
-@@ -192,12 +192,12 @@ static void disable_dynirq(struct irq_data *data);
+diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
+index 6e4a32354a13..14cd6ef96111 100644
+--- a/net/bridge/br_if.c
++++ b/net/bridge/br_if.c
+@@ -616,6 +616,7 @@ int br_add_if(struct net_bridge *br, struct net_device *dev,
  
- static DEFINE_PER_CPU(unsigned int, irq_epoch);
- 
--static void clear_evtchn_to_irq_row(unsigned row)
-+static void clear_evtchn_to_irq_row(int *evtchn_row)
- {
- 	unsigned col;
- 
- 	for (col = 0; col < EVTCHN_PER_ROW; col++)
--		WRITE_ONCE(evtchn_to_irq[row][col], -1);
-+		WRITE_ONCE(evtchn_row[col], -1);
- }
- 
- static void clear_evtchn_to_irq_all(void)
-@@ -207,7 +207,7 @@ static void clear_evtchn_to_irq_all(void)
- 	for (row = 0; row < EVTCHN_ROW(xen_evtchn_max_channels()); row++) {
- 		if (evtchn_to_irq[row] == NULL)
- 			continue;
--		clear_evtchn_to_irq_row(row);
-+		clear_evtchn_to_irq_row(evtchn_to_irq[row]);
+ 	err = dev_set_allmulti(dev, 1);
+ 	if (err) {
++		br_multicast_del_port(p);
+ 		kfree(p);	/* kobject not yet init'd, manually free */
+ 		goto err1;
  	}
- }
- 
-@@ -215,6 +215,7 @@ static int set_evtchn_to_irq(evtchn_port_t evtchn, unsigned int irq)
- {
- 	unsigned row;
- 	unsigned col;
-+	int *evtchn_row;
- 
- 	if (evtchn >= xen_evtchn_max_channels())
- 		return -EINVAL;
-@@ -227,11 +228,18 @@ static int set_evtchn_to_irq(evtchn_port_t evtchn, unsigned int irq)
- 		if (irq == -1)
- 			return 0;
- 
--		evtchn_to_irq[row] = (int *)get_zeroed_page(GFP_KERNEL);
--		if (evtchn_to_irq[row] == NULL)
-+		evtchn_row = (int *) __get_free_pages(GFP_KERNEL, 0);
-+		if (evtchn_row == NULL)
- 			return -ENOMEM;
- 
--		clear_evtchn_to_irq_row(row);
-+		clear_evtchn_to_irq_row(evtchn_row);
-+
-+		/*
-+		 * We've prepared an empty row for the mapping. If a different
-+		 * thread was faster inserting it, we can drop ours.
-+		 */
-+		if (cmpxchg(&evtchn_to_irq[row], NULL, evtchn_row) != NULL)
-+			free_page((unsigned long) evtchn_row);
- 	}
- 
- 	WRITE_ONCE(evtchn_to_irq[row][col], irq);
+@@ -729,6 +730,7 @@ err4:
+ err3:
+ 	sysfs_remove_link(br->ifobj, p->dev->name);
+ err2:
++	br_multicast_del_port(p);
+ 	kobject_put(&p->kobj);
+ 	dev_set_allmulti(dev, -1);
+ err1:
 -- 
 2.30.2
 
