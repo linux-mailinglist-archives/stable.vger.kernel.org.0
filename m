@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 89B303EE11C
-	for <lists+stable@lfdr.de>; Tue, 17 Aug 2021 02:36:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3692A3EE156
+	for <lists+stable@lfdr.de>; Tue, 17 Aug 2021 02:39:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236509AbhHQAgn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 20:36:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35528 "EHLO mail.kernel.org"
+        id S236644AbhHQAjQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 20:39:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35564 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235945AbhHQAg3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 20:36:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E33C460240;
-        Tue, 17 Aug 2021 00:35:55 +0000 (UTC)
+        id S235964AbhHQAgb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 20:36:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1ADCA60F5C;
+        Tue, 17 Aug 2021 00:35:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629160556;
-        bh=nMryLALSi7yP68Vb4DKGbdjHVlWFnxFDeXBuYmU90kg=;
-        h=From:To:Cc:Subject:Date:From;
-        b=pBphr/dnRobd9hFg2AurQqXz3xExYkQ9n+8duy1MdGLi8BogYMCHLcE3NXRDLE0Rc
-         Xv9wPvtYE2zyegW6iTimuUNBR80iSJXTP/Lnq9aI/KsucF/y0MHJwTjgrejNu/23fS
-         vaRUcoRKkgG5P3sQb43n8PE2Mx9472huSe7NGVwrICMQ89jFWeC2reco9WIH6C/Eqy
-         Z7fLq/onWVR7EKxXPDXH/dio456vMuOP5Ol3bzpcakZ7wuXknMBHh1Ul5jlovab+f+
-         UjcxjHa15jrJtb+eDJyDOhLLbySqNgag91t+VMPq3BL/QuUpTxuqJTPbcwGv9bD8R9
-         ZrtKNN0J3tFRg==
+        s=k20201202; t=1629160557;
+        bh=otfWXTTclp8V/hz/HUXQCkvW4Hvw8Bf9NI/fjWoDTVk=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=QNyCKaX0aG21cuOJNAy60KmI9/Rhx2lMj/bDW7Yahd7FzF6HMOwKXm16gVpN0b9Ya
+         KtyQHHkTZFl13BOBzLuVH0JtdDpQQpu7q/psYQuGIIWtcp+M0togCmFJu+98HfDlJL
+         sCqIPSfWBiJEP5gFCPHLCDqgW44nQHZw50hXq0YD1OgCP2pKaq+GZfFfzbWhvXg89n
+         7g9nbSsS7PHo1yU6hpibRLA8qVRrJ/c1IepRcAkohjmCMqRZiLGo4OiwAPlu387rXM
+         n8sn68YxzJX8KwKS4twybixUJk5mj++rPFuut0LbnxRkkrp7UTkhqdx/tF6vS/JWFW
+         ZXO8dJYZtS7WA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Derek Fang <derek.fang@realtek.com>,
-        Mark Brown <broonie@kernel.org>,
+Cc:     Mark Brown <broonie@kernel.org>,
+        Richard Fitzgerald <rf@opensource.cirrus.com>,
+        Lucas Tanure <tanureal@opensource.cirrus.com>,
         Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.10 1/9] ASoC: rt5682: Adjust headset volume button threshold
-Date:   Mon, 16 Aug 2021 20:35:46 -0400
-Message-Id: <20210817003554.83213-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 2/9] ASoC: component: Remove misplaced prefix handling in pin control functions
+Date:   Mon, 16 Aug 2021 20:35:47 -0400
+Message-Id: <20210817003554.83213-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210817003554.83213-1-sashal@kernel.org>
+References: <20210817003554.83213-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -40,33 +43,157 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Derek Fang <derek.fang@realtek.com>
+From: Mark Brown <broonie@kernel.org>
 
-[ Upstream commit 6d20bf7c020f417fdef1810a22da17c126603472 ]
+[ Upstream commit 31428c78748cafdd9352e1f622eb89bf453d9700 ]
 
-Adjust the threshold of headset button volume+ to fix
-the wrong button detection issue with some brand headsets.
+When the component level pin control functions were added they for some
+no longer obvious reason handled adding prefixing of widget names. This
+meant that when the lack of prefix handling in the DAPM level pin
+operations was fixed by ae4fc532244b3bb4d (ASoC: dapm: use component
+prefix when checking widget names) the one device using the component
+level API ended up with the prefix being applied twice, causing all
+lookups to fail.
 
-Signed-off-by: Derek Fang <derek.fang@realtek.com>
-Link: https://lore.kernel.org/r/20210721133121.12333-1-derek.fang@realtek.com
+Fix this by removing the redundant prefixing from the component code,
+which has the nice side effect of also making that code much simpler.
+
+Reported-by: Richard Fitzgerald <rf@opensource.cirrus.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Tested-by: Lucas Tanure <tanureal@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20210726194123.54585-1-broonie@kernel.org
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/rt5682.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/soc-component.c | 63 +++++++++++++++++----------------------
+ 1 file changed, 27 insertions(+), 36 deletions(-)
 
-diff --git a/sound/soc/codecs/rt5682.c b/sound/soc/codecs/rt5682.c
-index 2e41b8c169e5..0486b1469799 100644
---- a/sound/soc/codecs/rt5682.c
-+++ b/sound/soc/codecs/rt5682.c
-@@ -44,6 +44,7 @@ static const struct reg_sequence patch_list[] = {
- 	{RT5682_I2C_CTRL, 0x000f},
- 	{RT5682_PLL2_INTERNAL, 0x8266},
- 	{RT5682_SAR_IL_CMD_3, 0x8365},
-+	{RT5682_SAR_IL_CMD_6, 0x0180},
- };
+diff --git a/sound/soc/soc-component.c b/sound/soc/soc-component.c
+index 728e93f35ffb..4295c0592901 100644
+--- a/sound/soc/soc-component.c
++++ b/sound/soc/soc-component.c
+@@ -135,86 +135,75 @@ int snd_soc_component_set_bias_level(struct snd_soc_component *component,
+ 	return soc_component_ret(component, ret);
+ }
  
- void rt5682_apply_patch_list(struct rt5682_priv *rt5682, struct device *dev)
+-static int soc_component_pin(struct snd_soc_component *component,
+-			     const char *pin,
+-			     int (*pin_func)(struct snd_soc_dapm_context *dapm,
+-					     const char *pin))
+-{
+-	struct snd_soc_dapm_context *dapm =
+-		snd_soc_component_get_dapm(component);
+-	char *full_name;
+-	int ret;
+-
+-	if (!component->name_prefix) {
+-		ret = pin_func(dapm, pin);
+-		goto end;
+-	}
+-
+-	full_name = kasprintf(GFP_KERNEL, "%s %s", component->name_prefix, pin);
+-	if (!full_name) {
+-		ret = -ENOMEM;
+-		goto end;
+-	}
+-
+-	ret = pin_func(dapm, full_name);
+-	kfree(full_name);
+-end:
+-	return soc_component_ret(component, ret);
+-}
+-
+ int snd_soc_component_enable_pin(struct snd_soc_component *component,
+ 				 const char *pin)
+ {
+-	return soc_component_pin(component, pin, snd_soc_dapm_enable_pin);
++	struct snd_soc_dapm_context *dapm =
++		snd_soc_component_get_dapm(component);
++	return snd_soc_dapm_enable_pin(dapm, pin);
+ }
+ EXPORT_SYMBOL_GPL(snd_soc_component_enable_pin);
+ 
+ int snd_soc_component_enable_pin_unlocked(struct snd_soc_component *component,
+ 					  const char *pin)
+ {
+-	return soc_component_pin(component, pin, snd_soc_dapm_enable_pin_unlocked);
++	struct snd_soc_dapm_context *dapm =
++		snd_soc_component_get_dapm(component);
++	return snd_soc_dapm_enable_pin_unlocked(dapm, pin);
+ }
+ EXPORT_SYMBOL_GPL(snd_soc_component_enable_pin_unlocked);
+ 
+ int snd_soc_component_disable_pin(struct snd_soc_component *component,
+ 				  const char *pin)
+ {
+-	return soc_component_pin(component, pin, snd_soc_dapm_disable_pin);
++	struct snd_soc_dapm_context *dapm =
++		snd_soc_component_get_dapm(component);
++	return snd_soc_dapm_disable_pin(dapm, pin);
+ }
+ EXPORT_SYMBOL_GPL(snd_soc_component_disable_pin);
+ 
+ int snd_soc_component_disable_pin_unlocked(struct snd_soc_component *component,
+ 					   const char *pin)
+ {
+-	return soc_component_pin(component, pin, snd_soc_dapm_disable_pin_unlocked);
++	struct snd_soc_dapm_context *dapm = 
++		snd_soc_component_get_dapm(component);
++	return snd_soc_dapm_disable_pin_unlocked(dapm, pin);
+ }
+ EXPORT_SYMBOL_GPL(snd_soc_component_disable_pin_unlocked);
+ 
+ int snd_soc_component_nc_pin(struct snd_soc_component *component,
+ 			     const char *pin)
+ {
+-	return soc_component_pin(component, pin, snd_soc_dapm_nc_pin);
++	struct snd_soc_dapm_context *dapm =
++		snd_soc_component_get_dapm(component);
++	return snd_soc_dapm_nc_pin(dapm, pin);
+ }
+ EXPORT_SYMBOL_GPL(snd_soc_component_nc_pin);
+ 
+ int snd_soc_component_nc_pin_unlocked(struct snd_soc_component *component,
+ 				      const char *pin)
+ {
+-	return soc_component_pin(component, pin, snd_soc_dapm_nc_pin_unlocked);
++	struct snd_soc_dapm_context *dapm =
++		snd_soc_component_get_dapm(component);
++	return snd_soc_dapm_nc_pin_unlocked(dapm, pin);
+ }
+ EXPORT_SYMBOL_GPL(snd_soc_component_nc_pin_unlocked);
+ 
+ int snd_soc_component_get_pin_status(struct snd_soc_component *component,
+ 				     const char *pin)
+ {
+-	return soc_component_pin(component, pin, snd_soc_dapm_get_pin_status);
++	struct snd_soc_dapm_context *dapm =
++		snd_soc_component_get_dapm(component);
++	return snd_soc_dapm_get_pin_status(dapm, pin);
+ }
+ EXPORT_SYMBOL_GPL(snd_soc_component_get_pin_status);
+ 
+ int snd_soc_component_force_enable_pin(struct snd_soc_component *component,
+ 				       const char *pin)
+ {
+-	return soc_component_pin(component, pin, snd_soc_dapm_force_enable_pin);
++	struct snd_soc_dapm_context *dapm =
++		snd_soc_component_get_dapm(component);
++	return snd_soc_dapm_force_enable_pin(dapm, pin);
+ }
+ EXPORT_SYMBOL_GPL(snd_soc_component_force_enable_pin);
+ 
+@@ -222,7 +211,9 @@ int snd_soc_component_force_enable_pin_unlocked(
+ 	struct snd_soc_component *component,
+ 	const char *pin)
+ {
+-	return soc_component_pin(component, pin, snd_soc_dapm_force_enable_pin_unlocked);
++	struct snd_soc_dapm_context *dapm =
++		snd_soc_component_get_dapm(component);
++	return snd_soc_dapm_force_enable_pin_unlocked(dapm, pin);
+ }
+ EXPORT_SYMBOL_GPL(snd_soc_component_force_enable_pin_unlocked);
+ 
 -- 
 2.30.2
 
