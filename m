@@ -2,193 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A2DE13EE3EB
-	for <lists+stable@lfdr.de>; Tue, 17 Aug 2021 03:45:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 338613EE420
+	for <lists+stable@lfdr.de>; Tue, 17 Aug 2021 04:03:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233287AbhHQBph (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 21:45:37 -0400
-Received: from szxga08-in.huawei.com ([45.249.212.255]:14214 "EHLO
-        szxga08-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236043AbhHQBpg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Aug 2021 21:45:36 -0400
-Received: from dggemv711-chm.china.huawei.com (unknown [172.30.72.54])
-        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4GpYjz3q2kz1CXbv;
-        Tue, 17 Aug 2021 09:44:39 +0800 (CST)
-Received: from dggema756-chm.china.huawei.com (10.1.198.198) by
- dggemv711-chm.china.huawei.com (10.1.198.66) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
- 15.1.2176.2; Tue, 17 Aug 2021 09:45:01 +0800
-Received: from [10.174.177.134] (10.174.177.134) by
- dggema756-chm.china.huawei.com (10.1.198.198) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2176.2; Tue, 17 Aug 2021 09:45:01 +0800
-Subject: Re: [PATCH 5.10.y 01/11] mm: memcontrol: Use helpers to read page's
- memcg data
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     Roman Gushchin <guro@fb.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        "Wang Hai" <wanghai38@huawei.com>, <linux-kernel@vger.kernel.org>,
-        <linux-mm@kvack.org>, <stable@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Alexei Starovoitov <ast@kernel.org>
-References: <20210816072147.3481782-1-chenhuang5@huawei.com>
- <20210816072147.3481782-2-chenhuang5@huawei.com> <YRojDsTAjSnw0jIh@kroah.com>
- <a4c545a8-fff0-38bb-4749-3483c9334daa@huawei.com>
- <YRppmvYOftjAAl/R@kroah.com>
-From:   Chen Huang <chenhuang5@huawei.com>
-Message-ID: <0d3c6aa4-be05-3c93-bdcd-ac30788d82bd@huawei.com>
-Date:   Tue, 17 Aug 2021 09:45:00 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S233528AbhHQCD4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 22:03:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42354 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233394AbhHQCDz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 22:03:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B1DD60F4B;
+        Tue, 17 Aug 2021 02:03:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1629165803;
+        bh=M4kPfTtv/YCNqqegGw5hhYfKzsIq9j0CDrkKB3eJQAA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=YHjQK8GsIwY+/8QKey2Ozcxv8CMsI7psHLUN/o2JVcJ3PCv+cyCLwnOKadOX5TwdR
+         cZFxmFPTvirzcDCotfnIicTVoJsyOW6eVYJHBzid0TGlKjJZULVTLOHL1gmIbIwxGj
+         lXHyAnfHDvY+8u5u07Qp4QCuhIVTUYyBCip+DSZiU1v216RhN+mlkTcG39yNtmLzSe
+         /xavcGH4T0ABqmoE2MhSeuclyZ0AwumqhdK1kW/KIlAYLicwZ+4a92koP2uvsxy2Q5
+         0CYD9vdnmZahKzFrYyUmV3f5fkrarm1i1WsbDrRwhETQ+c46eez/gA1j1W9AANQNv7
+         9MPUo7vBMjuvg==
+Date:   Mon, 16 Aug 2021 19:03:21 -0700
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     Jaegeuk Kim <jaegeuk@kernel.org>
+Cc:     Chao Yu <chao@kernel.org>, Theodore Ts'o <tytso@mit.edu>,
+        linux-f2fs-devel@lists.sourceforge.net,
+        linux-fsdevel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] f2fs: remove broken support for allocating DIO writes
+Message-ID: <YRsY6dyHyaChkQ6n@gmail.com>
+References: <20210728015154.171507-1-ebiggers@kernel.org>
+ <YQRQRh1zUHSIzcC/@gmail.com>
+ <YQS5eBljtztWwOFE@mit.edu>
+ <YQd3Hbid/mFm0o24@sol.localdomain>
+ <a3cdd7cb-50a7-1b37-fe58-dced586712a2@kernel.org>
+ <YQg4Lukc2dXX3aJc@google.com>
+ <b88328b4-db3e-0097-d8cc-f250ee678e5b@kernel.org>
+ <YQidOD/zNB17fd9v@google.com>
 MIME-Version: 1.0
-In-Reply-To: <YRppmvYOftjAAl/R@kroah.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.174.177.134]
-X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
- dggema756-chm.china.huawei.com (10.1.198.198)
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YQidOD/zNB17fd9v@google.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Aug 02, 2021 at 06:34:48PM -0700, Jaegeuk Kim wrote:
+> On 08/03, Chao Yu wrote:
+> > On 2021/8/3 2:23, Jaegeuk Kim wrote:
+> > > On 08/02, Chao Yu wrote:
+> > > > On 2021/8/2 12:39, Eric Biggers wrote:
+> > > > > On Fri, Jul 30, 2021 at 10:46:16PM -0400, Theodore Ts'o wrote:
+> > > > > > On Fri, Jul 30, 2021 at 12:17:26PM -0700, Eric Biggers wrote:
+> > > > > > > > Currently, non-overwrite DIO writes are fundamentally unsafe on f2fs as
+> > > > > > > > they require preallocating blocks, but f2fs doesn't support unwritten
+> > > > > > > > blocks and therefore has to preallocate the blocks as regular blocks.
+> > > > > > > > f2fs has no way to reliably roll back such preallocations, so as a
+> > > > > > > > result, f2fs will leak uninitialized blocks to users if a DIO write
+> > > > > > > > doesn't fully complete.
+> > > > > > 
+> > > > > > There's another way of solving this problem which doesn't require
+> > > > > > supporting unwritten blocks.  What a file system *could* do is to
+> > > > > > allocate the blocks, but *not* update the on-disk data structures ---
+> > > > > > so the allocation happens in memory only, so you know that the
+> > > > > > physical blocks won't get used for another files, and then issue the
+> > > > > > data block writes.  On the block I/O completion, trigger a workqueue
+> > > > > > function which updates the on-disk metadata to assign physical blocks
+> > > > > > to the inode.
+> > > > > > 
+> > > > > > That way if you crash before the data I/O has a chance to complete,
+> > > > > > the on-disk logical block -> physical block map hasn't been updated
+> > > > > > yet, and so you don't need to worry about leaking uninitialized blocks.
+> > > > 
+> > > > Thanks for your suggestion, I think it makes sense.
+> > > > 
+> > > > > > 
+> > > > > > Cheers,
+> > > > > > 
+> > > > > > 					- Ted
+> > > > > 
+> > > > > Jaegeuk and Chao, any idea how feasible it would be for f2fs to do this?
+> > > > 
+> > > > Firstly, let's notice that below metadata will be touched during DIO
+> > > > preallocation flow:
+> > > > - log header
+> > > > - sit bitmap/count
+> > > > - free seg/sec bitmap/count
+> > > > - dirty seg/sec bitmap/count
+> > > > 
+> > > > And there is one case we need to concern about is: checkpoint() can be
+> > > > triggered randomly in between dio_preallocate() and dio_end_io(), we should
+> > > > not persist any DIO preallocation related metadata during checkpoint(),
+> > > > otherwise, sudden power-cut after the checkpoint will corrupt filesytem.
+> > > > 
+> > > > So it needs to well separate two kinds of metadata update:
+> > > > a) belong to dio preallocation
+> > > > b) the left one
+> > > > 
+> > > > After that, it will simply checkpoint() flow to just flush metadata b), for
+> > > > other flow, like GC, data/node allocation, it needs to query/update metadata
+> > > > after we combine metadata a) and b).
+> > > > 
+> > > > In addition, there is an existing in-memory log header framework in f2fs,
+> > > > based on this fwk, it's very easy for us to add a new in-memory log header
+> > > > for DIO preallocation.
+> > > > 
+> > > > So it seems feasible for me until now...
+> > > > 
+> > > > Jaegeuk, any other concerns about the implementation details?
+> > > 
+> > > Hmm, I'm still trying to deal with this as a corner case where the writes
+> > > haven't completed due to an error. How about keeping the preallocated block
+> > > offsets and releasing them if we get an error? Do we need to handle EIO right?
+> > 
+> > What about the case that CP + SPO following DIO preallocation? User will
+> > encounter uninitialized block after recovery.
+> 
+> I think buffered writes as a workaround can expose the last unwritten block as
+> well, if SPO happens right after block allocation. We may need to compromise
+> at certain level?
+> 
 
+Freeing preallocated blocks on error would be better than nothing, although note
+that the preallocated blocks may have filled an arbitrary sequence of holes --
+so simply truncating past EOF would *not* be sufficient.
 
-在 2021/8/16 21:35, Greg Kroah-Hartman 写道:
-> On Mon, Aug 16, 2021 at 09:21:11PM +0800, Chen Huang wrote:
->>
->>
->> 在 2021/8/16 16:34, Greg Kroah-Hartman 写道:
->>> On Mon, Aug 16, 2021 at 07:21:37AM +0000, Chen Huang wrote:
->>>> From: Roman Gushchin <guro@fb.com>
->>>
->>> What is the git commit id of this patch in Linus's tree?
->>>
->>>>
->>>> Patch series "mm: allow mapping accounted kernel pages to userspace", v6.
->>>>
->>>> Currently a non-slab kernel page which has been charged to a memory cgroup
->>>> can't be mapped to userspace.  The underlying reason is simple: PageKmemcg
->>>> flag is defined as a page type (like buddy, offline, etc), so it takes a
->>>> bit from a page->mapped counter.  Pages with a type set can't be mapped to
->>>> userspace.
->>>>
->>>> But in general the kmemcg flag has nothing to do with mapping to
->>>> userspace.  It only means that the page has been accounted by the page
->>>> allocator, so it has to be properly uncharged on release.
->>>>
->>>> Some bpf maps are mapping the vmalloc-based memory to userspace, and their
->>>> memory can't be accounted because of this implementation detail.
->>>>
->>>> This patchset removes this limitation by moving the PageKmemcg flag into
->>>> one of the free bits of the page->mem_cgroup pointer.  Also it formalizes
->>>> accesses to the page->mem_cgroup and page->obj_cgroups using new helpers,
->>>> adds several checks and removes a couple of obsolete functions.  As the
->>>> result the code became more robust with fewer open-coded bit tricks.
->>>>
->>>> This patch (of 4):
->>>>
->>>> Currently there are many open-coded reads of the page->mem_cgroup pointer,
->>>> as well as a couple of read helpers, which are barely used.
->>>>
->>>> It creates an obstacle on a way to reuse some bits of the pointer for
->>>> storing additional bits of information.  In fact, we already do this for
->>>> slab pages, where the last bit indicates that a pointer has an attached
->>>> vector of objcg pointers instead of a regular memcg pointer.
->>>>
->>>> This commits uses 2 existing helpers and introduces a new helper to
->>>> converts all read sides to calls of these helpers:
->>>>   struct mem_cgroup *page_memcg(struct page *page);
->>>>   struct mem_cgroup *page_memcg_rcu(struct page *page);
->>>>   struct mem_cgroup *page_memcg_check(struct page *page);
->>>>
->>>> page_memcg_check() is intended to be used in cases when the page can be a
->>>> slab page and have a memcg pointer pointing at objcg vector.  It does
->>>> check the lowest bit, and if set, returns NULL.  page_memcg() contains a
->>>> VM_BUG_ON_PAGE() check for the page not being a slab page.
->>>>
->>>> To make sure nobody uses a direct access, struct page's
->>>> mem_cgroup/obj_cgroups is converted to unsigned long memcg_data.
->>>>
->>>> Signed-off-by: Roman Gushchin <guro@fb.com>
->>>> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
->>>> Signed-off-by: Alexei Starovoitov <ast@kernel.org>
->>>> Reviewed-by: Shakeel Butt <shakeelb@google.com>
->>>> Acked-by: Johannes Weiner <hannes@cmpxchg.org>
->>>> Acked-by: Michal Hocko <mhocko@suse.com>
->>>> Link: https://lkml.kernel.org/r/20201027001657.3398190-1-guro@fb.com
->>>> Link: https://lkml.kernel.org/r/20201027001657.3398190-2-guro@fb.com
->>>> Link: https://lore.kernel.org/bpf/20201201215900.3569844-2-guro@fb.com
->>>>
->>>> Conflicts:
->>>> 	mm/memcontrol.c
->>>
->>> The "Conflicts:" lines should be removed.
->>>
->>> Please fix up the patch series and resubmit.  But note, this seems
->>> really intrusive, are you sure these are all needed?
->>>
->>
->> OK，I will resend the patchset.
->> Roman Gushchin's patchset formalize accesses to the page->mem_cgroup and
->> page->obj_cgroups. But for LRU pages and most other raw memcg, they may
->> pin to a memcg cgroup pointer, which should always point to an object cgroup
->> pointer. That's the problem I met. And Muchun Song's patchset fix this.
->> So I think these are all needed.
-> 
-> What in-tree driver causes this to happen and under what workload?
-> 
->>> What UIO driver are you using that is showing problems like this?
->>>
->>
->> The UIO driver is my own driver, and it's creation likes this:
->> First, we register a device
->> 	pdev = platform_device_register_simple("uio_driver,0, NULL, 0);
->> and use uio_info to describe the UIO driver, the page is alloced and used
->> for uio_vma_fault
->> 	info->mem[0].addr = (phys_addr_t) kzalloc(PAGE_SIZE, GFP_ATOMIC);
-> 
-> That is not a physical address, and is not what the uio api is for at
-> all.  Please do not abuse it that way.
-> 
->> then we register the UIO driver.
->> 	uio_register_device(&pdev->dev, info)
-> 
-> So no in-tree drivers are having problems with the existing code, only
-> fake ones?
+But really filesystems need to be designed to never expose uninitialized data,
+even if I/O errors or a sudden power failure occurs.  It is unfortunate that
+f2fs apparently wasn't designed with that goal in mind.
 
-Yes, but the nullptr porblem may not just about uio driver. For now, page struct
-has a union
-union {
-	struct mem_cgroup *mem_cgroup;
-	struct obj_cgroup **obj_cgroups;
-};
-For the slab pages, the union info should belong to obj_cgroups. And for user
-pages, it should belong to mem_cgroup. When a slab page changes its obj_cgroups,
-then another user page which is in the same compound page of that slab page will
-gets the wrong mem_cgroup in __mod_lruvec_page_state(), and will trigger nullptr
-in mem_cgroup_lruvec(). Correct me if I'm wrong. Thanks!
+In any case, I don't think we can proceed with any other f2fs direct I/O
+improvements until this data leakage bug can be solved one way or another.  If
+my patch to remove support for allocating writes isn't acceptable and the
+desired solution is going to require some more invasive f2fs surgery, are you or
+Chao going to work on it?  I'm not sure there's much I can do here.
 
-static inline void __mod_lruvec_page_state(struct page *page,
-                                           enum node_stat_item idx, int val)
-{
-        struct page *head = compound_head(page); /* rmap on tail pages */
-        pg_data_t *pgdat = page_pgdat(page);
-        struct lruvec *lruvec;
-
-        /* Untracked pages have no memcg, no lruvec. Update only the node */
-        if (!head->mem_cgroup) {
-                __mod_node_page_state(pgdat, idx, val);
-                return;
-        }
-
-        lruvec = mem_cgroup_lruvec(head->mem_cgroup, pgdat);
-        __mod_lruvec_state(lruvec, idx, val);
-}
-
-> 
-> thanks,
-> 
-> greg k-h
-> .
-> 
+- Eric
