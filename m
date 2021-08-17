@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B694B3EE139
-	for <lists+stable@lfdr.de>; Tue, 17 Aug 2021 02:37:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BF3E3EE138
+	for <lists+stable@lfdr.de>; Tue, 17 Aug 2021 02:37:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237274AbhHQAht (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 20:37:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35328 "EHLO mail.kernel.org"
+        id S236258AbhHQAhp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 20:37:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236593AbhHQAgp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 20:36:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7E93060EBD;
-        Tue, 17 Aug 2021 00:36:12 +0000 (UTC)
+        id S236634AbhHQAgq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 20:36:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E9A0D60FC3;
+        Tue, 17 Aug 2021 00:36:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629160573;
-        bh=3LtPGqVFszrceez7FmDhpht4gkC4FP08zQUorIghOx0=;
+        s=k20201202; t=1629160574;
+        bh=PzJh8m5YlA4RKogp/AH540axtYUK9XSISkigre4dzaE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dshX430cm/vm94xZdTwnP5lNgE6lptZ1q+8oAc4PxGs4k5sAyzVJFO5Nsy9lLTlkg
-         IOm4jUSkMArbdp5Xmt/Lwxv/Ws3wMXeLuoUZXf2yWdYVoEF1HSsgMmxsGJcnMch5Pf
-         16rQ+Q0T0Y2nZwaZ3L4DklldlvVpD7/cvScIjL5jWYX1w4WTS5Pg4ZUCXg4qNaYhfl
-         N5sNxn22K4kn+uonx3rzBO3vT6occwDqBzJDYg8AaL6GxY8lBFHyTcD788eanFlvRL
-         IYpJloI+MlSGqSep1oCVXLWRrUR9M8UKt9R/mbPRps/kubAOHzOALBnt/KLU3uyG8L
-         pn6WdSmayUwMw==
+        b=G9FLQUe+BMGOd9uAg438pi2xCOUhHwA2T2tm0QR2PCe1MrjB7T973F9EF5sUwcOdr
+         PUsjYy7SrS+nxJVsuOyV9nXiWh1T48bq3VygIVUp+akEdlVfqc8WXf3Smc6p9UjiXq
+         ZloUWMOG8Kmen+SJ5MpZx0wck5qMsj83grDWLG/HsxNeZGqA/rTfo4MmHkkM+NQLrg
+         I2Z4950btMQp8CwwSl5sSR/HK22KOD5afWCN4yjZSWzzawcVJFIs+KYBjQPREs3PxY
+         WzX4fr3b5vioWwwelKDiIJm641MLGrUFXkkY/Yv7su+F/ArGDiBTOAQcv8pE5GBFZt
+         6WBinIBJ+aZ7g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Hannes Frederic Sowa <hannes@stressinduktion.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        "David S . Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Minmin chen <chenmingmin@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 4/5] once: Fix panic when module unload
-Date:   Mon, 16 Aug 2021 20:36:06 -0400
-Message-Id: <20210817003607.83340-4-sashal@kernel.org>
+Cc:     Miklos Szeredi <mszeredi@redhat.com>,
+        Colin Ian King <colin.king@canonical.com>,
+        Sasha Levin <sashal@kernel.org>, linux-unionfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 5/5] ovl: fix uninitialized pointer read in ovl_lookup_real_one()
+Date:   Mon, 16 Aug 2021 20:36:07 -0400
+Message-Id: <20210817003607.83340-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210817003607.83340-1-sashal@kernel.org>
 References: <20210817003607.83340-1-sashal@kernel.org>
@@ -46,121 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kefeng Wang <wangkefeng.wang@huawei.com>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-[ Upstream commit 1027b96ec9d34f9abab69bc1a4dc5b1ad8ab1349 ]
+[ Upstream commit 580c610429b3994e8db24418927747cf28443cde ]
 
-DO_ONCE
-DEFINE_STATIC_KEY_TRUE(___once_key);
-__do_once_done
-  once_disable_jump(once_key);
-    INIT_WORK(&w->work, once_deferred);
-    struct once_work *w;
-    w->key = key;
-    schedule_work(&w->work);                     module unload
-                                                   //*the key is
-destroy*
-process_one_work
-  once_deferred
-    BUG_ON(!static_key_enabled(work->key));
-       static_key_count((struct static_key *)x)    //*access key, crash*
+One error path can result in release_dentry_name_snapshot() being called
+before "name" was initialized by take_dentry_name_snapshot().
 
-When module uses DO_ONCE mechanism, it could crash due to the above
-concurrency problem, we could reproduce it with link[1].
+Fix by moving the release_dentry_name_snapshot() to immediately after the
+only use.
 
-Fix it by add/put module refcount in the once work process.
-
-[1] https://lore.kernel.org/netdev/eaa6c371-465e-57eb-6be9-f4b16b9d7cbf@huawei.com/
-
-Cc: Hannes Frederic Sowa <hannes@stressinduktion.org>
-Cc: Daniel Borkmann <daniel@iogearbox.net>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Eric Dumazet <edumazet@google.com>
-Reported-by: Minmin chen <chenmingmin@huawei.com>
-Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Acked-by: Hannes Frederic Sowa <hannes@stressinduktion.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/once.h |  4 ++--
- lib/once.c           | 11 ++++++++---
- 2 files changed, 10 insertions(+), 5 deletions(-)
+ fs/overlayfs/export.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/once.h b/include/linux/once.h
-index 9225ee6d96c7..ae6f4eb41cbe 100644
---- a/include/linux/once.h
-+++ b/include/linux/once.h
-@@ -7,7 +7,7 @@
+diff --git a/fs/overlayfs/export.c b/fs/overlayfs/export.c
+index 11dd8177770d..19574ef17470 100644
+--- a/fs/overlayfs/export.c
++++ b/fs/overlayfs/export.c
+@@ -395,6 +395,7 @@ static struct dentry *ovl_lookup_real_one(struct dentry *connected,
+ 	 */
+ 	take_dentry_name_snapshot(&name, real);
+ 	this = lookup_one_len(name.name.name, connected, name.name.len);
++	release_dentry_name_snapshot(&name);
+ 	err = PTR_ERR(this);
+ 	if (IS_ERR(this)) {
+ 		goto fail;
+@@ -409,7 +410,6 @@ static struct dentry *ovl_lookup_real_one(struct dentry *connected,
+ 	}
  
- bool __do_once_start(bool *done, unsigned long *flags);
- void __do_once_done(bool *done, struct static_key_true *once_key,
--		    unsigned long *flags);
-+		    unsigned long *flags, struct module *mod);
- 
- /* Call a function exactly once. The idea of DO_ONCE() is to perform
-  * a function call such as initialization of random seeds, etc, only
-@@ -46,7 +46,7 @@ void __do_once_done(bool *done, struct static_key_true *once_key,
- 			if (unlikely(___ret)) {				     \
- 				func(__VA_ARGS__);			     \
- 				__do_once_done(&___done, &___once_key,	     \
--					       &___flags);		     \
-+					       &___flags, THIS_MODULE);	     \
- 			}						     \
- 		}							     \
- 		___ret;							     \
-diff --git a/lib/once.c b/lib/once.c
-index 8b7d6235217e..59149bf3bfb4 100644
---- a/lib/once.c
-+++ b/lib/once.c
-@@ -3,10 +3,12 @@
- #include <linux/spinlock.h>
- #include <linux/once.h>
- #include <linux/random.h>
-+#include <linux/module.h>
- 
- struct once_work {
- 	struct work_struct work;
- 	struct static_key_true *key;
-+	struct module *module;
- };
- 
- static void once_deferred(struct work_struct *w)
-@@ -16,10 +18,11 @@ static void once_deferred(struct work_struct *w)
- 	work = container_of(w, struct once_work, work);
- 	BUG_ON(!static_key_enabled(work->key));
- 	static_branch_disable(work->key);
-+	module_put(work->module);
- 	kfree(work);
- }
- 
--static void once_disable_jump(struct static_key_true *key)
-+static void once_disable_jump(struct static_key_true *key, struct module *mod)
- {
- 	struct once_work *w;
- 
-@@ -29,6 +32,8 @@ static void once_disable_jump(struct static_key_true *key)
- 
- 	INIT_WORK(&w->work, once_deferred);
- 	w->key = key;
-+	w->module = mod;
-+	__module_get(mod);
- 	schedule_work(&w->work);
- }
- 
-@@ -53,11 +58,11 @@ bool __do_once_start(bool *done, unsigned long *flags)
- EXPORT_SYMBOL(__do_once_start);
- 
- void __do_once_done(bool *done, struct static_key_true *once_key,
--		    unsigned long *flags)
-+		    unsigned long *flags, struct module *mod)
- 	__releases(once_lock)
- {
- 	*done = true;
- 	spin_unlock_irqrestore(&once_lock, *flags);
--	once_disable_jump(once_key);
-+	once_disable_jump(once_key, mod);
- }
- EXPORT_SYMBOL(__do_once_done);
+ out:
+-	release_dentry_name_snapshot(&name);
+ 	dput(parent);
+ 	inode_unlock(dir);
+ 	return this;
 -- 
 2.30.2
 
