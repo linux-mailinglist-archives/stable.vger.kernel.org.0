@@ -2,65 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D82823EE9B4
-	for <lists+stable@lfdr.de>; Tue, 17 Aug 2021 11:28:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7750F3EE9DE
+	for <lists+stable@lfdr.de>; Tue, 17 Aug 2021 11:30:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235364AbhHQJ3A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Aug 2021 05:29:00 -0400
-Received: from smtp-out1.suse.de ([195.135.220.28]:35242 "EHLO
-        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234347AbhHQJ27 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 Aug 2021 05:28:59 -0400
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out1.suse.de (Postfix) with ESMTP id A601F21E2E;
-        Tue, 17 Aug 2021 09:28:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-        t=1629192505; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=uSz0qBmjS9Oie0OcboEtBo514k1ie0fSH0PaWE6RX64=;
-        b=wt6P/diQH3RbdGN7pndS+lACfxzsrFjNHKVMSsG49U8U98GCt7ch1VCLWfY6lnnLI2hnc4
-        p4rVzvv4H/TMv9jgfrB0nRzaTAewu5mORvJQr+hZI9actPo8iqfpC6F9TyLv2iNSmaeDlx
-        kmT6v4gAcF5I/Ltk1IkYSYQMc/5tY+o=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-        s=susede2_ed25519; t=1629192505;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=uSz0qBmjS9Oie0OcboEtBo514k1ie0fSH0PaWE6RX64=;
-        b=S3e91dfXKcp/RbRIm7zsTJChVBBTBHg5ZycM9l2AlV+cOz0Af1iiJOl4ltuFKC/41P1TTh
-        nl6QUdQ+xQGk+QDw==
-Received: from pobox.suse.cz (pobox.suse.cz [10.100.2.14])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id 86DD7A3B91;
-        Tue, 17 Aug 2021 09:28:25 +0000 (UTC)
-Date:   Tue, 17 Aug 2021 11:28:25 +0200 (CEST)
-From:   Miroslav Benes <mbenes@suse.cz>
-To:     Steven Rostedt <rostedt@goodmis.org>
-cc:     Lukas Bulwahn <lukas.bulwahn@gmail.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Jiri Kosina <jikos@kernel.org>, live-patching@vger.kernel.org,
-        Peter Zijlstra <peterz@infradead.org>,
-        kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] tracing: define needed config DYNAMIC_FTRACE_WITH_ARGS
-In-Reply-To: <20210806211808.6d927880@oasis.local.home>
-Message-ID: <alpine.LSU.2.21.2108171126040.26111@pobox.suse.cz>
-References: <20210806195027.16808-1-lukas.bulwahn@gmail.com> <20210806211808.6d927880@oasis.local.home>
-User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
+        id S239726AbhHQJaS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Aug 2021 05:30:18 -0400
+Received: from mail.ispras.ru ([83.149.199.84]:51274 "EHLO mail.ispras.ru"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S239545AbhHQJaF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Aug 2021 05:30:05 -0400
+Received: from hellwig.intra.ispras.ru (unknown [10.10.2.182])
+        by mail.ispras.ru (Postfix) with ESMTPS id 3BED740D4004;
+        Tue, 17 Aug 2021 09:29:31 +0000 (UTC)
+From:   Evgeny Novikov <novikov@ispras.ru>
+To:     Miquel Raynal <miquel.raynal@bootlin.com>
+Cc:     Evgeny Novikov <novikov@ispras.ru>,
+        Richard Weinberger <richard@nod.at>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        Ramuthevar Vadivel Murugan 
+        <vadivel.muruganx.ramuthevar@linux.intel.com>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Kirill Shilimanov <kirill.shilimanov@huawei.com>,
+        Anton Vasilyev <vasilyev@ispras.ru>,
+        linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org,
+        ldv-project@linuxtesting.org, stable@vger.kernel.org
+Subject: [PATCH v2] mtd: rawnand: intel: Fix error handling in probe
+Date:   Tue, 17 Aug 2021 12:29:30 +0300
+Message-Id: <20210817092930.23040-1-novikov@ispras.ru>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> I placed it in my queue to go into the 5.14-rc cycle.
-> 
-> Since this affects live kernel patching, can I get a Tested-by from one
-> of the live kernel patching  folks?
+ebu_nand_probe() did not invoke ebu_dma_cleanup() and
+clk_disable_unprepare() on some error handling paths. The patch fixes
+that.
 
-I see it got merged, but anyway it looks good to me. Thanks for fixing it.
+Found by Linux Driver Verification project (linuxtesting.org).
 
-Miroslav
+Fixes: 0b1039f016e8 ("mtd: rawnand: Add NAND controller support on Intel LGM SoC")
+Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
+Co-developed-by: Kirill Shilimanov <kirill.shilimanov@huawei.com>
+Signed-off-by: Kirill Shilimanov <kirill.shilimanov@huawei.com>
+Co-developed-by: Anton Vasilyev <vasilyev@ispras.ru>
+Signed-off-by: Anton Vasilyev <vasilyev@ispras.ru>
+Cc: stable@vger.kernel.org
+---
+v2: Fix remarks from Miquel Raynal:
+    - Add a Fixes: tag.
+    - Add a Cc: stable tag.
+---
+ drivers/mtd/nand/raw/intel-nand-controller.c | 27 +++++++++++++-------
+ 1 file changed, 18 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/mtd/nand/raw/intel-nand-controller.c b/drivers/mtd/nand/raw/intel-nand-controller.c
+index 8b49fd56cf96..29e8a546dcd6 100644
+--- a/drivers/mtd/nand/raw/intel-nand-controller.c
++++ b/drivers/mtd/nand/raw/intel-nand-controller.c
+@@ -631,19 +631,26 @@ static int ebu_nand_probe(struct platform_device *pdev)
+ 	ebu_host->clk_rate = clk_get_rate(ebu_host->clk);
+ 
+ 	ebu_host->dma_tx = dma_request_chan(dev, "tx");
+-	if (IS_ERR(ebu_host->dma_tx))
+-		return dev_err_probe(dev, PTR_ERR(ebu_host->dma_tx),
+-				     "failed to request DMA tx chan!.\n");
++	if (IS_ERR(ebu_host->dma_tx)) {
++		ret = dev_err_probe(dev, PTR_ERR(ebu_host->dma_tx),
++				    "failed to request DMA tx chan!.\n");
++		goto err_disable_unprepare_clk;
++	}
+ 
+ 	ebu_host->dma_rx = dma_request_chan(dev, "rx");
+-	if (IS_ERR(ebu_host->dma_rx))
+-		return dev_err_probe(dev, PTR_ERR(ebu_host->dma_rx),
+-				     "failed to request DMA rx chan!.\n");
++	if (IS_ERR(ebu_host->dma_rx)) {
++		ret = dev_err_probe(dev, PTR_ERR(ebu_host->dma_rx),
++				    "failed to request DMA rx chan!.\n");
++		ebu_host->dma_rx = NULL;
++		goto err_cleanup_dma;
++	}
+ 
+ 	resname = devm_kasprintf(dev, GFP_KERNEL, "addr_sel%d", cs);
+ 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, resname);
+-	if (!res)
+-		return -EINVAL;
++	if (!res) {
++		ret = -EINVAL;
++		goto err_cleanup_dma;
++	}
+ 	ebu_host->cs[cs].addr_sel = res->start;
+ 	writel(ebu_host->cs[cs].addr_sel | EBU_ADDR_MASK(5) | EBU_ADDR_SEL_REGEN,
+ 	       ebu_host->ebu + EBU_ADDR_SEL(cs));
+@@ -653,7 +660,8 @@ static int ebu_nand_probe(struct platform_device *pdev)
+ 	mtd = nand_to_mtd(&ebu_host->chip);
+ 	if (!mtd->name) {
+ 		dev_err(ebu_host->dev, "NAND label property is mandatory\n");
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto err_cleanup_dma;
+ 	}
+ 
+ 	mtd->dev.parent = dev;
+@@ -681,6 +689,7 @@ static int ebu_nand_probe(struct platform_device *pdev)
+ 	nand_cleanup(&ebu_host->chip);
+ err_cleanup_dma:
+ 	ebu_dma_cleanup(ebu_host);
++err_disable_unprepare_clk:
+ 	clk_disable_unprepare(ebu_host->clk);
+ 
+ 	return ret;
+-- 
+2.26.2
+
