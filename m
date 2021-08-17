@@ -2,112 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF9933EF11B
-	for <lists+stable@lfdr.de>; Tue, 17 Aug 2021 19:51:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A095B3EF129
+	for <lists+stable@lfdr.de>; Tue, 17 Aug 2021 19:56:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232228AbhHQRwM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Aug 2021 13:52:12 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:40438 "EHLO
+        id S232281AbhHQR5G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Aug 2021 13:57:06 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:40932 "EHLO
         jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232194AbhHQRwM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 Aug 2021 13:52:12 -0400
+        with ESMTP id S229918AbhHQR5F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 Aug 2021 13:57:05 -0400
 Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 077B31C0B77; Tue, 17 Aug 2021 19:51:38 +0200 (CEST)
-Date:   Tue, 17 Aug 2021 19:51:37 +0200
+        id 98F751C0B77; Tue, 17 Aug 2021 19:56:30 +0200 (CEST)
+Date:   Tue, 17 Aug 2021 19:56:30 +0200
 From:   Pavel Machek <pavel@denx.de>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Aya Levin <ayal@nvidia.com>, Moshe Shemesh <moshe@nvidia.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        Ben Hutchings <ben.hutchings@mind.be>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.10 49/96] net/mlx5: Fix return value from tracer
- initialization
-Message-ID: <20210817175137.GA30136@amd>
+Subject: Re: [PATCH 5.10 51/96] net: dsa: microchip: Fix ksz_read64()
+Message-ID: <20210817175630.GB30136@amd>
 References: <20210816125434.948010115@linuxfoundation.org>
- <20210816125436.588162993@linuxfoundation.org>
+ <20210816125436.659359567@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="EVF5PPMfhYS0aIcm"
+        protocol="application/pgp-signature"; boundary="61jdw2sOBCFtR2d/"
 Content-Disposition: inline
-In-Reply-To: <20210816125436.588162993@linuxfoundation.org>
+In-Reply-To: <20210816125436.659359567@linuxfoundation.org>
 User-Agent: Mutt/1.5.23 (2014-03-12)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---EVF5PPMfhYS0aIcm
+--61jdw2sOBCFtR2d/
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 Hi!
 
-> [ Upstream commit bd37c2888ccaa5ceb9895718f6909b247cc372e0 ]
+> [ Upstream commit c34f674c8875235725c3ef86147a627f165d23b4 ]
 >=20
-> Check return value of mlx5_fw_tracer_start(), set error path and fix
-> return value of mlx5_fw_tracer_init() accordingly.
+> ksz_read64() currently does some dubious byte-swapping on the two
+> halves of a 64-bit register, and then only returns the high bits.
+> Replace this with a straightforward expression.
 
-This is actually two fixes in one: There's cancel_work_sync() added to
-the error path, but there's additional error that needs fixing.
+The code indeed is very strange, but there are just 2 users, and they
+will now receive byteswapped values, right? If it worked before, it
+will be broken.
 
-Could someone familiar with the code verify it after me?
+Did this get enough testing for -stable?
+
+Is hw little endian or high endian or...? Note that ksz_write64()
+still contains the strange code, at least in 5.10.
 
 Best regards,
-								Pavel
-
-Signed-off-by: Pavel Machek (CIP) <pavel@denx.de>
-
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c b/dri=
-vers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
-index 3dfcb20e97c6..857be86b4a11 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
-@@ -1007,7 +1007,7 @@ int mlx5_fw_tracer_init(struct mlx5_fw_tracer *tracer)
- 	err =3D mlx5_core_alloc_pd(dev, &tracer->buff.pdn);
- 	if (err) {
- 		mlx5_core_warn(dev, "FWTracer: Failed to allocate PD %d\n", err);
--		return err;
-+		goto err_cancel_work;
- 	}
-=20
- 	err =3D mlx5_fw_tracer_create_mkey(tracer);
-@@ -1031,6 +1031,7 @@ int mlx5_fw_tracer_init(struct mlx5_fw_tracer *tracer)
- 	mlx5_core_destroy_mkey(dev, &tracer->buff.mkey);
- err_dealloc_pd:
- 	mlx5_core_dealloc_pd(dev, tracer->buff.pdn);
-+err_cancel_work:
- 	cancel_work_sync(&tracer->read_fw_strings_work);
- 	return err;
- }
-
-
-> +++ b/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
-> @@ -1019,12 +1019,19 @@ int mlx5_fw_tracer_init(struct mlx5_fw_tracer *tr=
-acer)
-=2E..
->  err_dealloc_pd:
->  	mlx5_core_dealloc_pd(dev, tracer->buff.pdn);
-> +	cancel_work_sync(&tracer->read_fw_strings_work);
->  	return err;
->  }
+							Pavel
+						=09
+> +++ b/drivers/net/dsa/microchip/ksz_common.h
+> @@ -210,12 +210,8 @@ static inline int ksz_read64(struct ksz_device *dev,=
+ u32 reg, u64 *val)
+>  	int ret;
 > =20
+>  	ret =3D regmap_bulk_read(dev->regmap[2], reg, value, 2);
+> -	if (!ret) {
+> -		/* Ick! ToDo: Add 64bit R/W to regmap on 32bit systems */
+> -		value[0] =3D swab32(value[0]);
+> -		value[1] =3D swab32(value[1]);
+> -		*val =3D swab64((u64)*value);
+> -	}
+> +	if (!ret)
+> +		*val =3D (u64)value[0] << 32 | value[1];
+> =20
+>  	return ret;
+>  }
 
 --=20
 DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
 HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
 
---EVF5PPMfhYS0aIcm
+--61jdw2sOBCFtR2d/
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iEYEARECAAYFAmEb9ykACgkQMOfwapXb+vJktgCgvG+gFh7KblyrgFLpsbOPslOQ
-MjUAn0RUmjV0gRzjuh5jyVACMv1eDr1t
-=SwLs
+iEYEARECAAYFAmEb+E4ACgkQMOfwapXb+vLY1ACfbgtvVkwqEAvCZ5IufHIfjZnT
+MOIAoKD98CkSOrEZhxLyb9svnfFtVRup
+=mXk/
 -----END PGP SIGNATURE-----
 
---EVF5PPMfhYS0aIcm--
+--61jdw2sOBCFtR2d/--
