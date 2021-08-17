@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D6CC3EE12B
-	for <lists+stable@lfdr.de>; Tue, 17 Aug 2021 02:36:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AC7F3EE129
+	for <lists+stable@lfdr.de>; Tue, 17 Aug 2021 02:36:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236505AbhHQAhC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 20:37:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35464 "EHLO mail.kernel.org"
+        id S236874AbhHQAhB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 20:37:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236434AbhHQAgl (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236051AbhHQAgl (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 16 Aug 2021 20:36:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F68A61052;
-        Tue, 17 Aug 2021 00:36:06 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A49B46102A;
+        Tue, 17 Aug 2021 00:36:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629160566;
-        bh=bshTLC1uJlE+pTmdql1NoWvc/HC9abF6H6tLLErjrck=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GpblZsd3rhsdjdxV3LSo7k6UOPgWqBNFCwmkg99IORilaYL5muAyH4XNLidboPO9n
-         bJuI0MPJzKG5jePO+EnA8jRspn00gKfR/QzNJUbJAbjv1a20OX0XJeZRsfxtm2dfR8
-         5rdJ11k6XmgU5e7ti0RCMgGDL/ohdI5h57k3xwtA15or9Za2bG/iG2DrzG2AhG2FhX
-         KJEQ4Y9eGs2bV1rmUfq9ALqLDHnWO70W55UEI5KIA01LZZHDjs5cx9zUCUPueKse33
-         WJmohy/UbIDtWzTVr80sYNs6h4LE9fjxmqEcTw6KyFW6gZOXzui9f/cGrXLARa5vVN
-         cHWgpgwDlg30Q==
+        s=k20201202; t=1629160569;
+        bh=UH2eOJUDLXVshmx1GAc+dcn9ReIEAByXu0i4z/0XQk4=;
+        h=From:To:Cc:Subject:Date:From;
+        b=o/xCIQwVNJQwhOWANyeBhwFFkdaBTK/QVI9d7iYrLcT6UGvzkud6urUIqgAB8rS//
+         jVhZuizY9l7cudxsR2F5N8tWDxdp/CTAQRYY4P2/m3Zr67GvDOZpvqG358Fmp4+UTv
+         ArFhcqRFSQummQADavz1/jSDr19M0ssmr9yTeXPCvwNQHu7Jwx/wUurDWhOScou/Hd
+         sO+N5nz0vzl/q4SVHoeNp7UMMwb4zW0FrOVtawlw7cHodwGGJGPM6i1y0jdBD5CmPj
+         2YK7ZKVJcOGxp6KBtc2lEfTh9/8U8xR2bT98tq435yO98g3RarRw6BNqYbxlWwcd6L
+         9DIio4JUd8bbA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mark Brown <broonie@kernel.org>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 9/9] net: mscc: Fix non-GPL export of regmap APIs
-Date:   Mon, 16 Aug 2021 20:35:54 -0400
-Message-Id: <20210817003554.83213-9-sashal@kernel.org>
+Cc:     Lucas Tanure <tanureal@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, patches@opensource.cirrus.com,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.4 1/5] ASoC: wm_adsp: Let soc_cleanup_component_debugfs remove debugfs
+Date:   Mon, 16 Aug 2021 20:36:03 -0400
+Message-Id: <20210817003607.83340-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210817003554.83213-1-sashal@kernel.org>
-References: <20210817003554.83213-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -43,97 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Lucas Tanure <tanureal@opensource.cirrus.com>
 
-[ Upstream commit 48c812e0327744b4965296f65c23fe2405692afc ]
+[ Upstream commit acbf58e530416e167c3b323111f4013d9f2b0a7d ]
 
-The ocelot driver makes use of regmap, wrapping it with driver specific
-operations that are thin wrappers around the core regmap APIs. These are
-exported with EXPORT_SYMBOL, dropping the _GPL from the core regmap
-exports which is frowned upon. Add _GPL suffixes to at least the APIs that
-are doing register I/O.
+soc_cleanup_component_debugfs will debugfs_remove_recursive
+the component->debugfs_root, so adsp doesn't need to also
+remove the same entry.
+By doing that adsp also creates a race with core component,
+which causes a NULL pointer dereference
 
+Signed-off-by: Lucas Tanure <tanureal@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20210728104416.636591-1-tanureal@opensource.cirrus.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
-Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mscc/ocelot_io.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ sound/soc/codecs/wm_adsp.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mscc/ocelot_io.c b/drivers/net/ethernet/mscc/ocelot_io.c
-index ea4e83410fe4..7390fa3980ec 100644
---- a/drivers/net/ethernet/mscc/ocelot_io.c
-+++ b/drivers/net/ethernet/mscc/ocelot_io.c
-@@ -21,7 +21,7 @@ u32 __ocelot_read_ix(struct ocelot *ocelot, u32 reg, u32 offset)
- 		    ocelot->map[target][reg & REG_MASK] + offset, &val);
- 	return val;
- }
--EXPORT_SYMBOL(__ocelot_read_ix);
-+EXPORT_SYMBOL_GPL(__ocelot_read_ix);
- 
- void __ocelot_write_ix(struct ocelot *ocelot, u32 val, u32 reg, u32 offset)
+diff --git a/sound/soc/codecs/wm_adsp.c b/sound/soc/codecs/wm_adsp.c
+index 13672928da99..ba776f58d524 100644
+--- a/sound/soc/codecs/wm_adsp.c
++++ b/sound/soc/codecs/wm_adsp.c
+@@ -745,7 +745,6 @@ static void wm_adsp2_init_debugfs(struct wm_adsp *dsp,
+ static void wm_adsp2_cleanup_debugfs(struct wm_adsp *dsp)
  {
-@@ -32,7 +32,7 @@ void __ocelot_write_ix(struct ocelot *ocelot, u32 val, u32 reg, u32 offset)
- 	regmap_write(ocelot->targets[target],
- 		     ocelot->map[target][reg & REG_MASK] + offset, val);
+ 	wm_adsp_debugfs_clear(dsp);
+-	debugfs_remove_recursive(dsp->debugfs_root);
  }
--EXPORT_SYMBOL(__ocelot_write_ix);
-+EXPORT_SYMBOL_GPL(__ocelot_write_ix);
- 
- void __ocelot_rmw_ix(struct ocelot *ocelot, u32 val, u32 mask, u32 reg,
- 		     u32 offset)
-@@ -45,7 +45,7 @@ void __ocelot_rmw_ix(struct ocelot *ocelot, u32 val, u32 mask, u32 reg,
- 			   ocelot->map[target][reg & REG_MASK] + offset,
- 			   mask, val);
- }
--EXPORT_SYMBOL(__ocelot_rmw_ix);
-+EXPORT_SYMBOL_GPL(__ocelot_rmw_ix);
- 
- u32 ocelot_port_readl(struct ocelot_port *port, u32 reg)
- {
-@@ -58,7 +58,7 @@ u32 ocelot_port_readl(struct ocelot_port *port, u32 reg)
- 	regmap_read(port->target, ocelot->map[target][reg & REG_MASK], &val);
- 	return val;
- }
--EXPORT_SYMBOL(ocelot_port_readl);
-+EXPORT_SYMBOL_GPL(ocelot_port_readl);
- 
- void ocelot_port_writel(struct ocelot_port *port, u32 val, u32 reg)
- {
-@@ -69,7 +69,7 @@ void ocelot_port_writel(struct ocelot_port *port, u32 val, u32 reg)
- 
- 	regmap_write(port->target, ocelot->map[target][reg & REG_MASK], val);
- }
--EXPORT_SYMBOL(ocelot_port_writel);
-+EXPORT_SYMBOL_GPL(ocelot_port_writel);
- 
- void ocelot_port_rmwl(struct ocelot_port *port, u32 val, u32 mask, u32 reg)
- {
-@@ -77,7 +77,7 @@ void ocelot_port_rmwl(struct ocelot_port *port, u32 val, u32 mask, u32 reg)
- 
- 	ocelot_port_writel(port, (cur & (~mask)) | val, reg);
- }
--EXPORT_SYMBOL(ocelot_port_rmwl);
-+EXPORT_SYMBOL_GPL(ocelot_port_rmwl);
- 
- u32 __ocelot_target_read_ix(struct ocelot *ocelot, enum ocelot_target target,
- 			    u32 reg, u32 offset)
-@@ -128,7 +128,7 @@ int ocelot_regfields_init(struct ocelot *ocelot,
- 
- 	return 0;
- }
--EXPORT_SYMBOL(ocelot_regfields_init);
-+EXPORT_SYMBOL_GPL(ocelot_regfields_init);
- 
- static struct regmap_config ocelot_regmap_config = {
- 	.reg_bits	= 32,
-@@ -148,4 +148,4 @@ struct regmap *ocelot_regmap_init(struct ocelot *ocelot, struct resource *res)
- 
- 	return devm_regmap_init_mmio(ocelot->dev, regs, &ocelot_regmap_config);
- }
--EXPORT_SYMBOL(ocelot_regmap_init);
-+EXPORT_SYMBOL_GPL(ocelot_regmap_init);
+ #else
+ static inline void wm_adsp2_init_debugfs(struct wm_adsp *dsp,
 -- 
 2.30.2
 
