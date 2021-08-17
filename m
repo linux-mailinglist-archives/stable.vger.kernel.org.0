@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BF3E3EE138
-	for <lists+stable@lfdr.de>; Tue, 17 Aug 2021 02:37:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2C913EE137
+	for <lists+stable@lfdr.de>; Tue, 17 Aug 2021 02:37:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236258AbhHQAhp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 20:37:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35690 "EHLO mail.kernel.org"
+        id S236578AbhHQAhg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 20:37:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236634AbhHQAgq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 20:36:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E9A0D60FC3;
-        Tue, 17 Aug 2021 00:36:13 +0000 (UTC)
+        id S236650AbhHQAgu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 20:36:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7105F60F5C;
+        Tue, 17 Aug 2021 00:36:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629160574;
-        bh=PzJh8m5YlA4RKogp/AH540axtYUK9XSISkigre4dzaE=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G9FLQUe+BMGOd9uAg438pi2xCOUhHwA2T2tm0QR2PCe1MrjB7T973F9EF5sUwcOdr
-         PUsjYy7SrS+nxJVsuOyV9nXiWh1T48bq3VygIVUp+akEdlVfqc8WXf3Smc6p9UjiXq
-         ZloUWMOG8Kmen+SJ5MpZx0wck5qMsj83grDWLG/HsxNeZGqA/rTfo4MmHkkM+NQLrg
-         I2Z4950btMQp8CwwSl5sSR/HK22KOD5afWCN4yjZSWzzawcVJFIs+KYBjQPREs3PxY
-         WzX4fr3b5vioWwwelKDiIJm641MLGrUFXkkY/Yv7su+F/ArGDiBTOAQcv8pE5GBFZt
-         6WBinIBJ+aZ7g==
+        s=k20201202; t=1629160577;
+        bh=fQjiYcuWvLF6FW+Y5XC25D4MUKcLwqTZf9pVCWMyCJ0=;
+        h=From:To:Cc:Subject:Date:From;
+        b=g4BPdVxOHFqk5SgEGbWA04rp4eLcMIJDfxikORwoRcfERlvWcu8pi+bu7Yr5LcN3a
+         gtvE0pykXoupmWYv1QSpnqDeuqZ0LxXg7djKOs1/DYn2WBsKe1A9xJ8EXByzsfRDyO
+         eLEdIIQWzDt+dUxGiR702W3XBLnvpUbmZcb1ocNWTiFaXR/01oTW0Gg7xTxPSa40zt
+         10Fo16nwknIVq6dSycwANNGnBCy/fkV2s6jpT/6RQe74iNfpbv1/EdL6nzI9xveayh
+         jT8z3cxpGIpZ8/fA8J/8rg6hpxA0I2vs4WQbUlWg5m0EkjQOQLDaZo7ENC6MWurEa5
+         tD1JfTuSMvDVQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Miklos Szeredi <mszeredi@redhat.com>,
-        Colin Ian King <colin.king@canonical.com>,
-        Sasha Levin <sashal@kernel.org>, linux-unionfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 5/5] ovl: fix uninitialized pointer read in ovl_lookup_real_one()
-Date:   Mon, 16 Aug 2021 20:36:07 -0400
-Message-Id: <20210817003607.83340-5-sashal@kernel.org>
+Cc:     Lucas Tanure <tanureal@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, patches@opensource.cirrus.com,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.19 1/4] ASoC: wm_adsp: Let soc_cleanup_component_debugfs remove debugfs
+Date:   Mon, 16 Aug 2021 20:36:12 -0400
+Message-Id: <20210817003615.83434-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210817003607.83340-1-sashal@kernel.org>
-References: <20210817003607.83340-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -42,43 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miklos Szeredi <mszeredi@redhat.com>
+From: Lucas Tanure <tanureal@opensource.cirrus.com>
 
-[ Upstream commit 580c610429b3994e8db24418927747cf28443cde ]
+[ Upstream commit acbf58e530416e167c3b323111f4013d9f2b0a7d ]
 
-One error path can result in release_dentry_name_snapshot() being called
-before "name" was initialized by take_dentry_name_snapshot().
+soc_cleanup_component_debugfs will debugfs_remove_recursive
+the component->debugfs_root, so adsp doesn't need to also
+remove the same entry.
+By doing that adsp also creates a race with core component,
+which causes a NULL pointer dereference
 
-Fix by moving the release_dentry_name_snapshot() to immediately after the
-only use.
-
-Reported-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Signed-off-by: Lucas Tanure <tanureal@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20210728104416.636591-1-tanureal@opensource.cirrus.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/overlayfs/export.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/codecs/wm_adsp.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/fs/overlayfs/export.c b/fs/overlayfs/export.c
-index 11dd8177770d..19574ef17470 100644
---- a/fs/overlayfs/export.c
-+++ b/fs/overlayfs/export.c
-@@ -395,6 +395,7 @@ static struct dentry *ovl_lookup_real_one(struct dentry *connected,
- 	 */
- 	take_dentry_name_snapshot(&name, real);
- 	this = lookup_one_len(name.name.name, connected, name.name.len);
-+	release_dentry_name_snapshot(&name);
- 	err = PTR_ERR(this);
- 	if (IS_ERR(this)) {
- 		goto fail;
-@@ -409,7 +410,6 @@ static struct dentry *ovl_lookup_real_one(struct dentry *connected,
- 	}
- 
- out:
--	release_dentry_name_snapshot(&name);
- 	dput(parent);
- 	inode_unlock(dir);
- 	return this;
+diff --git a/sound/soc/codecs/wm_adsp.c b/sound/soc/codecs/wm_adsp.c
+index 02c557e1f779..47a4363ebde9 100644
+--- a/sound/soc/codecs/wm_adsp.c
++++ b/sound/soc/codecs/wm_adsp.c
+@@ -651,7 +651,6 @@ static void wm_adsp2_init_debugfs(struct wm_adsp *dsp,
+ static void wm_adsp2_cleanup_debugfs(struct wm_adsp *dsp)
+ {
+ 	wm_adsp_debugfs_clear(dsp);
+-	debugfs_remove_recursive(dsp->debugfs_root);
+ }
+ #else
+ static inline void wm_adsp2_init_debugfs(struct wm_adsp *dsp,
 -- 
 2.30.2
 
