@@ -2,136 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F64A3EF1B3
-	for <lists+stable@lfdr.de>; Tue, 17 Aug 2021 20:20:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 246133EF1BA
+	for <lists+stable@lfdr.de>; Tue, 17 Aug 2021 20:21:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232693AbhHQSVT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Aug 2021 14:21:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53258 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229850AbhHQSVS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 Aug 2021 14:21:18 -0400
-Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18F51C0613C1
-        for <stable@vger.kernel.org>; Tue, 17 Aug 2021 11:20:45 -0700 (PDT)
-Received: by mail-ed1-x52d.google.com with SMTP id bo19so32743019edb.9
-        for <stable@vger.kernel.org>; Tue, 17 Aug 2021 11:20:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=essensium.com; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to
-         :user-agent;
-        bh=JxMZknPb38LEML/Zrl22ADbZSOPinCE/VRi5nWGWDAk=;
-        b=PA0YPSPT/zjM5bEyc//9e/LK7/9ORKt+R0DfSzP2LM1QT9rCEMTMm/8yggAlOSiQNe
-         P6Vb2m2vXpSGRgiIFaX4UtvsfmAstlOMNQkMhSX9UKoTc7AwLb2KlwWPw6WKu/5jYrv/
-         KiPtkO53kzroV+bjaJi7FCDY/pWOKVkqi7od/aLINjO/5Cy02Jq5X1qabP4g178wjYd8
-         OEz5+k2yYdKilKtoU7l0dNdbo2VY5rR9aNtkrlqIq1k1NLVctLaI1e1jLJkSfdYuGZDW
-         ddrU9e5EvQQLLwMLEBs84gvbaAnrglNoGz2Dh7Wx3L/2Jazh3h59wXKY2ob6YTN6dPB+
-         7VNg==
+        id S232981AbhHQSW3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Aug 2021 14:22:29 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:54187 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231149AbhHQSW3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 Aug 2021 14:22:29 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1629224515;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=blC9in8MvMGEjFJlf0hTtxqygbjsNJ5D7/lqFZYI9+s=;
+        b=I5F2XCb1GHaoW9+nKicXp5WTqrnBPQd7IL2LrGHZI02GEXxjDdoDObhGDZG+LBMS67BOm/
+        rgDVA43b64LI8as9Kw0dP4my85WCZ7a7Q0YYkqesiQlUTLmraG5OVtgJ0+Z0ThuyQAfEpt
+        Fj1ZQPd1/rX4ZcK5+kOkIs8MRHK1fkk=
+Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
+ [209.85.208.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-277-GW_ZOlyxMWO6wOqVMJaRBA-1; Tue, 17 Aug 2021 14:21:54 -0400
+X-MC-Unique: GW_ZOlyxMWO6wOqVMJaRBA-1
+Received: by mail-ed1-f71.google.com with SMTP id b16-20020a0564022790b02903be6352006cso10965124ede.15
+        for <stable@vger.kernel.org>; Tue, 17 Aug 2021 11:21:53 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to:user-agent;
-        bh=JxMZknPb38LEML/Zrl22ADbZSOPinCE/VRi5nWGWDAk=;
-        b=RiZN6oot2ktyvcEsFAsBSeUrEzuxu9m7Oqyq/zZiqHBbu3nN6KN3lT+TQMjU6SPk5w
-         UFJLtOmRgjiYNMNNBxb3D5dheqbASwiOnWmzTJ09FzcmKodll91edgMl7ECuvXcrOit9
-         dsD11scVHj1GLejF8Rn9XFXsQd4rBJtJkkakPLNGkacprRZG4w1Lkwwvp5iG9w2HpnZ8
-         Lengg4EOPO3wRhG8YgF35V07HyiplDmn37PrBRVbvwLj4lu9n12XkxMgEezz5Ke/Ab6k
-         2urQ2pN80LUKtggf6YLdKIIIrHImWTGjl5lZDSf/lv7egxomNR/yGLLA9uLAwrpnzrdI
-         2pAg==
-X-Gm-Message-State: AOAM530jKNtlNBB8VdilSsErPYAkYx1/L91jUB8vb5XAwCBgMJJ9C2lP
-        +Z/o7nwDEN4tY3UHdU/A0nkfTR5j2Gdi3g==
-X-Google-Smtp-Source: ABdhPJyt9pFQrE5UrvhBLr0r70/BhVJQomD3436RtSvk4JV8WfSrQHji5uEfWOJfMVdBalL2I2DriA==
-X-Received: by 2002:a05:6402:8da:: with SMTP id d26mr5460218edz.109.1629224442987;
-        Tue, 17 Aug 2021 11:20:42 -0700 (PDT)
-Received: from cephalopod (168.7-181-91.adsl-dyn.isp.belgacom.be. [91.181.7.168])
-        by smtp.gmail.com with ESMTPSA id cr9sm1409545edb.17.2021.08.17.11.20.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 17 Aug 2021 11:20:42 -0700 (PDT)
-Date:   Tue, 17 Aug 2021 20:20:40 +0200
-From:   Ben Hutchings <ben.hutchings@essensium.com>
-To:     Pavel Machek <pavel@denx.de>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.10 51/96] net: dsa: microchip: Fix ksz_read64()
-Message-ID: <20210817182040.GA12678@cephalopod>
-References: <20210816125434.948010115@linuxfoundation.org>
- <20210816125436.659359567@linuxfoundation.org>
- <20210817175630.GB30136@amd>
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=blC9in8MvMGEjFJlf0hTtxqygbjsNJ5D7/lqFZYI9+s=;
+        b=N8ECLvey4hmsBYCkeJ3McN6Ncge7VPi1xzGy1VfnvFXyfTMn7nWOtZWn+4DA+kpaMN
+         L/QwyFaakztBbdYzjnn6DFxXh3c7HvdDjRgjIy13fml4vF++jsWGkwPpWtNcYpyGnC9O
+         InnMMryEqhXAgMvuraXty71hvY90iv+9+6klU0XRBl3+nlw1RC6N1OXrcWQp795GuFt2
+         ByRbxZ77nuzn7MQpe/mLSPFj51/y87LNSQN5tGdKfhCu00wmMVCduq+HJvId8eOkDDrF
+         3gf1xmMTW6C0R46Cm8VI5xm1aIBDLHjyoPsG6qxWf3KuZGiTB6kjZ/METL0cq8Lykj/1
+         NGzg==
+X-Gm-Message-State: AOAM531nswWyfNzpdviNn91Xvll8s2gYIm8v2gyCW1ZzElyyTXEalVNx
+        kfvDrB1ab1VUAibcOXNB48eKd6v9TZsExle0TwWKM1ZHDNR3Jhp8MyUd1KsMyHb2HWdxPsehcQg
+        yJWhtUIH/yAr8ETy/ICWDS3rvBL/AZFPIMsPek0ucxJANReLcyxmM/H87iB8/HtP0sDms
+X-Received: by 2002:aa7:cc83:: with SMTP id p3mr5595373edt.365.1629224512680;
+        Tue, 17 Aug 2021 11:21:52 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxGc5AQHYAO7Aclyic7sZOUCBYScblNEgE0hQX9VJ4nIY9m246Q/nIq5Crkhc5VFMFl08ZE5Q==
+X-Received: by 2002:aa7:cc83:: with SMTP id p3mr5595360edt.365.1629224512536;
+        Tue, 17 Aug 2021 11:21:52 -0700 (PDT)
+Received: from x1.localdomain (2001-1c00-0c1e-bf00-1054-9d19-e0f0-8214.cable.dynamic.v6.ziggo.nl. [2001:1c00:c1e:bf00:1054:9d19:e0f0:8214])
+        by smtp.gmail.com with ESMTPSA id b5sm1076647ejq.56.2021.08.17.11.21.51
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 17 Aug 2021 11:21:51 -0700 (PDT)
+Subject: Re: [PATCH 5.10 12/19] vboxsf: Make vboxsf_dir_create() return the
+ handle for the created file
+To:     Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Cc:     Pavel Machek <pavel@ucw.cz>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Stable <stable@vger.kernel.org>
+References: <20210813150522.623322501@linuxfoundation.org>
+ <20210813150523.032839314@linuxfoundation.org>
+ <20210813193158.GA21328@duo.ucw.cz>
+ <26feedff-0fb4-01db-c809-81c932336b47@redhat.com>
+ <CADVatmNm83ZdwJzMzZSEF-SPjSV4OmjByLpnYAubZSkY7f9uMw@mail.gmail.com>
+From:   Hans de Goede <hdegoede@redhat.com>
+Message-ID: <758b95b1-382a-4831-d562-e46837b61534@redhat.com>
+Date:   Tue, 17 Aug 2021 20:21:51 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20210817175630.GB30136@amd>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <CADVatmNm83ZdwJzMzZSEF-SPjSV4OmjByLpnYAubZSkY7f9uMw@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 17, 2021 at 07:56:30PM +0200, Pavel Machek wrote:
-> Hi!
+Hi,
+
+On 8/17/21 5:52 PM, Sudip Mukherjee wrote:
+> On Sun, Aug 15, 2021 at 2:57 PM Hans de Goede <hdegoede@redhat.com> wrote:
+>>
+>> Hi,
+>>
+>> On 8/13/21 9:31 PM, Pavel Machek wrote:
+>>> Hi!
+>>>
+>>>> commit ab0c29687bc7a890d1a86ac376b0b0fd78b2d9b6 upstream
+>>>>
+>>>> Make vboxsf_dir_create() optionally return the vboxsf-handle for
+>>>> the created file. This is a preparation patch for adding atomic_open
+>>>> support.
+>>>
+>>> Follow up commits using this functionality are in 5.13 but not in
+>>> 5.10, so I believe we don't need this in 5.10, either?
+>>>
+>>> (Plus someone familiar with the code should check if we need "vboxsf:
+>>> Honor excl flag to the dir-inode create op" in 5.10; it may have same
+>>> problem).
+>>
+>> Actually those follow up commits fix an actual bug, so I was expecting
+>> the person who did the backport to also submit the rest of the set.
 > 
-> > [ Upstream commit c34f674c8875235725c3ef86147a627f165d23b4 ]
-> > 
-> > ksz_read64() currently does some dubious byte-swapping on the two
-> > halves of a 64-bit register, and then only returns the high bits.
-> > Replace this with a straightforward expression.
-> 
-> The code indeed is very strange, but there are just 2 users, and they
-> will now receive byteswapped values, right? If it worked before, it
-> will be broken.
+> I only track Greg's failed messages when I find time for stable and
+> this one was one of those. So, no idea who has originally requested
+> this and why were the other two not requested.
 
-The old code swaps the bytes within each 32-bit word, attempts to
-concatenate them into a 64-bit word, then swaps the bytes within the
-64-bit word.  There is no need for byte-swapping, only (on little-
-endian platforms) a word-swap, which is what the new code does.
+I understand, thank you for backporting the 2 failing commits.
 
-> Did this get enough testing for -stable?
+Regards,
 
-Yes, I actually developed and tested all the ksz8795 changes in 5.10
-before forward-porting to mainline.
+Hans
 
-> Is hw little endian or high endian or...?
-
-The hardware is big-endian and regmap handles any necessary
-byte-swapping for values up to 32 bits.
-
-> Note that ksz_write64() still contains the strange code, at least in
-> 5.10.
-
-It's unnecessarily complex, but it does work.
-
-Ben.
-
-> 
-> Best regards,
-> 							Pavel
-> 							
-> > +++ b/drivers/net/dsa/microchip/ksz_common.h
-> > @@ -210,12 +210,8 @@ static inline int ksz_read64(struct ksz_device *dev, u32 reg, u64 *val)
-> >  	int ret;
-> >  
-> >  	ret = regmap_bulk_read(dev->regmap[2], reg, value, 2);
-> > -	if (!ret) {
-> > -		/* Ick! ToDo: Add 64bit R/W to regmap on 32bit systems */
-> > -		value[0] = swab32(value[0]);
-> > -		value[1] = swab32(value[1]);
-> > -		*val = swab64((u64)*value);
-> > -	}
-> > +	if (!ret)
-> > +		*val = (u64)value[0] << 32 | value[1];
-> >  
-> >  	return ret;
-> >  }
-> 
-> -- 
-> DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-> HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
-
-
-
--- 
-Ben Hutchings · Senior Embedded Software Engineer, Essensium-Mind · mind.be
