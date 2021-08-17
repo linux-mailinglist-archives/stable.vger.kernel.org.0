@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7917E3EE13C
+	by mail.lfdr.de (Postfix) with ESMTP id 7D4443EE13D
 	for <lists+stable@lfdr.de>; Tue, 17 Aug 2021 02:37:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236020AbhHQAhu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 20:37:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36756 "EHLO mail.kernel.org"
+        id S236923AbhHQAhv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 20:37:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36826 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236890AbhHQAhD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 20:37:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F8FA6102A;
-        Tue, 17 Aug 2021 00:36:30 +0000 (UTC)
+        id S236918AbhHQAhE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 20:37:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 81E4461056;
+        Tue, 17 Aug 2021 00:36:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629160591;
-        bh=jmzD6vyI/X+6zQaDKVv+OPpTfvKGCEmrMkQhgTYSBq4=;
-        h=From:To:Cc:Subject:Date:From;
-        b=H8IrW44pJ2vuTyF4MbWO+WU81p0paz8tP0mTp4ooQroEIiDP5Jmb46SrOf8Fsri78
-         VWjzVSLNVCG0UhGnPMZqsyudOypqXSP/0idusg46U+fH9I03UunWJmA4bkypEasG4U
-         pzKB8N4zMe65HBQ87hAYzJ0JGKpHkiG4QIL5cIMBSixbPepHK37tbyKWSva+pYqRBT
-         ObEg3eL7dfKRZY8PAsKce3tI7tkjOes39S+xCKP6EckxlOgaJfhd7xbGtJFaAuYk46
-         bEEnxjt312VoiibYnyg4DPE35+nRNDLXLOowXM1P6unGSNUPq1ShBBnLRif+30mftY
-         fSoMUs++mc6KA==
+        s=k20201202; t=1629160592;
+        bh=3aFFWilx/3yE7zNv1oXmbigpseRdQEbrDcXnShRiO+E=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=fJrVjfX/8VdTSU/UGQypnQky2as5KEKDA2HUZcKrLryknIP1kl/HWhC4ZKtbuPul4
+         D6Woj9KWy7smA83W6pYi0+ivcux2rxVpe5lef+QElHmnKQsidnIeaI7mAhnmRsv6f1
+         y9V9NVYN6Lk813KR9T2pDg1p/pHiQRlyX7D0W2mOoohQ7+NCjIuQ5UVrVuds+LeC93
+         tOGZpx0QfRVKxLAXZkB9vK7KAXLst1nmxEC+LucHOVapb5dQV4NPRlJq8VI6RX/ebF
+         gDlNEf+leMJ42A9OJyBKFM1cYzhLJo2fZwGM5Lwcl7h5pr6tlNSeaBIFejKDc6z2np
+         0FH3pmkbOp3BQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lucas Tanure <tanureal@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, patches@opensource.cirrus.com,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.4 1/2] ASoC: wm_adsp: Let soc_cleanup_component_debugfs remove debugfs
-Date:   Mon, 16 Aug 2021 20:36:28 -0400
-Message-Id: <20210817003629.83659-1-sashal@kernel.org>
+Cc:     Guenter Roeck <linux@roeck-us.net>,
+        Vineet Gupta <vgupta@synopsys.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-snps-arc@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.4 2/2] ARC: Fix CONFIG_STACKDEPOT
+Date:   Mon, 16 Aug 2021 20:36:29 -0400
+Message-Id: <20210817003629.83659-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210817003629.83659-1-sashal@kernel.org>
+References: <20210817003629.83659-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -41,36 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Tanure <tanureal@opensource.cirrus.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit acbf58e530416e167c3b323111f4013d9f2b0a7d ]
+[ Upstream commit bf79167fd86f3b97390fe2e70231d383526bd9cc ]
 
-soc_cleanup_component_debugfs will debugfs_remove_recursive
-the component->debugfs_root, so adsp doesn't need to also
-remove the same entry.
-By doing that adsp also creates a race with core component,
-which causes a NULL pointer dereference
+Enabling CONFIG_STACKDEPOT results in the following build error.
 
-Signed-off-by: Lucas Tanure <tanureal@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20210728104416.636591-1-tanureal@opensource.cirrus.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+arc-elf-ld: lib/stackdepot.o: in function `filter_irq_stacks':
+stackdepot.c:(.text+0x456): undefined reference to `__irqentry_text_start'
+arc-elf-ld: stackdepot.c:(.text+0x456): undefined reference to `__irqentry_text_start'
+arc-elf-ld: stackdepot.c:(.text+0x476): undefined reference to `__irqentry_text_end'
+arc-elf-ld: stackdepot.c:(.text+0x476): undefined reference to `__irqentry_text_end'
+arc-elf-ld: stackdepot.c:(.text+0x484): undefined reference to `__softirqentry_text_start'
+arc-elf-ld: stackdepot.c:(.text+0x484): undefined reference to `__softirqentry_text_start'
+arc-elf-ld: stackdepot.c:(.text+0x48c): undefined reference to `__softirqentry_text_end'
+arc-elf-ld: stackdepot.c:(.text+0x48c): undefined reference to `__softirqentry_text_end'
+
+Other architectures address this problem by adding IRQENTRY_TEXT and
+SOFTIRQENTRY_TEXT to the text segment, so do the same here.
+
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/wm_adsp.c | 1 -
- 1 file changed, 1 deletion(-)
+ arch/arc/kernel/vmlinux.lds.S | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/sound/soc/codecs/wm_adsp.c b/sound/soc/codecs/wm_adsp.c
-index 5ff0d3b10bcf..ceb1daf99526 100644
---- a/sound/soc/codecs/wm_adsp.c
-+++ b/sound/soc/codecs/wm_adsp.c
-@@ -391,7 +391,6 @@ static void wm_adsp2_init_debugfs(struct wm_adsp *dsp,
- static void wm_adsp2_cleanup_debugfs(struct wm_adsp *dsp)
- {
- 	wm_adsp_debugfs_clear(dsp);
--	debugfs_remove_recursive(dsp->debugfs_root);
- }
- #else
- static inline void wm_adsp2_init_debugfs(struct wm_adsp *dsp,
+diff --git a/arch/arc/kernel/vmlinux.lds.S b/arch/arc/kernel/vmlinux.lds.S
+index 894e696bddaa..8e092b9c1250 100644
+--- a/arch/arc/kernel/vmlinux.lds.S
++++ b/arch/arc/kernel/vmlinux.lds.S
+@@ -99,6 +99,8 @@ SECTIONS
+ 		SCHED_TEXT
+ 		LOCK_TEXT
+ 		KPROBES_TEXT
++		IRQENTRY_TEXT
++		SOFTIRQENTRY_TEXT
+ 		*(.fixup)
+ 		*(.gnu.warning)
+ 	}
 -- 
 2.30.2
 
