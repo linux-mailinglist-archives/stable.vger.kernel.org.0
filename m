@@ -2,42 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 190EC3EE132
-	for <lists+stable@lfdr.de>; Tue, 17 Aug 2021 02:36:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 243803EE133
+	for <lists+stable@lfdr.de>; Tue, 17 Aug 2021 02:37:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235031AbhHQAh1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 20:37:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36418 "EHLO mail.kernel.org"
+        id S237051AbhHQAhP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 20:37:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236267AbhHQAgx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 20:36:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 473EA61038;
-        Tue, 17 Aug 2021 00:36:20 +0000 (UTC)
+        id S236783AbhHQAg4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 20:36:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 06E8F60F58;
+        Tue, 17 Aug 2021 00:36:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629160581;
-        bh=3LtPGqVFszrceez7FmDhpht4gkC4FP08zQUorIghOx0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cLje8NHM52z7GzArXcWmT7cS3WCIRUH/6U8fb90T10m68MFNfPukjw3W4VxVW/N+0
-         Hgw5TMIC5cQVtLsWmHQNiOlx0EOBl1swWsm8qiKCSYABLOTX6FI4M5XlIgIiGCabVa
-         LPivBPxBV3MBGI10bcyxoU3ok0gAvr0mUfTY7JbqKQMjmUnOpEy3MRKZf0CUalL+wp
-         0gM0smNPDT6btx5O3AyogKtL9r5Chfq99fEIXdjuw+p59svM0t15O2E/uLPHnBUSb2
-         X8ii30ZR4eZcPXZefszKluRL3sohB/64Po5FhVj3csrvHJ9LO/HjaT7lwGqbp8QYn4
-         KcAJkhHuNbrKw==
+        s=k20201202; t=1629160583;
+        bh=e6bLwZ8VME/Bo1G8rIgHJWKioaurNGR8NfxrbFF0HS0=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Mw1V7xGnDFmoSGXs2lqCLsDIyk61qtYZCuECSHTCpvb75LN7VuBK5dUfu9OjFGCBG
+         VEyYwci45YdsdE1QfApUmeeJ8+lBBNgfn8+7fGbnYEIbddtgmeP5YnPtDW2af0nDRG
+         +3fFbNP2bYQcxUBDwz666+3zojFydxTn8uf01zt79KMtW0ZKmmgQyehCWGgbuMH69U
+         8gL55wZUforSKLqAhllpa+UIIzUk5pV4WSsl7ocgfsxci6FbOFGTx2q7Am52czo5WT
+         Pq/1CKFAznb7W5MUpY247SJUEwlH51esNDInVZBfK4m0zZW152pogBux5PzwxAJ7sK
+         VJFF3Rxqj2m6Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Hannes Frederic Sowa <hannes@stressinduktion.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        "David S . Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Minmin chen <chenmingmin@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 4/4] once: Fix panic when module unload
-Date:   Mon, 16 Aug 2021 20:36:15 -0400
-Message-Id: <20210817003615.83434-4-sashal@kernel.org>
+Cc:     Lucas Tanure <tanureal@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, patches@opensource.cirrus.com,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.14 1/2] ASoC: wm_adsp: Let soc_cleanup_component_debugfs remove debugfs
+Date:   Mon, 16 Aug 2021 20:36:20 -0400
+Message-Id: <20210817003621.83520-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210817003615.83434-1-sashal@kernel.org>
-References: <20210817003615.83434-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -46,121 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kefeng Wang <wangkefeng.wang@huawei.com>
+From: Lucas Tanure <tanureal@opensource.cirrus.com>
 
-[ Upstream commit 1027b96ec9d34f9abab69bc1a4dc5b1ad8ab1349 ]
+[ Upstream commit acbf58e530416e167c3b323111f4013d9f2b0a7d ]
 
-DO_ONCE
-DEFINE_STATIC_KEY_TRUE(___once_key);
-__do_once_done
-  once_disable_jump(once_key);
-    INIT_WORK(&w->work, once_deferred);
-    struct once_work *w;
-    w->key = key;
-    schedule_work(&w->work);                     module unload
-                                                   //*the key is
-destroy*
-process_one_work
-  once_deferred
-    BUG_ON(!static_key_enabled(work->key));
-       static_key_count((struct static_key *)x)    //*access key, crash*
+soc_cleanup_component_debugfs will debugfs_remove_recursive
+the component->debugfs_root, so adsp doesn't need to also
+remove the same entry.
+By doing that adsp also creates a race with core component,
+which causes a NULL pointer dereference
 
-When module uses DO_ONCE mechanism, it could crash due to the above
-concurrency problem, we could reproduce it with link[1].
-
-Fix it by add/put module refcount in the once work process.
-
-[1] https://lore.kernel.org/netdev/eaa6c371-465e-57eb-6be9-f4b16b9d7cbf@huawei.com/
-
-Cc: Hannes Frederic Sowa <hannes@stressinduktion.org>
-Cc: Daniel Borkmann <daniel@iogearbox.net>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Eric Dumazet <edumazet@google.com>
-Reported-by: Minmin chen <chenmingmin@huawei.com>
-Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Acked-by: Hannes Frederic Sowa <hannes@stressinduktion.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Lucas Tanure <tanureal@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20210728104416.636591-1-tanureal@opensource.cirrus.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/once.h |  4 ++--
- lib/once.c           | 11 ++++++++---
- 2 files changed, 10 insertions(+), 5 deletions(-)
+ sound/soc/codecs/wm_adsp.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/include/linux/once.h b/include/linux/once.h
-index 9225ee6d96c7..ae6f4eb41cbe 100644
---- a/include/linux/once.h
-+++ b/include/linux/once.h
-@@ -7,7 +7,7 @@
- 
- bool __do_once_start(bool *done, unsigned long *flags);
- void __do_once_done(bool *done, struct static_key_true *once_key,
--		    unsigned long *flags);
-+		    unsigned long *flags, struct module *mod);
- 
- /* Call a function exactly once. The idea of DO_ONCE() is to perform
-  * a function call such as initialization of random seeds, etc, only
-@@ -46,7 +46,7 @@ void __do_once_done(bool *done, struct static_key_true *once_key,
- 			if (unlikely(___ret)) {				     \
- 				func(__VA_ARGS__);			     \
- 				__do_once_done(&___done, &___once_key,	     \
--					       &___flags);		     \
-+					       &___flags, THIS_MODULE);	     \
- 			}						     \
- 		}							     \
- 		___ret;							     \
-diff --git a/lib/once.c b/lib/once.c
-index 8b7d6235217e..59149bf3bfb4 100644
---- a/lib/once.c
-+++ b/lib/once.c
-@@ -3,10 +3,12 @@
- #include <linux/spinlock.h>
- #include <linux/once.h>
- #include <linux/random.h>
-+#include <linux/module.h>
- 
- struct once_work {
- 	struct work_struct work;
- 	struct static_key_true *key;
-+	struct module *module;
- };
- 
- static void once_deferred(struct work_struct *w)
-@@ -16,10 +18,11 @@ static void once_deferred(struct work_struct *w)
- 	work = container_of(w, struct once_work, work);
- 	BUG_ON(!static_key_enabled(work->key));
- 	static_branch_disable(work->key);
-+	module_put(work->module);
- 	kfree(work);
- }
- 
--static void once_disable_jump(struct static_key_true *key)
-+static void once_disable_jump(struct static_key_true *key, struct module *mod)
+diff --git a/sound/soc/codecs/wm_adsp.c b/sound/soc/codecs/wm_adsp.c
+index 1516252aa0a5..7ed5f4ef7de0 100644
+--- a/sound/soc/codecs/wm_adsp.c
++++ b/sound/soc/codecs/wm_adsp.c
+@@ -658,7 +658,6 @@ static void wm_adsp2_init_debugfs(struct wm_adsp *dsp,
+ static void wm_adsp2_cleanup_debugfs(struct wm_adsp *dsp)
  {
- 	struct once_work *w;
- 
-@@ -29,6 +32,8 @@ static void once_disable_jump(struct static_key_true *key)
- 
- 	INIT_WORK(&w->work, once_deferred);
- 	w->key = key;
-+	w->module = mod;
-+	__module_get(mod);
- 	schedule_work(&w->work);
+ 	wm_adsp_debugfs_clear(dsp);
+-	debugfs_remove_recursive(dsp->debugfs_root);
  }
- 
-@@ -53,11 +58,11 @@ bool __do_once_start(bool *done, unsigned long *flags)
- EXPORT_SYMBOL(__do_once_start);
- 
- void __do_once_done(bool *done, struct static_key_true *once_key,
--		    unsigned long *flags)
-+		    unsigned long *flags, struct module *mod)
- 	__releases(once_lock)
- {
- 	*done = true;
- 	spin_unlock_irqrestore(&once_lock, *flags);
--	once_disable_jump(once_key);
-+	once_disable_jump(once_key, mod);
- }
- EXPORT_SYMBOL(__do_once_done);
+ #else
+ static inline void wm_adsp2_init_debugfs(struct wm_adsp *dsp,
 -- 
 2.30.2
 
