@@ -2,92 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CFCF43EE044
-	for <lists+stable@lfdr.de>; Tue, 17 Aug 2021 01:17:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BDB73EE0FE
+	for <lists+stable@lfdr.de>; Tue, 17 Aug 2021 02:35:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232731AbhHPXSI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 19:18:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46226 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232692AbhHPXSI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Aug 2021 19:18:08 -0400
-Received: from mail-qt1-x82e.google.com (mail-qt1-x82e.google.com [IPv6:2607:f8b0:4864:20::82e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59203C061764
-        for <stable@vger.kernel.org>; Mon, 16 Aug 2021 16:17:36 -0700 (PDT)
-Received: by mail-qt1-x82e.google.com with SMTP id t16so15634857qta.9
-        for <stable@vger.kernel.org>; Mon, 16 Aug 2021 16:17:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=leglvbtzfjYudXcrCBDdEITptjlGlu7+eAdTLR+7qz4=;
-        b=Dcse5xuMYkEamHwa1rxvqdn+OHYNqwCiul1FfrIbS3HVpLvQ5VGpMwlEXvRX8/EaF/
-         EkjRqTPby/b/zO0MFnYjoVf2VMOwlNgV8cwchqCoy2DimzfOl5kRVUyWanzFJHRsmbx5
-         eOYoy1w4Ao1VPaWq/BG/qARxoFUy+fJf230G03pU0JEggNPJT0ZyVRKrXZQM2rmbyq3T
-         tsRXaluf/zPbB/sj+LH4xVzGJT9MhD1jXjc5LGWE+U6eWy9MjpkigLVWfqCup2nnAn/j
-         X65ELB5+T/HO5M89npA1UE1u1j74X8Dbuut+eAQI0Wa2mMN9f2YhrbAlyJIGnwztTXba
-         TtNw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=leglvbtzfjYudXcrCBDdEITptjlGlu7+eAdTLR+7qz4=;
-        b=pkdBYlgMyIdUOnLErn00/MsJ8CcUmpj27MJpk59QVcaoErtDjLoNfK1tZg9JSIiqJX
-         DzifV/V/oc/mf2Q6vq7BvKH876Um12jIdoC9gNOI89RLo5cbVDHnYKuvxYQAjix3tVpw
-         /Kg2r04qAsN9nXOV+dX/tPYvFq0M7dCIZRYIt3Tp5t/bEvPLnkdIYI3php8Soi3Iuz9Q
-         V3V9kgNxqM1cV4qsk6xupqR8ulEJQSzHMJ76IUPIAgzuj0VZrlfDhhjcZuCGIzbeteHB
-         DrCp8+cYx5KlDfFcJkzmCTCAtvvf8S8AlcPcMX3rdkVH1pBE3D//gbPdrmgsDaotFqOR
-         Ixtg==
-X-Gm-Message-State: AOAM530XOxGJbm1I8wtRdO33BfHiUfOJiEdBCc3mr5auFSh4A6FWGamp
-        1Sk2fQ9BuwBAIu1sHOQEAWMcW0SHDQ3UeiQpNzc=
-X-Google-Smtp-Source: ABdhPJxvOI6Ltej+accAhz4ICRzY3Anh7jsi7LKNEnpKe6fzM1uVGuAQFC69822qh0COFKFR0JUckY38tnnVRVkC2+0=
-X-Received: by 2002:ac8:705e:: with SMTP id y30mr396783qtm.239.1629155855333;
- Mon, 16 Aug 2021 16:17:35 -0700 (PDT)
+        id S233013AbhHQAgL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 20:36:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34850 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232911AbhHQAgK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 20:36:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 01CDA60F55;
+        Tue, 17 Aug 2021 00:35:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1629160538;
+        bh=JaVsE/qfaG5QwU8mhxxYf4ZmaSlkCE/lnVpo/qNCLtE=;
+        h=From:To:Cc:Subject:Date:From;
+        b=b3qaMTc8KDGcN22HAfViSrAyYU2ejeV7COdmdFCBeQa+4KBPnHWyMxRm/RT5uXA58
+         pVLd62io7ZYxQik38qeRr+ELlkB/Fty4mYq6kSl1ipEIlBlqEbbRG8tfrcEUD540l5
+         7ZDySF47Ok+OVGM4uxjFaV0LewYeX30R3XbMRKsRYpN1h3AzXnrFVqro/S7oVmHPT+
+         Q8rpAGFvOK6qGgRNRrlwSVP9LwYXR6F+utB8AbTQ+P9eJ2BrDN26QTJ0aBLtURUP8H
+         JLvr+sPdTqev1mET7HWEPKe6JgzByGiQJrzFdOdC8p/tcZR/WYml9Fd9pDamhmIXsZ
+         c/7RilTV53meg==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Derek Fang <derek.fang@realtek.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.13 01/12] ASoC: rt5682: Adjust headset volume button threshold
+Date:   Mon, 16 Aug 2021 20:35:25 -0400
+Message-Id: <20210817003536.83063-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-Received: by 2002:ac8:7514:0:0:0:0:0 with HTTP; Mon, 16 Aug 2021 16:17:34
- -0700 (PDT)
-Reply-To: ibrahimjosh887@gmail.com
-From:   ibrahim josh <wilsonbrown3050@gmail.com>
-Date:   Mon, 16 Aug 2021 16:17:34 -0700
-Message-ID: <CAA84A0yftXUd8F4=S0nLMpYnrM4hKJL4RSHr+Upi3PJVSFetFg@mail.gmail.com>
-Subject: Dear Friend,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Derek Fang <derek.fang@realtek.com>
+
+[ Upstream commit 6d20bf7c020f417fdef1810a22da17c126603472 ]
+
+Adjust the threshold of headset button volume+ to fix
+the wrong button detection issue with some brand headsets.
+
+Signed-off-by: Derek Fang <derek.fang@realtek.com>
+Link: https://lore.kernel.org/r/20210721133121.12333-1-derek.fang@realtek.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ sound/soc/codecs/rt5682.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/sound/soc/codecs/rt5682.c b/sound/soc/codecs/rt5682.c
+index abcd6f483788..51ecaa2abcd1 100644
+--- a/sound/soc/codecs/rt5682.c
++++ b/sound/soc/codecs/rt5682.c
+@@ -44,6 +44,7 @@ static const struct reg_sequence patch_list[] = {
+ 	{RT5682_I2C_CTRL, 0x000f},
+ 	{RT5682_PLL2_INTERNAL, 0x8266},
+ 	{RT5682_SAR_IL_CMD_3, 0x8365},
++	{RT5682_SAR_IL_CMD_6, 0x0180},
+ };
+ 
+ void rt5682_apply_patch_list(struct rt5682_priv *rt5682, struct device *dev)
 -- 
+2.30.2
 
-
--- 
-Dear friend,
-
-I am Mr.Ibrahim Josh,from West Africa am sorry to intrude into your
-privacy I got your email address through internet via computerized search
-after my prayers so I bring to you this transaction which I notify
-from our bank an abandon fund which belongs to our late foreign customer who
-deposited the sum of 10.2 million USD but he died at of cancer and
-ever since then no one has applied to claim the fund
-so I write to you with confidence that you can be a help so we can get
-the fund out of the bank I want you to apply to the bank as his
-foreign business partner note that once the fund is been release to
-your wish bank account in your country it will be shared among us in
-the ratio of 60%40 if you are interested please kindly forward your
-details so we can move towards it.
-
-Your full name...........
-
-Your Bank Name:............
-
-Your Telephone Number:............
-
-Your Age And Sex:.......................
-
-Your marital status........
-
-Your Occupation..........
-
-Your Country city............
-
-Thanks
-Mr Ibrahim Josh.....
