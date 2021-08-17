@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B6553EE131
-	for <lists+stable@lfdr.de>; Tue, 17 Aug 2021 02:36:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 569F63EE149
+	for <lists+stable@lfdr.de>; Tue, 17 Aug 2021 02:38:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236662AbhHQAhX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 20:37:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35810 "EHLO mail.kernel.org"
+        id S235945AbhHQAim (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 20:38:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236809AbhHQAg6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 20:36:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3907D61073;
-        Tue, 17 Aug 2021 00:36:24 +0000 (UTC)
+        id S236098AbhHQAg7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 20:36:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A6E006103A;
+        Tue, 17 Aug 2021 00:36:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629160584;
-        bh=CqTbosjXnUtabwSkr9DsvgcHDiMzeeKQ2Y5yfOQoNQk=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rhGwYjBcuYaKh5kH7iapLZlG+lzf5wZ0fPMTbwmDqMbYZeIzu1ldBuUmTGBMXobfS
-         BOUb43l7AmyeQ1JArOLQlrkRciVi8zYRoL8rqCJpbFJLB1dTqlYo9k4ezPzIrLyP1Q
-         fghtRaOo8itGJ0XNcln0Jivhgo2N5nRYkkzZXI82E1+RzbQoEg7kYBklFvOAzBcajk
-         SOE81AaHS8RDQ1qgVQollRhn/jGkuXzs6zJX/3+UdmDcmZNwJlZg2XTxk64dw+F15w
-         bTF7/3lrw78CfSyqgRRTsBmLDut5XvpB6hFftqjRLvgLMFYYKOS9GSRSkPL9mHqat+
-         XQmi8XYn2WWkg==
+        s=k20201202; t=1629160587;
+        bh=rjqnYV+POj9OvYKZoXpqHeAKVBzGhPfa+r0LODo5UqA=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Cwdm4F37E8xkvvPHuK2m4h7+iN0zJQNLPRf5asuUWuZlGyV5ev1AOSV05svcddlsA
+         jbk5NC1Ktl9Q/sD09+kqFFKfaW2OA2EM1Lz1iIwv15W1e0+i2ga69ESqhdqXufYx9Z
+         Ni6MVokhm/iRFyrFmQ+SEs96d/qKxxxcz3fHmN5jc2pEJGEs6L1DRpVK5sfaVR8wjK
+         dfCAXaysNM+2mxxElhf7f+TLR3UP5KRCVQ9g3riK7OsHNIWOcm/Tdxusl47WqGc15c
+         tMzvCXPp5glpa+Fuj01axN3tweN6nDGN9i7aFZZZ1r9835K+1+lzOGOLZ1C+KIN3gB
+         lwCykmh4eFRaw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Guenter Roeck <linux@roeck-us.net>,
-        Vineet Gupta <vgupta@synopsys.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-snps-arc@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 2/2] ARC: Fix CONFIG_STACKDEPOT
-Date:   Mon, 16 Aug 2021 20:36:21 -0400
-Message-Id: <20210817003621.83520-2-sashal@kernel.org>
+Cc:     Lucas Tanure <tanureal@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, patches@opensource.cirrus.com,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.9 1/2] ASoC: wm_adsp: Let soc_cleanup_component_debugfs remove debugfs
+Date:   Mon, 16 Aug 2021 20:36:24 -0400
+Message-Id: <20210817003625.83589-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210817003621.83520-1-sashal@kernel.org>
-References: <20210817003621.83520-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -43,45 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Lucas Tanure <tanureal@opensource.cirrus.com>
 
-[ Upstream commit bf79167fd86f3b97390fe2e70231d383526bd9cc ]
+[ Upstream commit acbf58e530416e167c3b323111f4013d9f2b0a7d ]
 
-Enabling CONFIG_STACKDEPOT results in the following build error.
+soc_cleanup_component_debugfs will debugfs_remove_recursive
+the component->debugfs_root, so adsp doesn't need to also
+remove the same entry.
+By doing that adsp also creates a race with core component,
+which causes a NULL pointer dereference
 
-arc-elf-ld: lib/stackdepot.o: in function `filter_irq_stacks':
-stackdepot.c:(.text+0x456): undefined reference to `__irqentry_text_start'
-arc-elf-ld: stackdepot.c:(.text+0x456): undefined reference to `__irqentry_text_start'
-arc-elf-ld: stackdepot.c:(.text+0x476): undefined reference to `__irqentry_text_end'
-arc-elf-ld: stackdepot.c:(.text+0x476): undefined reference to `__irqentry_text_end'
-arc-elf-ld: stackdepot.c:(.text+0x484): undefined reference to `__softirqentry_text_start'
-arc-elf-ld: stackdepot.c:(.text+0x484): undefined reference to `__softirqentry_text_start'
-arc-elf-ld: stackdepot.c:(.text+0x48c): undefined reference to `__softirqentry_text_end'
-arc-elf-ld: stackdepot.c:(.text+0x48c): undefined reference to `__softirqentry_text_end'
-
-Other architectures address this problem by adding IRQENTRY_TEXT and
-SOFTIRQENTRY_TEXT to the text segment, so do the same here.
-
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+Signed-off-by: Lucas Tanure <tanureal@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20210728104416.636591-1-tanureal@opensource.cirrus.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arc/kernel/vmlinux.lds.S | 2 ++
- 1 file changed, 2 insertions(+)
+ sound/soc/codecs/wm_adsp.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/arch/arc/kernel/vmlinux.lds.S b/arch/arc/kernel/vmlinux.lds.S
-index f35ed578e007..4d823d3f65bb 100644
---- a/arch/arc/kernel/vmlinux.lds.S
-+++ b/arch/arc/kernel/vmlinux.lds.S
-@@ -92,6 +92,8 @@ SECTIONS
- 		CPUIDLE_TEXT
- 		LOCK_TEXT
- 		KPROBES_TEXT
-+		IRQENTRY_TEXT
-+		SOFTIRQENTRY_TEXT
- 		*(.fixup)
- 		*(.gnu.warning)
- 	}
+diff --git a/sound/soc/codecs/wm_adsp.c b/sound/soc/codecs/wm_adsp.c
+index 00dd37f10daf..1347131e8b94 100644
+--- a/sound/soc/codecs/wm_adsp.c
++++ b/sound/soc/codecs/wm_adsp.c
+@@ -585,7 +585,6 @@ static void wm_adsp2_init_debugfs(struct wm_adsp *dsp,
+ static void wm_adsp2_cleanup_debugfs(struct wm_adsp *dsp)
+ {
+ 	wm_adsp_debugfs_clear(dsp);
+-	debugfs_remove_recursive(dsp->debugfs_root);
+ }
+ #else
+ static inline void wm_adsp2_init_debugfs(struct wm_adsp *dsp,
 -- 
 2.30.2
 
