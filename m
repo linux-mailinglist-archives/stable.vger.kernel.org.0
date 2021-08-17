@@ -2,99 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C1363EE753
-	for <lists+stable@lfdr.de>; Tue, 17 Aug 2021 09:36:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8D703EE893
+	for <lists+stable@lfdr.de>; Tue, 17 Aug 2021 10:37:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234486AbhHQHha (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Aug 2021 03:37:30 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:55340 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234402AbhHQHh3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 Aug 2021 03:37:29 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id D9EE31C0B76; Tue, 17 Aug 2021 09:36:55 +0200 (CEST)
-Date:   Tue, 17 Aug 2021 09:36:55 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Marc Zyngier <maz@kernel.org>, Ashok Raj <ashok.raj@intel.com>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: Re: [PATCH 5.4 49/62] PCI/MSI: Enable and mask MSI-X early
-Message-ID: <20210817073655.GA15132@amd>
-References: <20210816125428.198692661@linuxfoundation.org>
- <20210816125429.897761686@linuxfoundation.org>
+        id S239135AbhHQIhc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Aug 2021 04:37:32 -0400
+Received: from mailgw02.mediatek.com ([210.61.82.184]:54360 "EHLO
+        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S235122AbhHQIhb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 Aug 2021 04:37:31 -0400
+X-UUID: 9cfbf316baf841918abe67ddc85f953d-20210817
+X-UUID: 9cfbf316baf841918abe67ddc85f953d-20210817
+Received: from mtkcas10.mediatek.inc [(172.21.101.39)] by mailgw02.mediatek.com
+        (envelope-from <chunfeng.yun@mediatek.com>)
+        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
+        with ESMTP id 656573126; Tue, 17 Aug 2021 16:36:49 +0800
+Received: from mtkcas10.mediatek.inc (172.21.101.39) by
+ mtkmbs06n1.mediatek.inc (172.21.101.129) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Tue, 17 Aug 2021 16:36:48 +0800
+Received: from localhost.localdomain (10.17.3.153) by mtkcas10.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Tue, 17 Aug 2021 16:36:47 +0800
+From:   Chunfeng Yun <chunfeng.yun@mediatek.com>
+To:     Rob Herring <robh+dt@kernel.org>,
+        Mathias Nyman <mathias.nyman@intel.com>
+CC:     Chunfeng Yun <chunfeng.yun@mediatek.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        <linux-usb@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>, <devicetree@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>,
+        Eddie Hung <eddie.hung@mediatek.com>, <stable@vger.kernel.org>
+Subject: [PATCH RESEND 5/9] usb: xhci-mtk: fix issue of out-of-bounds array access
+Date:   Tue, 17 Aug 2021 16:36:25 +0800
+Message-ID: <1629189389-18779-5-git-send-email-chunfeng.yun@mediatek.com>
+X-Mailer: git-send-email 1.8.1.1.dirty
+In-Reply-To: <1629189389-18779-1-git-send-email-chunfeng.yun@mediatek.com>
+References: <1629189389-18779-1-git-send-email-chunfeng.yun@mediatek.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="/04w6evG8XlLl3ft"
-Content-Disposition: inline
-In-Reply-To: <20210816125429.897761686@linuxfoundation.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+Content-Type: text/plain
+X-MTK:  N
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Bus bandwidth array access is based on esit, increase one
+will cause out-of-bounds issue; for example, when esit is
+XHCI_MTK_MAX_ESIT, will overstep boundary.
 
---/04w6evG8XlLl3ft
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Fixes: 7c986fbc16ae ("usb: xhci-mtk: get the microframe boundary for ESIT")
+Cc: <stable@vger.kernel.org>
+Reported-by: Stan Lu <stan.lu@mediatek.com>
+Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
+---
+ drivers/usb/host/xhci-mtk-sch.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-Hi!
+diff --git a/drivers/usb/host/xhci-mtk-sch.c b/drivers/usb/host/xhci-mtk-sch.c
+index cffcaf4dfa9f..0bb1a6295d64 100644
+--- a/drivers/usb/host/xhci-mtk-sch.c
++++ b/drivers/usb/host/xhci-mtk-sch.c
+@@ -575,10 +575,12 @@ static u32 get_esit_boundary(struct mu3h_sch_ep_info *sch_ep)
+ 	u32 boundary = sch_ep->esit;
+ 
+ 	if (sch_ep->sch_tt) { /* LS/FS with TT */
+-		/* tune for CS */
+-		if (sch_ep->ep_type != ISOC_OUT_EP)
+-			boundary++;
+-		else if (boundary > 1) /* normally esit >= 8 for FS/LS */
++		/*
++		 * tune for CS, normally esit >= 8 for FS/LS,
++		 * not add one for other types to avoid access array
++		 * out of boundary
++		 */
++		if (sch_ep->ep_type == ISOC_OUT_EP && boundary > 1)
+ 			boundary--;
+ 	}
+ 
+-- 
+2.18.0
 
-I'm sorry to report here, but 4.4 patches were not yet sent to the
-lists (and it may be worth correcting before release).
-
-> +++ b/drivers/pci/msi.c
-> @@ -778,18 +778,25 @@ static int msix_capability_init(struct p
-=2E..
-> =20
->  	pci_read_config_word(dev, dev->msix_cap + PCI_MSIX_FLAGS, &control);
->  	/* Request & Map MSI-X table region */
->  	base =3D msix_map_region(dev, msix_table_size(control));
-> -	if (!base)
-> -		return -ENOMEM;
-> +	if (!base) {
-> +		ret =3D -ENOMEM;
-> +		goto out_disable;
-> +	}
-> =20
->  	ret =3D msix_setup_entries(dev, base, entries, nvec, affd);
->  	if (ret)
-
-This one is correct, and so is the version queued for 4.19, but 4.4
-version (9da69496e86237e94c4ffa2a5b375a4d2ee7c482) has:
-
- /* Request & Map MSI-X table region */
-    	  base =3D msix_map_region(dev, msix_table_size(control));
- -       if (!base)
- +       if (!base) {
-                 return -ENOMEM;
- +               goto out_disable;
- +       }
-=20
-	ret =3D msix_setup_entries(dev, base, entries, nvec);
-=09
-
-That return is misplaced, it should be ret =3D -ENOMEM, similar to 4.19
-and newer.
-
-Best regards,
-								Pavel
---
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
-
---/04w6evG8XlLl3ft
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAmEbZxcACgkQMOfwapXb+vI7MwCgjj8fHxZOQt3ZF3Qa4aWHLNb0
-aLoAn1X7OQxXCS+NHeeuVN/UoMaKjBQ3
-=qvwj
------END PGP SIGNATURE-----
-
---/04w6evG8XlLl3ft--
