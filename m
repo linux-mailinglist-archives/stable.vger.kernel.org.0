@@ -2,85 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 871F03EF2A9
-	for <lists+stable@lfdr.de>; Tue, 17 Aug 2021 21:30:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B8C53EF404
+	for <lists+stable@lfdr.de>; Tue, 17 Aug 2021 22:49:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231644AbhHQT3i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Aug 2021 15:29:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40796 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229640AbhHQT3h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 Aug 2021 15:29:37 -0400
-Received: from mail-ot1-x329.google.com (mail-ot1-x329.google.com [IPv6:2607:f8b0:4864:20::329])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89309C061764;
-        Tue, 17 Aug 2021 12:29:04 -0700 (PDT)
-Received: by mail-ot1-x329.google.com with SMTP id l36-20020a0568302b24b0290517526ce5e3so18745162otv.11;
-        Tue, 17 Aug 2021 12:29:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=M85CTWUa6ck0UL5HiHoZ1838UanWxZ4XpbV39GJY1x8=;
-        b=JsDChAM9++sqKQUOyUJpTio4P/ElcDi+wKIbpSxd5hNPChpMn1zU8JsqS8iqAT+psL
-         eEY4oOgH4bhmzOu9D2SmplIlaUjo3QvLgMP5X9DlIHDqXDw/SkNwCDtvQbawzF0e7tNQ
-         0iO5vPBKjyzB5LRi74VuGM7y3TyK76BlXNHtY+N6H9FMUW21xPhv3fducK0edclDPPsl
-         fwy1I9lAXXtFn6aUzgZxHj3Xmth2qgzNjRHRdDyo9qRMjIKwQT6TPHVHywSi8Fdbtxid
-         AiPiGvvYhPsXzTz77+DXkdsmuLVDPWhIvGeK4km5JeCg/0A0urdQejR9Sbb1dW29oPZD
-         px/w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=M85CTWUa6ck0UL5HiHoZ1838UanWxZ4XpbV39GJY1x8=;
-        b=tbNhcs36dB7RwFosPPKU2dKa9JDrqQJ/iSmsONpODdYazGUh5hdsjw/RrvKD2ungoZ
-         RGOBcr20FVHVK0iCX2LKW5vcqLdaGApHwfYWLYFL5H81A05Wfs+OY5wL7yXFrnhxJpiW
-         RlM249inyydMhjr+tPZFPYPqXNJ+8Q4KhqwRcgNJPKRrXBX/UPKgBZ86VP0ZNkOpRTCT
-         xPeMezMlLNSiR7dSWnveGZkC/iOn+jAdXPE6EaYYSTPf6vh7p/mK3QrS37oN7uRwwILO
-         qZiGgLOHWxQJz6m0EV0IXv+2TwgaSebUqoUjW9cza2hdSpJMvRe9vyFodZ/hNlXoiVen
-         w2QQ==
-X-Gm-Message-State: AOAM532j+klBcXr8h1QXWoE8zej4HFNMDq2Ieu9WNja8YhMRdsgSAKvx
-        Eo8dZBIrOvHW3fDRYvz4hA0=
-X-Google-Smtp-Source: ABdhPJx/nBzztmXlyyg/uocG5vTebdOrAE2mwt5YhkGAVdBpFpanTO6f49NlQ6LWycQBvtw42KbJuQ==
-X-Received: by 2002:a9d:206a:: with SMTP id n97mr3736084ota.247.1629228544007;
-        Tue, 17 Aug 2021 12:29:04 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id 4sm664136oil.38.2021.08.17.12.29.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 17 Aug 2021 12:29:03 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Tue, 17 Aug 2021 12:29:00 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: Re: [PATCH 5.13 000/153] 5.13.12-rc2 review
-Message-ID: <20210817192900.GC412158@roeck-us.net>
-References: <20210816171414.653076979@linuxfoundation.org>
+        id S234519AbhHQU1f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Aug 2021 16:27:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59634 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230515AbhHQU1f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Aug 2021 16:27:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A15986023E;
+        Tue, 17 Aug 2021 20:27:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1629232021;
+        bh=7uXwMUE6nCVLGwC/jf/GBBmqfuoSPzQ5my11HXxJJ+8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=XDVt4BIw8TZ4dDwPOYDNZ/G2MStCyFFOrVF8PKDzwzYf5nzchnVIan7DsQQFZTMyw
+         /pKEAn4QeBsUxi5xf1lm/n79gqavsC2qCXa+XlN4DvCCjFFS072Wh1VBjL0U78Gy19
+         frL/rs06eFjKxkzUQlv+77vJv/VAH1GfNu8Or52MXcLl51OQkoMKdVAdhb73d+b/R/
+         L/ZbqvAzPueK/JiwfyPkooo4BcGXkRwCS8BEWlYbSlQq9/z72QkJOeprhsne5ZekPo
+         uLpARkcYqMiThu886GNZg5/bKH0rvHUg2aYI1ja2foEfELKrOhlJMwkbWTpiCEej2O
+         Hrtd2cL8QOdig==
+Date:   Tue, 17 Aug 2021 13:27:00 -0700
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     Jaegeuk Kim <jaegeuk@kernel.org>
+Cc:     Christoph Hellwig <hch@infradead.org>, Chao Yu <chao@kernel.org>,
+        Theodore Ts'o <tytso@mit.edu>,
+        linux-f2fs-devel@lists.sourceforge.net,
+        linux-fsdevel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] f2fs: remove broken support for allocating DIO writes
+Message-ID: <YRwblEj2b/tIBh8b@gmail.com>
+References: <YQRQRh1zUHSIzcC/@gmail.com>
+ <YQS5eBljtztWwOFE@mit.edu>
+ <YQd3Hbid/mFm0o24@sol.localdomain>
+ <a3cdd7cb-50a7-1b37-fe58-dced586712a2@kernel.org>
+ <YQg4Lukc2dXX3aJc@google.com>
+ <b88328b4-db3e-0097-d8cc-f250ee678e5b@kernel.org>
+ <YQidOD/zNB17fd9v@google.com>
+ <YRsY6dyHyaChkQ6n@gmail.com>
+ <YRtMOqzZU4c1Vjje@infradead.org>
+ <YRwGqsLgyKqdbkGX@google.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210816171414.653076979@linuxfoundation.org>
+In-Reply-To: <YRwGqsLgyKqdbkGX@google.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 16, 2021 at 07:15:09PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.13.12 release.
-> There are 153 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Tue, Aug 17, 2021 at 11:57:46AM -0700, Jaegeuk Kim wrote:
+> On 08/17, Christoph Hellwig wrote:
+> > On Mon, Aug 16, 2021 at 07:03:21PM -0700, Eric Biggers wrote:
+> > > Freeing preallocated blocks on error would be better than nothing, although note
+> > > that the preallocated blocks may have filled an arbitrary sequence of holes --
+> > > so simply truncating past EOF would *not* be sufficient.
+> > > 
+> > > But really filesystems need to be designed to never expose uninitialized data,
+> > > even if I/O errors or a sudden power failure occurs.  It is unfortunate that
+> > > f2fs apparently wasn't designed with that goal in mind.
+> > > 
+> > > In any case, I don't think we can proceed with any other f2fs direct I/O
+> > > improvements until this data leakage bug can be solved one way or another.  If
+> > > my patch to remove support for allocating writes isn't acceptable and the
+> > > desired solution is going to require some more invasive f2fs surgery, are you or
+> > > Chao going to work on it?  I'm not sure there's much I can do here.
+> > 
+> > Btw, this is generally a problem for buffered I/O as well, although the
+> > window for exposing uninitialized blocks on a crash tends to be smaller.
 > 
-> Responses should be made by Wed, 18 Aug 2021 17:13:42 +0000.
-> Anything received after that time might be too late.
-> 
+> How about adding a warning message when we meet an error with preallocated
+> unwritten blocks? In the meantime, can we get the Eric's patches for iomap
+> support? I feel that we only need to modify the preallocation and error
+> handling parts?
 
-Build results:
-	total: 154 pass: 154 fail: 0
-Qemu test results:
-	total: 480 pass: 480 fail: 0
+A warning message would do nothing to prevent uninitialized blocks from being
+leaked to userspace.
 
-Tested-by: Guenter Roeck <linux@roeck-us.net>
-
-Guenter
+- Eric
