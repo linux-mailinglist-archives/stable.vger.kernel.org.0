@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B65803EE157
-	for <lists+stable@lfdr.de>; Tue, 17 Aug 2021 02:39:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC7E63EE127
+	for <lists+stable@lfdr.de>; Tue, 17 Aug 2021 02:36:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235865AbhHQAjQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Aug 2021 20:39:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35810 "EHLO mail.kernel.org"
+        id S236825AbhHQAg7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Aug 2021 20:36:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236335AbhHQAgf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Aug 2021 20:36:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F4B061051;
-        Tue, 17 Aug 2021 00:36:02 +0000 (UTC)
+        id S236360AbhHQAgg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Aug 2021 20:36:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A48F560F14;
+        Tue, 17 Aug 2021 00:36:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629160563;
-        bh=3LtPGqVFszrceez7FmDhpht4gkC4FP08zQUorIghOx0=;
+        s=k20201202; t=1629160564;
+        bh=4gyxiK/n9KX7xbOFQ97wN+1L5/y2dlCEb5MXDADMqBk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZFDqh3AQFdFvPiqHR+toEFJYtAMtE8mJ+ox0JrHJ0SVh+ZX+pCBntsbp22KG/9gpH
-         a1XdXj7QxiHeAbs4EiX2GTaEPhf69RlRbG3ZtL7IV1sN9hklEmC/ZyF5F4jGbpoQiz
-         MJwpx7WEpaemr5Gcv0j2vtNooq7phbpBd+NlhGQa9cYFNBHYOa/5bPyekYv0lAmyHK
-         RmQcZvbN1R16anBxgEQ9eNltKXFuZFGJiAIOmHsZA1ZwoLrlVgPvD6nkO8TXJwUoAD
-         SwQET8UMjtdasLu5Qs0lo+I7P4JxHueqHnyu89d3CYxsXQDwXnawGbpWRlXbvxr22U
-         cBDg6oL7FnP+g==
+        b=pvyh/B90lvdiF9ns6yOc8O+1EirhQkowqp+D4ntCTgy6vZBFdRIGcLWDdWZQjY3Ab
+         v5rdDTIUQwuN4D7BDtvuMbY83rQOuogNm2GlTNavpYvM+qP2Zz0fShsYCqFlaDCtoW
+         JOJn34AZbCLsQZKEVhaJqas2jdNFXcUzep2jtXBWZUEvmyGMfVCNo/PUY8AoeMLMna
+         6JgjvgedQWaaYngFYwaan5nNTFlDnbUum4Fh2mZZ/Lg6OfRrj8QIjcq3/EyVLp4Jt5
+         SptcrvULbFaDdeSG/gQfTvsC1drVnP6wUNTup1parfUctuJYfX9+abWuwkj1jyVBs5
+         i4VaPO1YmeHUQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Hannes Frederic Sowa <hannes@stressinduktion.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        "David S . Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Minmin chen <chenmingmin@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.10 6/9] once: Fix panic when module unload
-Date:   Mon, 16 Aug 2021 20:35:51 -0400
-Message-Id: <20210817003554.83213-6-sashal@kernel.org>
+Cc:     Ming Lei <ming.lei@redhat.com>, Tejun Heo <tj@kernel.org>,
+        Bruno Goncalves <bgoncalv@redhat.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 7/9] blk-iocost: fix lockdep warning on blkcg->lock
+Date:   Mon, 16 Aug 2021 20:35:52 -0400
+Message-Id: <20210817003554.83213-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210817003554.83213-1-sashal@kernel.org>
 References: <20210817003554.83213-1-sashal@kernel.org>
@@ -46,121 +43,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kefeng Wang <wangkefeng.wang@huawei.com>
+From: Ming Lei <ming.lei@redhat.com>
 
-[ Upstream commit 1027b96ec9d34f9abab69bc1a4dc5b1ad8ab1349 ]
+[ Upstream commit 11431e26c9c43fa26f6b33ee1a90989f57b86024 ]
 
-DO_ONCE
-DEFINE_STATIC_KEY_TRUE(___once_key);
-__do_once_done
-  once_disable_jump(once_key);
-    INIT_WORK(&w->work, once_deferred);
-    struct once_work *w;
-    w->key = key;
-    schedule_work(&w->work);                     module unload
-                                                   //*the key is
-destroy*
-process_one_work
-  once_deferred
-    BUG_ON(!static_key_enabled(work->key));
-       static_key_count((struct static_key *)x)    //*access key, crash*
+blkcg->lock depends on q->queue_lock which may depend on another driver
+lock required in irq context, one example is dm-thin:
 
-When module uses DO_ONCE mechanism, it could crash due to the above
-concurrency problem, we could reproduce it with link[1].
+	Chain exists of:
+	  &pool->lock#3 --> &q->queue_lock --> &blkcg->lock
 
-Fix it by add/put module refcount in the once work process.
+	 Possible interrupt unsafe locking scenario:
 
-[1] https://lore.kernel.org/netdev/eaa6c371-465e-57eb-6be9-f4b16b9d7cbf@huawei.com/
+	       CPU0                    CPU1
+	       ----                    ----
+	  lock(&blkcg->lock);
+	                               local_irq_disable();
+	                               lock(&pool->lock#3);
+	                               lock(&q->queue_lock);
+	  <Interrupt>
+	    lock(&pool->lock#3);
 
-Cc: Hannes Frederic Sowa <hannes@stressinduktion.org>
-Cc: Daniel Borkmann <daniel@iogearbox.net>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Eric Dumazet <edumazet@google.com>
-Reported-by: Minmin chen <chenmingmin@huawei.com>
-Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Acked-by: Hannes Frederic Sowa <hannes@stressinduktion.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fix the issue by using spin_lock_irq(&blkcg->lock) in ioc_weight_write().
+
+Cc: Tejun Heo <tj@kernel.org>
+Reported-by: Bruno Goncalves <bgoncalv@redhat.com>
+Link: https://lore.kernel.org/linux-block/CA+QYu4rzz6079ighEanS3Qq_Dmnczcf45ZoJoHKVLVATTo1e4Q@mail.gmail.com/T/#u
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Acked-by: Tejun Heo <tj@kernel.org>
+Link: https://lore.kernel.org/r/20210803070608.1766400-1-ming.lei@redhat.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/once.h |  4 ++--
- lib/once.c           | 11 ++++++++---
- 2 files changed, 10 insertions(+), 5 deletions(-)
+ block/blk-iocost.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/include/linux/once.h b/include/linux/once.h
-index 9225ee6d96c7..ae6f4eb41cbe 100644
---- a/include/linux/once.h
-+++ b/include/linux/once.h
-@@ -7,7 +7,7 @@
+diff --git a/block/blk-iocost.c b/block/blk-iocost.c
+index b7d8a954d99c..e95b93f72bd5 100644
+--- a/block/blk-iocost.c
++++ b/block/blk-iocost.c
+@@ -3039,19 +3039,19 @@ static ssize_t ioc_weight_write(struct kernfs_open_file *of, char *buf,
+ 		if (v < CGROUP_WEIGHT_MIN || v > CGROUP_WEIGHT_MAX)
+ 			return -EINVAL;
  
- bool __do_once_start(bool *done, unsigned long *flags);
- void __do_once_done(bool *done, struct static_key_true *once_key,
--		    unsigned long *flags);
-+		    unsigned long *flags, struct module *mod);
+-		spin_lock(&blkcg->lock);
++		spin_lock_irq(&blkcg->lock);
+ 		iocc->dfl_weight = v * WEIGHT_ONE;
+ 		hlist_for_each_entry(blkg, &blkcg->blkg_list, blkcg_node) {
+ 			struct ioc_gq *iocg = blkg_to_iocg(blkg);
  
- /* Call a function exactly once. The idea of DO_ONCE() is to perform
-  * a function call such as initialization of random seeds, etc, only
-@@ -46,7 +46,7 @@ void __do_once_done(bool *done, struct static_key_true *once_key,
- 			if (unlikely(___ret)) {				     \
- 				func(__VA_ARGS__);			     \
- 				__do_once_done(&___done, &___once_key,	     \
--					       &___flags);		     \
-+					       &___flags, THIS_MODULE);	     \
- 			}						     \
- 		}							     \
- 		___ret;							     \
-diff --git a/lib/once.c b/lib/once.c
-index 8b7d6235217e..59149bf3bfb4 100644
---- a/lib/once.c
-+++ b/lib/once.c
-@@ -3,10 +3,12 @@
- #include <linux/spinlock.h>
- #include <linux/once.h>
- #include <linux/random.h>
-+#include <linux/module.h>
+ 			if (iocg) {
+-				spin_lock_irq(&iocg->ioc->lock);
++				spin_lock(&iocg->ioc->lock);
+ 				ioc_now(iocg->ioc, &now);
+ 				weight_updated(iocg, &now);
+-				spin_unlock_irq(&iocg->ioc->lock);
++				spin_unlock(&iocg->ioc->lock);
+ 			}
+ 		}
+-		spin_unlock(&blkcg->lock);
++		spin_unlock_irq(&blkcg->lock);
  
- struct once_work {
- 	struct work_struct work;
- 	struct static_key_true *key;
-+	struct module *module;
- };
- 
- static void once_deferred(struct work_struct *w)
-@@ -16,10 +18,11 @@ static void once_deferred(struct work_struct *w)
- 	work = container_of(w, struct once_work, work);
- 	BUG_ON(!static_key_enabled(work->key));
- 	static_branch_disable(work->key);
-+	module_put(work->module);
- 	kfree(work);
- }
- 
--static void once_disable_jump(struct static_key_true *key)
-+static void once_disable_jump(struct static_key_true *key, struct module *mod)
- {
- 	struct once_work *w;
- 
-@@ -29,6 +32,8 @@ static void once_disable_jump(struct static_key_true *key)
- 
- 	INIT_WORK(&w->work, once_deferred);
- 	w->key = key;
-+	w->module = mod;
-+	__module_get(mod);
- 	schedule_work(&w->work);
- }
- 
-@@ -53,11 +58,11 @@ bool __do_once_start(bool *done, unsigned long *flags)
- EXPORT_SYMBOL(__do_once_start);
- 
- void __do_once_done(bool *done, struct static_key_true *once_key,
--		    unsigned long *flags)
-+		    unsigned long *flags, struct module *mod)
- 	__releases(once_lock)
- {
- 	*done = true;
- 	spin_unlock_irqrestore(&once_lock, *flags);
--	once_disable_jump(once_key);
-+	once_disable_jump(once_key, mod);
- }
- EXPORT_SYMBOL(__do_once_done);
+ 		return nbytes;
+ 	}
 -- 
 2.30.2
 
