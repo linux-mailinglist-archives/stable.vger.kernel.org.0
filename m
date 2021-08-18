@@ -2,65 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6747B3F06C9
-	for <lists+stable@lfdr.de>; Wed, 18 Aug 2021 16:33:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 208483F0717
+	for <lists+stable@lfdr.de>; Wed, 18 Aug 2021 16:51:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239177AbhHROeT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Aug 2021 10:34:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40406 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239431AbhHROeQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Aug 2021 10:34:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B6319610A7;
-        Wed, 18 Aug 2021 14:33:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629297221;
-        bh=OF1J2wHd4VzDXAmG26skt+r/Iv8T+sRv9vvuG57iN6E=;
-        h=References:From:To:Cc:Subject:Date:In-reply-to:From;
-        b=B6pwO5as/P1Nq+fBBC9DeW/1j44+QFTpGF3CkY5HVnb6ZxvhNwR4/cqBNeztwcEQN
-         Glkt3Bq5uvxZZYA4Y9MvJ0vL7KeR74sTwNzKSwhfOgVtcQgSm97EcJ7J7ths+LnyV1
-         TusydswoqB0/Dmv4zeieOHXwpRUY5kHQYKuwzMh4MlWGe3DNYZLA2ttZbv5RjK8aqV
-         9k8BeMyKoRe2OLaHNfTuZkcVe31+myaCKmcz2l4K4w0x+9SFFtBqfai0fLSojDRH8y
-         qaPZpqeJzqeQ6CH+Ba+XmS3+Qgvjv9HN8p11m7wH53JWKuXiVd7bP1Vo/qp7L/DYyw
-         fnZzILs80TIVQ==
-References: <87mtpegak8.fsf@kernel.org>
- <20210818141247.4794-1-lutovinova@ispras.ru>
-User-agent: mu4e 1.6.3; emacs 27.2
-From:   Felipe Balbi <balbi@kernel.org>
-To:     Nadezda Lutovinova <lutovinova@ispras.ru>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Johan Hovold <johan@kernel.org>, linux-usb@vger.kernel.org,
-        linux-kernel@vger.kernel.org, ldv-project@linuxtesting.org,
+        id S239340AbhHROv7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Aug 2021 10:51:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55572 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238483AbhHROv6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 Aug 2021 10:51:58 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69A2CC0613CF;
+        Wed, 18 Aug 2021 07:51:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
+        Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
+        Content-Description:In-Reply-To:References;
+        bh=HOaj1CFejRIbwr2VFBMVbAvfMNsHrt4NdWstS9REF68=; b=Aj5fAFbydfz0/Deokqjb2WKKvL
+        9YgEpwirvN4vz+VVeLVYe23oHc+w3OD+50HYqyyWjBSf7iouxmuWbvFtQUOksyAQbRf3GQsYwI0fD
+        Gkdb6EqLK4tUW9Y9qXZ8nsqQ+kROmbMRd4BF376wW0tNKUY/v1AdzGV+xAATONOavvXaMQBEhSpWU
+        q+5Q6YYli5SYBbRf/c0gIVn9dWbV55vUuNmbYXe7DLur5a6YxvEuqdFaQXdZE5N19L8jwrR/c+TCr
+        t6WzqdpE8IAwNdlfGycTco8Ks+2Dtg3lfWzR+NhqRbN89vKz3cZyHF6MZpI92hAhurJ0WfN2oq03Q
+        a/khoIrA==;
+Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1mGMst-003wkf-Th; Wed, 18 Aug 2021 14:49:51 +0000
+From:   "Matthew Wilcox (Oracle)" <willy@infradead.org>
+To:     Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org
+Cc:     "Matthew Wilcox (Oracle)" <willy@infradead.org>,
         stable@vger.kernel.org
-Subject: Re: [PATCH v2] usb: gadget: mv_u3d: request_irq() after
- initializing UDC
-Date:   Wed, 18 Aug 2021 17:33:16 +0300
-In-reply-to: <20210818141247.4794-1-lutovinova@ispras.ru>
-Message-ID: <87k0kig6v2.fsf@kernel.org>
+Subject: [PATCH] mm: Remove bogus VM_BUG_ON
+Date:   Wed, 18 Aug 2021 15:49:32 +0100
+Message-Id: <20210818144932.940640-1-willy@infradead.org>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+It is not safe to check page->index without holding the page lock.
+It can be changed if the page is moved between the swap cache and the
+page cache for a shmem file, for example.  There is a VM_BUG_ON below
+which checks page->index is correct after taking the page lock.
 
-Nadezda Lutovinova <lutovinova@ispras.ru> writes:
+Cc: stable@vger.kernel.org
+Fixes: 5c211ba29deb ("mm: add and use find_lock_entries")
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+---
+ mm/filemap.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-> If IRQ occurs between calling  request_irq() and  mv_u3d_eps_init(),
-> then null pointer dereference occurs since u3d->eps[] wasn't
-> initialized yet but used in mv_u3d_nuke().
->
-> The patch puts registration of the interrupt handler after
-> initializing of neccesery data.
->
-> Found by Linux Driver Verification project (linuxtesting.org).
->
-> Fixes: 90fccb529d24 ("usb: gadget: Gadget directory cleanup - group UDC drivers")
-> Signed-off-by: Nadezda Lutovinova <lutovinova@ispras.ru>
-
-Thanks for updating so quickly:
-
-Acked-by: Felipe Balbi <balbi@kernel.org>
-
+diff --git a/mm/filemap.c b/mm/filemap.c
+index d1458ecf2f51..34de0b14aaa9 100644
+--- a/mm/filemap.c
++++ b/mm/filemap.c
+@@ -2033,17 +2033,16 @@ unsigned find_lock_entries(struct address_space *mapping, pgoff_t start,
+ 	XA_STATE(xas, &mapping->i_pages, start);
+ 	struct page *page;
+ 
+ 	rcu_read_lock();
+ 	while ((page = find_get_entry(&xas, end, XA_PRESENT))) {
+ 		if (!xa_is_value(page)) {
+ 			if (page->index < start)
+ 				goto put;
+-			VM_BUG_ON_PAGE(page->index != xas.xa_index, page);
+ 			if (page->index + thp_nr_pages(page) - 1 > end)
+ 				goto put;
+ 			if (!trylock_page(page))
+ 				goto put;
+ 			if (page->mapping != mapping || PageWriteback(page))
+ 				goto unlock;
+ 			VM_BUG_ON_PAGE(!thp_contains(page, xas.xa_index),
+ 					page);
 -- 
-balbi
+2.30.2
+
