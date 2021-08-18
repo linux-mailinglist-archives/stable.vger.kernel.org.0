@@ -2,79 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 208483F0717
-	for <lists+stable@lfdr.de>; Wed, 18 Aug 2021 16:51:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04C5A3F071E
+	for <lists+stable@lfdr.de>; Wed, 18 Aug 2021 16:52:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239340AbhHROv7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Aug 2021 10:51:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55572 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238483AbhHROv6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 Aug 2021 10:51:58 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69A2CC0613CF;
-        Wed, 18 Aug 2021 07:51:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
-        Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
-        Content-Description:In-Reply-To:References;
-        bh=HOaj1CFejRIbwr2VFBMVbAvfMNsHrt4NdWstS9REF68=; b=Aj5fAFbydfz0/Deokqjb2WKKvL
-        9YgEpwirvN4vz+VVeLVYe23oHc+w3OD+50HYqyyWjBSf7iouxmuWbvFtQUOksyAQbRf3GQsYwI0fD
-        Gkdb6EqLK4tUW9Y9qXZ8nsqQ+kROmbMRd4BF376wW0tNKUY/v1AdzGV+xAATONOavvXaMQBEhSpWU
-        q+5Q6YYli5SYBbRf/c0gIVn9dWbV55vUuNmbYXe7DLur5a6YxvEuqdFaQXdZE5N19L8jwrR/c+TCr
-        t6WzqdpE8IAwNdlfGycTco8Ks+2Dtg3lfWzR+NhqRbN89vKz3cZyHF6MZpI92hAhurJ0WfN2oq03Q
-        a/khoIrA==;
-Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1mGMst-003wkf-Th; Wed, 18 Aug 2021 14:49:51 +0000
-From:   "Matthew Wilcox (Oracle)" <willy@infradead.org>
-To:     Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org
-Cc:     "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        stable@vger.kernel.org
-Subject: [PATCH] mm: Remove bogus VM_BUG_ON
-Date:   Wed, 18 Aug 2021 15:49:32 +0100
-Message-Id: <20210818144932.940640-1-willy@infradead.org>
-X-Mailer: git-send-email 2.31.1
+        id S239310AbhHROw4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Aug 2021 10:52:56 -0400
+Received: from smtp-relay-canonical-1.canonical.com ([185.125.188.121]:54074
+        "EHLO smtp-relay-canonical-1.canonical.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S238721AbhHROw4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 Aug 2021 10:52:56 -0400
+Received: from mail-pg1-f200.google.com (mail-pg1-f200.google.com [209.85.215.200])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by smtp-relay-canonical-1.canonical.com (Postfix) with ESMTPS id D02D9412EC
+        for <stable@vger.kernel.org>; Wed, 18 Aug 2021 14:52:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+        s=20210705; t=1629298340;
+        bh=C63KvaJ+cWhAEINSiaxTGMz7FLf9euvtefJ5UKJKvuw=;
+        h=From:To:Cc:Subject:Date:Message-Id:MIME-Version;
+        b=aU/M0lDC3lnWmWPUa2sIxOGmfjLAmCGdzn+Vlb+3oTTNJ6w0y28PZer6Zhk5AiNO7
+         i/VvFqLWkFnm94H9rDL3ufDFmmVgec3CZO5avjNGL+ZrqGyyqdHGTcciRN5r1MtMlj
+         JR+T7BCG627JjzgjPg1MOVLVVX/jmDJuCDX0CFt9ZnpSwuUbrpnsmrxDIJM6YPVvIi
+         77VkWbypUnmgTk92Cpt4gwFB10MeASo0EiA/94jHvy1pk1bIu4VTaDaw8SUlbFSEV3
+         jHTO8KhS27s4qD8snT96XdUr2DX4GEURih5bm/6EZ7Dtvbq0daRLyLfXeuvPsfhl+L
+         QoXsKRZVZerWA==
+Received: by mail-pg1-f200.google.com with SMTP id k28-20020a63ff1c0000b029023b84262596so1566575pgi.1
+        for <stable@vger.kernel.org>; Wed, 18 Aug 2021 07:52:20 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=C63KvaJ+cWhAEINSiaxTGMz7FLf9euvtefJ5UKJKvuw=;
+        b=bbN58SI2XGnOc+nY1Xqd2QqYD2g08NbXSVDasf0+wuyPFfc+su/ufYNd6DLoEU1kDL
+         iK5MM5+WlpuXtWiFBd+oa5/QWlIlfZmKC2pT+VZH98swolU2dpNxyNcXbAZOibCBgDet
+         onmaHrB50L7JThvj3CsE14gL5VSmDqPA/Mply9Tsy7ncY9AeZuAHnq3+vv2b6hjcKWpL
+         mqsR2HGJuuP/DWzAdtrktr+sh23wyejeoHzCcOieDIGnE5uNMDHiTdsAekxzRm/f6ZKC
+         JDJfQErwwPzLw0NmXj+hs4xv+kc+SxDRQKTe/Nqa/ZiSylMOApRuFvkl6w7qa6nn7KdK
+         /TRA==
+X-Gm-Message-State: AOAM533V9AkgAiQDk5AstfvZOdNqBRXlLTgMvo17y2BNYbqGKdEoNS5C
+        dygJUMjQxA7CFJaJcUQTPSnznUU0pbkBFTcq7hDgPp8llm07Q17Weur5eMLdHjFeE7tBGfq9o9x
+        uqAUB00OS5ubaRV7CCHH10K5KBO7475TXpw==
+X-Received: by 2002:a17:90a:f314:: with SMTP id ca20mr10053539pjb.210.1629298339357;
+        Wed, 18 Aug 2021 07:52:19 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzIX0xUNdP8jrpWXr9FRIo/5CxYkCcC18au0WkZhrfprpv1h8lb2dEHNI4DzTUBH3RtKFQesg==
+X-Received: by 2002:a17:90a:f314:: with SMTP id ca20mr10053525pjb.210.1629298339084;
+        Wed, 18 Aug 2021 07:52:19 -0700 (PDT)
+Received: from localhost.localdomain ([69.163.84.166])
+        by smtp.gmail.com with ESMTPSA id 73sm7331pfz.73.2021.08.18.07.52.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 18 Aug 2021 07:52:18 -0700 (PDT)
+From:   Tim Gardner <tim.gardner@canonical.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     tim.gardner@canonical.com, stable@vger.kernel.org,
+        kernel-janitors@vger.kernel.org,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        linux-media@vger.kernel.org, linaro-mm-sig@lists.linaro.org
+Subject: [PATCH] drm/i915/gem: Avoid NULL dereference in __i915_gem_object_lock()
+Date:   Wed, 18 Aug 2021 08:51:59 -0600
+Message-Id: <20210818145159.12402-1-tim.gardner@canonical.com>
+X-Mailer: git-send-email 2.33.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-It is not safe to check page->index without holding the page lock.
-It can be changed if the page is moved between the swap cache and the
-page cache for a shmem file, for example.  There is a VM_BUG_ON below
-which checks page->index is correct after taking the page lock.
+Coverity warns of a possible NULL dereference:
+
+Both dma_resv_lock_interruptible() and dma_resv_lock() can return -EDEADLK. Protect
+against a NULL dereference by checking for NULL before saving the object pointer. This
+is consistent with previous checks for ww==NULL.
+
+Addresses-Coverity: ("Dereference after null check")
 
 Cc: stable@vger.kernel.org
-Fixes: 5c211ba29deb ("mm: add and use find_lock_entries")
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Fixes: 80f0b679d6f0683f23cf98a511af3e44dd509472 ("drm/i915: Add an implementation for i915_gem_ww_ctx locking, v2.")
+Cc: kernel-janitors@vger.kernel.org
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Cc: Jani Nikula <jani.nikula@linux.intel.com>
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Cc: David Airlie <airlied@linux.ie>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: intel-gfx@lists.freedesktop.org
+Cc: dri-devel@lists.freedesktop.org
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-media@vger.kernel.org
+Cc: linaro-mm-sig@lists.linaro.org
+Signed-off-by: Tim Gardner <tim.gardner@canonical.com>
 ---
- mm/filemap.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/gpu/drm/i915/gem/i915_gem_object.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/mm/filemap.c b/mm/filemap.c
-index d1458ecf2f51..34de0b14aaa9 100644
---- a/mm/filemap.c
-+++ b/mm/filemap.c
-@@ -2033,17 +2033,16 @@ unsigned find_lock_entries(struct address_space *mapping, pgoff_t start,
- 	XA_STATE(xas, &mapping->i_pages, start);
- 	struct page *page;
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_object.h b/drivers/gpu/drm/i915/gem/i915_gem_object.h
+index 48112b9d76df..3391ca4f662a 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_object.h
++++ b/drivers/gpu/drm/i915/gem/i915_gem_object.h
+@@ -187,7 +187,7 @@ static inline int __i915_gem_object_lock(struct drm_i915_gem_object *obj,
+ 	if (ret == -EALREADY)
+ 		ret = 0;
  
- 	rcu_read_lock();
- 	while ((page = find_get_entry(&xas, end, XA_PRESENT))) {
- 		if (!xa_is_value(page)) {
- 			if (page->index < start)
- 				goto put;
--			VM_BUG_ON_PAGE(page->index != xas.xa_index, page);
- 			if (page->index + thp_nr_pages(page) - 1 > end)
- 				goto put;
- 			if (!trylock_page(page))
- 				goto put;
- 			if (page->mapping != mapping || PageWriteback(page))
- 				goto unlock;
- 			VM_BUG_ON_PAGE(!thp_contains(page, xas.xa_index),
- 					page);
+-	if (ret == -EDEADLK) {
++	if (ret == -EDEADLK && ww) {
+ 		i915_gem_object_get(obj);
+ 		ww->contended = obj;
+ 	}
 -- 
-2.30.2
+2.33.0
 
