@@ -2,87 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BE9A3F03C7
-	for <lists+stable@lfdr.de>; Wed, 18 Aug 2021 14:34:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 093B53F03C8
+	for <lists+stable@lfdr.de>; Wed, 18 Aug 2021 14:34:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235423AbhHRMe5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Aug 2021 08:34:57 -0400
-Received: from smtp-relay-canonical-1.canonical.com ([185.125.188.121]:43688
+        id S234801AbhHRMfD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Aug 2021 08:35:03 -0400
+Received: from smtp-relay-canonical-1.canonical.com ([185.125.188.121]:43696
         "EHLO smtp-relay-canonical-1.canonical.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234801AbhHRMe4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 Aug 2021 08:34:56 -0400
-Received: from mail-pg1-f199.google.com (mail-pg1-f199.google.com [209.85.215.199])
+        by vger.kernel.org with ESMTP id S233634AbhHRMfC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 Aug 2021 08:35:02 -0400
+Received: from mail-pg1-f198.google.com (mail-pg1-f198.google.com [209.85.215.198])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
         (No client certificate requested)
-        by smtp-relay-canonical-1.canonical.com (Postfix) with ESMTPS id EE0AC4066A
-        for <stable@vger.kernel.org>; Wed, 18 Aug 2021 12:34:18 +0000 (UTC)
+        by smtp-relay-canonical-1.canonical.com (Postfix) with ESMTPS id 710704066A
+        for <stable@vger.kernel.org>; Wed, 18 Aug 2021 12:34:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-        s=20210705; t=1629290059;
-        bh=S8eDiEj2nwrC8DuFEnxxDF01z2qJAlaJD7z8K74fm/c=;
-        h=From:To:Subject:Date:Message-Id:MIME-Version;
-        b=F6l8K2v1LWEzymKPbLtRxRZtQQ5wSf8zG8Ih7mNhIRQ01cDhIXnn/+4xPlXMmO393
-         0ZlCfyN/PQfs2dttZtT3RKuPuzWS+287xYERqYjTZ/R8iUwtYVRToG4t2xYTsQAOvc
-         qc8Ri6FaERchGwXTMPkQy81K1dRJ86Df6PsSMBEY7VrIIYA3B7TF68BNpprwoDWPSB
-         zrZLN2NK+RZ1zqcDpa4Epb6AM8q0GGDI0AR+rWVXbyghWFJMbK+zpRUfMZTBpqzPDL
-         TQvei+vB8Ue6fDoNyBbsCxSJWJzZ9SdlPSz9cVSdHAACrL57uU/EQwS6gDvJmRUD74
-         UMbTSoU4PdQfA==
-Received: by mail-pg1-f199.google.com with SMTP id d1-20020a630e010000b029023afa459291so1346071pgl.11
-        for <stable@vger.kernel.org>; Wed, 18 Aug 2021 05:34:18 -0700 (PDT)
+        s=20210705; t=1629290067;
+        bh=66IjiltKkESwtV98qXBzRqL08BxcvFvMBexm+KtmZxU=;
+        h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+         MIME-Version;
+        b=qxrzo5AI3i91lUnp355+QgjxW6rRwVyJoOdZE4hgtYApDYkjSiqwIkMK1iremO8e+
+         i8SktjsyVNOx0+dqUSXzYWsDC6WAQhsyqJvz9vJV5RBst4EOlr9eMHNALctPSKndh3
+         sV8L1b+dGzG/jW4x2j8s80tlwbFtG/d/6gRsSk3Yot1V9MQBUzpWe71LPAA4oc1AK0
+         zzynXOIdxSKWuhMvoo1TtUV3FVUO9KwgCcRoRgOmoO/7+ns5igKv0/CcHsVUC1qEbr
+         i2g7IqNPAtkPw3eU3VdfFYIxPqMZsWIRO0WmpIFcYHjKN9ChpftOY3Int9idmbH7HR
+         LZRUHG4Ebm3yw==
+Received: by mail-pg1-f198.google.com with SMTP id t10-20020a63eb0a000000b0025243699e3cso1341479pgh.2
+        for <stable@vger.kernel.org>; Wed, 18 Aug 2021 05:34:27 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=S8eDiEj2nwrC8DuFEnxxDF01z2qJAlaJD7z8K74fm/c=;
-        b=UpYPZ9rWX+CwAJcBxR4YEClEap2vC3uUZbgVPS/LQZmmn0hgHVsZXxqqCx9nlclqZk
-         UPEXpk+otQl+qA/QDaun6QUpCKkDyP2Q0dAtAKnu+G1Jf9L8Oa6hIX7v5TNwSKcxt11v
-         1sZJu82OWu9jzDobT4hWKsIIUv8zLTRTYBOoN2scqHnDKCZBJy02yq+PG7YjwnR3reuN
-         5JozZEKU2iVy6BmQT3g9inx8DUVUUpcA7qhlxyvm3fez9p/eJWiYnNuqp6zF30D6V9+i
-         oW1GLWm41ejR3mQLh7iyjDUKxEurodjAdz+66BmT8KAmvV4VXa+NlzhWMPduBQ7/H0WV
-         lTvg==
-X-Gm-Message-State: AOAM531HaH8BD1qHMO8lEAG6Z0hJpQbCwe+DHt20oTmWCIFtvtmfERRV
-        f1163MZxaxLwHoJShrZcemgWiBwG/XQMuP2QAcwcavq+5tbj07J8WktNRGrvQb5QKU2CA9Nuog5
-        M5nPTcNXMXdXZiIw1x5JByDdMIcYN/Zjfrg==
-X-Received: by 2002:a63:2f04:: with SMTP id v4mr8665369pgv.380.1629290056845;
-        Wed, 18 Aug 2021 05:34:16 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJy8bV1GnDGMVm67ms6g2tN6K3y/M9+dPjPAeSAwU50ia7nR93WraGKvOlVZdmFUfRowoc3TtA==
-X-Received: by 2002:a63:2f04:: with SMTP id v4mr8665357pgv.380.1629290056629;
-        Wed, 18 Aug 2021 05:34:16 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=66IjiltKkESwtV98qXBzRqL08BxcvFvMBexm+KtmZxU=;
+        b=CbpwYlMpP2GnCX6RCqWqfESoPP0V7IZ5KPgW04njU/jps6kjpKZ9onay7mOp/WdLLQ
+         86EDMkwlS9ikcRX1YHinniMSzad15Zae/kE4DEmZUloXGnayxHMgG6Ne1+srW4mISiIG
+         3raxYKUU6xB6nvUapaHwKXokspGt2SE3t/InQPSOk4bwOtGdHQiVCZPAoPTqrcd/FVZl
+         XLwmA6YJYApxtYvqaMS2PryvTHQq9ne3GXBzz59B5hbf/9At0p2d8VuLntz9Gdz8Ln3p
+         5b6osIOEYpFxnlZFXZjacMsVdJibgmxf/nV44BfhBN1jRCRUY7/e7N6dnZ1uk4EwdQDI
+         VB/Q==
+X-Gm-Message-State: AOAM530RKVQDibSxvjKTo4CBpyHrQqgCZGGEeQmugsTEo8ZUK5DL2liD
+        VL/tSyqVwcc6xfZiQQ6LTOLrG2dCZ5cwfYK+k4RQOEu9JwWkscAj/NRCexJseez3tA7uniPMOh9
+        a48N/DHbb8i2Q4EvUQfnhMX+G5Xxw6z2NSw==
+X-Received: by 2002:a17:90a:4498:: with SMTP id t24mr9120242pjg.235.1629290065904;
+        Wed, 18 Aug 2021 05:34:25 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwXmqk1Cuge3TeCCcnRJ0ksDxzJsmeXBK0Grwr2bz03xaOoMC1hzfWsCMCd8FSLzNysoOE9UQ==
+X-Received: by 2002:a17:90a:4498:: with SMTP id t24mr9120220pjg.235.1629290065663;
+        Wed, 18 Aug 2021 05:34:25 -0700 (PDT)
 Received: from localhost ([2a01:4b00:85fd:d700:1397:609:e787:2244])
-        by smtp.gmail.com with ESMTPSA id o9sm6726025pfh.217.2021.08.18.05.34.15
-        for <stable@vger.kernel.org>
+        by smtp.gmail.com with ESMTPSA id m2sm7102910pgu.15.2021.08.18.05.34.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 18 Aug 2021 05:34:16 -0700 (PDT)
+        Wed, 18 Aug 2021 05:34:25 -0700 (PDT)
 From:   Dimitri John Ledkov <dimitri.ledkov@canonical.com>
 To:     stable@vger.kernel.org
-Subject: [PATCH 5.10.y 0/2] disable ftrace of sbi functions
-Date:   Wed, 18 Aug 2021 13:34:04 +0100
-Message-Id: <20210818123406.197638-1-dimitri.ledkov@canonical.com>
+Cc:     Guo Ren <guoren@linux.alibaba.com>,
+        Palmer Dabbelt <palmerdabbelt@google.com>
+Subject: [PATCH 5.10.y 1/2] riscv: Fixup wrong ftrace remove cflag
+Date:   Wed, 18 Aug 2021 13:34:05 +0100
+Message-Id: <20210818123406.197638-2-dimitri.ledkov@canonical.com>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210818123406.197638-1-dimitri.ledkov@canonical.com>
+References: <20210818123406.197638-1-dimitri.ledkov@canonical.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-One cannot ftrace functions used to setup ftrace. Doing so leads to a
-racy kernel panic as observed by users on SiFive HiFive Unmatched
-boards with Ubuntu kernels.
+From: Guo Ren <guoren@linux.alibaba.com>
 
-This has been debugged and fixed in v5.12 kernels by ensuring that all
-sbi functions are excluded from ftrace.
+commit 67d945778099b14324811fe67c5aff2cda7a7ad5 upstream.
 
-Link: https://forums.sifive.com/t/u-boot-says-unhandled-exception-illegal-instruction/4898/12
-BugLink: https://bugs.launchpad.net/bugs/1934548
+We must use $(CC_FLAGS_FTRACE) instead of directly using -pg. It
+will cause -fpatchable-function-entry error.
 
-Guo Ren (2):
-  riscv: Fixup wrong ftrace remove cflag
-  riscv: Fixup patch_text panic in ftrace
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Signed-off-by: Dimitri John Ledkov <dimitri.ledkov@canonical.com>
+---
+ arch/riscv/kernel/Makefile | 4 ++--
+ arch/riscv/mm/Makefile     | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
- arch/riscv/kernel/Makefile | 5 +++--
- arch/riscv/mm/Makefile     | 3 ++-
- 2 files changed, 5 insertions(+), 3 deletions(-)
-
+diff --git a/arch/riscv/kernel/Makefile b/arch/riscv/kernel/Makefile
+index fa896c5f7ccb..27f10eb28bd3 100644
+--- a/arch/riscv/kernel/Makefile
++++ b/arch/riscv/kernel/Makefile
+@@ -4,8 +4,8 @@
+ #
+ 
+ ifdef CONFIG_FTRACE
+-CFLAGS_REMOVE_ftrace.o	= -pg
+-CFLAGS_REMOVE_patch.o	= -pg
++CFLAGS_REMOVE_ftrace.o	= $(CC_FLAGS_FTRACE)
++CFLAGS_REMOVE_patch.o	= $(CC_FLAGS_FTRACE)
+ endif
+ 
+ extra-y += head.o
+diff --git a/arch/riscv/mm/Makefile b/arch/riscv/mm/Makefile
+index c0185e556ca5..6b4b7ec1bda2 100644
+--- a/arch/riscv/mm/Makefile
++++ b/arch/riscv/mm/Makefile
+@@ -2,7 +2,7 @@
+ 
+ CFLAGS_init.o := -mcmodel=medany
+ ifdef CONFIG_FTRACE
+-CFLAGS_REMOVE_init.o = -pg
++CFLAGS_REMOVE_init.o = $(CC_FLAGS_FTRACE)
+ endif
+ 
+ KCOV_INSTRUMENT_init.o := n
 -- 
 2.30.2
 
