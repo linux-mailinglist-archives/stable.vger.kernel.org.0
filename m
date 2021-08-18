@@ -2,370 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 524003F0562
-	for <lists+stable@lfdr.de>; Wed, 18 Aug 2021 15:53:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DD473F0588
+	for <lists+stable@lfdr.de>; Wed, 18 Aug 2021 16:00:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238519AbhHRNy1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Aug 2021 09:54:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41858 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238213AbhHRNyQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 Aug 2021 09:54:16 -0400
-Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6849C061764
-        for <stable@vger.kernel.org>; Wed, 18 Aug 2021 06:53:41 -0700 (PDT)
-Received: by mail-pl1-x629.google.com with SMTP id c17so1872556plz.2
-        for <stable@vger.kernel.org>; Wed, 18 Aug 2021 06:53:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=rh21DdcxZxLTU0I9FVjexP+aqds1JCwOT5Oh+TNoZco=;
-        b=1usC63B/jPQ9Oc5NgdOP2GInt0MQ2wg4+Q+y+u9XVhSmU+nRwn09IMYs+qT/pHhxit
-         ekwU5ExC5z+3cAI2Rj7fU1rcbs1F1clhyN1YV1EJ88JpFlKNTJmssqqYLKTKd09U0FoH
-         YXGrCLcc7HO5CmyL9Z+0Zm6OwI72JIYqzYZlcXxIq2zFy9lWvNIxeGWvUst7QY9wTTAh
-         eTfJz/X6pzu3XGFADZzp458Tp/LN4BN7lyBsQEu8OhONMEIUc5xAVs7y0J/uuUstdL9d
-         VpOmMgwwNvNmFyldZ5Wszaaglck49Uvx/cwM/J2VdjZIihfRBBD3RkNU1W/Z/ew6qKet
-         S68A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=rh21DdcxZxLTU0I9FVjexP+aqds1JCwOT5Oh+TNoZco=;
-        b=jm3IKRFsJyziI8DjOD9rEkudi1E7/D3VbUdctsOMn3UPednlFhkQMZL/EarlOmzWCy
-         3YvSN2aWaJRAkjmfJ85y+yeFDgztY3Hi3HBH42fV1DQmpA8T+Mhd7xuCfqYXzavYiTcc
-         YNKe/7nP/BqNRW1TuCzZdHWRetDlPnFNGDXLZ151Rhm7b1ABXbjEUpVNapYOrl6Mp3Jw
-         4WyY6oAGZTavwyKTysYZYLz9C6Lm5nJcIKTtbLjauUffYq48zrKel/w6Kiivyh/W6hnz
-         YoZQXapGZskCg4M45CFH5NYvfyVfdyYwUDA4jBm8BHjwkyGP/gHuoZEtIevnZj40OiX/
-         PLNA==
-X-Gm-Message-State: AOAM532snlNjEdtUV/2DUPof4NNxmU/dU3esNFhbMWKgv/esBRQPhFKz
-        ly6KUS2zcv2kQt4ec7yhK55EKB51TcPTXsbX
-X-Google-Smtp-Source: ABdhPJwHinUpNPRolq/3MRY9VClRy2mr79+Or5BMhUMN5xKKgws5bjOkSkEcf0jB1RLc5rHLXvGBvg==
-X-Received: by 2002:a17:902:b947:b029:12c:b414:a018 with SMTP id h7-20020a170902b947b029012cb414a018mr7664734pls.30.1629294821229;
-        Wed, 18 Aug 2021 06:53:41 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id f5sm6419420pfn.134.2021.08.18.06.53.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 18 Aug 2021 06:53:40 -0700 (PDT)
-Message-ID: <611d10e4.1c69fb81.1c478.179c@mx.google.com>
-Date:   Wed, 18 Aug 2021 06:53:40 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S238611AbhHROAV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Aug 2021 10:00:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49466 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S238445AbhHROAT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Aug 2021 10:00:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DFCBF60238;
+        Wed, 18 Aug 2021 13:59:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1629295184;
+        bh=/hiOLlG8NUinBJgNN2g1i2R+eLAEkHw51nr6y3eN/wU=;
+        h=Subject:To:From:Date:From;
+        b=VarHn3ehoAWHfYlLXHTMOvi7cypsn/UnCOIxl76UzpGvUVtoyzWAYZay7i2oSYdFe
+         E14QflsJ0CnUs8UzdPqCwLNTMPKMY19r3wh9TTvWpvpqcmhFQ4oL+aDrlO8VcegEUx
+         1ANDkYpJn2LSvaglXV7AwOm6KHEI9xtMkWLVxJvQ=
+Subject: patch "usb: typec: tcpm: Fix VDMs sometimes not being forwarded to alt-mode" added to usb-linus
+To:     hdegoede@redhat.com, gregkh@linuxfoundation.org,
+        heikki.krogerus@linux.intel.com, kyletso@google.com,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 18 Aug 2021 15:59:41 +0200
+Message-ID: <162929518165162@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.19.204-38-ge560b91ae81f
-X-Kernelci-Report-Type: build
-Subject: stable-rc/linux-4.19.y build: 33 builds: 0 failed, 33 passed,
- 16 warnings (v4.19.204-38-ge560b91ae81f)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y build: 33 builds: 0 failed, 33 passed, 16 warnings (=
-v4.19.204-38-ge560b91ae81f)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.204-38-ge560b91ae81f/
+This is a note to let you know that I've just added the patch titled
 
-Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.204-38-ge560b91ae81f
-Git Commit: e560b91ae81f55d171d8eb2769d350bb73671002
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Built: 4 unique architectures
+    usb: typec: tcpm: Fix VDMs sometimes not being forwarded to alt-mode
 
-Warnings Detected:
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
 
-arc:
-    axs103_defconfig (gcc-8): 1 warning
-    haps_hs_defconfig (gcc-8): 1 warning
-    haps_hs_smp_defconfig (gcc-8): 1 warning
-    nsimosci_hs_defconfig (gcc-8): 1 warning
-    nsimosci_hs_smp_defconfig (gcc-8): 1 warning
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-arm:
-    h5000_defconfig (gcc-8): 1 warning
-    integrator_defconfig (gcc-8): 1 warning
-    lpd270_defconfig (gcc-8): 1 warning
-    lubbock_defconfig (gcc-8): 1 warning
-    pxa255-idp_defconfig (gcc-8): 1 warning
-    pxa910_defconfig (gcc-8): 1 warning
-    tct_hammer_defconfig (gcc-8): 1 warning
-    vf610m4_defconfig (gcc-8): 1 warning
-    viper_defconfig (gcc-8): 1 warning
-    vt8500_v6_v7_defconfig (gcc-8): 1 warning
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
 
-mips:
-    pic32mzda_defconfig (gcc-8): 1 warning
+If you have any questions about this process, please let me know.
 
-x86_64:
 
+From 5571ea3117ca22849072adb58074fb5a2fd12c00 Mon Sep 17 00:00:00 2001
+From: Hans de Goede <hdegoede@redhat.com>
+Date: Mon, 16 Aug 2021 17:46:32 +0200
+Subject: usb: typec: tcpm: Fix VDMs sometimes not being forwarded to alt-mode
+ drivers
 
-Warnings summary:
+Commit a20dcf53ea98 ("usb: typec: tcpm: Respond Not_Supported if no
+snk_vdo"), stops tcpm_pd_data_request() calling tcpm_handle_vdm_request()
+when port->nr_snk_vdo is not set. But the VDM might be intended for an
+altmode-driver, in which case nr_snk_vdo does not matter.
 
-    14   drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 de=
-fined but not used [-Wunused-variable]
+This change breaks the forwarding of connector hotplug (HPD) events
+for displayport altmode on devices which don't set nr_snk_vdo.
 
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D
+tcpm_pd_data_request() is the only caller of tcpm_handle_vdm_request(),
+so we can move the nr_snk_vdo check to inside it, at which point we
+have already looked up the altmode device so we can check for this too.
 
-Detailed per-defconfig build reports:
+Doing this check here also ensures that vdm_state gets set to
+VDM_STATE_DONE if it was VDM_STATE_BUSY, even if we end up with
+responding with PD_MSG_CTRL_NOT_SUPP later.
 
----------------------------------------------------------------------------=
------
-axs103_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
+Note that tcpm_handle_vdm_request() was already sending
+PD_MSG_CTRL_NOT_SUPP in some circumstances, after moving the nr_snk_vdo
+check the same error-path is now taken when that check fails. So that
+we have only one error-path for this and not two. Replace the
+tcpm_queue_message(PD_MSG_CTRL_NOT_SUPP) used by the existing error-path
+with the more robust tcpm_pd_handle_msg() from the (now removed) second
+error-path.
 
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-bmips_be_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-bmips_stb_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-ci20_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-cm_x300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-em_x270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-footbridge_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-h3600_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-h5000_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-hackkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-haps_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-haps_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
-ection mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-integrator_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-iop13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-iop32x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-lpd270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-lubbock_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-mmp2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-nsimosci_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
-ection mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-nsimosci_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning,=
- 0 section mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-orion5x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-pic32mzda_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-pleb_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-pxa255-idp_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-pxa910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-qi_lb60_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-rb532_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-rpc_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-spear13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-spear3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-tct_hammer_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-vf610m4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-viper_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-vt8500_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
-section mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-workpad_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-x86_64_defconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
+Fixes: a20dcf53ea98 ("usb: typec: tcpm: Respond Not_Supported if no snk_vdo")
+Cc: stable <stable@vger.kernel.org>
+Cc: Kyle Tso <kyletso@google.com>
+Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Acked-by: Kyle Tso <kyletso@google.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20210816154632.381968-1-hdegoede@redhat.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
-For more info write to <info@kernelci.org>
+ drivers/usb/typec/tcpm/tcpm.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/usb/typec/tcpm/tcpm.c b/drivers/usb/typec/tcpm/tcpm.c
+index b9bb63d749ec..f4079b5cb26d 100644
+--- a/drivers/usb/typec/tcpm/tcpm.c
++++ b/drivers/usb/typec/tcpm/tcpm.c
+@@ -1737,6 +1737,10 @@ static int tcpm_pd_svdm(struct tcpm_port *port, struct typec_altmode *adev,
+ 	return rlen;
+ }
+ 
++static void tcpm_pd_handle_msg(struct tcpm_port *port,
++			       enum pd_msg_request message,
++			       enum tcpm_ams ams);
++
+ static void tcpm_handle_vdm_request(struct tcpm_port *port,
+ 				    const __le32 *payload, int cnt)
+ {
+@@ -1764,11 +1768,11 @@ static void tcpm_handle_vdm_request(struct tcpm_port *port,
+ 		port->vdm_state = VDM_STATE_DONE;
+ 	}
+ 
+-	if (PD_VDO_SVDM(p[0])) {
++	if (PD_VDO_SVDM(p[0]) && (adev || tcpm_vdm_ams(port) || port->nr_snk_vdo)) {
+ 		rlen = tcpm_pd_svdm(port, adev, p, cnt, response, &adev_action);
+ 	} else {
+ 		if (port->negotiated_rev >= PD_REV30)
+-			tcpm_queue_message(port, PD_MSG_CTRL_NOT_SUPP);
++			tcpm_pd_handle_msg(port, PD_MSG_CTRL_NOT_SUPP, NONE_AMS);
+ 	}
+ 
+ 	/*
+@@ -2471,10 +2475,7 @@ static void tcpm_pd_data_request(struct tcpm_port *port,
+ 					   NONE_AMS);
+ 		break;
+ 	case PD_DATA_VENDOR_DEF:
+-		if (tcpm_vdm_ams(port) || port->nr_snk_vdo)
+-			tcpm_handle_vdm_request(port, msg->payload, cnt);
+-		else if (port->negotiated_rev > PD_REV20)
+-			tcpm_pd_handle_msg(port, PD_MSG_CTRL_NOT_SUPP, NONE_AMS);
++		tcpm_handle_vdm_request(port, msg->payload, cnt);
+ 		break;
+ 	case PD_DATA_BIST:
+ 		port->bist_request = le32_to_cpu(msg->payload[0]);
+-- 
+2.32.0
+
+
