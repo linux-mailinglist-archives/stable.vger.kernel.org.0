@@ -2,96 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 184743F0636
-	for <lists+stable@lfdr.de>; Wed, 18 Aug 2021 16:16:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3B983F064B
+	for <lists+stable@lfdr.de>; Wed, 18 Aug 2021 16:17:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239538AbhHROQa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Aug 2021 10:16:30 -0400
-Received: from mail.ispras.ru ([83.149.199.84]:35934 "EHLO mail.ispras.ru"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239578AbhHRONv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Aug 2021 10:13:51 -0400
-Received: from kleverstation.intra.ispras.ru (unknown [10.10.2.220])
-        by mail.ispras.ru (Postfix) with ESMTPS id 0865440755CA;
-        Wed, 18 Aug 2021 14:13:15 +0000 (UTC)
-From:   Nadezda Lutovinova <lutovinova@ispras.ru>
-To:     Felipe Balbi <balbi@kernel.org>
-Cc:     Nadezda Lutovinova <lutovinova@ispras.ru>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Johan Hovold <johan@kernel.org>, linux-usb@vger.kernel.org,
-        linux-kernel@vger.kernel.org, ldv-project@linuxtesting.org,
-        stable@vger.kernel.org
-Subject: [PATCH v2] usb: gadget: mv_u3d: request_irq() after initializing UDC
-Date:   Wed, 18 Aug 2021 17:12:47 +0300
-Message-Id: <20210818141247.4794-1-lutovinova@ispras.ru>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <87mtpegak8.fsf@kernel.org>
+        id S238970AbhHRORm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Aug 2021 10:17:42 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:40800 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239071AbhHROP6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 Aug 2021 10:15:58 -0400
+From:   Thomas Gleixner <tglx@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1629296122;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=NSdpIbrLrHpIzNeBhXvU8ZWsmQfIv9ORq7hNFxN8vSM=;
+        b=iei4/FKQN0OBTQdVoFSGm1wwo6DZVl4dZMsZh0mA64LyVK6OrZNkS1z/LRokzkEmDLmRKP
+        qnFosQriT7UtzTs/Y2glmigU92F+fk0qOU0JAfZoctFWcWDwiQAsfdPYRKhjRYSn5i8o+c
+        /O8lFtotG2cyjtE6LZPl4bjI1hSnPb6hFu07yooGH1F2P4bhqu44FGn7ILJf1xovlpid0L
+        jHum7plopgm3UbXZVhWASF5E0Cj42SSIYvIJCJ+esWdBpsncB6fJlyFWuk5DNUuThbU8p2
+        j3fAqRzet3j7nzKVzuH9/d6GonPcmmoennWev43qCUxGYSlto86j0yefXxei2Q==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1629296122;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=NSdpIbrLrHpIzNeBhXvU8ZWsmQfIv9ORq7hNFxN8vSM=;
+        b=5de6KAgXVKS1qx7BCjE63/Asc4257krS/+3YRwDVIFRDkFG4+d7DDbAOpMy+TDYUkwEOER
+        ubEPz/1dbDBXIjAw==
+To:     gregkh@linuxfoundation.org, cuibixuan@huawei.com
+Cc:     stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] genirq/msi: Ensure deactivation on
+ teardown" failed to apply to 4.14-stable tree
+In-Reply-To: <1629101069110160@kroah.com>
+References: <1629101069110160@kroah.com>
+Date:   Wed, 18 Aug 2021 16:15:21 +0200
+Message-ID: <87pmua2612.ffs@tglx>
+MIME-Version: 1.0
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If IRQ occurs between calling  request_irq() and  mv_u3d_eps_init(),
-then null pointer dereference occurs since u3d->eps[] wasn't
-initialized yet but used in mv_u3d_nuke().
+On Mon, Aug 16 2021 at 10:04, gregkh@linuxfoundation.org wrote:
+> The patch below does not apply to the 4.14-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
 
-The patch puts registration of the interrupt handler after
-initializing of neccesery data.
+Hrm. My Fixes tag is going too far. Please ignore this one as the
+wreckage was introduced later with the reservation mode bits.
 
-Found by Linux Driver Verification project (linuxtesting.org).
+Thanks,
 
-Fixes: 90fccb529d24 ("usb: gadget: Gadget directory cleanup - group UDC drivers")
-Signed-off-by: Nadezda Lutovinova <lutovinova@ispras.ru>
----
-v2: fix subject and add a stable tag
----
- drivers/usb/gadget/udc/mv_u3d_core.c | 19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
-
-diff --git a/drivers/usb/gadget/udc/mv_u3d_core.c b/drivers/usb/gadget/udc/mv_u3d_core.c
-index ce3d7a3eb7e3..a1057ddfbda3 100644
---- a/drivers/usb/gadget/udc/mv_u3d_core.c
-+++ b/drivers/usb/gadget/udc/mv_u3d_core.c
-@@ -1921,14 +1921,6 @@ static int mv_u3d_probe(struct platform_device *dev)
- 		goto err_get_irq;
- 	}
- 	u3d->irq = r->start;
--	if (request_irq(u3d->irq, mv_u3d_irq,
--		IRQF_SHARED, driver_name, u3d)) {
--		u3d->irq = 0;
--		dev_err(&dev->dev, "Request irq %d for u3d failed\n",
--			u3d->irq);
--		retval = -ENODEV;
--		goto err_request_irq;
--	}
- 
- 	/* initialize gadget structure */
- 	u3d->gadget.ops = &mv_u3d_ops;	/* usb_gadget_ops */
-@@ -1941,6 +1933,15 @@ static int mv_u3d_probe(struct platform_device *dev)
- 
- 	mv_u3d_eps_init(u3d);
- 
-+	if (request_irq(u3d->irq, mv_u3d_irq,
-+		IRQF_SHARED, driver_name, u3d)) {
-+		u3d->irq = 0;
-+		dev_err(&dev->dev, "Request irq %d for u3d failed\n",
-+			u3d->irq);
-+		retval = -ENODEV;
-+		goto err_request_irq;
-+	}
-+
- 	/* external vbus detection */
- 	if (u3d->vbus) {
- 		u3d->clock_gating = 1;
-@@ -1964,8 +1965,8 @@ static int mv_u3d_probe(struct platform_device *dev)
- 
- err_unregister:
- 	free_irq(u3d->irq, u3d);
--err_request_irq:
- err_get_irq:
-+err_request_irq:
- 	kfree(u3d->status_req);
- err_alloc_status_req:
- 	kfree(u3d->eps);
--- 
-2.17.1
-
+        tglx
