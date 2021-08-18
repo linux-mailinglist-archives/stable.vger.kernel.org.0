@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FA303F0E88
-	for <lists+stable@lfdr.de>; Thu, 19 Aug 2021 01:08:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 519B73F0E9E
+	for <lists+stable@lfdr.de>; Thu, 19 Aug 2021 01:29:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234082AbhHRXJD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Aug 2021 19:09:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57872 "EHLO
+        id S234904AbhHRXaM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Aug 2021 19:30:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34242 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231976AbhHRXJD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 Aug 2021 19:09:03 -0400
-Received: from mail-pf1-x42c.google.com (mail-pf1-x42c.google.com [IPv6:2607:f8b0:4864:20::42c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17EA2C061764
-        for <stable@vger.kernel.org>; Wed, 18 Aug 2021 16:08:28 -0700 (PDT)
-Received: by mail-pf1-x42c.google.com with SMTP id a21so3716095pfh.5
-        for <stable@vger.kernel.org>; Wed, 18 Aug 2021 16:08:28 -0700 (PDT)
+        with ESMTP id S232862AbhHRXaL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 Aug 2021 19:30:11 -0400
+Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com [IPv6:2607:f8b0:4864:20::433])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A958C061764
+        for <stable@vger.kernel.org>; Wed, 18 Aug 2021 16:29:36 -0700 (PDT)
+Received: by mail-pf1-x433.google.com with SMTP id m26so3754695pff.3
+        for <stable@vger.kernel.org>; Wed, 18 Aug 2021 16:29:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20150623.gappssmtp.com; s=20150623;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=JTp3K9HBQj1wr6NKQB5aPOrAGbLdITtUIUQJvNLeUqM=;
-        b=XK8nETjfDL1CuoQbiZHZVkxXEezccArifoKiGVK2GYz9mr7sP+rqYObVL2h8bQe+7j
-         5aE5Mn3rwRYYgYed2MSgeBAiHqloPDqQ6V87zxPn5fkpobkp62FL4jR1+KIkYH4/+VzK
-         BPUU1iofz9pFQwqCIJj210zkYL3bkm+18XLW/PK21oDpGmNUniwm7GH43BFF9me5x/MQ
-         Nqd9W1kUBazR09nE0ws1RZf/DE4BBFYYH8SiCEjuL4xUyxu73CW5hC4KBgauv4yQbsTA
-         VhOpTbyVkvrpLwLuu/ksiQjLVZ5VsBxImxlChjmGDetZJWOkXerzGhR3Y/zkcQip2JKn
-         JFNg==
+        bh=dBkMDJw/CXlqlSHxcKYCrtxJyaJssIOyXm2gzeIUNCE=;
+        b=Z0kTwlxNFjHRQcPzQ5mInBO0WgoKxgLs/33+qniReb/pxS9TMIw0QbWVuauXWSxX0j
+         WcZZ8edwAcQt5hWUPWAFBt0+as47RvpKywxnO0aP13mOuBZVcpZNQp3XUVtxKvgoAYhT
+         ejRRgsBfg3anYxbv125NBw6RPCkvV88KITtr8QNUizT7tBU5Z4+rBs8bG+UMdfT6bCvt
+         +vMKAkXaH02izswLK4RYyHcvXMwwqPd1vIishznEvUeZ20cAlFaYDCBvEmj/NbMzAqGN
+         40rg1TafWMkauRrRV+IUbU/A8PvcQSlsKiRv1eotHt+Hv6KVnwnKzPXch2U9N9V2Dl5y
+         5l/Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=JTp3K9HBQj1wr6NKQB5aPOrAGbLdITtUIUQJvNLeUqM=;
-        b=NsA8XmQX9ZwNOlDOHc9Q9ykdH6q177F3gcqsIequkK1mNW+bXt9FDMDobU8r50l9ad
-         cXb7HaTeK9tr3ahvH4We5tk2o2aIY767dJXwMwa+MeAYXNM1xGR3DQvWyxCH44tpcmuu
-         yATzmDcvWjIRegEO28oDPys2fCNlzCXvUIC5M6/1RBKocUIWfHbHfXLqhUoFDI7i4IfK
-         qHETiTfbxSGl9rGjiMks0iLea3ZZFGam1rJYE/r6EkUco1moctIUjhOlYhDi6brwVJs/
-         0n0LCA2Vtf+/evuZCH4t7XT1f68aAG1/ie9n4ykeUBHvZ4VUc68WSt3KJlmOnnwuLSyD
-         HXuA==
-X-Gm-Message-State: AOAM533lEjCGhFNXjt6rbqrogNWgMRlQIK7VQ18qObsj0SoVKMeyBR6J
-        jx8N4YTtsZGF7im3TIbPvxRAKJ5OxxUZSoNH
-X-Google-Smtp-Source: ABdhPJx7gqUH4ZTIE/KoNjO32EI31P4zydOwlgJ0Tl0deRCLOkX/e6y8b+h2f/qI0677Nr9jnoWPFQ==
-X-Received: by 2002:aa7:98da:0:b029:3e0:8b98:df83 with SMTP id e26-20020aa798da0000b02903e08b98df83mr11698541pfm.63.1629328107230;
-        Wed, 18 Aug 2021 16:08:27 -0700 (PDT)
+        bh=dBkMDJw/CXlqlSHxcKYCrtxJyaJssIOyXm2gzeIUNCE=;
+        b=dZTVQueD3mgPZfgyskTs4Ctf92gzmIMygXnAut12X4nC7UlUsZPGbw1nG5Awj9/2Up
+         6VHkLGiIAfLlY+xxWU7OQZC53vRUTtRSKrzJAyxgg4wImTXUBCOsndj14lvBYZSUeMUq
+         LCEF/JpVBYc3roemQ9iH1ba6OOjdu+ODpTbgky4mZON+pXgI98zgsSdYfRxEN5j+nB0C
+         ixFh2jqUFiimatk1WLT7GSdOBIdJ8SbINGUWWDK+h/NjHok2tG3t2AUp22DjYEXEPnvF
+         y+hfj+J2FhadaOVU5BJtXSVrmF7v4ehqznXEgTrbvqsHZ6tpoR3pTxbzYdc5AseuF+fq
+         GZFQ==
+X-Gm-Message-State: AOAM531tyRjp3dmSPaesOar7I8af1F97tJcoWpNd7BZKrGbHHIGT5ilY
+        Pu9mNybzvfOU/fg8n/7T68k7MgTqESmur5uR
+X-Google-Smtp-Source: ABdhPJyNIIGdMegtrbr54BXVfiHTeNV45tIFv87oYc3SkWQiYmOyZDa9MJzxU/0kA6kmPIIUKBspKw==
+X-Received: by 2002:a63:134e:: with SMTP id 14mr10938954pgt.312.1629329375754;
+        Wed, 18 Aug 2021 16:29:35 -0700 (PDT)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id 20sm876875pfi.170.2021.08.18.16.08.26
+        by smtp.gmail.com with ESMTPSA id f23sm886713pfd.61.2021.08.18.16.29.35
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 18 Aug 2021 16:08:26 -0700 (PDT)
-Message-ID: <611d92ea.1c69fb81.1e8ed.4332@mx.google.com>
-Date:   Wed, 18 Aug 2021 16:08:26 -0700 (PDT)
+        Wed, 18 Aug 2021 16:29:35 -0700 (PDT)
+Message-ID: <611d97df.1c69fb81.1f11a.4320@mx.google.com>
+Date:   Wed, 18 Aug 2021 16:29:35 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-5.10.y
+X-Kernelci-Branch: queue/5.10
 X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.10.60
+X-Kernelci-Kernel: v5.10.60-6-gd64177941ad6
 X-Kernelci-Report-Type: build
-Subject: stable-rc/linux-5.10.y build: 182 builds: 0 failed, 182 passed,
- 14 warnings (v5.10.60)
+Subject: stable-rc/queue/5.10 build: 182 builds: 0 failed, 182 passed,
+ 14 warnings (v5.10.60-6-gd64177941ad6)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -65,16 +65,16 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.10.y build: 182 builds: 0 failed, 182 passed, 14 warnings=
- (v5.10.60)
+stable-rc/queue/5.10 build: 182 builds: 0 failed, 182 passed, 14 warnings (=
+v5.10.60-6-gd64177941ad6)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.10.=
-y/kernel/v5.10.60/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F5.1=
+0/kernel/v5.10.60-6-gd64177941ad6/
 
 Tree: stable-rc
-Branch: linux-5.10.y
-Git Describe: v5.10.60
-Git Commit: 2c5bd949b1df3f9fb109107b3d766e2ebabd7238
+Branch: queue/5.10
+Git Describe: v5.10.60-6-gd64177941ad6
+Git Commit: d64177941ad642601723cd7e8eaa7deeaef39ff7
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
 Built: 7 unique architectures
@@ -120,6 +120,8 @@ d [-Wcpp]
     1    drivers/block/paride/bpck.c:32: warning: "PC" redefined
     1    arch/arm/mach-omap1/board-ams-delta.c:462:12: warning: =E2=80=98am=
 s_delta_camera_power=E2=80=99 defined but not used [-Wunused-function]
+    1    WARNING: modpost: Symbol info of vmlinux is missing. Unresolved sy=
+mbol check will be entirely skipped.
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
@@ -139,11 +141,6 @@ check will be entirely skipped.
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
 allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
 ismatches
 
@@ -155,6 +152,11 @@ mismatches
 Warnings:
     kernel/static_call.c:153:18: warning: unused variable =E2=80=98mod=E2=
 =80=99 [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -977,15 +979,6 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
-ismatches
-
-Warnings:
-    kernel/static_call.c:153:18: warning: unused variable =E2=80=98mod=E2=
-=80=99 [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
 tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
 matches
 
@@ -993,6 +986,15 @@ matches
 -----
 tinyconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
 smatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
+ismatches
+
+Warnings:
+    kernel/static_call.c:153:18: warning: unused variable =E2=80=98mod=E2=
+=80=99 [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
