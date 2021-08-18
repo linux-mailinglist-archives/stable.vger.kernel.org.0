@@ -2,227 +2,164 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 000B23EFDAF
-	for <lists+stable@lfdr.de>; Wed, 18 Aug 2021 09:19:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F383D3EFE0D
+	for <lists+stable@lfdr.de>; Wed, 18 Aug 2021 09:44:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238109AbhHRHUL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Aug 2021 03:20:11 -0400
-Received: from so254-9.mailgun.net ([198.61.254.9]:57937 "EHLO
-        so254-9.mailgun.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238080AbhHRHUL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 Aug 2021 03:20:11 -0400
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1629271177; h=Content-Transfer-Encoding: Content-Type:
- In-Reply-To: MIME-Version: Date: Message-ID: From: References: Cc: To:
- Subject: Sender; bh=xuld9jbJEF7z4x2tTcSwgVXZJG37tCPPF0VBeJvRQ1k=; b=QduV3RvAtvXVnEBt0HOlWrIjBXQ7QCadp0/RSsrKeyCZZtb22Fk06sWnSEua/n4P6eXjMOMd
- mReG+dwqqTPawOjadyNavsrbwn5r+RL/52O9fsDO9vy0IVppHHxgETpt29UxwM4A18Kyu7ap
- URbwvXYtBdQiaah3ihNeTZGmElo=
-X-Mailgun-Sending-Ip: 198.61.254.9
-X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
-Received: from smtp.codeaurora.org
- (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
- smtp-out-n04.prod.us-west-2.postgun.com with SMTP id
- 611cb475f746c298d919e347 (version=TLS1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Wed, 18 Aug 2021 07:19:17
- GMT
-Sender: neeraju=codeaurora.org@mg.codeaurora.org
-Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id 13A23C43616; Wed, 18 Aug 2021 07:19:17 +0000 (UTC)
-X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
-        aws-us-west-2-caf-mail-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-4.9 required=2.0 tests=ALL_TRUSTED,BAYES_00,
-        NICE_REPLY_A,SPF_FAIL,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
-        version=3.4.0
-Received: from [192.168.0.104] (unknown [103.199.158.131])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        (Authenticated sender: neeraju)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id 30ADFC4338F;
-        Wed, 18 Aug 2021 07:19:13 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 smtp.codeaurora.org 30ADFC4338F
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=fail smtp.mailfrom=codeaurora.org
-Subject: Re: Request for backport fd6bc19d7676 to 4.14 and 4.19 branch
-To:     David Chen <david.chen@nutanix.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
-References: <CO1PR02MB8489A10983A22C72447EEB5C94FD9@CO1PR02MB8489.namprd02.prod.outlook.com>
- <YRq81jcZIH5+/ZpB@kroah.com>
- <CO1PR02MB8489899CD7101180B2759D9C94FD9@CO1PR02MB8489.namprd02.prod.outlook.com>
-From:   Neeraj Upadhyay <neeraju@codeaurora.org>
-Message-ID: <d30dc0f2-1a91-b0fb-cb59-aed0696bfa33@codeaurora.org>
-Date:   Wed, 18 Aug 2021 12:49:11 +0530
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.12.0
-MIME-Version: 1.0
-In-Reply-To: <CO1PR02MB8489899CD7101180B2759D9C94FD9@CO1PR02MB8489.namprd02.prod.outlook.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+        id S239187AbhHRHol (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Aug 2021 03:44:41 -0400
+Received: from mail-co1nam11on2082.outbound.protection.outlook.com ([40.107.220.82]:6753
+        "EHLO NAM11-CO1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S239061AbhHRHoj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Aug 2021 03:44:39 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Meela6MclhmhKU7fAqgHrIJbIVyNoky25Yd0j+DeAkuACKllDPv95R7kOTHddm0Vtz+E45pmbU1RuI0HJl76UDVxPistXoLog60bXXri9zIrfq2WLrYObKnnMhpl2h2Vx5LuFg+IXTm/A1KyADUKKAyCD2gLgFAA51xfzVzN1JkePoKtuFgxjHJWaOW7LS3AagwwH2V+qMpwSRWIUgx/7euvS543Z+FuSECs5ZbRa7xe+rsBrpXfxTNQVRQUEo3Uv1zQMbEYRtyyjaV1yP4efw/rzD4dMf8l802lpMlBCHGSUCqWAQG+c7OXWeFXg1T7LSoAqE+zqag/+1qtJqOgpw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=1CPWJyAoUZL22u+WifiGzTVr2NCrbxjjFGw0jfYjRHc=;
+ b=PQEw33gVlsoHSGcGm6ZESVQWGnEQhbR5pI9p5b4qzeY1T0p7ho6J4GHfGwXJOaFNrJ1CQjAxcNHoVyn1e0fsYse42Y24R2SjUytNFYd7EKaA2K7+x4/vLH1YiRdHGx+oTN+feeBYRTsuwyDaLH3OwgsBwlsYLvHKisFkXwcMPlyysH3KgMNebdFG6gbww4rEc7TZEwpkfr9OhfxICxr7NdXmy8EulWMu/7ol02JDB2ejzGoQYyXsKzy8oTQWhdgNBBIYCTsfLAX0hjh4fs+LlLswHIrwSQghq5LZxghss9o2ypewaMZx0ALy+spWS2O+rkhOwey6EDlnFz0HIAGdqw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=1CPWJyAoUZL22u+WifiGzTVr2NCrbxjjFGw0jfYjRHc=;
+ b=pPFEoUHlWYf1Fpu9AR5CEiflHtV2oJg9cjNZ4bvrJP8tMhJk3DFJDHIuSvQG+ONp/XlWTgDGvBU/vbxpjjkdf6CSDhoPNE2ja7V//7vFNub/RcAKCtFt/SEUM9f19A2sc6qc87dy/teWl/8/tZWcUK/MhVPSy2XnRBY+kE1gH99cMvRbHtVSym7ylQYkjtxWsAUOn7aL6TAECjXx0PvcKq3ocDy54GYdrmibf3SqaRI937LCYfBaJGtD+MeGOvoiytLa+BV1Xk2f1nshFZFvK8AuRs5xAggde4tspwuIXNLpcKtQ0EgJcDAcefdTboOE7IBi/EfffZChC1HvZHBnkg==
+Received: from BY5PR12MB4209.namprd12.prod.outlook.com (2603:10b6:a03:20d::22)
+ by BYAPR12MB3093.namprd12.prod.outlook.com (2603:10b6:a03:dc::18) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4415.21; Wed, 18 Aug
+ 2021 07:44:03 +0000
+Received: from BY5PR12MB4209.namprd12.prod.outlook.com
+ ([fe80::e000:8099:a5da:d74]) by BY5PR12MB4209.namprd12.prod.outlook.com
+ ([fe80::e000:8099:a5da:d74%5]) with mapi id 15.20.4436.019; Wed, 18 Aug 2021
+ 07:44:03 +0000
+From:   Saeed Mahameed <saeedm@nvidia.com>
+To:     "pavel@denx.de" <pavel@denx.de>,
+        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
+CC:     Moshe Shemesh <moshe@nvidia.com>, Tariq Toukan <tariqt@nvidia.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "sashal@kernel.org" <sashal@kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Aya Levin <ayal@nvidia.com>
+Subject: Re: [PATCH 5.10 49/96] net/mlx5: Fix return value from tracer
+ initialization
+Thread-Topic: [PATCH 5.10 49/96] net/mlx5: Fix return value from tracer
+ initialization
+Thread-Index: AQHXkp+q/2tC88OAHEa65ZCE60uocqt3+82AgADokwA=
+Date:   Wed, 18 Aug 2021 07:44:03 +0000
+Message-ID: <ddb6cd7b4e7a7b1d0fb46809702f0d7a2fc9c419.camel@nvidia.com>
+References: <20210816125434.948010115@linuxfoundation.org>
+         <20210816125436.588162993@linuxfoundation.org> <20210817175137.GA30136@amd>
+In-Reply-To: <20210817175137.GA30136@amd>
+Accept-Language: en-US
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+user-agent: Evolution 3.40.3 (3.40.3-1.fc34) 
+authentication-results: denx.de; dkim=none (message not signed)
+ header.d=none;denx.de; dmarc=none action=none header.from=nvidia.com;
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 2336a01f-4f61-4adb-5f7a-08d9621bf32c
+x-ms-traffictypediagnostic: BYAPR12MB3093:
+x-ms-exchange-transport-forked: True
+x-microsoft-antispam-prvs: <BYAPR12MB3093B8360A521359D60AA2B5B3FF9@BYAPR12MB3093.namprd12.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:849;
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: G+Fzcp6VzneQWLH2RYMRYaLGSeF3nM3PcH1ENhgjEj8j6zZfBdwZgPk2t+cBGgd7/+gmFnT+ma4JAfCx/1BKUyTSDh8Z4X0No/JObpqUXy97mTy5XWvtfrkP81QtUyJItd9VCsQUCkqzomuGuK2qHgPkykinGt8Go4OukB72oVlfiOnzAo4RFYwdGjYFdJ/sa+RH3zDQoRMPSlevBHF/I2/ycyKXlp4SYJaMQ3dGUhTePwpyZFYz8eE2wzeMor7dmM17pYCqBzG1OmZmUBnpTpJn4i4q53R6R8JkDQi36B9O8I0fsjTyGd+PFh4xrfgiiSbJColQ8Go+D1XBGT0LTqpY5zHi2UxHLcxU20QPPqr26OS7pC1xVWOpNlQ3A/Ptf9kmBF3vqXbvp3bbbC8bkk7XlGqkLtyes8pOreclxvNPllXhSiEsH6b6A2w3JF+2RJZK38ufmvhrkt0iG/BsVv0Vf3w34yVu7KiaupnLdtnEZEFlkrgKH+/Ym0Lh/g3+Z+gFs7pgG18ZLpE+2ZwBDuCKN6RxRHbvktUkLZlAnyHLaiHlK/zQOv4Inj+yPpjQj43gsGeh4xAcitPxnizS0+yNoU3qz3Zl1D0l0eSM7nFhgQOCHAngYhfOzpcG/QdmpDXkVBhsZ2eAhX+X2WwSws68rb9ec4vvGgqlTD4CpRJ9aH6WHgwuOngHK88a0bPVxXy50abkgdRvs1D+/JKCLA==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BY5PR12MB4209.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(136003)(396003)(366004)(376002)(346002)(39860400002)(110136005)(66946007)(6512007)(6486002)(83380400001)(5660300002)(66476007)(316002)(66446008)(64756008)(66556008)(478600001)(71200400001)(54906003)(38100700002)(122000001)(36756003)(4326008)(8936002)(76116006)(2616005)(86362001)(186003)(26005)(8676002)(6506007)(107886003)(2906002)(38070700005);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?utf-8?B?Z3ZqMnBTbXB5VFQwcVBROTNhZWcwbmJzdkVMNDNyb2ZLWjZNS1ROUlMwSjZ3?=
+ =?utf-8?B?UlZ5Um5ySHNpY1NyNjVXNGlwdnBPQ0NpVGVORmpLOGxXR2w1QlU4cjlraXJy?=
+ =?utf-8?B?dzFMVnh5WUxqeGRBcXRjS0VzVTdOT2xxMEc5ZmFlRFhoWHRwKzloaEZ3L3dk?=
+ =?utf-8?B?S245cHgvTU01ZzVzdGFYK2QyMkl4eGF3cXBDRHR3ZmNEWCt5bk5JZGs0Qk1M?=
+ =?utf-8?B?cFFJckEwaGdScFJib2pUS2VkTUdJSWt4bjRmWXFHeGgyQ0ZYK2ZTT2pBazNC?=
+ =?utf-8?B?WVZFTXZFSzhZNnErOVdxWVhIZEV3WkdpL2V0YXhZdDlKc0tNRU9KU2ppT0l4?=
+ =?utf-8?B?dXFFeS9XS3czdFZSNVQwQjZnRVNBdTV2SXIyNjBJMU5hZUpPakVLN0tmQW9t?=
+ =?utf-8?B?cWNZdkZaOVNSOXIydHlhMHludEh3bDJ2dmNacTZKVlErVEJvbzJYQ2dhQ3Rx?=
+ =?utf-8?B?ZTVMUEdzL3JpZnBZbjZLZ2ljSnBRQXR1TVNLQld6ZEx2anNGNSs1NXg4Q0d1?=
+ =?utf-8?B?bHJQTTlkWE1QbWwxbzNhcEtYSGZHbTVhUkZDRnZRWkpES1drYjNPK0R3YTZN?=
+ =?utf-8?B?akNtVWxuZ3NuMUpjOFh5Wm9YK3E2YWFMMU4rZEVRMUp5QWVyajVDTjVMeUFD?=
+ =?utf-8?B?bkQzR3JldC85OVdHcytVdFNSSzZhOFFueHFyaFMvd1ppZDI3aVJqYXdGSTNj?=
+ =?utf-8?B?RHZOMks3MmZXSWY0RmNucnNBRGM0MkVzQStZL2JHZWp6aExwUEVhTk9mSlpB?=
+ =?utf-8?B?cWlpZTdNMVFNeFA0dk5Eakg1SGlsWTJ2TkpZcVYxYmQ2N3J3eE00amZqV0dn?=
+ =?utf-8?B?Q3RMKzlBYmd0SGx0UG1xMzFMZHg3R0ZZYjhqazRiWlFuR0tIWndCM1JWOHEw?=
+ =?utf-8?B?TEUxSmJ5dnc3K1o1L2lTNitJd1V5OFJzaXZKQm4wRVdqWW9vVERIL2hDN003?=
+ =?utf-8?B?TEZIQkZkdUJFb3dYNkRsaWJDclZJWGpaMlluSWRQaGNhYVpKcHR5L3VNRUl6?=
+ =?utf-8?B?M2Z0Z0gwN3pTWFgyMkl6RE9WYU4vZU1GUFBGWkt1bXl2RG83dENWL2Z5V2pZ?=
+ =?utf-8?B?Wk5sK3RmY0k4YXI1NG5BOS9tUExqdHZ0MGJySjZmMU1vd21jeVR0Q1d1QlFj?=
+ =?utf-8?B?Z1RtNEpKYVRBRWtJcE5Ec3JrMlJ4bHhUM1hzNEkyQjJ4Q1VNanlaUzlwMWE2?=
+ =?utf-8?B?dlFHMnVyNjc5MkFTNkNRc1Q4WiszZGh1SGhRSHJIRlZVZ1F0YWVKeGptMXly?=
+ =?utf-8?B?L2VNQlNMcWhrcW1qVzhKQlJReHF1di9ta2VzQU9TNW81ZVFDRzI2OHBHWmJD?=
+ =?utf-8?B?a0gwV3UzTGdEOGQxTHplZFJ3RkhQYTR1Q0MvQ0FXOHoyVDN0K3l2RGw5L2ho?=
+ =?utf-8?B?TDRkRVM2VEJCNnBDMlF4ZThtWnI4Wmt1WEJLK3h6Z3B6VERZSHdVT2pmYXQ0?=
+ =?utf-8?B?Qzc2QXBFbW9jY05IcUZuTDFxeFQ5MEg1Q1EyK1ptb1k2WE5lckFxK0xSZmQ3?=
+ =?utf-8?B?REJkMm83R1NIVkJPRVRkWDdhRVh3UCtMSjE0dEROSzMxQW5sR0FIUStOVjBw?=
+ =?utf-8?B?ZnNOQTMxekhRMEhqOTVTb1JzWE1UNy9JMXJibWQ2KzMra0J1ZGkrQi9HS0RX?=
+ =?utf-8?B?dXJGblcvK2RiVjg3RFJVSlpucHZCaEtrMFZxd3NBbndCSWMxWElIK3JSMjgx?=
+ =?utf-8?B?RHpRMVF6alNpazlsdGZRejZZQTA3dTltN0RGMkRjM3JqZDVuMFErL0VFWkJ3?=
+ =?utf-8?B?QnI2UWhyamRaTkhSZ0wrd2sxOUJ1SUJ3T1JpYTBqcWJYSStnMEliM0hHV3g2?=
+ =?utf-8?B?Y2h3QU1YR0NqZzRhb04xUT09?=
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <BF0F01B51CD01D4FB3368D90A41EB1E2@namprd12.prod.outlook.com>
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: BY5PR12MB4209.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 2336a01f-4f61-4adb-5f7a-08d9621bf32c
+X-MS-Exchange-CrossTenant-originalarrivaltime: 18 Aug 2021 07:44:03.1443
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: QEM2vLZm1E+wSbglVEyuCs+bwZAFZsdXhFHA3YVqZKLuq5jFxNiUiVs+PSr8ac2M1K46/rPT43/BiYvpziqauw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR12MB3093
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-On 8/17/2021 3:32 AM, David Chen wrote:
-> 
-> 
->> -----Original Message-----
->> From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->> Sent: Monday, August 16, 2021 12:31 PM
->> To: David Chen <david.chen@nutanix.com>
->> Cc: stable@vger.kernel.org; Paul E. McKenney
->> <paulmck@linux.vnet.ibm.com>; neeraju@codeaurora.org
->> Subject: Re: Request for backport fd6bc19d7676 to 4.14 and 4.19 branch
->>
->> On Mon, Aug 16, 2021 at 07:19:34PM +0000, David Chen wrote:
->>> Hi Greg,
->>>
->>> We recently hit a hung task timeout issue in synchronize_rcu_expedited on
->> 4.14 branch.
->>> The issue seems to be identical to the one described in `fd6bc19d7676
->>> rcu: Fix missed wakeup of exp_wq waiters` Can we backport it to 4.14 and
->> 4.19 branch?
->>> The patch doesn't apply cleanly, but it should be trivial to resolve,
->>> just do this
->>>
->>> -		wake_up_all(&rnp->exp_wq[rcu_seq_ctr(rsp-
->>> expedited_sequence) & 0x3]);
->>> +		wake_up_all(&rnp->exp_wq[rcu_seq_ctr(s) & 0x3]);
->>>
->>> I don't know if we should do it for 4.9, because the handling of sequence
->> number is a bit different.
->>
->> Please provide a working backport, me hand-editing patches does not scale,
->> and this way you get the proper credit for backporting it (after testing it).
-> 
-> Sure, appended at the end.
-> 
->>
->> You have tested, this, right?
-> 
-> I don't have a good repro for the original issue, so I only ran rcutorture and
-> some basic work load test to see if anything obvious went wrong.
-> 
->>
->> thanks,
->>
->> greg k-h
-> 
-> --------
-> 
->  From 307a212335fe143027e3a9f7a9d548beead7ba33 Mon Sep 17 00:00:00 2001
-> From: Neeraj Upadhyay <neeraju@codeaurora.org>
-> Date: Tue, 19 Nov 2019 03:17:07 +0000
-> Subject: [PATCH] rcu: Fix missed wakeup of exp_wq waiters
-> 
-> [ Upstream commit fd6bc19d7676a060a171d1cf3dcbf6fd797eb05f ]
-> 
-> Tasks waiting within exp_funnel_lock() for an expedited grace period to
-> elapse can be starved due to the following sequence of events:
-> 
-> 1.	Tasks A and B both attempt to start an expedited grace
-> 	period at about the same time.	This grace period will have
-> 	completed when the lower four bits of the rcu_state structure's
-> 	->expedited_sequence field are 0b'0100', for example, when the
-> 	initial value of this counter is zero.	Task A wins, and thus
-> 	does the actual work of starting the grace period, including
-> 	acquiring the rcu_state structure's .exp_mutex and sets the
-> 	counter to 0b'0001'.
-> 
-> 2.	Because task B lost the race to start the grace period, it
-> 	waits on ->expedited_sequence to reach 0b'0100' inside of
-> 	exp_funnel_lock(). This task therefore blocks on the rcu_node
-> 	structure's ->exp_wq[1] field, keeping in mind that the
-> 	end-of-grace-period value of ->expedited_sequence (0b'0100')
-> 	is shifted down two bits before indexing the ->exp_wq[] field.
-> 
-> 3.	Task C attempts to start another expedited grace period,
-> 	but blocks on ->exp_mutex, which is still held by Task A.
-> 
-> 4.	The aforementioned expedited grace period completes, so that
-> 	->expedited_sequence now has the value 0b'0100'.  A kworker task
-> 	therefore acquires the rcu_state structure's ->exp_wake_mutex
-> 	and starts awakening any tasks waiting for this grace period.
-> 
-> 5.	One of the first tasks awakened happens to be Task A.  Task A
-> 	therefore releases the rcu_state structure's ->exp_mutex,
-> 	which allows Task C to start the next expedited grace period,
-> 	which causes the lower four bits of the rcu_state structure's
-> 	->expedited_sequence field to become 0b'0101'.
-> 
-> 6.	Task C's expedited grace period completes, so that the lower four
-> 	bits of the rcu_state structure's ->expedited_sequence field now
-> 	become 0b'1000'.
-> 
-> 7.	The kworker task from step 4 above continues its wakeups.
-> 	Unfortunately, the wake_up_all() refetches the rcu_state
-> 	structure's .expedited_sequence field:
-> 
-> 	wake_up_all(&rnp->exp_wq[rcu_seq_ctr(rcu_state.expedited_sequence) & 0x3]);
-
-Minor: On these kernel versions, we had rsp pointer, per RCU flavor, 
-whereas post 4.20 kernel versions, we have a single rcu_state. So, the 
-commit message can be corrected here. The  functionality is mostly
-unchanged and same fix is applicable.
-
-> 
-> 	This results in the wakeup being applied to the rcu_node
-> 	structure's ->exp_wq[2] field, which is unfortunate given that
-> 	Task B is instead waiting on ->exp_wq[1].
-> 
-> On a busy system, no harm is done (or at least no permanent harm is done).
-> Some later expedited grace period will redo the wakeup.  But on a quiet
-> system, such as many embedded systems, it might be a good long time before
-> there was another expedited grace period.  On such embedded systems,
-> this situation could therefore result in a system hang.
-> 
-> This issue manifested as DPM device timeout during suspend (which
-> usually qualifies as a quiet time) due to a SCSI device being stuck in
-> _synchronize_rcu_expedited(), with the following stack trace:
-> 
-> 	schedule()
-> 	synchronize_rcu_expedited()
-> 	synchronize_rcu()
-> 	scsi_device_quiesce()
-> 	scsi_bus_suspend()
-> 	dpm_run_callback()
-> 	__device_suspend()
-> 
-> This commit therefore prevents such delays, timeouts, and hangs by
-> making rcu_exp_wait_wake() use its "s" argument consistently instead of
-> refetching from rcu_state.expedited_sequence.
-> 
-> Fixes: 3b5f668e715b ("rcu: Overlap wakeups with next expedited grace period")
-> Signed-off-by: Neeraj Upadhyay <neeraju@codeaurora.org>
-> Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> Signed-off-by: David Chen <david.chen@nutanix.com>
-> ---
->   kernel/rcu/tree_exp.h | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/kernel/rcu/tree_exp.h b/kernel/rcu/tree_exp.h
-> index 46d61b597731..f90d10c1c3c8 100644
-> --- a/kernel/rcu/tree_exp.h
-> +++ b/kernel/rcu/tree_exp.h
-> @@ -534,7 +534,7 @@ static void rcu_exp_wait_wake(struct rcu_state *rsp, unsigned long s)
->   			spin_unlock(&rnp->exp_lock);
->   		}
->   		smp_mb(); /* All above changes before wakeup. */
-> -		wake_up_all(&rnp->exp_wq[rcu_seq_ctr(rsp->expedited_sequence) & 0x3]);
-> +		wake_up_all(&rnp->exp_wq[rcu_seq_ctr(s) & 0x3]);
->   	}
->   	trace_rcu_exp_grace_period(rsp->name, s, TPS("endwake"));
->   	mutex_unlock(&rsp->exp_wake_mutex);
-> 
-
-
-Acked-by: Neeraj Upadhyay <neeraju@codeaurora.org>
-
--- 
-QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a 
-member of the Code Aurora Forum, hosted by The Linux Foundation
+T24gVHVlLCAyMDIxLTA4LTE3IGF0IDE5OjUxICswMjAwLCBQYXZlbCBNYWNoZWsgd3JvdGU6DQo+
+IEhpIQ0KPiANCj4gPiBbIFVwc3RyZWFtIGNvbW1pdCBiZDM3YzI4ODhjY2FhNWNlYjk4OTU3MThm
+NjkwOWIyNDdjYzM3MmUwIF0NCj4gPiANCj4gPiBDaGVjayByZXR1cm4gdmFsdWUgb2YgbWx4NV9m
+d190cmFjZXJfc3RhcnQoKSwgc2V0IGVycm9yIHBhdGggYW5kDQo+ID4gZml4DQo+ID4gcmV0dXJu
+IHZhbHVlIG9mIG1seDVfZndfdHJhY2VyX2luaXQoKSBhY2NvcmRpbmdseS4NCj4gDQo+IFRoaXMg
+aXMgYWN0dWFsbHkgdHdvIGZpeGVzIGluIG9uZTogVGhlcmUncyBjYW5jZWxfd29ya19zeW5jKCkg
+YWRkZWQNCj4gdG8NCg0KWWVzLCB0aGUgcmVhc29uaW5nIHdhcyB0aGF0IHRoZSBwYXRjaCBpcyBm
+aXhpbmcgdGhlIHdob2xlIGVycm9yIHBhdGggb2YNCnRoZSBmdW5jdGlvbiBpbiBvbmUtc2hvdCBz
+aW5jZSB3ZSBjYW4gYmxhbWUgaXQgb24gYSBzaW5nbGUgY29tbWl0Lg0KDQo+IHRoZSBlcnJvciBw
+YXRoLCBidXQgdGhlcmUncyBhZGRpdGlvbmFsIGVycm9yIHRoYXQgbmVlZHMgZml4aW5nLg0KDQpZ
+ZXMuDQoNCj4gDQo+IENvdWxkIHNvbWVvbmUgZmFtaWxpYXIgd2l0aCB0aGUgY29kZSB2ZXJpZnkg
+aXQgYWZ0ZXIgbWU/DQo+IA0KPiBCZXN0IHJlZ2FyZHMsDQo+IMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgUGF2ZWwN
+Cj4gDQo+IFNpZ25lZC1vZmYtYnk6IFBhdmVsIE1hY2hlayAoQ0lQKSA8cGF2ZWxAZGVueC5kZT4N
+Cj4gDQo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL25ldC9ldGhlcm5ldC9tZWxsYW5veC9tbHg1L2Nv
+cmUvZGlhZy9md190cmFjZXIuYw0KPiBiL2RyaXZlcnMvbmV0L2V0aGVybmV0L21lbGxhbm94L21s
+eDUvY29yZS9kaWFnL2Z3X3RyYWNlci5jDQo+IGluZGV4IDNkZmNiMjBlOTdjNi4uODU3YmU4NmI0
+YTExIDEwMDY0NA0KPiAtLS0gYS9kcml2ZXJzL25ldC9ldGhlcm5ldC9tZWxsYW5veC9tbHg1L2Nv
+cmUvZGlhZy9md190cmFjZXIuYw0KPiArKysgYi9kcml2ZXJzL25ldC9ldGhlcm5ldC9tZWxsYW5v
+eC9tbHg1L2NvcmUvZGlhZy9md190cmFjZXIuYw0KPiBAQCAtMTAwNyw3ICsxMDA3LDcgQEAgaW50
+IG1seDVfZndfdHJhY2VyX2luaXQoc3RydWN0IG1seDVfZndfdHJhY2VyDQo+ICp0cmFjZXIpDQo+
+IMKgwqDCoMKgwqDCoMKgwqBlcnIgPSBtbHg1X2NvcmVfYWxsb2NfcGQoZGV2LCAmdHJhY2VyLT5i
+dWZmLnBkbik7DQo+IMKgwqDCoMKgwqDCoMKgwqBpZiAoZXJyKSB7DQo+IMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgbWx4NV9jb3JlX3dhcm4oZGV2LCAiRldUcmFjZXI6IEZhaWxlZCB0
+byBhbGxvY2F0ZSBQRA0KPiAlZFxuIiwgZXJyKTsNCj4gLcKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoHJldHVybiBlcnI7DQo+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBnb3Rv
+IGVycl9jYW5jZWxfd29yazsNCj4gwqDCoMKgwqDCoMKgwqDCoH0NCj4gwqANCj4gwqDCoMKgwqDC
+oMKgwqDCoGVyciA9IG1seDVfZndfdHJhY2VyX2NyZWF0ZV9ta2V5KHRyYWNlcik7DQo+IEBAIC0x
+MDMxLDYgKzEwMzEsNyBAQCBpbnQgbWx4NV9md190cmFjZXJfaW5pdChzdHJ1Y3QgbWx4NV9md190
+cmFjZXINCj4gKnRyYWNlcikNCj4gwqDCoMKgwqDCoMKgwqDCoG1seDVfY29yZV9kZXN0cm95X21r
+ZXkoZGV2LCAmdHJhY2VyLT5idWZmLm1rZXkpOw0KPiDCoGVycl9kZWFsbG9jX3BkOg0KPiDCoMKg
+wqDCoMKgwqDCoMKgbWx4NV9jb3JlX2RlYWxsb2NfcGQoZGV2LCB0cmFjZXItPmJ1ZmYucGRuKTsN
+Cj4gK2Vycl9jYW5jZWxfd29yazoNCj4gwqDCoMKgwqDCoMKgwqDCoGNhbmNlbF93b3JrX3N5bmMo
+JnRyYWNlci0+cmVhZF9md19zdHJpbmdzX3dvcmspOw0KPiDCoMKgwqDCoMKgwqDCoMKgcmV0dXJu
+IGVycjsNCg0KdGhpcyBpcyBjb3JyZWN0LCBkbyB5b3Ugd2FudCB0byBzdWJtaXQgdGhpcyBwYXRj
+aCBvciBkbyB5b3Ugd2FudCB1cyB0bw0KaGFuZGxlID8NCm1heWJlIGl0IGlzIGJldHRlciBpZiB3
+ZSBkZWxheWVkIHF1ZXVlX3dvcmsoKSB0byBhZnRlciBhbGwgdGhlIGZyYWdpbGUNCmNvZGUgYmVo
+aW5kIGl0LCB0byByZWR1Y2UgdGhlIGVycm9yIHBhdGggaGFuZGxpbmcgLi4gDQoNCnRoYW5rcyBm
+b3IgcG9pbnRpbmcgdGhpcyBvdXQuDQoNCg==
