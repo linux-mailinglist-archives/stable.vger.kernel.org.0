@@ -2,76 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C64BC3EFD52
-	for <lists+stable@lfdr.de>; Wed, 18 Aug 2021 09:06:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 676073EFD61
+	for <lists+stable@lfdr.de>; Wed, 18 Aug 2021 09:08:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238094AbhHRHHQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Aug 2021 03:07:16 -0400
-Received: from ixit.cz ([94.230.151.217]:57550 "EHLO ixit.cz"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237071AbhHRHHQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Aug 2021 03:07:16 -0400
-Received: from newone.lan (ixit.cz [94.230.151.217])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by ixit.cz (Postfix) with ESMTPSA id 880B224A25;
-        Wed, 18 Aug 2021 09:06:40 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ixit.cz; s=dkim;
-        t=1629270400;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=WgG9ikwnq/iSv9vXxg8WvGTiEr+XcXyKH5UkHvML3gY=;
-        b=eGuwGije7HaXmKIIynRhIBfej9xfY8zbJXaSQ5aw6ptB867EmBrzxeUkSE4u9aVL1EaQqm
-        6ZbjlIY46/TdnziiGHKgJJOVUHWItlqAIhl8fkqHwiBrdls/o8etgAn3M2wx6e7MWFjvLO
-        7fhgV9ixITRziFEbBLzcu8eXMLMpMTE=
-From:   David Heidelberg <david@ixit.cz>
-To:     agross@kernel.org, bjorn.andersson@linaro.org, robh+dt@kernel.org
-Cc:     linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
-        David Heidelberg <david@ixit.cz>, stable@vger.kernel.org
-Subject: [PATCH RESEND] ARM: dts: qcom: nexus7: define touchscreen properties
-Date:   Wed, 18 Aug 2021 09:04:41 +0200
-Message-Id: <20210818070440.21589-1-david@ixit.cz>
-X-Mailer: git-send-email 2.32.0
+        id S238593AbhHRHJ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Aug 2021 03:09:27 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:48546 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237892AbhHRHJ0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 Aug 2021 03:09:26 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 250AC1C0B7A; Wed, 18 Aug 2021 09:08:51 +0200 (CEST)
+Date:   Wed, 18 Aug 2021 09:08:50 +0200
+From:   Pavel Machek <pavel@ucw.cz>
+To:     Michal =?utf-8?B?Vm9rw6HEjQ==?= <michal.vokac@ysoft.com>
+Cc:     Shawn Guo <shawnguo@kernel.org>, Rob Herring <robh+dt@kernel.org>,
+        Fabio Estevam <festevam@gmail.com>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Jacek Anaszewski <jacek.anaszewski@gmail.com>,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, linux-leds@vger.kernel.org
+Subject: Re: [PATCH 1/2] ARM: dts: imx6dl-yapp4: Fix lp5562 LED driver probe
+Message-ID: <20210818070850.GG22282@amd>
+References: <20210818070209.1540451-1-michal.vokac@ysoft.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="Sw7tCqrGA+HQ0/zt"
+Content-Disposition: inline
+In-Reply-To: <20210818070209.1540451-1-michal.vokac@ysoft.com>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This change makes touchscreen work as expected on Nexus 7 2013 (tested).
 
-Cc: <stable@vger.kernel.org>
+--Sw7tCqrGA+HQ0/zt
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: David Heidelberg <david@ixit.cz>
----
- arch/arm/boot/dts/qcom-apq8064-asus-nexus7-flo.dts | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+On Wed 2021-08-18 09:02:08, Michal Vok=C3=A1=C4=8D wrote:
+> Since the LED multicolor framework support was added in commit
+> 92a81562e695 ("leds: lp55xx: Add multicolor framework support to lp55xx")
+> LEDs on this platform stopped working.
+>=20
+> Author of the framework attempted to accommodate this DT to the
+> framework in commit b86d3d21cd4c ("ARM: dts: imx6dl-yapp4: Add reg proper=
+ty
+> to the lp5562 channel node") but that is not sufficient. A color property
+> is now required even if the multicolor framework is not used, otherwise
+> the driver probe fails:
+>=20
+>   lp5562: probe of 1-0030 failed with error -22
+>=20
+> Add the color property to fix this.
+>=20
+> Fixes: 92a81562e695 ("leds: lp55xx: Add multicolor framework support to l=
+p55xx")
+> Cc: <stable@vger.kernel.org>
+> Cc: linux-leds@vger.kernel.org
+> Signed-off-by: Michal Vok=C3=A1=C4=8D <michal.vokac@ysoft.com>
 
-diff --git a/arch/arm/boot/dts/qcom-apq8064-asus-nexus7-flo.dts b/arch/arm/boot/dts/qcom-apq8064-asus-nexus7-flo.dts
-index 197494ef887b..800e79e97d28 100644
---- a/arch/arm/boot/dts/qcom-apq8064-asus-nexus7-flo.dts
-+++ b/arch/arm/boot/dts/qcom-apq8064-asus-nexus7-flo.dts
-@@ -299,11 +299,17 @@ i2c@16280000 {
- 				pinctrl-0 = <&i2c3_pins>;
- 				pinctrl-names = "default";
- 
--				trackpad@10 {
-+				touchscreen@10 {
- 					compatible = "elan,ekth3500";
- 					reg = <0x10>;
-+
- 					interrupt-parent = <&tlmm_pinmux>;
- 					interrupts = <6 IRQ_TYPE_EDGE_FALLING>;
-+
-+					touchscreen-size-x = <2240>;
-+					touchscreen-size-y = <1350>;
-+					touchscreen-swapped-x-y;
-+					touchscreen-inverted-x;
- 				};
- 			};
- 		};
--- 
-2.32.0
+Acked-by: Pavel Machek <pavel@ucw.cz>
 
+--=20
+http://www.livejournal.com/~pavelmachek
+
+--Sw7tCqrGA+HQ0/zt
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAmEcsgIACgkQMOfwapXb+vKtYACfQmGYjz78By3fESspEItZ6vqd
+wQ8AmgMl7zYShY7+ZTrOAsrR9yIKJLKJ
+=7cmp
+-----END PGP SIGNATURE-----
+
+--Sw7tCqrGA+HQ0/zt--
