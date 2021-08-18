@@ -2,107 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 982C13F0BC1
-	for <lists+stable@lfdr.de>; Wed, 18 Aug 2021 21:28:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F3003F0BCA
+	for <lists+stable@lfdr.de>; Wed, 18 Aug 2021 21:30:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232375AbhHRT2x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Aug 2021 15:28:53 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:33454 "EHLO
+        id S232404AbhHRTaq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Aug 2021 15:30:46 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:33654 "EHLO
         jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229965AbhHRT2w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 Aug 2021 15:28:52 -0400
+        with ESMTP id S229965AbhHRTaq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 Aug 2021 15:30:46 -0400
 Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id DC8AA1C0B77; Wed, 18 Aug 2021 21:28:16 +0200 (CEST)
-Date:   Wed, 18 Aug 2021 21:28:16 +0200
+        id 4FF751C0B77; Wed, 18 Aug 2021 21:30:10 +0200 (CEST)
+Date:   Wed, 18 Aug 2021 21:30:09 +0200
 From:   Pavel Machek <pavel@denx.de>
-To:     Saeed Mahameed <saeedm@nvidia.com>
-Cc:     "pavel@denx.de" <pavel@denx.de>,
-        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
-        Moshe Shemesh <moshe@nvidia.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "sashal@kernel.org" <sashal@kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Aya Levin <ayal@nvidia.com>
-Subject: Re: [PATCH 5.10 49/96] net/mlx5: Fix return value from tracer
- initialization
-Message-ID: <20210818192816.GB28932@amd>
-References: <20210816125434.948010115@linuxfoundation.org>
- <20210816125436.588162993@linuxfoundation.org>
- <20210817175137.GA30136@amd>
- <ddb6cd7b4e7a7b1d0fb46809702f0d7a2fc9c419.camel@nvidia.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Pavel Machek <pavel@denx.de>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Marc Zyngier <maz@kernel.org>, Ashok Raj <ashok.raj@intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: Re: [PATCH 5.4 49/62] PCI/MSI: Enable and mask MSI-X early
+Message-ID: <20210818193009.GC28932@amd>
+References: <20210816125428.198692661@linuxfoundation.org>
+ <20210816125429.897761686@linuxfoundation.org>
+ <20210817073655.GA15132@amd>
+ <YRyuefFT4N/y0plX@kroah.com>
+ <YRzQvhDRyBWdEs5G@kroah.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="9zSXsLTf0vkW971A"
+        protocol="application/pgp-signature"; boundary="1SQmhf2mF2YjsYvc"
 Content-Disposition: inline
-In-Reply-To: <ddb6cd7b4e7a7b1d0fb46809702f0d7a2fc9c419.camel@nvidia.com>
+In-Reply-To: <YRzQvhDRyBWdEs5G@kroah.com>
 User-Agent: Mutt/1.5.23 (2014-03-12)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---9zSXsLTf0vkW971A
-Content-Type: text/plain; charset=iso-8859-1
+--1SQmhf2mF2YjsYvc
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hi!
-
-> > Could someone familiar with the code verify it after me?
-
-> > Signed-off-by: Pavel Machek (CIP) <pavel@denx.de>
+On Wed 2021-08-18 11:19:58, Greg Kroah-Hartman wrote:
+> On Wed, Aug 18, 2021 at 08:53:45AM +0200, Greg Kroah-Hartman wrote:
+> > On Tue, Aug 17, 2021 at 09:36:55AM +0200, Pavel Machek wrote:
+> > > Hi!
+> > >=20
+> > > I'm sorry to report here, but 4.4 patches were not yet sent to the
+> > > lists (and it may be worth correcting before release).
 > >=20
-> > diff --git a/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
-> > b/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
-> > index 3dfcb20e97c6..857be86b4a11 100644
-> > --- a/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
-> > +++ b/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
-> > @@ -1007,7 +1007,7 @@ int mlx5_fw_tracer_init(struct mlx5_fw_tracer
-> > *tracer)
-> > =A0=A0=A0=A0=A0=A0=A0=A0err =3D mlx5_core_alloc_pd(dev, &tracer->buff.p=
-dn);
-> > =A0=A0=A0=A0=A0=A0=A0=A0if (err) {
-> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0mlx5_core_warn(dev, "FW=
-Tracer: Failed to allocate PD
-> > %d\n", err);
-> > -=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0return err;
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0goto err_cancel_work;
-> > =A0=A0=A0=A0=A0=A0=A0=A0}
-> > =A0
-> > =A0=A0=A0=A0=A0=A0=A0=A0err =3D mlx5_fw_tracer_create_mkey(tracer);
-> > @@ -1031,6 +1031,7 @@ int mlx5_fw_tracer_init(struct mlx5_fw_tracer
-> > *tracer)
-> > =A0=A0=A0=A0=A0=A0=A0=A0mlx5_core_destroy_mkey(dev, &tracer->buff.mkey);
-> > =A0err_dealloc_pd:
-> > =A0=A0=A0=A0=A0=A0=A0=A0mlx5_core_dealloc_pd(dev, tracer->buff.pdn);
-> > +err_cancel_work:
-> > =A0=A0=A0=A0=A0=A0=A0=A0cancel_work_sync(&tracer->read_fw_strings_work);
-> > =A0=A0=A0=A0=A0=A0=A0=A0return err;
+> > Yes, they are known to not be complete and incorrect at the moment,
+> > others have reported this to me.  I will be working on these later
+> > today, thanks.
 >=20
-> this is correct, do you want to submit this patch or do you want us to
-> handle ?
-> maybe it is better if we delayed queue_work() to after all the fragile
-> code behind it, to reduce the error path handling ..=20
+> Now should be all fixed up thanks to some patches sent by Thomas.
 
-I'd prefer you to handle it.
-
-Thank you,
+I can't spot a bug any more; thank you,
 								Pavel
 --=20
 DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
 HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
 
---9zSXsLTf0vkW971A
+--1SQmhf2mF2YjsYvc
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iEYEARECAAYFAmEdX1AACgkQMOfwapXb+vLLSQCgvCfYD6lm/8ZMcO41vEXriUFU
-YUoAnjqINnLp6qOPKqS+tm5uzlYxaUbb
-=J+Iv
+iEYEARECAAYFAmEdX8EACgkQMOfwapXb+vJYpACgjotMosSK9t6sgItT0VM8Mscn
+1y0An3mTg3hr2U1XAW7aXC+A1+jA7Xur
+=Tbc4
 -----END PGP SIGNATURE-----
 
---9zSXsLTf0vkW971A--
+--1SQmhf2mF2YjsYvc--
