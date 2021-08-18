@@ -2,425 +2,215 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0CF23F0B5A
-	for <lists+stable@lfdr.de>; Wed, 18 Aug 2021 20:58:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC0373F0B67
+	for <lists+stable@lfdr.de>; Wed, 18 Aug 2021 21:05:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229558AbhHRS71 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Aug 2021 14:59:27 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:47868 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232918AbhHRS70 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 Aug 2021 14:59:26 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1629313130;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=7nLGurth+5Y66+OBj9gRVta+aWvNGICvE1MUiT8nw6I=;
-        b=Q0ESqhY9RPWRtucrRLrOnXyRoYMWWtFUs6BUVpGt7HYPiWNWHMJRJlr0YzA4ITDYvUARQV
-        R1Uqm9Bl5Q+0ZGgmhzMc9bW99+y//SgkPuhg8EBHAdnGrymuoqZAgMYMc2HNPRDImWWMcp
-        vDs3De202N5P4TdAm4rIlMkGBxww4y4=
-Received: from mail-qv1-f71.google.com (mail-qv1-f71.google.com
- [209.85.219.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-563-oyzC5ngRPGuBfO2ZCt6OuQ-1; Wed, 18 Aug 2021 14:58:49 -0400
-X-MC-Unique: oyzC5ngRPGuBfO2ZCt6OuQ-1
-Received: by mail-qv1-f71.google.com with SMTP id iw1-20020a0562140f2100b0035f58985cecso2847769qvb.10
-        for <stable@vger.kernel.org>; Wed, 18 Aug 2021 11:58:49 -0700 (PDT)
+        id S232760AbhHRTGT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Aug 2021 15:06:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58634 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229558AbhHRTGS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 Aug 2021 15:06:18 -0400
+Received: from mail-vs1-xe35.google.com (mail-vs1-xe35.google.com [IPv6:2607:f8b0:4864:20::e35])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0B25C0613CF
+        for <stable@vger.kernel.org>; Wed, 18 Aug 2021 12:05:43 -0700 (PDT)
+Received: by mail-vs1-xe35.google.com with SMTP id e9so2440369vst.6
+        for <stable@vger.kernel.org>; Wed, 18 Aug 2021 12:05:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=9CV1B2mH8PK4XbUS0fPPBFZHJZg1PKiQmC6aaYtPD7k=;
+        b=jlC/SdCD3at4dNG9kwSjwhqtOpbuTijAXLqLPHWLUEMhf2AvMCdfIZ+/0CUUgvBS5m
+         70xiWmtQq58RG8dRBT2p4w4Dq0K135uW+5foCGQy4cdg4AlrF3vmPu87Lk/RQWuHEv0F
+         zkeHKX6vol4QAexO0QKEnFFJDdHZobyH7A5Rq2f3aVQeg4nGwFhrxHpFZeJrg8jZENCW
+         6Rzr+wt2lDFbrnjJpEVbMzf+tjTI+hzyZKypDgwf7ywF+n7Zb7U6HIOthtbc90P2NcAe
+         9pAQRlZVFq6PeW0GAghT+3Mdgl9E3HCcDHERiMWFCc+/KeTiOmM+OjcCLqo9lruPQaYz
+         CdRA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
-         :references:organization:user-agent:mime-version
-         :content-transfer-encoding;
-        bh=7nLGurth+5Y66+OBj9gRVta+aWvNGICvE1MUiT8nw6I=;
-        b=JBmDYUeBgMkJH5Xm0QDNwcjoENuhE0SskHQ6/O83D63OgzoLPQy0FmKzBMYQhc4X3O
-         K2MVg66FYv6c28d36zPd0oged6LBs5PLIL7d5FW4rTArl29HRGfw/kyG9WOlAgG+VSGl
-         dZjYElitJmGR76XOvw9w/Xmn2Yp6r8MyXSKayjy0AeOeKjr4e8ZZE/1k1froYXzfAZWQ
-         dKzGNSQrCYqvFmHnOR/4ZUOxoVdJ+1h7mtBaesTia3B937UyM2U/k6plut4kzcTmUb2e
-         ddhuZfNkTXspt5f9H5OFy+e4JXEFO5k50pMoYwF1l410/MgpVNKolsxNCrf8R+yN/TWz
-         kycg==
-X-Gm-Message-State: AOAM532yjsIFEv2KztCTUdUow7UwpnIj/ZiLDoHsZ2H4tdvc2ffFvT0c
-        S+FQUi6isuvUEi0OBrmCxcbkO/jCbSDvVfYCowohWq/bsAOo8wfJRSCQ+2bh7wAuofQjmTOKgiG
-        JGCqnBCbwftRP2Jmq
-X-Received: by 2002:a05:620a:1035:: with SMTP id a21mr10692407qkk.422.1629313129226;
-        Wed, 18 Aug 2021 11:58:49 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzFpPObEVz3pmuadLpcwllVmbucnCKaBKnsEGivpWZRF5boXdh65SbmLqxO0QRHQp+HYJbckQ==
-X-Received: by 2002:a05:620a:1035:: with SMTP id a21mr10692380qkk.422.1629313128982;
-        Wed, 18 Aug 2021 11:58:48 -0700 (PDT)
-Received: from Ruby.lyude.net (pool-108-49-102-102.bstnma.fios.verizon.net. [108.49.102.102])
-        by smtp.gmail.com with ESMTPSA id v5sm370992qkh.39.2021.08.18.11.58.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 18 Aug 2021 11:58:48 -0700 (PDT)
-Message-ID: <cd24fffcbda28ffc6734fb6d6d28b39e8782e0dd.camel@redhat.com>
-Subject: Re: [PATCH 2/4] drm/dp_mst: Only create connector for connected end
- device
-From:   Lyude Paul <lyude@redhat.com>
-To:     "Lin, Wayne" <Wayne.Lin@amd.com>,
-        "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>
-Cc:     "Kazlauskas, Nicholas" <Nicholas.Kazlauskas@amd.com>,
-        "Wentland, Harry" <Harry.Wentland@amd.com>,
-        "Zuo, Jerry" <Jerry.Zuo@amd.com>,
-        "Wu, Hersen" <hersenxs.wu@amd.com>,
-        Juston Li <juston.li@intel.com>,
-        Imre Deak <imre.deak@intel.com>,
-        Ville =?ISO-8859-1?Q?Syrj=E4l=E4?= 
-        <ville.syrjala@linux.intel.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Sean Paul <sean@poorly.run>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        "Deucher, Alexander" <Alexander.Deucher@amd.com>,
-        "Siqueira, Rodrigo" <Rodrigo.Siqueira@amd.com>,
-        "Pillai, Aurabindo" <Aurabindo.Pillai@amd.com>,
-        Eryk Brol <eryk.brol@amd.com>,
-        Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>,
-        "Cornij, Nikola" <Nikola.Cornij@amd.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Manasi Navare <manasi.d.navare@intel.com>,
-        Ankit Nautiyal <ankit.k.nautiyal@intel.com>,
-        =?ISO-8859-1?Q?Jos=E9?= Roberto de Souza 
-        <jose.souza@intel.com>, Sean Paul <seanpaul@chromium.org>,
-        Ben Skeggs <bskeggs@redhat.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Date:   Wed, 18 Aug 2021 14:58:44 -0400
-In-Reply-To: <CO6PR12MB5489274038BFF71A80EA9ECEFCF89@CO6PR12MB5489.namprd12.prod.outlook.com>
-References: <20210720160342.11415-1-Wayne.Lin@amd.com>
-         <20210720160342.11415-3-Wayne.Lin@amd.com>
-         <69a5f39580f0d3519468f45ecbfd50d7ad1b3036.camel@redhat.com>
-         <292d6ead03d6afe54f81d52f705e38bbf9feb7bd.camel@redhat.com>
-         <SJ0PR12MB550410E529057F59023153D9FCF19@SJ0PR12MB5504.namprd12.prod.outlook.com>
-         <2012d26bb2bece43e65ce435e6ba03f1d8767f61.camel@redhat.com>
-         <CO6PR12MB5489274038BFF71A80EA9ECEFCF89@CO6PR12MB5489.namprd12.prod.outlook.com>
-Organization: Red Hat
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.38.4 (3.38.4-1.fc33) 
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=9CV1B2mH8PK4XbUS0fPPBFZHJZg1PKiQmC6aaYtPD7k=;
+        b=RtHqRa/E2/CfXRj67ifuZp3Q4U96ZMsb8QJ67GPkMJ587DNitAq8qw5j1nPyxK0QlX
+         5oo5nIrNLHw05zkRX4pgVkZtAwZPoPYmowgnRSNrpEgI00ZMuuZywMEEc0xC/axB2m3E
+         IWppBy3SYoes+LOcEShGbv/d9/vMYnyzR01cPXt2NlE8BQbIj3bUp+7AQg/AGsEhceEn
+         jhhA5GAuR8t1ef9vnzQY2XqJh+qyCtPN08smY7v4J0A799iIseX2ZVq9KuvdXZL+mhBY
+         XgHjZK3lFamPDusHVVamvNY+WPVtIVnUxX6k51r9wxTQCXGOWHQDXMA5Vxw9sbxIYm8w
+         FY8g==
+X-Gm-Message-State: AOAM532MVVGfaZ0ZoPIKDCJo+aRZ3o40LKi5oOgq3t+qwAOuzZYb4cQo
+        vzMT2yJx/XItcWrxtDp6/IOvqtZkvDRJ0FIRb9uhzg==
+X-Google-Smtp-Source: ABdhPJzxU71p18xMzChBvv1uRBdKk5rlC4hzgstASnkvOKd+KGr7ohhYYBMh0iPqs21uTd7beQSd7ILYgInPHYYKiRo=
+X-Received: by 2002:a67:2e43:: with SMTP id u64mr9474774vsu.30.1629313542587;
+ Wed, 18 Aug 2021 12:05:42 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20210818181432.432256-1-maz@kernel.org>
+In-Reply-To: <20210818181432.432256-1-maz@kernel.org>
+From:   Raghavendra Rao Ananta <rananta@google.com>
+Date:   Wed, 18 Aug 2021 12:05:32 -0700
+Message-ID: <CAJHc60zUZS3K4q88QYwP2CkGn7ywt-_fedjk7OK_W7cdQRJvxA@mail.gmail.com>
+Subject: Re: [PATCH] KVM: arm64: vgic: Resample HW pending state on deactivation
+To:     Marc Zyngier <maz@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu,
+        kvm@vger.kernel.org
+Cc:     James Morse <james.morse@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        Andre Przywara <andre.przywara@arm.com>,
+        Eric Auger <eric.auger@redhat.com>,
+        Oliver Upton <oupton@google.com>,
+        Ricardo Koller <ricarkol@google.com>, kernel-team@android.com,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 2021-08-11 at 09:49 +0000, Lin, Wayne wrote:
-> [Public]
-> 
-> > -----Original Message-----
-> > From: Lyude Paul <lyude@redhat.com>
-> > Sent: Wednesday, August 11, 2021 4:45 AM
-> > To: Lin, Wayne <Wayne.Lin@amd.com>; dri-devel@lists.freedesktop.org
-> > Cc: Kazlauskas, Nicholas <Nicholas.Kazlauskas@amd.com>; Wentland, Harry <
-> > Harry.Wentland@amd.com>; Zuo, Jerry
-> > <Jerry.Zuo@amd.com>; Wu, Hersen <hersenxs.wu@amd.com>; Juston Li <
-> > juston.li@intel.com>; Imre Deak <imre.deak@intel.com>;
-> > Ville Syrjälä <ville.syrjala@linux.intel.com>; Daniel Vetter <
-> > daniel.vetter@ffwll.ch>; Sean Paul <sean@poorly.run>; Maarten Lankhorst
-> > <maarten.lankhorst@linux.intel.com>; Maxime Ripard <mripard@kernel.org>;
-> > Thomas Zimmermann <tzimmermann@suse.de>;
-> > David Airlie <airlied@linux.ie>; Daniel Vetter <daniel@ffwll.ch>; Deucher,
-> > Alexander <Alexander.Deucher@amd.com>; Siqueira,
-> > Rodrigo <Rodrigo.Siqueira@amd.com>; Pillai, Aurabindo <
-> > Aurabindo.Pillai@amd.com>; Eryk Brol <eryk.brol@amd.com>; Bas
-> > Nieuwenhuizen <bas@basnieuwenhuizen.nl>; Cornij, Nikola <
-> > Nikola.Cornij@amd.com>; Jani Nikula <jani.nikula@intel.com>; Manasi
-> > Navare <manasi.d.navare@intel.com>; Ankit Nautiyal <
-> > ankit.k.nautiyal@intel.com>; José Roberto de Souza <jose.souza@intel.com>;
-> > Sean Paul <seanpaul@chromium.org>; Ben Skeggs <bskeggs@redhat.com>; 
-> > stable@vger.kernel.org
-> > Subject: Re: [PATCH 2/4] drm/dp_mst: Only create connector for connected
-> > end device
-> > 
-> > On Wed, 2021-08-04 at 07:13 +0000, Lin, Wayne wrote:
-> > > [Public]
-> > > 
-> > > > -----Original Message-----
-> > > > From: Lyude Paul <lyude@redhat.com>
-> > > > Sent: Wednesday, August 4, 2021 8:09 AM
-> > > > To: Lin, Wayne <Wayne.Lin@amd.com>; dri-devel@lists.freedesktop.org
-> > > > Cc: Kazlauskas, Nicholas <Nicholas.Kazlauskas@amd.com>; Wentland,
-> > > > Harry < Harry.Wentland@amd.com>; Zuo, Jerry <Jerry.Zuo@amd.com>; Wu,
-> > > > Hersen <hersenxs.wu@amd.com>; Juston Li < juston.li@intel.com>; Imre
-> > > > Deak <imre.deak@intel.com>; Ville Syrjälä
-> > > > <ville.syrjala@linux.intel.com>; Wentland, Harry <
-> > > > Harry.Wentland@amd.com>; Daniel Vetter <daniel.vetter@ffwll.ch>;
-> > > > Sean Paul <sean@poorly.run>; Maarten Lankhorst <
-> > > > maarten.lankhorst@linux.intel.com>; Maxime Ripard
-> > > > <mripard@kernel.org>; Thomas Zimmermann <tzimmermann@suse.de>; David
-> > > > Airlie <airlied@linux.ie>; Daniel Vetter <daniel@ffwll.ch>; Deucher,
-> > > > Alexander <Alexander.Deucher@amd.com>; Siqueira, Rodrigo <
-> > > > Rodrigo.Siqueira@amd.com>; Pillai, Aurabindo
-> > > > <Aurabindo.Pillai@amd.com>; Eryk Brol <eryk.brol@amd.com>; Bas
-> > > > Nieuwenhuizen <bas@basnieuwenhuizen.nl>; Cornij, Nikola
-> > > > <Nikola.Cornij@amd.com>; Jani Nikula <jani.nikula@intel.com>; Manasi
-> > > > Navare <manasi.d.navare@intel.com>; Ankit Nautiyal
-> > > > <ankit.k.nautiyal@intel.com>; José Roberto de Souza
-> > > > <jose.souza@intel.com>; Sean Paul <seanpaul@chromium.org>; Ben
-> > > > Skeggs <bskeggs@redhat.com>; stable@vger.kernel.org
-> > > > Subject: Re: [PATCH 2/4] drm/dp_mst: Only create connector for
-> > > > connected end device
-> > > > 
-> > > > On Tue, 2021-08-03 at 19:58 -0400, Lyude Paul wrote:
-> > > > > On Wed, 2021-07-21 at 00:03 +0800, Wayne Lin wrote:
-> > > > > > [Why]
-> > > > > > Currently, we will create connectors for all output ports no
-> > > > > > matter it's connected or not. However, in MST, we can only
-> > > > > > determine whether an output port really stands for a "connector"
-> > > > > > till it is connected and check its peer device type as an end
-> > > > > > device.
-> > > > > 
-> > > > > What is this commit trying to solve exactly? e.g. is AMD currently
-> > > > > running into issues with there being too many DRM connectors or
-> > > > > something like that?
-> > > > > Ideally this is behavior I'd very much like us to keep as-is
-> > > > > unless there's good reason to change it.
-> > > Hi Lyude,
-> > > Really appreciate for your time to elaborate in such detail. Thanks!
-> > > 
-> > > I come up with this commit because I observed something confusing when
-> > > I was analyzing MST connectors' life cycle. Take the topology instance
-> > > you mentioned below
-> > > 
-> > > Root MSTB -> Output_Port 1 -> MSTB 1.1 ->Output_Port 1(Connected w/
-> > > display)
-> > >                     |
-> > > -
-> > > > Output_Port 2 (Disconnected)
-> > >                     -> Output_Port 2 -> MSTB 2.1 ->Output_Port 1
-> > > (Disconnected)
-> > > 
-> > > -> Output_Port 2 (Disconnected) Which is exactly the topology of
-> > > Startech DP 1-to-4 hub. There are 3 1-to-2 branch chips within this
-> > > hub. With our MST implementation today, we'll create drm connectors
-> > > for all output ports. Hence, we totally create 6 drm connectors here.
-> > > However, Output ports of Root MSTB are not connected to a stream sink.
-> > > They are connected with branch devices.
-> > > Thus, creating drm connector for such port looks a bit strange to me
-> > > and increases complexity to tracking drm connectors.  My thought is we
-> > > only need to create drm connector for those connected end device. Once
-> > > output port is connected then we can determine whether to add on a drm
-> > > connector for this port based on the peer device type.
-> > > Hence, this commit doesn't try to break the locking logic but add more
-> > > constraints when We try to add drm connector. Please correct me if I
-> > > misunderstand anything here. Thanks!
-> > 
-> > Sorry-I will respond to this soon, some more stuff came up at work so it
-> > might take me a day or two
-> No worries. Much appreciated for your time!
-> > 
+On Wed, Aug 18, 2021 at 11:14 AM Marc Zyngier <maz@kernel.org> wrote:
+>
+> When a mapped level interrupt (a timer, for example) is deactivated
+> by the guest, the corresponding host interrupt is equally deactivated.
+> However, the fate of the pending state still needs to be dealt
+> with in SW.
+>
+> This is specially true when the interrupt was in the active+pending
+> state in the virtual distributor at the point where the guest
+> was entered. On exit, the pending state is potentially stale
+> (the guest may have put the interrupt in a non-pending state).
+>
+> If we don't do anything, the interrupt will be spuriously injected
+> in the guest. Although this shouldn't have any ill effect (spurious
+> interrupts are always possible), we can improve the emulation by
+> detecting the deactivation-while-pending case and resample the
+> interrupt.
+>
+> Fixes: e40cc57bac79 ("KVM: arm/arm64: vgic: Support level-triggered mapped interrupts")
+> Reported-by: Raghavendra Rao Ananta <rananta@google.com>
+> Signed-off-by: Marc Zyngier <maz@kernel.org>
+> Cc: stable@vger.kernel.org
+> ---
+>  arch/arm64/kvm/vgic/vgic-v2.c | 25 ++++++++++++++++++-------
+>  arch/arm64/kvm/vgic/vgic-v3.c | 25 ++++++++++++++++++-------
+>  2 files changed, 36 insertions(+), 14 deletions(-)
+>
+Tested-by: Raghavendra Rao Ananta <rananta@google.com>
 
-Alright - finally got some time to respond to this. So this change still
-doesn't really seem correct to me (if anyone watching this thread wants to
-chime in to correct me btw feel free).
-
-JFYI - I don't think the commit is trying to break anything intentionally,
-it's just that there's a lot of moving pieces with the locking here that are
-easy to trip over. That being said though, besides the locking issues after
-thinking about this I'm still a bit skeptical on how much this would work or
-even if we would want it.
-
-To start off - my main issue with this is that it sounds like we're basically
-entirely getting rid of the disconnected state for MST connectors, and then
-only exposing the connector when something is connected. Unless I'm missing
-something here, the PDT can pretty much change whenever something is
-connected/disconnected or across suspend/resume reprobes. To do this with the
-connector API would be very different from connector probing behavior for
-other connector types, which already seems like an issue to me. This would
-also break the ability to force a connector to be connected/disconnected, as
-there would no longer be a way to force a disconnected MST connector on.
-
-The other thing is I'm not entirely clear still on what's trying to be
-accomplished here. If you're trying to identify DRM connectors, there's
-already no guaranteed consistency with connector names which means that having
-less connectors doesn't really make things any easier to identify. For
-actually trying to figure out more details on connectors, if this is somethig
-userspace needs, this seems like something we should just be adding in the
-form of connector props.
-
-With all of this being said, this ends up just seeming like we're adding
-potentially a lot of complexity to how we create connectors and the
-suspend/resume reprobing code. I think it'd be good to know what the precise
-usecase for this actually is, if this is something you still think is needed.
-
-> > > > > 
-> > > > > Some context here btw - there's a lot of subtleties with MST
-> > > > > locking that isn't immediately obvious. It's been a while since I
-> > > > > wrote this code, but if I recall correctly one of those subtleties
-> > > > > is that trying to create/destroy connectors on the fly when ports
-> > > > > change types introduces a lot of potential issues with locking and
-> > > > > some very complicated state transitions. Note that because we
-> > > > > maintain the topology as much as possible across suspend/resumes
-> > > > > this means there's a lot of potential state transitions with
-> > > > > drm_dp_mst_port and drm_dp_mst_branch we need to handle that would
-> > > > > typically be impossible to run into otherwise.
-> > > > > 
-> > > > > An example of this, if we were to try to prune connectors based on
-> > > > > PDT on the fly: assume we have a simple topology like this
-> > > > > 
-> > > > > Root MSTB -> Port 1 -> MSTB 1.1 (Connected w/ display)
-> > > > >           -> Port 2 -> MSTB 2.1
-> > > > > 
-> > > > > We suspend the system, unplug MSTB 1.1, and then resume. Once the
-> > > > > system starts reprobing, it will notice that MSTB 1.1 has been
-> > > > > disconnected. Since we no longer have a PDT, we decide to
-> > > > > unregister our connector. But there's a catch! We had a display
-> > > > > connected to MSTB 1.1, so even after unregistering the connector
-> > > > > it's going to stay around until userspace has committed a new mode
-> > > > > with the connector disabled.
-> > > > > 
-> > > > > Now - assuming we're still in the same spot in the resume
-> > > > > processs, let's assume somehow MSTB 1.1 is suddenly plugged back
-> > > > > in. Once we've finished responding to the hotplug event, we will
-> > > > > have created a connector for it. Now we've hit a bug - userspace
-> > > > > hasn't removed the previous zombie connector which means we have
-> > > > > references to the drm_dp_mst_port in our atomic state and
-> > > > > potentially also our payload tables (?? unsure about this one).
-> > > > 
-> > > > Whoops. One thing I totally forgot to mention here: the reason this
-> > > > is a problem is because we'd now have two drm_connectors which both
-> > > > have the same drm_dp_mst_port pointer.
-> > > > 
-> > > > > 
-> > > > > So then how do we manage to add/remove connectors for input
-> > > > > connectors on the fly? Well, that's one of the fun
-> > > > > normally-impossible state transitions I mentioned before.
-> > > > > According to the spec input ports are always disconnected, so
-> > > > > we'll never receive a CSN for them. This means
-> > > I think input ports' DisplayPort_Device_Plug_Status field is still set
-> > > to 1?
-> > > But yes,
-> > > according to DP1.4 spec 2.11.9.3, when MST device whose DPRX detected
-> > > the connection status change shall broadcast CSN downstream only.
-> > > Hence, we'll never receive a CSN for this case.
-> > > > > in theory the only possible way we could have a connector go from
-> > > > > being an input connector to an output connector connector would be
-> > > > > if the entire topology was swapped out during suspend/resume, and
-> > > > > the input/output ports in the two topologies topology happen to be
-> > > > > in different places.
-> > > > > Since we only have to reprobe once during resume before we get
-> > > > > hotplugging enabled, we're guaranteed this state transition will
-> > > > > only happen once in this state - which means the second replug I
-> > > > > described in the previous paragraph can never happen.
-> > > > > 
-> > > > > Note that while I don't actually know if there's topologies with
-> > > > > input ports at indexes other than 0, since the specification isn't
-> > > > > super clear on this bit we play it safe and assume it is possible.
-> > > Based on DP1.4 spec 2.5.1. Physical input ports are assigned smaller
-> > > port numbers than physical output ports. For concentrator product, if
-> > > there are 2 input ports of it's branch device, then their port numbers
-> > > are port 0 & port
-> > > 1
-> > > which can refer to figure 2-122 of DP1.4.
-> > > > > 
-> > > > > Anyway-this is -all- based off my memory, so please point out
-> > > > > anything here that I've explained that doesn't make sense or
-> > > > > doesn't seem correct :). It's totally possible I might have
-> > > > > misremembered something.
-> > > Thanks again Lyude! Much appreciated for your time and help! And
-> > > please correct me if I misunderstand anything here : )
-> > > > > 
-> > > > > > 
-> > > > > > In current code, we have chance to create connectors for output
-> > > > > > ports connected with branch device and these are redundant
-> > > > > > connectors.
-> > > > > > e.g.
-> > > > > > StarTech 1-to-4 DP hub is constructed by internal 2 layer 1-to-2
-> > > > > > branch devices. Creating connectors for such internal output
-> > > > > > ports are redundant.
-> > > > > > 
-> > > > > > [How]
-> > > > > > Put constraint on creating connector for connected end device
-> > > > > > only.
-> > > > > > 
-> > > > > > Fixes: 6f85f73821f6 ("drm/dp_mst: Add basic topology reprobing
-> > > > > > when
-> > > > > > resuming")
-> > > > > > Cc: Juston Li <juston.li@intel.com>
-> > > > > > Cc: Imre Deak <imre.deak@intel.com>
-> > > > > > Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> > > > > > Cc: Harry Wentland <hwentlan@amd.com>
-> > > > > > Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-> > > > > > Cc: Sean Paul <sean@poorly.run>
-> > > > > > Cc: Lyude Paul <lyude@redhat.com>
-> > > > > > Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-> > > > > > Cc: Maxime Ripard <mripard@kernel.org>
-> > > > > > Cc: Thomas Zimmermann <tzimmermann@suse.de>
-> > > > > > Cc: David Airlie <airlied@linux.ie>
-> > > > > > Cc: Daniel Vetter <daniel@ffwll.ch>
-> > > > > > Cc: Alex Deucher <alexander.deucher@amd.com>
-> > > > > > Cc: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-> > > > > > Cc: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-> > > > > > Cc: Aurabindo Pillai <aurabindo.pillai@amd.com>
-> > > > > > Cc: Eryk Brol <eryk.brol@amd.com>
-> > > > > > Cc: Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>
-> > > > > > Cc: Nikola Cornij <nikola.cornij@amd.com>
-> > > > > > Cc: Wayne Lin <Wayne.Lin@amd.com>
-> > > > > > Cc: "Ville Syrjälä" <ville.syrjala@linux.intel.com>
-> > > > > > Cc: Jani Nikula <jani.nikula@intel.com>
-> > > > > > Cc: Manasi Navare <manasi.d.navare@intel.com>
-> > > > > > Cc: Ankit Nautiyal <ankit.k.nautiyal@intel.com>
-> > > > > > Cc: "José Roberto de Souza" <jose.souza@intel.com>
-> > > > > > Cc: Sean Paul <seanpaul@chromium.org>
-> > > > > > Cc: Ben Skeggs <bskeggs@redhat.com>
-> > > > > > Cc: dri-devel@lists.freedesktop.org
-> > > > > > Cc: <stable@vger.kernel.org> # v5.5+
-> > > > > > Signed-off-by: Wayne Lin <Wayne.Lin@amd.com>
-> > > > > > ---
-> > > > > >  drivers/gpu/drm/drm_dp_mst_topology.c | 7 ++++++-
-> > > > > >  1 file changed, 6 insertions(+), 1 deletion(-)
-> > > > > > 
-> > > > > > diff --git a/drivers/gpu/drm/drm_dp_mst_topology.c
-> > > > > > b/drivers/gpu/drm/drm_dp_mst_topology.c
-> > > > > > index 51cd7f74f026..f13c7187b07f 100644
-> > > > > > --- a/drivers/gpu/drm/drm_dp_mst_topology.c
-> > > > > > +++ b/drivers/gpu/drm/drm_dp_mst_topology.c
-> > > > > > @@ -2474,7 +2474,8 @@ drm_dp_mst_handle_link_address_port(struct
-> > > > > > drm_dp_mst_branch *mstb,
-> > > > > > 
-> > > > > >         if (port->connector)
-> > > > > >                 drm_modeset_unlock(&mgr->base.lock);
-> > > > > > -       else if (!port->input)
-> > > > > > +       else if (!port->input && port->pdt !=
-> > > > > > +DP_PEER_DEVICE_NONE &&
-> > > > > > +                drm_dp_mst_is_end_device(port->pdt, port->mcs))
-> > > > > >                 drm_dp_mst_port_add_connector(mstb, port);
-> > > > > > 
-> > > > > >         if (send_link_addr && port->mstb) { @@ -2557,6 +2558,10
-> > > > > > @@ drm_dp_mst_handle_conn_stat(struct
-> > > > > > drm_dp_mst_branch
-> > > > > > *mstb,
-> > > > > >                 dowork = false;
-> > > > > >         }
-> > > > > > 
-> > > > > > +       if (!port->input && !port->connector && new_pdt !=
-> > > > > > DP_PEER_DEVICE_NONE &&
-> > > > > > +           drm_dp_mst_is_end_device(new_pdt, new_mcs))
-> > > > > > +               create_connector = true;
-> > > > > > +
-> > > > > >         if (port->connector)
-> > > > > >                 drm_modeset_unlock(&mgr->base.lock);
-> > > > > >         else if (create_connector)
-> > > > > 
-> > > > 
-> > > > --
-> > > > Cheers,
-> > > >  Lyude Paul (she/her)
-> > > >  Software Engineer at Red Hat
-> > > Regards,
-> > > Wayne Lin
-> > > 
-> > 
-> > --
-> > Cheers,
-> >  Lyude Paul (she/her)
-> >  Software Engineer at Red Hat
+Thanks,
+Raghavendra
+> diff --git a/arch/arm64/kvm/vgic/vgic-v2.c b/arch/arm64/kvm/vgic/vgic-v2.c
+> index 2c580204f1dc..3e52ea86a87f 100644
+> --- a/arch/arm64/kvm/vgic/vgic-v2.c
+> +++ b/arch/arm64/kvm/vgic/vgic-v2.c
+> @@ -60,6 +60,7 @@ void vgic_v2_fold_lr_state(struct kvm_vcpu *vcpu)
+>                 u32 val = cpuif->vgic_lr[lr];
+>                 u32 cpuid, intid = val & GICH_LR_VIRTUALID;
+>                 struct vgic_irq *irq;
+> +               bool deactivated;
+>
+>                 /* Extract the source vCPU id from the LR */
+>                 cpuid = val & GICH_LR_PHYSID_CPUID;
+> @@ -75,7 +76,8 @@ void vgic_v2_fold_lr_state(struct kvm_vcpu *vcpu)
+>
+>                 raw_spin_lock(&irq->irq_lock);
+>
+> -               /* Always preserve the active bit */
+> +               /* Always preserve the active bit, note deactivation */
+> +               deactivated = irq->active && !(val & GICH_LR_ACTIVE_BIT);
+>                 irq->active = !!(val & GICH_LR_ACTIVE_BIT);
+>
+>                 if (irq->active && vgic_irq_is_sgi(intid))
+> @@ -105,6 +107,12 @@ void vgic_v2_fold_lr_state(struct kvm_vcpu *vcpu)
+>                  * device state could have changed or we simply need to
+>                  * process the still pending interrupt later.
+>                  *
+> +                * We could also have entered the guest with the interrupt
+> +                * active+pending. On the next exit, we need to re-evaluate
+> +                * the pending state, as it could otherwise result in a
+> +                * spurious interrupt by injecting a now potentially stale
+> +                * pending state.
+> +                *
+>                  * If this causes us to lower the level, we have to also clear
+>                  * the physical active state, since we will otherwise never be
+>                  * told when the interrupt becomes asserted again.
+> @@ -115,12 +123,15 @@ void vgic_v2_fold_lr_state(struct kvm_vcpu *vcpu)
+>                 if (vgic_irq_is_mapped_level(irq)) {
+>                         bool resample = false;
+>
+> -                       if (val & GICH_LR_PENDING_BIT) {
+> -                               irq->line_level = vgic_get_phys_line_level(irq);
+> -                               resample = !irq->line_level;
+> -                       } else if (vgic_irq_needs_resampling(irq) &&
+> -                                  !(irq->active || irq->pending_latch)) {
+> -                               resample = true;
+> +                       if (unlikely(vgic_irq_needs_resampling(irq))) {
+> +                               if (!(irq->active || irq->pending_latch))
+> +                                       resample = true;
+> +                       } else {
+> +                               if ((val & GICH_LR_PENDING_BIT) ||
+> +                                   (deactivated && irq->line_level)) {
+> +                                       irq->line_level = vgic_get_phys_line_level(irq);
+> +                                       resample = !irq->line_level;
+> +                               }
+>                         }
+>
+>                         if (resample)
+> diff --git a/arch/arm64/kvm/vgic/vgic-v3.c b/arch/arm64/kvm/vgic/vgic-v3.c
+> index 66004f61cd83..74f9aefffd5e 100644
+> --- a/arch/arm64/kvm/vgic/vgic-v3.c
+> +++ b/arch/arm64/kvm/vgic/vgic-v3.c
+> @@ -46,6 +46,7 @@ void vgic_v3_fold_lr_state(struct kvm_vcpu *vcpu)
+>                 u32 intid, cpuid;
+>                 struct vgic_irq *irq;
+>                 bool is_v2_sgi = false;
+> +               bool deactivated;
+>
+>                 cpuid = val & GICH_LR_PHYSID_CPUID;
+>                 cpuid >>= GICH_LR_PHYSID_CPUID_SHIFT;
+> @@ -68,7 +69,8 @@ void vgic_v3_fold_lr_state(struct kvm_vcpu *vcpu)
+>
+>                 raw_spin_lock(&irq->irq_lock);
+>
+> -               /* Always preserve the active bit */
+> +               /* Always preserve the active bit, note deactivation */
+> +               deactivated = irq->active && !(val & ICH_LR_ACTIVE_BIT);
+>                 irq->active = !!(val & ICH_LR_ACTIVE_BIT);
+>
+>                 if (irq->active && is_v2_sgi)
+> @@ -98,6 +100,12 @@ void vgic_v3_fold_lr_state(struct kvm_vcpu *vcpu)
+>                  * device state could have changed or we simply need to
+>                  * process the still pending interrupt later.
+>                  *
+> +                * We could also have entered the guest with the interrupt
+> +                * active+pending. On the next exit, we need to re-evaluate
+> +                * the pending state, as it could otherwise result in a
+> +                * spurious interrupt by injecting a now potentially stale
+> +                * pending state.
+> +                *
+>                  * If this causes us to lower the level, we have to also clear
+>                  * the physical active state, since we will otherwise never be
+>                  * told when the interrupt becomes asserted again.
+> @@ -108,12 +116,15 @@ void vgic_v3_fold_lr_state(struct kvm_vcpu *vcpu)
+>                 if (vgic_irq_is_mapped_level(irq)) {
+>                         bool resample = false;
+>
+> -                       if (val & ICH_LR_PENDING_BIT) {
+> -                               irq->line_level = vgic_get_phys_line_level(irq);
+> -                               resample = !irq->line_level;
+> -                       } else if (vgic_irq_needs_resampling(irq) &&
+> -                                  !(irq->active || irq->pending_latch)) {
+> -                               resample = true;
+> +                       if (unlikely(vgic_irq_needs_resampling(irq))) {
+> +                               if (!(irq->active || irq->pending_latch))
+> +                                       resample = true;
+> +                       } else {
+> +                               if ((val & ICH_LR_PENDING_BIT) ||
+> +                                   (deactivated && irq->line_level)) {
+> +                                       irq->line_level = vgic_get_phys_line_level(irq);
+> +                                       resample = !irq->line_level;
+> +                               }
+>                         }
+>
+>                         if (resample)
 > --
-> Regards,
-> Wayne Lin
-> 
-
--- 
-Cheers,
- Lyude Paul (she/her)
- Software Engineer at Red Hat
-
+> 2.30.2
+>
