@@ -2,45 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E61833F1950
-	for <lists+stable@lfdr.de>; Thu, 19 Aug 2021 14:31:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EAF1C3F1953
+	for <lists+stable@lfdr.de>; Thu, 19 Aug 2021 14:31:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238208AbhHSMbf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Aug 2021 08:31:35 -0400
-Received: from szxga01-in.huawei.com ([45.249.212.187]:8046 "EHLO
-        szxga01-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239297AbhHSMbd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 Aug 2021 08:31:33 -0400
-Received: from dggemv703-chm.china.huawei.com (unknown [172.30.72.53])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4Gr3yF1htRzYqV5;
-        Thu, 19 Aug 2021 20:30:29 +0800 (CST)
+        id S239687AbhHSMbm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Aug 2021 08:31:42 -0400
+Received: from szxga03-in.huawei.com ([45.249.212.189]:14277 "EHLO
+        szxga03-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239503AbhHSMbj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 Aug 2021 08:31:39 -0400
+Received: from dggemv711-chm.china.huawei.com (unknown [172.30.72.55])
+        by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4Gr3yf16r9z87rt;
+        Thu, 19 Aug 2021 20:30:50 +0800 (CST)
 Received: from dggpemm500002.china.huawei.com (7.185.36.229) by
- dggemv703-chm.china.huawei.com (10.3.19.46) with Microsoft SMTP Server
+ dggemv711-chm.china.huawei.com (10.1.198.66) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2176.2; Thu, 19 Aug 2021 20:30:54 +0800
+ 15.1.2176.2; Thu, 19 Aug 2021 20:30:58 +0800
 Received: from linux-ibm.site (10.175.102.37) by
  dggpemm500002.china.huawei.com (7.185.36.229) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2176.2; Thu, 19 Aug 2021 20:30:54 +0800
+ 15.1.2176.2; Thu, 19 Aug 2021 20:30:57 +0800
 From:   Hanjun Guo <guohanjun@huawei.com>
 To:     Greg KH <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>, <stable@vger.kernel.org>
-CC:     Namhyung Kim <namhyung@kernel.org>,
+CC:     Jianlin Lv <Jianlin.Lv@arm.com>, Albert Ou <aou@eecs.berkeley.edu>,
         Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        "Ian Rogers" <irogers@google.com>,
+        Anju T Sudhakar <anju@linux.vnet.ibm.com>,
+        Athira Jajeev <atrajeev@linux.vnet.ibm.com>,
+        "Guo Ren" <guoren@kernel.org>, Kajol Jain <kjain@linux.ibm.com>,
+        Leo Yan <leo.yan@linaro.org>,
         Mark Rutland <mark.rutland@arm.com>,
-        "Peter Zijlstra" <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        "Paul Walmsley" <paul.walmsley@sifive.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ravi Bangoria <ravi.bangoria@linux.ibm.com>,
+        Will Deacon <will@kernel.org>,
+        Palmer Dabbelt <palmer@dabbelt.com>, <iecedge@gmail.com>,
+        <linux-csky@vger.kernel.org>, <linux-riscv@lists.infradead.org>,
+        "Arnaldo Carvalho de Melo" <acme@redhat.com>,
         Hanjun Guo <guohanjun@huawei.com>
-Subject: [PATCH 5.10.y 3/6] perf record: Fix memory leak in vDSO found using ASAN
-Date:   Thu, 19 Aug 2021 20:19:09 +0800
-Message-ID: <1629375552-51897-4-git-send-email-guohanjun@huawei.com>
+Subject: [PATCH 5.10.y 4/6] perf tools: Fix arm64 build error with gcc-11
+Date:   Thu, 19 Aug 2021 20:19:10 +0800
+Message-ID: <1629375552-51897-5-git-send-email-guohanjun@huawei.com>
 X-Mailer: git-send-email 1.7.12.4
 In-Reply-To: <1629375552-51897-1-git-send-email-guohanjun@huawei.com>
 References: <1629375552-51897-1-git-send-email-guohanjun@huawei.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 X-Originating-IP: [10.175.102.37]
 X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
  dggpemm500002.china.huawei.com (7.185.36.229)
@@ -49,94 +59,183 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Namhyung Kim <namhyung@kernel.org>
+From: Jianlin Lv <Jianlin.Lv@arm.com>
 
-commit 41d585411311abf187e5f09042978fe7073a9375 upstream.
+commit 067012974c8ae31a8886046df082aeba93592972 upstream.
 
-I got several memory leak reports from Asan with a simple command.  It
-was because VDSO is not released due to the refcount.  Like in
-__dsos_addnew_id(), it should put the refcount after adding to the list.
+gcc version: 11.0.0 20210208 (experimental) (GCC)
 
-  $ perf record true
-  [ perf record: Woken up 1 times to write data ]
-  [ perf record: Captured and wrote 0.030 MB perf.data (10 samples) ]
+Following build error on arm64:
 
-  =================================================================
-  ==692599==ERROR: LeakSanitizer: detected memory leaks
+.......
+In function ‘printf’,
+    inlined from ‘regs_dump__printf’ at util/session.c:1141:3,
+    inlined from ‘regs__printf’ at util/session.c:1169:2:
+/usr/include/aarch64-linux-gnu/bits/stdio2.h:107:10: \
+  error: ‘%-5s’ directive argument is null [-Werror=format-overflow=]
 
-  Direct leak of 439 byte(s) in 1 object(s) allocated from:
-    #0 0x7fea52341037 in __interceptor_calloc ../../../../src/libsanitizer/asan/asan_malloc_linux.cpp:154
-    #1 0x559bce4aa8ee in dso__new_id util/dso.c:1256
-    #2 0x559bce59245a in __machine__addnew_vdso util/vdso.c:132
-    #3 0x559bce59245a in machine__findnew_vdso util/vdso.c:347
-    #4 0x559bce50826c in map__new util/map.c:175
-    #5 0x559bce503c92 in machine__process_mmap2_event util/machine.c:1787
-    #6 0x559bce512f6b in machines__deliver_event util/session.c:1481
-    #7 0x559bce515107 in perf_session__deliver_event util/session.c:1551
-    #8 0x559bce51d4d2 in do_flush util/ordered-events.c:244
-    #9 0x559bce51d4d2 in __ordered_events__flush util/ordered-events.c:323
-    #10 0x559bce519bea in __perf_session__process_events util/session.c:2268
-    #11 0x559bce519bea in perf_session__process_events util/session.c:2297
-    #12 0x559bce2e7a52 in process_buildids /home/namhyung/project/linux/tools/perf/builtin-record.c:1017
-    #13 0x559bce2e7a52 in record__finish_output /home/namhyung/project/linux/tools/perf/builtin-record.c:1234
-    #14 0x559bce2ed4f6 in __cmd_record /home/namhyung/project/linux/tools/perf/builtin-record.c:2026
-    #15 0x559bce2ed4f6 in cmd_record /home/namhyung/project/linux/tools/perf/builtin-record.c:2858
-    #16 0x559bce422db4 in run_builtin /home/namhyung/project/linux/tools/perf/perf.c:313
-    #17 0x559bce2acac8 in handle_internal_command /home/namhyung/project/linux/tools/perf/perf.c:365
-    #18 0x559bce2acac8 in run_argv /home/namhyung/project/linux/tools/perf/perf.c:409
-    #19 0x559bce2acac8 in main /home/namhyung/project/linux/tools/perf/perf.c:539
-    #20 0x7fea51e76d09 in __libc_start_main ../csu/libc-start.c:308
+107 |   return __printf_chk (__USE_FORTIFY_LEVEL - 1, __fmt, \
+                __va_arg_pack ());
 
-  Indirect leak of 32 byte(s) in 1 object(s) allocated from:
-    #0 0x7fea52341037 in __interceptor_calloc ../../../../src/libsanitizer/asan/asan_malloc_linux.cpp:154
-    #1 0x559bce520907 in nsinfo__copy util/namespaces.c:169
-    #2 0x559bce50821b in map__new util/map.c:168
-    #3 0x559bce503c92 in machine__process_mmap2_event util/machine.c:1787
-    #4 0x559bce512f6b in machines__deliver_event util/session.c:1481
-    #5 0x559bce515107 in perf_session__deliver_event util/session.c:1551
-    #6 0x559bce51d4d2 in do_flush util/ordered-events.c:244
-    #7 0x559bce51d4d2 in __ordered_events__flush util/ordered-events.c:323
-    #8 0x559bce519bea in __perf_session__process_events util/session.c:2268
-    #9 0x559bce519bea in perf_session__process_events util/session.c:2297
-    #10 0x559bce2e7a52 in process_buildids /home/namhyung/project/linux/tools/perf/builtin-record.c:1017
-    #11 0x559bce2e7a52 in record__finish_output /home/namhyung/project/linux/tools/perf/builtin-record.c:1234
-    #12 0x559bce2ed4f6 in __cmd_record /home/namhyung/project/linux/tools/perf/builtin-record.c:2026
-    #13 0x559bce2ed4f6 in cmd_record /home/namhyung/project/linux/tools/perf/builtin-record.c:2858
-    #14 0x559bce422db4 in run_builtin /home/namhyung/project/linux/tools/perf/perf.c:313
-    #15 0x559bce2acac8 in handle_internal_command /home/namhyung/project/linux/tools/perf/perf.c:365
-    #16 0x559bce2acac8 in run_argv /home/namhyung/project/linux/tools/perf/perf.c:409
-    #17 0x559bce2acac8 in main /home/namhyung/project/linux/tools/perf/perf.c:539
-    #18 0x7fea51e76d09 in __libc_start_main ../csu/libc-start.c:308
+......
+In function ‘fprintf’,
+  inlined from ‘perf_sample__fprintf_regs.isra’ at \
+    builtin-script.c:622:14:
+/usr/include/aarch64-linux-gnu/bits/stdio2.h:100:10: \
+    error: ‘%5s’ directive argument is null [-Werror=format-overflow=]
+  100 |   return __fprintf_chk (__stream, __USE_FORTIFY_LEVEL - 1, __fmt,
+  101 |                         __va_arg_pack ());
 
-  SUMMARY: AddressSanitizer: 471 byte(s) leaked in 2 allocation(s).
+cc1: all warnings being treated as errors
+.......
 
-Signed-off-by: Namhyung Kim <namhyung@kernel.org>
+This patch fixes Wformat-overflow warnings. Add helper function to
+convert NULL to "unknown".
+
+Signed-off-by: Jianlin Lv <Jianlin.Lv@arm.com>
+Reviewed-by: John Garry <john.garry@huawei.com>
 Acked-by: Jiri Olsa <jolsa@redhat.com>
+Cc: Albert Ou <aou@eecs.berkeley.edu>
 Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Ian Rogers <irogers@google.com>
+Cc: Anju T Sudhakar <anju@linux.vnet.ibm.com>
+Cc: Athira Jajeev <atrajeev@linux.vnet.ibm.com>
+Cc: Guo Ren <guoren@kernel.org>
+Cc: Kajol Jain <kjain@linux.ibm.com>
+Cc: Leo Yan <leo.yan@linaro.org>
 Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Paul Walmsley <paul.walmsley@sifive.com>
 Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/20210315045641.700430-1-namhyung@kernel.org
+Cc: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Palmer Dabbelt <palmer@dabbelt.com>
+Cc: iecedge@gmail.com
+Cc: linux-csky@vger.kernel.org
+Cc: linux-riscv@lists.infradead.org
+Link: http://lore.kernel.org/lkml/20210218031245.2078492-1-Jianlin.Lv@arm.com
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Hanjun Guo <guohanjun@huawei.com>
 ---
- tools/perf/util/vdso.c | 2 ++
- 1 file changed, 2 insertions(+)
+ tools/perf/arch/arm/include/perf_regs.h     | 2 +-
+ tools/perf/arch/arm64/include/perf_regs.h   | 2 +-
+ tools/perf/arch/csky/include/perf_regs.h    | 2 +-
+ tools/perf/arch/powerpc/include/perf_regs.h | 2 +-
+ tools/perf/arch/riscv/include/perf_regs.h   | 2 +-
+ tools/perf/arch/s390/include/perf_regs.h    | 2 +-
+ tools/perf/arch/x86/include/perf_regs.h     | 2 +-
+ tools/perf/util/perf_regs.h                 | 7 +++++++
+ 8 files changed, 14 insertions(+), 7 deletions(-)
 
-diff --git a/tools/perf/util/vdso.c b/tools/perf/util/vdso.c
-index 3cc91ad..43beb16 100644
---- a/tools/perf/util/vdso.c
-+++ b/tools/perf/util/vdso.c
-@@ -133,6 +133,8 @@ static struct dso *__machine__addnew_vdso(struct machine *machine, const char *s
- 	if (dso != NULL) {
- 		__dsos__add(&machine->dsos, dso);
- 		dso__set_long_name(dso, long_name, false);
-+		/* Put dso here because __dsos_add already got it */
-+		dso__put(dso);
- 	}
+diff --git a/tools/perf/arch/arm/include/perf_regs.h b/tools/perf/arch/arm/include/perf_regs.h
+index ed20e02..4085419 100644
+--- a/tools/perf/arch/arm/include/perf_regs.h
++++ b/tools/perf/arch/arm/include/perf_regs.h
+@@ -15,7 +15,7 @@
+ #define PERF_REG_IP	PERF_REG_ARM_PC
+ #define PERF_REG_SP	PERF_REG_ARM_SP
  
- 	return dso;
+-static inline const char *perf_reg_name(int id)
++static inline const char *__perf_reg_name(int id)
+ {
+ 	switch (id) {
+ 	case PERF_REG_ARM_R0:
+diff --git a/tools/perf/arch/arm64/include/perf_regs.h b/tools/perf/arch/arm64/include/perf_regs.h
+index baaa5e6..fa3e0745 100644
+--- a/tools/perf/arch/arm64/include/perf_regs.h
++++ b/tools/perf/arch/arm64/include/perf_regs.h
+@@ -15,7 +15,7 @@
+ #define PERF_REG_IP	PERF_REG_ARM64_PC
+ #define PERF_REG_SP	PERF_REG_ARM64_SP
+ 
+-static inline const char *perf_reg_name(int id)
++static inline const char *__perf_reg_name(int id)
+ {
+ 	switch (id) {
+ 	case PERF_REG_ARM64_X0:
+diff --git a/tools/perf/arch/csky/include/perf_regs.h b/tools/perf/arch/csky/include/perf_regs.h
+index 8f336ea..25ac3bd 100644
+--- a/tools/perf/arch/csky/include/perf_regs.h
++++ b/tools/perf/arch/csky/include/perf_regs.h
+@@ -15,7 +15,7 @@
+ #define PERF_REG_IP	PERF_REG_CSKY_PC
+ #define PERF_REG_SP	PERF_REG_CSKY_SP
+ 
+-static inline const char *perf_reg_name(int id)
++static inline const char *__perf_reg_name(int id)
+ {
+ 	switch (id) {
+ 	case PERF_REG_CSKY_A0:
+diff --git a/tools/perf/arch/powerpc/include/perf_regs.h b/tools/perf/arch/powerpc/include/perf_regs.h
+index 63f3ac9..004bed2 100644
+--- a/tools/perf/arch/powerpc/include/perf_regs.h
++++ b/tools/perf/arch/powerpc/include/perf_regs.h
+@@ -73,7 +73,7 @@
+ 	[PERF_REG_POWERPC_SIER3] = "sier3",
+ };
+ 
+-static inline const char *perf_reg_name(int id)
++static inline const char *__perf_reg_name(int id)
+ {
+ 	return reg_names[id];
+ }
+diff --git a/tools/perf/arch/riscv/include/perf_regs.h b/tools/perf/arch/riscv/include/perf_regs.h
+index 7a8bcde..6b02a76 100644
+--- a/tools/perf/arch/riscv/include/perf_regs.h
++++ b/tools/perf/arch/riscv/include/perf_regs.h
+@@ -19,7 +19,7 @@
+ #define PERF_REG_IP	PERF_REG_RISCV_PC
+ #define PERF_REG_SP	PERF_REG_RISCV_SP
+ 
+-static inline const char *perf_reg_name(int id)
++static inline const char *__perf_reg_name(int id)
+ {
+ 	switch (id) {
+ 	case PERF_REG_RISCV_PC:
+diff --git a/tools/perf/arch/s390/include/perf_regs.h b/tools/perf/arch/s390/include/perf_regs.h
+index bcfbaed..ce30315 100644
+--- a/tools/perf/arch/s390/include/perf_regs.h
++++ b/tools/perf/arch/s390/include/perf_regs.h
+@@ -14,7 +14,7 @@
+ #define PERF_REG_IP PERF_REG_S390_PC
+ #define PERF_REG_SP PERF_REG_S390_R15
+ 
+-static inline const char *perf_reg_name(int id)
++static inline const char *__perf_reg_name(int id)
+ {
+ 	switch (id) {
+ 	case PERF_REG_S390_R0:
+diff --git a/tools/perf/arch/x86/include/perf_regs.h b/tools/perf/arch/x86/include/perf_regs.h
+index b732133..cddc4cd 100644
+--- a/tools/perf/arch/x86/include/perf_regs.h
++++ b/tools/perf/arch/x86/include/perf_regs.h
+@@ -23,7 +23,7 @@
+ #define PERF_REG_IP PERF_REG_X86_IP
+ #define PERF_REG_SP PERF_REG_X86_SP
+ 
+-static inline const char *perf_reg_name(int id)
++static inline const char *__perf_reg_name(int id)
+ {
+ 	switch (id) {
+ 	case PERF_REG_X86_AX:
+diff --git a/tools/perf/util/perf_regs.h b/tools/perf/util/perf_regs.h
+index a454991..eeac181 100644
+--- a/tools/perf/util/perf_regs.h
++++ b/tools/perf/util/perf_regs.h
+@@ -33,6 +33,13 @@ enum {
+ 
+ int perf_reg_value(u64 *valp, struct regs_dump *regs, int id);
+ 
++static inline const char *perf_reg_name(int id)
++{
++	const char *reg_name = __perf_reg_name(id);
++
++	return reg_name ?: "unknown";
++}
++
+ #else
+ #define PERF_REGS_MASK	0
+ #define PERF_REGS_MAX	0
 -- 
 1.7.12.4
 
