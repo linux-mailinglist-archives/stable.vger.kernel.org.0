@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 17ECA3F185C
-	for <lists+stable@lfdr.de>; Thu, 19 Aug 2021 13:40:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 471143F1860
+	for <lists+stable@lfdr.de>; Thu, 19 Aug 2021 13:40:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238865AbhHSLkp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Aug 2021 07:40:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60116 "EHLO
+        id S239094AbhHSLks (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Aug 2021 07:40:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238208AbhHSLko (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 Aug 2021 07:40:44 -0400
-Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com [IPv6:2a00:1450:4864:20::334])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD6E7C061575;
-        Thu, 19 Aug 2021 04:40:08 -0700 (PDT)
-Received: by mail-wm1-x334.google.com with SMTP id w24so3627056wmi.5;
-        Thu, 19 Aug 2021 04:40:08 -0700 (PDT)
+        with ESMTP id S238210AbhHSLkr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 Aug 2021 07:40:47 -0400
+Received: from mail-wm1-x329.google.com (mail-wm1-x329.google.com [IPv6:2a00:1450:4864:20::329])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDFA4C061575;
+        Thu, 19 Aug 2021 04:40:10 -0700 (PDT)
+Received: by mail-wm1-x329.google.com with SMTP id c129-20020a1c35870000b02902e6b6135279so3885716wma.0;
+        Thu, 19 Aug 2021 04:40:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=LH0thD0+NKJpZwefQbdyB/s2IsVbxcK0p6p/WAbflT4=;
-        b=C550/W+6JNOG5Usrgj2d06WNFA7jHtLKfnCyiZeKt+9LfSl5AhYZ/wJNwW2NwU4nis
-         g0a1eIcDOhRuyPzDPtBa68XNNeG9Jo7gqVhEo1MKL7s2js0fVe/imvDDBWhlC6Wkcm10
-         jfTcCer5BA0v+l5jN5/8HKYMq+uwICHhww/DxpFr6jV3ADz/2TKu87UU14EAvCtaIndL
-         6HJxc4W+mLWs4ls8kOw3bHoWRY6wVXE4UYRloRDnCeSecVlb+K4DvSzfdPd2/Pc3DMY5
-         owwLNCutgHbH35e4VGyMu7c9DEB0DP+ZZBC4QRV/ly874mBOUfJes8cqXsDttVQmUaIl
-         HkSQ==
+        bh=FO+lf3R/yjc9KGpGIWIOuNRXRBvu2rIu+mbHK5sUlLs=;
+        b=HiAgE7KdhsVN8wOgbXI3aTxGbM4SVbP3/MgUGYmbRYOdUN7j0IBITf8DJuDd/WRSX3
+         ei1oOKPqzbpQ7J/ea0n10NGQjVvlhR2zrW2BgHJ0Ieyjr5Px0iSYYk0XuhI2e7+tllF7
+         Z2FMFvN+4TgFjiMaUz7MoDfyVewMke+UZbFfKowCo+ZJwT7dxlpjQVelv5cErUbTj6B2
+         Wq6qiCdNCmGHyAp/6TK5kaPGW4xJ3WEsHJGyfrPyjdciizc0eAVOWM4gkI92O/ny2YaF
+         0/4kINHGepsUB1QFUelgu3kOdStUdTDeGahulKWYB91bt85Zd9uCwYSkcVNtwtOU9pxD
+         IefA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=LH0thD0+NKJpZwefQbdyB/s2IsVbxcK0p6p/WAbflT4=;
-        b=JUKvoXRi6psvmkuC2U35uOusMxsOOofrRZ3G28/xcFQnu/BonzlpIslZUdebdR/mIx
-         56AxeqqPq3ozQ/pT7UM0pA1t3u/t5qB4GHek4rFSISJycaO2okY+OgAwLa6NNiUFwzBD
-         5ApLSLGb/P0eCrsd2g1jhGouKHRxDP/ZdvTzbO7xqy0gf8X6awjrAYGh6WOwFmTS7DbZ
-         lso6T8lt7RiQMkrNrOqQUDabXkXcji4St/WTsdjA6V/3JpxnkfzQpowQCP7YmfRXI671
-         sQWcqVwyrGa2ORhVjrfFW5XsGyfjfnd/JznJC4aPUssm9lYZmF5/Nzm6ybQlbIzq8UEo
-         W8/g==
-X-Gm-Message-State: AOAM532AKs817RnCl7IBC6crxl8aheyQozfonzO4omdu7+Vu9wEAcZmC
-        b59mctN/PvBFPWefdar7IBA=
-X-Google-Smtp-Source: ABdhPJyJwLWLb/+v2ia2UarNfITG8IYmP5cNcCXX+LJHhLkfuq7vAagO8+tguzj1XUjjJcY97N4UHA==
-X-Received: by 2002:a05:600c:3589:: with SMTP id p9mr3036312wmq.170.1629373207204;
-        Thu, 19 Aug 2021 04:40:07 -0700 (PDT)
+        bh=FO+lf3R/yjc9KGpGIWIOuNRXRBvu2rIu+mbHK5sUlLs=;
+        b=oB8IPxuCowMaMjclYl+7An0E3An9mj0zcpvi2rZH643bq11BCSa0Z1EW5EeubphA4N
+         sCGTdTDD4+UGZCuG5HgSb4KOZhR+jn9ye3OojIVOPMBspRVmfATomZ0Q0+YVG9cUFWlN
+         ZsCCQmDTa6+D33Q87k2o69lxrUz4E6WsO1xQQ161bFOMRQTrAIa6SNY5gvn+WJjgiL/t
+         LRrejHE92mSuR5yVkJgOUWMkVUdG7AQxwwSZwspnedXrSn/FYFTmxbpEavVJvUkHFT6/
+         gEkzm8iQIpO2eS1s9r5qkUtbpXFTYbgz16WAKHXghKhjTnn9LJCvREj+2JHBygo2JUDM
+         fi+w==
+X-Gm-Message-State: AOAM530rI/RZ5KT3fGCWkuR0ZNVKZhhe+yhqSk/zNhkS+KEfoKUcsWe+
+        4zs0XRW6geHeJFICmQzQIqI=
+X-Google-Smtp-Source: ABdhPJyxKopaR6HtUR6X5E06d0TM/76Uxg1B0Ih/1vlvj9BWdq72+EoGJs3R1ghyv0SDVl4evA11Nw==
+X-Received: by 2002:a1c:3909:: with SMTP id g9mr13187347wma.63.1629373209476;
+        Thu, 19 Aug 2021 04:40:09 -0700 (PDT)
 Received: from localhost.localdomain (arl-84-90-178-246.netvisao.pt. [84.90.178.246])
-        by smtp.gmail.com with ESMTPSA id b13sm2650891wrf.86.2021.08.19.04.40.06
+        by smtp.gmail.com with ESMTPSA id b13sm2650891wrf.86.2021.08.19.04.40.08
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 19 Aug 2021 04:40:06 -0700 (PDT)
+        Thu, 19 Aug 2021 04:40:09 -0700 (PDT)
 From:   Lukas Bulwahn <lukas.bulwahn@gmail.com>
 To:     Paul Mackerras <paulus@ozlabs.org>,
         Michael Ellerman <mpe@ellerman.id.au>,
@@ -58,9 +58,9 @@ Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
         stable@vger.kernel.org, kernel-janitors@vger.kernel.org,
         linux-kernel@vger.kernel.org,
         Lukas Bulwahn <lukas.bulwahn@gmail.com>
-Subject: [PATCH v2 1/2] powerpc: kvm: remove obsolete and unneeded select
-Date:   Thu, 19 Aug 2021 13:39:53 +0200
-Message-Id: <20210819113954.17515-2-lukas.bulwahn@gmail.com>
+Subject: [PATCH v2 2/2] powerpc: rectify selection to ARCH_ENABLE_SPLIT_PMD_PTLOCK
+Date:   Thu, 19 Aug 2021 13:39:54 +0200
+Message-Id: <20210819113954.17515-3-lukas.bulwahn@gmail.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20210819113954.17515-1-lukas.bulwahn@gmail.com>
 References: <20210819113954.17515-1-lukas.bulwahn@gmail.com>
@@ -70,34 +70,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit a278e7ea608b ("powerpc: Fix compile issue with force DAWR")
-selects the non-existing config PPC_DAWR_FORCE_ENABLE for config
-KVM_BOOK3S_64_HANDLER. As this commit also introduces a config PPC_DAWR
-and this config PPC_DAWR is selected with PPC if PPC64, there is no
-need for any further select in the KVM_BOOK3S_64_HANDLER.
+Commit 66f24fa766e3 ("mm: drop redundant ARCH_ENABLE_SPLIT_PMD_PTLOCK")
+selects the non-existing config ARCH_ENABLE_PMD_SPLIT_PTLOCK in
+./arch/powerpc/platforms/Kconfig.cputype, but clearly it intends to select
+ARCH_ENABLE_SPLIT_PMD_PTLOCK here (notice the word swapping!), as this
+commit does select that for all other architectures.
 
-Remove an obsolete and unneeded select in config KVM_BOOK3S_64_HANDLER.
+Rectify selection to ARCH_ENABLE_SPLIT_PMD_PTLOCK instead.
 
-The issue was identified with ./scripts/checkkconfigsymbols.py.
-
-Fixes: a278e7ea608b ("powerpc: Fix compile issue with force DAWR")
+Fixes: 66f24fa766e3 ("mm: drop redundant ARCH_ENABLE_SPLIT_PMD_PTLOCK")
 Signed-off-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
 ---
- arch/powerpc/kvm/Kconfig | 1 -
- 1 file changed, 1 deletion(-)
+ arch/powerpc/platforms/Kconfig.cputype | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/kvm/Kconfig b/arch/powerpc/kvm/Kconfig
-index e45644657d49..ff581d70f20c 100644
---- a/arch/powerpc/kvm/Kconfig
-+++ b/arch/powerpc/kvm/Kconfig
-@@ -38,7 +38,6 @@ config KVM_BOOK3S_32_HANDLER
- config KVM_BOOK3S_64_HANDLER
- 	bool
- 	select KVM_BOOK3S_HANDLER
--	select PPC_DAWR_FORCE_ENABLE
- 
- config KVM_BOOK3S_PR_POSSIBLE
- 	bool
+diff --git a/arch/powerpc/platforms/Kconfig.cputype b/arch/powerpc/platforms/Kconfig.cputype
+index 6794145603de..a208997ade88 100644
+--- a/arch/powerpc/platforms/Kconfig.cputype
++++ b/arch/powerpc/platforms/Kconfig.cputype
+@@ -98,7 +98,7 @@ config PPC_BOOK3S_64
+ 	select PPC_HAVE_PMU_SUPPORT
+ 	select HAVE_ARCH_TRANSPARENT_HUGEPAGE
+ 	select ARCH_ENABLE_HUGEPAGE_MIGRATION if HUGETLB_PAGE && MIGRATION
+-	select ARCH_ENABLE_PMD_SPLIT_PTLOCK
++	select ARCH_ENABLE_SPLIT_PMD_PTLOCK
+ 	select ARCH_ENABLE_THP_MIGRATION if TRANSPARENT_HUGEPAGE
+ 	select ARCH_SUPPORTS_HUGETLBFS
+ 	select ARCH_SUPPORTS_NUMA_BALANCING
 -- 
 2.26.2
 
