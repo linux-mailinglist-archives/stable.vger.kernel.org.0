@@ -2,85 +2,188 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B5B1F3F1B9E
-	for <lists+stable@lfdr.de>; Thu, 19 Aug 2021 16:31:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B8833F1C0B
+	for <lists+stable@lfdr.de>; Thu, 19 Aug 2021 16:56:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238613AbhHSObm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Aug 2021 10:31:42 -0400
-Received: from mga09.intel.com ([134.134.136.24]:44277 "EHLO mga09.intel.com"
+        id S240673AbhHSO4h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Aug 2021 10:56:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238595AbhHSObl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Aug 2021 10:31:41 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10080"; a="216562207"
-X-IronPort-AV: E=Sophos;i="5.84,334,1620716400"; 
-   d="scan'208";a="216562207"
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Aug 2021 07:31:03 -0700
-X-IronPort-AV: E=Sophos;i="5.84,334,1620716400"; 
-   d="scan'208";a="489687511"
-Received: from mmdandap-mobl.amr.corp.intel.com (HELO [10.213.172.210]) ([10.213.172.210])
-  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Aug 2021 07:31:02 -0700
-Subject: Re: [PATCH v2] ASoC: Intel: Fix platform ID matching for
- kbl_da7219_max98373
-To:     Lukasz Majczak <lma@semihalf.com>,
-        Cezary Rojewski <cezary.rojewski@intel.com>
-Cc:     upstream@semihalf.com, alsa-devel@alsa-project.org,
-        linux-kernel@vger.kernel.org,
-        Curtis Malainey <cujomalainey@chromium.org>,
-        stable@vger.kernel.org
-References: <20210819082414.39497-1-lma@semihalf.com>
-From:   Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Message-ID: <87736cce-a96f-064e-6d60-71645ba46f13@linux.intel.com>
-Date:   Thu, 19 Aug 2021 09:30:59 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Firefox/78.0 Thunderbird/78.11.0
+        id S240641AbhHSO4g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Aug 2021 10:56:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1BED261028;
+        Thu, 19 Aug 2021 14:55:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1629384959;
+        bh=LARd4k2MReliz9vaMMGkKXJD2DNGGz43oLf5i6UBNUg=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=bVL95grYD2tZsHEz1wPafpnuQLX3MWkvSQ6jNbQCqi+wn3xjQXtddLwqrq0D+WZuO
+         0MdUcz15qnbselB/FUUkxiUob92CLmF1KucAIrKYEFPzDu8fXgRjvaxDoa6za0J3ES
+         hCgcSau4DaV18ymI89vBb/DLDLsmp+idEZg+cbMk=
+Date:   Thu, 19 Aug 2021 16:55:55 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Chen Huang <chenhuang5@huawei.com>
+Cc:     Roman Gushchin <guro@fb.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Wang Hai <wanghai38@huawei.com>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, stable@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: Re: [PATCH 5.10.y 01/11] mm: memcontrol: Use helpers to read page's
+ memcg data
+Message-ID: <YR5w+8u5wuFCEagm@kroah.com>
+References: <20210816072147.3481782-1-chenhuang5@huawei.com>
+ <20210816072147.3481782-2-chenhuang5@huawei.com>
+ <YRojDsTAjSnw0jIh@kroah.com>
+ <a4c545a8-fff0-38bb-4749-3483c9334daa@huawei.com>
+ <YRppmvYOftjAAl/R@kroah.com>
+ <0d3c6aa4-be05-3c93-bdcd-ac30788d82bd@huawei.com>
+ <YRtT4obiu86hp6z3@kroah.com>
+ <9e946879-8a6e-6b86-9d8b-54a17976c6be@huawei.com>
 MIME-Version: 1.0
-In-Reply-To: <20210819082414.39497-1-lma@semihalf.com>
 Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <9e946879-8a6e-6b86-9d8b-54a17976c6be@huawei.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-On 8/19/21 3:24 AM, Lukasz Majczak wrote:
-> Sparse warnings triggered truncating the IDs of some platform device
-> tables. Unfortunately kbl_da7219_max98373 was also truncated.
-> This patch is reverting the original ID.
-> Tested on Atlas chromebook.
-
-Instead of reverting, how about changing the remaining occurrences of
-the old name in the machine driver?
-
-sound/soc/intel/boards/kbl_da7219_max98927.c:   if (!strcmp(pdev->name,
-"kbl_da7219_max98373") ||
-sound/soc/intel/boards/kbl_da7219_max98927.c:           .name =
-"kbl_da7219_max98373",
-
-
+On Thu, Aug 19, 2021 at 07:43:37PM +0800, Chen Huang wrote:
 > 
-> Fixes: 94efd726b947 ("ASoC: Intel: kbl_da7219_max98357a: shrink platform_id below 20 characters")
-> Cc: <stable@vger.kernel.org> # 5.4+
-> Tested-by: Lukasz Majczak <lma@semihalf.com>
-> Signed-off-by: Lukasz Majczak <lma@semihalf.com>
-> Suggested-by: Cezary Rojewski <cezary.rojewski@intel.com>
-> ---
->  sound/soc/intel/common/soc-acpi-intel-kbl-match.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> diff --git a/sound/soc/intel/common/soc-acpi-intel-kbl-match.c b/sound/soc/intel/common/soc-acpi-intel-kbl-match.c
-> index 741bf2f9e081..8cab91a00b1a 100644
-> --- a/sound/soc/intel/common/soc-acpi-intel-kbl-match.c
-> +++ b/sound/soc/intel/common/soc-acpi-intel-kbl-match.c
-> @@ -113,7 +113,7 @@ struct snd_soc_acpi_mach snd_soc_acpi_intel_kbl_machines[] = {
->  	},
->  	{
->  		.id = "DLGS7219",
-> -		.drv_name = "kbl_da7219_mx98373",
-> +		.drv_name = "kbl_da7219_max98373",
->  		.fw_filename = "intel/dsp_fw_kbl.bin",
->  		.machine_quirk = snd_soc_acpi_codec_list,
->  		.quirk_data = &kbl_7219_98373_codecs,
-> 
+> 在 2021/8/17 14:14, Greg Kroah-Hartman 写道:
+> > On Tue, Aug 17, 2021 at 09:45:00AM +0800, Chen Huang wrote:
+> >>
+> >>
+> >> 在 2021/8/16 21:35, Greg Kroah-Hartman 写道:
+> >>> On Mon, Aug 16, 2021 at 09:21:11PM +0800, Chen Huang wrote:
+> >>>>
+> >>>>
+> >>>> 在 2021/8/16 16:34, Greg Kroah-Hartman 写道:
+> >>>>> On Mon, Aug 16, 2021 at 07:21:37AM +0000, Chen Huang wrote:
+> >>>>>> From: Roman Gushchin <guro@fb.com>
+> >>>>>
+> >>>>> What is the git commit id of this patch in Linus's tree?
+> >>>>>
+> >>>>>>
+> >>>>>> Patch series "mm: allow mapping accounted kernel pages to userspace", v6.
+> >>>>>>
+> >>>>>> Currently a non-slab kernel page which has been charged to a memory cgroup
+> >>>>>> can't be mapped to userspace.  The underlying reason is simple: PageKmemcg
+> >>>>>> flag is defined as a page type (like buddy, offline, etc), so it takes a
+> >>>>>> bit from a page->mapped counter.  Pages with a type set can't be mapped to
+> >>>>>> userspace.
+> >>>>>>
+> >>>>>> But in general the kmemcg flag has nothing to do with mapping to
+> >>>>>> userspace.  It only means that the page has been accounted by the page
+> >>>>>> allocator, so it has to be properly uncharged on release.
+> >>>>>>
+> >>>>>> Some bpf maps are mapping the vmalloc-based memory to userspace, and their
+> >>>>>> memory can't be accounted because of this implementation detail.
+> >>>>>>
+> >>>>>> This patchset removes this limitation by moving the PageKmemcg flag into
+> >>>>>> one of the free bits of the page->mem_cgroup pointer.  Also it formalizes
+> >>>>>> accesses to the page->mem_cgroup and page->obj_cgroups using new helpers,
+> >>>>>> adds several checks and removes a couple of obsolete functions.  As the
+> >>>>>> result the code became more robust with fewer open-coded bit tricks.
+> >>>>>>
+> >>>>>> This patch (of 4):
+> >>>>>>
+> >>>>>> Currently there are many open-coded reads of the page->mem_cgroup pointer,
+> >>>>>> as well as a couple of read helpers, which are barely used.
+> >>>>>>
+> >>>>>> It creates an obstacle on a way to reuse some bits of the pointer for
+> >>>>>> storing additional bits of information.  In fact, we already do this for
+> >>>>>> slab pages, where the last bit indicates that a pointer has an attached
+> >>>>>> vector of objcg pointers instead of a regular memcg pointer.
+> >>>>>>
+> >>>>>> This commits uses 2 existing helpers and introduces a new helper to
+> >>>>>> converts all read sides to calls of these helpers:
+> >>>>>>   struct mem_cgroup *page_memcg(struct page *page);
+> >>>>>>   struct mem_cgroup *page_memcg_rcu(struct page *page);
+> >>>>>>   struct mem_cgroup *page_memcg_check(struct page *page);
+> >>>>>>
+> >>>>>> page_memcg_check() is intended to be used in cases when the page can be a
+> >>>>>> slab page and have a memcg pointer pointing at objcg vector.  It does
+> >>>>>> check the lowest bit, and if set, returns NULL.  page_memcg() contains a
+> >>>>>> VM_BUG_ON_PAGE() check for the page not being a slab page.
+> >>>>>>
+> >>>>>> To make sure nobody uses a direct access, struct page's
+> >>>>>> mem_cgroup/obj_cgroups is converted to unsigned long memcg_data.
+> >>>>>>
+> >>>>>> Signed-off-by: Roman Gushchin <guro@fb.com>
+> >>>>>> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+> >>>>>> Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+> >>>>>> Reviewed-by: Shakeel Butt <shakeelb@google.com>
+> >>>>>> Acked-by: Johannes Weiner <hannes@cmpxchg.org>
+> >>>>>> Acked-by: Michal Hocko <mhocko@suse.com>
+> >>>>>> Link: https://lkml.kernel.org/r/20201027001657.3398190-1-guro@fb.com
+> >>>>>> Link: https://lkml.kernel.org/r/20201027001657.3398190-2-guro@fb.com
+> >>>>>> Link: https://lore.kernel.org/bpf/20201201215900.3569844-2-guro@fb.com
+> >>>>>>
+> >>>>>> Conflicts:
+> >>>>>> 	mm/memcontrol.c
+> >>>>>
+> >>>>> The "Conflicts:" lines should be removed.
+> >>>>>
+> >>>>> Please fix up the patch series and resubmit.  But note, this seems
+> >>>>> really intrusive, are you sure these are all needed?
+> >>>>>
+> >>>>
+> >>>> OK，I will resend the patchset.
+> >>>> Roman Gushchin's patchset formalize accesses to the page->mem_cgroup and
+> >>>> page->obj_cgroups. But for LRU pages and most other raw memcg, they may
+> >>>> pin to a memcg cgroup pointer, which should always point to an object cgroup
+> >>>> pointer. That's the problem I met. And Muchun Song's patchset fix this.
+> >>>> So I think these are all needed.
+> >>>
+> >>> What in-tree driver causes this to happen and under what workload?
+> >>>
+> >>>>> What UIO driver are you using that is showing problems like this?
+> >>>>>
+> >>>>
+> >>>> The UIO driver is my own driver, and it's creation likes this:
+> >>>> First, we register a device
+> >>>> 	pdev = platform_device_register_simple("uio_driver,0, NULL, 0);
+> >>>> and use uio_info to describe the UIO driver, the page is alloced and used
+> >>>> for uio_vma_fault
+> >>>> 	info->mem[0].addr = (phys_addr_t) kzalloc(PAGE_SIZE, GFP_ATOMIC);
+> >>>
+> >>> That is not a physical address, and is not what the uio api is for at
+> >>> all.  Please do not abuse it that way.
+> >>>
+> >>>> then we register the UIO driver.
+> >>>> 	uio_register_device(&pdev->dev, info)
+> >>>
+> >>> So no in-tree drivers are having problems with the existing code, only
+> >>> fake ones?
+> >>
+> >> Yes, but the nullptr porblem may not just about uio driver. For now, page struct
+> >> has a union
+> >> union {
+> >> 	struct mem_cgroup *mem_cgroup;
+> >> 	struct obj_cgroup **obj_cgroups;
+> >> };
+> >> For the slab pages, the union info should belong to obj_cgroups. And for user
+> >> pages, it should belong to mem_cgroup. When a slab page changes its obj_cgroups,
+> >> then another user page which is in the same compound page of that slab page will
+> >> gets the wrong mem_cgroup in __mod_lruvec_page_state(), and will trigger nullptr
+> >> in mem_cgroup_lruvec(). Correct me if I'm wrong. Thanks!
+> > 
+> > And how can that be triggered by a user in the 5.10.y kernel tree at the
+> > moment?
+> > 
+> > I'm all for fixing problems, but this one does not seem like it is an
+> > actual issue for the 5.10 tree right now.  Am I missing something?
+> > 
+> > thanks,
+> > 
+> Sorry, it maybe just the problem of my own driver.
+
+What driver is it?  Please submit it to be included in the tree so it
+can be reviewed properly and bugs like this can be fixed :)
+
+thanks,
+
+greg k-h
