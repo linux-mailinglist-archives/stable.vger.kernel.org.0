@@ -2,182 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 190E63F159F
-	for <lists+stable@lfdr.de>; Thu, 19 Aug 2021 10:53:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CD903F15BC
+	for <lists+stable@lfdr.de>; Thu, 19 Aug 2021 11:05:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230202AbhHSIxs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Aug 2021 04:53:48 -0400
-Received: from smtp-relay-canonical-1.canonical.com ([185.125.188.121]:39102
-        "EHLO smtp-relay-canonical-1.canonical.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229954AbhHSIxs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 Aug 2021 04:53:48 -0400
-Received: from [10.101.195.16] (61-220-137-34.HINET-IP.hinet.net [61.220.137.34])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by smtp-relay-canonical-1.canonical.com (Postfix) with ESMTPSA id BADE83F0F8;
-        Thu, 19 Aug 2021 08:53:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-        s=20210705; t=1629363191;
-        bh=VoEHYyyCmO3H/bkwVKTf7A9UtOOBgmMo3aO5K2zofYI=;
-        h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
-         In-Reply-To:Content-Type;
-        b=VsTGs7JAFlWzia6uiA7PYNCSQq7bKIEJ+80KPZmIRkxGT0QAf9tRYrnGN8K6wr+vd
-         cZwsiYfjbgOwDRdgW19dPY7vmldUDxLdlWGMX41DCIrJ8j5cdi7KKRfZUaeF9L7Nw5
-         Dy2qpHVvIbu9fleAhldRg8rM9VTTfdP35WkRW1pjXp22jpRenDJBvHpaua7YFHRR7K
-         RF/r2KSxlxhmw0axdWjen2tkwH7awNOz5DCzu+klRRBtbysg9e8mbflHZpb2AV5rSp
-         NSvHea2Z9J/X3O4l7uefB0RSAJNuljCrSOjWj3PoQgJVQ8vbPBo+fpdLLxpv6hC0Bu
-         sbyUqKmucQToA==
-Subject: Re: the commit c434e5e48dc4 (rsi: Use resume_noirq for SDIO)
- introduced driver crash in the 4.15 kernel
-To:     Marek Vasut <marex@denx.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Stable <stable@vger.kernel.org>,
-        Martin Fuzzey <martin.fuzzey@flowbird.group>,
-        =?UTF-8?Q?Guido_G=c3=bcnther?= <agx@sigxcpu.org>
-References: <2b77868b-c1e6-9f30-9640-5c82a82f5b31@canonical.com>
- <YRybjZdFngJr9R8i@kroah.com> <6abb6c93-b9d6-c173-7fe1-fcf3b0abd615@denx.de>
- <4a29398d-4253-201d-11bb-30a5c511f7b2@canonical.com>
- <YR3svHFF1vheoQyb@kroah.com> <eb9d1eeb-e1d3-6cde-41d7-450a60839425@denx.de>
-From:   Hui Wang <hui.wang@canonical.com>
-Message-ID: <4a508cab-aa2f-5e3f-7465-a91859aa246f@canonical.com>
-Date:   Thu, 19 Aug 2021 16:52:58 +0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        id S234517AbhHSJGc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Aug 2021 05:06:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52072 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234128AbhHSJGa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 Aug 2021 05:06:30 -0400
+Received: from mail-ej1-x630.google.com (mail-ej1-x630.google.com [IPv6:2a00:1450:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CDA5C061756
+        for <stable@vger.kernel.org>; Thu, 19 Aug 2021 02:05:54 -0700 (PDT)
+Received: by mail-ej1-x630.google.com with SMTP id lo4so11371178ejb.7
+        for <stable@vger.kernel.org>; Thu, 19 Aug 2021 02:05:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=konsulko.com; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=avdBfOFXMdxh5LUuOT/Y26UwCZnLaQOMunZqBLbNGVA=;
+        b=edikmR2uWKXJkjcDxxQrs5EOfyplzW8KRdMAR9X1QiZPsAXxA7hCjV8V0AAThzACvd
+         7DOI5WKWljZhbDewRGH8Y733HXnCzjo202FR+cyI7fGHZymji4+O6lNjuKF1w+h7MsQF
+         ya2FYnuZeT4QTtn0WFk7fBWndguCyl2RiY++E=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=avdBfOFXMdxh5LUuOT/Y26UwCZnLaQOMunZqBLbNGVA=;
+        b=ZAI6grr2+JchM2pKgSEGYI/B3lUc6HERFVS4v7o/Nx3fzFwdEBR79cimZAEgvfg/Qx
+         Op/zprG8Xlr6kx3LGqYdb8WjUPVOxV80Cu0nS+Ah+E7R4vZNSGrLZBrwZczk0vuVl2Lz
+         Hrk9N1czTQSPSP4QRcgZ/HUd7tTRoPuwKtQIyFHFo+ApcPEzfTdg8H1LrwV+jQLccdkB
+         bl6skCxtHpj9FPRrnaTpuUUyRWdKXtMCs5JG4giC3pRW3dejUI426DHc4DXszaXyabAp
+         xUmduSLrOru701mr/LIG8HqxjBh+/PGbAhQHfuVgTk97oMylK8e5T0ySj/Z4xPeFk7qC
+         CXFA==
+X-Gm-Message-State: AOAM531SzxPKekokh8L/WZH5rGyaa/KPwZtEk72EL2Te6pR1tEGVM5mW
+        friAjAC/C25gwpO65c+OjjDo/A==
+X-Google-Smtp-Source: ABdhPJx2PF353HZGATdrBf928LpiL/1Q8aQY5pB0yztlTFCepM3IUxMLxGuwqIziwWpPT9HTBW60SA==
+X-Received: by 2002:a17:906:58c7:: with SMTP id e7mr14321313ejs.197.1629363953206;
+        Thu, 19 Aug 2021 02:05:53 -0700 (PDT)
+Received: from taos.k.g (lan.nucleusys.com. [92.247.61.126])
+        by smtp.gmail.com with ESMTPSA id k21sm968747ejj.55.2021.08.19.02.05.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 19 Aug 2021 02:05:52 -0700 (PDT)
+From:   Petko Manolov <petko.manolov@konsulko.com>
+To:     davem@davemloft.net
+Cc:     netdev@vger.kernel.org, kuba@kernel.org, paskripkin@gmail.com,
+        stable@vger.kernel.org, Petko Manolov <petko.manolov@konsulko.com>
+Subject: [PATCH] net: usb: pegasus: fixes of set_register(s) return value evaluation;
+Date:   Thu, 19 Aug 2021 12:05:39 +0300
+Message-Id: <20210819090539.15879-1-petko.manolov@konsulko.com>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-In-Reply-To: <eb9d1eeb-e1d3-6cde-41d7-450a60839425@denx.de>
-Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
-Content-Language: en-US
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+  - restore the behavior in enable_net_traffic() to avoid regressions - Jakub
+    Kicinski;
+  - hurried up and removed redundant assignment in pegasus_open() before yet
+    another checker complains;
+  - explicitly check for negative value in pegasus_set_wol(), even if
+    usb_control_msg_send() never return positive number we'd still be in sync
+    with the rest of the driver style;
 
-On 8/19/21 3:49 PM, Marek Vasut wrote:
-> On 8/19/21 7:31 AM, Greg Kroah-Hartman wrote:
->> On Thu, Aug 19, 2021 at 10:57:03AM +0800, Hui Wang wrote:
->>>
->>> On 8/18/21 5:04 PM, Marek Vasut wrote:
->>>> On 8/18/21 7:33 AM, Greg Kroah-Hartman wrote:
->>>>> On Wed, Aug 18, 2021 at 12:06:15PM +0800, Hui Wang wrote:
->>>>>> Hi Marex,
->>>>>>
->>>>>> We backported this patch to ubuntu 4.15.0-generic kernel, and
->>>>>> found this
->>>>>> patch introduced the rsi driver crashing when running system
->>>>>> resume on the
->>>>>> Dell 300x IoT platform (100% rate). Below is the log, After
->>>>>> seeing this log,
->>>>>> the rsi wifi can't work anymore, need to run 'rmmod 
->>>>>> rsi_sdio;modprobe
->>>>>> rsi_sdio" to make it work again.
->>>>>>
->>>>>> So do you know what is missing apart from this patch or this
->>>>>> patch is not
->>>>>> suitable for 4.15 kernel at all?
->>>>>
->>>>> Does 4.19.191 work for this system?  Why not just use that or newer
->>>>> instead?
->>>>
->>>> I haven't seen this on linux-stable 5.4.y or 5.10.y, if that 
->>>> information
->>>> is of any use.
->>>>
->>>> But I have to admit, I am tempted to mark the whole driver as 
->>>> BROKEN and
->>>> submit that for stable backports.
->>>>
->>>> Because that is what it is, it is buggy, broken, and the hardware 
->>>> lacks
->>>> any documentation. I spent an insane amount of time talking to RedPine
->>>> Signals / SiLabs trying to get help with basic things like association
->>>> problems against various APs, no result there. I tried getting 
->>>> hardware
->>>> docs from them so I can fix the driver myself, no result either. So 
->>>> far
->>>> I tried to pick various fixes from their downstream driver and submit
->>>> them, but that is massively time consuming and the changes there 
->>>> are not
->>>> separated or documented, it is just one large chunk of code.
->>>>
->>>> As far as I can tell, they also have no interest in fixing the 
->>>> driver or
->>>> helping others with fixing it, so maybe we should just mark it as 
->>>> broken
->>>> ... :-(
->>>
->>> Hi Marek,
->>>
->>> Got it, thanks for sharing it.
->>>
->>> Hi Greg,
->>>
->>> I just tested the 4.19.191, got the same result, the wifi will crash 
->>> after
->>> resume under 4.19.191:
->>>
->>> admin@HW6VB02:~$ uname -a
->>> Linux HW6VB02 4.19.191 #1 SMP Thu Aug 19 10:19:32 CST 2021 x86_64 
->>> x86_64
->>> x86_64 GNU/Linux
->>>
->>> [   59.682908] sdhci-acpi INT33BB:00: pre_suspend failed for 
->>> non-removable
->>> host: -38
->>> [   59.682917] Freezing user space processes ... (elapsed 0.003 
->>> seconds)
->>> done.
->>> [   59.686063] OOM killer disabled.
->>> [   59.686065] Freezing remaining freezable tasks ... (elapsed 0.001
->>> seconds) done.
->>> [   59.687385] Suspending console(s) (use no_console_suspend to debug)
->>> [   59.687931] rsi_91x: ===> Interface DOWN <===
->>> [   70.068983] mmc1: Controller never released inhibit bit(s).
->>> [   70.068992] mmc1: sdhci: ============ SDHCI REGISTER DUMP 
->>> ===========
->>> [   70.069002] mmc1: sdhci: Sys addr:  0xffffffff | Version: 0x0000ffff
->>> [   70.069009] mmc1: sdhci: Blk size:  0x0000ffff | Blk cnt: 0x0000ffff
->>> [   70.069016] mmc1: sdhci: Argument:  0xffffffff | Trn mode: 
->>> 0x0000ffff
->>> [   70.069023] mmc1: sdhci: Present:   0xffffffff | Host ctl: 
->>> 0x000000ff
->>> [   70.069030] mmc1: sdhci: Power:     0x000000ff | Blk gap: 0x000000ff
->>> [   70.069036] mmc1: sdhci: Wake-up:   0x000000ff | Clock: 0x0000ffff
->>> [   70.069043] mmc1: sdhci: Timeout:   0x000000ff | Int stat: 
->>> 0xffffffff
->>>
->>>
->>> So let us revert this commit from 4.19.y?
->>
->> If you revert it, does it work properly?  What about in Linus's tree?
+Fixes: 8a160e2e9aeb net: usb: pegasus: Check the return value of get_geristers() and friends;
+Reported-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Petko Manolov <petko.manolov@konsulko.com>
+---
+ drivers/net/usb/pegasus.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-I reverted the commit in the 4.19.191, then the wifi could work both 
-before and after the system resume. I tested the mainline kernel 
-linux-5.13, before suspend, the wifi could work, after suspend, the 
-whole system can't wakeup, and I couldn't recover the system since I 
-can't access the machine physically. I did all test via ssh remotely. So 
-there is no testing result for Linus' tree.
+diff --git a/drivers/net/usb/pegasus.c b/drivers/net/usb/pegasus.c
+index 652e9fcf0b77..1ef93082c772 100644
+--- a/drivers/net/usb/pegasus.c
++++ b/drivers/net/usb/pegasus.c
+@@ -446,7 +446,7 @@ static int enable_net_traffic(struct net_device *dev, struct usb_device *usb)
+ 		write_mii_word(pegasus, 0, 0x1b, &auxmode);
+ 	}
+ 
+-	return 0;
++	return ret;
+ fail:
+ 	netif_dbg(pegasus, drv, pegasus->net, "%s failed\n", __func__);
+ 	return ret;
+@@ -835,7 +835,7 @@ static int pegasus_open(struct net_device *net)
+ 	if (!pegasus->rx_skb)
+ 		goto exit;
+ 
+-	res = set_registers(pegasus, EthID, 6, net->dev_addr);
++	set_registers(pegasus, EthID, 6, net->dev_addr);
+ 
+ 	usb_fill_bulk_urb(pegasus->rx_urb, pegasus->usb,
+ 			  usb_rcvbulkpipe(pegasus->usb, 1),
+@@ -932,7 +932,7 @@ pegasus_set_wol(struct net_device *dev, struct ethtool_wolinfo *wol)
+ 	pegasus->wolopts = wol->wolopts;
+ 
+ 	ret = set_register(pegasus, WakeupControl, reg78);
+-	if (!ret)
++	if (ret < 0)
+ 		ret = device_set_wakeup_enable(&pegasus->usb->dev,
+ 						wol->wolopts);
+ 	return ret;
+-- 
+2.30.2
 
->
-> I suspect in that case, sdio_claim_host() will spin indefinitely and 
-> never finish, see the c434e5e48dc4e ("rsi: Use resume_noirq for SDIO") 
-> commit message.
-At least, we never seen this issue in the kernel 4.15, without the 
-commit of c434e5e48dc4e ("rsi: Use resume_noirq for SDIO"), the wifi and 
-bluetooth works well before and after suspend.
->
-> Note that I did my tests on ARM MMCI (stm32mp1 variant).
-The platform I am testing is a X86 one, and the sdhci controller driver 
-is sdhci_acpi.c.
->
-> This "[   70.068983] mmc1: Controller never released inhibit bit(s)" 
-> looks suspicious in the log above.
->
-> Also, newer versions of the RSI downstream driver [1] as of 390542d 
-> ("Updated Readme.txt file") simply comment out 
-> rsi_sdio_enable_interrupts() in rsi/rsi_91x_sdio.c rsi_resume(), which 
-> looks like RSI ran into the same problem, but "fixed" it differently. 
-> I think that approach RSI took is wrong and it just hid the issue.
->
-> [1] git://github.com/SiliconLabs/RS911X-nLink-OSD
