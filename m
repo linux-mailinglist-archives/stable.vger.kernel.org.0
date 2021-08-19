@@ -2,102 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 131AA3F20AC
-	for <lists+stable@lfdr.de>; Thu, 19 Aug 2021 21:34:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C7363F20C6
+	for <lists+stable@lfdr.de>; Thu, 19 Aug 2021 21:41:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229633AbhHSTfH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Aug 2021 15:35:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58998 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229514AbhHSTfH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Aug 2021 15:35:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 69C13610CE;
-        Thu, 19 Aug 2021 19:34:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629401670;
-        bh=kCR9lxE8SwNUif9UW3AA+8EckMuvwOir57wIny57viA=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=i6no+QxdL3LQNOoNPYYNlkG9Dg4IFPPU6GYziQvm8ClnrArmc5glsZ8PTRXkTHUY8
-         +UFAf/MmddLjbFmGtBP+EVBgQgzzrs9cEaU/cZVur3K4U61j7jMFKrk+3fhe6BrXGi
-         xqo/6tYqR9sspFXxBI34RnKB6xIzf28xoaLEpJOpIt9il1TBRCAAfwaSo+zdqNqHZL
-         4FsOUgCgIxyLIp6w8pe+204FTgvHDtaiEKqpKrhxg+ZTftHWcXMNhy04L9HeA3sYkc
-         pMDvCN3oKpojovBxROSDDitKBtjf4wM3btsWRnpXjSR29u2qFL3ijEfQFsExqzdnaq
-         T42Z9ZaVDqBBA==
-Date:   Thu, 19 Aug 2021 12:34:29 -0700
-From:   Jakub Kicinski <kuba@kernel.org>
-To:     Petko Manolov <petko.manolov@konsulko.com>
-Cc:     davem@davemloft.net, netdev@vger.kernel.org, paskripkin@gmail.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] net: usb: pegasus: fixes of set_register(s) return
- value evaluation;
-Message-ID: <20210819123429.7b15f08e@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-In-Reply-To: <20210819090539.15879-1-petko.manolov@konsulko.com>
-References: <20210819090539.15879-1-petko.manolov@konsulko.com>
+        id S234783AbhHSTmB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Aug 2021 15:42:01 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:48119 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234748AbhHSTmB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 Aug 2021 15:42:01 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1629402084;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=WhkHch2a2Nq/MBCYyoOXfRTqLt9ghm/Gbw3AzjsmZeo=;
+        b=GIcJCTUNdOXeHsMw7IFnDTx73HkI96+fOKVaPnzNHvnzUCJ9qI2Z6dga7OWF6RQCh6UZFW
+        qYxYVDg2/jmVuVV9v7BUzq2HeotnHjvvUcV+tcu71xVyvPLaufLSu0gTRdQ5RtLHX45THm
+        6i9clWE34mVhns0hx6U0N93UylxV3EE=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-544-DUy2fFkuM5ePm4thR6-QLw-1; Thu, 19 Aug 2021 15:41:20 -0400
+X-MC-Unique: DUy2fFkuM5ePm4thR6-QLw-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id DC1C11026205;
+        Thu, 19 Aug 2021 19:41:18 +0000 (UTC)
+Received: from max.com (unknown [10.40.194.206])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 903221B46B;
+        Thu, 19 Aug 2021 19:41:15 +0000 (UTC)
+From:   Andreas Gruenbacher <agruenba@redhat.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Christoph Hellwig <hch@infradead.org>,
+        "Darrick J. Wong" <djwong@kernel.org>,
+        Paul Mackerras <paulus@ozlabs.org>
+Cc:     Jan Kara <jack@suse.cz>, Matthew Wilcox <willy@infradead.org>,
+        cluster-devel@redhat.com, linux-fsdevel@vger.kernel.org,
+        linux-kernel@vger.kernel.org, ocfs2-devel@oss.oracle.com,
+        Andreas Gruenbacher <agruenba@redhat.com>,
+        kvm-ppc@vger.kernel.org, stable@vger.kernel.org
+Subject: [PATCH v6 02/19] powerpc/kvm: Fix kvm_use_magic_page
+Date:   Thu, 19 Aug 2021 21:40:45 +0200
+Message-Id: <20210819194102.1491495-3-agruenba@redhat.com>
+In-Reply-To: <20210819194102.1491495-1-agruenba@redhat.com>
+References: <20210819194102.1491495-1-agruenba@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 19 Aug 2021 12:05:39 +0300 Petko Manolov wrote:
->   - restore the behavior in enable_net_traffic() to avoid regressions - Jakub
->     Kicinski;
->   - hurried up and removed redundant assignment in pegasus_open() before yet
->     another checker complains;
->   - explicitly check for negative value in pegasus_set_wol(), even if
->     usb_control_msg_send() never return positive number we'd still be in sync
->     with the rest of the driver style;
-> 
-> Fixes: 8a160e2e9aeb net: usb: pegasus: Check the return value of get_geristers() and friends;
+When switching from __get_user to fault_in_pages_readable, commit
+9f9eae5ce717 broke kvm_use_magic_page: fault_in_pages_readable returns 0
+on success.  Fix that.
 
-I guess this is fine but not exactly the preferred format, please see
-Submitting patches.
+Fixes: 9f9eae5ce717 ("powerpc/kvm: Prefer fault_in_pages_readable function")
+Cc: stable@vger.kernel.org # v4.18+
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+---
+ arch/powerpc/kernel/kvm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> Reported-by: Jakub Kicinski <kuba@kernel.org>
-> Signed-off-by: Petko Manolov <petko.manolov@konsulko.com>
-> ---
->  drivers/net/usb/pegasus.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/net/usb/pegasus.c b/drivers/net/usb/pegasus.c
-> index 652e9fcf0b77..1ef93082c772 100644
-> --- a/drivers/net/usb/pegasus.c
-> +++ b/drivers/net/usb/pegasus.c
-> @@ -446,7 +446,7 @@ static int enable_net_traffic(struct net_device *dev, struct usb_device *usb)
->  		write_mii_word(pegasus, 0, 0x1b, &auxmode);
->  	}
->  
-> -	return 0;
-> +	return ret;
-
-yup
-
->  fail:
->  	netif_dbg(pegasus, drv, pegasus->net, "%s failed\n", __func__);
->  	return ret;
-> @@ -835,7 +835,7 @@ static int pegasus_open(struct net_device *net)
->  	if (!pegasus->rx_skb)
->  		goto exit;
->  
-> -	res = set_registers(pegasus, EthID, 6, net->dev_addr);
-> +	set_registers(pegasus, EthID, 6, net->dev_addr);
-
-yup
-
->  	usb_fill_bulk_urb(pegasus->rx_urb, pegasus->usb,
->  			  usb_rcvbulkpipe(pegasus->usb, 1),
-> @@ -932,7 +932,7 @@ pegasus_set_wol(struct net_device *dev, struct ethtool_wolinfo *wol)
->  	pegasus->wolopts = wol->wolopts;
->  
->  	ret = set_register(pegasus, WakeupControl, reg78);
-> -	if (!ret)
-> +	if (ret < 0)
->  		ret = device_set_wakeup_enable(&pegasus->usb->dev,
->  						wol->wolopts);
-
-now this looks incorrect and unrelated to recent changes (IOW the
-commit under Fixes), please drop this chunk
-
->  	return ret;
+diff --git a/arch/powerpc/kernel/kvm.c b/arch/powerpc/kernel/kvm.c
+index 617eba82531c..d89cf802d9aa 100644
+--- a/arch/powerpc/kernel/kvm.c
++++ b/arch/powerpc/kernel/kvm.c
+@@ -669,7 +669,7 @@ static void __init kvm_use_magic_page(void)
+ 	on_each_cpu(kvm_map_magic_page, &features, 1);
+ 
+ 	/* Quick self-test to see if the mapping works */
+-	if (!fault_in_pages_readable((const char *)KVM_MAGIC_PAGE, sizeof(u32))) {
++	if (fault_in_pages_readable((const char *)KVM_MAGIC_PAGE, sizeof(u32))) {
+ 		kvm_patching_worked = false;
+ 		return;
+ 	}
+-- 
+2.26.3
 
