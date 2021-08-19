@@ -2,263 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B9C43F0FD3
-	for <lists+stable@lfdr.de>; Thu, 19 Aug 2021 03:02:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 390793F0FE0
+	for <lists+stable@lfdr.de>; Thu, 19 Aug 2021 03:17:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234145AbhHSBCk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Aug 2021 21:02:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55396 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232954AbhHSBCj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 Aug 2021 21:02:39 -0400
-Received: from mail-pf1-x42d.google.com (mail-pf1-x42d.google.com [IPv6:2607:f8b0:4864:20::42d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4042CC061764
-        for <stable@vger.kernel.org>; Wed, 18 Aug 2021 18:02:04 -0700 (PDT)
-Received: by mail-pf1-x42d.google.com with SMTP id w68so3918752pfd.0
-        for <stable@vger.kernel.org>; Wed, 18 Aug 2021 18:02:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=BPS5iLvBscw36xCNvQ62wzEz+3ogANPqnxMhLLFyfEI=;
-        b=Nuob9m1qdQDOh5fdiyiaLl4yxFRvx3Pk314givN7y6PRmLEryzpbc+gt6AcGWq9olj
-         xqwVasmg7jumCfFysM4SEuc9m3MEIwgQtE/Tdk0KMVRfN8mtf+EIQ47vda84QHa37X/T
-         Jktb6qJW+iulDqMaivvfPADt0jYv2rQTOKV2Mh+MMvratlRWHe0eHg6mse0p/mPofZYS
-         cutuZWS9yyyGMl0yWddG2CsA2SPdmsAtaZvOiqtqV9VMl0IchQCsyVcn5umEtxYzQMQW
-         wB4tli1OMR5UjA903t8+AfehrdgqfBQbupxewXyTi3fp8TUrJz81hFdZvaZdcwAKZfZ5
-         lYyg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=BPS5iLvBscw36xCNvQ62wzEz+3ogANPqnxMhLLFyfEI=;
-        b=CcKv91bukPrsNjC8SAWILhYM5d2KhT1oT6yAB50VUU4QoPdoubb2cJC9vBuQsqVXFf
-         o/3KEbAPYFHHpkQq1rnQ5SqQZSr8aZI+JT/VTTqFZXSuzHPcypexjvX9kFQ32DLNt3Ag
-         XEmfCXYbgQOru0TcdV89D4CrfDH7WLz7XysUjEW9ITJG3wtaRA0ORkUila+1WpYr9x4z
-         ERdW0n8Lgk8v5tYosFeg2iJq0voNdg9kvnJqeiHW0qq3IUsPkb1cKE62jsAPiR9OYf85
-         TNid5/82+22HgSxOL4m1HKTDs81j2Yw6cjndHb5IlpwaeGiUULVsOcmW1E7wQlLCF8mn
-         wNqA==
-X-Gm-Message-State: AOAM532+wOxiw4vamNGdTvjoH1cskPQBlSvajLKWy3We7nevDHMK+GA6
-        Urmv4uJwTI1GZx3lHbiKOv48624uR1c9smD7
-X-Google-Smtp-Source: ABdhPJzaslW501qmp+Zn7HGrJncNDHM8FrMrvjObWMFVRZipHy1gEtHyO9WQ0P1Ie3AdHPzn2rl0fQ==
-X-Received: by 2002:a63:d106:: with SMTP id k6mr11397858pgg.234.1629334923503;
-        Wed, 18 Aug 2021 18:02:03 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id g13sm1007110pfo.53.2021.08.18.18.02.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 18 Aug 2021 18:02:03 -0700 (PDT)
-Message-ID: <611dad8b.1c69fb81.dd8d0.4d8b@mx.google.com>
-Date:   Wed, 18 Aug 2021 18:02:03 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.9.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.9.280
-X-Kernelci-Report-Type: test
-Subject: stable-rc/linux-4.9.y baseline: 109 runs, 5 regressions (v4.9.280)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S234322AbhHSBRk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Aug 2021 21:17:40 -0400
+Received: from smtprelay-out1.synopsys.com ([149.117.73.133]:60154 "EHLO
+        smtprelay-out1.synopsys.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232954AbhHSBRk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 Aug 2021 21:17:40 -0400
+Received: from mailhost.synopsys.com (sv2-mailhost2.synopsys.com [10.205.2.134])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+        (Client CN "mailhost.synopsys.com", Issuer "SNPSica2" (verified OK))
+        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id 602884646B;
+        Thu, 19 Aug 2021 01:17:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
+        t=1629335824; bh=ncCJBhXMOwTrEGT4+Q7v6Zd09/ZSBnkR0TFa1Tj1fmc=;
+        h=Date:From:Subject:To:Cc:From;
+        b=cCcHW23z66MkZIVvaQRlZG/Fr17U/FTb/trH7iGay288G2elC/bSpO5MHskRX2PB3
+         XnhBiTieJFjb1aOOMu7Sv2aT6V6EM3LR3Typ23ZWDSxmqLCVsRDhBn4i6fbSeWWMS8
+         pU7+WdjXE+1GoOjO0owzBP/DxafYwVpczfNvidZeDUP4rZU1zAqWGoIZCGfnfpmHZD
+         9VitPC2wtnYMD7u8YO2v7/wpuQyRXUUiHbvLioF8f2fEjR9HPHIAshfgWn/fA7u2GW
+         dmLYjqDEXWv/vsGRq2VxujV2PELf0IVFypIxKO7q6OXYdfohpNHNUL3xuS0Y+jDG7U
+         5yeYZr7zEkOKg==
+Received: from te-lab15 (nanobot.internal.synopsys.com [10.204.48.11])
+        (using TLSv1 with cipher AES128-SHA (128/128 bits))
+        (Client did not present a certificate)
+        by mailhost.synopsys.com (Postfix) with ESMTPSA id 378B6A00E0;
+        Thu, 19 Aug 2021 01:17:03 +0000 (UTC)
+Received: by te-lab15 (sSMTP sendmail emulation); Thu, 19 Aug 2021 03:17:03 +0200
+Date:   Thu, 19 Aug 2021 03:17:03 +0200
+Message-Id: <e91e975affb0d0d02770686afc3a5b9eb84409f6.1629335416.git.Thinh.Nguyen@synopsys.com>
+X-SNPS-Relay: synopsys.com
+From:   Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Subject: [PATCH] usb: dwc3: gadget: Fix dwc3_calc_trbs_left()
+To:     Felipe Balbi <balbi@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-usb@vger.kernel.org
+Cc:     John Youn <John.Youn@synopsys.com>,
+        Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        <stable@vger.kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y baseline: 109 runs, 5 regressions (v4.9.280)
+We can't depend on the TRB's HWO bit to determine if the TRB ring is
+"full". A TRB is only available when the driver had processed it, not
+when the controller consumed and relinquished the TRB's ownership to the
+driver. Otherwise, the driver may overwrite unprocessed TRBs. This can
+happen when many transfer events accumulate and the system is slow to
+process them and/or when there are too many small requests.
 
-Regressions Summary
--------------------
+If a request is in the started_list, that means there is one or more
+unprocessed TRBs remained. Check this instead of the TRB's HWO bit
+whether the TRB ring is full.
 
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-meson-gxbb-p200      | arm64 | lab-baylibre  | gcc-8    | defconfig        =
-   | 1          =
+Cc: <stable@vger.kernel.org>
+Fixes: c4233573f6ee ("usb: dwc3: gadget: prepare TRBs on update transfers too")
+Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+---
+ drivers/usb/dwc3/gadget.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
-ig | 1          =
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index 84fe57ef5a49..1e6ddbc986ba 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -940,19 +940,19 @@ static struct dwc3_trb *dwc3_ep_prev_trb(struct dwc3_ep *dep, u8 index)
+ 
+ static u32 dwc3_calc_trbs_left(struct dwc3_ep *dep)
+ {
+-	struct dwc3_trb		*tmp;
+ 	u8			trbs_left;
+ 
+ 	/*
+-	 * If enqueue & dequeue are equal than it is either full or empty.
+-	 *
+-	 * One way to know for sure is if the TRB right before us has HWO bit
+-	 * set or not. If it has, then we're definitely full and can't fit any
+-	 * more transfers in our ring.
++	 * If the enqueue & dequeue are equal then the TRB ring is either full
++	 * or empty. It's considered full when there are DWC3_TRB_NUM-1 of TRBs
++	 * pending to be processed by the driver.
+ 	 */
+ 	if (dep->trb_enqueue == dep->trb_dequeue) {
+-		tmp = dwc3_ep_prev_trb(dep, dep->trb_enqueue);
+-		if (tmp->ctrl & DWC3_TRB_CTRL_HWO)
++		/*
++		 * If there is any request remained in the started_list at
++		 * this point, that means there is no TRB available.
++		 */
++		if (!list_empty(&dep->started_list))
+ 			return 0;
+ 
+ 		return DWC3_TRB_NUM - 1;
 
-qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
-ig | 1          =
+base-commit: 5571ea3117ca22849072adb58074fb5a2fd12c00
+-- 
+2.28.0
 
-qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
-ig | 1          =
-
-r8a7795-salvator-x   | arm64 | lab-baylibre  | gcc-8    | defconfig        =
-   | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.9.y/kern=
-el/v4.9.280/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.9.y
-  Describe: v4.9.280
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      89a3a5a52bc58d04109f03011e8164ce24e94b01 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-meson-gxbb-p200      | arm64 | lab-baylibre  | gcc-8    | defconfig        =
-   | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/611d756e44212b7ee7b136dc
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.280=
-/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p200.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.280=
-/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p200.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/611d756e44212b7ee7b13=
-6dd
-        new failure (last pass: v4.9.280-17-g2f26fb191568) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/611d8b00c9e43b73abb1366d
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.280=
-/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-versatilepb.t=
-xt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.280=
-/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-versatilepb.h=
-tml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/611d8b00c9e43b73abb13=
-66e
-        failing since 277 days (last pass: v4.9.243-17-g9c24315b745a0, firs=
-t fail: v4.9.243-26-g7b603f689c1c) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/611d7532de635420a4b136c9
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.280=
-/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.280=
-/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/611d7532de635420a4b13=
-6ca
-        failing since 277 days (last pass: v4.9.243-17-g9c24315b745a0, firs=
-t fail: v4.9.243-26-g7b603f689c1c) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/611d7c2c26140f5b42b13685
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.280=
-/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilepb.=
-txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.280=
-/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilepb.=
-html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/611d7c2c26140f5b42b13=
-686
-        failing since 277 days (last pass: v4.9.243-17-g9c24315b745a0, firs=
-t fail: v4.9.243-26-g7b603f689c1c) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-r8a7795-salvator-x   | arm64 | lab-baylibre  | gcc-8    | defconfig        =
-   | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/611d90ad675f372f43b136fb
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.280=
-/arm64/defconfig/gcc-8/lab-baylibre/baseline-r8a7795-salvator-x.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.280=
-/arm64/defconfig/gcc-8/lab-baylibre/baseline-r8a7795-salvator-x.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/611d90ad675f372f43b13=
-6fc
-        failing since 273 days (last pass: v4.9.243-17-g9c24315b745a0, firs=
-t fail: v4.9.243-79-gd3e70b39d31a) =
-
- =20
