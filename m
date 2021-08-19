@@ -2,101 +2,193 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 471143F1860
-	for <lists+stable@lfdr.de>; Thu, 19 Aug 2021 13:40:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 694323F186B
+	for <lists+stable@lfdr.de>; Thu, 19 Aug 2021 13:43:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239094AbhHSLks (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Aug 2021 07:40:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60130 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238210AbhHSLkr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 Aug 2021 07:40:47 -0400
-Received: from mail-wm1-x329.google.com (mail-wm1-x329.google.com [IPv6:2a00:1450:4864:20::329])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDFA4C061575;
-        Thu, 19 Aug 2021 04:40:10 -0700 (PDT)
-Received: by mail-wm1-x329.google.com with SMTP id c129-20020a1c35870000b02902e6b6135279so3885716wma.0;
-        Thu, 19 Aug 2021 04:40:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=FO+lf3R/yjc9KGpGIWIOuNRXRBvu2rIu+mbHK5sUlLs=;
-        b=HiAgE7KdhsVN8wOgbXI3aTxGbM4SVbP3/MgUGYmbRYOdUN7j0IBITf8DJuDd/WRSX3
-         ei1oOKPqzbpQ7J/ea0n10NGQjVvlhR2zrW2BgHJ0Ieyjr5Px0iSYYk0XuhI2e7+tllF7
-         Z2FMFvN+4TgFjiMaUz7MoDfyVewMke+UZbFfKowCo+ZJwT7dxlpjQVelv5cErUbTj6B2
-         Wq6qiCdNCmGHyAp/6TK5kaPGW4xJ3WEsHJGyfrPyjdciizc0eAVOWM4gkI92O/ny2YaF
-         0/4kINHGepsUB1QFUelgu3kOdStUdTDeGahulKWYB91bt85Zd9uCwYSkcVNtwtOU9pxD
-         IefA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=FO+lf3R/yjc9KGpGIWIOuNRXRBvu2rIu+mbHK5sUlLs=;
-        b=oB8IPxuCowMaMjclYl+7An0E3An9mj0zcpvi2rZH643bq11BCSa0Z1EW5EeubphA4N
-         sCGTdTDD4+UGZCuG5HgSb4KOZhR+jn9ye3OojIVOPMBspRVmfATomZ0Q0+YVG9cUFWlN
-         ZsCCQmDTa6+D33Q87k2o69lxrUz4E6WsO1xQQ161bFOMRQTrAIa6SNY5gvn+WJjgiL/t
-         LRrejHE92mSuR5yVkJgOUWMkVUdG7AQxwwSZwspnedXrSn/FYFTmxbpEavVJvUkHFT6/
-         gEkzm8iQIpO2eS1s9r5qkUtbpXFTYbgz16WAKHXghKhjTnn9LJCvREj+2JHBygo2JUDM
-         fi+w==
-X-Gm-Message-State: AOAM530rI/RZ5KT3fGCWkuR0ZNVKZhhe+yhqSk/zNhkS+KEfoKUcsWe+
-        4zs0XRW6geHeJFICmQzQIqI=
-X-Google-Smtp-Source: ABdhPJyxKopaR6HtUR6X5E06d0TM/76Uxg1B0Ih/1vlvj9BWdq72+EoGJs3R1ghyv0SDVl4evA11Nw==
-X-Received: by 2002:a1c:3909:: with SMTP id g9mr13187347wma.63.1629373209476;
-        Thu, 19 Aug 2021 04:40:09 -0700 (PDT)
-Received: from localhost.localdomain (arl-84-90-178-246.netvisao.pt. [84.90.178.246])
-        by smtp.gmail.com with ESMTPSA id b13sm2650891wrf.86.2021.08.19.04.40.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 19 Aug 2021 04:40:09 -0700 (PDT)
-From:   Lukas Bulwahn <lukas.bulwahn@gmail.com>
-To:     Paul Mackerras <paulus@ozlabs.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Michael Neuling <mikey@neuling.org>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        kvm-ppc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
-Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
-        stable@vger.kernel.org, kernel-janitors@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Lukas Bulwahn <lukas.bulwahn@gmail.com>
-Subject: [PATCH v2 2/2] powerpc: rectify selection to ARCH_ENABLE_SPLIT_PMD_PTLOCK
-Date:   Thu, 19 Aug 2021 13:39:54 +0200
-Message-Id: <20210819113954.17515-3-lukas.bulwahn@gmail.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20210819113954.17515-1-lukas.bulwahn@gmail.com>
-References: <20210819113954.17515-1-lukas.bulwahn@gmail.com>
+        id S238208AbhHSLoS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Aug 2021 07:44:18 -0400
+Received: from szxga01-in.huawei.com ([45.249.212.187]:8044 "EHLO
+        szxga01-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239228AbhHSLoR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 Aug 2021 07:44:17 -0400
+Received: from dggemv704-chm.china.huawei.com (unknown [172.30.72.56])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4Gr2vj4l40zYrjR;
+        Thu, 19 Aug 2021 19:43:13 +0800 (CST)
+Received: from dggema756-chm.china.huawei.com (10.1.198.198) by
+ dggemv704-chm.china.huawei.com (10.3.19.47) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
+ 15.1.2176.2; Thu, 19 Aug 2021 19:43:39 +0800
+Received: from [10.174.177.134] (10.174.177.134) by
+ dggema756-chm.china.huawei.com (10.1.198.198) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
+ 15.1.2176.2; Thu, 19 Aug 2021 19:43:38 +0800
+Subject: Re: [PATCH 5.10.y 01/11] mm: memcontrol: Use helpers to read page's
+ memcg data
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Roman Gushchin <guro@fb.com>
+CC:     Muchun Song <songmuchun@bytedance.com>,
+        Wang Hai <wanghai38@huawei.com>,
+        <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>,
+        <stable@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "Alexei Starovoitov" <ast@kernel.org>
+References: <20210816072147.3481782-1-chenhuang5@huawei.com>
+ <20210816072147.3481782-2-chenhuang5@huawei.com> <YRojDsTAjSnw0jIh@kroah.com>
+ <a4c545a8-fff0-38bb-4749-3483c9334daa@huawei.com>
+ <YRppmvYOftjAAl/R@kroah.com>
+ <0d3c6aa4-be05-3c93-bdcd-ac30788d82bd@huawei.com>
+ <YRtT4obiu86hp6z3@kroah.com>
+From:   Chen Huang <chenhuang5@huawei.com>
+Message-ID: <9e946879-8a6e-6b86-9d8b-54a17976c6be@huawei.com>
+Date:   Thu, 19 Aug 2021 19:43:37 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
+In-Reply-To: <YRtT4obiu86hp6z3@kroah.com>
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
+X-Originating-IP: [10.174.177.134]
+X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
+ dggema756-chm.china.huawei.com (10.1.198.198)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit 66f24fa766e3 ("mm: drop redundant ARCH_ENABLE_SPLIT_PMD_PTLOCK")
-selects the non-existing config ARCH_ENABLE_PMD_SPLIT_PTLOCK in
-./arch/powerpc/platforms/Kconfig.cputype, but clearly it intends to select
-ARCH_ENABLE_SPLIT_PMD_PTLOCK here (notice the word swapping!), as this
-commit does select that for all other architectures.
 
-Rectify selection to ARCH_ENABLE_SPLIT_PMD_PTLOCK instead.
 
-Fixes: 66f24fa766e3 ("mm: drop redundant ARCH_ENABLE_SPLIT_PMD_PTLOCK")
-Signed-off-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
----
- arch/powerpc/platforms/Kconfig.cputype | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+在 2021/8/17 14:14, Greg Kroah-Hartman 写道:
+> On Tue, Aug 17, 2021 at 09:45:00AM +0800, Chen Huang wrote:
+>>
+>>
+>> 在 2021/8/16 21:35, Greg Kroah-Hartman 写道:
+>>> On Mon, Aug 16, 2021 at 09:21:11PM +0800, Chen Huang wrote:
+>>>>
+>>>>
+>>>> 在 2021/8/16 16:34, Greg Kroah-Hartman 写道:
+>>>>> On Mon, Aug 16, 2021 at 07:21:37AM +0000, Chen Huang wrote:
+>>>>>> From: Roman Gushchin <guro@fb.com>
+>>>>>
+>>>>> What is the git commit id of this patch in Linus's tree?
+>>>>>
+>>>>>>
+>>>>>> Patch series "mm: allow mapping accounted kernel pages to userspace", v6.
+>>>>>>
+>>>>>> Currently a non-slab kernel page which has been charged to a memory cgroup
+>>>>>> can't be mapped to userspace.  The underlying reason is simple: PageKmemcg
+>>>>>> flag is defined as a page type (like buddy, offline, etc), so it takes a
+>>>>>> bit from a page->mapped counter.  Pages with a type set can't be mapped to
+>>>>>> userspace.
+>>>>>>
+>>>>>> But in general the kmemcg flag has nothing to do with mapping to
+>>>>>> userspace.  It only means that the page has been accounted by the page
+>>>>>> allocator, so it has to be properly uncharged on release.
+>>>>>>
+>>>>>> Some bpf maps are mapping the vmalloc-based memory to userspace, and their
+>>>>>> memory can't be accounted because of this implementation detail.
+>>>>>>
+>>>>>> This patchset removes this limitation by moving the PageKmemcg flag into
+>>>>>> one of the free bits of the page->mem_cgroup pointer.  Also it formalizes
+>>>>>> accesses to the page->mem_cgroup and page->obj_cgroups using new helpers,
+>>>>>> adds several checks and removes a couple of obsolete functions.  As the
+>>>>>> result the code became more robust with fewer open-coded bit tricks.
+>>>>>>
+>>>>>> This patch (of 4):
+>>>>>>
+>>>>>> Currently there are many open-coded reads of the page->mem_cgroup pointer,
+>>>>>> as well as a couple of read helpers, which are barely used.
+>>>>>>
+>>>>>> It creates an obstacle on a way to reuse some bits of the pointer for
+>>>>>> storing additional bits of information.  In fact, we already do this for
+>>>>>> slab pages, where the last bit indicates that a pointer has an attached
+>>>>>> vector of objcg pointers instead of a regular memcg pointer.
+>>>>>>
+>>>>>> This commits uses 2 existing helpers and introduces a new helper to
+>>>>>> converts all read sides to calls of these helpers:
+>>>>>>   struct mem_cgroup *page_memcg(struct page *page);
+>>>>>>   struct mem_cgroup *page_memcg_rcu(struct page *page);
+>>>>>>   struct mem_cgroup *page_memcg_check(struct page *page);
+>>>>>>
+>>>>>> page_memcg_check() is intended to be used in cases when the page can be a
+>>>>>> slab page and have a memcg pointer pointing at objcg vector.  It does
+>>>>>> check the lowest bit, and if set, returns NULL.  page_memcg() contains a
+>>>>>> VM_BUG_ON_PAGE() check for the page not being a slab page.
+>>>>>>
+>>>>>> To make sure nobody uses a direct access, struct page's
+>>>>>> mem_cgroup/obj_cgroups is converted to unsigned long memcg_data.
+>>>>>>
+>>>>>> Signed-off-by: Roman Gushchin <guro@fb.com>
+>>>>>> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+>>>>>> Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+>>>>>> Reviewed-by: Shakeel Butt <shakeelb@google.com>
+>>>>>> Acked-by: Johannes Weiner <hannes@cmpxchg.org>
+>>>>>> Acked-by: Michal Hocko <mhocko@suse.com>
+>>>>>> Link: https://lkml.kernel.org/r/20201027001657.3398190-1-guro@fb.com
+>>>>>> Link: https://lkml.kernel.org/r/20201027001657.3398190-2-guro@fb.com
+>>>>>> Link: https://lore.kernel.org/bpf/20201201215900.3569844-2-guro@fb.com
+>>>>>>
+>>>>>> Conflicts:
+>>>>>> 	mm/memcontrol.c
+>>>>>
+>>>>> The "Conflicts:" lines should be removed.
+>>>>>
+>>>>> Please fix up the patch series and resubmit.  But note, this seems
+>>>>> really intrusive, are you sure these are all needed?
+>>>>>
+>>>>
+>>>> OK，I will resend the patchset.
+>>>> Roman Gushchin's patchset formalize accesses to the page->mem_cgroup and
+>>>> page->obj_cgroups. But for LRU pages and most other raw memcg, they may
+>>>> pin to a memcg cgroup pointer, which should always point to an object cgroup
+>>>> pointer. That's the problem I met. And Muchun Song's patchset fix this.
+>>>> So I think these are all needed.
+>>>
+>>> What in-tree driver causes this to happen and under what workload?
+>>>
+>>>>> What UIO driver are you using that is showing problems like this?
+>>>>>
+>>>>
+>>>> The UIO driver is my own driver, and it's creation likes this:
+>>>> First, we register a device
+>>>> 	pdev = platform_device_register_simple("uio_driver,0, NULL, 0);
+>>>> and use uio_info to describe the UIO driver, the page is alloced and used
+>>>> for uio_vma_fault
+>>>> 	info->mem[0].addr = (phys_addr_t) kzalloc(PAGE_SIZE, GFP_ATOMIC);
+>>>
+>>> That is not a physical address, and is not what the uio api is for at
+>>> all.  Please do not abuse it that way.
+>>>
+>>>> then we register the UIO driver.
+>>>> 	uio_register_device(&pdev->dev, info)
+>>>
+>>> So no in-tree drivers are having problems with the existing code, only
+>>> fake ones?
+>>
+>> Yes, but the nullptr porblem may not just about uio driver. For now, page struct
+>> has a union
+>> union {
+>> 	struct mem_cgroup *mem_cgroup;
+>> 	struct obj_cgroup **obj_cgroups;
+>> };
+>> For the slab pages, the union info should belong to obj_cgroups. And for user
+>> pages, it should belong to mem_cgroup. When a slab page changes its obj_cgroups,
+>> then another user page which is in the same compound page of that slab page will
+>> gets the wrong mem_cgroup in __mod_lruvec_page_state(), and will trigger nullptr
+>> in mem_cgroup_lruvec(). Correct me if I'm wrong. Thanks!
+> 
+> And how can that be triggered by a user in the 5.10.y kernel tree at the
+> moment?
+> 
+> I'm all for fixing problems, but this one does not seem like it is an
+> actual issue for the 5.10 tree right now.  Am I missing something?
+> 
+> thanks,
+> 
+Sorry, it maybe just the problem of my own driver.
+Please ignore the patchset.
 
-diff --git a/arch/powerpc/platforms/Kconfig.cputype b/arch/powerpc/platforms/Kconfig.cputype
-index 6794145603de..a208997ade88 100644
---- a/arch/powerpc/platforms/Kconfig.cputype
-+++ b/arch/powerpc/platforms/Kconfig.cputype
-@@ -98,7 +98,7 @@ config PPC_BOOK3S_64
- 	select PPC_HAVE_PMU_SUPPORT
- 	select HAVE_ARCH_TRANSPARENT_HUGEPAGE
- 	select ARCH_ENABLE_HUGEPAGE_MIGRATION if HUGETLB_PAGE && MIGRATION
--	select ARCH_ENABLE_PMD_SPLIT_PTLOCK
-+	select ARCH_ENABLE_SPLIT_PMD_PTLOCK
- 	select ARCH_ENABLE_THP_MIGRATION if TRANSPARENT_HUGEPAGE
- 	select ARCH_SUPPORTS_HUGETLBFS
- 	select ARCH_SUPPORTS_NUMA_BALANCING
--- 
-2.26.2
-
+Thanks!
+> greg k-h
+> 
+> .
+> 
