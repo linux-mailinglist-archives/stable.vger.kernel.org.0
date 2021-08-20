@@ -2,138 +2,161 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 06D2B3F2C1D
-	for <lists+stable@lfdr.de>; Fri, 20 Aug 2021 14:32:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2A153F2C8E
+	for <lists+stable@lfdr.de>; Fri, 20 Aug 2021 14:57:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240401AbhHTMdT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Aug 2021 08:33:19 -0400
-Received: from mga03.intel.com ([134.134.136.65]:32166 "EHLO mga03.intel.com"
+        id S240401AbhHTM5p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Aug 2021 08:57:45 -0400
+Received: from 8bytes.org ([81.169.241.247]:38184 "EHLO theia.8bytes.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240260AbhHTMdT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Aug 2021 08:33:19 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10081"; a="216799521"
-X-IronPort-AV: E=Sophos;i="5.84,337,1620716400"; 
-   d="scan'208";a="216799521"
-Received: from fmsmga006.fm.intel.com ([10.253.24.20])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Aug 2021 05:32:41 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.84,337,1620716400"; 
-   d="scan'208";a="680077961"
-Received: from mattu-haswell.fi.intel.com ([10.237.72.170])
-  by fmsmga006.fm.intel.com with ESMTP; 20 Aug 2021 05:32:40 -0700
-From:   Mathias Nyman <mathias.nyman@linux.intel.com>
-To:     <gregkh@linuxfoundation.org>
-Cc:     <linux-usb@vger.kernel.org>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        stable@vger.kernel.org, Tao Wang <wat@codeaurora.org>
-Subject: [PATCH 3/6] xhci: Fix failure to give back some cached cancelled URBs.
-Date:   Fri, 20 Aug 2021 15:35:00 +0300
-Message-Id: <20210820123503.2605901-4-mathias.nyman@linux.intel.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20210820123503.2605901-1-mathias.nyman@linux.intel.com>
-References: <20210820123503.2605901-1-mathias.nyman@linux.intel.com>
+        id S240375AbhHTM5p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Aug 2021 08:57:45 -0400
+Received: from cap.home.8bytes.org (p4ff2b1ea.dip0.t-ipconnect.de [79.242.177.234])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+        (No client certificate requested)
+        by theia.8bytes.org (Postfix) with ESMTPSA id 2A46125C;
+        Fri, 20 Aug 2021 14:57:06 +0200 (CEST)
+From:   Joerg Roedel <joro@8bytes.org>
+To:     x86@kernel.org
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        hpa@zytor.com, Joerg Roedel <jroedel@suse.de>,
+        Kees Cook <keescook@chromium.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Uros Bizjak <ubizjak@gmail.com>,
+        Arvind Sankar <nivedita@alum.mit.edu>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        David Laight <David.Laight@ACULAB.COM>,
+        linux-kernel@vger.kernel.org, Fabio Aiuto <fabioaiuto83@gmail.com>,
+        stable@vger.kernel.org
+Subject: [PATCH v2] x86/efi: Restore Firmware IDT before calling ExitBootServices()
+Date:   Fri, 20 Aug 2021 14:57:03 +0200
+Message-Id: <20210820125703.32410-1-joro@8bytes.org>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Only TDs with status TD_CLEARING_CACHE will be given back after
-cache is cleared with a set TR deq command.
+From: Joerg Roedel <jroedel@suse.de>
 
-xhci_invalidate_cached_td() failed to set the TD_CLEARING_CACHE status
-for some cancelled TDs as it assumed an endpoint only needs to clear the
-TD it stopped on.
+Commit 79419e13e808 ("x86/boot/compressed/64: Setup IDT in startup_32
+boot path") introduced an IDT into the 32 bit boot path of the
+decompressor stub.  But the IDT is set up before ExitBootServices() is
+called and some UEFI firmwares rely on their own IDT.
 
-This isn't always true. For example with streams enabled an endpoint may
-have several stream rings, each stopping on a different TDs.
+Save the firmware IDT on boot and restore it before calling into EFI
+functions to fix boot failures introduced by above commit.
 
-Note that if an endpoint has several stream rings, the current code
-will still only clear the cache of the stream pointed to by the last
-cancelled TD in the cancel list.
-
-This patch only focus on making sure all canceled TDs are given back,
-avoiding hung task after device removal.
-Another fix to solve clearing the caches of all stream rings with
-cancelled TDs is needed, but not as urgent.
-
-This issue was simultanously discovered and debugged by
-by Tao Wang, with a slightly different fix proposal.
-
-Fixes: 674f8438c121 ("xhci: split handling halted endpoints into two steps")
-Cc: <stable@vger.kernel.org> #5.12
-Reported-by: Tao Wang <wat@codeaurora.org>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Reported-by: Fabio Aiuto <fabioaiuto83@gmail.com>
+Fixes: 79419e13e808 ("x86/boot/compressed/64: Setup IDT in startup_32 boot path")
+Cc: stable@vger.kernel.org # 5.13+
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- drivers/usb/host/xhci-ring.c | 40 ++++++++++++++++++++++--------------
- 1 file changed, 25 insertions(+), 15 deletions(-)
+ arch/x86/boot/compressed/efi_thunk_64.S | 30 +++++++++++++++++--------
+ arch/x86/boot/compressed/head_64.S      |  3 +++
+ 2 files changed, 24 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/usb/host/xhci-ring.c b/drivers/usb/host/xhci-ring.c
-index d0faa67a689d..9017986241f5 100644
---- a/drivers/usb/host/xhci-ring.c
-+++ b/drivers/usb/host/xhci-ring.c
-@@ -942,17 +942,21 @@ static int xhci_invalidate_cancelled_tds(struct xhci_virt_ep *ep)
- 					 td->urb->stream_id);
- 		hw_deq &= ~0xf;
+diff --git a/arch/x86/boot/compressed/efi_thunk_64.S b/arch/x86/boot/compressed/efi_thunk_64.S
+index 95a223b3e56a..8bb92e9f4e97 100644
+--- a/arch/x86/boot/compressed/efi_thunk_64.S
++++ b/arch/x86/boot/compressed/efi_thunk_64.S
+@@ -5,9 +5,8 @@
+  * Early support for invoking 32-bit EFI services from a 64-bit kernel.
+  *
+  * Because this thunking occurs before ExitBootServices() we have to
+- * restore the firmware's 32-bit GDT before we make EFI service calls,
+- * since the firmware's 32-bit IDT is still currently installed and it
+- * needs to be able to service interrupts.
++ * restore the firmware's 32-bit GDT and IDT before we make EFI service
++ * calls.
+  *
+  * On the plus side, we don't have to worry about mangling 64-bit
+  * addresses into 32-bits because we're executing with an identity
+@@ -39,7 +38,7 @@ SYM_FUNC_START(__efi64_thunk)
+ 	/*
+ 	 * Convert x86-64 ABI params to i386 ABI
+ 	 */
+-	subq	$32, %rsp
++	subq	$64, %rsp
+ 	movl	%esi, 0x0(%rsp)
+ 	movl	%edx, 0x4(%rsp)
+ 	movl	%ecx, 0x8(%rsp)
+@@ -49,14 +48,19 @@ SYM_FUNC_START(__efi64_thunk)
+ 	leaq	0x14(%rsp), %rbx
+ 	sgdt	(%rbx)
  
--		if (td->cancel_status == TD_HALTED) {
--			cached_td = td;
--		} else if (trb_in_td(xhci, td->start_seg, td->first_trb,
--			      td->last_trb, hw_deq, false)) {
-+		if (td->cancel_status == TD_HALTED ||
-+		    trb_in_td(xhci, td->start_seg, td->first_trb, td->last_trb, hw_deq, false)) {
- 			switch (td->cancel_status) {
- 			case TD_CLEARED: /* TD is already no-op */
- 			case TD_CLEARING_CACHE: /* set TR deq command already queued */
- 				break;
- 			case TD_DIRTY: /* TD is cached, clear it */
- 			case TD_HALTED:
--				/* FIXME  stream case, several stopped rings */
-+				td->cancel_status = TD_CLEARING_CACHE;
-+				if (cached_td)
-+					/* FIXME  stream case, several stopped rings */
-+					xhci_dbg(xhci,
-+						 "Move dq past stream %u URB %p instead of stream %u URB %p\n",
-+						 td->urb->stream_id, td->urb,
-+						 cached_td->urb->stream_id, cached_td->urb);
- 				cached_td = td;
- 				break;
- 			}
-@@ -961,18 +965,24 @@ static int xhci_invalidate_cancelled_tds(struct xhci_virt_ep *ep)
- 			td->cancel_status = TD_CLEARED;
- 		}
- 	}
--	if (cached_td) {
--		cached_td->cancel_status = TD_CLEARING_CACHE;
- 
--		err = xhci_move_dequeue_past_td(xhci, slot_id, ep->ep_index,
--						cached_td->urb->stream_id,
--						cached_td);
--		/* Failed to move past cached td, try just setting it noop */
--		if (err) {
--			td_to_noop(xhci, ring, cached_td, false);
--			cached_td->cancel_status = TD_CLEARED;
-+	/* If there's no need to move the dequeue pointer then we're done */
-+	if (!cached_td)
-+		return 0;
++	addq	$16, %rbx
++	sidt	(%rbx)
 +
-+	err = xhci_move_dequeue_past_td(xhci, slot_id, ep->ep_index,
-+					cached_td->urb->stream_id,
-+					cached_td);
-+	if (err) {
-+		/* Failed to move past cached td, just set cached TDs to no-op */
-+		list_for_each_entry_safe(td, tmp_td, &ep->cancelled_td_list, cancelled_td_list) {
-+			if (td->cancel_status != TD_CLEARING_CACHE)
-+				continue;
-+			xhci_dbg(xhci, "Failed to clear cancelled cached URB %p, mark clear anyway\n",
-+				 td->urb);
-+			td_to_noop(xhci, ring, td, false);
-+			td->cancel_status = TD_CLEARED;
- 		}
--		cached_td = NULL;
- 	}
- 	return 0;
- }
+ 	/*
+-	 * Switch to gdt with 32-bit segments. This is the firmware GDT
+-	 * that was installed when the kernel started executing. This
+-	 * pointer was saved at the EFI stub entry point in head_64.S.
++	 * Switch to IDT and GDT with 32-bit segments. This is the firmware GDT
++	 * and IDT that was installed when the kernel started executing. The
++	 * pointers were saved at the EFI stub entry point in head_64.S.
+ 	 *
+ 	 * Pass the saved DS selector to the 32-bit code, and use far return to
+ 	 * restore the saved CS selector.
+ 	 */
++	leaq	efi32_boot_idt(%rip), %rax
++	lidt	(%rax)
+ 	leaq	efi32_boot_gdt(%rip), %rax
+ 	lgdt	(%rax)
+ 
+@@ -67,7 +71,7 @@ SYM_FUNC_START(__efi64_thunk)
+ 	pushq	%rax
+ 	lretq
+ 
+-1:	addq	$32, %rsp
++1:	addq	$64, %rsp
+ 	movq	%rdi, %rax
+ 
+ 	pop	%rbx
+@@ -128,10 +132,13 @@ SYM_FUNC_START_LOCAL(efi_enter32)
+ 
+ 	/*
+ 	 * Some firmware will return with interrupts enabled. Be sure to
+-	 * disable them before we switch GDTs.
++	 * disable them before we switch GDTs and IDTs.
+ 	 */
+ 	cli
+ 
++	lidtl	(%ebx)
++	subl	$16, %ebx
++
+ 	lgdtl	(%ebx)
+ 
+ 	movl	%cr4, %eax
+@@ -166,6 +173,11 @@ SYM_DATA_START(efi32_boot_gdt)
+ 	.quad	0
+ SYM_DATA_END(efi32_boot_gdt)
+ 
++SYM_DATA_START(efi32_boot_idt)
++	.word	0
++	.quad	0
++SYM_DATA_END(efi32_boot_idt)
++
+ SYM_DATA_START(efi32_boot_cs)
+ 	.word	0
+ SYM_DATA_END(efi32_boot_cs)
+diff --git a/arch/x86/boot/compressed/head_64.S b/arch/x86/boot/compressed/head_64.S
+index a2347ded77ea..572c535cf45b 100644
+--- a/arch/x86/boot/compressed/head_64.S
++++ b/arch/x86/boot/compressed/head_64.S
+@@ -319,6 +319,9 @@ SYM_INNER_LABEL(efi32_pe_stub_entry, SYM_L_LOCAL)
+ 	movw	%cs, rva(efi32_boot_cs)(%ebp)
+ 	movw	%ds, rva(efi32_boot_ds)(%ebp)
+ 
++	/* Store firmware IDT descriptor */
++	sidtl	rva(efi32_boot_idt)(%ebp)
++
+ 	/* Disable paging */
+ 	movl	%cr0, %eax
+ 	btrl	$X86_CR0_PG_BIT, %eax
 -- 
-2.25.1
+2.32.0
 
