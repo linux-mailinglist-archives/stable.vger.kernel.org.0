@@ -2,63 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A59DF3F2B44
-	for <lists+stable@lfdr.de>; Fri, 20 Aug 2021 13:32:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B53D53F2B4B
+	for <lists+stable@lfdr.de>; Fri, 20 Aug 2021 13:35:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237382AbhHTLcr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Aug 2021 07:32:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50232 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239876AbhHTLcp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Aug 2021 07:32:45 -0400
-Received: from mail-lf1-x132.google.com (mail-lf1-x132.google.com [IPv6:2a00:1450:4864:20::132])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54D31C061575
-        for <stable@vger.kernel.org>; Fri, 20 Aug 2021 04:32:06 -0700 (PDT)
-Received: by mail-lf1-x132.google.com with SMTP id i9so19900167lfg.10
-        for <stable@vger.kernel.org>; Fri, 20 Aug 2021 04:32:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=EVr+GNugLlc0xK2l3OQNOEkKJ5gDmo5J6cp/NzY4KIo=;
-        b=g/3GoAXQr+Zsw0lPoKFQZYQh188zcYIgkRHgolRW4BAYH5vDkDa3t30oI3maG67g+9
-         qimz4WKmeJojSDgZLB//aoTg9r3om/iNXuycfdDIf6J1BcNqxbf606hMhPnpgvGeDDe6
-         ssaoidENTRZfHWdZjj+seAo83GcDfPc3im52/yy/hSnScMtQJl7hsKy5MlLY6EdWbyn8
-         MdlXPz/k5loeuCpGynJHi57Jfno5HvYndjUD7sJSWBUPUcsvejSfs9bD+hZXHOo08Bbt
-         Anrd39TVse5YwDotsyU4W4wUWxC98Xb84HT3Eklq6GurqBO8EKEHqjb6lXEDAZUplxTb
-         9NeQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=EVr+GNugLlc0xK2l3OQNOEkKJ5gDmo5J6cp/NzY4KIo=;
-        b=uJxhzElFQPghYLvAHLUMRf9e8Lg82gdoyd8w27AufADt+CcqoC9JnmLbabaurewr/5
-         67sx343wJoid1waEomK642SSGFlp3v2rPuyEf0A1IzdJ79UkTCQTUrUgORduI3mCkDgu
-         jj5ZciqClJl/PBuBl4aUUk+GYMkIY3M6PCjhwBffUspRwdoacYwIiluFdmjk9BiD26BM
-         w+3z1y9/LVJOX+RNf22RMxhT0gEA1FFlgzvTngISkdXTSLv0FPMDHDq2UENVg1psKJAg
-         YG2GJ3/g6zR0sJSmaNIinlPzMp7TixDpG15fq1z5sWaqreg6kC36W6KEMeYIWbwEtXed
-         LX2g==
-X-Gm-Message-State: AOAM531pOFoOddEiXvcVBwR/ylrI+Euh64BVrmk24Ftm0FD/btK9h+Wq
-        LMNJ2PUtlfo7InNFdhxRY1Cq/nZ/0LeQ/6Vn9lM=
-X-Google-Smtp-Source: ABdhPJwUpazCi6+rLA7TqFQIwbQLQrmi3YZKldb5iTSemSdHVLrEbMhZQytUo9Ll6yJTj+k7pwAtaDMLkZc+spB1c2s=
-X-Received: by 2002:a05:6512:ac4:: with SMTP id n4mr14261344lfu.475.1629459124770;
- Fri, 20 Aug 2021 04:32:04 -0700 (PDT)
+        id S239377AbhHTLfq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Aug 2021 07:35:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48132 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S239233AbhHTLfq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Aug 2021 07:35:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 40C8361051;
+        Fri, 20 Aug 2021 11:35:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1629459308;
+        bh=tkVRmuGLhLfvsBQ3/bsUHTitr56vDiVOqOLUyKm0InQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=BDSNSX8F+DlYltseB0FN+yIf9YASDb9S52bRN2o+mkZ0KaRb780gByvfQxN+pBrMI
+         kDI1ilmXZbWdHaGos0MRfjvKCts4hvDQf/4PzIcNDkSiEtz1RFE5NlxQD2ylm8Pdgw
+         2LLbfoJmUkIbdsIPmvgWEF4thNmv7o1jaUqD1DE/I42Ai6FJL2Ad4DzesBEFWKozWC
+         fC9AvbGuwdALjC065GHOZIfRxp5Gra7plMyLJVnYjaJJJqmQrq6IFZT6k6vn4My140
+         PTAG5x1TXXv0YLcpniBKx9Ye2XCYdgoY5s67TE8AQMWGV2rg0acuCN1y+e6RNWrqKa
+         p+Ab8K0POfGWw==
+Received: by pali.im (Postfix)
+        id BD89B7C5; Fri, 20 Aug 2021 13:35:05 +0200 (CEST)
+Date:   Fri, 20 Aug 2021 13:35:05 +0200
+From:   Pali =?utf-8?B?Um9ow6Fy?= <pali@kernel.org>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        linux-wireless@vger.kernel.org
+Subject: Re: Backporting CVE-2020-3702 ath9k patches to stable
+Message-ID: <20210820113505.dgcsurognowp6xqp@pali>
+References: <20210818084859.vcs4vs3yd6zetmyt@pali>
+ <YRzMt53Ca/5irXc0@kroah.com>
+ <20210818091027.2mhqrhg5pcq2bagt@pali>
+ <YRzQZZIp/LfMy/xG@kroah.com>
 MIME-Version: 1.0
-Received: by 2002:ac2:443b:0:0:0:0:0 with HTTP; Fri, 20 Aug 2021 04:32:04
- -0700 (PDT)
-Reply-To: frankedwardjnr100@gmail.com
-From:   Frank Edwardjnr <dcurtis2030@gmail.com>
-Date:   Fri, 20 Aug 2021 12:32:04 +0100
-Message-ID: <CAPdAYp7foS=x1uJQQ1o67LTiX2qZV3qMfyRo6DgD-9ZqNNBPig@mail.gmail.com>
-Subject: hi
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <YRzQZZIp/LfMy/xG@kroah.com>
+User-Agent: NeoMutt/20180716
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-SGVsbG8sDQpJIGNhbGxlZCB0byBrbm93IGlmIHlvdSByZWNlaXZlZCBteSBwcmV2aW91cyBlbWFp
-bCwgcmVwbHkgdG8gbWUNCmFzYXAuDQpGcmFuaw0KDQrslYjrhZXtlZjshLjsmpQNCuuCnCDri7ns
-i6DsnbQg64K0IOydtOyghCDsnbTrqZTsnbzsnYTrsJvsnYAg6rK97JqwIOyVjOqzoCDsoITtmZQs
-IOuCmOyXkOqyjCDtmozsi6ANCuu5qOumrC4NCuyGlOynge2VmOuLpA0K
+On Wednesday 18 August 2021 11:18:29 Greg KH wrote:
+> On Wed, Aug 18, 2021 at 11:10:27AM +0200, Pali Rohár wrote:
+> > On Wednesday 18 August 2021 11:02:47 Greg KH wrote:
+> > > On Wed, Aug 18, 2021 at 10:48:59AM +0200, Pali Rohár wrote:
+> > > > Hello! I would like to request for backporting following ath9k commits
+> > > > which are fixing CVE-2020-3702 issue.
+> > > > 
+> > > > 56c5485c9e44 ("ath: Use safer key clearing with key cache entries")
+> > > > 73488cb2fa3b ("ath9k: Clear key cache explicitly on disabling hardware")
+> > > > d2d3e36498dd ("ath: Export ath_hw_keysetmac()")
+> > > > 144cd24dbc36 ("ath: Modify ath_key_delete() to not need full key entry")
+> > > > ca2848022c12 ("ath9k: Postpone key cache entry deletion for TXQ frames reference it")
+> > > > 
+> > > > See also:
+> > > > https://lore.kernel.org/linux-wireless/87o8hvlx5g.fsf@codeaurora.org/
+> > > > 
+> > > > This CVE-2020-3702 issue affects ath9k driver in stable kernel versions.
+> > > > And due to this issue Qualcomm suggests to not use open source ath9k
+> > > > driver and instead to use their proprietary driver which do not have
+> > > > this issue.
+> > > > 
+> > > > Details about CVE-2020-3702 are described on the ESET blog post:
+> > > > https://www.welivesecurity.com/2020/08/06/beyond-kr00k-even-more-wifi-chips-vulnerable-eavesdropping/
+> > > > 
+> > > > Two months ago ESET tested above mentioned commits applied on top of
+> > > > 4.14 stable tree and confirmed that issue cannot be reproduced anymore
+> > > > with those patches. Commits were applied cleanly on top of 4.14 stable
+> > > > tree without need to do any modification.
+> > > 
+> > > What stable tree(s) do you want to see these go into?
+> > 
+> > Commits were introduced in 5.12, so it should go to all stable trees << 5.12
+> > 
+> > > And what order are the above commits to be applied in, top-to-bottom or
+> > > bottom-to-top?
+> > 
+> > Same order in which were applied in 5.12. So first commit to apply is
+> > 56c5485c9e44, then 73488cb2fa3b and so on... (from top of the email to
+> > the bottom of email).
+> 
+> Great, all now queued up.  Sad that qcom didn't want to do this
+> themselves :(
+> 
+> greg k-h
+
+It is sad, but Qualcomm support said that they have fixed it in their
+proprietary driver in July 2020 (so more than year ago) and that open
+source drivers like ath9k are unsupported and customers should not use
+them :( And similar answer is from vendors who put these chips into
+their cards / products.
