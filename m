@@ -2,87 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59D313F28CA
-	for <lists+stable@lfdr.de>; Fri, 20 Aug 2021 11:02:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 97FFB3F290F
+	for <lists+stable@lfdr.de>; Fri, 20 Aug 2021 11:25:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233386AbhHTJD1 convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 20 Aug 2021 05:03:27 -0400
-Received: from eu-smtp-delivery-151.mimecast.com ([185.58.86.151]:56163 "EHLO
-        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233561AbhHTJD1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Aug 2021 05:03:27 -0400
-Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) (Using
- TLS) by relay.mimecast.com with ESMTP id
- uk-mta-211-zYbF-yKXOiadlD96bB7S2A-1; Fri, 20 Aug 2021 10:02:47 +0100
-X-MC-Unique: zYbF-yKXOiadlD96bB7S2A-1
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
- Server (TLS) id 15.0.1497.23; Fri, 20 Aug 2021 10:02:46 +0100
-Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
- AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
- 15.00.1497.023; Fri, 20 Aug 2021 10:02:46 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Joerg Roedel' <joro@8bytes.org>
-CC:     "x86@kernel.org" <x86@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "hpa@zytor.com" <hpa@zytor.com>, Joerg Roedel <jroedel@suse.de>,
+        id S233437AbhHTJ0G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Aug 2021 05:26:06 -0400
+Received: from mail.skyhub.de ([5.9.137.197]:32956 "EHLO mail.skyhub.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232991AbhHTJ0G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Aug 2021 05:26:06 -0400
+Received: from zn.tnic (p200300ec2f107b00c7422970522e0abe.dip0.t-ipconnect.de [IPv6:2003:ec:2f10:7b00:c742:2970:522e:abe])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 755551EC047D;
+        Fri, 20 Aug 2021 11:25:23 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
+        t=1629451523;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
+        bh=CLw1R2E8tRT9zZxScyNNPpxGm1yDL2InY9dHbzY51fU=;
+        b=DtkfIwZqVj7StAX8FsC0CFsqYI8v3d/RdofKs4XYIlVVAVWh4sXDgHicAIPykMWOhaZOw9
+        vbi2vVsTs/fbacZR6D0M+pPbKq8/Q+XjRnR/9cNKUCNrJZIa9C7Y7v8kMmsLt9ioYwOPwe
+        koK8dC8igpnT2BL6Pqf1nJqqCYXI10M=
+Date:   Fri, 20 Aug 2021 11:26:00 +0200
+From:   Borislav Petkov <bp@alien8.de>
+To:     Joerg Roedel <joro@8bytes.org>
+Cc:     x86@kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, hpa@zytor.com,
+        Joerg Roedel <jroedel@suse.de>,
         Kees Cook <keescook@chromium.org>,
         Andy Lutomirski <luto@kernel.org>,
         Uros Bizjak <ubizjak@gmail.com>,
         Arvind Sankar <nivedita@alum.mit.edu>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Fabio Aiuto <fabioaiuto83@gmail.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH] x86/efi: Restore Firmware IDT in before
+        Ard Biesheuvel <ardb@kernel.org>, linux-kernel@vger.kernel.org,
+        Fabio Aiuto <fabioaiuto83@gmail.com>, stable@vger.kernel.org
+Subject: Re: [PATCH] x86/efi: Restore Firmware IDT in before
  ExitBootServices()
-Thread-Topic: [PATCH] x86/efi: Restore Firmware IDT in before
- ExitBootServices()
-Thread-Index: AQHXlZXa+jtHdymQB0W1fhKjcUB7Wqt8EPPg///0gwCAABNdkA==
-Date:   Fri, 20 Aug 2021 09:02:46 +0000
-Message-ID: <f68a175362984e4abbb0a1da2004c936@AcuMS.aculab.com>
+Message-ID: <YR91KKJ1Bq/KNBnY@zn.tnic>
 References: <20210820073429.19457-1-joro@8bytes.org>
- <e43eb0d137164270bf16258e6d11879e@AcuMS.aculab.com>
- <YR9tSuLyX8QHV5Pv@8bytes.org>
-In-Reply-To: <YR9tSuLyX8QHV5Pv@8bytes.org>
-Accept-Language: en-GB, en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-Authentication-Results: relay.mimecast.com;
-        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20210820073429.19457-1-joro@8bytes.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: 'Joerg Roedel'
-> Sent: 20 August 2021 09:52
+On Fri, Aug 20, 2021 at 09:34:29AM +0200, Joerg Roedel wrote:
+> From: Joerg Roedel <jroedel@suse.de>
 > 
-> On Fri, Aug 20, 2021 at 08:43:47AM +0000, David Laight wrote:
-> > Hmmm...
-> > If Linux needs its own IDT then temporarily substituting the old IDT
-> > prior to a UEFI call will cause 'grief' if a 'Linux' interrupt
-> > happens during the UEFI call.
+> Commit 79419e13e808 ("x86/boot/compressed/64: Setup IDT in startup_32
+> boot path") introduced an IDT into the 32 bit boot path of the
+> decompressor stub.  But the IDT is set up before ExitBootServices() is
+> called and some UEFI firmwares rely on their own IDT.
 > 
-> This is neede only during very early boot before Linux called
-> ExitBootServices(). Nothing that causes IRQs is set up by Linux yet. Of
-> course the Firmware could have set something up, but Linux runs with
-> IRQs disabled when on its own IDT at that stage.
+> Save the firmware IDT on boot and restore it before calling into EFI
+> functions to fix boot failures introduced by above commit.
+> 
+> Reported-by: Fabio Aiuto <fabioaiuto83@gmail.com>
+> Fixes: 79419e13e808 ("x86/boot/compressed/64: Setup IDT in startup_32 boot path")
+> Cc: stable@vger.kernel.org # 5.13+
+> Signed-off-by: Joerg Roedel <jroedel@suse.de>
+> ---
+>  arch/x86/boot/compressed/efi_thunk_64.S | 23 ++++++++++++++++++-----
+>  arch/x86/boot/compressed/head_64.S      |  3 +++
+>  2 files changed, 21 insertions(+), 5 deletions(-)
+> 
+> diff --git a/arch/x86/boot/compressed/efi_thunk_64.S b/arch/x86/boot/compressed/efi_thunk_64.S
+> index 95a223b3e56a..99cfd5dea23c 100644
+> --- a/arch/x86/boot/compressed/efi_thunk_64.S
+> +++ b/arch/x86/boot/compressed/efi_thunk_64.S
+> @@ -39,7 +39,7 @@ SYM_FUNC_START(__efi64_thunk)
+>  	/*
+>  	 * Convert x86-64 ABI params to i386 ABI
+>  	 */
+> -	subq	$32, %rsp
+> +	subq	$64, %rsp
+>  	movl	%esi, 0x0(%rsp)
+>  	movl	%edx, 0x4(%rsp)
+>  	movl	%ecx, 0x8(%rsp)
+> @@ -49,14 +49,19 @@ SYM_FUNC_START(__efi64_thunk)
+>  	leaq	0x14(%rsp), %rbx
+>  	sgdt	(%rbx)
+>  
+> +	addq	$16, %rbx
+> +	sidt	(%rbx)
+> +
+>  	/*
+> -	 * Switch to gdt with 32-bit segments. This is the firmware GDT
+> -	 * that was installed when the kernel started executing. This
+> -	 * pointer was saved at the EFI stub entry point in head_64.S.
+> +	 * Switch to idt and gdt with 32-bit segments. This is the firmware GDT
 
-So allocate and initialise the Linux IDT - so entries can be added.
-But don't execute 'lidt' until later on.
+IDT and GDT, both capitalized pls. Also, the comment at the top of the
+file needs adjusting.
 
-	David
+> +	 * and IDT that was installed when the kernel started executing. The
+> +	 * pointers were saved at the EFI stub entry point in head_64.S.
+>  	 *
+>  	 * Pass the saved DS selector to the 32-bit code, and use far return to
+>  	 * restore the saved CS selector.
+>  	 */
+> +	leaq	efi32_boot_idt(%rip), %rax
+> +	lidt	(%rax)
+>  	leaq	efi32_boot_gdt(%rip), %rax
+>  	lgdt	(%rax)
+>  
+> @@ -67,7 +72,7 @@ SYM_FUNC_START(__efi64_thunk)
+>  	pushq	%rax
+>  	lretq
+>  
+> -1:	addq	$32, %rsp
+> +1:	addq	$64, %rsp
+>  	movq	%rdi, %rax
+>  
+>  	pop	%rbx
+> @@ -132,6 +137,9 @@ SYM_FUNC_START_LOCAL(efi_enter32)
+>  	 */
 
--
-Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
-Registration No: 1397386 (Wales)
+Can you pls also extend this comment here to say "IDT" for faster
+pinpointing when someone like me is looking for the place where the
+kernel IDT/GDT get restored again.
 
+In any case, those are all minor nitpicks, other than that LGTM.
+
+Lemme go test it on whatever I can - if others wanna run this, it would
+be very much appreciated!
+
+Thx.
+
+-- 
+Regards/Gruss,
+    Boris.
+
+https://people.kernel.org/tglx/notes-about-netiquette
