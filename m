@@ -2,54 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B04043F2A06
-	for <lists+stable@lfdr.de>; Fri, 20 Aug 2021 12:20:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 961783F2A46
+	for <lists+stable@lfdr.de>; Fri, 20 Aug 2021 12:46:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238857AbhHTKUg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Aug 2021 06:20:36 -0400
-Received: from 8bytes.org ([81.169.241.247]:38046 "EHLO theia.8bytes.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232572AbhHTKUg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Aug 2021 06:20:36 -0400
-Received: by theia.8bytes.org (Postfix, from userid 1000)
-        id 0BD9F309; Fri, 20 Aug 2021 12:19:56 +0200 (CEST)
-Date:   Fri, 20 Aug 2021 12:19:50 +0200
-From:   'Joerg Roedel' <joro@8bytes.org>
-To:     David Laight <David.Laight@aculab.com>
-Cc:     "x86@kernel.org" <x86@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "hpa@zytor.com" <hpa@zytor.com>, Joerg Roedel <jroedel@suse.de>,
-        Kees Cook <keescook@chromium.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Uros Bizjak <ubizjak@gmail.com>,
-        Arvind Sankar <nivedita@alum.mit.edu>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Fabio Aiuto <fabioaiuto83@gmail.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH] x86/efi: Restore Firmware IDT in before
- ExitBootServices()
-Message-ID: <YR+Bxgq4aIo1DI8j@8bytes.org>
-References: <20210820073429.19457-1-joro@8bytes.org>
- <e43eb0d137164270bf16258e6d11879e@AcuMS.aculab.com>
- <YR9tSuLyX8QHV5Pv@8bytes.org>
- <f68a175362984e4abbb0a1da2004c936@AcuMS.aculab.com>
+        id S237148AbhHTKqk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Aug 2021 06:46:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39588 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229847AbhHTKqk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Aug 2021 06:46:40 -0400
+Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57C78C061575
+        for <stable@vger.kernel.org>; Fri, 20 Aug 2021 03:46:02 -0700 (PDT)
+Received: by mail-ed1-x52a.google.com with SMTP id dj8so13388095edb.2
+        for <stable@vger.kernel.org>; Fri, 20 Aug 2021 03:46:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:sender:from:date:message-id:subject:to;
+        bh=yA7qi/rPIuweS4goxIq/zK9E4QXP06igFOjoAQAU374=;
+        b=f43e3fDTq93+BfQzJ5NH6hf1PhNzt56p0mYVdtRaHHAlpLOcL/knW0wTxEsnSYhLRs
+         ibkaF12L0KZ4L3S+xKeR6e4lg2yJ/P9c1R0Q7bzQE3GMfAPEqAwJR6GVfBP+t2YAjatJ
+         dHpaAZRU6g2l7ecodyv19uZ2AorRXqHUK011vxmPRKl20ig+a9Oeh8DkwQg8p40tG/MQ
+         MWxGOrJvx6M0LQ5jOPeIO9S2tdV//4vl+LBac05wrnskFJUKl3yYv9d7VerCQRliFpkm
+         ZJEbLJ5BiLd9wodXSTU/QoFBRb+Ah3XcOUzcRri1YdTHPAtfejY236IpMX1EhAW+R56b
+         7o9g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:sender:from:date
+         :message-id:subject:to;
+        bh=yA7qi/rPIuweS4goxIq/zK9E4QXP06igFOjoAQAU374=;
+        b=fjrRiKo2DuUNk1NhYicGHkbrw/DxWX2s9e8+TmcR6YZ2sbHHSW2x/siZlCxqxI2jba
+         tS861YzgGyD0w4sI763DmT192eO1T9rUGdg9BqiL6UOjHy4FdOLr10gRkiTNjzCr0txR
+         1ODDTV0jNrshHXWknDODBQ50tN+urAXr4Y6LSlob5fYiEnvOUxokdTtWthPKnLGIjpyL
+         Oj6/A7eO2dvIVYlQRV31lNzAk2HnjuLApuPz1fNxZKZ5jDOCr2dP+aBNZiamQXqTscK/
+         PJtiHxlt2sgxbAAUUzeZPxN1S2G1pIxhS2Np+iCGXPXqE/UnOOLAvK8anqDvHhPBzstb
+         3xBA==
+X-Gm-Message-State: AOAM532rYYuKVLhg4YyxEaNjmiSaMfGMNBbuMraf1N0B/Sc9crEFu8xp
+        XhAndJvE8PJngQGx8XEl6K/+Y9AqiZhnkch8Ryo=
+X-Google-Smtp-Source: ABdhPJwb7t3ZRVPQkrZ683TX+HGQhGDNcEjAO51w45/z9Qvmc5D1yKDhpcCqMJEvoFaB/9DTgIu1kdWV9gX0gGBqVVg=
+X-Received: by 2002:a05:6402:2883:: with SMTP id eg3mr21331613edb.278.1629456360987;
+ Fri, 20 Aug 2021 03:46:00 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <f68a175362984e4abbb0a1da2004c936@AcuMS.aculab.com>
+Reply-To: mrsvalerian1947@gmail.com
+Sender: elizabethdickson197222@gmail.com
+Received: by 2002:a17:906:2a59:0:0:0:0 with HTTP; Fri, 20 Aug 2021 03:46:00
+ -0700 (PDT)
+From:   "Mrs. Jane Valerian" <mrs.janevalerian19772@gmail.com>
+Date:   Fri, 20 Aug 2021 03:46:00 -0700
+X-Google-Sender-Auth: sqyEuLzCP20lIjFCyo9oBB9O0Sk
+Message-ID: <CAOuQo74xn-4BKfiMHH1Z3o8BhcPoxMBpX2Msv5DBZHRJdtOCzQ@mail.gmail.com>
+Subject: Dear Beloved,
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Aug 20, 2021 at 09:02:46AM +0000, David Laight wrote:
-> So allocate and initialise the Linux IDT - so entries can be added.
-> But don't execute 'lidt' until later on.
+HELLO,
 
-The IDT is needed in this path to handle #VC exceptions caused by CPUID
-instructions. So loading the IDT later is not an option.
+Dear Beloved,
 
-Regards,
+I am Mrs. Jane Valerian from, United States. It is understandable that
+you may be a bit apprehensive because you do not know me, I found your
+email address from a Human resources database and decided to contact
+you. I would love to employ you into my charity work, I am ready to
+donate some money to you to carry on the Charity work in your country.
+Please reply so that i will give you further details and tell you
+about myself.
 
-	Joerg
+Yours Sincerely
+Mrs. Jane Valerian
