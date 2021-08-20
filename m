@@ -2,132 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58CC43F23F4
-	for <lists+stable@lfdr.de>; Fri, 20 Aug 2021 02:03:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B13533F2427
+	for <lists+stable@lfdr.de>; Fri, 20 Aug 2021 02:42:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237165AbhHTADt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Aug 2021 20:03:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35438 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237079AbhHTADt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 Aug 2021 20:03:49 -0400
-Received: from mail-pg1-x536.google.com (mail-pg1-x536.google.com [IPv6:2607:f8b0:4864:20::536])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F2ECC061756
-        for <stable@vger.kernel.org>; Thu, 19 Aug 2021 17:03:12 -0700 (PDT)
-Received: by mail-pg1-x536.google.com with SMTP id q2so7434798pgt.6
-        for <stable@vger.kernel.org>; Thu, 19 Aug 2021 17:03:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=axtens.net; s=google;
-        h=from:to:cc:subject:in-reply-to:references:date:message-id
-         :mime-version;
-        bh=vRFO+rG5NKULoNq4nrGremPyKJ3sp4O0aBsDwvD+Jws=;
-        b=bUVS0z1tbTEuTnJpUI0DCsREOWqYBS393adFo6vkPpAcDd3VFldkcu6Bu8+NPNkVIr
-         zVB/aqzwm03BccvSPAo1MxAZoGqM1V3G7Ml6IdOp9vADp+ZnRlfr9+qSxRd7e6+I4Agi
-         5JhMzvnd1IByLpNrXS8swwAmSNZRyvnAn463M=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:in-reply-to:references:date
-         :message-id:mime-version;
-        bh=vRFO+rG5NKULoNq4nrGremPyKJ3sp4O0aBsDwvD+Jws=;
-        b=NOnOU3b7RkAEfONZkhlrFKcvPAN4mzETEoIPkHU1JMnAlYdrGKQUI9wuJWnGhyzJSV
-         ST9sYlHQXB+/la7hQYcBrqw1YN0wFGs2RSRq5aiqpqTeDNSFUV6t2wr3m469G42h5GFk
-         z43OwErYPELYI76YaEkxYlXzxEt4aPxraBb0GxgYaQmXSqpfJumxcril6GiHfaAq5X26
-         arXAtHVem/AlTuWDS0+gUK6Rfswe2qWC7+v34vYvwyz39eaXpit/WzJFsBkOk1/xqi1k
-         /YL0uXTtEE/+A7AennTngbomRmGFyMW+UM+5BHqPJISWi/TYROD0ZoudwNR6R+tYXmpz
-         Pnng==
-X-Gm-Message-State: AOAM530YeB0rBZAPaXXSjtp7fAFidiQoGoFgwXbyBC9KlyPFn2NIK6yX
-        hFYfU3cqkIdsgczCY+S7E/LPJw==
-X-Google-Smtp-Source: ABdhPJxUAM4AJRANovdfNIBfj6aTNBPXbXy30qW0KYGlBj+lnS2H5nQpOUOt6OPGf27oUrWy+/Ipjg==
-X-Received: by 2002:a63:2242:: with SMTP id t2mr15735424pgm.111.1629417791779;
-        Thu, 19 Aug 2021 17:03:11 -0700 (PDT)
-Received: from localhost ([2001:4479:e000:e400:3a83:f47e:d5a3:378a])
-        by smtp.gmail.com with ESMTPSA id d15sm3189825pfh.34.2021.08.19.17.03.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 19 Aug 2021 17:03:11 -0700 (PDT)
-From:   Daniel Axtens <dja@axtens.net>
-To:     Lukas Bulwahn <lukas.bulwahn@gmail.com>,
-        Paul Mackerras <paulus@ozlabs.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Michael Neuling <mikey@neuling.org>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        kvm-ppc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
-Cc:     Lukas Bulwahn <lukas.bulwahn@gmail.com>,
-        kernel-janitors@vger.kernel.org, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 2/2] powerpc: rectify selection to
- ARCH_ENABLE_SPLIT_PMD_PTLOCK
-In-Reply-To: <20210819113954.17515-3-lukas.bulwahn@gmail.com>
-References: <20210819113954.17515-1-lukas.bulwahn@gmail.com>
- <20210819113954.17515-3-lukas.bulwahn@gmail.com>
-Date:   Fri, 20 Aug 2021 10:03:08 +1000
-Message-ID: <87pmu99e4j.fsf@dja-thinkpad.axtens.net>
+        id S234313AbhHTAmo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Aug 2021 20:42:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42812 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233644AbhHTAmo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Aug 2021 20:42:44 -0400
+Received: from rorschach.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 62532610A5;
+        Fri, 20 Aug 2021 00:42:06 +0000 (UTC)
+Date:   Thu, 19 Aug 2021 20:42:04 -0400
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     <gregkh@linuxfoundation.org>
+Cc:     mathieu.desnoyers@efficios.com, akpm@linux-foundation.org,
+        metze@samba.org, mingo@redhat.com, paulmck@kernel.org,
+        peterz@infradead.org, <stable@vger.kernel.org>
+Subject: Re: FAILED: patch "[PATCH] tracepoint: Use rcu get state and cond
+ sync for static call" failed to apply to 5.10-stable tree
+Message-ID: <20210819204204.00f9ad28@rorschach.local.home>
+In-Reply-To: <20210819170933.5c4c6a38@oasis.local.home>
+References: <1628500832155134@kroah.com>
+        <20210819170933.5c4c6a38@oasis.local.home>
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Lukas Bulwahn <lukas.bulwahn@gmail.com> writes:
+On Thu, 19 Aug 2021 17:09:33 -0400
+Steven Rostedt <rostedt@goodmis.org> wrote:
 
-> Commit 66f24fa766e3 ("mm: drop redundant ARCH_ENABLE_SPLIT_PMD_PTLOCK")
-> selects the non-existing config ARCH_ENABLE_PMD_SPLIT_PTLOCK in
-> ./arch/powerpc/platforms/Kconfig.cputype, but clearly it intends to select
-> ARCH_ENABLE_SPLIT_PMD_PTLOCK here (notice the word swapping!), as this
-> commit does select that for all other architectures.
->
-> Rectify selection to ARCH_ENABLE_SPLIT_PMD_PTLOCK instead.
->
+> Mathieu, seems that the "slow down 10x" patch was able to be backported
+> to 5.10, where as this patch was not. Reason being is that
+> start_poll_synchronize_rcu() was added in 5.13.
 
-Yikes, yes, 66f24fa766e3 does seem to have got that wrong. It looks like
-that went into 5.13.
+I can get this to work if I backport the following RCU patches:
 
-I think we want to specifically target this for stable so that we don't
-lose the perfomance and scalability benefits of split pmd ptlocks:
+29d2bb94a8a126ce80ffbb433b648b32fdea524e
+srcu: Provide internal interface to start a Tree SRCU grace period
 
-Cc: stable@vger.kernel.org # v5.13+
+5358c9fa54b09b5d3d7811b033aa0838c1bbaaf2
+srcu: Provide polling interfaces for Tree SRCU grace periods
 
-(I don't think you need to do another revision for this, I think mpe
-could add it when merging.)
+1a893c711a600ab57526619b56e6f6b7be00956e
+srcu: Provide internal interface to start a Tiny SRCU grace period
 
-I tried to check whether we accidentally broke SPLIT_PMD_PTLOCKs while
-they were disabled:
+8b5bd67cf6422b63ee100d76d8de8960ca2df7f0
+srcu: Provide polling interfaces for Tiny SRCU grace periods
 
- - There hasn't been any change to the pgtable_pmd_page_ctor or _dtor
-   prototypes, and we haven't made any relevant changes to any of the
-   files in arch/powerpc that called it.
+The first three can be cherry-picked without issue. The last one has a
+small conflict, of:
 
- - I checked out v5.13 and powerpc/merge, applied this patch, built a
-   pseries_le_defconfig and boot tested it in qemu. It didn't crash on
-   boot or with /bin/sh and some shell commands, but I didn't exactly
-   stress test the VM subsystem either.
+include/linux/srcutiny.h.rej:
+--- include/linux/srcutiny.h
++++ include/linux/srcutiny.h
+@@ -16,6 +16,7 @@
+ struct srcu_struct {
+        short srcu_lock_nesting[2];     /* srcu_read_lock() nesting depth. */
+        unsigned short srcu_idx;        /* Current reader array element in bit 0x2. */
++       unsigned short srcu_idx_max;    /* Furthest future srcu_idx request. */
+        u8 srcu_gp_running;             /* GP workqueue running? */
+        u8 srcu_gp_waiting;             /* GP waiting for readers? */
+        struct swait_queue_head srcu_wq;
 
-This gives me some confidence it's both good for powerpc and stable-worthy.
 
-Overall:
-Reviewed-by: Daniel Axtens <dja@axtens.net>
+Which I just added that line, and everything worked.
 
-Kind regards,
-Daniel
+Paul, do you have any issues with these four patches getting backported?
 
-> Fixes: 66f24fa766e3 ("mm: drop redundant ARCH_ENABLE_SPLIT_PMD_PTLOCK")
-> Signed-off-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
-> ---
->  arch/powerpc/platforms/Kconfig.cputype | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/arch/powerpc/platforms/Kconfig.cputype b/arch/powerpc/platforms/Kconfig.cputype
-> index 6794145603de..a208997ade88 100644
-> --- a/arch/powerpc/platforms/Kconfig.cputype
-> +++ b/arch/powerpc/platforms/Kconfig.cputype
-> @@ -98,7 +98,7 @@ config PPC_BOOK3S_64
->  	select PPC_HAVE_PMU_SUPPORT
->  	select HAVE_ARCH_TRANSPARENT_HUGEPAGE
->  	select ARCH_ENABLE_HUGEPAGE_MIGRATION if HUGETLB_PAGE && MIGRATION
-> -	select ARCH_ENABLE_PMD_SPLIT_PTLOCK
-> +	select ARCH_ENABLE_SPLIT_PMD_PTLOCK
->  	select ARCH_ENABLE_THP_MIGRATION if TRANSPARENT_HUGEPAGE
->  	select ARCH_SUPPORTS_HUGETLBFS
->  	select ARCH_SUPPORTS_NUMA_BALANCING
-> -- 
-> 2.26.2
+Greg, Are you OK with them too?
+
+Once those are backported, this patch can be backported as well, and
+everything should work. This patch really needs to stay with:
+
+231264d6927f6740af36855a622d0e240be9d94c
+tracepoint: Fix static call function vs data state mismatch
+
+Otherwise I would say to revert it if this one can't be backported with
+it.
+
+-- Steve
