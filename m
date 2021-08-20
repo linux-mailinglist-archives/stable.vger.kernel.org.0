@@ -2,235 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 194793F269E
-	for <lists+stable@lfdr.de>; Fri, 20 Aug 2021 08:02:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F7B53F2719
+	for <lists+stable@lfdr.de>; Fri, 20 Aug 2021 08:58:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238324AbhHTGDL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Aug 2021 02:03:11 -0400
-Received: from mga09.intel.com ([134.134.136.24]:54982 "EHLO mga09.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238343AbhHTGDJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Aug 2021 02:03:09 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10081"; a="216715464"
-X-IronPort-AV: E=Sophos;i="5.84,336,1620716400"; 
-   d="scan'208";a="216715464"
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Aug 2021 23:02:32 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.84,336,1620716400"; 
-   d="scan'208";a="490213817"
-Received: from louislifei-optiplex-7050.sh.intel.com ([10.239.154.151])
-  by fmsmga008.fm.intel.com with ESMTP; 19 Aug 2021 23:02:30 -0700
-From:   Fei Li <fei1.li@intel.com>
-To:     gregkh@linuxfoundation.org
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        fei1.li@intel.com, yu1.wang@intel.com, shuox.liu@gmail.com
-Subject: [PATCH 3/3] virt: acrn: Introduce interface to fetch platform info from the hypervisor
-Date:   Fri, 20 Aug 2021 14:03:06 +0800
-Message-Id: <20210820060306.10682-4-fei1.li@intel.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20210820060306.10682-1-fei1.li@intel.com>
-References: <20210820060306.10682-1-fei1.li@intel.com>
+        id S238507AbhHTG6h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Aug 2021 02:58:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43298 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238418AbhHTG6h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Aug 2021 02:58:37 -0400
+Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA2BDC061575
+        for <stable@vger.kernel.org>; Thu, 19 Aug 2021 23:57:59 -0700 (PDT)
+Received: by mail-ed1-x52f.google.com with SMTP id by4so12599144edb.0
+        for <stable@vger.kernel.org>; Thu, 19 Aug 2021 23:57:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=konsulko.com; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=vktROwdfT/2W3HLGzWkFifgLXqdoBqZ18sow34pIXJc=;
+        b=sN6fC/++0BAFLYXaTS0QbiVZEEevvpfvw9hqYlfpbsDBZIdSdQDF/ZZakZj3RX8Ysm
+         iCH/USyAdh6h1p1xUn6806Rs9YoBrCvk7HMiuhil0Br5SmX1k6SBLRxygKY3/9X5u9lf
+         3czYGOOkRjjKDbZ7PPYyVhsviXZ+acAcfQib8=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=vktROwdfT/2W3HLGzWkFifgLXqdoBqZ18sow34pIXJc=;
+        b=VaVjf4vBSldhqRFTk0VXtA6IFHQ+sDvmZw01If9SJkLslO8f6D/zzTL5NH+1Ne5M0Z
+         9x+efRe1FhrSQ2jUjW23skZYnCLlHWOdM3aCSPHjxZfMrfhvaNSluaH/aDZD2dWIZ8ja
+         AbeqdX5vSNOdrigZqshK8gf/a65EeDEZXSfi2RihnYXA/SDUv67xMN9Mj6c7iWbFy328
+         XaPZqVIVEOEhToss24aRGZ7lLEuVnrkQuD+JGRHvl1FANHSrU40/w67H0gwi0NHPAawe
+         6gf9zvx5B2EcXwFlj4Htc/lJMbpicug2UXQpeMRhdTmzoaefoQKK7FTNBqbjlAkqj+g8
+         ELzA==
+X-Gm-Message-State: AOAM531sIHTwjkGS30+zbcbOaWqjHAwmy+XoasO9B1LbHX0ojyKeqZ5h
+        P1K97GXq9GEu8u+Mzvvn/Q+M4w==
+X-Google-Smtp-Source: ABdhPJwsRnKJaYTjDWrtS6drI4s2jw3vNhBvYSf0AABuBHXvET7UJEQjIMwXbfgajRxhPiSwakGE0g==
+X-Received: by 2002:aa7:c0c6:: with SMTP id j6mr9439846edp.146.1629442678056;
+        Thu, 19 Aug 2021 23:57:58 -0700 (PDT)
+Received: from taos.k.g (lan.nucleusys.com. [92.247.61.126])
+        by smtp.gmail.com with ESMTPSA id z6sm2984637edc.52.2021.08.19.23.57.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 19 Aug 2021 23:57:57 -0700 (PDT)
+From:   Petko Manolov <petko.manolov@konsulko.com>
+To:     davem@davemloft.net
+Cc:     netdev@vger.kernel.org, kuba@kernel.org, paskripkin@gmail.com,
+        stable@vger.kernel.org, Petko Manolov <petko.manolov@konsulko.com>
+Subject: [PATCH v2] net: usb: pegasus: fixes of set_register(s) return value evaluation;
+Date:   Fri, 20 Aug 2021 09:57:53 +0300
+Message-Id: <20210820065753.1803-1-petko.manolov@konsulko.com>
+X-Mailer: git-send-email 2.30.2
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shuo Liu <shuo.a.liu@intel.com>
+  - restore the behavior in enable_net_traffic() to avoid regressions - Jakub
+    Kicinski;
+  - hurried up and removed redundant assignment in pegasus_open() before yet
+    another checker complains;
 
-The ACRN hypervisor configures the guest VMs information statically and
-builds guest VM configurations within the hypervisor. There are also
-some hardware information are stored in the hypervisor in boot stage.
-The ACRN userspace needs platform information to do the orchestration.
-
-The HSM provides the following interface for the ACRN userspace to fetch
-platform info:
- - ACRN_IOCTL_GET_PLATFORM_INFO
-   Exchange the basic information by a struct acrn_platform_info. If the
-   ACRN userspace provides a userspace buffer (whose vma filled in
-   vm_configs_addr), the HSM creates a bounce buffer (kmalloced for
-   continuous memory region) to fetch VM configurations data from the
-   hypervisor.
-
-Signed-off-by: Shuo Liu <shuo.a.liu@intel.com>
-Signed-off-by: Fei Li <fei1.li@intel.com>
+Fixes: 8a160e2e9aeb ("net: usb: pegasus: Check the return value of get_geristers() and friends;")
+Reported-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Petko Manolov <petko.manolov@konsulko.com>
 ---
- drivers/virt/acrn/hsm.c       | 53 +++++++++++++++++++++++++++++++++++
- drivers/virt/acrn/hypercall.h | 12 ++++++++
- include/uapi/linux/acrn.h     | 44 +++++++++++++++++++++++++++++
- 3 files changed, 109 insertions(+)
+ drivers/net/usb/pegasus.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/virt/acrn/hsm.c b/drivers/virt/acrn/hsm.c
-index 5419794fccf1..eb824a1a86a0 100644
---- a/drivers/virt/acrn/hsm.c
-+++ b/drivers/virt/acrn/hsm.c
-@@ -108,6 +108,7 @@ static long acrn_dev_ioctl(struct file *filp, unsigned int cmd,
- 			   unsigned long ioctl_param)
- {
- 	struct acrn_vm *vm = filp->private_data;
-+	struct acrn_platform_info *plat_info;
- 	struct acrn_vm_creation *vm_param;
- 	struct acrn_vcpu_regs *cpu_regs;
- 	struct acrn_ioreq_notify notify;
-@@ -115,9 +116,12 @@ static long acrn_dev_ioctl(struct file *filp, unsigned int cmd,
- 	struct acrn_ioeventfd ioeventfd;
- 	struct acrn_vm_memmap memmap;
- 	struct acrn_mmiodev *mmiodev;
-+	void __user *vm_configs_user;
- 	struct acrn_msi_entry *msi;
- 	struct acrn_pcidev *pcidev;
- 	struct acrn_irqfd irqfd;
-+	void *vm_configs = NULL;
-+	size_t vm_configs_size;
- 	struct acrn_vdev *vdev;
- 	struct page *page;
- 	u64 cstate_cmd;
-@@ -130,6 +134,55 @@ static long acrn_dev_ioctl(struct file *filp, unsigned int cmd,
+diff --git a/drivers/net/usb/pegasus.c b/drivers/net/usb/pegasus.c
+index 652e9fcf0b77..9f9dd0de33cb 100644
+--- a/drivers/net/usb/pegasus.c
++++ b/drivers/net/usb/pegasus.c
+@@ -446,7 +446,7 @@ static int enable_net_traffic(struct net_device *dev, struct usb_device *usb)
+ 		write_mii_word(pegasus, 0, 0x1b, &auxmode);
  	}
  
- 	switch (cmd) {
-+	case ACRN_IOCTL_GET_PLATFORM_INFO:
-+		plat_info = memdup_user((void __user *)ioctl_param,
-+					sizeof(struct acrn_platform_info));
-+		if (IS_ERR(plat_info))
-+			return PTR_ERR(plat_info);
-+
-+		for (i = 0; i < ARRAY_SIZE(plat_info->sw.reserved); i++)
-+			if (plat_info->sw.reserved[i])
-+				return -EINVAL;
-+
-+		for (i = 0; i < ARRAY_SIZE(plat_info->hw.reserved); i++)
-+			if (plat_info->hw.reserved[i])
-+				return -EINVAL;
-+
-+		vm_configs_size = plat_info->sw.vm_config_size *
-+						plat_info->sw.max_vms;
-+		if (plat_info->sw.vm_configs_addr && vm_configs_size) {
-+			vm_configs_user = plat_info->sw.vm_configs_addr;
-+			vm_configs = kzalloc(vm_configs_size, GFP_KERNEL);
-+			if (IS_ERR(vm_configs)) {
-+				kfree(plat_info);
-+				return PTR_ERR(vm_configs);
-+			}
-+			plat_info->sw.vm_configs_addr =
-+					(void __user *)virt_to_phys(vm_configs);
-+		}
-+
-+		ret = hcall_get_platform_info(virt_to_phys(plat_info));
-+		if (ret < 0) {
-+			kfree(vm_configs);
-+			kfree(plat_info);
-+			dev_dbg(acrn_dev.this_device,
-+				"Failed to get info of VM %u!\n", vm->vmid);
-+			break;
-+		}
-+
-+		if (vm_configs) {
-+			if (copy_to_user(vm_configs_user, vm_configs,
-+					 vm_configs_size))
-+				ret = -EFAULT;
-+			plat_info->sw.vm_configs_addr = vm_configs_user;
-+		}
-+		if (!ret && copy_to_user((void __user *)ioctl_param, plat_info,
-+					 sizeof(*plat_info)))
-+			ret = -EFAULT;
-+
-+		kfree(vm_configs);
-+		kfree(plat_info);
-+		break;
- 	case ACRN_IOCTL_CREATE_VM:
- 		vm_param = memdup_user((void __user *)ioctl_param,
- 				       sizeof(struct acrn_vm_creation));
-diff --git a/drivers/virt/acrn/hypercall.h b/drivers/virt/acrn/hypercall.h
-index 71d300821a18..440e204d731a 100644
---- a/drivers/virt/acrn/hypercall.h
-+++ b/drivers/virt/acrn/hypercall.h
-@@ -15,6 +15,7 @@
+-	return 0;
++	return ret;
+ fail:
+ 	netif_dbg(pegasus, drv, pegasus->net, "%s failed\n", __func__);
+ 	return ret;
+@@ -835,7 +835,7 @@ static int pegasus_open(struct net_device *net)
+ 	if (!pegasus->rx_skb)
+ 		goto exit;
  
- #define HC_ID_GEN_BASE			0x0UL
- #define HC_SOS_REMOVE_CPU		_HC_ID(HC_ID, HC_ID_GEN_BASE + 0x01)
-+#define HC_GET_PLATFORM_INFO		_HC_ID(HC_ID, HC_ID_GEN_BASE + 0x03)
+-	res = set_registers(pegasus, EthID, 6, net->dev_addr);
++	set_registers(pegasus, EthID, 6, net->dev_addr);
  
- #define HC_ID_VM_BASE			0x10UL
- #define HC_CREATE_VM			_HC_ID(HC_ID, HC_ID_VM_BASE + 0x00)
-@@ -60,6 +61,17 @@ static inline long hcall_sos_remove_cpu(u64 cpu)
- 	return acrn_hypercall1(HC_SOS_REMOVE_CPU, cpu);
- }
- 
-+/**
-+ * hcall_get_platform_info() - Get platform information from the hypervisor
-+ * @platform_info: Service VM GPA of the &struct acrn_platform_info
-+ *
-+ * Return: 0 on success, <0 on failure
-+ */
-+static inline long hcall_get_platform_info(u64 platform_info)
-+{
-+	return acrn_hypercall1(HC_GET_PLATFORM_INFO, platform_info);
-+}
-+
- /**
-  * hcall_create_vm() - Create a User VM
-  * @vminfo:	Service VM GPA of info of User VM creation
-diff --git a/include/uapi/linux/acrn.h b/include/uapi/linux/acrn.h
-index 1408d1063339..2675d17bc803 100644
---- a/include/uapi/linux/acrn.h
-+++ b/include/uapi/linux/acrn.h
-@@ -580,12 +580,56 @@ struct acrn_irqfd {
- 	struct acrn_msi_entry	msi;
- };
- 
-+#define ACRN_PLATFORM_LAPIC_IDS_MAX	64
-+/**
-+ * struct acrn_platform_info - Information of a platform from hypervisor
-+ * @hw.cpu_num:			Physical CPU number of the platform
-+ * @hw.version:			Version of this structure
-+ * @hw.l2_cat_shift:		Order of the number of threads sharing L2 cache
-+ * @hw.l3_cat_shift:		Order of the number of threads sharing L3 cache
-+ * @hw.lapic_ids:		IDs of LAPICs of all threads
-+ * @hw.reserved:		Reserved for alignment and should be 0
-+ * @sw.max_vcpus_per_vm:	Maximum number of vCPU of a VM
-+ * @sw.max_vms:			Maximum number of VM
-+ * @sw.vm_config_size:		Size of configuration of a VM
-+ * @sw.vm_configss_addr:	Memory address which user space provided to
-+ *				store the VM configurations
-+ * @sw.max_kata_containers:	Maximum number of VM for Kata containers
-+ * @sw.reserved:		Reserved for alignment and should be 0
-+ *
-+ * If vm_configs_addr is provided, the driver uses a bounce buffer (kmalloced
-+ * for continuous memory region) to fetch VM configurations data from the
-+ * hypervisor.
-+ */
-+struct acrn_platform_info {
-+	struct {
-+		__u16	cpu_num;
-+		__u16	version;
-+		__u32	l2_cat_shift;
-+		__u32	l3_cat_shift;
-+		__u8	lapic_ids[ACRN_PLATFORM_LAPIC_IDS_MAX];
-+		__u8	reserved[52];
-+	} hw;
-+
-+	struct {
-+		__u16	max_vcpus_per_vm;
-+		__u16	max_vms;
-+		__u32	vm_config_size;
-+		void	__user *vm_configs_addr;
-+		__u64	max_kata_containers;
-+		__u8	reserved[104];
-+	} sw;
-+};
-+
- /* The ioctl type, documented in ioctl-number.rst */
- #define ACRN_IOCTL_TYPE			0xA2
- 
- /*
-  * Common IOCTL IDs definition for ACRN userspace
-  */
-+#define ACRN_IOCTL_GET_PLATFORM_INFO	\
-+	_IOR(ACRN_IOCTL_TYPE, 0x03, struct acrn_platform_info)
-+
- #define ACRN_IOCTL_CREATE_VM		\
- 	_IOWR(ACRN_IOCTL_TYPE, 0x10, struct acrn_vm_creation)
- #define ACRN_IOCTL_DESTROY_VM		\
+ 	usb_fill_bulk_urb(pegasus->rx_urb, pegasus->usb,
+ 			  usb_rcvbulkpipe(pegasus->usb, 1),
 -- 
-2.25.1
-
+2.30.2
