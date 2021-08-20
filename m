@@ -2,31 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA2503F3017
-	for <lists+stable@lfdr.de>; Fri, 20 Aug 2021 17:49:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64F533F3026
+	for <lists+stable@lfdr.de>; Fri, 20 Aug 2021 17:50:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241265AbhHTPuQ convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 20 Aug 2021 11:50:16 -0400
-Received: from eu-smtp-delivery-151.mimecast.com ([185.58.86.151]:54135 "EHLO
-        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S241303AbhHTPuG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Aug 2021 11:50:06 -0400
-Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) (Using
- TLS) by relay.mimecast.com with ESMTP id
- uk-mta-131-DAGKzonBN4SYNa4fYJu3Dw-1; Fri, 20 Aug 2021 16:49:23 +0100
-X-MC-Unique: DAGKzonBN4SYNa4fYJu3Dw-1
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
- Server (TLS) id 15.0.1497.23; Fri, 20 Aug 2021 16:49:22 +0100
-Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
- AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
- 15.00.1497.023; Fri, 20 Aug 2021 16:49:22 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Jeff Layton' <jlayton@kernel.org>,
+        id S241261AbhHTPvc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Aug 2021 11:51:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37168 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S241195AbhHTPvb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Aug 2021 11:51:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 22846610FF;
+        Fri, 20 Aug 2021 15:50:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1629474653;
+        bh=sIZQJdeQo+NqJE2KGZmLQeNMkwh4uu//4yYwZFjD3y0=;
+        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
+        b=s09SvCLj1uqQUR0Q5tbmN47Tw8m3PlRFK5qq3kSZrfBVGIMEr+BE0NMWEMv8T3zw3
+         QOCUJjIVPNRSYvWeS3+W5A9lnkBBBze0wcOYnRayZEfK5L+fAd5NPiE34iT76qjhWD
+         rVXPOHQdVKvj7Kfqw9qu4uSNMjkY+6TzWBXg2a5dgz+G6q3DDrbm6X0HWqL8pi6hT0
+         Vo5nAgWfNzZrRK9otPZV0FaLalhhxjWyHJ/M6jA0R9FbctN7cEX3XjfwpD7iq71ZJN
+         wg0nYiJw3K8hy/0P5lcC/ZMjeepEHoWOnV6RboA3vgkwhqo7e1uogwGwI8RDzLlshM
+         21E/WCrTBZhDA==
+Message-ID: <7efb04fe6e0c867e7c87d75cf3349221b08b4210.camel@kernel.org>
+Subject: Re: [PATCH v2 1/2] fs: warn about impending deprecation of
+ mandatory locks
+From:   Jeff Layton <jlayton@kernel.org>
+To:     David Laight <David.Laight@ACULAB.COM>,
         "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>,
         "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-CC:     "ebiederm@xmission.com" <ebiederm@xmission.com>,
+Cc:     "ebiederm@xmission.com" <ebiederm@xmission.com>,
         "david@redhat.com" <david@redhat.com>,
         "willy@infradead.org" <willy@infradead.org>,
         "linux-nfs@vger.kernel.org" <linux-nfs@vger.kernel.org>,
@@ -43,73 +48,68 @@ CC:     "ebiederm@xmission.com" <ebiederm@xmission.com>,
         "bfields@fieldses.org" <bfields@fieldses.org>,
         "w@1wt.eu" <w@1wt.eu>, "rostedt@goodmis.org" <rostedt@goodmis.org>,
         "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH v2 1/2] fs: warn about impending deprecation of mandatory
- locks
-Thread-Topic: [PATCH v2 1/2] fs: warn about impending deprecation of mandatory
- locks
-Thread-Index: AQHXlctJ2CxbK7rVbku/gUAYi8DQHat8icSQ
-Date:   Fri, 20 Aug 2021 15:49:22 +0000
-Message-ID: <c1318459eaab436aacb225982c49c4b4@AcuMS.aculab.com>
+Date:   Fri, 20 Aug 2021 11:50:51 -0400
+In-Reply-To: <c1318459eaab436aacb225982c49c4b4@AcuMS.aculab.com>
 References: <20210820135707.171001-1-jlayton@kernel.org>
- <20210820135707.171001-2-jlayton@kernel.org>
-In-Reply-To: <20210820135707.171001-2-jlayton@kernel.org>
-Accept-Language: en-GB, en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+         <20210820135707.171001-2-jlayton@kernel.org>
+         <c1318459eaab436aacb225982c49c4b4@AcuMS.aculab.com>
+Content-Type: text/plain; charset="ISO-8859-15"
+User-Agent: Evolution 3.40.4 (3.40.4-1.fc34) 
 MIME-Version: 1.0
-Authentication-Results: relay.mimecast.com;
-        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Layton
-> Sent: 20 August 2021 14:57
+On Fri, 2021-08-20 at 15:49 +0000, David Laight wrote:
+> From: Jeff Layton
+> > Sent: 20 August 2021 14:57
+> > 
+> > We've had CONFIG_MANDATORY_FILE_LOCKING since 2015 and a lot of distros
+> > have disabled it. Warn the stragglers that still use "-o mand" that
+> > we'll be dropping support for that mount option.
+> > 
+> > Cc: stable@vger.kernel.org
+> > Signed-off-by: Jeff Layton <jlayton@kernel.org>
+> > ---
+> >  fs/namespace.c | 8 ++++++++
+> >  1 file changed, 8 insertions(+)
+> > 
+> > diff --git a/fs/namespace.c b/fs/namespace.c
+> > index ab4174a3c802..ffab0bb1e649 100644
+> > --- a/fs/namespace.c
+> > +++ b/fs/namespace.c
+> > @@ -1716,8 +1716,16 @@ static inline bool may_mount(void)
+> >  }
+> > 
+> >  #ifdef	CONFIG_MANDATORY_FILE_LOCKING
+> > +static bool warned_mand;
+> >  static inline bool may_mandlock(void)
+> >  {
+> > +	if (!warned_mand) {
+> > +		warned_mand = true;
+> > +		pr_warn("======================================================\n");
+> > +		pr_warn("WARNING: the mand mount option is being deprecated and\n");
+> > +		pr_warn("         will be removed in v5.15!\n");
+> > +		pr_warn("======================================================\n");
+> > +	}
+> >  	return capable(CAP_SYS_ADMIN);
+> >  }
 > 
-> We've had CONFIG_MANDATORY_FILE_LOCKING since 2015 and a lot of distros
-> have disabled it. Warn the stragglers that still use "-o mand" that
-> we'll be dropping support for that mount option.
+> If that is called more than once you don't want the 'inline'.
+> I doubt it matters is not inlined - hardly a hot path.
 > 
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Jeff Layton <jlayton@kernel.org>
-> ---
->  fs/namespace.c | 8 ++++++++
->  1 file changed, 8 insertions(+)
+> 	David
 > 
-> diff --git a/fs/namespace.c b/fs/namespace.c
-> index ab4174a3c802..ffab0bb1e649 100644
-> --- a/fs/namespace.c
-> +++ b/fs/namespace.c
-> @@ -1716,8 +1716,16 @@ static inline bool may_mount(void)
->  }
+> -
+> Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+> Registration No: 1397386 (Wales)
 > 
->  #ifdef	CONFIG_MANDATORY_FILE_LOCKING
-> +static bool warned_mand;
->  static inline bool may_mandlock(void)
->  {
-> +	if (!warned_mand) {
-> +		warned_mand = true;
-> +		pr_warn("======================================================\n");
-> +		pr_warn("WARNING: the mand mount option is being deprecated and\n");
-> +		pr_warn("         will be removed in v5.15!\n");
-> +		pr_warn("======================================================\n");
-> +	}
->  	return capable(CAP_SYS_ADMIN);
->  }
 
-If that is called more than once you don't want the 'inline'.
-I doubt it matters is not inlined - hardly a hot path.
+ACK. Of course. That really needs to not be inline. I'll fix that up in
+my tree.
 
-	David
-
--
-Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
-Registration No: 1397386 (Wales)
+Thanks!
+-- 
+Jeff Layton <jlayton@kernel.org>
 
