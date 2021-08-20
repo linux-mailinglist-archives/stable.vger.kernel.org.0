@@ -2,82 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0566C3F2E23
-	for <lists+stable@lfdr.de>; Fri, 20 Aug 2021 16:33:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBDF83F2FF1
+	for <lists+stable@lfdr.de>; Fri, 20 Aug 2021 17:46:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240819AbhHTOeQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Aug 2021 10:34:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35714 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238451AbhHTOeQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Aug 2021 10:34:16 -0400
-Received: from mail-wm1-x329.google.com (mail-wm1-x329.google.com [IPv6:2a00:1450:4864:20::329])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D2D0C061575
-        for <stable@vger.kernel.org>; Fri, 20 Aug 2021 07:33:38 -0700 (PDT)
-Received: by mail-wm1-x329.google.com with SMTP id l24-20020a05600c089800b002e71a10130eso3007937wmp.5
-        for <stable@vger.kernel.org>; Fri, 20 Aug 2021 07:33:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:mime-version
-         :content-disposition;
-        bh=RteN1kZyovWUoXzHMNLkP1o9koWxQbfuz3zdN58BpOw=;
-        b=njGiwCkvJOfIW3/uEsPt/Lx9V3TOeANwJixQxoMhwi6Bnv2J4b9XOQambbZyBjCodW
-         nQSbaMS8xLR0FG5tl+hrjGyj/GP0CtBl5Ldz10ZrfCOUQF7RVTIrj5MsUkacHSDRY9Am
-         KZrR6s2G93Ym7BhArKBKreZf0kXMwoLKxN6gC85biDQXOUzl9KQ4w0SxvzG1C4a7P6Hk
-         v8QfdTuMXZVkpuUj3XK6CCsTwVA9HIUKWD9rrZDfr+noNZX7OrMtPHMQeoQi/6urtwAQ
-         vfVCAaiD9Bj77ZSwnPGMHkvMIBUP3BuxF5D6OFecmDrHb2+s071sIqtID1F2BvRz3RRQ
-         935A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :mime-version:content-disposition;
-        bh=RteN1kZyovWUoXzHMNLkP1o9koWxQbfuz3zdN58BpOw=;
-        b=hVNjjQkYEtCcy3UypXknABfp79TpALLrXOfgmfaZXxKxxOXpf3wk2i98ks+BnTA1Rd
-         7iSluGY/AQZI5pI8YQpvyBh5kcJKMPRMlOI53fE5jSwcD4RiW7Wu/2+8+wNwNQ4us2XG
-         tuoVID3q5wW62+doDOgDWJAj7MYEJ/RZddRrDbaAExWQfMW0PB6AJE0lkx/3tzIDerIf
-         nxyd9Wg098WjJu7KTNoeeHX7gm+yf0ZZVqGkVGloOjiRwUFovre5wcCQSiNUTohKcFSV
-         vUEHUURgPoBSTRvULeLBxhm03CPJDz6mr/UF99EgSZgLMP7BMyinsvsDDhqb14B6l3uO
-         B8CA==
-X-Gm-Message-State: AOAM533Z30TMVoYRIQuvgQw3fja1ckg5b2+9+E0Hmqcfgskap4KE2X7o
-        a4MJJkR23vyaHgOz2ZN9QN4=
-X-Google-Smtp-Source: ABdhPJziJFuEV9SIC8q+RbaF9PgGNny8Cu3G6jPoymQ9ripC9+YLR8kfo3MHHWNjaHbmDQo1JrL4sA==
-X-Received: by 2002:a1c:a90d:: with SMTP id s13mr4377648wme.132.1629470016955;
-        Fri, 20 Aug 2021 07:33:36 -0700 (PDT)
-Received: from eldamar (80-218-24-251.dclient.hispeed.ch. [80.218.24.251])
-        by smtp.gmail.com with ESMTPSA id h4sm6214999wrm.42.2021.08.20.07.33.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 20 Aug 2021 07:33:36 -0700 (PDT)
-Sender: Salvatore Bonaccorso <salvatore.bonaccorso@gmail.com>
-Date:   Fri, 20 Aug 2021 16:33:35 +0200
-From:   Salvatore Bonaccorso <carnil@debian.org>
-To:     stable <stable@vger.kernel.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Ole =?iso-8859-1?Q?Bj=F8rn_Midtb=F8?= <omidtbo@cisco.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Johan Hedberg <johan.hedberg@gmail.com>,
-        Tim Connors <tim.w.connors@gmail.com>
-Subject: Please apply commit cca342d98bef ("Bluetooth: hidp: use correct wait
- queue when removing ctrl_wait") to 5.10.y
-Message-ID: <YR+9P8Na4PMXi72v@eldamar.lan>
+        id S241128AbhHTPq4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Aug 2021 11:46:56 -0400
+Received: from eu-smtp-delivery-151.mimecast.com ([185.58.85.151]:22362 "EHLO
+        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S240997AbhHTPqw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Aug 2021 11:46:52 -0400
+Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) (Using
+ TLS) by relay.mimecast.com with ESMTP id
+ uk-mta-88-F1DQbSqpMu6M5LHnyNb7xg-1; Fri, 20 Aug 2021 16:46:12 +0100
+X-MC-Unique: F1DQbSqpMu6M5LHnyNb7xg-1
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
+ Server (TLS) id 15.0.1497.23; Fri, 20 Aug 2021 16:46:11 +0100
+Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
+ AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
+ 15.00.1497.023; Fri, 20 Aug 2021 16:46:11 +0100
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Ard Biesheuvel' <ardb@kernel.org>, Joerg Roedel <joro@8bytes.org>
+CC:     "x86@kernel.org" <x86@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        "hpa@zytor.com" <hpa@zytor.com>, Joerg Roedel <jroedel@suse.de>,
+        Kees Cook <keescook@chromium.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Uros Bizjak <ubizjak@gmail.com>,
+        Arvind Sankar <nivedita@alum.mit.edu>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Fabio Aiuto <fabioaiuto83@gmail.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH] x86/efi: Restore Firmware IDT in before
+ ExitBootServices()
+Thread-Topic: [PATCH] x86/efi: Restore Firmware IDT in before
+ ExitBootServices()
+Thread-Index: AQHXlZXa+jtHdymQB0W1fhKjcUB7Wqt8EPPg///0gwCAABNdkIAAKfIdgABE/BA=
+Date:   Fri, 20 Aug 2021 15:46:11 +0000
+Message-ID: <cdd7869a14ad4021acfacffa3918981c@AcuMS.aculab.com>
+References: <20210820073429.19457-1-joro@8bytes.org>
+ <e43eb0d137164270bf16258e6d11879e@AcuMS.aculab.com>
+ <YR9tSuLyX8QHV5Pv@8bytes.org>
+ <f68a175362984e4abbb0a1da2004c936@AcuMS.aculab.com>
+ <YR+Bxgq4aIo1DI8j@8bytes.org>
+ <CAMj1kXHj12FQn_488V_9k9k_LE51K=7n3sS9QnN9gkhBgzw-Kw@mail.gmail.com>
+In-Reply-To: <CAMj1kXHj12FQn_488V_9k9k_LE51K=7n3sS9QnN9gkhBgzw-Kw@mail.gmail.com>
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Authentication-Results: relay.mimecast.com;
+        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi
+RnJvbTogQXJkIEJpZXNoZXV2ZWwNCj4gU2VudDogMjAgQXVndXN0IDIwMjEgMTI6MzINCj4gDQo+
+IE9uIEZyaSwgMjAgQXVnIDIwMjEgYXQgMTI6MTksIEpvZXJnIFJvZWRlbCA8am9yb0A4Ynl0ZXMu
+b3JnPiB3cm90ZToNCj4gPg0KPiA+IE9uIEZyaSwgQXVnIDIwLCAyMDIxIGF0IDA5OjAyOjQ2QU0g
+KzAwMDAsIERhdmlkIExhaWdodCB3cm90ZToNCj4gPiA+IFNvIGFsbG9jYXRlIGFuZCBpbml0aWFs
+aXNlIHRoZSBMaW51eCBJRFQgLSBzbyBlbnRyaWVzIGNhbiBiZSBhZGRlZC4NCj4gPiA+IEJ1dCBk
+b24ndCBleGVjdXRlICdsaWR0JyB1bnRpbCBsYXRlciBvbi4NCj4gPg0KPiA+IFRoZSBJRFQgaXMg
+bmVlZGVkIGluIHRoaXMgcGF0aCB0byBoYW5kbGUgI1ZDIGV4Y2VwdGlvbnMgY2F1c2VkIGJ5IENQ
+VUlEDQo+ID4gaW5zdHJ1Y3Rpb25zLiBTbyBsb2FkaW5nIHRoZSBJRFQgbGF0ZXIgaXMgbm90IGFu
+IG9wdGlvbi4NCj4gPg0KPiANCj4gVGhhdCBkb2VzIHJhaXNlIGEgcXVlc3Rpb24sIHRob3VnaC4g
+RG9lcyBjaGFuZ2luZyB0aGUgSURUIGludGVyZmVyZQ0KPiB3aXRoIHRoZSBhYmlsaXR5IG9mIHRo
+ZSBVRUZJIGJvb3Qgc2VydmljZXMgdG8gcmVjZWl2ZSBhbmQgaGFuZGxlIHRoZQ0KPiB0aW1lciBp
+bnRlcnJ1cHQ/IEJlY2F1c2UgYmVmb3JlIEV4aXRCb290U2VydmljZXMoKSwgdGhhdCBpcyBvd25l
+ZCBieQ0KPiB0aGUgZmlybXdhcmUsIGFuZCBVRUZJIGhlYXZpbHkgcmVsaWVzIG9uIGl0IGZvciBl
+dmVyeXRoaW5nIChldmVudA0KPiBoYW5kbGluZywgcG9sbGluZyBtb2RlIGJsb2NrL25ldHdvcmsg
+ZHJpdmVycywgZXRjKQ0KPiANCj4gSWYgcmVzdG9yaW5nIHRoZSBJRFQgdGVtcG9yYXJpbHkganVz
+dCBwYXBlcnMgb3ZlciB0aGlzIGJ5IGNyZWF0aW5nDQo+IHRpbnkgd2luZG93cyB3aGVyZSB0aGUg
+dGltZXIgaW50ZXJydXB0IHN0YXJ0cyB3b3JraW5nIGFnYWluLCB0aGlzIGlzDQo+IGJhZCwgYW5k
+IHdlIG5lZWQgdG8gZmlndXJlIG91dCBhbm90aGVyIHdheSB0byBhZGRyZXNzIHRoZSBvcmlnaW5h
+bA0KPiBwcm9ibGVtLg0KDQpDb3VsZCB0aGUgd2hvbGUgdGhpbmcgYmUgZmxpcHBlZD8NCg0KU28g
+bG9hZCBhIHRlbXBvcmFyeSBJRFQgc28gdGhhdCB5b3UgY2FuIGRldGVjdCBpbnZhbGlkIGluc3Ry
+dWN0aW9ucw0KYW5kIHJlc3RvcmUgdGhlIFVFRkkgSURUIGltbWVkaWF0ZWx5IGFmdGVyd2FyZHM/
+DQoNCkknbSBndWVzc2luZyB0aGUgR0RUIGlzIGNoYW5nZWQgaW4gb3JkZXIgdG8gYWNjZXNzIGFs
+bCBvZiBwaHlzaWNhbA0KbWVtb3J5ICh3ZWxsIGVub3VnaCB0byBsb2FkIHRoZSBrZXJuZWwpLg0K
+Q291bGQgdGhhdCBiZSBkb25lIHVzaW5nIHRoZSBMRFQ/DQpJdCBpcyB1bmxpa2VseSB0aGF0IHRo
+ZSBVRUZJIGNhcmVzIGFib3V0IHRoYXQ/DQoNCklzIHRoaXMgMzJiaXQgbm9uLXBhZ2VkIGNvZGU/
+DQpSdW5uaW5nIHRoYXQgd2l0aCBhIHBoeXNpY2FsIG1lbW9yeSBvZmZzZXQgbWFkZSBteSBoZWFk
+IGh1cnQuDQoNCglEYXZpZA0KDQotDQpSZWdpc3RlcmVkIEFkZHJlc3MgTGFrZXNpZGUsIEJyYW1s
+ZXkgUm9hZCwgTW91bnQgRmFybSwgTWlsdG9uIEtleW5lcywgTUsxIDFQVCwgVUsNClJlZ2lzdHJh
+dGlvbiBObzogMTM5NzM4NiAoV2FsZXMpDQo=
 
-Tim Connors, a user in Debian (https://bugs.debian.org/992121)
-reported that cca342d98bef ("Bluetooth: hidp: use correct wait queue
-when removing ctrl_wait") from 5.11-rc1 is missing for the 5.10.y
-stable series.
-
-Actually would apply further back, but it was only tested to fix the
-problem on 5.10.y
-
-Thanks for considering,
-
-Regards,
-Salvatore
