@@ -2,109 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C8CE3F3297
-	for <lists+stable@lfdr.de>; Fri, 20 Aug 2021 19:57:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7600F3F32D9
+	for <lists+stable@lfdr.de>; Fri, 20 Aug 2021 20:12:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234428AbhHTR6Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Aug 2021 13:58:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40298 "EHLO mail.kernel.org"
+        id S235519AbhHTSMi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Aug 2021 14:12:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234160AbhHTR6Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Aug 2021 13:58:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C4DD61056;
-        Fri, 20 Aug 2021 17:57:38 +0000 (UTC)
+        id S231757AbhHTSMh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Aug 2021 14:12:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4CCD0608FE;
+        Fri, 20 Aug 2021 18:11:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629482258;
-        bh=PMMuLswqXvvS4sA3R+OiUDxdV3fVCb2CblbI0j0/hws=;
-        h=Date:From:To:Cc:Subject:Reply-To:References:In-Reply-To:From;
-        b=mHErCOB9OHPl/euw92KIJaoIA2n/q0VOPX3EEoZIvJ29wxkyl40g1bCa1S7Zga0cQ
-         jCczkL0N5l36yI9X9cKDIYBfHBVe68HhE9tI31xpbuaWvwcna+KJlaWlWl8VLxuNRs
-         1GQbMatwRfFdKv6dCXaVX+0MTECd19mtQW8+6HCd5JMAOirnyHA/XiiBsKgf4oXUCQ
-         pCdEyBwL8VHLJUn8pc2qslcqFdxWzfmeQzDJZAUApzPGDt+KKPU6DzzoReOF0Ce/nQ
-         CNGiaCjIRva7AxihbqNI+frOOstddbPQ8Vx55MkhllgXo+9XvnBsKLYi1moYAc8FuN
-         99itUPrja+bWg==
-Received: by paulmck-ThinkPad-P17-Gen-1.home (Postfix, from userid 1000)
-        id 2D21B5C0399; Fri, 20 Aug 2021 10:57:38 -0700 (PDT)
-Date:   Fri, 20 Aug 2021 10:57:38 -0700
-From:   "Paul E. McKenney" <paulmck@kernel.org>
-To:     Steven Rostedt <rostedt@goodmis.org>
-Cc:     gregkh@linuxfoundation.org, mathieu.desnoyers@efficios.com,
-        akpm@linux-foundation.org, metze@samba.org, mingo@redhat.com,
-        peterz@infradead.org, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] tracepoint: Use rcu get state and cond
- sync for static call" failed to apply to 5.10-stable tree
-Message-ID: <20210820175738.GH4126399@paulmck-ThinkPad-P17-Gen-1>
-Reply-To: paulmck@kernel.org
-References: <1628500832155134@kroah.com>
- <20210819170933.5c4c6a38@oasis.local.home>
- <20210819204204.00f9ad28@rorschach.local.home>
+        s=k20201202; t=1629483119;
+        bh=Ug/nWYFe3aKoUQ5ituPguHYC0Y4myQql1SYX/rV6X0I=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Iw/pdnyA1ONdK54eU3zepv0FOEWjZfqHh/RkIXhlPBxtuC4OmDr9Kk2O1pfyJ4C9M
+         3h6MZ9qQYAKU97s+TaFb/HaVE95J5ceCxEz7ZqHZhuSHC7CoQauuvQxrufQMZ34JSd
+         jYcc9/nS1IX0yUszV5lG4L8UPYx2BXAgGucNqeQ00P6YdkNfKs9eJOYpoKMW2ARgoN
+         m2ClveBPVxKXayI/GIMjgKYm/m4hn4rxgWaiMDX726PO1vZJunLmoEGljqXGzTbWaq
+         fEqJHXaAA1sCy7qpwRTnSPNiUGQ7y5CXZiWIyMWUmW9AQv7IVRz2iRLKoAXZQAWJZS
+         nKbPOK5SQHcMA==
+Date:   Fri, 20 Aug 2021 11:11:57 -0700
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     Chao Yu <chao@kernel.org>
+Cc:     Jaegeuk Kim <jaegeuk@kernel.org>, Theodore Ts'o <tytso@mit.edu>,
+        linux-f2fs-devel@lists.sourceforge.net,
+        linux-fsdevel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] f2fs: remove broken support for allocating DIO writes
+Message-ID: <YR/wbenc0d3eMAjz@sol.localdomain>
+References: <20210728015154.171507-1-ebiggers@kernel.org>
+ <YQRQRh1zUHSIzcC/@gmail.com>
+ <YQS5eBljtztWwOFE@mit.edu>
+ <YQd3Hbid/mFm0o24@sol.localdomain>
+ <a3cdd7cb-50a7-1b37-fe58-dced586712a2@kernel.org>
+ <YQg4Lukc2dXX3aJc@google.com>
+ <b88328b4-db3e-0097-d8cc-f250ee678e5b@kernel.org>
+ <YQidOD/zNB17fd9v@google.com>
+ <YRsY6dyHyaChkQ6n@gmail.com>
+ <c4e5c71d-1652-7174-fa36-674fab4e61df@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210819204204.00f9ad28@rorschach.local.home>
+In-Reply-To: <c4e5c71d-1652-7174-fa36-674fab4e61df@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Aug 19, 2021 at 08:42:04PM -0400, Steven Rostedt wrote:
-> On Thu, 19 Aug 2021 17:09:33 -0400
-> Steven Rostedt <rostedt@goodmis.org> wrote:
+On Fri, Aug 20, 2021 at 05:35:21PM +0800, Chao Yu wrote:
+> > > > > 
+> > > > > Hmm, I'm still trying to deal with this as a corner case where the writes
+> > > > > haven't completed due to an error. How about keeping the preallocated block
+> > > > > offsets and releasing them if we get an error? Do we need to handle EIO right?
+> > > > 
+> > > > What about the case that CP + SPO following DIO preallocation? User will
+> > > > encounter uninitialized block after recovery.
+> > > 
+> > > I think buffered writes as a workaround can expose the last unwritten block as
+> > > well, if SPO happens right after block allocation. We may need to compromise
+> > > at certain level?
+> > > 
+> > 
+> > Freeing preallocated blocks on error would be better than nothing, although note
+> > that the preallocated blocks may have filled an arbitrary sequence of holes --
+> > so simply truncating past EOF would *not* be sufficient.
+> > 
+> > But really filesystems need to be designed to never expose uninitialized data,
+> > even if I/O errors or a sudden power failure occurs.  It is unfortunate that
+> > f2fs apparently wasn't designed with that goal in mind.
+> > 
+> > In any case, I don't think we can proceed with any other f2fs direct I/O
+> > improvements until this data leakage bug can be solved one way or another.  If
+> > my patch to remove support for allocating writes isn't acceptable and the
+> > desired solution is going to require some more invasive f2fs surgery, are you or
+> > Chao going to work on it?  I'm not sure there's much I can do here.
 > 
-> > Mathieu, seems that the "slow down 10x" patch was able to be backported
-> > to 5.10, where as this patch was not. Reason being is that
-> > start_poll_synchronize_rcu() was added in 5.13.
+> I may have time to take look into the implementation as I proposed above, maybe
+> just enabling this in FSYNC_MODE_STRICT mode if user concerns unwritten data?
+> thoughts?
 > 
-> I can get this to work if I backport the following RCU patches:
-> 
-> 29d2bb94a8a126ce80ffbb433b648b32fdea524e
-> srcu: Provide internal interface to start a Tree SRCU grace period
-> 
-> 5358c9fa54b09b5d3d7811b033aa0838c1bbaaf2
-> srcu: Provide polling interfaces for Tree SRCU grace periods
-> 
-> 1a893c711a600ab57526619b56e6f6b7be00956e
-> srcu: Provide internal interface to start a Tiny SRCU grace period
-> 
-> 8b5bd67cf6422b63ee100d76d8de8960ca2df7f0
-> srcu: Provide polling interfaces for Tiny SRCU grace periods
-> 
-> The first three can be cherry-picked without issue. The last one has a
-> small conflict, of:
-> 
-> include/linux/srcutiny.h.rej:
-> --- include/linux/srcutiny.h
-> +++ include/linux/srcutiny.h
-> @@ -16,6 +16,7 @@
->  struct srcu_struct {
->         short srcu_lock_nesting[2];     /* srcu_read_lock() nesting depth. */
->         unsigned short srcu_idx;        /* Current reader array element in bit 0x2. */
-> +       unsigned short srcu_idx_max;    /* Furthest future srcu_idx request. */
->         u8 srcu_gp_running;             /* GP workqueue running? */
->         u8 srcu_gp_waiting;             /* GP waiting for readers? */
->         struct swait_queue_head srcu_wq;
-> 
-> 
-> Which I just added that line, and everything worked.
-> 
-> Paul, do you have any issues with these four patches getting backported?
 
-I believe that you also need to backport 74612a07b83f ("srcu: Make Tiny
-SRCU use multi-bit grace-period counter").  Otherwise, Tiny SRCU polling
-grace periods will be at best working by accident.
+What does this have to do with fsync?
 
-This will also make your small conflict go away.
-
-							Thanx, Paul
-
-> Greg, Are you OK with them too?
-> 
-> Once those are backported, this patch can be backported as well, and
-> everything should work. This patch really needs to stay with:
-> 
-> 231264d6927f6740af36855a622d0e240be9d94c
-> tracepoint: Fix static call function vs data state mismatch
-> 
-> Otherwise I would say to revert it if this one can't be backported with
-> it.
-> 
-> -- Steve
+- Eric
