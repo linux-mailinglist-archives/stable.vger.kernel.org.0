@@ -2,177 +2,164 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0ADF13F2494
-	for <lists+stable@lfdr.de>; Fri, 20 Aug 2021 04:04:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F27AD3F24B2
+	for <lists+stable@lfdr.de>; Fri, 20 Aug 2021 04:18:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237182AbhHTCFL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Aug 2021 22:05:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56858 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234428AbhHTCFL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Aug 2021 22:05:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 966A86113C;
-        Fri, 20 Aug 2021 02:04:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1629425074;
-        bh=F5ffLljMynW8OQI322x6xuWAR4ORXn8Yh3J4MMQaa1o=;
-        h=Date:From:To:Subject:In-Reply-To:From;
-        b=0PktERO1Rrz4nCrU297YfdZ8EKD61adKCUMtZ2M3NGwhL51ZzMwVuDh5Hqc4EDc4T
-         uxyv+CMBRUSMypXFhkQF4gEv16FZqUm5bItk2HSEVTHCVkOcjiMoqNXENxhmx2z4Fd
-         lvLbk36cgpukaK2jeKPpiMB3r4aXbo3HZEVaEAes=
-Date:   Thu, 19 Aug 2021 19:04:33 -0700
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, almasrymina@google.com,
-        axelrasmussen@google.com, linux-mm@kvack.org, mhocko@suse.com,
-        mike.kravetz@oracle.com, mm-commits@vger.kernel.org,
-        naoya.horiguchi@linux.dev, peterx@redhat.com,
-        songmuchun@bytedance.com, stable@vger.kernel.org,
-        syzbot+67654e51e54455f1c585@syzkaller.appspotmail.com,
-        torvalds@linux-foundation.org
-Subject:  [patch 10/10] hugetlb: don't pass page cache pages to
- restore_reserve_on_error
-Message-ID: <20210820020433.cv6IN-Xde%akpm@linux-foundation.org>
-In-Reply-To: <20210819190327.14fc4e97102e1af7929e30af@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S237388AbhHTCTI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Aug 2021 22:19:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37334 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234768AbhHTCTI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 Aug 2021 22:19:08 -0400
+Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 862EDC061575
+        for <stable@vger.kernel.org>; Thu, 19 Aug 2021 19:18:31 -0700 (PDT)
+Received: by mail-pj1-x102e.google.com with SMTP id mw10-20020a17090b4d0a00b0017b59213831so931134pjb.0
+        for <stable@vger.kernel.org>; Thu, 19 Aug 2021 19:18:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=aBsXfKJ5t1mbnB3ssQxXHOMScp6DPId1Nks32aSW5vo=;
+        b=suoAcUsvxn+29Jh2QkwoWQEbQB6u/qssyHVHxadpnAoLPE8BMHOWS0sTfX4YfHzbhZ
+         ZrbzXQCdmVOiSFtG1QaFPbBmr+jgB0DQLjfPyjyGwRtzdsjh8LvrF4dD5A+X+wkOP91G
+         id4rIGHih42w2dez5EK+/PvmknKUw4jjYNwpn1JGuK0ehLT1VJVT8s5/zdilrjSTMKFA
+         3Dpg8UXLBcdZrkQCAvOt6EW3rTXTvMCp8JY8DDDOzxIxhL3LbAFqD+puteshzuAg9W74
+         8tVETyqUItpP3BPE0necCMR2HPKNmlm7iuopTD7KDTMEpbbWEgTZgyhrnUTz2j6fV0L3
+         HKVg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=aBsXfKJ5t1mbnB3ssQxXHOMScp6DPId1Nks32aSW5vo=;
+        b=s9gy8LDrO91/BlkOdYZbfJj4S7JHu7PSFXDQGhRioVEJkzVjeex3nvWvWYmS6sKnI2
+         2XzB9nPW8MGlBKPYpMs11lvXiOtP0ilCK2UWJRmFFsqW82VIXZe8PzkHUZGzprTJtu8+
+         cwDuDohY5ouKO4QswYUFHzCugGNxdYZu9AnUIm6d9ZwP2CyBkAW3UOqwbOfhwqReq2h5
+         s4cD8b1eXhoOFIa0vSU7nm2DlLtFjLiUhaMJSlfoq63/gY/G9ZvgudM4rCy/L7HyNzHU
+         s52QvtjUPeG5XUufXcNF4yicL9wRUkGB7GmzX6EFoio5gwd92qw+SU90eVwledTbPwll
+         ho/A==
+X-Gm-Message-State: AOAM5314GEJO4sgoCy7ygHIUc9jshaeiFwLDj1s/nXq6epdfH2dWdQWb
+        l+ctMLWgXfOjEdReaj0r0bdmaK2o6XpY1bW+
+X-Google-Smtp-Source: ABdhPJwB44h9eMZI0LBWUHLwlBgVeXHneXhdi08QC8yK58OrlK5wD1yN0FjVPTieDoVxfcpVG8FLcw==
+X-Received: by 2002:a17:90b:194d:: with SMTP id nk13mr2088844pjb.179.1629425910654;
+        Thu, 19 Aug 2021 19:18:30 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id l6sm4835051pff.74.2021.08.19.19.18.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 19 Aug 2021 19:18:30 -0700 (PDT)
+Message-ID: <611f10f6.1c69fb81.fe76a.0c27@mx.google.com>
+Date:   Thu, 19 Aug 2021 19:18:30 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/5.13
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.13.12-25-gf29f45d3b056
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/5.13 baseline: 191 runs,
+ 2 regressions (v5.13.12-25-gf29f45d3b056)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Kravetz <mike.kravetz@oracle.com>
-Subject: hugetlb: don't pass page cache pages to restore_reserve_on_error
+stable-rc/queue/5.13 baseline: 191 runs, 2 regressions (v5.13.12-25-gf29f45=
+d3b056)
 
-syzbot hit kernel BUG at fs/hugetlbfs/inode.c:532 as described in [1].
-This BUG triggers if the HPageRestoreReserve flag is set on a page in
-the page cache.  It should never be set, as the routine
-huge_add_to_page_cache explicitly clears the flag after adding a page
-to the cache.
+Regressions Summary
+-------------------
 
-The only code other than huge page allocation which sets the flag is
-restore_reserve_on_error.  It will potentially set the flag in rare out
-of memory conditions.  syzbot was injecting errors to cause memory
-allocation errors which exercised this specific path.
-
-The code in restore_reserve_on_error is doing the right thing.  However,
-there are instances where pages in the page cache were being passed to
-restore_reserve_on_error.  This is incorrect, as once a page goes into
-the cache reservation information will not be modified for the page until
-it is removed from the cache.  Error paths do not remove pages from the
-cache, so even in the case of error, the page will remain in the cache
-and no reservation adjustment is needed.
-
-Modify routines that potentially call restore_reserve_on_error with a
-page cache page to no longer do so.
-
-Note on fixes tag:
-Prior to commit 846be08578ed ("mm/hugetlb: expand restore_reserve_on_error
-functionality") the routine would not process page cache pages because
-the HPageRestoreReserve flag is not set on such pages.  Therefore, this
-issue could not be trigggered.  The code added by commit 846be08578ed
-("mm/hugetlb: expand restore_reserve_on_error functionality") is needed
-and correct.  It exposed incorrect calls to restore_reserve_on_error which
-is the root cause addressed by this commit.
-
-[1] https://lore.kernel.org/linux-mm/00000000000050776d05c9b7c7f0@google.com/
-
-Link: https://lkml.kernel.org/r/20210818213304.37038-1-mike.kravetz@oracle.com
-Fixes: 846be08578ed ("mm/hugetlb: expand restore_reserve_on_error functionality")
-Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
-Reported-by: <syzbot+67654e51e54455f1c585@syzkaller.appspotmail.com>
-Cc: Mina Almasry <almasrymina@google.com>
-Cc: Axel Rasmussen <axelrasmussen@google.com>
-Cc: Peter Xu <peterx@redhat.com>
-Cc: Muchun Song <songmuchun@bytedance.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Naoya Horiguchi <naoya.horiguchi@linux.dev>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+platform  | arch | lab          | compiler | defconfig           | regressi=
+ons
+----------+------+--------------+----------+---------------------+---------=
 ---
+beagle-xm | arm  | lab-baylibre | gcc-8    | multi_v7_defconfig  | 1       =
+   =
 
- mm/hugetlb.c |   19 ++++++++++++++-----
- 1 file changed, 14 insertions(+), 5 deletions(-)
+beagle-xm | arm  | lab-baylibre | gcc-8    | omap2plus_defconfig | 1       =
+   =
 
---- a/mm/hugetlb.c~hugetlb-dont-pass-page-cache-pages-to-restore_reserve_on_error
-+++ a/mm/hugetlb.c
-@@ -2476,7 +2476,7 @@ void restore_reserve_on_error(struct hst
- 		if (!rc) {
- 			/*
- 			 * This indicates there is an entry in the reserve map
--			 * added by alloc_huge_page.  We know it was added
-+			 * not added by alloc_huge_page.  We know it was added
- 			 * before the alloc_huge_page call, otherwise
- 			 * HPageRestoreReserve would be set on the page.
- 			 * Remove the entry so that a subsequent allocation
-@@ -4660,7 +4660,9 @@ retry_avoidcopy:
- 	spin_unlock(ptl);
- 	mmu_notifier_invalidate_range_end(&range);
- out_release_all:
--	restore_reserve_on_error(h, vma, haddr, new_page);
-+	/* No restore in case of successful pagetable update (Break COW) */
-+	if (new_page != old_page)
-+		restore_reserve_on_error(h, vma, haddr, new_page);
- 	put_page(new_page);
- out_release_old:
- 	put_page(old_page);
-@@ -4776,7 +4778,7 @@ static vm_fault_t hugetlb_no_page(struct
- 	pte_t new_pte;
- 	spinlock_t *ptl;
- 	unsigned long haddr = address & huge_page_mask(h);
--	bool new_page = false;
-+	bool new_page, new_pagecache_page = false;
- 
- 	/*
- 	 * Currently, we are forced to kill the process in the event the
-@@ -4799,6 +4801,7 @@ static vm_fault_t hugetlb_no_page(struct
- 		goto out;
- 
- retry:
-+	new_page = false;
- 	page = find_lock_page(mapping, idx);
- 	if (!page) {
- 		/* Check for page in userfault range */
-@@ -4842,6 +4845,7 @@ retry:
- 					goto retry;
- 				goto out;
- 			}
-+			new_pagecache_page = true;
- 		} else {
- 			lock_page(page);
- 			if (unlikely(anon_vma_prepare(vma))) {
-@@ -4926,7 +4930,9 @@ backout:
- 	spin_unlock(ptl);
- backout_unlocked:
- 	unlock_page(page);
--	restore_reserve_on_error(h, vma, haddr, page);
-+	/* restore reserve for newly allocated pages not in page cache */
-+	if (new_page && !new_pagecache_page)
-+		restore_reserve_on_error(h, vma, haddr, page);
- 	put_page(page);
- 	goto out;
- }
-@@ -5135,6 +5141,7 @@ int hugetlb_mcopy_atomic_pte(struct mm_s
- 	int ret = -ENOMEM;
- 	struct page *page;
- 	int writable;
-+	bool new_pagecache_page = false;
- 
- 	if (is_continue) {
- 		ret = -EFAULT;
-@@ -5228,6 +5235,7 @@ int hugetlb_mcopy_atomic_pte(struct mm_s
- 		ret = huge_add_to_page_cache(page, mapping, idx);
- 		if (ret)
- 			goto out_release_nounlock;
-+		new_pagecache_page = true;
- 	}
- 
- 	ptl = huge_pte_lockptr(h, dst_mm, dst_pte);
-@@ -5291,7 +5299,8 @@ out_release_unlock:
- 	if (vm_shared || is_continue)
- 		unlock_page(page);
- out_release_nounlock:
--	restore_reserve_on_error(h, dst_vma, dst_addr, page);
-+	if (!new_pagecache_page)
-+		restore_reserve_on_error(h, dst_vma, dst_addr, page);
- 	put_page(page);
- 	goto out;
- }
-_
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.13/ker=
+nel/v5.13.12-25-gf29f45d3b056/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.13
+  Describe: v5.13.12-25-gf29f45d3b056
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      f29f45d3b0564027f78cacbdc9caf6ca041eee4b =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform  | arch | lab          | compiler | defconfig           | regressi=
+ons
+----------+------+--------------+----------+---------------------+---------=
+---
+beagle-xm | arm  | lab-baylibre | gcc-8    | multi_v7_defconfig  | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/611edf9c6325efb94eb13674
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.12-=
+25-gf29f45d3b056/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-beagle-=
+xm.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.12-=
+25-gf29f45d3b056/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-beagle-=
+xm.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/611edf9c6325efb94eb13=
+675
+        failing since 1 day (last pass: v5.13.8-35-ge21c26fae3e0, first fai=
+l: v5.13.12-1-g3b7bb0adff56) =
+
+ =
+
+
+
+platform  | arch | lab          | compiler | defconfig           | regressi=
+ons
+----------+------+--------------+----------+---------------------+---------=
+---
+beagle-xm | arm  | lab-baylibre | gcc-8    | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/611edc40e884cca98eb1366b
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.12-=
+25-gf29f45d3b056/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagle=
+-xm.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.12-=
+25-gf29f45d3b056/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagle=
+-xm.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/611edc40e884cca98eb13=
+66c
+        failing since 22 days (last pass: v5.13.5-224-g078d5e3a85db, first =
+fail: v5.13.5-223-g3a7649e5ffb5) =
+
+ =20
