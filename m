@@ -2,236 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FAF63F2535
-	for <lists+stable@lfdr.de>; Fri, 20 Aug 2021 05:17:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 614C93F25DC
+	for <lists+stable@lfdr.de>; Fri, 20 Aug 2021 06:25:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238127AbhHTDSO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Aug 2021 23:18:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50576 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238156AbhHTDSB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 Aug 2021 23:18:01 -0400
-Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10C96C061757
-        for <stable@vger.kernel.org>; Thu, 19 Aug 2021 20:17:23 -0700 (PDT)
-Received: by mail-pg1-x529.google.com with SMTP id e7so7818791pgk.2
-        for <stable@vger.kernel.org>; Thu, 19 Aug 2021 20:17:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=lGpg+Upcic52byWxaxP3uWIbcxlHWblMXNAZmLMN0rI=;
-        b=dbeIyiH4IlUqPcT2uZ/xd+N+FQDGYtKbOEWqtfs3/EJQXQ0n1VO9bmmlKvnTMWPhU+
-         DmBgfhjObu2R2im2F+HahpU60veSq90yO7Z1dqY2i6iu5YznfsN2X0NMpMWMWuNczfUG
-         KCiOf+CtZTqvMM5FgT+5I0w52n6logF19QOKZfX6hZuFbLSc72Ibaem2qcEZ4GKH5gwD
-         WS9JBG4erPgaHRhmexlwNFMwiomJHhqx4ep7XEtxctICFUP4IUU/Oj5edBmpEX7H0s1z
-         PR/tIGHNYf7itk6UbjaFaEC3woeOufXMdIGxi2zIX3GKaiwg5/SDMe/cA54TDGK4rx2F
-         tdMg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=lGpg+Upcic52byWxaxP3uWIbcxlHWblMXNAZmLMN0rI=;
-        b=ApnrjIWosgi8qbezYme7l5dXJK4s0ZEYYeR3xaNFhFjzt4NehveeEiYA+Fs5iWDi9N
-         Ax8ENIaLIQnOHo5n6FNrTNJL8O39G0+jdhxoQbI7YzUbXMxwuMcEe0ijm0tjRJBZJUJA
-         57PX+qGaniaYdzbnUR0adF8phO++vBFSsrbOqEWg3454loYsgYfTd8gUMgDo2ZE1OMEd
-         Fp7IpP9DBKrIDYZ98otxGq5mfsTtmgG4440khnGgfYzs61RXDJZ2sqF7+EA3DSverAAo
-         11S4LtU2skUlSxRI7jx4gEKpZp/lt7Js2gO7tmM+sXYwsZpoBaI+5FVzPc4zkFsNp+I3
-         EVHQ==
-X-Gm-Message-State: AOAM531bOiNH0217QnqiqwFTJjk1E8dOMjIoutGoEW4vreJGG/xE3uaI
-        +/GIfdbTFuPkJXcZVxxDTzk2MghVJ3OeNoHx
-X-Google-Smtp-Source: ABdhPJyWLFP44yMZcDC+hd3iNTRa1DGsm0sNTJf+mdXso4Y0u5fehHcToea+fEP0TzGPMIqFGYwMlQ==
-X-Received: by 2002:aa7:8206:0:b029:3c6:2846:3f9f with SMTP id k6-20020aa782060000b02903c628463f9fmr18113466pfi.30.1629429442356;
-        Thu, 19 Aug 2021 20:17:22 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id x13sm4696789pjh.30.2021.08.19.20.17.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 19 Aug 2021 20:17:22 -0700 (PDT)
-Message-ID: <611f1ec2.1c69fb81.d044b.02e3@mx.google.com>
-Date:   Thu, 19 Aug 2021 20:17:22 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S231701AbhHTEZ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Aug 2021 00:25:59 -0400
+Received: from ozlabs.org ([203.11.71.1]:46319 "EHLO ozlabs.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229457AbhHTEZ6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Aug 2021 00:25:58 -0400
+Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mail.ozlabs.org (Postfix) with ESMTPSA id 4GrT7x1KM1z9sW5;
+        Fri, 20 Aug 2021 14:25:17 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
+        s=201909; t=1629433517;
+        bh=TY6nLrmjoHyAzLgmjUDiH3O3rM9kTfEtWkmi+ZvE6rY=;
+        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+        b=qudDX4J8UWi+6+7ay40xF74TpJv5cn1tKDShtykYbqO0aN8uz7Dk+LBw4Gl6G5AXk
+         /6jCrrW4nVyt2fmGYJy/vu8bu1j1y3yTDdDvMgHc0SDQRiTlnLzeJJ0UBwRIrqIvSU
+         d/EFP6j2FHPpLCx1w5KGwNtKJ7PhGlIJuBMr/u2TdiPESqu76d2WNgpczVCBFFiH/X
+         qidFxO9hZBiSMGIPElyGlVAsc1mtkzp2STrpSIXCawTHn6q4ne1W3x8xXP/sY8FYR1
+         QBM71FxIuPndLFePXsK3aY761+IdT+UOAW3HRLllVgfahmq5wBwPeAQkmPe7b66adV
+         mJy8XZkR/kZUQ==
+From:   Michael Ellerman <mpe@ellerman.id.au>
+To:     Daniel Axtens <dja@axtens.net>,
+        Lukas Bulwahn <lukas.bulwahn@gmail.com>,
+        Paul Mackerras <paulus@ozlabs.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Michael Neuling <mikey@neuling.org>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        kvm-ppc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
+Cc:     Lukas Bulwahn <lukas.bulwahn@gmail.com>,
+        kernel-janitors@vger.kernel.org, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 2/2] powerpc: rectify selection to
+ ARCH_ENABLE_SPLIT_PMD_PTLOCK
+In-Reply-To: <87pmu99e4j.fsf@dja-thinkpad.axtens.net>
+References: <20210819113954.17515-1-lukas.bulwahn@gmail.com>
+ <20210819113954.17515-3-lukas.bulwahn@gmail.com>
+ <87pmu99e4j.fsf@dja-thinkpad.axtens.net>
+Date:   Fri, 20 Aug 2021 14:25:12 +1000
+Message-ID: <87a6lceo9j.fsf@mpe.ellerman.id.au>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/4.9
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.9.280-29-g87e061dffc0b
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/4.9 baseline: 119 runs,
- 4 regressions (v4.9.280-29-g87e061dffc0b)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.9 baseline: 119 runs, 4 regressions (v4.9.280-29-g87e061d=
-ffc0b)
+Daniel Axtens <dja@axtens.net> writes:
+> Lukas Bulwahn <lukas.bulwahn@gmail.com> writes:
+>
+>> Commit 66f24fa766e3 ("mm: drop redundant ARCH_ENABLE_SPLIT_PMD_PTLOCK")
+>> selects the non-existing config ARCH_ENABLE_PMD_SPLIT_PTLOCK in
+>> ./arch/powerpc/platforms/Kconfig.cputype, but clearly it intends to select
+>> ARCH_ENABLE_SPLIT_PMD_PTLOCK here (notice the word swapping!), as this
+>> commit does select that for all other architectures.
+>>
+>> Rectify selection to ARCH_ENABLE_SPLIT_PMD_PTLOCK instead.
+>>
+>
+> Yikes, yes, 66f24fa766e3 does seem to have got that wrong. It looks like
+> that went into 5.13.
+>
+> I think we want to specifically target this for stable so that we don't
+> lose the perfomance and scalability benefits of split pmd ptlocks:
+>
+> Cc: stable@vger.kernel.org # v5.13+
+>
+> (I don't think you need to do another revision for this, I think mpe
+> could add it when merging.)
 
-Regressions Summary
--------------------
+Yeah. I rewrote the change log a bit to make it clear this is a bug fix,
+not a harmless cleanup.
 
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
-el/v4.9.280-29-g87e061dffc0b/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.9
-  Describe: v4.9.280-29-g87e061dffc0b
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      87e061dffc0b4a677d5142fa48fce5b4a0df368a =
+cheers
 
 
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/611ee5392102c66b3cb1367b
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.280-2=
-9-g87e061dffc0b/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
-m-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.280-2=
-9-g87e061dffc0b/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
-m-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/611ee5392102c66b3cb13=
-67c
-        failing since 278 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/611ee530ae8217f3b8b1367a
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.280-2=
-9-g87e061dffc0b/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ver=
-satilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.280-2=
-9-g87e061dffc0b/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ver=
-satilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/611ee530ae8217f3b8b13=
-67b
-        failing since 278 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/611ee4d1fa0783a7e9b1368d
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.280-2=
-9-g87e061dffc0b/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
-rm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.280-2=
-9-g87e061dffc0b/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
-rm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/611ee4d1fa0783a7e9b13=
-68e
-        failing since 278 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/611ee4db4ec421b3b5b13669
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.280-2=
-9-g87e061dffc0b/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu=
-_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.280-2=
-9-g87e061dffc0b/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu=
-_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/611ee4db4ec421b3b5b13=
-66a
-        failing since 278 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =20
+  powerpc: Re-enable ARCH_ENABLE_SPLIT_PMD_PTLOCK
+  
+  Commit 66f24fa766e3 ("mm: drop redundant ARCH_ENABLE_SPLIT_PMD_PTLOCK")
+  broke PMD split page table lock for powerpc.
+  
+  It selects the non-existent config ARCH_ENABLE_PMD_SPLIT_PTLOCK in
+  arch/powerpc/platforms/Kconfig.cputype, but clearly intended to
+  select ARCH_ENABLE_SPLIT_PMD_PTLOCK (notice the word swapping!), as
+  that commit did for all other architectures.
+  
+  Fix it by selecting the correct symbol ARCH_ENABLE_SPLIT_PMD_PTLOCK.
+  
+  Fixes: 66f24fa766e3 ("mm: drop redundant ARCH_ENABLE_SPLIT_PMD_PTLOCK")
+  Cc: stable@vger.kernel.org # v5.13+
+  Signed-off-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+  Reviewed-by: Daniel Axtens <dja@axtens.net>
+  [mpe: Reword change log to make it clear this is a bug fix]
+  Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+  Link: https://lore.kernel.org/r/20210819113954.17515-3-lukas.bulwahn@gmail.com
