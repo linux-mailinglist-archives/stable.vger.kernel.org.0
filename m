@@ -2,85 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E4FB3F3612
-	for <lists+stable@lfdr.de>; Fri, 20 Aug 2021 23:31:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AD433F3639
+	for <lists+stable@lfdr.de>; Sat, 21 Aug 2021 00:01:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240950AbhHTVc0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Aug 2021 17:32:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48268 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240955AbhHTVcZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Aug 2021 17:32:25 -0400
-Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e3e3])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 417ECC061757;
-        Fri, 20 Aug 2021 14:31:47 -0700 (PDT)
-Received: from localhost.localdomain (unknown [IPv6:2600:8800:8c06:1000::c8f3])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        (Authenticated sender: alyssa)
-        by bhuna.collabora.co.uk (Postfix) with ESMTPSA id 65D5D1F44A90;
-        Fri, 20 Aug 2021 22:31:43 +0100 (BST)
-From:   Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>
-To:     dri-devel@lists.freedesktop.org
-Cc:     Rob Herring <robh@kernel.org>,
-        Tomeu Vizoso <tomeu.vizoso@collabora.com>,
-        Steven Price <steven.price@arm.com>,
-        Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>, linux-kernel@vger.kernel.org,
-        Chris Morgan <macromorgan@hotmail.com>, stable@vger.kernel.org
-Subject: [PATCH 3/3] drm/panfrost: Clamp lock region to Bifrost minimum
-Date:   Fri, 20 Aug 2021 17:31:17 -0400
-Message-Id: <20210820213117.13050-4-alyssa.rosenzweig@collabora.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210820213117.13050-1-alyssa.rosenzweig@collabora.com>
-References: <20210820213117.13050-1-alyssa.rosenzweig@collabora.com>
+        id S231432AbhHTWCG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Aug 2021 18:02:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35854 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229760AbhHTWCF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Aug 2021 18:02:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 05D6260F39;
+        Fri, 20 Aug 2021 22:01:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1629496887;
+        bh=6Tvf7F8XzySJVAbATDnQkPDRqPuOZ8gtDkb+RLf8JtE=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=a+qXY05sok1kXn0ucTlvGUaXS0cVuG6RW8Rg8+OrzmUosd0h64U4VrkHM1eFmTUpy
+         dOAL54ZWwyNRPd/6Jca3QOL7sFlUk/bYFhCR/LTpU1MF8QOSC121q8pnqQ4kT4IM8N
+         bkXww1I/CT+6LSuFIpsT8/gCJC6nVGSeBxBB/dzUPUY8w35fWNu7XUfRwTbqyhA0ss
+         heOKNv873m4IDcP43HGDZ3GK9vNJA/gEGKExVTlklWmeU4d4cf0klrZQ4r86tv7JW0
+         AI5PT99NwcZYuuDGtyUDpZyG61xx1a/Wrtl51zW1LgA7GiXFbR0poVZK1WeCjfgOoG
+         ckREQ7e93K7Ow==
+Subject: Re: [PATCH] f2fs: remove broken support for allocating DIO writes
+To:     Eric Biggers <ebiggers@kernel.org>
+Cc:     Jaegeuk Kim <jaegeuk@kernel.org>, Theodore Ts'o <tytso@mit.edu>,
+        linux-f2fs-devel@lists.sourceforge.net,
+        linux-fsdevel@vger.kernel.org, stable@vger.kernel.org
+References: <20210728015154.171507-1-ebiggers@kernel.org>
+ <YQRQRh1zUHSIzcC/@gmail.com> <YQS5eBljtztWwOFE@mit.edu>
+ <YQd3Hbid/mFm0o24@sol.localdomain>
+ <a3cdd7cb-50a7-1b37-fe58-dced586712a2@kernel.org>
+ <YQg4Lukc2dXX3aJc@google.com>
+ <b88328b4-db3e-0097-d8cc-f250ee678e5b@kernel.org>
+ <YQidOD/zNB17fd9v@google.com> <YRsY6dyHyaChkQ6n@gmail.com>
+ <c4e5c71d-1652-7174-fa36-674fab4e61df@kernel.org>
+ <YR/wbenc0d3eMAjz@sol.localdomain>
+From:   Chao Yu <chao@kernel.org>
+Message-ID: <c2d3a733-6caa-2bd8-ebe0-d26fe5132d16@kernel.org>
+Date:   Sat, 21 Aug 2021 06:01:26 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.13.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <YR/wbenc0d3eMAjz@sol.localdomain>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When locking a region, we currently clamp to a PAGE_SIZE as the minimum
-lock region. While this is valid for Midgard, it is invalid for Bifrost,
-where the minimum locking size is 8x larger than the 4k page size. Add a
-hardware definition for the minimum lock region size (corresponding to
-KBASE_LOCK_REGION_MIN_SIZE_LOG2 in kbase) and respect it.
+On 2021/8/21 2:11, Eric Biggers wrote:
+> On Fri, Aug 20, 2021 at 05:35:21PM +0800, Chao Yu wrote:
+>>>>>>
+>>>>>> Hmm, I'm still trying to deal with this as a corner case where the writes
+>>>>>> haven't completed due to an error. How about keeping the preallocated block
+>>>>>> offsets and releasing them if we get an error? Do we need to handle EIO right?
+>>>>>
+>>>>> What about the case that CP + SPO following DIO preallocation? User will
+>>>>> encounter uninitialized block after recovery.
+>>>>
+>>>> I think buffered writes as a workaround can expose the last unwritten block as
+>>>> well, if SPO happens right after block allocation. We may need to compromise
+>>>> at certain level?
+>>>>
+>>>
+>>> Freeing preallocated blocks on error would be better than nothing, although note
+>>> that the preallocated blocks may have filled an arbitrary sequence of holes --
+>>> so simply truncating past EOF would *not* be sufficient.
+>>>
+>>> But really filesystems need to be designed to never expose uninitialized data,
+>>> even if I/O errors or a sudden power failure occurs.  It is unfortunate that
+>>> f2fs apparently wasn't designed with that goal in mind.
+>>>
+>>> In any case, I don't think we can proceed with any other f2fs direct I/O
+>>> improvements until this data leakage bug can be solved one way or another.  If
+>>> my patch to remove support for allocating writes isn't acceptable and the
+>>> desired solution is going to require some more invasive f2fs surgery, are you or
+>>> Chao going to work on it?  I'm not sure there's much I can do here.
+>>
+>> I may have time to take look into the implementation as I proposed above, maybe
+>> just enabling this in FSYNC_MODE_STRICT mode if user concerns unwritten data?
+>> thoughts?
+>>
+> 
+> What does this have to do with fsync?
 
-Signed-off-by: Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>
-Tested-by: Chris Morgan <macromorgan@hotmail.com>
-Cc: <stable@vger.kernel.org>
----
- drivers/gpu/drm/panfrost/panfrost_mmu.c  | 2 +-
- drivers/gpu/drm/panfrost/panfrost_regs.h | 2 ++
- 2 files changed, 3 insertions(+), 1 deletion(-)
+Oops, maybe a separate option is more appropriate.
 
-diff --git a/drivers/gpu/drm/panfrost/panfrost_mmu.c b/drivers/gpu/drm/panfrost/panfrost_mmu.c
-index 3a795273e505..dfe5f1d29763 100644
---- a/drivers/gpu/drm/panfrost/panfrost_mmu.c
-+++ b/drivers/gpu/drm/panfrost/panfrost_mmu.c
-@@ -66,7 +66,7 @@ static void lock_region(struct panfrost_device *pfdev, u32 as_nr,
- 	/* The size is encoded as ceil(log2) minus(1), which may be calculated
- 	 * with fls. The size must be clamped to hardware bounds.
- 	 */
--	size = max_t(u64, size, PAGE_SIZE);
-+	size = max_t(u64, size, AS_LOCK_REGION_MIN_SIZE);
- 	region_width = fls64(size - 1) - 1;
- 	region |= region_width;
- 
-diff --git a/drivers/gpu/drm/panfrost/panfrost_regs.h b/drivers/gpu/drm/panfrost/panfrost_regs.h
-index 1940ff86e49a..6c5a11ef1ee8 100644
---- a/drivers/gpu/drm/panfrost/panfrost_regs.h
-+++ b/drivers/gpu/drm/panfrost/panfrost_regs.h
-@@ -316,6 +316,8 @@
- #define AS_FAULTSTATUS_ACCESS_TYPE_READ		(0x2 << 8)
- #define AS_FAULTSTATUS_ACCESS_TYPE_WRITE	(0x3 << 8)
- 
-+#define AS_LOCK_REGION_MIN_SIZE                 (1ULL << 15)
-+
- #define gpu_write(dev, reg, data) writel(data, dev->iomem + reg)
- #define gpu_read(dev, reg) readl(dev->iomem + reg)
- 
--- 
-2.30.2
-
+> 
+> - Eric
+> 
