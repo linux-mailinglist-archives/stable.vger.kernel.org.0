@@ -2,79 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA5413F2B40
-	for <lists+stable@lfdr.de>; Fri, 20 Aug 2021 13:31:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A59DF3F2B44
+	for <lists+stable@lfdr.de>; Fri, 20 Aug 2021 13:32:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239196AbhHTLc0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Aug 2021 07:32:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47038 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237382AbhHTLc0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Aug 2021 07:32:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 71ABD610CC;
-        Fri, 20 Aug 2021 11:31:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629459108;
-        bh=KQXkS9mXnPZ+2hdBi04FLv6M0CuQq8GXP59msSXono0=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=lpyvJeyAhrYPFiN9a/qVPoEMLPuQOxMgpHSuB8t1hOgSqRsyY6Tm9alMOMCMQxd3X
-         nLOPqx9WowKNRhamGBcFQZf9zJFzFUS9eHBKNdei/Py7k4qen+pNhj2/rmRbHqHslp
-         8DJh4vDGfz4lhQDl1OcOHxla69u74UKngfAsohCXparbuSJ/g0Mfyb84pk6UrnkjLA
-         3XN0ojtv5qRKZkf8ADbm4530ztpIlQQUdgtSLm26mFUbcJ9xnMetmzP4+FZWbG+lz1
-         uqHeWWNpBxhbnHxTJZq6nHlJVOQRe1LSfsupGR8GtlUJkyOZqXJ0kBY/mCoLuEIQoi
-         q6TzX+cIgHNIQ==
-Received: by mail-ot1-f54.google.com with SMTP id w22-20020a056830411600b0048bcf4c6bd9so12740327ott.8;
-        Fri, 20 Aug 2021 04:31:48 -0700 (PDT)
-X-Gm-Message-State: AOAM53236kv4A4+QcJROj1ww1llUKXMUzD2j2UbHydIiQHLZcj9Jmymk
-        SEHo6v52mcpIAM0etZYp1foXh9ZmKXa3EdC9zHA=
-X-Google-Smtp-Source: ABdhPJyPhYRA3r15yMZqhHXUxWdV3Z1lg00AZooAEARRBgDfws9xnfjE4jkzS14ez0v9lVyI0/K1he0InW26AZcPer4=
-X-Received: by 2002:a9d:5c2:: with SMTP id 60mr15903635otd.77.1629459107634;
- Fri, 20 Aug 2021 04:31:47 -0700 (PDT)
+        id S237382AbhHTLcr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Aug 2021 07:32:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50232 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239876AbhHTLcp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Aug 2021 07:32:45 -0400
+Received: from mail-lf1-x132.google.com (mail-lf1-x132.google.com [IPv6:2a00:1450:4864:20::132])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54D31C061575
+        for <stable@vger.kernel.org>; Fri, 20 Aug 2021 04:32:06 -0700 (PDT)
+Received: by mail-lf1-x132.google.com with SMTP id i9so19900167lfg.10
+        for <stable@vger.kernel.org>; Fri, 20 Aug 2021 04:32:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=EVr+GNugLlc0xK2l3OQNOEkKJ5gDmo5J6cp/NzY4KIo=;
+        b=g/3GoAXQr+Zsw0lPoKFQZYQh188zcYIgkRHgolRW4BAYH5vDkDa3t30oI3maG67g+9
+         qimz4WKmeJojSDgZLB//aoTg9r3om/iNXuycfdDIf6J1BcNqxbf606hMhPnpgvGeDDe6
+         ssaoidENTRZfHWdZjj+seAo83GcDfPc3im52/yy/hSnScMtQJl7hsKy5MlLY6EdWbyn8
+         MdlXPz/k5loeuCpGynJHi57Jfno5HvYndjUD7sJSWBUPUcsvejSfs9bD+hZXHOo08Bbt
+         Anrd39TVse5YwDotsyU4W4wUWxC98Xb84HT3Eklq6GurqBO8EKEHqjb6lXEDAZUplxTb
+         9NeQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=EVr+GNugLlc0xK2l3OQNOEkKJ5gDmo5J6cp/NzY4KIo=;
+        b=uJxhzElFQPghYLvAHLUMRf9e8Lg82gdoyd8w27AufADt+CcqoC9JnmLbabaurewr/5
+         67sx343wJoid1waEomK642SSGFlp3v2rPuyEf0A1IzdJ79UkTCQTUrUgORduI3mCkDgu
+         jj5ZciqClJl/PBuBl4aUUk+GYMkIY3M6PCjhwBffUspRwdoacYwIiluFdmjk9BiD26BM
+         w+3z1y9/LVJOX+RNf22RMxhT0gEA1FFlgzvTngISkdXTSLv0FPMDHDq2UENVg1psKJAg
+         YG2GJ3/g6zR0sJSmaNIinlPzMp7TixDpG15fq1z5sWaqreg6kC36W6KEMeYIWbwEtXed
+         LX2g==
+X-Gm-Message-State: AOAM531pOFoOddEiXvcVBwR/ylrI+Euh64BVrmk24Ftm0FD/btK9h+Wq
+        LMNJ2PUtlfo7InNFdhxRY1Cq/nZ/0LeQ/6Vn9lM=
+X-Google-Smtp-Source: ABdhPJwUpazCi6+rLA7TqFQIwbQLQrmi3YZKldb5iTSemSdHVLrEbMhZQytUo9Ll6yJTj+k7pwAtaDMLkZc+spB1c2s=
+X-Received: by 2002:a05:6512:ac4:: with SMTP id n4mr14261344lfu.475.1629459124770;
+ Fri, 20 Aug 2021 04:32:04 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210820073429.19457-1-joro@8bytes.org> <e43eb0d137164270bf16258e6d11879e@AcuMS.aculab.com>
- <YR9tSuLyX8QHV5Pv@8bytes.org> <f68a175362984e4abbb0a1da2004c936@AcuMS.aculab.com>
- <YR+Bxgq4aIo1DI8j@8bytes.org>
-In-Reply-To: <YR+Bxgq4aIo1DI8j@8bytes.org>
-From:   Ard Biesheuvel <ardb@kernel.org>
-Date:   Fri, 20 Aug 2021 13:31:36 +0200
-X-Gmail-Original-Message-ID: <CAMj1kXHj12FQn_488V_9k9k_LE51K=7n3sS9QnN9gkhBgzw-Kw@mail.gmail.com>
-Message-ID: <CAMj1kXHj12FQn_488V_9k9k_LE51K=7n3sS9QnN9gkhBgzw-Kw@mail.gmail.com>
-Subject: Re: [PATCH] x86/efi: Restore Firmware IDT in before ExitBootServices()
-To:     Joerg Roedel <joro@8bytes.org>
-Cc:     David Laight <David.Laight@aculab.com>,
-        "x86@kernel.org" <x86@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "hpa@zytor.com" <hpa@zytor.com>, Joerg Roedel <jroedel@suse.de>,
-        Kees Cook <keescook@chromium.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Uros Bizjak <ubizjak@gmail.com>,
-        Arvind Sankar <nivedita@alum.mit.edu>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Fabio Aiuto <fabioaiuto83@gmail.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Received: by 2002:ac2:443b:0:0:0:0:0 with HTTP; Fri, 20 Aug 2021 04:32:04
+ -0700 (PDT)
+Reply-To: frankedwardjnr100@gmail.com
+From:   Frank Edwardjnr <dcurtis2030@gmail.com>
+Date:   Fri, 20 Aug 2021 12:32:04 +0100
+Message-ID: <CAPdAYp7foS=x1uJQQ1o67LTiX2qZV3qMfyRo6DgD-9ZqNNBPig@mail.gmail.com>
+Subject: hi
+To:     undisclosed-recipients:;
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: base64
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 20 Aug 2021 at 12:19, Joerg Roedel <joro@8bytes.org> wrote:
->
-> On Fri, Aug 20, 2021 at 09:02:46AM +0000, David Laight wrote:
-> > So allocate and initialise the Linux IDT - so entries can be added.
-> > But don't execute 'lidt' until later on.
->
-> The IDT is needed in this path to handle #VC exceptions caused by CPUID
-> instructions. So loading the IDT later is not an option.
->
-
-That does raise a question, though. Does changing the IDT interfere
-with the ability of the UEFI boot services to receive and handle the
-timer interrupt? Because before ExitBootServices(), that is owned by
-the firmware, and UEFI heavily relies on it for everything (event
-handling, polling mode block/network drivers, etc)
-
-If restoring the IDT temporarily just papers over this by creating
-tiny windows where the timer interrupt starts working again, this is
-bad, and we need to figure out another way to address the original
-problem.
+SGVsbG8sDQpJIGNhbGxlZCB0byBrbm93IGlmIHlvdSByZWNlaXZlZCBteSBwcmV2aW91cyBlbWFp
+bCwgcmVwbHkgdG8gbWUNCmFzYXAuDQpGcmFuaw0KDQrslYjrhZXtlZjshLjsmpQNCuuCnCDri7ns
+i6DsnbQg64K0IOydtOyghCDsnbTrqZTsnbzsnYTrsJvsnYAg6rK97JqwIOyVjOqzoCDsoITtmZQs
+IOuCmOyXkOqyjCDtmozsi6ANCuu5qOumrC4NCuyGlOynge2VmOuLpA0K
