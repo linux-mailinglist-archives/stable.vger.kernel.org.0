@@ -2,86 +2,164 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 239083F3C6B
-	for <lists+stable@lfdr.de>; Sat, 21 Aug 2021 22:31:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C8D03F3C6C
+	for <lists+stable@lfdr.de>; Sat, 21 Aug 2021 22:31:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229959AbhHUUcE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 21 Aug 2021 16:32:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39346 "EHLO
+        id S229976AbhHUUcG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 21 Aug 2021 16:32:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39354 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229795AbhHUUcE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 21 Aug 2021 16:32:04 -0400
-Received: from mail-qk1-x735.google.com (mail-qk1-x735.google.com [IPv6:2607:f8b0:4864:20::735])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E359C061575
-        for <stable@vger.kernel.org>; Sat, 21 Aug 2021 13:31:24 -0700 (PDT)
-Received: by mail-qk1-x735.google.com with SMTP id 14so14774939qkc.4
-        for <stable@vger.kernel.org>; Sat, 21 Aug 2021 13:31:24 -0700 (PDT)
+        with ESMTP id S229795AbhHUUcF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 21 Aug 2021 16:32:05 -0400
+Received: from mail-qt1-x833.google.com (mail-qt1-x833.google.com [IPv6:2607:f8b0:4864:20::833])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B94EC061575
+        for <stable@vger.kernel.org>; Sat, 21 Aug 2021 13:31:26 -0700 (PDT)
+Received: by mail-qt1-x833.google.com with SMTP id d9so10453706qty.12
+        for <stable@vger.kernel.org>; Sat, 21 Aug 2021 13:31:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=dC7iZ3XQNCXWUSOMZeB+F9Z0H7djlXOiTOUpRfzJVOA=;
-        b=VrC6YnkFu4JpGmB/3Uj2kvbdPdPFLTlwdexawamhAnKVcX7w1KVSh4NT3ZB3mrUExO
-         VLwzw2b5kQ4n+GO6Vrlbt0M2MI/R/7dMH/soISn60RbDVfefNcTaGWOuNGa21AaExafm
-         gJ7DzfHEWUqxdDTfbD6SbnlA5vRg97Cq3wd3N+LFOl0Hwsjxrnm/rw+JZz5sgALFOxpa
-         IZMuanY644K0NwibITnxTq/Z7zDuCqjOo98AqM6yUkCtTLVVlH7wfz9i/+AzRxqvtMXb
-         A3R0zDpQvFJjCWqKG5XX67rAw33mA/7nUD6jL3EPFqL5SPQ8xeRhoQA4ELUSwTkuzAd1
-         nIoA==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=Vu6oIyeEogrUxt6GxhQ6bXdAke30vXAjbchW39inJ7g=;
+        b=lqeQGP9QmTmDSVXvpAa9PgqZfQjGaD+TO/y8RKzhgRoWf3+ZlgLmXdTMje/V+wTsin
+         DzWW/zkjDOUhWHK08CD2drrCQqBVHRKM9yTIntJEpeeMm+kZI1GdmEGswruZ7XupQwnb
+         xVFMYFp6AztGLgubXE6LLRwkATv6Bl+zlcnSaFGM7ilrkwiZQyQ4LIRjkazaqQUNYTlC
+         tSWFsMiSy4KHPcOHfNRvQexRAjX6t14+Pr//xmn3NSnbzFRONipE2a8heoE6wHrmNvDj
+         YW0zot3nrwN+of6ChoenqHMH59/oOvxz073RbYB1aB7I619qspAuEjbcj58i+2o6lYci
+         ybJg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=dC7iZ3XQNCXWUSOMZeB+F9Z0H7djlXOiTOUpRfzJVOA=;
-        b=YbJFgexZCpe4Jf3YvtGePhwqbSNY8+av3L/dGb2lm9dvBOUjxUqGQBPszvLmXVmAut
-         YXfeTBZnUExqANyTLcKSU/30LO5AR0w3f4TgHQTsuRF4S60QUfrvEpDM+DgclrWJEGwQ
-         rBzLlX5ZQfQcfSauEbikMQg5Xp6d7S2g6jDxBA9k07EJbcphw88ajkZd1SKL4zjWLsHD
-         lHdRZefdQKGgzpsdS8JUC7a+gsfpTYVpUQWMG37qH2yST0ehgx19DN7FapwceVxX2QBX
-         pBUdtLlbFMXhv5aXFXQJ93FBgS06M2CBk89N16nuOoJgyJK+gzkJobQDrXJVQqa516ZT
-         2rEQ==
-X-Gm-Message-State: AOAM533jFHEy6Ib4mSJrZeyK8yYcy6I3PI0MmAtHjNvHrNyv4Q+/Qt62
-        vMd5d+2dYnpU6+/yuFIsyCEy3Ht8m1Pfyfs=
-X-Google-Smtp-Source: ABdhPJxrw4PsMhjkUxgnLqIKXOlUuDk0fKOAnmsMZFp0GYPrPlkXx/29NmASLBE90/OAEYHXZ+I5UQ==
-X-Received: by 2002:a05:620a:1aaa:: with SMTP id bl42mr13084935qkb.469.1629577883178;
-        Sat, 21 Aug 2021 13:31:23 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=Vu6oIyeEogrUxt6GxhQ6bXdAke30vXAjbchW39inJ7g=;
+        b=heIR4Z4hb9rlWNOFg3EvpGSF1Ndh96xNk5drMWJkk3ImcCULsSLaxxwFRaTrkUc8+m
+         IAT1occko5XIOYeAjuJ6m77vLsO+GRfQ+X4e/z145PVjzX/wYxJyHF3H2xHcQ6Kv60dp
+         q59Bxtjfjvh/yJfaEGJi8N+ekx/rsF/s2pIKXWqfsDB2pcmErnt6ojVJXofCts+uw1xF
+         wcYFatJx7xsnR//pQpAt+bL5SRkYErU1c0odPsBqKOtDYS6IcLUu0GyJEDdwXVC9UEQ+
+         f2VZfFWeed70jPHZ+353K5dm3xfWe6G08CaX9P4P6hYgTL4LGayc3mLIpeda6474pwCW
+         NmjQ==
+X-Gm-Message-State: AOAM530TvUso1hgtjhpg+yNfTMJ55n93W1H4aRxCxRjEegvVenLie/c3
+        RURv6yajV/3XNFyhnHNlXgf8IXih5jkJ1bI=
+X-Google-Smtp-Source: ABdhPJwQw2TOq5ezixHNzoH4OBPkgeyihB8N4i+cE3VxnN64G0zGVcBwTiURiycHBUQccI9maZ+Sgw==
+X-Received: by 2002:a05:622a:394:: with SMTP id j20mr19385663qtx.196.1629577884999;
+        Sat, 21 Aug 2021 13:31:24 -0700 (PDT)
 Received: from fujitsu.celeiro.cu ([191.177.175.120])
-        by smtp.gmail.com with ESMTPSA id u189sm5348996qkh.14.2021.08.21.13.31.21
+        by smtp.gmail.com with ESMTPSA id u189sm5348996qkh.14.2021.08.21.13.31.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 21 Aug 2021 13:31:22 -0700 (PDT)
+        Sat, 21 Aug 2021 13:31:24 -0700 (PDT)
 From:   Rafael David Tinoco <rafaeldtinoco@gmail.com>
 To:     stable@vger.kernel.org
 Cc:     rafaeldtinoco@gmail.com, andriin@fb.com, daniel@iogearbox.net,
         yanivagman@gmail.com
 Subject: [PATCH] bpf: Track contents of read-only maps as scalars
-Date:   Sat, 21 Aug 2021 17:31:07 -0300
-Message-Id: <20210821203108.215937-1-rafaeldtinoco@gmail.com>
+Date:   Sat, 21 Aug 2021 17:31:08 -0300
+Message-Id: <20210821203108.215937-2-rafaeldtinoco@gmail.com>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210821203108.215937-1-rafaeldtinoco@gmail.com>
+References: <20210821203108.215937-1-rafaeldtinoco@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-During tracee-ebpf regression tests, it was discovered that a CO-RE capable
-eBPF program, that relied on a kconfig BTF extern, could not be loaded with
-the following error:
+commit a23740ec43ba022dbfd139d0fe3eff193216272b upstream.
 
-libbpf: prog 'tracepoint__raw_syscalls__sys_enter': failed to attach to raw
- tracepoint 'sys_enter': Invalid argument
+Maps that are read-only both from BPF program side and user space side
+have their contents constant, so verifier can track referenced values
+precisely and use that knowledge for dead code elimination, branch
+pruning, etc. This patch teaches BPF verifier how to do this.
 
-That happened because the CONFIG_ARCH_HAS_SYSCALL_WRAPPER variable had the
-wrong value, despite kconfig map existing, misleading the eBPF program
-execution (which would then have different pointers, not accepted by the
-verifier during load time).
+  [Backport]
+  Already includes further build fix made at commit 2dedd7d21655 ("bpf:
+  Fix cast to pointer from integer of different size warning").
 
-I got the patch proposed here by bisecting upstream tree with the testcase
-just described. I kindly ask you to include this patch in the LTS v5.4.x
-series so CO-RE (Compile Once - Run Everywhere) eBPF programs, relying in
-kconfig settings, can be correctly loaded in kernel series v5.4.
-
+Signed-off-by: Andrii Nakryiko <andriin@fb.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20191009201458.2679171-2-andriin@fb.com
+Signed-off-by: Rafael David Tinoco <rafaeldtinoco@gmail.com>
+Cc: stable@vger.kernel.org # 5.4.x
 Link: https://github.com/aquasecurity/tracee/issues/851#issuecomment-903074596
+---
+ kernel/bpf/verifier.c | 57 +++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 55 insertions(+), 2 deletions(-)
 
-I have tested latest 5.4 stable tree with this patch and it fixes the issue.
-
--rafaeldtinoco
-
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index 52c2b11a0b47..ffb33bde92b8 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -2778,6 +2778,41 @@ static void coerce_reg_to_size(struct bpf_reg_state *reg, int size)
+ 	reg->smax_value = reg->umax_value;
+ }
+ 
++static bool bpf_map_is_rdonly(const struct bpf_map *map)
++{
++	return (map->map_flags & BPF_F_RDONLY_PROG) && map->frozen;
++}
++
++static int bpf_map_direct_read(struct bpf_map *map, int off, int size, u64 *val)
++{
++	void *ptr;
++	u64 addr;
++	int err;
++
++	err = map->ops->map_direct_value_addr(map, &addr, off);
++	if (err)
++		return err;
++	ptr = (void *)(long)addr + off;
++
++	switch (size) {
++	case sizeof(u8):
++		*val = (u64)*(u8 *)ptr;
++		break;
++	case sizeof(u16):
++		*val = (u64)*(u16 *)ptr;
++		break;
++	case sizeof(u32):
++		*val = (u64)*(u32 *)ptr;
++		break;
++	case sizeof(u64):
++		*val = *(u64 *)ptr;
++		break;
++	default:
++		return -EINVAL;
++	}
++	return 0;
++}
++
+ /* check whether memory at (regno + off) is accessible for t = (read | write)
+  * if t==write, value_regno is a register which value is stored into memory
+  * if t==read, value_regno is a register which will receive the value from memory
+@@ -2815,9 +2850,27 @@ static int check_mem_access(struct bpf_verifier_env *env, int insn_idx, u32 regn
+ 		if (err)
+ 			return err;
+ 		err = check_map_access(env, regno, off, size, false);
+-		if (!err && t == BPF_READ && value_regno >= 0)
+-			mark_reg_unknown(env, regs, value_regno);
++		if (!err && t == BPF_READ && value_regno >= 0) {
++			struct bpf_map *map = reg->map_ptr;
++
++			/* if map is read-only, track its contents as scalars */
++			if (tnum_is_const(reg->var_off) &&
++			    bpf_map_is_rdonly(map) &&
++			    map->ops->map_direct_value_addr) {
++				int map_off = off + reg->var_off.value;
++				u64 val = 0;
+ 
++				err = bpf_map_direct_read(map, map_off, size,
++							  &val);
++				if (err)
++					return err;
++
++				regs[value_regno].type = SCALAR_VALUE;
++				__mark_reg_known(&regs[value_regno], val);
++			} else {
++				mark_reg_unknown(env, regs, value_regno);
++			}
++		}
+ 	} else if (reg->type == PTR_TO_CTX) {
+ 		enum bpf_reg_type reg_type = SCALAR_VALUE;
+ 
+-- 
+2.30.2
 
