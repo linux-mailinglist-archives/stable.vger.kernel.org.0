@@ -2,98 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 941A23F37F5
-	for <lists+stable@lfdr.de>; Sat, 21 Aug 2021 03:43:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C5D53F385E
+	for <lists+stable@lfdr.de>; Sat, 21 Aug 2021 05:49:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232749AbhHUBnr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Aug 2021 21:43:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35666 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229867AbhHUBnr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Aug 2021 21:43:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4FEAE60F45;
-        Sat, 21 Aug 2021 01:43:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629510188;
-        bh=rfxBSjkKjzvMie/PhnLgofpGTbMzR8ve9hvClVth3qE=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=ezuzZ50PUWPh9w9Fj4JOKvRidGd8R9ASXTwh4zO9Rw2VMVpC0OcBwd++rmsad6aKq
-         05HCw7QNtCJRK663go/K1eIh6BsbM5OoIo9Aa5FauShpfyC5GOtCxWc2X9kGL9DRWl
-         o7EoPlfTYEUj1Q5pMo2xE78wEJQA3bRylcZ9P+SSHnOPUdhxjjLu1biZ4jQpdbI+v2
-         wXfKAY8htO3U9939u0sF9GnOJMSeycM1KCAml2f01u6zPO8Ziva0iaKTTYumf2CzPd
-         U+o8ojoePe3U8uBPJFUX/equ5ML5voaZZBvxw6r6GfI0Fk4thsjVpA0i2fWm7mAIyx
-         aAOrg3OHf1nJw==
-Date:   Sat, 21 Aug 2021 10:43:05 +0900
-From:   Masami Hiramatsu <mhiramat@kernel.org>
-To:     Steven Rostedt <rostedt@goodmis.org>
-Cc:     linux-kernel@vger.kernel.org, linux-trace-devel@vger.kernel.org,
-        Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        "Tzvetomir Stoyanov" <tz.stoyanov@gmail.com>,
-        Tom Zanussi <zanussi@kernel.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        linux-kselftest@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v9 3/6] selftests/ftrace: Fix requirement check of
- README file
-Message-Id: <20210821104305.5c87c77e482261131a4ac3b8@kernel.org>
-In-Reply-To: <20210820204742.087177341@goodmis.org>
-References: <20210820204644.546662591@goodmis.org>
-        <20210820204742.087177341@goodmis.org>
-X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+        id S232960AbhHUDti (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Aug 2021 23:49:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46792 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229610AbhHUDtf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Aug 2021 23:49:35 -0400
+Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4836BC061575
+        for <stable@vger.kernel.org>; Fri, 20 Aug 2021 20:48:56 -0700 (PDT)
+Received: by mail-pj1-x102b.google.com with SMTP id n5so8574291pjt.4
+        for <stable@vger.kernel.org>; Fri, 20 Aug 2021 20:48:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=tVbAHiuvvRs4HazGnac5ScJp0BoK2XoVNcND7f+nEY8=;
+        b=hXSWzLCpR+Q+JPwGt1jRe54AmsCPaH/wLf7R0M2cDVIcCghxJQxT2pwP9hnf0tYkK7
+         AWKroe5ufTQkRxCg9ckkwsOTjE6RvLDZpXu+2w/MrhgE34xgps+RR2Ik1BUp/FHSUNno
+         YoBXRkW/0m6L3jzWO+66yHhB1WOkdrq2ngq3LcZ4DCaSqtQ22PwZTuJ4RS6q+9dlr1tT
+         xYcTAMqUoNtc5s7LiX5b9flbmd/0becXrlwlUE+FY8ZZSksa6QUEsoNneAAuEhCI1vuA
+         uEi1W5T9X1al/fpq5lKUvB9Dk8VGLHFwgar4MUqIatQ3G62DEb+tV+BObV2zhq+JxmY3
+         l4Cg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=tVbAHiuvvRs4HazGnac5ScJp0BoK2XoVNcND7f+nEY8=;
+        b=MFB3baMqwcoxb36EOmeTz6MB3BaZrgTaW7iU9UzYrcJSzEBEgxenR7U+5dddwi5eOx
+         71k0o0sSkaPr+5Paco/PnnYfuJkNBCi0iJwfzjaJt+GDYakZJBoKyAp4mGB1OMq9V+J8
+         r185oTbt3x7P56sVWuozoh1xhod8wdP/K3Ao8JAdYVxSZFtQ06sZ4mRz4F2yTs6OJWUR
+         WtHt3+QSp5Oj+4tVHekIKOaqBwX4mCv6CnZkOZzyiFxNvYDaqbf822gTsCSVupV5qZp7
+         1wyoD4vu6MomLrvzI396uG0QyLK1bsqEf+Q01I8xdsh9s3SGFPWhHw6UjqXh8VzF1+Ph
+         WdzQ==
+X-Gm-Message-State: AOAM5316tWfACsiAeETp1U1gdzBi9JaGWi2sL+Nwmvu+8iTHD3PjHC62
+        6U1HvYr5jvGyXNuvEJqxRIDe620m639hvAKvNuc=
+X-Google-Smtp-Source: ABdhPJwvdtzZLAF5HpNSwv1meWCUXKN6TLVoIJ8AHEZeTrQMiEny1GMp0brA0fSiHIdNOj0/0h7Vkjxy6kRcZgkG0XU=
+X-Received: by 2002:a17:90b:90e:: with SMTP id bo14mr8019136pjb.165.1629517735750;
+ Fri, 20 Aug 2021 20:48:55 -0700 (PDT)
+MIME-Version: 1.0
+Received: by 2002:a05:7300:c08:b029:26:4f0d:a0ef with HTTP; Fri, 20 Aug 2021
+ 20:48:55 -0700 (PDT)
+Reply-To: sroomf70@gmail.com
+From:   "Mr. Pierre Eldaher" <pierre.eldaher57@gmail.com>
+Date:   Fri, 20 Aug 2021 20:48:55 -0700
+Message-ID: <CAGZKiwrWb-nm3bRiT9X1xwLMuEquegiAmJ-B4jSewWUAHTLcWA@mail.gmail.com>
+Subject: Greetings,
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 20 Aug 2021 16:46:47 -0400
-Steven Rostedt <rostedt@goodmis.org> wrote:
-
-> From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-> 
-> The selftest for ftrace checks some features by checking if the README has
-> text that states the feature is supported by that kernel. Unfortunately,
-> this check gives false positives because it many not be checked if there's
-> spaces in the string to check. This is due to the compare between the
-> required variable with the ":README" string stripped, because neither has
-> quotes around them.
-
-Oops, good catch!
-
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-
-Thank you!
-
-> 
-> Cc: Shuah Khan <shuah@kernel.org>
-> Cc: Shuah Khan <skhan@linuxfoundation.org>
-> Cc: linux-kselftest@vger.kernel.org
-> Cc: stable@vger.kernel.org
-> Fixes: 1b8eec510ba64 ("selftests/ftrace: Support ":README" suffix for requires")
-> Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-> ---
->  tools/testing/selftests/ftrace/test.d/functions | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/tools/testing/selftests/ftrace/test.d/functions b/tools/testing/selftests/ftrace/test.d/functions
-> index f68d336b961b..000fd05e84b1 100644
-> --- a/tools/testing/selftests/ftrace/test.d/functions
-> +++ b/tools/testing/selftests/ftrace/test.d/functions
-> @@ -137,7 +137,7 @@ check_requires() { # Check required files and tracers
->                  echo "Required tracer $t is not configured."
->                  exit_unsupported
->              fi
-> -        elif [ $r != $i ]; then
-> +        elif [ "$r" != "$i" ]; then
->              if ! grep -Fq "$r" README ; then
->                  echo "Required feature pattern \"$r\" is not in README."
->                  exit_unsupported
-> -- 
-> 2.30.2
-
-
 -- 
-Masami Hiramatsu <mhiramat@kernel.org>
+Greetings,
+From Mr. Pierre Herald, please a huge amount payment was made into
+your account. please do not hesitate to reply as soon as you receive
+this message. awaiting your urgent notice please.
+
+Thanks
+Mr. Pierre Eldaher,
+Foreign Remittance
+
+Best regards
+Prof. Dr Diane
+Head of Foreign Operation
