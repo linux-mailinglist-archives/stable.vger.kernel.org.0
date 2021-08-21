@@ -2,191 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 646B93F3B59
-	for <lists+stable@lfdr.de>; Sat, 21 Aug 2021 18:04:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 239083F3C6B
+	for <lists+stable@lfdr.de>; Sat, 21 Aug 2021 22:31:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229832AbhHUQEy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 21 Aug 2021 12:04:54 -0400
-Received: from Galois.linutronix.de ([193.142.43.55]:59250 "EHLO
-        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229643AbhHUQEy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 21 Aug 2021 12:04:54 -0400
-Date:   Sat, 21 Aug 2021 16:04:12 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1629561853;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=62aTtqrzgmwTmii6G9WD9NGB+2mGa715lza6oAKvJug=;
-        b=BMnjdwJPWHtOTOTwX6sggBxrND7ySX0//0bg8pjeuwelEy+Wo4HRa85TvYZ9cGm2eFJqri
-        YS5KPAauiUHk9Kq1fM7MjtymeXUS+HLi0IVq9Ege7Sth6bqVk6ynmpFjbGSFAiV8Zx9AuW
-        3Sx4D1GsPT6/DpXf3SDBNkjKngL+b7tUdSzDbp2pAucMIB3HcvFqgA03DR6ym90qzoGwu/
-        DRP0R0HfSUZUPEH2NMVOZxWBn2hO7pZPc+1++DnVIjzv3FbfMDyXnROAhfHVitzr1RcjW5
-        XPtxd0XETS4WigW0EKAJFg9rU4fF7CTAfB8iYQX81s33fW1HtFHCZMX9L6HvOA==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1629561853;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=62aTtqrzgmwTmii6G9WD9NGB+2mGa715lza6oAKvJug=;
-        b=lIAc2GJukDzGZi0IEX/zs2NmiKnjQ9WGpySEP/8IVfpgiZuoXAP9dpvTB14GF/CeB0/Hu+
-        dvdY7epCxIOqaNDg==
-From:   "tip-bot2 for Joerg Roedel" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] x86/efi: Restore Firmware IDT before calling
- ExitBootServices()
-Cc:     Fabio Aiuto <fabioaiuto83@gmail.com>,
-        Joerg Roedel <jroedel@suse.de>, Borislav Petkov <bp@suse.de>,
-        Ard Biesheuvel <ardb@kernel.org>, stable@vger.kernel.org,
-        #@tip-bot2.tec.linutronix.de, 5.13+@tip-bot2.tec.linutronix.de,
-        x86@kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20210820125703.32410-1-joro@8bytes.org>
-References: <20210820125703.32410-1-joro@8bytes.org>
+        id S229959AbhHUUcE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 21 Aug 2021 16:32:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39346 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229795AbhHUUcE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 21 Aug 2021 16:32:04 -0400
+Received: from mail-qk1-x735.google.com (mail-qk1-x735.google.com [IPv6:2607:f8b0:4864:20::735])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E359C061575
+        for <stable@vger.kernel.org>; Sat, 21 Aug 2021 13:31:24 -0700 (PDT)
+Received: by mail-qk1-x735.google.com with SMTP id 14so14774939qkc.4
+        for <stable@vger.kernel.org>; Sat, 21 Aug 2021 13:31:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=dC7iZ3XQNCXWUSOMZeB+F9Z0H7djlXOiTOUpRfzJVOA=;
+        b=VrC6YnkFu4JpGmB/3Uj2kvbdPdPFLTlwdexawamhAnKVcX7w1KVSh4NT3ZB3mrUExO
+         VLwzw2b5kQ4n+GO6Vrlbt0M2MI/R/7dMH/soISn60RbDVfefNcTaGWOuNGa21AaExafm
+         gJ7DzfHEWUqxdDTfbD6SbnlA5vRg97Cq3wd3N+LFOl0Hwsjxrnm/rw+JZz5sgALFOxpa
+         IZMuanY644K0NwibITnxTq/Z7zDuCqjOo98AqM6yUkCtTLVVlH7wfz9i/+AzRxqvtMXb
+         A3R0zDpQvFJjCWqKG5XX67rAw33mA/7nUD6jL3EPFqL5SPQ8xeRhoQA4ELUSwTkuzAd1
+         nIoA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=dC7iZ3XQNCXWUSOMZeB+F9Z0H7djlXOiTOUpRfzJVOA=;
+        b=YbJFgexZCpe4Jf3YvtGePhwqbSNY8+av3L/dGb2lm9dvBOUjxUqGQBPszvLmXVmAut
+         YXfeTBZnUExqANyTLcKSU/30LO5AR0w3f4TgHQTsuRF4S60QUfrvEpDM+DgclrWJEGwQ
+         rBzLlX5ZQfQcfSauEbikMQg5Xp6d7S2g6jDxBA9k07EJbcphw88ajkZd1SKL4zjWLsHD
+         lHdRZefdQKGgzpsdS8JUC7a+gsfpTYVpUQWMG37qH2yST0ehgx19DN7FapwceVxX2QBX
+         pBUdtLlbFMXhv5aXFXQJ93FBgS06M2CBk89N16nuOoJgyJK+gzkJobQDrXJVQqa516ZT
+         2rEQ==
+X-Gm-Message-State: AOAM533jFHEy6Ib4mSJrZeyK8yYcy6I3PI0MmAtHjNvHrNyv4Q+/Qt62
+        vMd5d+2dYnpU6+/yuFIsyCEy3Ht8m1Pfyfs=
+X-Google-Smtp-Source: ABdhPJxrw4PsMhjkUxgnLqIKXOlUuDk0fKOAnmsMZFp0GYPrPlkXx/29NmASLBE90/OAEYHXZ+I5UQ==
+X-Received: by 2002:a05:620a:1aaa:: with SMTP id bl42mr13084935qkb.469.1629577883178;
+        Sat, 21 Aug 2021 13:31:23 -0700 (PDT)
+Received: from fujitsu.celeiro.cu ([191.177.175.120])
+        by smtp.gmail.com with ESMTPSA id u189sm5348996qkh.14.2021.08.21.13.31.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 21 Aug 2021 13:31:22 -0700 (PDT)
+From:   Rafael David Tinoco <rafaeldtinoco@gmail.com>
+To:     stable@vger.kernel.org
+Cc:     rafaeldtinoco@gmail.com, andriin@fb.com, daniel@iogearbox.net,
+        yanivagman@gmail.com
+Subject: [PATCH] bpf: Track contents of read-only maps as scalars
+Date:   Sat, 21 Aug 2021 17:31:07 -0300
+Message-Id: <20210821203108.215937-1-rafaeldtinoco@gmail.com>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-Message-ID: <162956185258.25758.4225222196830359114.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the x86/urgent branch of tip:
+During tracee-ebpf regression tests, it was discovered that a CO-RE capable
+eBPF program, that relied on a kconfig BTF extern, could not be loaded with
+the following error:
 
-Commit-ID:     22aa45cb465be474e97666b3f7587ccb06ee411b
-Gitweb:        https://git.kernel.org/tip/22aa45cb465be474e97666b3f7587ccb06ee411b
-Author:        Joerg Roedel <jroedel@suse.de>
-AuthorDate:    Fri, 20 Aug 2021 14:57:03 +02:00
-Committer:     Borislav Petkov <bp@suse.de>
-CommitterDate: Sat, 21 Aug 2021 17:57:04 +02:00
+libbpf: prog 'tracepoint__raw_syscalls__sys_enter': failed to attach to raw
+ tracepoint 'sys_enter': Invalid argument
 
-x86/efi: Restore Firmware IDT before calling ExitBootServices()
+That happened because the CONFIG_ARCH_HAS_SYSCALL_WRAPPER variable had the
+wrong value, despite kconfig map existing, misleading the eBPF program
+execution (which would then have different pointers, not accepted by the
+verifier during load time).
 
-Commit
+I got the patch proposed here by bisecting upstream tree with the testcase
+just described. I kindly ask you to include this patch in the LTS v5.4.x
+series so CO-RE (Compile Once - Run Everywhere) eBPF programs, relying in
+kconfig settings, can be correctly loaded in kernel series v5.4.
 
-  79419e13e808 ("x86/boot/compressed/64: Setup IDT in startup_32 boot path")
+Link: https://github.com/aquasecurity/tracee/issues/851#issuecomment-903074596
 
-introduced an IDT into the 32-bit boot path of the decompressor stub.
-But the IDT is set up before ExitBootServices() is called, and some UEFI
-firmwares rely on their own IDT.
+I have tested latest 5.4 stable tree with this patch and it fixes the issue.
 
-Save the firmware IDT on boot and restore it before calling into EFI
-functions to fix boot failures introduced by above commit.
+-rafaeldtinoco
 
-Fixes: 79419e13e808 ("x86/boot/compressed/64: Setup IDT in startup_32 boot path")
-Reported-by: Fabio Aiuto <fabioaiuto83@gmail.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Cc: stable@vger.kernel.org # 5.13+
-Link: https://lkml.kernel.org/r/20210820125703.32410-1-joro@8bytes.org
----
- arch/x86/boot/compressed/efi_thunk_64.S | 30 ++++++++++++++++--------
- arch/x86/boot/compressed/head_64.S      |  3 ++-
- 2 files changed, 24 insertions(+), 9 deletions(-)
 
-diff --git a/arch/x86/boot/compressed/efi_thunk_64.S b/arch/x86/boot/compressed/efi_thunk_64.S
-index 95a223b..8bb92e9 100644
---- a/arch/x86/boot/compressed/efi_thunk_64.S
-+++ b/arch/x86/boot/compressed/efi_thunk_64.S
-@@ -5,9 +5,8 @@
-  * Early support for invoking 32-bit EFI services from a 64-bit kernel.
-  *
-  * Because this thunking occurs before ExitBootServices() we have to
-- * restore the firmware's 32-bit GDT before we make EFI service calls,
-- * since the firmware's 32-bit IDT is still currently installed and it
-- * needs to be able to service interrupts.
-+ * restore the firmware's 32-bit GDT and IDT before we make EFI service
-+ * calls.
-  *
-  * On the plus side, we don't have to worry about mangling 64-bit
-  * addresses into 32-bits because we're executing with an identity
-@@ -39,7 +38,7 @@ SYM_FUNC_START(__efi64_thunk)
- 	/*
- 	 * Convert x86-64 ABI params to i386 ABI
- 	 */
--	subq	$32, %rsp
-+	subq	$64, %rsp
- 	movl	%esi, 0x0(%rsp)
- 	movl	%edx, 0x4(%rsp)
- 	movl	%ecx, 0x8(%rsp)
-@@ -49,14 +48,19 @@ SYM_FUNC_START(__efi64_thunk)
- 	leaq	0x14(%rsp), %rbx
- 	sgdt	(%rbx)
- 
-+	addq	$16, %rbx
-+	sidt	(%rbx)
-+
- 	/*
--	 * Switch to gdt with 32-bit segments. This is the firmware GDT
--	 * that was installed when the kernel started executing. This
--	 * pointer was saved at the EFI stub entry point in head_64.S.
-+	 * Switch to IDT and GDT with 32-bit segments. This is the firmware GDT
-+	 * and IDT that was installed when the kernel started executing. The
-+	 * pointers were saved at the EFI stub entry point in head_64.S.
- 	 *
- 	 * Pass the saved DS selector to the 32-bit code, and use far return to
- 	 * restore the saved CS selector.
- 	 */
-+	leaq	efi32_boot_idt(%rip), %rax
-+	lidt	(%rax)
- 	leaq	efi32_boot_gdt(%rip), %rax
- 	lgdt	(%rax)
- 
-@@ -67,7 +71,7 @@ SYM_FUNC_START(__efi64_thunk)
- 	pushq	%rax
- 	lretq
- 
--1:	addq	$32, %rsp
-+1:	addq	$64, %rsp
- 	movq	%rdi, %rax
- 
- 	pop	%rbx
-@@ -128,10 +132,13 @@ SYM_FUNC_START_LOCAL(efi_enter32)
- 
- 	/*
- 	 * Some firmware will return with interrupts enabled. Be sure to
--	 * disable them before we switch GDTs.
-+	 * disable them before we switch GDTs and IDTs.
- 	 */
- 	cli
- 
-+	lidtl	(%ebx)
-+	subl	$16, %ebx
-+
- 	lgdtl	(%ebx)
- 
- 	movl	%cr4, %eax
-@@ -166,6 +173,11 @@ SYM_DATA_START(efi32_boot_gdt)
- 	.quad	0
- SYM_DATA_END(efi32_boot_gdt)
- 
-+SYM_DATA_START(efi32_boot_idt)
-+	.word	0
-+	.quad	0
-+SYM_DATA_END(efi32_boot_idt)
-+
- SYM_DATA_START(efi32_boot_cs)
- 	.word	0
- SYM_DATA_END(efi32_boot_cs)
-diff --git a/arch/x86/boot/compressed/head_64.S b/arch/x86/boot/compressed/head_64.S
-index a2347de..572c535 100644
---- a/arch/x86/boot/compressed/head_64.S
-+++ b/arch/x86/boot/compressed/head_64.S
-@@ -319,6 +319,9 @@ SYM_INNER_LABEL(efi32_pe_stub_entry, SYM_L_LOCAL)
- 	movw	%cs, rva(efi32_boot_cs)(%ebp)
- 	movw	%ds, rva(efi32_boot_ds)(%ebp)
- 
-+	/* Store firmware IDT descriptor */
-+	sidtl	rva(efi32_boot_idt)(%ebp)
-+
- 	/* Disable paging */
- 	movl	%cr0, %eax
- 	btrl	$X86_CR0_PG_BIT, %eax
