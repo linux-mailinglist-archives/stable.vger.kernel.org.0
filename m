@@ -2,129 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99A5C3F4CBF
-	for <lists+stable@lfdr.de>; Mon, 23 Aug 2021 16:58:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20ACD3F4D7E
+	for <lists+stable@lfdr.de>; Mon, 23 Aug 2021 17:28:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230352AbhHWO6q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Aug 2021 10:58:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43030 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229726AbhHWO6p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Aug 2021 10:58:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D83476126A;
-        Mon, 23 Aug 2021 14:58:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629730683;
-        bh=VajzC1sI/veGDJx6T8QXvO5++Fal+F0aqT2if88hGB4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=KSM1M93GS+/NyeD3TVXK3SsdLewgdolWjn/C5hG6CKx1aCeLT+Jwb0dXO7SHGdbeF
-         JecuaSAOz3BsOBf6P1oVpdo/yZ4LrfLCiRrdG9G0/fN0baDRFiQ066z/N1OdaVMO/n
-         LmbQ5WdHoD1ZT32XTZ0YiId+O7Ug7lSUqiAVh/PjtYvWlXtNrCbgVOvThQdNSUd1eW
-         aLUhMKysOGIJ0vdteYUaiDmBEXMpx2IQRt9VwNvMU/oY/3yjrDtQQbqLjKS2som/e+
-         uoMEhVVdGDhzwga4Q2Ymdi8BJHCNqbeMFBRXOlverUd2h2oKjIMiQOrBBuCvNtIQET
-         +yg9w0Fkhba9g==
-Received: by pali.im (Postfix)
-        id 49223FC2; Mon, 23 Aug 2021 16:58:00 +0200 (CEST)
-Date:   Mon, 23 Aug 2021 16:58:00 +0200
-From:   Pali =?utf-8?B?Um9ow6Fy?= <pali@kernel.org>
-To:     Ben Greear <greearb@candelatech.com>
-Cc:     Sasha Levin <sashal@kernel.org>,
-        Greg KH <gregkh@linuxfoundation.org>, stable@vger.kernel.org,
-        linux-wireless@vger.kernel.org
-Subject: Re: Drivers for Qualcomm wifi chips (ath*k) and security issues
-Message-ID: <20210823145800.4vzdgzjch77ldeku@pali>
-References: <20210823140844.q3kx6ruedho7jen5@pali>
- <18c5a8be-66d7-0dd8-b158-0931335f7ac5@candelatech.com>
+        id S231688AbhHWP3O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Aug 2021 11:29:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43892 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231533AbhHWP3J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 Aug 2021 11:29:09 -0400
+Received: from mail-lj1-x242.google.com (mail-lj1-x242.google.com [IPv6:2a00:1450:4864:20::242])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5163DC061757
+        for <stable@vger.kernel.org>; Mon, 23 Aug 2021 08:28:26 -0700 (PDT)
+Received: by mail-lj1-x242.google.com with SMTP id i28so32191077ljm.7
+        for <stable@vger.kernel.org>; Mon, 23 Aug 2021 08:28:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:sender:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=oZoJVjBidnvPVFvMpPWZppXKGeyyaDUB3Ugu5JUsoak=;
+        b=DQcWRl2EygAvbWWqqltYKUl+RSB7+OSewiVt9YvahcZ5Mg2aLiP1RDpQcO/NG7hO1+
+         XbKUrQiNOIlWwOw9XohcIvsJ86hoxW+LUJVpURPccBY9yxc3PHewzvLD+bLFI//jiNGe
+         30OJ+f4lyMfk2+vMlwafN7EtRt5HwLjaSY4QTTEQnkO2EBoKtACTaDi3y+Rm0D3js3QK
+         yaAifvWjWepBpWYLj3Udc5hMpuWL4MxmZA2EzN/JXsNZJhhsaDpQGPuih/LII/yGIYHS
+         SCOalsY58/BYTQLnZw47qElSFoU6L3/6o/R0vCDfExtonh95L7xCfNw5sQWoMlSDuTIu
+         NExg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:sender:from:date
+         :message-id:subject:to:content-transfer-encoding;
+        bh=oZoJVjBidnvPVFvMpPWZppXKGeyyaDUB3Ugu5JUsoak=;
+        b=DHZd59ZHGVyDAGyGtWm6aEfdd+8RKnU2ASK5B8c6iNdmaPeG3YMKmOYaeUeDoxlg4S
+         gALQSU+cEuRPUSrzgkIz9XrI3+Gs5Okwjfs7IDVBBSG4uxFPqwNxqRn7lLANExXlW65e
+         7JR/WfA4cJcVBClnrkkmhssuflKcmFJZOxuYNjuy2Rg0BWCu9D9IaBtlGEJ4HX/+bZqK
+         RqiZZX5Q7bZ+7+MAZAw74u5IhPMibQvUeUfm3dudiBD6cPfQ7eEGrR0U4uqWdjJRdyob
+         rR3rs9SRCNmgvsbYVaqIGeRmEW5P1hwZ09D5k1aPW1hvhLnhf6NTkkz6rXtjaOlsT8IL
+         yfVw==
+X-Gm-Message-State: AOAM531m18LD8tsssQ01Ov366CnCE8SsNoPki01BSevpg34VEqHjyjKd
+        qVsfXcm+QDgSXUOUMsV14EVamQDRD+RDu6eDdXw=
+X-Google-Smtp-Source: ABdhPJycMv72NKrMH3tTbq7VJKzyTt/LcUHdiwkCSwBWi+mld3IutapX8ODnqhu+jhhdCQVB7LNZSL8OYVK0C8Ji/sc=
+X-Received: by 2002:a2e:9444:: with SMTP id o4mr28164155ljh.210.1629732504622;
+ Mon, 23 Aug 2021 08:28:24 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <18c5a8be-66d7-0dd8-b158-0931335f7ac5@candelatech.com>
-User-Agent: NeoMutt/20180716
+Reply-To: mrsdaniella.kyle@yandex.com
+Sender: banceemmanuel17@gmail.com
+Received: by 2002:ab3:7598:0:0:0:0:0 with HTTP; Mon, 23 Aug 2021 08:28:23
+ -0700 (PDT)
+From:   Mrs Daniella Kyle <mrsdaniellakyle6@gmail.com>
+Date:   Mon, 23 Aug 2021 08:28:23 -0700
+X-Google-Sender-Auth: isbJQqntkOnmmWIbFv-qicP-wf8
+Message-ID: <CAE9zZ3720cBjY_5ET=9=WEzDs998yUss7Mxpi2hrP6oF309pNA@mail.gmail.com>
+Subject: Re:ATM Visa card compensation, Thanks for your past effort
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Monday 23 August 2021 07:32:11 Ben Greear wrote:
-> On 8/23/21 7:08 AM, Pali Rohár wrote:
-> > Hello Sasha and Greg!
-> > 
-> > Last week I sent request for backporting ath9k wifi fixes for security
-> > issue CVE-2020-3702 into stable LTS kernels because Qualcomm/maintainers
-> > did not it for more months... details are in email:
-> > https://lore.kernel.org/stable/20210818084859.vcs4vs3yd6zetmyt@pali/t/#u
-> 
-> For one thing, almost everyone using these radios is using openwrt or
-> similar which has its own patch sets.
+Hi,
 
-AFAIK, latest stable released openwrt uses ath9k from 4.19 tree and
-AFAIK did not have above patch.
+Good Day, This message may actually come to you as surprises today, To
+be very honest with you, It is a joyful moment for me and my family
+right now, so therefore am using this opportunity to inform you that
+have successfully move to Vietnam where am currently living with my
+business partner who assisted me to complete the transfer, but due to
+the willingness and acceptance you showed during my pain have decided
+to willingly compensated you and show my gratitude to you with these
+sum of $950,000.00 Nine Hundred and fifty Thousand US Dollars).
 
-> So, it is good to have the patches backported to real kernels,
-> but also, for actual users of these, it matters more what openwrt
-> has done...
+I want you to accept this amount it=E2=80=99s from the bottom of my heart,
+have issued the check and instructed the bank to roll the fund on a
+master card for security reasons, you can use the card to withdraw
+money from any ATM machine worldwide with a maximum of US$10,000 per
+day.
 
-ath9k and ath10k wifi cards are widely used not only in wifi routers
-(as access points) but also in laptops (as clients). These chips are
-available on more (noname / laptop vendor branded) cards so are popular
-also outside of openwrt market. Maybe people even do not know that their
-wifi card in laptop has one of these Qualcomm chips.
+My bank account manager said you can receive the card and use it
+anywhere in this global world. Go ahead contact the Global ATM
+Alliance directly with this below information. Email Address: .....
+maastercarddeptme20@yahoo.com
 
-> Thanks,
-> Ben
-> 
-> > 
-> > And now I got reports that in stable LTS kernels (4.14, 4.19) are
-> > missing also other fixes for other Qualcomm wifi security issues,
-> > covered by FragAttacks codename: CVE-2020-26145 CVE-2020-26139
-> > CVE-2020-26141
-> > 
-> > People have already asked if somebody is already doing backports to 4.19
-> > of patches for these security issues, but there was no response, see email:
-> > https://lore.kernel.org/linux-wireless/704e1c77-6c48-79f7-043a-b2d03fbfef8b@candelatech.com/
-> > 
-> > I got information that issues for ath10k are again going to be (or are
-> > already?) fixed in some vendor custom/fork kernels, but not in official
-> > stable tree 4.14/4.19 (yet).
-> > 
-> > This situation is really bad because lot of times I hear to use mainline
-> > kernel versions or official stable LTS tree (which are maintained by
-> > you), but due to such security issues in LTS trees which stays unfixed
-> > and others say to use rather vendor custom/fork kernels where it is
-> > claimed that issues are fixed.
-> > 
-> > And because there is no statement for end users (end users do not
-> > communicate with vendors and so they do not have information what is
-> > supported and what not), end users just use what Linux open source
-> > distributions have in their kernels (which lot of times match official
-> > LTS kernel trees). And users think that everything is OK and security
-> > issues are fixed.
-> > 
-> > So there is really a need for public statement from you or Qualcomm
-> > side, if stable LTS kernel trees are going to include security fixes for
-> > drivers used by Qualcomm wifi chips (ath*k) or not or under which
-> > conditions. And what should users / Linux distributions use if they do
-> > not want to have years-old unpatched drivers with security issues. Such
-> > information is really important also for distributions which include
-> > unmodified (or slightly modified) kernel LTS trees into their own
-> > packages. As they also need to know from which source should take
-> > (e.g. Qualcomm wifi) drivers for their systems to ensure that have
-> > security patches applied.
-> > 
-> > I can understand that you or other people or volunteers do not have time
-> > to track or maintain some parts of drivers. So nothing wrong if official
-> > statement is that stable trees X and Y do not receive security updates
-> > for driver A and B anymore. Also I can understand that it takes some
-> > time to include required fixes, so expect fixes for A and B in X and Y
-> > versions with one month delay. But it is needed to know what should
-> > people expect from LTS trees for particular drivers. Because I think it
-> > is not currently clear...
-> > 
-> > Do not take me wrong, I just wanted to show that this is hidden problem
-> > which needs some discussion.
-> > 
-> 
-> 
-> -- 
-> Ben Greear <greearb@candelatech.com>
-> Candela Technologies Inc  http://www.candelatech.com
+ Name: ........... ....... Global Alliance Burkina Faso
+Office Address; ...... 01BP 23 Rue Des Grands Moulins.Ouagadougou, Burkina =
+Faso
+Email Address: ..... [maastercarddeptme20@yahoo.com]
+Name of Manager In charge: Mrs Zoure Gueratou
+
+Presently, I am very busy here in Vietnam because of the investment
+projects which I and my new partner are having at hand, I have given
+instructions to the ATM Visa card office on your behalf to release the
+ATM card which I gave to you as compensation. Therefore feel free and
+get in touch with her and she will send the card and the pin code to
+you in your location in order for you to start withdrawing the
+compensation money without delay.
+
+My family wishes you best of luck in whatever business you shall
+invest this money into. Kindly let me know as soon you received the
+card together with the pin code.
+
+Thank you
+Yours Sincerely
+Daniela Angelo Kyle
