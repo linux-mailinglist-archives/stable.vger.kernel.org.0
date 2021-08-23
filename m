@@ -2,124 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F5FA3F57C3
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 07:55:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0ED3C3F5864
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 08:43:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230129AbhHXF4C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 01:56:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42006 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230104AbhHXF4C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Aug 2021 01:56:02 -0400
-Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0C6CC061575;
-        Mon, 23 Aug 2021 22:55:18 -0700 (PDT)
-Received: by mail-pj1-x1033.google.com with SMTP id z24-20020a17090acb1800b0018e87a24300so1601449pjt.0;
-        Mon, 23 Aug 2021 22:55:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=uzm00SI6Xxv7Dr12oDCG09tFQ89IjLql7VYEkcSa46Y=;
-        b=U+/FRkIIjFBtQoRW5haOg0F8PlwQaveBzrO3OYhJi0C3fyk25+NPCgb9o8wUrKcNHf
-         ae/4mTxPFes/E4AatfwSp6CwzbwS5SaGFPyGBbXiziD0TbQKB0gZxdft+/vbZaaUGmnK
-         T8BXeOseqa3/sQo7eyhGLJV0zuw5uy8nvV49gNccJzEZQO+uugR2H50r7uuc8P8KEK8K
-         C6PvI7X6UgWBCwHy/5LGZBjO5pQaQkcJWR6JHWf1Riz38nat4JXClCQbsxSEw4U/s44N
-         +t4RqSyoIT/IM3HRkfn8mvFyMDy9f2heRo7RIQ02bIRmA4aICIz7u+tHYOxpJ2TblFBJ
-         zByw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=uzm00SI6Xxv7Dr12oDCG09tFQ89IjLql7VYEkcSa46Y=;
-        b=oNVftBXrwzUNmRd3pXWY/cJSFSwe2nyw15l2aec1YPMiI4DMtnGVkvMeIOEsfN603K
-         chewOmwkLuQgYApMwCUZsMF/x12TaatfEwoUopOIMpOjkDqdGZbtP2FLzGAcWGgnXaFe
-         ut8L2xcQz17j4oRNRDOgFwnwSHIdXXPwRV+AH912aWxiWxX5NKJoLyTg3046hQKsLoI0
-         CbGzORgNj3yepPUIK5TCmlPmMcfQa+QrJnRVQ45s6NCn4fgYr/D4s162UaFcC57C+A51
-         ThHyEfDbOAPzbthrCf22ft/oBv3YbfMwgbX9o3Yad9ARCBaSqpEdqI5se/hoePStmXja
-         eenw==
-X-Gm-Message-State: AOAM530I8DOTNBNmisbymeYR3xdN4w8kek6BKPT8A1QQqAdxLKE40F87
-        hm3bd252CoTKVL2DBvWaZpNaPxweHPrP4T5f
-X-Google-Smtp-Source: ABdhPJzBi/kmvgCws8SSBpovsykHE9dI8wovC6w+AuFQJxJ7Rnya+3XcIsj2pgCgwhudhuxNy0sklg==
-X-Received: by 2002:a17:90a:af88:: with SMTP id w8mr2625365pjq.104.1629784518132;
-        Mon, 23 Aug 2021 22:55:18 -0700 (PDT)
-Received: from haswell-ubuntu20.lan ([138.197.212.246])
-        by smtp.gmail.com with ESMTPSA id j5sm1053958pjv.56.2021.08.23.22.55.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 23 Aug 2021 22:55:17 -0700 (PDT)
-From:   DENG Qingfang <dqfext@gmail.com>
-To:     stable@vger.kernel.org
-Cc:     Sean Wang <sean.wang@mediatek.com>, Andrew Lunn <andrew@lunn.ch>,
-        Vivien Didelot <vivien.didelot@savoirfairelinux.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        netdev@vger.kernel.org (open list:MEDIATEK SWITCH DRIVER),
-        linux-kernel@vger.kernel.org (open list),
-        linux-arm-kernel@lists.infradead.org (moderated list:ARM/Mediatek SoC
-        support),
-        linux-mediatek@lists.infradead.org (moderated list:ARM/Mediatek SoC
-        support)
-Subject: [PATCH 4.19.y] net: dsa: mt7530: disable learning on standalone ports
-Date:   Tue, 24 Aug 2021 13:55:08 +0800
-Message-Id: <20210824055509.1316124-1-dqfext@gmail.com>
-X-Mailer: git-send-email 2.25.1
+        id S231747AbhHXGoI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 02:44:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43414 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232040AbhHXGoE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 02:44:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BD7B5610E9;
+        Tue, 24 Aug 2021 06:43:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1629787400;
+        bh=cZtsXgWO7DMRgYrwV9KWwAx/OrCZbrHnFx1TdQp61tU=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=rxNm8D1o3kX7Ib7W1EdRY814sVfTge1SM00Kn6O2t85PEOuhQP4SxvRhMOzxGwy8d
+         1f/vJD2+a4AupVKYBRw0SwTOF4pa2CW+s5jPDE/8Klks9V3W+/++0J8M3LWXZq+Xe6
+         Iqhck00sSapK4AtOUoK3TjAz85ttdEhTWBtsod1Q=
+Date:   Mon, 23 Aug 2021 21:04:27 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Pali =?iso-8859-1?Q?Roh=E1r?= <pali@kernel.org>
+Cc:     Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org,
+        linux-wireless@vger.kernel.org
+Subject: Re: Drivers for Qualcomm wifi chips (ath*k) and security issues
+Message-ID: <YSPxO+VGnSopgn5G@kroah.com>
+References: <20210823140844.q3kx6ruedho7jen5@pali>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210823140844.q3kx6ruedho7jen5@pali>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is a partial backport of commit 5a30833b9a16f8d1aa15de06636f9317ca51f9df
-("net: dsa: mt7530: support MDB and bridge flag operations") upstream.
+On Mon, Aug 23, 2021 at 04:08:44PM +0200, Pali Rohár wrote:
+> Hello Sasha and Greg!
+> 
+> Last week I sent request for backporting ath9k wifi fixes for security
+> issue CVE-2020-3702 into stable LTS kernels because Qualcomm/maintainers
+> did not it for more months... details are in email:
+> https://lore.kernel.org/stable/20210818084859.vcs4vs3yd6zetmyt@pali/t/#u
+> 
+> And now I got reports that in stable LTS kernels (4.14, 4.19) are
+> missing also other fixes for other Qualcomm wifi security issues,
+> covered by FragAttacks codename: CVE-2020-26145 CVE-2020-26139
+> CVE-2020-26141
 
-Make sure that the standalone ports start up with learning disabled.
+Then someone needs to provide us backports if they care about these
+very old kernels and these issues.  Just like any other driver subsystem
+where patches are not able to be easily backported.
 
-Signed-off-by: DENG Qingfang <dqfext@gmail.com>
----
- drivers/net/dsa/mt7530.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+Or just use a newer kernel, that's almost always a better idea.
 
-diff --git a/drivers/net/dsa/mt7530.c b/drivers/net/dsa/mt7530.c
-index 6335c4ea0957..67dfab774618 100644
---- a/drivers/net/dsa/mt7530.c
-+++ b/drivers/net/dsa/mt7530.c
-@@ -803,6 +803,8 @@ mt7530_port_bridge_join(struct dsa_switch *ds, int port,
- 			   PCR_MATRIX_MASK, PCR_MATRIX(port_bitmap));
- 	priv->ports[port].pm |= PCR_MATRIX(port_bitmap);
- 
-+	mt7530_clear(priv, MT7530_PSC_P(port), SA_DIS);
-+
- 	mutex_unlock(&priv->reg_mutex);
- 
- 	return 0;
-@@ -907,6 +909,8 @@ mt7530_port_bridge_leave(struct dsa_switch *ds, int port,
- 
- 	mt7530_port_set_vlan_unaware(ds, port);
- 
-+	mt7530_set(priv, MT7530_PSC_P(port), SA_DIS);
-+
- 	mutex_unlock(&priv->reg_mutex);
- }
- 
-@@ -1287,11 +1291,15 @@ mt7530_setup(struct dsa_switch *ds)
- 		mt7530_rmw(priv, MT7530_PCR_P(i), PCR_MATRIX_MASK,
- 			   PCR_MATRIX_CLR);
- 
--		if (dsa_is_cpu_port(ds, i))
-+		if (dsa_is_cpu_port(ds, i)) {
- 			mt7530_cpu_port_enable(priv, i);
--		else
-+		} else {
- 			mt7530_port_disable(ds, i, NULL);
- 
-+			/* Disable learning by default on all user ports */
-+			mt7530_set(priv, MT7530_PSC_P(i), SA_DIS);
-+		}
-+
- 		/* Enable consistent egress tag */
- 		mt7530_rmw(priv, MT7530_PVC_P(i), PVC_EG_TAG_MASK,
- 			   PVC_EG_TAG(MT7530_VLAN_EG_CONSISTENT));
--- 
-2.25.1
+thanks,
 
+greg k-h
