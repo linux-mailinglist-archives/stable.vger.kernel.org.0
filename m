@@ -2,95 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE3573F47D0
-	for <lists+stable@lfdr.de>; Mon, 23 Aug 2021 11:41:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1C273F47F1
+	for <lists+stable@lfdr.de>; Mon, 23 Aug 2021 11:52:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235895AbhHWJlp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Aug 2021 05:41:45 -0400
-Received: from foss.arm.com ([217.140.110.172]:50576 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235872AbhHWJlo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Aug 2021 05:41:44 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 4D0A06D;
-        Mon, 23 Aug 2021 02:41:02 -0700 (PDT)
-Received: from [192.168.1.179] (unknown [172.31.20.19])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 06D0E3F66F;
-        Mon, 23 Aug 2021 02:41:00 -0700 (PDT)
-Subject: Re: [PATCH 3/3] drm/panfrost: Clamp lock region to Bifrost minimum
-To:     Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
-        dri-devel@lists.freedesktop.org
-Cc:     Rob Herring <robh@kernel.org>,
-        Tomeu Vizoso <tomeu.vizoso@collabora.com>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>, linux-kernel@vger.kernel.org,
-        Chris Morgan <macromorgan@hotmail.com>, stable@vger.kernel.org
-References: <20210820213117.13050-1-alyssa.rosenzweig@collabora.com>
- <20210820213117.13050-4-alyssa.rosenzweig@collabora.com>
-From:   Steven Price <steven.price@arm.com>
-Message-ID: <818b1a15-ddf4-461b-1d6a-cea539deaf76@arm.com>
-Date:   Mon, 23 Aug 2021 10:40:59 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        id S235802AbhHWJxL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Aug 2021 05:53:11 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:39581 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S235866AbhHWJxK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 Aug 2021 05:53:10 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1629712348;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=Rcf7ZbhkmpU4jxeIC6SCvGLuTy9wJXPCflo+vJTD3XI=;
+        b=PdAokpB7ISAcbN7kgoGuxRS7Jc5NW6CsONisV0RsOPo/vDERMrtrEwU7N2sZN8siw1XH32
+        DneWUPYeLcC1uIQABvzezB5p9BTXzwAbSsNIO+LQFwvkrpp6CNbqwpUVs3mYXlcA5xpb1B
+        ucINEOIhKcR8hViWteSqsUL3N5ddGks=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-14-w-8wv1IyNq-p8_mPHt2Q7g-1; Mon, 23 Aug 2021 05:52:24 -0400
+X-MC-Unique: w-8wv1IyNq-p8_mPHt2Q7g-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B11FD100E427;
+        Mon, 23 Aug 2021 09:52:23 +0000 (UTC)
+Received: from x1.localdomain.com (unknown [10.39.194.191])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 10DDC60CC9;
+        Mon, 23 Aug 2021 09:52:21 +0000 (UTC)
+From:   Hans de Goede <hdegoede@redhat.com>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     Hans de Goede <hdegoede@redhat.com>, linux-ide@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Kate Hsuan <hpa@redhat.com>
+Subject: [PATCH] libata: add ATA_HORKAGE_NO_NCQ_TRIM for Samsung 860 and 870 SSDs
+Date:   Mon, 23 Aug 2021 11:52:20 +0200
+Message-Id: <20210823095220.30157-1-hdegoede@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20210820213117.13050-4-alyssa.rosenzweig@collabora.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-GB
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 20/08/2021 22:31, Alyssa Rosenzweig wrote:
-> When locking a region, we currently clamp to a PAGE_SIZE as the minimum
-> lock region. While this is valid for Midgard, it is invalid for Bifrost,
+Commit ca6bfcb2f6d9 ("libata: Enable queued TRIM for Samsung SSD 860")
+limited the existing ATA_HORKAGE_NO_NCQ_TRIM quirk from "Samsung SSD 8*",
+covering all Samsung 800 series SSDs, to only apply to "Samsung SSD 840*"
+and "Samsung SSD 850*" series based on information from Samsung.
 
-While the spec does seem to state it's invalid for Bifrost - kbase
-didn't bother with a lower clamp for a long time. I actually think this
-is in many ways more of a spec bug: i.e. implementation details of the
-round-up that the hardware does. But it's much safer following the spec
-;) And it seems like kbase eventually caught up too.
+But there is a large number of users which is still reporting issues
+with the Samsung 860 and 870 SSDs combined with Intel, ASmedia or
+Marvell SATA controllers and all reporters also report these problems
+going away when disabling queued trims.
 
-> where the minimum locking size is 8x larger than the 4k page size. Add a
-> hardware definition for the minimum lock region size (corresponding to
-> KBASE_LOCK_REGION_MIN_SIZE_LOG2 in kbase) and respect it.
-> 
-> Signed-off-by: Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>
-> Tested-by: Chris Morgan <macromorgan@hotmail.com>
-> Cc: <stable@vger.kernel.org>
+Note that with AMD SATA controllers users are reporting even worse
+issues and only completely disabling NCQ helps there, this will be
+addressed in a separate patch.
 
-Reviewed-by: Steven Price <steven.price@arm.com>
+Fixes: ca6bfcb2f6d9 ("libata: Enable queued TRIM for Samsung SSD 860")
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=203475
+Cc: stable@vger.kernel.org
+Cc: Kate Hsuan <hpa@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/ata/libata-core.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-> ---
->  drivers/gpu/drm/panfrost/panfrost_mmu.c  | 2 +-
->  drivers/gpu/drm/panfrost/panfrost_regs.h | 2 ++
->  2 files changed, 3 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/gpu/drm/panfrost/panfrost_mmu.c b/drivers/gpu/drm/panfrost/panfrost_mmu.c
-> index 3a795273e505..dfe5f1d29763 100644
-> --- a/drivers/gpu/drm/panfrost/panfrost_mmu.c
-> +++ b/drivers/gpu/drm/panfrost/panfrost_mmu.c
-> @@ -66,7 +66,7 @@ static void lock_region(struct panfrost_device *pfdev, u32 as_nr,
->  	/* The size is encoded as ceil(log2) minus(1), which may be calculated
->  	 * with fls. The size must be clamped to hardware bounds.
->  	 */
-> -	size = max_t(u64, size, PAGE_SIZE);
-> +	size = max_t(u64, size, AS_LOCK_REGION_MIN_SIZE);
->  	region_width = fls64(size - 1) - 1;
->  	region |= region_width;
->  
-> diff --git a/drivers/gpu/drm/panfrost/panfrost_regs.h b/drivers/gpu/drm/panfrost/panfrost_regs.h
-> index 1940ff86e49a..6c5a11ef1ee8 100644
-> --- a/drivers/gpu/drm/panfrost/panfrost_regs.h
-> +++ b/drivers/gpu/drm/panfrost/panfrost_regs.h
-> @@ -316,6 +316,8 @@
->  #define AS_FAULTSTATUS_ACCESS_TYPE_READ		(0x2 << 8)
->  #define AS_FAULTSTATUS_ACCESS_TYPE_WRITE	(0x3 << 8)
->  
-> +#define AS_LOCK_REGION_MIN_SIZE                 (1ULL << 15)
-> +
->  #define gpu_write(dev, reg, data) writel(data, dev->iomem + reg)
->  #define gpu_read(dev, reg) readl(dev->iomem + reg)
->  
-> 
+diff --git a/drivers/ata/libata-core.c b/drivers/ata/libata-core.c
+index 61c762961ca8..3eda3291952b 100644
+--- a/drivers/ata/libata-core.c
++++ b/drivers/ata/libata-core.c
+@@ -3950,6 +3950,10 @@ static const struct ata_blacklist_entry ata_device_blacklist [] = {
+ 						ATA_HORKAGE_ZERO_AFTER_TRIM, },
+ 	{ "Samsung SSD 850*",		NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
+ 						ATA_HORKAGE_ZERO_AFTER_TRIM, },
++	{ "Samsung SSD 860*",		NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
++						ATA_HORKAGE_ZERO_AFTER_TRIM, },
++	{ "Samsung SSD 870*",		NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
++						ATA_HORKAGE_ZERO_AFTER_TRIM, },
+ 	{ "FCCT*M500*",			NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
+ 						ATA_HORKAGE_ZERO_AFTER_TRIM, },
+ 
+-- 
+2.31.1
 
