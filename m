@@ -2,279 +2,272 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AAB353F52AF
-	for <lists+stable@lfdr.de>; Mon, 23 Aug 2021 23:18:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E25EE3F52B0
+	for <lists+stable@lfdr.de>; Mon, 23 Aug 2021 23:18:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232710AbhHWVTF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Aug 2021 17:19:05 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:28209 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232503AbhHWVTF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 Aug 2021 17:19:05 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1629753501;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=BeSJH4VxjxB9+5PwsVh73n5mC4DzIGC5cymQecwyjy8=;
-        b=N5Sw51Uvq6gJzzX5boufpAGpYn99jJA20vUtsgJUBBO9FjO0YG0kFjLZtdSTKWmLJCnnjh
-        vOeekmW3dgZbNJudL7Wmsi0xZUibeJDoUCmvx2SaN2+jYNcqjniVgP6mdXXp2ArTXvhxZv
-        JCqtHPHbjCC7OslNER6IeNTwKYi2IEI=
-Received: from mail-qv1-f72.google.com (mail-qv1-f72.google.com
- [209.85.219.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-252--bK1nGrWOtepZuo20nFQJQ-1; Mon, 23 Aug 2021 17:18:19 -0400
-X-MC-Unique: -bK1nGrWOtepZuo20nFQJQ-1
-Received: by mail-qv1-f72.google.com with SMTP id u6-20020ad448660000b02903500bf28866so13318887qvy.23
-        for <stable@vger.kernel.org>; Mon, 23 Aug 2021 14:18:19 -0700 (PDT)
+        id S232748AbhHWVTY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Aug 2021 17:19:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40234 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232503AbhHWVTY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 Aug 2021 17:19:24 -0400
+Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 680BAC061575
+        for <stable@vger.kernel.org>; Mon, 23 Aug 2021 14:18:41 -0700 (PDT)
+Received: by mail-pj1-x102e.google.com with SMTP id j1so12819813pjv.3
+        for <stable@vger.kernel.org>; Mon, 23 Aug 2021 14:18:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=zYRck1fyVMRy4qW40NMxQmxrdfwpHufKVemCYbuW3kQ=;
+        b=ih5dnFdTAVL6CnnipF+wkY1BqZxKrrKEzQW3L3am3etWlSb92QyIeh+pjLsOj9JZVB
+         PMPkgfYgtj6yls57Zh4e4oygpMQtaAkpTbbF7eFuhYlLWNf4/i8S34PD4nsZvKN9Irgu
+         KlmfeTXnP1l9rbJvmbpc0tWht2mc0Pp4lbtA9dbRHveYGvrwQOhYDZgVPIlQbOSMdCw2
+         9EsSZx8JXDRqy9nCwWVtqn4hpZVieo1piFLZJYsdv4sIURRsYMuTyIyMrxLNiLSiorBw
+         gwgoZcH62Ya4Yw5KhxphGqtjR7HauM+X+qY3W1ggvrXwq1Sxw9aGviQguplEcNId3Qn5
+         BHpw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
-         :references:organization:user-agent:mime-version
-         :content-transfer-encoding;
-        bh=BeSJH4VxjxB9+5PwsVh73n5mC4DzIGC5cymQecwyjy8=;
-        b=JjTIGyZyayaF1/cpBRw2BrLgtMGW+qlBS5+r+4IiIWirsAk7nlt3VU5VosBUl7GXNX
-         1w25Fdqv0a2AIve0m50+3RSnCTLrPE6WgOjPSTQmbXmEikQ7ZoSfH/n6ZgsyHUwThFzh
-         lldkPV8lhsZHM77gqgt+w36FSzelh2gWt/tPRYepQYWtB5M+sNJVyDDasoI/rY0bltrY
-         dO2eecQPaa5YrNWMP2izl+IP4YSuj/okjG1YGtHvnuc+1LsQWPOa0rFwzP5pqz1EVWb9
-         IRCuVVRq9omCJC5eK/LIhNHVv4ROW03Hsr5mq/67mdxQLnGl/xPMXqwIi5WmNOZky4C9
-         aWYw==
-X-Gm-Message-State: AOAM532VoxyvLa+rn9/5zzoOen8eLeUBALXo17qtERX+LkOQgrLxMtB6
-        UIiXJaezAOG93fNfL3EEdQID541e/Sej6xrev8bKsABf7VetF5xyNtWwlbeVHriRccOoBh5gCZX
-        qNjHDjVm0jauChswo
-X-Received: by 2002:ac8:6759:: with SMTP id n25mr30837189qtp.49.1629753499174;
-        Mon, 23 Aug 2021 14:18:19 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwKgVQKBMUjD3iompDxP8zfdUn9yzwf3SzGWoruKvGpFxCA2T2HatOpR+3q+WTf4YpQHZs/SQ==
-X-Received: by 2002:ac8:6759:: with SMTP id n25mr30837158qtp.49.1629753498913;
-        Mon, 23 Aug 2021 14:18:18 -0700 (PDT)
-Received: from [192.168.8.104] (pool-108-49-102-102.bstnma.fios.verizon.net. [108.49.102.102])
-        by smtp.gmail.com with ESMTPSA id q72sm9456357qka.104.2021.08.23.14.18.17
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=zYRck1fyVMRy4qW40NMxQmxrdfwpHufKVemCYbuW3kQ=;
+        b=ge7cqdd9RHdrrs3fJ2yk+uZ2QEKCbioXhG+Z0mIZtYm7AJKd7s4NJArXG8qziiQB86
+         ZwcW2cT60cIKYbbZlilaTy3LulJvdvJbm7W5Izv3mKDcdrC6BaWhS0E4HcPf0wqQtRd5
+         2CFgZntikkdikQrhs8dWXpOYyQJeQWPLn+ExLHWG4Q5ceqLqcOK3NCag24zRDqKxnPRR
+         3yz+U2HfGy9TlYgnwO5wgTIYfSiZrtceHG7b3MXMLISwMnOjvdFdCnnf8pztH0a8mzTa
+         D1NvtJHHJZCFmUw+iM42XyB6QRm5Iqhbgug3+97s4/w5bnjbNS/QTm8ZgavQNMcOaayR
+         Ow2w==
+X-Gm-Message-State: AOAM531tMQ0SIKhPBcYpdw8d7NUkHwrrYsnJ0hITBuyve75/y8Zn1m/U
+        eaUqSmIeTmMH9Yr5CJN98tpSrqinMWnKkY4L
+X-Google-Smtp-Source: ABdhPJx+3wQwhR18PGOQfCjYEyVhBY9K5k2SRF0Jhs5DhnDNCdlr8kLdoPN24ONmLgDvkj3akA/8Yw==
+X-Received: by 2002:a17:90a:8809:: with SMTP id s9mr588349pjn.44.1629753520856;
+        Mon, 23 Aug 2021 14:18:40 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id f5sm17345231pfe.128.2021.08.23.14.18.40
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 23 Aug 2021 14:18:18 -0700 (PDT)
-Message-ID: <6a0868a8ce6befd5f7ddea3481e70285079fcb6a.camel@redhat.com>
-Subject: Re: [PATCH 2/4] drm/dp_mst: Only create connector for connected end
- device
-From:   Lyude Paul <lyude@redhat.com>
-To:     "Lin, Wayne" <Wayne.Lin@amd.com>,
-        "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>
-Cc:     "Kazlauskas, Nicholas" <Nicholas.Kazlauskas@amd.com>,
-        "Wentland, Harry" <Harry.Wentland@amd.com>,
-        "Zuo, Jerry" <Jerry.Zuo@amd.com>,
-        "Wu, Hersen" <hersenxs.wu@amd.com>,
-        Juston Li <juston.li@intel.com>,
-        Imre Deak <imre.deak@intel.com>,
-        Ville =?ISO-8859-1?Q?Syrj=E4l=E4?= 
-        <ville.syrjala@linux.intel.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Sean Paul <sean@poorly.run>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        "Deucher, Alexander" <Alexander.Deucher@amd.com>,
-        "Siqueira, Rodrigo" <Rodrigo.Siqueira@amd.com>,
-        "Pillai, Aurabindo" <Aurabindo.Pillai@amd.com>,
-        Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>,
-        "Cornij, Nikola" <Nikola.Cornij@amd.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Manasi Navare <manasi.d.navare@intel.com>,
-        Ankit Nautiyal <ankit.k.nautiyal@intel.com>,
-        =?ISO-8859-1?Q?Jos=E9?= Roberto de Souza 
-        <jose.souza@intel.com>, Sean Paul <seanpaul@chromium.org>,
-        Ben Skeggs <bskeggs@redhat.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Date:   Mon, 23 Aug 2021 17:18:16 -0400
-In-Reply-To: <CO6PR12MB548913A9CC63A199BBBD6545FCC49@CO6PR12MB5489.namprd12.prod.outlook.com>
-References: <20210720160342.11415-1-Wayne.Lin@amd.com>
-         <20210720160342.11415-3-Wayne.Lin@amd.com>
-         <69a5f39580f0d3519468f45ecbfd50d7ad1b3036.camel@redhat.com>
-         <292d6ead03d6afe54f81d52f705e38bbf9feb7bd.camel@redhat.com>
-         <SJ0PR12MB550410E529057F59023153D9FCF19@SJ0PR12MB5504.namprd12.prod.outlook.com>
-         <2012d26bb2bece43e65ce435e6ba03f1d8767f61.camel@redhat.com>
-         <CO6PR12MB5489274038BFF71A80EA9ECEFCF89@CO6PR12MB5489.namprd12.prod.outlook.com>
-         <cd24fffcbda28ffc6734fb6d6d28b39e8782e0dd.camel@redhat.com>
-         <CO6PR12MB548965A84DF69BAC30F74AC5FCC19@CO6PR12MB5489.namprd12.prod.outlook.com>
-         <db10eb95b1ec7e822c7379d310c54975810acd2b.camel@redhat.com>
-         <CO6PR12MB548913A9CC63A199BBBD6545FCC49@CO6PR12MB5489.namprd12.prod.outlook.com>
-Organization: Red Hat
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.40.4 (3.40.4-1.fc34) 
+        Mon, 23 Aug 2021 14:18:40 -0700 (PDT)
+Message-ID: <612410b0.1c69fb81.2c26.2965@mx.google.com>
+Date:   Mon, 23 Aug 2021 14:18:40 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/4.9
+X-Kernelci-Kernel: v4.9.280-34-g2660ee18b71c
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/4.9 baseline: 155 runs,
+ 5 regressions (v4.9.280-34-g2660ee18b71c)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[snip]
+stable-rc/queue/4.9 baseline: 155 runs, 5 regressions (v4.9.280-34-g2660ee1=
+8b71c)
 
-I think I might still be misunderstanding something, some comments below
+Regressions Summary
+-------------------
 
-On Mon, 2021-08-23 at 06:33 +0000, Lin, Wayne wrote:
-> > > Hi Lyude,
-> > > 
-> > > Really thankful for willing to explain in such details. Really
-> > > appreciate.
-> > > 
-> > > I'm trying to fix some problems that observed after these 2 patches
-> > > * 09b974e8983 drm/amd/amdgpu_dm/mst: Remove ->destroy_connector()
-> > > callback
-> > > * 72dc0f51591 drm/dp_mst: Remove
-> > > drm_dp_mst_topology_cbs.destroy_connector
-> > > 
-> > > With above patches, we now change to remove dc_sink when connector is
-> > > about to be destroyed. However, we found out that connectors won't get
-> > > destroyed after hotplugs. Thus, after few times hotplugs, we won't
-> > > create any new dc_sink since number of sink is exceeding our
-> > > limitation. As the result of that, I'm trying to figure out why the
-> > > refcount of connectors won't get zero.
-> > > 
-> > > Based on my analysis, I found out that if we connect a sst monitor to
-> > > a mst hub then connect the hub to the system, and then unplug the sst
-> > > monitor from the hub. E.g.
-> > > src - mst hub - sst monitor => src - mst hub  (unplug) sst monitor
-> > > 
-> > > Within this case, we won't try to put refcount of the sst monitor.
-> > > Which is what I tried to resolve by [PATCH 3/4].
-> > > But here comes a problem which is confusing me that if I can destroy
-> > > connector in this case. By comparing to another case, if now mst hub
-> > > is connected with a mst monitor like this:
-> > > src - mst hub - mst monitor => src - mst hub  (unplug) mst monitor
-> > > 
-> > > We will put the topology refcount of mst monitor's branching unit in
-> > > and
-> > > drm_dp_port_set_pdt() and eventually call
-> > > drm_dp_delayed_destroy_port() to unregister the connector of the
-> > > logical port. So following the same rule, I think to dynamically
-> > > unregister a mst connector is what we want and should be reasonable to
-> > > also destroy sst connectors in my case. But this conflicts the idea
-> > > what we have here. We want to create connectors for all output ports.
-> > > So if dynamically creating/destroying connectors is what we want, when
-> > > is the appropriate time for us to create one is what I'm considering.
-> > > 
-> > > Take the StartTech hub DP 1to4 DP output ports for instance. This hub,
-> > > internally, is constructed by  3 1-to-2 mst branch chips. 2 output
-> > > ports of 1st chip are hardwired to another 2 chips. It's how it makes
-> > > it to support 1-to-4 mst branching. So within this case, the internal
-> > > 2 output ports of 1st chip is not connecting to a stream sink and will
-> > > never get connected to one.  Thus, I'm thinking maybe the best timing
-> > > to attach a connector to a port is when the port is connected, and the
-> > > connected PDT is determined as a stream sink.
-> > > 
-> > > Sorry if I misunderstand anything here and really thanks for your time
-> > > to shed light on this : ) Thanks Lyude.
-> > 
-> > It's no problem, it is my job after all! Sorry for how long my responses
-> > have been taking, but my plate seems to be finally clearing up
-> > for the foreseeable future.
-> > 
-> > That being said - it sounds like with this we still aren't actually clear
-> > on where the topology refcount leak is happening - only when it's
-> > happening, which says to me that's the issue we really need to be figuring
-> > out the cause of as opposed to trying to workaround it.
-> > 
-> > Actually - refcount leaks is an issue I've ran into a number of times
-> > before in the past, so a while back I actually added some nice
-> > debugging features to assist with debugging leaks. If you enable the
-> > following options in your kernel config:
-> > 
-> > CONFIG_EXPERT=y # This must be set first before the next option
-> > CONFIG_DRM_DEBUG_DP_MST_TOPOLOGY_REFS=y
-> > 
-> > Unfortunately, I'm suddenly realizing after typing this that apparently I
-> > never bothered adding a way for us to debug the refcounts of
-> > ports/mstbs that haven't been released yet - only the ones for ones that
-> > have. This shouldn't be difficult at all for me to add, so I'll
-> > send you a patch either today or at the start of next week to try
-> > debugging with using this, and then we can figure out where this leak
-> > is really coming from.
-> 
-> Thanks Lyude!
-> 
-> Sorry to bother you, but I would like to clarify this again.  So it sounds
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
+fig | 1          =
 
-It's no problem! It's my job and I'm happy to help :).
+qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
+fig | 1          =
 
-> like you also agree that we should destroy associated connector
+qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
+fig | 1          =
 
-Not quite. I think a better way of explaining this might be to point out
-that the lifetime of an MST port and its connector isn't supposed to be
-determined by whether or not it has something plugged into it - its
-lifetime is supposed to depend on whether there's a valid path from us
-down the MST topology to the port we're trying to reach. So an MSTB with
-ports that is unplugged would destroy all of its ports - but an
-unplugged port should just be the same as a disconnected DRM connector -
-even if the port itself is just hosting a branching device.
+qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
+fig | 1          =
 
-Additionally - we don't want to try "delaying" connector creation
-either. In the modern world hotplugging is almost always reliable in
-normal situations, but even so there's still use cases for wanting force
-probing for analog devices on DP converters and just in general as it's
-a feature commonly used by developers or users working around monitors
-with problematic HPD issues or EDID issues.
+qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
+fig | 1          =
 
-> when we unplug sst monitor from a mst hub in the case that I described? In
-> the case I described (unplug sst monitor), we only receive
-> CSN from the hub that notifying us the connection status of one of its
-> downstream output ports is changed to disconnected. There is no
-> topology refcount needed to be decreased on this disconnected port but the
-> malloc refcount. Since the output port is still declared by
 
-Apologies - I misunderstood your original mail as implying that topology
-refcounts were being leaked - but it sounds like it's actually malloc
-refcounts being leaked instead? In any case - that means we're still
-tracing down a leak, just a malloc ref leak.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
+el/v4.9.280-34-g2660ee18b71c/plan/baseline/
 
-But, this still doesn't totally make sense to me. Malloc refs only keep
-the actual drm_dp_mst_port/drm_dp_mst_branch struct alive in memory.
-Nothing else is kept around, meaning the DRM connector (and I assume by
-proxy, the dc_sink) should both be getting dropped still and the only
-thing that should be leaked is a memory allocation. These things should
-instead be dropped once there's no longer any topology references
-around. So, are we _sure_ that the problem here is a missing
-drm_dp_mst_port_put_malloc() or drm_dp_mst_mstb_put_malloc()?
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.9
+  Describe: v4.9.280-34-g2660ee18b71c
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      2660ee18b71c5729c29415fc7b084c26fb7dba59 =
 
-If we are unfortunately we don't have equivalent tools for malloc()
-tracing. I'm totally fine with trying to add some if we have trouble
-figuring out this issue, but I'm a bit suspicious of the commits you
-mentioned that introduced this problem. If the problem doesn't
-happen until those two commits, then it's something in the code changes
-there that are causing this problem.
 
-The main thing I'm suspicious of just from looking at changes in
-09b974e8983a4b163d4a406b46d50bf869da3073 is that the call to
-amdgpu_dm_update_freesync_caps() that was previously in
-dm_dp_destroy_mst_connector() appears to be dropped and not re-added in
-(oh dear, this is a /very/ confusingly similar function name!!!)
-dm_dp_mst_connector_destroy(). I don't remember if this was intentional
-on my part, but does adding a call back to
-amdgpu_dm_update_freesync_caps() into dm_dp_destroy_mst_connector()
-right before the dc_link_remove_remote_sink() call fix anything?
 
-As well, I'm far less suspicious of this one but does re-adding this
-hunk:
+Test Regressions
+---------------- =
 
-	aconnector->dc_sink = NULL;
-	aconnector->dc_link->cur_link_settings.lane_count = 0;
 
-After dc_sink_release() fix anything either?
 
-> the mst hub,  I think we shouldn't destroy the port. Actually, no ports nor
-> mst branch devices should get destroyed in this case I think.
-> The result of LINK_ADDRESS is still the same before/after removing the sst
-> monitor except the
-> DisplayPort_Device_Plug_Status/ Legacy_Device_Plug_Status.
-> 
-> Hence, if you agree that we should put refcount of the connector of the
-> disconnected port within the unplugging sst monitor case to
-> release the allocated resource, it means we don't want to create connectors
-> for those disconnected ports. Which conflicts current flow
-> to create connectors for all declared output ports.
-> 
-> Thanks again for your time Lyude!
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
+fig | 1          =
 
--- 
-Cheers,
- Lyude Paul (she/her)
- Software Engineer at Red Hat
 
+  Details:     https://kernelci.org/test/plan/id/6123d9300a6c5e45ea8e2cc7
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.280-3=
+4-g2660ee18b71c/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
+m-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.280-3=
+4-g2660ee18b71c/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
+m-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6123d9300a6c5e45ea8e2=
+cc8
+        failing since 282 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6123f92939f2f03de88e2c85
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.280-3=
+4-g2660ee18b71c/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm=
+-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.280-3=
+4-g2660ee18b71c/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm=
+-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6123f92939f2f03de88e2=
+c86
+        failing since 282 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6123d98363b7df5a188e2c94
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.280-3=
+4-g2660ee18b71c/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ver=
+satilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.280-3=
+4-g2660ee18b71c/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ver=
+satilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6123d98363b7df5a188e2=
+c95
+        failing since 282 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6123d5b6b5e87d66a48e2cae
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.280-3=
+4-g2660ee18b71c/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
+rm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.280-3=
+4-g2660ee18b71c/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
+rm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6123d5b6b5e87d66a48e2=
+caf
+        failing since 282 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6123d45a34f7174f2b8e2c82
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.280-3=
+4-g2660ee18b71c/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu=
+_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.280-3=
+4-g2660ee18b71c/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu=
+_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6123d45a34f7174f2b8e2=
+c83
+        failing since 282 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =20
