@@ -2,143 +2,279 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 61B0E3F52AB
-	for <lists+stable@lfdr.de>; Mon, 23 Aug 2021 23:17:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAB353F52AF
+	for <lists+stable@lfdr.de>; Mon, 23 Aug 2021 23:18:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232503AbhHWVSf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Aug 2021 17:18:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40032 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229531AbhHWVSe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 Aug 2021 17:18:34 -0400
-Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67BF6C061575
-        for <stable@vger.kernel.org>; Mon, 23 Aug 2021 14:17:51 -0700 (PDT)
-Received: by mail-wr1-x42f.google.com with SMTP id h13so28207457wrp.1
-        for <stable@vger.kernel.org>; Mon, 23 Aug 2021 14:17:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=LR2oxrF1aRTcyRvMqPIf+/aFGa1XBOaASj3pwWc1/Ko=;
-        b=OTEsNTA77hSLAm70UJ2Fak8PN4CVYXQPnvHKxeyKZc0q+Vav98wLDruIteZ0cDbF2Z
-         Cr64dEEU26PYHmBs8p4x7S1gT5spbBMmphEyxQ4wElPl5UxXlhVXlX6YwTZEumlgw+n5
-         lCSjJ2sAHuB7SGfDZqks4uDsrTWpH+YeFbjGYdiilhTQEuD1mYW/Houm6GI7E0zfGPpA
-         DWD/ucVwf4D/FibhRlRQcHGJq70dSnZQjb50YXEKJIGYgJqUIc1RRXwaseUjZ7R4VqsT
-         iWo0/2V47xeN39QPSX0ZQrVRmyc3SUlzF9NurWYaEiZwkjp+FAvTqg9MGgMCRIVIxwNP
-         hARg==
+        id S232710AbhHWVTF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Aug 2021 17:19:05 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:28209 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232503AbhHWVTF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 Aug 2021 17:19:05 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1629753501;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=BeSJH4VxjxB9+5PwsVh73n5mC4DzIGC5cymQecwyjy8=;
+        b=N5Sw51Uvq6gJzzX5boufpAGpYn99jJA20vUtsgJUBBO9FjO0YG0kFjLZtdSTKWmLJCnnjh
+        vOeekmW3dgZbNJudL7Wmsi0xZUibeJDoUCmvx2SaN2+jYNcqjniVgP6mdXXp2ArTXvhxZv
+        JCqtHPHbjCC7OslNER6IeNTwKYi2IEI=
+Received: from mail-qv1-f72.google.com (mail-qv1-f72.google.com
+ [209.85.219.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-252--bK1nGrWOtepZuo20nFQJQ-1; Mon, 23 Aug 2021 17:18:19 -0400
+X-MC-Unique: -bK1nGrWOtepZuo20nFQJQ-1
+Received: by mail-qv1-f72.google.com with SMTP id u6-20020ad448660000b02903500bf28866so13318887qvy.23
+        for <stable@vger.kernel.org>; Mon, 23 Aug 2021 14:18:19 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=LR2oxrF1aRTcyRvMqPIf+/aFGa1XBOaASj3pwWc1/Ko=;
-        b=qx+do4J78TOdJGANa4l6mdDJKu23uJfKKvVeAyzw3+JNGuquN45PFmTrteK5zC/h/d
-         BJ70wiNvkk9wv9VZZ1f9n5cXdrx9XqjtGQgBNBl5AtYNO7G9azxTV2MZBLR5ZIdutMMm
-         dFXvvmlavl4UAnnUn0YvYBrbuD6apzEHhULp7xdsBCtqY3ar5yMK4FseQB0T+yX1wYlj
-         U5LMmqQke+kF6+rjftSY1e3G7KJbn19iMfW20TIU9incpzXZMcocuEqL96dCCpT5TSXq
-         8mcMz3JisiZOoWwtQ3ff6ILttnD57NRn9pH3K1B+56Gipc7cT6cwbK+6qepLRKTgRMyT
-         6wMg==
-X-Gm-Message-State: AOAM532O/tUp3T3uBoy75n/FodwMrTY5Y1MvrRxZ52oPpP559g+rXB6X
-        8hcklAiz211wI1xxi8cJpj8=
-X-Google-Smtp-Source: ABdhPJwdayT712o4QARS+Dthw5T4ACRpGiSapH8+5UKoM55OJjDYxlx8mKJq979dp9RfYEVtmhhHSg==
-X-Received: by 2002:a5d:460a:: with SMTP id t10mr10788346wrq.147.1629753470031;
-        Mon, 23 Aug 2021 14:17:50 -0700 (PDT)
-Received: from debian (host-2-99-153-109.as13285.net. [2.99.153.109])
-        by smtp.gmail.com with ESMTPSA id h6sm378180wmq.5.2021.08.23.14.17.49
+        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
+         :references:organization:user-agent:mime-version
+         :content-transfer-encoding;
+        bh=BeSJH4VxjxB9+5PwsVh73n5mC4DzIGC5cymQecwyjy8=;
+        b=JjTIGyZyayaF1/cpBRw2BrLgtMGW+qlBS5+r+4IiIWirsAk7nlt3VU5VosBUl7GXNX
+         1w25Fdqv0a2AIve0m50+3RSnCTLrPE6WgOjPSTQmbXmEikQ7ZoSfH/n6ZgsyHUwThFzh
+         lldkPV8lhsZHM77gqgt+w36FSzelh2gWt/tPRYepQYWtB5M+sNJVyDDasoI/rY0bltrY
+         dO2eecQPaa5YrNWMP2izl+IP4YSuj/okjG1YGtHvnuc+1LsQWPOa0rFwzP5pqz1EVWb9
+         IRCuVVRq9omCJC5eK/LIhNHVv4ROW03Hsr5mq/67mdxQLnGl/xPMXqwIi5WmNOZky4C9
+         aWYw==
+X-Gm-Message-State: AOAM532VoxyvLa+rn9/5zzoOen8eLeUBALXo17qtERX+LkOQgrLxMtB6
+        UIiXJaezAOG93fNfL3EEdQID541e/Sej6xrev8bKsABf7VetF5xyNtWwlbeVHriRccOoBh5gCZX
+        qNjHDjVm0jauChswo
+X-Received: by 2002:ac8:6759:: with SMTP id n25mr30837189qtp.49.1629753499174;
+        Mon, 23 Aug 2021 14:18:19 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwKgVQKBMUjD3iompDxP8zfdUn9yzwf3SzGWoruKvGpFxCA2T2HatOpR+3q+WTf4YpQHZs/SQ==
+X-Received: by 2002:ac8:6759:: with SMTP id n25mr30837158qtp.49.1629753498913;
+        Mon, 23 Aug 2021 14:18:18 -0700 (PDT)
+Received: from [192.168.8.104] (pool-108-49-102-102.bstnma.fios.verizon.net. [108.49.102.102])
+        by smtp.gmail.com with ESMTPSA id q72sm9456357qka.104.2021.08.23.14.18.17
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 23 Aug 2021 14:17:49 -0700 (PDT)
-Date:   Mon, 23 Aug 2021 22:17:47 +0100
-From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-To:     gregkh@linuxfoundation.org
-Cc:     seanjc@google.com, pbonzini@redhat.com, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] KVM: x86/mmu: Treat NX as used (not
- reserved) for all !TDP" failed to apply to 5.4-stable tree
-Message-ID: <YSQQe0/4HaHjZuHC@debian>
-References: <162600724959170@kroah.com>
+        Mon, 23 Aug 2021 14:18:18 -0700 (PDT)
+Message-ID: <6a0868a8ce6befd5f7ddea3481e70285079fcb6a.camel@redhat.com>
+Subject: Re: [PATCH 2/4] drm/dp_mst: Only create connector for connected end
+ device
+From:   Lyude Paul <lyude@redhat.com>
+To:     "Lin, Wayne" <Wayne.Lin@amd.com>,
+        "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>
+Cc:     "Kazlauskas, Nicholas" <Nicholas.Kazlauskas@amd.com>,
+        "Wentland, Harry" <Harry.Wentland@amd.com>,
+        "Zuo, Jerry" <Jerry.Zuo@amd.com>,
+        "Wu, Hersen" <hersenxs.wu@amd.com>,
+        Juston Li <juston.li@intel.com>,
+        Imre Deak <imre.deak@intel.com>,
+        Ville =?ISO-8859-1?Q?Syrj=E4l=E4?= 
+        <ville.syrjala@linux.intel.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Sean Paul <sean@poorly.run>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        "Deucher, Alexander" <Alexander.Deucher@amd.com>,
+        "Siqueira, Rodrigo" <Rodrigo.Siqueira@amd.com>,
+        "Pillai, Aurabindo" <Aurabindo.Pillai@amd.com>,
+        Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>,
+        "Cornij, Nikola" <Nikola.Cornij@amd.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Manasi Navare <manasi.d.navare@intel.com>,
+        Ankit Nautiyal <ankit.k.nautiyal@intel.com>,
+        =?ISO-8859-1?Q?Jos=E9?= Roberto de Souza 
+        <jose.souza@intel.com>, Sean Paul <seanpaul@chromium.org>,
+        Ben Skeggs <bskeggs@redhat.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Date:   Mon, 23 Aug 2021 17:18:16 -0400
+In-Reply-To: <CO6PR12MB548913A9CC63A199BBBD6545FCC49@CO6PR12MB5489.namprd12.prod.outlook.com>
+References: <20210720160342.11415-1-Wayne.Lin@amd.com>
+         <20210720160342.11415-3-Wayne.Lin@amd.com>
+         <69a5f39580f0d3519468f45ecbfd50d7ad1b3036.camel@redhat.com>
+         <292d6ead03d6afe54f81d52f705e38bbf9feb7bd.camel@redhat.com>
+         <SJ0PR12MB550410E529057F59023153D9FCF19@SJ0PR12MB5504.namprd12.prod.outlook.com>
+         <2012d26bb2bece43e65ce435e6ba03f1d8767f61.camel@redhat.com>
+         <CO6PR12MB5489274038BFF71A80EA9ECEFCF89@CO6PR12MB5489.namprd12.prod.outlook.com>
+         <cd24fffcbda28ffc6734fb6d6d28b39e8782e0dd.camel@redhat.com>
+         <CO6PR12MB548965A84DF69BAC30F74AC5FCC19@CO6PR12MB5489.namprd12.prod.outlook.com>
+         <db10eb95b1ec7e822c7379d310c54975810acd2b.camel@redhat.com>
+         <CO6PR12MB548913A9CC63A199BBBD6545FCC49@CO6PR12MB5489.namprd12.prod.outlook.com>
+Organization: Red Hat
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.40.4 (3.40.4-1.fc34) 
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="llP1ZrdiVHXUQPw+"
-Content-Disposition: inline
-In-Reply-To: <162600724959170@kroah.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+[snip]
 
---llP1ZrdiVHXUQPw+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I think I might still be misunderstanding something, some comments below
 
-Hi Greg,
-
-On Sun, Jul 11, 2021 at 02:40:49PM +0200, gregkh@linuxfoundation.org wrote:
+On Mon, 2021-08-23 at 06:33 +0000, Lin, Wayne wrote:
+> > > Hi Lyude,
+> > > 
+> > > Really thankful for willing to explain in such details. Really
+> > > appreciate.
+> > > 
+> > > I'm trying to fix some problems that observed after these 2 patches
+> > > * 09b974e8983 drm/amd/amdgpu_dm/mst: Remove ->destroy_connector()
+> > > callback
+> > > * 72dc0f51591 drm/dp_mst: Remove
+> > > drm_dp_mst_topology_cbs.destroy_connector
+> > > 
+> > > With above patches, we now change to remove dc_sink when connector is
+> > > about to be destroyed. However, we found out that connectors won't get
+> > > destroyed after hotplugs. Thus, after few times hotplugs, we won't
+> > > create any new dc_sink since number of sink is exceeding our
+> > > limitation. As the result of that, I'm trying to figure out why the
+> > > refcount of connectors won't get zero.
+> > > 
+> > > Based on my analysis, I found out that if we connect a sst monitor to
+> > > a mst hub then connect the hub to the system, and then unplug the sst
+> > > monitor from the hub. E.g.
+> > > src - mst hub - sst monitor => src - mst hub  (unplug) sst monitor
+> > > 
+> > > Within this case, we won't try to put refcount of the sst monitor.
+> > > Which is what I tried to resolve by [PATCH 3/4].
+> > > But here comes a problem which is confusing me that if I can destroy
+> > > connector in this case. By comparing to another case, if now mst hub
+> > > is connected with a mst monitor like this:
+> > > src - mst hub - mst monitor => src - mst hub  (unplug) mst monitor
+> > > 
+> > > We will put the topology refcount of mst monitor's branching unit in
+> > > and
+> > > drm_dp_port_set_pdt() and eventually call
+> > > drm_dp_delayed_destroy_port() to unregister the connector of the
+> > > logical port. So following the same rule, I think to dynamically
+> > > unregister a mst connector is what we want and should be reasonable to
+> > > also destroy sst connectors in my case. But this conflicts the idea
+> > > what we have here. We want to create connectors for all output ports.
+> > > So if dynamically creating/destroying connectors is what we want, when
+> > > is the appropriate time for us to create one is what I'm considering.
+> > > 
+> > > Take the StartTech hub DP 1to4 DP output ports for instance. This hub,
+> > > internally, is constructed by  3 1-to-2 mst branch chips. 2 output
+> > > ports of 1st chip are hardwired to another 2 chips. It's how it makes
+> > > it to support 1-to-4 mst branching. So within this case, the internal
+> > > 2 output ports of 1st chip is not connecting to a stream sink and will
+> > > never get connected to one.  Thus, I'm thinking maybe the best timing
+> > > to attach a connector to a port is when the port is connected, and the
+> > > connected PDT is determined as a stream sink.
+> > > 
+> > > Sorry if I misunderstand anything here and really thanks for your time
+> > > to shed light on this : ) Thanks Lyude.
+> > 
+> > It's no problem, it is my job after all! Sorry for how long my responses
+> > have been taking, but my plate seems to be finally clearing up
+> > for the foreseeable future.
+> > 
+> > That being said - it sounds like with this we still aren't actually clear
+> > on where the topology refcount leak is happening - only when it's
+> > happening, which says to me that's the issue we really need to be figuring
+> > out the cause of as opposed to trying to workaround it.
+> > 
+> > Actually - refcount leaks is an issue I've ran into a number of times
+> > before in the past, so a while back I actually added some nice
+> > debugging features to assist with debugging leaks. If you enable the
+> > following options in your kernel config:
+> > 
+> > CONFIG_EXPERT=y # This must be set first before the next option
+> > CONFIG_DRM_DEBUG_DP_MST_TOPOLOGY_REFS=y
+> > 
+> > Unfortunately, I'm suddenly realizing after typing this that apparently I
+> > never bothered adding a way for us to debug the refcounts of
+> > ports/mstbs that haven't been released yet - only the ones for ones that
+> > have. This shouldn't be difficult at all for me to add, so I'll
+> > send you a patch either today or at the start of next week to try
+> > debugging with using this, and then we can figure out where this leak
+> > is really coming from.
 > 
-> The patch below does not apply to the 5.4-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
+> Thanks Lyude!
+> 
+> Sorry to bother you, but I would like to clarify this again.  So it sounds
 
-Here is the backport.
+It's no problem! It's my job and I'm happy to help :).
 
---
-Regards
-Sudip
+> like you also agree that we should destroy associated connector
 
---llP1ZrdiVHXUQPw+
-Content-Type: text/x-diff; charset=us-ascii
-Content-Disposition: attachment;
-	filename="0001-KVM-x86-mmu-Treat-NX-as-used-not-reserved-for-all-TD.patch"
+Not quite. I think a better way of explaining this might be to point out
+that the lifetime of an MST port and its connector isn't supposed to be
+determined by whether or not it has something plugged into it - its
+lifetime is supposed to depend on whether there's a valid path from us
+down the MST topology to the port we're trying to reach. So an MSTB with
+ports that is unplugged would destroy all of its ports - but an
+unplugged port should just be the same as a disconnected DRM connector -
+even if the port itself is just hosting a branching device.
 
-From 925625f45cb571d12230c9254261a375250bb806 Mon Sep 17 00:00:00 2001
-From: Sean Christopherson <seanjc@google.com>
-Date: Tue, 22 Jun 2021 10:56:47 -0700
-Subject: [PATCH] KVM: x86/mmu: Treat NX as used (not reserved) for all !TDP
- shadow MMUs
+Additionally - we don't want to try "delaying" connector creation
+either. In the modern world hotplugging is almost always reliable in
+normal situations, but even so there's still use cases for wanting force
+probing for analog devices on DP converters and just in general as it's
+a feature commonly used by developers or users working around monitors
+with problematic HPD issues or EDID issues.
 
-commit 112022bdb5bc372e00e6e43cb88ee38ea67b97bd upstream
+> when we unplug sst monitor from a mst hub in the case that I described? In
+> the case I described (unplug sst monitor), we only receive
+> CSN from the hub that notifying us the connection status of one of its
+> downstream output ports is changed to disconnected. There is no
+> topology refcount needed to be decreased on this disconnected port but the
+> malloc refcount. Since the output port is still declared by
 
-Mark NX as being used for all non-nested shadow MMUs, as KVM will set the
-NX bit for huge SPTEs if the iTLB mutli-hit mitigation is enabled.
-Checking the mitigation itself is not sufficient as it can be toggled on
-at any time and KVM doesn't reset MMU contexts when that happens.  KVM
-could reset the contexts, but that would require purging all SPTEs in all
-MMUs, for no real benefit.  And, KVM already forces EFER.NX=1 when TDP is
-disabled (for WP=0, SMEP=1, NX=0), so technically NX is never reserved
-for shadow MMUs.
+Apologies - I misunderstood your original mail as implying that topology
+refcounts were being leaked - but it sounds like it's actually malloc
+refcounts being leaked instead? In any case - that means we're still
+tracing down a leak, just a malloc ref leak.
 
-Fixes: b8e8c8303ff2 ("kvm: mmu: ITLB_MULTIHIT mitigation")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210622175739.3610207-3-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-[sudip: use old path]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
----
- arch/x86/kvm/mmu.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+But, this still doesn't totally make sense to me. Malloc refs only keep
+the actual drm_dp_mst_port/drm_dp_mst_branch struct alive in memory.
+Nothing else is kept around, meaning the DRM connector (and I assume by
+proxy, the dc_sink) should both be getting dropped still and the only
+thing that should be leaked is a memory allocation. These things should
+instead be dropped once there's no longer any topology references
+around. So, are we _sure_ that the problem here is a missing
+drm_dp_mst_port_put_malloc() or drm_dp_mst_mstb_put_malloc()?
 
-diff --git a/arch/x86/kvm/mmu.c b/arch/x86/kvm/mmu.c
-index 260c64c205b8..d3877dd713ae 100644
---- a/arch/x86/kvm/mmu.c
-+++ b/arch/x86/kvm/mmu.c
-@@ -4666,7 +4666,15 @@ static void reset_rsvds_bits_mask_ept(struct kvm_vcpu *vcpu,
- void
- reset_shadow_zero_bits_mask(struct kvm_vcpu *vcpu, struct kvm_mmu *context)
- {
--	bool uses_nx = context->nx ||
-+	/*
-+	 * KVM uses NX when TDP is disabled to handle a variety of scenarios,
-+	 * notably for huge SPTEs if iTLB multi-hit mitigation is enabled and
-+	 * to generate correct permissions for CR0.WP=0/CR4.SMEP=1/EFER.NX=0.
-+	 * The iTLB multi-hit workaround can be toggled at any time, so assume
-+	 * NX can be used by any non-nested shadow MMU to avoid having to reset
-+	 * MMU contexts.  Note, KVM forces EFER.NX=1 when TDP is disabled.
-+	 */
-+	bool uses_nx = context->nx || !tdp_enabled ||
- 		context->mmu_role.base.smep_andnot_wp;
- 	struct rsvd_bits_validate *shadow_zero_check;
- 	int i;
+If we are unfortunately we don't have equivalent tools for malloc()
+tracing. I'm totally fine with trying to add some if we have trouble
+figuring out this issue, but I'm a bit suspicious of the commits you
+mentioned that introduced this problem. If the problem doesn't
+happen until those two commits, then it's something in the code changes
+there that are causing this problem.
+
+The main thing I'm suspicious of just from looking at changes in
+09b974e8983a4b163d4a406b46d50bf869da3073 is that the call to
+amdgpu_dm_update_freesync_caps() that was previously in
+dm_dp_destroy_mst_connector() appears to be dropped and not re-added in
+(oh dear, this is a /very/ confusingly similar function name!!!)
+dm_dp_mst_connector_destroy(). I don't remember if this was intentional
+on my part, but does adding a call back to
+amdgpu_dm_update_freesync_caps() into dm_dp_destroy_mst_connector()
+right before the dc_link_remove_remote_sink() call fix anything?
+
+As well, I'm far less suspicious of this one but does re-adding this
+hunk:
+
+	aconnector->dc_sink = NULL;
+	aconnector->dc_link->cur_link_settings.lane_count = 0;
+
+After dc_sink_release() fix anything either?
+
+> the mst hub,  I think we shouldn't destroy the port. Actually, no ports nor
+> mst branch devices should get destroyed in this case I think.
+> The result of LINK_ADDRESS is still the same before/after removing the sst
+> monitor except the
+> DisplayPort_Device_Plug_Status/ Legacy_Device_Plug_Status.
+> 
+> Hence, if you agree that we should put refcount of the connector of the
+> disconnected port within the unplugging sst monitor case to
+> release the allocated resource, it means we don't want to create connectors
+> for those disconnected ports. Which conflicts current flow
+> to create connectors for all declared output ports.
+> 
+> Thanks again for your time Lyude!
+
 -- 
-2.30.2
+Cheers,
+ Lyude Paul (she/her)
+ Software Engineer at Red Hat
 
-
---llP1ZrdiVHXUQPw+--
