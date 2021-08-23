@@ -2,77 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8AD03F48C1
-	for <lists+stable@lfdr.de>; Mon, 23 Aug 2021 12:35:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4885A3F492F
+	for <lists+stable@lfdr.de>; Mon, 23 Aug 2021 13:00:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234155AbhHWKgO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Aug 2021 06:36:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60320 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234094AbhHWKgN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 Aug 2021 06:36:13 -0400
-Received: from mail-yb1-xb29.google.com (mail-yb1-xb29.google.com [IPv6:2607:f8b0:4864:20::b29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71ABDC061575
-        for <stable@vger.kernel.org>; Mon, 23 Aug 2021 03:35:30 -0700 (PDT)
-Received: by mail-yb1-xb29.google.com with SMTP id k65so33077031yba.13
-        for <stable@vger.kernel.org>; Mon, 23 Aug 2021 03:35:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=z9/ir4kG5DGbUoClzGjcJHyuuKDLfkXunjWUuDr0TFw=;
-        b=H2A2ImA7s8fWh1V22az3j7mhbMKPr6i2jht3Qm1AXuVX101WryS4MuGojtpvMvYaY7
-         +d5QM/I9MPHdINEZrkgF4kDZwAhIgj91i5aPprDGGKHXCIzaJn+WV3WV2vIyHt5Ks5EM
-         fg1TJ6xYc6fHZGoMIVDsfYlAed2imqk9RedOJ1TjhQibsMnzOApz7f2wUqWRTzJh349L
-         qxdMeeIkIYtNFzGchbnercY2OKrlW7Upo3xrMddjW8iV1hkHLaOAtq5AquXHjUaueIe/
-         48gcnlB2y1/4HwRnRlwuCm7KKKNGvzWHgCHzrzCftE4tK7DgolBsVSLEgCJnys6dtV8O
-         b0sw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=z9/ir4kG5DGbUoClzGjcJHyuuKDLfkXunjWUuDr0TFw=;
-        b=tZcrE5QvFKUNcbGdsveRDH2GSD45HYFW0eKkhyvyNfRuhmUR8GTEJCjwDfn+YsMHbx
-         03dX7aa9lEDRrLjD/5m+RGOzMginv3wpLJkfZT8tgHVw39PfflsKw1MG3FyxWg3X5VHj
-         t9fcl0zEHcgox4aER5AJ6i80RFx0Iri628rCwofXOJmMs03JCqpwz1/aZ/iYuUApLmN8
-         ng6UXkULaaqvv3lbb3ad6tOLw3xr69czShNZeDtVKDLK5phsOmaUSE99G4crjvMHZEB/
-         ikTME2kOiVHQddwWLxyKSktEIxUisn3+jzYial1RCcedWDfzA/IrSz8MQnVRTRAepT4F
-         06Bw==
-X-Gm-Message-State: AOAM5301XAXbyk7rIl36qiUvLLerh9SRQ0vpxtmidIaBQZu5hTchfF22
-        nNid2ftWKGsfJ2UcP5QtOoLT0XLXywdzSdPjcy0=
-X-Google-Smtp-Source: ABdhPJwoitdPVFOtQdKx/Wp5mxtffVHtIdP5KhBkkgoX6YKQAAh9ulDLE78dmbqpYfy9/aYpWzXGv1oiiPbFlVCGsZs=
-X-Received: by 2002:a25:7392:: with SMTP id o140mr16187680ybc.183.1629714928814;
- Mon, 23 Aug 2021 03:35:28 -0700 (PDT)
+        id S236341AbhHWLA6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Aug 2021 07:00:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58436 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S236254AbhHWLAs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Aug 2021 07:00:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPS id CF4036138B;
+        Mon, 23 Aug 2021 11:00:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1629716405;
+        bh=Ikhc8tu0qcR9oQ+OhMO9QJXM01eNb0Fr+KVga4JK3Yc=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=aIolGCdNrhzyEe3SDJP9ymLwl6PCU0Vp1ib7BB40HQewFKfeQgerhjXeBKGqfFYzz
+         ncGDWb8Bu+aOEHptpodfVSiyq2VYFoPcupKLJDDmQzqcsRrQoLIC08o2graRBlvWmK
+         z4/IdHFwtwbI5sj0AvLF++aWOOlDPejGjqJ0BudRvqWwUQLUrkjg5qwCjkGzXjtmAF
+         JVU2AVOomZxWAZjaPoY9Q+umSab/52HiqXZrBLYI+bMvW7Oy9AvtM7Ym8ZL4JKHxQq
+         o0ZyDDziashoWfbWMKYQW/DBKRKYrnwJwyHVO1SReMfX2CU6JRvkC4f/UHIHR+ATta
+         /kOi1Ot5MfuIg==
+Received: from pdx-korg-docbuild-2.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by pdx-korg-docbuild-2.ci.codeaurora.org (Postfix) with ESMTP id C147C60075;
+        Mon, 23 Aug 2021 11:00:05 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Received: by 2002:a05:7110:8084:b0:f2:d83f:1969 with HTTP; Mon, 23 Aug 2021
- 03:35:28 -0700 (PDT)
-Reply-To: mrs.nicole111@gmail.com
-From:   Mrs Nicole Benoite Marois <mrsnicolefrance1958@gmail.com>
-Date:   Mon, 23 Aug 2021 03:35:28 -0700
-Message-ID: <CAJKBOPmv1bL45JO7njEYc84stO33d5CvurHu9uB=x5CBf3=9Fw@mail.gmail.com>
-Subject: 
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net] net: stmmac: fix kernel panic due to NULL pointer
+ dereference of plat->est
+From:   patchwork-bot+netdevbpf@kernel.org
+Message-Id: <162971640578.3591.684307191157307528.git-patchwork-notify@kernel.org>
+Date:   Mon, 23 Aug 2021 11:00:05 +0000
+References: <20210820132622.4175839-1-vee.khee.wong@linux.intel.com>
+In-Reply-To: <20210820132622.4175839-1-vee.khee.wong@linux.intel.com>
+To:     Wong Vee Khee <vee.khee.wong@linux.intel.com>
+Cc:     peppe.cavallaro@st.com, alexandre.torgue@foss.st.com,
+        joabreu@synopsys.com, davem@davemloft.net, kuba@kernel.org,
+        mcoquelin.stm32@gmail.com, netdev@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Beloved
+Hello:
 
-I am Mrs Nicole Benoite Marois and i have been suffering from ovarian
-cancer disease and the doctor says that i have just few days to leave.
-I am from (Paris) France but based in Africa Burkina Faso since eight
-years ago as a business woman dealing with gold exportation
+This patch was applied to netdev/net.git (refs/heads/master):
 
-Now that i am about to end the race like this, without any family
-members and no child. I have $3 Million US DOLLARS in Africa
-Development Bank (ADB) Burkina Faso.
+On Fri, 20 Aug 2021 21:26:22 +0800 you wrote:
+> In the case of taprio offload is not enabled, the error handling path
+> causes a kernel crash due to kernel NULL pointer deference.
+> 
+> Fix this by adding check for NULL before attempt to access 'plat->est'
+> on the mutex_lock() call.
+> 
+> The following kernel panic is observed without this patch:
+> 
+> [...]
 
-I also have $4.5 Million US Dollars at Eco-Bank here in Burkina Faso
-and i instructed the bank to transfer the fund to you as foreigner
-that will apply to the bank after i have gone, that they should
-release the fund to him/her,but you will assure me that you will take
-50% of the fund and give 50% to the orphanages home in your country
-for my heart to rest.
+Here is the summary with links:
+  - [net] net: stmmac: fix kernel panic due to NULL pointer dereference of plat->est
+    https://git.kernel.org/netdev/net/c/82a44ae113b7
 
-Yours fairly friend,
-Mrs Nicole Benoite Marois.
+You are awesome, thank you!
+--
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
