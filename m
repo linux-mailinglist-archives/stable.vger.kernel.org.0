@@ -2,102 +2,153 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CD083F5143
-	for <lists+stable@lfdr.de>; Mon, 23 Aug 2021 21:27:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E4D2F3F518E
+	for <lists+stable@lfdr.de>; Mon, 23 Aug 2021 21:50:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230192AbhHWT15 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Aug 2021 15:27:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42828 "EHLO
+        id S231716AbhHWTvT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Aug 2021 15:51:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231891AbhHWT14 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 Aug 2021 15:27:56 -0400
-Received: from mail-yb1-xb29.google.com (mail-yb1-xb29.google.com [IPv6:2607:f8b0:4864:20::b29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E742C06175F;
-        Mon, 23 Aug 2021 12:27:14 -0700 (PDT)
-Received: by mail-yb1-xb29.google.com with SMTP id z128so36160601ybc.10;
-        Mon, 23 Aug 2021 12:27:14 -0700 (PDT)
+        with ESMTP id S230187AbhHWTvT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 Aug 2021 15:51:19 -0400
+Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E85DC061575
+        for <stable@vger.kernel.org>; Mon, 23 Aug 2021 12:50:36 -0700 (PDT)
+Received: by mail-pj1-x102c.google.com with SMTP id j1so12671372pjv.3
+        for <stable@vger.kernel.org>; Mon, 23 Aug 2021 12:50:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=fzFh9k1p27YnwdCOGaCKh4AMybb++Mp03L1JFAHVh60=;
-        b=aG3IfbyoF+XMUuBhUixaw04X4kzdYVPXGGBI99XXr/MDjVUOX8alKxD1xO06D2+4pX
-         z2B06UXKsrJXMshBV0qwrrChJEIXDF5K30xBdOCx2QI2A+og8r8BB3ef22D0RPImV++k
-         4W97iRHbWD5et0/oD33mvD2zPuZh4ddenElz0YUeAJ0nQdEsqLk7Ly679kb8euSKhqNK
-         hRPivm7qRdiYoHH4/CrLkVYnn6O30z5uUVpVd6koyiatW9QPAD/XB9KZQ0uVHqR6lY58
-         Qm2JMkuICvFHDkoBn5TUrgH8bXbF8Onw4ofbEmLcXrx7Irq9Kj+eadYp8V0F8IRYKQhM
-         ZFBw==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=cNsh0LLIEVXN9DDjm/iLvbZIOib+73GczOhcDqyGJTA=;
+        b=ysmN9wBlLKTQWTcOVXZn0QqsZplX7XBfoxvQ55hMUX3L+XVWYWAoncRbibQQ0THVUs
+         0SzIeePbokHKSM3p0pHFMG6ephd1F/G9vndAo/e8n1WTM5//AjYbyg0kuBVLPbWruMEv
+         G2EoFX4AO9tpZVzJH/NGkc9glja90cIriINQASTtxfpGFrpRSVZre7a9zWF0n/Q1e16m
+         dHsPaKw2/GUvcN5SY76V5z8lwirjGXRTWReJJ5xKYif8nKOBBXn23pHXPAQdSD0ro2E6
+         bl14rjd5TnuZSolj58t4imdQghgH9b69SwfJuTbEhKDJPW1f/Qeho3ikoy54pK66QDPN
+         tdBw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=fzFh9k1p27YnwdCOGaCKh4AMybb++Mp03L1JFAHVh60=;
-        b=F0v2jONiqW95cNKo4KK/ya8EMsbTknzMTqiAXntQbnYQ6c9+qw4+Hds1QjW8EBTMza
-         wIATnE7jKUxPbXh2QaiWyXKgR0GUeSv4z+SkPfJ+0YR5MADyYyB+MM5Xyemh54rnP3L7
-         o4gd5AAqW22vRZYGFQeygc2T99oeRHh729A6/yz7xsUcn2Vk+pvEpmPg74BeYRGdU2kO
-         SICfdOzLaYfIi3Rr3uBl+en6+IZCinCN7vcVJb0/gFBYRtIEI746DyJ/MpjR+Nxl5+4P
-         JgmCxoP6mi6NF8joa04n19CqjM6qjdi/pmQQo6vd5joigt7OZR1sKd8My0T6VTwxyF0j
-         ppyg==
-X-Gm-Message-State: AOAM531sX444iKlkHEJSzmc/mDICUMsJDdx9zag2ezEnNO3G80gLwqJw
-        RkR/KXaYskSUHZaKGZ0xgXi87VISd0dFH2XG9Mw=
-X-Google-Smtp-Source: ABdhPJzMJs7tn/5beLdQLQapSVqh95o/Xoi8E45wdZM+va5IB6wK2RDSwWtJKUv+Eo0RLfsSKvE7K8uGcu7jVi8DviY=
-X-Received: by 2002:a25:c083:: with SMTP id c125mr28409284ybf.331.1629746833297;
- Mon, 23 Aug 2021 12:27:13 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=cNsh0LLIEVXN9DDjm/iLvbZIOib+73GczOhcDqyGJTA=;
+        b=L2u/EBsiXUDvWroQf3V0bpOcecljGmy+/3/DOSDSmAP6rspIXAUnWvYIiPbXXRcm/N
+         iMzh/gDBMaC+9dmr74b+9O4UssnuobHr52FPKbqEcHRGRdB/PsDm0YJMsTnJhjxIXsk6
+         dPMfKKPlFn8KhPwD7d5MZEOVYgnm/04nPrqM0s+DRB++k1Pa3kKujEhoyqxeMXh8HLCH
+         x2U1t7EgXGt79cIgra47A6gEVt3PpBo3HEFBBz/zIxLhvRMKdagz6LD+6Hw4ZfWt63E7
+         Nj+fzcmVnneVTKeyomnfK9/17E1cGJf4wUKGxIksy6UyWj8NgO6CzD1isoS1Rj+aWXqh
+         hUUA==
+X-Gm-Message-State: AOAM533ecDoecVwiruvZ7BAKrOoJnnasNyYWxxC2M1rDz9EfiXI/yvNf
+        TvN9TSLCfxlUzpcWhmnwwaF1idV4gbQpzsk4
+X-Google-Smtp-Source: ABdhPJwYUnYJfhTo32lZ3CeKrI7F4MWwYsUj/ngbzD6gtxmvZN3pJ+kIsOnDA50fw19jSFY9crbHAQ==
+X-Received: by 2002:a17:902:b40b:b029:12b:997f:5677 with SMTP id x11-20020a170902b40bb029012b997f5677mr30071084plr.11.1629748235630;
+        Mon, 23 Aug 2021 12:50:35 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id s32sm17341374pfw.84.2021.08.23.12.50.35
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 23 Aug 2021 12:50:35 -0700 (PDT)
+Message-ID: <6123fc0b.1c69fb81.4c2d.28df@mx.google.com>
+Date:   Mon, 23 Aug 2021 12:50:35 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20210823140844.q3kx6ruedho7jen5@pali> <18c5a8be-66d7-0dd8-b158-0931335f7ac5@candelatech.com>
- <20210823145800.4vzdgzjch77ldeku@pali>
-In-Reply-To: <20210823145800.4vzdgzjch77ldeku@pali>
-From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Date:   Mon, 23 Aug 2021 20:26:37 +0100
-Message-ID: <CADVatmPwp9Ngexm+_JgW3vBxFo6FBq9NzLS=POxHoO-COBQ0gA@mail.gmail.com>
-Subject: Re: Drivers for Qualcomm wifi chips (ath*k) and security issues
-To:     =?UTF-8?Q?Pali_Roh=C3=A1r?= <pali@kernel.org>
-Cc:     Ben Greear <greearb@candelatech.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Greg KH <gregkh@linuxfoundation.org>,
-        Stable <stable@vger.kernel.org>,
-        "open list:TI WILINK WIRELES..." <linux-wireless@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/5.4
+X-Kernelci-Kernel: v5.4.142-45-g9addf567ed83
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/5.4 baseline: 204 runs,
+ 3 regressions (v5.4.142-45-g9addf567ed83)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Pali,
+stable-rc/queue/5.4 baseline: 204 runs, 3 regressions (v5.4.142-45-g9addf56=
+7ed83)
 
-On Mon, Aug 23, 2021 at 3:58 PM Pali Roh=C3=A1r <pali@kernel.org> wrote:
->
-> On Monday 23 August 2021 07:32:11 Ben Greear wrote:
-> > On 8/23/21 7:08 AM, Pali Roh=C3=A1r wrote:
-> > > Hello Sasha and Greg!
-> > >
-> > > Last week I sent request for backporting ath9k wifi fixes for securit=
-y
-> > > issue CVE-2020-3702 into stable LTS kernels because Qualcomm/maintain=
-ers
-> > > did not it for more months... details are in email:
-> > > https://lore.kernel.org/stable/20210818084859.vcs4vs3yd6zetmyt@pali/t=
-/#u
-> >
-> > For one thing, almost everyone using these radios is using openwrt or
-> > similar which has its own patch sets.
->
-> AFAIK, latest stable released openwrt uses ath9k from 4.19 tree and
-> AFAIK did not have above patch.
+Regressions Summary
+-------------------
 
-I think you asked for the following patches:
-
-56c5485c9e44 ("ath: Use safer key clearing with key cache entries")
-73488cb2fa3b ("ath9k: Clear key cache explicitly on disabling hardware")
-d2d3e36498dd ("ath: Export ath_hw_keysetmac()")
-144cd24dbc36 ("ath: Modify ath_key_delete() to not need full key entry")
-ca2848022c12 ("ath9k: Postpone key cache entry deletion for TXQ frames
-reference it")
-
-And I can see they are already in the queue for next v4.19.y release,
-so should be part of v4.19.205
+platform          | arch | lab           | compiler | defconfig          | =
+regressions
+------------------+------+---------------+----------+--------------------+-=
+-----------
+rk3288-veyron-jaq | arm  | lab-collabora | gcc-8    | multi_v7_defconfig | =
+3          =
 
 
---=20
-Regards
-Sudip
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
+el/v5.4.142-45-g9addf567ed83/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.4
+  Describe: v5.4.142-45-g9addf567ed83
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      9addf567ed83dfd137546fcce2125ded6e2c647a =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform          | arch | lab           | compiler | defconfig          | =
+regressions
+------------------+------+---------------+----------+--------------------+-=
+-----------
+rk3288-veyron-jaq | arm  | lab-collabora | gcc-8    | multi_v7_defconfig | =
+3          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6123decead2bd850a88e2c95
+
+  Results:     67 PASS, 3 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.142-4=
+5-g9addf567ed83/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288-=
+veyron-jaq.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.142-4=
+5-g9addf567ed83/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288-=
+veyron-jaq.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-iodomain-grf-probed: https://kernelci.org/test=
+/case/id/6123decead2bd850a88e2ca9
+        failing since 69 days (last pass: v5.4.125-37-g7cda316475cf, first =
+fail: v5.4.125-84-g411d62eda127)
+
+    2021-08-23T17:45:38.111372  /lava-4400041/1/../bin/lava-test-case<8>[  =
+ 15.028051] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Drockchip-iodomain-grf-prob=
+ed RESULT=3Dfail>
+    2021-08-23T17:45:38.111713     =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdio0-probed: https://kernelci.org/test/=
+case/id/6123decead2bd850a88e2cc1
+        failing since 69 days (last pass: v5.4.125-37-g7cda316475cf, first =
+fail: v5.4.125-84-g411d62eda127)
+
+    2021-08-23T17:45:36.681878  /lava-4400041/1/../bin/lava-test-case
+    2021-08-23T17:45:36.687073  <8>[   13.603605] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Ddwmmc_rockchip-sdio0-probed RESULT=3Dfail>   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdmmc-probed: https://kernelci.org/test/=
+case/id/6123decead2bd850a88e2cc2
+        failing since 69 days (last pass: v5.4.125-37-g7cda316475cf, first =
+fail: v5.4.125-84-g411d62eda127)
+
+    2021-08-23T17:45:35.661704  /lava-4400041/1/../bin/lava-test-case
+    2021-08-23T17:45:35.666888  <8>[   12.584091] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Ddwmmc_rockchip-sdmmc-probed RESULT=3Dfail>   =
+
+ =20
