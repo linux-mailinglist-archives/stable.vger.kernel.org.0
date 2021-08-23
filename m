@@ -2,73 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4885A3F492F
-	for <lists+stable@lfdr.de>; Mon, 23 Aug 2021 13:00:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62F513F4C13
+	for <lists+stable@lfdr.de>; Mon, 23 Aug 2021 16:08:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236341AbhHWLA6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Aug 2021 07:00:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58436 "EHLO mail.kernel.org"
+        id S229518AbhHWOJa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Aug 2021 10:09:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33886 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236254AbhHWLAs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Aug 2021 07:00:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPS id CF4036138B;
-        Mon, 23 Aug 2021 11:00:05 +0000 (UTC)
+        id S229507AbhHWOJa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Aug 2021 10:09:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5DFCB61206;
+        Mon, 23 Aug 2021 14:08:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629716405;
-        bh=Ikhc8tu0qcR9oQ+OhMO9QJXM01eNb0Fr+KVga4JK3Yc=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=aIolGCdNrhzyEe3SDJP9ymLwl6PCU0Vp1ib7BB40HQewFKfeQgerhjXeBKGqfFYzz
-         ncGDWb8Bu+aOEHptpodfVSiyq2VYFoPcupKLJDDmQzqcsRrQoLIC08o2graRBlvWmK
-         z4/IdHFwtwbI5sj0AvLF++aWOOlDPejGjqJ0BudRvqWwUQLUrkjg5qwCjkGzXjtmAF
-         JVU2AVOomZxWAZjaPoY9Q+umSab/52HiqXZrBLYI+bMvW7Oy9AvtM7Ym8ZL4JKHxQq
-         o0ZyDDziashoWfbWMKYQW/DBKRKYrnwJwyHVO1SReMfX2CU6JRvkC4f/UHIHR+ATta
-         /kOi1Ot5MfuIg==
-Received: from pdx-korg-docbuild-2.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by pdx-korg-docbuild-2.ci.codeaurora.org (Postfix) with ESMTP id C147C60075;
-        Mon, 23 Aug 2021 11:00:05 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        s=k20201202; t=1629727727;
+        bh=tlLFxJY+JYRvy77IGvTDOiXa4odg7ZRQd6rAUpOdcPw=;
+        h=Date:From:To:Subject:From;
+        b=nqgVsf0I7/Aa0DPOoLOtsCxNcDtjnBwO7u3ZiMqPEiKbhElGhRFdA4u3CTdoEZkn8
+         amOgHM8phylQUhER0HwwICPzg9LhRjBvrm6TRZWavOlM5tEzAI3AdWstenuCqpmOWC
+         ab2VT/M9GBlZYWtordO2tNmYXMOTeYcquSlZZZGQtaeISsBg73WWvYeA94AQI49nmT
+         272wpZMVEzShyJfxOCgYZKGBN4G5JbP1eAGnbkypuPk+4k/SEvWFwnD8MoBks2m3Ax
+         E4gZ30jckxayFVUYJr53P00nQDRE10/mcrHTkZbILMujQtNtzU/muAjjqo6Bu++E+N
+         T4LKOj44xgyhA==
+Received: by pali.im (Postfix)
+        id DE340FC2; Mon, 23 Aug 2021 16:08:44 +0200 (CEST)
+Date:   Mon, 23 Aug 2021 16:08:44 +0200
+From:   Pali =?utf-8?B?Um9ow6Fy?= <pali@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>,
+        Greg KH <gregkh@linuxfoundation.org>, stable@vger.kernel.org,
+        linux-wireless@vger.kernel.org
+Subject: Drivers for Qualcomm wifi chips (ath*k) and security issues
+Message-ID: <20210823140844.q3kx6ruedho7jen5@pali>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net] net: stmmac: fix kernel panic due to NULL pointer
- dereference of plat->est
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <162971640578.3591.684307191157307528.git-patchwork-notify@kernel.org>
-Date:   Mon, 23 Aug 2021 11:00:05 +0000
-References: <20210820132622.4175839-1-vee.khee.wong@linux.intel.com>
-In-Reply-To: <20210820132622.4175839-1-vee.khee.wong@linux.intel.com>
-To:     Wong Vee Khee <vee.khee.wong@linux.intel.com>
-Cc:     peppe.cavallaro@st.com, alexandre.torgue@foss.st.com,
-        joabreu@synopsys.com, davem@davemloft.net, kuba@kernel.org,
-        mcoquelin.stm32@gmail.com, netdev@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: NeoMutt/20180716
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello:
+Hello Sasha and Greg!
 
-This patch was applied to netdev/net.git (refs/heads/master):
+Last week I sent request for backporting ath9k wifi fixes for security
+issue CVE-2020-3702 into stable LTS kernels because Qualcomm/maintainers
+did not it for more months... details are in email:
+https://lore.kernel.org/stable/20210818084859.vcs4vs3yd6zetmyt@pali/t/#u
 
-On Fri, 20 Aug 2021 21:26:22 +0800 you wrote:
-> In the case of taprio offload is not enabled, the error handling path
-> causes a kernel crash due to kernel NULL pointer deference.
-> 
-> Fix this by adding check for NULL before attempt to access 'plat->est'
-> on the mutex_lock() call.
-> 
-> The following kernel panic is observed without this patch:
-> 
-> [...]
+And now I got reports that in stable LTS kernels (4.14, 4.19) are
+missing also other fixes for other Qualcomm wifi security issues,
+covered by FragAttacks codename: CVE-2020-26145 CVE-2020-26139
+CVE-2020-26141
 
-Here is the summary with links:
-  - [net] net: stmmac: fix kernel panic due to NULL pointer dereference of plat->est
-    https://git.kernel.org/netdev/net/c/82a44ae113b7
+People have already asked if somebody is already doing backports to 4.19
+of patches for these security issues, but there was no response, see email:
+https://lore.kernel.org/linux-wireless/704e1c77-6c48-79f7-043a-b2d03fbfef8b@candelatech.com/
 
-You are awesome, thank you!
---
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+I got information that issues for ath10k are again going to be (or are
+already?) fixed in some vendor custom/fork kernels, but not in official
+stable tree 4.14/4.19 (yet).
 
+This situation is really bad because lot of times I hear to use mainline
+kernel versions or official stable LTS tree (which are maintained by
+you), but due to such security issues in LTS trees which stays unfixed
+and others say to use rather vendor custom/fork kernels where it is
+claimed that issues are fixed.
 
+And because there is no statement for end users (end users do not
+communicate with vendors and so they do not have information what is
+supported and what not), end users just use what Linux open source
+distributions have in their kernels (which lot of times match official
+LTS kernel trees). And users think that everything is OK and security
+issues are fixed.
+
+So there is really a need for public statement from you or Qualcomm
+side, if stable LTS kernel trees are going to include security fixes for
+drivers used by Qualcomm wifi chips (ath*k) or not or under which
+conditions. And what should users / Linux distributions use if they do
+not want to have years-old unpatched drivers with security issues. Such
+information is really important also for distributions which include
+unmodified (or slightly modified) kernel LTS trees into their own
+packages. As they also need to know from which source should take
+(e.g. Qualcomm wifi) drivers for their systems to ensure that have
+security patches applied.
+
+I can understand that you or other people or volunteers do not have time
+to track or maintain some parts of drivers. So nothing wrong if official
+statement is that stable trees X and Y do not receive security updates
+for driver A and B anymore. Also I can understand that it takes some
+time to include required fixes, so expect fixes for A and B in X and Y
+versions with one month delay. But it is needed to know what should
+people expect from LTS trees for particular drivers. Because I think it
+is not currently clear...
+
+Do not take me wrong, I just wanted to show that this is hidden problem
+which needs some discussion.
