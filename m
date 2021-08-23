@@ -2,130 +2,149 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 37CAE3F51B6
-	for <lists+stable@lfdr.de>; Mon, 23 Aug 2021 22:08:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBC1D3F51C6
+	for <lists+stable@lfdr.de>; Mon, 23 Aug 2021 22:12:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232060AbhHWUJj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Aug 2021 16:09:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52350 "EHLO
+        id S232320AbhHWUNG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Aug 2021 16:13:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231377AbhHWUJj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 Aug 2021 16:09:39 -0400
-Received: from mail-wm1-x332.google.com (mail-wm1-x332.google.com [IPv6:2a00:1450:4864:20::332])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D01EAC061575
-        for <stable@vger.kernel.org>; Mon, 23 Aug 2021 13:08:55 -0700 (PDT)
-Received: by mail-wm1-x332.google.com with SMTP id w21-20020a7bc1150000b02902e69ba66ce6so803682wmi.1
-        for <stable@vger.kernel.org>; Mon, 23 Aug 2021 13:08:55 -0700 (PDT)
+        with ESMTP id S232016AbhHWUNG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 Aug 2021 16:13:06 -0400
+Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AA13C061575
+        for <stable@vger.kernel.org>; Mon, 23 Aug 2021 13:12:23 -0700 (PDT)
+Received: by mail-pj1-x1030.google.com with SMTP id h1so6871405pjs.2
+        for <stable@vger.kernel.org>; Mon, 23 Aug 2021 13:12:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=7LiRu4PIH0ubU8GTZuvZ9u6h4KY+q3h34fhj7D/RjOA=;
-        b=CPiW+MzXU827pvwEBvJnjC5ZfIvNhgfgriCLREQ88B2B1EeH7NMveQBk3jIo6+t1oT
-         T/E63OJL295t3IFabi3mhcH52dOC/Nb+gP/9IiRATjjjYE14bmYrV2DLznqbdU8J2xfj
-         k0cJ5n4Dzb5r21KzAY+zdonATVyNj+un6QBizKZgbZoK9q8OxRDocp3SYO7SIKHfXHOD
-         nHAdL28nlK+vmS848fgz3Tp4PjzyXv5TdKuCu1iXDZ+8OMzqARbP1Ke3m8LGpH8X8C2v
-         QRTnqQDdH6lYScf29lvhR8prdQd16nWc1XRUlAhpWhThr/N0pQHFUV5agLqkMu6vOJDW
-         SFBQ==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=fG0k8sw1OieyV4lUmjMvkJSMRSJdmJBeqiAbvPXKm1g=;
+        b=0snq7U7pJeuTGtxJHEB9H0ntZlIN1VT/uSx7IrFG9H8c58B0WgqIHLjM1brXZydYVJ
+         BAEMItkQGg39xKtt338mka874a1JFOoDjx2CK9ejurVmvY7KH1bZkOTOTq6FaNRF9CW+
+         WBZIru5LPQ9MTZGQaI/3R2h1Xovs6DTxQ2lAbLjBE32VFTsxNwy6OkPN9eL3e1LxSIPE
+         HgYYqv8M1bnTjSbmyl80G5YKQE13QbfSKLiuvtgQKSgXhtktf9FCxa6jeSQyHuDn3tez
+         A/UJU+yzNbH9+34lH6fgfzIg3CQANTDN6Hz+113kKBUNNIMVv9Ad0iS8diDRSRybbJVt
+         /l9A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=7LiRu4PIH0ubU8GTZuvZ9u6h4KY+q3h34fhj7D/RjOA=;
-        b=iFwJXTB+7hmKKBVrKspnQa8xIyUTPTSsNVptcASnddIhyvgph9+meCiSVqV4LFeqS2
-         j8PUa8QhMEKOG3+GujEexvH/YM18X7zRy5BOygK5gD9TgvIKYsK+xGBcC0E8K9Bk3oPw
-         Bc6hCG6qjJjmBREIo1a55wDvtaNJtU0WzdGu+h5/wOtdDHlZxWwixjwV4vAZTh5HkXyv
-         tB0DQ4m5sX4zkN3Rf5nM/h+YOGTvcW30xG3PnqzBjw5JzqPlLssntPoihXCYvz8oLsqw
-         bP273RLrNsSWPH8pBKiY0TR/+62zMc3LcgcE4N156ZC/8OAyJkFoP4coyjsRQgBSZbPs
-         Mz9g==
-X-Gm-Message-State: AOAM532x67pGFh89ZSzPVQyz9txOtEDVCPT2Mbfq/P6k4lse3HdArUPC
-        nLqbBYdaF5u0COklVJSZsYAuTTK1VYcpUw==
-X-Google-Smtp-Source: ABdhPJypO2csecJMFThmsywa42nPQlFTtzc6TQ5/IYb/LckQrU9AIGb4HFP5tCisw0HnuMM+hUk1Dg==
-X-Received: by 2002:a1c:f30b:: with SMTP id q11mr326066wmq.91.1629749334453;
-        Mon, 23 Aug 2021 13:08:54 -0700 (PDT)
-Received: from debian (host-2-99-153-109.as13285.net. [2.99.153.109])
-        by smtp.gmail.com with ESMTPSA id k18sm176147wmi.25.2021.08.23.13.08.53
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=fG0k8sw1OieyV4lUmjMvkJSMRSJdmJBeqiAbvPXKm1g=;
+        b=AZC9fo383USz47areW3yyUdSbiSmlzE9ySPGSsHGKFQHplfjiah9Oy7/EL6ZNLwWnb
+         K3YmJlkYSY01PtibN9jEZFCD6QZDlNdfdBB/JRNTKE4AkqiFptQ6uLPTm9ncA0NiQcnL
+         Y1O/uuAtUo5gMDt47IoJVVzKdbwoPIxuXYtnBQr6paGGXZ0VrpNPjs3CLeCmGqiV8OCs
+         MJL3twkFlKrhGL+VkECo8pmeoI67IRrsZdc0fUI2quTYgL62Bd1qkdEc42tQSGuIa8Nc
+         7T52HXbAN8HVTi2dDuVfPKhir1pA0MtmOkqUtoqyqy5zr8Ahi5zrbIgcd2cBHBrnHL9i
+         RQpQ==
+X-Gm-Message-State: AOAM530cYG1lKyyIczGeiAK0bUveVkJhgHmQ/qBSoQaSrd3gOuX2Havr
+        PtZNenbs1UVddz/qL8AtCCbg27ZR40ZIq8Tm
+X-Google-Smtp-Source: ABdhPJzPyKi4T3Bo9Y6qKKce2cjhxCZHgOuF3VtMMbTjwUR7jDuVR8KD4vSvGRClmab47DuI4qxFUA==
+X-Received: by 2002:a17:902:a50f:b029:11a:b033:e158 with SMTP id s15-20020a170902a50fb029011ab033e158mr30198859plq.26.1629749542482;
+        Mon, 23 Aug 2021 13:12:22 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id f5sm16688087pfn.134.2021.08.23.13.12.22
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 23 Aug 2021 13:08:54 -0700 (PDT)
-Date:   Mon, 23 Aug 2021 21:08:51 +0100
-From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-To:     gregkh@linuxfoundation.org
-Cc:     keescook@chromium.org, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] lkdtm: Enable DOUBLE_FAULT on all
- architectures" failed to apply to 5.10-stable tree
-Message-ID: <YSQAU7wKRAFv2yET@debian>
-References: <162635641192154@kroah.com>
+        Mon, 23 Aug 2021 13:12:22 -0700 (PDT)
+Message-ID: <61240126.1c69fb81.7db96.1039@mx.google.com>
+Date:   Mon, 23 Aug 2021 13:12:22 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="8GutRLrt9EvviL1A"
-Content-Disposition: inline
-In-Reply-To: <162635641192154@kroah.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/4.14
+X-Kernelci-Kernel: v4.14.244-55-g3a7e56eceeeb
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/4.14 baseline: 171 runs,
+ 3 regressions (v4.14.244-55-g3a7e56eceeeb)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/queue/4.14 baseline: 171 runs, 3 regressions (v4.14.244-55-g3a7e5=
+6eceeeb)
 
---8GutRLrt9EvviL1A
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Regressions Summary
+-------------------
 
-Hi Greg,
-
-On Thu, Jul 15, 2021 at 03:40:11PM +0200, gregkh@linuxfoundation.org wrote:
-> 
-> The patch below does not apply to the 5.10-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
-
-Here is the backport.
-
---
-Regards
-Sudip
-
---8GutRLrt9EvviL1A
-Content-Type: text/x-diff; charset=us-ascii
-Content-Disposition: attachment;
-	filename="0001-lkdtm-Enable-DOUBLE_FAULT-on-all-architectures.patch"
-
-From d896b17de566fca9dd4c83ac2ac2e6dce1185b67 Mon Sep 17 00:00:00 2001
-From: Kees Cook <keescook@chromium.org>
-Date: Wed, 23 Jun 2021 13:39:33 -0700
-Subject: [PATCH] lkdtm: Enable DOUBLE_FAULT on all architectures
-
-commit f123c42bbeff26bfe8bdb08a01307e92d51eec39 upstream
-
-Where feasible, I prefer to have all tests visible on all architectures,
-but to have them wired to XFAIL. DOUBLE_FAIL was set up to XFAIL, but
-wasn't actually being added to the test list.
-
-Fixes: cea23efb4de2 ("lkdtm/bugs: Make double-fault test always available")
-Cc: stable@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20210623203936.3151093-7-keescook@chromium.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-[sudip: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
----
- drivers/misc/lkdtm/core.c | 2 --
- 1 file changed, 2 deletions(-)
-
-diff --git a/drivers/misc/lkdtm/core.c b/drivers/misc/lkdtm/core.c
-index 97803f213d9d..c802db9aaeb0 100644
---- a/drivers/misc/lkdtm/core.c
-+++ b/drivers/misc/lkdtm/core.c
-@@ -173,9 +173,7 @@ static const struct crashtype crashtypes[] = {
- 	CRASHTYPE(USERCOPY_KERNEL),
- 	CRASHTYPE(STACKLEAK_ERASING),
- 	CRASHTYPE(CFI_FORWARD_PROTO),
--#ifdef CONFIG_X86_32
- 	CRASHTYPE(DOUBLE_FAULT),
--#endif
- };
- 
- 
--- 
-2.30.2
+platform          | arch | lab           | compiler | defconfig          | =
+regressions
+------------------+------+---------------+----------+--------------------+-=
+-----------
+rk3288-veyron-jaq | arm  | lab-collabora | gcc-8    | multi_v7_defconfig | =
+3          =
 
 
---8GutRLrt9EvviL1A--
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
+nel/v4.14.244-55-g3a7e56eceeeb/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.14
+  Describe: v4.14.244-55-g3a7e56eceeeb
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      3a7e56eceeeb56ad787224818c0bb0f7add7b757 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform          | arch | lab           | compiler | defconfig          | =
+regressions
+------------------+------+---------------+----------+--------------------+-=
+-----------
+rk3288-veyron-jaq | arm  | lab-collabora | gcc-8    | multi_v7_defconfig | =
+3          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6123e0852d969307568e2c89
+
+  Results:     63 PASS, 6 FAIL, 1 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.244=
+-55-g3a7e56eceeeb/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk328=
+8-veyron-jaq.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.244=
+-55-g3a7e56eceeeb/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk328=
+8-veyron-jaq.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-iodomain-grf-probed: https://kernelci.org/test=
+/case/id/6123e0862d969307568e2c9d
+        failing since 69 days (last pass: v4.14.236-20-gdb14655bb4bf, first=
+ fail: v4.14.236-49-gfd4c319f2583)
+
+    2021-08-23T17:52:46.926981  /lava-4400065/1/../bin/lava-test-case
+    2021-08-23T17:52:46.943490  [   18.600681] <LAVA_SIGNAL_TESTCASE TEST_C=
+ASE_ID=3Drockchip-iodomain-grf-probed RESULT=3Dfail>
+    2021-08-23T17:52:46.943860  /lava-4400065/1/../bin/lava-test-case   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdio0-probed: https://kernelci.org/test/=
+case/id/6123e0862d969307568e2cb3
+        failing since 69 days (last pass: v4.14.236-20-gdb14655bb4bf, first=
+ fail: v4.14.236-49-gfd4c319f2583) =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdmmc-probed: https://kernelci.org/test/=
+case/id/6123e0862d969307568e2cb4
+        failing since 69 days (last pass: v4.14.236-20-gdb14655bb4bf, first=
+ fail: v4.14.236-49-gfd4c319f2583)
+
+    2021-08-23T17:52:43.474045  /lava-4400065/1/../bin/lava-test-case
+    2021-08-23T17:52:43.479241  [   15.148296] <LAVA_SIGNAL_TESTCASE TEST_C=
+ASE_ID=3Ddwmmc_rockchip-sdmmc-probed RESULT=3Dfail>   =
+
+ =20
