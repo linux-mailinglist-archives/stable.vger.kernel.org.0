@@ -2,191 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 049C73F5054
-	for <lists+stable@lfdr.de>; Mon, 23 Aug 2021 20:24:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CD083F5143
+	for <lists+stable@lfdr.de>; Mon, 23 Aug 2021 21:27:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232071AbhHWSZL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Aug 2021 14:25:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59862 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231716AbhHWSZK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Aug 2021 14:25:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A73C1613A8;
-        Mon, 23 Aug 2021 18:24:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1629743068;
-        bh=yBXnHohHk48JZPMfxWkZOWwXC+BmRrIuLzSiruVsB5w=;
-        h=Date:From:To:Subject:From;
-        b=ZAZAvHIH11GebJ8z+HcBXsIQcOQB05Ca+kim6HvyyyXItlu6/rkvS03o0a3NyFwAF
-         A8W+FhbyJAjnZzKMg9Kcjqip56wf1Fz91tJ4v1nX3H2EvRm1mMJ/lgzwPmVzBWXH4C
-         hjUDF4amjcY2l7bJnQ8sfVyOlqZ+ZxDJxjCn873c=
-Date:   Mon, 23 Aug 2021 11:24:27 -0700
-From:   akpm@linux-foundation.org
-To:     almasrymina@google.com, axelrasmussen@google.com, mhocko@suse.com,
-        mike.kravetz@oracle.com, mm-commits@vger.kernel.org,
-        naoya.horiguchi@linux.dev, peterx@redhat.com,
-        songmuchun@bytedance.com, stable@vger.kernel.org,
-        syzbot+67654e51e54455f1c585@syzkaller.appspotmail.com
-Subject:  [merged]
- hugetlb-dont-pass-page-cache-pages-to-restore_reserve_on_error.patch
- removed from -mm tree
-Message-ID: <20210823182427.ShPxNqnFY%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S230192AbhHWT15 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Aug 2021 15:27:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42828 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231891AbhHWT14 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 Aug 2021 15:27:56 -0400
+Received: from mail-yb1-xb29.google.com (mail-yb1-xb29.google.com [IPv6:2607:f8b0:4864:20::b29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E742C06175F;
+        Mon, 23 Aug 2021 12:27:14 -0700 (PDT)
+Received: by mail-yb1-xb29.google.com with SMTP id z128so36160601ybc.10;
+        Mon, 23 Aug 2021 12:27:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=fzFh9k1p27YnwdCOGaCKh4AMybb++Mp03L1JFAHVh60=;
+        b=aG3IfbyoF+XMUuBhUixaw04X4kzdYVPXGGBI99XXr/MDjVUOX8alKxD1xO06D2+4pX
+         z2B06UXKsrJXMshBV0qwrrChJEIXDF5K30xBdOCx2QI2A+og8r8BB3ef22D0RPImV++k
+         4W97iRHbWD5et0/oD33mvD2zPuZh4ddenElz0YUeAJ0nQdEsqLk7Ly679kb8euSKhqNK
+         hRPivm7qRdiYoHH4/CrLkVYnn6O30z5uUVpVd6koyiatW9QPAD/XB9KZQ0uVHqR6lY58
+         Qm2JMkuICvFHDkoBn5TUrgH8bXbF8Onw4ofbEmLcXrx7Irq9Kj+eadYp8V0F8IRYKQhM
+         ZFBw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=fzFh9k1p27YnwdCOGaCKh4AMybb++Mp03L1JFAHVh60=;
+        b=F0v2jONiqW95cNKo4KK/ya8EMsbTknzMTqiAXntQbnYQ6c9+qw4+Hds1QjW8EBTMza
+         wIATnE7jKUxPbXh2QaiWyXKgR0GUeSv4z+SkPfJ+0YR5MADyYyB+MM5Xyemh54rnP3L7
+         o4gd5AAqW22vRZYGFQeygc2T99oeRHh729A6/yz7xsUcn2Vk+pvEpmPg74BeYRGdU2kO
+         SICfdOzLaYfIi3Rr3uBl+en6+IZCinCN7vcVJb0/gFBYRtIEI746DyJ/MpjR+Nxl5+4P
+         JgmCxoP6mi6NF8joa04n19CqjM6qjdi/pmQQo6vd5joigt7OZR1sKd8My0T6VTwxyF0j
+         ppyg==
+X-Gm-Message-State: AOAM531sX444iKlkHEJSzmc/mDICUMsJDdx9zag2ezEnNO3G80gLwqJw
+        RkR/KXaYskSUHZaKGZ0xgXi87VISd0dFH2XG9Mw=
+X-Google-Smtp-Source: ABdhPJzMJs7tn/5beLdQLQapSVqh95o/Xoi8E45wdZM+va5IB6wK2RDSwWtJKUv+Eo0RLfsSKvE7K8uGcu7jVi8DviY=
+X-Received: by 2002:a25:c083:: with SMTP id c125mr28409284ybf.331.1629746833297;
+ Mon, 23 Aug 2021 12:27:13 -0700 (PDT)
+MIME-Version: 1.0
+References: <20210823140844.q3kx6ruedho7jen5@pali> <18c5a8be-66d7-0dd8-b158-0931335f7ac5@candelatech.com>
+ <20210823145800.4vzdgzjch77ldeku@pali>
+In-Reply-To: <20210823145800.4vzdgzjch77ldeku@pali>
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Date:   Mon, 23 Aug 2021 20:26:37 +0100
+Message-ID: <CADVatmPwp9Ngexm+_JgW3vBxFo6FBq9NzLS=POxHoO-COBQ0gA@mail.gmail.com>
+Subject: Re: Drivers for Qualcomm wifi chips (ath*k) and security issues
+To:     =?UTF-8?Q?Pali_Roh=C3=A1r?= <pali@kernel.org>
+Cc:     Ben Greear <greearb@candelatech.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        Stable <stable@vger.kernel.org>,
+        "open list:TI WILINK WIRELES..." <linux-wireless@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Pali,
 
-The patch titled
-     Subject: hugetlb: don't pass page cache pages to restore_reserve_on_error
-has been removed from the -mm tree.  Its filename was
-     hugetlb-dont-pass-page-cache-pages-to-restore_reserve_on_error.patch
+On Mon, Aug 23, 2021 at 3:58 PM Pali Roh=C3=A1r <pali@kernel.org> wrote:
+>
+> On Monday 23 August 2021 07:32:11 Ben Greear wrote:
+> > On 8/23/21 7:08 AM, Pali Roh=C3=A1r wrote:
+> > > Hello Sasha and Greg!
+> > >
+> > > Last week I sent request for backporting ath9k wifi fixes for securit=
+y
+> > > issue CVE-2020-3702 into stable LTS kernels because Qualcomm/maintain=
+ers
+> > > did not it for more months... details are in email:
+> > > https://lore.kernel.org/stable/20210818084859.vcs4vs3yd6zetmyt@pali/t=
+/#u
+> >
+> > For one thing, almost everyone using these radios is using openwrt or
+> > similar which has its own patch sets.
+>
+> AFAIK, latest stable released openwrt uses ath9k from 4.19 tree and
+> AFAIK did not have above patch.
 
-This patch was dropped because it was merged into mainline or a subsystem tree
+I think you asked for the following patches:
 
-------------------------------------------------------
-From: Mike Kravetz <mike.kravetz@oracle.com>
-Subject: hugetlb: don't pass page cache pages to restore_reserve_on_error
+56c5485c9e44 ("ath: Use safer key clearing with key cache entries")
+73488cb2fa3b ("ath9k: Clear key cache explicitly on disabling hardware")
+d2d3e36498dd ("ath: Export ath_hw_keysetmac()")
+144cd24dbc36 ("ath: Modify ath_key_delete() to not need full key entry")
+ca2848022c12 ("ath9k: Postpone key cache entry deletion for TXQ frames
+reference it")
 
-syzbot hit kernel BUG at fs/hugetlbfs/inode.c:532 as described in [1].
-This BUG triggers if the HPageRestoreReserve flag is set on a page in
-the page cache.  It should never be set, as the routine
-huge_add_to_page_cache explicitly clears the flag after adding a page
-to the cache.
+And I can see they are already in the queue for next v4.19.y release,
+so should be part of v4.19.205
 
-The only code other than huge page allocation which sets the flag is
-restore_reserve_on_error.  It will potentially set the flag in rare out
-of memory conditions.  syzbot was injecting errors to cause memory
-allocation errors which exercised this specific path.
 
-The code in restore_reserve_on_error is doing the right thing.  However,
-there are instances where pages in the page cache were being passed to
-restore_reserve_on_error.  This is incorrect, as once a page goes into
-the cache reservation information will not be modified for the page until
-it is removed from the cache.  Error paths do not remove pages from the
-cache, so even in the case of error, the page will remain in the cache
-and no reservation adjustment is needed.
-
-Modify routines that potentially call restore_reserve_on_error with a
-page cache page to no longer do so.
-
-Note on fixes tag:
-Prior to commit 846be08578ed ("mm/hugetlb: expand restore_reserve_on_error
-functionality") the routine would not process page cache pages because
-the HPageRestoreReserve flag is not set on such pages.  Therefore, this
-issue could not be trigggered.  The code added by commit 846be08578ed
-("mm/hugetlb: expand restore_reserve_on_error functionality") is needed
-and correct.  It exposed incorrect calls to restore_reserve_on_error which
-is the root cause addressed by this commit.
-
-[1] https://lore.kernel.org/linux-mm/00000000000050776d05c9b7c7f0@google.com/
-
-Link: https://lkml.kernel.org/r/20210818213304.37038-1-mike.kravetz@oracle.com
-Fixes: 846be08578ed ("mm/hugetlb: expand restore_reserve_on_error functionality")
-Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
-Reported-by: <syzbot+67654e51e54455f1c585@syzkaller.appspotmail.com>
-Cc: Mina Almasry <almasrymina@google.com>
-Cc: Axel Rasmussen <axelrasmussen@google.com>
-Cc: Peter Xu <peterx@redhat.com>
-Cc: Muchun Song <songmuchun@bytedance.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Naoya Horiguchi <naoya.horiguchi@linux.dev>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/hugetlb.c |   19 ++++++++++++++-----
- 1 file changed, 14 insertions(+), 5 deletions(-)
-
---- a/mm/hugetlb.c~hugetlb-dont-pass-page-cache-pages-to-restore_reserve_on_error
-+++ a/mm/hugetlb.c
-@@ -2476,7 +2476,7 @@ void restore_reserve_on_error(struct hst
- 		if (!rc) {
- 			/*
- 			 * This indicates there is an entry in the reserve map
--			 * added by alloc_huge_page.  We know it was added
-+			 * not added by alloc_huge_page.  We know it was added
- 			 * before the alloc_huge_page call, otherwise
- 			 * HPageRestoreReserve would be set on the page.
- 			 * Remove the entry so that a subsequent allocation
-@@ -4660,7 +4660,9 @@ retry_avoidcopy:
- 	spin_unlock(ptl);
- 	mmu_notifier_invalidate_range_end(&range);
- out_release_all:
--	restore_reserve_on_error(h, vma, haddr, new_page);
-+	/* No restore in case of successful pagetable update (Break COW) */
-+	if (new_page != old_page)
-+		restore_reserve_on_error(h, vma, haddr, new_page);
- 	put_page(new_page);
- out_release_old:
- 	put_page(old_page);
-@@ -4776,7 +4778,7 @@ static vm_fault_t hugetlb_no_page(struct
- 	pte_t new_pte;
- 	spinlock_t *ptl;
- 	unsigned long haddr = address & huge_page_mask(h);
--	bool new_page = false;
-+	bool new_page, new_pagecache_page = false;
- 
- 	/*
- 	 * Currently, we are forced to kill the process in the event the
-@@ -4799,6 +4801,7 @@ static vm_fault_t hugetlb_no_page(struct
- 		goto out;
- 
- retry:
-+	new_page = false;
- 	page = find_lock_page(mapping, idx);
- 	if (!page) {
- 		/* Check for page in userfault range */
-@@ -4842,6 +4845,7 @@ retry:
- 					goto retry;
- 				goto out;
- 			}
-+			new_pagecache_page = true;
- 		} else {
- 			lock_page(page);
- 			if (unlikely(anon_vma_prepare(vma))) {
-@@ -4926,7 +4930,9 @@ backout:
- 	spin_unlock(ptl);
- backout_unlocked:
- 	unlock_page(page);
--	restore_reserve_on_error(h, vma, haddr, page);
-+	/* restore reserve for newly allocated pages not in page cache */
-+	if (new_page && !new_pagecache_page)
-+		restore_reserve_on_error(h, vma, haddr, page);
- 	put_page(page);
- 	goto out;
- }
-@@ -5135,6 +5141,7 @@ int hugetlb_mcopy_atomic_pte(struct mm_s
- 	int ret = -ENOMEM;
- 	struct page *page;
- 	int writable;
-+	bool new_pagecache_page = false;
- 
- 	if (is_continue) {
- 		ret = -EFAULT;
-@@ -5228,6 +5235,7 @@ int hugetlb_mcopy_atomic_pte(struct mm_s
- 		ret = huge_add_to_page_cache(page, mapping, idx);
- 		if (ret)
- 			goto out_release_nounlock;
-+		new_pagecache_page = true;
- 	}
- 
- 	ptl = huge_pte_lockptr(h, dst_mm, dst_pte);
-@@ -5291,7 +5299,8 @@ out_release_unlock:
- 	if (vm_shared || is_continue)
- 		unlock_page(page);
- out_release_nounlock:
--	restore_reserve_on_error(h, dst_vma, dst_addr, page);
-+	if (!new_pagecache_page)
-+		restore_reserve_on_error(h, dst_vma, dst_addr, page);
- 	put_page(page);
- 	goto out;
- }
-_
-
-Patches currently in -mm which might be from mike.kravetz@oracle.com are
-
-hugetlb-simplify-prep_compound_gigantic_page-ref-count-racing-code.patch
-hugetlb-drop-ref-count-earlier-after-page-allocation.patch
-hugetlb-before-freeing-hugetlb-page-set-dtor-to-appropriate-value.patch
-
+--=20
+Regards
+Sudip
