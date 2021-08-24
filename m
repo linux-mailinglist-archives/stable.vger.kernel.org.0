@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5707B3F65E7
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:17:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F9623F65ED
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:17:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234028AbhHXRSD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:18:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55478 "EHLO mail.kernel.org"
+        id S238988AbhHXRS0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:18:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238413AbhHXRQD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:16:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F329061A8B;
-        Tue, 24 Aug 2021 17:01:48 +0000 (UTC)
+        id S239833AbhHXRQX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:16:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E9D761AA3;
+        Tue, 24 Aug 2021 17:01:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824509;
-        bh=IFWUA4+G9fEBgOZWy1Vl9HXWNbw5fFgWb7maZ0Vpv3o=;
+        s=k20201202; t=1629824510;
+        bh=dFFGUXU9vNJqd4F1E0jObZPM5HAC1ZwhGhoIpP2/8uU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=avL8G5hfhv+/WjETKlNXutDdkTtZkmDHaHMxsmxH5YfX0S8rUv6B/ZNQgtKaBvYJ4
-         IQ++WQct+4agQYxowudYEL+SsN6Lvx/H4TI4NQXk/Y4Ae+dtQ/vcVgmcxbyb3hWbpA
-         0Kq2v9BXS6qpj7GVyAPPNCszlEqJ/ykNNwDNghtl8i9gQMe1uqaaSEEXe1n8hnbyrT
-         uZBCINwwH/vQb/GRoYUilnrqKRgNYSmA25ZwUeHukTTN/SqZmxht3XnTOFMUlVR414
-         /bhjmn8tSUI7P+DMI8zXVx+4HrvmixangEttOxWFk0QAwCKt0+KIoHpPOj3QUdWsgI
-         KM4Qn1aimlWlQ==
+        b=Tjq6ApnjQwI8vXAQdAZg7lSdGk3RN2T4JnqhkxKkaxKDhU/bbFv2ybbYddhuugs0i
+         Asu/MLvyN40snqQAr7vvPjeCAPz4cDtpF5Sx50MGDIMCVjttGD20YS5LRbmrVR4NEa
+         l1gcqLKQMcLWOO8bMmEuQoVWix0RO3tWTVIG0JfSEIlIaml+mz4t1lwURL9Xb3Iqpq
+         D9WN0RQ4PNs/1+GPHFZYEWf/9UEDoOijQvM1f+Fj2GI8STXGZt3pQSPFcjpyI8iIUT
+         6sRCpNQ11En+C5p0A0JfLEjbyuhcbGDsV2zP2sjW//tuykTdBShi2Zy1xmMdFRekBR
+         dqqJYvkXKX8jw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "kaixi.fan" <fankaixi.li@bytedance.com>,
-        xiexiaohui <xiexiaohui.xxh@bytedance.com>,
-        Cong Wang <cong.wang@bytedance.com>,
-        "David S . Miller" <davem@davemloft.net>,
+Cc:     Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>,
+        Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>,
+        Dave Switzer <david.switzer@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 42/61] ovs: clear skb->tstamp in forwarding path
-Date:   Tue, 24 Aug 2021 13:00:47 -0400
-Message-Id: <20210824170106.710221-43-sashal@kernel.org>
+Subject: [PATCH 5.4 43/61] i40e: Fix ATR queue selection
+Date:   Tue, 24 Aug 2021 13:00:48 -0400
+Message-Id: <20210824170106.710221-44-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170106.710221-1-sashal@kernel.org>
 References: <20210824170106.710221-1-sashal@kernel.org>
@@ -50,37 +51,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "kaixi.fan" <fankaixi.li@bytedance.com>
+From: Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>
 
-[ Upstream commit 01634047bf0d5c2d9b7d8095bb4de1663dbeedeb ]
+[ Upstream commit a222be597e316389f9f8c26033352c124ce93056 ]
 
-fq qdisc requires tstamp to be cleared in the forwarding path. Now ovs
-doesn't clear skb->tstamp. We encountered a problem with linux
-version 5.4.56 and ovs version 2.14.1, and packets failed to
-dequeue from qdisc when fq qdisc was attached to ovs port.
+Without this patch, ATR does not work. Receive/transmit uses queue
+selection based on SW DCB hashing method.
 
-Fixes: fb420d5d91c1 ("tcp/fq: move back to CLOCK_MONOTONIC")
-Signed-off-by: kaixi.fan <fankaixi.li@bytedance.com>
-Signed-off-by: xiexiaohui <xiexiaohui.xxh@bytedance.com>
-Reviewed-by: Cong Wang <cong.wang@bytedance.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+If traffic classes are not configured for PF, then use
+netdev_pick_tx function for selecting queue for packet transmission.
+Instead of calling i40e_swdcb_skb_tx_hash, call netdev_pick_tx,
+which ensures that packet is transmitted/received from CPU that is
+running the application.
+
+Reproduction steps:
+1. Load i40e driver
+2. Map each MSI interrupt of i40e port for each CPU
+3. Disable ntuple, enable ATR i.e.:
+ethtool -K $interface ntuple off
+ethtool --set-priv-flags $interface flow-director-atr
+4. Run application that is generating traffic and is bound to a
+single CPU, i.e.:
+taskset -c 9 netperf -H 1.1.1.1 -t TCP_RR -l 10
+5. Observe behavior:
+Application's traffic should be restricted to the CPU provided in
+taskset.
+
+Fixes: 89ec1f0886c1 ("i40e: Fix queue-to-TC mapping on Tx")
+Signed-off-by: Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>
+Signed-off-by: Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>
+Tested-by: Dave Switzer <david.switzer@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/openvswitch/vport.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/intel/i40e/i40e_txrx.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/net/openvswitch/vport.c b/net/openvswitch/vport.c
-index 3fc38d16c456..19af0efeb8dc 100644
---- a/net/openvswitch/vport.c
-+++ b/net/openvswitch/vport.c
-@@ -499,6 +499,7 @@ void ovs_vport_send(struct vport *vport, struct sk_buff *skb, u8 mac_proto)
- 	}
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_txrx.c b/drivers/net/ethernet/intel/i40e/i40e_txrx.c
+index 8e38c547b53f..06987913837a 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_txrx.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_txrx.c
+@@ -3553,8 +3553,7 @@ u16 i40e_lan_select_queue(struct net_device *netdev,
  
- 	skb->dev = vport->dev;
-+	skb->tstamp = 0;
- 	vport->ops->send(skb);
- 	return;
+ 	/* is DCB enabled at all? */
+ 	if (vsi->tc_config.numtc == 1)
+-		return i40e_swdcb_skb_tx_hash(netdev, skb,
+-					      netdev->real_num_tx_queues);
++		return netdev_pick_tx(netdev, skb, sb_dev);
  
+ 	prio = skb->priority;
+ 	hw = &vsi->back->hw;
 -- 
 2.30.2
 
