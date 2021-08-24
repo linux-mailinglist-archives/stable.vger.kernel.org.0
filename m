@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BDD53F65AD
+	by mail.lfdr.de (Postfix) with ESMTP id DC6E13F65AF
 	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:15:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233454AbhHXRPp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:15:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52020 "EHLO mail.kernel.org"
+        id S239988AbhHXRPs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:15:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238456AbhHXROA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:14:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 63FA561555;
-        Tue, 24 Aug 2021 17:01:31 +0000 (UTC)
+        id S239419AbhHXROB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:14:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4816761A79;
+        Tue, 24 Aug 2021 17:01:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1629824492;
-        bh=jnIgig0IhVpfDvvhGmAlwzO2xHxEuIHAp+4pNYvaWhg=;
+        bh=PSK/QdpHzg/o/1FMPRAN3Kb14JmkBECJZRd92lUNZR4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S6qs+mGfY+rE3XKfROMWjtwWlil1mEJ0TPoLwf/EEaA1VhvtKG9iA7hsTVgffajrt
-         7HqqO3lQ8EnFl0Gyt9K6oE0alWeI2uFq7tLQdQ3FQzS9i867mJ6vB82WftcuBHOZBH
-         JyaRmFg7GVVE9+eMLGMC9pJeU3sa6/CgGcTb0W525Gh0jZ9vn2Jbv1Gf/GZwmjdyIY
-         y1PtRtIXqV/jRkt4vpvKRbLzmk/r5a+68cgeqJJqQwUu2J+cTb43W921UFRzsttXvG
-         /2AmSF4g8uU+5dVBGe0LcJDpCD9jZOYDcpAk8zqlYYLQyH77v+CM5/T3nbYvyzfxmV
-         U9h+JKrCVNibQ==
+        b=EZdsA1t9tpWIakCSquO+DxxpIDeZytyjsF+7TOEhJtOr9A35qVi8O5OPPB+nY/AYZ
+         CS6dSSHa81sv49hoGkqUdrXAK7sDJOQtGJIv8zghy2JH2GAiTrRMEatjo/V42eE4r6
+         5BKJcvwSnag7+8Mv0MmMBUk0vza/MnieWGueLlXAZm7ZLDNBEkR3VIV+G62dDmjYlb
+         WA2Wc5Br+CnCwpRkEoT/UbRIuUYBBjtc4OeZyPKzJHLJgqdDhhDZDMOphsMdb0y4UK
+         HjyKAjHUtblP/o1GWUoAYoIBgB9tLsBWAqg86oooUkO4VFvw08u54nyPc0yKKZhlbv
+         AhxKVGTdP6VoA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Ole=20Bj=C3=B8rn=20Midtb=C3=B8?= <omidtbo@cisco.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 24/61] Bluetooth: hidp: use correct wait queue when removing ctrl_wait
-Date:   Tue, 24 Aug 2021 13:00:29 -0400
-Message-Id: <20210824170106.710221-25-sashal@kernel.org>
+Cc:     Frank Wunderlich <frank-w@public-files.de>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 25/61] iommu: Check if group is NULL before remove device
+Date:   Tue, 24 Aug 2021 13:00:30 -0400
+Message-Id: <20210824170106.710221-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170106.710221-1-sashal@kernel.org>
 References: <20210824170106.710221-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.143-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
 X-KernelTest-Branch: linux-5.4.y
@@ -49,72 +47,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ole Bjørn Midtbø <omidtbo@cisco.com>
+From: Frank Wunderlich <frank-w@public-files.de>
 
-[ Upstream commit cca342d98bef68151a80b024f7bf5f388d1fbdea ]
+[ Upstream commit 5aa95d8834e07907e64937d792c12ffef7fb271f ]
 
-A different wait queue was used when removing ctrl_wait than when adding
-it. This effectively made the remove operation without locking compared
-to other operations on the wait queue ctrl_wait was part of. This caused
-issues like below where dead000000000100 is LIST_POISON1 and
-dead000000000200 is LIST_POISON2.
+If probe_device is failing, iommu_group is not initialized because
+iommu_group_add_device is not reached, so freeing it will result
+in NULL pointer access.
 
- list_add corruption. next->prev should be prev (ffffffc1b0a33a08), \
-	but was dead000000000200. (next=ffffffc03ac77de0).
- ------------[ cut here ]------------
- CPU: 3 PID: 2138 Comm: bluetoothd Tainted: G           O    4.4.238+ #9
- ...
- ---[ end trace 0adc2158f0646eac ]---
- Call trace:
- [<ffffffc000443f78>] __list_add+0x38/0xb0
- [<ffffffc0000f0d04>] add_wait_queue+0x4c/0x68
- [<ffffffc00020eecc>] __pollwait+0xec/0x100
- [<ffffffc000d1556c>] bt_sock_poll+0x74/0x200
- [<ffffffc000bdb8a8>] sock_poll+0x110/0x128
- [<ffffffc000210378>] do_sys_poll+0x220/0x480
- [<ffffffc0002106f0>] SyS_poll+0x80/0x138
- [<ffffffc00008510c>] __sys_trace_return+0x0/0x4
+iommu_bus_init
+  ->bus_iommu_probe
+      ->probe_iommu_group in for each:/* return -22 in fail case */
+          ->iommu_probe_device
+              ->__iommu_probe_device       /* return -22 here.*/
+                  -> ops->probe_device          /* return -22 here.*/
+                  -> iommu_group_get_for_dev
+                        -> ops->device_group
+                        -> iommu_group_add_device //good case
+  ->remove_iommu_group  //in fail case, it will remove group
+     ->iommu_release_device
+         ->iommu_group_remove_device // here we don't have group
 
- Unable to handle kernel paging request at virtual address dead000000000100
- ...
- CPU: 4 PID: 5387 Comm: kworker/u15:3 Tainted: G        W  O    4.4.238+ #9
- ...
- Call trace:
-  [<ffffffc0000f079c>] __wake_up_common+0x7c/0xa8
-  [<ffffffc0000f0818>] __wake_up+0x50/0x70
-  [<ffffffc000be11b0>] sock_def_wakeup+0x58/0x60
-  [<ffffffc000de5e10>] l2cap_sock_teardown_cb+0x200/0x224
-  [<ffffffc000d3f2ac>] l2cap_chan_del+0xa4/0x298
-  [<ffffffc000d45ea0>] l2cap_conn_del+0x118/0x198
-  [<ffffffc000d45f8c>] l2cap_disconn_cfm+0x6c/0x78
-  [<ffffffc000d29934>] hci_event_packet+0x564/0x2e30
-  [<ffffffc000d19b0c>] hci_rx_work+0x10c/0x360
-  [<ffffffc0000c2218>] process_one_work+0x268/0x460
-  [<ffffffc0000c2678>] worker_thread+0x268/0x480
-  [<ffffffc0000c94e0>] kthread+0x118/0x128
-  [<ffffffc000085070>] ret_from_fork+0x10/0x20
-  ---[ end trace 0adc2158f0646ead ]---
+In my case ops->probe_device (mtk_iommu_probe_device from
+mtk_iommu_v1.c) is due to failing fwspec->ops mismatch.
 
-Signed-off-by: Ole Bjørn Midtbø <omidtbo@cisco.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Fixes: d72e31c93746 ("iommu: IOMMU Groups")
+Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
+Link: https://lore.kernel.org/r/20210731074737.4573-1-linux@fw-web.de
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hidp/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iommu/iommu.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
-index bef84b95e2c4..ac98e3b37ab4 100644
---- a/net/bluetooth/hidp/core.c
-+++ b/net/bluetooth/hidp/core.c
-@@ -1290,7 +1290,7 @@ static int hidp_session_thread(void *arg)
+diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+index 9d7232e26ecf..c5758fb696cc 100644
+--- a/drivers/iommu/iommu.c
++++ b/drivers/iommu/iommu.c
+@@ -775,6 +775,9 @@ void iommu_group_remove_device(struct device *dev)
+ 	struct iommu_group *group = dev->iommu_group;
+ 	struct group_device *tmp_device, *device = NULL;
  
- 	/* cleanup runtime environment */
- 	remove_wait_queue(sk_sleep(session->intr_sock->sk), &intr_wait);
--	remove_wait_queue(sk_sleep(session->intr_sock->sk), &ctrl_wait);
-+	remove_wait_queue(sk_sleep(session->ctrl_sock->sk), &ctrl_wait);
- 	wake_up_interruptible(&session->report_queue);
- 	hidp_del_timer(session);
++	if (!group)
++		return;
++
+ 	dev_info(dev, "Removing from iommu group %d\n", group->id);
  
+ 	/* Pre-notify listeners that a device is being removed. */
 -- 
 2.30.2
 
