@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 452093F67C2
+	by mail.lfdr.de (Postfix) with ESMTP id B153A3F67C3
 	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:37:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241758AbhHXRhO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S242303AbhHXRhO (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 24 Aug 2021 13:37:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41186 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:41188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242355AbhHXRfJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:35:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3742761BC1;
-        Tue, 24 Aug 2021 17:06:47 +0000 (UTC)
+        id S242358AbhHXRfK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:35:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F60D61BC2;
+        Tue, 24 Aug 2021 17:06:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824807;
-        bh=Astv9Y1lGkmZ6IPwhybz40DQskpH+ZmQ1aj00HYuO5g=;
+        s=k20201202; t=1629824809;
+        bh=bjrmfxNWPz0akFB2XXZ/yubJ4GyZFeT+VervoB4M5XM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=junMbsQpNWrWz4ygv7W/eW5nhvt3cZPFT0BsON/A32Ds7qslxVQhegG2u/fBhxqWi
-         UjormD08dBKbfobqvomvFnSOMAVT+VBXMu/vgaD58SM9PvFjUXCW9rp5eh2CcJXr3e
-         hD1iAMOb9W1BEUDWjGBRDeXqCVR12Qsymm9KqzgdinyRm85qK/4nfAsRQ8TkR5H+L8
-         ngP3MFMIw5urLfCMSFlsSILGtfifBi4z976JpywYOIxFH0FTeDUjtYJdABRrG1exXm
-         V0s0D48tcwnj20Y4JAtQ4AuV8HYqh1oN5SHAVUkARfelV4pwY4aqHeMa8wPv2QkvzP
-         AwZah3xdcqsSQ==
+        b=UbE43Cr7OqwFEOmYC2828ffqQp1jwK3Zr/556WGbyf60jbtVKxgldvlNQIiI9mKYF
+         qB9Zz/VU1arl7kMHiCsOF9GVM1ahB9eZl/+le6//+v13tsKT8mTkx8Ju4uxrxQh+AE
+         afacpWg8tNN6QRXOEM2qw4scmR6H3YwBVHYL624mdIBl1C7G9u9d25uqul2+xpxBZO
+         n+fFVIZf0SyF0Hpl6Zx7iiUpPsnHlsDmgPklHEk9qEi47lqpnN15EDuqOgWU7jUx2A
+         5JwPOhXBmJ2V250ATjsiY4bUjiVT92oSH3BB/TIS/7jCJIITgLMSbw6mwJP2CQEQFb
+         F/wmHqrtCCOoQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xie Yongji <xieyongji@bytedance.com>,
-        Jason Wang <jasowang@redhat.com>,
-        "Michael S . Tsirkin" <mst@redhat.com>,
+Cc:     Pavel Skripkin <paskripkin@gmail.com>,
+        syzbot+fc8cd9a673d4577fb2e4@syzkaller.appspotmail.com,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 32/43] vhost: Fix the calculation in vhost_overflow()
-Date:   Tue, 24 Aug 2021 13:06:03 -0400
-Message-Id: <20210824170614.710813-33-sashal@kernel.org>
+Subject: [PATCH 4.9 33/43] net: 6pack: fix slab-out-of-bounds in decode_data
+Date:   Tue, 24 Aug 2021 13:06:04 -0400
+Message-Id: <20210824170614.710813-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170614.710813-1-sashal@kernel.org>
 References: <20210824170614.710813-1-sashal@kernel.org>
@@ -49,47 +50,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie Yongji <xieyongji@bytedance.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit f7ad318ea0ad58ebe0e595e59aed270bb643b29b ]
+[ Upstream commit 19d1532a187669ce86d5a2696eb7275310070793 ]
 
-This fixes the incorrect calculation for integer overflow
-when the last address of iova range is 0xffffffff.
+Syzbot reported slab-out-of bounds write in decode_data().
+The problem was in missing validation checks.
 
-Fixes: ec33d031a14b ("vhost: detect 32 bit integer wrap around")
-Reported-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Link: https://lore.kernel.org/r/20210728130756.97-2-xieyongji@bytedance.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Syzbot's reproducer generated malicious input, which caused
+decode_data() to be called a lot in sixpack_decode(). Since
+rx_count_cooked is only 400 bytes and noone reported before,
+that 400 bytes is not enough, let's just check if input is malicious
+and complain about buffer overrun.
+
+Fail log:
+==================================================================
+BUG: KASAN: slab-out-of-bounds in drivers/net/hamradio/6pack.c:843
+Write of size 1 at addr ffff888087c5544e by task kworker/u4:0/7
+
+CPU: 0 PID: 7 Comm: kworker/u4:0 Not tainted 5.6.0-rc3-syzkaller #0
+...
+Workqueue: events_unbound flush_to_ldisc
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x197/0x210 lib/dump_stack.c:118
+ print_address_description.constprop.0.cold+0xd4/0x30b mm/kasan/report.c:374
+ __kasan_report.cold+0x1b/0x32 mm/kasan/report.c:506
+ kasan_report+0x12/0x20 mm/kasan/common.c:641
+ __asan_report_store1_noabort+0x17/0x20 mm/kasan/generic_report.c:137
+ decode_data.part.0+0x23b/0x270 drivers/net/hamradio/6pack.c:843
+ decode_data drivers/net/hamradio/6pack.c:965 [inline]
+ sixpack_decode drivers/net/hamradio/6pack.c:968 [inline]
+
+Reported-and-tested-by: syzbot+fc8cd9a673d4577fb2e4@syzkaller.appspotmail.com
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vhost/vhost.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/net/hamradio/6pack.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index d2431afeda84..62c61a283b35 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -675,10 +675,16 @@ static int log_access_ok(void __user *log_base, u64 addr, unsigned long sz)
- 			 (sz + VHOST_PAGE_SIZE * 8 - 1) / VHOST_PAGE_SIZE / 8);
- }
+diff --git a/drivers/net/hamradio/6pack.c b/drivers/net/hamradio/6pack.c
+index 03c96a6cbafd..e510dbda77e5 100644
+--- a/drivers/net/hamradio/6pack.c
++++ b/drivers/net/hamradio/6pack.c
+@@ -870,6 +870,12 @@ static void decode_data(struct sixpack *sp, unsigned char inbyte)
+ 		return;
+ 	}
  
-+/* Make sure 64 bit math will not overflow. */
- static bool vhost_overflow(u64 uaddr, u64 size)
- {
--	/* Make sure 64 bit math will not overflow. */
--	return uaddr > ULONG_MAX || size > ULONG_MAX || uaddr > ULONG_MAX - size;
-+	if (uaddr > ULONG_MAX || size > ULONG_MAX)
-+		return true;
++	if (sp->rx_count_cooked + 2 >= sizeof(sp->cooked_buf)) {
++		pr_err("6pack: cooked buffer overrun, data loss\n");
++		sp->rx_count = 0;
++		return;
++	}
 +
-+	if (!size)
-+		return false;
-+
-+	return uaddr > ULONG_MAX - size + 1;
- }
- 
- /* Caller should have vq mutex and device mutex. */
+ 	buf = sp->raw_buf;
+ 	sp->cooked_buf[sp->rx_count_cooked++] =
+ 		buf[0] | ((buf[1] << 2) & 0xc0);
 -- 
 2.30.2
 
