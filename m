@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD7053F6460
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:02:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A12793F6462
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:02:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238964AbhHXRDQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:03:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39664 "EHLO mail.kernel.org"
+        id S238580AbhHXRDR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:03:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239076AbhHXRBi (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S239084AbhHXRBi (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 24 Aug 2021 13:01:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BB4AC617E4;
-        Tue, 24 Aug 2021 16:58:02 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B34446140B;
+        Tue, 24 Aug 2021 16:58:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824283;
-        bh=OcO8yAZNXs7wijWO0GFhnaotokAY+Ii9xQkj1Vcm1Yo=;
+        s=k20201202; t=1629824284;
+        bh=pP6bmhH3tT/9yS0Lw3n8AP5dHpZMt8HdRW2hU46QoyE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XlnvjtuOBZs75wg5jlYvVLbMzTWHIrF8Kf8v+86RTJw1VPD2pGWKTYVQLCa90Xeqh
-         9jz5UaI4Tud93DwiTORxKaoi2jULdMtVIpGYGlkWtH5RZGx4KNsZZp3Ez3AJfZEfOj
-         tK96cnek9+Jlh4YHMZyYeGMM/4xJy+dPK6kSZa2OBeGo1p1tZoCVvJNIADZQLOGUWS
-         T9H/2fMlDCswdZs2Wil6DlyKkA/JEjEqoCdczGYyPbcoa11In0rx2KSTLQnA30D/qb
-         MnFoZV26tiqeSs83/i5qzbtaVBNQRx7U8Bc8EAc4cNdVMBPDoejn3VAEVPP2uHltsy
-         P7kSvza5cu8qA==
+        b=Xd/k0KFZ9eC+xre8R5sNpWudrj68D+wuBuEzvZFPl9R92Y9++LlYdVmJ+gQjxWmfs
+         OTQdUk5I+Z6FiZAlH2MPlbS7xCYVJMFinnowGQ6ZIGPZ5jls/BHP9cAhRf+MLxC6VX
+         KoQoWqIv4fqKbvzyW6pP8fWBF/zasybK722DhcmoOfeLqhFafu9aQzPbvsqwbS6R2J
+         4cCaYVqloExCp8D+eS2RHudnqLSgmbof/DMTTPmwjCXpIjdE0CyuUJPkWQqp97FRHj
+         60zJsvkzS1tb6hrYjTTGdMM5huyA019MXRn+WiTtM2x5mbUlMoV/k7kmtyQzA4ALdi
+         87eUJJmfl3B8g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Takashi Iwai <tiwai@suse.de>, Hans de Goede <hdegoede@redhat.com>,
-        Mark Brown <broonie@kernel.org>,
+Cc:     Petr Pavlu <petr.pavlu@suse.com>,
+        Sunil V L <sunilvl@ventanamicro.com>,
+        Nick Kossifidis <mick@ics.forth.gr>,
+        Palmer Dabbelt <palmerdabbelt@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 118/127] ASoC: intel: atom: Fix breakage for PCM buffer address setup
-Date:   Tue, 24 Aug 2021 12:55:58 -0400
-Message-Id: <20210824165607.709387-119-sashal@kernel.org>
+Subject: [PATCH 5.13 119/127] riscv: Fix a number of free'd resources in init_resources()
+Date:   Tue, 24 Aug 2021 12:55:59 -0400
+Message-Id: <20210824165607.709387-120-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165607.709387-1-sashal@kernel.org>
 References: <20210824165607.709387-1-sashal@kernel.org>
@@ -48,46 +50,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Petr Pavlu <petr.pavlu@suse.com>
 
-[ Upstream commit 65ca89c2b12cca0d473f3dd54267568ad3af55cc ]
+[ Upstream commit aa3e1ba32e553e611a58145c2eb349802feaa6eb ]
 
-The commit 2e6b836312a4 ("ASoC: intel: atom: Fix reference to PCM
-buffer address") changed the reference of PCM buffer address to
-substream->runtime->dma_addr as the buffer address may change
-dynamically.  However, I forgot that the dma_addr field is still not
-set up for the CONTINUOUS buffer type (that this driver uses) yet in
-5.14 and earlier kernels, and it resulted in garbage I/O.  The problem
-will be fixed in 5.15, but we need to address it quickly for now.
+Function init_resources() allocates a boot memory block to hold an array of
+resources which it adds to iomem_resource. The array is filled in from its
+end and the function then attempts to free any unused memory at the
+beginning. The problem is that size of the unused memory is incorrectly
+calculated and this can result in releasing memory which is in use by
+active resources. Their data then gets corrupted later when the memory is
+reused by a different part of the system.
 
-The fix is to deduce the address again from the DMA pointer with
-virt_to_phys(), but from the right one, substream->runtime->dma_area.
+Fix the size of the released memory to correctly match the number of unused
+resource entries.
 
-Fixes: 2e6b836312a4 ("ASoC: intel: atom: Fix reference to PCM buffer address")
-Reported-and-tested-by: Hans de Goede <hdegoede@redhat.com>
-Cc: <stable@vger.kernel.org>
-Acked-by: Mark Brown <broonie@kernel.org>
-Link: https://lore.kernel.org/r/2048c6aa-2187-46bd-6772-36a4fb3c5aeb@redhat.com
-Link: https://lore.kernel.org/r/20210819152945.8510-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: ffe0e5261268 ("RISC-V: Improve init_resources()")
+Signed-off-by: Petr Pavlu <petr.pavlu@suse.com>
+Reviewed-by: Sunil V L <sunilvl@ventanamicro.com>
+Acked-by: Nick Kossifidis <mick@ics.forth.gr>
+Tested-by: Sunil V L <sunilvl@ventanamicro.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/atom/sst-mfld-platform-pcm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/riscv/kernel/setup.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/intel/atom/sst-mfld-platform-pcm.c b/sound/soc/intel/atom/sst-mfld-platform-pcm.c
-index 5db2f4865bbb..905c7965f653 100644
---- a/sound/soc/intel/atom/sst-mfld-platform-pcm.c
-+++ b/sound/soc/intel/atom/sst-mfld-platform-pcm.c
-@@ -127,7 +127,7 @@ static void sst_fill_alloc_params(struct snd_pcm_substream *substream,
- 	snd_pcm_uframes_t period_size;
- 	ssize_t periodbytes;
- 	ssize_t buffer_bytes = snd_pcm_lib_buffer_bytes(substream);
--	u32 buffer_addr = substream->runtime->dma_addr;
-+	u32 buffer_addr = virt_to_phys(substream->runtime->dma_area);
+diff --git a/arch/riscv/kernel/setup.c b/arch/riscv/kernel/setup.c
+index 9a1b7a0603b2..f2a9cd4284b0 100644
+--- a/arch/riscv/kernel/setup.c
++++ b/arch/riscv/kernel/setup.c
+@@ -230,8 +230,8 @@ static void __init init_resources(void)
+ 	}
  
- 	channels = substream->runtime->channels;
- 	period_size = substream->runtime->period_size;
+ 	/* Clean-up any unused pre-allocated resources */
+-	mem_res_sz = (num_resources - res_idx + 1) * sizeof(*mem_res);
+-	memblock_free(__pa(mem_res), mem_res_sz);
++	if (res_idx >= 0)
++		memblock_free(__pa(mem_res), (res_idx + 1) * sizeof(*mem_res));
+ 	return;
+ 
+  error:
 -- 
 2.30.2
 
