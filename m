@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42D7A3F67F0
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:40:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26D903F67F5
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:40:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241677AbhHXRis (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:38:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42930 "EHLO mail.kernel.org"
+        id S240489AbhHXRix (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:38:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42928 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241850AbhHXRgo (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S241841AbhHXRgo (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 24 Aug 2021 13:36:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 63DD161BBD;
-        Tue, 24 Aug 2021 17:07:48 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 41CA261BD1;
+        Tue, 24 Aug 2021 17:07:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1629824869;
-        bh=xFV4Mw3Ym4Jelu6DrRoXKF95ogPck8/LfduGzS2fDH4=;
+        bh=a01H8wLm6Zu59H6wvkNY1oCYyOmh6w5yAlyUoKjNJkg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R6+XS/fKliiixT8LMpPxGn4KYahYLWoLaXeEopzzkZoIsYxYMzuL+MASrd2+bTGoe
-         MDl0yq09FVP+Kpwx1NtCTvw+S38MWni39nQKk66xuHlY5lmd8yAH0LTQR+a28b0xqs
-         jIXsqulZuM8OrMyvWXr0TUPDLpr0/lu0LUcojGZvgAmxDMS7a2hyngR19r1gWDNQyq
-         00Z0AOVfdPNLVGsLYBxOa1mrP38sDoH2EDA5UzKvob4z68vDwhaMnb2j89Jsm+Kamg
-         ACiRNISx8WR7bOwRkOC3qw6+xISy1WJm2avwhbxqZy486WXv8zqkzmnt0kZ0vXTc6n
-         SmbL5s8lwe8/A==
+        b=kBhhPc/m66LXYtcafmF9eIZgSA8e7l5t/e2UGCP+AiZY4Z171djBpG4MzxT5SjtAy
+         cIpXGQPOLGD7fSNioSmaOQ0cVbR63oCzS5WA0Hi5CxdGj0hS3cXvcB0CvXpGOckU1B
+         2LSA3ggvSqsx4fp6IfclW9huU3EA+Db+9RblikhtIYoXo60cm+LZjZvnG+zRIv+mKQ
+         EUvAifojWsWqsKOzkY+Kn6hA5h3tTS6fMJsacf2CS/y59DGeWzrsjMSrv3f/iLh2Gd
+         Uxg2Ja8qB6oeFryjAb7iT5It9rqg02eqy3crGKguqa2ftPjBc48WRKiSJ+yJYUpFN2
+         Q85X9QmoIfjtg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Maximilian Heyne <mheyne@amazon.de>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+Cc:     Randy Dunlap <rdunlap@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 04/31] xen/events: Fix race in set_evtchn_to_irq
-Date:   Tue, 24 Aug 2021 13:07:16 -0400
-Message-Id: <20210824170743.710957-5-sashal@kernel.org>
+Subject: [PATCH 4.4 05/31] x86/tools: Fix objdump version check again
+Date:   Tue, 24 Aug 2021 13:07:17 -0400
+Message-Id: <20210824170743.710957-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170743.710957-1-sashal@kernel.org>
 References: <20210824170743.710957-1-sashal@kernel.org>
@@ -48,125 +49,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maximilian Heyne <mheyne@amazon.de>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 88ca2521bd5b4e8b83743c01a2d4cb09325b51e9 ]
+[ Upstream commit 839ad22f755132838f406751439363c07272ad87 ]
 
-There is a TOCTOU issue in set_evtchn_to_irq. Rows in the evtchn_to_irq
-mapping are lazily allocated in this function. The check whether the row
-is already present and the row initialization is not synchronized. Two
-threads can at the same time allocate a new row for evtchn_to_irq and
-add the irq mapping to the their newly allocated row. One thread will
-overwrite what the other has set for evtchn_to_irq[row] and therefore
-the irq mapping is lost. This will trigger a BUG_ON later in
-bind_evtchn_to_cpu:
+Skip (omit) any version string info that is parenthesized.
 
-  INFO: pci 0000:1a:15.4: [1d0f:8061] type 00 class 0x010802
-  INFO: nvme 0000:1a:12.1: enabling device (0000 -> 0002)
-  INFO: nvme nvme77: 1/0/0 default/read/poll queues
-  CRIT: kernel BUG at drivers/xen/events/events_base.c:427!
-  WARN: invalid opcode: 0000 [#1] SMP NOPTI
-  WARN: Workqueue: nvme-reset-wq nvme_reset_work [nvme]
-  WARN: RIP: e030:bind_evtchn_to_cpu+0xc2/0xd0
-  WARN: Call Trace:
-  WARN:  set_affinity_irq+0x121/0x150
-  WARN:  irq_do_set_affinity+0x37/0xe0
-  WARN:  irq_setup_affinity+0xf6/0x170
-  WARN:  irq_startup+0x64/0xe0
-  WARN:  __setup_irq+0x69e/0x740
-  WARN:  ? request_threaded_irq+0xad/0x160
-  WARN:  request_threaded_irq+0xf5/0x160
-  WARN:  ? nvme_timeout+0x2f0/0x2f0 [nvme]
-  WARN:  pci_request_irq+0xa9/0xf0
-  WARN:  ? pci_alloc_irq_vectors_affinity+0xbb/0x130
-  WARN:  queue_request_irq+0x4c/0x70 [nvme]
-  WARN:  nvme_reset_work+0x82d/0x1550 [nvme]
-  WARN:  ? check_preempt_wakeup+0x14f/0x230
-  WARN:  ? check_preempt_curr+0x29/0x80
-  WARN:  ? nvme_irq_check+0x30/0x30 [nvme]
-  WARN:  process_one_work+0x18e/0x3c0
-  WARN:  worker_thread+0x30/0x3a0
-  WARN:  ? process_one_work+0x3c0/0x3c0
-  WARN:  kthread+0x113/0x130
-  WARN:  ? kthread_park+0x90/0x90
-  WARN:  ret_from_fork+0x3a/0x50
+Warning: objdump version 15) is older than 2.19
+Warning: Skipping posttest.
 
-This patch sets evtchn_to_irq rows via a cmpxchg operation so that they
-will be set only once. The row is now cleared before writing it to
-evtchn_to_irq in order to not create a race once the row is visible for
-other threads.
+where 'objdump -v' says:
+GNU objdump (GNU Binutils; SUSE Linux Enterprise 15) 2.35.1.20201123-7.18
 
-While at it, do not require the page to be zeroed, because it will be
-overwritten with -1's in clear_evtchn_to_irq_row anyway.
-
-Signed-off-by: Maximilian Heyne <mheyne@amazon.de>
-Fixes: d0b075ffeede ("xen/events: Refactor evtchn_to_irq array to be dynamically allocated")
-Link: https://lore.kernel.org/r/20210812130930.127134-1-mheyne@amazon.de
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Fixes: 8bee738bb1979 ("x86: Fix objdump version check in chkobjdump.awk for different formats.")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
+Link: https://lore.kernel.org/r/20210731000146.2720-1-rdunlap@infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/events/events_base.c | 20 ++++++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
+ arch/x86/tools/chkobjdump.awk | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/xen/events/events_base.c b/drivers/xen/events/events_base.c
-index f27118923390..0c5b187dc7a0 100644
---- a/drivers/xen/events/events_base.c
-+++ b/drivers/xen/events/events_base.c
-@@ -134,12 +134,12 @@ static void disable_dynirq(struct irq_data *data);
+diff --git a/arch/x86/tools/chkobjdump.awk b/arch/x86/tools/chkobjdump.awk
+index fd1ab80be0de..a4cf678cf5c8 100644
+--- a/arch/x86/tools/chkobjdump.awk
++++ b/arch/x86/tools/chkobjdump.awk
+@@ -10,6 +10,7 @@ BEGIN {
  
- static DEFINE_PER_CPU(unsigned int, irq_epoch);
- 
--static void clear_evtchn_to_irq_row(unsigned row)
-+static void clear_evtchn_to_irq_row(int *evtchn_row)
- {
- 	unsigned col;
- 
- 	for (col = 0; col < EVTCHN_PER_ROW; col++)
--		WRITE_ONCE(evtchn_to_irq[row][col], -1);
-+		WRITE_ONCE(evtchn_row[col], -1);
- }
- 
- static void clear_evtchn_to_irq_all(void)
-@@ -149,7 +149,7 @@ static void clear_evtchn_to_irq_all(void)
- 	for (row = 0; row < EVTCHN_ROW(xen_evtchn_max_channels()); row++) {
- 		if (evtchn_to_irq[row] == NULL)
- 			continue;
--		clear_evtchn_to_irq_row(row);
-+		clear_evtchn_to_irq_row(evtchn_to_irq[row]);
- 	}
- }
- 
-@@ -157,6 +157,7 @@ static int set_evtchn_to_irq(unsigned evtchn, unsigned irq)
- {
- 	unsigned row;
- 	unsigned col;
-+	int *evtchn_row;
- 
- 	if (evtchn >= xen_evtchn_max_channels())
- 		return -EINVAL;
-@@ -169,11 +170,18 @@ static int set_evtchn_to_irq(unsigned evtchn, unsigned irq)
- 		if (irq == -1)
- 			return 0;
- 
--		evtchn_to_irq[row] = (int *)get_zeroed_page(GFP_KERNEL);
--		if (evtchn_to_irq[row] == NULL)
-+		evtchn_row = (int *) __get_free_pages(GFP_KERNEL, 0);
-+		if (evtchn_row == NULL)
- 			return -ENOMEM;
- 
--		clear_evtchn_to_irq_row(row);
-+		clear_evtchn_to_irq_row(evtchn_row);
-+
-+		/*
-+		 * We've prepared an empty row for the mapping. If a different
-+		 * thread was faster inserting it, we can drop ours.
-+		 */
-+		if (cmpxchg(&evtchn_to_irq[row], NULL, evtchn_row) != NULL)
-+			free_page((unsigned long) evtchn_row);
- 	}
- 
- 	WRITE_ONCE(evtchn_to_irq[row][col], irq);
+ /^GNU objdump/ {
+ 	verstr = ""
++	gsub(/\(.*\)/, "");
+ 	for (i = 3; i <= NF; i++)
+ 		if (match($(i), "^[0-9]")) {
+ 			verstr = $(i);
 -- 
 2.30.2
 
