@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3180D3F6633
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:21:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D4E43F6638
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:22:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240167AbhHXRV3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:21:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56448 "EHLO mail.kernel.org"
+        id S238564AbhHXRVh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:21:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240652AbhHXRTd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:19:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 198B961A83;
+        id S240673AbhHXRTg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:19:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EEB14611EF;
         Tue, 24 Aug 2021 17:03:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824585;
-        bh=zDgfXNzrQsD/TXkeREHA6nHAtybWq++I8lF2ftfW6aU=;
+        s=k20201202; t=1629824586;
+        bh=bdMqeNruXNSyZwU7+lLh6nBG1X8uOSUfq93Zz8T8JH0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bCfpLfWmoNbPKGTvIIMx1YLKD6UbEcyUgfF/lPkhAQKmNP1wAl8WYyEhTFwlWJjf8
-         5fh6XHqXO4MYAe+WianN4N7wnwmGCb8IqgUBgy66EkR2GaRW4WNlj0yHVPFGIxWcWO
-         mEoKUWqVbAFI9wybOPqmxk427aWhWJAqcPayL9+tBPMTmBelYOkqyEuJkPDdYXg1eR
-         PGS3xptF1ox/xhC+55Ekre8dRGKhDPMjXb6Rcv/Wkbfp5iP4C+pUrbuKIeo7gti047
-         zIKBxCge6uoK0SIXHsGz3VZ+G9oER3h0+LJqU0lvbHnE6CnLHv1UIo96k4NBDXHrt1
-         /lHc9P3/5W8zQ==
+        b=j+o05xO/9XNOsc13+OUYhY0zEHAN/DcJC/Xcezx+xs6KxAwXJHB7wcX1HQNrgvuT/
+         1BJZ0ZMiNcUgC6+QfWWmqE0pmu9l/f+sqvr6DsOIFay/6Rs/STQ+4Ct7DoQnjVM0bc
+         opBBghydqcEhZuFzPO+4A+ze9sgKvqvizVeVFYL0iQXQyWuTIIG0I4EMYf+niPDXbP
+         d5T33l+vmhIBPEDpncK92lGDHTCZKPIK0nyG6mPW46mECwkHrAZMwR+xXNg3DOb9SD
+         TXh+E5yiSpyc5ShICWLb5/uw9thZwG+MznSXGESjrEfvgf4jCiFpxscLDF9sla68Jq
+         EuspPjZQCctDA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        "David S . Miller" <davem@davemloft.net>,
+Cc:     Roi Dayan <roid@nvidia.com>, Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 14/84] ppp: Fix generating ifname when empty IFLA_IFNAME is specified
-Date:   Tue, 24 Aug 2021 13:01:40 -0400
-Message-Id: <20210824170250.710392-15-sashal@kernel.org>
+Subject: [PATCH 4.19 15/84] psample: Add a fwd declaration for skbuff
+Date:   Tue, 24 Aug 2021 13:01:41 -0400
+Message-Id: <20210824170250.710392-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170250.710392-1-sashal@kernel.org>
 References: <20210824170250.710392-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.205-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
 X-KernelTest-Branch: linux-4.19.y
@@ -49,53 +47,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Roi Dayan <roid@nvidia.com>
 
-[ Upstream commit 2459dcb96bcba94c08d6861f8a050185ff301672 ]
+[ Upstream commit beb7f2de5728b0bd2140a652fa51f6ad85d159f7 ]
 
-IFLA_IFNAME is nul-term string which means that IFLA_IFNAME buffer can be
-larger than length of string which contains.
+Without this there is a warning if source files include psample.h
+before skbuff.h or doesn't include it at all.
 
-Function __rtnl_newlink() generates new own ifname if either IFLA_IFNAME
-was not specified at all or userspace passed empty nul-term string.
-
-It is expected that if userspace does not specify ifname for new ppp netdev
-then kernel generates one in format "ppp<id>" where id matches to the ppp
-unit id which can be later obtained by PPPIOCGUNIT ioctl.
-
-And it works in this way if IFLA_IFNAME is not specified at all. But it
-does not work when IFLA_IFNAME is specified with empty string.
-
-So fix this logic also for empty IFLA_IFNAME in ppp_nl_newlink() function
-and correctly generates ifname based on ppp unit identifier if userspace
-did not provided preferred ifname.
-
-Without this patch when IFLA_IFNAME was specified with empty string then
-kernel created a new ppp interface in format "ppp<id>" but id did not
-match ppp unit id returned by PPPIOCGUNIT ioctl. In this case id was some
-number generated by __rtnl_newlink() function.
-
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Fixes: bb8082f69138 ("ppp: build ifname using unit identifier for rtnl based devices")
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 6ae0a6286171 ("net: Introduce psample, a new genetlink channel for packet sampling")
+Signed-off-by: Roi Dayan <roid@nvidia.com>
+Link: https://lore.kernel.org/r/20210808065242.1522535-1-roid@nvidia.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ppp/ppp_generic.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/net/psample.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ppp/ppp_generic.c b/drivers/net/ppp/ppp_generic.c
-index 1af47aaa7ba5..dc9de8731c56 100644
---- a/drivers/net/ppp/ppp_generic.c
-+++ b/drivers/net/ppp/ppp_generic.c
-@@ -1125,7 +1125,7 @@ static int ppp_nl_newlink(struct net *src_net, struct net_device *dev,
- 	 * the PPP unit identifer as suffix (i.e. ppp<unit_id>). This allows
- 	 * userspace to infer the device name using to the PPPIOCGUNIT ioctl.
- 	 */
--	if (!tb[IFLA_IFNAME])
-+	if (!tb[IFLA_IFNAME] || !nla_len(tb[IFLA_IFNAME]) || !*(char *)nla_data(tb[IFLA_IFNAME]))
- 		conf.ifname_is_set = false;
+diff --git a/include/net/psample.h b/include/net/psample.h
+index 94cb37a7bf75..796f01e5635d 100644
+--- a/include/net/psample.h
++++ b/include/net/psample.h
+@@ -18,6 +18,8 @@ struct psample_group {
+ struct psample_group *psample_group_get(struct net *net, u32 group_num);
+ void psample_group_put(struct psample_group *group);
  
- 	err = ppp_dev_configure(src_net, dev, &conf);
++struct sk_buff;
++
+ #if IS_ENABLED(CONFIG_PSAMPLE)
+ 
+ void psample_sample_packet(struct psample_group *group, struct sk_buff *skb,
 -- 
 2.30.2
 
