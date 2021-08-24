@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EA3D3F680B
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:40:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F48D3F680E
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:40:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234750AbhHXRkB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:40:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43370 "EHLO mail.kernel.org"
+        id S239258AbhHXRkD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:40:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242244AbhHXRhN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:37:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C355461BF4;
-        Tue, 24 Aug 2021 17:07:53 +0000 (UTC)
+        id S242308AbhHXRhP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:37:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D37561BF6;
+        Tue, 24 Aug 2021 17:07:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824874;
-        bh=CxL4seaQPq+aQ8H0R+cHUBfV2Q6lhuouE3GD6ILzpE4=;
+        s=k20201202; t=1629824875;
+        bh=s2dEDNG237iZxL7T6a4x4jPZHm0X1EOJ5Xl8njIP3gU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=swuwX7DWqRrYXe7PDLDVZuj3jthbVVHn74ZJFo19trIzbHwRq9NcsRazLAlRwu5io
-         3fu6+3aOGysT4lROMkG20Qr9o/9ICIHj493CU6HSzzkY9k4gKFGH0X/wF/zYkYXxnG
-         FYLmeUpaUVth66wDj1706J4NaYiOirw1cosTEA+ngAioniWCHPTsk9HyJuiPMb9vYD
-         Cytb6EnNGhgC3xERpUd8StgBzZS3YHNdw8a/UxPK0ynh7cwepGr2ArnctnpJXQMxl9
-         bNCfv+mPq5bPQt3EaEVrCUcYQF/Se17JPy6fUgtA0yrwRMbtFq3xoxvMBaYPp4YJOF
-         u8vHY5WZDlwmw==
+        b=EOVLn8EvE8Wa9skImIAEU3VfyJl0nUR2sijVBG15XFGoiJRmoaF+BXRrarla7RQr9
+         MvoSDiJPt11UAPsR640Efif+dywlr5bsgbxWv/HHBOmnLIl8+9VGNucLDgE/c8rHzx
+         elI46vJAftiCsQ7oLbEKWwugYx0mnff7kOM0Qzy7EJTZEd6fEtC7uMUZTlSc0wHEWL
+         ggYLJAT5HLw0k1nPGbmcIY7CwnQ2aoBoiLyJvQNIu2/fdlL20v6pyudUetJgy4U1QP
+         d21YbBBNZmEdw9n5jf5O8E4cbwOnD2KKFOfcFUSCPle4V5kA1DXn7NVMlIRADQYc9b
+         /pz6agDWo2Fhg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Thomas Gleixner <tglx@linutronix.de>,
         Marc Zyngier <maz@kernel.org>,
+        Bjorn Helgaas <bhelgaas@google.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.4 10/31] PCI/MSI: Protect msi_desc::masked for multi-MSI
-Date:   Tue, 24 Aug 2021 13:07:22 -0400
-Message-Id: <20210824170743.710957-11-sashal@kernel.org>
+Subject: [PATCH 4.4 11/31] PCI/MSI: Mask all unused MSI-X entries
+Date:   Tue, 24 Aug 2021 13:07:23 -0400
+Message-Id: <20210824170743.710957-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170743.710957-1-sashal@kernel.org>
 References: <20210824170743.710957-1-sashal@kernel.org>
@@ -50,121 +51,182 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Thomas Gleixner <tglx@linutronix.de>
 
-commit 77e89afc25f30abd56e76a809ee2884d7c1b63ce upstream.
+commit 7d5ec3d3612396dc6d4b76366d20ab9fc06f399f upstream.
 
-Multi-MSI uses a single MSI descriptor and there is a single mask register
-when the device supports per vector masking. To avoid reading back the mask
-register the value is cached in the MSI descriptor and updates are done by
-clearing and setting bits in the cache and writing it to the device.
+When MSI-X is enabled the ordering of calls is:
 
-But nothing protects msi_desc::masked and the mask register from being
-modified concurrently on two different CPUs for two different Linux
-interrupts which belong to the same multi-MSI descriptor.
+  msix_map_region();
+  msix_setup_entries();
+  pci_msi_setup_msi_irqs();
+  msix_program_entries();
 
-Add a lock to struct device and protect any operation on the mask and the
-mask register with it.
+This has a few interesting issues:
 
-This makes the update of msi_desc::masked unconditional, but there is no
-place which requires a modification of the hardware register without
-updating the masked cache.
+ 1) msix_setup_entries() allocates the MSI descriptors and initializes them
+    except for the msi_desc:masked member which is left zero initialized.
 
-msi_mask_irq() is now an empty wrapper which will be cleaned up in follow
-up changes.
+ 2) pci_msi_setup_msi_irqs() allocates the interrupt descriptors and sets
+    up the MSI interrupts which ends up in pci_write_msi_msg() unless the
+    interrupt chip provides its own irq_write_msi_msg() function.
 
-The problem goes way back to the initial support of multi-MSI, but picking
-the commit which introduced the mask cache is a valid cut off point
-(2.6.30).
+ 3) msix_program_entries() does not do what the name suggests. It solely
+    updates the entries array (if not NULL) and initializes the masked
+    member for each MSI descriptor by reading the hardware state and then
+    masks the entry.
 
-Fixes: f2440d9acbe8 ("PCI MSI: Refactor interrupt masking code")
+Obviously this has some issues:
+
+ 1) The uninitialized masked member of msi_desc prevents the enforcement
+    of masking the entry in pci_write_msi_msg() depending on the cached
+    masked bit. Aside of that half initialized data is a NONO in general
+
+ 2) msix_program_entries() only ensures that the actually allocated entries
+    are masked. This is wrong as experimentation with crash testing and
+    crash kernel kexec has shown.
+
+    This limited testing unearthed that when the production kernel had more
+    entries in use and unmasked when it crashed and the crash kernel
+    allocated a smaller amount of entries, then a full scan of all entries
+    found unmasked entries which were in use in the production kernel.
+
+    This is obviously a device or emulation issue as the device reset
+    should mask all MSI-X table entries, but obviously that's just part
+    of the paper specification.
+
+Cure this by:
+
+ 1) Masking all table entries in hardware
+ 2) Initializing msi_desc::masked in msix_setup_entries()
+ 3) Removing the mask dance in msix_program_entries()
+ 4) Renaming msix_program_entries() to msix_update_entries() to
+    reflect the purpose of that function.
+
+As the masking of unused entries has never been done the Fixes tag refers
+to a commit in:
+   git://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git
+
+Fixes: f036d4ea5fa7 ("[PATCH] ia32 Message Signalled Interrupt support")
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Tested-by: Marc Zyngier <maz@kernel.org>
 Reviewed-by: Marc Zyngier <maz@kernel.org>
+Acked-by: Bjorn Helgaas <bhelgaas@google.com>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210729222542.726833414@linutronix.de
+Link: https://lore.kernel.org/r/20210729222542.403833459@linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/base/core.c    |  1 +
- drivers/pci/msi.c      | 19 ++++++++++---------
- include/linux/device.h |  1 +
- include/linux/msi.h    |  2 +-
- 4 files changed, 13 insertions(+), 10 deletions(-)
+ drivers/pci/msi.c | 45 +++++++++++++++++++++++++++++++--------------
+ 1 file changed, 31 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/base/core.c b/drivers/base/core.c
-index 7e419aaf3c24..23517100c9a5 100644
---- a/drivers/base/core.c
-+++ b/drivers/base/core.c
-@@ -710,6 +710,7 @@ void device_initialize(struct device *dev)
- 	device_pm_init(dev);
- 	set_dev_node(dev, -1);
- #ifdef CONFIG_GENERIC_MSI_IRQ
-+	raw_spin_lock_init(&dev->msi_lock);
- 	INIT_LIST_HEAD(&dev->msi_list);
- #endif
- }
 diff --git a/drivers/pci/msi.c b/drivers/pci/msi.c
-index e3865e274389..dffa5c5bcc76 100644
+index dffa5c5bcc76..9cc4a598c652 100644
 --- a/drivers/pci/msi.c
 +++ b/drivers/pci/msi.c
-@@ -187,24 +187,25 @@ static inline __attribute_const__ u32 msi_mask(unsigned x)
-  * reliably as devices without an INTx disable bit will then generate a
-  * level IRQ which will never be cleared.
-  */
--u32 __pci_msi_desc_mask_irq(struct msi_desc *desc, u32 mask, u32 flag)
-+void __pci_msi_desc_mask_irq(struct msi_desc *desc, u32 mask, u32 flag)
- {
--	u32 mask_bits = desc->masked;
-+	raw_spinlock_t *lock = &desc->dev->msi_lock;
-+	unsigned long flags;
- 
- 	if (pci_msi_ignore_mask || !desc->msi_attrib.maskbit)
--		return 0;
-+		return;
- 
--	mask_bits &= ~mask;
--	mask_bits |= flag;
-+	raw_spin_lock_irqsave(lock, flags);
-+	desc->masked &= ~mask;
-+	desc->masked |= flag;
- 	pci_write_config_dword(msi_desc_to_pci_dev(desc), desc->mask_pos,
--			       mask_bits);
--
--	return mask_bits;
-+			       desc->masked);
-+	raw_spin_unlock_irqrestore(lock, flags);
+@@ -208,6 +208,12 @@ static void msi_mask_irq(struct msi_desc *desc, u32 mask, u32 flag)
+ 	__pci_msi_desc_mask_irq(desc, mask, flag);
  }
  
- static void msi_mask_irq(struct msi_desc *desc, u32 mask, u32 flag)
- {
--	desc->masked = __pci_msi_desc_mask_irq(desc, mask, flag);
-+	__pci_msi_desc_mask_irq(desc, mask, flag);
- }
- 
++static void __iomem *pci_msix_desc_addr(struct msi_desc *desc)
++{
++	return desc->mask_base +
++		desc->msi_attrib.entry_nr * PCI_MSIX_ENTRY_SIZE;
++}
++
  /*
-diff --git a/include/linux/device.h b/include/linux/device.h
-index eb891c9c4b62..df0199e768d4 100644
---- a/include/linux/device.h
-+++ b/include/linux/device.h
-@@ -794,6 +794,7 @@ struct device {
- 	struct dev_pin_info	*pins;
- #endif
- #ifdef CONFIG_GENERIC_MSI_IRQ
-+	raw_spinlock_t		msi_lock;
- 	struct list_head	msi_list;
- #endif
+  * This internal function does not flush PCI writes to the device.
+  * All users must ensure that they read from the device before either
+@@ -678,6 +684,7 @@ static int msix_setup_entries(struct pci_dev *dev, void __iomem *base,
+ 			      struct msix_entry *entries, int nvec)
+ {
+ 	struct msi_desc *entry;
++	void __iomem *addr;
+ 	int i;
  
-diff --git a/include/linux/msi.h b/include/linux/msi.h
-index d0d50cf00b4d..037f47fe76e6 100644
---- a/include/linux/msi.h
-+++ b/include/linux/msi.h
-@@ -128,7 +128,7 @@ void __pci_read_msi_msg(struct msi_desc *entry, struct msi_msg *msg);
- void __pci_write_msi_msg(struct msi_desc *entry, struct msi_msg *msg);
+ 	for (i = 0; i < nvec; i++) {
+@@ -698,29 +705,35 @@ static int msix_setup_entries(struct pci_dev *dev, void __iomem *base,
+ 		entry->mask_base		= base;
+ 		entry->nvec_used		= 1;
  
- u32 __pci_msix_desc_mask_irq(struct msi_desc *desc, u32 flag);
--u32 __pci_msi_desc_mask_irq(struct msi_desc *desc, u32 mask, u32 flag);
-+void __pci_msi_desc_mask_irq(struct msi_desc *desc, u32 mask, u32 flag);
- void pci_msi_mask_irq(struct irq_data *data);
- void pci_msi_unmask_irq(struct irq_data *data);
++		addr = pci_msix_desc_addr(entry);
++		entry->masked = readl(addr + PCI_MSIX_ENTRY_VECTOR_CTRL);
+ 		list_add_tail(&entry->list, dev_to_msi_list(&dev->dev));
+ 	}
  
+ 	return 0;
+ }
+ 
+-static void msix_program_entries(struct pci_dev *dev,
+-				 struct msix_entry *entries)
++static void msix_update_entries(struct pci_dev *dev, struct msix_entry *entries)
+ {
+ 	struct msi_desc *entry;
+-	int i = 0;
+ 
+ 	for_each_pci_msi_entry(entry, dev) {
+-		int offset = entries[i].entry * PCI_MSIX_ENTRY_SIZE +
+-						PCI_MSIX_ENTRY_VECTOR_CTRL;
+-
+-		entries[i].vector = entry->irq;
+-		entry->masked = readl(entry->mask_base + offset);
+-		msix_mask_irq(entry, 1);
+-		i++;
++		if (entries) {
++			entries->vector = entry->irq;
++			entries++;
++		}
+ 	}
+ }
+ 
++static void msix_mask_all(void __iomem *base, int tsize)
++{
++	u32 ctrl = PCI_MSIX_ENTRY_CTRL_MASKBIT;
++	int i;
++
++	for (i = 0; i < tsize; i++, base += PCI_MSIX_ENTRY_SIZE)
++		writel(ctrl, base + PCI_MSIX_ENTRY_VECTOR_CTRL);
++}
++
+ /**
+  * msix_capability_init - configure device's MSI-X capability
+  * @dev: pointer to the pci_dev data structure of MSI-X device function
+@@ -734,9 +747,9 @@ static void msix_program_entries(struct pci_dev *dev,
+ static int msix_capability_init(struct pci_dev *dev,
+ 				struct msix_entry *entries, int nvec)
+ {
+-	int ret;
+-	u16 control;
+ 	void __iomem *base;
++	int ret, tsize;
++	u16 control;
+ 
+ 	/*
+ 	 * Some devices require MSI-X to be enabled before the MSI-X
+@@ -748,12 +761,16 @@ static int msix_capability_init(struct pci_dev *dev,
+ 
+ 	pci_read_config_word(dev, dev->msix_cap + PCI_MSIX_FLAGS, &control);
+ 	/* Request & Map MSI-X table region */
+-	base = msix_map_region(dev, msix_table_size(control));
++	tsize = msix_table_size(control);
++	base = msix_map_region(dev, tsize);
+ 	if (!base) {
+ 		ret = -ENOMEM;
+ 		goto out_disable;
+ 	}
+ 
++	/* Ensure that all table entries are masked. */
++	msix_mask_all(base, tsize);
++
+ 	ret = msix_setup_entries(dev, base, entries, nvec);
+ 	if (ret)
+ 		goto out_disable;
+@@ -767,7 +784,7 @@ static int msix_capability_init(struct pci_dev *dev,
+ 	if (ret)
+ 		goto out_free;
+ 
+-	msix_program_entries(dev, entries);
++	msix_update_entries(dev, entries);
+ 
+ 	ret = populate_msi_sysfs(dev);
+ 	if (ret)
 -- 
 2.30.2
 
