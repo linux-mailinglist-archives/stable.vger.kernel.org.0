@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F29E93F65FC
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:20:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3E863F65FE
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:20:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239759AbhHXRSv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:18:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55620 "EHLO mail.kernel.org"
+        id S238798AbhHXRSz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:18:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240086AbhHXRQu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:16:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E78CD61A62;
-        Tue, 24 Aug 2021 17:01:57 +0000 (UTC)
+        id S240132AbhHXRQx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:16:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CA70A61AAB;
+        Tue, 24 Aug 2021 17:01:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824518;
-        bh=ZmpDQaat6ntHOmBtuyXrsXVM9HBlJpFZ52H+jjL0j8E=;
+        s=k20201202; t=1629824519;
+        bh=IwWXY+TwWaxntXjdNCMrKaHVbDz5t9uiF4vdsLNn+Bw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=juaQVBDAAYI050GkwLQ8xns939ApwJlAUCWXLxOgg4eLe3YkYg9bQYWpTBXbFEIFF
-         dcnrc1x3Krdffi4SwdLQ04w3oVca5VOe2xWpU8p3p/UhOYXgWgaC4G+16LpDbUdbGb
-         t2S8rAdQ08SUMtNTtQRp2ceqImpitHm9P/fUh9JZVe6WhMa+aoc1lJwG0pAN+KbsaB
-         bbSMEAthtzhJtfhsjl4gOsKTIJJnBOAB5xh+8fBlW28mqFZhj48FYkQfzrDFxptHmm
-         vHKbXt34+xE8VMYsIaRcqV9iPRKezTd448tJCE7+ER8REN1ya7qQPVItMiMLI4wzTA
-         THbLYknxeYavA==
+        b=ToXVsfefK5CeCuPRr2EB6ucFDKKz7OejYq69GRr4qoKSAE7oZQytm6ph+Jd3t5cDc
+         Dy1/b70nZ6BpIpQhYUGqURRCw672/FY92Epz6t5Q9f0erwnSEyfrXKecek8XZLXH/3
+         JGxGxEQep7Rc3b/x80W58S+5U2wrEfucTsHs2josTJ44vDtZQZXxC4FAw1jToTixQX
+         Q91wJAUnGpnmhvo0w4j6J012xrspzWC6UhtUJr+iml4flQHQ9pSY08+Has7Y/Kjyu9
+         M2l5QsHa7PONditaNMiv8SxJ6FcBi8my7WZc/1SwsAu2XjFNlTLj4fLA9U2lDKhN2j
+         V53gREehUvvhw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+Cc:     Dongliang Mu <mudongliangabcd@gmail.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 51/61] slimbus: ngd: reset dma setup during runtime pm
-Date:   Tue, 24 Aug 2021 13:00:56 -0400
-Message-Id: <20210824170106.710221-52-sashal@kernel.org>
+Subject: [PATCH 5.4 52/61] ipack: tpci200: fix many double free issues in tpci200_pci_probe
+Date:   Tue, 24 Aug 2021 13:00:57 -0400
+Message-Id: <20210824170106.710221-53-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170106.710221-1-sashal@kernel.org>
 References: <20210824170106.710221-1-sashal@kernel.org>
@@ -48,57 +48,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-[ Upstream commit d77772538f00b7265deace6e77e555ee18365ad0 ]
+[ Upstream commit 57a1681095f912239c7fb4d66683ab0425973838 ]
 
-During suspend/resume NGD remote instance is power cycled along
-with remotely controlled bam dma engine.
-So Reset the dma configuration during this suspend resume path
-so that we are not dealing with any stale dma setup.
+The function tpci200_register called by tpci200_install and
+tpci200_unregister called by tpci200_uninstall are in pair. However,
+tpci200_unregister has some cleanup operations not in the
+tpci200_register. So the error handling code of tpci200_pci_probe has
+many different double free issues.
 
-Without this transactions timeout after first suspend resume path.
+Fix this problem by moving those cleanup operations out of
+tpci200_unregister, into tpci200_pci_remove and reverting
+the previous commit 9272e5d0028d ("ipack/carriers/tpci200:
+Fix a double free in tpci200_pci_probe").
 
-Fixes: 917809e2280b ("slimbus: ngd: Add qcom SLIMBus NGD driver")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20210809082428.11236-5-srinivas.kandagatla@linaro.org
+Fixes: 9272e5d0028d ("ipack/carriers/tpci200: Fix a double free in tpci200_pci_probe")
+Cc: stable@vger.kernel.org
+Reported-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Link: https://lore.kernel.org/r/20210810100323.3938492-1-mudongliangabcd@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/slimbus/qcom-ngd-ctrl.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/ipack/carriers/tpci200.c | 36 ++++++++++++++++----------------
+ 1 file changed, 18 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/slimbus/qcom-ngd-ctrl.c b/drivers/slimbus/qcom-ngd-ctrl.c
-index b60541c3f72d..09ecd1fb24ae 100644
---- a/drivers/slimbus/qcom-ngd-ctrl.c
-+++ b/drivers/slimbus/qcom-ngd-ctrl.c
-@@ -1061,7 +1061,8 @@ static void qcom_slim_ngd_setup(struct qcom_slim_ngd_ctrl *ctrl)
- {
- 	u32 cfg = readl_relaxed(ctrl->ngd->base);
+diff --git a/drivers/ipack/carriers/tpci200.c b/drivers/ipack/carriers/tpci200.c
+index b05d6125c787..80cd0150f592 100644
+--- a/drivers/ipack/carriers/tpci200.c
++++ b/drivers/ipack/carriers/tpci200.c
+@@ -91,16 +91,13 @@ static void tpci200_unregister(struct tpci200_board *tpci200)
+ 	free_irq(tpci200->info->pdev->irq, (void *) tpci200);
  
--	if (ctrl->state == QCOM_SLIM_NGD_CTRL_DOWN)
-+	if (ctrl->state == QCOM_SLIM_NGD_CTRL_DOWN ||
-+		ctrl->state == QCOM_SLIM_NGD_CTRL_ASLEEP)
- 		qcom_slim_ngd_init_dma(ctrl);
+ 	pci_iounmap(tpci200->info->pdev, tpci200->info->interface_regs);
+-	pci_iounmap(tpci200->info->pdev, tpci200->info->cfg_regs);
  
- 	/* By default enable message queues */
-@@ -1112,6 +1113,7 @@ static int qcom_slim_ngd_power_up(struct qcom_slim_ngd_ctrl *ctrl)
- 			dev_info(ctrl->dev, "Subsys restart: ADSP active framer\n");
- 			return 0;
- 		}
-+		qcom_slim_ngd_setup(ctrl);
- 		return 0;
+ 	pci_release_region(tpci200->info->pdev, TPCI200_IP_INTERFACE_BAR);
+ 	pci_release_region(tpci200->info->pdev, TPCI200_IO_ID_INT_SPACES_BAR);
+ 	pci_release_region(tpci200->info->pdev, TPCI200_MEM16_SPACE_BAR);
+ 	pci_release_region(tpci200->info->pdev, TPCI200_MEM8_SPACE_BAR);
+-	pci_release_region(tpci200->info->pdev, TPCI200_CFG_MEM_BAR);
+ 
+ 	pci_disable_device(tpci200->info->pdev);
+-	pci_dev_put(tpci200->info->pdev);
+ }
+ 
+ static void tpci200_enable_irq(struct tpci200_board *tpci200,
+@@ -529,7 +526,7 @@ static int tpci200_pci_probe(struct pci_dev *pdev,
+ 	tpci200->info = kzalloc(sizeof(struct tpci200_infos), GFP_KERNEL);
+ 	if (!tpci200->info) {
+ 		ret = -ENOMEM;
+-		goto out_err_info;
++		goto err_tpci200;
  	}
  
-@@ -1500,6 +1502,7 @@ static int __maybe_unused qcom_slim_ngd_runtime_suspend(struct device *dev)
- 	struct qcom_slim_ngd_ctrl *ctrl = dev_get_drvdata(dev);
- 	int ret = 0;
+ 	pci_dev_get(pdev);
+@@ -540,7 +537,7 @@ static int tpci200_pci_probe(struct pci_dev *pdev,
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "Failed to allocate PCI Configuration Memory");
+ 		ret = -EBUSY;
+-		goto out_err_pci_request;
++		goto err_tpci200_info;
+ 	}
+ 	tpci200->info->cfg_regs = ioremap_nocache(
+ 			pci_resource_start(pdev, TPCI200_CFG_MEM_BAR),
+@@ -548,7 +545,7 @@ static int tpci200_pci_probe(struct pci_dev *pdev,
+ 	if (!tpci200->info->cfg_regs) {
+ 		dev_err(&pdev->dev, "Failed to map PCI Configuration Memory");
+ 		ret = -EFAULT;
+-		goto out_err_ioremap;
++		goto err_request_region;
+ 	}
  
-+	qcom_slim_ngd_exit_dma(ctrl);
- 	if (!ctrl->qmi.handle)
- 		return 0;
+ 	/* Disable byte swapping for 16 bit IP module access. This will ensure
+@@ -571,7 +568,7 @@ static int tpci200_pci_probe(struct pci_dev *pdev,
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "error during tpci200 install\n");
+ 		ret = -ENODEV;
+-		goto out_err_install;
++		goto err_cfg_regs;
+ 	}
  
+ 	/* Register the carrier in the industry pack bus driver */
+@@ -583,7 +580,7 @@ static int tpci200_pci_probe(struct pci_dev *pdev,
+ 		dev_err(&pdev->dev,
+ 			"error registering the carrier on ipack driver\n");
+ 		ret = -EFAULT;
+-		goto out_err_bus_register;
++		goto err_tpci200_install;
+ 	}
+ 
+ 	/* save the bus number given by ipack to logging purpose */
+@@ -594,19 +591,16 @@ static int tpci200_pci_probe(struct pci_dev *pdev,
+ 		tpci200_create_device(tpci200, i);
+ 	return 0;
+ 
+-out_err_bus_register:
++err_tpci200_install:
+ 	tpci200_uninstall(tpci200);
+-	/* tpci200->info->cfg_regs is unmapped in tpci200_uninstall */
+-	tpci200->info->cfg_regs = NULL;
+-out_err_install:
+-	if (tpci200->info->cfg_regs)
+-		iounmap(tpci200->info->cfg_regs);
+-out_err_ioremap:
++err_cfg_regs:
++	pci_iounmap(tpci200->info->pdev, tpci200->info->cfg_regs);
++err_request_region:
+ 	pci_release_region(pdev, TPCI200_CFG_MEM_BAR);
+-out_err_pci_request:
+-	pci_dev_put(pdev);
++err_tpci200_info:
+ 	kfree(tpci200->info);
+-out_err_info:
++	pci_dev_put(pdev);
++err_tpci200:
+ 	kfree(tpci200);
+ 	return ret;
+ }
+@@ -616,6 +610,12 @@ static void __tpci200_pci_remove(struct tpci200_board *tpci200)
+ 	ipack_bus_unregister(tpci200->info->ipack_bus);
+ 	tpci200_uninstall(tpci200);
+ 
++	pci_iounmap(tpci200->info->pdev, tpci200->info->cfg_regs);
++
++	pci_release_region(tpci200->info->pdev, TPCI200_CFG_MEM_BAR);
++
++	pci_dev_put(tpci200->info->pdev);
++
+ 	kfree(tpci200->info);
+ 	kfree(tpci200);
+ }
 -- 
 2.30.2
 
