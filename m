@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FB013F63E9
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:00:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F3F33F63EA
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:00:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238851AbhHXQ7H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S234249AbhHXQ7H (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 24 Aug 2021 12:59:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39664 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:39206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232261AbhHXQ6E (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237669AbhHXQ6E (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 24 Aug 2021 12:58:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B2CCA613E6;
-        Tue, 24 Aug 2021 16:57:04 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A747161501;
+        Tue, 24 Aug 2021 16:57:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824225;
-        bh=WtjFDEqLjqXvHkGAANdcG08wEZicgqCna4p0UVLW2oU=;
+        s=k20201202; t=1629824226;
+        bh=HPu7Z3h3JE47Yla+lXzZqNY2hxc2ugzXdi29ASTKv3I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ITCBG9xpO2VbLxEbxmPUf6vvCksPeX9/2CE8rlm4/1vl/8W4OOF4LGJOimSqySEsu
-         xV/YxGisChJhezqNg9jiCl0zzFEE3WQUn38VVsX2RYPt83QvBnfEL23HHA7Tvjv01v
-         hT2fIT/QGuQNQmASsBPNkpOre/8GzKZKkPl9KOAX2r5bql0LOw1LQwgvyH+rKbmecW
-         k/0JKtj77MuTpk1zC1LycoCoiBYYbR4rQpP+glxsEKhLO0g16QiZL4q9a2d3/Hj93i
-         rUI/mN2eDC7o2tVPcurHrK5UwfOLoJwecECoEFEhULXh7Iv+o3a/86jKYw8PvnMr78
-         vb4REpGMPeLVQ==
+        b=AXrDzouLCytyAEJhYgiYmIKqshvmcj1I08LmvDJl9J54jYC6hJzxD/hZ3zmYO/pfL
+         5MnUcF/WsUO7Req+4ZKcCIIkaPAn7Ohyq48D+k7IarFpZB0ib+NEnoHGhBqlpQHJv1
+         TCc6jOfZ/G+86lKdlj5t7Awjzp6164lwNe5FApGrvC/Ald+w3XkqL3FqJvuKya6IAr
+         uROolXb1KA21PA8Azhy38eFg03/7lpitSY4f3S1mRRbkST/RJRkYZphRVXEDuaN2pR
+         iCZOo4jPUC1piyAU0W63ov1XlRCCqT+rWYg3C4iGIIcQRsybZcwNBZyRiqFcCXp0YO
+         C/FBR+yCcPpeA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Michael Chan <michael.chan@broadcom.com>,
-        Pavan Chebbi <pavan.chebbi@broadcom.com>,
+        Lance Richardson <lance.richardson@broadcom.com>,
+        Andy Gospodarek <gospo@broadcom.com>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 058/127] bnxt_en: Disable aRFS if running on 212 firmware
-Date:   Tue, 24 Aug 2021 12:54:58 -0400
-Message-Id: <20210824165607.709387-59-sashal@kernel.org>
+Subject: [PATCH 5.13 059/127] bnxt_en: Add missing DMA memory barriers
+Date:   Tue, 24 Aug 2021 12:54:59 -0400
+Message-Id: <20210824165607.709387-60-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165607.709387-1-sashal@kernel.org>
 References: <20210824165607.709387-1-sashal@kernel.org>
@@ -51,34 +52,66 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Michael Chan <michael.chan@broadcom.com>
 
-[ Upstream commit 976e52b718c3de9077fff8f3f674afb159c57fb1 ]
+[ Upstream commit 828affc27ed43441bd1efdaf4e07e96dd43a0362 ]
 
-212 firmware broke aRFS, so disable it.  Traffic may stop after ntuple
-filters are inserted and deleted by the 212 firmware.
+Each completion ring entry has a valid bit to indicate that the entry
+contains a valid completion event.  The driver's main poll loop
+__bnxt_poll_work() has the proper dma_rmb() to make sure the valid
+bit of the next entry has been checked before proceeding further.
+But when we call bnxt_rx_pkt() to process the RX event, the RX
+completion event consists of two completion entries and only the
+first entry has been checked to be valid.  We need the same barrier
+after checking the next completion entry.  Add missing dma_rmb()
+barriers in bnxt_rx_pkt() and other similar locations.
 
-Fixes: ae10ae740ad2 ("bnxt_en: Add new hardware RFS mode.")
-Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
+Fixes: 67a95e2022c7 ("bnxt_en: Need memory barrier when processing the completion ring.")
+Reported-by: Lance Richardson <lance.richardson@broadcom.com>
+Reviewed-by: Andy Gospodarek <gospo@broadcom.com>
+Reviewed-by: Lance Richardson <lance.richardson@broadcom.com>
 Signed-off-by: Michael Chan <michael.chan@broadcom.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
 diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-index a30ded73bba1..e4c8c681a3af 100644
+index e4c8c681a3af..b365768a2bda 100644
 --- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
 +++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -10668,6 +10668,9 @@ static bool bnxt_rfs_supported(struct bnxt *bp)
- 			return true;
- 		return false;
- 	}
-+	/* 212 firmware is broken for aRFS */
-+	if (BNXT_FW_MAJ(bp) == 212)
-+		return false;
- 	if (BNXT_PF(bp) && !BNXT_CHIP_TYPE_NITRO_A0(bp))
- 		return true;
- 	if (bp->flags & BNXT_FLAG_NEW_RSS_CAP)
+@@ -1754,6 +1754,10 @@ static int bnxt_rx_pkt(struct bnxt *bp, struct bnxt_cp_ring_info *cpr,
+ 	if (!RX_CMP_VALID(rxcmp1, tmp_raw_cons))
+ 		return -EBUSY;
+ 
++	/* The valid test of the entry must be done first before
++	 * reading any further.
++	 */
++	dma_rmb();
+ 	prod = rxr->rx_prod;
+ 
+ 	if (cmp_type == CMP_TYPE_RX_L2_TPA_START_CMP) {
+@@ -1957,6 +1961,10 @@ static int bnxt_force_rx_discard(struct bnxt *bp,
+ 	if (!RX_CMP_VALID(rxcmp1, tmp_raw_cons))
+ 		return -EBUSY;
+ 
++	/* The valid test of the entry must be done first before
++	 * reading any further.
++	 */
++	dma_rmb();
+ 	cmp_type = RX_CMP_TYPE(rxcmp);
+ 	if (cmp_type == CMP_TYPE_RX_L2_CMP) {
+ 		rxcmp1->rx_cmp_cfa_code_errors_v2 |=
+@@ -2421,6 +2429,10 @@ static int bnxt_poll_nitroa0(struct napi_struct *napi, int budget)
+ 		if (!TX_CMP_VALID(txcmp, raw_cons))
+ 			break;
+ 
++		/* The valid test of the entry must be done first before
++		 * reading any further.
++		 */
++		dma_rmb();
+ 		if ((TX_CMP_TYPE(txcmp) & 0x30) == 0x10) {
+ 			tmp_raw_cons = NEXT_RAW_CMP(raw_cons);
+ 			cp_cons = RING_CMP(tmp_raw_cons);
 -- 
 2.30.2
 
