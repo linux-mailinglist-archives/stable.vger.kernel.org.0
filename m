@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F15A3F63D0
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 18:58:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E3F03F63D2
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 18:58:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238576AbhHXQ6X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 12:58:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39040 "EHLO mail.kernel.org"
+        id S233847AbhHXQ6Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 12:58:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235227AbhHXQ5o (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235233AbhHXQ5o (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 24 Aug 2021 12:57:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B182613D3;
-        Tue, 24 Aug 2021 16:56:55 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 22D376140A;
+        Tue, 24 Aug 2021 16:56:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824215;
-        bh=N/qaXpFGICmYvToOYJmnhFCg8SmtGv9fGC1zJ+ta6zE=;
+        s=k20201202; t=1629824216;
+        bh=3oKcd3whPpj8OtABgp78YnwXXbD1aeSROsTPtwZYaUI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H8lNyCzLzV2WAExpeenYQiZp3KIWdR4XpvsKz2tZG1kRnhiN8YZDd8msS+fdWY1qf
-         qulUZMuljEhWcOkUeBF80g1Tu84oPsYplOpWaM8FAy6+0yGz3ZE+IZcWpBbn6SwIV2
-         3TfxT5sYxq9mWYvTiU1RrEKXlt6CqrqYkOqkQ4qnpnI2aVcBoQ8uMEM83Ew5qS/6ae
-         MXFb3GJ9cSoVJnOGVSuISTHHbBXuS4u3RauC34HU+BoQwCZfoed/B+0WKm5/U+MZ4P
-         qOHkpaJhRY92aVova2rEHKUWTLO8sRKGlvlyjZp11czHeNPP+CyUDBlAsoW/TJVpu1
-         IFKpB9KB5zztA==
+        b=I7M5s2NIyRrq/1qN/O6xH6vl/sw/sWZstWeaJqzjjPwp8di2E2BQX0td/8EGjrUrS
+         KxBoZQvZUOFPr8YWDp3GIrjvXzYsdxI3fM4rh5h4VpEBZAr5bBDAi48Roc/Uaypl3w
+         8BbsDAMmWYgTukMeTn12KK8e+YU85AfIAXPL5QTkpq9bMKsSYMCLWnYgGBjsafCs5q
+         devrEh7x4tprrtW4Sr1OO30J2+QJv5ymuUSVsypKm0Unp+13cAzM+907jA9hxhe3MO
+         0cQgg/RpsuqaqcbqzrR5YAl1m5F4ignXUpsOQ489q1wbtQTwcIc0/hM3J+j9nXvu2V
+         rqrPt9ObrOwrw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     "jason-jh.lin" <jason-jh.lin@mediatek.com>,
         Chun-Kuang Hu <chunkuang.hu@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 048/127] drm/mediatek: Add AAL output size configuration
-Date:   Tue, 24 Aug 2021 12:54:48 -0400
-Message-Id: <20210824165607.709387-49-sashal@kernel.org>
+Subject: [PATCH 5.13 049/127] drm/mediatek: Add component_del in OVL and COLOR remove function
+Date:   Tue, 24 Aug 2021 12:54:49 -0400
+Message-Id: <20210824165607.709387-50-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165607.709387-1-sashal@kernel.org>
 References: <20210824165607.709387-1-sashal@kernel.org>
@@ -50,39 +50,45 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "jason-jh.lin" <jason-jh.lin@mediatek.com>
 
-[ Upstream commit 71ac6f390f6a3017f58d05d677b961bb1f851338 ]
+[ Upstream commit da4d4517ba70216799e3eb3b9bd71aa9dca065da ]
 
-To avoid the output width and height is incorrect,
-AAL_OUTPUT_SIZE configuration should be set.
+Add component_del in OVL and COLOR remove function.
 
-Fixes: 0664d1392c26 ("drm/mediatek: Add AAL engine basic function")
+Fixes: ff1395609e20 ("drm/mediatek: Move mtk_ddp_comp_init() from sub driver to DRM driver")
 Signed-off-by: jason-jh.lin <jason-jh.lin@mediatek.com>
 Signed-off-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/mediatek/mtk_drm_ddp_comp.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/mediatek/mtk_disp_color.c | 2 ++
+ drivers/gpu/drm/mediatek/mtk_disp_ovl.c   | 2 ++
+ 2 files changed, 4 insertions(+)
 
-diff --git a/drivers/gpu/drm/mediatek/mtk_drm_ddp_comp.c b/drivers/gpu/drm/mediatek/mtk_drm_ddp_comp.c
-index 75bc00e17fc4..50d20562e612 100644
---- a/drivers/gpu/drm/mediatek/mtk_drm_ddp_comp.c
-+++ b/drivers/gpu/drm/mediatek/mtk_drm_ddp_comp.c
-@@ -34,6 +34,7 @@
+diff --git a/drivers/gpu/drm/mediatek/mtk_disp_color.c b/drivers/gpu/drm/mediatek/mtk_disp_color.c
+index 63f411ab393b..bcb470caf009 100644
+--- a/drivers/gpu/drm/mediatek/mtk_disp_color.c
++++ b/drivers/gpu/drm/mediatek/mtk_disp_color.c
+@@ -134,6 +134,8 @@ static int mtk_disp_color_probe(struct platform_device *pdev)
  
- #define DISP_AAL_EN				0x0000
- #define DISP_AAL_SIZE				0x0030
-+#define DISP_AAL_OUTPUT_SIZE			0x04d8
- 
- #define DISP_DITHER_EN				0x0000
- #define DITHER_EN				BIT(0)
-@@ -197,6 +198,7 @@ static void mtk_aal_config(struct device *dev, unsigned int w,
- 	struct mtk_ddp_comp_dev *priv = dev_get_drvdata(dev);
- 
- 	mtk_ddp_write(cmdq_pkt, w << 16 | h, &priv->cmdq_reg, priv->regs, DISP_AAL_SIZE);
-+	mtk_ddp_write(cmdq_pkt, w << 16 | h, &priv->cmdq_reg, priv->regs, DISP_AAL_OUTPUT_SIZE);
+ static int mtk_disp_color_remove(struct platform_device *pdev)
+ {
++	component_del(&pdev->dev, &mtk_disp_color_component_ops);
++
+ 	return 0;
  }
  
- static void mtk_aal_gamma_set(struct device *dev, struct drm_crtc_state *state)
+diff --git a/drivers/gpu/drm/mediatek/mtk_disp_ovl.c b/drivers/gpu/drm/mediatek/mtk_disp_ovl.c
+index 961f87f8d4d1..32a2922bbe5f 100644
+--- a/drivers/gpu/drm/mediatek/mtk_disp_ovl.c
++++ b/drivers/gpu/drm/mediatek/mtk_disp_ovl.c
+@@ -424,6 +424,8 @@ static int mtk_disp_ovl_probe(struct platform_device *pdev)
+ 
+ static int mtk_disp_ovl_remove(struct platform_device *pdev)
+ {
++	component_del(&pdev->dev, &mtk_disp_ovl_component_ops);
++
+ 	return 0;
+ }
+ 
 -- 
 2.30.2
 
