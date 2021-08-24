@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 84A9E3F6415
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:00:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A61AF3F6418
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:00:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235895AbhHXRAo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:00:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38858 "EHLO mail.kernel.org"
+        id S238707AbhHXRAs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:00:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39380 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238912AbhHXQ7M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 12:59:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1DDB7611AF;
-        Tue, 24 Aug 2021 16:57:32 +0000 (UTC)
+        id S238921AbhHXQ7N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 12:59:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 181F4613DB;
+        Tue, 24 Aug 2021 16:57:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824252;
-        bh=oE9uR7V4OH3XiW1tDEuMmOgRU8YCLANasm1e6deDn3k=;
+        s=k20201202; t=1629824253;
+        bh=lHfJPFWK+t4p3YUj7fDu2kNXu+QF2QYhQZvSygoeDSI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hylBdZKYVWfY6xXo8fYncrevYHaN/7ssXQMN9PIIRjv29zX0XRvYCB2NAQjSpKOfw
-         Tz6uceUYPBxfvbSglJ/qS1ZMGyMKh28T7Oj9UzTvOLUkE5YIWLA8V85Cxd/TxATG8b
-         YzIPDfn3GVkwlpwjTsoUV6XpfEhFp3tHznO0b+jH4RX9bu2wCoiUrLH36p5n1xhuWO
-         7QkQvihSBv9olfGvDP79HgS+P5vxjYv89tnYkkUAUC7L9C++/4DbzTjl8PWpJ1xchL
-         jVxHsWnr2MXu3raPFpai24+Nfdwb1zOUDB6wnGikv+WycOQYehfCM58mDqqEX0GWzq
-         t9ylvY9CcMj3g==
+        b=AI32HafEeEtcEX8h/ZvJ+F5iQfCOsoy6rVpGer3exxO4Qs+sxSf0nXpteLzgDHlXD
+         dweAi4XQ8+I3Em35DnJzYElMGW0TfxpxQQSGm1F+rGYFpTn0jnfeVU9PXgNq5x3yFe
+         +7mhuT9R1Fm0IVyIJatobDRijXV1Vqw//5yCs8CncuFGuAZg1sX0yAQjRTVFiTMALj
+         QGWdMmIImYgy5MWTWL0caF4VkHEOUFbUhNmJ8bnLaruwBK/DRpxSp3BCDRpx8UYxeu
+         VL8mwxOZrMT5wXRTro6ayWjHc1155QSTqeVrKmE+PXYaV/gRpudINXE8CWLztOubni
+         fQTebcCAU48Cg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ezequiel Garcia <ezequiel@collabora.com>,
-        Christoph Hellwig <hch@lst.de>, Joerg Roedel <jroedel@suse.de>,
+Cc:     Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        Jaehoon Chung <jh80.chung@samsung.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 085/127] iommu/dma: Fix leak in non-contiguous API
-Date:   Tue, 24 Aug 2021 12:55:25 -0400
-Message-Id: <20210824165607.709387-86-sashal@kernel.org>
+Subject: [PATCH 5.13 086/127] mmc: dw_mmc: Fix hang on data CRC error
+Date:   Tue, 24 Aug 2021 12:55:26 -0400
+Message-Id: <20210824165607.709387-87-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165607.709387-1-sashal@kernel.org>
 References: <20210824165607.709387-1-sashal@kernel.org>
@@ -48,48 +49,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ezequiel Garcia <ezequiel@collabora.com>
+From: Vincent Whitchurch <vincent.whitchurch@axis.com>
 
-[ Upstream commit 0fbea680540108b09db7b26d9f4d24236d58a6ad ]
+[ Upstream commit 25f8203b4be1937c4939bb98623e67dcfd7da4d1 ]
 
-Currently, iommu_dma_alloc_noncontiguous() allocates a
-struct dma_sgt_handle object to hold some state needed for
-iommu_dma_free_noncontiguous().
+When a Data CRC interrupt is received, the driver disables the DMA, then
+sends the stop/abort command and then waits for Data Transfer Over.
 
-However, the handle is neither freed nor returned explicitly by
-the ->alloc_noncontiguous method, and therefore seems leaked.
-This was found by code inspection, so please review carefully and test.
+However, sometimes, when a data CRC error is received in the middle of a
+multi-block write transfer, the Data Transfer Over interrupt is never
+received, and the driver hangs and never completes the request.
 
-As a side note, it appears the struct dma_sgt_handle type is exposed
-to users of the DMA-API by linux/dma-map-ops.h, but is has no users
-or functions returning the type explicitly.
+The driver sets the BMOD.SWR bit (SDMMC_IDMAC_SWRESET) when stopping the
+DMA, but according to the manual CMD.STOP_ABORT_CMD should be programmed
+"before assertion of SWR".  Do these operations in the recommended
+order.  With this change the Data Transfer Over is always received
+correctly in my tests.
 
-This may indicate it's a good idea to move the struct dma_sgt_handle type
-to drivers/iommu/dma-iommu.c. The decision is left to maintainers :-)
-
+Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
+Reviewed-by: Jaehoon Chung <jh80.chung@samsung.com>
 Cc: stable@vger.kernel.org
-Fixes: e817ee5f2f95c ("dma-iommu: implement ->alloc_noncontiguous")
-Signed-off-by: Ezequiel Garcia <ezequiel@collabora.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20210723010552.50969-1-ezequiel@collabora.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Link: https://lore.kernel.org/r/20210630102232.16011-1-vincent.whitchurch@axis.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/dma-iommu.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/mmc/host/dw_mmc.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
-index 5d96fcc45fec..698707699327 100644
---- a/drivers/iommu/dma-iommu.c
-+++ b/drivers/iommu/dma-iommu.c
-@@ -768,6 +768,7 @@ static void iommu_dma_free_noncontiguous(struct device *dev, size_t size,
- 	__iommu_dma_unmap(dev, sgt->sgl->dma_address, size);
- 	__iommu_dma_free_pages(sh->pages, PAGE_ALIGN(size) >> PAGE_SHIFT);
- 	sg_free_table(&sh->sgt);
-+	kfree(sh);
- }
- #endif /* CONFIG_DMA_REMAP */
+diff --git a/drivers/mmc/host/dw_mmc.c b/drivers/mmc/host/dw_mmc.c
+index d333130d1531..c3229d8c7041 100644
+--- a/drivers/mmc/host/dw_mmc.c
++++ b/drivers/mmc/host/dw_mmc.c
+@@ -2018,8 +2018,8 @@ static void dw_mci_tasklet_func(struct tasklet_struct *t)
+ 					continue;
+ 				}
  
+-				dw_mci_stop_dma(host);
+ 				send_stop_abort(host, data);
++				dw_mci_stop_dma(host);
+ 				state = STATE_SENDING_STOP;
+ 				break;
+ 			}
+@@ -2043,10 +2043,10 @@ static void dw_mci_tasklet_func(struct tasklet_struct *t)
+ 			 */
+ 			if (test_and_clear_bit(EVENT_DATA_ERROR,
+ 					       &host->pending_events)) {
+-				dw_mci_stop_dma(host);
+ 				if (!(host->data_status & (SDMMC_INT_DRTO |
+ 							   SDMMC_INT_EBE)))
+ 					send_stop_abort(host, data);
++				dw_mci_stop_dma(host);
+ 				state = STATE_DATA_ERROR;
+ 				break;
+ 			}
+@@ -2079,10 +2079,10 @@ static void dw_mci_tasklet_func(struct tasklet_struct *t)
+ 			 */
+ 			if (test_and_clear_bit(EVENT_DATA_ERROR,
+ 					       &host->pending_events)) {
+-				dw_mci_stop_dma(host);
+ 				if (!(host->data_status & (SDMMC_INT_DRTO |
+ 							   SDMMC_INT_EBE)))
+ 					send_stop_abort(host, data);
++				dw_mci_stop_dma(host);
+ 				state = STATE_DATA_ERROR;
+ 				break;
+ 			}
 -- 
 2.30.2
 
