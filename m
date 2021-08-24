@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73FF23F67D8
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:40:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C25DE3F67DB
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:40:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239075AbhHXRiL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:38:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40392 "EHLO mail.kernel.org"
+        id S241624AbhHXRiP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:38:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240193AbhHXRgG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:36:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C14A61BE1;
+        id S231826AbhHXRgO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:36:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EB64761BA1;
         Tue, 24 Aug 2021 17:06:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824813;
-        bh=oUZxF33xcadFKS4yh0fwLwXTSS9VLCBt3ULhsNzHzFM=;
+        s=k20201202; t=1629824814;
+        bh=+xM3IK+IHMEFThQewOtp5cQyC1S8W/xmMPMArOOCJ0M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XBUx+IBEESKKI1MdOXOTTCK3j0dAtulVhx4scJpjrAj2wiyS1KcoYB58DmNouv8ez
-         2BA/QrDnIqYfzizF2KzpcBrkPO+ptHRq/Ks8oSIbEOZSWtNpHZK50rItAiiWjPEhnT
-         0xmOQoRN2gFt+q95EEvHIxK+KB9y/sxl7sUxT/c4r070HSDfiTcZA4OEBQvUcEwMkN
-         ea+kBV3F7b0KE6cMNEyNnwIDyxpExD1EBEjUwzRRHl7Ti+pCIAxK5iy9i/kIeUcIKG
-         OIzpv5yVXaYPMllgJlsV4pyuydTjYkSctUK4DNR3iSgBuVFdWPtS9RIeF1EaT+ctjk
-         Lf2qE1WJHwkCw==
+        b=G2nYYp4+CAiGhxGiMLm0ECUvR+moiPzzt3hmBVcpMePfwdRBarSnmDlRj/E49aFbK
+         +PXH4miA5JkUj08sUNqR5/Lc8g4zJsL6mqZgtFtqKbIIJj8KWaRISi/9NsuCwwVAWQ
+         ZdemYsI6Stls39ftmgbBp/cpdTqP685MvI7KHeJQFfzUcMX92ap9MxzIypFzjDLyCA
+         ahiJBnpFsjKXfzoIgSxshmQGFIdAyGRBztk4ZwbBGSpxcDzoJKoZGjbZ6xVsbUx2Z6
+         jIHE6cXYEp1nmcA4kuHdvbi/nwcA+5v2oGoSmCW8ApHRqO8QK/IPxTUOhJtxkPC8vA
+         ifS0ImbNP7qRg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dongliang Mu <mudongliangabcd@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+Cc:     NeilBrown <neilb@suse.de>, Nikolay Borisov <nborisov@suse.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 38/43] ipack: tpci200: fix many double free issues in tpci200_pci_probe
-Date:   Tue, 24 Aug 2021 13:06:09 -0400
-Message-Id: <20210824170614.710813-39-sashal@kernel.org>
+Subject: [PATCH 4.9 39/43] btrfs: prevent rename2 from exchanging a subvol with a directory from different parents
+Date:   Tue, 24 Aug 2021 13:06:10 -0400
+Message-Id: <20210824170614.710813-40-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170614.710813-1-sashal@kernel.org>
 References: <20210824170614.710813-1-sashal@kernel.org>
@@ -48,138 +48,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: NeilBrown <neilb@suse.de>
 
-[ Upstream commit 57a1681095f912239c7fb4d66683ab0425973838 ]
+[ Upstream commit 3f79f6f6247c83f448c8026c3ee16d4636ef8d4f ]
 
-The function tpci200_register called by tpci200_install and
-tpci200_unregister called by tpci200_uninstall are in pair. However,
-tpci200_unregister has some cleanup operations not in the
-tpci200_register. So the error handling code of tpci200_pci_probe has
-many different double free issues.
+Cross-rename lacks a check when that would prevent exchanging a
+directory and subvolume from different parent subvolume. This causes
+data inconsistencies and is caught before commit by tree-checker,
+turning the filesystem to read-only.
 
-Fix this problem by moving those cleanup operations out of
-tpci200_unregister, into tpci200_pci_remove and reverting
-the previous commit 9272e5d0028d ("ipack/carriers/tpci200:
-Fix a double free in tpci200_pci_probe").
+Calling the renameat2 with RENAME_EXCHANGE flags like
 
-Fixes: 9272e5d0028d ("ipack/carriers/tpci200: Fix a double free in tpci200_pci_probe")
-Cc: stable@vger.kernel.org
-Reported-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Link: https://lore.kernel.org/r/20210810100323.3938492-1-mudongliangabcd@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  renameat2(AT_FDCWD, namesrc, AT_FDCWD, namedest, (1 << 1))
+
+on two paths:
+
+  namesrc = dir1/subvol1/dir2
+ namedest = subvol2/subvol3
+
+will cause key order problem with following write time tree-checker
+report:
+
+  [1194842.307890] BTRFS critical (device loop1): corrupt leaf: root=5 block=27574272 slot=10 ino=258, invalid previous key objectid, have 257 expect 258
+  [1194842.322221] BTRFS info (device loop1): leaf 27574272 gen 8 total ptrs 11 free space 15444 owner 5
+  [1194842.331562] BTRFS info (device loop1): refs 2 lock_owner 0 current 26561
+  [1194842.338772]        item 0 key (256 1 0) itemoff 16123 itemsize 160
+  [1194842.338793]                inode generation 3 size 16 mode 40755
+  [1194842.338801]        item 1 key (256 12 256) itemoff 16111 itemsize 12
+  [1194842.338809]        item 2 key (256 84 2248503653) itemoff 16077 itemsize 34
+  [1194842.338817]                dir oid 258 type 2
+  [1194842.338823]        item 3 key (256 84 2363071922) itemoff 16043 itemsize 34
+  [1194842.338830]                dir oid 257 type 2
+  [1194842.338836]        item 4 key (256 96 2) itemoff 16009 itemsize 34
+  [1194842.338843]        item 5 key (256 96 3) itemoff 15975 itemsize 34
+  [1194842.338852]        item 6 key (257 1 0) itemoff 15815 itemsize 160
+  [1194842.338863]                inode generation 6 size 8 mode 40755
+  [1194842.338869]        item 7 key (257 12 256) itemoff 15801 itemsize 14
+  [1194842.338876]        item 8 key (257 84 2505409169) itemoff 15767 itemsize 34
+  [1194842.338883]                dir oid 256 type 2
+  [1194842.338888]        item 9 key (257 96 2) itemoff 15733 itemsize 34
+  [1194842.338895]        item 10 key (258 12 256) itemoff 15719 itemsize 14
+  [1194842.339163] BTRFS error (device loop1): block=27574272 write time tree block corruption detected
+  [1194842.339245] ------------[ cut here ]------------
+  [1194842.443422] WARNING: CPU: 6 PID: 26561 at fs/btrfs/disk-io.c:449 csum_one_extent_buffer+0xed/0x100 [btrfs]
+  [1194842.511863] CPU: 6 PID: 26561 Comm: kworker/u17:2 Not tainted 5.14.0-rc3-git+ #793
+  [1194842.511870] Hardware name: empty empty/S3993, BIOS PAQEX0-3 02/24/2008
+  [1194842.511876] Workqueue: btrfs-worker-high btrfs_work_helper [btrfs]
+  [1194842.511976] RIP: 0010:csum_one_extent_buffer+0xed/0x100 [btrfs]
+  [1194842.512068] RSP: 0018:ffffa2c284d77da0 EFLAGS: 00010282
+  [1194842.512074] RAX: 0000000000000000 RBX: 0000000000001000 RCX: ffff928867bd9978
+  [1194842.512078] RDX: 0000000000000000 RSI: 0000000000000027 RDI: ffff928867bd9970
+  [1194842.512081] RBP: ffff92876b958000 R08: 0000000000000001 R09: 00000000000c0003
+  [1194842.512085] R10: 0000000000000000 R11: 0000000000000001 R12: 0000000000000000
+  [1194842.512088] R13: ffff92875f989f98 R14: 0000000000000000 R15: 0000000000000000
+  [1194842.512092] FS:  0000000000000000(0000) GS:ffff928867a00000(0000) knlGS:0000000000000000
+  [1194842.512095] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  [1194842.512099] CR2: 000055f5384da1f0 CR3: 0000000102fe4000 CR4: 00000000000006e0
+  [1194842.512103] Call Trace:
+  [1194842.512128]  ? run_one_async_free+0x10/0x10 [btrfs]
+  [1194842.631729]  btree_csum_one_bio+0x1ac/0x1d0 [btrfs]
+  [1194842.631837]  run_one_async_start+0x18/0x30 [btrfs]
+  [1194842.631938]  btrfs_work_helper+0xd5/0x1d0 [btrfs]
+  [1194842.647482]  process_one_work+0x262/0x5e0
+  [1194842.647520]  worker_thread+0x4c/0x320
+  [1194842.655935]  ? process_one_work+0x5e0/0x5e0
+  [1194842.655946]  kthread+0x135/0x160
+  [1194842.655953]  ? set_kthread_struct+0x40/0x40
+  [1194842.655965]  ret_from_fork+0x1f/0x30
+  [1194842.672465] irq event stamp: 1729
+  [1194842.672469] hardirqs last  enabled at (1735): [<ffffffffbd1104f5>] console_trylock_spinning+0x185/0x1a0
+  [1194842.672477] hardirqs last disabled at (1740): [<ffffffffbd1104cc>] console_trylock_spinning+0x15c/0x1a0
+  [1194842.672482] softirqs last  enabled at (1666): [<ffffffffbdc002e1>] __do_softirq+0x2e1/0x50a
+  [1194842.672491] softirqs last disabled at (1651): [<ffffffffbd08aab7>] __irq_exit_rcu+0xa7/0xd0
+
+The corrupted data will not be written, and filesystem can be unmounted
+and mounted again (all changes since the last commit will be lost).
+
+Add the missing check for new_ino so that all non-subvolumes must reside
+under the same parent subvolume. There's an exception allowing to
+exchange two subvolumes from any parents as the directory representing a
+subvolume is only a logical link and does not have any other structures
+related to the parent subvolume, unlike files, directories etc, that
+are always in the inode namespace of the parent subvolume.
+
+Fixes: cdd1fedf8261 ("btrfs: add support for RENAME_EXCHANGE and RENAME_WHITEOUT")
+CC: stable@vger.kernel.org # 4.7+
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: NeilBrown <neilb@suse.de>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ipack/carriers/tpci200.c | 36 ++++++++++++++++----------------
- 1 file changed, 18 insertions(+), 18 deletions(-)
+ fs/btrfs/inode.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/ipack/carriers/tpci200.c b/drivers/ipack/carriers/tpci200.c
-index 7ba1a94497f5..4294523bede5 100644
---- a/drivers/ipack/carriers/tpci200.c
-+++ b/drivers/ipack/carriers/tpci200.c
-@@ -94,16 +94,13 @@ static void tpci200_unregister(struct tpci200_board *tpci200)
- 	free_irq(tpci200->info->pdev->irq, (void *) tpci200);
+diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
+index a55d23a73cdb..b744e7d33d87 100644
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -9632,8 +9632,14 @@ static int btrfs_rename_exchange(struct inode *old_dir,
+ 	bool root_log_pinned = false;
+ 	bool dest_log_pinned = false;
  
- 	pci_iounmap(tpci200->info->pdev, tpci200->info->interface_regs);
--	pci_iounmap(tpci200->info->pdev, tpci200->info->cfg_regs);
+-	/* we only allow rename subvolume link between subvolumes */
+-	if (old_ino != BTRFS_FIRST_FREE_OBJECTID && root != dest)
++	/*
++	 * For non-subvolumes allow exchange only within one subvolume, in the
++	 * same inode namespace. Two subvolumes (represented as directory) can
++	 * be exchanged as they're a logical link and have a fixed inode number.
++	 */
++	if (root != dest &&
++	    (old_ino != BTRFS_FIRST_FREE_OBJECTID ||
++	     new_ino != BTRFS_FIRST_FREE_OBJECTID))
+ 		return -EXDEV;
  
- 	pci_release_region(tpci200->info->pdev, TPCI200_IP_INTERFACE_BAR);
- 	pci_release_region(tpci200->info->pdev, TPCI200_IO_ID_INT_SPACES_BAR);
- 	pci_release_region(tpci200->info->pdev, TPCI200_MEM16_SPACE_BAR);
- 	pci_release_region(tpci200->info->pdev, TPCI200_MEM8_SPACE_BAR);
--	pci_release_region(tpci200->info->pdev, TPCI200_CFG_MEM_BAR);
- 
- 	pci_disable_device(tpci200->info->pdev);
--	pci_dev_put(tpci200->info->pdev);
- }
- 
- static void tpci200_enable_irq(struct tpci200_board *tpci200,
-@@ -524,7 +521,7 @@ static int tpci200_pci_probe(struct pci_dev *pdev,
- 	tpci200->info = kzalloc(sizeof(struct tpci200_infos), GFP_KERNEL);
- 	if (!tpci200->info) {
- 		ret = -ENOMEM;
--		goto out_err_info;
-+		goto err_tpci200;
- 	}
- 
- 	pci_dev_get(pdev);
-@@ -535,7 +532,7 @@ static int tpci200_pci_probe(struct pci_dev *pdev,
- 	if (ret) {
- 		dev_err(&pdev->dev, "Failed to allocate PCI Configuration Memory");
- 		ret = -EBUSY;
--		goto out_err_pci_request;
-+		goto err_tpci200_info;
- 	}
- 	tpci200->info->cfg_regs = ioremap_nocache(
- 			pci_resource_start(pdev, TPCI200_CFG_MEM_BAR),
-@@ -543,7 +540,7 @@ static int tpci200_pci_probe(struct pci_dev *pdev,
- 	if (!tpci200->info->cfg_regs) {
- 		dev_err(&pdev->dev, "Failed to map PCI Configuration Memory");
- 		ret = -EFAULT;
--		goto out_err_ioremap;
-+		goto err_request_region;
- 	}
- 
- 	/* Disable byte swapping for 16 bit IP module access. This will ensure
-@@ -566,7 +563,7 @@ static int tpci200_pci_probe(struct pci_dev *pdev,
- 	if (ret) {
- 		dev_err(&pdev->dev, "error during tpci200 install\n");
- 		ret = -ENODEV;
--		goto out_err_install;
-+		goto err_cfg_regs;
- 	}
- 
- 	/* Register the carrier in the industry pack bus driver */
-@@ -578,7 +575,7 @@ static int tpci200_pci_probe(struct pci_dev *pdev,
- 		dev_err(&pdev->dev,
- 			"error registering the carrier on ipack driver\n");
- 		ret = -EFAULT;
--		goto out_err_bus_register;
-+		goto err_tpci200_install;
- 	}
- 
- 	/* save the bus number given by ipack to logging purpose */
-@@ -589,19 +586,16 @@ static int tpci200_pci_probe(struct pci_dev *pdev,
- 		tpci200_create_device(tpci200, i);
- 	return 0;
- 
--out_err_bus_register:
-+err_tpci200_install:
- 	tpci200_uninstall(tpci200);
--	/* tpci200->info->cfg_regs is unmapped in tpci200_uninstall */
--	tpci200->info->cfg_regs = NULL;
--out_err_install:
--	if (tpci200->info->cfg_regs)
--		iounmap(tpci200->info->cfg_regs);
--out_err_ioremap:
-+err_cfg_regs:
-+	pci_iounmap(tpci200->info->pdev, tpci200->info->cfg_regs);
-+err_request_region:
- 	pci_release_region(pdev, TPCI200_CFG_MEM_BAR);
--out_err_pci_request:
--	pci_dev_put(pdev);
-+err_tpci200_info:
- 	kfree(tpci200->info);
--out_err_info:
-+	pci_dev_put(pdev);
-+err_tpci200:
- 	kfree(tpci200);
- 	return ret;
- }
-@@ -611,6 +605,12 @@ static void __tpci200_pci_remove(struct tpci200_board *tpci200)
- 	ipack_bus_unregister(tpci200->info->ipack_bus);
- 	tpci200_uninstall(tpci200);
- 
-+	pci_iounmap(tpci200->info->pdev, tpci200->info->cfg_regs);
-+
-+	pci_release_region(tpci200->info->pdev, TPCI200_CFG_MEM_BAR);
-+
-+	pci_dev_put(tpci200->info->pdev);
-+
- 	kfree(tpci200->info);
- 	kfree(tpci200);
- }
+ 	/* close the race window with snapshot create/destroy ioctl */
 -- 
 2.30.2
 
