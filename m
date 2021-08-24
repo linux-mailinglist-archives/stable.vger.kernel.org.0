@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 567413F6811
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:40:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B8723F681E
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:40:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239755AbhHXRkF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:40:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44680 "EHLO mail.kernel.org"
+        id S240065AbhHXRkT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:40:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241843AbhHXRiO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:38:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9FE3D61BF7;
-        Tue, 24 Aug 2021 17:07:58 +0000 (UTC)
+        id S241938AbhHXRiS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:38:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7AE2F61BB1;
+        Tue, 24 Aug 2021 17:07:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824879;
-        bh=bggxmQ4/NIESsrzeDjUpmEdNKlfBZUPxmQySwsFCbCc=;
+        s=k20201202; t=1629824880;
+        bh=bXXPPSl3UEzk1Aov3GYXRmLxrCKsx+1rwjgrEp9BZgc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WNGqzulNoM6bXkKTjuMLRSG0VJXOLEYixk9j62cd7VAq8bxIPOPH87wPphEz5dL9L
-         RD06m9gv6qjYTFI8fy7tlTmDWIZwFdocuTZHDJO1K+m1lzNEeL1BIbMG8bdpdiPg3N
-         Yr76VY379D6CZpz+FGBJzCUReFRufiS5Yr+Z+bWvVLsCmJWpiTJrGSJ5OFOeMojuYR
-         kU9OMokxw8cHbBB732bmnXWIp7VYhGbfCWp8awSrmFjo3wVkUtaL13SGlWX8zor4PN
-         HJ/hbnFnQkKPMQYITc93JWMPZULRvEcC7Zg8xxP958Czck5nazST7YbufsWt2D+2CN
-         bgwuR9fa9B13A==
+        b=KweS5wP7cfDC2pzDw0O4dHf1Q22LZz7XKWGnFCjf/872+VuV05WUNP+o7L/m7h+iG
+         K9Rn6XTV+kZAwBFraq3wrb/GVK/Szbr/cYCIr8AoEnCxNL75Lp9umr+zx120WSpilG
+         nJilme8Q3aY5kZY3YbavfkT1HrdNjEjsLYMWuzbT87pDesxc6LjsDFll7iKphCGg+U
+         Ajw84sQGxNo48r/DcNBS/pskyOoMYzjiZp0Ly4AIYyMKwl7hbe7p7fllVywzXsjAgz
+         rJwogV+qkgfcoQdLpTfdoa48KdToHlxAgjNMYMtr407CbeWkZEL/J8UfsN+CoxlpFi
+         7HBorG2lk874Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Maxim Levitsky <mlevitsk@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.4 15/31] KVM: nSVM: avoid picking up unsupported bits from L2 in int_ctl (CVE-2021-3653)
-Date:   Tue, 24 Aug 2021 13:07:27 -0400
-Message-Id: <20210824170743.710957-16-sashal@kernel.org>
+Cc:     Yu Kuai <yukuai3@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 16/31] dmaengine: usb-dmac: Fix PM reference leak in usb_dmac_probe()
+Date:   Tue, 24 Aug 2021 13:07:28 -0400
+Message-Id: <20210824170743.710957-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170743.710957-1-sashal@kernel.org>
 References: <20210824170743.710957-1-sashal@kernel.org>
@@ -48,58 +47,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Levitsky <mlevitsk@redhat.com>
+From: Yu Kuai <yukuai3@huawei.com>
 
-[ upstream commit 0f923e07124df069ba68d8bb12324398f4b6b709 ]
+[ Upstream commit 1da569fa7ec8cb0591c74aa3050d4ea1397778b4 ]
 
-* Invert the mask of bits that we pick from L2 in
-  nested_vmcb02_prepare_control
+pm_runtime_get_sync will increment pm usage counter even it failed.
+Forgetting to putting operation will result in reference leak here.
+Fix it by moving the error_pm label above the pm_runtime_put() in
+the error path.
 
-* Invert and explicitly use VIRQ related bits bitmask in svm_clear_vintr
-
-This fixes a security issue that allowed a malicious L1 to run L2 with
-AVIC enabled, which allowed the L2 to exploit the uninitialized and enabled
-AVIC to read/write the host physical memory at some offsets.
-
-Fixes: 3d6368ef580a ("KVM: SVM: Add VMRUN handler")
-Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Link: https://lore.kernel.org/r/20210706124521.1371901-1-yukuai3@huawei.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/svm.h | 2 ++
- arch/x86/kvm/svm.c         | 6 +++++-
- 2 files changed, 7 insertions(+), 1 deletion(-)
+ drivers/dma/sh/usb-dmac.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/include/asm/svm.h b/arch/x86/include/asm/svm.h
-index 6136d99f537b..c1adb2ed6d41 100644
---- a/arch/x86/include/asm/svm.h
-+++ b/arch/x86/include/asm/svm.h
-@@ -108,6 +108,8 @@ struct __attribute__ ((__packed__)) vmcb_control_area {
- #define V_IGN_TPR_SHIFT 20
- #define V_IGN_TPR_MASK (1 << V_IGN_TPR_SHIFT)
+diff --git a/drivers/dma/sh/usb-dmac.c b/drivers/dma/sh/usb-dmac.c
+index cc8fc601ed47..416057d9f0b6 100644
+--- a/drivers/dma/sh/usb-dmac.c
++++ b/drivers/dma/sh/usb-dmac.c
+@@ -863,8 +863,8 @@ static int usb_dmac_probe(struct platform_device *pdev)
  
-+#define V_IRQ_INJECTION_BITS_MASK (V_IRQ_MASK | V_INTR_PRIO_MASK | V_IGN_TPR_MASK)
-+
- #define V_INTR_MASKING_SHIFT 24
- #define V_INTR_MASKING_MASK (1 << V_INTR_MASKING_SHIFT)
- 
-diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
-index 931acac69703..77bee73faebc 100644
---- a/arch/x86/kvm/svm.c
-+++ b/arch/x86/kvm/svm.c
-@@ -2564,7 +2564,11 @@ static bool nested_svm_vmrun(struct vcpu_svm *svm)
- 	svm->nested.intercept            = nested_vmcb->control.intercept;
- 
- 	svm_flush_tlb(&svm->vcpu);
--	svm->vmcb->control.int_ctl = nested_vmcb->control.int_ctl | V_INTR_MASKING_MASK;
-+	svm->vmcb->control.int_ctl = nested_vmcb->control.int_ctl &
-+			(V_TPR_MASK | V_IRQ_INJECTION_BITS_MASK);
-+
-+	svm->vmcb->control.int_ctl |= V_INTR_MASKING_MASK;
-+
- 	if (nested_vmcb->control.int_ctl & V_INTR_MASKING_MASK)
- 		svm->vcpu.arch.hflags |= HF_VINTR_MASK;
- 	else
+ error:
+ 	of_dma_controller_free(pdev->dev.of_node);
+-	pm_runtime_put(&pdev->dev);
+ error_pm:
++	pm_runtime_put(&pdev->dev);
+ 	pm_runtime_disable(&pdev->dev);
+ 	return ret;
+ }
 -- 
 2.30.2
 
