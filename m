@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B00A3F549E
+	by mail.lfdr.de (Postfix) with ESMTP id 973E83F54A0
 	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 02:55:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234662AbhHXA4D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Aug 2021 20:56:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47578 "EHLO mail.kernel.org"
+        id S233602AbhHXA4H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Aug 2021 20:56:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233797AbhHXAzR (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233804AbhHXAzR (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 23 Aug 2021 20:55:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EC63A61462;
-        Tue, 24 Aug 2021 00:54:27 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 22DFE61501;
+        Tue, 24 Aug 2021 00:54:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629766468;
-        bh=/yfbhdg/LeFCR5Vt31anJKUzSxxgsUSUGF1icSjmWVo=;
+        s=k20201202; t=1629766470;
+        bh=mhnDZFp6Bvgo7d3AsSNxcg0qsh7TMyBGCIQMQVcAJ2w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=owqD93nuRXP5J+sA0bFlAdEin95X0itNuw//bLU3PryK3vEgn+GgA+DAUM5Tnrz7r
-         rcrQtNGqK7CmdPkpK4gi/8jBCYSrApmICYyrAxeO3s7/zaR0XAGTzfPUaBH9idYE1H
-         F73pXyg8EVpq+bgfIvBIQZe0AaXgrI0bMUhOVFIobXTym89HO1L8LMIHpYfs3Pu0HT
-         8rPMurPyic/qTcvUxMRuN466notZVeNro4z1Ypsb4p7Q0X7x+VjdVxd/bftj2aJk3E
-         lGhHGjssEo52iIXuWs52FgINByaWEYNKmGWihwXlF3vBMKT+TnZsxU4DOgHsCO6Hk/
-         9qe1wUTj5uxRA==
+        b=gygA7mGNIvTcJTmQRj1+Nu4k6TORBRbN1DtYPNh0mgiKrSC0kOmIS2bpJklBokda/
+         Xe/Z9IWoVR9orgPuRHxzTyJ+hlc4jiDgBDE8/moGNchnTg15LWXILOcixLqoTHhVzT
+         ve9CTtIW3Zo4p9VRB+LJcErKwOtS1N1wFyVkavn1gV5eUQiGHjdmFkcNU20ANrbuDt
+         w9/K2KjcicjNwvBaz4/u1WVTAdyIz/aVzjY9U5NJdPx8nZUXiIUn9/o/dkdNEP/ycX
+         o9XrIeSSPDKW+q2UBR90qBBvJXzVGhF7yD6F9l/Ct+CEhmSpyBJw67MFUXEY3HnfzN
+         Wb5mdD3OkoLzQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>,
-        platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 24/26] platform/x86: gigabyte-wmi: add support for B450M S2H V2
-Date:   Mon, 23 Aug 2021 20:53:54 -0400
-Message-Id: <20210824005356.630888-24-sashal@kernel.org>
+Cc:     Gerd Rausch <gerd.rausch@oracle.com>,
+        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linux-rdma@vger.kernel.org, rds-devel@oss.oracle.com
+Subject: [PATCH AUTOSEL 5.13 25/26] net/rds: dma_map_sg is entitled to merge entries
+Date:   Mon, 23 Aug 2021 20:53:55 -0400
+Message-Id: <20210824005356.630888-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824005356.630888-1-sashal@kernel.org>
 References: <20210824005356.630888-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,33 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Weißschuh <linux@weissschuh.net>
+From: Gerd Rausch <gerd.rausch@oracle.com>
 
-[ Upstream commit 1e35b8a7780a0c043cc5389420f069b69343f5d9 ]
+[ Upstream commit fb4b1373dcab086d0619c29310f0466a0b2ceb8a ]
 
-Reported as working here:
-https://github.com/t-8ch/linux-gigabyte-wmi-driver/issues/1#issuecomment-901207693
+Function "dma_map_sg" is entitled to merge adjacent entries
+and return a value smaller than what was passed as "nents".
 
-Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
-Link: https://lore.kernel.org/r/20210818164435.99821-1-linux@weissschuh.net
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Subsequently "ib_map_mr_sg" needs to work with this value ("sg_dma_len")
+rather than the original "nents" parameter ("sg_len").
+
+This old RDS bug was exposed and reliably causes kernel panics
+(using RDMA operations "rds-stress -D") on x86_64 starting with:
+commit c588072bba6b ("iommu/vt-d: Convert intel iommu driver to the iommu ops")
+
+Simply put: Linux 5.11 and later.
+
+Signed-off-by: Gerd Rausch <gerd.rausch@oracle.com>
+Acked-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
+Link: https://lore.kernel.org/r/60efc69f-1f35-529d-a7ef-da0549cad143@oracle.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/gigabyte-wmi.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/rds/ib_frmr.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/platform/x86/gigabyte-wmi.c b/drivers/platform/x86/gigabyte-wmi.c
-index 9e8cfac403d3..7f3a03f937f6 100644
---- a/drivers/platform/x86/gigabyte-wmi.c
-+++ b/drivers/platform/x86/gigabyte-wmi.c
-@@ -140,6 +140,7 @@ static u8 gigabyte_wmi_detect_sensor_usability(struct wmi_device *wdev)
- 	}}
+diff --git a/net/rds/ib_frmr.c b/net/rds/ib_frmr.c
+index 9b6ffff72f2d..28c1b0022178 100644
+--- a/net/rds/ib_frmr.c
++++ b/net/rds/ib_frmr.c
+@@ -131,9 +131,9 @@ static int rds_ib_post_reg_frmr(struct rds_ib_mr *ibmr)
+ 		cpu_relax();
+ 	}
  
- static const struct dmi_system_id gigabyte_wmi_known_working_platforms[] = {
-+	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("B450M S2H V2"),
- 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("B550 AORUS ELITE"),
- 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("B550 AORUS ELITE V2"),
- 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("B550 GAMING X V2"),
+-	ret = ib_map_mr_sg_zbva(frmr->mr, ibmr->sg, ibmr->sg_len,
++	ret = ib_map_mr_sg_zbva(frmr->mr, ibmr->sg, ibmr->sg_dma_len,
+ 				&off, PAGE_SIZE);
+-	if (unlikely(ret != ibmr->sg_len))
++	if (unlikely(ret != ibmr->sg_dma_len))
+ 		return ret < 0 ? ret : -EINVAL;
+ 
+ 	if (cmpxchg(&frmr->fr_state,
 -- 
 2.30.2
 
