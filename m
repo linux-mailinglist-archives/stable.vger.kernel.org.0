@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A67DA3F63AE
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 18:57:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ECAB43F63B1
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 18:57:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235300AbhHXQ5p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 12:57:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39066 "EHLO mail.kernel.org"
+        id S235368AbhHXQ5s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 12:57:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232797AbhHXQ5V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 12:57:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A8BE0613E8;
-        Tue, 24 Aug 2021 16:56:36 +0000 (UTC)
+        id S234670AbhHXQ5W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 12:57:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 860B5613AD;
+        Tue, 24 Aug 2021 16:56:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824197;
-        bh=ZOcgwKbm5nIdqPe3lzCOmutXRonodFE/uiWfF8pp+jM=;
+        s=k20201202; t=1629824198;
+        bh=ZVZuKs6XUn6BAkfA0tatcEsqam+Mrf7MKtSUxlWRcXM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gklw8EW0KN1RLzeYteVWNCl+S21PtLlZwSx7x4gDDMwccYglnpgx2I7V2cD7p08js
-         uWxtKpNW5mg0YmOBL9+h8XT3HOzs2szb+7TWIjDrxQuhh/Oh6ZZTYboOzustbhwXTj
-         SXcKVAA+kjenXEC8CCW28tLFnejGVHwOx/OdEliE78mzUpAMe6QQsygCZcnvOyVhmx
-         bFVsa0PbRc6MHCMm6Q2/2cemSDdHFVFrra2PVy7c1/Nux9vzifKHXoWvJ/mUGsUSkT
-         uW+Lg2+vKZ518gLJOwAOdrsW070Jr0OeNwX0ksZVMh+ZuJz38IyUpZDZk1xLdIYHuy
-         +31GFcYzE6QIQ==
+        b=kkFPxt0nXoDywSod787u+qvOCKhDTGcJVrZEB246uE67HmJpE5YvQbeuVmuslAVgf
+         o3o3lyxbdP90DJYEW1RqT5L5acio72ZwaWmGgfjNaW39kqvYGDZKNkOsC+MruE8UJ6
+         jlsKEcvFgCrUpxS8tUIUQRAu8mqWYZQ2wqUFk45Qj1GhpvOg7yDSYqGX1F65piWPr5
+         lLdFqdB7FNjlZ/FwxkyDqJQ4rHF2usLnSKVy1fpOFVWSuUm9Fk+StCnpRxjySLHU9g
+         LPboCRHLM4k7JZLbnUelyuNTQ1OTtL2oEiP3EWsuKRkCDeFhdBWHT/WI3DpszImnxK
+         TcfYg+u+zXHeQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Petr Vorel <petr.vorel@gmail.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 029/127] arm64: dts: qcom: msm8992-bullhead: Fix cont_splash_mem mapping
-Date:   Tue, 24 Aug 2021 12:54:29 -0400
-Message-Id: <20210824165607.709387-30-sashal@kernel.org>
+Cc:     Frank Wunderlich <frank-w@public-files.de>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 030/127] iommu: Check if group is NULL before remove device
+Date:   Tue, 24 Aug 2021 12:54:30 -0400
+Message-Id: <20210824165607.709387-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165607.709387-1-sashal@kernel.org>
 References: <20210824165607.709387-1-sashal@kernel.org>
@@ -48,52 +47,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Vorel <petr.vorel@gmail.com>
+From: Frank Wunderlich <frank-w@public-files.de>
 
-[ Upstream commit 3cb6a271f4b04f11270111638c24fa5c0b846dec ]
+[ Upstream commit 5aa95d8834e07907e64937d792c12ffef7fb271f ]
 
-cont_splash_mem has different memory mapping than generic from msm8994.dtsi:
+If probe_device is failing, iommu_group is not initialized because
+iommu_group_add_device is not reached, so freeing it will result
+in NULL pointer access.
 
-[    0.000000] cma: Found cont_splash_mem@0, memory base 0x0000000003400000, size 12 MiB, limit 0xffffffffffffffff
-[    0.000000] cma: CMA: reserved 12 MiB at 0x0000000003400000 for cont_splash_mem
+iommu_bus_init
+  ->bus_iommu_probe
+      ->probe_iommu_group in for each:/* return -22 in fail case */
+          ->iommu_probe_device
+              ->__iommu_probe_device       /* return -22 here.*/
+                  -> ops->probe_device          /* return -22 here.*/
+                  -> iommu_group_get_for_dev
+                        -> ops->device_group
+                        -> iommu_group_add_device //good case
+  ->remove_iommu_group  //in fail case, it will remove group
+     ->iommu_release_device
+         ->iommu_group_remove_device // here we don't have group
 
-This fixes boot.
+In my case ops->probe_device (mtk_iommu_probe_device from
+mtk_iommu_v1.c) is due to failing fwspec->ops mismatch.
 
-Fixes: 976d321f32dc ("arm64: dts: qcom: msm8992: Make the DT an overlay on top of 8994")
-Signed-off-by: Petr Vorel <petr.vorel@gmail.com>
-Link: https://lore.kernel.org/r/20210713185734.380-3-petr.vorel@gmail.com
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Fixes: d72e31c93746 ("iommu: IOMMU Groups")
+Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
+Link: https://lore.kernel.org/r/20210731074737.4573-1-linux@fw-web.de
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/msm8992-bullhead-rev-101.dts | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/iommu/iommu.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/qcom/msm8992-bullhead-rev-101.dts b/arch/arm64/boot/dts/qcom/msm8992-bullhead-rev-101.dts
-index 5c6e17f11ee9..1ccca83292ac 100644
---- a/arch/arm64/boot/dts/qcom/msm8992-bullhead-rev-101.dts
-+++ b/arch/arm64/boot/dts/qcom/msm8992-bullhead-rev-101.dts
-@@ -10,6 +10,9 @@
- #include "pm8994.dtsi"
- #include "pmi8994.dtsi"
+diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+index 808ab70d5df5..db966a7841fe 100644
+--- a/drivers/iommu/iommu.c
++++ b/drivers/iommu/iommu.c
+@@ -924,6 +924,9 @@ void iommu_group_remove_device(struct device *dev)
+ 	struct iommu_group *group = dev->iommu_group;
+ 	struct group_device *tmp_device, *device = NULL;
  
-+/* cont_splash_mem has different memory mapping */
-+/delete-node/ &cont_splash_mem;
++	if (!group)
++		return;
 +
- / {
- 	model = "LG Nexus 5X";
- 	compatible = "lg,bullhead", "qcom,msm8992";
-@@ -42,6 +45,11 @@
- 			ftrace-size = <0x10000>;
- 			pmsg-size = <0x20000>;
- 		};
-+
-+		cont_splash_mem: memory@3400000 {
-+			reg = <0 0x03400000 0 0x1200000>;
-+			no-map;
-+		};
- 	};
- };
+ 	dev_info(dev, "Removing from iommu group %d\n", group->id);
  
+ 	/* Pre-notify listeners that a device is being removed. */
 -- 
 2.30.2
 
