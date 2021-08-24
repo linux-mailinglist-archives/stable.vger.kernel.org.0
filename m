@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C41383F66E3
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:27:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 104D53F66EB
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:28:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240345AbhHXR2U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:28:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35178 "EHLO mail.kernel.org"
+        id S240588AbhHXR2l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:28:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235597AbhHXR0T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:26:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 78BE3613E6;
-        Tue, 24 Aug 2021 17:05:00 +0000 (UTC)
+        id S239838AbhHXR0k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:26:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5776A613D2;
+        Tue, 24 Aug 2021 17:05:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824701;
-        bh=jVALhARwfUqk9BPNTigktFIG3zDSJeIBJc5Z+aI2WQQ=;
+        s=k20201202; t=1629824702;
+        bh=f/nvjyo225lMQLtXUC7kdnxxODRMtM+8czzkauiZav8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QPQTwIdUjdhl8wOkG/9usEmS4x1ZVe36KmabzjP496RnRqjX8iKZ9cIkSp7pQIvve
-         A4shI7BHWDOgYdGd0rRneE+CV9MrlWcDiWv2v/BCXP+t8+WllhL1jYYM69fsrYUVnH
-         9W1liwjpjRpEowXKSJTB6WJ3P2Bbqku/qHblslUm5MUPsxqZEnoO8f/glXb/V08iJK
-         Bsf0ZK3t1zTOmawSEhhzcbBq4rWjaesCK0bGFGdp/EjYO9WTo0DYMra8uX49m/d5H7
-         snKWqBXj1jgHdQ0qvu6eeJmt1Rv3eR/JSIF9lLES0m4cbnuHLH17Gc43dTW4/VRexs
-         kXAni4k7EQ4CQ==
+        b=dALXuPhzW1EkRNL5x2uGSQivl6kpw7Bph/N8HFb3YtmDnHHrIRLsS21e+0kD8bnCc
+         p8nHP1UvrTjlrfThZXQ6z0NqsSaYmz4PZ/kiVi7O2/et/+N03XBp9Sobse2i/mjrZW
+         uxhqZoEUl9RQQoYCBLimh1/NF5A7iU27s+e06uZTjHxjA4W5rVI1S+y7sb/g4EpMcQ
+         Ff837PV+S2VHMVdCieAKkpTX1lBRjKpLhQar9YeJ+vPwqOjEm/flFnb4UoasijcGom
+         kOp0QqiJZLcrvzM0iXN8xwsiXis1jac+PiHd4yU2FcKOL9asyeBbNCbepavnyDL4sI
+         N9qSTQGCgp4dA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Colin Ian King <colin.king@canonical.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+Cc:     Takashi Iwai <tiwai@suse.de>,
+        Cezary Rojewski <cezary.rojewski@intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.14 02/64] iio: adc: Fix incorrect exit of for-loop
-Date:   Tue, 24 Aug 2021 13:03:55 -0400
-Message-Id: <20210824170457.710623-3-sashal@kernel.org>
+Subject: [PATCH 4.14 03/64] ASoC: intel: atom: Fix reference to PCM buffer address
+Date:   Tue, 24 Aug 2021 13:03:56 -0400
+Message-Id: <20210824170457.710623-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170457.710623-1-sashal@kernel.org>
 References: <20210824170457.710623-1-sashal@kernel.org>
@@ -48,42 +50,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 5afc1540f13804a31bb704b763308e17688369c5 upstream.
+commit 2e6b836312a477d647a7920b56810a5a25f6c856 upstream.
 
-Currently the for-loop that scans for the optimial adc_period iterates
-through all the possible adc_period levels because the exit logic in
-the loop is inverted. I believe the comparison should be swapped and
-the continue replaced with a break to exit the loop at the correct
-point.
+PCM buffers might be allocated dynamically when the buffer
+preallocation failed or a larger buffer is requested, and it's not
+guaranteed that substream->dma_buffer points to the actually used
+buffer.  The address should be retrieved from runtime->dma_addr,
+instead of substream->dma_buffer (and shouldn't use virt_to_phys).
 
-Addresses-Coverity: ("Continue has no effect")
-Fixes: e08e19c331fb ("iio:adc: add iio driver for Palmas (twl6035/7) gpadc")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Link: https://lore.kernel.org/r/20210730071651.17394-1-colin.king@canonical.com
+Also, remove the line overriding runtime->dma_area superfluously,
+which was already set up at the PCM buffer allocation.
+
+Cc: Cezary Rojewski <cezary.rojewski@intel.com>
+Cc: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/20210728112353.6675-3-tiwai@suse.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/palmas_gpadc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/soc/intel/atom/sst-mfld-platform-pcm.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/iio/adc/palmas_gpadc.c b/drivers/iio/adc/palmas_gpadc.c
-index 7d61b566e148..f5218461ae25 100644
---- a/drivers/iio/adc/palmas_gpadc.c
-+++ b/drivers/iio/adc/palmas_gpadc.c
-@@ -660,8 +660,8 @@ static int palmas_adc_wakeup_configure(struct palmas_gpadc *adc)
+diff --git a/sound/soc/intel/atom/sst-mfld-platform-pcm.c b/sound/soc/intel/atom/sst-mfld-platform-pcm.c
+index cdc0f22a57ee..c877326cb0a6 100644
+--- a/sound/soc/intel/atom/sst-mfld-platform-pcm.c
++++ b/sound/soc/intel/atom/sst-mfld-platform-pcm.c
+@@ -135,7 +135,7 @@ static void sst_fill_alloc_params(struct snd_pcm_substream *substream,
+ 	snd_pcm_uframes_t period_size;
+ 	ssize_t periodbytes;
+ 	ssize_t buffer_bytes = snd_pcm_lib_buffer_bytes(substream);
+-	u32 buffer_addr = virt_to_phys(substream->dma_buffer.area);
++	u32 buffer_addr = substream->runtime->dma_addr;
  
- 	adc_period = adc->auto_conversion_period;
- 	for (i = 0; i < 16; ++i) {
--		if (((1000 * (1 << i)) / 32) < adc_period)
--			continue;
-+		if (((1000 * (1 << i)) / 32) >= adc_period)
-+			break;
- 	}
- 	if (i > 0)
- 		i--;
+ 	channels = substream->runtime->channels;
+ 	period_size = substream->runtime->period_size;
+@@ -241,7 +241,6 @@ static int sst_platform_alloc_stream(struct snd_pcm_substream *substream,
+ 	/* set codec params and inform SST driver the same */
+ 	sst_fill_pcm_params(substream, &param);
+ 	sst_fill_alloc_params(substream, &alloc_params);
+-	substream->runtime->dma_area = substream->dma_buffer.area;
+ 	str_params.sparams = param;
+ 	str_params.aparams = alloc_params;
+ 	str_params.codec = SST_CODEC_TYPE_PCM;
 -- 
 2.30.2
 
