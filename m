@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 96AE63F6532
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:10:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BB9C3F6535
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:10:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239425AbhHXRKl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:10:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52012 "EHLO mail.kernel.org"
+        id S239452AbhHXRKm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:10:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239328AbhHXRJD (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S239327AbhHXRJD (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 24 Aug 2021 13:09:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 29D4661A3D;
-        Tue, 24 Aug 2021 17:00:14 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A12B61A50;
+        Tue, 24 Aug 2021 17:00:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1629824415;
-        bh=Nd9FkhKEIIRkYHkdbVLek5Ox9yqkm9V+rP4Ajje0j6o=;
+        bh=btWMwOiFZAZWEb/7YTv621HOBNvvdcouSg8F3+LP9wk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=outrFbHO83eTS75c6QpJOGvgNbKclqf5Z87qbR2d31h64P+IS8WDqyJiqW6kKbxMY
-         yzy+Kyb1qqf9pR1ff9IDQ917ywe/OoUyPVWCgql3WF5NNvnALG7MkZUBaiS1fRh8CN
-         crCGuN0tzfGgXtzhzZOhA08QBnTHcbyZMPS+w78wKbPNlF7UkacAImicRoaP/eM7QQ
-         LOH0L63aMjUiPZyzTl78QfuMsGcPh0cJJAnI4KGQevEI6/8RTGBY39HodW1fjA3FR4
-         2jSvNSwW4R5lNNV4b1DV2jAulN8RGRbb9AcqfQb+JCO8xQTVaeGsbYdWDn80AvMEiE
-         WQsIZ9WHiMMyQ==
+        b=QmaImOcnUrPJ/YwghEFbwZtSzdQvrfoO0gRNwAUdrvwTPRE7lIJ1nHlszlUdajvbz
+         dM+UsSJ5wh46pfAGt3s2CqB/UadE8d8UrtZ+1yZH92DcY2p0NZdy7ZpmY57IypPAdf
+         LFYVntvsjyQaDETDPMb8sb5jHcer3puB1drGWBv+x28cZd0o0KMXg4ONOg1GbRln8Z
+         PbrUrZVTv1VLaHV8iRw4L+JAOcYm8kZz1k6afGcTA8Qsqe9z/VxHteBF39mxmb1A8Y
+         TvP4PNf+4sPClkwzhuZU4Kn5lIoU9hIi7yGsNg/h8VljZGvb691KdT71YDNVnysvf9
+         vbI4X6Z7ONC+g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "kaixi.fan" <fankaixi.li@bytedance.com>,
-        xiexiaohui <xiexiaohui.xxh@bytedance.com>,
-        Cong Wang <cong.wang@bytedance.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 65/98] ovs: clear skb->tstamp in forwarding path
-Date:   Tue, 24 Aug 2021 12:58:35 -0400
-Message-Id: <20210824165908.709932-66-sashal@kernel.org>
+Cc:     Lu Baolu <baolu.lu@linux.intel.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 66/98] iommu/vt-d: Consolidate duplicate cache invaliation code
+Date:   Tue, 24 Aug 2021 12:58:36 -0400
+Message-Id: <20210824165908.709932-67-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165908.709932-1-sashal@kernel.org>
 References: <20210824165908.709932-1-sashal@kernel.org>
@@ -50,37 +47,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "kaixi.fan" <fankaixi.li@bytedance.com>
+From: Lu Baolu <baolu.lu@linux.intel.com>
 
-[ Upstream commit 01634047bf0d5c2d9b7d8095bb4de1663dbeedeb ]
+[ Upstream commit 9872f9bd9dbd68f75e8db782717d71e8594f6a02 ]
 
-fq qdisc requires tstamp to be cleared in the forwarding path. Now ovs
-doesn't clear skb->tstamp. We encountered a problem with linux
-version 5.4.56 and ovs version 2.14.1, and packets failed to
-dequeue from qdisc when fq qdisc was attached to ovs port.
+The pasid based IOTLB and devTLB invalidation code is duplicate in
+several places. Consolidate them by using the common helpers.
 
-Fixes: fb420d5d91c1 ("tcp/fq: move back to CLOCK_MONOTONIC")
-Signed-off-by: kaixi.fan <fankaixi.li@bytedance.com>
-Signed-off-by: xiexiaohui <xiexiaohui.xxh@bytedance.com>
-Reviewed-by: Cong Wang <cong.wang@bytedance.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+Link: https://lore.kernel.org/r/20210114085021.717041-1-baolu.lu@linux.intel.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/openvswitch/vport.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/iommu/intel/pasid.c | 18 ++----------
+ drivers/iommu/intel/svm.c   | 55 ++++++-------------------------------
+ 2 files changed, 11 insertions(+), 62 deletions(-)
 
-diff --git a/net/openvswitch/vport.c b/net/openvswitch/vport.c
-index 82d801f063b7..1c05d4bef331 100644
---- a/net/openvswitch/vport.c
-+++ b/net/openvswitch/vport.c
-@@ -503,6 +503,7 @@ void ovs_vport_send(struct vport *vport, struct sk_buff *skb, u8 mac_proto)
+diff --git a/drivers/iommu/intel/pasid.c b/drivers/iommu/intel/pasid.c
+index 1e7c17989084..77fbe9908abd 100644
+--- a/drivers/iommu/intel/pasid.c
++++ b/drivers/iommu/intel/pasid.c
+@@ -466,20 +466,6 @@ pasid_cache_invalidation_with_pasid(struct intel_iommu *iommu,
+ 	qi_submit_sync(iommu, &desc, 1, 0);
+ }
+ 
+-static void
+-iotlb_invalidation_with_pasid(struct intel_iommu *iommu, u16 did, u32 pasid)
+-{
+-	struct qi_desc desc;
+-
+-	desc.qw0 = QI_EIOTLB_PASID(pasid) | QI_EIOTLB_DID(did) |
+-			QI_EIOTLB_GRAN(QI_GRAN_NONG_PASID) | QI_EIOTLB_TYPE;
+-	desc.qw1 = 0;
+-	desc.qw2 = 0;
+-	desc.qw3 = 0;
+-
+-	qi_submit_sync(iommu, &desc, 1, 0);
+-}
+-
+ static void
+ devtlb_invalidation_with_pasid(struct intel_iommu *iommu,
+ 			       struct device *dev, u32 pasid)
+@@ -524,7 +510,7 @@ void intel_pasid_tear_down_entry(struct intel_iommu *iommu, struct device *dev,
+ 		clflush_cache_range(pte, sizeof(*pte));
+ 
+ 	pasid_cache_invalidation_with_pasid(iommu, did, pasid);
+-	iotlb_invalidation_with_pasid(iommu, did, pasid);
++	qi_flush_piotlb(iommu, did, pasid, 0, -1, 0);
+ 
+ 	/* Device IOTLB doesn't need to be flushed in caching mode. */
+ 	if (!cap_caching_mode(iommu->cap))
+@@ -540,7 +526,7 @@ static void pasid_flush_caches(struct intel_iommu *iommu,
+ 
+ 	if (cap_caching_mode(iommu->cap)) {
+ 		pasid_cache_invalidation_with_pasid(iommu, did, pasid);
+-		iotlb_invalidation_with_pasid(iommu, did, pasid);
++		qi_flush_piotlb(iommu, did, pasid, 0, -1, 0);
+ 	} else {
+ 		iommu_flush_write_buffer(iommu);
  	}
+diff --git a/drivers/iommu/intel/svm.c b/drivers/iommu/intel/svm.c
+index 6168dec7cb40..aabf56272b86 100644
+--- a/drivers/iommu/intel/svm.c
++++ b/drivers/iommu/intel/svm.c
+@@ -123,53 +123,16 @@ static void __flush_svm_range_dev(struct intel_svm *svm,
+ 				  unsigned long address,
+ 				  unsigned long pages, int ih)
+ {
+-	struct qi_desc desc;
++	struct device_domain_info *info = get_domain_info(sdev->dev);
  
- 	skb->dev = vport->dev;
-+	skb->tstamp = 0;
- 	vport->ops->send(skb);
- 	return;
+-	if (pages == -1) {
+-		desc.qw0 = QI_EIOTLB_PASID(svm->pasid) |
+-			QI_EIOTLB_DID(sdev->did) |
+-			QI_EIOTLB_GRAN(QI_GRAN_NONG_PASID) |
+-			QI_EIOTLB_TYPE;
+-		desc.qw1 = 0;
+-	} else {
+-		int mask = ilog2(__roundup_pow_of_two(pages));
+-
+-		desc.qw0 = QI_EIOTLB_PASID(svm->pasid) |
+-				QI_EIOTLB_DID(sdev->did) |
+-				QI_EIOTLB_GRAN(QI_GRAN_PSI_PASID) |
+-				QI_EIOTLB_TYPE;
+-		desc.qw1 = QI_EIOTLB_ADDR(address) |
+-				QI_EIOTLB_IH(ih) |
+-				QI_EIOTLB_AM(mask);
+-	}
+-	desc.qw2 = 0;
+-	desc.qw3 = 0;
+-	qi_submit_sync(sdev->iommu, &desc, 1, 0);
+-
+-	if (sdev->dev_iotlb) {
+-		desc.qw0 = QI_DEV_EIOTLB_PASID(svm->pasid) |
+-				QI_DEV_EIOTLB_SID(sdev->sid) |
+-				QI_DEV_EIOTLB_QDEP(sdev->qdep) |
+-				QI_DEIOTLB_TYPE;
+-		if (pages == -1) {
+-			desc.qw1 = QI_DEV_EIOTLB_ADDR(-1ULL >> 1) |
+-					QI_DEV_EIOTLB_SIZE;
+-		} else if (pages > 1) {
+-			/* The least significant zero bit indicates the size. So,
+-			 * for example, an "address" value of 0x12345f000 will
+-			 * flush from 0x123440000 to 0x12347ffff (256KiB). */
+-			unsigned long last = address + ((unsigned long)(pages - 1) << VTD_PAGE_SHIFT);
+-			unsigned long mask = __rounddown_pow_of_two(address ^ last);
+-
+-			desc.qw1 = QI_DEV_EIOTLB_ADDR((address & ~mask) |
+-					(mask - 1)) | QI_DEV_EIOTLB_SIZE;
+-		} else {
+-			desc.qw1 = QI_DEV_EIOTLB_ADDR(address);
+-		}
+-		desc.qw2 = 0;
+-		desc.qw3 = 0;
+-		qi_submit_sync(sdev->iommu, &desc, 1, 0);
+-	}
++	if (WARN_ON(!pages))
++		return;
++
++	qi_flush_piotlb(sdev->iommu, sdev->did, svm->pasid, address, pages, ih);
++	if (info->ats_enabled)
++		qi_flush_dev_iotlb_pasid(sdev->iommu, sdev->sid, info->pfsid,
++					 svm->pasid, sdev->qdep, address,
++					 order_base_2(pages));
+ }
  
+ static void intel_flush_svm_range_dev(struct intel_svm *svm,
 -- 
 2.30.2
 
