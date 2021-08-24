@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C82BB3F63EB
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:00:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31FFC3F63EF
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:00:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238866AbhHXQ7I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 12:59:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39258 "EHLO mail.kernel.org"
+        id S234973AbhHXQ7K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 12:59:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237888AbhHXQ6F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 12:58:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B572761357;
-        Tue, 24 Aug 2021 16:57:08 +0000 (UTC)
+        id S237916AbhHXQ6G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 12:58:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 937B061505;
+        Tue, 24 Aug 2021 16:57:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824229;
-        bh=iFZD3EUwr3qMB1k2li68u9oMJ2KEEa45qBAseRPycl8=;
+        s=k20201202; t=1629824230;
+        bh=10ppWwsutgLxe02LhILcoq5ChQZYGwDKTujjCSNGd5M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lyY+kF8FeunSXko4ZuSmDB6YqXJ117OcqyBpF9aU5OFjEK4vmA8UFzy9hjaOFmmvf
-         Gf67vDGLMlcBm2FMFOoJBenY9tXkoOvf8UiH4XlmixaeNGT0s0Fts8qtDKorNFgPf2
-         IanNpAJ9G8wrrdqawG9cFD57r/z4c81pJTx9gp5WyvhWj0VLR28jxrud9WtcBe+td6
-         rhibh9R54Oq6+O8guqygE5ntx4mSOyp6lOwKwKxvO+CTHAlBxASORPJXAqPoO6ShDl
-         MYTH8C29xNckmHpkG2UHMLq9GEGS0iLW89nNEaQMBwBYJ+2ATLcplfGCl8Jsz8eLqs
-         865OEcGsTGWhg==
+        b=pIf8g9kBAmaTLk7bhjo4idTjXHC4pR9FHm3KH33Heiiw/4iOdfPNdBhvFe5GPRHQ/
+         HW3rJ0XvJ4RHm6QAWGdvYOJK2cP2IGGrOI145pi5GTMz820LG3qfxh+AdFat5OnK1S
+         6RGyKCoEeFcEUkPACmuLlgZA8XY/8mHMYapfl+2syQ5cqB7kQkm0rrHyr1eShUK2sc
+         SCkE0fejpBlau/f8NREUaaUpKU58aN965UY4aqQumTizCJiOVd4+mZJwpRbM3eSe5c
+         1hdrXBNbUwTV1suOI9eSsXH15qgaCVazoEahD9smmKHpGZF8+zC4sQTZLg6iUpDkh6
+         K0Q+sLrM5SwZg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Johannes Berg <johannes.berg@intel.com>,
+Cc:     Dinghao Liu <dinghao.liu@zju.edu.cn>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 062/127] mac80211: fix locking in ieee80211_restart_work()
-Date:   Tue, 24 Aug 2021 12:55:02 -0400
-Message-Id: <20210824165607.709387-63-sashal@kernel.org>
+Subject: [PATCH 5.13 063/127] net: qlcnic: add missed unlock in qlcnic_83xx_flash_read32
+Date:   Tue, 24 Aug 2021 12:55:03 -0400
+Message-Id: <20210824165607.709387-64-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165607.709387-1-sashal@kernel.org>
 References: <20210824165607.709387-1-sashal@kernel.org>
@@ -48,35 +48,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit 276e189f8e4e3cce1634d6bac4ed0d9ca242441b ]
+[ Upstream commit 0a298d133893c72c96e2156ed7cb0f0c4a306a3e ]
 
-Ilan's change to move locking around accidentally lost the
-wiphy_lock() during some porting, add it back.
+qlcnic_83xx_unlock_flash() is called on all paths after we call
+qlcnic_83xx_lock_flash(), except for one error path on failure
+of QLCRD32(), which may cause a deadlock. This bug is suggested
+by a static analysis tool, please advise.
 
-Fixes: 45daaa131841 ("mac80211: Properly WARN on HW scan before restart")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Link: https://lore.kernel.org/r/20210817121210.47bdb177064f.Ib1ef79440cd27f318c028ddfc0c642406917f512@changeid
+Fixes: 81d0aeb0a4fff ("qlcnic: flash template based firmware reset recovery")
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Link: https://lore.kernel.org/r/20210816131405.24024-1-dinghao.liu@zju.edu.cn
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/main.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_hw.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/net/mac80211/main.c b/net/mac80211/main.c
-index 2481bfdfafd0..efe5c3295455 100644
---- a/net/mac80211/main.c
-+++ b/net/mac80211/main.c
-@@ -260,6 +260,8 @@ static void ieee80211_restart_work(struct work_struct *work)
- 	flush_work(&local->radar_detected_work);
+diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_hw.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_hw.c
+index d8882d0b6b49..d51bac7ba5af 100644
+--- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_hw.c
++++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_hw.c
+@@ -3156,8 +3156,10 @@ int qlcnic_83xx_flash_read32(struct qlcnic_adapter *adapter, u32 flash_addr,
  
- 	rtnl_lock();
-+	/* we might do interface manipulations, so need both */
-+	wiphy_lock(local->hw.wiphy);
+ 		indirect_addr = QLC_83XX_FLASH_DIRECT_DATA(addr);
+ 		ret = QLCRD32(adapter, indirect_addr, &err);
+-		if (err == -EIO)
++		if (err == -EIO) {
++			qlcnic_83xx_unlock_flash(adapter);
+ 			return err;
++		}
  
- 	WARN(test_bit(SCAN_HW_SCANNING, &local->scanning),
- 	     "%s called with hardware scan in progress\n", __func__);
+ 		word = ret;
+ 		*(u32 *)p_data  = word;
 -- 
 2.30.2
 
