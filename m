@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 464E03F63FA
+	by mail.lfdr.de (Postfix) with ESMTP id D838A3F63FC
 	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:00:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234145AbhHXRAH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:00:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39040 "EHLO mail.kernel.org"
+        id S232897AbhHXRAI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:00:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235115AbhHXQ6X (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235150AbhHXQ6X (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 24 Aug 2021 12:58:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D537861409;
-        Tue, 24 Aug 2021 16:57:14 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DC3BF6141B;
+        Tue, 24 Aug 2021 16:57:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824235;
-        bh=PbXbYZZIft3+AyzZCLRk2xr1pZ7SS6ZFFPbutBko77w=;
+        s=k20201202; t=1629824236;
+        bh=NOIeKdKl4T12gLVcMwf75JzXAJOFAKynCAWhR08rDUA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oBvsXSvn20xAEFnVoLt407v1kAIOFqLhSN7C1jBOn5yYmD4xH4+lTdeVf/DPADCuJ
-         wACJttnnqop/m7X5tB+2kjLs4ySlZ4WGdbPPMt0kTjZbAdqSAK8BUltypeI/y/BJrH
-         kV5Wd/l5G5EhHJ/S1YedEQ14cUiFZNana9r0asooRe4nqnQd/70ij7H9L4kdyFJ9zB
-         K9Fv4DnhXlM82b1vvobH2cAHt7BOzmjzL7DGsYcboVOOFQGkl59rjQz6gIjfIbRsfI
-         rO2ICnw3WwNqjE92BYCdHjPNCXp69aAnzMQ1ls+MVE8FGuVZqaDFrC36IArIfPFYiC
-         pVOSSOKPXXkpA==
+        b=S/qbSlpJidtwh4X57iz8/7JB3h9+cnzVcw4mClyYvblqpI2O/7EHrif3rq+2QEp4c
+         0RxsyBSX+jlfHJuBHL/IB9JngWeCkX8iC5JRNyzfi/4qb5ul57Fe2MTGu2E/NmR8pa
+         uudGKOsLl5D38EjagkfqOkvJJxKAPOun4nb7Fl24pZW7SoWhCU2eubQOC02TlJXfZr
+         wbnl4KcWG3NyL+cLoYPwXU1+6DFCLu26N0N0TH2iKsvqm4gUQ2YFuz4ZinSXWn1+6j
+         FBfIxEAjeAhmXlsPXxWcoV081LH2SkRxfl4qlaLtUfGhQTi7jUo/f+bJkIsukGlCwF
+         oXPgmPCuIu/Dg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "kaixi.fan" <fankaixi.li@bytedance.com>,
-        xiexiaohui <xiexiaohui.xxh@bytedance.com>,
-        Cong Wang <cong.wang@bytedance.com>,
+Cc:     Oleksij Rempel <o.rempel@pengutronix.de>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 068/127] ovs: clear skb->tstamp in forwarding path
-Date:   Tue, 24 Aug 2021 12:55:08 -0400
-Message-Id: <20210824165607.709387-69-sashal@kernel.org>
+Subject: [PATCH 5.13 069/127] net: usb: asix: refactor asix_read_phy_addr() and handle errors on return
+Date:   Tue, 24 Aug 2021 12:55:09 -0400
+Message-Id: <20210824165607.709387-70-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165607.709387-1-sashal@kernel.org>
 References: <20210824165607.709387-1-sashal@kernel.org>
@@ -50,37 +48,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "kaixi.fan" <fankaixi.li@bytedance.com>
+From: Oleksij Rempel <o.rempel@pengutronix.de>
 
-[ Upstream commit 01634047bf0d5c2d9b7d8095bb4de1663dbeedeb ]
+[ Upstream commit 7e88b11a862afe59ee0c365123ea5fb96a26cb3b ]
 
-fq qdisc requires tstamp to be cleared in the forwarding path. Now ovs
-doesn't clear skb->tstamp. We encountered a problem with linux
-version 5.4.56 and ovs version 2.14.1, and packets failed to
-dequeue from qdisc when fq qdisc was attached to ovs port.
+Refactor asix_read_phy_addr() to return usable error value directly and
+make sure all callers handle this error.
 
-Fixes: fb420d5d91c1 ("tcp/fq: move back to CLOCK_MONOTONIC")
-Signed-off-by: kaixi.fan <fankaixi.li@bytedance.com>
-Signed-off-by: xiexiaohui <xiexiaohui.xxh@bytedance.com>
-Reviewed-by: Cong Wang <cong.wang@bytedance.com>
+Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/openvswitch/vport.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/usb/asix.h         |  3 +--
+ drivers/net/usb/asix_common.c  | 31 ++++++++++++++++---------------
+ drivers/net/usb/asix_devices.c | 15 ++++++++++++---
+ drivers/net/usb/ax88172a.c     |  5 +++++
+ 4 files changed, 34 insertions(+), 20 deletions(-)
 
-diff --git a/net/openvswitch/vport.c b/net/openvswitch/vport.c
-index 88deb5b41429..cf2ce5812489 100644
---- a/net/openvswitch/vport.c
-+++ b/net/openvswitch/vport.c
-@@ -507,6 +507,7 @@ void ovs_vport_send(struct vport *vport, struct sk_buff *skb, u8 mac_proto)
+diff --git a/drivers/net/usb/asix.h b/drivers/net/usb/asix.h
+index 3b53685301de..edb94efd265e 100644
+--- a/drivers/net/usb/asix.h
++++ b/drivers/net/usb/asix.h
+@@ -205,8 +205,7 @@ struct sk_buff *asix_tx_fixup(struct usbnet *dev, struct sk_buff *skb,
+ int asix_set_sw_mii(struct usbnet *dev, int in_pm);
+ int asix_set_hw_mii(struct usbnet *dev, int in_pm);
+ 
+-int asix_read_phy_addr(struct usbnet *dev, int internal);
+-int asix_get_phy_addr(struct usbnet *dev);
++int asix_read_phy_addr(struct usbnet *dev, bool internal);
+ 
+ int asix_sw_reset(struct usbnet *dev, u8 flags, int in_pm);
+ 
+diff --git a/drivers/net/usb/asix_common.c b/drivers/net/usb/asix_common.c
+index 7bc6e8f856fe..e1109f1a8dd5 100644
+--- a/drivers/net/usb/asix_common.c
++++ b/drivers/net/usb/asix_common.c
+@@ -288,32 +288,33 @@ int asix_set_hw_mii(struct usbnet *dev, int in_pm)
+ 	return ret;
+ }
+ 
+-int asix_read_phy_addr(struct usbnet *dev, int internal)
++int asix_read_phy_addr(struct usbnet *dev, bool internal)
+ {
+-	int offset = (internal ? 1 : 0);
++	int ret, offset;
+ 	u8 buf[2];
+-	int ret = asix_read_cmd(dev, AX_CMD_READ_PHY_ID, 0, 0, 2, buf, 0);
+ 
+-	netdev_dbg(dev->net, "asix_get_phy_addr()\n");
++	ret = asix_read_cmd(dev, AX_CMD_READ_PHY_ID, 0, 0, 2, buf, 0);
++	if (ret < 0)
++		goto error;
+ 
+ 	if (ret < 2) {
+-		netdev_err(dev->net, "Error reading PHYID register: %02x\n", ret);
+-		goto out;
++		ret = -EIO;
++		goto error;
+ 	}
+-	netdev_dbg(dev->net, "asix_get_phy_addr() returning 0x%04x\n",
+-		   *((__le16 *)buf));
++
++	offset = (internal ? 1 : 0);
+ 	ret = buf[offset];
+ 
+-out:
++	netdev_dbg(dev->net, "%s PHY address 0x%x\n",
++		   internal ? "internal" : "external", ret);
++
+ 	return ret;
+-}
+ 
+-int asix_get_phy_addr(struct usbnet *dev)
+-{
+-	/* return the address of the internal phy */
+-	return asix_read_phy_addr(dev, 1);
+-}
++error:
++	netdev_err(dev->net, "Error reading PHY_ID register: %02x\n", ret);
+ 
++	return ret;
++}
+ 
+ int asix_sw_reset(struct usbnet *dev, u8 flags, int in_pm)
+ {
+diff --git a/drivers/net/usb/asix_devices.c b/drivers/net/usb/asix_devices.c
+index 19a8fafb8f04..fb523734bf31 100644
+--- a/drivers/net/usb/asix_devices.c
++++ b/drivers/net/usb/asix_devices.c
+@@ -262,7 +262,10 @@ static int ax88172_bind(struct usbnet *dev, struct usb_interface *intf)
+ 	dev->mii.mdio_write = asix_mdio_write;
+ 	dev->mii.phy_id_mask = 0x3f;
+ 	dev->mii.reg_num_mask = 0x1f;
+-	dev->mii.phy_id = asix_get_phy_addr(dev);
++
++	dev->mii.phy_id = asix_read_phy_addr(dev, true);
++	if (dev->mii.phy_id < 0)
++		return dev->mii.phy_id;
+ 
+ 	dev->net->netdev_ops = &ax88172_netdev_ops;
+ 	dev->net->ethtool_ops = &ax88172_ethtool_ops;
+@@ -717,7 +720,10 @@ static int ax88772_bind(struct usbnet *dev, struct usb_interface *intf)
+ 	dev->mii.mdio_write = asix_mdio_write;
+ 	dev->mii.phy_id_mask = 0x1f;
+ 	dev->mii.reg_num_mask = 0x1f;
+-	dev->mii.phy_id = asix_get_phy_addr(dev);
++
++	dev->mii.phy_id = asix_read_phy_addr(dev, true);
++	if (dev->mii.phy_id < 0)
++		return dev->mii.phy_id;
+ 
+ 	dev->net->netdev_ops = &ax88772_netdev_ops;
+ 	dev->net->ethtool_ops = &ax88772_ethtool_ops;
+@@ -1081,7 +1087,10 @@ static int ax88178_bind(struct usbnet *dev, struct usb_interface *intf)
+ 	dev->mii.phy_id_mask = 0x1f;
+ 	dev->mii.reg_num_mask = 0xff;
+ 	dev->mii.supports_gmii = 1;
+-	dev->mii.phy_id = asix_get_phy_addr(dev);
++
++	dev->mii.phy_id = asix_read_phy_addr(dev, true);
++	if (dev->mii.phy_id < 0)
++		return dev->mii.phy_id;
+ 
+ 	dev->net->netdev_ops = &ax88178_netdev_ops;
+ 	dev->net->ethtool_ops = &ax88178_ethtool_ops;
+diff --git a/drivers/net/usb/ax88172a.c b/drivers/net/usb/ax88172a.c
+index b404c9462dce..c8ca5187eece 100644
+--- a/drivers/net/usb/ax88172a.c
++++ b/drivers/net/usb/ax88172a.c
+@@ -220,6 +220,11 @@ static int ax88172a_bind(struct usbnet *dev, struct usb_interface *intf)
  	}
  
- 	skb->dev = vport->dev;
-+	skb->tstamp = 0;
- 	vport->ops->send(skb);
- 	return;
+ 	priv->phy_addr = asix_read_phy_addr(dev, priv->use_embdphy);
++	if (priv->phy_addr < 0) {
++		ret = priv->phy_addr;
++		goto free;
++	}
++
+ 	ax88172a_reset_phy(dev, priv->use_embdphy);
  
+ 	/* Asix framing packs multiple eth frames into a 2K usb bulk transfer */
 -- 
 2.30.2
 
