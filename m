@@ -2,34 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1860D3F642F
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:01:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 301073F642C
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:01:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239030AbhHXRBg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:01:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39508 "EHLO mail.kernel.org"
+        id S238999AbhHXRBe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:01:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39532 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239170AbhHXQ76 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S239165AbhHXQ76 (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 24 Aug 2021 12:59:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A2A45613D3;
-        Tue, 24 Aug 2021 16:57:39 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9812A6140A;
+        Tue, 24 Aug 2021 16:57:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824260;
-        bh=f/nt/YUAkJ+rUkUD9W6THvav3I2h0d3zdXs98i6z22w=;
+        s=k20201202; t=1629824261;
+        bh=jwqYVBow9G6nf7rTcPp76Tf4HgpwpHAd+aTJm5i6OUc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bMk5r9LE2/sON0rAP5t4AmLJOSuqAhZrJjjCoPwpVjnjCgzPHrq2xleMBZY3vJE3h
-         FXD/7pKVBy8no3eO/JhCTic99IfPJ/zIxXupXQjYhAyYYSHeiLUDssCOo9lCvaLT/x
-         c1ggrnshMjNoiOrTo9ZJqUr8NMd0zjURhft+gPFUfoaD2POZJG5Rtc/Ef20DXLaZ+4
-         OngymX04WcsC9ghjbb9hfyYcvUSXY5KYFR0vmhAYaIUnuO64CiBOI9slecBlpOhqOk
-         SmKcs6SLN7WfXhQjPGMUb9rBfx5M8qvvGzY6CcS3mS/KlMSDPPYrRqP7qQaxTbENH+
-         NcdxC9jJ5HT2g==
+        b=f5QPcuFiZ34fK2rbM1YpBd6ULykv0mML2DSohqA+DBEKUerwyaclBcoXaFxQcdjpe
+         yMAsUW6rNzEj8Y1N9RiLIm79I372TIzCxT2RDgheCGqxXgZJObTv2LVcU/8WYatYq6
+         5szNuFOFClXxAcsUVCg3bcn9hQBYO34f+7t7wmrirYbHz+S+9FZt/L8UPpIsMvlWY+
+         EQdknLuezbL5c2yAkSCwmV7DifQ/134Xb4lnXgzwpsgylUCoqb9wTRV2t9C/7iToDt
+         DRdBOCYnUBOCrmLDL13hj5HdPQc9I7KKfphF3bMk11cytqqBRXnO6LWDzXWvnTdlbT
+         n3OER5TLuMzWA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jaroslav Kysela <perex@perex.cz>, stable@kernel.org,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 093/127] ALSA: hda - fix the 'Capture Switch' value change notifications
-Date:   Tue, 24 Aug 2021 12:55:33 -0400
-Message-Id: <20210824165607.709387-94-sashal@kernel.org>
+Cc:     Lukas Bulwahn <lukas.bulwahn@gmail.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Jiri Kosina <jikos@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Miroslav Benes <mbenes@suse.cz>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 094/127] tracing: define needed config DYNAMIC_FTRACE_WITH_ARGS
+Date:   Tue, 24 Aug 2021 12:55:34 -0400
+Message-Id: <20210824165607.709387-95-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165607.709387-1-sashal@kernel.org>
 References: <20210824165607.709387-1-sashal@kernel.org>
@@ -47,55 +52,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaroslav Kysela <perex@perex.cz>
+From: Lukas Bulwahn <lukas.bulwahn@gmail.com>
 
-[ Upstream commit a2befe9380dd04ee76c871568deca00eedf89134 ]
+[ Upstream commit 12f9951d3f311acb1d4ffe8e839bc2c07983546f ]
 
-The original code in the cap_put_caller() function does not
-handle correctly the positive values returned from the passed
-function for multiple iterations. It means that the change
-notifications may be lost.
+Commit 2860cd8a2353 ("livepatch: Use the default ftrace_ops instead of
+REGS when ARGS is available") intends to enable config LIVEPATCH when
+ftrace with ARGS is available. However, the chain of configs to enable
+LIVEPATCH is incomplete, as HAVE_DYNAMIC_FTRACE_WITH_ARGS is available,
+but the definition of DYNAMIC_FTRACE_WITH_ARGS, combining DYNAMIC_FTRACE
+and HAVE_DYNAMIC_FTRACE_WITH_ARGS, needed to enable LIVEPATCH, is missing
+in the commit.
 
-Fixes: 352f7f914ebb ("ALSA: hda - Merge Realtek parser code to generic parser")
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=213851
-Cc: <stable@kernel.org>
-Signed-off-by: Jaroslav Kysela <perex@perex.cz>
-Link: https://lore.kernel.org/r/20210811161441.1325250-1-perex@perex.cz
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fortunately, ./scripts/checkkconfigsymbols.py detects this and warns:
+
+DYNAMIC_FTRACE_WITH_ARGS
+Referencing files: kernel/livepatch/Kconfig
+
+So, define the config DYNAMIC_FTRACE_WITH_ARGS analogously to the already
+existing similar configs, DYNAMIC_FTRACE_WITH_REGS and
+DYNAMIC_FTRACE_WITH_DIRECT_CALLS, in ./kernel/trace/Kconfig to connect the
+chain of configs.
+
+Link: https://lore.kernel.org/kernel-janitors/CAKXUXMwT2zS9fgyQHKUUiqo8ynZBdx2UEUu1WnV_q0OCmknqhw@mail.gmail.com/
+Link: https://lkml.kernel.org/r/20210806195027.16808-1-lukas.bulwahn@gmail.com
+
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Miroslav Benes <mbenes@suse.cz>
+Cc: stable@vger.kernel.org
+Fixes: 2860cd8a2353 ("livepatch: Use the default ftrace_ops instead of REGS when ARGS is available")
+Signed-off-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/hda_generic.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ kernel/trace/Kconfig | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/sound/pci/hda/hda_generic.c b/sound/pci/hda/hda_generic.c
-index 1f8018f9ce57..534c0df75172 100644
---- a/sound/pci/hda/hda_generic.c
-+++ b/sound/pci/hda/hda_generic.c
-@@ -3460,7 +3460,7 @@ static int cap_put_caller(struct snd_kcontrol *kcontrol,
- 	struct hda_gen_spec *spec = codec->spec;
- 	const struct hda_input_mux *imux;
- 	struct nid_path *path;
--	int i, adc_idx, err = 0;
-+	int i, adc_idx, ret, err = 0;
+diff --git a/kernel/trace/Kconfig b/kernel/trace/Kconfig
+index 7fa82778c3e6..682334e018dd 100644
+--- a/kernel/trace/Kconfig
++++ b/kernel/trace/Kconfig
+@@ -219,6 +219,11 @@ config DYNAMIC_FTRACE_WITH_DIRECT_CALLS
+ 	depends on DYNAMIC_FTRACE_WITH_REGS
+ 	depends on HAVE_DYNAMIC_FTRACE_WITH_DIRECT_CALLS
  
- 	imux = &spec->input_mux;
- 	adc_idx = kcontrol->id.index;
-@@ -3470,9 +3470,13 @@ static int cap_put_caller(struct snd_kcontrol *kcontrol,
- 		if (!path || !path->ctls[type])
- 			continue;
- 		kcontrol->private_value = path->ctls[type];
--		err = func(kcontrol, ucontrol);
--		if (err < 0)
-+		ret = func(kcontrol, ucontrol);
-+		if (ret < 0) {
-+			err = ret;
- 			break;
-+		}
-+		if (ret > 0)
-+			err = 1;
- 	}
- 	mutex_unlock(&codec->control_mutex);
- 	if (err >= 0 && spec->cap_sync_hook)
++config DYNAMIC_FTRACE_WITH_ARGS
++	def_bool y
++	depends on DYNAMIC_FTRACE
++	depends on HAVE_DYNAMIC_FTRACE_WITH_ARGS
++
+ config FUNCTION_PROFILER
+ 	bool "Kernel function profiler"
+ 	depends on FUNCTION_TRACER
 -- 
 2.30.2
 
