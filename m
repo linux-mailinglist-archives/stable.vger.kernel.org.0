@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AFAC3F682C
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:41:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4141D3F682E
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:41:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241877AbhHXRlK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S241895AbhHXRlK (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 24 Aug 2021 13:41:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43330 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:45840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242121AbhHXRjJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:39:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F3F8B61BF3;
-        Tue, 24 Aug 2021 17:08:08 +0000 (UTC)
+        id S242125AbhHXRjK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:39:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 083FF619FA;
+        Tue, 24 Aug 2021 17:08:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824889;
-        bh=53r71JBP8p2LfzAQiH3+5iKfFwea/zlRyLgqLIzUNZc=;
+        s=k20201202; t=1629824890;
+        bh=cHNemA/vMXA5Wsdnr06Z9fAl5dgxgZxFbexkE9VknA4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kL+itDfmUtshExne2+/F5OrMUGjIUuxtSlOCYndfZflc0CEuCYIjw4HbB27tFaTd9
-         mX3xTRSGjhIbMftRw7sBofo3pvakhZOrRFpSPjzf2570tDs+PFfX7kyZ++l2tanPNg
-         KmfuLbqL35p7g2PcmoyV1UV7jIxlMXgVtYLOeqQYCaBZfUwZn/Yo8WIJVByy3CviFJ
-         2g2rG5Z3yxJq/0nBGWwPeeoV54rim4yd4JNVwOOvL6AfInKrwn+SoBFFfgse0u31dA
-         tUHZjV9KhlKPY1+vspaC8+27kpK/xLiCWvGQWUlwSqrjUCa1Jn54d7O3EhYXSXLlqr
-         MJzynaCefe2KQ==
+        b=ka8CwnZ/I/5VuHwZ+bgAUF6vBcjv59G/wLPGKN2oEuDJMnzrQUO76bl9zuM+CqDDG
+         qa23bhVpvIaqnV25wExel1si81pYWYtDD87Ab8gBQ3/I/jnqlFminoeGAUa+RFgynv
+         9poEryBL4U9uBDxwLJpBwh67lD6yLQsV4UIy5CKMhIhK4q0NEEwHGPyA2yQfz+BM8P
+         eMhOYKoJDJRT1WxH0UscP6idyj9k11LqTQaqaHkddn/4I7syXjqdeQfeWr8aXpNAMJ
+         6Co/fd29YgEh9LEwpq7A5kbl21mntejeUpD4yXBusDuqolppIMfg3Od/Lrw8R2GoiV
+         3Klwq8c6AF2+A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jaehoon Chung <jh80.chung@samsung.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Shawn Lin <shawn.lin@rock-chips.com>,
+Cc:     Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        Jaehoon Chung <jh80.chung@samsung.com>,
         Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 26/31] mmc: dw_mmc: call the dw_mci_prep_stop_abort() by default
-Date:   Tue, 24 Aug 2021 13:07:38 -0400
-Message-Id: <20210824170743.710957-27-sashal@kernel.org>
+Subject: [PATCH 4.4 27/31] mmc: dw_mmc: Fix hang on data CRC error
+Date:   Tue, 24 Aug 2021 13:07:39 -0400
+Message-Id: <20210824170743.710957-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170743.710957-1-sashal@kernel.org>
 References: <20210824170743.710957-1-sashal@kernel.org>
@@ -50,78 +49,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaehoon Chung <jh80.chung@samsung.com>
+From: Vincent Whitchurch <vincent.whitchurch@axis.com>
 
-[ Upstream commit e13c3c081845b51e8ba71a90e91c52679cfdbf89 ]
+[ Upstream commit 25f8203b4be1937c4939bb98623e67dcfd7da4d1 ]
 
-stop_cmdr should be set to values relevant to stop command.
-It migth be assigned to values whatever there is mrq->stop or not.
-Then it doesn't need to use dw_mci_prepare_command().
-It's enough to use the prep_stop_abort for preparing stop command.
+When a Data CRC interrupt is received, the driver disables the DMA, then
+sends the stop/abort command and then waits for Data Transfer Over.
 
-Signed-off-by: Jaehoon Chung <jh80.chung@samsung.com>
-Tested-by: Heiko Stuebner <heiko@sntech.de>
-Reviewed-by: Shawn Lin <shawn.lin@rock-chips.com>
+However, sometimes, when a data CRC error is received in the middle of a
+multi-block write transfer, the Data Transfer Over interrupt is never
+received, and the driver hangs and never completes the request.
+
+The driver sets the BMOD.SWR bit (SDMMC_IDMAC_SWRESET) when stopping the
+DMA, but according to the manual CMD.STOP_ABORT_CMD should be programmed
+"before assertion of SWR".  Do these operations in the recommended
+order.  With this change the Data Transfer Over is always received
+correctly in my tests.
+
+Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
+Reviewed-by: Jaehoon Chung <jh80.chung@samsung.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210630102232.16011-1-vincent.whitchurch@axis.com
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/dw_mmc.c | 15 +++++----------
- 1 file changed, 5 insertions(+), 10 deletions(-)
+ drivers/mmc/host/dw_mmc.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/mmc/host/dw_mmc.c b/drivers/mmc/host/dw_mmc.c
-index afdf539e06e9..72ab0623293c 100644
+index 72ab0623293c..7bfe9ce03944 100644
 --- a/drivers/mmc/host/dw_mmc.c
 +++ b/drivers/mmc/host/dw_mmc.c
-@@ -380,7 +380,7 @@ static void dw_mci_start_command(struct dw_mci *host,
+@@ -1768,8 +1768,8 @@ static void dw_mci_tasklet_func(unsigned long priv)
+ 					continue;
+ 				}
  
- static inline void send_stop_abort(struct dw_mci *host, struct mmc_data *data)
- {
--	struct mmc_command *stop = data->stop ? data->stop : &host->stop_abort;
-+	struct mmc_command *stop = &host->stop_abort;
- 
- 	dw_mci_start_command(host, stop, host->stop_cmdr);
- }
-@@ -1202,10 +1202,7 @@ static void __dw_mci_start_request(struct dw_mci *host,
- 		spin_unlock_irqrestore(&host->irq_lock, irqflags);
- 	}
- 
--	if (mrq->stop)
--		host->stop_cmdr = dw_mci_prepare_command(slot->mmc, mrq->stop);
--	else
--		host->stop_cmdr = dw_mci_prep_stop_abort(host, cmd);
-+	host->stop_cmdr = dw_mci_prep_stop_abort(host, cmd);
- }
- 
- static void dw_mci_start_request(struct dw_mci *host,
-@@ -1797,8 +1794,7 @@ static void dw_mci_tasklet_func(unsigned long priv)
+-				dw_mci_stop_dma(host);
+ 				send_stop_abort(host, data);
++				dw_mci_stop_dma(host);
+ 				state = STATE_SENDING_STOP;
+ 				break;
+ 			}
+@@ -1793,10 +1793,10 @@ static void dw_mci_tasklet_func(unsigned long priv)
+ 			 */
  			if (test_and_clear_bit(EVENT_DATA_ERROR,
  					       &host->pending_events)) {
- 				dw_mci_stop_dma(host);
--				if (data->stop ||
--				    !(host->data_status & (SDMMC_INT_DRTO |
-+				if (!(host->data_status & (SDMMC_INT_DRTO |
+-				dw_mci_stop_dma(host);
+ 				if (!(host->data_status & (SDMMC_INT_DRTO |
  							   SDMMC_INT_EBE)))
  					send_stop_abort(host, data);
++				dw_mci_stop_dma(host);
  				state = STATE_DATA_ERROR;
-@@ -1835,8 +1831,7 @@ static void dw_mci_tasklet_func(unsigned long priv)
+ 				break;
+ 			}
+@@ -1830,10 +1830,10 @@ static void dw_mci_tasklet_func(unsigned long priv)
+ 			 */
  			if (test_and_clear_bit(EVENT_DATA_ERROR,
  					       &host->pending_events)) {
- 				dw_mci_stop_dma(host);
--				if (data->stop ||
--				    !(host->data_status & (SDMMC_INT_DRTO |
-+				if (!(host->data_status & (SDMMC_INT_DRTO |
+-				dw_mci_stop_dma(host);
+ 				if (!(host->data_status & (SDMMC_INT_DRTO |
  							   SDMMC_INT_EBE)))
  					send_stop_abort(host, data);
++				dw_mci_stop_dma(host);
  				state = STATE_DATA_ERROR;
-@@ -1913,7 +1908,7 @@ static void dw_mci_tasklet_func(unsigned long priv)
- 			host->cmd = NULL;
- 			host->data = NULL;
- 
--			if (mrq->stop)
-+			if (!mrq->sbc && mrq->stop)
- 				dw_mci_command_complete(host, mrq->stop);
- 			else
- 				host->cmd_status = 0;
+ 				break;
+ 			}
 -- 
 2.30.2
 
