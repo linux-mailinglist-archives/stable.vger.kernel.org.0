@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2163D3F63A7
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 18:57:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B349C3F63AC
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 18:57:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234540AbhHXQ5i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 12:57:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39380 "EHLO mail.kernel.org"
+        id S235276AbhHXQ5p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 12:57:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234541AbhHXQ5T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 12:57:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D578861357;
-        Tue, 24 Aug 2021 16:56:34 +0000 (UTC)
+        id S233396AbhHXQ5U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 12:57:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CBD1761368;
+        Tue, 24 Aug 2021 16:56:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824195;
-        bh=NAahadXB7XFnLvJQTmTJsYf7xYIcyKAYCwJbYnA81rQ=;
+        s=k20201202; t=1629824196;
+        bh=2NAkDIyTRrwqI+mj+MoaPNmUKhjmatcTuJPtOJKjMRA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TMB8zVdPEnuSF8BBt520dCunzDnJ/htbMD4OiZ7lEa7QJGzmtjTyy+Ncd4hT0x3yH
-         kixMAFb+Zdrg4KibifJ/uq47Y2xNCjGNUJH8rUmlBrDMzHXoyPpZ4S1uP7bNIX9Umr
-         GpOfjZihshIBiJF/DJvF2gG/LnbcjFqVEYUnk3tvwkhi1jO2JeQRhKhe17uej6X4aC
-         ZyXcm/4HHUkvuBRi+wipvBFUcY8247DxQqt7H5VVpXAz6WW58B1mTJQi2LlLd2LetU
-         Fhf4Ant4dMt1GKQnCpNw2FibvNQC7zZgJE4OL/0EiHKBjZcj3JoI+PlO0gH3z0F4z2
-         LpbUYcgYR5AFg==
+        b=Eb4L0z0baALmuj6SssfUn5zbIT9/1Pi2QZGxWwOvfdaOGSBtdeDN0vovDYCoJqfdB
+         6G35x3aXvhgQ7WbUvu1O+F9MApfOs0+7P7Nok+Ko8mMbGh7rq4uVW4gQ4IXDyqrr5o
+         iOaGo1ZIMNavi0+JV33TOitHjiuD+mUl5BGifxaFEj4NB5UvGrIh6+irkIlx12wZ8x
+         Qnh/iRSe/Q4ED214rRzRssNWnHlA6MUuzVMR67upLMlwEoP6nNVqYseFF85J04H8aQ
+         nz902vppx0jZz1a51kEKIVc3mhuNTdCSeYFyt8AMkcfeNuvoNpcVQFQl3oOa9N4GKf
+         VugFF1IFvQpyA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Shawn Guo <shawnguo@kernel.org>,
+Cc:     Petr Vorel <petr.vorel@gmail.com>,
         Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 027/127] arm64: dts: qcom: c630: fix correct powerdown pin for WSA881x
-Date:   Tue, 24 Aug 2021 12:54:27 -0400
-Message-Id: <20210824165607.709387-28-sashal@kernel.org>
+Subject: [PATCH 5.13 028/127] arm64: dts: qcom: msm8992-bullhead: Remove PSCI
+Date:   Tue, 24 Aug 2021 12:54:28 -0400
+Message-Id: <20210824165607.709387-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165607.709387-1-sashal@kernel.org>
 References: <20210824165607.709387-1-sashal@kernel.org>
@@ -49,51 +48,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Petr Vorel <petr.vorel@gmail.com>
 
-[ Upstream commit 9a253bb42f190efd1a1c156939ad7298b3529dca ]
+[ Upstream commit 9d1fc2e4f5a94a492c7dd1ca577c66fdb7571c84 ]
 
-WSA881x powerdown pin is connected to GPIO1, GPIO2 not GPIO2 and GPIO3,
-so correct this. This was working so far due to a shift bug in gpio driver,
-however once that is fixed this will stop working, so fix this!
+Bullhead firmware obviously doesn't support PSCI as it fails to boot
+with this definition.
 
-For some reason we forgot to add this dts change in last merge cycle so
-currently audio is broken in 5.13 as the gpio driver fix already landed
-in 5.13.
-
-Reported-by: Shawn Guo <shawnguo@kernel.org>
-Fixes: 45021d35fcb2 ("arm64: dts: qcom: c630: Enable audio support")
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Tested-by: Shawn Guo <shawnguo@kernel.org>
-Link: https://lore.kernel.org/r/20210706083523.10601-1-srinivas.kandagatla@linaro.org
+Fixes: 329e16d5f8fc ("arm64: dts: qcom: msm8992: Add PSCI support.")
+Signed-off-by: Petr Vorel <petr.vorel@gmail.com>
+Link: https://lore.kernel.org/r/20210713185734.380-2-petr.vorel@gmail.com
 Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/qcom/msm8992-bullhead-rev-101.dts | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts b/arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts
-index c2a709a384e9..d7591a4621a2 100644
---- a/arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts
-+++ b/arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts
-@@ -700,7 +700,7 @@
- 		left_spkr: wsa8810-left{
- 			compatible = "sdw10217211000";
- 			reg = <0 3>;
--			powerdown-gpios = <&wcdgpio 2 GPIO_ACTIVE_HIGH>;
-+			powerdown-gpios = <&wcdgpio 1 GPIO_ACTIVE_HIGH>;
- 			#thermal-sensor-cells = <0>;
- 			sound-name-prefix = "SpkrLeft";
- 			#sound-dai-cells = <0>;
-@@ -708,7 +708,7 @@
+diff --git a/arch/arm64/boot/dts/qcom/msm8992-bullhead-rev-101.dts b/arch/arm64/boot/dts/qcom/msm8992-bullhead-rev-101.dts
+index 23cdcc9f7c72..5c6e17f11ee9 100644
+--- a/arch/arm64/boot/dts/qcom/msm8992-bullhead-rev-101.dts
++++ b/arch/arm64/boot/dts/qcom/msm8992-bullhead-rev-101.dts
+@@ -1,6 +1,7 @@
+ // SPDX-License-Identifier: GPL-2.0-only
+ /* Copyright (c) 2015, LGE Inc. All rights reserved.
+  * Copyright (c) 2016, The Linux Foundation. All rights reserved.
++ * Copyright (c) 2021, Petr Vorel <petr.vorel@gmail.com>
+  */
  
- 		right_spkr: wsa8810-right{
- 			compatible = "sdw10217211000";
--			powerdown-gpios = <&wcdgpio 3 GPIO_ACTIVE_HIGH>;
-+			powerdown-gpios = <&wcdgpio 2 GPIO_ACTIVE_HIGH>;
- 			reg = <0 4>;
- 			#thermal-sensor-cells = <0>;
- 			sound-name-prefix = "SpkrRight";
+ /dts-v1/;
+@@ -17,6 +18,9 @@
+ 	qcom,board-id = <0xb64 0>;
+ 	qcom,pmic-id = <0x10009 0x1000A 0x0 0x0>;
+ 
++	/* Bullhead firmware doesn't support PSCI */
++	/delete-node/ psci;
++
+ 	aliases {
+ 		serial0 = &blsp1_uart2;
+ 	};
 -- 
 2.30.2
 
