@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A50F3F6407
+	by mail.lfdr.de (Postfix) with ESMTP id 946633F6408
 	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:00:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239274AbhHXRAS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S234442AbhHXRAS (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 24 Aug 2021 13:00:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39458 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:38844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235862AbhHXQ6l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 12:58:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E7BD361440;
-        Tue, 24 Aug 2021 16:57:17 +0000 (UTC)
+        id S236021AbhHXQ6m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 12:58:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 17FA1613BD;
+        Tue, 24 Aug 2021 16:57:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824238;
-        bh=PvCNSCfZaqTaas9a9ikNledVoTOpKjgHbdCJFDdgDbY=;
+        s=k20201202; t=1629824239;
+        bh=+m/H46yUj6Pnb1GVwDaYm+DyOa2Z7PlBMv1Qyhe2ebM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RoZQv4XI3bJtFVFlrpV+/GcL4d9DJ9FNXwNRBu/MVtxG9Tt16Fu332/ls/OjA/mKp
-         cPgJOdV9E6uWTmZ2g7ud2EBUf+J5qwWxXiA/Eihi80WZPFmfixSxvW/776VfRpthL9
-         wHnpq/KjMSuCl7fAiYkf92alJ/BUBtOpd9NMMwjxth21bx+7ZKAWg7KHnBTnFHeGE5
-         kwcAZnsTGWGRUwwrg+VJAhhr14pZKaacoyHG8XSf26qjjlD5vSSMK4P4WPtfPHLxFj
-         FDQvcXk+p5zvAi779qeIdPxy+EOYArAFvGaKIKjZQUx5p/W5M0/2x7e0wNd/HGihX/
-         KUUFJJxt6SsXA==
+        b=NGRyaXdne5C5RcEb00fDoHMzBBs8qOmsezK3toZAs/y1iQQfMJpvkQOf5BYiu9/Ey
+         vA9mhBFmFZ2yr+Zaw3d/FPALCjBu5YhkXg2M/7u+3sPHAW7fmmkM6ZCK/rHMlWYKs2
+         XjSNYSSQbBQA01ZEyECj/SH9LQ+bLNmCebbGFpFJnwGMbl52/CSsa7VBEo2TC7oIW7
+         4pRw97z7KbgQDPWTJFkBDQEi6rFPuvb5Xr8h0VTomarYEsArM0DF8iLu4qcE4VnQc9
+         WxG4LKIosKTnpCqHrQoee7pOdYZP8SVMfFdQs9Se7kpaJDiEK7qjPknEMfKQrgLZpg
+         TWwoxPu3ucKdg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Jos=C3=A9=20Roberto=20de=20Souza?= <jose.souza@intel.com>,
-        Radhakrishna Sripada <radhakrishna.sripada@intel.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Lucas De Marchi <lucas.demarchi@intel.com>,
-        Jani Nikula <jani.nikula@intel.com>,
+Cc:     Anshuman Gupta <anshuman.gupta@intel.com>,
+        Matt Roper <matthew.d.roper@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Imre Deak <imre.deak@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 071/127] drm/i915: Skip display interruption setup when display is not available
-Date:   Tue, 24 Aug 2021 12:55:11 -0400
-Message-Id: <20210824165607.709387-72-sashal@kernel.org>
+Subject: [PATCH 5.13 072/127] drm/i915: Tweaked Wa_14010685332 for all PCHs
+Date:   Tue, 24 Aug 2021 12:55:12 -0400
+Message-Id: <20210824165607.709387-73-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165607.709387-1-sashal@kernel.org>
 References: <20210824165607.709387-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.13.13-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
 X-KernelTest-Branch: linux-5.13.y
@@ -53,124 +50,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: José Roberto de Souza <jose.souza@intel.com>
+From: Anshuman Gupta <anshuman.gupta@intel.com>
 
-[ Upstream commit a844cfbe648d15d9f1031c45508c194f2d61c917 ]
+[ Upstream commit b8441b288d6031eac21390891ba36487b2cb398b ]
 
-Return ealier in the functions doing interruption setup for GEN8+ also
-adding a warning in gen8_de_irq_handler() to let us know that
-something else is still missing.
+dispcnlunit1_cp_xosc_clkreq clock observed to be active on TGL-H platform
+despite Wa_14010685332 original sequence,
+thus blocks entry to deeper s0ix state.
 
-Reviewed-by: Radhakrishna Sripada <radhakrishna.sripada@intel.com>
-Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Cc: Lucas De Marchi <lucas.demarchi@intel.com>
-Signed-off-by: José Roberto de Souza <jose.souza@intel.com>
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210408203150.237947-1-jose.souza@intel.com
+The Tweaked Wa_14010685332 sequence fixes this issue, therefore use tweaked
+Wa_14010685332 sequence for every PCH since PCH_CNP.
+
+v2:
+- removed RKL from comment and simplified condition. [Rodrigo]
+
+Fixes: b896898c7369 ("drm/i915: Tweaked Wa_14010685332 for PCHs used on gen11 platforms")
+Cc: Matt Roper <matthew.d.roper@intel.com>
+Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Cc: Imre Deak <imre.deak@intel.com>
+Signed-off-by: Anshuman Gupta <anshuman.gupta@intel.com>
+Reviewed-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210810113112.31739-2-anshuman.gupta@intel.com
+(cherry picked from commit 8b46cc6577f4bbef7e5909bb926da31d705f350f)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/i915_irq.c | 39 +++++++++++++++++++++++++++------
- 1 file changed, 32 insertions(+), 7 deletions(-)
+ .../drm/i915/display/intel_display_power.c    | 16 +++++++-------
+ drivers/gpu/drm/i915/i915_irq.c               | 21 -------------------
+ 2 files changed, 8 insertions(+), 29 deletions(-)
 
+diff --git a/drivers/gpu/drm/i915/display/intel_display_power.c b/drivers/gpu/drm/i915/display/intel_display_power.c
+index 99126caf5747..a8597444d515 100644
+--- a/drivers/gpu/drm/i915/display/intel_display_power.c
++++ b/drivers/gpu/drm/i915/display/intel_display_power.c
+@@ -5910,13 +5910,13 @@ void intel_display_power_suspend_late(struct drm_i915_private *i915)
+ {
+ 	if (DISPLAY_VER(i915) >= 11 || IS_GEN9_LP(i915)) {
+ 		bxt_enable_dc9(i915);
+-		/* Tweaked Wa_14010685332:icp,jsp,mcc */
+-		if (INTEL_PCH_TYPE(i915) >= PCH_ICP && INTEL_PCH_TYPE(i915) <= PCH_MCC)
+-			intel_de_rmw(i915, SOUTH_CHICKEN1,
+-				     SBCLK_RUN_REFCLK_DIS, SBCLK_RUN_REFCLK_DIS);
+ 	} else if (IS_HASWELL(i915) || IS_BROADWELL(i915)) {
+ 		hsw_enable_pc8(i915);
+ 	}
++
++	/* Tweaked Wa_14010685332:cnp,icp,jsp,mcc,tgp,adp */
++	if (INTEL_PCH_TYPE(i915) >= PCH_CNP && INTEL_PCH_TYPE(i915) < PCH_DG1)
++		intel_de_rmw(i915, SOUTH_CHICKEN1, SBCLK_RUN_REFCLK_DIS, SBCLK_RUN_REFCLK_DIS);
+ }
+ 
+ void intel_display_power_resume_early(struct drm_i915_private *i915)
+@@ -5924,13 +5924,13 @@ void intel_display_power_resume_early(struct drm_i915_private *i915)
+ 	if (DISPLAY_VER(i915) >= 11 || IS_GEN9_LP(i915)) {
+ 		gen9_sanitize_dc_state(i915);
+ 		bxt_disable_dc9(i915);
+-		/* Tweaked Wa_14010685332:icp,jsp,mcc */
+-		if (INTEL_PCH_TYPE(i915) >= PCH_ICP && INTEL_PCH_TYPE(i915) <= PCH_MCC)
+-			intel_de_rmw(i915, SOUTH_CHICKEN1, SBCLK_RUN_REFCLK_DIS, 0);
+-
+ 	} else if (IS_HASWELL(i915) || IS_BROADWELL(i915)) {
+ 		hsw_disable_pc8(i915);
+ 	}
++
++	/* Tweaked Wa_14010685332:cnp,icp,jsp,mcc,tgp,adp */
++	if (INTEL_PCH_TYPE(i915) >= PCH_CNP && INTEL_PCH_TYPE(i915) < PCH_DG1)
++		intel_de_rmw(i915, SOUTH_CHICKEN1, SBCLK_RUN_REFCLK_DIS, 0);
+ }
+ 
+ void intel_display_power_suspend(struct drm_i915_private *i915)
 diff --git a/drivers/gpu/drm/i915/i915_irq.c b/drivers/gpu/drm/i915/i915_irq.c
-index 7eefbdec25a2..e0d0b300c4aa 100644
+index e0d0b300c4aa..783f25920d00 100644
 --- a/drivers/gpu/drm/i915/i915_irq.c
 +++ b/drivers/gpu/drm/i915/i915_irq.c
-@@ -2421,6 +2421,8 @@ gen8_de_irq_handler(struct drm_i915_private *dev_priv, u32 master_ctl)
- 	u32 iir;
- 	enum pipe pipe;
- 
-+	drm_WARN_ON_ONCE(&dev_priv->drm, !HAS_DISPLAY(dev_priv));
-+
- 	if (master_ctl & GEN8_DE_MISC_IRQ) {
- 		iir = intel_uncore_read(&dev_priv->uncore, GEN8_DE_MISC_IIR);
- 		if (iir) {
-@@ -3058,14 +3060,13 @@ static void cnp_display_clock_wa(struct drm_i915_private *dev_priv)
- 	}
+@@ -3042,24 +3042,6 @@ static void valleyview_irq_reset(struct drm_i915_private *dev_priv)
+ 	spin_unlock_irq(&dev_priv->irq_lock);
  }
  
--static void gen8_irq_reset(struct drm_i915_private *dev_priv)
-+static void gen8_display_irq_reset(struct drm_i915_private *dev_priv)
+-static void cnp_display_clock_wa(struct drm_i915_private *dev_priv)
+-{
+-	struct intel_uncore *uncore = &dev_priv->uncore;
+-
+-	/*
+-	 * Wa_14010685332:cnp/cmp,tgp,adp
+-	 * TODO: Clarify which platforms this applies to
+-	 * TODO: Figure out if this workaround can be applied in the s0ix suspend/resume handlers as
+-	 * on earlier platforms and whether the workaround is also needed for runtime suspend/resume
+-	 */
+-	if (INTEL_PCH_TYPE(dev_priv) == PCH_CNP ||
+-	    (INTEL_PCH_TYPE(dev_priv) >= PCH_TGP && INTEL_PCH_TYPE(dev_priv) < PCH_DG1)) {
+-		intel_uncore_rmw(uncore, SOUTH_CHICKEN1, SBCLK_RUN_REFCLK_DIS,
+-				 SBCLK_RUN_REFCLK_DIS);
+-		intel_uncore_rmw(uncore, SOUTH_CHICKEN1, SBCLK_RUN_REFCLK_DIS, 0);
+-	}
+-}
+-
+ static void gen8_display_irq_reset(struct drm_i915_private *dev_priv)
  {
  	struct intel_uncore *uncore = &dev_priv->uncore;
- 	enum pipe pipe;
- 
--	gen8_master_intr_disable(dev_priv->uncore.regs);
--
--	gen8_gt_irq_reset(&dev_priv->gt);
-+	if (!HAS_DISPLAY(dev_priv))
-+		return;
- 
- 	intel_uncore_write(uncore, EDP_PSR_IMR, 0xffffffff);
- 	intel_uncore_write(uncore, EDP_PSR_IIR, 0xffffffff);
-@@ -3077,6 +3078,16 @@ static void gen8_irq_reset(struct drm_i915_private *dev_priv)
- 
- 	GEN3_IRQ_RESET(uncore, GEN8_DE_PORT_);
- 	GEN3_IRQ_RESET(uncore, GEN8_DE_MISC_);
-+}
-+
-+static void gen8_irq_reset(struct drm_i915_private *dev_priv)
-+{
-+	struct intel_uncore *uncore = &dev_priv->uncore;
-+
-+	gen8_master_intr_disable(dev_priv->uncore.regs);
-+
-+	gen8_gt_irq_reset(&dev_priv->gt);
-+	gen8_display_irq_reset(dev_priv);
- 	GEN3_IRQ_RESET(uncore, GEN8_PCU_);
- 
+@@ -3093,7 +3075,6 @@ static void gen8_irq_reset(struct drm_i915_private *dev_priv)
  	if (HAS_PCH_SPLIT(dev_priv))
-@@ -3092,6 +3103,9 @@ static void gen11_display_irq_reset(struct drm_i915_private *dev_priv)
- 	u32 trans_mask = BIT(TRANSCODER_A) | BIT(TRANSCODER_B) |
- 		BIT(TRANSCODER_C) | BIT(TRANSCODER_D);
+ 		ibx_irq_reset(dev_priv);
  
-+	if (!HAS_DISPLAY(dev_priv))
-+		return;
-+
- 	intel_uncore_write(uncore, GEN11_DISPLAY_INT_CTL, 0);
- 
- 	if (DISPLAY_VER(dev_priv) >= 12) {
-@@ -3714,6 +3728,9 @@ static void gen8_de_irq_postinstall(struct drm_i915_private *dev_priv)
- 		BIT(TRANSCODER_C) | BIT(TRANSCODER_D);
- 	enum pipe pipe;
- 
-+	if (!HAS_DISPLAY(dev_priv))
-+		return;
-+
- 	if (DISPLAY_VER(dev_priv) <= 10)
- 		de_misc_masked |= GEN8_DE_MISC_GSE;
- 
-@@ -3797,6 +3814,16 @@ static void gen8_irq_postinstall(struct drm_i915_private *dev_priv)
- 	gen8_master_intr_enable(dev_priv->uncore.regs);
+-	cnp_display_clock_wa(dev_priv);
  }
  
-+static void gen11_de_irq_postinstall(struct drm_i915_private *dev_priv)
-+{
-+	if (!HAS_DISPLAY(dev_priv))
-+		return;
-+
-+	gen8_de_irq_postinstall(dev_priv);
-+
-+	intel_uncore_write(&dev_priv->uncore, GEN11_DISPLAY_INT_CTL,
-+			   GEN11_DISPLAY_IRQ_ENABLE);
-+}
+ static void gen11_display_irq_reset(struct drm_i915_private *dev_priv)
+@@ -3137,8 +3118,6 @@ static void gen11_display_irq_reset(struct drm_i915_private *dev_priv)
  
- static void gen11_irq_postinstall(struct drm_i915_private *dev_priv)
- {
-@@ -3807,12 +3834,10 @@ static void gen11_irq_postinstall(struct drm_i915_private *dev_priv)
- 		icp_irq_postinstall(dev_priv);
- 
- 	gen11_gt_irq_postinstall(&dev_priv->gt);
--	gen8_de_irq_postinstall(dev_priv);
-+	gen11_de_irq_postinstall(dev_priv);
- 
- 	GEN3_IRQ_INIT(uncore, GEN11_GU_MISC_, ~gu_misc_masked, gu_misc_masked);
- 
--	intel_uncore_write(&dev_priv->uncore, GEN11_DISPLAY_INT_CTL, GEN11_DISPLAY_IRQ_ENABLE);
+ 	if (INTEL_PCH_TYPE(dev_priv) >= PCH_ICP)
+ 		GEN3_IRQ_RESET(uncore, SDE);
 -
- 	if (HAS_MASTER_UNIT_IRQ(dev_priv)) {
- 		dg1_master_intr_enable(uncore->regs);
- 		intel_uncore_posting_read(&dev_priv->uncore, DG1_MSTR_UNIT_INTR);
+-	cnp_display_clock_wa(dev_priv);
+ }
+ 
+ static void gen11_irq_reset(struct drm_i915_private *dev_priv)
 -- 
 2.30.2
 
