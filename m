@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C58703F6759
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:32:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5C5A3F675C
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:32:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241592AbhHXRdF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:33:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35802 "EHLO mail.kernel.org"
+        id S241616AbhHXRdG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:33:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35826 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241323AbhHXRbD (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S241556AbhHXRbD (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 24 Aug 2021 13:31:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0899561411;
-        Tue, 24 Aug 2021 17:05:42 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DAD0761B7C;
+        Tue, 24 Aug 2021 17:05:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824743;
-        bh=/DE9xcUy9hL2UwqJVAhZPGzFOh30Kv6rzB7mLB47GhE=;
+        s=k20201202; t=1629824744;
+        bh=hTyX5k762v8JM7eRFgseJO0Tti3D9/Wq7UaPT/jY2IE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I4qCUW4levg+c3We14IwTzSGZ5BQjBErb8Djd3IBgXjr1/8ujyHdyLBoJpMlWfzzB
-         /Gys//cY8jm1bcFQJ/zMhoA/9tqUAytJjVj0bzUdksaii9yTvnmHU1n3JG6H1RzgOF
-         Zi2pMkExpYOKtwP4j0fqGblENiEqDmuwZGgnH0AFCiJLpZmV7rSXnIBGi2Ahohk/HE
-         7KXUiMMH4aCGU89tl00dCWMDONP7Xp4NVKayBOE8KmQ9JcZdEQIEdAtvYHnbpdy5C3
-         vuNdZ9kOrbQdHlIB5JrcriAwqcbb2YBDllF+ymGcR9qKYDY+7g/Qj7uIU0TRPP+7LG
-         +TrDJCCJhu6Ww==
+        b=D5WgLoro2q/wN3YdbXpP2p6lOILnAqPYRuFdA/8hU5YQNaH6dKQpQd1nvRDh7Zq74
+         AwEnruuf+rOwjLvr/snLZVDTp1Z02dSQPA7jaiNnL8VoGgnZR33BzJvl7M1+TssiLg
+         9BUlAL2P2usDwKCoJebRoo/n5fxTPYSTFUvhmJiy7XR+MhSQjUL1R9+OXdmq0hpaN0
+         yvUX0H35UtJVoAMOcBGrfQeAc6OlJdyOXVFse2eq/LLHSxUMHnVeOoeBgHt2jr1JXx
+         LM/dxYns4CUsTnfo1foSgsZRKbPdiNiNGrDzo8HxAtUhAYxiK6xsPFvpBtMk2cBoo6
+         THLlND/Z/9RKQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Ole=20Bj=C3=B8rn=20Midtb=C3=B8?= <omidtbo@cisco.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+Cc:     Randy Dunlap <rdunlap@infradead.org>, dccp@vger.kernel.org,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Gerrit Renker <gerrit@erg.abdn.ac.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 47/64] Bluetooth: hidp: use correct wait queue when removing ctrl_wait
-Date:   Tue, 24 Aug 2021 13:04:40 -0400
-Message-Id: <20210824170457.710623-48-sashal@kernel.org>
+Subject: [PATCH 4.14 48/64] dccp: add do-while-0 stubs for dccp_pr_debug macros
+Date:   Tue, 24 Aug 2021 13:04:41 -0400
+Message-Id: <20210824170457.710623-49-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170457.710623-1-sashal@kernel.org>
 References: <20210824170457.710623-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.245-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
 X-KernelTest-Branch: linux-4.14.y
@@ -49,72 +50,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ole Bjørn Midtbø <omidtbo@cisco.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit cca342d98bef68151a80b024f7bf5f388d1fbdea ]
+[ Upstream commit 86aab09a4870bb8346c9579864588c3d7f555299 ]
 
-A different wait queue was used when removing ctrl_wait than when adding
-it. This effectively made the remove operation without locking compared
-to other operations on the wait queue ctrl_wait was part of. This caused
-issues like below where dead000000000100 is LIST_POISON1 and
-dead000000000200 is LIST_POISON2.
+GCC complains about empty macros in an 'if' statement, so convert
+them to 'do {} while (0)' macros.
 
- list_add corruption. next->prev should be prev (ffffffc1b0a33a08), \
-	but was dead000000000200. (next=ffffffc03ac77de0).
- ------------[ cut here ]------------
- CPU: 3 PID: 2138 Comm: bluetoothd Tainted: G           O    4.4.238+ #9
- ...
- ---[ end trace 0adc2158f0646eac ]---
- Call trace:
- [<ffffffc000443f78>] __list_add+0x38/0xb0
- [<ffffffc0000f0d04>] add_wait_queue+0x4c/0x68
- [<ffffffc00020eecc>] __pollwait+0xec/0x100
- [<ffffffc000d1556c>] bt_sock_poll+0x74/0x200
- [<ffffffc000bdb8a8>] sock_poll+0x110/0x128
- [<ffffffc000210378>] do_sys_poll+0x220/0x480
- [<ffffffc0002106f0>] SyS_poll+0x80/0x138
- [<ffffffc00008510c>] __sys_trace_return+0x0/0x4
+Fixes these build warnings:
 
- Unable to handle kernel paging request at virtual address dead000000000100
- ...
- CPU: 4 PID: 5387 Comm: kworker/u15:3 Tainted: G        W  O    4.4.238+ #9
- ...
- Call trace:
-  [<ffffffc0000f079c>] __wake_up_common+0x7c/0xa8
-  [<ffffffc0000f0818>] __wake_up+0x50/0x70
-  [<ffffffc000be11b0>] sock_def_wakeup+0x58/0x60
-  [<ffffffc000de5e10>] l2cap_sock_teardown_cb+0x200/0x224
-  [<ffffffc000d3f2ac>] l2cap_chan_del+0xa4/0x298
-  [<ffffffc000d45ea0>] l2cap_conn_del+0x118/0x198
-  [<ffffffc000d45f8c>] l2cap_disconn_cfm+0x6c/0x78
-  [<ffffffc000d29934>] hci_event_packet+0x564/0x2e30
-  [<ffffffc000d19b0c>] hci_rx_work+0x10c/0x360
-  [<ffffffc0000c2218>] process_one_work+0x268/0x460
-  [<ffffffc0000c2678>] worker_thread+0x268/0x480
-  [<ffffffc0000c94e0>] kthread+0x118/0x128
-  [<ffffffc000085070>] ret_from_fork+0x10/0x20
-  ---[ end trace 0adc2158f0646ead ]---
+net/dccp/output.c: In function 'dccp_xmit_packet':
+../net/dccp/output.c:283:71: warning: suggest braces around empty body in an 'if' statement [-Wempty-body]
+  283 |                 dccp_pr_debug("transmit_skb() returned err=%d\n", err);
+net/dccp/ackvec.c: In function 'dccp_ackvec_update_old':
+../net/dccp/ackvec.c:163:80: warning: suggest braces around empty body in an 'else' statement [-Wempty-body]
+  163 |                                               (unsigned long long)seqno, state);
 
-Signed-off-by: Ole Bjørn Midtbø <omidtbo@cisco.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Fixes: dc841e30eaea ("dccp: Extend CCID packet dequeueing interface")
+Fixes: 380240864451 ("dccp ccid-2: Update code for the Ack Vector input/registration routine")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: dccp@vger.kernel.org
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: Gerrit Renker <gerrit@erg.abdn.ac.uk>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hidp/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/dccp/dccp.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
-index b21fcc838784..acebcf605bb5 100644
---- a/net/bluetooth/hidp/core.c
-+++ b/net/bluetooth/hidp/core.c
-@@ -1283,7 +1283,7 @@ static int hidp_session_thread(void *arg)
+diff --git a/net/dccp/dccp.h b/net/dccp/dccp.h
+index 0c55ffb859bf..121aa71fcb5c 100644
+--- a/net/dccp/dccp.h
++++ b/net/dccp/dccp.h
+@@ -44,9 +44,9 @@ extern bool dccp_debug;
+ #define dccp_pr_debug_cat(format, a...)   DCCP_PRINTK(dccp_debug, format, ##a)
+ #define dccp_debug(fmt, a...)		  dccp_pr_debug_cat(KERN_DEBUG fmt, ##a)
+ #else
+-#define dccp_pr_debug(format, a...)
+-#define dccp_pr_debug_cat(format, a...)
+-#define dccp_debug(format, a...)
++#define dccp_pr_debug(format, a...)	  do {} while (0)
++#define dccp_pr_debug_cat(format, a...)	  do {} while (0)
++#define dccp_debug(format, a...)	  do {} while (0)
+ #endif
  
- 	/* cleanup runtime environment */
- 	remove_wait_queue(sk_sleep(session->intr_sock->sk), &intr_wait);
--	remove_wait_queue(sk_sleep(session->intr_sock->sk), &ctrl_wait);
-+	remove_wait_queue(sk_sleep(session->ctrl_sock->sk), &ctrl_wait);
- 	wake_up_interruptible(&session->report_queue);
- 	hidp_del_timer(session);
- 
+ extern struct inet_hashinfo dccp_hashinfo;
 -- 
 2.30.2
 
