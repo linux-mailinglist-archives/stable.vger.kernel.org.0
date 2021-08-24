@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 436F53F63E0
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 18:58:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 061AD3F63E2
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 18:58:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238697AbhHXQ6t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 12:58:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39542 "EHLO mail.kernel.org"
+        id S238708AbhHXQ6v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 12:58:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39568 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234757AbhHXQ55 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 12:57:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BEB0B61465;
-        Tue, 24 Aug 2021 16:57:01 +0000 (UTC)
+        id S234797AbhHXQ56 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 12:57:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B9E61613AD;
+        Tue, 24 Aug 2021 16:57:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824222;
-        bh=pfpt5pINwBubUuYsLHG4/nz5ZSTF5rZDrtrmJ8wmaE0=;
+        s=k20201202; t=1629824223;
+        bh=MmX5p1v8hxJgAG21AHGUVvZ7wEOQ86368gc8V4nihdo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hg65MJGb8C3yqK4kvKWhSaOMM7nHQhGnrL3KBYt1YkIUjZig/glawsGa73UEJssWU
-         n7FJqQvJIYBgELfSiQenloCUba8G4q/xkmDSWbOpBgKb5n53r9l3KyRIsU7BuFdw5K
-         MsTnx2n2p/bbMhvu3du9pU9Sje3UzgSyof7w8Q9b8bgU68WDzWLfBMMu8M9U+CLApf
-         YiWBOkeALJGTBgZivimSJnzKFc84WlKftQoKPoqCFSWdisLMwbHmNblnDaLg2q3N0Q
-         dxkjZDH8FwOy2ZOBU/hFJMXc+e6Xe3dhU2TW/F7HA2vzCuJZMA53XnGEafeh2VdDvS
-         Iw3wfFylA8+xQ==
+        b=TxMbxWjAqsQt9Oq9CyLwwk7v5z9KAmvbYGISGiaWwHgARjf779grT5Utx5S1SU1Fx
+         ZTcxCfRiAjQlsZ8Sx6b6+jngxoQ57ufF88azOxMycCHXVu+PT8+hdzoljFHp567SHZ
+         LQ1ASe9c/orKEMhGj/ShQz8BrVLicKVLAYkqOyBZVEU5AUUElQCaBNJVFPLts24eby
+         duYxxOijErT0AYwp/feRR681EPrhklDi3AECxXwuh9w4Wn7JJPoq8nawQnWdGTDQ4o
+         s5UQzc07fG/pSoQMia3B5bZC6NiGbd6A9/9mRV06KqHcASLMT3HOPilyASsKQYw/Sg
+         Fqf8EYaV34HKQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Maxim Kochetkov <fido_max@inbox.ru>,
+Cc:     Pavel Skripkin <paskripkin@gmail.com>,
+        syzbot+fc8cd9a673d4577fb2e4@syzkaller.appspotmail.com,
         Dan Carpenter <dan.carpenter@oracle.com>,
-        Li Yang <leoyang.li@nxp.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 055/127] soc: fsl: qe: fix static checker warning
-Date:   Tue, 24 Aug 2021 12:54:55 -0400
-Message-Id: <20210824165607.709387-56-sashal@kernel.org>
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 056/127] net: 6pack: fix slab-out-of-bounds in decode_data
+Date:   Tue, 24 Aug 2021 12:54:56 -0400
+Message-Id: <20210824165607.709387-57-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165607.709387-1-sashal@kernel.org>
 References: <20210824165607.709387-1-sashal@kernel.org>
@@ -48,72 +50,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Kochetkov <fido_max@inbox.ru>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit c1e64c0aec8cb0499e61af7ea086b59abba97945 ]
+[ Upstream commit 19d1532a187669ce86d5a2696eb7275310070793 ]
 
-The patch be7ecbd240b2: "soc: fsl: qe: convert QE interrupt
-controller to platform_device" from Aug 3, 2021, leads to the
-following static checker warning:
+Syzbot reported slab-out-of bounds write in decode_data().
+The problem was in missing validation checks.
 
-	drivers/soc/fsl/qe/qe_ic.c:438 qe_ic_init()
-	warn: unsigned 'qe_ic->virq_low' is never less than zero.
+Syzbot's reproducer generated malicious input, which caused
+decode_data() to be called a lot in sixpack_decode(). Since
+rx_count_cooked is only 400 bytes and noone reported before,
+that 400 bytes is not enough, let's just check if input is malicious
+and complain about buffer overrun.
 
-In old variant irq_of_parse_and_map() returns zero if failed so
-unsigned int for virq_high/virq_low was ok.
-In new variant platform_get_irq() returns negative error codes
-if failed so we need to use int for virq_high/virq_low.
+Fail log:
+==================================================================
+BUG: KASAN: slab-out-of-bounds in drivers/net/hamradio/6pack.c:843
+Write of size 1 at addr ffff888087c5544e by task kworker/u4:0/7
 
-Also simplify high_handler checking and remove the curly braces
-to make checkpatch happy.
+CPU: 0 PID: 7 Comm: kworker/u4:0 Not tainted 5.6.0-rc3-syzkaller #0
+...
+Workqueue: events_unbound flush_to_ldisc
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x197/0x210 lib/dump_stack.c:118
+ print_address_description.constprop.0.cold+0xd4/0x30b mm/kasan/report.c:374
+ __kasan_report.cold+0x1b/0x32 mm/kasan/report.c:506
+ kasan_report+0x12/0x20 mm/kasan/common.c:641
+ __asan_report_store1_noabort+0x17/0x20 mm/kasan/generic_report.c:137
+ decode_data.part.0+0x23b/0x270 drivers/net/hamradio/6pack.c:843
+ decode_data drivers/net/hamradio/6pack.c:965 [inline]
+ sixpack_decode drivers/net/hamradio/6pack.c:968 [inline]
 
-Fixes: be7ecbd240b2 ("soc: fsl: qe: convert QE interrupt controller to platform_device")
-Signed-off-by: Maxim Kochetkov <fido_max@inbox.ru>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Li Yang <leoyang.li@nxp.com>
+Reported-and-tested-by: syzbot+fc8cd9a673d4577fb2e4@syzkaller.appspotmail.com
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/fsl/qe/qe_ic.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ drivers/net/hamradio/6pack.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/soc/fsl/qe/qe_ic.c b/drivers/soc/fsl/qe/qe_ic.c
-index e710d554425d..bbae3d39c7be 100644
---- a/drivers/soc/fsl/qe/qe_ic.c
-+++ b/drivers/soc/fsl/qe/qe_ic.c
-@@ -54,8 +54,8 @@ struct qe_ic {
- 	struct irq_chip hc_irq;
- 
- 	/* VIRQ numbers of QE high/low irqs */
--	unsigned int virq_high;
--	unsigned int virq_low;
-+	int virq_high;
-+	int virq_low;
- };
- 
- /*
-@@ -435,11 +435,10 @@ static int qe_ic_init(struct platform_device *pdev)
- 	qe_ic->virq_high = platform_get_irq(pdev, 0);
- 	qe_ic->virq_low = platform_get_irq(pdev, 1);
- 
--	if (qe_ic->virq_low < 0) {
-+	if (qe_ic->virq_low <= 0)
- 		return -ENODEV;
--	}
- 
--	if (qe_ic->virq_high != qe_ic->virq_low) {
-+	if (qe_ic->virq_high > 0 && qe_ic->virq_high != qe_ic->virq_low) {
- 		low_handler = qe_ic_cascade_low;
- 		high_handler = qe_ic_cascade_high;
- 	} else {
-@@ -459,7 +458,7 @@ static int qe_ic_init(struct platform_device *pdev)
- 	irq_set_handler_data(qe_ic->virq_low, qe_ic);
- 	irq_set_chained_handler(qe_ic->virq_low, low_handler);
- 
--	if (qe_ic->virq_high && qe_ic->virq_high != qe_ic->virq_low) {
-+	if (high_handler) {
- 		irq_set_handler_data(qe_ic->virq_high, qe_ic);
- 		irq_set_chained_handler(qe_ic->virq_high, high_handler);
+diff --git a/drivers/net/hamradio/6pack.c b/drivers/net/hamradio/6pack.c
+index 80f41945709f..da6a2a4b6cc7 100644
+--- a/drivers/net/hamradio/6pack.c
++++ b/drivers/net/hamradio/6pack.c
+@@ -833,6 +833,12 @@ static void decode_data(struct sixpack *sp, unsigned char inbyte)
+ 		return;
  	}
+ 
++	if (sp->rx_count_cooked + 2 >= sizeof(sp->cooked_buf)) {
++		pr_err("6pack: cooked buffer overrun, data loss\n");
++		sp->rx_count = 0;
++		return;
++	}
++
+ 	buf = sp->raw_buf;
+ 	sp->cooked_buf[sp->rx_count_cooked++] =
+ 		buf[0] | ((buf[1] << 2) & 0xc0);
 -- 
 2.30.2
 
