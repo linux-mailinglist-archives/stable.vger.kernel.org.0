@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AF443F5498
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 02:55:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E3373F5497
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 02:55:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234187AbhHXAz5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Aug 2021 20:55:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47514 "EHLO mail.kernel.org"
+        id S234105AbhHXAzz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Aug 2021 20:55:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234107AbhHXAzP (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233781AbhHXAzP (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 23 Aug 2021 20:55:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4912C6140F;
-        Tue, 24 Aug 2021 00:54:25 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B11ED61423;
+        Tue, 24 Aug 2021 00:54:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629766466;
-        bh=02fybzD0ASc1V3c4YuITiVUJwbYdjnQHFfVEy3TjGt4=;
+        s=k20201202; t=1629766467;
+        bh=dc6kas5jlSzoNZX45DZHg4hAZj9suAd7fww8wxE7Xgo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j9B1Jlb02dP3gr8iOQaQ2ysbkFMwHAcFWHwidqtXBIVVJ1GFqJiuowmLFQv8vB6c9
-         HPuwxgSzEu05eKar3O8mZ3yu6b5tEFe5K/Rm0QW5SS2b65j/vzkdhuOQlrYKFy7mkI
-         edF8WmHJgXzi9mZhU8ngEQLE1UFEg2aBTlypeg6AGR8ouQJozjisEcGCXfS3TSyw2/
-         DBw5huyV1nFx7FE08QMB27y+hDJoZOAsA+XUyKQWYAncxFgoZZ0VoSsEH3elvi91YS
-         u16bCsjXWBJjcJt3lotuA/EPEePfpPkhspB2zjjsiwlW7lT7Pxy+7qQNmfZnHMUnp+
-         c+c69o+iTGaRg==
+        b=eaTcss6IJrZ8F8WHqGeXBPuWW2oCQTjVKEmFnrqZNUJylSkbRR1qmXRIqy0ZhMWRf
+         32kAh4MMl2cP8/pw5CqRNnWyHEVkIo2qiRFUz9tZI49hiGQidSCjhvVJJY3CI+UcIK
+         zgnGfqnFcCN2d6xK93gdd8F5J5WamDi7aB1ATMFaq3kPZnzEi7XJ8Tus2c8xPZJB/f
+         lwq0bsaVFlgCFVr6l/N/K/O5AVw8D2aZjagfQj3HSqA02MOb6Z3N82+wpFxWX0JyBb
+         5xgYP5QDaTvivUzZycjqqsqehXzJW2vHL+CLpzbpfvYQtZQ6A84EB719Ww0UgOXfWa
+         VnyRs62RYs9sA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Ben Skeggs <bskeggs@redhat.com>, Lyude Paul <lyude@redhat.com>,
         Sasha Levin <sashal@kernel.org>,
         dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.13 22/26] drm/nouveau/kms/nv50: workaround EFI GOP window channel format differences
-Date:   Mon, 23 Aug 2021 20:53:52 -0400
-Message-Id: <20210824005356.630888-22-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.13 23/26] drm/nouveau: block a bunch of classes from userspace
+Date:   Mon, 23 Aug 2021 20:53:53 -0400
+Message-Id: <20210824005356.630888-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824005356.630888-1-sashal@kernel.org>
 References: <20210824005356.630888-1-sashal@kernel.org>
@@ -44,101 +44,173 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ben Skeggs <bskeggs@redhat.com>
 
-[ Upstream commit e78b1b545c6cfe9f87fc577128e00026fff230ba ]
+[ Upstream commit 148a8653789c01f159764ffcc3f370008966b42f ]
 
-Should fix some initial modeset failures on (at least) Ampere boards.
+Long ago, there had been plans for making use of a bunch of these APIs
+from userspace and there's various checks in place to stop misbehaving.
+
+Countless other projects have occurred in the meantime, and the pieces
+didn't finish falling into place for that to happen.
+
+They will (hopefully) in the not-too-distant future, but it won't look
+quite as insane.  The super checks are causing problems right now, and
+are going to be removed.
 
 Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
 Reviewed-by: Lyude Paul <lyude@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/dispnv50/disp.c | 27 +++++++++++++++++++++++++
- drivers/gpu/drm/nouveau/dispnv50/head.c | 13 ++++++++----
- drivers/gpu/drm/nouveau/dispnv50/head.h |  1 +
- 3 files changed, 37 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/nouveau/include/nvif/cl0080.h |  3 +-
+ drivers/gpu/drm/nouveau/nouveau_drm.c         |  1 +
+ drivers/gpu/drm/nouveau/nouveau_usif.c        | 57 ++++++++++++++-----
+ .../gpu/drm/nouveau/nvkm/engine/device/user.c |  2 +-
+ 4 files changed, 48 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/gpu/drm/nouveau/dispnv50/disp.c b/drivers/gpu/drm/nouveau/dispnv50/disp.c
-index 1c9c0cdf85db..578aaac2e277 100644
---- a/drivers/gpu/drm/nouveau/dispnv50/disp.c
-+++ b/drivers/gpu/drm/nouveau/dispnv50/disp.c
-@@ -2235,6 +2235,33 @@ nv50_disp_atomic_commit_tail(struct drm_atomic_state *state)
- 		interlock[NV50_DISP_INTERLOCK_CORE] = 0;
- 	}
+diff --git a/drivers/gpu/drm/nouveau/include/nvif/cl0080.h b/drivers/gpu/drm/nouveau/include/nvif/cl0080.h
+index 0b86c44878e0..59759c4fb62e 100644
+--- a/drivers/gpu/drm/nouveau/include/nvif/cl0080.h
++++ b/drivers/gpu/drm/nouveau/include/nvif/cl0080.h
+@@ -4,7 +4,8 @@
  
-+	/* Finish updating head(s)...
-+	 *
-+	 * NVD is rather picky about both where window assignments can change,
-+	 * *and* about certain core and window channel states matching.
-+	 *
-+	 * The EFI GOP driver on newer GPUs configures window channels with a
-+	 * different output format to what we do, and the core channel update
-+	 * in the assign_windows case above would result in a state mismatch.
-+	 *
-+	 * Delay some of the head update until after that point to workaround
-+	 * the issue.  This only affects the initial modeset.
-+	 *
-+	 * TODO: handle this better when adding flexible window mapping
-+	 */
-+	for_each_oldnew_crtc_in_state(state, crtc, old_crtc_state, new_crtc_state, i) {
-+		struct nv50_head_atom *asyh = nv50_head_atom(new_crtc_state);
-+		struct nv50_head *head = nv50_head(crtc);
+ struct nv_device_v0 {
+ 	__u8  version;
+-	__u8  pad01[7];
++	__u8  priv;
++	__u8  pad02[6];
+ 	__u64 device;	/* device identifier, ~0 for client default */
+ };
+ 
+diff --git a/drivers/gpu/drm/nouveau/nouveau_drm.c b/drivers/gpu/drm/nouveau/nouveau_drm.c
+index 885815ea917f..5cadd7c5a252 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_drm.c
++++ b/drivers/gpu/drm/nouveau/nouveau_drm.c
+@@ -242,6 +242,7 @@ nouveau_cli_init(struct nouveau_drm *drm, const char *sname,
+ 	ret = nvif_device_ctor(&cli->base.object, "drmDevice", 0, NV_DEVICE,
+ 			       &(struct nv_device_v0) {
+ 					.device = ~0,
++					.priv = true,
+ 			       }, sizeof(struct nv_device_v0),
+ 			       &cli->device);
+ 	if (ret) {
+diff --git a/drivers/gpu/drm/nouveau/nouveau_usif.c b/drivers/gpu/drm/nouveau/nouveau_usif.c
+index 9dc10b17ad34..5da1f4d223d7 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_usif.c
++++ b/drivers/gpu/drm/nouveau/nouveau_usif.c
+@@ -32,6 +32,9 @@
+ #include <nvif/event.h>
+ #include <nvif/ioctl.h>
+ 
++#include <nvif/class.h>
++#include <nvif/cl0080.h>
 +
-+		NV_ATOMIC(drm, "%s: set %04x (clr %04x)\n", crtc->name,
-+			  asyh->set.mask, asyh->clr.mask);
-+
-+		if (asyh->set.mask) {
-+			nv50_head_flush_set_wndw(head, asyh);
-+			interlock[NV50_DISP_INTERLOCK_CORE] = 1;
-+		}
-+	}
-+
- 	/* Update plane(s). */
- 	for_each_new_plane_in_state(state, plane, new_plane_state, i) {
- 		struct nv50_wndw_atom *asyw = nv50_wndw_atom(new_plane_state);
-diff --git a/drivers/gpu/drm/nouveau/dispnv50/head.c b/drivers/gpu/drm/nouveau/dispnv50/head.c
-index ec361d17e900..d66f97280282 100644
---- a/drivers/gpu/drm/nouveau/dispnv50/head.c
-+++ b/drivers/gpu/drm/nouveau/dispnv50/head.c
-@@ -50,11 +50,8 @@ nv50_head_flush_clr(struct nv50_head *head,
+ struct usif_notify_p {
+ 	struct drm_pending_event base;
+ 	struct {
+@@ -261,7 +264,7 @@ usif_object_dtor(struct usif_object *object)
  }
  
- void
--nv50_head_flush_set(struct nv50_head *head, struct nv50_head_atom *asyh)
-+nv50_head_flush_set_wndw(struct nv50_head *head, struct nv50_head_atom *asyh)
+ static int
+-usif_object_new(struct drm_file *f, void *data, u32 size, void *argv, u32 argc)
++usif_object_new(struct drm_file *f, void *data, u32 size, void *argv, u32 argc, bool parent_abi16)
  {
--	if (asyh->set.view   ) head->func->view    (head, asyh);
--	if (asyh->set.mode   ) head->func->mode    (head, asyh);
--	if (asyh->set.core   ) head->func->core_set(head, asyh);
- 	if (asyh->set.olut   ) {
- 		asyh->olut.offset = nv50_lut_load(&head->olut,
- 						  asyh->olut.buffer,
-@@ -62,6 +59,14 @@ nv50_head_flush_set(struct nv50_head *head, struct nv50_head_atom *asyh)
- 						  asyh->olut.load);
- 		head->func->olut_set(head, asyh);
- 	}
-+}
+ 	struct nouveau_cli *cli = nouveau_cli(f);
+ 	struct nvif_client *client = &cli->base;
+@@ -271,23 +274,48 @@ usif_object_new(struct drm_file *f, void *data, u32 size, void *argv, u32 argc)
+ 	struct usif_object *object;
+ 	int ret = -ENOSYS;
+ 
++	if ((ret = nvif_unpack(ret, &data, &size, args->v0, 0, 0, true)))
++		return ret;
 +
-+void
-+nv50_head_flush_set(struct nv50_head *head, struct nv50_head_atom *asyh)
-+{
-+	if (asyh->set.view   ) head->func->view    (head, asyh);
-+	if (asyh->set.mode   ) head->func->mode    (head, asyh);
-+	if (asyh->set.core   ) head->func->core_set(head, asyh);
- 	if (asyh->set.curs   ) head->func->curs_set(head, asyh);
- 	if (asyh->set.base   ) head->func->base    (head, asyh);
- 	if (asyh->set.ovly   ) head->func->ovly    (head, asyh);
-diff --git a/drivers/gpu/drm/nouveau/dispnv50/head.h b/drivers/gpu/drm/nouveau/dispnv50/head.h
-index dae841dc05fd..0bac6be9ba34 100644
---- a/drivers/gpu/drm/nouveau/dispnv50/head.h
-+++ b/drivers/gpu/drm/nouveau/dispnv50/head.h
-@@ -21,6 +21,7 @@ struct nv50_head {
++	switch (args->v0.oclass) {
++	case NV_DMA_FROM_MEMORY:
++	case NV_DMA_TO_MEMORY:
++	case NV_DMA_IN_MEMORY:
++		return -EINVAL;
++	case NV_DEVICE: {
++		union {
++			struct nv_device_v0 v0;
++		} *args = data;
++
++		if ((ret = nvif_unpack(ret, &data, &size, args->v0, 0, 0, false)))
++			return ret;
++
++		args->v0.priv = false;
++		break;
++	}
++	default:
++		if (!parent_abi16)
++			return -EINVAL;
++		break;
++	}
++
+ 	if (!(object = kmalloc(sizeof(*object), GFP_KERNEL)))
+ 		return -ENOMEM;
+ 	list_add(&object->head, &cli->objects);
  
- struct nv50_head *nv50_head_create(struct drm_device *, int index);
- void nv50_head_flush_set(struct nv50_head *head, struct nv50_head_atom *asyh);
-+void nv50_head_flush_set_wndw(struct nv50_head *head, struct nv50_head_atom *asyh);
- void nv50_head_flush_clr(struct nv50_head *head,
- 			 struct nv50_head_atom *asyh, bool flush);
+-	if (!(ret = nvif_unpack(ret, &data, &size, args->v0, 0, 0, true))) {
+-		object->route = args->v0.route;
+-		object->token = args->v0.token;
+-		args->v0.route = NVDRM_OBJECT_USIF;
+-		args->v0.token = (unsigned long)(void *)object;
+-		ret = nvif_client_ioctl(client, argv, argc);
+-		args->v0.token = object->token;
+-		args->v0.route = object->route;
++	object->route = args->v0.route;
++	object->token = args->v0.token;
++	args->v0.route = NVDRM_OBJECT_USIF;
++	args->v0.token = (unsigned long)(void *)object;
++	ret = nvif_client_ioctl(client, argv, argc);
++	if (ret) {
++		usif_object_dtor(object);
++		return ret;
+ 	}
  
+-	if (ret)
+-		usif_object_dtor(object);
+-	return ret;
++	args->v0.token = object->token;
++	args->v0.route = object->route;
++	return 0;
+ }
+ 
+ int
+@@ -301,6 +329,7 @@ usif_ioctl(struct drm_file *filp, void __user *user, u32 argc)
+ 		struct nvif_ioctl_v0 v0;
+ 	} *argv = data;
+ 	struct usif_object *object;
++	bool abi16 = false;
+ 	u8 owner;
+ 	int ret;
+ 
+@@ -331,11 +360,13 @@ usif_ioctl(struct drm_file *filp, void __user *user, u32 argc)
+ 			mutex_unlock(&cli->mutex);
+ 			goto done;
+ 		}
++
++		abi16 = true;
+ 	}
+ 
+ 	switch (argv->v0.type) {
+ 	case NVIF_IOCTL_V0_NEW:
+-		ret = usif_object_new(filp, data, size, argv, argc);
++		ret = usif_object_new(filp, data, size, argv, argc, abi16);
+ 		break;
+ 	case NVIF_IOCTL_V0_NTFY_NEW:
+ 		ret = usif_notify_new(filp, data, size, argv, argc);
+diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/device/user.c b/drivers/gpu/drm/nouveau/nvkm/engine/device/user.c
+index fea9d8f2b10c..f28894fdede9 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/device/user.c
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/device/user.c
+@@ -397,7 +397,7 @@ nvkm_udevice_new(const struct nvkm_oclass *oclass, void *data, u32 size,
+ 		return ret;
+ 
+ 	/* give priviledged clients register access */
+-	if (client->super)
++	if (args->v0.priv)
+ 		func = &nvkm_udevice_super;
+ 	else
+ 		func = &nvkm_udevice;
 -- 
 2.30.2
 
