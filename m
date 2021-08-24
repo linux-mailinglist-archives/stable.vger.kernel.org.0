@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 061AD3F63E2
+	by mail.lfdr.de (Postfix) with ESMTP id 4EF483F63E3
 	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 18:58:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238708AbhHXQ6v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 12:58:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39568 "EHLO mail.kernel.org"
+        id S238759AbhHXQ65 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 12:58:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39584 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234797AbhHXQ56 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236525AbhHXQ56 (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 24 Aug 2021 12:57:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B9E61613AD;
-        Tue, 24 Aug 2021 16:57:02 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BFCBD61368;
+        Tue, 24 Aug 2021 16:57:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824223;
-        bh=MmX5p1v8hxJgAG21AHGUVvZ7wEOQ86368gc8V4nihdo=;
+        s=k20201202; t=1629824224;
+        bh=x5OO3+APH4xGtFk3YPIE98Lfapxu2YSNkhwNaDbSHIE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TxMbxWjAqsQt9Oq9CyLwwk7v5z9KAmvbYGISGiaWwHgARjf779grT5Utx5S1SU1Fx
-         ZTcxCfRiAjQlsZ8Sx6b6+jngxoQ57ufF88azOxMycCHXVu+PT8+hdzoljFHp567SHZ
-         LQ1ASe9c/orKEMhGj/ShQz8BrVLicKVLAYkqOyBZVEU5AUUElQCaBNJVFPLts24eby
-         duYxxOijErT0AYwp/feRR681EPrhklDi3AECxXwuh9w4Wn7JJPoq8nawQnWdGTDQ4o
-         s5UQzc07fG/pSoQMia3B5bZC6NiGbd6A9/9mRV06KqHcASLMT3HOPilyASsKQYw/Sg
-         Fqf8EYaV34HKQ==
+        b=jGaf99LRwzRTjnB0XuKEcFEG0b+JQW12rp10799ehxkpQc53QhX7zaA55rFEQKKjh
+         AalcrR0FRooe0wpcNhEeT+f+lwk7WSrUODbSh4iVRzefRvSrULtxvHl6Bkpc/Vf03S
+         zXAGYFYfJyJvnDV8ejI9dkPsGGu9q21ISPBOiXh47RzSJaQZdGT/iJOKBDte7+QalX
+         O1PoV2BAyO0fbjxksqQS36HmMNc5Q5Vr/QU/9TXWI7ig7KzVXI+hj8Ave6kRTd+pDy
+         VbmXXaJx/bEv1ZjP4zz6A+YB3XvjKMWmISkMneJX7NdDThDXjMiiD8ako562v8tdof
+         B2I2i7ARUeHUA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pavel Skripkin <paskripkin@gmail.com>,
-        syzbot+fc8cd9a673d4577fb2e4@syzkaller.appspotmail.com,
-        Dan Carpenter <dan.carpenter@oracle.com>,
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        kernel test robot <lkp@intel.com>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 056/127] net: 6pack: fix slab-out-of-bounds in decode_data
-Date:   Tue, 24 Aug 2021 12:54:56 -0400
-Message-Id: <20210824165607.709387-57-sashal@kernel.org>
+Subject: [PATCH 5.13 057/127] ptp_pch: Restore dependency on PCI
+Date:   Tue, 24 Aug 2021 12:54:57 -0400
+Message-Id: <20210824165607.709387-58-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165607.709387-1-sashal@kernel.org>
 References: <20210824165607.709387-1-sashal@kernel.org>
@@ -50,65 +49,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 19d1532a187669ce86d5a2696eb7275310070793 ]
+[ Upstream commit 55c8fca1dae1fb0d11deaa21b65a647dedb1bc50 ]
 
-Syzbot reported slab-out-of bounds write in decode_data().
-The problem was in missing validation checks.
+During the swap dependency on PCH_GBE to selection PTP_1588_CLOCK_PCH
+incidentally dropped the implicit dependency on the PCI. Restore it.
 
-Syzbot's reproducer generated malicious input, which caused
-decode_data() to be called a lot in sixpack_decode(). Since
-rx_count_cooked is only 400 bytes and noone reported before,
-that 400 bytes is not enough, let's just check if input is malicious
-and complain about buffer overrun.
-
-Fail log:
-==================================================================
-BUG: KASAN: slab-out-of-bounds in drivers/net/hamradio/6pack.c:843
-Write of size 1 at addr ffff888087c5544e by task kworker/u4:0/7
-
-CPU: 0 PID: 7 Comm: kworker/u4:0 Not tainted 5.6.0-rc3-syzkaller #0
-...
-Workqueue: events_unbound flush_to_ldisc
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x197/0x210 lib/dump_stack.c:118
- print_address_description.constprop.0.cold+0xd4/0x30b mm/kasan/report.c:374
- __kasan_report.cold+0x1b/0x32 mm/kasan/report.c:506
- kasan_report+0x12/0x20 mm/kasan/common.c:641
- __asan_report_store1_noabort+0x17/0x20 mm/kasan/generic_report.c:137
- decode_data.part.0+0x23b/0x270 drivers/net/hamradio/6pack.c:843
- decode_data drivers/net/hamradio/6pack.c:965 [inline]
- sixpack_decode drivers/net/hamradio/6pack.c:968 [inline]
-
-Reported-and-tested-by: syzbot+fc8cd9a673d4577fb2e4@syzkaller.appspotmail.com
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Fixes: 18d359ceb044 ("pch_gbe, ptp_pch: Fix the dependency direction between these drivers")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/hamradio/6pack.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/ptp/Kconfig | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/hamradio/6pack.c b/drivers/net/hamradio/6pack.c
-index 80f41945709f..da6a2a4b6cc7 100644
---- a/drivers/net/hamradio/6pack.c
-+++ b/drivers/net/hamradio/6pack.c
-@@ -833,6 +833,12 @@ static void decode_data(struct sixpack *sp, unsigned char inbyte)
- 		return;
- 	}
- 
-+	if (sp->rx_count_cooked + 2 >= sizeof(sp->cooked_buf)) {
-+		pr_err("6pack: cooked buffer overrun, data loss\n");
-+		sp->rx_count = 0;
-+		return;
-+	}
-+
- 	buf = sp->raw_buf;
- 	sp->cooked_buf[sp->rx_count_cooked++] =
- 		buf[0] | ((buf[1] << 2) & 0xc0);
+diff --git a/drivers/ptp/Kconfig b/drivers/ptp/Kconfig
+index 8c20e524e9ad..e085c255da0c 100644
+--- a/drivers/ptp/Kconfig
++++ b/drivers/ptp/Kconfig
+@@ -90,7 +90,8 @@ config PTP_1588_CLOCK_INES
+ config PTP_1588_CLOCK_PCH
+ 	tristate "Intel PCH EG20T as PTP clock"
+ 	depends on X86_32 || COMPILE_TEST
+-	depends on HAS_IOMEM && NET
++	depends on HAS_IOMEM && PCI
++	depends on NET
+ 	imply PTP_1588_CLOCK
+ 	help
+ 	  This driver adds support for using the PCH EG20T as a PTP
 -- 
 2.30.2
 
