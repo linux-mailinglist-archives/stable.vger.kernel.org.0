@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E0AE13F560B
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 04:58:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D900F3F560E
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 04:58:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234298AbhHXC6r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S234329AbhHXC6r (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 23 Aug 2021 22:58:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53496 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:53662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234202AbhHXC6m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Aug 2021 22:58:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C0DB61178;
-        Tue, 24 Aug 2021 02:57:58 +0000 (UTC)
+        id S234250AbhHXC6p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Aug 2021 22:58:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D7A761181;
+        Tue, 24 Aug 2021 02:58:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629773879;
-        bh=wIcB2ez8VGZy9U25t34S3ecaBGQGmJnMWr9rUr4K4nA=;
+        s=k20201202; t=1629773881;
+        bh=488II47UZumJWOtyj4EvUcbvyJ7tQiCamOi78w36Fwc=;
         h=From:To:Cc:Subject:Date:From;
-        b=MjsEyaseETmZFLJHObEwkXaS2rXbFX+XFmVsA7JAUiCj9frm0Rq4QsZY5Aw9ngtte
-         bCpZX6L3A3G/eHVRCA2HYk9xvdn3QYQ0izte7BS40JXRhujxpA7BPxx/mpSzA7sae8
-         7dMR3CTWF4JkwUD98nqE0jmebU4ge+qzBkkxYV/l4un9TyQ+p/EJfTWcOusZEhsoOg
-         iIi8iZs3LtKRZ8ATVZRkTJ1sNYkbhjKR2KsTVPax9vN4Z9ob/pvkqu4pYktCOimr1j
-         NQupBM5gi6iFqwDqCEp6yKifnKMmcH+SWRrUG0V98d3nG+UqM9VfQF7VtGJhHoV1AR
-         egkIbkanw8o8g==
+        b=GyBIp9keWfIg+0Ogr66MaefH31DfMefY0jUJ16YZRokaQHEA3YTLrAq1TkLf5QEpj
+         htDNvP94LuDRFVswNST/nP2KzAEsFaewGPlzV5RTIiAXrmQBURQU/1UMaD5ve7eWR8
+         Dy6fVR4ZG4lMd4oBTxMv/pz2tipmOwNiGUfp+P3FrUq+07umxKl2uRIGTS0e6cpVu3
+         tCJF4Lvkn1lVXNeu4ZpjqQu8A4n+lbZF7aHsGBSIQF00SpUet3BpwyJVR6v6PxSAyJ
+         wuZqSQbtqMpKweBUjl+BYA5UAhy1Q6ie78y9w2gj2TFDwuksmXhhQbOE652LZo1bI4
+         dcloxD+R8FZ1w==
 From:   Sasha Levin <sashal@kernel.org>
-To:     stable@vger.kernel.org, srinivas.kandagatla@linaro.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-arm-msm@vger.kernel.org, alsa-devel@alsa-project.org,
+To:     stable@vger.kernel.org, kristin@tombom.co.uk
+Cc:     Takashi Iwai <tiwai@suse.de>, alsa-devel@alsa-project.org,
         linux-kernel@vger.kernel.org
-Subject: FAILED: Patch "slimbus: ngd: set correct device for pm" failed to apply to 5.4-stable tree
-Date:   Mon, 23 Aug 2021 22:57:57 -0400
-Message-Id: <20210824025757.658465-1-sashal@kernel.org>
+Subject: FAILED: Patch "ALSA: hda/realtek: Enable 4-speaker output for Dell XPS 15 9510 laptop" failed to apply to 5.4-stable tree
+Date:   Mon, 23 Aug 2021 22:57:59 -0400
+Message-Id: <20210824025800.658538-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
 X-Patchwork-Hint: ignore
@@ -50,66 +49,36 @@ Sasha
 
 ------------------ original commit in Linus's tree ------------------
 
-From c0e38eaa8d5102c138e4f16658ea762417d42a8f Mon Sep 17 00:00:00 2001
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Date: Mon, 9 Aug 2021 09:24:27 +0100
-Subject: [PATCH] slimbus: ngd: set correct device for pm
+From da94692001ea45ffa1f5e9f17ecdef7aecd90c27 Mon Sep 17 00:00:00 2001
+From: Kristin Paget <kristin@tombom.co.uk>
+Date: Sat, 14 Aug 2021 15:46:05 -0700
+Subject: [PATCH] ALSA: hda/realtek: Enable 4-speaker output for Dell XPS 15
+ 9510 laptop
 
-For some reason we ended up using wrong device in some places for pm_runtime calls.
-Fix this so that NGG driver can do runtime pm correctly.
+The 2021-model XPS 15 appears to use the same 4-speakers-on-ALC289 audio
+setup as the Precision models, so requires the same quirk to enable woofer
+output. Tested on my own 9510.
 
-Fixes: 917809e2280b ("slimbus: ngd: Add qcom SLIMBus NGD driver")
+Signed-off-by: Kristin Paget <kristin@tombom.co.uk>
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20210809082428.11236-4-srinivas.kandagatla@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/e1fc95c5-c10a-1f98-a5c2-dd6e336157e1@tombom.co.uk
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 ---
- drivers/slimbus/qcom-ngd-ctrl.c | 17 +++++++++--------
- 1 file changed, 9 insertions(+), 8 deletions(-)
+ sound/pci/hda/patch_realtek.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/slimbus/qcom-ngd-ctrl.c b/drivers/slimbus/qcom-ngd-ctrl.c
-index c054e83ab636..f3ee8e036372 100644
---- a/drivers/slimbus/qcom-ngd-ctrl.c
-+++ b/drivers/slimbus/qcom-ngd-ctrl.c
-@@ -618,7 +618,7 @@ static void qcom_slim_ngd_rx(struct qcom_slim_ngd_ctrl *ctrl, u8 *buf)
- 		(mc == SLIM_USR_MC_GENERIC_ACK &&
- 		 mt == SLIM_MSG_MT_SRC_REFERRED_USER)) {
- 		slim_msg_response(&ctrl->ctrl, &buf[4], buf[3], len - 4);
--		pm_runtime_mark_last_busy(ctrl->dev);
-+		pm_runtime_mark_last_busy(ctrl->ctrl.dev);
- 	}
- }
- 
-@@ -1257,13 +1257,14 @@ static int qcom_slim_ngd_enable(struct qcom_slim_ngd_ctrl *ctrl, bool enable)
- 		}
- 		/* controller state should be in sync with framework state */
- 		complete(&ctrl->qmi.qmi_comp);
--		if (!pm_runtime_enabled(ctrl->dev) ||
--				!pm_runtime_suspended(ctrl->dev))
--			qcom_slim_ngd_runtime_resume(ctrl->dev);
-+		if (!pm_runtime_enabled(ctrl->ctrl.dev) ||
-+			 !pm_runtime_suspended(ctrl->ctrl.dev))
-+			qcom_slim_ngd_runtime_resume(ctrl->ctrl.dev);
- 		else
--			pm_runtime_resume(ctrl->dev);
--		pm_runtime_mark_last_busy(ctrl->dev);
--		pm_runtime_put(ctrl->dev);
-+			pm_runtime_resume(ctrl->ctrl.dev);
-+
-+		pm_runtime_mark_last_busy(ctrl->ctrl.dev);
-+		pm_runtime_put(ctrl->ctrl.dev);
- 
- 		ret = slim_register_controller(&ctrl->ctrl);
- 		if (ret) {
-@@ -1389,7 +1390,7 @@ static int qcom_slim_ngd_ssr_pdr_notify(struct qcom_slim_ngd_ctrl *ctrl,
- 		/* Make sure the last dma xfer is finished */
- 		mutex_lock(&ctrl->tx_lock);
- 		if (ctrl->state != QCOM_SLIM_NGD_CTRL_DOWN) {
--			pm_runtime_get_noresume(ctrl->dev);
-+			pm_runtime_get_noresume(ctrl->ctrl.dev);
- 			ctrl->state = QCOM_SLIM_NGD_CTRL_DOWN;
- 			qcom_slim_ngd_down(ctrl);
- 			qcom_slim_ngd_exit_dma(ctrl);
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index a065260d0d20..96f32eaa24df 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -8332,6 +8332,7 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+ 	SND_PCI_QUIRK(0x1028, 0x0a2e, "Dell", ALC236_FIXUP_DELL_AIO_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1028, 0x0a30, "Dell", ALC236_FIXUP_DELL_AIO_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1028, 0x0a58, "Dell", ALC255_FIXUP_DELL_HEADSET_MIC),
++	SND_PCI_QUIRK(0x1028, 0x0a61, "Dell XPS 15 9510", ALC289_FIXUP_DUAL_SPK),
+ 	SND_PCI_QUIRK(0x1028, 0x164a, "Dell", ALC293_FIXUP_DELL1_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1028, 0x164b, "Dell", ALC293_FIXUP_DELL1_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x103c, 0x1586, "HP", ALC269_FIXUP_HP_MUTE_LED_MIC2),
 -- 
 2.30.2
 
