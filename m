@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4E033F639F
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 18:56:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 519933F63A0
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 18:56:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234958AbhHXQ5c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 12:57:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39206 "EHLO mail.kernel.org"
+        id S234298AbhHXQ5e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 12:57:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39218 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234257AbhHXQ5N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 12:57:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 46C9461374;
-        Tue, 24 Aug 2021 16:56:28 +0000 (UTC)
+        id S234343AbhHXQ5O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 12:57:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 26127613AB;
+        Tue, 24 Aug 2021 16:56:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824188;
-        bh=JaQQDWTDJD/juKy/Yq5YS5zSjfP6vGiSD6Awz3BvaR0=;
+        s=k20201202; t=1629824189;
+        bh=jC6uSCrgt69kXfrpA/d+Zpv7RChIWevKRH+aKooCZ/c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UqgNHcQmh0vIRF5od0NK/SNiTo0Oqs7AWXNNM/M1bFrN1B4abYHm4xl3HYL8esWHj
-         dHXBQdEDVcVKmDrzlzSs+hBqrb3GntBu/jDavCWtKehlYjhoMdgM+RNYIZurZEXOk8
-         IB/uD1ttXfnMXro4TXcYFF788YAxet/+kpI417Z2Ore8tJPNcce268FS2g1u8v9WVz
-         +06lyFE30hfBy94p5NQVH4xdh9tm+WErX5EN51Z/sF8tUFAL+T7ywecSSPrhw1x8i1
-         6XiYixLcdkzx4Pd4PCPRPB1R+cw4Sw0hPvGrcaJXyC2J8Rn9xRZs+iFEL1MzlARE9t
-         JLSemMOXg/nqw==
+        b=DpRpy/b4mQ15Kcmo73gWIGIvxe5m6zfz4+Cwkr/2T3J/AZg4iIhaq+iuFKI/+O/TQ
+         jwuY1o60QNFDkWqvRPVLEzNXNyiauRAfsZPuRD9UzPtuqFQ0mZEtd8TmXsfILyw78m
+         HP7qT7tDdDfl3T6DqtIuBiK3wwZ0Gqy9Gn+N54xdj8BFQeD+ZEkk5LeG7FQgwaQmvA
+         gv7vmFxhWE5DG+Y5lUdTlluITV493f+Jx+3x19oToP2jp/nLBWfwHn8RlgaO1b7Qsc
+         UMAJ76pVGuleEQP86Ac+F9RB7Fno4bbz3zoJlM0RXnr1ZK1yqtJ2zrB6luQ1uGvSgY
+         P1XinFNV4jhpA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Ivan T. Ivanov" <iivanov@suse.de>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 020/127] net: usb: lan78xx: don't modify phy_device state concurrently
-Date:   Tue, 24 Aug 2021 12:54:20 -0400
-Message-Id: <20210824165607.709387-21-sashal@kernel.org>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Vince Weaver <vincent.weaver@maine.edu>,
+        Like Xu <likexu@tencent.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 021/127] perf/x86: Fix out of bound MSR access
+Date:   Tue, 24 Aug 2021 12:54:21 -0400
+Message-Id: <20210824165607.709387-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165607.709387-1-sashal@kernel.org>
 References: <20210824165607.709387-1-sashal@kernel.org>
@@ -48,77 +48,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Ivan T. Ivanov" <iivanov@suse.de>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit 6b67d4d63edece1033972214704c04f36c5be89a ]
+[ Upstream commit f4b4b45652578357031fbbef7f7a1b04f6fa2dc3 ]
 
-Currently phy_device state could be left in inconsistent state shown
-by following alert message[1]. This is because phy_read_status could
-be called concurrently from lan78xx_delayedwork, phy_state_machine and
-__ethtool_get_link. Fix this by making sure that phy_device state is
-updated atomically.
+On Wed, Jul 28, 2021 at 12:49:43PM -0400, Vince Weaver wrote:
+> [32694.087403] unchecked MSR access error: WRMSR to 0x318 (tried to write 0x0000000000000000) at rIP: 0xffffffff8106f854 (native_write_msr+0x4/0x20)
+> [32694.101374] Call Trace:
+> [32694.103974]  perf_clear_dirty_counters+0x86/0x100
 
-[1] lan78xx 1-1.1.1:1.0 eth0: No phy led trigger registered for speed(-1)
+The problem being that it doesn't filter out all fake counters, in
+specific the above (erroneously) tries to use FIXED_BTS. Limit the
+fixed counters indexes to the hardware supplied number.
 
-Signed-off-by: Ivan T. Ivanov <iivanov@suse.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: Vince Weaver <vincent.weaver@maine.edu>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Tested-by: Vince Weaver <vincent.weaver@maine.edu>
+Tested-by: Like Xu <likexu@tencent.com>
+Link: https://lkml.kernel.org/r/YQJxka3dxgdIdebG@hirez.programming.kicks-ass.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/lan78xx.c | 16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ arch/x86/events/core.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/usb/lan78xx.c b/drivers/net/usb/lan78xx.c
-index 02bce40a67e5..c46a66ea32eb 100644
---- a/drivers/net/usb/lan78xx.c
-+++ b/drivers/net/usb/lan78xx.c
-@@ -1154,7 +1154,7 @@ static int lan78xx_link_reset(struct lan78xx_net *dev)
- {
- 	struct phy_device *phydev = dev->net->phydev;
- 	struct ethtool_link_ksettings ecmd;
--	int ladv, radv, ret;
-+	int ladv, radv, ret, link;
- 	u32 buf;
+diff --git a/arch/x86/events/core.c b/arch/x86/events/core.c
+index 1eb45139fcc6..3092fbf9dbe4 100644
+--- a/arch/x86/events/core.c
++++ b/arch/x86/events/core.c
+@@ -2489,13 +2489,15 @@ void perf_clear_dirty_counters(void)
+ 		return;
  
- 	/* clear LAN78xx interrupt status */
-@@ -1162,9 +1162,12 @@ static int lan78xx_link_reset(struct lan78xx_net *dev)
- 	if (unlikely(ret < 0))
- 		return -EIO;
- 
-+	mutex_lock(&phydev->lock);
- 	phy_read_status(phydev);
-+	link = phydev->link;
-+	mutex_unlock(&phydev->lock);
- 
--	if (!phydev->link && dev->link_on) {
-+	if (!link && dev->link_on) {
- 		dev->link_on = false;
- 
- 		/* reset MAC */
-@@ -1177,7 +1180,7 @@ static int lan78xx_link_reset(struct lan78xx_net *dev)
- 			return -EIO;
- 
- 		del_timer(&dev->stat_monitor);
--	} else if (phydev->link && !dev->link_on) {
-+	} else if (link && !dev->link_on) {
- 		dev->link_on = true;
- 
- 		phy_ethtool_ksettings_get(phydev, &ecmd);
-@@ -1466,9 +1469,14 @@ static int lan78xx_set_eee(struct net_device *net, struct ethtool_eee *edata)
- 
- static u32 lan78xx_get_link(struct net_device *net)
- {
-+	u32 link;
+ 	for_each_set_bit(i, cpuc->dirty, X86_PMC_IDX_MAX) {
+-		/* Metrics and fake events don't have corresponding HW counters. */
+-		if (is_metric_idx(i) || (i == INTEL_PMC_IDX_FIXED_VLBR))
+-			continue;
+-		else if (i >= INTEL_PMC_IDX_FIXED)
++		if (i >= INTEL_PMC_IDX_FIXED) {
++			/* Metrics and fake events don't have corresponding HW counters. */
++			if ((i - INTEL_PMC_IDX_FIXED) >= hybrid(cpuc->pmu, num_counters_fixed))
++				continue;
 +
-+	mutex_lock(&net->phydev->lock);
- 	phy_read_status(net->phydev);
-+	link = net->phydev->link;
-+	mutex_unlock(&net->phydev->lock);
+ 			wrmsrl(MSR_ARCH_PERFMON_FIXED_CTR0 + (i - INTEL_PMC_IDX_FIXED), 0);
+-		else
++		} else {
+ 			wrmsrl(x86_pmu_event_addr(i), 0);
++		}
+ 	}
  
--	return net->phydev->link;
-+	return link;
- }
- 
- static void lan78xx_get_drvinfo(struct net_device *net,
+ 	bitmap_zero(cpuc->dirty, X86_PMC_IDX_MAX);
 -- 
 2.30.2
 
