@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AC383F63DA
+	by mail.lfdr.de (Postfix) with ESMTP id E36D23F63DC
 	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 18:58:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238658AbhHXQ6l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 12:58:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39458 "EHLO mail.kernel.org"
+        id S238676AbhHXQ6m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 12:58:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230087AbhHXQ5z (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236318AbhHXQ5z (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 24 Aug 2021 12:57:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D8B1061373;
-        Tue, 24 Aug 2021 16:56:57 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D1DA361425;
+        Tue, 24 Aug 2021 16:56:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824218;
-        bh=jJbJhh5A1KzclL7VUWa5dcUIHZoPOJLaByE9B3ygb9E=;
+        s=k20201202; t=1629824219;
+        bh=3ufwPgDyUuRYR33x4aV6Vojx0j7Vu5YuotZIlwfrHfM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e/qKY/apSoLl9pdvjng88suKOYXJq7jp2nabWgQrTCgF/Jtjfuvji9ThgXZoikmfn
-         AQ9MPDSVubrD2OOCf/Ek5qpZXoHVxGflBFFFYQAySPwcrxxBUdg8RLpKJGjaVc6QBq
-         rBNI+ysIpxkUC1J1BUNJfXP5LO/acPyqjJpse2TIeGNRdtS5zjz5Ne2QevyOsFU3KH
-         uR/eDvPJc90oVa3Hacczv6IoX//Lstb/SsPYGCWfeSvwzKDETRIX7E8yi5SMIi8Aif
-         3apjJg+JQ/mehy/HdFOKiPHsMNTNJaUkTAIUSNYqt78U9NXA9fTADAwfHB8kxherRq
-         revnUeydzwUUw==
+        b=fLICHJzhCMLIE0m5aJhuG9BwVXAK41SWgfvZeDt/z7uAmNz9gZpiW8z4433384+Bf
+         CQI1g+4u4z7PGerpAX+tkhzAyQHF3bP9jbYDZq2WmSj7d4F5Ia2cu0mG86Ep2SoGUd
+         Gr2kMNvxvmNc3nD3BlEu6cAndehWUf6VUPKHEqBSVEH69fGGW6JzyhMKp3NkXMOgZk
+         VZ1cLilyzlavdroIiOhDhWci2i/auZCePFatQu7PmVer620c/tNRh2xvZSfhPI9Rkq
+         1Ih1fDGRpuFrA0SNT7Ffw0Rwl8jOvA0BSpwXk0oPs2xthIwKyYytAZ0HlNf5Ynka0F
+         Rn7gUyFETpkkw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Jakub Kicinski <kuba@kernel.org>,
         Michael Chan <michael.chan@broadcom.com>,
         Edwin Peer <edwin.peer@broadcom.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 051/127] bnxt: don't lock the tx queue from napi poll
-Date:   Tue, 24 Aug 2021 12:54:51 -0400
-Message-Id: <20210824165607.709387-52-sashal@kernel.org>
+Subject: [PATCH 5.13 052/127] bnxt: disable napi before canceling DIM
+Date:   Tue, 24 Aug 2021 12:54:52 -0400
+Message-Id: <20210824165607.709387-53-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165607.709387-1-sashal@kernel.org>
 References: <20210824165607.709387-1-sashal@kernel.org>
@@ -51,137 +51,39 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit 3c603136c9f82833813af77185618de5af67676c ]
+[ Upstream commit 01cca6b9330ac7460de44eeeb3a0607f8aae69ff ]
 
-We can't take the tx lock from the napi poll routine, because
-netpoll can poll napi at any moment, including with the tx lock
-already held.
+napi schedules DIM, napi has to be disabled first,
+then DIM canceled.
 
-The tx lock is protecting against two paths - the disable
-path, and (as Michael points out) the NETDEV_TX_BUSY case
-which may occur if NAPI completions race with start_xmit
-and both decide to re-enable the queue.
+Noticed while reading the code.
 
-For the disable/ifdown path use synchronize_net() to make sure
-closing the device does not race we restarting the queues.
-Annotate accesses to dev_state against data races.
-
-For the NAPI cleanup vs start_xmit path - appropriate barriers
-are already in place in the main spot where Tx queue is stopped
-but we need to do the same careful dance in the TX_BUSY case.
-
-Fixes: c0c050c58d84 ("bnxt_en: New Broadcom ethernet driver.")
+Fixes: 0bc0b97fca73 ("bnxt_en: cleanup DIM work on device shutdown")
+Fixes: 6a8788f25625 ("bnxt_en: add support for software dynamic interrupt moderation")
 Reviewed-by: Michael Chan <michael.chan@broadcom.com>
 Reviewed-by: Edwin Peer <edwin.peer@broadcom.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c | 54 ++++++++++++++---------
- 1 file changed, 32 insertions(+), 22 deletions(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
 diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-index 3c3aa9467310..d0b3be7b1c1a 100644
+index d0b3be7b1c1a..17ee5c436069 100644
 --- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
 +++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -362,6 +362,26 @@ static u16 bnxt_xmit_get_cfa_action(struct sk_buff *skb)
- 	return md_dst->u.port_info.port_id;
- }
+@@ -9024,10 +9024,9 @@ static void bnxt_disable_napi(struct bnxt *bp)
+ 	for (i = 0; i < bp->cp_nr_rings; i++) {
+ 		struct bnxt_cp_ring_info *cpr = &bp->bnapi[i]->cp_ring;
  
-+static bool bnxt_txr_netif_try_stop_queue(struct bnxt *bp,
-+					  struct bnxt_tx_ring_info *txr,
-+					  struct netdev_queue *txq)
-+{
-+	netif_tx_stop_queue(txq);
-+
-+	/* netif_tx_stop_queue() must be done before checking
-+	 * tx index in bnxt_tx_avail() below, because in
-+	 * bnxt_tx_int(), we update tx index before checking for
-+	 * netif_tx_queue_stopped().
-+	 */
-+	smp_mb();
-+	if (bnxt_tx_avail(bp, txr) > bp->tx_wake_thresh) {
-+		netif_tx_wake_queue(txq);
-+		return false;
-+	}
-+
-+	return true;
-+}
-+
- static netdev_tx_t bnxt_start_xmit(struct sk_buff *skb, struct net_device *dev)
- {
- 	struct bnxt *bp = netdev_priv(dev);
-@@ -390,8 +410,8 @@ static netdev_tx_t bnxt_start_xmit(struct sk_buff *skb, struct net_device *dev)
- 
- 	free_size = bnxt_tx_avail(bp, txr);
- 	if (unlikely(free_size < skb_shinfo(skb)->nr_frags + 2)) {
--		netif_tx_stop_queue(txq);
--		return NETDEV_TX_BUSY;
-+		if (bnxt_txr_netif_try_stop_queue(bp, txr, txq))
-+			return NETDEV_TX_BUSY;
- 	}
- 
- 	length = skb->len;
-@@ -605,16 +625,7 @@ tx_done:
- 		if (netdev_xmit_more() && !tx_buf->is_push)
- 			bnxt_db_write(bp, &txr->tx_db, prod);
- 
--		netif_tx_stop_queue(txq);
++		napi_disable(&bp->bnapi[i]->napi);
+ 		if (bp->bnapi[i]->rx_ring)
+ 			cancel_work_sync(&cpr->dim.work);
 -
--		/* netif_tx_stop_queue() must be done before checking
--		 * tx index in bnxt_tx_avail() below, because in
--		 * bnxt_tx_int(), we update tx index before checking for
--		 * netif_tx_queue_stopped().
--		 */
--		smp_mb();
--		if (bnxt_tx_avail(bp, txr) > bp->tx_wake_thresh)
--			netif_tx_wake_queue(txq);
-+		bnxt_txr_netif_try_stop_queue(bp, txr, txq);
+-		napi_disable(&bp->bnapi[i]->napi);
  	}
- 	return NETDEV_TX_OK;
- 
-@@ -698,14 +709,9 @@ next_tx_int:
- 	smp_mb();
- 
- 	if (unlikely(netif_tx_queue_stopped(txq)) &&
--	    (bnxt_tx_avail(bp, txr) > bp->tx_wake_thresh)) {
--		__netif_tx_lock(txq, smp_processor_id());
--		if (netif_tx_queue_stopped(txq) &&
--		    bnxt_tx_avail(bp, txr) > bp->tx_wake_thresh &&
--		    txr->dev_state != BNXT_DEV_STATE_CLOSING)
--			netif_tx_wake_queue(txq);
--		__netif_tx_unlock(txq);
--	}
-+	    bnxt_tx_avail(bp, txr) > bp->tx_wake_thresh &&
-+	    READ_ONCE(txr->dev_state) != BNXT_DEV_STATE_CLOSING)
-+		netif_tx_wake_queue(txq);
  }
  
- static struct page *__bnxt_alloc_rx_page(struct bnxt *bp, dma_addr_t *mapping,
-@@ -9055,9 +9061,11 @@ void bnxt_tx_disable(struct bnxt *bp)
- 	if (bp->tx_ring) {
- 		for (i = 0; i < bp->tx_nr_rings; i++) {
- 			txr = &bp->tx_ring[i];
--			txr->dev_state = BNXT_DEV_STATE_CLOSING;
-+			WRITE_ONCE(txr->dev_state, BNXT_DEV_STATE_CLOSING);
- 		}
- 	}
-+	/* Make sure napi polls see @dev_state change */
-+	synchronize_net();
- 	/* Drop carrier first to prevent TX timeout */
- 	netif_carrier_off(bp->dev);
- 	/* Stop all TX queues */
-@@ -9071,8 +9079,10 @@ void bnxt_tx_enable(struct bnxt *bp)
- 
- 	for (i = 0; i < bp->tx_nr_rings; i++) {
- 		txr = &bp->tx_ring[i];
--		txr->dev_state = 0;
-+		WRITE_ONCE(txr->dev_state, 0);
- 	}
-+	/* Make sure napi polls see @dev_state change */
-+	synchronize_net();
- 	netif_tx_wake_all_queues(bp->dev);
- 	if (bp->link_info.link_up)
- 		netif_carrier_on(bp->dev);
 -- 
 2.30.2
 
