@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 31C813F6537
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:10:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 033933F653B
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:10:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239171AbhHXRKn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:10:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52078 "EHLO mail.kernel.org"
+        id S239502AbhHXRKp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:10:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239384AbhHXRJF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:09:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3643761A51;
-        Tue, 24 Aug 2021 17:00:20 +0000 (UTC)
+        id S239859AbhHXRJk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:09:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B80B61A52;
+        Tue, 24 Aug 2021 17:00:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824421;
-        bh=3ptPghadu1Imn4MYEIpGfTLp9PMoiyFdNQn2geEu2Hw=;
+        s=k20201202; t=1629824422;
+        bh=AESHKDUZqNd5dXqLnLIv1OlWBblWwGqbJADwnOLV8YE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t0cy/gxBEyJXrcK7GhdeEe446X027uMkD8YI6bSuCHjvcyEbG9f4W9dviNTWewLGI
-         N29zb+1Vp0TiYSKl92XLpJ4rHZU919/7Vvzbqc1Ucuy/+DbBs45qdHgXyrX2qu2oWo
-         Qtzg0i1syXmxgIFgGTE8sEYveuUt3TETKaeI/eRr7Hl16pmSSsUeWh8Bk1hO699J6L
-         c2e4on2n0uQ2tkPfFG09zLXow3bOF8LawL0YFCC1Aw+/S6y/xTDpXE04Fak6nqo1YH
-         pM5lR3EkOPKNbk4wjFFAN/Dwz67rymfsPLWFrn8mZYBaAIqR9F/4e+tJqmSVhvsi4e
-         pc2cJ65Vatpqg==
+        b=RYit3yMTnYft5ORaBt6Br7AMNH8c1a+7aRUC/rhUWsNyC6qNFF1GrliNLi+PRSNri
+         DD97egVpwyjJkZQ+CSPxnP+Jih6aLSD/U0cQ4dCBbFN88D0rC3JJh//AQsow1uEUuD
+         +MEsbZ71Ik42EnEHP8Grnm19PgVr2Dtm7o1ScWshWT1nqmUcgx4TxgXjfz6nNCM+eG
+         HskrJUviRE9EK2v7SqiHU1Zep1AVLIqnAjXJsbTkorhvw/t/EAMzrMo1+7LDCU5ys9
+         4DUNrVbbor5ahkvLOzN1Mtsn575FN/F8Snb6v4eTHaRwicLxRLtuH6LosvM572a05H
+         ItnoFdth0NCZQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>,
-        Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>,
-        Mateusz Palczewski <mateusz.palczewski@intel.com>,
-        Gurucharan G <Gurucharanx.g@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+Cc:     Ido Schimmel <idosch@nvidia.com>,
+        gushengxian <gushengxian@yulong.com>,
+        Jamal Hadi Salim <jhs@mojatatu.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 71/98] iavf: Fix ping is lost after untrusted VF had tried to change MAC
-Date:   Tue, 24 Aug 2021 12:58:41 -0400
-Message-Id: <20210824165908.709932-72-sashal@kernel.org>
+Subject: [PATCH 5.10 72/98] Revert "flow_offload: action should not be NULL when it is referenced"
+Date:   Tue, 24 Aug 2021 12:58:42 -0400
+Message-Id: <20210824165908.709932-73-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165908.709932-1-sashal@kernel.org>
 References: <20210824165908.709932-1-sashal@kernel.org>
@@ -52,131 +50,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
+From: Ido Schimmel <idosch@nvidia.com>
 
-[ Upstream commit 8da80c9d50220a8e4190a4eaa0dd6aeefcbbb5bf ]
+[ Upstream commit fa05bdb89b01b098aad19ec0ebc4d1cc7b11177e ]
 
-Make changes to MAC address dependent on the response of PF.
-Disallow changes to HW MAC address and MAC filter from untrusted
-VF, thanks to that ping is not lost if VF tries to change MAC.
-Add a new field in iavf_mac_filter, to indicate whether there
-was response from PF for given filter. Based on this field pass
-or discard the filter.
-If untrusted VF tried to change it's address, it's not changed.
-Still filter was changed, because of that ping couldn't go through.
+This reverts commit 9ea3e52c5bc8bb4a084938dc1e3160643438927a.
 
-Fixes: c5c922b3e09b ("iavf: fix MAC address setting for VFs when filter is rejected")
-Signed-off-by: Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>
-Signed-off-by: Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
-Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Tested-by: Gurucharan G <Gurucharanx.g@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Cited commit added a check to make sure 'action' is not NULL, but
+'action' is already dereferenced before the check, when calling
+flow_offload_has_one_action().
+
+Therefore, the check does not make any sense and results in a smatch
+warning:
+
+include/net/flow_offload.h:322 flow_action_mixed_hw_stats_check() warn:
+variable dereferenced before check 'action' (see line 319)
+
+Fix by reverting this commit.
+
+Cc: gushengxian <gushengxian@yulong.com>
+Fixes: 9ea3e52c5bc8 ("flow_offload: action should not be NULL when it is referenced")
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Acked-by: Jamal Hadi Salim <jhs@mojatatu.com>
+Link: https://lore.kernel.org/r/20210819105842.1315705-1-idosch@idosch.org
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/iavf/iavf.h        |  1 +
- drivers/net/ethernet/intel/iavf/iavf_main.c   |  1 +
- .../net/ethernet/intel/iavf/iavf_virtchnl.c   | 47 ++++++++++++++++++-
- 3 files changed, 47 insertions(+), 2 deletions(-)
+ include/net/flow_offload.h | 12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/iavf/iavf.h b/drivers/net/ethernet/intel/iavf/iavf.h
-index 8a65525a7c0d..6766446a33f4 100644
---- a/drivers/net/ethernet/intel/iavf/iavf.h
-+++ b/drivers/net/ethernet/intel/iavf/iavf.h
-@@ -134,6 +134,7 @@ struct iavf_q_vector {
- struct iavf_mac_filter {
- 	struct list_head list;
- 	u8 macaddr[ETH_ALEN];
-+	bool is_new_mac;	/* filter is new, wait for PF decision */
- 	bool remove;		/* filter needs to be removed */
- 	bool add;		/* filter needs to be added */
- };
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
-index c4ec9a91c7c5..7023aa147043 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_main.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
-@@ -751,6 +751,7 @@ struct iavf_mac_filter *iavf_add_filter(struct iavf_adapter *adapter,
+diff --git a/include/net/flow_offload.h b/include/net/flow_offload.h
+index 161b90979038..123b1e9ea304 100644
+--- a/include/net/flow_offload.h
++++ b/include/net/flow_offload.h
+@@ -312,14 +312,12 @@ flow_action_mixed_hw_stats_check(const struct flow_action *action,
+ 	if (flow_offload_has_one_action(action))
+ 		return true;
  
- 		list_add_tail(&f->list, &adapter->mac_filter_list);
- 		f->add = true;
-+		f->is_new_mac = true;
- 		adapter->aq_required |= IAVF_FLAG_AQ_ADD_MAC_FILTER;
- 	} else {
- 		f->remove = false;
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_virtchnl.c b/drivers/net/ethernet/intel/iavf/iavf_virtchnl.c
-index ed08ace4f05a..8be3151f2c62 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_virtchnl.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_virtchnl.c
-@@ -537,6 +537,47 @@ void iavf_del_ether_addrs(struct iavf_adapter *adapter)
- 	kfree(veal);
- }
- 
-+/**
-+ * iavf_mac_add_ok
-+ * @adapter: adapter structure
-+ *
-+ * Submit list of filters based on PF response.
-+ **/
-+static void iavf_mac_add_ok(struct iavf_adapter *adapter)
-+{
-+	struct iavf_mac_filter *f, *ftmp;
-+
-+	spin_lock_bh(&adapter->mac_vlan_list_lock);
-+	list_for_each_entry_safe(f, ftmp, &adapter->mac_filter_list, list) {
-+		f->is_new_mac = false;
-+	}
-+	spin_unlock_bh(&adapter->mac_vlan_list_lock);
-+}
-+
-+/**
-+ * iavf_mac_add_reject
-+ * @adapter: adapter structure
-+ *
-+ * Remove filters from list based on PF response.
-+ **/
-+static void iavf_mac_add_reject(struct iavf_adapter *adapter)
-+{
-+	struct net_device *netdev = adapter->netdev;
-+	struct iavf_mac_filter *f, *ftmp;
-+
-+	spin_lock_bh(&adapter->mac_vlan_list_lock);
-+	list_for_each_entry_safe(f, ftmp, &adapter->mac_filter_list, list) {
-+		if (f->remove && ether_addr_equal(f->macaddr, netdev->dev_addr))
-+			f->remove = false;
-+
-+		if (f->is_new_mac) {
-+			list_del(&f->list);
-+			kfree(f);
-+		}
-+	}
-+	spin_unlock_bh(&adapter->mac_vlan_list_lock);
-+}
-+
- /**
-  * iavf_add_vlans
-  * @adapter: adapter structure
-@@ -1295,6 +1336,7 @@ void iavf_virtchnl_completion(struct iavf_adapter *adapter,
- 		case VIRTCHNL_OP_ADD_ETH_ADDR:
- 			dev_err(&adapter->pdev->dev, "Failed to add MAC filter, error %s\n",
- 				iavf_stat_str(&adapter->hw, v_retval));
-+			iavf_mac_add_reject(adapter);
- 			/* restore administratively set MAC address */
- 			ether_addr_copy(adapter->hw.mac.addr, netdev->dev_addr);
- 			break;
-@@ -1364,10 +1406,11 @@ void iavf_virtchnl_completion(struct iavf_adapter *adapter,
+-	if (action) {
+-		flow_action_for_each(i, action_entry, action) {
+-			if (i && action_entry->hw_stats != last_hw_stats) {
+-				NL_SET_ERR_MSG_MOD(extack, "Mixing HW stats types for actions is not supported");
+-				return false;
+-			}
+-			last_hw_stats = action_entry->hw_stats;
++	flow_action_for_each(i, action_entry, action) {
++		if (i && action_entry->hw_stats != last_hw_stats) {
++			NL_SET_ERR_MSG_MOD(extack, "Mixing HW stats types for actions is not supported");
++			return false;
  		}
++		last_hw_stats = action_entry->hw_stats;
  	}
- 	switch (v_opcode) {
--	case VIRTCHNL_OP_ADD_ETH_ADDR: {
-+	case VIRTCHNL_OP_ADD_ETH_ADDR:
-+		if (!v_retval)
-+			iavf_mac_add_ok(adapter);
- 		if (!ether_addr_equal(netdev->dev_addr, adapter->hw.mac.addr))
- 			ether_addr_copy(netdev->dev_addr, adapter->hw.mac.addr);
--		}
- 		break;
- 	case VIRTCHNL_OP_GET_STATS: {
- 		struct iavf_eth_stats *stats =
+ 	return true;
+ }
 -- 
 2.30.2
 
