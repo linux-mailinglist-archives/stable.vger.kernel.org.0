@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE2963F6592
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:14:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5B373F65BC
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:15:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239719AbhHXRON (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:14:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52062 "EHLO mail.kernel.org"
+        id S233578AbhHXRQK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:16:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239751AbhHXRMJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:12:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DEB2461A61;
-        Tue, 24 Aug 2021 17:01:19 +0000 (UTC)
+        id S238907AbhHXRMd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:12:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EB31861526;
+        Tue, 24 Aug 2021 17:01:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824480;
-        bh=hFLO14LY+2CjDGzsRluu6Qiid2+Ha5H969MvXV5KH/4=;
+        s=k20201202; t=1629824481;
+        bh=xwKgTdI88xRJjsX1OvgG/DY+JVmRisQqYP7I1OyEjiY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cen61uSSevu6G5RKVcB7Vhh91AKJgT85IcT1XHQ6PUxlRHyp7jolgowGHvtpJtaZ9
-         IQ7G/WAyCS/+oO7ExKo1m3n/yN+3X+H1sog8nEJNw2u8X9hGkPfaPGzmnyS4czJdrc
-         ME6LibpNyhk12ymwywkNNHKoVWJQU1ucluZhR5hVqxKo6klfvN80OqmffGpUYvhSwP
-         tCkid+JEaN26dew+My3BfrRbnl7bL5M0pzbjAvM4VEPvVymQaMj5gl3CbSXIqxzxiu
-         WXYUr2kEaQlcFyvd7gWDiff4yn/sX5ag7RHNkJvUrqXbY5znX190srSz1fxlMk+ktB
-         xqfE9LM/jK7+w==
+        b=iFfcVRiamssZypbgghnTWkRgL6cgXRATCiI7TzQWSlrEmBpLH1Xx4m/S4zqgENxV1
+         O6vHvbXMPtdlN7cpn1ApxzKH06080cys0sxrWVt0EnRGRm2KSI+fO/25AjBOLesvKL
+         OJb5HaWgwDtINKJFjnwK46g/6edkbE9KWjp2n0RHjQMlU2lwDJsX+bSMUKJU7KOelJ
+         hwqbE7iMIX9vpctC9TMjJEqS8iQTjLzKkMNzuus/TtL+ATY1AkmZkfSVZXGfNEM7ix
+         yr8DVYsNttOcbc+ZbC5lMqx00RD4GZQxx01dLvsRYufrL0OgfI8240fMxz+jNF6Jkg
+         W4OtEkpzX2KFg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alan Stern <stern@rowland.harvard.edu>,
-        Johan Hovold <johan@kernel.org>,
-        syzbot+7dbcd9ff34dc4ed45240@syzkaller.appspotmail.com,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 12/61] USB: core: Avoid WARNings for 0-length descriptor requests
-Date:   Tue, 24 Aug 2021 13:00:17 -0400
-Message-Id: <20210824170106.710221-13-sashal@kernel.org>
+Cc:     Adrian Larumbe <adrian.martinezlarumbe@imgtec.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 13/61] dmaengine: xilinx_dma: Fix read-after-free bug when terminating transfers
+Date:   Tue, 24 Aug 2021 13:00:18 -0400
+Message-Id: <20210824170106.710221-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170106.710221-1-sashal@kernel.org>
 References: <20210824170106.710221-1-sashal@kernel.org>
@@ -50,50 +47,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Adrian Larumbe <adrian.martinezlarumbe@imgtec.com>
 
-[ Upstream commit 60dfe484cef45293e631b3a6e8995f1689818172 ]
+[ Upstream commit 7dd2dd4ff9f3abda601f22b9d01441a0869d20d7 ]
 
-The USB core has utility routines to retrieve various types of
-descriptors.  These routines will now provoke a WARN if they are asked
-to retrieve 0 bytes (USB "receive" requests must not have zero
-length), so avert this by checking the size argument at the start.
+When user calls dmaengine_terminate_sync, the driver will clean up any
+remaining descriptors for all the pending or active transfers that had
+previously been submitted. However, this might happen whilst the tasklet is
+invoking the DMA callback for the last finished transfer, so by the time it
+returns and takes over the channel's spinlock, the list of completed
+descriptors it was traversing is no longer valid. This leads to a
+read-after-free situation.
 
-CC: Johan Hovold <johan@kernel.org>
-Reported-and-tested-by: syzbot+7dbcd9ff34dc4ed45240@syzkaller.appspotmail.com
-Reviewed-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/20210607152307.GD1768031@rowland.harvard.edu
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix it by signalling whether a user-triggered termination has happened by
+means of a boolean variable.
+
+Signed-off-by: Adrian Larumbe <adrian.martinezlarumbe@imgtec.com>
+Link: https://lore.kernel.org/r/20210706234338.7696-3-adrian.martinezlarumbe@imgtec.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/core/message.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/dma/xilinx/xilinx_dma.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/usb/core/message.c b/drivers/usb/core/message.c
-index 041c68ea329f..7ca908704777 100644
---- a/drivers/usb/core/message.c
-+++ b/drivers/usb/core/message.c
-@@ -647,6 +647,9 @@ int usb_get_descriptor(struct usb_device *dev, unsigned char type,
- 	int i;
- 	int result;
- 
-+	if (size <= 0)		/* No point in asking for no data */
-+		return -EINVAL;
+diff --git a/drivers/dma/xilinx/xilinx_dma.c b/drivers/dma/xilinx/xilinx_dma.c
+index 1b5f3e9f43d7..ce18bca45ff2 100644
+--- a/drivers/dma/xilinx/xilinx_dma.c
++++ b/drivers/dma/xilinx/xilinx_dma.c
+@@ -333,6 +333,7 @@ struct xilinx_dma_tx_descriptor {
+  * @genlock: Support genlock mode
+  * @err: Channel has errors
+  * @idle: Check for channel idle
++ * @terminating: Check for channel being synchronized by user
+  * @tasklet: Cleanup work after irq
+  * @config: Device configuration info
+  * @flush_on_fsync: Flush on Frame sync
+@@ -370,6 +371,7 @@ struct xilinx_dma_chan {
+ 	bool genlock;
+ 	bool err;
+ 	bool idle;
++	bool terminating;
+ 	struct tasklet_struct tasklet;
+ 	struct xilinx_vdma_config config;
+ 	bool flush_on_fsync;
+@@ -844,6 +846,13 @@ static void xilinx_dma_chan_desc_cleanup(struct xilinx_dma_chan *chan)
+ 		/* Run any dependencies, then free the descriptor */
+ 		dma_run_dependencies(&desc->async_tx);
+ 		xilinx_dma_free_tx_descriptor(chan, desc);
 +
- 	memset(buf, 0, size);	/* Make sure we parse really received data */
++		/*
++		 * While we ran a callback the user called a terminate function,
++		 * which takes care of cleaning up any remaining descriptors
++		 */
++		if (chan->terminating)
++			break;
+ 	}
  
- 	for (i = 0; i < 3; ++i) {
-@@ -695,6 +698,9 @@ static int usb_get_string(struct usb_device *dev, unsigned short langid,
- 	int i;
- 	int result;
+ 	spin_unlock_irqrestore(&chan->lock, flags);
+@@ -1618,6 +1627,8 @@ static dma_cookie_t xilinx_dma_tx_submit(struct dma_async_tx_descriptor *tx)
+ 	if (desc->cyclic)
+ 		chan->cyclic = true;
  
-+	if (size <= 0)		/* No point in asking for no data */
-+		return -EINVAL;
++	chan->terminating = false;
 +
- 	for (i = 0; i < 3; ++i) {
- 		/* retry on length 0 or stall; some devices are flakey */
- 		result = usb_control_msg(dev, usb_rcvctrlpipe(dev, 0),
+ 	spin_unlock_irqrestore(&chan->lock, flags);
+ 
+ 	return cookie;
+@@ -2074,6 +2085,7 @@ static int xilinx_dma_terminate_all(struct dma_chan *dchan)
+ 	}
+ 
+ 	/* Remove and free all of the descriptors in the lists */
++	chan->terminating = true;
+ 	xilinx_dma_free_descriptors(chan);
+ 	chan->idle = true;
+ 
 -- 
 2.30.2
 
