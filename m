@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BEFB93F6504
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:09:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21CA83F64FF
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:08:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235536AbhHXRJJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:09:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46474 "EHLO mail.kernel.org"
+        id S239402AbhHXRJI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:09:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239424AbhHXRHC (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S239422AbhHXRHC (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 24 Aug 2021 13:07:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4545D61A03;
-        Tue, 24 Aug 2021 16:59:52 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3DDB3619EA;
+        Tue, 24 Aug 2021 16:59:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1629824393;
-        bh=F2FT0g7L52h8sL+T7edZCGy0lh3Ffzr5XO4mXu3JFg0=;
+        bh=OQ4I/BMOYSLVlMvcx9RjcvWe8+VZjWye4MX++2RqPys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jdYYN94f35r8gpSOXy1Ngs56jBUBMOUNP8oZVv54tBv52xm34o71Y0u/PTe+Qs1Z2
-         KSZZt47tjqhw6JQGduk5J3bV7w+rE4b28BnEDzpEzBn+KRLLMHOjxhnAHWzJI9LXUv
-         qfJHH8u1U4kapMbWHDhixech1cAxihQGZI6SYp1mfufhKLxEJLrkiuRIROAyMqnq5k
-         3C5u5ZM1qhA/gtFWou6vo9e5b5A1oc2DApLFxDGXuKDjZJWxiiDtOOSk6z0mVuCTW7
-         inliokg6rVDxAOfcWyiLQIGcisyuy6jvtTut9gUa61D6Bl28uAP5kSR4dYu08GrLaI
-         6Bo6WN0IY5BJw==
+        b=ZYPeTDRMTPnnm8qTHLAEo/m78u3wEOT3Me6lvbMDKW2XxhepNThJtBxd1Ya6zIimw
+         ds6WCjhaiEs8xRlvGuXIEWiOh54NWa9ScFztfR/pHzeiWBoCBJ1bvP+wROISINNGIp
+         xtGHEAIQqt1FRjirGAqhAnhiF/bdbP3dDwusKezPUcwKOTvpx2ip2s5MZ6dt+CeJvd
+         EhVsckFGixQdh0qL1G1S+QsBVDd3eh7EgdGXUefYGudl239rNbZ6Y5F6CCpmG9f+6V
+         UuN6FREYgkAo/jMZ8MDJcoy0mdLWfkiPf2XN05LORQCLJHzVR9IunThrH+j9FjONd+
+         9aBrDUthMx2bg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xie Yongji <xieyongji@bytedance.com>,
-        Jason Wang <jasowang@redhat.com>,
+Cc:     Eli Cohen <elic@nvidia.com>,
         "Michael S . Tsirkin" <mst@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 43/98] vhost: Fix the calculation in vhost_overflow()
-Date:   Tue, 24 Aug 2021 12:58:13 -0400
-Message-Id: <20210824165908.709932-44-sashal@kernel.org>
+Subject: [PATCH 5.10 44/98] vdpa/mlx5: Avoid destroying MR on empty iotlb
+Date:   Tue, 24 Aug 2021 12:58:14 -0400
+Message-Id: <20210824165908.709932-45-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165908.709932-1-sashal@kernel.org>
 References: <20210824165908.709932-1-sashal@kernel.org>
@@ -49,47 +48,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie Yongji <xieyongji@bytedance.com>
+From: Eli Cohen <elic@nvidia.com>
 
-[ Upstream commit f7ad318ea0ad58ebe0e595e59aed270bb643b29b ]
+[ Upstream commit 08dbd5660232bede7916d8568003012c1182cc9a ]
 
-This fixes the incorrect calculation for integer overflow
-when the last address of iova range is 0xffffffff.
+The current code treats an empty iotlb provdied in set_map() as a
+special case and destroy the memory region object. This must not be done
+since the virtqueue objects reference this MR. Doing so will cause the
+driver unload to emit errors and log timeouts caused by the firmware
+complaining on busy resources.
 
-Fixes: ec33d031a14b ("vhost: detect 32 bit integer wrap around")
-Reported-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Link: https://lore.kernel.org/r/20210728130756.97-2-xieyongji@bytedance.com
+This patch treats an empty iotlb as any other change of mapping. In this
+case, mlx5_vdpa_create_mr() will fail and the entire set_map() call to
+fail.
+
+This issue has not been encountered before but was seen to occur in a
+non-official version of qemu. Since qemu is a userspace program, the
+driver must protect against such case.
+
+Fixes: 94abbccdf291 ("vdpa/mlx5: Add shared memory registration code")
+Signed-off-by: Eli Cohen <elic@nvidia.com>
+Link: https://lore.kernel.org/r/20210811053713.66658-1-elic@nvidia.com
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vhost/vhost.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/vdpa/mlx5/core/mr.c | 9 ---------
+ 1 file changed, 9 deletions(-)
 
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 5ccb0705beae..f41463ab4031 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -735,10 +735,16 @@ static bool log_access_ok(void __user *log_base, u64 addr, unsigned long sz)
- 			 (sz + VHOST_PAGE_SIZE * 8 - 1) / VHOST_PAGE_SIZE / 8);
+diff --git a/drivers/vdpa/mlx5/core/mr.c b/drivers/vdpa/mlx5/core/mr.c
+index aa656f57bf5b..32c9925de473 100644
+--- a/drivers/vdpa/mlx5/core/mr.c
++++ b/drivers/vdpa/mlx5/core/mr.c
+@@ -454,11 +454,6 @@ out:
+ 	mutex_unlock(&mr->mkey_mtx);
  }
  
-+/* Make sure 64 bit math will not overflow. */
- static bool vhost_overflow(u64 uaddr, u64 size)
+-static bool map_empty(struct vhost_iotlb *iotlb)
+-{
+-	return !vhost_iotlb_itree_first(iotlb, 0, U64_MAX);
+-}
+-
+ int mlx5_vdpa_handle_set_map(struct mlx5_vdpa_dev *mvdev, struct vhost_iotlb *iotlb,
+ 			     bool *change_map)
  {
--	/* Make sure 64 bit math will not overflow. */
--	return uaddr > ULONG_MAX || size > ULONG_MAX || uaddr > ULONG_MAX - size;
-+	if (uaddr > ULONG_MAX || size > ULONG_MAX)
-+		return true;
-+
-+	if (!size)
-+		return false;
-+
-+	return uaddr > ULONG_MAX - size + 1;
- }
+@@ -466,10 +461,6 @@ int mlx5_vdpa_handle_set_map(struct mlx5_vdpa_dev *mvdev, struct vhost_iotlb *io
+ 	int err = 0;
  
- /* Caller should have vq mutex and device mutex. */
+ 	*change_map = false;
+-	if (map_empty(iotlb)) {
+-		mlx5_vdpa_destroy_mr(mvdev);
+-		return 0;
+-	}
+ 	mutex_lock(&mr->mkey_mtx);
+ 	if (mr->initialized) {
+ 		mlx5_vdpa_info(mvdev, "memory map update\n");
 -- 
 2.30.2
 
