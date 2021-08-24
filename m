@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C3543F6414
+	by mail.lfdr.de (Postfix) with ESMTP id 84A9E3F6415
 	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:00:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235291AbhHXRAn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:00:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38972 "EHLO mail.kernel.org"
+        id S235895AbhHXRAo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:00:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238897AbhHXQ7M (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S238912AbhHXQ7M (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 24 Aug 2021 12:59:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 259446142A;
-        Tue, 24 Aug 2021 16:57:31 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1DDB7611AF;
+        Tue, 24 Aug 2021 16:57:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824251;
-        bh=bNXmRj4lhQHqq3AH5PhKAvWbdLxKyLKJmVnBVcs8F0U=;
+        s=k20201202; t=1629824252;
+        bh=oE9uR7V4OH3XiW1tDEuMmOgRU8YCLANasm1e6deDn3k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iy8A4hwh3RWqZ3Ha87A3Y9KqyRWbwedzyZf4hHQnD1bccrH0T+2XCtHwimFUzP7ie
-         ZTur7FR1D3sQBh/wKwUv3FT03GhkZmNgJ3jMBWgl6QBMhYjPbXySmlqH7vnhSCqaSL
-         X4ziUxUqCdQVGPj4ueeg2Vrvk2j2DGCrOcqQ753gBrNS1NaSSDU5YX4kOLQFrHxRl/
-         +wi788Ea8jremSBL9ar0gMtk+qmh6vIZEzGs+QQqHak2/rLR6v6dvXoR+34+1hSz+0
-         txfIhB1fg6KnuHAPYo/tjnhZRKF60dN8IKXYi/WBeKeMcaFoJDppqAbLWp54MzO2pi
-         7WJr2bQIfkvmw==
+        b=hylBdZKYVWfY6xXo8fYncrevYHaN/7ssXQMN9PIIRjv29zX0XRvYCB2NAQjSpKOfw
+         Tz6uceUYPBxfvbSglJ/qS1ZMGyMKh28T7Oj9UzTvOLUkE5YIWLA8V85Cxd/TxATG8b
+         YzIPDfn3GVkwlpwjTsoUV6XpfEhFp3tHznO0b+jH4RX9bu2wCoiUrLH36p5n1xhuWO
+         7QkQvihSBv9olfGvDP79HgS+P5vxjYv89tnYkkUAUC7L9C++/4DbzTjl8PWpJ1xchL
+         jVxHsWnr2MXu3raPFpai24+Nfdwb1zOUDB6wnGikv+WycOQYehfCM58mDqqEX0GWzq
+         t9ylvY9CcMj3g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Ioana Ciornei <ioana.ciornei@nxp.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+Cc:     Ezequiel Garcia <ezequiel@collabora.com>,
+        Christoph Hellwig <hch@lst.de>, Joerg Roedel <jroedel@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 084/127] net: dpaa2-switch: disable the control interface on error path
-Date:   Tue, 24 Aug 2021 12:55:24 -0400
-Message-Id: <20210824165607.709387-85-sashal@kernel.org>
+Subject: [PATCH 5.13 085/127] iommu/dma: Fix leak in non-contiguous API
+Date:   Tue, 24 Aug 2021 12:55:25 -0400
+Message-Id: <20210824165607.709387-86-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165607.709387-1-sashal@kernel.org>
 References: <20210824165607.709387-1-sashal@kernel.org>
@@ -49,162 +48,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Ezequiel Garcia <ezequiel@collabora.com>
 
-[ Upstream commit cd0a719fbd702eb4b455a6ad986483750125588a ]
+[ Upstream commit 0fbea680540108b09db7b26d9f4d24236d58a6ad ]
 
-Currently dpaa2_switch_takedown has a funny name and does not do the
-opposite of dpaa2_switch_init, which makes probing fail when we need to
-handle an -EPROBE_DEFER.
+Currently, iommu_dma_alloc_noncontiguous() allocates a
+struct dma_sgt_handle object to hold some state needed for
+iommu_dma_free_noncontiguous().
 
-A sketch of what dpaa2_switch_init does:
+However, the handle is neither freed nor returned explicitly by
+the ->alloc_noncontiguous method, and therefore seems leaked.
+This was found by code inspection, so please review carefully and test.
 
-	dpsw_open
+As a side note, it appears the struct dma_sgt_handle type is exposed
+to users of the DMA-API by linux/dma-map-ops.h, but is has no users
+or functions returning the type explicitly.
 
-	dpaa2_switch_detect_features
+This may indicate it's a good idea to move the struct dma_sgt_handle type
+to drivers/iommu/dma-iommu.c. The decision is left to maintainers :-)
 
-	dpsw_reset
-
-	for (i = 0; i < ethsw->sw_attr.num_ifs; i++) {
-		dpsw_if_disable
-
-		dpsw_if_set_stp
-
-		dpsw_vlan_remove_if_untagged
-
-		dpsw_if_set_tci
-
-		dpsw_vlan_remove_if
-	}
-
-	dpsw_vlan_remove
-
-	alloc_ordered_workqueue
-
-	dpsw_fdb_remove
-
-	dpaa2_switch_ctrl_if_setup
-
-When dpaa2_switch_takedown is called from the error path of
-dpaa2_switch_probe(), the control interface, enabled by
-dpaa2_switch_ctrl_if_setup from dpaa2_switch_init, remains enabled,
-because dpaa2_switch_takedown does not call
-dpaa2_switch_ctrl_if_teardown.
-
-Since dpaa2_switch_probe might fail due to EPROBE_DEFER of a PHY, this
-means that a second probe of the driver will happen with the control
-interface directly enabled.
-
-This will trigger a second error:
-
-[   93.273528] fsl_dpaa2_switch dpsw.0: dpsw_ctrl_if_set_pools() failed
-[   93.281966] fsl_dpaa2_switch dpsw.0: fsl_mc_driver_probe failed: -13
-[   93.288323] fsl_dpaa2_switch: probe of dpsw.0 failed with error -13
-
-Which if we investigate the /dev/dpaa2_mc_console log, we find out is
-caused by:
-
-[E, ctrl_if_set_pools:2211, DPMNG]  ctrl_if must be disabled
-
-So make dpaa2_switch_takedown do the opposite of dpaa2_switch_init (in
-reasonable limits, no reason to change STP state, re-add VLANs etc), and
-rename it to something more conventional, like dpaa2_switch_teardown.
-
-Fixes: 613c0a5810b7 ("staging: dpaa2-switch: enable the control interface")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reviewed-by: Ioana Ciornei <ioana.ciornei@nxp.com>
-Link: https://lore.kernel.org/r/20210819141755.1931423-1-vladimir.oltean@nxp.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: e817ee5f2f95c ("dma-iommu: implement ->alloc_noncontiguous")
+Signed-off-by: Ezequiel Garcia <ezequiel@collabora.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20210723010552.50969-1-ezequiel@collabora.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../ethernet/freescale/dpaa2/dpaa2-switch.c   | 36 +++++++++----------
- 1 file changed, 18 insertions(+), 18 deletions(-)
+ drivers/iommu/dma-iommu.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/freescale/dpaa2/dpaa2-switch.c b/drivers/net/ethernet/freescale/dpaa2/dpaa2-switch.c
-index 87321b7239cf..58964d22cb17 100644
---- a/drivers/net/ethernet/freescale/dpaa2/dpaa2-switch.c
-+++ b/drivers/net/ethernet/freescale/dpaa2/dpaa2-switch.c
-@@ -3038,26 +3038,30 @@ static int dpaa2_switch_port_init(struct ethsw_port_priv *port_priv, u16 port)
- 	return err;
+diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
+index 5d96fcc45fec..698707699327 100644
+--- a/drivers/iommu/dma-iommu.c
++++ b/drivers/iommu/dma-iommu.c
+@@ -768,6 +768,7 @@ static void iommu_dma_free_noncontiguous(struct device *dev, size_t size,
+ 	__iommu_dma_unmap(dev, sgt->sgl->dma_address, size);
+ 	__iommu_dma_free_pages(sh->pages, PAGE_ALIGN(size) >> PAGE_SHIFT);
+ 	sg_free_table(&sh->sgt);
++	kfree(sh);
  }
+ #endif /* CONFIG_DMA_REMAP */
  
--static void dpaa2_switch_takedown(struct fsl_mc_device *sw_dev)
-+static void dpaa2_switch_ctrl_if_teardown(struct ethsw_core *ethsw)
-+{
-+	dpsw_ctrl_if_disable(ethsw->mc_io, 0, ethsw->dpsw_handle);
-+	dpaa2_switch_free_dpio(ethsw);
-+	dpaa2_switch_destroy_rings(ethsw);
-+	dpaa2_switch_drain_bp(ethsw);
-+	dpaa2_switch_free_dpbp(ethsw);
-+}
-+
-+static void dpaa2_switch_teardown(struct fsl_mc_device *sw_dev)
- {
- 	struct device *dev = &sw_dev->dev;
- 	struct ethsw_core *ethsw = dev_get_drvdata(dev);
- 	int err;
- 
-+	dpaa2_switch_ctrl_if_teardown(ethsw);
-+
-+	destroy_workqueue(ethsw->workqueue);
-+
- 	err = dpsw_close(ethsw->mc_io, 0, ethsw->dpsw_handle);
- 	if (err)
- 		dev_warn(dev, "dpsw_close err %d\n", err);
- }
- 
--static void dpaa2_switch_ctrl_if_teardown(struct ethsw_core *ethsw)
--{
--	dpsw_ctrl_if_disable(ethsw->mc_io, 0, ethsw->dpsw_handle);
--	dpaa2_switch_free_dpio(ethsw);
--	dpaa2_switch_destroy_rings(ethsw);
--	dpaa2_switch_drain_bp(ethsw);
--	dpaa2_switch_free_dpbp(ethsw);
--}
--
- static int dpaa2_switch_remove(struct fsl_mc_device *sw_dev)
- {
- 	struct ethsw_port_priv *port_priv;
-@@ -3068,8 +3072,6 @@ static int dpaa2_switch_remove(struct fsl_mc_device *sw_dev)
- 	dev = &sw_dev->dev;
- 	ethsw = dev_get_drvdata(dev);
- 
--	dpaa2_switch_ctrl_if_teardown(ethsw);
--
- 	dpaa2_switch_teardown_irqs(sw_dev);
- 
- 	dpsw_disable(ethsw->mc_io, 0, ethsw->dpsw_handle);
-@@ -3084,9 +3086,7 @@ static int dpaa2_switch_remove(struct fsl_mc_device *sw_dev)
- 	kfree(ethsw->acls);
- 	kfree(ethsw->ports);
- 
--	dpaa2_switch_takedown(sw_dev);
--
--	destroy_workqueue(ethsw->workqueue);
-+	dpaa2_switch_teardown(sw_dev);
- 
- 	fsl_mc_portal_free(ethsw->mc_io);
- 
-@@ -3199,7 +3199,7 @@ static int dpaa2_switch_probe(struct fsl_mc_device *sw_dev)
- 			       GFP_KERNEL);
- 	if (!(ethsw->ports)) {
- 		err = -ENOMEM;
--		goto err_takedown;
-+		goto err_teardown;
- 	}
- 
- 	ethsw->fdbs = kcalloc(ethsw->sw_attr.num_ifs, sizeof(*ethsw->fdbs),
-@@ -3270,8 +3270,8 @@ err_free_fdbs:
- err_free_ports:
- 	kfree(ethsw->ports);
- 
--err_takedown:
--	dpaa2_switch_takedown(sw_dev);
-+err_teardown:
-+	dpaa2_switch_teardown(sw_dev);
- 
- err_free_cmdport:
- 	fsl_mc_portal_free(ethsw->mc_io);
 -- 
 2.30.2
 
