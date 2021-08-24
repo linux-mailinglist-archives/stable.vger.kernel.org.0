@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F32A3F6698
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:26:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38DD13F66A6
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:26:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240100AbhHXRZU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:25:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58942 "EHLO mail.kernel.org"
+        id S232615AbhHXR0V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:26:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238829AbhHXRXg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:23:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 11A7C6187F;
-        Tue, 24 Aug 2021 17:03:47 +0000 (UTC)
+        id S239937AbhHXRYA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:24:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E1EAE61B27;
+        Tue, 24 Aug 2021 17:03:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824628;
-        bh=4U9vBSSiupDhXCdmf3RxgVj2QlwsJVuK32G3XEkJogM=;
+        s=k20201202; t=1629824629;
+        bh=yGpHqiBGaRE9YFKtU/zWC4lpZWxkBtcp73H+QXL0ftM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=csak3LixZOO02zsE6PrnewYvcm06REZ5K2Ka/d4pb/IXgeWuwRScHPWhnzknI+JjU
-         S1c36QcbaHCh7kHkVvomN4bqvPTG2nUuqwNOAwQEWHBG4paqq3DHnkveNmWpcUCBjW
-         oc7nk7XmSK4+nujwAGfXfLg1N+e7IbSuMAoX4+o6YNAULvpvIN6Grdxj/rOASpIhOs
-         CXuV2u2o/b7AVIHLNMWm02jSwDC8K8OvXbJEVpfHlmWdqmxrE65Y5Z1frJsOUY6016
-         gFdE5guTsZlVdadWtmuw19ZxUUJtUjR9bc7TOzKTjsGvrnPr/6Dh03MtjZcF/5TrQi
-         +uCExe/+Cri0g==
+        b=h2TqydCxzSfv9jveYQCDu8ZI5pnM6Rg2AgKZ0fvZJZ0LUaG7xTH98hnfAvcfOIWQo
+         DCLLqr+TMq7BQlMj1+rpUKk3WE8qVFmWwFYRLvtwKHrg6gV5oqhv70d8VxgYM3w786
+         Lge7qtMs03JJT8M7XuMt97DJR7TflbwEi79na9WAwW1+Tz70FoYLAradblFxOhxxpI
+         yZ/N7elQKaK7jL5aoJ0PsvGNyfq/foFZwvURZDLKFFMUwVfFz+ZUolfxlkmfLvUGIS
+         JIUZugxMteH+uMbnxm0ik9f5Jty3Af+wziK5mXTVL+qUvj9pY03WmRe+jHRn3Dr5ra
+         1lQUgzd3Jl5fg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Ole=20Bj=C3=B8rn=20Midtb=C3=B8?= <omidtbo@cisco.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+Cc:     =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 59/84] Bluetooth: hidp: use correct wait queue when removing ctrl_wait
-Date:   Tue, 24 Aug 2021 13:02:25 -0400
-Message-Id: <20210824170250.710392-60-sashal@kernel.org>
+Subject: [PATCH 4.19 60/84] cpufreq: armada-37xx: forbid cpufreq for 1.2 GHz variant
+Date:   Tue, 24 Aug 2021 13:02:26 -0400
+Message-Id: <20210824170250.710392-61-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170250.710392-1-sashal@kernel.org>
 References: <20210824170250.710392-1-sashal@kernel.org>
@@ -49,72 +49,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ole Bjørn Midtbø <omidtbo@cisco.com>
+From: Marek Behún <kabel@kernel.org>
 
-[ Upstream commit cca342d98bef68151a80b024f7bf5f388d1fbdea ]
+[ Upstream commit 484f2b7c61b9ae58cc00c5127bcbcd9177af8dfe ]
 
-A different wait queue was used when removing ctrl_wait than when adding
-it. This effectively made the remove operation without locking compared
-to other operations on the wait queue ctrl_wait was part of. This caused
-issues like below where dead000000000100 is LIST_POISON1 and
-dead000000000200 is LIST_POISON2.
+The 1.2 GHz variant of the Armada 3720 SOC is unstable with DVFS: when
+the SOC boots, the WTMI firmware sets clocks and AVS values that work
+correctly with 1.2 GHz CPU frequency, but random crashes occur once
+cpufreq driver starts scaling.
 
- list_add corruption. next->prev should be prev (ffffffc1b0a33a08), \
-	but was dead000000000200. (next=ffffffc03ac77de0).
- ------------[ cut here ]------------
- CPU: 3 PID: 2138 Comm: bluetoothd Tainted: G           O    4.4.238+ #9
- ...
- ---[ end trace 0adc2158f0646eac ]---
- Call trace:
- [<ffffffc000443f78>] __list_add+0x38/0xb0
- [<ffffffc0000f0d04>] add_wait_queue+0x4c/0x68
- [<ffffffc00020eecc>] __pollwait+0xec/0x100
- [<ffffffc000d1556c>] bt_sock_poll+0x74/0x200
- [<ffffffc000bdb8a8>] sock_poll+0x110/0x128
- [<ffffffc000210378>] do_sys_poll+0x220/0x480
- [<ffffffc0002106f0>] SyS_poll+0x80/0x138
- [<ffffffc00008510c>] __sys_trace_return+0x0/0x4
+We do not know currently what is the reason:
+- it may be that the voltage value for L0 for 1.2 GHz variant provided
+  by the vendor in the OTP is simply incorrect when scaling is used,
+- it may be that some delay is needed somewhere,
+- it may be something else.
 
- Unable to handle kernel paging request at virtual address dead000000000100
- ...
- CPU: 4 PID: 5387 Comm: kworker/u15:3 Tainted: G        W  O    4.4.238+ #9
- ...
- Call trace:
-  [<ffffffc0000f079c>] __wake_up_common+0x7c/0xa8
-  [<ffffffc0000f0818>] __wake_up+0x50/0x70
-  [<ffffffc000be11b0>] sock_def_wakeup+0x58/0x60
-  [<ffffffc000de5e10>] l2cap_sock_teardown_cb+0x200/0x224
-  [<ffffffc000d3f2ac>] l2cap_chan_del+0xa4/0x298
-  [<ffffffc000d45ea0>] l2cap_conn_del+0x118/0x198
-  [<ffffffc000d45f8c>] l2cap_disconn_cfm+0x6c/0x78
-  [<ffffffc000d29934>] hci_event_packet+0x564/0x2e30
-  [<ffffffc000d19b0c>] hci_rx_work+0x10c/0x360
-  [<ffffffc0000c2218>] process_one_work+0x268/0x460
-  [<ffffffc0000c2678>] worker_thread+0x268/0x480
-  [<ffffffc0000c94e0>] kthread+0x118/0x128
-  [<ffffffc000085070>] ret_from_fork+0x10/0x20
-  ---[ end trace 0adc2158f0646ead ]---
+The most sane solution now seems to be to simply forbid the cpufreq
+driver on 1.2 GHz variant.
 
-Signed-off-by: Ole Bjørn Midtbø <omidtbo@cisco.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Fixes: 92ce45fb875d ("cpufreq: Add DVFS support for Armada 37xx")
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hidp/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/cpufreq/armada-37xx-cpufreq.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
-index 253975cce943..0cbd0bca971f 100644
---- a/net/bluetooth/hidp/core.c
-+++ b/net/bluetooth/hidp/core.c
-@@ -1282,7 +1282,7 @@ static int hidp_session_thread(void *arg)
+diff --git a/drivers/cpufreq/armada-37xx-cpufreq.c b/drivers/cpufreq/armada-37xx-cpufreq.c
+index a36452bd9612..31b5655419b4 100644
+--- a/drivers/cpufreq/armada-37xx-cpufreq.c
++++ b/drivers/cpufreq/armada-37xx-cpufreq.c
+@@ -102,7 +102,11 @@ struct armada_37xx_dvfs {
+ };
  
- 	/* cleanup runtime environment */
- 	remove_wait_queue(sk_sleep(session->intr_sock->sk), &intr_wait);
--	remove_wait_queue(sk_sleep(session->intr_sock->sk), &ctrl_wait);
-+	remove_wait_queue(sk_sleep(session->ctrl_sock->sk), &ctrl_wait);
- 	wake_up_interruptible(&session->report_queue);
- 	hidp_del_timer(session);
- 
+ static struct armada_37xx_dvfs armada_37xx_dvfs[] = {
+-	{.cpu_freq_max = 1200*1000*1000, .divider = {1, 2, 4, 6} },
++	/*
++	 * The cpufreq scaling for 1.2 GHz variant of the SOC is currently
++	 * unstable because we do not know how to configure it properly.
++	 */
++	/* {.cpu_freq_max = 1200*1000*1000, .divider = {1, 2, 4, 6} }, */
+ 	{.cpu_freq_max = 1000*1000*1000, .divider = {1, 2, 4, 5} },
+ 	{.cpu_freq_max = 800*1000*1000,  .divider = {1, 2, 3, 4} },
+ 	{.cpu_freq_max = 600*1000*1000,  .divider = {2, 4, 5, 6} },
 -- 
 2.30.2
 
