@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 492DD3F640F
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:00:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C3543F6414
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:00:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235197AbhHXRA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:00:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39268 "EHLO mail.kernel.org"
+        id S235291AbhHXRAn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:00:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38972 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238863AbhHXQ7I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 12:59:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1795261462;
-        Tue, 24 Aug 2021 16:57:30 +0000 (UTC)
+        id S238897AbhHXQ7M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 12:59:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 259446142A;
+        Tue, 24 Aug 2021 16:57:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824250;
-        bh=rP2yM2hXd0LuColLC7A0n4hJV58ORcttzeuKPDKpF7s=;
+        s=k20201202; t=1629824251;
+        bh=bNXmRj4lhQHqq3AH5PhKAvWbdLxKyLKJmVnBVcs8F0U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B0OxHGoQy4TFe0OOGikx4bgvJ8ardUVzJfmUhRgr0UP/DG4TGXvGPeu88qzwyZ6A1
-         TAXQKaFXG3xbwa+eITeoExIBTXgBSE8FbLinz+Kp78wtlSdKKeev3ovXllMyKyxMbp
-         n8BcwJG6b7vVMaVfurX3WldKrMVudhx48a3u2oltV9NfTs2NS8hWESSQt1w8wXmmcs
-         W30n/+W40ZgT5FlA+QcRlBmVRhKaIYr9oCcY/WJ31y6Y38B3TFGdiuhNDOKQRRWb/K
-         gDI/pF1Id+I52l8bKPcedqiKuAoqgRVG8xATNGZgGS1ypcZQ4yd6AjEsiiaQDTsoen
-         3smT7uWGGerJA==
+        b=iy8A4hwh3RWqZ3Ha87A3Y9KqyRWbwedzyZf4hHQnD1bccrH0T+2XCtHwimFUzP7ie
+         ZTur7FR1D3sQBh/wKwUv3FT03GhkZmNgJ3jMBWgl6QBMhYjPbXySmlqH7vnhSCqaSL
+         X4ziUxUqCdQVGPj4ueeg2Vrvk2j2DGCrOcqQ753gBrNS1NaSSDU5YX4kOLQFrHxRl/
+         +wi788Ea8jremSBL9ar0gMtk+qmh6vIZEzGs+QQqHak2/rLR6v6dvXoR+34+1hSz+0
+         txfIhB1fg6KnuHAPYo/tjnhZRKF60dN8IKXYi/WBeKeMcaFoJDppqAbLWp54MzO2pi
+         7WJr2bQIfkvmw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ido Schimmel <idosch@nvidia.com>,
-        gushengxian <gushengxian@yulong.com>,
-        Jamal Hadi Salim <jhs@mojatatu.com>,
+Cc:     Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Ioana Ciornei <ioana.ciornei@nxp.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 083/127] Revert "flow_offload: action should not be NULL when it is referenced"
-Date:   Tue, 24 Aug 2021 12:55:23 -0400
-Message-Id: <20210824165607.709387-84-sashal@kernel.org>
+Subject: [PATCH 5.13 084/127] net: dpaa2-switch: disable the control interface on error path
+Date:   Tue, 24 Aug 2021 12:55:24 -0400
+Message-Id: <20210824165607.709387-85-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165607.709387-1-sashal@kernel.org>
 References: <20210824165607.709387-1-sashal@kernel.org>
@@ -50,59 +49,162 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@nvidia.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit fa05bdb89b01b098aad19ec0ebc4d1cc7b11177e ]
+[ Upstream commit cd0a719fbd702eb4b455a6ad986483750125588a ]
 
-This reverts commit 9ea3e52c5bc8bb4a084938dc1e3160643438927a.
+Currently dpaa2_switch_takedown has a funny name and does not do the
+opposite of dpaa2_switch_init, which makes probing fail when we need to
+handle an -EPROBE_DEFER.
 
-Cited commit added a check to make sure 'action' is not NULL, but
-'action' is already dereferenced before the check, when calling
-flow_offload_has_one_action().
+A sketch of what dpaa2_switch_init does:
 
-Therefore, the check does not make any sense and results in a smatch
-warning:
+	dpsw_open
 
-include/net/flow_offload.h:322 flow_action_mixed_hw_stats_check() warn:
-variable dereferenced before check 'action' (see line 319)
+	dpaa2_switch_detect_features
 
-Fix by reverting this commit.
+	dpsw_reset
 
-Cc: gushengxian <gushengxian@yulong.com>
-Fixes: 9ea3e52c5bc8 ("flow_offload: action should not be NULL when it is referenced")
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Acked-by: Jamal Hadi Salim <jhs@mojatatu.com>
-Link: https://lore.kernel.org/r/20210819105842.1315705-1-idosch@idosch.org
+	for (i = 0; i < ethsw->sw_attr.num_ifs; i++) {
+		dpsw_if_disable
+
+		dpsw_if_set_stp
+
+		dpsw_vlan_remove_if_untagged
+
+		dpsw_if_set_tci
+
+		dpsw_vlan_remove_if
+	}
+
+	dpsw_vlan_remove
+
+	alloc_ordered_workqueue
+
+	dpsw_fdb_remove
+
+	dpaa2_switch_ctrl_if_setup
+
+When dpaa2_switch_takedown is called from the error path of
+dpaa2_switch_probe(), the control interface, enabled by
+dpaa2_switch_ctrl_if_setup from dpaa2_switch_init, remains enabled,
+because dpaa2_switch_takedown does not call
+dpaa2_switch_ctrl_if_teardown.
+
+Since dpaa2_switch_probe might fail due to EPROBE_DEFER of a PHY, this
+means that a second probe of the driver will happen with the control
+interface directly enabled.
+
+This will trigger a second error:
+
+[   93.273528] fsl_dpaa2_switch dpsw.0: dpsw_ctrl_if_set_pools() failed
+[   93.281966] fsl_dpaa2_switch dpsw.0: fsl_mc_driver_probe failed: -13
+[   93.288323] fsl_dpaa2_switch: probe of dpsw.0 failed with error -13
+
+Which if we investigate the /dev/dpaa2_mc_console log, we find out is
+caused by:
+
+[E, ctrl_if_set_pools:2211, DPMNG]  ctrl_if must be disabled
+
+So make dpaa2_switch_takedown do the opposite of dpaa2_switch_init (in
+reasonable limits, no reason to change STP state, re-add VLANs etc), and
+rename it to something more conventional, like dpaa2_switch_teardown.
+
+Fixes: 613c0a5810b7 ("staging: dpaa2-switch: enable the control interface")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Ioana Ciornei <ioana.ciornei@nxp.com>
+Link: https://lore.kernel.org/r/20210819141755.1931423-1-vladimir.oltean@nxp.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/flow_offload.h | 12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
+ .../ethernet/freescale/dpaa2/dpaa2-switch.c   | 36 +++++++++----------
+ 1 file changed, 18 insertions(+), 18 deletions(-)
 
-diff --git a/include/net/flow_offload.h b/include/net/flow_offload.h
-index 69c9eabf8325..dc5c1e69cd9f 100644
---- a/include/net/flow_offload.h
-+++ b/include/net/flow_offload.h
-@@ -319,14 +319,12 @@ flow_action_mixed_hw_stats_check(const struct flow_action *action,
- 	if (flow_offload_has_one_action(action))
- 		return true;
- 
--	if (action) {
--		flow_action_for_each(i, action_entry, action) {
--			if (i && action_entry->hw_stats != last_hw_stats) {
--				NL_SET_ERR_MSG_MOD(extack, "Mixing HW stats types for actions is not supported");
--				return false;
--			}
--			last_hw_stats = action_entry->hw_stats;
-+	flow_action_for_each(i, action_entry, action) {
-+		if (i && action_entry->hw_stats != last_hw_stats) {
-+			NL_SET_ERR_MSG_MOD(extack, "Mixing HW stats types for actions is not supported");
-+			return false;
- 		}
-+		last_hw_stats = action_entry->hw_stats;
- 	}
- 	return true;
+diff --git a/drivers/net/ethernet/freescale/dpaa2/dpaa2-switch.c b/drivers/net/ethernet/freescale/dpaa2/dpaa2-switch.c
+index 87321b7239cf..58964d22cb17 100644
+--- a/drivers/net/ethernet/freescale/dpaa2/dpaa2-switch.c
++++ b/drivers/net/ethernet/freescale/dpaa2/dpaa2-switch.c
+@@ -3038,26 +3038,30 @@ static int dpaa2_switch_port_init(struct ethsw_port_priv *port_priv, u16 port)
+ 	return err;
  }
+ 
+-static void dpaa2_switch_takedown(struct fsl_mc_device *sw_dev)
++static void dpaa2_switch_ctrl_if_teardown(struct ethsw_core *ethsw)
++{
++	dpsw_ctrl_if_disable(ethsw->mc_io, 0, ethsw->dpsw_handle);
++	dpaa2_switch_free_dpio(ethsw);
++	dpaa2_switch_destroy_rings(ethsw);
++	dpaa2_switch_drain_bp(ethsw);
++	dpaa2_switch_free_dpbp(ethsw);
++}
++
++static void dpaa2_switch_teardown(struct fsl_mc_device *sw_dev)
+ {
+ 	struct device *dev = &sw_dev->dev;
+ 	struct ethsw_core *ethsw = dev_get_drvdata(dev);
+ 	int err;
+ 
++	dpaa2_switch_ctrl_if_teardown(ethsw);
++
++	destroy_workqueue(ethsw->workqueue);
++
+ 	err = dpsw_close(ethsw->mc_io, 0, ethsw->dpsw_handle);
+ 	if (err)
+ 		dev_warn(dev, "dpsw_close err %d\n", err);
+ }
+ 
+-static void dpaa2_switch_ctrl_if_teardown(struct ethsw_core *ethsw)
+-{
+-	dpsw_ctrl_if_disable(ethsw->mc_io, 0, ethsw->dpsw_handle);
+-	dpaa2_switch_free_dpio(ethsw);
+-	dpaa2_switch_destroy_rings(ethsw);
+-	dpaa2_switch_drain_bp(ethsw);
+-	dpaa2_switch_free_dpbp(ethsw);
+-}
+-
+ static int dpaa2_switch_remove(struct fsl_mc_device *sw_dev)
+ {
+ 	struct ethsw_port_priv *port_priv;
+@@ -3068,8 +3072,6 @@ static int dpaa2_switch_remove(struct fsl_mc_device *sw_dev)
+ 	dev = &sw_dev->dev;
+ 	ethsw = dev_get_drvdata(dev);
+ 
+-	dpaa2_switch_ctrl_if_teardown(ethsw);
+-
+ 	dpaa2_switch_teardown_irqs(sw_dev);
+ 
+ 	dpsw_disable(ethsw->mc_io, 0, ethsw->dpsw_handle);
+@@ -3084,9 +3086,7 @@ static int dpaa2_switch_remove(struct fsl_mc_device *sw_dev)
+ 	kfree(ethsw->acls);
+ 	kfree(ethsw->ports);
+ 
+-	dpaa2_switch_takedown(sw_dev);
+-
+-	destroy_workqueue(ethsw->workqueue);
++	dpaa2_switch_teardown(sw_dev);
+ 
+ 	fsl_mc_portal_free(ethsw->mc_io);
+ 
+@@ -3199,7 +3199,7 @@ static int dpaa2_switch_probe(struct fsl_mc_device *sw_dev)
+ 			       GFP_KERNEL);
+ 	if (!(ethsw->ports)) {
+ 		err = -ENOMEM;
+-		goto err_takedown;
++		goto err_teardown;
+ 	}
+ 
+ 	ethsw->fdbs = kcalloc(ethsw->sw_attr.num_ifs, sizeof(*ethsw->fdbs),
+@@ -3270,8 +3270,8 @@ err_free_fdbs:
+ err_free_ports:
+ 	kfree(ethsw->ports);
+ 
+-err_takedown:
+-	dpaa2_switch_takedown(sw_dev);
++err_teardown:
++	dpaa2_switch_teardown(sw_dev);
+ 
+ err_free_cmdport:
+ 	fsl_mc_portal_free(ethsw->mc_io);
 -- 
 2.30.2
 
