@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4B303F65E8
+	by mail.lfdr.de (Postfix) with ESMTP id 5707B3F65E7
 	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:17:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233624AbhHXRSD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S234028AbhHXRSD (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 24 Aug 2021 13:18:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55476 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:55478 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237916AbhHXRQD (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S238413AbhHXRQD (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 24 Aug 2021 13:16:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D17EB61AA7;
-        Tue, 24 Aug 2021 17:01:47 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F329061A8B;
+        Tue, 24 Aug 2021 17:01:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824508;
-        bh=c6UOVEcLzK/fQL941pQHu4b3XY4b67aszf/JywBfVts=;
+        s=k20201202; t=1629824509;
+        bh=IFWUA4+G9fEBgOZWy1Vl9HXWNbw5fFgWb7maZ0Vpv3o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GOBfJFvEc7viL5l6/vrejK0z2Vzld75Ib2YoscDJ0iesbibTOHkHE8QCiF3IYIG2M
-         2MuzcqlsddP9zKGv7ozAhoADlMs19PBz2/rSOJkt+xUp8s4HIiMoGpe2vbcLHzLK2c
-         eiIBjujavy1FHbXxN6BIuUCh8vkwYSe/SpD0diPSxM8EFOOBS1Ifs5PXe+BnWYNySJ
-         +vcsUvOxcZ2KfqiCT3UzBwNQ0GkqBVY/UE9LXzbvoPfc78xi6n9HqIJZMEJOyeFi6Y
-         5PKWDf8H+yTSWHvxJC4RQTW+EPkN3KmLIaRZAydKBmStXfGjN4+mwgEFSdeor7swU4
-         F7mYaPFmS8Ulg==
+        b=avL8G5hfhv+/WjETKlNXutDdkTtZkmDHaHMxsmxH5YfX0S8rUv6B/ZNQgtKaBvYJ4
+         IQ++WQct+4agQYxowudYEL+SsN6Lvx/H4TI4NQXk/Y4Ae+dtQ/vcVgmcxbyb3hWbpA
+         0Kq2v9BXS6qpj7GVyAPPNCszlEqJ/ykNNwDNghtl8i9gQMe1uqaaSEEXe1n8hnbyrT
+         uZBCINwwH/vQb/GRoYUilnrqKRgNYSmA25ZwUeHukTTN/SqZmxht3XnTOFMUlVR414
+         /bhjmn8tSUI7P+DMI8zXVx+4HrvmixangEttOxWFk0QAwCKt0+KIoHpPOj3QUdWsgI
+         KM4Qn1aimlWlQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Saravana Kannan <saravanak@google.com>,
-        Andrew Lunn <andrew@lunn.ch>, Marc Zyngier <maz@kernel.org>,
-        Kevin Hilman <khilman@baylibre.com>,
+Cc:     "kaixi.fan" <fankaixi.li@bytedance.com>,
+        xiexiaohui <xiexiaohui.xxh@bytedance.com>,
+        Cong Wang <cong.wang@bytedance.com>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 41/61] net: mdio-mux: Handle -EPROBE_DEFER correctly
-Date:   Tue, 24 Aug 2021 13:00:46 -0400
-Message-Id: <20210824170106.710221-42-sashal@kernel.org>
+Subject: [PATCH 5.4 42/61] ovs: clear skb->tstamp in forwarding path
+Date:   Tue, 24 Aug 2021 13:00:47 -0400
+Message-Id: <20210824170106.710221-43-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170106.710221-1-sashal@kernel.org>
 References: <20210824170106.710221-1-sashal@kernel.org>
@@ -50,56 +50,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saravana Kannan <saravanak@google.com>
+From: "kaixi.fan" <fankaixi.li@bytedance.com>
 
-[ Upstream commit 7bd0cef5dac685f09ef8b0b2a7748ff42d284dc7 ]
+[ Upstream commit 01634047bf0d5c2d9b7d8095bb4de1663dbeedeb ]
 
-When registering mdiobus children, if we get an -EPROBE_DEFER, we shouldn't
-ignore it and continue registering the rest of the mdiobus children. This
-would permanently prevent the deferring child mdiobus from working instead
-of reattempting it in the future. So, if a child mdiobus needs to be
-reattempted in the future, defer the entire mdio-mux initialization.
+fq qdisc requires tstamp to be cleared in the forwarding path. Now ovs
+doesn't clear skb->tstamp. We encountered a problem with linux
+version 5.4.56 and ovs version 2.14.1, and packets failed to
+dequeue from qdisc when fq qdisc was attached to ovs port.
 
-This fixes the issue where PHYs sitting under the mdio-mux aren't
-initialized correctly if the PHY's interrupt controller is not yet ready
-when the mdio-mux is being probed. Additional context in the link below.
-
-Fixes: 0ca2997d1452 ("netdev/of/phy: Add MDIO bus multiplexer support.")
-Link: https://lore.kernel.org/lkml/CAGETcx95kHrv8wA-O+-JtfH7H9biJEGJtijuPVN0V5dUKUAB3A@mail.gmail.com/#t
-Signed-off-by: Saravana Kannan <saravanak@google.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Acked-by: Marc Zyngier <maz@kernel.org>
-Tested-by: Marc Zyngier <maz@kernel.org>
-Acked-by: Kevin Hilman <khilman@baylibre.com>
-Tested-by: Kevin Hilman <khilman@baylibre.com>
+Fixes: fb420d5d91c1 ("tcp/fq: move back to CLOCK_MONOTONIC")
+Signed-off-by: kaixi.fan <fankaixi.li@bytedance.com>
+Signed-off-by: xiexiaohui <xiexiaohui.xxh@bytedance.com>
+Reviewed-by: Cong Wang <cong.wang@bytedance.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/mdio-mux.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ net/openvswitch/vport.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/phy/mdio-mux.c b/drivers/net/phy/mdio-mux.c
-index c96ef3b3fa3a..ccb3ee704eb1 100644
---- a/drivers/net/phy/mdio-mux.c
-+++ b/drivers/net/phy/mdio-mux.c
-@@ -175,11 +175,15 @@ int mdio_mux_init(struct device *dev,
- 		cb->mii_bus->write = mdio_mux_write;
- 		r = of_mdiobus_register(cb->mii_bus, child_bus_node);
- 		if (r) {
-+			mdiobus_free(cb->mii_bus);
-+			if (r == -EPROBE_DEFER) {
-+				ret_val = r;
-+				goto err_loop;
-+			}
-+			devm_kfree(dev, cb);
- 			dev_err(dev,
- 				"Error: Failed to register MDIO bus for child %pOF\n",
- 				child_bus_node);
--			mdiobus_free(cb->mii_bus);
--			devm_kfree(dev, cb);
- 		} else {
- 			cb->next = pb->children;
- 			pb->children = cb;
+diff --git a/net/openvswitch/vport.c b/net/openvswitch/vport.c
+index 3fc38d16c456..19af0efeb8dc 100644
+--- a/net/openvswitch/vport.c
++++ b/net/openvswitch/vport.c
+@@ -499,6 +499,7 @@ void ovs_vport_send(struct vport *vport, struct sk_buff *skb, u8 mac_proto)
+ 	}
+ 
+ 	skb->dev = vport->dev;
++	skb->tstamp = 0;
+ 	vport->ops->send(skb);
+ 	return;
+ 
 -- 
 2.30.2
 
