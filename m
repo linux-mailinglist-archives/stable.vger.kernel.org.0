@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F1CE43F6677
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:24:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9B743F6675
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:24:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240160AbhHXRYG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:24:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60516 "EHLO mail.kernel.org"
+        id S240365AbhHXRYF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:24:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240464AbhHXRV6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S240463AbhHXRV6 (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 24 Aug 2021 13:21:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 28E03615E4;
-        Tue, 24 Aug 2021 17:03:30 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6097D61465;
+        Tue, 24 Aug 2021 17:03:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824611;
-        bh=S0u4x/U3+YMUcRBgT739kt2cRDt76+iOkNeQiQlnVZ0=;
+        s=k20201202; t=1629824612;
+        bh=M1hSEd/AeJLUDDxEEvEECuJsZfbUUaxtA1UEQenUsE4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ldIbxKzH8ltQMhZ11uJyxBWXG4Hw5Db/zmso0rsYvPX8i9cTQKWreiZSuT1SupPho
-         sZ3fXKcs74UBbpccHTKoRp5kznQyLlrhiyor/fFo/HgmBk15Qi7jKc3Bu72v+OzsDc
-         69iRNcLBStZ2sFumTP5+JFcmgTdROTkRf9uvzNBkhftlMIizkHcC6VbRW4jOCLNtxX
-         KRo8vfV9UGTmmf54N9t7PQMMcpEk0WMhyGFIGwIgvEF5J0rXXaHi8WTQcMVoTnwaVM
-         yhRHuJI6VxxH33zN2kdP+buo+ic0Gu9tJa0XaQo/BUfvoWkCc7f/Dr4uB2fnN8TAyy
-         Mi7r8ii+9Cjmw==
+        b=eDRVX8nDzeDQAX7V8edyV5fl2U10VkNaMzszFDi0//7tK/PcqOnRQjw0IBE2DeR1R
+         4F+2fQdkJYRCh0NSQmKb8809Cd6n/Rq3nZ38tWdef3X694utL1H4EQ2H0/gHpQjA/u
+         qwusNvsA91okykQuOtj6XyQ8BH6KDYwJAvVlJxnFITiv5SpgJ7tNQO1mU2RuiYMcnI
+         F06/zWCnfKYmqk57WshQj7IK1DS18C9HL86smX/2F+kU8yZ/Ee3Mqj+G6Trua3yduf
+         0jxG+q4lHA+INxE3oPiYS4iAbwJPzV5l3/2ImblJs3Q491TQTjGdUhHefR+BkV6hhD
+         OuP1PVYxgJB4w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Saeed Mirzamohammadi <saeed.mirzamohammadi@oracle.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        Ashok Raj <ashok.raj@intel.com>,
-        Camille Lu <camille.lu@hpe.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
+Cc:     Johannes Berg <johannes.berg@intel.com>, Jouni Malinen <j@w1.fi>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.19 40/84] iommu/vt-d: Fix agaw for a supported 48 bit guest address width
-Date:   Tue, 24 Aug 2021 13:02:06 -0400
-Message-Id: <20210824170250.710392-41-sashal@kernel.org>
+Subject: [PATCH 4.19 41/84] mac80211: drop data frames without key on encrypted links
+Date:   Tue, 24 Aug 2021 13:02:07 -0400
+Message-Id: <20210824170250.710392-42-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170250.710392-1-sashal@kernel.org>
 References: <20210824170250.710392-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.205-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
 X-KernelTest-Branch: linux-4.19.y
@@ -51,91 +50,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saeed Mirzamohammadi <saeed.mirzamohammadi@oracle.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 327d5b2fee91c404a3956c324193892cf2cc9528 ]
+commit a0761a301746ec2d92d7fcb82af69c0a6a4339aa upstream.
 
-The IOMMU driver calculates the guest addressability for a DMA request
-based on the value of the mgaw reported from the IOMMU. However, this
-is a fused value and as mentioned in the spec, the guest width
-should be calculated based on the minimum of supported adjusted guest
-address width (SAGAW) and MGAW.
+If we know that we have an encrypted link (based on having had
+a key configured for TX in the past) then drop all data frames
+in the key selection handler if there's no key anymore.
 
-This is from specification:
-"Guest addressability for a given DMA request is limited to the
-minimum of the value reported through this field and the adjusted
-guest address width of the corresponding page-table structure.
-(Adjusted guest address widths supported by hardware are reported
-through the SAGAW field)."
+This fixes an issue with mac80211 internal TXQs - there we can
+buffer frames for an encrypted link, but then if the key is no
+longer there when they're dequeued, the frames are sent without
+encryption. This happens if a station is disconnected while the
+frames are still on the TXQ.
 
-This causes domain initialization to fail and following
-errors appear for EHCI PCI driver:
+Detecting that a link should be encrypted based on a first key
+having been configured for TX is fine as there are no use cases
+for a connection going from with encryption to no encryption.
+With extended key IDs, however, there is a case of having a key
+configured for only decryption, so we can't just trigger this
+behaviour on a key being configured.
 
-[    2.486393] ehci-pci 0000:01:00.4: EHCI Host Controller
-[    2.486624] ehci-pci 0000:01:00.4: new USB bus registered, assigned bus
-number 1
-[    2.489127] ehci-pci 0000:01:00.4: DMAR: Allocating domain failed
-[    2.489350] ehci-pci 0000:01:00.4: DMAR: 32bit DMA uses non-identity
-mapping
-[    2.489359] ehci-pci 0000:01:00.4: can't setup: -12
-[    2.489531] ehci-pci 0000:01:00.4: USB bus 1 deregistered
-[    2.490023] ehci-pci 0000:01:00.4: init 0000:01:00.4 fail, -12
-[    2.490358] ehci-pci: probe of 0000:01:00.4 failed with error -12
-
-This issue happens when the value of the sagaw corresponds to a
-48-bit agaw. This fix updates the calculation of the agaw based on
-the minimum of IOMMU's sagaw value and MGAW.
-
-This issue happens on the code path of getting a private domain for a
-device. A private domain was needed when the domain of an iommu group
-couldn't meet the requirement of a device. The IOMMU core has been
-evolved to eliminate the need for private domain, hence this code path
-has alreay been removed from the upstream since commit 327d5b2fee91c
-("iommu/vt-d: Allow 32bit devices to uses DMA domain"). Instead of back
-porting all patches that are required for removing the private domain,
-this simply fixes it in the affected stable kernel between v4.16 and v5.7.
-
-[baolu: The orignal patch could be found here
- https://lore.kernel.org/linux-iommu/20210412202736.70765-1-saeed.mirzamohammadi@oracle.com/.
- I added commit message according to Greg's comments at
- https://lore.kernel.org/linux-iommu/YHZ%2FT9x7Xjf1r6fI@kroah.com/.]
-
-Cc: Joerg Roedel <joro@8bytes.org>
-Cc: Ashok Raj <ashok.raj@intel.com>
-Cc: stable@vger.kernel.org #v4.16+
-Signed-off-by: Saeed Mirzamohammadi <saeed.mirzamohammadi@oracle.com>
-Tested-by: Camille Lu <camille.lu@hpe.com>
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+Cc: stable@vger.kernel.org
+Reported-by: Jouni Malinen <j@w1.fi>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20200326150855.6865c7f28a14.I9fb1d911b064262d33e33dfba730cdeef83926ca@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+[pali: Backported to 4.19 and older versions]
+Signed-off-by: Pali Rohár <pali@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iommu/intel-iommu.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ net/mac80211/debugfs_sta.c |  1 +
+ net/mac80211/key.c         |  1 +
+ net/mac80211/sta_info.h    |  1 +
+ net/mac80211/tx.c          | 12 +++++++++---
+ 4 files changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
-index d2166dfc8b3f..dcb865d19309 100644
---- a/drivers/iommu/intel-iommu.c
-+++ b/drivers/iommu/intel-iommu.c
-@@ -1928,7 +1928,7 @@ static inline int guestwidth_to_adjustwidth(int gaw)
- static int domain_init(struct dmar_domain *domain, struct intel_iommu *iommu,
- 		       int guest_width)
- {
--	int adjust_width, agaw;
-+	int adjust_width, agaw, cap_width;
- 	unsigned long sagaw;
- 	int err;
+diff --git a/net/mac80211/debugfs_sta.c b/net/mac80211/debugfs_sta.c
+index 4105081dc1df..6f390c2e4c8e 100644
+--- a/net/mac80211/debugfs_sta.c
++++ b/net/mac80211/debugfs_sta.c
+@@ -80,6 +80,7 @@ static const char * const sta_flag_names[] = {
+ 	FLAG(MPSP_OWNER),
+ 	FLAG(MPSP_RECIPIENT),
+ 	FLAG(PS_DELIVER),
++	FLAG(USES_ENCRYPTION),
+ #undef FLAG
+ };
  
-@@ -1942,8 +1942,9 @@ static int domain_init(struct dmar_domain *domain, struct intel_iommu *iommu,
- 	domain_reserve_special_ranges(domain);
+diff --git a/net/mac80211/key.c b/net/mac80211/key.c
+index 6775d6cb7d3d..7fc55177db84 100644
+--- a/net/mac80211/key.c
++++ b/net/mac80211/key.c
+@@ -341,6 +341,7 @@ static void ieee80211_key_replace(struct ieee80211_sub_if_data *sdata,
+ 	if (sta) {
+ 		if (pairwise) {
+ 			rcu_assign_pointer(sta->ptk[idx], new);
++			set_sta_flag(sta, WLAN_STA_USES_ENCRYPTION);
+ 			sta->ptk_idx = idx;
+ 			ieee80211_check_fast_xmit(sta);
+ 		} else {
+diff --git a/net/mac80211/sta_info.h b/net/mac80211/sta_info.h
+index c33bc5fc0f2d..75d982ff7f3d 100644
+--- a/net/mac80211/sta_info.h
++++ b/net/mac80211/sta_info.h
+@@ -102,6 +102,7 @@ enum ieee80211_sta_info_flags {
+ 	WLAN_STA_MPSP_OWNER,
+ 	WLAN_STA_MPSP_RECIPIENT,
+ 	WLAN_STA_PS_DELIVER,
++	WLAN_STA_USES_ENCRYPTION,
  
- 	/* calculate AGAW */
--	if (guest_width > cap_mgaw(iommu->cap))
--		guest_width = cap_mgaw(iommu->cap);
-+	cap_width = min_t(int, cap_mgaw(iommu->cap), agaw_to_width(iommu->agaw));
-+	if (guest_width > cap_width)
-+		guest_width = cap_width;
- 	domain->gaw = guest_width;
- 	adjust_width = guestwidth_to_adjustwidth(guest_width);
- 	agaw = width_to_agaw(adjust_width);
+ 	NUM_WLAN_STA_FLAGS,
+ };
+diff --git a/net/mac80211/tx.c b/net/mac80211/tx.c
+index 98d048630ad2..3530d1a5fc98 100644
+--- a/net/mac80211/tx.c
++++ b/net/mac80211/tx.c
+@@ -593,10 +593,13 @@ ieee80211_tx_h_select_key(struct ieee80211_tx_data *tx)
+ 	struct ieee80211_tx_info *info = IEEE80211_SKB_CB(tx->skb);
+ 	struct ieee80211_hdr *hdr = (struct ieee80211_hdr *)tx->skb->data;
+ 
+-	if (unlikely(info->flags & IEEE80211_TX_INTFL_DONT_ENCRYPT))
++	if (unlikely(info->flags & IEEE80211_TX_INTFL_DONT_ENCRYPT)) {
+ 		tx->key = NULL;
+-	else if (tx->sta &&
+-		 (key = rcu_dereference(tx->sta->ptk[tx->sta->ptk_idx])))
++		return TX_CONTINUE;
++	}
++
++	if (tx->sta &&
++	    (key = rcu_dereference(tx->sta->ptk[tx->sta->ptk_idx])))
+ 		tx->key = key;
+ 	else if (ieee80211_is_group_privacy_action(tx->skb) &&
+ 		(key = rcu_dereference(tx->sdata->default_multicast_key)))
+@@ -657,6 +660,9 @@ ieee80211_tx_h_select_key(struct ieee80211_tx_data *tx)
+ 		if (!skip_hw && tx->key &&
+ 		    tx->key->flags & KEY_FLAG_UPLOADED_TO_HARDWARE)
+ 			info->control.hw_key = &tx->key->conf;
++	} else if (!ieee80211_is_mgmt(hdr->frame_control) && tx->sta &&
++		   test_sta_flag(tx->sta, WLAN_STA_USES_ENCRYPTION)) {
++		return TX_DROP;
+ 	}
+ 
+ 	return TX_CONTINUE;
 -- 
 2.30.2
 
