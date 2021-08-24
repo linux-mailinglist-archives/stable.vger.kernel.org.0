@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0ADF3F64A5
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:06:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E4043F648B
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:04:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238669AbhHXRGN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:06:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46494 "EHLO mail.kernel.org"
+        id S238789AbhHXRFP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:05:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238831AbhHXRDM (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234553AbhHXRDM (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 24 Aug 2021 13:03:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B7F9C61440;
-        Tue, 24 Aug 2021 16:59:17 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CDE6161502;
+        Tue, 24 Aug 2021 16:59:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824358;
-        bh=BPh9j8X9s2guM4I89V3cQlAiCTj3qrmRw1ftKVjQguQ=;
+        s=k20201202; t=1629824359;
+        bh=DNILWLHR3GpO1NAlXEpJNb+dCpYl49tPi66ndGiwOA8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SrO3O1hqb1U+Ify7a9JjT3F0OXZjraxEKzhgG3JnwqR8SqMGuxiAXyCPVwiheFH6Z
-         F9H5/qzJzffMCwELII7IjgnMIaFgzXwvlyjfQPabEWbL1deADtXgr+CRt8k1Q9xfRH
-         xVLYvAjpsAxrbXhgDag4aOKXGaZQCeV2wJ+nOsrIB4cJkQ+HxooNdVS38w1n4bGt9r
-         YQghThPMiNDmkWajLw1XrWJfiMHR7jKOZobLzXuJx8iGkZIKh9Xa5onCIiIWOdVCkV
-         LjpcVcmFyOSoVH8IdPKqk0uAO/9swCbaqN0AleGtLcWWt9FUQRbj1XOAzrT1NPCW+6
-         XCOiiITxVWT7w==
+        b=jqyzvLVkBaLChJxrQ6BQjuj7wec1EHyZ4JqKgNpFz5Pfu8qYRuXtIOPMIzLjOjvwD
+         tsB3Vkh34bWgVFyKXRbnnl1XUIR3Mny7GeNLDKYgbKLSfGvcqXiycYSdrkk5MODwWU
+         ODbN1cClCFaA4zPh6cfwSbayh4/uIWLUUuHCqBFtB0bUx9J7zhNpuP70qP36+xAd44
+         dwK6y/WHYnYHRUFMj49D6HxqrtFGpfrtiU7MVoSHkh9ZpCTKebvN5d5REoDrrJNpOL
+         bcDzv0WjdAOPCQW2w+AYVLy6hTxVCEUVr80qaKcryzZR4MyxeZhMhV4uBogfgxNVO8
+         WLT0cmv+FMQgQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
-        syzbot+b4d54814b339b5c6bbd4@syzkaller.appspotmail.com,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+Cc:     Parav Pandit <parav@nvidia.com>, Eli Cohen <elic@nvidia.com>,
+        Jason Wang <jasowang@redhat.com>,
+        "Michael S . Tsirkin" <mst@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 08/98] media: zr364xx: fix memory leaks in probe()
-Date:   Tue, 24 Aug 2021 12:57:38 -0400
-Message-Id: <20210824165908.709932-9-sashal@kernel.org>
+Subject: [PATCH 5.10 09/98] vdpa: Extend routine to accept vdpa device name
+Date:   Tue, 24 Aug 2021 12:57:39 -0400
+Message-Id: <20210824165908.709932-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165908.709932-1-sashal@kernel.org>
 References: <20210824165908.709932-1-sashal@kernel.org>
@@ -50,184 +49,181 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Parav Pandit <parav@nvidia.com>
 
-[ Upstream commit ea354b6ddd6f09be29424f41fa75a3e637fea234 ]
+[ Upstream commit fd70a406a344e084ac680c3f14e71d37d6023883 ]
 
-Syzbot discovered that the probe error handling doesn't clean up the
-resources allocated in zr364xx_board_init().  There are several
-related bugs in this code so I have re-written the error handling.
+In a subsequent patch, when user initiated command creates a vdpa device,
+the user chooses the name of the vdpa device.
+To support it, extend the device allocation API to consider this name
+specified by the caller driver.
 
-1)  Introduce a new function zr364xx_board_uninit() which cleans up
-    the resources in zr364xx_board_init().
-2)  In zr364xx_board_init() if the call to zr364xx_start_readpipe()
-    fails then release the "cam->buffer.frame[i].lpvbits" memory
-    before returning.  This way every function either allocates
-    everything successfully or it cleans up after itself.
-3)  Re-write the probe function so that each failure path goto frees
-    the most recent allocation.  That way we don't free anything
-    before it has been allocated and we can also verify that
-    everything is freed.
-4)  Originally, in the probe function the "cam->v4l2_dev.release"
-    pointer was set to "zr364xx_release" near the start but I moved
-    that assignment to the end, after everything had succeeded.  The
-    release function was never actually called during the probe cleanup
-    process, but with this change I wanted to make it clear that we
-    don't want to call zr364xx_release() until everything is
-    allocated successfully.
-
-Next I re-wrote the zr364xx_release() function.  Ideally this would
-have been a simple matter of copy and pasting the cleanup code from
-probe and adding an additional call to video_unregister_device().  But
-there are a couple quirks to note.
-
-1)  The probe function does not call videobuf_mmap_free() and I don't
-    know where the videobuf_mmap is allocated.  I left the code as-is to
-    avoid introducing a bug in code I don't understand.
-2)  The zr364xx_board_uninit() has a call to zr364xx_stop_readpipe()
-    which is a change from the original behavior with regards to
-    unloading the driver.  Calling zr364xx_stop_readpipe() on a stopped
-    pipe is not a problem so this is safe and is potentially a bugfix.
-
-Reported-by: syzbot+b4d54814b339b5c6bbd4@syzkaller.appspotmail.com
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Parav Pandit <parav@nvidia.com>
+Reviewed-by: Eli Cohen <elic@nvidia.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Link: https://lore.kernel.org/r/20210105103203.82508-3-parav@nvidia.com
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/zr364xx/zr364xx.c | 49 ++++++++++++++++++-----------
- 1 file changed, 31 insertions(+), 18 deletions(-)
+ drivers/vdpa/ifcvf/ifcvf_main.c   |  2 +-
+ drivers/vdpa/mlx5/net/mlx5_vnet.c |  2 +-
+ drivers/vdpa/vdpa.c               | 36 +++++++++++++++++++++++++++----
+ drivers/vdpa/vdpa_sim/vdpa_sim.c  |  2 +-
+ include/linux/vdpa.h              |  7 +++---
+ 5 files changed, 38 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/media/usb/zr364xx/zr364xx.c b/drivers/media/usb/zr364xx/zr364xx.c
-index 5c8997d7de23..8636acf2dad0 100644
---- a/drivers/media/usb/zr364xx/zr364xx.c
-+++ b/drivers/media/usb/zr364xx/zr364xx.c
-@@ -1184,15 +1184,11 @@ out:
- 	return err;
- }
+diff --git a/drivers/vdpa/ifcvf/ifcvf_main.c b/drivers/vdpa/ifcvf/ifcvf_main.c
+index 8b4028556cb6..23474af7da40 100644
+--- a/drivers/vdpa/ifcvf/ifcvf_main.c
++++ b/drivers/vdpa/ifcvf/ifcvf_main.c
+@@ -439,7 +439,7 @@ static int ifcvf_probe(struct pci_dev *pdev, const struct pci_device_id *id)
  
--static void zr364xx_release(struct v4l2_device *v4l2_dev)
-+static void zr364xx_board_uninit(struct zr364xx_camera *cam)
+ 	adapter = vdpa_alloc_device(struct ifcvf_adapter, vdpa,
+ 				    dev, &ifc_vdpa_ops,
+-				    IFCVF_MAX_QUEUE_PAIRS * 2);
++				    IFCVF_MAX_QUEUE_PAIRS * 2, NULL);
+ 	if (adapter == NULL) {
+ 		IFCVF_ERR(pdev, "Failed to allocate vDPA structure");
+ 		return -ENOMEM;
+diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+index fbdc9468818d..b15d8552832a 100644
+--- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
++++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+@@ -1982,7 +1982,7 @@ void *mlx5_vdpa_add_dev(struct mlx5_core_dev *mdev)
+ 	max_vqs = min_t(u32, max_vqs, MLX5_MAX_SUPPORTED_VQS);
+ 
+ 	ndev = vdpa_alloc_device(struct mlx5_vdpa_net, mvdev.vdev, mdev->device, &mlx5_vdpa_ops,
+-				 2 * mlx5_vdpa_max_qps(max_vqs));
++				 2 * mlx5_vdpa_max_qps(max_vqs), NULL);
+ 	if (IS_ERR(ndev))
+ 		return ndev;
+ 
+diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
+index a69ffc991e13..b3408cc8c63b 100644
+--- a/drivers/vdpa/vdpa.c
++++ b/drivers/vdpa/vdpa.c
+@@ -12,6 +12,8 @@
+ #include <linux/slab.h>
+ #include <linux/vdpa.h>
+ 
++/* A global mutex that protects vdpa management device and device level operations. */
++static DEFINE_MUTEX(vdpa_dev_mutex);
+ static DEFINE_IDA(vdpa_index_ida);
+ 
+ static int vdpa_dev_probe(struct device *d)
+@@ -63,6 +65,7 @@ static void vdpa_release_dev(struct device *d)
+  * @config: the bus operations that is supported by this device
+  * @nvqs: number of virtqueues supported by this device
+  * @size: size of the parent structure that contains private data
++ * @name: name of the vdpa device; optional.
+  *
+  * Driver should use vdpa_alloc_device() wrapper macro instead of
+  * using this directly.
+@@ -72,8 +75,7 @@ static void vdpa_release_dev(struct device *d)
+  */
+ struct vdpa_device *__vdpa_alloc_device(struct device *parent,
+ 					const struct vdpa_config_ops *config,
+-					int nvqs,
+-					size_t size)
++					int nvqs, size_t size, const char *name)
  {
--	struct zr364xx_camera *cam =
--		container_of(v4l2_dev, struct zr364xx_camera, v4l2_dev);
- 	unsigned long i;
+ 	struct vdpa_device *vdev;
+ 	int err = -EINVAL;
+@@ -101,7 +103,10 @@ struct vdpa_device *__vdpa_alloc_device(struct device *parent,
+ 	vdev->features_valid = false;
+ 	vdev->nvqs = nvqs;
  
--	v4l2_device_unregister(&cam->v4l2_dev);
--
--	videobuf_mmap_free(&cam->vb_vidq);
-+	zr364xx_stop_readpipe(cam);
+-	err = dev_set_name(&vdev->dev, "vdpa%u", vdev->index);
++	if (name)
++		err = dev_set_name(&vdev->dev, "%s", name);
++	else
++		err = dev_set_name(&vdev->dev, "vdpa%u", vdev->index);
+ 	if (err)
+ 		goto err_name;
  
- 	/* release sys buffers */
- 	for (i = 0; i < FRAMES; i++) {
-@@ -1203,9 +1199,19 @@ static void zr364xx_release(struct v4l2_device *v4l2_dev)
- 		cam->buffer.frame[i].lpvbits = NULL;
- 	}
+@@ -118,6 +123,13 @@ err:
+ }
+ EXPORT_SYMBOL_GPL(__vdpa_alloc_device);
  
--	v4l2_ctrl_handler_free(&cam->ctrl_handler);
- 	/* release transfer buffer */
- 	kfree(cam->pipe->transfer_buffer);
++static int vdpa_name_match(struct device *dev, const void *data)
++{
++	struct vdpa_device *vdev = container_of(dev, struct vdpa_device, dev);
++
++	return (strcmp(dev_name(&vdev->dev), data) == 0);
 +}
 +
-+static void zr364xx_release(struct v4l2_device *v4l2_dev)
-+{
-+	struct zr364xx_camera *cam =
-+		container_of(v4l2_dev, struct zr364xx_camera, v4l2_dev);
+ /**
+  * vdpa_register_device - register a vDPA device
+  * Callers must have a succeed call of vdpa_alloc_device() before.
+@@ -127,7 +139,21 @@ EXPORT_SYMBOL_GPL(__vdpa_alloc_device);
+  */
+ int vdpa_register_device(struct vdpa_device *vdev)
+ {
+-	return device_add(&vdev->dev);
++	struct device *dev;
++	int err;
 +
-+	videobuf_mmap_free(&cam->vb_vidq);
-+	v4l2_ctrl_handler_free(&cam->ctrl_handler);
-+	zr364xx_board_uninit(cam);
-+	v4l2_device_unregister(&cam->v4l2_dev);
- 	kfree(cam);
++	mutex_lock(&vdpa_dev_mutex);
++	dev = bus_find_device(&vdpa_bus, NULL, dev_name(&vdev->dev), vdpa_name_match);
++	if (dev) {
++		put_device(dev);
++		err = -EEXIST;
++		goto name_err;
++	}
++
++	err = device_add(&vdev->dev);
++name_err:
++	mutex_unlock(&vdpa_dev_mutex);
++	return err;
  }
+ EXPORT_SYMBOL_GPL(vdpa_register_device);
  
-@@ -1379,11 +1385,14 @@ static int zr364xx_board_init(struct zr364xx_camera *cam)
- 	/* start read pipe */
- 	err = zr364xx_start_readpipe(cam);
- 	if (err)
--		goto err_free;
-+		goto err_free_frames;
- 
- 	DBG(": board initialized\n");
- 	return 0;
- 
-+err_free_frames:
-+	for (i = 0; i < FRAMES; i++)
-+		vfree(cam->buffer.frame[i].lpvbits);
- err_free:
- 	kfree(cam->pipe->transfer_buffer);
- 	cam->pipe->transfer_buffer = NULL;
-@@ -1412,12 +1421,10 @@ static int zr364xx_probe(struct usb_interface *intf,
- 	if (!cam)
- 		return -ENOMEM;
- 
--	cam->v4l2_dev.release = zr364xx_release;
- 	err = v4l2_device_register(&intf->dev, &cam->v4l2_dev);
- 	if (err < 0) {
- 		dev_err(&udev->dev, "couldn't register v4l2_device\n");
--		kfree(cam);
--		return err;
-+		goto free_cam;
- 	}
- 	hdl = &cam->ctrl_handler;
- 	v4l2_ctrl_handler_init(hdl, 1);
-@@ -1426,7 +1433,7 @@ static int zr364xx_probe(struct usb_interface *intf,
- 	if (hdl->error) {
- 		err = hdl->error;
- 		dev_err(&udev->dev, "couldn't register control\n");
--		goto fail;
-+		goto unregister;
- 	}
- 	/* save the init method used by this camera */
- 	cam->method = id->driver_info;
-@@ -1499,7 +1506,7 @@ static int zr364xx_probe(struct usb_interface *intf,
- 	if (!cam->read_endpoint) {
- 		err = -ENOMEM;
- 		dev_err(&intf->dev, "Could not find bulk-in endpoint\n");
--		goto fail;
-+		goto unregister;
- 	}
- 
- 	/* v4l */
-@@ -1510,10 +1517,11 @@ static int zr364xx_probe(struct usb_interface *intf,
- 
- 	/* load zr364xx board specific */
- 	err = zr364xx_board_init(cam);
--	if (!err)
--		err = v4l2_ctrl_handler_setup(hdl);
- 	if (err)
--		goto fail;
-+		goto unregister;
-+	err = v4l2_ctrl_handler_setup(hdl);
-+	if (err)
-+		goto board_uninit;
- 
- 	spin_lock_init(&cam->slock);
- 
-@@ -1528,16 +1536,21 @@ static int zr364xx_probe(struct usb_interface *intf,
- 	err = video_register_device(&cam->vdev, VFL_TYPE_VIDEO, -1);
- 	if (err) {
- 		dev_err(&udev->dev, "video_register_device failed\n");
--		goto fail;
-+		goto free_handler;
- 	}
-+	cam->v4l2_dev.release = zr364xx_release;
- 
- 	dev_info(&udev->dev, DRIVER_DESC " controlling device %s\n",
- 		 video_device_node_name(&cam->vdev));
- 	return 0;
- 
--fail:
-+free_handler:
- 	v4l2_ctrl_handler_free(hdl);
-+board_uninit:
-+	zr364xx_board_uninit(cam);
-+unregister:
- 	v4l2_device_unregister(&cam->v4l2_dev);
-+free_cam:
- 	kfree(cam);
- 	return err;
+@@ -137,7 +163,9 @@ EXPORT_SYMBOL_GPL(vdpa_register_device);
+  */
+ void vdpa_unregister_device(struct vdpa_device *vdev)
+ {
++	mutex_lock(&vdpa_dev_mutex);
+ 	device_unregister(&vdev->dev);
++	mutex_unlock(&vdpa_dev_mutex);
  }
+ EXPORT_SYMBOL_GPL(vdpa_unregister_device);
+ 
+diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+index f2ad450db547..df1f585e08dc 100644
+--- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
++++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+@@ -370,7 +370,7 @@ static struct vdpasim *vdpasim_create(struct vdpasim_dev_attr *dev_attr)
+ 		ops = &vdpasim_net_config_ops;
+ 
+ 	vdpasim = vdpa_alloc_device(struct vdpasim, vdpa, NULL, ops,
+-				    dev_attr->nvqs);
++				    dev_attr->nvqs, NULL);
+ 	if (!vdpasim)
+ 		goto err_alloc;
+ 
+diff --git a/include/linux/vdpa.h b/include/linux/vdpa.h
+index 30bc7a7223bb..ac58462e8aed 100644
+--- a/include/linux/vdpa.h
++++ b/include/linux/vdpa.h
+@@ -244,15 +244,14 @@ struct vdpa_config_ops {
+ 
+ struct vdpa_device *__vdpa_alloc_device(struct device *parent,
+ 					const struct vdpa_config_ops *config,
+-					int nvqs,
+-					size_t size);
++					int nvqs, size_t size, const char *name);
+ 
+-#define vdpa_alloc_device(dev_struct, member, parent, config, nvqs)   \
++#define vdpa_alloc_device(dev_struct, member, parent, config, nvqs, name)   \
+ 			  container_of(__vdpa_alloc_device( \
+ 				       parent, config, nvqs, \
+ 				       sizeof(dev_struct) + \
+ 				       BUILD_BUG_ON_ZERO(offsetof( \
+-				       dev_struct, member))), \
++				       dev_struct, member)), name), \
+ 				       dev_struct, member)
+ 
+ int vdpa_register_device(struct vdpa_device *vdev);
 -- 
 2.30.2
 
