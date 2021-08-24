@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DC923F63F8
+	by mail.lfdr.de (Postfix) with ESMTP id F1F203F63F9
 	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:00:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232829AbhHXRAF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:00:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39380 "EHLO mail.kernel.org"
+        id S233793AbhHXRAG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:00:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238471AbhHXQ6N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 12:58:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8FA8B61401;
-        Tue, 24 Aug 2021 16:57:12 +0000 (UTC)
+        id S235000AbhHXQ6O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 12:58:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B6955613B1;
+        Tue, 24 Aug 2021 16:57:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824233;
-        bh=M+R0hoakc5y3nPgxpjCuU06fRRtzmObweeNz03A9oaQ=;
+        s=k20201202; t=1629824234;
+        bh=EwT0B2S1XgskTufYh5xi7N7TyU/h3WjAGvHnXhoS3f8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T6mw5VUFi9JmOvaTuFrRQutWy8e2+EfNPDWEi4MA17f7zf4PWJte0NzWGj0KYzXUM
-         EKIhTWD/SVAuo1W/Rj63VDnnRrytOqi1aFasFOZTIRSaHU3PYknJe/e85eEA0qjU/0
-         +zTskB4MWqjZHasbFAh0eOrhr+Aab3zi3BN206eie2x8HjVwRGJzE6+npTS1bZC8im
-         8vPllrkuRmLSFMKaMKpi990eqF3h672Sx1W7VcGxd3K4qEofSagV0bknXueRMUDw/s
-         XLjZv2vgZkSGKaeIkUkorordDrlKouXszf4T0si+10bs7VE1gxKRdcnFgJbS+AWLR+
-         2inLBbnlR3r5A==
+        b=iQyVJRrUczX4IIBhic3sI/sXW/nVq3CMXJ+c2ORjiged2CF8zsdwSAaGQRazVtkvx
+         IuFaju4+h0pBCYGzBRzwgD6GCy0PKU4FAj/W2n+F4SMMMr8PHMh0+caLS2FhA35l5o
+         oG/vduA6CZ8vFon3mwAMqSpou3UboUCDky9ai9ycn3pwPdqcmIulWKSHmyB02Z+Plq
+         AUT8nQAM1bE8EdWxQDZVFnG66AnO1vLnQWIADt7+cMvvkCOCLY0KFuDuKks+h8M0bw
+         b6Tv+DU3F8JwObVep1kAyyVDY8mGw8HbTf6NI1L1hTOe3OzoEsXq+bO8hkq0Ir5Mv2
+         bB4uMFkpV3T3w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Saravana Kannan <saravanak@google.com>,
@@ -30,9 +30,9 @@ Cc:     Saravana Kannan <saravanak@google.com>,
         Kevin Hilman <khilman@baylibre.com>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 066/127] net: mdio-mux: Don't ignore memory allocation errors
-Date:   Tue, 24 Aug 2021 12:55:06 -0400
-Message-Id: <20210824165607.709387-67-sashal@kernel.org>
+Subject: [PATCH 5.13 067/127] net: mdio-mux: Handle -EPROBE_DEFER correctly
+Date:   Tue, 24 Aug 2021 12:55:07 -0400
+Message-Id: <20210824165607.709387-68-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165607.709387-1-sashal@kernel.org>
 References: <20210824165607.709387-1-sashal@kernel.org>
@@ -52,12 +52,20 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Saravana Kannan <saravanak@google.com>
 
-[ Upstream commit 99d81e942474cc7677d12f673f42a7ea699e2589 ]
+[ Upstream commit 7bd0cef5dac685f09ef8b0b2a7748ff42d284dc7 ]
 
-If we are seeing memory allocation errors, don't try to continue
-registering child mdiobus devices. It's unlikely they'll succeed.
+When registering mdiobus children, if we get an -EPROBE_DEFER, we shouldn't
+ignore it and continue registering the rest of the mdiobus children. This
+would permanently prevent the deferring child mdiobus from working instead
+of reattempting it in the future. So, if a child mdiobus needs to be
+reattempted in the future, defer the entire mdio-mux initialization.
 
-Fixes: 342fa1964439 ("mdio: mux: make child bus walking more permissive and errors more verbose")
+This fixes the issue where PHYs sitting under the mdio-mux aren't
+initialized correctly if the PHY's interrupt controller is not yet ready
+when the mdio-mux is being probed. Additional context in the link below.
+
+Fixes: 0ca2997d1452 ("netdev/of/phy: Add MDIO bus multiplexer support.")
+Link: https://lore.kernel.org/lkml/CAGETcx95kHrv8wA-O+-JtfH7H9biJEGJtijuPVN0V5dUKUAB3A@mail.gmail.com/#t
 Signed-off-by: Saravana Kannan <saravanak@google.com>
 Reviewed-by: Andrew Lunn <andrew@lunn.ch>
 Acked-by: Marc Zyngier <maz@kernel.org>
@@ -67,77 +75,31 @@ Tested-by: Kevin Hilman <khilman@baylibre.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/mdio/mdio-mux.c | 28 ++++++++++++++++++----------
- 1 file changed, 18 insertions(+), 10 deletions(-)
+ drivers/net/mdio/mdio-mux.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/net/mdio/mdio-mux.c b/drivers/net/mdio/mdio-mux.c
-index 110e4ee85785..d6ed9033339c 100644
+index d6ed9033339c..3dde0c2b3e09 100644
 --- a/drivers/net/mdio/mdio-mux.c
 +++ b/drivers/net/mdio/mdio-mux.c
-@@ -82,6 +82,17 @@ out:
- 
- static int parent_count;
- 
-+static void mdio_mux_uninit_children(struct mdio_mux_parent_bus *pb)
-+{
-+	struct mdio_mux_child_bus *cb = pb->children;
-+
-+	while (cb) {
-+		mdiobus_unregister(cb->mii_bus);
-+		mdiobus_free(cb->mii_bus);
-+		cb = cb->next;
-+	}
-+}
-+
- int mdio_mux_init(struct device *dev,
- 		  struct device_node *mux_node,
- 		  int (*switch_fn)(int cur, int desired, void *data),
-@@ -144,7 +155,7 @@ int mdio_mux_init(struct device *dev,
- 		cb = devm_kzalloc(dev, sizeof(*cb), GFP_KERNEL);
- 		if (!cb) {
- 			ret_val = -ENOMEM;
--			continue;
-+			goto err_loop;
- 		}
- 		cb->bus_number = v;
- 		cb->parent = pb;
-@@ -152,8 +163,7 @@ int mdio_mux_init(struct device *dev,
- 		cb->mii_bus = mdiobus_alloc();
- 		if (!cb->mii_bus) {
- 			ret_val = -ENOMEM;
+@@ -175,11 +175,15 @@ int mdio_mux_init(struct device *dev,
+ 		cb->mii_bus->write = mdio_mux_write;
+ 		r = of_mdiobus_register(cb->mii_bus, child_bus_node);
+ 		if (r) {
++			mdiobus_free(cb->mii_bus);
++			if (r == -EPROBE_DEFER) {
++				ret_val = r;
++				goto err_loop;
++			}
++			devm_kfree(dev, cb);
+ 			dev_err(dev,
+ 				"Error: Failed to register MDIO bus for child %pOF\n",
+ 				child_bus_node);
+-			mdiobus_free(cb->mii_bus);
 -			devm_kfree(dev, cb);
--			continue;
-+			goto err_loop;
- 		}
- 		cb->mii_bus->priv = cb;
- 
-@@ -182,6 +192,10 @@ int mdio_mux_init(struct device *dev,
- 
- 	dev_err(dev, "Error: No acceptable child buses found\n");
- 	devm_kfree(dev, pb);
-+
-+err_loop:
-+	mdio_mux_uninit_children(pb);
-+	of_node_put(child_bus_node);
- err_pb_kz:
- 	put_device(&parent_bus->dev);
- err_parent_bus:
-@@ -193,14 +207,8 @@ EXPORT_SYMBOL_GPL(mdio_mux_init);
- void mdio_mux_uninit(void *mux_handle)
- {
- 	struct mdio_mux_parent_bus *pb = mux_handle;
--	struct mdio_mux_child_bus *cb = pb->children;
--
--	while (cb) {
--		mdiobus_unregister(cb->mii_bus);
--		mdiobus_free(cb->mii_bus);
--		cb = cb->next;
--	}
- 
-+	mdio_mux_uninit_children(pb);
- 	put_device(&pb->mii_bus->dev);
- }
- EXPORT_SYMBOL_GPL(mdio_mux_uninit);
+ 		} else {
+ 			cb->next = pb->children;
+ 			pb->children = cb;
 -- 
 2.30.2
 
