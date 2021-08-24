@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B85583F680F
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:40:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 896AC3F680C
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:40:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239524AbhHXRkD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:40:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43450 "EHLO mail.kernel.org"
+        id S238833AbhHXRkC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:40:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241764AbhHXRhP (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S242319AbhHXRhP (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 24 Aug 2021 13:37:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D57961BE6;
-        Tue, 24 Aug 2021 17:07:55 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 92B0A61507;
+        Tue, 24 Aug 2021 17:07:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824876;
-        bh=dzRThOrU/QM7ctc3KKOny9Shr+VdAC6B4iog71J9TWQ=;
+        s=k20201202; t=1629824877;
+        bh=X/0kXwolGuMH0Z0V7q5d8yqKcbJviCLmfLkTzgZHmus=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jmyBia/S3D2dp8+eXepGx6oWw8TJUKJj0jJgq0erU5a+PiBP8ZxxJ5LVsjVHNR6No
-         P5bkr3EzfEShoCTeN7YfkVMwaJc6oWXdkF2ULwduLYIQlWmhXlUC+DQGx4q6U65QWG
-         hhysjHW80AB8SWtyu8J+uhYaszBJU9Q2FNuPuNQaJkoSWv+nklURXQYtgRUbwriljl
-         ABlEl4zx8klKfkj0VuXuhrz2M9K6yKZWvyCVzTQ7/mtL47Dqvh0mPtNyVs38qIY15e
-         iskTETJuipHhDcC5MO87j2PZ1a3xvU4OM/0iSbqKdgPMSkru/dLJZ1CN1gmn/jS4JN
-         fZwkVGY+BkYEg==
+        b=gNlVNyZQHDI2XgEIrflMglz5xj9hRiQHNFgUZJ6HKnR1SsYJAHkvRzqhYxfnAML4C
+         PXiiJB+eAKGC0zJqgHLdz2vBgMgbWMUTvZSO0DdxZ7a8qvkSHahQ1got1ILLadQHAu
+         neDClDz+IrvqXDK9oF7+uwwXf1Dd3kKLr+4/I6v8FbL4bap1Ytdi+zDUjsugBVxE9x
+         KjcMPOZwarztIYT+LupTdG0+Ro1S+IOyJ3zilJ9plLdOLB/XdZzhIRfHX+k3e5a5A9
+         7LeBKacRJdXe2/nOM8SsJPDLrUpvuAQrYnJ4xPjjM4GGoHIJ3e7k3NxnFk8vL5QZUf
+         ipEh7CUhMzxPQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Kevin Tian <kevin.tian@intel.com>,
         Marc Zyngier <maz@kernel.org>,
         Bjorn Helgaas <bhelgaas@google.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.4 12/31] PCI/MSI: Enforce that MSI-X table entry is masked for update
-Date:   Tue, 24 Aug 2021 13:07:24 -0400
-Message-Id: <20210824170743.710957-13-sashal@kernel.org>
+Subject: [PATCH 4.4 13/31] PCI/MSI: Enforce MSI[X] entry updates to be visible
+Date:   Tue, 24 Aug 2021 13:07:25 -0400
+Message-Id: <20210824170743.710957-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170743.710957-1-sashal@kernel.org>
 References: <20210824170743.710957-1-sashal@kernel.org>
@@ -52,75 +51,55 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Thomas Gleixner <tglx@linutronix.de>
 
-commit da181dc974ad667579baece33c2c8d2d1e4558d5 upstream.
+commit b9255a7cb51754e8d2645b65dd31805e282b4f3e upstream.
 
-The specification (PCIe r5.0, sec 6.1.4.5) states:
+Nothing enforces the posted writes to be visible when the function
+returns. Flush them even if the flush might be redundant when the entry is
+masked already as the unmask will flush as well. This is either setup or a
+rare affinity change event so the extra flush is not the end of the world.
 
-    For MSI-X, a function is permitted to cache Address and Data values
-    from unmasked MSI-X Table entries. However, anytime software unmasks a
-    currently masked MSI-X Table entry either by clearing its Mask bit or
-    by clearing the Function Mask bit, the function must update any Address
-    or Data values that it cached from that entry. If software changes the
-    Address or Data value of an entry while the entry is unmasked, the
-    result is undefined.
+While this is more a theoretical issue especially the logic in the X86
+specific msi_set_affinity() function relies on the assumption that the
+update has reached the hardware when the function returns.
 
-The Linux kernel's MSI-X support never enforced that the entry is masked
-before the entry is modified hence the Fixes tag refers to a commit in:
-      git://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git
-
-Enforce the entry to be masked across the update.
-
-There is no point in enforcing this to be handled at all possible call
-sites as this is just pointless code duplication and the common update
-function is the obvious place to enforce this.
+Again, as this never has been enforced the Fixes tag refers to a commit in:
+   git://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git
 
 Fixes: f036d4ea5fa7 ("[PATCH] ia32 Message Signalled Interrupt support")
-Reported-by: Kevin Tian <kevin.tian@intel.com>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Tested-by: Marc Zyngier <maz@kernel.org>
 Reviewed-by: Marc Zyngier <maz@kernel.org>
 Acked-by: Bjorn Helgaas <bhelgaas@google.com>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210729222542.462096385@linutronix.de
+Link: https://lore.kernel.org/r/20210729222542.515188147@linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/msi.c | 19 ++++++++++++++++---
- 1 file changed, 16 insertions(+), 3 deletions(-)
+ drivers/pci/msi.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
 diff --git a/drivers/pci/msi.c b/drivers/pci/msi.c
-index 9cc4a598c652..208d7b179914 100644
+index 208d7b179914..e9c98f1576dd 100644
 --- a/drivers/pci/msi.c
 +++ b/drivers/pci/msi.c
-@@ -320,13 +320,26 @@ void __pci_write_msi_msg(struct msi_desc *entry, struct msi_msg *msg)
- 	if (dev->current_state != PCI_D0) {
- 		/* Don't touch the hardware now */
- 	} else if (entry->msi_attrib.is_msix) {
--		void __iomem *base;
--		base = entry->mask_base +
--			entry->msi_attrib.entry_nr * PCI_MSIX_ENTRY_SIZE;
-+		void __iomem *base = pci_msix_desc_addr(entry);
-+		bool unmasked = !(entry->masked & PCI_MSIX_ENTRY_CTRL_MASKBIT);
-+
-+		/*
-+		 * The specification mandates that the entry is masked
-+		 * when the message is modified:
-+		 *
-+		 * "If software changes the Address or Data value of an
-+		 * entry while the entry is unmasked, the result is
-+		 * undefined."
-+		 */
-+		if (unmasked)
-+			__pci_msix_desc_mask_irq(entry, PCI_MSIX_ENTRY_CTRL_MASKBIT);
+@@ -340,6 +340,9 @@ void __pci_write_msi_msg(struct msi_desc *entry, struct msi_msg *msg)
  
- 		writel(msg->address_lo, base + PCI_MSIX_ENTRY_LOWER_ADDR);
- 		writel(msg->address_hi, base + PCI_MSIX_ENTRY_UPPER_ADDR);
- 		writel(msg->data, base + PCI_MSIX_ENTRY_DATA);
+ 		if (unmasked)
+ 			__pci_msix_desc_mask_irq(entry, 0);
 +
-+		if (unmasked)
-+			__pci_msix_desc_mask_irq(entry, 0);
++		/* Ensure that the writes are visible in the device */
++		readl(base + PCI_MSIX_ENTRY_DATA);
  	} else {
  		int pos = dev->msi_cap;
  		u16 msgctl;
+@@ -360,6 +363,8 @@ void __pci_write_msi_msg(struct msi_desc *entry, struct msi_msg *msg)
+ 			pci_write_config_word(dev, pos + PCI_MSI_DATA_32,
+ 					      msg->data);
+ 		}
++		/* Ensure that the writes are visible in the device */
++		pci_read_config_word(dev, pos + PCI_MSI_FLAGS, &msgctl);
+ 	}
+ 	entry->msg = *msg;
+ }
 -- 
 2.30.2
 
