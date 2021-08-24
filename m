@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C1CB3F655D
+	by mail.lfdr.de (Postfix) with ESMTP id DD6403F655F
 	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:11:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239761AbhHXRMJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:12:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52062 "EHLO mail.kernel.org"
+        id S239422AbhHXRMK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:12:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240217AbhHXRKQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:10:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 06D2161A54;
-        Tue, 24 Aug 2021 17:00:37 +0000 (UTC)
+        id S240220AbhHXRKP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:10:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F0C92613A7;
+        Tue, 24 Aug 2021 17:00:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824438;
-        bh=m+7RuSKkmVUu1bWJksew/GfDwO9Wf6orU4muYIl8A14=;
+        s=k20201202; t=1629824439;
+        bh=4HBTG/THShO6MFTxEnYpxg4RxDyQQ/jBfgn+vi0GY+Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J44vF1/IMYJ7tRn7aToeKzg8hQZhbihtqRv/Yj4a7EuFQuN4IyjXC2qwP11DU6U0A
-         Mz2IdARIpY9cKeQUDlbAICyb8fgGXvW8VpiDmTE2RT+UAV9lqiYuDBgb7hw5KlTIqx
-         uy8HETBjPGemRdw7z0FCiJMzDMcmrvPiMBz1UQTcmTjKeKACFMYATLE8fwLSN1ZTNQ
-         g1OLHyrIpXxy3xhBN8khuegg3LWeKFB0lmoUAPBkFee/fDstwUKOpEwv5G6TYDSm/N
-         ETpsSFofMjG1SN4vZ2Sx2yR6wSVzdRdWzDAfxe9YCZ5yt0UZ+a63UhhvfFxtAYY5sl
-         TAJ/m0B2/3B9w==
+        b=KBm0ubSQp7JnXb080yhVVcl+np1PZqX5W6uWtccRiSqjfMUMroL6tjlSqtO6GOFX1
+         29+8Zn/uNLQlv9CuvB61fUhZSPL3hHfSwlELXRzO0dP6jCQe1nUeJ6aBmYTN0I/cms
+         eaTuaFH+R9Kg/krFeC+iNmijhBvKHJqatCterO1EwaDi8A1h6ttWRccpBp6/104c5E
+         wIGLIwCeygwyXY37fS780C3UspzP/GR1qy461ipB7H20wOTzRe/l93VdNX0dUbNtX5
+         y63/4wwfgAHRUeeAp/+D2LRbLiXm23B/Gz79fDHSHGnDnP01gLA8ScpbEPE0pVeGDR
+         mx5KJhHm6WOiA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Niklas Schnelle <schnelle@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+Cc:     Marcin Bachry <hegel666@gmail.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Prike Liang <prike.liang@amd.com>,
+        Shyam Sundar S K <shyam-sundar.s-k@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 90/98] s390/pci: fix use after free of zpci_dev
-Date:   Tue, 24 Aug 2021 12:59:00 -0400
-Message-Id: <20210824165908.709932-91-sashal@kernel.org>
+Subject: [PATCH 5.10 91/98] PCI: Increase D3 delay for AMD Renoir/Cezanne XHCI
+Date:   Tue, 24 Aug 2021 12:59:01 -0400
+Message-Id: <20210824165908.709932-92-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165908.709932-1-sashal@kernel.org>
 References: <20210824165908.709932-1-sashal@kernel.org>
@@ -49,87 +52,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niklas Schnelle <schnelle@linux.ibm.com>
+From: Marcin Bachry <hegel666@gmail.com>
 
-[ Upstream commit 2a671f77ee49f3e78997b77fdee139467ff6a598 ]
+[ Upstream commit e0bff43220925b7e527f9d3bc9f5c624177c959e ]
 
-The struct pci_dev uses reference counting but zPCI assumed erroneously
-that the last reference would always be the local reference after
-calling pci_stop_and_remove_bus_device(). This is usually the case but
-not how reference counting works and thus inherently fragile.
+The Renoir XHCI controller apparently doesn't resume reliably with the
+standard D3hot-to-D0 delay.  Increase it to 20ms.
 
-In fact one case where this causes a NULL pointer dereference when on an
-SRIOV device the function 0 was hot unplugged before another function of
-the same multi-function device. In this case the second function's
-pdev->sriov->dev reference keeps the struct pci_dev of function 0 alive
-even after the unplug. This bug was previously hidden by the fact that
-we were leaking the struct pci_dev which in turn means that it always
-outlived the struct zpci_dev. This was fixed in commit 0b13525c20fe
-("s390/pci: fix leak of PCI device structure") exposing the broken
-behavior.
+[Alex: I talked to the AMD USB hardware team and the AMD Windows team and
+they are not aware of any HW errata or specific issues.  The HW works fine
+in Windows.  I was told Windows uses a rather generous default delay of
+100ms for PCI state transitions.]
 
-Fix this by accounting for the long living reference a struct pci_dev
-has to its underlying struct zpci_dev via the zbus->function[] array and
-only release that in pcibios_release_device() ensuring that the struct
-pci_dev is not left with a dangling reference. This is a minimal fix in
-the future it would probably better to use fine grained reference
-counting for struct zpci_dev.
-
-Fixes: 05bc1be6db4b2 ("s390/pci: create zPCI bus")
+Link: https://lore.kernel.org/r/20210722025858.220064-1-alexander.deucher@amd.com
+Signed-off-by: Marcin Bachry <hegel666@gmail.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Cc: stable@vger.kernel.org
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
-Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Mario Limonciello <mario.limonciello@amd.com>
+Cc: Prike Liang <prike.liang@amd.com>
+Cc: Shyam Sundar S K <shyam-sundar.s-k@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/pci/pci.c     | 6 ++++++
- arch/s390/pci/pci_bus.h | 5 +++++
- 2 files changed, 11 insertions(+)
+ drivers/pci/quirks.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-index 1ae7a76ae97b..ca1a105e3b5d 100644
---- a/arch/s390/pci/pci.c
-+++ b/arch/s390/pci/pci.c
-@@ -558,9 +558,12 @@ static void zpci_cleanup_bus_resources(struct zpci_dev *zdev)
- 
- int pcibios_add_device(struct pci_dev *pdev)
- {
-+	struct zpci_dev *zdev = to_zpci(pdev);
- 	struct resource *res;
- 	int i;
- 
-+	/* The pdev has a reference to the zdev via its bus */
-+	zpci_zdev_get(zdev);
- 	if (pdev->is_physfn)
- 		pdev->no_vf_scan = 1;
- 
-@@ -580,7 +583,10 @@ int pcibios_add_device(struct pci_dev *pdev)
- 
- void pcibios_release_device(struct pci_dev *pdev)
- {
-+	struct zpci_dev *zdev = to_zpci(pdev);
-+
- 	zpci_unmap_resources(pdev);
-+	zpci_zdev_put(zdev);
+diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
+index bb1122e257dd..cd2401d4764f 100644
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -1905,6 +1905,7 @@ static void quirk_ryzen_xhci_d3hot(struct pci_dev *dev)
  }
+ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_AMD, 0x15e0, quirk_ryzen_xhci_d3hot);
+ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_AMD, 0x15e1, quirk_ryzen_xhci_d3hot);
++DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_AMD, 0x1639, quirk_ryzen_xhci_d3hot);
  
- int pcibios_enable_device(struct pci_dev *pdev, int mask)
-diff --git a/arch/s390/pci/pci_bus.h b/arch/s390/pci/pci_bus.h
-index f8dfac0b5b71..55c9488e504c 100644
---- a/arch/s390/pci/pci_bus.h
-+++ b/arch/s390/pci/pci_bus.h
-@@ -16,6 +16,11 @@ static inline void zpci_zdev_put(struct zpci_dev *zdev)
- 	kref_put(&zdev->kref, zpci_release_device);
- }
- 
-+static inline void zpci_zdev_get(struct zpci_dev *zdev)
-+{
-+	kref_get(&zdev->kref);
-+}
-+
- int zpci_alloc_domain(int domain);
- void zpci_free_domain(int domain);
- int zpci_setup_bus_resources(struct zpci_dev *zdev,
+ #ifdef CONFIG_X86_IO_APIC
+ static int dmi_disable_ioapicreroute(const struct dmi_system_id *d)
 -- 
 2.30.2
 
