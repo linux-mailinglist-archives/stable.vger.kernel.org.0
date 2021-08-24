@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 642393F6383
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 18:56:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5728F3F6385
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 18:56:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233793AbhHXQ5C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 12:57:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38698 "EHLO mail.kernel.org"
+        id S233454AbhHXQ5D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 12:57:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233433AbhHXQ45 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 12:56:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 13FE361373;
-        Tue, 24 Aug 2021 16:56:11 +0000 (UTC)
+        id S233499AbhHXQ46 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 12:56:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2141F61374;
+        Tue, 24 Aug 2021 16:56:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824172;
-        bh=TOcl3h8y0zUeqb5SQcKCPtz9ZLYgerjxGs4W3oevh8A=;
+        s=k20201202; t=1629824173;
+        bh=udT0J8LbuFSyRMXl5YH7r4HlqXhQ2HNqHnm2/jMlvEw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KMLsG9IHHyRX507b7sIdFbqYAKZMS+iNgxqJl/f8i36Hmne0n3EzMtL97Thsqh8v/
-         CVkipnWdJKfhUL/Zml5dbRQwHsnfhcj/7lVNvalt6Sw3w8yhF+eHn87BvoHWjgnHR3
-         L6WrX2GOZlACE4VZ1lUvC0ekXDmMM01qVvoWlB32eqTrmy1Ev+RiUKHUFIRICc9Dg4
-         17iCTbN01pERHCg3aZnhKmAj9s8IiOqjNVw/l2PVPddcUpZiijvx8r7GHDMckdJjtD
-         1eUNjaArPHD+AKBuBN7W4pwhtEr9T2376ZVzFxNT7/KmfQtGjN2Jn6911IwJoCidtm
-         xnyNUeZAHutYg==
+        b=c049xdwJUsA+DqtRrGi/5VeIHQFb/goa53m8TuDTs80Wy0WtAXg2PFHoRcuk73fRK
+         KUrsVzn6aqcenAdeMtS/9RTxqytBZuEdebW8kCzrx3Q02P6ji4zx210niOUQyr6tcL
+         V9vCCrKk+QB2WZQkSGpVlMrv5Szou8AnkqtIPHD5/A9PmWc/bTg3o8/DUuRyLwc92w
+         d14YCgrnsvh/9Ha0EOMhQR/IiDhgccWvfQ3jBVgvLzpoC4+pzLzU2cJUHAk0Xbuz+s
+         NLBpUjrbxZ7BBaiLTb6GtBDZqPzUVypgJTvkIeLJHwZiiQ9fcxF2SW+ZuNvaTwXg60
+         857AnF/ypiHQw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Alan Stern <stern@rowland.harvard.edu>,
-        Johan Hovold <johan@kernel.org>,
-        syzbot+7dbcd9ff34dc4ed45240@syzkaller.appspotmail.com,
+        syzbot+72af3105289dcb4c055b@syzkaller.appspotmail.com,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 003/127] USB: core: Avoid WARNings for 0-length descriptor requests
-Date:   Tue, 24 Aug 2021 12:54:03 -0400
-Message-Id: <20210824165607.709387-4-sashal@kernel.org>
+Subject: [PATCH 5.13 004/127] USB: core: Fix incorrect pipe calculation in do_proc_control()
+Date:   Tue, 24 Aug 2021 12:54:04 -0400
+Message-Id: <20210824165607.709387-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165607.709387-1-sashal@kernel.org>
 References: <20210824165607.709387-1-sashal@kernel.org>
@@ -52,48 +51,46 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Alan Stern <stern@rowland.harvard.edu>
 
-[ Upstream commit 60dfe484cef45293e631b3a6e8995f1689818172 ]
+[ Upstream commit b0863f1927323110e3d0d69f6adb6a91018a9a3c ]
 
-The USB core has utility routines to retrieve various types of
-descriptors.  These routines will now provoke a WARN if they are asked
-to retrieve 0 bytes (USB "receive" requests must not have zero
-length), so avert this by checking the size argument at the start.
+When the user submits a control URB via usbfs, the user supplies the
+bRequestType value and the kernel uses it to compute the pipe value.
+However, do_proc_control() performs this computation incorrectly in
+the case where the bRequestType direction bit is set to USB_DIR_IN and
+the URB's transfer length is 0: The pipe's direction is also set to IN
+but it should be OUT, which is the direction the actual transfer will
+use regardless of bRequestType.
 
-CC: Johan Hovold <johan@kernel.org>
-Reported-and-tested-by: syzbot+7dbcd9ff34dc4ed45240@syzkaller.appspotmail.com
-Reviewed-by: Johan Hovold <johan@kernel.org>
+Commit 5cc59c418fde ("USB: core: WARN if pipe direction != setup
+packet direction") added a check to compare the direction bit in the
+pipe value to a control URB's actual direction and to WARN if they are
+different.  This can be triggered by the incorrect computation
+mentioned above, as found by syzbot.
+
+This patch fixes the computation, thus avoiding the WARNing.
+
+Reported-and-tested-by: syzbot+72af3105289dcb4c055b@syzkaller.appspotmail.com
 Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/20210607152307.GD1768031@rowland.harvard.edu
+Link: https://lore.kernel.org/r/20210712185436.GB326369@rowland.harvard.edu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/core/message.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/usb/core/devio.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/core/message.c b/drivers/usb/core/message.c
-index 30e9e680c74c..4d59d927ae3e 100644
---- a/drivers/usb/core/message.c
-+++ b/drivers/usb/core/message.c
-@@ -783,6 +783,9 @@ int usb_get_descriptor(struct usb_device *dev, unsigned char type,
- 	int i;
- 	int result;
+diff --git a/drivers/usb/core/devio.c b/drivers/usb/core/devio.c
+index 2218941d35a3..73b60f013b20 100644
+--- a/drivers/usb/core/devio.c
++++ b/drivers/usb/core/devio.c
+@@ -1133,7 +1133,7 @@ static int do_proc_control(struct usb_dev_state *ps,
+ 		"wIndex=%04x wLength=%04x\n",
+ 		ctrl->bRequestType, ctrl->bRequest, ctrl->wValue,
+ 		ctrl->wIndex, ctrl->wLength);
+-	if (ctrl->bRequestType & 0x80) {
++	if ((ctrl->bRequestType & USB_DIR_IN) && ctrl->wLength) {
+ 		pipe = usb_rcvctrlpipe(dev, 0);
+ 		snoop_urb(dev, NULL, pipe, ctrl->wLength, tmo, SUBMIT, NULL, 0);
  
-+	if (size <= 0)		/* No point in asking for no data */
-+		return -EINVAL;
-+
- 	memset(buf, 0, size);	/* Make sure we parse really received data */
- 
- 	for (i = 0; i < 3; ++i) {
-@@ -832,6 +835,9 @@ static int usb_get_string(struct usb_device *dev, unsigned short langid,
- 	int i;
- 	int result;
- 
-+	if (size <= 0)		/* No point in asking for no data */
-+		return -EINVAL;
-+
- 	for (i = 0; i < 3; ++i) {
- 		/* retry on length 0 or stall; some devices are flakey */
- 		result = usb_control_msg(dev, usb_rcvctrlpipe(dev, 0),
 -- 
 2.30.2
 
