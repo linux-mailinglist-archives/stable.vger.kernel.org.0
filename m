@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB2553F664C
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:22:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEBB83F6644
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:22:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239500AbhHXRWS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:22:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56900 "EHLO mail.kernel.org"
+        id S234304AbhHXRWH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:22:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241072AbhHXRTz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:19:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DE5E761AF7;
-        Tue, 24 Aug 2021 17:03:11 +0000 (UTC)
+        id S241087AbhHXRT4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:19:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D4C4E61AAA;
+        Tue, 24 Aug 2021 17:03:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824592;
-        bh=/1KCBuAms3b1aWl2Q1R77gjYjw+DWezUpQrbs3Fpw5k=;
+        s=k20201202; t=1629824593;
+        bh=bajO0Kol85BvNrCsoksz87gJnb3Par/bcbLe53eKC6U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kNZQPrMbtJeMS3m2aea91USlNnrwgkbuecYLhgP10kb/EsDXkAlq8zbC24asiJizD
-         udTldoLZiEtsnZkamj06C4rqZINAf9sCeYBaaFUi23C9J4xaBY4BNj4GaMFHXecxtq
-         KQqIZINb9BQE9ulYcf42vEENZFa2HV4yOV1tGTFNJYXGS7AbxYXaoVGO+JnAbqbw2z
-         zDlf5Ds6pw/g+0YYT5TCYO6pyufdDy37l81s9ikWS+d/TouNrHG1vvkMmHcC/RSVKt
-         XXLihd16e/9359zFLPM5WO70pY05HKylXOcUVB8WLK07RhvPvj3jPfT69jiJ09R7XN
-         cWnk4fJiKC2OQ==
+        b=Hfnte5R7BzRC6iB9npvzJ3Kj5Ll32jyDLaR67PuerRY0xKEVJLGtS9LxVBrMEC2Qh
+         5ccsJBI/5jnvkqaDnhej+M4L+d8s7yJZsHESbU5KcVh+WI12Pg8qNzeCCwUcJMCDBt
+         ZqemkM7CnKG9B8rJam50mZs7sLZUSyE6cvmZdsJw9HF+lT9+FuGMwB4/o5kgZvL31O
+         yBiJ0IeCpRZ2Z2d5/mzgZNkn5TbacZL4R+jYG3m8Duf8v3Pr/3MDMgtBHBkN5oPDKY
+         qjnio3A1MPfM2qhZwejk6NTtCiA11gPsbNwWWsuM88VtZoNCtN7cMV0S4vECtwRVQp
+         iWLHMM12OVL3A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eric Dumazet <edumazet@google.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Jakub Kicinski <kuba@kernel.org>,
+Cc:     Maximilian Heyne <mheyne@amazon.de>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 21/84] net: igmp: increase size of mr_ifc_count
-Date:   Tue, 24 Aug 2021 13:01:47 -0400
-Message-Id: <20210824170250.710392-22-sashal@kernel.org>
+Subject: [PATCH 4.19 22/84] xen/events: Fix race in set_evtchn_to_irq
+Date:   Tue, 24 Aug 2021 13:01:48 -0400
+Message-Id: <20210824170250.710392-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170250.710392-1-sashal@kernel.org>
 References: <20210824170250.710392-1-sashal@kernel.org>
@@ -49,50 +48,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Maximilian Heyne <mheyne@amazon.de>
 
-[ Upstream commit b69dd5b3780a7298bd893816a09da751bc0636f7 ]
+[ Upstream commit 88ca2521bd5b4e8b83743c01a2d4cb09325b51e9 ]
 
-Some arches support cmpxchg() on 4-byte and 8-byte only.
-Increase mr_ifc_count width to 32bit to fix this problem.
+There is a TOCTOU issue in set_evtchn_to_irq. Rows in the evtchn_to_irq
+mapping are lazily allocated in this function. The check whether the row
+is already present and the row initialization is not synchronized. Two
+threads can at the same time allocate a new row for evtchn_to_irq and
+add the irq mapping to the their newly allocated row. One thread will
+overwrite what the other has set for evtchn_to_irq[row] and therefore
+the irq mapping is lost. This will trigger a BUG_ON later in
+bind_evtchn_to_cpu:
 
-Fixes: 4a2b285e7e10 ("net: igmp: fix data-race in igmp_ifc_timer_expire()")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20210811195715.3684218-1-eric.dumazet@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+  INFO: pci 0000:1a:15.4: [1d0f:8061] type 00 class 0x010802
+  INFO: nvme 0000:1a:12.1: enabling device (0000 -> 0002)
+  INFO: nvme nvme77: 1/0/0 default/read/poll queues
+  CRIT: kernel BUG at drivers/xen/events/events_base.c:427!
+  WARN: invalid opcode: 0000 [#1] SMP NOPTI
+  WARN: Workqueue: nvme-reset-wq nvme_reset_work [nvme]
+  WARN: RIP: e030:bind_evtchn_to_cpu+0xc2/0xd0
+  WARN: Call Trace:
+  WARN:  set_affinity_irq+0x121/0x150
+  WARN:  irq_do_set_affinity+0x37/0xe0
+  WARN:  irq_setup_affinity+0xf6/0x170
+  WARN:  irq_startup+0x64/0xe0
+  WARN:  __setup_irq+0x69e/0x740
+  WARN:  ? request_threaded_irq+0xad/0x160
+  WARN:  request_threaded_irq+0xf5/0x160
+  WARN:  ? nvme_timeout+0x2f0/0x2f0 [nvme]
+  WARN:  pci_request_irq+0xa9/0xf0
+  WARN:  ? pci_alloc_irq_vectors_affinity+0xbb/0x130
+  WARN:  queue_request_irq+0x4c/0x70 [nvme]
+  WARN:  nvme_reset_work+0x82d/0x1550 [nvme]
+  WARN:  ? check_preempt_wakeup+0x14f/0x230
+  WARN:  ? check_preempt_curr+0x29/0x80
+  WARN:  ? nvme_irq_check+0x30/0x30 [nvme]
+  WARN:  process_one_work+0x18e/0x3c0
+  WARN:  worker_thread+0x30/0x3a0
+  WARN:  ? process_one_work+0x3c0/0x3c0
+  WARN:  kthread+0x113/0x130
+  WARN:  ? kthread_park+0x90/0x90
+  WARN:  ret_from_fork+0x3a/0x50
+
+This patch sets evtchn_to_irq rows via a cmpxchg operation so that they
+will be set only once. The row is now cleared before writing it to
+evtchn_to_irq in order to not create a race once the row is visible for
+other threads.
+
+While at it, do not require the page to be zeroed, because it will be
+overwritten with -1's in clear_evtchn_to_irq_row anyway.
+
+Signed-off-by: Maximilian Heyne <mheyne@amazon.de>
+Fixes: d0b075ffeede ("xen/events: Refactor evtchn_to_irq array to be dynamically allocated")
+Link: https://lore.kernel.org/r/20210812130930.127134-1-mheyne@amazon.de
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/inetdevice.h | 2 +-
- net/ipv4/igmp.c            | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/xen/events/events_base.c | 20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
 
-diff --git a/include/linux/inetdevice.h b/include/linux/inetdevice.h
-index a64f21a97369..131f93f8d587 100644
---- a/include/linux/inetdevice.h
-+++ b/include/linux/inetdevice.h
-@@ -41,7 +41,7 @@ struct in_device {
- 	unsigned long		mr_qri;		/* Query Response Interval */
- 	unsigned char		mr_qrv;		/* Query Robustness Variable */
- 	unsigned char		mr_gq_running;
--	unsigned char		mr_ifc_count;
-+	u32			mr_ifc_count;
- 	struct timer_list	mr_gq_timer;	/* general query timer */
- 	struct timer_list	mr_ifc_timer;	/* interface change timer */
+diff --git a/drivers/xen/events/events_base.c b/drivers/xen/events/events_base.c
+index a2f8130e18fe..d138027034fd 100644
+--- a/drivers/xen/events/events_base.c
++++ b/drivers/xen/events/events_base.c
+@@ -133,12 +133,12 @@ static void disable_dynirq(struct irq_data *data);
  
-diff --git a/net/ipv4/igmp.c b/net/ipv4/igmp.c
-index 95ec3923083f..dca7fe0ae24a 100644
---- a/net/ipv4/igmp.c
-+++ b/net/ipv4/igmp.c
-@@ -807,7 +807,7 @@ static void igmp_gq_timer_expire(struct timer_list *t)
- static void igmp_ifc_timer_expire(struct timer_list *t)
+ static DEFINE_PER_CPU(unsigned int, irq_epoch);
+ 
+-static void clear_evtchn_to_irq_row(unsigned row)
++static void clear_evtchn_to_irq_row(int *evtchn_row)
  {
- 	struct in_device *in_dev = from_timer(in_dev, t, mr_ifc_timer);
--	u8 mr_ifc_count;
-+	u32 mr_ifc_count;
+ 	unsigned col;
  
- 	igmpv3_send_cr(in_dev);
- restart:
+ 	for (col = 0; col < EVTCHN_PER_ROW; col++)
+-		WRITE_ONCE(evtchn_to_irq[row][col], -1);
++		WRITE_ONCE(evtchn_row[col], -1);
+ }
+ 
+ static void clear_evtchn_to_irq_all(void)
+@@ -148,7 +148,7 @@ static void clear_evtchn_to_irq_all(void)
+ 	for (row = 0; row < EVTCHN_ROW(xen_evtchn_max_channels()); row++) {
+ 		if (evtchn_to_irq[row] == NULL)
+ 			continue;
+-		clear_evtchn_to_irq_row(row);
++		clear_evtchn_to_irq_row(evtchn_to_irq[row]);
+ 	}
+ }
+ 
+@@ -156,6 +156,7 @@ static int set_evtchn_to_irq(unsigned evtchn, unsigned irq)
+ {
+ 	unsigned row;
+ 	unsigned col;
++	int *evtchn_row;
+ 
+ 	if (evtchn >= xen_evtchn_max_channels())
+ 		return -EINVAL;
+@@ -168,11 +169,18 @@ static int set_evtchn_to_irq(unsigned evtchn, unsigned irq)
+ 		if (irq == -1)
+ 			return 0;
+ 
+-		evtchn_to_irq[row] = (int *)get_zeroed_page(GFP_KERNEL);
+-		if (evtchn_to_irq[row] == NULL)
++		evtchn_row = (int *) __get_free_pages(GFP_KERNEL, 0);
++		if (evtchn_row == NULL)
+ 			return -ENOMEM;
+ 
+-		clear_evtchn_to_irq_row(row);
++		clear_evtchn_to_irq_row(evtchn_row);
++
++		/*
++		 * We've prepared an empty row for the mapping. If a different
++		 * thread was faster inserting it, we can drop ours.
++		 */
++		if (cmpxchg(&evtchn_to_irq[row], NULL, evtchn_row) != NULL)
++			free_page((unsigned long) evtchn_row);
+ 	}
+ 
+ 	WRITE_ONCE(evtchn_to_irq[row][col], irq);
 -- 
 2.30.2
 
