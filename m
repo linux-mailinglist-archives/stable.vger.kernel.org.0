@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DFA353F642A
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:00:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1860D3F642F
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:01:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234334AbhHXRBb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:01:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38844 "EHLO mail.kernel.org"
+        id S239030AbhHXRBg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:01:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239155AbhHXQ75 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 12:59:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A938861526;
-        Tue, 24 Aug 2021 16:57:38 +0000 (UTC)
+        id S239170AbhHXQ76 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 12:59:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A2A45613D3;
+        Tue, 24 Aug 2021 16:57:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824259;
-        bh=t9PR/H7wvG4e7/Fr0tXfCJv5YNn3aDJuvhOk40BNd9c=;
+        s=k20201202; t=1629824260;
+        bh=f/nt/YUAkJ+rUkUD9W6THvav3I2h0d3zdXs98i6z22w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kM7xaFPGES+3jKcgXntOtcvfjLP2tMtjTDWV/Px2ptCZvM5Zwit2WodRYx6s8wgww
-         Tm7uBAIiwaMmXLN1iiPdy07SDmURQ+5GvuNlRcrsMQiDkXyT0FaDu6To2lDaZqJ5HL
-         tDfY7e6I7T2ZW6vSjh0SZyk/2K0llBoIAOzef+W9HAf/HUSGAdWMgwRMMZa3jr5G5W
-         Bfc0AILdNegVXdwG/oSAglJfXXuZWDwI7o6Pn/VAC2Q4cGm590cdnuT3R8zPTFsrIz
-         WWemfpK00YHe9RQUP+qHcONMU9+yXQ4LBywQ2okPdnk22Rn9tOb1x0fd1A7OfsLr5j
-         vXVc7A5vOJ5tg==
+        b=bMk5r9LE2/sON0rAP5t4AmLJOSuqAhZrJjjCoPwpVjnjCgzPHrq2xleMBZY3vJE3h
+         FXD/7pKVBy8no3eO/JhCTic99IfPJ/zIxXupXQjYhAyYYSHeiLUDssCOo9lCvaLT/x
+         c1ggrnshMjNoiOrTo9ZJqUr8NMd0zjURhft+gPFUfoaD2POZJG5Rtc/Ef20DXLaZ+4
+         OngymX04WcsC9ghjbb9hfyYcvUSXY5KYFR0vmhAYaIUnuO64CiBOI9slecBlpOhqOk
+         SmKcs6SLN7WfXhQjPGMUb9rBfx5M8qvvGzY6CcS3mS/KlMSDPPYrRqP7qQaxTbENH+
+         NcdxC9jJ5HT2g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Elliot Berman <quic_eberman@quicinc.com>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 092/127] cfi: Use rcu_read_{un}lock_sched_notrace
-Date:   Tue, 24 Aug 2021 12:55:32 -0400
-Message-Id: <20210824165607.709387-93-sashal@kernel.org>
+Cc:     Jaroslav Kysela <perex@perex.cz>, stable@kernel.org,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 093/127] ALSA: hda - fix the 'Capture Switch' value change notifications
+Date:   Tue, 24 Aug 2021 12:55:33 -0400
+Message-Id: <20210824165607.709387-94-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165607.709387-1-sashal@kernel.org>
 References: <20210824165607.709387-1-sashal@kernel.org>
@@ -49,62 +47,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Elliot Berman <quic_eberman@quicinc.com>
+From: Jaroslav Kysela <perex@perex.cz>
 
-[ Upstream commit 14c4c8e41511aa8fba7fb239b20b6539b5bce201 ]
+[ Upstream commit a2befe9380dd04ee76c871568deca00eedf89134 ]
 
-If rcu_read_lock_sched tracing is enabled, the tracing subsystem can
-perform a jump which needs to be checked by CFI. For example, stm_ftrace
-source is enabled as a module and hooks into enabled ftrace events. This
-can cause an recursive loop where find_shadow_check_fn ->
-rcu_read_lock_sched -> (call to stm_ftrace generates cfi slowpath) ->
-find_shadow_check_fn -> rcu_read_lock_sched -> ...
+The original code in the cap_put_caller() function does not
+handle correctly the positive values returned from the passed
+function for multiple iterations. It means that the change
+notifications may be lost.
 
-To avoid the recursion, either the ftrace codes needs to be marked with
-__no_cfi or CFI should not trace. Use the "_notrace" in CFI to avoid
-tracing so that CFI can guard ftrace.
-
-Signed-off-by: Elliot Berman <quic_eberman@quicinc.com>
-Reviewed-by: Sami Tolvanen <samitolvanen@google.com>
-Cc: stable@vger.kernel.org
-Fixes: cf68fffb66d6 ("add support for Clang CFI")
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20210811155914.19550-1-quic_eberman@quicinc.com
+Fixes: 352f7f914ebb ("ALSA: hda - Merge Realtek parser code to generic parser")
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=213851
+Cc: <stable@kernel.org>
+Signed-off-by: Jaroslav Kysela <perex@perex.cz>
+Link: https://lore.kernel.org/r/20210811161441.1325250-1-perex@perex.cz
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/cfi.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ sound/pci/hda/hda_generic.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/cfi.c b/kernel/cfi.c
-index e17a56639766..9594cfd1cf2c 100644
---- a/kernel/cfi.c
-+++ b/kernel/cfi.c
-@@ -248,9 +248,9 @@ static inline cfi_check_fn find_shadow_check_fn(unsigned long ptr)
- {
- 	cfi_check_fn fn;
+diff --git a/sound/pci/hda/hda_generic.c b/sound/pci/hda/hda_generic.c
+index 1f8018f9ce57..534c0df75172 100644
+--- a/sound/pci/hda/hda_generic.c
++++ b/sound/pci/hda/hda_generic.c
+@@ -3460,7 +3460,7 @@ static int cap_put_caller(struct snd_kcontrol *kcontrol,
+ 	struct hda_gen_spec *spec = codec->spec;
+ 	const struct hda_input_mux *imux;
+ 	struct nid_path *path;
+-	int i, adc_idx, err = 0;
++	int i, adc_idx, ret, err = 0;
  
--	rcu_read_lock_sched();
-+	rcu_read_lock_sched_notrace();
- 	fn = ptr_to_check_fn(rcu_dereference_sched(cfi_shadow), ptr);
--	rcu_read_unlock_sched();
-+	rcu_read_unlock_sched_notrace();
- 
- 	return fn;
- }
-@@ -269,11 +269,11 @@ static inline cfi_check_fn find_module_check_fn(unsigned long ptr)
- 	cfi_check_fn fn = NULL;
- 	struct module *mod;
- 
--	rcu_read_lock_sched();
-+	rcu_read_lock_sched_notrace();
- 	mod = __module_address(ptr);
- 	if (mod)
- 		fn = mod->cfi_check;
--	rcu_read_unlock_sched();
-+	rcu_read_unlock_sched_notrace();
- 
- 	return fn;
- }
+ 	imux = &spec->input_mux;
+ 	adc_idx = kcontrol->id.index;
+@@ -3470,9 +3470,13 @@ static int cap_put_caller(struct snd_kcontrol *kcontrol,
+ 		if (!path || !path->ctls[type])
+ 			continue;
+ 		kcontrol->private_value = path->ctls[type];
+-		err = func(kcontrol, ucontrol);
+-		if (err < 0)
++		ret = func(kcontrol, ucontrol);
++		if (ret < 0) {
++			err = ret;
+ 			break;
++		}
++		if (ret > 0)
++			err = 1;
+ 	}
+ 	mutex_unlock(&codec->control_mutex);
+ 	if (err >= 0 && spec->cap_sync_hook)
 -- 
 2.30.2
 
