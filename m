@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A358D3F6689
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:25:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA8503F6690
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:25:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239848AbhHXRZO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:25:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58932 "EHLO mail.kernel.org"
+        id S240353AbhHXRZY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:25:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239996AbhHXRXc (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S240004AbhHXRXc (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 24 Aug 2021 13:23:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 626C2615A2;
-        Tue, 24 Aug 2021 17:03:45 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3FE0361B21;
+        Tue, 24 Aug 2021 17:03:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1629824626;
-        bh=UJyf+URRaZRGF4EBvF+sX7h0iZKBCnMv8itoRrSVuPo=;
+        bh=MxG2oS952SQGKC1PU9fh6RUobnh4+ri9zpyh4Ng2q/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s3cNeJDtZsHLqYu1tlceqH8zyHmOhqHG1Mw2Mk6TE+V/ZKrs5nSzwt33rvLGtF/7A
-         d4fIjItJ77rcLBuQZQjQbM6hS4dZvqXR5NXJEgYWti/BV/WhDlCm7Xv2ZAI+YRXZVf
-         X9iyJcI/1A3LuB+u2yb5qJH1w3fyEp6k5WY5gKTPFkmBUg6d0Ne8Er0lVz2zzbxeBu
-         QE0XE46qQqBZajN1klh8KX3kkb6jYcdNoJp9CJodlNr77mu7Dw9lwT66AZQlvD5Se1
-         6/0KWktM5nuF/kpCMZP2xeCju3oMGydlk5g3RlabJxRDQ6ECltYcCoYq9BTAzqzcfx
-         KBPqJlVD6s0PQ==
+        b=VAOeeoNOZT0SynSt6bL6qMc41Rjc1jg4YTpDMhMj1yzdxl6Mh8UYGWzn7hFEy8iug
+         JYc8wbNq2NJ5UWHDeve+w80rrcuTpFcZKDBXed/XVZBmC/ZjQo4tGTeTQvaeDEUOnQ
+         fYzqoAHgh/7/Wtwh7SvpXcpvGCfDDqbUGmX7UoFAaa4H7GqWX51xY/HRCYvehV7mNg
+         eRxYRu4+ABEWOJiCk+xsOfFo6d5YdUy39PalUlDLXXG9vcnmz+DpzNv4usDfZ122CD
+         D6RxehLStZtFv71K0sBtDqyTg38D894dcUlsq0AtknGFXI/9JzQJCpBnz5Sk9jQgU6
+         gIeuG2QvXOArQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 56/84] scsi: core: Avoid printing an error if target_alloc() returns -ENXIO
-Date:   Tue, 24 Aug 2021 13:02:22 -0400
-Message-Id: <20210824170250.710392-57-sashal@kernel.org>
+Cc:     Sudeep Holla <sudeep.holla@arm.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 57/84] ARM: dts: nomadik: Fix up interrupt controller node names
+Date:   Tue, 24 Aug 2021 13:02:23 -0400
+Message-Id: <20210824170250.710392-58-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170250.710392-1-sashal@kernel.org>
 References: <20210824170250.710392-1-sashal@kernel.org>
@@ -48,43 +48,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+From: Sudeep Holla <sudeep.holla@arm.com>
 
-[ Upstream commit 70edd2e6f652f67d854981fd67f9ad0f1deaea92 ]
+[ Upstream commit 47091f473b364c98207c4def197a0ae386fc9af1 ]
 
-Avoid printing a 'target allocation failed' error if the driver
-target_alloc() callback function returns -ENXIO. This return value
-indicates that the corresponding H:C:T:L entry is empty.
+Once the new schema interrupt-controller/arm,vic.yaml is added, we get
+the below warnings:
 
-Removing this error reduces the scan time if the user issues SCAN_WILD_CARD
-scan operation through sysfs parameter on a host with a lot of empty
-H:C:T:L entries.
+	arch/arm/boot/dts/ste-nomadik-nhk15.dt.yaml:
+	intc@10140000: $nodename:0: 'intc@10140000' does not match
+	'^interrupt-controller(@[0-9a-f,]+)*$'
 
-Avoiding the printk on -ENXIO matches the behavior of the other callback
-functions during scanning.
+Fix the node names for the interrupt controller to conform
+to the standard node name interrupt-controller@..
 
-Link: https://lore.kernel.org/r/20210726115402.1936-1-sreekanth.reddy@broadcom.com
-Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20210617210825.3064367-2-sudeep.holla@arm.com
+Link: https://lore.kernel.org/r/20210626000103.830184-1-linus.walleij@linaro.org'
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_scan.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/ste-nomadik-stn8815.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/scsi_scan.c b/drivers/scsi/scsi_scan.c
-index 009a5b2aa3d0..149465de35b2 100644
---- a/drivers/scsi/scsi_scan.c
-+++ b/drivers/scsi/scsi_scan.c
-@@ -462,7 +462,8 @@ static struct scsi_target *scsi_alloc_target(struct device *parent,
- 		error = shost->hostt->target_alloc(starget);
+diff --git a/arch/arm/boot/dts/ste-nomadik-stn8815.dtsi b/arch/arm/boot/dts/ste-nomadik-stn8815.dtsi
+index fca76a696d9d..9ba4d1630ca3 100644
+--- a/arch/arm/boot/dts/ste-nomadik-stn8815.dtsi
++++ b/arch/arm/boot/dts/ste-nomadik-stn8815.dtsi
+@@ -755,14 +755,14 @@
+ 			status = "disabled";
+ 		};
  
- 		if(error) {
--			dev_printk(KERN_ERR, dev, "target allocation failed, error %d\n", error);
-+			if (error != -ENXIO)
-+				dev_err(dev, "target allocation failed, error %d\n", error);
- 			/* don't want scsi_target_reap to do the final
- 			 * put because it will be under the host lock */
- 			scsi_target_destroy(starget);
+-		vica: intc@10140000 {
++		vica: interrupt-controller@10140000 {
+ 			compatible = "arm,versatile-vic";
+ 			interrupt-controller;
+ 			#interrupt-cells = <1>;
+ 			reg = <0x10140000 0x20>;
+ 		};
+ 
+-		vicb: intc@10140020 {
++		vicb: interrupt-controller@10140020 {
+ 			compatible = "arm,versatile-vic";
+ 			interrupt-controller;
+ 			#interrupt-cells = <1>;
 -- 
 2.30.2
 
