@@ -2,77 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 592DF3F5D96
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 14:03:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B35553F5DC8
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 14:19:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236443AbhHXMDs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 08:03:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43202 "EHLO
+        id S230132AbhHXMUK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 08:20:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46080 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235982AbhHXMDs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Aug 2021 08:03:48 -0400
-Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 471EFC061757
-        for <stable@vger.kernel.org>; Tue, 24 Aug 2021 05:03:04 -0700 (PDT)
-Received: by mail-ej1-x62b.google.com with SMTP id a25so17156625ejv.6
-        for <stable@vger.kernel.org>; Tue, 24 Aug 2021 05:03:04 -0700 (PDT)
+        with ESMTP id S237183AbhHXMQZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Aug 2021 08:16:25 -0400
+Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97860C061757
+        for <stable@vger.kernel.org>; Tue, 24 Aug 2021 05:15:41 -0700 (PDT)
+Received: by mail-wr1-x436.google.com with SMTP id e5so14438282wrp.8
+        for <stable@vger.kernel.org>; Tue, 24 Aug 2021 05:15:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=oOqUrSuUCCTti4b89vsLrMyMjdmQmo0cHUZ19+DYd/0=;
-        b=DV74MUm81xOcs2//X7MXJrOM/2jU0Sz5W1bylet29SctVtMQ9moOq98goe+lL7Y5PT
-         /ZQ974O7P7DsQ9Nfl0TEowLJ69uV9r6nPJZ0Rz52PIKcjwtoJmycXWTa8D/Y4RAyzTxL
-         Lf2h4jNeg5kfcIRQpcjxx/5/XmM0pxyiXvscypEy0sGef1TSA7rzufvqhqv6TmjjipDT
-         yIp0oziRRaMTCtIzDfII9QiedGeRymnr5L70++Od6lRrk56mdyixbwpf6hEuKy8Kfnls
-         6IwWrLGcaGj+sIY8RRpE7ia3c9Hi1w1b0JpWn1Btxto8YgytSLfTiy3+Y3Jtx7LUGy8j
-         KvGQ==
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=nRPKXuKClzY04XjEratZIV5Uap5YYP0xzzA287afDts=;
+        b=UXY/xdKxTAQGATnwURe1Fu5CsMDZU0WNMuCqoU29m0Wxc/iO+P61g9hzrS7SliVmoL
+         3v6ZoC9pyUfCwVjPtq/4Adzmy1Qf62wxf4BcoD5GEZRwcniQLVPS2cAj4ygpmF+kfXlJ
+         OQKcYi6p3UDBx8on7QIIZt6F1+bRokoEWFQ8wJyoAuVabHhdAaG9LMkEqNuuAyVPF5EA
+         5L9K/geCx5rPZtr91RlTvMOs73vHAHlpJMNS/Lv4O4SJ01b4aYyXtjV/BsM4qi4tyhrz
+         u+hoJC32TDe5Kc0cqe9kJ9AYllS/+mS9NPZ5BR5xpay/VkPTqS9OXRNIQSNNQij6dNuV
+         zlIw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=oOqUrSuUCCTti4b89vsLrMyMjdmQmo0cHUZ19+DYd/0=;
-        b=IrxDFBIRrk0hOTdZn6QHaGsiLmzNjqNoD/P67FJ2MDAhGvF4KSEJZj1oiIsTEY89FT
-         F+oCPOPlhS7oe5XpGFDCqfmDqyDdkzvO/ROrngeExWNu31futPhQ+FcHLYTI/L/A/oqL
-         CPjUBBISWohVBVaTxrBSHrbjXiuzBPqyEGuX4GAV4EK+1UDLfNTQsuaJdiWLveBDhATk
-         uEfMgVIRSYoc5wriA5SNhof42+SSlclHylMmkJMjadUyo1Tou0xMfvsaYIPC6fviKvJi
-         PAaKszOaJ5RPn2ND3xZ28hxq0TXglKMCfjOTnAwkffLQbYe9bBiZjZKG4Euie2T17twA
-         I7+Q==
-X-Gm-Message-State: AOAM53239CIdTi45U5XHejHTg6TnGHaNQmItUh3ZcXdMFQaqPXVl1ozr
-        +W4zgGl6L9mq0rPM4Eg9a6ilIOVmBz9yOjKPX4g=
-X-Google-Smtp-Source: ABdhPJyGhDu2IAJzV6bXt/gi1TyFQqH6wKD+HknBBYk2uUTR8jCs8HqGe/qTjfGT+cORGj8AKk7iMKFn2Ui+TOuGqtY=
-X-Received: by 2002:a17:906:6815:: with SMTP id k21mr40950147ejr.371.1629806582530;
- Tue, 24 Aug 2021 05:03:02 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=nRPKXuKClzY04XjEratZIV5Uap5YYP0xzzA287afDts=;
+        b=SbjZRswpFLzqV/tI9gssZ5aEpJLGHvMvN4vSgJ30bOkpylKeNXYbS/FO92kDxZq+PN
+         sNxxsaySbkkUeBlnF4EQs88kkZpF0uzSaceddv/2zdmnkL/sE67mKGQlfJomVoH6Vp2V
+         xRIen5IfEVK/Dkq2sG+yYMgCPuQGm2Pm+wjhQLoPlxDOmki7JtummLsoc1SP+BksBBXI
+         6HbKVif7T+t5bN+88f9eElFg6yUheKWOKDfusMq8RTtZk72WpSDytIs6ibAHffZ6Uvwa
+         DT4fEKQ4LBNEVIUbzpDoel7ACfBY0/bZRID81qx/3RBUiwliLExWep5O5EvOzJutbuPY
+         ke5A==
+X-Gm-Message-State: AOAM5328AIJlup5e5VSw4QJ9TVRMBhfM5wvboNO3Jn3URiAkpsHakHWK
+        QA97KFXRKBoVE360Yfv/hvc=
+X-Google-Smtp-Source: ABdhPJzQBPKCMBuDPFBwcGUHJ9IyIzohHieTJMG5FUj3aWPjPl9zJv8Jvx/EZCfcuSCMu6nxQjYEVg==
+X-Received: by 2002:a05:6000:1b8e:: with SMTP id r14mr19691913wru.251.1629807340229;
+        Tue, 24 Aug 2021 05:15:40 -0700 (PDT)
+Received: from localhost.localdomain ([85.255.232.113])
+        by smtp.gmail.com with ESMTPSA id o12sm13629wro.51.2021.08.24.05.15.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 24 Aug 2021 05:15:39 -0700 (PDT)
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org
+Cc:     Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.10 backport] io_uring: fix xa_alloc_cycle() error return value check
+Date:   Tue, 24 Aug 2021 13:15:01 +0100
+Message-Id: <efdf0cfa5a2ffe1fb9e08d3e1918a9a84385384b.1629807216.git.asml.silence@gmail.com>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-Received: by 2002:a05:6402:278b:0:0:0:0 with HTTP; Tue, 24 Aug 2021 05:03:02
- -0700 (PDT)
-Reply-To: mrschantelhermans@gmail.com
-From:   Mrs Chantel Hermans <peterlee5606@gmail.com>
-Date:   Tue, 24 Aug 2021 05:03:02 -0700
-Message-ID: <CAEtwm3E79BmuVZw03R16PM33mWHsoPLV5x7LgAGPMKhHSWef4g@mail.gmail.com>
-Subject: ATTENTION
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Jens Axboe <axboe@kernel.dk>
+
+[ upstream commit a30f895ad3239f45012e860d4f94c1a388b36d14 ]
+
+We currently check for ret != 0 to indicate error, but '1' is a valid
+return and just indicates that the allocation succeeded with a wrap.
+Correct the check to be for < 0, like it was before the xarray
+conversion.
+
+Cc: stable@vger.kernel.org
+Fixes: 61cf93700fe6 ("io_uring: Convert personality_idr to XArray")
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
+ fs/io_uring.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
+
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 8492b4e7c4d7..108b0ed31c11 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -9602,11 +9602,12 @@ static int io_register_personality(struct io_ring_ctx *ctx)
+ 
+ 	ret = xa_alloc_cyclic(&ctx->personalities, &id, (void *)iod,
+ 			XA_LIMIT(0, USHRT_MAX), &ctx->pers_next, GFP_KERNEL);
+-	if (!ret)
+-		return id;
+-	put_cred(iod->creds);
+-	kfree(iod);
+-	return ret;
++	if (ret < 0) {
++		put_cred(iod->creds);
++		kfree(iod);
++		return ret;
++	}
++	return id;
+ }
+ 
+ static int io_register_restrictions(struct io_ring_ctx *ctx, void __user *arg,
 -- 
+2.32.0
 
-
-ATTENTION
-
-
-
-You have been compensated with the sum of 6.9 million dollars in this
-United Nation the payment will be issue into ATM Visa Card,
-
-
-
-and send to you from the Santander Bank of Spain we need your
-Address,Passport and your whatsapp number.
-
-
-
-THANKS
-
-*Mrs Chantel Hermans*
