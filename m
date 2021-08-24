@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 766163F562F
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 04:59:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 344573F5623
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 04:58:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234375AbhHXC7c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Aug 2021 22:59:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54854 "EHLO mail.kernel.org"
+        id S234519AbhHXC7Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Aug 2021 22:59:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234262AbhHXC7H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Aug 2021 22:59:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B7A60611EF;
-        Tue, 24 Aug 2021 02:58:23 +0000 (UTC)
+        id S234520AbhHXC7L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Aug 2021 22:59:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 30F2161184;
+        Tue, 24 Aug 2021 02:58:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629773904;
-        bh=05AyD2HAw57NY/tXoMn13DkLFf/ETc4tRXyQKjBHmQY=;
+        s=k20201202; t=1629773907;
+        bh=gKurH+KeBYVhYz2EoyubMQTzKpZjKzN+c5EXeVZcaZg=;
         h=From:To:Cc:Subject:Date:From;
-        b=UpwaYs+Em0sQvSOY9qsSQb05ensQBg7n8F+pcAHPBZQVmuuuzPpk0rcKV0DKFLF8T
-         t78ZYZDdciwwh1Udb7a6bLfdUOc/pcL1wjfrqqlTKIGEF6Y9qAfjYL7T/WFmGNS0CR
-         1OC61WbfmL5sig8ifBXqf9jeuhV5iRLrzr42hU5g/vSOLf+/CpODgipGpjV9QDVHYj
-         QZ0OLRDdCMh2cx8gZyZzRxbbETWqyfvWAhHjKR6FTdjIAKdcqGVpwvC900oKWtvZsd
-         zojSePTQiIw+hlqUEfBS5+qNc5QK4AljYTTZCX6PQEeEaJkl9FI+2XIesFJt2MyPYs
-         uT1sWCoNuhnvw==
+        b=at++BlpAnYZ3y4umaVyjph1bZmot1hgU5td6ZVabyqwyV8lbxbl4QReavegqb4mmw
+         wTsELCKJMYyCe2YTuXeOHMDjajgAme3ekB32vCPlnBH2fJetfGXu8S5hL9u+sFNhQZ
+         5VwntQaDH2sMdYD53+hSytypgTJOTJatQJxB0jk9q/RFsdO28Sgd+5B4DgdH5Y0X+U
+         qWc9I66eG8fwGh52GYBpbGvPfMrJ3kWZ2zPG9wddCWyrbV7Stqivr9igaRpAf8SC8U
+         iETz6/Jh91GEeLlhCX7nyUpaGa1iiE6uxt9//YcC/pHbdXZr1Vm4JBzrYCIaPoLCQT
+         Q+ci26cTn+pZw==
 From:   Sasha Levin <sashal@kernel.org>
-To:     stable@vger.kernel.org, kai.heng.feng@canonical.com
-Cc:     Takashi Iwai <tiwai@suse.de>, alsa-devel@alsa-project.org,
+To:     stable@vger.kernel.org, sbhanu@codeaurora.org
+Cc:     Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        linux-mmc@vger.kernel.org, linux-arm-msm@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: FAILED: Patch "ALSA: hda/realtek: Limit mic boost on HP ProBook 445 G8" failed to apply to 4.19-stable tree
-Date:   Mon, 23 Aug 2021 22:58:22 -0400
-Message-Id: <20210824025822.659194-1-sashal@kernel.org>
+Subject: FAILED: Patch "mmc: sdhci-msm: Update the software timeout value for sdhc" failed to apply to 4.14-stable tree
+Date:   Mon, 23 Aug 2021 22:58:24 -0400
+Message-Id: <20210824025825.659265-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
 X-Patchwork-Hint: ignore
@@ -39,7 +41,7 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -49,58 +51,92 @@ Sasha
 
 ------------------ original commit in Linus's tree ------------------
 
-From 8903376dc69949199301b290cc22dc64ae5d8a6d Mon Sep 17 00:00:00 2001
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Date: Wed, 18 Aug 2021 22:41:18 +0800
-Subject: [PATCH] ALSA: hda/realtek: Limit mic boost on HP ProBook 445 G8
+From 67b13f3e221ed81b46a657e2b499bf8b20162476 Mon Sep 17 00:00:00 2001
+From: Shaik Sajida Bhanu <sbhanu@codeaurora.org>
+Date: Fri, 16 Jul 2021 17:16:14 +0530
+Subject: [PATCH] mmc: sdhci-msm: Update the software timeout value for sdhc
 
-The mic has lots of noises if mic boost is enabled. So disable mic boost
-to get crystal clear audio capture.
+Whenever SDHC run at clock rate 50MHZ or below, the hardware data
+timeout value will be 21.47secs, which is approx. 22secs and we have
+a current software timeout value as 10secs. We have to set software
+timeout value more than the hardware data timeout value to avioid seeing
+the below register dumps.
 
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210818144119.121738-1-kai.heng.feng@canonical.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+[  332.953670] mmc2: Timeout waiting for hardware interrupt.
+[  332.959608] mmc2: sdhci: ============ SDHCI REGISTER DUMP ===========
+[  332.966450] mmc2: sdhci: Sys addr:  0x00000000 | Version:  0x00007202
+[  332.973256] mmc2: sdhci: Blk size:  0x00000200 | Blk cnt:  0x00000001
+[  332.980054] mmc2: sdhci: Argument:  0x00000000 | Trn mode: 0x00000027
+[  332.986864] mmc2: sdhci: Present:   0x01f801f6 | Host ctl: 0x0000001f
+[  332.993671] mmc2: sdhci: Power:     0x00000001 | Blk gap:  0x00000000
+[  333.000583] mmc2: sdhci: Wake-up:   0x00000000 | Clock:    0x00000007
+[  333.007386] mmc2: sdhci: Timeout:   0x0000000e | Int stat: 0x00000000
+[  333.014182] mmc2: sdhci: Int enab:  0x03ff100b | Sig enab: 0x03ff100b
+[  333.020976] mmc2: sdhci: ACmd stat: 0x00000000 | Slot int: 0x00000000
+[  333.027771] mmc2: sdhci: Caps:      0x322dc8b2 | Caps_1:   0x0000808f
+[  333.034561] mmc2: sdhci: Cmd:       0x0000183a | Max curr: 0x00000000
+[  333.041359] mmc2: sdhci: Resp[0]:   0x00000900 | Resp[1]:  0x00000000
+[  333.048157] mmc2: sdhci: Resp[2]:   0x00000000 | Resp[3]:  0x00000000
+[  333.054945] mmc2: sdhci: Host ctl2: 0x00000000
+[  333.059657] mmc2: sdhci: ADMA Err:  0x00000000 | ADMA Ptr:
+0x0000000ffffff218
+[  333.067178] mmc2: sdhci_msm: ----------- VENDOR REGISTER DUMP
+-----------
+[  333.074343] mmc2: sdhci_msm: DLL sts: 0x00000000 | DLL cfg:
+0x6000642c | DLL cfg2: 0x0020a000
+[  333.083417] mmc2: sdhci_msm: DLL cfg3: 0x00000000 | DLL usr ctl:
+0x00000000 | DDR cfg: 0x80040873
+[  333.092850] mmc2: sdhci_msm: Vndr func: 0x00008a9c | Vndr func2 :
+0xf88218a8 Vndr func3: 0x02626040
+[  333.102371] mmc2: sdhci: ============================================
+
+So, set software timeout value more than hardware timeout value.
+
+Signed-off-by: Shaik Sajida Bhanu <sbhanu@codeaurora.org>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/1626435974-14462-1-git-send-email-sbhanu@codeaurora.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 ---
- sound/pci/hda/patch_realtek.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/mmc/host/sdhci-msm.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index 96f32eaa24df..7ad689f991e7 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -6658,6 +6658,7 @@ enum {
- 	ALC287_FIXUP_IDEAPAD_BASS_SPK_AMP,
- 	ALC623_FIXUP_LENOVO_THINKSTATION_P340,
- 	ALC255_FIXUP_ACER_HEADPHONE_AND_MIC,
-+	ALC236_FIXUP_HP_LIMIT_INT_MIC_BOOST,
+diff --git a/drivers/mmc/host/sdhci-msm.c b/drivers/mmc/host/sdhci-msm.c
+index e44b7a66b73c..290a14cdc1cf 100644
+--- a/drivers/mmc/host/sdhci-msm.c
++++ b/drivers/mmc/host/sdhci-msm.c
+@@ -2089,6 +2089,23 @@ static void sdhci_msm_cqe_disable(struct mmc_host *mmc, bool recovery)
+ 	sdhci_cqe_disable(mmc, recovery);
+ }
+ 
++static void sdhci_msm_set_timeout(struct sdhci_host *host, struct mmc_command *cmd)
++{
++	u32 count, start = 15;
++
++	__sdhci_set_timeout(host, cmd);
++	count = sdhci_readb(host, SDHCI_TIMEOUT_CONTROL);
++	/*
++	 * Update software timeout value if its value is less than hardware data
++	 * timeout value. Qcom SoC hardware data timeout value was calculated
++	 * using 4 * MCLK * 2^(count + 13). where MCLK = 1 / host->clock.
++	 */
++	if (cmd && cmd->data && host->clock > 400000 &&
++	    host->clock <= 50000000 &&
++	    ((1 << (count + start)) > (10 * host->clock)))
++		host->data_timeout = 22LL * NSEC_PER_SEC;
++}
++
+ static const struct cqhci_host_ops sdhci_msm_cqhci_ops = {
+ 	.enable		= sdhci_msm_cqe_enable,
+ 	.disable	= sdhci_msm_cqe_disable,
+@@ -2438,6 +2455,7 @@ static const struct sdhci_ops sdhci_msm_ops = {
+ 	.irq	= sdhci_msm_cqe_irq,
+ 	.dump_vendor_regs = sdhci_msm_dump_vendor_regs,
+ 	.set_power = sdhci_set_power_noreg,
++	.set_timeout = sdhci_msm_set_timeout,
  };
  
- static const struct hda_fixup alc269_fixups[] = {
-@@ -8242,6 +8243,12 @@ static const struct hda_fixup alc269_fixups[] = {
- 		.chained = true,
- 		.chain_id = ALC255_FIXUP_XIAOMI_HEADSET_MIC
- 	},
-+	[ALC236_FIXUP_HP_LIMIT_INT_MIC_BOOST] = {
-+		.type = HDA_FIXUP_FUNC,
-+		.v.func = alc269_fixup_limit_int_mic_boost,
-+		.chained = true,
-+		.chain_id = ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF,
-+	},
- };
- 
- static const struct snd_pci_quirk alc269_fixup_tbl[] = {
-@@ -8438,8 +8445,8 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
- 	SND_PCI_QUIRK(0x103c, 0x8847, "HP EliteBook x360 830 G8 Notebook PC", ALC285_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x884b, "HP EliteBook 840 Aero G8 Notebook PC", ALC285_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x884c, "HP EliteBook 840 G8 Notebook PC", ALC285_FIXUP_HP_GPIO_LED),
--	SND_PCI_QUIRK(0x103c, 0x8862, "HP ProBook 445 G8 Notebook PC", ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF),
--	SND_PCI_QUIRK(0x103c, 0x8863, "HP ProBook 445 G8 Notebook PC", ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF),
-+	SND_PCI_QUIRK(0x103c, 0x8862, "HP ProBook 445 G8 Notebook PC", ALC236_FIXUP_HP_LIMIT_INT_MIC_BOOST),
-+	SND_PCI_QUIRK(0x103c, 0x8863, "HP ProBook 445 G8 Notebook PC", ALC236_FIXUP_HP_LIMIT_INT_MIC_BOOST),
- 	SND_PCI_QUIRK(0x103c, 0x886d, "HP ZBook Fury 17.3 Inch G8 Mobile Workstation PC", ALC285_FIXUP_HP_GPIO_AMP_INIT),
- 	SND_PCI_QUIRK(0x103c, 0x8870, "HP ZBook Fury 15.6 Inch G8 Mobile Workstation PC", ALC285_FIXUP_HP_GPIO_AMP_INIT),
- 	SND_PCI_QUIRK(0x103c, 0x8873, "HP ZBook Studio 15.6 Inch G8 Mobile Workstation PC", ALC285_FIXUP_HP_GPIO_AMP_INIT),
+ static const struct sdhci_pltfm_data sdhci_msm_pdata = {
 -- 
 2.30.2
 
