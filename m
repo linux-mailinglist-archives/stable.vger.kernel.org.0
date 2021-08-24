@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 098B13F64B3
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:06:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 08BAB3F64AF
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:06:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239218AbhHXRGf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:06:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45866 "EHLO mail.kernel.org"
+        id S239185AbhHXRGc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:06:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239582AbhHXRE2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:04:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1B55B61439;
+        id S239592AbhHXRE3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:04:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 14476619E2;
         Tue, 24 Aug 2021 16:59:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824367;
-        bh=iWvU1n7Xu0JlgJ0bdwl8Mf+K9kye/OKxXwSbIDFd6S0=;
+        s=k20201202; t=1629824368;
+        bh=2l1MTADzjG9l7HxHfrrGl87rCrQzi97eRenUpP5Th/Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YstNqppjk2kYIRQV0Qwz4Zi578y/HgU5p75mZjnU5bA+QtkV3uDdrhPGxPv99bV9q
-         Hi5faxC72NRc2PzDnnTz24bVlyhdGsnlXhS6tF3r6bOXOVX6OelXpPFV//c3LrydAj
-         lh0yK96kZry7ExR4kmdPk+XrEvibffXg8tQeSwtN1zJbgxRR32gMD2hXuX2wOs09/s
-         rOmOvRon5GWChDQc/U8thuyH4/OsJNp3C8M/x4ni8eEF4N+d4zVyWZl4vgfwv+f3QL
-         9CsV5s7+47XPQ5H2eZTAfX3gfk1yrRny98HqX7ejlayV9qt3sS98ggXRYUHy8VDPVT
-         WoIHqn6VVV1MQ==
+        b=rE5b1Et4OrKvxXK5YBDQcEWOLUTKCma4AXA15PdPAcaC0FibWQkp2PRegJ/Qz/6Kj
+         T+3AtcMornaKgyQkqdNNW+MFiv1YbDYmGli0ibd4bu24ke2Dt4htlMrZu3f4eYkmMO
+         +P2/QzrC+bqLP/WUeyAoyOvA6TcILQ27iTo2dFGFM2bR0YdF4sW6pds62dYF+Uh0Ht
+         wQzEJs2hZK+N8YspXr+rttz7hFZIP/Y6VtjHMNumxNTs5TQtUXWr6VYZ8PraXJYO04
+         mqpGCLlRKZYxuvudBl6+ZZKFKV5OZMK5N8IgyUD75rb8/u4YW+ZMTc3nNqdqtvy45L
+         3cTxv05Xz6+vA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yu Kuai <yukuai3@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 17/98] dmaengine: usb-dmac: Fix PM reference leak in usb_dmac_probe()
-Date:   Tue, 24 Aug 2021 12:57:47 -0400
-Message-Id: <20210824165908.709932-18-sashal@kernel.org>
+Cc:     =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 18/98] spi: spi-mux: Add module info needed for autoloading
+Date:   Tue, 24 Aug 2021 12:57:48 -0400
+Message-Id: <20210824165908.709932-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165908.709932-1-sashal@kernel.org>
 References: <20210824165908.709932-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.61-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
 X-KernelTest-Branch: linux-5.10.y
@@ -47,38 +49,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit 1da569fa7ec8cb0591c74aa3050d4ea1397778b4 ]
+[ Upstream commit 1d5ccab95f06675a269f4cb223a1e3f6d1ebef42 ]
 
-pm_runtime_get_sync will increment pm usage counter even it failed.
-Forgetting to putting operation will result in reference leak here.
-Fix it by moving the error_pm label above the pm_runtime_put() in
-the error path.
+With the spi device table udev can autoload the spi-mux module in
+the presence of an spi-mux device.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Link: https://lore.kernel.org/r/20210706124521.1371901-1-yukuai3@huawei.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Link: https://lore.kernel.org/r/20210721095321.2165453-1-u.kleine-koenig@pengutronix.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/sh/usb-dmac.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/spi/spi-mux.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/dma/sh/usb-dmac.c b/drivers/dma/sh/usb-dmac.c
-index 8f7ceb698226..1cc06900153e 100644
---- a/drivers/dma/sh/usb-dmac.c
-+++ b/drivers/dma/sh/usb-dmac.c
-@@ -855,8 +855,8 @@ static int usb_dmac_probe(struct platform_device *pdev)
- 
- error:
- 	of_dma_controller_free(pdev->dev.of_node);
--	pm_runtime_put(&pdev->dev);
- error_pm:
-+	pm_runtime_put(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
+diff --git a/drivers/spi/spi-mux.c b/drivers/spi/spi-mux.c
+index 37dfc6e82804..9708b7827ff7 100644
+--- a/drivers/spi/spi-mux.c
++++ b/drivers/spi/spi-mux.c
+@@ -167,10 +167,17 @@ err_put_ctlr:
  	return ret;
  }
+ 
++static const struct spi_device_id spi_mux_id[] = {
++	{ "spi-mux" },
++	{ }
++};
++MODULE_DEVICE_TABLE(spi, spi_mux_id);
++
+ static const struct of_device_id spi_mux_of_match[] = {
+ 	{ .compatible = "spi-mux" },
+ 	{ }
+ };
++MODULE_DEVICE_TABLE(of, spi_mux_of_match);
+ 
+ static struct spi_driver spi_mux_driver = {
+ 	.probe  = spi_mux_probe,
+@@ -178,6 +185,7 @@ static struct spi_driver spi_mux_driver = {
+ 		.name   = "spi-mux",
+ 		.of_match_table = spi_mux_of_match,
+ 	},
++	.id_table = spi_mux_id,
+ };
+ 
+ module_spi_driver(spi_mux_driver);
 -- 
 2.30.2
 
