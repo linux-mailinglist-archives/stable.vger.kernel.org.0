@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AA763F5477
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 02:55:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C51E43F547B
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 02:55:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234117AbhHXAzP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Aug 2021 20:55:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47514 "EHLO mail.kernel.org"
+        id S234165AbhHXAzS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Aug 2021 20:55:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233782AbhHXAy4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Aug 2021 20:54:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1458361406;
-        Tue, 24 Aug 2021 00:54:11 +0000 (UTC)
+        id S233806AbhHXAy5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Aug 2021 20:54:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F3C0613A7;
+        Tue, 24 Aug 2021 00:54:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629766452;
-        bh=h4u0Bx6aeNoGpapTXM+eifytyobrG/LQIW8hVQOGC7Y=;
+        s=k20201202; t=1629766454;
+        bh=yYIXePsMDMr4LSqP3OftBiaHJtUfw08euqDDpGm+8Og=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FLKLXO1BGbM3zrBFRJT1bm++GW9YTqMRXJ+bN0sWjudEMNWMPWdMmmiaSQlSV1VlB
-         NXXkBSlXUvdY/yUJutLhy2IS7iSUxw/IYXPdvjRl7lEbm5H280fMC9Igj+a8ymJDcl
-         cAU8ySjQVdKErOip0Fq1MG7Q16WyLrbuqdSpY94fdFQMXBuk1/nb1DwZiUJiFyguhr
-         QdybZiSQW6fvGVQ31CbyPpdte9sgGiGjjPs5dXm4WalI77IjkLhuwTdwHosFhiIl25
-         cc5Y5gdcMy+sB2e4EUYjuQwwDikvmCfTUwLhm5vR/qVF0YQqFx+FVT1w6Th6jT683a
-         dYkjVbVkiFRiQ==
+        b=MMzpz8iSmTwcryQdKKa7p6uZULgYL85vG5MFG+Q5Gt3aSmJOlO7QKrj4N6ziWttRT
+         NbYN1uv1GZ1IABEFfgcNOecZN7Yn0QSQ8RQ6uEiu4ltFRcKYnnL+Acdy0PwwmT9gKx
+         PehZdzzcMGIsb6xQVwF8VqMyT+9P7+/9K3qEOlY1HPIXW11seX9W9sLJPq1iTyHKVG
+         F7Pgxt+eF9Jv+CKKmpF5XfiPDJah9f9/lpn7pEhTzl7WduyvAjMoPQmzW5D0RG0Bdi
+         RHEfBPbGUp16IU+i5Pd2bGODo1iPfSc2mMUCzkTEm5hrGedIs78DtOVqADRadDztHw
+         cTPl/BkzW9Tzg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>,
-        acpi4asus-user@lists.sourceforge.net,
-        platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 12/26] platform/x86: asus-nb-wmi: Add tablet_mode_sw=lid-flip quirk for the TP200s
-Date:   Mon, 23 Aug 2021 20:53:42 -0400
-Message-Id: <20210824005356.630888-12-sashal@kernel.org>
+Cc:     Shai Malin <smalin@marvell.com>, Ariel Elior <aelior@marvell.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 13/26] qed: qed ll2 race condition fixes
+Date:   Mon, 23 Aug 2021 20:53:43 -0400
+Message-Id: <20210824005356.630888-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824005356.630888-1-sashal@kernel.org>
 References: <20210824005356.630888-1-sashal@kernel.org>
@@ -43,42 +42,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Shai Malin <smalin@marvell.com>
 
-[ Upstream commit 73fcbad691110ece47a487c9e584822070e3626f ]
+[ Upstream commit 37110237f31105d679fc0aa7b11cdec867750ea7 ]
 
-The Asus TP200s / E205SA 360 degree hinges 2-in-1 supports reporting
-SW_TABLET_MODE info through the ASUS_WMI_DEVID_LID_FLIP WMI device-id.
-Add a quirk to enable this.
+Avoiding qed ll2 race condition and NULL pointer dereference as part
+of the remove and recovery flows.
 
-BugLink: https://gitlab.freedesktop.org/libinput/libinput/-/issues/639
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20210812145513.39117-2-hdegoede@redhat.com
+Changes form V1:
+- Change (!p_rx->set_prod_addr).
+- qed_ll2.c checkpatch fixes.
+
+Change from V2:
+- Revert "qed_ll2.c checkpatch fixes".
+
+Signed-off-by: Ariel Elior <aelior@marvell.com>
+Signed-off-by: Shai Malin <smalin@marvell.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/asus-nb-wmi.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/net/ethernet/qlogic/qed/qed_ll2.c | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
-diff --git a/drivers/platform/x86/asus-nb-wmi.c b/drivers/platform/x86/asus-nb-wmi.c
-index 9929eedf7dd8..a81dc4b191b7 100644
---- a/drivers/platform/x86/asus-nb-wmi.c
-+++ b/drivers/platform/x86/asus-nb-wmi.c
-@@ -462,6 +462,15 @@ static const struct dmi_system_id asus_quirks[] = {
- 		},
- 		.driver_data = &quirk_asus_use_lid_flip_devid,
- 	},
-+	{
-+		.callback = dmi_matched,
-+		.ident = "ASUS TP200s / E205SA",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "E205SA"),
-+		},
-+		.driver_data = &quirk_asus_use_lid_flip_devid,
-+	},
- 	{},
- };
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_ll2.c b/drivers/net/ethernet/qlogic/qed/qed_ll2.c
+index 49783f365079..f2c8273dce67 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_ll2.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_ll2.c
+@@ -327,6 +327,9 @@ static int qed_ll2_txq_completion(struct qed_hwfn *p_hwfn, void *p_cookie)
+ 	unsigned long flags;
+ 	int rc = -EINVAL;
  
++	if (!p_ll2_conn)
++		return rc;
++
+ 	spin_lock_irqsave(&p_tx->lock, flags);
+ 	if (p_tx->b_completing_packet) {
+ 		rc = -EBUSY;
+@@ -500,7 +503,16 @@ static int qed_ll2_rxq_completion(struct qed_hwfn *p_hwfn, void *cookie)
+ 	unsigned long flags = 0;
+ 	int rc = 0;
+ 
++	if (!p_ll2_conn)
++		return rc;
++
+ 	spin_lock_irqsave(&p_rx->lock, flags);
++
++	if (!QED_LL2_RX_REGISTERED(p_ll2_conn)) {
++		spin_unlock_irqrestore(&p_rx->lock, flags);
++		return 0;
++	}
++
+ 	cq_new_idx = le16_to_cpu(*p_rx->p_fw_cons);
+ 	cq_old_idx = qed_chain_get_cons_idx(&p_rx->rcq_chain);
+ 
+@@ -821,6 +833,9 @@ static int qed_ll2_lb_rxq_completion(struct qed_hwfn *p_hwfn, void *p_cookie)
+ 	struct qed_ll2_info *p_ll2_conn = (struct qed_ll2_info *)p_cookie;
+ 	int rc;
+ 
++	if (!p_ll2_conn)
++		return 0;
++
+ 	if (!QED_LL2_RX_REGISTERED(p_ll2_conn))
+ 		return 0;
+ 
+@@ -844,6 +859,9 @@ static int qed_ll2_lb_txq_completion(struct qed_hwfn *p_hwfn, void *p_cookie)
+ 	u16 new_idx = 0, num_bds = 0;
+ 	int rc;
+ 
++	if (!p_ll2_conn)
++		return 0;
++
+ 	if (!QED_LL2_TX_REGISTERED(p_ll2_conn))
+ 		return 0;
+ 
+@@ -1725,6 +1743,8 @@ int qed_ll2_post_rx_buffer(void *cxt,
+ 	if (!p_ll2_conn)
+ 		return -EINVAL;
+ 	p_rx = &p_ll2_conn->rx_queue;
++	if (!p_rx->set_prod_addr)
++		return -EIO;
+ 
+ 	spin_lock_irqsave(&p_rx->lock, flags);
+ 	if (!list_empty(&p_rx->free_descq))
 -- 
 2.30.2
 
