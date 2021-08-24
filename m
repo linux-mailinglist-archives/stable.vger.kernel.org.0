@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E297A3F54BB
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 02:55:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 654203F54B4
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 02:55:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234471AbhHXA4a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Aug 2021 20:56:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48470 "EHLO mail.kernel.org"
+        id S233976AbhHXA40 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Aug 2021 20:56:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234352AbhHXAza (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Aug 2021 20:55:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1BA0B613A7;
-        Tue, 24 Aug 2021 00:54:41 +0000 (UTC)
+        id S234402AbhHXAze (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Aug 2021 20:55:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BDE2C613D0;
+        Tue, 24 Aug 2021 00:54:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629766482;
-        bh=wcH7vU2eTeQRAkcXC8NdS1JplMlqCQXC0XZMfkTE6z0=;
+        s=k20201202; t=1629766483;
+        bh=MX15jXYsKAQSTdXzIGLldkw4vbzR57DqkIQBOCZI4Xc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EBGSSXtrdCxbP6E2V3LcpbxzcBE99cdyjobvg85Sm8UaUFtjjAVYSnNyKVojI+eLx
-         s9VSGnuPrU1QGewOb8Ogw38BXo+ZIubSeq2Q9OJ/67o8FbbVYg+njTF9dpCPUy4E/M
-         W5wtip6bIvvyhnmjeLxESjFrgOZPJpjO4H00vttxE4QUO/4QjXt8wH8IthnAL9mJNU
-         u9n7c7OATF8nFIaVbl/SZaRviakWrO1b2E1mw4zzOkiStM9PtCCalVFousrFq5NI0t
-         SPWNYV1ZZgXXud9fqtC4cN+SntvbO3MRjQaorzdv+X4n5qDpLfCN1U84I+GrSqrcgo
-         UThdEl3IjP0NQ==
+        b=tOSj2mViMaS1xntPPjB5rFIaw/W0mfydfVy9ZQ78Hr/bmOGrD6DMc4+Qid2s6t0nR
+         ClToeWggnMweTfZ7e3759y5TwgUBeZQgq+rspeJUpBtX3dPIFg0SooTTXvgzX0wEs+
+         jTijcr/T9d23p/IadsGmKtdcrZgFMzqb6Mgjy3CD5RJt5wL7Yl6Ul8o6qOucLxJ5D9
+         FU7nDyCpd+gdnnHLMA0TFPStRCV5Il1FOVmRHfeW2I/TF39PdsadlrYauC0nB5fkBK
+         oIySNUlIh4E9wy5+ZYKFEJSJqDYx871iALFZdZtK+SBdPvF0zendaYvr7evvH8Vp6u
+         9RsDbKT2tJIJw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Neeraj Upadhyay <neeraju@codeaurora.org>,
-        Jason Wang <jasowang@redhat.com>,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        "Michael S . Tsirkin" <mst@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org,
-        virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 07/18] vringh: Use wiov->used to check for read/write desc order
-Date:   Mon, 23 Aug 2021 20:54:21 -0400
-Message-Id: <20210824005432.631154-7-sashal@kernel.org>
+Cc:     "Michael S. Tsirkin" <mst@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        virtualization@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 5.10 08/18] tools/virtio: fix build
+Date:   Mon, 23 Aug 2021 20:54:22 -0400
+Message-Id: <20210824005432.631154-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824005432.631154-1-sashal@kernel.org>
 References: <20210824005432.631154-1-sashal@kernel.org>
@@ -45,48 +42,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neeraj Upadhyay <neeraju@codeaurora.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 
-[ Upstream commit e74cfa91f42c50f7f649b0eca46aa049754ccdbd ]
+[ Upstream commit a24ce06c70fe7df795a846ad713ccaa9b56a7666 ]
 
-As __vringh_iov() traverses a descriptor chain, it populates
-each descriptor entry into either read or write vring iov
-and increments that iov's ->used member. So, as we iterate
-over a descriptor chain, at any point, (riov/wriov)->used
-value gives the number of descriptor enteries available,
-which are to be read or written by the device. As all read
-iovs must precede the write iovs, wiov->used should be zero
-when we are traversing a read descriptor. Current code checks
-for wiov->i, to figure out whether any previous entry in the
-current descriptor chain was a write descriptor. However,
-iov->i is only incremented, when these vring iovs are consumed,
-at a later point, and remain 0 in __vringh_iov(). So, correct
-the check for read and write descriptor order, to use
-wiov->used.
+We use a spinlock now so add a stub.
+Ignore bogus uninitialized variable warnings.
 
-Acked-by: Jason Wang <jasowang@redhat.com>
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-Signed-off-by: Neeraj Upadhyay <neeraju@codeaurora.org>
-Link: https://lore.kernel.org/r/1624591502-4827-1-git-send-email-neeraju@codeaurora.org
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vhost/vringh.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/virtio/Makefile         |  3 +-
+ tools/virtio/linux/spinlock.h | 56 +++++++++++++++++++++++++++++++++++
+ tools/virtio/linux/virtio.h   |  2 ++
+ 3 files changed, 60 insertions(+), 1 deletion(-)
+ create mode 100644 tools/virtio/linux/spinlock.h
 
-diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
-index b7403ba8e7f7..0bd7e64331f0 100644
---- a/drivers/vhost/vringh.c
-+++ b/drivers/vhost/vringh.c
-@@ -341,7 +341,7 @@ __vringh_iov(struct vringh *vrh, u16 i,
- 			iov = wiov;
- 		else {
- 			iov = riov;
--			if (unlikely(wiov && wiov->i)) {
-+			if (unlikely(wiov && wiov->used)) {
- 				vringh_bad("Readable desc %p after writable",
- 					   &descs[i]);
- 				err = -EINVAL;
+diff --git a/tools/virtio/Makefile b/tools/virtio/Makefile
+index b587b9a7a124..0d7bbe49359d 100644
+--- a/tools/virtio/Makefile
++++ b/tools/virtio/Makefile
+@@ -4,7 +4,8 @@ test: virtio_test vringh_test
+ virtio_test: virtio_ring.o virtio_test.o
+ vringh_test: vringh_test.o vringh.o virtio_ring.o
+ 
+-CFLAGS += -g -O2 -Werror -Wall -I. -I../include/ -I ../../usr/include/ -Wno-pointer-sign -fno-strict-overflow -fno-strict-aliasing -fno-common -MMD -U_FORTIFY_SOURCE -include ../../include/linux/kconfig.h
++CFLAGS += -g -O2 -Werror -Wno-maybe-uninitialized -Wall -I. -I../include/ -I ../../usr/include/ -Wno-pointer-sign -fno-strict-overflow -fno-strict-aliasing -fno-common -MMD -U_FORTIFY_SOURCE -include ../../include/linux/kconfig.h
++LDFLAGS += -lpthread
+ vpath %.c ../../drivers/virtio ../../drivers/vhost
+ mod:
+ 	${MAKE} -C `pwd`/../.. M=`pwd`/vhost_test V=${V}
+diff --git a/tools/virtio/linux/spinlock.h b/tools/virtio/linux/spinlock.h
+new file mode 100644
+index 000000000000..028e3cdcc5d3
+--- /dev/null
++++ b/tools/virtio/linux/spinlock.h
+@@ -0,0 +1,56 @@
++#ifndef SPINLOCK_H_STUB
++#define SPINLOCK_H_STUB
++
++#include <pthread.h>
++
++typedef pthread_spinlock_t  spinlock_t;
++
++static inline void spin_lock_init(spinlock_t *lock)
++{
++	int r = pthread_spin_init(lock, 0);
++	assert(!r);
++}
++
++static inline void spin_lock(spinlock_t *lock)
++{
++	int ret = pthread_spin_lock(lock);
++	assert(!ret);
++}
++
++static inline void spin_unlock(spinlock_t *lock)
++{
++	int ret = pthread_spin_unlock(lock);
++	assert(!ret);
++}
++
++static inline void spin_lock_bh(spinlock_t *lock)
++{
++	spin_lock(lock);
++}
++
++static inline void spin_unlock_bh(spinlock_t *lock)
++{
++	spin_unlock(lock);
++}
++
++static inline void spin_lock_irq(spinlock_t *lock)
++{
++	spin_lock(lock);
++}
++
++static inline void spin_unlock_irq(spinlock_t *lock)
++{
++	spin_unlock(lock);
++}
++
++static inline void spin_lock_irqsave(spinlock_t *lock, unsigned long f)
++{
++	spin_lock(lock);
++}
++
++static inline void spin_unlock_irqrestore(spinlock_t *lock, unsigned long f)
++{
++	spin_unlock(lock);
++}
++
++#endif
+diff --git a/tools/virtio/linux/virtio.h b/tools/virtio/linux/virtio.h
+index 5d90254ddae4..363b98228301 100644
+--- a/tools/virtio/linux/virtio.h
++++ b/tools/virtio/linux/virtio.h
+@@ -3,6 +3,7 @@
+ #define LINUX_VIRTIO_H
+ #include <linux/scatterlist.h>
+ #include <linux/kernel.h>
++#include <linux/spinlock.h>
+ 
+ struct device {
+ 	void *parent;
+@@ -12,6 +13,7 @@ struct virtio_device {
+ 	struct device dev;
+ 	u64 features;
+ 	struct list_head vqs;
++	spinlock_t vqs_list_lock;
+ };
+ 
+ struct virtqueue {
 -- 
 2.30.2
 
