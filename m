@@ -2,33 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB1D43F6452
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:02:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D1E2E3F6457
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:02:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234540AbhHXRDA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:03:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39104 "EHLO mail.kernel.org"
+        id S238769AbhHXRDK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:03:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238805AbhHXRBH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:01:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 15F2B615A7;
-        Tue, 24 Aug 2021 16:57:54 +0000 (UTC)
+        id S238957AbhHXRBa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:01:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D855A61529;
+        Tue, 24 Aug 2021 16:57:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824275;
-        bh=QiFxqNIpjxgQVfHg9iJxZBLdgVazw/dG0F84HS+bcGI=;
+        s=k20201202; t=1629824276;
+        bh=kn+He9GX/FRV0b+ohhAqU0CS54NwO0fPdrsdZTgbegU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DKywJCCGBwljZ59dT298jYEK/CACXcFnGxR8mgsmLaCB1A0ITdql0y2SX8L3cMHDn
-         xjusz+IbWIvqrVg3TNzRn1VNMiBPpdUIfEulCe0Zrk45E5vR853hxJEN5alwwFFAI7
-         9tQ3nvR5pQyYv6LC76BM7aUWr9MZ3EEkz6cX1xvGHocDd8f5SN9mOvlq1Yae2GQpfv
-         GbhQ2oWmTVTf/+agFKeLEx9No2BdWp5N1nNM+xAd4ty7VGvgxIu0EpiJP51zT4t+XU
-         1d+5zmdNMWYOyYtAQVXbCGojzQHm0LdledYos5sGZApTeG/xa3r14OgE5v9gLmk7YJ
-         8SpoLPOjiBSfQ==
+        b=MeUKifIKS8Hs9KFqN9vA7+z5tCiyTga4N+vo9tKytt90fRewNuiE947+mBkK6Vpwa
+         hVy+WXjMvaugQnjCLGqPyWQnacg3KtJd/EdwiAY3WAWnyO/BpNIkFNAz2CUeUHdGJM
+         IyGXaBc//wGr/KAFPJD/C37DGikNogjeiE5cRYukCHM3dmhbu9/wrO2VRojuahjDcI
+         0y0pdonjv2YMMoadLqTnaUSaUQK39msts9AWaORjaapw92xJ8f1dqYRDKIJKgtArgd
+         PH2CksS7JM3bQq1wDAE7eXwzJYjcIVTtMzgPHjCNdEnzLdcAwsBaMHTlfPNY1/OT1i
+         X6+KREMejwAaA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 110/127] ALSA: hda/via: Apply runtime PM workaround for ASUS B23E
-Date:   Tue, 24 Aug 2021 12:55:50 -0400
-Message-Id: <20210824165607.709387-111-sashal@kernel.org>
+Cc:     Niklas Schnelle <schnelle@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 111/127] s390/pci: fix use after free of zpci_dev
+Date:   Tue, 24 Aug 2021 12:55:51 -0400
+Message-Id: <20210824165607.709387-112-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165607.709387-1-sashal@kernel.org>
 References: <20210824165607.709387-1-sashal@kernel.org>
@@ -46,36 +49,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Niklas Schnelle <schnelle@linux.ibm.com>
 
-[ Upstream commit 4bf61ad5f0204b67ba570da6e5c052c2095e29df ]
+[ Upstream commit 2a671f77ee49f3e78997b77fdee139467ff6a598 ]
 
-ASUS B23E requires the same workaround like other machines with
-VT1802, otherwise it looses the codec power on a few nodes and the
-sound kept silence.
+The struct pci_dev uses reference counting but zPCI assumed erroneously
+that the last reference would always be the local reference after
+calling pci_stop_and_remove_bus_device(). This is usually the case but
+not how reference counting works and thus inherently fragile.
 
-Fixes: a0645daf1610 ("ALSA: HDA: Early Forbid of runtime PM")
-Link: https://lore.kernel.org/r/ac2232f142efcd67fe6ac38897f704f7176bd200.camel@gmail.com
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210817052432.14751-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+In fact one case where this causes a NULL pointer dereference when on an
+SRIOV device the function 0 was hot unplugged before another function of
+the same multi-function device. In this case the second function's
+pdev->sriov->dev reference keeps the struct pci_dev of function 0 alive
+even after the unplug. This bug was previously hidden by the fact that
+we were leaking the struct pci_dev which in turn means that it always
+outlived the struct zpci_dev. This was fixed in commit 0b13525c20fe
+("s390/pci: fix leak of PCI device structure") exposing the broken
+behavior.
+
+Fix this by accounting for the long living reference a struct pci_dev
+has to its underlying struct zpci_dev via the zbus->function[] array and
+only release that in pcibios_release_device() ensuring that the struct
+pci_dev is not left with a dangling reference. This is a minimal fix in
+the future it would probably better to use fine grained reference
+counting for struct zpci_dev.
+
+Fixes: 05bc1be6db4b2 ("s390/pci: create zPCI bus")
+Cc: stable@vger.kernel.org
+Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_via.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/s390/pci/pci.c     | 6 ++++++
+ arch/s390/pci/pci_bus.h | 5 +++++
+ 2 files changed, 11 insertions(+)
 
-diff --git a/sound/pci/hda/patch_via.c b/sound/pci/hda/patch_via.c
-index a5c1a2c4eae4..773a136161f1 100644
---- a/sound/pci/hda/patch_via.c
-+++ b/sound/pci/hda/patch_via.c
-@@ -1041,6 +1041,7 @@ static const struct hda_fixup via_fixups[] = {
- };
+diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
+index b0993e05affe..8fcb7ecb7225 100644
+--- a/arch/s390/pci/pci.c
++++ b/arch/s390/pci/pci.c
+@@ -560,9 +560,12 @@ static void zpci_cleanup_bus_resources(struct zpci_dev *zdev)
  
- static const struct snd_pci_quirk vt2002p_fixups[] = {
-+	SND_PCI_QUIRK(0x1043, 0x13f7, "Asus B23E", VIA_FIXUP_POWER_SAVE),
- 	SND_PCI_QUIRK(0x1043, 0x1487, "Asus G75", VIA_FIXUP_ASUS_G75),
- 	SND_PCI_QUIRK(0x1043, 0x8532, "Asus X202E", VIA_FIXUP_INTMIC_BOOST),
- 	SND_PCI_QUIRK_VENDOR(0x1558, "Clevo", VIA_FIXUP_POWER_SAVE),
+ int pcibios_add_device(struct pci_dev *pdev)
+ {
++	struct zpci_dev *zdev = to_zpci(pdev);
+ 	struct resource *res;
+ 	int i;
+ 
++	/* The pdev has a reference to the zdev via its bus */
++	zpci_zdev_get(zdev);
+ 	if (pdev->is_physfn)
+ 		pdev->no_vf_scan = 1;
+ 
+@@ -582,7 +585,10 @@ int pcibios_add_device(struct pci_dev *pdev)
+ 
+ void pcibios_release_device(struct pci_dev *pdev)
+ {
++	struct zpci_dev *zdev = to_zpci(pdev);
++
+ 	zpci_unmap_resources(pdev);
++	zpci_zdev_put(zdev);
+ }
+ 
+ int pcibios_enable_device(struct pci_dev *pdev, int mask)
+diff --git a/arch/s390/pci/pci_bus.h b/arch/s390/pci/pci_bus.h
+index b877a97e6745..e359d2686178 100644
+--- a/arch/s390/pci/pci_bus.h
++++ b/arch/s390/pci/pci_bus.h
+@@ -22,6 +22,11 @@ static inline void zpci_zdev_put(struct zpci_dev *zdev)
+ 	kref_put(&zdev->kref, zpci_release_device);
+ }
+ 
++static inline void zpci_zdev_get(struct zpci_dev *zdev)
++{
++	kref_get(&zdev->kref);
++}
++
+ int zpci_alloc_domain(int domain);
+ void zpci_free_domain(int domain);
+ int zpci_setup_bus_resources(struct zpci_dev *zdev,
 -- 
 2.30.2
 
