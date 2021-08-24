@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EBA6E3F6403
+	by mail.lfdr.de (Postfix) with ESMTP id A11973F6402
 	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:00:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239256AbhHXRAQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:00:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39508 "EHLO mail.kernel.org"
+        id S238467AbhHXRAP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:00:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39532 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234046AbhHXQ6r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 12:58:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2089F61411;
-        Tue, 24 Aug 2021 16:57:20 +0000 (UTC)
+        id S234520AbhHXQ6s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 12:58:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2BFAA6140D;
+        Tue, 24 Aug 2021 16:57:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824240;
-        bh=pUu6RQgn6id84GI41xGIinGffjAhoXfwkJH3TIDJ7Ow=;
+        s=k20201202; t=1629824242;
+        bh=UEKJxvnTKS0O5EcWM3GSJctVolO07IJMO5rjOzwgMNQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=htFVzWiBe3xvZlKlWMH/GXuh/M+6rzVVd5vs2IzuRaRJ9vdDRS5b1zLkbMvKmamsW
-         RGT3+r/0F92t6fhp9BoYUB0AWwplDeWbACqpqlbKJg9VUD033rSSP4o+OqHkJmejOl
-         /Senc7Dkyw+S07Q94QjmNLrlPgpVw8M5PujZyRjcIv9R3E3waala3Q2rAuQC6f769W
-         PCbBWNqWhW/3M7wYiLn7lks7Xm+UJWOGzVZvVJmIi4asd0EhgEVeW9MdfkehecugDW
-         H85PXcSbVP4ZFHWOXhbFTGwQT5XJaRJ6hsw9yTeipgrOwNVh9otWc6w3Mt+69F3C0B
-         aLbchXljvBOfQ==
+        b=mKLWxw8gyG1PXPE7Uw214+D+PF8oUd0Czf7zeFN+wAHySTcrkkCpmnSP3KfRV45F7
+         M0C+04lh5vajAugjBB//sAb5qT/I471ekwCgQNSn/6p5UQpDq49pGXbhIHxkd65Hbl
+         TkD/RpsDLouMc0L4GogTP0oNCDgSsIyHB5DB6bEm4WjXIkuA5KpKTfVihO2P+tsaKU
+         iwdrABdlkCaV0ADkKrgl2MiJpSl6GYffLTtkfvfb6nxMGmTzqFeRxlV6MiJN9wO30d
+         fzYjQDK6zUxYsfkz4mEjKJRD/IJSvRS17gZXvgwOhvqSzXbkqn3vGrSH6FSSUHUfJg
+         phsk/2FDbW3VA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        kernel test robot <oliver.sang@intel.com>,
-        Sandeep Patil <sspatil@android.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
+Cc:     Zhan Liu <zhan.liu@amd.com>, Nikola Cornij <nikola.cornij@amd.com>,
+        Oliver Logush <oliver.logush@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 073/127] pipe: avoid unnecessary EPOLLET wakeups under normal loads
-Date:   Tue, 24 Aug 2021 12:55:13 -0400
-Message-Id: <20210824165607.709387-74-sashal@kernel.org>
+Subject: [PATCH 5.13 074/127] drm/amd/display: Use DCN30 watermark calc for DCN301
+Date:   Tue, 24 Aug 2021 12:55:14 -0400
+Message-Id: <20210824165607.709387-75-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165607.709387-1-sashal@kernel.org>
 References: <20210824165607.709387-1-sashal@kernel.org>
@@ -50,124 +49,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Zhan Liu <zhan.liu@amd.com>
 
-[ Upstream commit 3b844826b6c6affa80755254da322b017358a2f4 ]
+[ Upstream commit 37717b8c9f0e8c4dd73fc522769cc14649b4f657 ]
 
-I had forgotten just how sensitive hackbench is to extra pipe wakeups,
-and commit 3a34b13a88ca ("pipe: make pipe writes always wake up
-readers") ended up causing a quite noticeable regression on larger
-machines.
+[why]
+dcn301_calculate_wm_and_dl() causes flickering when external monitor is
+connected.
 
-Now, hackbench isn't necessarily a hugely meaningful benchmark, and it's
-not clear that this matters in real life all that much, but as Mel
-points out, it's used often enough when comparing kernels and so the
-performance regression shows up like a sore thumb.
+This issue has been fixed before by commit 0e4c0ae59d7e
+("drm/amdgpu/display: drop dcn301_calculate_wm_and_dl for now"), however
+part of the fix was gone after commit 2cbcb78c9ee5 ("Merge tag 'amd-drm-next-5.13-2021-03-23' of https://gitlab.freedesktop.org/agd5f/linux into drm-next").
 
-It's easy enough to fix at least for the common cases where pipes are
-used purely for data transfer, and you never have any exciting poll
-usage at all.  So set a special 'poll_usage' flag when there is polling
-activity, and make the ugly "EPOLLET has crazy legacy expectations"
-semantics explicit to only that case.
+[how]
+Use dcn30_calculate_wm_and_dlg() instead as in the original fix.
 
-I would love to limit it to just the broken EPOLLET case, but the pipe
-code can't see the difference between epoll and regular select/poll, so
-any non-read/write waiting will trigger the extra wakeup behavior.  That
-is sufficient for at least the hackbench case.
+Fixes: 2cbcb78c9ee5 ("Merge tag 'amd-drm-next-5.13-2021-03-23' of https://gitlab.freedesktop.org/agd5f/linux into drm-next")
 
-Apart from making the odd extra wakeup cases more explicitly about
-EPOLLET, this also makes the extra wakeup be at the _end_ of the pipe
-write, not at the first write chunk.  That is actually much saner
-semantics (as much as you can call any of the legacy edge-triggered
-expectations for EPOLLET "sane") since it means that you know the wakeup
-will happen once the write is done, rather than possibly in the middle
-of one.
-
-[ For stable people: I'm putting a "Fixes" tag on this, but I leave it
-  up to you to decide whether you actually want to backport it or not.
-  It likely has no impact outside of synthetic benchmarks  - Linus ]
-
-Link: https://lore.kernel.org/lkml/20210802024945.GA8372@xsang-OptiPlex-9020/
-Fixes: 3a34b13a88ca ("pipe: make pipe writes always wake up readers")
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Tested-by: Sandeep Patil <sspatil@android.com>
-Tested-by: Mel Gorman <mgorman@techsingularity.net>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Nikola Cornij <nikola.cornij@amd.com>
+Reviewed-by: Zhan Liu <zhan.liu@amd.com>
+Tested-by: Zhan Liu <zhan.liu@amd.com>
+Tested-by: Oliver Logush <oliver.logush@amd.com>
+Signed-off-by: Zhan Liu <zhan.liu@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/pipe.c                 | 15 +++++++++------
- include/linux/pipe_fs_i.h |  2 ++
- 2 files changed, 11 insertions(+), 6 deletions(-)
+ .../amd/display/dc/dcn301/dcn301_resource.c   | 96 +------------------
+ 1 file changed, 1 insertion(+), 95 deletions(-)
 
-diff --git a/fs/pipe.c b/fs/pipe.c
-index 8e6ef62aeb1c..678dee2a8228 100644
---- a/fs/pipe.c
-+++ b/fs/pipe.c
-@@ -444,9 +444,6 @@ pipe_write(struct kiocb *iocb, struct iov_iter *from)
- #endif
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn301/dcn301_resource.c b/drivers/gpu/drm/amd/display/dc/dcn301/dcn301_resource.c
+index 472696f949ac..63b09c1124c4 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn301/dcn301_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn301/dcn301_resource.c
+@@ -1622,106 +1622,12 @@ static void dcn301_update_bw_bounding_box(struct dc *dc, struct clk_bw_params *b
+ 	dml_init_instance(&dc->dml, &dcn3_01_soc, &dcn3_01_ip, DML_PROJECT_DCN30);
+ }
  
- 	/*
--	 * Epoll nonsensically wants a wakeup whether the pipe
--	 * was already empty or not.
--	 *
- 	 * If it wasn't empty we try to merge new data into
- 	 * the last buffer.
- 	 *
-@@ -455,9 +452,9 @@ pipe_write(struct kiocb *iocb, struct iov_iter *from)
- 	 * spanning multiple pages.
- 	 */
- 	head = pipe->head;
--	was_empty = true;
-+	was_empty = pipe_empty(head, pipe->tail);
- 	chars = total_len & (PAGE_SIZE-1);
--	if (chars && !pipe_empty(head, pipe->tail)) {
-+	if (chars && !was_empty) {
- 		unsigned int mask = pipe->ring_size - 1;
- 		struct pipe_buffer *buf = &pipe->bufs[(head - 1) & mask];
- 		int offset = buf->offset + buf->len;
-@@ -590,8 +587,11 @@ out:
- 	 * This is particularly important for small writes, because of
- 	 * how (for example) the GNU make jobserver uses small writes to
- 	 * wake up pending jobs
-+	 *
-+	 * Epoll nonsensically wants a wakeup whether the pipe
-+	 * was already empty or not.
- 	 */
--	if (was_empty) {
-+	if (was_empty || pipe->poll_usage) {
- 		wake_up_interruptible_sync_poll(&pipe->rd_wait, EPOLLIN | EPOLLRDNORM);
- 		kill_fasync(&pipe->fasync_readers, SIGIO, POLL_IN);
- 	}
-@@ -654,6 +654,9 @@ pipe_poll(struct file *filp, poll_table *wait)
- 	struct pipe_inode_info *pipe = filp->private_data;
- 	unsigned int head, tail;
- 
-+	/* Epoll has some historical nasty semantics, this enables them */
-+	pipe->poll_usage = 1;
-+
- 	/*
- 	 * Reading pipe state only -- no need for acquiring the semaphore.
- 	 *
-diff --git a/include/linux/pipe_fs_i.h b/include/linux/pipe_fs_i.h
-index 5d2705f1d01c..fc5642431b92 100644
---- a/include/linux/pipe_fs_i.h
-+++ b/include/linux/pipe_fs_i.h
-@@ -48,6 +48,7 @@ struct pipe_buffer {
-  *	@files: number of struct file referring this pipe (protected by ->i_lock)
-  *	@r_counter: reader counter
-  *	@w_counter: writer counter
-+ *	@poll_usage: is this pipe used for epoll, which has crazy wakeups?
-  *	@fasync_readers: reader side fasync
-  *	@fasync_writers: writer side fasync
-  *	@bufs: the circular array of pipe buffers
-@@ -70,6 +71,7 @@ struct pipe_inode_info {
- 	unsigned int files;
- 	unsigned int r_counter;
- 	unsigned int w_counter;
-+	unsigned int poll_usage;
- 	struct page *tmp_page;
- 	struct fasync_struct *fasync_readers;
- 	struct fasync_struct *fasync_writers;
+-static void calculate_wm_set_for_vlevel(
+-		int vlevel,
+-		struct wm_range_table_entry *table_entry,
+-		struct dcn_watermarks *wm_set,
+-		struct display_mode_lib *dml,
+-		display_e2e_pipe_params_st *pipes,
+-		int pipe_cnt)
+-{
+-	double dram_clock_change_latency_cached = dml->soc.dram_clock_change_latency_us;
+-
+-	ASSERT(vlevel < dml->soc.num_states);
+-	/* only pipe 0 is read for voltage and dcf/soc clocks */
+-	pipes[0].clks_cfg.voltage = vlevel;
+-	pipes[0].clks_cfg.dcfclk_mhz = dml->soc.clock_limits[vlevel].dcfclk_mhz;
+-	pipes[0].clks_cfg.socclk_mhz = dml->soc.clock_limits[vlevel].socclk_mhz;
+-
+-	dml->soc.dram_clock_change_latency_us = table_entry->pstate_latency_us;
+-	dml->soc.sr_exit_time_us = table_entry->sr_exit_time_us;
+-	dml->soc.sr_enter_plus_exit_time_us = table_entry->sr_enter_plus_exit_time_us;
+-
+-	wm_set->urgent_ns = get_wm_urgent(dml, pipes, pipe_cnt) * 1000;
+-	wm_set->cstate_pstate.cstate_enter_plus_exit_ns = get_wm_stutter_enter_exit(dml, pipes, pipe_cnt) * 1000;
+-	wm_set->cstate_pstate.cstate_exit_ns = get_wm_stutter_exit(dml, pipes, pipe_cnt) * 1000;
+-	wm_set->cstate_pstate.pstate_change_ns = get_wm_dram_clock_change(dml, pipes, pipe_cnt) * 1000;
+-	wm_set->pte_meta_urgent_ns = get_wm_memory_trip(dml, pipes, pipe_cnt) * 1000;
+-	wm_set->frac_urg_bw_nom = get_fraction_of_urgent_bandwidth(dml, pipes, pipe_cnt) * 1000;
+-	wm_set->frac_urg_bw_flip = get_fraction_of_urgent_bandwidth_imm_flip(dml, pipes, pipe_cnt) * 1000;
+-	wm_set->urgent_latency_ns = get_urgent_latency(dml, pipes, pipe_cnt) * 1000;
+-	dml->soc.dram_clock_change_latency_us = dram_clock_change_latency_cached;
+-
+-}
+-
+-static void dcn301_calculate_wm_and_dlg(
+-		struct dc *dc, struct dc_state *context,
+-		display_e2e_pipe_params_st *pipes,
+-		int pipe_cnt,
+-		int vlevel_req)
+-{
+-	int i, pipe_idx;
+-	int vlevel, vlevel_max;
+-	struct wm_range_table_entry *table_entry;
+-	struct clk_bw_params *bw_params = dc->clk_mgr->bw_params;
+-
+-	ASSERT(bw_params);
+-
+-	vlevel_max = bw_params->clk_table.num_entries - 1;
+-
+-	/* WM Set D */
+-	table_entry = &bw_params->wm_table.entries[WM_D];
+-	if (table_entry->wm_type == WM_TYPE_RETRAINING)
+-		vlevel = 0;
+-	else
+-		vlevel = vlevel_max;
+-	calculate_wm_set_for_vlevel(vlevel, table_entry, &context->bw_ctx.bw.dcn.watermarks.d,
+-						&context->bw_ctx.dml, pipes, pipe_cnt);
+-	/* WM Set C */
+-	table_entry = &bw_params->wm_table.entries[WM_C];
+-	vlevel = min(max(vlevel_req, 2), vlevel_max);
+-	calculate_wm_set_for_vlevel(vlevel, table_entry, &context->bw_ctx.bw.dcn.watermarks.c,
+-						&context->bw_ctx.dml, pipes, pipe_cnt);
+-	/* WM Set B */
+-	table_entry = &bw_params->wm_table.entries[WM_B];
+-	vlevel = min(max(vlevel_req, 1), vlevel_max);
+-	calculate_wm_set_for_vlevel(vlevel, table_entry, &context->bw_ctx.bw.dcn.watermarks.b,
+-						&context->bw_ctx.dml, pipes, pipe_cnt);
+-
+-	/* WM Set A */
+-	table_entry = &bw_params->wm_table.entries[WM_A];
+-	vlevel = min(vlevel_req, vlevel_max);
+-	calculate_wm_set_for_vlevel(vlevel, table_entry, &context->bw_ctx.bw.dcn.watermarks.a,
+-						&context->bw_ctx.dml, pipes, pipe_cnt);
+-
+-	for (i = 0, pipe_idx = 0; i < dc->res_pool->pipe_count; i++) {
+-		if (!context->res_ctx.pipe_ctx[i].stream)
+-			continue;
+-
+-		pipes[pipe_idx].clks_cfg.dispclk_mhz = get_dispclk_calculated(&context->bw_ctx.dml, pipes, pipe_cnt);
+-		pipes[pipe_idx].clks_cfg.dppclk_mhz = get_dppclk_calculated(&context->bw_ctx.dml, pipes, pipe_cnt, pipe_idx);
+-
+-		if (dc->config.forced_clocks) {
+-			pipes[pipe_idx].clks_cfg.dispclk_mhz = context->bw_ctx.dml.soc.clock_limits[0].dispclk_mhz;
+-			pipes[pipe_idx].clks_cfg.dppclk_mhz = context->bw_ctx.dml.soc.clock_limits[0].dppclk_mhz;
+-		}
+-		if (dc->debug.min_disp_clk_khz > pipes[pipe_idx].clks_cfg.dispclk_mhz * 1000)
+-			pipes[pipe_idx].clks_cfg.dispclk_mhz = dc->debug.min_disp_clk_khz / 1000.0;
+-		if (dc->debug.min_dpp_clk_khz > pipes[pipe_idx].clks_cfg.dppclk_mhz * 1000)
+-			pipes[pipe_idx].clks_cfg.dppclk_mhz = dc->debug.min_dpp_clk_khz / 1000.0;
+-
+-		pipe_idx++;
+-	}
+-
+-	dcn20_calculate_dlg_params(dc, context, pipes, pipe_cnt, vlevel);
+-}
+-
+ static struct resource_funcs dcn301_res_pool_funcs = {
+ 	.destroy = dcn301_destroy_resource_pool,
+ 	.link_enc_create = dcn301_link_encoder_create,
+ 	.panel_cntl_create = dcn301_panel_cntl_create,
+ 	.validate_bandwidth = dcn30_validate_bandwidth,
+-	.calculate_wm_and_dlg = dcn301_calculate_wm_and_dlg,
++	.calculate_wm_and_dlg = dcn30_calculate_wm_and_dlg,
+ 	.update_soc_for_wm_a = dcn30_update_soc_for_wm_a,
+ 	.populate_dml_pipes = dcn30_populate_dml_pipes_from_context,
+ 	.acquire_idle_pipe_for_layer = dcn20_acquire_idle_pipe_for_layer,
 -- 
 2.30.2
 
