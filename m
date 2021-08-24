@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C70573F6616
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:20:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 013B63F6618
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:20:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238457AbhHXRUX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:20:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56902 "EHLO mail.kernel.org"
+        id S239784AbhHXRUY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:20:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240424AbhHXRSY (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S240428AbhHXRSY (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 24 Aug 2021 13:18:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C592C615E6;
-        Tue, 24 Aug 2021 17:02:52 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D1C5961529;
+        Tue, 24 Aug 2021 17:02:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824573;
-        bh=lKLB3eQVL2IeCKz5jyTWNKjiMFwq7fKPUHbuzAStvzQ=;
+        s=k20201202; t=1629824574;
+        bh=NjP7ZJLOYvdl/UQqEsVJMtFLCz9N18do3Kp0bEVoQ0s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N1AbL/o980F1yv96gFRpZNCpFkN9apgnQ6lWE9b2GjJuxuRZaliqVPfaK1tsOWDh8
-         5DFCc65HJdAPJKdlh20hkHraHL8IBOy/VGdpB0+NCIK4JOHnH2vfx/4hEESC2y4Sy4
-         yGHP6bb3+/XYP/ZlLU48JVwLDEQRPUMgVWHDlZ8dzaPur+MdIUFRfktmur3w1N/Jgr
-         Raw9leKFGvgZrWHDigQQfru/pm3e7ZKzp6r/QdWj1dRw9ebn6ifJm3/ZWABdz9yAB9
-         j0QHNk9fHS0hvZeja1oYKpChsJH70thsPNAaiJ8FL6AICHUGAwFxV1SujGiONeXfGp
-         LTujXzeZ6xLzw==
+        b=Ul0Uz9LQckdc6Tv49KdGW5f9sMSoEZOHCGI9tVWdo+ZfjQ9WNFakNUGX3l1uWQYQY
+         gtMteFdMzkUDtEMjA0WpeSq79GqSNgGFor3qMP5y5HCMDQl5tof+M2Y69Fq5edIh4O
+         ui6DU54iB2EWIfbJDjn5P7HFWZ6xWnxooPRuyTzXd0xxwEDBYhKzRgIggJxhY8BKJy
+         KLKtvyv4h2OYooPYebr2K7Lid7DkSd9IS5WTlh7R6VJF6CEhY2KcZyN+VkE837hsgt
+         kbz/BccrnmqwJxZ3RN21n4n677s2RnNGtAwgGmFaulFOuwZ/AL+vnvIRQao8EkwgzQ
+         XpBJFu2PJvaqg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chris Lesiak <chris.lesiak@licor.com>,
-        Matt Ranostay <matt.ranostay@konsulko.com>,
-        Stable@vger.kernel.org,
+Cc:     Colin Ian King <colin.king@canonical.com>,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.19 01/84] iio: humidity: hdc100x: Add margin to the conversion time
-Date:   Tue, 24 Aug 2021 13:01:27 -0400
-Message-Id: <20210824170250.710392-2-sashal@kernel.org>
+Subject: [PATCH 4.19 02/84] iio: adc: Fix incorrect exit of for-loop
+Date:   Tue, 24 Aug 2021 13:01:28 -0400
+Message-Id: <20210824170250.710392-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170250.710392-1-sashal@kernel.org>
 References: <20210824170250.710392-1-sashal@kernel.org>
@@ -50,62 +48,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Lesiak <chris.lesiak@licor.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-commit 84edec86f449adea9ee0b4912a79ab8d9d65abb7 upstream.
+commit 5afc1540f13804a31bb704b763308e17688369c5 upstream.
 
-The datasheets have the following note for the conversion time
-specification: "This parameter is specified by design and/or
-characterization and it is not tested in production."
+Currently the for-loop that scans for the optimial adc_period iterates
+through all the possible adc_period levels because the exit logic in
+the loop is inverted. I believe the comparison should be swapped and
+the continue replaced with a break to exit the loop at the correct
+point.
 
-Parts have been seen that require more time to do 14-bit conversions for
-the relative humidity channel.  The result is ENXIO due to the address
-phase of a transfer not getting an ACK.
-
-Delay an additional 1 ms per conversion to allow for additional margin.
-
-Fixes: 4839367d99e3 ("iio: humidity: add HDC100x support")
-Signed-off-by: Chris Lesiak <chris.lesiak@licor.com>
-Acked-by: Matt Ranostay <matt.ranostay@konsulko.com>
-Link: https://lore.kernel.org/r/20210614141820.2034827-1-chris.lesiak@licor.com
-Cc: <Stable@vger.kernel.org>
+Addresses-Coverity: ("Continue has no effect")
+Fixes: e08e19c331fb ("iio:adc: add iio driver for Palmas (twl6035/7) gpadc")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Link: https://lore.kernel.org/r/20210730071651.17394-1-colin.king@canonical.com
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/humidity/hdc100x.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/iio/adc/palmas_gpadc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iio/humidity/hdc100x.c b/drivers/iio/humidity/hdc100x.c
-index 0fcaa2c0b2f4..51ad5a9ed085 100644
---- a/drivers/iio/humidity/hdc100x.c
-+++ b/drivers/iio/humidity/hdc100x.c
-@@ -24,6 +24,8 @@
- #include <linux/iio/trigger_consumer.h>
- #include <linux/iio/triggered_buffer.h>
+diff --git a/drivers/iio/adc/palmas_gpadc.c b/drivers/iio/adc/palmas_gpadc.c
+index 69b9affeef1e..7dcd4213d38a 100644
+--- a/drivers/iio/adc/palmas_gpadc.c
++++ b/drivers/iio/adc/palmas_gpadc.c
+@@ -659,8 +659,8 @@ static int palmas_adc_wakeup_configure(struct palmas_gpadc *adc)
  
-+#include <linux/time.h>
-+
- #define HDC100X_REG_TEMP			0x00
- #define HDC100X_REG_HUMIDITY			0x01
- 
-@@ -165,7 +167,7 @@ static int hdc100x_get_measurement(struct hdc100x_data *data,
- 				   struct iio_chan_spec const *chan)
- {
- 	struct i2c_client *client = data->client;
--	int delay = data->adc_int_us[chan->address];
-+	int delay = data->adc_int_us[chan->address] + 1*USEC_PER_MSEC;
- 	int ret;
- 	__be16 val;
- 
-@@ -322,7 +324,7 @@ static irqreturn_t hdc100x_trigger_handler(int irq, void *p)
- 	struct iio_dev *indio_dev = pf->indio_dev;
- 	struct hdc100x_data *data = iio_priv(indio_dev);
- 	struct i2c_client *client = data->client;
--	int delay = data->adc_int_us[0] + data->adc_int_us[1];
-+	int delay = data->adc_int_us[0] + data->adc_int_us[1] + 2*USEC_PER_MSEC;
- 	int ret;
- 
- 	/* dual read starts at temp register */
+ 	adc_period = adc->auto_conversion_period;
+ 	for (i = 0; i < 16; ++i) {
+-		if (((1000 * (1 << i)) / 32) < adc_period)
+-			continue;
++		if (((1000 * (1 << i)) / 32) >= adc_period)
++			break;
+ 	}
+ 	if (i > 0)
+ 		i--;
 -- 
 2.30.2
 
