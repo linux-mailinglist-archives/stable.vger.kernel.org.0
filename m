@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B0B893F64DF
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:07:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 294E13F64E0
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:07:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238532AbhHXRIF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:08:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47438 "EHLO mail.kernel.org"
+        id S239136AbhHXRIH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:08:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239098AbhHXRGP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:06:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9B4A2619A6;
-        Tue, 24 Aug 2021 16:59:43 +0000 (UTC)
+        id S239148AbhHXRGT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:06:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F2E061872;
+        Tue, 24 Aug 2021 16:59:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824384;
-        bh=1fjPIrBNFzQeyRJDXFUYdHhFrCKPOEIaEro6hGd119c=;
+        s=k20201202; t=1629824385;
+        bh=R20MJkCvNDWoB6Txrd+4Vm+099DN+zjiff9v6Im/sRM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EjaTXgZv7H1hQmJUebcQEItDwlzY807hFOPDcCkZ0OhUAKVbEL6cmFHkDVgXv+wsf
-         z671GBYkPDh6SNoQj4R8o+FpUeoDiVxJhndUcskMnKvEvRO7VqAlOISAaDPL0bMyt3
-         KpmAmJtK+I3KUvwlYaNSoQlGfbmPb9pmwTTAB4WYbbyhkpcZrsGuuKxjcoyXJqQK/K
-         MlzGkcz4tgJlySIC1mqHTvEiKuzS88ZyDgWTFsI87fiDJCTw08s+cP8Cexa71MIQLn
-         BA/1LNHwwTpWYzximHA10S1yAXskwOdFdxXQHGa/znBCVwAj7vZYwxqoHUNWb1XNwa
-         yO7tE0c1mcw2w==
+        b=KSM5zNZJfFgmwN5+UjB3HXDMWzeOazSLUYmicsH3ehvpFkq4yMDsUh/uWcPHtrLX4
+         s4+OkXhV/lbilf+9ITda42+J/1Ug+ZUrIo5GVKbllA+gpiGbFaMXQL/52MzKbqSAV4
+         DdLlQQeD26bgqCbSDCdVN2+SykMNk3VbldehWULQDcbfzPrFf9yJ7Thkq1APCCviiy
+         N+hyKzqghn2gX21hro9NfHsftsWZ07U4AVsqiJ+iOas4P4SOoqu+hYZxCIUHaOd0ri
+         TDYiMtIzOOA/6caJ8QZZFTbAb7BUBKYCkjBnDtoyQnhGx2QNlP1qEDBZesTt2tgboA
+         18RxdpRFeo1fQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Ole=20Bj=C3=B8rn=20Midtb=C3=B8?= <omidtbo@cisco.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+Cc:     Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 34/98] Bluetooth: hidp: use correct wait queue when removing ctrl_wait
-Date:   Tue, 24 Aug 2021 12:58:04 -0400
-Message-Id: <20210824165908.709932-35-sashal@kernel.org>
+Subject: [PATCH 5.10 35/98] arm64: dts: qcom: c630: fix correct powerdown pin for WSA881x
+Date:   Tue, 24 Aug 2021 12:58:05 -0400
+Message-Id: <20210824165908.709932-36-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165908.709932-1-sashal@kernel.org>
 References: <20210824165908.709932-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.61-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
 X-KernelTest-Branch: linux-5.10.y
@@ -49,72 +49,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ole Bjørn Midtbø <omidtbo@cisco.com>
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-[ Upstream commit cca342d98bef68151a80b024f7bf5f388d1fbdea ]
+[ Upstream commit 9a253bb42f190efd1a1c156939ad7298b3529dca ]
 
-A different wait queue was used when removing ctrl_wait than when adding
-it. This effectively made the remove operation without locking compared
-to other operations on the wait queue ctrl_wait was part of. This caused
-issues like below where dead000000000100 is LIST_POISON1 and
-dead000000000200 is LIST_POISON2.
+WSA881x powerdown pin is connected to GPIO1, GPIO2 not GPIO2 and GPIO3,
+so correct this. This was working so far due to a shift bug in gpio driver,
+however once that is fixed this will stop working, so fix this!
 
- list_add corruption. next->prev should be prev (ffffffc1b0a33a08), \
-	but was dead000000000200. (next=ffffffc03ac77de0).
- ------------[ cut here ]------------
- CPU: 3 PID: 2138 Comm: bluetoothd Tainted: G           O    4.4.238+ #9
- ...
- ---[ end trace 0adc2158f0646eac ]---
- Call trace:
- [<ffffffc000443f78>] __list_add+0x38/0xb0
- [<ffffffc0000f0d04>] add_wait_queue+0x4c/0x68
- [<ffffffc00020eecc>] __pollwait+0xec/0x100
- [<ffffffc000d1556c>] bt_sock_poll+0x74/0x200
- [<ffffffc000bdb8a8>] sock_poll+0x110/0x128
- [<ffffffc000210378>] do_sys_poll+0x220/0x480
- [<ffffffc0002106f0>] SyS_poll+0x80/0x138
- [<ffffffc00008510c>] __sys_trace_return+0x0/0x4
+For some reason we forgot to add this dts change in last merge cycle so
+currently audio is broken in 5.13 as the gpio driver fix already landed
+in 5.13.
 
- Unable to handle kernel paging request at virtual address dead000000000100
- ...
- CPU: 4 PID: 5387 Comm: kworker/u15:3 Tainted: G        W  O    4.4.238+ #9
- ...
- Call trace:
-  [<ffffffc0000f079c>] __wake_up_common+0x7c/0xa8
-  [<ffffffc0000f0818>] __wake_up+0x50/0x70
-  [<ffffffc000be11b0>] sock_def_wakeup+0x58/0x60
-  [<ffffffc000de5e10>] l2cap_sock_teardown_cb+0x200/0x224
-  [<ffffffc000d3f2ac>] l2cap_chan_del+0xa4/0x298
-  [<ffffffc000d45ea0>] l2cap_conn_del+0x118/0x198
-  [<ffffffc000d45f8c>] l2cap_disconn_cfm+0x6c/0x78
-  [<ffffffc000d29934>] hci_event_packet+0x564/0x2e30
-  [<ffffffc000d19b0c>] hci_rx_work+0x10c/0x360
-  [<ffffffc0000c2218>] process_one_work+0x268/0x460
-  [<ffffffc0000c2678>] worker_thread+0x268/0x480
-  [<ffffffc0000c94e0>] kthread+0x118/0x128
-  [<ffffffc000085070>] ret_from_fork+0x10/0x20
-  ---[ end trace 0adc2158f0646ead ]---
-
-Signed-off-by: Ole Bjørn Midtbø <omidtbo@cisco.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Reported-by: Shawn Guo <shawnguo@kernel.org>
+Fixes: 45021d35fcb2 ("arm64: dts: qcom: c630: Enable audio support")
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Tested-by: Shawn Guo <shawnguo@kernel.org>
+Link: https://lore.kernel.org/r/20210706083523.10601-1-srinivas.kandagatla@linaro.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hidp/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
-index 3b4fa27a44e6..0db48c812662 100644
---- a/net/bluetooth/hidp/core.c
-+++ b/net/bluetooth/hidp/core.c
-@@ -1290,7 +1290,7 @@ static int hidp_session_thread(void *arg)
+diff --git a/arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts b/arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts
+index 888dc23a530e..ad6561843ba2 100644
+--- a/arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts
++++ b/arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts
+@@ -564,7 +564,7 @@
+ 		left_spkr: wsa8810-left{
+ 			compatible = "sdw10217211000";
+ 			reg = <0 3>;
+-			powerdown-gpios = <&wcdgpio 2 GPIO_ACTIVE_HIGH>;
++			powerdown-gpios = <&wcdgpio 1 GPIO_ACTIVE_HIGH>;
+ 			#thermal-sensor-cells = <0>;
+ 			sound-name-prefix = "SpkrLeft";
+ 			#sound-dai-cells = <0>;
+@@ -572,7 +572,7 @@
  
- 	/* cleanup runtime environment */
- 	remove_wait_queue(sk_sleep(session->intr_sock->sk), &intr_wait);
--	remove_wait_queue(sk_sleep(session->intr_sock->sk), &ctrl_wait);
-+	remove_wait_queue(sk_sleep(session->ctrl_sock->sk), &ctrl_wait);
- 	wake_up_interruptible(&session->report_queue);
- 	hidp_del_timer(session);
- 
+ 		right_spkr: wsa8810-right{
+ 			compatible = "sdw10217211000";
+-			powerdown-gpios = <&wcdgpio 3 GPIO_ACTIVE_HIGH>;
++			powerdown-gpios = <&wcdgpio 2 GPIO_ACTIVE_HIGH>;
+ 			reg = <0 4>;
+ 			#thermal-sensor-cells = <0>;
+ 			sound-name-prefix = "SpkrRight";
 -- 
 2.30.2
 
