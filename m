@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58BE73F645B
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:02:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0A503F645E
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:02:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238888AbhHXRDO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:03:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39532 "EHLO mail.kernel.org"
+        id S238906AbhHXRDP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:03:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238978AbhHXRBc (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S238977AbhHXRBc (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 24 Aug 2021 13:01:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C514461425;
-        Tue, 24 Aug 2021 16:57:58 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A4703617E2;
+        Tue, 24 Aug 2021 16:57:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824279;
-        bh=HjxJKPBkmP9zosEOWuLj3wfAOQnWtvF1MXp2wTXoF3Q=;
+        s=k20201202; t=1629824280;
+        bh=OD6wBv8+7shn/6OnyC8Gu7m8A9mMq7PrwPjTYl0hPkQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UXcPOABjRLcY/tcshhnHmSJTZosBgDHBWOQuf5FNhZtHgiA0rDl2TCUL7duseuJf0
-         JS2NG75mN/8yFz6dhK32icqDuD+iD0FVOr00FRhacUtKy17zaPckAy5l9w+XntVO/D
-         Za0HIc0mmS8f+mvJ5VhPtb+lOO0yqbQjesLCy9iDrxrM7wOsi1TyevrNXgB/YsYXJu
-         Yn+6UzuF6UiJpXOLrYCa5eTh3nZmJQhtFc7VbM9KI2m/K1Y5ZPZMPCSz0rVaPMbJfg
-         CUXS+FvCO8cFxEK3+jwmzAiyiN+PYus5ODrp4hZzIdKOyPDtqFIN3jgB2PKKY+FLWH
-         8yp5gKRWLJ+hQ==
+        b=qJaNeAcGzyNx9IYt+/RmnPzzYnbnZ0F2qqDHuX53PPg8neBm1mKVb7jY4rHSMjnxy
+         dY7qOMLkV6j56V9FEA9OuaCUnqZBn3+E2WuzExcnNFPvqw99+9o5hinCVkCzl9vGmI
+         XdnkgoDLzPZPauo7QRic3UqXvdmZjGxDskKXfI79CQg1/RzK9tVUhjHYzDwT0+Mgq3
+         ZU/7egLZ9Gb68PJ3gixP3UHrIQ4+dcG2U+2IjZ8sN8tWIrSpF5ikhRo9qmLUk3e1HU
+         ZUFWccnjytqILIhYvcjLV/fmK1q5Ahv4CON5DZZRveHbaOHcoqGhfHueyT1IpOsge/
+         OQ6KwuXGlXbNg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Stan Johnson <userm57@yahoo.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 114/127] powerpc/32s: Refactor update of user segment registers
-Date:   Tue, 24 Aug 2021 12:55:54 -0400
-Message-Id: <20210824165607.709387-115-sashal@kernel.org>
+Subject: [PATCH 5.13 115/127] powerpc/32s: Fix random crashes by adding isync() after locking/unlocking KUEP
+Date:   Tue, 24 Aug 2021 12:55:55 -0400
+Message-Id: <20210824165607.709387-116-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165607.709387-1-sashal@kernel.org>
 References: <20210824165607.709387-1-sashal@kernel.org>
@@ -50,162 +51,149 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit 91bb30822a2e1d7900f9f42e9e92647a9015f979 ]
+[ Upstream commit ef486bf448a057a6e2d50e40ae879f7add6585da ]
 
-KUEP implements the update of user segment registers.
+Commit b5efec00b671 ("powerpc/32s: Move KUEP locking/unlocking in C")
+removed the 'isync' instruction after adding/removing NX bit in user
+segments. The reasoning behind this change was that when setting the
+NX bit we don't mind it taking effect with delay as the kernel never
+executes text from userspace, and when clearing the NX bit this is
+to return to userspace and then the 'rfi' should synchronise the
+context.
 
-Move it into mmu-hash.h in order to use it from other places.
+However, it looks like on book3s/32 having a hash page table, at least
+on the G3 processor, we get an unexpected fault from userspace, then
+this is followed by something wrong in the verification of MSR_PR
+at end of another interrupt.
 
-And inline kuep_lock() and kuep_unlock(). Inlining kuep_lock() is
-important for system_call_exception(), otherwise system_call_exception()
-has to save into stack the system call parameters that are used just
-after, and doing that takes more instructions than kuep_lock() itself.
+This is fixed by adding back the removed isync() following update
+of NX bit in user segment registers. Only do it for cores with an
+hash table, as 603 cores don't exhibit that problem and the two isync
+increase ./null_syscall selftest by 6 cycles on an MPC 832x.
 
+First problem: unexpected WARN_ON() for mysterious PROTFAULT
+
+  WARNING: CPU: 0 PID: 1660 at arch/powerpc/mm/fault.c:354 do_page_fault+0x6c/0x5b0
+  Modules linked in:
+  CPU: 0 PID: 1660 Comm: Xorg Not tainted 5.13.0-pmac-00028-gb3c15b60339a #40
+  NIP:  c001b5c8 LR: c001b6f8 CTR: 00000000
+  REGS: e2d09e40 TRAP: 0700   Not tainted  (5.13.0-pmac-00028-gb3c15b60339a)
+  MSR:  00021032 <ME,IR,DR,RI>  CR: 42d04f30  XER: 20000000
+  GPR00: c000424c e2d09f00 c301b680 e2d09f40 0000001e 42000000 00cba028 00000000
+  GPR08: 08000000 48000010 c301b680 e2d09f30 22d09f30 00c1fff0 00cba000 a7b7ba4c
+  GPR16: 00000031 00000000 00000000 00000000 00000000 00000000 a7b7b0d0 00c5c010
+  GPR24: a7b7b64c a7b7d2f0 00000004 00000000 c1efa6c0 00cba02c 00000300 e2d09f40
+  NIP [c001b5c8] do_page_fault+0x6c/0x5b0
+  LR [c001b6f8] do_page_fault+0x19c/0x5b0
+  Call Trace:
+  [e2d09f00] [e2d09f04] 0xe2d09f04 (unreliable)
+  [e2d09f30] [c000424c] DataAccess_virt+0xd4/0xe4
+  --- interrupt: 300 at 0xa7a261dc
+  NIP:  a7a261dc LR: a7a253bc CTR: 00000000
+  REGS: e2d09f40 TRAP: 0300   Not tainted  (5.13.0-pmac-00028-gb3c15b60339a)
+  MSR:  0000d032 <EE,PR,ME,IR,DR,RI>  CR: 228428e2  XER: 20000000
+  DAR: 00cba02c DSISR: 42000000
+  GPR00: a7a27448 afa6b0e0 a74c35c0 a7b7b614 0000001e a7b7b614 00cba028 00000000
+  GPR08: 00020fd9 00000031 00cb9ff8 a7a273b0 220028e2 00c1fff0 00cba000 a7b7ba4c
+  GPR16: 00000031 00000000 00000000 00000000 00000000 00000000 a7b7b0d0 00c5c010
+  GPR24: a7b7b64c a7b7d2f0 00000004 00000002 0000001e a7b7b614 a7b7aff4 00000030
+  NIP [a7a261dc] 0xa7a261dc
+  LR [a7a253bc] 0xa7a253bc
+  --- interrupt: 300
+  Instruction dump:
+  7c4a1378 810300a0 75278410 83820298 83a300a4 553b018c 551e0036 4082038c
+  2e1b0000 40920228 75280800 41820220 <0fe00000> 3b600000 41920214 81420594
+
+Second problem: MSR PR is seen unset allthough the interrupt frame shows it set
+
+  kernel BUG at arch/powerpc/kernel/interrupt.c:458!
+  Oops: Exception in kernel mode, sig: 5 [#1]
+  BE PAGE_SIZE=4K MMU=Hash SMP NR_CPUS=2 PowerMac
+  Modules linked in:
+  CPU: 0 PID: 1660 Comm: Xorg Tainted: G        W         5.13.0-pmac-00028-gb3c15b60339a #40
+  NIP:  c0011434 LR: c001629c CTR: 00000000
+  REGS: e2d09e70 TRAP: 0700   Tainted: G        W          (5.13.0-pmac-00028-gb3c15b60339a)
+  MSR:  00029032 <EE,ME,IR,DR,RI>  CR: 42d09f30  XER: 00000000
+  GPR00: 00000000 e2d09f30 c301b680 e2d09f40 83440000 c44d0e68 e2d09e8c 00000000
+  GPR08: 00000002 00dc228a 00004000 e2d09f30 22d09f30 00c1fff0 afa6ceb4 00c26144
+  GPR16: 00c25fb8 00c26140 afa6ceb8 90000000 00c944d8 0000001c 00000000 00200000
+  GPR24: 00000000 000001fb afa6d1b4 00000001 00000000 a539a2a0 a530fd80 00000089
+  NIP [c0011434] interrupt_exit_kernel_prepare+0x10/0x70
+  LR [c001629c] interrupt_return+0x9c/0x144
+  Call Trace:
+  [e2d09f30] [c000424c] DataAccess_virt+0xd4/0xe4 (unreliable)
+  --- interrupt: 300 at 0xa09be008
+  NIP:  a09be008 LR: a09bdfe8 CTR: a09bdfc0
+  REGS: e2d09f40 TRAP: 0300   Tainted: G        W          (5.13.0-pmac-00028-gb3c15b60339a)
+  MSR:  0000d032 <EE,PR,ME,IR,DR,RI>  CR: 420028e2  XER: 20000000
+  DAR: a539a308 DSISR: 0a000000
+  GPR00: a7b90d50 afa6b2d0 a74c35c0 a0a8b690 a0a8b698 a5365d70 a4fa82a8 00000004
+  GPR08: 00000000 a09bdfc0 00000000 a5360000 a09bde7c 00c1fff0 afa6ceb4 00c26144
+  GPR16: 00c25fb8 00c26140 afa6ceb8 90000000 00c944d8 0000001c 00000000 00200000
+  GPR24: 00000000 000001fb afa6d1b4 00000001 00000000 a539a2a0 a530fd80 00000089
+  NIP [a09be008] 0xa09be008
+  LR [a09bdfe8] 0xa09bdfe8
+  --- interrupt: 300
+  Instruction dump:
+  80010024 83e1001c 7c0803a6 4bffff80 3bc00800 4bffffd0 486b42fd 4bffffcc
+  81430084 71480002 41820038 554a0462 <0f0a0000> 80620060 74630001 40820034
+
+Fixes: b5efec00b671 ("powerpc/32s: Move KUEP locking/unlocking in C")
+Cc: stable@vger.kernel.org # v5.13+
+Reported-by: Stan Johnson <userm57@yahoo.com>
 Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/24591ca480d14a62ef910e38a5273d551262c4a2.1622708530.git.christophe.leroy@csgroup.eu
+Link: https://lore.kernel.org/r/4856f5574906e2aec0522be17bf3848a22b2cd0b.1629269345.git.christophe.leroy@csgroup.eu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/book3s/32/kup.h      | 21 +++++++++++
- arch/powerpc/include/asm/book3s/32/mmu-hash.h | 27 ++++++++++++++
- arch/powerpc/include/asm/kup.h                |  5 +--
- arch/powerpc/mm/book3s32/kuep.c               | 37 -------------------
- 4 files changed, 49 insertions(+), 41 deletions(-)
+ arch/powerpc/include/asm/book3s/32/kup.h | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
 diff --git a/arch/powerpc/include/asm/book3s/32/kup.h b/arch/powerpc/include/asm/book3s/32/kup.h
-index 1670dfe9d4f1..5353ea68b912 100644
+index 5353ea68b912..c6cfca9d2bd7 100644
 --- a/arch/powerpc/include/asm/book3s/32/kup.h
 +++ b/arch/powerpc/include/asm/book3s/32/kup.h
-@@ -7,6 +7,27 @@
+@@ -4,6 +4,8 @@
+ 
+ #include <asm/bug.h>
+ #include <asm/book3s/32/mmu-hash.h>
++#include <asm/mmu.h>
++#include <asm/synch.h>
  
  #ifndef __ASSEMBLY__
  
-+static __always_inline bool kuep_is_disabled(void)
-+{
-+	return !IS_ENABLED(CONFIG_PPC_KUEP);
-+}
-+
-+static inline void kuep_lock(void)
-+{
-+	if (kuep_is_disabled())
-+		return;
-+
-+	update_user_segments(mfsr(0) | SR_NX);
-+}
-+
-+static inline void kuep_unlock(void)
-+{
-+	if (kuep_is_disabled())
-+		return;
-+
-+	update_user_segments(mfsr(0) & ~SR_NX);
-+}
-+
+@@ -18,6 +20,15 @@ static inline void kuep_lock(void)
+ 		return;
+ 
+ 	update_user_segments(mfsr(0) | SR_NX);
++	/*
++	 * This isync() shouldn't be necessary as the kernel is not excepted to
++	 * run any instruction in userspace soon after the update of segments,
++	 * but hash based cores (at least G3) seem to exhibit a random
++	 * behaviour when the 'isync' is not there. 603 cores don't have this
++	 * behaviour so don't do the 'isync' as it saves several CPU cycles.
++	 */
++	if (mmu_has_feature(MMU_FTR_HPTE_TABLE))
++		isync();	/* Context sync required after mtsr() */
+ }
+ 
+ static inline void kuep_unlock(void)
+@@ -26,6 +37,15 @@ static inline void kuep_unlock(void)
+ 		return;
+ 
+ 	update_user_segments(mfsr(0) & ~SR_NX);
++	/*
++	 * This isync() shouldn't be necessary as a 'rfi' will soon be executed
++	 * to return to userspace, but hash based cores (at least G3) seem to
++	 * exhibit a random behaviour when the 'isync' is not there. 603 cores
++	 * don't have this behaviour so don't do the 'isync' as it saves several
++	 * CPU cycles.
++	 */
++	if (mmu_has_feature(MMU_FTR_HPTE_TABLE))
++		isync();	/* Context sync required after mtsr() */
+ }
+ 
  #ifdef CONFIG_PPC_KUAP
- 
- #include <linux/sched.h>
-diff --git a/arch/powerpc/include/asm/book3s/32/mmu-hash.h b/arch/powerpc/include/asm/book3s/32/mmu-hash.h
-index b85f8e114a9c..cc0284bbac86 100644
---- a/arch/powerpc/include/asm/book3s/32/mmu-hash.h
-+++ b/arch/powerpc/include/asm/book3s/32/mmu-hash.h
-@@ -102,6 +102,33 @@ extern s32 patch__hash_page_B, patch__hash_page_C;
- extern s32 patch__flush_hash_A0, patch__flush_hash_A1, patch__flush_hash_A2;
- extern s32 patch__flush_hash_B;
- 
-+#include <asm/reg.h>
-+#include <asm/task_size_32.h>
-+
-+#define UPDATE_TWO_USER_SEGMENTS(n) do {		\
-+	if (TASK_SIZE > ((n) << 28))			\
-+		mtsr(val1, (n) << 28);			\
-+	if (TASK_SIZE > (((n) + 1) << 28))		\
-+		mtsr(val2, ((n) + 1) << 28);		\
-+	val1 = (val1 + 0x222) & 0xf0ffffff;		\
-+	val2 = (val2 + 0x222) & 0xf0ffffff;		\
-+} while (0)
-+
-+static __always_inline void update_user_segments(u32 val)
-+{
-+	int val1 = val;
-+	int val2 = (val + 0x111) & 0xf0ffffff;
-+
-+	UPDATE_TWO_USER_SEGMENTS(0);
-+	UPDATE_TWO_USER_SEGMENTS(2);
-+	UPDATE_TWO_USER_SEGMENTS(4);
-+	UPDATE_TWO_USER_SEGMENTS(6);
-+	UPDATE_TWO_USER_SEGMENTS(8);
-+	UPDATE_TWO_USER_SEGMENTS(10);
-+	UPDATE_TWO_USER_SEGMENTS(12);
-+	UPDATE_TWO_USER_SEGMENTS(14);
-+}
-+
- #endif /* !__ASSEMBLY__ */
- 
- /* We happily ignore the smaller BATs on 601, we don't actually use
-diff --git a/arch/powerpc/include/asm/kup.h b/arch/powerpc/include/asm/kup.h
-index ec96232529ac..4b94d4293777 100644
---- a/arch/powerpc/include/asm/kup.h
-+++ b/arch/powerpc/include/asm/kup.h
-@@ -46,10 +46,7 @@ void setup_kuep(bool disabled);
- static inline void setup_kuep(bool disabled) { }
- #endif /* CONFIG_PPC_KUEP */
- 
--#if defined(CONFIG_PPC_KUEP) && defined(CONFIG_PPC_BOOK3S_32)
--void kuep_lock(void);
--void kuep_unlock(void);
--#else
-+#ifndef CONFIG_PPC_BOOK3S_32
- static inline void kuep_lock(void) { }
- static inline void kuep_unlock(void) { }
- #endif
-diff --git a/arch/powerpc/mm/book3s32/kuep.c b/arch/powerpc/mm/book3s32/kuep.c
-index 6eafe7b2b031..919595f47e25 100644
---- a/arch/powerpc/mm/book3s32/kuep.c
-+++ b/arch/powerpc/mm/book3s32/kuep.c
-@@ -1,43 +1,6 @@
- // SPDX-License-Identifier: GPL-2.0-or-later
- 
- #include <asm/kup.h>
--#include <asm/reg.h>
--#include <asm/task_size_32.h>
--#include <asm/mmu.h>
--
--#define KUEP_UPDATE_TWO_USER_SEGMENTS(n) do {		\
--	if (TASK_SIZE > ((n) << 28))			\
--		mtsr(val1, (n) << 28);			\
--	if (TASK_SIZE > (((n) + 1) << 28))		\
--		mtsr(val2, ((n) + 1) << 28);		\
--	val1 = (val1 + 0x222) & 0xf0ffffff;		\
--	val2 = (val2 + 0x222) & 0xf0ffffff;		\
--} while (0)
--
--static __always_inline void kuep_update(u32 val)
--{
--	int val1 = val;
--	int val2 = (val + 0x111) & 0xf0ffffff;
--
--	KUEP_UPDATE_TWO_USER_SEGMENTS(0);
--	KUEP_UPDATE_TWO_USER_SEGMENTS(2);
--	KUEP_UPDATE_TWO_USER_SEGMENTS(4);
--	KUEP_UPDATE_TWO_USER_SEGMENTS(6);
--	KUEP_UPDATE_TWO_USER_SEGMENTS(8);
--	KUEP_UPDATE_TWO_USER_SEGMENTS(10);
--	KUEP_UPDATE_TWO_USER_SEGMENTS(12);
--	KUEP_UPDATE_TWO_USER_SEGMENTS(14);
--}
--
--void kuep_lock(void)
--{
--	kuep_update(mfsr(0) | SR_NX);
--}
--
--void kuep_unlock(void)
--{
--	kuep_update(mfsr(0) & ~SR_NX);
--}
- 
- void __init setup_kuep(bool disabled)
- {
 -- 
 2.30.2
 
