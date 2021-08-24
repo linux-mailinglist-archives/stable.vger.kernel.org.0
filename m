@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D838A3F63FC
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:00:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CDD43F63FD
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:00:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232897AbhHXRAI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:00:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39066 "EHLO mail.kernel.org"
+        id S234610AbhHXRAJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:00:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235150AbhHXQ6X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 12:58:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DC3BF6141B;
-        Tue, 24 Aug 2021 16:57:15 +0000 (UTC)
+        id S238599AbhHXQ63 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 12:58:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BC7FB61502;
+        Tue, 24 Aug 2021 16:57:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824236;
-        bh=NOIeKdKl4T12gLVcMwf75JzXAJOFAKynCAWhR08rDUA=;
+        s=k20201202; t=1629824237;
+        bh=vqC4VUAwnvzLia+9zXhaTAQbkgiY8pUmBUtetdUqzSQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S/qbSlpJidtwh4X57iz8/7JB3h9+cnzVcw4mClyYvblqpI2O/7EHrif3rq+2QEp4c
-         0RxsyBSX+jlfHJuBHL/IB9JngWeCkX8iC5JRNyzfi/4qb5ul57Fe2MTGu2E/NmR8pa
-         uudGKOsLl5D38EjagkfqOkvJJxKAPOun4nb7Fl24pZW7SoWhCU2eubQOC02TlJXfZr
-         wbnl4KcWG3NyL+cLoYPwXU1+6DFCLu26N0N0TH2iKsvqm4gUQ2YFuz4ZinSXWn1+6j
-         FBfIxEAjeAhmXlsPXxWcoV081LH2SkRxfl4qlaLtUfGhQTi7jUo/f+bJkIsukGlCwF
-         oXPgmPCuIu/Dg==
+        b=XhHLGQxsBVNjnjMDG5k3vA1gXdYIXxQfyueGvb48E6fIuSnDGOmpC9SpZQzJWNRrE
+         wssb4+ZZ/ENZ1N3OZdxTgai5/5WRCXfmDXJhT+8lTcd+4/VA47EUqTayC2poY9e5Rr
+         7jYEXm/fcKJRcyzxdTt9bSP9YdqbN31/gAjTo0/mmHBW6gX6r2kfov7EXaj4/glrKH
+         n9kzK+R5fdOnptB00tsURr69Qb20CO498+LLpbCsKnKVAHx/eUWZsYhMOSG12kGV0g
+         Y1Oq9XVbumecRFWvzinsX9f9aENoqG3gFSPhhwMIiIZXX454b/vKJgSVUWlSPkBTgX
+         ER6CEh07j80Qg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Oleksij Rempel <o.rempel@pengutronix.de>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 069/127] net: usb: asix: refactor asix_read_phy_addr() and handle errors on return
-Date:   Tue, 24 Aug 2021 12:55:09 -0400
-Message-Id: <20210824165607.709387-70-sashal@kernel.org>
+Cc:     Liu Yi L <yi.l.liu@intel.com>,
+        Kumar Sanjay K <sanjay.k.kumar@intel.com>,
+        Yi Sun <yi.y.sun@intel.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 070/127] iommu/vt-d: Fix incomplete cache flush in intel_pasid_tear_down_entry()
+Date:   Tue, 24 Aug 2021 12:55:10 -0400
+Message-Id: <20210824165607.709387-71-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165607.709387-1-sashal@kernel.org>
 References: <20210824165607.709387-1-sashal@kernel.org>
@@ -48,146 +50,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleksij Rempel <o.rempel@pengutronix.de>
+From: Liu Yi L <yi.l.liu@intel.com>
 
-[ Upstream commit 7e88b11a862afe59ee0c365123ea5fb96a26cb3b ]
+[ Upstream commit 8798d36411196da86e70b994725349c16c1119f6 ]
 
-Refactor asix_read_phy_addr() to return usable error value directly and
-make sure all callers handle this error.
+This fixes improper iotlb invalidation in intel_pasid_tear_down_entry().
+When a PASID was used as nested mode, released and reused, the following
+error message will appear:
 
-Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+[  180.187556] Unexpected page request in Privilege Mode
+[  180.187565] Unexpected page request in Privilege Mode
+[  180.279933] Unexpected page request in Privilege Mode
+[  180.279937] Unexpected page request in Privilege Mode
+
+Per chapter 6.5.3.3 of VT-d spec 3.3, when tear down a pasid entry, the
+software should use Domain selective IOTLB flush if the PGTT of the pasid
+entry is SL only or Nested, while for the pasid entries whose PGTT is FL
+only or PT using PASID-based IOTLB flush is enough.
+
+Fixes: 2cd1311a26673 ("iommu/vt-d: Add set domain DOMAIN_ATTR_NESTING attr")
+Signed-off-by: Kumar Sanjay K <sanjay.k.kumar@intel.com>
+Signed-off-by: Liu Yi L <yi.l.liu@intel.com>
+Tested-by: Yi Sun <yi.y.sun@intel.com>
+Link: https://lore.kernel.org/r/20210817042425.1784279-1-yi.l.liu@intel.com
+Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+Link: https://lore.kernel.org/r/20210817124321.1517985-3-baolu.lu@linux.intel.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/asix.h         |  3 +--
- drivers/net/usb/asix_common.c  | 31 ++++++++++++++++---------------
- drivers/net/usb/asix_devices.c | 15 ++++++++++++---
- drivers/net/usb/ax88172a.c     |  5 +++++
- 4 files changed, 34 insertions(+), 20 deletions(-)
+ drivers/iommu/intel/pasid.c | 10 ++++++++--
+ drivers/iommu/intel/pasid.h |  6 ++++++
+ 2 files changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/usb/asix.h b/drivers/net/usb/asix.h
-index 3b53685301de..edb94efd265e 100644
---- a/drivers/net/usb/asix.h
-+++ b/drivers/net/usb/asix.h
-@@ -205,8 +205,7 @@ struct sk_buff *asix_tx_fixup(struct usbnet *dev, struct sk_buff *skb,
- int asix_set_sw_mii(struct usbnet *dev, int in_pm);
- int asix_set_hw_mii(struct usbnet *dev, int in_pm);
+diff --git a/drivers/iommu/intel/pasid.c b/drivers/iommu/intel/pasid.c
+index 72dc84821dad..581c694b7cf4 100644
+--- a/drivers/iommu/intel/pasid.c
++++ b/drivers/iommu/intel/pasid.c
+@@ -511,7 +511,7 @@ void intel_pasid_tear_down_entry(struct intel_iommu *iommu, struct device *dev,
+ 				 u32 pasid, bool fault_ignore)
+ {
+ 	struct pasid_entry *pte;
+-	u16 did;
++	u16 did, pgtt;
  
--int asix_read_phy_addr(struct usbnet *dev, int internal);
--int asix_get_phy_addr(struct usbnet *dev);
-+int asix_read_phy_addr(struct usbnet *dev, bool internal);
+ 	pte = intel_pasid_get_entry(dev, pasid);
+ 	if (WARN_ON(!pte))
+@@ -521,13 +521,19 @@ void intel_pasid_tear_down_entry(struct intel_iommu *iommu, struct device *dev,
+ 		return;
  
- int asix_sw_reset(struct usbnet *dev, u8 flags, int in_pm);
+ 	did = pasid_get_domain_id(pte);
++	pgtt = pasid_pte_get_pgtt(pte);
++
+ 	intel_pasid_clear_entry(dev, pasid, fault_ignore);
  
-diff --git a/drivers/net/usb/asix_common.c b/drivers/net/usb/asix_common.c
-index 7bc6e8f856fe..e1109f1a8dd5 100644
---- a/drivers/net/usb/asix_common.c
-+++ b/drivers/net/usb/asix_common.c
-@@ -288,32 +288,33 @@ int asix_set_hw_mii(struct usbnet *dev, int in_pm)
- 	return ret;
+ 	if (!ecap_coherent(iommu->ecap))
+ 		clflush_cache_range(pte, sizeof(*pte));
+ 
+ 	pasid_cache_invalidation_with_pasid(iommu, did, pasid);
+-	qi_flush_piotlb(iommu, did, pasid, 0, -1, 0);
++
++	if (pgtt == PASID_ENTRY_PGTT_PT || pgtt == PASID_ENTRY_PGTT_FL_ONLY)
++		qi_flush_piotlb(iommu, did, pasid, 0, -1, 0);
++	else
++		iommu->flush.flush_iotlb(iommu, did, 0, 0, DMA_TLB_DSI_FLUSH);
+ 
+ 	/* Device IOTLB doesn't need to be flushed in caching mode. */
+ 	if (!cap_caching_mode(iommu->cap))
+diff --git a/drivers/iommu/intel/pasid.h b/drivers/iommu/intel/pasid.h
+index 5ff61c3d401f..c11bc8b833b8 100644
+--- a/drivers/iommu/intel/pasid.h
++++ b/drivers/iommu/intel/pasid.h
+@@ -99,6 +99,12 @@ static inline bool pasid_pte_is_present(struct pasid_entry *pte)
+ 	return READ_ONCE(pte->val[0]) & PASID_PTE_PRESENT;
  }
  
--int asix_read_phy_addr(struct usbnet *dev, int internal)
-+int asix_read_phy_addr(struct usbnet *dev, bool internal)
- {
--	int offset = (internal ? 1 : 0);
-+	int ret, offset;
- 	u8 buf[2];
--	int ret = asix_read_cmd(dev, AX_CMD_READ_PHY_ID, 0, 0, 2, buf, 0);
- 
--	netdev_dbg(dev->net, "asix_get_phy_addr()\n");
-+	ret = asix_read_cmd(dev, AX_CMD_READ_PHY_ID, 0, 0, 2, buf, 0);
-+	if (ret < 0)
-+		goto error;
- 
- 	if (ret < 2) {
--		netdev_err(dev->net, "Error reading PHYID register: %02x\n", ret);
--		goto out;
-+		ret = -EIO;
-+		goto error;
- 	}
--	netdev_dbg(dev->net, "asix_get_phy_addr() returning 0x%04x\n",
--		   *((__le16 *)buf));
-+
-+	offset = (internal ? 1 : 0);
- 	ret = buf[offset];
- 
--out:
-+	netdev_dbg(dev->net, "%s PHY address 0x%x\n",
-+		   internal ? "internal" : "external", ret);
-+
- 	return ret;
--}
- 
--int asix_get_phy_addr(struct usbnet *dev)
--{
--	/* return the address of the internal phy */
--	return asix_read_phy_addr(dev, 1);
--}
-+error:
-+	netdev_err(dev->net, "Error reading PHY_ID register: %02x\n", ret);
- 
-+	return ret;
++/* Get PGTT field of a PASID table entry */
++static inline u16 pasid_pte_get_pgtt(struct pasid_entry *pte)
++{
++	return (u16)((READ_ONCE(pte->val[0]) >> 6) & 0x7);
 +}
- 
- int asix_sw_reset(struct usbnet *dev, u8 flags, int in_pm)
- {
-diff --git a/drivers/net/usb/asix_devices.c b/drivers/net/usb/asix_devices.c
-index 19a8fafb8f04..fb523734bf31 100644
---- a/drivers/net/usb/asix_devices.c
-+++ b/drivers/net/usb/asix_devices.c
-@@ -262,7 +262,10 @@ static int ax88172_bind(struct usbnet *dev, struct usb_interface *intf)
- 	dev->mii.mdio_write = asix_mdio_write;
- 	dev->mii.phy_id_mask = 0x3f;
- 	dev->mii.reg_num_mask = 0x1f;
--	dev->mii.phy_id = asix_get_phy_addr(dev);
 +
-+	dev->mii.phy_id = asix_read_phy_addr(dev, true);
-+	if (dev->mii.phy_id < 0)
-+		return dev->mii.phy_id;
- 
- 	dev->net->netdev_ops = &ax88172_netdev_ops;
- 	dev->net->ethtool_ops = &ax88172_ethtool_ops;
-@@ -717,7 +720,10 @@ static int ax88772_bind(struct usbnet *dev, struct usb_interface *intf)
- 	dev->mii.mdio_write = asix_mdio_write;
- 	dev->mii.phy_id_mask = 0x1f;
- 	dev->mii.reg_num_mask = 0x1f;
--	dev->mii.phy_id = asix_get_phy_addr(dev);
-+
-+	dev->mii.phy_id = asix_read_phy_addr(dev, true);
-+	if (dev->mii.phy_id < 0)
-+		return dev->mii.phy_id;
- 
- 	dev->net->netdev_ops = &ax88772_netdev_ops;
- 	dev->net->ethtool_ops = &ax88772_ethtool_ops;
-@@ -1081,7 +1087,10 @@ static int ax88178_bind(struct usbnet *dev, struct usb_interface *intf)
- 	dev->mii.phy_id_mask = 0x1f;
- 	dev->mii.reg_num_mask = 0xff;
- 	dev->mii.supports_gmii = 1;
--	dev->mii.phy_id = asix_get_phy_addr(dev);
-+
-+	dev->mii.phy_id = asix_read_phy_addr(dev, true);
-+	if (dev->mii.phy_id < 0)
-+		return dev->mii.phy_id;
- 
- 	dev->net->netdev_ops = &ax88178_netdev_ops;
- 	dev->net->ethtool_ops = &ax88178_ethtool_ops;
-diff --git a/drivers/net/usb/ax88172a.c b/drivers/net/usb/ax88172a.c
-index b404c9462dce..c8ca5187eece 100644
---- a/drivers/net/usb/ax88172a.c
-+++ b/drivers/net/usb/ax88172a.c
-@@ -220,6 +220,11 @@ static int ax88172a_bind(struct usbnet *dev, struct usb_interface *intf)
- 	}
- 
- 	priv->phy_addr = asix_read_phy_addr(dev, priv->use_embdphy);
-+	if (priv->phy_addr < 0) {
-+		ret = priv->phy_addr;
-+		goto free;
-+	}
-+
- 	ax88172a_reset_phy(dev, priv->use_embdphy);
- 
- 	/* Asix framing packs multiple eth frames into a 2K usb bulk transfer */
+ extern unsigned int intel_pasid_max_id;
+ int intel_pasid_alloc_table(struct device *dev);
+ void intel_pasid_free_table(struct device *dev);
 -- 
 2.30.2
 
