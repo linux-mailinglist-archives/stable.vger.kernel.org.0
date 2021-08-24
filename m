@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 946633F6408
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:00:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EBA6E3F6403
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:00:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234442AbhHXRAS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:00:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38844 "EHLO mail.kernel.org"
+        id S239256AbhHXRAQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:00:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236021AbhHXQ6m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 12:58:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 17FA1613BD;
-        Tue, 24 Aug 2021 16:57:19 +0000 (UTC)
+        id S234046AbhHXQ6r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 12:58:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2089F61411;
+        Tue, 24 Aug 2021 16:57:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824239;
-        bh=+m/H46yUj6Pnb1GVwDaYm+DyOa2Z7PlBMv1Qyhe2ebM=;
+        s=k20201202; t=1629824240;
+        bh=pUu6RQgn6id84GI41xGIinGffjAhoXfwkJH3TIDJ7Ow=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NGRyaXdne5C5RcEb00fDoHMzBBs8qOmsezK3toZAs/y1iQQfMJpvkQOf5BYiu9/Ey
-         vA9mhBFmFZ2yr+Zaw3d/FPALCjBu5YhkXg2M/7u+3sPHAW7fmmkM6ZCK/rHMlWYKs2
-         XjSNYSSQbBQA01ZEyECj/SH9LQ+bLNmCebbGFpFJnwGMbl52/CSsa7VBEo2TC7oIW7
-         4pRw97z7KbgQDPWTJFkBDQEi6rFPuvb5Xr8h0VTomarYEsArM0DF8iLu4qcE4VnQc9
-         WxG4LKIosKTnpCqHrQoee7pOdYZP8SVMfFdQs9Se7kpaJDiEK7qjPknEMfKQrgLZpg
-         TWwoxPu3ucKdg==
+        b=htFVzWiBe3xvZlKlWMH/GXuh/M+6rzVVd5vs2IzuRaRJ9vdDRS5b1zLkbMvKmamsW
+         RGT3+r/0F92t6fhp9BoYUB0AWwplDeWbACqpqlbKJg9VUD033rSSP4o+OqHkJmejOl
+         /Senc7Dkyw+S07Q94QjmNLrlPgpVw8M5PujZyRjcIv9R3E3waala3Q2rAuQC6f769W
+         PCbBWNqWhW/3M7wYiLn7lks7Xm+UJWOGzVZvVJmIi4asd0EhgEVeW9MdfkehecugDW
+         H85PXcSbVP4ZFHWOXhbFTGwQT5XJaRJ6hsw9yTeipgrOwNVh9otWc6w3Mt+69F3C0B
+         aLbchXljvBOfQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anshuman Gupta <anshuman.gupta@intel.com>,
-        Matt Roper <matthew.d.roper@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Imre Deak <imre.deak@intel.com>,
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        kernel test robot <oliver.sang@intel.com>,
+        Sandeep Patil <sspatil@android.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 072/127] drm/i915: Tweaked Wa_14010685332 for all PCHs
-Date:   Tue, 24 Aug 2021 12:55:12 -0400
-Message-Id: <20210824165607.709387-73-sashal@kernel.org>
+Subject: [PATCH 5.13 073/127] pipe: avoid unnecessary EPOLLET wakeups under normal loads
+Date:   Tue, 24 Aug 2021 12:55:13 -0400
+Message-Id: <20210824165607.709387-74-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165607.709387-1-sashal@kernel.org>
 References: <20210824165607.709387-1-sashal@kernel.org>
@@ -50,121 +50,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anshuman Gupta <anshuman.gupta@intel.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit b8441b288d6031eac21390891ba36487b2cb398b ]
+[ Upstream commit 3b844826b6c6affa80755254da322b017358a2f4 ]
 
-dispcnlunit1_cp_xosc_clkreq clock observed to be active on TGL-H platform
-despite Wa_14010685332 original sequence,
-thus blocks entry to deeper s0ix state.
+I had forgotten just how sensitive hackbench is to extra pipe wakeups,
+and commit 3a34b13a88ca ("pipe: make pipe writes always wake up
+readers") ended up causing a quite noticeable regression on larger
+machines.
 
-The Tweaked Wa_14010685332 sequence fixes this issue, therefore use tweaked
-Wa_14010685332 sequence for every PCH since PCH_CNP.
+Now, hackbench isn't necessarily a hugely meaningful benchmark, and it's
+not clear that this matters in real life all that much, but as Mel
+points out, it's used often enough when comparing kernels and so the
+performance regression shows up like a sore thumb.
 
-v2:
-- removed RKL from comment and simplified condition. [Rodrigo]
+It's easy enough to fix at least for the common cases where pipes are
+used purely for data transfer, and you never have any exciting poll
+usage at all.  So set a special 'poll_usage' flag when there is polling
+activity, and make the ugly "EPOLLET has crazy legacy expectations"
+semantics explicit to only that case.
 
-Fixes: b896898c7369 ("drm/i915: Tweaked Wa_14010685332 for PCHs used on gen11 platforms")
-Cc: Matt Roper <matthew.d.roper@intel.com>
-Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Cc: Imre Deak <imre.deak@intel.com>
-Signed-off-by: Anshuman Gupta <anshuman.gupta@intel.com>
-Reviewed-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210810113112.31739-2-anshuman.gupta@intel.com
-(cherry picked from commit 8b46cc6577f4bbef7e5909bb926da31d705f350f)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+I would love to limit it to just the broken EPOLLET case, but the pipe
+code can't see the difference between epoll and regular select/poll, so
+any non-read/write waiting will trigger the extra wakeup behavior.  That
+is sufficient for at least the hackbench case.
+
+Apart from making the odd extra wakeup cases more explicitly about
+EPOLLET, this also makes the extra wakeup be at the _end_ of the pipe
+write, not at the first write chunk.  That is actually much saner
+semantics (as much as you can call any of the legacy edge-triggered
+expectations for EPOLLET "sane") since it means that you know the wakeup
+will happen once the write is done, rather than possibly in the middle
+of one.
+
+[ For stable people: I'm putting a "Fixes" tag on this, but I leave it
+  up to you to decide whether you actually want to backport it or not.
+  It likely has no impact outside of synthetic benchmarks  - Linus ]
+
+Link: https://lore.kernel.org/lkml/20210802024945.GA8372@xsang-OptiPlex-9020/
+Fixes: 3a34b13a88ca ("pipe: make pipe writes always wake up readers")
+Reported-by: kernel test robot <oliver.sang@intel.com>
+Tested-by: Sandeep Patil <sspatil@android.com>
+Tested-by: Mel Gorman <mgorman@techsingularity.net>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../drm/i915/display/intel_display_power.c    | 16 +++++++-------
- drivers/gpu/drm/i915/i915_irq.c               | 21 -------------------
- 2 files changed, 8 insertions(+), 29 deletions(-)
+ fs/pipe.c                 | 15 +++++++++------
+ include/linux/pipe_fs_i.h |  2 ++
+ 2 files changed, 11 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/display/intel_display_power.c b/drivers/gpu/drm/i915/display/intel_display_power.c
-index 99126caf5747..a8597444d515 100644
---- a/drivers/gpu/drm/i915/display/intel_display_power.c
-+++ b/drivers/gpu/drm/i915/display/intel_display_power.c
-@@ -5910,13 +5910,13 @@ void intel_display_power_suspend_late(struct drm_i915_private *i915)
- {
- 	if (DISPLAY_VER(i915) >= 11 || IS_GEN9_LP(i915)) {
- 		bxt_enable_dc9(i915);
--		/* Tweaked Wa_14010685332:icp,jsp,mcc */
--		if (INTEL_PCH_TYPE(i915) >= PCH_ICP && INTEL_PCH_TYPE(i915) <= PCH_MCC)
--			intel_de_rmw(i915, SOUTH_CHICKEN1,
--				     SBCLK_RUN_REFCLK_DIS, SBCLK_RUN_REFCLK_DIS);
- 	} else if (IS_HASWELL(i915) || IS_BROADWELL(i915)) {
- 		hsw_enable_pc8(i915);
+diff --git a/fs/pipe.c b/fs/pipe.c
+index 8e6ef62aeb1c..678dee2a8228 100644
+--- a/fs/pipe.c
++++ b/fs/pipe.c
+@@ -444,9 +444,6 @@ pipe_write(struct kiocb *iocb, struct iov_iter *from)
+ #endif
+ 
+ 	/*
+-	 * Epoll nonsensically wants a wakeup whether the pipe
+-	 * was already empty or not.
+-	 *
+ 	 * If it wasn't empty we try to merge new data into
+ 	 * the last buffer.
+ 	 *
+@@ -455,9 +452,9 @@ pipe_write(struct kiocb *iocb, struct iov_iter *from)
+ 	 * spanning multiple pages.
+ 	 */
+ 	head = pipe->head;
+-	was_empty = true;
++	was_empty = pipe_empty(head, pipe->tail);
+ 	chars = total_len & (PAGE_SIZE-1);
+-	if (chars && !pipe_empty(head, pipe->tail)) {
++	if (chars && !was_empty) {
+ 		unsigned int mask = pipe->ring_size - 1;
+ 		struct pipe_buffer *buf = &pipe->bufs[(head - 1) & mask];
+ 		int offset = buf->offset + buf->len;
+@@ -590,8 +587,11 @@ out:
+ 	 * This is particularly important for small writes, because of
+ 	 * how (for example) the GNU make jobserver uses small writes to
+ 	 * wake up pending jobs
++	 *
++	 * Epoll nonsensically wants a wakeup whether the pipe
++	 * was already empty or not.
+ 	 */
+-	if (was_empty) {
++	if (was_empty || pipe->poll_usage) {
+ 		wake_up_interruptible_sync_poll(&pipe->rd_wait, EPOLLIN | EPOLLRDNORM);
+ 		kill_fasync(&pipe->fasync_readers, SIGIO, POLL_IN);
  	}
+@@ -654,6 +654,9 @@ pipe_poll(struct file *filp, poll_table *wait)
+ 	struct pipe_inode_info *pipe = filp->private_data;
+ 	unsigned int head, tail;
+ 
++	/* Epoll has some historical nasty semantics, this enables them */
++	pipe->poll_usage = 1;
 +
-+	/* Tweaked Wa_14010685332:cnp,icp,jsp,mcc,tgp,adp */
-+	if (INTEL_PCH_TYPE(i915) >= PCH_CNP && INTEL_PCH_TYPE(i915) < PCH_DG1)
-+		intel_de_rmw(i915, SOUTH_CHICKEN1, SBCLK_RUN_REFCLK_DIS, SBCLK_RUN_REFCLK_DIS);
- }
- 
- void intel_display_power_resume_early(struct drm_i915_private *i915)
-@@ -5924,13 +5924,13 @@ void intel_display_power_resume_early(struct drm_i915_private *i915)
- 	if (DISPLAY_VER(i915) >= 11 || IS_GEN9_LP(i915)) {
- 		gen9_sanitize_dc_state(i915);
- 		bxt_disable_dc9(i915);
--		/* Tweaked Wa_14010685332:icp,jsp,mcc */
--		if (INTEL_PCH_TYPE(i915) >= PCH_ICP && INTEL_PCH_TYPE(i915) <= PCH_MCC)
--			intel_de_rmw(i915, SOUTH_CHICKEN1, SBCLK_RUN_REFCLK_DIS, 0);
--
- 	} else if (IS_HASWELL(i915) || IS_BROADWELL(i915)) {
- 		hsw_disable_pc8(i915);
- 	}
-+
-+	/* Tweaked Wa_14010685332:cnp,icp,jsp,mcc,tgp,adp */
-+	if (INTEL_PCH_TYPE(i915) >= PCH_CNP && INTEL_PCH_TYPE(i915) < PCH_DG1)
-+		intel_de_rmw(i915, SOUTH_CHICKEN1, SBCLK_RUN_REFCLK_DIS, 0);
- }
- 
- void intel_display_power_suspend(struct drm_i915_private *i915)
-diff --git a/drivers/gpu/drm/i915/i915_irq.c b/drivers/gpu/drm/i915/i915_irq.c
-index e0d0b300c4aa..783f25920d00 100644
---- a/drivers/gpu/drm/i915/i915_irq.c
-+++ b/drivers/gpu/drm/i915/i915_irq.c
-@@ -3042,24 +3042,6 @@ static void valleyview_irq_reset(struct drm_i915_private *dev_priv)
- 	spin_unlock_irq(&dev_priv->irq_lock);
- }
- 
--static void cnp_display_clock_wa(struct drm_i915_private *dev_priv)
--{
--	struct intel_uncore *uncore = &dev_priv->uncore;
--
--	/*
--	 * Wa_14010685332:cnp/cmp,tgp,adp
--	 * TODO: Clarify which platforms this applies to
--	 * TODO: Figure out if this workaround can be applied in the s0ix suspend/resume handlers as
--	 * on earlier platforms and whether the workaround is also needed for runtime suspend/resume
--	 */
--	if (INTEL_PCH_TYPE(dev_priv) == PCH_CNP ||
--	    (INTEL_PCH_TYPE(dev_priv) >= PCH_TGP && INTEL_PCH_TYPE(dev_priv) < PCH_DG1)) {
--		intel_uncore_rmw(uncore, SOUTH_CHICKEN1, SBCLK_RUN_REFCLK_DIS,
--				 SBCLK_RUN_REFCLK_DIS);
--		intel_uncore_rmw(uncore, SOUTH_CHICKEN1, SBCLK_RUN_REFCLK_DIS, 0);
--	}
--}
--
- static void gen8_display_irq_reset(struct drm_i915_private *dev_priv)
- {
- 	struct intel_uncore *uncore = &dev_priv->uncore;
-@@ -3093,7 +3075,6 @@ static void gen8_irq_reset(struct drm_i915_private *dev_priv)
- 	if (HAS_PCH_SPLIT(dev_priv))
- 		ibx_irq_reset(dev_priv);
- 
--	cnp_display_clock_wa(dev_priv);
- }
- 
- static void gen11_display_irq_reset(struct drm_i915_private *dev_priv)
-@@ -3137,8 +3118,6 @@ static void gen11_display_irq_reset(struct drm_i915_private *dev_priv)
- 
- 	if (INTEL_PCH_TYPE(dev_priv) >= PCH_ICP)
- 		GEN3_IRQ_RESET(uncore, SDE);
--
--	cnp_display_clock_wa(dev_priv);
- }
- 
- static void gen11_irq_reset(struct drm_i915_private *dev_priv)
+ 	/*
+ 	 * Reading pipe state only -- no need for acquiring the semaphore.
+ 	 *
+diff --git a/include/linux/pipe_fs_i.h b/include/linux/pipe_fs_i.h
+index 5d2705f1d01c..fc5642431b92 100644
+--- a/include/linux/pipe_fs_i.h
++++ b/include/linux/pipe_fs_i.h
+@@ -48,6 +48,7 @@ struct pipe_buffer {
+  *	@files: number of struct file referring this pipe (protected by ->i_lock)
+  *	@r_counter: reader counter
+  *	@w_counter: writer counter
++ *	@poll_usage: is this pipe used for epoll, which has crazy wakeups?
+  *	@fasync_readers: reader side fasync
+  *	@fasync_writers: writer side fasync
+  *	@bufs: the circular array of pipe buffers
+@@ -70,6 +71,7 @@ struct pipe_inode_info {
+ 	unsigned int files;
+ 	unsigned int r_counter;
+ 	unsigned int w_counter;
++	unsigned int poll_usage;
+ 	struct page *tmp_page;
+ 	struct fasync_struct *fasync_readers;
+ 	struct fasync_struct *fasync_writers;
 -- 
 2.30.2
 
