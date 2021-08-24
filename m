@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E74273F65B4
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:15:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 626923F65BA
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:15:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239654AbhHXRPw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:15:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55444 "EHLO mail.kernel.org"
+        id S234086AbhHXRQD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:16:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240020AbhHXROE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:14:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 16AF061A85;
-        Tue, 24 Aug 2021 17:01:35 +0000 (UTC)
+        id S239587AbhHXROJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:14:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 106D461A86;
+        Tue, 24 Aug 2021 17:01:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824496;
-        bh=/zQUevulHb0NrGk5H2gZ5uZnKv594z6cVqOWzxN7o5c=;
+        s=k20201202; t=1629824497;
+        bh=uDcUEMMDZNHq7x2mjZ0JAwy6btOPoBs2tzjP2NpHr3c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mzZrnhMGWCOagb0gZk1klhkW1OZn+EvPlHUCbOL+MRotwdkJtulS3XiFUXIwCHlqb
-         R9EFgHURT265Ej5xhbc/hXIYqawpYKlBpQFbA945yH/T0PwXiMzHBnm51HaAR7gAZr
-         gMRlTTEPeAj4S01+bDB9HMBBFaneJR4vt3H8tfSe/ZEXIPv8KQwCychyn0I2ra/C1P
-         XdvpKmugy+g1E6iZDXOnknNyBbbPjXMT5Fc5YXEP0iiLCWHNq6omcLpf6LXk4KqCFb
-         VPCW0t8MauDsCR9VEGJV3et4mNgYM/s2EKmeO2Kg53OtGTUywT6UwYAlf7D+JayA19
-         R9Z6tC8I+3F1g==
+        b=UDKJWObbX8x7ungeE9suKP0xX5kHCzwkWVUhfvepCovOAUTRJZ9GV5g1dGbAo+z29
+         3ltw5C4I/0W045q/lGp7SrD4qnBv+aHaWx9Feo2s7sy3Xz+s4GtzTkFUpIylV2wjke
+         mgNT0KUrnlKkbK3zHq+pPz63EPvrv4CMu0ieKHMZD6UqGA2II9C74XQwGXKbOjPA8i
+         17uwIIEjTjPoE3ItGDypeRwyFXJvxUHDcaMYoGUJQCvav/3BCTkNAL2OBsCB0V97PP
+         7CdIh+M7+p/lKS4J2I82Q/swdm0fLR4pbIpRFQTxE6Zs9FCjBZi2FzmpJsfi4z/HK2
+         n89K29qplAVXg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xie Yongji <xieyongji@bytedance.com>,
-        Jason Wang <jasowang@redhat.com>,
-        "Michael S . Tsirkin" <mst@redhat.com>,
+Cc:     Ilya Leoshkevich <iii@linux.ibm.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 29/61] vhost: Fix the calculation in vhost_overflow()
-Date:   Tue, 24 Aug 2021 13:00:34 -0400
-Message-Id: <20210824170106.710221-30-sashal@kernel.org>
+Subject: [PATCH 5.4 30/61] bpf: Clear zext_dst of dead insns
+Date:   Tue, 24 Aug 2021 13:00:35 -0400
+Message-Id: <20210824170106.710221-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170106.710221-1-sashal@kernel.org>
 References: <20210824170106.710221-1-sashal@kernel.org>
@@ -49,47 +48,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie Yongji <xieyongji@bytedance.com>
+From: Ilya Leoshkevich <iii@linux.ibm.com>
 
-[ Upstream commit f7ad318ea0ad58ebe0e595e59aed270bb643b29b ]
+[ Upstream commit 45c709f8c71b525b51988e782febe84ce933e7e0 ]
 
-This fixes the incorrect calculation for integer overflow
-when the last address of iova range is 0xffffffff.
+"access skb fields ok" verifier test fails on s390 with the "verifier
+bug. zext_dst is set, but no reg is defined" message. The first insns
+of the test prog are ...
 
-Fixes: ec33d031a14b ("vhost: detect 32 bit integer wrap around")
-Reported-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Link: https://lore.kernel.org/r/20210728130756.97-2-xieyongji@bytedance.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+   0:	61 01 00 00 00 00 00 00 	ldxw %r0,[%r1+0]
+   8:	35 00 00 01 00 00 00 00 	jge %r0,0,1
+  10:	61 01 00 08 00 00 00 00 	ldxw %r0,[%r1+8]
+
+... and the 3rd one is dead (this does not look intentional to me, but
+this is a separate topic).
+
+sanitize_dead_code() converts dead insns into "ja -1", but keeps
+zext_dst. When opt_subreg_zext_lo32_rnd_hi32() tries to parse such
+an insn, it sees this discrepancy and bails. This problem can be seen
+only with JITs whose bpf_jit_needs_zext() returns true.
+
+Fix by clearning dead insns' zext_dst.
+
+The commits that contributed to this problem are:
+
+1. 5aa5bd14c5f8 ("bpf: add initial suite for selftests"), which
+   introduced the test with the dead code.
+2. 5327ed3d44b7 ("bpf: verifier: mark verified-insn with
+   sub-register zext flag"), which introduced the zext_dst flag.
+3. 83a2881903f3 ("bpf: Account for BPF_FETCH in
+   insn_has_def32()"), which introduced the sanity check.
+4. 9183671af6db ("bpf: Fix leakage under speculation on
+   mispredicted branches"), which bisect points to.
+
+It's best to fix this on stable branches that contain the second one,
+since that's the point where the inconsistency was introduced.
+
+Fixes: 5327ed3d44b7 ("bpf: verifier: mark verified-insn with sub-register zext flag")
+Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20210812151811.184086-2-iii@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vhost/vhost.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ kernel/bpf/verifier.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index a279ecacbf60..97be299f0a8d 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -702,10 +702,16 @@ static bool log_access_ok(void __user *log_base, u64 addr, unsigned long sz)
- 			 (sz + VHOST_PAGE_SIZE * 8 - 1) / VHOST_PAGE_SIZE / 8);
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index 52c2b11a0b47..0b5a446ee59c 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -8586,6 +8586,7 @@ static void sanitize_dead_code(struct bpf_verifier_env *env)
+ 		if (aux_data[i].seen)
+ 			continue;
+ 		memcpy(insn + i, &trap, sizeof(trap));
++		aux_data[i].zext_dst = false;
+ 	}
  }
  
-+/* Make sure 64 bit math will not overflow. */
- static bool vhost_overflow(u64 uaddr, u64 size)
- {
--	/* Make sure 64 bit math will not overflow. */
--	return uaddr > ULONG_MAX || size > ULONG_MAX || uaddr > ULONG_MAX - size;
-+	if (uaddr > ULONG_MAX || size > ULONG_MAX)
-+		return true;
-+
-+	if (!size)
-+		return false;
-+
-+	return uaddr > ULONG_MAX - size + 1;
- }
- 
- /* Caller should have vq mutex and device mutex. */
 -- 
 2.30.2
 
