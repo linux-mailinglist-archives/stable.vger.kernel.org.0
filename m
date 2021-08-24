@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47F973F6525
+	by mail.lfdr.de (Postfix) with ESMTP id E62F93F6526
 	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:09:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235855AbhHXRKc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S238812AbhHXRKc (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 24 Aug 2021 13:10:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51854 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:51952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239227AbhHXRIw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:08:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C435061A0A;
-        Tue, 24 Aug 2021 17:00:09 +0000 (UTC)
+        id S239272AbhHXRIz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:08:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ED30261A2C;
+        Tue, 24 Aug 2021 17:00:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824410;
-        bh=xDhQbOxLw/2SU2OWJ+CljTm8FSMGxI4Xfq9H+HN84HA=;
+        s=k20201202; t=1629824411;
+        bh=RREXKyWD8Clsir3EpnZeLQUSDl1G3hsFij508QdQTi8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ICDmlzRd082/BD/howyo7c/Q1zsomow6O2bHADCABuAtad3lYLhxx6l5bG22t3M7B
-         vMG74gK903QshUFzxRr8HC78XvQw2KIEuBk17EUnlHzdsLYBRW44i5ukNB7UN2XnaU
-         qD2HpXwOa96t1TqMguj6waWoDs15S9v9DEHCQ+mKgAnoc3u9ZT2NX+U9RqFWUBeqPs
-         nDr6tBJ2TSYIsI0DGsX/Ou8kp3pqymUlqAhM7a76F0rLyCUoHG3ceohcinHNOUzfna
-         c7ZDo2W/yTg/YYpcB0F85aJA2ve9qccGABSzq9b1JC7zooa6RBx10gVHvjEABPgMwE
-         LEH6h5CvKYhYg==
+        b=Y9lDEHECq4Ew9+7u7aKrXGDEVvyO5LiR9fRoFvxONb64zfcWg5Mwk5RSwG7yvzyQt
+         tNWpH97DYI2V7srzJrrjjQoNN3bstPp/h/JNjViuA9qHq/+22vR/rKZtx8Wkzsci8g
+         gDlCxesAEQviZF7jWaQWPruiz+3Mxxro4Ckg4Y4vgQKUtl17pqRmiEwyu1AuL5sNs5
+         0EPf6GcYdO6nvwa2sphPOaLYPZyfI4ktbvjOSJBf8ztbM/ODTT2RtDsc4QOHyn7AmA
+         7HOhiDxubad2Yot+j5sWLNsrsOt2bCKakYEj4MN3cA8BPI1KnkqoJkatw3S+PPQT4/
+         rA6UmGoggkw9w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wang Hai <wanghai38@huawei.com>,
-        Magnus Karlsson <magnus.karlsson@intel.com>,
-        Sandeep Penigalapati <sandeep.penigalapati@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+Cc:     =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        Pete Heist <pete@heistp.net>,
+        "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 61/98] ixgbe, xsk: clean up the resources in ixgbe_xsk_pool_enable error path
-Date:   Tue, 24 Aug 2021 12:58:31 -0400
-Message-Id: <20210824165908.709932-62-sashal@kernel.org>
+Subject: [PATCH 5.10 62/98] sch_cake: fix srchost/dsthost hashing mode
+Date:   Tue, 24 Aug 2021 12:58:32 -0400
+Message-Id: <20210824165908.709932-63-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165908.709932-1-sashal@kernel.org>
 References: <20210824165908.709932-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.61-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
 X-KernelTest-Branch: linux-5.10.y
@@ -51,45 +50,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Toke Høiland-Jørgensen <toke@redhat.com>
 
-[ Upstream commit 1b80fec7b043552e01609bae7d0aad07aa742adc ]
+[ Upstream commit 86b9bbd332d0510679c7fedcee3e3bd278be5756 ]
 
-In ixgbe_xsk_pool_enable(), if ixgbe_xsk_wakeup() fails,
-We should restore the previous state and clean up the
-resources. Add the missing clear af_xdp_zc_qps and unmap dma
-to fix this bug.
+When adding support for using the skb->hash value as the flow hash in CAKE,
+I accidentally introduced a logic error that broke the host-only isolation
+modes of CAKE (srchost and dsthost keywords). Specifically, the flow_hash
+variable should stay initialised to 0 in cake_hash() in pure host-based
+hashing mode. Add a check for this before using the skb->hash value as
+flow_hash.
 
-Fixes: d49e286d354e ("ixgbe: add tracking of AF_XDP zero-copy state for each queue pair")
-Fixes: 4a9b32f30f80 ("ixgbe: fix potential RX buffer starvation for AF_XDP")
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Acked-by: Magnus Karlsson <magnus.karlsson@intel.com>
-Tested-by: Sandeep Penigalapati <sandeep.penigalapati@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Link: https://lore.kernel.org/r/20210817203736.3529939-1-anthony.l.nguyen@intel.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: b0c19ed6088a ("sch_cake: Take advantage of skb->hash where appropriate")
+Reported-by: Pete Heist <pete@heistp.net>
+Tested-by: Pete Heist <pete@heistp.net>
+Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ixgbe/ixgbe_xsk.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ net/sched/sch_cake.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_xsk.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_xsk.c
-index f72d2978263b..d60da7a89092 100644
---- a/drivers/net/ethernet/intel/ixgbe/ixgbe_xsk.c
-+++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_xsk.c
-@@ -52,8 +52,11 @@ static int ixgbe_xsk_pool_enable(struct ixgbe_adapter *adapter,
- 
- 		/* Kick start the NAPI context so that receiving will start */
- 		err = ixgbe_xsk_wakeup(adapter->netdev, qid, XDP_WAKEUP_RX);
--		if (err)
-+		if (err) {
-+			clear_bit(qid, adapter->af_xdp_zc_qps);
-+			xsk_pool_dma_unmap(pool, IXGBE_RX_DMA_ATTR);
- 			return err;
-+		}
- 	}
- 
- 	return 0;
+diff --git a/net/sched/sch_cake.c b/net/sched/sch_cake.c
+index 5c15968b5155..c2c37ffd94f2 100644
+--- a/net/sched/sch_cake.c
++++ b/net/sched/sch_cake.c
+@@ -720,7 +720,7 @@ static u32 cake_hash(struct cake_tin_data *q, const struct sk_buff *skb,
+ skip_hash:
+ 	if (flow_override)
+ 		flow_hash = flow_override - 1;
+-	else if (use_skbhash)
++	else if (use_skbhash && (flow_mode & CAKE_FLOW_FLOWS))
+ 		flow_hash = skb->hash;
+ 	if (host_override) {
+ 		dsthost_hash = host_override - 1;
 -- 
 2.30.2
 
