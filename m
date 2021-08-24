@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB2F23F66A7
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:26:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF1423F66A8
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:26:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239293AbhHXR0W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:26:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60516 "EHLO mail.kernel.org"
+        id S240302AbhHXR0X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:26:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240789AbhHXRYA (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S241062AbhHXRYA (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 24 Aug 2021 13:24:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DB13761B2C;
-        Tue, 24 Aug 2021 17:03:50 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D29DA61B2D;
+        Tue, 24 Aug 2021 17:03:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824631;
-        bh=mJepXQhLwDqv4pWllIIXeMlJFtNrcNyRqkUPQzvF6aE=;
+        s=k20201202; t=1629824632;
+        bh=/moMG19iTiyZh4vECfAmWUa2IxXFBAAhOgYXkz/IuFM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cyjms0P4y11c5wyxAnXAeH2XE+Pb2zFPzJY4FGpLY3Bz6B0lTtovWcRzMes4JmVip
-         p8R+FqO5Ln1CAgyiU5p4AQkn0pPFMfcCp3WRi1j8k2kg8fREwM61GA3zDTZDDg3TaF
-         dcHzip3wd6ojLnBqfh9uYJzNjP4VCW7sNO9j0p8DyC13mWLBUPJoLv2E8R2+BiqLLw
-         VlMZZPJGR0rHlMkJAQGyaxOAf96MVWTiSIYrMw7RITXxx9SsMkrHRdVQ+iM/T+JIAW
-         AF+mmUl8HAyXvQl2IuSDRk2/DMJxUg/lQQwJQO667H5YpbEBEEc3SbCDMeoAtDl+OY
-         FVTrA+JBGiPMw==
+        b=ZDn/T5/LabZ00ILLkbU5btFHpbC7DLZhiXIbcbIGGie50/Nv6CNQPIYzSYwr2RwRH
+         3r3SpsSIPQmkMVPpNzeRaAfurfZavzzC8EkFLi9E73o93w6pGJHiXjbQSZeLWvi+0Z
+         dPWJsOPqjGjfNOgwLs+KT9czbEzLf7lIvlxsch3CdXoscRo+rH4QMxsxoWrR0WQov8
+         5cpUICulGTKfXwJ299eu3cLN0LEIHddTyIgMoh0Yf3QbK+mHPQpTHJpyIWHPq8anhM
+         QEl2loWCfFNjdjZ+oGciCs9CPI6fPEKVys7cFE5q/99w5xMYuefM2qS3NSGXlwgD4w
+         knBtOSNYwAsfQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xie Yongji <xieyongji@bytedance.com>,
-        Jason Wang <jasowang@redhat.com>,
-        "Michael S . Tsirkin" <mst@redhat.com>,
+Cc:     Jakub Kicinski <kuba@kernel.org>,
+        Michael Chan <michael.chan@broadcom.com>,
+        Edwin Peer <edwin.peer@broadcom.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 62/84] vhost: Fix the calculation in vhost_overflow()
-Date:   Tue, 24 Aug 2021 13:02:28 -0400
-Message-Id: <20210824170250.710392-63-sashal@kernel.org>
+Subject: [PATCH 4.19 63/84] bnxt: don't lock the tx queue from napi poll
+Date:   Tue, 24 Aug 2021 13:02:29 -0400
+Message-Id: <20210824170250.710392-64-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170250.710392-1-sashal@kernel.org>
 References: <20210824170250.710392-1-sashal@kernel.org>
@@ -49,47 +49,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie Yongji <xieyongji@bytedance.com>
+From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit f7ad318ea0ad58ebe0e595e59aed270bb643b29b ]
+[ Upstream commit 3c603136c9f82833813af77185618de5af67676c ]
 
-This fixes the incorrect calculation for integer overflow
-when the last address of iova range is 0xffffffff.
+We can't take the tx lock from the napi poll routine, because
+netpoll can poll napi at any moment, including with the tx lock
+already held.
 
-Fixes: ec33d031a14b ("vhost: detect 32 bit integer wrap around")
-Reported-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Link: https://lore.kernel.org/r/20210728130756.97-2-xieyongji@bytedance.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+The tx lock is protecting against two paths - the disable
+path, and (as Michael points out) the NETDEV_TX_BUSY case
+which may occur if NAPI completions race with start_xmit
+and both decide to re-enable the queue.
+
+For the disable/ifdown path use synchronize_net() to make sure
+closing the device does not race we restarting the queues.
+Annotate accesses to dev_state against data races.
+
+For the NAPI cleanup vs start_xmit path - appropriate barriers
+are already in place in the main spot where Tx queue is stopped
+but we need to do the same careful dance in the TX_BUSY case.
+
+Fixes: c0c050c58d84 ("bnxt_en: New Broadcom ethernet driver.")
+Reviewed-by: Michael Chan <michael.chan@broadcom.com>
+Reviewed-by: Edwin Peer <edwin.peer@broadcom.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vhost/vhost.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c | 54 ++++++++++++++---------
+ 1 file changed, 32 insertions(+), 22 deletions(-)
 
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 732327756ee1..7a58f629155d 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -678,10 +678,16 @@ static bool log_access_ok(void __user *log_base, u64 addr, unsigned long sz)
- 			 (sz + VHOST_PAGE_SIZE * 8 - 1) / VHOST_PAGE_SIZE / 8);
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+index ebcf4ea66385..c4ddd8f71b93 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -282,6 +282,26 @@ static u16 bnxt_xmit_get_cfa_action(struct sk_buff *skb)
+ 	return md_dst->u.port_info.port_id;
  }
  
-+/* Make sure 64 bit math will not overflow. */
- static bool vhost_overflow(u64 uaddr, u64 size)
- {
--	/* Make sure 64 bit math will not overflow. */
--	return uaddr > ULONG_MAX || size > ULONG_MAX || uaddr > ULONG_MAX - size;
-+	if (uaddr > ULONG_MAX || size > ULONG_MAX)
-+		return true;
++static bool bnxt_txr_netif_try_stop_queue(struct bnxt *bp,
++					  struct bnxt_tx_ring_info *txr,
++					  struct netdev_queue *txq)
++{
++	netif_tx_stop_queue(txq);
 +
-+	if (!size)
++	/* netif_tx_stop_queue() must be done before checking
++	 * tx index in bnxt_tx_avail() below, because in
++	 * bnxt_tx_int(), we update tx index before checking for
++	 * netif_tx_queue_stopped().
++	 */
++	smp_mb();
++	if (bnxt_tx_avail(bp, txr) > bp->tx_wake_thresh) {
++		netif_tx_wake_queue(txq);
 +		return false;
++	}
 +
-+	return uaddr > ULONG_MAX - size + 1;
++	return true;
++}
++
+ static netdev_tx_t bnxt_start_xmit(struct sk_buff *skb, struct net_device *dev)
+ {
+ 	struct bnxt *bp = netdev_priv(dev);
+@@ -309,8 +329,8 @@ static netdev_tx_t bnxt_start_xmit(struct sk_buff *skb, struct net_device *dev)
+ 
+ 	free_size = bnxt_tx_avail(bp, txr);
+ 	if (unlikely(free_size < skb_shinfo(skb)->nr_frags + 2)) {
+-		netif_tx_stop_queue(txq);
+-		return NETDEV_TX_BUSY;
++		if (bnxt_txr_netif_try_stop_queue(bp, txr, txq))
++			return NETDEV_TX_BUSY;
+ 	}
+ 
+ 	length = skb->len;
+@@ -521,16 +541,7 @@ tx_done:
+ 		if (skb->xmit_more && !tx_buf->is_push)
+ 			bnxt_db_write(bp, txr->tx_doorbell, DB_KEY_TX | prod);
+ 
+-		netif_tx_stop_queue(txq);
+-
+-		/* netif_tx_stop_queue() must be done before checking
+-		 * tx index in bnxt_tx_avail() below, because in
+-		 * bnxt_tx_int(), we update tx index before checking for
+-		 * netif_tx_queue_stopped().
+-		 */
+-		smp_mb();
+-		if (bnxt_tx_avail(bp, txr) > bp->tx_wake_thresh)
+-			netif_tx_wake_queue(txq);
++		bnxt_txr_netif_try_stop_queue(bp, txr, txq);
+ 	}
+ 	return NETDEV_TX_OK;
+ 
+@@ -614,14 +625,9 @@ next_tx_int:
+ 	smp_mb();
+ 
+ 	if (unlikely(netif_tx_queue_stopped(txq)) &&
+-	    (bnxt_tx_avail(bp, txr) > bp->tx_wake_thresh)) {
+-		__netif_tx_lock(txq, smp_processor_id());
+-		if (netif_tx_queue_stopped(txq) &&
+-		    bnxt_tx_avail(bp, txr) > bp->tx_wake_thresh &&
+-		    txr->dev_state != BNXT_DEV_STATE_CLOSING)
+-			netif_tx_wake_queue(txq);
+-		__netif_tx_unlock(txq);
+-	}
++	    bnxt_tx_avail(bp, txr) > bp->tx_wake_thresh &&
++	    READ_ONCE(txr->dev_state) != BNXT_DEV_STATE_CLOSING)
++		netif_tx_wake_queue(txq);
  }
  
- /* Caller should have vq mutex and device mutex. */
+ static struct page *__bnxt_alloc_rx_page(struct bnxt *bp, dma_addr_t *mapping,
+@@ -6294,9 +6300,11 @@ void bnxt_tx_disable(struct bnxt *bp)
+ 	if (bp->tx_ring) {
+ 		for (i = 0; i < bp->tx_nr_rings; i++) {
+ 			txr = &bp->tx_ring[i];
+-			txr->dev_state = BNXT_DEV_STATE_CLOSING;
++			WRITE_ONCE(txr->dev_state, BNXT_DEV_STATE_CLOSING);
+ 		}
+ 	}
++	/* Make sure napi polls see @dev_state change */
++	synchronize_net();
+ 	/* Drop carrier first to prevent TX timeout */
+ 	netif_carrier_off(bp->dev);
+ 	/* Stop all TX queues */
+@@ -6310,8 +6318,10 @@ void bnxt_tx_enable(struct bnxt *bp)
+ 
+ 	for (i = 0; i < bp->tx_nr_rings; i++) {
+ 		txr = &bp->tx_ring[i];
+-		txr->dev_state = 0;
++		WRITE_ONCE(txr->dev_state, 0);
+ 	}
++	/* Make sure napi polls see @dev_state change */
++	synchronize_net();
+ 	netif_tx_wake_all_queues(bp->dev);
+ 	if (bp->link_info.link_up)
+ 		netif_carrier_on(bp->dev);
 -- 
 2.30.2
 
