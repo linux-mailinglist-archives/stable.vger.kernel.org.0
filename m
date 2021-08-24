@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A5E6B3F6448
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:01:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 996E33F644A
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:01:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239291AbhHXRCg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:02:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38972 "EHLO mail.kernel.org"
+        id S233454AbhHXRCh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:02:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238578AbhHXRAm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:00:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 92018615E3;
-        Tue, 24 Aug 2021 16:57:49 +0000 (UTC)
+        id S235316AbhHXRAo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:00:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7138D614C8;
+        Tue, 24 Aug 2021 16:57:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824270;
-        bh=tLK8Tc6s/vpgruY+X7WY8aswwuxZjfIUOC5ftrtZBuo=;
+        s=k20201202; t=1629824271;
+        bh=5kdcjmUdWnHx5i77P8X8kFA3r6yfCri9uAYgM7Hn5f4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U+kuRM8QcCPX2v2wPBK6+LbVmU0cpFGpfIf2D3qjZ+AUNe/9ipTXw9sx3+bk8NHuH
-         rSiJcD/ONg3bLuvKKWjTyQgv8ugJXeLB/418tSMx+0S4ZoWnbC5qHwUSMR1+woYXUJ
-         IhHIs46WpGJKeuimJwjZ/GzFVhZsTo1pxCONWnpQjYQ/h//QLji26e8z9U/5oMe/Vo
-         alkms1tmouc97WBAL7gQfJbusPZBMiG7NcizZPfwBYqS8M9yx5D4pGshV/ElM6pEg7
-         RCo/C7OhI8nZcFkC0nR1/vfj4PrmTTtefJB9j9EbGd/5S7RFRoeRPk7PgtUYJnvxVj
-         wbbHYKP14SrTQ==
+        b=ZfhRIqWOT8XhePs3vT/8HTcv4SkEGUpa7/ua26jME9aBSYuhsJfEPDnrFvlteDFWN
+         yG4erwTXG7XQxKvxNWWA36ceiFTVCuGd7nRPXCPUqonr3cIlUAkfz84WWlfgajrFyV
+         jpOrrDdQlsbrGjLRDD45nW5xhBAl2MDlPOXUEXDXvDSGG7yOV1FQHk68vUM6FhhTIK
+         5c7WzrkmJsipOlouZ3+2WFQhoIPmE3LStQ43Oz6Xz4N38sPggByiuxLsWsu0rj6D2U
+         V1JmLIUhxyy5QdUpO99Wx7gxfAMCpE7rUJRU8KG/u5D/aw444MW0wCpGGXzXQ+Yus9
+         l2G0HC3ljBHfQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kristin Paget <kristin@tombom.co.uk>, Takashi Iwai <tiwai@suse.de>,
+Cc:     Dmitry Osipenko <digetx@gmail.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 104/127] ALSA: hda/realtek: Enable 4-speaker output for Dell XPS 15 9510 laptop
-Date:   Tue, 24 Aug 2021 12:55:44 -0400
-Message-Id: <20210824165607.709387-105-sashal@kernel.org>
+Subject: [PATCH 5.13 105/127] opp: Drop empty-table checks from _put functions
+Date:   Tue, 24 Aug 2021 12:55:45 -0400
+Message-Id: <20210824165607.709387-106-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165607.709387-1-sashal@kernel.org>
 References: <20210824165607.709387-1-sashal@kernel.org>
@@ -47,35 +48,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kristin Paget <kristin@tombom.co.uk>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-[ Upstream commit da94692001ea45ffa1f5e9f17ecdef7aecd90c27 ]
+[ Upstream commit c3ddfe66d2bb511f7fbcdc8e64952c7859e7e69d ]
 
-The 2021-model XPS 15 appears to use the same 4-speakers-on-ALC289 audio
-setup as the Precision models, so requires the same quirk to enable woofer
-output. Tested on my own 9510.
+The current_opp is released only when whole OPP table is released,
+otherwise it's only marked as removed by dev_pm_opp_remove_table().
+Functions like dev_pm_opp_put_clkname() and dev_pm_opp_put_supported_hw()
+are checking whether OPP table is empty and it's not if current_opp is
+set since it holds the refcount of OPP, this produces a noisy warning
+from these functions about busy OPP table. Remove the checks to fix it.
 
-Signed-off-by: Kristin Paget <kristin@tombom.co.uk>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/e1fc95c5-c10a-1f98-a5c2-dd6e336157e1@tombom.co.uk
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Cc: stable@vger.kernel.org
+Fixes: 81c4d8a3c414 ("opp: Keep track of currently programmed OPP")
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/opp/core.c | 15 ---------------
+ 1 file changed, 15 deletions(-)
 
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index 6d8c4dedfe0f..6ab53352fc9b 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -8272,6 +8272,7 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
- 	SND_PCI_QUIRK(0x1028, 0x0a2e, "Dell", ALC236_FIXUP_DELL_AIO_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1028, 0x0a30, "Dell", ALC236_FIXUP_DELL_AIO_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1028, 0x0a58, "Dell", ALC255_FIXUP_DELL_HEADSET_MIC),
-+	SND_PCI_QUIRK(0x1028, 0x0a61, "Dell XPS 15 9510", ALC289_FIXUP_DUAL_SPK),
- 	SND_PCI_QUIRK(0x1028, 0x164a, "Dell", ALC293_FIXUP_DELL1_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1028, 0x164b, "Dell", ALC293_FIXUP_DELL1_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x103c, 0x1586, "HP", ALC269_FIXUP_HP_MUTE_LED_MIC2),
+diff --git a/drivers/opp/core.c b/drivers/opp/core.c
+index e366218d6736..4c23b5736c77 100644
+--- a/drivers/opp/core.c
++++ b/drivers/opp/core.c
+@@ -1846,9 +1846,6 @@ void dev_pm_opp_put_supported_hw(struct opp_table *opp_table)
+ 	if (unlikely(!opp_table))
+ 		return;
+ 
+-	/* Make sure there are no concurrent readers while updating opp_table */
+-	WARN_ON(!list_empty(&opp_table->opp_list));
+-
+ 	kfree(opp_table->supported_hw);
+ 	opp_table->supported_hw = NULL;
+ 	opp_table->supported_hw_count = 0;
+@@ -1934,9 +1931,6 @@ void dev_pm_opp_put_prop_name(struct opp_table *opp_table)
+ 	if (unlikely(!opp_table))
+ 		return;
+ 
+-	/* Make sure there are no concurrent readers while updating opp_table */
+-	WARN_ON(!list_empty(&opp_table->opp_list));
+-
+ 	kfree(opp_table->prop_name);
+ 	opp_table->prop_name = NULL;
+ 
+@@ -2046,9 +2040,6 @@ void dev_pm_opp_put_regulators(struct opp_table *opp_table)
+ 	if (!opp_table->regulators)
+ 		goto put_opp_table;
+ 
+-	/* Make sure there are no concurrent readers while updating opp_table */
+-	WARN_ON(!list_empty(&opp_table->opp_list));
+-
+ 	if (opp_table->enabled) {
+ 		for (i = opp_table->regulator_count - 1; i >= 0; i--)
+ 			regulator_disable(opp_table->regulators[i]);
+@@ -2168,9 +2159,6 @@ void dev_pm_opp_put_clkname(struct opp_table *opp_table)
+ 	if (unlikely(!opp_table))
+ 		return;
+ 
+-	/* Make sure there are no concurrent readers while updating opp_table */
+-	WARN_ON(!list_empty(&opp_table->opp_list));
+-
+ 	clk_put(opp_table->clk);
+ 	opp_table->clk = ERR_PTR(-EINVAL);
+ 
+@@ -2269,9 +2257,6 @@ void dev_pm_opp_unregister_set_opp_helper(struct opp_table *opp_table)
+ 	if (unlikely(!opp_table))
+ 		return;
+ 
+-	/* Make sure there are no concurrent readers while updating opp_table */
+-	WARN_ON(!list_empty(&opp_table->opp_list));
+-
+ 	opp_table->set_opp = NULL;
+ 
+ 	mutex_lock(&opp_table->lock);
 -- 
 2.30.2
 
