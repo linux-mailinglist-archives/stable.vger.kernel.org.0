@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 758F63F6591
+	by mail.lfdr.de (Postfix) with ESMTP id BE2963F6592
 	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:14:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240041AbhHXROM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:14:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52078 "EHLO mail.kernel.org"
+        id S239719AbhHXRON (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:14:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239744AbhHXRMJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S239751AbhHXRMJ (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 24 Aug 2021 13:12:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CD65061A57;
-        Tue, 24 Aug 2021 17:01:18 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DEB2461A61;
+        Tue, 24 Aug 2021 17:01:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824479;
-        bh=SH2z3W9UdRkceihNUWj1TKuavYYwM8EJO3016Azv254=;
+        s=k20201202; t=1629824480;
+        bh=hFLO14LY+2CjDGzsRluu6Qiid2+Ha5H969MvXV5KH/4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PwfaL7HDQVFE0G9G+hitZbnl4t7D++wWRwMfwVegoKvFDtkqkGTo8Ut7K0qJunUqD
-         HCo98nVpXjBmLVQh+nJQ4/PSW14g9TLSrqNuLp1KAIYUpL2V7tQN4YXVzjoyaaakMM
-         k7rfLmfq4Vb1PWmdOlOhgniywzTDBJ0mdsJVbyg16e3E7ZgGcgWz/8IHqf1CvWOzRb
-         IJe5mx9HEG5ttsZLXBWrGZMR9f9IykLhVb+cMWbtNrU6d0+wX/WQaYaqkiwNx3z6um
-         0FvVW2FI7INa9A+X67JfTPJF2PSMs/zrb4VUGnjSi+E3jn+NfDixjmg7IP7cnomJSg
-         4XbsYKiEp0jHA==
+        b=Cen61uSSevu6G5RKVcB7Vhh91AKJgT85IcT1XHQ6PUxlRHyp7jolgowGHvtpJtaZ9
+         IQ7G/WAyCS/+oO7ExKo1m3n/yN+3X+H1sog8nEJNw2u8X9hGkPfaPGzmnyS4czJdrc
+         ME6LibpNyhk12ymwywkNNHKoVWJQU1ucluZhR5hVqxKo6klfvN80OqmffGpUYvhSwP
+         tCkid+JEaN26dew+My3BfrRbnl7bL5M0pzbjAvM4VEPvVymQaMj5gl3CbSXIqxzxiu
+         WXYUr2kEaQlcFyvd7gWDiff4yn/sX5ag7RHNkJvUrqXbY5znX190srSz1fxlMk+ktB
+         xqfE9LM/jK7+w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pavel Skripkin <paskripkin@gmail.com>,
-        syzbot+efe9aefc31ae1e6f7675@syzkaller.appspotmail.com,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+Cc:     Alan Stern <stern@rowland.harvard.edu>,
+        Johan Hovold <johan@kernel.org>,
+        syzbot+7dbcd9ff34dc4ed45240@syzkaller.appspotmail.com,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 11/61] media: drivers/media/usb: fix memory leak in zr364xx_probe
-Date:   Tue, 24 Aug 2021 13:00:16 -0400
-Message-Id: <20210824170106.710221-12-sashal@kernel.org>
+Subject: [PATCH 5.4 12/61] USB: core: Avoid WARNings for 0-length descriptor requests
+Date:   Tue, 24 Aug 2021 13:00:17 -0400
+Message-Id: <20210824170106.710221-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170106.710221-1-sashal@kernel.org>
 References: <20210824170106.710221-1-sashal@kernel.org>
@@ -50,78 +50,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-[ Upstream commit 9c39be40c0155c43343f53e3a439290c0fec5542 ]
+[ Upstream commit 60dfe484cef45293e631b3a6e8995f1689818172 ]
 
-syzbot reported memory leak in zr364xx_probe()[1].
-The problem was in invalid error handling order.
-All error conditions rigth after v4l2_ctrl_handler_init()
-must call v4l2_ctrl_handler_free().
+The USB core has utility routines to retrieve various types of
+descriptors.  These routines will now provoke a WARN if they are asked
+to retrieve 0 bytes (USB "receive" requests must not have zero
+length), so avert this by checking the size argument at the start.
 
-Reported-by: syzbot+efe9aefc31ae1e6f7675@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+CC: Johan Hovold <johan@kernel.org>
+Reported-and-tested-by: syzbot+7dbcd9ff34dc4ed45240@syzkaller.appspotmail.com
+Reviewed-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/20210607152307.GD1768031@rowland.harvard.edu
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/zr364xx/zr364xx.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ drivers/usb/core/message.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/media/usb/zr364xx/zr364xx.c b/drivers/media/usb/zr364xx/zr364xx.c
-index b3f01de9cf37..25f16ff6dcc7 100644
---- a/drivers/media/usb/zr364xx/zr364xx.c
-+++ b/drivers/media/usb/zr364xx/zr364xx.c
-@@ -1436,7 +1436,7 @@ static int zr364xx_probe(struct usb_interface *intf,
- 	if (hdl->error) {
- 		err = hdl->error;
- 		dev_err(&udev->dev, "couldn't register control\n");
--		goto unregister;
-+		goto free_hdlr_and_unreg_dev;
- 	}
- 	/* save the init method used by this camera */
- 	cam->method = id->driver_info;
-@@ -1509,7 +1509,7 @@ static int zr364xx_probe(struct usb_interface *intf,
- 	if (!cam->read_endpoint) {
- 		err = -ENOMEM;
- 		dev_err(&intf->dev, "Could not find bulk-in endpoint\n");
--		goto unregister;
-+		goto free_hdlr_and_unreg_dev;
- 	}
+diff --git a/drivers/usb/core/message.c b/drivers/usb/core/message.c
+index 041c68ea329f..7ca908704777 100644
+--- a/drivers/usb/core/message.c
++++ b/drivers/usb/core/message.c
+@@ -647,6 +647,9 @@ int usb_get_descriptor(struct usb_device *dev, unsigned char type,
+ 	int i;
+ 	int result;
  
- 	/* v4l */
-@@ -1521,7 +1521,7 @@ static int zr364xx_probe(struct usb_interface *intf,
- 	/* load zr364xx board specific */
- 	err = zr364xx_board_init(cam);
- 	if (err)
--		goto unregister;
-+		goto free_hdlr_and_unreg_dev;
- 	err = v4l2_ctrl_handler_setup(hdl);
- 	if (err)
- 		goto board_uninit;
-@@ -1539,7 +1539,7 @@ static int zr364xx_probe(struct usb_interface *intf,
- 	err = video_register_device(&cam->vdev, VFL_TYPE_GRABBER, -1);
- 	if (err) {
- 		dev_err(&udev->dev, "video_register_device failed\n");
--		goto free_handler;
-+		goto board_uninit;
- 	}
- 	cam->v4l2_dev.release = zr364xx_release;
++	if (size <= 0)		/* No point in asking for no data */
++		return -EINVAL;
++
+ 	memset(buf, 0, size);	/* Make sure we parse really received data */
  
-@@ -1547,11 +1547,10 @@ static int zr364xx_probe(struct usb_interface *intf,
- 		 video_device_node_name(&cam->vdev));
- 	return 0;
+ 	for (i = 0; i < 3; ++i) {
+@@ -695,6 +698,9 @@ static int usb_get_string(struct usb_device *dev, unsigned short langid,
+ 	int i;
+ 	int result;
  
--free_handler:
--	v4l2_ctrl_handler_free(hdl);
- board_uninit:
- 	zr364xx_board_uninit(cam);
--unregister:
-+free_hdlr_and_unreg_dev:
-+	v4l2_ctrl_handler_free(hdl);
- 	v4l2_device_unregister(&cam->v4l2_dev);
- free_cam:
- 	kfree(cam);
++	if (size <= 0)		/* No point in asking for no data */
++		return -EINVAL;
++
+ 	for (i = 0; i < 3; ++i) {
+ 		/* retry on length 0 or stall; some devices are flakey */
+ 		result = usb_control_msg(dev, usb_rcvctrlpipe(dev, 0),
 -- 
 2.30.2
 
