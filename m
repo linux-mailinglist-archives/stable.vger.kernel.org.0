@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CBFB3F6518
+	by mail.lfdr.de (Postfix) with ESMTP id 1F1AD3F6517
 	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:09:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239009AbhHXRKZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S238921AbhHXRKZ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 24 Aug 2021 13:10:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47424 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:47426 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235276AbhHXRID (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S238884AbhHXRID (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 24 Aug 2021 13:08:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AF2B0611AF;
-        Tue, 24 Aug 2021 17:00:00 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AC25B61A08;
+        Tue, 24 Aug 2021 17:00:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824401;
-        bh=NQDmqClGMQmB4qpQYUTAFlQaoIEgbKoaecpkLZD+BJE=;
+        s=k20201202; t=1629824402;
+        bh=/JHi0V3cli/t8sdZnMZ9wI7O5zk3Oa0nGm1mPlNynys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YOcEiLxCHHnJ0RP/0LfyFQGeNXmURdk0wkC/DEzkjI5CXpCZ9YZZuRP/slOfts2o4
-         YItCzdRH+OFB4Bc4hG2CHNTlv7FSAKA5mSHdpCnmbyrmtl4ri3J/goYbGpYTfMakQC
-         ExbNCXyHD8pBGYajF5/aLSvtD09RGuKMGmo1mtzNTsPogrnO5vkO1fGlAxRjEhRtMQ
-         OVYlXXv57DPvvUJMQ4B9LFjge2M7EM7TLhE3VbRl6s26k5Nit1y/zGDMMu6MdArlgv
-         OeJWjFswurpzyqU7QupHk3XnfFLipdzTiN9mTSEzoo9JSZ7HPgq1CNUDx0bOeduxUj
-         bXqcW54VS4ZIA==
+        b=Xj3Mt/t0EazQ74Doaw4wQXkMB1sqrDhtbuBfPDAabifMXZJmCoBSUez646pOsanRE
+         P/Vj1RNxvD177zafAjHNA89I5awlBSeasrMFV/4xyh3BmThngX0Z+z++F/cDS+PeDI
+         mcpJkD+KVuOrNX7hCCFFmFCuWoMh1LSi6kg3ArBWSUe6bGdTdjKmF4NQtb616foML4
+         ANmErMwM6PM0n62+8nofkxiWKbf8KBztcrc9lUwMR/ArYiSjV2zLm1coS8HmT/z/QD
+         7CvMbaWPZZDLD8Yhm8Ckw77Nyggs+FqvJOo3LMPThsQIWVLLP0kpmieO+xlfbY368y
+         YxqQ4Dg5BY9KA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jakub Kicinski <kuba@kernel.org>,
-        Michael Chan <michael.chan@broadcom.com>,
-        Edwin Peer <edwin.peer@broadcom.com>,
+Cc:     Pavel Skripkin <paskripkin@gmail.com>,
+        syzbot+fc8cd9a673d4577fb2e4@syzkaller.appspotmail.com,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 52/98] bnxt: count Tx drops
-Date:   Tue, 24 Aug 2021 12:58:22 -0400
-Message-Id: <20210824165908.709932-53-sashal@kernel.org>
+Subject: [PATCH 5.10 53/98] net: 6pack: fix slab-out-of-bounds in decode_data
+Date:   Tue, 24 Aug 2021 12:58:23 -0400
+Message-Id: <20210824165908.709932-54-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165908.709932-1-sashal@kernel.org>
 References: <20210824165908.709932-1-sashal@kernel.org>
@@ -49,41 +50,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit fb9f7190092d2bbd1f8f0b1cc252732cbe99a87e ]
+[ Upstream commit 19d1532a187669ce86d5a2696eb7275310070793 ]
 
-Drivers should count packets they are dropping.
+Syzbot reported slab-out-of bounds write in decode_data().
+The problem was in missing validation checks.
 
-Fixes: c0c050c58d84 ("bnxt_en: New Broadcom ethernet driver.")
-Reviewed-by: Michael Chan <michael.chan@broadcom.com>
-Reviewed-by: Edwin Peer <edwin.peer@broadcom.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Syzbot's reproducer generated malicious input, which caused
+decode_data() to be called a lot in sixpack_decode(). Since
+rx_count_cooked is only 400 bytes and noone reported before,
+that 400 bytes is not enough, let's just check if input is malicious
+and complain about buffer overrun.
+
+Fail log:
+==================================================================
+BUG: KASAN: slab-out-of-bounds in drivers/net/hamradio/6pack.c:843
+Write of size 1 at addr ffff888087c5544e by task kworker/u4:0/7
+
+CPU: 0 PID: 7 Comm: kworker/u4:0 Not tainted 5.6.0-rc3-syzkaller #0
+...
+Workqueue: events_unbound flush_to_ldisc
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x197/0x210 lib/dump_stack.c:118
+ print_address_description.constprop.0.cold+0xd4/0x30b mm/kasan/report.c:374
+ __kasan_report.cold+0x1b/0x32 mm/kasan/report.c:506
+ kasan_report+0x12/0x20 mm/kasan/common.c:641
+ __asan_report_store1_noabort+0x17/0x20 mm/kasan/generic_report.c:137
+ decode_data.part.0+0x23b/0x270 drivers/net/hamradio/6pack.c:843
+ decode_data drivers/net/hamradio/6pack.c:965 [inline]
+ sixpack_decode drivers/net/hamradio/6pack.c:968 [inline]
+
+Reported-and-tested-by: syzbot+fc8cd9a673d4577fb2e4@syzkaller.appspotmail.com
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/hamradio/6pack.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-index dd03e1e6279a..96b76b713dd8 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -406,6 +406,7 @@ static netdev_tx_t bnxt_start_xmit(struct sk_buff *skb, struct net_device *dev)
- 	i = skb_get_queue_mapping(skb);
- 	if (unlikely(i >= bp->tx_nr_rings)) {
- 		dev_kfree_skb_any(skb);
-+		atomic_long_inc(&dev->tx_dropped);
- 		return NETDEV_TX_OK;
+diff --git a/drivers/net/hamradio/6pack.c b/drivers/net/hamradio/6pack.c
+index 71d6629e65c9..da13683d52d1 100644
+--- a/drivers/net/hamradio/6pack.c
++++ b/drivers/net/hamradio/6pack.c
+@@ -839,6 +839,12 @@ static void decode_data(struct sixpack *sp, unsigned char inbyte)
+ 		return;
  	}
  
-@@ -655,6 +656,7 @@ tx_kick_pending:
- 	if (txr->kick_pending)
- 		bnxt_txr_db_kick(bp, txr, txr->tx_prod);
- 	txr->tx_buf_ring[txr->tx_prod].skb = NULL;
-+	atomic_long_inc(&dev->tx_dropped);
- 	return NETDEV_TX_OK;
- }
- 
++	if (sp->rx_count_cooked + 2 >= sizeof(sp->cooked_buf)) {
++		pr_err("6pack: cooked buffer overrun, data loss\n");
++		sp->rx_count = 0;
++		return;
++	}
++
+ 	buf = sp->raw_buf;
+ 	sp->cooked_buf[sp->rx_count_cooked++] =
+ 		buf[0] | ((buf[1] << 2) & 0xc0);
 -- 
 2.30.2
 
