@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C23CC3F67A3
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:36:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0385A3F677D
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:35:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241561AbhHXRgX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:36:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39732 "EHLO mail.kernel.org"
+        id S238742AbhHXRfW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:35:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241748AbhHXRds (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S241753AbhHXRds (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 24 Aug 2021 13:33:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4CAEC61B62;
-        Tue, 24 Aug 2021 17:06:26 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4007660FE8;
+        Tue, 24 Aug 2021 17:06:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824787;
-        bh=a01H8wLm6Zu59H6wvkNY1oCYyOmh6w5yAlyUoKjNJkg=;
+        s=k20201202; t=1629824788;
+        bh=TJQu4bRjfzuLuXyoNUogtQY4WcL0t47X4uh5SCg2wWg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=au/KiTr5Je2Zxxiy0V20d4Y/OQyT+Mw80e1je86TOmGihwCjUEMZTjygXEdFp50AH
-         fqPRJ5FBjCAg4UjR+tGfdRZYUzGkizKyQhnYGxeMFHclyIx95A+fihO827I7iEWRig
-         IXa1cCKRl4Uol4+bAJXQoYfk6CC6pYXc0X3ZI79Rf8Yk0cBePE7h6zGNjHIBa1YxQ/
-         r/AM0ESEZedwLvEGVo4F/d0OCrrXXQrcxpoJDm0PzbgCl8piu5uCHcGBONkD8Z/ls4
-         aK9sTXdTuWcs+p7fvMFHYGZSSA6cv7oPHmUmY88B+s/IS/MQPb5cmOYcp5VmExnVy3
-         YPYT/nKfeN9aw==
+        b=NE54OU2tJoekE4Dv5QuAGkSvHHS1Z8YENH+2EWKiqvYt/S0GIhdBR5D/Cv4Huv2j3
+         HTUrLkt8beHzaeJAM7Dw8AoH9SjtI/yrUg2NuFMF73L2qrBnlNGvRAzNhSwICskn4h
+         xFZ8AkdsB58GcMMUQR7VOCXZ/4Li4Nlwmi9YD+aXrR9FU5Pq3zxrCjMcaFmf/EhOr9
+         mk2I1GHQObQLK8/WHbk2BktaKZXWZZA2fV1HY492LSfe1RvGqPhBQtSTYjXXwsnbXw
+         ExQ5oA9zvOIdQNgbwCK2WdRrCeG+2565dnqBwKnr0F+DwQCDfWPn1b8Rdy48dJS5or
+         k4QekOwz/TtlQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Randy Dunlap <rdunlap@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 10/43] x86/tools: Fix objdump version check again
-Date:   Tue, 24 Aug 2021 13:05:41 -0400
-Message-Id: <20210824170614.710813-11-sashal@kernel.org>
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Marc Zyngier <maz@kernel.org>, Ashok Raj <ashok.raj@intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH 4.9 11/43] PCI/MSI: Enable and mask MSI-X early
+Date:   Tue, 24 Aug 2021 13:05:42 -0400
+Message-Id: <20210824170614.710813-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170614.710813-1-sashal@kernel.org>
 References: <20210824170614.710813-1-sashal@kernel.org>
@@ -49,40 +49,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit 839ad22f755132838f406751439363c07272ad87 ]
+commit 438553958ba19296663c6d6583d208dfb6792830 upstream.
 
-Skip (omit) any version string info that is parenthesized.
+The ordering of MSI-X enable in hardware is dysfunctional:
 
-Warning: objdump version 15) is older than 2.19
-Warning: Skipping posttest.
+ 1) MSI-X is disabled in the control register
+ 2) Various setup functions
+ 3) pci_msi_setup_msi_irqs() is invoked which ends up accessing
+    the MSI-X table entries
+ 4) MSI-X is enabled and masked in the control register with the
+    comment that enabling is required for some hardware to access
+    the MSI-X table
 
-where 'objdump -v' says:
-GNU objdump (GNU Binutils; SUSE Linux Enterprise 15) 2.35.1.20201123-7.18
+Step #4 obviously contradicts #3. The history of this is an issue with the
+NIU hardware. When #4 was introduced the table access actually happened in
+msix_program_entries() which was invoked after enabling and masking MSI-X.
 
-Fixes: 8bee738bb1979 ("x86: Fix objdump version check in chkobjdump.awk for different formats.")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+This was changed in commit d71d6432e105 ("PCI/MSI: Kill redundant call of
+irq_set_msi_desc() for MSI-X interrupts") which removed the table write
+from msix_program_entries().
+
+Interestingly enough nobody noticed and either NIU still works or it did
+not get any testing with a kernel 3.19 or later.
+
+Nevertheless this is inconsistent and there is no reason why MSI-X can't be
+enabled and masked in the control register early on, i.e. move step #4
+above to step #1. This preserves the NIU workaround and has no side effects
+on other hardware.
+
+Fixes: d71d6432e105 ("PCI/MSI: Kill redundant call of irq_set_msi_desc() for MSI-X interrupts")
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
-Link: https://lore.kernel.org/r/20210731000146.2720-1-rdunlap@infradead.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Tested-by: Marc Zyngier <maz@kernel.org>
+Reviewed-by: Ashok Raj <ashok.raj@intel.com>
+Reviewed-by: Marc Zyngier <maz@kernel.org>
+Acked-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210729222542.344136412@linutronix.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/tools/chkobjdump.awk | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/pci/msi.c | 28 +++++++++++++++-------------
+ 1 file changed, 15 insertions(+), 13 deletions(-)
 
-diff --git a/arch/x86/tools/chkobjdump.awk b/arch/x86/tools/chkobjdump.awk
-index fd1ab80be0de..a4cf678cf5c8 100644
---- a/arch/x86/tools/chkobjdump.awk
-+++ b/arch/x86/tools/chkobjdump.awk
-@@ -10,6 +10,7 @@ BEGIN {
+diff --git a/drivers/pci/msi.c b/drivers/pci/msi.c
+index 55ca14fbdd2a..aae994163cb9 100644
+--- a/drivers/pci/msi.c
++++ b/drivers/pci/msi.c
+@@ -766,18 +766,25 @@ static int msix_capability_init(struct pci_dev *dev, struct msix_entry *entries,
+ 	u16 control;
+ 	void __iomem *base;
  
- /^GNU objdump/ {
- 	verstr = ""
-+	gsub(/\(.*\)/, "");
- 	for (i = 3; i <= NF; i++)
- 		if (match($(i), "^[0-9]")) {
- 			verstr = $(i);
+-	/* Ensure MSI-X is disabled while it is set up */
+-	pci_msix_clear_and_set_ctrl(dev, PCI_MSIX_FLAGS_ENABLE, 0);
++	/*
++	 * Some devices require MSI-X to be enabled before the MSI-X
++	 * registers can be accessed.  Mask all the vectors to prevent
++	 * interrupts coming in before they're fully set up.
++	 */
++	pci_msix_clear_and_set_ctrl(dev, 0, PCI_MSIX_FLAGS_MASKALL |
++				    PCI_MSIX_FLAGS_ENABLE);
+ 
+ 	pci_read_config_word(dev, dev->msix_cap + PCI_MSIX_FLAGS, &control);
+ 	/* Request & Map MSI-X table region */
+ 	base = msix_map_region(dev, msix_table_size(control));
+-	if (!base)
+-		return -ENOMEM;
++	if (!base) {
++		ret = -ENOMEM;
++		goto out_disable;
++	}
+ 
+ 	ret = msix_setup_entries(dev, base, entries, nvec, affinity);
+ 	if (ret)
+-		return ret;
++		goto out_disable;
+ 
+ 	ret = pci_msi_setup_msi_irqs(dev, nvec, PCI_CAP_ID_MSIX);
+ 	if (ret)
+@@ -788,14 +795,6 @@ static int msix_capability_init(struct pci_dev *dev, struct msix_entry *entries,
+ 	if (ret)
+ 		goto out_free;
+ 
+-	/*
+-	 * Some devices require MSI-X to be enabled before we can touch the
+-	 * MSI-X registers.  We need to mask all the vectors to prevent
+-	 * interrupts coming in before they're fully set up.
+-	 */
+-	pci_msix_clear_and_set_ctrl(dev, 0,
+-				PCI_MSIX_FLAGS_MASKALL | PCI_MSIX_FLAGS_ENABLE);
+-
+ 	msix_program_entries(dev, entries);
+ 
+ 	ret = populate_msi_sysfs(dev);
+@@ -830,6 +829,9 @@ out_avail:
+ out_free:
+ 	free_msi_irqs(dev);
+ 
++out_disable:
++	pci_msix_clear_and_set_ctrl(dev, PCI_MSIX_FLAGS_ENABLE, 0);
++
+ 	return ret;
+ }
+ 
 -- 
 2.30.2
 
