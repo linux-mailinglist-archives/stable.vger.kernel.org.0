@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 896AC3F680C
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:40:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D6363F6810
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:40:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238833AbhHXRkC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:40:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43456 "EHLO mail.kernel.org"
+        id S239729AbhHXRkF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:40:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242319AbhHXRhP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:37:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 92B0A61507;
-        Tue, 24 Aug 2021 17:07:56 +0000 (UTC)
+        id S240202AbhHXRiJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:38:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8505261BFA;
+        Tue, 24 Aug 2021 17:07:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824877;
-        bh=X/0kXwolGuMH0Z0V7q5d8yqKcbJviCLmfLkTzgZHmus=;
+        s=k20201202; t=1629824878;
+        bh=Bs25uLYLUrij4+yezHABs6V8TGXkkIOWd09X7LAQ/oQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gNlVNyZQHDI2XgEIrflMglz5xj9hRiQHNFgUZJ6HKnR1SsYJAHkvRzqhYxfnAML4C
-         PXiiJB+eAKGC0zJqgHLdz2vBgMgbWMUTvZSO0DdxZ7a8qvkSHahQ1got1ILLadQHAu
-         neDClDz+IrvqXDK9oF7+uwwXf1Dd3kKLr+4/I6v8FbL4bap1Ytdi+zDUjsugBVxE9x
-         KjcMPOZwarztIYT+LupTdG0+Ro1S+IOyJ3zilJ9plLdOLB/XdZzhIRfHX+k3e5a5A9
-         7LeBKacRJdXe2/nOM8SsJPDLrUpvuAQrYnJ4xPjjM4GGoHIJ3e7k3NxnFk8vL5QZUf
-         ipEh7CUhMzxPQ==
+        b=UHe/zYyAY36K0PaZ2+eNpzaKlftz1leZ7FraQdTebb8FvzAoGSgzNWdKidv5Vd7Ux
+         7n5Y62IzPmMi89PDoDyllO3mYJ3iHjtrpFeZhHJUkHPtp2pR46UxZjcragEJqo9HR9
+         Jzchdfij0pI3AnTkHbNKmdqu9ygBhp+Qt7EXtZrNIUL1+33i+Msnagx15c0J5I7MeK
+         QpTo7TypOF+1Sgm7fVnY4fZvHgtddKYViCsjpKB8Zymdci9+FTRSc9OzCQhAjtLXc1
+         j9enxZNrKgjoCqAclR60NEjXRbxKShFHK/jhphLrSWysZ/Df5kD045VgRNlQr1+qJJ
+         qyZiOM+SmShww==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Marc Zyngier <maz@kernel.org>,
-        Bjorn Helgaas <bhelgaas@google.com>,
+Cc:     Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Fangrui Song <maskray@google.com>,
+        Marco Elver <elver@google.com>,
+        Kees Cook <keescook@chromium.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.4 13/31] PCI/MSI: Enforce MSI[X] entry updates to be visible
-Date:   Tue, 24 Aug 2021 13:07:25 -0400
-Message-Id: <20210824170743.710957-14-sashal@kernel.org>
+Subject: [PATCH 4.4 14/31] vmlinux.lds.h: Handle clang's module.{c,d}tor sections
+Date:   Tue, 24 Aug 2021 13:07:26 -0400
+Message-Id: <20210824170743.710957-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170743.710957-1-sashal@kernel.org>
 References: <20210824170743.710957-1-sashal@kernel.org>
@@ -49,57 +51,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Nathan Chancellor <nathan@kernel.org>
 
-commit b9255a7cb51754e8d2645b65dd31805e282b4f3e upstream.
+commit 848378812e40152abe9b9baf58ce2004f76fb988 upstream.
 
-Nothing enforces the posted writes to be visible when the function
-returns. Flush them even if the flush might be redundant when the entry is
-masked already as the unmask will flush as well. This is either setup or a
-rare affinity change event so the extra flush is not the end of the world.
+A recent change in LLVM causes module_{c,d}tor sections to appear when
+CONFIG_K{A,C}SAN are enabled, which results in orphan section warnings
+because these are not handled anywhere:
 
-While this is more a theoretical issue especially the logic in the X86
-specific msi_set_affinity() function relies on the assumption that the
-update has reached the hardware when the function returns.
+ld.lld: warning: arch/x86/pci/built-in.a(legacy.o):(.text.asan.module_ctor) is being placed in '.text.asan.module_ctor'
+ld.lld: warning: arch/x86/pci/built-in.a(legacy.o):(.text.asan.module_dtor) is being placed in '.text.asan.module_dtor'
+ld.lld: warning: arch/x86/pci/built-in.a(legacy.o):(.text.tsan.module_ctor) is being placed in '.text.tsan.module_ctor'
 
-Again, as this never has been enforced the Fixes tag refers to a commit in:
-   git://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git
+Fangrui explains: "the function asan.module_ctor has the SHF_GNU_RETAIN
+flag, so it is in a separate section even with -fno-function-sections
+(default)".
 
-Fixes: f036d4ea5fa7 ("[PATCH] ia32 Message Signalled Interrupt support")
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Marc Zyngier <maz@kernel.org>
-Reviewed-by: Marc Zyngier <maz@kernel.org>
-Acked-by: Bjorn Helgaas <bhelgaas@google.com>
+Place them in the TEXT_TEXT section so that these technologies continue
+to work with the newer compiler versions. All of the KASAN and KCSAN
+KUnit tests continue to pass after this change.
+
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210729222542.515188147@linutronix.de
+Link: https://github.com/ClangBuiltLinux/linux/issues/1432
+Link: https://github.com/llvm/llvm-project/commit/7b789562244ee941b7bf2cefeb3fc08a59a01865
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Fangrui Song <maskray@google.com>
+Acked-by: Marco Elver <elver@google.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20210731023107.1932981-1-nathan@kernel.org
+[nc: Fix conflicts due to lack of cf68fffb66d60 and 266ff2a8f51f0]
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/msi.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ include/asm-generic/vmlinux.lds.h | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/pci/msi.c b/drivers/pci/msi.c
-index 208d7b179914..e9c98f1576dd 100644
---- a/drivers/pci/msi.c
-+++ b/drivers/pci/msi.c
-@@ -340,6 +340,9 @@ void __pci_write_msi_msg(struct msi_desc *entry, struct msi_msg *msg)
+diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
+index c8535bc1826f..84c03e9647a1 100644
+--- a/include/asm-generic/vmlinux.lds.h
++++ b/include/asm-generic/vmlinux.lds.h
+@@ -427,6 +427,7 @@
+ 		*(.text.unlikely .text.unlikely.*)			\
+ 		*(.text.unknown .text.unknown.*)			\
+ 		*(.ref.text)						\
++		*(.text.asan.* .text.tsan.*)				\
+ 	MEM_KEEP(init.text)						\
+ 	MEM_KEEP(exit.text)						\
  
- 		if (unmasked)
- 			__pci_msix_desc_mask_irq(entry, 0);
-+
-+		/* Ensure that the writes are visible in the device */
-+		readl(base + PCI_MSIX_ENTRY_DATA);
- 	} else {
- 		int pos = dev->msi_cap;
- 		u16 msgctl;
-@@ -360,6 +363,8 @@ void __pci_write_msi_msg(struct msi_desc *entry, struct msi_msg *msg)
- 			pci_write_config_word(dev, pos + PCI_MSI_DATA_32,
- 					      msg->data);
- 		}
-+		/* Ensure that the writes are visible in the device */
-+		pci_read_config_word(dev, pos + PCI_MSI_FLAGS, &msgctl);
- 	}
- 	entry->msg = *msg;
- }
 -- 
 2.30.2
 
