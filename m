@@ -2,35 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E6C543F661A
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:20:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B3D353F661C
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:20:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239837AbhHXRU0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S239860AbhHXRU0 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 24 Aug 2021 13:20:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55604 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:55606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239327AbhHXRSg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:18:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BB73F617E2;
-        Tue, 24 Aug 2021 17:02:55 +0000 (UTC)
+        id S240169AbhHXRSh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:18:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9819D61ACF;
+        Tue, 24 Aug 2021 17:02:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824576;
-        bh=Yq3vQjf2fbzyVa/x3UAR0CRss6sZUC5xGFZPW0KPcb0=;
+        s=k20201202; t=1629824577;
+        bh=9C7UgSGhTKfheChZxXjlYbqP34n0cIFBR5L25jYP4dY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MiU9ZCuCOTVIA8ITFvh+rdPsb/SohOCs1iyf7wd5wSPPQmJhD92DrFX27h6m2GIoa
-         k5BXWnO2FFVgmlx1Bm+gbNBbnBb5302fimpft1gMlG5PGMIt/K0gj4ZGiTP5frZmkg
-         qt3Qvv2wCDibtowniD1kKbNN+vXZGOPXXHKigry1jVudld85t+5TxnsFIDk55muShw
-         MyP4TvqAMmr0U0ihtbIO0OulDhfBBDGyg0mmNMIAeVyQ/42sskYlmFH65BDhw5EqM8
-         LI8s1Gfl00ZM5rajTm7n0CixIQoMtnmWQtAMPDgpJ6XbEcm3sUOtm3lkc5G20qzqvu
-         aMJBZdOzn7UOw==
+        b=jkKjPK5y3vixu8NjPpuuz1ygMCtBVvhNuD65dpJHmnuDJTrE82tUciXLoBF84w11m
+         62dP00YONBvZQIjmqup2F5lMhWkvE/9g5nRa+iKMa6tpZfazNKyvRMpSpRp6LDOt99
+         x253sH1xqqPRgyfwpkBHBdFvgtPcRkVF2V+wac6CCxwkbl4vcyrhoj0nXPNtEkRGT4
+         bX3ME0Qe0BiFVSogGbzGkhDCzwl57neWy5TwrgDjSzdVOvxLsmBKLs4zsqXW0xoWbH
+         Ck++SNrlvLzjnYM2smtyewcESYKKmRMNsk/qJoo/qpIiZU2OiniPfNrfnkkKKTWsrj
+         P/fcU8llRLC1A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Eric Dumazet <edumazet@google.com>,
-        Wolfram Sang <wsa@kernel.org>
-Subject: [PATCH 4.19 04/84] i2c: dev: zero out array used for i2c reads from userspace
-Date:   Tue, 24 Aug 2021 13:01:30 -0400
-Message-Id: <20210824170250.710392-5-sashal@kernel.org>
+Cc:     Dan Williams <dan.j.williams@intel.com>,
+        Jacek Zloch <jacek.zloch@intel.com>,
+        Lukasz Sobieraj <lukasz.sobieraj@intel.com>,
+        "Lee, Chun-Yi" <jlee@suse.com>,
+        Krzysztof Rusocki <krzysztof.rusocki@intel.com>,
+        Damian Bassa <damian.bassa@intel.com>,
+        Jeff Moyer <jmoyer@redhat.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH 4.19 05/84] ACPI: NFIT: Fix support for virtual SPA ranges
+Date:   Tue, 24 Aug 2021 13:01:31 -0400
+Message-Id: <20210824170250.710392-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170250.710392-1-sashal@kernel.org>
 References: <20210824170250.710392-1-sashal@kernel.org>
@@ -48,51 +53,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Dan Williams <dan.j.williams@intel.com>
 
-commit 86ff25ed6cd8240d18df58930bd8848b19fce308 upstream.
+commit b93dfa6bda4d4e88e5386490f2b277a26958f9d3 upstream.
 
-If an i2c driver happens to not provide the full amount of data that a
-user asks for, it is possible that some uninitialized data could be sent
-to userspace.  While all in-kernel drivers look to be safe, just be sure
-by initializing the buffer to zero before it is passed to the i2c driver
-so that any future drivers will not have this issue.
+Fix the NFIT parsing code to treat a 0 index in a SPA Range Structure as
+a special case and not match Region Mapping Structures that use 0 to
+indicate that they are not mapped. Without this fix some platform BIOS
+descriptions of "virtual disk" ranges do not result in the pmem driver
+attaching to the range.
 
-Also properly copy the amount of data recvieved to the userspace buffer,
-as pointed out by Dan Carpenter.
+Details:
+In addition to typical persistent memory ranges, the ACPI NFIT may also
+convey "virtual" ranges. These ranges are indicated by a UUID in the SPA
+Range Structure of UUID_VOLATILE_VIRTUAL_DISK, UUID_VOLATILE_VIRTUAL_CD,
+UUID_PERSISTENT_VIRTUAL_DISK, or UUID_PERSISTENT_VIRTUAL_CD. The
+critical difference between virtual ranges and UUID_PERSISTENT_MEMORY,
+is that virtual do not support associations with Region Mapping
+Structures.  For this reason the "index" value of virtual SPA Range
+Structures is allowed to be 0. If a platform BIOS decides to represent
+NVDIMMs with disconnected "Region Mapping Structures" (range-index ==
+0), the kernel may falsely associate them with standalone ranges where
+the "SPA Range Structure Index" is also zero. When this happens the
+driver may falsely require labels where "virtual disks" are expected to
+be label-less. I.e. "label-less" is where the namespace-range ==
+region-range and the pmem driver attaches with no user action to create
+a namespace.
 
-Reported-by: Eric Dumazet <edumazet@google.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Cc: Jacek Zloch <jacek.zloch@intel.com>
+Cc: Lukasz Sobieraj <lukasz.sobieraj@intel.com>
+Cc: "Lee, Chun-Yi" <jlee@suse.com>
+Cc: <stable@vger.kernel.org>
+Fixes: c2f32acdf848 ("acpi, nfit: treat virtual ramdisk SPA as pmem region")
+Reported-by: Krzysztof Rusocki <krzysztof.rusocki@intel.com>
+Reported-by: Damian Bassa <damian.bassa@intel.com>
+Reviewed-by: Jeff Moyer <jmoyer@redhat.com>
+Link: https://lore.kernel.org/r/162870796589.2521182.1240403310175570220.stgit@dwillia2-desk3.amr.corp.intel.com
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i2c/i2c-dev.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/acpi/nfit/core.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
-index 1d10ee86299d..57aece809841 100644
---- a/drivers/i2c/i2c-dev.c
-+++ b/drivers/i2c/i2c-dev.c
-@@ -149,7 +149,7 @@ static ssize_t i2cdev_read(struct file *file, char __user *buf, size_t count,
- 	if (count > 8192)
- 		count = 8192;
+diff --git a/drivers/acpi/nfit/core.c b/drivers/acpi/nfit/core.c
+index cb88f3b43a94..58a756ca14d8 100644
+--- a/drivers/acpi/nfit/core.c
++++ b/drivers/acpi/nfit/core.c
+@@ -2834,6 +2834,9 @@ static int acpi_nfit_register_region(struct acpi_nfit_desc *acpi_desc,
+ 		struct acpi_nfit_memory_map *memdev = nfit_memdev->memdev;
+ 		struct nd_mapping_desc *mapping;
  
--	tmp = kmalloc(count, GFP_KERNEL);
-+	tmp = kzalloc(count, GFP_KERNEL);
- 	if (tmp == NULL)
- 		return -ENOMEM;
- 
-@@ -158,7 +158,8 @@ static ssize_t i2cdev_read(struct file *file, char __user *buf, size_t count,
- 
- 	ret = i2c_master_recv(client, tmp, count);
- 	if (ret >= 0)
--		ret = copy_to_user(buf, tmp, count) ? -EFAULT : ret;
-+		if (copy_to_user(buf, tmp, ret))
-+			ret = -EFAULT;
- 	kfree(tmp);
- 	return ret;
- }
++		/* range index 0 == unmapped in SPA or invalid-SPA */
++		if (memdev->range_index == 0 || spa->range_index == 0)
++			continue;
+ 		if (memdev->range_index != spa->range_index)
+ 			continue;
+ 		if (count >= ND_MAX_MAPPINGS) {
 -- 
 2.30.2
 
