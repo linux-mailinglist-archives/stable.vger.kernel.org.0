@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 70DF63F544D
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 02:54:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5B003F546B
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 02:55:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233864AbhHXAzA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Aug 2021 20:55:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47310 "EHLO mail.kernel.org"
+        id S233904AbhHXAzC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Aug 2021 20:55:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233650AbhHXAyu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Aug 2021 20:54:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C35A2613AD;
-        Tue, 24 Aug 2021 00:54:06 +0000 (UTC)
+        id S233682AbhHXAyw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Aug 2021 20:54:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 25259613BD;
+        Tue, 24 Aug 2021 00:54:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629766447;
-        bh=ZMwVgeO8BXE4Vr6cAm+FMEPjYDhem2FmGyPCWR+8u7c=;
+        s=k20201202; t=1629766449;
+        bh=HigKvF2qlGkAo5mFN3wN0d0VrImeDgmCAblcxl/51ZQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CveqHbIBU+nK7i3HfUx5EWwECbr77OEZfl0K0WvEMKop7yo2pn6HppsNG0PjlZjdj
-         RDOdHmKivJTaNGqdLmQavX+SHMAA0GAxR6hHtNvfEbInMrPFHVB6Af9GM6l67Qaipq
-         BNvm7n1MlkNnsiSfSPQjlIIXnHNJNwvB06leBW20ClIrQgCrAFS6bQ0UmoFVYPuw9s
-         y/x7I7SUDrNf6PNDF0FUhO8Rcmcl5AJhy0rPMRa1jkZN5nQyF3OcGVr61TnpnbKlDE
-         MsSE7XL0nVcbTZ1Qyj1xshE1eNXZ6hUtv96h0+0hXDzCOnymuju6rDiWOpLSPgB3S2
-         bN0Ipq5oH/0og==
+        b=K4NhVefoVDPYpOH0i4aRpgIICQ95O8lAxUlsK96MJibMlWPuJLA3vmG2/bwu5fy6T
+         rBzWF+A5+cf9ho4MZ8f3EVLqJe6kWU3plJAzppblARuMwI2m8ezg+fV0OJzbqs0Ysh
+         nalxLdgC+FWpYLEqUX3UJl+s6G8UqSjUJJj6D76iiTz3Opef49XF3/3ZU8mWXNwX/+
+         Om7BBmCLYhzkp9N6PAhrr06THeK/YQAmhrQxHaltBIdv5erA4ELqsJmtAMNVBufKA4
+         TnskoqXuDfQFvEtuq6mkxNdi4CentUP5U/HbgDoNWA6vAFon8y9fMugsraJd1ZIsnw
+         0zaD0zrZN5GLw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        "Michael S . Tsirkin" <mst@redhat.com>,
+Cc:     Neeraj Upadhyay <neeraju@codeaurora.org>,
         Jason Wang <jasowang@redhat.com>,
         Stefano Garzarella <sgarzare@redhat.com>,
-        Sasha Levin <sashal@kernel.org>,
-        virtualization@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 5.13 08/26] virtio_vdpa: reject invalid vq indices
-Date:   Mon, 23 Aug 2021 20:53:38 -0400
-Message-Id: <20210824005356.630888-8-sashal@kernel.org>
+        "Michael S . Tsirkin" <mst@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org,
+        virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 09/26] vringh: Use wiov->used to check for read/write desc order
+Date:   Mon, 23 Aug 2021 20:53:39 -0400
+Message-Id: <20210824005356.630888-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824005356.630888-1-sashal@kernel.org>
 References: <20210824005356.630888-1-sashal@kernel.org>
@@ -45,38 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Whitchurch <vincent.whitchurch@axis.com>
+From: Neeraj Upadhyay <neeraju@codeaurora.org>
 
-[ Upstream commit cb5d2c1f6cc0e5769099a7d44b9d08cf58cae206 ]
+[ Upstream commit e74cfa91f42c50f7f649b0eca46aa049754ccdbd ]
 
-Do not call vDPA drivers' callbacks with vq indicies larger than what
-the drivers indicate that they support.  vDPA drivers do not bounds
-check the indices.
+As __vringh_iov() traverses a descriptor chain, it populates
+each descriptor entry into either read or write vring iov
+and increments that iov's ->used member. So, as we iterate
+over a descriptor chain, at any point, (riov/wriov)->used
+value gives the number of descriptor enteries available,
+which are to be read or written by the device. As all read
+iovs must precede the write iovs, wiov->used should be zero
+when we are traversing a read descriptor. Current code checks
+for wiov->i, to figure out whether any previous entry in the
+current descriptor chain was a write descriptor. However,
+iov->i is only incremented, when these vring iovs are consumed,
+at a later point, and remain 0 in __vringh_iov(). So, correct
+the check for read and write descriptor order, to use
+wiov->used.
 
-Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
-Link: https://lore.kernel.org/r/20210701114652.21956-1-vincent.whitchurch@axis.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Acked-by: Jason Wang <jasowang@redhat.com>
 Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Signed-off-by: Neeraj Upadhyay <neeraju@codeaurora.org>
+Link: https://lore.kernel.org/r/1624591502-4827-1-git-send-email-neeraju@codeaurora.org
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/virtio/virtio_vdpa.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/vhost/vringh.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_vdpa.c
-index e28acf482e0c..e9b9dd03f44a 100644
---- a/drivers/virtio/virtio_vdpa.c
-+++ b/drivers/virtio/virtio_vdpa.c
-@@ -149,6 +149,9 @@ virtio_vdpa_setup_vq(struct virtio_device *vdev, unsigned int index,
- 	if (!name)
- 		return NULL;
- 
-+	if (index >= vdpa->nvqs)
-+		return ERR_PTR(-ENOENT);
-+
- 	/* Queue shouldn't already be set up. */
- 	if (ops->get_vq_ready(vdpa, index))
- 		return ERR_PTR(-ENOENT);
+diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
+index 4af8fa259d65..14e2043d7685 100644
+--- a/drivers/vhost/vringh.c
++++ b/drivers/vhost/vringh.c
+@@ -359,7 +359,7 @@ __vringh_iov(struct vringh *vrh, u16 i,
+ 			iov = wiov;
+ 		else {
+ 			iov = riov;
+-			if (unlikely(wiov && wiov->i)) {
++			if (unlikely(wiov && wiov->used)) {
+ 				vringh_bad("Readable desc %p after writable",
+ 					   &descs[i]);
+ 				err = -EINVAL;
 -- 
 2.30.2
 
