@@ -2,64 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B5B0C3F619D
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 17:29:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CCBD3F61A9
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 17:31:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238155AbhHXPaN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 11:30:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41286 "EHLO mail.kernel.org"
+        id S238205AbhHXPbk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 11:31:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235683AbhHXPaN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 11:30:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7E66561265;
-        Tue, 24 Aug 2021 15:29:28 +0000 (UTC)
+        id S237890AbhHXPbk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 11:31:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AF93161165;
+        Tue, 24 Aug 2021 15:30:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629818968;
-        bh=6+biN29D5WoAzfO9BDov2cPTbiGldallkUXFPOK88js=;
+        s=k20201202; t=1629819056;
+        bh=cGj77PQIITBKOmGKbEzdPJD3D6R1lTO6GTghpbpHjSw=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ZbXQuqv9UCGWSbmnuGM2/SP4M86QwDXHD/0D0Ely67U4o2yVP56OBp6jRRMlh1oSF
-         5veYNBtnUJ3pXEHicLmMF6V/a9iOwysLhlt/vsqQUdHtlgwaAorueBnqOszTuJSabv
-         TsEt6GGwl8QO6aCvLpqHWBQUw6JqRhg75NNX81YzwXOx0HUEZje9xsvcaExeSvMI1Q
-         omsbDbz5VS00VWVaLSIgWWbzeK3lBiYYH22ewdgCCICvGcvsvui8HzCvkjo9B8XdgL
-         WVVI1RDoxyNZJwEMsnopBguQZG1QXEfa/8eYw9wpje9g2LWHi/mRztpi9Xb943SZLm
-         ISBlKzlij56ew==
-Date:   Tue, 24 Aug 2021 11:29:27 -0400
+        b=SpyciwO5H0x/HHExl/cGz6KvpnHnj0+E02+RgTW3vOhftxxP+VlX5AFF5hGCExuSx
+         fWB7RRw2mChIRm/ibp8EvSH5P3SGde2PrQAWHCecpcJmpaTSPGgBEcfF1HYaY7Rf6c
+         OLw7UeFoZHFd7KTK6WX9drFE4sv5oM1DNSm2kJdJZknkt3PE8D8kyAcDNtRIvD7PNQ
+         /T8L2pPDNJQ3XUurImMle9wCv+1KaaPxrebX3PdAxEIshBZkfJKpDh12KUr2Z4UVB/
+         x2Mrf36VOTNA/LCVIrmxTiEo7jsUT4aOXvAPLvjvtla3Cpn5ggCqEdFMThIuSSnkgi
+         rWZUvBxh1dsHQ==
+Date:   Tue, 24 Aug 2021 11:30:54 -0400
 From:   Sasha Levin <sashal@kernel.org>
-To:     DENG Qingfang <dqfext@gmail.com>
-Cc:     stable@vger.kernel.org, Sean Wang <sean.wang@mediatek.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Vivien Didelot <vivien.didelot@savoirfairelinux.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        "open list:MEDIATEK SWITCH DRIVER" <netdev@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        "moderated list:ARM/Mediatek SoC support" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "moderated list:ARM/Mediatek SoC support" 
-        <linux-mediatek@lists.infradead.org>
-Subject: Re: [PATCH 4.19.y] net: dsa: mt7530: disable learning on standalone
- ports
-Message-ID: <YSUQV3jhfbhbf5Ct@sashalap>
-References: <20210824055509.1316124-1-dqfext@gmail.com>
+To:     Pavel Begunkov <asml.silence@gmail.com>
+Cc:     stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Subject: Re: [PATCH 5.10 backport] io_uring: fix xa_alloc_cycle() error
+ return value check
+Message-ID: <YSUQrsFadTBvWy6c@sashalap>
+References: <efdf0cfa5a2ffe1fb9e08d3e1918a9a84385384b.1629807216.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20210824055509.1316124-1-dqfext@gmail.com>
+In-Reply-To: <efdf0cfa5a2ffe1fb9e08d3e1918a9a84385384b.1629807216.git.asml.silence@gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 24, 2021 at 01:55:08PM +0800, DENG Qingfang wrote:
->This is a partial backport of commit 5a30833b9a16f8d1aa15de06636f9317ca51f9df
->("net: dsa: mt7530: support MDB and bridge flag operations") upstream.
+On Tue, Aug 24, 2021 at 01:15:01PM +0100, Pavel Begunkov wrote:
+>From: Jens Axboe <axboe@kernel.dk>
 >
->Make sure that the standalone ports start up with learning disabled.
+>[ upstream commit a30f895ad3239f45012e860d4f94c1a388b36d14 ]
+>
+>We currently check for ret != 0 to indicate error, but '1' is a valid
+>return and just indicates that the allocation succeeded with a wrap.
+>Correct the check to be for < 0, like it was before the xarray
+>conversion.
+>
+>Cc: stable@vger.kernel.org
+>Fixes: 61cf93700fe6 ("io_uring: Convert personality_idr to XArray")
+>Signed-off-by: Jens Axboe <axboe@kernel.dk>
+>Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 
-What's the reasoning behind:
-
-1. Backporting this patch?
-2. A partial backport of this patch?
+Queued up, thanks!
 
 -- 
 Thanks,
