@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F1BE93F638C
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 18:56:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAF593F638F
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 18:56:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233833AbhHXQ5H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 12:57:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38858 "EHLO mail.kernel.org"
+        id S234130AbhHXQ5K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 12:57:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233836AbhHXQ5D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 12:57:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8CA2661374;
-        Tue, 24 Aug 2021 16:56:18 +0000 (UTC)
+        id S233895AbhHXQ5E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 12:57:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E148613D5;
+        Tue, 24 Aug 2021 16:56:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824179;
-        bh=YepSXCU2ju4mtjkbVuCQPJaTKoncqIMO34FMAlD89l0=;
+        s=k20201202; t=1629824180;
+        bh=QI4CIrLHLF0c+/CtvW+aELJ7gfzhZZI94zKlXwQ6kgA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gBKFErL80eG78Ucs/7LBqS/gf57QWbqDdZ2blxh9l35NH6GPXW8PZtZAfU6Cbypwf
-         4rYjeJGOVds+1s5gCzFtDar3zveqTnWNasLV/B1UF1k9kmsPzIg644fBeWUeu9DjSR
-         g/dR83k/TfWiOU/mJYkcv141lXUP/+6wTazzzcfYGrP1RQaaDhN7BX7GBNxK2MDYBb
-         sKGbOLbenGmk70r0eyCjB/jBZGNc+LJovJ8w3MGeR6bbsSCN0zJkNwLuDLb7Bb8G3i
-         YESM03GxwcIjiOtcUxlLLDhrogsrwOQiLWULLbxN3/X335BvW4Zs44lbvvMqdiq5rD
-         9DSbFjZ8APKRQ==
+        b=sjFM2KgmrcJDgtXvds9FReV4IBKX4Qggtio/pMMdL8tc+p94ZYOXNiXg2V4/+ze7m
+         NnKOwXIYsweVRoCGa1vUwZOfNMHbEVEQ5drcOxFd3jwCX58gk/u+1hhE8iDZh8wHKb
+         PSg1Lx/4xMGAycjRxRNsGWunZD27J+hLiQEDU3ebzrhflBj/4FykCuRbOyiFN9Himx
+         lOEIKuW5R7pZ8ivC3gL69aAtaM7/Lv82s4rn4ly9xVJRkK5uNy2Z8JkR8ZUKDXbx2M
+         mAIqcit+2pXD7Q++zxy0gAdcpxHHWMcdy0OPiZ+pZbTMwTJz3axCP9C+IWZUm92jKt
+         vzf3lpZnypkMA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Ujfalusi <peter.ujfalusi@gmail.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 010/127] dmaengine: of-dma: router_xlate to return -EPROBE_DEFER if controller is not yet available
-Date:   Tue, 24 Aug 2021 12:54:10 -0400
-Message-Id: <20210824165607.709387-11-sashal@kernel.org>
+Cc:     Igor Pylypiv <ipylypiv@google.com>,
+        Vishakha Channapattan <vishakhavc@google.com>,
+        Jack Wang <jinpu.wang@ionos.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 011/127] scsi: pm80xx: Fix TMF task completion race condition
+Date:   Tue, 24 Aug 2021 12:54:11 -0400
+Message-Id: <20210824165607.709387-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165607.709387-1-sashal@kernel.org>
 References: <20210824165607.709387-1-sashal@kernel.org>
@@ -47,60 +50,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Ujfalusi <peter.ujfalusi@gmail.com>
+From: Igor Pylypiv <ipylypiv@google.com>
 
-[ Upstream commit eda97cb095f2958bbad55684a6ca3e7d7af0176a ]
+[ Upstream commit d712d3fb484b7fa8d1d57e9ca6f134bb9d8c18b1 ]
 
-If the router_xlate can not find the controller in the available DMA
-devices then it should return with -EPORBE_DEFER in a same way as the
-of_dma_request_slave_channel() does.
+The TMF timeout timer may trigger at the same time when the response from a
+controller is being handled. When this happens the SAS task may get freed
+before the response processing is finished.
 
-The issue can be reproduced if the event router is registered before the
-DMA controller itself and a driver would request for a channel before the
-controller is registered.
-In of_dma_request_slave_channel():
-1. of_dma_find_controller() would find the dma_router
-2. ofdma->of_dma_xlate() would fail and returned NULL
-3. -ENODEV is returned as error code
+Fix this by calling complete() only when SAS_TASK_STATE_DONE is not set.
 
-with this patch we would return in this case the correct -EPROBE_DEFER and
-the client can try to request the channel later.
+A similar race condition was fixed in commit b90cd6f2b905 ("scsi: libsas:
+fix a race condition when smp task timeout")
 
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@gmail.com>
-Link: https://lore.kernel.org/r/20210717190021.21897-1-peter.ujfalusi@gmail.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Link: https://lore.kernel.org/r/20210707185945.35559-1-ipylypiv@google.com
+Reviewed-by: Vishakha Channapattan <vishakhavc@google.com>
+Acked-by: Jack Wang <jinpu.wang@ionos.com>
+Signed-off-by: Igor Pylypiv <ipylypiv@google.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/of-dma.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/scsi/pm8001/pm8001_sas.c | 32 +++++++++++++++-----------------
+ 1 file changed, 15 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/dma/of-dma.c b/drivers/dma/of-dma.c
-index ec00b20ae8e4..ac61ecda2926 100644
---- a/drivers/dma/of-dma.c
-+++ b/drivers/dma/of-dma.c
-@@ -67,8 +67,12 @@ static struct dma_chan *of_dma_router_xlate(struct of_phandle_args *dma_spec,
- 		return NULL;
+diff --git a/drivers/scsi/pm8001/pm8001_sas.c b/drivers/scsi/pm8001/pm8001_sas.c
+index 335cf37e6cb9..2e429e31f1f0 100644
+--- a/drivers/scsi/pm8001/pm8001_sas.c
++++ b/drivers/scsi/pm8001/pm8001_sas.c
+@@ -684,8 +684,7 @@ int pm8001_dev_found(struct domain_device *dev)
  
- 	ofdma_target = of_dma_find_controller(&dma_spec_target);
--	if (!ofdma_target)
--		return NULL;
-+	if (!ofdma_target) {
-+		ofdma->dma_router->route_free(ofdma->dma_router->dev,
-+					      route_data);
-+		chan = ERR_PTR(-EPROBE_DEFER);
-+		goto err;
+ void pm8001_task_done(struct sas_task *task)
+ {
+-	if (!del_timer(&task->slow_task->timer))
+-		return;
++	del_timer(&task->slow_task->timer);
+ 	complete(&task->slow_task->completion);
+ }
+ 
+@@ -693,9 +692,14 @@ static void pm8001_tmf_timedout(struct timer_list *t)
+ {
+ 	struct sas_task_slow *slow = from_timer(slow, t, timer);
+ 	struct sas_task *task = slow->task;
++	unsigned long flags;
+ 
+-	task->task_state_flags |= SAS_TASK_STATE_ABORTED;
+-	complete(&task->slow_task->completion);
++	spin_lock_irqsave(&task->task_state_lock, flags);
++	if (!(task->task_state_flags & SAS_TASK_STATE_DONE)) {
++		task->task_state_flags |= SAS_TASK_STATE_ABORTED;
++		complete(&task->slow_task->completion);
 +	}
++	spin_unlock_irqrestore(&task->task_state_lock, flags);
+ }
  
- 	chan = ofdma_target->of_dma_xlate(&dma_spec_target, ofdma_target);
- 	if (IS_ERR_OR_NULL(chan)) {
-@@ -89,6 +93,7 @@ static struct dma_chan *of_dma_router_xlate(struct of_phandle_args *dma_spec,
+ #define PM8001_TASK_TIMEOUT 20
+@@ -748,13 +752,10 @@ static int pm8001_exec_internal_tmf_task(struct domain_device *dev,
  		}
- 	}
+ 		res = -TMF_RESP_FUNC_FAILED;
+ 		/* Even TMF timed out, return direct. */
+-		if ((task->task_state_flags & SAS_TASK_STATE_ABORTED)) {
+-			if (!(task->task_state_flags & SAS_TASK_STATE_DONE)) {
+-				pm8001_dbg(pm8001_ha, FAIL,
+-					   "TMF task[%x]timeout.\n",
+-					   tmf->tmf);
+-				goto ex_err;
+-			}
++		if (task->task_state_flags & SAS_TASK_STATE_ABORTED) {
++			pm8001_dbg(pm8001_ha, FAIL, "TMF task[%x]timeout.\n",
++				   tmf->tmf);
++			goto ex_err;
+ 		}
  
-+err:
- 	/*
- 	 * Need to put the node back since the ofdma->of_dma_route_allocate
- 	 * has taken it for generating the new, translated dma_spec
+ 		if (task->task_status.resp == SAS_TASK_COMPLETE &&
+@@ -834,12 +835,9 @@ pm8001_exec_internal_task_abort(struct pm8001_hba_info *pm8001_ha,
+ 		wait_for_completion(&task->slow_task->completion);
+ 		res = TMF_RESP_FUNC_FAILED;
+ 		/* Even TMF timed out, return direct. */
+-		if ((task->task_state_flags & SAS_TASK_STATE_ABORTED)) {
+-			if (!(task->task_state_flags & SAS_TASK_STATE_DONE)) {
+-				pm8001_dbg(pm8001_ha, FAIL,
+-					   "TMF task timeout.\n");
+-				goto ex_err;
+-			}
++		if (task->task_state_flags & SAS_TASK_STATE_ABORTED) {
++			pm8001_dbg(pm8001_ha, FAIL, "TMF task timeout.\n");
++			goto ex_err;
+ 		}
+ 
+ 		if (task->task_status.resp == SAS_TASK_COMPLETE &&
 -- 
 2.30.2
 
