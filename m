@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 179E83F6727
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:30:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCAD93F672C
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:31:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236525AbhHXRbK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:31:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34250 "EHLO mail.kernel.org"
+        id S240197AbhHXRbX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:31:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241335AbhHXR3M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:29:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 49C2A61B7F;
-        Tue, 24 Aug 2021 17:05:28 +0000 (UTC)
+        id S241462AbhHXR3U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:29:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2367961B3F;
+        Tue, 24 Aug 2021 17:05:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824728;
-        bh=HpCp40ZguHPf2ujtZv3vO4JX3znQ3Ym866F4PkQRaqg=;
+        s=k20201202; t=1629824729;
+        bh=Fa86WDYGdFDpxCxBr/hw6G5xC2hZ94PRXSHfBv8/OH0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gvv4XOeh9CjiGh4V9nF2H83KjH3n2yp2jQ0Q/ribBlltZry5S8zqlq8sDpu+DJmY4
-         VmZn8ErANbbhMdsYMx+lGQRUEeP67IqNsISuseFSU7AwmqWB/blmIdEMtvbNGyiVT1
-         +gutqFHVILWxzoEd2VDnqp68peu6tnc2cho2EexLiSOdU6efRLtWWEp3KCGLOYn/iL
-         2KKDwv2uqISRmWu4Vl8HEIKJ5AcjhgkIJL6iA9WK3tatLZ+VA1z0mKXO7lnn63ChDe
-         hOqt2G8YNRwHWfXCqvbb90FxiislQjXKhio1n3bSz0vgxicmhLBCcjjL86ApsEg6ZU
-         r8GhserlH3O9A==
+        b=TOydiVMbgNgF9W7wfYNyHlv6jQodQ6RF00dKh5X/frcxuaHyyKfZ+aqc6lxIOJjz3
+         wVRQ8h0lTPGvJEC6aPFzW+R24VQW0gCGpwTptuqfncDTjOoso36hbbMnYeoFQMlqQy
+         0NT5D3nB4UrauBwNUleNm/YBhxR/QYw+ZK99fXM0qMBQmgUjdcnxGsgwgw8Ee5qiVh
+         rG8FnT0dBqU/kv4FBEoMUshuMKPq2fW6M5saRdVFu/mO3G+WdyDfWwYPK+zVUhVmNe
+         6S2i4RNPMffbqC+bA8EZygp38rJvHM2AA2h5iD9rPjjFTuxWE63n1dnQqaFCPA/Tf8
+         Dl4eZLkwC26TA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Maxim Levitsky <mlevitsk@redhat.com>,
         Paolo Bonzini <pbonzini@redhat.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.14 31/64] KVM: nSVM: always intercept VMLOAD/VMSAVE when nested (CVE-2021-3656)
-Date:   Tue, 24 Aug 2021 13:04:24 -0400
-Message-Id: <20210824170457.710623-32-sashal@kernel.org>
+Subject: [PATCH 4.14 32/64] KVM: nSVM: avoid picking up unsupported bits from L2 in int_ctl (CVE-2021-3653)
+Date:   Tue, 24 Aug 2021 13:04:25 -0400
+Message-Id: <20210824170457.710623-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170457.710623-1-sashal@kernel.org>
 References: <20210824170457.710623-1-sashal@kernel.org>
@@ -50,40 +50,72 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Maxim Levitsky <mlevitsk@redhat.com>
 
-[ upstream commit c7dfa4009965a9b2d7b329ee970eb8da0d32f0bc ]
+[ upstream commit 0f923e07124df069ba68d8bb12324398f4b6b709 ]
 
-If L1 disables VMLOAD/VMSAVE intercepts, and doesn't enable
-Virtual VMLOAD/VMSAVE (currently not supported for the nested hypervisor),
-then VMLOAD/VMSAVE must operate on the L1 physical memory, which is only
-possible by making L0 intercept these instructions.
+* Invert the mask of bits that we pick from L2 in
+  nested_vmcb02_prepare_control
 
-Failure to do so allowed the nested guest to run VMLOAD/VMSAVE unintercepted,
-and thus read/write portions of the host physical memory.
+* Invert and explicitly use VIRQ related bits bitmask in svm_clear_vintr
 
-Fixes: 89c8a4984fc9 ("KVM: SVM: Enable Virtual VMLOAD VMSAVE feature")
+This fixes a security issue that allowed a malicious L1 to run L2 with
+AVIC enabled, which allowed the L2 to exploit the uninitialized and enabled
+AVIC to read/write the host physical memory at some offsets.
 
-Suggested-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 3d6368ef580a ("KVM: SVM: Add VMRUN handler")
 Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/svm.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/x86/include/asm/svm.h |  2 ++
+ arch/x86/kvm/svm.c         | 15 ++++++++-------
+ 2 files changed, 10 insertions(+), 7 deletions(-)
 
+diff --git a/arch/x86/include/asm/svm.h b/arch/x86/include/asm/svm.h
+index 78dd9df88157..2a9e81e93aac 100644
+--- a/arch/x86/include/asm/svm.h
++++ b/arch/x86/include/asm/svm.h
+@@ -117,6 +117,8 @@ struct __attribute__ ((__packed__)) vmcb_control_area {
+ #define V_IGN_TPR_SHIFT 20
+ #define V_IGN_TPR_MASK (1 << V_IGN_TPR_SHIFT)
+ 
++#define V_IRQ_INJECTION_BITS_MASK (V_IRQ_MASK | V_INTR_PRIO_MASK | V_IGN_TPR_MASK)
++
+ #define V_INTR_MASKING_SHIFT 24
+ #define V_INTR_MASKING_MASK (1 << V_INTR_MASKING_SHIFT)
+ 
 diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
-index 3571253b8690..0e6e158b8f8f 100644
+index 0e6e158b8f8f..5ff6c145fdbb 100644
 --- a/arch/x86/kvm/svm.c
 +++ b/arch/x86/kvm/svm.c
-@@ -389,6 +389,9 @@ static void recalc_intercepts(struct vcpu_svm *svm)
- 	c->intercept_dr = h->intercept_dr | g->intercept_dr;
- 	c->intercept_exceptions = h->intercept_exceptions | g->intercept_exceptions;
- 	c->intercept = h->intercept | g->intercept;
-+
-+	c->intercept |= (1ULL << INTERCEPT_VMLOAD);
-+	c->intercept |= (1ULL << INTERCEPT_VMSAVE);
- }
+@@ -1211,12 +1211,7 @@ static __init int svm_hardware_setup(void)
+ 		}
+ 	}
  
- static inline struct vmcb *get_host_vmcb(struct vcpu_svm *svm)
+-	if (vgif) {
+-		if (!boot_cpu_has(X86_FEATURE_VGIF))
+-			vgif = false;
+-		else
+-			pr_info("Virtual GIF supported\n");
+-	}
++	vgif = false; /* Disabled for CVE-2021-3653 */
+ 
+ 	return 0;
+ 
+@@ -3164,7 +3159,13 @@ static bool nested_svm_vmrun(struct vcpu_svm *svm)
+ 	svm->nested.intercept            = nested_vmcb->control.intercept;
+ 
+ 	svm_flush_tlb(&svm->vcpu, true);
+-	svm->vmcb->control.int_ctl = nested_vmcb->control.int_ctl | V_INTR_MASKING_MASK;
++
++	svm->vmcb->control.int_ctl &=
++			V_INTR_MASKING_MASK | V_GIF_ENABLE_MASK | V_GIF_MASK;
++
++	svm->vmcb->control.int_ctl |= nested_vmcb->control.int_ctl &
++			(V_TPR_MASK | V_IRQ_INJECTION_BITS_MASK);
++
+ 	if (nested_vmcb->control.int_ctl & V_INTR_MASKING_MASK)
+ 		svm->vcpu.arch.hflags |= HF_VINTR_MASK;
+ 	else
 -- 
 2.30.2
 
