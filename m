@@ -2,86 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A8453F6876
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:56:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9774B3F6840
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:41:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241387AbhHXR52 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:57:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40806 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241244AbhHXR50 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Aug 2021 13:57:26 -0400
-Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e3e3])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7B2DC0C1765;
-        Tue, 24 Aug 2021 10:31:15 -0700 (PDT)
-Received: from localhost.localdomain (unknown [IPv6:2600:8800:8c06:1000::c8f3])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        (Authenticated sender: alyssa)
-        by bhuna.collabora.co.uk (Postfix) with ESMTPSA id 020A81F41A29;
-        Tue, 24 Aug 2021 18:31:10 +0100 (BST)
-From:   Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>
-To:     dri-devel@lists.freedesktop.org
-Cc:     Rob Herring <robh@kernel.org>,
-        Tomeu Vizoso <tomeu.vizoso@collabora.com>,
-        Steven Price <steven.price@arm.com>,
-        Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>, linux-kernel@vger.kernel.org,
-        Chris Morgan <macromorgan@hotmail.com>, stable@vger.kernel.org
-Subject: [PATCH v2 3/4] drm/panfrost: Clamp lock region to Bifrost minimum
-Date:   Tue, 24 Aug 2021 13:30:27 -0400
-Message-Id: <20210824173028.7528-4-alyssa.rosenzweig@collabora.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210824173028.7528-1-alyssa.rosenzweig@collabora.com>
-References: <20210824173028.7528-1-alyssa.rosenzweig@collabora.com>
+        id S242828AbhHXRlw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:41:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45216 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S242746AbhHXRjt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:39:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5222360E8B;
+        Tue, 24 Aug 2021 17:35:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1629826545;
+        bh=3AV+X2lMR3IiIbVsKlwkWxcEDzR8crfLQXzjI47QOE0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=EkVovaQdtDvhzsTl5yVx1KvwjN23QXC11r1TwwdiQP74uC+J3m8a5981DqhqjAj+v
+         BDdeB4kDmoRorCKC1/UpxyE8L51L1m7KtO8YPC2pzzCEEIpACr8Pf8/csJVKcwjP6E
+         s2jtFNR8mPrqkd6k2/IqJ1hnaXrtJ9mC4Zu7CBFSDVxDOFy0nGFiqrFJYJYyGBrmZj
+         vhKkND0qEMJuvN0SHWAW2bkvcHHJb+Mr+6TuxFhX5XmTtvP05pTRHaaYTV/KIqZB1B
+         pw8p1moEhMaxbZMpKWxgYmfqKwBegOOYU4CqDweh34szZKZdqitxwsQaJfi03QGdL1
+         ri0y5RK7vt/Ww==
+Date:   Tue, 24 Aug 2021 13:35:44 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        kernel test robot <oliver.sang@intel.com>,
+        Sandeep Patil <sspatil@android.com>,
+        Mel Gorman <mgorman@techsingularity.net>
+Subject: Re: [PATCH 5.13 073/127] pipe: avoid unnecessary EPOLLET wakeups
+ under normal loads
+Message-ID: <YSUt8NdA+5EPJIyD@sashalap>
+References: <20210824165607.709387-1-sashal@kernel.org>
+ <20210824165607.709387-74-sashal@kernel.org>
+ <CAHk-=wiQhb689WEk__vLy-ET4rL69cjq39pGTmrKam=c_0LYGg@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <CAHk-=wiQhb689WEk__vLy-ET4rL69cjq39pGTmrKam=c_0LYGg@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When locking a region, we currently clamp to a PAGE_SIZE as the minimum
-lock region. While this is valid for Midgard, it is invalid for Bifrost,
-where the minimum locking size is 8x larger than the 4k page size. Add a
-hardware definition for the minimum lock region size (corresponding to
-KBASE_LOCK_REGION_MIN_SIZE_LOG2 in kbase) and respect it.
+On Tue, Aug 24, 2021 at 10:00:33AM -0700, Linus Torvalds wrote:
+>On Tue, Aug 24, 2021 at 9:57 AM Sasha Levin <sashal@kernel.org> wrote:
+>>
+>> From: Linus Torvalds <torvalds@linux-foundation.org>
+>>
+>> [ Upstream commit 3b844826b6c6affa80755254da322b017358a2f4 ]
+>
+>This one has an odd performance regression report associated with it.
+>
+>Honestly, I don't understand the performance regression, but that's
+>likely on me, not on the kernel test robot.
+>
+>So I'd hold off on applying it for now. It *might* be some odd test
+>robot hiccup, but ..
 
-Signed-off-by: Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>
-Tested-by: Chris Morgan <macromorgan@hotmail.com>
-Reviewed-by: Steven Price <steven.price@arm.com>
-Cc: <stable@vger.kernel.org>
----
- drivers/gpu/drm/panfrost/panfrost_mmu.c  | 2 +-
- drivers/gpu/drm/panfrost/panfrost_regs.h | 2 ++
- 2 files changed, 3 insertions(+), 1 deletion(-)
+I'll drop it for now.
 
-diff --git a/drivers/gpu/drm/panfrost/panfrost_mmu.c b/drivers/gpu/drm/panfrost/panfrost_mmu.c
-index 3a795273e505..dfe5f1d29763 100644
---- a/drivers/gpu/drm/panfrost/panfrost_mmu.c
-+++ b/drivers/gpu/drm/panfrost/panfrost_mmu.c
-@@ -66,7 +66,7 @@ static void lock_region(struct panfrost_device *pfdev, u32 as_nr,
- 	/* The size is encoded as ceil(log2) minus(1), which may be calculated
- 	 * with fls. The size must be clamped to hardware bounds.
- 	 */
--	size = max_t(u64, size, PAGE_SIZE);
-+	size = max_t(u64, size, AS_LOCK_REGION_MIN_SIZE);
- 	region_width = fls64(size - 1) - 1;
- 	region |= region_width;
- 
-diff --git a/drivers/gpu/drm/panfrost/panfrost_regs.h b/drivers/gpu/drm/panfrost/panfrost_regs.h
-index 1940ff86e49a..6c5a11ef1ee8 100644
---- a/drivers/gpu/drm/panfrost/panfrost_regs.h
-+++ b/drivers/gpu/drm/panfrost/panfrost_regs.h
-@@ -316,6 +316,8 @@
- #define AS_FAULTSTATUS_ACCESS_TYPE_READ		(0x2 << 8)
- #define AS_FAULTSTATUS_ACCESS_TYPE_WRITE	(0x3 << 8)
- 
-+#define AS_LOCK_REGION_MIN_SIZE                 (1ULL << 15)
-+
- #define gpu_write(dev, reg, data) writel(data, dev->iomem + reg)
- #define gpu_read(dev, reg) readl(dev->iomem + reg)
- 
+Ideally we wouldn't take it at all, but I don't think any of us wants to
+field "my tests have regressed!" questions for the next 5 years or so.
+
+Thanks!
+
 -- 
-2.30.2
-
+Thanks,
+Sasha
