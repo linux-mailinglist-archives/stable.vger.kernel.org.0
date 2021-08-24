@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 590563F668E
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:25:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F32A3F6698
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:26:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239939AbhHXRZU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S240100AbhHXRZU (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 24 Aug 2021 13:25:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58940 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:58942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240201AbhHXRXf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:23:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3259961B26;
+        id S238829AbhHXRXg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:23:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 11A7C6187F;
         Tue, 24 Aug 2021 17:03:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824627;
-        bh=2WdOw1BBrcs4YTOcpYaMMTs/sEtSuKajhLhmi8Sfp4w=;
+        s=k20201202; t=1629824628;
+        bh=4U9vBSSiupDhXCdmf3RxgVj2QlwsJVuK32G3XEkJogM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uaUvDozZwS/U3nQLRlaXnFmSwpdKJYp8AxLbS6E/iLiFUEnVjmk2uL6IoseBB8b6U
-         E3QCnsDGazonIQk9hCMR/9thxAKgvs/VQzZA+cQmnHlxPG6fGGsYIP9b3lKDCSieSW
-         kkA4f8QwK9arteYRGJ2ilAGQTrm6PK7IGjrTGcGSu/UxFPfwe94ClwvKLMNyfS12dq
-         L9FhfpY/AgEu/KoWVQgkw8zX475kWtW9DPiyZc8K5AGvQtbhzFI85s9DNMckLjbKZ+
-         ppohCKqm1yk2ZncG3tESlMLL7+T+MefABUTQvsBjvRwfeNy+Vt91D2tcPix4y8wo+T
-         StF0m83pwmtng==
+        b=csak3LixZOO02zsE6PrnewYvcm06REZ5K2Ka/d4pb/IXgeWuwRScHPWhnzknI+JjU
+         S1c36QcbaHCh7kHkVvomN4bqvPTG2nUuqwNOAwQEWHBG4paqq3DHnkveNmWpcUCBjW
+         oc7nk7XmSK4+nujwAGfXfLg1N+e7IbSuMAoX4+o6YNAULvpvIN6Grdxj/rOASpIhOs
+         CXuV2u2o/b7AVIHLNMWm02jSwDC8K8OvXbJEVpfHlmWdqmxrE65Y5Z1frJsOUY6016
+         gFdE5guTsZlVdadWtmuw19ZxUUJtUjR9bc7TOzKTjsGvrnPr/6Dh03MtjZcF/5TrQi
+         +uCExe/+Cri0g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Ivan T. Ivanov" <iivanov@suse.de>,
-        "David S . Miller" <davem@davemloft.net>,
+Cc:     =?UTF-8?q?Ole=20Bj=C3=B8rn=20Midtb=C3=B8?= <omidtbo@cisco.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 58/84] net: usb: lan78xx: don't modify phy_device state concurrently
-Date:   Tue, 24 Aug 2021 13:02:24 -0400
-Message-Id: <20210824170250.710392-59-sashal@kernel.org>
+Subject: [PATCH 4.19 59/84] Bluetooth: hidp: use correct wait queue when removing ctrl_wait
+Date:   Tue, 24 Aug 2021 13:02:25 -0400
+Message-Id: <20210824170250.710392-60-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170250.710392-1-sashal@kernel.org>
 References: <20210824170250.710392-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.205-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
 X-KernelTest-Branch: linux-4.19.y
@@ -48,77 +49,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Ivan T. Ivanov" <iivanov@suse.de>
+From: Ole Bjørn Midtbø <omidtbo@cisco.com>
 
-[ Upstream commit 6b67d4d63edece1033972214704c04f36c5be89a ]
+[ Upstream commit cca342d98bef68151a80b024f7bf5f388d1fbdea ]
 
-Currently phy_device state could be left in inconsistent state shown
-by following alert message[1]. This is because phy_read_status could
-be called concurrently from lan78xx_delayedwork, phy_state_machine and
-__ethtool_get_link. Fix this by making sure that phy_device state is
-updated atomically.
+A different wait queue was used when removing ctrl_wait than when adding
+it. This effectively made the remove operation without locking compared
+to other operations on the wait queue ctrl_wait was part of. This caused
+issues like below where dead000000000100 is LIST_POISON1 and
+dead000000000200 is LIST_POISON2.
 
-[1] lan78xx 1-1.1.1:1.0 eth0: No phy led trigger registered for speed(-1)
+ list_add corruption. next->prev should be prev (ffffffc1b0a33a08), \
+	but was dead000000000200. (next=ffffffc03ac77de0).
+ ------------[ cut here ]------------
+ CPU: 3 PID: 2138 Comm: bluetoothd Tainted: G           O    4.4.238+ #9
+ ...
+ ---[ end trace 0adc2158f0646eac ]---
+ Call trace:
+ [<ffffffc000443f78>] __list_add+0x38/0xb0
+ [<ffffffc0000f0d04>] add_wait_queue+0x4c/0x68
+ [<ffffffc00020eecc>] __pollwait+0xec/0x100
+ [<ffffffc000d1556c>] bt_sock_poll+0x74/0x200
+ [<ffffffc000bdb8a8>] sock_poll+0x110/0x128
+ [<ffffffc000210378>] do_sys_poll+0x220/0x480
+ [<ffffffc0002106f0>] SyS_poll+0x80/0x138
+ [<ffffffc00008510c>] __sys_trace_return+0x0/0x4
 
-Signed-off-by: Ivan T. Ivanov <iivanov@suse.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+ Unable to handle kernel paging request at virtual address dead000000000100
+ ...
+ CPU: 4 PID: 5387 Comm: kworker/u15:3 Tainted: G        W  O    4.4.238+ #9
+ ...
+ Call trace:
+  [<ffffffc0000f079c>] __wake_up_common+0x7c/0xa8
+  [<ffffffc0000f0818>] __wake_up+0x50/0x70
+  [<ffffffc000be11b0>] sock_def_wakeup+0x58/0x60
+  [<ffffffc000de5e10>] l2cap_sock_teardown_cb+0x200/0x224
+  [<ffffffc000d3f2ac>] l2cap_chan_del+0xa4/0x298
+  [<ffffffc000d45ea0>] l2cap_conn_del+0x118/0x198
+  [<ffffffc000d45f8c>] l2cap_disconn_cfm+0x6c/0x78
+  [<ffffffc000d29934>] hci_event_packet+0x564/0x2e30
+  [<ffffffc000d19b0c>] hci_rx_work+0x10c/0x360
+  [<ffffffc0000c2218>] process_one_work+0x268/0x460
+  [<ffffffc0000c2678>] worker_thread+0x268/0x480
+  [<ffffffc0000c94e0>] kthread+0x118/0x128
+  [<ffffffc000085070>] ret_from_fork+0x10/0x20
+  ---[ end trace 0adc2158f0646ead ]---
+
+Signed-off-by: Ole Bjørn Midtbø <omidtbo@cisco.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/lan78xx.c | 16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ net/bluetooth/hidp/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/usb/lan78xx.c b/drivers/net/usb/lan78xx.c
-index 5bd07cdb3e6e..ac5f72077b26 100644
---- a/drivers/net/usb/lan78xx.c
-+++ b/drivers/net/usb/lan78xx.c
-@@ -1172,7 +1172,7 @@ static int lan78xx_link_reset(struct lan78xx_net *dev)
- {
- 	struct phy_device *phydev = dev->net->phydev;
- 	struct ethtool_link_ksettings ecmd;
--	int ladv, radv, ret;
-+	int ladv, radv, ret, link;
- 	u32 buf;
+diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
+index 253975cce943..0cbd0bca971f 100644
+--- a/net/bluetooth/hidp/core.c
++++ b/net/bluetooth/hidp/core.c
+@@ -1282,7 +1282,7 @@ static int hidp_session_thread(void *arg)
  
- 	/* clear LAN78xx interrupt status */
-@@ -1180,9 +1180,12 @@ static int lan78xx_link_reset(struct lan78xx_net *dev)
- 	if (unlikely(ret < 0))
- 		return -EIO;
+ 	/* cleanup runtime environment */
+ 	remove_wait_queue(sk_sleep(session->intr_sock->sk), &intr_wait);
+-	remove_wait_queue(sk_sleep(session->intr_sock->sk), &ctrl_wait);
++	remove_wait_queue(sk_sleep(session->ctrl_sock->sk), &ctrl_wait);
+ 	wake_up_interruptible(&session->report_queue);
+ 	hidp_del_timer(session);
  
-+	mutex_lock(&phydev->lock);
- 	phy_read_status(phydev);
-+	link = phydev->link;
-+	mutex_unlock(&phydev->lock);
- 
--	if (!phydev->link && dev->link_on) {
-+	if (!link && dev->link_on) {
- 		dev->link_on = false;
- 
- 		/* reset MAC */
-@@ -1195,7 +1198,7 @@ static int lan78xx_link_reset(struct lan78xx_net *dev)
- 			return -EIO;
- 
- 		del_timer(&dev->stat_monitor);
--	} else if (phydev->link && !dev->link_on) {
-+	} else if (link && !dev->link_on) {
- 		dev->link_on = true;
- 
- 		phy_ethtool_ksettings_get(phydev, &ecmd);
-@@ -1485,9 +1488,14 @@ static int lan78xx_set_eee(struct net_device *net, struct ethtool_eee *edata)
- 
- static u32 lan78xx_get_link(struct net_device *net)
- {
-+	u32 link;
-+
-+	mutex_lock(&net->phydev->lock);
- 	phy_read_status(net->phydev);
-+	link = net->phydev->link;
-+	mutex_unlock(&net->phydev->lock);
- 
--	return net->phydev->link;
-+	return link;
- }
- 
- static void lan78xx_get_drvinfo(struct net_device *net,
 -- 
 2.30.2
 
