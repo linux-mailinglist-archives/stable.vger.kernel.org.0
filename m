@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 348F53F6641
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:22:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89E633F6646
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:22:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238088AbhHXRV7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:21:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58968 "EHLO mail.kernel.org"
+        id S239167AbhHXRWM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:22:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241128AbhHXRT5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:19:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B494D61AF0;
-        Tue, 24 Aug 2021 17:03:13 +0000 (UTC)
+        id S239666AbhHXRUH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:20:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BF2DD61AEF;
+        Tue, 24 Aug 2021 17:03:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824594;
-        bh=kBjL9PWt2DDWaLImG39MR80jsxrkP3Qo92ZSGJ/vr7Q=;
+        s=k20201202; t=1629824595;
+        bh=1qqk2MLnXKWFnbNlxfAJZlenUsnSQC7VhWKXsucGEcY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eeVtkaU8PW7Ehs09+pwdZ7v9Qv1u4RdTJObpoFTJeM4RUkkHR70rozxvN6qYkTDA8
-         qxlrbcX+pK2U5hNusYHm/nnhPPujcSCxLNhcrErcRaeC8NjquTCPP0fJD1Ilgvw7yE
-         8Jrxuv9yy7zqnswb9mXV//biQ+7inA3qc8eIEdv/DcIXjBrRPxHZhh5MV9gfTpzIcG
-         t3FiRVZ/pDvMHYwyfkz1mkHmYr2GiaG4BZ/wOzF6ZwHrfbXNcjW+ej6B+osiwqNenc
-         kKIhtOZ+3DSP0rTa1RhJiD2/nAhi1/ozZhCPCTGkzwGhuCL+ZpYCJYqVTP4kjCcdVC
-         2DRnt+hkoDDQQ==
+        b=rx5vB26ZSkQzcBuz1qE4rxKlcb0xCkfwK3fTINVbFjZobz/jYdcWxAoLT6PzC3KUR
+         j4INjhpBDn1yuyeCiEaGk1+ZEL7BXyDWQc0dGzyscRZFGmIGDIuWK8LlYsOF+MTDCv
+         xFRMQbCWqzw7jC8YH0QH7QGMKqMhSAj25c6PR2kc+D9Opxki8ml3HbsJfWe9XlSlz0
+         tWeDWRvDV5rxHuA0ZpL6IPtGKsfJZpjtoUoq1ei4Gz1fVyNkrTSFpSgS+8HX84t6GF
+         TIqh3WbDfuhu2quTYRQn4/2WTOgqNte4ZJPsT73BBCIIeVTaQlVsKYtngzEV+mhW8H
+         ecQfNIHTJGGEw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Longpeng(Mike)" <longpeng2@huawei.com>,
-        Stefan Hajnoczi <stefanha@redhat.com>,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+Cc:     Pu Lehui <pulehui@huawei.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 23/84] vsock/virtio: avoid potential deadlock when vsock device remove
-Date:   Tue, 24 Aug 2021 13:01:49 -0400
-Message-Id: <20210824170250.710392-24-sashal@kernel.org>
+Subject: [PATCH 4.19 24/84] powerpc/kprobes: Fix kprobe Oops happens in booke
+Date:   Tue, 24 Aug 2021 13:01:50 -0400
+Message-Id: <20210824170250.710392-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170250.710392-1-sashal@kernel.org>
 References: <20210824170250.710392-1-sashal@kernel.org>
@@ -50,75 +48,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Longpeng(Mike)" <longpeng2@huawei.com>
+From: Pu Lehui <pulehui@huawei.com>
 
-[ Upstream commit 49b0b6ffe20c5344f4173f3436298782a08da4f2 ]
+[ Upstream commit 43e8f76006592cb1573a959aa287c45421066f9c ]
 
-There's a potential deadlock case when remove the vsock device or
-process the RESET event:
+When using kprobe on powerpc booke series processor, Oops happens
+as show bellow:
 
-  vsock_for_each_connected_socket:
-      spin_lock_bh(&vsock_table_lock) ----------- (1)
-      ...
-          virtio_vsock_reset_sock:
-              lock_sock(sk) --------------------- (2)
-      ...
-      spin_unlock_bh(&vsock_table_lock)
+/ # echo "p:myprobe do_nanosleep" > /sys/kernel/debug/tracing/kprobe_events
+/ # echo 1 > /sys/kernel/debug/tracing/events/kprobes/myprobe/enable
+/ # sleep 1
+[   50.076730] Oops: Exception in kernel mode, sig: 5 [#1]
+[   50.077017] BE PAGE_SIZE=4K SMP NR_CPUS=24 QEMU e500
+[   50.077221] Modules linked in:
+[   50.077462] CPU: 0 PID: 77 Comm: sleep Not tainted 5.14.0-rc4-00022-g251a1524293d #21
+[   50.077887] NIP:  c0b9c4e0 LR: c00ebecc CTR: 00000000
+[   50.078067] REGS: c3883de0 TRAP: 0700   Not tainted (5.14.0-rc4-00022-g251a1524293d)
+[   50.078349] MSR:  00029000 <CE,EE,ME>  CR: 24000228  XER: 20000000
+[   50.078675]
+[   50.078675] GPR00: c00ebdf0 c3883e90 c313e300 c3883ea0 00000001 00000000 c3883ecc 00000001
+[   50.078675] GPR08: c100598c c00ea250 00000004 00000000 24000222 102490c2 bff4180c 101e60d4
+[   50.078675] GPR16: 00000000 102454ac 00000040 10240000 10241100 102410f8 10240000 00500000
+[   50.078675] GPR24: 00000002 00000000 c3883ea0 00000001 00000000 0000c350 3b9b8d50 00000000
+[   50.080151] NIP [c0b9c4e0] do_nanosleep+0x0/0x190
+[   50.080352] LR [c00ebecc] hrtimer_nanosleep+0x14c/0x1e0
+[   50.080638] Call Trace:
+[   50.080801] [c3883e90] [c00ebdf0] hrtimer_nanosleep+0x70/0x1e0 (unreliable)
+[   50.081110] [c3883f00] [c00ec004] sys_nanosleep_time32+0xa4/0x110
+[   50.081336] [c3883f40] [c001509c] ret_from_syscall+0x0/0x28
+[   50.081541] --- interrupt: c00 at 0x100a4d08
+[   50.081749] NIP:  100a4d08 LR: 101b5234 CTR: 00000003
+[   50.081931] REGS: c3883f50 TRAP: 0c00   Not tainted (5.14.0-rc4-00022-g251a1524293d)
+[   50.082183] MSR:  0002f902 <CE,EE,PR,FP,ME>  CR: 24000222  XER: 00000000
+[   50.082457]
+[   50.082457] GPR00: 000000a2 bf980040 1024b4d0 bf980084 bf980084 64000000 00555345 fefefeff
+[   50.082457] GPR08: 7f7f7f7f 101e0000 00000069 00000003 28000422 102490c2 bff4180c 101e60d4
+[   50.082457] GPR16: 00000000 102454ac 00000040 10240000 10241100 102410f8 10240000 00500000
+[   50.082457] GPR24: 00000002 bf9803f4 10240000 00000000 00000000 100039e0 00000000 102444e8
+[   50.083789] NIP [100a4d08] 0x100a4d08
+[   50.083917] LR [101b5234] 0x101b5234
+[   50.084042] --- interrupt: c00
+[   50.084238] Instruction dump:
+[   50.084483] 4bfffc40 60000000 60000000 60000000 9421fff0 39400402 914200c0 38210010
+[   50.084841] 4bfffc20 00000000 00000000 00000000 <7fe00008> 7c0802a6 7c892378 93c10048
+[   50.085487] ---[ end trace f6fffe98e2fa8f3e ]---
+[   50.085678]
+Trace/breakpoint trap
 
-lock_sock() may do initiative schedule when the 'sk' is owned by
-other thread at the same time, we would receivce a warning message
-that "scheduling while atomic".
+There is no real mode for booke arch and the MMU translation is
+always on. The corresponding MSR_IS/MSR_DS bit in booke is used
+to switch the address space, but not for real mode judgment.
 
-Even worse, if the next task (selected by the scheduler) try to
-release a 'sk', it need to request vsock_table_lock and the deadlock
-occur, cause the system into softlockup state.
-  Call trace:
-   queued_spin_lock_slowpath
-   vsock_remove_bound
-   vsock_remove_sock
-   virtio_transport_release
-   __vsock_release
-   vsock_release
-   __sock_release
-   sock_close
-   __fput
-   ____fput
-
-So we should not require sk_lock in this case, just like the behavior
-in vhost_vsock or vmci.
-
-Fixes: 0ea9e1d3a9e3 ("VSOCK: Introduce virtio_transport.ko")
-Cc: Stefan Hajnoczi <stefanha@redhat.com>
-Signed-off-by: Longpeng(Mike) <longpeng2@huawei.com>
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-Link: https://lore.kernel.org/r/20210812053056.1699-1-longpeng2@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 21f8b2fa3ca5 ("powerpc/kprobes: Ignore traps that happened in real mode")
+Signed-off-by: Pu Lehui <pulehui@huawei.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210809023658.218915-1-pulehui@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/vmw_vsock/virtio_transport.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ arch/powerpc/kernel/kprobes.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
-index cc70d651d13e..e34979fcefd2 100644
---- a/net/vmw_vsock/virtio_transport.c
-+++ b/net/vmw_vsock/virtio_transport.c
-@@ -373,11 +373,14 @@ static void virtio_vsock_event_fill(struct virtio_vsock *vsock)
+diff --git a/arch/powerpc/kernel/kprobes.c b/arch/powerpc/kernel/kprobes.c
+index 53a39661eb13..ccf16bccc2bc 100644
+--- a/arch/powerpc/kernel/kprobes.c
++++ b/arch/powerpc/kernel/kprobes.c
+@@ -277,7 +277,8 @@ int kprobe_handler(struct pt_regs *regs)
+ 	if (user_mode(regs))
+ 		return 0;
  
- static void virtio_vsock_reset_sock(struct sock *sk)
- {
--	lock_sock(sk);
-+	/* vmci_transport.c doesn't take sk_lock here either.  At least we're
-+	 * under vsock_table_lock so the sock cannot disappear while we're
-+	 * executing.
-+	 */
-+
- 	sk->sk_state = TCP_CLOSE;
- 	sk->sk_err = ECONNRESET;
- 	sk->sk_error_report(sk);
--	release_sock(sk);
- }
+-	if (!(regs->msr & MSR_IR) || !(regs->msr & MSR_DR))
++	if (!IS_ENABLED(CONFIG_BOOKE) &&
++	    (!(regs->msr & MSR_IR) || !(regs->msr & MSR_DR)))
+ 		return 0;
  
- static void virtio_vsock_update_guest_cid(struct virtio_vsock *vsock)
+ 	/*
 -- 
 2.30.2
 
