@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C2F13F660D
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:20:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABC893F6613
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:20:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240122AbhHXRUQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:20:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56448 "EHLO mail.kernel.org"
+        id S239147AbhHXRUU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:20:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239802AbhHXRRv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:17:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C7A7661AD2;
-        Tue, 24 Aug 2021 17:02:03 +0000 (UTC)
+        id S240000AbhHXRRy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:17:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2460B61ABE;
+        Tue, 24 Aug 2021 17:02:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824524;
-        bh=p+qhYVm330lRQxgt4fFTwQHyQfqhWgnJpPkiaYXOtQo=;
+        s=k20201202; t=1629824526;
+        bh=NRZS3igRsiY1o0ayYeoQXZl6MxAz06NBhMjNmT0uzCA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sChyFNgWMi2o/LHBiD7IqI95VVgML+lUCutvXor+LVUt7yZ/DnY52Tq9t/E3qQSjm
-         gTqMhmE8pb4WMVbhton55V/R+h6j4Cn859iFAjKI1OV3z2Zu/YzWJGnQjovTg0UPX7
-         bsNWGNrWsV9l9Trsh4ovqjIOQ1Tg/6h9XwFR4oisc2S7T+KOP2FmJWOCEMn8S7Tdj0
-         zr08zD94Ru55ZL7iNf8iDt1Zf0euugVxksOiYSjsYefFLLWV+pVhbCKLWezk33IDOG
-         sQGgsc991aDXtfJc2ZNO5XA1hCg7zQqUe4wYraZ50xfrZwoQGQ1whyWYKTSq7yD6Zr
-         zjjTxeuJxnqyg==
+        b=UF6r2LjMBP64Kar+4p5Y7m6bwphHXmNiw6lD/lmy3egC1+hCOMsZGGuAaSjc7WQrO
+         oRpehleaX7FLC4E+AbCV7TKxihxYchEFqD8akkoOXMmLibabr5WKP3AeuR4Nxzdwmc
+         +ynVant4SbsTNVMyVTpT+VS0VNWEhu9217LqCoSWPVK51OO4k/2RAi7JKJsfz5xt0Z
+         s43v+P/93pvHT8FmmRhRK033IT+1+l2cgLubH97llKRetlMFqXBBbInCUntVjlONWy
+         AVOJ3fLRHLq5+bMq6I7JPKpwwk1BBru6o6za2ito5TDcW62VLM9tcbd35jOl9BdVvL
+         ObgZOymf/QdvQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yafang Shao <laoar.shao@gmail.com>,
-        Chris Down <chris@chrisdown.name>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Michal Hocko <mhocko@suse.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
+Cc:     Johannes Weiner <hannes@cmpxchg.org>, Leon Yang <lnyng@fb.com>,
+        Rik van Riel <riel@surriel.com>,
+        Shakeel Butt <shakeelb@google.com>,
         Roman Gushchin <guro@fb.com>,
+        Chris Down <chris@chrisdown.name>,
+        Michal Hocko <mhocko@suse.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 57/61] mm, memcg: avoid stale protection values when cgroup is above protection
-Date:   Tue, 24 Aug 2021 13:01:02 -0400
-Message-Id: <20210824170106.710221-58-sashal@kernel.org>
+Subject: [PATCH 5.4 58/61] mm: memcontrol: fix occasional OOMs due to proportional memory.low reclaim
+Date:   Tue, 24 Aug 2021 13:01:03 -0400
+Message-Id: <20210824170106.710221-59-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170106.710221-1-sashal@kernel.org>
 References: <20210824170106.710221-1-sashal@kernel.org>
@@ -53,203 +54,161 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yafang Shao <laoar.shao@gmail.com>
+From: Johannes Weiner <hannes@cmpxchg.org>
 
-[ Upstream commit 22f7496f0b901249f23c5251eb8a10aae126b909 ]
+[ Upstream commit f56ce412a59d7d938b81de8878faef128812482c ]
 
-Patch series "mm, memcg: memory.{low,min} reclaim fix & cleanup", v4.
+We've noticed occasional OOM killing when memory.low settings are in
+effect for cgroups.  This is unexpected and undesirable as memory.low is
+supposed to express non-OOMing memory priorities between cgroups.
 
-This series contains a fix for a edge case in my earlier protection
-calculation patches, and a patch to make the area overall a little more
-robust to hopefully help avoid this in future.
+The reason for this is proportional memory.low reclaim.  When cgroups
+are below their memory.low threshold, reclaim passes them over in the
+first round, and then retries if it couldn't find pages anywhere else.
+But when cgroups are slightly above their memory.low setting, page scan
+force is scaled down and diminished in proportion to the overage, to the
+point where it can cause reclaim to fail as well - only in that case we
+currently don't retry, and instead trigger OOM.
 
-This patch (of 2):
+To fix this, hook proportional reclaim into the same retry logic we have
+in place for when cgroups are skipped entirely.  This way if reclaim
+fails and some cgroups were scanned with diminished pressure, we'll try
+another full-force cycle before giving up and OOMing.
 
-A cgroup can have both memory protection and a memory limit to isolate it
-from its siblings in both directions - for example, to prevent it from
-being shrunk below 2G under high pressure from outside, but also from
-growing beyond 4G under low pressure.
+[akpm@linux-foundation.org: coding-style fixes]
 
-Commit 9783aa9917f8 ("mm, memcg: proportional memory.{low,min} reclaim")
-implemented proportional scan pressure so that multiple siblings in excess
-of their protection settings don't get reclaimed equally but instead in
-accordance to their unprotected portion.
-
-During limit reclaim, this proportionality shouldn't apply of course:
-there is no competition, all pressure is from within the cgroup and should
-be applied as such.  Reclaim should operate at full efficiency.
-
-However, mem_cgroup_protected() never expected anybody to look at the
-effective protection values when it indicated that the cgroup is above its
-protection.  As a result, a query during limit reclaim may return stale
-protection values that were calculated by a previous reclaim cycle in
-which the cgroup did have siblings.
-
-When this happens, reclaim is unnecessarily hesitant and potentially slow
-to meet the desired limit.  In theory this could lead to premature OOM
-kills, although it's not obvious this has occurred in practice.
-
-Workaround the problem by special casing reclaim roots in
-mem_cgroup_protection.  These memcgs are never participating in the
-reclaim protection because the reclaim is internal.
-
-We have to ignore effective protection values for reclaim roots because
-mem_cgroup_protected might be called from racing reclaim contexts with
-different roots.  Calculation is relying on root -> leaf tree traversal
-therefore top-down reclaim protection invariants should hold.  The only
-exception is the reclaim root which should have effective protection set
-to 0 but that would be problematic for the following setup:
-
- Let's have global and A's reclaim in parallel:
-  |
-  A (low=2G, usage = 3G, max = 3G, children_low_usage = 1.5G)
-  |\
-  | C (low = 1G, usage = 2.5G)
-  B (low = 1G, usage = 0.5G)
-
- for A reclaim we have
- B.elow = B.low
- C.elow = C.low
-
- For the global reclaim
- A.elow = A.low
- B.elow = min(B.usage, B.low) because children_low_usage <= A.elow
- C.elow = min(C.usage, C.low)
-
- With the effective values resetting we have A reclaim
- A.elow = 0
- B.elow = B.low
- C.elow = C.low
-
- and global reclaim could see the above and then
- B.elow = C.elow = 0 because children_low_usage > A.elow
-
-Which means that protected memcgs would get reclaimed.
-
-In future we would like to make mem_cgroup_protected more robust against
-racing reclaim contexts but that is likely more complex solution than this
-simple workaround.
-
-[hannes@cmpxchg.org - large part of the changelog]
-[mhocko@suse.com - workaround explanation]
-[chris@chrisdown.name - retitle]
-
+Link: https://lkml.kernel.org/r/20210817180506.220056-1-hannes@cmpxchg.org
 Fixes: 9783aa9917f8 ("mm, memcg: proportional memory.{low,min} reclaim")
-Signed-off-by: Yafang Shao <laoar.shao@gmail.com>
-Signed-off-by: Chris Down <chris@chrisdown.name>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Johannes Weiner <hannes@cmpxchg.org>
-Acked-by: Chris Down <chris@chrisdown.name>
+Signed-off-by: Johannes Weiner <hannes@cmpxchg.org>
+Reported-by: Leon Yang <lnyng@fb.com>
+Reviewed-by: Rik van Riel <riel@surriel.com>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
 Acked-by: Roman Gushchin <guro@fb.com>
-Link: http://lkml.kernel.org/r/cover.1594638158.git.chris@chrisdown.name
-Link: http://lkml.kernel.org/r/044fb8ecffd001c7905d27c0c2ad998069fdc396.1594638158.git.chris@chrisdown.name
+Acked-by: Chris Down <chris@chrisdown.name>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: <stable@vger.kernel.org>		[5.4+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/memcontrol.h | 42 ++++++++++++++++++++++++++++++++++++--
- mm/memcontrol.c            |  8 ++++++++
- mm/vmscan.c                |  3 ++-
- 3 files changed, 50 insertions(+), 3 deletions(-)
+ include/linux/memcontrol.h | 29 +++++++++++++++--------------
+ mm/vmscan.c                | 27 +++++++++++++++++++--------
+ 2 files changed, 34 insertions(+), 22 deletions(-)
 
 diff --git a/include/linux/memcontrol.h b/include/linux/memcontrol.h
-index fb5b2a41bd45..059f55841cc8 100644
+index 059f55841cc8..b6d0b68f5503 100644
 --- a/include/linux/memcontrol.h
 +++ b/include/linux/memcontrol.h
-@@ -356,12 +356,49 @@ static inline bool mem_cgroup_disabled(void)
+@@ -356,12 +356,15 @@ static inline bool mem_cgroup_disabled(void)
  	return !cgroup_subsys_enabled(memory_cgrp_subsys);
  }
  
--static inline unsigned long mem_cgroup_protection(struct mem_cgroup *memcg,
-+static inline unsigned long mem_cgroup_protection(struct mem_cgroup *root,
-+						  struct mem_cgroup *memcg,
- 						  bool in_low_reclaim)
+-static inline unsigned long mem_cgroup_protection(struct mem_cgroup *root,
+-						  struct mem_cgroup *memcg,
+-						  bool in_low_reclaim)
++static inline void mem_cgroup_protection(struct mem_cgroup *root,
++					 struct mem_cgroup *memcg,
++					 unsigned long *min,
++					 unsigned long *low)
  {
- 	if (mem_cgroup_disabled())
- 		return 0;
- 
-+	/*
-+	 * There is no reclaim protection applied to a targeted reclaim.
-+	 * We are special casing this specific case here because
-+	 * mem_cgroup_protected calculation is not robust enough to keep
-+	 * the protection invariant for calculated effective values for
-+	 * parallel reclaimers with different reclaim target. This is
-+	 * especially a problem for tail memcgs (as they have pages on LRU)
-+	 * which would want to have effective values 0 for targeted reclaim
-+	 * but a different value for external reclaim.
-+	 *
-+	 * Example
-+	 * Let's have global and A's reclaim in parallel:
-+	 *  |
-+	 *  A (low=2G, usage = 3G, max = 3G, children_low_usage = 1.5G)
-+	 *  |\
-+	 *  | C (low = 1G, usage = 2.5G)
-+	 *  B (low = 1G, usage = 0.5G)
-+	 *
-+	 * For the global reclaim
-+	 * A.elow = A.low
-+	 * B.elow = min(B.usage, B.low) because children_low_usage <= A.elow
-+	 * C.elow = min(C.usage, C.low)
-+	 *
-+	 * With the effective values resetting we have A reclaim
-+	 * A.elow = 0
-+	 * B.elow = B.low
-+	 * C.elow = C.low
-+	 *
-+	 * If the global reclaim races with A's reclaim then
-+	 * B.elow = C.elow = 0 because children_low_usage > A.elow)
-+	 * is possible and reclaiming B would be violating the protection.
-+	 *
-+	 */
-+	if (root == memcg)
-+		return 0;
++	*min = *low = 0;
 +
- 	if (in_low_reclaim)
- 		return READ_ONCE(memcg->memory.emin);
+ 	if (mem_cgroup_disabled())
+-		return 0;
++		return;
  
-@@ -847,7 +884,8 @@ static inline void memcg_memory_event_mm(struct mm_struct *mm,
+ 	/*
+ 	 * There is no reclaim protection applied to a targeted reclaim.
+@@ -397,13 +400,10 @@ static inline unsigned long mem_cgroup_protection(struct mem_cgroup *root,
+ 	 *
+ 	 */
+ 	if (root == memcg)
+-		return 0;
+-
+-	if (in_low_reclaim)
+-		return READ_ONCE(memcg->memory.emin);
++		return;
+ 
+-	return max(READ_ONCE(memcg->memory.emin),
+-		   READ_ONCE(memcg->memory.elow));
++	*min = READ_ONCE(memcg->memory.emin);
++	*low = READ_ONCE(memcg->memory.elow);
+ }
+ 
+ enum mem_cgroup_protection mem_cgroup_protected(struct mem_cgroup *root,
+@@ -884,11 +884,12 @@ static inline void memcg_memory_event_mm(struct mm_struct *mm,
  {
  }
  
--static inline unsigned long mem_cgroup_protection(struct mem_cgroup *memcg,
-+static inline unsigned long mem_cgroup_protection(struct mem_cgroup *root,
-+						  struct mem_cgroup *memcg,
- 						  bool in_low_reclaim)
+-static inline unsigned long mem_cgroup_protection(struct mem_cgroup *root,
+-						  struct mem_cgroup *memcg,
+-						  bool in_low_reclaim)
++static inline void mem_cgroup_protection(struct mem_cgroup *root,
++					 struct mem_cgroup *memcg,
++					 unsigned long *min,
++					 unsigned long *low)
  {
- 	return 0;
-diff --git a/mm/memcontrol.c b/mm/memcontrol.c
-index 2701497edda5..6d7fe3589e4a 100644
---- a/mm/memcontrol.c
-+++ b/mm/memcontrol.c
-@@ -6446,6 +6446,14 @@ enum mem_cgroup_protection mem_cgroup_protected(struct mem_cgroup *root,
+-	return 0;
++	*min = *low = 0;
+ }
  
- 	if (!root)
- 		root = root_mem_cgroup;
-+
-+	/*
-+	 * Effective values of the reclaim targets are ignored so they
-+	 * can be stale. Have a look at mem_cgroup_protection for more
-+	 * details.
-+	 * TODO: calculation should be more robust so that we do not need
-+	 * that special casing.
-+	 */
- 	if (memcg == root)
- 		return MEMCG_PROT_NONE;
- 
+ static inline enum mem_cgroup_protection mem_cgroup_protected(
 diff --git a/mm/vmscan.c b/mm/vmscan.c
-index 10feb872d9a4..dc44da27673d 100644
+index dc44da27673d..fad9be4703ec 100644
 --- a/mm/vmscan.c
 +++ b/mm/vmscan.c
-@@ -2462,7 +2462,8 @@ out:
- 		unsigned long protection;
+@@ -89,9 +89,12 @@ struct scan_control {
+ 	unsigned int may_swap:1;
+ 
+ 	/*
+-	 * Cgroups are not reclaimed below their configured memory.low,
+-	 * unless we threaten to OOM. If any cgroups are skipped due to
+-	 * memory.low and nothing was reclaimed, go back for memory.low.
++	 * Cgroup memory below memory.low is protected as long as we
++	 * don't threaten to OOM. If any cgroup is reclaimed at
++	 * reduced force or passed over entirely due to its memory.low
++	 * setting (memcg_low_skipped), and nothing is reclaimed as a
++	 * result, then go back for one more cycle that reclaims the protected
++	 * memory (memcg_low_reclaim) to avert OOM.
+ 	 */
+ 	unsigned int memcg_low_reclaim:1;
+ 	unsigned int memcg_low_skipped:1;
+@@ -2458,15 +2461,14 @@ out:
+ 	for_each_evictable_lru(lru) {
+ 		int file = is_file_lru(lru);
+ 		unsigned long lruvec_size;
++		unsigned long low, min;
+ 		unsigned long scan;
+-		unsigned long protection;
  
  		lruvec_size = lruvec_lru_size(lruvec, lru, sc->reclaim_idx);
--		protection = mem_cgroup_protection(memcg,
-+		protection = mem_cgroup_protection(sc->target_mem_cgroup,
-+						   memcg,
- 						   sc->memcg_low_reclaim);
+-		protection = mem_cgroup_protection(sc->target_mem_cgroup,
+-						   memcg,
+-						   sc->memcg_low_reclaim);
++		mem_cgroup_protection(sc->target_mem_cgroup, memcg,
++				      &min, &low);
  
- 		if (protection) {
+-		if (protection) {
++		if (min || low) {
+ 			/*
+ 			 * Scale a cgroup's reclaim pressure by proportioning
+ 			 * its current usage to its memory.low or memory.min
+@@ -2497,6 +2499,15 @@ out:
+ 			 * hard protection.
+ 			 */
+ 			unsigned long cgroup_size = mem_cgroup_size(memcg);
++			unsigned long protection;
++
++			/* memory.low scaling, make sure we retry before OOM */
++			if (!sc->memcg_low_reclaim && low > min) {
++				protection = low;
++				sc->memcg_low_skipped = 1;
++			} else {
++				protection = min;
++			}
+ 
+ 			/* Avoid TOCTOU with earlier protection check */
+ 			cgroup_size = max(cgroup_size, protection);
 -- 
 2.30.2
 
