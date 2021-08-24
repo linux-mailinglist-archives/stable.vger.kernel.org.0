@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA4C33F6815
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:40:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B74173F6817
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:40:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240039AbhHXRkI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:40:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45232 "EHLO mail.kernel.org"
+        id S240295AbhHXRkJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:40:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240386AbhHXRii (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:38:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D36E61C12;
+        id S241547AbhHXRik (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:38:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A09461BF8;
         Tue, 24 Aug 2021 17:08:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824883;
-        bh=LrZIhe6z4uO8ZThowy/ME7qmZWiSPMtwKteL7zmAs+M=;
+        s=k20201202; t=1629824884;
+        bh=2XNBmfkXOU+krQM9YnxokQfJ96fIbLFwZ7WrGViP85Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uf5x7nwiL0Tj5peKywnZ2mury2xr9DmcZmpdYji8JV0u8G4X8csYIGzqcVmFLXP5k
-         VzidG58KNk/UQd9mUGTVYgacKad4vYafLiNqCKhdo1LInH6mVNcg/nFJnY7OKVQElx
-         mluiBhZzDao//xumRoBaeqseFXxLM3d5qAq6BELtbKcX46RrayHohnrBjyKmNAtWrY
-         6WC09HhweLJPFRMrUXkJG1FuBR+/yzRdRx+TDJL7wy9j8P+7YmS8yqeJYaKHbz01EE
-         rCb0qtWT4hlbpX9vu3nd0VtdIdmhMLYp/SkybdZi0wNduUS0QHvGPcNnIYnmbATvWC
-         9Ul0wWTM93tKw==
+        b=HeRtJosNjJlDdv09d3SzopJJbAB9oQSGmJFFen/Hq/gqwP6MZGqtW0FghajYhesGJ
+         dsI0+NgOwzMvPEOav5K/7YPL0Oc83BUihWBroU0zyYctAkmtOXv/CUrb9YY7wUwhmJ
+         VcJC8eT77Lqkp2lNkEK2L+Pq+IsMmEyHxsp+2DW8qJfbOWlnct1KdwdnoJmsvb+L78
+         zNpzlQ4QAc8S442eQzTmdV9+4N0IAVhcKKSkkBVf9qNQhwyDuQ377eDTNBKIzaXPlD
+         LiBZlFSv+iKyh+O/8tMn6E+/GPgq5dJsHmnpccAhGj+NtMQVrbmj2rl2Mbcf8PR4QB
+         G43dhsyIt83yQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
+Cc:     =?UTF-8?q?Ole=20Bj=C3=B8rn=20Midtb=C3=B8?= <omidtbo@cisco.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 20/31] scsi: core: Avoid printing an error if target_alloc() returns -ENXIO
-Date:   Tue, 24 Aug 2021 13:07:32 -0400
-Message-Id: <20210824170743.710957-21-sashal@kernel.org>
+Subject: [PATCH 4.4 21/31] Bluetooth: hidp: use correct wait queue when removing ctrl_wait
+Date:   Tue, 24 Aug 2021 13:07:33 -0400
+Message-Id: <20210824170743.710957-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170743.710957-1-sashal@kernel.org>
 References: <20210824170743.710957-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.282-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
 X-KernelTest-Branch: linux-4.4.y
@@ -48,43 +49,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+From: Ole Bjørn Midtbø <omidtbo@cisco.com>
 
-[ Upstream commit 70edd2e6f652f67d854981fd67f9ad0f1deaea92 ]
+[ Upstream commit cca342d98bef68151a80b024f7bf5f388d1fbdea ]
 
-Avoid printing a 'target allocation failed' error if the driver
-target_alloc() callback function returns -ENXIO. This return value
-indicates that the corresponding H:C:T:L entry is empty.
+A different wait queue was used when removing ctrl_wait than when adding
+it. This effectively made the remove operation without locking compared
+to other operations on the wait queue ctrl_wait was part of. This caused
+issues like below where dead000000000100 is LIST_POISON1 and
+dead000000000200 is LIST_POISON2.
 
-Removing this error reduces the scan time if the user issues SCAN_WILD_CARD
-scan operation through sysfs parameter on a host with a lot of empty
-H:C:T:L entries.
+ list_add corruption. next->prev should be prev (ffffffc1b0a33a08), \
+	but was dead000000000200. (next=ffffffc03ac77de0).
+ ------------[ cut here ]------------
+ CPU: 3 PID: 2138 Comm: bluetoothd Tainted: G           O    4.4.238+ #9
+ ...
+ ---[ end trace 0adc2158f0646eac ]---
+ Call trace:
+ [<ffffffc000443f78>] __list_add+0x38/0xb0
+ [<ffffffc0000f0d04>] add_wait_queue+0x4c/0x68
+ [<ffffffc00020eecc>] __pollwait+0xec/0x100
+ [<ffffffc000d1556c>] bt_sock_poll+0x74/0x200
+ [<ffffffc000bdb8a8>] sock_poll+0x110/0x128
+ [<ffffffc000210378>] do_sys_poll+0x220/0x480
+ [<ffffffc0002106f0>] SyS_poll+0x80/0x138
+ [<ffffffc00008510c>] __sys_trace_return+0x0/0x4
 
-Avoiding the printk on -ENXIO matches the behavior of the other callback
-functions during scanning.
+ Unable to handle kernel paging request at virtual address dead000000000100
+ ...
+ CPU: 4 PID: 5387 Comm: kworker/u15:3 Tainted: G        W  O    4.4.238+ #9
+ ...
+ Call trace:
+  [<ffffffc0000f079c>] __wake_up_common+0x7c/0xa8
+  [<ffffffc0000f0818>] __wake_up+0x50/0x70
+  [<ffffffc000be11b0>] sock_def_wakeup+0x58/0x60
+  [<ffffffc000de5e10>] l2cap_sock_teardown_cb+0x200/0x224
+  [<ffffffc000d3f2ac>] l2cap_chan_del+0xa4/0x298
+  [<ffffffc000d45ea0>] l2cap_conn_del+0x118/0x198
+  [<ffffffc000d45f8c>] l2cap_disconn_cfm+0x6c/0x78
+  [<ffffffc000d29934>] hci_event_packet+0x564/0x2e30
+  [<ffffffc000d19b0c>] hci_rx_work+0x10c/0x360
+  [<ffffffc0000c2218>] process_one_work+0x268/0x460
+  [<ffffffc0000c2678>] worker_thread+0x268/0x480
+  [<ffffffc0000c94e0>] kthread+0x118/0x128
+  [<ffffffc000085070>] ret_from_fork+0x10/0x20
+  ---[ end trace 0adc2158f0646ead ]---
 
-Link: https://lore.kernel.org/r/20210726115402.1936-1-sreekanth.reddy@broadcom.com
-Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Ole Bjørn Midtbø <omidtbo@cisco.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_scan.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/bluetooth/hidp/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/scsi_scan.c b/drivers/scsi/scsi_scan.c
-index 647a057a9b6c..5e34c7ed483c 100644
---- a/drivers/scsi/scsi_scan.c
-+++ b/drivers/scsi/scsi_scan.c
-@@ -457,7 +457,8 @@ static struct scsi_target *scsi_alloc_target(struct device *parent,
- 		error = shost->hostt->target_alloc(starget);
+diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
+index 552e00b07196..9ec37c6c8c4a 100644
+--- a/net/bluetooth/hidp/core.c
++++ b/net/bluetooth/hidp/core.c
+@@ -1282,7 +1282,7 @@ static int hidp_session_thread(void *arg)
  
- 		if(error) {
--			dev_printk(KERN_ERR, dev, "target allocation failed, error %d\n", error);
-+			if (error != -ENXIO)
-+				dev_err(dev, "target allocation failed, error %d\n", error);
- 			/* don't want scsi_target_reap to do the final
- 			 * put because it will be under the host lock */
- 			scsi_target_destroy(starget);
+ 	/* cleanup runtime environment */
+ 	remove_wait_queue(sk_sleep(session->intr_sock->sk), &intr_wait);
+-	remove_wait_queue(sk_sleep(session->intr_sock->sk), &ctrl_wait);
++	remove_wait_queue(sk_sleep(session->ctrl_sock->sk), &ctrl_wait);
+ 	wake_up_interruptible(&session->report_queue);
+ 	hidp_del_timer(session);
+ 
 -- 
 2.30.2
 
