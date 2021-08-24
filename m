@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5379F3F65F7
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:18:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F29E93F65FC
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:20:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240014AbhHXRSj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:18:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55612 "EHLO mail.kernel.org"
+        id S239759AbhHXRSv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:18:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55620 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240039AbhHXRQi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:16:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 15F68614C8;
+        id S240086AbhHXRQu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:16:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E78CD61A62;
         Tue, 24 Aug 2021 17:01:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824517;
-        bh=JlAChC0NDvnHCGqHRCn5zrNe29Lr+0u/OSXqd75o3sA=;
+        s=k20201202; t=1629824518;
+        bh=ZmpDQaat6ntHOmBtuyXrsXVM9HBlJpFZ52H+jjL0j8E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ocrYDDw+2bH9YljZs7zsSPkhgxbrGql9E2nTkK51OmMbFGlJvA49216aiaIP8ipTF
-         GEyZ8OTj4mv+Qlkj9uFHyba7LXk1JV4CPJ1ND+m7xGQSqTKjQMNGn2/+c7Rn0CBtOZ
-         SHIpbqPN9GI7V3k5hOUK9aCcOLkj8zP1QdctK8tMLDTP1zKJ8UnvZxQS0MIEKOJ3Oz
-         RGNG/Pn7sepJa/MqTDBp5ZF+eXydTG2DQEn9JgHIJMt5vP8jr1JmEYhu8PtVn7Uqh0
-         GahdDoety2LSCIEvMRacsse4nl5YDD6qulBRcA33jKTysDuuKsa7fL5fqwS4eka/cM
-         Drj1sKscaDhSw==
+        b=juaQVBDAAYI050GkwLQ8xns939ApwJlAUCWXLxOgg4eLe3YkYg9bQYWpTBXbFEIFF
+         dcnrc1x3Krdffi4SwdLQ04w3oVca5VOe2xWpU8p3p/UhOYXgWgaC4G+16LpDbUdbGb
+         t2S8rAdQ08SUMtNTtQRp2ceqImpitHm9P/fUh9JZVe6WhMa+aoc1lJwG0pAN+KbsaB
+         bbSMEAthtzhJtfhsjl4gOsKTIJJnBOAB5xh+8fBlW28mqFZhj48FYkQfzrDFxptHmm
+         vHKbXt34+xE8VMYsIaRcqV9iPRKezTd448tJCE7+ER8REN1ya7qQPVItMiMLI4wzTA
+         THbLYknxeYavA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 50/61] slimbus: messaging: check for valid transaction id
-Date:   Tue, 24 Aug 2021 13:00:55 -0400
-Message-Id: <20210824170106.710221-51-sashal@kernel.org>
+Subject: [PATCH 5.4 51/61] slimbus: ngd: reset dma setup during runtime pm
+Date:   Tue, 24 Aug 2021 13:00:56 -0400
+Message-Id: <20210824170106.710221-52-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170106.710221-1-sashal@kernel.org>
 References: <20210824170106.710221-1-sashal@kernel.org>
@@ -50,49 +50,55 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-[ Upstream commit a263c1ff6abe0e66712f40d595bbddc7a35907f8 ]
+[ Upstream commit d77772538f00b7265deace6e77e555ee18365ad0 ]
 
-In some usecases transaction ids are dynamically allocated inside
-the controller driver after sending the messages which have generic
-acknowledge responses. So check for this before refcounting pm_runtime.
+During suspend/resume NGD remote instance is power cycled along
+with remotely controlled bam dma engine.
+So Reset the dma configuration during this suspend resume path
+so that we are not dealing with any stale dma setup.
 
-Without this we would end up imbalancing runtime pm count by
-doing pm_runtime_put() in both slim_do_transfer() and slim_msg_response()
-for a single  pm_runtime_get() in slim_do_transfer()
+Without this transactions timeout after first suspend resume path.
 
-Fixes: d3062a210930 ("slimbus: messaging: add slim_alloc/free_txn_tid()")
+Fixes: 917809e2280b ("slimbus: ngd: Add qcom SLIMBus NGD driver")
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20210809082428.11236-3-srinivas.kandagatla@linaro.org
+Link: https://lore.kernel.org/r/20210809082428.11236-5-srinivas.kandagatla@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/slimbus/messaging.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/slimbus/qcom-ngd-ctrl.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/slimbus/messaging.c b/drivers/slimbus/messaging.c
-index 3b77713f1e3f..ddf0371ad52b 100644
---- a/drivers/slimbus/messaging.c
-+++ b/drivers/slimbus/messaging.c
-@@ -131,7 +131,8 @@ int slim_do_transfer(struct slim_controller *ctrl, struct slim_msg_txn *txn)
- 			goto slim_xfer_err;
+diff --git a/drivers/slimbus/qcom-ngd-ctrl.c b/drivers/slimbus/qcom-ngd-ctrl.c
+index b60541c3f72d..09ecd1fb24ae 100644
+--- a/drivers/slimbus/qcom-ngd-ctrl.c
++++ b/drivers/slimbus/qcom-ngd-ctrl.c
+@@ -1061,7 +1061,8 @@ static void qcom_slim_ngd_setup(struct qcom_slim_ngd_ctrl *ctrl)
+ {
+ 	u32 cfg = readl_relaxed(ctrl->ngd->base);
+ 
+-	if (ctrl->state == QCOM_SLIM_NGD_CTRL_DOWN)
++	if (ctrl->state == QCOM_SLIM_NGD_CTRL_DOWN ||
++		ctrl->state == QCOM_SLIM_NGD_CTRL_ASLEEP)
+ 		qcom_slim_ngd_init_dma(ctrl);
+ 
+ 	/* By default enable message queues */
+@@ -1112,6 +1113,7 @@ static int qcom_slim_ngd_power_up(struct qcom_slim_ngd_ctrl *ctrl)
+ 			dev_info(ctrl->dev, "Subsys restart: ADSP active framer\n");
+ 			return 0;
  		}
++		qcom_slim_ngd_setup(ctrl);
+ 		return 0;
  	}
--
-+	/* Initialize tid to invalid value */
-+	txn->tid = 0;
- 	need_tid = slim_tid_txn(txn->mt, txn->mc);
  
- 	if (need_tid) {
-@@ -163,7 +164,7 @@ int slim_do_transfer(struct slim_controller *ctrl, struct slim_msg_txn *txn)
- 			txn->mt, txn->mc, txn->la, ret);
+@@ -1500,6 +1502,7 @@ static int __maybe_unused qcom_slim_ngd_runtime_suspend(struct device *dev)
+ 	struct qcom_slim_ngd_ctrl *ctrl = dev_get_drvdata(dev);
+ 	int ret = 0;
  
- slim_xfer_err:
--	if (!clk_pause_msg && (!need_tid  || ret == -ETIMEDOUT)) {
-+	if (!clk_pause_msg && (txn->tid == 0  || ret == -ETIMEDOUT)) {
- 		/*
- 		 * remove runtime-pm vote if this was TX only, or
- 		 * if there was error during this transaction
++	qcom_slim_ngd_exit_dma(ctrl);
+ 	if (!ctrl->qmi.handle)
+ 		return 0;
+ 
 -- 
 2.30.2
 
