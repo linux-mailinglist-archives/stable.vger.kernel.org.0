@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E03503F66F6
+	by mail.lfdr.de (Postfix) with ESMTP id 876653F66F5
 	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:29:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240501AbhHXR3F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:29:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35802 "EHLO mail.kernel.org"
+        id S241039AbhHXR3D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:29:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35803 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240236AbhHXR1D (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S240264AbhHXR1D (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 24 Aug 2021 13:27:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8EF4961B49;
-        Tue, 24 Aug 2021 17:05:04 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 737EF61B65;
+        Tue, 24 Aug 2021 17:05:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824705;
-        bh=M9fWKhUPS+ZVg1PXcpWyxYRWcVDywd5IoDbjGqunR88=;
+        s=k20201202; t=1629824706;
+        bh=/FBBv4v2oXgBpv36XmecER7xB6IkFHW7SsmoN8s1vh8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fJCmor3/6sii+k1GGDXIfDD1BE0gGFAc1zHXlmqY9xTVLU+9J+mxofMFp3h89CfS/
-         aD8yKqV4ieicnjj2rQG2AJTGxGMGYwTFpTxoWUC9Ff99gJe1Hb336Rw1R4w0cvR0kP
-         5/KIVOuuAmStolEdJbht7hDId/9Xj+XuIfNZCK1rv3yxdpmncsK/23s25uz6tFpjvF
-         PXu1apP+NOousN6PwXF1ZgMOEpg1eW5IWrpuqRVHYHnRrobdllB8dHXlInKy2RuS9F
-         HOdtxvanFrLN9mk0YXpuYG5pgFuLBwch2yqIpBaSGOraayFXkjcMu/rkddEV2aSLyr
-         42Yvv2sCp/Mug==
+        b=tUll0xQ6nafYb5DMyvCJZ7VLl2P6w8ADpTCKEfbbqvNR32+Y6bX6L4sLz8agfe7Aq
+         brFuLTmpyoS6q5G5vlPNkfl3MXMYk596BGgy0NLYMElESI05mtu/O33+KR436u4qvG
+         /+bHx2kv1Ax2robqqIKQ/NQbuP5Kqr6z1PTc+pCGQIxOOTSzgVChqe1p8QuR3WxkwA
+         8JubXMYAqvYHUEf+7te81RuRl31djt+rkiI/qQp2Z6JAegLEy28jTvHKaToA6Ja93s
+         oiQctAinYkJDjfmIufCgOsnYY+uR1Ein3f5hJY1hBQe0cF2R7SFfBKsJyb8XiOy8pl
+         lWochN+l+wKnQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Richard Fitzgerald <rf@opensource.cirrus.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 06/64] ASoC: cs42l42: Correct definition of ADC Volume control
-Date:   Tue, 24 Aug 2021 13:03:59 -0400
-Message-Id: <20210824170457.710623-7-sashal@kernel.org>
+Subject: [PATCH 4.14 07/64] ASoC: cs42l42: Don't allow SND_SOC_DAIFMT_LEFT_J
+Date:   Tue, 24 Aug 2021 13:04:00 -0400
+Message-Id: <20210824170457.710623-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170457.710623-1-sashal@kernel.org>
 References: <20210824170457.710623-1-sashal@kernel.org>
@@ -50,45 +50,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Richard Fitzgerald <rf@opensource.cirrus.com>
 
-[ Upstream commit ee86f680ff4c9b406d49d4e22ddf10805b8a2137 ]
+[ Upstream commit 64324bac750b84ca54711fb7d332132fcdb87293 ]
 
-The ADC volume is a signed 8-bit number with range -97 to +12,
-with -97 being mute. Use a SOC_SINGLE_S8_TLV() to define this
-and fix the DECLARE_TLV_DB_SCALE() to have the correct start and
-mute flag.
+The driver has no support for left-justified protocol so it should
+not have been allowing this to be passed to cs42l42_set_dai_fmt().
 
-Fixes: 2c394ca79604 ("ASoC: Add support for CS42L42 codec")
 Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20210729170929.6589-1-rf@opensource.cirrus.com
+Fixes: 2c394ca79604 ("ASoC: Add support for CS42L42 codec")
+Link: https://lore.kernel.org/r/20210729170929.6589-2-rf@opensource.cirrus.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/cs42l42.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ sound/soc/codecs/cs42l42.c | 1 -
+ 1 file changed, 1 deletion(-)
 
 diff --git a/sound/soc/codecs/cs42l42.c b/sound/soc/codecs/cs42l42.c
-index 39adb2fdd003..1d997b2df477 100644
+index 1d997b2df477..bcfc32efef07 100644
 --- a/sound/soc/codecs/cs42l42.c
 +++ b/sound/soc/codecs/cs42l42.c
-@@ -404,7 +404,7 @@ static const struct regmap_config cs42l42_regmap = {
- 	.cache_type = REGCACHE_RBTREE,
- };
- 
--static DECLARE_TLV_DB_SCALE(adc_tlv, -9600, 100, false);
-+static DECLARE_TLV_DB_SCALE(adc_tlv, -9700, 100, true);
- static DECLARE_TLV_DB_SCALE(mixer_tlv, -6300, 100, true);
- 
- static const char * const cs42l42_hpf_freq_text[] = {
-@@ -443,8 +443,7 @@ static const struct snd_kcontrol_new cs42l42_snd_controls[] = {
- 				CS42L42_ADC_INV_SHIFT, true, false),
- 	SOC_SINGLE("ADC Boost Switch", CS42L42_ADC_CTL,
- 				CS42L42_ADC_DIG_BOOST_SHIFT, true, false),
--	SOC_SINGLE_SX_TLV("ADC Volume", CS42L42_ADC_VOLUME,
--				CS42L42_ADC_VOL_SHIFT, 0xA0, 0x6C, adc_tlv),
-+	SOC_SINGLE_S8_TLV("ADC Volume", CS42L42_ADC_VOLUME, -97, 12, adc_tlv),
- 	SOC_SINGLE("ADC WNF Switch", CS42L42_ADC_WNF_HPF_CTL,
- 				CS42L42_ADC_WNF_EN_SHIFT, true, false),
- 	SOC_SINGLE("ADC HPF Switch", CS42L42_ADC_WNF_HPF_CTL,
+@@ -793,7 +793,6 @@ static int cs42l42_set_dai_fmt(struct snd_soc_dai *codec_dai, unsigned int fmt)
+ 	/* interface format */
+ 	switch (fmt & SND_SOC_DAIFMT_FORMAT_MASK) {
+ 	case SND_SOC_DAIFMT_I2S:
+-	case SND_SOC_DAIFMT_LEFT_J:
+ 		break;
+ 	default:
+ 		return -EINVAL;
 -- 
 2.30.2
 
