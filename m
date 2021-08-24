@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F4273F64FD
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:08:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA94C3F64F6
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:08:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233775AbhHXRJH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:09:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46438 "EHLO mail.kernel.org"
+        id S239359AbhHXRJD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:09:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239423AbhHXRHC (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234352AbhHXRHC (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 24 Aug 2021 13:07:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3060F619F5;
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1211C61A02;
         Tue, 24 Aug 2021 16:59:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824395;
-        bh=pLs82OelJL9LUH8RveNb15o+L75oXkJrFfpT6ggYLLc=;
+        s=k20201202; t=1629824396;
+        bh=KxKT5dg6jfAVKH7PBjCP38BgyrrJrz8xojPAJsd30fg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TM2Fd2NJF3fxRknH2ij/r98wYtT+6mzWRJBp692sTHmcIEJK0tkJZTlUGgvTUEFTW
-         PZ8SXd/Al6yRkvG1JFylDLEr5d1Mw+r3jGpNQDYV4p30Y9yCYhXWdthJoWrD2LjbMU
-         NUL0nwyqMf0VOz0ajsOWhPZKK6qBjP6RFimP/O3drYRgnIC0x6RIWxG7pSoyi/kDdU
-         6+6P8Lez4YFP73jF/zI98ZntaW15LRH8rxQgAqkJvx6m926RNjO26a3yXJymL9Y85K
-         sInTw6uikkC/ukpJ4jzifYb8xEs3xVUaJWGvKpNNQTjIn+C0jGTJP6NcAuCSzM6lON
-         f3J/ze66/V5ZQ==
+        b=eCUO9cuy+vB+JZ1JSourWB2gXzE6rhg/euNympZKNR3L3Y7NZRuGB590u1Fb83mYG
+         o3q8w7tk4FYRJH2sVAVAhv5zWTBxLCSZXVF466dwjGDOQfSxmDWxGwZhmPLFNtFVbp
+         uuuDAALEuYjl+ks041r2c/lqq1YCbB5UN/YIVr44Y9w0T80ucWArTmrm62Z6znaEJj
+         hWDSBohOXdh9xL4mIRhxqOv/OmOH0QW0qyOXLDB863AAPHTlJmJiaw9opODVpT7fcw
+         yLYinl+/0IO1AAfNBXNPAa6yn8x0kedNSjSlXNLjFPV4P0K6F453aA7Jc5pP0lsefc
+         Xb6vJBE2etv0g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yongqiang Niu <yongqiang.niu@mediatek.com>,
+Cc:     "jason-jh.lin" <jason-jh.lin@mediatek.com>,
         Chun-Kuang Hu <chunkuang.hu@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 46/98] drm/mediatek: Fix aal size config
-Date:   Tue, 24 Aug 2021 12:58:16 -0400
-Message-Id: <20210824165908.709932-47-sashal@kernel.org>
+Subject: [PATCH 5.10 47/98] drm/mediatek: Add AAL output size configuration
+Date:   Tue, 24 Aug 2021 12:58:17 -0400
+Message-Id: <20210824165908.709932-48-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165908.709932-1-sashal@kernel.org>
 References: <20210824165908.709932-1-sashal@kernel.org>
@@ -48,33 +48,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yongqiang Niu <yongqiang.niu@mediatek.com>
+From: "jason-jh.lin" <jason-jh.lin@mediatek.com>
 
-[ Upstream commit 71dcadba34203d8dd35152e368720f977e9cdb81 ]
+[ Upstream commit 71ac6f390f6a3017f58d05d677b961bb1f851338 ]
 
-The orginal setting is not correct, fix it to follow hardware data sheet.
-If keep this error setting, mt8173/mt8183 display ok
-but mt8192 display abnormal.
+To avoid the output width and height is incorrect,
+AAL_OUTPUT_SIZE configuration should be set.
 
 Fixes: 0664d1392c26 ("drm/mediatek: Add AAL engine basic function")
-
-Signed-off-by: Yongqiang Niu <yongqiang.niu@mediatek.com>
+Signed-off-by: jason-jh.lin <jason-jh.lin@mediatek.com>
 Signed-off-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/mediatek/mtk_drm_ddp_comp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/mediatek/mtk_drm_ddp_comp.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
 diff --git a/drivers/gpu/drm/mediatek/mtk_drm_ddp_comp.c b/drivers/gpu/drm/mediatek/mtk_drm_ddp_comp.c
-index 3064eac1a750..fe58edcf57b5 100644
+index fe58edcf57b5..e747ff7ba3dc 100644
 --- a/drivers/gpu/drm/mediatek/mtk_drm_ddp_comp.c
 +++ b/drivers/gpu/drm/mediatek/mtk_drm_ddp_comp.c
-@@ -180,7 +180,7 @@ static void mtk_aal_config(struct mtk_ddp_comp *comp, unsigned int w,
- 			   unsigned int h, unsigned int vrefresh,
+@@ -34,6 +34,7 @@
+ 
+ #define DISP_AAL_EN				0x0000
+ #define DISP_AAL_SIZE				0x0030
++#define DISP_AAL_OUTPUT_SIZE			0x04d8
+ 
+ #define DISP_CCORR_EN				0x0000
+ #define CCORR_EN				BIT(0)
+@@ -181,6 +182,7 @@ static void mtk_aal_config(struct mtk_ddp_comp *comp, unsigned int w,
  			   unsigned int bpc, struct cmdq_pkt *cmdq_pkt)
  {
--	mtk_ddp_write(cmdq_pkt, h << 16 | w, comp, DISP_AAL_SIZE);
-+	mtk_ddp_write(cmdq_pkt, w << 16 | h, comp, DISP_AAL_SIZE);
+ 	mtk_ddp_write(cmdq_pkt, w << 16 | h, comp, DISP_AAL_SIZE);
++	mtk_ddp_write(cmdq_pkt, w << 16 | h, comp, DISP_AAL_OUTPUT_SIZE);
  }
  
  static void mtk_aal_start(struct mtk_ddp_comp *comp)
