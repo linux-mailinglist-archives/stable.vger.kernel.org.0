@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE1D23F661E
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:20:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EBDC3F6624
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:20:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239992AbhHXRU1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:20:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55612 "EHLO mail.kernel.org"
+        id S238585AbhHXRUw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:20:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55620 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240448AbhHXRSi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:18:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D95DC615E1;
-        Tue, 24 Aug 2021 17:02:58 +0000 (UTC)
+        id S240491AbhHXRSu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:18:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CFBA261ABC;
+        Tue, 24 Aug 2021 17:02:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824579;
-        bh=ywLVauCDzDNXw2hG1eGiH7z52eUYR6QHZDN39swFfgA=;
+        s=k20201202; t=1629824580;
+        bh=gFxJW7kQjAVx6+Tz6fYlHS5i8E6SnUgyABt53kNvEMo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bNllUMiDXT0oc6VjN8mdwpGIfQIwGHszTWjtHiEMUe54Z89zGVW278El/fonj7R+j
-         zQgJf+UbZCjnVTiC30aY8eKigCbvFXMFBPU2YaP8brg8eIaqBk7u3y/B14gP+CabSu
-         M7uogrAaRUG/rRX+CZj+CbakGcvMuqKkBPlvi1osRvndnIEGj7Q+YMTEPJS30k8fx9
-         VNzwmxLJVGHAWPNxfiYCO2sXaLm1Tu0Jk7oOIBy3nvivDe7397iYXuVnrhvFcD0H+x
-         /SEYScKQ7ADiegzyBONXyeeGz1KCtnrRQnPIf54PXzmEiTIR9ktjaFji239R+qeJgx
-         n/yuyCIIyzy3A==
+        b=uaMQ+b0HmFwuYA4/BkIwTopwJvM2TJYdGZAJAP8Mg35MJSAb0422GGUVFOX/Wtf6N
+         20oD9AbenFgVOex3I8671grbgy4ZcljZq2b4V5ozHuY8LQ2YcCKBsWRZLnr6I++eoQ
+         ovUq2RT6mQeBuuM/FvzxKpFznMi+VIPZRtv774RrJ8/Yopfnioa/xIyMaH5hKfiA5m
+         Q62WdY518C4GoaXdjyKySNT/WNDJ7FlTBFHzu+rnZfikZ5k0eVuEYxRCdD5AD8vd5S
+         66w0e3OMRa8feQhIcEA8xdiGMWSWBDkOHUFtqlSZQQf3kDjlima7dXjDoXZAd8J2YW
+         DUGE9hmSc8WWw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dongliang Mu <mudongliangabcd@gmail.com>,
-        Alexander Aring <aahringo@redhat.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>,
+Cc:     Richard Fitzgerald <rf@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 07/84] ieee802154: hwsim: fix GPF in hwsim_new_edge_nl
-Date:   Tue, 24 Aug 2021 13:01:33 -0400
-Message-Id: <20210824170250.710392-8-sashal@kernel.org>
+Subject: [PATCH 4.19 08/84] ASoC: cs42l42: Correct definition of ADC Volume control
+Date:   Tue, 24 Aug 2021 13:01:34 -0400
+Message-Id: <20210824170250.710392-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170250.710392-1-sashal@kernel.org>
 References: <20210824170250.710392-1-sashal@kernel.org>
@@ -49,36 +48,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Richard Fitzgerald <rf@opensource.cirrus.com>
 
-[ Upstream commit 889d0e7dc68314a273627d89cbb60c09e1cc1c25 ]
+[ Upstream commit ee86f680ff4c9b406d49d4e22ddf10805b8a2137 ]
 
-Both MAC802154_HWSIM_ATTR_RADIO_ID and MAC802154_HWSIM_ATTR_RADIO_EDGE
-must be present to fix GPF.
+The ADC volume is a signed 8-bit number with range -97 to +12,
+with -97 being mute. Use a SOC_SINGLE_S8_TLV() to define this
+and fix the DECLARE_TLV_DB_SCALE() to have the correct start and
+mute flag.
 
-Fixes: f25da51fdc38 ("ieee802154: hwsim: add replacement for fakelb")
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Acked-by: Alexander Aring <aahringo@redhat.com>
-Link: https://lore.kernel.org/r/20210707155633.1486603-1-mudongliangabcd@gmail.com
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+Fixes: 2c394ca79604 ("ASoC: Add support for CS42L42 codec")
+Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20210729170929.6589-1-rf@opensource.cirrus.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ieee802154/mac802154_hwsim.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/codecs/cs42l42.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ieee802154/mac802154_hwsim.c b/drivers/net/ieee802154/mac802154_hwsim.c
-index 82f3fbda7dfe..ed60e691cc2b 100644
---- a/drivers/net/ieee802154/mac802154_hwsim.c
-+++ b/drivers/net/ieee802154/mac802154_hwsim.c
-@@ -432,7 +432,7 @@ static int hwsim_new_edge_nl(struct sk_buff *msg, struct genl_info *info)
- 	struct hwsim_edge *e;
- 	u32 v0, v1;
+diff --git a/sound/soc/codecs/cs42l42.c b/sound/soc/codecs/cs42l42.c
+index fddfd227a9c0..6a58c666776a 100644
+--- a/sound/soc/codecs/cs42l42.c
++++ b/sound/soc/codecs/cs42l42.c
+@@ -404,7 +404,7 @@ static const struct regmap_config cs42l42_regmap = {
+ 	.cache_type = REGCACHE_RBTREE,
+ };
  
--	if (!info->attrs[MAC802154_HWSIM_ATTR_RADIO_ID] &&
-+	if (!info->attrs[MAC802154_HWSIM_ATTR_RADIO_ID] ||
- 	    !info->attrs[MAC802154_HWSIM_ATTR_RADIO_EDGE])
- 		return -EINVAL;
+-static DECLARE_TLV_DB_SCALE(adc_tlv, -9600, 100, false);
++static DECLARE_TLV_DB_SCALE(adc_tlv, -9700, 100, true);
+ static DECLARE_TLV_DB_SCALE(mixer_tlv, -6300, 100, true);
  
+ static const char * const cs42l42_hpf_freq_text[] = {
+@@ -443,8 +443,7 @@ static const struct snd_kcontrol_new cs42l42_snd_controls[] = {
+ 				CS42L42_ADC_INV_SHIFT, true, false),
+ 	SOC_SINGLE("ADC Boost Switch", CS42L42_ADC_CTL,
+ 				CS42L42_ADC_DIG_BOOST_SHIFT, true, false),
+-	SOC_SINGLE_SX_TLV("ADC Volume", CS42L42_ADC_VOLUME,
+-				CS42L42_ADC_VOL_SHIFT, 0xA0, 0x6C, adc_tlv),
++	SOC_SINGLE_S8_TLV("ADC Volume", CS42L42_ADC_VOLUME, -97, 12, adc_tlv),
+ 	SOC_SINGLE("ADC WNF Switch", CS42L42_ADC_WNF_HPF_CTL,
+ 				CS42L42_ADC_WNF_EN_SHIFT, true, false),
+ 	SOC_SINGLE("ADC HPF Switch", CS42L42_ADC_WNF_HPF_CTL,
 -- 
 2.30.2
 
