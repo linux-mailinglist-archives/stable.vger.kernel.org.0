@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C9C933F65C9
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:16:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68F423F65CB
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:16:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240062AbhHXRQj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:16:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55610 "EHLO mail.kernel.org"
+        id S240091AbhHXRQk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:16:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240406AbhHXROn (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S240407AbhHXROn (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 24 Aug 2021 13:14:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CCC6761A89;
-        Tue, 24 Aug 2021 17:01:44 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D1B7B61A71;
+        Tue, 24 Aug 2021 17:01:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824505;
-        bh=2+nlMKdcIfLaKOVb4/fN6a6q2c2VOM5JkuE/NkD+krs=;
+        s=k20201202; t=1629824506;
+        bh=jyxyVQaqkmFimCiJAMUZ8nBi8wDT8qwusLulxB7ihmQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ExVNS7voIaqR8441Y1/+9jk/o69htXpvneybY4Gbq2TGyPjRb+T4qx/OdQ3PYhszN
-         y5yQ6OcmSxC3Kt2UWaMO3ocJsVMcxJ6XvwolWiXnY8dF51QpVvAx1Xl1E5uIgnBfz0
-         FrdNIFsHuEhs5jNia/mQI4oqGiV710lubPro2v3u3WZ+lOgrUly0JzpNGxLJZFqCBc
-         3G6sTl6fVBKXt+NBPkjIl639HXzWVVfmPUaXr6zfMMku+2jeQ/1hPyI8N7W5pNs0ec
-         6RvjovxlAF1PCanV9hqfGgRHNQHzZoAuYM8C3kJgJlFnGC1YgROU+WFjy4hjrFdzvt
-         PCp4DjITZX57Q==
+        b=uwGOEo+35kUcCyLvHAGO6FnEwlP0e8tbzGEv/pMHqrYVkwf8SOPP5dU9CLYcN6hLy
+         hYOHqkFRLw/kHXHYalQnEJjFRWZgggWQdKmwEvptWvj1T4YTtJomBIQeuT1v999kXX
+         6a20cY/9pF09/7c5xUBypfGfiXrsRtIAsOIivQh+s3dpNm//hqdcO+Tv9+JQ9OqurS
+         eg506JPGrnbyB0Zrn/3CMX09IYPwQ6/h7AeiZHSCuoSFSuh1kzhoANtv8h4hD/L1Gr
+         M9daJiwHh/Z2I87e/Q2HvyBtPwjqmS4tKZhQv8vGcf6EfVGXx78LVnhlOs1GRCiwia
+         WBr2U0vgR1r6g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jason Wang <jasowang@redhat.com>,
-        "Michael S . Tsirkin" <mst@redhat.com>,
-        Ivan <ivan@prestigetransportation.com>,
-        "David S . Miller" <davem@davemloft.net>,
+Cc:     Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 38/61] virtio-net: use NETIF_F_GRO_HW instead of NETIF_F_LRO
-Date:   Tue, 24 Aug 2021 13:00:43 -0400
-Message-Id: <20210824170106.710221-39-sashal@kernel.org>
+Subject: [PATCH 5.4 39/61] net: qlcnic: add missed unlock in qlcnic_83xx_flash_read32
+Date:   Tue, 24 Aug 2021 13:00:44 -0400
+Message-Id: <20210824170106.710221-40-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170106.710221-1-sashal@kernel.org>
 References: <20210824170106.710221-1-sashal@kernel.org>
@@ -50,99 +48,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Wang <jasowang@redhat.com>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit dbcf24d153884439dad30484a0e3f02350692e4c ]
+[ Upstream commit 0a298d133893c72c96e2156ed7cb0f0c4a306a3e ]
 
-Commit a02e8964eaf92 ("virtio-net: ethtool configurable LRO")
-maps LRO to virtio guest offloading features and allows the
-administrator to enable and disable those features via ethtool.
+qlcnic_83xx_unlock_flash() is called on all paths after we call
+qlcnic_83xx_lock_flash(), except for one error path on failure
+of QLCRD32(), which may cause a deadlock. This bug is suggested
+by a static analysis tool, please advise.
 
-This leads to several issues:
-
-- For a device that doesn't support control guest offloads, the "LRO"
-  can't be disabled triggering WARN in dev_disable_lro() when turning
-  off LRO or when enabling forwarding bridging etc.
-
-- For a device that supports control guest offloads, the guest
-  offloads are disabled in cases of bridging, forwarding etc slowing
-  down the traffic.
-
-Fix this by using NETIF_F_GRO_HW instead. Though the spec does not
-guarantee packets to be re-segmented as the original ones,
-we can add that to the spec, possibly with a flag for devices to
-differentiate between GRO and LRO.
-
-Further, we never advertised LRO historically before a02e8964eaf92
-("virtio-net: ethtool configurable LRO") and so bridged/forwarded
-configs effectively always relied on virtio receive offloads behaving
-like GRO - thus even if this breaks any configs it is at least not
-a regression.
-
-Fixes: a02e8964eaf92 ("virtio-net: ethtool configurable LRO")
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Reported-by: Ivan <ivan@prestigetransportation.com>
-Tested-by: Ivan <ivan@prestigetransportation.com>
-Signed-off-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 81d0aeb0a4fff ("qlcnic: flash template based firmware reset recovery")
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Link: https://lore.kernel.org/r/20210816131405.24024-1-dinghao.liu@zju.edu.cn
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/virtio_net.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_hw.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 36f8aeb113a8..37c2cecd1e50 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -63,7 +63,7 @@ static const unsigned long guest_offloads[] = {
- 	VIRTIO_NET_F_GUEST_CSUM
- };
+diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_hw.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_hw.c
+index 29b9c728a65e..f2014c10f7c9 100644
+--- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_hw.c
++++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_hw.c
+@@ -3158,8 +3158,10 @@ int qlcnic_83xx_flash_read32(struct qlcnic_adapter *adapter, u32 flash_addr,
  
--#define GUEST_OFFLOAD_LRO_MASK ((1ULL << VIRTIO_NET_F_GUEST_TSO4) | \
-+#define GUEST_OFFLOAD_GRO_HW_MASK ((1ULL << VIRTIO_NET_F_GUEST_TSO4) | \
- 				(1ULL << VIRTIO_NET_F_GUEST_TSO6) | \
- 				(1ULL << VIRTIO_NET_F_GUEST_ECN)  | \
- 				(1ULL << VIRTIO_NET_F_GUEST_UFO))
-@@ -2493,7 +2493,7 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
- 	        virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_ECN) ||
- 		virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_UFO) ||
- 		virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_CSUM))) {
--		NL_SET_ERR_MSG_MOD(extack, "Can't set XDP while host is implementing LRO/CSUM, disable LRO/CSUM first");
-+		NL_SET_ERR_MSG_MOD(extack, "Can't set XDP while host is implementing GRO_HW/CSUM, disable GRO_HW/CSUM first");
- 		return -EOPNOTSUPP;
- 	}
+ 		indirect_addr = QLC_83XX_FLASH_DIRECT_DATA(addr);
+ 		ret = QLCRD32(adapter, indirect_addr, &err);
+-		if (err == -EIO)
++		if (err == -EIO) {
++			qlcnic_83xx_unlock_flash(adapter);
+ 			return err;
++		}
  
-@@ -2644,15 +2644,15 @@ static int virtnet_set_features(struct net_device *dev,
- 	u64 offloads;
- 	int err;
- 
--	if ((dev->features ^ features) & NETIF_F_LRO) {
-+	if ((dev->features ^ features) & NETIF_F_GRO_HW) {
- 		if (vi->xdp_enabled)
- 			return -EBUSY;
- 
--		if (features & NETIF_F_LRO)
-+		if (features & NETIF_F_GRO_HW)
- 			offloads = vi->guest_offloads_capable;
- 		else
- 			offloads = vi->guest_offloads_capable &
--				   ~GUEST_OFFLOAD_LRO_MASK;
-+				   ~GUEST_OFFLOAD_GRO_HW_MASK;
- 
- 		err = virtnet_set_guest_offloads(vi, offloads);
- 		if (err)
-@@ -3128,9 +3128,9 @@ static int virtnet_probe(struct virtio_device *vdev)
- 		dev->features |= NETIF_F_RXCSUM;
- 	if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO4) ||
- 	    virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO6))
--		dev->features |= NETIF_F_LRO;
-+		dev->features |= NETIF_F_GRO_HW;
- 	if (virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS))
--		dev->hw_features |= NETIF_F_LRO;
-+		dev->hw_features |= NETIF_F_GRO_HW;
- 
- 	dev->vlan_features = dev->features;
- 
+ 		word = ret;
+ 		*(u32 *)p_data  = word;
 -- 
 2.30.2
 
