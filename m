@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 86ED33F64B2
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:06:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 553DC3F64B9
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:06:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238713AbhHXRGd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:06:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46032 "EHLO mail.kernel.org"
+        id S236216AbhHXRGv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:06:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239636AbhHXREb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:04:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E84976141B;
-        Tue, 24 Aug 2021 16:59:28 +0000 (UTC)
+        id S239716AbhHXREs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:04:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CF4A361528;
+        Tue, 24 Aug 2021 16:59:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824369;
-        bh=iD9D/k5aNOEcdSZegmyuiigYvh4NINWH+mB9toJlgiI=;
+        s=k20201202; t=1629824370;
+        bh=hmiAuGvDMEHw/MPDXtTgBIuj2w4uBIlK6gNECyNFkcQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YV9YvjIAywGKokGIA121x1NCOWo6rvopUmDXxtazc3KfIU9NiswawowSbXxsTnBsN
-         xmlB9S/oUq+tlhy7sM2yEYCWmdclg2cHtWg7xnEi3EjpAVHw+jlaLbSPX7kvHCOd2x
-         +mfze9u3u37sQtsO+b5B49LV+dLHhlz1S33/FY1jZxAOn+riV+l6yKvmJjspY0ZQ6i
-         G1S3im4cYCjovIqtjcZoKXxdFJUQaEQqHvg/layegIqr/8BQQVsvmz0BJkxDpagNz+
-         W2EVtJkoSozhPFsRbzx/29c9UCvIeFNISgeYMGJPL0PqxAGMaMgiXvopocHdp3YMxD
-         vxM+94WdU3gcA==
+        b=V+RestEB9yRHZTMNvMWGUxNW7d74EC+RJqc5vLPJz1GZYPToOmpfMxMVo77dpSUxB
+         E0uGlm8UeMEqUJqL07NMTM+tZLFB0yhfDc9L8K/xYZ6uhRM97gxL3FpvGb+wkCsq/y
+         +s+6AgEDO6gQkL/vyIxkWQApuuiLxJ6eM1sjQUjsEW9JKV8zFUp2oNaxj9rIG8gbl6
+         MVLHBl44butnYh9wHW+Y5HjNeX1TDoW6uhGOPzVDn3aQUr5mGna+dPMqODyPhQyfet
+         c2AjXg3pG/I0wgmPAfsB6dytdvVxmRgwqKVNDiol2kW/69hx1IN9HIyhSJH2utAdTD
+         fakaxYtfYXQZA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Harshvardhan Jha <harshvardhan.jha@oracle.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
+Cc:     Dave Gerlach <d-gerlach@ti.com>,
+        Kevin Hilman <khilman@baylibre.com>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 19/98] net: xfrm: Fix end of loop tests for list_for_each_entry
-Date:   Tue, 24 Aug 2021 12:57:49 -0400
-Message-Id: <20210824165908.709932-20-sashal@kernel.org>
+Subject: [PATCH 5.10 20/98] ARM: dts: am43x-epos-evm: Reduce i2c0 bus speed for tps65218
+Date:   Tue, 24 Aug 2021 12:57:50 -0400
+Message-Id: <20210824165908.709932-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165908.709932-1-sashal@kernel.org>
 References: <20210824165908.709932-1-sashal@kernel.org>
@@ -48,33 +49,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harshvardhan Jha <harshvardhan.jha@oracle.com>
+From: Dave Gerlach <d-gerlach@ti.com>
 
-[ Upstream commit 480e93e12aa04d857f7cc2e6fcec181c0d690404 ]
+[ Upstream commit 20a6b3fd8e2e2c063b25fbf2ee74d86b898e5087 ]
 
-The list_for_each_entry() iterator, "pos" in this code, can never be
-NULL so the warning will never be printed.
+Based on the latest timing specifications for the TPS65218 from the data
+sheet, http://www.ti.com/lit/ds/symlink/tps65218.pdf, document SLDS206
+from November 2014, we must change the i2c bus speed to better fit within
+the minimum high SCL time required for proper i2c transfer.
 
-Signed-off-by: Harshvardhan Jha <harshvardhan.jha@oracle.com>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+When running at 400khz, measurements show that SCL spends
+0.8125 uS/1.666 uS high/low which violates the requirement for minimum
+high period of SCL provided in datasheet Table 7.6 which is 1 uS.
+Switching to 100khz gives us 5 uS/5 uS high/low which both fall above
+the minimum given values for 100 khz, 4.0 uS/4.7 uS high/low.
+
+Without this patch occasionally a voltage set operation from the kernel
+will appear to have worked but the actual voltage reflected on the PMIC
+will not have updated, causing problems especially with cpufreq that may
+update to a higher OPP without actually raising the voltage on DCDC2,
+leading to a hang.
+
+Signed-off-by: Dave Gerlach <d-gerlach@ti.com>
+Signed-off-by: Kevin Hilman <khilman@baylibre.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xfrm/xfrm_ipcomp.c | 2 +-
+ arch/arm/boot/dts/am43x-epos-evm.dts | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/xfrm/xfrm_ipcomp.c b/net/xfrm/xfrm_ipcomp.c
-index 4d422447aadc..0814320472f1 100644
---- a/net/xfrm/xfrm_ipcomp.c
-+++ b/net/xfrm/xfrm_ipcomp.c
-@@ -250,7 +250,7 @@ static void ipcomp_free_tfms(struct crypto_comp * __percpu *tfms)
- 			break;
- 	}
+diff --git a/arch/arm/boot/dts/am43x-epos-evm.dts b/arch/arm/boot/dts/am43x-epos-evm.dts
+index 8b696107eef8..d2aebdbc7e0f 100644
+--- a/arch/arm/boot/dts/am43x-epos-evm.dts
++++ b/arch/arm/boot/dts/am43x-epos-evm.dts
+@@ -582,7 +582,7 @@
+ 	status = "okay";
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&i2c0_pins>;
+-	clock-frequency = <400000>;
++	clock-frequency = <100000>;
  
--	WARN_ON(!pos);
-+	WARN_ON(list_entry_is_head(pos, &ipcomp_tfms_list, list));
- 
- 	if (--pos->users)
- 		return;
+ 	tps65218: tps65218@24 {
+ 		reg = <0x24>;
 -- 
 2.30.2
 
