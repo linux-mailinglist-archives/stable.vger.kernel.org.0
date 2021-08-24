@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CCE83F64C4
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:06:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BF113F64C1
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:06:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239544AbhHXRHP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:07:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46496 "EHLO mail.kernel.org"
+        id S239523AbhHXRHO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:07:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46552 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239853AbhHXRFC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:05:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ACB2861401;
-        Tue, 24 Aug 2021 16:59:38 +0000 (UTC)
+        id S239861AbhHXRFD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:05:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A5B7E61875;
+        Tue, 24 Aug 2021 16:59:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824379;
-        bh=apGQMCEJh44n74ixYaaFtOy1Y5xBfCKb6M33lWzot5g=;
+        s=k20201202; t=1629824380;
+        bh=/tyXwoQY5cXUrCb66qNPCO4T5SCEKBxFxfrl03cp2vE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u1BYzNpCiewospKK/3+eYY5Qy7/WqZeZMOB4CyO0SAScMUndra4xkMQ0X5FegUHA2
-         8Yd7Xr6Gy1u1raS3o0jeZ/VfHfQWvgxJgJdlanbl0eWlTOU7wHbudPFAyveNRtSOhc
-         v5LlUdFpwtpziNpK3PdBeIiAPJOMh00CsEIAA9tgTRA74uy+o0zHnxVMuSGa7sQ8fR
-         HTrU306wacdNbiZ9+D/40pHy8F2QtVWcr05FIeZlBor2tFRQXjrZp1Hdt4S/TVckBU
-         dAnx9BeVq22BQhilH+/pg06wEoifRElf8IKMWHI5NRKEXF3mNH80NZLuNln4OPlwL5
-         FbIjkTCtKHmEA==
+        b=X8QUKFjIiak2HOkqtinXr3opcd38QGMzzofQUv6CsdSZaR5TFGDNoj3v1axwGzH+w
+         KnRE9+x20FS8KX9KuD53C/MEkpcuCKnnpPzhOUvHMAUWUMjz+MP0/nmpep+O3Z6zEn
+         1Bb0uJAjCn6tr+8muo7mPV4EG/xRIuUJQEhWLPrILmowfEJTgvLGZ7XieFisO6ACVq
+         9Pj5m5rAP0JJzLHEZ0VcQ9E9383sUTmWem6pOi+sYtpr8eA9tuGoqfq0GH5XPeQUrM
+         0RIv7q4kQx8CoPhsi0OgynIFPPZH+iVkNTTp9nQhnjjePfzFpqzPNqdXh1uN7prEAV
+         cs9QG9v1N4HVg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sudeep Holla <sudeep.holla@arm.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 29/98] ARM: dts: nomadik: Fix up interrupt controller node names
-Date:   Tue, 24 Aug 2021 12:57:59 -0400
-Message-Id: <20210824165908.709932-30-sashal@kernel.org>
+Cc:     Petko Manolov <petkan@nucleusys.com>,
+        Pavel Skripkin <paskripkin@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 30/98] net: usb: pegasus: Check the return value of get_geristers() and friends;
+Date:   Tue, 24 Aug 2021 12:58:00 -0400
+Message-Id: <20210824165908.709932-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165908.709932-1-sashal@kernel.org>
 References: <20210824165908.709932-1-sashal@kernel.org>
@@ -48,52 +49,312 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sudeep Holla <sudeep.holla@arm.com>
+From: Petko Manolov <petkan@nucleusys.com>
 
-[ Upstream commit 47091f473b364c98207c4def197a0ae386fc9af1 ]
+[ Upstream commit 8a160e2e9aeb8318159b48701ad8a6e22274372d ]
 
-Once the new schema interrupt-controller/arm,vic.yaml is added, we get
-the below warnings:
+Certain call sites of get_geristers() did not do proper error handling.  This
+could be a problem as get_geristers() typically return the data via pointer to a
+buffer.  If an error occurred the code is carelessly manipulating the wrong data.
 
-	arch/arm/boot/dts/ste-nomadik-nhk15.dt.yaml:
-	intc@10140000: $nodename:0: 'intc@10140000' does not match
-	'^interrupt-controller(@[0-9a-f,]+)*$'
-
-Fix the node names for the interrupt controller to conform
-to the standard node name interrupt-controller@..
-
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20210617210825.3064367-2-sudeep.holla@arm.com
-Link: https://lore.kernel.org/r/20210626000103.830184-1-linus.walleij@linaro.org'
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Petko Manolov <petkan@nucleusys.com>
+Reviewed-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/ste-nomadik-stn8815.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/usb/pegasus.c | 108 ++++++++++++++++++++++++++------------
+ 1 file changed, 75 insertions(+), 33 deletions(-)
 
-diff --git a/arch/arm/boot/dts/ste-nomadik-stn8815.dtsi b/arch/arm/boot/dts/ste-nomadik-stn8815.dtsi
-index 4f38aeecadb3..42abea3ea92c 100644
---- a/arch/arm/boot/dts/ste-nomadik-stn8815.dtsi
-+++ b/arch/arm/boot/dts/ste-nomadik-stn8815.dtsi
-@@ -755,14 +755,14 @@
- 			status = "disabled";
- 		};
+diff --git a/drivers/net/usb/pegasus.c b/drivers/net/usb/pegasus.c
+index 0d7935924e58..fb1a8c4486dd 100644
+--- a/drivers/net/usb/pegasus.c
++++ b/drivers/net/usb/pegasus.c
+@@ -132,9 +132,15 @@ static int get_registers(pegasus_t *pegasus, __u16 indx, __u16 size, void *data)
+ static int set_registers(pegasus_t *pegasus, __u16 indx, __u16 size,
+ 			 const void *data)
+ {
+-	return usb_control_msg_send(pegasus->usb, 0, PEGASUS_REQ_SET_REGS,
++	int ret;
++
++	ret = usb_control_msg_send(pegasus->usb, 0, PEGASUS_REQ_SET_REGS,
+ 				    PEGASUS_REQT_WRITE, 0, indx, data, size,
+ 				    1000, GFP_NOIO);
++	if (ret < 0)
++		netif_dbg(pegasus, drv, pegasus->net, "%s failed with %d\n", __func__, ret);
++
++	return ret;
+ }
  
--		vica: intc@10140000 {
-+		vica: interrupt-controller@10140000 {
- 			compatible = "arm,versatile-vic";
- 			interrupt-controller;
- 			#interrupt-cells = <1>;
- 			reg = <0x10140000 0x20>;
- 		};
+ /*
+@@ -145,10 +151,15 @@ static int set_registers(pegasus_t *pegasus, __u16 indx, __u16 size,
+ static int set_register(pegasus_t *pegasus, __u16 indx, __u8 data)
+ {
+ 	void *buf = &data;
++	int ret;
  
--		vicb: intc@10140020 {
-+		vicb: interrupt-controller@10140020 {
- 			compatible = "arm,versatile-vic";
- 			interrupt-controller;
- 			#interrupt-cells = <1>;
+-	return usb_control_msg_send(pegasus->usb, 0, PEGASUS_REQ_SET_REG,
++	ret = usb_control_msg_send(pegasus->usb, 0, PEGASUS_REQ_SET_REG,
+ 				    PEGASUS_REQT_WRITE, data, indx, buf, 1,
+ 				    1000, GFP_NOIO);
++	if (ret < 0)
++		netif_dbg(pegasus, drv, pegasus->net, "%s failed with %d\n", __func__, ret);
++
++	return ret;
+ }
+ 
+ static int update_eth_regs_async(pegasus_t *pegasus)
+@@ -188,10 +199,9 @@ static int update_eth_regs_async(pegasus_t *pegasus)
+ 
+ static int __mii_op(pegasus_t *p, __u8 phy, __u8 indx, __u16 *regd, __u8 cmd)
+ {
+-	int i;
+-	__u8 data[4] = { phy, 0, 0, indx };
++	int i, ret;
+ 	__le16 regdi;
+-	int ret = -ETIMEDOUT;
++	__u8 data[4] = { phy, 0, 0, indx };
+ 
+ 	if (cmd & PHY_WRITE) {
+ 		__le16 *t = (__le16 *) & data[1];
+@@ -207,12 +217,15 @@ static int __mii_op(pegasus_t *p, __u8 phy, __u8 indx, __u16 *regd, __u8 cmd)
+ 		if (data[0] & PHY_DONE)
+ 			break;
+ 	}
+-	if (i >= REG_TIMEOUT)
++	if (i >= REG_TIMEOUT) {
++		ret = -ETIMEDOUT;
+ 		goto fail;
++	}
+ 	if (cmd & PHY_READ) {
+ 		ret = get_registers(p, PhyData, 2, &regdi);
++		if (ret < 0)
++			goto fail;
+ 		*regd = le16_to_cpu(regdi);
+-		return ret;
+ 	}
+ 	return 0;
+ fail:
+@@ -235,9 +248,13 @@ static int write_mii_word(pegasus_t *pegasus, __u8 phy, __u8 indx, __u16 *regd)
+ static int mdio_read(struct net_device *dev, int phy_id, int loc)
+ {
+ 	pegasus_t *pegasus = netdev_priv(dev);
++	int ret;
+ 	u16 res;
+ 
+-	read_mii_word(pegasus, phy_id, loc, &res);
++	ret = read_mii_word(pegasus, phy_id, loc, &res);
++	if (ret < 0)
++		return ret;
++
+ 	return (int)res;
+ }
+ 
+@@ -251,10 +268,9 @@ static void mdio_write(struct net_device *dev, int phy_id, int loc, int val)
+ 
+ static int read_eprom_word(pegasus_t *pegasus, __u8 index, __u16 *retdata)
+ {
+-	int i;
+-	__u8 tmp = 0;
++	int ret, i;
+ 	__le16 retdatai;
+-	int ret;
++	__u8 tmp = 0;
+ 
+ 	set_register(pegasus, EpromCtrl, 0);
+ 	set_register(pegasus, EpromOffset, index);
+@@ -262,21 +278,25 @@ static int read_eprom_word(pegasus_t *pegasus, __u8 index, __u16 *retdata)
+ 
+ 	for (i = 0; i < REG_TIMEOUT; i++) {
+ 		ret = get_registers(pegasus, EpromCtrl, 1, &tmp);
++		if (ret < 0)
++			goto fail;
+ 		if (tmp & EPROM_DONE)
+ 			break;
+-		if (ret == -ESHUTDOWN)
+-			goto fail;
+ 	}
+-	if (i >= REG_TIMEOUT)
++	if (i >= REG_TIMEOUT) {
++		ret = -ETIMEDOUT;
+ 		goto fail;
++	}
+ 
+ 	ret = get_registers(pegasus, EpromData, 2, &retdatai);
++	if (ret < 0)
++		goto fail;
+ 	*retdata = le16_to_cpu(retdatai);
+ 	return ret;
+ 
+ fail:
+-	netif_warn(pegasus, drv, pegasus->net, "%s failed\n", __func__);
+-	return -ETIMEDOUT;
++	netif_dbg(pegasus, drv, pegasus->net, "%s failed\n", __func__);
++	return ret;
+ }
+ 
+ #ifdef	PEGASUS_WRITE_EEPROM
+@@ -324,10 +344,10 @@ static int write_eprom_word(pegasus_t *pegasus, __u8 index, __u16 data)
+ 	return ret;
+ 
+ fail:
+-	netif_warn(pegasus, drv, pegasus->net, "%s failed\n", __func__);
++	netif_dbg(pegasus, drv, pegasus->net, "%s failed\n", __func__);
+ 	return -ETIMEDOUT;
+ }
+-#endif				/* PEGASUS_WRITE_EEPROM */
++#endif	/* PEGASUS_WRITE_EEPROM */
+ 
+ static inline int get_node_id(pegasus_t *pegasus, u8 *id)
+ {
+@@ -367,19 +387,21 @@ static void set_ethernet_addr(pegasus_t *pegasus)
+ 	return;
+ err:
+ 	eth_hw_addr_random(pegasus->net);
+-	dev_info(&pegasus->intf->dev, "software assigned MAC address.\n");
++	netif_dbg(pegasus, drv, pegasus->net, "software assigned MAC address.\n");
+ 
+ 	return;
+ }
+ 
+ static inline int reset_mac(pegasus_t *pegasus)
+ {
++	int ret, i;
+ 	__u8 data = 0x8;
+-	int i;
+ 
+ 	set_register(pegasus, EthCtrl1, data);
+ 	for (i = 0; i < REG_TIMEOUT; i++) {
+-		get_registers(pegasus, EthCtrl1, 1, &data);
++		ret = get_registers(pegasus, EthCtrl1, 1, &data);
++		if (ret < 0)
++			goto fail;
+ 		if (~data & 0x08) {
+ 			if (loopback)
+ 				break;
+@@ -402,22 +424,29 @@ static inline int reset_mac(pegasus_t *pegasus)
+ 	}
+ 	if (usb_dev_id[pegasus->dev_index].vendor == VENDOR_ELCON) {
+ 		__u16 auxmode;
+-		read_mii_word(pegasus, 3, 0x1b, &auxmode);
++		ret = read_mii_word(pegasus, 3, 0x1b, &auxmode);
++		if (ret < 0)
++			goto fail;
+ 		auxmode |= 4;
+ 		write_mii_word(pegasus, 3, 0x1b, &auxmode);
+ 	}
+ 
+ 	return 0;
++fail:
++	netif_dbg(pegasus, drv, pegasus->net, "%s failed\n", __func__);
++	return ret;
+ }
+ 
+ static int enable_net_traffic(struct net_device *dev, struct usb_device *usb)
+ {
+-	__u16 linkpart;
+-	__u8 data[4];
+ 	pegasus_t *pegasus = netdev_priv(dev);
+ 	int ret;
++	__u16 linkpart;
++	__u8 data[4];
+ 
+-	read_mii_word(pegasus, pegasus->phy, MII_LPA, &linkpart);
++	ret = read_mii_word(pegasus, pegasus->phy, MII_LPA, &linkpart);
++	if (ret < 0)
++		goto fail;
+ 	data[0] = 0xc8; /* TX & RX enable, append status, no CRC */
+ 	data[1] = 0;
+ 	if (linkpart & (ADVERTISE_100FULL | ADVERTISE_10FULL))
+@@ -435,11 +464,16 @@ static int enable_net_traffic(struct net_device *dev, struct usb_device *usb)
+ 	    usb_dev_id[pegasus->dev_index].vendor == VENDOR_LINKSYS2 ||
+ 	    usb_dev_id[pegasus->dev_index].vendor == VENDOR_DLINK) {
+ 		u16 auxmode;
+-		read_mii_word(pegasus, 0, 0x1b, &auxmode);
++		ret = read_mii_word(pegasus, 0, 0x1b, &auxmode);
++		if (ret < 0)
++			goto fail;
+ 		auxmode |= 4;
+ 		write_mii_word(pegasus, 0, 0x1b, &auxmode);
+ 	}
+ 
++	return 0;
++fail:
++	netif_dbg(pegasus, drv, pegasus->net, "%s failed\n", __func__);
+ 	return ret;
+ }
+ 
+@@ -447,9 +481,9 @@ static void read_bulk_callback(struct urb *urb)
+ {
+ 	pegasus_t *pegasus = urb->context;
+ 	struct net_device *net;
++	u8 *buf = urb->transfer_buffer;
+ 	int rx_status, count = urb->actual_length;
+ 	int status = urb->status;
+-	u8 *buf = urb->transfer_buffer;
+ 	__u16 pkt_len;
+ 
+ 	if (!pegasus)
+@@ -1005,8 +1039,7 @@ static int pegasus_ioctl(struct net_device *net, struct ifreq *rq, int cmd)
+ 		data[0] = pegasus->phy;
+ 		fallthrough;
+ 	case SIOCDEVPRIVATE + 1:
+-		read_mii_word(pegasus, data[0], data[1] & 0x1f, &data[3]);
+-		res = 0;
++		res = read_mii_word(pegasus, data[0], data[1] & 0x1f, &data[3]);
+ 		break;
+ 	case SIOCDEVPRIVATE + 2:
+ 		if (!capable(CAP_NET_ADMIN))
+@@ -1040,22 +1073,25 @@ static void pegasus_set_multicast(struct net_device *net)
+ 
+ static __u8 mii_phy_probe(pegasus_t *pegasus)
+ {
+-	int i;
++	int i, ret;
+ 	__u16 tmp;
+ 
+ 	for (i = 0; i < 32; i++) {
+-		read_mii_word(pegasus, i, MII_BMSR, &tmp);
++		ret = read_mii_word(pegasus, i, MII_BMSR, &tmp);
++		if (ret < 0)
++			goto fail;
+ 		if (tmp == 0 || tmp == 0xffff || (tmp & BMSR_MEDIA) == 0)
+ 			continue;
+ 		else
+ 			return i;
+ 	}
+-
++fail:
+ 	return 0xff;
+ }
+ 
+ static inline void setup_pegasus_II(pegasus_t *pegasus)
+ {
++	int ret;
+ 	__u8 data = 0xa5;
+ 
+ 	set_register(pegasus, Reg1d, 0);
+@@ -1067,7 +1103,9 @@ static inline void setup_pegasus_II(pegasus_t *pegasus)
+ 		set_register(pegasus, Reg7b, 2);
+ 
+ 	set_register(pegasus, 0x83, data);
+-	get_registers(pegasus, 0x83, 1, &data);
++	ret = get_registers(pegasus, 0x83, 1, &data);
++	if (ret < 0)
++		goto fail;
+ 
+ 	if (data == 0xa5)
+ 		pegasus->chip = 0x8513;
+@@ -1082,6 +1120,10 @@ static inline void setup_pegasus_II(pegasus_t *pegasus)
+ 		set_register(pegasus, Reg81, 6);
+ 	else
+ 		set_register(pegasus, Reg81, 2);
++
++	return;
++fail:
++	netif_dbg(pegasus, drv, pegasus->net, "%s failed\n", __func__);
+ }
+ 
+ static void check_carrier(struct work_struct *work)
 -- 
 2.30.2
 
