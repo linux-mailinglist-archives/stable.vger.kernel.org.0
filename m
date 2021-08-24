@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A40913F6558
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:11:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26BAE3F6555
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:11:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239690AbhHXRMF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:12:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52016 "EHLO mail.kernel.org"
+        id S239649AbhHXRME (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:12:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240177AbhHXRKM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:10:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A20861452;
-        Tue, 24 Aug 2021 17:00:32 +0000 (UTC)
+        id S240182AbhHXRKN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:10:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B02261407;
+        Tue, 24 Aug 2021 17:00:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824433;
-        bh=IBS659XqIUQKtV/xJFd6tq5k6v9GnO8pnjpKLmyx/g8=;
+        s=k20201202; t=1629824434;
+        bh=s73NqyE/YVtreGzTT8CpCbgnPgnh21nkO3rOL7NR0j4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X3A4qkdTATHqOkC9QsqXpfW3cM0zLu4mSJ3WJgqbCTJIGocWuFTvi5s3HnH1p9KQb
-         iVUSTLr467bXUcJJ8I5A84FPZqXvAIKRB0vWQ5DZqr5G8ZNV5bPLW2RzrRgRBcyfMX
-         yhq/C9gSOjM7ZGtxM59IZtgXXUsVHwNIYMhe6ZZWDV5ABKMCRDoq5onGBLyHSGuIDn
-         EV70ldZVmsLjxIS6bdbvtC4wYwfXGMBQ9rVc3HsZd5T9EFqePV56hfc4pG/zI4oI4P
-         dC1lr9sw4Tm1dY3WIqeVFVVODfPYKTlcsAoyWYI1tZPgP+yVFHPxptQBSVSD4XXito
-         Mzq09jNaG0Pog==
+        b=AzP1ruyJkJ8zr4i3dRwKQKJ3aBQX2U/coQ4iGC94F3gviNLfewnBec1X/mhvjBBad
+         hUPxHfnlCIdMzxdDdm8IPZMYXsH6XcV+NKCx8iLl5c1uKU0T2ulEcVeWO7od6D+9AX
+         8+CTHTSsMj/++mhvUxgtCiZrzHR//zM8Zehjitk/uY5py5gl5pdlIj5VSMIqXi6hlU
+         nAj5Cp4lNZmB8Sr5Gu5LoRpprDkDl7xiDWUt9PVDjoAOfCpEoRB7I5ogTzGPW+eWd6
+         FoYrT4MyEDIiVJQVJEiH/nFbY2jYpsFqPMeSPI2tGybdSsTElkS197mBRTAZPlak0T
+         FuCptelXfBwXA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dongliang Mu <mudongliangabcd@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+Cc:     Kristin Paget <kristin@tombom.co.uk>, Takashi Iwai <tiwai@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 84/98] ipack: tpci200: fix memory leak in the tpci200_register
-Date:   Tue, 24 Aug 2021 12:58:54 -0400
-Message-Id: <20210824165908.709932-85-sashal@kernel.org>
+Subject: [PATCH 5.10 85/98] ALSA: hda/realtek: Enable 4-speaker output for Dell XPS 15 9510 laptop
+Date:   Tue, 24 Aug 2021 12:58:55 -0400
+Message-Id: <20210824165908.709932-86-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165908.709932-1-sashal@kernel.org>
 References: <20210824165908.709932-1-sashal@kernel.org>
@@ -48,105 +47,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Kristin Paget <kristin@tombom.co.uk>
 
-[ Upstream commit 50f05bd114a46a74726e432bf81079d3f13a55b7 ]
+[ Upstream commit da94692001ea45ffa1f5e9f17ecdef7aecd90c27 ]
 
-The error handling code in tpci200_register does not free interface_regs
-allocated by ioremap and the current version of error handling code is
-problematic.
+The 2021-model XPS 15 appears to use the same 4-speakers-on-ALC289 audio
+setup as the Precision models, so requires the same quirk to enable woofer
+output. Tested on my own 9510.
 
-Fix this by refactoring the error handling code and free interface_regs
-when necessary.
-
-Fixes: 43986798fd50 ("ipack: add error handling for ioremap_nocache")
-Cc: stable@vger.kernel.org
-Reported-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Link: https://lore.kernel.org/r/20210810100323.3938492-2-mudongliangabcd@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Kristin Paget <kristin@tombom.co.uk>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/e1fc95c5-c10a-1f98-a5c2-dd6e336157e1@tombom.co.uk
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ipack/carriers/tpci200.c | 24 ++++++++++++++----------
- 1 file changed, 14 insertions(+), 10 deletions(-)
+ sound/pci/hda/patch_realtek.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/ipack/carriers/tpci200.c b/drivers/ipack/carriers/tpci200.c
-index 33a1b17a2628..c1098f40e03f 100644
---- a/drivers/ipack/carriers/tpci200.c
-+++ b/drivers/ipack/carriers/tpci200.c
-@@ -256,7 +256,7 @@ static int tpci200_register(struct tpci200_board *tpci200)
- 			"(bn 0x%X, sn 0x%X) failed to allocate PCI resource for BAR 2 !",
- 			tpci200->info->pdev->bus->number,
- 			tpci200->info->pdev->devfn);
--		goto out_disable_pci;
-+		goto err_disable_device;
- 	}
- 
- 	/* Request IO ID INT space (Bar 3) */
-@@ -268,7 +268,7 @@ static int tpci200_register(struct tpci200_board *tpci200)
- 			"(bn 0x%X, sn 0x%X) failed to allocate PCI resource for BAR 3 !",
- 			tpci200->info->pdev->bus->number,
- 			tpci200->info->pdev->devfn);
--		goto out_release_ip_space;
-+		goto err_ip_interface_bar;
- 	}
- 
- 	/* Request MEM8 space (Bar 5) */
-@@ -279,7 +279,7 @@ static int tpci200_register(struct tpci200_board *tpci200)
- 			"(bn 0x%X, sn 0x%X) failed to allocate PCI resource for BAR 5!",
- 			tpci200->info->pdev->bus->number,
- 			tpci200->info->pdev->devfn);
--		goto out_release_ioid_int_space;
-+		goto err_io_id_int_spaces_bar;
- 	}
- 
- 	/* Request MEM16 space (Bar 4) */
-@@ -290,7 +290,7 @@ static int tpci200_register(struct tpci200_board *tpci200)
- 			"(bn 0x%X, sn 0x%X) failed to allocate PCI resource for BAR 4!",
- 			tpci200->info->pdev->bus->number,
- 			tpci200->info->pdev->devfn);
--		goto out_release_mem8_space;
-+		goto err_mem8_space_bar;
- 	}
- 
- 	/* Map internal tpci200 driver user space */
-@@ -304,7 +304,7 @@ static int tpci200_register(struct tpci200_board *tpci200)
- 			tpci200->info->pdev->bus->number,
- 			tpci200->info->pdev->devfn);
- 		res = -ENOMEM;
--		goto out_release_mem8_space;
-+		goto err_mem16_space_bar;
- 	}
- 
- 	/* Initialize lock that protects interface_regs */
-@@ -343,18 +343,22 @@ static int tpci200_register(struct tpci200_board *tpci200)
- 			"(bn 0x%X, sn 0x%X) unable to register IRQ !",
- 			tpci200->info->pdev->bus->number,
- 			tpci200->info->pdev->devfn);
--		goto out_release_ioid_int_space;
-+		goto err_interface_regs;
- 	}
- 
- 	return 0;
- 
--out_release_mem8_space:
-+err_interface_regs:
-+	pci_iounmap(tpci200->info->pdev, tpci200->info->interface_regs);
-+err_mem16_space_bar:
-+	pci_release_region(tpci200->info->pdev, TPCI200_MEM16_SPACE_BAR);
-+err_mem8_space_bar:
- 	pci_release_region(tpci200->info->pdev, TPCI200_MEM8_SPACE_BAR);
--out_release_ioid_int_space:
-+err_io_id_int_spaces_bar:
- 	pci_release_region(tpci200->info->pdev, TPCI200_IO_ID_INT_SPACES_BAR);
--out_release_ip_space:
-+err_ip_interface_bar:
- 	pci_release_region(tpci200->info->pdev, TPCI200_IP_INTERFACE_BAR);
--out_disable_pci:
-+err_disable_device:
- 	pci_disable_device(tpci200->info->pdev);
- 	return res;
- }
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index beb5fb03e388..de4cd91b9ba8 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -8258,6 +8258,7 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+ 	SND_PCI_QUIRK(0x1028, 0x0a2e, "Dell", ALC236_FIXUP_DELL_AIO_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1028, 0x0a30, "Dell", ALC236_FIXUP_DELL_AIO_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1028, 0x0a58, "Dell", ALC255_FIXUP_DELL_HEADSET_MIC),
++	SND_PCI_QUIRK(0x1028, 0x0a61, "Dell XPS 15 9510", ALC289_FIXUP_DUAL_SPK),
+ 	SND_PCI_QUIRK(0x1028, 0x164a, "Dell", ALC293_FIXUP_DELL1_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1028, 0x164b, "Dell", ALC293_FIXUP_DELL1_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x103c, 0x1586, "HP", ALC269_FIXUP_HP_MUTE_LED_MIC2),
 -- 
 2.30.2
 
