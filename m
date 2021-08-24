@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B3D353F661C
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:20:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DAA43F661D
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:20:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239860AbhHXRU0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:20:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55606 "EHLO mail.kernel.org"
+        id S239868AbhHXRU1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:20:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240169AbhHXRSh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:18:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9819D61ACF;
-        Tue, 24 Aug 2021 17:02:56 +0000 (UTC)
+        id S239315AbhHXRSi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:18:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E6FD661ABD;
+        Tue, 24 Aug 2021 17:02:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824577;
-        bh=9C7UgSGhTKfheChZxXjlYbqP34n0cIFBR5L25jYP4dY=;
+        s=k20201202; t=1629824578;
+        bh=Z6xS0A5UkjrgyeYYqBQwPq5n29rhmu9mPXsS4uyHhIQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jkKjPK5y3vixu8NjPpuuz1ygMCtBVvhNuD65dpJHmnuDJTrE82tUciXLoBF84w11m
-         62dP00YONBvZQIjmqup2F5lMhWkvE/9g5nRa+iKMa6tpZfazNKyvRMpSpRp6LDOt99
-         x253sH1xqqPRgyfwpkBHBdFvgtPcRkVF2V+wac6CCxwkbl4vcyrhoj0nXPNtEkRGT4
-         bX3ME0Qe0BiFVSogGbzGkhDCzwl57neWy5TwrgDjSzdVOvxLsmBKLs4zsqXW0xoWbH
-         Ck++SNrlvLzjnYM2smtyewcESYKKmRMNsk/qJoo/qpIiZU2OiniPfNrfnkkKKTWsrj
-         P/fcU8llRLC1A==
+        b=tVBGt1P3PBzTbz+NzYkcRxG5Qf8U782cGEW+2ctcnwYs7sETnq3EvL7ICXbVos7Yy
+         SeviKVncMWHAwfqDLygmuxZ1eJtHQeHlD03xLlVllCYjKS2t+8VpBNYdUqatnU6dSt
+         wsiG64NiTydJUKUEzNSPq6IBPEL0zA0c6IAo6xtmEBt5WOsxNRGCnQYkh0Np7+IMHM
+         INaXiWxNfFwdB74jriY8L/ZcjAj5oljlMnLm2JYckoX6s8YhiXhhZNCBYKw1NBv30r
+         FJv1trHvw1JM4c/BPNjqxKTD9V29s38L0GpqiZ9/DUPYP2os2UWIFlqzLeowqCTyFv
+         +jyIBirybtSbg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dan Williams <dan.j.williams@intel.com>,
-        Jacek Zloch <jacek.zloch@intel.com>,
-        Lukasz Sobieraj <lukasz.sobieraj@intel.com>,
-        "Lee, Chun-Yi" <jlee@suse.com>,
-        Krzysztof Rusocki <krzysztof.rusocki@intel.com>,
-        Damian Bassa <damian.bassa@intel.com>,
-        Jeff Moyer <jmoyer@redhat.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.19 05/84] ACPI: NFIT: Fix support for virtual SPA ranges
-Date:   Tue, 24 Aug 2021 13:01:31 -0400
-Message-Id: <20210824170250.710392-6-sashal@kernel.org>
+Cc:     Dongliang Mu <mudongliangabcd@gmail.com>,
+        Alexander Aring <aahringo@redhat.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 06/84] ieee802154: hwsim: fix GPF in hwsim_set_edge_lqi
+Date:   Tue, 24 Aug 2021 13:01:32 -0400
+Message-Id: <20210824170250.710392-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170250.710392-1-sashal@kernel.org>
 References: <20210824170250.710392-1-sashal@kernel.org>
@@ -53,62 +49,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Williams <dan.j.williams@intel.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-commit b93dfa6bda4d4e88e5386490f2b277a26958f9d3 upstream.
+[ Upstream commit e9faf53c5a5d01f6f2a09ae28ec63a3bbd6f64fd ]
 
-Fix the NFIT parsing code to treat a 0 index in a SPA Range Structure as
-a special case and not match Region Mapping Structures that use 0 to
-indicate that they are not mapped. Without this fix some platform BIOS
-descriptions of "virtual disk" ranges do not result in the pmem driver
-attaching to the range.
+Both MAC802154_HWSIM_ATTR_RADIO_ID and MAC802154_HWSIM_ATTR_RADIO_EDGE,
+MAC802154_HWSIM_EDGE_ATTR_ENDPOINT_ID and MAC802154_HWSIM_EDGE_ATTR_LQI
+must be present to fix GPF.
 
-Details:
-In addition to typical persistent memory ranges, the ACPI NFIT may also
-convey "virtual" ranges. These ranges are indicated by a UUID in the SPA
-Range Structure of UUID_VOLATILE_VIRTUAL_DISK, UUID_VOLATILE_VIRTUAL_CD,
-UUID_PERSISTENT_VIRTUAL_DISK, or UUID_PERSISTENT_VIRTUAL_CD. The
-critical difference between virtual ranges and UUID_PERSISTENT_MEMORY,
-is that virtual do not support associations with Region Mapping
-Structures.  For this reason the "index" value of virtual SPA Range
-Structures is allowed to be 0. If a platform BIOS decides to represent
-NVDIMMs with disconnected "Region Mapping Structures" (range-index ==
-0), the kernel may falsely associate them with standalone ranges where
-the "SPA Range Structure Index" is also zero. When this happens the
-driver may falsely require labels where "virtual disks" are expected to
-be label-less. I.e. "label-less" is where the namespace-range ==
-region-range and the pmem driver attaches with no user action to create
-a namespace.
-
-Cc: Jacek Zloch <jacek.zloch@intel.com>
-Cc: Lukasz Sobieraj <lukasz.sobieraj@intel.com>
-Cc: "Lee, Chun-Yi" <jlee@suse.com>
-Cc: <stable@vger.kernel.org>
-Fixes: c2f32acdf848 ("acpi, nfit: treat virtual ramdisk SPA as pmem region")
-Reported-by: Krzysztof Rusocki <krzysztof.rusocki@intel.com>
-Reported-by: Damian Bassa <damian.bassa@intel.com>
-Reviewed-by: Jeff Moyer <jmoyer@redhat.com>
-Link: https://lore.kernel.org/r/162870796589.2521182.1240403310175570220.stgit@dwillia2-desk3.amr.corp.intel.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f25da51fdc38 ("ieee802154: hwsim: add replacement for fakelb")
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Acked-by: Alexander Aring <aahringo@redhat.com>
+Link: https://lore.kernel.org/r/20210705131321.217111-1-mudongliangabcd@gmail.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/nfit/core.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ieee802154/mac802154_hwsim.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/acpi/nfit/core.c b/drivers/acpi/nfit/core.c
-index cb88f3b43a94..58a756ca14d8 100644
---- a/drivers/acpi/nfit/core.c
-+++ b/drivers/acpi/nfit/core.c
-@@ -2834,6 +2834,9 @@ static int acpi_nfit_register_region(struct acpi_nfit_desc *acpi_desc,
- 		struct acpi_nfit_memory_map *memdev = nfit_memdev->memdev;
- 		struct nd_mapping_desc *mapping;
+diff --git a/drivers/net/ieee802154/mac802154_hwsim.c b/drivers/net/ieee802154/mac802154_hwsim.c
+index 06aadebc2d5b..82f3fbda7dfe 100644
+--- a/drivers/net/ieee802154/mac802154_hwsim.c
++++ b/drivers/net/ieee802154/mac802154_hwsim.c
+@@ -546,7 +546,7 @@ static int hwsim_set_edge_lqi(struct sk_buff *msg, struct genl_info *info)
+ 	u32 v0, v1;
+ 	u8 lqi;
  
-+		/* range index 0 == unmapped in SPA or invalid-SPA */
-+		if (memdev->range_index == 0 || spa->range_index == 0)
-+			continue;
- 		if (memdev->range_index != spa->range_index)
- 			continue;
- 		if (count >= ND_MAX_MAPPINGS) {
+-	if (!info->attrs[MAC802154_HWSIM_ATTR_RADIO_ID] &&
++	if (!info->attrs[MAC802154_HWSIM_ATTR_RADIO_ID] ||
+ 	    !info->attrs[MAC802154_HWSIM_ATTR_RADIO_EDGE])
+ 		return -EINVAL;
+ 
+@@ -555,7 +555,7 @@ static int hwsim_set_edge_lqi(struct sk_buff *msg, struct genl_info *info)
+ 			     hwsim_edge_policy, NULL))
+ 		return -EINVAL;
+ 
+-	if (!edge_attrs[MAC802154_HWSIM_EDGE_ATTR_ENDPOINT_ID] &&
++	if (!edge_attrs[MAC802154_HWSIM_EDGE_ATTR_ENDPOINT_ID] ||
+ 	    !edge_attrs[MAC802154_HWSIM_EDGE_ATTR_LQI])
+ 		return -EINVAL;
+ 
 -- 
 2.30.2
 
