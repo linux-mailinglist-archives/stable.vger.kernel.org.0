@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4756B3F65C4
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:16:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3363B3F65C7
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:16:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239213AbhHXRQ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:16:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55580 "EHLO mail.kernel.org"
+        id S234752AbhHXRQi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:16:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240211AbhHXRO2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:14:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C61E661A7D;
-        Tue, 24 Aug 2021 17:01:41 +0000 (UTC)
+        id S240400AbhHXROn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:14:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CFCCB61A84;
+        Tue, 24 Aug 2021 17:01:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824502;
-        bh=40OIWE7AIzRI9LFlsAS+mxr+GK7T0FWQir9TH+Ag0p4=;
+        s=k20201202; t=1629824503;
+        bh=42W66I9RTkkSqI3Av7rQ+xajfrLKwCbRlaNxHad1oQ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sK6IeUKym0cQFvblfX7aGYTnDrb55JnyoBoIM9I3Qms7HjBvVykv3floflF7wunAl
-         NjHN3879bWgLmFWLXrOJ5DCNNWDS20fF93CH81zXkJplSU7G2S4zWC7SVpNdGkT4oN
-         4VpKxR1atQoppCX3V8uvpVzHPdNWTf0w0YC363NmX8Vgh0wX/Zgjs+zeQ6D0Ela2IN
-         3SmlzZN6JmYlGYOkKM9sYGUFllMo8roFMHTyobETQx01bY+VtChB8wkj9PVzN+clbS
-         RgjvhSoKq5oZMJ1wsJHLZiN/NJ9xX7pC66DbtLa1IIiL1IjZeAqrHmtTzgwydj7LHr
-         IpSv7p3Sn3y3w==
+        b=Vj2tNJZDp1Ibe8DHfMEOrYd9SJ6hRjXbU5cwtphfYceiaFilu42my6I3xE7RWnrv+
+         aewGN8r6RC5/MF8e+2W/+YU6A3eyxhqIW9ymaUONGDu0lGtW7VJIoX8BF6tqg/UONX
+         tf6drnbVlJlHTye3FKQCigs8MjqaATSCsjMhwJvhAUTYMKJ3ZJxR6BN+1E1ZWhnrTk
+         0IRCFk23YYar8gNyKrOAGzblujwBqex4071tvlakkt2Uj9rhbL4mLtbP0lXE9e6bd9
+         Q3qc5/BONnrSwAUIPVQZwRHlA5nONDoZzqQmEqweLcZhxQzygcDJ/AooPV/lGqDq3x
+         aauFtqM6f6JHg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michael Chan <michael.chan@broadcom.com>,
-        Lance Richardson <lance.richardson@broadcom.com>,
-        Andy Gospodarek <gospo@broadcom.com>,
-        "David S . Miller" <davem@davemloft.net>,
+Cc:     Lahav Schlesinger <lschlesinger@drivenets.com>,
+        David Ahern <dsahern@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 35/61] bnxt_en: Add missing DMA memory barriers
-Date:   Tue, 24 Aug 2021 13:00:40 -0400
-Message-Id: <20210824170106.710221-36-sashal@kernel.org>
+Subject: [PATCH 5.4 36/61] vrf: Reset skb conntrack connection on VRF rcv
+Date:   Tue, 24 Aug 2021 13:00:41 -0400
+Message-Id: <20210824170106.710221-37-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170106.710221-1-sashal@kernel.org>
 References: <20210824170106.710221-1-sashal@kernel.org>
@@ -50,68 +49,207 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Chan <michael.chan@broadcom.com>
+From: Lahav Schlesinger <lschlesinger@drivenets.com>
 
-[ Upstream commit 828affc27ed43441bd1efdaf4e07e96dd43a0362 ]
+[ Upstream commit 09e856d54bda5f288ef8437a90ab2b9b3eab83d1 ]
 
-Each completion ring entry has a valid bit to indicate that the entry
-contains a valid completion event.  The driver's main poll loop
-__bnxt_poll_work() has the proper dma_rmb() to make sure the valid
-bit of the next entry has been checked before proceeding further.
-But when we call bnxt_rx_pkt() to process the RX event, the RX
-completion event consists of two completion entries and only the
-first entry has been checked to be valid.  We need the same barrier
-after checking the next completion entry.  Add missing dma_rmb()
-barriers in bnxt_rx_pkt() and other similar locations.
+To fix the "reverse-NAT" for replies.
 
-Fixes: 67a95e2022c7 ("bnxt_en: Need memory barrier when processing the completion ring.")
-Reported-by: Lance Richardson <lance.richardson@broadcom.com>
-Reviewed-by: Andy Gospodarek <gospo@broadcom.com>
-Reviewed-by: Lance Richardson <lance.richardson@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+When a packet is sent over a VRF, the POST_ROUTING hooks are called
+twice: Once from the VRF interface, and once from the "actual"
+interface the packet will be sent from:
+1) First SNAT: l3mdev_l3_out() -> vrf_l3_out() -> .. -> vrf_output_direct()
+     This causes the POST_ROUTING hooks to run.
+2) Second SNAT: 'ip_output()' calls POST_ROUTING hooks again.
+
+Similarly for replies, first ip_rcv() calls PRE_ROUTING hooks, and
+second vrf_l3_rcv() calls them again.
+
+As an example, consider the following SNAT rule:
+> iptables -t nat -A POSTROUTING -p udp -m udp --dport 53 -j SNAT --to-source 2.2.2.2 -o vrf_1
+
+In this case sending over a VRF will create 2 conntrack entries.
+The first is from the VRF interface, which performs the IP SNAT.
+The second will run the SNAT, but since the "expected reply" will remain
+the same, conntrack randomizes the source port of the packet:
+e..g With a socket bound to 1.1.1.1:10000, sending to 3.3.3.3:53, the conntrack
+rules are:
+udp      17 29 src=2.2.2.2 dst=3.3.3.3 sport=10000 dport=53 packets=1 bytes=68 [UNREPLIED] src=3.3.3.3 dst=2.2.2.2 sport=53 dport=61033 packets=0 bytes=0 mark=0 use=1
+udp      17 29 src=1.1.1.1 dst=3.3.3.3 sport=10000 dport=53 packets=1 bytes=68 [UNREPLIED] src=3.3.3.3 dst=2.2.2.2 sport=53 dport=10000 packets=0 bytes=0 mark=0 use=1
+
+i.e. First SNAT IP from 1.1.1.1 --> 2.2.2.2, and second the src port is
+SNAT-ed from 10000 --> 61033.
+
+But when a reply is sent (3.3.3.3:53 -> 2.2.2.2:61033) only the later
+conntrack entry is matched:
+udp      17 29 src=2.2.2.2 dst=3.3.3.3 sport=10000 dport=53 packets=1 bytes=68 src=3.3.3.3 dst=2.2.2.2 sport=53 dport=61033 packets=1 bytes=49 mark=0 use=1
+udp      17 28 src=1.1.1.1 dst=3.3.3.3 sport=10000 dport=53 packets=1 bytes=68 [UNREPLIED] src=3.3.3.3 dst=2.2.2.2 sport=53 dport=10000 packets=0 bytes=0 mark=0 use=1
+
+And a "port 61033 unreachable" ICMP packet is sent back.
+
+The issue is that when PRE_ROUTING hooks are called from vrf_l3_rcv(),
+the skb already has a conntrack flow attached to it, which means
+nf_conntrack_in() will not resolve the flow again.
+
+This means only the dest port is "reverse-NATed" (61033 -> 10000) but
+the dest IP remains 2.2.2.2, and since the socket is bound to 1.1.1.1 it's
+not received.
+This can be verified by logging the 4-tuple of the packet in '__udp4_lib_rcv()'.
+
+The fix is then to reset the flow when skb is received on a VRF, to let
+conntrack resolve the flow again (which now will hit the earlier flow).
+
+To reproduce: (Without the fix "Got pkt_to_nat_port" will not be printed by
+  running 'bash ./repro'):
+  $ cat run_in_A1.py
+  import logging
+  logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
+  from scapy.all import *
+  import argparse
+
+  def get_packet_to_send(udp_dst_port, msg_name):
+      return Ether(src='11:22:33:44:55:66', dst=iface_mac)/ \
+          IP(src='3.3.3.3', dst='2.2.2.2')/ \
+          UDP(sport=53, dport=udp_dst_port)/ \
+          Raw(f'{msg_name}\x0012345678901234567890')
+
+  parser = argparse.ArgumentParser()
+  parser.add_argument('-iface_mac', dest="iface_mac", type=str, required=True,
+                      help="From run_in_A3.py")
+  parser.add_argument('-socket_port', dest="socket_port", type=str,
+                      required=True, help="From run_in_A3.py")
+  parser.add_argument('-v1_mac', dest="v1_mac", type=str, required=True,
+                      help="From script")
+
+  args, _ = parser.parse_known_args()
+  iface_mac = args.iface_mac
+  socket_port = int(args.socket_port)
+  v1_mac = args.v1_mac
+
+  print(f'Source port before NAT: {socket_port}')
+
+  while True:
+      pkts = sniff(iface='_v0', store=True, count=1, timeout=10)
+      if 0 == len(pkts):
+          print('Something failed, rerun the script :(', flush=True)
+          break
+      pkt = pkts[0]
+      if not pkt.haslayer('UDP'):
+          continue
+
+      pkt_sport = pkt.getlayer('UDP').sport
+      print(f'Source port after NAT: {pkt_sport}', flush=True)
+
+      pkt_to_send = get_packet_to_send(pkt_sport, 'pkt_to_nat_port')
+      sendp(pkt_to_send, '_v0', verbose=False) # Will not be received
+
+      pkt_to_send = get_packet_to_send(socket_port, 'pkt_to_socket_port')
+      sendp(pkt_to_send, '_v0', verbose=False)
+      break
+
+  $ cat run_in_A2.py
+  import socket
+  import netifaces
+
+  print(f"{netifaces.ifaddresses('e00000')[netifaces.AF_LINK][0]['addr']}",
+        flush=True)
+  s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+  s.setsockopt(socket.SOL_SOCKET, socket.SO_BINDTODEVICE,
+               str('vrf_1' + '\0').encode('utf-8'))
+  s.connect(('3.3.3.3', 53))
+  print(f'{s. getsockname()[1]}', flush=True)
+  s.settimeout(5)
+
+  while True:
+      try:
+          # Periodically send in order to keep the conntrack entry alive.
+          s.send(b'a'*40)
+          resp = s.recvfrom(1024)
+          msg_name = resp[0].decode('utf-8').split('\0')[0]
+          print(f"Got {msg_name}", flush=True)
+      except Exception as e:
+          pass
+
+  $ cat repro.sh
+  ip netns del A1 2> /dev/null
+  ip netns del A2 2> /dev/null
+  ip netns add A1
+  ip netns add A2
+
+  ip -n A1 link add _v0 type veth peer name _v1 netns A2
+  ip -n A1 link set _v0 up
+
+  ip -n A2 link add e00000 type bond
+  ip -n A2 link add lo0 type dummy
+  ip -n A2 link add vrf_1 type vrf table 10001
+  ip -n A2 link set vrf_1 up
+  ip -n A2 link set e00000 master vrf_1
+
+  ip -n A2 addr add 1.1.1.1/24 dev e00000
+  ip -n A2 link set e00000 up
+  ip -n A2 link set _v1 master e00000
+  ip -n A2 link set _v1 up
+  ip -n A2 link set lo0 up
+  ip -n A2 addr add 2.2.2.2/32 dev lo0
+
+  ip -n A2 neigh add 1.1.1.10 lladdr 77:77:77:77:77:77 dev e00000
+  ip -n A2 route add 3.3.3.3/32 via 1.1.1.10 dev e00000 table 10001
+
+  ip netns exec A2 iptables -t nat -A POSTROUTING -p udp -m udp --dport 53 -j \
+	SNAT --to-source 2.2.2.2 -o vrf_1
+
+  sleep 5
+  ip netns exec A2 python3 run_in_A2.py > x &
+  XPID=$!
+  sleep 5
+
+  IFACE_MAC=`sed -n 1p x`
+  SOCKET_PORT=`sed -n 2p x`
+  V1_MAC=`ip -n A2 link show _v1 | sed -n 2p | awk '{print $2'}`
+  ip netns exec A1 python3 run_in_A1.py -iface_mac ${IFACE_MAC} -socket_port \
+          ${SOCKET_PORT} -v1_mac ${SOCKET_PORT}
+  sleep 5
+
+  kill -9 $XPID
+  wait $XPID 2> /dev/null
+  ip netns del A1
+  ip netns del A2
+  tail x -n 2
+  rm x
+  set +x
+
+Fixes: 73e20b761acf ("net: vrf: Add support for PREROUTING rules on vrf device")
+Signed-off-by: Lahav Schlesinger <lschlesinger@drivenets.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Link: https://lore.kernel.org/r/20210815120002.2787653-1-lschlesinger@drivenets.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/net/vrf.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-index 1b5839ad97b6..e67f07faca78 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -1724,6 +1724,10 @@ static int bnxt_rx_pkt(struct bnxt *bp, struct bnxt_cp_ring_info *cpr,
- 	if (!RX_CMP_VALID(rxcmp1, tmp_raw_cons))
- 		return -EBUSY;
+diff --git a/drivers/net/vrf.c b/drivers/net/vrf.c
+index f08ed52d51f3..9b626c169554 100644
+--- a/drivers/net/vrf.c
++++ b/drivers/net/vrf.c
+@@ -1036,6 +1036,8 @@ static struct sk_buff *vrf_ip6_rcv(struct net_device *vrf_dev,
+ 	bool need_strict = rt6_need_strict(&ipv6_hdr(skb)->daddr);
+ 	bool is_ndisc = ipv6_ndisc_frame(skb);
  
-+	/* The valid test of the entry must be done first before
-+	 * reading any further.
-+	 */
-+	dma_rmb();
- 	prod = rxr->rx_prod;
++	nf_reset_ct(skb);
++
+ 	/* loopback, multicast & non-ND link-local traffic; do not push through
+ 	 * packet taps again. Reset pkt_type for upper layers to process skb.
+ 	 * For strict packets with a source LLA, determine the dst using the
+@@ -1092,6 +1094,8 @@ static struct sk_buff *vrf_ip_rcv(struct net_device *vrf_dev,
+ 	skb->skb_iif = vrf_dev->ifindex;
+ 	IPCB(skb)->flags |= IPSKB_L3SLAVE;
  
- 	if (cmp_type == CMP_TYPE_RX_L2_TPA_START_CMP) {
-@@ -1918,6 +1922,10 @@ static int bnxt_force_rx_discard(struct bnxt *bp,
- 	if (!RX_CMP_VALID(rxcmp1, tmp_raw_cons))
- 		return -EBUSY;
++	nf_reset_ct(skb);
++
+ 	if (ipv4_is_multicast(ip_hdr(skb)->daddr))
+ 		goto out;
  
-+	/* The valid test of the entry must be done first before
-+	 * reading any further.
-+	 */
-+	dma_rmb();
- 	cmp_type = RX_CMP_TYPE(rxcmp);
- 	if (cmp_type == CMP_TYPE_RX_L2_CMP) {
- 		rxcmp1->rx_cmp_cfa_code_errors_v2 |=
-@@ -2314,6 +2322,10 @@ static int bnxt_poll_nitroa0(struct napi_struct *napi, int budget)
- 		if (!TX_CMP_VALID(txcmp, raw_cons))
- 			break;
- 
-+		/* The valid test of the entry must be done first before
-+		 * reading any further.
-+		 */
-+		dma_rmb();
- 		if ((TX_CMP_TYPE(txcmp) & 0x30) == 0x10) {
- 			tmp_raw_cons = NEXT_RAW_CMP(raw_cons);
- 			cp_cons = RING_CMP(tmp_raw_cons);
 -- 
 2.30.2
 
