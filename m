@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E04D3F640B
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:00:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC0DF3F640E
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:00:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239279AbhHXRAY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:00:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39218 "EHLO mail.kernel.org"
+        id S235204AbhHXRAZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:00:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39686 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238854AbhHXQ7H (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S238855AbhHXQ7H (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 24 Aug 2021 12:59:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BB12D6140F;
-        Tue, 24 Aug 2021 16:57:26 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B23A8613A7;
+        Tue, 24 Aug 2021 16:57:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824247;
-        bh=iYpokmwWAAOBxQLa8EwYET1rHDrF+SMvZT+yvW+hgEU=;
+        s=k20201202; t=1629824248;
+        bh=qswEFGmBYV/D1/KMp4wbHB1YQND6hMqZSuZd2iLkgyo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ERUFFKi5mq76k9wg6SsW30witqwcfnNf32LjLMBD8pIU/sstY3r3Ducb1nkVYCpPc
-         IOQ7mwF/fLkCal/c8z7MAIOkr2zWMcU93vyITSjT3mlOAKM+HW0qJxWwJmzV+adYHY
-         j/eKQoLmWRE4FhfhmRye0BuqF8W9EhX2X5l6arD7GrSMuHOMXFvBwo4ADVrBPqly9S
-         pFk2/g2O7irG1FdKpxrwimewHXXlMPQ94tDIGesPZ7TzXEIm06XlHPR3BOuV7FumwG
-         zwu4tbDFGFemiWhk1ACgxsfBqUEBuYyPOKfOpGuSE2FdlatRfhFVV6oXGW/bDqi/m/
-         xC3om9OyFL2Qw==
+        b=GWDi8OxvKhFSj5Pnz1AMUCIBVQk9/4ZnZD5dcwEqWGOP549Pf3dTuDCGPyh7xioBn
+         C69EMi1o/FeI4iwyuuRFbpRB5EHUIweDWS9Q36P+lUnNo3cGr5X9LTTM4j/vcv5w0z
+         TBRRukgrUlyiWDOgs9mxWoE7D7rkPykeaKssrC7cTGfjHq0YTWt5Y0J62I0B4tRKxv
+         YsuD85DtWfoU6sSxf6xDtTtnVCqix0reDQ7GPM2D4TCokzG9D0Cu1XRlCO1CrtklCV
+         ZZl/pMPrT0ZfUADE7+Amawg11OfcvWE3bbyI+KYd+izqMbf/w7zwvTzA9+0Y5Yvs9q
+         Vxirqup3E2KmA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
+Cc:     Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>,
+        Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>,
+        Dave Switzer <david.switzer@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 080/127] PCI/sysfs: Use correct variable for the legacy_mem sysfs object
-Date:   Tue, 24 Aug 2021 12:55:20 -0400
-Message-Id: <20210824165607.709387-81-sashal@kernel.org>
+Subject: [PATCH 5.13 081/127] i40e: Fix ATR queue selection
+Date:   Tue, 24 Aug 2021 12:55:21 -0400
+Message-Id: <20210824165607.709387-82-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165607.709387-1-sashal@kernel.org>
 References: <20210824165607.709387-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.13.13-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
 X-KernelTest-Branch: linux-5.13.y
@@ -50,48 +51,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Wilczyński <kw@linux.com>
+From: Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>
 
-[ Upstream commit 045a9277b5615846c7b662ffaba84e781f08a172 ]
+[ Upstream commit a222be597e316389f9f8c26033352c124ce93056 ]
 
-Two legacy PCI sysfs objects "legacy_io" and "legacy_mem" were updated
-to use an unified address space in the commit 636b21b50152 ("PCI: Revoke
-mappings like devmem").  This allows for revocations to be managed from
-a single place when drivers want to take over and mmap() a /dev/mem
-range.
+Without this patch, ATR does not work. Receive/transmit uses queue
+selection based on SW DCB hashing method.
 
-Following the update, both of the sysfs objects should leverage the
-iomem_get_mapping() function to get an appropriate address range, but
-only the "legacy_io" has been correctly updated - the second attribute
-seems to be using a wrong variable to pass the iomem_get_mapping()
-function to.
+If traffic classes are not configured for PF, then use
+netdev_pick_tx function for selecting queue for packet transmission.
+Instead of calling i40e_swdcb_skb_tx_hash, call netdev_pick_tx,
+which ensures that packet is transmitted/received from CPU that is
+running the application.
 
-Thus, correct the variable name used so that the "legacy_mem" sysfs
-object would also correctly call the iomem_get_mapping() function.
+Reproduction steps:
+1. Load i40e driver
+2. Map each MSI interrupt of i40e port for each CPU
+3. Disable ntuple, enable ATR i.e.:
+ethtool -K $interface ntuple off
+ethtool --set-priv-flags $interface flow-director-atr
+4. Run application that is generating traffic and is bound to a
+single CPU, i.e.:
+taskset -c 9 netperf -H 1.1.1.1 -t TCP_RR -l 10
+5. Observe behavior:
+Application's traffic should be restricted to the CPU provided in
+taskset.
 
-Fixes: 636b21b50152 ("PCI: Revoke mappings like devmem")
-Link: https://lore.kernel.org/r/20210812132144.791268-1-kw@linux.com
-Signed-off-by: Krzysztof Wilczyński <kw@linux.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Fixes: 89ec1f0886c1 ("i40e: Fix queue-to-TC mapping on Tx")
+Signed-off-by: Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>
+Signed-off-by: Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>
+Tested-by: Dave Switzer <david.switzer@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pci-sysfs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/intel/i40e/i40e_txrx.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/pci/pci-sysfs.c b/drivers/pci/pci-sysfs.c
-index beb8d1f4fafe..fb667d78e7b3 100644
---- a/drivers/pci/pci-sysfs.c
-+++ b/drivers/pci/pci-sysfs.c
-@@ -978,7 +978,7 @@ void pci_create_legacy_files(struct pci_bus *b)
- 	b->legacy_mem->size = 1024*1024;
- 	b->legacy_mem->attr.mode = 0600;
- 	b->legacy_mem->mmap = pci_mmap_legacy_mem;
--	b->legacy_io->mapping = iomem_get_mapping();
-+	b->legacy_mem->mapping = iomem_get_mapping();
- 	pci_adjust_legacy_attr(b, pci_mmap_mem);
- 	error = device_create_bin_file(&b->dev, b->legacy_mem);
- 	if (error)
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_txrx.c b/drivers/net/ethernet/intel/i40e/i40e_txrx.c
+index 107fb472319e..b18ff0ed8527 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_txrx.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_txrx.c
+@@ -3665,8 +3665,7 @@ u16 i40e_lan_select_queue(struct net_device *netdev,
+ 
+ 	/* is DCB enabled at all? */
+ 	if (vsi->tc_config.numtc == 1)
+-		return i40e_swdcb_skb_tx_hash(netdev, skb,
+-					      netdev->real_num_tx_queues);
++		return netdev_pick_tx(netdev, skb, sb_dev);
+ 
+ 	prio = skb->priority;
+ 	hw = &vsi->back->hw;
 -- 
 2.30.2
 
