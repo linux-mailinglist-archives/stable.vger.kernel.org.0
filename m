@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A5823F6682
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:25:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DD5A3F66A4
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:26:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238635AbhHXRZH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:25:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59930 "EHLO mail.kernel.org"
+        id S240210AbhHXR0T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:26:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241000AbhHXRXF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:23:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BDE7F61AF8;
-        Tue, 24 Aug 2021 17:03:39 +0000 (UTC)
+        id S240952AbhHXRX3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:23:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9E93261B1F;
+        Tue, 24 Aug 2021 17:03:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824620;
-        bh=MSbu1neapRlMUuym5EKpLXNK+liHInZpCf98VFak1Q4=;
+        s=k20201202; t=1629824621;
+        bh=bQgA2kTqYGaCCX473wmTwizJQezcU6xgL6ifyL0OfIE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PoBaMA8Bdna7zuoHRbGtnWy7TA2ESZuXsUEugu+fZLHcZTAsGRMGq1l/msnXUYdwb
-         mPoFXkt9srZVuC+jwC1j3Z31/CdmcC0p+RSWfppjIN4KfBHEazZPBN3lLzNfKwFuUj
-         kMiOR7+48tR/QlFCSVJvM4ywVuDBzV2LWo6rpOaUuu/UIho5HYNQFYGdNnYre/j1WP
-         YqASXvgpBtpPAJWCm84Lkxwg1f5my+uchv+o3PoMIXcDRRhmlk9ebxr+lTJnz5nYev
-         XJiMbgrHWRK5TVxznDII5heyVGh54YIzF5wm4cbAJ4kQM7e/EZ6epNauDNX+whY9jg
-         sAGdphrs4J6cA==
+        b=h/QZTDyjYsiJ4IM1Et7a2JVTxEpkuLToTNjIIvWTJbrsfQWTmRh9KjhclrFo584Tm
+         r3gC8OmLTy3X+tpcMSMb2kmIam1y1H6vrTYyCBksQJibKBHPT01eBVJO9aTrPR3s7K
+         oks0MALeFKYRspmFs4UVN6wOaX4arBlz+Z7mH+xNLvclKFC+ol1vDPhN4DFevvnFZU
+         OvTER1NBggkZNCaIu/q/hThNrdIOVcVFVoV2ZrI+dkfutGdwvozJZHmrMCWWbNAT/X
+         k2RgsEyRhRpNmNumLStS0re7zk/bieGrkkRzNznO5fn/R7vPNLjZVfIda9ykwenqGU
+         88DacPe7Cbuhg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Adrian Larumbe <adrian.martinezlarumbe@imgtec.com>,
+Cc:     Yu Kuai <yukuai3@huawei.com>, Hulk Robot <hulkci@huawei.com>,
         Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 50/84] dmaengine: xilinx_dma: Fix read-after-free bug when terminating transfers
-Date:   Tue, 24 Aug 2021 13:02:16 -0400
-Message-Id: <20210824170250.710392-51-sashal@kernel.org>
+Subject: [PATCH 4.19 51/84] dmaengine: usb-dmac: Fix PM reference leak in usb_dmac_probe()
+Date:   Tue, 24 Aug 2021 13:02:17 -0400
+Message-Id: <20210824170250.710392-52-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170250.710392-1-sashal@kernel.org>
 References: <20210824170250.710392-1-sashal@kernel.org>
@@ -47,80 +47,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Larumbe <adrian.martinezlarumbe@imgtec.com>
+From: Yu Kuai <yukuai3@huawei.com>
 
-[ Upstream commit 7dd2dd4ff9f3abda601f22b9d01441a0869d20d7 ]
+[ Upstream commit 1da569fa7ec8cb0591c74aa3050d4ea1397778b4 ]
 
-When user calls dmaengine_terminate_sync, the driver will clean up any
-remaining descriptors for all the pending or active transfers that had
-previously been submitted. However, this might happen whilst the tasklet is
-invoking the DMA callback for the last finished transfer, so by the time it
-returns and takes over the channel's spinlock, the list of completed
-descriptors it was traversing is no longer valid. This leads to a
-read-after-free situation.
+pm_runtime_get_sync will increment pm usage counter even it failed.
+Forgetting to putting operation will result in reference leak here.
+Fix it by moving the error_pm label above the pm_runtime_put() in
+the error path.
 
-Fix it by signalling whether a user-triggered termination has happened by
-means of a boolean variable.
-
-Signed-off-by: Adrian Larumbe <adrian.martinezlarumbe@imgtec.com>
-Link: https://lore.kernel.org/r/20210706234338.7696-3-adrian.martinezlarumbe@imgtec.com
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Link: https://lore.kernel.org/r/20210706124521.1371901-1-yukuai3@huawei.com
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/xilinx/xilinx_dma.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/dma/sh/usb-dmac.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/dma/xilinx/xilinx_dma.c b/drivers/dma/xilinx/xilinx_dma.c
-index 0c5668e897fe..d891ec05bc48 100644
---- a/drivers/dma/xilinx/xilinx_dma.c
-+++ b/drivers/dma/xilinx/xilinx_dma.c
-@@ -332,6 +332,7 @@ struct xilinx_dma_tx_descriptor {
-  * @genlock: Support genlock mode
-  * @err: Channel has errors
-  * @idle: Check for channel idle
-+ * @terminating: Check for channel being synchronized by user
-  * @tasklet: Cleanup work after irq
-  * @config: Device configuration info
-  * @flush_on_fsync: Flush on Frame sync
-@@ -369,6 +370,7 @@ struct xilinx_dma_chan {
- 	bool genlock;
- 	bool err;
- 	bool idle;
-+	bool terminating;
- 	struct tasklet_struct tasklet;
- 	struct xilinx_vdma_config config;
- 	bool flush_on_fsync;
-@@ -843,6 +845,13 @@ static void xilinx_dma_chan_desc_cleanup(struct xilinx_dma_chan *chan)
- 		/* Run any dependencies, then free the descriptor */
- 		dma_run_dependencies(&desc->async_tx);
- 		xilinx_dma_free_tx_descriptor(chan, desc);
-+
-+		/*
-+		 * While we ran a callback the user called a terminate function,
-+		 * which takes care of cleaning up any remaining descriptors
-+		 */
-+		if (chan->terminating)
-+			break;
- 	}
+diff --git a/drivers/dma/sh/usb-dmac.c b/drivers/dma/sh/usb-dmac.c
+index 6c94ed750049..d77bf325f038 100644
+--- a/drivers/dma/sh/usb-dmac.c
++++ b/drivers/dma/sh/usb-dmac.c
+@@ -860,8 +860,8 @@ static int usb_dmac_probe(struct platform_device *pdev)
  
- 	spin_unlock_irqrestore(&chan->lock, flags);
-@@ -1612,6 +1621,8 @@ static dma_cookie_t xilinx_dma_tx_submit(struct dma_async_tx_descriptor *tx)
- 	if (desc->cyclic)
- 		chan->cyclic = true;
- 
-+	chan->terminating = false;
-+
- 	spin_unlock_irqrestore(&chan->lock, flags);
- 
- 	return cookie;
-@@ -2068,6 +2079,7 @@ static int xilinx_dma_terminate_all(struct dma_chan *dchan)
- 	}
- 
- 	/* Remove and free all of the descriptors in the lists */
-+	chan->terminating = true;
- 	xilinx_dma_free_descriptors(chan);
- 	chan->idle = true;
- 
+ error:
+ 	of_dma_controller_free(pdev->dev.of_node);
+-	pm_runtime_put(&pdev->dev);
+ error_pm:
++	pm_runtime_put(&pdev->dev);
+ 	pm_runtime_disable(&pdev->dev);
+ 	return ret;
+ }
 -- 
 2.30.2
 
