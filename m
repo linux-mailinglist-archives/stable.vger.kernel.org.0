@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B6C013F66DB
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:27:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A74D3F66DD
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:27:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239968AbhHXR2H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:28:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60516 "EHLO mail.kernel.org"
+        id S240475AbhHXR2I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:28:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60514 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240579AbhHXR0B (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S240580AbhHXR0B (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 24 Aug 2021 13:26:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4107361B40;
-        Tue, 24 Aug 2021 17:04:09 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E0B061B42;
+        Tue, 24 Aug 2021 17:04:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824649;
-        bh=m1pPNIiaceAVvaCV/dm5OIIOUeAfNMp+1YyVr1mrmIk=;
+        s=k20201202; t=1629824650;
+        bh=kKv6uW8+t7LQ+dTAdr6TIEt1tITtiHvP3bcAeazDqx4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XpEa9l7Ld+wpNGVe/rgeKUO63O7QuoZ6tGWp/DMPNB3C/WCWMr2u48aHc7oePfa7x
-         GPiXqLtPj7o2+vQtQHYhQWnWnKgGVg+MzYwg4GtmLoQCudkQs/8kXJSM4dLvI6sKau
-         TkerGR6JgpRybtJjgzWGvfLJAA19w8Oo/Z8meIfJ69XDqgCUCfk4n0FYMq0CmY3/jO
-         BFQHrNqnQYDyFzuSISz5C27kPL257tIen37JZG3WzjMvQKhhHvHJA7pKMO1xJz6dCp
-         IHVrj9sLtMJ4987AbvBN0nrqxbMTImM4lQdNA51jp8JjotZfBT4X4XsSakkrJNlvF1
-         Y5iBNhzEAATgA==
+        b=LTGGNUOXnGL6cKRU5w+L9/n31SsQr1qd63xxdON4gu0WqVFO1urNWJdugBDDMf6gI
+         UMV/pO7m4+Ad9jXEldxeB6QqsMew7A6jeFCbNxqTh38BxtO+NznmQrqq0xEtM7jbUt
+         o0tfzL6CxK5h+xo2FfWMzS6uEis6EgQcWgAx/ShNkz9OMh7liOsOvWp/adhp2HhSRj
+         Iv8Mcu9dxvhmWhjb6ni/jbMagHdcSWtorc3dZ6xTjLAguhuEKW1zEoYSdqZrmtBaCH
+         vwHmfmMFWpU8GdgKgQO/RYHojA6H5kHMkXKQgic+5a6laW0iD7rE6XN14ACphA0kma
+         dL75jA1VJ2ytw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jeff Layton <jlayton@kernel.org>, Jan Kara <jack@suse.cz>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 81/84] locks: print a warning when mount fails due to lack of "mand" support
-Date:   Tue, 24 Aug 2021 13:02:47 -0400
-Message-Id: <20210824170250.710392-82-sashal@kernel.org>
+Cc:     Jeff Layton <jlayton@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 82/84] fs: warn about impending deprecation of mandatory locks
+Date:   Tue, 24 Aug 2021 13:02:48 -0400
+Message-Id: <20210824170250.710392-83-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170250.710392-1-sashal@kernel.org>
 References: <20210824170250.710392-1-sashal@kernel.org>
@@ -49,74 +48,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jeff Layton <jlayton@kernel.org>
 
-[ Upstream commit df2474a22c42ce419b67067c52d71da06c385501 ]
+[ Upstream commit fdd92b64d15bc4aec973caa25899afd782402e68 ]
 
-Since 9e8925b67a ("locks: Allow disabling mandatory locking at compile
-time"), attempts to mount filesystems with "-o mand" will fail.
-Unfortunately, there is no other indiciation of the reason for the
-failure.
+We've had CONFIG_MANDATORY_FILE_LOCKING since 2015 and a lot of distros
+have disabled it. Warn the stragglers that still use "-o mand" that
+we'll be dropping support for that mount option.
 
-Change how the function is defined for better readability. When
-CONFIG_MANDATORY_FILE_LOCKING is disabled, printk a warning when
-someone attempts to mount with -o mand.
-
-Also, add a blurb to the mandatory-locking.txt file to explain about
-the "mand" option, and the behavior one should expect when it is
-disabled.
-
-Reported-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Jan Kara <jack@suse.cz>
+Cc: stable@vger.kernel.org
 Signed-off-by: Jeff Layton <jlayton@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/filesystems/mandatory-locking.txt | 10 ++++++++++
- fs/namespace.c                                  | 11 ++++++++---
- 2 files changed, 18 insertions(+), 3 deletions(-)
+ fs/namespace.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/filesystems/mandatory-locking.txt b/Documentation/filesystems/mandatory-locking.txt
-index 0979d1d2ca8b..a251ca33164a 100644
---- a/Documentation/filesystems/mandatory-locking.txt
-+++ b/Documentation/filesystems/mandatory-locking.txt
-@@ -169,3 +169,13 @@ havoc if they lock crucial files. The way around it is to change the file
- permissions (remove the setgid bit) before trying to read or write to it.
- Of course, that might be a bit tricky if the system is hung :-(
- 
-+7. The "mand" mount option
-+--------------------------
-+Mandatory locking is disabled on all filesystems by default, and must be
-+administratively enabled by mounting with "-o mand". That mount option
-+is only allowed if the mounting task has the CAP_SYS_ADMIN capability.
-+
-+Since kernel v4.5, it is possible to disable mandatory locking
-+altogether by setting CONFIG_MANDATORY_FILE_LOCKING to "n". A kernel
-+with this disabled will reject attempts to mount filesystems with the
-+"mand" mount option with the error status EPERM.
 diff --git a/fs/namespace.c b/fs/namespace.c
-index edd397fa2991..8d2bf350e7c6 100644
+index 8d2bf350e7c6..2f3c6a0350a8 100644
 --- a/fs/namespace.c
 +++ b/fs/namespace.c
-@@ -1610,13 +1610,18 @@ static inline bool may_mount(void)
- 	return ns_capable(current->nsproxy->mnt_ns->user_ns, CAP_SYS_ADMIN);
+@@ -1611,8 +1611,12 @@ static inline bool may_mount(void)
  }
  
-+#ifdef	CONFIG_MANDATORY_FILE_LOCKING
- static inline bool may_mandlock(void)
+ #ifdef	CONFIG_MANDATORY_FILE_LOCKING
+-static inline bool may_mandlock(void)
++static bool may_mandlock(void)
  {
--#ifndef	CONFIG_MANDATORY_FILE_LOCKING
--	return false;
--#endif
++	pr_warn_once("======================================================\n"
++		     "WARNING: the mand mount option is being deprecated and\n"
++		     "         will be removed in v5.15!\n"
++		     "======================================================\n");
  	return capable(CAP_SYS_ADMIN);
  }
-+#else
-+static inline bool may_mandlock(void)
-+{
-+	pr_warn("VFS: \"mand\" mount option not supported");
-+	return false;
-+}
-+#endif
- 
- /*
-  * Now umount can handle mount points as well as block devices.
+ #else
 -- 
 2.30.2
 
