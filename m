@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B153A3F67C3
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:37:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 878E93F67C4
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:37:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242303AbhHXRhO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:37:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41188 "EHLO mail.kernel.org"
+        id S242306AbhHXRhP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:37:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242358AbhHXRfK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:35:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F60D61BC2;
-        Tue, 24 Aug 2021 17:06:48 +0000 (UTC)
+        id S242396AbhHXRfM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:35:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3CD0161B95;
+        Tue, 24 Aug 2021 17:06:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1629824809;
-        bh=bjrmfxNWPz0akFB2XXZ/yubJ4GyZFeT+VervoB4M5XM=;
+        bh=TynicSOxjqdUlCX4p5mcMIsIUFfuSxMG3rrGRcYhmng=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UbE43Cr7OqwFEOmYC2828ffqQp1jwK3Zr/556WGbyf60jbtVKxgldvlNQIiI9mKYF
-         qB9Zz/VU1arl7kMHiCsOF9GVM1ahB9eZl/+le6//+v13tsKT8mTkx8Ju4uxrxQh+AE
-         afacpWg8tNN6QRXOEM2qw4scmR6H3YwBVHYL624mdIBl1C7G9u9d25uqul2+xpxBZO
-         n+fFVIZf0SyF0Hpl6Zx7iiUpPsnHlsDmgPklHEk9qEi47lqpnN15EDuqOgWU7jUx2A
-         5JwPOhXBmJ2V250ATjsiY4bUjiVT92oSH3BB/TIS/7jCJIITgLMSbw6mwJP2CQEQFb
-         F/wmHqrtCCOoQ==
+        b=LschZ/xQ22dw11J2orgjf5UJ6KcGX4rHf0wIbi7qXdlxSkZl7CzUGIUM2Uqosafy+
+         VMve0kgH57NMJwBaRFyRs1JvYK62zSoP5Gi7GiZUQmgx6JDEp1FG467Rn9ZQ2yiJrc
+         rGFgV3/5HORZTawldT0+CEnkKkCeSi8G+/3DZXJKhWldJ8MB8hr8blgc3oWdBQZ5eJ
+         YvBzX/c+wUW5o6dyTsbcgf+0xQFY5GOtrUawz6kllVfAtrbrkSNqYwrWf31+BWznCc
+         o4ozRkOajXxEtZaQwfAWQZ1EPZ4xGFLR7ZLpEpCzyFy5T9FzeYT4QxNyNe2j2MEVUm
+         MJkuErcE564BA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pavel Skripkin <paskripkin@gmail.com>,
-        syzbot+fc8cd9a673d4577fb2e4@syzkaller.appspotmail.com,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        "David S . Miller" <davem@davemloft.net>,
+Cc:     Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 33/43] net: 6pack: fix slab-out-of-bounds in decode_data
-Date:   Tue, 24 Aug 2021 13:06:04 -0400
-Message-Id: <20210824170614.710813-34-sashal@kernel.org>
+Subject: [PATCH 4.9 34/43] net: qlcnic: add missed unlock in qlcnic_83xx_flash_read32
+Date:   Tue, 24 Aug 2021 13:06:05 -0400
+Message-Id: <20210824170614.710813-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170614.710813-1-sashal@kernel.org>
 References: <20210824170614.710813-1-sashal@kernel.org>
@@ -50,65 +48,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit 19d1532a187669ce86d5a2696eb7275310070793 ]
+[ Upstream commit 0a298d133893c72c96e2156ed7cb0f0c4a306a3e ]
 
-Syzbot reported slab-out-of bounds write in decode_data().
-The problem was in missing validation checks.
+qlcnic_83xx_unlock_flash() is called on all paths after we call
+qlcnic_83xx_lock_flash(), except for one error path on failure
+of QLCRD32(), which may cause a deadlock. This bug is suggested
+by a static analysis tool, please advise.
 
-Syzbot's reproducer generated malicious input, which caused
-decode_data() to be called a lot in sixpack_decode(). Since
-rx_count_cooked is only 400 bytes and noone reported before,
-that 400 bytes is not enough, let's just check if input is malicious
-and complain about buffer overrun.
-
-Fail log:
-==================================================================
-BUG: KASAN: slab-out-of-bounds in drivers/net/hamradio/6pack.c:843
-Write of size 1 at addr ffff888087c5544e by task kworker/u4:0/7
-
-CPU: 0 PID: 7 Comm: kworker/u4:0 Not tainted 5.6.0-rc3-syzkaller #0
-...
-Workqueue: events_unbound flush_to_ldisc
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x197/0x210 lib/dump_stack.c:118
- print_address_description.constprop.0.cold+0xd4/0x30b mm/kasan/report.c:374
- __kasan_report.cold+0x1b/0x32 mm/kasan/report.c:506
- kasan_report+0x12/0x20 mm/kasan/common.c:641
- __asan_report_store1_noabort+0x17/0x20 mm/kasan/generic_report.c:137
- decode_data.part.0+0x23b/0x270 drivers/net/hamradio/6pack.c:843
- decode_data drivers/net/hamradio/6pack.c:965 [inline]
- sixpack_decode drivers/net/hamradio/6pack.c:968 [inline]
-
-Reported-and-tested-by: syzbot+fc8cd9a673d4577fb2e4@syzkaller.appspotmail.com
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 81d0aeb0a4fff ("qlcnic: flash template based firmware reset recovery")
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Link: https://lore.kernel.org/r/20210816131405.24024-1-dinghao.liu@zju.edu.cn
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/hamradio/6pack.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_hw.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/hamradio/6pack.c b/drivers/net/hamradio/6pack.c
-index 03c96a6cbafd..e510dbda77e5 100644
---- a/drivers/net/hamradio/6pack.c
-+++ b/drivers/net/hamradio/6pack.c
-@@ -870,6 +870,12 @@ static void decode_data(struct sixpack *sp, unsigned char inbyte)
- 		return;
- 	}
+diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_hw.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_hw.c
+index 5d2de48b77a0..dce36e9e1879 100644
+--- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_hw.c
++++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_hw.c
+@@ -3157,8 +3157,10 @@ int qlcnic_83xx_flash_read32(struct qlcnic_adapter *adapter, u32 flash_addr,
  
-+	if (sp->rx_count_cooked + 2 >= sizeof(sp->cooked_buf)) {
-+		pr_err("6pack: cooked buffer overrun, data loss\n");
-+		sp->rx_count = 0;
-+		return;
-+	}
-+
- 	buf = sp->raw_buf;
- 	sp->cooked_buf[sp->rx_count_cooked++] =
- 		buf[0] | ((buf[1] << 2) & 0xc0);
+ 		indirect_addr = QLC_83XX_FLASH_DIRECT_DATA(addr);
+ 		ret = QLCRD32(adapter, indirect_addr, &err);
+-		if (err == -EIO)
++		if (err == -EIO) {
++			qlcnic_83xx_unlock_flash(adapter);
+ 			return err;
++		}
+ 
+ 		word = ret;
+ 		*(u32 *)p_data  = word;
 -- 
 2.30.2
 
