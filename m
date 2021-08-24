@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 85BDC3F666D
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:24:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1CE43F6677
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:24:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239467AbhHXRXh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:23:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58942 "EHLO mail.kernel.org"
+        id S240160AbhHXRYG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:24:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240000AbhHXRVm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:21:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0581261B1C;
-        Tue, 24 Aug 2021 17:03:28 +0000 (UTC)
+        id S240464AbhHXRV6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:21:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 28E03615E4;
+        Tue, 24 Aug 2021 17:03:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824609;
-        bh=ta8Stluvmw+/efOexVD5+Hz2l1LtrMy7/lVNXcd+soo=;
+        s=k20201202; t=1629824611;
+        bh=S0u4x/U3+YMUcRBgT739kt2cRDt76+iOkNeQiQlnVZ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eppSUwjVoTdwsL9s2jFNcgl71cFg7KTKN2FK6ilk/pa1NJhlRr717CI83yP1A0PQF
-         xaMPPTlPlpyhwJTAxMbEtVEev/unzUb0HSGr5DL0cbWiqGYTfAjAksxLQAJClHXOtx
-         hJJaqtOxZ1vucpfkNQgT/t25QVUTzQqygxP0cID2kf67YgHJHvORg8fleOG6n5EVyP
-         witI9L5ZQrSGQtncniXfSqJmdefqHP158FBE5W07/QmwB9RSSGp5pnZXRNW+rQ83aA
-         e2ltndKPVN73FtFzJmFilKeQ4QyhCcmbI8sDKpcz5OSiJo8WAEldD//SdmtqPc+1V6
-         lR86GCWeNS/rA==
+        b=ldIbxKzH8ltQMhZ11uJyxBWXG4Hw5Db/zmso0rsYvPX8i9cTQKWreiZSuT1SupPho
+         sZ3fXKcs74UBbpccHTKoRp5kznQyLlrhiyor/fFo/HgmBk15Qi7jKc3Bu72v+OzsDc
+         69iRNcLBStZ2sFumTP5+JFcmgTdROTkRf9uvzNBkhftlMIizkHcC6VbRW4jOCLNtxX
+         KRo8vfV9UGTmmf54N9t7PQMMcpEk0WMhyGFIGwIgvEF5J0rXXaHi8WTQcMVoTnwaVM
+         yhRHuJI6VxxH33zN2kdP+buo+ic0Gu9tJa0XaQo/BUfvoWkCc7f/Dr4uB2fnN8TAyy
+         Mi7r8ii+9Cjmw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Fangrui Song <maskray@google.com>,
-        Marco Elver <elver@google.com>,
-        Kees Cook <keescook@chromium.org>,
+Cc:     Saeed Mirzamohammadi <saeed.mirzamohammadi@oracle.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Ashok Raj <ashok.raj@intel.com>,
+        Camille Lu <camille.lu@hpe.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.19 39/84] vmlinux.lds.h: Handle clang's module.{c,d}tor sections
-Date:   Tue, 24 Aug 2021 13:02:05 -0400
-Message-Id: <20210824170250.710392-40-sashal@kernel.org>
+Subject: [PATCH 4.19 40/84] iommu/vt-d: Fix agaw for a supported 48 bit guest address width
+Date:   Tue, 24 Aug 2021 13:02:06 -0400
+Message-Id: <20210824170250.710392-41-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170250.710392-1-sashal@kernel.org>
 References: <20210824170250.710392-1-sashal@kernel.org>
@@ -51,54 +51,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Saeed Mirzamohammadi <saeed.mirzamohammadi@oracle.com>
 
-commit 848378812e40152abe9b9baf58ce2004f76fb988 upstream.
+[ Upstream commit 327d5b2fee91c404a3956c324193892cf2cc9528 ]
 
-A recent change in LLVM causes module_{c,d}tor sections to appear when
-CONFIG_K{A,C}SAN are enabled, which results in orphan section warnings
-because these are not handled anywhere:
+The IOMMU driver calculates the guest addressability for a DMA request
+based on the value of the mgaw reported from the IOMMU. However, this
+is a fused value and as mentioned in the spec, the guest width
+should be calculated based on the minimum of supported adjusted guest
+address width (SAGAW) and MGAW.
 
-ld.lld: warning: arch/x86/pci/built-in.a(legacy.o):(.text.asan.module_ctor) is being placed in '.text.asan.module_ctor'
-ld.lld: warning: arch/x86/pci/built-in.a(legacy.o):(.text.asan.module_dtor) is being placed in '.text.asan.module_dtor'
-ld.lld: warning: arch/x86/pci/built-in.a(legacy.o):(.text.tsan.module_ctor) is being placed in '.text.tsan.module_ctor'
+This is from specification:
+"Guest addressability for a given DMA request is limited to the
+minimum of the value reported through this field and the adjusted
+guest address width of the corresponding page-table structure.
+(Adjusted guest address widths supported by hardware are reported
+through the SAGAW field)."
 
-Fangrui explains: "the function asan.module_ctor has the SHF_GNU_RETAIN
-flag, so it is in a separate section even with -fno-function-sections
-(default)".
+This causes domain initialization to fail and following
+errors appear for EHCI PCI driver:
 
-Place them in the TEXT_TEXT section so that these technologies continue
-to work with the newer compiler versions. All of the KASAN and KCSAN
-KUnit tests continue to pass after this change.
+[    2.486393] ehci-pci 0000:01:00.4: EHCI Host Controller
+[    2.486624] ehci-pci 0000:01:00.4: new USB bus registered, assigned bus
+number 1
+[    2.489127] ehci-pci 0000:01:00.4: DMAR: Allocating domain failed
+[    2.489350] ehci-pci 0000:01:00.4: DMAR: 32bit DMA uses non-identity
+mapping
+[    2.489359] ehci-pci 0000:01:00.4: can't setup: -12
+[    2.489531] ehci-pci 0000:01:00.4: USB bus 1 deregistered
+[    2.490023] ehci-pci 0000:01:00.4: init 0000:01:00.4 fail, -12
+[    2.490358] ehci-pci: probe of 0000:01:00.4 failed with error -12
 
-Cc: stable@vger.kernel.org
-Link: https://github.com/ClangBuiltLinux/linux/issues/1432
-Link: https://github.com/llvm/llvm-project/commit/7b789562244ee941b7bf2cefeb3fc08a59a01865
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Fangrui Song <maskray@google.com>
-Acked-by: Marco Elver <elver@google.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20210731023107.1932981-1-nathan@kernel.org
-[nc: Resolve conflict due to lack of cf68fffb66d60]
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+This issue happens when the value of the sagaw corresponds to a
+48-bit agaw. This fix updates the calculation of the agaw based on
+the minimum of IOMMU's sagaw value and MGAW.
+
+This issue happens on the code path of getting a private domain for a
+device. A private domain was needed when the domain of an iommu group
+couldn't meet the requirement of a device. The IOMMU core has been
+evolved to eliminate the need for private domain, hence this code path
+has alreay been removed from the upstream since commit 327d5b2fee91c
+("iommu/vt-d: Allow 32bit devices to uses DMA domain"). Instead of back
+porting all patches that are required for removing the private domain,
+this simply fixes it in the affected stable kernel between v4.16 and v5.7.
+
+[baolu: The orignal patch could be found here
+ https://lore.kernel.org/linux-iommu/20210412202736.70765-1-saeed.mirzamohammadi@oracle.com/.
+ I added commit message according to Greg's comments at
+ https://lore.kernel.org/linux-iommu/YHZ%2FT9x7Xjf1r6fI@kroah.com/.]
+
+Cc: Joerg Roedel <joro@8bytes.org>
+Cc: Ashok Raj <ashok.raj@intel.com>
+Cc: stable@vger.kernel.org #v4.16+
+Signed-off-by: Saeed Mirzamohammadi <saeed.mirzamohammadi@oracle.com>
+Tested-by: Camille Lu <camille.lu@hpe.com>
+Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/asm-generic/vmlinux.lds.h | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/iommu/intel-iommu.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
-index ad8766e1635e..a26e6f5034a6 100644
---- a/include/asm-generic/vmlinux.lds.h
-+++ b/include/asm-generic/vmlinux.lds.h
-@@ -508,6 +508,7 @@
- 		NOINSTR_TEXT						\
- 		*(.text..refcount)					\
- 		*(.ref.text)						\
-+		*(.text.asan.* .text.tsan.*)				\
- 	MEM_KEEP(init.text*)						\
- 	MEM_KEEP(exit.text*)						\
+diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
+index d2166dfc8b3f..dcb865d19309 100644
+--- a/drivers/iommu/intel-iommu.c
++++ b/drivers/iommu/intel-iommu.c
+@@ -1928,7 +1928,7 @@ static inline int guestwidth_to_adjustwidth(int gaw)
+ static int domain_init(struct dmar_domain *domain, struct intel_iommu *iommu,
+ 		       int guest_width)
+ {
+-	int adjust_width, agaw;
++	int adjust_width, agaw, cap_width;
+ 	unsigned long sagaw;
+ 	int err;
  
+@@ -1942,8 +1942,9 @@ static int domain_init(struct dmar_domain *domain, struct intel_iommu *iommu,
+ 	domain_reserve_special_ranges(domain);
+ 
+ 	/* calculate AGAW */
+-	if (guest_width > cap_mgaw(iommu->cap))
+-		guest_width = cap_mgaw(iommu->cap);
++	cap_width = min_t(int, cap_mgaw(iommu->cap), agaw_to_width(iommu->agaw));
++	if (guest_width > cap_width)
++		guest_width = cap_width;
+ 	domain->gaw = guest_width;
+ 	adjust_width = guestwidth_to_adjustwidth(guest_width);
+ 	agaw = width_to_agaw(adjust_width);
 -- 
 2.30.2
 
