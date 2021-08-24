@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA8503F6690
+	by mail.lfdr.de (Postfix) with ESMTP id 590563F668E
 	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:25:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240353AbhHXRZY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:25:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58934 "EHLO mail.kernel.org"
+        id S239939AbhHXRZU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:25:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240004AbhHXRXc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:23:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3FE0361B21;
-        Tue, 24 Aug 2021 17:03:46 +0000 (UTC)
+        id S240201AbhHXRXf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:23:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3259961B26;
+        Tue, 24 Aug 2021 17:03:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824626;
-        bh=MxG2oS952SQGKC1PU9fh6RUobnh4+ri9zpyh4Ng2q/U=;
+        s=k20201202; t=1629824627;
+        bh=2WdOw1BBrcs4YTOcpYaMMTs/sEtSuKajhLhmi8Sfp4w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VAOeeoNOZT0SynSt6bL6qMc41Rjc1jg4YTpDMhMj1yzdxl6Mh8UYGWzn7hFEy8iug
-         JYc8wbNq2NJ5UWHDeve+w80rrcuTpFcZKDBXed/XVZBmC/ZjQo4tGTeTQvaeDEUOnQ
-         fYzqoAHgh/7/Wtwh7SvpXcpvGCfDDqbUGmX7UoFAaa4H7GqWX51xY/HRCYvehV7mNg
-         eRxYRu4+ABEWOJiCk+xsOfFo6d5YdUy39PalUlDLXXG9vcnmz+DpzNv4usDfZ122CD
-         D6RxehLStZtFv71K0sBtDqyTg38D894dcUlsq0AtknGFXI/9JzQJCpBnz5Sk9jQgU6
-         gIeuG2QvXOArQ==
+        b=uaUvDozZwS/U3nQLRlaXnFmSwpdKJYp8AxLbS6E/iLiFUEnVjmk2uL6IoseBB8b6U
+         E3QCnsDGazonIQk9hCMR/9thxAKgvs/VQzZA+cQmnHlxPG6fGGsYIP9b3lKDCSieSW
+         kkA4f8QwK9arteYRGJ2ilAGQTrm6PK7IGjrTGcGSu/UxFPfwe94ClwvKLMNyfS12dq
+         L9FhfpY/AgEu/KoWVQgkw8zX475kWtW9DPiyZc8K5AGvQtbhzFI85s9DNMckLjbKZ+
+         ppohCKqm1yk2ZncG3tESlMLL7+T+MefABUTQvsBjvRwfeNy+Vt91D2tcPix4y8wo+T
+         StF0m83pwmtng==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sudeep Holla <sudeep.holla@arm.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 57/84] ARM: dts: nomadik: Fix up interrupt controller node names
-Date:   Tue, 24 Aug 2021 13:02:23 -0400
-Message-Id: <20210824170250.710392-58-sashal@kernel.org>
+Cc:     "Ivan T. Ivanov" <iivanov@suse.de>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 58/84] net: usb: lan78xx: don't modify phy_device state concurrently
+Date:   Tue, 24 Aug 2021 13:02:24 -0400
+Message-Id: <20210824170250.710392-59-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170250.710392-1-sashal@kernel.org>
 References: <20210824170250.710392-1-sashal@kernel.org>
@@ -48,52 +48,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sudeep Holla <sudeep.holla@arm.com>
+From: "Ivan T. Ivanov" <iivanov@suse.de>
 
-[ Upstream commit 47091f473b364c98207c4def197a0ae386fc9af1 ]
+[ Upstream commit 6b67d4d63edece1033972214704c04f36c5be89a ]
 
-Once the new schema interrupt-controller/arm,vic.yaml is added, we get
-the below warnings:
+Currently phy_device state could be left in inconsistent state shown
+by following alert message[1]. This is because phy_read_status could
+be called concurrently from lan78xx_delayedwork, phy_state_machine and
+__ethtool_get_link. Fix this by making sure that phy_device state is
+updated atomically.
 
-	arch/arm/boot/dts/ste-nomadik-nhk15.dt.yaml:
-	intc@10140000: $nodename:0: 'intc@10140000' does not match
-	'^interrupt-controller(@[0-9a-f,]+)*$'
+[1] lan78xx 1-1.1.1:1.0 eth0: No phy led trigger registered for speed(-1)
 
-Fix the node names for the interrupt controller to conform
-to the standard node name interrupt-controller@..
-
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20210617210825.3064367-2-sudeep.holla@arm.com
-Link: https://lore.kernel.org/r/20210626000103.830184-1-linus.walleij@linaro.org'
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Ivan T. Ivanov <iivanov@suse.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/ste-nomadik-stn8815.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/usb/lan78xx.c | 16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm/boot/dts/ste-nomadik-stn8815.dtsi b/arch/arm/boot/dts/ste-nomadik-stn8815.dtsi
-index fca76a696d9d..9ba4d1630ca3 100644
---- a/arch/arm/boot/dts/ste-nomadik-stn8815.dtsi
-+++ b/arch/arm/boot/dts/ste-nomadik-stn8815.dtsi
-@@ -755,14 +755,14 @@
- 			status = "disabled";
- 		};
+diff --git a/drivers/net/usb/lan78xx.c b/drivers/net/usb/lan78xx.c
+index 5bd07cdb3e6e..ac5f72077b26 100644
+--- a/drivers/net/usb/lan78xx.c
++++ b/drivers/net/usb/lan78xx.c
+@@ -1172,7 +1172,7 @@ static int lan78xx_link_reset(struct lan78xx_net *dev)
+ {
+ 	struct phy_device *phydev = dev->net->phydev;
+ 	struct ethtool_link_ksettings ecmd;
+-	int ladv, radv, ret;
++	int ladv, radv, ret, link;
+ 	u32 buf;
  
--		vica: intc@10140000 {
-+		vica: interrupt-controller@10140000 {
- 			compatible = "arm,versatile-vic";
- 			interrupt-controller;
- 			#interrupt-cells = <1>;
- 			reg = <0x10140000 0x20>;
- 		};
+ 	/* clear LAN78xx interrupt status */
+@@ -1180,9 +1180,12 @@ static int lan78xx_link_reset(struct lan78xx_net *dev)
+ 	if (unlikely(ret < 0))
+ 		return -EIO;
  
--		vicb: intc@10140020 {
-+		vicb: interrupt-controller@10140020 {
- 			compatible = "arm,versatile-vic";
- 			interrupt-controller;
- 			#interrupt-cells = <1>;
++	mutex_lock(&phydev->lock);
+ 	phy_read_status(phydev);
++	link = phydev->link;
++	mutex_unlock(&phydev->lock);
+ 
+-	if (!phydev->link && dev->link_on) {
++	if (!link && dev->link_on) {
+ 		dev->link_on = false;
+ 
+ 		/* reset MAC */
+@@ -1195,7 +1198,7 @@ static int lan78xx_link_reset(struct lan78xx_net *dev)
+ 			return -EIO;
+ 
+ 		del_timer(&dev->stat_monitor);
+-	} else if (phydev->link && !dev->link_on) {
++	} else if (link && !dev->link_on) {
+ 		dev->link_on = true;
+ 
+ 		phy_ethtool_ksettings_get(phydev, &ecmd);
+@@ -1485,9 +1488,14 @@ static int lan78xx_set_eee(struct net_device *net, struct ethtool_eee *edata)
+ 
+ static u32 lan78xx_get_link(struct net_device *net)
+ {
++	u32 link;
++
++	mutex_lock(&net->phydev->lock);
+ 	phy_read_status(net->phydev);
++	link = net->phydev->link;
++	mutex_unlock(&net->phydev->lock);
+ 
+-	return net->phydev->link;
++	return link;
+ }
+ 
+ static void lan78xx_get_drvinfo(struct net_device *net,
 -- 
 2.30.2
 
