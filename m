@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 21CA83F64FF
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:08:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC9F23F64FE
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:08:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239402AbhHXRJI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S239416AbhHXRJI (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 24 Aug 2021 13:09:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46490 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:46436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239422AbhHXRHC (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S239425AbhHXRHC (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 24 Aug 2021 13:07:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3DDB3619EA;
-        Tue, 24 Aug 2021 16:59:53 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1ED246197A;
+        Tue, 24 Aug 2021 16:59:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824393;
-        bh=OQ4I/BMOYSLVlMvcx9RjcvWe8+VZjWye4MX++2RqPys=;
+        s=k20201202; t=1629824394;
+        bh=AoWyMluNeaCL3kO3ZFSabppZLDdX4zCUwKige57Upz0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZYPeTDRMTPnnm8qTHLAEo/m78u3wEOT3Me6lvbMDKW2XxhepNThJtBxd1Ya6zIimw
-         ds6WCjhaiEs8xRlvGuXIEWiOh54NWa9ScFztfR/pHzeiWBoCBJ1bvP+wROISINNGIp
-         xtGHEAIQqt1FRjirGAqhAnhiF/bdbP3dDwusKezPUcwKOTvpx2ip2s5MZ6dt+CeJvd
-         EhVsckFGixQdh0qL1G1S+QsBVDd3eh7EgdGXUefYGudl239rNbZ6Y5F6CCpmG9f+6V
-         UuN6FREYgkAo/jMZ8MDJcoy0mdLWfkiPf2XN05LORQCLJHzVR9IunThrH+j9FjONd+
-         9aBrDUthMx2bg==
+        b=HTY9q+DSr0YVTKUQrDwt8ppQxUa6f9SYYmFQzllDajavIz9NuKTII+tm4DpANzKu/
+         hJbaV8+QUuqSZdpYcJutTbegZcOIIIs7fp9eg13h37fRfCMdw0COpmz5/nNnA7RVK5
+         86YuD6Xx8+UNtJwkAt9hls+lPc/naqKCmAPG2eSfbzA1ApthFctPeRmrd72kkVgWcq
+         eoIRhj7iypa8tSsP+TGD8/NhurRdVhMOM8/vzVmV52hQamDSeGu5x9Jl/AJUjyzfe/
+         glscTjM2Mazdk/oOJEeKiCKfOoUu4dPrRLja4tvb6uMEt6/7ex5CEggX1fVjf9QFXV
+         4iOnOEqjRIgLw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eli Cohen <elic@nvidia.com>,
-        "Michael S . Tsirkin" <mst@redhat.com>,
+Cc:     Yongqiang Niu <yongqiang.niu@mediatek.com>,
+        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 44/98] vdpa/mlx5: Avoid destroying MR on empty iotlb
-Date:   Tue, 24 Aug 2021 12:58:14 -0400
-Message-Id: <20210824165908.709932-45-sashal@kernel.org>
+Subject: [PATCH 5.10 45/98] soc / drm: mediatek: Move DDP component defines into mtk-mmsys.h
+Date:   Tue, 24 Aug 2021 12:58:15 -0400
+Message-Id: <20210824165908.709932-46-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165908.709932-1-sashal@kernel.org>
 References: <20210824165908.709932-1-sashal@kernel.org>
@@ -48,60 +50,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eli Cohen <elic@nvidia.com>
+From: Yongqiang Niu <yongqiang.niu@mediatek.com>
 
-[ Upstream commit 08dbd5660232bede7916d8568003012c1182cc9a ]
+[ Upstream commit 51c0e618b219c025ddaaf14baea8942cb7e2105b ]
 
-The current code treats an empty iotlb provdied in set_map() as a
-special case and destroy the memory region object. This must not be done
-since the virtqueue objects reference this MR. Doing so will cause the
-driver unload to emit errors and log timeouts caused by the firmware
-complaining on busy resources.
+MMSYS is the driver which controls the routing of these DDP components,
+so the definition of the mtk_ddp_comp_id enum should be placed in mtk-mmsys.h
 
-This patch treats an empty iotlb as any other change of mapping. In this
-case, mlx5_vdpa_create_mr() will fail and the entire set_map() call to
-fail.
-
-This issue has not been encountered before but was seen to occur in a
-non-official version of qemu. Since qemu is a userspace program, the
-driver must protect against such case.
-
-Fixes: 94abbccdf291 ("vdpa/mlx5: Add shared memory registration code")
-Signed-off-by: Eli Cohen <elic@nvidia.com>
-Link: https://lore.kernel.org/r/20210811053713.66658-1-elic@nvidia.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Yongqiang Niu <yongqiang.niu@mediatek.com>
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Reviewed-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
+Link: https://lore.kernel.org/r/20201006193320.405529-2-enric.balletbo@collabora.com
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vdpa/mlx5/core/mr.c | 9 ---------
- 1 file changed, 9 deletions(-)
+ drivers/gpu/drm/mediatek/mtk_drm_ddp_comp.h | 34 +--------------------
+ drivers/soc/mediatek/mtk-mmsys.c            |  4 +--
+ include/linux/soc/mediatek/mtk-mmsys.h      | 33 ++++++++++++++++++++
+ 3 files changed, 35 insertions(+), 36 deletions(-)
 
-diff --git a/drivers/vdpa/mlx5/core/mr.c b/drivers/vdpa/mlx5/core/mr.c
-index aa656f57bf5b..32c9925de473 100644
---- a/drivers/vdpa/mlx5/core/mr.c
-+++ b/drivers/vdpa/mlx5/core/mr.c
-@@ -454,11 +454,6 @@ out:
- 	mutex_unlock(&mr->mkey_mtx);
- }
+diff --git a/drivers/gpu/drm/mediatek/mtk_drm_ddp_comp.h b/drivers/gpu/drm/mediatek/mtk_drm_ddp_comp.h
+index 1d9e00b69462..5aa52b7afeec 100644
+--- a/drivers/gpu/drm/mediatek/mtk_drm_ddp_comp.h
++++ b/drivers/gpu/drm/mediatek/mtk_drm_ddp_comp.h
+@@ -7,6 +7,7 @@
+ #define MTK_DRM_DDP_COMP_H
  
--static bool map_empty(struct vhost_iotlb *iotlb)
--{
--	return !vhost_iotlb_itree_first(iotlb, 0, U64_MAX);
--}
+ #include <linux/io.h>
++#include <linux/soc/mediatek/mtk-mmsys.h>
+ 
+ struct device;
+ struct device_node;
+@@ -35,39 +36,6 @@ enum mtk_ddp_comp_type {
+ 	MTK_DDP_COMP_TYPE_MAX,
+ };
+ 
+-enum mtk_ddp_comp_id {
+-	DDP_COMPONENT_AAL0,
+-	DDP_COMPONENT_AAL1,
+-	DDP_COMPONENT_BLS,
+-	DDP_COMPONENT_CCORR,
+-	DDP_COMPONENT_COLOR0,
+-	DDP_COMPONENT_COLOR1,
+-	DDP_COMPONENT_DITHER,
+-	DDP_COMPONENT_DPI0,
+-	DDP_COMPONENT_DPI1,
+-	DDP_COMPONENT_DSI0,
+-	DDP_COMPONENT_DSI1,
+-	DDP_COMPONENT_DSI2,
+-	DDP_COMPONENT_DSI3,
+-	DDP_COMPONENT_GAMMA,
+-	DDP_COMPONENT_OD0,
+-	DDP_COMPONENT_OD1,
+-	DDP_COMPONENT_OVL0,
+-	DDP_COMPONENT_OVL_2L0,
+-	DDP_COMPONENT_OVL_2L1,
+-	DDP_COMPONENT_OVL1,
+-	DDP_COMPONENT_PWM0,
+-	DDP_COMPONENT_PWM1,
+-	DDP_COMPONENT_PWM2,
+-	DDP_COMPONENT_RDMA0,
+-	DDP_COMPONENT_RDMA1,
+-	DDP_COMPONENT_RDMA2,
+-	DDP_COMPONENT_UFOE,
+-	DDP_COMPONENT_WDMA0,
+-	DDP_COMPONENT_WDMA1,
+-	DDP_COMPONENT_ID_MAX,
+-};
 -
- int mlx5_vdpa_handle_set_map(struct mlx5_vdpa_dev *mvdev, struct vhost_iotlb *iotlb,
- 			     bool *change_map)
- {
-@@ -466,10 +461,6 @@ int mlx5_vdpa_handle_set_map(struct mlx5_vdpa_dev *mvdev, struct vhost_iotlb *io
- 	int err = 0;
+ struct mtk_ddp_comp;
+ struct cmdq_pkt;
+ struct mtk_ddp_comp_funcs {
+diff --git a/drivers/soc/mediatek/mtk-mmsys.c b/drivers/soc/mediatek/mtk-mmsys.c
+index a55f25511173..36ad66bb221b 100644
+--- a/drivers/soc/mediatek/mtk-mmsys.c
++++ b/drivers/soc/mediatek/mtk-mmsys.c
+@@ -5,13 +5,11 @@
+  */
  
- 	*change_map = false;
--	if (map_empty(iotlb)) {
--		mlx5_vdpa_destroy_mr(mvdev);
--		return 0;
--	}
- 	mutex_lock(&mr->mkey_mtx);
- 	if (mr->initialized) {
- 		mlx5_vdpa_info(mvdev, "memory map update\n");
+ #include <linux/device.h>
++#include <linux/io.h>
+ #include <linux/of_device.h>
+ #include <linux/platform_device.h>
+ #include <linux/soc/mediatek/mtk-mmsys.h>
+ 
+-#include "../../gpu/drm/mediatek/mtk_drm_ddp.h"
+-#include "../../gpu/drm/mediatek/mtk_drm_ddp_comp.h"
+-
+ #define DISP_REG_CONFIG_DISP_OVL0_MOUT_EN	0x040
+ #define DISP_REG_CONFIG_DISP_OVL1_MOUT_EN	0x044
+ #define DISP_REG_CONFIG_DISP_OD_MOUT_EN		0x048
+diff --git a/include/linux/soc/mediatek/mtk-mmsys.h b/include/linux/soc/mediatek/mtk-mmsys.h
+index 7bab5d9a3d31..2228bf6133da 100644
+--- a/include/linux/soc/mediatek/mtk-mmsys.h
++++ b/include/linux/soc/mediatek/mtk-mmsys.h
+@@ -9,6 +9,39 @@
+ enum mtk_ddp_comp_id;
+ struct device;
+ 
++enum mtk_ddp_comp_id {
++	DDP_COMPONENT_AAL0,
++	DDP_COMPONENT_AAL1,
++	DDP_COMPONENT_BLS,
++	DDP_COMPONENT_CCORR,
++	DDP_COMPONENT_COLOR0,
++	DDP_COMPONENT_COLOR1,
++	DDP_COMPONENT_DITHER,
++	DDP_COMPONENT_DPI0,
++	DDP_COMPONENT_DPI1,
++	DDP_COMPONENT_DSI0,
++	DDP_COMPONENT_DSI1,
++	DDP_COMPONENT_DSI2,
++	DDP_COMPONENT_DSI3,
++	DDP_COMPONENT_GAMMA,
++	DDP_COMPONENT_OD0,
++	DDP_COMPONENT_OD1,
++	DDP_COMPONENT_OVL0,
++	DDP_COMPONENT_OVL_2L0,
++	DDP_COMPONENT_OVL_2L1,
++	DDP_COMPONENT_OVL1,
++	DDP_COMPONENT_PWM0,
++	DDP_COMPONENT_PWM1,
++	DDP_COMPONENT_PWM2,
++	DDP_COMPONENT_RDMA0,
++	DDP_COMPONENT_RDMA1,
++	DDP_COMPONENT_RDMA2,
++	DDP_COMPONENT_UFOE,
++	DDP_COMPONENT_WDMA0,
++	DDP_COMPONENT_WDMA1,
++	DDP_COMPONENT_ID_MAX,
++};
++
+ void mtk_mmsys_ddp_connect(struct device *dev,
+ 			   enum mtk_ddp_comp_id cur,
+ 			   enum mtk_ddp_comp_id next);
 -- 
 2.30.2
 
