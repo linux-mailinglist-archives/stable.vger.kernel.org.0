@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 12DE23F66AD
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:26:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEB103F66AC
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:26:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238653AbhHXR00 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:26:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59098 "EHLO mail.kernel.org"
+        id S239554AbhHXR0Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:26:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241139AbhHXRYS (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S241134AbhHXRYS (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 24 Aug 2021 13:24:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CF50861B22;
-        Tue, 24 Aug 2021 17:03:54 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C61E9615A7;
+        Tue, 24 Aug 2021 17:03:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824635;
-        bh=Aqxd822YINiV471mu2ngp7FSFP1pr1SPy9Fgek9H/F8=;
+        s=k20201202; t=1629824636;
+        bh=XEx3BsTshcve17FoVWUVPdPLUyF639kNmMP5bNKnxeo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NptPPzu0t0HCUkGUpusD5n4d2WiFjgUvLCQM6TlNb8jWn/UqQ9wWaLyelx5KBecKK
-         408dRWrgiNYGHaE+/rcPZzHcYJlUVp4LkNITB81FJNM/xGoSqv81z/3C4PllC89E2P
-         KsdD52ON2Qs8ZUkbJR3r2RiZBI77TFxFwntg2EGGBDoqFquQHweDb1uLHloNFgO9e5
-         6bpG9h4HtJU9v183xGZPDm+tO8zj416dUz2L6XqmN9Erph/VG7yhcMMM/FxdJFt6Pr
-         xPPYa7Xoe/x3Jm2+w/g4gnIERBkxNvYKQUoMwUssK9meZsyGXZYCWrJuAudiOk0J1o
-         ck2NWv3WZ3h2w==
+        b=Aacihk6VUIYcwGFdHg5XXeUYC1PDl5Wa4TDUtTnGLdGpgEEf1gi6eKl3CMgljHgVd
+         9IbAWPIUh61rhcsS1KcgGBh/Nuc22R6LIpIkgFEUUQ/q1BMTalaS6jDVfAOGL3DvYf
+         eHaGYFl0uBY7B1BAooilimc7Pj5+EssF2xPYYEmXhRW8oTzW6gJncny5GHA9NERZWO
+         ORxr3iNxwmN0Rf2+2LAqTa6s2hyu9dNVUXWxZOSWw0ac1LAf0Wejdi3VfBwvbtmfLx
+         ldsCwtQ9f6gp2RZMhXi4XWd1ZyBtahyBqH0I0lXSm1CIFIoFkO19IRdqIfoshNxl73
+         JDNIFkg8XNHnQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        kernel test robot <lkp@intel.com>,
-        "David S . Miller" <davem@davemloft.net>,
+Cc:     Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 66/84] ptp_pch: Restore dependency on PCI
-Date:   Tue, 24 Aug 2021 13:02:32 -0400
-Message-Id: <20210824170250.710392-67-sashal@kernel.org>
+Subject: [PATCH 4.19 67/84] net: qlcnic: add missed unlock in qlcnic_83xx_flash_read32
+Date:   Tue, 24 Aug 2021 13:02:33 -0400
+Message-Id: <20210824170250.710392-68-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170250.710392-1-sashal@kernel.org>
 References: <20210824170250.710392-1-sashal@kernel.org>
@@ -49,36 +48,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit 55c8fca1dae1fb0d11deaa21b65a647dedb1bc50 ]
+[ Upstream commit 0a298d133893c72c96e2156ed7cb0f0c4a306a3e ]
 
-During the swap dependency on PCH_GBE to selection PTP_1588_CLOCK_PCH
-incidentally dropped the implicit dependency on the PCI. Restore it.
+qlcnic_83xx_unlock_flash() is called on all paths after we call
+qlcnic_83xx_lock_flash(), except for one error path on failure
+of QLCRD32(), which may cause a deadlock. This bug is suggested
+by a static analysis tool, please advise.
 
-Fixes: 18d359ceb044 ("pch_gbe, ptp_pch: Fix the dependency direction between these drivers")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 81d0aeb0a4fff ("qlcnic: flash template based firmware reset recovery")
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Link: https://lore.kernel.org/r/20210816131405.24024-1-dinghao.liu@zju.edu.cn
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ptp/Kconfig | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_hw.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/ptp/Kconfig b/drivers/ptp/Kconfig
-index d137c480db46..dd04aedd76e0 100644
---- a/drivers/ptp/Kconfig
-+++ b/drivers/ptp/Kconfig
-@@ -91,7 +91,8 @@ config DP83640_PHY
- config PTP_1588_CLOCK_PCH
- 	tristate "Intel PCH EG20T as PTP clock"
- 	depends on X86_32 || COMPILE_TEST
--	depends on HAS_IOMEM && NET
-+	depends on HAS_IOMEM && PCI
-+	depends on NET
- 	imply PTP_1588_CLOCK
- 	help
- 	  This driver adds support for using the PCH EG20T as a PTP
+diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_hw.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_hw.c
+index 6ed8294f7df8..a15845e511b2 100644
+--- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_hw.c
++++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_hw.c
+@@ -3158,8 +3158,10 @@ int qlcnic_83xx_flash_read32(struct qlcnic_adapter *adapter, u32 flash_addr,
+ 
+ 		indirect_addr = QLC_83XX_FLASH_DIRECT_DATA(addr);
+ 		ret = QLCRD32(adapter, indirect_addr, &err);
+-		if (err == -EIO)
++		if (err == -EIO) {
++			qlcnic_83xx_unlock_flash(adapter);
+ 			return err;
++		}
+ 
+ 		word = ret;
+ 		*(u32 *)p_data  = word;
 -- 
 2.30.2
 
